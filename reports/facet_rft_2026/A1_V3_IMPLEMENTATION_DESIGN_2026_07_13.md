@@ -32,9 +32,11 @@
   ```
   op = lexicon_match(request)              # 극값어 → argmax/argmin (결정론)
   numeric_fields = [f for f in variant record if 값이 수치]   # price + 수치 options
-  if len(numeric_fields)==1: field=그것 (결정론) ; mark field_deterministic++
-  elif op word가 field 명시("cheapest GREEN"의 색 아님·"biggest SCREEN"): field=명시 (결정론)
-  else: field=formalize(LLM) or ASK       # ★field 잔여 = formalize (R1 인정) ; mark field_formalize++
+  # ★J1 수정: 구조적 numeric_fields 카운트 금지 → 극값어의 field-CLASS 우선(2단 사전)
+  fclass = FIELD_CLASS_LEXICON(extremal_word)   # price-words→price[닫힘]·기타 magnitude→None
+  if fclass is not None: field=fclass (결정론) ; mark field_det++          # t20 "expensive"→price
+  elif op word가 field 명시("biggest SCREEN"·"128GB"): field=명시 (결정론) ; mark field_det++
+  else: field=formalize(LLM) or ASK       # bare-magnitude(largest/biggest 명시필드無)만 잔여 ; mark field_form++
   ```
 - **측정 훅**: `_t2_l4a_field_det` / `_t2_l4a_field_form` 카운터 → probe서 field-결정론 비율 실측(R1 게이트: 낮으면 극값 이득이 op에 한정됨을 정직 계상).
 - "expensive→price"는 대개 단일 수치(price)라 결정론·"largest"는 다중 후보(size/capacity)면 formalize.
@@ -97,6 +99,19 @@
 **[I7·중대] floor-guarantee 부재 = 레버가 baseline보다 나쁘게 만들 수 있음.** L4/L2가 결정론 발화 후 *틀린 값* 치환하면 **에이전트의 옳은 선택을 틀린 걸로 대체** = 순손실(T5C "레버≥floor pointwise" 위반). "동률·0통과→ASK"는 부분 커버·"결정론 픽이 틀린" 경우 미커버. **수정: 치환은 confident할 때만(단일 통과 ∧ 게이트 재검사 통과)·불확실=no-op(에이전트 선택 유지)**. Δspurious≤0의 코드-레벨 보증.
 
 **종합**: I1이 R1을 코드로 재확인(field 이득 ~0) → **L4 이득 = op-부하 감소 + 속성filter(FP 가드 성공 시)만**·극값 field 이득 없음. **최대 기대 재하향**: L4 +3~5 → **+2~4**. ⇒ A1-v3 realistic 최대 ≈ **0.70~0.73**(0.75 상한도 낙관). 0.92는 완전 철회·L4는 여전히 최고 ROI(op+속성)지만 극값-field는 learn/formalize 몫.
+
+## ★7c. Self-review 재평가 (독립 리뷰·"다시 공정하게"·2건)
+> self-review 5건 = 강함·규율적(I1이 R1 코드-확증·I3 [[08]] 정합·I7 floor-guarantee 정직). 무비판 수용 대신 검증 → I1 과대교정 1건·I7 누락 1건.
+
+**[J1·I1 과대교정 정정·중대] "field 이득 ~0"은 반대 방향 과대일반화 — field-class 2차 사전이 price-words·named-field를 *결정론으로 회복*한다.** I1은 pseudocode 결함(numeric_fields를 *구조적*으로 세어 price+size→len≥2→분기 미발화)을 옳게 잡았으나, 결론("극값어→field는 전량 formalize")이 과하다. **극값어 자체가 field 의미를 나른다**:
+- **price-words**(expensive·cheap·priciest·dearest·cheapest·least expensive) → **price 필드 = 닫힌 매핑**(영어 의미·eval-blind). ⇒ **t20("most expensive")은 op+field 완전 결정론**(유일 바닥이 온전히 닫힘 — I1대로면 t20을 formalize로 잘못 넘김).
+- **named-field**(max **zoom**·biggest **screen**·"128**GB**") → 명시 필드 = 결정론.
+- **bare-magnitude**(largest·biggest·smallest, 명시 필드 無) → size vs capacity vs dim 애매 = **formalize 잔여**(여기만 I1 맞음).
+⇒ **수정: EXTREMUM_LEXICON을 op-사전 + field-class 사전 2단으로**(price-words→price[닫힘]·명시필드 파싱[닫힘]·bare-magnitude→formalize[잔여]). numeric_fields를 구조적으로 세지 말고 **극값어의 field-클래스 우선 적용**·클래스 미해소일 때만 formalize. ⇒ **L4a 이득 재상향(I1 하한과 §8 상한 사이)**: t20류 price/named = op+field 결정론·bare-magnitude만 formalize 잔여. field-결정론 비율 측정(2b 훅)이 이 경계를 실측.
+
+**[J2·I7 누락·중대] floor-guarantee에 비대칭 조건 빠짐 — "confident"만으론 I1-잔여를 못 막는다.** I7의 "단일 통과 ∧ 게이트 재검사 통과 시 치환"은 **결정론 픽이 confident-하게 틀린 경우**(J1의 bare-magnitude field-오선택 = 단일·깨끗·틀림)를 못 거른다 — confident AND wrong이 정확히 순손실 통로. **T5C P-B 비대칭 승계 누락**: 치환은 "confident"가 아니라 **"에이전트 원값이 *invalid*(후보집합 ∉)일 때만**"이어야 한다. 원값이 valid variant면 레버 픽과 달라도 **override 금지**(에이전트 선택 유지). ⇒ 수정: 치환 조건 = (레버 단일 픽) ∧ (게이트 통과) ∧ **(원 인자 ∉ 후보집합)**. 이게 Δspurious≤0의 진짜 코드-보증(I7의 "confident"보다 강함·T5C 정본).
+
+**종합(재평가)**: self-review 방향 옳음·0.92 철회 정당. 단 **J1로 L4a가 I1 하한보다 회복**(price/named field 결정론·t20 온전)·**J2로 floor-guarantee 강화**(invalid-원값 조건). 최대 기대 = I1의 0.70~0.73 유지하되 **그 안에서 L4a 몫이 op-only보다 큼**(price-words 커버리지만큼). probe-1의 field-결정론 훅이 price/named vs bare-magnitude 비율을 실측 = 경계 확정.
 
 ## 7. 리뷰 대상 (self + user·구현 前)
 - **R1 게이트**: L4a field-결정론 비율이 극값-이득의 실질을 결정 — 다중수치필드 태스크 전수 필요.
