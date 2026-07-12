@@ -41,7 +41,23 @@
 - **F-96 (주소 날조)**: 누락 GET(원천 주문 조회 강제) 또는 NL-주소 provenance(발화-laundering 대응·NL-NUM-PROV 동형). prov-advise 아님.
 - **A (transfer 6)·G (5)**: base/도구선택/coverage — 상당수 user-sim변동·정책네비 = scaffold 아닌 learn/scale 또는 harness 정제.
 
-## 4. A2-v2 처분 (정직)
+## 3b. ★★단일-요인 ablation 실측 (2026-07-13·GPU0/1·nt2·회귀25) — 핸드오프 §2 sign 반박
+> arm1=`compabl_noP`(COMP−present·EPLAN0)·arm2=`compabl_noP_eplan`(+eplan). prov=full·cap off·present off 고정, **eplan만 변수**(단일-요인). 데이터 = `sim_results/compabl_noP*.gz`.
+
+**COMP(present·nt4) → [−present] → arm1(52%) → [+eplan] → arm2(62%) → [+prov-rescue+cap] → A1(0%*)**
+
+| 델타 | 효과 | 판정 |
+|---|---|---|
+| **+eplan** (arm1 52%→arm2 62%) | **NET +10pp (+5 sim)** · HELPS 8(21·23·33·42·52·94·108·110=coverage/멀티엔티티) · HURTS 6(32·38·43·58·69·83) | ⚠️ **핸드오프 "eplan 과-블록 순손실" = sign 오류. eplan은 순이득.** |
+| **−present** (COMP~100%→arm1 52%) | present↓ 9(7·21·23·33·42·52·101·110·112) | 실제 해악·단 **대부분 eplan이 복구**(substitute) |
+| **cap** | A1서 0발화(기존 확정) | null |
+| **prov full→rescue** | 미검(arm 없음) | arm2 62%→A1 0% 갭의 잔여 용의자 |
+
+**★핵심 발견 = present↔eplan 상호작용(substitute)**: 21·23·33·42·52·110은 COMP=pass → −present=fail → +eplan=pass. **present(후보 surfacing)와 eplan(discovery 강제)이 기능 중복** — 하나만 있어도 그 태스크 해결. ⇒ OFAT가 경고한 상호작용 실재. present-only 순손실(eplan도 복구 못함) = **7·101·112 3개뿐**.
+**★"A1 0%*"의 함정**: 회귀25는 **A1 nt=1 fail로 선택**된 집합(선택편향). arm2가 nt2서 62% 복구 = **상당수 회귀는 nt=1 노이즈**. arm2(62%)→A1(0%) 갭은 대부분 선택 아티팩트 + (미검)prov-rescue. **진짜 회귀 규모 확정 = A1 nt2 재측정 필요.**
+**★eplan-firing≠eplan-causing 확증**: §2에서 eplan L2가 14/25 회귀에 발화했으나, 통제 ablation서 eplan은 순이득. 발화는 대개 양성(discovery). 관측 발화→인과 직행이 오류였음(통제실험이 교정).
+
+## 4. A2-v2 처분 (정직·ablation 반영)
 - **유지**: filter-substitute **dotted-path 수정**(라이브 8/8 fallback 버그·확증) — B(3) 겨냥·real bug fix.
 - **재고/보류**: `T2_EPLAN_EXAMINED_SAFE`·`T2_PROV_ADDR_FULL` = **오귀속 기반**·타깃 태스크 미교정 → **full-run 편입 전 근거 상실**. 토글은 두되 default off·B/C의 GET-강제로 대체 설계.
 - **다음**: GET-강제(주문선택 discovery) 설계·구현 → B+C 6 태스크 겨냥 → 격리 probe(무료 우선·[[09]]).
