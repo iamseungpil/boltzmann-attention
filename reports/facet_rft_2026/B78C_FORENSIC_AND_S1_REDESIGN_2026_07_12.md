@@ -48,7 +48,10 @@
 > 원칙 불변: 무료-先·per-case·Δspurious≤0·[[05]] A2만·nt=1 누적(T5-C §0b).
 
 **S1a — 무료 부작용 봉합(최우선·GPU 무관)**:
-1. **write-반복 cap**: 동일 (tool,order_id,args) 재실행 K회(제안 2) 초과 시 차단 + "이미 시도됨" 피드백(생성-레벨·히스토리 비커밋·replay-safe). t102형 22× 제거. **반대편 계측**: 정당 재시도(다른 args) 오차단 0.
+1. **write-반복 cap**: 동일 (tool,order_id,args) 재실행 K회(제안 2) 초과 시 차단 + "이미 시도됨" 피드백(생성-레벨·히스토리 비커밋·replay-safe). **반대편 계측**: 정당 재시도(다른 args) 오차단 0.
+   - **★F5 데이터-확정(t102 전수·`scratchpad/t102loop.sh`)**: modify_address **19회 전부 같은 order(#W6729841)·전부 err=False(성공)** = **순수 "성공-write 재발emit" 루프**(deny-loop 아님=DENY_CAP 4 무관 · env-거부 아님=C63 무관 = **신규 유형**). ⇒ cap 정당·기존 deny-cap과 독립.
+   - **★재발emit 원인 조사 필수(cap 전)**: 성공 write를 19회 반복 = **regen/silent-repair가 매 턴 동일 write를 재주입하는 스택 부작용 의심** — cap은 증상 제거, **원인(스택 상호작용)은 별도 색출**(레버 부작용 2호 후보).
+   - **★cap ≠ pass(F5)**: t102 root = ⋈/ASK 오선택(#W6729841 vs gold #W4219264·"가장 최근"=ASK). cap은 thrash(턴·비용·Δspurious)만 제거·pass-회복으로 계상 금지.
 2. **PROV-RESCUE-PERARG 부분수정 경로**: 부분-필드 write(주소 suite만 등) 시 t17/t39형 over-block 봉합. **★[[05]] 명문화(리뷰)**: **엔진이 필드를 채우지 않는다** — 메커니즘은 `CENSUS_LEVERS §1` 정본 그대로 **deny+피드백("기존 레코드를 getter로 조회해 나머지 필드를 원문으로 쓰라") → *에이전트가* fetch → *에이전트가* write**. "기존 레코드서 보완"을 엔진-측 값 채움으로 구현하면 Q3 위반(autofetch류·write-인자 생성). over-block Δ 계측.
 
 **S1b — 세부 분리 ✅완료(§2b·리뷰 레버-배분 정정 반영)**: addressable ≈16 · coverage 8 → E-PLAN · genuine (c) 경계 ≈3. **레버 배분(정정)**: DISAMB ≈9~12(VALUE 순수분·ORDER-⋈ 정독 후) · CALC/FORMALIZE 2(t36·t37) · ASK-채널 1~2(t71 확정·t102 의심) · ZERO/block 8은 prov/calc/⋈ 3분 정독 잔여. ⇒ **다음 스택 표적 = T5-C/DISAMB(순수 값-⋈)·E-PLAN(coverage 8)·S1a 봉합(루프+prov-block)**·기준-계산형은 CALC-EXT(기구현)/FORMALIZE(동결 V0). gate 추가 없음. **S1b-잔여(무료 정독): ~~ORDER-⋈ t69/94/103~~ ✅완료(t94/103=내용-매칭·t69=경계/framing) → 남은 것 = ZERO/block 8의 prov/calc/⋈ 3분 정독만.**
@@ -63,3 +66,4 @@
 - ~~WRONG/MISSING 16·ZERO 8 per-case 세부 미완~~ → **S1b ✅완료(§2b)**. 잔여 미완 = **ZERO/block 8의 prov-block vs calc vs ⋈ 3분**(refusal-language 휴리스틱만·8건 전수 정독 필요) + VALUE 11이 값-⋈(문맥해소가능)인지 순수경계인지(T5-C 적용 후 (b)-잔여로 확정).
 - write-cap이 정당 다-write(다른 order 연속)와 충돌 안 하게 = (tool,order,args) 3중키 필수.
 - over-action 11의 경계 비율은 C50 재확인이 확정(현재 t99 1건만 정독).
+- **★F4(리뷰) VALUE 11 사정거리 정직화**: (a) **아티팩트 혼입** — 같은-order+tool·args-diff 휴리스틱은 **C26 variant-leak**(item_ids 순서 의존 db_hash·의미동일 write가 fail·레버 아님)·**C28 reason-enum**(user-sim이 gold와 모순·레버 아님)을 못 거른다 → VALUE 11 중 **1~2건 non-addressable 아티팩트 가능**(S1b-잔여 정독서 배제). (b) **경계 floor** — DISAMB(열거)가 값-⋈를 +31pp 열지만(C59) **~.34 잔여=진짜 의미/미결정**(C56 체계핵 t8 variant 4/4=thinking-flat)은 안 닫힘 → VALUE addressable도 **전량 아님**. ⇒ "DISAMB 9~12"는 상한·(b)-잔여가 learn/경계로 남음.
