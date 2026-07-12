@@ -83,6 +83,21 @@
 5. **L9** set-op.
 - 각 단계: 무료 unit → 라이브 probe(표적+trivial 무회귀+Δspurious+**측정훅**) → 통과분만 편입. **A1-v2 번들 혼재 교훈**(per-레버 순효과).
 
+## ★7b. Self-review 결함 (구현 前·5건·리뷰 라운드)
+> §8 리뷰(R1-R5)와 같은 엄격도로 구현 설계 자체를 검증. 5건 발견 — I1·I2가 핵심(R1·R5의 코드-레벨 재확인·더 나쁨).
+
+**[I1·중대] §2b field-결정론 의사코드가 자기모순 = L4a는 실질 op-only.** "numeric_fields = record의 수치필드; len==1이면 결정론"인데 **variant record는 price(항상 수치) + 수치 options(size·capacity·zoom) → len≥2가 거의 항상**. ⇒ "단일 수치필드=결정론" 분기가 **거의 발화 안 함** → field는 항상 formalize. "most expensive→price"조차 price+size 공존이라 이 규칙으론 formalize로 감. **R1을 코드가 더 강하게 확증** — L4a는 사실상 op만 닫고 field는 전량 formalize. **수정: 극값어→*의미 field-클래스* 매핑(expensive→price·largest→size/dim)이 필요한데 그게 R1이 지적한 field-formalize 그 자체**. ⇒ L4a 이득 = op-부하 감소분만·정직 계상(field 이득 0에 가까움). 0.92 경로 더 축소.
+
+**[I2·중대] §2c 숫자매칭 "단위/키가 tok 문맥과 정합"이 미정의 = R5 미해결·재라벨.** "8이 size인지 count인지"를 코드가 어떻게 아나 — 명세 없음. 이건 formalize 의존을 "문맥 정합"으로 숨긴 것. **수정: 구체 규칙 = 요청서 토큰-인접 키명 파싱**("size 8"→"8" 앞 "size"→size 옵션에만 매치) or variant **옵션-키명이 요청에 등장**할 때만 그 키로 한정. 인접성 파서 명세 필요·없으면 R5 트랩 잔존.
+
+**[I3·중대] 측정훅이 realization 아닌 *기전 발화*만 잰다.** §2b/2c/7의 카운터(발화·field-det·FP-ASK)는 **레버가 돌았나**를 셀 뿐 **정답 맞췄나**가 아님. 레버가 결정론으로 발화하고도 *틀린 field/값* 선택 가능. ⇒ 훅만으론 realization 미측정(gap-누수 재발). **수정: probe 판독 = 훅(기전) + per-case gold-diff(정답)** 병행 필수. 훅=기전 진단·gold-diff=realization.
+
+**[I6·중대·반복버그류] variant dotted-path 미검증 = dotted-path 버그 재발 위험.** `_field_values` 점경로는 **order record서만** 테스트됨(t71). variant는 `options` 중첩·dict-keyed라 구조 다름 → `options.color` 순회가 order와 다르게 깨질 수 있음. **이 세션을 8/8 폴백시킨 바로 그 버그류.** 수정: **L4b 구현 前 variant record unit(점경로 `options.color`·`price` 추출) 필수**·라이브 발화까지 확인(unit≠라이브).
+
+**[I7·중대] floor-guarantee 부재 = 레버가 baseline보다 나쁘게 만들 수 있음.** L4/L2가 결정론 발화 후 *틀린 값* 치환하면 **에이전트의 옳은 선택을 틀린 걸로 대체** = 순손실(T5C "레버≥floor pointwise" 위반). "동률·0통과→ASK"는 부분 커버·"결정론 픽이 틀린" 경우 미커버. **수정: 치환은 confident할 때만(단일 통과 ∧ 게이트 재검사 통과)·불확실=no-op(에이전트 선택 유지)**. Δspurious≤0의 코드-레벨 보증.
+
+**종합**: I1이 R1을 코드로 재확인(field 이득 ~0) → **L4 이득 = op-부하 감소 + 속성filter(FP 가드 성공 시)만**·극값 field 이득 없음. **최대 기대 재하향**: L4 +3~5 → **+2~4**. ⇒ A1-v3 realistic 최대 ≈ **0.70~0.73**(0.75 상한도 낙관). 0.92는 완전 철회·L4는 여전히 최고 ROI(op+속성)지만 극값-field는 learn/formalize 몫.
+
 ## 7. 리뷰 대상 (self + user·구현 前)
 - **R1 게이트**: L4a field-결정론 비율이 극값-이득의 실질을 결정 — 다중수치필드 태스크 전수 필요.
 - **R5 게이트**: L4b 숫자 field-type match가 CENSUS §1 트랩 실제 차단하나 — t15 "8" FP 전수.
