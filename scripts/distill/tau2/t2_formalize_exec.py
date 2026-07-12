@@ -571,6 +571,12 @@ def fexec_variant_decide(agent, la, UserMessage, msgs, arg_key, cur_value, a2_sp
             fg = _floor_ok(result, cur_value)
             if fg is None:
                 return {"status": "fallback", "ids": [], "why": "det:empty"}
+            # ★보수화(2026-07-13 probe: t0 L4b 오추출 파손): 극값(argmax/argmin·price=신뢰)만 치환.
+            #   filter(속성 grounding)은 복합기준서 오추출 위험 → keep/no-op만(치환 금지).
+            if fg["status"] == "one" and spec["op"] not in ("argmax", "argmin"):
+                _mark("L4 no-sub(filter det·conservative) arg=%s ids=%s scope=%s"
+                      % (arg_key, ",".join(fg["ids"]), scope))
+                return {"status": "fallback", "ids": [], "why": "det:filter-no-substitute"}
             _mark("L4 %s(det) arg=%s op=%s ids=%s scope=%s (%s)"
                   % (fg["status"], arg_key, spec["op"], ",".join(fg["ids"]), scope, result["why"]))
             return {"status": fg["status"], "ids": fg["ids"], "why": "det:" + result["why"]}
@@ -591,6 +597,9 @@ def fexec_variant_decide(agent, la, UserMessage, msgs, arg_key, cur_value, a2_sp
         if result["status"] == "ok":
             fg = _floor_ok(result, cur_value)
             if fg is not None:
+                # ★보수화: formalize 폴백은 극값만 치환·filter/속성은 keep/no-op(오추출 harm 차단).
+                if fg["status"] == "one" and fspec["op"] not in ("argmax", "argmin"):
+                    return {"status": "fallback", "ids": [], "why": "form:filter-no-substitute"}
                 _mark("L4 %s(form) arg=%s ids=%s" % (fg["status"], arg_key, ",".join(fg["ids"])))
                 return {"status": fg["status"], "ids": fg["ids"], "why": "form:" + result["why"]}
         if result["status"] == "empty" and attempt + 1 < max_formalize:
