@@ -63,7 +63,16 @@ def load_products(gz_path):
 
 # ─────────────────────────── 2. 시나리오 (짝지은 (product,key,value)) ───────────────────────────
 
-def build_scenarios(prods, n_target=36, seed=20260711):
+def _prod_varying_keys(pr):
+    """상품의 옵션 키 중 distinct 값 ≥2인 키 집합(= 그 상품이 실제로 변주하는 차원)."""
+    kv = {}
+    for v in pr["variants"].values():
+        for k, val in (v.get("options") or {}).items():
+            kv.setdefault(k, set()).add(str(val))
+    return {k for k, s in kv.items() if len(s) >= 2}
+
+
+def build_scenarios(prods, n_target=36, seed=20260711, single_dim=False):
     """시나리오 조건(availability-무관 동일답 보장·설계서 §2.2):
     - key의 distinct 값 ≥2 (필터 비자명)
     - 매칭 variants ≥2 · available 매칭 ≥2 (랭킹 비자명)
@@ -113,6 +122,10 @@ def build_scenarios(prods, n_target=36, seed=20260711):
     for sc in cands:
         if per_prod.get(sc["pid"], 0) >= 2:
             continue
+        # 축 P: 단일-변주-차원 시나리오만 (그 상품의 유일 변주 키 == sc[key]) → "same as mine"가
+        #        field(=key)를 문맥상 유일추론 가능. P2 distractor 요건은 P가 안 쓰므로 이때 완화.
+        if single_dim and _prod_varying_keys(prods[sc["pid"]]) != {sc["key"]}:
+            continue
         pool = [(p, n, v) for (p, n, v) in bykey.get(sc["key"], []) if p != sc["pid"]]
         # 상품당 1 variant·target과 값이 다른 것 우선
         seen, dis = set(), []
@@ -122,7 +135,7 @@ def build_scenarios(prods, n_target=36, seed=20260711):
             seen.add(p)
             dis.append((p, n, v))
         diff = [d for d in dis if str((d[2].get("options") or {}).get(sc["key"])) != sc["val"]]
-        if len(dis) < 3 or len(diff) < 2:
+        if not single_dim and (len(dis) < 3 or len(diff) < 2):
             continue
         sc["distractors"] = dis[:4]
         picked.append(sc)
@@ -161,6 +174,11 @@ T_P1 = ["I'd like to exchange my {name} for the most expensive variant that has 
 T_P2 = ["I'd like an exchange: for the {name} somewhere in my orders, give me the most expensive variant that has the same {key} as the one I ordered.",
         "Please look at my orders. Swap the {name} I ordered to the highest-priced variant that keeps the same {key}.",
         "In one of my orders there is a {name}. I want to exchange it for the variant that costs the most among the ones with the same {key} as it."]
+# 축 P (paraphrase 약화·V2 2026-07-12): P1 발화서 필드명 토큰({key}) 제거 — "same {key}"→"the one I have".
+# 단일-변주-차원 시나리오(그 상품이 {key} 하나만 여러 값)만 대상이라 field가 문맥상 유일추론 가능(build_scenarios single_dim 필터).
+T_P_NOKEY = ["I'd like to exchange my {name} for the most expensive variant that matches the one I currently have.",
+             "About my {name}: please swap it to the highest-priced variant that is the same as the one I already have.",
+             "For the {name} I bought, I want the variant that costs the most among the ones matching my current one."]
 
 
 def _order_rec(order_id, name, pid, variant):
@@ -368,10 +386,46 @@ def call_server(base, model, prompt, timeout=240):
     return out["choices"][0]["message"]["content"]
 
 
-# ─────────────────────── V2 오염 축 (직접실행·2026-07-11) ───────────────────────
+# ─────────────────────── V2 오염 축 (직접실행) ───────────────────────
 # R1(clean)=1.00 기준에 소음 주입. gold 불변·bind/answer는 기존 score() 그대로.
-# 구현 축: C(문맥-부하·Context-Rot) · A(후보-distractor 밀도·C43 정박치환).
-# 유보: B(key-토큰 부재 패러프레이즈=상품별 표현 필요) · D(실궤적 replay=comp 추출) — 별도 spec.
+# 약한 소음(바인딩 유일성 안 건드림·32B서 1.00): C(문맥-부하) · A(후보-distractor 밀도).
+# ★강한 축(바인딩 표적을 애매하게·2026-07-12·GPU0 바인딩-공격 배치):
+#   B(near-miss 같은-차원): 진짜 anchor(delivered·소유중)와 같은 상품·인접 key 값 변형을
+#     "반품된 주문"(status=returned·note로 명확히 현소유 아님) K개 주입 → "same size as mine"의
+#     anchor 식별을 애매하게. gold는 여전히 결정론(진짜 anchor의 val로 argmax). level = 디코이 수 K.
+#     ★gold 유일성 유지: 디코이는 명확히 현-소유 아님(returned) → 진짜 anchor(delivered) 유일 식별.
+#     near-miss variant 불가(다른 값 0) 시 케이스 제외(None 반환·로깅).
+#   P(paraphrase 약화): utterance서 필드명 토큰 제거(T_P_NOKEY). 단일-변주-차원 시나리오만
+#     (single_dim 필터) → field 문맥상 유일추론 가능(underspecified 회피). level 0(원문)/1(제거).
+# 유보: D(실궤적 replay=comp 추출) — 별도 spec.
+
+
+def _near_miss_decoys(sc, prods, K, rng):
+    """같은 상품·인접(다른) key 값 변형 K개 = near-miss 디코이 anchor.
+    진짜 anchor의 val과 값이 다른 variant만·val에 가까운 순(숫자면 |Δ|·아니면 근사).
+    distinct 다른-값 부족 시 순환 반복(항상 K개). 다른 값 0이면 None(near-miss 불가 → 제외)."""
+    pr = prods[sc["pid"]]
+    key, val = sc["key"], str(sc["val"])
+    byval = {}  # 다른-값 → 그 값의 대표 variant (available 우선)
+    for v in pr["variants"].values():
+        ov = (v.get("options") or {})
+        if key not in ov:
+            continue
+        vv = str(ov[key])
+        if vv == val:
+            continue
+        if vv not in byval or (v.get("available") is True and byval[vv].get("available") is not True):
+            byval[vv] = v
+    if not byval:
+        return None
+
+    def _dist(vv):
+        try:
+            return (0, abs(float(vv) - float(val)))
+        except (TypeError, ValueError):
+            return (1, abs(len(vv) - len(val)) + (0 if vv[:1] == val[:1] else 5))
+    order = sorted(byval, key=_dist)
+    return [(byval[order[i % len(order)]], order[i % len(order)]) for i in range(K)]
 def _pad_text(rng, nchars, prods):
     """무관 catalog JSON을 nchars까지 — 부하 주입(내용은 결정과 무관·field 이름 회피)."""
     pids = list(prods.keys())
@@ -387,7 +441,8 @@ def _pad_text(rng, nchars, prods):
 
 
 def build_case_v2(sc, idx, prods, axis, level):
-    """P1(1-hop·clean 1.00) 기반 + 축별 소음. base = build_case(P1)."""
+    """P1(1-hop·clean 1.00) 기반 + 축별 소음. base = build_case(P1).
+    강한 축(B near-miss)은 gold-유일성 깨지면 None 반환(제외·로깅)."""
     base = build_case(sc, "P1", idx, prods)
     rng = random.Random(hash((sc["pid"], sc["key"], axis, level)) & 0xFFFFFFFF)
     p = base["prompt"]
@@ -409,10 +464,110 @@ def build_case_v2(sc, idx, prods, axis, level):
         if extra:  # 후보 블록 끝(선택 지시 앞)에 삽입
             p = p.replace("\n\nThe agent must now choose",
                           "\n" + "\n".join(extra) + "\n\nThe agent must now choose", 1)
+    elif axis == "B":  # near-miss 같은-차원: 진짜 anchor(delivered) + 인접-값 반품 디코이 K개
+        decoys = _near_miss_decoys(sc, prods, level, rng)
+        if not decoys:
+            return None  # near-miss variant 없음 → 제외(gold-유일 near-miss 축 성립불가)
+        oid = lambda: "#W%07d" % rng.randrange(10 ** 7)
+        true_ord = _order_rec(oid(), sc["name"], sc["pid"], sc["anchor"])
+        true_ord["status"] = "delivered"
+        true_ord["note"] = "the item you currently own"
+        recs = [true_ord]
+        dvals = []
+        for v, vv in decoys:  # 디코이 = 같은 상품·다른 값·명확히 현-소유 아님(returned)
+            dord = _order_rec(oid(), sc["name"], sc["pid"], v)
+            dord["status"] = "returned"
+            dord["note"] = "returned - no longer in your possession"
+            recs.append(dord)
+            dvals.append(vv)
+        rng.shuffle(recs)
+        block = json.dumps({"orders": recs}, ensure_ascii=False)
+        # P1의 단일 get_order_details 라인을 get_user_orders(진짜+디코이)로 교체
+        p = re.sub(r"TOOL \(get_order_details\): .*",
+                   lambda m: "TOOL (get_user_orders): " + block, p, count=1)
+        base["n_decoy"] = len(decoys)
+        base["decoy_vals"] = dvals
+    elif axis == "P":  # paraphrase 약화: 발화서 필드명 토큰 제거(level≥1)
+        # ★공정성(field 유일추론): 이 카탈로그엔 단일-변주-차원 상품 0(전 상품 ≥2 dim) → single_dim
+        #   필터 void. 대신 anchor를 key 차원으로 투영({key:val})해 "same as mine"가 field(=key)
+        #   유일추론 가능하게(gold 불변·결정론 유지). level 0/1 둘 다 투영 → 발화만 변수(clean isolation).
+        proj = dict(sc["anchor"]); proj["options"] = {sc["key"]: sc["val"]}
+        rng2 = random.Random(hash((sc["pid"], sc["key"], "Panchor")) & 0xFFFFFFFF)
+        ord_line = "TOOL (get_order_details): " + json.dumps(
+            _order_rec("#W%07d" % rng2.randrange(10 ** 7), sc["name"], sc["pid"], proj),
+            ensure_ascii=False)
+        p = re.sub(r"TOOL \(get_order_details\): .*", lambda m: ord_line, p, count=1)
+        if level >= 1:  # 필드명 토큰 제거 패러프레이즈
+            para = T_P_NOKEY[idx % 3].format(name=sc["name"])
+            p = re.sub(r"USER: .*", lambda m: "USER: " + para, p, count=1)
+            base["utter"] = para
+        else:
+            base["utter"] = "USER: " + T_P1[idx % 3].format(name=sc["name"], key=sc["key"], val=sc["val"])
+        base["varying_keys"] = sorted(_prod_varying_keys(prods[sc["pid"]]))
+        base["anchor_projected"] = True
     base["prompt"] = p
     base["axis"] = axis
     base["level"] = level
     return base
+
+
+def _gold_unique(case, prods):
+    """gold-유일성 재확인(결정론·build_scenarios 규약 동형): matching 그룹 중 유일 price-argmax
+    ∧ available ∧ == case[gold_item]. 소음 축(B/P)이 이 불변식을 안 건드리는지 검증용."""
+    pr = prods[case["pid"]]
+    grp = [(vid, v) for vid, v in pr["variants"].items()
+           if str((v.get("options") or {}).get(case["key"])) == str(case["val"])]
+    if not grp:
+        return False
+    mx = max(v["price"] for _, v in grp)
+    top = [vid for vid, v in grp if v["price"] == mx]
+    return len(top) == 1 and top[0] == case["gold_item"] \
+        and pr["variants"][top[0]].get("available") is True
+
+
+def _dry_verify_v2(cases, axis, prods):
+    """[[08]] 발사 前 검증: gold-유일성(소음이 불변식 안 건드림) + 축별 공정성.
+    B: near-miss 디코이가 진짜 anchor 값(val)과 다름 + 진짜 anchor 유일 식별(delivered).
+    P: 단일-변주-차원(field 문맥-유일추론 가능) — varying_keys == {key}."""
+    noisy = [c for c in cases if c.get("level", 0) > 0]
+    gu = sum(1 for c in cases if _gold_unique(c, prods))
+    print("== [[08]] dry 검증 (axis=%s) ==" % axis)
+    print("gold-유일 케이스: %d/%d (전건 유일해야 정상)" % (gu, len(cases)))
+    show = noisy[:8] if len(noisy) >= 8 else noisy  # per-case ≥6
+    if axis == "B":
+        bad = 0
+        for c in noisy:
+            if str(c["val"]) in [str(x) for x in c.get("decoy_vals", [])]:
+                bad += 1
+        print("디코이-값 == 진짜값(val) 오염(있으면 near-miss 아님·유일성 위협): %d/%d" % (bad, len(noisy)))
+        print("--- per-case (level>0) ---")
+        for c in show:
+            uid = "get_user_orders" in c["prompt"] and c["prompt"].count('"note": "the item you currently own"') == 1
+            print("  L%s %s | %s: true_val=%s decoys=%s | gold_uniq=%s anchor_uniq(delivered=1)=%s"
+                  % (c["level"], c["name"][:18], c["key"], c["val"],
+                     c.get("decoy_vals"), _gold_unique(c, prods), uid))
+    elif axis == "P":
+        # 공정성 = (a) level1 발화에 필드명 토큰 부재 (b) anchor가 key로 투영({key:val}) → field 유일추론
+        tok_bad = sum(1 for c in noisy
+                      if (" " + c["key"].lower() + " ") in (" " + c.get("utter", "").lower() + " "))
+        proj_bad = 0
+        for c in cases:  # 전 케이스(level0 포함) anchor 투영 확인
+            exp = '"options": ' + json.dumps({c["key"]: c["val"]}, ensure_ascii=False)
+            if exp not in c["prompt"]:
+                proj_bad += 1
+        print("level1 발화에 필드명 토큰 잔존(불공정): %d/%d (0이어야 함)" % (tok_bad, len(noisy)))
+        print("anchor 미투영(field 추론불가·불공정): %d/%d (0이어야 함)" % (proj_bad, len(cases)))
+        print("주의: 이 카탈로그 단일-변주-차원 상품=0 → single_dim 필터 void·투영으로 공정성 확보(설계 이탈·보고).")
+        print("--- per-case (level 1·필드명 토큰 제거) ---")
+        for c in show:
+            ut = c.get("utter", "")
+            key_absent = (" " + c["key"].lower() + " ") not in (" " + ut.lower() + " ")
+            print("  L%s %s | key=%s prod-varying=%s key_token_absent=%s\n     utter: %s"
+                  % (c["level"], c["name"][:18], c["key"], c.get("varying_keys"), key_absent, ut))
+    else:
+        for c in show:
+            print("  L%s %s %s/%s gold=%s uniq=%s" % (c["level"], c["name"][:16], c["key"],
+                                                      c["val"], c["gold_item"], _gold_unique(c, prods)))
 
 
 def main():
@@ -421,7 +576,8 @@ def main():
     ap.add_argument("--n", type=int, default=36)
     ap.add_argument("--cells", default="P0,P1,P2")
     ap.add_argument("--v2", default=None,
-                    help="오염 사다리: 'C:2000,8000,20000' or 'A:2,5,10' (axis:levels)")
+                    help="오염 사다리 axis:levels — 약: 'C:8000,20000'(부하) 'A:5,10'(distractor) / "
+                         "강(바인딩-공격): 'B:1,2,4'(near-miss 디코이 수) 'P:1'(paraphrase 필드명제거)")
     ap.add_argument("--dry", action="store_true")
     ap.add_argument("--out", default=None)
     ap.add_argument("--base", default="http://localhost:8140/v1")
@@ -429,20 +585,32 @@ def main():
     ap.add_argument("--workers", type=int, default=4, help="동시 요청 수(공유 GPU 배려·기본 4)")
     a = ap.parse_args()
     prods = load_products(a.gz)
-    scens = build_scenarios(prods, n_target=a.n)
     cells = [c.strip() for c in a.cells.split(",") if c.strip()]
     if a.v2:  # V2 오염 사다리 — R1(P1 clean) + 축별 level 사다리
         axis, lv = a.v2.split(":")
         levels = [int(x) for x in lv.split(",")]
-        cases = ([build_case(sc, "P1", i, prods) for i, sc in enumerate(scens)]  # level 0 = clean
-                 + [build_case_v2(sc, i, prods, axis, L)
-                    for L in levels for i, sc in enumerate(scens)])
-        for c in cases:
-            c.setdefault("axis", axis)
-            c.setdefault("level", 0)
-        print("V2 axis=%s levels=[0]+%s n/level=%d total=%d"
-              % (axis, levels, len(scens), len(cases)), flush=True)
+        scens = build_scenarios(prods, n_target=a.n)
+        # 축 P level0/1 둘 다 anchor-투영 경유(발화만 변수) → build_case_v2로 통일. 그 외 축은 clean P1.
+        if axis == "P":
+            lv0 = [build_case_v2(sc, i, prods, "P", 0) for i, sc in enumerate(scens)]
+        else:
+            lv0 = [build_case(sc, "P1", i, prods) for i, sc in enumerate(scens)]  # level 0 = clean
+            for c in lv0:
+                c["axis"], c["level"] = axis, 0
+        excluded = 0
+        lvN = []
+        for L in levels:
+            for i, sc in enumerate(scens):
+                c = build_case_v2(sc, i, prods, axis, L)
+                if c is None:  # B: near-miss 불가 → gold-유일 축 성립불가 → 제외(로깅)
+                    excluded += 1
+                    continue
+                lvN.append(c)
+        cases = lv0 + lvN
+        print("V2 axis=%s levels=[0]+%s scens=%d total_cases=%d excluded=%d"
+              % (axis, levels, len(scens), len(cases), excluded), flush=True)
     else:
+        scens = build_scenarios(prods, n_target=a.n)
         print("products=%d paired-scenarios=%d cells=%s" % (len(prods), len(scens), cells), flush=True)
         cases = [build_case(sc, cell, i, prods) for i, sc in enumerate(scens) for cell in cells]
     if a.dry:
@@ -451,8 +619,11 @@ def main():
                 for c in cases:
                     f.write(json.dumps(c, ensure_ascii=False) + "\n")
             print("[dry] %d cases -> %s" % (len(cases), a.out))
-        for c in cases[:3]:
-            print("---", c["cell"], c["name"], c["key"], c["val"], "gold=", c["gold_item"])
+        if a.v2:
+            _dry_verify_v2(cases, a.v2.split(":")[0], prods)
+        else:
+            for c in cases[:3]:
+                print("---", c["cell"], c["name"], c["key"], c["val"], "gold=", c["gold_item"])
         return
     from concurrent.futures import ThreadPoolExecutor
     def run_one(c):
