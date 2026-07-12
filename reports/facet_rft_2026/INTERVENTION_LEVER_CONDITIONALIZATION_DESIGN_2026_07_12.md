@@ -47,6 +47,16 @@
 - **EPLAN 관련성**: "A2-relevant 미검토"의 관련성 판정이 semantic이면 [[05]] 경계(§2d 기각된 entity-특정 강화와 구분) — 관련성=구조적(같은 요청 스코프 내 미조회)만 허용.
 - **잔여 경계**: 조건부화 후에도 안 닫히는 변형-⋈(C56 체계핵·thinking-flat)은 **진짜 경계**=E7 판단실험(learn vs map).
 
+## 5a. 전달-메커니즘 arm — override vs advise (2026-07-12 사용자 제안)
+"언제 발화"(§1 결핍-조건)와 직교하는 축 = **어떻게 전달**. 현 레버는 엔진이 행동을 *강제*(override)·이번 회귀의 직접원인(valid 선택 강제 switch). 대안 = **진행-적응 프롬프트 힌트**(고정 base + 결핍시점 변동 메시지 주입·선택은 에이전트=advise).
+- 하네스 기실현: DISAMB_FEEDBACK(`:610`) 주입 = 이미 "고정base+변동주입" 구조. prefix-cache 정합(고정 prefix 캐시·변동 suffix만 재계산).
+- **arm 비교(전달×조건 직교)**:
+  - **arm1 engine-override**(현 subcall): 세나 valid도 switch→trivial 회귀.
+  - **arm2 engine-conditional**(§1 결핍-게이트 override): 결핍시만 강제·구조적.
+  - **arm3 progress-adaptive advise**(프롬프트 힌트): 에이전트 존중→trivial Δspurious≈0·단 준수 scale-의존(IFScale)이라 하드 catch 약할 수 있음.
+- **트레이드오프 가설**: advise=안전(trivial)·약함(하드) / override=위험(trivial)·강함(하드). 조건부화(§1)가 override의 위험을 줄이면 arm2가 최적일 수 있음. **셋 다 Δspurious/gain 실측 비교**(§3 게이트).
+- caveat: arm3 변동힌트도 **상시 주입 금지**(always-on=IFScale 부하)→반드시 결핍-게이트(§1 조건과 결합).
+
 ## 5b. 코드 실현가능성 확정 (DISAMB·2026-07-12 정독)
 - 현 DISAMB 발화조건 = 에이전트 arg값이 **이미 조회된 ≥2 같은-형식 후보 중 하나**(`t2_gate_patch.py:611·1051`·`_grounded_candidates` = DB주입0·[[05]] OK). = **정확히 §1이 지적한 "애매성 트리거"**(valid 선택에도 발화). task106: valid "red L" 선택에도 발화→subcall switch(`:930`)=오도.
 - 하네스 접근가능 확인: **후보집합**(`_grounded_candidates(k,s,msgs)`)·**조회여부**(state.messages 스캔) → **"무효(값∉후보)·미검토(getter 미호출)" 결핍판정 구현가능**.
