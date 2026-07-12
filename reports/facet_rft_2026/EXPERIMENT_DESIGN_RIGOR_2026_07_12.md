@@ -24,10 +24,12 @@
 ### E1. banking-보정 난이도 × 32B (사용자 제안 2026-07-12·재설계)
 - **★역할 분담(정직·핵심)**: **"scale 느림/상용미달" 주장 = banking(실·구조적 per-step)이 짊어진다**(C71: 전 18 frontier per-step 0.748~0.884·0/18 상용). synth는 그 주장의 근거 *아님*. **synth의 고유 가치 = (a) 기전 sd/sc 인과(inject) (b) verify 개입 실증** — 실 banking선 싸게 불가(유료 e2e).
 - **동기**: 단순 running-sum(K=2)은 per-step=산술이라 32B 포화(base 14B 0.322→32B **0.748**·selfcons 0.96). banking per-step=구조적(도구발견+바인딩+검증)이라 frontier도 0.75~0.88. ⇒ synth를 **banking 난이도로 보정**하면 "scale 느린 그 지점서 verify가 산다"를 통제로 실증.
-- **설계**: per-step 난이도 상향(lookup 재도입·큰수/음수·K↑)으로 **32B base per-step을 banking frontier 범위 [0.75~0.88]로 보정**(현 0.96→목표 ~0.8). 그 보정 난이도서 전 Qwen2.5 사다리 0.5B~32B × arms{base,verify,detect,inject}.
-- **지표**: 보정 확인(32B base∈[0.75,0.88]) · scale 곡선 · verify−base gap(비포화 확인).
-- **판정(사전등록)**: (i) 보정 성공 ∧ 32B서도 verify≫base 유지 → "scale 느린 난이도서 verify 우위" [M](banking-충실 통제). (ii) 보정해도 verify 이득 소멸 → verify의 이득이 *쉬운 난이도 아티팩트*였음 → 서사 수정(verify 주장 하향). 어느 쪽이든 반영.
-- **★정직 명기**: per-step "매칭"=*난이도-수준* 매칭(둘 다 p~0.8)이지 *기전 동일 아님*(banking=구조·synth=산술). synth는 "그 난이도에서 verify 작동"의 통제 증명·banking은 실-앵커. **synth→banking 일반화 문장 금지([[40]]).**
+- **설계(★FE1-b 반영·기전 단일성 보존)**: 난이도 상향은 **순수-산술 부하만** — 값범위↑(큰수·음수 [-999,999])·K↑(스텝당 정수 개수). **lookup 재도입 금지**(원 `eref_horizon.py:31` dict-free 격리 유지 = E1·E3가 *동일 태스크* 위·기전과 verify 주장이 같은 지반). 그 보정 난이도서 전 Qwen2.5 사다리 0.5B~32B × arms{base,verify,detect,inject}.
+- **★FE1-a 사전등록**: 보정 목표 **32B base per-step ∈ [0.75,0.88]을 verify 효과 보기 前 고정**. 파일럿(base만)으로 K·값범위 튜닝→목표 도달 확인→그 난이도 잠금→*그 다음* verify/inject 측정. 보정 멈춘 지점이 우호적 verify 결과 지점이면 안 됨.
+- **★FE1-b 컨틴전시**: 순수-산술로 32B가 [0.75,0.88] 못 내려가면(포화) → (a) 도달가능 최고난이도 수용(보고) 또는 (b) 불가피 lookup 시 **inject/self-consistency를 그 lookup-난이도서도 재실행**(sd 기전이 유지되나 확인·FE1-c: verify 재계산은 문맥-내 테이블만·gold-independent).
+- **지표**: 보정 확인 · scale 곡선 · verify−base gap(비포화) · **R1 CI 병기**.
+- **판정(사전등록·양분기)**: (i) 보정 성공 ∧ 32B서도 verify≫base → "scale 느린 난이도서 verify 우위" [M]. (ii) 보정해도 verify 이득 소멸 → verify 이득=쉬운-난이도 아티팩트 → verify 주장 하향.
+- **★정직 명기**: banking=실-앵커(외적타당도) / synth=기전+개입 통제(내적타당도) **2-leg 병렬**. per-step "매칭"=*난이도-수준*(둘 다 p~0.8)이지 기전 동일 아님(banking=reach/unlock·synth=상태추적). **banking p_step은 pass1 역산(H=8 가정)이라 E-HORIZON 직접측정과 동일 곡선·축 금지**(역산이 pass=p^H 가정→horizon 주장에 순환). synth→banking 일반화 문장 금지([[40]]).
 - **비용**: 무료(로컬). **[[05]]**: 무관(측정).
 
 ### E2. near-miss provenance-constraint arm — **A2가 C69를 닫나 ([미검]→[M])**
@@ -37,7 +39,8 @@
 - **★E2b(복수 소유레코드=⋈)**: 제약 통과하나 여럿 → **예측 안 닫힘**(의도 필요·A2 밖 잔여). = **경계 실증**(A2가 어디까지·어디부터 못).
 - **지표**: bind율 base vs prov-constraint · E2a vs E2b 대조.
 - **판정(사전등록)**: E2a prov→≥0.95 ∧ E2b prov≈base → "A2가 결정가능-sd 닫고 ⋈는 못 닫음" [M] 확정. E2a가 안 닫히면 → resolver 설계결함(디버그) or near-miss가 provenance-결정가능 아님(재분류).
-- **★gold-independence(F-이 세션)**: 제약=status 필드(문맥 실재)이지 gold 아님·엔진은 값을 *읽어* 검증(autofetch 아님=문구/regen만·[[05]] 클린). **트릭 아님 명시.**
+- **★E2a/b 쌍 필수(§5.2 확정)**: E2a 단독="A2가 sd 닫음"은 F8형 과대(⋈ 잔여 은폐). **E2b(⋈ 안 닫힘)가 [[05]]-정직한 A2 경계이자 모트의 정직성** — 반드시 함께 보고.
+- **★gold-independence + 구현 게이트(§5.2)**: 제약=status 필드(문맥 실재)이지 gold 아님. **★코드-감사 게이트: 제약검증이 *에이전트-기조회 레코드만* 읽고 env/DB 직접조회 0임을 코드로 확인**(C34 autofetch 선 안 밟음 = 유일 구현 위험). 엔진은 값을 *읽어* 검증(문구/regen만). **트릭 아님 명시.**
 - **비용**: 무료(격리·user-sim 0). **[[05]]**: source_constraint = retail 정책사실(A2)·엔진 도메인-일반(제약 만족 레코드 조회).
 
 ### E3. inject arm — synth sd/sc 인과 (✅ 본 세션 완료·dose-response 보강)
@@ -50,6 +53,7 @@
 - **설계**: 격리 tool-use 바인딩 결정점(eref 계열)에 **prior-error 주입 대조** — 조건A(정답 prior 문맥) vs 조건B(그럴듯한 *틀린* prior 액션/값 주입 문맥)서 *현재 스텝* 바인딩 정확도. A≈B → sd(prior 오류가 현결정 무손상)·A≫B → sc.
 - **지표**: 현-스텝 정확도 A vs B · 전 scale.
 - **판정(사전등록)**: B≈A(±잡음) → in-vivo sd 확인([M]·proxy를 mechanism으로 승격)·"침묵 sc" 배제. B≪A → sc 실재(서사 수정·비용-우위 프레임).
+- **★일반화 처리(§5.3 확정)**: E4가 in-vivo면 tool-use 주장은 **E4를 직접 인용** → "synth→tool-use 일반화" 문장은 *허용*이 아니라 **불필요**해진다. [[40]] 금지 유지·**각 주장이 자기-도메인 증거 인용**(synth=E3·in-vivo=E4). prior-error 주입값은 문맥서 구성(gold-유래 아님).
 - **비용**: 무료(격리 프로브). **[[05]]**: 무관(측정).
 
 ### E5. E-THINK 완료 + F3 분기 (thinking×near-miss·32B·G7)
@@ -62,8 +66,10 @@
 - **동기**: 서사의 축 d(상충지시 누적)가 [미검/D]·F2가 [M]처럼 쓰지 말라 지적. 측정으로 등급 확보.
 - **설계**: 멀티턴 대화에 **통제된 상충/수정 지시** 주입(턴 k서 "아니 X 말고 Y")·후속 결정이 최신 지시 따르나 vs 이전에 고착되나. canonical-state controller arm(정본상태 유지) 대조.
 - **지표**: 상충-후 정확도 base vs controller · 오염 밀도별.
-- **판정(사전등록)**: 상충 밀도↑서 base 하락 ∧ controller 회복 → 축 d 실재·controller 처방 [M]. 무효과 → 축 d 서사서 격하/철회.
-- **비용**: 무료(격리·synth 대화). **[[05]]**: controller = 도메인-일반 상태유지.
+- **★E6-i gold-independence(구현 前 해소)**: controller "정본상태" = **최신-대화-지시가 이전을 supersede하는 결정론적 recency**(대화순서서 파생·gold 아님). 명시 안 하면 gold-peek 의심. canonical = 최신-지시(구조적 recency).
+- **★E6-ii 스코프 caveat(C50 경계·구현 前 해소)**: E6가 재는 것 = **"상충이 *탐지된* 조건에서 controller가 회복시키나"**이지 "상충을 탐지할 수 있나"가 아님. synth는 템플릿이라 탐지 구조적이나 **in-vivo선 상충-탐지 자체가 semantic 경계**(C50·CENSUS §5 B-잔여와 동일 한계). 이 caveat 없이 [M] 주장 시 in-vivo 전이 과대.
+- **판정(사전등록)**: (탐지된 조건 하) 상충 밀도↑서 base 하락 ∧ controller 회복 → 축 d 실재·controller 처방 [M·탐지-조건부]. 무효과 → 축 d 서사서 격하/철회.
+- **비용**: 무료(격리·synth 대화). **[[05]]**: controller = 도메인-일반 상태유지(recency).
 
 ## 2. 엄격성 요구 (전 실험 공통·F1-F9 교훈)
 - **R1 variance/CI**: runs↑(≥30)·bootstrap 95% CI 병기·점추정 단독 금지(F-잡음). 사다리 비단조(1.5b>3b)는 CI로 해소.
@@ -116,3 +122,12 @@
 **E3/E4/기타 [[05]] — 클린 확인.** E3 inject=F9 무료-재분석의 정확한 실현(self-consistency로 sd/sc 판별·✅). E4=순수측정(A2 0·prior-error 주입이 gold-유래 아니면 클린·주입값 구성만 주의). R1-R7 = F1-F9 교훈의 정직한 코드화.
 
 **종합**: E1 방향 승인+FE1-a/b/c 사전등록 / E2a/b 필수 확정+구현 게이트 / E4는 일반화 불필요화(문장 금지 유지) / E6 갭2 해소 후 구현. **구현 착수 승인** — 단 FE1-b(lookup 확산)는 "순수-산술 부하만"으로 국한하는 쪽을 강권(기전 단일성 보존 = 논문 방어력 최대).
+
+## 7. 반영 확정 (2026-07-12·리뷰 재평가 후·본 세션)
+리뷰 §6 전건 **코드/데이터로 재평가 → 전부 타당·반영 완료**:
+- **FE1-b 코드 확증**: `eref_horizon.py:31`("dict-free·순수 누적 격리") = 내가 lookup을 의도 제거한 게 맞음 → 재도입은 격리 파괴. **채택: E1 난이도=순수-산술 부하만(값범위·K↑)·lookup 금지**(강권 채택·기전 단일성). 컨틴전시(포화 시 lookup+inject 재실행) 명기. → §E1 반영 ✅
+- **FE1-a**: 보정 목표 [0.75,0.88] verify 前 사전등록·파일럿-잠금 → §E1 ✅
+- **§5.2**: E2a/b 쌍 필수 + **autofetch 코드-감사 게이트**(env/DB 직접조회 0·C34) → §E2 ✅
+- **§5.3**: E4 in-vivo면 일반화 문장 *불필요*(허용 아님)·자기-도메인 인용·[[40]] 유지 → §E4 ✅
+- **E6-i/ii**: controller=구조적 recency(gold 아님)·**탐지-조건부 [M]**(탐지 자체=semantic 경계·C50) → §E6 ✅
+- **공정 재평가 결론**: 리뷰 과잉/오류 0. FE1-b가 최고가치(내 재설계가 들인 confound를 코드-대조로 색출). 반려 없음·전건 채택. **구현 착수(순수-산술 E1·E2 최우선).**
