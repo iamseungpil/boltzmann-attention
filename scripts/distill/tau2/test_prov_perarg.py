@@ -187,6 +187,52 @@ for gk in GENKW:
             fb = c
 check("L11_t17_feedback_elm", "address1" in fb, fb[:120])
 
+# ══════════════ B-max① 지시형(directive) 피드백 — resolver_path 지목 (t17) ══════════════
+# 실 A2(retail.gate.json) 로드: regen_resolver_specs(address*) + default_specs(payment) 소비.
+a2r = G._domain_a2("retail")
+check("D0_a2_has_resolver_specs", bool(a2r and a2r.get("regen_resolver_specs")), list((a2r or {}).keys()))
+
+# t17형: order_id 알려짐 + address1 fab → get_order_details(order_id) 지목·되묻기 금지
+t17w = ToolCall("modify_pending_order_address",
+                {"order_id": "#W8665881", "address1": "123 Elm St"})
+dfb = G._resolver_directive(a2r, t17w, "address1", "123 Elm St")
+check("D1_directive_not_none", dfb is not None, dfb)
+check("D2_names_get_order_details", bool(dfb) and "get_order_details" in dfb, dfb)
+check("D3_points_known_input", bool(dfb) and "order_id=#W8665881" in dfb, dfb)
+check("D4_reads_field", bool(dfb) and "'address1'" in dfb, dfb)
+check("D5_no_ask_user_instruction",
+      bool(dfb) and "do not ask" in dfb.lower() and "ask the user for" not in dfb.lower(), dfb)
+check("D6_carries_fab_value", bool(dfb) and "123 Elm St" in dfb, dfb)
+
+# resolver_path 없음/입력 미상 → None (기존 중립 문구로 폴백)
+noinput = ToolCall("modify_pending_order_address", {"address1": "123 Elm St"})  # order_id 부재
+check("D7_no_known_input_none", G._resolver_directive(a2r, noinput, "address1", "123 Elm St") is None)
+notool = ToolCall("get_user_details", {"order_id": "#W8665881", "address1": "123 Elm St"})  # applies_to 밖
+check("D8_applies_to_scopes", G._resolver_directive(a2r, notool, "address1", "123 Elm St") is None)
+check("D9_no_spec_arg_none",
+      G._resolver_directive(a2r, ToolCall("modify_pending_order_address",
+                                          {"order_id": "#W8665881", "first_name": "Zed"}),
+                            "first_name", "Zed") is None)
+# payment_method_id (default_specs)도 directive 조회 대상 — producer 지목
+pay = ToolCall("modify_pending_order_payment",
+               {"order_id": "#W8665881", "payment_method_id": "gift_card_9999999"})
+pfb = G._resolver_directive(a2r, pay, "payment_method_id", "gift_card_9999999")
+check("D10_payment_directive", bool(pfb) and "get_order_details" in pfb and "'payment_method_id'" in pfb, pfb)
+
+# 루프 레벨 회귀: L9 t17 형상이 이제 지시형 문구를 발화(생성 단위·라이브 아님)
+ag, st = agent(), State(hist("send order W8665881 to my other address"))
+w = ToolCall("modify_pending_order_address",
+             {"order_id": "#W8665881", "address1": "123 Elm St"})
+reset(AM(tool_calls=[w]), AM(content="let me fetch your address"))
+out = ag._generate_next_message(UserMessage("yes"), st)
+dloop = ""
+for gk in GENKW:
+    for m in (gk["messages"] or []):
+        c = getattr(m, "content", "") or ""
+        if isinstance(c, str) and "[PROVENANCE]" in c and "get_order_details" in c:
+            dloop = c
+check("D11_loop_emits_directive", "get_order_details" in dloop and "do not ask" in dloop.lower(), dloop[:160])
+
 print()
 if FAILS:
     print("FAILED: %d -> %s" % (len(FAILS), FAILS))

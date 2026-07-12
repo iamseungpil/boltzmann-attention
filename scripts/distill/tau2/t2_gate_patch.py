@@ -404,6 +404,45 @@ REGEN_FEEDBACK_NEUTRAL = (
     "produces this value and read the real value from its output, then emit a corrected tool call."
 )
 
+# ★B-max① t17 지시형(directive) 피드백: fab 인자에 A2 resolver_path가 있으면 generic("getter를 불러라")
+#   대신 *어느* producer를 *어떤 알려진 입력*으로 호출해 *어느 필드*를 읽는지 지목 (사용자-되묻기 탈출구 차단).
+#   근거 NEWSTACK_GAIN_SIDEEFFECT §G t17 + OVERNIGHT §결과2 (지시형 4지선다가 base ASK 21→loop 0).
+REGEN_FEEDBACK_DIRECTIVE = (
+    "Error: [PROVENANCE] argument '{k}'='{s}' was not provided by the user nor returned by any tool "
+    "— it looks invented. Do NOT ask the user; instead call `{producer}`({in_arg}={in_val}) and read "
+    "'{field}' from its output, then emit a corrected tool call with the real value from that output."
+)
+
+
+def _resolver_directive(a2, tc, k, s):
+    """★B-max① (2026-07-11): fab 인자 k에 A2 resolver_path가 있으면 지시형 피드백 문구, 없으면 None.
+    resolver_path=[in_arg, producer, field] — 호출 인자에 in_arg 값이 실재(알려진 입력)할 때만 그 producer/
+    입력/필드를 지목. 없으면 None → 호출측이 기존 중립 문구로 폴백. 엔진=도메인-일반(A2 소비만·값은 안 읽음=
+    autofetch 아님·문구만). default_specs(원리-디폴트 silent 치환)와 regen_resolver_specs(directive-only) 모두 조회."""
+    if not a2:
+        return None
+    specs = list(a2.get("default_specs") or []) + list(a2.get("regen_resolver_specs") or [])
+    if not specs:
+        return None
+    nm = getattr(tc, "name", None)
+    d = _args_dict(tc)
+    for sp in specs:
+        if sp.get("arg") != k:
+            continue
+        applies = sp.get("applies_to") or []
+        if applies and nm not in applies:
+            continue
+        path = sp.get("resolver_path")
+        if not path or len(path) < 3:
+            continue
+        in_arg, producer, field = path[0], path[1], path[2]
+        in_val = d.get(in_arg)
+        if not in_val:            # 알려진 입력이 없으면 producer/입력 지목 불가 → 중립 문구로
+            return None
+        return REGEN_FEEDBACK_DIRECTIVE.format(
+            k=k, s=s, producer=producer, in_arg=in_arg, in_val=in_val, field=field)
+    return None
+
 
 def _ctx_from_messages(msgs):
     parts = []
@@ -971,8 +1010,12 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                 tmpl = GROUND_FEEDBACK_NEUTRAL if prov_mode == "rescue" else GROUND_FEEDBACK
                 main_reason = tmpl.format(k=k, s=s, cands=", ".join(repr(c) for c in cands))
             else:
-                tmpl = REGEN_FEEDBACK_NEUTRAL if prov_mode == "rescue" else REGEN_FEEDBACK
-                main_reason = tmpl.format(k=k, s=s)
+                directive = _resolver_directive(a2, tc, k, s)  # ★B-max① t17: resolver_path 지목
+                if directive is not None:
+                    main_reason = directive
+                else:
+                    tmpl = REGEN_FEEDBACK_NEUTRAL if prov_mode == "rescue" else REGEN_FEEDBACK
+                    main_reason = tmpl.format(k=k, s=s)
             for c in (am.tool_calls or []):
                 reason = main_reason if c is tc else \
                     "Error: [PROVENANCE] resolve the invented value first; do not call this yet."
@@ -1468,8 +1511,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 # 관측성(행동 무변경): p4-비용 귀속용 발화 로그 (C53 p4 −5.3pp·§3c)
                 print("[T2_PROV] regen fired tool=%s arg=%s val=%s" % (getattr(ptc, "name", "?"), k, s),
                       file=_sys.stderr, flush=True)
-                main_prov = (ptc, (REGEN_FEEDBACK_NEUTRAL if prov_mode == "rescue"
-                                   else REGEN_FEEDBACK).format(k=k, s=s))
+                _directive = _resolver_directive(a2, ptc, k, s)  # ★B-max① t17: resolver_path 지목
+                main_prov = (ptc, _directive if _directive is not None else
+                             (REGEN_FEEDBACK_NEUTRAL if prov_mode == "rescue"
+                              else REGEN_FEEDBACK).format(k=k, s=s))
             if do_gate:
                 gate_rounds += 1
                 self._t2_gate_rounds = getattr(self, "_t2_gate_rounds", 0) + 1
