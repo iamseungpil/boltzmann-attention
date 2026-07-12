@@ -33,9 +33,11 @@ WORDS = ("apple bread cloud dance eagle flame grape house ivory joker knight lem
          "yield zebra amber blaze crane drift ember frost glide haven inlet jolly").split()
 
 def make_dict(nwords, seed):
+    # 값 = 작은 양수[1,20]: 단일-스텝(lookup+add)을 중형 모델이 near-perfect로 할 수 있게 →
+    # 실패를 *순수 누적/self-conditioning*으로 격리(2509.09677 "near-perfect single-turn" 설계 동형).
     rng = random.Random(seed)
     ws = rng.sample(WORDS, nwords)
-    return {w: rng.randint(-99, 99) for w in ws}
+    return {w: rng.randint(1, 20) for w in ws}
 
 def make_plan(words, H, K, seed):
     rng = random.Random(seed ^ 0x5bd1e995)
