@@ -49,9 +49,27 @@
 - 기존 "EM 0.00/12%"는 **채점버그**(태스크당 단일 hand-gold·멀티품목 무시) → 폐기(3문서 반영). 형식화는 실제 gold를 79~88% 낸다.
 - 잔여 = 제약형 0.73·t79(딴 병 색 오바인딩=⋈). ⇒ **FORMALIZE-EXEC "미편입" 판정 붕괴** → 재편입 대상(B-max②).
 
-## 갭 (재발사 필요)
-1. **동적 바인딩-공격 축**(near-miss same-dim·paraphrase) — GPU0 배치 미집행. clean/정적(결과1) 대비 "동적이 부순다" 검정 = E-REF 완성의 마지막 조각.
-2. **딥리서치**(scale=오염내성 선행) — 80 claim 검증완료·**Synthesize 미실행**(4 verify 미반환 블록). 재-synthesize 또는 raw claim 수동 종합.
+## ★결과 4 — 동적 바인딩-공격 축 (GPU0 배치 완료·2026-07-12·[M])
+> `eref_gpu0_{nearmissB,paraphraseP,fexec_all}.jsonl`(리모트 persist `539b36d`). 32B GPTQ·infra 0(parse_fail=0·exec_fail=0). 판정도구 = scratchpad `eref_agg.py`/`eref_case.sh`.
+
+**축 B (near-miss same-dim distractor·동적오염)** — bind = 옳은 값이 제약에 바인딩된 비율:
+
+| level (오염밀도) | n | bind | op | cons |
+|---|---|---|---|---|
+| 0 (clean) | 36 | **1.000** | 1.000 | 1.000 |
+| 1 | 36 | 0.722 | 1.000 | 0.722 |
+| 2 | 36 | 0.750 | 1.000 | 0.750 |
+| 4 | 36 | **0.472** | 1.000 | 0.472 |
+
+**축 P (paraphrase)**: lv0 bind 1.00·em 1.00 → lv1 **bind 1.00·em/cons 0.75**(바인딩 생존·제약-exactness만 저하 = B보다 약함).
+
+- **★per-case 정독([[08]]·B lv4 19/36 fail 전건 정독)**: 실패 = 전부 **anchor(near-miss) 값이 gold 대신 바인딩**(Backpack "large"→"small"·Helmet "M"→"S"·Kettle "2L"→"1.5L"). 랜덤오류 아닌 **정박치환**(C43 동형). `op`=1.00 불변 = 연산구조 온전·**제약 값만 오염원에 포획**.
+- **판정 [M]**: 정적오염(결과1·부하/distractor)=전 scale 1.00 강건인데, **동적오염(near-miss B)이 바인딩을 1.00→0.47로 부순다**(오염밀도 단조·infra 오염 0). paraphrase는 더 약함(바인딩 생존). ⇒ **"동적오염이 바인딩 부순다" 실증** = E-REF 완성·[[00-thesis]]·2509.09677(self-conditioning scale-불변)과 수렴.
+- **fexec_all(형식화 실행-채점 전체 87건)**: exec_correct_avail **0.770**(밤샘 0.79 재확인)·제약형 0.74 vs 무제약 0.93 = 바인딩이 손실 지점(축 B와 정합).
+
+## ✅ 갭 닫힘 (2026-07-12)
+1. ✅ **동적 바인딩-공격 축** = 결과4(위)·[M] 확정.
+2. ✅ **딥리서치 synth**(scale=오염내성 선행) = 수동종합 완료 → 정본 `SCALE_DYNAMIC_CONTAMINATION_PRIORWORK_2026_07_12.md`. 판정: scale=horizon 구매([지지]·2509.09677=F6 수렴)·강한형 균일면역=반박·whitespace 미선점(2509.09677 인접·구분). 축 b/c/d 소스=[미검](verdict 미실행·인용 전 검증필요).
 
 ## 종합 — 오늘 명제 상태
-> **tool-use = 저-추상·고-간섭**: 추상능력(바인딩) 1.5B서 emergent·정적소음 강건(결과1) → 격차는 간섭. 규율(출처선언)은 prompt/loop로 격리서 2배 개선(결과2)·형식화도 실제 작동(결과3). **남은 [M]화**: 동적-오염 축 실측 + in-vivo(C-stage) prompt-vs-loop 붕괴곡선.
+> **tool-use = 저-추상·고-간섭**: 추상능력(바인딩) 1.5B서 emergent·정적소음 강건(결과1)·**단 동적오염이 정박치환으로 바인딩 부숨(결과4·[M])** → 격차는 *동적* 간섭. 규율(출처선언)은 prompt/loop로 격리서 2배 개선(결과2)·형식화도 실제 작동(결과3). 선행지형(synth)이 3중 수렴(2509.09677 self-cond scale-불변·Laban 멀티턴 보편붕괴·C43 정박치환). **남은 [M]화**: in-vivo(C-stage) prompt-vs-loop 붕괴곡선(유료·승인).
