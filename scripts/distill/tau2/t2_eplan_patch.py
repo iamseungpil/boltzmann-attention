@@ -575,11 +575,21 @@ def cp5_reminder(gaps):
             "they still want them, then act or explain:\n" + "\n".join(lines))
 
 
-def discovery_precondition(ledger, spec, intent_class, attempt_items=()):
+def discovery_precondition(ledger, spec, intent_class, attempt_items=(), attempt_entity=None):
     """discovery-enforce 술어(순수) — write 시도 시 호출·deny 피드백 문자열 또는 None.
     기존 replay-safe deny+regen 게이트의 precondition으로 삽입(신규 후크 불요·설계 §1).
     attempt_items = 시도 중인 write 호출의 품목 id(A2 items_key로 배선측 추출) —
-    qty_item_covered 가드 재료(미전달=기존 동작·qty-conflation 가드만 비활성)."""
+    qty_item_covered 가드 재료(미전달=기존 동작·qty-conflation 가드만 비활성).
+    ★EXAMINED-SAFE (T2_EPLAN_EXAMINED_SAFE=1·2026-07-12 HANDOFF §6.2·A1 부작용 교정):
+      attempt_entity(이 write의 대상 record id)가 *이미 examined*면 discovery-deny 생략.
+      근거(A1 포렌식 t21/t32/t42): 에이전트가 대상 주문을 *읽고* write하는데 L2가
+      미검토 sibling 이유로 그 정당 write를 deny → read-루프→transfer/partial(순손실 3).
+      write-deny는 coverage의 잘못된 레버(LOCK §2d·§4d) — 커버리지는 CP5 walk 몫.
+      "대상을 검토한 write = 정당" = 진짜 미검토-관련만 deny(§6.2 문구 그대로)."""
+    if os.environ.get("T2_EPLAN_EXAMINED_SAFE") == "1" and attempt_entity is not None \
+            and _norm(attempt_entity) in ledger.examined:
+        _mark("examined-safe: write target %s examined — no discovery-deny" % _norm(attempt_entity))
+        return None
     if discovery_L1(ledger, attempt_items):
         return l1_feedback(ledger, spec)
     ids = discovery_L2(ledger, intent_class, attempt_items)

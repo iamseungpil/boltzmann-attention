@@ -511,6 +511,16 @@ def _sig(s):
     return "other"
 
 
+# 주소류 free-text 인자 토큰(도메인일반 식별-어휘·PROV-ADDR-FULL §6.3). id-형(numid/hashid) 아님.
+_ADDR_ARG_TOKENS = ("address", "street", "city", "state", "zip", "postal", "country")
+
+
+def _is_addr_arg(arg_key):
+    """arg_key가 주소류 free-text 인자인가(도메인일반 어휘 매칭)."""
+    kl = str(arg_key).lower()
+    return any(t in kl for t in _ADDR_ARG_TOKENS)
+
+
 def _key_tokens(arg_key):
     """arg_key → 의미 토큰 (id/ids 제거·단수화). 'order_id'→{'order'}, 'item_ids'→{'item'}."""
     toks = set()
@@ -1534,8 +1544,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             #   (키=A2 "items_key"·ABox) — N이 품목-급으로 충족되면 deny 안 함.
                             _ep_items = _args_dict(c).get(
                                 ep_spec.get("items_key", "item_ids")) or ()
+                            _ep_ent = _args_dict(c).get(ep_spec.get("entity_key"))
                             fb = _epmod.discovery_precondition(
-                                ep_led, ep_spec, nm, attempt_items=_ep_items)
+                                ep_led, ep_spec, nm, attempt_items=_ep_items,
+                                attempt_entity=_ep_ent)
                         except Exception:
                             fb = None
                         if fb:
@@ -1553,9 +1565,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[T2_PROV] regen fired tool=%s arg=%s val=%s" % (getattr(ptc, "name", "?"), k, s),
                       file=_sys.stderr, flush=True)
                 _directive = _resolver_directive(a2, ptc, k, s)  # ★B-max① t17: resolver_path 지목
-                main_prov = (ptc, _directive if _directive is not None else
-                             (REGEN_FEEDBACK_NEUTRAL if prov_mode == "rescue"
-                              else REGEN_FEEDBACK).format(k=k, s=s))
+                # ★PROV-ADDR-FULL (T2_PROV_ADDR_FULL=1·2026-07-12 HANDOFF §6.3·A1 부작용 교정):
+                #   주소류 free-text 인자는 rescue 중립문(getter-일반)이 약해 날조가 통과(t43/96) →
+                #   full 문구(REGEN_FEEDBACK=주소-getter 명시 예시)로 강제 조회 유도. rescue 스킵은
+                #   env-검증 id(hashid/numid)만 — 주소=free-text는 애초 스킵 대상 아님(§6.3 "rescue=env-id만").
+                _addr_full = (os.environ.get("T2_PROV_ADDR_FULL") == "1"
+                              and prov_mode == "rescue" and _is_addr_arg(k))
+                if _addr_full:
+                    self._t2_prov_addr_full = getattr(self, "_t2_prov_addr_full", 0) + 1
+                _tmpl = REGEN_FEEDBACK if (prov_mode != "rescue" or _addr_full) \
+                    else REGEN_FEEDBACK_NEUTRAL
+                main_prov = (ptc, _directive if _directive is not None
+                             else _tmpl.format(k=k, s=s))
             if do_gate:
                 gate_rounds += 1
                 self._t2_gate_rounds = getattr(self, "_t2_gate_rounds", 0) + 1
