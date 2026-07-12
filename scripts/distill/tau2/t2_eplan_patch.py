@@ -564,11 +564,13 @@ def l2_feedback(ids, spec):
       "확인만·요청 밖 record엔 write 금지" 명시로 교정."""
     _mark("L2 deny: unexamined siblings %s" % ", ".join(ids))
     if os.environ.get("T2_EPLAN_READS_ONLY") == "1":
+        # ★#4 조건부화(2026-07-13 A1-v2 실패분석): 무조건 "행동금지"가 in-scope sibling까지 막아
+        #   coverage 누락 8건 유발 → in-scope=행동 허용(coverage)·요청-무관만 금지(t32 over-action).
         return ("[E-PLAN] The request may span more records than you have read. "
                 "You listed record(s) %s but have not read their details yet — call %s "
-                "for them ONLY to CHECK whether they are part of the user's request. "
-                "Do NOT modify/cancel/return any record that the user did not ask about; "
-                "reading is for verification only."
+                "for them first. If a record IS part of what the user asked for, act on it too "
+                "(complete every record the request covers). Only avoid acting on records the "
+                "user did NOT ask about."
                 % (", ".join(ids), spec.get("detail_reader")))
     return ("[E-PLAN] The request quantity exceeds the records you have acted on. "
             "You listed record(s) %s but have not read their details yet — call %s "

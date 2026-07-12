@@ -1624,6 +1624,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         # prov-fab 잔존 = 통과 (기존 prov semantics·id 날조는 env가 거부=C12)
 
         # ── DISAMB: 문맥-실재값·같은-형식 후보 2+ → 1회 재확인 (기존 로직 이식) ──
+        # ★#2 operand 스코프(2026-07-13 A1-v2 실패분석): variant operand(new_item_ids)는 L4 전담 —
+        #   order-filter가 여기서 new_item에 오발화해 틀린 변형 치환(3234800602 반복)했음. 제외.
+        _v_ops = set((a2 or {}).get("variant_operand") or [])
         if disamb_tools and getattr(am, "tool_calls", None):
             if not hasattr(self, "_t2_disamb_seen"):
                 self._t2_disamb_seen = set()
@@ -1632,6 +1635,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 if getattr(tc, "name", None) not in disamb_tools:
                     continue
                 for k, v in _args_dict(tc).items():
+                    if k in _v_ops:                     # ★L4 전담 operand는 disamb-filter 제외
+                        continue
                     if not any(h in k.lower() for h in hints):
                         continue
                     for val in _flatten(v):
