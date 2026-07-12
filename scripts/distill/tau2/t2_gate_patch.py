@@ -240,6 +240,15 @@ def apply():
                     failed[k] = why
                 self._t2_consec = getattr(self, "_t2_consec", 0) + 1
 
+        # ★T2_WRITE_CAP (S1a-1·F5): 성공-write 반복 루프 차단. 기존 retry-controller(rule①)는
+        #   *실패* 호출만 잡는다(failed dict) → t102형 19× *성공*-write 재발emit은 통과. 도메인-일반
+        #   (write 도구=_confirm_write_tools·A2 confirm 게이트서 도출·리터럴 0)·3중키=_call_key(name+args).
+        #   성공 K회(기본2) 초과 동일-write → deny("이미 완료"). 다른 args=다른 키=미차단. Δ계측: 정당 재시도 오차단 0.
+        wcap_on = os.environ.get("T2_WRITE_CAP") == "1"
+        wcap_k = int(os.environ.get("T2_WRITE_CAP_K", "2"))
+        wcap_tools = _confirm_write_tools(a2) if wcap_on else set()
+        wdone = self._t2_wdone = getattr(self, "_t2_wdone", {})
+
         results = []
         for tc in tool_calls:
             if getattr(tc, "requestor", "assistant") != "assistant":
@@ -276,12 +285,28 @@ def apply():
                 _mark_fail(key, why)
                 results.append(_deny_msg(tc, g, why))
                 continue
+            # ★T2_WRITE_CAP (S1a-1·F5): 이미 K회 성공한 동일-write → 재실행 안 함·deny("완료")
+            if wcap_on and tc.name in wcap_tools:
+                _wk = _call_key(tc)
+                if wdone.get(_wk, 0) >= wcap_k:
+                    self.num_errors += 1
+                    print("[T2_WRITE_CAP] capped tool=%s (already succeeded %dx)"
+                          % (tc.name, wdone[_wk]), file=sys.stderr, flush=True)
+                    results.append(_deny_msg(tc, "WRITE_CAP",
+                        "You ALREADY successfully performed this exact action %dx; it is DONE. "
+                        "Do NOT repeat the identical call. Move to the next task or confirm completion to the user."
+                        % wdone[_wk]))
+                    continue
             out = orig(self, [tc])
             results.extend(out)
             if out and getattr(out[0], "error", False):
                 _mark_fail(key, _content_str(out[0]))
             elif retry_on:
                 self._t2_consec = 0  # 성공 → 연속카운트 리셋
+            # ★T2_WRITE_CAP 기록: 성공한 write만 카운트(err=False)
+            if wcap_on and tc.name in wcap_tools and out and not getattr(out[0], "error", False):
+                _wk2 = _call_key(tc)
+                wdone[_wk2] = wdone.get(_wk2, 0) + 1
             if tc.name in obs_tools_g(gate) and out and not out[0].error:
                 gate.observe(tc.name, tc.arguments, _content_str(out[0]))
             # ★REPLAY-SAFE present (T2_PRESENT_READS=1): 후보-producer 읽기 응답에 clean 요약 덧붙임.
