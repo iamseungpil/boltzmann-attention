@@ -21,29 +21,48 @@
 
 **핵심 산출**: 각 (기전, 난이도)서 성능이 크기와 함께 **포화하는 임계 크기**(scale가 푸는 지점) vs **flat**(어느 크기도 못 품=레버 영토). = capability×scale×lever 지도(논문 코어).
 
+**★M-코드 = 본 doc 로컬 프로브 인덱스 (새 분류 아님·[[48]] 준수·리뷰 신규발견1)**: 정본 명명 = `UNIFIED_TAXONOMY §축2` 서술형 근본기능 11개. M1-M7은 그중 6개를 *격리 측정*하는 프로브 이름일 뿐:
+| M | → 정본 근본기능([[48]]) | 3계층 |
+|---|---|---|
+| M1 상태추적/sd | **6 지속**(장기 per-step 복리 붕괴) | 레버(scale/thinking/분해) |
+| M2 near-miss | **5 참조·기준형**(판별기준 형식화 가능) | 오프로드가능(직렬화·C56) |
+| M3 ⋈ | **5 참조·순수⋈**(의도 의미매칭) | **환원불가 경계=모트** |
+| M4 reach | **3 조립**(gather·발견·계획) | 오프로드(controller) |
+| M5 coverage | **2 완결** | 오프로드(게이트) |
+| M6 compute | **4 계산** | 레버(calc/thinking) |
+| M7 compliance | **1 준수** | 오프로드(게이트) |
+⇒ 행렬 = 정본 근본기능을 scale×난이도로 재는 것·**M-코드로 논문/원장 표기 금지**(서술형만). M2/M3=참조 2모드는 taxonomy가 *이미* 구분(§37).
+
+**★앵커 구성물 컬럼(리뷰 §8.2/8.4)**: frontier "앵커"는 셀마다 *구성물 상이* — 곡선 점 금지·별도 "기전-실재 배지": {M1=**없음**(2509.09677=문헌앵커)·M2/M3/M5=**pass1 역산**(H가정)·M4=**e2e 궤적 포렌식**(§3.2f·프로브 형식 아님)}. 비대칭을 컬럼으로 노출=정직 표기.
+
 ## 2. 프로브 스펙 (격리·무료·결정론gold·[[05]] 클린)
 각 프로브 = **한 기전만 격리**(다른 기전 gold-제공)·user-sim 0·우리 사다리 전수 + frontier 앵커.
 
 ### M1 상태추적/sd — E-HORIZON (기존·FE1-b 반영)
 - 순수-산술 running-sum(lookup 금지)·난이도=값범위/K/H. arms{base,verify,detect,inject}. 기전=sd(inject 자기일관·F9). 난이도 보정=FE1-a 사전등록(32B base∈[0.75,0.88]).
 
-### M2 참조/near-miss — E-REF/E-THINK (기존·확장)
-- retail 상품 바인딩·decoy 밀도 L1-L4(C69). arms{base, +thinking, +prov-constraint(E2)}. **E-THINK2 발견**: thinking이 near-miss 닫음(4b L4 0.28→0.97·8b/14b 대기). ⇒ **M2 = decidable**(thinking OR prov 닫음)·⋈(M3)와 구분.
+### M2 참조/near-miss — E-REF/E-THINK (기존·확장·정본=근본기능5 참조-기준형)
+- retail 상품 바인딩·decoy 밀도 L1-L4(C69). arms{base, +thinking, +prov-constraint(E2)}. **E-THINK2 예비**: thinking이 near-miss 닫음(4b L4 0.28→0.97·**parse율 수정후**). ⇒ **M2=decidable 단정은 [진행·조건부]**(리뷰 신규발견2): parse-게이트(≥0.95) 통과 + **8b/14b 확정 후에만** [M]. F8 교훈(2모델·아티팩트 재발 방지).
+- **★교차-문서 갱신 등재(8b/14b 확정 시)**: M2 confirmed = **F3 분기②**(thinking이 축c near-miss 닫음) → `INTEGRATION §1`·`THINKING_HORIZON` 방화벽 표의 **축c행·thinking행을 비용-우위 프레임으로 *동시* 갱신**("thinking=축a만·외부오염 무력" 폐기·thinking 닫되 inference-scaling 비용 vs scaffold pass-cost≈0). 행렬 doc만 갱신·서사 doc 방치 = 문서분열 금지.
 
 ### M3 ⋈ 의미모호 — ⋈-probe (NEW)
 - **설계**: retail 주문서 기준("my recent order")이 **복수 유효후보** 매칭(전부 owned·near-miss 아님)·의도로만 결정. 후보 수 난이도. arms{base, +thinking, +enumerate(C59)}.
-- **판정(사전등록)**: 전 scale·thinking flat(못 닫음) → M3=진짜 잔여([[40]] "scale/learn/ASK 영토"). enumerate가 부분(C59 +31pp)이나 잔여~.34.
+- **★chance-라인 사전등록(리뷰 §8.3)**: ⋈는 구성상 모호 → "flat"은 **우연수준(1/유효후보수) 대비**로만 의미. **flat-at-chance = 진짜 undecidable(ASK 영토) / above-chance = 부분 결정가능(재분류)**. chance 라인 없인 결론 과대·과소 모두 가능.
+- **판정(사전등록)**: 전 scale·thinking이 **chance 수준서 flat** → M3=진짜 잔여([[40]] "scale/learn/ASK 영토"). above-chance flat → 부분 결정가능(레버 탐색). enumerate 부분(C59 +31pp)이나 잔여~.34.
 - **gold-independence**: 기준-매칭은 결정론(gold=유일 의도)이나 *의도 자체*가 모호=경계. [[05]]: A2 0(측정).
 
-### M4 reach/발견 — banking-reach probe (NEW·최고가치)
-- **동기**: banking 지배기전(reach·§3.2f 발견체인 universal-fail 28/28)을 **우리 사다리로 처음 분해**(현재 frontier만).
-- **설계**: banking 도메인(도구+KB+정책)·목표 제시·**필요 도구가 unlock 선행조건 뒤**(발견체인). 지표=올바른 도구 발견+unlock+호출. 난이도=체인 깊이(1/3/6+). arms{base, +controller(gather/discover 강제·E-PLAN)}.
-- **판정**: 체인깊이↑서 base 급락(banking 곡선 재현) ∧ controller 회복 → reach=controller 영토. 격리(user-sim 0·gold=§3.2f 발견체인).
-- **[[05]]**: controller=도메인-일반 gather/discover 강제·banking 정책사실=A2.
+### M4 reach/발견 — banking-reach probe (NEW·최고가치·정본=근본기능3 조립)
+- **동기**: banking 지배기전(조립/reach·§3.2f 발견체인 universal-fail 28/28)을 **우리 사다리로 처음 분해**(현재 frontier만).
+- **설계**: banking 도메인(도구+KB+정책)·목표 제시·**필요 도구가 unlock 선행조건 뒤**(발견체인·도구은닉→발견→unlock→call 3단 그대로). 지표=올바른 도구 발견+unlock+호출. 난이도=체인 깊이=unlock hop 수(1/3/6+).
+- **★(a) 격리 정직(리뷰 §8.1a)**: §3.2f-237 핵심규정 = banking 실패 = **3중 부하의 곱**(horizon × 발견체인 × all-or-nothing DB). M4는 **발견체인 1개 인수만 격리** → **"M4 닫힘 ⇒ banking 닫힘" 금지**. 판정문구 = "controller가 *reach-인수*를 닫음"으로 한정.
+- **★(b) controller 2-variant 필수(리뷰 §8.1b·가장 중요)**: §3.2f-143 caveat = **EXTRA_read ~100%=탐색량 비인과**(frontier도 많이 읽고 실패). ∴ "읽기 더 강제"(generic gather)는 비-원인 공격 위험. 분해: **C-gather**(도메인-일반 읽기/열거 강제·topology 무지) vs **C-topo**(A2 unlock-topology 정적 그래프 순회). **판정**: C-topo만 닫음 → "reach=A2-지식 영토" / 둘 다 닫음 → generic 충분 / **둘 다 못 닫음 → reach는 controller 밖(정직 보고)**. = [[05]] 경계질문의 실측 답.
+- **★(c) [[05]] 판정(리뷰 §8.1c)**: A2 unlock-topology = **정당(배포-시점 인지 가능 도메인 사실·도구문서/정책=ABox)·단 정적 그래프만**. **per-task gold 체인 주입 = 금지(gold-leak)** — A2=정적 위상 / gold=이 task 정답경로.
+- **판정(사전등록)**: 체인깊이↑서 base 급락(banking 곡선 *reach-인수* 재현) ∧ (C-topo or C-gather) 회복 → 위 2-variant 분기. 격리(user-sim 0·gold=§3.2f 발견체인 채점용).
 
-### M5 coverage/완결 — coverage-probe (NEW)
+### M5 coverage/완결 — coverage-probe (NEW·정본=근본기능2 완결)
 - **설계**: "모든 Y에 X" task·항목 수 난이도. 지표=완결율. arms{base, +완결게이트(읽기강제·C52 G1)}.
-- **판정**: 항목수↑서 base 하락(전-도메인 flat·C52) ∧ 게이트 완결 → coverage=게이트 영토.
+- **★N-원천 명기(리뷰 §8.3·gold-independence)**: 완결게이트의 항목 수 N = **대화/열거 출력서 파생**(E-PLAN 규칙0 동형·E6-i와 동형)·**gold 항목목록 주입 금지**(안 그러면 gold-peek).
+- **판정**: 항목수↑서 base 하락(전-도메인 flat·C52) ∧ 게이트 완결(N=관측-파생) → coverage=게이트 영토.
 
 ### M6 compute — calc-probe (기존·C-B)
 - 자릿수/연산 난이도. arms{base, +calc-offload}. 예상 전 scale flat→offload 1.00(C-B 대후보선택 0.02 vs 결정론 1.00).
@@ -113,3 +132,12 @@
 - **[중간·교차-문서 정합 alert] M2 예비(4b L4 0.28→0.97)가 사실이면 F3-분기②가 축c에서 현실화** — INTEGRATION/THINKING_HORIZON의 "thinking=축a만·외부오염 무력" 서사와 정면 충돌 예정. 8b/14b 확정 시 **방화벽 표 축c행·thinking행을 F3-②(비용-우위 프레임)로 동시 갱신**(행렬 doc만 갱신하고 서사 doc 방치 = 문서 간 분열). §2 M2의 "⇒ M2=decidable" 단정도 8b/14b 前엔 **[진행] 조건부**로 표기(parse-게이트 F8 교훈).
 
 **종합**: 행렬 프레임(포화 임계 vs flat = scale의 도달 지도) = 논문 코어에 정확·전부 무료·[[09]] 정합. **구현 착수 승인** — 순서는 §7 유지(M4 최우선·단 위 (a)(b)(c) 반영 후). M3/M5는 chance-라인·N-원천 반영 후.
+
+## 10. 리뷰 재평가 + 반영 확정 (2026-07-12·본 세션·공정 평가)
+리뷰 §9 전건 **정본 대조로 재평가 → 전부 타당·과잉/오류 0·반영 완료**:
+- **§8.1a/b/c (M4)**: §3.2f-237("3중 부하의 곱")·§3.2f-143("EXTRA_read ~100% 비인과") 정본 확증 → (a)격리정직·(b)**C-gather/C-topo 2-variant**(generic gather는 비-원인 공격 위험·가장 중요)·(c)정적-topology만·gold-leak 금지 → §M4 반영 ✅
+- **§8.2/8.4 (앵커 비대칭)**: 셀별 앵커 구성물 상이(M1 없음·M2/3/5 역산·M4 e2e-포렌식) → **앵커=배지·구성물 컬럼 노출** → §1 반영 ✅
+- **§8.3 (gold-independence)**: M3 chance-라인·M5 N-관측파생 → §M3/M5 반영 ✅
+- **★신규1 [[48]] 평행-taxonomy(최고가치)**: 11 근본기능(`UNIFIED_TAXONOMY §축2`) 정본 대조 → **내가 M1-M7 새 코드를 또 만든 게 맞음**(F/G/BC/N 폐기 이력 반복). **M-코드→근본기능 매핑표 + 로컬-인덱스 명기** → §1 반영 ✅ (M2/M3=참조 2모드는 taxonomy가 이미 §37서 구분·내 분할이 우연히 정합).
+- **★신규2 교차-문서**: M2 "decidable" 단정 [진행]-조건부화 + 8b/14b 확정 시 방화벽표 동시갱신 등재 → §M2 반영 ✅
+- **공정 재평가 결론**: 반려 0. **[[48]] 평행-taxonomy catch가 최고가치**(내가 문서화된 표류를 반복·리뷰어가 정본으로 색출). (a)(b)(c)·chance·N 반영 후 M4→M3→M5 순 **구현 착수**.
