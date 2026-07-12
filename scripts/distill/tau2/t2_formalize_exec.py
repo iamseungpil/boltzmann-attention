@@ -53,6 +53,10 @@ FORMALIZE_SYS = (
     "the candidate records at all.\n"
     "Use ONLY field names that actually appear in the candidate records, and constraint values "
     "taken from the conversation ('op' defaults to 'eq' and may be omitted). "
+    "When the user's words refer to a record attribute, write the constraint value EXACTLY as it "
+    "is spelled in the candidate records (verbatim, not a paraphrase). "
+    "If the user named SEVERAL things that must all be in the same record (e.g. several items in "
+    "one order), emit one constraint per thing. "
     "Output the JSON object and NOTHING else."
 )
 
@@ -113,6 +117,30 @@ def _field_lookup(rec, field):
     return _MISSING
 
 
+def _field_values(rec, field):
+    """도메인일반 재귀 필드 탐색 — 일치하는 *모든* 스칼라 값(BFS 순). 없으면 [].
+    ★order-필터 확장(2026-07-12 HANDOFF §6.1): 후보=order record면 같은 필드(name 등)가
+    items 하위에 반복 등장 — 'record가 X를 담는가'(containment)는 any-match가 정의라 전수 수집.
+    field 값이 스칼라-리스트면 그 원소들을 수집(리스트 containment 동형)."""
+    if not isinstance(field, str):
+        return []
+    fl = field.strip().lower()
+    vals, queue = [], [rec]
+    while queue:
+        cur = queue.pop(0)
+        if isinstance(cur, dict):
+            for kk, vv in cur.items():
+                if str(kk).strip().lower() == fl:
+                    if isinstance(vv, list):
+                        vals.extend(x for x in vv if not isinstance(x, (dict, list)))
+                    elif not isinstance(vv, dict):
+                        vals.append(vv)
+            queue.extend(v for v in cur.values() if isinstance(v, (dict, list)))
+        elif isinstance(cur, list):
+            queue.extend(x for x in cur if isinstance(x, (dict, list)))
+    return vals
+
+
 def _as_float(v):
     try:
         return float(v)
@@ -153,12 +181,19 @@ def execute_formalized(spec, records):
     if not recs:
         return {"status": "unresolvable", "ids": [], "why": "no candidate records"}
     # 제약 필터 (필드가 전 record 부재면 unresolvable)
+    # ★any-match(2026-07-12 order-필터 확장): 필드가 record에 여러 번 등장(order.items[].name 등)하면
+    #   "어느 한 값이라도 만족 = 통과"(containment 정의). 단일-등장 필드는 종전과 동일 판정.
+    #   ne만 쌍대: *어느* 값도 want와 같지 않아야 통과 (any-match의 not-exists).
     for cons in spec["constraints"]:
-        vals = [(c, _field_lookup(r, cons["field"])) for c, r in recs]
-        if all(v is _MISSING for _, v in vals):
+        vals = [(c, _field_values(r, cons["field"])) for c, r in recs]
+        if all(not v for _, v in vals):
             return {"status": "unresolvable", "ids": [],
                     "why": "constraint field '%s' absent from every candidate record" % cons["field"]}
-        keep = {c for (c, v) in vals if v is not _MISSING and _cons_match(v, cons)}
+        if cons.get("op") == "ne":
+            eqc = {"field": cons["field"], "op": "eq", "value": cons["value"]}
+            keep = {c for (c, v) in vals if v and not any(_cons_match(x, eqc) for x in v)}
+        else:
+            keep = {c for (c, v) in vals if any(_cons_match(x, cons) for x in v)}
         recs = [(c, r) for c, r in recs if c in keep]
         if not recs:
             return {"status": "empty", "ids": [],
@@ -232,6 +267,68 @@ def build_formalize_prompt(state_msgs, arg_key, cur_value, records, limit_chars=
             + "\n\n=== Candidate records for '" + str(arg_key) + "' ===\n" + "\n".join(rec_lines)
             + "\n\nThe agent currently chose '" + str(cur_value) + "'. Formalize the user's "
             "selection criterion for this argument as the JSON object.")
+
+
+# ═════════════ ④ 결정론 filter-substitute 판정 (2026-07-12 HANDOFF §6.1·LOCK §4d) ═════════════
+# t71 실증: DISAMB filter-then-ask *지시*(DISAMB_ENUM_FEEDBACK)는 32B가 미준수([[42]] prompt-limit)
+# → advise가 아니라 formalize(LLM)→엔진 결정론 필터→치환/ASK 분기 자체를 엔진이 실행.
+# 유일 semantic 잔여 = formalize 정확도(오형식화→empty→재형식화→fallback=열거-ASK 자기교정).
+def fexec_filter_decide(agent, la, UserMessage, state_msgs, arg_key, cur_value, max_formalize=2):
+    """LLM formalize(사용자 전체제약→predicate) → 엔진이 후보 record 위에서 결정론 평가.
+    반환 {"status": "one"|"many"|"fallback", "ids": [...], "why": str}:
+      one  = 정확히 1 후보 통과 → 호출측이 제자리 치환(whitelist·게이트 재검사는 호출측 관할)
+      many = ≥2 통과 → 호출측이 통과분으로 축소해 열거-ASK
+      fallback = 판정 불가 → 기존 열거 피드백 그대로 (record<2·후보-record 비귀속·
+                 formalize none/unresolvable/파싱실패·empty 재형식화 소진)
+    empty(0 통과) = 오형식화 가능성 → 재형식화 1회(§6.1 "0=re-formalize") 후 소진 시 fallback.
+    ★결정론 치환의 안전 가드(Δspurious≤0 모트): *모든* 후보가 서로 다른 dict record로 귀속될
+    때만 판정 — record 미조회 후보가 있으면 그 후보를 필터할 수 없어 false-unique 위험 = fallback."""
+    records = _candidate_record_dicts(arg_key, cur_value, state_msgs)
+    recs = [(c, r) for c, r in records if isinstance(r, dict)]
+    if len(recs) < 2:
+        return {"status": "fallback", "ids": [], "why": "records<2"}
+    if len(recs) < len(records):
+        _mark("filter fallback: %d/%d candidates lack a record (details not fetched)"
+              % (len(records) - len(recs), len(records)))
+        return {"status": "fallback", "ids": [], "why": "candidate without record"}
+    by_rec = {}
+    for c, r in recs:
+        by_rec.setdefault(id(r), []).append(c)
+    if any(len(v) > 1 for v in by_rec.values()):
+        _mark("filter fallback: shared enclosing record — fields not attributable per candidate")
+        return {"status": "fallback", "ids": [], "why": "shared record"}
+    prompt = build_formalize_prompt(state_msgs, arg_key, cur_value, records)
+    kw = {kk: vv for kk, vv in dict(getattr(agent, "llm_args", None) or {}).items()
+          if "tool" not in kk}
+    for attempt in range(max_formalize):
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="filter_formalize_subcall", **kw)
+        agent._t2_fsub_formalized = getattr(agent, "_t2_fsub_formalized", 0) + 1
+        spec = parse_formalize(getattr(sub, "content", None) or "")
+        if spec is None or spec["op"] in ("none", "unresolvable"):
+            _mark("filter fallback: formalize %s" % ("UNSURE" if spec is None else spec["op"]))
+            return {"status": "fallback", "ids": [], "why": "formalize"}
+        result = execute_formalized(spec, records)
+        if result["status"] == "ok":
+            st = "one" if len(result["ids"]) == 1 else "many"
+            _mark("filter %s arg=%s op=%s ids=%s (%s)"
+                  % (st, arg_key, spec["op"], ",".join(map(str, result["ids"])), result["why"]))
+            return {"status": st, "ids": result["ids"], "why": result["why"]}
+        if result["status"] == "empty" and attempt + 1 < max_formalize:
+            agent._t2_fsub_reformalize = getattr(agent, "_t2_fsub_reformalize", 0) + 1
+            _mark("filter empty (%s) — re-formalize" % result["why"])
+            prompt = prompt + ("\n\n[Note] A previous formalization %s matched NO candidate (%s). "
+                               "Re-read the records: use only field names and values that actually "
+                               "appear in them, or output op \"none\" if no criterion was stated."
+                               % (json.dumps(spec, default=str), result["why"]))
+            continue
+        _mark("filter fallback: %s (%s)" % (result["status"], result["why"]))
+        return {"status": "fallback", "ids": [], "why": result["status"]}
+    return {"status": "fallback", "ids": [], "why": "re-formalize exhausted"}
 
 
 def fexec_for_disamb(agent, la, UserMessage, state_msgs, arg_key, cur_value):

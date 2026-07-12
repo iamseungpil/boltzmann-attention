@@ -1644,6 +1644,60 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         print("[T2_UNIFIED] SUBCALL switch reverted: switch-caused gate-deny",
                               file=_sys.stderr, flush=True)
                 hit = None
+            if hit and disamb_mode == "enumerate":
+                # ★결정론 filter-substitute (2026-07-12 HANDOFF §6.1·LOCK §4d FIND=fexec):
+                #   t71 실증 = filter-then-ask *지시*는 32B 미준수([[42]]) → 지시 대신 엔진이 직접
+                #   LLM-formalize→결정론 필터 실행. 1 통과=제자리 치환(subcall switch 동형:
+                #   whitelist(B2)+게이트 재검사·switch-유발 deny만 복원) / ≥2=통과분으로 축소해
+                #   열거-ASK / 판정불가·empty소진=기존 열거 피드백 폴백(아래 if hit: 블록).
+                tc, k, s, cands, memo = hit
+                fsub = None
+                if _key_tokens(k) & sub_args:
+                    try:
+                        import t2_formalize_exec as _fx
+                        fsub = _fx.fexec_filter_decide(self, la, UserMessage, state.messages, k, s)
+                    except Exception as _fe:
+                        print("[T2_FSUB] error (fallback): %r" % (_fe,), file=_sys.stderr, flush=True)
+                        fsub = None
+                if fsub and fsub["status"] == "one":
+                    self._t2_disamb_seen.add(memo)
+                    self._t2_disamb = getattr(self, "_t2_disamb", 0) + 1
+                    print("[T2_DISAMB] fired tool=%s arg=%s val=%s ncand=%d mode=fsub"
+                          % (tc.name, k, s, len(cands)), file=_sys.stderr, flush=True)
+                    win = str(fsub["ids"][0]).strip()
+                    if win.lower() == s.lower():
+                        self._t2_fsub_keep = getattr(self, "_t2_fsub_keep", 0) + 1
+                        print("[T2_FSUB] confirmed arg=%s val=%s" % (k, s),
+                              file=_sys.stderr, flush=True)
+                    else:
+                        import copy as _copy
+                        _snap = _copy.deepcopy(getattr(tc, "arguments", None))
+                        _pre = ({d[0].id for d in _denied_calls(am, gate, last_user, transfer_sent)}
+                                if gate is not None else set())
+                        if _subst_arg_value(tc, k, s, win):
+                            self._t2_fsub_switch = getattr(self, "_t2_fsub_switch", 0) + 1
+                            print("[T2_FSUB] substituted arg=%s from=%s to=%s" % (k, s, win),
+                                  file=_sys.stderr, flush=True)
+                            if gate is not None:
+                                _post = {d[0].id for d in
+                                         _denied_calls(am, gate, last_user, transfer_sent)}
+                                if tc.id in _post and tc.id not in _pre:  # switch가 *새로* 유발한 deny만
+                                    tc.arguments = _snap
+                                    self._t2_disamb_gate_reject = \
+                                        getattr(self, "_t2_disamb_gate_reject", 0) + 1
+                                    print("[T2_UNIFIED] FSUB switch reverted: switch-caused gate-deny",
+                                          file=_sys.stderr, flush=True)
+                        else:
+                            self._t2_fsub_nosub = getattr(self, "_t2_fsub_nosub", 0) + 1
+                            print("[T2_FSUB] substitution no-op arg=%s (value shape)" % k,
+                                  file=_sys.stderr, flush=True)
+                    hit = None
+                elif fsub and fsub["status"] == "many":
+                    # 통과 후보로 축소 → 아래 기존 열거-ASK 피드백이 축소본을 소비
+                    self._t2_fsub_narrowed = getattr(self, "_t2_fsub_narrowed", 0) + 1
+                    print("[T2_FSUB] narrowed arg=%s ncand %d->%d" % (k, len(cands), len(fsub["ids"])),
+                          file=_sys.stderr, flush=True)
+                    hit = (tc, k, s, [str(i) for i in fsub["ids"]], memo)
             if hit:
                 tc, k, s, cands, memo = hit
                 self._t2_disamb_seen.add(memo)

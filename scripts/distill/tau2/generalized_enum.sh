@@ -32,6 +32,9 @@ date; echo RUN_DONE
 echo "== audit(비트레이스) =="
 echo "DISAMB-enum fired(≥2→ask): $(grep -aE '\[T2_DISAMB\]' $LOG | grep -avc '^+') | ENUM feedback: $(grep -aoE 'DISAMBIGUATE-ASK' $LOG | wc -l)"
 echo "★override subcall switch(0): $(grep -aE 'SUBCALL switch' $LOG | grep -avc '^+')"
+# ★결정론 filter-substitute (2026-07-12 §6.1): 치환/확증/축소/폴백 분해
+echo "★FSUB substituted: $(grep -aE 'T2_FSUB\] substituted' $LOG | grep -avc '^+') | confirmed: $(grep -aE 'T2_FSUB\] confirmed' $LOG | grep -avc '^+') | narrowed: $(grep -aE 'T2_FSUB\] narrowed' $LOG | grep -avc '^+') | reverted: $(grep -aE 'FSUB switch reverted' $LOG | grep -avc '^+')"
+echo "★FSUB fexec: $(grep -aE 'T2_FEXEC\] filter ' $LOG | grep -avc '^+') | fallback: $(grep -aE 'T2_FEXEC\] filter fallback' $LOG | grep -avc '^+') | re-formalize: $(grep -aE 'T2_FEXEC\] filter empty' $LOG | grep -avc '^+')"
 $PY - "$TB/data/simulations/genenum_$TAG/results.json" <<'PYEOF'
 import json,sys,os
 p=sys.argv[1]
