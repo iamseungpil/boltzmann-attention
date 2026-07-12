@@ -100,31 +100,56 @@ def parse_formalize(txt):
 
 # ═════════════════ ② 결정론 실행기 (기조회 record 위·DB 접근 0) ═════════════════
 def _field_lookup(rec, field):
-    """도메인일반 재귀 필드 탐색(BFS·key 일치 case-insensitive 첫 값). 없으면 _MISSING."""
-    if not isinstance(field, str):
-        return _MISSING
-    fl = field.strip().lower()
-    queue = [rec]
-    while queue:
-        cur = queue.pop(0)
-        if isinstance(cur, dict):
-            for kk, vv in cur.items():
-                if str(kk).strip().lower() == fl:
-                    return vv
-            queue.extend(v for v in cur.values() if isinstance(v, (dict, list)))
-        elif isinstance(cur, list):
-            queue.extend(x for x in cur if isinstance(x, (dict, list)))
-    return _MISSING
+    """단일 값 필드 탐색(argmax/argmin rank용): 점-경로/단일-세그먼트 겸용·첫 값. 없으면 _MISSING."""
+    vals = _field_values(rec, field)
+    return vals[0] if vals else _MISSING
+
+
+def _leaf_scalars(node):
+    """node 아래 스칼라 leaf 전수(dict/list 재귀·containment any-match 재료)."""
+    if isinstance(node, list):
+        out = []
+        for x in node:
+            out.extend(_leaf_scalars(x))
+        return out
+    if isinstance(node, dict):
+        return []          # dict-값 자체는 스칼라 아님(하위는 _field_values_path가 세그먼트로 진입)
+    return [node]
+
+
+def _field_values_path(node, segs):
+    """점-경로 세그먼트 순차 진입(각 레벨 dict=key 매칭·list=flatMap). 마지막 세그먼트 값들.
+    ★32B가 제약 필드를 'items.name'류 점-경로로 형식화(라이브 프로브 확증·2026-07-12) → 지원."""
+    if not segs:
+        return _leaf_scalars(node)
+    seg = segs[0].strip().lower()
+    out = []
+    if isinstance(node, list):
+        for x in node:
+            out.extend(_field_values_path(x, segs))
+    elif isinstance(node, dict):
+        for kk, vv in node.items():
+            if str(kk).strip().lower() == seg:
+                out.extend(_field_values_path(vv, segs[1:]))
+    return out
 
 
 def _field_values(rec, field):
-    """도메인일반 재귀 필드 탐색 — 일치하는 *모든* 스칼라 값(BFS 순). 없으면 [].
-    ★order-필터 확장(2026-07-12 HANDOFF §6.1): 후보=order record면 같은 필드(name 등)가
-    items 하위에 반복 등장 — 'record가 X를 담는가'(containment)는 any-match가 정의라 전수 수집.
-    field 값이 스칼라-리스트면 그 원소들을 수집(리스트 containment 동형)."""
-    if not isinstance(field, str):
+    """필드 → record 내 일치하는 *모든* 스칼라 값. 없으면 [].
+    ★order-필터(2026-07-12 HANDOFF §6.1): 후보=order record면 같은 필드(name 등)가 items
+    하위에 반복 — 'record가 X를 담는가'(containment)=any-match라 전수 수집. 두 형식 지원:
+      · 점-경로('items.name') = 세그먼트 순차 진입(라이브 프로브 확증·32B 기본 형식)
+      · 단일-세그먼트('name'·'status') = 재귀 BFS any-match(중첩 깊이 무관·폴백 관대)."""
+    if not isinstance(field, str) or not field.strip():
         return []
-    fl = field.strip().lower()
+    field = field.strip()
+    if "." in field:
+        vals = _field_values_path(rec, field.split("."))
+        if vals:
+            return [v for v in vals if not isinstance(v, (dict, list))]
+        # 점-경로가 root서 안 걸리면 마지막 세그먼트로 재귀 폴백(관대·구조 변형 흡수)
+        field = field.split(".")[-1]
+    fl = field.lower()
     vals, queue = [], [rec]
     while queue:
         cur = queue.pop(0)
