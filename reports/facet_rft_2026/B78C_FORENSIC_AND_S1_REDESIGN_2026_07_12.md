@@ -93,3 +93,47 @@
 - write-cap이 정당 다-write(다른 order 연속)와 충돌 안 하게 = (tool,order,args) 3중키 필수.
 - over-action 11의 경계 비율은 C50 재확인이 확정(현재 t99 1건만 정독).
 - **★F4(리뷰) VALUE 11 사정거리 정직화**: (a) **아티팩트 혼입** — 같은-order+tool·args-diff 휴리스틱은 **C26 variant-leak**(item_ids 순서 의존 db_hash·의미동일 write가 fail·레버 아님)·**C28 reason-enum**(user-sim이 gold와 모순·레버 아님)을 못 거른다 → VALUE 11 중 **1~2건 non-addressable 아티팩트 가능**(S1b-잔여 정독서 배제). (b) **경계 floor** — DISAMB(열거)가 값-⋈를 +31pp 열지만(C59) **~.34 잔여=진짜 의미/미결정**(C56 체계핵 t8 variant 4/4=thinking-flat)은 안 닫힘 → VALUE addressable도 **전량 아님**. ⇒ "DISAMB 9~12"는 상한·(b)-잔여가 learn/경계로 남음.
+
+## 6. ★★★근본 재확인 (2026-07-12·사용자 추궁·정본 수치 확정)
+
+### 6a. full scaffold는 이미 0.64였다 — b78c 0.526은 천장 아니라 *퇴행* (`scratchpad/hist.sh`)
+**pass^1(reward 평균)·db-pass 매칭 비교** (floor/COMP/assembled=nt4·456sim / b78c=nt1·78sub):
+| 스택 | full-set(114) pass^1 | 78-subset pass^1 |
+|---|---|---|
+| floor 32B | 0.557 (db .594) | 0.417 (db .471) |
+| prov e2e | 0.577 (db .618) | 0.471 (db .513) |
+| COMP | **0.634** (db .662) | 0.465 (db .506) |
+| **assembled 32B** | **0.640** (db **.691**) | **0.561** (db .599) |
+| **b78c (COMP+D-v2 nt1)** | — | **0.526** (db .551) |
+
+★**결정적**: 같은 78-subset서 **assembled(구·단순)=0.561 > b78c(신·복잡)=0.526** — 더 많은 레버(DISAMB+E-PLAN+prov)를 얹은 신 스택이 **오히려 −3.5pp 낮다**(nt=1이면 유리한데도). ⇒ **DISAMB/prov-rescue/E-PLAN이 순-harm**(C60 e2e-harm·C53 p4-매도·루프). **full scaffold 실도달=0.640(assembled)**·b78c 0.526=**과-엔지니어링 부작용 퇴행**. ★"0.526=scaffold 천장·대부분 경계"(이 세션 반복 주장)=**전면 오류**.
+
+### 6b. 완전 35-fail 분해 (decomp1/2/3·전수)
+| 성격 | tasks | n | 처방 |
+|---|---|---|---|
+| **아티팩트(실패 아님)** | t36·t37(C26 sameopt+sameprice)·t38(C28 reason)·t59부분·t98부분 | **~4-5** | strict→semantic 채점/db_hash 수정 = **무료 pass↑** |
+| **wrong-action**(cancel↔modify 오행위·semantic) | t66·t34·t77 | ~3 | 대화-precond controller/경계 |
+| **value-⋈ address**(요청 대신 프로필·오출처) | t96·t97 | 2 | gather/출처검증 |
+| **entity-⋈**(틀린 order·examined) | t41·t74·t40·t98 | ~4 | DISAMB-content/ASK |
+| **within-order binding** | t100 | 1 | gather/binding |
+| **coverage/discovery**(E-PLAN 진짜) | t76·t110(+t17/t22부분) | ~2-4 | E-PLAN(단 entity-특정은 semantic 한계·§2d) |
+| **calc** | t20 | 1-2 | CALC-EXT(argmax 미활성) |
+| **USER_ADDR**(프로필주소) | t86·t22·t39 | 3 | 별도 |
+| **fabrication over-action** | t59·t111·t57 | ~3 | prov-block(기활성)·firewall |
+| **persistence(포기-이관)** | t64·t82 | 2 | persistence 게이트/경계 |
+| **genuine 변형-⋈ 경계** | t8·t109·t58 | ~3 | 경계(E7 learn/map) |
+
+★**tally**: **아티팩트 ~4-5(실패 아님) + addressable ~22-26 + 진짜 경계 ~5-8.** ⇒ **"78중 ~30 회수"가 데이터로 지지**·순수 경계는 소수. 제 "대부분 경계"=오류.
+
+### 6c. synth 학습-도달 + 동적오염 정량 (원장 인용)
+- **참조-바인딩 scale 사다리(C66)**: 0.5B **0.04**→1.5B **0.89**→3B 0.99→32B 1.00 = **추상 tool-use 1.5B emergent**. 정적소음 1.00 불변.
+- **동적 near-miss(C69)**: 바인딩 1.00→lv4 **0.47** 정박치환 = tool-use 격차의 범인 = **동적 간섭**·**thinking이 닫음**(8B/14B 1.00·F3②).
+- **상태-발산 horizon(C72)**: base per-step 0.006→0.748 vs **verify 0.911**·전-scale 불변 = **verify(결정론 firewall)가 오염-루프 절단**.
+- **four-bench 학습(C38/C42)**: base 0.98(여지0)·SFT 1.00 but 퇴화(tme 13→25)·DPO 0.33 = **learn 미확립=데이터 실패**(원리 아님).
+⇒ **격차=동적오염**(정적·scale 아님)·**firewall(verify/thinking)이 닫음**(경계 아님)·능력은 1.5B서 존재.
+
+### 6d. 결론 — B 재정의 (부작용 복구 우선)
+1. **b78c 0.526 = 부작용 퇴행**(assembled 0.561 subset / 0.640 full 대비). pass 경로 = **레버 추가 아니라 부작용 제거**(net-harm DISAMB/prov/E-PLAN을 silent-repair/revert로 → 0.64 회복).
+2. **잔여 35 = 아티팩트 ~5(무료) + addressable ~22 + 경계 ~5-8.** 아티팩트 제거 + 오염분 firewall(C69/C72) + coverage/calc/gather로 대부분 회수 가능.
+3. **경계(~5-8·변형-⋈·wrong-action semantic·(c))만** E7 learn/map. 이게 P3 semantic boundary 주장의 *정확한 크기*.
+4. ★**세션 교훈**: 측정-전제 오인 연쇄(v25c→b78c 스택·hard-subset↔full-set·아티팩트↔실패·집계↔per-case)로 6회+ 성급한 비관. **정본=full scaffold 0.64·b78c 부작용퇴행·경계 소수.**
