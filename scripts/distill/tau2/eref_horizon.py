@@ -28,30 +28,16 @@ usage:
 import argparse, json, random, re, sys
 from concurrent.futures import ThreadPoolExecutor
 
-WORDS = ("apple bread cloud dance eagle flame grape house ivory joker knight lemon "
-         "mango noble ocean pearl queen river stone tiger umbra viper wheat xenon "
-         "yield zebra amber blaze crane drift ember frost glide haven inlet jolly").split()
-
-def make_dict(nwords, seed):
-    # 값 = 작은 양수[1,20]: 단일-스텝(lookup+add)을 중형 모델이 near-perfect로 할 수 있게 →
-    # 실패를 *순수 누적/self-conditioning*으로 격리(2509.09677 "near-perfect single-turn" 설계 동형).
-    rng = random.Random(seed)
-    ws = rng.sample(WORDS, nwords)
-    return {w: rng.randint(1, 20) for w in ws}
-
-def make_plan(words, H, K, seed):
+def make_plan(H, K, seed):
+    # ★직접-증분(dict-free): 매 턴 K개 정수[1,20]를 직접 제공 → lookup 없음.
+    #   단일-스텝 = 러닝합에 작은 정수 더하기(중형 모델 near-perfect) → 실패를 *순수 누적/
+    #   self-conditioning*(러닝총합을 턴 넘어 유지)으로 격리. 2509.09677 "near-perfect single-turn" 동형.
     rng = random.Random(seed ^ 0x5bd1e995)
-    return [[rng.choice(words) for _ in range(K)] for _ in range(H)]
+    return [[rng.randint(1, 20) for _ in range(K)] for _ in range(H)]
 
-DICT_HDR = ("You are maintaining a running total. Here is a fixed dictionary mapping words to integers:\n"
-            "{dict}\n\n"
-            "Rule: each turn I give you keys. Update the running sum: S_new = S_old + sum of the values "
-            "of the given keys. The running sum starts at S_0 = 0.\n"
-            "Answer EACH turn with ONLY the new running sum as a single integer on its own line, "
-            "prefixed exactly 'S = '. No other text.")
-
-def dict_str(D):
-    return "\n".join("  %s = %d" % (w, v) for w, v in D.items())
+HDR = ("You are maintaining a running total. It starts at S = 0.\n"
+       "Each turn I give you some numbers. Add them to the running total: S_new = S_old + sum(numbers).\n"
+       "Answer EACH turn with ONLY the new running total as 'S = <integer>' on its own line. No other text.")
 
 def parse_int(txt):
     if not isinstance(txt, str):
@@ -76,17 +62,15 @@ def call_server(base, model, messages, timeout=240, max_tokens=600, think=False)
     out = json.load(urllib.request.urlopen(req, timeout=timeout))
     return out["choices"][0]["message"]["content"]
 
-def run_dialog(base, model, D, plan, arm, think=False, max_tokens=600):
+def run_dialog(base, model, plan, arm, think=False, max_tokens=600):
     """한 run(H턴) 실행. arm ∈ {base,verify,detect}. 반환 = 턴별 기록 리스트."""
-    sys_msg = {"role": "system", "content": DICT_HDR.format(dict=dict_str(D))}
-    msgs = [sys_msg]
+    msgs = [{"role": "system", "content": HDR}]
     gold_S = 0
-    model_S = 0  # 문맥에 살아있는 '직전 상태'(base/detect=모델값 누적·verify=gold 주입)
     rec = []
-    for t, keys in enumerate(plan):
-        step = sum(D[k] for k in keys)
+    for t, nums in enumerate(plan):
+        step = sum(nums)
         gold_S += step
-        user = {"role": "user", "content": "Turn %d keys: %s" % (t + 1, ", ".join(keys))}
+        user = {"role": "user", "content": "Turn %d: add %s" % (t + 1, ", ".join(str(x) for x in nums))}
         msgs.append(user)
         try:
             ans = call_server(base, model, msgs, max_tokens=max_tokens, think=think)
@@ -140,23 +124,21 @@ def main():
     think = {"off": False, "on": True}[a.think]
     tasks = []
     for i in range(a.runs):
-        D = make_dict(a.nwords, a.seed + i)
-        plan = make_plan(list(D), a.H, a.K, a.seed + i)
-        tasks.append((i, D, plan))
+        plan = make_plan(a.H, a.K, a.seed + i)
+        tasks.append((i, plan))
     if a.dry:
-        i, D, plan = tasks[0]
-        print("dict(%d):" % len(D), dict(list(D.items())[:5]), "...")
+        i, plan = tasks[0]
         print("plan[0:3]:", plan[:3])
         g = 0
-        for t, keys in enumerate(plan[:5]):
-            g += sum(D[k] for k in keys)
-            print("  turn %d keys=%s gold_S=%d" % (t + 1, keys, g))
+        for t, nums in enumerate(plan[:5]):
+            g += sum(nums)
+            print("  turn %d: add %s  gold_S=%d" % (t + 1, nums, g))
         print("arms=%s H=%d K=%d runs=%d think=%s" % (arms, a.H, a.K, a.runs, a.think))
         return
-    jobs = [(arm, i, D, plan) for arm in arms for (i, D, plan) in tasks]
+    jobs = [(arm, i, plan) for arm in arms for (i, plan) in tasks]
     def run_one(job):
-        arm, i, D, plan = job
-        rec = run_dialog(a.base, a.model, D, plan, arm, think=think, max_tokens=a.max_tokens)
+        arm, i, plan = job
+        rec = run_dialog(a.base, a.model, plan, arm, think=think, max_tokens=a.max_tokens)
         s = summarize(rec, a.H)
         return {"arm": arm, "run": i, "model": a.model, "think": a.think, "H": a.H, "K": a.K,
                 **s, "rec": rec}
