@@ -557,8 +557,19 @@ def l1_feedback(ledger, spec):
 
 def l2_feedback(ids, spec):
     """L2 deny 피드백(t95 ⓐ형·"미검토 주문 [ids]의 details 먼저").
-    ids = 에이전트 자신이 가져온 목록 출력서 옴(규칙0 클린·DB 주입 아님)."""
+    ids = 에이전트 자신이 가져온 목록 출력서 옴(규칙0 클린·DB 주입 아님).
+    ★READS-ONLY (T2_EPLAN_READS_ONLY=1·2026-07-13 REMEDIATION §3c·harm-mode III t32):
+      eplan은 read만 강제 — surface된 record는 *관련성 확인용*이며 요청에 없으면 행동 금지.
+      현 문구 "decide which records the request covers"가 과-행동 유발(t32 spurious return) →
+      "확인만·요청 밖 record엔 write 금지" 명시로 교정."""
     _mark("L2 deny: unexamined siblings %s" % ", ".join(ids))
+    if os.environ.get("T2_EPLAN_READS_ONLY") == "1":
+        return ("[E-PLAN] The request may span more records than you have read. "
+                "You listed record(s) %s but have not read their details yet — call %s "
+                "for them ONLY to CHECK whether they are part of the user's request. "
+                "Do NOT modify/cancel/return any record that the user did not ask about; "
+                "reading is for verification only."
+                % (", ".join(ids), spec.get("detail_reader")))
     return ("[E-PLAN] The request quantity exceeds the records you have acted on. "
             "You listed record(s) %s but have not read their details yet — call %s "
             "for them first, then decide which records the request covers."
