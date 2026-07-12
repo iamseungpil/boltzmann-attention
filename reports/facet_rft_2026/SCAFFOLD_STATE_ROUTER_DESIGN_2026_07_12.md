@@ -43,6 +43,14 @@
 - S1-S4는 **무효/미검토/미검증/누락**만 잡음 = 구조적 결핍. **valid-but-wrong-for-user**(task106 red-L·order-⋈=valid 주문 오선택)는 어떤 gold-free 신호로도 미감지 → **semantic 경계 = 잔여 = E7 learn/map**(C56 체계핵·thinking-flat 정합).
 - ⇒ 라우터 도달지형: **36 무회귀(부작용0) + 78의 결정가능-부분 수리 + semantic-⋈ 잔여(P3 boundary 주장)**. 이게 정직한 상한.
 
+## 4b. 잔여-처리 로드맵 — scaffold-max 후 valid-but-wrong (2026-07-12 사용자)
+- **원리**: scaffold 최선 = 결정가능 실패를 Δspurious≤0로 전부 닫아 **valid-but-wrong-for-user만 남김**. 그 잔여 = P3 boundary(모트) ∧ learn/fleet 타깃(E7).
+- **voting = settled-negative(같은 모델)**: self-consistency +0%·8/8 만장일치(probe6·[[13]]·RELWORK_LOAD_COT) = 잔여가 **systematic(편향)** → voting은 분산만 고침·편향 못 고침(답-선택·disagreement-플래그 둘 다 실패·만장일치=disagreement 0).
+- **voting ≠ fleet**: fleet=이종모델(다른 편향)→systematic 단일-편향 교차검출 가능 = contingency가 fleet인 이유.
+- **잔여 레버 우선순위**: **ASK**(의도 미결정=이론상 정답·C46·단 calibration 필요) > **learn**(intent-map/calibration 설치·E7) > **fleet**(이종 교차) > scale(F3~0.44 상한·[[45]]).
+- **정직**: 확신-오류(8/8)는 모델이 애매함 자각 못 해 ASK 미발동 → calibration을 learn으로 설치해야 ASK 발동 = 잔여 핵심 난점.
+- **로드맵**: B/C(router=scaffold-max) → **잔여 크기 측정(=P3 헤드라인)** → E7(learn/fleet·ASK-calibration).
+
 ## 5. 통합 실험 설계 (when×what×how 한번에)
 **목표 metric**(비결정성 커버·rate): 태스크셋별 db pass-rate + **S0 무발화율**(trivial) + **레버 발화-후-수리율**(hard) + Δspurious.
 
