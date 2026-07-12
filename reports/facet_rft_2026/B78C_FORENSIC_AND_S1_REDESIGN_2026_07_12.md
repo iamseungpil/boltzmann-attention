@@ -20,6 +20,19 @@
 - **t17** [ZERO_WRITE]: "부분(suite만) 주소, 나머지는 기존 주문서" → 에이전트 "full address 없이는 못 함"·transfer. gold=부분수정 write. **prov-rescue가 날조는 옳게 차단하나 *정당 부분수정*(기존주소 fetch+suite 치환)을 못 함 = over-block**. ⇒ GROUND/값충실도 잔여 + prov 입도 문제(C65 PROV-RESCUE-PERARG 계열).
 - **t99** [OVER_ACTION]: 사용자가 "cancellation" 요청·gold엔 cancel 없음 → 에이전트가 cancel #W8855135 실행 = **대화-semantic over-action**(요청됐으나 gold-불가·C25 8/12형·C50 NO-GO 경계).
 
+## 2b. ★S1b 세부 분류 (write실패 33 전수·`scratchpad/s1b.sh`·gold-write 단위 disposition)
+> gold 미매치 write마다: 같은-order+tool 다른args=**VALUE** / 그 order+tool write 없음=**MISSING** / gold-외 order write=**ORDER-⋈**. + refusal-language(ZERO).
+
+| 세부 클래스 | n | tasks | 성격·레버 |
+|---|---|---|---|
+| **VALUE/item-⋈** | 11 | t8·36·37·38·58·59·96·97·98·100·109 | 옳은 order+tool, **틀린 item/변형 선택** = (b) 값-⋈ → **T5-C/DISAMB** |
+| **MISSING/coverage** | 8 | t34·41·66·74·76·86·110·112 | 다중-write 중 일부 누락 = **coverage** → **E-PLAN L2/CP5**(구축됨) |
+| **ZERO(prov/refuse-block)** | 8 | t17·20·22·39·40·64·77·82 | write 전무+거부언어 = **prov over-block**(t17)·**calc**(t20)·⋈-refuse(t82) 혼합 |
+| **ORDER-⋈(wrong order)** | 5 | t69·71·94·102·103 | gold-외 order에 write = **주문선택 ⋈** → **DISAMB**(t102/103은 루프 부작용 병발) |
+| genuine over-action | 1 | t99 | gold 2매치+추가 cancel = **(c) 대화-semantic 경계**(C50) |
+
+**★핵심 재프레이밍(2b가 §2 3건-정독을 정정)**: "OVER_ACTION 9 = (c) 경계"는 **과대해석**이었다 — 그중 **5가 ORDER-⋈**(주문 오선택 = addressable (b), DISAMB 표적)이고 genuine (c) 경계는 **t99 1건 + NL_ONLY 2 = ~3**뿐. ⇒ **⋈ 계열 = VALUE 11 + ORDER-⋈ 5 = 16 = 지배 addressable (b) 표적**(T5-C/DISAMB). coverage 8 = E-PLAN. 순수 (c) 경계 ≈3. **[[08]] 실증: 소표본 정독(3건)도 과대일반화 → 전수 세부분류가 교정.**
+
 ## 3. 레버 부작용 vs 진짜 잔여 (S1 설계 입력)
 | 성격 | 사례 | S1 처방 |
 |---|---|---|
@@ -38,7 +51,7 @@
 1. **write-반복 cap**: 동일 (tool,order_id,args) 재실행 K회(제안 2) 초과 시 차단 + "이미 시도됨" 피드백(생성-레벨·히스토리 비커밋·replay-safe). t102형 22× 제거. **반대편 계측**: 정당 재시도(다른 args) 오차단 0.
 2. **PROV-RESCUE-PERARG 부분수정 경로**: 부분-필드 write(주소 suite만 등) 시 나머지 필드를 **기존 조회 레코드서 보완**(fetch 강제·날조 아님) → t17/t39. over-block Δ 계측.
 
-**S1b — WRONG/MISSING 16 per-case 분리(무료)**: order⋈(오선택) / same-order-wrong-item(값) / missing-of-multi(coverage)로 자동+정독 분리 → 각각 T5-C(⋈)/CALC·GROUND(값)/E-PLAN(coverage) 귀속. (이번 정독 3건은 진단용·16 전수 분리는 S1b 스크립트.)
+**S1b — 세부 분리 ✅완료(§2b)**: ⋈ 계열 16(VALUE 11 → T5-C/DISAMB 값-치환 · ORDER-⋈ 5 → DISAMB 주문선택) · coverage 8 → E-PLAN · ZERO/block 8(prov/calc/⋈ 혼합·추가정독) · genuine (c) 경계 ≈3. ⇒ **다음 스택 표적 = T5-C/DISAMB(⋈ 16)·E-PLAN(coverage 8)·S1a 봉합(루프+prov-block)**. gate 추가 없음.
 
 **S1c — over-action 11 경계 확정(무료 정독)**: C50 재확인(대화-불가/철회 수행이 몇인가) → 게이트-불가분은 **Part II (c) 경계**로 이관·P3 계상. gate 추가 금지([[06]]).
 
@@ -47,6 +60,6 @@
 **도달 기대(정직·상한)**: 부작용 봉합(t102류 루프 + prov over-block)만으로 pass 몇 점 회복 가능(정확 크기=S1b 분리 후)·over-action 11은 경계라 대부분 미회복. 0.526→? 는 S1d 실측.
 
 ## 5. 미해결·리스크
-- WRONG/MISSING 16·ZERO 8의 **per-case 세부 귀속 미완**(정독 3건만) → S1b가 확정. 그 전 레버-크기 단정 금지([[08]]).
+- ~~WRONG/MISSING 16·ZERO 8 per-case 세부 미완~~ → **S1b ✅완료(§2b)**. 잔여 미완 = **ZERO/block 8의 prov-block vs calc vs ⋈ 3분**(refusal-language 휴리스틱만·8건 전수 정독 필요) + VALUE 11이 값-⋈(문맥해소가능)인지 순수경계인지(T5-C 적용 후 (b)-잔여로 확정).
 - write-cap이 정당 다-write(다른 order 연속)와 충돌 안 하게 = (tool,order,args) 3중키 필수.
 - over-action 11의 경계 비율은 C50 재확인이 확정(현재 t99 1건만 정독).
