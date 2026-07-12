@@ -19,7 +19,8 @@ export T2_PROV_REGEN=1 T2_PROV_REGEN_K=4 T2_PROV_MODE=rescue
 export T2_CALC=1
 export T2_EPLAN=1
 export T2_WRITE_CAP=1 T2_WRITE_CAP_K=2
-export T2_DISAMB=1 T2_DISAMB_MODE=enumerate     # ★≥2 후보→후보 전부 나열+사용자에 물음(재추측 금지)
+export T2_DISAMB=1 T2_DISAMB_MODE=enumerate     # ★≥2 후보→filter-then-ask(전체제약 필터→1?use:≥2?ask)
+export T2_DISAMB_ORDER=1                         # ★order operand도 disamb 대상(71류 order-선택·filter-then-ask)
 unset T2_PRESENT_NESTED T2_PRESENT_READS T2_GROUND T2_PRINCIPLE_DEFAULT T2_AUTOFETCH T2_EPLAN_WALK T2_PROV_BADWORDS
 cd $TB
 TIDARG=""; [ "$TASKS" != "ALL" ] && TIDARG="--task_ids $TASKS"

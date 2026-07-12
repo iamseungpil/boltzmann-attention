@@ -619,12 +619,13 @@ DISAMB_FEEDBACK = (
 # ★enumerate 모드(T2_DISAMB_MODE=enumerate): 재추측 금지·후보 전부 사용자에 제시하고 선택 강제.
 # frontier robust 방식(후보 나열+사용자 내용선택) 재현. list-order 관례 불필요.
 DISAMB_ENUM_FEEDBACK = (
-    "Error: [DISAMBIGUATE-ASK] argument '{k}'='{s}' is one of {n} equally-valid candidates already seen "
-    "in prior tool outputs: {cands}. The conversation does NOT uniquely determine which one the user means. "
-    "Do NOT write and do NOT guess or re-emit. Instead, send a message to the USER that lists ALL {n} "
-    "candidates with their identifying details (what each order/item contains, its attributes) and ask the "
-    "user to choose which one they mean. Wait for the user's explicit choice before making any write. "
-    "Never invent values."
+    "Error: [DISAMBIGUATE-FILTER] argument '{k}'='{s}' is one of {n} candidates already seen: {cands}. "
+    "Before writing, FILTER these candidates by EVERY attribute the user explicitly asked about — the FULL "
+    "request (all the items to change, all colors/sizes/details), not just one attribute. "
+    "If EXACTLY ONE candidate matches the full request, use that one (correct '{s}' to it if different). "
+    "If MORE THAN ONE matches, send the USER a message listing those matching candidates with their "
+    "identifying details (what each contains) and ask which one they mean; wait for the user's choice. "
+    "If NONE matches, ask the user to clarify. Do NOT guess by recency or position. Never invent values."
 )
 
 
@@ -973,6 +974,8 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
     disamb_tools = _confirm_write_tools(a2) if disamb else set()
     env_args = _env_verified_args(a2) if prov_mode == "rescue" else set()
     sub_args = set((a2 or {}).get("disamb_sub_args") or [])  # B2: 치환 화이트리스트는 A2 필드
+    if os.environ.get("T2_DISAMB_ORDER") == "1":            # ★order operand도 disamb 대상(filter-then-ask·env opt-in)
+        sub_args |= {"order", "order_id"}
 
     def _append(state, message):
         if isinstance(message, UserMessage) and getattr(message, "is_audio", False):
@@ -1395,6 +1398,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
     disamb_tools = _confirm_write_tools(a2d) if disamb else set()
     env_args = _env_verified_args(a2d) if prov_mode == "rescue" else set()   # T5-C P-C (B3)
     sub_args = set((a2d or {}).get("disamb_sub_args") or [])                 # T5-C P-B (B2)
+    if os.environ.get("T2_DISAMB_ORDER") == "1":            # ★order operand도 disamb 대상(filter-then-ask·env opt-in)
+        sub_args |= {"order", "order_id"}
 
     # (1) per-sim 게이트 주입 (apply_gate_regen과 동일 패턴·T2_GATE_KINDS 지원)
     orig_init = BaseOrchestrator.__init__
