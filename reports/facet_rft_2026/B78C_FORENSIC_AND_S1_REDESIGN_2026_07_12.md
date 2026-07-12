@@ -49,6 +49,16 @@
 
 **★전체 pass 지형 재보정(정직)**: addressable 대부분이 **⋈ semantic 계열**(value-⋈ 11 + entity-⋈ 8 + order-⋈내용 2 ≈ 21) → 주력=DISAMB(E3)이나 **C59 +31pp격리 / C60 e2e-유해 / ~.34 floor**로 상한 제한. **E-PLAN(coverage)은 소수(~2-4)**. ⇒ 0.526→0.66~0.70이 예상보다 어렵고, 잔여 상당분=⋈ 경계(E7 판단실험 대상). [[08]]: 초기 forensic 클래스명(coverage 8)이 examine-여부 재분류로 대폭 축소 = 집계-라벨 과대 재실증.
 
+## 2e. ★★근본 교정 — b78c는 이미 full 스택 (E1/E3 MOOT·2026-07-12·[[08]])
+> **드라이버 exports 확인**(`t5c_b78c2.log`): `T2_DISAMB(subcall)·T2_EPLAN+WALK·T2_GATE_REGEN(6kinds)·T2_PRESENT_NESTED·T2_CALC·T2_PRINCIPLE_DEFAULT·T2_PROV_REGEN+GROUND`. **v25c(6-task)를 b78c 스택으로 오인한 오류** — b78c=COMP+E-PLAN+DISAMB+calc+prov+gate **full**.
+
+⇒ **0.526 = full-scaffold nt=1 천장(근처).** 로드맵 재정의:
+- **E1(E-PLAN)·E3(DISAMB) = MOOT** — 이미 활성(마커 194·111). "활성화"할 게 없음.
+- **⋈ 경계 실증**: DISAMB **111회 발화**했는데 ⋈ 21 fail = 미발화 아니라 **발화-후-미해결 = 경계**(C60/C61 e2e-미해결 정합). E-PLAN 활성인데 entity-⋈ 8 fail = E-PLAN semantic 한계 재확인.
+- **남은 scaffold 증분(소수)**: E2 CALC-EXT(b78c=T2_CALC count/total만·argmax `T2_CALC_EXT` 미포함=t20/t36/t37)·E4 ASK(t71/t102·미포함)·write-cap(완료·marginal) ≈ +3-5 → **~0.56-0.60**.
+- **잔여 대부분(⋈ ~21 + entity-⋈ + (c)경계) = scaffold 불가 = 경계** → **E7 판단실험(learnable vs 경계)이 유일 남은 pass 지렛대이자 모트**. frontier 0.741과의 격차 = P3 semantic boundary 주장 그 자체.
+- **[[08]]**: v25c→b78c 스택 오인 = 이 세션 측정-전제 오류 5회째. **run의 실제 env는 드라이버 exports로 확인**(추정 금지).
+
 ## 3. 레버 부작용 vs 진짜 잔여 (S1 설계 입력)
 | 성격 | 사례 | S1 처방 |
 |---|---|---|
