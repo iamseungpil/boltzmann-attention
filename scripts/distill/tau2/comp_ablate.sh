@@ -10,7 +10,7 @@ REPO=/home/woori/workspace_common/boltzmann-attention-pi
 T2=$REPO/scripts/distill/tau2; PY=/home/woori/venvs/seka_env/bin/python
 S=/home/woori/scratch; TB=$S/tau2-bench
 M="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8"
-TAG="${1:?tag}"; TASKS="${2:?tasks|ALL}"; NT="${3:-2}"; PORT="${4:-8140}"; EPLAN="${5:-0}"
+TAG="${1:?tag}"; TASKS="${2:?tasks|ALL}"; NT="${3:-2}"; PORT="${4:-8140}"; EPLAN="${5:-0}"; PROVM="${6:-full}"
 LOG=$S/compabl_${TAG}.log; exec > $LOG 2>&1; set -x; date
 cd $REPO && git pull --rebase -q origin facet-rft-2026 2>/dev/null
 source /home/woori/.openrouter_key
@@ -19,13 +19,13 @@ export PYTHONPATH=src:$T2
 curl -s --max-time 5 localhost:$PORT/v1/models | grep -q "$M" || { echo SERVE_MISSING_$PORT; exit 1; }
 # ── COMP 코어(present 제외) ──
 export T2_GATE_REGEN=1 T2_GATE_REGEN_K=1 T2_GATE_KINDS=auth,confirm,ownership,notice,preconditions,constraints
-export T2_PROV_REGEN=1 T2_PROV_REGEN_K=4 T2_PROV_MODE=full     # ★COMP=full(A1의 rescue 아님)
+export T2_PROV_REGEN=1 T2_PROV_REGEN_K=4 T2_PROV_MODE=$PROVM   # ★param6: full(COMP)|rescue(prov 격리 arm)
 export T2_CALC=1
 # ── present/cap/기타 개입 OFF(양 arm 공통) ──
 unset T2_PRESENT_NESTED T2_PRESENT_READS T2_WRITE_CAP T2_GROUND T2_DISAMB T2_DISAMB_MODE T2_PRINCIPLE_DEFAULT T2_AUTOFETCH T2_EPLAN_WALK T2_EPLAN_REPLAN T2_PROV_BADWORDS T2_PROV_ADDR_FULL T2_EPLAN_EXAMINED_SAFE T2_DISAMB_ORDER
 # ── ★유일 변수: eplan ──
 if [ "$EPLAN" = "1" ]; then export T2_EPLAN=1; else unset T2_EPLAN; fi
-echo "ARM config: EPLAN=$EPLAN prov=full present=off cap=off"
+echo "ARM config: EPLAN=$EPLAN prov=$PROVM present=off cap=off"
 cd $TB
 TIDARG=""; [ "$TASKS" != "ALL" ] && TIDARG="--task_ids $TASKS"
 rm -rf "$TB/data/simulations/compabl_$TAG"
