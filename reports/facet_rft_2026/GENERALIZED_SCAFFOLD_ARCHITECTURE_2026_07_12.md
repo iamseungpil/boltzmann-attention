@@ -72,13 +72,16 @@ tool <T>:
   operand <name>:
     getter:  <getter_tool> → <field>       # GET: 후보 생산 getter(결정론)
     sources: [getter_output, user_utterance]  # FIND: 유효 출처
+    filter:  fexec                          # ★FIND=formalize+exec: LLM이 사용자제약→predicate·엔진이 후보에 평가(결정론)
+    filterable_fields: [items, status, ...]  # A2: predicate 대상(스키마 파생)
     resolve:                                # ★4지선다 behavior=도메인 선택
       infer:        none | positional(list[0]) | ...   # INFER 전략(문서화 시만)
       on_ambiguous: ask_enumerate | ask_prompt_id | ...  # ASK 모드(retail=나열·banking=비나열)
     policy_default: <정책-강제값> or null   # gate 정책분
     required: true/false                    # 누락→ASK
 ```
-- **매핑**: getter=GET · sources=FIND · **resolve.infer/on_ambiguous = 4지선다 behavior의 도메인별 선택**(INFER 허용여부·ASK 나열여부) · policy_default=gate · required=ASK-if-missing.
+- **매핑**: getter=GET · **filter=FIND=fexec**(LLM 사용자제약→predicate·엔진 결정론 평가·[[10]]/[[00]]/C68) · **resolve.infer/on_ambiguous = 4지선다 behavior 도메인선택** · policy_default=gate · required=ASK-if-missing.
+- **★loop 최종 (2026-07-12 사용자·FIND=fexec)**: `GET(후보) → FIND=fexec필터(제약→predicate 결정론평가) → 1?use : ≥2?enumerate-ASK : 0?re-formalize/ASK`. filter가 over-ask 감소(제약 유일하면 무-질문·t71 "backpack든"·t102 "시계2개"=결정론 해소). **유일 semantic 잔여 = formalize 정확도**(full content-match보다 좁음·프로젝트 훈련 날개·fexec 0.79·오형식화→enumerate-ASK 자기교정). 방식1(LLM content-match)보다 방식2(formalize+scaffold-filter=fexec)가 decidable하여 우월.
 - **★resolve가 도메인별 선택인 이유(2026-07-12 사용자)**: 같은 애매성도 도메인마다 다름 — retail=후보 나열 ASK / **banking=비나열**(프라이버시·계좌 못 나열) / 순서-문서화 도메인=INFER-positional 허용 / 미문서화=항상 ASK. scaffold=고정 **MENU**(INFER전략들·ASK모드들) 지원·A2=MENU서 선택. **over-ask tradeoff도 A2 튜닝**(무질문추론 기대=infer:positional·질문요구=on_ambiguous:ask). 새 MENU항목=온톨로지 확장(미증명).
 - ⇒ **gate규칙+operand해소+provenance+ASK기준이 전부 A2 한 곳**·scaffold 도메인리터럴 0(순수 인터프리터).
 - **현 구현 대비**: `resolver_path`(getter=GET)·`gate_spec`(confirm/precond)·`disamb_sub_args` = 이미 부분. **통일 TODO**: per-operand 4지선다 spec 하나로 합침 + scaffold=순수 인터프리터 + 정책/스키마서 spec **일반 도출**.
