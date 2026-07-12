@@ -59,6 +59,12 @@ operand 값의 출처는 고정 아님(사용자/getter/추론). A2는 **getter-
 - 효과: GET/FIND=결정론 해소 → **semantic 부담=INFER 하나로 축소**·실패=ASK로 경계(날조 대신).
 - task106 렌즈: GET(변형집합)→FIND("black"·사이즈X)→**INFER**("smaller"→XL)→ASK. 실패=INFER confident-wrong(black-S)+ASK 미발동.
 
+## 4c. ★★아키텍처 정점 — 일반규칙 상향 + INFER 제거 (2026-07-12 사용자·capstone)
+- **일반규칙 = 4도메인 정책 교집합**: "consequential/애매 행동 전 confirm/ask"는 **도메인-불변 원리**(검증: retail=airline **word-for-word 동일**·telecom "confirm price"·banking "ask before transfer"). ⇒ 교집합 규칙 = **고정 엔진 default로 상향**(1회 기술): confirm-before-write · **ask-when-ambiguous** · auth-before-info · deny-out-of-scope · transfer-to-human. 차집합(도메인 precondition/constraint·write목록)만 A2. **"A2이면서 일반규칙" 해소 = 교집합이라 일반.**
+- **★INFER 제거 = ASK 결정론화**: 루프를 **GET→FIND(명시제약 필터)→1개면 사용·≥2면 ASK**로. INFER(유효후보 중 추측=오류원) 삭제. ⇒ **ASK-calibration(=이전 "learn 잔여")이 결정론 규칙(≥2→ASK)으로 소멸**·안전(틀린추측0)·robust frontier(qwen397b 항상 describe-confirm)와 일치. t71/t106 둘 다 ≥2→ASK로 해소.
+- **결과**: 엔진(고정)=gate(정책준수)+prov+calc+coverage+[GET→FIND→ASK·INFER제거]+일반규칙default. A2=스키마+도메인 precond/constraint. **잔여=거의 0(결정가능)+ASK도 실패하는 진짜 underdetermination(user도 모름)+over-ask 비용.**
+- **★caveat(측정)**: over-ask="≥2→항상ASK"가 최적보다 많이 물음·tau2 대개 안전(user-sim 답·db-state 채점)이나 gold가 무-질문 추론 기대 시 감점가능 → **over-ask 비용을 A1/실측 확인**. FIND=명시제약만 결정론(암시는 ≥2→ASK 안전낙하).
+
 ## 5. Proven / Open 경계 (LOCK·정직)
 | 조각 | 상태 |
 |---|---|
