@@ -34,6 +34,12 @@
 | coverage scope | 요청타입→scope | 소액 |
 - 실증: banking A2-swap = "GB1 게이트 몇 개 + applies_when"·**엔진 리터럴 0**([[05]]). A2가 작음.
 - ⇒ **가드 절반은 비용 0**·유일 실비용 = 정책-게이트 1회 검증.
+- **★"고정" 경계 정정 (2026-07-12 사용자·정직)**: 정책→gate_spec 변환이 **도메인마다 정책 해석** 필요 = "A2 거의 무료"를 qualify. 정확한 3층:
+  - **엔진(enforcer) = 고정**(도메인 리터럴 0).
+  - **규칙 온톨로지(gate kinds: auth·confirm·ownership·preconditions·constraints) = 고정**(4도메인 검증·C52·[[47]]).
+  - **gate_spec 내용 = 도메인별 정책 해석**: confirm="모든 write"=거의 기계적(스키마서 write식별) / **preconditions·constraints="shipped면 cancel불가" 등 = 진짜 정책해석**(1회·구조화·LLM보조·검증필수) = **opex per domain**(엔진 수정 아님·요청당 아님).
+  - **"고정" = 온톨로지가 새 도메인 규칙을 커버하는 한 조건부 성립**. 온톨로지 밖 규칙종류=새 kind=엔진확장=고정깨짐. 4도메인 OK·보편 미증명.
+  - ⇒ 수정: "A2 무료"→**"schema-파생분(validity·prov·confirm)=무료·정책-해석분(precondition·constraint)=bounded opex"**.
 
 ## 4. GET→FIND→INFER→ASK 루프 = 출처-해소 엔진 (LOCK·기구현 C44-C48/C67)
 operand 값의 출처는 고정 아님(사용자/getter/추론). A2는 **getter-available 플래그**만, 일반 루프가 해소:
