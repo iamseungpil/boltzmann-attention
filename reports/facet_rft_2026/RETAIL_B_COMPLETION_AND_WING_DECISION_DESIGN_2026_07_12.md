@@ -23,35 +23,35 @@ retail을 **결정론 scaffold로 소진**(닫히는 건 다 닫고 ⋈는 경�
 
 ## 1. 잔여 레버 인벤토리 (C64 클래스 → 설계 → 상태)
 
-| C64 클래스(sims) | 레버 | 정본 doc | 현 상태 | 비용 |
+> **★상태 정정(2026-07-12·코드 직접 확인·[[08]] 문서는 시점 스냅샷)**: 참조 설계서(E-PLAN §8 "다음 액션")보다 **코드가 앞서 있음** — E-PLAN + census 4종이 **이미 구축·배선**됨. 커밋 근거: `0f753a9`(E-PLAN unified() 배선: ledger+L1/L2 deny+CP5 walk) · `00fa5d2`(**deny 무한루프 발견·cap = 레버 부작용 1호**·t103/t27) · `d33db23`(census 4종 구현+V0) · `f9e7591`(L2 conflation 수리·과발화 −45%·**92 checks PASS**). ⇒ retail-B의 현 단계 = **"구축부터"가 아니라 "부작용 디버그 → 격리검증 → nt=1 표적"**.
+
+| C64 클래스(sims) | 레버 | 정본 doc | 현 상태(코드확인) | 비용 |
 |---|---|---|---|---|
-| **A coverage/discovery (≈8)** | E-PLAN L1/L2 + CP5 재-plan walk | `E_PLAN_LIVE_WIRING_DESIGN` v1.3 | [D] **미구현**(스켈레톤부터) | 구현·V0 무료 |
-| C compound-criterion (≈6) | CALC-EXT (argmax/argmin/diff) | `CENSUS_LEVERS §2a` | **V0 완료**(t20 3/4·28단위 PASS·most_recent→ASK) | 무료 |
-| F 값충실도 (t17·t39) | **PROV-RESCUE-PERARG**(GROUND-VERBATIM 폐기) | `CENSUS_LEVERS §1` | [D] 엔진수정 미구현 | 무료 |
-| D GET-chain lookup (≈5) | DISAMB-ADDR(P-B 확장) + 미조회분=E-PLAN L2 | `CENSUS_LEVERS §4` | [D] V0 미실행 | 무료 |
-| B over-action decidable (≈5) | EXCLUSIVITY(관측-ledger 필요) | `CENSUS_LEVERS §3a` | [D] ledger 부품 선행 | 무료 |
+| **A coverage/discovery (≈8)** | E-PLAN L1/L2 + CP5 재-plan walk | `E_PLAN_LIVE_WIRING_DESIGN` v1.3 | **구축·unified() 배선·92단위 PASS**·deny-loop cap됨 → **격리검증 §5(d)④⑤ + nt=1 미완** | V0·격리 무료 |
+| C compound-criterion (≈6) | CALC-EXT (argmax/argmin/diff) | `CENSUS_LEVERS §2a` | **구현+V0 완료**(t20 3/4·28단위 PASS·most_recent→ASK) | 무료 |
+| F 값충실도 (t17·t39) | **PROV-RESCUE-PERARG**(GROUND-VERBATIM 폐기) | `CENSUS_LEVERS §1` | **구현됨**(`d33db23`)·엔진수정 V0 재확인 필요 | 무료 |
+| D GET-chain lookup (≈5) | DISAMB-ADDR(P-B 확장) + 미조회분=E-PLAN L2 | `CENSUS_LEVERS §4` | **구현됨**(`d33db23`)·V0 분해(gold-실재/미조회) 재확인 | 무료 |
+| B over-action decidable (≈5) | EXCLUSIVITY(관측-ledger 필요) | `CENSUS_LEVERS §3a` | 구현됨·관측-ledger 분리 확인 필요 | 무료 |
 | E DISAMB 잔여 (63) | T5-C COMP+D-v2 | `T5C_SILENT_REPAIR` | **단계 A 완료**(t0/t61 4/4)·단계 B 대기 | V0 무료·nt1 소액 |
 | G-relay (t3형) | CP5 communicate-의무 확장 | `CENSUS_LEVERS §2b` | [D] 프로브先·**learn 대상 아님** | 무료 프로브 |
 | B semantic 잔여·H·I | (경계·미개척) | `CENSUS_LEVERS §5`·C63 | P3 경계 계상 | — |
 
-**핵심**: A(E-PLAN)가 최대 headroom(MISSED+ZERO_NEV 47 sims=10.3pp·`SCAFFOLD_ENDGAME §L4`)이며 **유일 미구현 지배 레버**. 나머지는 엔진-증분(무료)이고 V0 census가 크기를 확정.
+**핵심(정정)**: A(E-PLAN)가 최대 headroom(MISSED+ZERO_NEV 47 sims=10.3pp·`SCAFFOLD_ENDGAME §L4`)·지배 레버이며 **이미 구축·배선됨**. 현 병목 = **레버 부작용 소진**(deny-loop cap이 1호·제1원리 Δspurious 계측)과 **격리검증 §5(d)⑤(CP5 재-plan 생사)** + **nt=1 표적 사이클** — "구현"이 아니라 "검증·튜닝".
 
 ## 2. 무료-先 실행 순서 (병렬 가능 지점 표시)
 
 각 레버 = **V0 오프라인 census(무료·COMP 167 fail에 적용) → 단위 → GO판정 → 스택 편입 → nt=1 사이클**. 순서:
 
 ```
-[S0] E-PLAN 구현(무료)  ┐  (병렬)
-     1. t2_eplan_patch.py 스켈레톤(ledger 관측부 + discovery L1/L2 + CP5 walk)
-     2. test_eplan.py 단위(coverage_gap·expand_scope·L1/L2·qty)
-     3. A2 enumerator_spec(retail 1줄) + SCOPE_TOKEN 파서
-     4. 격리검증 §5(d)④⑤ (GPU 한가할 때·⑤=CP5 주축 생사)
-[S0'] 엔진-증분 V0(무료)  ┘  (E-PLAN과 병렬)
-     - PROV-RESCUE-PERARG: 단위(#정규화·다중fab순회) → v25e t17 4trial 오프라인
-     - DISAMB-ADDR: V0 = 주소-오복사 전수 {gold-실재 판정 + 실재분 서브콜 재현}(분해가 D 크기 확정)
-     - EXCLUSIVITY: 관측-전용 ledger 부품 단위·격리 先(§3a)
+[S0] E-PLAN 부작용 소진 + 격리검증(무료)  ┐  ★구축·배선·92단위 완료 — 남은 것:
+     - 부작용 소진: deny-loop cap(1호·`00fa5d2`) 외 잔여 부작용 census(Δspurious/Δtme·제1원리)
+     - 격리검증 §5(d)④⑤ (GPU 한가할 때·⑤=CP5 재-plan 주축 생사 = 최우선)
+[S0'] 엔진-증분 레버 V0 재확인(무료·구현됨 `d33db23`)  ┘  (E-PLAN과 병렬)
+     - PROV-RESCUE-PERARG: 단위(#정규화·다중fab순회) → v25e t17 4trial 오프라인(fab이 address1에 닿나)
+     - DISAMB-ADDR: V0 분해 = 주소-오복사 전수 {gold-실재 판정 + 실재분 서브콜 재현}(D 크기 확정)
+     - EXCLUSIVITY: 관측-전용 ledger 분리 확인(§3a·arm 충돌 해소)
      - (CALC-EXT는 V0 완료 — 스택 편입만)
-         │  각 레버 GO = V0 fix≥임계 ∧ break=0 ∧ 단위 PASS
+         │  각 레버 GO = V0 fix≥임계 ∧ break=0 ∧ 단위 PASS ∧ **부작용 census 통과**
          ▼
 [S1] 단계 B nt=1 사이클(소액·승인)  — T5-C §0b 프로토콜(nt≥2 한방 금지·nt1 누적)
      - arm 구성: COMP(기지·C62 GO) + {GO된 census 레버들} = 개입-합성 스택
