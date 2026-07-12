@@ -33,6 +33,22 @@
 
 **★핵심 재프레이밍(2b가 §2 3건-정독을 정정 → 리뷰가 레버 배분 재정정)**: "OVER_ACTION 9 = (c) 경계"는 **과대해석**이었다 — genuine (c) 경계는 **t99 1건 + NL_ONLY 2 = ~3**뿐(경계 축소는 유지·산수: OVER_ACTION 9 = ORDER-⋈ 5 + genuine 1 + VALUE/MISSING 재배치 3). **단 "addressable 16 → 전부 T5-C/DISAMB"도 같은 실수의 반복(일괄 라우팅)** — addressable **총량 ≈16은 유지**하되 레버가 갈린다: **DISAMB ≈ 9~12**(VALUE 순수분 + ORDER-⋈ 정독 후 확정분) · **CALC/FORMALIZE 2**(t36·t37 기준-계산형) · **ASK-채널 1~2**(t71 확정·t102 의심 — ASK는 addressable이나 user-sim 협조 의존 = 확률적 커버·t57형과 동류). **[[08]] 실증 2중: 소표본 정독도, 휴리스틱 전수도 각자 과대일반화 — 서로가 서로를 교정(3건-정독↔전수분류↔정본대조).**
 
+## 2d. ★coverage 13 재분류 — E-PLAN 실효 대폭 축소 (E1 조사·`scratchpad/reclass.sh`·2026-07-12)
+> E1 스모크(t41 db_fail·E-PLAN "walk suppressed n=2 cov=2")가 E-PLAN coverage 한계를 노출 → 재분류.
+> **E-PLAN 코드 정독**: `qty_item_covered`(t2_eplan_patch:285)가 entity vs item 구분을 **의도적으로 결정론화 안 함**(semantic·주석 명시)·`walk_required_n`(:314)이 entity-특정 강화를 **이미 기각**(무조건기여 시 passing-sim 5건 spurious). ⇒ "entity-특정 보강"은 [[05]] 위반(유동판단 동결) 또는 Δspurious.
+
+미매치 gold-write를 **examine 여부**로 가름:
+| 태그 | n | 레버 |
+|---|---|---|
+| **EXAMINED→⋈** (발견·검토했으나 미기록·semantic 어느-order) | 8 | ⋈(DISAMB-content/경계)·**E-PLAN 불가** |
+| USER_ADDR (프로필주소 누락) | 3 | 별도 |
+| LISTED_NOTEXAM→discovery | 2 | **E-PLAN L2** ✓ |
+| NOTLISTED→discovery | 2 | **E-PLAN L1** ✓ |
+
+**★E-PLAN 진짜 discovery-gap ≈ 2-4 task**(t76·t110+t17/t22부분)뿐 — "+3~5" 추정 폐기. coverage 8의 대부분(EXAMINED→⋈ 8)=entity-⋈=E-PLAN 원리상 불가(t41 실증).
+
+**★전체 pass 지형 재보정(정직)**: addressable 대부분이 **⋈ semantic 계열**(value-⋈ 11 + entity-⋈ 8 + order-⋈내용 2 ≈ 21) → 주력=DISAMB(E3)이나 **C59 +31pp격리 / C60 e2e-유해 / ~.34 floor**로 상한 제한. **E-PLAN(coverage)은 소수(~2-4)**. ⇒ 0.526→0.66~0.70이 예상보다 어렵고, 잔여 상당분=⋈ 경계(E7 판단실험 대상). [[08]]: 초기 forensic 클래스명(coverage 8)이 examine-여부 재분류로 대폭 축소 = 집계-라벨 과대 재실증.
+
 ## 3. 레버 부작용 vs 진짜 잔여 (S1 설계 입력)
 | 성격 | 사례 | S1 처방 |
 |---|---|---|
