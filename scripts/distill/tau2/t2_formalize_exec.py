@@ -388,3 +388,171 @@ def fexec_for_disamb(agent, la, UserMessage, state_msgs, arg_key, cur_value):
         _mark("annotated arg=%s op=%s status=%s ids=%s"
               % (arg_key, spec["op"], result["status"], ",".join(map(str, result["ids"])) or "-"))
     return note
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ★L4 fexec-variants (A1_V3_IMPLEMENTATION §2·2026-07-13) — 변형 극값/속성 선택.
+#   fexec 엔진을 product-variant record에 적용. I1(field-class)·I2/R5(numeric-safe)·
+#   I6(variant dotted-path)·I7(floor-guard) 반영. [[05]]: variant 구조=A2 present_spec
+#   (nested_field=variants·id_field=item_id) 재사용·엔진 리터럴(price/variants/options) 0.
+# ═══════════════════════════════════════════════════════════════════════════
+
+# L4a 극값어 사전 (eval-blind 영어·op-only·R2 gold-미참조).
+# ★I1: op축과 field-class를 분리. PRICE_WORDS=field 결정론(price)·BARE_MAGNITUDE=field formalize 잔여.
+_PRICE_WORDS = {
+    "most expensive": "argmax", "priciest": "argmax", "dearest": "argmax",
+    "highest priced": "argmax", "most costly": "argmax",
+    "cheapest": "argmin", "least expensive": "argmin", "lowest priced": "argmin",
+    "most affordable": "argmin", "best price": "argmin",
+}
+_BARE_MAGNITUDE = {
+    "largest": "argmax", "biggest": "argmax", "greatest": "argmax", "maximum": "argmax",
+    "smallest": "argmin", "tiniest": "argmin", "minimum": "argmin",
+}
+
+
+def _variant_records(msgs, spec, limit=40):
+    """get_product_details 출력의 variants(dict) -> [(item_id, variant_record)].
+    A2 present_spec 재사용(엔진 리터럴 0): spec={producer|trigger_tool, nested_field, id_field}.
+    available==False만 제외. I6: variant 구조 order와 달라 dict.values() 순회."""
+    nested = spec.get("nested_field") or "variants"
+    idf = spec.get("id_field") or "item_id"
+    out = []
+    for o in _parse_tool_outputs(msgs, lenient=True):
+        if not isinstance(o, dict):
+            continue
+        vs = o.get(nested)
+        if not isinstance(vs, dict):
+            for v in o.values():
+                if isinstance(v, dict) and isinstance(v.get(nested), dict):
+                    vs = v[nested]
+                    break
+        if not isinstance(vs, dict):
+            continue
+        for iid, rec in vs.items():
+            if not isinstance(rec, dict):
+                continue
+            if rec.get("available") is False:
+                continue
+            rid = str(rec.get(idf) or iid).strip()
+            out.append((rid, rec))
+        if len(out) >= limit:
+            break
+    seen, uniq = set(), []
+    for rid, rec in out:
+        if rid in seen:
+            continue
+        seen.add(rid)
+        uniq.append((rid, rec))
+    return uniq
+
+
+def _option_value_type(records):
+    """variant options의 각 키 -> 값-타입('num'|'str') (R5 field-type 화이트리스트).
+    options 내부만(price/item_id/available 제외 = FP 차단). 혼합=str(보수)."""
+    keytype = {}
+    for _, rec in records:
+        opts = rec.get("options")
+        if not isinstance(opts, dict):
+            continue
+        for k, v in opts.items():
+            kl = k.lower()
+            t = "num" if _as_float(v) is not None else "str"
+            if kl not in keytype:
+                keytype[kl] = t
+            elif keytype[kl] != t:
+                keytype[kl] = "str"
+    return keytype
+
+
+def _ground_variant_criterion(request_text, records):
+    """결정론 기준 추출(I1 field-class + I2/R5 numeric-safe). 반환 spec | None(->formalize).
+    L4a 극값어(price=field결정론·bare=None) / L4b 속성(요청토큰 ∩ options 값·타입안전)."""
+    rt = " " + (request_text or "").lower() + " "
+    op = field = None
+    for phrase, o in _PRICE_WORDS.items():
+        if phrase in rt:
+            op, field = o, "price"
+            break
+    if op is None:
+        for word, o in _BARE_MAGNITUDE.items():
+            if (" " + word + " ") in rt:
+                op = o
+                break
+    keytype = _option_value_type(records)
+    opt_vals = {}
+    for _, rec in records:
+        opts = rec.get("options")
+        if isinstance(opts, dict):
+            for k, v in opts.items():
+                opt_vals.setdefault(k.lower(), set()).add(str(v).strip().lower())
+    toks = re.findall(r"[a-z0-9\-]+", rt)
+    cons = []
+    for i, tok in enumerate(toks):
+        is_num = bool(re.match(r"^\d+(ml|gb|tb|l|inch|in|oz)?$", tok))
+        for k, vals in opt_vals.items():
+            if is_num:
+                if keytype.get(k) != "num":
+                    continue
+                keyhit = (" " + k + " ") in rt or (k in toks[max(0, i - 3):i + 1])
+                if not keyhit:
+                    continue
+                tnum = re.match(r"^(\d+)", tok)
+                if tnum and any(re.match(r"^(\d+)", vv) and re.match(r"^(\d+)", vv).group(1) == tnum.group(1)
+                                for vv in vals):
+                    cons.append({"field": "options." + k, "op": "eq", "value": tnum.group(1)})
+            else:
+                if tok in vals and len(tok) >= 3:
+                    cons.append({"field": "options." + k, "op": "eq", "value": tok})
+    seen, uc = set(), []
+    for c in cons:
+        key = (c["field"], str(c["value"]))
+        if key not in seen:
+            seen.add(key)
+            uc.append(c)
+    if op is None and not uc:
+        return None
+    if op in ("argmax", "argmin") and field is None:
+        return None
+    return {"op": op or "filter", "field": field, "constraints": uc}
+
+
+def fexec_variant_decide(agent, la, UserMessage, msgs, arg_key, cur_value, a2_spec,
+                         request_text, max_formalize=2):
+    """L4: new_item(variant) operand 해소. 결정론 기준(L4a/L4b) 先 -> 없으면 formalize 폴백.
+    반환 {status: one|many|fallback, ids, why}. I7 floor-guard: one=confident 치환·그 외 no-op/ASK."""
+    records = _variant_records(msgs, a2_spec)
+    if len(records) < 2:
+        return {"status": "fallback", "ids": [], "why": "variants<2"}
+    spec = _ground_variant_criterion(request_text, records)
+    if spec is not None:
+        agent._t2_l4_field_det = getattr(agent, "_t2_l4_field_det", 0) + 1
+        result = execute_formalized(spec, records)
+        if result["status"] == "ok":
+            st = "one" if len(result["ids"]) == 1 else "many"
+            _mark("L4 %s(det) arg=%s op=%s ids=%s (%s)"
+                  % (st, arg_key, spec["op"], ",".join(map(str, result["ids"])), result["why"]))
+            return {"status": st, "ids": result["ids"], "why": "det:" + result["why"]}
+    agent._t2_l4_field_form = getattr(agent, "_t2_l4_field_form", 0) + 1
+    prompt = build_formalize_prompt(msgs, arg_key, cur_value, records)
+    kw = {kk: vv for kk, vv in dict(getattr(agent, "llm_args", None) or {}).items() if "tool" not in kk}
+    for attempt in range(max_formalize):
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="l4_variant_formalize", **kw)
+        fspec = parse_formalize(getattr(sub, "content", None) or "")
+        if fspec is None or fspec["op"] in ("none", "unresolvable"):
+            return {"status": "fallback", "ids": [], "why": "form:" + (fspec["op"] if fspec else "unsure")}
+        result = execute_formalized(fspec, records)
+        if result["status"] == "ok":
+            st = "one" if len(result["ids"]) == 1 else "many"
+            _mark("L4 %s(form) arg=%s ids=%s" % (st, arg_key, ",".join(map(str, result["ids"]))))
+            return {"status": st, "ids": result["ids"], "why": "form:" + result["why"]}
+        if result["status"] == "empty" and attempt + 1 < max_formalize:
+            prompt = prompt + "\n\n[Note] previous formalization matched NO variant; re-read options."
+            continue
+        return {"status": "fallback", "ids": [], "why": "form:" + result["status"]}
+    return {"status": "fallback", "ids": [], "why": "form:exhausted"}

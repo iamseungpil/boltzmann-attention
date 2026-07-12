@@ -6,6 +6,9 @@
   },
   "placeholders": ["#W0000000"],
   "_note_placeholders": "[[05]] 감사 2026-07-13: retail 주문-id placeholder 포맷을 엔진 DEFAULT_PLACEHOLDERS서 A2로 이관(엔진 도메인-리터럴 제거). 식별-arg hints(order_id·item)는 엔진 'id' 토큰이 포괄해 A2 추가 불요(minimize-A2).",
+  "variant_operand": ["new_item_ids"],
+  "variant_spec": {"trigger_tool": "get_product_details", "nested_field": "variants", "id_field": "item_id"},
+  "_note_variant": "L4 fexec-variants(A1_V3): new_item_id 애매 시 get_product_details variants서 극값/속성 결정론 선택. 구조=A2 선언(엔진 리터럴 0).",
   "gates": [
     {
       "id": "G1_AUTH_FIRST",
