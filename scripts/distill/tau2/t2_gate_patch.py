@@ -616,6 +616,17 @@ DISAMB_FEEDBACK = (
     "Never invent values."
 )
 
+# ★enumerate 모드(T2_DISAMB_MODE=enumerate): 재추측 금지·후보 전부 사용자에 제시하고 선택 강제.
+# frontier robust 방식(후보 나열+사용자 내용선택) 재현. list-order 관례 불필요.
+DISAMB_ENUM_FEEDBACK = (
+    "Error: [DISAMBIGUATE-ASK] argument '{k}'='{s}' is one of {n} equally-valid candidates already seen "
+    "in prior tool outputs: {cands}. The conversation does NOT uniquely determine which one the user means. "
+    "Do NOT write and do NOT guess or re-emit. Instead, send a message to the USER that lists ALL {n} "
+    "candidates with their identifying details (what each order/item contains, its attributes) and ask the "
+    "user to choose which one they mean. Wait for the user's explicit choice before making any write. "
+    "Never invent values."
+)
+
 
 def _confirm_write_tools(a2):
     """A2-도출 write 도구 집합 = kind=='confirm' 게이트의 applies_to (도메인 리터럴 0)."""
@@ -1635,8 +1646,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[T2_DISAMB] fired tool=%s arg=%s val=%s ncand=%d" % (tc.name, k, s, len(cands)),
                       file=_sys.stderr, flush=True)
                 dwork = list(work) + [am]
-                fbtxt = DISAMB_FEEDBACK.format(k=k, s=s, n=len(cands),
-                                               cands=", ".join(repr(c) for c in cands[:8]))
+                _fbtmpl = DISAMB_ENUM_FEEDBACK if disamb_mode == "enumerate" else DISAMB_FEEDBACK
+                fbtxt = _fbtmpl.format(k=k, s=s, n=len(cands),
+                                       cands=", ".join(repr(c) for c in cands[:8]))
                 for c in (am.tool_calls or []):
                     reason = fbtxt if c is tc else \
                         "Error: [DISAMBIGUATE] re-check pending; re-emit this call after resolving."
