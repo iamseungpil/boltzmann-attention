@@ -87,6 +87,13 @@ tool <T>:
 - **현 구현 대비**: `resolver_path`(getter=GET)·`gate_spec`(confirm/precond)·`disamb_sub_args` = 이미 부분. **통일 TODO**: per-operand 4지선다 spec 하나로 합침 + scaffold=순수 인터프리터 + 정책/스키마서 spec **일반 도출**.
 - **특허 최종형**: "고정 인터프리터가 per-operand 해소기준(A2)을 읽어 GET/FIND/ASK 실행·도메인=operand-spec 스왑·엔진 무수정." → 스키마(getter/sources/required)=거의 무료·정책분(policy_default/precond)=bounded opex.
 
+## 4e. ★prompt-uncontrollable 결정론 잔여 = 특허 핵심 관찰 (2026-07-12 사용자·A2 실증)
+- **A2 실증(t71)**: DISAMB-order 정상 발화(ncand=4·filter-then-ask 지시 전송)했으나 **32B가 지시 미준수**(같은 틀린 주문 재-emit). = **directive/advise로 제어 안 되는 부분 실재**([[42]] prompt-limit·소형모델 규칙 미준수). ⇒ **결정론 filter-substitute 필요**(LLM formalize→엔진 필터+치환·advise 아님).
+- **★연구/특허 관찰 명제 (지속 관찰)**: **"프롬프트로 제어 안 되는 결정론-필요 부분"이 (a) 모델이 커지면 사라지는가 (scale-emergent 준수) (b) 아니면 항상 결정론이어야 하는가**를 scale 사다리로 계속 관찰·확인. = compliance-scale 명제의 핵심 검정.
+- **★유한성 가설**: 그 "prompt-uncontrollable 결정론 부분"이 **도메인-비특화이고 유한개**면 → 소형모델을 scaffold 보조받게 하는 게 **비용효율적**(대형 대신 소형+유한 scaffold). **단 도메인마다 늘면 안 됨**(도메인-일반 유한집합이어야 특허 성립). ⇒ 밝혀야 할 것 = **도메인-특화 안 하면서 프롬프트로 제어 안 되는 결정론 부분들의 유한 목록.**
+- 현재까지 그 목록(도메인-일반·prompt-uncontrollable·결정론 필요): {operand validity·provenance(날조)·산술·operand-선택 필터(⋈)·coverage·confirm-준수}. 각각 scale로 닫히는지 관찰 대상.
+- ⇒ **특허 청구에 명시**: "소형 LLM + 유한개 도메인-일반 결정론 검증기(프롬프트로 제어 불가한 부분)로 대형 도달·비용효율" + "그 결정론 집합이 도메인-불변·유한".
+
 ## 5. Proven / Open 경계 (LOCK·정직)
 | 조각 | 상태 |
 |---|---|
