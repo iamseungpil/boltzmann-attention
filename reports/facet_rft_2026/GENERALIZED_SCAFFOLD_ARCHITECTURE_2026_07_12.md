@@ -72,11 +72,14 @@ tool <T>:
   operand <name>:
     getter:  <getter_tool> → <field>       # GET: 후보 생산 getter(결정론)
     sources: [getter_output, user_utterance]  # FIND: 유효 출처
-    resolve: FIND(명시제약) → 1개?use : ≥2개?ASK   # INFER 제거·애매→ASK
+    resolve:                                # ★4지선다 behavior=도메인 선택
+      infer:        none | positional(list[0]) | ...   # INFER 전략(문서화 시만)
+      on_ambiguous: ask_enumerate | ask_prompt_id | ...  # ASK 모드(retail=나열·banking=비나열)
     policy_default: <정책-강제값> or null   # gate 정책분
     required: true/false                    # 누락→ASK
 ```
-- **매핑**: getter=GET · sources=FIND · resolve(≥2→ASK)=ASK(INFER제거) · policy_default=gate · required=ASK-if-missing.
+- **매핑**: getter=GET · sources=FIND · **resolve.infer/on_ambiguous = 4지선다 behavior의 도메인별 선택**(INFER 허용여부·ASK 나열여부) · policy_default=gate · required=ASK-if-missing.
+- **★resolve가 도메인별 선택인 이유(2026-07-12 사용자)**: 같은 애매성도 도메인마다 다름 — retail=후보 나열 ASK / **banking=비나열**(프라이버시·계좌 못 나열) / 순서-문서화 도메인=INFER-positional 허용 / 미문서화=항상 ASK. scaffold=고정 **MENU**(INFER전략들·ASK모드들) 지원·A2=MENU서 선택. **over-ask tradeoff도 A2 튜닝**(무질문추론 기대=infer:positional·질문요구=on_ambiguous:ask). 새 MENU항목=온톨로지 확장(미증명).
 - ⇒ **gate규칙+operand해소+provenance+ASK기준이 전부 A2 한 곳**·scaffold 도메인리터럴 0(순수 인터프리터).
 - **현 구현 대비**: `resolver_path`(getter=GET)·`gate_spec`(confirm/precond)·`disamb_sub_args` = 이미 부분. **통일 TODO**: per-operand 4지선다 spec 하나로 합침 + scaffold=순수 인터프리터 + 정책/스키마서 spec **일반 도출**.
 - **특허 최종형**: "고정 인터프리터가 per-operand 해소기준(A2)을 읽어 GET/FIND/ASK 실행·도메인=operand-spec 스왑·엔진 무수정." → 스키마(getter/sources/required)=거의 무료·정책분(policy_default/precond)=bounded opex.
