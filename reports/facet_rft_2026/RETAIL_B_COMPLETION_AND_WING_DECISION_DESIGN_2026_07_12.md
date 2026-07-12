@@ -2,7 +2,7 @@
 
 > 등대 §4 큐(E-COMP·T5-C·E-PLAN·E-XFER-bank·E6′) + 기존 설계서 **시퀀싱**. 재발명 금지([[48]]).
 > **이 문서 = 오케스트레이션 설계**: 개별 레버 명세는 각 정본 doc(참조)에 있고, 여기서는 (I) 무료-先 순서로 retail-B를 한계까지 밀고 (II) **C-잔여로 두 날개(전이/학습)를 가르는 판단 실험을 사전등록**한다.
-> 상태: **[D] v2 — 독립 적대리뷰 반영 완료**(Part II §4-§5 REJECT→재설계: pass@N-라우터 폐기·3층 경계+C38 타당성 게이트 / Part I F3·F5 수정). 유료(J2″·C·banking·learn)는 승인 후.
+> 상태: **[D] v3 — 두 리뷰 통합 + learn 표적 정련**. (a) 사용자 리뷰 4건(9f39e29e·인벤토리 G8/FORMALIZE·§3.4 동결계상·[[11]]가드·J2″유료) + (b) 독립 적대리뷰 5건(pass@N-라우터 폐기·3층경계+C38 게이트·headroom·C39) = **상보적·전건 통합**. (c) **learn 표적 = "(b) 확정 뒤 남은 것만"**(사용자 지시·T5-C가 (b) 1차 소진 후 잔여만·[[13]]). 유료(J2″·C·banking·learn)는 승인 후.
 > 불변: [[05]] A2만·엔진 도메인일반 · [[08]] per-case·집계금지 · [[09]] 무료先·유료 최소 · [[13]] scaffold 소진→그다음 learn · 제1원리 Δspurious≤0.
 
 ---
@@ -100,20 +100,24 @@ C-잔여 실패 f 마다 (잔여의 3층 구조·§1.5 + C55/C58):
   R3. 경계 3분 (정답이 관측입력의 함수인가·C55 H(gold|X)):
        (a) 형식화-가능    → 이미 R2서 포착(scaffold·learn 아님)
        (b) 문맥-해소 ⋈   → 후보 2+·정답 문맥-내·선택자 문맥-결정가능·격리open/e2e유해
-                          → ★learn 후보 (단 C38 타당성 게이트 경유·pass@N 아님)
+                          → ★scaffold(T5-C silent repair·DISAMB)가 1차 소진 → **(b)-잔여 확정 후 그 잔여만 learn 후보**
        (c) 의도-미결정    → 정답이 입력의 함수 아님(H(gold|X)>0·C58 디폴트-폐기) → ASK/map·learn 원리상 불가
   [보조·router 아님] boundary-exclusion: pass@N≈0 전-trial ⇒ trivially-reachable 아님(경계 정합)
        — **learn 승격 근거로 쓰지 않음**(F1). 오직 (c) 경계 정합성 확인용.
 ```
 
+**★learn 표적 = "(b) 확정 뒤 남은 것만" (사용자 지시·[[13]] scaffold先)**:
+- **(b)는 learn 전에 scaffold가 먼저 소진한다** — T5-C silent repair(대화 불변·격리 서브콜로 인자만 치환 = C60/C61 e2e-유해 없이 (b) 열거를 전달)가 (b)의 scaffold-해소분을 닫는다. **"b 확정" = T5-C 최종 스택이 (b)에 최선을 다한 뒤 census로 남는 e2e-미해소 (b)-잔여**.
+- **learn 표적 = (b) 전체가 아니라 그 (b)-잔여만.** scaffold가 닫는 (b)를 learn으로 재푸는 것은 [[13]] 역행(비용·혼입) — learn은 **scaffold-불가로 확정된 (b)-잔여**에만.
+
 **learn 후보 → GO 게이트 = C38 데이터-타당성 (pass@N 아님·F1)**:
-1. (b) 버킷을 **도메인-일반 스킬-클래스로 추상화**([[11]]·retail 리터럴·템플릿·사례 학습데이터 투입 금지=도메인-타깃) → synth/cfbsynth 데이터 v3.
+1. **(b)-잔여** 버킷을 **도메인-일반 스킬-클래스로 추상화**([[11]]·retail 리터럴·템플릿·사례 학습데이터 투입 금지=도메인-타깃) → synth/cfbsynth 데이터 v3.
 2. **타당성 게이트(C38·필수·GO 前)**: base가 그 추상 스킬서 **결손을 재현**하나? (합성이 base≈0.98이면 gradient 0 = C38 실패 재현 = 착수 금지). 데이터 결함 **4종** 수정: (i)D7 근접오답 (ii)음성사례(무조건조회 퇴화 방지) (iii)on-policy rejected (iv)**발명형-id rejected**(C39·32B 실패=발명 48/93·리뷰 F5).
-3. 타당성 통과 후에만 학습 → **full-scaffold 위 한계 Δ**(C37′ 혼입 규율) → **e2e 확인**(J2′·격리 pass 단독 금지·C60).
+3. 타당성 통과 후에만 학습 → **full-scaffold 위 한계 Δ**(C37′ 혼입 규율) → **e2e 확인**(J2″·격리 pass 단독 금지·C60).
 
 **분기 (사전등록·양방향)**:
-- **A (learn GO)**: (b) 버킷 ≥ N_min(**4·전-trial robust**) ∧ **타당성 게이트 통과** ∧ 한계Δ>0(e2e) → synth 학습 정당(P4).
-- **B (전이 우선)**: 잔여 = {(a)scaffold + (c)ASK-경계 + flaky}로만 → learn 표적 부재 → **banking 전이(E-XFER-bank)** = 고정 scaffold 도메인-일반성(P1) + (c) 경계 정직(P3).
+- **A (learn GO)**: **(b)-잔여**(T5-C 소진 후) 버킷 ≥ N_min(**4·전-trial robust**) ∧ **타당성 게이트 통과** ∧ 한계Δ>0(e2e) → synth 학습 정당(P4).
+- **B (전이 우선)**: (b)-잔여 < N_min 또는 타당성 미통과 → learn 표적 부재(잔여={(a)scaffold+(c)ASK경계+flaky}) → **banking 전이(E-XFER-bank)** = 고정 scaffold 도메인-일반성(P1) + (c) 경계 정직(P3).
 
 ## 5. 사전 prior (판정 前 명시·대칭크레딧 [[03]]#9)
 
@@ -137,8 +141,8 @@ banking 전이는 분기 결과이자 **판정 도구**이기도 하다(잔여 �
 |---|---|---|---|
 | J0 | C-잔여 per-case census(C64 도구 재사용) → R1/R2/R3 3층 라벨 | 무료 | 잔여 성격 분포 |
 | J1 | E-ISO A/B/C + **calc-직렬화 프로브**(`ecomp_iso_probe.py`+C68 fexec·C61 확장) → (a)형식화층 제거 | 무료(32B 로컬) | (a) 분리·부하 몫 제거 |
-| J2 | (b)/(c) 분별: 후보 열거 + 선택자 문맥-결정가능성(C55 H(gold\|X)). boundary-exclusion pass@N=**보조만** | 무료(로컬) | (b) 문맥-⋈ 버킷 |
-| J2′ | **(b) 후보 → C38 타당성 게이트**: 추상 스킬-클래스 합성 → base가 결손 재현하나(gradient>0) | 무료(설계·오프라인) | learn 착수 자격 |
+| J2 | (b)/(c) 분별: 후보 열거 + 선택자 문맥-결정가능성(C55 H(gold\|X)). ★**T5-C 소진 후 (b)-잔여**만 대상(scaffold-해소분 제외·[[13]]). boundary-exclusion pass@N=**보조만** | 무료(로컬) | (b)-잔여 버킷 |
+| J2′ | **(b)-잔여 → C38 타당성 게이트**: 추상 스킬-클래스 합성 → base가 결손 재현하나(gradient>0) | 무료(설계·오프라인) | learn 착수 자격 |
 | J2″ | (타당성 통과분) 학습 → full-scaffold 위 **e2e 한계Δ**(대표 sims 최소-scope·격리 단독 금지·C60) | 유료(최소·승인) | learn GO 확정 |
 | J3 | **분기 판정**(사전등록 §4·양방향) → learn GO / NO-GO | — | 결정 |
 | J4a | (분기 A) E6′ 데이터 v3 본체(4결함 수정·C39 포함)·[[11]] 추상화 | 학습 유료 | learn 표적 |
@@ -148,7 +152,7 @@ banking 전이는 분기 결과이자 **판정 도구**이기도 하다(잔여 �
 ## 8. GO/판정 요약 (사전등록)
 
 - **retail-B 소진**(Part I §3): 레버-수렴(≥2 연속 null V0 census 라운드) ∧ 잔여={(a)형식화·(b)⋈·(c)ASK경계·relay·flaky} ∧ 동결-레버 표적 별도 계상.
-- **learn GO**(분기 A): (b) 버킷 ≥ 4 전-trial robust ∧ **C38 타당성 게이트 통과**(base 결손 재현) ∧ full-scaffold 위 **e2e 한계Δ>0**. ★pass@N은 근거 아님(C38 반증).
+- **learn GO**(분기 A): **(b)-잔여**(T5-C 소진 후) ≥ 4 전-trial robust ∧ **C38 타당성 게이트 통과**(base 결손 재현) ∧ full-scaffold 위 **e2e 한계Δ>0**. ★pass@N은 근거 아님(C38 반증)·learn은 scaffold-불가 (b)-잔여에만([[13]]).
 - **전이 우선**(분기 B): 위 미충족(잔여=(a)+(c)+flaky) → banking 전이로 도메인-일반성 증명 + (c) 경계 정직.
 - 어느 분기든 **(c) 의도-미결정은 map/ASK**(강제 학습·강제 write 금지·§1.5·C58).
 
