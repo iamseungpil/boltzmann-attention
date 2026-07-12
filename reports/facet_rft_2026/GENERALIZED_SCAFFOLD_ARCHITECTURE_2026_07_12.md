@@ -65,6 +65,22 @@ operand 값의 출처는 고정 아님(사용자/getter/추론). A2는 **getter-
 - **결과**: 엔진(고정)=gate(정책준수)+prov+calc+coverage+[GET→FIND→ASK·INFER제거]+일반규칙default. A2=스키마+도메인 precond/constraint. **잔여=거의 0(결정가능)+ASK도 실패하는 진짜 underdetermination(user도 모름)+over-ask 비용.**
 - **★caveat(측정)**: over-ask="≥2→항상ASK"가 최적보다 많이 물음·tau2 대개 안전(user-sim 답·db-state 채점)이나 gold가 무-질문 추론 기대 시 감점가능 → **over-ask 비용을 A1/실측 확인**. FIND=명시제약만 결정론(암시는 ≥2→ASK 안전낙하).
 
+## 4d. ★★A2 operand-spec = 4지선다 기준 선언 (2026-07-12 사용자·최종 A2형)
+각 도구의 각 operand에 대해 A2가 GET/FIND/INFER/ASK 기준을 선언·scaffold=고정 인터프리터:
+```
+tool <T>:
+  operand <name>:
+    getter:  <getter_tool> → <field>       # GET: 후보 생산 getter(결정론)
+    sources: [getter_output, user_utterance]  # FIND: 유효 출처
+    resolve: FIND(명시제약) → 1개?use : ≥2개?ASK   # INFER 제거·애매→ASK
+    policy_default: <정책-강제값> or null   # gate 정책분
+    required: true/false                    # 누락→ASK
+```
+- **매핑**: getter=GET · sources=FIND · resolve(≥2→ASK)=ASK(INFER제거) · policy_default=gate · required=ASK-if-missing.
+- ⇒ **gate규칙+operand해소+provenance+ASK기준이 전부 A2 한 곳**·scaffold 도메인리터럴 0(순수 인터프리터).
+- **현 구현 대비**: `resolver_path`(getter=GET)·`gate_spec`(confirm/precond)·`disamb_sub_args` = 이미 부분. **통일 TODO**: per-operand 4지선다 spec 하나로 합침 + scaffold=순수 인터프리터 + 정책/스키마서 spec **일반 도출**.
+- **특허 최종형**: "고정 인터프리터가 per-operand 해소기준(A2)을 읽어 GET/FIND/ASK 실행·도메인=operand-spec 스왑·엔진 무수정." → 스키마(getter/sources/required)=거의 무료·정책분(policy_default/precond)=bounded opex.
+
 ## 5. Proven / Open 경계 (LOCK·정직)
 | 조각 | 상태 |
 |---|---|
