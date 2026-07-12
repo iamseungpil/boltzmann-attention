@@ -3,9 +3,13 @@
 > 상위 = `RESEARCH_MASTER.md`(F1-F6 프레임·제1원리 상쇄). 선행 = `SCALE_DYNAMIC_CONTAMINATION_PRIORWORK §8`(2509.09677 정독) · `OVERNIGHT_RESULTS §결과4`(C69 동적바인딩) · C56(동-scale thinking ⋈ 못삼) · C53/C62(prov·게이트 e2e).
 > 규율: [[05]] A2만 변경·엔진 도메인-일반 · [[08]] 집계→결론 前 per-case · [[09]] 무료 우선(로컬 사다리·결정론gold·user-sim 0). **본 문서 = 설계 + 무료 실험 큐**(유료 full-run 없음).
 
-## 0. 두 재프레임 (사용자 지시 2026-07-12)
+## 0. 재프레임 (사용자 지시 2026-07-12·정밀화)
 1. **우리는 선행의 역(逆)이다.** 선행(2509.09677·METR·scaling law)은 "**scale이 능력 X를 어떻게 사는가**"를 묻는다. 우리는 반대다 — "**tool-use의 어느 세부능력이 scale보다 *싼 것*으로 사지는가, 그리고 그 조합을 어떻게 비용-최적화하는가**". 핵심 주장 = **특정 tool-use 영역에서 scale을 {retrieval·verify-scaffold·결정론 게이트·도메인-일반 learn}으로 대체하는 것이 비용-효율적이다.**
-2. **horizon은 scale의 영토가 아니라 "scale 없이도 극복 가능한 영역"이다.** (§2 상술)
+2. **★주장 정밀화(중요·기존 정정)**: "scale이 horizon을 *못* 산다"는 **틀린 강한형**이다. 정확히는 —
+   - scale은 per-step을 **개선한다**(banking gemini2.5pro 0.748→GPT-5.5 0.887·retail operand→포화). "전혀 못 산다" 아님.
+   - **그러나 (a) 느리고 (b) 상용 임계(banking pass=0.7엔 p≥0.956)에 못 미치며 (c) 비싸다**(frontier API·요청당 영구비용·폐쇄망 불가).
+   - ⇒ **주장 = "scale로는 상용 수준을 *충분히·싸게* 살 수 없다 → 같은 per-step을 다른 방법(scaffold/verify/retrieval)으로 *더 명확하고 싸게* 산다"**. horizon은 "scale 영토"가 아니라 "**더 싼 레버로 극복하는 영역**".
+3. **필요한 증거(E-HORIZON/E-VERIFY)**: per-step 정확도 곡선 — scale(완만·상용 미달) vs scaffold/verify(급격·상용 도달·pass-cost 0).
 
 ## 1. thinking의 경계 = decidability 3분할 (핵심 구조)
 실패를 유형으로 가르면 각 레버의 생사가 결정된다. **thinking = 내부 test-time compute → 재계산으로 잡히는 자기-오류만 닫는다.**
@@ -112,8 +116,11 @@ frontier가 못하는 것(§3.2f-5 census·모델 기울기): 규모·신형화�
 - **결정가능-인자**(≈40%·calc/enum/id/schema) = §1 계산·참조 오류 → **calc-offload·provenance ✅**
 이 둘이 정확히 **결정론 scaffold가 p→1로 만드는 것**(gather/unlock controller·calc·provenance·coverage 게이트). scale은 못 만든다(잔여로 남음).
 
-### 7.4 결론 — banking이 §2 재프레임을 확증
-**scale은 banking horizon이 요구하는 per-step 정확도(p≥0.956)를 못 산다**(최강 frontier 0.887서 정체). 잔여 per-step 실패가 **구조적**이고, 구조적 per-step은 **결정론 scaffold가 p=1로 만든다**. ⇒ **horizon = scale 영토 아니라 scaffold 영토**(§2)의 *실제-도메인* 증거. 2509.09677의 합성-task 결과를 실 tool-use서 뒤집는다: 합성서 per-step 실패=계산오류(scale가 삼)·banking서 per-step 실패=구조(scale 못 삼·scaffold가 삼). ⇒ **E-HORIZON 실험(synth)의 실-도메인 짝**: banking이 관측, E-HORIZON이 통제-인과. **덱/논문/특허 horizon 재프레임의 실측 앵커.**
+### 7.4 결론 — banking이 §2 정밀화된 주장을 확증 (★기존 주장 정정)
+**★기존 주장 정정([[40]]·[[08]])**: C71 초판·§7 헤더의 "scale이 horizon을 *못* 산다"는 **틀린 강한형**이었다. banking 데이터가 실제로 보이는 것 = **scale은 per-step을 개선하되(0.748→0.887·err 25%→11%) 상용 임계(p≥0.956·err 4.4%)에 *한참 못 미친다*** — 17 frontier 최강조차 err 11.3%=2.6× 초과. 즉 **"불가능"이 아니라 "느리고·불충분하고·비쌈"**.
+- 정체 잔여 per-step 실패 = **구조적**(reach/unlock 발견체인 + 결정가능-인자). 구조적 per-step은 **결정론 scaffold가 p→1로·pass-cost 0·scale-불변**하게 만든다(gather/unlock controller·calc·provenance·coverage).
+- ⇒ **주장 = "scale로는 banking 상용 수준을 충분히·싸게 못 산다 → 같은 per-step을 scaffold로 더 명확하고 싸게 산다"**(§2-2). horizon = "더 싼 레버로 극복하는 영역".
+- **2509.09677 대비 방향**: 합성 task는 per-step 실패=계산오류라 scale/thinking이 삼 → "scale이 horizon 산다"처럼 보임. banking(실 tool-use)은 per-step 실패=구조라 scale이 느리고·불충분 → **scaffold가 더 싸게 사는 게 옳음**. **E-HORIZON(synth)=통제-인과 짝·banking=실-도메인 관측**. 덱/논문/특허 horizon 재프레임의 실측 앵커.
 
 ### 7.5 caveats([[08]]·[[40]])
 - pass=p^H는 근사(단계 독립 가정·self-conditioning 있으면 실제 더 급함). banking universal-fail은 H=12.5라 p 함의가 H=8보다 높게 나옴(장기일수록 완주가 더 정보적) — 도메인 median H=8 기준 채택.
