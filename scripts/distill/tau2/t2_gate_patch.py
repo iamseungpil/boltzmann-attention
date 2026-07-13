@@ -2070,9 +2070,28 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                   % (getattr(c, "name", None), rr.get("arg"), rr.get("reason")),
                                   file=_sys.stderr, flush=True)
                             break
+                    # ★action-required (turn-level): am이 회피(action_tool 미호출)면 operator 해소
+                    #   GET→FIND(intent→도구)→execute|ASK. 조언/포기로 종결 금지. cap 1/sim.
+                    if (rw_fb is None and getattr(self, "_t2_action_deny", 0) < 1):
+                        _acts = set((a2 or {}).get("action_tools") or [])
+                        _called = {getattr(c, "name", None) for c in (am.tool_calls or [])}
+                        if _acts and not (_called & _acts) and _rz._agent_ending(am, _transfer_tools(a2)):
+                            _tgt = _rz.formalize_intent_tool(self, la, UserMessage,
+                                                             state.messages, _acts)
+                            _ar = _rz.resolve_action_operator(
+                                {"action_tools": list(_acts)}, am, state.messages, a2,
+                                target_tool=_tgt, transfer_tools=_transfer_tools(a2))
+                            if _ar.get("status") == "deny":
+                                rw_fb = ((am.tool_calls or [None])[0], _ar["feedback"])
+                                self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
+                                print("[T2_RESOLVE] action-required reason=%s target=%s"
+                                      % (_ar.get("reason"), _tgt), file=_sys.stderr, flush=True)
                 except Exception as _rze:
                     rw_fb = None
                     print("[T2_RESOLVE] error (no-op): %r" % (_rze,), file=_sys.stderr, flush=True)
+            # ★action-required (turn-level·회피=순수조언은 tool_call 0 → 별도 리마인더 채널 필요·미배선).
+            #   구현·오프라인검증 완료(resolve_action_operator·36% 상한)·라이브 배선은 후속(regenerate-
+            #   with-directive 채널·eplan-reminder류). 여기선 per-operand rw_fb(deny-kind)만 라이브.
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and rw_fb is None):
                 break
