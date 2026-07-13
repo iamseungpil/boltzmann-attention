@@ -696,6 +696,94 @@ READALL_FEEDBACK = (
 )
 
 
+# ─── ★COV FIND-subset 백스톱 (T2_COV=1·COVERAGE_LOOP_DESIGN §3·in-flight) ───
+# READALL이 못 닫는 잔여 = "다 읽고도 일부에만 행동"(v3-probe t81: 4주문 read 후 1개만 취소).
+# 기전: ≥1 write 실행 후, M(요청이 커버하는 record 집합·LLM formalize 1회 캐시) ∖ acted ≠ ∅ 이면
+# 생성-레벨 리마인더 1회(기존 eplan 버퍼 채널·비커밋·in-flight — walk의 stop-time 사인 해소).
+# 분담([[10]]): M 산출=LLM(formalize·방식1 content-match v1·방식2 predicate는 후속),
+# diff/캐시/cap=결정론. 재료=에이전트 가시 대화+열람 record만(규칙0·DB 주입 0). write 강제 0.
+
+def _cov_parse_ids(text, known_ids):
+    """LLM 응답서 record id 목록 추출(순수) — grounded 교집합만(발명 id 차단)."""
+    import re as _re
+    if not text:
+        return []
+    m = _re.search(r'\{[^{}]*"ids"[^{}]*\}', text, _re.S)
+    raw = []
+    if m:
+        try:
+            raw = [str(x).strip() for x in (json.loads(m.group(0)).get("ids") or [])]
+        except Exception:
+            raw = []
+    if not raw:  # 폴백: known id의 문자 그대로 등장
+        raw = [k for k in known_ids if k in text]
+    known = {str(k).strip() for k in known_ids}
+    seen, out = set(), []
+    for r in raw:
+        if r in known and r not in seen:
+            seen.add(r)
+            out.append(r)
+    return out
+
+
+def _cov_formalize_M(agent, la, UserMessage, msgs, ep_spec, a2):
+    """M 산출 서브콜(격리·1회): 유저 발화 + 열람 record 요약 → 요청이 커버하는 record ids.
+    실패/미확신 = [] (침묵·안전측)."""
+    ent_key = (ep_spec or {}).get("entity_key")
+    if not ent_key:
+        return []
+    recs = []
+    seen = set()
+    path = (ep_spec or {}).get("items_id_path") or ()   # [container_key, id_field] = A2([[05]])
+    for out in _parse_tool_outputs(msgs):
+        if isinstance(out, dict) and out.get(ent_key):
+            oid = str(out.get(ent_key)).strip()
+            if oid in seen:
+                continue
+            seen.add(oid)
+            names = []
+            if len(path) >= 2:
+                seq = out.get(path[0])
+                if isinstance(seq, dict):
+                    seq = list(seq.values())
+                for it in (seq or []):
+                    if isinstance(it, dict):
+                        names.append(str(it.get("name") or it.get(path[1]) or ""))
+            recs.append("%s status=%s items=%s"
+                        % (oid, out.get("status"), ", ".join(n for n in names[:8] if n)))
+    if len(recs) < 2:
+        return []
+    users = [str(getattr(m, "content", "") or "") for m in msgs
+             if getattr(m, "role", None) == "user"][:6]
+    prompt = (
+        "You are auditing a customer-service conversation. Based ONLY on what the user asked, "
+        "decide which of these records the user's request requires MODIFYING (write actions).\n"
+        "User said:\n- " + "\n- ".join(u[:300] for u in users) +
+        "\nRecords:\n- " + "\n- ".join(recs[:8]) +
+        '\nReply with JSON only: {"ids": ["..."]} — include a record ONLY if the request clearly '
+        "covers it; if the request targets a single record, list just that one."
+    )
+    try:
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+              if "tool" not in k}
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="cov_formalize", **kw)
+        return _cov_parse_ids(getattr(sub, "content", None) or "", seen)
+    except Exception:
+        return []
+
+
+COV_REMINDER = (
+    "[COVERAGE] Based on the conversation so far, record(s) {ids} may ALSO be covered by what "
+    "the user asked, but you have not acted on them. If they are covered, handle them too now; "
+    "if they are not, briefly confirm that with the user before finishing."
+)
+
+
 # ─── ★GROUND (T2_PROV_GROUND=1): config-도출 candidate-surfacing resolver ───
 # 모델은 *의도/op* 명명만, 구체값은 결정론이 직전 tool 출력서 grounding (추출 = 도메인-일반).
 
@@ -1688,6 +1776,32 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 work = work + [UserMessage(role="user", content=_rem)]
             except TypeError:
                 work = work + [UserMessage(content=_rem)]
+        # ★COV FIND-subset 백스톱 (T2_COV=1): ≥1 write 후 M∖acted ≠ ∅ → in-flight 리마인더 1회
+        if (os.environ.get("T2_COV") == "1" and ep_led is not None
+                and not getattr(self, "_t2_cov_reminded", False)):
+            try:
+                execd = {str(e.get("entity") or "").strip()
+                         for e in getattr(ep_led, "executed", [])}
+                execd.discard("")
+                if execd:
+                    M = getattr(self, "_t2_cov_M", None)
+                    if M is None:
+                        M = _cov_formalize_M(self, la, UserMessage, state.messages,
+                                             a2.get("eplan") if a2 else None, a2)
+                        self._t2_cov_M = M  # []도 캐시(서브콜 1회)
+                    remaining = [m for m in (M or []) if m not in execd]
+                    if remaining and len(M) >= 2:
+                        self._t2_cov_reminded = True
+                        print("[T2_COV] reminder M=%s acted=%s remaining=%s"
+                              % (",".join(M), ",".join(sorted(execd)), ",".join(remaining)),
+                              file=_sys.stderr, flush=True)
+                        _cr = COV_REMINDER.format(ids=", ".join(remaining))
+                        try:
+                            work = work + [UserMessage(role="user", content=_cr)]
+                        except TypeError:
+                            work = work + [UserMessage(content=_cr)]
+            except Exception as _cve:
+                print("[T2_COV] error (no-op): %r" % (_cve,), file=_sys.stderr, flush=True)
         am = _gen(self, work, bw(), "agent_response")
         gate_rounds = prov_rounds = eplan_rounds = cons_rounds = ra_rounds = 0
         subs = 0

@@ -29,7 +29,8 @@ export T2_WRITE_CAP=1 T2_WRITE_CAP_K=2
 export T2_DISAMB=1 T2_DISAMB_MODE=enumerate T2_DISAMB_ORDER=1
 # ── ★v4 가드 (v3.2·PROBE_FORENSIC §4 step 0~4) ──
 export T2_CONSISTENCY=1 T2_CONS_NOOP=0   # L10 멤버십만(G-noop 제외=v4 실측 효과 0)
-export T2_READALL=1 T2_READALL_CAP=2     # ★v5 L2R read-all(NT2 §4-1 B-win 패턴·read-only 강제)
+export T2_READALL=1 T2_READALL_CAP=2     # ★L2R read-all(NT2 §4-1 B-win 패턴·read-only 강제)
+export T2_COV=1                          # ★COV 백스톱(M∖acted in-flight 리마인더 1회·COVERAGE_LOOP §3)
 # ── 폐기·제외 ──
 unset T2_EPLAN_WALK T2_EPLAN_REPLAN T2_PROV_ADDR_FULL T2_PRESENT_NESTED T2_PRESENT_READS T2_GROUND T2_PRINCIPLE_DEFAULT T2_AUTOFETCH T2_PROV_BADWORDS
 echo "A1-v6(선별): v2-core + READALL(cap2) + L10-membership only | L3/G-noop/L4 제외(v2 대비 효과 0 실측)"
@@ -47,7 +48,7 @@ if [ -f "$RES" ]; then
     git commit -q -m "persist A1-v6 $TAG (auto)" && git pull --rebase -q origin facet-rft-2026 && git push -q origin facet-rft-2026 && echo PERSISTED
 fi
 echo "== audit =="
-echo "READALL deny: $(grep -aE 'T2_READALL\] deny' $LOG|grep -avc '^+') | origin regen: $(grep -aE 'T2_PROV\] origin regen' $LOG|grep -avc '^+') | cons member: $(grep -aE 'T2_CONS\] membership deny' $LOG|grep -avc '^+') noop: $(grep -aE 'T2_CONS\] noop deny' $LOG|grep -avc '^+') | L4 would-sub(관측): $(grep -aE 'T2_L4\] keep-mode' $LOG|grep -avc '^+') sub(0이어야): $(grep -aE 'T2_L4\] substituted' $LOG|grep -avc '^+') | walk(0이어야): $(grep -aE 'walk gap' $LOG|grep -avc '^+')"
+echo "COV reminder: $(grep -aE 'T2_COV\] reminder' $LOG|grep -avc '^+') | READALL deny: $(grep -aE 'T2_READALL\] deny' $LOG|grep -avc '^+') | origin regen: $(grep -aE 'T2_PROV\] origin regen' $LOG|grep -avc '^+') | cons member: $(grep -aE 'T2_CONS\] membership deny' $LOG|grep -avc '^+') noop: $(grep -aE 'T2_CONS\] noop deny' $LOG|grep -avc '^+') | L4 would-sub(관측): $(grep -aE 'T2_L4\] keep-mode' $LOG|grep -avc '^+') sub(0이어야): $(grep -aE 'T2_L4\] substituted' $LOG|grep -avc '^+') | walk(0이어야): $(grep -aE 'walk gap' $LOG|grep -avc '^+')"
 $PY - "$RES" <<'PYEOF'
 import json,sys,os
 p=sys.argv[1]
