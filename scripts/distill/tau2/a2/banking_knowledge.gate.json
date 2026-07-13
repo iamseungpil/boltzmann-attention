@@ -99,6 +99,21 @@
   "unlock_discoverable_agent_tool",
   "call_discoverable_agent_tool"
  ],
+ "reference_filter": {
+  "dispatch_tool": "call_discoverable_agent_tool",
+  "tool_prefix": "file_debit_card_transaction_dispute",
+  "param": "transaction_id",
+  "key_field": "transaction_id",
+  "require": ["date", "amount"],
+  "criteria_fields": ["date", "merchant", "transaction_type"],
+  "match": [
+   {"field": "date", "eq": "criteria.date"},
+   {"field": "description", "contains": "criteria.merchant"},
+   {"field": "type", "eq": "criteria.transaction_type"}
+  ],
+  "on_ambiguous": "none"
+ },
+ "_note_reference_filter": "★Step2-3(keystone·참조축·C77): banking hard-core 지배=참조-⋈(올바른 거래 지목)·frontier조차 82% 필터가능인데 실패. formalize(user발화→date/merchant/type 기준)→결정론 filter(수집 record)→올바른 transaction_id 검증. ⋈를 LLM 아닌 결정론에 offload(수집사실 위·§3 정당·autofetch 아님). 매칭=엔진 filter op·기준/필드=이 A2. on_ambiguous=none(진짜중복 18%=미개입). record 파서=엔진(key_field/require A2선언). retail 미기재=무발동.",
  "recommendation_verify": {
   "offer_tool": "give_discoverable_user_tool",
   "action_tool": "apply_for_credit_card",

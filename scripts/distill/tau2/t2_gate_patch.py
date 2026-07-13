@@ -2080,6 +2080,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             self._t2_recommend_deny = getattr(self, "_t2_recommend_deny", 0) + 1
                             print("[T2_RESOLVE] %s deny" % _rvr.get("reason", "recommendation-verify"),
                                   file=_sys.stderr, flush=True)
+                    # ★reference-filter (keystone·참조축·C77): call_discoverable 참조 id를 formalize→
+                    #   결정론 filter→검증. 결정론 op이므로 silent-repair(nested id 제자리 치환·R2·대화무교란).
+                    if (a2 or {}).get("reference_filter") and getattr(self, "_t2_reffilter", 0) < 3:
+                        _rf = _rz.resolve_reference_filter(am, state.messages, a2, self, la, UserMessage)
+                        if _rf.get("status") == "deny":
+                            _rtc = _rf.get("call"); _nested = _rf.get("nested") or {}
+                            _nested[_rf["param"]] = _rf["correct"]      # 제자리 치환
+                            try:                                        # nested 재직렬화(문자열/딕트)
+                                if isinstance(getattr(_rtc, "arguments", {}).get("arguments"), str):
+                                    _rtc.arguments["arguments"] = json.dumps(_nested)
+                                elif isinstance(_rtc.arguments.get("arguments"), dict):
+                                    _rtc.arguments["arguments"] = _nested
+                                else:
+                                    _rtc.arguments[_rf["param"]] = _rf["correct"]
+                            except Exception:
+                                pass
+                            self._t2_reffilter = getattr(self, "_t2_reffilter", 0) + 1
+                            print("[T2_RESOLVE] reference-filter silent-repair %s->%s"
+                                  % (_rf["param"], _rf["correct"]), file=_sys.stderr, flush=True)
                     # ★action-required (turn-level): am이 회피(action_tool 미호출)면 operator 해소
                     #   GET→FIND(intent→도구)→execute|ASK. 조언/포기로 종결 금지. cap 1/sim.
                     if (rw_fb is None and getattr(self, "_t2_action_deny", 0) < 1):

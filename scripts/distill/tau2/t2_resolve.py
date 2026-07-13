@@ -363,6 +363,111 @@ def resolve_recommendation(am, msgs, a2, agent=None, la=None, UserMessage=None, 
     return {"status": "ok"}
 
 
+REF_FILTER_FB = (
+    "[REFERENCE-FILTER] the request identifies a specific record by {crit}, which uniquely matches "
+    "{param}='{correct}' among the retrieved records — but you used '{chosen}'. Use '{correct}'."
+)
+_RECLINE = re.compile(r"^\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*:\s*(.+?)\s*$")
+
+
+def parse_records(text, key_field="transaction_id", require=("date", "amount")):
+    """★엔진 record 파서(도메인-일반): 'key_field:' 시작마다 record 블록·완전(require 필드有)만.
+    field명은 A2가 선언(key_field·require)·로직 일반."""
+    recs = []; cur = None
+    for line in str(text or "").split("\n"):
+        m = _RECLINE.match(line)
+        if not m:
+            continue
+        k, v = m.group(1), m.group(2).strip()
+        if k == key_field:
+            if cur:
+                recs.append(cur)
+            cur = {}
+        if cur is not None:
+            cur[k] = v
+    if cur:
+        recs.append(cur)
+    return [r for r in recs if r.get(key_field) and all(r.get(f) for f in require)]
+
+
+def _gathered_records(msgs, key_field, require):
+    out = []
+    for m in msgs:
+        if getattr(m, "role", None) == "tool" and not getattr(m, "error", False):
+            c = getattr(m, "content", None)
+            if isinstance(c, str):
+                out += parse_records(c, key_field, require)
+    seen = {}
+    for r in out:
+        seen[r.get(key_field)] = r
+    return list(seen.values())
+
+
+def formalize_reference_criteria(agent, la, UserMessage, msgs, fields):
+    """★FIND(learn): user 발화 → 식별기준 dict(fields 예: date·merchant·transaction_type). 실패=None."""
+    if agent is None or la is None:
+        return {}
+    users = [str(getattr(m, "content", "") or "") for m in msgs
+             if getattr(m, "role", None) == "user"]
+    prompt = ("The user is referencing a specific transaction/record. From their messages, extract "
+              "identifying criteria as JSON with keys %s (use null if not stated). Dates as MM/DD/YYYY.\n"
+              "User said:\n- %s\nReply JSON only." % (fields, "\n- ".join(u[:400] for u in users[-8:])))
+    try:
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items() if "tool" not in k}
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="reference_criteria_formalize", **kw)
+        txt = getattr(sub, "content", None) or ""
+        mm = re.search(r"\{.*\}", txt, re.S)
+        d = json.loads(mm.group(0)) if mm else {}
+        return {k: v for k, v in d.items() if v not in (None, "null", "")}
+    except Exception:
+        return {}
+
+
+def resolve_reference_filter(am, msgs, a2, agent=None, la=None, UserMessage=None):
+    """★reference-filter 레버(keystone·사용자 참조축): call_discoverable의 참조 id 파라미터를
+    formalize(user→기준) → 결정론 filter(수집 record) → 올바른 id로 검증/교정. 반환 {status, ...}.
+    ⋈를 LLM 아닌 결정론에 offload(§3 정당·수집사실 위). A2 reference_filter가 도구/필드/매칭 선언."""
+    spec = (a2 or {}).get("reference_filter")
+    if not spec or agent is None or la is None:
+        return {"status": "ok"}
+    offer = spec.get("dispatch_tool", "call_discoverable_agent_tool")
+    tp = spec.get("tool_prefix"); param = spec.get("param", "transaction_id")
+    keyf = spec.get("key_field", param); require = tuple(spec.get("require") or ("date", "amount"))
+    match = spec.get("match") or []
+    import t2_compute as _c
+    for tc in (getattr(am, "tool_calls", None) or []):
+        if getattr(tc, "name", None) != offer:
+            continue
+        a = getattr(tc, "arguments", None) or {}
+        gtool = str(a.get("agent_tool_name") or "")
+        if tp and not gtool.startswith(tp):
+            continue
+        nested = _parse_nested_args(a.get("arguments")) or a   # nested JSON or top-level
+        chosen = nested.get(param)
+        if not chosen:
+            continue
+        recs = _gathered_records(msgs, keyf, require)
+        if len(recs) < 2:
+            continue
+        crit = formalize_reference_criteria(agent, la, UserMessage, msgs,
+                                            spec.get("criteria_fields") or ["date", "merchant", "transaction_type"])
+        if not crit:
+            continue
+        correct = _c.apply_op({"op": "filter", "over": "records", "return": keyf, "match": match,
+                               "on_ambiguous": spec.get("on_ambiguous", "none")},
+                              {"records": recs, "criteria": crit})
+        if correct and str(correct) != str(chosen):
+            return {"status": "deny", "reason": "reference-filter", "call": tc,
+                    "correct": correct, "param": param, "nested": nested,
+                    "feedback": REF_FILTER_FB.format(crit=crit, param=param, correct=correct, chosen=chosen)}
+    return {"status": "ok"}
+
+
 def resolve_operand(opspec, tool, arg, args_dict, msgs, a2,
                     agent=None, la=None, UserMessage=None):
     """★통일 디스패처. opspec.kind로 기존 primitive 라우팅. 반환 {status, ...}.
