@@ -37,6 +37,29 @@ ck("liab_mid_500", C.apply_op(LIAB, ctx2), 500)
 ctx3 = dict(ctx); ctx3["params"] = dict(ctx["params"], discovery_date="03/20/2026")  # >60일
 ck("liab_late_full", C.apply_op(LIAB, ctx3), 100.0)
 
+# ★filter op (reference-filter keystone): criteria로 record 매칭 → id
+RECS = [{"transaction_id": "btxn_1", "date": "11/05/2025", "description": "RHO-BANK ATM #4827 WITHDRAWAL", "type": "atm_withdrawal"},
+        {"transaction_id": "btxn_2", "date": "11/06/2025", "description": "CITYFIT GYM MONTHLY", "type": "debit_card_purchase"},
+        {"transaction_id": "btxn_3", "date": "11/06/2025", "description": "CITYFIT GYM MONTHLY", "type": "debit_card_purchase"}]
+fctx = lambda crit: {"records": RECS, "criteria": crit}
+FSPEC = {"op": "filter", "over": "records", "return": "transaction_id",
+         "match": [{"field": "date", "eq": "criteria.date"},
+                   {"field": "description", "contains": "criteria.merchant"},
+                   {"field": "type", "eq": "criteria.type"}]}
+# date로 유일(ATM)
+ck("filter_date_unique", C.apply_op(FSPEC, fctx({"date": "11/05/2025"})), "btxn_1")
+# merchant substring으로 유일(단 CityFit는 2건이라 date+merchant도 애매) → date+merchant
+ck("filter_merchant", C.apply_op(FSPEC, fctx({"date": "11/05/2025", "merchant": "ATM"})), "btxn_1")
+# 애매(CityFit 2건·date만) → on_ambiguous 기본 none
+ck("filter_ambiguous_none", C.apply_op(FSPEC, fctx({"date": "11/06/2025", "merchant": "CITYFIT"})), None)
+# on_ambiguous=first
+FSPEC_F = dict(FSPEC, on_ambiguous="first")
+ck("filter_ambiguous_first", C.apply_op(FSPEC_F, fctx({"date": "11/06/2025", "merchant": "CITYFIT"})), "btxn_2")
+# 0 매칭 → None
+ck("filter_nomatch", C.apply_op(FSPEC, fctx({"date": "12/25/2025"})), None)
+# 부분기준(criteria 결측 필드는 조건 스킵)
+ck("filter_partial_crit", C.apply_op(FSPEC, fctx({"merchant": "ATM"})), "btxn_1")
+
 # 안전: 미지 op·결측 → None
 ck("unknown_op", C.apply_op({"op": "frobnicate"}, ctx), None)
 ck("missing_ref", C.apply_op({"op": "ref", "path": "params.nonexistent"}, ctx), None)

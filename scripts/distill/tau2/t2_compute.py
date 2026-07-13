@@ -123,6 +123,42 @@ def apply_op(spec, ctx):
         if op == "if_then":
             cond = apply_op(spec.get("cond"), ctx)
             return apply_op(spec.get("then"), ctx) if cond else apply_op(spec.get("else"), ctx)
+        if op == "filter":
+            # ★reference-filter(keystone): 수집 record를 criteria로 결정론 매칭 → return field.
+            #   formalize(LLM)가 ctx["criteria"]={date,amount,merchant,type} 채움·엔진은 매칭만.
+            #   match=[{field, eq|contains: ref}] — criteria 값 있는 조건만 적용(부분기준 허용).
+            recs = _get(ctx, spec.get("over")) or []
+            if not isinstance(recs, list):
+                return None
+            conds = spec.get("match") or []
+            def hit(r):
+                for c in conds:
+                    fld = c.get("field")
+                    if "eq" in c:
+                        want = _get(ctx, c["eq"])
+                        if want in (None, ""):
+                            continue                       # 기준 미제공 → 이 조건 건너뜀
+                        if str((r or {}).get(fld)) != str(want):
+                            return False
+                    elif "contains" in c:
+                        want = _get(ctx, c["contains"])
+                        if want in (None, ""):
+                            continue
+                        if str(want).lower() not in str((r or {}).get(fld) or "").lower():
+                            return False
+                return True
+            matched = [r for r in recs if hit(r)]
+            ret = spec.get("return")
+            if len(matched) == 1:
+                return matched[0].get(ret) if ret else matched[0]
+            if len(matched) >= 2:
+                oa = spec.get("on_ambiguous", "none")     # none|first|last|ask
+                if oa == "first":
+                    return matched[0].get(ret) if ret else matched[0]
+                if oa == "last":
+                    return matched[-1].get(ret) if ret else matched[-1]
+                return None                                # ask/none → 미결정(호출측 ASK)
+            return None                                    # 0 매칭
     except Exception:
         return None
     return None
