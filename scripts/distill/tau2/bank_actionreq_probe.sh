@@ -45,8 +45,8 @@ if [ -f "$RES" ]; then
     git commit -q -m "persist bankar $TAG (auto)" && git pull --rebase -q origin facet-rft-2026 && \
     git push -q origin facet-rft-2026 && echo PERSISTED
 fi
-echo "== audit =="
-echo "action-required fire: $(grep -aE 'T2_RESOLVE\] action-required' $LOG | grep -avc '^+') | resolve deny(operator-fab): $(grep -aE 'T2_RESOLVE\] deny' $LOG | grep -avc '^+')"
+echo "== audit (통일 스택 3레버) =="
+echo "L0/2 action-required(discovery-required 포함): $(grep -aE 'T2_RESOLVE\] action-required' $LOG | grep -avc '^+') | L1 operator-find: $(grep -aE 'reason=operator-find' $LOG | grep -avc '^+') | operator-fab: $(grep -aE 'reason=operator-fab' $LOG | grep -avc '^+') | L3 verify-persistence: $(grep -aE 'verify-persistence deny' $LOG | grep -avc '^+') | resolve deny(전체): $(grep -aE 'T2_RESOLVE\] deny' $LOG | grep -avc '^+')"
 $PY - "$RES" "$T2/a2/banking_knowledge.gate.json" <<'PYEOF'
 import json, sys, os
 from collections import Counter

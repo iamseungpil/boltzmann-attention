@@ -73,6 +73,16 @@
 3. **verify/persistence 게이트**(F1/F5·task_023): log_verification 완결 강제 + 조기 transfer 차단 — 기존 auth 게이트+persistence.
 ⇒ **action-required 아님.** banking↔retail 통일 = t2_resolve 디스패처(operator/operand kind)·formalize_intent_tool·eplan·gate 재사용, ABox(banking A2)만 교체.
 
+## 6c. ★통일 스택 구현 (사용자 지시 "banking 해결·retail과 일반화 합치자"·세 레버 순서대로)
+> 전부 도메인-일반 scaffold + banking A2 데이터([[05]]클린)·오프라인 유닛 검증(21/21 suites)·엔진 리터럴 0.
+
+- **Lever 0 (requestor 마킹)**: A2 `action_tool_executor`(user/assistant). action-required는 agent-실행만 대상 + **고정밀화**(formalize가 구체 target 낼 때만 발화·target=none action-ask 미발화=Δspurious). `test_action_reminder` 16/16.
+- **Lever 1 (operator FIND·⋈ 509)**: `resolve_operator`에 FIND 추가(A2 `find_intent`). 발견 후보 ≥2 중 `formalize_intent_tool`(재사용)로 의도-매칭 도구 검증·선택≠formalize면 deny(operator-find). FAB(미발견)는 기존. `test_operator_find` 9/9.
+- **Lever 2 (discovery controller·REACH 580)**: reach 실패 55/55가 조언종료→action-required 100% 발동 실측(별도 컨트롤러=게이트증식 회피). target=discoverable dispatcher면 **discovery-required** 피드백(getter→unlock→call 발견체인 안내). `test_action_operator` 9/9.
+- **Lever 3 (verify/persistence·F1/F5·26 sims)**: A2 verify 게이트 `verify_gather_prefix`. 신원수집(get_user_information_by_*)+검증(log_verification)미완+포기 시 완결 리마인더. action-required 미발동(apply=user-실행) 케이스 보완. `test_verify_persistence` 8/8·live 4/4.
+- **통일**: 전 레버가 T2_RESOLVE=1 단일 경로·retail은 `action_tool_executor`/`find_intent`/`verify_gather_prefix` 미기재→자동 무발동(하위호환). `formalize_intent_tool`·`resolve_operator`·auth게이트 재사용 = banking↔retail 통일.
+- **드라이버**: `bank_actionreq_probe.sh`(양 arm prov 공통·GR만 T2_RESOLVE·3레버 audit). **다음=라이브 스모크로 발화 확인([[30]])→소액 probe([[09]] 승인)**.
+
 ## 7. 산출물
 - 코드: `t2_gate_patch.py`(action-required 리마인더 채널·offline 14/14 유효) · `bank_actionreq_probe.sh`(드라이버·KB키+audit 수정).
 - sim: `sim_results/bankar_smoke5b.results.json.gz`(KB-dead·무효) · `bankar_smoke5c.results.json.gz`(KB정상·본 분석).
