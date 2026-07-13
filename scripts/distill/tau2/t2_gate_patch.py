@@ -2049,8 +2049,32 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         print("[T2_TOOLERR] deny early-transfer(recover) tool=%s" % nm,
                               file=_sys.stderr, flush=True)
                         break
+            # ★T2_RESOLVE (통일 인터프리터·UNIFIED_OPERAND_A2 §7-3): per-operand 해소 디스패처.
+            #   deny-kind(operator/membership/provenance) 통합 = L10+L3+operator 한 경로.
+            #   개별 플래그(T2_CONSISTENCY/T2_PROV_ORIGIN) 대체용(driver가 상호배타 설정).
+            rw_fb = None
+            if (os.environ.get("T2_RESOLVE") == "1" and a2 is not None
+                    and not do_gate and not do_prov and ep_fb is None and cons_fb is None
+                    and ra_fb is None and te_fb is None
+                    and getattr(self, "_t2_resolve_deny", 0) < 3):
+                try:
+                    import t2_resolve as _rz
+                    for c in (am.tool_calls or []):
+                        if id(c) in denied_by_objid:
+                            continue
+                        rr = _rz.resolve_write(getattr(c, "name", None), _args_dict(c),
+                                               state.messages, a2, self, la, UserMessage)
+                        if rr.get("status") == "deny":
+                            rw_fb = (c, rr["feedback"])
+                            print("[T2_RESOLVE] deny tool=%s arg=%s reason=%s"
+                                  % (getattr(c, "name", None), rr.get("arg"), rr.get("reason")),
+                                  file=_sys.stderr, flush=True)
+                            break
+                except Exception as _rze:
+                    rw_fb = None
+                    print("[T2_RESOLVE] error (no-op): %r" % (_rze,), file=_sys.stderr, flush=True)
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
-                    and ra_fb is None and te_fb is None):
+                    and ra_fb is None and te_fb is None and rw_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -2104,6 +2128,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if te_fb is not None:
                 te_rounds += 1
                 self._t2_toolerr_deny = getattr(self, "_t2_toolerr_deny", 0) + 1
+            if rw_fb is not None:
+                self._t2_resolve_deny = getattr(self, "_t2_resolve_deny", 0) + 1
             fb = [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:
@@ -2119,6 +2145,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     content = "Error: " + ra_fb[1]
                 elif te_fb is not None and c is te_fb[0]:
                     content = "Error: " + te_fb[1]
+                elif rw_fb is not None and c is rw_fb[0]:
+                    content = "Error: " + rw_fb[1]
                 else:
                     content = "Error: resolve the flagged call(s) first; do not call this tool yet."
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
