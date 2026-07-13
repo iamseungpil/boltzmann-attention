@@ -26,15 +26,21 @@ unset T2_CALC T2_EPLAN T2_EPLAN_EXAMINED_SAFE T2_EPLAN_READS_ONLY \
       T2_WRITE_CAP T2_DISAMB T2_READALL T2_CONSISTENCY T2_COV T2_TOOLERR \
       T2_PRESENT_NESTED T2_PRESENT_READS T2_GROUND T2_PRINCIPLE_DEFAULT T2_AUTOFETCH \
       T2_PROV_ADDR_FULL T2_PROV_ORIGIN T2_L4_MODE T2_RESOLVE
-# ── 양 arm 공통: auth 게이트 + prov-rescue (prov=unified 라우팅 트리거·양쪽 상쇄) ──
-export T2_GATE_REGEN=1 T2_GATE_REGEN_K=1 T2_GATE_KINDS=auth
-export T2_PROV_REGEN=1 T2_PROV_REGEN_K=4 T2_PROV_MODE=rescue
-[ "$MODE" = "gr" ] && export T2_RESOLVE=1     # ★처치 arm만 action-required/operator-fab
-echo "ARM=$MODE  T2_RESOLVE=${T2_RESOLVE:-unset}  PROV=$T2_PROV_MODE  GATE_KINDS=$T2_GATE_KINDS  DOMAIN=$DOM"
+# ── MODE=floor: 순수 base(--gate 0·scaffold 전무) = frontier 비교 기준. g/gr=auth+prov(±T2_RESOLVE) ──
+if [ "$MODE" = "floor" ]; then
+  unset T2_GATE_REGEN T2_PROV_REGEN T2_PROV_MODE T2_GATE_KINDS
+  GATEARG="--gate 0"
+else
+  export T2_GATE_REGEN=1 T2_GATE_REGEN_K=1 T2_GATE_KINDS=auth
+  export T2_PROV_REGEN=1 T2_PROV_REGEN_K=4 T2_PROV_MODE=rescue
+  [ "$MODE" = "gr" ] && export T2_RESOLVE=1     # ★처치 arm만 action-required/operator-fab
+  GATEARG="--gate 1"
+fi
+echo "ARM=$MODE  $GATEARG  T2_RESOLVE=${T2_RESOLVE:-unset}  PROV=${T2_PROV_MODE:-off}  GATE_KINDS=${T2_GATE_KINDS:-none}  USIM=${USIM:-gpt-5.2}  DOMAIN=$DOM"
 cd $TB
 TIDARG=""; [ "$TASKS" != "ALL" ] && TIDARG="--task_ids ${TASKS// /,}"
 rm -rf "$TB/data/simulations/bankar_$TAG"
-timeout 14400 $PY $T2/t2_run_gated.py --gate 1 --domain $DOM --agent_model "$M" \
+timeout 14400 $PY $T2/t2_run_gated.py $GATEARG --domain $DOM --agent_model "$M" \
   --agent_base http://localhost:$PORT/v1 --user_llm "${USIM:-openrouter/openai/gpt-5.2}" --user_temp 0.0 \
   --num_trials $NT --max_concurrency 8 --save_to "bankar_$TAG" $TIDARG || echo "ARM_FAIL $TAG"
 date; echo RUN_DONE
