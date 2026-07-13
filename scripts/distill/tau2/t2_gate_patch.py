@@ -2078,7 +2078,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         if _rvr.get("status") == "deny":
                             rw_fb = (_rvr.get("call") or (am.tool_calls or [None])[0], _rvr["feedback"])
                             self._t2_recommend_deny = getattr(self, "_t2_recommend_deny", 0) + 1
-                            print("[T2_RESOLVE] recommendation-verify deny",
+                            print("[T2_RESOLVE] %s deny" % _rvr.get("reason", "recommendation-verify"),
                                   file=_sys.stderr, flush=True)
                     # ★action-required (turn-level): am이 회피(action_tool 미호출)면 operator 해소
                     #   GET→FIND(intent→도구)→execute|ASK. 조언/포기로 종결 금지. cap 1/sim.

@@ -35,7 +35,7 @@ cd $TB
 TIDARG=""; [ "$TASKS" != "ALL" ] && TIDARG="--task_ids ${TASKS// /,}"
 rm -rf "$TB/data/simulations/bankar_$TAG"
 timeout 14400 $PY $T2/t2_run_gated.py --gate 1 --domain $DOM --agent_model "$M" \
-  --agent_base http://localhost:$PORT/v1 --user_llm openrouter/openai/gpt-4.1 --user_temp 0.0 \
+  --agent_base http://localhost:$PORT/v1 --user_llm "${USIM:-openrouter/openai/gpt-5.2}" --user_temp 0.0 \
   --num_trials $NT --max_concurrency 8 --save_to "bankar_$TAG" $TIDARG || echo "ARM_FAIL $TAG"
 date; echo RUN_DONE
 RES="$TB/data/simulations/bankar_$TAG/results.json"
@@ -45,8 +45,9 @@ if [ -f "$RES" ]; then
     git commit -q -m "persist bankar $TAG (auto)" && git pull --rebase -q origin facet-rft-2026 && \
     git push -q origin facet-rft-2026 && echo PERSISTED
 fi
-echo "== audit (통일 스택 3레버) =="
-echo "L0/2 action-required(discovery-required 포함): $(grep -aE 'T2_RESOLVE\] action-required' $LOG | grep -avc '^+') | L1 operator-find: $(grep -aE 'reason=operator-find' $LOG | grep -avc '^+') | operator-fab: $(grep -aE 'reason=operator-fab' $LOG | grep -avc '^+') | L3 verify-persistence: $(grep -aE 'verify-persistence deny' $LOG | grep -avc '^+') | resolve deny(전체): $(grep -aE 'T2_RESOLVE\] deny' $LOG | grep -avc '^+')"
+echo "== audit (통일 스택 4레버·user-sim=${USIM:-gpt-5.2}) =="
+echo "L0/2 action-req: $(grep -aE 'T2_RESOLVE\] action-required' $LOG|grep -avc '^+') | L1 operator-find: $(grep -aE 'reason=operator-find' $LOG|grep -avc '^+') | operator-fab: $(grep -aE 'reason=operator-fab' $LOG|grep -avc '^+') | L3 verify-persist: $(grep -aE 'verify-persistence deny' $LOG|grep -avc '^+') | L4 오추천(offer): $(grep -aE 'recommendation-verify deny' $LOG|grep -avc '^+') | L4 텍스트/미추천(offer): $(grep -aE 'recommendation-offer deny' $LOG|grep -avc '^+')"
+echo "  (recommend 발화 상세: $(grep -aoE 'recommendation-(verify|offer)' $LOG|grep -av '^+'|sort|uniq -c|tr '\n' ' '))"
 $PY - "$RES" "$T2/a2/banking_knowledge.gate.json" <<'PYEOF'
 import json, sys, os
 from collections import Counter
