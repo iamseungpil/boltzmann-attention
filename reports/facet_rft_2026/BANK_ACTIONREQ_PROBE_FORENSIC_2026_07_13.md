@@ -84,6 +84,24 @@
 - **드라이버**: `bank_actionreq_probe.sh`(양 arm prov 공통·GR만 T2_RESOLVE·3레버 audit).
 - **★라이브 스모크(bankar_uni5·GR arm·5 태스크·nt1·[[30]])**: **infra 0·크래시 0·pass 1/5(task_023)**(floor 0/5). 발화 L1 operator-find 3·L2 discovery-required 4·L3 verify-persistence 6. **task_023 causal 확인**(궤적 정독): floor=log_verification 미완+포기로 fail → GR=신원수집→**log_verification 호출**→user 올바른 카드 apply·gold 2/2 match=**Lever 3 의도와 정확 일치**([M]·n=1·user-sim 변동 배제는 다표본 필요). **task_035**: L2 발화했으나 emergency 도구 KB-discovery 실패(reach 잔여=semantic·L2 리마인더로 미폐쇄). ⚠**궤적 길어짐**(태스크당 450s+·리마인더가 추가 검색/검증 유발·비용↑·단 tme 폭증 없음·term 전부 user_stop). **다음=소액 probe(G vs GR·표적 nt1·[[09]] 승인)로 순 pass 이동+Δspurious+비용 측정.**
 
+## 6d. ★★표준 user-sim(gpt-5.2) 반전 — 레버는 gpt-4.1 아티팩트를 겨냥했다 (2026-07-13 LATE-3·[[08]]·make-or-break)
+> 사용자 지시로 표준 gpt-5.2 user-sim 채택 후 G(레버無) vs GR(레버有)·apply-heavy 5태스크·nt1·openai_embeddings.
+
+**결과 (강한 음성)**:
+| arm | pass | 발화 |
+|---|---|---|
+| **G (레버 無)** | **3/5 (60%)** — t003·t016·t023 | — |
+| **GR (레버 有)** | **0/5 (0%)** | action-req 5·verify 3·recommend-offer 7 |
+
+**per-case 기전(궤적 정독)**:
+- **t003**: G=`KB_search 1→apply`(정답·pass). GR=`KB_search 3→apply`(recommend-offer 재연구 강제→오답카드). = 레버가 없던 오추천을 만듦.
+- **t023**: G=`KB→verify→apply`(pass). GR=`KB_search 4→조회→transfer`(regen 교란→포기). = 레버가 깨끗한 흐름을 탈선.
+
+**★결론(사용자 직관 입증)**:
+1. **표준 gpt-5.2 floor가 훨씬 높다**(이 5개 G 60% vs gpt-4.1 floor ~6%). ⇒ **§6b 재채점(6.1%)·오추천/미추천/reach 포렌식은 상당부분 gpt-4.1 user-sim 아티팩트**. t016(submit_transaction): gpt-5.2는 user-sim이 실제 실행→pass(gpt-4.1은 미실행=§6b "아티팩트" 확증) · t003(오추천): gpt-5.2 자연 정답→pass.
+2. **레버가 표준서 순수 손해**(0/5 vs 3/5·Δspurious 강한 음성) — 없어도 될 실패를 "고치려는" regen이 깨끗한 흐름 탈선. 등대 "하나 사면 하나 판다"의 극단(사는 것 없이 팔기만).
+3. ⇒ **banking 레버(L0-4)는 표준 설정서 유익하지 않음.** 진짜 banking 격차 재측정 필요(표준 gpt-5.2 floor를 레버 없이·다표본). caveat: n=5 소표본이나 기전(regen 탈선) 구조적·명확.
+
 ## 7. 산출물
 - 코드: `t2_gate_patch.py`(action-required 리마인더 채널·offline 14/14 유효) · `bank_actionreq_probe.sh`(드라이버·KB키+audit 수정).
 - sim: `sim_results/bankar_smoke5b.results.json.gz`(KB-dead·무효) · `bankar_smoke5c.results.json.gz`(KB정상·본 분석).
