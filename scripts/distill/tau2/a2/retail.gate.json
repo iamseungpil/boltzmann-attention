@@ -483,5 +483,13 @@
    }
   }
  },
- "_note_operands": "UNIFIED_OPERAND_A2 §1: per-operand 해소 spec(도메인정보). 엔진=t2_resolve.resolve_write(T2_RESOLVE)."
+ "_note_operands": "UNIFIED_OPERAND_A2 §1: per-operand 해소 spec(도메인정보). 엔진=t2_resolve.resolve_write(T2_RESOLVE).",
+ "action_tools": [
+  "cancel_pending_order",
+  "modify_pending_order_items",
+  "modify_pending_order_address",
+  "modify_pending_order_payment",
+  "exchange_delivered_order_items",
+  "return_delivered_order_items"
+ ]
 }

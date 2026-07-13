@@ -86,5 +86,13 @@
    }
   }
  },
- "_note_operands": "UNIFIED_OPERAND_A2 §8b: operator(도구명)도 operand. GET=discovery·PROV=grounded 도구명."
+ "_note_operands": "UNIFIED_OPERAND_A2 §8b: operator(도구명)도 operand. GET=discovery·PROV=grounded 도구명.",
+ "action_tools": [
+  "apply_for_credit_card",
+  "submit_referral",
+  "change_user_email",
+  "submit_transaction",
+  "unlock_discoverable_agent_tool",
+  "call_discoverable_agent_tool"
+ ]
 }

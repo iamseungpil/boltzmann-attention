@@ -58,6 +58,77 @@ def resolve_operator(opspec, args_dict, msgs):
     return {"status": "ok"}
 
 
+ACTION_REQUIRED_FB = (
+    "[ACTION-REQUIRED] the user's request requires you to CALL the tool '{target}' — do NOT just "
+    "explain how to do it, advise self-service, or transfer. Call {target} now to complete it."
+)
+ACTION_ASK_FB = (
+    "[ACTION-ASK] you are ending without completing the request and no available tool matches it. "
+    "Do NOT invent a procedure or deflect — ask the user the specific missing detail needed to act, "
+    "or state clearly you cannot do this."
+)
+
+
+def _agent_ending(am, transfer_tools):
+    """에이전트 이번 턴이 '회피/종결'인가 = 도구호출 0(순수 조언) 또는 transfer만."""
+    calls = {getattr(tc, "name", None) for tc in (getattr(am, "tool_calls", None) or [])}
+    if not calls:
+        return True                       # 순수 텍스트(조언) = 회피
+    if calls and calls <= (transfer_tools or set()):
+        return True                       # transfer만 = 포기
+    return False
+
+
+def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_tools=None):
+    """★operator 해소 GET→FIND→(execute|ASK) — 행동-vs-조언(사용자 2026-07-13).
+    action_tools = A2 선언(요청 성취 도구). target_tool = formalize(의도)→도구(learn·호출측 주입).
+      - target ∈ available ∧ 에이전트가 미호출(조언/transfer 회피) → deny(실행 강제·action-required)
+      - target 미해소(None) ∧ 회피 → ASK(조언/날조 대신 개방질문)
+      - 이미 action_tool 호출 중 → ok."""
+    action_tools = set(opspec.get("action_tools") or (a2 or {}).get("action_tools") or [])
+    if not action_tools:
+        return {"status": "ok"}
+    called = {getattr(tc, "name", None) for tc in (getattr(am, "tool_calls", None) or [])}
+    if called & action_tools:
+        return {"status": "ok"}           # 이미 행동 중
+    if not _agent_ending(am, transfer_tools or set()):
+        return {"status": "ok"}           # 다른 도구(조회 등) 호출 중 = 진행중
+    # 회피(조언/transfer) 확정 → FIND 결과로 분기
+    if target_tool and target_tool in action_tools:
+        return {"status": "deny", "reason": "action-required",
+                "feedback": ACTION_REQUIRED_FB.format(target=target_tool)}
+    return {"status": "deny", "reason": "action-ask", "feedback": ACTION_ASK_FB}
+
+
+def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools):
+    """★FIND(의도→operator): 격리 LLM 서브콜 — 사용자 요청이 요구하는 action_tool 1개(or none).
+    도메인-일반(intent→operator = 값 formalize의 operator판·learn 정의역). 실패=None(안전)."""
+    if not action_tools or agent is None or la is None:
+        return None
+    users = [str(getattr(m, "content", "") or "") for m in msgs
+             if getattr(m, "role", None) == "user"][-6:]
+    prompt = ("The user is talking to a customer-service agent. Based ONLY on what the user asked, "
+              "which ONE of these tools must the agent CALL to fulfill the request? "
+              "Reply with the exact tool name, or 'none' if none applies.\n"
+              "Tools: " + ", ".join(sorted(action_tools)) + "\n"
+              "User said:\n- " + "\n- ".join(u[:300] for u in users) +
+              '\nReply JSON only: {"tool": "<name or none>"}')
+    try:
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items() if "tool" not in k}
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="intent_operator_formalize", **kw)
+        txt = getattr(sub, "content", None) or ""
+        m = re.search(r'"tool"\s*:\s*"([^"]+)"', txt)
+        cand = m.group(1).strip() if m else None
+        return cand if cand in action_tools else None
+    except Exception:
+        return None
+
+
 def resolve_operand(opspec, tool, arg, args_dict, msgs, a2,
                     agent=None, la=None, UserMessage=None):
     """★통일 디스패처. opspec.kind로 기존 primitive 라우팅. 반환 {status, ...}.
