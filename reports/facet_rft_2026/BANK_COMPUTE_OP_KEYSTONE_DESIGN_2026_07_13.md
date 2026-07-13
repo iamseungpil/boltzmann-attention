@@ -102,19 +102,23 @@
   R4 게이트 통과 후보. 잔여(식별정보 無·다중매칭)=진짜 ⋈ 경계(수용).
 - **op 추가**: `filter`(over records, by formalized predicate → return id) — 도메인일반. formalize=learn 날개.
 
-## 5d. ★★축 탐색 종합 판정 — banking = F3 ⋈ 경계 지배 (2026-07-13·정직)
-> reference-filter 오프라인 재현 게이트(`bank_filter_repro.py`·record 파싱·gold-blind 고정기준):
-- **transaction_id ⋈(n=2091) 결정론-필터 유일식별 = 31.8%**(date 단독 24.3%+date+amount 7.5%). **68.2%=유일식별
-  실패**(중복청구 동일-record 등 진짜 ⋈·세밀기준 한계). ⇒ 참조-필터 사정권 ≈ 전 hard-core param의 **~7.6%**.
-- **★세 축 전부 모듈러(~8% 이하)**: compute 7.5% · reference-filter ~7.6% · provisional-bool 일부. **단일 닫힘-레버
-  >~8% 없음**.
-- **★판정: banking hard-core = F3 ⋈ 경계 지배**(중복/모호 참조·범주분류). 프레임 정합(F3=scale·scaffold 공히 flat).
-  retail(F1 compliance=큰 닫힘슬라이스)과 대조 = **도메인마다 binding 축 다름**(C52 재확인). banking은 경계-지배.
-- **함의**: ① 단일 keystone 레버로 banking pass 크게 못 움직임(각 슬라이스 ~8%·합쳐도 ~20-25%·각각 op저작 필요).
-  ② decidable 슬라이스(compute/filter/bool)는 실재하며 frontier도 못 여는 것(thesis 증거)이나 개별 소규모.
-  ③ 정직한 연구결론 = "banking은 F3 경계 지배 도메인·scaffold는 F1/F2b 소슬라이스만"(프레임 강화). 
-- **결정 필요**: (a) 경계-지배로 수용·기록(프레임 정합 연구결론) (b) 3슬라이스 결합 스택 구축(~20-25% 상한·대공사)
-  (c) banking 접고 retail 표준-gpt5.2 재검증 등 다른 축.
+## 5d. ★★축 종합 판정 — reference-filter가 고사정권 강레버 (2026-07-13·★파서오염 교정판)
+> ⚠**교정(자기교정·[[08]])**: 초판 "banking=F3⋈경계 지배·필터 31.8%"는 **파서 오염**이었다 — 타 모델 record
+> 포맷서 date/amount/type/description 미추출→None==None 허위동일(555/615 None·"57개 동일" 부조리로 발각).
+> **파싱신뢰 케이스만(good field ≥70%)** 재측정이 정본.
+- **★transaction_id ⋈ 결정론-필터 유일식별 = 83%**(전 15모델·n=798·파싱신뢰만·gemini/gpt/grok/opus/sonnet 전부
+  80-88% 일관). 진짜중복(全필드동일) 17%·ASK가능 0(중복은 동일이라 ASK불가·소수).
+- **★reference-filter = 고사정권 강레버**: 참조실패가 hard-core 지배버킷 · ⋈비율 ~93%(gold수집·오선택) × 필터가능
+  83% ≈ **참조실패의 ~77%**. compute(7.5%)를 압도. **사용자 참조/reach 재설계 방향이 정답.**
+- **레버 = formalize(user발화→식별기준: date·amount·merchant) → 결정론 filter(수집record) → id (keystone 엔진·retail
+  fexec 일반화·§5c)**. 잔여=진짜중복 17%(벤치아티팩트 or 위치규칙 개연)+범주분류(formalize).
+- **결정 필요**: **(a) reference-filter 레버 구축**(고사정권·R4 게이트 통과·filter op+formalize+ABox) 권장 /
+  (b) compute는 소슬라이스로 병기 / (c) 진짜중복 17%=수용 or 위치op.
+- ⚠**caveat([[08]]·과확신 방지)**: (1) **83%=파싱신뢰 부분표본**(798/3097·26%·나머지 74%는 모델포맷 파싱실패로
+  스킵·표본편향 가능·완전검증엔 포맷별 파서 필요) (2) **83%=결정론-필터 유일식별 *천장***(gold record가 기준으로
+  유일하다는 것)·**formalize half(user발화→date/amount/merchant 기준 추출) 오차는 별도**·전체 레버=formalize×filter
+  < 83% (3) per-case 정독 t085(ATM 필터가능·CityFit 중복=⋈) 1건뿐·추가 정독 필요. ⇒ **강한 후보이나 [M] 잠정**·
+  다음=포맷-강건 파서 or 라이브 formalize 검증으로 확정.
 
 ## 6. Nested-arg 배선 (핵심 신규·엔진 확장)
 - 문제: 파라미터가 `call_discoverable_agent_tool.arguments`(JSON 문자열) **안**. 기존 resolve_write는 top-level만.

@@ -108,24 +108,27 @@ def main():
                 def uniq(fields):
                     c = sum(1 for r in recs if all(r.get(fl) == grec.get(fl) for fl in fields))
                     return c == 1
-                if uniq(["date"]):
-                    crit_unique["date 단독 유일"] += 1
-                elif uniq(["date", "amount"]):
-                    crit_unique["date+amount 유일"] += 1
-                elif uniq(["date", "type"]):
-                    crit_unique["date+type 유일"] += 1
-                elif uniq(["amount", "type"]):
-                    crit_unique["amount+type 유일"] += 1
-                elif uniq(["description"]):
-                    crit_unique["description 유일"] += 1
+                allf = ["date", "amount", "type", "description"]
+                if uniq(["date"]) or uniq(["date", "amount"]) or uniq(["date", "type"]) \
+                        or uniq(["amount", "type"]) or uniq(["description"]):
+                    crit_unique["①결정론필터 유일식별"] += 1
                 else:
-                    crit_unique["유일식별 실패(진짜 ⋈·동일record)"] += 1
-    print("=== transaction_id ⋈ 케이스 필터-유일성 (파싱된 n=%d·gold_rec 미파싱 %d) ===" % (n, no_goldrec))
+                    # 실패 → 진짜중복(gold와 全필드 동일 record ≥2) vs ASK가능(어떤 속성 다름)
+                    ident = sum(1 for r in recs if all(r.get(fl) == grec.get(fl) for fl in allf))
+                    if ident >= 2:
+                        crit_unique["③진짜중복(全필드동일·ASK불가·벤치아티팩트?)"] += 1
+                    else:
+                        crit_unique["②ASK가능(속성상이·DISAMBIGUATE)"] += 1
+    print("=== transaction_id ⋈ 케이스 (파싱된 n=%d·gold_rec 미파싱 %d) ===" % (n, no_goldrec))
     tot = sum(crit_unique.values())
-    filterable = tot - crit_unique.get("유일식별 실패(진짜 ⋈·동일record)", 0)
-    for k, v in crit_unique.most_common():
-        print("  %-40s %6d (%.1f%%)" % (k, v, 100 * v / max(tot, 1)))
-    print("\n★결정론-필터 유일식별 가능(=재현 상한): %.1f%%" % (100 * filterable / max(tot, 1)))
+    for k, v in sorted(crit_unique.items()):
+        print("  %-44s %6d (%.1f%%)" % (k, v, 100 * v / max(tot, 1)))
+    f = crit_unique.get("①결정론필터 유일식별", 0)
+    ask = crit_unique.get("②ASK가능(속성상이·DISAMBIGUATE)", 0)
+    dup = crit_unique.get("③진짜중복(全필드동일·ASK불가·벤치아티팩트?)", 0)
+    print("\n★필터+ASK 잠재 사정권 = %.1f%% (필터 %.1f + ASK %.1f) · 진짜중복 %.1f%%"
+          % (100 * (f + ask) / max(tot, 1), 100 * f / max(tot, 1), 100 * ask / max(tot, 1),
+             100 * dup / max(tot, 1)))
 
 
 if __name__ == "__main__":
