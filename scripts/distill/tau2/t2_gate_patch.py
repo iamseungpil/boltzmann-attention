@@ -1780,7 +1780,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                   % (c.name, ",".join(_bad), _oid, _hint),
                                   file=_sys.stderr, flush=True)
                             break
-                        if noop_write(dargs, _cspec, state.messages):
+                        # ★v6 선별(T2_CONS_NOOP=0으로 분리 가능): G-noop은 v4 nt2서 효과 0(발화1·결과불변)
+                        if os.environ.get("T2_CONS_NOOP", "1") != "0" \
+                                and noop_write(dargs, _cspec, state.messages):
                             cons_fb = (c, CONS_NOOP_FEEDBACK)
                             print("[T2_CONS] noop deny tool=%s oid=%s"
                                   % (c.name, dargs.get(_cspec.get("entity_key"))),
