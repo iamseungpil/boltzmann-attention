@@ -212,6 +212,14 @@ RECOMMEND_VERIFY_FB = (
     "requirements against the available options, '{correct}' is the one that satisfies ALL of them. "
     "Re-offer with '{operand}={correct}' (or, if unsure, ask the user which requirement to prioritize)."
 )
+# ★오추천(텍스트)·미추천 공통: 항상 offer_tool로 올바른 값 제안하도록 유도(user 이탈도 축소).
+RECOMMEND_OFFER_FB = (
+    "[RECOMMEND-OFFER] the user wants '{action}', but you are only describing options in text (or "
+    "deflecting) instead of formally offering it. Based on the user's hard requirements and the "
+    "available options, '{operand}={correct}' is the match. Offer it now by calling '{offer}' with "
+    "discoverable_tool_name='{action}' and {operand}='{correct}', so the user can act on the correct "
+    "option. If no option satisfies all requirements, tell the user that plainly."
+)
 
 
 def _parse_nested_args(v):
@@ -262,25 +270,73 @@ def _formalize_correct_operand(agent, la, UserMessage, msgs, action, operand, ch
         return None
 
 
-def resolve_recommendation(am, msgs, a2, agent=None, la=None, UserMessage=None):
-    """★Lever 4 (사용자 2026-07-13·오추천 방지): user-실행 action(apply)의 operand(card)를 추천 전 검증.
-    에이전트가 offer_tool(give_discoverable_user_tool)로 action을 제안하면, 요구→올바른 operand
-    formalize(직접실행 dry-run 동형)로 검증·틀리면 deny(추천 교정). user-실행이라 write는 못 게이트하나
-    *제안(offer)*은 agent 호출=게이트 가능. 도메인-일반(로직)·A2 recommendation_verify가 도구/인자 선언."""
+def _formalize_recommendation(agent, la, UserMessage, msgs, action, operand):
+    """★apply-intent 판별 + 요구→올바른 operand formalize (단일 서브콜). 반환 (applies, correct).
+    applies=사용자가 그 user-실행 action을 원하나 · correct=모든 hard requirement 만족 값(불명 none)."""
+    if agent is None or la is None:
+        return (False, None)
+    users = [str(getattr(m, "content", "") or "") for m in msgs
+             if getattr(m, "role", None) == "user"]
+    ctx = [str(getattr(m, "content", "") or "") for m in msgs
+           if getattr(m, "role", None) == "tool" and not getattr(m, "error", False)]
+    prompt = ("A user is talking to a bank agent. (1) Based on the user's messages, do they want to "
+              "'%s'? (2) If yes, given their stated HARD requirements and the option details below, "
+              "which single value of '%s' satisfies ALL hard requirements (pick best-fitting; 'none' "
+              "if no option clearly qualifies or info is missing)?\n"
+              "User said:\n- %s\n\nOption details (from lookups):\n%s\n"
+              'Reply JSON only: {"applies": true/false, "%s": "<value or none>"}'
+              % (action, operand, "\n- ".join(u[:400] for u in users[-8:]),
+                 "\n".join(c[:600] for c in ctx[-8:]), operand))
+    try:
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items() if "tool" not in k}
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="recommend_formalize", **kw)
+        txt = getattr(sub, "content", None) or ""
+        applies = bool(re.search(r'"applies"\s*:\s*true', txt, re.I))
+        m = re.search(r'"%s"\s*:\s*"([^"]+)"' % re.escape(operand), txt)
+        cand = m.group(1).strip() if m else None
+        if cand and cand.lower() == "none":
+            cand = None
+        return (applies, cand)
+    except Exception:
+        return (False, None)
+
+
+def _offered_in_history(msgs, offer, action):
+    """이전에 offer_tool로 그 action을 이미 제안했나(중복 nag 방지)."""
+    for m in msgs:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            if getattr(tc, "name", None) == offer:
+                a = getattr(tc, "arguments", None) or {}
+                if str(a.get("discoverable_tool_name")) == str(action):
+                    return True
+    return False
+
+
+def resolve_recommendation(am, msgs, a2, agent=None, la=None, UserMessage=None, transfer_tools=None):
+    """★Lever 4 (사용자 2026-07-13·미추천/오추천 방지): user-실행 action(apply)의 operand(card) 검증.
+    user-실행이라 write는 못 게이트하나 *제안(offer)*은 agent 호출=게이트 가능. 두 경로:
+      (A) offer_tool로 제안 중 → operand를 요구→formalize 검증·틀리면 교정(오추천-offer).
+      (B) 제안 없이 apply-intent로 종결(텍스트추천/미추천) → 올바른 값으로 offer_tool 제안 유도
+          (오추천-텍스트·미추천·user 이탈 축소를 한 번에). formalize=learn·직접실행 dry-run 동형."""
     spec = (a2 or {}).get("recommendation_verify")
     if not spec or agent is None or la is None:
         return {"status": "ok"}
     offer = spec.get("offer_tool"); action = spec.get("action_tool"); operand = spec.get("operand")
     if not (offer and action and operand):
         return {"status": "ok"}
+    # (A) 이번 턴에 offer_tool로 제안 중 → operand 검증
     for tc in (getattr(am, "tool_calls", None) or []):
         if getattr(tc, "name", None) != offer:
             continue
         a = getattr(tc, "arguments", None) or {}
         if str(a.get("discoverable_tool_name")) != str(action):
             continue
-        nested = _parse_nested_args(a.get("arguments"))
-        chosen = nested.get(operand)
+        chosen = _parse_nested_args(a.get("arguments")).get(operand)
         if not chosen:
             continue
         correct = _formalize_correct_operand(agent, la, UserMessage, msgs, action, operand, chosen)
@@ -288,6 +344,22 @@ def resolve_recommendation(am, msgs, a2, agent=None, la=None, UserMessage=None):
             return {"status": "deny", "reason": "recommendation-verify", "call": tc,
                     "feedback": RECOMMEND_VERIFY_FB.format(
                         action=action, operand=operand, chosen=chosen, correct=correct)}
+        return {"status": "ok"}       # 제안했고 검증 통과
+    # (B) 제안 없이 종결(텍스트추천/미추천) → apply-intent면 올바른 값으로 offer 유도
+    if not _agent_ending(am, transfer_tools or set()):
+        return {"status": "ok"}       # 아직 작업 중(조회 등)
+    # ★비용 게이트(Δcost): apply-flow 신호(연구 도구 호출) 있을 때만 formalize 서브콜.
+    #   무관한 종결마다 LLM 호출 방지. research_tool 미기재면 항상 허용(하위호환).
+    _rt = spec.get("research_tool")
+    if _rt and _rt not in _tool_names(msgs):
+        return {"status": "ok"}
+    if _offered_in_history(msgs, offer, action):
+        return {"status": "ok"}       # 이전에 제안함 → 중복 nag 금지
+    applies, correct = _formalize_recommendation(agent, la, UserMessage, msgs, action, operand)
+    if applies and correct:
+        return {"status": "deny", "reason": "recommendation-offer",
+                "feedback": RECOMMEND_OFFER_FB.format(
+                    action=action, operand=operand, correct=correct, offer=offer)}
     return {"status": "ok"}
 
 

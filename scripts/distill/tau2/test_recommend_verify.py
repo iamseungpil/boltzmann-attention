@@ -16,22 +16,25 @@ class AM:
     def __init__(self, tool_calls=None, content=None):
         self.role, self.tool_calls, self.content = "assistant", tool_calls, content
 class M:
-    def __init__(self, role, content="", error=False):
-        self.role, self.content, self.error = role, content, error
+    def __init__(self, role, content="", error=False, tool_calls=None):
+        self.role, self.content, self.error, self.tool_calls = role, content, error, tool_calls or []
 
 
 def hist():
+    # 에이전트가 KB_search 함(apply-flow 신호·research_tool 게이트 충족)
     return [M("user", "I need a card with NO foreign transaction fees and purchase protection."),
+            M("assistant", tool_calls=[TC("KB_search", {"query": "credit cards no foreign fee"})]),
             M("tool", "Silver Rewards Card: no foreign transaction fees, purchase protection, $120k limit. "
                       "Platinum Rewards Card: has foreign transaction fees, travel perks.")]
 
 
-# formalize 목킹: 반환할 올바른 카드 지정
+# formalize 목킹: 올바른 카드 + apply-intent(applies) 지정
 class FakeSub:
-    def __init__(self, v): self.content = '{"card_type": "%s"}' % v
+    def __init__(self, v, applies=True):
+        self.content = '{"applies": %s, "card_type": "%s"}' % ("true" if applies else "false", v)
 class FakeLA:
-    def __init__(self, v): self._v = v
-    def generate(self, **kw): return FakeSub(self._v)
+    def __init__(self, v, applies=True): self._v, self._a = v, applies
+    def generate(self, **kw): return FakeSub(self._v, self._a)
 class FakeAgent:
     llm = "m"; llm_args = {}; tools = []
 class FakeUM:
@@ -73,10 +76,36 @@ am = AM(tool_calls=[TC("give_discoverable_user_tool",
 r = R.resolve_recommendation(am, hist(), BANK, FakeAgent(), FakeLA("Silver Rewards Card"), FakeUM)
 ck("other_action_noop", r["status"] == "ok", r)
 
-# 5) offer 호출 없음(텍스트만) → ok (이 경로는 미커버·안전)
+# 5) 텍스트추천(offer 안 씀)+apply-intent 종결 → recommendation-offer(올바른 카드로 제안 유도)
 r = R.resolve_recommendation(AM(content="I recommend the Platinum card."), hist(), BANK,
                              FakeAgent(), FakeLA("Silver Rewards Card"), FakeUM)
-ck("text_only_noop", r["status"] == "ok", r)
+ck("text_reco_offer_deny", r["status"] == "deny" and r["reason"] == "recommendation-offer", r)
+ck("offer_names_correct", "Silver Rewards Card" in r.get("feedback", "")
+   and "give_discoverable_user_tool" in r.get("feedback", ""), r)
+
+# 5b) 미추천(카드 언급 없이 포기)+apply-intent → recommendation-offer
+r = R.resolve_recommendation(AM(content="I'm not able to help with that, sorry."), hist(), BANK,
+                             FakeAgent(), FakeLA("Silver Rewards Card"), FakeUM)
+ck("under_reco_offer_deny", r["status"] == "deny" and r["reason"] == "recommendation-offer", r)
+
+# 5c) apply-intent 아님(applies=false) → ok(스퓨리어스 방지)
+r = R.resolve_recommendation(AM(content="Have a nice day."), hist(), BANK,
+                             FakeAgent(), FakeLA("Silver Rewards Card", applies=False), FakeUM)
+ck("not_apply_intent_ok", r["status"] == "ok", r)
+
+# 5d) 이전에 이미 offer함 → 중복 nag 금지
+h = hist() + [M("assistant"), ]
+h[-1].tool_calls = [TC("give_discoverable_user_tool",
+                    {"discoverable_tool_name": "apply_for_credit_card",
+                     "arguments": json.dumps({"card_type": "Silver Rewards Card"})})]
+r = R.resolve_recommendation(AM(content="Let me know if you need more."), h, BANK,
+                             FakeAgent(), FakeLA("Silver Rewards Card"), FakeUM)
+ck("already_offered_ok", r["status"] == "ok", r)
+
+# 5e) 아직 작업 중(조회 도구 호출) → ok
+r = R.resolve_recommendation(AM(tool_calls=[TC("KB_search", {"query": "x"})]), hist(), BANK,
+                             FakeAgent(), FakeLA("Silver Rewards Card"), FakeUM)
+ck("still_working_ok", r["status"] == "ok", r)
 
 # 6) recommendation_verify 미설정(retail류) → ok
 r = R.resolve_recommendation(offer("Platinum Rewards Card"), hist(), {},

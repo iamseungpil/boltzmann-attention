@@ -2073,7 +2073,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     # ★Lever 4 pre-recommendation 검증(오추천 방지·user-실행 operand): 에이전트가
                     #   offer_tool로 action 제안 시 operand를 요구→formalize 검증·틀리면 교정. cap 2/sim.
                     if (rw_fb is None and getattr(self, "_t2_recommend_deny", 0) < 2):
-                        _rvr = _rz.resolve_recommendation(am, state.messages, a2, self, la, UserMessage)
+                        _rvr = _rz.resolve_recommendation(am, state.messages, a2, self, la, UserMessage,
+                                                          transfer_tools=_transfer_tools(a2))
                         if _rvr.get("status") == "deny":
                             rw_fb = (_rvr.get("call") or (am.tool_calls or [None])[0], _rvr["feedback"])
                             self._t2_recommend_deny = getattr(self, "_t2_recommend_deny", 0) + 1
