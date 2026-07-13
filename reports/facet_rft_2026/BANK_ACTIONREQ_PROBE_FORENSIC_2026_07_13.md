@@ -49,7 +49,8 @@
 
 ## 6b. ★재채점 + gold↔우리 경로 분석 (사용자 지시 2026-07-13·`bank_rescore_pathdiff.py`·`bank_pathdiff_percase.py`)
 > buggy audit(assistant-only 스캔) 폐기 → 하네스 `action_checks[].action_match`(정확 채점) + 궤적 대조.
-> **frontier 궤적은 소실([[47]])** — aggregate만: opus4.5 pass1 24.7·gpt5.5 37.4 vs 우리 floor **6.1%**(목표격차).
+> ⚠**"frontier 궤적 소실"은 오류(내 표류·2026-07-13 교정)**: banking frontier 궤적 = `C:/tmp/traj/*_banking.json` 17모델 로컬 완비([[47]]·retail처럼 정독 가능). frontier pass: gpt55 37.4·gpt54 30.7·gpt52 24.7·opus45-47 21-25%(AllTools) / openai_embeddings=glm5 11·qwen397b 11%(think 아티팩트).
+> ★**우리 floor 6.1%는 gpt-4.1 user-sim 아티팩트**(§6d) — 표준 gpt-5.2 floor는 ~22%(진행중·frontier 동급).
 
 **재채점 (bankxfer_floor_bank_t4·198 valid·infra 13)**: PASS(reward=1.0) **12/198 = 6.1%**. reward_basis: DB 172·ACTION 22.
 
