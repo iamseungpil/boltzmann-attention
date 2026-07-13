@@ -64,5 +64,15 @@
 3. operator-⋈(틀린 도구명 4,384)=보조 격차(발견도구 선택). 이건 F3 성격(FIND).
 4. caveat: `arguments` nested는 도구마다 스키마 상이 → 정책규칙 A2 인코딩 부담 큼. 실현가능성=별도 판단. reward_basis 대부분 DB·[[08]] 소표본 아님(17모델×388).
 
+## 5b. ★★KEYSTONE 실증 — A2-선언 op가 frontier-irreducible 파라미터를 95% 재현 (사용자 아키텍처)
+> 사용자 설계: **엔진 = 일반 op 라이브러리 + A2-스펙 인터프리터**(min/max/argmax/sum/diff/clamp/lookup_table/
+> days_between...). A2가 도메인별 op 선언(어느 도구·어느 파라미터·어느 임계). scaffold/loop 불변·전이=A2만.
+
+- **구현**: `t2_compute.py`(도메인-일반 op 라이브러리·리터럴 0·unit 14/14 `test_compute.py`). A2 op-스펙 = 예:
+  `customer_max_liability_amount = {op:lookup_table, key:{op:days_between, a:tx_date, b:disc_date}, table:[{<=30→50},{else→500}]}`.
+- **★gold 재현 실측(전 frontier 1109 케이스)**: threshold 2일=68% → **15~30일=95%**(1050/1109). 나머지 5%=412.88 특수분기(필드 추가=튜닝).
+- **의미**: gpt55(37.4% 최강)조차 틀리는 `customer_max_liability_amount`(disputed 전액 오입력)를 **A2-선언 op + 일반 엔진이 95% 계산**. = ① 사용자 아키텍처 작동(엔진 고정·ABox만·[[05]]/[[11]]) ② **결정론 scaffold가 scale-불가 decidable 격차를 연다**(thesis 강증거·banking 키스톤).
+- **잔여(라이브 keystone까지)**: (a) 에이전트가 입력(날짜) 수집=reach (b) 계산값을 call_discoverable nested args에 주입+검증(엔진 nested 확장) (c) 타 파라미터(provisional_credit_eligible=정책판정·amount_difference=diff·expected_apy) op-스펙 저작. 코어 형식화-가능성=실증됨.
+
 ## 6. 산출물
 - `bank_frontier_perstep.py` · `bank_frontier_argdiff.py` · 데이터 `C:/tmp/traj/*_banking.json`.
