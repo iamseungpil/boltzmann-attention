@@ -2049,6 +2049,35 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         print("[T2_TOOLERR] deny early-transfer(recover) tool=%s" % nm,
                               file=_sys.stderr, flush=True)
                         break
+            # ★reference-filter (keystone·참조축·C77) — do_gate/do_prov와 *독립*.
+            #   결정론 in-place silent-repair(수집 record ⋈)이므로 게이트/prov 피드백과 경합하지 않는다.
+            #   게이트가 *교정된* nested id를 확인하도록 do_gate 판정을 소비하는 fb-빌드(아래) 前에 실행.
+            #   (배선버그 교정 2026-07-14: 前엔 T2_RESOLVE 가드의 not do_gate 안에 있어 dispute류
+            #    confirm-게이트가 do_gate=True면 영영 미발화 → 사용자가 *틀린* 거래를 확인.)
+            if (os.environ.get("T2_RESOLVE") == "1" and a2 is not None
+                    and (a2 or {}).get("reference_filter")
+                    and getattr(self, "_t2_reffilter", 0) < 3):
+                try:
+                    import t2_resolve as _rz_rf
+                    _rf = _rz_rf.resolve_reference_filter(am, state.messages, a2, self, la, UserMessage)
+                    if _rf.get("status") == "deny":
+                        _rtc = _rf.get("call"); _nested = _rf.get("nested") or {}
+                        _nested[_rf["param"]] = _rf["correct"]      # 제자리 치환
+                        try:                                        # nested 재직렬화(문자열/딕트)
+                            if isinstance(getattr(_rtc, "arguments", {}).get("arguments"), str):
+                                _rtc.arguments["arguments"] = json.dumps(_nested)
+                            elif isinstance(_rtc.arguments.get("arguments"), dict):
+                                _rtc.arguments["arguments"] = _nested
+                            else:
+                                _rtc.arguments[_rf["param"]] = _rf["correct"]
+                        except Exception:
+                            pass
+                        self._t2_reffilter = getattr(self, "_t2_reffilter", 0) + 1
+                        print("[T2_RESOLVE] reference-filter silent-repair %s->%s"
+                              % (_rf["param"], _rf["correct"]), file=_sys.stderr, flush=True)
+                except Exception as _rfe:
+                    print("[T2_RESOLVE] reffilter error (no-op): %r" % (_rfe,),
+                          file=_sys.stderr, flush=True)
             # ★T2_RESOLVE (통일 인터프리터·UNIFIED_OPERAND_A2 §7-3): per-operand 해소 디스패처.
             #   deny-kind(operator/membership/provenance) 통합 = L10+L3+operator 한 경로.
             #   개별 플래그(T2_CONSISTENCY/T2_PROV_ORIGIN) 대체용(driver가 상호배타 설정).
@@ -2080,25 +2109,6 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             self._t2_recommend_deny = getattr(self, "_t2_recommend_deny", 0) + 1
                             print("[T2_RESOLVE] %s deny" % _rvr.get("reason", "recommendation-verify"),
                                   file=_sys.stderr, flush=True)
-                    # ★reference-filter (keystone·참조축·C77): call_discoverable 참조 id를 formalize→
-                    #   결정론 filter→검증. 결정론 op이므로 silent-repair(nested id 제자리 치환·R2·대화무교란).
-                    if (a2 or {}).get("reference_filter") and getattr(self, "_t2_reffilter", 0) < 3:
-                        _rf = _rz.resolve_reference_filter(am, state.messages, a2, self, la, UserMessage)
-                        if _rf.get("status") == "deny":
-                            _rtc = _rf.get("call"); _nested = _rf.get("nested") or {}
-                            _nested[_rf["param"]] = _rf["correct"]      # 제자리 치환
-                            try:                                        # nested 재직렬화(문자열/딕트)
-                                if isinstance(getattr(_rtc, "arguments", {}).get("arguments"), str):
-                                    _rtc.arguments["arguments"] = json.dumps(_nested)
-                                elif isinstance(_rtc.arguments.get("arguments"), dict):
-                                    _rtc.arguments["arguments"] = _nested
-                                else:
-                                    _rtc.arguments[_rf["param"]] = _rf["correct"]
-                            except Exception:
-                                pass
-                            self._t2_reffilter = getattr(self, "_t2_reffilter", 0) + 1
-                            print("[T2_RESOLVE] reference-filter silent-repair %s->%s"
-                                  % (_rf["param"], _rf["correct"]), file=_sys.stderr, flush=True)
                     # ★action-required (turn-level): am이 회피(action_tool 미호출)면 operator 해소
                     #   GET→FIND(intent→도구)→execute|ASK. 조언/포기로 종결 금지. cap 1/sim.
                     if (rw_fb is None and getattr(self, "_t2_action_deny", 0) < 1):

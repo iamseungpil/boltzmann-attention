@@ -192,6 +192,9 @@ check("T6_offer_reminder",
           for u in regen_user_msgs()), regen_user_msgs())
 
 # ── T7 (reference-filter live·silent-repair): 틀린 transaction_id 지목 → formalize→filter→제자리 치환 ──
+#   ★검증완료 고객(log_verification 이력)이라 auth 게이트(GB1) 만족 → 게이트 재생성 없이 단일 패스로
+#     reference-filter만 격리 검정. reference-filter는 do_gate/do_prov와 독립이나(배선 교정 2026-07-14),
+#     이 케이스는 게이트-무관 단일 패스로 silent-repair 결과를 직접 확인.
 GENCALLS[:] = []
 RECTXT = ("Transactions:\n1. Record ID: btxn_atm\n   transaction_id: btxn_atm\n   date: 11/05/2025\n"
           "   description: RHO-BANK ATM #4827 WITHDRAWAL\n   amount: -300.0\n   type: atm_withdrawal\n"
@@ -199,6 +202,10 @@ RECTXT = ("Transactions:\n1. Record ID: btxn_atm\n   transaction_id: btxn_atm\n 
           "   description: CITYFIT GYM\n   amount: -89.99\n   type: debit_card_purchase")
 ag, orch, st = setup([
     UserMessage("Dispute my ATM withdrawal on November 5th, I'm short $100."),
+    AM(tool_calls=[ToolCall("get_user_information_by_date_of_birth", {"date_of_birth": "1988-03-02"})]),
+    ToolMessage(id="v0", content="user record: Alex, dob 1988-03-02, email a@x.com"),
+    AM(tool_calls=[ToolCall("log_verification", {"name": "Alex", "date_of_birth": "1988-03-02"}, id="v1")]),
+    ToolMessage(id="v1", content="verification logged for Alex"),   # ← id 매칭(페어링) → auth 게이트(GB1) 만족
     AM(tool_calls=[ToolCall("KB_search", {})]),
     ToolMessage(id="k0", content="Use file_debit_card_transaction_dispute_6281 to file disputes."),
     AM(tool_calls=[ToolCall("get_bank_account_transactions", {})]),
