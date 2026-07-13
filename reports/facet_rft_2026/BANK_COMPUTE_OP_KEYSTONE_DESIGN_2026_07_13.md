@@ -85,6 +85,23 @@
 - **키 = agent_tool_name prefix**(엔진이 prefix 매칭). param = nested 인자명.
 - 값 op-스펙은 §4 op 사용. ref 경로 = `params.*`(nested 인자)·`records[*].*`(수집)·`user.*`(발화).
 
+## 5c. ★★재설계 피벗 — reference-filter 레버 (사용자 지시 "참조 reach 축"·2026-07-13)
+> STEP 0(§8-0) 판정: compute-alone=7.5%(미달). 재설계 = 참조/reach 축. **참조-ID(transaction_id·account_id·
+> card_id·card_last_4)가 hard-core param 실패의 지배 버킷**(~8500). 이 축을 [[08]] 3분·필터가능성 정량함.
+
+- **참조-ID 실패 3분**(`bank_reference_scope.py`): ⋈오선택(gold∈수집·여럿중틀림) **92.7%** · reach 4.2% · 날조 3.2%.
+- **★"⋈=경계" 반증 — 대부분 필터가능**(per-case t085 + 정량): ⋈ 케이스서 user가 **금액+날짜 식별정보 제공 39%·
+  부분 29%·무 32%** = **≥68%가 식별정보 보유**(무 32%도 merchant/서수 개연). t085: gold거래=user가 "11/05·ATM·
+  $100부족"으로 유일 특정·수집 record 5건 중 필터가능. ⇒ **순수 F3 경계 아니라 F2b 필터**(에이전트가 필터 실패).
+- **★레버 = reference-filter (keystone 엔진 동형·retail fexec 일반화)**:
+  1. **formalize**(LLM 날개): user 발화 → 식별기준(date·amount·merchant·type) predicate. (retail fexec_filter_decide 동형)
+  2. **deterministic filter**(엔진): 수집된 record(get_*_transactions 등) 위 filter → 매칭 record → 그 id. (수집사실
+     위 계산·§3 정당·autofetch 아님)
+  3. **verify/silent-repair**: 에이전트 id를 필터 id와 대조·불일치 시 결정론op면 silent 치환(R2).
+- **사정권**: 참조-⋈(92.7% of 참조실패) × 필터가능(≥39~68%) = **hard-core 지배 버킷의 큰 몫**(compute 7.5% ≫ 능가).
+  R4 게이트 통과 후보. 잔여(식별정보 無·다중매칭)=진짜 ⋈ 경계(수용).
+- **op 추가**: `filter`(over records, by formalized predicate → return id) — 도메인일반. formalize=learn 날개.
+
 ## 6. Nested-arg 배선 (핵심 신규·엔진 확장)
 - 문제: 파라미터가 `call_discoverable_agent_tool.arguments`(JSON 문자열) **안**. 기존 resolve_write는 top-level만.
 - 설계:
