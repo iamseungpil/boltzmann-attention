@@ -11,7 +11,7 @@ REPO=/home/woori/workspace_common/boltzmann-attention-pi
 T2=$REPO/scripts/distill/tau2; PY=/home/woori/venvs/seka_env/bin/python
 S=/home/woori/scratch; TB=$S/tau2-bench
 M="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8"
-TAG="${1:?tag}"; TASKS="${2:?tasks|ALL}"; NT="${3:-1}"; PORT="${4:-8141}"
+TAG="${1:?tag}"; TASKS="${2:?tasks|ALL}"; NT="${3:-1}"; PORT="${4:-8141}"; DOMAIN="${5:-retail}"
 LOG=$S/genv6_${TAG}.log; exec > $LOG 2>&1; set -x; date
 cd $REPO && git pull --rebase -q origin facet-rft-2026 2>/dev/null
 source /home/woori/.openrouter_key
@@ -37,7 +37,7 @@ echo "A1-v6(선별): v2-core + READALL(cap2) + L10-membership only | L3/G-noop/L
 cd $TB
 TIDARG=""; [ "$TASKS" != "ALL" ] && TIDARG="--task_ids ${TASKS// /,}"   # 공백→콤마(파서=콤마 구분)
 rm -rf "$TB/data/simulations/genv6_$TAG"
-timeout 14400 $PY $T2/t2_run_gated.py --gate 1 --domain retail --agent_model "$M" --agent_base http://localhost:$PORT/v1 \
+timeout 14400 $PY $T2/t2_run_gated.py --gate 1 --domain $DOMAIN --agent_model "$M" --agent_base http://localhost:$PORT/v1 \
   --user_llm openrouter/openai/gpt-4.1 --user_temp 0.0 --num_trials $NT --max_concurrency 10 \
   --save_to "genv6_$TAG" $TIDARG || echo "ARM_FAIL $TAG"
 date; echo RUN_DONE
