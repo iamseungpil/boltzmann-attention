@@ -4,6 +4,20 @@
 > = `GENERALIZED_SCAFFOLD_ARCHITECTURE_2026_07_12` §4d의 **미완 "통일 TODO"** 실행. [[16]] LOCK·[[03]] anti-drift.
 > **자기교정**: 이 세션에 만든 L4-tie·L10·READALL·COV·TOOLERR = LOCK이 폐기하라던 **개별 개입레버**. 본 문서로 **per-operand A2 한 곳 + 고정 인터프리터**로 흡수·통일.
 
+## ★★결정화된 일반 규칙 (2026-07-13 사용자·[[00]] 두-날개 논제의 최종형)
+> **tool-use = {operand, operator} 각각의 의미 해소 4지선다 루프(GET→FIND→INFER/select→ASK/abstain)를, scaffold + A2 + learn 세 자원으로 푸는 것.**
+
+| 자원 | 담당 | 성질 |
+|---|---|---|
+| **scaffold** (고정 엔진) | 루프 제어 + 전 결정론 검사: select 라우팅·predicate eval·provenance·gate·membership·cardinality diff·on_error 라우팅·abstain 종결 | 도메인 무수정·리터럴 0 |
+| **A2** (ABox) | 전 도메인 포인터/값: getter·filterable_fields·resolve MENU(infer/ask 모드)·policy_default·on_error class·factor keys·tie rule | **로직 일반·정보만 특화** |
+| **learn** (훈련 날개) | 환원불가 의미부 2개: ① formalize 정확도(NL제약→predicate / intent→operator) ② INFER 보정 | = fexec 0.79 병목 = learn 정량 타깃 |
+
+- **한 루프·두 해소대상(operand=값 + operator=도구·§8b banking 확증)·세 자원.**
+- **경계 = [[05]]/[[10]]**: 정보=A2 · 결정론 로직=scaffold · 의미(formalize/intent)=learn. "일반이냐"의 판정 = **로직이 A2만 읽나**(발화-여부 아님·사용자 2026-07-13).
+- **기권(ASK/transfer/abstain)이 모든 분기의 안전 종결** — retail·banking gold 공통(§8d).
+- **잔여 = learn**: scaffold가 결정론부를 다 사도 formalize/intent 정확도가 병목(v6=v2·banking gain0 실증·§6). = 두-날개의 learn 날개가 갚을 정량 격차.
+
 ## 0. 핵심 명제
 모든 write는 **operand(인자) 값 해소**의 집합이다. 각 operand마다 문제는 항상 **같은 구조**:
 > **후보 생산(GET) → 제약 평가(FIND) → {유일→사용 · 다수→선택기준|ASK · 공집합→재형식화|기권} → 무결성 검사 → 에러 시 복구|기권.**
