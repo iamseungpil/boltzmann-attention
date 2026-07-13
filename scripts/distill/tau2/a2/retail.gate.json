@@ -432,5 +432,56 @@
    "hint": "The lookup key was wrong. Ask the user for the other identifier (email vs name+zip) and retry."
   }
  ],
- "_note_tool_error_specs": "v-toolerr(2026-07-13): 에러패턴→recover|abstain 분류(도메인정보). 엔진=T2_TOOLERR 일반 라우팅."
+ "_note_tool_error_specs": "v-toolerr(2026-07-13): 에러패턴→recover|abstain 분류(도메인정보). 엔진=T2_TOOLERR 일반 라우팅.",
+ "operands": {
+  "modify_pending_order_items": {
+   "item_ids": {
+    "kind": "membership",
+    "entity_key": "order_id",
+    "items_key": "item_ids",
+    "items_id_path": [
+     "items",
+     "item_id"
+    ]
+   },
+   "new_item_ids": {
+    "kind": "value",
+    "variant_spec": {
+     "trigger_tool": "get_product_details",
+     "nested_field": "variants",
+     "id_field": "item_id",
+     "anchor_operand": "item_ids",
+     "tie_break": "min_price"
+    }
+   }
+  },
+  "exchange_delivered_order_items": {
+   "item_ids": {
+    "kind": "membership",
+    "entity_key": "order_id",
+    "items_key": "item_ids",
+    "items_id_path": [
+     "items",
+     "item_id"
+    ]
+   },
+   "new_item_ids": {
+    "kind": "value",
+    "variant_spec": {
+     "trigger_tool": "get_product_details",
+     "nested_field": "variants",
+     "id_field": "item_id",
+     "anchor_operand": "item_ids",
+     "tie_break": "min_price"
+    }
+   }
+  },
+  "modify_pending_order_address": {
+   "address1": {
+    "kind": "provenance",
+    "mode": "grounded"
+   }
+  }
+ },
+ "_note_operands": "UNIFIED_OPERAND_A2 §1: per-operand 해소 spec(도메인정보). 엔진=t2_resolve.resolve_write(T2_RESOLVE)."
 }
