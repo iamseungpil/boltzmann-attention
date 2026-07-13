@@ -92,6 +92,44 @@ tool 실행 후:
 - prompt-uncontrollable 결정론 잔여(§4e t71) = 통일해도 남음 → filter-substitute(결정론)가 처방·advise 아님.
 - over-ask(≥2→ASK) 비용·recover/abstain 오분류 = Δspurious 계측 필수(정본 A1/실측).
 
+## 8. ★banking gold/frontier 독립 확증 — 루프가 도메인-일반임 (사용자 지시 2026-07-13)
+banking gold(97 task·독립 도메인)를 전수 분석 → 같은 GET→FIND→(select|ASK|abstain) 루프가 나타나는가. **결과: 나타남 + 핵심 일반화 발견.**
+
+### 8a. banking gold 구조 (operator 분포·97 task)
+- 지배 operator: `call_discoverable_agent_tool`(428)·`unlock_discoverable_agent_tool`(275)·`log_verification`(81)·`call_discoverable_user_tool`(62). = banking은 도구를 **KB 발견→unlock→call**하는 **간접(discoverable) 구조**.
+- reward_basis: DB 88 / ACTION 9. 시퀀스 길이 1~33(median ~8-9).
+- discoverable 도구 예: `update_transaction_rewards_3847`·`file_credit_card_transaction_dispute_4829`·`apply_statement_credit_8472`·`pay_credit_card_from_checking_9182`… (해시접미사 = 발견해야 하는 대상).
+
+### 8b. ★핵심 발견: operator(도구) 선택 = operand 해소의 일반화
+banking gold(task_026): `log_verification` → `unlock_discoverable_agent_tool{agent_tool_name}` → `call_discoverable_agent_tool{agent_tool_name}`.
+- **`agent_tool_name`이 인자(operand)** — "어느 도구냐"가 해소 대상. retail은 operand=값(item/order), banking은 operand에 **operator(도구명) 자체가 포함**.
+- 이 도구-operand가 **정확히 GET→FIND→select 루프**로 해소됨:
+  | 루프 단계 | banking 실현 | retail 대응 |
+  |---|---|---|
+  | **GET** | `KB_search`/discoverable-목록 → 후보 도구명 | getter → 후보 값 |
+  | **FIND** | 사용자 의도("rewards 안 맞음")→도구 매칭(update_transaction_rewards) | 제약→값 필터 |
+  | **select/ASK** | 1매칭→unlock+call·모호→ASK·미발견→abstain/transfer | 1→use·≥2→ASK·0→재형식화 |
+  | **PROV** | agent_tool_name이 KB출력에 grounded(발명 금지) | 값이 출력∪발화 grounded |
+  | **GATE** | unlock-before-call(전제)·log_verification-before-access(auth) | confirm/precond gate |
+- ⇒ **"intent 분석·operator 선택·계획"이 전부 operand 해소 루프의 인스턴스.** intent 분석 = 도구-operand의 FIND predicate. 계획 = operand 해소들의 의존순서(신원→도구발견→인자). 사용자 가설 정확히 확증.
+
+### 8c. banking frontier/floor 실패모드 → 전부 루프 단계에 매핑 (BANKING_FLOOR_LEVER_FIT [M])
+| banking 실패 (frontier·floor) | % | 루프 단계 |
+|---|---|---|
+| REACH/조립 미완 | 76.5% | **GET 실패**(도구 발견/unlock 체인 미완) |
+| 도구명 날조 | 35.9% | **PROV 위반**(도구-operand 발명) |
+| time_verified 날조 | 34.7% | **PROV 위반**(time-operand 발명) |
+| EARLY_TRANSFER | 21.2% | **on_empty/on_error 오처방**(복구해야 할 때 조기 기권) |
+| verify 무결성(누설·유령) | — | **GATE**(log_verification 유효성=B2) |
+- **모든 banking 실패가 루프 단계 실패로 환원** = 루프가 banking을 *완전 덮음*(도메인-일반 강증거).
+- 단 **지배 실패=GET(발견/조립)** = frontier도 동형(발견/조기중단 31%·[[47]]) = **모델 REACH 능력**(learn/scale), 루프-스캐폴드가 못 여는 축. scaffold 이득 축 = PROV(도구명/time 날조)·GATE(verify)·on_error(early-transfer).
+
+### 8d. 결론 (사용자 질문 답)
+- **같은 루프가 banking gold에서 독립적으로 나타남** — retail서 도출한 GET→FIND→(select|ASK|abstain)이 banking operator/operand/계획/intent를 완전 덮음.
+- **일반화 1건 발견**: operand에 **operator(도구명) 자체**가 포함 — getter=KB/discovery. 이건 retail엔 없던 축이나 로직은 동일(값 대신 도구명을 해소). §1 스키마에 `operand=tool_name` 케이스 추가만으로 흡수(getter=KB_search·filter=intent-match).
+- **abstain(기권)이 banking에서 gold의 정당 종결**(task_002/004/006 = KB 미발견→transfer가 gold) — 사용자 "기권 등 같은 종류" 확증·on_empty/on_error의 도메인-일반성.
+- ⇒ 통일 인터프리터(§3)에 **도구-operand 해소**(operator 선택=KB getter+intent filter) 추가 = banking·retail 공통 루프 완성.
+
 ## 7. 구현 계획 (리팩터·번들금지)
 1. **인터프리터 골격**: `resolve_operand(tool, arg, a2, msgs, am)` = §3 루프 1함수. 기존 부품 재사용(fexec_*·membership_violation·classify_tool_error·_origin_role·readall_unread·cov).
 2. **A2 통일**: retail.gate.json에 per-operand spec 블록 추가(기존 variant_spec·gate_spec·tool_error_specs·eplan을 operand별로 재구성).
