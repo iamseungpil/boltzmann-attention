@@ -3,6 +3,11 @@
 > v6(READALL+COV+L10) 이후 잔여 병목의 사전 설계. 근거 = `A1_V2_NT2_FORENSIC`·`A1_V3_PROBE_FORENSIC`·v4/v2 비교 3에이전트(62태스크 per-step).
 > 우선순위: **D=L4C(FF 2+flip 8-9·최대)** → F=L7(FF 3+flip 3) → G=L11(FF 1+flip 1).
 > 불변: [[05]] 도메인일반·A2만 · [[10]] formalize=LLM·평가=결정론 · Δspurious≤0 · G-approve(F4) 상시 · **동률=enumerate-ASK가 정도(t64 [M])**.
+>
+> **★도메인-특화 감사 (2026-07-13 사용자 지적 — 3층 판정·설계 수정 v1.1)**
+> - **(a) 엔진 기전**(대수·절차·mutex 인터프리터·carryover 탐지) = 일반 구조이나 **일반성은 [D]**(retail 도출) — ABox-swap 전이 probe([[11]])가 게이트.
+> - **(b) A2 데이터**(mutex·notice·alternative_tool·ordinal_orders) = 도메인-특화 맞음·그게 A2 역할. **정당성 검증 완료**: mutex/배칭 = `policy.md` L84 verbatim("only be called once per order… collected into a list… !!!")·환불=원결제 = L92/106/124 — **정책→spec 도출이지 eval-fitting 아님**.
+> - **(c) 어휘 사전 = 지적 적중·수정 2건**: ① §3 L11 paraphrase 사전 **삭제**(INFER의 사전 동결=[[16]] 폐기 트릭) → 구조 신호만+무조건 개방형 ASK. ② §1 L4C **비교급/극값어 사전 확장 중단** — 의미 해석은 formalize=learn 정의역([[13]] 역행 금지·R2 순환) → **L4C 스코프 = 구조 연산만**(DEFAULT-KEEP·per-slot·constrained 평가·동률→ASK·삼중 게이트), 의미 추출 = LLM formalize 잔류 + **learn(SFT) 타깃 승격**. 기대치 하향 정직 인정(formalize 0.79 병목 잔존) — 두-날개의 올바른 배분.
 
 ## 1. L4C — 변형-선택 constrained 재설계 (D 클래스)
 
@@ -34,6 +39,7 @@ slot_criterion := {
 ```
 - **DEFAULT-KEEP(핵심 신규 원리)**: keep∪set∪move∪extremum이 언급하지 *않은* 축은 **anchor 값 승계** = "최소 변경 원칙"(도메인일반). t100 즉시 폐쇄·t20/t7 후보공간 축소. 완화는 §1d.
 - 순서축의 순서 출처: ① 수치 파싱(bar·inch·L·GB·piece = 단위 정규식·도메인일반) ② 비수치 enum(S<M<L<XL<XXL 등)은 **A2 MENU `ordinal_orders`** 선언(엔진=인터프리터·[[05]]). 미선언 비수치 축의 move → ASK 낙하.
+- **★v1.1 스코프 재선긋기(감사 (c)-②)**: §1b의 criterion **추출**(비교급·극값어 해석 등 의미)은 **LLM formalize 전담**(사전 확장 중단·기존 최소 사전만 유지) + formalize 정확도 = learn(SFT) 타깃 승격. scaffold 몫 = §1b 스키마의 **평가·절차만**(DEFAULT-KEEP·per-slot 스코프·constrained 평가·§1d 게이트) — 기준이 무엇이든 적용되는 구조층. 기대치 하향 정직 인정: 사전-우회분 제거로 D-클래스에 formalize 0.79 병목 잔존 — 그 격차가 learn 날개의 정량 타깃.
 
 ### 1c. per-slot 결속 (F1 해법)
 - 극값어/제약구의 슬롯 귀속 = **문장-스코프**: anchor 제품명 토큰(anchor record의 name·getter 출력서)과 같은 문장에 있는 기준만 그 슬롯에 적용. 무-귀속 기준 = 어느 슬롯에도 적용 안 함(보수).
@@ -97,7 +103,7 @@ prefer 있으면: 사다리 순서대로 첫 비공집합
 ### 3a. 기전 (v3.2 §2b 정련)
 - 탐지(순결정론): write 인자 k가 **도구 스키마 enum**(값 후보 유한·A2 불요 — 스키마가 곧 선언) ∧ 값 v가 직전 write의 같은 k와 동일 ∧ **v의 근거 토큰이 이 대상(entity)에 대한 user 발화 창에 부재**(t76: "mistake"류 0건 실증) → carryover 플래그.
 - 처방: **개방형 ASK 강등** — "이 주문은 실수 주문인가요, 더 이상 필요 없으신 건가요?"(값을 user가 생산·yes/no 금지 = 확인-세탁 6건 [M] 대응). deny+피드백으로 재생성 1회·cap 1/sim.
-- 근거 토큰 사전: enum 값별 파생 토큰(mistake↔accident*/wrong*·no longer needed↔don't need/cancel*…) — 닫힌 영어·eval-blind. 매칭 창 = 해당 entity 언급 ±2 user 발화.
+- ~~근거 토큰 사전(mistake↔accident* 등)~~ → **v1.1 삭제**(감사 (c)-①: INFER의 사전 동결=[[16]] 폐기 트릭). **v1.1 확정 기전 = 순수 구조 신호만**: (스키마-enum ∧ 직전 write 같은 인자와 동일 값 ∧ 값 문자열이 대상-entity 인접 user 발화에 verbatim 부재) → **무조건 개방형 ASK**(엔진 추측 0·의미는 user 외부화). verbatim-엄격의 과발화(정당 케이스도 ASK) = 비용으로 수용하고 Δ-ASK율 계측 — 사전으로 오탐을 줄이려는 유혹이 바로 (c) 위반.
 - t38 caveat: 맥락상 양쪽 다 정당한 진성 모호 — ASK가 정답 경로(gold 회복은 user-sim 응답 의존 [?]).
 
 ### 3b. [[05]]·검증
