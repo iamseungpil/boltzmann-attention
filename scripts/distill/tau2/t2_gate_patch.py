@@ -504,6 +504,176 @@ def _first_fab_call(am, ctx, hints=DEFAULT_ARG_HINTS, exclude=frozenset()):
     return None
 
 
+# ─── ★L3 origin-prov (T2_PROV_ORIGIN=1·v3.2·t97/t96 first-mention 세탁 차단) ───
+# 원리(보편·도메인 리터럴 0): 에이전트가 *스스로 제안*한 식별값을 user가 yes로 복창하면
+# 값∈ctx가 되어 기존 prov를 통과(확인-세탁·A1_V3_PROBE_FORENSIC §2-1). 차단 조건 =
+#   값의 최초 등장 role == assistant  ∧  어떤 tool 출력에도 부재(tool-never).
+# tool-never가 리뷰 caveat (a)(getter가 늦게 확인한 값=정당)를 처리하고,
+# first-role이 caveat (b)(user-first 명시값 t43=정당)를 처리한다.
+
+def _origin_role(s, msgs):
+    """값 s의 최초 등장 (role, tool_ever). role∈{user,assistant,tool,None}."""
+    first = None
+    tool_ever = False
+    sl = str(s).strip()
+    for m in msgs:
+        c = getattr(m, "content", None)
+        if not isinstance(c, str):
+            continue
+        if _ctx_has(sl, c.lower()):
+            r = getattr(m, "role", None)
+            if r == "tool" and not getattr(m, "error", False):
+                tool_ever = True
+            if first is None and r in ("user", "assistant", "tool"):
+                first = r
+    return first, tool_ever
+
+
+def _first_origin_fab(am, msgs, hints=DEFAULT_ARG_HINTS, exclude=frozenset()):
+    """write 인자 중 origin-fab (tc, k, s) 또는 None — 값∈ctx인데 assistant-first ∧ tool-never.
+    스코프: 주소류 free-text 인자만(_is_addr_arg·id류는 기존 rescue/fab 관할·Δspurious 보수)."""
+    for tc in (getattr(am, "tool_calls", None) or []):
+        for k, v in _args_dict(tc).items():
+            if not any(h in k.lower() for h in hints):
+                continue
+            if not _is_addr_arg(k):
+                continue
+            for val in _flatten(v):
+                s = str(val).strip()
+                if len(s) < 4 or (id(tc), k, s) in exclude:
+                    continue
+                first, tool_ever = _origin_role(s, msgs)
+                if first == "assistant" and not tool_ever:
+                    return (tc, k, s)
+    return None
+
+
+ORIGIN_FEEDBACK = (
+    "Error: [PROVENANCE-ORIGIN] argument '{k}'='{s}' was first introduced by YOU (the assistant), "
+    "not by the user or any tool output — a user's yes to your proposal does not make it real. "
+    "Fetch the actual value from the relevant records (call the getter that produces it), or ask "
+    "the user an OPEN question to provide the value themselves. Then re-emit the call."
+)
+
+
+# ─── ★v3.2 CONSISTENCY 가드 (T2_CONSISTENCY=1·L10 멤버십 t35형 + G-noop t71형) ───
+# 검사 재료 = 에이전트 자신이 fetch한 tool 출력(grounded·규칙0)·키/도구명 = 전부 A2(eplan spec+
+# confirm gates)·엔진 도메인 리터럴 0. 성격=예방(정직·PROBE_FORENSIC: t35/t71 실궤적은 문제
+# write 미발행 — 실측 회복은 부분). Δspurious 보수: 컨테이너 상세 미조회면 침묵(read 강제=L2 몫).
+
+def _record_for(msgs, id_key, id_val, lenient=True):
+    """out[id_key]==id_val인 최신 tool 출력 record dict (없으면 None)."""
+    if not id_key or not id_val:
+        return None
+    tgt = str(id_val).strip().lower()
+    for out in _parse_tool_outputs(msgs, lenient=lenient):  # 최근 우선
+        if isinstance(out, dict) and str(out.get(id_key, "")).strip().lower() == tgt:
+            return out
+    return None
+
+
+def _ids_at_path(record, path):
+    """record의 path=[container_key, id_field] 위치서 멤버 id 집합(lower). list/dict 컨테이너 지원."""
+    if not (isinstance(record, dict) and path and len(path) >= 2):
+        return set()
+    seq = record.get(path[0])
+    if isinstance(seq, dict):
+        seq = list(seq.values())
+    ids = set()
+    for it in (seq or []):
+        if isinstance(it, dict) and it.get(path[1]) is not None:
+            ids.add(str(it.get(path[1])).strip().lower())
+    return ids
+
+
+def membership_violation(d, spec, msgs):
+    """L10: d[items_key] 각 id ∈ d[entity_key] record 멤버 집합인지.
+    위반 시 (bad_ids, oid, hint_oid|None) — hint = bad를 실제 담은 다른 grounded record."""
+    ent_key = (spec or {}).get("entity_key")
+    mem_key = (spec or {}).get("items_key")
+    path = (spec or {}).get("items_id_path")
+    if not (ent_key and mem_key and path):
+        return None
+    oid = d.get(ent_key)
+    mems = d.get(mem_key)
+    if not oid or not isinstance(mems, list) or not mems:
+        return None
+    rec = _record_for(msgs, ent_key, oid)
+    if rec is None:
+        return None
+    ids = _ids_at_path(rec, path)
+    if not ids:
+        return None
+    bad = [str(m) for m in mems if str(m).strip().lower() not in ids]
+    if not bad:
+        return None
+    hint = None
+    for out in _parse_tool_outputs(msgs):
+        if (isinstance(out, dict) and out.get(ent_key)
+                and str(out.get(ent_key)).lower() != str(oid).lower()
+                and any(str(b).strip().lower() in _ids_at_path(out, path) for b in bad)):
+            hint = str(out.get(ent_key))
+            break
+    return (bad, str(oid), hint)
+
+
+def _leaf_scalar_map(obj, out=None):
+    """중첩 record의 leaf 스칼라 {말단키(lower): str값} — first-win."""
+    if out is None:
+        out = {}
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if isinstance(v, (dict, list)):
+                _leaf_scalar_map(v, out)
+            elif isinstance(v, (str, int, float)) and not isinstance(v, bool):
+                out.setdefault(str(k).lower(), str(v).strip())
+    elif isinstance(obj, list):
+        for v in obj:
+            _leaf_scalar_map(v, out)
+    return out
+
+
+def noop_write(d, spec, msgs, min_match=3):
+    """G-noop(t71형): write의 스칼라 인자 전부가 대상 record 현재값과 동일(매칭 ≥min_match)
+    = 아무것도 안 바꾸는 write → 참조 오바인딩 신호. 하나라도 다르면 정상(False)."""
+    ent_key = (spec or {}).get("entity_key")
+    if not ent_key:
+        return False
+    oid = d.get(ent_key)
+    if not oid:
+        return False
+    rec = _record_for(msgs, ent_key, oid)
+    if rec is None:
+        return False
+    leaves = _leaf_scalar_map(rec)
+    matched = 0
+    for k, v in d.items():
+        if k == ent_key or v is None or isinstance(v, (list, dict)):
+            continue
+        cur = leaves.get(str(k).lower())
+        if cur is None:
+            continue
+        if str(v).strip().lower() == cur.lower():
+            matched += 1
+        else:
+            return False
+    return matched >= min_match
+
+
+CONS_MEMBER_FEEDBACK = (
+    "[CONSISTENCY] item(s) {bad} do not belong to {ent}='{oid}' according to its latest fetched "
+    "details.{hint} Re-check which record actually contains the item(s) the user means, then "
+    "re-emit a corrected call."
+)
+
+CONS_NOOP_FEEDBACK = (
+    "[CONSISTENCY] this call would change nothing — every requested value equals the record's "
+    "current value. This usually means the WRONG record was selected. Re-check by CONTENT which "
+    "record the user means (compare the records you have listed/read; do not rely on list order), "
+    "or ask the user to identify it by content. Then re-emit."
+)
+
+
 # ─── ★GROUND (T2_PROV_GROUND=1): config-도출 candidate-surfacing resolver ───
 # 모델은 *의도/op* 명명만, 구체값은 결정론이 직전 tool 출력서 grounding (추출 = 도메인-일반).
 
@@ -1497,7 +1667,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             except TypeError:
                 work = work + [UserMessage(content=_rem)]
         am = _gen(self, work, bw(), "agent_response")
-        gate_rounds = prov_rounds = eplan_rounds = 0
+        gate_rounds = prov_rounds = eplan_rounds = cons_rounds = 0
         subs = 0
         rescue_skipped = set()
         rescue_excl = set()   # ★PERARG(C65): (id(tc),k,s) — rescue-스킵된 fab 제외하고 재스캔
@@ -1529,11 +1699,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     fab = _first_fab_call(am, ctx, hints, exclude=rescue_excl)
                 else:
                     break
+            # ★L3 origin-prov (T2_PROV_ORIGIN=1·v3.2): fab 무해(값∈ctx) 통과분 중 확인-세탁 검사
+            ofab = None
+            if fab is None and os.environ.get("T2_PROV_ORIGIN") == "1":
+                ofab = _first_origin_fab(am, state.messages, hints, exclude=rescue_excl)
             denied = _denied_calls(am, gate, last_user, transfer_sent) if gate is not None else []
             denied_by_objid = {id(tc): (gid, why) for tc, gid, why in denied}
             do_gate = bool(denied) and gate_rounds < 1
-            fab_covered = fab is not None and do_gate and id(fab[0]) in denied_by_objid
-            do_prov = (fab is not None) and prov_rounds < max_prov_retries and not fab_covered
+            _pcall = fab if fab is not None else ofab
+            fab_covered = _pcall is not None and do_gate and id(_pcall[0]) in denied_by_objid
+            do_prov = (_pcall is not None) and prov_rounds < max_prov_retries and not fab_covered
             # ★E-PLAN discovery deny (L1/L2·read-강제만·무과금·상한 = 턴당 2 + ★sim당 T2_EPLAN_DENY_CAP)
             # ★sim-cap 근거(A′ t5c_aprime1 t103/t27 포렌식·2026-07-11): eplan_rounds는 턴-로컬이라
             #   모델이 deny 피드백에 불응(텍스트-사과 커밋)하면 매 턴 ledger가 동일 재구성 → 동일 L2
@@ -1560,10 +1735,53 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         if fb:
                             ep_fb = (c, fb)
                             break
-            if not do_gate and not do_prov and ep_fb is None:
+            # ★v3.2 CONSISTENCY (T2_CONSISTENCY=1): L10 멤버십(t35형)+G-noop(t71형)·cap 2/sim
+            cons_fb = None
+            if (os.environ.get("T2_CONSISTENCY") == "1" and a2 is not None
+                    and not do_gate and not do_prov and ep_fb is None
+                    and cons_rounds < 1 and getattr(self, "_t2_cons_deny", 0) < 2):
+                try:
+                    _cspec = a2.get("eplan") or {}
+                    _cwrites = _confirm_write_tools(a2)
+                    for c in (am.tool_calls or []):
+                        if getattr(c, "name", None) not in _cwrites:
+                            continue
+                        dargs = _args_dict(c)
+                        mv = membership_violation(dargs, _cspec, state.messages)
+                        if mv:
+                            _bad, _oid, _hint = mv
+                            cons_fb = (c, CONS_MEMBER_FEEDBACK.format(
+                                bad=", ".join(_bad), ent=_cspec.get("entity_key"), oid=_oid,
+                                hint=(" They appear in %s='%s'." % (_cspec.get("entity_key"), _hint))
+                                     if _hint else ""))
+                            print("[T2_CONS] membership deny tool=%s bad=%s oid=%s hint=%s"
+                                  % (c.name, ",".join(_bad), _oid, _hint),
+                                  file=_sys.stderr, flush=True)
+                            break
+                        if noop_write(dargs, _cspec, state.messages):
+                            cons_fb = (c, CONS_NOOP_FEEDBACK)
+                            print("[T2_CONS] noop deny tool=%s oid=%s"
+                                  % (c.name, dargs.get(_cspec.get("entity_key"))),
+                                  file=_sys.stderr, flush=True)
+                            break
+                except Exception as _ce:
+                    cons_fb = None
+                    print("[T2_CONS] error (no-op): %r" % (_ce,), file=_sys.stderr, flush=True)
+            if not do_gate and not do_prov and ep_fb is None and cons_fb is None:
                 break
             main_prov = None
-            if do_prov:
+            if do_prov and fab is None:
+                # ★L3 origin 케이스: 값∈ctx이나 assistant-first ∧ tool-never = 확인-세탁(t97)
+                prov_rounds += 1
+                ptc, k, s = ofab
+                self._t2_session_bl.add(s)
+                self._t2_prov_origin = getattr(self, "_t2_prov_origin", 0) + 1
+                print("[T2_PROV] origin regen fired tool=%s arg=%s val=%s"
+                      % (getattr(ptc, "name", "?"), k, s), file=_sys.stderr, flush=True)
+                _directive = _resolver_directive(a2, ptc, k, s)
+                main_prov = (ptc, _directive if _directive is not None
+                             else ORIGIN_FEEDBACK.format(k=k, s=s))
+            elif do_prov:
                 prov_rounds += 1
                 ptc, k, s = fab
                 self._t2_session_bl.add(s)
@@ -1594,6 +1812,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 if self._t2_eplan_deny == _ep_cap:  # 관측 마커(sim당 1회): 이후 discovery deny 중단
                     print("[T2_EPLAN] deny cap %d reached — no further discovery denies this sim"
                           % _ep_cap, file=_sys.stderr, flush=True)
+            if cons_fb is not None:
+                cons_rounds += 1
+                self._t2_cons_deny = getattr(self, "_t2_cons_deny", 0) + 1
             fb = [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:
@@ -1603,6 +1824,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     content = main_prov[1]
                 elif ep_fb is not None and c is ep_fb[0]:
                     content = "Error: " + ep_fb[1]
+                elif cons_fb is not None and c is cons_fb[0]:
+                    content = "Error: " + cons_fb[1]
                 else:
                     content = "Error: resolve the flagged call(s) first; do not call this tool yet."
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
@@ -1785,6 +2008,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         # ★L4 fexec-variants (opt-in T2_L4=1·A1_V3): write 도구의 variant operand(A2 variant_operand,
         #   예 new_item_ids)를 극값/속성 결정론 선택으로 치환. I7 floor-guard: one=치환·그 외 no-op.
         #   [[05]]: variant_operand/spec = A2 데이터(엔진 리터럴 0)·fexec_variant_decide = 도메인일반.
+        #   ★v3.2 (A1_V3_PROBE_FORENSIC §3): 치환 성적 2/2 오답(t58 정답파괴=교차-품목 기준누출 F1·
+        #   t20 제약절단 F2+승인-불일치 F4) → T2_L4_MODE 기본 "keep"(관측·audit only·치환 없음).
+        #   "substitute"는 재설계 요건(F1 per-slot attested·F2 constrained/no-op·F4 G-approve) 충족 후.
         if os.environ.get("T2_L4") == "1" and a2 is not None and getattr(am, "tool_calls", None):
             v_ops = set((a2 or {}).get("variant_operand") or [])
             v_spec = (a2 or {}).get("variant_spec")
@@ -1815,6 +2041,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     win = str(vr["ids"][0]).strip()
                                     self._t2_l4 = getattr(self, "_t2_l4", 0) + 1
                                     if win.lower() != cur.lower():
+                                        # ★v3.2 keep-모드(기본): 치환 없이 관측만(audit 라인 유지)
+                                        if os.environ.get("T2_L4_MODE", "keep") != "substitute":
+                                            print("[T2_L4] keep-mode: would-substitute arg=%s from=%s to=%s"
+                                                  % (k, cur, win), file=_sys.stderr, flush=True)
+                                            continue
+                                        # ★G-approve (F4·t20): cur가 대화(비-tool 발화)에 verbatim 등장
+                                        #   = 제시·승인된 값 → 몰래 치환 금지 (도메인 리터럴 0·문자열 대조)
+                                        _dlg = " ".join(str(getattr(m, "content", "") or "")
+                                                        for m in state.messages
+                                                        if getattr(m, "role", None) in ("user", "assistant"))
+                                        if cur and cur in _dlg:
+                                            print("[T2_L4] G-approve: arg=%s val=%s surfaced in dialog — no substitute"
+                                                  % (k, cur), file=_sys.stderr, flush=True)
+                                            continue
                                         _snap = _copy.deepcopy(getattr(tc, "arguments", None))
                                         _pre = ({dd[0].id for dd in _denied_calls(am, gate, last_user, transfer_sent)}
                                                 if gate is not None else set())

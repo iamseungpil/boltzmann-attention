@@ -1,327 +1,406 @@
 {
-  "_meta": {
-    "domain": "retail",
-    "source": "retail policy.md 136줄 (= t2_gate.py GATE_SPEC, validated replay PASS)",
-    "compiler": "Fable-5 in-session + A2_DRIVEN_SCAFFOLD_KEYSTONE_IMPL_2026_06_21 (kind/producers/arg-types/placeholders 통합)"
+ "_meta": {
+  "domain": "retail",
+  "source": "retail policy.md 136줄 (= t2_gate.py GATE_SPEC, validated replay PASS)",
+  "compiler": "Fable-5 in-session + A2_DRIVEN_SCAFFOLD_KEYSTONE_IMPL_2026_06_21 (kind/producers/arg-types/placeholders 통합)"
+ },
+ "placeholders": [
+  "#W0000000"
+ ],
+ "_note_placeholders": "[[05]] 감사 2026-07-13: retail 주문-id placeholder 포맷을 엔진 DEFAULT_PLACEHOLDERS서 A2로 이관(엔진 도메인-리터럴 제거). 식별-arg hints(order_id·item)는 엔진 'id' 토큰이 포괄해 A2 추가 불요(minimize-A2).",
+ "variant_operand": [
+  "new_item_ids"
+ ],
+ "variant_spec": {
+  "trigger_tool": "get_product_details",
+  "nested_field": "variants",
+  "id_field": "item_id",
+  "anchor_operand": "item_ids"
+ },
+ "_note_variant": "L4 fexec-variants(A1_V3): new_item_id 애매 시 get_product_details variants서 극값/속성 결정론 선택. 구조=A2 선언(엔진 리터럴 0).",
+ "gates": [
+  {
+   "id": "G1_AUTH_FIRST",
+   "kind": "auth",
+   "predicate": "authenticated user identity",
+   "satisfiers": {
+    "find_user_id_by_email": [
+     "email"
+    ],
+    "find_user_id_by_name_zip": [
+     "first_name",
+     "last_name",
+     "zip"
+    ]
+   },
+   "applies_to": [
+    "cancel_pending_order",
+    "exchange_delivered_order_items",
+    "get_order_details",
+    "get_user_details",
+    "modify_pending_order_address",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "modify_user_address",
+    "return_delivered_order_items"
+   ],
+   "note": "required even if the user already gave a user id or order id"
   },
-  "placeholders": ["#W0000000"],
-  "_note_placeholders": "[[05]] 감사 2026-07-13: retail 주문-id placeholder 포맷을 엔진 DEFAULT_PLACEHOLDERS서 A2로 이관(엔진 도메인-리터럴 제거). 식별-arg hints(order_id·item)는 엔진 'id' 토큰이 포괄해 A2 추가 불요(minimize-A2).",
-  "variant_operand": ["new_item_ids"],
-  "variant_spec": {"trigger_tool": "get_product_details", "nested_field": "variants", "id_field": "item_id", "anchor_operand": "item_ids"},
-  "_note_variant": "L4 fexec-variants(A1_V3): new_item_id 애매 시 get_product_details variants서 극값/속성 결정론 선택. 구조=A2 선언(엔진 리터럴 0).",
-  "gates": [
-    {
-      "id": "G1_AUTH_FIRST",
-      "kind": "auth",
-      "predicate": "authenticated user identity",
-      "satisfiers": {
-        "find_user_id_by_email": [
-          "email"
-        ],
-        "find_user_id_by_name_zip": [
-          "first_name",
-          "last_name",
-          "zip"
-        ]
-      },
-      "applies_to": [
-        "cancel_pending_order",
-        "exchange_delivered_order_items",
-        "get_order_details",
-        "get_user_details",
-        "modify_pending_order_address",
-        "modify_pending_order_items",
-        "modify_pending_order_payment",
-        "modify_user_address",
-        "return_delivered_order_items"
-      ],
-      "note": "required even if the user already gave a user id or order id"
-    },
-    {
-      "id": "G2_CONFIRM_WRITE",
-      "kind": "confirm",
-      "predicate": "explicit user confirmation (yes) of the action details in the latest user message",
-      "satisfiers": {},
-      "ask": "list the action details to the user and ask them to confirm",
-      "applies_to": [
-        "cancel_pending_order",
-        "exchange_delivered_order_items",
-        "modify_pending_order_address",
-        "modify_pending_order_items",
-        "modify_pending_order_payment",
-        "modify_user_address",
-        "return_delivered_order_items"
-      ]
-    },
-    {
-      "id": "G3_SINGLE_USER",
-      "kind": "ownership",
-      "predicate": "target belongs to the authenticated user",
-      "satisfiers": {},
-      "owner_field": "user_id",
-      "resolver_path": [
-        "order_id",
-        "get_order_details",
-        "user_id"
-      ],
-      "terminal": "deny the request: you can only help the authenticated user in this conversation",
-      "applies_to": [
-        "cancel_pending_order",
-        "exchange_delivered_order_items",
-        "get_order_details",
-        "get_user_details",
-        "modify_pending_order_address",
-        "modify_pending_order_items",
-        "modify_pending_order_payment",
-        "modify_user_address",
-        "return_delivered_order_items"
-      ]
-    },
-    {
-      "id": "G4_TRANSFER_MSG",
-      "kind": "notice",
-      "predicate": "the mandatory transfer notice has been communicated to the user",
-      "satisfiers": {},
-      "notice_text": "YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.",
-      "ask": "send the user exactly this message first: \"YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.\" — then retry the transfer",
-      "applies_to": [
-        "transfer_to_human_agents"
-      ]
-    },
-    {
-      "id": "G5_STATUS_PRECONDITION",
-      "kind": "preconditions",
-      "predicate": "the target order is in a status that permits this action",
-      "applies_to": [
-        "modify_pending_order_items",
-        "cancel_pending_order",
-        "exchange_delivered_order_items",
-        "return_delivered_order_items"
-      ],
-      "checks": [
-        {
-          "applies_to": [
-            "modify_pending_order_items",
-            "cancel_pending_order"
-          ],
-          "allow": [
-            "pending"
-          ],
-          "resolver_path": [
-            "order_id",
-            "get_order_details",
-            "status"
-          ]
-        },
-        {
-          "applies_to": [
-            "exchange_delivered_order_items",
-            "return_delivered_order_items"
-          ],
-          "allow": [
-            "delivered"
-          ],
-          "resolver_path": [
-            "order_id",
-            "get_order_details",
-            "status"
-          ]
-        }
-      ],
-      "steer_by_status_class": {
-        "delivered": "this order is delivered — use exchange_delivered_order_items or return_delivered_order_items instead",
-        "pending": "this order is pending — use modify_pending_order_items or cancel_pending_order instead",
-        "processed": "this order is processed (already in fulfillment) and can no longer be modified, exchanged, returned, or cancelled by an agent",
-        "_acted": "this order has already been acted on (its status reflects a prior modify/exchange/return/cancel) — do NOT retry; the requested change is already recorded"
-      },
-      "_note": "retail-특유 status-lifecycle precondition (verified: only these 4 tools status-gate; address/payment 도구는 status-무관→제외=false-block 회피). 도구 정확-매칭 != \"pending\"/\"delivered\"와 정렬. engine=도메인-일반(pick_steer)·이 specs=retail 정책사실(transfer는 airline 속성-precondition 별도)."
-    },
-    {
-      "id": "G6_SELECT_CONFIRM",
-      "kind": "select_confirm",
-      "applies_to": [
-        "modify_pending_order_address",
-        "modify_pending_order_items",
-        "modify_pending_order_payment",
-        "cancel_pending_order",
-        "return_delivered_order_items",
-        "exchange_delivered_order_items"
-      ],
-      "user_id_arg": "user_id",
-      "user_producer": "get_user_details",
-      "orders_field": "orders",
-      "detail_producer": "get_order_details",
-      "detail_id_arg": "order_id",
-      "present_fields": [
-        "status",
-        "address",
-        "items"
-      ],
-      "message": "DISAMBIGUATION CHECK — before committing this write, here are ALL of this customer's orders. Re-read the customer's request and verify the order_id you are about to use is the one they mean (disambiguate by shipping address, item contents/count, status). If it is wrong, call the write again with the correct order_id.",
-      "present_label": "order"
-    },
-    {
-      "id": "G7_OP_CONSTRAINTS",
-      "kind": "constraints",
-      "applies_to": [
-        "modify_pending_order_items",
-        "exchange_delivered_order_items"
-      ],
-      "checks": [
-        {
-          "op": "disjoint",
-          "fields": [
-            "item_ids",
-            "new_item_ids"
-          ],
-          "applies_to": [
-            "modify_pending_order_items",
-            "exchange_delivered_order_items"
-          ],
-          "steer": "[constraint] Each new_item_id must be a DIFFERENT variant than the item it replaces — you reused an id that is also in item_ids (a no-op exchange). Pick a different variant (e.g. a different size/color/capacity) for each item you are exchanging, or do not include that item."
-        },
-        {
-          "op": "equal_len",
-          "fields": [
-            "item_ids",
-            "new_item_ids"
-          ],
-          "applies_to": [
-            "modify_pending_order_items",
-            "exchange_delivered_order_items"
-          ],
-          "steer": "[constraint] This tool EXCHANGES items 1-for-1: new_item_ids must have the SAME count as item_ids. There is NO operation to simply REMOVE an item from an order. If the customer wants to drop an item without a replacement, that is not possible — explain this and do NOT retry with an empty/short new_item_ids. (To change the whole order they must cancel it if pending.)"
-        }
-      ],
-      "_note": "retail 정책 인스턴스: new≠old(disjoint)·count-match(equal_len·remove 연산 없음 교시). 둘 다 env가 이미 강제=false-block 0(env-mirror). 엔진=general op. payment(member_of)=파생필드 [[05]] 위험·미포함."
-    },
-    {
-      "id": "G_EXHAUST",
-      "kind": "exhaust_before_escalate",
-      "_note": "E1 Phase B 측정 arm. 격리 실행 전용(T2_GATE_KINDS=exhaust_before_escalate). 정식 스택 미채택.",
-      "applies_to": [
-        "transfer_to_human_agents"
-      ],
-      "entity_source": {
-        "user_id_arg": "user_id",
-        "resolver_path": [
-          "user_id",
-          "get_user_details",
-          "orders"
-        ]
-      },
-      "inspect": {
-        "tool": "get_order_details",
-        "arg": "order_id"
-      },
-      "predicate": "all candidate records inspected before escalation",
-      "note": "escalation is allowed once every candidate record has been inspected"
-    }
-  ],
-  "present_specs": [
-    {
-      "trigger_tool": "get_order_details",
-      "nested_field": "items",
-      "id_field": "item_id",
-      "fields": [
-        "name",
-        "product_id",
-        "options"
-      ],
-      "label": "item line in this order"
-    },
-    {
-      "trigger_tool": "get_product_details",
-      "nested_field": "variants",
-      "id_field": "item_id",
-      "fields": [
-        "options",
-        "available",
-        "price"
-      ],
-      "label": "purchasable variant of this product"
-    }
-  ],
-  "_note_present_specs": "operand-grounding(L2 item·L3 variant) present 확장 (2026-06-25 priority-2). engine nested_candidate_summary가 generic 소비(필드=여기 그대로 dump). retail 사실(order.items list·product.variants dict). airline swap=다른 specs(flights/passengers). flag=T2_PRESENT_NESTED.",
-  "calc_specs": [
-    {
-      "trigger_tool": "get_product_details",
-      "op": "count_where",
-      "nested_field": "variants",
-      "cond_field": "available",
-      "cond_value": true,
-      "label": "number of CURRENTLY AVAILABLE variants of this product"
-    },
-    {
-      "trigger_tool": "get_order_details",
-      "op": "sum",
-      "nested_field": "items",
-      "item_field": "price",
-      "label": "sum of current item prices in this order (USD)"
-    },
-    {
-      "trigger_tool": "get_product_details",
-      "op": "argmax_where",
-      "nested_field": "variants",
-      "cond_field": "available",
-      "cond_value": true,
-      "rank_field": "price",
-      "id_field": "item_id",
-      "label": "most expensive available variant"
-    },
-    {
-      "trigger_tool": "get_product_details",
-      "op": "argmin_where",
-      "nested_field": "variants",
-      "cond_field": "available",
-      "cond_value": true,
-      "rank_field": "price",
-      "id_field": "item_id",
-      "label": "cheapest available variant"
-    }
-  ],
-  "_note_calc_specs": "calc_NL offload(계산/수치 NL 실패·~20%). engine compute_facts=general op{count_where·sum}만·경로(variants/available·items/price)=여기 retail 사실. flag=T2_CALC·report-conversion 측정. airline swap=다른 calc_specs. (refund-of-subset=operand 의존이라 미포함·available-count·order-total=깨끗.)",
-  "_note_calc_ext": "CALC-EXT(CENSUS_LEVERS_DESIGN_2026_07_11 §2a v1.1): argmax_where/argmin_where 스펙 2개 추가(표적 t20 최고가·t36/t37 최저가). 스키마=comp_retail_t4.gz 실데이터 확인(variants=dict-of-dict·available:bool·price:float·item_id). most_recent op는 엔진에 있으나 retail 스펙 미부착 — comp gz 456 sim 전수서 tool 출력에 날짜 필드 부재(t71은 이 op로 못 닫음). pairwise_diff_sum=v1.1서 notice 채널로 이동·calc 아님.",
-  "producers": {
-    "authenticated_user_record": {
-      "tool": "get_user_details",
-      "args_from": {
-        "user_id": "@auth_user"
-      }
-    }
+  {
+   "id": "G2_CONFIRM_WRITE",
+   "kind": "confirm",
+   "predicate": "explicit user confirmation (yes) of the action details in the latest user message",
+   "satisfiers": {},
+   "ask": "list the action details to the user and ask them to confirm",
+   "applies_to": [
+    "cancel_pending_order",
+    "exchange_delivered_order_items",
+    "modify_pending_order_address",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "modify_user_address",
+    "return_delivered_order_items"
+   ]
   },
-  "_note_minimize_a2": "identifying_arg_types·placeholders 제거 = 도메인-일반→scaffold DEFAULT_ARG_HINTS/DEFAULT_PLACEHOLDERS 폴백 (minimize-A2·2026-06-22). A2=도메인 사실(gates·producers·resolver_path)만.",
-  "disamb_sub_args": ["item"],
-  "default_specs": [
-    {
-      "arg": "payment_method_id",
-      "resolver_path": ["order_id", "get_order_details", "payment_method_id"],
-      "applies_to": [
-        "modify_pending_order_payment",
-        "modify_pending_order_items",
-        "exchange_delivered_order_items",
-        "return_delivered_order_items"
-      ]
-    }
-  ],
-  "_note_default_specs": "T5-C P2 원리-디폴트(C58 .940): refund/modify의 payment_method_id 기본=주문 원결제(resolver_path=order서 조회). 사용자가 명시 override(그 값이 user 발화에 등장)하지 않으면 원결제로 제자리 치환. 엔진=general(resolve→비교→치환)·이 spec=retail 정책사실(arg·resolver_path)·[[05]] 통과. C58: 원리디폴트 .940 vs LLM .38·V0 payment net-1(열거로는 못 여는 규칙). silent(턴불파기).",
-  "regen_resolver_specs": [
-    {"arg": "address1", "resolver_path": ["order_id", "get_order_details", "address1"], "applies_to": ["modify_pending_order_address"]},
-    {"arg": "address2", "resolver_path": ["order_id", "get_order_details", "address2"], "applies_to": ["modify_pending_order_address"]},
-    {"arg": "city",     "resolver_path": ["order_id", "get_order_details", "city"],     "applies_to": ["modify_pending_order_address"]},
-    {"arg": "state",    "resolver_path": ["order_id", "get_order_details", "state"],    "applies_to": ["modify_pending_order_address"]},
-    {"arg": "zip",      "resolver_path": ["order_id", "get_order_details", "zip"],      "applies_to": ["modify_pending_order_address"]},
-    {"arg": "country",  "resolver_path": ["order_id", "get_order_details", "country"],  "applies_to": ["modify_pending_order_address"]}
-  ],
-  "_note_regen_resolver_specs": "B-max① t17 (NEWSTACK_GAIN_SIDEEFFECT §G · OVERNIGHT §결과2): PROV regen이 주소 인자 날조 시 지시형 피드백으로 producer(get_order_details)+알려진 입력(order_id)을 지목 — 'getter 호출·읽어라, 되묻지 마라'. default_specs와 달리 silent 치환 아님(엔진이 대신 안 읽음=autofetch 아님·문구만·read강제 §1.5). 엔진=general(_resolver_directive가 arg→resolver_path 조회해 텍스트만 생성)·이 spec=retail 정책사실(주소는 주문 원주소가 기본). airline swap=다른 resolver_specs. modify_user_address(user-record 기반)는 미포함(order_id 부재·다른 producer).",
-  "_note_disamb_sub_args": "T5-C P-B(subcall) 치환 화이트리스트 = key-token(측정-도출·엔진에 어휘 0=[B2]). 근거 c51 [M]: item .079→.545·new_item .116→.658 / order·payment·address는 미등재(confirm-only — E-ISO ③ id-열거 역효과·이미 높음). V0(T5C_SILENT_REPAIR_DESIGN §7)가 정량 GO로 갱신.",
-  "calc_tool": "calculate",
-  "_note_calc_tool": "NL-NUM-PROV(T2_NLNUM_PROV·t47형 NL-산술 환각) 도메인 사실: 금액 검증용 계산 도구명만 ABox. 엔진(t2_gate_patch._unverified_amounts)=통화기호+숫자 패턴(도메인 어휘 0)·regen 피드백이 이 도구명을 지시. 키 부재=레버 비활성.",
-  "eplan": {
-    "list_enumerator": "get_user_details",
-    "detail_reader": "get_order_details",
-    "entity_key": "order_id",
-    "items_key": "item_ids"
+  {
+   "id": "G3_SINGLE_USER",
+   "kind": "ownership",
+   "predicate": "target belongs to the authenticated user",
+   "satisfiers": {},
+   "owner_field": "user_id",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "user_id"
+   ],
+   "terminal": "deny the request: you can only help the authenticated user in this conversation",
+   "applies_to": [
+    "cancel_pending_order",
+    "exchange_delivered_order_items",
+    "get_order_details",
+    "get_user_details",
+    "modify_pending_order_address",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "modify_user_address",
+    "return_delivered_order_items"
+   ]
   },
-  "_note_eplan": "E-PLAN(E_PLAN_LIVE_WIRING_DESIGN v1.2·t2_eplan_patch) 도메인 사실: list-enumerator/detail-reader/entity_key/items_key만 ABox — 엔진=도메인일반(SCOPE_TOKEN 어휘·수량 소사전만 엔진 보유). items_key=write 호출의 품목-id 인자명(qty-conflation 가드 qty_item_covered 재료·2026-07-11 t27 교정 — 기존 엔진 리터럴 item_ids의 ABox 이관). flag=T2_EPLAN."
+  {
+   "id": "G4_TRANSFER_MSG",
+   "kind": "notice",
+   "predicate": "the mandatory transfer notice has been communicated to the user",
+   "satisfiers": {},
+   "notice_text": "YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.",
+   "ask": "send the user exactly this message first: \"YOU ARE BEING TRANSFERRED TO A HUMAN AGENT. PLEASE HOLD ON.\" — then retry the transfer",
+   "applies_to": [
+    "transfer_to_human_agents"
+   ]
+  },
+  {
+   "id": "G5_STATUS_PRECONDITION",
+   "kind": "preconditions",
+   "predicate": "the target order is in a status that permits this action",
+   "applies_to": [
+    "modify_pending_order_items",
+    "cancel_pending_order",
+    "exchange_delivered_order_items",
+    "return_delivered_order_items"
+   ],
+   "checks": [
+    {
+     "applies_to": [
+      "modify_pending_order_items",
+      "cancel_pending_order"
+     ],
+     "allow": [
+      "pending"
+     ],
+     "resolver_path": [
+      "order_id",
+      "get_order_details",
+      "status"
+     ]
+    },
+    {
+     "applies_to": [
+      "exchange_delivered_order_items",
+      "return_delivered_order_items"
+     ],
+     "allow": [
+      "delivered"
+     ],
+     "resolver_path": [
+      "order_id",
+      "get_order_details",
+      "status"
+     ]
+    }
+   ],
+   "steer_by_status_class": {
+    "delivered": "this order is delivered — use exchange_delivered_order_items or return_delivered_order_items instead",
+    "pending": "this order is pending — use modify_pending_order_items or cancel_pending_order instead",
+    "processed": "this order is processed (already in fulfillment) and can no longer be modified, exchanged, returned, or cancelled by an agent",
+    "_acted": "this order has already been acted on (its status reflects a prior modify/exchange/return/cancel) — do NOT retry; the requested change is already recorded"
+   },
+   "_note": "retail-특유 status-lifecycle precondition (verified: only these 4 tools status-gate; address/payment 도구는 status-무관→제외=false-block 회피). 도구 정확-매칭 != \"pending\"/\"delivered\"와 정렬. engine=도메인-일반(pick_steer)·이 specs=retail 정책사실(transfer는 airline 속성-precondition 별도)."
+  },
+  {
+   "id": "G6_SELECT_CONFIRM",
+   "kind": "select_confirm",
+   "applies_to": [
+    "modify_pending_order_address",
+    "modify_pending_order_items",
+    "modify_pending_order_payment",
+    "cancel_pending_order",
+    "return_delivered_order_items",
+    "exchange_delivered_order_items"
+   ],
+   "user_id_arg": "user_id",
+   "user_producer": "get_user_details",
+   "orders_field": "orders",
+   "detail_producer": "get_order_details",
+   "detail_id_arg": "order_id",
+   "present_fields": [
+    "status",
+    "address",
+    "items"
+   ],
+   "message": "DISAMBIGUATION CHECK — before committing this write, here are ALL of this customer's orders. Re-read the customer's request and verify the order_id you are about to use is the one they mean (disambiguate by shipping address, item contents/count, status). If it is wrong, call the write again with the correct order_id.",
+   "present_label": "order"
+  },
+  {
+   "id": "G7_OP_CONSTRAINTS",
+   "kind": "constraints",
+   "applies_to": [
+    "modify_pending_order_items",
+    "exchange_delivered_order_items"
+   ],
+   "checks": [
+    {
+     "op": "disjoint",
+     "fields": [
+      "item_ids",
+      "new_item_ids"
+     ],
+     "applies_to": [
+      "modify_pending_order_items",
+      "exchange_delivered_order_items"
+     ],
+     "steer": "[constraint] Each new_item_id must be a DIFFERENT variant than the item it replaces — you reused an id that is also in item_ids (a no-op exchange). Pick a different variant (e.g. a different size/color/capacity) for each item you are exchanging, or do not include that item."
+    },
+    {
+     "op": "equal_len",
+     "fields": [
+      "item_ids",
+      "new_item_ids"
+     ],
+     "applies_to": [
+      "modify_pending_order_items",
+      "exchange_delivered_order_items"
+     ],
+     "steer": "[constraint] This tool EXCHANGES items 1-for-1: new_item_ids must have the SAME count as item_ids. There is NO operation to simply REMOVE an item from an order. If the customer wants to drop an item without a replacement, that is not possible — explain this and do NOT retry with an empty/short new_item_ids. (To change the whole order they must cancel it if pending.)"
+    }
+   ],
+   "_note": "retail 정책 인스턴스: new≠old(disjoint)·count-match(equal_len·remove 연산 없음 교시). 둘 다 env가 이미 강제=false-block 0(env-mirror). 엔진=general op. payment(member_of)=파생필드 [[05]] 위험·미포함."
+  },
+  {
+   "id": "G_EXHAUST",
+   "kind": "exhaust_before_escalate",
+   "_note": "E1 Phase B 측정 arm. 격리 실행 전용(T2_GATE_KINDS=exhaust_before_escalate). 정식 스택 미채택.",
+   "applies_to": [
+    "transfer_to_human_agents"
+   ],
+   "entity_source": {
+    "user_id_arg": "user_id",
+    "resolver_path": [
+     "user_id",
+     "get_user_details",
+     "orders"
+    ]
+   },
+   "inspect": {
+    "tool": "get_order_details",
+    "arg": "order_id"
+   },
+   "predicate": "all candidate records inspected before escalation",
+   "note": "escalation is allowed once every candidate record has been inspected"
+  }
+ ],
+ "present_specs": [
+  {
+   "trigger_tool": "get_order_details",
+   "nested_field": "items",
+   "id_field": "item_id",
+   "fields": [
+    "name",
+    "product_id",
+    "options"
+   ],
+   "label": "item line in this order"
+  },
+  {
+   "trigger_tool": "get_product_details",
+   "nested_field": "variants",
+   "id_field": "item_id",
+   "fields": [
+    "options",
+    "available",
+    "price"
+   ],
+   "label": "purchasable variant of this product"
+  }
+ ],
+ "_note_present_specs": "operand-grounding(L2 item·L3 variant) present 확장 (2026-06-25 priority-2). engine nested_candidate_summary가 generic 소비(필드=여기 그대로 dump). retail 사실(order.items list·product.variants dict). airline swap=다른 specs(flights/passengers). flag=T2_PRESENT_NESTED.",
+ "calc_specs": [
+  {
+   "trigger_tool": "get_product_details",
+   "op": "count_where",
+   "nested_field": "variants",
+   "cond_field": "available",
+   "cond_value": true,
+   "label": "number of CURRENTLY AVAILABLE variants of this product"
+  },
+  {
+   "trigger_tool": "get_order_details",
+   "op": "sum",
+   "nested_field": "items",
+   "item_field": "price",
+   "label": "sum of current item prices in this order (USD)"
+  },
+  {
+   "trigger_tool": "get_product_details",
+   "op": "argmax_where",
+   "nested_field": "variants",
+   "cond_field": "available",
+   "cond_value": true,
+   "rank_field": "price",
+   "id_field": "item_id",
+   "label": "most expensive available variant"
+  },
+  {
+   "trigger_tool": "get_product_details",
+   "op": "argmin_where",
+   "nested_field": "variants",
+   "cond_field": "available",
+   "cond_value": true,
+   "rank_field": "price",
+   "id_field": "item_id",
+   "label": "cheapest available variant"
+  }
+ ],
+ "_note_calc_specs": "calc_NL offload(계산/수치 NL 실패·~20%). engine compute_facts=general op{count_where·sum}만·경로(variants/available·items/price)=여기 retail 사실. flag=T2_CALC·report-conversion 측정. airline swap=다른 calc_specs. (refund-of-subset=operand 의존이라 미포함·available-count·order-total=깨끗.)",
+ "_note_calc_ext": "CALC-EXT(CENSUS_LEVERS_DESIGN_2026_07_11 §2a v1.1): argmax_where/argmin_where 스펙 2개 추가(표적 t20 최고가·t36/t37 최저가). 스키마=comp_retail_t4.gz 실데이터 확인(variants=dict-of-dict·available:bool·price:float·item_id). most_recent op는 엔진에 있으나 retail 스펙 미부착 — comp gz 456 sim 전수서 tool 출력에 날짜 필드 부재(t71은 이 op로 못 닫음). pairwise_diff_sum=v1.1서 notice 채널로 이동·calc 아님.",
+ "producers": {
+  "authenticated_user_record": {
+   "tool": "get_user_details",
+   "args_from": {
+    "user_id": "@auth_user"
+   }
+  }
+ },
+ "_note_minimize_a2": "identifying_arg_types·placeholders 제거 = 도메인-일반→scaffold DEFAULT_ARG_HINTS/DEFAULT_PLACEHOLDERS 폴백 (minimize-A2·2026-06-22). A2=도메인 사실(gates·producers·resolver_path)만.",
+ "disamb_sub_args": [
+  "item"
+ ],
+ "default_specs": [
+  {
+   "arg": "payment_method_id",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "payment_method_id"
+   ],
+   "applies_to": [
+    "modify_pending_order_payment",
+    "modify_pending_order_items",
+    "exchange_delivered_order_items",
+    "return_delivered_order_items"
+   ]
+  }
+ ],
+ "_note_default_specs": "T5-C P2 원리-디폴트(C58 .940): refund/modify의 payment_method_id 기본=주문 원결제(resolver_path=order서 조회). 사용자가 명시 override(그 값이 user 발화에 등장)하지 않으면 원결제로 제자리 치환. 엔진=general(resolve→비교→치환)·이 spec=retail 정책사실(arg·resolver_path)·[[05]] 통과. C58: 원리디폴트 .940 vs LLM .38·V0 payment net-1(열거로는 못 여는 규칙). silent(턴불파기).",
+ "regen_resolver_specs": [
+  {
+   "arg": "address1",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "address1"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "address2",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "address2"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "city",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "city"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "state",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "state"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "zip",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "zip"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "country",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "country"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  }
+ ],
+ "_note_regen_resolver_specs": "B-max① t17 (NEWSTACK_GAIN_SIDEEFFECT §G · OVERNIGHT §결과2): PROV regen이 주소 인자 날조 시 지시형 피드백으로 producer(get_order_details)+알려진 입력(order_id)을 지목 — 'getter 호출·읽어라, 되묻지 마라'. default_specs와 달리 silent 치환 아님(엔진이 대신 안 읽음=autofetch 아님·문구만·read강제 §1.5). 엔진=general(_resolver_directive가 arg→resolver_path 조회해 텍스트만 생성)·이 spec=retail 정책사실(주소는 주문 원주소가 기본). airline swap=다른 resolver_specs. modify_user_address(user-record 기반)는 미포함(order_id 부재·다른 producer).",
+ "_note_disamb_sub_args": "T5-C P-B(subcall) 치환 화이트리스트 = key-token(측정-도출·엔진에 어휘 0=[B2]). 근거 c51 [M]: item .079→.545·new_item .116→.658 / order·payment·address는 미등재(confirm-only — E-ISO ③ id-열거 역효과·이미 높음). V0(T5C_SILENT_REPAIR_DESIGN §7)가 정량 GO로 갱신.",
+ "calc_tool": "calculate",
+ "_note_calc_tool": "NL-NUM-PROV(T2_NLNUM_PROV·t47형 NL-산술 환각) 도메인 사실: 금액 검증용 계산 도구명만 ABox. 엔진(t2_gate_patch._unverified_amounts)=통화기호+숫자 패턴(도메인 어휘 0)·regen 피드백이 이 도구명을 지시. 키 부재=레버 비활성.",
+ "eplan": {
+  "list_enumerator": "get_user_details",
+  "detail_reader": "get_order_details",
+  "entity_key": "order_id",
+  "items_key": "item_ids",
+  "items_id_path": [
+   "items",
+   "item_id"
+  ]
+ },
+ "_note_eplan": "E-PLAN(E_PLAN_LIVE_WIRING_DESIGN v1.2·t2_eplan_patch) 도메인 사실: list-enumerator/detail-reader/entity_key/items_key만 ABox — 엔진=도메인일반(SCOPE_TOKEN 어휘·수량 소사전만 엔진 보유). items_key=write 호출의 품목-id 인자명(qty-conflation 가드 qty_item_covered 재료·2026-07-11 t27 교정 — 기존 엔진 리터럴 item_ids의 ABox 이관). flag=T2_EPLAN. | v3.2: items_id_path=[container,id_field] (L10 멤버십·T2_CONSISTENCY)"
 }
