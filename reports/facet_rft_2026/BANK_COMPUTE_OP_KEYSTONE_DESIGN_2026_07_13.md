@@ -111,7 +111,11 @@
 - **★reference-filter = 고사정권 강레버**: 참조실패가 hard-core 지배버킷 · ⋈비율 ~93%(gold수집·오선택) × 필터가능
   83% ≈ **참조실패의 ~77%**. compute(7.5%)를 압도. **사용자 참조/reach 재설계 방향이 정답.**
 - **레버 = formalize(user발화→식별기준: date·amount·merchant) → 결정론 filter(수집record) → id (keystone 엔진·retail
-  fexec 일반화·§5c)**. 잔여=진짜중복 17%(벤치아티팩트 or 위치규칙 개연)+범주분류(formalize).
+  fexec 일반화·§5c)**. 잔여=진짜중복 17%+범주분류(formalize).
+- **★진짜중복 17%의 정체(사용자 질문 계기·per-case t084 전수)**: transaction_id만 다르고 date/amount/desc/type/status
+  *완전 동일* record 2건(중복청구). **속성으로 구분 불가·ASK도 user가 구분 못함**. 위치도 clean rule 아님(gold=나중
+  66%·먼저 34%·정확2쌍 n=171). ⇒ **결정불가 잔여(벤치 인디터미너시·완벽에이전트도 못맞힘)**. 위치휴리스틱("나중")
+  =부분(66%)이나 34% 오답으로 순효과 불명. **레버 정직한 천장 = 83%**(결정가능부)·17%=수용.
 - **결정 필요**: **(a) reference-filter 레버 구축**(고사정권·R4 게이트 통과·filter op+formalize+ABox) 권장 /
   (b) compute는 소슬라이스로 병기 / (c) 진짜중복 17%=수용 or 위치op.
 - ⚠**caveat([[08]]·과확신 방지)**: (1) **83%=파싱신뢰 부분표본**(798/3097·26%·나머지 74%는 모델포맷 파싱실패로
