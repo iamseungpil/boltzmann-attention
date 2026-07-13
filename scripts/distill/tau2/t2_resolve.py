@@ -140,6 +140,43 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
     return {"status": "deny", "reason": "action-ask", "feedback": ACTION_ASK_FB}
 
 
+VERIFY_PERSIST_FB = (
+    "[VERIFY-PERSISTENCE] you gathered the customer's identity information but never called "
+    "'{satisfier}' to complete/log the verification, and you are now deflecting or transferring. "
+    "Do NOT give up: complete the required verification by calling '{satisfier}' with the verified "
+    "values (and the current time), then proceed with the request."
+)
+
+
+def _tool_names(msgs):
+    return {getattr(tc, "name", None) for m in msgs
+            for tc in (getattr(m, "tool_calls", None) or [])}
+
+
+def resolve_verify_persistence(am, msgs, a2, transfer_tools=None):
+    """★Lever 3 (F1/F5·task_023형): 신원 수집(gather_prefix)했으나 검증 satisfier 미호출 상태로
+    포기(조언/transfer)하면 완결 리마인더. A2 verify 게이트(kind=auth)의 verify_gather_prefix로 발동.
+    satisfier = 게이트 satisfiers 키(예: log_verification). 도메인-일반(로직)·prefix/tool=A2 데이터.
+    반환 {status: ok|deny, feedback}."""
+    for g in ((a2 or {}).get("gates") or []):
+        if g.get("kind") != "auth":
+            continue
+        prefix = g.get("verify_gather_prefix")
+        sats = list((g.get("satisfiers") or {}).keys())
+        if not prefix or not sats:
+            continue
+        satisfier = sats[0]
+        called = _tool_names(msgs) | {getattr(tc, "name", None)
+                                      for tc in (getattr(am, "tool_calls", None) or [])}
+        if satisfier in called:
+            return {"status": "ok"}                     # 이미 검증 완료
+        gathered = any(nm and str(nm).startswith(prefix) for nm in called)
+        if gathered and _agent_ending(am, transfer_tools or set()):
+            return {"status": "deny", "reason": "verify-persistence",
+                    "feedback": VERIFY_PERSIST_FB.format(satisfier=satisfier)}
+    return {"status": "ok"}
+
+
 def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools):
     """★FIND(의도→operator): 격리 LLM 서브콜 — 사용자 요청이 요구하는 action_tool 1개(or none).
     도메인-일반(intent→operator = 값 formalize의 operator판·learn 정의역). 실패=None(안전)."""

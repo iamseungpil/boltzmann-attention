@@ -12,6 +12,8 @@
    "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS",
    "kind": "auth",
    "predicate": "customer identity verified and logged (log_verification) in this conversation",
+   "verify_gather_prefix": "get_user_information_by",
+   "_note_verify_gather_prefix": "★Lever 3(BANK_ACTIONREQ_PROBE_FORENSIC §6b·verify미완+신원수집+포기 26 sims·task_023형): 신원정보 수집 도구 prefix. 에이전트가 이 prefix로 신원을 모았는데 satisfier(log_verification) 미호출 상태로 포기하면 완결 리마인더. 도메인 데이터(도구명 prefix)·로직=도메인일반.",
    "satisfiers": {
     "log_verification": [
      "name",

@@ -2095,6 +2095,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
                                 print("[T2_RESOLVE] action-required reason=%s target=%s"
                                       % (_ar.get("reason"), _tgt), file=_sys.stderr, flush=True)
+                    # ★Lever 3 verify-persistence (task_023형·신원수집+검증미완+포기): action-required가
+                    #   안 걸렸을 때(예: apply=user-실행 intent) 검증 완결 강제. cap 1/sim.
+                    if (rw_fb is None and getattr(self, "_t2_verify_deny", 0) < 1):
+                        _vr = _rz.resolve_verify_persistence(am, state.messages, a2,
+                                                             transfer_tools=_transfer_tools(a2))
+                        if _vr.get("status") == "deny":
+                            rw_fb = ((am.tool_calls or [None])[0], _vr["feedback"])
+                            self._t2_verify_deny = getattr(self, "_t2_verify_deny", 0) + 1
+                            print("[T2_RESOLVE] verify-persistence deny", file=_sys.stderr, flush=True)
                 except Exception as _rze:
                     rw_fb = None
                     print("[T2_RESOLVE] error (no-op): %r" % (_rze,), file=_sys.stderr, flush=True)

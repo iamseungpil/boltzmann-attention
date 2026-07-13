@@ -154,5 +154,23 @@ check("T4_cap_1", getattr(ag, "_t2_action_deny", 0) == 1)
 check("T4_terminates", am.content == "You can do it online yourself.")
 check("T4_one_regen", sum(1 for cn, _ in GENCALLS if cn == "agent_response_unified_regen") == 1)
 
-print("\n%d FAIL" % len(FAILS) if FAILS else "\nALL PASS (action-required reminder channel)")
+# ── T5 (Lever 3 live): 신원수집(get_user_information_by_*)+검증미완+조언포기 → verify-persistence 재생성 ──
+GENCALLS[:] = []
+ag, orch, st = setup([
+    UserMessage("I want to apply for a credit card. I'm Kenji, dob 1990-01-01, email k@x.com."),
+    AM(tool_calls=[ToolCall("get_user_information_by_date_of_birth", {"date_of_birth": "1990-01-01"})]),
+    ToolMessage(id="g1", content="user record: Kenji"),
+])
+SCRIPT[:] = [
+    AM(content="To apply, please visit our website — I'll transfer you if needed."),  # 검증미완 조언포기
+    AM(content='{"tool": "none"}'),         # action-required formalize=none(apply=user-실행) → 미발화
+    AM(tool_calls=[ToolCall("log_verification", {"name": "Kenji", "date_of_birth": "1990-01-01"})]),  # 재생성=검증
+]
+am = ag._generate_next_message(UserMessage("please proceed"), st)
+check("T5_verify_fired", getattr(ag, "_t2_verify_deny", 0) == 1, getattr(ag, "_t2_verify_deny", 0))
+check("T5_reminder_delivered",
+      any("[VERIFY-PERSISTENCE]" in (u or "") for u in regen_user_msgs()), regen_user_msgs())
+check("T5_action_not_fired", getattr(ag, "_t2_action_deny", 0) == 0)  # apply=user-실행이라 action-req 무발화
+
+print("\n%d FAIL" % len(FAILS) if FAILS else "\nALL PASS (action-required + verify-persistence live)")
 sys.exit(1 if FAILS else 0)
