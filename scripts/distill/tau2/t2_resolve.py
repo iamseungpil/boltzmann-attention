@@ -206,6 +206,91 @@ def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools):
         return None
 
 
+RECOMMEND_VERIFY_FB = (
+    "[RECOMMEND-VERIFY] before offering '{action}' to the user, verify the operand against the "
+    "user's stated hard requirements. You are offering '{operand}={chosen}', but checking the "
+    "requirements against the available options, '{correct}' is the one that satisfies ALL of them. "
+    "Re-offer with '{operand}={correct}' (or, if unsure, ask the user which requirement to prioritize)."
+)
+
+
+def _parse_nested_args(v):
+    """give_discoverable_user_tool의 arguments(JSON 문자열 or dict) → dict."""
+    if isinstance(v, dict):
+        return v
+    if isinstance(v, str):
+        try:
+            return json.loads(v)
+        except Exception:
+            return {}
+    return {}
+
+
+def _formalize_correct_operand(agent, la, UserMessage, msgs, action, operand, chosen):
+    """★요구사항→올바른 operand formalize (직접실행 dry-run 동형·learn 정의역).
+    사용자 발화(요구) + 문맥의 tool/KB 결과(후보·스펙)를 보고 모든 hard requirement를 만족하는
+    단일 값을 고른다. 실패=None(안전·미개입)."""
+    if agent is None or la is None:
+        return None
+    users = [str(getattr(m, "content", "") or "") for m in msgs
+             if getattr(m, "role", None) == "user"]
+    ctx = [str(getattr(m, "content", "") or "") for m in msgs
+           if getattr(m, "role", None) == "tool" and not getattr(m, "error", False)]
+    prompt = ("A user is applying via '%s'. Based ONLY on the user's stated HARD requirements and "
+              "the option details available below, which single value of '%s' satisfies ALL of the "
+              "user's hard requirements? If several qualify, pick the best-fitting; if none clearly "
+              "qualifies or info is missing, reply 'none'.\n"
+              "User said:\n- %s\n\nOption details (from lookups):\n%s\n"
+              'Reply JSON only: {"%s": "<value or none>"}'
+              % (action, operand, "\n- ".join(u[:400] for u in users[-8:]),
+                 "\n".join(c[:600] for c in ctx[-8:]), operand))
+    try:
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items() if "tool" not in k}
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="recommend_operand_verify", **kw)
+        txt = getattr(sub, "content", None) or ""
+        m = re.search(r'"%s"\s*:\s*"([^"]+)"' % re.escape(operand), txt)
+        cand = m.group(1).strip() if m else None
+        if not cand or cand.lower() == "none":
+            return None
+        return cand
+    except Exception:
+        return None
+
+
+def resolve_recommendation(am, msgs, a2, agent=None, la=None, UserMessage=None):
+    """★Lever 4 (사용자 2026-07-13·오추천 방지): user-실행 action(apply)의 operand(card)를 추천 전 검증.
+    에이전트가 offer_tool(give_discoverable_user_tool)로 action을 제안하면, 요구→올바른 operand
+    formalize(직접실행 dry-run 동형)로 검증·틀리면 deny(추천 교정). user-실행이라 write는 못 게이트하나
+    *제안(offer)*은 agent 호출=게이트 가능. 도메인-일반(로직)·A2 recommendation_verify가 도구/인자 선언."""
+    spec = (a2 or {}).get("recommendation_verify")
+    if not spec or agent is None or la is None:
+        return {"status": "ok"}
+    offer = spec.get("offer_tool"); action = spec.get("action_tool"); operand = spec.get("operand")
+    if not (offer and action and operand):
+        return {"status": "ok"}
+    for tc in (getattr(am, "tool_calls", None) or []):
+        if getattr(tc, "name", None) != offer:
+            continue
+        a = getattr(tc, "arguments", None) or {}
+        if str(a.get("discoverable_tool_name")) != str(action):
+            continue
+        nested = _parse_nested_args(a.get("arguments"))
+        chosen = nested.get(operand)
+        if not chosen:
+            continue
+        correct = _formalize_correct_operand(agent, la, UserMessage, msgs, action, operand, chosen)
+        if correct and str(correct) != str(chosen):
+            return {"status": "deny", "reason": "recommendation-verify", "call": tc,
+                    "feedback": RECOMMEND_VERIFY_FB.format(
+                        action=action, operand=operand, chosen=chosen, correct=correct)}
+    return {"status": "ok"}
+
+
 def resolve_operand(opspec, tool, arg, args_dict, msgs, a2,
                     agent=None, la=None, UserMessage=None):
     """★통일 디스패처. opspec.kind로 기존 primitive 라우팅. 반환 {status, ...}.

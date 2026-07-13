@@ -99,6 +99,12 @@
   "unlock_discoverable_agent_tool",
   "call_discoverable_agent_tool"
  ],
+ "recommendation_verify": {
+  "offer_tool": "give_discoverable_user_tool",
+  "action_tool": "apply_for_credit_card",
+  "operand": "card_type"
+ },
+ "_note_recommendation_verify": "★Lever 4(사용자 2026-07-13·오추천 방지·BANK_ACTIONREQ_PROBE_FORENSIC §6b apply ⋈ 22): apply_for_credit_card=user-실행이라 write는 못 게이트하나, 에이전트가 give_discoverable_user_tool로 카드를 *제안*하는 호출은 게이트 가능. 제안 시 card_type을 요구사항→올바른 카드 formalize(직접실행 dry-run)로 검증·틀리면 교정. 카드선택=compound-criterion(F2b·요구→카드)=formalize로 닫힘(⋈경계 아님). 로직 도메인일반·이 맵=도메인 데이터.",
  "action_tool_executor": {
   "apply_for_credit_card": "user",
   "submit_referral": "user",

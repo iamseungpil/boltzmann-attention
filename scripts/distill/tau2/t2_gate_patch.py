@@ -2070,6 +2070,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                   % (getattr(c, "name", None), rr.get("arg"), rr.get("reason")),
                                   file=_sys.stderr, flush=True)
                             break
+                    # ★Lever 4 pre-recommendation 검증(오추천 방지·user-실행 operand): 에이전트가
+                    #   offer_tool로 action 제안 시 operand를 요구→formalize 검증·틀리면 교정. cap 2/sim.
+                    if (rw_fb is None and getattr(self, "_t2_recommend_deny", 0) < 2):
+                        _rvr = _rz.resolve_recommendation(am, state.messages, a2, self, la, UserMessage)
+                        if _rvr.get("status") == "deny":
+                            rw_fb = (_rvr.get("call") or (am.tool_calls or [None])[0], _rvr["feedback"])
+                            self._t2_recommend_deny = getattr(self, "_t2_recommend_deny", 0) + 1
+                            print("[T2_RESOLVE] recommendation-verify deny",
+                                  file=_sys.stderr, flush=True)
                     # ★action-required (turn-level): am이 회피(action_tool 미호출)면 operator 해소
                     #   GET→FIND(intent→도구)→execute|ASK. 조언/포기로 종결 금지. cap 1/sim.
                     if (rw_fb is None and getattr(self, "_t2_action_deny", 0) < 1):
