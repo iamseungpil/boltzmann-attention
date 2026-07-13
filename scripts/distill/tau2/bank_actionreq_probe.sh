@@ -1,10 +1,12 @@
 #!/bin/bash
 # ★banking action-required 리마인더 채널 라이브 probe (2026-07-13 LATE·[[09]] 승인·최소 scope).
 #   목적: 순수-조언 회피 재생성(offline 상한 36%·14/14)이 banking live pass로 이어지나 = make-or-break.
-#   격리(=[[08]]): 다른 레버 전부 unset. 2-arm marginal:
-#     g  = --gate 1 + auth 게이트만            (대조·reexp_bank_transfer arm과 동일)
-#     gr = g + T2_RESOLVE=1                    (처치: action-required + 도구명-날조 검출)
-#   marginal(gr−g)@표적 = action-required 인과. floor(--gate 0)은 이미 all-fail(표적 정의).
+#   ★unified 래퍼(action-required 코드 소재)는 do_prov가 항상 활성 → prov를 격리 못 함.
+#   ⇒ prov를 *양 arm 공통*으로 두고 T2_RESOLVE만 차등 = action-required 순수 marginal:
+#     g  = unified: auth 게이트 + prov-rescue          (T2_RESOLVE OFF)
+#     gr = g + T2_RESOLVE=1                              (action-required + 도구명-날조 검출)
+#   marginal(gr−g)@표적 = action-required 인과(prov는 양쪽·상쇄). floor(--gate 0)=all-fail(표적 정의).
+#   ※ T2_PROV_REGEN=1이 unified 라우팅 트리거(t2_run_gated _unified 조건)·양 arm 필수.
 # 용법: bash bank_actionreq_probe.sh <g|gr> <TAG> <TASKS|ALL> <NT> <PORT>
 set -u
 MODE="${1:?g|gr}"; TAG="${2:?tag}"; TASKS="${3:?tasks|ALL}"; NT="${4:-1}"; PORT="${5:-8141}"
@@ -18,15 +20,16 @@ source /home/woori/.openrouter_key
 export SSL_CERT_FILE=$($PY -c "import certifi;print(certifi.where())")
 export PYTHONPATH=src:$T2
 curl -s --max-time 5 localhost:$PORT/v1/models | grep -q "$M" || { echo SERVE_MISSING_$PORT; exit 1; }
-# ── 격리: 다른 레버 전부 OFF ──
-unset T2_PROV_REGEN T2_CALC T2_EPLAN T2_EPLAN_EXAMINED_SAFE T2_EPLAN_READS_ONLY \
+# ── 격리: 표적 외 레버 전부 OFF (disamb/calc/eplan/readall/cons 등) ──
+unset T2_CALC T2_EPLAN T2_EPLAN_EXAMINED_SAFE T2_EPLAN_READS_ONLY \
       T2_WRITE_CAP T2_DISAMB T2_READALL T2_CONSISTENCY T2_COV T2_TOOLERR \
       T2_PRESENT_NESTED T2_PRESENT_READS T2_GROUND T2_PRINCIPLE_DEFAULT T2_AUTOFETCH \
       T2_PROV_ADDR_FULL T2_PROV_ORIGIN T2_L4_MODE T2_RESOLVE
-# ── 공통: auth 게이트(banking core compliance) ──
+# ── 양 arm 공통: auth 게이트 + prov-rescue (prov=unified 라우팅 트리거·양쪽 상쇄) ──
 export T2_GATE_REGEN=1 T2_GATE_REGEN_K=1 T2_GATE_KINDS=auth
+export T2_PROV_REGEN=1 T2_PROV_REGEN_K=4 T2_PROV_MODE=rescue
 [ "$MODE" = "gr" ] && export T2_RESOLVE=1     # ★처치 arm만 action-required/operator-fab
-echo "ARM=$MODE  T2_RESOLVE=${T2_RESOLVE:-unset}  GATE_KINDS=$T2_GATE_KINDS  DOMAIN=$DOM"
+echo "ARM=$MODE  T2_RESOLVE=${T2_RESOLVE:-unset}  PROV=$T2_PROV_MODE  GATE_KINDS=$T2_GATE_KINDS  DOMAIN=$DOM"
 cd $TB
 TIDARG=""; [ "$TASKS" != "ALL" ] && TIDARG="--task_ids ${TASKS// /,}"
 rm -rf "$TB/data/simulations/bankar_$TAG"
