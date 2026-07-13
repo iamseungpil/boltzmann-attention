@@ -32,16 +32,22 @@
 - **원칙(사용자)**: A2에 도메인마다 필요한 내부 op(min/max/argmax/lookup 등) 선언·변경 가능. scaffold는 A2의
   op-스펙(설명)을 읽고 dispatch만. 도메인 특화 로직은 전부 A2.
 
-## 3. [[05]] 포지셔닝 — 왜 offload(autofetch)가 아닌가
-- **핵심 경계**: compute는 **에이전트가 *이미 수집한* 사실(ctx.records/params/user) 위에서만** 동작. DB를 새로
-  읽지 않는다(=autofetch 금지·C34 규칙0 준수). 기존 `calc_specs`(read record서 count/sum)와 동일 규율.
-- **fact-gate이지 절차-offload 아님**: 정책-결정값(liability=정책상한)을 계산해 에이전트 값과 **대조·틀리면 교정**
-  = 컴플라이언스 검증(F1)·decidable 계산(F2b). 게이트가 auth를 검증하듯, 정책-파라미터를 검증. 값을 대신
-  *생성*해 주입하는 게 아니라(그건 offload), 에이전트 값이 정책과 맞는지 **검증**하고 틀리면 규칙을 알린다.
-- **[[05]] 3질문**: (1) op=도메인일반·규칙=A2데이터(특화 순증 아님) (2) 정책규칙=결정론 사실(auth-술어와 동형·
-  유동판단 동결 아님) (3) 도메인 행동 수행 아님(검증+교정·에이전트가 재호출). ⇒ 클린.
-- ⚠**주의 경계**: 규칙이 NL-판단(예: provisional_credit_eligible="가이드라인 따라 판단")이면 op=**formalize**(LLM
-  서브콜)로 위임 = learn 날개. 결정론 op(lookup/diff/bool_expr) vs formalize op 구분을 A2가 선언.
+## 3. [[05]] 포지셔닝 — 정당한 결정론-계산 offload (리뷰 R1 반영·2026-07-13)
+> ★리뷰 교정(R1): 이전판 "offload 아님·검증만"은 **방어적 과소진술이자 틀린 경계**였다. thesis 본체가
+> **결정론 분담(offload)**([[00]]): 작은 LLM이 decidable 부분을 결정론에 위임. decidable 정책값을 계산하는 건
+> 위반이 아니라 **scaffold 날개 그 자체**. "값 못 건넴" 가짜 제약을 만들지 말 것.
+- **compute는 값을 산출한다 — 그게 맞다.** decidable 정책-파라미터(liability=$50)를 결정론 계산해 채우는 것 =
+  thesis의 결정론 날개(F2b 계산·F1 정책 적용). auth-게이트(pass/fail만)와 **억지 동형화 금지**: 게이트는 이산
+  술어를 검증하고, compute는 값을 계산한다 — 둘 다 정당한 결정론 분담의 다른 형태.
+- **진짜 [[05]] 경계 = 계산의 *입력 출처***:
+  - ✅ **정당**: 에이전트가 *이미 수집한* 사실(ctx.records/params/user) 위 계산. DB를 새로 읽지 않음.
+  - ⛔ **금지(autofetch·C34 규칙0)**: 미수집 DB record를 scaffold가 대신 fetch. (그건 절차-offload=진짜 위반.)
+  - 기존 `calc_specs`(read record서 count/sum)가 정확히 이 규율 = 선례.
+- **[[05]] 3질문**: (1) op=도메인일반·규칙/임계=A2데이터(특화 순증 아님) (2) 정책규칙=결정론 사실(유동판단
+  동결 아님·decidable) (3) 도메인 행동 수행 = **예, 그러나 정당**(decidable 계산 offload=thesis 날개·autofetch와
+  구분되는 건 *입력이 수집된 사실*이라는 점). ⇒ 클린.
+- ⚠**결정론 op vs formalize op**: 규칙이 이산·decidable(liability·diff·bool_expr)이면 결정론 offload(값 산출).
+  규칙이 NL-판단(account_class·"가이드라인 따라")이면 op=**formalize**(LLM 서브콜)=learn 날개. A2가 구분 선언.
 
 ## 4. Op 라이브러리 (기존 + 확장)
 | op | 상태 | 용도(banking 예) |
@@ -86,13 +92,16 @@
      prefix 매칭 → 대상 param 목록.
   2. **ctx 구축**: `params`=nested arguments(파싱)·`records`=이전 성공 tool-result 파싱·`user`=발화값.
   3. **compute+대조**: 각 param에 apply_op → 계산값. 에이전트 nested값과 비교(수치=tol·범주=eq).
-  4. **deny+교정**: 불일치 시 deny(feedback="{param}은 정책상 {계산값}이어야 함(현재 {에이전트값})·재호출").
-     tool_call 앵커(nested 있으니 call 존재)·cap N/sim·Δspurious 계측(정답 param 오검 0 목표).
-  5. formalize op는 서브콜(fexec 동형)·실패=None=미개입(안전).
-- **주입 아님**: 계산값을 nested에 몰래 넣지 않음. 검증+교정만(=[[05]] fact-gate). (silent 교정 옵션은 T5-C
-  silent-repair 패턴 재사용 가능하나 기본=deny+regen.)
+  4. **★기본 메커니즘 = 결정론 op는 silent-repair(리뷰 R2 반영)**: 불일치 시 scaffold가 **계산값으로 nested를
+     제자리 치환**(대화 무교란·replay-clean·T5-C 패턴). 근거(R2): 발견이 "frontier조차 이 값을 *계산 못 한다*"
+     이므로 deny+regen("50이어야 함")은 (a) 값을 우회로 건네주는 셈 (b) C62 대화-교란을 부른다. "규칙만 알리고
+     모델이 계산"은 작동 안 함(모델이 못 하니 실패). ⇒ **결정론 op(lookup/diff/bool_expr·확정값)=silent-repair가
+     정석**(최대 결정론 offload·§3 정당). cap N/sim·Δspurious 계측(정답 param 오치환 0 목표).
+  5. **formalize op·불확실 op만 deny/ASK**: LLM 서브콜 값이거나 신뢰도 낮으면 silent 금지 → deny-피드백 or ASK.
+  6. formalize op는 서브콜(fexec 동형)·실패=None=미개입(안전).
 - 위치: `t2_gate_patch` T2_RESOLVE 블록 내 resolve_write 직후(Lever 4 recommendation과 동렬)·별도 함수
-  `resolve_compute_params(am, msgs, a2, ...)`.
+  `resolve_compute_params(am, msgs, a2, ...)`. silent 치환은 am.tool_calls의 nested arguments를 직접 수정(기록
+  응답 커밋 전)·replay-clean(C62 감사 준수).
 
 ## 7. 파라미터 커버리지 (지배 파라미터 → op·근거 데이터)
 | 파라미터 | 오류수 | op | gold 값형 |
@@ -109,9 +118,24 @@
 - 정확 조건/임계 = **KB 정책 문서서 확정**(doc_bank_accounts_031 류·오프라인 저작).
 
 ## 8. 오프라인 검증 계획 (유료 前·[[09]])
-1. 파라미터별 op-스펙 저작 → **전 frontier gold 재현율**(1109 liability=95% 완료·나머지 param 반복).
-2. **Δspurious**: frontier가 *맞춘* param에 op 적용 시 오검 0 확인(정답 안 깨야).
-3. 목표: 지배 5~8 param 각 ≥90% 재현 → 라이브 착수 자격.
+### 8-0. ★STEP 0 = compute-사정권 정량 (리뷰 R4·최우선·무료·라이브 신호 전제조건)
+- **문제**: compute 이득 = 입력이 *수집된* 태스크 한정(reach는 별도 축). 대부분이 reach 실패면 compute 단독으론
+  pass 무이동 → 키스톤이 reach 레버도 필요. 라이브 前 이 상한을 반드시 정량.
+- **측정(traj 무료)**: hard-core 45 태스크(전 frontier ≤10%)의 param-실패를 2분:
+  - **compute-사정권** = param 계산에 필요한 입력이 문맥에 수집됨 ∧ 값 오계산 (silent-repair가 고칠 수 있음).
+  - **사정권 밖** = 입력 미수집(reach)·틀린 도구(operator-⋈)·미도달.
+- **판정**: 사정권 비율이 유의미(예 ≥30% param)해야 op 저작·라이브 진행. 이게 **키스톤 정직한 상한 + G-vs-GR
+  성립 조건**. 사정권 작으면 → compute+reach 결합 필요를 명시하고 재설계.
+
+### 8-1. ★gold-blind 저작 게이트 (리뷰 R3·[[11]] 순환 방지·L4C-R2 재발 방지)
+- **liability 테이블(days≤30→$50)을 gold 값에서 역산하면 95%는 순환**([[11]] 위반).
+- **규율**: op-스펙 임계/조건은 **KB 정책 문서(doc_bank_accounts_031류·Regulation E)서 eval-blind 저작** — 저작
+  시 gold 값 보지 않음. **재현율은 blind 테이블의 *사후* 검증**(저작 후 1회 측정). blind 저작 provenance를 doc에 기록.
+
+### 8-2. 파라미터별 검증
+1. (8-1 blind 저작 후) 파라미터별 → **전 frontier gold 재현율**(liability=95%는 *역산*이라 **재저작 필요**·8-1 규율).
+2. **Δspurious**: frontier가 *맞춘* param에 op/silent-repair 적용 시 오치환 0 확인(정답 안 깨야).
+3. 목표: 사정권(8-0) param 각 ≥90% blind 재현 → 라이브 착수 자격.
 4. 유닛: `test_compute` 확장(bool_expr·formalize·nested 파싱).
 
 ## 9. 라이브 keystone 계획 (표준·[[09]] 승인)
@@ -124,14 +148,17 @@
   compute 이득 = 수집된 태스크 한정. reach는 별도(discovery)·이 설계 범위 밖.
 - **formalize op의 [[05]] 경계**: NL-판단 param은 learn 날개. 결정론 op로 최대 커버·formalize는 최후.
 - **prefix 키 충돌**: agent_tool_name prefix가 여러 도구 매칭 가능 → param명으로 2차 필터·A2가 정확 prefix 선언.
-- **retail 회귀**: compute_ops는 신규 필드(미기재 도메인=무발동). 기존 calc_specs와 통합/공존 결정 필요(초기=별도 유지).
+- **retail 회귀**(R5): compute_ops는 신규 필드(미기재 도메인=무발동). 기존 calc_specs와 **초기=별도 유지**·단
+  **op 커널은 공유**(t2_compute 단일)해 중복 op 정의 회피. 향후 calc_specs를 compute_ops로 흡수 가능(엔진 동일).
+- **prefix-키 충돌**(R5): agent_tool_name prefix 다중매칭 시 param명 2차 필터·A2가 정확 prefix 선언으로 해소.
 - **412.88류 잔여**: 특수분기(추가 필드)·완전커버 아님·정직 보고.
 - **nested 교정의 대화-교란**(C62 regen 손상): deny+regen이 흐름 깨면 silent-repair(T5-C) 전환 고려.
 
-## 11. 구현 순서 (설계 승인 후)
+## 11. 구현 순서 (리뷰 반영·2026-07-13)
+0. **★STEP 0 = compute-사정권 정량**(R4·무료·최우선): hard-core param을 사정권/밖 2분. **유의미할 때만 이하 진행**.
 1. op 확장: `bool_expr`·`formalize` + `test_compute` 유닛.
-2. 오프라인 저작+검증: liability(완)·amount_difference·provisional_credit·expected_apy 각 gold 재현.
-3. `resolve_compute_params` + nested 배선(`t2_gate_patch`) + 유닛(stub 루프).
+2. **gold-blind 저작**(R3): KB 정책 문서서 op-스펙 임계 저작(gold 안 봄) → 사후 재현율. liability=**재저작**(현 95%는 역산).
+3. `resolve_compute_params` + nested 배선(`t2_gate_patch`) + **결정론 op=silent-repair 기본**(R2) + 유닛(stub 루프).
 4. banking A2 compute_ops 저작(KB 정책서 조건 확정).
 5. 오프라인 Δspurious 게이트 → 라이브 keystone(승인).
 
