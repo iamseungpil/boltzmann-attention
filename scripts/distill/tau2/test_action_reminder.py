@@ -191,5 +191,36 @@ check("T6_offer_reminder",
       any("[RECOMMEND-OFFER]" in (u or "") and "Silver Rewards Card" in (u or "")
           for u in regen_user_msgs()), regen_user_msgs())
 
-print("\n%d FAIL" % len(FAILS) if FAILS else "\nALL PASS (action-required + verify + recommend live)")
+# ── T7 (reference-filter live·silent-repair): 틀린 transaction_id 지목 → formalize→filter→제자리 치환 ──
+GENCALLS[:] = []
+RECTXT = ("Transactions:\n1. Record ID: btxn_atm\n   transaction_id: btxn_atm\n   date: 11/05/2025\n"
+          "   description: RHO-BANK ATM #4827 WITHDRAWAL\n   amount: -300.0\n   type: atm_withdrawal\n"
+          "2. Record ID: btxn_gym1\n   transaction_id: btxn_gym1\n   date: 11/06/2025\n"
+          "   description: CITYFIT GYM\n   amount: -89.99\n   type: debit_card_purchase")
+ag, orch, st = setup([
+    UserMessage("Dispute my ATM withdrawal on November 5th, I'm short $100."),
+    AM(tool_calls=[ToolCall("KB_search", {})]),
+    ToolMessage(id="k0", content="Use file_debit_card_transaction_dispute_6281 to file disputes."),
+    AM(tool_calls=[ToolCall("get_bank_account_transactions", {})]),
+    ToolMessage(id="r1", content=RECTXT),
+])
+_wrongdisp = AM(tool_calls=[ToolCall("call_discoverable_agent_tool",
+                {"agent_tool_name": "file_debit_card_transaction_dispute_6281",
+                 "arguments": json.dumps({"transaction_id": "btxn_gym1",  # 틀린 id
+                                          "dispute_category": "atm_cash_discrepancy"})})])
+SCRIPT[:] = [
+    _wrongdisp,
+    AM(content='{"date": "11/05/2025", "merchant": "ATM", "transaction_type": "atm_withdrawal"}'),  # formalize
+]
+am = ag._generate_next_message(UserMessage("please file it"), st)
+# silent-repair: nested transaction_id가 btxn_atm으로 치환됐나
+_nested = {}
+for tc in (am.tool_calls or []):
+    if tc.name == "call_discoverable_agent_tool":
+        try: _nested = json.loads(tc.arguments["arguments"])
+        except Exception: _nested = {}
+check("T7_reffilter_fired", getattr(ag, "_t2_reffilter", 0) == 1, getattr(ag, "_t2_reffilter", 0))
+check("T7_silent_repair", _nested.get("transaction_id") == "btxn_atm", _nested)
+
+print("\n%d FAIL" % len(FAILS) if FAILS else "\nALL PASS (action + verify + recommend + reference-filter live)")
 sys.exit(1 if FAILS else 0)
