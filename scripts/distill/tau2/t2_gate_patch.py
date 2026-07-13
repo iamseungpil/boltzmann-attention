@@ -674,6 +674,28 @@ CONS_NOOP_FEEDBACK = (
 )
 
 
+# ─── ★v5 L2R read-all 강제 (T2_READALL=1·A1_V2_NT2_FORENSIC §4-1) ───
+# 근거 [M]: nt2 flip 분기 분석서 F→P의 승리 패턴이 "write 전 후보 record 전수 열거"로 단일
+# 수렴(coverage+BIND+PROV 동시 폐쇄·t2/74/81/107/22)·P→F 구제 최대 레버(t5/82/83/91/111).
+# 기전: 첫 write 시도 시 listed−examined ≠ ∅ 이면 read-지시 deny(read-only·[[05]] write 강제 0).
+# Δspurious 보수: 후보 과다(>max) 침묵·sim-cap·재료=ledger(에이전트 자신의 열람 기록·규칙0).
+
+def readall_unread(listed, examined, max_candidates=8):
+    """read-all 순수 술어: 미열람 후보 목록(정렬) — 없거나 후보 과다면 []."""
+    listed = {str(x).strip() for x in (listed or ()) if str(x).strip()}
+    examined = {str(x).strip() for x in (examined or ())}
+    if not listed or len(listed) > max_candidates:
+        return []
+    return sorted(listed - examined)
+
+
+READALL_FEEDBACK = (
+    "[READ-ALL] Before modifying anything, read the details of every record you have listed — "
+    "call {reader} for: {ids}. The user's request may cover records you have not read yet. "
+    "After reading, re-emit your call(s), acting on every record the request covers and only those."
+)
+
+
 # ─── ★GROUND (T2_PROV_GROUND=1): config-도출 candidate-surfacing resolver ───
 # 모델은 *의도/op* 명명만, 구체값은 결정론이 직전 tool 출력서 grounding (추출 = 도메인-일반).
 
@@ -1667,7 +1689,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             except TypeError:
                 work = work + [UserMessage(content=_rem)]
         am = _gen(self, work, bw(), "agent_response")
-        gate_rounds = prov_rounds = eplan_rounds = cons_rounds = 0
+        gate_rounds = prov_rounds = eplan_rounds = cons_rounds = ra_rounds = 0
         subs = 0
         rescue_skipped = set()
         rescue_excl = set()   # ★PERARG(C65): (id(tc),k,s) — rescue-스킵된 fab 제외하고 재스캔
@@ -1767,7 +1789,29 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _ce:
                     cons_fb = None
                     print("[T2_CONS] error (no-op): %r" % (_ce,), file=_sys.stderr, flush=True)
-            if not do_gate and not do_prov and ep_fb is None and cons_fb is None:
+            # ★v5 L2R read-all (T2_READALL=1·NT2 §4-1): 첫 write 전 미열람 후보 read 강제
+            ra_fb = None
+            if (os.environ.get("T2_READALL") == "1" and ep_led is not None
+                    and not do_gate and not do_prov and ep_fb is None and cons_fb is None
+                    and ra_rounds < 1
+                    and getattr(self, "_t2_readall_deny", 0) < int(os.environ.get("T2_READALL_CAP", "2"))):
+                try:
+                    unread = readall_unread(getattr(ep_led, "listed", ()),
+                                            getattr(ep_led, "examined", ()))
+                    if unread:
+                        _raw = _confirm_write_tools(a2)
+                        for c in (am.tool_calls or []):
+                            if getattr(c, "name", None) in _raw and id(c) not in denied_by_objid:
+                                ra_fb = (c, READALL_FEEDBACK.format(
+                                    reader=(a2.get("eplan") or {}).get("detail_reader"),
+                                    ids=", ".join(unread)))
+                                print("[T2_READALL] deny tool=%s unread=%s"
+                                      % (c.name, ",".join(unread)), file=_sys.stderr, flush=True)
+                                break
+                except Exception as _re2:
+                    ra_fb = None
+                    print("[T2_READALL] error (no-op): %r" % (_re2,), file=_sys.stderr, flush=True)
+            if not do_gate and not do_prov and ep_fb is None and cons_fb is None and ra_fb is None:
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -1815,6 +1859,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if cons_fb is not None:
                 cons_rounds += 1
                 self._t2_cons_deny = getattr(self, "_t2_cons_deny", 0) + 1
+            if ra_fb is not None:
+                ra_rounds += 1
+                self._t2_readall_deny = getattr(self, "_t2_readall_deny", 0) + 1
             fb = [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:
@@ -1826,6 +1873,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     content = "Error: " + ep_fb[1]
                 elif cons_fb is not None and c is cons_fb[0]:
                     content = "Error: " + cons_fb[1]
+                elif ra_fb is not None and c is ra_fb[0]:
+                    content = "Error: " + ra_fb[1]
                 else:
                     content = "Error: resolve the flagged call(s) first; do not call this tool yet."
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
