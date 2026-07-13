@@ -2089,9 +2089,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _rze:
                     rw_fb = None
                     print("[T2_RESOLVE] error (no-op): %r" % (_rze,), file=_sys.stderr, flush=True)
-            # ★action-required (turn-level·회피=순수조언은 tool_call 0 → 별도 리마인더 채널 필요·미배선).
-            #   구현·오프라인검증 완료(resolve_action_operator·36% 상한)·라이브 배선은 후속(regenerate-
-            #   with-directive 채널·eplan-reminder류). 여기선 per-operand rw_fb(deny-kind)만 라이브.
+            # ★action-required (turn-level·회피=순수조언은 tool_call 0 → 앵커할 ToolMessage 없음).
+            #   ✅라이브 배선(2026-07-13): rw_fb[0] is None 케이스는 아래 fb-빌드서 UserMessage 리마인더로
+            #   재생성(regenerate-with-directive·eplan-reminder류·작업버퍼만·test_action_reminder 14/14).
+            #   transfer-only 회피는 tool_call 앵커로 이미 처리·per-operand rw_fb(deny-kind)도 라이브.
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and rw_fb is None):
                 break
@@ -2170,6 +2171,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     content = "Error: resolve the flagged call(s) first; do not call this tool yet."
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                       error=True, content=content))
+            # ★action-required 리마인더 채널 (순수-조언 회피=tool_call 0 → 앵커할 ToolMessage 없음).
+            #   rw_fb[0] is None = 순수-조언 action-required(2085행). UserMessage 리마인더로 재생성.
+            #   작업버퍼(work)만·state.messages 비커밋 = 채널 절대규칙(1849·replay-clean).
+            if rw_fb is not None and rw_fb[0] is None and not (am.tool_calls or []):
+                try:
+                    fb.append(UserMessage(role="user", content=rw_fb[1]))
+                except TypeError:
+                    fb.append(UserMessage(content=rw_fb[1]))
             work = work + fb
             am = _gen(self, work, bw(), "agent_response_unified_regen")
 
