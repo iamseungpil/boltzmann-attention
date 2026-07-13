@@ -47,6 +47,32 @@
 - banking binding = **reach/coverage/horizon + ⋈**(C52 재확인). scaffold 후보 = discovery controller·coverage 게이트, action-required 아님.
 - 결정: 40-태스크 유료 probe **NO-GO**(스퓨리어스 확인·예산낭비). retail 스택 확정 우선(E-XFER-bank 재시퀀싱 유지).
 
+## 6b. ★재채점 + gold↔우리 경로 분석 (사용자 지시 2026-07-13·`bank_rescore_pathdiff.py`·`bank_pathdiff_percase.py`)
+> buggy audit(assistant-only 스캔) 폐기 → 하네스 `action_checks[].action_match`(정확 채점) + 궤적 대조.
+> **frontier 궤적은 소실([[47]])** — aggregate만: opus4.5 pass1 24.7·gpt5.5 37.4 vs 우리 floor **6.1%**(목표격차).
+
+**재채점 (bankxfer_floor_bank_t4·198 valid·infra 13)**: PASS(reward=1.0) **12/198 = 6.1%**. reward_basis: DB 172·ACTION 22.
+
+**실패 gold-action 세분 (action_match=False·전 action)**:
+| 분류 | 건수 | 정체 |
+|---|---|---|
+| **(A) 필요 도구 미호출** | **580** | REACH/discovery 미완 or 조기 give-up(transfer) |
+| **(B) operator/operand ⋈ 오선택**(핵심키 틀림) | **509** | 도구는 불렀으나 wrong agent_tool_name/card_type |
+| (C) 정확 도달·타인자/기준 미스 | 152 | 올바른 operator/operand·하위인자 or 기준 오류 |
+| (D) 기타 인자 | 97 | — |
+- sim 지배: ⋈ 오선택 115 > REACH 64 > NO-START 4. 태스크 95개 중 89 전패·6 부분pass.
+
+**per-case 정독 (3건·[[08]])**:
+- **task_003 = operand ⋈**: 에이전트가 카드 발견·제안·user 실행되나 gold `Silver Rewards` vs user가 `Business Platinum` 신청 → wrong operand(카드).
+- **task_023 = 검증(F1)+조기 escalation(F5)**: gold=`log_verification`→apply. 우리는 `get_user_information_by_*`로 검증 시도했으나 **log_verification 미완**→`transfer`로 포기(gold apply 미도달).
+- **task_035 = operator GET 실패**: gold=`emergency_credit_bureau_incident_transfer_1114`을 KB발견→unlock→call. 우리 KB질의("credit score discrepancy")가 그 도구명 못 찾음→lookup만 하다 transfer.
+
+**결론(사용자 직관 확증)**: banking 실패 = **{operand+operator} 해소**(경계 아님·act-vs-advise 아님). **retail과 동일 GET→FIND→INFER→ASK 루프**·ABox만 다름(banking `operator_resolution=discoverable`=KB-GET 단계 추가·retail=direct). 도메인-일반 레버:
+1. **operator/operand FIND**(⋈ 509+152): 의도/요구→도구·카드 formalize→결정론 select — **`formalize_intent_tool` 재사용**(retail fexec 동형·U2/[[00]]).
+2. **discovery controller**(REACH 580 A): 의도가 discoverable 도구 필요 시 KB-GET+unlock/call을 give-up(transfer) 전 강제 — retail E-PLAN discovery-precondition 동형.
+3. **verify/persistence 게이트**(F1/F5·task_023): log_verification 완결 강제 + 조기 transfer 차단 — 기존 auth 게이트+persistence.
+⇒ **action-required 아님.** banking↔retail 통일 = t2_resolve 디스패처(operator/operand kind)·formalize_intent_tool·eplan·gate 재사용, ABox(banking A2)만 교체.
+
 ## 7. 산출물
 - 코드: `t2_gate_patch.py`(action-required 리마인더 채널·offline 14/14 유효) · `bank_actionreq_probe.sh`(드라이버·KB키+audit 수정).
 - sim: `sim_results/bankar_smoke5b.results.json.gz`(KB-dead·무효) · `bankar_smoke5c.results.json.gz`(KB정상·본 분석).
