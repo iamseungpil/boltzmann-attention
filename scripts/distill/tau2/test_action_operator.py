@@ -78,6 +78,26 @@ def test_agent_ending_helper():
     print("PASS agent_ending_helper")
 
 
+def test_discovery_required_for_dispatcher():
+    """★Lever 2: target=discoverable dispatcher(call_discoverable)+회피 → discovery-required(발견체인 안내)."""
+    am = AM(content="I'll transfer you to a human for that incident.")
+    r = R.resolve_action_operator(OPS, am, [], BANK, target_tool="call_discoverable_agent_tool",
+                                  transfer_tools=XFER)
+    assert r["status"] == "deny" and r["reason"] == "discovery-required", r
+    assert "call_discoverable_agent_tool" in r["feedback"]
+    assert "KB_search" in r["feedback"] or "search" in r["feedback"].lower()
+    print("PASS discovery_required_for_dispatcher (Lever 2·발견체인 안내)")
+
+
+def test_non_dispatcher_plain_action_required():
+    """discoverable 아닌 agent-실행 도구(change_user_email) → 일반 action-required(발견체인 없음)."""
+    am = AM(content="Please update it yourself online.")
+    r = R.resolve_action_operator(OPS, am, [], BANK, target_tool="change_user_email",
+                                  transfer_tools=XFER)
+    assert r["status"] == "deny" and r["reason"] == "action-required", r
+    print("PASS non_dispatcher_plain_action_required")
+
+
 if __name__ == "__main__":
     test_deflect_advice_deny()
     test_transfer_giveup_deny()
@@ -86,4 +106,6 @@ if __name__ == "__main__":
     test_doing_other_work_ok()
     test_no_action_tools_noop()
     test_agent_ending_helper()
-    print("ALL PASS (7/7) - action=operator GET->FIND->(execute|ASK)")
+    test_discovery_required_for_dispatcher()
+    test_non_dispatcher_plain_action_required()
+    print("ALL PASS (9/9) - action=operator + Lever 2 discovery-required")

@@ -83,6 +83,25 @@ ACTION_ASK_FB = (
     "Do NOT invent a procedure or deflect — ask the user the specific missing detail needed to act, "
     "or state clearly you cannot do this."
 )
+# ★Lever 2 (discovery controller·BANK_ACTIONREQ_PROBE_FORENSIC §6b (A) REACH 580):
+#   target이 discoverable dispatcher면 발견체인(getter→unlock→call)을 명시. 별도 컨트롤러 아님 —
+#   action-required 피드백을 발견-인지형으로 특화(A2 operands 참조·도메인-일반).
+DISCOVERY_REQUIRED_FB = (
+    "[DISCOVERY-REQUIRED] this request needs a discoverable tool, but you are deflecting/transferring "
+    "instead of completing it. Do the discovery chain: (1) search the knowledge base ({getter}) for the "
+    "specific tool that handles this request, (2) call '{target}' with the discovered tool name. Do not "
+    "give up or transfer until you have searched for and attempted the right discovered tool."
+)
+
+
+def _discoverable_dispatchers(a2):
+    """A2 operands서 operator_resolution=discoverable 인 도구명 → getter 맵 (Lever 2)."""
+    out = {}
+    for tool, ops in ((a2 or {}).get("operands") or {}).items():
+        for _arg, spec in (ops or {}).items():
+            if (spec or {}).get("operator_resolution") == "discoverable":
+                out[tool] = (spec or {}).get("getter", "the search tool")
+    return out
 
 
 def _agent_ending(am, transfer_tools):
@@ -111,6 +130,11 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
         return {"status": "ok"}           # 다른 도구(조회 등) 호출 중 = 진행중
     # 회피(조언/transfer) 확정 → FIND 결과로 분기
     if target_tool and target_tool in action_tools:
+        # ★Lever 2: target이 discoverable dispatcher면 발견체인 안내(getter→unlock→call).
+        _disc = _discoverable_dispatchers(a2)
+        if target_tool in _disc:
+            return {"status": "deny", "reason": "discovery-required",
+                    "feedback": DISCOVERY_REQUIRED_FB.format(target=target_tool, getter=_disc[target_tool])}
         return {"status": "deny", "reason": "action-required",
                 "feedback": ACTION_REQUIRED_FB.format(target=target_tool)}
     return {"status": "deny", "reason": "action-ask", "feedback": ACTION_ASK_FB}
