@@ -102,6 +102,20 @@
   R4 게이트 통과 후보. 잔여(식별정보 無·다중매칭)=진짜 ⋈ 경계(수용).
 - **op 추가**: `filter`(over records, by formalized predicate → return id) — 도메인일반. formalize=learn 날개.
 
+## 5d. ★★축 탐색 종합 판정 — banking = F3 ⋈ 경계 지배 (2026-07-13·정직)
+> reference-filter 오프라인 재현 게이트(`bank_filter_repro.py`·record 파싱·gold-blind 고정기준):
+- **transaction_id ⋈(n=2091) 결정론-필터 유일식별 = 31.8%**(date 단독 24.3%+date+amount 7.5%). **68.2%=유일식별
+  실패**(중복청구 동일-record 등 진짜 ⋈·세밀기준 한계). ⇒ 참조-필터 사정권 ≈ 전 hard-core param의 **~7.6%**.
+- **★세 축 전부 모듈러(~8% 이하)**: compute 7.5% · reference-filter ~7.6% · provisional-bool 일부. **단일 닫힘-레버
+  >~8% 없음**.
+- **★판정: banking hard-core = F3 ⋈ 경계 지배**(중복/모호 참조·범주분류). 프레임 정합(F3=scale·scaffold 공히 flat).
+  retail(F1 compliance=큰 닫힘슬라이스)과 대조 = **도메인마다 binding 축 다름**(C52 재확인). banking은 경계-지배.
+- **함의**: ① 단일 keystone 레버로 banking pass 크게 못 움직임(각 슬라이스 ~8%·합쳐도 ~20-25%·각각 op저작 필요).
+  ② decidable 슬라이스(compute/filter/bool)는 실재하며 frontier도 못 여는 것(thesis 증거)이나 개별 소규모.
+  ③ 정직한 연구결론 = "banking은 F3 경계 지배 도메인·scaffold는 F1/F2b 소슬라이스만"(프레임 강화). 
+- **결정 필요**: (a) 경계-지배로 수용·기록(프레임 정합 연구결론) (b) 3슬라이스 결합 스택 구축(~20-25% 상한·대공사)
+  (c) banking 접고 retail 표준-gpt5.2 재검증 등 다른 축.
+
 ## 6. Nested-arg 배선 (핵심 신규·엔진 확장)
 - 문제: 파라미터가 `call_discoverable_agent_tool.arguments`(JSON 문자열) **안**. 기존 resolve_write는 top-level만.
 - 설계:
