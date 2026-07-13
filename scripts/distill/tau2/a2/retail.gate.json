@@ -403,5 +403,34 @@
    "item_id"
   ]
  },
- "_note_eplan": "E-PLAN(E_PLAN_LIVE_WIRING_DESIGN v1.2·t2_eplan_patch) 도메인 사실: list-enumerator/detail-reader/entity_key/items_key만 ABox — 엔진=도메인일반(SCOPE_TOKEN 어휘·수량 소사전만 엔진 보유). items_key=write 호출의 품목-id 인자명(qty-conflation 가드 qty_item_covered 재료·2026-07-11 t27 교정 — 기존 엔진 리터럴 item_ids의 ABox 이관). flag=T2_EPLAN. | v3.2: items_id_path=[container,id_field] (L10 멤버십·T2_CONSISTENCY)"
+ "_note_eplan": "E-PLAN(E_PLAN_LIVE_WIRING_DESIGN v1.2·t2_eplan_patch) 도메인 사실: list-enumerator/detail-reader/entity_key/items_key만 ABox — 엔진=도메인일반(SCOPE_TOKEN 어휘·수량 소사전만 엔진 보유). items_key=write 호출의 품목-id 인자명(qty-conflation 가드 qty_item_covered 재료·2026-07-11 t27 교정 — 기존 엔진 리터럴 item_ids의 ABox 이관). flag=T2_EPLAN. | v3.2: items_id_path=[container,id_field] (L10 멤버십·T2_CONSISTENCY)",
+ "tool_error_specs": [
+  {
+   "applies_to": [
+    "exchange_delivered_order_items",
+    "modify_pending_order_items"
+   ],
+   "match": "not found or available|item not found|variant not found",
+   "class": "recover",
+   "hint": "The item/variant id does not exist for this product/order. Re-read the correct id from get_product_details / get_order_details and use it."
+  },
+  {
+   "applies_to": [
+    "get_order_details"
+   ],
+   "match": "order not found",
+   "class": "recover",
+   "hint": "The order id was wrong. Re-derive it from the user's order list (get_user_details)."
+  },
+  {
+   "applies_to": [
+    "find_user_id_by_email",
+    "find_user_id_by_name_zip"
+   ],
+   "match": "user not found",
+   "class": "recover",
+   "hint": "The lookup key was wrong. Ask the user for the other identifier (email vs name+zip) and retry."
+  }
+ ],
+ "_note_tool_error_specs": "v-toolerr(2026-07-13): 에러패턴→recover|abstain 분류(도메인정보). 엔진=T2_TOOLERR 일반 라우팅."
 }

@@ -784,6 +784,82 @@ COV_REMINDER = (
 )
 
 
+# ─── ★TOOLERR 도구-에러 라우팅 (T2_TOOLERR=1·사용자 지시 2026-07-13) ───
+# 일반 로직(엔진): 방금 committed된 tool-error를 A2 `tool_error_specs`로 분류·라우팅.
+#   class=recover → 인자 고쳐 재시도 강제(같은-실패-인자 재발행/조기 transfer deny).
+#   class=abstain → 날조 금지·ASK/transfer 지시(비강제 directive).
+# 도메인 정보(에러패턴·class·hint)는 전부 A2([[05]]). 재료=committed tool-error(규칙0).
+
+def _trailing_tool_errors(msgs):
+    """대화 말미의 tool-result 블록(에이전트가 지금 응답하려는) 중 error 메시지들(최근순).
+    앞선 assistant-text/user를 만나면 중단 = '방금 난 에러'만."""
+    errs, callmap = [], {}
+    for m in msgs:
+        if getattr(m, "role", None) == "assistant":
+            for tc in (getattr(m, "tool_calls", None) or []):
+                callmap[getattr(tc, "id", None)] = tc
+    for m in reversed(msgs):
+        r = getattr(m, "role", None)
+        if r == "tool":
+            if getattr(m, "error", False):
+                errs.append(m)
+        elif r == "assistant":
+            break   # tool-call을 낸 assistant 턴 = 블록 경계
+        else:
+            break   # user 발화가 더 최근이면 이미 넘어감
+    return errs, callmap
+
+
+def classify_tool_error(msgs, a2):
+    """방금 난 tool-error를 A2 tool_error_specs로 분류.
+    반환 (spec, tool_name, failed_args) | None. spec={match,class,hint,applies_to?}."""
+    specs = (a2 or {}).get("tool_error_specs") or []
+    if not specs:
+        return None
+    errs, callmap = _trailing_tool_errors(msgs)
+    if not errs:
+        return None
+    import re as _re
+    for em in errs:                       # 최근 에러 우선
+        content = str(getattr(em, "content", None) or "")
+        tc = callmap.get(getattr(em, "id", None))
+        tool = getattr(tc, "name", None) if tc else None
+        for sp in specs:
+            ap = sp.get("applies_to")
+            if ap and tool not in ap:
+                continue
+            pat = sp.get("match")
+            if pat and not _re.search(pat, content, _re.I):
+                continue
+            return (sp, tool, (_args_dict(tc) if tc else {}))
+    return None
+
+
+def _transfer_tools(a2):
+    """포기/이관 도구 집합 = A2서 도출(엔진 리터럴 0·[[05]]). 우선순위:
+    (1) a2["transfer_tools"] 명시 (2) notice-kind 게이트의 applies_to(이관 전 고지=이관도구)."""
+    if not a2:
+        return set()
+    tt = set(a2.get("transfer_tools") or [])
+    if tt:
+        return tt
+    for g in (a2.get("gates") or []):
+        if g.get("kind") == "notice":
+            tt |= set(g.get("applies_to") or [])
+    return tt
+
+
+TOOLERR_RECOVER = (
+    "[TOOL-ERROR:RECOVER] Your last call to {tool} FAILED: {hint} This is a fixable error — "
+    "do NOT give up, transfer, or invent a substitute. Re-derive the correct argument value from "
+    "prior tool outputs and re-emit the call with the CORRECTED argument."
+)
+TOOLERR_ABSTAIN = (
+    "[TOOL-ERROR:ABSTAIN] Your last call to {tool} returned no usable result: {hint} Do NOT make "
+    "up an answer to fill this gap. Tell the user you could not find the information, or transfer."
+)
+
+
 # ─── ★GROUND (T2_PROV_GROUND=1): config-도출 candidate-surfacing resolver ───
 # 모델은 *의도/op* 명명만, 구체값은 결정론이 직전 tool 출력서 grounding (추출 = 도메인-일반).
 
@@ -1802,8 +1878,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             work = work + [UserMessage(content=_cr)]
             except Exception as _cve:
                 print("[T2_COV] error (no-op): %r" % (_cve,), file=_sys.stderr, flush=True)
+        # ★TOOLERR (T2_TOOLERR=1): 방금 난 tool-error를 A2로 분류·directive 주입(in-flight)
+        terr = None
+        if os.environ.get("T2_TOOLERR") == "1" and a2 is not None:
+            try:
+                terr = classify_tool_error(state.messages, a2)
+                if terr is not None:
+                    _sp, _tool, _fargs = terr
+                    _cls = _sp.get("class")
+                    _tmpl = TOOLERR_RECOVER if _cls == "recover" else TOOLERR_ABSTAIN
+                    _td = _tmpl.format(tool=_tool, hint=_sp.get("hint", ""))
+                    print("[T2_TOOLERR] %s tool=%s inject" % (_cls, _tool),
+                          file=_sys.stderr, flush=True)
+                    try:
+                        work = work + [UserMessage(role="user", content=_td)]
+                    except TypeError:
+                        work = work + [UserMessage(content=_td)]
+            except Exception as _te:
+                terr = None
+                print("[T2_TOOLERR] error (no-op): %r" % (_te,), file=_sys.stderr, flush=True)
         am = _gen(self, work, bw(), "agent_response")
-        gate_rounds = prov_rounds = eplan_rounds = cons_rounds = ra_rounds = 0
+        gate_rounds = prov_rounds = eplan_rounds = cons_rounds = ra_rounds = te_rounds = 0
         subs = 0
         rescue_skipped = set()
         rescue_excl = set()   # ★PERARG(C65): (id(tc),k,s) — rescue-스킵된 fab 제외하고 재스캔
@@ -1927,7 +2022,35 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _re2:
                     ra_fb = None
                     print("[T2_READALL] error (no-op): %r" % (_re2,), file=_sys.stderr, flush=True)
-            if not do_gate and not do_prov and ep_fb is None and cons_fb is None and ra_fb is None:
+            # ★TOOLERR teeth: (a) 같은-실패-인자 재발행 차단(class 무관·항상 안전) (b) recover면 조기 transfer 차단
+            te_fb = None
+            if (terr is not None and not do_gate and not do_prov
+                    and ep_fb is None and cons_fb is None and ra_fb is None
+                    and te_rounds < 1 and getattr(self, "_t2_toolerr_deny", 0) < 3):
+                _sp, _tool, _fargs = terr
+                _cls = _sp.get("class")
+                _xfer = _transfer_tools(a2)
+                for c in (am.tool_calls or []):
+                    if id(c) in denied_by_objid:
+                        continue
+                    nm = getattr(c, "name", None)
+                    dargs = _args_dict(c)
+                    # (a) 동일 도구·동일 실패-인자 재발행 = 결정론적으로 또 실패 → deny(항상)
+                    if nm == _tool and _fargs and dargs == _fargs:
+                        te_fb = (c, TOOLERR_RECOVER.format(tool=_tool, hint=_sp.get("hint", ""))
+                                 + " (You re-sent the SAME failing argument — you must change it.)")
+                        print("[T2_TOOLERR] deny same-failed-args tool=%s" % nm,
+                              file=_sys.stderr, flush=True)
+                        break
+                    # (b) recover-class인데 조기 transfer = 포기 차단(A2-판단부·Δspurious 계측대상)
+                    if _cls == "recover" and nm in _xfer:
+                        te_fb = (c, TOOLERR_RECOVER.format(tool=_tool, hint=_sp.get("hint", ""))
+                                 + " (Do not transfer for a recoverable error — retry with a corrected argument.)")
+                        print("[T2_TOOLERR] deny early-transfer(recover) tool=%s" % nm,
+                              file=_sys.stderr, flush=True)
+                        break
+            if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
+                    and ra_fb is None and te_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -1978,6 +2101,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if ra_fb is not None:
                 ra_rounds += 1
                 self._t2_readall_deny = getattr(self, "_t2_readall_deny", 0) + 1
+            if te_fb is not None:
+                te_rounds += 1
+                self._t2_toolerr_deny = getattr(self, "_t2_toolerr_deny", 0) + 1
             fb = [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:
@@ -1991,6 +2117,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     content = "Error: " + cons_fb[1]
                 elif ra_fb is not None and c is ra_fb[0]:
                     content = "Error: " + ra_fb[1]
+                elif te_fb is not None and c is te_fb[0]:
+                    content = "Error: " + te_fb[1]
                 else:
                     content = "Error: resolve the flagged call(s) first; do not call this tool yet."
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
