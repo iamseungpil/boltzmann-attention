@@ -35,13 +35,22 @@ def discovered_names(msgs, name_pattern):
     return names
 
 
-def resolve_operator(opspec, args_dict, msgs):
+OPERATOR_FIND_FB = (
+    "[OPERATOR-SELECT] you called the discovered tool '{chosen}', but the user's request maps to "
+    "'{want}' among the discovered tools. Re-check which discovered tool actually fulfills the "
+    "request and call that one."
+)
+
+
+def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=None):
     """operator(도구명) operand 해소. 반환 {status: ok|deny, reason, feedback}.
     ★리뷰 U3: operator=operand는 discoverable 아키텍처서만 성립(§8b agent_tool_name=명시인자).
       direct-dispatch(retail/airline)는 도구선택이 인자 아님 → operator-해소 없음(GATE/L7 관할).
       opspec.operator_resolution != "discoverable" 이면 no-op(ok).
-    kind=operator: opspec={arg, name_pattern, [getter], operator_resolution:discoverable}.
-      - PROV: 선택 도구명 ∉ 발견된 후보 → deny(발명·GET 강제)."""
+    kind=operator: opspec={arg, name_pattern, [getter], operator_resolution:discoverable, [find_intent]}.
+      - PROV(FAB): 선택 도구명 ∉ 발견된 후보 → deny(발명·GET 강제).
+      - FIND(⋈·find_intent=true·Lever 1): 발견 후보 ≥2 중 의도-매칭 도구 formalize → 선택≠formalize면 deny.
+        (learn 축·formalize 정확도 의존·frame F3 경계 — 확신적 불일치서만 발화)."""
     if opspec.get("operator_resolution") != "discoverable":
         return {"status": "ok"}   # direct-dispatch = operator는 operand 아님(U3)
     arg = opspec.get("arg", "agent_tool_name")
@@ -55,6 +64,13 @@ def resolve_operator(opspec, args_dict, msgs):
                              "prior search/listing result — do NOT invent tool names. Search/list "
                              "the available tools first (getter %s), then use one of the discovered "
                              "names." % (chosen, opspec.get("getter", "")))}
+    # ★FIND(Lever 1): 발견 후보 2+ 중 의도-매칭 도구 선택 검증.
+    if (opspec.get("find_intent") and agent is not None and la is not None
+            and len(cands) >= 2 and str(chosen) in cands):
+        want = formalize_intent_tool(agent, la, UserMessage, msgs, cands)
+        if want and str(want) != str(chosen):
+            return {"status": "deny", "reason": "operator-find",
+                    "feedback": OPERATOR_FIND_FB.format(chosen=chosen, want=want)}
     return {"status": "ok"}
 
 
@@ -135,7 +151,7 @@ def resolve_operand(opspec, tool, arg, args_dict, msgs, a2,
     kind ∈ {operator, membership, provenance, value}. 미지원/누락 = ok(우아한 강등)."""
     kind = (opspec or {}).get("kind")
     if kind == "operator":
-        return resolve_operator(opspec, args_dict, msgs)
+        return resolve_operator(opspec, args_dict, msgs, agent, la, UserMessage)
     if kind == "membership":
         import t2_gate_patch as _g
         spec = {"entity_key": opspec["entity_key"], "items_key": opspec["items_key"],

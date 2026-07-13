@@ -73,7 +73,8 @@
     "arg": "agent_tool_name",
     "name_pattern": "[a-z_]+_[0-9]{4}",
     "getter": "KB_search/discovery",
-    "operator_resolution": "discoverable"
+    "operator_resolution": "discoverable",
+    "find_intent": true
    }
   },
   "call_discoverable_agent_tool": {
@@ -82,7 +83,8 @@
     "arg": "agent_tool_name",
     "name_pattern": "[a-z_]+_[0-9]{4}",
     "getter": "KB_search/discovery",
-    "operator_resolution": "discoverable"
+    "operator_resolution": "discoverable",
+    "find_intent": true
    }
   }
  },
