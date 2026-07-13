@@ -135,7 +135,7 @@ banking gold(task_026): `log_verification` → `unlock_discoverable_agent_tool{a
 | time_verified 날조 | 34.7% | **PROV 위반**(time-operand 발명) |
 | EARLY_TRANSFER | 21.2% | **on_empty/on_error 오처방**(복구해야 할 때 조기 기권) |
 | verify 무결성(누설·유령) | — | **GATE**(log_verification 유효성=B2) |
-- **모든 banking 실패가 루프 단계 실패로 환원** = 루프가 banking을 *완전 덮음*(도메인-일반 강증거).
+- **모든 banking 실패가 루프 단계 실패로 환원** = 루프가 banking을 *완전 덮음*. **★리뷰 U1: 이건 서술적 커버리지 [S·거의 정의]이지 작동적 전이 증거 아님** — scaffold가 banking 결정가능분을 실제로 닫는가(=[D]·키스톤·현 실측 이득0)는 별개. "강증거"는 서술 층에만·전이는 미증명.
 - 단 **지배 실패=GET(발견/조립)** = frontier도 동형(발견/조기중단 31%·[[47]]) = **모델 REACH 능력**(learn/scale), 루프-스캐폴드가 못 여는 축. scaffold 이득 축 = PROV(도구명/time 날조)·GATE(verify)·on_error(early-transfer).
 
 ### 8d. 결론 (사용자 질문 답)
@@ -150,3 +150,17 @@ banking gold(task_026): `log_verification` → `unlock_discoverable_agent_tool{a
 3. **단일 플래그** `T2_RESOLVE=1`로 개별 플래그 대체(하위호환: 개별 플래그는 deprecated alias).
 4. **오프라인 검증**: 기존 retail gz replay로 per-operand 해소가 개별레버와 동치+Δspurious≤0 확인 → 그 다음 표적 probe.
 5. **전이 증명**: banking/airline per-operand spec 저작 → 같은 인터프리터 오프라인 전이 unit → [[11]] [D]→[M].
+
+## 9. 리뷰 (결정화 논제 검증·3건·2026-07-13)
+> 논제·§6 caveat·§8 banking 실측 = 견고. 무비판 승인 대신 3건 — U1이 핵심(중심 주장의 등급).
+
+**[U1·중대·[[08]]] §8c "루프가 banking 완전 덮음 = 도메인-일반 강증거"는 서술적 커버리지와 작동적 폐쇄를 혼동.** 두 주장이 섞임:
+- (a) **서술적**: 루프 5단계(GET/FIND/PROV/GATE/on_error)가 임의의 tool-use 실패를 *라벨링*할 수 있다 — 버킷이 망라적이면 **거의 항등(trivial)**·약증거. "완전 덮음"은 이것.
+- (b) **작동적**: scaffold의 *결정론부*가 banking에 전이돼 **결정가능 잔여를 실제로 닫는다** — 이게 반증가능한 진짜 주장이고 [[11]] 키스톤.
+§8c 자신이 "지배실패=GET=learn/scale·scaffold 못 엶"·§6 "banking gain0"을 인정하므로 **(b)는 아직 미증명(오히려 현 실측은 이득0)**. ⇒ "강증거"는 (a)에 붙으면 tautology-과대. **수정: §8c 헤드라인을 "서술적 일반성 [S·거의 정의]"와 "작동적 전이 [D·키스톤·미증명]"으로 분리**. 이 세션 반복 색출한 "서술 relabeling을 result로 읽음"([[08]]) 패턴 — 중심 논제에 재발 방지 필수.
+
+**[U2·중대·[[11]] 가드 누락] "learn 날개=formalize/intent 정확도"가 도메인-타깃 학습으로 미끄러질 문 열림.** §논제 표는 learn 타깃=fexec 0.79만 적고 **학습이 도메인-일반이어야 함을 명시 안 함**. formalize를 retail 실패 예로 훈련하면 [[11]] 위반(retail-타깃). **수정: learn 자원에 가드 명문** — 타깃 = **스킬-클래스 추상**(NL→predicate·intent→operator를 도메인-일반 P-primitive로·four-bench/synth 합성·[[12]] 다양성)·retail/banking 엔티티·템플릿 학습 금지. [[00]] 두-날개의 learn 날개도 four-bench→τ² swap 불변([[11]]).
+
+**[U3·중간·operator=operand 범위]** operator=operand 통일은 **banking discoverable 아키텍처서 실재**(§8b `agent_tool_name`=명시 인자)이나 **retail/airline은 direct-dispatch**(도구 선택이 인자 아님·에이전트가 직접 dispatch). retail의 "틀린 도구"(t21 exchange-on-pending)는 GET→FIND-over-tools 루프가 아니라 **L7 GATE 체크**로 처리된다. ⇒ "operator=operand"는 *보편 환원*이 아니라 **"도구가 discoverable일 때 operator-해소가 operand-해소로 표현됨·direct-dispatch서는 GATE"**. 통일 인터프리터가 **두 모드 다 처리**해야(§8d "도구-operand 추가"가 banking엔 맞으나 retail operator-선택엔 부적용) — 스키마에 `operator_resolution: discoverable|direct` 축 명시.
+
+**종합**: 논제는 [[00]] 두-날개의 정당한 결정화·§6 caveat 정직. 단 U1(중심주장 등급 분리)·U2([[11]] learn 가드)·U3(operator 범위)를 반영해야 "강증거"가 tautology로, "learn"이 도메인-타깃으로, "operator=operand"가 과대환원으로 새지 않는다. 셋 다 반영 시 = 특허·전이·[[00]] 정합의 정직한 결정화.
