@@ -554,6 +554,26 @@ def _floor_ok(result, cur_value):
     return {"status": "many", "ids": ids, "why": result.get("why", "")}
 
 
+def tie_break(ids, records, mode):
+    """★L4-tie (v3.2·t64): predicate 동률 ≥2를 A2-선언 규칙으로 유일해화.
+    mode = A2 variant_spec.tie_break — 'min_price'(환불극대=고객유리)만 지원(MENU 확장=온톨로지).
+    미선언·가격 부재 → None(동률 유지 = 기존 many→ASK/no-op 경로). 도메인 리터럴 0(price=record 필드).
+    caveat [D]: gold-정렬 근거 1태스크(t64) — 타 도메인 probe로 검증 전 substitute 재개 금지."""
+    if mode != "min_price" or not ids or len(ids) < 2:
+        return None
+    idset = {str(i).strip() for i in ids}
+    best = None
+    for iid, rec in records:
+        if str(iid).strip() not in idset:
+            continue
+        p = _as_float(rec.get("price"))
+        if p is None:
+            return None                    # 가격 없는 후보 섞임 → tie-break 불가(보수)
+        if best is None or p < best[1]:
+            best = (str(iid).strip(), p)
+    return best[0] if best else None
+
+
 def fexec_variant_decide(agent, la, UserMessage, msgs, arg_key, cur_value, a2_spec,
                          request_text, anchor_id=None, max_formalize=2):
     """L4: new_item(variant) operand 해소. ★제품별 스코핑(anchor_id=대체 대상 원품목)·전역 pool 금지.
@@ -571,6 +591,14 @@ def fexec_variant_decide(agent, la, UserMessage, msgs, arg_key, cur_value, a2_sp
             fg = _floor_ok(result, cur_value)
             if fg is None:
                 return {"status": "fallback", "ids": [], "why": "det:empty"}
+            # ★L4-tie(v3.2·t64): 동률 ≥2 → A2 tie_break(min_price)로 유일해화
+            if fg["status"] == "many":
+                _tb = tie_break(fg["ids"], records, (a2_spec or {}).get("tie_break"))
+                if _tb is not None:
+                    _mark("L4 tie-break(min_price·det) arg=%s ids=%s -> %s"
+                          % (arg_key, ",".join(fg["ids"]), _tb))
+                    fg = {"status": "one", "ids": [_tb],
+                          "why": (fg.get("why", "") + "|tie:min_price")}
             # ★보수화(2026-07-13 probe: t0 L4b 오추출 파손): 극값(argmax/argmin·price=신뢰)만 치환.
             #   filter(속성 grounding)은 복합기준서 오추출 위험 → keep/no-op만(치환 금지).
             if fg["status"] == "one" and spec["op"] not in ("argmax", "argmin"):
@@ -597,6 +625,14 @@ def fexec_variant_decide(agent, la, UserMessage, msgs, arg_key, cur_value, a2_sp
         if result["status"] == "ok":
             fg = _floor_ok(result, cur_value)
             if fg is not None:
+                # ★L4-tie(v3.2): formalize 경로 동률도 동일 tie-break
+                if fg["status"] == "many":
+                    _tb = tie_break(fg["ids"], records, (a2_spec or {}).get("tie_break"))
+                    if _tb is not None:
+                        _mark("L4 tie-break(min_price·form) arg=%s ids=%s -> %s"
+                              % (arg_key, ",".join(fg["ids"]), _tb))
+                        fg = {"status": "one", "ids": [_tb],
+                              "why": (fg.get("why", "") + "|tie:min_price")}
                 # ★보수화: formalize 폴백은 극값만 치환·filter/속성은 keep/no-op(오추출 harm 차단).
                 if fg["status"] == "one" and fspec["op"] not in ("argmax", "argmin"):
                     return {"status": "fallback", "ids": [], "why": "form:filter-no-substitute"}

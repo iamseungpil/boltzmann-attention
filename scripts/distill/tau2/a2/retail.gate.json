@@ -15,7 +15,8 @@
   "trigger_tool": "get_product_details",
   "nested_field": "variants",
   "id_field": "item_id",
-  "anchor_operand": "item_ids"
+  "anchor_operand": "item_ids",
+  "tie_break": "min_price"
  },
  "_note_variant": "L4 fexec-variants(A1_V3): new_item_id 애매 시 get_product_details variants서 극값/속성 결정론 선택. 구조=A2 선언(엔진 리터럴 0).",
  "gates": [
