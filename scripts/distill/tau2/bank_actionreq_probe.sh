@@ -17,6 +17,7 @@ M="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8"; DOM=banking_knowledge
 LOG=$S/bankar_${TAG}.log; exec > $LOG 2>&1; set -x; date
 cd $REPO && git pull --rebase -q origin facet-rft-2026 2>/dev/null
 source /home/woori/.openrouter_key
+[ -f /home/woori/.openai_key ] && source /home/woori/.openai_key   # ★banking KB(openai_embeddings) 임베딩 키 — 없으면 KB죽음(핸드오프 §3)
 export SSL_CERT_FILE=$($PY -c "import certifi;print(certifi.where())")
 export PYTHONPATH=src:$T2
 curl -s --max-time 5 localhost:$PORT/v1/models | grep -q "$M" || { echo SERVE_MISSING_$PORT; exit 1; }
@@ -46,7 +47,7 @@ if [ -f "$RES" ]; then
 fi
 echo "== audit =="
 echo "action-required fire: $(grep -aE 'T2_RESOLVE\] action-required' $LOG | grep -avc '^+') | resolve deny(operator-fab): $(grep -aE 'T2_RESOLVE\] deny' $LOG | grep -avc '^+')"
-$PY - "$RES" <<'PYEOF'
+$PY - "$RES" "$T2/a2/banking_knowledge.gate.json" <<'PYEOF'
 import json, sys, os
 from collections import Counter
 p = sys.argv[1]
@@ -54,11 +55,9 @@ if not os.path.exists(p): print("no results"); raise SystemExit
 d = json.load(open(p)); s = d["simulations"]
 tasks = {str(t.get("id")): t for t in (d.get("tasks") or [])}
 try:
-    A2 = json.load(open(os.path.join(os.path.dirname(p), "..", "..", "..", "..",
-        "workspace_common", "boltzmann-attention-pi", "scripts", "distill", "tau2",
-        "a2", "banking_knowledge.gate.json"), encoding="utf-8"))
-except Exception:
-    A2 = None
+    A2 = json.load(open(sys.argv[2], encoding="utf-8"))
+except Exception as e:
+    print("A2 load FAILED:", e); A2 = None
 ACTION = set(A2["action_tools"]) if A2 else set()
 XFER = {"transfer_to_human_agents", "request_human_agent_transfer"}
 inf = sum(1 for x in s if (x.get("reward_info") or {}).get("reward") is None)
