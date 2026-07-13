@@ -118,14 +118,20 @@
 - 정확 조건/임계 = **KB 정책 문서서 확정**(doc_bank_accounts_031 류·오프라인 저작).
 
 ## 8. 오프라인 검증 계획 (유료 前·[[09]])
-### 8-0. ★STEP 0 = compute-사정권 정량 (리뷰 R4·최우선·무료·라이브 신호 전제조건)
-- **문제**: compute 이득 = 입력이 *수집된* 태스크 한정(reach는 별도 축). 대부분이 reach 실패면 compute 단독으론
-  pass 무이동 → 키스톤이 reach 레버도 필요. 라이브 前 이 상한을 반드시 정량.
-- **측정(traj 무료)**: hard-core 45 태스크(전 frontier ≤10%)의 param-실패를 2분:
-  - **compute-사정권** = param 계산에 필요한 입력이 문맥에 수집됨 ∧ 값 오계산 (silent-repair가 고칠 수 있음).
-  - **사정권 밖** = 입력 미수집(reach)·틀린 도구(operator-⋈)·미도달.
-- **판정**: 사정권 비율이 유의미(예 ≥30% param)해야 op 저작·라이브 진행. 이게 **키스톤 정직한 상한 + G-vs-GR
-  성립 조건**. 사정권 작으면 → compute+reach 결합 필요를 명시하고 재설계.
+### 8-0. ★STEP 0 = compute-사정권 정량 — ✅실행 완료·판정 (리뷰 R4·`bank_compute_scope.py`·2026-07-13)
+- **측정(traj 무료·hard-core 45태스크)**: 우측도구 호출된 실패 param 유형별:
+  | 유형 | 비중 | 처방축 |
+  |---|---|---|
+  | **참조/ID**(transaction_id·account_id·card_id·card_last_4·날짜·disputed_amount) | **~지배(8500)** | **F3 ⋈(경계)+reach+prov** |
+  | 범주 분류(contacted_merchant·dispute_reason/category·transaction_type·pin·account_class·card_action) | ~4900 | 의미/formalize(learn) |
+  | 불리언 정책(eligible/provisional_credit) | ~1500 | bool_expr/formalize |
+  | **결정론 계산**(customer_max_liability_amount·amount) | **~1100 = 7.5%** | **compute(이 설계)** |
+- **★판정 = 미달(R4 게이트 ≥30% 대비 7.5%)**: **순수 결정론-compute는 hard-core param 실패의 7.5%뿐**.
+  banking hard core는 **⋈-참조(올바른 거래/계좌 지목=프레임 F3 경계)+범주분류(formalize)**가 지배·계산 아님.
+- **⇒ 결론(정직)**: **compute-alone 키스톤은 무신호 예상**(라이브 G-vs-GR 유의차 어려움). compute는 작지만 실재하는
+  슬라이스(frontier 못 여는 decidable). **의미있는 banking 이득 = ⋈-참조/reach + 분류(formalize)** — 결정론 compute
+  단독이 아니라 그 축들의 결합. R4 리뷰가 7.5% 슬라이스 과투자를 막음. **다음 = 재설계**(§10 재검·⋈/reach 우선 or
+  compute를 소규모 실증-only로).
 
 ### 8-1. ★gold-blind 저작 게이트 (리뷰 R3·[[11]] 순환 방지·L4C-R2 재발 방지)
 - **liability 테이블(days≤30→$50)을 gold 값에서 역산하면 95%는 순환**([[11]] 위반).
