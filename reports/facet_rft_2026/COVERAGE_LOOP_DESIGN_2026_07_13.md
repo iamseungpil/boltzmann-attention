@@ -1,6 +1,7 @@
 # COVERAGE_LOOP_DESIGN — coverage = FIND-subset 루프 통일 (walk 폐기·in-flight step-loop)
 
 > 2026-07-13. 상위: `GENERALIZED_SCAFFOLD_ARCHITECTURE_2026_07_12`(LOCK·GET→FIND→ASK) · `A1_V3_DESIGN_2026_07_13`(§1 COVER·L9) · `A1_REGRESSION_PERSTEP_FORENSIC_2026_07_13`.
+> **역반영 완료**: 본 문서의 루프+가드 전체 세트가 `A1_V3_DESIGN` v3.1 개정(헤더·§0·§1·§2b COV/L10/L4-tie/L11/L12·§3·§5·§6·§8d/§9c 철회)으로 편입됨 — 구현 순서·조합은 그쪽이 정본.
 > 근거 데이터: `sim_results/genv3_probe.results.json.gz`(A1-v3 18-probe·per-step 전수 포렌식·이 문서 §1).
 > 불변: [[05]] 도메인일반·A2만 · [[10]] 선택기/검증기=결정론·LLM=formalize만 · Δspurious≤0 계측 · gold-independence(리마인더에 DB내용 0).
 
