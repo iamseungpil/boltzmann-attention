@@ -52,7 +52,7 @@ if [ -f "$RES" ]; then
     git push -q origin facet-rft-2026 && echo PERSISTED
 fi
 echo "== audit (통일 스택 4레버·user-sim=${USIM:-gpt-5.2}) =="
-echo "L0/2 action-req: $(grep -aE 'T2_RESOLVE\] action-required' $LOG|grep -avc '^+') | L1 operator-find: $(grep -aE 'reason=operator-find' $LOG|grep -avc '^+') | operator-fab: $(grep -aE 'reason=operator-fab' $LOG|grep -avc '^+') | L3 verify-persist: $(grep -aE 'verify-persistence deny' $LOG|grep -avc '^+') | L4 오추천(offer): $(grep -aE 'recommendation-verify deny' $LOG|grep -avc '^+') | L4 텍스트/미추천(offer): $(grep -aE 'recommendation-offer deny' $LOG|grep -avc '^+')"
+echo "L0/2 action-req: $(grep -aE 'T2_RESOLVE\] action-required' $LOG|grep -avc '^+') | L1 operator-find: $(grep -aE 'reason=operator-find' $LOG|grep -avc '^+') | operator-fab: $(grep -aE 'reason=operator-fab' $LOG|grep -avc '^+') | L3 verify-persist: $(grep -aE 'verify-persistence deny' $LOG|grep -avc '^+') | L4 오추천(offer): $(grep -aE 'recommendation-verify deny' $LOG|grep -avc '^+') | L4 텍스트/미추천(offer): $(grep -aE 'recommendation-offer deny' $LOG|grep -avc '^+') | ★keystone reference-filter(silent-repair): $(grep -aE 'reference-filter silent-repair' $LOG|grep -avc '^+')"
 echo "  (recommend 발화 상세: $(grep -aoE 'recommendation-(verify|offer)' $LOG|grep -av '^+'|sort|uniq -c|tr '\n' ' '))"
 $PY - "$RES" "$T2/a2/banking_knowledge.gate.json" <<'PYEOF'
 import json, sys, os
