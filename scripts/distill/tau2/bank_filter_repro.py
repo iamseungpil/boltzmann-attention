@@ -9,7 +9,8 @@ REC_FIELD = re.compile(r"^\s*(transaction_id|account_id|card_id|date|amount|type
 
 
 def parse_records(text):
-    """tool-result 텍스트서 record 블록 파싱 → [{field:val}]. 'transaction_id:' 시작마다 새 record."""
+    """tool-result 텍스트서 record 블록 파싱 → [{field:val}]. 'transaction_id:' 시작마다 새 record.
+    ★강건(Step1): 완전 record(transaction_id+date+amount 다 있음)만 반환 = 산발적 id 언급 오염 제거."""
     recs = []; cur = None
     for line in text.split("\n"):
         m = REC_FIELD.match(line)
@@ -24,7 +25,7 @@ def parse_records(text):
             cur[k] = v
     if cur:
         recs.append(cur)
-    return recs
+    return [r for r in recs if r.get("transaction_id") and r.get("date") and r.get("amount")]
 
 
 def gathered_records(msgs):
