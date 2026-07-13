@@ -33,7 +33,7 @@ export T2_CONSISTENCY=1                  # L10 멤버십 + G-noop (예방·cap 2
 unset T2_EPLAN_WALK T2_EPLAN_REPLAN T2_PROV_ADDR_FULL T2_PRESENT_NESTED T2_PRESENT_READS T2_GROUND T2_PRINCIPLE_DEFAULT T2_AUTOFETCH T2_PROV_BADWORDS
 echo "A1-v4: L4_MODE=keep prov_origin=1 consistency=1 walk=OFF | v2-core unchanged"
 cd $TB
-TIDARG=""; [ "$TASKS" != "ALL" ] && TIDARG="--task_ids $TASKS"
+TIDARG=""; [ "$TASKS" != "ALL" ] && TIDARG="--task_ids ${TASKS// /,}"   # 공백→콤마(파서=콤마 구분)
 rm -rf "$TB/data/simulations/genv4_$TAG"
 timeout 14400 $PY $T2/t2_run_gated.py --gate 1 --domain retail --agent_model "$M" --agent_base http://localhost:$PORT/v1 \
   --user_llm openrouter/openai/gpt-4.1 --user_temp 0.0 --num_trials $NT --max_concurrency 10 \
