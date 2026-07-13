@@ -81,7 +81,8 @@
 - **Lever 2 (discovery controller·REACH 580)**: reach 실패 55/55가 조언종료→action-required 100% 발동 실측(별도 컨트롤러=게이트증식 회피). target=discoverable dispatcher면 **discovery-required** 피드백(getter→unlock→call 발견체인 안내). `test_action_operator` 9/9.
 - **Lever 3 (verify/persistence·F1/F5·26 sims)**: A2 verify 게이트 `verify_gather_prefix`. 신원수집(get_user_information_by_*)+검증(log_verification)미완+포기 시 완결 리마인더. action-required 미발동(apply=user-실행) 케이스 보완. `test_verify_persistence` 8/8·live 4/4.
 - **통일**: 전 레버가 T2_RESOLVE=1 단일 경로·retail은 `action_tool_executor`/`find_intent`/`verify_gather_prefix` 미기재→자동 무발동(하위호환). `formalize_intent_tool`·`resolve_operator`·auth게이트 재사용 = banking↔retail 통일.
-- **드라이버**: `bank_actionreq_probe.sh`(양 arm prov 공통·GR만 T2_RESOLVE·3레버 audit). **다음=라이브 스모크로 발화 확인([[30]])→소액 probe([[09]] 승인)**.
+- **드라이버**: `bank_actionreq_probe.sh`(양 arm prov 공통·GR만 T2_RESOLVE·3레버 audit).
+- **★라이브 스모크(bankar_uni5·GR arm·5 태스크·nt1·[[30]])**: **infra 0·크래시 0·pass 1/5(task_023)**(floor 0/5). 발화 L1 operator-find 3·L2 discovery-required 4·L3 verify-persistence 6. **task_023 causal 확인**(궤적 정독): floor=log_verification 미완+포기로 fail → GR=신원수집→**log_verification 호출**→user 올바른 카드 apply·gold 2/2 match=**Lever 3 의도와 정확 일치**([M]·n=1·user-sim 변동 배제는 다표본 필요). **task_035**: L2 발화했으나 emergency 도구 KB-discovery 실패(reach 잔여=semantic·L2 리마인더로 미폐쇄). ⚠**궤적 길어짐**(태스크당 450s+·리마인더가 추가 검색/검증 유발·비용↑·단 tme 폭증 없음·term 전부 user_stop). **다음=소액 probe(G vs GR·표적 nt1·[[09]] 승인)로 순 pass 이동+Δspurious+비용 측정.**
 
 ## 7. 산출물
 - 코드: `t2_gate_patch.py`(action-required 리마인더 채널·offline 14/14 유효) · `bank_actionreq_probe.sh`(드라이버·KB키+audit 수정).
