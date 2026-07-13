@@ -86,34 +86,49 @@ def regen_user_msgs():
             out += [m.content for m in msgs if getattr(m, "role", None) == "user"]
     return out
 
-# ── T1: 순수-조언 회피 + 의도 해소됨(FIND) → ACTION-REQUIRED 리마인더 재생성 ──
+# ── T1: 순수-조언 회피 + 의도 해소됨(FIND, agent-실행 도구) → ACTION-REQUIRED 재생성 ──
+#   ★Lever 0: target=change_user_email(agent-실행)·apply(user-실행)는 필터돼 대상 아님
 GENCALLS[:] = []
-ag, orch, st = setup([UserMessage("I want to apply for a new credit card.")])
+#   (툴명 reset_pin_tool_1234을 문맥에 접지 — prov 날조검출과 격리해 리마인더 채널만 검정)
+ag, orch, st = setup([
+    UserMessage("Please unlock the reset_pin_tool_1234 procedure for me."),
+    AM(content="Let me check."), ToolMessage(id="k1", content="discovered: reset_pin_tool_1234"),
+])
 SCRIPT[:] = [
-    AM(content="To apply, please visit our website and go to the credit cards page."),  # 순수-조언 회피
-    AM(content='{"tool": "apply_for_credit_card"}'),                                     # intent formalize 서브콜
-    AM(tool_calls=[ToolCall("apply_for_credit_card", {"card_type": "visa"})]),           # 재생성=실행
+    AM(content="I can point you to the right procedure on our website for that."),  # 조언 회피
+    AM(content='{"tool": "unlock_discoverable_agent_tool"}'),                        # intent formalize 서브콜
+    AM(tool_calls=[ToolCall("unlock_discoverable_agent_tool", {"agent_tool_name": "reset_pin_tool_1234"})]),  # 재생성=실행
 ]
 am = ag._generate_next_message(UserMessage("please do it"), st)
 check("T1_action_fired", getattr(ag, "_t2_action_deny", 0) == 1, getattr(ag, "_t2_action_deny", 0))
 check("T1_regen_happened", any(cn == "agent_response_unified_regen" for cn, _ in GENCALLS))
 _rum = regen_user_msgs()
 check("T1_reminder_delivered", any("[ACTION-REQUIRED]" in (u or "") for u in _rum), _rum)
-check("T1_target_named", any("apply_for_credit_card" in (u or "") for u in _rum), _rum)
-check("T1_final_calls_action", am.tool_calls and am.tool_calls[0].name == "apply_for_credit_card")
+check("T1_target_named", any("unlock_discoverable_agent_tool" in (u or "") for u in _rum), _rum)
+check("T1_final_calls_action", am.tool_calls and am.tool_calls[0].name == "unlock_discoverable_agent_tool")
 check("T1_no_tick", orch.num_errors == 0, orch.num_errors)   # prov류=무과금·리마인더도 무과금
 
-# ── T2: 순수-조언 회피 + 의도 미해소(target None) → ACTION-ASK 리마인더 ──
+# ── T2 (고정밀): 회피이나 의도 미해소(target None) → 미발화(action-ask 스퓨리어스 방지) ──
 GENCALLS[:] = []
 ag, orch, st = setup([UserMessage("can you help me with something unusual?")])
 SCRIPT[:] = [
     AM(content="I'm not sure, maybe check the website."),   # 순수-조언 회피
-    AM(content='{"tool": "none"}'),                          # intent=none → target None → ACTION-ASK
-    AM(content="What specific detail do you need me to act on?"),  # 재생성(개방질문)
+    AM(content='{"tool": "none"}'),                          # intent=none → target None → 미발화
 ]
 am = ag._generate_next_message(UserMessage("go on"), st)
-check("T2_action_fired", getattr(ag, "_t2_action_deny", 0) == 1)
-check("T2_ask_reminder", any("[ACTION-ASK]" in (u or "") for u in regen_user_msgs()), regen_user_msgs())
+check("T2_no_fire_on_none", getattr(ag, "_t2_action_deny", 0) == 0, getattr(ag, "_t2_action_deny", 0))
+check("T2_no_regen", not any(cn == "agent_response_unified_regen" for cn, _ in GENCALLS))
+
+# ── T2b (Lever 0): user-실행 의도(apply)만 회피 → agent-실행 target 없음 → 무발화(스퓨리어스 방지) ──
+GENCALLS[:] = []
+ag, orch, st = setup([UserMessage("I want to apply for a credit card.")])
+SCRIPT[:] = [
+    AM(content="To apply, please visit our website credit-cards page."),  # 조언
+    AM(content='{"tool": "none"}'),   # formalize(agent-실행 도구 중 apply-의도 매칭 없음)=none → 미발화
+]
+am = ag._generate_next_message(UserMessage("please"), st)
+check("T2b_no_fire_on_user_exec", getattr(ag, "_t2_action_deny", 0) == 0, getattr(ag, "_t2_action_deny", 0))
+check("T2b_no_regen", not any(cn == "agent_response_unified_regen" for cn, _ in GENCALLS))
 
 # ── T3 (Δspurious): 다른 도구 호출 중(회피 아님) = 발화 0·재생성 0 ──
 #   log_verification=게이트 비대상·action tool 아님·인자 문맥 접지 → 깨끗이 통과(action 침묵 격리)
@@ -127,10 +142,10 @@ check("T3_call_kept", am.tool_calls and am.tool_calls[0].name == "log_verificati
 
 # ── T4 (cap): 재생성돼도 여전히 조언이면 cap=1 → 무한루프 없이 종결 ──
 GENCALLS[:] = []
-ag, orch, st = setup([UserMessage("apply for a credit card")])
+ag, orch, st = setup([UserMessage("please update my email")])
 SCRIPT[:] = [
     AM(content="Please visit the website."),          # 조언
-    AM(content='{"tool": "apply_for_credit_card"}'),   # formalize
+    AM(content='{"tool": "unlock_discoverable_agent_tool"}'),  # formalize (agent-실행)
     AM(content="You can do it online yourself."),      # 재생성=여전히 조언 → cap 도달, 재발화 X
 ]
 am = ag._generate_next_message(UserMessage("do it"), st)

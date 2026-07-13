@@ -2073,14 +2073,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     # ★action-required (turn-level): am이 회피(action_tool 미호출)면 operator 해소
                     #   GET→FIND(intent→도구)→execute|ASK. 조언/포기로 종결 금지. cap 1/sim.
                     if (rw_fb is None and getattr(self, "_t2_action_deny", 0) < 1):
-                        _acts = set((a2 or {}).get("action_tools") or [])
+                        # ★Lever 0(BANK_ACTIONREQ_PROBE_FORENSIC §3): action-required는 agent-실행
+                        #   도구만 대상 — user-실행(apply/submit 등)은 에이전트가 못 부르므로 스퓨리어스.
+                        #   A2 action_tool_executor 맵(도메인 데이터)로 필터·미기재=assistant 폴백(retail 하위호환).
+                        _exec_map = (a2 or {}).get("action_tool_executor") or {}
+                        _acts = {t for t in ((a2 or {}).get("action_tools") or [])
+                                 if _exec_map.get(t, "assistant") == "assistant"}
                         _called = {getattr(c, "name", None) for c in (am.tool_calls or [])}
                         if _acts and not (_called & _acts) and _rz._agent_ending(am, _transfer_tools(a2)):
                             _tgt = _rz.formalize_intent_tool(self, la, UserMessage,
                                                              state.messages, _acts)
-                            _ar = _rz.resolve_action_operator(
+                            # ★고정밀(Δspurious): formalize가 구체 agent-실행 target을 낼 때만 발화.
+                            #   target=None(=action-ask)은 미발화 — discovery/user-실행 의도서 스퓨리어스
+                            #   (banking 잔여=⋈/reach이지 deflect-vs-ask 아님·BANK_ACTIONREQ_PROBE_FORENSIC).
+                            _ar = (_rz.resolve_action_operator(
                                 {"action_tools": list(_acts)}, am, state.messages, a2,
                                 target_tool=_tgt, transfer_tools=_transfer_tools(a2))
+                                if _tgt else {"status": "ok"})
                             if _ar.get("status") == "deny":
                                 rw_fb = ((am.tool_calls or [None])[0], _ar["feedback"])
                                 self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1

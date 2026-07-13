@@ -94,5 +94,14 @@
   "submit_transaction",
   "unlock_discoverable_agent_tool",
   "call_discoverable_agent_tool"
- ]
+ ],
+ "action_tool_executor": {
+  "apply_for_credit_card": "user",
+  "submit_referral": "user",
+  "submit_transaction": "user",
+  "change_user_email": "assistant",
+  "unlock_discoverable_agent_tool": "assistant",
+  "call_discoverable_agent_tool": "assistant"
+ },
+ "_note_action_tool_executor": "★BANK_ACTIONREQ_PROBE_FORENSIC §3(도메인 사실·gold action_checks[].requestor): banking action은 user-실행(apply/submit_referral/submit_transaction — 에이전트 호출불가·발견/추천만)과 agent-실행(change_user_email·unlock/call_discoverable)로 갈림. action-required(조언 대신 도구호출 강제)는 **agent-실행만** 대상(user-실행은 스퓨리어스). requestor 미기재 도메인(retail)=전부 agent-실행 폴백(하위호환). [[05]]: 로직 도메인-일반·이 맵=도메인 데이터."
 }
