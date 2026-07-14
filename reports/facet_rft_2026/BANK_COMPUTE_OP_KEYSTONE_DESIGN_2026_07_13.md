@@ -522,3 +522,32 @@ pass = ∏ (인자 verified-1 or externalized). 세 형식이 각 인자를 처�
 진짜 잔여 = H_min^ref(교정된 회상 엔트로피) + H_min^ext(user-private) ·둘 다 ~작음(§16: ~15bit).
 - **한계(정직)**: (a) Hopfield 등가=1-step retrieval·다층 horizon은 근사 (b) 정밀 bound=패턴 통계 가정·검증된 모델(제1원리 증명 아님) (c) 온라인 H(p)는 calibration 의존.
 - 등급: Hopfield≡attention [S-lit] · H_min^ref=log₂k_eff 도출 [D-이론] · 온/오프라인 구분 [D] · calibration 전제 [S].
+
+## 18. ★★H_min 이론적 계산 (시뮬 불요) + Conformal 보정 (2026-07-14·사용자·이론)
+> 질문: H_min을 시뮬 없이 이론적으로? + ASK 우선순위=VOI? 답: 세 층위로 도출·conformal로 보정.
+
+### 18.1 애매모호성-threshold-ASK 아키텍처 (우선순위=VOI)
+- **언제 ASK**: Hopfield 애매모호성 = 회상분포 엔트로피 H(p) / 에너지 갭 ΔE.  H(p)>τ (=ΔE<마진) ⇒ ASK.
+- **무엇을/순서**: raw H_min 아니라 **VOI**.  a* = argmaxₐ I(결정; a)  (결정을 가장 collapse하는 질문·= H_min 최대 감소 질문).
+- **중단/행동**: H(결정)<τ_act ⇒ 행동. 못 줄이는 잔여 ⇒ accept or escalate.  (두 threshold: ASK-트리거 τ · 행동자격 τ_act.)
+
+### 18.2 H_min 이론적 계산 = 세 층위 (시뮬 0)
+1. **런타임 H_min^ref (순전파)**: pᵢ=softmax(β qᵀξᵢ) 즉시 계산 → H_min^ref = H(p) = log₂ k_eff (k_eff=e^{H(p)} perplexity). 후보 유사도만 필요·시뮬 불요. ΔE도 동일.
+2. **H_min^ext (prior)**: H(y|ctx)=−Σ p(y|ctx)log p(y|ctx). prior = (a)도메인지식(police_report 대개 false) (b)LLM 자체 예측분포 (c)켤레 prior. 시뮬 아니라 prior.
+3. **스키마 상한 (데이터 0)**: H_min ≤ Σ_f log₂|values(f)| (태스크 정의만). 예: dispute_category 9종 → ≤3.2bit.
+
+### 18.3 ★함정=calibration·진짜 이론해법=Conformal
+- ①②의 모델분포는 **과확신(miscalibrated)** → H_min 과소평가(spurious min·뾰족한데 틀림). raw 값 편향.
+- **Conformal Prediction**(분포무가정·작은 calibration set·coverage 보장): 예측집합 크기 = **보장된 애매모호성** → 크기>1이면 ASK. log₂|집합| ≈ 보장된 H_min. threshold τ=1−α(miscoverage)로 *이론적* 설정.
+- ⇒ **"많은 시뮬로 H_min 추정" → "작은 calibration set으로 보장된 애매모호성"** 대체(SConU 계열·calibration 딥리서치).
+
+### 18.4 종합 (시뮬은 대체 가능)
+| H_min 성분 | 이론 계산 | 시뮬? |
+|---|---|---|
+| H_min^ref(참조) | H(회상 softmax)=순전파 | ✗ |
+| H_min^ext(외부) | H(prior)·LLM예측/도메인 | ✗ |
+| 상한 | Σlog₂ 카디널리티 | ✗ |
+| **보장값** | **Conformal 예측집합** | 작은 calibration(full 시뮬 ✗) |
+- 우리가 돌린 시뮬(§16 ~15bit) = prior의 경험적 추정(편의)·근본은 순전파 H(p)+conformal.
+- **애매모호성한계=Hopfield H(p)/ΔE(순전파)·신뢰보장=conformal(분포무가정)·ASK순서=VOI(결정 정보이득)·시뮬 대체가능.**
+- 등급: 세 층위 도출 [D-이론]·conformal 보정 [S-lit]·VOI 순서 [D]·"시뮬 불요" [M](calibration 전제·엄밀검증=딥리서치).
