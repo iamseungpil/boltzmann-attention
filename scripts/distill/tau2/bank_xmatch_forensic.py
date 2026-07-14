@@ -31,7 +31,12 @@ def main():
                 per[t][0] += 1
     hard = {t for t, p in per.items() if p[1] >= 10 and p[0] / p[1] <= 0.10}
 
-    agg = Counter()
+    import re
+    fam = lambda nm: re.sub(r"_\d+$", "", str(nm))     # 도구명 숫자접미 제거 = family
+    LIM = ["there is a limit", "only file", "one dispute", "limit of", "maximum of",
+           "can only file", "per session", "disputes at a time", "file one",
+           "one at a time", "can't file all", "cannot file all"]
+    agg = Counter(); mdec = Counter()
     for f, d in data.items():
         for s in d["simulations"]:
             if str(s["task_id"]) not in hard:
@@ -40,35 +45,47 @@ def main():
             if ri.get("reward") in (None, 1.0):
                 continue
             msgs = s.get("messages") or []
-            agent_ids = set()
+            agent = set()
             for m in msgs:
                 for tc in (m.get("tool_calls") or []):
                     if tc.get("name") == "call_discoverable_agent_tool":
-                        tid = B.nd(B.nd(tc.get("arguments")).get("arguments")).get("transaction_id")
-                        if tid:
-                            agent_ids.add(str(tid))
-            gold_ids = set()
+                        a = B.nd(tc.get("arguments"))
+                        if "transaction_dispute" in fam(a.get("agent_tool_name")):
+                            t = B.nd(a.get("arguments")).get("transaction_id")
+                            if t:
+                                agent.add(str(t))
+            gold = set()
             for ac in (ri.get("action_checks") or []):
                 a = ac.get("action") or {}
                 if a.get("name") != "call_discoverable_agent_tool":
                     continue
-                gt = B.nd(B.nd(a.get("arguments")).get("arguments")).get("transaction_id")
-                if gt:
-                    gold_ids.add(str(gt))
-            if not gold_ids:
+                if "transaction_dispute" in fam(B.nd(a.get("arguments")).get("agent_tool_name")):
+                    t = B.nd(B.nd(a.get("arguments")).get("arguments")).get("transaction_id")
+                    if t:
+                        gold.add(str(t))
+            if not gold:
                 continue
             agg["sims"] += 1
-            agg["gold_total"] += len(gold_ids)
-            agg["correct"] += len(agent_ids & gold_ids)
-            agg["wrong(진짜⋈)"] += len(agent_ids - gold_ids)
-            agg["missed(coverage)"] += len(gold_ids - agent_ids)
+            agg["gold"] += len(gold)
+            agg["correct"] += len(agent & gold)
+            agg["wrong"] += len(agent - gold)
+            missed = gold - agent
+            agg["missed"] += len(missed)
+            if missed:
+                txt = " ".join(str(m.get("content") or "").lower() for m in msgs)
+                c = "A.0제출(미착수·reach/discovery)" if len(agent) == 0 \
+                    else ("B.한도언급" if any(k in txt for k in LIM) else "C.부분제출후 미완(F4/F5)")
+                mdec[c] += len(missed)
 
-    g = agg["gold_total"]
-    print("hard 실패 sims: %d · gold 요구 총: %d" % (agg["sims"], g))
+    g = agg["gold"]
+    print("=== disputes(credit+debit) id-level · hard 실패 %d sim · gold %d ===" % (agg["sims"], g))
     print("  correct(제출·맞음)      : %4d (%.1f%%)" % (agg["correct"], 100 * agg["correct"] / max(g, 1)))
-    print("  ★wrong(제출·틀림=진짜⋈) : %4d (%.1f%% of gold)" % (agg["wrong(진짜⋈)"], 100 * agg["wrong(진짜⋈)"] / max(g, 1)))
-    print("  ★missed(미제출=coverage): %4d (%.1f%% of gold) ← 지배" % (agg["missed(coverage)"], 100 * agg["missed(coverage)"] / max(g, 1)))
-    print("∴ transaction_id ⋈ 비지배. 지배 = coverage(미제출). C77 '⋈ 지배' 철회.")
+    print("  ★wrong(제출·틀림=진짜⋈) : %4d (%.1f%%)" % (agg["wrong"], 100 * agg["wrong"] / max(g, 1)))
+    print("  ★missed(미제출=coverage): %4d (%.1f%%) ← 지배" % (agg["missed"], 100 * agg["missed"] / max(g, 1)))
+    print("  missed 분해:")
+    for c in ["A.0제출(미착수·reach/discovery)", "B.한도언급", "C.부분제출후 미완(F4/F5)"]:
+        print("    %-32s %4d (%.0f%% of missed)" % (c, mdec[c], 100 * mdec[c] / max(agg["missed"], 1)))
+    print("∴ ⋈ 비지배(4%). 지배=coverage(26%)·그중 80%=미착수(reach/discovery)=handoff§1·C52. C77 '⋈ 지배' 철회.")
 
 
 if __name__ == "__main__":

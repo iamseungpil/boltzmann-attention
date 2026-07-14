@@ -298,14 +298,18 @@
 > **전부 동일 chosen(c90e2724)·distinct chosen=1**인데 gold 5개·user 발화 *"there's a limit? can't file all three"*.
 > = **⋈ 오선택 아니라 COVERAGE 실패**(한도로 미제출). 추출이 `same[0]`(첫 호출)을 미제출 gold마다 페어링해 오분류.
 
-- **★궤적 전수 재정량**(로컬 17모델·hard 997 실패 sim·agent 실제 호출 vs gold): gold 요구 **4148** ─
-  | 분류 | 수 | 의미 |
+- **★궤적 전수 재정량**(로컬 17모델·hard 936 실패 sim·agent 실제 호출 vs gold·`bank_xmatch_forensic.py`).
+  스코프 주의: gold transaction_id는 3도구(credit_dispute 2552·debit_dispute 1352·rewards 244)에 걸침 — **disputes(credit+debit 결합) 한정** = 정본:
+  | 분류 (gold 3904) | 수 | 의미 |
   |---|---|---|
-  | agent 올바른 id 제출 | **3027 (73%)** | transaction_id 선택은 대부분 정확 |
-  | **wrong id 제출 = 진짜 ⋈** | **222 (제출의 6.8%)** | 실제 오선택은 소수 |
-  | **미제출 = COVERAGE 실패** | **1121 (gold의 27%)** | 지배 실패 |
-- **★결론(방향전환)**: **transaction_id ⋈는 banking 지배 실패가 *아니다*** — 제출 시 id 정확도 93%·진짜 오선택 222뿐.
-  **지배 = COVERAGE**(요구 dispute의 27% 미제출·종종 구조적 한도). = **원장 C52/C71(banking binding=reach/coverage/horizon)과 수렴**(독립 확증).
+  | agent 올바른 id 제출 | **2904 (74.4%)** | transaction_id 선택은 대부분 정확 |
+  | **wrong id 제출 = 진짜 ⋈** | **159 (4.1%)** | 실제 오선택은 소수 |
+  | **미제출 = COVERAGE** | **1000 (25.6%)** | 지배 실패 |
+  - **★missed(1000) 분해**: **A.0제출(dispute 하나도 안냄=REACH/DISCOVERY) 804 (80%)** · B.한도언급 110 (11%) · C.부분제출후 미완(F4/F5) 86 (9%).
+- **★결론(방향전환)**: **transaction_id ⋈는 banking 지배 실패가 *아니다*** — 제출 시 id 정확·진짜 오선택 4.1%뿐.
+  **지배 = COVERAGE(25.6%)·그중 80%가 "dispute를 하나도 안 냄" = REACH/DISCOVERY 실패**(도구 unlock/discovery 체인 前 막힘).
+  = **원장 C52/C71(banking binding=reach/coverage)·C76(compute param)·handoff §1(32B가 dispute 도달 0)과 3중 독립 수렴**.
+  (⚠초판 C80 "⋈222/missed1121/27%"는 전-discoverable-도구 스코프 오염·위가 dispute-한정 정본.)
 - **★오염된 선행 주장 교정**: C77("⋈ 지배버킷·82% filterable")·C78·C79의 ***prevalence*** 주장은 오염 집합(853) 위였음.
   - **살아남는 것**: filter 엔진의 **record 유일식별 능력**(C78 결정가능부 100%·gold record가 criteria로 유일)은 *데이터 사실*로 유효 — 단 사정권이 853이 아니라 **진짜 ⋈ 222**.
   - **철회**: "⋈가 hard-core 지배·reference-filter가 큰 레버"(C77 §5d·§8-0). reference-filter 사정권 = 222(작음).
