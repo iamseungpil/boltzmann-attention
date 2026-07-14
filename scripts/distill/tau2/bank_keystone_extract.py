@@ -62,6 +62,16 @@ def main():
             byid = {r.get("transaction_id"): r for r in recs}
             cl = [(tc.get("name"), B.nd(tc.get("arguments")))
                   for m in msgs for tc in (m.get("tool_calls") or [])]
+            # 이 sim이 다룬 distinct 참조-거래 수(앵커링 난이도) = 전 action_check의 gold transaction_id.
+            gold_txns = set()
+            for ac2 in (ri.get("action_checks") or []):
+                a2 = ac2.get("action") or {}
+                if a2.get("name") != "call_discoverable_agent_tool":
+                    continue
+                gn2 = B.nd(B.nd(a2.get("arguments")).get("arguments"))
+                if gn2.get("transaction_id"):
+                    gold_txns.add(str(gn2.get("transaction_id")))
+            n_disputes = len(gold_txns)
             for ac in (ri.get("action_checks") or []):
                 if ac.get("action_match"):
                     continue
@@ -85,6 +95,7 @@ def main():
                     "gold_id": gid, "chosen_id": chosen,
                     "gold": {k: grec.get(k) for k in RFIELDS},
                     "records": [{k: r.get(k) for k in RFIELDS} for r in recs],
+                    "n_disputes": n_disputes,
                     "users": [u[:1200] for u in user_texts_before(msgs, gt, chosen)],
                 })
     with gzip.open(OUT, "wt", encoding="utf-8") as w:

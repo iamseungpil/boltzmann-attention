@@ -181,12 +181,22 @@ def main():
     dec = n - dup
     print("\n=== formalize half 실측 (Qwen2.5-32B·user발화→기준→filter) · n=%d · err=%d ===" % (n, len(errs)))
     print("진짜중복 %d (%.1f%%) · 결정가능부 %d\n" % (dup, 100 * dup / max(n, 1), dec))
-    print("%-42s  교정  전체%%  결정가능%%  오답  none" % "config")
+    by_tid = {(r["tid"], r["model"]): r for r in rows}
+    def ndisp(res):
+        row = by_tid.get((res["tid"], res.get("model")))
+        return (row or {}).get("n_disputes", 1)
+    single = [r for r in ok_rows if ndisp(r) <= 1]
+    multi = [r for r in ok_rows if ndisp(r) >= 2]
+    print("앵커링 분리: 단일-dispute %d · 다중-dispute %d (다중=formalize가 여러 거래 중 앵커 필요)\n" % (len(single), len(multi)))
+    print("%-42s  교정  전체%%  결정가능%%  오답  none  | 단일교정%%  다중교정%%" % "config")
     for name in CONFIGS:
         c = Counter(r["cfg"].get(name) for r in ok_rows)
         okc = c.get("ok", 0)
-        print("%-42s  %4d  %5.1f  %7.1f   %4d  %4d"
-              % (name, okc, 100 * okc / max(n, 1), 100 * okc / max(dec, 1), c.get("wrong", 0), c.get("none", 0)))
+        sok = sum(1 for r in single if r["cfg"].get(name) == "ok")
+        mok = sum(1 for r in multi if r["cfg"].get(name) == "ok")
+        print("%-42s  %4d  %5.1f  %7.1f   %4d  %4d  | %6.1f    %6.1f"
+              % (name, okc, 100 * okc / max(n, 1), 100 * okc / max(dec, 1), c.get("wrong", 0), c.get("none", 0),
+                 100 * sok / max(len(single), 1), 100 * mok / max(len(multi), 1)))
     print("\n(perfect-formalize 천장 대비: gold파생 date+merch+type=75.7%%·+amount=81.9%%·결정가능부 100%%)")
     print("결과 → %s" % OUT)
 
