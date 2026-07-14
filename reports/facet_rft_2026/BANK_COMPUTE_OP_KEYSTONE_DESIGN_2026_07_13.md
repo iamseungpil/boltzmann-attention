@@ -214,6 +214,20 @@
   ⇒ 6.3% spurious는 irreducible(정직)·단 gain 375≫27이라 **순 +348 견고**(결론 불변).
 - 등급: Δspurious/순효과 [S](궤적전수·agent-vs-gold-vs-op 3자·spurious 정독) · "liability만 적용" [S].
 
+### 8-4. ★liability flat 재구성 + business_days + credit 조사 (2026-07-14·사용자 지시)
+- **★liability = flat 구조로 교정**(config 스윕 측정): {flat vs min}×{calendar vs business}×임계. **flat+calendar+T1=30 = 재현 94.7%**
+  (min 89.4%↑)·**Δspurious 2.1%**(6.3%↓)·**순 +366**(348↑). 근거: $50 tier=flat 50("maximum liability IS $50" literal·gold=50
+  even amt<50·§8-3 spurious 정독). min은 내 추론(can't-exceed-tx)이었으나 벤치 미적용→flat이 더 gold-blind. table=[≤30→50,≤60→500,else→amt].
+- **★business_days op 구현**(`_business_days_between`·주말제외·days_between spec에 `business:true`): Reg E '2 business days' 정확계산용.
+  단 liability 최적=calendar+T1=30(proxy)가 이미 94.7%라 business 우위 없음(스윕: biz+T1=5도 94.7% 동률). **일반 op로 유지**(향후용).
+- **★credit 조사(사용자 '커버' 지시)**: credit dispute 유일 유의미 compute 필드=eligible_for_provisional_credit(21.6% 오답). 정책
+  doc_015 5조건 중 account-age(credit_card_accounts.date_of_account_open 파싱가능)·category·amount≥25로 저작·측정 →
+  **순 +13·0 spurious·단 degenerate**([[08]] 검증: 평가가능 919 전부 gold=False·True케이스 65% abstain). ⇒ **marginal**(liability +366 대비
+  무의미)·account-record 파싱 인프라 대비 값 미미 → **[[13]] 미탑재**. 진짜 credit 이슈=card_last_4(19.5%)=**참조 문제(어느 카드)**·
+  compute 아님(향후 reference-filter류 확장 후보). card_action(4.6%)·저순위.
+- **⇒ compute 키스톤 최종 = liability 단독**(flat·94.7%·+366). credit/provisional/card_action 전부 데이터-주도 탈락.
+- 등급: liability flat [S](스윕 측정) · business_days [D](구현·유닛) · credit marginal [S](degenerate 검증).
+
 ### 8-2. 파라미터별 검증
 1. (8-1 blind 저작 후) 파라미터별 → **전 frontier gold 재현율**(liability=95%는 *역산*이라 **재저작 필요**·8-1 규율).
 2. **Δspurious**: frontier가 *맞춘* param에 op/silent-repair 적용 시 오치환 0 확인(정답 안 깨야).

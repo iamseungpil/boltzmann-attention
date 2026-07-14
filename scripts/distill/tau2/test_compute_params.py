@@ -18,12 +18,12 @@ def test_liability():
     """doc_036/031: liability = min(disputed_amount, tier_cap). tier=tx→disc(§8-2 proxy).
     ≤30일(proxy)→$50 · ≤60일→$500 · 이후→전액. §8-2 재현 89.4%(proxy)."""
     spec = CO["file_debit_card_transaction_dispute"]["customer_max_liability_amount"]
-    # tx→disc 1일(≤30)·amount>50 → min(300,50)=50
+    # ★flat 구조(§8-3 재측정: flat 재현 94.7%>min 89.4%·Δspurious 2.1%<6.3%·"maximum liability IS $50" literal)
+    # tx→disc 1일(≤30) → flat 50 (amt 무관)
     assert run(spec, {"transaction_date": "11/13/2025", "discovery_date": "11/14/2025", "disputed_amount": 300}) == 50
-    # tx→disc 41일(≤60)·amount 625 → min(625,500)=500
+    assert run(spec, {"transaction_date": "11/13/2025", "discovery_date": "11/14/2025", "disputed_amount": 14.99}) == 50  # amt<50도 flat 50
+    # tx→disc 41일(≤60) → flat 500
     assert run(spec, {"transaction_date": "10/04/2025", "discovery_date": "11/14/2025", "disputed_amount": 625}) == 500
-    # tx→disc 40일(≤60)·amount 412.88 → min(412.88,500)=412.88
-    assert run(spec, {"transaction_date": "10/05/2025", "discovery_date": "11/14/2025", "disputed_amount": 412.88}) == 412.88
     # tx→disc >60일 → 전액
     assert run(spec, {"transaction_date": "01/01/2025", "discovery_date": "11/14/2025", "disputed_amount": 300}) == 300
     assert run(spec, {"disputed_amount": 300}) is None            # 날짜없음→abstain

@@ -41,19 +41,36 @@ def _num(v):
         return None
 
 
-def _days_between(a, b):
+def _parse_date(x):
     from datetime import datetime
-    def p(x):
-        for f in ("%m/%d/%Y", "%Y-%m-%d", "%m/%d/%y"):
-            try:
-                return datetime.strptime(str(x), f)
-            except Exception:
-                pass
-        return None
-    da, db = p(a), p(b)
+    for f in ("%m/%d/%Y", "%Y-%m-%d", "%m/%d/%y"):
+        try:
+            return datetime.strptime(str(x).split()[0] if x else x, f)
+        except Exception:
+            pass
+    return None
+
+
+def _days_between(a, b):
+    da, db = _parse_date(a), _parse_date(b)
     if da is None or db is None:
         return None
     return abs((db - da).days)
+
+
+def _business_days_between(a, b):
+    """주말(토/일) 제외 영업일 수. Reg E '2 business days' 계산용(도메인일반·달력 사실)."""
+    da, db = _parse_date(a), _parse_date(b)
+    if da is None or db is None:
+        return None
+    from datetime import timedelta
+    lo, hi = (da, db) if da <= db else (db, da)
+    n = 0; cur = lo
+    while cur < hi:
+        cur += timedelta(days=1)
+        if cur.weekday() < 5:                            # 0-4 = 월-금
+            n += 1
+    return n
 
 
 def apply_op(spec, ctx):
@@ -88,7 +105,8 @@ def apply_op(spec, ctx):
                 v = min(v, hi)
             return v
         if op == "days_between":
-            return _days_between(_get(ctx, spec.get("a")), _get(ctx, spec.get("b")))
+            f = _business_days_between if spec.get("business") else _days_between
+            return f(_get(ctx, spec.get("a")), _get(ctx, spec.get("b")))
         if op in ("argmin", "argmax"):
             recs = _get(ctx, spec.get("over")) or []
             key = spec.get("key"); ret = spec.get("return")

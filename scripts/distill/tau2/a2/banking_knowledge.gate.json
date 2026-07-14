@@ -143,20 +143,12 @@
      {
       "cmp": "<=",
       "thr": 30,
-      "result": {
-       "op": "clamp",
-       "value": "params.disputed_amount",
-       "max": 50
-      }
+      "result": 50
      },
      {
       "cmp": "<=",
       "thr": 60,
-      "result": {
-       "op": "clamp",
-       "value": "params.disputed_amount",
-       "max": 500
-      }
+      "result": 500
      },
      {
       "result": {
