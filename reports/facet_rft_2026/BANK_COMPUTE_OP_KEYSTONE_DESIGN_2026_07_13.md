@@ -228,6 +228,13 @@
 - **⇒ compute 키스톤 최종 = liability 단독**(flat·94.7%·+366). credit/provisional/card_action 전부 데이터-주도 탈락.
 - 등급: liability flat [S](스윕 측정) · business_days [D](구현·유닛) · credit marginal [S](degenerate 검증).
 
+### 8-5. ★오프라인 통합 replay (배선 실발화 검증·무료·[[09]] 스모크 대체·2026-07-14)
+> [[30]] 유닛≠라이브발화. 유료 스모크는 32B-reach 장애(handoff §1)로 firing 적어 낭비 → **실 궤적 replay로 배선 실발화 확인**.
+- 실 frontier 궤적의 dispute 호출 메시지를 `resolve_compute_params`에 실 am/msgs로 통과: **755회 발화**(240 sim)·gold-검증가능
+  발화 중 **교정→gold 일치 90.9%**(491/540·불일치 49=flat-nuance 잔여). ⇒ **배선이 실데이터서 정상 발화·정확**. 유닛(stub)+통합(real) 완비.
+- **라이브 caveat**: 오프라인선 frontier가 dispute 도달해 755 발화. **32B 라이브는 reach 장애(handoff §1)로 firing↓** 예상 → 라이브
+  keystone은 reach-가능 셋업(frontier or reach 레버 결합) 필요·[[09]] 승인. 오프라인 replay(755·90.9%·+366)가 정량 정본.
+
 ### 8-2. 파라미터별 검증
 1. (8-1 blind 저작 후) 파라미터별 → **전 frontier gold 재현율**(liability=95%는 *역산*이라 **재저작 필요**·8-1 규율).
 2. **Δspurious**: frontier가 *맞춘* param에 op/silent-repair 적용 시 오치환 0 확인(정답 안 깨야).
