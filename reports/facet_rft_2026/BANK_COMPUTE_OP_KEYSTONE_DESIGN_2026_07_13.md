@@ -422,3 +422,35 @@
   (⋈ 159·4%) ≫ act-gate(refuted 0)**. 나머지(gather·reach·horizon)=능력/대화 축(scaffold 밖 or E-PLAN). **compute 키스톤이
   banking의 정답 slice** — 첫 설계(C76·§7)가 옳았고 ⋈ 우회(C77-79)가 오염된 곁길이었음.
 - 등급: compute slice 22.4%/16.7% [S](전수·verified) · 실효상한 [M](gold-blind 재현율 의존) · 우선순위 [S].
+
+## 15. ★★"거래 고정→파생" 아키텍처 검증 = 논리곱 collapse 시도의 정직한 결론 (2026-07-14·사용자 설계)
+> 사용자 통찰: horizon=거대 논리곱(∧ 필드). "필드 하나하나 풀지 말고 ①거래(root) 결정론 고정 → ②나머지 slot-fill/link/compute
+> 파생 → ③user-대화 필드만 남김"으로 N을 줄여 곱을 회복. 상관(필드가 거래 이해서 뭉침)을 역이용(root 고정→다발 결정화).
+
+### 15.1 아키텍처 (사용자 3단계·[[05]] 클린·[[00]] 논제)
+```
+1단계 [고정]: 어느 거래냐 = 결정론 reference-filter (⋈·유일 hard step)
+2단계 [파생]: A2 규칙으로 거래→필드 (slot-fill 거래레코드 · link card_id→last_4 · compute liability)
+3단계 [gather]: user-대화 필드만 (~8개·짧아진 horizon)
+```
+엔진=일반(slot-fill/link/compute), A2=거래→필드 매핑. 논리곱 처방 중 "종속항 접어 N 축소".
+
+### 15.2 ★검증 = per-레코드 slot-fill 일치율 (id-correct·거래레코드 존재·[S])
+| 필드 | 거래레코드 slot-fill→gold 일치 | agent 오답률 | 파생 판정 |
+|---|---|---|---|
+| transaction_date | **100%** | 0.2% | 깨끗 |
+| account_id | **100%** | 0% | 깨끗 |
+| disputed_amount | 67.6% | 7% | 부분(partial dispute/format) |
+| transaction_type | 29.5% | 11% | enum 불일치(매핑 필요) |
+| card_last_4 | 링크 messy(외래키 부재) | 19.5% | 파생 난 |
+
+### 15.3 ★★잔인한 정렬 = slot-fill 레버 순이득 ~0 (moat 재현·핵심 결론)
+- **파생 깨끗한 필드(date·account 100%) = agent가 이미 맞히는 것**(0.2%·0%). **agent가 틀리는 필드(type 11%·card_last_4
+  19.5%) = 파생 안 되는 것**(30%·messy). ⇒ **slot-fill 레버는 fix할 게 없음**(고칠 필드는 파생불가·파생가능은 이미정답).
+  = compute(+1.3pp)·provisional(−4)·§8-3 모트의 재현: **레버는 agent가 못하는 곳에만 이득인데, 그곳은 결정론화가 어려운 곳.**
+- **∴ Stage 2(파생 slot-fill) = 대부분 redundant.** 별도 slot-fill 엔진 미구현([[13]]·순이득 근거 없음).
+- **★가치는 Stage 1에 집중**: 거래 고정(⋈)이 상관 다발의 root — 틀리면 딸린 필드 *같이* 틀림. root 하나 잡는 게 핵심이고 = **이미
+  구현된 reference-filter**(silent-repair). 즉 사용자 아키텍처는 **reference-filter가 왜 핵심 레버인지를 논리곱으로 재증명**.
+- **한계 재확정**: horizon collapse는 부분적. ①거래-파생 필드는 이미 agent가 처리·②agent 오답은 파생불가(hard NER/link)·
+  ③user-대화 ~8필드 irreducible. ⇒ **banking pass의 큰 상승은 여전히 구조적 난제**(scale 영역·§8-5·C71).
+- 등급: slot-fill 일치율 [S](per-레코드) · "파생=이미정답/오답=파생불가 정렬" [S] · Stage2 redundant [M].
