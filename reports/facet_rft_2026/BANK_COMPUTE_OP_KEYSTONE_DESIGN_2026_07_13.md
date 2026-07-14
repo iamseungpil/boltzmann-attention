@@ -145,7 +145,7 @@
 ## 7. 파라미터 커버리지 (지배 파라미터 → op·근거 데이터)
 | 파라미터 | 오류수 | op | gold 값형 |
 |---|---|---|---|
-| customer_max_liability_amount | 602 | lookup_table(days) | 50/500/412.88 ✅95% |
+| customer_max_liability_amount | 602 | lookup_table(days) | 50/500/412.88 ⚠95%는 역산·§8-2 gold-blind=89.4% |
 | eligible/provisional_credit_eligible | 439+ | bool_expr(정책조건) | True/False |
 | amount_difference | 295 | diff | 수치 |
 | expected_apy | 243 | lookup_table(account_class) or ref | 수치 |
@@ -182,6 +182,21 @@
   (business-day≈calendar 근사·date기준=issue_noticed→now·account_status 조건 생략)=`_note_compute_ops`. **gold-blind 유닛
   `test_compute_params` 2/2 PASS**(기대값=정책서 유도·gold 안 봄). 재현율(gold 대조)=§8-2 미측정(저작엔 미반영).
 - **미저작(다음 pass)**: card_action(doc_031/credit_014·3%뿐 저순위)·partial_refund·credit provisional 정밀조건.
+
+### 8-2. ★★재현율 측정 (gold-blind 저작의 *사후* 검증·2026-07-14·`bank_compute_slice`류 인라인·[S])
+> 저작한 blind op-스펙에 **gold 입력을 넣어 gold 값 재현** 대조(저작엔 미반영·[[11]]). 구 §7 "95%"는 **역산**(폐기).
+- **★liability(customer_max_liability_amount·n=1109)**: **89.4%**(proxy T1=30) / 73.6%(정책-literal T1=2). 저작 오류 §8-2가
+  교정: ①필드=**transaction_date→discovery_date**(issue_noticed 아님·스키마 확인) ②구조=**min(disputed_amount, tier_cap)**
+  (clamp·412.88=min(412.88,500)이지 별tier 아님) ③$50 tier 임계=**tx→disc proxy**(정책 '2 business days *of statement*'는
+  tx기준 미명시·statement_date 부재→billing-cycle proxy·데이터 [10,40) 전부 89.4%·특정 gold 역산 아님). 잔여 10.6%=proxy 미적합.
+- **★debit provisional_credit_eligible(n=1353)**: **86.8%**. bool_expr ALL(timely=tx→disc≤60 ∧ dispute_category∈5종 ∧
+  written_statement_provided). 잔여 13.2%.
+- **credit eligible_for_provisional_credit(2552·최대)**: **미저작** — credit args가 `written_statement_provided` 부재라 조건셋
+  상이(purchase_date/issue_noticed_date 사용)·별도 정책 pass 필요. 0%-abstain 스펙은 제거(노이즈).
+- **★정직 종합**: gold-blind 재현 = **liability 89.4% · debit provisional 86.8%**(95% 역산과 달리 진짜 수치). 실효 compute 이득
+  = 재현율 × slice(651·§14.8) × (id/gather/reach 선결). Δspurious(frontier 맞춘 param 오치환)=미측정(다음). business_days
+  미구현(calendar 근사)·credit provisional 미커버가 상한 제약.
+- 등급: 재현율 [S](궤적전수·gold-blind) · 임계 proxy [M](정책 미명시·데이터공백서 [10,40) 등가) · credit/card_action 미저작.
 
 ### 8-2. 파라미터별 검증
 1. (8-1 blind 저작 후) 파라미터별 → **전 frontier gold 재현율**(liability=95%는 *역산*이라 **재저작 필요**·8-1 규율).
