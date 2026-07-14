@@ -454,3 +454,33 @@
 - **한계 재확정**: horizon collapse는 부분적. ①거래-파생 필드는 이미 agent가 처리·②agent 오답은 파생불가(hard NER/link)·
   ③user-대화 ~8필드 irreducible. ⇒ **banking pass의 큰 상승은 여전히 구조적 난제**(scale 영역·§8-5·C71).
 - 등급: slot-fill 일치율 [S](per-레코드) · "파생=이미정답/오답=파생불가 정렬" [S] · Stage2 redundant [M].
+
+## 16. ★★H_min 방법 확정 + banking 측정 = gather-horizon의 진짜 정보는 ~15bits (2026-07-14·사용자·[S])
+> 사용자: horizon 실패=곱≠1. verify-or-ASK로 각 인자를 1(결정론 verify)/externalize(ASK)로 몰면 silent p^N 붕괴 해결.
+> 관건=H_min(꼭 ASK할 irreducible bits) 최소화. 방법 확정+측정.
+
+### 16.1 H_min 계산 방법 (확정·threshold 명시)
+필드 f마다:
+1. **derivable?** 레코드 slot-fill/policy compute 재현율 ≥ **τ_derive(0.95)** → **DERIVE**·H_min+=0 (verify/compute/link, ASK 불요).
+2. else **mode 확률 ≥ τ_default(0.9)** → **DEFAULT**·assume mode·잔여 소량 (신호 있을때만 확인).
+3. else → **ASK(H_min)**.
+- **H_min = ASK 집합의 JOINT 엔트로피**(상관 제거)·대화당 공유필드 amortize.
+- **★τ_default = 위험-길이 knob**: 높이면 ASK↑(안전·길다)·낮추면 DEFAULT↑(짧다·비-default시 오류). 최적=결정론적 VOI(default iff P(비-default)×cost_err < cost_ask).
+
+### 16.2 banking 측정 (per dispute-type·joint 엔트로피·[S])
+- 필드별 marginal H: transaction_id 5.95·dispute_category 2.87·discovery_date 2.66·dispute_reason 2.49·pin 1.22·contacted 0.76-0.97
+  · liability 0.60·issue_noticed 0.31·card_in_possession 0.26·police_report **0.00**(100% false)·written_statement **0.00**(100% true).
+- **DERIVE**(정보량0·거래/정책/링크 결정): id·date·amount·type·card·account·PII·liability·provisional·partial·card_action(←category). ~18필드.
+- **DEFAULT**(mode≥0.9): police_report(false)·written_statement(true)·card_in_possession(true·95.6%)·issue_noticed(today·95.5%)·resolution(full_refund·92.9%). ~5필드.
+- **★ASK(H_min·joint)**: **DEBIT 4.27 bits**(category+pin+contacted+discovery·상관 3.2bit 절감) · **CREDIT 2.60 bits**(reason+contacted).
+- **★대화 H_min ≈ 2.6-4.3 × H(4.2) ≈ 11-18 bits ≈ 잘 고른 질문 5-7개.** vs naive 26필드=수십~수백 bits → **~5× 이상 축소**.
+
+### 16.3 ★전략적 재해석 (gather-horizon 비관 재반전)
+- agent의 gather-horizon 실패는 **정보량이 커서가 아님**(실제 ~15bit) — DERIVE 안 하고 재질문·DEFAULT 안 쓰고 다 물어 **대화 부풀림→user-STOP 前 미완**.
+- ⇒ **DERIVE+DEFAULT+VOI-ASK로 N_eff를 H_min(~7질문)까지 접으면 완주 = non-scale 레버.** "gather-horizon=scale영역"(§8-5/C82) **부분 철회** — irreducible은 ~15bit(작음)·나머지는 효율/elicitation 문제(비-scale).
+- verify-or-ASK 아키텍처(§15 이어): decidable 인자→결정론 verify→1(scale 불요)·H_min 인자→VOI-ASK→user가 1로. 잔여=**H_min(~15bit)×user협조**뿐.
+- **caveat**: (a)엔트로피는 gold값 기준(perfect elicitor 하한·agent 불확실성은 별도) (b)DERIVE는 derive/link 기전이 실제 작동 가정(card_last_4 링크 messy면 ASK로 이동·H_min↑) (c)discovery_date ASK/default 경계 (d)조건부-context 엔트로피면 더 낮음(H_min 상한).
+- 등급: H_min 방법 [D]·banking 측정 [S](joint 엔트로피·per-type) · "gather=효율문제" [M](derive기전 작동 가정).
+
+### 16.4 다음 (verify-or-ASK controller)
+H_min 확정으로 처방 명확: **①DERIVE(거래고정+slot-fill/compute/link·verify→1) ②DEFAULT(저엔트로피 assume+신호확인) ③VOI-ASK(H_min ~7질문만·최적순서·confident시 중단)**. 이게 completion을 verify-or-ASK로 강제하는 controller. scale 불요분(①②③) 실측=다음.
