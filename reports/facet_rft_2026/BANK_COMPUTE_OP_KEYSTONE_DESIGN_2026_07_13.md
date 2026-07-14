@@ -210,3 +210,44 @@
 ## 12. 산출물(예정)
 - 엔진: `t2_compute.py`(op·있음) + `resolve_compute_params`(t2_gate_patch·신규) · 유닛 `test_compute`·`test_compute_params`.
 - A2: `banking_knowledge.gate.json` `compute_ops` 블록. 데이터: `C:/tmp/traj/*_banking.json`(gold 재현 근거).
+
+## 13. ★★오프라인 reference-filter REPLAY 결과 (2026-07-14·[S]/[D] 혼합·정본 수치)
+> **측정 방식**: §5c 레버를 실제 검증. `bank_keystone_replay.py`(무료·로컬)가 17 frontier 궤적의 transaction_id
+> ⋈ 오선택 케이스마다 **실제 A2 `reference_filter` 규칙**(gate json line 102-115)을 `t2_compute.apply_op(op=filter)`
+> 엔진으로 replay. criteria(date/type/merchant/amount)는 **gold record서 파생 = perfect-formalize 천장**.
+> **provenance**: `scripts/distill/tau2/bank_keystone_replay.py`(재현: `PYTHONIOENCODING=utf-8 py bank_keystone_replay.py`)·
+> 데이터 `C:/tmp/traj/*_banking.json`(17모델)·A2 스펙 `a2/banking_knowledge.gate.json` `reference_filter`. bank_filter_repro와
+> **동일 모집단**(hard-core pass≤10%·⋈ 케이스 = `action_checks[].action_match=false` + call_discoverable + transaction_id 상이).
+
+### 13.1 수치 (n=853 ⋈ 오선택 케이스)
+| criteria (perfect-formalize) | 교정성공(filter==gold) | filter오답 | 미해결→none | ★결정가능부 교정률 |
+|---|---|---|---|---|
+| **(a) date+type** (merchant 미사용·하한) | 640 (75.0%) | **0** | 213 (25.0%) | **91.6%** |
+| **(b) date+type+merchant** (브랜드토큰) | 646 (75.7%) | **0** | 207 (24.3%) | **92.4%** |
+| **(c) date+type+amount** (금액 formalize) | 699 (81.9%) | **0** | 154 (18.1%) | **100.0%** |
+- **진짜중복 = 154 (18.1%)**: date/amount/type/description 全동일 record ≥2(중복청구) → `on_ambiguous=none`이 **정당 abstain**.
+  완벽 에이전트·완벽 formalize도 못 맞힘 = 벤치 인디터미너시. **결정가능부 = 699**(= n − 진짜중복).
+- **★핵심**: 비-중복 ⋈ 케이스(699)는 **date+type+amount 결정론 filter로 100% gold 도달**(0 오답). date+type만으로도 91.6%.
+
+### 13.2 해석 (keystone 사정거리)
+- **레버 실증**: frontier 17모델이 틀린 참조-⋈의 **81.9%(전체)/100%(결정가능부)**를 도메인-일반 filter op + A2 규칙만으로
+  결정론 교정. §5c 레버가 hard-core 지배버킷(참조-⋈)의 큰 몫을 닫음을 정량 확인. (compute-alone 7.5% §8-0 대비 압도.)
+- **merchant(어려운 NER)는 거의 무관**: (a) date+type만으로 결정가능부 91.6%·merchant 추가 +0.8pp뿐. 천장이 **저모호
+  구조적 formalize**(날짜·type enum·금액)에 기댐 → formalize half 리스크 낮음(keystone 강화).
+
+### 13.3 ★정직성 캐비엇 ([[08]]·과대주장 방지)
+1. **②filter오답=0은 *구조적*** — criteria를 gold서 파생하므로 gold는 항상 자기 기준 만족→매칭셋 포함→유일매칭이면
+   필연 gold. 이 replay는 **filter의 reach 천장**을 잴 뿐, **imperfect-formalize 하의 Δspurious(오치환율)를 재지 않는다**.
+   Δspurious는 별도 게이트(§8-2)·**미측정**. "0 오답"을 Δspurious=0으로 오독 금지.
+2. **전 수치 = perfect-formalize 천장**. 실제 레버 = formalize정확도 × 이 천장. formalize half 실측(user발화→criteria)은
+   미측정(§0 선택·유료). 단 §13.2대로 어려운 formalize(merchant)는 거의 불요.
+3. **미해결(비-중복 53)의 정체 = 다중매칭**(merchant 브랜드토큰 조잡·예 'PREMIUM PHOTO FRAMES'서 'PREMIUM'만
+   뽑아 'SPOTIFY PREMIUM'과 충돌). amount 추가 시 전부 해소. 근본한계 아님.
+4. **모집단 = 파싱신뢰 필터 미적용**(§5d 83%는 798 부분표본). 파싱갭은 미해결↑(보수적)·허위교정 아님(gold 항상 매칭셋).
+   ∴ 75.0~81.9%는 **하한 성격**. merchant_phrase 변형(65%)은 stripped-token 비연속 substring 아티팩트 = 무효(단일 토큰이 강건).
+5. **[S]/[D] 등급**: filter reach 천장 = [D](결정론 replay·재현가능)·진짜중복 18.1% = [S](per-case t084 전수·설계 §5d) ·
+   **전체 라이브 교정률 = [?]**(formalize half + Δspurious + 다중턴 pass 미측정·§0 다음).
+
+### 13.4 다음 (§0 handoff)
+- (선택·유료) formalize half 실측: ⋈ user발화 batch → `formalize_reference_criteria`(gpt-4.1 소액) → criteria 정확도 → 전체 교정률 확정.
+- 라이브 keystone: §1 장애물(32B가 dispute discovery 前 막힘·HANDOFF LATE-3 §1) 때문에 marginal 산출 불가 → 이 오프라인 replay가 정량 경로.
