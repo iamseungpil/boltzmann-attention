@@ -172,10 +172,16 @@
   단독이 아니라 그 축들의 결합. R4 리뷰가 7.5% 슬라이스 과투자를 막음. **다음 = 재설계**(§10 재검·⋈/reach 우선 or
   compute를 소규모 실증-only로).
 
-### 8-1. ★gold-blind 저작 게이트 (리뷰 R3·[[11]] 순환 방지·L4C-R2 재발 방지)
+### 8-1. ★gold-blind 저작 게이트 (리뷰 R3·[[11]] 순환 방지·L4C-R2 재발 방지) — ✅저작 완료 2026-07-14
 - **liability 테이블(days≤30→$50)을 gold 값에서 역산하면 95%는 순환**([[11]] 위반).
 - **규율**: op-스펙 임계/조건은 **KB 정책 문서(doc_bank_accounts_031류·Regulation E)서 eval-blind 저작** — 저작
   시 gold 값 보지 않음. **재현율은 blind 테이블의 *사후* 검증**(저작 후 1회 측정). blind 저작 provenance를 doc에 기록.
+- **✅ 완료(2026-07-14·gold-blind)**: `banking_knowledge.gate.json` `compute_ops` 저작 — **liability**(doc_036/031:
+  ≤2 business days→$50·≤60 days→$500·후→전액) + **provisional_credit_eligible**(doc_032: timely≤60d ∧ category∈5종 ∧
+  written_statement). 엔진 `bool_expr` op 추가(도메인일반·3값논리) + lookup_table key-None abstain 수정. **provenance+caveat**
+  (business-day≈calendar 근사·date기준=issue_noticed→now·account_status 조건 생략)=`_note_compute_ops`. **gold-blind 유닛
+  `test_compute_params` 2/2 PASS**(기대값=정책서 유도·gold 안 봄). 재현율(gold 대조)=§8-2 미측정(저작엔 미반영).
+- **미저작(다음 pass)**: card_action(doc_031/credit_014·3%뿐 저순위)·partial_refund·credit provisional 정밀조건.
 
 ### 8-2. 파라미터별 검증
 1. (8-1 blind 저작 후) 파라미터별 → **전 frontier gold 재현율**(liability=95%는 *역산*이라 **재저작 필요**·8-1 규율).
