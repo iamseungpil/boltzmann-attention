@@ -68,11 +68,15 @@ def parse_json(txt):
 
 # ── 필드-매칭 (도메인일반·현실적: date-prefix·merchant contains·type fuzzy·amount numeric) ──
 def date_key(v):
-    m = re.match(r"(\d{1,2})/(\d{1,2})/(\d{2,4})", str(v or ""))
+    # MM/DD (연도 무시·데이터 단일연도·user는 연도 거의 안 말함). 시각접미·연도유무 모두 허용.
+    m = re.match(r"\s*(\d{1,2})/(\d{1,2})", str(v or ""))
     if not m:
         return None
-    mo, dy, yr = m.groups()
-    return "%02d/%02d/%s" % (int(mo), int(dy), yr[-4:] if len(yr) >= 4 else yr)
+    return "%02d/%02d" % (int(m.group(1)), int(m.group(2)))
+
+
+def _alnum(s):
+    return re.sub(r"[^a-z0-9]", "", str(s or "").lower())
 
 
 def amt_key(v):
@@ -88,8 +92,13 @@ def match(rec, crit, use):
         if date_key(rec.get("date")) != date_key(crit.get("date")):
             return False
     if "merch" in use and crit.get("merchant"):
-        if str(crit["merchant"]).lower() not in str(rec.get("description") or "").lower():
-            return False
+        # alnum 정규화 contains (구두점·공백·대소문 무시). 다중토큰이면 어느 토큰이든 등장 시 매칭 완화 회피:
+        # 전체 alnum-phrase contains → 실패 시 개별 유의미토큰(≥4) 전부 등장 요구.
+        cm = _alnum(crit["merchant"]); rd = _alnum(rec.get("description"))
+        if cm and cm not in rd:
+            toks = [_alnum(t) for t in re.split(r"\s+", str(crit["merchant"])) if len(_alnum(t)) >= 4]
+            if not (toks and all(t in rd for t in toks)):
+                return False
     if "type_exact" in use and crit.get("transaction_type"):
         if str(rec.get("type")) != str(crit["transaction_type"]):
             return False
