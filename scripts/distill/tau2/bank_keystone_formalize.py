@@ -33,12 +33,13 @@ def load_cases():
 
 
 def formalize_prompt(users):
-    # formalize_reference_criteria(t2_resolve.py:406)와 동형. 마지막 8 user 발화.
-    return ("The user is referencing a specific transaction/record. From their messages, extract "
-            "identifying criteria as JSON with keys %s (use null if not stated). "
-            "Dates as MM/DD/YYYY. 'amount' as a positive number (dollars). "
-            "'transaction_type' in the merchant/description's own words if given.\n"
-            "User said:\n- %s\nReply JSON only." % (FIELDS, "\n- ".join(u[:400] for u in users[-8:])))
+    # formalize_reference_criteria(t2_resolve.py:406)와 동형 + 단일객체 강제·앵커 명시.
+    return ("The user is disputing/investigating ONE specific transaction. From their messages, extract "
+            "identifying criteria for the SINGLE transaction they most recently want to dispute, "
+            "as ONE JSON object (NOT a list) with keys %s (use null if not stated). "
+            "Dates as MM/DD. 'amount' as a positive number (dollars). "
+            "'transaction_type' in plain words (e.g. purchase, atm withdrawal, deposit) if implied.\n"
+            "User said:\n- %s\nReply with a single JSON object only." % (FIELDS, "\n- ".join(u[:400] for u in users[-8:])))
 
 
 def call_llm(port, prompt, timeout=90):

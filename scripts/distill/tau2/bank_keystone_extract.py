@@ -10,9 +10,23 @@ OUT = "../../../reports/facet_rft_2026/sim_results/bank_xmatch_cases.jsonl.gz"
 RFIELDS = ["transaction_id", "date", "amount", "type", "description"]
 
 
-def user_texts(msgs):
-    out = [m["content"] for m in msgs if m.get("role") == "user" and isinstance(m.get("content"), str)]
-    return out[-8:]
+def user_texts_before(msgs, gt, chosen):
+    """★라이브 formalize_reference_criteria 재현: dispute tool-call *시점까지*의 user 발화 last-8.
+    (대화 전체 last-8이 아님 — 다중-dispute서 '지금 어느 거래' 앵커 보존.)"""
+    cut = len(msgs)
+    for i, m in enumerate(msgs):
+        for tc in (m.get("tool_calls") or []):
+            if tc.get("name") == "call_discoverable_agent_tool":
+                ar = B.nd(tc.get("arguments"))
+                if str(ar.get("agent_tool_name")) == str(gt) \
+                        and str(B.nd(ar.get("arguments")).get("transaction_id") or "") == str(chosen):
+                    cut = i; break
+        if cut != len(msgs):
+            break
+    out = [m["content"] for m in msgs[:cut]
+           if m.get("role") == "user" and isinstance(m.get("content"), str)]
+    return out[-8:] if out else \
+        [m["content"] for m in msgs if m.get("role") == "user" and isinstance(m.get("content"), str)][-8:]
 
 
 def main():
@@ -71,7 +85,7 @@ def main():
                     "gold_id": gid, "chosen_id": chosen,
                     "gold": {k: grec.get(k) for k in RFIELDS},
                     "records": [{k: r.get(k) for k in RFIELDS} for r in recs],
-                    "users": [u[:1200] for u in user_texts(msgs)],
+                    "users": [u[:1200] for u in user_texts_before(msgs, gt, chosen)],
                 })
     with gzip.open(OUT, "wt", encoding="utf-8") as w:
         for r in rows:
