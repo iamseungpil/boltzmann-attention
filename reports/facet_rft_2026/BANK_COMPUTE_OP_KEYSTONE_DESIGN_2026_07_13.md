@@ -292,3 +292,23 @@
 3. **레버 함의**: reference-filter가 다중-dispute 도메인서 유효하려면 **per-dispute 앵커**(지금 dispute의 특정 맥락)가
    필요. 전역 formalize는 "*한* dispute"는 풀되 "*이* dispute"는 못 풂. = 향후 레버 정련 방향(앵커 신호).
 4. 등급: 필드추출 품질 [M](32B·포렌직) · 앵커링-binding [M] · 라이브 교정률 [?]([3.3, 69.5] 범위).
+
+### 14.5 ★★[[08]] 포렌식 교정 = "⋈ 지배" 오염 발각·진짜 지배는 COVERAGE (2026-07-14·forensic-guard 촉발·방향전환)
+> **경보**: [3.3,69.5] 좁히려 per-dispute 앵커 진단 중 궤적 정독서 **모집단 오염 발각**. task_086 정독: 16 "⋈ case"가
+> **전부 동일 chosen(c90e2724)·distinct chosen=1**인데 gold 5개·user 발화 *"there's a limit? can't file all three"*.
+> = **⋈ 오선택 아니라 COVERAGE 실패**(한도로 미제출). 추출이 `same[0]`(첫 호출)을 미제출 gold마다 페어링해 오분류.
+
+- **★궤적 전수 재정량**(로컬 17모델·hard 997 실패 sim·agent 실제 호출 vs gold): gold 요구 **4148** ─
+  | 분류 | 수 | 의미 |
+  |---|---|---|
+  | agent 올바른 id 제출 | **3027 (73%)** | transaction_id 선택은 대부분 정확 |
+  | **wrong id 제출 = 진짜 ⋈** | **222 (제출의 6.8%)** | 실제 오선택은 소수 |
+  | **미제출 = COVERAGE 실패** | **1121 (gold의 27%)** | 지배 실패 |
+- **★결론(방향전환)**: **transaction_id ⋈는 banking 지배 실패가 *아니다*** — 제출 시 id 정확도 93%·진짜 오선택 222뿐.
+  **지배 = COVERAGE**(요구 dispute의 27% 미제출·종종 구조적 한도). = **원장 C52/C71(banking binding=reach/coverage/horizon)과 수렴**(독립 확증).
+- **★오염된 선행 주장 교정**: C77("⋈ 지배버킷·82% filterable")·C78·C79의 ***prevalence*** 주장은 오염 집합(853) 위였음.
+  - **살아남는 것**: filter 엔진의 **record 유일식별 능력**(C78 결정가능부 100%·gold record가 criteria로 유일)은 *데이터 사실*로 유효 — 단 사정권이 853이 아니라 **진짜 ⋈ 222**.
+  - **철회**: "⋈가 hard-core 지배·reference-filter가 큰 레버"(C77 §5d·§8-0). reference-filter 사정권 = 222(작음).
+- **★레버 재정렬**: banking 큰 레버 = **COVERAGE/completion**(요구 dispute 전부 제출·[[14]] E-PLAN·§1.4 F4), reference-filter 아님.
+  단 F4 completion은 **write 강제 금지**(§1.5 Q5) → coverage 게이트는 "미제출 감지→ASK/재시도 유도"(read/plan 강제)로.
+- 등급: 재정량 [S](궤적 전수·결정론 id-집합 비교) · "⋈ 비지배" [S] · reference-filter 사정권 222 [M].
