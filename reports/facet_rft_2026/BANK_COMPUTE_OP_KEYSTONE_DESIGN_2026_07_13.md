@@ -344,3 +344,23 @@
 - **⇒ 방향 확정**: reference-filter(⋈ 4%)도 act-gate(refuted)도 아니라 **compute 키스톤(§7)이 banking의 유효 decidable slice**.
   다음 = compute 필드 실패율 실측(2904 id-correct 중 compute-param-fail분) + §8-1 gold-blind 저작 → 라이브.
 - 등급: dispute-스키마 [S](전수 3959)·act-gate refuted [S]·compute lever [M](§7·liability 95% 실증·slice 미실측).
+
+### 14.8 ★★COMPUTE slice 실측 = id-correct dispute의 22.4% (전체 gold의 16.7%)·verified (2026-07-14·`bank_compute_slice.py`·[S])
+> §14.7 재지목(compute가 유효 lever)을 실측. id-correct dispute 쌍(agent가 올바른 transaction_id 제출·2904)의
+> 필드를 gold와 대조 → compute-필드 오답률 + compute-closability(오답필드 전부 compute면 엔진이 fail→pass).
+- **★compute-필드 오답률(id-correct 2904 중)**: **customer_max_liability_amount 51.1%**(450/880·최대 단일필드)·
+  eligible_for_provisional_credit 22.3%(410/1840)·provisional_credit_eligible 14.7%(156/1064)·partial_refund 13.6%·
+  card_action 3.1%(90/2904). **verified 실오류**(spot-check): liability agent None/0/47.5 vs gold 50·card_action keep_active
+  vs cancel_and_reissue·provisional True vs False = norm 아티팩트 아닌 정책-계산 오류.
+- **★compute-closability 분해(2904)**: pass(전필드정확) 1376(47.4%) · **compute만 오답=엔진이 닫음 651(22.4%)** ·
+  혼합(compute+other) 374(12.9%) · noncompute만 503(17.3%).
+- **★★compute slice = 651 dispute**(id-correct의 **22.4%** · 전체 gold-dispute 3904의 **16.7%**). liability 주도.
+  = **키스톤 compute(§7)의 실측 사정권** — reference-filter(⋈4%)의 4배·frontier-irreducible(gpt55도 liability 51% 틀림)·decidable.
+- **noncompute 잔여**(503+혼합374): card_last_4_digits(369·참조/도출)·pin_compromised(181·gather)·transaction_type(121)이 지배.
+  card_last_4는 조회 카드record서 도출 가능성(별도 ref 레버 후보)·pin류는 user-gather(경계).
+- **★캐비엇**: 651 = **compute가 gold를 재현한다는 가정 하 천장**. 실효 = 651 × §8-1 gold-blind 재현율(liability 현 95%는
+  역산·재저작 필요). + id-correct(참조)·gather·reach가 선결(compound). 순 라이브 이득 < 651.
+- **⇒ 종착 결론(forensic 전체)**: banking decidable lever 우선순위 = **① compute(651·16.7%·§7 엔진 有) > ② reference-filter
+  (⋈ 159·4%) ≫ act-gate(refuted 0)**. 나머지(gather·reach·horizon)=능력/대화 축(scaffold 밖 or E-PLAN). **compute 키스톤이
+  banking의 정답 slice** — 첫 설계(C76·§7)가 옳았고 ⋈ 우회(C77-79)가 오염된 곁길이었음.
+- 등급: compute slice 22.4%/16.7% [S](전수·verified) · 실효상한 [M](gold-blind 재현율 의존) · 우선순위 [S].
