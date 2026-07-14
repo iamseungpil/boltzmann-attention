@@ -96,6 +96,7 @@ def main():
                     "gold": {k: grec.get(k) for k in RFIELDS},
                     "records": [{k: r.get(k) for k in RFIELDS} for r in recs],
                     "n_disputes": n_disputes,
+                    "dispute_set": sorted(gold_txns),   # 이 sim의 전 dispute 대상(성공+실패)
                     "users": [u[:1200] for u in user_texts_before(msgs, gt, chosen)],
                 })
     with gzip.open(OUT, "wt", encoding="utf-8") as w:
