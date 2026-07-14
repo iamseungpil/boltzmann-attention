@@ -113,7 +113,38 @@
   ],
   "on_ambiguous": "none"
  },
- "_note_reference_filter": "★Step2-3(keystone·참조축·C77): banking hard-core 지배=참조-⋈(올바른 거래 지목)·frontier조차 82% 필터가능인데 실패. formalize(user발화→date/merchant/type 기준)→결정론 filter(수집 record)→올바른 transaction_id 검증. ⋈를 LLM 아닌 결정론에 offload(수집사실 위·§3 정당·autofetch 아님). 매칭=엔진 filter op·기준/필드=이 A2. on_ambiguous=none(진짜중복 18%=미개입). record 파서=엔진(key_field/require A2선언). retail 미기재=무발동.",
+ "_note_reference_filter": "★Step2-3(keystone·참조축·C77): banking hard-core 지배=참조-⋈(올바른 거래 지목)·frontier조차 82% 필터가능인데 실패. formalize(user발화→date/merchant/type 기준)→결정론 filter(수집 record)→올바른 transaction_id 검증. ⋈를 LLM 아닌 결정론에 offload(수집사실 위·§3 정당·autofetch 아님). 매칭=엔진 filter op·기준/필드=이 A2. on_ambiguous=none(진짜중복 18%=미개입). record 파서=엔진(key_field/require A2선언). retail 미기재=무발동. ⚠C80/C81 교정: ⋈는 지배 아님(4%)·진짜 지배 decidable slice=아래 compute_ops(16.7%·liability 51%오답).",
+ "compute_ops": {
+  "file_debit_card_transaction_dispute": {
+   "customer_max_liability_amount": {
+    "op": "lookup_table",
+    "key": {"op": "days_between", "a": "params.issue_noticed_date", "b": "now"},
+    "table": [
+     {"cmp": "<=", "thr": 2, "result": 50},
+     {"cmp": "<=", "thr": 60, "result": 500},
+     {"result": {"op": "ref", "path": "params.disputed_amount"}}
+    ]
+   },
+   "provisional_credit_eligible": {
+    "op": "bool_expr",
+    "all": [
+     {"expr": {"op": "days_between", "a": "params.issue_noticed_date", "b": "now"}, "<=": 60},
+     {"ref": "params.dispute_category", "in": ["unauthorized_transaction", "card_present_fraud", "card_not_present_fraud", "atm_cash_discrepancy", "duplicate_charge"]},
+     {"ref": "params.written_statement_provided", "eq": true}
+    ]
+   }
+  },
+  "file_credit_card_transaction_dispute": {
+   "eligible_for_provisional_credit": {
+    "op": "bool_expr",
+    "all": [
+     {"expr": {"op": "days_between", "a": "params.issue_noticed_date", "b": "now"}, "<=": 60},
+     {"ref": "params.written_statement_provided", "eq": true}
+    ]
+   }
+  }
+ },
+ "_note_compute_ops": "★§8-1 GOLD-BLIND 저작(2026-07-14·[[11]] 순환방지·gold 값 안 봄). 임계는 정책 KB문서서만 저작. PROVENANCE: (liability) doc_bank_accounts_(general)_036 + _031 'Reported within 2 business days: max $50 / within 60 days: $500 / after 60 days: may not recover(=전액=disputed_amount)'. (provisional_debit) doc_032 'REQUIRED when ALL: (1)timely ≤60d of statement (2)dispute_category∈{unauthorized_transaction,card_present_fraud,card_not_present_fraud,atm_cash_discrepancy,duplicate_charge} (3)written_statement_provided (4)account OPEN'. ⚠CAVEAT(정직): (a)'2 business days'를 ≤2 *calendar* days로 근사(엔진 days_between=calendar·주말 걸치면 과소평가 가능·business_days op 미구현). (b)date 기준=issue_noticed_date→now(신고 신속성)·정책의 'statement date'는 args에 없어 issue_noticed 대용. (c)provisional 조건4(account OPEN)=records 참조 필요·현 params에 없어 생략(대개 open·false-positive 소수). (d)credit provisional은 doc 별도 확인 전 debit 조건 축소본. 재현율은 §8-2서 gold와 *사후* 대조(저작엔 미반영). card_action/partial_refund=미저작(doc_031 debit·doc_credit_014·다음 pass).",
  "recommendation_verify": {
   "offer_tool": "give_discoverable_user_tool",
   "action_tool": "apply_for_credit_card",

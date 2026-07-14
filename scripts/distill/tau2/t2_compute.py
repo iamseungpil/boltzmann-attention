@@ -6,7 +6,7 @@
 전이(retail↔banking) = A2 compute_ops만 교체.
 
 op ∈ {const, ref, min, max, argmin, argmax, sum, count_where, diff, clamp, lookup_table,
-      days_between, if_then}. 값은 ctx(수집 record·인자·타 파라미터)서 ref로 참조. 리터럴 0.
+      days_between, if_then, bool_expr, filter}. 값은 ctx(수집 record·인자·타 파라미터)서 ref로 참조. 리터럴 0.
 
 apply_op(spec, ctx) → 계산값 (실패=None·안전). ctx = {"args": 이번호출인자, "records": 조회record list,
   "params": 발견도구 nested 인자, "user": 사용자 발화값}. ref="params.disputed_amount" 형 경로."""
@@ -105,6 +105,8 @@ def apply_op(spec, ctx):
             # 조건 리스트를 순서대로 평가 → 첫 매칭의 result. cond = {ref, op, value} 또는 days 비교.
             key = apply_op(spec.get("key"), ctx) if isinstance(spec.get("key"), dict) \
                 else _get(ctx, spec.get("key"))
+            if key is None:
+                return None                                 # ★입력 미확정 → abstain(default 행은 key 계산됐으나 미매칭일 때만)
             def _res(row):
                 r = row.get("result")
                 return apply_op(r, ctx) if isinstance(r, dict) and r.get("op") else r
@@ -123,6 +125,40 @@ def apply_op(spec, ctx):
         if op == "if_then":
             cond = apply_op(spec.get("cond"), ctx)
             return apply_op(spec.get("then"), ctx) if cond else apply_op(spec.get("else"), ctx)
+        if op == "bool_expr":
+            # ★정책 불리언식(도메인일반·3-값 논리). all/any/not 트리 + leaf(ref|expr + eq|in|비교).
+            #   미확정(값 None)=None 반환(abstain·§3 안전). value 있는 조건만 판정.
+            def _leaf(cond):
+                v = apply_op(cond["expr"], ctx) if "expr" in cond else \
+                    (_get(ctx, cond["ref"]) if "ref" in cond else None)
+                if v is None:
+                    return None
+                if "in" in cond:
+                    return v in cond["in"]
+                for c in ("<=", ">=", "<", ">"):
+                    if c in cond:
+                        nv = _num(v)
+                        if nv is None:
+                            return None
+                        return {"<=": nv <= cond[c], ">=": nv >= cond[c],
+                                "<": nv < cond[c], ">": nv > cond[c]}[c]
+                if "eq" in cond:
+                    def nb(x):
+                        x = str(x).strip().lower()
+                        return "true" if x in ("true", "yes") else ("false" if x in ("false", "no") else x)
+                    return nb(v) == nb(cond["eq"])
+                return bool(v)
+            def _ev(cond):
+                if "all" in cond:
+                    vs = [_ev(c) for c in cond["all"]]
+                    return False if False in vs else (None if None in vs else True)
+                if "any" in cond:
+                    vs = [_ev(c) for c in cond["any"]]
+                    return True if True in vs else (None if None in vs else False)
+                if "not" in cond:
+                    v = _ev(cond["not"]); return None if v is None else (not v)
+                return _leaf(cond)
+            return _ev(spec)
         if op == "filter":
             # ★reference-filter(keystone): 수집 record를 criteria로 결정론 매칭 → return field.
             #   formalize(LLM)가 ctx["criteria"]={date,amount,merchant,type} 채움·엔진은 매칭만.
