@@ -468,6 +468,58 @@ def resolve_reference_filter(am, msgs, a2, agent=None, la=None, UserMessage=None
     return {"status": "ok"}
 
 
+def _current_time_str(msgs):
+    """get_current_time 도구결과서 MM/DD/YYYY 추출(compute의 'now' ref). 없으면 None(→abstain)."""
+    for m in msgs:
+        c = getattr(m, "content", None)
+        if c is None and isinstance(m, dict):
+            c = m.get("content")
+        if isinstance(c, str):
+            mm = re.search(r"current time is (\d{4})-(\d{2})-(\d{2})", c)
+            if mm:
+                return "%s/%s/%s" % (mm.group(2), mm.group(3), mm.group(1))
+    return None
+
+
+def resolve_compute_params(am, msgs, a2):
+    """★compute 키스톤(§8·keystone·C81): call_discoverable dispute 호출의 정책-계산 param을 결정론 compute로
+    검증·silent-repair. A2 compute_ops[tool_prefix][param]=op-스펙(t2_compute 도메인일반 엔진). 수집사실 위 계산
+    (§3 정당·autofetch 아님·[[05]] clean). §8-3: 에이전트가 *제공한* param만·미확정(None)=미개입=Δspurious 최소.
+    반환 repair 목록 [{call, param, old, computed, nested}] (호출측이 in-place 치환·reference-filter 동형)."""
+    ops = (a2 or {}).get("compute_ops")
+    if not ops:
+        return []
+    import t2_compute as _c
+    fam = lambda nm: re.sub(r"_\d+$", "", str(nm))
+    now = _current_time_str(msgs)
+    recs = _gathered_records(msgs, "transaction_id", ("date", "amount"))
+    out = []
+    for tc in (getattr(am, "tool_calls", None) or []):
+        if getattr(tc, "name", None) != "call_discoverable_agent_tool":
+            continue
+        a = getattr(tc, "arguments", None) or {}
+        nm = fam(a.get("agent_tool_name"))
+        smap = next((m for pref, m in ops.items() if pref in nm), None)
+        if not smap:
+            continue
+        nested = _parse_nested_args(a.get("arguments"))
+        if not isinstance(nested, dict):
+            continue
+        ctx = {"params": nested, "now": now, "records": recs}
+        for param, spec in smap.items():
+            comp = _c.apply_op(spec, ctx)
+            if comp is None:                             # 미확정 → 미개입(안전·§3)
+                continue
+            if isinstance(comp, float) and comp == int(comp):
+                comp = int(comp)                         # 50.0→50 (gold 정수 매칭·라이브 repair 포맷)
+            old = nested.get(param)
+            if old is None:                              # 에이전트 미기재 → 미개입(§8-3 과도개입 회피)
+                continue
+            if str(comp) != str(old):
+                out.append({"call": tc, "param": param, "old": old, "computed": comp, "nested": nested})
+    return out
+
+
 def resolve_operand(opspec, tool, arg, args_dict, msgs, a2,
                     agent=None, la=None, UserMessage=None):
     """★통일 디스패처. opspec.kind로 기존 primitive 라우팅. 반환 {status, ...}.

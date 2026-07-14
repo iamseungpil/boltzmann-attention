@@ -2078,6 +2078,29 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _rfe:
                     print("[T2_RESOLVE] reffilter error (no-op): %r" % (_rfe,),
                           file=_sys.stderr, flush=True)
+            # ★compute 키스톤(§8·C81) — do_gate/prov와 독립·결정론 in-place silent-repair(정책-계산 param).
+            #   §8-3: liability만(순+348)·provisional 드롭(net−4). 에이전트 제공값만·미확정=미개입.
+            if (os.environ.get("T2_COMPUTE") == "1" and a2 is not None
+                    and (a2 or {}).get("compute_ops")
+                    and getattr(self, "_t2_compute", 0) < 8):
+                try:
+                    import t2_resolve as _rz_cp
+                    for _cp in _rz_cp.resolve_compute_params(am, state.messages, a2):
+                        _nz = _cp.get("nested") or {}
+                        _nz[_cp["param"]] = _cp["computed"]
+                        _rtc = _cp.get("call")
+                        try:
+                            if isinstance(getattr(_rtc, "arguments", {}).get("arguments"), str):
+                                _rtc.arguments["arguments"] = json.dumps(_nz)
+                            elif isinstance(_rtc.arguments.get("arguments"), dict):
+                                _rtc.arguments["arguments"] = _nz
+                        except Exception:
+                            pass
+                        self._t2_compute = getattr(self, "_t2_compute", 0) + 1
+                        print("[T2_RESOLVE] compute silent-repair %s %s->%s"
+                              % (_cp["param"], _cp["old"], _cp["computed"]), file=_sys.stderr, flush=True)
+                except Exception as _cpe:
+                    print("[T2_RESOLVE] compute error (no-op): %r" % (_cpe,), file=_sys.stderr, flush=True)
             # ★T2_RESOLVE (통일 인터프리터·UNIFIED_OPERAND_A2 §7-3): per-operand 해소 디스패처.
             #   deny-kind(operator/membership/provenance) 통합 = L10+L3+operator 한 경로.
             #   개별 플래그(T2_CONSISTENCY/T2_PROV_ORIGIN) 대체용(driver가 상호배타 설정).

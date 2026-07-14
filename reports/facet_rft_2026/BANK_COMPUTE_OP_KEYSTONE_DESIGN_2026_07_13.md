@@ -198,6 +198,22 @@
   미구현(calendar 근사)·credit provisional 미커버가 상한 제약.
 - 등급: 재현율 [S](궤적전수·gold-blind) · 임계 proxy [M](정책 미명시·데이터공백서 [10,40) 등가) · credit/card_action 미저작.
 
+### 8-3. ★★Δspurious 측정 = 레버 선택성(§1.3 모트 실증·2026-07-14·[S] go/no-go)
+> silent-repair가 frontier의 *맞은* param을 오치환하나. agent-correct(agent==gold) 케이스서 op≠gold = Δspurious(순손해).
+| 필드 | agent-correct 중 오치환 | agent-wrong 교정(gain) | ★순효과 |
+|---|---|---|---|
+| **customer_max_liability_amount** | 27 / 431 (6.3%) | 375 / 414 (90.6%) | **+348 (강한 승)** |
+| **provisional_credit_eligible** | 82 / 909 (9.0%) | 78 / 156 (50%) | **−4 (순손해)** |
+- **★모트 실증(§1.3 "하나 사면 하나 판다")**: liability=agent 못함(49% 틀림)→compute 큰 이득(+348). provisional=agent 잘함
+  (85% 맞음)→얻을 것 적고 오치환이 맞은답 깨서 **순≈0/음(−4)**. ⇒ **compute는 *선택적* 적용**: agent가 못하는 필드(liability)만·
+  잘하는 필드(provisional)엔 금지. Δspurious=0 아님(6-9%)이나 gain이 압도할 때만 순양성.
+- **⇒ 레버 확정 = LIABILITY compute 단독**(+348). debit provisional **드롭**(net−4). §14.8 "651 slice"는 provisional 이득 포함
+  과대평가·실 net-positive는 liability 지배.
+- **★spurious 정독 검증([[08]]·아티팩트 배제)**: liability 27 오치환 = 진짜 op 오류(예 gold=50·op=14.99·tx→disc=5·amt=14.99).
+  원인=벤치 특유 **tier 불일치**($50 tier=flat 50 even amt<50 / $500 tier=min(amt,500)). 정책서 미유도·[[11]] 역산 금지라 미해소.
+  ⇒ 6.3% spurious는 irreducible(정직)·단 gain 375≫27이라 **순 +348 견고**(결론 불변).
+- 등급: Δspurious/순효과 [S](궤적전수·agent-vs-gold-vs-op 3자·spurious 정독) · "liability만 적용" [S].
+
 ### 8-2. 파라미터별 검증
 1. (8-1 blind 저작 후) 파라미터별 → **전 frontier gold 재현율**(liability=95%는 *역산*이라 **재저작 필요**·8-1 규율).
 2. **Δspurious**: frontier가 *맞춘* param에 op/silent-repair 적용 시 오치환 0 확인(정답 안 깨야).

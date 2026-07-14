@@ -29,24 +29,49 @@ def test_liability():
     assert run(spec, {"disputed_amount": 300}) is None            # 날짜없음→abstain
 
 
-def test_provisional_debit():
-    """doc_032: ALL(timely tx→disc ≤60d ∧ category∈{5종} ∧ written_statement). §8-2 재현 86.8%."""
-    spec = CO["file_debit_card_transaction_dispute"]["provisional_credit_eligible"]
-    base = {"transaction_date": "11/09/2025", "discovery_date": "11/10/2025",
-            "dispute_category": "unauthorized_transaction", "written_statement_provided": True}
-    assert run(spec, base) is True
-    assert run(spec, {**base, "dispute_category": "goods_services_not_received"}) is False  # category 밖
-    assert run(spec, {**base, "written_statement_provided": False}) is False                # written no
-    assert run(spec, {**base, "transaction_date": "01/01/2025"}) is False                   # 늦음(>60d)
-    assert run(spec, {"dispute_category": "duplicate_charge", "written_statement_provided": True}) is None  # 날짜없음→abstain
+def test_bool_expr_engine():
+    """bool_expr 엔진 op 3값논리(A2 무관·§8-3서 provisional A2스펙은 net−4로 드롭·op는 일반유지)."""
+    spec = {"op": "bool_expr", "all": [
+        {"ref": "params.a", "eq": True},
+        {"expr": {"op": "days_between", "a": "params.d1", "b": "params.d2"}, "<=": 60},
+        {"ref": "params.c", "in": ["x", "y"]}]}
+    assert run(spec, {"a": True, "d1": "11/01/2025", "d2": "11/10/2025", "c": "x"}) is True
+    assert run(spec, {"a": False, "d1": "11/01/2025", "d2": "11/10/2025", "c": "x"}) is False
+    assert run(spec, {"a": True, "d1": "01/01/2025", "d2": "11/10/2025", "c": "x"}) is False  # >60d
+    assert run(spec, {"a": True, "c": "x"}) is None                                           # 날짜없음→abstain
+
+
+class _Obj:
+    def __init__(self, **k): self.__dict__.update(k)
+
+
+def test_resolve_compute_params():
+    """배선 스텁(§6·resolve_compute_params): dispute 호출의 틀린 liability를 결정론 compute로 silent-repair 감지."""
+    import t2_resolve as _rz, json as _j
+    nested = {"transaction_date": "11/13/2025", "discovery_date": "11/14/2025",
+              "disputed_amount": 300, "customer_max_liability_amount": 100}   # agent=100(틀림)·gold=50
+    tc = _Obj(name="call_discoverable_agent_tool",
+              arguments={"agent_tool_name": "file_debit_card_transaction_dispute_6281",
+                         "arguments": _j.dumps(nested)})
+    am = _Obj(tool_calls=[tc])
+    msgs = [_Obj(content="The current time is 2025-11-14 03:40:00 EST.")]
+    reps = _rz.resolve_compute_params(am, msgs, A2)
+    assert len(reps) == 1, reps
+    assert reps[0]["param"] == "customer_max_liability_amount"
+    assert str(reps[0]["computed"]) == "50" and str(reps[0]["old"]) == "100"
+    # 에이전트가 이미 맞춘(50) 경우 → 미개입(repair 없음·Δspurious 회피)
+    nested2 = dict(nested); nested2["customer_max_liability_amount"] = 50
+    tc2 = _Obj(name="call_discoverable_agent_tool",
+               arguments={"agent_tool_name": "file_debit_card_transaction_dispute_6281", "arguments": _j.dumps(nested2)})
+    assert _rz.resolve_compute_params(_Obj(tool_calls=[tc2]), msgs, A2) == []
 
 
 def test_all():
     n = 0
-    for fn in (test_liability, test_provisional_debit):
+    for fn in (test_liability, test_bool_expr_engine, test_resolve_compute_params):
         fn(); n += 1
         print("  PASS %s" % fn.__name__)
-    print("compute_ops gold-blind 유닛 %d/%d PASS" % (n, 2))
+    print("compute_ops gold-blind + 배선 유닛 %d/%d PASS" % (n, 3))
 
 
 if __name__ == "__main__":
