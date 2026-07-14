@@ -325,3 +325,22 @@
 - **★재명명 = UNDER-action / over-deferral**(도구발견 실패 ✗): 도구 도달했고 거래 조회했는데도 **필요정보 보유 상태서 precondition 되묻거나 diversion**해 dispute 미제출·user에 넘김. = 과확신의 **반대편 꼬리(over-asking/over-deferral)**·"act vs advise"(C74)의 agent-실행 dispute판.
 - **레버 함의**: **action-required/persistence 게이트 for agent-실행 dispute**(정보 보유 decidable 확인→act 유도) — 단 §1.5 Q5(정보 진짜 부재 시 ASK 정당) 준수 → **"필요필드가 조회record에 있나" 결정론 확인 후에만 act-nudge**. = coverage 레버의 정확한 형태(reference-filter 아님·[[14]] E-PLAN 인접).
 - 등급: 0제출 stage분포 [S]·"UNDER-action 재명명" [M](종료100%user턴=하드·precondition 81%=proxy)·act-gate 처방 [D설계].
+
+### 14.7 ★★act-gate 전제 REFUTED = 되묻기는 정당한 field-gathering·진짜 lever는 COMPUTE (2026-07-14·[[08]] 전제검증)
+> §14.6이 "정보 보유 상태서 over-defer"로 명명하고 act-gate(행동 강제)를 제안. **구현 前 전제검증**([[08]]/[[03]]):
+> gold dispute 액션의 **요구 인자 스키마**를 전수(n=3959)—전제 반증.
+- **★gold dispute = 13-25 필드 요구**(단순 transaction_id 아님): user-제공 필수(contacted_merchant 100%·dispute_reason·
+  resolution_requested·card_in_possession·pin_compromised·police_report_filed·written_statement_provided·phone/email/address 66%·
+  issue/purchase_date) + **computed/정책**(card_action 100%·**provisional_credit_eligible 66%·customer_max_liability_amount 28%·
+  partial_refund 9%**) + reference(transaction_id).
+- **★전제 반증**: agent의 "되묻기"(card_last_4·"contacted merchant?" 등)는 **spurious 과요구 아니라 *진짜 필요 필드 gathering***
+  (KB "the agent must gather comprehensive information" 준수). ∴ **act-gate로 행동 강제 = 필수필드 빠진 틀린 dispute = §1.5 Q5
+  위반 = C74/C75(action-required 레버 prior-negative) 재현.** ⇒ **act-gate 폐기**([[08]] 전제검증이 구현 前 차단).
+- **★재명명(정본) = HORIZON + COMPUTE**(over-deferral 아님): 각 dispute가 13-25 필드(다수 user-gather + 3-4 computed)·hard task가
+  4-10 dispute → **field-gathering horizon**(C71 p_step^H·H≈8 정합)·대화가 user-STOP/예산 前 미완결 = coverage. 참조/발견/deferral 아님.
+- **★진짜 decidable lever = dispute 인자의 COMPUTE 필드**(§7 원안 회귀): `customer_max_liability_amount`(28%·gpt55도 50 vs 100 틀림·
+  lookup_table 95% 실증)·`provisional_credit_eligible`(66%·bool_expr)·`partial_refund_amount`(9%)·`card_action`(100%·정책 bool_expr).
+  = **키스톤 compute 엔진(§4·§7)이 정확히 이걸 닫음**. frontier-irreducible·decidable·[[05]] 클린(수집사실 위 계산).
+- **⇒ 방향 확정**: reference-filter(⋈ 4%)도 act-gate(refuted)도 아니라 **compute 키스톤(§7)이 banking의 유효 decidable slice**.
+  다음 = compute 필드 실패율 실측(2904 id-correct 중 compute-param-fail분) + §8-1 gold-blind 저작 → 라이브.
+- 등급: dispute-스키마 [S](전수 3959)·act-gate refuted [S]·compute lever [M](§7·liability 95% 실증·slice 미실측).
