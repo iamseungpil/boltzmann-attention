@@ -251,3 +251,44 @@
 ### 13.4 다음 (§0 handoff)
 - (선택·유료) formalize half 실측: ⋈ user발화 batch → `formalize_reference_criteria`(gpt-4.1 소액) → criteria 정확도 → 전체 교정률 확정.
 - 라이브 keystone: §1 장애물(32B가 dispute discovery 前 막힘·HANDOFF LATE-3 §1) 때문에 marginal 산출 불가 → 이 오프라인 replay가 정량 경로.
+
+## 14. ★★formalize half 실측 — 리모트 32B e2e (2026-07-14·무료 on-prem·[S]추출/[M]앵커/[?]라이브)
+> **방식**: `bank_keystone_formalize.py`가 ⋈ 케이스의 user 발화를 **실제 LLM formalize**(리모트 vLLM
+> Qwen2.5-32B·`formalize_reference_criteria` 동형 프롬프트·localhost:8140·**API비용0**)로 돌려 식별기준을
+> 뽑고 결정론 filter로 gold 도달 여부 측정. §13은 gold서 파생(perfect-formalize 천장)·이건 **user발화서 실제
+> formalize** = 전체 교정률 = formalize정확도 × filter천장. provenance: `bank_keystone_formalize.py`·
+> 입력 `sim_results/bank_xmatch_cases.jsonl.gz`(853·`bank_keystone_extract.py`)·출력 `bank_xmatch_formalize.results.json`.
+
+### 14.1 ★구조적 발견 = banking hard-core ⋈는 ~100% 다중-dispute
+- **단일-dispute 1 / 다중-dispute 852** (853 중). banking hard-core 참조문제는 본질적으로 **한 대화서 여러 거래를
+  동시 dispute**하는 구조. ⇒ formalize는 "여러 공동-dispute 중 *지금 이* dispute가 어느 거래인가"를 먼저 풀어야 함.
+
+### 14.2 수치 (C3 date+merch+amount·전 dispute셋 대조 재분류)
+| 결과 | 수 | 의미 |
+|---|---|---|
+| 교정 (this action의 gold) | 28 (3.3%) | 이 action_check gold 정확 도달 |
+| **오답 → 다른 *정당* dispute 대상** | **565 (66.2%)** | formalize가 실재 dispute 거래 찾음·단 이 action 아님 = **mis-pairing(앵커링)** |
+| none (0/≥2 매칭) | 247 (29.0%) | 진짜중복 18.1% 포함 |
+| **오답 → dispute셋 밖 record (진짜 오류)** | **13 (1.5%)** | formalize가 무관 record 잡음 |
+- **★formalize가 정당 dispute 대상 도달 = 69.5%**(28+565) · **진짜-랜덤 오류 = 1.5%**.
+
+### 14.3 해석 (formalize half의 진짜 binding)
+- **32B formalize *추출*은 좋다**: date/merchant/amount NL 추출이 정당 dispute 대상 **69.5% 도달**·랜덤 오류 **1.5%뿐**.
+  per-case 포렌치(§forensic): crit "FitLife Premium/11/10/89.99" → filter가 "FITLIFE PREMIUM MONTHLY 11/10 -89.99"
+  정확 매칭. 필드추출은 병목 아님.
+- **★binding = 다중-dispute 앵커링**(66.2% mis-pair): 레버의 **전역 formalize**(전 user 발화)가 "지금 이 dispute가
+  어느 거래"를 못 가림 → 정당하나 *다른* 공동-dispute 거래로 감. = 참조/완결성 문제(§5c claim·[[45]] reach). 
+  banking 지배 binding(reach/coverage/reference·C52·C71)과 정합.
+- **Δspurious 안전**: 진짜-랜덤 오류 1.5%·나머지는 정당대상(69.5%) 또는 abstain(29%). formalize+filter가 무관 target을
+  거의 안 만듦 = filter의 0-wrong-by-construction과 정합.
+
+### 14.4 ★정직성 캐비엇
+1. **per-action-check 페어링은 라이브보다 엄격** — 라이브 레버는 *각 dispute 호출 시점*에 돌아 agent가 *지금 거는*
+   dispute를 교정. 내 오프라인은 formalize 출력을 특정 action_check gold에 (chosen-id 시간절단으로) 페어링 →
+   dispute 순서 정렬이 어긋나면 mis-pair. ∴ **라이브 formalize-half 교정률 ∈ [3.3% (엄격페어링 하한), 69.5%
+   (정당대상 도달 상한)]**. 참값은 dispute-순서 정렬에 의존·오프라인선 앵커 없이 확정 불가.
+2. **천장(§13) 대비 gap = 필드값 아니라 앵커(어느 거래)**: gold파생 criteria(§13)가 100% 결정가능부 도달한 건
+   *올바른 거래에 앵커됐기 때문*. 32B의 gap = 앵커링이지 date/amount/merchant 값 아님.
+3. **레버 함의**: reference-filter가 다중-dispute 도메인서 유효하려면 **per-dispute 앵커**(지금 dispute의 특정 맥락)가
+   필요. 전역 formalize는 "*한* dispute"는 풀되 "*이* dispute"는 못 풂. = 향후 레버 정련 방향(앵커 신호).
+4. 등급: 필드추출 품질 [M](32B·포렌직) · 앵커링-binding [M] · 라이브 교정률 [?]([3.3, 69.5] 범위).
