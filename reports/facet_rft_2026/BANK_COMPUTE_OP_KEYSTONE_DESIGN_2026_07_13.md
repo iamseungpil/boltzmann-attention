@@ -315,4 +315,13 @@
   - **철회**: "⋈가 hard-core 지배·reference-filter가 큰 레버"(C77 §5d·§8-0). reference-filter 사정권 = 222(작음).
 - **★레버 재정렬**: banking 큰 레버 = **COVERAGE/completion**(요구 dispute 전부 제출·[[14]] E-PLAN·§1.4 F4), reference-filter 아님.
   단 F4 completion은 **write 강제 금지**(§1.5 Q5) → coverage 게이트는 "미제출 감지→ASK/재시도 유도"(read/plan 강제)로.
-- 등급: 재정량 [S](궤적 전수·결정론 id-집합 비교) · "⋈ 비지배" [S] · reference-filter 사정권 222 [M].
+- 등급: 재정량 [S](궤적 전수·결정론 id-집합 비교) · "⋈ 비지배" [S] · reference-filter 사정권 159 [M].
+
+### 14.6 ★★missed 지배원인 정밀화 = UNDER-action/over-deferral (도구발견 실패 아님) (2026-07-14·226 0제출 sim 정독+정량)
+> missed(1000)의 80%=0제출(804·226 sim). "reach/discovery 실패"로 명명했으나 정밀 포렌직서 **재명명**.
+- **도달 단계 분포**(0제출 226 sim): 검증前 stall 16% · unlock중 10% · **dispute도구 unlock했으나 조회前 53%** · 거래조회했으나 미제출 17% · 무행동 4%. ⇒ **70%가 dispute 도구를 이미 unlock**(도구 못 찾은 게 아님).
+- **★종료 신호(하드)**: **100%가 user 턴서 종료**(user-STOP 만족/떠남 40% + user 대기 60%). = **agent가 마지막에 행동 안 하고 텍스트(질문/요약)로 user에 넘김**·dispute 자율제출 0.
+- **precondition 요구 81%**(keyword proxy) · **diversion 17%**(결제·폐쇄 등 다른 action은 실행). per-case: task_041=카드 있는데 "끝4자리 필요"라 자기-차단→user "지금 없음"→STOP · task_045=결제/계좌폐쇄 하고 dispute는 미제출→user 만족 STOP.
+- **★재명명 = UNDER-action / over-deferral**(도구발견 실패 ✗): 도구 도달했고 거래 조회했는데도 **필요정보 보유 상태서 precondition 되묻거나 diversion**해 dispute 미제출·user에 넘김. = 과확신의 **반대편 꼬리(over-asking/over-deferral)**·"act vs advise"(C74)의 agent-실행 dispute판.
+- **레버 함의**: **action-required/persistence 게이트 for agent-실행 dispute**(정보 보유 decidable 확인→act 유도) — 단 §1.5 Q5(정보 진짜 부재 시 ASK 정당) 준수 → **"필요필드가 조회record에 있나" 결정론 확인 후에만 act-nudge**. = coverage 레버의 정확한 형태(reference-filter 아님·[[14]] E-PLAN 인접).
+- 등급: 0제출 stage분포 [S]·"UNDER-action 재명명" [M](종료100%user턴=하드·precondition 81%=proxy)·act-gate 처방 [D설계].
