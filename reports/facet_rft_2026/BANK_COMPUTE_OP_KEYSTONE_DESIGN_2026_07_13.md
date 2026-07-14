@@ -484,3 +484,41 @@
 
 ### 16.4 다음 (verify-or-ASK controller)
 H_min 확정으로 처방 명확: **①DERIVE(거래고정+slot-fill/compute/link·verify→1) ②DEFAULT(저엔트로피 assume+신호확인) ③VOI-ASK(H_min ~7질문만·최적순서·confident시 중단)**. 이게 completion을 verify-or-ASK로 강제하는 controller. scale 불요분(①②③) 실측=다음.
+
+## 17. ★★수학적 형식화 — Hopfield(참조) + VOI(획득) + 온/오프라인 H_min (2026-07-14·사용자·이론)
+> horizon/참조/H_min을 modern Hopfield(=attention·Ramsauer ICLR2021) 자유에너지 + 정보이론으로 수식 도출.
+
+### 17.1 Modern Hopfield ≡ Attention (다리·[S-lit])
+저장 패턴(후보) {ξᵢ}, query q. 에너지:
+  E(q) = −β⁻¹ log Σᵢ exp(β qᵀξᵢ) + ½‖q‖²
+1-step 업데이트 = softmax attention:
+  q' = Σᵢ pᵢ ξᵢ,   pᵢ = softmax(β qᵀξᵢ) = exp(β qᵀξᵢ)/Σⱼexp(β qⱼᵀξⱼ)
+log-sum-exp = 자유에너지 F=−β⁻¹log Z. 온도 1/β가 회상분포 엔트로피 지배.
+
+### 17.2 참조(⋈) = 연상회상·H_min 도출
+회상분포 pᵢ의 엔트로피 H(p)=−Σpᵢlog pᵢ, perplexity(유효 혼동후보수) k_eff = e^{H(p)}.
+  ★ H_min^ref ≈ log₂ k_eff = log₂(현 query로 분리 안 되는 후보 수)
+- 실측 2–4 bits/dispute ↔ 혼동후보 4–16개(대응 확인).
+- distractor/near-miss = spurious minima(겹치는 basin)·정박치환(C43)=인접 attractor 오회상.
+- ASK 판정 = 에너지 갭: ΔE = E₍₂₎−E₍₁₎.  retrieve iff ΔE > β⁻¹(log N + τ); else H(p)>τ_H ⇒ ASK.
+- 결정론 슬라이스(compute/derive) = β→∞ ⟹ pᵢ→one-hot ⟹ 결정론 회상(갭 큼)=우리 verify.
+
+### 17.3 ★★H_min 두 종류 — "실제 실행분포 보고 결정하나?"의 답
+- **오프라인 H_min(모집단·우리 측정 ~15bit)** = gold 값 *주변분포*의 엔트로피 − DERIVE − DEFAULT. **벤치 속성**(평균 irreducible bits)·런타임 신호 아님.
+- **★온라인 H_min(인스턴스·런타임 결정)** = 그 시점 모델의 *실제 회상분포* pᵢ=softmax(β qᵀξᵢ)의 엔트로피 H(p). **바로 이걸 보고 ASK/진행 결정** (H 높으면=갭 작으면 ASK). ⇒ **네, 런타임 H_min은 "실제 실행한(모델이 산출한) 분포"를 본다.**
+- ⚠**calibration 전제**: H(p) 신호가 유효하려면 pᵢ ≈ P(ξᵢ=정답|q) (교정). **과확신**=spurious minimum에 pᵢ가 *뾰족한데 틀림*(H 낮은데 오답) → 신호 오작동. ∴ 온라인 H_min은 **교정된 분포**에서만 타당·미교정이면 결정론 verify(외부오라클)로 보강. = calibration 딥리서치·over-confidence 논의와 접점.
+
+### 17.4 외부 획득 H_min = Hopfield 밖·VOI 형식
+user-private y(승인했나 등)는 저장패턴 아님 → 회상 아니라 획득:
+  H_min^ext = H(y | context)  (결정-관련 조건부 엔트로피)
+질문 선택 = 정보가치 최대화: a* = argmaxₐ I(y; a | context) (상호정보). confident(H(y|·)<τ)면 중단.
+- 이게 우리 DEFAULT(저 H(y))·VOI-ASK(고 H(y))의 수식 근거.
+
+### 17.5 종합 = verify-or-ASK의 수학적 토대
+pass = ∏ (인자 verified-1 or externalized). 세 형식이 각 인자를 처리:
+  ① DERIVE/decidable: β→∞ one-hot 회상 or 정책 compute → p=1 (결정론 verify)
+  ② 참조-앵커링(⋈): Hopfield 자유에너지·H_min^ref=log₂k_eff·ASK iff ΔE 작음
+  ③ 외부획득: VOI·H_min^ext=H(y|ctx)·질문=argmax I
+진짜 잔여 = H_min^ref(교정된 회상 엔트로피) + H_min^ext(user-private) ·둘 다 ~작음(§16: ~15bit).
+- **한계(정직)**: (a) Hopfield 등가=1-step retrieval·다층 horizon은 근사 (b) 정밀 bound=패턴 통계 가정·검증된 모델(제1원리 증명 아님) (c) 온라인 H(p)는 calibration 의존.
+- 등급: Hopfield≡attention [S-lit] · H_min^ref=log₂k_eff 도출 [D-이론] · 온/오프라인 구분 [D] · calibration 전제 [S].
