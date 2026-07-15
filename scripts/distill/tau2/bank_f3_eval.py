@@ -62,6 +62,34 @@ def label_case(gold, agent, nl):
         return "prior-conflict(agent surface≠gold)"
     return "inference(NL 미-disambig)"
 
+_REC_KV = re.compile(r"^\s*([a-z_]+):\s*(.+?)\s*$", re.M)
+def parse_txn_records(messages):
+    """tool 결과의 거래 레코드 파싱 → {transaction_id: {merchant,amount,date,category,type}}.
+    재앵커([[08]]·§14.3 앵커링): dispute_reason 케이스에 '어느 거래'를 결정론 주입."""
+    recs = {}
+    for m in messages:
+        if m.get("role") != "tool":
+            continue
+        c = str(m.get("content"))
+        if "transaction_id" not in c:
+            continue
+        # 레코드 블록 = 'transaction_id: txn_xxx' 앵커로 분할
+        for blk in re.split(r"(?=transaction_id:\s*txn_)", c):
+            kv = dict(_REC_KV.findall(blk))
+            tid = kv.get("transaction_id", "")
+            if not tid.startswith("txn_"):
+                continue
+            rec = {}
+            if kv.get("merchant_name"): rec["merchant"] = kv["merchant_name"]
+            if kv.get("transaction_amount"): rec["disputed_amount"] = kv["transaction_amount"]
+            if kv.get("transaction_date"): rec["transaction_date"] = kv["transaction_date"]
+            if kv.get("category"): rec["category"] = kv["category"]
+            if kv.get("status"): rec["status"] = kv["status"]
+            if rec:
+                recs.setdefault(tid, {}).update(rec)
+    return recs
+
+
 def build_cases(files, schema):
     cases = []
     for f in files:
@@ -70,6 +98,7 @@ def build_cases(files, schema):
             ri = s.get("reward_info") or {}
             if ri.get("reward") in (None, 1.0): continue
             if tuple(ri.get("reward_basis") or []) != ("DB",): continue
+            txn_recs = parse_txn_records(s.get("messages") or [])   # 재앵커 소스
             nl = " ".join(str(m.get("content")) for m in (s.get("messages") or []) if m.get("role") == "user")
             asub = {}
             for m in (s.get("messages") or []):
@@ -88,6 +117,11 @@ def build_cases(files, schema):
                     if gv is None: continue
                     av = aa.get(fld)
                     txn = {k: ga.get(k) for k in ("transaction_date", "disputed_amount", "merchant", "description", "transaction_type") if ga.get(k)}
+                    # 재앵커: 액션이 denormalize 필드를 안 담으면(dispute_reason 100%) transaction_id로 레코드 join
+                    rec = txn_recs.get(t, {})
+                    for k in ("merchant", "disputed_amount", "transaction_date", "category"):
+                        if k not in txn and rec.get(k):
+                            txn[k] = rec[k]
                     lab = label_case(gv, av, nl.lower()) if av and str(av).lower() != str(gv).lower() else "agent-correct"
                     tg = toks(gv); gold_attend = bool(tg) and all(t in nl.lower() for t in tg)  # gold 토큰 전부 NL에
                     cases.append({"field": fld, "gold": str(gv), "agent": str(av) if av else None,
@@ -207,6 +241,93 @@ def run_compareloop(cl, model, cases, schema):
     return by_field
 
 
+_GRADE = {"definitely": 3, "probably": 2, "unlikely": 1, "no": 0}
+def make_graded_prompt(case, cand_val, cand_desc):
+    """online-H_min(§16/§18) 격리 등급채점: 이진 y/n의 margin-손실 해소.
+    앵커(txn) 강조로 multi-dispute NL 안에서 단일거래 scope(§14.3 앵커링). 도메인일반([[05]])."""
+    anchor = json.dumps(case.get("txn") or {}, ensure_ascii=False)
+    return ("You are judging how well a customer's dispute about ONE specific transaction matches a category.\n\n"
+            "The transaction being disputed: %s\n\n"
+            "Category: '%s'\nDefinition: %s\n\n"
+            "Customer's statements (the conversation may mention several transactions — focus ONLY on the one above):\n%s\n\n"
+            "How well does the customer's reason for disputing THIS transaction match category '%s'? "
+            "Answer with exactly one word: definitely, probably, unlikely, or no." %
+            (anchor, cand_val, cand_desc, case["nl"], cand_val))
+
+
+def _grade(text):
+    t = str(text).strip().lower().strip("'\".,")
+    for w, v in _GRADE.items():
+        if t.startswith(w):
+            return v
+    return 0
+
+
+def run_hmin(cl, model, cases, schema, margin=1):
+    """online-H_min 결정기(§16.4/§18.1): 후보별 격리 등급채점→분포→margin threshold.
+      top1 - top2 >= margin(그리고 top1>0) → SELECT top1(DERIVE, ASK불요)
+      else(동점/전부 no) → ASK (진짜 잔여 애매성만·bounded).
+    도메인일반: 후보=ABox·채점=격리 sub-call·결정=결정론([[10]]·프레임F2). dispute_reason=검증케이스."""
+    by_field = defaultdict(lambda: [0, 0, 0, 0])   # correct, ask, wrong, total
+    by_attend = defaultdict(lambda: [0, 0, 0, 0])
+    sel_dist = defaultdict(Counter)
+    ask_recover = defaultdict(lambda: [0, 0])
+    margin_dist = defaultdict(Counter)             # top1-top2 분포(교정/애매성 진단)
+    for i, c in enumerate(cases):
+        opts = schema[c["field"]]
+        scores = []
+        for cand_val, cand_desc in opts:
+            try:
+                r = cl.chat.completions.create(model=model,
+                        messages=[{"role": "user", "content": make_graded_prompt(c, cand_val, cand_desc)}],
+                        temperature=0, max_tokens=4)
+                scores.append((cand_val, _grade(r.choices[0].message.content)))
+            except Exception as e:
+                print("ERR", type(e).__name__, e); return None
+        scores.sort(key=lambda x: -x[1])
+        top1v, top1s = scores[0]
+        top2s = scores[1][1] if len(scores) > 1 else 0
+        gap = top1s - top2s
+        gold = c["gold"].lower(); fld = c["field"]
+        akey = "attend(gold NL에)" if c["gold_attend"] else "non-attend(정책추론)"
+        margin_dist[fld][gap] += 1
+        if top1s > 0 and gap >= margin:
+            pred = top1v.lower(); sel_dist[fld][pred[:24]] += 1
+            slot = 0 if (gold in pred or pred in gold) else 2
+        else:                                        # ASK
+            slot = 1
+            tied = [v for v, sc_ in scores if sc_ == top1s and top1s > 0] or [v for v, _ in scores]
+            gold_in = any(gold in v.lower() or v.lower() in gold for v in tied)
+            ask_recover[fld][0] += int(gold_in); ask_recover[fld][1] += 1
+        by_field[fld][slot] += 1; by_field[fld][3] += 1
+        by_attend[akey][slot] += 1; by_attend[akey][3] += 1
+        if i < 8 or (i % 40 == 0):
+            print("[%d/%d] %s attend=%s gold=%s top=(%s:%d) gap=%d %s" %
+                  (i, len(cases), fld, c["gold_attend"], c["gold"], top1v, top1s, gap,
+                   ["✓select", "?ASK", "✗wrong"][slot]), flush=True)
+    print("\n=== online-H_min 결정기 결과 (margin≥%d·%s·n=%d) ===" % (margin, model, len(cases)))
+    print("  [필드별  correct / ASK / wrong / total]")
+    for k, (co, ak, wr, tot) in by_field.items():
+        t = max(tot, 1)
+        print("    %-18s correct %d(%.0f%%) · ASK %d(%.0f%%) · wrong %d(%.0f%%)  [n=%d]" %
+              (k, co, 100*co/t, ak, 100*ak/t, wr, 100*wr/t, tot))
+    print("  [gold-attend별]")
+    for k, (co, ak, wr, tot) in by_attend.items():
+        t = max(tot, 1)
+        print("    %-24s correct %.0f%% · ASK %.0f%% · wrong %.0f%%  [n=%d]" % (k, 100*co/t, 100*ak/t, 100*wr/t, tot))
+    print("  [top1-top2 margin 분포 (0=동점→ASK · ≥1=SELECT)]")
+    for fld, mc in margin_dist.items():
+        print("    %-18s %s" % (fld, dict(sorted(mc.items()))))
+    print("  [SELECT 값 분포 Top4 (mode-collapse 비교: one-shot dispute_reason=fraud 98%%)]")
+    for fld, sc in sel_dist.items():
+        print("    %-18s %s" % (fld, dict(sc.most_common(4))))
+    print("  [ASK 회수: gold∈tied / ASK수]")
+    for fld, (g, t) in ask_recover.items():
+        print("    %-18s %d/%d = %.0f%%" % (fld, g, t, 100*g/max(t, 1)))
+    print("  판정(H_min): ASK율이 낮고(≈irreducible) wrong≈0·SELECT정확 높으면 → online-H_min이 F3 닫음(ASK 안 부풀림·user_stop 회피).")
+    return by_field
+
+
 def make_prompt(case, schema, strict=False, fewshot_prefix=None):
     opts = "\n".join("- '%s': %s" % (v, desc) for v, desc in schema[case["field"]])
     hdr = ("You classify a bank customer's situation into exactly ONE allowed category.\n")
@@ -231,6 +352,8 @@ def main():
     ap.add_argument("--strict", action="store_true")
     ap.add_argument("--fewshot", action="store_true", help="각 enum 클래스 예시+prior-conflict 반례 few-shot")
     ap.add_argument("--compareloop", action="store_true", help="§0 per-candidate COMPARE-or-ASK loop(후보별 격리 이진→select/ASK)")
+    ap.add_argument("--hmin", action="store_true", help="online-H_min 결정기(격리 등급채점→margin threshold→SELECT/ASK)")
+    ap.add_argument("--margin", type=int, default=1, help="SELECT 자격 top1-top2 최소 gap(기본1)")
     a = ap.parse_args()
     files = sorted(glob.glob("C:/tmp/traj/*_banking.json"))
     # 스키마: 궤적 있으면 추출·없으면(리모트) 커밋된 f3_schema.json 로드
@@ -274,6 +397,9 @@ def main():
             demo_pool.extend(lst[per:per + 40])       # test와 disjoint한 데모풀
         if a.compareloop:
             run_compareloop(cl, a.model, cases, schema)
+            return
+        if a.hmin:
+            run_hmin(cl, a.model, cases, schema, margin=a.margin)
             return
         fs_prefix = build_fewshot(demo_pool, schema) if a.fewshot else None
         if a.fewshot:
