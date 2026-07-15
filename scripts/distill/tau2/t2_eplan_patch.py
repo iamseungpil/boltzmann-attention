@@ -236,12 +236,16 @@ class PlanLedger:
 
     def note_read(self, tool_name, args=None, output_text=None):
         """read 관측: A2 도구명으로 list/detail 판별해 listed/examined 갱신.
-        list-enumerator → 출력서 entity id 파싱해 listed.
+        list-enumerator → 출력서 entity id 파싱해 listed (str 또는 list·C101 (b) banking 멀티-reader).
+        list_from_reads=true → 어느 read 출력이든 entity_key id를 listed (banking bulk-reader·디스패처).
         detail-reader   → 호출 인자의 entity_key 값을 examined."""
-        if tool_name == self.spec.get("list_enumerator"):
-            self.listed |= _extract_entity_ids(output_text, self.spec.get("entity_key"))
-        elif tool_name == self.spec.get("detail_reader"):
-            eid = (args or {}).get(self.spec.get("entity_key"))
+        le = self.spec.get("list_enumerator")
+        le_set = set(le) if isinstance(le, (list, tuple)) else ({le} if le else set())
+        ek = self.spec.get("entity_key")
+        if tool_name in le_set or self.spec.get("list_from_reads"):
+            self.listed |= _extract_entity_ids(output_text, ek)
+        if tool_name == self.spec.get("detail_reader"):
+            eid = (args or {}).get(ek)
             if eid:
                 self.examined.add(_norm(eid))
 
@@ -403,6 +407,13 @@ def build_ledger_from_messages(messages, spec, write_tools):
     엔진 리터럴과의 하위호환(spec 미지정 도메인 = 종전 동작 그대로)."""
     led = PlanLedger(spec)
     ikey = spec.get("items_key", "item_ids")
+    ekey = spec.get("entity_key")
+    # C101 (b): banking dispute write/read = 디스패처 nested. spec이 디스패처 배선 선언(도메인일반·ABox).
+    disp_tool = spec.get("dispatch_tool")
+    disp_name_key = spec.get("dispatch_name_key", "agent_tool_name")
+    disp_args_key = spec.get("dispatch_args_key", "arguments")
+    wt_all = set(write_tools) | set(spec.get("write_tools") or ())
+    _fam = lambda n: re.sub(r"_\d+$", "", str(n or ""))
     res_by_id = {}
     for m in messages:
         if _g(m, "role") == "tool" and _g(m, "id") is not None:
@@ -424,13 +435,24 @@ def build_ledger_from_messages(messages, spec, write_tools):
                 ar = ar if isinstance(ar, dict) else {}
                 tm = res_by_id.get(_g(tc, "id"))
                 ok = tm is not None and not _g(tm, "error")
-                if nm in write_tools:
+                out = _g(tm, "content") if ok else None
+                out = out if isinstance(out, str) else None
+                # C101 (b): 디스패처면 nested {name, args}로 풀어 실제 도구명/인자로 판별
+                eff_nm, eff_ar = nm, ar
+                if disp_tool and nm == disp_tool:
+                    eff_nm = _fam(ar.get(disp_name_key, ""))
+                    inner = ar.get(disp_args_key)
+                    if isinstance(inner, str):
+                        try:
+                            inner = json.loads(inner)
+                        except Exception:
+                            inner = {}
+                    eff_ar = inner if isinstance(inner, dict) else {}
+                if eff_nm in wt_all or _fam(eff_nm) in wt_all:
                     if ok:
-                        led.note_write(nm, ar.get(spec.get("entity_key")),
-                                       ar.get(ikey) or ())
+                        led.note_write(eff_nm, eff_ar.get(ekey), eff_ar.get(ikey) or ())
                 else:
-                    out = _g(tm, "content") if (tm is not None and not _g(tm, "error")) else None
-                    led.note_read(nm, ar, out if isinstance(out, str) else None)
+                    led.note_read(eff_nm, eff_ar, out)
     return led
 
 

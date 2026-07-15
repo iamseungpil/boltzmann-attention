@@ -63,9 +63,14 @@
  "_note_applies_when": "call_discoverable_agent_tool = 디스패처(인자 agent_tool_name이 내부 도구 지정). gold 예외 3태스크의 내부 도구(전부 무인자 transfer/incident형)는 고객데이터 미접근 → not_in 면제(A2 도메인 사실). 직접 도구 4개(change_user_email 등)는 applies_when의 arg 부재 → not_in만으로는 항상 적용(엔진 _gate_applies 보수 규칙).",
  "_note_minimize_a2": "placeholders 미기재 = scaffold DEFAULT 폴백 (minimize-A2). identifying_arg_types는 2026-07-11 A2-only 확장으로 time_verified 1건만 등재(_note_identifying_arg_types). give_discoverable_user_tool·unlock_discoverable_agent_tool은 미게이트(전자=고객데이터 접근 아님이 태스크-조건적·후자=env가 unlock-before-call 이미 집행=C12).",
  "eplan": {
-  "list_enumerator": "get_credit_card_accounts_by_user",
+  "list_enumerator": ["get_credit_card_transactions_by_user", "get_bank_account_transactions"],
   "detail_reader": "get_credit_card_transactions_by_user",
-  "entity_key": "account_id"
+  "entity_key": "transaction_id",
+  "list_from_reads": true,
+  "dispatch_tool": "call_discoverable_agent_tool",
+  "dispatch_name_key": "agent_tool_name",
+  "dispatch_args_key": "arguments",
+  "write_tools": ["file_credit_card_transaction_dispute", "file_debit_card_transaction_dispute", "submit_cash_back_dispute"]
  },
  "_note_eplan": "BANKING_FLOOR_LEVER_FIT §3.3(E-PLAN=discovery-read 강제 표적·[[14]]) 대응물 식별: floor 궤적 실존 직접 도구만 — 목록형 reader=get_credit_card_accounts_by_user(101콜·per-user 계좌 record 열거·account_id 필드), 상세형 reader=get_credit_card_transactions_by_user(188콜·gold 지배 read). ⚠최유력이나 retail 대응이 불완전한 구조적 한계 3건(엔진 사실·보고용): (a) banking 도구출력=포맷문자열(비JSON)→_extract_entity_ids 파싱 실패=listed 항상 ∅, (b) per-entity 상세 reader가 직접 도구에 없음(get_bank_account_transactions_9173류=디스패처 내부라 ledger가 이름 귀속 불가)·get_credit_card_transactions_by_user는 user_id 키라 entity_key=account_id로 examined 미갱신, (c) confirm 게이트 부재→_confirm_write_tools=∅→unified L1/L2 deny 비발화. 현 배선(T2_EPLAN)서 사실상 불활성 — 표적인 discovery-read 강제는 [[14]] 배선 진화 필요.",
  "operands": {
