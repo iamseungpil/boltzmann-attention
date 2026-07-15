@@ -585,12 +585,19 @@ def cp5_gap_reminder(n, m, unexamined):
 
 
 # ── 피드백 텍스트 (생성-레벨 전용·히스토리 커밋 금지) ─────────────────────────
+def _tool_phrase(v):
+    """도구명(str) 또는 도구명 목록(list) → 사람-읽기 문구('a or b'). 도메인일반."""
+    if isinstance(v, (list, tuple)):
+        return " or ".join(str(x) for x in v) or "the list tool"
+    return str(v)
+
+
 def l1_feedback(ledger, spec):
     """L1 deny 피드백(t81형·"목록 먼저"). 도구명 = A2서."""
     _mark("L1 deny: multi-entity intent, list-enumerator not called")
     return ("[E-PLAN] This request may span MULTIPLE records. Before any write, first call "
             "%s to list the customer's records, then read the relevant ones."
-            % spec.get("list_enumerator"))
+            % _tool_phrase(spec.get("list_enumerator")))
 
 
 def l2_feedback(ids, spec):
@@ -609,11 +616,11 @@ def l2_feedback(ids, spec):
                 "for them first. If a record IS part of what the user asked for, act on it too "
                 "(complete every record the request covers). Only avoid acting on records the "
                 "user did NOT ask about."
-                % (", ".join(ids), spec.get("detail_reader")))
+                % (", ".join(ids), _tool_phrase(spec.get("detail_reader"))))
     return ("[E-PLAN] The request quantity exceeds the records you have acted on. "
             "You listed record(s) %s but have not read their details yet — call %s "
             "for them first, then decide which records the request covers."
-            % (", ".join(ids), spec.get("detail_reader")))
+            % (", ".join(ids), _tool_phrase(spec.get("detail_reader"))))
 
 
 def cp5_reminder(gaps):

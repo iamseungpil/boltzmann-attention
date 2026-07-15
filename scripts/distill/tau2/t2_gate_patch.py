@@ -1835,7 +1835,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             try:
                 import t2_eplan_patch as _epmod
                 ep_spec = a2.get("eplan")
-                ep_writes = _confirm_write_tools(a2)
+                # ep_writes = confirm-gate write 도구 ∪ eplan spec write_tools(C101 (c)·디스패처 nested용)
+                ep_writes = _confirm_write_tools(a2) | set(ep_spec.get("write_tools") or ())
                 ep_led = _epmod.build_ledger_from_messages(state.messages, ep_spec, ep_writes)
             except Exception as _e:
                 print("[T2_EPLAN] ledger build failed: %r" % (_e,), file=_sys.stderr, flush=True)
@@ -1951,13 +1952,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and getattr(self, "_t2_eplan_deny", 0) < _ep_cap):
                 for c in (am.tool_calls or []):
                     nm = getattr(c, "name", None)
+                    _cargs = _args_dict(c)
+                    # ★디스패처 unwrap(C101 (c)·retail 무영향=dispatch_tool 없으면 skip):
+                    #   banking dispute write = call_discoverable_agent_tool(nested {name,args}).
+                    _dt = ep_spec.get("dispatch_tool")
+                    if _dt and nm == _dt:
+                        nm = re.sub(r"_\d+$", "", str(_cargs.get(
+                            ep_spec.get("dispatch_name_key", "agent_tool_name"), "")))
+                        _inner = _cargs.get(ep_spec.get("dispatch_args_key", "arguments"))
+                        if isinstance(_inner, str):
+                            try:
+                                _inner = json.loads(_inner)
+                            except Exception:
+                                _inner = {}
+                        _cargs = _inner if isinstance(_inner, dict) else {}
                     if nm in ep_writes and id(c) not in denied_by_objid:
                         try:
                             # ★qty-conflation 가드(t27): 시도 call의 품목 id를 술어에 전달
                             #   (키=A2 "items_key"·ABox) — N이 품목-급으로 충족되면 deny 안 함.
-                            _ep_items = _args_dict(c).get(
+                            _ep_items = _cargs.get(
                                 ep_spec.get("items_key", "item_ids")) or ()
-                            _ep_ent = _args_dict(c).get(ep_spec.get("entity_key"))
+                            _ep_ent = _cargs.get(ep_spec.get("entity_key"))
                             fb = _epmod.discovery_precondition(
                                 ep_led, ep_spec, nm, attempt_items=_ep_items,
                                 attempt_entity=_ep_ent)
