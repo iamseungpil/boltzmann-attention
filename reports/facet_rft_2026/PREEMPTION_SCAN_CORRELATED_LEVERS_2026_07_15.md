@@ -38,3 +38,17 @@
 ## 7. caveat
 - 4편=PDF 원문 정독 [M]. DR harvested 15 claim=deep-read [?](verify 미도달·재검증). 특성화 papers 일부 arxiv id 미확정.
 - Minority Sentinel "gold∈support 0서 무력"은 *논리적 귀결*(그들 recovery 정의상)·그들이 그 regime을 명시 테스트한 건 아님(우리 E-REGIME이 그 regime 계측).
+
+---
+## ★두 난제(E-PLAN outer loop) 선점 스캔 (2026-07-15·DR `wf_23666af5-a45` stall→harvest+원문정독 2편·[M])
+DR 두 난제(①열거/discovery ②결정론 loop-강제) 조사. harvest 25 claim[?] + 근접 2편 원문[M].
+- **Don't Stop Early `2604.24978`**(원문[M]): upfront structured outline+reflection(열거·coverage-check) + **hand-defined 결정론 sufficiency 조건**(per-task·예 "2020-2050 3+출처")으로 premature-stop 강제. **H_min/엔트로피 없음·open-world ASK 없음·replanning=고정 iter**. → **E-PLAN 구조(열거+비-volition 종료)를 선점**.
+- **Reason Less Verify More `2607.07405`**(원문[M]): pre-execution 정책 게이트 `g(tool,args,db)→allow/reject` = **compliance 게이트(이미 양보·`2603.20449`)**·완료-컨트롤러 아님·coverage 무관.
+- **Agent-Oriented Planning `2410.02189`**(harvest[?]): completeness Detector(query 요소 추출→sub-task 매칭·coverage) = HP1 부분선점(decomposition-time·ablation 43.7→36.6%).
+- 인접(harvest[?]): premature-commitment(`2606.22936`)·early-exit(`2607.06503`·`2505.17616`)·goal-persistence(`2605.23574`)·MAST 실패 taxonomy(`2503.13657`).
+
+### 판정
+- **선점**: ①열거(upfront outline+coverage detector) ②비-volition 결정론 종료 강제(hand-defined 조건) → **E-PLAN 구조 선점**.
+- **미선점(우리 outer-loop delta·좁음)**: ①**H_min 엔트로피 종료 criterion**(vs hand-crafted per-task) ②**open-world completeness-ASK** ③**inner+outer를 같은 {GET/FIND/COMPUTE/ASK+H_min}로 통일**(C92).
+- ★**정직**: outer loop(E-PLAN)은 inner router보다 훨씬 선점됨. 최강 novelty = **통일 프레임**(C92)·H_min-종료·open-world-ASK. "결정론 완료-컨트롤러"는 헤드라인 금지(선점).
+- ⚠ harvest claim[?]=재검증. 원문 2편[M]. Don't Stop Early가 최근접→최종 relwork 정독 필수.
