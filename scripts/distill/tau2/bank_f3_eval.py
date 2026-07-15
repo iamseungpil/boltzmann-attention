@@ -95,18 +95,47 @@ def build_cases(files, schema):
                                   "options": [v for v, _ in schema[fld]]})
     return cases
 
-def make_prompt(case, schema, strict=False):
+def _short_nl(nl, n=500):
+    return re.sub(r"\s+", " ", str(nl)).strip()[:n]
+
+
+def build_fewshot(demo_pool, schema, k_per_class=1):
+    """필드별 few-shot 데모 prefix: 각 enum 클래스 예시 + prior-conflict 반례(있으면).
+    demo_pool = test와 disjoint한 case 리스트. 반환 {field: prefix_str}."""
+    pref = {}
+    for fld in schema:
+        seen = {}
+        demos = []
+        # 클래스별 1개(다양성) + prior-conflict 우선
+        pool = [c for c in demo_pool if c["field"] == fld]
+        pool.sort(key=lambda c: 0 if c.get("label", "").startswith("prior-conflict") else 1)
+        for c in pool:
+            g = c["gold"]
+            if seen.get(g, 0) >= k_per_class:
+                continue
+            seen[g] = seen.get(g, 0) + 1
+            tag = " (NOTE: customer's words may suggest 'fraud' but the correct category is per the definition)" if c.get("label", "").startswith("prior-conflict") else ""
+            demos.append("Customer: %s\nTransaction: %s\nCorrect %s: %s%s" %
+                         (_short_nl(c["nl"], 400), json.dumps(c["txn"], ensure_ascii=False), fld, g, tag))
+            if len(demos) >= 10:
+                break
+        pref[fld] = "\n\nHere are worked examples:\n\n" + "\n---\n".join(demos) + "\n\n"
+    return pref
+
+
+def make_prompt(case, schema, strict=False, fewshot_prefix=None):
     opts = "\n".join("- '%s': %s" % (v, desc) for v, desc in schema[case["field"]])
     hdr = ("You classify a bank customer's situation into exactly ONE allowed category.\n")
     if strict:  # anti-prior 강화(리뷰/[[08]] robustness): 프롬프트-엔지니어링이 prior-override 고치나
         hdr += ("IMPORTANT: Decide STRICTLY from the definitions below and the customer's exact words. "
                 "Do NOT default to 'fraud'/'unauthorized' unless the definition and the customer's words specifically match it. "
                 "Read each definition and pick the one that fits the described situation.\n")
+    fs = (fewshot_prefix.get(case["field"], "") if fewshot_prefix else "")
     return (hdr +
-            "Allowed values for %s (choose exactly one, output the value verbatim):\n%s\n\n"
-            "Customer's statements:\n%s\n\nTransaction facts: %s\n\n"
+            "Allowed values for %s (choose exactly one, output the value verbatim):\n%s\n%s\n"
+            "Now classify THIS case.\nCustomer's statements:\n%s\n\nTransaction facts: %s\n\n"
             "Output ONLY the single exact category value, nothing else." %
-            (case["field"], opts, case["nl"], json.dumps(case["txn"], ensure_ascii=False)))
+            (case["field"], opts, fs, case["nl"], json.dumps(case["txn"], ensure_ascii=False)))
 
 def main():
     ap = argparse.ArgumentParser()
@@ -116,6 +145,7 @@ def main():
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--max", type=int, default=0)
     ap.add_argument("--strict", action="store_true")
+    ap.add_argument("--fewshot", action="store_true", help="각 enum 클래스 예시+prior-conflict 반례 few-shot")
     a = ap.parse_args()
     files = sorted(glob.glob("C:/tmp/traj/*_banking.json"))
     # 스키마: 궤적 있으면 추출·없으면(리모트) 커밋된 f3_schema.json 로드
@@ -153,13 +183,18 @@ def main():
             strata[(c["field"], c["gold_attend"])].append(c)
         cap = a.max or 10**9
         per = max(1, cap // max(len(strata), 1))
-        cases = []
+        cases = []; demo_pool = []
         for k, lst in strata.items():
             cases.extend(lst[:per])
+            demo_pool.extend(lst[per:per + 40])       # test와 disjoint한 데모풀
+        fs_prefix = build_fewshot(demo_pool, schema) if a.fewshot else None
+        if a.fewshot:
+            print("  [few-shot] 데모풀 %d·필드별 예시:" % len(demo_pool),
+                  {k: v.count("Correct ") for k, v in fs_prefix.items()})
         by_attend = defaultdict(lambda: [0, 0]); by_field = defaultdict(lambda: [0, 0])
         for i, c in enumerate(cases):
             try:
-                r = cl.chat.completions.create(model=a.model, messages=[{"role": "user", "content": make_prompt(c, schema, strict=a.strict)}],
+                r = cl.chat.completions.create(model=a.model, messages=[{"role": "user", "content": make_prompt(c, schema, strict=a.strict, fewshot_prefix=fs_prefix)}],
                                                temperature=0, max_tokens=30)
                 pred = r.choices[0].message.content.strip().strip("'\"").lower()
             except Exception as e:
@@ -170,7 +205,8 @@ def main():
             by_field[c["field"]][0] += int(ok); by_field[c["field"]][1] += 1
             if i < 6 or (i % 40 == 0):
                 print("[%d/%d] %s attend=%s gold=%s pred=%s %s" % (i, len(cases), c["field"], c["gold_attend"], c["gold"], pred[:26], "✓" if ok else "✗"), flush=True)
-        print("\n=== base 32B 스키마-분류 정확도 (%s·n=%d) ===" % (a.model, len(cases)))
+        mode = "few-shot" if a.fewshot else ("strict" if a.strict else "zero-shot")
+        print("\n=== base 32B 스키마-분류 정확도 [%s] (%s·n=%d) ===" % (mode, a.model, len(cases)))
         print("  [gold-attend별]")
         for k, (ok, tot) in by_attend.items():
             print("    %-24s %d/%d = %.1f%%" % (k, ok, tot, 100 * ok / max(tot, 1)))
