@@ -32,6 +32,13 @@ The central empirical object is the **per-step regime partition** itself: what f
 - **ASK 예산** = 정보이론 바닥 H_min(은행 4.27/2.60 bit·~7질문)까지 DERIVE·DEFAULT·VOI로 접기 → **non-scale 레버**(crossover 모트).
 - **정직한 scope(재측정 아님)**: voting-vacuity=**settled[M]**(재론 금지). 열린 것 = verify **교체의 타당성**(mis-formalize면 새 체계오류 주입 → Δspurious≤0 계측). DERIVE는 기전작동 가정.
 
+## ★2층 라우터 (2026-07-15·C90·⋈=plan 실측 후 정련)
+E-REGIME ⋈ 실측(plan 67.9%·verify 1.6%)이 라우터가 **한 층이 아님**을 드러냄. 다중-item 과제는 2층:
+- **Outer loop (across-item·E-PLAN)** = 항목(dispute) 열거→**격리**(per-item 컨텍스트 리셋)→완료추적. 측정한 plan-앵커링(560·다중-dispute)이 격리로 소멸. **loop=결정론 컨트롤러**(프롬프트 아님·LLM은 일찍 종료=under-action·C80·[[07]]).
+- **Inner router (within-item·per-step)** = §2의 {voting|verify|ASK}. 각 격리된 item 안에서 correctness(compute→verify·pin→ASK·stochastic→voting).
+- **상보(비중첩)**: outer=item 간 plan·inner=item 내 correctness.
+- **loop의 공짜 아닌 2지점**: ①**열거/discovery**(무엇을 돌지=reach 잔여·C80 미스 80%=발견실패) ②**결정론 강제**(loop을 LLM 자율에 안 맡김). 격리 자체는 선행 decomposition(양보). ①②=딥리서치 `wf_23666af5-a45` 선행조사 중.
+
 ## 인용 배선 (양보·재사용)
 - 곱/horizon: `2509.09677`(execution horizon)·Lusser's Law.
 - 분해 substrate: MAKER(2025-11)·TDP `2601.07577`·ToT `2305.10601`·GoT.
