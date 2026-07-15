@@ -37,9 +37,14 @@
 4. **종료** = 엔트로피-gate(잔여목표 H > floor면 계속·completeness-ASK "그게 다"가 H→floor).
 → **새 primitive 0.** 두 난제는 *naive LLM*엔 어렵지만(under-act·자기완비성 인증 불가), **결정론 엔트로피-gate + ASK 컨트롤러**로 닫힘.
 
-## 6. banking 실측 지지 + 확인 대상
-- **[M부분]** C80 §14.6: 0-제출 sim의 **70%가 dispute 도구 unlock·거래 조회** = 항목 **열거가능**(support 알려짐)·실패=under-action(발견불가 아님). ⇒ banking open-world 잔여 작음·문제1 대부분 closed-world.
-- **확인 forensic(병행)**: banking 0-제출을 (a)열거가능-but-under-acted (b)발견불가로 정밀 분해 → "H_min+열거가 banking reach 닫음" 실증. (§14.6 정밀화.)
+## 6. banking 실측 (reach forensic·`bank_reach_forensic.py`·로컬 17 frontier 궤적·1048 0-제출·[[08]] 3분·[M])
+- **A. enumerable(agent가 tool result/user서 봄)→under-action(ACT): 526(50.2%)**
+- **B. queryable(원천 존재·다른 run이 surface·이 run 미조회)→under-action(ENUM): 199(19.0%)**
+- **C. never-surfaced(어느 run도 tool result에 없음=open-world 후보·상한): 323(30.8%)**
+- ⇒ **closed-world(A+B·원천 존재·실패=under-action) = 725(69.2%)** = C80 §14.6 "70%"와 정합. → **entropy-gate + 강제 열거로 닫힘**(문제2·문제1-closed).
+- ⇒ **open-world 후보(C) = 323(30.8%·상한)** → **completeness-ASK 필요**(완비 GET 도구 존재 시 상당수 closed-world 이동=상한).
+- **★정직 수정**: open-world 잔여는 "작음"이 아니라 **≤31%** → **completeness-ASK가 corner-case 아니라 load-bearing 레버**(§4가 실질 대량 담당). 두 메커니즘(entropy-gate·completeness-ASK) 다 필요. (첫 50% enumerable은 agent-saw만=엄격·queryable 포함하면 69%.)
+- **미해결 확인**: C(31%)가 진짜 open-world인지, 완비 transaction-listing 도구 존재로 closed-world인지 = tau2 banking 도구정의 확인 필요(다음).
 
 ## 7. novelty 위치 (PREEMPTION_SCAN 정합)
 - 부품: 엔트로피/VOI-ask(Info-Gain)·decidable-offload(PAL)·decomposition(TDP) = 선점·인용.
