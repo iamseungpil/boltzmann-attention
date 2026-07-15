@@ -1,6 +1,6 @@
-# 설계서(확정본 v3) — banking per-step regime-partition probe (voting-solvable vs verify vs ASK)
+# 설계서(확정본 v4) — banking per-step regime-partition probe (voting-solvable vs verify vs ASK)
 
-> 상태: **설계 [D]·리뷰 반영 완료(사용자 6결함+§13+규율2 → v2, +decidability 조작화·기회≠이득·⋈-first → v3)·구현 착수.** v1→v2→v3(2026-07-14→15).
+> 상태: **설계 [D]·구현 v4·Phase0 게이트 통과·Phase1 대기.** v1→v2(6결함+§13+규율2)→v3(decidability 조작화·기회≠이득·⋈-first)→**v4(리뷰❶❷❸❹: decidability oracle/runtime 2분할·voting% universe 정정·selection bias 승격·abstain 분리)**. 2026-07-14→15.
 > 큐: **E-REGIME**(신규·C88 파생·§4 등대 큐 등록). 목적 = C88 라우터{voting|verify|ASK}의 per-step regime partition 실측.
 > 규율: [[08]] per-case·집계직행 금지·**교차표 1급** · [[05]] 엔진 도메인일반·측정만 · [[09]] 무료로컬(32B·gpt-4.1=0)·**Phase0 go/no-go** · [[47]] provenance · 사전등록 예측.
 > 입력: C88 · `DRAFT_verifyorask_as_perstep_mechanism` · probe6(+0%·8/8) · C79(formalize)·C80(coverage)·C81(compute).
@@ -48,17 +48,22 @@
 - **T=0.7 primary + T=1.0 1점 서브샘플**(분산이 신호 → T-민감도 bound 필수).
 - 산출(유효샘플만): `H_k`(field-값 엔트로피·gold불요) · `top_freq` · `maj_ok` · `gold∈support?` · `p_gold` · `greedy_ok` · `k_valid`·malformed율.
 
-## 7. 분류 규칙 = decidability(조작적) × voting-recoverability (★fix②저파워·★v3 decidability 조작화)
-- **★decidability = 조작적 정의**(hand-label 아님·v3): **`decidable ≡ gate_spec 엔진이 컨텍스트에서 값을 산출 가능`**. 엔진이 값 산출 → decidable(→verify) / 산출 불가(필수 인자가 user-only) → non-decidable(→ASK). ⇒ 라벨=엔진 실행결과=객관적·감사 리스크 소멸·§8③ 재계산 신호가 곧 이 정의(gold-free 라우터 자동 정합). (per-case로 엔진-라벨 vs 직관 불일치만 점검.)
+## 7. 분류 규칙 = decidability × voting-recoverability (★v4 리뷰❶: decidability 2분할)
+- **★두 decidability를 분리**(v3가 하나로 합친 결함 정정):
+  - **oracle_decidable**(=science 천장·gold 필요): gold파생 criteria로 filter가 gold 유일도달? = 구조적 resolvability(true-dup의 역수). **객관적이나 gold 필요=라우터 신호 아님.** verify vs ASK의 *이론 천장*·C78과 일치.
+  - **runtime_decidable**(=gold-free 라우터 신호): 모델 formalize criteria로 filter가 **real id 산출**(maj가 abstain/malformed 아님). gold 불요·라우터가 실제 쓰는 신호.
+  - **★gap = oracle_decidable ∧ ¬(runtime이 gold 도달) = formalization error = 라우터 맹점.** 이 gap이 §8의 핵심수치(v3 "자동 정합·감사 리스크 소멸"은 과장·철회).
+- greedy-wrong(D) 스텝 → verify(oracle_decidable)/ASK(true-dup). verify 세부 abstain vs confident-wrong 분리(❸).
 - greedy-wrong(D) 스텝:
   - decidable → **verify**. 세부(rerank vs compute): **gold∈support 서브분할은 k=8서 저파워**(진확률 5%→E[count 8]=0.4→대부분 ∉support로 오판→"compute" 편향). ⇒ **서브분할은 k=32에서만**·k=8선 gold∈support를 **하한(lower bound)으로만** 보고.
   - non-decidable → **ASK**(resample 무관·정보 모델 밖). resample은 guessing(고H_k) vs confident-default(저H_k) 확인용.
 
 ## 8. ★런타임 gold-free 신호 검증 (§13e 1급 승격·★fix④ 재설계)
-라우터는 gold 모름 → gold-free 신호가 §7 gold-라벨(regime)을 예측하나:
-- 신호 후보: ①**decidability**(§7 조작적=gate_spec 산출가능 여부·항상 가용) ②**H_k**(엔트로피) ③**★결정론 재계산 일치**=§7 decidability 정의 그 자체: decidable field를 `gate_spec`으로 재계산(gold 불요) → maj@k가 그것과 일치? 불일치=systematic-wrong 직접 검출(=verify 신호). ⇒ 라우터=재계산 되면 verify·안 되면 ASK·H_k는 보조.
-- **★H_k 단독 = strawman**: systematic-confident-wrong은 H_k≈0 (gather confident-default와 동일) → 저엔트로피가 voting-solvable 구분 못 함. **H_k 단독 AUROC 나쁜 건 예정·라우터 실패 아님.**
-- **성공조건 재정의**: {decidability, H_k, 재계산일치} **결합 예측 AUROC** + **decidability 위 H_k의 marginal(증분) AUROC**. 결정론-재계산이 decidable 잔여의 주 discriminator일 것으로 예측.
+라우터는 gold 모름 → gold-free 신호가 oracle-regime을 예측하나 = **§8 핵심 = oracle vs runtime의 gap(§7)**:
+- **★1급 수치 = formalization gap**: oracle_decidable ∧ 32B-greedy-wrong 중, 런타임(runtime_decidable ∧ maj_ok)이 못 닿는 비율. gold-free 라우터가 이 gap을 못 좁히면 §8 실현성 미달·특허 라우터 물음표. (스모크에서 이미 산출: `report()` GAP 블록.)
+- gold-free 신호 후보: ①**runtime_decidable**(maj가 real id·gold불요) ②**H_k**(엔트로피) ③**결정론 재계산 일치**(gate_spec 값 vs maj).
+- **★H_k 단독 = strawman**: systematic-confident-wrong은 H_k≈0(gather confident-default와 동일) → 저엔트로피가 voting-solvable 구분 못 함. **H_k 단독 AUROC 나쁜 건 예정·라우터 실패 아님.**
+- **성공조건**: {runtime_decidable, H_k} **결합 AUROC**(oracle-regime 예측) + **runtime_decidable 위 H_k의 marginal AUROC**. full-run서 산출.
 
 ## 9. self-conditioning 귀속 (Phase 2·gold-prefix·[D]·★fix③)
 - gold-prefix 재구성(선행 gold action canonical 순서) → 같은 §4-8 측정. actual vs gold의 regime 이동 = self-conditioning 몫(Q1·horizon C82 귀속).
@@ -75,6 +80,8 @@
 
 ## 12. 반증조건 + 교란·caveat
 - **반증(정직 보고 의무)**: ⋈/compute의 **큰 비율이 voting-win(C)** 이면 → voting이 잔여 덮음 → C88 약화·voting 편입 확대. / actual vs gold 차이 크면 → 실패=self-conditioning(within-step 아님)→horizon 재분류.
+- **★1급 selection bias(v4·리뷰❷)**: ⋈ 케이스셋(853)=**frontier-failed ⋈점**(chosen≠gold)만 = frontier가 틀린 *더 어려운* ⋈점 편중 → **voting%을 아래로 편향(C88 과대평가 위험)**. voting%은 이 스코프서만 valid("frontier-failed ⋈점 위 32B voting%")·전체 ⋈ 모집단 일반화 금지. 순수 within-32B 청구엔 frontier-succeeded ⋈점 재추출 필요(미보유).
+- **★1급 model mismatch(v4)**: probe 모델=32B ≠ 궤적 모델=frontier(gemini/gpt). 측정명제 = "32B-greedy-wrong 위 32B-voting" (2×2가 32B로 조건화·§16). 원-agent 실패는 universe 선택에만 관여(위 selection bias).
 - **★fix⑥ per-cell CI/min-n**: 버킷×2prefix×{v/vf/ask} 셀 급감 → **셀별 최소 n 사전등록**·미만이면 %아니라 **count** 보고. partition %에 이항 CI.
 - **★v3 경계 명시(기회≠실현이득·[[08]])**: E-REGIME은 per-action·offline(C79 상속)이라 **"voting이 못 닫는 잔여의 *크기*(기회)"를 잴 뿐, 라우터를 붙였을 때의 완주율↑(실현이득)이 아니다.** 실현이득은 **E-PLAN e2e([[14]])에서만**. "이만큼 개선"으로 과장 금지. C88 방어엔 기회-크기로 충분.
 - k=8 엔트로피 소표본·field 파싱 노이즈(C79 상속)·per-action이 live보다 엄격(C79)·decidability=gate_spec 산출가능(엔진 커버리지에 의존).
@@ -92,11 +99,12 @@
 - 표: 버킷 × {greedy×maj@k 2×2} × {voting%/verify%/ASK%}(CI/count) × {actual/gold} · ⋈ k-curve · gold-free AUROC(결합+marginal).
 - ledger C88 partition 실측 갱신 · E-REGIME 상태.
 
-## 16. 구현·오프라인 검증 (2026-07-15)
-- 스크립트: `scripts/distill/tau2/bank_regime_partition.py`(⋈ 버킷·`--dry` 오프라인/full resample·기존 filter 재사용).
-- **★`--dry` 무료 검증 통과**: `bank_xmatch_cases`(853) · **decidable 699(82.0%) = C78의 81.9% 재현** → §7 decidability 조작적 정의(gate_spec filter가 gold 유일도달)가 C78과 일치·정의 검증됨. non-decidable(ASK) 154(18.0%)=진짜중복. in-situ 실패 853 전부 다중-dispute(C79 정합).
-- ⚠**853 = C77-79 추출 ⋈셋·C80 궤적수준 coverage 오염 확인분**. E-REGIME은 **formalize→filter 스텝의 voting-solvability** 측정(궤적 실패귀속=C80 별건). ★**voting% 분모 = probe-greedy-wrong(2×2 C+D)**(fix①)·in-situ(파일=실패셋 전체)가 아님. probe 모델=32B(원 agent=gemini/gpt 등)라 "32B-greedy-wrong 위 32B-voting이 gold 도달?"이 측정 명제(문서 명시).
-- **다음 = 서버 기동 후 Phase 0**(⋈ n~30·probe6 재현 게이트) → Phase 1(⋈ full·k=8+k=32). resample=vLLM n-param(무료·로컬).
+## 16. 구현·검증 로그
+- 스크립트: `scripts/distill/tau2/bank_regime_partition.py`(⋈·`--dry` 오프라인/full resample·기존 filter 재사용·v4).
+- **`--dry` 오프라인(무료)**: `bank_xmatch_cases`(853) · **oracle_decidable 699(82.0%) = C78 81.9% 재현** → **oracle-decidability 엔진이 C78과 일치**(정의검증 = *오라클* decidability 한정·라우팅 정의검증 아님·리뷰❶). true-dup(ASK 천장) 154(18.0%). ⚠❹: **다중-dispute 맥락(n_disputes≥2)=852는 true-dup율 18%와 별개 개념**(전자=유저가 여러 건 dispute·후자=record 속성충돌).
+- ⚠853 = C77-79 추출 ⋈셋·C80 궤적 coverage 오염분·**전부 frontier-failed(§12 selection bias 1급)**. E-REGIME=formalize→filter 스텝 voting-solvability(궤적 귀속=C80 별건). 측정명제="32B-greedy-wrong 위 32B-voting이 gold 도달?"(2×2로 조건화·§12 model mismatch).
+- **★Phase 0 게이트 통과(2026-07-15·서버 up·n=30·k=8·무료)**: **voting% = 0/29 = 0.0%** [CI 0–11.7]·**gold∈support 0/29**(정답이 8샘플에 단 한 번도 안 나옴=최대 systematic)·malformed 0 → **probe6(+0%·systematic) 재현**. partition: voting 0·verify 25·ASK 4. ⚠v4 재런으로 oracle/runtime gap·abstain 분리 산출 예정.
+- **다음 = v4 재런(Phase 0 재확인·gap 산출) → Phase 1**(⋈ full·k=8+k=32·per-case 정독).
 
 ## 15. 리뷰 확정 (§13 사용자 답변 반영·CLOSED)
 (a) field-level primary·**coverage 제외→E-PLAN** ✅ / (b) actual 먼저·gold=Phase2[D] ✅ / (c) k=8+⋈k=32·T=0.7+T=1.0 ✅ / (d) ⋈>compute>gather(coverage 이관) ✅ / (e) §8 1급·결합예측+marginal+재계산신호 ✅.
