@@ -155,13 +155,13 @@ def main():
             print("[t2_run] provenance L1(badwords)=%s L2(regen)=%s mode=%s GROUND=%s DISAMB=%s(%s)"
                   % (badwords_on, regen_on, prov_mode, (ground_on or ground2_on), disamb_on, disamb_mode))
 
-        # ★E-PLAN v1.3 (T2_EPLAN=1): ledger+L1/L2 deny는 unified()가 자체 감지.
-        #   CP5 walk(T2_EPLAN_WALK=1)는 orchestrator wrap — 여기서 apply.
-        if os.environ.get("T2_EPLAN") == "1":
-            import t2_eplan_patch
-            t2_eplan_patch.apply()
-            print("[t2_run] E-PLAN ON (L1/L2 discovery deny%s)"
-                  % ("+CP5 walk" if os.environ.get("T2_EPLAN_WALK") == "1" else ""))
+    # ★E-PLAN (T2_EPLAN=1): gate와 독립 적용 — CP5 walk = orchestrator wrap(gate 불요),
+    #   L1/L2 discovery deny = unified() 감지(--gate 1 필요). gate0+T2_EPLAN = 순수 CP5 격리 arm.
+    if os.environ.get("T2_EPLAN") == "1":
+        import t2_eplan_patch
+        t2_eplan_patch.apply()
+        print("[t2_run] E-PLAN ON (CP5 walk=%s · L1/L2 deny는 --gate 1 필요)"
+              % ("ON" if os.environ.get("T2_EPLAN_WALK") == "1" else "off"))
 
     # user-sim·judge 모델 결정: --user_llm(원격 API, 예 openrouter/...) 우선, 아니면 로컬 vllm
     if a.user_llm:
