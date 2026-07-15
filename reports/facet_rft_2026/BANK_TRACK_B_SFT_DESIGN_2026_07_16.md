@@ -1,5 +1,12 @@
 # Track B 상세 설계 — F3 스키마-분류 스킬 SFT (전부 무료·리모트 GPU·2026-07-16)
 
+> ⚠️ **2026-07-16 재프레임(사용자·최우선)**: Track B는 **SFT 아니라 LOOP**로 먼저 시도. F3 실패=검색결과와 비교 안 하고
+> prototype(fraud)로 one-shot 점프 → **COMPARE-or-ASK 결정론 loop**(GET/FIND 후보→후보별 y/n 격리비교→유일매칭 select·else ASK)가
+> 구조적으로 강제(학습 불요·[[10]]/[[13]] scaffold-before-learn·프레임 F2 "격리 sub-call+결정론 실행" 동형). **Track A와 한 loop로 통합.**
+> **다음 = `bank_f3_eval` per-candidate 비교 loop 확장→32B로 fraud-collapse 깨지나 테스트(무료).** 깨지면 F3 loop로 닫힘=SFT 불요.
+> 아래 SFT/synth 설계(§1-7)는 **loop가 실패할 때의 fallback**으로 강등. synth v0 무효(§6.2)는 유효.
+
+
 > 사용자 지적 정정: **Track B는 유료 아님**. SFT=리모트 A6000·eval=로컬 vLLM·**user-sim(gpt-5.2) 안 씀 = API 0 = 무료**.
 > few-shot 실험이 표적을 좁힘(§0). 입력: C99 base-eval·few-shot(dispute_reason 98% fraud mode-collapse·프롬프트 무효)·[[11]]/[[42]]/[[12]].
 
