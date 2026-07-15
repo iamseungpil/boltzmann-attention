@@ -95,9 +95,14 @@ def build_cases(files, schema):
                                   "options": [v for v, _ in schema[fld]]})
     return cases
 
-def make_prompt(case, schema):
+def make_prompt(case, schema, strict=False):
     opts = "\n".join("- '%s': %s" % (v, desc) for v, desc in schema[case["field"]])
-    return ("You classify a bank customer's situation into exactly ONE allowed category.\n"
+    hdr = ("You classify a bank customer's situation into exactly ONE allowed category.\n")
+    if strict:  # anti-prior 강화(리뷰/[[08]] robustness): 프롬프트-엔지니어링이 prior-override 고치나
+        hdr += ("IMPORTANT: Decide STRICTLY from the definitions below and the customer's exact words. "
+                "Do NOT default to 'fraud'/'unauthorized' unless the definition and the customer's words specifically match it. "
+                "Read each definition and pick the one that fits the described situation.\n")
+    return (hdr +
             "Allowed values for %s (choose exactly one, output the value verbatim):\n%s\n\n"
             "Customer's statements:\n%s\n\nTransaction facts: %s\n\n"
             "Output ONLY the single exact category value, nothing else." %
@@ -110,6 +115,7 @@ def main():
     ap.add_argument("--base", default="http://localhost:8140/v1")
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--max", type=int, default=0)
+    ap.add_argument("--strict", action="store_true")
     a = ap.parse_args()
     files = sorted(glob.glob("C:/tmp/traj/*_banking.json"))
     # 스키마: 궤적 있으면 추출·없으면(리모트) 커밋된 f3_schema.json 로드
@@ -153,7 +159,7 @@ def main():
         by_attend = defaultdict(lambda: [0, 0]); by_field = defaultdict(lambda: [0, 0])
         for i, c in enumerate(cases):
             try:
-                r = cl.chat.completions.create(model=a.model, messages=[{"role": "user", "content": make_prompt(c, schema)}],
+                r = cl.chat.completions.create(model=a.model, messages=[{"role": "user", "content": make_prompt(c, schema, strict=a.strict)}],
                                                temperature=0, max_tokens=30)
                 pred = r.choices[0].message.content.strip().strip("'\"").lower()
             except Exception as e:
