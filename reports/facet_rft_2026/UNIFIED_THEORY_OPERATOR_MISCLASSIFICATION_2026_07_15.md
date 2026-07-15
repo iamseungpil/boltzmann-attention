@@ -57,6 +57,7 @@
 - ⚠**"매핑률 100%"는 tautological**(4범주 exhaustive 설계) → *증거 아님*. **정보=분포**: 실패가 4연산에 **고르게 분산**(한 연산 지배 아님)=taxonomy 비-degenerate(필요조건).
 - **★진짜 검증(non-trivial·반증가능) = operator-*choice* 오류인가(연산 안 씀) vs within-operator 실행오류(연산 썼는데 실패)**:
   - ⋈: **gold∈support 0/29**(E-REGIME) → 재샘플로 못 고침 = 연산-choice(ASK/verify 필요). ✅
-  - compute: **재샘플=gold 도달(실행)? vs verify-recompute만(연산-choice)?** = 트랙1 compute 프로브. ⏳
+  - compute: **✅실증(`bank_compute_regime.py`·880 cases)** — 결정론 verify(keystone lookup) **94.4%** vs agent in-situ **48.9%**(~2배). resample focused: **greedy-wrong 0**(모델이 격리서 liability 계산 가능). ⇒ **compute 실패=능력 아니라 부하/operator-choice**(모델 COMPUTE 가능한데 in-situ서 안 씀)·fix=부하없는 COMPUTE(verify 94%). voting=격리서 잉여·in-situ서 vacuous → **compute의 답은 항상 COMPUTE(voting 아님)**.
   - reach: 69% enumerable/queryable=FIND 안 씀(under-action). ✅ 부분.
+- **★세 버킷 다 연산-choice 오류로 확인**(⋈ gold∈support0·compute 격리94%/insitu49%·reach 69%FIND미사용) = within-operator 실행노이즈 아님 → 통합의 non-trivial 검증 성립.
 - **반증 hunt(TODO)**: agent가 *올바른 연산을 쓰고도* 실패한 케이스(within-operator)를 수동감사로 탐색 → 그 비율이 통합의 진짜 반증. (예: ASK했는데 user-답으로도 실패·COMPUTE 맞는데 정책 애매.)
