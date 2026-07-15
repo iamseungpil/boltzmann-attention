@@ -1,0 +1,82 @@
+{
+ "dispute_reason": [
+  [
+   "unauthorized_fraudulent_charge",
+   "Charge was not authorized or is fraudulent"
+  ],
+  [
+   "duplicate_charge",
+   "Same charge appeared multiple times"
+  ],
+  [
+   "incorrect_amount",
+   "Amount charged differs from expected"
+  ],
+  [
+   "goods_services_not_received",
+   "Never received what was paid for"
+  ],
+  [
+   "goods_services_not_as_described",
+   "Received item/service differs from description"
+  ],
+  [
+   "canceled_subscription_still_charging",
+   "Subscription was cancelled but charges continue"
+  ],
+  [
+   "refund_never_processed",
+   "Merchant promised refund but it was never applied"
+  ],
+  [
+   "full_refund",
+   "Complete refund of the transaction amount"
+  ],
+  [
+   "partial_refund",
+   "Partial amount (must also provide partial_refund_amount)"
+  ],
+  [
+   "reversal_of_charge",
+   "Charge reversal/chargeback"
+  ]
+ ],
+ "dispute_category": [
+  [
+   "unauthorized_transaction",
+   "Transaction customer did not make or authorize (use only when fraud is NOT suspected)"
+  ],
+  [
+   "atm_cash_discrepancy",
+   "ATM dispensed wrong amount or no cash"
+  ],
+  [
+   "atm_deposit_not_credited",
+   "ATM deposit not reflected in account"
+  ],
+  [
+   "duplicate_charge",
+   "Same transaction charged multiple times"
+  ],
+  [
+   "incorrect_amount",
+   "Charged different amount than expected"
+  ],
+  [
+   "goods_services_not_received",
+   "Paid but never received item/service"
+  ],
+  [
+   "recurring_charge_after_cancellation",
+   "Subscription cancelled but still charging"
+  ],
+  [
+   "card_present_fraud",
+   "Physical card used fraudulently (not by customer) - USE THIS when fraud suspected and card"
+  ],
+  [
+   "card_not_present_fraud",
+   "Online/phone transaction customer didn't make - USE THIS when fraud suspected for online/ph"
+  ]
+ ]
+}
