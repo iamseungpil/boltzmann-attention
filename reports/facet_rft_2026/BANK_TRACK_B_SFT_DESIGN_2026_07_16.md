@@ -45,6 +45,14 @@
 4. **전이 eval**(bank_f3_eval·banking held-out) = make-or-break.
 5. (선택·유료) tau2 banking e2e 최종.
 
+## 6.2 ★synth v0 검증 = banking 실패모드 미재현 (중요 [[08]] 발견·2026-07-16)
+`synth_schema_classify.py`(5 도메인일반 taxonomy·generic evoker prior-conflict·held-out) v0를 base 32B로 검증(§6.2 게이트·리모트 8140·n=200):
+- **clear 100%·prior-conflict 100%·salient-default 예측율 0%**. ⇒ **base가 synth를 완벽히 풂 = banking의 98% mode-collapse 미재현.**
+- **원인**: synth 판별자 너무 명시적(즉시 정답)·NL 짧고 clean. banking = (i) NL 길고 노이지(대화 1500자·판별자 매몰) (ii) "fraud" 금융맥락 극강 prior (iii) 판별자 미묘(not_as_described↔fraud=정책 뉘앙스).
+- **★함의(fork)**: banking F3 실패가 **도메인일반 스킬 갭**(→synth 강화로 학습)인가 vs **banking-특화 강한-prior**([[11]] 긴장)인가. **synth가 실패모드 재현 못하면 Track B 전이 실험 무의미**(잘못된 스킬 학습).
+- **다음 옵션**: (a) synth 강화(salient-framing + 노이즈/길이 + 미묘 판별자로 collapse 유발) (b) banking collapse 원인 규명(길이/노이즈/prior강도 ablation) (c) Track B 전제 재검. **v0 학습 착수 보류**(synth 재현 확인이 선결).
+- ★[[08]]/[[12]] 성과: 학습 前 synth 검증이 무효 학습을 차단(guard 규율).
+
 ## 7. 규율 가드
 - [[11]] 벤치(synth)서만·banking 스키마 학습에 0(eval서만)·전이=ABox-swap. [[12]] 다양성 필수·단일템플릿=역전이. [[42]] SFT설치+DPO. [[30]] 진행률 가시·결과 gzip 영속·GPU 충돌금지. [[05]] 스킬=도메인일반·엔진 리터럴0. [[08]] SFT 후 예측분포 전수(mode-collapse 붕괴 실증)·집계직행 금지.
 - **모트 계측**: 과-분류(prior 억제 역효과=over-correction) 계측·held-out 역전이 0 확인.
