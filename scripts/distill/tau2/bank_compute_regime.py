@@ -6,9 +6,11 @@ id-correct dispute의 liability(customer_max_liability_amount)를:
 = "decidable-systematic → verify가 voting 이긴다"(C89 하위유형②) 실증.
 로컬(--dry: verify 천장·서버불요) / full(resample: localhost:8140 32B).
 """
-import json,glob,re,argparse,urllib.request,math,sys,io
+import json,glob,re,argparse,urllib.request,math,sys,io,gzip,os
 from datetime import datetime
 from collections import Counter
+HERE=os.path.dirname(os.path.abspath(__file__))
+CASES_GZ=os.path.join(HERE,"..","..","..","reports","facet_rft_2026","sim_results","bank_compute_cases.jsonl.gz")
 sys.stdout=io.TextIOWrapper(sys.stdout.buffer,encoding="utf-8",errors="replace")
 def nd(x):
     if isinstance(x,str):
@@ -93,8 +95,17 @@ def main():
     ap.add_argument("--port",type=int,default=8140); ap.add_argument("--k",type=int,default=8)
     ap.add_argument("--temperature",type=float,default=0.7); ap.add_argument("--limit",type=int,default=0)
     ap.add_argument("--dry",action="store_true"); ap.add_argument("--workers",type=int,default=12)
+    ap.add_argument("--extract",action="store_true",help="C:/tmp/traj서 추출→gz 저장(로컬)")
     a=ap.parse_args()
-    cases=extract()
+    if a.extract:
+        cases=extract()
+        with gzip.open(CASES_GZ,"wt",encoding="utf-8") as f:
+            for c in cases:f.write(json.dumps(c,ensure_ascii=False)+"\n")
+        print("추출 %d cases → %s"%(len(cases),CASES_GZ)); return
+    if os.path.exists(CASES_GZ):
+        cases=[json.loads(l) for l in gzip.open(CASES_GZ,"rt",encoding="utf-8") if l.strip()]
+    else:
+        cases=extract()
     if a.limit:cases=cases[:a.limit]
     # 결정론 verify 천장 (offline)
     vok=vtot=0; aok=0
