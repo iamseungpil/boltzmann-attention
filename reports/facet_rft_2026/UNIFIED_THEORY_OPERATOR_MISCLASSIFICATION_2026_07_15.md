@@ -60,4 +60,12 @@
   - compute: **✅실증(`bank_compute_regime.py`·880 cases)** — 결정론 verify(keystone lookup) **94.4%** vs agent in-situ **48.9%**(~2배). resample focused: **greedy-wrong 0**(모델이 격리서 liability 계산 가능). ⇒ **compute 실패=능력 아니라 부하/operator-choice**(모델 COMPUTE 가능한데 in-situ서 안 씀)·fix=부하없는 COMPUTE(verify 94%). voting=격리서 잉여·in-situ서 vacuous → **compute의 답은 항상 COMPUTE(voting 아님)**.
   - reach: 69% enumerable/queryable=FIND 안 씀(under-action). ✅ 부분.
 - **★세 버킷 다 연산-choice 오류로 확인**(⋈ gold∈support0·compute 격리94%/insitu49%·reach 69%FIND미사용) = within-operator 실행노이즈 아님 → 통합의 non-trivial 검증 성립.
+
+## 8b. ★"부하" 정체 규명 (`bank_load_diagnosis.py`·liability 오답 n=450·[M])
+격리(94%)→in-situ(49%) gap="부하"를 gather-vs-compute로 엄밀 분해:
+- **(b) COMPUTE 오류(입력=gold인데 liability틀림): 380(84.4%)** ← 지배
+- (c) 혼합(입력+계산 둘다 틀림): 67(14.9%) · (a) GATHER(입력틀림·자기입력엔 정확): 3(0.7%)
+- ⇒ **"부하"=context가 계산을 *망가뜨림*이 아니라 agent가 COMPUTE를 *실행 안 함***(정확입력 쥐고도 omit/None·capability는 격리 94%). = operator-misclassification(COMPUTE 미invoke).
+- **★loop이 막나(사용자 #3)**: **YES** — 84.4%(pure compute)=입력정확→결정론COMPUTE(수집입력 엔진계산 94.4%)가 직접 닫음(loop이 강제 실행) / 14.9% 혼합=FIND/GET+COMPUTE / 0.7% gather=FIND/GET. **~85%가 COMPUTE 연산으로 직접 닫힘.** (부하=미실행이라 격리/강제로 닫힘·distraction-degrade면 안 닫혔을 것.)
+- 예시: `11/07→11/14`(7일=$50) agent=**None**(계산 자체 skip). ⇒ 정체=계산-skip.
 - **반증 hunt(TODO)**: agent가 *올바른 연산을 쓰고도* 실패한 케이스(within-operator)를 수동감사로 탐색 → 그 비율이 통합의 진짜 반증. (예: ASK했는데 user-답으로도 실패·COMPUTE 맞는데 정책 애매.)
