@@ -139,17 +139,33 @@ def _idlike(s):
     return isinstance(s, str) and len(s.strip()) >= 2 and any(c.isdigit() for c in s)
 
 
+_TEXT_KV_RE_CACHE = {}
+def _text_kv_re(entity_key):
+    """'entity_key: value' 텍스트 추출 정규식(도메인일반·entity_key=ABox). 캐시."""
+    r = _TEXT_KV_RE_CACHE.get(entity_key)
+    if r is None:
+        r = re.compile(re.escape(entity_key) + r"\s*[:=]\s*['\"]?([A-Za-z0-9][\w\-]{1,})", re.I)
+        _TEXT_KV_RE_CACHE[entity_key] = r
+    return r
+
+
 def _extract_entity_ids(output_text, entity_key):
-    """list-enumerator 출력(JSON)서 entity id 수집(도메인일반):
-    (a) 어느 깊이든 key==entity_key 인 문자열 값
-    (b) 문자열-리스트의 id형(_idlike) 원소  ← retail user record의 orders 형태
-    파싱 실패(비JSON)면 빈 집합(관측 누락은 안전측 — deny가 아니라 미발화로 기움)."""
+    """list/detail reader 출력서 entity id 수집(도메인일반):
+    (a) JSON: 어느 깊이든 key==entity_key 인 문자열 값 · 문자열-리스트의 id형(_idlike) 원소
+    (b) 비-JSON 포맷문자열(banking 'transaction_id: txn_xxx'류·_note_eplan (a) 한계): entity_key 'key: value'
+        정규식 추출(entity_key=ABox·리터럴0·[[05]]). 관측 누락은 안전측(미발화)."""
     ids = set()
     if not output_text:
         return ids
     try:
         rec = json.loads(output_text)
     except Exception:
+        # (a) 비-JSON fallback: 'entity_key: value' 텍스트 추출(도메인일반)
+        if entity_key:
+            for m in _text_kv_re(entity_key).finditer(str(output_text)):
+                v = _norm(m.group(1))
+                if _idlike(v):
+                    ids.add(v)
         return ids
 
     def walk(v, key=None):
