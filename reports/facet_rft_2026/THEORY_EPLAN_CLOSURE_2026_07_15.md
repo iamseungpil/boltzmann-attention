@@ -43,8 +43,9 @@
 - **C. never-surfaced(어느 run도 tool result에 없음=open-world 후보·상한): 323(30.8%)**
 - ⇒ **closed-world(A+B·원천 존재·실패=under-action) = 725(69.2%)** = C80 §14.6 "70%"와 정합. → **entropy-gate + 강제 열거로 닫힘**(문제2·문제1-closed).
 - ⇒ **open-world 후보(C) = 323(30.8%·상한)** → **completeness-ASK 필요**(완비 GET 도구 존재 시 상당수 closed-world 이동=상한).
-- **★정직 수정**: open-world 잔여는 "작음"이 아니라 **≤31%** → **completeness-ASK가 corner-case 아니라 load-bearing 레버**(§4가 실질 대량 담당). 두 메커니즘(entropy-gate·completeness-ASK) 다 필요. (첫 50% enumerable은 agent-saw만=엄격·queryable 포함하면 69%.)
-- **미해결 확인**: C(31%)가 진짜 open-world인지, 완비 transaction-listing 도구 존재로 closed-world인지 = tau2 banking 도구정의 확인 필요(다음).
+- **★도구 확인 완료(2026-07-15·`listtool` 분석)**: banking에 **완비 거래목록 도구 존재** — `get_bank_account_transactions`(528회·계좌 전거래)·`get_credit_card_transactions_by_user`(420회·유저 전거래·호출당 최대 77 txn). ⇒ **완비 GET/FIND 원천 존재 → banking reach는 원리적으로 ~완전 closed-world.**
+- **★정직 재수정(v2)**: C(31% never-surfaced)는 **진짜 open-world 아니라 under-action on 완비열거**(agent가 전 계좌/카드를 안 열거·원천은 존재). ⇒ **banking open-world 잔여 ≈ 0**(앞 "31% load-bearing"은 과대평가·교정). **completeness-ASK = banking서 드문 fallback**·지배 fix = **강제 완비열거(FIND: 전 계좌→get_*_transactions) + H_min 종료**. → C91 closure 강화(문제1 대부분 closed-world·문제2 entropy-gate).
+- **잔여**: 31%가 계좌를 알지만 미열거(under-action)인지 계좌자체 미발견인지 추가 forensic 가능·단 완비도구 존재로 상한은 확정.
 
 ## 7. novelty 위치 (PREEMPTION_SCAN 정합)
 - 부품: 엔트로피/VOI-ask(Info-Gain)·decidable-offload(PAL)·decomposition(TDP) = 선점·인용.
