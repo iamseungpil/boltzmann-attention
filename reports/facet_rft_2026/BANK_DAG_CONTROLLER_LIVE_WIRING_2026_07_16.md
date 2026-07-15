@@ -37,7 +37,10 @@ dag_plan(sim): gold DAG의 매 미충족 스텝 → 연산 분류 →
 - **★(b) 수정 방향(설계결정)**: ABox eplan `entity_key: account_id→transaction_id` + `list_enumerator: get_*_transactions_by_user`(bulk reader가 disputable 단위 열거) + `build_ledger_from_messages`가 디스패처 write의 **nested transaction_id 추출**(executed). 그러면 (a)파서로 listed=surface된 txn·coverage_gap=required−disputed=under-action 검출. credit/debit 2reader = eplan 확장 필요.
 - **(c) confirm 게이트**: 미착수(write_tools=디스패처 nested라 gold DAG서 도출 필요).
 - **✅ (b) 방향 오프라인 실증 PASS**(`bank_eplan_coverage_probe.py`·실 스캐폴드 PlanLedger+coverage_gap·963 실패 sim·DB-basis): **listed 채워짐 76%**((a)파서 작동·기존 ∅)·**coverage_gap>0 44%**(under-action 검출)·gap 1346 중 **surfaced-not-disputed 40%(COVERAGE·정보보유→H_min 리마인더 표적)** / not-surfaced 60%(REACH·FIND-enumerate). ⇒ **라이브 메커니즘이 banking under-action 올바로 식별 확증**·C94(COVERAGE 40.7%/FIND 27.2%)와 transaction 레벨 정합·라이브 배선 de-risk. caveat: not-surfaced 60%는 debit/디스패처 목록 포맷 파서 미커버로 일부 과대 가능.
-- **다음(무료)**: (b) 커밋(ABox eplan entity_key→transaction_id·bulk reader=enumerator·`build_ledger_from_messages` 디스패처 nested write 추출) + (c) confirm게이트(write_tools=디스패처 도출). 그 후 라이브 e2e([[09]] 유료).
+- **✅ (b) 배선 완료·검증**: ABox eplan `entity_key→transaction_id`·`list_from_reads`·dispatcher 필드·write_tools. 엔진(리터럴0): `note_read` 멀티-reader+list_from_reads·`build_ledger_from_messages` 디스패처 nested unwrap(nested JSON str 파싱 포함). **공식 라이브 경로가 probe와 정확히 일치**(executed 64%·listed 76%·coverage_gap 44%·surfaced 40%). regression test_eplan ALL PASS(92).
+- **✅ (c) 배선 완료·검증**: `t2_gate_patch` ep_writes ∪ eplan write_tools·L1/L2 루프 디스패처 unwrap(dispatch_tool 가드=retail 무영향). banking dispute write에 **L1 deny(미열거 멀티→enumerator 먼저)·L2 deny(미검토 sibling→detail 먼저) 발화 실증**. regression ALL PASS.
+- **⇒ E-PLAN이 banking서 활성화**(3한계 전부 해소). 두 레버 배선: **L1/L2 discovery-enforce**(읽기 강제→60% not-surfaced REACH 표적) + **CP5 stop-time coverage 리마인더**(→44% under-action 표적). 라이브 env: `T2_EPLAN=1 T2_EPLAN_WALK=1 T2_EPLAN_REPLAN=1`.
+- **다음(유료 [[09]])**: 라이브 e2e — 32B agent(로컬 vLLM·무료) + gpt-5.2 user-sim(유료) × {baseline vs E-PLAN arm}. make-or-break=리마인더/deny가 under-action 실제 감소시키나. scope·비용 확정 후 승인.
 
 ## 3. 유료 라이브 e2e 게이트 ([[09]])
 - **금지**: 승인+scope 없이 유료 실행. 로컬 tau2 banking 도메인 부재→라이브=리모트/유료만.
