@@ -154,6 +154,8 @@ def process(row, port, k, temperature):
     cnt = Counter(valid)
     maj_id, maj_n = cnt.most_common(1)[0]
     out["maj_id"] = maj_id; out["maj_ok"] = (maj_id == gold)
+    # ★plan/multi-item regime(A·C89): maj가 *다른 유효 dispute*로 앵커링? (C79 mis-pairing=plan, not field-verify)
+    out["maj_in_dispute_set"] = str(maj_id) in set(str(x) for x in row.get("dispute_set", []))
     # ★runtime signal (v4·리뷰 ❶❸): gold-free — maj가 real id인가 / abstain / malformed
     out["maj_kind"] = ("abstain" if maj_id == "__ABSTAIN__"
                        else "malformed" if maj_id == "__MALFORMED__" else "real_id")
@@ -202,12 +204,14 @@ def report(rows, results, k, temperature, tag):
         lo, hi = wilson(C/gw, gw)
         print("\nvoting%% = C/(C+D) = %d/%d = %.1f%%  [95%% CI %.1f–%.1f]  (universe=32B-greedy-wrong)"
               % (C, gw, 100*C/gw, 100*lo, 100*hi))
-    # ── partition on greedy-wrong (D) ──
+    # ── partition on greedy-wrong (D) — ★4-way(A·C89): voting/plan/verify/ASK ──
     Dset = [r for r in meas if not r["greedy_ok"] and not r["maj_ok"]]
-    verify = [r for r in Dset if r["oracle_decidable"]]; ask = [r for r in Dset if not r["oracle_decidable"]]
-    ab = sum(1 for r in verify if r.get("maj_kind") == "abstain")
-    print("\npartition (greedy-wrong n=%d):  voting %d · verify %d · ASK %d" % (gw, C, len(verify), len(ask)))
-    print("  verify 세부(❸): abstain-dominant %d · confident-wrong %d (of %d)" % (ab, len(verify) - ab, len(verify)))
+    plan = [r for r in Dset if r.get("maj_in_dispute_set")]                       # 다른 유효 dispute=plan/multi-item→E-PLAN
+    rest = [r for r in Dset if not r.get("maj_in_dispute_set")]
+    verify = [r for r in rest if r["oracle_decidable"] and r.get("maj_kind") == "real_id"]  # 무관 record·oracle-resolvable=field-verify
+    ask = [r for r in rest if r not in verify]                                    # abstain or true-dup=ASK
+    print("\npartition (greedy-wrong n=%d):  voting %d · plan %d · verify %d · ASK %d" % (gw, C, len(plan), len(verify), len(ask)))
+    print("  plan(maj∈dispute_set=다중-dispute 앵커링→E-PLAN) %d = C79 mis-pairing" % len(plan))
     print("  gold∈support(하한·k=%d): %d/%d" % (k, sum(1 for r in Dset if r.get("gold_in_support")), len(Dset)))
     # ── ★GAP: oracle vs runtime (§8 핵심·gold-free 라우터 실현성) ──
     od_gw = [r for r in meas if r["oracle_decidable"] and not r["greedy_ok"]]  # oracle-resolvable인데 32B가 틀림
