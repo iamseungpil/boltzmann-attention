@@ -104,3 +104,10 @@ per-step DAG-walk (Track A 배선):
 - **❻ Track B synth go/no-go = 명문화(Phase-0·유료 前)**: 값싼 결정 질문 — synth서 "consult-schema→classify" 설치 시 **synth-F3 이동 + held-out 스키마 전이**하나. **필수 제약: prior-충돌 케이스(직관≠스키마·banking의 fraud↔not_as_described 동형) 반드시 포함** — 스킬이 "prior=스키마일 때만" 작동하면 전이 무효(§2.5 부분 리스크 계측). 통과 못하면 banking τ² 전이 무망=학습 착수 금지.
 - **❼ A+B 결합상한 = 산출**: F3-enum=Track B 해결 가정 → **29.3%**(관측 38.3%). C94 다층성으로 결합≠합산(A-only 9.9%+B-only 26%≠29.3%). GATHER-user·pure-DB-blind로 <100% 상계.
 - **무료 잔여 순서**: 선택술어 정확도 검증(❹ B-tier·per-family) → Track B synth Phase-0(❻) → 그 뒤 [[09]] 유료 논의.
+
+## 7. ★게이트1 실행 = ABox 선택술어 정확도 (`bank_selection_predicate.py`·`bank_filter_repro.py`·2026-07-16)
+❹ B-tier(84.9% discovery+선택술어)의 술어가 gold 없이 gold 타깃을 복원하나:
+- **disputes = 81.9% 유일식별**(C78 reference_filter·date/amount/merchant→유일 record·18.1% 진짜중복=벤치아티팩트).
+- **card/account-ops = ≥48.8% gold-free 선택가능**(하한): SCOPE-ALL(전부 지시·"lost wallet→freeze all cards") **35.2% 지배** + UNIQUE 2.7% + CUST-MENTION 4.6% + LINKABLE(disputed-txn cascade) 6.3%. AMBIGUOUS ≤36.2%·gold∉discovery 15.0%.
+- **★[[08]] 자기교정 2회**: (1) 초판 mirage는 정규식 under-capture(substring 교정) (2) 초판 "AMBIGUOUS 65%"는 휴리스틱이 **scope-all·name-link 놓친 거짓음성**(per-case 정독: 4/4가 "all/named" 선택가능)→scope-all 추가로 19.5%→48.8%. **여전히 하한**(name-link "Bluest Account"→계좌→카드 미크레딧).
+- **판정**: 선택술어는 **다수에 실현 가능**(disputes 82%·card-ops ≥49%+). Track A는 mirage 아님. 잔여 관문 = AMBIGUOUS 뒤 name-link 술어 구축·gold∉discovery(15%)=열거 강화. **HARD 상한(9.9%) × 선택술어(≥49~82%) × gold-free복원(89.6%) = 라이브 실현 하한 envelope.**
