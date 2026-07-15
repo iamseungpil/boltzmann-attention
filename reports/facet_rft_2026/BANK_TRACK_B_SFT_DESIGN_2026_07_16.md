@@ -93,6 +93,23 @@
 - **잔여 15% wrong=calibration** → §18.3 conformal(작은 calib set·보장된 애매성) 또는 SFT.
 - provenance: `f3_hmin_n160.log`(리모트 `scratch/f3_results`·gzip)·`bank_f3_eval.py`(`parse_txn_records`·`run_hmin`·재앵커 f3_cases.jsonl 커밋). caveat: 실패-sim 편향(FLOOR)·margin=1 미튜닝(risk-length knob §16.1).
 
+### 8.6 ★비교랭킹+confidence-gate ablation = confidence가 reason collapse 못 막음 (2026-07-16·C100 후속·[M] n=160)
+> C100 자기교정("격리채점=비교맥락 손실")을 검정: 격리 등급채점 대신 **비교 one-shot(전체 enum 대령) + confidence-gate**(PICK+CONFIDENCE·low→ASK). `bank_f3_eval.py --rankconf`·`f3_rankconf_n160.log`.
+
+| 필드 | correct | ASK | wrong | (격리 H_min §8.3) |
+|---|---|---|---|---|
+| dispute_reason | 42% | 38% | **20%** | (28 / 58 / 15) |
+| dispute_category | 56% | 34% | 10% | (39 / 56 / 5) |
+- SELECT 분포: dispute_reason **{fraud:31, incorrect:7, duplicate:7, goods:3}=fraud 65% 재-collapse** / dispute_category {duplicate:16, incorrect:10, atm:9, card_present:7}=분산.
+- confidence 분포: reason {low:30, med:7, **high:43**} · category {low:27, med:7, high:46}.
+
+**두 가설 확증**:
+1. **비교맥락이 category 회복**(56% vs 격리 39%)·confidence-gate 작동(고-conf 대개 정답)·ASK 34%. ⇒ **사실-도출 F3엔 비교 one-shot+confidence가 실용적**(격리채점보다 우월).
+2. **비교 one-shot이 reason을 confident-fraud로 재-collapse**(SELECT 65% fraud·42% correct는 fraud=다수 gold class 착시·20% wrong).
+3. **★결정적 = confidence가 reason collapse 못 막음**: reason conf=high 43건인데 **20% wrong = confident-wrong**(§17.3 spurious minimum에 뾰족한데 틀림). confidence-gate/margin 어느 프롬프트 방법도 강한-prior 필드 못 구제.
+
+**종합(Track B 표적 선명화)**: dispute_reason 병 = **prior에 대한 miscalibrated 과확신**(확신하며 틀림) → [[42]] prompt-ceiling 재확증 + 정확한 **SFT+DPO(prior-suppression)** 또는 **conformal(§18.3·분포무가정 보장된 애매성)** 표적. 반면 category(사실-도출)=비교 one-shot+confidence로 닫힘(scaffold). **최종 필드타입별 처방**: category→비교 one-shot+conf-gate(56/34/10) · reason→(현재) 격리 H_min bounded-ASK or (표적) SFT/conformal.
+
 ## 7. 규율 가드
 - [[11]] 벤치(synth)서만·banking 스키마 학습에 0(eval서만)·전이=ABox-swap. [[12]] 다양성 필수·단일템플릿=역전이. [[42]] SFT설치+DPO. [[30]] 진행률 가시·결과 gzip 영속·GPU 충돌금지. [[05]] 스킬=도메인일반·엔진 리터럴0. [[08]] SFT 후 예측분포 전수(mode-collapse 붕괴 실증)·집계직행 금지.
 - **모트 계측**: 과-분류(prior 억제 역효과=over-correction) 계측·held-out 역전이 0 확인.
