@@ -30,6 +30,14 @@ dag_plan(sim): gold DAG의 매 미충족 스텝 → 연산 분류 →
 - **(c) confirm 게이트 부재**: `_confirm_write_tools=∅`→L1/L2 deny 비발화. → write 도구 집합을 gold DAG서 도출·H_min 미충족 시 생성-레벨 리마인더(히스토리 커밋 금지·설계 §2 REPLAY_SAFE).
 - **개입 = 생성-레벨만**(작업버퍼·설계 절대선): FIND-강제·coverage-리마인더·H_min-continue. **write 강제 금지**([[14]]).
 
+## 2.5 ★배선 착수 — (a) 해소 + (b)(c) 정밀진단 (2026-07-17·지배 레버로 전환·C101)
+> 사용자 지시 "지배 레버로 가라"(F3=작은 slice 종결) → coverage/reach 라이브 배선 착수. `t2_eplan_patch.py` 3한계.
+- **✅ (a) 해소·오프라인 스모크 PASS**: `_extract_entity_ids` 비-JSON fallback(도메인일반 `entity_key: value` 텍스트 추출·entity_key=ABox·리터럴0·[[05]]). banking 거래목록 포맷문자열 → transaction_id 5개 추출(기존 ∅)·JSON 무회귀·빈입력 안전. commit.
+- **★(b) 정밀진단(전수 검증)**: `get_credit_card_transactions_by_user`는 **1761/1761 호출 전부 user_id 키**(account_id 0). ⇒ banking detail_reader = **bulk user-keyed**(한 호출로 전 거래 surface) = retail per-entity 모델과 **구조적으로 다름**. 게다가 dispute write=`call_discoverable_agent_tool`(디스패처)로 transaction_id가 **nested args**. ⇒ **eplan entity_key=account_id가 어느 실제 엔티티와도 불일치**(reads=user-keyed·writes=transaction-nested). **결론: banking 지배 레버=account-level examined 아니라 transaction-level write-coverage**(surface된 disputable 거래를 다 dispute했나=C94 under-action).
+- **★(b) 수정 방향(설계결정)**: ABox eplan `entity_key: account_id→transaction_id` + `list_enumerator: get_*_transactions_by_user`(bulk reader가 disputable 단위 열거) + `build_ledger_from_messages`가 디스패처 write의 **nested transaction_id 추출**(executed). 그러면 (a)파서로 listed=surface된 txn·coverage_gap=required−disputed=under-action 검출. credit/debit 2reader = eplan 확장 필요.
+- **(c) confirm 게이트**: 미착수(write_tools=디스패처 nested라 gold DAG서 도출 필요).
+- **다음(무료)**: (b) entity-model 수정 + 오프라인 스모크(실궤적서 ledger 재구성→coverage_gap이 미제출 dispute 검출 실증). 그 후 (c)·라이브([[09]]).
+
 ## 3. 유료 라이브 e2e 게이트 ([[09]])
 - **금지**: 승인+scope 없이 유료 실행. 로컬 tau2 banking 도메인 부재→라이브=리모트/유료만.
 - **make-or-break**: 배선 loop이 (i) 오프라인 결정론 상한(27.8~49%)을 라이브서 달성하나 (ii) **F3-enum inner router(NL→정규화)**를 소형모델이 하나 — 이게 진짜 시험대(C95 §5.6·offline 밖).
