@@ -44,6 +44,21 @@ per-model 결정론-closable(Tier-D) 비율(DB-basis 실패 기준):
 - **극복 못 하는 부분 = 정확히 F3 의미경계(23.1%)** — 우리 프레임이 처음부터 "잔여 경계·frontier 공유"로 못박은 그것. + pure-DB blind 18.6%(오프라인 관측 한계·능력 아님).
 - **model-invariance** = 이 잔여가 scale로 안 닫힘의 직접 증거(C94 종료 100% user_stop·[[45]] load-이론 정합). = **소형+매커니즘이 frontier에 도달하는 근거**(00-thesis).
 
+## 5.5 ★(a) compute 규칙 확장 = 극복률 정직 정정 (rule_fit·2026-07-16)
+gold 전수 규칙-적합 검증(`scratchpad/rule_fit.py`·KB 정책 추출 `kb_rules.py`):
+- **customer_max_liability_amount: 94.7% 적합** = 결정론 COMPUTE 확증(기존).
+- **amount_difference = round((expected_apy−actual_apy)/100 × balance): 산술 확증**(balance 역산 정수 8000/10000/5000…). ABox+엔진 구현(산술 op subtract/multiply/divide/round·selftest PASS·balance=account GET).
+- **★provisional_credit_eligible/eligible_for_provisional_credit: 최적 날짜규칙 69%≈base 65% = NOT deterministic = 자격 judgment** → **F3로 강등**([[08]]). KB: "qualifying disputes에 10영업일 provisional credit"=자격 판정(dispute 유효성)이지 날짜식 아님.
+- **expected_apy/new_rewards = GET-lookup**(상품 문서·reward rate).
+- ⇒ **극복률 52.3%→49.1% 정정**(eligibility=최대 compute-like 볼륨 608개가 judgment로 판명). D+X+compute 47.6%→44.9%·F3 23.1%→26.2%. **엄밀검증이 과낙관을 회수**(올린 게 아니라 정직화). 확증 2규칙은 (c) 라이브 컨트롤러가 사용.
+
+## 5.6 ★(b) F3 enum = mechanism 범위 안(ASK+정규화)이나 정규화 성공은 라이브-gated (`bank_f3_ask.py`·2026-07-16)
+F3-의미경계(26.2%)의 enum을 유형 분리(필드-레벨 정독):
+- **선택 enum (choice)**: `card_design`(present 23/absent 119)·`delivery_option`(11/117) = 거의 부재 → **고객이 선택해야 → ASK 연산 사정권**(우리 mechanism). 
+- **상황-서술 enum (situation)**: `dispute_reason`(54/1)·`card_action`(97/7)·`account_type`(84/0)·`resolution_requested`(41/0) = 거의 present → **NL→enum 정규화**(inner router 표적).
+- ⇒ **F3은 우리 mechanism 범위 밖이 아니다**: 선택→ASK·상황→정규화 둘 다 우리 연산이 겨냥.
+- **★[[08]] 정직 caveat (per-case 정독 발각)**: token-match "user-present 55%"는 **오탐 다수** — `closure_reason='unhappy_with_rewards'`가 카드명 "Gold **Rewards** Card"에 매칭(task_048)·`dispute_reason='goods_services_not_as_described'`인데 고객은 "fraud/duplicate" 진술(task_040·NL↔enum 진짜 불일치). ⇒ **정규화-closable %는 오프라인 측정 불가**. NL→enum 정규화 성공 = **inner router 의미능력 = 라이브 make-or-break**(offline 상한 밖). 구조적 분리(choice/situation)는 확실·closability는 불확실.
+
 ## 6. caveat
 - action_checks proxy(reward=DB) ~90% tight(C93). pure-DB 18.6%는 per-step 관측 불가(하한 아님).
 - read/write=이름-prefix·enum/data=필드명 휴리스틱. compute-like 극복은 **ABox 규칙 확장 전제**(현재 미구현·liability만).

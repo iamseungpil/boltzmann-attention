@@ -73,6 +73,8 @@ def eval_op(spec, params):
     """ABox 연산 스펙(compute_ops)의 결정론 해석기. 도메인지식 0 — 스펙이 규칙을 담는다.
     지원 op: lookup_table · days_between · ref · (스칼라 리터럴).
     params = 제출 인자 dict (transaction_date/discovery_date/disputed_amount 등)."""
+    if isinstance(spec, str) and spec.startswith("params."):
+        return params.get(spec[len("params."):])      # "params.X" ref 축약
     if not isinstance(spec, dict):
         return spec                                   # 스칼라 리터럴 (예: 50, 500)
     op = spec.get("op")
@@ -106,6 +108,27 @@ def eval_op(spec, params):
             if cmp == ">" and key > thr:
                 return eval_op(row["result"], params)
         return None
+    # ── 산술 op (compute 규칙 확장·2026-07-16·gold-fit 확증분) ──
+    if op in ("subtract", "add", "multiply", "divide"):
+        a = eval_op(spec["a"], params); b = eval_op(spec["b"], params)
+        if a is None or b is None:
+            return None
+        try:
+            a, b = float(a), float(b)
+        except Exception:
+            return None
+        if op == "subtract": r = a - b
+        elif op == "add": r = a + b
+        elif op == "multiply": r = a * b
+        else: r = a / b if b else None
+        return r
+    if op == "round":
+        v = eval_op(spec["value"], params)
+        if v is None:
+            return None
+        return round(float(v), spec.get("ndigits", 2))
+    if op == "const":
+        return spec.get("value")
     raise AboxOpError("unknown op %r" % op)
 
 
@@ -340,7 +363,37 @@ def selftest():
     st2 = {"gold": {"txn_z": gold}, "subs": {}, "seen": set(), "universe": set(), "tool_family": tf}
     r2 = controller(st2, abox, arm="LOAD")
     assert r2["sim_pass"] is False and r2["per_dispute"][0]["cause"] == "open_world_ASK", r2
-    print("selftest: ALL PASS (엔진 순수·ABox-driven·리터럴0 확인)")
+    # (7) 산술 op 확장: amount_difference = round((exp-act)/100*balance) — gold 실측 검증
+    abox2 = {"compute_ops": {"submit_interest_discrepancy_report": {
+        "amount_difference": {"op": "round", "ndigits": 2, "value": {
+            "op": "multiply",
+            "a": {"op": "divide", "a": {"op": "subtract", "a": "params.expected_apy", "b": "params.actual_apy"},
+                  "b": {"op": "const", "value": 100}},
+            "b": "params.balance"}}}}}
+    v = compute_fields("submit_interest_discrepancy_report",
+                       {"expected_apy": 4.275, "actual_apy": 4.0, "balance": 12000}, abox2)
+    assert v["amount_difference"] == 33.0, v            # gold: 0.275%×12000=33.0
+    v = compute_fields("submit_interest_discrepancy_report",
+                       {"expected_apy": 6.85, "actual_apy": 5.1, "balance": 8000}, abox2)
+    assert v["amount_difference"] == 140.0, v           # gold: 1.75%×8000=140.0
+    # (8) DAG 컨트롤러: 합성 sim — 미호출 write(coverage)=closable·enum 오답=inner router
+    syn = {"reward_info": {"action_checks": [
+        {"action": {"arguments": {"agent_tool_name": "close_debit_card_1",
+                                  "arguments": {"card_id": "dbc_x", "reason": "fraud"}}}, "action_reward": 0.0},
+        {"action": {"arguments": {"agent_tool_name": "file_debit_card_transaction_dispute_2",
+                                  "arguments": {"transaction_id": "t", "dispute_category": "card_present_fraud"}}}, "action_reward": 0.0},
+    ]},
+        # dispute 도구는 *호출*됨(오답)·close_debit_card는 미호출 → coverage + F3-enum 혼재
+        "messages": [{"role": "assistant", "tool_calls": [
+            {"name": "call_discoverable_agent_tool",
+             "arguments": {"agent_tool_name": "file_debit_card_transaction_dispute_2",
+                           "arguments": {"transaction_id": "t", "dispute_category": "card_not_present_fraud"}}}]}]}
+    pl = dag_plan(syn, {"compute_ops": {}})
+    ops = {op for (_, op, _) in pl["steps"]}
+    assert "COVERAGE" in ops, pl          # close_debit_card 미호출=coverage
+    assert not pl["all_closed"], pl       # dispute_category enum(호출·오답)=F3 → 잔여
+    assert "F3-enum" in pl["residual_ops"], pl
+    print("selftest: ALL PASS (엔진 순수·ABox-driven·리터럴0·산술op gold-fit·DAG 컨트롤러 확인)")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -436,9 +489,111 @@ def run_offline_allaction(abox, db_basis_only=True):
     return arm_ct, unmet, term_excl, n, len(files)
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+#  ★(c) 전-액션 per-step DAG 컨트롤러 (2026-07-16·사용자 지시)
+#  균일 loop: gold DAG의 매 스텝을 연산 분류{FIND/COVERAGE/COMPUTE/GET-⋈/ASK/F3} →
+#  결정론 closable 판정 + operator plan 생성. H_min = 전 스텝 닫힐 때까지.
+#  라이브 배선(t2_eplan_patch 진화)의 결정론 controller 로직·유료 실행은 별도([[09]]).
+# ══════════════════════════════════════════════════════════════════════════════
+
+_READ_PREFIX = re.compile(r"^(get|search|list|lookup|find|retrieve|read|view|check)_", re.I)
+_PROCEDURAL = re.compile(r"(^log_|_verification$|^kb_search|^kb_|^search_|^shell$|discoverable|transfer_to_human|give_)", re.I)
+_ID_FIELDS = {"transaction_id", "account_id", "card_id", "user_id", "order_id",
+              "card_last_4_digits", "dispute_id", "report_id"}
+_COMPUTE_NAME = re.compile(r"(liability|amount_difference|expected_apy|actual_apy|_apy$|new_rewards|interest)", re.I)
+_JUDGMENT_NAME = re.compile(r"(eligible|provisional_credit|refund_amount)", re.I)
+_ENUM_NAME = re.compile(r"(reason|category|type|action|status|option|design|method|resolution|class|compromised|possession|filed|provided)", re.I)
+
+
+def _dag_op(field, tool_family, abox):
+    """틀린 필드 → 연산 타입 + 결정론 closable 여부 (컨트롤러 판정)."""
+    if _JUDGMENT_NAME.search(field):
+        return "F3-judgment", False              # 자격 judgment(gold-fit 실패)
+    if _COMPUTE_NAME.search(field) or compute_field_names(tool_family, abox) & {field}:
+        return "COMPUTE", True                   # 결정론(ABox 규칙·확증분)
+    if field in _ID_FIELDS:
+        return "GET-xmatch", True                # ⋈-decidable(GET/filter)
+    if _ENUM_NAME.search(field):
+        return "F3-enum", False                  # NL→정규화(inner router·라이브-gated)
+    return "GATHER", False                       # 값 gather(user-원천 가능)
+
+
+def dag_plan(s, abox):
+    """한 sim의 gold DAG를 per-step walk → operator plan + closure 판정.
+    반환 {steps:[(tool,op,closable)], all_closed, residual_ops}."""
+    ri = s.get("reward_info") or {}
+    calls = _agent_called_families(s)
+    steps = []
+    for ac in (ri.get("action_checks") or []):
+        a = ac.get("action") or {}
+        outer = _nd(a.get("arguments"))
+        atn = outer.get("agent_tool_name", "")
+        if not atn or "arguments" not in outer:
+            continue
+        tf = _fam(atn)
+        if _PROCEDURAL.search(tf):
+            continue
+        met = ac.get("action_reward")
+        if met is None:
+            met = 1.0 if ac.get("action_match") else 0.0
+        if float(met) >= 1.0:
+            continue                              # 이미 충족(닫힘)
+        rd = bool(_READ_PREFIX.match(tf))
+        gold_args = _nd(outer.get("arguments"))
+        if tf not in calls or not calls.get(tf):
+            # 미호출 → FIND(read) / COVERAGE(write) — 둘 다 H_min 강제열거로 결정론 closable
+            op, closable = ("FIND", True) if rd else ("COVERAGE", True)
+            steps.append((tf, op, closable))
+        else:
+            # 호출·오답 → 필드별 최악 연산 (write만·read는 값판정 생략)
+            if rd:
+                steps.append((tf, "FIND", True)); continue
+            worst = ("COVERAGE", True)
+            order = {"COVERAGE": 0, "COMPUTE": 1, "GET-xmatch": 1, "GATHER": 2, "F3-enum": 3, "F3-judgment": 3}
+            for field in gold_args:
+                if field == "transaction_id":
+                    continue
+                op, cl = _dag_op(field, tf, abox)
+                if order.get(op, 2) >= order.get(worst[0], 0):
+                    worst = (op, cl)
+            steps.append((tf, worst[0], worst[1]))
+    residual = sorted({op for (_, op, cl) in steps if not cl})
+    all_closed = len(steps) > 0 and not residual
+    return {"steps": steps, "all_closed": all_closed, "residual_ops": residual,
+            "n_steps": len(steps)}
+
+
+def run_dag_replay(abox):
+    """오프라인 DAG replay: 컨트롤러가 all-layer-closed 시키는 sim 비율(결정론 상한)."""
+    files = glob.glob("C:/tmp/traj/*_banking.json")
+    verdict = Counter(); res_op = Counter(); n = 0; blind = 0
+    for f in files:
+        d = json.load(open(f, encoding="utf-8"))
+        for s in d.get("simulations", []):
+            ri = s.get("reward_info") or {}
+            if ri.get("reward") in (None, 1.0):
+                continue
+            if tuple(ri.get("reward_basis") or []) != ("DB",):
+                continue
+            if str(s.get("termination_reason")) == "too_many_errors":
+                continue
+            n += 1
+            p = dag_plan(s, abox)
+            if p["n_steps"] == 0:
+                verdict["Blind(action-check 없음·pure-DB)"] += 1; blind += 1
+            elif p["all_closed"]:
+                verdict["ALL-CLOSED(결정론 컨트롤러 극복)"] += 1
+            else:
+                verdict["잔여 inner-router 필요"] += 1
+                for op in p["residual_ops"]:
+                    res_op[op] += 1
+    return verdict, res_op, n, blind, len(files)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--dag", action="store_true", help="(c) per-step DAG 컨트롤러 오프라인 replay")
     ap.add_argument("--dispute-only", action="store_true", help="폐기된 dispute 부분모델(provenance)")
     ap.add_argument("--all-basis", action="store_true", help="DB-basis 외 sim도 포함")
     a = ap.parse_args()
@@ -446,6 +601,20 @@ def main():
         selftest()
         return
     abox = load_abox()
+    if a.dag:
+        verdict, res_op, n, blind, nfiles = run_dag_replay(abox)
+        print("=== (c) per-step DAG 컨트롤러 오프라인 replay (DB-basis 실패 %d·%d궤적·infra제외) ===" % (n, nfiles))
+        for k, v in verdict.most_common():
+            print("  %-38s %5d (%.1f%%)" % (k, v, 100 * v / max(n, 1)))
+        ac = verdict["ALL-CLOSED(결정론 컨트롤러 극복)"]
+        obs = n - blind
+        print("  ─" * 24)
+        print("  ★ALL-CLOSED(순수구조 결정론 극복) = %.1f%% (관측가능 중 %.1f%%)" % (100 * ac / max(n, 1), 100 * ac / max(obs, 1)))
+        print("  잔여 inner-router 연산 빈도:", dict(res_op.most_common()))
+        print("  해석: FIND/COVERAGE(강제열거+H_min)·COMPUTE(ABox)·GET-⋈=결정론. F3-enum(지배 잔여)·judgment·GATHER=inner router(라이브).")
+        print("  [[08]] 27.8%=순수구조(그라운딩 미인정·모든 스텝 det 要). C95 49%=+GET그라운딩(data present 인정)의 관대bound.")
+        print("        차이=data-field 그라운딩 크레딧. 27.8%(하한·컨트롤러 무맥락)~49%(상한·그라운딩). Blind 오프라인 밖.")
+        return
     if a.dispute_only:
         summary, gap_cause, nfiles, nstates = run_offline(abox)
         print("=== [폐기·provenance] dispute-only 부분모델 (%d 궤적·%d dispute-sim) ===" % (nfiles, nstates))

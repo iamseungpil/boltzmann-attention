@@ -24,10 +24,12 @@ _ABOX = os.path.join(_HERE, "a2", "banking_knowledge.gate.json")
 
 
 DET = {"COVERAGE", "FIND-discovery", "COMPUTE", "OVER-ACTION"}
-# ABox에 규칙 없어 GATHER-ASK로 오분류되나 실제 결정론 COMPUTE인 정책/계산 필드
-# (Tier-A 세분 정독서 발각·2026-07-16). 규칙 추가 시 COMPUTE로 이동.
+# 결정론 COMPUTE/GET-lookup 필드 (rule_fit.py gold-fit 확증분·2026-07-16):
+#  liability 94.7%·amount_difference=산술 확증·expected_apy/rewards=GET-lookup.
 _COMPUTE_LIKE = re.compile(
-    r"(eligible|provisional_credit|amount_difference|expected_apy|_apy$|refund_amount|new_rewards|interest)", re.I)
+    r"(amount_difference|expected_apy|actual_apy|_apy$|new_rewards|interest)", re.I)
+# ★자격 judgment (rule_fit: 날짜식 69%≈base 65%=NOT deterministic) → F3/의미경계로 강등([[08]]).
+_JUDGMENT = re.compile(r"(eligible|provisional_credit|refund_amount)", re.I)
 
 
 def sim_tier(layers):
@@ -62,8 +64,10 @@ def sim_tier_grounded(layers, ga_fields, ctx, cmap):
     order = {"det": 0, "grounding": 1, "ASK": 2, "F3": 3}
     worst = "det"
     for (tf, field, val) in ga_fields:
-        if _COMPUTE_LIKE.search(field):
-            cat = "det"                                  # 결정론 compute(ABox 규칙추가)
+        if _JUDGMENT.search(field):
+            cat = "F3"                                   # 자격 judgment(gold-fit 실패=NOT det·[[08]])
+        elif _COMPUTE_LIKE.search(field):
+            cat = "det"                                  # 결정론 compute/GET-lookup(gold-fit 확증)
         elif _ENUM_FIELD.search(field):
             cat = "F3"                                   # NL→정규화 의미경계(오염이라 그라운딩 무효)
         else:

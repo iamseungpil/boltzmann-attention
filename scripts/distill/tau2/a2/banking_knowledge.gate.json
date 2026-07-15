@@ -158,9 +158,31 @@
      }
     ]
    }
+  },
+  "submit_interest_discrepancy_report": {
+   "amount_difference": {
+    "op": "round",
+    "ndigits": 2,
+    "value": {
+     "op": "multiply",
+     "a": {
+      "op": "divide",
+      "a": {
+       "op": "subtract",
+       "a": "params.expected_apy",
+       "b": "params.actual_apy"
+      },
+      "b": {
+       "op": "const",
+       "value": 100
+      }
+     },
+     "b": "params.balance"
+    }
+   }
   }
  },
- "_note_compute_ops": "★§8-1 GOLD-BLIND 저작(2026-07-14)+§8-2 재현측정 반영. PROVENANCE: (liability) doc_036/_031 'Reported within 2 business days of statement→$50 / within 60 days→$500 / after→전액'; structure=min(disputed_amount, tier_cap)(doc_032 'Maximum: full transaction amount'). (provisional_debit) doc_032 ALL{timely≤60d, category∈5종, written_statement, account OPEN(생략)}. ★§8-2 재현측정 반영 교정: (a)date기준=transaction_date→discovery_date(정책 'statement date' proxy·statement_date args 부재·issue_noticed 아님=스키마 확인). (b)liability=min(amount,cap)(clamp)·412.88=min(412.88,500)이지 별tier 아님. (c)$50 tier 임계=**proxy 30일**(정책 '2 business days of statement'는 tx기준 임계 미명시→billing-cycle proxy·§8-2: 데이터 [10,40) 전부 동일 89.4%재현·특정 gold값 역산 아님). ★재현율(§8-2 사후·1109 debit-liability): T1=2(정책literal) 73.6% / T1=30(proxy) **89.4%**(잔여 10.6%=tx→disc proxy 미적합). ⚠구 §7 '95%'는 역산(폐기)·이 89.4%가 gold-blind 정직수치. business_days 미구현(calendar 근사). ★§8-3 Δspurious 후 확정=LIABILITY 단독(순+348). provisional(debit net−4·credit=account-age/history/tier가 params밖→미viable) 드롭. §8-2 재현율(gold-blind·1109 liability·1353 debit-provisional): liability 89.4%(proxy T1=30·literal T1=2는 73.6%·잔여10.6%=tx→disc proxy 미적합)·provisional_credit_eligible 86.8%(timely=tx→disc≤60·category∈5종·written). credit provisional(eligible_for_provisional_credit·2552 최대)=credit args가 written_statement_provided 부재라 조건셋 상이→미저작(별도 정책 pass). card_action/partial_refund 미저작.",
+ "_note_compute_ops": "★§8-1 GOLD-BLIND 저작(2026-07-14)+§8-2 재현측정 반영. PROVENANCE: (liability) doc_036/_031 'Reported within 2 business days of statement→$50 / within 60 days→$500 / after→전액'; structure=min(disputed_amount, tier_cap)(doc_032 'Maximum: full transaction amount'). (provisional_debit) doc_032 ALL{timely≤60d, category∈5종, written_statement, account OPEN(생략)}. ★§8-2 재현측정 반영 교정: (a)date기준=transaction_date→discovery_date(정책 'statement date' proxy·statement_date args 부재·issue_noticed 아님=스키마 확인). (b)liability=min(amount,cap)(clamp)·412.88=min(412.88,500)이지 별tier 아님. (c)$50 tier 임계=**proxy 30일**(정책 '2 business days of statement'는 tx기준 임계 미명시→billing-cycle proxy·§8-2: 데이터 [10,40) 전부 동일 89.4%재현·특정 gold값 역산 아님). ★재현율(§8-2 사후·1109 debit-liability): T1=2(정책literal) 73.6% / T1=30(proxy) **89.4%**(잔여 10.6%=tx→disc proxy 미적합). ⚠구 §7 '95%'는 역산(폐기)·이 89.4%가 gold-blind 정직수치. business_days 미구현(calendar 근사). ★§8-3 Δspurious 후 확정=LIABILITY 단독(순+348). provisional(debit net−4·credit=account-age/history/tier가 params밖→미viable) 드롭. §8-2 재현율(gold-blind·1109 liability·1353 debit-provisional): liability 89.4%(proxy T1=30·literal T1=2는 73.6%·잔여10.6%=tx→disc proxy 미적합)·provisional_credit_eligible 86.8%(timely=tx→disc≤60·category∈5종·written). credit provisional(eligible_for_provisional_credit·2552 최대)=credit args가 written_statement_provided 부재라 조건셋 상이→미저작(별도 정책 pass). card_action/partial_refund 미저작. | 2026-07-16 확장(gold-fit 확증·rule_fit.py): liability 94.7% · amount_difference=(exp-act)/100*balance(balance=account GET). provisional_credit_eligible=자격 judgment(날짜식 69%≈base 65%=NOT deterministic·F3). expected_apy=상품 GET-lookup.",
  "recommendation_verify": {
   "offer_tool": "give_discoverable_user_tool",
   "action_tool": "apply_for_credit_card",
