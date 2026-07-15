@@ -94,3 +94,11 @@ liability-wrong·reach-miss를 N(sim당 gold dispute 수)으로 층화(field수�
 - **★2 LOAD(compute·reach)=loop이 연산강제로 직접 fix / 2 GAP(⋈·gather)=ASK(H_min잔여·작음)**.
 - ⇒ **loop이 LOAD 2버킷(대부분)을 닫으면, 잔여=GAP 2버킷=H_min ASK(~7질문)**. horizon 붕괴의 지배분(compute-skip·reach-skip)이 loop로 닫힘 = **①E-PLAN 배선이 pass 올릴 것으로 예측**(다음 실증).
 - **반증 hunt(TODO)**: agent가 *올바른 연산을 쓰고도* 실패한 케이스(within-operator)를 수동감사로 탐색 → 그 비율이 통합의 진짜 반증. (예: ASK했는데 user-답으로도 실패·COMPUTE 맞는데 정책 애매.)
+
+## 8e. ★① E-PLAN 오프라인 replay ([[09]] 무료 先·`bank_operator_replay.py`·[M])
+실패 sim의 id-correct dispute에 결정론 COMPUTE(liability lookup) 강제 적용:
+- 오답 dispute 1576: **FLIP(COMPUTE로 완전정답) 224(14.2%)** · 부분개선 186(11.8%) · 미개선 1166(74%·non-compute도 틀림).
+- **★sim-level: 실패 sim 1024 중 COMPUTE만으로 완전 pass 197(19.2%)**.
+- ⇒ **연산 하나(COMPUTE)가 offline로 실패의 19.2%를 pass로 flip = "연산강제가 pass 올림" 무료 실증(①)**. 나머지 74%=non-compute(gather/⋈) 필드도 틀림→**FIND/ASK 추가 필요**(전체 loop=복리).
+- **라이브 e2e(유료·[[09]] 승인·컨트롤러 배선 미구축[[14]])**: 배선된 loop이 이 19.2%+FIND+ASK를 실제 달성하나 = make-or-break. GAP 버킷(⋈/gather ASK)은 user 답 필요→offline 검증불가(gold쓰면 cheating)·라이브만.
+- **caveat**: offline=COMPUTE 완벽적용 상한·라이브 formalize/실행 정확도로 감쇄·reach 0제출은 COMPUTE로 안 닫힘(FIND 별도).
