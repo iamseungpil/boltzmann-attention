@@ -60,6 +60,39 @@
 - **다음 옵션**: (a) synth 강화(salient-framing + 노이즈/길이 + 미묘 판별자로 collapse 유발) (b) banking collapse 원인 규명(길이/노이즈/prior강도 ablation) (c) Track B 전제 재검. **v0 학습 착수 보류**(synth 재현 확인이 선결).
 - ★[[08]]/[[12]] 성과: 학습 前 synth 검증이 무효 학습을 차단(guard 규율).
 
+## 8. ★★online-H_min 결정 모듈 실측 (compare loop 재설계·2026-07-16·C100·[M] n=160)
+> handoff §0 compare loop을 구현·실행 → [[08]] 포렌식이 측정오염 발각 → 권위본(§14~§18) 대조 후 **재앵커 + online-H_min 결정기**로 재설계·재측정. 정본 수치.
+
+### 8.1 [[08]] 측정오염 발각·교정 (재앵커)
+- **v1 compare loop**(후보별 격리 이진 y/n → union → 유일매칭 select·else ASK): n=40서 **dispute_reason 90% ASK·0% correct**.
+- **per-case 포렌식**: dispute_reason 케이스 **100% txn-없음**(dispute 액션이 transaction_id만 담고 denormalize 필드 없음) + NL=전체 multi-dispute 대화(1500자 clip). ⇒ "이 *거래*의 reason?"이 아니라 "여러 dispute 섞인 blob이 reason X와 맞나?"를 물음 = 이진 many-yes가 정당 = **F3=⋈참조앵커링 표면화**(§14.3·C79). one-shot fraud-collapse(35%/98%)도 같은 오염.
+- **교정**: `parse_txn_records`(tool결과 레코드 transaction_id-join)로 txn 앵커 **0%→92%** 주입.
+
+### 8.2 online-H_min 결정기 (이진→등급·§16/§18)
+- 이진 y/n은 **margin을 버려** union→과-ASK. → **등급채점**(definitely/probably/unlikely/no=3/2/1/0·후보별 격리·앵커 강조로 multi-dispute NL scope).
+- 분포 형성 후 **margin threshold**(§18.1 엔트로피-게이트): top1−top2 ≥ margin(그리고 top1>0) → **SELECT top1**(DERIVE, ASK불요) · else(동점/전부no) → **ASK**(진짜 잔여 애매성·bounded). 도메인일반([[05]]·[[10]] LLM=채점기·결정=결정론).
+- 구현: `bank_f3_eval.py --hmin --margin N`. `run_hmin`.
+
+### 8.3 결과 (n=160·각 필드 n=80·margin≥1·리모트 32B 8140)
+| 필드 | correct | ASK | wrong | margin 분포 {gap:n} |
+|---|---|---|---|---|
+| dispute_reason (강한-prior 서사) | 28% | 58% | **15%** | {0:46, 1:30, 2:4} |
+| dispute_category (사실-도출) | 39% | 56% | **5%** | {0:45, 1:10, 2:25} |
+- SELECT 분포 dispute_reason: {fraud:12, incorrect_amount:7, duplicate:6, reversal:5} · ask-recoverable(gold∈tied): reason 61%·category 58%.
+
+### 8.4 안정 신호 3 + 정직 종합
+1. **fraud-collapse 깨짐**(fraud 40%·98%아님·확신-오답 65%→소멸)=견고.
+2. **dispute_reason 시그니처=wrong율 3배**(15% vs 5%)=잔존 prior간섭(§17.3 miscalibration)=진짜 SFT표적.
+3. **★자기교정([[08]])**: dispute_category **few-shot one-shot 81.7% ≫ H_min 격리채점 39%** → 격리채점은 파생필드엔 열등(후보-간 비교맥락 상실) = **H_min 모듈은 category엔 틀린 도구**.
+- **H_min 정합(사용자 지적 해소)**: dispute_reason 58% ASK=위반 아님(§16.2 dispute_reason=CREDIT ASK필드 2.49bit≈질문1개·모듈은 필드당 ASK 1개·union 남발 아님·user_stop 예산 내).
+- **정직 결론**: online-H_min 가치=파생필드 닫기 아니라 **강한-prior 확신-오파일링을 bounded-ASK로 전환**(few-shot 35%정답/65%확신-오답 → 28%정답/**15%만 오답**/58%질문1개=오-파일링 비싼 실환경서 net-safe). 올바른 컨트롤러 = **category→few-shot derive·reason→online-H_min ASK**(§16.4 verify-or-ASK 구체화).
+- **n=40 과대 회수([[08]])**: 초판 "category H_min으로 닫힘 50%"=과대·실제 39%·둘 다 ~57% ASK로 자율 미닫힘.
+
+### 8.5 전략·다음
+- **전략(§14.5/14.8)**: dispute_reason=작은 slice(지배 레버=coverage 25.6%·compute 16.7%·⋈ 4%) → Track B SFT-on-reason 상한 제한적(닫아도 banking 헤드라인 거의 무변). ask-recoverable 61%(서사에 답 있음)=SFT 여지나 전략 우선순위 낮음.
+- **잔여 15% wrong=calibration** → §18.3 conformal(작은 calib set·보장된 애매성) 또는 SFT.
+- provenance: `f3_hmin_n160.log`(리모트 `scratch/f3_results`·gzip)·`bank_f3_eval.py`(`parse_txn_records`·`run_hmin`·재앵커 f3_cases.jsonl 커밋). caveat: 실패-sim 편향(FLOOR)·margin=1 미튜닝(risk-length knob §16.1).
+
 ## 7. 규율 가드
 - [[11]] 벤치(synth)서만·banking 스키마 학습에 0(eval서만)·전이=ABox-swap. [[12]] 다양성 필수·단일템플릿=역전이. [[42]] SFT설치+DPO. [[30]] 진행률 가시·결과 gzip 영속·GPU 충돌금지. [[05]] 스킬=도메인일반·엔진 리터럴0. [[08]] SFT 후 예측분포 전수(mode-collapse 붕괴 실증)·집계직행 금지.
 - **모트 계측**: 과-분류(prior 억제 역효과=over-correction) 계측·held-out 역전이 0 확인.
