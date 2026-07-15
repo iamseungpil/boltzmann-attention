@@ -112,7 +112,16 @@ def main():
     ap.add_argument("--max", type=int, default=0)
     a = ap.parse_args()
     files = sorted(glob.glob("C:/tmp/traj/*_banking.json"))
-    schema = extract_schema(files)
+    # 스키마: 궤적 있으면 추출·없으면(리모트) 커밋된 f3_schema.json 로드
+    _schpath = os.path.join(os.path.dirname(a.cases) or ".", "f3_schema.json")
+    if files:
+        schema = extract_schema(files)
+    elif os.path.exists(_schpath):
+        schema = {k: [tuple(x) for x in v] for k, v in json.load(open(_schpath, encoding="utf-8")).items()}
+    elif os.path.exists("f3_schema.json"):
+        schema = {k: [tuple(x) for x in v] for k, v in json.load(open("f3_schema.json", encoding="utf-8")).items()}
+    else:
+        schema = {}
     if a.build or not os.path.exists(a.cases):
         cases = build_cases(files, schema)
         json.dump(schema, open("f3_schema.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
