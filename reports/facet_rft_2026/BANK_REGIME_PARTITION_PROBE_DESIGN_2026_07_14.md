@@ -105,8 +105,8 @@
 - ⚠853 = C77-79 추출 ⋈셋·C80 궤적 coverage 오염분·**전부 frontier-failed(§12 selection bias 1급)**. E-REGIME=formalize→filter 스텝 voting-solvability(궤적 귀속=C80 별건). 측정명제="32B-greedy-wrong 위 32B-voting이 gold 도달?"(2×2로 조건화·§12 model mismatch).
 - **★Phase 0 게이트 통과(2026-07-15·서버 up·n=30·k=8·무료)**: **voting% = 0/29 = 0.0%** [CI 0–11.7]·**gold∈support 0/29**(정답이 8샘플에 단 한 번도 안 나옴=최대 systematic)·malformed 0 → **probe6(+0%·systematic) 재현**. partition: voting 0·verify 25·ASK 4. ⚠v4 재런으로 oracle/runtime gap·abstain 분리 산출 예정.
 - **★Phase 0 v4 재런 + per-case 포렌식(2026-07-15·[[08]])**: voting 0/29·gold∈support 0/29 유지 · **formalization-gap 25/25**(oracle-decidable인데 런타임 gold 도달 0) · verify세부 abstain 6·confident-wrong 19(23). **★per-case: confident-wrong 23/23 maj_id∈dispute_set·21/23==프론티어 chosen** → **⋈ 실패=plan(다중-dispute 앵커링)·semantic/statistical 아님**(C80/C82 수렴·C89). ⇒ ⋈ "verify 25"의 23=coverage/plan(E-PLAN)·field-verify 아님·⋈케이스셋=C80 오염 재확인.
-- **★결정 대기(사용자)**: (A) ⋈ partition에 plan/multi-item regime 추가·정직 종결 {voting0·plan23·ASK4} + (C) verify 실증은 **compute 버킷으로 피벗**(진짜 decidable·C81) 추천. (B) clean single-dispute ⋈ 재추출은 저순위.
-- 다음 = 방향 확정 후 Phase 1(compute 버킷 or ⋈ full n=853).
+- **★⋈ full 정직 종결(2026-07-15·n=853·A 방향·`bank_regime_partition.k8_T0.7.json`)**: **voting 0.1%(1/825) · plan 560(67.9%) · verify 13(1.6%) · ASK 251(30.4%)**. plan의 maj==프론티어 chosen 90%(모델독립). gold∈support 4/824·formalization-gap 670/671(naive gold-free 라우터 실패). ⇒ **⋈=plan 지배(E-PLAN)·field-verify 무시(1.6%)·voting 죽음**. C88 voting-vacuity·C89 plan 규모확정.
+- **다음 = (C) compute 버킷 mini-design·구현**(verify가 진짜 레버인 곳·C81 slice·t2_compute recompute). ⋈는 종결.
 
 ## 15. 리뷰 확정 (§13 사용자 답변 반영·CLOSED)
 (a) field-level primary·**coverage 제외→E-PLAN** ✅ / (b) actual 먼저·gold=Phase2[D] ✅ / (c) k=8+⋈k=32·T=0.7+T=1.0 ✅ / (d) ⋈>compute>gather(coverage 이관) ✅ / (e) §8 1급·결합예측+marginal+재계산신호 ✅.
