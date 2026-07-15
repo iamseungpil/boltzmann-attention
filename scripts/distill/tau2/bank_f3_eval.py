@@ -192,6 +192,7 @@ def main():
             print("  [few-shot] 데모풀 %d·필드별 예시:" % len(demo_pool),
                   {k: v.count("Correct ") for k, v in fs_prefix.items()})
         by_attend = defaultdict(lambda: [0, 0]); by_field = defaultdict(lambda: [0, 0])
+        pred_dist = defaultdict(Counter)              # 필드별 예측 분포(mode-collapse 진단·[[08]])
         for i, c in enumerate(cases):
             try:
                 r = cl.chat.completions.create(model=a.model, messages=[{"role": "user", "content": make_prompt(c, schema, strict=a.strict, fewshot_prefix=fs_prefix)}],
@@ -203,6 +204,7 @@ def main():
             key = "attend(gold NL에)" if c["gold_attend"] else "non-attend(정책추론)"
             by_attend[key][0] += int(ok); by_attend[key][1] += 1
             by_field[c["field"]][0] += int(ok); by_field[c["field"]][1] += 1
+            pred_dist[c["field"]][pred[:24]] += 1
             if i < 6 or (i % 40 == 0):
                 print("[%d/%d] %s attend=%s gold=%s pred=%s %s" % (i, len(cases), c["field"], c["gold_attend"], c["gold"], pred[:26], "✓" if ok else "✗"), flush=True)
         mode = "few-shot" if a.fewshot else ("strict" if a.strict else "zero-shot")
@@ -213,6 +215,9 @@ def main():
         print("  [필드별]")
         for k, (ok, tot) in by_field.items():
             print("    %-20s %d/%d = %.1f%%" % (k, ok, tot, 100 * ok / max(tot, 1)))
+        print("  [예측 분포 Top3 (mode-collapse 진단)]")
+        for fld, pc in pred_dist.items():
+            print("    %-18s %s" % (fld, dict(pc.most_common(3))))
         print("  판정: attend 높음=제공스키마 활용OK(그 부분 prompt-closable)·attend 낮음=스키마 무시(prior-override·SFT정당·[[42]])")
         print("        non-attend 낮음=정책추론 잔여(F3코어). Track B 표적=attend-gap + non-attend 둘 다 학습.")
 
