@@ -102,3 +102,18 @@ liability-wrong·reach-miss를 N(sim당 gold dispute 수)으로 층화(field수�
 - ⇒ **연산 하나(COMPUTE)가 offline로 실패의 19.2%를 pass로 flip = "연산강제가 pass 올림" 무료 실증(①)**. 나머지 74%=non-compute(gather/⋈) 필드도 틀림→**FIND/ASK 추가 필요**(전체 loop=복리).
 - **라이브 e2e(유료·[[09]] 승인·컨트롤러 배선 미구축[[14]])**: 배선된 loop이 이 19.2%+FIND+ASK를 실제 달성하나 = make-or-break. GAP 버킷(⋈/gather ASK)은 user 답 필요→offline 검증불가(gold쓰면 cheating)·라이브만.
 - **caveat**: offline=COMPUTE 완벽적용 상한·라이브 formalize/실행 정확도로 감쇄·reach 0제출은 COMPUTE로 안 닫힘(FIND 별도).
+
+## 8f. ★① 오프라인 E-PLAN ceiling — 어느 연산이 실패 sim을 닫나 (실패 sim 1024·[M])
+| 필요 연산 | n | % |
+|---|---|---|
+| A. COMPUTE만으로 pass | 197 | 19.2% |
+| B. FIND만(reach) | 284 | 27.7% |
+| C. FIND+COMPUTE(LOAD만) | 131 | 12.8% |
+| D. ASK/GET 필요(GAP) | 412 | 40.2% |
+- **LOAD 연산(COMPUTE+FIND) 최대 59.8% 닫음 · GAP(ASK)=40.2%=H_min 잔여.**
+- ⚠**SOLID=COMPUTE 19.2%만**(결정론·제출 dispute). **FIND 부분(B+C 40.5%)=상한**(surface된 dispute가 정확히 채워진다 가정·실은 그 필드도 gather 필요→라이브만 확정). 즉 오프라인 확정 ceiling=19.2%·전체 loop 잠재=~60%(상한).
+
+## 8g. ③ 반증 hunt — operator-choice vs within-operator (compute 오류 입력=gold·n=380·[M])
+- None(연산 skip) 7.6% · 틀린값-엉뚱 86.8% · 틀린값=내lookup일치 5.5%.
+- ⚠**값만으론 "추측 vs 틀린공식" 미분리**(86.8% 애매). **단 격리 94%(§8b)=모델이 공식 앎→in-situ 틀린값=안 씀(operator-choice)이지 틀린공식 아님**. 5.5%=내 lookup 94.4% 불완전 confound.
+- ⇒ **operator-choice ~94.5%(격리-능력으로 뒷받침)·깨끗한 within-operator 반증 0** → 통합 생존. 완전확정=궤적-reasoning(agent가 계산 보였나) 분석 필요(TODO).
