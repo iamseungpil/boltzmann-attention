@@ -36,7 +36,8 @@ dag_plan(sim): gold DAG의 매 미충족 스텝 → 연산 분류 →
 - **★(b) 정밀진단(전수 검증)**: `get_credit_card_transactions_by_user`는 **1761/1761 호출 전부 user_id 키**(account_id 0). ⇒ banking detail_reader = **bulk user-keyed**(한 호출로 전 거래 surface) = retail per-entity 모델과 **구조적으로 다름**. 게다가 dispute write=`call_discoverable_agent_tool`(디스패처)로 transaction_id가 **nested args**. ⇒ **eplan entity_key=account_id가 어느 실제 엔티티와도 불일치**(reads=user-keyed·writes=transaction-nested). **결론: banking 지배 레버=account-level examined 아니라 transaction-level write-coverage**(surface된 disputable 거래를 다 dispute했나=C94 under-action).
 - **★(b) 수정 방향(설계결정)**: ABox eplan `entity_key: account_id→transaction_id` + `list_enumerator: get_*_transactions_by_user`(bulk reader가 disputable 단위 열거) + `build_ledger_from_messages`가 디스패처 write의 **nested transaction_id 추출**(executed). 그러면 (a)파서로 listed=surface된 txn·coverage_gap=required−disputed=under-action 검출. credit/debit 2reader = eplan 확장 필요.
 - **(c) confirm 게이트**: 미착수(write_tools=디스패처 nested라 gold DAG서 도출 필요).
-- **다음(무료)**: (b) entity-model 수정 + 오프라인 스모크(실궤적서 ledger 재구성→coverage_gap이 미제출 dispute 검출 실증). 그 후 (c)·라이브([[09]]).
+- **✅ (b) 방향 오프라인 실증 PASS**(`bank_eplan_coverage_probe.py`·실 스캐폴드 PlanLedger+coverage_gap·963 실패 sim·DB-basis): **listed 채워짐 76%**((a)파서 작동·기존 ∅)·**coverage_gap>0 44%**(under-action 검출)·gap 1346 중 **surfaced-not-disputed 40%(COVERAGE·정보보유→H_min 리마인더 표적)** / not-surfaced 60%(REACH·FIND-enumerate). ⇒ **라이브 메커니즘이 banking under-action 올바로 식별 확증**·C94(COVERAGE 40.7%/FIND 27.2%)와 transaction 레벨 정합·라이브 배선 de-risk. caveat: not-surfaced 60%는 debit/디스패처 목록 포맷 파서 미커버로 일부 과대 가능.
+- **다음(무료)**: (b) 커밋(ABox eplan entity_key→transaction_id·bulk reader=enumerator·`build_ledger_from_messages` 디스패처 nested write 추출) + (c) confirm게이트(write_tools=디스패처 도출). 그 후 라이브 e2e([[09]] 유료).
 
 ## 3. 유료 라이브 e2e 게이트 ([[09]])
 - **금지**: 승인+scope 없이 유료 실행. 로컬 tau2 banking 도메인 부재→라이브=리모트/유료만.
