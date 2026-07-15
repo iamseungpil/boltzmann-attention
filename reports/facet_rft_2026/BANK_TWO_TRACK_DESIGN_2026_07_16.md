@@ -5,13 +5,17 @@
 > 종합 진단: frontier 실패 극복 = **결정론 28~49%(Track A) + F3 의미참조(Track B)**. 두 트랙이 상보(전자=under-action/discovery, 후자=semantic reference).
 > 규율: [[05]] 엔진일반·ABox만 · [[11]] 벤치서 학습·타깃 금지 · [[03]] 설계먼저 · [[09]] 유료 게이트 · [[42]] prompt-ceiling→train · [[16]] scaffold LOCK.
 
-## 0. 왜 두 트랙 (진단 요약)
-| 잔여 | % (관측가능) | 성격 | 트랙 |
+> ⚠️ **2026-07-16 리뷰 반영(❶~❼·§6)**: 초판 "결정론 28~49%"는 **과대**였다. ❷ 수정(uncalled write의 F3 args 검사) 후 정직한 오프라인 상한 봉투 = **HARD-only 9.9% · +SOFT 12.0% · A+B 29.3%**(관측가능 38.3%). 아래 §0 표·§1.3·§5는 §6이 정본.
+
+## 0. 왜 두 트랙 (진단 요약·리뷰 교정판)
+| 잔여 | 오프라인 상한 % | 성격 | 트랙·tier |
 |---|---|---|---|
-| under-action/discovery/compute | ~28~49% | **결정론** (coverage/FIND/COMPUTE/GET-⋈) | **A (배선)** |
-| F3 의미참조 (상황→정책 enum) | ~26% | **의미매핑** (NL→taxonomy·prior-override) | **B (스킬 학습)** |
-| 선택 enum·data-부재 | ~6% | ASK (user-원천) | A (ASK 연산) |
-| pure-DB blind | ~19% | 오프라인 관측 밖 | (측정=live/DB-replay) |
+| FIND/COMPUTE/GET-⋈ | **9.9%** (관측 12.9%) | **HARD**(강제가능·[[16]] 준수) | **A** |
+| +COVERAGE(write-emit) | +2.1% → 12.0% | **SOFT**(리마인더만·[[16]] write강제금지·[[07]] 불확실) | A(soft-bet) |
+| +F3-enum(상황→정책) | +17.3% → **29.3%** | **의미매핑**(NL→taxonomy) | **B(스킬 학습)** |
+| 잔여 GATHER(user-데이터)·judgment | 47.2% | user-원천/자격 | ASK / 경계 |
+| pure-DB blind | 23.5% | 오프라인 관측 밖 | live/DB-replay |
+- **상한=gold-informed 기회≠실현**(❸): 라이브 실현 < 상한. **gold-free coverage 게이트(❹)**: write 타깃의 4.7% user-명시·**84.9% discovery+선택술어 필요**·10.4% mirage → 실현성은 **ABox 선택술어 정확도**에 달림.
 - **핵심 프레임(사용자)**: 지식(taxonomy)=ABox(검색/선언·A2류·**학습 금지**) vs 스킬(스키마-대령→분류·prior 안 덮기)=TBox(**벤치서 한 번 학습·ABox-swap 전이**). LoRA/가중치는 스킬 전용(도메인-일반)·팩트는 retrieval.
 
 ---
@@ -83,7 +87,20 @@ per-step DAG-walk (Track A 배선):
 - **규율 하드**: [[05]] 엔진일반·리터럴0 · [[11]] 벤치학습·banking 미학습 · [[03]] 설계먼저·anti-drift · [[16]] scaffold LOCK · [[08]] per-case·집계직행 금지 · [[42]] prompt-ceiling.
 - **모트 계측**: 모든 게이트에 반대편(Δspurious≤0·over-action Δ≤0). Track B는 오분류-역효과(과-분류) 계측.
 
-## 5. 성공기준 (측정)
-- **Track A**: 라이브 pass가 오프라인 결정론 상한(27.8~49%)을 in-situ 달성·over-action Δ≤0.
-- **Track B**: τ² banking F3 enum 정확도 > 0.44(천장 돌파)·미학습 전이·역전이 0.
-- **합성**: 소형(32B)+A+B가 banking pass서 frontier(gpt55 37.4%) 패리티 이상.
+## 5. 성공기준 (측정·§6 교정판이 정본)
+- **Track A**: 라이브 pass 상승이 **HARD-only 실현분**(9.9% 상한 × 선택술어 정확도 × gold-free 복원 89.6%)에 부합·over-action Δ≤0. SOFT(COVERAGE)는 별도 계측(리마인더 효과).
+- **Track B**: τ² banking F3-enum 정확도 > 0.44(천장 돌파)·미학습 전이·역전이 0.
+- **합성**: A+B 상한 29.3%(관측 38.3%)가 frontier(gpt55 pass 37.4%) 비교 타깃 — **단 상한≠실현·denominator 상이**(mechanism=실패 중 극복률·frontier=전체 pass) 주의.
+
+---
+
+## 6. ★리뷰 반영 (❶~❼·2026-07-16·타 세션 리뷰)
+초판의 3중 낙관·[[05]] 위반을 전부 교정. `bank_eplan_controller.py`·`bank_goldfree_coverage.py` 반영·selftest PASS.
+- **❶ [[05]] 리터럴0 위반 = 수정**: field→op 분류 정규식(`_COMPUTE_NAME`/`_JUDGMENT_NAME`/`_ENUM_NAME`)을 엔진서 제거 → **ABox `field_ops`**(banking_knowledge.gate.json: compute/judgment/id_ref/enum 명시 리스트)로 이관. 엔진은 `_READ_PREFIX`(API verb convention)·`_PROCEDURAL`(harness meta)만 보유=도메인일반. `_field_op`이 ABox만 읽음.
+- **❷ uncalled-write 과대 = 수정**: 미호출 write도 gold_args worst-field 분석(`_write_worst_op`). enum arg(예 close_debit_card `reason`) 잡힘 → **HARD-only 27.8%→9.9%** 붕괴(정직).
+- **❸ 상한=실현 혼동 = 재프레이밍**: 오프라인 상한=gold-informed 기회. 라이브 실현<상한. 49% 관대bound 실현치 제시 철회.
+- **❹ gold-free coverage 게이트 = 실행**(`bank_goldfree_coverage.py`): write 타깃 A(user명시) 4.7%·**B(discovery+선택술어) 84.9%**·C(mirage) 10.4%. ⇒ **실현성 관문 = ABox 선택술어 정확도**(disputes=reference_filter C78 100%decidable·card-ops/credit=미검증). apply_savings/interest 등 mirage 다수는 정규식 under-capture였음([[08]] 교정·substring). **라이브 前 선택술어 검증 필수**.
+- **❺ hard/soft 분해 = 반영**: HARD(FIND/COMPUTE/GET·강제가능)=9.9% vs SOFT(COVERAGE write-emit=리마인더·[[16]] write강제금지·[[07]] soft 불신)=+2.1%. **지배 잔여 GATHER는 user-데이터**(grounding/ASK). 성공봉투=HARD 하한.
+- **❻ Track B synth go/no-go = 명문화(Phase-0·유료 前)**: 값싼 결정 질문 — synth서 "consult-schema→classify" 설치 시 **synth-F3 이동 + held-out 스키마 전이**하나. **필수 제약: prior-충돌 케이스(직관≠스키마·banking의 fraud↔not_as_described 동형) 반드시 포함** — 스킬이 "prior=스키마일 때만" 작동하면 전이 무효(§2.5 부분 리스크 계측). 통과 못하면 banking τ² 전이 무망=학습 착수 금지.
+- **❼ A+B 결합상한 = 산출**: F3-enum=Track B 해결 가정 → **29.3%**(관측 38.3%). C94 다층성으로 결합≠합산(A-only 9.9%+B-only 26%≠29.3%). GATHER-user·pure-DB-blind로 <100% 상계.
+- **무료 잔여 순서**: 선택술어 정확도 검증(❹ B-tier·per-family) → Track B synth Phase-0(❻) → 그 뒤 [[09]] 유료 논의.

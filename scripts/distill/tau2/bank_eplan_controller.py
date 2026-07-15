@@ -388,12 +388,25 @@ def selftest():
             {"name": "call_discoverable_agent_tool",
              "arguments": {"agent_tool_name": "file_debit_card_transaction_dispute_2",
                            "arguments": {"transaction_id": "t", "dispute_category": "card_not_present_fraud"}}}]}]}
-    pl = dag_plan(syn, {"compute_ops": {}})
+    # ABox field_ops(엔진 리터럴0·리뷰 ❶) — dispute_category=enum·reason=enum
+    abox_fo = {"compute_ops": {}, "field_ops": {
+        "enum": ["dispute_category", "reason"], "id_ref": ["card_id", "transaction_id"],
+        "compute": [], "judgment": []}}
+    pl = dag_plan(syn, abox_fo)
     ops = {op for (_, op, _) in pl["steps"]}
-    assert "COVERAGE" in ops, pl          # close_debit_card 미호출=coverage
-    assert not pl["all_closed"], pl       # dispute_category enum(호출·오답)=F3 → 잔여
+    assert "F3-enum" in ops, pl           # dispute_category(호출·오답) 또는 close reason=enum
+    assert not pl["hard_only"] and not pl["hard_soft"], pl   # F3-enum → soft로도 안 닫힘(❷)
+    assert pl["with_B"], pl               # F3-enum만이면 B 가정 시 닫힘
     assert "F3-enum" in pl["residual_ops"], pl
-    print("selftest: ALL PASS (엔진 순수·ABox-driven·리터럴0·산술op gold-fit·DAG 컨트롤러 확인)")
+    # ❷ 회귀: uncalled write의 enum arg(reason)도 잡히나 — close_debit_card 미호출·reason=enum
+    syn2 = {"reward_info": {"action_checks": [
+        {"action": {"arguments": {"agent_tool_name": "close_debit_card_1",
+                                  "arguments": {"card_id": "dbc_x", "reason": "fraud"}}}, "action_reward": 0.0}]},
+        "messages": []}
+    pl2 = dag_plan(syn2, abox_fo)
+    assert not pl2["hard_soft"], pl2      # 미호출 write지만 reason=enum(F3) → coverage(soft) 아니라 inner
+    assert "F3-enum" in {op for (_, op, _) in pl2["steps"]}, pl2
+    print("selftest: ALL PASS (엔진 순수·ABox field_ops·리터럴0·산술op·DAG tier ❶❷❺❼ 확인)")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -496,31 +509,45 @@ def run_offline_allaction(abox, db_basis_only=True):
 #  라이브 배선(t2_eplan_patch 진화)의 결정론 controller 로직·유료 실행은 별도([[09]]).
 # ══════════════════════════════════════════════════════════════════════════════
 
-_READ_PREFIX = re.compile(r"^(get|search|list|lookup|find|retrieve|read|view|check)_", re.I)
-_PROCEDURAL = re.compile(r"(^log_|_verification$|^kb_search|^kb_|^search_|^shell$|discoverable|transfer_to_human|give_)", re.I)
-_ID_FIELDS = {"transaction_id", "account_id", "card_id", "user_id", "order_id",
-              "card_last_4_digits", "dispute_id", "report_id"}
-_COMPUTE_NAME = re.compile(r"(liability|amount_difference|expected_apy|actual_apy|_apy$|new_rewards|interest)", re.I)
-_JUDGMENT_NAME = re.compile(r"(eligible|provisional_credit|refund_amount)", re.I)
-_ENUM_NAME = re.compile(r"(reason|category|type|action|status|option|design|method|resolution|class|compromised|possession|filed|provided)", re.I)
+# 도메인일반 명명-convention만 엔진 보유(필드→op 리터럴은 ABox field_ops·리뷰 ❶ 반영·[[05]]).
+_READ_PREFIX = re.compile(r"^(get|search|list|lookup|find|retrieve|read|view|check)_", re.I)  # API verb convention
+_PROCEDURAL = re.compile(r"(^log_|_verification$|^kb_search|^kb_|^search_|^shell$|discoverable|transfer_to_human|give_)", re.I)  # harness meta-tool
+# 연산 tier (리뷰 ❺): hard=강제가능(FIND read·COMPUTE·GET-⋈) · soft=write-emit 리마인더만([[16]]/[[07]]) · inner=의미(F3/gather)
+_OP_TIER = {"FIND": "hard", "COMPUTE": "hard", "GET-xmatch": "hard",
+            "COVERAGE": "soft", "F3-enum": "inner-B", "F3-judgment": "inner-hard", "GATHER": "inner-hard"}
+_TIER_RANK = {"hard": 0, "soft": 1, "inner-B": 2, "inner-hard": 3}
 
 
-def _dag_op(field, tool_family, abox):
-    """틀린 필드 → 연산 타입 + 결정론 closable 여부 (컨트롤러 판정)."""
-    if _JUDGMENT_NAME.search(field):
-        return "F3-judgment", False              # 자격 judgment(gold-fit 실패)
-    if _COMPUTE_NAME.search(field) or compute_field_names(tool_family, abox) & {field}:
-        return "COMPUTE", True                   # 결정론(ABox 규칙·확증분)
-    if field in _ID_FIELDS:
-        return "GET-xmatch", True                # ⋈-decidable(GET/filter)
-    if _ENUM_NAME.search(field):
-        return "F3-enum", False                  # NL→정규화(inner router·라이브-gated)
-    return "GATHER", False                       # 값 gather(user-원천 가능)
+def _field_op(field, tool_family, abox):
+    """틀린 필드 → 연산 타입 (전부 ABox field_ops·엔진 리터럴0·[[05]]·리뷰 ❶)."""
+    fo = abox.get("field_ops") or {}
+    if field in set(fo.get("judgment", [])):
+        return "F3-judgment"
+    if field in set(fo.get("compute", [])) or field in compute_field_names(tool_family, abox):
+        return "COMPUTE"
+    if field in set(fo.get("id_ref", [])):
+        return "GET-xmatch"
+    if field in set(fo.get("enum", [])):
+        return "F3-enum"
+    return "GATHER"
+
+
+def _write_worst_op(tf, gold_args, uncalled, abox):
+    """write 스텝의 최악 연산(리뷰 ❷: uncalled write도 gold_args 검사).
+    uncalled면 COVERAGE(write-emit·soft) 후보에 포함·args 중 최악과 tier 비교."""
+    cand = ["COVERAGE"] if uncalled else []
+    for field in gold_args:
+        if field == "transaction_id":
+            continue
+        cand.append(_field_op(field, tf, abox))
+    if not cand:
+        cand = ["COVERAGE"]
+    return max(cand, key=lambda o: _TIER_RANK[_OP_TIER[o]])
 
 
 def dag_plan(s, abox):
-    """한 sim의 gold DAG를 per-step walk → operator plan + closure 판정.
-    반환 {steps:[(tool,op,closable)], all_closed, residual_ops}."""
+    """한 sim의 gold DAG를 per-step walk → (tool,op,tier) 스텝 + 다중 closure 판정.
+    tier: hard(강제)·soft(write-emit 리마인더)·inner-B(F3-enum)·inner-hard(judgment/gather)."""
     ri = s.get("reward_info") or {}
     calls = _agent_called_families(s)
     steps = []
@@ -537,34 +564,28 @@ def dag_plan(s, abox):
         if met is None:
             met = 1.0 if ac.get("action_match") else 0.0
         if float(met) >= 1.0:
-            continue                              # 이미 충족(닫힘)
+            continue
         rd = bool(_READ_PREFIX.match(tf))
         gold_args = _nd(outer.get("arguments"))
-        if tf not in calls or not calls.get(tf):
-            # 미호출 → FIND(read) / COVERAGE(write) — 둘 다 H_min 강제열거로 결정론 closable
-            op, closable = ("FIND", True) if rd else ("COVERAGE", True)
-            steps.append((tf, op, closable))
+        uncalled = (tf not in calls) or (not calls.get(tf))
+        if rd:
+            op = "FIND"                            # read = 강제열거(hard)·값판정 생략
         else:
-            # 호출·오답 → 필드별 최악 연산 (write만·read는 값판정 생략)
-            if rd:
-                steps.append((tf, "FIND", True)); continue
-            worst = ("COVERAGE", True)
-            order = {"COVERAGE": 0, "COMPUTE": 1, "GET-xmatch": 1, "GATHER": 2, "F3-enum": 3, "F3-judgment": 3}
-            for field in gold_args:
-                if field == "transaction_id":
-                    continue
-                op, cl = _dag_op(field, tf, abox)
-                if order.get(op, 2) >= order.get(worst[0], 0):
-                    worst = (op, cl)
-            steps.append((tf, worst[0], worst[1]))
-    residual = sorted({op for (_, op, cl) in steps if not cl})
-    all_closed = len(steps) > 0 and not residual
-    return {"steps": steps, "all_closed": all_closed, "residual_ops": residual,
-            "n_steps": len(steps)}
+            op = _write_worst_op(tf, gold_args, uncalled, abox)  # ❷ uncalled도 args 분석
+        steps.append((tf, op, _OP_TIER[op]))
+    # 리뷰 ❺❼ 다중 closure: hard-only / hard+soft / +B(F3-enum) 상한
+    tiers = [t for (_, _, t) in steps]
+    n = len(steps)
+    hard_only = n > 0 and all(t == "hard" for t in tiers)
+    hard_soft = n > 0 and all(t in ("hard", "soft") for t in tiers)
+    with_B = n > 0 and all(t in ("hard", "soft", "inner-B") for t in tiers)
+    residual = sorted({op for (_, op, t) in steps if t in ("inner-B", "inner-hard")})
+    return {"steps": steps, "n_steps": n, "hard_only": hard_only,
+            "hard_soft": hard_soft, "with_B": with_B, "residual_ops": residual}
 
 
 def run_dag_replay(abox):
-    """오프라인 DAG replay: 컨트롤러가 all-layer-closed 시키는 sim 비율(결정론 상한)."""
+    """오프라인 DAG replay: 3 상한(hard-only/hard+soft/A+B) — 리뷰 ❺❼ 반영."""
     files = glob.glob("C:/tmp/traj/*_banking.json")
     verdict = Counter(); res_op = Counter(); n = 0; blind = 0
     for f in files:
@@ -580,11 +601,17 @@ def run_dag_replay(abox):
             n += 1
             p = dag_plan(s, abox)
             if p["n_steps"] == 0:
-                verdict["Blind(action-check 없음·pure-DB)"] += 1; blind += 1
-            elif p["all_closed"]:
-                verdict["ALL-CLOSED(결정론 컨트롤러 극복)"] += 1
+                verdict["Blind(pure-DB)"] += 1; blind += 1
+                continue
+            # 3 상한(중첩·리뷰 ❺❼): hard-only ⊆ hard+soft ⊆ +B
+            if p["hard_only"]:
+                verdict["hard-only(강제가능·FIND/COMPUTE/GET)"] += 1
+            elif p["hard_soft"]:
+                verdict["+soft(COVERAGE write-emit 리마인더)"] += 1
+            elif p["with_B"]:
+                verdict["+B(F3-enum 스킬 가정)"] += 1
             else:
-                verdict["잔여 inner-router 필요"] += 1
+                verdict["잔여(judgment/gather-user)"] += 1
                 for op in p["residual_ops"]:
                     res_op[op] += 1
     return verdict, res_op, n, blind, len(files)
@@ -603,17 +630,21 @@ def main():
     abox = load_abox()
     if a.dag:
         verdict, res_op, n, blind, nfiles = run_dag_replay(abox)
-        print("=== (c) per-step DAG 컨트롤러 오프라인 replay (DB-basis 실패 %d·%d궤적·infra제외) ===" % (n, nfiles))
-        for k, v in verdict.most_common():
-            print("  %-38s %5d (%.1f%%)" % (k, v, 100 * v / max(n, 1)))
-        ac = verdict["ALL-CLOSED(결정론 컨트롤러 극복)"]
         obs = n - blind
-        print("  ─" * 24)
-        print("  ★ALL-CLOSED(순수구조 결정론 극복) = %.1f%% (관측가능 중 %.1f%%)" % (100 * ac / max(n, 1), 100 * ac / max(obs, 1)))
-        print("  잔여 inner-router 연산 빈도:", dict(res_op.most_common()))
-        print("  해석: FIND/COVERAGE(강제열거+H_min)·COMPUTE(ABox)·GET-⋈=결정론. F3-enum(지배 잔여)·judgment·GATHER=inner router(라이브).")
-        print("  [[08]] 27.8%=순수구조(그라운딩 미인정·모든 스텝 det 要). C95 49%=+GET그라운딩(data present 인정)의 관대bound.")
-        print("        차이=data-field 그라운딩 크레딧. 27.8%(하한·컨트롤러 무맥락)~49%(상한·그라운딩). Blind 오프라인 밖.")
+        ho = verdict["hard-only(강제가능·FIND/COMPUTE/GET)"]
+        hs = ho + verdict["+soft(COVERAGE write-emit 리마인더)"]
+        ab = hs + verdict["+B(F3-enum 스킬 가정)"]
+        print("=== (c) per-step DAG 컨트롤러 오프라인 상한 3분해 (DB-basis 실패 %d·%d궤적·리뷰 ❶❷❺❼ 반영) ===" % (n, nfiles))
+        for k in ("hard-only(강제가능·FIND/COMPUTE/GET)", "+soft(COVERAGE write-emit 리마인더)",
+                  "+B(F3-enum 스킬 가정)", "잔여(judgment/gather-user)", "Blind(pure-DB)"):
+            print("  %-38s %5d (%.1f%%)" % (k, verdict[k], 100 * verdict[k] / max(n, 1)))
+        print("  " + "─" * 44)
+        print("  ★HARD-only 상한(강제가능·[[16]] 준수) = %.1f%% (관측가능 %.1f%%)" % (100 * ho / max(n, 1), 100 * ho / max(obs, 1)))
+        print("  ★+SOFT 상한(COVERAGE=write-emit 리마인더·soft-bet·[[07]] 불확실) = %.1f%% (관측 %.1f%%)" % (100 * hs / max(n, 1), 100 * hs / max(obs, 1)))
+        print("  ★A+B 상한(F3-enum=Track B 스킬 가정) = %.1f%% (관측 %.1f%%) ← frontier(gpt55 pass 37.4%%) 비교 타깃(❼)" % (100 * ab / max(n, 1), 100 * ab / max(obs, 1)))
+        print("  잔여(judgment/gather-user):", dict(res_op.most_common()))
+        print("  [[08]]/리뷰: HARD-only=진짜 결정론 실현 하한·SOFT=write강제금지라 soft-bet(❺)·이 3숫자가 정직한 봉투.")
+        print("        상한=gold-informed 기회(❸)·라이브 실현<상한·gold-free coverage 게이트(❹)가 실현성 관문.")
         return
     if a.dispute_only:
         summary, gap_cause, nfiles, nstates = run_offline(abox)
