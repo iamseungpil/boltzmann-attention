@@ -111,3 +111,11 @@ per-step DAG-walk (Track A 배선):
 - **card/account-ops = ≥48.8% gold-free 선택가능**(하한): SCOPE-ALL(전부 지시·"lost wallet→freeze all cards") **35.2% 지배** + UNIQUE 2.7% + CUST-MENTION 4.6% + LINKABLE(disputed-txn cascade) 6.3%. AMBIGUOUS ≤36.2%·gold∉discovery 15.0%.
 - **★[[08]] 자기교정 2회**: (1) 초판 mirage는 정규식 under-capture(substring 교정) (2) 초판 "AMBIGUOUS 65%"는 휴리스틱이 **scope-all·name-link 놓친 거짓음성**(per-case 정독: 4/4가 "all/named" 선택가능)→scope-all 추가로 19.5%→48.8%. **여전히 하한**(name-link "Bluest Account"→계좌→카드 미크레딧).
 - **판정**: 선택술어는 **다수에 실현 가능**(disputes 82%·card-ops ≥49%+). Track A는 mirage 아님. 잔여 관문 = AMBIGUOUS 뒤 name-link 술어 구축·gold∉discovery(15%)=열거 강화. **HARD 상한(9.9%) × 선택술어(≥49~82%) × gold-free복원(89.6%) = 라이브 실현 하한 envelope.**
+
+## 8. ★게이트2 무료 진단 = F3 enum 실패의 성격 (`bank_prior_conflict.py`·2026-07-16)
+Track B Phase-0의 무료 선진단(리뷰 ❻ prior-conflict 우려를 기존 데이터로 계측). dispute enum 오답 252건:
+- **prior-override(agent가 surface-직관·gold 반직관) = 10.7%**(지배 아님·대부분 transaction_type 노이즈 25/27).
+- **필드별**: card_action **80% gold-NL-정렬**(답이 NL에 있는데 미-attend→attend-schema 스킬로 닫힘) · dispute_category **76% tie**(NL 미-disambig→정책추론=진짜 F3 코어·card_present vs not-present는 pin정책) · dispute_reason 64% gold-aligned.
+- **★판정(방향 우호적)**: F3 enum 실패 다수 = **경계 아닌 attend-실패**(답이 맥락에·"consult-schema→classify" 스킬이 정확히 겨냥). prior-conflict(❻)는 실재하나 소수·tie(정책추론)가 더 큰 도전.
+- **synth Phase-0 필수 3구성**: (a) attend(답이 제공맥락에) (b) prior-conflict(surface≠정책·소수지만 ❻) (c) 정책-inference(NL 애매→taxonomy 규칙적용). 비중이 학습 설계 좌우.
+- **[[08]] caveat**: 약신호(토큰중첩·transaction_type 노이즈). **정본 측정 = base 모델 NL→enum eval**(32B 서버·게이트2 다음·prior-충돌/attend/inference 3세트).
