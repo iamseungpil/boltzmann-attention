@@ -12,6 +12,7 @@
 사용: py synth_schema_classify.py --n 600 --out synth_f3.jsonl
 """
 import json, sys, io, argparse
+from collections import Counter, defaultdict
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 # ── 5 도메인일반 taxonomy (정의 + salient prior-default + 카테고리별 시나리오/판별자) ──
