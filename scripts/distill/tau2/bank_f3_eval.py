@@ -328,6 +328,71 @@ def run_hmin(cl, model, cases, schema, margin=1):
     return by_field
 
 
+_CONF = {"high": 2, "medium": 1, "low": 0}
+def make_rankconf_prompt(case, schema):
+    """비교 one-shot + confidence-gate (C100 자기교정 후속): 격리채점의 비교맥락-손실 vs 비교랭킹.
+    전체 enum 대령(비교맥락 복원)·단 confidence low→ASK(H_min gate). 도메인일반([[05]])."""
+    opts = "\n".join("- '%s': %s" % (v, desc) for v, desc in schema[case["field"]])
+    anchor = json.dumps(case.get("txn") or {}, ensure_ascii=False)
+    return ("You classify a customer's dispute about ONE specific transaction into exactly ONE category, "
+            "and rate how confident you are.\n\n"
+            "The transaction being disputed: %s\n\n"
+            "Allowed values for %s:\n%s\n\n"
+            "Customer's statements (focus on the transaction above):\n%s\n\n"
+            "Output exactly two lines:\nPICK: <one exact value>\nCONFIDENCE: <high|medium|low>\n"
+            "Use 'low' if the customer's words do not clearly determine the category." %
+            (anchor, case["field"], opts, case["nl"]))
+
+
+def run_rankconf(cl, model, cases, schema, ask_below=1):
+    """비교랭킹+confidence-gate: PICK + CONFIDENCE 파싱 → conf<ask_below → ASK·else SELECT.
+    C100 자기교정 검정: 비교맥락이 category 회복하나·reason 재-collapse하나."""
+    by_field = defaultdict(lambda: [0, 0, 0, 0]); by_attend = defaultdict(lambda: [0, 0, 0, 0])
+    sel_dist = defaultdict(Counter); conf_dist = defaultdict(Counter)
+    rx_pick = re.compile(r"pick:\s*'?([a-z_]+)", re.I); rx_conf = re.compile(r"conf\w*:\s*(high|medium|low)", re.I)
+    for i, c in enumerate(cases):
+        try:
+            r = cl.chat.completions.create(model=model,
+                    messages=[{"role": "user", "content": make_rankconf_prompt(c, schema)}],
+                    temperature=0, max_tokens=24)
+            txt = r.choices[0].message.content
+        except Exception as e:
+            print("ERR", type(e).__name__, e); return None
+        mp = rx_pick.search(txt); mc = rx_conf.search(txt)
+        pick = (mp.group(1).lower() if mp else ""); conf = _CONF.get((mc.group(1).lower() if mc else "low"), 0)
+        gold = c["gold"].lower(); fld = c["field"]
+        akey = "attend(gold NL에)" if c["gold_attend"] else "non-attend(정책추론)"
+        conf_dist[fld][conf] += 1
+        if conf >= ask_below:
+            sel_dist[fld][pick[:24]] += 1
+            slot = 0 if (gold in pick or (pick and pick in gold)) else 2
+        else:
+            slot = 1
+        by_field[fld][slot] += 1; by_field[fld][3] += 1
+        by_attend[akey][slot] += 1; by_attend[akey][3] += 1
+        if i < 8 or (i % 40 == 0):
+            print("[%d/%d] %s attend=%s gold=%s pick=%s conf=%d %s" %
+                  (i, len(cases), fld, c["gold_attend"], c["gold"], pick[:22], conf,
+                   ["✓select", "?ASK", "✗wrong"][slot]), flush=True)
+    print("\n=== 비교랭킹+confidence-gate 결과 (ASK if conf<%d·%s·n=%d) ===" % (ask_below, model, len(cases)))
+    print("  [필드별  correct / ASK / wrong / total]")
+    for k, (co, ak, wr, tot) in by_field.items():
+        t = max(tot, 1)
+        print("    %-18s correct %d(%.0f%%) · ASK %d(%.0f%%) · wrong %d(%.0f%%)  [n=%d]" % (k, co, 100*co/t, ak, 100*ak/t, wr, 100*wr/t, tot))
+    print("  [gold-attend별]")
+    for k, (co, ak, wr, tot) in by_attend.items():
+        t = max(tot, 1)
+        print("    %-24s correct %.0f%% · ASK %.0f%% · wrong %.0f%%  [n=%d]" % (k, 100*co/t, 100*ak/t, 100*wr/t, tot))
+    print("  [confidence 분포 {0=low→ASK,1=med,2=high}]")
+    for fld, cc in conf_dist.items():
+        print("    %-18s %s" % (fld, dict(sorted(cc.items()))))
+    print("  [SELECT 값 분포 Top4 (reason 재-collapse 진단: fraud 편중?)]")
+    for fld, sc in sel_dist.items():
+        print("    %-18s %s" % (fld, dict(sc.most_common(4))))
+    print("  판정: category correct↑(비교맥락 회복)·reason fraud 재편중이면 → 필드타입별 다른신호·confidence가 라우팅.")
+    return by_field
+
+
 def make_prompt(case, schema, strict=False, fewshot_prefix=None):
     opts = "\n".join("- '%s': %s" % (v, desc) for v, desc in schema[case["field"]])
     hdr = ("You classify a bank customer's situation into exactly ONE allowed category.\n")
@@ -354,6 +419,7 @@ def main():
     ap.add_argument("--compareloop", action="store_true", help="§0 per-candidate COMPARE-or-ASK loop(후보별 격리 이진→select/ASK)")
     ap.add_argument("--hmin", action="store_true", help="online-H_min 결정기(격리 등급채점→margin threshold→SELECT/ASK)")
     ap.add_argument("--margin", type=int, default=1, help="SELECT 자격 top1-top2 최소 gap(기본1)")
+    ap.add_argument("--rankconf", action="store_true", help="비교랭킹+confidence-gate(one-shot PICK+CONFIDENCE→low는 ASK)")
     a = ap.parse_args()
     files = sorted(glob.glob("C:/tmp/traj/*_banking.json"))
     # 스키마: 궤적 있으면 추출·없으면(리모트) 커밋된 f3_schema.json 로드
@@ -400,6 +466,9 @@ def main():
             return
         if a.hmin:
             run_hmin(cl, a.model, cases, schema, margin=a.margin)
+            return
+        if a.rankconf:
+            run_rankconf(cl, a.model, cases, schema)
             return
         fs_prefix = build_fewshot(demo_pool, schema) if a.fewshot else None
         if a.fewshot:
