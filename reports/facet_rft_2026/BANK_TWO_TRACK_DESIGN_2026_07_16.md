@@ -119,3 +119,11 @@ Track B Phase-0의 무료 선진단(리뷰 ❻ prior-conflict 우려를 기존 �
 - **★판정(방향 우호적)**: F3 enum 실패 다수 = **경계 아닌 attend-실패**(답이 맥락에·"consult-schema→classify" 스킬이 정확히 겨냥). prior-conflict(❻)는 실재하나 소수·tie(정책추론)가 더 큰 도전.
 - **synth Phase-0 필수 3구성**: (a) attend(답이 제공맥락에) (b) prior-conflict(surface≠정책·소수지만 ❻) (c) 정책-inference(NL 애매→taxonomy 규칙적용). 비중이 학습 설계 좌우.
 - **[[08]] caveat**: 약신호(토큰중첩·transaction_type 노이즈). **정본 측정 = base 모델 NL→enum eval**(32B 서버·게이트2 다음·prior-충돌/attend/inference 3세트).
+
+## 9. ★게이트3 = base 32B 스키마-분류 eval (정본·리모트 8140·`bank_f3_eval.py`·n=400·2026-07-16)
+질문([[42]]): base 32B가 *제공된 enum 스키마 정의*를 대령받고 고객 NL을 gold로 분류하나 vs prior로 덮나.
+- **결과**: dispute_reason **35.0%**(majority-baseline "항상 fraud" **39.0%** 수준=**mode-collapse·스키마 미사용**) · dispute_category **55.0%**(majority 36%보다 +19pp=일부신호·불신뢰).
+- **prior-override 확증**: 모델이 gold 명백히 다른 케이스(incorrect_amount·refund_never_processed·not_as_described)도 **"unauthorized_fraudulent_charge"로 예측**(per-case 로그). = 프로토타입 prior로 붕괴.
+- **★판정 = Track B GO 정당화**: base가 **스키마 in-context 대령받고도 F3 분류 신뢰불가**(dispute_reason=majority 수준). ⇒ **프롬프트로 F3 안 닫힘·학습(SFT+prior억제) 필요**([[42]] 정확 실증·make-or-break 근거 확증). 시스템프롬프트/retrieval는 지식 대령만·스킬 결손은 train.
+- **★robustness 확증(anti-prior 강화 프롬프트·[[08]]/guard)**: "**Do NOT default to fraud·각 정의 읽고 선택**" 명시 프롬프트로도 dispute_reason **35.0%(동일)**·dispute_category 51.5%(소폭↓). ⇒ **프롬프트-엔지니어링으로 prior-override 안 고쳐짐 = 프롬프트 취약성 아닌 진짜 prompt-ceiling**([[42]] 정확). 2 포맷 모두 ~35% = SFT 필요 결론 robust.
+- **[[08]] caveat**: 실패-sim dispute 케이스(편향)·32B base(미학습). attend/non-attend 분해=클래스분포×prior 아티팩트(과대해석 금지). **정본 Track B 시험 = 스킬 SFT 후 재-eval**(0.44 천장 돌파 여부·유료). 이 base-eval=FLOOR·실패모드(prior-override) 확정.
