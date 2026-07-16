@@ -1060,12 +1060,15 @@ NLNUM_FEEDBACK = (
 # 도메인 사실(어느 데이터원/operand에 어느 producer가 붙는가)은 **전부 A2**(엔진 리터럴 0).
 
 def _called_tools(msgs):
-    """지금까지 *실제로 호출된* 도구 이름 집합 (구조 이벤트만·텍스트 무관)."""
+    """지금까지 **에이전트가** 실제로 호출한 도구 이름 집합 (구조 이벤트만·텍스트 무관).
+    ★requestor 격리: 사용자 실행 도구(gold `call_discoverable_user_tool` 등)는 세지 않는다 —
+      이 arm의 술어는 *에이전트가* producer를 불렀는가이고, user 호출을 섞으면 §7 버그와 동종의
+      범주 오류가 된다."""
     out = set()
     for m in msgs:
         for tc in (getattr(m, "tool_calls", None) or []):
             n = getattr(tc, "name", None)
-            if n:
+            if n and getattr(tc, "requestor", "assistant") == "assistant":
                 out.add(n)
     return out
 

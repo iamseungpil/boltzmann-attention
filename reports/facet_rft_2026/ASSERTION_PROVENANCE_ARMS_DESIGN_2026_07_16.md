@@ -99,6 +99,41 @@ C45 출처선언 레버는 **write 인자**에만 걸려 있다. banking 잔여 
 2. 구현 → 오프라인 단위검증 → **스모크**(gpt-4.1-mini·nt=1~3) = 라이브 발화 확인 (단위통과 ≠ 라이브발화·[[30]]).
 3. 정본: gpt-5.2 user-sim·nt≥3 — **사용자 승인 필수**([[09]]).
 
+## 7. ★★★스모크가 드러낸 것 — arm이 아니라 **우리 게이트가 task를 통과불가로 만들고 있었다** (2026-07-16)
+> arm 판정 이전에 **선행 무효화 사유**. [[08]]이 요구한 궤적 포렌식이 잡았고, 집계(pass=0)만 봤으면 "에이전트가 못 한다"로
+> 오귀속했을 것. **C16(RBW 격차=scaffold 아티팩트)의 재발.**
+
+### 7.1 실측
+`bank_t019h`(= t019g + `T2_DISCOVERY_REQUIRED=1`·정본 `sim_results/bank_t019h_20260716.{results.json,log}.gz`·커밋 `6687b6d6`):
+- discovery-required **라이브 발화 3회 확인**(오프라인 예측대로) · 단 3회 모두 `regen tool_calls=[]` · producer 호출 0.
+- **그러나 종료 = `user_stop` 2 / `infrastructure_error` 1** · Retry **6회** ⇒ **실효 n=2 · 판정 불가**.
+
+### 7.2 근본 원인 (버그·지난 세션 `f53c7621`)
+- `orchestrator.py:882` = `from_role in [AGENT, USER] and to_role == ENV` → `_execute_tool_calls`
+  ⇒ **user-sim의 도구 호출도 같은 함수를 지난다.**
+- 우리 `t2_scaffold_get.exec2`는 **requestor를 보지 않고** `agent.tools`(=`_t2_known_tools`)로만 검사 ⇒
+  **사용자가 자기 도구를 부르면 "없는 도구다·지어내지 마라"고 거부**당한다.
+- **task_019 gold의 4/6이 `requestor:"user"`**:
+  `019_2~5 = call_discoverable_user_tool(submit_cash_back_dispute_0589, txn_...)` × 4 (+019_0 log_verification·019_1 give_discoverable_user_tool).
+  ⇒ **T2_TOOLGATE=1이면 사용자의 gold 액션이 항상 차단 = task_019는 구조적으로 통과 불가 = reward 0 보장.**
+- 부작용 2: 거부 ToolMessage가 `requestor="assistant"` 하드코딩 → user-sim 히스토리 flip서
+  `user_simulator_base.py:102 ValueError` → Retry → `infrastructure_error`.
+  **ValueError 발생 자체가 "차단된 호출이 사용자의 것"이라는 증거**(에이전트 호출은 user 히스토리에 안 들어감).
+- t019g 로그에도 같은 ValueError **1회** 존재 ⇒ **버그는 t019g에도 있었다**(운좋게 3/3 생존).
+
+### 7.3 ⇒ 철회/보류되는 주장
+- ❌ **"t019g reward 0/3 = 에이전트가 reward 도구를 안 골라서"** — **보류**. 그 런들은 gold 4/6이 차단된 상태였다.
+  `get_reward_discrepancies` 미선택(0/3)은 여전히 사실이나, **pass=0의 귀속은 무효**.
+- ❌ **"에이전트가 `call_discoverable_user_tool`을 날조했다"(정박 치환)** — **철회**. **실재하는 gold 도구**다.
+  우리 게이트가 잘못 거부한 것. (진짜 날조 예: `get_user_information_by_phone_number`.)
+- ⚠️ 핸드오프 §0의 서사(= 잔여 병목 = reward 도구 미선택)는 **이 버그 위에서 관측됨** → 수정 後 재측정 필요.
+
+### 7.4 수정 (커밋 `<이 커밋>`)
+- `exec2`: **requestor 격리** — `tc.requestor != "assistant"`면 우리 경로 일절 미적용(원본 실행으로).
+- 반환 ToolMessage의 `requestor`를 tau2 원본과 동형으로 **미러링**(`environment.get_response`: `requestor=message.requestor`).
+- 회귀 테스트 `test_toolgate_requestor.py` 5/5 PASS (user gold 통과 · 에이전트 날조는 ASK 보존).
+- **재측정 필요**: floor / t019g(게이트만) / t019h(+discovery-required) — 전부 수정 後 다시.
+
 ## 6. Caveat (정직)
 - t019g = **n=3 × gpt-4.1-mini** = robust 측정 아님·**메커니즘 관측**. reward도구 0선택만 3/3 일관 + 원문 정독으로 견고.
 - **sim 2형(user-sim이 틀린 결론을 먼저 줌)** 은 user-sim 품질 의존 — gpt-5.2선 다르게 나올 수 있음([[47]] 권장표준).

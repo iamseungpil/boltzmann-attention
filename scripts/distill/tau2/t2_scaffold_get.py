@@ -69,6 +69,18 @@ def apply():
         ours = {}
         rest = []
         for tc in tool_calls:
+            # ★★requestor 격리 (2026-07-16 버그픽스·`ASSERTION_PROVENANCE_ARMS_DESIGN` §7):
+            #   orchestrator._execute_tool_calls는 **AGENT와 USER 양쪽**의 호출을 처리한다
+            #   (orchestrator.py:882 `from_role in [AGENT, USER] and to_role == ENV`).
+            #   우리 도구·TOOLGATE는 *에이전트* 도구집합(agent.tools) 기준이므로 user 호출에 적용하면:
+            #     (1) 사용자의 **gold 액션**을 차단 (task_019 gold 4/6 = requestor:user
+            #         `call_discoverable_user_tool`) → 그 task는 **통과 불가**가 된다.
+            #     (2) requestor 불일치 ToolMessage가 user-sim 히스토리에 들어가
+            #         `user_simulator_base.py:102` ValueError → Retry → infrastructure_error.
+            #   ⇒ 에이전트 호출만 다룬다. 나머지는 원본 실행 경로로.
+            if getattr(tc, "requestor", "assistant") != "assistant":
+                rest.append(tc)
+                continue
             if getattr(tc, "name", None) in decls:
                 d = decls[getattr(tc, "name")]
                 # ★LLM이 formalize한 clean operand(각 인자)를 ctx로([[10]]). 엔진은 op 실행만·원시파싱 안함.
@@ -90,7 +102,9 @@ def apply():
                     _txt = d.get("return_template", "{result}").format(result=_res if _res is not None
                                                                        else d.get("missing_hint", "(could not compute — check your arguments)"))
                     _n = _res
-                ours[id(tc)] = ToolMessage(id=tc.id, role="tool", requestor="assistant", content=_txt)
+                # requestor는 tau2 원본과 동형으로 **미러링**(environment.get_response: requestor=message.requestor).
+                ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
+                                           requestor=getattr(tc, "requestor", "assistant"), content=_txt)
                 print("[T2_SCAFFOLD_GET] %s -> %s" % (getattr(tc, "name"), _n), file=_sys.stderr, flush=True)
             elif (os.environ.get("T2_TOOLGATE") == "1"
                   and getattr(self, "_t2_known_tools", None)
@@ -101,7 +115,9 @@ def apply():
                         "you may only call tools that are provided to you. If you are missing information needed "
                         "to use one of your available tools, ASK the customer to provide that information, then "
                         "call an available tool." % (getattr(tc, "name", "") or ""))
-                ours[id(tc)] = ToolMessage(id=tc.id, role="tool", requestor="assistant", error=True, content=_msg)
+                ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
+                                           requestor=getattr(tc, "requestor", "assistant"),
+                                           error=True, content=_msg)
                 print("[T2_TOOLGATE] invalid selection '%s' -> ASK prompt"
                       % (getattr(tc, "name", "") or ""), file=_sys.stderr, flush=True)
             else:
