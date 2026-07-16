@@ -241,6 +241,17 @@ t019g→dreq 사이에 **user-sim(mini→5.2)** 과 **§7 requestor 버그픽스
   ⇒ **언어화된 지식이 행동을 통제하지 못한다**가 이 도메인 잔여의 통일 서술. 프롬프트·설명·피드백은 전부 *언어* 층이므로
   이 층에서 못 닫는다는 예측과 정합(C30/C47/[[42]]).
 - ⇒ **새 잔여 = [[10]] 경계의 LLM 몫(원시 leaf→operand)** + **언어↔행동 괴리**. 둘의 분리는 §10 op/operand 프로브가 판정.
+
+### 9.1e ★용어 정정 — "LLM이 도구를 호출한다"는 틀린 서술 (2026-07-16)
+**LLM은 도구를 실행하지 않는다.** LLM은 `tool_calls`(이름+인자)를 **emit 할 뿐**이고, 실행은 오케스트레이터가 한다:
+`LLMAgent._generate_next_message`(생성) → `BaseOrchestrator._execute_tool_calls`(`orchestrator.py:882`) →
+`environment.get_response(tool_call)`(실행) → `ToolMessage`로 문맥 주입. **MCP도 동형** — 호스트가 서버에 연결·호출하고
+모델은 tool-use를 emit 할 뿐이다. TOOLGATE도 "모델이 못 부르게" 하는 게 아니라 **emit된 요청을 실행 직전에 가로채는** 것.
+- ⇒ 정확한 실패 서술 = **"호출을 안 한다"가 아니라 "tool_call을 emit 하지 않고 텍스트를 emit 한다"**(sim2 `[26]`).
+- ⇒ **금지선**: "오케스트레이터가 대신 불러주면 되지 않나" = **NO**. producer를 자동 호출하려면 엔진이 인자(23건 레코드)를
+  스스로 만들어야 하고 = tool 출력 **텍스트 파싱** = **[[03b]] 엔진-formalize**(이번 세션 §7-전에 제거한 그 cheating).
+  선례: **C34**가 같은 이유로 `candidate_summary`·`autofetch` 폐기(에이전트가 안 부른 도구를 엔진이 대신 호출·주입).
+  ⇒ **선택(emit)과 formalize는 정의상 LLM 몫**이며, scaffold가 대신하면 측정 대상 자체가 소멸한다.
 - ⇒ 우리 A2 `params.transactions` 설명(*"A JSON array … that you read from the transaction records"*)이 명시하는데도
   "고객이 ID를 줘야 한다"로 오독 ⇒ **또 prompt 천장**(C30/[[42]]).
 - ⚠️ n=1 sim · **[P]**. arm 효과 주장은 ctl 대조 도착 後 확정.
