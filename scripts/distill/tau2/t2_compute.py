@@ -198,6 +198,32 @@ def apply_op(spec, ctx):
                 if av not in (None, "") and bv not in (None, "") and _nm(av) == _nm(bv):
                     n += 1
             return n
+        if op == "match_verdict":
+            # ★도메인일반(§17.3·2026-07-17): count_field_matches의 확장 — 몇 개·어느 필드가 일치/미일치인지까지
+            #   결정론으로 세서 A2 템플릿({count}/{threshold}/{matched}/{missing})에 포맷. 산술·집합연산을
+            #   모델에게 남기지 않음(sim0형 카운트-자기모순 = closed-gap의 INFER 오분류·C92). 문구=A2·엔진 리터럴 0.
+            a = _get(ctx, spec.get("a")); b = _get(ctx, spec.get("b"))
+            fields = list(spec.get("fields") or [])
+            thr = int(spec.get("threshold", 2))
+            def _nm2(x):
+                return re.sub(r"\s+", " ", str(x)).strip().lower()
+            matched, missing = [], []
+            if isinstance(a, dict) and isinstance(b, dict):
+                for f in fields:
+                    av, bv = a.get(f), b.get(f)
+                    if av not in (None, "") and bv not in (None, "") and _nm2(av) == _nm2(bv):
+                        matched.append(f)
+                    else:
+                        missing.append(f)
+            else:
+                missing = fields
+            tpl = spec.get("met_template" if len(matched) >= thr else "unmet_template") or "{count}"
+            try:
+                return tpl.format(count=len(matched), threshold=thr,
+                                  matched=", ".join(matched) or "(none)",
+                                  missing=", ".join(missing) or "(none)")
+            except Exception:
+                return str(len(matched))
         if op == "case":
             # ★도메인일반 문자열-키 매핑(lookup_table의 문자열판). key(ref/op) → cases 매칭 → 값(op면 재귀).
             key = apply_op(spec.get("key"), ctx) if isinstance(spec.get("key"), dict) else _get(ctx, spec.get("key"))

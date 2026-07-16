@@ -321,28 +321,18 @@
     "record": "JSON object of the customer's ACCOUNT RECORD you retrieved (via get_user_information_by_name/email/id), using the same keys: date_of_birth, address, phone_number, email."
    },
    "op": {
-    "op": "lookup_table",
-    "key": {
-     "op": "count_field_matches",
-     "a": "provided",
-     "b": "record",
-     "fields": [
-      "date_of_birth",
-      "address",
-      "phone_number",
-      "email"
-     ]
-    },
-    "table": [
-     {
-      "cmp": ">=",
-      "thr": 2,
-      "result": "VERIFIED — 2 or more identity values match; you may now call log_verification."
-     },
-     {
-      "result": "NOT_VERIFIED — fewer than 2 of {date_of_birth, address, phone_number, email} match. Do NOT proceed. If you have not looked up the record yet, ask the customer for their name, email, or user ID (phone/DOB cannot be used to look up), fetch the record, and try again."
-     }
-    ]
+    "op": "match_verdict",
+    "a": "provided",
+    "b": "record",
+    "fields": [
+     "date_of_birth",
+     "address",
+     "phone_number",
+     "email"
+    ],
+    "threshold": 2,
+    "met_template": "VERIFIED — {count} identity values match ({matched}); you may now call log_verification.",
+    "unmet_template": "NOT_VERIFIED — only {count} of the required {threshold} identity values match so far (matched: {matched}). Ask the customer for ONE more of: {missing} — then call verify_identity again passing ALL values they have given so far in this conversation. If you have not looked up the record yet, ask for their name, email, or user ID (phone/DOB cannot be used to look up), fetch the record, and try again."
    },
    "return_template": "{result}",
    "missing_hint": "NOT_VERIFIED — provide 'provided' (values the customer gave) and 'record' (fetched via get_user_information_by_name/email/id) as JSON with keys date_of_birth/address/phone_number/email.",
