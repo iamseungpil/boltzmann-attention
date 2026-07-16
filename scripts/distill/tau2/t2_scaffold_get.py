@@ -3,34 +3,12 @@
 LLM은 구체 계산을 직접 안 하고 이 GET 도구를 *호출*→scaffold가 결정론 계산(t2_compute.apply_op)→결과 반환.
 tau2 네이티브 아님·우리가 A2로 제공하는 일반 GET 함수. [[05]] 엔진=도메인일반·계산공식=A2 op-spec.
 활성=T2_SCAFFOLD_GET=1. gate/unified 뒤에 apply(체이닝)."""
-import os, re, json, sys as _sys
+import os, json, sys as _sys
 
-
-def _parse_records(text):
-    """일반 파서: 'N. Record ID:' 분할 → 'key: value' 추출 → amount $ strip."""
-    recs = []
-    for chunk in re.split(r"\d+\.\s+Record ID:", text or "")[1:]:
-        d = {m.group(1): m.group(2).strip()
-             for m in re.finditer(r"(\w+):\s*([^\n]+?)(?:\s{2,}|$)", chunk)}
-        for k in list(d):
-            if "amount" in k:
-                d[k] = d[k].replace("$", "")
-        if d:
-            recs.append(d)
-    return recs
-
-
-def _gather(messages):
-    """레코드를 담은 최신 tool 출력 파싱(도메인일반·records_from 힌트는 옵션)."""
-    recs = []
-    for m in messages:
-        role = m.get("role") if isinstance(m, dict) else getattr(m, "role", None)
-        content = m.get("content") if isinstance(m, dict) else getattr(m, "content", None)
-        if role == "tool" and isinstance(content, str):
-            r = _parse_records(content)
-            if r:
-                recs = r
-    return recs
+# ★삭제됨(2026-07-16·[[03b]]): `_parse_records`/`_gather` = 엔진이 tool 출력 텍스트를 정규식 파싱해
+#   operand를 추출('$' strip 포함)하던 코드 = **엔진-formalize = 구현 속임**(이번 세션 위반 #2의 잔해).
+#   호출부 0(전 repo grep 확인)이었으나, 남겨두면 재사용 유혹 = 표류 원천이므로 제거.
+#   정본 경로: operand는 **LLM이 formalize**해 도구 인자로 넘기고(아래 exec2), 엔진은 op 실행만 한다([[10]]).
 
 
 def apply():
