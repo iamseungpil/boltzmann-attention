@@ -56,8 +56,25 @@ C45 출처선언 레버는 **write 인자**에만 걸려 있다. banking 잔여 
 - [[10]] 정석: LLM=formalize(자기 주장의 operand 추출)·엔진=검증만. 엔진은 JSON 필드만 읽는다.
 - **예상 역효과**: 매 사임 turn마다 sub-call = 전-궤적 비용(§1.3 thinking과 동형: F5 매도 위험) · 에이전트가 선언 회피/거짓선언 가능.
 
-### arm `value-provenance` (기존 NLNUM·대조군)
-- banking A2에 `calc_tool` 추가만(코드 0줄). §1b대로 **오조준 예측** — 그 예측 자체를 실측(제1원리 상쇄 관측).
+### arm `value-provenance` (기존 NLNUM) — **❌ 드롭(2026-07-16·사용자 결정)**
+- 사유: §1b 반사실이 **이미 답을 줌**(발화 8/8 전량 over-block·참양성 0). 라이브는 돈만 쓰고 같은 결론.
+- 지위: **오프라인 실측으로 갈음** — "값-출처 레버는 이 병목에 오조준"이 결과([[09]] 무료검증 先의 정확한 사례).
+
+## 2b. ★오프라인 검증 결과 (구현 後·라이브 前·무료)
+재현: `scripts/distill/tau2/bank_assertion_arms_offline.py` (커밋 `3043c474`). 엔진 판정 로직만 replay.
+
+| arm | 궤적 | 사임(발화기회) | **발화** | 발화 지점 | over-block |
+|---|---|---|---|---|---|
+| discovery-required | t019g sim0 | 7 | **1** | msg[20] = 첫 눈대중 주장 | 0 |
+| discovery-required | t019g sim1 | 12 | **1** | msg[38] = 눈대중 주장 | 0 |
+| discovery-required | t019g sim2 | 10 | **1** | msg[30] = **user-sim의 틀린 결론[31] 직전** | 0 |
+| discovery-required | t019d sim0·1 | 7·8 | **0·0** | (거래 미도달) | 0 |
+| value-provenance(NLNUM) | t019g·d | — | 8 | 맞는 산술 | **8/8** |
+
+- **정밀**: 사임 7~12회 중 **1회만** 발화(남발 아님) — data_source 읽기 前 사임엔 안 걸림.
+- **sim2 추인 형태도 선점**: msg[30] 발화가 user-sim의 [31] 오결론보다 앞선다.
+- ⚠️ **이 task는 리워드-중심**이라 *무관 대화서의 over-block*은 여기서 시험되지 않음 → **라이브 계측 대상**([[05]] 가드 (2)).
+- ⚠️ 오프라인이 재는 것 = **발화 여부/지점**뿐. regen 後 실제로 producer를 부르는지(=thrash 여부)는 **라이브만 판정**.
 
 ## 3. 자기감사 ([[03b]]·제시 前 필수)
 | 점검 | 결과 |
