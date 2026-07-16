@@ -1050,6 +1050,70 @@ NLNUM_FEEDBACK = (
 )
 
 
+# ─── ★assertion-provenance (2026-07-16·`ASSERTION_PROVENANCE_ARMS_DESIGN_2026_07_16`) ───
+# 병목: 에이전트가 producer 도구를 *선택하지 않고* 사용자에게 판단을 주장한다(t019g 3/3·호출 0).
+# C45 출처선언은 **write 인자**에만 걸려 있어 이 지점을 통째로 놓친다. 여기서 assertion으로 확장.
+# ★불변량: **엔진은 어시스턴트 답변 텍스트를 파싱하지 않는다.**
+#   - discovery-required: 엔진이 보는 것 = {호출된 도구 이름} 집합뿐 (구조 이벤트).
+#   - self-declaration : 엔진이 보는 것 = LLM이 내놓은 **선언 JSON 필드**뿐 ([[10]] LLM=formalize·엔진=검증).
+#   텍스트 정규식으로 '판단'을 탐지하면 = 엔진-formalize + 도메인 리터럴 = [[03b]]/[[05]] 위반 = 실험무효.
+# 도메인 사실(어느 데이터원/operand에 어느 producer가 붙는가)은 **전부 A2**(엔진 리터럴 0).
+
+def _called_tools(msgs):
+    """지금까지 *실제로 호출된* 도구 이름 집합 (구조 이벤트만·텍스트 무관)."""
+    out = set()
+    for m in msgs:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            n = getattr(tc, "name", None)
+            if n:
+                out.add(n)
+    return out
+
+
+def _parse_declaration(text):
+    """LLM 선언의 JSON 라인만 파싱. 엔진은 이 **구조체**만 읽는다(답변 본문 아님).
+    파싱 실패 = 선언 없음 = 무개입 폴백(T5-C 불변량 iv: 실패 시 레버 ≥ floor)."""
+    out = []
+    for ln in (text or "").splitlines():
+        ln = ln.strip().rstrip(",")
+        if not (ln.startswith("{") and ln.endswith("}")):
+            continue
+        try:
+            d = json.loads(ln)
+        except Exception:
+            continue
+        if isinstance(d, dict) and "operand" in d:
+            out.append(d)
+    return out
+
+
+# A2 `analysis_producers`: [{data_source, producer, subject}] — 읽은 데이터원에 붙는 분석 producer.
+DISCREQ_FEEDBACK = (
+    "Error: [DISCOVERY] you have read records from '{data_source}', but you have not called "
+    "'{producer}' — the tool that determines {subject}. Do not judge {subject} yourself by reading "
+    "the raw records; that is what '{producer}' is for. Call '{producer}', passing the values you "
+    "read from the records, and base your reply on what it returns. If you are missing an argument "
+    "it needs, ask the customer for it."
+)
+
+# A2 `assertion_operands`: {operand: producer} — 그 operand를 산출하는 도구.
+SELFDECL_PROMPT = (
+    "Before your reply is sent, declare its factual basis. For each item listed below, output exactly "
+    "one JSON line:\n"
+    '{{"operand": "<item>", "claimed": true|false, "source": "GET"|"FIND"|"INFER"|"ASK"}}\n'
+    "claimed = true only if your reply states or implies a conclusion about that item.\n"
+    "source: GET = a tool you called returned it · FIND = it appears verbatim in this conversation · "
+    "INFER = you worked it out yourself · ASK = you still need the customer to tell you.\n"
+    "Output only the JSON lines, nothing else.\nItems: {items}"
+)
+SELFDECL_FEEDBACK = (
+    "Error: [DECLARATION] you declared that your reply's conclusion about '{operand}' is INFER — you "
+    "worked it out yourself. But '{producer}' is one of your available tools and it returns exactly "
+    "that. Do not INFER what a tool can return: call '{producer}', then restate your reply from its "
+    "result. If you are missing an argument it needs, ask the customer for it."
+)
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # ★T5-C silent repair (2026-07-11) — 정본 `T5C_SILENT_REPAIR_DESIGN_2026_07_11.md` §6
 #   불변량: (i) 커밋될 턴 불파기 (ii) 대화에 새 텍스트 0 (iii) 실행=기록(replay-clean)
@@ -2586,6 +2650,76 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                           file=_sys.stderr, flush=True)
                 else:
                     am = am2
+        # ★assertion-provenance 2-arm (opt-in·기본 OFF·floor 불변).
+        #   발화 조건 = **사임**(tool_calls 없는 텍스트 발화 = 턴을 사용자에게 넘김) — 구조 이벤트.
+        #   상한 1/sim(에이전트 인스턴스=sim). regen 채택 전 게이트 재검사(NLNUM과 동형·안전측).
+        _resign = (not getattr(am, "tool_calls", None)
+                   and isinstance(getattr(am, "content", None), str) and am.content.strip())
+
+        def _ap_regen(fbtxt, tag):
+            """피드백 1회 → regen. 게이트-deny 유입 시 원본 유지(부작용 0). 성공 시 새 am."""
+            try:
+                _fb = UserMessage(role="user", content=fbtxt)
+            except TypeError:
+                _fb = UserMessage(content=fbtxt)
+            _am2 = _gen(self, work + [am, _fb], bw(), "agent_response_" + tag)
+            if gate is not None and _denied_calls(_am2, gate, last_user, transfer_sent):
+                print("[%s] rejected: regen introduced gate-denied call; keeping original" % tag.upper(),
+                      file=_sys.stderr, flush=True)
+                return None
+            return _am2
+
+        # (a) discovery-required — 엔진이 보는 것: {호출된 도구 이름}뿐.
+        if (os.environ.get("T2_DISCOVERY_REQUIRED") == "1" and (a2 or {}).get("analysis_producers")
+                and _resign and not getattr(self, "_t2_discreq", 0)):
+            _called = _called_tools(state.messages)
+            for _sp in (a2.get("analysis_producers") or []):
+                _ds, _pr = _sp.get("data_source"), _sp.get("producer")
+                if _ds in _called and _pr and _pr not in _called:
+                    self._t2_discreq = getattr(self, "_t2_discreq", 0) + 1
+                    print("[T2_DISCREQ] fired data_source=%s producer=%s" % (_ds, _pr),
+                          file=_sys.stderr, flush=True)
+                    _new = _ap_regen(DISCREQ_FEEDBACK.format(
+                        data_source=_ds, producer=_pr, subject=_sp.get("subject") or "this"), "discreq")
+                    if _new is not None:
+                        am = _new
+                        print("[T2_DISCREQ] regen tool_calls=%s"
+                              % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
+                              file=_sys.stderr, flush=True)
+                    break
+        # (b) self-declaration — 엔진이 보는 것: LLM 선언 JSON 필드뿐([[10]]). 선언 sub-call은 비커밋.
+        elif (os.environ.get("T2_SELF_DECLARATION") == "1" and (a2 or {}).get("assertion_operands")
+                and _resign and not getattr(self, "_t2_selfdecl", 0)):
+            _ao = a2.get("assertion_operands") or {}
+            try:
+                _dp = SELFDECL_PROMPT.format(items=", ".join(sorted(_ao)))
+                try:
+                    _dm = _gen(self, work + [am, UserMessage(role="user", content=_dp)], bw(),
+                               "agent_selfdecl")
+                except TypeError:
+                    _dm = _gen(self, work + [am, UserMessage(content=_dp)], bw(), "agent_selfdecl")
+                _decls = _parse_declaration(getattr(_dm, "content", None))
+            except Exception as _de:
+                print("[T2_SELFDECL] declaration failed (no-op): %r" % (_de,), file=_sys.stderr, flush=True)
+                _decls = []
+            print("[T2_SELFDECL] declared=%s" % (_decls or "(none — no-op)",), file=_sys.stderr, flush=True)
+            _called = _called_tools(state.messages)
+            for _d in _decls:
+                _op = str(_d.get("operand", "")).strip()
+                if not _d.get("claimed") or str(_d.get("source", "")).upper() != "INFER":
+                    continue
+                _pr = _ao.get(_op)
+                if _pr and _pr not in _called:
+                    self._t2_selfdecl = getattr(self, "_t2_selfdecl", 0) + 1
+                    print("[T2_SELFDECL] fired operand=%s producer=%s" % (_op, _pr),
+                          file=_sys.stderr, flush=True)
+                    _new = _ap_regen(SELFDECL_FEEDBACK.format(operand=_op, producer=_pr), "selfdecl")
+                    if _new is not None:
+                        am = _new
+                        print("[T2_SELFDECL] regen tool_calls=%s"
+                              % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
+                              file=_sys.stderr, flush=True)
+                    break
         return am
 
     LLMAgent._generate_next_message = unified

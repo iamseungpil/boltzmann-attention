@@ -348,5 +348,18 @@
    ]
   }
  ],
- "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수."
+ "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수.",
+ "analysis_producers": [
+  {
+   "data_source": "get_credit_card_transactions_by_user",
+   "producer": "get_reward_discrepancies",
+   "subject": "whether the rewards earned on those transactions match the expected rate for each card and category"
+  }
+ ],
+ "_note_analysis_producers": "arm `discovery-required` (ASSERTION_PROVENANCE_ARMS_DESIGN_2026_07_16). 엔진은 {호출된 도구 이름} 집합만 보고, data_source를 읽고도 producer 미호출인 채 사임하면 regen 1회(상한 1/sim). 도메인 사실=이 매핑뿐(엔진 리터럴 0). subject=피드백 문구용 ABox 텍스트. ★기본 OFF(T2_DISCOVERY_REQUIRED=1)·over-block 계측 필수(리워드 무관 대화서도 발화 가능·[[05]] 가드 (2)).",
+ "assertion_operands": {
+  "reward discrepancies": "get_reward_discrepancies",
+  "expected reward for a transaction": "get_reward_discrepancies"
+ },
+ "_note_assertion_operands": "arm `self-declaration` (같은 설계문). 사임 시 LLM이 각 항목에 {claimed, source∈GET/FIND/INFER/ASK}를 JSON 선언 → 엔진은 **선언 구조체만** 검증: claimed ∧ source=INFER ∧ producer 미호출 → regen. [[10]] LLM=formalize·엔진=검증(답변 텍스트 파싱 0). ★기본 OFF(T2_SELF_DECLARATION=1). ★caveat: 항목 열거가 리마인더로 작용할 수 있음(spoon-feed 경계·[[16]]) — 발화·효과를 계측으로 판정."
 }
