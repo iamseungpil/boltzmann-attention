@@ -256,7 +256,7 @@
  "scaffold_get_tools": [
   {
    "name": "get_reward_discrepancies",
-   "description": "Given the customer's transactions (raw fields you read), returns the transaction_ids whose recorded reward does not match the expected reward under Rho-Bank rewards policy. The tool derives the per-card reward rate and does the arithmetic; you only supply the raw transaction fields. Call this to find cash back discrepancies that need a dispute.",
+   "description": "USE THIS whenever a customer questions or disputes their cash back / rewards and you need to find which specific transactions were rewarded incorrectly. First call get_credit_card_transactions_by_user to retrieve their transactions, then call this tool passing those transactions as clean JSON. It returns the transaction_ids whose recorded reward does NOT match the expected reward under Rho-Bank policy (it derives the correct per-card rate and does the arithmetic for you). Do the reward math with this tool — do not eyeball it yourself.",
    "params": {
     "transactions": "A JSON array of the customer's credit card transactions that you read from the transaction records. Each element MUST have ONLY these raw fields, copied as-is: transaction_id (string), transaction_amount (number, no $), rewards_earned (number of points recorded, no ' points' text), credit_card_type (string, e.g. 'Gold Rewards Card' or 'EcoCard'), category (string, e.g. 'Green'). Do NOT compute anything — just copy the raw values; this tool computes the expected reward and finds discrepancies itself."
    },
@@ -304,11 +304,14 @@
     },
     "expected_ref": "steps.expected"
    },
-   "_note": "[[10]]/[[05]] op-DAG(역참조): LLM=원시 leaf(card_type/category/amount/reward)만 formalize·엔진=DAG 실행(steps.rate=card→rate case테이블·steps.expected=amount*rate·discrepant=actual≠expected). rate 테이블=A2 도메인데이터(KB base-rate·Gold2.5/EcoCard 5·1 검증됨·Bronze1/Silver4/Platinum4/Diamond5=KB best-effort·미확인). 미지의 카드=default None→abstain(false flag 0). 계산은 엔진·리터럴0."
+   "_note": "[[10]]/[[05]] op-DAG(역참조): LLM=원시 leaf(card_type/category/amount/reward)만 formalize·엔진=DAG 실행(steps.rate=card→rate case테이블·steps.expected=amount*rate·discrepant=actual≠expected). rate 테이블=A2 도메인데이터(KB base-rate·Gold2.5/EcoCard 5·1 검증됨·Bronze1/Silver4/Platinum4/Diamond5=KB best-effort·미확인). 미지의 카드=default None→abstain(false flag 0). 계산은 엔진·리터럴0.",
+   "examples": [
+    "get_reward_discrepancies(transactions=[{\"transaction_id\":\"txn_ab12\",\"transaction_amount\":175.00,\"rewards_earned\":175,\"credit_card_type\":\"EcoCard\",\"category\":\"Green\"},{\"transaction_id\":\"txn_cd34\",\"transaction_amount\":320.00,\"rewards_earned\":775,\"credit_card_type\":\"Gold Rewards Card\",\"category\":\"Shopping\"}])  -> returns the transaction_ids with a reward discrepancy that need a cash back dispute"
+   ]
   },
   {
    "name": "verify_identity",
-   "description": "Checks whether a customer's identity is verified per Rho-Bank policy: at least 2 of {date of birth, address, phone number, email} that the customer PROVIDED must match their account record (full name or user ID alone is NOT enough). You can only look up a customer by name, email, or user ID (there is NO lookup by phone or date of birth) — so first call get_user_information_by_name / by_email / by_id to fetch the record; if the customer only gave a phone/DOB, ASK them for their name, email, or user ID. Then call this with what they provided and the record you fetched.",
+   "description": "USE THIS to check whether a customer's identity is verified before accessing their account, per Rho-Bank policy: at least 2 of {date_of_birth, address, phone_number, email} they PROVIDED must match their account record (full name or user ID alone is NOT enough). You can only look up a customer by NAME, EMAIL, or USER ID — there is NO lookup by phone or DOB, so if the customer only gave a phone/DOB, ASK them for their name, email, or user ID first, then call get_user_information_by_name/by_email/by_id to fetch the record, and finally call this tool. It tells you VERIFIED or NOT_VERIFIED.",
    "params": {
     "provided": "JSON object of the identity values the CUSTOMER gave you, using these keys where available: date_of_birth, address, phone_number, email.",
     "record": "JSON object of the customer's ACCOUNT RECORD you retrieved (via get_user_information_by_name/email/id), using the same keys: date_of_birth, address, phone_number, email."
@@ -339,7 +342,10 @@
    },
    "return_template": "{result}",
    "missing_hint": "NOT_VERIFIED — provide 'provided' (values the customer gave) and 'record' (fetched via get_user_information_by_name/email/id) as JSON with keys date_of_birth/address/phone_number/email.",
-   "_note": "정책도구([[10]]/[[05]]): 정책 인용='call read tools + any 2 of {dob,address,phone,email}; name/id not enough; do not invent tool names'. leaf(provided/record)=LLM formalize(user발화/read출력)·판정=엔진 count_field_matches+lookup_table(임계 2=정책값 A2)·리터럴0."
+   "_note": "정책도구([[10]]/[[05]]): 정책 인용='call read tools + any 2 of {dob,address,phone,email}; name/id not enough; do not invent tool names'. leaf(provided/record)=LLM formalize(user발화/read출력)·판정=엔진 count_field_matches+lookup_table(임계 2=정책값 A2)·리터럴0.",
+   "examples": [
+    "verify_identity(provided={\"date_of_birth\":\"11/03/1990\",\"phone_number\":\"312-555-0481\"}, record={\"date_of_birth\":\"11/03/1990\",\"phone_number\":\"312-555-0481\",\"email\":\"a@b.com\",\"address\":\"...\"})  -> VERIFIED (2 values match)"
+   ]
   }
  ],
  "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수."

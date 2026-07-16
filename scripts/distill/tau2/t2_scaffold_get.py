@@ -68,7 +68,8 @@ def apply():
                 return ""
             try:
                 tools.append(Tool(_f, name=d["name"], short_desc=d.get("description", ""),
-                                  long_desc=d.get("description", ""), params=Params, returns=Ret))
+                                  long_desc=d.get("description", ""), params=Params, returns=Ret,
+                                  examples=list(d.get("examples") or [])))
             except Exception as e:
                 print("[T2_SCAFFOLD_GET] inject fail %s: %r" % (d["name"], e), file=_sys.stderr, flush=True)
         self._t2_sg_a2 = a2
@@ -113,6 +114,18 @@ def apply():
                     _n = _res
                 ours[id(tc)] = ToolMessage(id=tc.id, role="tool", requestor="assistant", content=_txt)
                 print("[T2_SCAFFOLD_GET] %s -> %s" % (getattr(tc, "name"), _n), file=_sys.stderr, flush=True)
+            elif (os.environ.get("T2_TOOLGATE") == "1"
+                  and getattr(self, "_t2_known_tools", None)
+                  and getattr(tc, "name", None) not in self._t2_known_tools):
+                # ★invalid 선택 → ASK (GET/FIND/INFER/ASK의 ASK 분기·단순 fail/forcing/추천 아님).
+                #   LLM은 유한 도구집합서 선택만 함(생성 아님). 매칭 실패 = 필요값을 사용자에게 물어라.
+                _msg = ("'%s' is not one of your available tools, so nothing was called. Do not invent tools — "
+                        "you may only call tools that are provided to you. If you are missing information needed "
+                        "to use one of your available tools, ASK the customer to provide that information, then "
+                        "call an available tool." % (getattr(tc, "name", "") or ""))
+                ours[id(tc)] = ToolMessage(id=tc.id, role="tool", requestor="assistant", error=True, content=_msg)
+                print("[T2_TOOLGATE] invalid selection '%s' -> ASK prompt"
+                      % (getattr(tc, "name", "") or ""), file=_sys.stderr, flush=True)
             else:
                 rest.append(tc)
         rest_res = orig_exec(self, rest) if rest else []
