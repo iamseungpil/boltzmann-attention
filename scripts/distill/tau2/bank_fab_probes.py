@@ -444,7 +444,14 @@ def main():
                                                        if t["name"] == "get_reward_discrepancies"
                                                        ][0]["description"] + HINT_PRODUCER_SUFFIX}})
     P = build_probes(sims, tools, policy, a2, tools_hint)
-    names = list(P) if a.probe == "all" else [x for x in a.probe.split(",") if x in P]
+    req = [x.strip() for x in a.probe.split(",") if x.strip()]
+    names = list(P) if a.probe == "all" else [x for x in req if x in P]
+    # ★조용한 무시 금지: 오타·별도모드(prov_reloc)를 목록에 섞으면 **말없이 빠진다**(v3서 실제 발생).
+    unknown = [x for x in req if x not in P and x not in ("all", "prov_reloc")]
+    if unknown:
+        sys.exit(f"unknown probe(s): {unknown} — 가능: {list(P)} + prov_reloc(단독 전용)")
+    if "prov_reloc" in req and a.probe != "prov_reloc":
+        sys.exit("prov_reloc은 **단독 실행 전용**입니다: --probe prov_reloc (목록에 섞으면 안 됨)")
 
     # ★게이트-유발 이동 재생(별도 모드): persev_d4 접두서 1차 emit → PROV 날조검출 → REGEN → 2차 분류.
     if a.probe == "prov_reloc":
