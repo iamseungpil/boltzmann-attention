@@ -51,6 +51,13 @@ def apply():
         if not a2 or ag is None:
             return
         decls = a2.get("scaffold_get_tools") or []
+        # ★키스톤 toggle(C103·2026-07-17): T2_SG_EXCLUDE=이름들(콤마) → 해당 A2 도구를 주입서 제외.
+        #   단일 변수 대조(대안 도구 유/무)용 실험 스위치 — 엔진은 이름 필터만(도메인 리터럴 0).
+        #   제외된 도구는 known-set에도 안 들어가므로 TOOLGATE가 진짜 부재처럼 취급(일관).
+        _excl = {x.strip() for x in (os.environ.get("T2_SG_EXCLUDE") or "").split(",") if x.strip()}
+        if _excl:
+            decls = [d for d in decls if d.get("name") not in _excl]
+            print("[T2_SCAFFOLD_GET] EXCLUDED by env: %s" % sorted(_excl), file=_sys.stderr, flush=True)
         tools = getattr(ag, "tools", None)
         if not decls or tools is None:
             return
@@ -87,6 +94,8 @@ def apply():
     def exec2(self, tool_calls):
         a2 = getattr(self, "_t2_sg_a2", None)
         decls = {d["name"]: d for d in ((a2 or {}).get("scaffold_get_tools") or [])}
+        for _x in {x.strip() for x in (os.environ.get("T2_SG_EXCLUDE") or "").split(",") if x.strip()}:
+            decls.pop(_x, None)          # 제외 도구는 실행 경로서도 부재(주입 필터와 일관)
         if not decls:
             return orig_exec(self, tool_calls)
         ours = {}
