@@ -132,7 +132,45 @@ C45 출처선언 레버는 **write 인자**에만 걸려 있다. banking 잔여 
 - `exec2`: **requestor 격리** — `tc.requestor != "assistant"`면 우리 경로 일절 미적용(원본 실행으로).
 - 반환 ToolMessage의 `requestor`를 tau2 원본과 동형으로 **미러링**(`environment.get_response`: `requestor=message.requestor`).
 - 회귀 테스트 `test_toolgate_requestor.py` 5/5 PASS (user gold 통과 · 에이전트 날조는 ASK 보존).
-- **재측정 필요**: floor / t019g(게이트만) / t019h(+discovery-required) — 전부 수정 後 다시.
+- **재측정**: `bank_t019i`(대조=게이트만·8140) vs `bank_t019j`(+discovery-required·8141) — 병렬·단일 변수 차이.
+
+### 7.5 ★버그픽스 라이브 검증 (t019i·t019j)
+| 지표 | 수정 前 t019h | **수정 後 t019i·t019j** |
+|---|---|---|
+| `ValueError`(user 히스토리 오염) | 1+ (t019g도 1) | **0 · 0** |
+| Retry | **6** | **0 · 0** |
+| `call_discoverable_user_tool` 오거부 | 발생 | **0 · 0** |
+| `infrastructure_error` | 1/3 sim | (완료 후 기입) |
+⇒ **requestor 격리가 크래시 원천을 닫았다**(라이브 실증·단위테스트만이 아님).
+
+## 8. ★도구 목록 = 권위본 (2026-07-16 확정·추측 금지)
+`registry.get_env_constructor("banking_knowledge")()` 직독:
+- **AGENT 15개**: `KB_search · call_discoverable_agent_tool · change_user_email ·
+  get_credit_card_accounts_by_user · get_credit_card_transactions_by_user · get_current_time ·
+  get_referrals_by_user · get_user_information_by_{email,id,name} · give_discoverable_user_tool ·
+  list_discoverable_agent_tools · log_verification · transfer_to_human_agents · unlock_discoverable_agent_tool`
+  (+ 우리 A2 주입 2: `get_reward_discrepancies` · `verify_identity`)
+- **USER 6개**: `apply_for_credit_card · call_discoverable_user_tool · list_discoverable_user_tools ·
+  request_human_agent_transfer · submit_referral · submit_transaction`
+⇒ **사용자 조회 key = email/id/name 뿐** · `get_user_information_by_{phone,phone_number,date_of_birth}` = **날조 확정**.
+⇒ `call_discoverable_user_tool`·`apply_for_credit_card` = **실재 USER 도구**(§7 버그가 막고 있던 것).
+> **날조 판정은 이 목록으로만 한다.** 이번 세션에 목록 미확인 상태로 "정박 치환 날조"라 단정했다가 철회(§7.3).
+
+### 8.1 날조 루프의 원인 = 정책 factor와 조회 key의 불일치 (t019j sim2 정독)
+`msg[8]` 에이전트: "DOB·email·phone·address 중 **2개**를 달라"(정책) → `msg[9]` 사용자: **DOB+phone** →
+`msg[10,12,16,20]` **`get_user_information_by_phone` 4~5회 반복 날조** → 전부 차단(실행 0).
+- **정책이 인정하는 factor(phone·dob)로는 *조회*가 불가**하고, 조회 key는 email/id/name뿐.
+  올바른 형식화 = "**name으로 조회 → 레코드의 phone/dob를 대조**"인데 에이전트는 "phone으로 **조회**"로 형식화한다.
+- 우리 `verify_identity` 설명에 *"name/email/id로만 조회"* 를 이미 명시했는데도 발생 ⇒ **C30/[[42]] prompt 천장 재확인**.
+- ⇒ 소속검사(=출처 조사)는 **날조 실행을 0으로 막지만**, *재선택*을 사지 못한다. 잔여 = 형식화 오류.
+
+### 8.2 ⚠️user-sim 오염 (내 규율 위반)
+- **[[30]] 확정 = 라이브 e2e user-sim은 gpt-5.2**(리더보드 comparability). 그런데 이 세션 스모크(t019g/h/i/j)는
+  **gpt-4.1-mini**로 돌았다 = 위반(핸드오프 §5의 "스모크=mini" 표기를 메모리보다 위에 둠).
+- 실측 피해: t019j sim2 `msg[25]`서 **user-sim 자신이 `call_discoverable_user_tool(discoverable_tool_name=
+  "get_user_information_by_name")`를 날조** → 환경 `Unknown discoverable tool` → 다음 턴 "그 도구가 없다네요"로 혼선.
+  ⇒ **실패의 일부가 user-sim 산물**. §1의 "sim2 = user-sim이 틀린 결론을 주고 에이전트가 추인" 관측도 **mini 아티팩트 혐의** → 보류.
+- ⇒ 정본 재측정 = `bank_{ctl,dreq}_20260716_2140` (**gpt-5.2 · `--user_temp 0.0` · nt=5 · 고유 tag · 완료 즉시 영속화**).
 
 ## 6. Caveat (정직)
 - t019g = **n=3 × gpt-4.1-mini** = robust 측정 아님·**메커니즘 관측**. reward도구 0선택만 3/3 일관 + 원문 정독으로 견고.
