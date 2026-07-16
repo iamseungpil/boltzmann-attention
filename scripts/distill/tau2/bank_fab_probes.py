@@ -359,9 +359,24 @@ def build_probes(sims, tools, policy, a2, tools_hint):
                             cls=cls_dispatch,
                             desc="kon sim0 사임 후 **DISCREQ 피드백**(레버) → producer 호출?")
 
+    # ⑥b ★★사용자 지적(2026-07-18): DISCREQ는 **선택**을 샀다(24/24가 producer를 정확히 지목).
+    #   못 산 건 **emit 형식**뿐 = 산문이지 `<tool_call>` 블록이 아님 → 이건 **표면 문제**이고 따로 풀면 된다.
+    #   ⇒ 두 갈래를 분리 계측: (a) API-강제 `tool_choice=required` (b) 형식 구성-지시(프롬프트).
+    #   근거: `dispatch`(cut=18)선 같은 모델이 **거래 23건 실은 producer 호출을 23/24 정상 emit** =
+    #   인자 형식화 능력 문제 아님. [26]의 산문은 **피드백이 user 메시지로 와서 대화 모드가 켜진** 탓 가설.
+    P["discreq_arm_forced"] = dict(conv=P["discreq_arm"]["conv"], cls=cls_dispatch,
+                                   tool_choice="required",
+                                   desc="[discreq_arm + **tool_choice=required**] 표면 강제 → producer 호출?")
+    P["discreq_arm_form"] = dict(
+        conv=base26 + [{"role": "user", "content": discreq_feedback(a2) +
+                        " Your next output must be that tool call itself — emit the tool call, "
+                        "with the values you read from the records as its arguments."}],
+        cls=cls_dispatch,
+        desc="[discreq_arm + **형식 구성-지시**(프롬프트)] → producer 호출?")
+
     for v in P.values():
         v["toolnames"] = toolnames
-        v["tools"] = tools
+        v.setdefault("tools", tools)
 
     # ★A2 설명-레버 arm (단일변수 = 도구 설명 문구) — [[13]] "학습 前에 싼 레버부터" 판정용.
     #   닫히면 = learn 표적 아님(A2 한 줄) / 안 닫히면 = **진짜 learn 표적**(논문 코어 근거·[[42]]).
@@ -380,8 +395,11 @@ def run_probe(base, model, spec, n, temp, chunk, max_tokens=3000):
     while done < n:
         k = min(chunk, n - done)
         try:
-            r = post(base, {"model": model, "messages": spec["conv"], "tools": spec["tools"],
-                            "temperature": temp, "max_tokens": max_tokens, "n": k})
+            payload = {"model": model, "messages": spec["conv"], "tools": spec["tools"],
+                       "temperature": temp, "max_tokens": max_tokens, "n": k}
+            if spec.get("tool_choice"):  # ★표면 강제 arm (선택 vs emit-형식 분리)
+                payload["tool_choice"] = spec["tool_choice"]
+            r = post(base, payload)
             choices = r["choices"]
         except Exception as e:
             cnt[("ERR", repr(e)[:60])] += 1
@@ -530,6 +548,9 @@ def main():
     pr("차단≠회복 (날조율)", "byphone", "persev", "fab")
     pr("★차단 거리-의존 (재-emit율)", "persev_d1", "persev_d4", "fab")
     pr("DISCREQ 효능 (producer 직접호출)", "discreq_ctl", "discreq_arm", "ok")
+    print("\n★★선택 vs emit-형식 분리 (사용자 지적) — DISCREQ는 선택을 샀나, 형식만 못 냈나")
+    pr("  API 강제(tool_choice=required)", "discreq_arm", "discreq_arm_forced", "ok")
+    pr("  프롬프트 형식-지시", "discreq_arm", "discreq_arm_form", "ok")
     pr("★행9 조건부 prior (producer 직접호출)", "dispatch", "dispatch_afterkb", "ok")
     print("\n★A2 설명-레버 (닫히면 learn 불요·안 닫히면 learn 표적)")
     pr("record 날조율", "record", "record_hint", "fab")
