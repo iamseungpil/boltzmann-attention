@@ -419,12 +419,12 @@ def run_probe(base, model, spec, n, temp, chunk, max_tokens=3000):
                 if rargs is None:  # 이름만 건짐(잘림) — 인자 기반 분류 불가
                     cnt[("TRUNC/PARSE", f"⚠️잘린 호출시도:{rname}")] += 1
                     samples.append({"name": rname, "label": "TRUNC", "cat": "TRUNC/PARSE",
-                                    "finish": ch.get("finish_reason"), "text": txt[:300]})
+                                    "finish": ch.get("finish_reason"), "text": txt})
                     continue
                 label, cat = spec["cls"](rname, rargs, txt, ctx, spec["toolnames"])
                 cnt[(cat, label + "〔텍스트-복구〕")] += 1
                 samples.append({"name": rname, "label": label, "cat": cat, "recovered": True,
-                                "finish": ch.get("finish_reason"), "text": txt[:300]})
+                                "finish": ch.get("finish_reason"), "text": txt})
                 continue
             if not tcs and (("<tool_call>" in txt) or ch.get("finish_reason") == "length"):
                 cnt[("TRUNC/PARSE", "⚠️호출시도 미파싱·잘림(계측결함)")] += 1
@@ -443,7 +443,8 @@ def run_probe(base, model, spec, n, temp, chunk, max_tokens=3000):
                     args = {}
             label, cat = spec["cls"](name, args, txt, ctx, spec["toolnames"])
             cnt[(cat, label)] += 1
-            samples.append({"name": name, "label": label, "cat": cat, "text": txt[:300]})
+            samples.append({"name": name, "label": label, "cat": cat, "text": txt,
+                            "finish": ch.get("finish_reason")})
         done += len(choices) if choices else k
     return cnt, samples
 
@@ -456,8 +457,9 @@ def main():
     ap.add_argument("--temp", type=float, default=0.7)
     ap.add_argument("--probe", default="all")
     ap.add_argument("--chunk", type=int, default=10, help="요청당 샘플 수(vLLM n) — 1이면 순차")
-    ap.add_argument("--max_tokens", type=int, default=3000,
-                    help="★700은 부족: producer 호출이 거래 23건을 실어 잘림→'호출 0'이라는 가짜 실패 제조")
+    ap.add_argument("--max_tokens", type=int, default=6000,
+                    help="★700은 물론 3000도 부족(3/19 잘림): producer 호출이 거래 23건을 실어 잘리면 "
+                         "'호출 0'이라는 **가짜 실패**가 제조된다 — DISCREQ 기각 오판의 원인(§4.1)")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
 
