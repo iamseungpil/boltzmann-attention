@@ -100,7 +100,7 @@ HINT_PRODUCER_SUFFIX = (" This tool is ALREADY in your tool list: call it direct
                         "unlocking a discoverable tool are for other tools, not this one.")
 
 
-def prov_regen_replay(base, model, spec, temp):
+def prov_regen_replay(base, model, spec, temp, max_tokens=3000):
     """★게이트-유발 이동 측정: 엔진의 PROV 검증기·피드백을 **그대로** 오프라인 재생.
     1) 접두서 1샘플 → 2) 엔진 `_provenance_deny`가 날조 인자를 잡으면 → 3) 엔진 `REGEN_FEEDBACK`을
     붙여 재샘플 → 4) 재샘플을 분류. 라이브 regen 루프와 동형(문구·탐지기 전부 엔진 정본 재사용).
@@ -117,7 +117,7 @@ def prov_regen_replay(base, model, spec, temp):
             self.tool_calls = tcs
 
     r = post(base, {"model": model, "messages": spec["conv"], "tools": spec["tools"],
-                    "temperature": temp, "max_tokens": 700, "n": 1})
+                    "temperature": temp, "max_tokens": max_tokens, "n": 1})
     m = r["choices"][0]["message"]
     tcs = m.get("tool_calls") or []
     if not tcs:
@@ -141,7 +141,7 @@ def prov_regen_replay(base, model, spec, temp):
         {"role": "user", "content": REGEN_FEEDBACK.format(k=k, s=s)},
     ]
     r2 = post(base, {"model": model, "messages": conv2, "tools": spec["tools"],
-                     "temperature": temp, "max_tokens": 700, "n": 1})
+                     "temperature": temp, "max_tokens": max_tokens, "n": 1})
     m2 = r2["choices"][0]["message"]
     tcs2 = m2.get("tool_calls") or []
     n2 = tcs2[0]["function"]["name"] if tcs2 else None
@@ -338,7 +338,7 @@ def build_probes(sims, tools, policy, a2, tools_hint):
     return P
 
 
-def run_probe(base, model, spec, n, temp, chunk):
+def run_probe(base, model, spec, n, temp, chunk, max_tokens=3000):
     """chunk>1이면 vLLM `n` 파라미터로 한 요청당 여러 샘플(접두 prefill 1회 재사용 = 대폭 단축)."""
     cnt, ctx = Counter(), ctx_text(spec["conv"])
     samples, done = [], 0
@@ -346,7 +346,7 @@ def run_probe(base, model, spec, n, temp, chunk):
         k = min(chunk, n - done)
         try:
             r = post(base, {"model": model, "messages": spec["conv"], "tools": spec["tools"],
-                            "temperature": temp, "max_tokens": 700, "n": k})
+                            "temperature": temp, "max_tokens": max_tokens, "n": k})
             choices = r["choices"]
         except Exception as e:
             cnt[("ERR", repr(e)[:60])] += 1
@@ -356,6 +356,15 @@ def run_probe(base, model, spec, n, temp, chunk):
         for ch in choices:
             m = ch["message"]
             tcs = m.get("tool_calls") or []
+            # ★계측 결함 방지([[08]]·2026-07-17 실사고): 도구호출이 **텍스트로** 새거나(파서 미인식)
+            #   max_tokens에 잘리면 "텍스트=ASK"로 오분류되어 "호출 0/24"라는 **가짜 실패**가 만들어진다.
+            #   실제로 dispatch 18/24가 이 경우였다(거래 23건 인자가 700토큰서 잘림). 별도 범주로 못 박는다.
+            txt = m.get("content") or ""
+            if not tcs and ("<tool_call>" in txt or ch.get("finish_reason") == "length"):
+                cnt[("TRUNC/PARSE", "⚠️호출시도 미파싱·잘림(계측결함)")] += 1
+                samples.append({"name": None, "label": "TRUNC/PARSE", "cat": "TRUNC/PARSE",
+                                "finish": ch.get("finish_reason"), "text": txt[:300]})
+                continue
             name, args = None, {}
             if tcs:
                 f0 = tcs[0]["function"]
@@ -366,10 +375,9 @@ def run_probe(base, model, spec, n, temp, chunk):
                     args = {}
                 if not isinstance(args, dict):  # 모델이 인자를 이중 인코딩(문자열)으로 낸 샘플
                     args = {}
-            label, cat = spec["cls"](name, args, m.get("content") or "", ctx, spec["toolnames"])
+            label, cat = spec["cls"](name, args, txt, ctx, spec["toolnames"])
             cnt[(cat, label)] += 1
-            samples.append({"name": name, "label": label, "cat": cat,
-                            "text": (m.get("content") or "")[:200]})
+            samples.append({"name": name, "label": label, "cat": cat, "text": txt[:300]})
         done += len(choices) if choices else k
     return cnt, samples
 
@@ -382,6 +390,8 @@ def main():
     ap.add_argument("--temp", type=float, default=0.7)
     ap.add_argument("--probe", default="all")
     ap.add_argument("--chunk", type=int, default=10, help="요청당 샘플 수(vLLM n) — 1이면 순차")
+    ap.add_argument("--max_tokens", type=int, default=3000,
+                    help="★700은 부족: producer 호출이 거래 23건을 실어 잘림→'호출 0'이라는 가짜 실패 제조")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
 
@@ -404,7 +414,7 @@ def main():
         c1, c2 = Counter(), Counter()
         for _ in range(a.n):
             try:
-                l1, l2, cat2 = prov_regen_replay(a.base, a.model, spec, a.temp)
+                l1, l2, cat2 = prov_regen_replay(a.base, a.model, spec, a.temp, a.max_tokens)
             except Exception as e:
                 print("  err:", repr(e)[:140], file=sys.stderr, flush=True)
                 c1[("ERR", "err")] += 1
@@ -435,8 +445,9 @@ def main():
         spec = P[nm]
         print(f"\n===== [{nm}] n={a.n} T={a.temp} · {spec['desc']}", flush=True)
         print(f"      접두 {len(spec['conv'])} msgs · 도구 {len(spec['tools'])}종", flush=True)
-        cnt, samples = run_probe(a.base, a.model, spec, a.n, a.temp, a.chunk)
+        cnt, samples = run_probe(a.base, a.model, spec, a.n, a.temp, a.chunk, a.max_tokens)
         tot = sum(cnt.values())
+        trunc = sum(v for (c, _), v in cnt.items() if c == "TRUNC/PARSE")
         # ★동일표면 날조와 **이동한 날조**를 절대 합치지 말 것([[08]]): 레버가 표면을 옮기면
         #   합산 FAB는 "안 줄었다"로만 보여 기전을 은폐한다. 등대 §1.3 계측의 핵심.
         fab = sum(v for (c, _), v in cnt.items() if c == "FAB")
@@ -446,10 +457,12 @@ def main():
             print(f"  {v:3d}  [{c}] {label}")
         print(f"  ⇒ FAB(동일표면) {fab}/{tot}={100*fab/max(tot,1):.0f}% | "
               f"FAB(이동) {moved}/{tot}={100*moved/max(tot,1):.0f}% | "
-              f"OK {ok}/{tot}={100*ok/max(tot,1):.0f}%")
-        out[nm] = {"desc": spec["desc"], "n": a.n, "temp": a.temp,
+              f"OK {ok}/{tot}={100*ok/max(tot,1):.0f}%"
+              + (f"  ⚠️계측결함(잘림/미파싱) {trunc}" if trunc else ""))
+        out[nm] = {"desc": spec["desc"], "n": a.n, "temp": a.temp, "max_tokens": a.max_tokens,
                    "counts": {f"{c}|{l}": v for (c, l), v in cnt.items()},
-                   "fab": fab, "fab_moved": moved, "ok": ok, "total": tot, "samples": samples}
+                   "fab": fab, "fab_moved": moved, "ok": ok, "trunc": trunc,
+                   "total": tot, "samples": samples}
 
     def pr(tag, k1, k2, fld):
         if {k1, k2} <= set(out):
