@@ -478,8 +478,14 @@ NOT_VERIFIED 시 **어느 factor가 몇 개 일치했는지** 반환 — 결정�
   (i) LLM이 매 턴 슬롯-할당을 **선언**(C45 출처선언 동형)하고 엔진은 **저장·누적·공급만**, 또는
   (ii) 도구 반환값(레코드)의 구조화 필드만 엔진이 저장(텍스트 파싱 아님). 사용자 발화 값은 (i) 경로 필수.
 - 선례 연결: [[16]] GET/FIND/INFER/ASK의 FIND-저장소·C90 2층 라우터의 상태추적·SOAR WM([[44]])과 접속.
-### 17.3 부수 후보 (sim0형 카운트-자기모순용·§16.3): verify_identity가 NOT_VERIFIED 시
-**어느 factor가 일치했고 몇 개인지** 반환(결정론·엔진 리터럴 0·카운트를 도구가 대신) — 설명-교정과 독립.
+### 17.3 ✅구현 완료 (2026-07-17·사용자 통찰: "규칙도 사실도 말하니 **계산만 COMPUTE로**")
+sim0형 = **closed-gap(COMPUTE)의 INFER 오분류**(C92 인스턴스). 엔진 일반 op **`match_verdict`** 추가
+(카운트+일치/미일치 집합+A2 템플릿 포맷·리터럴 0) → `verify_identity`가 NOT_VERIFIED 시
+*"only {count} of {threshold} match (matched: …). Ask for ONE more of: {missing} — call again passing
+ALL values given so far"* 반환 = **산술·집합연산이 모델에 하나도 안 남음** + 누적(§17.1) 재강조 동봉.
+오프라인 단위검증 4/4 (sim0 `[12]` phone-only·sim1 `[18]` dob-only 상태 정확 처리). **다음 런부터 반영**
+(진행 중 키스톤엔 미포함). ⚠️잔여: 이 도구를 **호출조차 안 하는** 상류(sim0의 by_name 미호출=관측 B)는
+compute 강화로 못 닫음 — 키스톤(대안 존재→선택)이 그 층을 겨눔.
 
 ## 6. Caveat (정직)
 - t019g = **n=3 × gpt-4.1-mini** = robust 측정 아님·**메커니즘 관측**. reward도구 0선택만 3/3 일관 + 원문 정독으로 견고.
