@@ -509,6 +509,32 @@ compute 강화로 못 닫음 — 키스톤(대안 존재→선택)이 그 층을
 - **선언-정확도 프로브**(무료·GPU 빈 뒤): ③형 원문 vs pass 원문에 claim_question 부착 → true/false 분리율 n=10+.
 - 라이브 짝지은 런에서 ③형 소멸 + over-block(pass 궤적 파손) 계측. sim1 콜백-약속형도 질문 (c)절이 커버.
 
+## 19. ★키스톤 kon 실패 2건 per-step 확정 — 신규 기전 2개 (2026-07-17·[[08]] 전독·중간 n=3 시점)
+> 정본 궤적: `bank_kon_20260717_key`(완주 후 영속). 부수 확인: **§17.1 누적-교정 라이브 작동**(sim0·sim1 모두
+> `provided={dob, phone}` union 정확) · PROV 참양성 3건(placeholder `John Doe`·`123-456-7890`·가짜 도구명 give 차단).
+
+### 19.1 sim0 = **디스패처-컨벤션 prior** (T-선택 탈선의 새 기전)
+`[0-17]` 완벽(verify→log→거래 23건) → `[18-23]` **자기 도구 목록이 아니라 KB에서 도구명 검색** ×3
+→ `[24]` **`unlock_discoverable_agent_tool("get_reward_discrepancies")`** → env *"Unknown agent tool"*
+→ `[26]` 수동 눈대중(Gold rate **2% 오산**·정답 2.5%·불일치 **3/4**) → *"조정하겠다·1-2일 내 반영"* = **완료 날조**(조정 권한 없음).
+- **기전**: banking의 unlock/dispatch 컨벤션이 "특수 도구는 unlock 경로"라는 prior 형성 → 우리 주입 도구를 그 범주로 착각.
+- **레버 창 밖**: FOLLOWUP(T 호출 전제)·WRITE_PROV(give 호출 전제) 둘 다 침묵. **은퇴시킨 DISCREQ의 창이 정확히 이 지점**
+  (`[26]` 사임: 데이터 읽음 ∧ producer 미호출) — "불필요" 판정(§14.2)이 성급했음의 실증(단 n=1).
+
+### 19.2 sim1 = **순환 자기-검증: `record` 날조** (우리 도구의 provenance 맹점)
+`[6]` 조회 0회 상태서 `verify_identity(provided={dob,phone}✓, record=**날조**{"address":"123 Main St, Chicago…"})`
+→ 날조 record에 사용자 제공값을 넣었으니 2개 일치 → **도구는 정당하게 VERIFIED = 순환 검증**.
+이후 실제 계정 확보 실패 배회: `by_phone` ×2(차단) → ZIP/뒷4자리 요구 → **이름 2회 받고도 `by_name` 미호출**(관측 B)
+→ 가짜 "보안 인증 링크" 발명(give로 가짜 도구명 → **PROV 참양성 차단**) → **가짜 케이스번호 `CASE-123456`** = 완료 날조 → 종료.
+- **맹점의 기원**: §12 오탐 수정이 `provided`/`record`를 식별자-검사에서 제외 → **record 날조를 아무도 검사 안 함**.
+
+### 19.3 처방 (기록·우선순위)
+1. **record-grounding 검사**(sim1): A2 인자별 `must_be_grounded` 플래그 + 엔진이 leaf 값 ∈ 이전 tool-역할 출력 검사
+   (결정론·C45 FIND-검사의 **자기-도구 인자 적용**·§18과 함께 "입출력 provenance"의 입력측 보강). — 다음 구현.
+2. **디스패처-prior 완화**(sim0): ① 도구 설명에 *"call directly; no unlock needed"* (긍정형 구성-지시·2승 실적)
+   ② **DISCREQ 재활성 재검토** — 창 실존 실증(n=1)·재활성은 사용자 결정 대기.
+3. sim0 꼬리(조정-완료 날조)는 DISCREQ가 상류서 끊으면 자연 소멸 예상 — WRITE_PROV 창 확장은 보류.
+
 ## 6. Caveat (정직)
 - t019g = **n=3 × gpt-4.1-mini** = robust 측정 아님·**메커니즘 관측**. reward도구 0선택만 3/3 일관 + 원문 정독으로 견고.
 - **sim 2형(user-sim이 틀린 결론을 먼저 줌)** 은 user-sim 품질 의존 — gpt-5.2선 다르게 나올 수 있음([[47]] 권장표준).
