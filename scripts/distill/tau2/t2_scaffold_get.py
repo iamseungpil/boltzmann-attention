@@ -11,6 +11,25 @@ import os, json, sys as _sys
 #   정본 경로: operand는 **LLM이 formalize**해 도구 인자로 넘기고(아래 exec2), 엔진은 op 실행만 한다([[10]]).
 
 
+def _build_tool(Tool, d):
+    """A2 선언 → tau2 Tool. ★tau2 `Tool.__init__`은 **함수 객체에서** 스키마를 유도한다
+    (`tool.py:61-73`: `name = func.__name__` · `parse_data(sig, doc, ...)`) — 우리가 넘기는
+    `name=`/`long_desc=`/`params=`는 **무시된다**(predefined는 params 제외용).
+    ⇒ 진짜 이름·시그니처·docstring을 가진 함수를 동적 생성해서 넘긴다.
+    docstring은 `docstring_parser`가 읽는 형식(요약 + `:param x: 설명`)이어야 인자 설명이 스키마에 실린다."""
+    name = d["name"]
+    params = d.get("params") or {}
+    doc = [str(d.get("description") or name).strip(), ""]
+    for p, desc in params.items():
+        doc.append(":param %s: %s" % (p, str(desc).replace("\n", " ").strip()))
+    src = "def %s(%s):\n    pass\n" % (name, ", ".join("%s: str" % p for p in params))
+    ns = {}
+    exec(compile(src, "<a2_tool:%s>" % name, "exec"), ns)          # noqa: S102 — A2 선언서 생성
+    fn = ns[name]
+    fn.__doc__ = "\n".join(doc)
+    return Tool(fn, examples=list(d.get("examples") or []))
+
+
 def apply():
     if os.environ.get("T2_SCAFFOLD_GET") != "1":
         return None
@@ -39,17 +58,21 @@ def apply():
         for d in decls:
             if d["name"] in existing:
                 continue
-            fields = {p: (str, ...) for p in (d.get("params") or {})}
-            Params = create_model(d["name"] + "Params", **fields)
-            Ret = create_model(d["name"] + "Ret", result=(str, ""))
-            def _f(**k):
-                return ""
             try:
-                tools.append(Tool(_f, name=d["name"], short_desc=d.get("description", ""),
-                                  long_desc=d.get("description", ""), params=Params, returns=Ret,
-                                  examples=list(d.get("examples") or [])))
+                tools.append(_build_tool(Tool, d))
             except Exception as e:
                 print("[T2_SCAFFOLD_GET] inject fail %s: %r" % (d["name"], e), file=_sys.stderr, flush=True)
+                continue
+        # ★★라이브 검증 의무([[30]]: 단위통과≠라이브발화). 주입 결과 스키마를 실제로 찍는다 —
+        #   2026-07-16 사고: Tool이 name/desc/params를 func에서 유도하는데 더미 `def _f(**k)`를 넘겨
+        #   **이름 `_f`·설명 `_f`·인자 `k`** 로 들어갔고, 모델은 우리 도구를 *본 적이 없었다*.
+        for t in tools:
+            if getattr(t, "name", None) in {x["name"] for x in decls}:
+                _s = t.openai_schema["function"]
+                print("[T2_SCAFFOLD_GET] injected name=%s desc=%dch params=%s"
+                      % (_s["name"], len(_s.get("description") or ""),
+                         list((_s.get("parameters") or {}).get("properties") or {})),
+                      file=_sys.stderr, flush=True)
         self._t2_sg_a2 = a2
         try:
             self._t2_known_tools = {getattr(t, "name", None) for t in (getattr(ag, "tools", None) or [])}
