@@ -343,6 +343,41 @@ def __init__(self, func, use_short_desc=False, **predefined):
 - ⇒ **[[30]] 재확인**: 단위통과·오프라인 op검증 ≠ 라이브. **레버는 "모델이 실제로 본 것"과 "게이트가 실제로 한 일"로 검증**해야 한다.
   이번 세션 4건 모두 궤적·스키마·게이트로그를 **직접 찍어서** 잡혔다(집계로는 전부 "모델이 못함"으로 보였다·[[08]]).
 
+## 14. ★수정 후 라이브 — **32B는 도구를 선택한다** (2026-07-16·`bank_{ctl,dreq}_20260716_2230`·진행중 [P])
+> `_f` 주입(§11) + PROV 오탐(§12) **둘 다 수정한 첫 스택**. gpt-5.2·nt=5. 아래는 **라이브 로그 마커**(완주 前 관측).
+
+| 지표 | 수정 前 (전 런) | **수정 後 ctl** | **수정 後 dreq** |
+|---|---|---|---|
+| `verify_identity` 호출 | **0** | **8** | **6** |
+| → `VERIFIED` 판정 | — | 다수 | 다수 |
+| `get_reward_discrepancies` 호출 | **0** | **3** | **5** |
+| → **엔진 반환** | — | **`-> 4`** | **`-> 4`** (6/6 전부) |
+| **DISCREQ(우리 arm) 발화** | 3 | **0** | **0** |
+
+### 14.1 궤적 형태 (마커 시퀀스·양 arm 동일)
+`by_phone_number` 날조 ×2-3 → **차단** → (verify-persistence deny) → **`by_name`으로 회복** →
+**`verify_identity` → VERIFIED** → 거래 23건 읽음 → **`get_reward_discrepancies` → 4**.
+
+### 14.2 ⇒ 판정
+- ★★**"32B가 유한집합서 도구를 선택 못 한다"는 명제는 기각 방향**([P]): 제대로 제시하니 선택한다.
+- ★★**"operand formalize 실패"(§9.1c) 완전 사망**: LLM이 거래 23건을 `transactions`로 formalize →
+  엔진이 **6/6 전부 `4`** 반환(=gold 개수). 안정적 = 우연 아님.
+- ★**우리 arm(discovery-required)은 불필요해졌다**: 발화 3→**0**. 에이전트가 **사임 前에 스스로** producer를 부르니
+  발동조건(데이터 읽음 ∧ producer 미호출)이 성립하지 않는다. ⇒ **arm은 우리 버그가 만든 문제의 해법이었다.**
+  ([[13]] 레버 우선순위의 실증: 결함 제거가 먼저다. scaffold 증설은 결함을 덮는 데 쓰일 수 있다.)
+- **살아남은 원래 관측 = `by_phone*` 날조뿐**(tau2 네이티브 도구 영역·우리 결함 아님). 단 이제 **회복**한다(차단→`by_name`).
+
+## 15. ★다섯 번째 오탐 — PROV가 **도구 이름 인자**를 날조로 본다 (미수정·다음 세션)
+```
+[T2_PROV] regen fired tool=unlock_discoverable_agent_tool arg=agent_tool_name val=get_reward_discrepancies   ← ctl 11회
+```
+- 기전: `agent_tool_name`이 힌트 `name`에 걸리고, 값 `get_reward_discrepancies`의 **출처는 도구 스키마**인데
+  검사기의 ctx는 **user 발화 + tool 출력**만이라 "문맥에 없음 = invented" 판정.
+  ⇒ **도구명을 인자로 받는 디스패처형 도구(`unlock/call_discoverable_agent_tool`)는 구조적 오탐.**
+- 피해: 치명적이진 않다(dreq는 **직접 호출로 우회**해 `-> 4` 획득). 그러나 ctl서 **11턴 소모** = [[06]] 게이트 자기-역효과 실사례.
+- 처방(설계): provenance ctx에 **에이전트에게 제시된 도구 이름 집합**을 포함(도메인일반·A2 불요). 또는 `*_tool_name` 류를
+  식별자 힌트에서 제외. **런 완주 後 수정**(도는 런과 스택 어긋남 방지).
+
 ## 6. Caveat (정직)
 - t019g = **n=3 × gpt-4.1-mini** = robust 측정 아님·**메커니즘 관측**. reward도구 0선택만 3/3 일관 + 원문 정독으로 견고.
 - **sim 2형(user-sim이 틀린 결론을 먼저 줌)** 은 user-sim 품질 의존 — gpt-5.2선 다르게 나올 수 있음([[47]] 권장표준).
