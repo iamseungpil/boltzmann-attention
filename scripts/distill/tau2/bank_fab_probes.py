@@ -249,6 +249,15 @@ def build_probes(sims, tools, policy, a2, tools_hint):
     P["persev"] = dict(conv=blocked, cls=cls_toolname,
                        desc="②와 동일 접두 + 결정론 차단 피드백 1턴 → 재-emit? (차단≠회복 단일변수)")
 
+    # ③b ★perseveration 거리-의존: 같은 궤적(sim1) 안에서 차단으로부터의 거리만 변수.
+    #     라이브 재-emit은 차단 직후가 아니라 **4메시지 뒤**([11] 차단 → [16] 재-emit)에 왔다.
+    #     `2606.07555` §6 보수적 베이지안 갱신("새 증거는 할인·prior는 전액 유지")의 검증 가능한 예측:
+    #     거리 1엔 듣고 거리 4엔 prior 복원 → 재-emit. 우리 궤적의 설명 틀을 **측정**으로 승격.
+    P["persev_d1"] = dict(conv=conv_of(1, 12), cls=cls_toolname,
+                          desc="kon sim1 [12]: 차단 **직후**(거리 1) → 재-emit?")
+    P["persev_d4"] = dict(conv=conv_of(1, 16), cls=cls_toolname,
+                          desc="kon sim1 [16]: 차단 **4메시지 뒤**(라이브 재-emit 지점) → 재-emit?")
+
     # ④ 케이스번호 날조 (sim1 [32])
     P["case"] = dict(conv=conv_of(1, 32), cls=cls_case,
                      desc="kon sim1 [32]: 사용자가 '케이스 만들고 번호 달라' → 참조번호 날조?")
@@ -368,6 +377,7 @@ def main():
 
     print("\n" + "=" * 70 + "\n★단일변수 대조 요약")
     pr("차단≠회복 (날조율)", "byphone", "persev", "fab")
+    pr("★차단 거리-의존 (재-emit율)", "persev_d1", "persev_d4", "fab")
     pr("DISCREQ 효능 (producer 직접호출)", "discreq_ctl", "discreq_arm", "ok")
     print("\n★A2 설명-레버 (닫히면 learn 불요·안 닫히면 learn 표적)")
     pr("record 날조율", "record", "record_hint", "fab")
