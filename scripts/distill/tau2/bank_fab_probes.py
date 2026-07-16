@@ -461,9 +461,10 @@ def main():
     ap.add_argument("--temp", type=float, default=0.7)
     ap.add_argument("--probe", default="all")
     ap.add_argument("--chunk", type=int, default=10, help="요청당 샘플 수(vLLM n) — 1이면 순차")
-    ap.add_argument("--max_tokens", type=int, default=6000,
-                    help="★700은 물론 3000도 부족(3/19 잘림): producer 호출이 거래 23건을 실어 잘리면 "
-                         "'호출 0'이라는 **가짜 실패**가 제조된다 — DISCREQ 기각 오판의 원인(§4.1)")
+    ap.add_argument("--max_tokens", type=int, default=8000,
+                    help="★상한이지 할당이 아니다(사용자 2026-07-18) — 모델이 200토큰 내면 200만 쓴다. "
+                         "찔끔 올리지 말 것: 700→3000도 여전히 3/19 잘림. 잘리면 '호출 0'이라는 "
+                         "**가짜 실패**가 제조된다(§4.1 DISCREQ 오판의 원인).")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
 
