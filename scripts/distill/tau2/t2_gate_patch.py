@@ -72,7 +72,20 @@ def _domain_a2(domain):
 
 
 def _flatten(v):
-    if isinstance(v, (list, tuple)):
+    """인자값의 leaf 스칼라들. ★JSON-문자열도 풀어서 leaf까지 간다(2026-07-16 버그픽스):
+    구조화 인자(예: {"date_of_birth": ..., "phone_number": ...})가 **문자열**로 오면 예전엔
+    JSON 덩어리 전체를 문맥서 찾아 **항상 실패 → 전부 '날조' 오판**했다(라이브 실측: 우리
+    verify_identity의 정당한 호출이 매번 반려됨). leaf(11/03/1990·312-555-0481)는 문맥에 실재한다."""
+    if isinstance(v, str):
+        s = v.strip()
+        if s[:1] in "[{" and s[-1:] in "]}":
+            try:
+                yield from _flatten(json.loads(s))
+                return
+            except Exception:
+                pass
+        yield v
+    elif isinstance(v, (list, tuple)):
         for x in v:
             yield from _flatten(x)
     elif isinstance(v, dict):
@@ -80,6 +93,14 @@ def _flatten(v):
             yield from _flatten(x)
     else:
         yield v
+
+
+def _hint_hit(k, hints):
+    """인자명이 식별자류인가. ★부분문자열 금지(2026-07-16 버그픽스): `"id" in "provided"` = True라
+    `provided`가 식별자로 오판됐다. 토큰 분해 후 **토큰이 힌트로 시작**할 때만(→ `address1`·`item_ids`
+    같은 접미변형은 유지, `provided`·`valid_until`류 오탐은 제거)."""
+    toks = [t for t in re.split(r"[^a-z0-9]+", str(k).lower()) if t]
+    return any(t.startswith(h) for t in toks for h in hints)
 
 
 def _args_dict(tc):
@@ -149,7 +170,7 @@ def _provenance_deny(tc, ctx, hints=DEFAULT_ARG_HINTS):
     if not args:
         return None
     for k, v in args.items():
-        if not any(h in k.lower() for h in hints):
+        if not _hint_hit(k, hints):
             continue
         for val in _flatten(v):
             s = str(val).strip()
@@ -492,7 +513,7 @@ def _first_fab_call(am, ctx, hints=DEFAULT_ARG_HINTS, exclude=frozenset()):
     같은 호출의 다음 fab 인자·다음 호출을 계속 스캔 (구현: per-call 첫 인자 반환+break의 입도 구멍 봉합)."""
     for tc in (getattr(am, "tool_calls", None) or []):
         for k, v in _args_dict(tc).items():
-            if not any(h in k.lower() for h in hints):
+            if not _hint_hit(k, hints):
                 continue
             for val in _flatten(v):
                 s = str(val).strip()
@@ -534,7 +555,7 @@ def _first_origin_fab(am, msgs, hints=DEFAULT_ARG_HINTS, exclude=frozenset()):
     스코프: 주소류 free-text 인자만(_is_addr_arg·id류는 기존 rescue/fab 관할·Δspurious 보수)."""
     for tc in (getattr(am, "tool_calls", None) or []):
         for k, v in _args_dict(tc).items():
-            if not any(h in k.lower() for h in hints):
+            if not _hint_hit(k, hints):
                 continue
             if not _is_addr_arg(k):
                 continue
@@ -1511,7 +1532,7 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                 if getattr(tc, "name", None) not in disamb_tools:
                     continue
                 for k, v in _args_dict(tc).items():
-                    if not any(h in k.lower() for h in hints):
+                    if not _hint_hit(k, hints):
                         continue
                     for val in _flatten(v):
                         s = str(val).strip()
@@ -2377,7 +2398,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         sub = {}
                 d = sub if isinstance(sub, dict) else ar
                 for k, v in (d or {}).items():
-                    if not any(h in k.lower() for h in hints):
+                    if not _hint_hit(k, hints):
                         continue  # id-like 인자만
                     for val in _flatten(v):
                         s = str(val).strip()
@@ -2408,7 +2429,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 for k, v in _args_dict(tc).items():
                     if k in _v_ops:                     # ★L4 전담 operand는 disamb-filter 제외
                         continue
-                    if not any(h in k.lower() for h in hints):
+                    if not _hint_hit(k, hints):
                         continue
                     for val in _flatten(v):
                         s = str(val).strip()
