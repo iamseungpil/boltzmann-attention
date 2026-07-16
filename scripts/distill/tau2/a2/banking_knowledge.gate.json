@@ -63,14 +63,21 @@
  "_note_applies_when": "call_discoverable_agent_tool = 디스패처(인자 agent_tool_name이 내부 도구 지정). gold 예외 3태스크의 내부 도구(전부 무인자 transfer/incident형)는 고객데이터 미접근 → not_in 면제(A2 도메인 사실). 직접 도구 4개(change_user_email 등)는 applies_when의 arg 부재 → not_in만으로는 항상 적용(엔진 _gate_applies 보수 규칙).",
  "_note_minimize_a2": "placeholders 미기재 = scaffold DEFAULT 폴백 (minimize-A2). identifying_arg_types는 2026-07-11 A2-only 확장으로 time_verified 1건만 등재(_note_identifying_arg_types). give_discoverable_user_tool·unlock_discoverable_agent_tool은 미게이트(전자=고객데이터 접근 아님이 태스크-조건적·후자=env가 unlock-before-call 이미 집행=C12).",
  "eplan": {
-  "list_enumerator": ["get_credit_card_transactions_by_user", "get_bank_account_transactions"],
+  "list_enumerator": [
+   "get_credit_card_transactions_by_user",
+   "get_bank_account_transactions"
+  ],
   "detail_reader": "get_credit_card_transactions_by_user",
   "entity_key": "transaction_id",
   "list_from_reads": true,
   "dispatch_tool": "call_discoverable_agent_tool",
   "dispatch_name_key": "agent_tool_name",
   "dispatch_args_key": "arguments",
-  "write_tools": ["file_credit_card_transaction_dispute", "file_debit_card_transaction_dispute", "submit_cash_back_dispute"]
+  "write_tools": [
+   "file_credit_card_transaction_dispute",
+   "file_debit_card_transaction_dispute",
+   "submit_cash_back_dispute"
+  ]
  },
  "_note_eplan": "BANKING_FLOOR_LEVER_FIT §3.3(E-PLAN=discovery-read 강제 표적·[[14]]) 대응물 식별: floor 궤적 실존 직접 도구만 — 목록형 reader=get_credit_card_accounts_by_user(101콜·per-user 계좌 record 열거·account_id 필드), 상세형 reader=get_credit_card_transactions_by_user(188콜·gold 지배 read). ⚠최유력이나 retail 대응이 불완전한 구조적 한계 3건(엔진 사실·보고용): (a) banking 도구출력=포맷문자열(비JSON)→_extract_entity_ids 파싱 실패=listed 항상 ∅, (b) per-entity 상세 reader가 직접 도구에 없음(get_bank_account_transactions_9173류=디스패처 내부라 ledger가 이름 귀속 불가)·get_credit_card_transactions_by_user는 user_id 키라 entity_key=account_id로 examined 미갱신, (c) confirm 게이트 부재→_confirm_write_tools=∅→unified L1/L2 deny 비발화. 현 배선(T2_EPLAN)서 사실상 불활성 — 표적인 discovery-read 강제는 [[14]] 배선 진화 필요.",
  "operands": {
@@ -245,5 +252,61 @@
    "written_statement_provided",
    "dispute_type"
   ]
- }
+ },
+ "scaffold_get_tools": [
+  {
+   "name": "get_reward_discrepancies",
+   "description": "Given the customer's transactions (raw fields you read), returns the transaction_ids whose recorded reward does not match the expected reward under Rho-Bank rewards policy. The tool derives the per-card reward rate and does the arithmetic; you only supply the raw transaction fields. Call this to find cash back discrepancies that need a dispute.",
+   "params": {
+    "transactions": "A JSON array of the customer's credit card transactions that you read from the transaction records. Each element MUST have ONLY these raw fields, copied as-is: transaction_id (string), transaction_amount (number, no $), rewards_earned (number of points recorded, no ' points' text), credit_card_type (string, e.g. 'Gold Rewards Card' or 'EcoCard'), category (string, e.g. 'Green'). Do NOT compute anything — just copy the raw values; this tool computes the expected reward and finds discrepancies itself."
+   },
+   "return_template": "Transactions whose recorded reward does NOT match the expected reward (these require a cash back dispute): {ids}",
+   "op": {
+    "op": "select_discrepant",
+    "over": "records",
+    "id_field": "transaction_id",
+    "actual_field": "rewards_earned",
+    "tolerance": 1,
+    "steps": {
+     "rate": {
+      "op": "if_then",
+      "cond": {
+       "op": "str_eq",
+       "a": "r.credit_card_type",
+       "b": "EcoCard"
+      },
+      "then": {
+       "op": "case",
+       "key": "r.category",
+       "cases": {
+        "Green": 5
+       },
+       "default": 1
+      },
+      "else": {
+       "op": "case",
+       "key": "r.credit_card_type",
+       "cases": {
+        "Gold Rewards Card": 2.5,
+        "Bronze Rewards Card": 1,
+        "Silver Rewards Card": 4,
+        "Platinum Rewards Card": 4,
+        "Diamond Elite Card": 5
+       },
+       "default": null
+      }
+     },
+     "expected": {
+      "op": "multiply",
+      "a": "r.transaction_amount",
+      "b": "steps.rate"
+     }
+    },
+    "expected_ref": "steps.expected"
+   },
+   "records_arg": "transactions",
+   "_note": "[[10]]/[[05]] op-DAG(역참조): LLM=원시 leaf(card_type/category/amount/reward)만 formalize·엔진=DAG 실행(steps.rate=card→rate case테이블·steps.expected=amount*rate·discrepant=actual≠expected). rate 테이블=A2 도메인데이터(KB base-rate·Gold2.5/EcoCard 5·1 검증됨·Bronze1/Silver4/Platinum4/Diamond5=KB best-effort·미확인). 미지의 카드=default None→abstain(false flag 0). 계산은 엔진·리터럴0."
+  }
+ ],
+ "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수."
 }

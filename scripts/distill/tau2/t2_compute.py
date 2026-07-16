@@ -177,6 +177,49 @@ def apply_op(spec, ctx):
                     v = _ev(cond["not"]); return None if v is None else (not v)
                 return _leaf(cond)
             return _ev(spec)
+        if op == "multiply":
+            a = apply_op(spec["a"], ctx) if isinstance(spec.get("a"), dict) else _num(_get(ctx, spec.get("a")))
+            b = apply_op(spec["b"], ctx) if isinstance(spec.get("b"), dict) else _num(_get(ctx, spec.get("b")))
+            a, b = _num(a), _num(b)
+            return None if (a is None or b is None) else a * b
+        if op == "str_eq":
+            a = _get(ctx, spec.get("a")); b = spec.get("b")
+            return None if a is None else (str(a).strip().lower() == str(b).strip().lower())
+        if op == "case":
+            # ★도메인일반 문자열-키 매핑(lookup_table의 문자열판). key(ref/op) → cases 매칭 → 값(op면 재귀).
+            key = apply_op(spec.get("key"), ctx) if isinstance(spec.get("key"), dict) else _get(ctx, spec.get("key"))
+            for k, v in (spec.get("cases") or {}).items():
+                if key is not None and str(key).strip().lower() == str(k).strip().lower():
+                    return apply_op(v, ctx) if isinstance(v, dict) and v.get("op") else v
+            d = spec.get("default")
+            return apply_op(d, ctx) if isinstance(d, dict) and d.get("op") else d
+        if op == "select_discrepant":
+            # ★도메인일반 op-DAG 실행기(역참조). 레코드마다: steps(이름있는 중간op)을 순서대로 계산해
+            #   rctx["steps"][name]에 저장(뒤 step이 ref:steps.name으로 역참조) → expected_ref로 최종 기대값.
+            #   actual_field와 tol 초과 차이면 id 수집. leaf(r.*)=LLM formalize·steps 공식=A2·엔진=실행만([[05]]/[[10]]).
+            recs = _get(ctx, spec.get("over")) or []
+            if not isinstance(recs, list):
+                return []
+            idf, af = spec.get("id_field"), spec.get("actual_field")
+            tol = _num(spec.get("tolerance")) or 0
+            steps = spec.get("steps") or {}
+            exp_ref = spec.get("expected_ref")
+            espec = spec.get("expected")   # 하위호환(직접 expected op)
+            out_ids = []
+            for r in recs:
+                if not isinstance(r, dict):
+                    continue
+                rctx = dict(ctx); rctx["r"] = r; rctx["steps"] = {}
+                for nm, sp in steps.items():                 # 역참조 DAG: 순서대로·steps에 저장
+                    rctx["steps"][nm] = apply_op(sp, rctx)
+                exp = _get(rctx, exp_ref) if exp_ref else (apply_op(espec, rctx) if isinstance(espec, dict) else None)
+                act = _num(r.get(af))                          # clean operand 전제(LLM formalize)
+                en = _num(exp)
+                if en is None or act is None:
+                    continue
+                if abs(en - act) > tol:
+                    out_ids.append(r.get(idf))
+            return out_ids
         if op == "filter":
             # ★reference-filter(keystone): 수집 record를 criteria로 결정론 매칭 → return field.
             #   formalize(LLM)가 ctx["criteria"]={date,amount,merchant,type} 채움·엔진은 매칭만.

@@ -163,6 +163,14 @@ def main():
         print("[t2_run] E-PLAN ON (CP5 walk=%s · L1/L2 deny는 --gate 1 필요)"
               % ("ON" if os.environ.get("T2_EPLAN_WALK") == "1" else "off"))
 
+    # ★SCAFFOLD-GET (T2_SCAFFOLD_GET=1): A2 scaffold_get_tools = 우리가 제공하는 GET 도구.
+    #   LLM이 계산 직접 안 하고 이 도구 호출→scaffold가 t2_compute.apply_op로 결정론 계산·반환.
+    #   gate/unified 뒤에 apply(체이닝·_execute_tool_calls 래핑).
+    if os.environ.get("T2_SCAFFOLD_GET") == "1":
+        import t2_scaffold_get
+        t2_scaffold_get.apply()
+        print("[t2_run] SCAFFOLD-GET ON (A2 scaffold_get_tools)")
+
     # user-sim·judge 모델 결정: --user_llm(원격 API, 예 openrouter/...) 우선, 아니면 로컬 vllm
     if a.user_llm:
         user_llm, user_args = a.user_llm, {"temperature": a.user_temp}
