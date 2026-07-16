@@ -172,6 +172,55 @@ C45 출처선언 레버는 **write 인자**에만 걸려 있다. banking 잔여 
   ⇒ **실패의 일부가 user-sim 산물**. §1의 "sim2 = user-sim이 틀린 결론을 주고 에이전트가 추인" 관측도 **mini 아티팩트 혐의** → 보류.
 - ⇒ 정본 재측정 = `bank_{ctl,dreq}_20260716_2140` (**gpt-5.2 · `--user_temp 0.0` · nt=5 · 고유 tag · 완료 즉시 영속화**).
 
+## 9. ★★★gpt-5.2 재측정 — 병목은 reward가 아니라 **verify서 도구 선택 실패** (2026-07-16·⚠️잠정)
+정본: `sim_results/bank_dreq_20260716_2140.*` (gpt-5.2·user_temp 0·nt=5).
+> ⚠️**등급 [P](잠정) — 확정 금지**([[08]]): (a) **완료 2/5**·(b) **대조군(ctl) 미완 = 교차표 없음**·
+> (c) 단 이 2 sim은 **거래 미도달 ⇒ DISCREQ 발화 0 ⇒ dreq ≡ ctl**이므로, 아래는 *arm 효과가 아니라
+> **기본 스택**의 관측*이다. nt=5 완주 + ctl 도착 後 등급 재판정.
+
+| sim | agent 도구 시퀀스 | 거래 도달 | reward |
+|---|---|---|---|
+| 0 | `by_phone_number`(날조) → `get_current_time` → `by_phone_number`(날조) | ✗ | 0.0 |
+| 1 | `KB_search` → `by_phone_number`×4 (날조) → `KB_search` | ✗ | 0.0 |
+
+⇒ **`get_reward_discrepancies` 이전에 거래 조회 자체에 도달 못 함.** §0의 "잔여 병목=reward 도구 미선택"은 **하류 현상**이었다.
+
+### 9.1 sim0 전문 정독 (근인 확정)
+`[2]` 에이전트: "dob·email·phone·address 중 **2개**" → `[3]` 사용자: **dob+phone**(페르소나가 가진 전부) →
+`[4][8]` `get_user_information_by_phone_number` 날조·차단 → `[10]` "email이나 주소를 달라" → `[11]` 없다 →
+`[12]` **"시스템은 목록에서 2개를 요구합니다"**(이미 2개 받았음) → `[14]` **"다음엔 준비하세요: 1. 성명 — 계정을 찾는 데 필요"** →
+`[15]` 사용자 `###STOP###`.
+- ★**에이전트는 "이름이 계정을 찾는 key"임을 *알면서*(msg[14]) 지금 이름을 묻지 않는다.**
+
+### 9.1b sim1 정독 (2/2 동형·종료 user_stop)
+`[12]` **user ID** 요청 → `[14]` email/주소 → `[16]` KB_search("verify by email") → `[18]` email → `[32]` "다음엔 email이나 주소를 준비".
+- ★★**2/2 sim 모두 `name`을 단 한 번도 묻지 않는다** — `get_user_information_by_name`이 자기 도구 목록에 있는데도.
+  (묻는 것은 id·email·address = **factor∩key 중 사용자가 못 가진 것들**뿐.)
+- ★★**언어화한 지식이 행동을 통제하지 못한다**: `[20][24][26][30]` *"I do not have a direct tool to
+  fetch user information by phone number"* 라고 **스스로 말해놓고** `[22][28]`서 **또 `by_phone_number` 호출**.
+  ⇒ **[[42]] prior-override의 최청정 사례** · 프롬프트·피드백 무효(C30) 재확인. 차단은 되나 **재선택은 안 산다**.
+- **근인 = 검증 factor(dob/email/phone/address) ↔ 조회 key(email/id/name) 혼동.**
+  name은 factor 목록에 없어서 **후보로 떠오르지 않고**, factor 중 조회가능한 email만 묻다가 없다니까 포기.
+- 우리 A2 `verify_identity`(설명에 "name/email/id로만 조회" 명시)도 **호출 0**.
+- TOOLGATE 피드백("ASK the customer … then call an available tool")도 무효 ⇒ **C30/[[42]] 재확인**.
+
+### 9.2 ★mini가 에이전트를 구하고 있었다 (핸드오프 §0 무효화)
+**직접 관측된 사실**(궤적 원문·인과 아님):
+- mini user-sim은 **묻지 않은 이름을 스스로 제공**한다 — t019j sim2 `msg[25]` *"My full name is Priya Sharma."*
+  = **spoon-feed**([[16]] 금지 대상을 user-sim이 수행). 같은 sim서 mini는 **도구명까지 날조**(`msg[25]` 참조).
+- gpt-5.2 user-sim은 주지 않는다 — sim0 `[11]` *"don't want to guess and give you the wrong info"* → `[15]` `###STOP###`.
+
+**⚠️인과 귀속은 보류**: "t019g가 거래 3/3 도달한 것은 mini가 이름을 줘서"는 **격리되지 않았다** —
+t019g→dreq 사이에 **user-sim(mini→5.2)** 과 **§7 requestor 버그픽스** 두 변수가 같이 바뀌었다.
+말할 수 있는 것: *mini는 spoon-feed를 하고 5.2는 안 한다*(관측) · *5.2선 에이전트가 검증 벽서 정지한다*(관측).
+⇒ **핸드오프 §0의 병목 지정은 mini 위에서 만들어졌으므로 재검이 필요**하다(무효 단정이 아니라 **보류**).
+
+### 9.3 ⇒ thesis는 오히려 선명해진다
+잔여 = **"제공된 유한집합에서 맞는 도구를 선택하지 못함"** 하나이고, **두 지점서 동형**으로 발현:
+- verify: `get_user_information_by_name` / `verify_identity`를 안 고름 → 없는 `by_phone*`을 만듦
+- reward: `get_reward_discrepancies`를 안 고름 → 머릿속 눈대중
+소속검사(=출처 조사)는 **날조 실행을 0으로 막지만 재선택을 사지 못한다.** 이것이 [[00]] 명제의 시험대.
+
 ## 6. Caveat (정직)
 - t019g = **n=3 × gpt-4.1-mini** = robust 측정 아님·**메커니즘 관측**. reward도구 0선택만 3/3 일관 + 원문 정독으로 견고.
 - **sim 2형(user-sim이 틀린 결론을 먼저 줌)** 은 user-sim 품질 의존 — gpt-5.2선 다르게 나올 수 있음([[47]] 권장표준).
