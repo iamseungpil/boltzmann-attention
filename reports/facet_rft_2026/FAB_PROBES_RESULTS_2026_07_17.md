@@ -137,11 +137,11 @@
 "이 지점에서 확정적"**. 등급: **기전 [M]**(독립 2런·각 24/24·결정론) · **모집단 몫 [P]**(1/13 확증·하한).
 
 ## 4. ★DISCREQ 재활성 판정 (handoff §0-4 = 사용자 지시로 실행) ⇒ **기각(이 지점·offline)**
-| arm | producer 직접호출 | 지배 반응 |
-|---|---|---|
-| `discreq_ctl` (사임 후 **실제 사용자 발화**) | **0/24** | ASK 19 · 다른도구 3 · unlock 1 · KB 1 |
-| `discreq_arm` (사임 후 **DISCREQ 피드백**) | **0/24** | **ASK 23** · unlock 1 |
-| `discreq_arm_hint` (+ "직접 호출하라" 구성-지시) | **0/24** | **ASK 24** |
+| arm | producer 직접호출 | 지배 반응 | v3(max_tokens 3000) |
+|---|---|---|---|
+| `discreq_ctl` (사임 후 **실제 사용자 발화**) | **0/24** | ASK 19 · 다른도구 3 · unlock 1 · KB 1 | ✅**0/24 동일**(ASK 18·KB 4·unlock 1·기타 1·**계측결함 0**) |
+| `discreq_arm` (사임 후 **DISCREQ 피드백**) | **0/24** | **ASK 23** · unlock 1 | ⏳진행 중 |
+| `discreq_arm_hint` (+ "직접 호출하라" 구성-지시) | **0/24** | **ASK 24** | ⏳진행 중 |
 
 - ★**핵심(원문 정독)**: `discreq_arm`의 24/24가 **텍스트로 도구를 *언급***한다 —
   *"I apologize for the oversight. Let me use the `get_reward_discrepancies` tool to accurately identify…"* —

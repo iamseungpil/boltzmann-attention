@@ -342,6 +342,14 @@ def build_probes(sims, tools, policy, a2, tools_hint):
     P["dispatch"] = dict(conv=conv_of(0, 18), cls=cls_dispatch,
                          desc="kon sim0 [18]: 거래 23건 반환 직후 — producer 직접호출 vs KB/unlock 배회?")
 
+    # ⑤b ★행9 **조건부** prior 검정 (2026-07-18·`dispatch` 23/24 반전이 연 질문).
+    #   dispatch(cut=18)서 base는 producer를 23/24 직접 부른다 ⇒ "디스패처-prior가 기본 성향"은 기각.
+    #   그럼 라이브 sim0은 왜 unlock으로 샜나? 가설: **KB 문서를 읽은 뒤** 조건부로 prior가 붙는다 —
+    #   sim0 [3]/[19]/[21]/[23] KB 문서가 축자로 *"Use `unlock_discoverable_agent_tool` to unlock …"*를 담는다.
+    #   cut=24 = KB검색 3회를 이미 읽은 상태 → 여기서 unlock률이 뛰면 **prior의 원천 = KB 내용**(=ABox·[[05]] 안전).
+    P["dispatch_afterkb"] = dict(conv=conv_of(0, 24), cls=cls_dispatch,
+                                 desc="kon sim0 [24]: KB검색 3회(unlock 안내 문서 포함)를 읽은 뒤 → unlock vs producer?")
+
     # ⑥ DISCREQ 효능 A/B (sim0 [26] 사임 지점) — ★단일변수: 다음 턴이 실사용자 발화 vs DISCREQ 피드백
     base26 = conv_of(0, 27)  # [0..26] = 사임 텍스트까지 포함
     P["discreq_ctl"] = dict(conv=base26 + [{"role": "user", "content": sims[0]["messages"][27]["content"]}],
@@ -522,6 +530,7 @@ def main():
     pr("차단≠회복 (날조율)", "byphone", "persev", "fab")
     pr("★차단 거리-의존 (재-emit율)", "persev_d1", "persev_d4", "fab")
     pr("DISCREQ 효능 (producer 직접호출)", "discreq_ctl", "discreq_arm", "ok")
+    pr("★행9 조건부 prior (producer 직접호출)", "dispatch", "dispatch_afterkb", "ok")
     print("\n★A2 설명-레버 (닫히면 learn 불요·안 닫히면 learn 표적)")
     pr("record 날조율", "record", "record_hint", "fab")
     pr("dispatch 직접호출", "dispatch", "dispatch_hint", "ok")
