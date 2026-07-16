@@ -66,8 +66,9 @@ def post(base, payload, timeout=240):
         return json.loads(r.read())
 
 
-def load_tools():
-    """env 도구 + A2 주입 도구 — 라이브와 동일 스키마(모델이 실제로 본 것·[[30]] §13 교훈)."""
+def load_tools(overrides=None):
+    """env 도구 + A2 주입 도구 — 라이브와 동일 스키마(모델이 실제로 본 것·[[30]] §13 교훈).
+    overrides = {tool_name: {"description": str, "params": {key: str}}} — A2 설명-레버 arm용."""
     from tau2.registry import registry
     import t2_scaffold_get as sg
     from tau2.environment.tool import Tool
@@ -75,8 +76,28 @@ def load_tools():
     a2 = json.load(open(A2P, encoding="utf-8"))
     tools = [t.openai_schema for t in env.get_tools()]
     for d in a2["scaffold_get_tools"]:
-        tools.append(sg._build_tool(Tool, d).openai_schema)
+        d2 = json.loads(json.dumps(d))
+        ov = (overrides or {}).get(d2["name"]) or {}
+        if ov.get("description"):
+            d2["description"] = ov["description"]
+        for k, v in (ov.get("params") or {}).items():
+            d2["params"][k] = v
+        tools.append(sg._build_tool(Tool, d2).openai_schema)
     return tools, env.get_policy(), a2
+
+
+# ---- A2 설명-레버 arm (★긍정형 **구성-지시**만 — 금지문은 기증명 무효 C30/C47·재조작 금지) ----
+# 2승 실적: `transactions`(10/10 formalize)·`provided`(누적 60.0→93.3%·§17.1). 같은 문법으로 작성.
+HINT_RECORD = ("JSON object of the customer's ACCOUNT RECORD, filled ONLY with values you copied "
+               "verbatim from the return of a get_user_information_by_name / by_email / by_id call "
+               "that you actually made earlier in THIS conversation. If you have not called one of "
+               "those lookups yet, call it first — and if you lack the name/email/user ID it needs, "
+               "ask the customer for one of those, then call the lookup, then call this tool. "
+               "Same keys: date_of_birth, address, phone_number, email.")
+HINT_PRODUCER_SUFFIX = (" This tool is ALREADY in your tool list: call it directly by name, exactly "
+                        "the way you call get_credit_card_transactions_by_user. It is a normal tool, "
+                        "so reaching it takes one direct call — searching the knowledge base or "
+                        "unlocking a discoverable tool are for other tools, not this one.")
 
 
 def discreq_feedback(a2):
@@ -199,7 +220,7 @@ def cls_dispatch(name, args, text, ctx, toolnames):
 
 
 # ---------------- 프로브 정의 ----------------
-def build_probes(sims, tools, policy, a2):
+def build_probes(sims, tools, policy, a2, tools_hint):
     toolnames = {t["function"]["name"] for t in tools}
     sysmsg = [{"role": "system", "content": AGENT_INSTRUCTION + "\n\n<policy>\n" + policy + "\n</policy>"}]
 
@@ -243,19 +264,38 @@ def build_probes(sims, tools, policy, a2):
     P["discreq_arm"] = dict(conv=base26 + [{"role": "user", "content": discreq_feedback(a2)}],
                             cls=cls_dispatch,
                             desc="kon sim0 사임 후 **DISCREQ 피드백**(레버) → producer 호출?")
+
     for v in P.values():
         v["toolnames"] = toolnames
+        v["tools"] = tools
+
+    # ★A2 설명-레버 arm (단일변수 = 도구 설명 문구) — [[13]] "학습 前에 싼 레버부터" 판정용.
+    #   닫히면 = learn 표적 아님(A2 한 줄) / 안 닫히면 = **진짜 learn 표적**(논문 코어 근거·[[42]]).
+    for src, dst, why in (("record", "record_hint", "record=조회-복사 구성지시"),
+                          ("dispatch", "dispatch_hint", "producer=직접호출 구성지시"),
+                          ("discreq_arm", "discreq_arm_hint", "DISCREQ + 직접호출 구성지시")):
+        P[dst] = dict(conv=P[src]["conv"], cls=P[src]["cls"], toolnames=toolnames,
+                      tools=tools_hint, desc=f"[{src} + A2설명레버] {why}")
     return P
 
 
-def run_probe(base, model, tools, spec, n, temp):
+def run_probe(base, model, spec, n, temp, chunk):
+    """chunk>1이면 vLLM `n` 파라미터로 한 요청당 여러 샘플(접두 prefill 1회 재사용 = 대폭 단축)."""
     cnt, ctx = Counter(), ctx_text(spec["conv"])
-    samples = []
-    for _ in range(n):
+    samples, done = [], 0
+    while done < n:
+        k = min(chunk, n - done)
         try:
-            r = post(base, {"model": model, "messages": spec["conv"], "tools": tools,
-                            "temperature": temp, "max_tokens": 700})
-            m = r["choices"][0]["message"]
+            r = post(base, {"model": model, "messages": spec["conv"], "tools": spec["tools"],
+                            "temperature": temp, "max_tokens": 700, "n": k})
+            choices = r["choices"]
+        except Exception as e:
+            cnt[("ERR", repr(e)[:60])] += 1
+            print("  err:", repr(e)[:120], file=sys.stderr, flush=True)
+            done += k
+            continue
+        for ch in choices:
+            m = ch["message"]
             tcs = m.get("tool_calls") or []
             name, args = None, {}
             if tcs:
@@ -269,9 +309,7 @@ def run_probe(base, model, tools, spec, n, temp):
             cnt[(cat, label)] += 1
             samples.append({"name": name, "label": label, "cat": cat,
                             "text": (m.get("content") or "")[:200]})
-        except Exception as e:
-            cnt[("ERR", repr(e)[:60])] += 1
-            print("  err:", repr(e)[:120], file=sys.stderr)
+        done += len(choices) if choices else k
     return cnt, samples
 
 
@@ -282,21 +320,27 @@ def main():
     ap.add_argument("--n", type=int, default=20)
     ap.add_argument("--temp", type=float, default=0.7)
     ap.add_argument("--probe", default="all")
+    ap.add_argument("--chunk", type=int, default=10, help="요청당 샘플 수(vLLM n) — 1이면 순차")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
 
     with gzip.open(KON, "rt", encoding="utf-8") as f:
         sims = json.load(f)["simulations"]
     tools, policy, a2 = load_tools()
-    P = build_probes(sims, tools, policy, a2)
+    tools_hint, _, _ = load_tools({"verify_identity": {"params": {"record": HINT_RECORD}},
+                                   "get_reward_discrepancies": {
+                                       "description": [t for t in a2["scaffold_get_tools"]
+                                                       if t["name"] == "get_reward_discrepancies"
+                                                       ][0]["description"] + HINT_PRODUCER_SUFFIX}})
+    P = build_probes(sims, tools, policy, a2, tools_hint)
     names = list(P) if a.probe == "all" else [x for x in a.probe.split(",") if x in P]
 
     out = {}
     for nm in names:
         spec = P[nm]
         print(f"\n===== [{nm}] n={a.n} T={a.temp} · {spec['desc']}", flush=True)
-        print(f"      접두 {len(spec['conv'])} msgs · 도구 {len(tools)}종", flush=True)
-        cnt, samples = run_probe(a.base, a.model, tools, spec, a.n, a.temp)
+        print(f"      접두 {len(spec['conv'])} msgs · 도구 {len(spec['tools'])}종", flush=True)
+        cnt, samples = run_probe(a.base, a.model, spec, a.n, a.temp, a.chunk)
         tot = sum(cnt.values())
         fab = sum(v for (c, _), v in cnt.items() if c == "FAB" or c.startswith("FAB-"))
         ok = sum(v for (c, _), v in cnt.items() if c == "OK")
@@ -307,12 +351,18 @@ def main():
                    "counts": {f"{c}|{l}": v for (c, l), v in cnt.items()},
                    "fab": fab, "ok": ok, "total": tot, "samples": samples}
 
-    if {"byphone", "persev"} <= set(out):
-        b, p = out["byphone"], out["persev"]
-        print(f"\n★차단≠회복: 차단 前 날조 {b['fab']}/{b['total']} → 차단 後 재-emit {p['fab']}/{p['total']}")
-    if {"discreq_ctl", "discreq_arm"} <= set(out):
-        c, r = out["discreq_ctl"], out["discreq_arm"]
-        print(f"★DISCREQ 효능: 대조 producer호출 {c['ok']}/{c['total']} → arm {r['ok']}/{r['total']}")
+    def pr(tag, k1, k2, fld):
+        if {k1, k2} <= set(out):
+            x, y = out[k1], out[k2]
+            print(f"{tag}: {k1} {x[fld]}/{x['total']} → {k2} {y[fld]}/{y['total']}")
+
+    print("\n" + "=" * 70 + "\n★단일변수 대조 요약")
+    pr("차단≠회복 (날조율)", "byphone", "persev", "fab")
+    pr("DISCREQ 효능 (producer 직접호출)", "discreq_ctl", "discreq_arm", "ok")
+    print("\n★A2 설명-레버 (닫히면 learn 불요·안 닫히면 learn 표적)")
+    pr("record 날조율", "record", "record_hint", "fab")
+    pr("dispatch 직접호출", "dispatch", "dispatch_hint", "ok")
+    pr("DISCREQ+힌트 직접호출", "discreq_arm", "discreq_arm_hint", "ok")
 
     if a.out:
         with open(a.out, "w", encoding="utf-8") as f:
