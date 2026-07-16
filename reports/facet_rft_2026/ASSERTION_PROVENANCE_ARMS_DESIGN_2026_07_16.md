@@ -262,6 +262,47 @@ t019g→dreq 사이에 **user-sim(mini→5.2)** 과 **§7 requestor 버그픽스
 - reward: `get_reward_discrepancies`를 안 고름 → 머릿속 눈대중
 소속검사(=출처 조사)는 **날조 실행을 0으로 막지만 재선택을 사지 못한다.** 이것이 [[00]] 명제의 시험대.
 
+## 11. ★★★★★최중요 — A2 도구가 `_f`로 주입돼 **모델에게 제시된 적이 없었다** (2026-07-16)
+> 이 절이 **§0·§9·핸드오프 §0을 통째로 무효화**한다. 세 번째 dark-lever 사고(①bm25 dark ②NLNUM 비활성 ③이번 `_f`).
+
+### 11.1 기전 (tau2 원본 코드)
+`tau2/environment/tool.py:61-73`:
+```python
+def __init__(self, func, use_short_desc=False, **predefined):
+    name = func.__name__                                    # ★이름은 무조건 함수에서
+    super().__init__(name=name, **self.parse_data(sig, doc, predefined))
+```
+`parse_data`는 **함수의 시그니처와 docstring**에서 params/desc를 만들고, `predefined`는 **params 제외용으로만** 쓴다.
+⇒ 우리가 넘긴 `name=`·`short_desc=`·`long_desc=`·`params=`·`examples=`는 **전부 무시**된다.
+우리 더미가 `def _f(**k)`였으므로 에이전트 도구 목록의 실제 내용:
+```json
+{"function": {"name": "_f", "description": "_f", "parameters": {"properties": {"k": {}}, "required": ["k"]}}}
+```
+**주입이 실행됐다는 증거**(=이게 모델이 본 것): TOOLGATE의 `_t2_known_tools`는 **`init2` 안에서만** 세팅되는데
+라이브서 **13~15회 발화**했다.
+
+### 11.2 무효화되는 주장 (전부 우리 것)
+| 주장 | 판정 |
+|---|---|
+| 핸드오프 §0 "32B가 **명확한 설명+활용예**가 있는데도 reward 도구 미선택" | ❌**무효** — 없는 도구는 선택 불가 |
+| §9.1c/§9.1d "operand formalize 실패" | ❌**무효** — 스키마가 없었다. sim2 `[26]`이 "거래 ID를 달라"고 한 건 **이름만**(DISCREQ 피드백 문장서) 알고 **인자 스펙은 못 본** 상태의 합리적 행동 |
+| "`verify_identity` 호출 0" | ❌**무효** — 동일 원인 |
+| 딥리서치 질문의 **관측 C** 전제("인자 설명에 명시했는데도 오독") | ❌**거짓 전제** — 보고 수령 시 이 절로 재해석할 것 |
+| §9.1b "by_phone 날조·이름 미질문"(관측 A·B) | ✅**유지** — 이들은 **tau2 네이티브 도구**(정상 주입)에 대한 관측 |
+
+### 11.3 수정 (커밋 `c88d952b`)
+- `_build_tool()`: A2 선언에서 **진짜 함수 객체**를 동적 생성(정확한 `__name__`·타입 시그니처·`:param:` docstring) → `Tool(fn, examples=…)`.
+- **라이브 검증 실측**(주장 아님): `name=get_reward_discrepancies` · `description`=A2 전문 ·
+  `params={transactions}` + 설명 전문(*"…that you read from the transaction records … Do NOT compute anything"*).
+- **재발 방지**: 주입 직후 `openai_schema`를 stderr에 출력(`[T2_SCAFFOLD_GET] injected name=… desc=Nch params=[…]`).
+  ⇒ [[30]] *"단위통과 ≠ 라이브발화 · 레버 실발화율 전수확인"* 을 코드에 박음.
+
+### 11.4 교훈
+- 지난 세션은 **오프라인 단위검증**(op-DAG가 gold 4건을 맞춤)만 하고 "도구 주입 완료"로 넘어갔고,
+  이번 세션의 나는 **그 위에서 내내 추론**했다(눈대중·formalize·prior-override 서사).
+- ⇒ **레버는 "라이브서 모델이 실제로 본 것"으로 검증해야 한다.** 단위테스트·오프라인 op 검증은 그것을 대체하지 못한다.
+- ⇒ 이제서야 **가설이 처음으로 시험 가능**해졌다: *"도구가 실제로 제시되면 32B가 고르는가?"*
+
 ## 6. Caveat (정직)
 - t019g = **n=3 × gpt-4.1-mini** = robust 측정 아님·**메커니즘 관측**. reward도구 0선택만 3/3 일관 + 원문 정독으로 견고.
 - **sim 2형(user-sim이 틀린 결론을 먼저 줌)** 은 user-sim 품질 의존 — gpt-5.2선 다르게 나올 수 있음([[47]] 권장표준).
