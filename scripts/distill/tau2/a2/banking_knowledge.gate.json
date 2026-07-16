@@ -307,7 +307,11 @@
    "_note": "[[10]]/[[05]] op-DAG(역참조): LLM=원시 leaf(card_type/category/amount/reward)만 formalize·엔진=DAG 실행(steps.rate=card→rate case테이블·steps.expected=amount*rate·discrepant=actual≠expected). rate 테이블=A2 도메인데이터(KB base-rate·Gold2.5/EcoCard 5·1 검증됨·Bronze1/Silver4/Platinum4/Diamond5=KB best-effort·미확인). 미지의 카드=default None→abstain(false flag 0). 계산은 엔진·리터럴0.",
    "examples": [
     "get_reward_discrepancies(transactions=[{\"transaction_id\":\"txn_ab12\",\"transaction_amount\":175.00,\"rewards_earned\":175,\"credit_card_type\":\"EcoCard\",\"category\":\"Green\"},{\"transaction_id\":\"txn_cd34\",\"transaction_amount\":320.00,\"rewards_earned\":775,\"credit_card_type\":\"Gold Rewards Card\",\"category\":\"Shopping\"}])  -> returns the transaction_ids with a reward discrepancy that need a cash back dispute"
-   ]
+   ],
+   "follow_up": {
+    "tool": "give_discoverable_user_tool",
+    "feedback": "Error: [FOLLOW-UP] you found reward discrepancies with 'get_reward_discrepancies', but you have not given the customer the dispute tool. Per Rho-Bank policy, cash back disputes can ONLY be submitted by the CUSTOMER themselves: call 'give_discoverable_user_tool' with discoverable_tool_name='submit_cash_back_dispute_0589' once per discrepant transaction (with the customer's user_id and that transaction_id as arguments), then tell the customer to run the tool themselves. Do NOT claim that any dispute has been submitted or filed, do NOT invent case/reference numbers, and do NOT say you will submit it — you cannot submit disputes."
+   }
   },
   {
    "name": "verify_identity",
@@ -361,5 +365,6 @@
   "reward discrepancies": "get_reward_discrepancies",
   "expected reward for a transaction": "get_reward_discrepancies"
  },
- "_note_assertion_operands": "arm `self-declaration` (같은 설계문). 사임 시 LLM이 각 항목에 {claimed, source∈GET/FIND/INFER/ASK}를 JSON 선언 → 엔진은 **선언 구조체만** 검증: claimed ∧ source=INFER ∧ producer 미호출 → regen. [[10]] LLM=formalize·엔진=검증(답변 텍스트 파싱 0). ★기본 OFF(T2_SELF_DECLARATION=1). ★caveat: 항목 열거가 리마인더로 작용할 수 있음(spoon-feed 경계·[[16]]) — 발화·효과를 계측으로 판정."
+ "_note_assertion_operands": "arm `self-declaration` (같은 설계문). 사임 시 LLM이 각 항목에 {claimed, source∈GET/FIND/INFER/ASK}를 JSON 선언 → 엔진은 **선언 구조체만** 검증: claimed ∧ source=INFER ∧ producer 미호출 → regen. [[10]] LLM=formalize·엔진=검증(답변 텍스트 파싱 0). ★기본 OFF(T2_SELF_DECLARATION=1). ★caveat: 항목 열거가 리마인더로 작용할 수 있음(spoon-feed 경계·[[16]]) — 발화·효과를 계측으로 판정.",
+ "_note_follow_up": "scaffold_get_tools[].follow_up (2026-07-16 §14.3 완료날조 차단): 엔진(T2_FOLLOWUP_REQUIRED=1)은 사임 시 {tool 호출됨 ∧ follow_up.tool 미호출}이라는 구조 이벤트만 보고 이 feedback으로 regen 1회/sim. 후속도구·문구=여기(ABox)·엔진 리터럴 0. 실측근거: 실패 4/10 전부 완료날조·그중 3/4은 give 호출 0."
 }

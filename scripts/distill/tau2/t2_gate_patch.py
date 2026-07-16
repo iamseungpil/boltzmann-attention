@@ -154,6 +154,20 @@ def _context_text(orch):
     return " ".join(parts).lower()
 
 
+def _ctx_with_toolnames(agent, ctx):
+    """provenance ctx에 **에이전트에게 제시된 도구 이름**을 추가 (§15 오탐 수정·2026-07-16).
+    도구 이름의 출처는 스키마(모델에게 제시됨)이지 대화가 아니다 — 라이브 실측: 에이전트가
+    `unlock_discoverable_agent_tool(agent_tool_name="get_reward_discrepancies")`로 우리 도구를
+    호출하려 하자 PROV가 "문맥에 없음=invented"로 11회 반려(ctl_20260716_2230). ★이름만 추가한다 —
+    스키마 전체(설명·예시값)를 넣으면 C47(예시값=복사 원천 47%)의 날조 재료까지 정당화된다."""
+    try:
+        names = " ".join(sorted({str(getattr(t, "name", "") or "").lower()
+                                 for t in (getattr(agent, "tools", None) or [])}))
+        return ctx + " " + names if names else ctx
+    except Exception:
+        return ctx
+
+
 def _ctx_has(s, ctx):
     """값 s의 ctx-매칭 (PROV-RESCUE-PERARG ②: id '#'-접두 정규화).
     '#W8665881' vs ctx의 'w8665881'(사용자 발화) = 접두 불일치 거짓양성 fab(t17 1차 방아쇠) →
@@ -1461,7 +1475,7 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
             self._t2_session_bl = set()
         self._system_messages = state.system_messages
         _append(state, message)
-        ctx = _ctx_from_messages(state.messages)
+        ctx = _ctx_with_toolnames(self, _ctx_from_messages(state.messages))
 
         def bw():  # 동적: 정적∪세션 − context (진짜 값은 안 막음)
             return [v for v in (self._t2_static_bl | self._t2_session_bl) if v.lower() not in ctx]
@@ -1913,7 +1927,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             last_user = _regen_last_user(state.messages)
             # ★NOTICE-PERGATE 커링 (apply()와 동형)
             transfer_sent = lambda text: _regen_transfer_sent(state.messages, text)  # noqa: E731
-        ctx = _ctx_from_messages(state.messages)
+        ctx = _ctx_with_toolnames(self, _ctx_from_messages(state.messages))
 
         # ★E-PLAN v1.3 (T2_EPLAN=1): committed 히스토리서 결정론 ledger 재구성(관측만·[[10]])
         #   discovery L1/L2 = read-강제 deny(§1.5 허용축)·CP5 리마인더 소비 = 생성-레벨(비커밋)
@@ -2693,6 +2707,35 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 return None
             return _am2
 
+        # (a0) follow-up required — **완료 날조(fabricated completion) 차단** (2026-07-16 §14.3).
+        #   실측: 실패 4/10 sim 전부 = 에이전트가 "제출됐다" 주장(가짜 케이스번호 발급)하고 후속 도구를
+        #   안 부름 → 사용자 제출 0/4. 그중 3/4은 follow_up 도구 호출 0 = **구조 이벤트만으로 탐지**.
+        #   엔진이 보는 것: {호출된 도구 이름} 집합뿐(텍스트 파싱 0·[[03b]]). 어느 도구에 어느 후속이
+        #   붙는지·피드백 문구 = A2(`scaffold_get_tools[].follow_up`). 상한 1/sim·regen 채택 전 게이트 재검사.
+        #   ★임계=사임 2회째(기본·env 조정가능): 오프라인 replay 실측 — 1회째는 pass 6/6 전부에 발화
+        #   (pass 궤적도 결과 제시→확인 사임이 한 번 있음)·2회째는 실패 4/4 커버 + pass 2/6만 접촉.
+        if (os.environ.get("T2_FOLLOWUP_REQUIRED") == "1" and _resign
+                and not getattr(self, "_t2_followup", 0)):
+            _called0 = _called_tools(state.messages)
+            for _d0 in ((a2 or {}).get("scaffold_get_tools") or []):
+                _fu = _d0.get("follow_up") or {}
+                _ft = _fu.get("tool")
+                if (_ft and _d0.get("name") in _called0 and _ft not in _called0
+                        and _fu.get("feedback")):
+                    _th = int(os.environ.get("T2_FOLLOWUP_RESIGN_TH", "2") or 2)
+                    self._t2_fu_resigns = getattr(self, "_t2_fu_resigns", 0) + 1
+                    if self._t2_fu_resigns < _th:
+                        break
+                    self._t2_followup = getattr(self, "_t2_followup", 0) + 1
+                    print("[T2_FOLLOWUP] fired tool=%s missing_follow_up=%s"
+                          % (_d0.get("name"), _ft), file=_sys.stderr, flush=True)
+                    _new0 = _ap_regen(_fu["feedback"], "followup")
+                    if _new0 is not None:
+                        am = _new0
+                        print("[T2_FOLLOWUP] regen tool_calls=%s"
+                              % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
+                              file=_sys.stderr, flush=True)
+                    break
         # (a) discovery-required — 엔진이 보는 것: {호출된 도구 이름}뿐.
         if (os.environ.get("T2_DISCOVERY_REQUIRED") == "1" and (a2 or {}).get("analysis_producers")
                 and _resign and not getattr(self, "_t2_discreq", 0)):
