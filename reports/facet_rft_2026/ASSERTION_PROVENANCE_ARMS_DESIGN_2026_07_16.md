@@ -405,6 +405,28 @@ def __init__(self, func, use_short_desc=False, **predefined):
 - 처방(설계): provenance ctx에 **에이전트에게 제시된 도구 이름 집합**을 포함(도메인일반·A2 불요). 또는 `*_tool_name` 류를
   식별자 힌트에서 제외. **런 완주 後 수정**(도는 런과 스택 어긋남 방지).
 
+## 16. ★nt=4 (리더보드 표준) — T2_FOLLOWUP 레버 첫 라이브 판정 (2026-07-17·[P] n=4)
+정본: `sim_results/bank_{ctl,fup}_20260716_nt4.*` (gpt-5.2·user_temp 0·§15 ctx 수정 포함). 종료 전부 `user_stop`·infra 0.
+
+| nt=4 | pass | 실패 유형 분해 ([[08]] 전수) |
+|---|---|---|
+| **ctl** | **0/4** | ②완료날조형(T호출·give 0) **×2** · ③give 8회·제출 0/4 ×1 · ①b(거래읽고 T 미호출·discoverable 배회) ×1 |
+| **fup** | **2/4** | ①검증벽 ×2 (by_phone→즉시이관 / verify 반복 후 이관) — **레버 상류=올바른 침묵** |
+
+### 16.1 레버 기전 라이브 확증 (로그 축자)
+`[T2_FOLLOWUP] fired tool=get_reward_discrepancies missing_follow_up=give_discoverable_user_tool` →
+**`regen tool_calls=['give_discoverable_user_tool']`** → 그 sim(task_019.2·R1) **PASS·제출 4/4**.
+⇒ **전체 인과 사슬이 라이브로 1회 완결**: 무-give 사임 감지 → A2 피드백 → give emit → 사용자 제출 → pass.
+- 유형 교차: 레버가 겨눈 ②형이 **ctl 2/4 vs fup 0/4**. over-block 관측 0(발화 1회·그 sim pass).
+- **§15 수정 효과 동반 확인**: PROV 반려 0~1 (수정 전 11).
+
+### 16.2 ⚠️정직 한계
+- **n=4 점추정·변량 큼**: 같은 ctl-스택이 2230 런선 3/5, nt=4선 0/4 — 런 간 지배 변동원은 **검증 벽 통과 여부**(확률적).
+  Δ=+2는 [P]. 레버 *기전*은 확증(발화→give→pass 사슬), *효과 크기*는 미확정.
+- fup 실패 2건은 전부 상류(검증 벽) — 레버 소관 밖. **다음 pass 병목 = 검증 벽의 확률적 실패**
+  (by_phone 고집→조기 이관 / verify_identity 인자 오류 반복). C103 키스톤(대안 가시성)과 같은 지점.
+- ctl sim3(=③형: give 8회에도 제출 0)은 레버로 안 잡힘(give는 있었음) — 완료날조의 "건네고 내가 했다 주장" 변형·기존 §14.3 한계 그대로.
+
 ## 6. Caveat (정직)
 - t019g = **n=3 × gpt-4.1-mini** = robust 측정 아님·**메커니즘 관측**. reward도구 0선택만 3/3 일관 + 원문 정독으로 견고.
 - **sim 2형(user-sim이 틀린 결론을 먼저 줌)** 은 user-sim 품질 의존 — gpt-5.2선 다르게 나올 수 있음([[47]] 권장표준).
