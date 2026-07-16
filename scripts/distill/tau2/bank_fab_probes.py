@@ -187,6 +187,33 @@ def ctx_text(conv):
     return "\n".join(buf)
 
 
+TC_RE = re.compile(r"<tool_call>\s*(\{.*?\})\s*</tool_call>", re.S)
+
+
+def recover_text_call(txt):
+    """★모델이 도구호출을 `<tool_call>{...}</tool_call>` **텍스트**로 내보내 파서가 놓친 경우 복구.
+    버리면 날조를 **과소계상**하고(=가짜 'ASK'), 그대로 두면 아티팩트가 결론을 오염시킨다([[08]]).
+    완결 JSON이면 (name, args) 반환 · 잘렸으면 None(→TRUNC 범주로 남김)."""
+    m = TC_RE.search(txt or "")
+    if not m:
+        # 닫는 태그 없이 잘린 경우: 이름만이라도 건지되 args는 신뢰 불가 → 이름만 반환
+        m2 = re.search(r'<tool_call>\s*\{\s*"name"\s*:\s*"([^"]+)"', txt or "", re.S)
+        return (m2.group(1), None) if m2 else None
+    try:
+        d = json.loads(m.group(1))
+    except Exception:
+        return None
+    if not isinstance(d, dict) or not d.get("name"):
+        return None
+    a = d.get("arguments")
+    if isinstance(a, str):
+        try:
+            a = json.loads(a)
+        except Exception:
+            a = {}
+    return (d["name"], a if isinstance(a, dict) else {})
+
+
 def _parse(v):
     if isinstance(v, str):
         try:
@@ -360,7 +387,20 @@ def run_probe(base, model, spec, n, temp, chunk, max_tokens=3000):
             #   max_tokens에 잘리면 "텍스트=ASK"로 오분류되어 "호출 0/24"라는 **가짜 실패**가 만들어진다.
             #   실제로 dispatch 18/24가 이 경우였다(거래 23건 인자가 700토큰서 잘림). 별도 범주로 못 박는다.
             txt = m.get("content") or ""
-            if not tcs and ("<tool_call>" in txt or ch.get("finish_reason") == "length"):
+            rec = None if tcs else recover_text_call(txt)
+            if rec is not None:
+                rname, rargs = rec
+                if rargs is None:  # 이름만 건짐(잘림) — 인자 기반 분류 불가
+                    cnt[("TRUNC/PARSE", f"⚠️잘린 호출시도:{rname}")] += 1
+                    samples.append({"name": rname, "label": "TRUNC", "cat": "TRUNC/PARSE",
+                                    "finish": ch.get("finish_reason"), "text": txt[:300]})
+                    continue
+                label, cat = spec["cls"](rname, rargs, txt, ctx, spec["toolnames"])
+                cnt[(cat, label + "〔텍스트-복구〕")] += 1
+                samples.append({"name": rname, "label": label, "cat": cat, "recovered": True,
+                                "finish": ch.get("finish_reason"), "text": txt[:300]})
+                continue
+            if not tcs and (("<tool_call>" in txt) or ch.get("finish_reason") == "length"):
                 cnt[("TRUNC/PARSE", "⚠️호출시도 미파싱·잘림(계측결함)")] += 1
                 samples.append({"name": None, "label": "TRUNC/PARSE", "cat": "TRUNC/PARSE",
                                 "finish": ch.get("finish_reason"), "text": txt[:300]})
