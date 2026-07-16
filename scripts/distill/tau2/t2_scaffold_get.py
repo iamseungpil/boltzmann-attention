@@ -88,29 +88,27 @@ def apply():
         for tc in tool_calls:
             if getattr(tc, "name", None) in decls:
                 d = decls[getattr(tc, "name")]
-                # ★LLM이 formalize한 clean operand를 인자로 받음([[10]]). 엔진은 계산만·원시파싱 안함.
+                # ★LLM이 formalize한 clean operand(각 인자)를 ctx로([[10]]). 엔진은 op 실행만·원시파싱 안함.
                 _args = getattr(tc, "arguments", None) or {}
-                _raw = _args.get(d.get("records_arg", "transactions"))
-                if isinstance(_raw, str):
-                    try:
-                        _raw = json.loads(_raw)
-                    except Exception:
-                        _raw = None
-                if not isinstance(_raw, list):
-                    _txt = ("Error: provide '%s' as a JSON array; each element = "
-                            "{transaction_id, transaction_amount (number), rewards_earned (number of points), "
-                            "credit_card_type, category} read from the retrieved transactions."
-                            % d.get("records_arg", "transactions"))
-                    ours[id(tc)] = ToolMessage(id=tc.id, role="tool", requestor="assistant", error=True, content=_txt)
-                    print("[T2_SCAFFOLD_GET] %s: no clean operands (asked LLM to formalize)"
-                          % getattr(tc, "name"), file=_sys.stderr, flush=True)
-                else:
-                    ids = _c.apply_op(d.get("op"), {"records": _raw}) or []
-                    ids = [str(i) for i in ids if i]
-                    txt = d.get("return_template", "{ids}").format(ids=", ".join(ids) if ids else "(none)")
-                    ours[id(tc)] = ToolMessage(id=tc.id, role="tool", requestor="assistant", content=txt)
-                    print("[T2_SCAFFOLD_GET] %s -> %d ids (%s)"
-                          % (getattr(tc, "name"), len(ids), ",".join(ids[:6])), file=_sys.stderr, flush=True)
+                _ctx = {}
+                for _k, _v in (_args.items() if isinstance(_args, dict) else []):
+                    if isinstance(_v, str):
+                        try:
+                            _v = json.loads(_v)
+                        except Exception:
+                            pass
+                    _ctx[_k] = _v
+                _res = _c.apply_op(d.get("op"), _ctx)
+                if isinstance(_res, list):                    # 목록형(discrepancy ids)
+                    _res = [str(i) for i in _res if i]
+                    _txt = d.get("return_template", "{ids}").format(ids=", ".join(_res) if _res else "(none)")
+                    _n = len(_res)
+                else:                                         # 스칼라형(verdict 등)
+                    _txt = d.get("return_template", "{result}").format(result=_res if _res is not None
+                                                                       else d.get("missing_hint", "(could not compute — check your arguments)"))
+                    _n = _res
+                ours[id(tc)] = ToolMessage(id=tc.id, role="tool", requestor="assistant", content=_txt)
+                print("[T2_SCAFFOLD_GET] %s -> %s" % (getattr(tc, "name"), _n), file=_sys.stderr, flush=True)
             else:
                 rest.append(tc)
         rest_res = orig_exec(self, rest) if rest else []

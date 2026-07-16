@@ -185,6 +185,19 @@ def apply_op(spec, ctx):
         if op == "str_eq":
             a = _get(ctx, spec.get("a")); b = spec.get("b")
             return None if a is None else (str(a).strip().lower() == str(b).strip().lower())
+        if op == "count_field_matches":
+            # ★도메인일반: 두 dict(a,b)서 fields 각각 정규화 후 일치하는 개수. (verify=정책 2-of-N 대조·[[10]] leaf=LLM/read)
+            a = _get(ctx, spec.get("a")); b = _get(ctx, spec.get("b"))
+            if not isinstance(a, dict) or not isinstance(b, dict):
+                return 0
+            def _nm(x):
+                return re.sub(r"\s+", " ", str(x)).strip().lower()
+            n = 0
+            for f in (spec.get("fields") or []):
+                av, bv = a.get(f), b.get(f)
+                if av not in (None, "") and bv not in (None, "") and _nm(av) == _nm(bv):
+                    n += 1
+            return n
         if op == "case":
             # ★도메인일반 문자열-키 매핑(lookup_table의 문자열판). key(ref/op) → cases 매칭 → 값(op면 재귀).
             key = apply_op(spec.get("key"), ctx) if isinstance(spec.get("key"), dict) else _get(ctx, spec.get("key"))
