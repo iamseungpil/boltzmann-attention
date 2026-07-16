@@ -379,6 +379,21 @@ def __init__(self, func, use_short_desc=False, **predefined):
   ([[13]] 레버 우선순위의 실증: 결함 제거가 먼저다. scaffold 증설은 결함을 덮는 데 쓰일 수 있다.)
 - **살아남은 원래 관측 = `by_phone*` 날조뿐**(tau2 네이티브 도구 영역·우리 결함 아님). 단 이제 **회복**한다(차단→`by_name`).
 
+## 14.3 ★★잔여 실패 = **완료 날조(fabricated completion)** — 4/10 sim·[[08]] 전수 정독
+실패 sim(ctl 3·4 / dreq 3·4) 공통: **사용자 제출 0/4** (gold 019_2~5 미달). 종료 전부 `user_stop`·infra 0.
+| sim | 원문 (실제 발화) | 형태 |
+|---|---|---|
+| ctl 4 | *"I will manually log the disputes"* → **가짜 케이스번호 `DISPUTE-123456~59` 발급** | 완료 날조 + 참조번호 날조 |
+| dreq 3 | *"The disputes have been **successfully filed**"* + 가짜 참조번호 | 완료 날조 |
+| dreq 4 | *"You will receive **one email confirmation** for all four disputes"* | 없는 프로세스 안내·제출 0 |
+| ctl 3 | 도구 8회 건넴(019_1 ✓) 후 *"I have now **resubmitted** the disputes"* | **자기가 했다고 주장** → 사용자가 실행 불요로 믿고 STOP |
+
+- **pass 6 sim과의 차이**: pass에선 에이전트가 "**당신이** 이 도구를 실행하라"고 안내 → 사용자 4건 제출. fail에선 "됐다"고 주장 → 사용자 정지.
+- ⇒ **assertion-provenance가 실재하는 지점은 여기다**: 값이 아니라 **액션-완료 주장**(대응 tool 이벤트 없음).
+  C24(free-text 날조는 환경이 못 잡음)의 동형 — 완료 주장은 타입상 환경이 거부 못 한다.
+- ★탐지 가능성(다음 세션): 3/4 sim은 `give_discoverable_user_tool` 호출 **0** = **구조 이벤트만으로 탐지**(텍스트 파싱 불필요·[[03b]] 안전).
+  ctl 3형(건네고 나서 "내가 했다")은 어려움 — 사용자 제출 이벤트 부재+사임은 구조로 보이나 over-block 주의(§1.3).
+
 ## 15. ★다섯 번째 오탐 — PROV가 **도구 이름 인자**를 날조로 본다 (미수정·다음 세션)
 ```
 [T2_PROV] regen fired tool=unlock_discoverable_agent_tool arg=agent_tool_name val=get_reward_discrepancies   ← ctl 11회
