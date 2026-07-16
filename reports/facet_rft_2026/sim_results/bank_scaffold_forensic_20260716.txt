@@ -1,0 +1,224 @@
+SPEC eplan write_tools: ['file_credit_card_transaction_dispute', 'file_debit_card_transaction_dispute', 'submit_cash_back_dispute']
+dispatch_tool: call_discoverable_agent_tool | entity_key: transaction_id
+====================================================================================================
+
+### task_001  floor r=1.0 | fs r=1.0
+   floor term=user_stop nt=1 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+   fs    term=user_stop nt=1 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+
+### task_002  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=2 ep-writes=[(no ep-write)] walk=FIRE(n=5,m=0,unex=0)
+   fs    term=user_stop nt=1 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+
+### task_003  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=1 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+   fs    term=user_stop nt=1 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+
+### task_004  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=5 ep-writes=[(no ep-write)] walk=FIRE(n=2,m=0,unex=0)
+   fs    term=user_stop nt=4 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER'] walk=no-gap(n=1,m=0,unex=0)
+
+### task_005  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=6 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+   fs    term=user_stop nt=11 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER'] walk=no-gap(n=1,m=0,unex=0)
+
+### task_006  floor r=1.0 | fs r=0.0 <<< REGRESSION
+   floor term=user_stop nt=1 ep-writes=[(no ep-write)] walk=FIRE(n=5,m=0,unex=0)
+   fs    term=user_stop nt=1 ep-writes=[(no ep-write)] walk=FIRE(n=5,m=0,unex=0)
+
+### task_007  floor r=1.0 | fs r=1.0
+   floor term=user_stop nt=1 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+   fs    term=user_stop nt=3 ep-writes=[(no ep-write)] walk=FIRE(n=3,m=0,unex=0)
+
+### task_008  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=6 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=0)
+   fs    term=user_stop nt=3 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER', 'GB2_NOTICE_BEFORE_TRANSFER'] walk=FIRE(n=10,m=0,unex=0)
+
+### task_010  floor r=1.0 | fs r=0.0 <<< REGRESSION
+   floor term=user_stop nt=9 ep-writes=[(no ep-write)] walk=FIRE(n=4,m=0,unex=0)
+   fs    term=user_stop nt=9 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER'] walk=FIRE(n=4,m=0,unex=0)
+
+### task_012  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=2 ep-writes=[(no ep-write)] walk=FIRE(n=2,m=0,unex=0)
+   fs    term=user_stop nt=2 ep-writes=[(no ep-write)] walk=FIRE(n=2,m=0,unex=0)
+
+### task_014  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=2 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+   fs    term=user_stop nt=2 ep-writes=[(no ep-write)] walk=FIRE(n=2,m=0,unex=0)
+
+### task_015  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=2 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+   fs    term=user_stop nt=2 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+
+### task_016  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=8 ep-writes=[(no ep-write)] walk=FIRE(n=2,m=0,unex=0)
+   fs    term=user_stop nt=10 ep-writes=[(no ep-write)] walk=FIRE(n=4,m=0,unex=0)
+
+### task_017  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=8 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=0)
+   fs    term=user_stop nt=5 ep-writes=[(no ep-write)] walk=FIRE(n=7,m=0,unex=0)
+
+### task_018  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=5 ep-writes=[(no ep-write)] walk=FIRE(n=4,m=0,unex=0)
+   fs    term=user_stop nt=5 ep-writes=[(no ep-write)] walk=FIRE(n=4,m=0,unex=0)
+   >> floor가 실행한 非-ep 액션 중 fs에 없음: ['send_verification_code']
+
+### task_019  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=8 ep-writes=[submit_cash_back_dispute_0589@None[DENY]] walk=FIRE(n=6,m=0,unex=23)
+       DENY@24 submit_cash_back_dispute_0589 entity=? → L2(read-siblings)
+   fs    term=user_stop nt=11 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER', 'GB2_NOTICE_BEFORE_TRANSFER'] walk=FIRE(n=6,m=0,unex=23)
+   >> floor가 실행한 非-ep 액션 중 fs에 없음: ['submit_cash_back_dispute_0589']
+
+### task_020  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=4 ep-writes=[(no ep-write)] walk=FIRE(n=2,m=0,unex=0)
+   fs    term=user_stop nt=4 ep-writes=[(no ep-write)] walk=FIRE(n=2,m=0,unex=0)
+
+### task_021  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=12 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=17)
+   fs    term=user_stop nt=5 ep-writes=[(no ep-write)] gate-blocks=['GB1_VERIFY_BEFORE_ACCOUNT_ACCESS'] walk=FIRE(n=4,m=0,unex=0)
+   >> floor가 실행한 非-ep 액션 중 fs에 없음: ['update_transaction_rewards']
+
+### task_022  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=4 ep-writes=[(no ep-write)] walk=FIRE(n=4,m=0,unex=0)
+   fs    term=user_stop nt=6 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER'] walk=FIRE(n=4,m=0,unex=0)
+
+### task_023  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=5 ep-writes=[(no ep-write)] walk=FIRE(n=4,m=0,unex=0)
+   fs    term=user_stop nt=8 ep-writes=[(no ep-write)] gate-blocks=['GB1_VERIFY_BEFORE_ACCOUNT_ACCESS'] walk=FIRE(n=7,m=0,unex=0)
+   >> floor가 실행한 非-ep 액션 중 fs에 없음: ['send_verification_code_to_phone']
+
+### task_024  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=3 ep-writes=[(no ep-write)] walk=FIRE(n=2,m=0,unex=0)
+   fs    term=user_stop nt=4 ep-writes=[(no ep-write)] walk=FIRE(n=2,m=0,unex=0)
+
+### task_025  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=4 ep-writes=[(no ep-write)] walk=FIRE(n=5,m=0,unex=0)
+   fs    term=user_stop nt=2 ep-writes=[(no ep-write)] walk=FIRE(n=5,m=0,unex=0)
+
+### task_026  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=7 ep-writes=[(no ep-write)] walk=FIRE(n=4,m=0,unex=0)
+   fs    term=user_stop nt=2 ep-writes=[(no ep-write)] walk=FIRE(n=4,m=0,unex=0)
+
+### task_027  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=5 ep-writes=[(no ep-write)] walk=FIRE(n=4,m=0,unex=0)
+   fs    term=user_stop nt=5 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER'] walk=no-gap(n=1,m=0,unex=0)
+   >> floor가 실행한 非-ep 액션 중 fs에 없음: ['send_verification_code']
+
+### task_028  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=5 ep-writes=[(no ep-write)] walk=FIRE(n=4,m=0,unex=0)
+   fs    term=user_stop nt=13 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER', 'GB2_NOTICE_BEFORE_TRANSFER', 'GB2_NOTICE_BEFORE_TRANSFER'] walk=FIRE(n=4,m=0,unex=47)
+   >> floor가 실행한 非-ep 액션 중 fs에 없음: ['send_verification_code']
+
+### task_029  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=5 ep-writes=[(no ep-write)] walk=FIRE(n=2,m=0,unex=0)
+   fs    term=user_stop nt=6 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER'] walk=FIRE(n=4,m=0,unex=0)
+
+### task_031  floor r=None | fs r=None
+   floor term=infrastructure_error nt=0 ep-writes=[(no ep-write)] walk=n/a
+   fs    term=infrastructure_error nt=0 ep-writes=[(no ep-write)] walk=n/a
+
+### task_032  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=1 ep-writes=[(no ep-write)] walk=FIRE(n=2,m=0,unex=0)
+   fs    term=user_stop nt=3 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER'] walk=FIRE(n=2,m=0,unex=0)
+
+### task_033  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=2 ep-writes=[(no ep-write)] walk=FIRE(n=2,m=0,unex=0)
+   fs    term=user_stop nt=3 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER'] walk=FIRE(n=3,m=0,unex=0)
+
+### task_034  floor r=1.0 | fs r=1.0
+   floor term=user_stop nt=1 ep-writes=[(no ep-write)] walk=FIRE(n=3,m=0,unex=0)
+   fs    term=user_stop nt=2 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER'] walk=no-gap(n=1,m=0,unex=0)
+
+### task_035  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=3 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+   fs    term=user_stop nt=5 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER', 'GB2_NOTICE_BEFORE_TRANSFER', 'GB2_NOTICE_BEFORE_TRANSFER'] walk=FIRE(n=5,m=0,unex=0)
+
+### task_036  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=7 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=47)
+   fs    term=user_stop nt=10 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=47)
+
+### task_037  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=6 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=47)
+   fs    term=user_stop nt=7 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER'] walk=FIRE(n=2,m=0,unex=47)
+
+### task_038  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=6 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=47)
+   fs    term=user_stop nt=6 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=47)
+
+### task_039  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=6 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=57)
+   fs    term=user_stop nt=6 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=0)
+
+### task_040  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=13 ep-writes=[file_credit_card_transaction_dispute@trans_american_airlines[DENY], file_credit_card_transaction_dispute@trans_best_buy[DENY], file_credit_card_transaction_dispute@trans_peco_energy[DENY], file_credit_card_transaction_dispute@trans_spotify[DENY], file_credit_card_transaction_dispute@trans_uline[DENY], file_credit_card_transaction_dispute@trans_grainger[DENY], file_credit_card_transaction_dispute@trans_best_buy_business[DENY], file_credit_card_transaction_dispute@trans_comcast[DENY]] walk=FIRE(n=10,m=8,unex=0)
+       DENY@18 file_credit_card_transaction_dispute entity=trans_american_airlines → L1(list-first)
+       DENY@20 file_credit_card_transaction_dispute entity=trans_best_buy → L1(list-first)
+       DENY@22 file_credit_card_transaction_dispute entity=trans_peco_energy → L1(list-first)
+       DENY@24 file_credit_card_transaction_dispute entity=trans_spotify → L1(list-first)
+       DENY@28 file_credit_card_transaction_dispute entity=trans_uline → L1(list-first)
+       DENY@30 file_credit_card_transaction_dispute entity=trans_grainger → L1(list-first)
+       DENY@32 file_credit_card_transaction_dispute entity=trans_best_buy_business → L1(list-first)
+       DENY@34 file_credit_card_transaction_dispute entity=trans_comcast → L1(list-first)
+   fs    term=user_stop nt=14 ep-writes=[file_credit_card_transaction_dispute@T123456789[DENY], file_credit_card_transaction_dispute@T987654321[DENY], file_credit_card_transaction_dispute@T567890123[DENY], file_credit_card_transaction_dispute@T345678901[DENY], file_credit_card_transaction_dispute@B123456789[DENY], file_credit_card_transaction_dispute@B987654321[DENY], file_credit_card_transaction_dispute@B567890123[DENY], file_credit_card_transaction_dispute@B345678901[DENY]] walk=FIRE(n=10,m=8,unex=0)
+       DENY@22 file_credit_card_transaction_dispute entity=T123456789 → L1(list-first)
+       DENY@24 file_credit_card_transaction_dispute entity=T987654321 → L1(list-first)
+       DENY@26 file_credit_card_transaction_dispute entity=T567890123 → L1(list-first)
+       DENY@28 file_credit_card_transaction_dispute entity=T345678901 → L1(list-first)
+       DENY@30 file_credit_card_transaction_dispute entity=B123456789 → L1(list-first)
+       DENY@32 file_credit_card_transaction_dispute entity=B987654321 → L1(list-first)
+       DENY@34 file_credit_card_transaction_dispute entity=B567890123 → L1(list-first)
+       DENY@36 file_credit_card_transaction_dispute entity=B345678901 → L1(list-first)
+
+### task_041  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=24 ep-writes=[file_credit_card_transaction_dispute@delta_flight_10082025[DENY], file_credit_card_transaction_dispute@apple_store_10152025[DENY], file_credit_card_transaction_dispute@amazon_10052025[DENY], file_credit_card_transaction_dispute@xfinity_10282025[DENY], file_credit_card_transaction_dispute@coinbase_10122025[DENY], file_credit_card_transaction_dispute@best_buy_10222025[DENY], file_credit_card_transaction_dispute@newegg_10252025[DENY], file_credit_card_transaction_dispute@netflix_11012025[DENY], file_credit_card_transaction_dispute@patagonia_10102025[DENY], file_credit_card_transaction_dispute@rei_coop_10182025[DENY], file_credit_card_transaction_dispute@whole_foods_10022025[DENY], file_credit_card_transaction_dispute@tesla_supercharger_10302025[DENY], file_credit_card_transaction_dispute@staples_10142025[DENY], file_credit_card_transaction_dispute@dell_technologies_10242025[DENY], file_credit_card_transaction_dispute@att_business_11022025[DENY]] walk=no-gap(n=10,m=15,unex=0)
+       DENY@18 file_credit_card_transaction_dispute entity=delta_flight_10082025 → L1(list-first)
+       DENY@26 file_credit_card_transaction_dispute entity=apple_store_10152025 → L1(list-first)
+       DENY@30 file_credit_card_transaction_dispute entity=amazon_10052025 → L1(list-first)
+       DENY@34 file_credit_card_transaction_dispute entity=xfinity_10282025 → L1(list-first)
+       DENY@40 file_credit_card_transaction_dispute entity=coinbase_10122025 → L1(list-first)
+       DENY@44 file_credit_card_transaction_dispute entity=best_buy_10222025 → L1(list-first)
+       DENY@48 file_credit_card_transaction_dispute entity=newegg_10252025 → L1(list-first)
+       DENY@52 file_credit_card_transaction_dispute entity=netflix_11012025 → L1(list-first)
+       DENY@58 file_credit_card_transaction_dispute entity=patagonia_10102025 → L1(list-first)
+       DENY@62 file_credit_card_transaction_dispute entity=rei_coop_10182025 → L1(list-first)
+       DENY@66 file_credit_card_transaction_dispute entity=whole_foods_10022025 → L1(list-first)
+       DENY@70 file_credit_card_transaction_dispute entity=tesla_supercharger_10302025 → L1(list-first)
+       DENY@76 file_credit_card_transaction_dispute entity=staples_10142025 → L1(list-first)
+       DENY@82 file_credit_card_transaction_dispute entity=dell_technologies_10242025 → L1(list-first)
+       DENY@84 file_credit_card_transaction_dispute entity=att_business_11022025 → L1(list-first)
+   fs    term=user_stop nt=10 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=0)
+   >> floor가 실행한 非-ep 액션 중 fs에 없음: ['file_credit_card_transaction_dispute']
+
+### task_043  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=21 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=0)
+   fs    term=user_stop nt=7 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER', 'GB2_NOTICE_BEFORE_TRANSFER'] walk=no-gap(n=1,m=0,unex=0)
+   >> floor가 실행한 非-ep 액션 중 fs에 없음: ['pay_credit_card_from_checking']
+
+### task_044  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=7 ep-writes=[(no ep-write)] walk=FIRE(n=8,m=0,unex=0)
+   fs    term=user_stop nt=7 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+
+### task_045  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=6 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+   fs    term=user_stop nt=5 ep-writes=[(no ep-write)] gate-blocks=['GB2_NOTICE_BEFORE_TRANSFER'] walk=no-gap(n=1,m=0,unex=0)
+
+### task_046  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=7 ep-writes=[(no ep-write)] walk=FIRE(n=4,m=0,unex=0)
+   fs    term=user_stop nt=5 ep-writes=[(no ep-write)] walk=no-gap(n=1,m=0,unex=0)
+
+### task_049  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=16 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=0)
+   fs    term=user_stop nt=13 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=0)
+   >> floor가 실행한 非-ep 액션 중 fs에 없음: ['pay_credit_card_from_checking']
+
+### task_052  floor r=0.0 | fs r=0.0
+   floor term=user_stop nt=11 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=0)
+   fs    term=user_stop nt=8 ep-writes=[(no ep-write)] walk=FIRE(n=10,m=0,unex=0)
+
+====================================================================================================
+=== 집계 ===
+E-PLAN dispute-write가 등장한 태스크: 3/43
+dispute-write DENY (재구성): floor 24 · fs 8
+CP5 walk FIRE (재구성): floor 31 · fs 30
+gate POLICY 블록(궤적 committed): floor 0 · fs 25
+회귀(floor pass→fs fail): 2 ['task_006', 'task_010']
