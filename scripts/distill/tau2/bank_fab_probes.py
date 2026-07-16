@@ -380,8 +380,12 @@ def build_probes(sims, tools, policy, a2, tools_hint):
 
     # ★A2 설명-레버 arm (단일변수 = 도구 설명 문구) — [[13]] "학습 前에 싼 레버부터" 판정용.
     #   닫히면 = learn 표적 아님(A2 한 줄) / 안 닫히면 = **진짜 learn 표적**(논문 코어 근거·[[42]]).
+    # ⚠️`dispatch_hint`는 **천장 효과**라 무의미했다(2026-07-18): prior 미발동 조건(cut=18·producer 88%)서
+    #   쟀으니 올릴 여지가 없었다. **진짜 시험 = `dispatch_afterkb_hint`**(KB가 prior를 심은 조건서 되돌리나).
     for src, dst, why in (("record", "record_hint", "record=조회-복사 구성지시"),
-                          ("dispatch", "dispatch_hint", "producer=직접호출 구성지시"),
+                          ("dispatch", "dispatch_hint", "producer=직접호출 구성지시(⚠️천장효과)"),
+                          ("dispatch_afterkb", "dispatch_afterkb_hint",
+                           "★KB가 심은 unlock-prior를 A2 설명이 되돌리나"),
                           ("discreq_arm", "discreq_arm_hint", "DISCREQ + 직접호출 구성지시")):
         P[dst] = dict(conv=P[src]["conv"], cls=P[src]["cls"], toolnames=toolnames,
                       tools=tools_hint, desc=f"[{src} + A2설명레버] {why}")
@@ -554,6 +558,7 @@ def main():
     pr("  API 강제(tool_choice=required)", "discreq_arm", "discreq_arm_forced", "ok")
     pr("  프롬프트 형식-지시", "discreq_arm", "discreq_arm_form", "ok")
     pr("★행9 조건부 prior (producer 직접호출)", "dispatch", "dispatch_afterkb", "ok")
+    pr("★KB-prior를 A2 설명이 되돌리나", "dispatch_afterkb", "dispatch_afterkb_hint", "ok")
     print("\n★A2 설명-레버 (닫히면 learn 불요·안 닫히면 learn 표적)")
     pr("record 날조율", "record", "record_hint", "fab")
     pr("dispatch 직접호출", "dispatch", "dispatch_hint", "ok")
