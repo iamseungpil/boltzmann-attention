@@ -2736,6 +2736,61 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
                               file=_sys.stderr, flush=True)
                     break
+        # (a1) write-provenance — **완료-주장 게이트**(③형·2026-07-17 사용자 제안: "출력도 출처를 밝혀라").
+        #   C45(입력 출처선언)의 출력측 쌍대: 완료를 주장하려면 근거 이벤트가 원장에 있어야 한다.
+        #   ③형의 급소 = pass("당신이 실행하라")와 fail("내가 제출했다")이 **구조 동일·말만 다름** →
+        #   LLM이 자기 답변의 완료-주장을 **이진 선언**(formalize·[[10]])하고, 엔진은 선언 구조체 +
+        #   결정론 원장(사용자-requestor 실행 이벤트 수)만 검증. 답변 텍스트 파싱 0([[03b]]).
+        #   좁은 창: follow_up 도구 호출됨 ∧ 사용자 실행 0 ∧ 사임. 상한 1/sim. 문구=A2.
+        if (os.environ.get("T2_WRITE_PROV") == "1" and _resign
+                and not getattr(self, "_t2_writeprov", 0)):
+            for _d1 in ((a2 or {}).get("scaffold_get_tools") or []):
+                _fu1 = _d1.get("follow_up") or {}
+                _cg = _fu1.get("completion_guard") or {}
+                _ft1, _ut = _fu1.get("tool"), _cg.get("user_execution_tool")
+                if not (_ft1 and _ut and _cg.get("claim_question") and _cg.get("feedback")):
+                    continue
+                if _ft1 not in _called_tools(state.messages):
+                    continue
+                _uexec = 0
+                for _m1 in state.messages:
+                    for _tc1 in (getattr(_m1, "tool_calls", None) or []):
+                        if (getattr(_tc1, "name", None) == _ut
+                                and getattr(_tc1, "requestor", "assistant") == "user"):
+                            _uexec += 1
+                if _uexec > 0:
+                    continue                      # 사용자가 실제 실행함 → 완료 주장 가능성 정당
+                _claims = None
+                try:
+                    try:
+                        _dm1 = _gen(self, work + [am, UserMessage(role="user", content=_cg["claim_question"])],
+                                    bw(), "agent_writeprov")
+                    except TypeError:
+                        _dm1 = _gen(self, work + [am, UserMessage(content=_cg["claim_question"])],
+                                    bw(), "agent_writeprov")
+                    for _ln in (getattr(_dm1, "content", None) or "").splitlines():
+                        _ln = _ln.strip().rstrip(",")
+                        if _ln.startswith("{") and _ln.endswith("}"):
+                            try:
+                                _j = json.loads(_ln)
+                                if isinstance(_j, dict) and "claims_completion" in _j:
+                                    _claims = bool(_j["claims_completion"])
+                            except Exception:
+                                pass
+                except Exception as _we:
+                    print("[T2_WRITEPROV] declaration failed (no-op): %r" % (_we,),
+                          file=_sys.stderr, flush=True)
+                print("[T2_WRITEPROV] window hit follow_up=%s user_execs=0 declared=%s"
+                      % (_ft1, _claims), file=_sys.stderr, flush=True)
+                if _claims:
+                    self._t2_writeprov = getattr(self, "_t2_writeprov", 0) + 1
+                    _new1 = _ap_regen(_cg["feedback"], "writeprov")
+                    if _new1 is not None:
+                        am = _new1
+                        print("[T2_WRITEPROV] regen tool_calls=%s"
+                              % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
+                              file=_sys.stderr, flush=True)
+                break
         # (a) discovery-required — 엔진이 보는 것: {호출된 도구 이름}뿐.
         if (os.environ.get("T2_DISCOVERY_REQUIRED") == "1" and (a2 or {}).get("analysis_producers")
                 and _resign and not getattr(self, "_t2_discreq", 0)):

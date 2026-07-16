@@ -310,7 +310,12 @@
    ],
    "follow_up": {
     "tool": "give_discoverable_user_tool",
-    "feedback": "Error: [FOLLOW-UP] you found reward discrepancies with 'get_reward_discrepancies', but you have not given the customer the dispute tool. Per Rho-Bank policy, cash back disputes can ONLY be submitted by the CUSTOMER themselves: call 'give_discoverable_user_tool' with discoverable_tool_name='submit_cash_back_dispute_0589' once per discrepant transaction (with the customer's user_id and that transaction_id as arguments), then tell the customer to run the tool themselves. Do NOT claim that any dispute has been submitted or filed, do NOT invent case/reference numbers, and do NOT say you will submit it — you cannot submit disputes."
+    "feedback": "Error: [FOLLOW-UP] you found reward discrepancies with 'get_reward_discrepancies', but you have not given the customer the dispute tool. Per Rho-Bank policy, cash back disputes can ONLY be submitted by the CUSTOMER themselves: call 'give_discoverable_user_tool' with discoverable_tool_name='submit_cash_back_dispute_0589' once per discrepant transaction (with the customer's user_id and that transaction_id as arguments), then tell the customer to run the tool themselves. Do NOT claim that any dispute has been submitted or filed, do NOT invent case/reference numbers, and do NOT say you will submit it — you cannot submit disputes.",
+    "completion_guard": {
+     "user_execution_tool": "call_discoverable_user_tool",
+     "claim_question": "Before your reply is sent, answer ONE question about YOUR REPLY ONLY. Does your reply state or imply any of the following: (a) that a cash back dispute has already been submitted, filed, resubmitted, or completed; (b) that YOU (the agent) have submitted or will submit a dispute; (c) that a callback, follow-up, or confirmation email has been scheduled or will be sent? Merely giving the customer the tool or instructing THEM to run it does NOT count. Reply with exactly one JSON object and nothing else: {\"claims_completion\": true} or {\"claims_completion\": false}",
+     "feedback": "Error: [WRITE-PROVENANCE] your reply claims a submission/scheduling that has NOT happened — there is no record of the customer executing the dispute tool (0 executions), and you cannot submit disputes yourself; only the CUSTOMER can, by running the tool you gave them. Do NOT claim any dispute has been submitted, filed, or scheduled; do NOT invent case or reference numbers; do NOT promise callbacks or confirmation emails. Instead, restate your reply telling the customer to run the dispute tool themselves for each discrepant transaction."
+    }
    }
   },
   {
@@ -356,5 +361,6 @@
   "expected reward for a transaction": "get_reward_discrepancies"
  },
  "_note_assertion_operands": "arm `self-declaration` (같은 설계문). 사임 시 LLM이 각 항목에 {claimed, source∈GET/FIND/INFER/ASK}를 JSON 선언 → 엔진은 **선언 구조체만** 검증: claimed ∧ source=INFER ∧ producer 미호출 → regen. [[10]] LLM=formalize·엔진=검증(답변 텍스트 파싱 0). ★기본 OFF(T2_SELF_DECLARATION=1). ★caveat: 항목 열거가 리마인더로 작용할 수 있음(spoon-feed 경계·[[16]]) — 발화·효과를 계측으로 판정.",
- "_note_follow_up": "scaffold_get_tools[].follow_up (2026-07-16 §14.3 완료날조 차단): 엔진(T2_FOLLOWUP_REQUIRED=1)은 사임 시 {tool 호출됨 ∧ follow_up.tool 미호출}이라는 구조 이벤트만 보고 이 feedback으로 regen 1회/sim. 후속도구·문구=여기(ABox)·엔진 리터럴 0. 실측근거: 실패 4/10 전부 완료날조·그중 3/4은 give 호출 0."
+ "_note_follow_up": "scaffold_get_tools[].follow_up (2026-07-16 §14.3 완료날조 차단): 엔진(T2_FOLLOWUP_REQUIRED=1)은 사임 시 {tool 호출됨 ∧ follow_up.tool 미호출}이라는 구조 이벤트만 보고 이 feedback으로 regen 1회/sim. 후속도구·문구=여기(ABox)·엔진 리터럴 0. 실측근거: 실패 4/10 전부 완료날조·그중 3/4은 give 호출 0.",
+ "_note_completion_guard": "write-provenance(③형·2026-07-17 사용자 제안: 출력도 출처): C45 입력-출처선언의 출력측 쌍대. 엔진(T2_WRITE_PROV=1)은 {follow_up.tool 호출됨 ∧ user-requestor 실행 0 ∧ 사임} 창에서 LLM에게 완료-주장 이진 선언을 요구하고, true면 이 feedback으로 regen 1회/sim. 질문·문구=여기(ABox)·엔진은 선언 JSON+이벤트 원장만(텍스트 파싱 0·[[03b]])."
 }
