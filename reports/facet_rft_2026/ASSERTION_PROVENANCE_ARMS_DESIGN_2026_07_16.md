@@ -222,15 +222,25 @@ t019g→dreq 사이에 **user-sim(mini→5.2)** 과 **§7 requestor 버그픽스
 | msg | 사건 | 판정 |
 |---|---|---|
 | `[25]` | 거래 23건 읽음 | — |
-| **`[26]`** | **DISCREQ 발화 → 에이전트: _"I see, thank you for pointing that out. … I need to use the `get_reward_discrepancies` tool"_** | ★**arm이 도구 선택을 샀다** (이전: 눈대중 "이상 없음") |
+| **`[26]`** | **DISCREQ 발화 → 에이전트: _"I see, thank you for pointing that out. … I need to use the `get_reward_discrepancies` tool"_** | ⚠️**arm이 산 것 = *언급*이지 *호출*이 아니다** — **producer 실호출 = 0/5**(dreq 완주·DISCREQ 3발화). 이전(눈대중 "이상 없음")과는 다르나 **선택을 샀다는 서술은 과장**(자기교정 2026-07-16) |
 | `[26]` 이어서 | _"However, this tool **requires specific transaction IDs**. Could you please **provide the transaction IDs**?"_ | ☒**operand formalize 실패** — 방금 읽은 23건을 인자로 안 넘기고 **사용자에게 요구** |
 | `[29]` | **user-sim(gpt-5.2)이 직접 불일치를 계산** — _"txn_f093f96e2001 (Thrive Market, $175, Green) — rewards show 175 points, but other Green…"_ | ☒**과제를 사용자가 수행**(페르소나 *"Don't diagnose the problem yourself"* 위반) |
 | `[34-38]` | 사용자가 찾아준 **3건**으로 dispute 도구 제공 | 부분 |
 | `[39-44]` | **사용자가 3건 제출 성공**(`dsp_…` 3개) | gold 019_2·3·5류 부분 달성 |
 | — | **gold는 4건**(`txn_f093f96e2001·580773a8649e·d398545ca1a2·37b5b8e67a5e`) → **3/4** | ⇒ **reward 0 = coverage(F4) 미달** |
 
-**⇒ 실패 사슬(정본)**: `arm이 선택을 삼` → **인자 formalize 실패** → `사용자에게 떠넘김` → `user-sim이 눈대중 3/4` → `coverage 미달` → **0점**.
-- ⇒ **"reward 도구 미선택"은 더 이상 잔여가 아니다**(arm이 삼). **새 잔여 = [[10]] 경계의 LLM 몫(원시 leaf→operand)을 32B가 못 함.**
+**⇒ 실패 사슬(정본)**: `DISCREQ 발화` → **에이전트가 도구를 *말로만* 지목** → `인자 formalize 실패` → `사용자에게 떠넘김`
+→ `user-sim이 눈대중 3/4` → `coverage 미달` → **0점**.
+
+### 9.1d ★★자기교정: "arm이 선택을 샀다"는 **과장** (dreq 완주 수치)
+`bank_dreq_20260716_2140` 완주: **n=5 · reward 0/5 · DISCREQ fired 3 · `get_reward_discrepancies` 실호출 0**.
+- ⇒ arm이 산 것은 **언급(verbalization)**뿐. **호출은 0.** §9.1c 초안의 "선택을 샀다"를 철회한다.
+- ★**대칭 관측 — knowing ↔ doing 괴리가 양방향으로 나타난다**:
+  - `by_phone`: **"그 도구는 없다"고 말하고 → 그 도구를 부른다**(sim1 `[20][24]`→`[22][28]`)
+  - `get_reward_discrepancies`: **"이 도구를 써야 한다"고 말하고 → 안 부른다**(sim2 `[26]`)
+  ⇒ **언어화된 지식이 행동을 통제하지 못한다**가 이 도메인 잔여의 통일 서술. 프롬프트·설명·피드백은 전부 *언어* 층이므로
+  이 층에서 못 닫는다는 예측과 정합(C30/C47/[[42]]).
+- ⇒ **새 잔여 = [[10]] 경계의 LLM 몫(원시 leaf→operand)** + **언어↔행동 괴리**. 둘의 분리는 §10 op/operand 프로브가 판정.
 - ⇒ 우리 A2 `params.transactions` 설명(*"A JSON array … that you read from the transaction records"*)이 명시하는데도
   "고객이 ID를 줘야 한다"로 오독 ⇒ **또 prompt 천장**(C30/[[42]]).
 - ⚠️ n=1 sim · **[P]**. arm 효과 주장은 ctl 대조 도착 後 확정.
