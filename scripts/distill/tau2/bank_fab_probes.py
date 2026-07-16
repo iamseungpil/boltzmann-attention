@@ -100,6 +100,55 @@ HINT_PRODUCER_SUFFIX = (" This tool is ALREADY in your tool list: call it direct
                         "unlocking a discoverable tool are for other tools, not this one.")
 
 
+def prov_regen_replay(base, model, spec, temp):
+    """★게이트-유발 이동 측정: 엔진의 PROV 검증기·피드백을 **그대로** 오프라인 재생.
+    1) 접두서 1샘플 → 2) 엔진 `_provenance_deny`가 날조 인자를 잡으면 → 3) 엔진 `REGEN_FEEDBACK`을
+    붙여 재샘플 → 4) 재샘플을 분류. 라이브 regen 루프와 동형(문구·탐지기 전부 엔진 정본 재사용).
+    반환 = (1차 라벨, 2차 라벨) — 1차는 게이트 前·2차는 게이트 後 = **레버의 인과 효과**.
+    근거: kon 라이브 로그 `[T2_PROV] regen fired tool=log_verification arg=name val=John Doe` ×2."""
+    from t2_gate_patch import _first_fab_call, REGEN_FEEDBACK, DEFAULT_ARG_HINTS
+
+    class _TC:  # _first_fab_call이 기대하는 최소 인터페이스 (name/arguments)
+        def __init__(self, name, args):
+            self.name, self.arguments = name, args
+
+    class _AM:
+        def __init__(self, tcs):
+            self.tool_calls = tcs
+
+    r = post(base, {"model": model, "messages": spec["conv"], "tools": spec["tools"],
+                    "temperature": temp, "max_tokens": 700, "n": 1})
+    m = r["choices"][0]["message"]
+    tcs = m.get("tool_calls") or []
+    if not tcs:
+        return ("1차:텍스트", None, None)
+    f0 = tcs[0]["function"]
+    try:
+        args = json.loads(f0.get("arguments") or "{}")
+    except Exception:
+        args = {}
+    if not isinstance(args, dict):
+        args = {}
+    ctx = ctx_text(spec["conv"]).lower()
+    fab = _first_fab_call(_AM([_TC(f0["name"], args)]), ctx, DEFAULT_ARG_HINTS)
+    if fab is None:
+        return (f"1차:{f0['name']}(날조 아님)", None, None)
+    _tc, k, s = fab
+    conv2 = spec["conv"] + [
+        {"role": "assistant", "content": None,
+         "tool_calls": [{"id": "p0", "type": "function",
+                         "function": {"name": f0["name"], "arguments": json.dumps(args)}}]},
+        {"role": "user", "content": REGEN_FEEDBACK.format(k=k, s=s)},
+    ]
+    r2 = post(base, {"model": model, "messages": conv2, "tools": spec["tools"],
+                     "temperature": temp, "max_tokens": 700, "n": 1})
+    m2 = r2["choices"][0]["message"]
+    tcs2 = m2.get("tool_calls") or []
+    n2 = tcs2[0]["function"]["name"] if tcs2 else None
+    lab2, cat2 = cls_toolname(n2, {}, m2.get("content") or "", ctx, spec["toolnames"])
+    return (f"1차:{f0['name']}(날조 {k}={s})", lab2, cat2)
+
+
 def discreq_feedback(a2):
     """엔진 정본 문구를 그대로 재사용(리터럴 중복 금지) — t2_gate_patch.DISCREQ_FEEDBACK + A2 사실."""
     from t2_gate_patch import DISCREQ_FEEDBACK
@@ -346,6 +395,40 @@ def main():
                                                        ][0]["description"] + HINT_PRODUCER_SUFFIX}})
     P = build_probes(sims, tools, policy, a2, tools_hint)
     names = list(P) if a.probe == "all" else [x for x in a.probe.split(",") if x in P]
+
+    # ★게이트-유발 이동 재생(별도 모드): persev_d4 접두서 1차 emit → PROV 날조검출 → REGEN → 2차 분류.
+    if a.probe == "prov_reloc":
+        spec = P["persev_d4"]
+        print(f"\n===== [prov_reloc] n={a.n} T={a.temp} · {spec['desc']}\n"
+              f"      1차(게이트 前) → PROV regen 피드백 → 2차(게이트 後) 분류", flush=True)
+        c1, c2 = Counter(), Counter()
+        for _ in range(a.n):
+            try:
+                l1, l2, cat2 = prov_regen_replay(a.base, a.model, spec, a.temp)
+            except Exception as e:
+                print("  err:", repr(e)[:140], file=sys.stderr, flush=True)
+                c1[("ERR", "err")] += 1
+                continue
+            c1[("1차", l1)] += 1
+            if l2 is not None:
+                c2[(cat2, l2)] += 1
+        print("\n-- 1차(게이트 前) --")
+        for (_, l), v in c1.most_common():
+            print(f"  {v:3d}  {l}")
+        print("-- 2차(PROV regen 後) --")
+        for (c, l), v in c2.most_common():
+            print(f"  {v:3d}  [{c}] {l}")
+        tot2 = sum(c2.values())
+        fab2 = sum(v for (c, _), v in c2.items() if c == "FAB")
+        print(f"\n★게이트-유발 이동: PROV regen 後 도구명 날조 {fab2}/{tot2}"
+              f" = {100*fab2/max(tot2,1):.0f}%  (게이트 前 동일지점 날조율 = persev_d4 참조)")
+        if a.out:
+            json.dump({"first": {l: v for (_, l), v in c1.items()},
+                       "second": {f"{c}|{l}": v for (c, l), v in c2.items()},
+                       "fab2": fab2, "tot2": tot2},
+                      open(a.out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+            print(f"saved: {a.out}")
+        return
 
     out = {}
     for nm in names:
