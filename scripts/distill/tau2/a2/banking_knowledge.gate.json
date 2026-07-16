@@ -317,7 +317,7 @@
    "name": "verify_identity",
    "description": "USE THIS to check whether a customer's identity is verified before accessing their account, per Rho-Bank policy: at least 2 of {date_of_birth, address, phone_number, email} they PROVIDED must match their account record (full name or user ID alone is NOT enough). You can only look up a customer by NAME, EMAIL, or USER ID — there is NO lookup by phone or DOB, so if the customer only gave a phone/DOB, ASK them for their name, email, or user ID first, then call get_user_information_by_name/by_email/by_id to fetch the record, and finally call this tool. It tells you VERIFIED or NOT_VERIFIED.",
    "params": {
-    "provided": "JSON object of the identity values the CUSTOMER gave you, using these keys where available: date_of_birth, address, phone_number, email.",
+    "provided": "JSON object of ALL identity values the customer has given you at ANY point in this conversation — accumulate across turns and NEVER drop one they gave earlier. Keys where available: date_of_birth, address, phone_number, email. Example: if they gave their phone number three turns ago and their date of birth just now, pass BOTH.",
     "record": "JSON object of the customer's ACCOUNT RECORD you retrieved (via get_user_information_by_name/email/id), using the same keys: date_of_birth, address, phone_number, email."
    },
    "op": {

@@ -421,11 +421,34 @@ def __init__(self, func, use_short_desc=False, **predefined):
 - **§15 수정 효과 동반 확인**: PROV 반려 0~1 (수정 전 11).
 
 ### 16.2 ⚠️정직 한계
-- **n=4 점추정·변량 큼**: 같은 ctl-스택이 2230 런선 3/5, nt=4선 0/4 — 런 간 지배 변동원은 **검증 벽 통과 여부**(확률적).
-  Δ=+2는 [P]. 레버 *기전*은 확증(발화→give→pass 사슬), *효과 크기*는 미확정.
-- fup 실패 2건은 전부 상류(검증 벽) — 레버 소관 밖. **다음 pass 병목 = 검증 벽의 확률적 실패**
-  (by_phone 고집→조기 이관 / verify_identity 인자 오류 반복). C103 키스톤(대안 가시성)과 같은 지점.
-- ctl sim3(=③형: give 8회에도 제출 0)은 레버로 안 잡힘(give는 있었음) — 완료날조의 "건네고 내가 했다 주장" 변형·기존 §14.3 한계 그대로.
+- **n=4 점추정·변량 큼**: 같은 ctl-스택이 2230 런선 3/5, nt=4선 0/4. Δ=+2는 [P].
+  레버 *기전*은 확증(발화→give→pass 사슬), *효과 크기*는 미확정.
+- ctl sim3(=③형: give 8회에도 제출 0)은 레버로 안 잡힘(give는 있었음) — "건네고 내가 했다 주장" 변형·§14.3 한계 그대로.
+
+### 16.3 ★★fup 실패 2건 per-step 확정 — "확률적 검증벽"은 **오분류**·둘 다 기전적 (2026-07-17·[[08]] 원문 전독)
+> §16.2 초판의 "확률적 실패" 서술을 **철회**. per-step 정독(`bank_nt4_fail_perstep.py`)이 정확한 기전 2개를 확정.
+
+**sim1 = ★신규 유형: 턴 간 인자 누적(union) 실패** — 도구 선택 ✓·형식 ✓·**operand 구성만 오류**:
+| msg | 사건 |
+|---|---|
+| `[11]` | 사용자 **phone** 제공 → `[12]` `verify_identity(provided={name, phone})` = factor 1 → NOT_VERIFIED (**도구 판정 정당**) |
+| `[17]` | 사용자 **dob** 제공 → `[18]` `provided={name, dob}` — **`[11]`의 phone을 버림** → factor 1 → NOT_VERIFIED |
+| — | `[17]` 시점 **phone+dob=2 factor 충족** — `provided` union이면 **VERIFIED**였다 |
+| `[24-32]` | 존재하지 않는 **콜백 예약을 날조**(*"They will be in touch tomorrow 1-4 PM CT"*) → 이관 — **완료 날조의 프로세스-변형** |
+
+**sim0 = 관측 B 재발 + 2-of-4 자기모순 판정**:
+| msg | 사건 |
+|---|---|
+| `[5]` | 사용자 **dob+phone** 제공(=2 factor 이미 충족) → `[8]` `by_phone_number` 날조 → 차단 |
+| `[11]` | 사용자 **name** 제공(=조회 key 확보) → **`get_user_information_by_name` 끝내 미호출**(관측 B 재발) |
+| `[12]` | *"we typically need two pieces … you've already provided your dob and phone"* 라고 **스스로 2개 충족을 언어화**하고도 email/address를 **추가 요구** — **규칙+사실을 말로 다 맞히고 행동 판정만 틀림**(knowing↔doing in-band 3번째 사례) |
+
+**⇒ 공통 기전 = 대화-누적 상태의 집계 실패**(sim1=인자 union·sim0=factor 카운트) + 조기 이관(F5 인접).
+**조치**: A2 `provided` 설명이 누적을 명시하지 않았음 발견(*"the identity values the CUSTOMER gave you"*) →
+**"ALL … at ANY point in this conversation — accumulate across turns"로 교정**(이번 커밋). 근거: 같은 도메인서
+긍정형 operand-구성 지시(`transactions` "copied as-is·Do NOT compute")는 **10/10 준수** — 금지문(무효·C30/C47)과 달리
+**구성 지시는 도달하면 작동**이 이 세션 실측. sim0의 카운트-자기모순은 설명으로 안 닫힐 수 있음(§17 후보: verify_identity가
+NOT_VERIFIED 시 **어느 factor가 몇 개 일치했는지** 반환 — 결정론·A2 리터럴0·계산을 도구가 대신).
 
 ## 6. Caveat (정직)
 - t019g = **n=3 × gpt-4.1-mini** = robust 측정 아님·**메커니즘 관측**. reward도구 0선택만 3/3 일관 + 원문 정독으로 견고.
