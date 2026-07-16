@@ -2288,6 +2288,43 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 am.content = (am.content or "") + _BLOCK_NOTE + " (" + note + ")"
                 self._t2_gate_strips = getattr(self, "_t2_gate_strips", 0) + 1
                 print("[T2_UNIFIED] R8 strip: %s" % note[:140], file=_sys.stderr, flush=True)
+        # ★EXHAUSTION→FAIL (T2_FAB_STRIP=1·BANK_IMPL_REDESIGN §2·2026-07-16):
+        #   regen 소진 후에도 근거 없는(id-operand ∉ctx) WRITE 호출 = pass-through 금지 → strip + abstain.
+        #   (C12 "id 날조는 env가 거부" 가정이 banking 디스패처 dispute엔 불성립=날조 txn이 reward0로 통과.)
+        #   read/procedural=무해(strip 안함)·over-block 방지=id-operand가 ctx에 없는 write만·디스패처 nested unwrap.
+        if os.environ.get("T2_FAB_STRIP") == "1" and getattr(am, "tool_calls", None):
+            _RDP = re.compile(r"^(get|search|list|lookup|find|retrieve|read|view|check)_", re.I)
+            _PRC = re.compile(r"(^log_|_verification$|^kb_|^shell$|discoverable|transfer_to_human|^give_|^unlock_|get_current_time)", re.I)
+            def _fab_write_ungrounded(tc):
+                nm = getattr(tc, "name", "") or ""
+                ar = _args_dict(tc)
+                inner = ar.get("agent_tool_name") or ar.get("user_tool_name") or ""
+                eff = re.sub(r"_\d+$", "", str(inner or nm))
+                if not eff or _RDP.match(eff) or _PRC.search(eff):
+                    return False  # read/procedural = 무해
+                sub = ar.get("arguments")
+                if isinstance(sub, str):
+                    try:
+                        sub = json.loads(sub)
+                    except Exception:
+                        sub = {}
+                d = sub if isinstance(sub, dict) else ar
+                for k, v in (d or {}).items():
+                    if not any(h in k.lower() for h in hints):
+                        continue  # id-like 인자만
+                    for val in _flatten(v):
+                        s = str(val).strip()
+                        if len(s) >= 4 and s.lower() not in ctx:
+                            return True  # 근거없는 id-operand 있는 write
+                return False
+            _fab_ids = {id(tc) for tc in (am.tool_calls or []) if _fab_write_ungrounded(tc)}
+            if _fab_ids:
+                _kept = [tc for tc in (am.tool_calls or []) if id(tc) not in _fab_ids]
+                am.tool_calls = _kept or None
+                am.content = (am.content or "") + " [E-PLAN abstain: 근거를 확인할 수 없는 항목은 처리하지 않았습니다.]"
+                self._t2_fab_strips = getattr(self, "_t2_fab_strips", 0) + len(_fab_ids)
+                print("[T2_FAB_STRIP] dropped %d ungrounded write call(s) (exhaustion->abstain)"
+                      % len(_fab_ids), file=_sys.stderr, flush=True)
         # prov-fab 잔존 = 통과 (기존 prov semantics·id 날조는 env가 거부=C12)
 
         # ── DISAMB: 문맥-실재값·같은-형식 후보 2+ → 1회 재확인 (기존 로직 이식) ──
