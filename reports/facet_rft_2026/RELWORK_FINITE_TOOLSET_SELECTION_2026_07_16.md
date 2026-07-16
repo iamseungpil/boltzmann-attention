@@ -81,9 +81,46 @@
 | **3 in-band active contradiction** | **(c)에 근접한 (b)** | knowing-doing 정본 `2504.16078`(bandits·옳은 rationale 87%에도 58% greedy — tool-calling 아님) · HalluClear `2604.17284`(RH.2 reasoning↔action 모순 명명·계측 — **GUI·VLM-judge·스텝 내**) · When2Tool `2605.09252`(probe-기반=KAPRO 계열·"표현지식은 표출능력과 독립"=오히려 우리 delta 지지) · MIRAGE FIH rubric(인지-**부재** 측정=방향 반대) · AgentAbstain(missing verifier **인정 직후** $500 이체 관찰 — 전용 계측축 아님·기권실패 분류 일부) | tool-calling에서 "**부재 언어화 직후 그 도구 재호출**"의 전용 명명·same-trajectory 계량 = 미선점 유지(§3-1 그대로). 인접 5편 인용 필수 |
 | **4 턴 간 인자 누적 + 비대칭** | **(b)** | ToolDial `2503.00564`(과제공간 선점: DST→tool-args·11,111대화·sub-70% — **직전-턴-only 유형 명명 없음·description A/B 없음**) · LLMs Get Lost `2505.06120`(sharded −39%·**loss-of-middle-turns** 명명=현상 일반형 선점·개입=user-side Recap/Snowball뿐) · IFEval-FC `2509.18420`(param-description 지시 준수 계량·단일턴·"자주 무시됨"·<80%) · TAFC `2601.18282`(description 최적화=방법 전제 선점·wording A/B 없음) · `2601.08070`(금지문 역효과=일반 LLM 수준) | ①**직전-턴-only 인자누적 실패**의 유형 명명·계측 ②A2 설명 "누적 명시" **A/B 대조(60→93.3%·n=60/arm)** ③금지문 무효 vs 긍정형 구성-지시 유효 **비대칭의 tool-arg 맥락 실측** = 셋 다 미선점. 잔여 정독 1건: ToolHaystack(historical noise→parameter hallucination·서베이 경유 [D]) |
 
-- **행12(논문 코어 "인용-동반 도구사용의 학습") 선점확인**: 미선점 유지(잠정) — 최근접 = NabaOS `2603.10060`
-  (런타임 영수증 **탐지**·학습 아님·텍스트 claim 추출)·AgentLTL `2607.02599`(**training이 제목에 있음** —
-  단 LTL 절차준수이지 값-출처 주석 학습 아님·**원문 정독이 최종 확정의 유일 잔여**). C45(선행0 기확정) 위 신규층 유지.
+### 4b-1. ★★행12(논문 코어) 최종 선점확인 — **AgentLTL `2607.02599` 전문정독(PDF 34쪽·2026-07-17)** ⇒ **(b) 부분선점**
+> ⚠️**"미선점" 잠정 판정 하향**([[08]] 자기감사·과잉주장 방지). HTML 판 없음(404) → PDF 직접 추출 정독.
+> 저자 Elkoussy·Perez(EPITA/Bpifrance)·`v1 [cs.SE] 2026-07-01`. 추출 전문 = 세션 scratchpad(재현 시 재추출).
+
+- ★**양보·인용 필수**: 이들이 **그라운딩을 판정자 없는 결정론 트레이스 제약으로 정식화**했다 — 우리 "주장→인용
+  이벤트 대조"의 **약한 형태**다. 저자가 신규성을 명시 주장(*"existing enforcement systems do not treat grounding
+  as a core property"*). ⇒ **"그라운딩을 LLM-judge 없이 검증한다"는 헤드라인은 더 못 쓴다.** 축자:
+  - `κground ≡ ∀e ∈ ent(a), e ∈ out(τ)` — *"holds when every entity mentioned in a was observed in some tool output"*
+  - 트레이스 4-튜플 `ci = (ni, ai, ri, i)` · 원자술어 5종 = *"occurrence (Called), ordering (Before, After, InOrder),
+    argument checks (CalledWith), result checks (CalledWithResult), and counts (CalledN)"*
+  - gold 궤적→제약 자동합성(우리 "주석 자동생성"과 **구조 동형·대상 상이**): *"From each gold trace we instantiate
+    the six constraint layers described in Section 3.3, yielding one constraint set GP per task."*
+- ★**우리 delta 4겹 전부 무손상**:
+  1. **인터페이스**: 그들의 모델은 출처를 **emit하지 않는다** — 검증자가 regex/AST로 사후 복원
+     (*"We implement ent(·) via regex matching and out(·) by parsing tool outputs into an abstract syntax tree"*·
+     H.3은 `ast.parse`/libclang/정규식 폴백). ⇒ **언어별 추출기 = 우리가 없애려는 도메인-특화 표면 그 자체
+     = 우리 "게이트 증식" 모티브의 실물 증거**(foil로 인용).
+  2. **입도**: "**어딘가의** 출력에 있으면 통과" — 어느 호출인지 불문 ⇒ 무관 청크 대량조회 후 우연매칭 통과.
+     우리 `src:"GET:call_j"`는 **특정 호출 반환**과 대조.
+  3. **표면**: 그라운딩이 **최종답변 엔티티에만** 걸리고 **도구 인자 값엔 안 걸린다**(인자는 gold 리터럴 대조
+     `CalledWith(t,a): ∃i. ci.name=t ∧ a ⊑ ci.args`뿐) ⇒ **그들이 검사 안 하는 표면이 우리 코어**.
+  4. **학습**: 제목의 "Training"= **LTL 절차준수(순서)** 학습이지 인용 아님 — 보상 = 컴플라이언스+정답+trace-거리
+     (*"a weighted reward [0.5,0.25,0.25]"*·κground는 **보상에 없음**) · *"the accuracy gains come from
+     better-ordered execution"* · GRPO(SFT/DPO 아님)·**Qwen3-4B 단일**·합성 산술도구(`tool_a`/`tool_b`).
+     ⇒ **"인용-동반 형식을 SFT+DPO로 설치"는 원문 부재**(34쪽+부록 A~H 전수검색 확인).
+- ★★**우리 모티브의 외부 실증 2건(인용 유리)**:
+  ① **프롬프트로 그라운딩 안 닫힘** — strict-grounding 프롬프트 결과 *"the strict prompt raises grounding for all
+     models, but the extra grounded traces are mostly refusals, not correct answers"* = [[42]]·C99와 정합·
+     **"그러니 학습"이라는 우리 논리의 외부 지지**.
+  ② **vacuous-pass 자인**(Limitations) — *"κground is satisfied trivially by refusals, since the universal
+     quantifier holds when the answer contains no entities to verify"* ⇒ **우리 구조적 `evidence:<이벤트 ref>`가
+     정확히 이 구멍을 닫는다**(주장 이벤트가 있으면 ref 필수 → 기권과 무근거 주장이 구별됨). **가장 날카로운 delta.**
+- 부수 인용감: L3(global sequence)가 전 모델 최약층(DeepSeek-V4-Pro 0.153·Gemma-4-26B 0.111) · CG(correct∧grounded)
+  **전 조건 ≤4.1%**(Qwen3.5-397B default = CG 0.0%/CU 49.7%) · κground vs LLM-judge 일치 77.6%지만 **Cohen's κ=0.09**
+  (=judge 신뢰불가의 독립 근거·`2606.09863` AUROC≤0.65와 합류).
+- **⇒ 행12 재정식화**: ~~"그라운딩의 결정론 검증"~~ → **"값-수준 인용을 *모델이 emit하도록 학습*시켜, 답변-엔티티
+  멤버십(κground)이 아니라 **인자·주장 전 표면의 호출-특정 출처**를 단일 검증기로 대조한다"**. AgentLTL = 인접
+  선행 1순위(인용+차별화 필수)·NabaOS = 런타임 영수증 탐지(claim 텍스트 추출 필요).
+
+- **행12 선점확인 종합**: **(b) 부분선점** — 위 delta 4겹으로 코어 생존. C45(선행0 기확정) 위 신규층 유지.
 - **부수 수확**: ToolMaze scale-저항(기본성능이 fault-tolerance보다 3.66× 빨리 성장)·AgentAbstain
   scale-독립(최고 59.5%·13/17이 50%미만) = [[45]] 인용감 2건 추가 · ToolFailBench Qwen2.5-32B 단일턴
   CTUR 82.68%(3위) = "다중턴 병리는 단일턴 무능으로 환원 안 됨" 방증.
