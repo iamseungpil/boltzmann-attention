@@ -358,6 +358,18 @@ def __init__(self, func, use_short_desc=False, **predefined):
 `by_phone_number` 날조 ×2-3 → **차단** → (verify-persistence deny) → **`by_name`으로 회복** →
 **`verify_identity` → VERIFIED** → 거래 23건 읽음 → **`get_reward_discrepancies` → 4**.
 
+### 14.1b ★★★완주 결과 — **task_019 사상 첫 pass** (dreq 확정·ctl 진행중)
+| arm | 결과 | 정본 |
+|---|---|---|
+| **dreq** (완주 n=5) | **pass 3/5 · mean reward 0.60** | `sim_results/bank_dreq_20260716_2230.*` |
+| **ctl** (4/5 시점) | 평균 **0.75** (N=4) | (완주 후 확정) |
+| 수정 前 (모든 런·전 세션 포함) | **0** | — |
+
+- ★**gold id 정확 일치**: 완주된 **전 sim(10/10)**에서 `get_reward_discrepancies` 반환 = gold 4건과 **정확히 동일**
+  (`txn_f093f96e2001`·`txn_580773a8649e`·`txn_d398545ca1a2`·`txn_37b5b8e67a5e` — 4/4). LLM formalize → 엔진 계산이 안정적.
+- 사용자가 dispute를 **건별 제출**한 흔적(sim3의 단건 tool 메시지들) = gold 019_2~5 경로 실제 작동.
+- ⇒ **실패 사슬의 전 구간이 닫혔다**: 선택(emit) ✓ → formalize ✓ → 엔진 계산 ✓ → 도구 전달 ✓ → 사용자 제출 ✓ → **pass**.
+
 ### 14.2 ⇒ 판정
 - ★★**"32B가 유한집합서 도구를 선택 못 한다"는 명제는 기각 방향**([P]): 제대로 제시하니 선택한다.
 - ★★**"operand formalize 실패"(§9.1c) 완전 사망**: LLM이 거래 23건을 `transactions`로 formalize →
