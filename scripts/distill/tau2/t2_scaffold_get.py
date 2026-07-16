@@ -72,6 +72,10 @@ def apply():
             except Exception as e:
                 print("[T2_SCAFFOLD_GET] inject fail %s: %r" % (d["name"], e), file=_sys.stderr, flush=True)
         self._t2_sg_a2 = a2
+        try:
+            self._t2_known_tools = {getattr(t, "name", None) for t in (getattr(ag, "tools", None) or [])}
+        except Exception:
+            self._t2_known_tools = set()
 
     BaseOrchestrator.__init__ = init2
 

@@ -2325,6 +2325,29 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_fab_strips = getattr(self, "_t2_fab_strips", 0) + len(_fab_ids)
                 print("[T2_FAB_STRIP] dropped %d ungrounded write call(s) (exhaustion->abstain)"
                       % len(_fab_ids), file=_sys.stderr, flush=True)
+        # ★TOOLGATE (T2_TOOLGATE=1·Hard guided): 생성된 tool-call 이름이 유효집합(self.tools)에 없으면
+        #   tool_choice="required"로 재생성 → vLLM guided decoding이 이름 ∈ schema 강제(날조 구조적 불가).
+        #   텍스트 응답(tool_call 0)은 미개입. 정책 근거: "only use tool names discovered in KB".
+        if os.environ.get("T2_TOOLGATE") == "1" and getattr(am, "tool_calls", None):
+            _known = {getattr(t, "name", None) for t in (getattr(self, "tools", None) or [])}
+            _bad = [tc for tc in (am.tool_calls or []) if getattr(tc, "name", None) not in _known]
+            _tg = 0
+            while _bad and _tg < 2:
+                _tg += 1
+                _inv = [getattr(tc, "name", None) for tc in _bad]
+                try:
+                    _kw = {k: v for k, v in dict(self.llm_args).items() if "tool_choice" not in k}
+                    am = la.generate(model=self.llm, tools=self.tools, tool_choice="required",
+                                     messages=self._system_messages + work,
+                                     call_name="toolgate_required", **_kw)
+                except Exception as _tge:
+                    print("[T2_TOOLGATE] regen error: %r" % (_tge,), file=_sys.stderr, flush=True)
+                    break
+                _bad = [tc for tc in (am.tool_calls or []) if getattr(tc, "name", None) not in _known]
+                print("[T2_TOOLGATE] invented %s -> required-regen(try %d) -> %s"
+                      % (_inv, _tg, [getattr(tc, "name", None) for tc in (am.tool_calls or [])]),
+                      file=_sys.stderr, flush=True)
+
         # prov-fab 잔존 = 통과 (기존 prov semantics·id 날조는 env가 거부=C12)
 
         # ── DISAMB: 문맥-실재값·같은-형식 후보 2+ → 1회 재확인 (기존 로직 이식) ──
