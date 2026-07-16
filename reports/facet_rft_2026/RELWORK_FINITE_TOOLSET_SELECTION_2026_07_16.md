@@ -68,6 +68,27 @@
   Relign 베이스라인). 재조작은 기증명 재증명 = 비용 낭비.
 - 잔여 체크 1건: 기각된 `2605.14038`(cognition→action probe·0-3) 재검토는 관측 B(anchoring) 논증 시점에.
 
+## 4b. ✅DR2 전수 지형 판정 (2026-07-17 수령·`wf_1190739b-1e4`·4주장 (a)완전선점/(b)부분/(c)미선점)
+> 출처: deep-research 2차(5축 분해·후보 30편·전문 deep-read 24편·적대검증은 `2607.01641` 4표 완주).
+> ⚠️수령 상태: 세션 단절로 마지막 주장 투표 2건(voter 2/3·3/3) 미완 — 단 같은 논문에 **독립 검증 4건 전부
+> refuted=false·high 일치**(정적분석 전용·hallucination 어휘 0·대안-도구 조작 없음)라 판정 유지. deep-read
+> 판정은 축자 quote 동반이나 적대투표 미실시 = **[M-lit]**(인용 시 C104 ⑥ 규율: 원문 정독 필수).
+
+| 주장 | 판정 | 핵심 선행 (양보·인용) | 잔여 미선점 (우리 delta) |
+|---|---|---|---|
+| **1 차단≠회복 + 대안-도구 인과 레버** | **(b)** | perseveration 계량(유효 도구 대상): `2605.08477`("동일 도구+동일 인자 반복률" metric·SH 66.9% vs FH 13.9%·**"try a different tool" 피드백에도 5연속 반복**·단 constrained decoding으로 비존재-도구 emit 자체가 구조적 불가) · MIRAGE `2507.21017`(FIH-repetitive 3/6회 스냅샷·judge·Qwen2.5-32B HR .324·완화실험 없음) · SciAgentGym `2602.12984`(Loop Escape 35.7%) · ★**ToolMaze `2606.05806`**: 대안-도구 topology를 통제변수로 조작(C1 무대안 vs C2 대체·PRR 33.40→50.54%)·"switch to alternative"=정상 회복 규범화 — **단 실재 도구의 주입-오류 세팅**(비존재-도구 게이트 차단 아님·도구는 목록에 상존) · AgentAbstain `2607.10059`(도구 toggle=minimal perturbation·DV=기권·**Post-hoc가 아니라 회복 아님**) · `2607.01641`=정적분석 전용 **[S] 미선점 확정**(4표) | "**날조 비존재 도구**의 결정론 차단+명시 피드백 후 동일명 재-emit 계량 + **A2 대안 공급 단일변수 toggle**"은 여전히 부재. §20 키스톤 기각과 정합: ToolMaze(그들 세팅선 대안→회복↑) vs 우리(Δ=0·perseveration↓만) = **세팅 대조 foil**로 사용 — 논문 프레임=레버-부작용 유지 |
+| **2 완료 날조 + 구조 이벤트 게이트** | **(b)·명명·벤치·rate는 사실상 (a)** | ★**False Success `2606.09863`**: **같은 τ²-bench** 9,876궤적·"false success"=실패의 45–48%(single-control)·모델별 13~79%·텍스트 탐지기 AUROC 0.83–0.95 — **단 post-hoc triage only·개입 0**·LLM-judge 실패(≤0.65)는 우리 문제설정 지지 · PAE `2603.03116`(Execution Consistency·**confirmation numbers 날조**·Phantom Booking·LLM-judge post-hoc) · 서베이 `2509.18970`("execution/outcome hallucination" 명명 기존재) · NabaOS `2603.10060`(HMAC 영수증 교차검증·fabricated tool reference 94.2% — 구조-증거 게이팅 부분선점·단 claim 추출=**텍스트 파싱 필요**·탐지-only·합성주입 평가) · ToolFailBench `2607.04686`(Output-Fabrication=**도구 호출됨** 전제=구별) · AgentAbstain(Post-hoc Abstention 2.6%=거울상) | **"action-completion fabrication" 신규 명명 주장 철회**(관리표 행2 갱신). 잔여 delta = ①**라이브 개입**(탐지→regen 인과사슬·전 선행=post-hoc/탐지-only) ②**텍스트-파싱-0 순수 구조-이벤트 결정론 게이트**({GET∧후속 미호출∧사임 N회}) ③자연발생 다중턴서 게이트 유효성. 잔여 정독 1건: AgentLTL `2607.02599`(LTL 절차준수 **training** 포함— 완료-주장 게이팅 여부 원문 확인) |
+| **3 in-band active contradiction** | **(c)에 근접한 (b)** | knowing-doing 정본 `2504.16078`(bandits·옳은 rationale 87%에도 58% greedy — tool-calling 아님) · HalluClear `2604.17284`(RH.2 reasoning↔action 모순 명명·계측 — **GUI·VLM-judge·스텝 내**) · When2Tool `2605.09252`(probe-기반=KAPRO 계열·"표현지식은 표출능력과 독립"=오히려 우리 delta 지지) · MIRAGE FIH rubric(인지-**부재** 측정=방향 반대) · AgentAbstain(missing verifier **인정 직후** $500 이체 관찰 — 전용 계측축 아님·기권실패 분류 일부) | tool-calling에서 "**부재 언어화 직후 그 도구 재호출**"의 전용 명명·same-trajectory 계량 = 미선점 유지(§3-1 그대로). 인접 5편 인용 필수 |
+| **4 턴 간 인자 누적 + 비대칭** | **(b)** | ToolDial `2503.00564`(과제공간 선점: DST→tool-args·11,111대화·sub-70% — **직전-턴-only 유형 명명 없음·description A/B 없음**) · LLMs Get Lost `2505.06120`(sharded −39%·**loss-of-middle-turns** 명명=현상 일반형 선점·개입=user-side Recap/Snowball뿐) · IFEval-FC `2509.18420`(param-description 지시 준수 계량·단일턴·"자주 무시됨"·<80%) · TAFC `2601.18282`(description 최적화=방법 전제 선점·wording A/B 없음) · `2601.08070`(금지문 역효과=일반 LLM 수준) | ①**직전-턴-only 인자누적 실패**의 유형 명명·계측 ②A2 설명 "누적 명시" **A/B 대조(60→93.3%·n=60/arm)** ③금지문 무효 vs 긍정형 구성-지시 유효 **비대칭의 tool-arg 맥락 실측** = 셋 다 미선점. 잔여 정독 1건: ToolHaystack(historical noise→parameter hallucination·서베이 경유 [D]) |
+
+- **행12(논문 코어 "인용-동반 도구사용의 학습") 선점확인**: 미선점 유지(잠정) — 최근접 = NabaOS `2603.10060`
+  (런타임 영수증 **탐지**·학습 아님·텍스트 claim 추출)·AgentLTL `2607.02599`(**training이 제목에 있음** —
+  단 LTL 절차준수이지 값-출처 주석 학습 아님·**원문 정독이 최종 확정의 유일 잔여**). C45(선행0 기확정) 위 신규층 유지.
+- **부수 수확**: ToolMaze scale-저항(기본성능이 fault-tolerance보다 3.66× 빨리 성장)·AgentAbstain
+  scale-독립(최고 59.5%·13/17이 50%미만) = [[45]] 인용감 2건 추가 · ToolFailBench Qwen2.5-32B 단일턴
+  CTUR 82.68%(3위) = "다중턴 병리는 단일턴 무능으로 환원 안 됨" 방증.
+- **원문 정독 필수 목록**(인용 前·C104 ⑥): `2606.09863`·`2606.05806`·`2603.10060`·`2607.02599`·ToolHaystack.
+
 ## 5. 관측 C 재해석 (질의의 거짓 전제)
 - 질의에 넣은 "인자 설명에 'the records you read' 명시했는데도 되묻는다"는 **거짓** — `_f` 주입으로 스키마가
   모델에 도달한 적 없음(§11). 스키마 수정 후 **LLM이 23건을 정확히 formalize**(6/6 엔진 `-> 4`·gold 일치 10/10).
