@@ -342,19 +342,26 @@ def main():
         print(f"      접두 {len(spec['conv'])} msgs · 도구 {len(spec['tools'])}종", flush=True)
         cnt, samples = run_probe(a.base, a.model, spec, a.n, a.temp, a.chunk)
         tot = sum(cnt.values())
-        fab = sum(v for (c, _), v in cnt.items() if c == "FAB" or c.startswith("FAB-"))
+        # ★동일표면 날조와 **이동한 날조**를 절대 합치지 말 것([[08]]): 레버가 표면을 옮기면
+        #   합산 FAB는 "안 줄었다"로만 보여 기전을 은폐한다. 등대 §1.3 계측의 핵심.
+        fab = sum(v for (c, _), v in cnt.items() if c == "FAB")
+        moved = sum(v for (c, _), v in cnt.items() if c.startswith("FAB-"))
         ok = sum(v for (c, _), v in cnt.items() if c == "OK")
         for (c, label), v in sorted(cnt.items(), key=lambda x: -x[1]):
             print(f"  {v:3d}  [{c}] {label}")
-        print(f"  ⇒ FAB(날조) {fab}/{tot} = {100*fab/max(tot,1):.0f}%  |  OK {ok}/{tot} = {100*ok/max(tot,1):.0f}%")
+        print(f"  ⇒ FAB(동일표면) {fab}/{tot}={100*fab/max(tot,1):.0f}% | "
+              f"FAB(이동) {moved}/{tot}={100*moved/max(tot,1):.0f}% | "
+              f"OK {ok}/{tot}={100*ok/max(tot,1):.0f}%")
         out[nm] = {"desc": spec["desc"], "n": a.n, "temp": a.temp,
                    "counts": {f"{c}|{l}": v for (c, l), v in cnt.items()},
-                   "fab": fab, "ok": ok, "total": tot, "samples": samples}
+                   "fab": fab, "fab_moved": moved, "ok": ok, "total": tot, "samples": samples}
 
     def pr(tag, k1, k2, fld):
         if {k1, k2} <= set(out):
             x, y = out[k1], out[k2]
-            print(f"{tag}: {k1} {x[fld]}/{x['total']} → {k2} {y[fld]}/{y['total']}")
+            ex = f" (+이동 {x['fab_moved']})" if x.get("fab_moved") else ""
+            ey = f" (+이동 {y['fab_moved']})" if y.get("fab_moved") else ""
+            print(f"{tag}: {k1} {x[fld]}/{x['total']}{ex} → {k2} {y[fld]}/{y['total']}{ey}")
 
     print("\n" + "=" * 70 + "\n★단일변수 대조 요약")
     pr("차단≠회복 (날조율)", "byphone", "persev", "fab")
