@@ -303,6 +303,46 @@ def __init__(self, func, use_short_desc=False, **predefined):
 - ⇒ **레버는 "라이브서 모델이 실제로 본 것"으로 검증해야 한다.** 단위테스트·오프라인 op 검증은 그것을 대체하지 못한다.
 - ⇒ 이제서야 **가설이 처음으로 시험 가능**해졌다: *"도구가 실제로 제시되면 32B가 고르는가?"*
 
+## 12. ★★★★★PROV가 **우리 도구의 정당한 호출**을 매번 죽이고 있었다 (2026-07-16·네 번째 사고)
+### 12.1 라이브 증거 (`bank_ctl_20260716_2215` sim0·gpt-5.2)
+```
+[10] agent CALL get_user_information_by_name("Priya Sharma")     ← 회복(정답 경로)
+[11] tool  → name/user_id/address/email/phone_number:312-555-0481/date_of_birth:11/03/1990  ← 레코드 획득
+     사용자는 [7]서 phone 312-555-0481 + dob 11/03/1990 제공 ⇒ **2-of-4 일치 = 검증 조건 충족**
+[T2_PROV] regen fired tool=verify_identity arg=provided
+          val={"date_of_birth":"11/03/1990","phone_number":"312-555-0481"}    ← ★4회+ 반려
+[14] agent : "I'm encountering an issue with the verification process due to a technical constraint"
+[16] agent : OTP 발송 제안(없는 기능) → [18] 보안질문(없음) → [20] 이메일 링크(없음)
+[28] agent CALL transfer_to_human_agents → reward 0
+```
+⇒ **에이전트는 올바른 도구를 올바른 인자로 선택했다.** 우리가 죽였고, 그러자 **날조 3종 + 포기**가 나왔다.
+⇒ 이 "날조와 포기"를 하마터면 **모델의 능력 결손**으로 보고할 뻔했다. `[14]`의 "technical constraint"는 **정확한 상황 보고**였다.
+
+### 12.2 원인 (엔진 버그 2개 중첩·둘 다 도메인일반)
+1. **부분문자열 힌트 매칭**: `DEFAULT_ARG_HINTS`에 `"id"`가 있고 **`"id" in "provided"` = True**
+   (`prov`**`id`**`ed`) ⇒ `provided`가 식별자 인자로 오판됨.
+2. **`_flatten`이 JSON *문자열*을 안 품**: A2 param 타입이 `str`이라 모델은 `'{"date_of_birth":…}'` 한 덩어리로 넘긴다.
+   검사기는 **그 JSON 덩어리 전체**를 문맥서 찾다 **항상 실패** → "invented". leaf(`11/03/1990`·`312-555-0481`)는 문맥에 실재.
+
+### 12.3 수정 (커밋 `330d4abf`)
+- `_hint_hit()`: 인자명 **토큰 분해 후 `token.startswith(hint)`** — `address1`·`item_ids`·`payment_method_id`·`phone_number` 유지,
+  `provided`·`record`·`valid_until`·`transactions` 오탐 제거. **6개 호출부 전부 교체.**
+- `_flatten()`: JSON-형 문자열을 leaf까지 파싱.
+- `test_prov_structured_args.py` **16/16 PASS**(오탐 제거 + 참양성 유지 + 사고 재현 케이스).
+- ⚠️ retail 기존 측정(C45 등)은 인자명이 `*_id`·`address1`류라 **영향 없음**(테스트로 확인).
+
+## 13. ★★★★★이 세션의 결론 — "32B가 못 한다"의 대부분은 **우리 scaffold가 만든 것**이었다
+| # | 결함 | 오염시킨 결론 |
+|---|---|---|
+| 1 | **A2 도구 `_f` 주입**(§11) | 핸드오프 §0 전체("설명·활용예 있는데도 미선택") |
+| 2 | **TOOLGATE가 user gold 차단**(§7) | task_019 구조적 통과불가 ⇒ reward 0 보장 |
+| 3 | **PROV가 `provided`를 날조로 오판**(§12) | 에이전트의 **정당한** `verify_identity` 호출 반려 → 날조·포기 유발 |
+| 4 | **user-sim이 mini**(§9.2) | mini의 spoon-feed가 에이전트를 구제 → 병목 오지정 |
+- ★**첫 긍정 신호**: `_f` 수정 후 런서 **`get_reward_discrepancies`가 사상 처음 실제 호출됨(1회·ctl·arm 없이)**.
+  ⇒ *"도구가 실제로 제시되면 32B가 고른다"* 는 방향의 첫 증거([P]·n=1).
+- ⇒ **[[30]] 재확인**: 단위통과·오프라인 op검증 ≠ 라이브. **레버는 "모델이 실제로 본 것"과 "게이트가 실제로 한 일"로 검증**해야 한다.
+  이번 세션 4건 모두 궤적·스키마·게이트로그를 **직접 찍어서** 잡혔다(집계로는 전부 "모델이 못함"으로 보였다·[[08]]).
+
 ## 6. Caveat (정직)
 - t019g = **n=3 × gpt-4.1-mini** = robust 측정 아님·**메커니즘 관측**. reward도구 0선택만 3/3 일관 + 원문 정독으로 견고.
 - **sim 2형(user-sim이 틀린 결론을 먼저 줌)** 은 user-sim 품질 의존 — gpt-5.2선 다르게 나올 수 있음([[47]] 권장표준).
