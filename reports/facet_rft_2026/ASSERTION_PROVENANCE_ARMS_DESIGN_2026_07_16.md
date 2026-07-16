@@ -215,6 +215,26 @@ t019g→dreq 사이에 **user-sim(mini→5.2)** 과 **§7 requestor 버그픽스
 말할 수 있는 것: *mini는 spoon-feed를 하고 5.2는 안 한다*(관측) · *5.2선 에이전트가 검증 벽서 정지한다*(관측).
 ⇒ **핸드오프 §0의 병목 지정은 mini 위에서 만들어졌으므로 재검이 필요**하다(무효 단정이 아니라 **보류**).
 
+### 9.1c ★★★sim2 (검증 벽을 넘은 유일 sim) — arm은 **선택을 샀고**, 잔여는 **operand formalize**
+도구 시퀀스: `by_phone_number`×2(날조·차단) → **`get_user_information_by_name`(회복)** → `log_verification`(**gold 019_0**)
+→ `get_credit_card_transactions_by_user`(거래 도달·23건) → `get_user_information_by_name` → `give_discoverable_user_tool`×3(**gold 019_1**).
+
+| msg | 사건 | 판정 |
+|---|---|---|
+| `[25]` | 거래 23건 읽음 | — |
+| **`[26]`** | **DISCREQ 발화 → 에이전트: _"I see, thank you for pointing that out. … I need to use the `get_reward_discrepancies` tool"_** | ★**arm이 도구 선택을 샀다** (이전: 눈대중 "이상 없음") |
+| `[26]` 이어서 | _"However, this tool **requires specific transaction IDs**. Could you please **provide the transaction IDs**?"_ | ☒**operand formalize 실패** — 방금 읽은 23건을 인자로 안 넘기고 **사용자에게 요구** |
+| `[29]` | **user-sim(gpt-5.2)이 직접 불일치를 계산** — _"txn_f093f96e2001 (Thrive Market, $175, Green) — rewards show 175 points, but other Green…"_ | ☒**과제를 사용자가 수행**(페르소나 *"Don't diagnose the problem yourself"* 위반) |
+| `[34-38]` | 사용자가 찾아준 **3건**으로 dispute 도구 제공 | 부분 |
+| `[39-44]` | **사용자가 3건 제출 성공**(`dsp_…` 3개) | gold 019_2·3·5류 부분 달성 |
+| — | **gold는 4건**(`txn_f093f96e2001·580773a8649e·d398545ca1a2·37b5b8e67a5e`) → **3/4** | ⇒ **reward 0 = coverage(F4) 미달** |
+
+**⇒ 실패 사슬(정본)**: `arm이 선택을 삼` → **인자 formalize 실패** → `사용자에게 떠넘김` → `user-sim이 눈대중 3/4` → `coverage 미달` → **0점**.
+- ⇒ **"reward 도구 미선택"은 더 이상 잔여가 아니다**(arm이 삼). **새 잔여 = [[10]] 경계의 LLM 몫(원시 leaf→operand)을 32B가 못 함.**
+- ⇒ 우리 A2 `params.transactions` 설명(*"A JSON array … that you read from the transaction records"*)이 명시하는데도
+  "고객이 ID를 줘야 한다"로 오독 ⇒ **또 prompt 천장**(C30/[[42]]).
+- ⚠️ n=1 sim · **[P]**. arm 효과 주장은 ctl 대조 도착 後 확정.
+
 ### 9.3 ⇒ thesis는 오히려 선명해진다
 잔여 = **"제공된 유한집합에서 맞는 도구를 선택하지 못함"** 하나이고, **두 지점서 동형**으로 발현:
 - verify: `get_user_information_by_name` / `verify_identity`를 안 고름 → 없는 `by_phone*`을 만듦
