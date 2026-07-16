@@ -163,6 +163,7 @@ def _leaves(o):
 
 def cls_record(name, args, text, ctx, toolnames):
     """§19.2: record 인자가 문맥에 없는 값을 담으면 날조. record⊆사용자제공이면 순환(비교가 공허)."""
+    args = args if isinstance(args, dict) else {}
     if not name:
         return ("ASK/텍스트", "ASK")
     if name != "verify_identity":
@@ -304,6 +305,8 @@ def run_probe(base, model, spec, n, temp, chunk):
                 try:
                     args = json.loads(f0.get("arguments") or "{}")
                 except Exception:
+                    args = {}
+                if not isinstance(args, dict):  # 모델이 인자를 이중 인코딩(문자열)으로 낸 샘플
                     args = {}
             label, cat = spec["cls"](name, args, m.get("content") or "", ctx, spec["toolnames"])
             cnt[(cat, label)] += 1
