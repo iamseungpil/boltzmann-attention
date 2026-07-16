@@ -20,6 +20,8 @@
 | **9** | **디스패처-컨벤션 prior**(§19.1·신규 기전): 도메인의 unlock/dispatch 관행이 "특수 도구는 그 경로" prior 형성 → 직접 호출 가능한 주입 도구를 KB에서 검색·unlock 시도·실패 후 수동 눈대중+완료 날조 (kon sim0) | ① 도구 설명 "call directly; no unlock needed"(구성-지시) ② **DISCREQ 재활성 재검토**(창 실존 실증·n=1·사용자 결정 대기) | [M소] n=1 per-step 전독 | **도메인-컨벤션이 도구 라우팅 prior를 만든다** — PA-Tool(스키마 명명)과 다른 축(호출-경로 prior). 신규 관측 후보 | 낮음 (관측) — D의 배경 서사 | DISCREQ 재활성 결정→재측정 |
 | **10** | **순환 자기-검증**(§19.2·신규 기전): 조회 0회 상태서 `record`를 **날조**(placeholder 주소)해 verify 통과 — 검증 도구의 입력 provenance 맹점 (kon sim1·§12 오탐수정의 부작용) | **record-grounding 검사**: A2 인자별 `must_be_grounded` + 엔진 leaf∈이전 tool-출력 (C45 FIND-검사의 자기-도구 적용) | [M소] n=1 per-step 전독·미구현 | **"검증 도구 자체가 날조 입력에 취약"** — 입출력 provenance 프레임(행3)의 입력측 보강 사례 | **특허 D 보강**: "검증/GET 도구 인자의 grounding 요구 선언+집행" | 구현(다음)→재측정 |
 
+| **11** | (종합) 날조 5종의 공통 뿌리 = **값 슬롯에 "모르면 낼 대체 행동"이 없음** — 금지·게이트·대안공급 모두 잔여를 남김(§20) | ★**값-grounding placeholder 학습**(사용자 제안): FIND/GET/COMPUTE/ASK 외엔 **구조화 placeholder**를 emit하도록 SFT+DPO — scaffold가 placeholder를 결정론 라우팅(학습·게이트 동일 인터페이스) | [D] 설계 (`VALUE_GROUNDING_PLACEHOLDER_LEARN_DESIGN_2026_07_17`)·**데이터 타당성 게이트 先**(C42/C38) | [[16]] 유일잔여 learn(INFER-calibration)의 일반화 완성형·C92 연산규율의 학습 설치·P4(Learned TBox Transfer) 실증 축 | ★**특허 D 3층 구조 완성 후보**: "선언(출처)+집행(게이트)+**학습(placeholder 스킬)**" | eval 프로브 5종 구축(무료)→타당성 게이트→LoRA |
+
 ## 부속: 판정 대기 항목 (외부 입력)
 | 대기 | 무엇을 바꾸나 | 출처 |
 |---|---|---|
