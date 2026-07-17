@@ -33,11 +33,48 @@ task_026: gold 대상 4건 vs 우리 반환 6건 = **교집합 1건**(`f506`)뿐
 - ⇒ **[[05]] 정본 "결정론↔유동성" 경계 그대로**: 이 rate 판정은 KB를 읽어 프로모기간·자격을 대조하는 **유동적
   판단**이라 **결정론 offload가 아니라 모델의 몫**이다. task_019는 마침 프로모 없는 단순 케이스라 작동했을 뿐.
 
-**⑥ ★측정된 결론(부정적이나 값짐)**: ***우리 결정론 offload(producer)는 규칙이 문맥-독립일 때만 작동하고,
-banking 보상률처럼 KB-분산·시간-조건부 규칙은 담을 수 없다.*** task_019 성공 = 과적합의 우연.
-⇒ **producer 확장 폐기**(①·②·③ 다). reward-discrepancy 태스크군은 우리 결정론 레버가 원리적으로 안 닿는 곳.
-- **잔여 정당한 기여**(변함없음): verify(84%)·give/완료(22%)·(a1)·TOOLGATE — **compute가 아닌 표면들**.
-- **[[45]] 대조**: 이건 scale이 못 푸는 부하가 아니라 **offload가 못 담는 부하**(KB-문맥 의존)다. 새 축.
+**⑥ ⚠️~~측정된 결론(op로 못 담는다)~~ = 성급했다. §PROD-2가 교정한다.**
+
+## §PROD-2. ★★교정 — op로 못 담는 게 아니라 **분담선이 틀렸다** (2026-07-18·사용자 질문·전수 분해)
+> 사용자: *"rate 계산법을 고정 부분과 아닌 부분으로 분해할 수 있나?"* ⇒ **예. 그리고 §PROD ⑤의 진단이 틀렸다** —
+> rate가 날짜-조건부라 결정론이 못 담는 게 아니라, **rate의 텍스트-해석 부분을 엔진에 잘못 뒀다.**
+
+**① 진짜 규칙 확정**(task_026 4거래 전수 분해 + KB 축자):
+| card | category | txn_date | 배율 |
+|---|---|---|---|
+| Business Silver | Travel | 03/22/2025 | **20** |
+| Business Silver | Travel | 08/25/2025 | **10** |
+| Business Silver | Software | 09/15/2025 | 10 |
+| Silver | Software | 05/18/2025 | 4 |
+둘 다 Business Silver/Travel·둘 다 프로모기간(끝 11/14) 안인데 20 vs 10 ⇒ **프로모 *날짜*가 아니다**(§PROD ④ 가설 반증).
+★KB 축자: *"The **6-month window begins on your account opening date**, not the promotional start date"* ·
+*"You must **open your account during the promotional period** to qualify"*.
+⇒ **2배 = 계정개설일이 프로모기간 內 ∧ 거래일 ∈ [개설일, 개설일+6개월]**. 03/22 ∈ 6개월·08/25 ∉.
+
+**② ★분해 — 고정(결정론) vs 유동(LLM 텍스트해석)**:
+| 구성요소 | 성격 | 담당 |
+|---|---|---|
+| `base_rate = f(card, category)` | KB 산문 룩업(Travel 10%·Software 10%·Silver 4%…) | **LLM formalize** |
+| `promo_window`(start/end·6개월 규칙·개설일 기준) | KB 산문 조건 | **LLM formalize** |
+| `account_open_date` | env DB | **결정론 조회** |
+| `eligible = open ∈ promo` · `active = txn ∈ [open, open+6mo]` | **날짜 구간 판정** | **★결정론** |
+| `rate = base × (2 if eligible∧active else 1)` · `expected = amt×rate` · `|exp−act|>tol` | 산술·비교 | **★결정론** |
+⇒ **날짜 산술·곱셈·비교는 입력 숫자만 있으면 전부 결정론.** 우리 `t2_compute`(`if_then`/`multiply`/`case`)로 표현 가능(EcoCard가 이미 중첩조건).
+
+**③ ★정당한 분담선**(현재 op는 `rate 표`를 **엔진에** 뒀다=실패점. LLM으로 올린다):
+```
+LLM operand(KB 읽고 formalize): base_rate · promo_window{start,end,months,mult} · (+env조회) account_open_date
+엔진 결정론: eligible/active 날짜판정 → rate → expected → discrepant
+```
+- **엔진 도메인 상수 0**(base_rate·프로모 전부 operand) → [[05]] 정합
+- **엔진 KB 파싱 0**(LLM formalize) → [[03b]] 정합 · **모든 카드/프로모 일반화**(표 확장 불요)
+
+**④ ⇒ §PROD ⑥ 철회**: ~~"op로 못 담는다"~~ → **"분담선이 틀렸다. rate 텍스트-해석을 엔진에 뒀던 게 오류.
+LLM으로 올리면 담긴다."** 날짜 산술 자체는 결정론이 완벽히 한다.
+
+**⑤ ★남은 관건(측정 대상)**: **base 32B가 KB 읽고 `base_rate`·`promo_window`를 정확히 formalize하나?**
+여러 KB 문서서 "10% Travel + 6개월 프로모 + 개설일 기준"을 조합하는 게 32B에 어려우면 → 분담선 옮겨도 **LLM 쪽서
+실패** = 그때야 [[45]] 부하(scale). **무료 측정으로 판정**(§PROD-3). ⇒ **producer 폐기 보류**·측정 후 결정.
 
 ## 0. ★조사 결과 — **A2는 생각만큼 task-튜닝돼 있지 않았다** (무료·env/tasks 직독)
 ### 0.1 env 구조 (banking)
