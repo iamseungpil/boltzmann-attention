@@ -58,6 +58,28 @@ def _days_between(a, b):
     return abs((db - da).days)
 
 
+def _add_months(d, m):
+    """달력 산술(도메인일반): d + m개월. 월말 clamp(예: 1/31+1mo=2/28)."""
+    from calendar import monthrange
+    y, mo = d.year + (d.month - 1 + int(m)) // 12, (d.month - 1 + int(m)) % 12 + 1
+    return d.replace(year=y, month=mo, day=min(d.day, monthrange(y, mo)[1]))
+
+
+def _date_in_window(anchor, target, months):
+    """target ∈ [anchor, anchor+months] ? (결정론·`C113` rate 만료판정). 날짜파싱 실패=False."""
+    da, dt = _parse_date(anchor), _parse_date(target)
+    if da is None or dt is None or months is None:
+        return False
+    return da <= dt <= _add_months(da, months)
+
+
+def _date_between(x, lo, hi):
+    dx, dl, dh = _parse_date(x), _parse_date(lo), _parse_date(hi)
+    if None in (dx, dl, dh):
+        return False
+    return dl <= dx <= dh
+
+
 def _business_days_between(a, b):
     """주말(토/일) 제외 영업일 수. Reg E '2 business days' 계산용(도메인일반·달력 사실)."""
     da, db = _parse_date(a), _parse_date(b)
@@ -107,6 +129,13 @@ def apply_op(spec, ctx):
         if op == "days_between":
             f = _business_days_between if spec.get("business") else _days_between
             return f(_get(ctx, spec.get("a")), _get(ctx, spec.get("b")))
+        if op == "date_in_window":
+            # ★C113: target ∈ [anchor, anchor+months] (rate 프로모 만료판정·결정론).
+            #   anchor/target/months = ref(LLM formalize한 거래 필드) · 엔진=달력산술만([[05]]).
+            return _date_in_window(_get(ctx, spec.get("anchor")), _get(ctx, spec.get("target")),
+                                   _num(_get(ctx, spec.get("months"))))
+        if op == "date_between":
+            return _date_between(_get(ctx, spec.get("x")), _get(ctx, spec.get("lo")), _get(ctx, spec.get("hi")))
         if op in ("argmin", "argmax"):
             recs = _get(ctx, spec.get("over")) or []
             key = spec.get("key"); ret = spec.get("return")
