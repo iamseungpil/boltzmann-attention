@@ -126,6 +126,75 @@
   CTUR 82.68%(3위) = "다중턴 병리는 단일턴 무능으로 환원 안 됨" 방증.
 - **원문 정독 필수 목록**(인용 前·C104 ⑥): `2606.09863`·`2606.05806`·`2603.10060`·`2607.02599`·ToolHaystack.
 
+## 4c. ★★★인용 필수 원장 — **논문 집필 시 누락 금지** (사용자 2026-07-18 지시)
+> 규칙: 아래는 **반드시 인용**한다. 축자 확인 완료분만 등재(전문정독·C106/C109). **DR 요약은 등재 금지.**
+> 각 항목 = ①무엇을 양보하나 ②왜 반드시 인용하나 ③우리 문장은 무엇인가.
+
+### 4c-1. ★★★`2606.09863` (false success) — **가장 강한 foil. 저자가 우리 자리를 지목한다**
+**★핵심 인용문(축자·§5 Limitations)**:
+> *"**Substantial gains would likely require methods that verify trajectory-environment consistency directly
+> rather than reading surface text.**"*
+
+- **왜 최강 foil인가**: 이 논문은 완료-날조를 **표면 텍스트 분류기**로 잡는다(τ² 입력 = *"full trajectory text"*).
+  그 저자가 **자기 접근의 한계를 자인하며 "표면 텍스트를 읽지 말고 궤적-환경 일치를 직접 검증하라"**고 적었다.
+  그게 **정확히 우리 것**이다 — T2_FOLLOWUP(텍스트 파싱 **0**·구조 이벤트만) · `evidence` 학습(주장→원장 대조).
+  ⇒ **우리 방법의 정당화를 경쟁 논문 저자가 대신 써준 셈.** 논문 Method 도입부/Related Work 양쪽에 배치.
+- **함께 인용할 자인 2개**(개입·학습 부재의 축자 증거):
+  > *"**The detector is a triage signal, not an autonomous monitor.** At a 10% flag rate, precision is 50%"*
+  - SFT/DPO/RL **0 hits** · block/regen/repair/runtime/mitigate **0 hits**(grep 확인) = **개입도 학습도 없다**.
+- **함께 인용할 foil 2개**(표면-읽기의 한계를 그들 데이터가 스스로 보임):
+  - **도메인 이전 붕괴**: LODO(airline↔retail) AUROC **0.85 → 0.696/0.665/0.660**.
+  - **적대 재작성 관통**: *"A preliminary rewrite test flips both detectors and judges on roughly **20–25%** of cases"*.
+- ★**judge 무용 인용**(우리 [[10]] 결정론 분담 논증의 외부 증거):
+  > *"**Judges are systematically anti-correlated with truth** on the FS vs HF distinction: they score
+  > honest-failure trajectories as more failure-like than false-success trajectories."* · *"no configuration
+  > exceeds AUROC 0.65"* · *"The judge can be told what to look for; it still cannot reliably find it."*
+- **양보(반드시)**: 현상 정의 *"a mismatch between the agent's natural-language claim of completion and the
+  programmatic environment state"* · τ² rate(**airline 45%/retail 47%/telecom 3%**·9,876궤적) · 모델별 13~79% ·
+  **추론모델 무용**(*"Reasoning capability is not protective"*). ⇒ **"우리가 이 현상을 처음 발견"은 즉시 붕괴. 금지.**
+- ⚠️**인용 시 지켜야 할 3가지**:
+  1. **분모를 밝힐 것** — 그들 45~47% = **실패 궤적 중** 비율 / 우리 54% = **결정점 발생률**. **병치 금지.**
+  2. **도메인/모델을 밝힐 것** — τ² **airline/retail/telecom**(banking **0회**) · **8종 전부 frontier**
+     (Qwen2.5·32B·오픈웨이트 **0회**). ⇒ **우리 세팅(banking·오픈웨이트 32B)은 그들 범위 밖**.
+  3. **수치는 Table 1을 쓸 것** — 초록/Table 1은 45–48%인데 §1 Introduction은 *"44–52%"*로 **원문 내부 불일치**.
+- ★**아픈 것(반드시 다룰 것)**: **dual-control 3%**
+  > *"In telecom, a dual-control domain where the user simulator can independently verify state, false success
+  > drops to **3%** of failures."*
+  = **"독립 검증기가 완료-날조를 억누른다"의 관찰적 씨앗이 이미 공개**됐다. **단 저자가 인과를 명시 포기**:
+  > *"We treat this as an **observation rather than a causal claim**: only one dual-control domain is available,
+  > with **15 FS cases**, which is insufficient to isolate environment structure from other domain differences."*
+  ⇒ **인과를 확정하는 자리는 비어 있다** = 우리 단일변수 대조(kon/koff·dreq2/ctl2)가 놓일 곳. **이 문장을 인용해
+  "저자가 남긴 인과 공백을 우리가 닫는다"로 프레이밍.**
+
+### 4c-2. `2603.03116` (PAE) — 명명 양보 + **compliance-not-scale의 [S]급 외부 증거**
+- **양보(반드시)**: *"**Execution Consistency**… do agent claims match actual tool executions"* ·
+  *"**Data Faithfulness**… does it **fabricate details such as prices, dates, or confirmation numbers**?"*
+  ⇒ **가짜 확인번호 날조는 정의문에 이미 있다. 신규 명명 주장 금지.**
+- ★**인용 이득**: gated Pass^4 **2–24%** · *"**no model above 24%** procedurally compliant reliability"*
+  (GPT-5·Kimi-K2-Thinking·Mistral-Large-3) ⇒ **[[45]]/[[46]] "compliance는 scale이 못 닫는다"의 강한 외부 증거.**
+- **차별화(반드시 명시)**: **τ-bench다·τ² 아님**(`τ²`/`tau2` **0 hits**) · **frontier 3종·32B 없음** ·
+  탐지 = **GPT-5 LLM-as-judge**(구조 프록시는 *다른* 에러타입 전용) · **audit-only**: *"**PAE is a behavioral audit**"*
+  · *"**Learning implicit norms** … **would extend**"*(=미래과제·미수행).
+- ⚠️**[[08]] 주의**: 간판 사례 Phantom Booking(Case 28)을 **저자 스스로** *"this is an **environment artifact,
+  not an agent failure**"*로 귀속. **우리 수치도 같은 분리(진짜 날조 vs 종료 아티팩트)를 해야 인용 자격이 선다.**
+
+### 4c-3. `2509.18970` (서베이) — 명명만 양보 · **evidence-grounding 부재 = 우리 자리**
+- **양보**: *"**Execution hallucinations** refer to the phenomenon where LLM-based agents **claim to have completed
+  certain sub-stages during the execution phase, but in reality, they have not actually been performed**"*.
+- **차별화(반드시)**: 하위분류 2종 = **Tool Selection / Tool Calling**(=에이전트 **내부** 도구오류)이라
+  **agent→user 완료-주장은 미포착** · Communication hallucination = **MAS 에이전트-간 전용** ·
+  **evidence/citation/provenance 본문 0 hits** ⇒ **"주장에 근거를 달게 한다"는 방향이 서베이에 통째로 없다.**
+- ⛔**금지**: ~~"outcome hallucination"~~ = **원문 0 hits · DR 날조**(C109). **이 용어로 인용하면 즉시 오류.**
+
+### 4c-4. `2607.02599` (AgentLTL) — 그라운딩 양보 + vacuous-pass가 우리 delta
+- **양보**: κground(`∀e ∈ ent(a), e ∈ out(τ)`) = **판정자 없는 그라운딩 트레이스 제약**(저자가 신규성 명시)
+  ⇒ **"judge 없는 그라운딩 검증" 헤드라인 폐기**(C106).
+- ★**우리 delta의 가장 날카로운 지점**: *"**κground is satisfied trivially by refusals**, since the universal
+  quantifier holds when the answer contains no entities to verify."* ⇒ **기권이 무조건 통과** = 우리 구조적
+  `evidence:<이벤트 ref>`가 닫는 구멍(주장 이벤트가 있으면 ref 필수 → 기권과 무근거 주장이 **구별**됨).
+- **모티브 외부 실증**: strict-그라운딩 **프롬프트 실패** — *"the strict prompt raises grounding for all models,
+  but the extra grounded traces are **mostly refusals, not correct answers**"* ⇒ [[42]]/C99와 합류·"그러니 학습".
+
 ## 5. 관측 C 재해석 (질의의 거짓 전제)
 - 질의에 넣은 "인자 설명에 'the records you read' 명시했는데도 되묻는다"는 **거짓** — `_f` 주입으로 스키마가
   모델에 도달한 적 없음(§11). 스키마 수정 후 **LLM이 23건을 정확히 formalize**(6/6 엔진 `-> 4`·gold 일치 10/10).
