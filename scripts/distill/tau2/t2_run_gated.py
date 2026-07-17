@@ -53,6 +53,14 @@ def main():
                     help="comma-separated task ids; run ONLY these (for targeted re-runs)")
     ap.add_argument("--max_concurrency", type=int, default=8)
     ap.add_argument("--save_to", required=True)
+    # ★중단·재개 + arm 정렬 (2026-07-18·사용자 지시·`ARM_ALIGNMENT_RESUME_DESIGN_2026_07_18`)
+    ap.add_argument("--auto_resume", action="store_true",
+                    help="기존 save_to서 재개(tau2 `try_resume`: 완료된 (trial,task_id,seed)는 건너뜀). "
+                         "중간에 죽여도 재실행하면 이어서 — 죽인 만큼만 다시 돈다([[09]] 비용).")
+    ap.add_argument("--seed", type=int, default=None,
+                    help="배치 seed(tau2 기본 300). ★**양 arm에 같은 값**을 명시해야 "
+                         "`done_runs` 키 (trial,task_id,seed)가 일치해 **페어 비교**가 성립한다. "
+                         "기본(미지정)도 300으로 같지만, 명시 = 기록 + 드리프트 방지.")
     a = ap.parse_args()
 
     # ---- COST GUARD (2026-06-16 incident: ~$600 OpenRouter drain via Claude on the shared key) ----
@@ -206,6 +214,10 @@ def main():
     _extra_cfg = {}
     if a.retrieval_config:
         _extra_cfg["retrieval_config"] = a.retrieval_config
+    if a.auto_resume:
+        _extra_cfg["auto_resume"] = True
+    if a.seed is not None:
+        _extra_cfg["seed"] = a.seed
     cfg = TextRunConfig(
         **_extra_cfg,
         domain=a.domain,
