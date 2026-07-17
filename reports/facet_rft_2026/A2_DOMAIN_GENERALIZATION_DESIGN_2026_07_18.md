@@ -3,6 +3,42 @@
 > 지시: *"A2로 97개 태스크 모두 동작하게 하라."* 목적 = **리더보드 비교 가능한 banking 점수**(97 태스크·`alltools`).
 > ⚠️**§8 하드룰 1**: 랭크 前 **반증 예측**(§5). ⚠️**[[05]]**: A2=ABox(가변) 허용이나 **task-특화는 정답 주입**이다.
 
+## §PROD. ★★producer op는 도메인 일반화 **불가** — 규칙이 KB-분산·시간-조건부다 (2026-07-18·97런 per-step 확정)
+> 계기: 97런 실패 per-step 포렌식(사용자 지시) → 실패 주축이 verify/give가 아니라 **`get_reward_discrepancies`가
+> 틀린 거래집합을 냄**. 사용자 판단 = **①KB에서 규칙 도출해 op `cases` 확장**. ⇒ **데이터가 ①의 전제를 반증**(§8 하드룰).
+
+**① 증상**(task_026·task_020 등 reward-discrepancy 태스크군): producer가 gold와 **다른 거래집합**을 discrepant로 판정.
+task_026: gold 대상 4건 vs 우리 반환 6건 = **교집합 1건**(`f506`)뿐. `reward_basis=DB`라 거래 틀리면 fail.
+에이전트는 결백 — producer가 준 걸 충실히 제출/실행함(give·user-exec 다 정상).
+
+**② 원인**: op `cases`는 **카드 이름만** 본다(`Silver=4·Gold=2.5…`). task_026 입력의 `Business Silver Rewards Card`가
+없어 `default:null`. ⇒ 표를 채우면 될 것 같으나 —
+
+**③ ★반증**(gold 수치 ÷ amount로 배율 역산): **같은 `Business Silver / Travel`이 배율 20 vs 10으로 갈린다.**
+| card / category | amount | gold | 배율 |
+|---|---|---|---|
+| Business Silver / Travel | 315 | 6300 | **20** |
+| Business Silver / Travel | 380 | 3800 | **10** |
+카드×카테고리 2차원으로도 rate가 안 정해진다.
+
+**④ ★무엇이 20과 10을 가르나 = KB의 시간-조건부 프로모**(축자):
+> *"New Business Silver Rewards Card customers can earn **2x cash back on all purchases for the first 6 months** …
+> Start date: 2024-11-14, End date: **2025-11-14**"* (`Double Cash Back Promo` 문서)
+⇒ rate = 기본 10% **× (거래일 ∈ 프로모기간 ∧ 신규고객이면 2배)**. **최소 4차원**(카드·카테고리·**거래날짜**·**계정자격**)·
+여러 KB 문서 분산·**시간 조건부**.
+
+**⑤ ⇒ [[05]]/[[03b]] 판정 — op로 담을 수 없다**:
+- gold 수치로 표를 채우면 = **정답 주입([[05]] 위반)**.
+- KB 산문의 프로모 조건을 **엔진이 파싱**해 채우면 = **엔진-formalize([[03b]] 위반)** + 날짜/자격 대조는 **유동적 판단**.
+- ⇒ **[[05]] 정본 "결정론↔유동성" 경계 그대로**: 이 rate 판정은 KB를 읽어 프로모기간·자격을 대조하는 **유동적
+  판단**이라 **결정론 offload가 아니라 모델의 몫**이다. task_019는 마침 프로모 없는 단순 케이스라 작동했을 뿐.
+
+**⑥ ★측정된 결론(부정적이나 값짐)**: ***우리 결정론 offload(producer)는 규칙이 문맥-독립일 때만 작동하고,
+banking 보상률처럼 KB-분산·시간-조건부 규칙은 담을 수 없다.*** task_019 성공 = 과적합의 우연.
+⇒ **producer 확장 폐기**(①·②·③ 다). reward-discrepancy 태스크군은 우리 결정론 레버가 원리적으로 안 닿는 곳.
+- **잔여 정당한 기여**(변함없음): verify(84%)·give/완료(22%)·(a1)·TOOLGATE — **compute가 아닌 표면들**.
+- **[[45]] 대조**: 이건 scale이 못 푸는 부하가 아니라 **offload가 못 담는 부하**(KB-문맥 의존)다. 새 축.
+
 ## 0. ★조사 결과 — **A2는 생각만큼 task-튜닝돼 있지 않았다** (무료·env/tasks 직독)
 ### 0.1 env 구조 (banking)
 | | 값 |
