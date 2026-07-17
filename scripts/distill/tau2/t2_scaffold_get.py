@@ -30,11 +30,13 @@ def _build_tool(Tool, d):
     return Tool(fn, examples=list(d.get("examples") or []))
 
 
-def _variant(d):
-    """★A2 변이 선택기 (도메인일반·2026-07-18·단일변수 arm용). `T2_A2_VARIANT=<name>` →
+def _variant(d, name=None):
+    """★A2 변이 선택기 (도메인일반·2026-07-18·단일변수 arm용). `T2_A2_VARIANT=<name>`(또는 명시 `name`) →
     선언의 `variants[<name>]`을 얕은 병합. **엔진은 변이 *이름*만 알고 내용은 A2가 정한다**([[05]]).
-    기본(미지정) = 원본 그대로 = **거동 변화 0**(진행 중 arm 보호)."""
-    vn = os.environ.get("T2_A2_VARIANT")
+    기본(미지정) = 원본 그대로 = **거동 변화 0**(진행 중 arm 보호).
+    `name` 명시 = 프로브용(한 프로세스서 두 arm 비교) — **엔진과 병합 코드를 공유해야** 프로브가 라이브와
+    같은 것을 잰다([[30]] 단위통과≠라이브발화·[[03b]] 별도 구현 금지)."""
+    vn = name or os.environ.get("T2_A2_VARIANT")
     if not vn:
         return d
     v = (d.get("variants") or {}).get(vn)

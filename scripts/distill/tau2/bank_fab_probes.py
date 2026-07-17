@@ -66,9 +66,11 @@ def post(base, payload, timeout=240):
         return json.loads(r.read())
 
 
-def load_tools(overrides=None):
+def load_tools(overrides=None, variant=None):
     """env 도구 + A2 주입 도구 — 라이브와 동일 스키마(모델이 실제로 본 것·[[30]] §13 교훈).
-    overrides = {tool_name: {"description": str, "params": {key: str}}} — A2 설명-레버 arm용."""
+    overrides = {tool_name: {"description": str, "params": {key: str}}} — A2 설명-레버 arm용.
+    variant = A2 `variants[<name>]` 적용(예 "ledger") — **엔진 `sg._variant`를 그대로 호출**해서
+      프로브가 라이브와 **동일한 스키마**를 보게 한다([[03b]] 별도 구현 금지·[[30]] 단위≠라이브)."""
     from tau2.registry import registry
     import t2_scaffold_get as sg
     from tau2.environment.tool import Tool
@@ -76,6 +78,7 @@ def load_tools(overrides=None):
     a2 = json.load(open(A2P, encoding="utf-8"))
     tools = [t.openai_schema for t in env.get_tools()]
     for d in a2["scaffold_get_tools"]:
+        d = sg._variant(d, variant) if variant else d
         d2 = json.loads(json.dumps(d))
         ov = (overrides or {}).get(d2["name"]) or {}
         if ov.get("description"):
@@ -237,6 +240,37 @@ def _leaves(o):
 # ---------------- 분류기 (결정론) ----------------
 # 반환 = (라벨, 범주) · 범주 FAB = 우리가 사냥하는 실패.
 
+def cls_record_ledger(name, args, text, ctx, toolnames):
+    """★원장-결합 변이(`variants.ledger`)용 — `record` 슬롯이 **없다**
+    (`VERIFY_IDENTITY_LEDGER_BINDING_DESIGN_2026_07_18` §6).
+
+    ⚠️**동어반복 함정**: 옛 지표 `record 날조율`은 **정의가 사라진다**(슬롯이 없으니 구조적으로 0).
+      그 0을 "46%→0% 성공"으로 보고하면 **아무것도 안 잰 것**이다. 설계서 §6 ①이 *"이건 시험이 아니라 정의"*
+      라고 미리 못박아 둔 이유.
+    ★**그래서 진짜 시험 = 깔때기**(§2b·[[16]]): **날조가 `provided`로 옮겨갔나.**
+      옮겼으면 표면이 **사라진 게 아니라 이동**한 것 ⇒ 설계서 §6 **(F1) 발동 = 폐기**(기함 교체 금지·감사 §8).
+    라벨: `FAB`=이동 확인(F1) · `OK`=provided grounded(=엔진이 no_record로 조회를 강제할 상태) ·
+          `ASK`=되묻기(F3 과잉기권 계측)."""
+    args = args if isinstance(args, dict) else {}
+    if not name:
+        return ("ASK/텍스트", "ASK")
+    if name != "verify_identity":
+        return (f"다른도구:{name}", "OTHER" if name in toolnames else "FAB-도구명")
+    if "record" in args:
+        # 변이가 안 실렸는데 잰 것 = 배선 오류. 조용히 통과시키면 arm이 무의미해진다([[30]]).
+        return ("★record 인자 잔존 = 변이 미적용(배선오류)", "OTHER")
+    prov = _parse(args.get("provided"))
+    if prov is None:
+        return ("verify:provided-없음/미파싱", "OTHER")
+    vals = list(_leaves(prov))
+    if not vals:
+        return ("verify:provided-빈값", "OTHER")
+    invented = [v for v in vals if v not in ctx]      # cls_record와 **동일 술어**(ctx=user+tool 텍스트)
+    if invented:
+        return (f"★이동:provided-날조({invented[0][:24]})", "FAB")
+    return ("provided-grounded", "OK")
+
+
 def cls_record(name, args, text, ctx, toolnames):
     """§19.2: record 인자가 문맥에 없는 값을 담으면 날조. record⊆사용자제공이면 순환(비교가 공허)."""
     args = args if isinstance(args, dict) else {}
@@ -297,7 +331,7 @@ def cls_dispatch(name, args, text, ctx, toolnames):
 
 
 # ---------------- 프로브 정의 ----------------
-def build_probes(sims, tools, policy, a2, tools_hint):
+def build_probes(sims, tools, policy, a2, tools_hint, tools_ledger=None):
     toolnames = {t["function"]["name"] for t in tools}
     sysmsg = [{"role": "system", "content": AGENT_INSTRUCTION + "\n\n<policy>\n" + policy + "\n</policy>"}]
 
@@ -404,6 +438,15 @@ def build_probes(sims, tools, policy, a2, tools_hint):
     #   닫히면 = learn 표적 아님(A2 한 줄) / 안 닫히면 = **진짜 learn 표적**(논문 코어 근거·[[42]]).
     # ⚠️`dispatch_hint`는 **천장 효과**라 무의미했다(2026-07-18): prior 미발동 조건(cut=18·producer 88%)서
     #   쟀으니 올릴 여지가 없었다. **진짜 시험 = `dispatch_afterkb_hint`**(KB가 prior를 심은 조건서 되돌리나).
+    # ★원장-결합 arm (2026-07-18·`VERIFY_IDENTITY_LEDGER_BINDING_DESIGN` §6) — **단일변수 = 도구 스키마 1개**
+    #   (`record` 슬롯 삭제 + op 교체). 접두·문구·모델 전부 `record` arm과 동일.
+    #   판정 = §6: (F1) `provided`로 이동했나 · (F3) ASK 폭증하나. **(F2) Δspurious는 라이브서만 잴 수 있다**
+    #   (프로브는 결정점 1턴이라 오버블록의 결과가 안 보임) — 프로브 통과 ≠ 라이브 통과.
+    if tools_ledger is not None:
+        P["record_ledger"] = dict(conv=P["record"]["conv"], cls=cls_record_ledger, toolnames=toolnames,
+                                  tools=tools_ledger,
+                                  desc="[record + 원장결합] record 슬롯 삭제 → 날조가 provided로 이동하나(F1)")
+
     for src, dst, why in (("record", "record_hint", "record=조회-복사 구성지시"),
                           ("dispatch", "dispatch_hint", "producer=직접호출 구성지시(⚠️천장효과)"),
                           ("dispatch_afterkb", "dispatch_afterkb_hint",
@@ -529,7 +572,8 @@ def main():
                                        "description": [t for t in a2["scaffold_get_tools"]
                                                        if t["name"] == "get_reward_discrepancies"
                                                        ][0]["description"] + HINT_PRODUCER_SUFFIX}})
-    P = build_probes(sims, tools, policy, a2, tools_hint)
+    tools_ledger, _, _ = load_tools(variant="ledger")
+    P = build_probes(sims, tools, policy, a2, tools_hint, tools_ledger)
     req = [x.strip() for x in a.probe.split(",") if x.strip()]
     names = list(P) if a.probe == "all" else [x for x in req if x in P]
     # ★조용한 무시 금지: 오타·별도모드(prov_reloc)를 목록에 섞으면 **말없이 빠진다**(v3서 실제 발생).
@@ -620,6 +664,24 @@ def main():
     pr("★행9 조건부 prior (producer 직접호출)", "dispatch", "dispatch_afterkb", "ok")
     pr("★KB-prior를 A2 설명이 되돌리나", "dispatch_afterkb", "dispatch_afterkb_hint", "ok")
     pr("★★(a1) env 거짓말 정정 (producer 직접호출)", "unlock_lie", "unlock_truth", "ok")
+    if "record_ledger" in out:
+        # ★원장-결합 판정 (`VERIFY_IDENTITY_LEDGER_BINDING_DESIGN` §6 · 사전등록 반증조건)
+        _r, _l = out["record"], out["record_ledger"]
+        print("\n★★원장-결합(record 슬롯 삭제) — **사전등록 판정**")
+        print(f"  ⓘ `record` 날조율 {_r['fab']}/{_r['total']} → 변이선 **정의상 0**(슬롯 없음). "
+              f"이건 시험이 아니라 동어반복 — 아래가 진짜 시험이다.")
+        _mv, _tot = _l["fab"], _l["total"]                  # FAB = provided로 **이동**
+        _okl = _l["ok"]
+        print(f"  ★(F1) 날조가 `provided`로 이동했나: **{_mv}/{_tot}** "
+              f"(0에 가까워야 함 · 이동했으면 표면이 사라진 게 아니라 옮긴 것)")
+        print(f"  ★grounded provided (= 엔진이 조회를 강제할 상태): "
+              f"{_okl}/{_tot}   ← 기준선 `record` grounded = {_r['ok']}/{_r['total']}")
+        _askl = {k: v for k, v in _l["counts"].items() if k.startswith("ASK")}
+        _askr = {k: v for k, v in _r["counts"].items() if k.startswith("ASK")}
+        print(f"  ★(F3) 과잉기권(ASK): 기준선 {_askr} → 변이 {_askl}")
+        print("  ⚠️(F2) Δspurious(정당한 값 오버블록)는 **프로브로 못 잰다** — 결정점 1턴이라 결과가 안 보인다. "
+              "라이브 단일변수 arm 필요.")
+
     print("\n★A2 설명-레버 (닫히면 learn 불요·안 닫히면 learn 표적)")
     pr("record 날조율", "record", "record_hint", "fab")
     pr("dispatch 직접호출", "dispatch", "dispatch_hint", "ok")
