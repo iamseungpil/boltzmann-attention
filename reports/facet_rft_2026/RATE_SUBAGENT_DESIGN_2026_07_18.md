@@ -25,18 +25,37 @@
 - **격리하면 컨텍스트 = KB+거래뿐** → base_rate 100%(측정). = 사용자 통찰 실증.
 - ⇒ ***rate-formalize를 전용 서브에이전트로 분리 = 부하 제거 = 정확도 회복.*** [[00]] 명제(작은 LLM+분담)의 한 형태.
 
-## 2. 3단 분담 구조
+## 2. ★분담 구조 — 서브에이전트가 날짜엔진을 **function calling으로 호출**(사용자 2026-07-18)
+> ~~§2-v1(서브=파라미터만 → 엔진이 op)~~ 개선: 서브가 **완성된 rate**를 반환하되, 자기가 못하는 날짜산술만
+> **도구 호출로 offload**한다. ⇒ 서브에이전트 *안에서* 다시 [[10]] 분담(생성=LLM·계산=결정론도구)이 일어난다.
+
 ```
-① 메인 에이전트 (도메인일반): reward-discrepancy 필요 판단 → 서브 호출
-② rate-formalize 서브 (격리): 입력=KB rate문서 + 거래 + 개설일
-     출력(operand JSON): 거래마다 { base_rate, promo:{exists,start,end,window_months,mult} }
-     ★날짜 판정은 안 시킨다 — 프로모 *존재*와 *조건 파라미터*만 formalize(측정: 이건 잘함)
-③ 엔진 (결정론·t2_compute): open_date·txn_date로
-     active = open ∈ [promo.start,end] ∧ txn ∈ [open, open+window_months]
-     rate = base_rate × (mult if active else 1) · expected = amt×rate · discrepant=|exp−act|>tol
+① 메인 에이전트: reward-discrepancy 필요 판단 → 서브 호출(격리)
+② rate-formalize 서브 (격리·부하0·도구=날짜엔진 1개):
+     입력 = KB rate문서 + 거래들 + 개설일
+     (a) base_rate·프로모 파라미터 formalize   ← 측정 100% (LLM 강점)
+     (b) 날짜판정이 필요하면 → ★도구 호출:
+            promo_active(account_open, txn_date, window_months, promo_start, promo_end) → bool
+         ← 결정론 엔진이 계산해 bool 반환(모델이 실패한 그 산술·측정 12%)
+     (c) 도구 결과(bool)로 최종 rate 완성: rate = base × (mult if active else 1)
+     출력 = 거래마다 최종 rate(또는 expected) — **완성값**
+③ 엔진(discrepant 판정): expected = amt×rate · |expected−actual|>tol
 ```
-★**핵심 = 서브에게 "날짜가 프로모 안인가"를 묻지 않는다**(측정서 실패한 부분). 대신 **프로모 *규칙 파라미터***
-(start/end/months/mult)만 formalize시키고, **날짜 대조는 엔진**이 한다. = 실패 요소를 결정론으로 이관.
+
+**★왜 function-calling인가**(측정이 지지): 모델은 **base_rate·프로모 존재 = 100%**, **날짜 만료 산술 = 12%**.
+⇒ 날짜산술 **하나만** 도구로 빼면, 모델은 강점(텍스트해석)에 집중하고 약점(날짜)은 도구가 결정론으로 채운다.
+서브 출력이 *파라미터*가 아니라 *완성 rate*라, **메인은 파라미터 해석 불요** — 서브가 자기 답을 도구로 검산해 낸다.
+
+**날짜 도구 시그니처**(도메인일반·`t2_compute` 재사용):
+```
+promo_active(account_open, txn_date, window_months, promo_start=None, promo_end=None) → bool
+  = (promo_start≤account_open≤promo_end 자격) ∧ (account_open ≤ txn_date ≤ account_open + window_months)
+```
+`t2_compute`에 **이미 `_parse_date`·`_days_between`·`days_between` op 존재**(Reg E용) ⇒ `add_months`/구간판정만
+추가(도메인일반 달력산술·리터럴 0). 도구 노출 = `t2_scaffold_get` 주입경로 그대로(A2 도구처럼).
+
+**★서브가 도구를 *부르게* 강제** — 측정서 모델이 날짜를 자기가 계산하려다 틀렸으므로: 서브 호출에 **레버 A
+(`tool_choice`)** 재사용 or 프롬프트 유도. **"날짜가 프로모 안인지 직접 판단하지 말고 promo_active 도구를 불러라."**
 
 ## 3. [[05]]/[[03b]]/[[10]] 정합
 - **[[05]]**: 엔진에 rate·프로모 상수 **0**(전부 서브가 operand로 냄). 도메인 지식 = KB(서브가 읽음)·엔진은 산술만.
@@ -60,14 +79,20 @@
 > **반증조건(폐기·기함교체 금지)**:
 > - **(F1) base_rate가 다른 카드/카테고리서 무너짐**: n↑·타 태스크서 base 정확도 <90%면 → KB해석이 실은 부하
 >   = 서브에이전트로도 안 됨 → §PROD-2 원결론([[45]] 부하)으로 복귀.
-> - **(F2) 프로모 파라미터 formalize 실패**: 서브가 start/end/months/mult를 **틀리게** 내면(측정: "존재"는 읽음·
->   파라미터 정확도 미측정) → 날짜를 엔진에 줘도 입력이 틀려 소용없음.
-> - **(F3) 격리해도 결합서 무너짐**: 서브 단독 정확한데 메인이 서브 호출·operand 전달서 실패 → 배선 문제.
-> - **(F4) 서브가 도메인-전용화**: banking rate만 되고 타 도메인 규칙엔 안 되면 → [[11]] 위반·일반 스킬 아님.
+> - **★(F2) 서브가 도구를 안 부른다**: 측정서 날짜를 자기가 계산하려다 틀렸다 ⇒ **핵심 위험 = `promo_active`를
+>   호출 안 하고 여전히 자기 산술로 답함**. 도구 호출률·인자 정확도(open/txn/window를 맞게 넘기나)를 계측.
+>   호출률 낮으면 tool_choice 강제(레버 A)로 유도 — 그래도 안 되면 설계 실패.
+> - **(F3) 도구 결과를 안 믿는다**: `promo_active`가 False 반환했는데 모델이 여전히 2배 매기면 → tool-result
+>   무시. NabaOS/우리 (a1)의 "env를 안 믿음"과 동종.
+> - **(F4) 프로모 파라미터 formalize 실패**: start/end/months를 틀리게 넘기면 도구 입력이 오염(측정: "존재"만 확인).
+> - **(F5) 서브가 도메인-전용화**: banking rate만 되고 타 도메인 규칙엔 안 되면 → [[11]] 위반·일반 스킬 아님.
 
 ## 6. 순서 (측정 우선)
-1. **base_rate 정확도 확대측정**(무료): 다른 카드/카테고리 조합 n↑ → **(F1) 판정**. 이게 전제.
-2. **프로모 파라미터 formalize 측정**(무료): 서브가 start/end/months/mult를 정확히 내나 → (F2).
-3. 1·2 통과 시 **엔진 op에 날짜판정 추가** + operand 배선 → 410·411 결정론 복구 확인(무료).
-4. task_026류 라이브 단일변수(유료·소수) → (F3).
-- **불통과 시**: §PROD-2 원결론 유지(offload 경계 = KB-조합 판단은 scale). **정직 보고·재설계 안 함.**
+1. **base_rate 확대측정**(무료): 다른 카드/카테고리 n↑ → **(F1)**. 전제.
+2. **★날짜도구 제공 후 재측정**(무료·핵심): `promo_active` 도구를 서브 도구목록에 주고 같은 4거래 재측정.
+   - **(F2)** 호출률 = 모델이 날짜를 도구로 offload하나(vs 자기 계산). **410·411이 도구 호출로 10 복구되나.**
+   - **(F3)** 도구 False를 믿나. **이게 설계의 make-or-break** — base_rate는 이미 100%라, 날짜도구만 먹히면 4/4.
+   - 호출률 낮으면 → **tool_choice 강제(레버 A)** 얹어 재측정.
+3. 2 통과 시 **엔진 `promo_active` op 구현**(`add_months`+구간판정·`t2_compute`) + `t2_scaffold_get` 도구노출.
+4. task_026류 라이브 단일변수(유료·소수) → 통합 검증.
+- **불통과 시**: §PROD-2 원결론 유지(offload 경계). **정직 보고·재설계 안 함.**
