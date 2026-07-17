@@ -33,7 +33,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 SIMDIR = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026", "sim_results")
 
-from t2_gate_patch import _first_fab_call, _ctx_has, DEFAULT_ARG_HINTS  # noqa: E402
+from t2_gate_patch import _first_fab_call, _ctx_has, _args_dict, DEFAULT_ARG_HINTS  # noqa: E402
 
 
 class _TC:
@@ -73,28 +73,69 @@ def all_fabs(am, ctx):
         excl.add((id(tc), k, s))
 
 
-def analyze(tag, write_tools):
+def _leaves(v):
+    """중첩 dict/list의 문자열 잎 — `--all-args`용(엔진 `_flatten`은 hint 매칭 인자만 받으므로 별도)."""
+    if isinstance(v, dict):
+        for x in v.values():
+            yield from _leaves(x)
+    elif isinstance(v, (list, tuple)):
+        for x in v:
+            yield from _leaves(x)
+    elif v is not None:
+        yield str(v)
+
+
+def all_args_fabs(tcs, ctx, write_tools):
+    """★`--all-args` (2026-07-18·사용자 ❷): 엔진 `_first_fab_call`은 **hint 매칭 인자만** 본다
+    (`_hint_hit('record'|'amount'|'date') = False`) → **WRITE 도구의 금액/날짜/참조 인자 날조를 구조적으로
+    못 본다**. 그 사각을 열기 위해 **WRITE 도구에 한해 모든 인자 잎**을 같은 술어(`_ctx_has`·len≥4)로 본다.
+    ⚠️**오탐이 는다**: 식별값과 달리 **계산된 값**(합계 등)은 ctx에 축자로 없는 게 **정당**하다.
+    ⇒ 집계로 결론 금지·**per-case 정독 필수**([[08]])."""
+    out = []
+    for tc in tcs:
+        if tc.name not in write_tools:
+            continue
+        for k, v in (_args_dict(tc) or {}).items():
+            for val in _leaves(v):
+                s = str(val).strip()
+                if len(s) >= 4 and not _ctx_has(s, ctx):
+                    out.append((tc.name, k, s))
+    return out
+
+
+def analyze(tag, write_tools, all_args=False):
     sims = load(tag)
     cells = Counter()
     rows = []
     for s in sims:
         msgs = s.get("messages") or []
-        # assistant 산문 전수(궤적 전체 — 호출 前/後 무관하게 "사용자에게 말했나")
+        # assistant 산문 전수(궤적 전체 — 호출 前/後 무관하게 "값을 사용자에게 말했나")
         prose = " ".join(_text(m.get("content")) for m in msgs
                          if m.get("role") == "assistant").lower()
         ctx_parts = []
-        for m in msgs:
+        for i, m in enumerate(msgs):
             role, content = m.get("role"), m.get("content")
             tcs = m.get("tool_calls") or []
             if role == "assistant" and tcs:
                 ctx = " ".join(ctx_parts).lower()
-                for tname, k, val in all_fabs(_AM([_TC(t) for t in tcs]), ctx):
-                    reported = _ctx_has(val, prose)
+                shim = [_TC(t) for t in tcs]
+                hits = (all_args_fabs(shim, ctx, write_tools) if all_args
+                        else all_fabs(_AM(shim), ctx))
+                # 행위-보고 프록시(3분법·사용자 ❷): 이 호출 **後** assistant 산문이 있나
+                acted = any(_text(mm.get("content")).strip()
+                            for mm in msgs[i + 1:] if mm.get("role") == "assistant")
+                for tname, k, val in hits:
                     kind = ("WRITE" if tname in write_tools else
                             "READ" if write_tools else "?")
-                    cells[(kind, "보고" if reported else "미보고")] += 1
+                    if _ctx_has(val, prose):
+                        bucket = "a.값-보고"
+                    elif acted:
+                        bucket = "b.행위만-보고"
+                    else:
+                        bucket = "c.미보고"
+                    cells[(kind, bucket)] += 1
                     rows.append(dict(sim=s.get("id"), tool=tname, arg=k, val=val,
-                                     kind=kind, reported=reported))
+                                     kind=kind, bucket=bucket))
             if role in ("user", "tool") and content is not None:
                 ctx_parts.append(_text(content))
     return cells, rows
@@ -104,45 +145,59 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("tags", nargs="+")
     ap.add_argument("--write-tools", default="")
+    ap.add_argument("--all-args", action="store_true",
+                    help="WRITE 도구의 **모든** 인자(hint 밖 amount/date/reference 포함) — 사각 열기")
     ap.add_argument("--dump", type=int, default=6, help="궤적 정독용 표본 건수([[08]])")
     a = ap.parse_args()
     wt = {x.strip() for x in a.write_tools.split(",") if x.strip()}
-    print(f"WRITE 도구({len(wt)}): {sorted(wt) or '(미주입 — 보고 축만)'}\n")
+    BUCKETS = ("a.값-보고", "b.행위만-보고", "c.미보고")
+    print(f"WRITE 도구({len(wt)}): {sorted(wt) or '(미주입 — 보고 축만)'}")
+    print(f"모드: {'--all-args (WRITE 전 인자·오탐↑·per-case 정독 필수)' if a.all_args else '엔진 hint 인자만'}")
+    print("★반증조건 **사전등록**(결과 보기 前): WRITE ∧ (b+c) == 0 이면 **인자-축 절단선 폐기·정직 보고**.\n")
 
     tot = Counter()
+    allrows = []
     for tag in a.tags:
         try:
-            cells, rows = analyze(tag, wt)
+            cells, rows = analyze(tag, wt, a.all_args)
         except FileNotFoundError:
             print(f"[{tag}] 없음 — skip")
             continue
         n = sum(cells.values())
-        print(f"=== {tag} — 날조 인자 {n}건")
+        print(f"=== {tag} — 날조 후보 {n}건")
         if not n:
             print("    (없음)\n")
             continue
         for kind in ("WRITE", "READ", "?"):
-            r, u = cells[(kind, "보고")], cells[(kind, "미보고")]
-            if r or u:
-                print(f"    {kind:5s}  보고={r:3d}  미보고={u:3d}   (미보고율 {100*u/(r+u):.0f}%)")
+            row = [cells[(kind, b)] for b in BUCKETS]
+            if any(row):
+                print(f"    {kind:5s}  " + "  ".join(f"{b}={c:3d}" for b, c in zip(BUCKETS, row)))
         tot.update(cells)
+        allrows += rows
         for row in rows[:a.dump]:
-            print(f"      · {row['kind']:5s} {'보고' if row['reported'] else '미보고'} "
-                  f"{row['tool']}({row['arg']}={row['val'][:42]!r}) sim={row['sim']}")
+            print(f"      · {row['kind']:5s} {row['bucket']:12s} "
+                  f"{row['tool']}({row['arg']}={row['val'][:40]!r}) sim={row['sim']}")
         print()
 
     n = sum(tot.values())
     if not n:
+        print("총 0건 — 사전등록 반증조건 발동: 인자-축 절단선 폐기.")
         return
-    print("=" * 66)
-    print(f"★합계 — 날조 인자 {n}건")
+    print("=" * 70)
+    print(f"★합계 — 날조 후보 {n}건")
     for kind in ("WRITE", "READ", "?"):
-        r, u = tot[(kind, "보고")], tot[(kind, "미보고")]
-        if r or u:
-            print(f"  {kind:5s}  보고={r:3d}  미보고={u:3d}   (미보고율 {100*u/(r+u):.0f}%)")
-    w_un = tot[("WRITE", "미보고")]
-    print(f"\n★NabaOS 사각(WRITE ∧ 미보고) = {w_un}/{n} = {100*w_un/n:.0f}%")
-    print("  → 0%에 가까우면 §2.1(write-path)은 **우리 데이터가 지지하지 않는다**(감사 재작성 필요).")
+        row = [tot[(kind, b)] for b in BUCKETS]
+        if any(row):
+            print(f"  {kind:5s}  " + "  ".join(f"{b}={c:3d}" for b, c in zip(BUCKETS, row)))
+    wbc = tot[("WRITE", "b.행위만-보고")] + tot[("WRITE", "c.미보고")]
+    print(f"\n★NabaOS 사각(WRITE ∧ b+c) = {wbc}")
+    print("  " + ("→ **0 = 사전등록 반증조건 발동**: 인자-축 절단선 폐기·정직 보고."
+                  if wbc == 0 else
+                  f"→ 0 아님 ⇒ **per-case 정독 필수**([[08]]·계산된 값=정당한 오탐 배제). 아래 전건:"))
+    if wbc:
+        for r in allrows:
+            if r["kind"] == "WRITE" and r["bucket"] != "a.값-보고":
+                print(f"    · {r['bucket']:12s} {r['tool']}({r['arg']}={r['val'][:60]!r}) sim={r['sim']}")
 
 
 if __name__ == "__main__":
