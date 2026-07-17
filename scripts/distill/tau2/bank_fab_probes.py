@@ -414,6 +414,37 @@ def build_probes(sims, tools, policy, a2, tools_hint):
     return P
 
 
+def model_ctx_len(base, model):
+    """서빙 중인 모델의 max_model_len (프롬프트+생성의 하드 상한)."""
+    try:
+        req = urllib.request.Request(base.rstrip("/") + "/models")
+        with urllib.request.urlopen(req, timeout=30) as r:
+            for d in json.loads(r.read()).get("data", []):
+                if d.get("id") == model and d.get("max_model_len"):
+                    return int(d["max_model_len"])
+    except Exception:
+        pass
+    return None
+
+
+def fit_max_tokens(base, model, spec, want, ctx_len):
+    """★max_tokens는 상한이지 할당이 아니다 — 크게 잡되 **하드 상한**(prompt+gen ≤ max_model_len)엔 맞춘다.
+    접두 토큰을 1-토큰 요청으로 **실측**해 여유를 전부 생성에 준다. 찔끔 올리기(700→3000)가
+    가짜 '호출 0'을 제조했고(§4.1), 무작정 8000은 HTTP 400을 냈다. 둘 다 이 함수로 사라진다."""
+    if not ctx_len:
+        return want, None
+    try:
+        r = post(base, {"model": model, "messages": spec["conv"], "tools": spec["tools"],
+                        "temperature": 0, "max_tokens": 1}, timeout=120)
+        ptok = (r.get("usage") or {}).get("prompt_tokens")
+    except Exception:
+        return want, None
+    if not ptok:
+        return want, None
+    room = ctx_len - ptok - 64
+    return (min(want, room) if room > 0 else 256), ptok
+
+
 def run_probe(base, model, spec, n, temp, chunk, max_tokens=3000):
     """chunk>1이면 vLLM `n` 파라미터로 한 요청당 여러 샘플(접두 prefill 1회 재사용 = 대폭 단축)."""
     cnt, ctx = Counter(), ctx_text(spec["conv"])
@@ -511,6 +542,8 @@ def main():
     # ★게이트-유발 이동 재생(별도 모드): persev_d4 접두서 1차 emit → PROV 날조검출 → REGEN → 2차 분류.
     if a.probe == "prov_reloc":
         spec = P["persev_d4"]
+        a.max_tokens = fit_max_tokens(a.base, a.model, spec, a.max_tokens,
+                                      model_ctx_len(a.base, a.model))[0]
         print(f"\n===== [prov_reloc] n={a.n} T={a.temp} · {spec['desc']}\n"
               f"      1차(게이트 前) → PROV regen 피드백 → 2차(게이트 後) 분류", flush=True)
         c1, c2 = Counter(), Counter()
@@ -542,12 +575,15 @@ def main():
             print(f"saved: {a.out}")
         return
 
+    ctx_len = model_ctx_len(a.base, a.model)
     out = {}
     for nm in names:
         spec = P[nm]
+        mt, ptok = fit_max_tokens(a.base, a.model, spec, a.max_tokens, ctx_len)
         print(f"\n===== [{nm}] n={a.n} T={a.temp} · {spec['desc']}", flush=True)
-        print(f"      접두 {len(spec['conv'])} msgs · 도구 {len(spec['tools'])}종", flush=True)
-        cnt, samples = run_probe(a.base, a.model, spec, a.n, a.temp, a.chunk, a.max_tokens)
+        print(f"      접두 {len(spec['conv'])} msgs · 도구 {len(spec['tools'])}종 · "
+              f"prompt={ptok} · max_tokens={mt}/{ctx_len}", flush=True)
+        cnt, samples = run_probe(a.base, a.model, spec, a.n, a.temp, a.chunk, mt)
         tot = sum(cnt.values())
         trunc = sum(v for (c, _), v in cnt.items() if c == "TRUNC/PARSE")
         # ★동일표면 날조와 **이동한 날조**를 절대 합치지 말 것([[08]]): 레버가 표면을 옮기면
@@ -561,7 +597,8 @@ def main():
               f"FAB(이동) {moved}/{tot}={100*moved/max(tot,1):.0f}% | "
               f"OK {ok}/{tot}={100*ok/max(tot,1):.0f}%"
               + (f"  ⚠️계측결함(잘림/미파싱) {trunc}" if trunc else ""))
-        out[nm] = {"desc": spec["desc"], "n": a.n, "temp": a.temp, "max_tokens": a.max_tokens,
+        out[nm] = {"desc": spec["desc"], "n": a.n, "temp": a.temp,
+                   "max_tokens": mt, "prompt_tokens": ptok,
                    "counts": {f"{c}|{l}": v for (c, l), v in cnt.items()},
                    "fab": fab, "fab_moved": moved, "ok": ok, "trunc": trunc,
                    "total": tot, "samples": samples}
