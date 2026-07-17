@@ -74,7 +74,48 @@ count mismatch detection remain effective because they do not rely on self-tags.
 
 ## 2. 선점되지 **않은** 것 (v2 재절단)
 
-### 2.1 ★★**read-path vs write-path** — v1 "주장 vs 인자"를 **폐기**하고 이걸 쓴다
+### 2.1 ⚠️★★★**v3 — 계측이 이 절을 죽였다** (2026-07-18·사용자 "계측하라"·`bank_readpath_writepath.py`·무료·전수)
+> **v2가 여기서 *"우리 `record` 46%가 정확히 write-path에 산다"*고 **주장**했다. 재보니 **거짓**이다.**
+> **적대적 리뷰가 준 프레임(read/write)이 v1보다 나아 보였지만 — 우리 데이터가 그 칸을 채우지 못한다.**
+
+**① 기함 사례가 애초에 WRITE가 아니다** (판정 근거·코드 직독):
+- `record` 날조의 대상 도구 = **`verify_identity`** (`bank_fab_probes.cls_record`).
+- `verify_identity` = **`a2/banking_knowledge.gate.json` → `scaffold_get_tools[1]`** = `get_reward_discrepancies`와
+  **같은 A2 compute 도구**. tau2 banking env에 **없다**([S] 리모트 grep 0).
+- tau2 `@is_tool(ToolType.WRITE)` 8종 = `apply_for_credit_card·call_discoverable_agent_tool·
+  call_discoverable_user_tool·change_user_email·log_verification·request_human_agent_transfer·
+  submit_referral·submit_transaction` — **`verify_identity` 없음**.
+⇒ ***"record 46% = write-path"는 틀렸다.*** verify_identity는 세상에 쓰지 않는다. **verdict를 계산할 뿐이다.**
+
+**② 전수 census: WRITE 날조 = 0** (`bank_readpath_writepath.py` · 영속 banking sim **8종 전건**):
+| | 보고 | 미보고 | |
+|---|---|---|---|
+| **WRITE** | **0** | **0** | ★**NabaOS 사각 = 0/5 = 0%** |
+| READ | 3 | 2 | **5건 전부 동일 아티팩트**(아래 ③) |
+⇒ **live 궤적에 "지어낸 인자로 WRITE 실행" 사례가 (탐지 범위 내에) 없다.**
+
+**③ 그 5건마저 오탐이다**: 전부 `unlock_discoverable_agent_tool(agent_tool_name='get_reward_discrepancies')`.
+`_hint_hit('agent_tool_name')=True`(hint `name`에 걸림) — **식별값 날조가 아니라 도구 이름**이다. (=(a1)이 고치는 그 호출.)
+
+**④ ⚠️이 census의 사각 — 0%를 과대해석 금지**([[08]]): 엔진 탐지기는 **hint 매칭 인자만** 본다.
+`_hint_hit`: `record`=**False** · `provided`=**False** · `amount`=**False** · `date`=**False** /
+`name·email·user_id·address·phone_number·transaction_id`=True.
+⇒ **이 census는 `record` 46%를 구조적으로 볼 수 없다**(그래서 n이 5로 작다). **"WRITE 인자 날조 0"은
+"식별값 인자에 한해 0"까지만** 말한다. `submit_transaction(amount/date)` 날조는 **미검**.
+
+**⑤ ★그래서 진짜로 남는 것은 write-path가 아니라 이것이다 — 그리고 우리에게 불리하다**:
+`record` 날조는 **세상에 쓰는 것도, 사용자에게 말하는 것도 아니다. *우리 검증기에 먹이는 증거*를 지어내는 것이다.**
+`verify_identity(provided={...}, record={...})` — **LLM이 주장과 증거를 둘 다 공급한다.**
+우리 `cls_record`가 이미 그 공허함을 인코딩해 뒀다: `if set(vals) <= provvals: return ("★record=provided복사(순환)", "FAB")`.
+⇒ ★★**NabaOS의 HMAC 영수증은 정확히 이 구멍을 막으려고 존재한다** — `230-232` *"tool calls are executed by
+the agent **runtime--not by the LLM**"* · `17` *"receipts that the LLM cannot forge"*.
+**즉 이 축에서 NabaOS는 우리보다 낫다.** 그들은 선행일 뿐 아니라 **우리 설계 결함을 진단한다.**
+⇒ **처방(신규 작업·[[05]] 안전)**: `verify_identity`가 **LLM이 복사한 record를 받지 말고, 앞선 lookup 호출의
+참조(=우리 원장의 receipt)를 받게** 한다. 엔진은 이미 `_called_tools(state.messages)` 원장을 갖고 있다
+(`T2_SELF_DECLARATION`). **HMAC은 불요**(엔진이 원장 소유자). ⇒ record 날조 표면 **자체가 소멸**한다.
+**이게 §4의 새 1순위 후보다** — 단 이건 **그들 설계의 채택**이지 우리 신규성이 아니다.
+
+### ~~2.1-v2~~ (아래는 계측 前 서술 · 기록 보존용 · **①~⑤가 대체**)
 **v1의 오류**: *"그들=주장 / 우리=인자"* 는 **합리화**다. 에이전트가 `CASE-123456`을 지어내 넘기고 **사용자에게
 보고하면**, 그건 `pratyakṣa` 주장이라 `facts`(`315-316`)·`result_count`(abhāva) 대조에 **걸린다**. 게다가
 `230-232` *"tool calls are executed by the agent runtime--**not by the LLM**"* + `242` `input_hash` +
@@ -153,8 +194,10 @@ ungrounded = *"Cannot verify — flag"*. `225`: *"**The user can then apply thei
 
 ## 4. 재정렬된 "남는 자리" (v2·강→약)
 
-1. ★★**write-path**(§2.1) — 보고되지 않는 인자 날조. 그들 threat model이 **read-path서 끝난다**. 우리 `record`
-   46%·`T2_SELF_DECLARATION`이 이미 그 축. **⚠️전제: 우리 실패를 보고/미보고로 분리 계측해야 한다(미측정).**
+1. ~~★★**write-path**~~ ❌**계측으로 철회**(§2.1-v3·2026-07-18): 기함 사례 `verify_identity`가 **WRITE가 아니고**,
+   전수 census **WRITE 날조 0/5**(5건 전부 `agent_tool_name` 오탐). **우리 데이터가 이 칸을 안 채운다.**
+   ⇒ 대체 = ★**우리 검증기가 LLM이 공급한 증거를 받는다**는 설계 결함(§2.1-v3 ⑤) — 단 **처방은 NabaOS 채택**
+   (receipt 바인딩)이라 **우리 신규성이 아니다**.
 2. ★★**ASK 종결**(§2.3) + **INFER-calibration**(§2.4·[[16]] 유일 잔여 = 그들 자인 사각). **행동 축 = 그들이
    `689`서 스스로 선을 그은 곳**(*"verification policy rather than behavioral alignment"*).
 3. ★**task-level 결과 계측**(§2.2·좁힘) + **생성-측 효과를 그들 벤치가 못 본다**(§3 잔여).
