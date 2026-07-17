@@ -194,17 +194,29 @@ def engine_rate(base_rate, has_promo, promo_mult, account_open, txn_date, window
 
 
 def parse_json(text, keys):
-    for i in range(len(text or "")):
-        if text[i] != "{":
+    """텍스트 안의 JSON을 **전부** 모아 병합한다.
+    ⚠️32B는 `[{txn_A:…},{txn_B:…}]`(배열) 또는 거래별 별도 객체로 답한다 — 첫 객체만 집으면
+    나머지가 전부 None이 되어 **모델 실패로 오독**된다(2026-07-18 실측·[[08]]).
+    """
+    text = text or ""
+    out, i = {}, 0
+    while i < len(text):
+        if text[i] not in "{[":
+            i += 1
             continue
         for j in range(len(text), i, -1):
             try:
-                j_obj = json.loads(text[i:j])
+                val = json.loads(text[i:j])
             except Exception:
                 continue
-            if isinstance(j_obj, dict) and any(k in j_obj for k in keys):
-                return j_obj
-    return None
+            for d in (val if isinstance(val, list) else [val]):
+                if isinstance(d, dict):
+                    out.update({k: v for k, v in d.items() if k in keys})
+            i = j
+            break
+        else:
+            i += 1
+    return out or None
 
 
 def main():
