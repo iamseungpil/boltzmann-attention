@@ -247,6 +247,62 @@ sim-수준 1차 귀속(pooled): **미실행 지배(gold 1/3+ 미실행) 37.8%** 
 
 ---
 
+## 3b. ★★공식 리더보드 직독 (banking) — **2026-07-18 · `https://taubench.com` 렌더링 확인**
+> 취득: 브라우저 렌더링(JS 로딩·`get_page_text`+DOM 추출) · **repo엔 공개 리더보드 데이터가 없다**
+> (`docs/leaderboard-submission.md`는 제출 *방법*만). 제출처 = sierra-research/tau2-bench **PR**.
+> ⚠️**인용 시 취득일 명시**(리더보드는 갱신됨).
+
+### 3b.1 ★제출 유형 정의 (축자) — **우리는 Custom이다**
+| 유형 | 축자 정의 |
+|---|---|
+| **Standard** | *"Results using the **default τ-bench scaffold**: a base LLM with the standard tool set and prompts."* |
+| ★**Custom** | *"Results using **modified scaffolds**, such as multi-model routers, **additional tools**, custom prompting strategies, or other **orchestration approaches**."* |
+| Legacy (v1) | *"…original τ-bench v1 task set. **not directly comparable**…"* |
+⇒ **우리 스택(A2 주입 도구 + 게이트 + regen 오케스트레이션) = 명백히 Custom.** Standard와 직접 비교 금지.
+
+### 3b.2 Banking · Standard (18항목·PASS^1 내림차순)
+| # | 모델 | RETRIEVAL | REASONING | USER SIM | PASS^1 |
+|---|---|---|---|---|---|
+| 1 | GPT-5.5 | alltools | xhigh | gpt-5.2 | **46.4%** |
+| 2 | GPT-5.4 | alltools | xhigh | gpt-5.2 | 39.4% |
+| 3 | **GPT-5.2** | alltools | high | gpt-5.2 | **32.2%** |
+| 4 | Claude Opus 4.7 | alltools | max | gpt-5.2 | 30.1% |
+| 5 | GLM-5.2 | alltools | max | GLM-5.2 | 29.6% |
+| 6 | Gemini 3 Flash | Terminal | high | gpt-5.2 | 27.3% |
+| 7 | Claude Opus 4.6 | alltools | max | gpt-5.2 | 27.3% |
+| 8 | Gemini 3.1 Pro Preview | alltools | high | gpt-5.2 | 26.0% |
+| 9 | Claude Sonnet 4.5 | Terminal | enabled | gpt-5.2 | 25.3% |
+| 10 | Claude Opus 4.5 | alltools | high | gpt-5.2 | 24.7% |
+| 11 | Gemini 3 Pro | Terminal | high | gpt-5.2 | 18.0% |
+| 12 | Grok 4.2 | alltools | high | gpt-5.2 | 18.0% |
+| 13 | Grok 4 fast | alltools | high | gpt-5.2 | 15.7% |
+| 14 | Gemini 2.5 Pro | alltools | high | gpt-5.2 | 13.7% |
+| 15 | Grok 4.1 fast | alltools | high | gpt-5.2 | 13.1% |
+| 16 | GPT-5.2 | qwen_embeddings | none | gpt-5.2 | 12.6% |
+| 17 | GLM-5 | text-emb-3-large | enabled | gpt-5.2 | 9.8% |
+| 18 | **Qwen3.5-397B-A17B** | text-emb-3-large | enabled | gpt-5.2 | **9.8%** |
+
+### 3b.3 ★Banking · **Custom = 단 1항목** (우리의 실질 비교 대상)
+| # | 모델 | RETRIEVAL | REASONING | USER SIM | PASS^1 |
+|---|---|---|---|---|---|
+| 1 | **Distyl ButtonAgent** | **mixedbread** | high | gpt-5.2 | **31.2%** |
+
+### 3b.4 ★★인용 가능한 확정 사실
+1. **banking은 frontier도 46.4%가 천장**(GPT-5.5·xhigh). **GPT-5.2 = 32.2%**(우리 user-sim과 동일 모델).
+   오픈웨이트 최대(Qwen3.5-397B-A17B)는 **9.8%**.
+2. **user-sim = gpt-5.2가 사실상 전 항목 표준**(18/19; GLM-5.2만 자기 모델) ⇒ [[30]]의 "권장표준=gpt-5.2" **재확인**.
+3. ★**`bm25` 항목 = 0** (Standard 18 + Custom 1 전수). **retrieval 분포**: alltools **12** · Terminal 3 ·
+   text-emb-3-large 2 · qwen_embeddings 1 · mixedbread 1(Custom).
+   ⇒ ***bm25로는 비교 대상이 없다.*** **우리 런은 `alltools`로 가야 리더보드와 비교 가능**(상위권 전부 alltools).
+   ⚠️**우리 기존 banking 런은 전부 `--retrieval_config bm25`** — **리더보드 비교 불가**·내부 arm 대조로만 유효.
+4. **Custom 경쟁자는 Distyl ButtonAgent 31.2% 하나**뿐 = **scaffold를 얹어도 frontier Standard(46.4%)를 못 넘겼다**
+   는 공개 증거. (단 그들 base 모델 미공개.)
+
+⚠️**2026-07-18 내 오류 기록**([[08]]·§8 하드룰 2): 처음에 *"bm25 28항목·alltools 22항목"*이라고 표까지 만들어
+보고했는데, 그건 **우리 자신의 `data/simulations/*/results.json` 설정**을 센 것이었다(공개 항목 아님).
+**grep 히트를 주장으로 착각** — `time_verified`·`log_verification` WRITE 판정과 **같은 오류 클래스**.
+**실제 리더보드를 렌더링해서야** 정정됐다.
+
 ## 4. 확정·미측정 정리
 - **[측정·확정]** frontier 잔여=**F2 변형**(§3.2 baseline gpt-4.1 sim + **§3.2b 신형 8개 gpt-5.2 sim·둘 다**)·F2=thinking이 삼(Qwen-think 0.4%)·F3 ⋈는 scale가 삼(<1.8%)·compliance drop 모트(§3.3)·격차 분해(§3.1)·챔피언 Claude/Qwen 상위(§3.4). **전부 재현 가능**(baseline 공개·우리 arm sim_results·**신형 S3 재다운로드**).
 - **[★raw 재취득 = 해결·[[30]] 소실 재발 방지]** 신형 궤적은 S3 상주: base `https://sierra-tau-bench-public.s3.us-west-2.amazonaws.com/submissions` · `manifest.json`으로 dir 목록 · 각 `submission.json.trajectory_files.retail` · `<base>/<dir>/trajectories/<trajfile>`. 스크립트 `frontier_function_decomp.py`. **더는 "소실"이 아니다 — URL이 이 문서에 영속됨.**

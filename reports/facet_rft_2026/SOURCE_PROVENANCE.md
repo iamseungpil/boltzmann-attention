@@ -58,6 +58,16 @@ verification mechanism"* · `374-375` Computation replay · `394-397` 벤치=튜
 `739-741` **Compromised tools = *"If a tool itself returns incorrect data"*(★v1 오귀속의 반증)** ·
 `743-745` *"remain effective because they do not rely on self-tags"*(★§3 강등 근거) · `749-751` Reasoning errors.
 
+### 1b. 공식 리더보드 (웹·**repo에 없음**)
+| 항목 | 값 |
+|---|---|
+| **URL** | `https://taubench.com` (Leaderboard 탭 · JS 렌더링 — **WebFetch로는 헤더만 온다. 브라우저 렌더링 필수**) |
+| **취득일** | **2026-07-18** ⚠️리더보드는 **갱신된다** — 인용 시 **반드시 취득일 명시** |
+| **추출** | 브라우저 `get_page_text` + DOM 표 추출(`table tr` → 셀). 유형 필터 = `<label>` 체크박스 **Standard/Custom/Legacy** (기본 Standard+Legacy만 ON·**Custom은 기본 OFF**) |
+| **전재** | `TAU2_FRONTIER_TRAJECTORY_INVESTIGATION_MASTER_2026_07_09 §3b`(표 전문·정의 축자) |
+| **재현** | 브라우저로 `taubench.com` → Leaderboard → 🏦 Banking → 체크박스로 Standard/Custom 분리 |
+| ⚠️**[S] 부재** | **`bm25` = 0항목**(검색: Standard 18 + Custom 1 **전수 직독**·retrieval 배지 열). ⚠️**repo의 `*.json` grep은 리더보드가 아니다** — 그건 우리 `data/simulations/*/results.json`이다(내가 착각한 지점) |
+
 ### 2. `2606.05806` — ToolMaze
 | 항목 | 값 |
 |---|---|
