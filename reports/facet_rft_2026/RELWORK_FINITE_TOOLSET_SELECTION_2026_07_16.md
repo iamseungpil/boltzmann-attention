@@ -76,10 +76,10 @@
 
 | 주장 | 판정 | 핵심 선행 (양보·인용) | 잔여 미선점 (우리 delta) |
 |---|---|---|---|
-| **1 차단≠회복 + 대안-도구 인과 레버** | **(b)** | perseveration 계량(유효 도구 대상): `2605.08477`("동일 도구+동일 인자 반복률" metric·SH 66.9% vs FH 13.9%·**"try a different tool" 피드백에도 5연속 반복**·단 constrained decoding으로 비존재-도구 emit 자체가 구조적 불가) · MIRAGE `2507.21017`(FIH-repetitive 3/6회 스냅샷·judge·Qwen2.5-32B HR .324·완화실험 없음) · SciAgentGym `2602.12984`(Loop Escape 35.7%) · ★**ToolMaze `2606.05806`**: 대안-도구 topology를 통제변수로 조작(C1 무대안 vs C2 대체·PRR 33.40→50.54%)·"switch to alternative"=정상 회복 규범화 — **단 실재 도구의 주입-오류 세팅**(비존재-도구 게이트 차단 아님·도구는 목록에 상존) · AgentAbstain `2607.10059`(도구 toggle=minimal perturbation·DV=기권·**Post-hoc가 아니라 회복 아님**) · `2607.01641`=정적분석 전용 **[S] 미선점 확정**(4표) | "**날조 비존재 도구**의 결정론 차단+명시 피드백 후 동일명 재-emit 계량 + **A2 대안 공급 단일변수 toggle**"은 여전히 부재. §20 키스톤 기각과 정합: ToolMaze(그들 세팅선 대안→회복↑) vs 우리(Δ=0·perseveration↓만) = **세팅 대조 foil**로 사용 — 논문 프레임=레버-부작용 유지 |
+| **1 차단≠회복 + 대안-도구 인과 레버** | **(b)** | perseveration 계량(유효 도구 대상): `2605.08477`("동일 도구+동일 인자 반복률" metric·SH 66.9% vs FH 13.9%·**"try a different tool" 피드백에도 5연속 반복**·단 constrained decoding으로 비존재-도구 emit 자체가 구조적 불가) · MIRAGE `2507.21017`(FIH-repetitive 3/6회 스냅샷·judge·Qwen2.5-32B HR .324·완화실험 없음) · SciAgentGym `2602.12984`(Loop Escape 35.7%) · ★**ToolMaze `2606.05806`**: 대안-도구 topology를 통제변수로 조작(C1=*"no alternative path"* vs C2=*"introduces alternative tool paths"*·**축자 확인 §4c-5**)·"switch to alternative"=정상 회복 규범화 — **단 실재 도구의 주입-오류 세팅**(축자: *"the engine returns the pre-specified synthetic response"*·비존재-도구 게이트 차단 아님·도구는 목록에 상존) ⚠️~~PRR 33.40→50.54%~~ **철회**(원문 0회=DR 스플라이스·§4c-5) · AgentAbstain `2607.10059`(도구 toggle=minimal perturbation·DV=기권·**Post-hoc가 아니라 회복 아님**) · `2607.01641`=정적분석 전용 **[S] 미선점 확정**(4표) | "**날조 비존재 도구**의 결정론 차단+명시 피드백 후 동일명 재-emit 계량 + **A2 대안 공급 단일변수 toggle**"은 여전히 부재. §20 키스톤 기각과 정합: ToolMaze(그들 세팅선 대안→회복↑) vs 우리(Δ=0·perseveration↓만) = **세팅 대조 foil**로 사용 — 논문 프레임=레버-부작용 유지 |
 | **2 완료 날조 + 구조 이벤트 게이트** | **(b)·명명·벤치·rate는 사실상 (a)** | ★**False Success `2606.09863`**: **같은 τ²-bench** 9,876궤적·"false success"=실패의 45–48%(single-control)·모델별 13~79%·텍스트 탐지기 AUROC 0.83–0.95 — **단 post-hoc triage only·개입 0**·LLM-judge 실패(≤0.65)는 우리 문제설정 지지 · PAE `2603.03116`(Execution Consistency·**confirmation numbers 날조**·Phantom Booking·LLM-judge post-hoc) · 서베이 `2509.18970`("execution/outcome hallucination" 명명 기존재) · NabaOS `2603.10060`(HMAC 영수증 교차검증·fabricated tool reference 94.2% — 구조-증거 게이팅 부분선점·단 claim 추출=**텍스트 파싱 필요**·탐지-only·합성주입 평가) · ToolFailBench `2607.04686`(Output-Fabrication=**도구 호출됨** 전제=구별) · AgentAbstain(Post-hoc Abstention 2.6%=거울상) | **"action-completion fabrication" 신규 명명 주장 철회**(관리표 행2 갱신). 잔여 delta = ①**라이브 개입**(탐지→regen 인과사슬·전 선행=post-hoc/탐지-only) ②**텍스트-파싱-0 순수 구조-이벤트 결정론 게이트**({GET∧후속 미호출∧사임 N회}) ③자연발생 다중턴서 게이트 유효성. 잔여 정독 1건: AgentLTL `2607.02599`(LTL 절차준수 **training** 포함— 완료-주장 게이팅 여부 원문 확인) |
 | **3 in-band active contradiction** | **(c)에 근접한 (b)** | knowing-doing 정본 `2504.16078`(bandits·옳은 rationale 87%에도 58% greedy — tool-calling 아님) · HalluClear `2604.17284`(RH.2 reasoning↔action 모순 명명·계측 — **GUI·VLM-judge·스텝 내**) · When2Tool `2605.09252`(probe-기반=KAPRO 계열·"표현지식은 표출능력과 독립"=오히려 우리 delta 지지) · MIRAGE FIH rubric(인지-**부재** 측정=방향 반대) · AgentAbstain(missing verifier **인정 직후** $500 이체 관찰 — 전용 계측축 아님·기권실패 분류 일부) | tool-calling에서 "**부재 언어화 직후 그 도구 재호출**"의 전용 명명·same-trajectory 계량 = 미선점 유지(§3-1 그대로). 인접 5편 인용 필수 |
-| **4 턴 간 인자 누적 + 비대칭** | **(b)** | ToolDial `2503.00564`(과제공간 선점: DST→tool-args·11,111대화·sub-70% — **직전-턴-only 유형 명명 없음·description A/B 없음**) · LLMs Get Lost `2505.06120`(sharded −39%·**loss-of-middle-turns** 명명=현상 일반형 선점·개입=user-side Recap/Snowball뿐) · IFEval-FC `2509.18420`(param-description 지시 준수 계량·단일턴·"자주 무시됨"·<80%) · TAFC `2601.18282`(description 최적화=방법 전제 선점·wording A/B 없음) · `2601.08070`(금지문 역효과=일반 LLM 수준) | ①**직전-턴-only 인자누적 실패**의 유형 명명·계측 ②A2 설명 "누적 명시" **A/B 대조(60→93.3%·n=60/arm)** ③금지문 무효 vs 긍정형 구성-지시 유효 **비대칭의 tool-arg 맥락 실측** = 셋 다 미선점. 잔여 정독 1건: ToolHaystack(historical noise→parameter hallucination·서베이 경유 [D]) |
+| **4 턴 간 인자 누적 + 비대칭** | **(b)** | ToolDial `2503.00564`(과제공간 선점: DST→tool-args·11,111대화·sub-70% — **직전-턴-only 유형 명명 없음·description A/B 없음**) · LLMs Get Lost `2505.06120`(sharded −39%·**loss-of-middle-turns** 명명=현상 일반형 선점·개입=user-side Recap/Snowball뿐) · IFEval-FC `2509.18420`(param-description 지시 준수 계량·단일턴·"자주 무시됨"·<80%) · TAFC `2601.18282`(description 최적화=방법 전제 선점·wording A/B 없음) · `2601.08070`(금지문 역효과=일반 LLM 수준) | ⚠️**①은 하향**(ToolHaystack 정독·§4c-6): ~~직전-턴-only 유형 명명·계측=미선점~~ → **부분선점** — **CR-Multi**(*"consolidate information from various parts of the conversation"*)+**recency bias**(*"peak performance (94.44%) when the evidence is immediately adjacent"*)가 이미 명명·계량. 남는 delta=**좁음**: 그들=증거 *거리*에 따른 검색 실패 / 우리=찾은 값들의 **한 호출 인자 union**(operand 구성) — **논문에 이 구분 명시 필수**(안 하면 CR-Multi로 리젝 가능). ②A2 설명 "누적 명시" **A/B 대조(60→93.3%·n=60/arm)** ③금지문 무효 vs 긍정형 구성-지시 유효 **비대칭의 tool-arg 맥락 실측** = **②③은 미선점 유지**(ToolHaystack=평가 전용·개입은 CoT뿐이고 *"not universally effective"*·description A/B **0**). ✅ToolHaystack 정독 **완료**(`2505.23662`·[D]→[M])·"parameter hallucination"=**원문 0회**(서베이 표현) |
 
 ### 4b-1. ★★행12(논문 코어) 최종 선점확인 — **AgentLTL `2607.02599` 전문정독(PDF 34쪽·2026-07-17)** ⇒ **(b) 부분선점**
 > ⚠️**"미선점" 잠정 판정 하향**([[08]] 자기감사·과잉주장 방지). HTML 판 없음(404) → PDF 직접 추출 정독.
@@ -121,10 +121,11 @@
   선행 1순위(인용+차별화 필수)·NabaOS = 런타임 영수증 탐지(claim 텍스트 추출 필요).
 
 - **행12 선점확인 종합**: **(b) 부분선점** — 위 delta 4겹으로 코어 생존. C45(선행0 기확정) 위 신규층 유지.
-- **부수 수확**: ToolMaze scale-저항(기본성능이 fault-tolerance보다 3.66× 빨리 성장)·AgentAbstain
+- **부수 수확**: ToolMaze scale-저항(**축자 확인**·§4c-5: TSR(NP) **+17.85pp** vs PRR **+4.88pp** per OOM ⇒ 3.66×)·AgentAbstain
   scale-독립(최고 59.5%·13/17이 50%미만) = [[45]] 인용감 2건 추가 · ToolFailBench Qwen2.5-32B 단일턴
   CTUR 82.68%(3위) = "다중턴 병리는 단일턴 무능으로 환원 안 됨" 방증.
-- **원문 정독 필수 목록**(인용 前·C104 ⑥): `2606.09863`·`2606.05806`·`2603.10060`·`2607.02599`·ToolHaystack.
+- **원문 정독 필수 목록**(인용 前·C104 ⑥): ✅`2606.09863`(C109)·✅`2606.05806`(C110·§4c-5)·✅`2607.02599`(C106)·
+  ✅ToolHaystack `2505.23662`(C110·§4c-6) — **잔여 1건: `2603.10060`(NabaOS)**.
 
 ## 4c. ★★★인용 필수 원장 — **논문 집필 시 누락 금지** (사용자 2026-07-18 지시)
 > 규칙: 아래는 **반드시 인용**한다. 축자 확인 완료분만 등재(전문정독·C106/C109). **DR 요약은 등재 금지.**
@@ -194,6 +195,50 @@
   `evidence:<이벤트 ref>`가 닫는 구멍(주장 이벤트가 있으면 ref 필수 → 기권과 무근거 주장이 **구별**됨).
 - **모티브 외부 실증**: strict-그라운딩 **프롬프트 실패** — *"the strict prompt raises grounding for all models,
   but the extra grounded traces are **mostly refusals, not correct answers**"* ⇒ [[42]]/C99와 합류·"그러니 학습".
+
+### 4c-5. `2606.05806` (ToolMaze) — **세팅 대조 foil** + ★우리 인용수치 1건 **철회**(DR 날조 5번째)
+> 정독 2026-07-18(pdftotext 전문·2495줄). **행1의 근거 문장이 바뀐다.**
+- ★★**철회(내 잘못)**: ~~"C1/C2·PRR **33.40→50.54%**"~~ = **원문에 없다**. 전수 grep 결과:
+  **`50.54`는 논문 전체에 0회**(유일한 `50.5x` = `50.57` = MiniMax-M2.7 **C1/P1** PRR 셀) ·
+  **`33.40`은 PRR이 **아니라** Gemini-3.1-Pro-Preview (w/o hint)의 **TSR(NP)** 셀**.
+  ⇒ **서로 다른 모델의 무관한 두 셀을 용접한 DR 스플라이스** = **C104⑥ 계열 5번째**. **인용 금지.**
+  (교훈 재확인: **DR 요약은 인용 재료가 아니다**([[08]]). 이번엔 *숫자가 실재해서* 더 그럴듯했다 —
+  `33.40`이 진짜 있는 숫자라 grep 하나로는 안 죽고, **무엇의 숫자인지**까지 봐야 죽었다.)
+- ✅**살아남는 것(축자·인용 가능)**: 대안-토폴로지를 **통제변수로 조작**한다는 우리 판정은 **옳다**.
+  > C1: *"any perturbation creates a single point of failure, requiring the agent to localize the anomaly
+  > despite having **no alternative path**"* ↔ C2: *"**C2 introduces alternative tool paths, enabling agents
+  > to bypass failed tools through rerouting**"* (C3/C4는 탐색공간 팽창으로 **다시 악화**).
+- ✅**우리 차별화의 축자 근거**(행1 delta가 **강해짐**): 그들 세팅 = **실재 도구·목록 상존·응답에만 오류 주입**.
+  > *"if the call matches a fault rule, the engine returns the **pre-specified synthetic response**; otherwise,
+  > it forwards the call to the standard tool simulator."* — 도구 **제거·비존재 도구 없음**.
+  ⇒ **"날조된 비존재 도구를 결정론 차단한 뒤"의 계량은 여전히 미선점**. §20 Δ=0 **세팅 대조 foil** 유지.
+- ✅**[[45]] 인용감(축자·수치 교체)**: ~~"3.66× 빨리"~~ 대신 **기전 수치로 인용**:
+  > *"TSR(NP) grows by **17.85 percentage points (pp)** per order of magnitude in parameter count, whereas
+  > PRR increases by merely **4.88 pp**"* ⇒ *"each order-of-magnitude increase … roughly **3.66× more gain in
+  > baseline task completion than in fault-tolerance**"* · 결론 축자: *"dynamic recovery is a distinct,
+  > foundational capability **unaddressed by current scaling or superficial prompting strategies**"*
+  = **[[45]](scale이 못 푸는 부하) + [[42]](프롬프트 천장)의 외부 증거 2겹.**
+
+### 4c-6. ToolHaystack `2505.23662` (EMNLP25 Findings) — ★**행4 ①이 우리가 쓴 것보다 약하다**(자기교정)
+> 정독 2026-07-18(전문 2041줄). **[D]→[M]**. 행4의 명명 주장을 **내려야** 한다.
+- ★★**우리에게 불리한 발견(내가 먼저 신고)**: **CR-Multi = 우리 "턴 간 인자 누적"의 과제공간을 이미 정의**.
+  > *"**CR-Multi**: Multiple pieces of relevant information must be **identified and integrated**. This setting
+  > tests the model's ability to **consolidate information from various parts of the conversation**, requiring
+  > both memory and reasoning."* · 위치편향 실측 = *"closed-source models exhibit a strong **recency bias**,
+  > achieving peak performance (**94.44%**) when the evidence is **immediately adjacent** to the query
+  > (distance 0)"*(먼 증거서 급락·Table 3).
+  ⇒ ~~"①직전-턴-only 유형 명명·계측 = 미선점"~~ → **부분선점으로 하향**. "가까운 건 쓰고 먼 건 못 쓴다"는
+  **이미 명명·계량**돼 있다(recency bias + CR-Multi 통합실패). **남는 delta = 좁다**: 그들 축 = *증거 거리에 따른
+  검색 실패*(어느 값을 찾나) / 우리 축 = *찾은 값들을 **한 호출의 인자로 union**하나*(operand 구성). **이 구분을
+  논문에 명시적으로 쓰지 않으면 리뷰어가 CR-Multi로 리젝할 수 있다.**
+- **명명 양보**: *"parameter hallucination"* = **원문 0회**(grep 확인) = **서베이 경유 표현**([D]가 옳았다).
+  그들 축자 = *"**hallucinating arguments** or selecting incorrect tools by referring to **irrelevant yet
+  semantically-related context**"* · 분류 = **In-context**(오도 단서서 채운 인자) vs **Out-of-context**(전무한 정보).
+  ⇒ **"인자 날조" 명명 주장 금지.** 우리 표현은 그들 taxonomy를 인용해 얹을 것.
+- ✅**행4 ②③은 생존(축자 확인)**: **평가 전용**이다 — 유일 개입 = **CoT뿐**이고 그마저:
+  > *"CoT prompting is **not universally effective** for long-term tool use"*
+  **description/wording A/B = 0**. ⇒ **②누적-명시 A/B(60→93.3%·n=60/arm) ③금지/긍정 비대칭 실측 = 미선점 유지**
+  ([[42]] 프롬프트-천장 서사와도 합류: 그들의 CoT 실패 = 우리 "긍정형 operand-구성 지시가 유효"의 대조군).
 
 ## 5. 관측 C 재해석 (질의의 거짓 전제)
 - 질의에 넣은 "인자 설명에 'the records you read' 명시했는데도 되묻는다"는 **거짓** — `_f` 주입으로 스키마가
