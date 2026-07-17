@@ -224,6 +224,46 @@ def apply_op(spec, ctx):
                                   missing=", ".join(missing) or "(none)")
             except Exception:
                 return str(len(matched))
+        if op == "match_verdict_grounded":
+            # ★원장-결합 verdict (`VERIFY_IDENTITY_LEDGER_BINDING_DESIGN_2026_07_18`·2026-07-18).
+            #   `match_verdict`의 대체: **`b`(=LLM이 준 record)를 안 받는다.** 그 슬롯이 곧 날조 표면이었다
+            #   (record 날조 46%·grounded 0/24·A2 설명레버로도 0/24 — LLM이 주장과 증거를 둘 다 공급 = 비교가 공허).
+            #   대신 필드값이 ①**user 발화**에 등장(고객이 실제로 말함) ∧ ②**선언된 producer 출력**에 등장
+            #   (계정 기록과 일치)할 때만 매치로 센다 ⇒ **날조 슬롯 소멸 + 조회 강제**(출력 없으면 0 match).
+            # ★[[03b]]: 엔진은 **추출/파싱을 하지 않는다** — operand는 LLM이 formalize해 인자로 주고,
+            #   엔진은 "이 문자열이 저 영수증에 등장하나"만 묻는다(=PROV의 `_ctx_has` **동일 술어** 재사용).
+            # ★[[05]]: 어느 도구가 record producer인가 = **A2 `evidence_from`**. 엔진에 도메인 리터럴 0.
+            #   ctx의 `__user_text`/`__tool_outputs` = scaffold가 원장(실제 호출 이력)서 주입.
+            from t2_gate_patch import _ctx_has     # 지연 import(순환 회피)·술어 단일화([[03b]])
+            a = _get(ctx, spec.get("a"))
+            fields = list(spec.get("fields") or [])
+            thr = int(spec.get("threshold", 2))
+            ev = [str(x) for x in (spec.get("evidence_from") or [])]
+            utext = str((ctx or {}).get("__user_text") or "")
+            outs = (ctx or {}).get("__tool_outputs") or {}
+            rtext = " ".join(str(outs.get(t) or "") for t in ev).strip()
+            matched, missing = [], []
+            if isinstance(a, dict):
+                for f in fields:
+                    v = a.get(f)
+                    s = "" if v is None else str(v).strip()
+                    # len<4 = 우연 부분일치 방지(`_first_fab_call`과 동일 관례)
+                    if len(s) >= 4 and _ctx_has(s, utext) and _ctx_has(s, rtext):
+                        matched.append(f)
+                    else:
+                        missing.append(f)
+            else:
+                missing = list(fields)
+            if not rtext:            # 아직 조회 안 함 → 날조가 아니라 **순서**의 문제 = 별도 문구(A2)
+                tpl = spec.get("no_record_template") or spec.get("unmet_template") or "{count}"
+            else:
+                tpl = spec.get("met_template" if len(matched) >= thr else "unmet_template") or "{count}"
+            try:
+                return tpl.format(count=len(matched), threshold=thr,
+                                  matched=", ".join(matched) or "(none)",
+                                  missing=", ".join(missing) or "(none)")
+            except Exception:
+                return str(len(matched))
         if op == "case":
             # ★도메인일반 문자열-키 매핑(lookup_table의 문자열판). key(ref/op) → cases 매칭 → 값(op면 재귀).
             key = apply_op(spec.get("key"), ctx) if isinstance(spec.get("key"), dict) else _get(ctx, spec.get("key"))

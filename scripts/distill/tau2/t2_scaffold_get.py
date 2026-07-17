@@ -30,6 +30,50 @@ def _build_tool(Tool, d):
     return Tool(fn, examples=list(d.get("examples") or []))
 
 
+def _variant(d):
+    """★A2 변이 선택기 (도메인일반·2026-07-18·단일변수 arm용). `T2_A2_VARIANT=<name>` →
+    선언의 `variants[<name>]`을 얕은 병합. **엔진은 변이 *이름*만 알고 내용은 A2가 정한다**([[05]]).
+    기본(미지정) = 원본 그대로 = **거동 변화 0**(진행 중 arm 보호)."""
+    vn = os.environ.get("T2_A2_VARIANT")
+    if not vn:
+        return d
+    v = (d.get("variants") or {}).get(vn)
+    if not isinstance(v, dict):
+        return d
+    d2 = {k: val for k, val in d.items() if k != "variants"}
+    d2.update(v)
+    print("[T2_A2_VARIANT] %s ← '%s' (params=%s op=%s)"
+          % (d2.get("name"), vn, list((d2.get("params") or {})), (d2.get("op") or {}).get("op")),
+          file=_sys.stderr, flush=True)
+    return d2
+
+
+def _evidence_ctx(orch):
+    """원장(=실제 호출 이력) → `{__user_text, __tool_outputs}`. `match_verdict_grounded`용.
+    ★엔진은 **역할과 호출 이름만** 본다 — 내용 파싱/추출 0([[03b]]). 도메인 리터럴 0.
+    ★NabaOS 대응: 그들 HMAC 영수증(`230-232` 런타임이 실행·`17` LLM 위조불가)의 자리를 **우리 원장**이
+    대신한다. 엔진이 원장 소유자라 **서명 불요**(위조 경로 자체가 없음)."""
+    users, outs, id2name = [], {}, {}
+    try:
+        for m in orch.get_messages():
+            for tc in (getattr(m, "tool_calls", None) or []):
+                id2name[getattr(tc, "id", None)] = getattr(tc, "name", None)
+            r, c = getattr(m, "role", None), getattr(m, "content", None)
+            if c is None:
+                continue
+            s = c if isinstance(c, str) else str(c)
+            if r == "user":
+                users.append(s)
+            elif r == "tool" and getattr(m, "requestor", "assistant") == "assistant":
+                nm = id2name.get(getattr(m, "id", None))
+                if nm:
+                    outs[nm] = (outs.get(nm, "") + " " + s)
+    except Exception as e:
+        print("[T2_SCAFFOLD_GET] evidence ctx fail: %r" % (e,), file=_sys.stderr, flush=True)
+    return {"__user_text": " ".join(users).lower(),
+            "__tool_outputs": {k: v.lower() for k, v in outs.items()}}
+
+
 def _a2_named_in_args(tc, decls):
     """(a1) 호출 `tc`의 인자 값 중 **우리 A2 도구 이름과 정확히 일치**하는 게 있으면 그 이름을 반환.
     구조적 사실만 본다 — env 응답 텍스트를 읽지 않고([[03b]] 엔진-formalize 금지), 도메인 도구명을
@@ -64,7 +108,7 @@ def apply():
         a2 = _g._domain_a2(getattr(env, "domain_name", None)) if env is not None else None
         if not a2 or ag is None:
             return
-        decls = a2.get("scaffold_get_tools") or []
+        decls = [_variant(d) for d in (a2.get("scaffold_get_tools") or [])]
         # ★키스톤 toggle(C103·2026-07-17): T2_SG_EXCLUDE=이름들(콤마) → 해당 A2 도구를 주입서 제외.
         #   단일 변수 대조(대안 도구 유/무)용 실험 스위치 — 엔진은 이름 필터만(도메인 리터럴 0).
         #   제외된 도구는 known-set에도 안 들어가므로 TOOLGATE가 진짜 부재처럼 취급(일관).
@@ -107,7 +151,8 @@ def apply():
 
     def exec2(self, tool_calls):
         a2 = getattr(self, "_t2_sg_a2", None)
-        decls = {d["name"]: d for d in ((a2 or {}).get("scaffold_get_tools") or [])}
+        decls = {d["name"]: d for d in
+                 (_variant(x) for x in ((a2 or {}).get("scaffold_get_tools") or []))}
         for _x in {x.strip() for x in (os.environ.get("T2_SG_EXCLUDE") or "").split(",") if x.strip()}:
             decls.pop(_x, None)          # 제외 도구는 실행 경로서도 부재(주입 필터와 일관)
         if not decls:
@@ -139,6 +184,10 @@ def apply():
                         except Exception:
                             pass
                     _ctx[_k] = _v
+                # ★원장-결합 op는 인자 밖 증거가 필요하다 — **op가 `evidence_from`을 선언할 때만** 주입
+                #   (도메인일반 조건·미선언 op는 거동 변화 0).
+                if (d.get("op") or {}).get("evidence_from"):
+                    _ctx.update(_evidence_ctx(self))
                 _res = _c.apply_op(d.get("op"), _ctx)
                 if isinstance(_res, list):                    # 목록형(discrepancy ids)
                     _res = [str(i) for i in _res if i]
