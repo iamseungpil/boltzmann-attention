@@ -9,20 +9,40 @@
 ## 0a. ★★선행 양보 — **현상·명명·벤치·rate는 전부 선점됐다** (사용자 2026-07-18 지적·C105 기확정)
 > *"완료 날조는 이미 외부 논문이나 우리 실험에서 이미 많이 보인 거 아닌가?"* — **맞다. 이 설계는 현상 발견이 아니다.**
 
-| 선행 | 선점한 것 | 등급 |
+> ⚠️**2026-07-18 전문정독으로 이 절을 전면 교정**(C104⑥: DR 요약 인용 금지). 초판은 DR 요약을 그대로 믿어
+> **과잉 양보 + 날조 용어 1건**을 실었다. 아래는 **원문 축자 확인분만**.
+
+| 선행 | **실제로** 선점한 것 (원문 확인) | ⚠️초판의 오류 |
 |---|---|---|
-| **`2606.09863`** "false success" | ★**같은 τ²-bench**서 rate까지: 9,876궤적·single-control 실패의 **45–48%**·모델별 13~79% | (a) 사실상 완전 |
-| `2603.03116` PAE | "Execution Consistency" + **confirmation numbers 날조** 명명 · **Phantom Booking** | (a) |
-| `2509.18970` 서베이 | "execution hallucination"/"outcome hallucination" **명명 기존재** | (a) |
-| `2507.21017` MIRAGE | "Hallucinated success and continued execution" · "Assumption-Based Completion" | (a) |
-| `2603.10060` NabaOS | HMAC 영수증으로 **fabricated tool reference 94.2% 탐지** | (b) 탐지 |
-- **우리 데이터도 넘친다**: §14.3(실패 **4/10 sim 전부**·`DISPUTE-123456~59`·*"successfully filed"*) · §19.1 · §19.2
-  (`CASE-123456`) · §20(③형 3/4) · `case` 프로브 **54%**. ⇒ **banking 54%는 확정 사실 — 다시 잴 필요 없다.**
-- ★**미선점으로 남는 것은 하나뿐**: 위 전부가 **post-hoc 탐지**다 — `2606.09863` 자인 *"The detector is a triage
-  signal, not an autonomous monitor"*(개입 0) · NabaOS = 탐지 후 **신뢰 신호만** · PAE = LLM-judge 사후 ·
-  AgentLTL(C106) = **vacuous-pass 자인**(기권이 κground 무조건 통과).
+| **`2606.09863`** "false success"<br>(단독저자 프리프린트·2026-06-01) | 현상 정의(*"a mismatch between the agent's natural-language claim of completion and the programmatic environment state"*) · **τ² 리더보드 궤적 9,876** · **airline 45%/retail 47%/telecom 3%**(=**실패 궤적 중** 비율) · 모델별 13~79% · **judge 실패**(AUROC ≤0.65) | ❌**banking 0회 언급**(τ² 도메인=airline/retail/telecom뿐) ❌**Qwen2.5·32B·오픈웨이트 0회**(8종 전부 frontier) ❌**날조 식별자 0회**(정규식이 **금액**만 잡음) ★**분모가 다름** — 그들=실패 중 비율 / 우리=결정점 발생률 ⇒ **45~47% vs 54% 병치 금지** |
+| `2603.03116` **PAE** | "Execution Consistency"(주장↔실행) + "Data Faithfulness"(*"fabricate details such as prices, dates, or **confirmation numbers**"*) **명명** · corrupt success **27–78%** · gated Pass^4 **2–24%** · *"no model above 24%"* | ❌**τ-bench다. τ²가 아니다**(`τ²`/`tau2` **0 hits**) ❌frontier 3종만(GPT-5·Kimi-K2·Mistral-Large-3)·**32B 없음** ❌탐지=**GPT-5 LLM-as-judge**(구조 프록시는 *다른* 에러타입 전용) |
+| `2509.18970` 서베이 | **"execution hallucination"** 정의(*"claim to have completed certain sub-stages … but in reality, they have not actually been performed"*) = 현상 명명 | ❌**"outcome hallucination"은 원문에 0회 = DR 날조·인용 금지** ❌execution hallucination의 **하위분류 2종 = Tool Selection / Tool Calling**(=에이전트 **내부** 도구오류)이라 **agent→user 완료-주장은 미포착** ❌Communication hallucination = **MAS 에이전트-간 전용** ❌실험·수치 0(순수 서베이) |
+| `2603.10060` NabaOS | HMAC 영수증 · fabricated tool reference **94.2% 탐지** | (b) 탐지-only·claim 텍스트 추출 필요 |
+
+- **우리 데이터**: §14.3(실패 **4/10 sim 전부**·`DISPUTE-123456~59`·*"successfully filed"*) · §19.1 · §19.2
+  (`CASE-123456`) · §20(③형 3/4) · `case` 프로브 **54%**. ⇒ **banking 54%는 확정 — 다시 잴 필요 없다.**
+- ★**미선점 (원문 확인)**: **전부 post-hoc 탐지·평가이고 개입도 학습도 0이다.**
+  - `2606.09863` **축자 자인**: *"**The detector is a triage signal, not an autonomous monitor.** At a 10% flag rate,
+    precision is 50%"* · block/regen/repair/runtime/mitigate **0 hits** · SFT/DPO/RL **0 hits**(fine-tune은 **탐지기**
+    DeBERTa-184M에만).
+  - ★★**그리고 저자가 우리 접근을 잔여 과제로 지목한다**: *"Substantial gains would likely require methods that
+    **verify trajectory-environment consistency directly rather than reading surface text**."* ← 우리 구조-이벤트
+    게이트(텍스트 파싱 0)와 evidence 학습이 정확히 그것. **인용 시 이 문장이 우리 자리를 저자 입으로 열어준다.**
+  - PAE **축자 자인**: *"**PAE is a behavioral audit**"* · *"**Learning implicit norms** … **would extend**"*(=미래과제).
+  - 서베이: 학습 패러다임 **나열만**(완료-날조 타깃 방법·수치 0) · **evidence/citation/provenance 본문 0 hits**.
   ⇒ **우리 자리 = "주장에 `evidence`를 달게 *학습*시켜 사후 탐지 문제를 런타임 결정론 검사로 바꾼다."**
-  현상을 발견했다는 주장은 **하지 않는다**.
+  **현상을 발견했다는 주장은 하지 않는다.**
+- ★**아픈 것 — dual-control 3%**: `2606.09863`이 *"In telecom, a dual-control domain where the user simulator can
+  independently verify state, false success drops to 3% of failures"*로 **"독립 검증기가 완료-날조를 억누른다"의
+  관찰적 씨앗을 공개**했다. **단 저자가 인과를 명시 포기**(*"We treat this as an observation rather than a causal
+  claim… only one dual-control domain is available, with 15 FS cases"*) ⇒ **인과 확정 자리는 비어 있다.**
+- ★**foil로 쓸 것**: 그들 τ² 탐지기는 **표면 어휘 의존** → 도메인 이전 시 AUROC **0.85→0.69 붕괴**(LODO) ·
+  적대적 재작성에 **20–25% 관통**(Appendix H). "텍스트를 읽는 방식의 한계"를 **그들 데이터가 스스로 보여준다**.
+- ⚠️★**[[08]] 방어선(PAE서 배운 것)**: PAE의 간판 사례 **"Phantom Booking"(Case 28)을 저자 스스로
+  *"this is an **environment artifact, not an agent failure**"*로 귀속**했다(user-sim이 확인 메시지와 같은 턴에
+  `###STOP###`을 넣어 에이전트가 행동할 턴이 없었음). ⇒ **우리 54%도 "진짜 날조 vs 종료/시뮬 아티팩트"를
+  분리 못 하면 같은 함정**이다. 우리 방어: **프로브는 결정점을 우리가 잘라 1턴만 샘플**하므로 타이밍 아티팩트가
+  구조적으로 불가능(라이브 §14.3은 별도 검증 필요).
 - ★**그럼 우리 궤적/프로브는 왜 필요했나** — **학습 데이터를 설계하려고**. 선행 어디에도 없는 두 가지를 우리가 갖고 있다:
   1. **방아쇠**: 사용자가 산출물을 **명시 요구**(sim1 [31] *"Create the case and share the reference number"*)
   2. **재료**: 날조 값이 전부 **스키마-예시형 placeholder**(`CASE-123456` **6/24 동일 문자열**) = 지어냄이 아니라
