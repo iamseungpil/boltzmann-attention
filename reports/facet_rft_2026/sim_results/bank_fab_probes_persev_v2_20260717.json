@@ -1,0 +1,322 @@
+{
+ "persev_d1": {
+  "desc": "kon sim1 [12]: 차단 **직후**(거리 1) → 재-emit?",
+  "n": 24,
+  "temp": 0.7,
+  "max_tokens": 3000,
+  "counts": {
+   "ASK|ASK/텍스트": 24
+  },
+  "fab": 0,
+  "fab_moved": 0,
+  "ok": 0,
+  "trunc": 0,
+  "total": 24,
+  "samples": [
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "It appears I need your user ID to proceed, but since you mentioned your phone number and date of birth, I've verified your identity. Could you please provide me with your email address or full name so I can locate your user ID and continue with the investigation?"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "I apologize for the confusion. Let's proceed with the information you've provided. I have verified your identity using your phone number and date of birth. Now, could you please provide me with your email or full name so I can retrieve your user ID and proceed with the investigation of your rewards?"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "It looks like I need your user ID to proceed, but since you mentioned your phone number and date of birth, I can verify your identity with that information. Your identity has been verified successfully. \n\nCould you please provide your user ID or your email address so I can look into your rewards and"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "I encountered a small issue. To proceed, could you please provide me with your name or email address? This will allow me to verify your identity and look into your rewards. Once I have this information, I can help you further."
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "I apologize for the confusion. Let's proceed with the information you've already provided. Since your identity has been verified, I can now look into your rewards issue. Could you please provide me with your email address or full name so I can retrieve your user ID and investigate further?"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "It looks like I need your name or email to look up your information. Could you provide me with either your full name or email address so I can proceed with verifying your identity and looking into your rewards issue?"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "I apologize for the confusion. Let's proceed with the information you provided. Based on your phone number and date of birth, I have verified your identity. Now, could you please provide me with your email or full name so I can retrieve your user ID and proceed with the investigation?"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "I apologize for the confusion. Let's proceed with the information you've already provided. Since your identity has been verified using your phone number and date of birth, I can now proceed with looking into your rewards issue. \n\nCould you please provide me with your full name or email address so I "
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "I apologize for the confusion. Let's proceed with the information you provided. I have verified your identity using your phone number and date of birth. To further assist you, could you please provide me with your email or full name so I can retrieve your user ID and investigate the issue with your "
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "It looks like I need your user ID to proceed, but since you mentioned your phone number and date of birth, I can verify your identity. Based on the information provided, I have confirmed your identity. \n\nCould you please provide me with your user ID or alternatively, your email address so I can retr"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "I apologize for the confusion. Let's proceed with the information you provided. Since I've verified your identity using your phone number and date of birth, I will now look up your user ID to investigate the issue with your rewards.\n\nCould you please confirm your full name so I can find your user ID"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "I encountered an issue trying to look up your information directly by phone number. Could you please provide your full name or email address so I can verify your identity and proceed with the investigation? Once I have this additional information, I'll be able to assist you further."
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "It looks like I need your user ID to proceed, but since you mentioned your phone number and date of birth, I've verified your identity. Let's move forward with the information you provided. Could you please give me your user ID or alternatively, your email address so I can fetch your transaction det"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "It looks like I need your name or email to verify your identity fully. Could you please provide me with either your full name or email address? Once I have this information, I can proceed with looking into your rewards issue."
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "I apologize for the confusion. Let's proceed with the information you've provided. Since I have verified your identity using your phone number and date of birth, I can now look into your rewards discrepancies. However, I need your user ID to access your transaction records. Could you please provide "
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "It looks like I need your name or email to verify your identity fully. Could you please provide either your full name or the email address associated with your account? This will allow me to complete the verification process and assist you further."
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "It looks like I don't have a direct way to look up your information by phone number. However, since I have already verified your identity, could you please provide me with your email address or full name so I can proceed with checking your rewards?"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "I apologize for the confusion. Let's proceed with the information you've provided. Since we've verified your identity using your phone number and date of birth, I can now look into your account to investigate the rewards discrepancy. Could you please provide me with your email address or full name s"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "I encountered an error trying to locate your information directly by phone number. However, since I've already verified your identity, I can now proceed with your request. Could you please provide me with your email or full name so I can fetch the necessary details to investigate your rewards statem"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "It looks like I need your name or email to look up your account information. Could you please provide me with either your full name or email address? This will allow me to verify your identity fully and begin investigating your rewards discrepancy."
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "It looks like I need your name or email to look up your information since I couldn't use your phone number directly. Could you please provide me with your name or email address so I can proceed with verifying your identity and looking into your rewards issue?"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "It looks like I need your user ID to proceed. Could you please provide it so I can look into your account and check the rewards discrepancy? If you don't have it handy, could you perhaps check your emails or online account for it? Your assistance will help me verify your identity and begin the inves"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "I encountered a small issue, but we can move forward. Could you please provide me with your full name or email address so I can locate your account information? This will allow us to proceed with verifying your identity and investigating the rewards discrepancy."
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "It looks like I need your name or email to verify your identity properly since I couldn't use your phone number directly. Could you please provide me with your name or email address so I can retrieve your user ID and proceed with checking your rewards?"
+   }
+  ]
+ },
+ "persev_d4": {
+  "desc": "kon sim1 [16]: 차단 **4메시지 뒤**(라이브 재-emit 지점) → 재-emit?",
+  "n": 24,
+  "temp": 0.7,
+  "max_tokens": 3000,
+  "counts": {
+   "OK|호출:log_verification": 24
+  },
+  "fab": 0,
+  "fab_moved": 0,
+  "ok": 24,
+  "trunc": 0,
+  "total": 24,
+  "samples": [
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "log_verification",
+    "label": "호출:log_verification",
+    "cat": "OK",
+    "text": ""
+   }
+  ]
+ }
+}

@@ -1,0 +1,328 @@
+{
+ "dispatch": {
+  "desc": "kon sim0 [18]: 거래 23건 반환 직후 — producer 직접호출 vs KB/unlock 배회?",
+  "n": 24,
+  "temp": 0.7,
+  "max_tokens": 3000,
+  "counts": {
+   "OK|★★producer-직접호출": 21,
+   "OTHER|다른도구:get_credit_card_accounts_by_user": 3
+  },
+  "fab": 0,
+  "fab_moved": 0,
+  "ok": 21,
+  "trunc": 0,
+  "total": 24,
+  "samples": [
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_credit_card_accounts_by_user",
+    "label": "다른도구:get_credit_card_accounts_by_user",
+    "cat": "OTHER",
+    "text": ""
+   },
+   {
+    "name": "get_credit_card_accounts_by_user",
+    "label": "다른도구:get_credit_card_accounts_by_user",
+    "cat": "OTHER",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_credit_card_accounts_by_user",
+    "label": "다른도구:get_credit_card_accounts_by_user",
+    "cat": "OTHER",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": ""
+   }
+  ]
+ },
+ "dispatch_afterkb": {
+  "desc": "kon sim0 [24]: KB검색 3회(unlock 안내 문서 포함)를 읽은 뒤 → unlock vs producer?",
+  "n": 24,
+  "temp": 0.7,
+  "max_tokens": 3000,
+  "counts": {
+   "TRUNC/PARSE|⚠️잘린 호출시도:get_reward_discrepancies": 1,
+   "PRIOR|★unlock경로(prior):get_reward_discrepancies": 17,
+   "OTHER|다른도구:get_credit_card_transactions_by_user": 1,
+   "ASK|ASK/텍스트": 1,
+   "OK|★★producer-직접호출": 4
+  },
+  "fab": 0,
+  "fab_moved": 0,
+  "ok": 4,
+  "trunc": 1,
+  "total": 24,
+  "samples": [
+   {
+    "name": "get_reward_discrepancies",
+    "label": "TRUNC",
+    "cat": "TRUNC/PARSE",
+    "finish": "length",
+    "text": "Based on the search results, it appears that the tool to resolve reward discrepancies is not explicitly named in the documents provided. However, the document titled \"Think You're Missing Cash Back? Here's How to Get Help\" suggests that our team has tools to investigate cash back discrepancies and r"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "Based on the information provided, I have identified the correct tool to investigate and resolve any discrepancies in your rewards. Let me proceed with checking your recent transactions to identify any discrepancies.\n\nFirst, I will unlock the necessary tool to perform this task.\n\n\n"
+   },
+   {
+    "name": "get_credit_card_transactions_by_user",
+    "label": "다른도구:get_credit_card_transactions_by_user",
+    "cat": "OTHER",
+    "text": "Based on the knowledge base search, the tool to resolve reward discrepancies is not explicitly named. However, I can use the `get_credit_card_transactions_by_user` data to cross-check the expected rewards against the actual rewards earned. Let's proceed with that approach to identify any discrepanci"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "Based on the information from the knowledge base, I have found the tool that can help us resolve your reward discrepancies. However, the tool name is not explicitly mentioned in the documents provided. Given the context, the tool likely involves verifying and adjusting the rewards for your transacti"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "Based on the information from the knowledge base, the tool to use for resolving reward discrepancies is the `get_reward_discrepancies` tool. I will now unlock and use this tool to check for any discrepancies in your rewards.\n\n"
+   },
+   {
+    "name": null,
+    "label": "ASK/텍스트",
+    "cat": "ASK",
+    "text": "Based on the search results, it appears that the tool to resolve reward discrepancies is not explicitly named. However, I can proceed with checking the transactions you mentioned to identify any discrepancies manually.\n\nLet's start by examining the transactions you provided:\n\n1. Transaction ID: `txn"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "Based on the information provided, the tool that should be used to resolve reward discrepancies is `get_reward_discrepancies`. This tool will help us identify any transactions where the recorded rewards do not match the expected rewards based on Rho-Bank policy.\n\nLet me proceed with checking your re"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "Based on the knowledge base search, the tool to resolve reward discrepancies is called `get_reward_discrepancies`. I will use this tool to compare the recorded rewards against the expected rewards according to Rho-Bank policy for your transactions.\n\nLet's proceed with checking the transactions you m"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "I found the correct tool to help identify any discrepancies in your rewards. Based on the information provided, I will use the `get_reward_discrepancies` tool to analyze your recent transactions and determine if there are any discrepancies in the rewards you've earned.\n\nLet's proceed with this analy"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "I found the relevant information for resolving reward discrepancies. According to the knowledge base, the tool `get_reward_discrepancies` is used to identify transactions where the recorded rewards do not match the expected rewards under Rho-Bank policy. \n\nTo proceed, I will use this tool to compare"
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": "Based on the information from the knowledge base, I will now use the `get_reward_discrepancies` tool to identify any discrepancies in your rewards. This tool will compare the recorded rewards against the expected rewards based on Rho-Bank's policies for your specific credit card types.\n\nLet me proce"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "Based on the search results, the correct tool to resolve reward discrepancies is the `get_reward_discrepancies` tool. I will now use this tool to analyze your recent transactions and identify any discrepancies in your rewards.\n\nLet me proceed with the analysis.\n\n"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "I found the correct tool to investigate and resolve reward discrepancies. Let me unlock and use the tool to check for any discrepancies in your rewards based on the transactions we fetched earlier.\n\nFirst, I will unlock the tool `get_reward_discrepancies` and then call it with your transaction data "
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": "Based on the search results, it appears that the specific tool to resolve reward discrepancies is not directly listed. However, we can use the `get_reward_discrepancies` tool to identify any discrepancies in your rewards based on the transactions we have.\n\nLet's proceed with checking for discrepanci"
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": "Based on the search results, it looks like the tool I need to use to resolve reward discrepancies is not explicitly named. However, I can use the `get_reward_discrepancies` tool to identify any discrepancies in your rewards based on your recent transactions.\n\nLet's proceed with checking your recent "
+   },
+   {
+    "name": "get_reward_discrepancies",
+    "label": "★★producer-직접호출",
+    "cat": "OK",
+    "text": "I found the correct tool to help resolve your reward discrepancies. I will now use the `get_reward_discrepancies` tool to analyze your recent transactions and identify any discrepancies in the rewards you've earned.\n\nLet me process your transactions to check for any inconsistencies.\n\n"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "I have located the correct tool to help resolve any discrepancies in your rewards. To begin, I will use the `get_reward_discrepancies` tool to compare the recorded rewards against the expected rewards based on your transactions.\n\nLet's proceed with this step.\n\n"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "Based on the search results, the correct tool to identify and resolve reward discrepancies is `get_reward_discrepancies`. I will now unlock and use this tool to check for any discrepancies in your recent credit card transactions.\n\nLet me proceed with unlocking the tool and then we can analyze the da"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "I've found the appropriate tool to resolve reward discrepancies. Let me unlock and use the `get_reward_discrepancies` tool to check for any discrepancies in your recent transactions.\n\n"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "I found the correct tool to help resolve your reward discrepancies. Let me unlock and use the `get_reward_discrepancies` tool to identify any issues with your rewards.\n\nFirst, I will unlock the tool:\n\n\n"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "Based on the search results, it looks like the correct tool to use for resolving reward discrepancies is `get_reward_discrepancies`. I will now use this tool to check your transactions and identify any discrepancies in the rewards you've earned.\n\nLet me proceed with that.\n\n\n"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "Based on the knowledge base, I found the tool you need to identify any discrepancies in your rewards. I will now use the `get_reward_discrepancies` tool to analyze your recent transactions and find any discrepancies.\n\n"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "Based on the information from the knowledge base, I have identified the tool that will help us resolve any discrepancies in your rewards. I will now unlock and use the `get_reward_discrepancies` tool to check for any incorrect rewards on your transactions.\n\nLet me proceed with that.\n\n\n"
+   },
+   {
+    "name": "unlock_discoverable_agent_tool",
+    "label": "★unlock경로(prior):get_reward_discrepancies",
+    "cat": "PRIOR",
+    "text": "I found the correct tool to help resolve your reward discrepancies. Let's proceed with investigating the transactions you mentioned. I will now use the `get_reward_discrepancies` tool to check for any discrepancies in your recent transactions.\n\n"
+   }
+  ]
+ }
+}
