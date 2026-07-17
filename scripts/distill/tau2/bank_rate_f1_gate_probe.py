@@ -6,10 +6,18 @@ C113은 task_026 한 셀조합(Business Silver/Silver × Travel/Software·4거�
 ratefix producer의 **전제** = "32B는 KB 텍스트 해석(base_rate)엔 강하다"([[45]] 부하가 아니다).
 전제가 다른 카드/카테고리서 깨지면 → base_rate도 부하 → §PROD-2 원결론(producer 분담선) 복귀.
 
-측정 대상 = **ratefix 계약 그대로**(`a2/banking_knowledge.gate.json` §variants.ratefix):
-  모델 = 거래별 base_rate(percent) + promo 파라미터만 formalize (★최종 rate·곱셈·날짜판정 안 함)
-  엔진 = promo 적격/활성 판정(날짜) + 곱셈 → 최종 배율
-판정 = 엔진이 합성한 최종 배율 == gold 배율. 부차 = 모델 raw base_rate 전수([[08]] 포렌식).
+측정 대상 = **ratefix 계약 축자**(`a2/banking_knowledge.gate.json` §variants.ratefix.params — 런타임 로드,
+  내가 다시 쓰지 않는다): 모델 = 거래별 base_rate(percent) + promo 파라미터만 formalize
+  (★최종 rate·곱셈·날짜판정 안 함) · 엔진 = promo 적격/활성 판정(날짜) + 곱셈 → 최종 배율
+판정 = 엔진 합성 포인트 == gold 포인트(±tolerance). 부차 = 모델 raw base_rate 전수([[08]] 포렌식).
+
+★2-arm (`--arm`): `deployed`=배포 계약 축자 · `merchant`=+머천트예외 조항.
+  근거 = task_021 ratefix e2e 실패 per-step 포렌식(2026-07-18 NIGHT): producer가 discrepant 3건을 냈으나
+  gold는 2건 — 추가분 `txn_fa793baabcf4`(WeWork·Business Bronze·"Other"·0pts)는 **KB가 명시적으로 0%**라
+  규정한 머천트(Bronze "Exceptions and Exclusions": WeWork/Regus/Gusto…·Slack류는 12개월 후 0%).
+  그런데 배포 계약문은 rate가 "card AND category"에 달렸다고만 말한다 ⇒ **계약 leaf 누락 의심**.
+  두 arm 차이 = 천장이 모델(부하·[[45]])인지 우리 계약문(무료 수정)인지 가른다.
+⚠️머천트명을 프롬프트에 반드시 준다 — 안 주면 예외 셀은 정보부재로 틀린다(측정 무효).
 
 ⚠️gold·거래·문서 전부 **런타임에 벤치 데이터에서 유도**(리터럴 0·[[03b]]):
   gold 배율 = tasks.json의 gold `update_transaction_rewards_*`(new_rewards_earned) ÷ db.json 거래금액
@@ -34,6 +42,7 @@ from bank_rate_toolcall_probe import _d, _add_months  # noqa: E402
 DOM_DEFAULT = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge"
 REWARD_TOOL = "update_transaction_rewards"
 DISPUTE_TOOL = "submit_cash_back_dispute"
+REWARD_PRODUCER = "get_reward_discrepancies"
 TOL_PTS = 1  # ratefix op의 tolerance와 동일(포인트 반올림 흡수)
 
 
@@ -85,7 +94,8 @@ def load_gold(dom):
                 gold_pts, src = _num(r["rewards_earned"]), "clean"
             rows.append({
                 "task": tid, "transaction_id": t_id, "card": r["credit_card_type"],
-                "category": r["category"], "amount": _num(r["transaction_amount"]),
+                "category": r["category"], "merchant": r["merchant_name"],
+                "amount": _num(r["transaction_amount"]),
                 "date": r["transaction_date"], "gold_pts": gold_pts, "src": src,
                 "account_open": accts.get((uid, r["credit_card_type"])),
             })
@@ -111,36 +121,59 @@ def load_docs(dom, card):
     return out
 
 
+def deployed_contract(spec_path, variant="ratefix"):
+    """★배포된 ratefix 계약 축자 — 내가 다시 쓰지 않는다(게이트와 배포본 표현 드리프트 방지).
+    스펙 트리를 구조로 훑는다(섹션 키 위치에 의존하지 않게)."""
+    found = []
+
+    def walk(o):
+        if isinstance(o, dict):
+            if REWARD_PRODUCER in str(o.get("name") or "") and \
+                    isinstance(o.get("variants"), dict) and variant in o["variants"]:
+                found.append(o["variants"][variant]["params"]["transactions"])
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+
+    walk(json.load(open(spec_path, encoding="utf-8")))
+    if len(found) != 1:
+        raise SystemExit("%s 의 %s 계약이 %d개 — 1개여야 함" % (spec_path, variant, len(found)))
+    return found[0]
+
+
+# arm B = 같은 계약 + 머천트-예외 조항 한 줄. task_021 포렌식 근거:
+# Bronze KB "Exceptions and Exclusions"는 **머천트 단위** 0%(WeWork 등)를 규정하는데
+# 배포 계약문은 rate가 "card AND category"에 달렸다고만 말한다 ⇒ 계약의 leaf 누락 의심.
+MERCHANT_CLAUSE = ("\n- ★The rate also depends on the MERCHANT and on how long a subscription has run: "
+                   "some policies exclude specific merchants (0%) or drop the rate after an initial "
+                   "period. Read the card's exceptions/exclusions document and apply it to base_rate.")
+
 PROMPT = (
     "You are computing cash-back reward rates for a bank. Below are the reward-rate policy documents for "
     "the customer's card, the account opening date, and their transactions on that card.\n\n"
     "=== POLICY DOCUMENTS ===\n{docs}\n\n"
     "=== ACCOUNT ===\nCard: {card}\nAccount opened: {open}\n\n"
     "=== TRANSACTIONS ===\n{txns}\n\n"
-    "For EACH transaction, read the policy documents and report:\n"
-    "- base_rate: the BASE cash-back rate for this card AND this purchase category, as a percent number "
-    "(e.g. 10 for 10%, 4 for 4%). The rate depends on the card and the category of the purchase.\n"
-    "- has_promo / promo_mult / promo_window_months / promo_start / promo_end: if a limited-time promo "
-    "(e.g. double cash back for new customers) exists for this card, its multiplier, window length in "
-    "months, and the promo period dates (MM/DD/YYYY). If no promo exists, use has_promo=false, "
-    "promo_mult=1 and empty dates.\n"
-    "★Do NOT compute the final rate, do NOT apply the promo, do NOT multiply anything, and do NOT "
-    "decide whether the promo dates apply — a separate deterministic system does all of that. Only report "
-    "what the policy documents say.\n"
-    "Reply with EXACTLY one JSON object and nothing else:\n{schema}"
+    "For EACH transaction, provide the values described below.\n\n"
+    "{contract}\n\n"
+    "Reply with EXACTLY one JSON object and nothing else (base_rate as a percent number, e.g. 10 for "
+    "10%):\n{schema}"
 )
 
 
-def build_prompt(card, open_date, rows, docs_list):
+def build_prompt(card, open_date, rows, docs_list, contract):
     docs = "\n\n".join("### %s\n%s" % (d["title"], d["content"]) for d in docs_list)
     txn_lines = "\n".join(
-        "  %s: category=%s, merchant_category=%s, amount=$%.2f, date=%s"
-        % (r["transaction_id"], r["category"], r["category"], r["amount"], r["date"]) for r in rows)
+        "  %s: merchant=%s, category=%s, amount=$%.2f, date=%s"
+        % (r["transaction_id"], r["merchant"], r["category"], r["amount"], r["date"]) for r in rows)
     schema = json.dumps({r["transaction_id"]: {
         "base_rate": "<n>", "has_promo": "<bool>", "promo_mult": "<n>",
         "promo_window_months": "<n>", "promo_start": "<MM/DD/YYYY or empty>",
         "promo_end": "<MM/DD/YYYY or empty>"} for r in rows})
-    return PROMPT.format(docs=docs, card=card, open=open_date, txns=txn_lines, schema=schema)
+    return PROMPT.format(docs=docs, card=card, open=open_date, txns=txn_lines,
+                         contract=contract, schema=schema)
 
 
 def engine_rate(base_rate, has_promo, promo_mult, account_open, txn_date, window_months,
@@ -182,9 +215,17 @@ def main():
     ap.add_argument("--n", type=int, default=8)
     ap.add_argument("--temp", type=float, default=0.7)
     ap.add_argument("--max_tokens", type=int, default=6000)  # [[08]] 절단이 날조로 오독되는 사고 방지
+    ap.add_argument("--spec", default=os.path.join(HERE, "a2", "banking_knowledge.gate.json"))
+    ap.add_argument("--arm", choices=["deployed", "merchant"], default="deployed",
+                    help="deployed=배포 계약 축자 · merchant=+머천트예외 조항(계약 leaf 누락 검정)")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
 
+    contract = deployed_contract(a.spec)
+    if a.arm == "merchant":
+        contract += MERCHANT_CLAUSE
+    print("★arm=%s · 계약 %d자 (배포 spec 축자%s)\n" % (a.arm, len(contract),
+                                                  "+머천트조항" if a.arm == "merchant" else ""))
     gold = load_gold(a.dom)
     groups = defaultdict(list)
     for r in gold:
@@ -192,8 +233,8 @@ def main():
     print("★C113 F1 게이트 — gold 거래 %d건 · 카드 %d종 · (카드,카테고리) 셀 %d개 (전부 벤치 데이터서 유도)"
           % (len(gold), len({r["card"] for r in gold}), len({(r["card"], r["category"]) for r in gold})))
     for r in sorted(gold, key=lambda x: (x["card"], x["category"])):
-        print("   %-32s %-13s $%8.2f %s open=%s gold=%6.0fpts(rate %.1f) [%s %s]"
-              % (r["card"], r["category"], r["amount"], r["date"], r["account_open"],
+        print("   %-30s %-13s %-22s $%8.2f %s gold=%6.0fpts(rate %.1f) [%s %s]"
+              % (r["card"], r["category"], r["merchant"][:22], r["amount"], r["date"],
                  r["gold_pts"], r["gold_pts"] / r["amount"], r["src"], r["task"]))
     print()
 
@@ -203,7 +244,7 @@ def main():
         if not docs:
             print("[SKIP] %s: 카드-스코프 문서 0" % card)
             continue
-        prompt = build_prompt(card, open_date, rows, docs)
+        prompt = build_prompt(card, open_date, rows, docs, contract)
         print("### %s (open %s) | 문서 %d개 · 거래 %d개 · 프롬프트 %d자"
               % (card, open_date, len(docs), len(rows), len(prompt)))
         for i in range(a.n):
@@ -223,7 +264,9 @@ def main():
                 continue
             line = []
             for row in rows:
-                cell = (row["card"], row["category"])
+                # 셀 = 카드×카테고리×gold-rate — 머천트 예외(WeWork 0%) 때문에 같은 카드·카테고리에
+                # 서로 다른 정답 rate가 공존한다(task_021 포렌식).
+                cell = (row["card"], "%s@%.1f" % (row["category"], row["gold_pts"] / row["amount"]))
                 cell_n[cell] += 1
                 v = out.get(row["transaction_id"]) or {}
                 try:
