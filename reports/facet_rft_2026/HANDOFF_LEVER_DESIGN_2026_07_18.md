@@ -81,6 +81,29 @@
   (*"cannot verify every claim about tool output content"*)와 같은 함정이다.
 - ⇒ **(F2)가 이 전제를 시험한다. 걸리면 레버 B 폐기하고, 병목이 user-sim이라고 정직 보고.**
 
+## 4.1 ★프로브 판독 규약 — **결과 보기 前에 확정** (2026-07-18 발사 시점 기재)
+실행: `bank_fab_probes --probe discreq_ctl,discreq_arm,discreq_arm_forced,discreq_arm_form --n 24`
+(→ `sim_results/forced_probe_20260718.json`). **4 arm 전부 같은 접두·단일변수만 다름.**
+
+| arm | 무엇이 다른가 | 무엇을 답하나 |
+|---|---|---|
+| `discreq_ctl` | 개입 없음 | 기준선 |
+| `discreq_arm` | DISCREQ 피드백 1턴 | 레버가 **선택**을 사나 |
+| **`discreq_arm_forced`** | + **API `tool_choice=required`** | **형식을 강제하면 선택이 따라오나** |
+| `discreq_arm_form` | + 프롬프트 형식-지시(말로) | **API 강제 없이 말로 되나**([[42]] 대조) |
+
+**사전 판독 규칙(하나만 고른다·사후 이동 금지)**:
+- **A-생존**: `forced`의 **OK(producer 직접호출)가 `arm`보다 유의하게 높다** ⇒ **형식 강제가 선택을 산다** ⇒
+  레버 A를 FOLLOWUP regen에 적용.
+- **A-사망 (F1)**: `forced`가 **도구는 내는데 OK가 안 오른다**(=엉뚱한 도구/FAB로 감) ⇒ **형식만 사고 선택을 팔았다**
+  ⇒ **레버 A 폐기**(§8: 기함 교체 금지).
+- **A-불요**: `form`(말로만)이 `forced`와 같으면 ⇒ **API 강제 불필요**, A2 문구로 충분(더 싸고 [[16]] 안전).
+- ⚠️**천장 주의**: `ctl`의 OK가 이미 높으면(§5.2-C의 73% 전례) **어느 arm도 올릴 여지가 없다** ⇒
+  *"레버 무효"가 아니라 **측정 불능***으로 보고할 것. 이 프로브 접두(sim0 [26] 사임 지점)는 원래 **낮은** 곳이라
+  천장은 아닐 것으로 예상하나 — **예상은 판독 규칙이 아니다. ctl을 먼저 본다.**
+- ⚠️**이 프로브는 DISCREQ 표면이지 FOLLOWUP 표면이 아니다.** 기전(형식 vs 선택)이 같다는 **유비**로 쓰는 것 ⇒
+  결론은 **"FOLLOWUP에도 적용해볼 근거"**까지. **FOLLOWUP 자체의 판정은 라이브 arm에서만.**
+
 ## 6. 순서 (전부 무료 먼저)
 1. **프로브 `discreq_arm_forced`**(이미 구현·미실행) → 레버 A의 (F1) 사전 판정. **무료.**
 2. 레버 B 구현(엔진 집합 대조) + `T2_HANDOFF_COVER=1` **기본 OFF**.
