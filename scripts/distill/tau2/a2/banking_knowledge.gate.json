@@ -393,5 +393,10 @@
  },
  "_note_assertion_operands": "arm `self-declaration` (같은 설계문). 사임 시 LLM이 각 항목에 {claimed, source∈GET/FIND/INFER/ASK}를 JSON 선언 → 엔진은 **선언 구조체만** 검증: claimed ∧ source=INFER ∧ producer 미호출 → regen. [[10]] LLM=formalize·엔진=검증(답변 텍스트 파싱 0). ★기본 OFF(T2_SELF_DECLARATION=1). ★caveat: 항목 열거가 리마인더로 작용할 수 있음(spoon-feed 경계·[[16]]) — 발화·효과를 계측으로 판정.",
  "_note_follow_up": "scaffold_get_tools[].follow_up (2026-07-16 §14.3 완료날조 차단): 엔진(T2_FOLLOWUP_REQUIRED=1)은 사임 시 {tool 호출됨 ∧ follow_up.tool 미호출}이라는 구조 이벤트만 보고 이 feedback으로 regen 1회/sim. 후속도구·문구=여기(ABox)·엔진 리터럴 0. 실측근거: 실패 4/10 전부 완료날조·그중 3/4은 give 호출 0.",
- "_note_completion_guard": "write-provenance(③형·2026-07-17 사용자 제안: 출력도 출처): C45 입력-출처선언의 출력측 쌍대. 엔진(T2_WRITE_PROV=1)은 {follow_up.tool 호출됨 ∧ user-requestor 실행 0 ∧ 사임} 창에서 LLM에게 완료-주장 이진 선언을 요구하고, true면 이 feedback으로 regen 1회/sim. 질문·문구=여기(ABox)·엔진은 선언 JSON+이벤트 원장만(텍스트 파싱 0·[[03b]])."
+ "_note_completion_guard": "도메인-수준 완료-주장 가드(2026-07-18·A2_DOMAIN_GENERALIZATION_DESIGN). 트리거=엔진 `_any_effective_write`(원장에 실효 write 0)·task 불변. user-side 도구 집합은 엔진이 env.user_tools.get_discoverable_tools()로 열거(리터럴 0). producer의 follow_up.completion_guard는 하위호환 사본.",
+ "completion_guard": {
+  "user_execution_tool": "call_discoverable_user_tool",
+  "claim_question": "Before your reply is sent, answer ONE question about YOUR REPLY ONLY. Does your reply state or imply that some action has already been completed, submitted, filed, scheduled, or confirmed — OR that YOU (the agent) will submit/schedule/perform it? Merely giving the customer a tool to run, or instructing THEM to run it, does NOT count. Reply with exactly one JSON object and nothing else: {\"claims_completion\": true} or {\"claims_completion\": false}",
+  "feedback": "Error: [WRITE-PROVENANCE] your reply claims an action was completed/submitted/scheduled, but there is no record of any state-changing action having executed in this conversation. You cannot perform actions the customer must run themselves; only the CUSTOMER can, by calling the tool you gave them. Do NOT claim any action has been submitted, filed, or scheduled; do NOT invent case/reference/confirmation numbers; do NOT promise callbacks or confirmation emails. Instead, restate your reply: hand the customer the appropriate tool and tell them to run it themselves."
+ }
 }

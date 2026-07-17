@@ -1094,6 +1094,56 @@ NLNUM_FEEDBACK = (
 #   텍스트 정규식으로 '판단'을 탐지하면 = 엔진-formalize + 도메인 리터럴 = [[03b]]/[[05]] 위반 = 실험무효.
 # 도메인 사실(어느 데이터원/operand에 어느 producer가 붙는가)은 **전부 A2**(엔진 리터럴 0).
 
+# ─── ★실효 write 술어 (도메인일반·2026-07-18·`A2_DOMAIN_GENERALIZATION_DESIGN §2.2`) ───
+# 정본 = `BANK_EPLAN_ALLACTION_IMPL_DESIGN §3.1`의 `_is_write`. **한 정의만 둔다**([[03b]] 술어 이중화 금지) —
+# 여기 hoist하고 `T2_FAB_STRIP`(2398)이 쓰던 인라인 사본을 이걸로 대체한다.
+# ⚠️`mutates_state`(env 속성)를 쓰면 **안 된다**: 실측 결과 `log_verification`·`give_discoverable_user_tool`·
+#   `unlock_…`이 전부 True라 "상태변경 0"이 거의 모든 sim서 거짓 → 게이트가 영영 안 뜬다(2026-07-18 설계 교정).
+_READ_PREFIX_RE = re.compile(r"^(get|search|list|lookup|find|retrieve|read|view|check)_", re.I)
+_PROCEDURAL_RE = re.compile(
+    r"(^log_|_verification$|^kb_|^shell$|discoverable|transfer_to_human|^give_|^unlock_|get_current_time)", re.I)
+
+
+def _eff_tool_name(tc):
+    """디스패처 unwrap: write-ness는 **내부 도구**에 종속 — 단 **`call_` 디스패처만** unwrap한다.
+    ⚠️`unlock_discoverable_agent_tool(agent_tool_name=X)`는 X를 *실행*하지 않고 *잠금해제*만 하므로
+      inner로 풀면 안 된다(unlock=procedural=무해). 겉이름이 `call_`일 때만 inner를 본다.
+    `_NNNN` 접미사 제거 = env의 discoverable 명명 관행(도메인 리터럴 아님·패턴)."""
+    nm = str(getattr(tc, "name", "") or "")
+    if nm.startswith("call_"):
+        ar = _args_dict(tc)
+        inner = ar.get("agent_tool_name") or ar.get("user_tool_name") or ar.get("discoverable_tool_name") or ""
+        if inner:
+            return re.sub(r"_\d+$", "", str(inner))
+    return re.sub(r"_\d+$", "", nm)
+
+
+def _is_effective_write(name):
+    return bool(name) and not _READ_PREFIX_RE.match(name) and not _PROCEDURAL_RE.search(name)
+
+
+def _any_effective_write(msgs):
+    """원장에 **실효 write 실행**이 하나라도 있나 (requestor 무관 — 사용자 실행도 세상을 바꾼다).
+    ★`_called_tools`와 달리 user 호출을 **포함**한다: 완료-주장의 근거는 *누가 했든* 실행 이벤트다."""
+    for m in msgs:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            if _is_effective_write(_eff_tool_name(tc)):
+                return True
+    return False
+
+
+def _user_discoverable(env):
+    """env의 **user-side discoverable** 집합 (도메인일반·리터럴 0).
+    banking 실측: `{deposit_check_3847, get_card_last_4_digits, get_referral_link, submit_cash_back_dispute_0589}`.
+    구조적 근거(축자 주석): *"These tools represent actions users take in the real world. The agent gives them
+    to the user via `give_discoverable_user_tool` … NOT included in the default tool list."*"""
+    try:
+        ut = getattr(env, "user_tools", None)
+        return set(ut.get_discoverable_tools()) if ut is not None else set()
+    except Exception:
+        return set()
+
+
 def _called_tools(msgs):
     """지금까지 **에이전트가** 실제로 호출한 도구 이름 집합 (구조 이벤트만·텍스트 무관).
     ★requestor 격리: 사용자 실행 도구(gold `call_discoverable_user_tool` 등)는 세지 않는다 —
@@ -2395,8 +2445,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         #   (C12 "id 날조는 env가 거부" 가정이 banking 디스패처 dispute엔 불성립=날조 txn이 reward0로 통과.)
         #   read/procedural=무해(strip 안함)·over-block 방지=id-operand가 ctx에 없는 write만·디스패처 nested unwrap.
         if os.environ.get("T2_FAB_STRIP") == "1" and getattr(am, "tool_calls", None):
-            _RDP = re.compile(r"^(get|search|list|lookup|find|retrieve|read|view|check)_", re.I)
-            _PRC = re.compile(r"(^log_|_verification$|^kb_|^shell$|discoverable|transfer_to_human|^give_|^unlock_|get_current_time)", re.I)
+            _RDP, _PRC = _READ_PREFIX_RE, _PROCEDURAL_RE   # ★hoist 정본 재사용([[03b]] 술어 이중화 제거·동일 정규식)
             def _fab_write_ungrounded(tc):
                 nm = getattr(tc, "name", "") or ""
                 ar = _args_dict(tc)
@@ -2740,26 +2789,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         #   C45(입력 출처선언)의 출력측 쌍대: 완료를 주장하려면 근거 이벤트가 원장에 있어야 한다.
         #   ③형의 급소 = pass("당신이 실행하라")와 fail("내가 제출했다")이 **구조 동일·말만 다름** →
         #   LLM이 자기 답변의 완료-주장을 **이진 선언**(formalize·[[10]])하고, 엔진은 선언 구조체 +
-        #   결정론 원장(사용자-requestor 실행 이벤트 수)만 검증. 답변 텍스트 파싱 0([[03b]]).
-        #   좁은 창: follow_up 도구 호출됨 ∧ 사용자 실행 0 ∧ 사임. 상한 1/sim. 문구=A2.
-        if (os.environ.get("T2_WRITE_PROV") == "1" and _resign
-                and not getattr(self, "_t2_writeprov", 0)):
+        #   결정론 원장만 검증. 답변 텍스트 파싱 0([[03b]]).
+        # ★2026-07-18 일반화(`A2_DOMAIN_GENERALIZATION_DESIGN §2.2`): 트리거를 **task-불변**으로.
+        #   ~~구판: follow_up 도구가 호출됨~~ = task_019 리터럴(give-missing 5건은 give를 *안* 불러서 못 잡음).
+        #   신판: **완료 주장 ∧ 원장에 실효 write 실행 0 ∧ 사임**. producer/follow_up 개념 불요.
+        #   `_any_effective_write`가 user·agent 실행 양쪽을 본다 → agent-side 태스크(69/97)서 에이전트가
+        #   WRITE 실행했으면 발화 안 함(오탐 방지·F2). give 태스크(21/97)서 사용자 실행 0이면 주장은 거짓.
+        #   completion_guard 문구 = A2 도메인-수준(`a2['completion_guard']`) 우선, 없으면 follow_up 사본(하위호환).
+        _cgd = (a2 or {}).get("completion_guard") or {}
+        if not _cgd:
             for _d1 in ((a2 or {}).get("scaffold_get_tools") or []):
-                _fu1 = _d1.get("follow_up") or {}
-                _cg = _fu1.get("completion_guard") or {}
-                _ft1, _ut = _fu1.get("tool"), _cg.get("user_execution_tool")
-                if not (_ft1 and _ut and _cg.get("claim_question") and _cg.get("feedback")):
-                    continue
-                if _ft1 not in _called_tools(state.messages):
-                    continue
-                _uexec = 0
-                for _m1 in state.messages:
-                    for _tc1 in (getattr(_m1, "tool_calls", None) or []):
-                        if (getattr(_tc1, "name", None) == _ut
-                                and getattr(_tc1, "requestor", "assistant") == "user"):
-                            _uexec += 1
-                if _uexec > 0:
-                    continue                      # 사용자가 실제 실행함 → 완료 주장 가능성 정당
+                _c0 = (_d1.get("follow_up") or {}).get("completion_guard") or {}
+                if _c0:
+                    _cgd = _c0
+                    break
+        if (os.environ.get("T2_WRITE_PROV") == "1" and _resign
+                and not getattr(self, "_t2_writeprov", 0)
+                and _cgd.get("claim_question") and _cgd.get("feedback")):
+            for _once in (True,):                 # 구조 유지용 단일 루프(break 재사용)
+                _cg = _cgd
+                if _any_effective_write(state.messages):
+                    break                          # 세상을 바꾼 실행이 원장에 있음 → 완료 주장 정당(오탐 방지)
                 _claims = None
                 try:
                     try:
@@ -2780,8 +2830,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _we:
                     print("[T2_WRITEPROV] declaration failed (no-op): %r" % (_we,),
                           file=_sys.stderr, flush=True)
-                print("[T2_WRITEPROV] window hit follow_up=%s user_execs=0 declared=%s"
-                      % (_ft1, _claims), file=_sys.stderr, flush=True)
+                print("[T2_WRITEPROV] window hit (no effective write in ledger) declared_completion=%s"
+                      % (_claims,), file=_sys.stderr, flush=True)
                 if _claims:
                     self._t2_writeprov = getattr(self, "_t2_writeprov", 0) + 1
                     _new1 = _ap_regen(_cg["feedback"], "writeprov")
