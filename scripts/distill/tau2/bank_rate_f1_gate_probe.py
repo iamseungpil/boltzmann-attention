@@ -33,6 +33,8 @@ from bank_rate_toolcall_probe import _d, _add_months  # noqa: E402
 
 DOM_DEFAULT = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge"
 REWARD_TOOL = "update_transaction_rewards"
+DISPUTE_TOOL = "submit_cash_back_dispute"
+TOL_PTS = 1  # ratefix op의 tolerance와 동일(포인트 반올림 흡수)
 
 
 def _num(s):
@@ -40,7 +42,13 @@ def _num(s):
 
 
 def load_gold(dom):
-    """gold 배율 = (gold new_rewards_earned 포인트) / (거래금액). 벤치 데이터서 유도·리터럴 0."""
+    """gold 포인트를 **벤치 자체 gold에서 유도**(리터럴 0·[[03b]]). 두 출처:
+      (a) 시정 대상 거래 = gold `update_transaction_rewards_*`의 new_rewards_earned      [026·028]
+      (b) ★시정 대상이 **아닌** 거래 = 벤치가 "옳다"고 판정한 것 ⇒ 현 rewards_earned가 곧 gold
+          (dispute gold 목록은 전수다 — task_022 notes "75 transactions and 10 cash back errors"가
+           그 전수성을 데이터로 확인해 준다.)
+    (b)가 게이트를 카드 7종·카테고리 10종으로 넓힌다(026 단독 = 2카드 2카테고리였다).
+    """
     tasks = json.load(open(os.path.join(dom, "tasks.json"), encoding="utf-8"))
     db = json.load(open(os.path.join(dom, "db.json"), encoding="utf-8"))
     txns = db["credit_card_transaction_history"]["data"]
@@ -48,30 +56,48 @@ def load_gold(dom):
     for a in db["credit_card_accounts"]["data"].values():
         accts[(a["user_id"], a["card_type"])] = a["date_of_account_open"]
 
-    rows = []
+    fixed, disputed, users = {}, defaultdict(set), {}
     for t in tasks:
         for act in (t.get("evaluation_criteria") or {}).get("actions", []) or []:
-            if act.get("name") != "call_discoverable_agent_tool":
-                continue
             args = act.get("arguments") or {}
-            if REWARD_TOOL not in (args.get("agent_tool_name") or ""):
-                continue
             inner = args.get("arguments")
             if isinstance(inner, str):
                 inner = json.loads(inner)
-            tid = inner.get("transaction_id")
-            r = txns.get(tid)
-            if not r:
+            if act.get("name") == "call_discoverable_agent_tool" and \
+                    REWARD_TOOL in (args.get("agent_tool_name") or ""):
+                fixed[inner["transaction_id"]] = _num(inner["new_rewards_earned"])
+            elif act.get("name") == "call_discoverable_user_tool" and \
+                    DISPUTE_TOOL in str(args.get("discoverable_tool_name")):
+                disputed[t["id"]].add(inner["transaction_id"])
+                users[t["id"]] = inner["user_id"]
+
+    rows = []
+    for tid, uid in sorted(users.items()):
+        for r in txns.values():
+            if r["user_id"] != uid:
                 continue
-            amt = _num(r["transaction_amount"])
+            t_id = r["transaction_id"]
+            if t_id in disputed[tid]:
+                if t_id not in fixed:
+                    continue  # 시정 대상인데 gold 포인트가 없다(dispute만 gold) → 판정 불가·제외
+                gold_pts, src = fixed[t_id], "fixed"
+            else:
+                gold_pts, src = _num(r["rewards_earned"]), "clean"
             rows.append({
-                "task": t["id"], "transaction_id": tid, "card": r["credit_card_type"],
-                "category": r["category"], "amount": amt, "date": r["transaction_date"],
-                "actual_rewards": r["rewards_earned"],
-                "account_open": accts.get((r["user_id"], r["credit_card_type"])),
-                "gold_rate": round(_num(inner["new_rewards_earned"]) / amt, 2),
+                "task": tid, "transaction_id": t_id, "card": r["credit_card_type"],
+                "category": r["category"], "amount": _num(r["transaction_amount"]),
+                "date": r["transaction_date"], "gold_pts": gold_pts, "src": src,
+                "account_open": accts.get((uid, r["credit_card_type"])),
             })
-    return rows
+    # (user,card,category,gold_rate) 셀당 대표 1건 — 셀 균형·프롬프트 크기 제한
+    seen, out = set(), []
+    for r in sorted(rows, key=lambda x: (x["card"], x["category"], x["transaction_id"])):
+        key = (r["account_open"], r["card"], r["category"], round(r["gold_pts"] / r["amount"], 1))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(r)
+    return out
 
 
 def load_docs(dom, card):
@@ -105,8 +131,8 @@ PROMPT = (
 )
 
 
-def build_prompt(card, open_date, rows):
-    docs = "\n\n".join("### %s\n%s" % (d["title"], d["content"]) for d in rows[0]["_docs"])
+def build_prompt(card, open_date, rows, docs_list):
+    docs = "\n\n".join("### %s\n%s" % (d["title"], d["content"]) for d in docs_list)
     txn_lines = "\n".join(
         "  %s: category=%s, merchant_category=%s, amount=$%.2f, date=%s"
         % (r["transaction_id"], r["category"], r["category"], r["amount"], r["date"]) for r in rows)
@@ -160,33 +186,32 @@ def main():
     a = ap.parse_args()
 
     gold = load_gold(a.dom)
-    bycard = defaultdict(list)
+    groups = defaultdict(list)
     for r in gold:
-        bycard[r["card"]].append(r)
-    print("★C113 F1 게이트 — gold %d거래 · 카드 %d종 · 셀 %d개 (전부 벤치 데이터서 유도)"
-          % (len(gold), len(bycard), len({(r["card"], r["category"]) for r in gold})))
+        groups[(r["card"], r["account_open"])].append(r)
+    print("★C113 F1 게이트 — gold 거래 %d건 · 카드 %d종 · (카드,카테고리) 셀 %d개 (전부 벤치 데이터서 유도)"
+          % (len(gold), len({r["card"] for r in gold}), len({(r["card"], r["category"]) for r in gold})))
     for r in sorted(gold, key=lambda x: (x["card"], x["category"])):
-        print("   %-32s %-10s $%8.2f %s  gold_rate=%-5s (task %s)"
-              % (r["card"], r["category"], r["amount"], r["date"], r["gold_rate"], r["task"]))
+        print("   %-32s %-13s $%8.2f %s open=%s gold=%6.0fpts(rate %.1f) [%s %s]"
+              % (r["card"], r["category"], r["amount"], r["date"], r["account_open"],
+                 r["gold_pts"], r["gold_pts"] / r["amount"], r["src"], r["task"]))
     print()
 
-    cell_ok = defaultdict(int)
-    cell_n = defaultdict(int)
-    raw = []
-    for card, rows in sorted(bycard.items()):
+    cell_ok, cell_n, raw = defaultdict(int), defaultdict(int), []
+    for (card, open_date), rows in sorted(groups.items()):
         docs = load_docs(a.dom, card)
         if not docs:
             print("[SKIP] %s: 카드-스코프 문서 0" % card)
             continue
-        rows[0]["_docs"] = docs
-        opens = {r["account_open"] for r in rows}
-        prompt = build_prompt(card, sorted(opens)[0], rows)
-        print("### %s | 문서 %d개 · 거래 %d개 · 프롬프트 %d자" % (card, len(docs), len(rows), len(prompt)))
+        prompt = build_prompt(card, open_date, rows, docs)
+        print("### %s (open %s) | 문서 %d개 · 거래 %d개 · 프롬프트 %d자"
+              % (card, open_date, len(docs), len(rows), len(prompt)))
         for i in range(a.n):
+            fin = None
             try:
                 r = post(a.base, {"model": a.model, "temperature": a.temp,
                                   "max_tokens": a.max_tokens, "n": 1,
-                                  "messages": [{"role": "user", "content": prompt}]}, timeout=600)
+                                  "messages": [{"role": "user", "content": prompt}]}, timeout=900)
                 ch = r["choices"][0]
                 out = parse_json(ch["message"].get("content"), [x["transaction_id"] for x in rows])
                 fin = ch.get("finish_reason")
@@ -194,7 +219,7 @@ def main():
                 print("   [%d] ERR %r" % (i, str(e)[:70]))
                 continue
             if out is None:
-                print("   [%d] 파싱실패 (finish=%s)" % (i, fin))
+                print("   [%d] 파싱실패 (finish=%s)" % (i, fin))  # [[08]] 절단≠날조
                 continue
             line = []
             for row in rows:
@@ -202,32 +227,40 @@ def main():
                 cell_n[cell] += 1
                 v = out.get(row["transaction_id"]) or {}
                 try:
-                    got = engine_rate(v.get("base_rate"), bool(v.get("has_promo")), v.get("promo_mult", 1),
-                                      row["account_open"], row["date"], v.get("promo_window_months", 6),
-                                      v.get("promo_start"), v.get("promo_end"))
+                    rate = engine_rate(v.get("base_rate"), bool(v.get("has_promo")), v.get("promo_mult", 1),
+                                       row["account_open"], row["date"], v.get("promo_window_months", 6),
+                                       v.get("promo_start"), v.get("promo_end"))
+                    pts = row["amount"] * float(rate)
                 except Exception:
-                    got = None
-                ok = got is not None and abs(float(got) - row["gold_rate"]) < 0.01
+                    rate = pts = None
+                ok = pts is not None and abs(pts - row["gold_pts"]) <= TOL_PTS
                 cell_ok[cell] += ok
                 raw.append({"card": row["card"], "category": row["category"], "sample": i,
-                            "base_rate": v.get("base_rate"), "has_promo": v.get("has_promo"),
-                            "final": got, "gold": row["gold_rate"], "ok": bool(ok)})
+                            "txn": row["transaction_id"], "base_rate": v.get("base_rate"),
+                            "has_promo": v.get("has_promo"), "final_rate": rate,
+                            "pts": pts, "gold_pts": row["gold_pts"], "ok": bool(ok)})
                 line.append("%s%s=%s(base %s)" % ("✓" if ok else "✗", row["category"],
-                                                  got, v.get("base_rate")))
+                                                  rate, v.get("base_rate")))
             print("   [%d] %s" % (i, " ".join(line)))
         print()
 
     print("=" * 78)
-    print("★셀별 최종배율 정확율 (엔진 합성 후 == gold)")
-    worst = 1.0
+    print("★셀별 정확율 (모델 base_rate+promo → 엔진 합성 포인트 == gold 포인트 ±%d)" % TOL_PTS)
+    worst, worst_cell = 1.0, None
     for cell in sorted(cell_n):
         p = cell_ok[cell] / max(cell_n[cell], 1)
-        worst = min(worst, p)
-        print("   %-32s %-10s %2d/%2d = %3.0f%%" % (cell[0], cell[1], cell_ok[cell], cell_n[cell], 100 * p))
+        if p < worst:
+            worst, worst_cell = p, cell
+        print("   %-32s %-13s %2d/%2d = %3.0f%%" % (cell[0], cell[1], cell_ok[cell], cell_n[cell], 100 * p))
     tot_ok, tot_n = sum(cell_ok.values()), sum(cell_n.values())
-    print("   %-43s %2d/%2d = %3.0f%%" % ("[전체]", tot_ok, tot_n, 100 * tot_ok / max(tot_n, 1)))
-    print("\n판정(handoff §0.2): 최저 셀 %.0f%% — <90%%면 base_rate 해석 자체가 [[45]] 부하 ⇒ §PROD-2 복귀 검토"
-          % (100 * worst))
+    print("   %-46s %2d/%2d = %3.0f%%" % ("[전체]", tot_ok, tot_n, 100 * tot_ok / max(tot_n, 1)))
+    bycard = defaultdict(lambda: [0, 0])
+    for cell in cell_n:
+        bycard[cell[0]][0] += cell_ok[cell]
+        bycard[cell[0]][1] += cell_n[cell]
+    print("★카드별:", {c: "%d/%d" % (v[0], v[1]) for c, v in sorted(bycard.items())})
+    print("\n판정(handoff §0.2): 최저 셀 %.0f%% (%s) — <90%%면 base_rate 해석 자체가 [[45]] 부하"
+          "·ratefix 전제 붕괴 ⇒ §PROD-2 원결론 복귀 검토" % (100 * worst, worst_cell))
     if a.out:
         json.dump(raw, open(a.out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
         print("raw → %s" % a.out)
