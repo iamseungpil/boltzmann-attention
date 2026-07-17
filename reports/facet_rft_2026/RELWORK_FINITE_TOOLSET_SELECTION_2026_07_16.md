@@ -118,14 +118,14 @@
   (=judge 신뢰불가의 독립 근거·`2606.09863` AUROC≤0.65와 합류).
 - **⇒ 행12 재정식화**: ~~"그라운딩의 결정론 검증"~~ → **"값-수준 인용을 *모델이 emit하도록 학습*시켜, 답변-엔티티
   멤버십(κground)이 아니라 **인자·주장 전 표면의 호출-특정 출처**를 단일 검증기로 대조한다"**. AgentLTL = 인접
-  선행 1순위(인용+차별화 필수)·NabaOS = 런타임 영수증 탐지(claim 텍스트 추출 필요).
+  선행 1순위(인용+차별화 필수)·⚠️**NabaOS = 정독 後 판정 반전**(C111·§4c-7): ~~런타임 영수증 탐지(claim 텍스트 추출 필요)~~ → **주장→evidence self-tag + block 액션까지 이미 있음 = 우리 §3.1 코어 설계의 선점**. 남는 자리 = **학습 vs 프롬프트(오픈웨이트 준수 85%)·라이브 결과 계측·그들 자인 사각(reasoning/compromised tools)**.
 
 - **행12 선점확인 종합**: **(b) 부분선점** — 위 delta 4겹으로 코어 생존. C45(선행0 기확정) 위 신규층 유지.
 - **부수 수확**: ToolMaze scale-저항(**축자 확인**·§4c-5: TSR(NP) **+17.85pp** vs PRR **+4.88pp** per OOM ⇒ 3.66×)·AgentAbstain
   scale-독립(최고 59.5%·13/17이 50%미만) = [[45]] 인용감 2건 추가 · ToolFailBench Qwen2.5-32B 단일턴
   CTUR 82.68%(3위) = "다중턴 병리는 단일턴 무능으로 환원 안 됨" 방증.
-- **원문 정독 필수 목록**(인용 前·C104 ⑥): ✅`2606.09863`(C109)·✅`2606.05806`(C110·§4c-5)·✅`2607.02599`(C106)·
-  ✅ToolHaystack `2505.23662`(C110·§4c-6) — **잔여 1건: `2603.10060`(NabaOS)**.
+- **원문 정독 필수 목록**(인용 前·C104 ⑥) = ✅**전건 완료**(2026-07-18): ✅`2606.09863`(C109)·✅`2606.05806`(C110·§4c-5)·
+  ✅`2607.02599`(C106)·✅ToolHaystack `2505.23662`(C110·§4c-6)·✅**`2603.10060` NabaOS**(C111·**§4c-7**·★판정 반전).
 
 ## 4c. ★★★인용 필수 원장 — **논문 집필 시 누락 금지** (사용자 2026-07-18 지시)
 > 규칙: 아래는 **반드시 인용**한다. 축자 확인 완료분만 등재(전문정독·C106/C109). **DR 요약은 등재 금지.**
@@ -195,6 +195,33 @@
   `evidence:<이벤트 ref>`가 닫는 구멍(주장 이벤트가 있으면 ref 필수 → 기권과 무근거 주장이 **구별**됨).
 - **모티브 외부 실증**: strict-그라운딩 **프롬프트 실패** — *"the strict prompt raises grounding for all models,
   but the extra grounded traces are **mostly refusals, not correct answers**"* ⇒ [[42]]/C99와 합류·"그러니 학습".
+
+### 4c-7. ★★★`2603.10060` (NabaOS) — **가장 큰 선점. 우리 §3.1 코어의 *설계*는 이미 출판돼 있다**
+> 정독 2026-07-18(전문 891줄·cs.CR·단독저자). **초판 기재 2건이 다 부정확했다** — ~~"탐지-only"~~·
+> ~~"claim 텍스트 추출 필요"~~. **논문 포지셔닝을 바꿔야 한다.** 정본 상세 = `COMPLETION_EVIDENCE_LEARN_DESIGN §0a-1`.
+- ★★**양보(크다·반드시 인용)**: **"주장→`evidence` 선언 + 결정론 대조 + 위반 시 block"** = **NabaOS Stage 4**.
+  > *"The LLM generates a natural language response along with **structured metadata tagging each factual claim
+  > with its pramāṇa category and the receipt ID it claims as evidence**."* · 영수증 = **HMAC 서명**
+  > (*"receipts that the LLM cannot forge"*) · §6.3 = *"the action to take when a threshold is violated
+  > (**block**, warn, or pass)"*. 탐지율 = fabricated tool ref **94.2%** · count **87.6%** · false absence **91.3%** · **<15ms**.
+  ⇒ **§3.1 "논문 코어 재정의(모든 주장 evidence)"를 신규 설계로 내면 즉시 리젝.** 우리 재정식화의 **외부 타당성
+  근거**로는 훌륭하나(같은 결론에 독립 도달), **신규성 주장은 불가**.
+- ✅**남는 자리 3겹**(전부 그들 축자로 뒷받침):
+  1. ★★**프롬프트 vs 학습** — 그들 수치가 우리 모티브: *"compliance rates vary by model: approximately **92% with
+     Claude**, 88% with GPT-4, and **85% with open-weight models**"* · 미준수는 *"conservative fallback"*으로
+     흡수(고치지 않음) · Lim 1 *"relies on LLM compliance with the self-tagging **prompt**"*.
+     **오픈웨이트 85% = 최악이고 우리 세팅이 오픈웨이트 32B.** ★그들은 fine-tuning을 **위협**으로만 본다
+     (Lim 5: *"could potentially learn to **game** the self-tagging prompt"*) ⇒ **설치 수단으로서의 학습 = 그들 시야 밖**.
+  2. ★**결과 미측정** — `task success`/`pass rate`/`pass^k` **본문 0 hits**([S] grep). 벤치 = **라이브 루프 아님**
+     (시나리오 = *(user request, tool outputs, llm response, ground truth)* **튜플** 1,800건) · Lim 6 *"uses
+     **systematically injected hallucinations**. Real-world hallucination patterns may differ"*.
+     ⇒ **그들 94.2% vs 우리 54% 병치 금지**(다른 종류의 수·[[08]] 분모 규율).
+  3. **그들이 자인한 사각** — *"**Reasoning errors.** NabaOS verifies that claims are grounded in evidence, **not
+     that the agent's reasoning from that evidence is logically valid**"* · *"**Compromised tools.** … the receipt
+     will be valid but the underlying data will be wrong"* ⇒ **우리 §5.2(env가 거짓말·영수증은 유효)가 정확히 그 사각.**
+- ⚠️**T2_FOLLOWUP도 부분 선점**(정직하게): *"Even without self-tags, the verification engine can detect **fabricated
+  tool calls (receipt ID does not exist)**, count mismatches …"* ⇒ 우리 잔여 = **텍스트 파싱 0**(그들 count mismatch는
+  *"LLM states a number"*를 산문서 읽어야 성립) + **라이브 개입(regen)** + **결과 계측**.
 
 ### 4c-5. `2606.05806` (ToolMaze) — **세팅 대조 foil** + ★우리 인용수치 1건 **철회**(DR 날조 5번째)
 > 정독 2026-07-18(pdftotext 전문·2495줄). **행1의 근거 문장이 바뀐다.**

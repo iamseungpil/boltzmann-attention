@@ -17,11 +17,14 @@
 | **`2606.09863`** "false success"<br>(단독저자 프리프린트·2026-06-01) | 현상 정의(*"a mismatch between the agent's natural-language claim of completion and the programmatic environment state"*) · **τ² 리더보드 궤적 9,876** · **airline 45%/retail 47%/telecom 3%**(=**실패 궤적 중** 비율) · 모델별 13~79% · **judge 실패**(AUROC ≤0.65) | ❌**banking 0회 언급**(τ² 도메인=airline/retail/telecom뿐) ❌**Qwen2.5·32B·오픈웨이트 0회**(8종 전부 frontier) ❌**날조 식별자 0회**(정규식이 **금액**만 잡음) ★**분모가 다름** — 그들=실패 중 비율 / 우리=결정점 발생률 ⇒ **45~47% vs 54% 병치 금지** |
 | `2603.03116` **PAE** | "Execution Consistency"(주장↔실행) + "Data Faithfulness"(*"fabricate details such as prices, dates, or **confirmation numbers**"*) **명명** · corrupt success **27–78%** · gated Pass^4 **2–24%** · *"no model above 24%"* | ❌**τ-bench다. τ²가 아니다**(`τ²`/`tau2` **0 hits**) ❌frontier 3종만(GPT-5·Kimi-K2·Mistral-Large-3)·**32B 없음** ❌탐지=**GPT-5 LLM-as-judge**(구조 프록시는 *다른* 에러타입 전용) |
 | `2509.18970` 서베이 | **"execution hallucination"** 정의(*"claim to have completed certain sub-stages … but in reality, they have not actually been performed"*) = 현상 명명 | ❌**"outcome hallucination"은 원문에 0회 = DR 날조·인용 금지** ❌execution hallucination의 **하위분류 2종 = Tool Selection / Tool Calling**(=에이전트 **내부** 도구오류)이라 **agent→user 완료-주장은 미포착** ❌Communication hallucination = **MAS 에이전트-간 전용** ❌실험·수치 0(순수 서베이) |
-| `2603.10060` NabaOS | HMAC 영수증 · fabricated tool reference **94.2% 탐지** | (b) 탐지-only·claim 텍스트 추출 필요 |
+| **`2603.10060` NabaOS**<br>★★**최대 선점 위협**(C111 정독) | HMAC 영수증(LLM 위조 불가) · fabricated tool reference **94.2%** · count **87.6%** · false absence **91.3%** · <15ms · ★★**Stage 4 = LLM이 주장마다 `pramāṇa` 범주 + `receipt ID`를 evidence로 self-tag** = **우리 §3.1 코어(주장→evidence)와 사실상 같은 설계** · ★**block/warn/pass 액션 존재**(§6.3 constitution) | ⚠️**초판 2건 다 부정확**: ~~"탐지-only"~~ → **block 액션 있음**(단 **미평가**) / ~~"claim 텍스트 추출 필요"~~ → 실제론 **self-tagging**(LLM이 스스로 태그·프레임워크가 산문 파싱하는 게 아님) ⇒ **§3.1 재정식화를 "우리 신규"로 쓰면 안 된다** |
 
 - **우리 데이터**: §14.3(실패 **4/10 sim 전부**·`DISPUTE-123456~59`·*"successfully filed"*) · §19.1 · §19.2
   (`CASE-123456`) · §20(③형 3/4) · `case` 프로브 **54%**. ⇒ **banking 54%는 확정 — 다시 잴 필요 없다.**
-- ★**미선점 (원문 확인)**: **전부 post-hoc 탐지·평가이고 개입도 학습도 0이다.**
+- ⚠️★★**2026-07-18 NabaOS 정독(C111)으로 이 절의 전제가 교정된다 — 아래 "전부 post-hoc·개입 0"은 NabaOS엔 안 맞다.**
+  **`2603.10060`은 (i) 주장→evidence 선언을 이미 하고(self-tag+receipt ID) (ii) block 액션도 있다.**
+  ⇒ ~~"주장에 evidence를 다는 설계 = 우리 것"~~ **철회**. **남는 우리 자리 = 아래 §0a-1**(학습 vs 프롬프트·라이브 결과).
+- ★**미선점 (원문 확인)**: **`2606.09863`·PAE·서베이 3편은** post-hoc 탐지·평가이고 개입도 학습도 0이다.
   - `2606.09863` **축자 자인**: *"**The detector is a triage signal, not an autonomous monitor.** At a 10% flag rate,
     precision is 50%"* · block/regen/repair/runtime/mitigate **0 hits** · SFT/DPO/RL **0 hits**(fine-tune은 **탐지기**
     DeBERTa-184M에만).
@@ -30,8 +33,41 @@
     게이트(텍스트 파싱 0)와 evidence 학습이 정확히 그것. **인용 시 이 문장이 우리 자리를 저자 입으로 열어준다.**
   - PAE **축자 자인**: *"**PAE is a behavioral audit**"* · *"**Learning implicit norms** … **would extend**"*(=미래과제).
   - 서베이: 학습 패러다임 **나열만**(완료-날조 타깃 방법·수치 0) · **evidence/citation/provenance 본문 0 hits**.
-  ⇒ **우리 자리 = "주장에 `evidence`를 달게 *학습*시켜 사후 탐지 문제를 런타임 결정론 검사로 바꾼다."**
+  ⇒ ~~**우리 자리 = "주장에 `evidence`를 달게 *학습*시켜 사후 탐지 문제를 런타임 결정론 검사로 바꾼다."**~~
   **현상을 발견했다는 주장은 하지 않는다.**
+
+### 0a-1. ★★★NabaOS 이후 — **우리 자리의 재정의** (C111·2026-07-18 정독)
+> **양보(반드시·크다)**: "주장→`evidence` 선언 + 결정론 대조 + 위반 시 block" **아키텍처는 이미 출판돼 있다.**
+> 축자(Stage 4): *"The LLM generates a natural language response along with **structured metadata tagging each
+> factual claim with its pramāṇa category and the receipt ID it claims as evidence**."* · 영수증=**HMAC 서명**
+> (*"receipts that the LLM cannot forge"*) · §6.3 = *"the action to take when a threshold is violated
+> (**block**, warn, or pass)"*. ⇒ **§3.1 "논문 코어 재정의"를 신규 설계로 제시하면 즉시 리젝.** 인용 필수.
+
+**그럼에도 남는 것 = 3겹(전부 그들 원문 축자로 뒷받침됨)**:
+1. ★★**그들은 프롬프트로 시킨다. 우리는 학습으로 설치한다.** — **그들 자신의 수치가 우리 모티브**:
+   > *"compliance rates vary by model: approximately **92% with Claude**, 88% with GPT-4, and **85% with
+   > open-weight models**. Non-compliant responses … are treated as entirely ungrounded, providing a
+   > **conservative fallback**."* · Limitation 1 = *"**Self-tagging reliance.** The framework relies on LLM
+   > compliance with the self-tagging **prompt**."*
+   ⇒ **미준수를 고치지 않고 "보수적 폴백"으로 흡수**한다(=granularity 손실 자인). **오픈웨이트가 최악(85%)이고
+   우리 세팅이 정확히 오픈웨이트 32B다.** [[42]](프롬프트로는 못 닫음·scale/train이 답)와 정면 합류.
+   ★**방향 주의**: 그들은 fine-tuning을 **위협**으로만 본다(Lim 5: *"An adversarially fine-tuned LLM could
+   potentially learn to **game** the self-tagging prompt"*) — **설치 수단으로서의 학습은 그들 시야에 없다** = 우리 자리.
+2. ★**그들은 결과를 재지 않는다** — `task success`/`pass rate`/`pass^k` **본문 0 hits**(grep). 평가 = **탐지율**뿐.
+   벤치도 **라이브 에이전트 루프가 아니다**: 시나리오 = *(user request, tool outputs, llm response, ground truth)*
+   **튜플 1,800건**(1,200 주입 + 600 clean·EN/HI/ZH/ES 4개국어). Limitation 6 축자:
+   > *"NyayaVerifyBench uses **systematically injected hallucinations**. **Real-world hallucination patterns may
+   > differ** in distribution and subtlety."*
+   ⇒ **우리 = 라이브 τ² banking·pass^k·단일변수 arm**. 그들 94.2%와 우리 54%는 **다른 종류의 수**(병치 금지·
+   [[08]] 분모 규율 재적용).
+3. **그들 threat model이 명시적으로 비운 자리**(축자): *"**Reasoning errors.** NabaOS verifies that claims are
+   grounded in evidence, **not that the agent's reasoning from that evidence is logically valid**."* ·
+   *"**Compromised tools.** … the receipt will be valid but the underlying data will be wrong."*
+   ⇒ 우리 §5.2(env가 거짓을 말함·**receipt는 유효한데 내용이 거짓**)는 **그들이 보호 못 한다고 자인한 케이스**.
+
+- **T2_FOLLOWUP 관련 주의(정직)**: *"Even without self-tags, the verification engine can detect **fabricated tool
+  calls (receipt ID does not exist)**, count mismatches …"* ⇒ **"영수증 없는 구조 대조" 아이디어도 부분 선점**.
+  우리 잔여 = **텍스트 파싱 0**(그들 count mismatch는 *"LLM states a number"*를 산문서 읽어야 성립)+**라이브 개입**.
 - ★**아픈 것 — dual-control 3%**: `2606.09863`이 *"In telecom, a dual-control domain where the user simulator can
   independently verify state, false success drops to 3% of failures"*로 **"독립 검증기가 완료-날조를 억누른다"의
   관찰적 씨앗을 공개**했다. **단 저자가 인과를 명시 포기**(*"We treat this as an observation rather than a causal
