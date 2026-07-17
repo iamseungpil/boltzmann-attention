@@ -1510,12 +1510,14 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
         else:
             state.messages.append(message)
 
-    def _gen(self, work, bad_words, call_name):
+    def _gen(self, work, bad_words, call_name, tool_choice=None):
         kw = dict(self.llm_args)
         if use_badwords and bad_words:
             eb = dict(kw.get("extra_body") or {})
             eb["bad_words"] = sorted(bad_words)
             kw["extra_body"] = eb
+        if tool_choice:                          # ★레버 A(2026-07-18): tau2 `generate`의 일급 파라미터로 통과
+            kw["tool_choice"] = tool_choice
         return la.generate(model=self.llm, tools=self.tools,
                            messages=self._system_messages + work, call_name=call_name, **kw)
 
@@ -1954,12 +1956,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         else:
             state.messages.append(message)
 
-    def _gen(self, work, bad_words, call_name):
+    def _gen(self, work, bad_words, call_name, tool_choice=None):
         kw = dict(self.llm_args)
         if use_badwords and bad_words:
             eb = dict(kw.get("extra_body") or {})
             eb["bad_words"] = sorted(bad_words)
             kw["extra_body"] = eb
+        if tool_choice:                          # ★레버 A(2026-07-18): tau2 `generate`의 일급 파라미터로 통과
+            kw["tool_choice"] = tool_choice
         return la.generate(model=self.llm, tools=self.tools,
                            messages=self._system_messages + work, call_name=call_name, **kw)
 
@@ -2743,13 +2747,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         _resign = (not getattr(am, "tool_calls", None)
                    and isinstance(getattr(am, "content", None), str) and am.content.strip())
 
-        def _ap_regen(fbtxt, tag):
-            """피드백 1회 → regen. 게이트-deny 유입 시 원본 유지(부작용 0). 성공 시 새 am."""
+        def _ap_regen(fbtxt, tag, tool_choice=None):
+            """피드백 1회 → regen. 게이트-deny 유입 시 원본 유지(부작용 0). 성공 시 새 am.
+            ★tool_choice(레버 A·2026-07-18·`HANDOFF_LEVER_DESIGN §2`): regen 응답의 **채널만** 강제
+            (어느 도구를 부를지는 모델이 고름). 실측 근거 = forced 프로브: 강제 하 24/24 정답 선택 ·
+            같은 지시를 **말로** 하면 56%로 악화(단일변수·`forced_probe_20260718`)."""
             try:
                 _fb = UserMessage(role="user", content=fbtxt)
             except TypeError:
                 _fb = UserMessage(content=fbtxt)
-            _am2 = _gen(self, work + [am, _fb], bw(), "agent_response_" + tag)
+            _am2 = _gen(self, work + [am, _fb], bw(), "agent_response_" + tag, tool_choice=tool_choice)
             if gate is not None and _denied_calls(_am2, gate, last_user, transfer_sent):
                 print("[%s] rejected: regen introduced gate-denied call; keeping original" % tag.upper(),
                       file=_sys.stderr, flush=True)
@@ -2778,7 +2785,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     self._t2_followup = getattr(self, "_t2_followup", 0) + 1
                     print("[T2_FOLLOWUP] fired tool=%s missing_follow_up=%s"
                           % (_d0.get("name"), _ft), file=_sys.stderr, flush=True)
-                    _new0 = _ap_regen(_fu["feedback"], "followup")
+                    # ★레버 A(T2_FOLLOWUP_FORCE=1·기본 OFF): FOLLOWUP regen의 **빈손 43~50%**(regen이 도구
+                    #   대신 산문을 냄·nt=20 실측 dreq2 6/14·ctl2 7/14)를 채널 강제로 닫는다. 이 순간은
+                    #   ASK가 정당한 출구가 아니다 — 데이터는 이미 손에 있고 남은 일이 인계뿐.
+                    _new0 = _ap_regen(_fu["feedback"], "followup",
+                                      tool_choice=("required"
+                                                   if os.environ.get("T2_FOLLOWUP_FORCE") == "1" else None))
                     if _new0 is not None:
                         am = _new0
                         print("[T2_FOLLOWUP] regen tool_calls=%s"
