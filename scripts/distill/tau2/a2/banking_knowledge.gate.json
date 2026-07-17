@@ -320,7 +320,7 @@
    "variants": {
     "ratefix": {
      "params": {
-      "transactions": "JSON array. For EACH transaction include ONLY the raw fields, exactly as they appear in the transaction record and the customer's account record: transaction_id, transaction_amount, rewards_earned, transaction_date, credit_card_type, merchant_name, category, account_open (the opening date MM/DD/YYYY of the account that card belongs to).\n★Do NOT look up, reason about, or provide reward RATES, promos, or any computed value — a separate deterministic system reads the reward-rate policy and computes the expected reward itself. Just pass the raw records through."
+      "transactions": "JSON array. For EACH transaction include ONLY these raw fields, normalized to plain values:\n- transaction_id (string), transaction_amount (NUMBER, e.g. 126.36 — strip any currency symbol), rewards_earned (NUMBER, e.g. 126 — strip any unit word), transaction_date (MM/DD/YYYY)\n- credit_card_type, merchant_name, category — copied from the transaction record\n- account_open (MM/DD/YYYY) — the opening date of the account that card belongs to\n★Do NOT look up, reason about, or provide reward RATES, promos, or any computed value — a separate deterministic system reads the reward-rate policy and computes the expected reward itself."
      },
      "op": {
       "op": "select_discrepant",

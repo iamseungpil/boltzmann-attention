@@ -11,6 +11,7 @@ op ∈ {const, ref, min, max, argmin, argmax, sum, count_where, diff, clamp, loo
 apply_op(spec, ctx) → 계산값 (실패=None·안전). ctx = {"args": 이번호출인자, "records": 조회record list,
   "params": 발견도구 nested 인자, "user": 사용자 발화값}. ref="params.disputed_amount" 형 경로."""
 import re
+import sys as _sys
 
 
 def _get(ctx, path):
@@ -314,6 +315,7 @@ def apply_op(spec, ctx):
             exp_ref = spec.get("expected_ref")
             espec = spec.get("expected")   # 하위호환(직접 expected op)
             out_ids = []
+            skipped = 0
             for r in recs:
                 if not isinstance(r, dict):
                     continue
@@ -324,9 +326,17 @@ def apply_op(spec, ctx):
                 act = _num(r.get(af))                          # clean operand 전제(LLM formalize)
                 en = _num(exp)
                 if en is None or act is None:
+                    # ★숫자로 안 읽히는 행은 판정 불가 → 건너뛴다(엔진이 '$'/단위를 파싱하면
+                    #   엔진-formalize=[[03b]] 위반이므로 정규화는 LLM 몫이다). 단 **조용히** 건너뛰면
+                    #   under-action이 "discrepant 0건"으로 위장된다 — 2026-07-18 실측 사고(계약문이
+                    #   "레코드에 나타난 그대로"라 모델이 "$126.36"을 넘겨 17행 전부 탈락→0건). ⇒ 계측만 추가.
+                    skipped += 1
                     continue
                 if abs(en - act) > tol:
                     out_ids.append(r.get(idf))
+            if skipped:
+                print("[T2_COMPUTE] select_discrepant: %d/%d행 판정불가(operand가 숫자 아님) — "
+                      "under-action 위험" % (skipped, len(recs)), file=_sys.stderr, flush=True)
             return out_ids
         if op == "filter":
             # ★reference-filter(keystone): 수집 record를 criteria로 결정론 매칭 → return field.
