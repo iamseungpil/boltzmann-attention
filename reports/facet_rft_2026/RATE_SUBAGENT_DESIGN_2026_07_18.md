@@ -73,6 +73,48 @@ promo_active(account_open, txn_date, window_months, promo_start=None, promo_end=
 **★서브가 도구를 *부르게* 강제** — 측정서 모델이 날짜를 자기가 계산하려다 틀렸으므로: 서브 호출에 **레버 A
 (`tool_choice`)** 재사용 or 프롬프트 유도. **"날짜가 프로모 안인지 직접 판단하지 말고 promo_active 도구를 불러라."**
 
+## 2b. ★★LOCK — operand는 격리 서브가 산출한다 (2026-07-18 NIGHT+ 사용자)
+
+> 사용자 축자: ***"operator operand 는 sub agent 로 부하 없이 격리로 결과 리턴 받아야 한다."***
+
+**원칙(LOCK)**: operator/operand **값**(=formalize 산출물)은 **메인 대화 문맥 안에서 emit되면 안 된다.**
+반드시 **격리 서브요청**(컨텍스트 = 그 operand 산출에 필요한 것만·대화부하 0)이 산출해 **리턴**한다.
+- 근거 = §0/§1 측정: 같은 32B가 격리서 base_rate 100% · 메인 부하 속에선 열화([[45]] load).
+- `GENERALIZED_SCAFFOLD §4d` 정합: A2 operand-spec의 **INFER(=formalize) 단계를 격리 실행**하는 것.
+  엔진은 여전히 고정 인터프리터([[05]] 리터럴 0)·서브는 생성기의 전문화([[10]]).
+- **개입레버 아님**(§7-1 무위반): 엔진이 의도를 추측/override하지 않는다. **문맥 스코핑**(부하 제거)일 뿐이다.
+
+**★배포된 ratefix는 이 원칙의 절반만 이행 중이다 (2026-07-18 NIGHT+ 코드 감사)**
+| 설계 | 배포(`T2_A2_VARIANT=ratefix`) |
+|---|---|
+| 격리 서브요청이 operand 산출 | ✗ **메인 대화 한복판**서 producer 인자를 emit |
+| 그 호출 `tool_choice=required`(§2 레버 A 재사용) | ✗ auto — `required`는 FOLLOWUP regen(`T2_FOLLOWUP_FORCE`)에만 배선 |
+| 산술 전부 엔진 op | ✓ (C113 v2) |
+| 엔진 리터럴 0·operand화 | ✓ |
+
+**이 갭이 실패를 실제로 만들었다 (task_021 per-step 포렌식·[[08]])**: 메인이 KB를 스스로 검색해야 했고
+`KB_search_dense` 호출 2건이 **vLLM Hermes 파서에 조용히 드롭**(`arguments` 키 누락→`except Exception`→
+`tools_called=False`+원문을 content로·피드백 0) ⇒ **정책문서를 한 줄도 못 읽은 채** base_rate emit ⇒
+WeWork(KB 명시 0%)를 1%로 봄 ⇒ **false positive 1건** ⇒ r=0. **rate 분담선과 무관한 실패**(페어비교 교란셀).
+- `tool_choice=required` 경로는 **Hermes 텍스트 파서를 아예 안 탄다**(vLLM `protocol.py:805` 도구목록→JSON
+  스키마 구조화디코딩 · `serving_chat.py:1286` `TypeAdapter(list[FunctionDefinition]).validate_json`)
+  ⇒ 격리 서브(=유일 임무가 도구호출)에 required면 **이 드롭은 성립 불가**.
+- ⇒ **드롭 탐지 후 regen 같은 새 개입레버 금지**(§7-1·[[16]]). 답은 **설계 §2 이행**(격리+required)이다.
+
+**★열린 문제 — 격리 서브에 KB 문서를 누가 넣나 (GET 단계·미해결)**
+서브 입력 = "KB rate문서 + 거래 + 개설일"(§2)인데 **그 문서를 고르는 주체**가 미정이고, 여기가 [[03b]] 경계다.
+- ✗ **금지**: 스캐폴드가 "rate 문서"를 카드명/제목으로 하드픽 = 도메인 리터럴·spoon-feed(§7-3·§7-5).
+  ⚠️**자기감사**: 현 `bank_rate_f1_gate_probe.py`가 `title.startswith(카드명)`로 문서를 **떠먹인다** —
+  측정코드라 [[05]] 대상은 아니나, **그 결과를 라이브 능력의 상한으로 읽으면 오독**이다(라이브는 GET이 필요).
+- 후보 (전부 도메인일반·미결정):
+  (a) **서브가 스스로 GET**: 서브에 KB검색 도구 + `required` → 검색 먼저(fetch-first·[[01]] P2b) 후 formalize.
+      질의어는 행(row)에서 파생(카드명·카테고리) = A2 스키마 파생·도메인지식 0.
+  (b) **A2 operand-spec의 getter 선언**(§4d): `base_rate.getter = KB_search_*` ⇒ 고정 인터프리터가 GET 실행.
+  (c) 메인이 이미 검색해 둔 문서를 전달 — ✗ **task_021이 반증**(메인이 검색 못 하면 서브도 빈손·부하도 남음).
+- ⇒ **(b)가 LOCK §4d 정합**(operand마다 GET 기준을 A2가 선언·엔진 무수정)이나 KB검색=DB getter와 달리
+  **반환이 문서(비구조)** ⇒ GET→formalize 2단. **결정 전 측정 필요**: 서브가 스스로 GET했을 때 base_rate 정확도가
+  문서를 떠먹인 100%를 유지하나(=GET가 공짜인가) — 이게 다음 무료 실험이고 **F1 게이트로는 답이 안 나온다**.
+
 ## 3. [[05]]/[[03b]]/[[10]] 정합
 - **[[05]]**: 엔진에 rate·프로모 상수 **0**(전부 서브가 operand로 냄). 도메인 지식 = KB(서브가 읽음)·엔진은 산술만.
 - **[[03b]]**: 엔진이 KB 파싱 **0**. formalize는 LLM(서브). 엔진은 날짜비교·곱셈만.
