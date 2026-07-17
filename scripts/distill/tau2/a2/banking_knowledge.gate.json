@@ -320,7 +320,7 @@
    "variants": {
     "ratefix": {
      "params": {
-      "transactions": "JSON array. For EACH transaction include the raw fields (transaction_id, transaction_amount, rewards_earned, transaction_date) AND these values you determine by reading the reward-rate policy documents in the knowledge base:\n- base_rate: the base cash-back RATE for this card+category as a percent number (e.g. 10 for 10%, 4 for 4%). Read the card's reward-rate policy; the rate depends on the card AND the purchase category.\n- account_open: the customer's account opening date (MM/DD/YYYY), from their account record.\n- promo_mult, promo_window_months, promo_start, promo_end: if a limited-time promo (e.g. double cash back for new customers) exists for this card, its multiplier, window length in months, and the promo period. If no promo, use promo_mult=1 and leave promo_start/promo_end empty.\n★Do NOT compute the final rate or apply the promo yourself — just provide these values; the tool computes the expected reward deterministically (base rate, promo eligibility by dates, multiplication)."
+      "transactions": "JSON array. For EACH transaction include ONLY the raw fields, exactly as they appear in the transaction record and the customer's account record: transaction_id, transaction_amount, rewards_earned, transaction_date, credit_card_type, merchant_name, category, account_open (the opening date MM/DD/YYYY of the account that card belongs to).\n★Do NOT look up, reason about, or provide reward RATES, promos, or any computed value — a separate deterministic system reads the reward-rate policy and computes the expected reward itself. Just pass the raw records through."
      },
      "op": {
       "op": "select_discrepant",
@@ -375,7 +375,37 @@
        }
       },
       "expected_ref": "steps.expected"
-     }
+     },
+     "isolate": {
+      "over": "transactions",
+      "id_field": "transaction_id",
+      "row_fields": [
+       "transaction_id",
+       "transaction_amount",
+       "rewards_earned",
+       "transaction_date",
+       "credit_card_type",
+       "merchant_name",
+       "category",
+       "account_open"
+      ],
+      "getter_tools": [
+       "KB_search_bm25",
+       "KB_search_dense",
+       "KB_search"
+      ],
+      "max_rounds": 4,
+      "instructions": "You determine cash-back reward rates by reading this bank's reward-rate policy documents.\nFIRST search the knowledge base for the reward-rate policy of EACH card below — including its exceptions/exclusions — using the search tool. Search before you answer; do not answer from memory.\nThen, for EACH item, report ONLY these values, read from the policy documents:\n- base_rate: the base cash-back rate that applies to THIS item, as a percent number (e.g. 10 for 10%, 4 for 4%, 0 if this item earns nothing). It depends on the card, the purchase category, the merchant (policies may exclude specific merchants), and how long a subscription has run.\n- promo_mult, promo_window_months, promo_start, promo_end: if a limited-time promo (e.g. double cash back for new customers) exists for this card, its multiplier, window length in months, and the promo period dates (MM/DD/YYYY). If no promo exists, use promo_mult=1 and empty dates.\n★Do NOT compute the final rate, do NOT apply the promo, do NOT multiply, and do NOT judge whether the promo dates apply — a deterministic system does all of that. Report only what the documents say.",
+      "operand_schema": {
+       "base_rate": "<n>",
+       "promo_mult": "<n>",
+       "promo_window_months": "<n>",
+       "promo_start": "<MM/DD/YYYY or empty>",
+       "promo_end": "<MM/DD/YYYY or empty>"
+      },
+      "answer_format": "When you are done searching, reply with EXACTLY one JSON object and nothing else:\n{schema}"
+     },
+     "_note_isolate": "2026-07-18 NIGHT+ · `RATE_SUBAGENT_DESIGN §2b` LOCK(사용자): operand는 격리 서브가 부하 없이 산출해 리턴한다. 메인은 원시 레코드만 넘기고(params), 격리 서브가 KB를 직접 검색(getter_tools·1라운드 required)해 base_rate/promo를 formalize·엔진이 날짜+곱셈. 엔진 리터럴 0([[05]])·도구명/질의/계약문 전부 A2. T2_SG_ISOLATE=1·기본 OFF."
     }
    },
    "_note_ratefix": "C113: rate 결정론화. LLM=거래별 base_rate·promo formalize(KB해석·프로브 100%)·엔진=날짜판정+곱셈+discrepant. 엔진 도메인상수 0([[05]])·KB파싱 0([[03b]]). T2_A2_VARIANT=ratefix."

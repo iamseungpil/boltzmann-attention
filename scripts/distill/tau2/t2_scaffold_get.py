@@ -11,6 +11,102 @@ import os, json, sys as _sys
 #   정본 경로: operand는 **LLM이 formalize**해 도구 인자로 넘기고(아래 exec2), 엔진은 op 실행만 한다([[10]]).
 
 
+def _merge_json(text, keys):
+    """텍스트 안 JSON을 **전부** 모아 병합(배열·별도객체·펜스·산문혼재 대응).
+    ⚠️첫 객체만 집으면 나머지가 None이 되어 **모델 실패로 오독**된다(2026-07-18 실측·[[08]])."""
+    text = text or ""
+    out, i = {}, 0
+    while i < len(text):
+        if text[i] not in "{[":
+            i += 1
+            continue
+        for j in range(len(text), i, -1):
+            try:
+                val = json.loads(text[i:j])
+            except Exception:
+                continue
+            for d in (val if isinstance(val, list) else [val]):
+                if isinstance(d, dict):
+                    out.update({k: v for k, v in d.items() if k in keys})
+            i = j
+            break
+        else:
+            i += 1
+    return out
+
+
+def _isolate_spec(d):
+    """A2가 선언한 격리-formalize 스펙(미선언이면 None=거동 변화 0)."""
+    return (d.get("isolate") or None) if isinstance(d, dict) else None
+
+
+def _sub_formalize(orch, d, iso, ctx, run_env_calls):
+    """★격리 서브 (2026-07-18 NIGHT+·`RATE_SUBAGENT_DESIGN §2b` LOCK — 사용자 원칙:
+    *"operator operand 는 sub agent 로 부하 없이 격리로 결과 리턴 받아야 한다."*)
+
+    메인 대화 문맥(20턴·25k·신원확인·도구저글링) 안에서 operand를 emit하면 부하로 열화한다
+    (실측: 같은 32B가 격리서 base_rate 100% · 라이브서 오탐 10/26·task_020). ⇒ operand 산출을
+    **자체 메시지 리스트만 가진 격리 서브요청**으로 옮긴다.
+
+    - **메인 턴 소모 0**: 서브의 generate/도구호출은 `state.messages`에 안 들어간다. 메인이 보는 것은
+      producer 호출 1건 + 그 결과 1건뿐(이 함수는 exec2=도구 실행 경로 안에서 돈다).
+    - **GET는 진짜 도구로**: 서브가 A2 선언 getter(`iso.getter_tools`)를 호출하면 **env가 결정론 실행**
+      (`run_env_calls`)하고 결과를 서브 문맥에 되먹인다 — 엔진이 문서를 골라주지 않는다([[03b]] spoon-feed 금지).
+    - **1라운드 `tool_choice=required`**: 서브의 유일 임무 = getter 호출. required 경로는 vLLM Hermes 텍스트
+      파서를 안 타므로(protocol.py:805 구조화디코딩), 봉투 오류로 호출이 **조용히 증발**하는 사고가 성립 불가
+      (task_021 실패 기전). 개입레버 아님 — 채널만 강제([[16]] §7-1 무위반).
+    - **엔진 리터럴 0**: 도구명·질의어·계약문 전부 A2(`iso`)서 온다. 엔진은 루프만 돈다.
+
+    반환: {row_id: {operand: value}} · 실패 시 None(→ 호출부가 메인 인자로 폴백·거동 변화 0).
+    """
+    import tau2.agent.llm_agent as la
+    from tau2.data_model.message import UserMessage
+    ag = getattr(orch, "agent", None)
+    rows = ctx.get(iso["over"])
+    if ag is None or not isinstance(rows, list) or not rows:
+        return None
+    id_field = iso["id_field"]
+    keep = set(iso.get("row_fields") or [])
+    # 메인이 추측한 격리-operand는 **버린다**(누출 방지). 서브에 주는 행 = 원시 필드만.
+    raw = [{k: v for k, v in r.items() if k in keep} for r in rows if isinstance(r, dict)]
+    ids = [str(r.get(id_field)) for r in rows if isinstance(r, dict)]
+    tools = [t for t in (getattr(ag, "tools", None) or [])
+             if getattr(t, "name", None) in set(iso.get("getter_tools") or [])]
+    if not tools:
+        print("[T2_SG_ISOLATE] getter_tools 부재 → 격리 생략", file=_sys.stderr, flush=True)
+        return None
+    prompt = "%s\n\n=== ITEMS ===\n%s\n\n%s" % (
+        iso["instructions"], json.dumps(raw, ensure_ascii=False, indent=1),
+        iso["answer_format"].format(schema=json.dumps({i: iso.get("operand_schema", {}) for i in ids},
+                                                      ensure_ascii=False)))
+    try:
+        um = UserMessage(role="user", content=prompt)
+    except TypeError:
+        um = UserMessage(content=prompt)
+    msgs = [um]
+    kw = {k: v for k, v in dict(getattr(ag, "llm_args", None) or {}).items() if "tool" not in k}
+    for rnd in range(int(iso.get("max_rounds", 4))):
+        try:
+            resp = la.generate(model=ag.llm, tools=tools, messages=msgs,
+                               call_name="sg_isolate",
+                               **(dict(kw, tool_choice="required") if rnd == 0 else kw))
+        except Exception as e:
+            print("[T2_SG_ISOLATE] generate 실패(%d라운드): %r" % (rnd, e), file=_sys.stderr, flush=True)
+            return None
+        tcs = list(getattr(resp, "tool_calls", None) or [])
+        if tcs:
+            msgs.append(resp)
+            msgs.extend(run_env_calls(tcs))          # ★GET = env 결정론 실행
+            continue
+        got = _merge_json(getattr(resp, "content", None) or "", set(ids))
+        print("[T2_SG_ISOLATE] %s: %d라운드·getter %d회·operand %d/%d행"
+              % (d.get("name"), rnd + 1, sum(1 for m in msgs if getattr(m, "role", "") == "tool"),
+                 len(got), len(ids)), file=_sys.stderr, flush=True)
+        return got or None
+    print("[T2_SG_ISOLATE] max_rounds 소진 → 격리 생략", file=_sys.stderr, flush=True)
+    return None
+
+
 def _build_tool(Tool, d):
     """A2 선언 → tau2 Tool. ★tau2 `Tool.__init__`은 **함수 객체에서** 스키마를 유도한다
     (`tool.py:61-73`: `name = func.__name__` · `parse_data(sig, doc, ...)`) — 우리가 넘기는
@@ -194,6 +290,23 @@ def apply():
                 #   (도메인일반 조건·미선언 op는 거동 변화 0).
                 if (d.get("op") or {}).get("evidence_from"):
                     _ctx.update(_evidence_ctx(self))
+                # ★격리 서브가 operand 산출 (T2_SG_ISOLATE=1·기본 OFF·A2 `isolate` 선언 시만)
+                #   `RATE_SUBAGENT_DESIGN §2b` LOCK. 실패=None → 메인 인자로 폴백(거동 변화 0).
+                _iso = _isolate_spec(d) if os.environ.get("T2_SG_ISOLATE") == "1" else None
+                if _iso:
+                    def _run(tcs, _self=self):
+                        return orig_exec(_self, tcs)
+                    _sub = _sub_formalize(self, d, _iso, _ctx, _run)
+                    if _sub:
+                        _rows = _ctx.get(_iso["over"]) or []
+                        _hit = 0
+                        for _r in _rows:
+                            _v = _sub.get(str(_r.get(_iso["id_field"]))) if isinstance(_r, dict) else None
+                            if isinstance(_v, dict):
+                                _r.update(_v)          # 서브 operand가 메인 추측을 대체
+                                _hit += 1
+                        print("[T2_SG_ISOLATE] %s: %d/%d행 operand를 격리 서브가 산출"
+                              % (getattr(tc, "name"), _hit, len(_rows)), file=_sys.stderr, flush=True)
                 _res = _c.apply_op(d.get("op"), _ctx)
                 if isinstance(_res, list):                    # 목록형(discrepancy ids)
                     _res = [str(i) for i in _res if i]
