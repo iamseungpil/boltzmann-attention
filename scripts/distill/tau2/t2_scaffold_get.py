@@ -36,16 +36,20 @@ def _variant(d, name=None):
     기본(미지정) = 원본 그대로 = **거동 변화 0**(진행 중 arm 보호).
     `name` 명시 = 프로브용(한 프로세스서 두 arm 비교) — **엔진과 병합 코드를 공유해야** 프로브가 라이브와
     같은 것을 잰다([[30]] 단위통과≠라이브발화·[[03b]] 별도 구현 금지)."""
-    vn = name or os.environ.get("T2_A2_VARIANT")
-    if not vn:
+    # ★다중 변이(2026-07-18·C113): `T2_A2_VARIANT=ledger,ratefix` → 각 도구는 **자기 variants에 있는 이름만**
+    #   적용(도구마다 다른 변이). 단일값 하위호환. `name` 명시 시 그 하나만(프로브용).
+    raw = name if name is not None else os.environ.get("T2_A2_VARIANT")
+    if not raw:
         return d
-    v = (d.get("variants") or {}).get(vn)
-    if not isinstance(v, dict):
+    wanted = [x.strip() for x in str(raw).split(",") if x.strip()]
+    have = d.get("variants") or {}
+    hit = next((w for w in wanted if isinstance(have.get(w), dict)), None)
+    if hit is None:
         return d
     d2 = {k: val for k, val in d.items() if k != "variants"}
-    d2.update(v)
+    d2.update(have[hit])
     print("[T2_A2_VARIANT] %s ← '%s' (params=%s op=%s)"
-          % (d2.get("name"), vn, list((d2.get("params") or {})), (d2.get("op") or {}).get("op")),
+          % (d2.get("name"), hit, list((d2.get("params") or {})), (d2.get("op") or {}).get("op")),
           file=_sys.stderr, flush=True)
     return d2
 
