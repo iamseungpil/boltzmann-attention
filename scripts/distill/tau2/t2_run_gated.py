@@ -57,6 +57,18 @@ def main():
     ap.add_argument("--auto_resume", action="store_true",
                     help="기존 save_to서 재개(tau2 `try_resume`: 완료된 (trial,task_id,seed)는 건너뜀). "
                          "중간에 죽여도 재실행하면 이어서 — 죽인 만큼만 다시 돈다([[09]] 비용).")
+    # ★재시도 금지 = 삭제 편향 제거 (2026-07-18 사용자 지시·`ARM_ALIGNMENT_RESUME_DESIGN §5`)
+    #   기본 3회(총 4시도)는 예외 시 **sim을 통째로 재실행하고 실패 궤적을 버린다**(`run_with_retry`).
+    #   컨텍스트 초과는 **대화가 길다=배회=실패할 궤적**서 나므로, 재시도는 **나쁜 표본만 골라 다시 뽑는다**
+    #   = reward 상향 편향(실측: dreq2 20건·ctl2 14건 초과 / 재시도 11 vs 9).
+    #   ⇒ **0 = 재시도 없음 → 초과가 `INFRASTRUCTURE_ERROR`로 *남는다*(삭제 대신 가시화).**
+    #   ⚠️그 sim은 `messages=[]`·`reward_info` 없음 ⇒ **분석에서 reward 0(fail)로 세야** 지시대로 된다
+    #   (`bank_paired_arms.py --infra-as-zero`). 안 그러면 편향이 '결측'으로 형태만 바뀐다.
+    #   ⚠️궤적이 안 남아 **포렌식 불가**가 된다 — 점수 정직성과 맞바꾸는 값.
+    ap.add_argument("--max_retries", type=int, default=None,
+                    help="tau2 기본 3(총 4시도). **0 = 재시도 없음**(초과=fail·삭제편향 제거).")
+    ap.add_argument("--max_steps", type=int, default=None,
+                    help="tau2 기본 200(텍스트 모드의 실질 한계). 명시=기록용.")
     ap.add_argument("--seed", type=int, default=None,
                     help="배치 seed(tau2 기본 300). ★**양 arm에 같은 값**을 명시해야 "
                          "`done_runs` 키 (trial,task_id,seed)가 일치해 **페어 비교**가 성립한다. "
@@ -218,6 +230,10 @@ def main():
         _extra_cfg["auto_resume"] = True
     if a.seed is not None:
         _extra_cfg["seed"] = a.seed
+    if a.max_retries is not None:
+        _extra_cfg["max_retries"] = a.max_retries
+    if a.max_steps is not None:
+        _extra_cfg["max_steps"] = a.max_steps
     cfg = TextRunConfig(
         **_extra_cfg,
         domain=a.domain,

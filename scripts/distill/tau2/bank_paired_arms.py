@@ -46,9 +46,16 @@ def key_of(s):
     return (s.get("trial"), s.get("task_id"), s.get("seed"))
 
 
-def reward_of(s):
+def reward_of(s, infra_as_zero=False):
+    """★`--max_retries 0` 런에서는 컨텍스트 초과 sim이 `INFRASTRUCTURE_ERROR`로 남는데
+    `reward_info`가 **없다**(`messages=[]`) → 그냥 두면 **평균서 제외** = 삭제 편향이 '결측'으로 형태만 바뀜.
+    사용자 지시(2026-07-18): *"32K 넘으면 재시도 하지 말고 **fail 처리**"* ⇒ `infra_as_zero`면 **0으로 센다.**
+    ⚠️단 이건 **채점 판단**이므로 반드시 **개수를 함께 보고**한다(아래 main의 `infra=` 출력)."""
     ri = s.get("reward_info") or {}
-    return ri.get("reward")
+    r = ri.get("reward")
+    if r is None and infra_as_zero:
+        return 0.0
+    return r
 
 
 def term_of(s):
@@ -71,19 +78,30 @@ def main():
     ap.add_argument("arm_b")
     ap.add_argument("--retry-log", default=None,
                     help="'{arm}' 치환 패턴. 예: /home/woori/scratch/bank_{arm}_nt20_20260718.log")
+    ap.add_argument("--infra-as-zero", action="store_true",
+                    help="★`--max_retries 0` 런용: reward 없는 sim(=INFRASTRUCTURE_ERROR·컨텍스트 초과)을 "
+                         "**fail(0)**로 센다(사용자 지시 2026-07-18). 미지정=제외(구 동작).")
     a = ap.parse_args()
 
     out = {}
     for tag in (a.arm_a, a.arm_b):
         sims = load(tag)
-        d = {}
+        d, infra = {}, 0
         for s in sims:
-            r = reward_of(s)
+            if (s.get("reward_info") or {}).get("reward") is None:
+                infra += 1               # reward 없음 = infra_error(초과) — 세는 건 플래그와 무관
+            r = reward_of(s, a.infra_as_zero)
             if r is None:
-                continue
+                continue                 # 미지정 시에만 도달 = 구 동작(제외)
             d[key_of(s)] = {"reward": r, "term": term_of(s)}
         out[tag] = d
-        print(f"{tag}: 완주 {len(d)}건")
+        if a.infra_as_zero:
+            print(f"{tag}: 채점 대상 {len(d)}건 (그중 **무보상→0(fail)으로 센 것: {infra}건**)")
+        else:
+            print(f"{tag}: 채점 대상 {len(d)}건" + (f"  ⚠️무보상 {infra}건 **제외됨**" if infra else ""))
+            if infra:
+                print(f"   ⚠️`--max_retries 0` 런이면 `--infra-as-zero`를 써라 — 안 그러면 "
+                      f"삭제 편향이 '결측'으로 형태만 바뀐다.")
 
     A, B = out[a.arm_a], out[a.arm_b]
     paired = sorted(set(A) & set(B), key=lambda k: (str(k[1]), k[0] if k[0] is not None else -1))
