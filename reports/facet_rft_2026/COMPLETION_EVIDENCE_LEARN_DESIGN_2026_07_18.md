@@ -6,7 +6,31 @@
 > 규율: **[[11]]/[[05]] 학습은 학습벤치(synth)서만 · banking = eval 전용(ABox-swap 전이)** · [[12]] 다양성 ·
 > C104 learn-wing 처방(음성 사전포함·think-증류 금지·회귀게이트 상설) · [[09]] 무료 우선.
 
+## 0a. ★★선행 양보 — **현상·명명·벤치·rate는 전부 선점됐다** (사용자 2026-07-18 지적·C105 기확정)
+> *"완료 날조는 이미 외부 논문이나 우리 실험에서 이미 많이 보인 거 아닌가?"* — **맞다. 이 설계는 현상 발견이 아니다.**
+
+| 선행 | 선점한 것 | 등급 |
+|---|---|---|
+| **`2606.09863`** "false success" | ★**같은 τ²-bench**서 rate까지: 9,876궤적·single-control 실패의 **45–48%**·모델별 13~79% | (a) 사실상 완전 |
+| `2603.03116` PAE | "Execution Consistency" + **confirmation numbers 날조** 명명 · **Phantom Booking** | (a) |
+| `2509.18970` 서베이 | "execution hallucination"/"outcome hallucination" **명명 기존재** | (a) |
+| `2507.21017` MIRAGE | "Hallucinated success and continued execution" · "Assumption-Based Completion" | (a) |
+| `2603.10060` NabaOS | HMAC 영수증으로 **fabricated tool reference 94.2% 탐지** | (b) 탐지 |
+- **우리 데이터도 넘친다**: §14.3(실패 **4/10 sim 전부**·`DISPUTE-123456~59`·*"successfully filed"*) · §19.1 · §19.2
+  (`CASE-123456`) · §20(③형 3/4) · `case` 프로브 **54%**. ⇒ **banking 54%는 확정 사실 — 다시 잴 필요 없다.**
+- ★**미선점으로 남는 것은 하나뿐**: 위 전부가 **post-hoc 탐지**다 — `2606.09863` 자인 *"The detector is a triage
+  signal, not an autonomous monitor"*(개입 0) · NabaOS = 탐지 후 **신뢰 신호만** · PAE = LLM-judge 사후 ·
+  AgentLTL(C106) = **vacuous-pass 자인**(기권이 κground 무조건 통과).
+  ⇒ **우리 자리 = "주장에 `evidence`를 달게 *학습*시켜 사후 탐지 문제를 런타임 결정론 검사로 바꾼다."**
+  현상을 발견했다는 주장은 **하지 않는다**.
+- ★**그럼 우리 궤적/프로브는 왜 필요했나** — **학습 데이터를 설계하려고**. 선행 어디에도 없는 두 가지를 우리가 갖고 있다:
+  1. **방아쇠**: 사용자가 산출물을 **명시 요구**(sim1 [31] *"Create the case and share the reference number"*)
+  2. **재료**: 날조 값이 전부 **스키마-예시형 placeholder**(`CASE-123456` **6/24 동일 문자열**) = 지어냄이 아니라
+     **예시 분포에서 꺼냄** ⇒ D7 정박 재료 배치법이 여기서 나온다.
+
 ## 0. ★★★착수 게이트 — 여기 통과 못 하면 **학습 금지** (같은 실패를 이미 두 번 했다)
+> ⚠️**이 게이트는 banking을 재는 게 아니다**(54%=확정). **우리 synth가 그 실패를 재현하는지**를 잰다 —
+> 재현 못 하면 gradient가 0이라 학습 자체가 무의미하다(아래 두 선례가 정확히 그것).
 | 선례 | 무슨 일 | 교훈 |
 |---|---|---|
 | `cfbsynth_v2.py:6-10` (v1 부검) | 결손 큐를 다 주고 규칙까지 명시 → **base가 fabricate 0.00** → **어떤 손실도 gradient 0** | 날조가 **안 일어나는** 데이터로는 못 배운다 |
