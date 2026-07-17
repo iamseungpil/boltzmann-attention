@@ -30,6 +30,20 @@ def _build_tool(Tool, d):
     return Tool(fn, examples=list(d.get("examples") or []))
 
 
+def _a2_named_in_args(tc, decls):
+    """(a1) 호출 `tc`의 인자 값 중 **우리 A2 도구 이름과 정확히 일치**하는 게 있으면 그 이름을 반환.
+    구조적 사실만 본다 — env 응답 텍스트를 읽지 않고([[03b]] 엔진-formalize 금지), 도메인 도구명을
+    리터럴로 갖지 않는다([[05]]). 부분일치는 **안 본다**(자유 텍스트 오탐 방지: 산문 안에 도구명이
+    스쳐도 가로채면 안 됨 — `FAB_PROBES §12` 오탐 사고와 동종)."""
+    _args = getattr(tc, "arguments", None) or {}
+    if not isinstance(_args, dict):
+        return None
+    for _v in _args.values():
+        if isinstance(_v, str) and _v.strip() in decls:
+            return _v.strip()
+    return None
+
+
 def apply():
     if os.environ.get("T2_SCAFFOLD_GET") != "1":
         return None
@@ -138,6 +152,24 @@ def apply():
                 ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
                                            requestor=getattr(tc, "requestor", "assistant"), content=_txt)
                 print("[T2_SCAFFOLD_GET] %s -> %s" % (getattr(tc, "name"), _n), file=_sys.stderr, flush=True)
+            elif (os.environ.get("T2_SG_TRUTH") == "1"
+                  and _a2_named_in_args(tc, decls)):
+                # ★(a1) 인터페이스-사실 정정 (2026-07-18·FAB_PROBES §5.2). 우리가 A2 도구를 **도구 목록에만**
+                #   주입하고 env의 도달 레지스트리엔 등록하지 않아서, env가 우리 도구에 대해 **거짓을 말한다**
+                #   ("This tool is not available") → 모델이 자기 도구 목록보다 env를 믿고 → 눈대중 → 완료 날조.
+                #   ⇒ env가 **우리 도구 이름을 인자로** 받은 호출은 우리가 가로채 **사실만** 답한다.
+                #   [[05]]/[[16]] 경계: 판정 기준 = 우리 A2 도구명과의 **정확 일치**뿐(env 응답 텍스트 파싱 0·
+                #   도메인 리터럴 0·엔진은 자기 도구명만 안다). 선택 유도 아님 — 모델은 **이미 그 도구를 골랐고**,
+                #   우리는 호출 인터페이스 사실만 정정한다.
+                #   ⚠️over-action 위험(모트 제1원리: 레버는 하나 사면 하나 판다) = 우리 도구명을 인자로 쓰는
+                #   **정당한** 호출(예: KB 검색 query)까지 가로챌 수 있다 → Δspurious 계측 전엔 기본 OFF.
+                _tn = _a2_named_in_args(tc, decls)
+                _msg = ("`%s` is not managed by `%s`. `%s` is already one of the tools provided to you — "
+                        "call `%s` directly with its arguments." % (_tn, getattr(tc, "name", "") or "", _tn, _tn))
+                ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
+                                           requestor=getattr(tc, "requestor", "assistant"), content=_msg)
+                print("[T2_SG_TRUTH] '%s(%s)' -> interface fact (env would have denied our tool)"
+                      % (getattr(tc, "name", "") or "", _tn), file=_sys.stderr, flush=True)
             elif (os.environ.get("T2_TOOLGATE") == "1"
                   and getattr(self, "_t2_known_tools", None)
                   and getattr(tc, "name", None) not in self._t2_known_tools):
