@@ -40,6 +40,36 @@ def _isolate_spec(d):
     return (d.get("isolate") or None) if isinstance(d, dict) else None
 
 
+_DOC_CACHE = {}
+
+
+def _load_domain_docs(domain):
+    """도메인 KB 문서 전량 로드(`DATA_DIR/tau2/domains/<domain>/documents/*.json`). 캐시.
+    ★도메인일반: 경로 규칙만·도메인 리터럴 0. 카드-스코프 선별은 호출부가 제목 접두로."""
+    if domain in _DOC_CACHE:
+        return _DOC_CACHE[domain]
+    docs = []
+    try:
+        from tau2.utils.utils import DATA_DIR
+        dd = os.path.join(str(DATA_DIR), "tau2", "domains", domain, "documents")
+        for fn in sorted(os.listdir(dd)):
+            if fn.endswith(".json"):
+                o = json.load(open(os.path.join(dd, fn), encoding="utf-8"))
+                docs.append({"title": o.get("title") or "", "content": o.get("content") or o.get("text") or ""})
+    except Exception as e:
+        print("[T2_SG_ISOLATE] 문서로드 실패(%s): %r" % (domain, e), file=_sys.stderr, flush=True)
+    _DOC_CACHE[domain] = docs
+    return docs
+
+
+def _norm_ground(s):
+    """grounding substring 매칭용 정규화(공백·대소문자·문장부호 흡수·엔진 결정론)."""
+    return re.sub(r"[^a-z0-9%]+", " ", str(s).lower()).strip()
+
+
+import re  # noqa: E402  (grounding 정규화용)
+
+
 def _sub_formalize(orch, d, iso, ctx, run_env_calls):
     """★격리 서브 (2026-07-18 NIGHT+·`RATE_SUBAGENT_DESIGN §2b` LOCK — 사용자 원칙:
     *"operator operand 는 sub agent 로 부하 없이 격리로 결과 리턴 받아야 한다."*)
@@ -65,6 +95,9 @@ def _sub_formalize(orch, d, iso, ctx, run_env_calls):
     rows = ctx.get(iso["over"])
     if ag is None or not isinstance(rows, list) or not rows:
         return None
+    # ★★재설계(§2e): inject_docs면 카드당 격리+문서주입+grounding 경로로(검색 안 씀). 미선언=기존 검색 모드.
+    if iso.get("inject_docs"):
+        return _sub_inject(orch, d, iso, ctx, la, UserMessage)
     id_field = iso["id_field"]
     keep = set(iso.get("row_fields") or [])
     # 메인이 추측한 격리-operand는 **버린다**(누출 방지). 서브에 주는 행 = 원시 필드만.
@@ -119,6 +152,96 @@ def _sub_formalize(orch, d, iso, ctx, run_env_calls):
     print("[T2_SG_ISOLATE] max_rounds 소진 → 격리 생략", file=_sys.stderr, flush=True)
     _isolate_trace(iso, d, {"error": "max_rounds", "queries": queries})
     return None
+
+
+def _sub_inject(orch, d, iso, ctx, la, UserMessage):
+    """★★재설계 격리(§2e·2026-07-18 실증 105/105): 카드당 격리 + 문서 주입(검색 0) + grounding.
+    거래를 `group_by`(레코드 필드)로 그룹핑 → 그룹마다 그 그룹값의 문서를 제목접두로 주입 →
+    서브가 `{base_rate, exclusion_quote}` formalize → 엔진 grounding(quote∈문서면 0 유지·아니면 default 백필).
+    엔진 리터럴 0: 그룹키·필터규칙·계약문 전부 A2·값/인용 전부 LLM이 KB서·엔진은 substring+백필만."""
+    ag = orch.agent
+    domain = getattr(getattr(orch, "environment", None), "domain_name", None)
+    all_docs = _load_domain_docs(domain) if domain else []
+    if not all_docs:
+        print("[T2_SG_ISOLATE] inject: 도메인 문서 0 → 격리 생략", file=_sys.stderr, flush=True)
+        return None
+    rows = ctx.get(iso["over"])
+    id_field, gkey = iso["id_field"], iso["group_by"]
+    keep = set(iso.get("row_fields") or [])
+    kw = {k: v for k, v in dict(getattr(ag, "llm_args", None) or {}).items() if "tool" not in k}
+    if iso.get("temperature") is not None:
+        kw["temperature"] = iso["temperature"]
+
+    groups = {}
+    for r in rows:
+        if isinstance(r, dict):
+            groups.setdefault(str(r.get(gkey)), []).append(r)
+    out = {}
+    for gval, grows in groups.items():
+        docs = [x for x in all_docs if x["title"].startswith(gval + ": ")]  # 결정론 제목접두(§2e)
+        if not docs:
+            print("[T2_SG_ISOLATE] inject: '%s' 문서 0 → 그룹 생략" % gval, file=_sys.stderr, flush=True)
+            continue
+        docnorm = _norm_ground(" ".join(x["content"] for x in docs))
+        docstr = "\n\n".join("### %s\n%s" % (x["title"], x["content"]) for x in docs)
+        raw = [{k: v for k, v in r.items() if k in keep} for r in grows]
+        ids = [str(r.get(id_field)) for r in grows]
+        schema = json.dumps({i: iso.get("operand_schema", {}) for i in ids}, ensure_ascii=False)
+        prompt = iso["inject_instructions"].format(group=gval, docs=docstr, schema=schema,
+                                                   items=json.dumps(raw, ensure_ascii=False, indent=1))
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        try:
+            resp = la.generate(model=ag.llm, tools=None, messages=[um], call_name="sg_inject", **kw)
+        except Exception as e:
+            print("[T2_SG_ISOLATE] inject generate 실패(%s): %r" % (gval, e), file=_sys.stderr, flush=True)
+            continue
+        got = _merge_json(getattr(resp, "content", None) or "", set(ids))
+        # 카드 기본율(default) — 근거없는 0 백필용. 같은 문서로 1회 formalize(값=LLM·엔진 하드코딩0).
+        default = _card_default(la, ag, iso, gval, docstr, UserMessage, kw) if iso.get("base_default_prompt") else None
+        kept = filled = 0
+        for r in grows:
+            tid = str(r.get(id_field))
+            v = got.get(tid) or {}
+            try:
+                br = float(v.get(iso.get("rate_field", "base_rate")))
+            except Exception:
+                br = None
+            # ★grounding: base_rate=0 이면 exclusion_quote가 문서에 실재하나
+            if br == 0:
+                q = _norm_ground(v.get(iso.get("quote_field", "exclusion_quote")) or "")
+                grounded = len(q) >= int(iso.get("quote_min", 8)) and q in docnorm
+                if grounded:
+                    kept += 1                       # 진짜 예외 → 0 유지
+                elif default is not None:
+                    br = default                    # 근거없는 0 → 기본율 백필
+                    filled += 1
+            if br is not None:
+                r[iso.get("rate_field", "base_rate")] = br   # ★엔진 op가 읽을 operand로 병합
+                out[tid] = {iso.get("rate_field", "base_rate"): br}
+        print("[T2_SG_ISOLATE] inject '%s': 문서 %d·거래 %d·operand %d·grounded유지 %d·백필 %d(default=%s)"
+              % (gval, len(docs), len(grows), len([x for x in ids if x in out]), kept, filled, default),
+              file=_sys.stderr, flush=True)
+        _isolate_trace(iso, d, {"group": gval, "n_docs": len(docs), "n_rows": len(grows),
+                                "kept": kept, "filled": filled, "default": default, "operands": got})
+    return out or None
+
+
+def _card_default(la, ag, iso, gval, docstr, UserMessage, kw):
+    """그룹(카드) 기본율(all-other-purchases rate)을 KB서 formalize. 값=LLM·엔진 하드코딩 0([[05]])."""
+    prompt = iso["base_default_prompt"].format(group=gval, docs=docstr)
+    try:
+        um = UserMessage(role="user", content=prompt)
+    except TypeError:
+        um = UserMessage(content=prompt)
+    try:
+        resp = la.generate(model=ag.llm, tools=None, messages=[um], call_name="sg_default", **kw)
+        j = _merge_json(getattr(resp, "content", None) or "", {"base_default"})
+        return float(j.get("base_default")) if j and j.get("base_default") is not None else None
+    except Exception:
+        return None
 
 
 def _isolate_trace(iso, d, record):

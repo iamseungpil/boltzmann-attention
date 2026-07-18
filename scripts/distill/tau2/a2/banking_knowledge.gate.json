@@ -398,13 +398,18 @@
       "temperature": 0,
       "instructions": "You determine cash-back reward rates by reading this bank's reward-rate policy documents.\nFIRST search the knowledge base for the reward-rate policy of EACH card below — including its exceptions/exclusions — using the search tool. Search before you answer; do not answer from memory.\nThen, for EACH item, report ONLY these values, read from the policy documents:\n- base_rate: the base cash-back rate that applies to THIS item, as a percent number (e.g. 10 for 10%, 4 for 4%, 0 if this item earns nothing). It depends on the card, the purchase category, the merchant (policies may exclude specific merchants), and how long a subscription has run.\n- promo_mult, promo_window_months, promo_start, promo_end: if a limited-time promo (e.g. double cash back for new customers) exists for this card, its multiplier, window length in months, and the promo period dates (MM/DD/YYYY). If no promo exists, use promo_mult=1 and empty dates.\n★Do NOT compute the final rate, do NOT apply the promo, do NOT multiply, and do NOT judge whether the promo dates apply — a deterministic system does all of that. Report only what the documents say.",
       "operand_schema": {
-       "base_rate": "<n>",
-       "promo_mult": "<n>",
-       "promo_window_months": "<n>",
-       "promo_start": "<MM/DD/YYYY or empty>",
-       "promo_end": "<MM/DD/YYYY or empty>"
+       "base_rate": "<percent number>",
+       "exclusion_quote": "<exact excluding sentence from the docs, or empty>"
       },
-      "answer_format": "When you are done searching, reply with EXACTLY one JSON object and nothing else:\n{schema}"
+      "answer_format": "When you are done searching, reply with EXACTLY one JSON object and nothing else:\n{schema}",
+      "inject_docs": true,
+      "group_by": "credit_card_type",
+      "rate_field": "base_rate",
+      "quote_field": "exclusion_quote",
+      "quote_min": 8,
+      "inject_instructions": "You are a bank rewards specialist. Below are ALL policy documents for the {group}, then the customer's transactions on that card. For EACH transaction give the base cash-back RATE (percent number: e.g. 10, 4, or 0 if it truly earns nothing).\n★Do NOT return 0 just because a purchase is not a premium/bonus category — almost every card earns a BASE rate on all other purchases; apply it. Return 0 ONLY if a document EXPLICITLY excludes this specific merchant/category, AND when you do, copy the exact excluding sentence from the documents into 'exclusion_quote'. Otherwise leave exclusion_quote empty. Do NOT apply any limited-time promo or multiply — just the base rate.\n\n=== {group} — POLICY DOCUMENTS ===\n{docs}\n\n=== TRANSACTIONS ===\n{items}\n\nReply with EXACTLY one JSON object mapping each transaction_id to {{\"base_rate\": <number>, \"exclusion_quote\": \"<exact sentence or empty>\"}}:\n{schema}",
+      "base_default_prompt": "Read these {group} policy documents. What is the BASE cash-back rate that applies to 'all other purchases' (purchases NOT in any bonus/premium category) on this card, as a percent number? Reply with EXACTLY one JSON object: {{\"base_default\": <number>}}\n\n{docs}",
+      "_note_inject": "2026-07-18 재설계(§2e·프로브 105/105): 카드당 격리+문서주입(검색 대신 title 접두)+{base_rate,exclusion_quote} grounding+기본율 default. 엔진 리터럴 0. getter_tools=구 검색모드(미사용)."
      },
      "_note_isolate": "2026-07-18 NIGHT+ · `RATE_SUBAGENT_DESIGN §2b` LOCK(사용자): operand는 격리 서브가 부하 없이 산출해 리턴한다. 메인은 원시 레코드만 넘기고(params), 격리 서브가 KB를 직접 검색(getter_tools·1라운드 required)해 base_rate/promo를 formalize·엔진이 날짜+곱셈. 엔진 리터럴 0([[05]])·도구명/질의/계약문 전부 A2. T2_SG_ISOLATE=1·기본 OFF."
     }
