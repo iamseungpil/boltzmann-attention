@@ -156,18 +156,23 @@ def main():
                 continue
             bad = []
             for r in uniq:
-                cell = (card, "%s@%.1f" % (r["category"], r["gold_pts"] / r["amount"]))
+                gr = r["gold_pts"] / r["amount"]
+                cell = (card, "%s@%.1f" % (r["category"], gr))
                 cell_n[cell] += 1
                 v = out.get(r["transaction_id"])
                 try:
                     br = float(v)
                 except Exception:
                     br = None
-                gr = r["gold_pts"] / r["amount"]
-                ok = br is not None and (abs(br - gr) < 0.01 or abs(br * 2 - gr) < 0.01 or (gr == 0 and br == 0))
+                # ★반올림 흡수 (2026-07-18 포렌식): gold_pts는 **정수 반올림**돼 저장(예 9.47×2=18.94→18pts)
+                #   → gold_pts/amount는 참 rate보다 최대 1/amount 낮다. 판정 = 서브 base_rate로 **포인트 재구성**
+                #   (base 또는 base×2=프로모)이 gold_pts와 ±1 이내인가(엔진 tolerance와 동일). rate 직접비교 금지.
+                def hits(rate):
+                    return abs(r["amount"] * rate - r["gold_pts"]) <= 1
+                ok = br is not None and (hits(br) or hits(br * 2) or (r["gold_pts"] == 0 and br == 0))
                 cell_ok[cell] += ok
                 if not ok:
-                    bad.append("%s=%s(gold %.1f)" % (r["category"], v, gr))
+                    bad.append("%s=%s(gold_pts %.0f/amt %.0f=%.2f)" % (r["category"], v, r["gold_pts"], r["amount"], gr))
             tag = "✓" if not bad else "✗%d" % len(bad)
             print("### %s [%d] docs=%d prompt=%dch %s %s"
                   % (card, i, len(docs), plen, tag, " ".join(bad[:6])))
