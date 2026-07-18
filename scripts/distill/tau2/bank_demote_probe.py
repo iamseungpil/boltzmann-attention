@@ -67,6 +67,8 @@ def main():
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--n", type=int, default=3)
     ap.add_argument("--temp", type=float, default=0.0)
+    ap.add_argument("--no_dedup", action="store_true",
+                    help="★유니크셀 대표 대신 전체 거래(라이브 문맥부하 재현·2026-07-18 §2h)")
     a = ap.parse_args()
 
     gold = {r["transaction_id"]: r for r in PC.build_gold()}
@@ -81,13 +83,22 @@ def main():
         for card in targets:
             rows = bycard[card]
             docs = PC.card_docs(card, "all")
-            seen, uniq = set(), []
-            for r in sorted(rows, key=lambda x: x["transaction_id"]):
-                key = (r["category"], round(r["gold_pts"] / r["amount"], 1))
-                if key in seen:
-                    continue
-                seen.add(key)
-                uniq.append(r)
+            if a.no_dedup:
+                # 라이브 재현: 거래 중복(같은 txn_id 여러 태스크) 제거만·셀 유니크화 안 함
+                _s, uniq = set(), []
+                for r in sorted(rows, key=lambda x: x["transaction_id"]):
+                    if r["transaction_id"] in _s:
+                        continue
+                    _s.add(r["transaction_id"])
+                    uniq.append(r)
+            else:
+                seen, uniq = set(), []
+                for r in sorted(rows, key=lambda x: x["transaction_id"]):
+                    key = (r["category"], round(r["gold_pts"] / r["amount"], 1))
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    uniq.append(r)
             for i in range(a.n):
                 out = run(a.base, a.model, a.temp, card, uniq, docs, tail)
                 bad = []
