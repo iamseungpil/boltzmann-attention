@@ -36,14 +36,25 @@ def _num(s):
     return float(re.sub(r"[^0-9.]", "", str(s)))
 
 
-def card_docs(card):
-    """그 카드 문서 전부 — 제목 `"카드명: "` 접두(접두오염 방어·§2e). 검색 0·선별 0."""
+# ★rate-키워드(비교 arm 전용·배포 아님): 제목에 이 단어가 있으면 "rate 관련"으로 취급.
+#   ⚠️이건 spoon-feed 방향(정답 문서 선별)이라 배포 금지 — "전체 vs 선별" 필요성 측정용.
+RATE_KW = ["earn", "cash back", "cashback", "rate", "exceptions", "exclusion", "qualify",
+           "double", "promo", "conversion", "green", "sustainability"]
+
+
+def card_docs(card, mode="all"):
+    """카드 문서. mode='all'=전부(§2e 배포안) · mode='rate'=제목 rate-키워드만(비교 arm)."""
     dd = os.path.join(DOM, "documents")
     out = []
     for fn in sorted(os.listdir(dd)):
         d = json.load(open(os.path.join(dd, fn), encoding="utf-8"))
-        if (d.get("title") or "").startswith(card + ": "):
-            out.append(d)
+        if not (d.get("title") or "").startswith(card + ": "):
+            continue
+        if mode == "rate":
+            sub = d["title"].split(": ", 1)[1].lower() if ": " in d["title"] else ""
+            if not any(k in sub for k in RATE_KW):
+                continue
+        out.append(d)
     return out
 
 
@@ -121,6 +132,8 @@ def main():
     ap.add_argument("--n", type=int, default=3)
     ap.add_argument("--temp", type=float, default=0.0)
     ap.add_argument("--cards", default="", help="쉼표구분 카드명 필터(기본=전부)")
+    ap.add_argument("--doc_mode", choices=["all", "rate"], default="all",
+                    help="all=카드문서전부(§2e·배포) · rate=제목 rate-키워드만(비교arm·spoon방향)")
     a = ap.parse_args()
 
     gold = build_gold()
@@ -128,12 +141,13 @@ def main():
     for r in gold:
         bycard[r["card"]].append(r)
     cards = [c for c in sorted(bycard) if not a.cards or c in a.cards.split(",")]
-    print("★카드당 문서-주입 프로브 (검색 0·temp=%s) · 카드 %d종\n" % (a.temp, len(cards)))
+    print("★카드당 문서-주입 프로브 (검색 0·temp=%s·doc_mode=%s) · 카드 %d종\n"
+          % (a.temp, a.doc_mode, len(cards)))
 
     cell_ok, cell_n = defaultdict(int), defaultdict(int)
     for card in cards:
         rows = bycard[card]
-        docs = card_docs(card)
+        docs = card_docs(card, a.doc_mode)
         # 카드당 셀 대표(카테고리×rate 중복 제거) — 프롬프트 크기·균형
         seen, uniq = set(), []
         for r in sorted(rows, key=lambda x: x["transaction_id"]):
