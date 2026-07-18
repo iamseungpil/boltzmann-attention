@@ -382,6 +382,24 @@ isolate:
   +crossover)** 유지. 이 축은 **분담-원리의 실측 사례**로 §2f처럼 종속 배치·부품 전부 인용(2501.01880·EMNLP2025·
   DACS·Anthropic·sub-7B utilization). **모트는 여전히 crossover**([[46]]). ⚠️DACS 인용 필수(최근접·미인용시 리뷰어 kill).
 
+### ★★★DACS 정독 (arXiv:2604.07911·2026-07-18·사용자 지시·최근접 이웃 delta 확정)
+**DACS = Dynamic Attentional Context Scoping**. 겹침 = **"문맥 격리→소형LLM 결정정확도↑" 원리 하나뿐**(flat 21~60%
+→격리 90~98%·우리 카드30→카테고리12 오독제거와 동뿌리). **나머지 전부 다름**:
+| 축 | DACS | 우리 |
+|---|---|---|
+| 격리 대상 | **에이전트 대화상태**(status·진행) | **KB문서·operand**(정책자료) |
+| 결정 내용 | 관리자가 서브에 줄 **답(A/B steering)** | 서브가 자료읽고 **값 formalize**(base_rate·promo) |
+| 결정론 엔진 | **없음**(순수 문맥라우팅) | **있음**(날짜·곱셈·discrepant·grounding 검증) |
+| formalize+검증 | 없음(키워드매칭 채점) | 서브 formalize→엔진 substring grounding 검증 |
+| 과제 | **합성 시나리오**(BST코드·서베이 toy·160+40 trial) | **실제 tool-use e2e**(τ² banking·real gold·reward) |
+| retrieval | 안 다룸 | **검색을 문서주입 대체**(bm25 42%→90%) |
+| 모델 | MiniMax-M2.7·Haiku 4.5 | Qwen 32B(소형)·엔진offload |
+- **★핵심 delta**: DACS=순수 **문맥창 관리**(계산·검증·formalize 0·합성과제). 우리=**formalize+결정론검증+계산 분담**
+  ([[10]])·실제 tool-use·retrieval대체·compliance(over-flag→pass). **DACS엔 우리 실질(엔진offload·grounding·e2e) 0**.
+- **★리뷰어 방어**: DACS "deterministic·no ranking·exact not approximate" 표현이 우리 결정론격리와 겹침 → **인용하며
+  delta 명시**(우리는 문맥라우팅 아니라 formalize-검증-계산 분담). DACS 저자 자인한 한계 = 합성과제·frontier미테스트·
+  에이전트상태 격리 국한 = 우리 whitespace와 정확히 상보. ⇒ **인용·양보(격리원리)+delta 전면(실질 전부)**.
+
 ## 2. ★분담 구조 — 서브에이전트가 날짜엔진을 **function calling으로 호출**(사용자 2026-07-18)
 > ~~§2-v1(서브=파라미터만 → 엔진이 op)~~ 개선: 서브가 **완성된 rate**를 반환하되, 자기가 못하는 날짜산술만
 > **도구 호출로 offload**한다. ⇒ 서브에이전트 *안에서* 다시 [[10]] 분담(생성=LLM·계산=결정론도구)이 일어난다.
