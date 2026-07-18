@@ -41,6 +41,30 @@
 - **격리하면 컨텍스트 = KB+거래뿐** → base_rate 100%(측정). = 사용자 통찰 실증.
 - ⇒ ***rate-formalize를 전용 서브에이전트로 분리 = 부하 제거 = 정확도 회복.*** [[00]] 명제(작은 LLM+분담)의 한 형태.
 
+## 2c. ★★★구현·라이브 실증 (2026-07-18 NIGHT+·`T2_SG_ISOLATE`)
+
+**구현**: `t2_scaffold_get.py::_sub_formalize` — producer 도구 실행경로(`exec2`) 안에서 격리 서브루프.
+- 메인 대화(`state.messages`)에는 **producer 호출 1 + 결과 1**만. 서브 generate·getter는 그 밖 = **메인 턴 0**.
+- 서브 입력 = 원시 레코드만(`row_fields` 화이트리스트가 메인 추측 operand를 버림). 1라운드 `tool_choice=required`.
+- getter = A2 선언(`isolate.getter_tools`=`KB_search_*`)·env 결정론 실행·결과를 서브 문맥에 되먹임(GET·[[03b]] 무spoon).
+- 엔진 리터럴 0: 도구명·질의지시·계약문·operand 스키마 전부 A2 `isolate`. 미선언 or 실패 → 메인 인자 폴백(거동 0).
+- 오프라인 배선 8항목 PASS(`test_sg_isolate.py`).
+
+**★라이브 실증 (task_021·유료·seed 300·단일변수 `T2_SG_ISOLATE`만 ratefix arm과 차이)**:
+| | ratefix arm(메인서 operand) | **격리 서브(iso021)** |
+|---|---|---|
+| reward | **0.0**(user_stop) | **★1.0**(user_stop·db_match=True) |
+| KB 검색 | `KB_search_dense` 봉투드롭 2회(정책문서 미독) | 서브가 **KB 2회 실검색** |
+| base_rate 정확 | 오탐 유발 | **17/17행 정확**(WeWork 0%·Green 5%·머천트예외 다 맞음) |
+| producer 반환 | discrepant 3(오탐 1) | **discrepant 2 = gold와 정확 일치**(오탐0·누락0) |
+⇒ 사용자 원칙("operand는 격리 서브가 부하 없이 산출·리턴")의 **라이브 e2e 실증**. 메인서 오탐 10내던 base_rate가
+격리서 17/17. **서브가 스스로 GET**(문서 떠먹임 아님) = §2b "열린 GET 질문"에 이 궤적은 "GET 공짜" 답.
+
+**⚠️정직 (포렌식 가드·[[08]])**: **n=1 pass^1 = 존재증명(작동)이지 비율주장 아님.** 일반화엔 나머지 5태스크
+(020/022/026/027/028) 페어 필요. **진행 중**(`bank_iso5_20260718`·8141·seed 300).
+**⚠️내 회귀 2건 잡음**(고침): ①§2b 계약문 "레코드 그대로"→모델이 `"$126.36"` 문자열→`_num` 못읽어 17행
+판정불가→discrepant 0(under-action 위장). ②엔진 skip이 조용. → 계약=정규화 숫자 요구·엔진 skip 계측 추가.
+
 ## 2. ★분담 구조 — 서브에이전트가 날짜엔진을 **function calling으로 호출**(사용자 2026-07-18)
 > ~~§2-v1(서브=파라미터만 → 엔진이 op)~~ 개선: 서브가 **완성된 rate**를 반환하되, 자기가 못하는 날짜산술만
 > **도구 호출로 offload**한다. ⇒ 서브에이전트 *안에서* 다시 [[10]] 분담(생성=LLM·계산=결정론도구)이 일어난다.
