@@ -85,6 +85,10 @@ def _sub_formalize(orch, d, iso, ctx, run_env_calls):
         um = UserMessage(content=prompt)
     msgs = [um]
     kw = {k: v for k, v in dict(getattr(ag, "llm_args", None) or {}).items() if "tool" not in k}
+    # ★서브는 temp=0 (2026-07-18 확정·`RATE_SUBAGENT §2d`): 서브 유일임무=KB서 사실추출이라 온도 불요.
+    #   temp>0면 확률적으로 KB 검색 덜 하고 base_rate 환각(무료 프로브: 0.7=0/0/9오독·0.0=완벽×3). over-flag 원인.
+    if iso.get("temperature") is not None:
+        kw["temperature"] = iso["temperature"]
     for rnd in range(int(iso.get("max_rounds", 4))):
         try:
             resp = la.generate(model=ag.llm, tools=tools, messages=msgs,

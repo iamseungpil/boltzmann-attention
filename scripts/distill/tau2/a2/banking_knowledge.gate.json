@@ -395,6 +395,7 @@
        "KB_search"
       ],
       "max_rounds": 4,
+      "temperature": 0,
       "instructions": "You determine cash-back reward rates by reading this bank's reward-rate policy documents.\nFIRST search the knowledge base for the reward-rate policy of EACH card below — including its exceptions/exclusions — using the search tool. Search before you answer; do not answer from memory.\nThen, for EACH item, report ONLY these values, read from the policy documents:\n- base_rate: the base cash-back rate that applies to THIS item, as a percent number (e.g. 10 for 10%, 4 for 4%, 0 if this item earns nothing). It depends on the card, the purchase category, the merchant (policies may exclude specific merchants), and how long a subscription has run.\n- promo_mult, promo_window_months, promo_start, promo_end: if a limited-time promo (e.g. double cash back for new customers) exists for this card, its multiplier, window length in months, and the promo period dates (MM/DD/YYYY). If no promo exists, use promo_mult=1 and empty dates.\n★Do NOT compute the final rate, do NOT apply the promo, do NOT multiply, and do NOT judge whether the promo dates apply — a deterministic system does all of that. Report only what the documents say.",
       "operand_schema": {
        "base_rate": "<n>",

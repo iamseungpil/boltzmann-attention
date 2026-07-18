@@ -81,8 +81,10 @@
   getter도 [0]26회 vs [2]10회 = **KB를 덜 읽고 base를 지어냄**. ⇒ over-flag 원인 = **온도 0.7서 서브가 확률적으로
   KB검색 덜 하고 base_rate 환각**([[43]] 채점이 추측>기권 보상). iso5 라이브 12·15·12와 일치. task_021이 통한 건
   **운 좋은 샘플**(존재증명이나 robust 아님·[[08]] pass^1 경고 정확). ⇒ **격리 자체는 부하는 줄이나 환각은 안 막음**
-  — 필요레버 = base_rate **grounding**(값 ∈ KB출력·[[16]] provenance·미grounded 거부) or 낮은 temp or self-consistency.
-  ⚠️**n=3(얇음)**·기전 확인 = temp=0 재실행 진행 중(분산 소멸하면 온도-분산 [D] 확정).
+  — 필요레버 = base_rate **grounding**(값 ∈ KB출력·[[16]] provenance·미grounded 거부) or **낮은 temp**.
+  **★temp=0 확정([D]·무료)**: temp=0.0 3샘플 **전부 완벽**(getter 24회 일정·base오독 0·flagged 0) vs
+  temp=0.7(0/0/9 오독·getter 26/12/10). ⇒ **over-flag = 온도-분산 환각 확정.** iso5 라이브가 temp=0.7이라 발생.
+  ★**즉효 무료 수정**: 격리 서브 호출을 **temp=0 강제**(서브 유일임무=사실추출이라 온도 불요). grounding은 후속.
 - **★설계 결함 3 — sim 완주 불가능하게 느려짐**: getter 10회×producer 다회 → 태스크당 20분+ → e2e 비현실적.
 ⇒ **결론: 현 "태스크-배치 격리"는 반증됨. 사용자 원칙(operand=격리)은 유효(task_021 실증)하나 격리 단위가 틀림.**
    **재설계 방향(다음)**: 격리를 **거래(또는 카드) 단위**로 잘게 — 배치 172k → 카드당 1~5거래. KB 검색도
