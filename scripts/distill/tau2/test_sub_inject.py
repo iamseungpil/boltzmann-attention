@@ -48,10 +48,10 @@ SG._DOC_CACHE["banking_knowledge"] = DOCS
 
 # 가짜 서브 응답: 카드별로 다른 답. base_rate + exclusion_quote.
 RESP = {
-    # Silver: Travel=4, Software 과엄격 0 (근거없음 → 백필돼야)
-    "Silver Rewards Card": '{"t_s1": {"base_rate": 4, "exclusion_quote": ""}, "t_s2": {"base_rate": 0, "exclusion_quote": ""}}',
+    # Silver: Travel=4 +promo2, Software 과엄격 0 (근거없음 → 백필돼야)
+    "Silver Rewards Card": '{"t_s1": {"base_rate": 4, "exclusion_quote": "", "promo_mult": 2, "promo_window_months": 6, "promo_start": "01/01/2025", "promo_end": "12/31/2025"}, "t_s2": {"base_rate": 0, "exclusion_quote": "", "promo_mult": 1}}',
     # Business Silver: WeWork=0 (근거 있음 → 유지)
-    "Business Silver Rewards Card": '{"t_b1": {"base_rate": 0, "exclusion_quote": "The following merchants earn 0% cash back: WeWork, Regus."}}',
+    "Business Silver Rewards Card": '{"t_b1": {"base_rate": 0, "exclusion_quote": "The following merchants earn 0% cash back: WeWork, Regus.", "promo_mult": 1}}',
 }
 DEFAULTS = {"Silver Rewards Card": '{"base_default": 1}', "Business Silver Rewards Card": '{"base_default": 1}'}
 CALLS = []
@@ -110,7 +110,11 @@ def main():
     chk(r["t_s1"].get("base_rate") == 4, "Silver Travel = 4 (정상)")
     chk(r["t_s2"].get("base_rate") == 1, "Silver Software 과엄격0 → 기본율 1 백필 (근거없음)")
     chk(r["t_b1"].get("base_rate") == 0, "WeWork = 0 유지 (근거 문서에 실재)")
-    print("③ 엔진 리터럴 0:")
+    print("③ promo 파라미터 병합(엔진 op가 읽음):")
+    chk(r["t_s1"].get("promo_mult") == 2 and r["t_s1"].get("promo_start") == "01/01/2025",
+        "Silver Travel promo_mult=2·기간 병합됨")
+    chk("exclusion_quote" not in r["t_s1"], "exclusion_quote는 병합서 제외(grounding 전용)")
+    print("④ 엔진 리터럴 0:")
     chk("WeWork" not in open(os.path.join(HERE, "t2_scaffold_get.py"), encoding="utf-8").read(),
         "엔진 코드에 도메인 리터럴(WeWork 등) 없음")
     print("\n%s" % ("PASS — 재설계 배선 정상 (라이브 발화는 별도·[[30]])" if ok else "FAIL"))

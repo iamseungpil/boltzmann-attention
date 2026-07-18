@@ -218,9 +218,15 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
                 elif default is not None:
                     br = default                    # 근거없는 0 → 기본율 백필
                     filled += 1
+            # ★서브 operand 전체를 rows에 병합(base_rate + promo 파라미터 등) — 엔진 op가 읽음.
+            #   quote는 grounding용이라 제외. base_rate는 grounding/백필 반영된 최종값(br)으로 덮음.
+            rate_f, quote_f = iso.get("rate_field", "base_rate"), iso.get("quote_field", "exclusion_quote")
+            merged = {k: val for k, val in v.items() if k != quote_f}
             if br is not None:
-                r[iso.get("rate_field", "base_rate")] = br   # ★엔진 op가 읽을 operand로 병합
-                out[tid] = {iso.get("rate_field", "base_rate"): br}
+                merged[rate_f] = br
+            if merged:
+                r.update(merged)                       # ★엔진 op가 읽을 operand로 병합(promo 포함)
+                out[tid] = merged
         print("[T2_SG_ISOLATE] inject '%s': 문서 %d·거래 %d·operand %d·grounded유지 %d·백필 %d(default=%s)"
               % (gval, len(docs), len(grows), len([x for x in ids if x in out]), kept, filled, default),
               file=_sys.stderr, flush=True)

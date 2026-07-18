@@ -398,8 +398,12 @@
       "temperature": 0,
       "instructions": "You determine cash-back reward rates by reading this bank's reward-rate policy documents.\nFIRST search the knowledge base for the reward-rate policy of EACH card below — including its exceptions/exclusions — using the search tool. Search before you answer; do not answer from memory.\nThen, for EACH item, report ONLY these values, read from the policy documents:\n- base_rate: the base cash-back rate that applies to THIS item, as a percent number (e.g. 10 for 10%, 4 for 4%, 0 if this item earns nothing). It depends on the card, the purchase category, the merchant (policies may exclude specific merchants), and how long a subscription has run.\n- promo_mult, promo_window_months, promo_start, promo_end: if a limited-time promo (e.g. double cash back for new customers) exists for this card, its multiplier, window length in months, and the promo period dates (MM/DD/YYYY). If no promo exists, use promo_mult=1 and empty dates.\n★Do NOT compute the final rate, do NOT apply the promo, do NOT multiply, and do NOT judge whether the promo dates apply — a deterministic system does all of that. Report only what the documents say.",
       "operand_schema": {
-       "base_rate": "<percent number>",
-       "exclusion_quote": "<exact excluding sentence from the docs, or empty>"
+       "base_rate": "<percent number for this card+category+merchant>",
+       "exclusion_quote": "<exact excluding sentence from the docs, or empty>",
+       "promo_mult": "<promo multiplier e.g. 2 for double, or 1 if no promo>",
+       "promo_window_months": "<promo window length in months, or 0>",
+       "promo_start": "<promo period start MM/DD/YYYY, or empty>",
+       "promo_end": "<promo period end MM/DD/YYYY, or empty>"
       },
       "answer_format": "When you are done searching, reply with EXACTLY one JSON object and nothing else:\n{schema}",
       "inject_docs": true,
@@ -407,7 +411,7 @@
       "rate_field": "base_rate",
       "quote_field": "exclusion_quote",
       "quote_min": 8,
-      "inject_instructions": "You are a bank rewards specialist. Below are ALL policy documents for the {group}, then the customer's transactions on that card. For EACH transaction give the base cash-back RATE (percent number: e.g. 10, 4, or 0 if it truly earns nothing).\n★Do NOT return 0 just because a purchase is not a premium/bonus category — almost every card earns a BASE rate on all other purchases; apply it. Return 0 ONLY if a document EXPLICITLY excludes this specific merchant/category, AND when you do, copy the exact excluding sentence from the documents into 'exclusion_quote'. Otherwise leave exclusion_quote empty. Do NOT apply any limited-time promo or multiply — just the base rate.\n\n=== {group} — POLICY DOCUMENTS ===\n{docs}\n\n=== TRANSACTIONS ===\n{items}\n\nReply with EXACTLY one JSON object mapping each transaction_id to {{\"base_rate\": <number>, \"exclusion_quote\": \"<exact sentence or empty>\"}}:\n{schema}",
+      "inject_instructions": "You are a bank rewards specialist. Below are ALL policy documents for the {group}, then the customer's transactions on that card. For EACH transaction report:\n- base_rate: the base cash-back RATE (percent number: e.g. 10, 4, or 0 if it truly earns nothing).\n  ★Do NOT return 0 just because a purchase is not a premium/bonus category — almost every card earns a BASE rate on all other purchases; apply it. Return 0 ONLY if a document EXPLICITLY excludes this specific merchant/category, AND then copy the exact excluding sentence into 'exclusion_quote' (else leave empty).\n- promo_mult, promo_window_months, promo_start, promo_end: if a limited-time promo (e.g. double cash back for new customers) exists for this card, its multiplier, window length in months, and the promo period dates (MM/DD/YYYY). If no promo, use promo_mult=1, promo_window_months=0, empty dates.\n★Do NOT apply the promo or multiply or judge whether the promo dates apply — a separate deterministic system does that from your parameters. Just give the base_rate and the raw promo parameters.\n\n=== {group} — POLICY DOCUMENTS ===\n{docs}\n\n=== TRANSACTIONS ===\n{items}\n\nReply with EXACTLY one JSON object mapping each transaction_id to the fields above:\n{schema}",
       "base_default_prompt": "Read these {group} policy documents. What is the BASE cash-back rate that applies to 'all other purchases' (purchases NOT in any bonus/premium category) on this card, as a percent number? Reply with EXACTLY one JSON object: {{\"base_default\": <number>}}\n\n{docs}",
       "_note_inject": "2026-07-18 재설계(§2e·프로브 105/105): 카드당 격리+문서주입(검색 대신 title 접두)+{base_rate,exclusion_quote} grounding+기본율 default. 엔진 리터럴 0. getter_tools=구 검색모드(미사용)."
      },
