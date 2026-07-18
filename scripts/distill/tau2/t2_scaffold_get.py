@@ -166,7 +166,10 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
         print("[T2_SG_ISOLATE] inject: 도메인 문서 0 → 격리 생략", file=_sys.stderr, flush=True)
         return None
     rows = ctx.get(iso["over"])
-    id_field, gkey = iso["id_field"], iso["group_by"]
+    id_field = iso["id_field"]
+    # ★group_by = 단일 필드 or 복합키(list). 부하축소로 카드×카테고리 격리(§2h·2026-07-18 실증).
+    gkeys = iso["group_by"] if isinstance(iso["group_by"], list) else [iso["group_by"]]
+    doc_key = iso.get("doc_key", gkeys[0])   # 문서 필터는 카드 필드(카테고리별 문서 없음)
     keep = set(iso.get("row_fields") or [])
     kw = {k: v for k, v in dict(getattr(ag, "llm_args", None) or {}).items() if "tool" not in k}
     if iso.get("temperature") is not None:
@@ -175,10 +178,13 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
     groups = {}
     for r in rows:
         if isinstance(r, dict):
-            groups.setdefault(str(r.get(gkey)), []).append(r)
+            gk = tuple(str(r.get(k)) for k in gkeys)
+            groups.setdefault(gk, []).append(r)
     out = {}
-    for gval, grows in groups.items():
-        docs = [x for x in all_docs if x["title"].startswith(gval + ": ")]  # 결정론 제목접두(§2e)
+    default_cache = {}    # 카드당 기본율 1회만(복합키로 카드가 여러 그룹에 나뉘어도 중복 호출 방지)
+    for gk, grows in groups.items():
+        gval = grows[0].get(doc_key)          # 문서 스코프 = 카드값(복합키의 doc_key 성분)
+        docs = [x for x in all_docs if x["title"].startswith(str(gval) + ": ")]  # 결정론 제목접두(§2e)
         if not docs:
             print("[T2_SG_ISOLATE] inject: '%s' 문서 0 → 그룹 생략" % gval, file=_sys.stderr, flush=True)
             continue
@@ -199,8 +205,13 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
             print("[T2_SG_ISOLATE] inject generate 실패(%s): %r" % (gval, e), file=_sys.stderr, flush=True)
             continue
         got = _merge_json(getattr(resp, "content", None) or "", set(ids))
-        # 카드 기본율(default) — 근거없는 0 백필용. 같은 문서로 1회 formalize(값=LLM·엔진 하드코딩0).
-        default = _card_default(la, ag, iso, gval, docstr, UserMessage, kw) if iso.get("base_default_prompt") else None
+        # 카드 기본율(default) — 근거없는 0 백필용. 카드당 1회 formalize·캐시(값=LLM·엔진 하드코딩0).
+        if iso.get("base_default_prompt"):
+            if gval not in default_cache:
+                default_cache[gval] = _card_default(la, ag, iso, gval, docstr, UserMessage, kw)
+            default = default_cache[gval]
+        else:
+            default = None
         kept = filled = 0
         for r in grows:
             tid = str(r.get(id_field))

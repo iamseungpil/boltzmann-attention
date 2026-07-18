@@ -74,7 +74,8 @@ def fake_generate(model=None, tools=None, messages=None, call_name=None, **kw):
 _la.generate = fake_generate
 
 ISO = {
-    "over": "transactions", "id_field": "transaction_id", "group_by": "credit_card_type",
+    "over": "transactions", "id_field": "transaction_id",
+    "group_by": ["credit_card_type", "category"], "doc_key": "credit_card_type",  # ★복합키(부하축소)
     "row_fields": ["transaction_id", "credit_card_type", "category", "merchant_name"],
     "inject_docs": True, "rate_field": "base_rate", "quote_field": "exclusion_quote", "quote_min": 8,
     "operand_schema": {"base_rate": "<n>", "exclusion_quote": "<s>"},
@@ -103,8 +104,9 @@ def main():
         ok &= bool(c)
         print(("  ✓ " if c else "  ✗ ") + m)
 
-    print("① 그룹핑(카드별 서브 호출):")
-    chk(CALLS.count("sg_inject") == 2, "카드 2종 → sg_inject 2회 (Silver·Business Silver 분리)")
+    print("① 그룹핑(카드×카테고리 복합키 서브 호출):")
+    chk(CALLS.count("sg_inject") == 3,
+        "복합키: Silver-Travel·Silver-Software·BizSilver-Other = sg_inject 3회 (부하축소)")
     print("② operand 병합 + grounding:")
     r = {x["transaction_id"]: x for x in rows}
     chk(r["t_s1"].get("base_rate") == 4, "Silver Travel = 4 (정상)")
