@@ -67,6 +67,23 @@
 - **수정후보(미확정·[[08]] 재현 먼저)**: (a) 인용에 "0%/no cash back" 문자열이 실제 있나까지 grounding(강등제외는
   "0%" 문자열 없음→백필) (b) 서브에 "제외=강등이면 기본율" 명시. **다음 무료 프로브로 판정.**
 
+**★★정책 확인 + demote 프로브 (2026-07-18·사용자 "제외시 기본율 정책인가?")**:
+- **정책 원문 확정**: Business Silver "Exceptions" 문서 = *"following specific merchants do NOT earn the 10.0%
+  bonus rate and **instead earn the standard 1.0% rate**"* = **강등(기본율)이지 0% 아님**. 반면 Bronze WeWork =
+  *"earn 0% cash back"* = **완전제외**. ⇒ 정책이 두 종류를 **문장으로 명시 구분**. gold(Software 1%) 맞고 서브 틀림.
+- **demote 프로브(강등/완전 구분 명시 A/B·`bank_demote_probe`·라이브 12거래 부하 재현 `--no_dedup`)**:
+  | 셀 | base arm | demote arm |
+  |---|---|---|
+  | Microsoft365·Coursera(강등) | ✗ base=0 오독 | **✓ base로 고침** |
+  | WeWork(완전) | ✓ 0 유지 | ✓ 0 유지(구분 성공) |
+  | Adobe(정상 프로모) | ✗(부하) | **✗ 과교정 base=1**(강등 조심에 과반응) |
+- **★결과 = 부분개선·모트 제1원리 실증**: demote 지시가 강등(Microsoft/Coursera)은 고치나 **비강등 Adobe를
+  과교정**(레버 하나 사면 하나 판다·등대§1). Amazon(Shopping) 오독은 별개. ⇒ **프롬프트 튜닝으로 clean하게 안
+  닫힘**([[42]] prompt-uncontrollable). ★**부하 재현 = 핵심**: dedup 4거래선 base arm도 통과·라이브 12거래선 실패
+  = **문맥 부하가 강등 미묘함을 삼킴**([[45]]). = 프로브가 라이브 대표하려면 부하 동일 필수([[30]]).
+- **다음 방향(미확정)**: (a) grounding을 "인용에 '0%' 문자열 실재" 강화(강등은 '1%'라 백필)=엔진측·과교정 없음 =
+  유력. (b) 거래 단위 더 격리(Software만 소그룹)=부하↓. **[[08]] 재현 먼저·프롬프트 단독은 기각 방향.**
+
 ## 2g. ★★컨텍스트 초과의 주범 = 메인에 누적되는 KB 검색 (2026-07-18 사용자 통찰·포렌식 확증)
 
 > 사용자: **"97런 26%가 32k 초과 실패. 각 기능을 서브에이전트로 쪼개고 메인은 주요 호출 return만 들면
