@@ -105,19 +105,44 @@ PROMPT = (
     "customer's transactions on that card. Read the documents and, for EACH transaction, report the base "
     "cash-back RATE that applies, as a percent NUMBER (e.g. 10 for 10%, 4 for 4%, 0 if it earns nothing).\n"
     "The rate depends on the purchase category, the merchant (some merchants are excluded = 0%), and how "
-    "long a subscription has run. Do NOT apply any limited-time promo or multiply — just the base rate.\n\n"
-    "=== {card} — POLICY DOCUMENTS ===\n{docs}\n\n"
+    "long a subscription has run. Do NOT apply any limited-time promo or multiply — just the base rate.\n"
+    "{baseline}"
+    "\n=== {card} — POLICY DOCUMENTS ===\n{docs}\n\n"
     "=== ACCOUNT ===\nCard: {card}\nAccount opened: {open}\n\n"
     "=== TRANSACTIONS ===\n{txns}\n\n"
     "Reply with EXACTLY one JSON object mapping each transaction_id to its base_rate number:\n{schema}")
 
+# ★1안(프롬프트): 기본율 강조. 값 안 알려줌(도메인일반)·"0으로 두지 마라·기타구매 기본율 적용".
+BASELINE_HINT = (
+    "★IMPORTANT: Do NOT return 0 just because a purchase is not in a premium/bonus category. Almost every "
+    "card earns a BASE rate on ALL other purchases (look for 'all other purchases', 'other purchases', or "
+    "the general earn rate in the documents). Return 0 ONLY if a document explicitly excludes that specific "
+    "merchant/category. Otherwise apply the card's base/other-purchases rate.\n")
 
-def run_card(base, model, temp, card, rows, docs):
+
+def card_base_default(base, model, card, docs):
+    """2안: 그 카드의 '기타구매 기본율'(all other purchases rate)을 KB서 formalize.
+    ★값은 서브가 문서서 읽음(엔진 하드코딩 0·[[05]]). 엔진은 이 값을 default로 쓸 뿐."""
+    docstr = "\n\n".join("### %s\n%s" % (d["title"], d["content"]) for d in docs)
+    prompt = ("Read these %s policy documents. What is the BASE cash-back rate that applies to 'all other "
+              "purchases' (purchases NOT in any bonus/premium category) on this card, as a percent number? "
+              "Reply with EXACTLY one JSON object: {\"base_default\": <number>}\n\n%s" % (card, docstr))
+    try:
+        r = post(base, {"model": model, "temperature": 0.0, "max_tokens": 300, "n": 1,
+                        "messages": [{"role": "user", "content": prompt}]}, timeout=300)
+        j = SG._merge_json(r["choices"][0]["message"].get("content") or "", {"base_default"})
+        return float(j.get("base_default")) if j and j.get("base_default") is not None else None
+    except Exception:
+        return None
+
+
+def run_card(base, model, temp, card, rows, docs, baseline=False):
     docstr = "\n\n".join("### %s\n%s" % (d["title"], d["content"]) for d in docs)
     txns = "\n".join("  %s: merchant=%s, category=%s, amount=$%.2f, date=%s"
                      % (r["transaction_id"], r["merchant"], r["category"], r["amount"], r["date"]) for r in rows)
     schema = json.dumps({r["transaction_id"]: "<base_rate number>" for r in rows})
-    prompt = PROMPT.format(card=card, docs=docstr, open=rows[0]["account_open"], txns=txns, schema=schema)
+    prompt = PROMPT.format(card=card, docs=docstr, open=rows[0]["account_open"], txns=txns, schema=schema,
+                           baseline=(BASELINE_HINT if baseline else ""))
     r = post(base, {"model": model, "temperature": temp, "max_tokens": 2000, "n": 1,
                     "messages": [{"role": "user", "content": prompt}]}, timeout=600)
     ch = r["choices"][0]
@@ -134,6 +159,11 @@ def main():
     ap.add_argument("--cards", default="", help="쉼표구분 카드명 필터(기본=전부)")
     ap.add_argument("--doc_mode", choices=["all", "rate"], default="all",
                     help="all=카드문서전부(§2e·배포) · rate=제목 rate-키워드만(비교arm·spoon방향)")
+    ap.add_argument("--baseline", action="store_true",
+                    help="1안: 프롬프트에 기본율 강조(0 남발 마라·기타구매 기본율 적용). 값 안 알려줌(도메인일반).")
+    ap.add_argument("--mode2_default", action="store_true",
+                    help="2안 진단: 서브가 카드 기본율(other-purchases rate)을 별도 formalize → 0셀 백필."
+                         " ⚠예외(WeWork=0)까지 덮을 위험 → fixed/broken 함께 보고.")
     a = ap.parse_args()
 
     gold = build_gold()
@@ -159,9 +189,10 @@ def main():
         if not docs or not uniq:
             print("### %s — 문서 %d·거래 %d (SKIP)" % (card, len(docs), len(uniq)))
             continue
+        card_default = card_base_default(a.base, a.model, card, docs) if a.mode2_default else None
         for i in range(a.n):
             try:
-                out, fin, plen = run_card(a.base, a.model, a.temp, card, uniq, docs)
+                out, fin, plen = run_card(a.base, a.model, a.temp, card, uniq, docs, a.baseline)
             except Exception as e:
                 print("### %s [%d] ERR %r" % (card, i, str(e)[:70]))
                 continue
@@ -169,6 +200,7 @@ def main():
                 print("### %s [%d] 파싱실패 (finish=%s)" % (card, i, fin))
                 continue
             bad = []
+            m2_fix = m2_break = 0
             for r in uniq:
                 gr = r["gold_pts"] / r["amount"]
                 cell = (card, "%s@%.1f" % (r["category"], gr))
@@ -178,6 +210,14 @@ def main():
                     br = float(v)
                 except Exception:
                     br = None
+                # 2안 진단: 서브가 0 낸 셀을 카드 기본율로 백필하면 고쳐지나/깨지나
+                if a.mode2_default and card_default is not None and br == 0:
+                    would = r["amount"] * card_default
+                    gold_zero = r["gold_pts"] == 0
+                    if abs(would - r["gold_pts"]) <= 1 and not gold_zero:
+                        m2_fix += 1
+                    elif gold_zero:
+                        m2_break += 1
                 # ★반올림 흡수 (2026-07-18 포렌식): gold_pts는 **정수 반올림**돼 저장(예 9.47×2=18.94→18pts)
                 #   → gold_pts/amount는 참 rate보다 최대 1/amount 낮다. 판정 = 서브 base_rate로 **포인트 재구성**
                 #   (base 또는 base×2=프로모)이 gold_pts와 ±1 이내인가(엔진 tolerance와 동일). rate 직접비교 금지.
@@ -188,8 +228,10 @@ def main():
                 if not ok:
                     bad.append("%s=%s(gold_pts %.0f/amt %.0f=%.2f)" % (r["category"], v, r["gold_pts"], r["amount"], gr))
             tag = "✓" if not bad else "✗%d" % len(bad)
-            print("### %s [%d] docs=%d prompt=%dch %s %s"
-                  % (card, i, len(docs), plen, tag, " ".join(bad[:6])))
+            m2 = (" [2안 default=%s: 0셀 fix=%d break=%d]" % (card_default, m2_fix, m2_break)) \
+                if a.mode2_default else ""
+            print("### %s [%d] docs=%d prompt=%dch %s %s%s"
+                  % (card, i, len(docs), plen, tag, " ".join(bad[:6]), m2))
         print()
 
     print("=" * 70)
