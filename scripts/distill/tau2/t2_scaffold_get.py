@@ -85,10 +85,11 @@ def _sub_formalize(orch, d, iso, ctx, run_env_calls):
         um = UserMessage(content=prompt)
     msgs = [um]
     kw = {k: v for k, v in dict(getattr(ag, "llm_args", None) or {}).items() if "tool" not in k}
-    # ★서브는 temp=0 (2026-07-18 확정·`RATE_SUBAGENT §2d`): 서브 유일임무=KB서 사실추출이라 온도 불요.
-    #   temp>0면 확률적으로 KB 검색 덜 하고 base_rate 환각(무료 프로브: 0.7=0/0/9오독·0.0=완벽×3). over-flag 원인.
+    # ★서브 온도 = A2 선언(`isolate.temperature`). ⚠️라이브 에이전트 llm_args는 이미 temp=0
+    #   (`t2_run_gated.py:221`)이라 over-flag는 온도 아님(2026-07-18 정정·`RATE_SUBAGENT §2d`). 유지=명시성.
     if iso.get("temperature") is not None:
         kw["temperature"] = iso["temperature"]
+    queries = []                                     # ★계측: 서브가 낸 KB 검색 질의(라이브 검색 가시화)
     for rnd in range(int(iso.get("max_rounds", 4))):
         try:
             resp = la.generate(model=ag.llm, tools=tools, messages=msgs,
@@ -96,19 +97,43 @@ def _sub_formalize(orch, d, iso, ctx, run_env_calls):
                                **(dict(kw, tool_choice="required") if rnd == 0 else kw))
         except Exception as e:
             print("[T2_SG_ISOLATE] generate 실패(%d라운드): %r" % (rnd, e), file=_sys.stderr, flush=True)
+            _isolate_trace(iso, d, {"error": str(e)[:200], "round": rnd, "queries": queries})
             return None
         tcs = list(getattr(resp, "tool_calls", None) or [])
         if tcs:
+            for _tc in tcs:                          # 질의 기록
+                _fn = getattr(_tc, "function", None) or _tc
+                queries.append(getattr(_tc, "name", None) or getattr(_fn, "name", None))
             msgs.append(resp)
             msgs.extend(run_env_calls(tcs))          # ★GET = env 결정론 실행
             continue
         got = _merge_json(getattr(resp, "content", None) or "", set(ids))
+        getter = sum(1 for m in msgs if getattr(m, "role", "") == "tool")
         print("[T2_SG_ISOLATE] %s: %d라운드·getter %d회·operand %d/%d행"
-              % (d.get("name"), rnd + 1, sum(1 for m in msgs if getattr(m, "role", "") == "tool"),
-                 len(got), len(ids)), file=_sys.stderr, flush=True)
+              % (d.get("name"), rnd + 1, getter, len(got), len(ids)), file=_sys.stderr, flush=True)
+        # ★★계측: 서브 산출 operand 전수를 파일에 남긴다 — 라이브 서브는 메인 궤적 밖이라 여기 안 남기면
+        #   over-flag가 서브 오독인지 검색부실인지 **영영 못 본다**(2026-07-18 디버깅공백·[[08]]).
+        _isolate_trace(iso, d, {"round": rnd + 1, "getter": getter, "queries": queries,
+                                "n_ids": len(ids), "n_operand": len(got), "operands": got})
         return got or None
     print("[T2_SG_ISOLATE] max_rounds 소진 → 격리 생략", file=_sys.stderr, flush=True)
+    _isolate_trace(iso, d, {"error": "max_rounds", "queries": queries})
     return None
+
+
+def _isolate_trace(iso, d, record):
+    """서브 산출 operand를 JSONL로 남긴다(`T2_SG_ISOLATE_TRACE`=경로·미설정이면 no-op).
+    ⚠️계측 전용(엔진 거동 무변화)·라이브 서브 가시화용([[08]] 포렌식)."""
+    path = os.environ.get("T2_SG_ISOLATE_TRACE")
+    if not path:
+        return
+    try:
+        rec = dict(record)
+        rec["tool"] = d.get("name")
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception as e:
+        print("[T2_SG_ISOLATE] trace 실패: %r" % (e,), file=_sys.stderr, flush=True)
 
 
 def _build_tool(Tool, d):
