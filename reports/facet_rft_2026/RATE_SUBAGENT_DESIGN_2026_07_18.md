@@ -364,6 +364,24 @@ isolate:
 - **정직**: 이 인과사슬이 [[41]] 4축·기성 RAG-vs-LC와 진짜 구별되는지는 **딥리서치 결과로 확정**. 지금은 [?].
   기여로 올린다면 "measured: decompose-enables-retrieval-drop for small-LLM factual extraction"(τ² banking 실측).
 
+### ★★딥리서치 결과 (`wf_a6875b00`·2026-07-18·검증완료·종합만 stall→수동종합)
+**부품 4개 전부 선점**(양보·인용 필수)·**결합(인과사슬)은 미선점 정황**:
+| 우리 주장 조각 | 선행연구(검증됨=[확인]) | 판정 |
+|---|---|---|
+| 전체주입 > RAG(검색랭킹오류 회피) | **arXiv:2501.01880**(Long-Context vs RAG·LC 56.3% vs RAG 49.0%·[확인]) | **선점**·인용 |
+| 부하(문맥길이) 자체가 정확도 떨어뜨림 | **EMNLP2025 Findings "Context Length Alone Hurts Despite Perfect Retrieval"**(13.9~85%↓·perfect retrieval서도·[확인]) | **선점**·**우리 §2h 부하축소 직접 지지** |
+| 문맥 축소→정확도↑(recite/scope) | ↑ 같은 논문(recite evidence로 +4%·task를 short-context화) | 선점·인용 |
+| 서브에이전트 scoped-context 분담 | **Anthropic multi-agent**(각 서브 독립 문맥·토큰이 성능 80% 설명)·**DACS**(full scoped context 주입=steering 90~98% vs flat 21~60%·**결정론·no ranking**) | **선점**·DACS가 최근접 |
+| 소형모델은 문맥활용이 병목(검색 아님) | **oracle-retrieval서도 7B이하 85~100% 실패·문맥주입이 42~100% 기지답 파괴**(sub-7B RAG 한계=utilization) | **선점**·우리 소형LLM 전제 지지 |
+- **★핵심 = DACS가 우리와 가장 가까움**: (분담)+(scoped full-context 주입)+(결정론·no ranking) 다 겹침. **우리 delta**:
+  DACS=멀티에이전트 steering 정확도(일반), **우리=τ² tool-use e2e·소형LLM·엔진offload와 결합·격리단위를 부하로
+  측정(카드→카테고리)·compliance(over-flag→pass)**. "retrieval-drop" 단독은 확실히 선점(2501.01880) → **양보·인용**.
+- **★refuted 정직**: "lost-in-middle이 retrieval 비용" 주장은 **REFUTED**(lost-in-middle은 long-context 현상·검색과
+  반대). "RAG dominant failure=retrieval miss"도 과일반화 REFUTED(1개 세팅). ⇒ 이 두 프레이밍 논문서 쓰지 말 것.
+- **⇒ 논문 위치 확정**: "retrieval 대신 전체주입"은 **헤드라인 금지**(2501.01880 선점). 헤드라인=**[[46]] core(lever-배분
+  +crossover)** 유지. 이 축은 **분담-원리의 실측 사례**로 §2f처럼 종속 배치·부품 전부 인용(2501.01880·EMNLP2025·
+  DACS·Anthropic·sub-7B utilization). **모트는 여전히 crossover**([[46]]). ⚠️DACS 인용 필수(최근접·미인용시 리뷰어 kill).
+
 ## 2. ★분담 구조 — 서브에이전트가 날짜엔진을 **function calling으로 호출**(사용자 2026-07-18)
 > ~~§2-v1(서브=파라미터만 → 엔진이 op)~~ 개선: 서브가 **완성된 rate**를 반환하되, 자기가 못하는 날짜산술만
 > **도구 호출로 offload**한다. ⇒ 서브에이전트 *안에서* 다시 [[10]] 분담(생성=LLM·계산=결정론도구)이 일어난다.
