@@ -239,7 +239,23 @@ isolate:
 - **★진짜 답 = grounding([[16]])**: 서브의 `0`이 **KB 예외 문서에 grounded**(문서에 "이 머천트/카테고리 0%")면
   유지 · **근거 없는 0**만 기본율 백필. 1안(프롬프트)도 2안(무조건백필)도 이 grounding을 안 해서 각각 불완전/위험.
   ⇒ **재설계 = 카드격리+전체주입(§2e) + 기본율 default(2안·값=서브formalize) + 예외-grounding 게이트(0 유지 판정)**.
-  ⚠️grounding 판정("이 0이 문서에 근거?")도 서브/엔진 어디서 하냐가 다음 설계점([[10]] 분담).
+
+### ★★★grounding 통합 실증 — 완성 재설계 100% (`bank_grounding_probe`·무료·temp0·n=3·거래 105)
+분담([[10]]): **서브(생성)=`{base_rate, exclusion_quote}`** — 0 낼 땐 KB서 예외 문장 발췌 · **엔진(검증·결정론)=
+그 인용이 문서에 실재하나**(정규화 substring). grounded 0=유지 · ungrounded 0=기본율 백필. 5 결합규칙 교차표:
+| 규칙 | 정확 |
+|---|---|
+| R0 raw / R1 hint / R3 불일치→ground / **R4 any0→ground** | **105/105 100%** |
+| R2 raw+무조건백필 | 102/105 97%(WeWork 깸) |
+- **R4 grounding 동작**: 0유지 3(**잘못유지 0**) · 0백필 0(**예외파괴 0**). WeWork: raw=0·quote=`"Coworking Space
+  Merchants: WeWork, Regus…"`·**grounded=True→유지**(포렌식 확인). 무조건백필(R2)만 WeWork 깸.
+- **★★예상 못 한 발견([D])**: **"0 낼 거면 근거를 대라" 요구가 raw 자체를 고침.** §2b서 과엄격 0이던
+  Microsoft365·Coursera·ThredUp이 quote-요구 프롬프트선 **base=1(0 아님)**. ⇒ 근거요구가 [[43]] 역방향(기권/과엄격
+  억제) → R0_raw도 100%. 즉 **grounding 지시가 프롬프트로도 잔여 대부분 닫고, 남는 진짜예외(WeWork)를 엔진
+  substring이 지킴**. 이중 안전(프롬프트+엔진검증).
+- **★설계 확정**: `{base_rate, exclusion_quote}` operand + 엔진 substring-grounding + 기본율 default. **엔진 리터럴 0**
+  (예외목록·기본율·인용 전부 서브가 KB서·엔진은 substring 매칭만). §PROD-2 잔여 **닫힘**.
+  ⚠️여전히 무료·오프라인 격리 프로브. 라이브 e2e(§2e 검증c)·`_sub_formalize` 구현은 다음.
 
 ## 2f. ★논문 프레이밍 검토 — "분담→retrieval제거" 축 ([[46]] 대조·2026-07-18 NIGHT+·사용자 제안)
 
