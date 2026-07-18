@@ -41,6 +41,32 @@
 - **격리하면 컨텍스트 = KB+거래뿐** → base_rate 100%(측정). = 사용자 통찰 실증.
 - ⇒ ***rate-formalize를 전용 서브에이전트로 분리 = 부하 제거 = 정확도 회복.*** [[00]] 명제(작은 LLM+분담)의 한 형태.
 
+## 2h. ★★재설계 라이브 검증 (task_020·2026-07-18 NIGHT+·`_sub_inject` 구현본)
+
+**구현**: `_sub_inject`(카드 group_by + 문서주입 + `{base_rate, promo*, exclusion_quote}` + grounding + default).
+라이브 발화 확인(`bank_redesign020`): 카드별 격리(Silver 11문서·Business Silver 13문서 분리 주입).
+
+**결과 진전 (over-flag 11→6·gold 4건 전부 정확·누락 0)**:
+| 버전 | producer 반환 | gold | 오탐 |
+|---|---|---|---|
+| ratefix arm(메인서 operand·bm25) | 13 | 4 | 9 |
+| iso5(태스크배치 격리·bm25) | 12 | 4 | 8 |
+| **재설계 v1(카드격리+주입·promo누락)** | 11 | 4 | 7·base_rate 26/26정확 |
+| **재설계 v2(promo수정)** | **6** | 4 | **2**·누락 0 |
+- **★base_rate 오독 0/26**(라이브·프로브 90%보다 좋음). 카드격리+주입이 검색부실·혼동 완전 제거(실증).
+- **v1→v2 버그수정**: operand_schema에 promo 누락 → 엔진이 프로모 2배 못 적용 → 프로모거래 전부 오탐. promo
+  파라미터(서브formalize·엔진 날짜판정) 추가로 프로모 오탐 소멸(11→6).
+
+**★남은 오탐 2건 = grounding 역효과 발견([D]·라이브가 프로브보다 엄격)**:
+- Microsoft365·Coursera(Business Silver Software): 서브 `base_rate=0` + quote=**"Software Exclusion: Microsoft/
+  Coursera…"**(근거 실재) → grounding이 0 유지. 그러나 **gold=기본율**(1%·프로모2%)이지 0 아님.
+- **의미**: "Software 10% 적립에서 제외"는 **"0% 적립"이 아니라 "10%는 안 주고 기본율로 강등"**. 서브가 "제외"를
+  "0%"로 오독·grounding은 quote 실재만 보고 0 유지 → **엔진 substring은 "이 제외가 0%인가 강등인가"를 못 가림**.
+- ⇒ **grounding의 한계**: 인용이 실재해도 **그 인용의 의미(0% vs 강등)**는 substring이 못 판정. 프로브(105/105)가
+  놓친 이유 = Business Silver Software 셀서 서브가 quote 안 냈었음(라이브가 더 엄격한 진실).
+- **수정후보(미확정·[[08]] 재현 먼저)**: (a) 인용에 "0%/no cash back" 문자열이 실제 있나까지 grounding(강등제외는
+  "0%" 문자열 없음→백필) (b) 서브에 "제외=강등이면 기본율" 명시. **다음 무료 프로브로 판정.**
+
 ## 2g. ★★컨텍스트 초과의 주범 = 메인에 누적되는 KB 검색 (2026-07-18 사용자 통찰·포렌식 확증)
 
 > 사용자: **"97런 26%가 32k 초과 실패. 각 기능을 서브에이전트로 쪼개고 메인은 주요 호출 return만 들면
