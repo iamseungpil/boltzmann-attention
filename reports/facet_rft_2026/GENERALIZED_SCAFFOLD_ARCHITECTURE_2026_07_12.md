@@ -82,6 +82,15 @@ tool <T>:
 ```
 - **매핑**: getter=GET · **filter=FIND=fexec**(LLM 사용자제약→predicate·엔진 결정론 평가·[[10]]/[[00]]/C68) · **resolve.infer/on_ambiguous = 4지선다 behavior 도메인선택** · policy_default=gate · required=ASK-if-missing.
 - **★loop 최종 (2026-07-12 사용자·FIND=fexec)**: `GET(후보) → FIND=fexec필터(제약→predicate 결정론평가) → 1?use : ≥2?enumerate-ASK : 0?re-formalize/ASK`. filter가 over-ask 감소(제약 유일하면 무-질문·t71 "backpack든"·t102 "시계2개"=결정론 해소). **유일 semantic 잔여 = formalize 정확도**(full content-match보다 좁음·프로젝트 훈련 날개·fexec 0.79·오형식화→enumerate-ASK 자기교정). 방식1(LLM content-match)보다 방식2(formalize+scaffold-filter=fexec)가 decidable하여 우월.
+- **★★FIND=근거-요구 (LOCK·2026-07-18 사용자·`RATE_SUBAGENT §2e` 실증)**: **모든 FIND는 "자료 안 무엇을 보고
+  찾았는가"(근거 인용)를 함께 낸다.** FIND의 본질 = 제공 자료서 답을 찾는 것 ⇒ 근거 인용은 FIND의 자연 출력.
+  두 효과(실측): (1)**환각/과엄격 억제**([[43]] 역방향: 근거 못 대면 지어낸 값·기권 못 냄. banking base_rate:
+  quote-요구 프롬프트가 과엄격 0(Microsoft365/Coursera/ThredUp)을 스스로 base=1로 교정·raw 90→100%). (2)**엔진-검증
+  가능**: 인용이 자료에 실재하나 = **substring 결정론 확인**([[10]] 검증=결정론). soft FIND판단 → decidable 주장.
+  ⇒ **분담 갱신**: FIND 출력 = `{value, evidence_quote}` · 엔진 = quote∈source 검증(grounded면 채택·아니면 default/ASK).
+  = ground 레버(§2 "미grounded 거부")를 **FIND 전반에 표준화**(예외판정·값추출·엔티티선택 다). **엔진 리터럴 0**
+  (인용·값 전부 LLM이 자료서·엔진은 매칭만). ⚠️**측정 프로토콜(사용자 지시)**: 앞으로 FIND-계열 실험은
+  **근거-요구 유/무 A/B 차이를 상시 계측**(disamb·reference_filter·entity-binding·value-extraction 등 각 인스턴스).
 - **★resolve가 도메인별 선택인 이유(2026-07-12 사용자)**: 같은 애매성도 도메인마다 다름 — retail=후보 나열 ASK / **banking=비나열**(프라이버시·계좌 못 나열) / 순서-문서화 도메인=INFER-positional 허용 / 미문서화=항상 ASK. scaffold=고정 **MENU**(INFER전략들·ASK모드들) 지원·A2=MENU서 선택. **over-ask tradeoff도 A2 튜닝**(무질문추론 기대=infer:positional·질문요구=on_ambiguous:ask). 새 MENU항목=온톨로지 확장(미증명).
 - ⇒ **gate규칙+operand해소+provenance+ASK기준이 전부 A2 한 곳**·scaffold 도메인리터럴 0(순수 인터프리터).
 - **현 구현 대비**: `resolver_path`(getter=GET)·`gate_spec`(confirm/precond)·`disamb_sub_args` = 이미 부분. **통일 TODO**: per-operand 4지선다 spec 하나로 합침 + scaffold=순수 인터프리터 + 정책/스키마서 spec **일반 도출**.

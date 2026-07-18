@@ -256,6 +256,11 @@ isolate:
 - **★설계 확정**: `{base_rate, exclusion_quote}` operand + 엔진 substring-grounding + 기본율 default. **엔진 리터럴 0**
   (예외목록·기본율·인용 전부 서브가 KB서·엔진은 substring 매칭만). §PROD-2 잔여 **닫힘**.
   ⚠️여전히 무료·오프라인 격리 프로브. 라이브 e2e(§2e 검증c)·`_sub_formalize` 구현은 다음.
+- **★★일반화 = FIND-근거요구 원리 (2026-07-18 사용자·`GENERALIZED_SCAFFOLD §4d` LOCK)**: 이 quote-요구는
+  base_rate 특수가 아니라 **모든 FIND의 표준**. FIND=자료서 찾기 ⇒ "무엇 보고 찾았나" 근거는 자연출력. 효과=
+  환각/과엄격 억제([[43]]역) + 엔진-검증가능([[10]]). **측정 프로토콜(사용자)**: FIND-계열 실험은 근거요구 A/B 상시
+  계측. **측정 대상(코드 확인)**: `SUBCALL_SYS`(disamb 서브콜·현재 근거요구 **없음**=첫 A/B) · `reference_filter` ·
+  entity-binding · value-extraction. **다음 무료 실험 = disamb 서브콜에 근거인용 요구 A/B**(t71/t106류).
 
 ## 2f. ★논문 프레이밍 검토 — "분담→retrieval제거" 축 ([[46]] 대조·2026-07-18 NIGHT+·사용자 제안)
 
