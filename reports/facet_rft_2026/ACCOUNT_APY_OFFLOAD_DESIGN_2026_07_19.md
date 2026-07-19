@@ -110,6 +110,17 @@ group_reduce(over=<list>, group_by=<field>, reducers={<group값>: "max1"|"sum", 
    오프라인=참고만·**결론은 §4-3의 T2_SG_EXCLUDE 유/무 유료 대조런**. 기존 PASS 계열(018~029) 대표 1-2태스크를
    대조런 scope에 포함.
 
+## 4b. P0 실측 결과 (2026-07-19 심야·엔진+census 완료·[S])
+- **엔진 `group_reduce` 구현·단위 5/5 PASS** (`test_group_reduce.py`): max1/sum·unknown-flag·argmax 합성·
+  interest_delta 합성(eff 6.85·delta 1.225·92일). 합성 확장(sum/diff nested-op·argmax per-record key)·
+  argmax missing-key 제외(잠재버그 수정·활성 소비자 0=retail은 argmax_where). 커밋됨.
+- **§4-0 gold census (formula 반) [S]**: 8 interest-correction 중 **6개가 `balance×Δapy×1yr` 정확 재현**
+  (095/094=$8000·093=$12000·097diamond=$10000·096bronze=$2500·096goldplus=$5000=라운드) →
+  **gold formula 자기일관·026식 벤치버그 아님**. 097-silver($8333)/platinum($5833)만 non-round=부분기간 추정
+  (engine period_start/end가 처리·census 미종결분 2개=DB balance+기간 필요). ⇒ `interest_delta` 접근 검증됨.
+- **미완(다음)**: §4-0 stack_rules↔KB 반(expected_apy 6.85 등을 KB boost 조항서 재유도 — 계좌별 KB doc 정독 필요·
+  A2 stack_rules 작성과 동시) · §4-1 formalize 프로브(GPU 필요·T3런 후).
+
 ## 5. 구현 단계
 - P0: `t2_compute`에 **`group_reduce` 프리미티브 1개**(도메인-일반·unknown-flag 포함) + 단위테스트(§4-2).
   2a/2b는 기존 op(argmax·sum·diff·multiply·days_between)과의 표현트리 합성 — 신규 op 추가분은 이 1개뿐(리뷰①).
