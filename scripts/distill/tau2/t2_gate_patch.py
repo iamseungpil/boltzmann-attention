@@ -2492,7 +2492,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                   file=_sys.stderr, flush=True)
                     # ★action-required (turn-level): am이 회피(action_tool 미호출)면 operator 해소
                     #   GET→FIND(intent→도구)→execute|ASK. 조언/포기로 종결 금지. cap 1/sim.
-                    if (rw_fb is None and getattr(self, "_t2_action_deny", 0) < 1):
+                    if (rw_fb is None and getattr(self, "_t2_action_deny", 0)
+                            < int(os.environ.get("T2_ACTION_DENY_CAP", "1"))):
                         # ★Lever 0(BANK_ACTIONREQ_PROBE_FORENSIC §3): action-required는 agent-실행
                         #   도구만 대상 — user-실행(apply/submit 등)은 에이전트가 못 부르므로 스퓨리어스.
                         #   A2 action_tool_executor 맵(도메인 데이터)로 필터·미기재=assistant 폴백(retail 하위호환).
@@ -2517,7 +2518,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                       % (_ar.get("reason"), _tgt), file=_sys.stderr, flush=True)
                     # ★Lever 3 verify-persistence (task_023형·신원수집+검증미완+포기): action-required가
                     #   안 걸렸을 때(예: apply=user-실행 intent) 검증 완결 강제. cap 1/sim.
-                    if (rw_fb is None and getattr(self, "_t2_verify_deny", 0) < 1):
+                    if (rw_fb is None and getattr(self, "_t2_verify_deny", 0)
+                            < int(os.environ.get("T2_VERIFY_DENY_CAP", "1"))):
                         _vr = _rz.resolve_verify_persistence(am, state.messages, a2,
                                                              transfer_tools=_transfer_tools(a2))
                         if _vr.get("status") == "deny":

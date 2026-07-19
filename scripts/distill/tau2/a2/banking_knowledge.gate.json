@@ -86,7 +86,7 @@
     "kind": "operator",
     "arg": "agent_tool_name",
     "name_pattern": "[a-z_]+_[0-9]{4}",
-    "getter": "KB_search/discovery",
+    "getter": "list_discoverable_agent_tools",
     "operator_resolution": "discoverable",
     "find_intent": true
    }
@@ -96,7 +96,7 @@
     "kind": "operator",
     "arg": "agent_tool_name",
     "name_pattern": "[a-z_]+_[0-9]{4}",
-    "getter": "KB_search/discovery",
+    "getter": "list_discoverable_agent_tools",
     "operator_resolution": "discoverable",
     "find_intent": true
    }
@@ -109,7 +109,8 @@
   "change_user_email",
   "submit_transaction",
   "unlock_discoverable_agent_tool",
-  "call_discoverable_agent_tool"
+  "call_discoverable_agent_tool",
+  "give_discoverable_user_tool"
  ],
  "reference_filter": {
   "dispatch_tool": "call_discoverable_agent_tool",
@@ -199,7 +200,7 @@
   "offer_tool": "give_discoverable_user_tool",
   "action_tool": "apply_for_credit_card",
   "operand": "card_type",
-  "research_tool": "KB_search"
+  "research_tool": "KB_search_bm25"
  },
  "_note_recommendation_verify": "★Lever 4(사용자 2026-07-13·오추천 방지·BANK_ACTIONREQ_PROBE_FORENSIC §6b apply ⋈ 22): apply_for_credit_card=user-실행이라 write는 못 게이트하나, 에이전트가 give_discoverable_user_tool로 카드를 *제안*하는 호출은 게이트 가능. 제안 시 card_type을 요구사항→올바른 카드 formalize(직접실행 dry-run)로 검증·틀리면 교정. 카드선택=compound-criterion(F2b·요구→카드)=formalize로 닫힘(⋈경계 아님). 로직 도메인일반·이 맵=도메인 데이터.",
  "action_tool_executor": {
@@ -208,7 +209,8 @@
   "submit_transaction": "user",
   "change_user_email": "assistant",
   "unlock_discoverable_agent_tool": "assistant",
-  "call_discoverable_agent_tool": "assistant"
+  "call_discoverable_agent_tool": "assistant",
+  "give_discoverable_user_tool": "assistant"
  },
  "_note_action_tool_executor": "★BANK_ACTIONREQ_PROBE_FORENSIC §3(도메인 사실·gold action_checks[].requestor): banking action은 user-실행(apply/submit_referral/submit_transaction — 에이전트 호출불가·발견/추천만)과 agent-실행(change_user_email·unlock/call_discoverable)로 갈림. action-required(조언 대신 도구호출 강제)는 **agent-실행만** 대상(user-실행은 스퓨리어스). requestor 미기재 도메인(retail)=전부 agent-실행 폴백(하위호환). [[05]]: 로직 도메인-일반·이 맵=도메인 데이터.",
  "field_ops": {
@@ -257,8 +259,14 @@
   {
    "name": "policy_qa",
    "mode": "wrap",
-   "wraps": ["KB_search_bm25", "KB_search_dense", "shell"],
-   "getter_tools": ["KB_search_bm25"],
+   "wraps": [
+    "KB_search_bm25",
+    "KB_search_dense",
+    "shell"
+   ],
+   "getter_tools": [
+    "KB_search_bm25"
+   ],
    "instructions": "You are a knowledge-base lookup specialist for a bank agent. The main agent issued the tool call shown below to look up policy/procedure information from the knowledge base. Use the provided search tools, read the results, and produce a direct, complete answer to what the main agent was trying to find out. Include every concrete detail the main agent would need (exact steps, required fields, thresholds, statuses).",
    "return_contract": "Respond ONLY with a single JSON object: {\"answer\": \"<direct, complete answer>\", \"quotes\": [\"<1-3 VERBATIM excerpts copied character-for-character from the KB documents that support the answer>\"], \"found\": true|false}. If the knowledge base does not contain the information, set found=false and say so in answer.",
    "return_template": "[POLICY_QA] {answer}\n\nEvidence (verbatim from KB):\n{quotes}",
@@ -273,11 +281,55 @@
  "write_evidence_specs": [
   {
    "applies_to": "call_discoverable_agent_tool",
-   "applies_when": {"arg": "agent_tool_name", "prefix": "update_transaction_rewards"},
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "update_transaction_rewards"
+   },
    "id_key": "transaction_id",
-   "require_tokens": ["RESOLVED"],
+   "require_tokens": [
+    "RESOLVED"
+   ],
    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows a RESOLVED dispute for transaction {id} — a customer's verbal claim is NOT evidence. Do NOT update this transaction. First verify the dispute status from actual tool results (e.g., the dispute submission result). If the dispute is not RESOLVED, refuse the update and explain that the correction will be applied once the dispute is actually resolved.",
    "_note": "2026-07-19 task_029 포렌식: 서브밋 반환이 'Status: SUBMITTED'인데 사용자 거짓말('승인·해결됐다')만 믿고 update 6건→db 오염 0점. 증거=도구출력 substring 공존(txn id+RESOLVED)·user *발화*는 배제(role=tool만). 026/028 auto-resolve 반환문('Status: RESOLVED - approved'+Arguments에 txn id)에 실재→무회귀. T2_WRITE_EVIDENCE=1 구동·기본 OFF."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "approve_credit_limit_increase"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "get_payment_history"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the payment history check (get_payment_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_payment_history tool for account {id} first, then re-attempt the approval.",
+   "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제)."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "approve_credit_limit_increase"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "get_credit_limit_increase_history"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the credit limit increase history check (get_credit_limit_increase_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_credit_limit_increase_history tool for account {id} first, then re-attempt the approval.",
+   "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제)."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "approve_credit_limit_increase"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "get_pending_replacement_orders"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement orders check (get_pending_replacement_orders*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_pending_replacement_orders tool for account {id} first, then re-attempt the approval.",
+   "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제)."
   }
  ],
  "scaffold_get_tools": [
@@ -445,10 +497,13 @@
       "rate_field": "base_rate",
       "quote_field": "exclusion_quote",
       "quote_min": 8,
-      "rate_range": [0, 20],
+      "rate_range": [
+       0,
+       20
+      ],
       "max_batch": 2,
       "_note_max_batch": "2026-07-19: 서브 호출당 최대 2행 — 리스트 serial-position 효과(§2l: 내부 항목만 저하·primacy/recency 보존) 원천 소멸(2행=둘 다 가장자리·내부 위치 부재). 배치2 최소검정 38/38 100%(Patagonia/REI 회복·Target/ThredUp 제외 보존). 값 산출=서브·비용=로컬 무료·호출수 batch1의 절반.",
-      "range_retry_prompt":"\n\n★FEEDBACK: your base_rate for item(s) {ids} was outside the declared valid range [{lo}, {hi}] for this field. Report the rate NUMBER exactly as the policy states it per dollar; do NOT convert units or scale by 100. Reply again with the same full JSON object.",
+      "range_retry_prompt": "\n\n★FEEDBACK: your base_rate for item(s) {ids} was outside the declared valid range [{lo}, {hi}] for this field. Report the rate NUMBER exactly as the policy states it per dollar; do NOT convert units or scale by 100. Reply again with the same full JSON object.",
       "_note_rangefix": "2026-07-19 · task_028 포렌식: EcoCard-Green 셀서 서브가 '$5.00 points per dollar'를 ×100(500)으로 formalize. range-retry(범위 위반→서브 재질의)로 회복. consensus_demote_guard(엔진이 modal을 rate로 씀=[[10]] 위반·엔진 생성)는 2026-07-19 사용자 지시로 제거 — Patagonia 무근거 강등은 서브 프롬프트(elevated-rate 지침)로 원천 수정. 엔진은 값 생성 안 함(range-retry는 서브가 재생성).",
       "inject_instructions": "You are a bank rewards specialist. Below are ALL policy documents for the {group}, then the customer's transactions on that card. For EACH transaction report:\n- base_rate: the cash-back RATE that applies to THIS transaction (percent number: e.g. 10, 5, 4, 1, or 0 if it truly earns nothing). This is the rate the documents assign to this transaction's CATEGORY and MERCHANT — it may be an ELEVATED/bonus rate (when the card gives a higher rate for that category) or the standard rate.\n  ★If the documents give a HIGHER rate for this transaction's category, APPLY that higher rate. Do NOT fall back to the standard/base rate just because you are unsure whether the merchant qualifies — downgrade to the standard rate ONLY when a document EXPLICITLY names this specific merchant in an exclusion list, and then copy that exact excluding sentence into 'exclusion_quote' (else leave empty).\n  ★★The transaction's 'category' field is the bank's OWN authoritative classification of that purchase — treat it as final. If a category qualifies for a bonus rate, apply that bonus rate to EVERY transaction in that category. Do NOT second-guess an individual transaction using how many merchants you think are 'partners', how large the partner network is, or whether YOU personally recognize the merchant — the bank has already classified it. The ONLY thing that lowers the rate is an explicit merchant name in an exclusion list.\n  ★Do NOT return 0 just because a purchase is not a premium/bonus category — almost every card earns a base rate on all other purchases; apply it.\n- promo_mult, promo_window_months, promo_start, promo_end: if a limited-time promo (e.g. double cash back for new customers) exists for this card, its multiplier, window length in months, and the promo period dates (MM/DD/YYYY). If no promo, use promo_mult=1, promo_window_months=0, empty dates.\n★Do NOT apply the promo or multiply or judge whether the promo dates apply — a separate deterministic system does that from your parameters. Just give the base_rate and the raw promo parameters.\n\n=== {group} — POLICY DOCUMENTS ===\n{docs}\n\n=== TRANSACTIONS ===\n{items}\n\nReply with EXACTLY one JSON object mapping each transaction_id to the fields above:\n{schema}",
       "_note_inject": "2026-07-18 재설계(§2e): 카드당 격리+문서주입(검색 대신 title 접두)+{base_rate,exclusion_quote}. 엔진 리터럴 0·엔진은 서브 operand를 그대로 병합(값 생성/override 0). 2026-07-19: consensus·default백필 제거([[10]]·라이브 死자산)·잔여 레버=range-retry(서브 재질의). getter_tools=구 검색모드(미사용).",

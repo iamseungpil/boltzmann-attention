@@ -88,9 +88,9 @@ ACTION_ASK_FB = (
 #   action-required 피드백을 발견-인지형으로 특화(A2 operands 참조·도메인-일반).
 DISCOVERY_REQUIRED_FB = (
     "[DISCOVERY-REQUIRED] this request needs a discoverable tool, but you are deflecting/transferring "
-    "instead of completing it. Do the discovery chain: (1) search the knowledge base ({getter}) for the "
-    "specific tool that handles this request, (2) call '{target}' with the discovered tool name. Do not "
-    "give up or transfer until you have searched for and attempted the right discovered tool."
+    "instead of completing it. Do the discovery chain: (1) use {getter} to find the specific tool that "
+    "handles this request, (2) call '{target}' with the discovered tool name. Do not give up or "
+    "transfer until you have looked up and attempted the right discovered tool."
 )
 
 
