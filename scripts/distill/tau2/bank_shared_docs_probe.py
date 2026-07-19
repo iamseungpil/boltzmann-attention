@@ -34,7 +34,7 @@ import bank_rate_f1_gate_probe as P  # noqa: E402
 import t2_scaffold_get as SG  # noqa: E402
 
 DOM = P.DOM_DEFAULT
-TASKS = ["task_020", "task_026", "task_027", "task_028"]
+TASKS = ["task_018", "task_020", "task_021", "task_022", "task_026", "task_027", "task_028", "task_029"]
 SHARED_PREFIX_DEFAULT = "doc_credit_cards_credit_cards_(general)"
 
 
@@ -81,7 +81,7 @@ def gold_and_rows():
     accts = {}
     for a in db["credit_card_accounts"]["data"].values():
         accts[(a["user_id"], a["card_type"])] = a["date_of_account_open"]
-    fixed, users = {}, {}
+    fixed, users, disputed = {}, {}, set()
     for t in tasks:
         if t.get("id") not in TASKS:
             continue
@@ -99,7 +99,9 @@ def gold_and_rows():
             elif act.get("name") == "call_discoverable_user_tool" and isinstance(inner, dict) \
                     and inner.get("user_id"):
                 users[t["id"]] = inner["user_id"]
-    rows, gold = [], {}
+                if inner.get("transaction_id"):
+                    disputed.add(inner["transaction_id"])
+    rows, gold, mustflag = [], {}, set()
     for uid in sorted(set(users.values())):
         for r in tx.values():
             if r["user_id"] != uid:
@@ -107,9 +109,14 @@ def gold_and_rows():
             rr = dict(r)
             rr["account_open"] = accts.get((uid, r["credit_card_type"]))
             rows.append(rr)
-            pts = fixed.get(r["transaction_id"], _num(r["rewards_earned"]))
-            gold[r["transaction_id"]] = int(pts)     # 정수 포인트 그대로(엔진 비교 재현·rate 나눗셈 반올림 오염 방지)
-    return users, rows, gold
+            tid = r["transaction_id"]
+            if tid in fixed:
+                gold[tid] = int(fixed[tid])          # 정수 포인트(엔진 비교 재현)
+            elif tid in disputed:
+                mustflag.add(tid)                    # update gold 없음: "기록≠기대"만 요구(018/021/022/029)
+            else:
+                gold[tid] = int(_num(r["rewards_earned"]))   # dispute 아님 = 기록이 옳음
+    return users, rows, gold, mustflag
 
 
 def run_cell(base, model, iso, gval, grows, docs, temp, extra=""):
@@ -196,7 +203,7 @@ def main():
 
     iso = load_iso_spec()
     all_docs = load_docs()
-    users, rows, gold = gold_and_rows()
+    users, rows, gold, mustflag = gold_and_rows()
     print("★공유문서 프로브 · tasks=%s · users=%s · rows=%d" % (TASKS, users, len(rows)))
     shared_docs = [d for d in all_docs if d["file"].startswith(a.shared_prefix)]
     print("shared(general) docs=%d (%d chars)\n" % (len(shared_docs), sum(len(d["content"]) for d in shared_docs)))
@@ -234,8 +241,8 @@ def main():
             det = []
             for r in grows:
                 tid = str(r["transaction_id"])
-                gp = gold[tid]                       # 정수 포인트(엔진과 동일 비교)
                 amt = _num(r["transaction_amount"])
+                rec = _num(r["rewards_earned"])
                 v = out.get(tid) or {}
                 br = _rate_of(v)
                 try:
@@ -243,14 +250,23 @@ def main():
                 except Exception:
                     pm = 1.0
                 hit = False
-                if br is not None:
-                    for rr in ({br, br * pm}):
-                        if int(amt * rr) == gp or round(amt * rr) == gp:
-                            hit = True
+                if tid in mustflag:
+                    # update gold 없는 dispute 행: 엔진 판정(|expected-recorded|>tol=1)이 발화해야 정답.
+                    #   promo 날짜판정은 라이브 엔진 몫이라 근사: base와 base×promo 둘 다 기록과 일치하면 미발화=MISS.
+                    if br is not None:
+                        hit = all(abs(amt * rr - rec) > 1 for rr in {br, br * pm})
+                    tag = "MUSTFLAG"
+                else:
+                    gp = gold[tid]                   # 정수 포인트(엔진과 동일 비교)
+                    if br is not None:
+                        for rr in ({br, br * pm}):
+                            if int(amt * rr) == gp or round(amt * rr) == gp:
+                                hit = True
+                    tag = "gold_pts=%s" % gp
                 ok += hit
                 if not hit:
-                    det.append("%s(%s@%s): sub=%s promo=%s gold_pts=%s" % (tid[-6:], r["merchant_name"],
-                                                                           r["category"], br, pm, gp))
+                    det.append("%s(%s@%s): sub=%s promo=%s rec=%s %s" % (tid[-6:], r["merchant_name"],
+                                                                         r["category"], br, pm, int(rec), tag))
             tally[arm][0] += ok
             tally[arm][1] += len(grows)
             print("### %s [%s] 문서%d·행%d·prompt %dch·retry%d·cons%d → 정확 %d/%d %s"
