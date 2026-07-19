@@ -273,6 +273,112 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
     return out or None
 
 
+def _sub_wrap(orch, fa, tc, run_env_calls):
+    """★기능 서브 (W)wrap 모드 (`FUNCTION_AGENT_ISOLATION_DESIGN_2026_07_19` — 사용자 리뷰 LOCK).
+    메인이 부른 **자료-read**(KB 검색류)를 격리 서브가 자기 문맥에서 소비하고, 메인엔
+    **답 + 근거 원문 인용(quotes)**만 반환한다 — 20K 덤프가 메인 대화에 안 쌓인다(§2g 일반형).
+
+    - 게이트 증거 계약: wrap 대상은 A2 `wraps` 선언의 자료-read만(상태 read 금지는 A2 리뷰 규칙).
+      quotes는 **무편집 원문** — WEV/observe가 스캔할 증거가 메인에 남는 채널.
+    - quote_grounding: 반환 인용이 실제 KB 문서 substring인지 **엔진이 결정론 검증**(_norm_ground·
+      §2e 재사용). found=true인데 근거 인용이 전부 탈락하면 **폴백**(서브 환각 차단·[[03b]]).
+    - §2d 제약 내장: max_rounds/max_getter_calls/max_sub_chars cap·temp 0(A2)·실패=None→원 실행 폴백.
+    - [[10]]: 서브 LLM=검색·해석(생성기)·라우팅/getter 실행/grounding=결정론. 엔진 도메인 리터럴 0
+      (도구명·지시·계약·템플릿 전부 A2 `function_agents[]`).
+    반환: 메인에 넣을 compact 텍스트 or None(폴백)."""
+    import tau2.agent.llm_agent as la
+    from tau2.data_model.message import UserMessage
+    ag = getattr(orch, "agent", None)
+    if ag is None:
+        return None
+    tools = [t for t in (getattr(ag, "tools", None) or [])
+             if getattr(t, "name", None) in set(fa.get("getter_tools") or [])]
+    if not tools:
+        print("[T2_FN_ISOLATE] getter_tools 부재 → 폴백", file=_sys.stderr, flush=True)
+        return None
+    args = getattr(tc, "arguments", None) or {}
+    prompt = "%s\n\n=== MAIN AGENT'S CALL ===\ntool: %s\narguments: %s\n\n%s" % (
+        fa["instructions"], getattr(tc, "name", "") or "",
+        json.dumps(args, ensure_ascii=False), fa["return_contract"])
+    try:
+        um = UserMessage(role="user", content=prompt)
+    except TypeError:
+        um = UserMessage(content=prompt)
+    msgs = [um]
+    kw = {k: v for k, v in dict(getattr(ag, "llm_args", None) or {}).items() if "tool" not in k}
+    if fa.get("temperature") is not None:
+        kw["temperature"] = fa["temperature"]
+    getter_cap = int(fa.get("max_getter_calls", 4))
+    char_cap = int(fa.get("max_sub_chars", 60000))
+    getters = 0
+    queries = []
+    resp = None
+    for rnd in range(int(fa.get("max_rounds", 4))):
+        try:
+            resp = la.generate(model=ag.llm, tools=tools, messages=msgs,
+                               call_name="fn_isolate",
+                               **(dict(kw, tool_choice="required") if rnd == 0 else kw))
+        except Exception as e:
+            print("[T2_FN_ISOLATE] generate 실패(%d라운드): %r" % (rnd, e), file=_sys.stderr, flush=True)
+            _isolate_trace(fa, {"name": fa.get("name")}, {"error": str(e)[:200], "round": rnd})
+            return None
+        tcs = list(getattr(resp, "tool_calls", None) or [])
+        if tcs:
+            getters += len(tcs)
+            if getters > getter_cap:
+                print("[T2_FN_ISOLATE] getter cap %d 초과 → 폴백" % getter_cap, file=_sys.stderr, flush=True)
+                _isolate_trace(fa, {"name": fa.get("name")}, {"error": "getter_cap", "queries": queries})
+                return None
+            for _tc in tcs:
+                queries.append(json.dumps(getattr(_tc, "arguments", None) or {}, ensure_ascii=False)[:120])
+            msgs.append(resp)
+            msgs.extend(run_env_calls(tcs))              # GET = env 결정론 실행 (§2c 동형)
+            _total = sum(len(str(getattr(m, "content", "") or "")) for m in msgs)
+            if _total > char_cap:                        # §2d 결함1(부하 재생산) 가드
+                print("[T2_FN_ISOLATE] sub chars %d > cap %d → 폴백" % (_total, char_cap),
+                      file=_sys.stderr, flush=True)
+                _isolate_trace(fa, {"name": fa.get("name")}, {"error": "char_cap", "queries": queries})
+                return None
+            continue
+        break
+    raw = str(getattr(resp, "content", None) or "") if resp is not None else ""
+    m = re.search(r"\{.*\}", raw, re.S)
+    if not m:
+        _isolate_trace(fa, {"name": fa.get("name")}, {"error": "no_json", "queries": queries})
+        return None
+    try:
+        obj = json.loads(m.group(0))
+    except Exception:
+        _isolate_trace(fa, {"name": fa.get("name")}, {"error": "bad_json", "queries": queries})
+        return None
+    answer = str(obj.get("answer") or "").strip()
+    quotes = [str(q) for q in (obj.get("quotes") or []) if str(q).strip()]
+    found = bool(obj.get("found", True))
+    if not answer:
+        _isolate_trace(fa, {"name": fa.get("name")}, {"error": "no_answer", "queries": queries})
+        return None
+    dropped = 0
+    if fa.get("quote_grounding"):
+        docs = _load_domain_docs(getattr(getattr(orch, "environment", None), "domain_name", None))
+        norm_docs = [_norm_ground(d0.get("content") or "") for d0 in docs]
+        kept = [q for q in quotes if any(_norm_ground(q) in nd for nd in norm_docs if nd)]
+        dropped = len(quotes) - len(kept)
+        quotes = kept
+        if found and not quotes:                          # 근거 전멸 = 서브 환각 의심 → 폴백
+            print("[T2_FN_ISOLATE] grounded quote 0 → 폴백", file=_sys.stderr, flush=True)
+            _isolate_trace(fa, {"name": fa.get("name")}, {"error": "quotes_ungrounded",
+                                                          "dropped": dropped, "queries": queries})
+            return None
+    txt = fa.get("return_template", "{answer}\n{quotes}").format(
+        answer=answer, quotes="\n".join("- " + q for q in quotes) if quotes else "(none)")
+    print("[T2_FN_ISOLATE] %s: getter %d회·quotes %d(드롭 %d)·%dch 반환"
+          % (fa.get("name"), getters, len(quotes), dropped, len(txt)), file=_sys.stderr, flush=True)
+    _isolate_trace(fa, {"name": fa.get("name")}, {"getter": getters, "queries": queries,
+                                                  "n_quotes": len(quotes), "dropped": dropped,
+                                                  "found": found, "chars": len(txt)})
+    return txt
+
+
 def _isolate_trace(iso, d, record):
     """서브 산출 operand를 JSONL로 남긴다(`T2_SG_ISOLATE_TRACE`=경로·미설정이면 no-op).
     ⚠️계측 전용(엔진 거동 무변화)·라이브 서브 가시화용([[08]] 포렌식)."""
@@ -438,7 +544,15 @@ def apply():
                  (_variant(x) for x in ((a2 or {}).get("scaffold_get_tools") or []))}
         for _x in {x.strip() for x in (os.environ.get("T2_SG_EXCLUDE") or "").split(",") if x.strip()}:
             decls.pop(_x, None)          # 제외 도구는 실행 경로서도 부재(주입 필터와 일관)
-        if not decls:
+        # ★T2_FN_ISOLATE=1: (W)wrap 기능서브 — A2 function_agents[mode=wrap]의 wraps 도구를 서브로 위임
+        #   (FUNCTION_AGENT_ISOLATION_DESIGN·사용자 리뷰 LOCK). 실패=원 실행 폴백·기본 OFF.
+        fa_map = {}
+        if os.environ.get("T2_FN_ISOLATE") == "1":
+            for _fa in ((a2 or {}).get("function_agents") or []):
+                if _fa.get("mode") == "wrap":
+                    for _w in (_fa.get("wraps") or []):
+                        fa_map[_w] = _fa
+        if not decls and not fa_map:
             return orig_exec(self, tool_calls)
         ours = {}
         rest = []
@@ -510,6 +624,28 @@ def apply():
                 ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
                                            requestor=getattr(tc, "requestor", "assistant"), content=_txt)
                 print("[T2_SCAFFOLD_GET] %s -> %s" % (getattr(tc, "name"), _n), file=_sys.stderr, flush=True)
+            elif getattr(tc, "name", None) in fa_map:
+                # ★(W)wrap 기능서브: 자료-read를 서브가 소비·메인엔 답+원문 인용만. 실패=원 실행 폴백.
+                _fa = fa_map[getattr(tc, "name")]
+                _fc = getattr(self, "_t2_fa_cache", None)
+                if _fc is None:
+                    _fc = self._t2_fa_cache = {}
+                _fk = (getattr(tc, "name", None),
+                       json.dumps(getattr(tc, "arguments", None) or {}, sort_keys=True, ensure_ascii=False))
+                if _fk in _fc:                            # 동일 질의 재위임 방지(자료-read=정적)
+                    _wtxt = _fc[_fk]
+                else:
+                    def _run_fa(tcs, _self=self):
+                        return orig_exec(_self, tcs)
+                    _wtxt = _sub_wrap(self, _fa, tc, _run_fa)
+                    if _wtxt is not None:
+                        _fc[_fk] = _wtxt
+                if _wtxt is not None:
+                    ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
+                                               requestor=getattr(tc, "requestor", "assistant"),
+                                               content=_wtxt)
+                else:
+                    rest.append(tc)                       # 폴백 = 원 도구 실행(거동 변화 0)
             elif (os.environ.get("T2_SG_TRUTH") == "1"
                   and _a2_named_in_args(tc, decls)):
                 # ★(a1) 인터페이스-사실 정정 (2026-07-18·FAB_PROBES §5.2). 우리가 A2 도구를 **도구 목록에만**

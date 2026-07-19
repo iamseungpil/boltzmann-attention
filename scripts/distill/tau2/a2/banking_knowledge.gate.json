@@ -253,6 +253,23 @@
    "dispute_type"
   ]
  },
+ "function_agents": [
+  {
+   "name": "policy_qa",
+   "mode": "wrap",
+   "wraps": ["KB_search_bm25", "KB_search_dense", "shell"],
+   "getter_tools": ["KB_search_bm25", "KB_search_dense"],
+   "instructions": "You are a knowledge-base lookup specialist for a bank agent. The main agent issued the tool call shown below to look up policy/procedure information from the knowledge base. Use the provided search tools, read the results, and produce a direct, complete answer to what the main agent was trying to find out. Include every concrete detail the main agent would need (exact steps, required fields, thresholds, statuses).",
+   "return_contract": "Respond ONLY with a single JSON object: {\"answer\": \"<direct, complete answer>\", \"quotes\": [\"<1-3 VERBATIM excerpts copied character-for-character from the KB documents that support the answer>\"], \"found\": true|false}. If the knowledge base does not contain the information, set found=false and say so in answer.",
+   "return_template": "[POLICY_QA] {answer}\n\nEvidence (verbatim from KB):\n{quotes}",
+   "max_rounds": 4,
+   "max_getter_calls": 4,
+   "max_sub_chars": 60000,
+   "quote_grounding": true,
+   "temperature": 0,
+   "_note": "FUNCTION_AGENT_ISOLATION_DESIGN_2026_07_19 (W)wrap 1호기 — 자료-read(KB)만 wrap. 상태 read(dispute status·거래·계좌 조회)는 wrap 금지(WEV 증거가 메인에 원문으로 남아야·§3 게이트 증거 계약). shell=KB 브라우징이라 wraps에 포함하되 getter론 미제공(서브는 검색으로). T2_FN_ISOLATE=1 구동·기본 OFF."
+  }
+ ],
  "write_evidence_specs": [
   {
    "applies_to": "call_discoverable_agent_tool",
