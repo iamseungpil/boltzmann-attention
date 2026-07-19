@@ -178,6 +178,8 @@ def main():
     ap.add_argument("--arms", default="card,shared", help="card|shared|fix (fix=card문서+범위재질의+consensus가드)")
     ap.add_argument("--shared_prefix", default=SHARED_PREFIX_DEFAULT)
     ap.add_argument("--rate_range", default="0,20", help="fix arm: A2 선언 시뮬 범위 lo,hi")
+    ap.add_argument("--max_batch", type=int, default=-1,
+                    help="fix arm 청크 크기 오버라이드(-1=A2 선언값·0=통짜·2=primacy+recency 최소검정)")
     ap.add_argument("--only_card", default="", help="카드명 필터(빈=전부)")
     a = ap.parse_args()
     lo, hi = (float(x) for x in a.rate_range.split(","))
@@ -208,18 +210,29 @@ def main():
             print("### %s — 카드문서 0 SKIP" % (gk,))
             continue
         docnorm = SG._norm_ground(" ".join(x["content"] for x in card_docs))
+        # ★max_batch 재현(라이브 A2 동일·[[30]]): fix arm은 A2 선언대로 청킹(1이면 행당 개별 호출).
+        #   --max_batch>=0 이면 CLI 오버라이드(배치 크기 스윕용·2=primacy+recency 최소검정).
+        mb = int(iso.get("max_batch") or 0) if a.max_batch < 0 else a.max_batch
         for arm in a.arms.split(","):
             docs = card_docs if arm in ("card", "fix") else \
                 card_docs + [d for d in shared_docs if d not in card_docs]
+            chunks = [grows[i:i + mb] for i in range(0, len(grows), mb)] \
+                if (arm == "fix" and mb > 0) else [grows]
+            out = {}
+            n_retry = n_cons = 0
+            plen = 0
             try:
-                out, plen = run_cell(a.base, a.model, iso, gval, grows, docs, a.temp)
+                for ch in chunks:
+                    o, pl = run_cell(a.base, a.model, iso, gval, ch, docs, a.temp)
+                    plen = max(plen, pl)
+                    if arm == "fix":
+                        o, nr, _ = apply_fix(a.base, a.model, iso, gval, ch, docs, a.temp,
+                                             o, lo, hi, docnorm)
+                        n_retry += nr
+                    out.update(o)
             except Exception as e:
                 print("### %s [%s] ERR %r" % (gk, arm, str(e)[:80]))
                 continue
-            n_retry = n_cons = 0
-            if arm == "fix":
-                out, n_retry, n_cons = apply_fix(a.base, a.model, iso, gval, grows, docs, a.temp,
-                                                 out, lo, hi, docnorm)
             ok = 0
             det = []
             for r in grows:

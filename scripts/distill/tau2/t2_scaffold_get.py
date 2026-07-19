@@ -181,95 +181,95 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
             gk = tuple(str(r.get(k)) for k in gkeys)
             groups.setdefault(gk, []).append(r)
     out = {}
-    for gk, grows in groups.items():
-        gval = grows[0].get(doc_key)          # 문서 스코프 = 카드값(복합키의 doc_key 성분)
+    # ★max_batch (A2 선언·2026-07-19 사용자 지시): 서브 호출당 최대 행수. 1이면 행마다 개별 호출 —
+    #   리스트 serial-position 효과(내부 항목 저하·§2l 실측: 같은 행이 순서에 따라 5↔1) 원천 소멸
+    #   (모든 항목이 유일 항목=가장자리). 미선언=그룹 통짜(기존 거동). 값 산출=여전히 서브·비용=로컬.
+    mb = int(iso.get("max_batch") or 0)
+    for gk, g_all in groups.items():
+        gval = g_all[0].get(doc_key)          # 문서 스코프 = 카드값(복합키의 doc_key 성분)
         docs = [x for x in all_docs if x["title"].startswith(str(gval) + ": ")]  # 결정론 제목접두(§2e)
         if not docs:
             print("[T2_SG_ISOLATE] inject: '%s' 문서 0 → 그룹 생략" % gval, file=_sys.stderr, flush=True)
             continue
         docnorm = _norm_ground(" ".join(x["content"] for x in docs))
         docstr = "\n\n".join("### %s\n%s" % (x["title"], x["content"]) for x in docs)
-        raw = [{k: v for k, v in r.items() if k in keep} for r in grows]
-        ids = [str(r.get(id_field)) for r in grows]
-        schema = json.dumps({i: iso.get("operand_schema", {}) for i in ids}, ensure_ascii=False)
-        prompt = iso["inject_instructions"].format(group=gval, docs=docstr, schema=schema,
-                                                   items=json.dumps(raw, ensure_ascii=False, indent=1))
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        try:
-            resp = la.generate(model=ag.llm, tools=None, messages=[um], call_name="sg_inject", **kw)
-        except Exception as e:
-            print("[T2_SG_ISOLATE] inject generate 실패(%s): %r" % (gval, e), file=_sys.stderr, flush=True)
-            continue
-        got = _merge_json(getattr(resp, "content", None) or "", set(ids))
-        rate_f = iso.get("rate_field", "base_rate")
-        # ★범위 가드+재질의 (A2 `rate_range` 선언 시만·2026-07-19 프로브 EcoCard-Green 0/6→6/6).
-        #   근거: 028 셀 오류 — 서브가 "$5.00 points per dollar"를 ×100 스케일(500)로 formalize.
-        #   범위=A2 선언·재질의 문구=A2·값은 여전히 서브가 산출(엔진 리터럴 0·[[07]] enforced).
-        n_retry = 0
-        rr = iso.get("rate_range")
-        if rr and got:
-            lo_r, hi_r = float(rr[0]), float(rr[1])
+        chunks = [g_all[i:i + mb] for i in range(0, len(g_all), mb)] if mb > 0 else [g_all]
+        g_retry = 0
+        g_got = {}
+        for grows in chunks:
+            raw = [{k: v for k, v in r.items() if k in keep} for r in grows]
+            ids = [str(r.get(id_field)) for r in grows]
+            schema = json.dumps({i: iso.get("operand_schema", {}) for i in ids}, ensure_ascii=False)
+            prompt = iso["inject_instructions"].format(group=gval, docs=docstr, schema=schema,
+                                                       items=json.dumps(raw, ensure_ascii=False, indent=1))
+            try:
+                um = UserMessage(role="user", content=prompt)
+            except TypeError:
+                um = UserMessage(content=prompt)
+            try:
+                resp = la.generate(model=ag.llm, tools=None, messages=[um], call_name="sg_inject", **kw)
+            except Exception as e:
+                print("[T2_SG_ISOLATE] inject generate 실패(%s): %r" % (gval, e), file=_sys.stderr, flush=True)
+                continue
+            got = _merge_json(getattr(resp, "content", None) or "", set(ids))
+            rate_f = iso.get("rate_field", "base_rate")
+            # ★범위 가드+재질의 (A2 `rate_range` 선언 시만·§2i 프로브 EcoCard-Green 0/6→6/6).
+            #   범위=A2 선언·재질의 문구=A2·값은 여전히 서브가 산출(엔진 리터럴 0·[[07]] enforced).
+            rr = iso.get("rate_range")
+            if rr and got:
+                lo_r, hi_r = float(rr[0]), float(rr[1])
 
-            def _rv(i):
-                try:
-                    return float((got.get(i) or {}).get(rate_f))
-                except Exception:
-                    return None
-            bad_ids = [i for i in ids if _rv(i) is not None and not (lo_r <= _rv(i) <= hi_r)]
-            if bad_ids and iso.get("range_retry_prompt"):
-                extra = iso["range_retry_prompt"].format(ids=", ".join(bad_ids), lo=rr[0], hi=rr[1])
-                try:
-                    um2 = UserMessage(role="user", content=prompt + extra)
-                except TypeError:
-                    um2 = UserMessage(content=prompt + extra)
-                try:
-                    resp2 = la.generate(model=ag.llm, tools=None, messages=[um2],
-                                        call_name="sg_inject_retry", **kw)
-                    got2 = _merge_json(getattr(resp2, "content", None) or "", set(bad_ids))
-                except Exception as e:
-                    print("[T2_SG_ISOLATE] range-retry 실패(%s): %r" % (gval, e),
-                          file=_sys.stderr, flush=True)
-                    got2 = {}
-                for i in bad_ids:
-                    v2 = got2.get(i)
+                def _rv(i):
                     try:
-                        r2 = float((v2 or {}).get(rate_f))
+                        return float((got.get(i) or {}).get(rate_f))
                     except Exception:
-                        r2 = None
-                    if r2 is not None and lo_r <= r2 <= hi_r:
-                        got[i] = v2
-                        n_retry += 1
-                print("[T2_SG_ISOLATE] range-retry '%s': 위반 %d → 회복 %d"
-                      % (gval, len(bad_ids), n_retry), file=_sys.stderr, flush=True)
-            for i in ids:                     # 잔여 위반 = rate 제거(오탐 양산 대신 판정불가 abstain)
-                rv = _rv(i)
-                if rv is not None and not (lo_r <= rv <= hi_r):
-                    (got.get(i) or {}).pop(rate_f, None)
-        # ★consensus_demote_guard(엔진이 셀 modal을 rate로 씀) 제거 (2026-07-19 사용자 지시·[[10]]):
-        #   엔진이 rate를 *생성*하는 것은 생성기(LLM) 몫 침범. Patagonia류 무근거 강등은 서브
-        #   프롬프트(inject_instructions elevated-rate 지침)로 원천 수정. range-retry는 서브가 값을
-        #   재생성하므로 유지(엔진은 검증·재질의 트리거만·rate 미생성).
-        # ★default 백필 / 0-rate grounding 제거 (2026-07-19 사용자 지시·[[10]]/[[05]]):
-        #   "근거없는 0 → 엔진이 카드 기본율로 override"는 consensus와 같은 계열(엔진이 서브 답을
-        #   override 판단). 라이브 전수 트레이스서 filled=0·kept=0 = 완전 죽은 무게(은행 오류는
-        #   과다적립이지 0-과소가 아님). 미사용 메커니즘 삭제. 진짜 0-제외 재발 시 range-retry
-        #   패턴(서브 재질의)으로 확장. 엔진은 서브 operand를 그대로 병합만 한다(값 생성/override 0).
-        for r in grows:
-            tid = str(r.get(id_field))
-            v = got.get(tid) or {}
-            quote_f = iso.get("quote_field", "exclusion_quote")
-            merged = {k: val for k, val in v.items() if k != quote_f}  # quote는 grounding용→op엔 제외
-            if merged:
-                r.update(merged)                       # ★엔진 op가 읽을 operand로 병합(서브 산출 그대로)
-                out[tid] = merged
-        print("[T2_SG_ISOLATE] inject '%s': 문서 %d·거래 %d·operand %d·range_retry %d"
-              % (gval, len(docs), len(grows), len([x for x in ids if x in out]), n_retry),
+                        return None
+                bad_ids = [i for i in ids if _rv(i) is not None and not (lo_r <= _rv(i) <= hi_r)]
+                if bad_ids and iso.get("range_retry_prompt"):
+                    extra = iso["range_retry_prompt"].format(ids=", ".join(bad_ids), lo=rr[0], hi=rr[1])
+                    try:
+                        um2 = UserMessage(role="user", content=prompt + extra)
+                    except TypeError:
+                        um2 = UserMessage(content=prompt + extra)
+                    try:
+                        resp2 = la.generate(model=ag.llm, tools=None, messages=[um2],
+                                            call_name="sg_inject_retry", **kw)
+                        got2 = _merge_json(getattr(resp2, "content", None) or "", set(bad_ids))
+                    except Exception as e:
+                        print("[T2_SG_ISOLATE] range-retry 실패(%s): %r" % (gval, e),
+                              file=_sys.stderr, flush=True)
+                        got2 = {}
+                    for i in bad_ids:
+                        v2 = got2.get(i)
+                        try:
+                            r2 = float((v2 or {}).get(rate_f))
+                        except Exception:
+                            r2 = None
+                        if r2 is not None and lo_r <= r2 <= hi_r:
+                            got[i] = v2
+                            g_retry += 1
+                for i in ids:                 # 잔여 위반 = rate 제거(오탐 양산 대신 판정불가 abstain)
+                    rv = _rv(i)
+                    if rv is not None and not (lo_r <= rv <= hi_r):
+                        (got.get(i) or {}).pop(rate_f, None)
+            # ★consensus·default백필 제거됨(2026-07-19 사용자 지시·[[10]]·§2k) — 엔진은 서브 operand를
+            #   그대로 병합만(값 생성/override 0). 서브 오류는 원천(프롬프트·max_batch)서 수정.
+            for r in grows:
+                tid = str(r.get(id_field))
+                v = got.get(tid) or {}
+                quote_f = iso.get("quote_field", "exclusion_quote")
+                merged = {k: val for k, val in v.items() if k != quote_f}  # quote=grounding용→op 제외
+                if merged:
+                    r.update(merged)                   # ★엔진 op가 읽을 operand로 병합(서브 산출 그대로)
+                    out[tid] = merged
+            g_got.update(got)
+        all_ids = [str(r.get(id_field)) for r in g_all]
+        print("[T2_SG_ISOLATE] inject '%s': 문서 %d·거래 %d·청크 %d(max_batch=%s)·operand %d·range_retry %d"
+              % (gval, len(docs), len(g_all), len(chunks), mb or "∞",
+                 len([x for x in all_ids if x in out]), g_retry),
               file=_sys.stderr, flush=True)
-        _isolate_trace(iso, d, {"group": gval, "n_docs": len(docs), "n_rows": len(grows),
-                                "range_retry": n_retry, "operands": got})
+        _isolate_trace(iso, d, {"group": gval, "n_docs": len(docs), "n_rows": len(g_all),
+                                "n_chunks": len(chunks), "range_retry": g_retry, "operands": g_got})
     return out or None
 
 
