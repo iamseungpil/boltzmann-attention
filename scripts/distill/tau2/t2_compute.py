@@ -337,9 +337,13 @@ def apply_op(spec, ctx):
                     # ★discrepant 상세(2026-07-19·task_026 포렌식: 기대값 미반환→에이전트가 기록값
                     #   재기입 no-op). 엔진이 이미 계산한 expected를 노출만 한다 — 표시 여부/형식은
                     #   A2 return_template/detail_item_template이 정함([[05]]·계산=엔진 몫 [[10]]).
+                    #   expected_disp = A2 선언 표기규칙(display_round_up_frac: 소수부≥임계면 올림·else 버림).
+                    #   근거: gold 전수 census 10/10 적합(9 floor·1499.9→1500만 올림·§2i(6)).
+                    thr = spec.get("display_round_up_frac")
+                    disp = int(en) + (1 if thr is not None and (en - int(en)) >= float(thr) else 0)
                     ctx.setdefault("_sg_details", []).append(
                         {"id": r.get(idf), "actual": act, "expected": en,
-                         "actual_int": int(act), "expected_floor": int(en)})
+                         "actual_int": int(act), "expected_floor": int(en), "expected_disp": disp})
             if skipped:
                 print("[T2_COMPUTE] select_discrepant: %d/%d행 판정불가(operand가 숫자 아님) — "
                       "under-action 위험" % (skipped, len(recs)), file=_sys.stderr, flush=True)
