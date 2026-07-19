@@ -820,3 +820,18 @@ P0=_sub_wrap+A2 policy_qa+오프라인 4/4·[05] 정직: A2 순증→측정 게�
   064-069/073-074/079/082-083/089/093/097)·동일 스택. 측정 질문: ①CWE 몇 개 닫히나 ②실패 분포(발견실패 vs 기타) ③군별 궤적 확보.
 - 97런 전수 census 완료(83 미해결·군 분류 A~I) — 다음 후보 우선순위 = A(카드 dispute 확장 031·037-041) → E(ATM fee) →
   D+G(APY ~22개). discovery-실패가 A/B군 지배 패턴이면 다음 레버 = E-PLAN discovery(FIND) 계열.
+
+### §2q (2026-07-19 심야) — CWE 배치 전수 수거 [S] + T3 1차 효과 실측 + 028 wrap 컨텍스트 닫힘
+**배치 최종 (pre-T3 = 사전6+smoke3+batch_b / T3-arm = batch_a2 8):**
+- **CWE: 97런 25개 → 잔존 1~2**(074=44,888>44,672 확정·079 미확인·093=ToolCall validation 신유형) — 컨텍스트 레버
+  (44672+dedup) 실효 [S]. 단 reward는 전 배치 0(발견/계획/계산 층이 뒤에서 대기).
+- **T3 1차 효과 [S]**: batch_a2서 `list_discoverable_agent_tools` **7/8 발화**(97런·batch_b=전부 0 → lister-지목 getter의
+  직접 효과). 그러나 5/8이 lister 후 unlock 미진행 = **체인이 발견→선택 고리로 한 칸 이동**. 다음 노브=배포된
+  T2_ACTION_DENY_CAP 2~3 arm → 그래도 안 닫히면 [[42]] soft-천장 → FIND-선택 formalize 서브 offload.
+- **L2 계산층 재확증 [S]**: 097(QUAD APY·pre-T3) 8/18 — 조사 체인 절반 통과 후 apply_savings_account_credit×5·
+  submit_interest_discrepancy_report×5 전멸 = 095와 동일 사인. `ACCOUNT_APY_OFFLOAD_DESIGN`(리뷰 7건 반영:
+  group_reduce 단일 프리미티브·period_start/end·base_apy_source grounding·unknown-kind flag·constraints 에코-전용·
+  무회귀=유료 대조만·[05] 3질문 상설) 표적 적중.
+- **028 wrap-arm [S]**: dedup+FN_ISOLATE로 **CWE 0 첫 완주**(68msgs·wrap 7발화·7d dedup-only=45,243 폭사 대비).
+  잔여 실패 = dispute 커버리지(give 1회·user 제출 1/6·update 2시도) = 완결 층. §5-3 컨텍스트 축 통과·pass 축 미달.
+- 함정 2건 기록: tag-재사용 resume 거부(batch_a 즉사)·auto_resume 재생서 몽키패치 인터셉터 미적용 mismatch 크래시.
