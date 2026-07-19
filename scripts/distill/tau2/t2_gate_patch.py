@@ -1168,7 +1168,9 @@ NLNUM_FEEDBACK = (
 #   `unlock_…`이 전부 True라 "상태변경 0"이 거의 모든 sim서 거짓 → 게이트가 영영 안 뜬다(2026-07-18 설계 교정).
 _READ_PREFIX_RE = re.compile(r"^(get|search|list|lookup|find|retrieve|read|view|check)_", re.I)
 _PROCEDURAL_RE = re.compile(
-    r"(^log_|_verification$|^kb_|^shell$|discoverable|transfer_to_human|^give_|^unlock_|get_current_time)", re.I)
+    r"(^log_|^verify_|_verification$|^kb_|^shell$|discoverable|transfer_to_human|^give_|^unlock_|get_current_time)", re.I)
+# ★^verify_ 추가(2026-07-20): verify_identity(scaffold 판정 도구·read-성)가 실효-write로 오분류되던 실버그 —
+#   CLAIM_PROV write축 거짓통과 + WRITEPROV 조기 break(완료-주장 게이트 약화) 교정. _verification$의 대칭·도메인 일반.
 
 
 def _eff_tool_name(tc):
@@ -3084,6 +3086,71 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     if _new1 is not None:
                         am = _new1
                         print("[T2_WRITEPROV] regen tool_calls=%s"
+                              % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
+                              file=_sys.stderr, flush=True)
+                break
+        # (a1b) ★T2_CLAIM_PROV (2026-07-20·사용자: "모든 '했다' 주장을 원장대조") — WRITEPROV의 일반형.
+        #   완료-주장(write축)만 묻던 이진 선언을 **모든 과거-행동 주장 목록 formalize**로 확장:
+        #   LLM이 자기 답변의 "이미 했다" 주장들을 {kind, what}로 선언([[10]] formalize) → 엔진은
+        #   A2 `claim_prov.event_map`(kind→도구 접두 패턴 or "__effective_write__")으로 원장 이벤트 실재만
+        #   대조(집합 교차·텍스트 파싱 0·[[03b]]). 미등재 kind=skip(오탐 방지). 043 확인-날조(KB 0회·
+        #   "checked" 주장) 직접 표적·완료-주장은 kind=write로 흡수(WRITEPROV 상위호환·병행 시 중복 주의).
+        #   기본 OFF(T2_CLAIM_PROV=1)·사임-윈도우·1/sim.
+        _cpv = (a2 or {}).get("claim_prov") or {}
+        if (os.environ.get("T2_CLAIM_PROV") == "1" and _resign
+                and not getattr(self, "_t2_claimprov", 0)
+                and _cpv.get("question") and _cpv.get("feedback") and _cpv.get("event_map")):
+            for _once in (True,):
+                _cl = None
+                try:
+                    try:
+                        _dm2 = _gen(self, work + [am, UserMessage(role="user", content=_cpv["question"])],
+                                    bw(), "agent_claimprov")
+                    except TypeError:
+                        _dm2 = _gen(self, work + [am, UserMessage(content=_cpv["question"])],
+                                    bw(), "agent_claimprov")
+                    _txt2 = getattr(_dm2, "content", None) or ""
+                    _mj = re.search(r"\{.*\}", _txt2, re.S)
+                    if _mj:
+                        _j2 = json.loads(_mj.group(0))
+                        if isinstance(_j2, dict) and isinstance(_j2.get("claims"), list):
+                            _cl = _j2["claims"]
+                except Exception as _ce2:
+                    print("[T2_CLAIMPROV] declaration failed (no-op): %r" % (_ce2,),
+                          file=_sys.stderr, flush=True)
+                if not _cl:
+                    print("[T2_CLAIMPROV] window hit claims=%s" % (_cl,), file=_sys.stderr, flush=True)
+                    break
+                # 원장 이벤트 집합: 원명 + effective명(디스패처 unwrap·suffix strip)
+                _evs = set()
+                for _m3 in state.messages:
+                    for _tc3 in (getattr(_m3, "tool_calls", None) or []):
+                        _evs.add(str(getattr(_tc3, "name", "") or ""))
+                        _evs.add(_eff_tool_name(_tc3))
+                _emap = _cpv["event_map"]
+                _unbacked = []
+                for _c3 in _cl:
+                    _k3 = str((_c3 or {}).get("kind", "")).strip().lower()
+                    _spec3 = _emap.get(_k3)
+                    if _spec3 is None:
+                        continue                        # 미등재 kind = skip(오탐 방지)
+                    if _spec3 == "__effective_write__":
+                        if not _any_effective_write(state.messages):
+                            _unbacked.append(_c3)
+                        continue
+                    _pats = _spec3 if isinstance(_spec3, list) else [_spec3]
+                    if not any(any(str(e).startswith(p) for e in _evs) for p in _pats):
+                        _unbacked.append(_c3)
+                print("[T2_CLAIMPROV] window hit claims=%d unbacked=%d %s"
+                      % (len(_cl), len(_unbacked),
+                         [c.get("kind") for c in _unbacked][:4]), file=_sys.stderr, flush=True)
+                if _unbacked:
+                    self._t2_claimprov = getattr(self, "_t2_claimprov", 0) + 1
+                    _desc = "; ".join("%s: %s" % (c.get("kind"), str(c.get("what"))[:60]) for c in _unbacked[:3])
+                    _new2 = _ap_regen(_cpv["feedback"].replace("{claims}", _desc), "claimprov")
+                    if _new2 is not None:
+                        am = _new2
+                        print("[T2_CLAIMPROV] regen tool_calls=%s"
                               % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
                               file=_sys.stderr, flush=True)
                 break

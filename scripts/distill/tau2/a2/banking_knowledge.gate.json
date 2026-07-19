@@ -746,5 +746,29 @@
    "feedback": "Error: [FOLLOW-UP] you submitted the credit limit increase request but never ran the eligibility check procedure. Per the CLI procedure, after submitting you must run the checks for this account — get_user_dispute_history, get_pending_replacement_orders, get_credit_limit_increase_history, get_payment_history — and then make the decision: approve_credit_limit_increase if eligible, or clearly decline and explain which requirement failed. Do NOT end the conversation with the request merely submitted.",
    "_note": "2026-07-20 Q1(050형: submit 후 만족종료). requires=무조건-필수 체크(CLI history)만 — approve는 decline-정답 케이스(052 cooldown)가 있어 requires 금지(Δspurious 방지). 문구가 전체 체크체인+양방향 결정을 안내. 엔진=follow_up_chains(effective-name 대조)."
   }
- ]
+ ],
+ "claim_prov": {
+  "question": "Before your reply is sent, audit YOUR REPLY ONLY. List every assertion in it that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did, or what you WILL do, do NOT count. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"search|verify|write|give|transfer\", \"what\": \"<5-10 words>\"}]} — empty list if none.",
+  "event_map": {
+   "search": [
+    "KB_",
+    "shell",
+    "list_discoverable"
+   ],
+   "verify": [
+    "verify_identity",
+    "log_verification"
+   ],
+   "write": "__effective_write__",
+   "give": [
+    "give_"
+   ],
+   "transfer": [
+    "transfer_",
+    "request_human"
+   ]
+  },
+  "feedback": "Error: [CLAIM-PROVENANCE] your reply asserts you already did the following, but the conversation ledger shows NO such event: {claims}. Do NOT claim actions you have not actually performed — that misleads the customer. Either actually do it now (call the real tools: search the knowledge base, run the verification, execute the action), or correct your statement to say you have not done it yet.",
+  "_note": "2026-07-20 사용자 일반화('모든 했다 주장을 원장대조'). 043 e2e 실측: KB실호출 0·'checked KB' 주장 1→조기 transfer. WRITEPROV(완료-주장·write축)의 상위호환 — kind별 event_map으로 search/verify/give/transfer까지. 미등재 kind=엔진 skip. T2_CLAIM_PROV=1 구동·기본 OFF."
+ }
 }
