@@ -111,10 +111,47 @@ def apply_op(spec, ctx):
             vals = [v for v in vals if v is not None]
             return (min if op == "min" else max)(vals) if vals else None
         if op == "sum":
-            vals = [_num(_get(ctx, r)) for r in (spec.get("of") or [])]
+            # of = ref 경로 or nested op-스펙(multiply/lookup_table 동형). 미확정(None)은 0 취급.
+            vals = [_num(apply_op(r, ctx)) if isinstance(r, dict) and r.get("op")
+                    else _num(_get(ctx, r)) for r in (spec.get("of") or [])]
             return sum(v for v in vals if v is not None)
+        if op == "group_reduce":
+            # ★도메인-일반 프리미티브 (ACCOUNT_APY_OFFLOAD §2-0·리뷰① — apy_argmax/interest_delta를
+            #   1개로 대체). 항목을 group_by로 묶고, 그룹별 A2-선언 reducer(max1|sum) 적용 후 총합.
+            #   이름·상수 도메인 리터럴 0 — 엔진은 combinator 2개(max1/sum)만 안다. stack_rules 규칙표=A2.
+            #   ★unknown-kind(리뷰④): reducers에 없는 group → **silent drop 금지**·미합성 + ctx["_gr_flags"]에
+            #     플래그 push(scaffold `_sg_details` 동형 side-channel·[[03b]] 인접 회피).
+            items = _get(ctx, spec.get("over"))
+            if not isinstance(items, list):
+                return None
+            gkey = spec.get("group_by"); vfield = spec.get("value_field")
+            reducers = spec.get("reducers") or {}
+            unknown_policy = spec.get("unknown_policy", "flag")
+            groups = {}
+            for it in items:
+                if not isinstance(it, dict):
+                    continue
+                g = str(it.get(gkey))
+                v = _num(it.get(vfield))
+                if v is None:
+                    continue
+                groups.setdefault(g, []).append(v)
+            total = 0.0
+            flags = ctx.setdefault("_gr_flags", []) if isinstance(ctx, dict) else []
+            for g, vs in groups.items():
+                red = reducers.get(g)
+                if red == "max1":
+                    total += max(vs)
+                elif red == "sum":
+                    total += sum(vs)
+                else:                                   # unknown group — 미합성 + 플래그
+                    if unknown_policy == "flag":
+                        flags.append(g)
+            return total
         if op == "diff":
-            a, b = _num(_get(ctx, spec.get("a"))), _num(_get(ctx, spec.get("b")))
+            _a, _b = spec.get("a"), spec.get("b")       # a/b = ref 경로 or nested op-스펙(multiply 동형)
+            a = _num(apply_op(_a, ctx)) if isinstance(_a, dict) and _a.get("op") else _num(_get(ctx, _a))
+            b = _num(apply_op(_b, ctx)) if isinstance(_b, dict) and _b.get("op") else _num(_get(ctx, _b))
             return None if (a is None or b is None) else a - b
         if op == "clamp":
             v = _num(_get(ctx, spec.get("value")))
@@ -142,9 +179,18 @@ def apply_op(spec, ctx):
             key = spec.get("key"); ret = spec.get("return")
             if not isinstance(recs, list) or not recs:
                 return None
-            best = (min if op == "argmin" else max)(
-                recs, key=lambda r: _num((r or {}).get(key)) if _num((r or {}).get(key)) is not None else float("inf"))
-            return best.get(ret) if ret else best
+            # key = record 필드명(str) or per-record op-스펙(dict). op-스펙이면 각 record를 ctx["r"]로
+            #   바인딩해 평가(base + group_reduce(boosts) 형 합성 지원·ACCOUNT_APY §2a). 미확정=±inf(제외).
+            def _kv(r):
+                if isinstance(key, dict) and key.get("op"):
+                    v = _num(apply_op(key, {**ctx, "r": r}))
+                else:
+                    v = _num((r or {}).get(key))
+                if v is None:
+                    return float("inf") if op == "argmin" else float("-inf")
+                return v
+            best = (min if op == "argmin" else max)(recs, key=_kv)
+            return best.get(ret) if (ret and isinstance(best, dict)) else best
         if op == "count_where":
             recs = _get(ctx, spec.get("over")) or []
             cf, cv = spec.get("cond_field"), spec.get("cond_value")
