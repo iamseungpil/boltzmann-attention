@@ -934,3 +934,15 @@ tier 전부(sum)+base. ACCOUNT_APY 설계 stack_rules 확증(gold-fitting 아님
 **⇒ calc-offload 트랙(023+D+G) 전체 A2 배선 완료.** 023(check_rebate_qualification)+D+G(2도구)=scaffold_get 5개.
 엔진 프리미티브(group_reduce across·bucket_month_window·compare·argmax합성) 전부 단위+gold 재현. **라이브 검증(유료)만 남음.**
 **남은 트랙**: Q1 coverage(043/050/054 프로토콜 선언)·FORCE_ACTION patched 재런·023/D+G 라이브.
+
+### §2x (2026-07-20) — Q1 coverage 완결 (043 해지 WEV-체인 + 050 follow_up_chains)
+**043 해지 프로토콜 [S]** (KB logistics_002/003 census): close 前 필수 = closure-reason history(리텐션남용 체크)·
+reason 기록·pending-replacement 확인 → **WEV 3스펙**(account-id 공존·오프라인 4/4·rewards 무회귀). balance/dispute
+체크는 조건적·user_id-키라 제외(오차단 방지·정직 부분강제).
+**050형 "submit 후 만족종료" [S]**: `follow_up_chains` = scaffold follow_up의 **디스패처 확장**(엔진: effective-name
+집합 대조·같은 사임임계·1/sim cap·A2 선언 소비만). A2 체인: submit_CLI → requires=CLI-history 체크(무조건-필수만).
+**approve는 의도적으로 requires 제외** — 052(cooldown)형은 decline이 정답이라 강제 시 Δspurious·문구가 양방향 결정
+(approve if eligible / decline with reason)을 안내. 매처 오프라인 3/3.
+**⇒ Q1(진입 후 coverage) 배선 완료.** 054=CLI 체인(050과 동일 스펙)+기존 WEV 적용. 잔여=라이브 검증(유료).
+**금일 배선 총결산**: calc-offload(023+D+G 3도구)·Q1 coverage(WEV 7스펙+chains)·FORCE_ACTION·tau2 patch —
+전부 오프라인/gold 검증 완료·라이브 대기.
