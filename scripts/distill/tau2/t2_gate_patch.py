@@ -1589,6 +1589,54 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                                         error=True, content=reason))
             am = _gen(self, work, bw(), "agent_response_regen")
 
+        # ─── ARG-SCHEMA 위생: 스키마 밖 인자 키 → regen (T2_ARG_SCHEMA=1·기본 OFF) ───
+        # 2026-07-19 포렌식: give_discoverable_user_tool에 스키마 밖 'arguments' 키를 얹어
+        # 026/027/028 gold give 3건 전부 evaluator exact-match 실패(예측 키집합으로 dict 비교).
+        # 도메인일반: 근거=자기 도구 스키마(properties)뿐·값 판단 0·재발화는 모델([[05]]/[[07]] enforced).
+        if os.environ.get("T2_ARG_SCHEMA") == "1" and getattr(am, "tool_calls", None):
+            if not hasattr(self, "_t2_schema_props"):
+                _props = {}
+                for _t in (self.tools or []):
+                    try:
+                        _sc = _t.openai_schema
+                        _fn = _sc.get("function") if isinstance(_sc.get("function"), dict) else _sc
+                        _nm = _fn.get("name")
+                        _pr = ((_fn.get("parameters") or {}).get("properties")) or {}
+                        if _nm and _pr:
+                            _props[_nm] = set(_pr.keys())
+                    except Exception:
+                        pass
+                self._t2_schema_props = _props
+            _tries = 0
+            while _tries < 2 and getattr(am, "tool_calls", None):
+                _bad = None
+                for _tc in (am.tool_calls or []):
+                    _allowed = self._t2_schema_props.get(getattr(_tc, "name", None))
+                    if not _allowed:
+                        continue
+                    _extra = [k for k in _args_dict(_tc).keys() if k not in _allowed]
+                    if _extra:
+                        _bad = (_tc, _extra, _allowed)
+                        break
+                if _bad is None:
+                    break
+                _tc, _extra, _allowed = _bad
+                _tries += 1
+                self._t2_schema_regen = getattr(self, "_t2_schema_regen", 0) + 1
+                print("[T2_ARGSCHEMA] regen tool=%s extra=%s" % (_tc.name, _extra),
+                      file=sys.stderr, flush=True)
+                work = work + [am]
+                for _c in (am.tool_calls or []):
+                    _reason = ("Error: [ARG-SCHEMA] '%s' does not accept argument(s): %s. Its schema "
+                               "declares ONLY these argument(s): %s. Re-issue the call with ONLY declared "
+                               "arguments — remove everything else."
+                               % (_tc.name, ", ".join(repr(x) for x in _extra),
+                                  ", ".join(sorted(_allowed)))) if _c is _tc else \
+                        "Error: [ARG-SCHEMA] fix the flagged call first; do not call this yet."
+                    work.append(ToolMessage(id=_c.id, role="tool", requestor="assistant",
+                                            error=True, content=_reason))
+                am = _gen(self, work, bw(), "agent_response_schema_regen")
+
         # ─── DISAMB: 문맥-실재값인데 같은-형식 후보 2+개 → 1회 재확인 (선택은 모델) ───
         if disamb_tools and getattr(am, "tool_calls", None):
             if not hasattr(self, "_t2_disamb_seen"):

@@ -205,6 +205,82 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
             print("[T2_SG_ISOLATE] inject generate 실패(%s): %r" % (gval, e), file=_sys.stderr, flush=True)
             continue
         got = _merge_json(getattr(resp, "content", None) or "", set(ids))
+        rate_f = iso.get("rate_field", "base_rate")
+        # ★범위 가드+재질의 (A2 `rate_range` 선언 시만·2026-07-19 프로브 EcoCard-Green 0/6→6/6).
+        #   근거: 028 셀 오류 — 서브가 "$5.00 points per dollar"를 ×100 스케일(500)로 formalize.
+        #   범위=A2 선언·재질의 문구=A2·값은 여전히 서브가 산출(엔진 리터럴 0·[[07]] enforced).
+        n_retry = 0
+        rr = iso.get("rate_range")
+        if rr and got:
+            lo_r, hi_r = float(rr[0]), float(rr[1])
+
+            def _rv(i):
+                try:
+                    return float((got.get(i) or {}).get(rate_f))
+                except Exception:
+                    return None
+            bad_ids = [i for i in ids if _rv(i) is not None and not (lo_r <= _rv(i) <= hi_r)]
+            if bad_ids and iso.get("range_retry_prompt"):
+                extra = iso["range_retry_prompt"].format(ids=", ".join(bad_ids), lo=rr[0], hi=rr[1])
+                try:
+                    um2 = UserMessage(role="user", content=prompt + extra)
+                except TypeError:
+                    um2 = UserMessage(content=prompt + extra)
+                try:
+                    resp2 = la.generate(model=ag.llm, tools=None, messages=[um2],
+                                        call_name="sg_inject_retry", **kw)
+                    got2 = _merge_json(getattr(resp2, "content", None) or "", set(bad_ids))
+                except Exception as e:
+                    print("[T2_SG_ISOLATE] range-retry 실패(%s): %r" % (gval, e),
+                          file=_sys.stderr, flush=True)
+                    got2 = {}
+                for i in bad_ids:
+                    v2 = got2.get(i)
+                    try:
+                        r2 = float((v2 or {}).get(rate_f))
+                    except Exception:
+                        r2 = None
+                    if r2 is not None and lo_r <= r2 <= hi_r:
+                        got[i] = v2
+                        n_retry += 1
+                print("[T2_SG_ISOLATE] range-retry '%s': 위반 %d → 회복 %d"
+                      % (gval, len(bad_ids), n_retry), file=_sys.stderr, flush=True)
+            for i in ids:                     # 잔여 위반 = rate 제거(오탐 양산 대신 판정불가 abstain)
+                rv = _rv(i)
+                if rv is not None and not (lo_r <= rv <= hi_r):
+                    (got.get(i) or {}).pop(rate_f, None)
+        # ★셀-consensus 강등 가드 (A2 `consensus_demote_guard`=true·프로브 cons1=Patagonia 1→5).
+        #   같은 (card×category) 셀은 같은 정책이 적용된다 — 소수 강등(0<rate<다수값)은 그 행의
+        #   merchant/category가 담긴 인용이 문서에 실재할 때만 인정, 아니면 다수값으로 백필.
+        #   다수값·인용·앵커 전부 데이터/서브 산출(엔진 리터럴 0). 0-rate는 기존 quote-grounding 경로 유지.
+        n_cons = 0
+        if iso.get("consensus_demote_guard") and got:
+            from collections import Counter as _Counter
+            q_f = iso.get("quote_field", "exclusion_quote")
+
+            def _rv2(i):
+                try:
+                    return float((got.get(i) or {}).get(rate_f))
+                except Exception:
+                    return None
+            _rates = [_rv2(i) for i in ids if _rv2(i) is not None]
+            if len(_rates) >= 3:
+                _modal, _cnt = _Counter(_rates).most_common(1)[0]
+                if _cnt * 2 > len(_rates):
+                    _byid = {str(r.get(id_field)): r for r in grows}
+                    for i in ids:
+                        rv = _rv2(i)
+                        if rv is None or not (0 < rv < _modal):
+                            continue
+                        q = _norm_ground((got.get(i) or {}).get(q_f) or "")
+                        anch = _norm_ground(str(_byid[i].get("merchant_name", ""))) in q or \
+                            _norm_ground(str(_byid[i].get("category", ""))) in q
+                        if not (len(q) >= int(iso.get("quote_min", 8)) and q in docnorm and anch):
+                            got.setdefault(i, {})[rate_f] = _modal
+                            n_cons += 1
+            if n_cons:
+                print("[T2_SG_ISOLATE] consensus '%s': 무근거 강등 %d행 → 다수값 백필"
+                      % (gval, n_cons), file=_sys.stderr, flush=True)
         # 카드 기본율(default) — 근거없는 0 백필용. 카드당 1회 formalize·캐시(값=LLM·엔진 하드코딩0).
         if iso.get("base_default_prompt"):
             if gval not in default_cache:
@@ -242,7 +318,8 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
               % (gval, len(docs), len(grows), len([x for x in ids if x in out]), kept, filled, default),
               file=_sys.stderr, flush=True)
         _isolate_trace(iso, d, {"group": gval, "n_docs": len(docs), "n_rows": len(grows),
-                                "kept": kept, "filled": filled, "default": default, "operands": got})
+                                "kept": kept, "filled": filled, "default": default,
+                                "range_retry": n_retry, "consensus": n_cons, "operands": got})
     return out or None
 
 
@@ -479,7 +556,16 @@ def apply():
                 _res = _c.apply_op(d.get("op"), _ctx)
                 if isinstance(_res, list):                    # 목록형(discrepancy ids)
                     _res = [str(i) for i in _res if i]
-                    _txt = d.get("return_template", "{ids}").format(ids=", ".join(_res) if _res else "(none)")
+                    # ★{details}: op가 남긴 상세(_sg_details)를 A2 detail_item_template로 포맷.
+                    #   A2 template이 {details}를 안 쓰면 거동 변화 0(여분 kwarg는 무해).
+                    _dets = _ctx.get("_sg_details") or []
+                    _item_t = d.get("detail_item_template", "{id}")
+                    try:
+                        _details = "; ".join(_item_t.format(**it) for it in _dets) if _dets else "(none)"
+                    except Exception:
+                        _details = ", ".join(_res) if _res else "(none)"
+                    _txt = d.get("return_template", "{ids}").format(
+                        ids=", ".join(_res) if _res else "(none)", details=_details)
                     _n = len(_res)
                 else:                                         # 스칼라형(verdict 등)
                     _txt = d.get("return_template", "{result}").format(result=_res if _res is not None

@@ -334,6 +334,12 @@ def apply_op(spec, ctx):
                     continue
                 if abs(en - act) > tol:
                     out_ids.append(r.get(idf))
+                    # ★discrepant 상세(2026-07-19·task_026 포렌식: 기대값 미반환→에이전트가 기록값
+                    #   재기입 no-op). 엔진이 이미 계산한 expected를 노출만 한다 — 표시 여부/형식은
+                    #   A2 return_template/detail_item_template이 정함([[05]]·계산=엔진 몫 [[10]]).
+                    ctx.setdefault("_sg_details", []).append(
+                        {"id": r.get(idf), "actual": act, "expected": en,
+                         "actual_int": int(act), "expected_floor": int(en)})
             if skipped:
                 print("[T2_COMPUTE] select_discrepant: %d/%d행 판정불가(operand가 숫자 아님) — "
                       "under-action 위험" % (skipped, len(recs)), file=_sys.stderr, flush=True)

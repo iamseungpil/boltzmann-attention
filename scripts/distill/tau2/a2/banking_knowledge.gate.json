@@ -376,6 +376,9 @@
       },
       "expected_ref": "steps.expected"
      },
+     "return_template": "Transactions whose recorded reward does NOT match the expected reward under the reward-rate policy (each needs a cash back dispute). The CORRECT total reward per policy is shown for each — after its dispute is resolved, update that transaction's rewards to EXACTLY the correct value shown: {details}",
+     "detail_item_template": "{id} (recorded {actual_int} points, correct {expected_floor} points)",
+     "_note_details": "2026-07-19 · task_026 포렌식: 기대값 미반환→에이전트가 기록값 재기입(no-op)·gold 6300/1020/3800/1500 전부 MISS. 엔진이 이미 계산한 expected를 반환에 노출(값=서브 formalize+엔진 op·리터럴 0·[[10]]). floor 표기=gold 실증(95=floor(95.66) 등 6/6).",
      "isolate": {
       "over": "transactions",
       "id_field": "transaction_id",
@@ -414,6 +417,10 @@
       "rate_field": "base_rate",
       "quote_field": "exclusion_quote",
       "quote_min": 8,
+      "rate_range": [0, 20],
+      "range_retry_prompt": "\n\n★FEEDBACK: your base_rate for item(s) {ids} was outside the declared valid range [{lo}, {hi}] for this field. Report the rate NUMBER exactly as the policy states it per dollar; do NOT convert units or scale by 100. Reply again with the same full JSON object.",
+      "consensus_demote_guard": true,
+      "_note_rangefix": "2026-07-19 · task_028 포렌식: EcoCard-Green 셀서 서브가 '$5.00 points per dollar'를 ×100(500)으로 formalize·Patagonia 무근거 강등(100). 공유문서 주입=무효(프로브 0/6), 범위재질의+consensus=프로브 0/6→6/6·타 셀 부작용 0(retry0·cons0). 범위·재질의문구=A2 선언·값=서브·엔진=검증/백필만.",
       "inject_instructions": "You are a bank rewards specialist. Below are ALL policy documents for the {group}, then the customer's transactions on that card. For EACH transaction report:\n- base_rate: the base cash-back RATE (percent number: e.g. 10, 4, or 0 if it truly earns nothing).\n  ★Do NOT return 0 just because a purchase is not a premium/bonus category — almost every card earns a BASE rate on all other purchases; apply it. Return 0 ONLY if a document EXPLICITLY excludes this specific merchant/category, AND then copy the exact excluding sentence into 'exclusion_quote' (else leave empty).\n- promo_mult, promo_window_months, promo_start, promo_end: if a limited-time promo (e.g. double cash back for new customers) exists for this card, its multiplier, window length in months, and the promo period dates (MM/DD/YYYY). If no promo, use promo_mult=1, promo_window_months=0, empty dates.\n★Do NOT apply the promo or multiply or judge whether the promo dates apply — a separate deterministic system does that from your parameters. Just give the base_rate and the raw promo parameters.\n\n=== {group} — POLICY DOCUMENTS ===\n{docs}\n\n=== TRANSACTIONS ===\n{items}\n\nReply with EXACTLY one JSON object mapping each transaction_id to the fields above:\n{schema}",
       "base_default_prompt": "Read these {group} policy documents. What is the BASE cash-back rate that applies to 'all other purchases' (purchases NOT in any bonus/premium category) on this card, as a percent number? Reply with EXACTLY one JSON object: {{\"base_default\": <number>}}\n\n{docs}",
       "_note_inject": "2026-07-18 재설계(§2e·프로브 105/105): 카드당 격리+문서주입(검색 대신 title 접두)+{base_rate,exclusion_quote} grounding+기본율 default. 엔진 리터럴 0. getter_tools=구 검색모드(미사용).",
