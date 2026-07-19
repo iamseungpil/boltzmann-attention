@@ -109,7 +109,7 @@ def probe(grows, cond, k):
     im = sum(rec['iv_merch_mass']) / len(rec['iv_merch_mass'])
     tm = sum(rec['target_merch_mass']) / len(rec['target_merch_mass'])
     print('%-14s k=%d  P(5)=%.3f P(1)=%.3f | a_C=%.5f  a_iv=%.5f  a_tgt=%.5f (S=%d·clauseTok=%d)'
-          % (cond, k, rec['P5'], rec['P1'], cm, im, tm, S), flush=True)
+          % (cond, k, rec['P5'], rec['P1'], cm, im, tm, S, len(cl)), flush=True)
     del o1, o2
     with open(OUT_JSON, 'w', encoding='utf-8') as f:
         json.dump({'model': MODEL, 'clause': CLAUSE, 'results': results}, f, ensure_ascii=False)
