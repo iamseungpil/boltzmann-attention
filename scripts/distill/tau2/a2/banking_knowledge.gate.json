@@ -86,7 +86,7 @@
     "kind": "operator",
     "arg": "agent_tool_name",
     "name_pattern": "[a-z_]+_[0-9]{4}",
-    "getter": "list_discoverable_agent_tools",
+    "getter": "KB_search_bm25",
     "operator_resolution": "discoverable",
     "find_intent": true
    }
@@ -96,7 +96,7 @@
     "kind": "operator",
     "arg": "agent_tool_name",
     "name_pattern": "[a-z_]+_[0-9]{4}",
-    "getter": "list_discoverable_agent_tools",
+    "getter": "KB_search_bm25",
     "operator_resolution": "discoverable",
     "find_intent": true
    }

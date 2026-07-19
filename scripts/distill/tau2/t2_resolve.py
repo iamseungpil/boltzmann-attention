@@ -87,10 +87,13 @@ ACTION_ASK_FB = (
 #   target이 discoverable dispatcher면 발견체인(getter→unlock→call)을 명시. 별도 컨트롤러 아님 —
 #   action-required 피드백을 발견-인지형으로 특화(A2 operands 참조·도메인-일반).
 DISCOVERY_REQUIRED_FB = (
-    "[DISCOVERY-REQUIRED] this request needs a discoverable tool, but you are deflecting/transferring "
-    "instead of completing it. Do the discovery chain: (1) use {getter} to find the specific tool that "
-    "handles this request, (2) call '{target}' with the discovered tool name. Do not give up or "
-    "transfer until you have looked up and attempted the right discovered tool."
+    "[DISCOVERY-REQUIRED] this request needs a specialized internal tool whose name is written inside a "
+    "knowledge-base document. Do the discovery chain: (1) call {getter} with a query naming the ACTION "
+    "you need (e.g. 'open bank account', 'close bank account', 'apply savings interest correction') — the "
+    "matching KB document states the exact tool name (like 'open_bank_account_4821'); (2) unlock_discoverable_agent_tool "
+    "with that name; (3) call_discoverable_agent_tool with that name and its arguments. Do NOT rely on "
+    "list_discoverable_agent_tools (it only lists tools you already called) and do NOT transfer — the tool "
+    "name is in the knowledge base, search for it."
 )
 
 

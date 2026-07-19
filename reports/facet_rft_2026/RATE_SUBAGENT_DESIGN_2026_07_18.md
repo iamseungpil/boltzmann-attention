@@ -856,3 +856,16 @@ P0=_sub_wrap+A2 policy_qa+오프라인 4/4·[05] 정직: A2 순증→측정 게�
   tau2 ToolCall 생성 단계라 사거리 밖)·재런 or ingestion-tolerance 패치 후보.
 - **026 = 벤치 gold버그 확정**(재확인): update 4건 중 026_10(Zoom $149.99)만 불일치 = gold **1500** vs KB doc_007
   floor정책(내림)=**1499**. gold가 자기 KB 정책 위반 → 업스트림 보고 후보. 분모 제외 정당.
+
+### §2s (2026-07-20 새벽) — ★T3 discovery-getter 버그 확정·정정 (잠정 soft-천장 해석 철회)
+**증상**: T3+cap arm서 discovery-required deny 발화(t3b 8·t3a 5)하나 unlock/call 전환 실패. 잠정=[[42]] soft-천장 의심.
+**포렌식으로 반증 [S]** (batch_a2 t068 정독): 에이전트는 피드백을 **따랐다** — `list_discoverable_agent_tools` 호출(msg32).
+그러나 반환=**"No records found / 아직 호출한 도구 없음"**(빈 목록) → 에이전트 "도구 없음" 합리적 판단 → 포기(msg34).
+**근본원인=내 T3 getter 오수정 [S]**: env 도구 설명이 직접 답 — `list_discoverable_agent_tools`="당신이 **이미 호출한**
+도구 목록"(빈 반환 메시지조차 "KB를 검색해 발견하라"고 지시) · `unlock`="**KB에서 발견한** 도구를 unlock" ·
+도구 이름은 **KB 문서 실재**(doc_bank_accounts_001/002/003에 open_bank_account_4821 등). 진짜 기전 = **KB검색→문서서
+이름 읽기→unlock→call**. T3서 getter를 lister로 바꾼 게 정반대(빈 목록=거짓 "없음" 확신 주입)=성능 악화 방향.
+**정정**: getter를 `KB_search_bm25`로 되돌림 + DISCOVERY_REQUIRED_FB를 실기전에 맞춤(action-명명 질의 예시·lister 쓰지
+말라 명시·이름은 KB에 있다). **⇒ 이건 프롬프트 불응 아니라 배선버그 = 고칠 수 있음.** 잠정 soft-천장 해석 정직 철회.
+**미검증**: KB_search가 "open bank account" 질의에 tool-name 문서를 실제 surfacing하는지(t068은 policy 질의만 해서 못
+찾음) — 다음 재런이 검증. 못 하면 그때가 진짜 다음 갈림길(질의 formalize 서브 or 이름-추출 offload).
