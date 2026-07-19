@@ -224,10 +224,11 @@ non-regression: 166/167 across *all* probed cells of the 8 task users (the pre-e
 ⟦TBD: verify and footnote the 1 miss identity⟧); (iii) live: the two tasks whose failures traced to this cell
 (018, 021) pass end-to-end with the cap in place; (iv) cost: the shared document prefix is served from prefix
 cache, so the extra calls do not multiply prompt cost proportionally (hit-rate logged). Series scoreboard across
-the 8-task banking suite: 018/020/021/027 pass ([S], single-trial each — we report pass^1, not pass^k);
-022/028/029 pending re-run judgment ⟦TBD: redesign7b forensic⟧; 026 is blocked by a benchmark gold-authoring bug
-(the bench's own documented flooring policy contradicts its gold; census 9/10 golds floor, the exception is the
-blocking one) — reported upstream ⟦TBD: issue link⟧.
+the 8-task banking suite: **018/020/021/022/027/029 pass** ([S], single-trial each — we report pass^1, not
+pass^k); 026 is blocked by a benchmark gold-authoring bug (the bench's own documented flooring policy contradicts
+its gold; census 9/10 golds floor, the exception is the blocking one) — reported upstream ⟦TBD: issue link⟧;
+028 currently fails only on a context-window infrastructure limit (the corrected dispute flow lengthens the
+conversation past the serving window; a lever trade-off we report honestly, mitigation in progress ⟦TBD⟧).
 
 **What the fix is not.** Batch≤2 is not a general recommendation to shrink batches for accuracy; it is the
 *specific* consequence of an identified mechanism (edge protection + threshold k*=2). Under a different clause
