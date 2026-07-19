@@ -636,3 +636,15 @@ WeWork(KB 명시 0%)를 1%로 봄 ⇒ **false positive 1건** ⇒ r=0. **rate �
 - task_026 **reward 1.0·db_match ✓** — update 4건 = 6300/1020/3800/**1500**(0.9 규칙 상태).
 - ⇒ 증명 완료: **026의 유일 잔여 blocker = gold 버그**(값 경로·dispute·update 흐름 전부 작동).
   공식 기록은 §2i(7) 유지: 026="벤치 gold 버그(자체 doc_007 floor 정책 위반)로 미통과·정책상 우리 표기(1499)가 옳음".
+
+### (9) ★★프로브 v3 → consensus 앵커 결함 발견 + 수정 (2026-07-19·모트 제1원리 실측)
+- 프로브 v3(8태스크 확장·`bank_shared_docs_probe`): card 164/167·fix 166/167. 신규 카드(Business Bronze·Diamond Elite) rate **전셀 clean**(R2 해소).
+- **★consensus 회귀 발견**: `task_022`(Isabella) 소유 **Target - Eco Collection**(제외목록·정답 1.0·rec 728=145.67×5=진짜 오류)을
+  consensus가 **1.0→5.0 오승격** → 플래그 실패(gold MISS). card arm은 정확(서브가 제외 인용 냄)·fix arm만 깨짐.
+- **근본원인**: 앵커 검사 `merchant_norm in quote`가 **접미사 상인명**에 실패 — 상인="Target - Eco Collection", 문서 인용은
+  "Target"만 나열 → "target eco collection"이 인용의 부분문자열 아님 → 정당 제외가 앵커 실패 → 승격당함.
+  **모트 제1원리 실측**: consensus가 Patagonia(환각 강등·인용無)를 사서 Target(정당 제외·인용有)을 팔았다.
+- **수정**: `_quote_anchored(merchant, category, quote)` = **양방향 토큰 매칭**(상인/카테고리 토큰 len>=4 하나라도 인용에 있으면 앵커).
+  'target'∈인용=survive·무관 상인('Reformation') 토큰불일치=미앵커(승격 유지). 오프라인 4/4 통과. live+probe 공용(단일소스·[[03b]]).
+- **프로브 하네스 결함도 수정**: 구 전역 (card×category) 병합 → **user_id 포함 그룹핑**(라이브=한 사용자 거래만·[[30]]).
+  구 23행 EcoGreen 병합셀은 비대표(실 셀=Fatima6·Dmitri4·Isabella13). **v4 재런 중**(수정 검증).
