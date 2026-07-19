@@ -748,3 +748,20 @@ WeWork(KB 명시 0%)를 1%로 봄 ⇒ **false positive 1건** ⇒ r=0. **rate �
 - Unable to Forget(2506.08184)·Remember First Forget Last(2603.00270): KV-덮어쓰기 회수·log-linear·primacy 보호 선점 → 인용.
 - 우리 delta: **덮어쓰기 없는 문서-기반 판단 과제·조항-수준 간섭 해상도·기본값-후퇴 실패모드·입/출력·토큰위치·유사성 3종 분리실험·
   release-from-PI/이중해리·작동하는 구조적 완화(batch≤2·프롬프트 완화는 선행서도 전멸)**. 딥리서치 광역 교차검증 대기.
+
+### (2m 보강) 딥리서치 종합 — 선행 지형과 노벨티 최종 판정 (wf_304eb879·검증단계 stall→journal 수동종합 [M])
+**선점된 것 (인용 필수·"최초" 주장 금지):**
+1. **Guo & Vosoughi, "Serial Position Effects of LLMs"(arXiv:2406.15981·ACL 2025 Findings)** — SPE 명명 그대로 선점. 단 **옵션 선택**(multiple-choice·라벨 고르기) 편향·primacy 지배·완화책 비일관. per-item 열거 출력 아님.
+2. **Batch prompting 계열(Cheng+ 2023)** — 배치 크기↑→정확도↓(~4개 임계)·**항목 답이 배치 내 위치에 의존**·BPE(순서 순열+다수결) 완화까지 선점. 단 lost-in-the-middle(절대 위치) 프레임으로 서술·토큰-위치와 미분리·유사성 조작 없음.
+3. **IFScale(Jaroslawicz+ 2025-07)** — 500개 동시 지시서 **앞쪽 편애(primacy favoritism)** — 우리의 "primacy-창만 보호"와 방향 일치. 단 지시-이행 과제·단조 감쇠·간섭 설계 없음.
+4. Wang+ (EMNLP 2023) ChatGPT 라벨-선택 primacy · listwise reranking 위치편향(ECIR 2026) · 실무 가이드의 "7개+는 호출 분리" 권고(민간 관행으로 존재).
+5. (원문 정독 §완료) Unable to Forget(2506.08184)=KV-덮어쓰기 PI·log-linear · Remember First Forget Last(2603.00270)=primacy 보호/recency 붕괴.
+
+**문서화된 곳이 없는 우리 delta (노벨티 코어):**
+① **조항-수준 유사성-게이팅**: 간섭원이 "같은 규칙 조항을 이름-일치 없이 추론-결합하는 항목"뿐임을 이중 해리(쿼터/판단/범주 기각)로 확정 — release-from-PI 조작 자체가 LLM 문헌에 부재.
+② **분리실험 3종**: 입력-위치 vs 생성-순서(생성-측 반증) · 리스트-서수 vs 절대 토큰-위치(비단조·350토큰 창) · 유사 vs 비유사 개입.
+③ **실패 모드**: 판단-의존 항목의 기본값-후퇴(회수/복사 오류 아님) + 임계점 출력 불안정화(단위 슬립).
+④ **계단 임계 k*=2** + primacy-창 해석 → batch≤2가 민간 관행이 아닌 **기전-도출 완화책**으로 격상(선행은 프롬프트 완화 전멸 보고).
+⑤ **축퇴-엔트로피(Boltzmann) 모델**: log-linear(UF)·primacy-창·유사성-게이팅·causal 비대칭을 한 식(ΔF=ΔE−T·log g)으로 통합 — P3/P4로 반증가능.
+⑥ 합성 아닌 **실제 tool-use 파이프라인의 태스크 pass/fail 결과**로 연결(τ²-bench).
+⇒ **포지셔닝**: "현상 발견" 논문이 아니라 **"간섭의 단위(조항)와 기전(축퇴 희석)을 확정하고 구조적 완화를 도출"**한 논문으로. 관련연구에 1~5 전부 인용·양보.
