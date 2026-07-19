@@ -809,3 +809,14 @@ P0=_sub_wrap+A2 policy_qa+오프라인 4/4·[05] 정직: A2 순증→측정 게�
 **7d 진행 중**(사용자 승인 순서: 프로브→7d): 028 단독·`T2_READ_DEDUP=1` 단일변수·FN_ISOLATE OFF. 028이 또 CWE면
 다음 arm=dedup+wrap(단일변수 대조 §5-3). ⚠️7d 1차 launch는 승인 전 독단 실행→사용자 지적으로 90s에 중단(정직 기록)·
 재launch는 승인 후.
+
+### §2p (2026-07-19 밤) — 7d(028 dedup 한계)·CWE 스모크(발견실패 노출)·21태스크 밤샘 배치
+- **7d(028+T2_READ_DEDUP): CWE 재발 45,243>44,672**(7c보다 +517·dedup 스텁 1회뿐) ⇒ 028 초과 = 중복 아닌
+  **기저 페이로드+WEV-redirect 흐름 길이**. dedup 단독 불가 확정 → 028 = FN_ISOLATE §5-3 단일변수 스모크 표적(승인 대기).
+- **CWE 스모크(031/038/043·dedup 스택): CWE 0·크래시 0·dedup 3발화 = 컨텍스트 레버 작동 [S]. 단 reward 0/3 —
+  세 태스크 공통 = discoverable-tool 흐름 미진입**(gold unlock/give/call_discoverable_* 전부 미실행·"조치 없음" transfer 포기·
+  `list_discoverable_agent_tools` 시도 0). = [[14]] coverage/discovery-부하 실패군 라이브 표본. CWE에 가려져 있던 진짜 잔여.
+- **밤샘 배치 launch**(`bank_cwe_batch_20260719`·사용자 승인 1→2→3): 97런 CWE 잔여 21태스크(023/037/039-041/050/054/057/
+  064-069/073-074/079/082-083/089/093/097)·동일 스택. 측정 질문: ①CWE 몇 개 닫히나 ②실패 분포(발견실패 vs 기타) ③군별 궤적 확보.
+- 97런 전수 census 완료(83 미해결·군 분류 A~I) — 다음 후보 우선순위 = A(카드 dispute 확장 031·037-041) → E(ATM fee) →
+  D+G(APY ~22개). discovery-실패가 A/B군 지배 패턴이면 다음 레버 = E-PLAN discovery(FIND) 계열.
