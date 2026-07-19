@@ -792,3 +792,20 @@ env 구현 확인: submit_cash_back_dispute_0589가 auto_resolve=true면 출력�
 022 여유 +3712 토큰(초과분 78 대비 충분 추정·pass^1 변동성 유의).
 **7c 재런 launch**: `run_redesign7c_20260719.sh`(=7b sed 변형·distinct tag·자동 persist) 022/028/029·현재 진행 중.
 판정 시 [[08]]: WEV 발화 수·발화 지점(조기 vs 거짓말)·피드백 후 행동 전환 여부 전수 확인.
+
+### §2o (2026-07-19 저녁2) — 7c 판정 [S] + 컨텍스트 2레버 + policy_qa 프로브 게이트 통과
+**7c(022/028/029·WEV unified 수정·YaRN 44672): 029=1.0(db_match)·022=1.0(58msgs 첫 완주)·028=CWE 재발(44,726>44,672).**
+- WEV 라이브 deny 3회 발화 — §2n 오프라인 예측(029 과잉-update 차단) 실증. 계열: 018/020/021/022/027/029 PASS·
+  026=gold버그·**잔여=028 하나**. 028은 WEV가 정상 dispute 경로로 밀어 흐름이 길어지며 초과 = 레버 상쇄(모트 제1원리).
+**022 CWE per-step 포렌식 [S]** (사용자: "계속 늘려도 같은 에러면 소용없다"): 루프 0(денy 마커 전무)·200스텝 아님.
+029 anatomy: KB 48%(byte-identical 20K×2)·출력→args 재전송 13.3K(txn 47/47)·shell 4.8K×2 = **낭비 ≈ 컨텍스트 1/3**.
+**컨텍스트 2레버**: ①`T2_READ_DEDUP`(ed95b48f·동일-read 스텁·실효 write시 캐시무효화·≥2000자만·기본 OFF)
+②`T2_FN_ISOLATE`(f0f0279a·(W)wrap 기능서브 = `FUNCTION_AGENT_ISOLATION_DESIGN_2026_07_19` **사용자 리뷰 LOCK**·
+P0=_sub_wrap+A2 policy_qa+오프라인 4/4·[05] 정직: A2 순증→측정 게이트 통과 전 라이브 금지).
+**★policy_qa §5-1 무료 프로브 통과 [S]** (`bank_policy_qa_probe.py`·실제 _sub_wrap·실제 env·계열 실질의 11개 전수):
+폴백 0/11·grounding 전멸 0(부분 드롭 1=환각인용 차단 작동)·**압축 86%**(63,778→9,149 chars)·answer 정독=결정정보
+보존(도구명까지 정확). 특이점 기록: dense=env 자격증명 오류를 그대로 반환(라이브도 동일 [ERR]·손실 0)·shell wrap은
+원출력 17자일 때 압축 음수(단 후속 cat 4.8K 예방 답변이라 태스크-단위 순이득 후보 — 스모크 확인 항목).
+**7d 진행 중**(사용자 승인 순서: 프로브→7d): 028 단독·`T2_READ_DEDUP=1` 단일변수·FN_ISOLATE OFF. 028이 또 CWE면
+다음 arm=dedup+wrap(단일변수 대조 §5-3). ⚠️7d 1차 launch는 승인 전 독단 실행→사용자 지적으로 90s에 중단(정직 기록)·
+재launch는 승인 후.
