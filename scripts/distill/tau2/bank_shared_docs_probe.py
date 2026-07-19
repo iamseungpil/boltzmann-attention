@@ -180,8 +180,8 @@ def apply_fix(base, model, iso, gval, grows, docs, temp, out, lo, hi, docnorm):
                 if rt is None or rt >= modal:
                     continue
                 q = SG._norm_ground((out.get(i) or {}).get(iso.get("quote_field", "exclusion_quote")) or "")
-                anch = SG._norm_ground(str(byid[i].get("merchant_name", ""))) in q or \
-                    SG._norm_ground(str(byid[i].get("category", ""))) in q
+                anch = SG._quote_anchored(byid[i].get("merchant_name", ""),
+                                          byid[i].get("category", ""), q)
                 grounded = len(q) >= int(iso.get("quote_min", 8)) and q in docnorm and anch
                 if not grounded:
                     out.setdefault(i, {})["base_rate"] = modal
@@ -210,9 +210,11 @@ def main():
 
     gkeys = iso["group_by"] if isinstance(iso["group_by"], list) else [iso["group_by"]]
     doc_key = iso.get("doc_key", gkeys[0])
+    # ★사용자별 그룹핑 — 라이브 재현([[30]]): get_reward_discrepancies는 *한 사용자* 거래만 받는다.
+    #   user_id를 그룹키에 포함해야 셀 크기·modal이 라이브와 같다(구 전역병합=23행 EcoGreen=비대표).
     groups = defaultdict(list)
     for r in rows:
-        groups[tuple(str(r.get(k)) for k in gkeys)].append(r)
+        groups[tuple([r.get("user_id")] + [str(r.get(k)) for k in gkeys])].append(r)
 
     tally = defaultdict(lambda: [0, 0])
     for gk in sorted(groups):

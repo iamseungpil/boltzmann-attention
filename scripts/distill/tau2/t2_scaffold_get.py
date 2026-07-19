@@ -67,6 +67,17 @@ def _norm_ground(s):
     return re.sub(r"[^a-z0-9%]+", " ", str(s).lower()).strip()
 
 
+def _quote_anchored(merchant, category, quote_norm, min_tok=4):
+    """인용이 *이 행*에 관련됨을 검증(consensus/grounding 공용·엔진 결정론·도메인 리터럴 0).
+    ★양방향 토큰 매칭: 상인명/카테고리의 유의미 토큰(len>=min_tok) 하나라도 인용에 있으면 앵커.
+    구 `merchant_norm in quote`는 접미사 상인명("Target - Eco Collection" vs 인용 "Target")서
+    정당 제외를 놓쳐 consensus가 오승격(2026-07-19 task_022 Target 회귀). 토큰이면 'target'∈인용=survive,
+    무관 상인('Reformation')은 토큰 불일치=미앵커. 값/인용/토큰 전부 데이터·서브 산출."""
+    toks = [t for t in _norm_ground(merchant).split() if len(t) >= min_tok]
+    toks += [t for t in _norm_ground(category).split() if len(t) >= min_tok]
+    return any(t in quote_norm for t in toks)
+
+
 import re  # noqa: E402  (grounding 정규화용)
 
 
@@ -273,8 +284,8 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
                         if rv is None or not (0 < rv < _modal):
                             continue
                         q = _norm_ground((got.get(i) or {}).get(q_f) or "")
-                        anch = _norm_ground(str(_byid[i].get("merchant_name", ""))) in q or \
-                            _norm_ground(str(_byid[i].get("category", ""))) in q
+                        anch = _quote_anchored(_byid[i].get("merchant_name", ""),
+                                               _byid[i].get("category", ""), q)
                         if not (len(q) >= int(iso.get("quote_min", 8)) and q in docnorm and anch):
                             got.setdefault(i, {})[rate_f] = _modal
                             n_cons += 1
