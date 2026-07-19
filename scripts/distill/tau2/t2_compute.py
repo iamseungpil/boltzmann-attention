@@ -154,7 +154,8 @@ def apply_op(spec, ctx):
             #   이름·상수 도메인 리터럴 0 — 엔진은 combinator 2개(max1/sum)만 안다. stack_rules 규칙표=A2.
             #   ★unknown-kind(리뷰④): reducers에 없는 group → **silent drop 금지**·미합성 + ctx["_gr_flags"]에
             #     플래그 push(scaffold `_sg_details` 동형 side-channel·[[03b]] 인접 회피).
-            items = _get(ctx, spec.get("over"))
+            _ov = spec.get("over")
+            items = apply_op(_ov, ctx) if isinstance(_ov, dict) and _ov.get("op") else _get(ctx, _ov)
             if not isinstance(items, list):
                 return None
             gkey = spec.get("group_by"); vfield = spec.get("value_field")
@@ -302,6 +303,15 @@ def apply_op(spec, ctx):
             b = apply_op(spec["b"], ctx) if isinstance(spec.get("b"), dict) else _num(_get(ctx, spec.get("b")))
             a, b = _num(a), _num(b)
             return None if (a is None or b is None) else a * b
+        if op == "compare":
+            # ★두 런타임 값 비교(도메인일반·023 자격판정 등): a cmp b → bool. a/b=ref or nested op.
+            _a, _b = spec.get("a"), spec.get("b")
+            a = _num(apply_op(_a, ctx)) if isinstance(_a, dict) and _a.get("op") else _num(_get(ctx, _a))
+            b = _num(apply_op(_b, ctx)) if isinstance(_b, dict) and _b.get("op") else _num(_get(ctx, _b))
+            if a is None or b is None:
+                return None
+            c = spec.get("cmp", ">=")
+            return {">=": a >= b, ">": a > b, "<=": a <= b, "<": a < b, "==": a == b}.get(c)
         if op == "str_eq":
             a = _get(ctx, spec.get("a")); b = spec.get("b")
             return None if a is None else (str(a).strip().lower() == str(b).strip().lower())

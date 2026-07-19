@@ -572,6 +572,47 @@
      "missing_hint": "NOT_VERIFIED — provide 'provided' (the identity values the customer gave you)."
     }
    }
+  },
+  {
+   "name": "check_rebate_qualification",
+   "description": "USE THIS to determine whether a customer qualifies for a spend-threshold annual fee rebate (e.g. the Platinum Rewards Card annual fee rebate). Do NOT eyeball the monthly totals yourself. First read the customer's transactions and their card account opening date, and look up the required monthly spending threshold from the knowledge base, then call this tool. It buckets every transaction into the anniversary-based monthly windows of the cardmember year (by posting date, from the opening date), sums each window, and returns QUALIFIES only if EVERY window meets the threshold (a single month below disqualifies; no proration).",
+   "params": {
+    "transactions": "A JSON array of the card's transactions you read from the records. Each element MUST have ONLY these raw fields, copied as-is: date (string, the POSTING date, MM/DD/YYYY), amount (number, the purchase/spend amount, no $). Copy every transaction in the cardmember year; do not pre-filter or pre-sum.",
+    "account_opening_date": "The date the credit card account was opened (MM/DD/YYYY), copied from the account record. Monthly windows are anchored to this date.",
+    "monthly_threshold": "The required per-month spending threshold for the rebate, as a plain number (no $), copied from the applicable rebate policy document in the knowledge base."
+   },
+   "return_template": "Rebate qualification, computed deterministically over every anniversary monthly window of the cardmember year (by posting date): {result}. The customer qualifies only if EVERY month met the threshold; a single month below disqualifies (no proration).",
+   "op": {
+    "op": "if_then",
+    "cond": {
+     "op": "compare",
+     "cmp": ">=",
+     "a": {
+      "op": "group_reduce",
+      "over": {
+       "op": "bucket_month_window",
+       "over": "transactions",
+       "anchor": "account_opening_date",
+       "date_field": "date",
+       "out_field": "__win"
+      },
+      "group_by": "__win",
+      "value_field": "amount",
+      "default_reducer": "sum",
+      "across": "min"
+     },
+     "b": "monthly_threshold"
+    },
+    "then": {
+     "op": "const",
+     "value": "QUALIFIES"
+    },
+    "else": {
+     "op": "const",
+     "value": "DOES NOT QUALIFY"
+    }
+   },
+   "_note": "2026-07-20 023 calc-offload (ACCOUNT_APY 자매). KB census[S]: doc_007/010 = $150 리베이트 iff 매월 threshold 모든 달 충족·posting date·anniversary 윈도우·한 달 미달=실격. 엔진=bucket_month_window→group_reduce(across=min)→compare(리터럴 0·threshold/opening_date=인자). LLM=거래 copy+threshold KB조회(단순). isolate 불요(per-txn KB해석 없음)."
   }
  ],
  "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수.",
