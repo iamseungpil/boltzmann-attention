@@ -86,12 +86,18 @@ def run(k, arm):
     ii = torch.tensor([enc['input_ids']]); S = ii.shape[1]
     spans = row_char_spans(text, grows)
     iv_tok = sorted({t for (cs, ce) in spans[:-1] for t in tok_span(offs, cs, ce)})
-    q0 = min(tok_span(offs, spans[-1][0], spans[-1][1]))      # target-행 첫 토큰
+    tgt_toks = tok_span(offs, spans[-1][0], spans[-1][1])
+    q0 = min(tgt_toks)                                        # target-행 첫 토큰
+    q1 = max(tgt_toks) + 1                                    # target-행 끝(미포함)
     mask = torch.zeros((1, 1, S, S), dtype=torch.bfloat16)
     mask[0, 0] = torch.triu(torch.full((S, S), NEG, dtype=torch.bfloat16), diagonal=1)  # causal
     blocked = []
     if arm == 'ko_full' and iv_tok:
         mask[0, 0, q0:, iv_tok] = NEG; blocked = iv_tok
+    elif arm == 'ko_tgtrow' and iv_tok:                        # target-행 쿼리만 차단(표상-구축 채널 단독)
+        mask[0, 0, q0:q1, iv_tok] = NEG; blocked = iv_tok
+    elif arm == 'ko_post' and iv_tok:                          # target-행 이후(schema·프라이밍·readout)만 차단
+        mask[0, 0, q1:, iv_tok] = NEG; blocked = iv_tok
     elif arm == 'ko_last' and iv_tok:
         mask[0, 0, -1, iv_tok] = NEG; blocked = iv_tok
     elif arm == 'ctrl' and iv_tok:
@@ -106,7 +112,7 @@ def run(k, arm):
     pr = torch.softmax(out.logits[0, -1].float(), -1)
     def pd(c):
         return float(sum(pr[e] for e in {tok.encode(c)[0], tok.encode(' ' + c)[0]}))
-    rec = {'k': k, 'arm': arm, 'S': S, 'q0': q0, 'n_blocked': len(blocked),
+    rec = {'k': k, 'arm': arm, 'S': S, 'q0': q0, 'q1': q1, 'n_blocked': len(blocked),
            'P5': pd('5'), 'P1': pd('1'), 'P0': pd('0'), 'P100': pd('100')}
     results.append(rec)
     print('k=%d %-8s P(5)=%.3f P(1)=%.3f (S=%d·q0=%d·blocked=%d)'
@@ -115,8 +121,11 @@ def run(k, arm):
         json.dump({'model': MODEL, 'results': results}, f, ensure_ascii=False)
     del out
 
-run(0, 'base')                                # 참조(개입 0)
-for k in (2, 4, 8):
-    for arm in ('base', 'ko_full', 'ko_last', 'ctrl'):
+ARMS = [a for a in os.environ.get('B2_ARMS', 'base,ko_full,ko_last,ctrl').split(',') if a]
+KS = [int(x) for x in os.environ.get('B2_KS', '2,4,8').split(',')]
+if os.environ.get('B2_K0', '1') == '1':
+    run(0, 'base')                            # 참조(개입 0)
+for k in KS:
+    for arm in ARMS:
         run(k, arm)
 print('DONE →', OUT_JSON, flush=True)
