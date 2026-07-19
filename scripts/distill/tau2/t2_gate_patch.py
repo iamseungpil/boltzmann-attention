@@ -1878,13 +1878,57 @@ def _install_regen_exec():
     BaseOrchestrator._t2_orig_exec = orig_exec
 
     def exec_augment(self, tool_calls):
-        results = orig_exec(self, tool_calls)
+        # ★T2_READ_DEDUP (2026-07-19·022 CWE 포렌식): 동일 (name,args) read 재호출 = 실행 생략·
+        #   스텁 반환(전체 덤프 재적재 방지). 029 실측: byte-identical KB 20K×2·shell 4.8K×2 = 컨텍스트 22% 낭비.
+        #   신선도 보장: **실효 write**(_eff_tool_name+_is_effective_write·정본 술어·user 호출 포함) 실행 시
+        #   캐시 전체 무효화 → 상태-의존 read(dispute status 등)는 write 후 항상 재실행. 정보손실 0(원 출력이
+        #   위에 실재)·대형 출력만 캐시(T2_READ_DEDUP_MIN 기본 2000자)라 시각/소형 read는 대상 밖.
+        stub_ids = set()
+        dedup_on = os.environ.get("T2_READ_DEDUP") == "1"
+        if dedup_on:
+            from tau2.data_model.message import ToolMessage as _TM
+            cache = self._t2_read_cache = getattr(self, "_t2_read_cache", {})
+            to_run, stubs = [], {}
+            for tc in tool_calls:
+                k = _call_key(tc)
+                if k in cache and not _is_effective_write(_eff_tool_name(tc)):
+                    stubs[getattr(tc, "id", None)] = _TM(
+                        id=tc.id, role="tool",
+                        requestor=getattr(tc, "requestor", "assistant"), error=False,
+                        content="[DUPLICATE-READ] This exact call (same tool, same arguments) was "
+                                "already executed earlier in this conversation; its full output is "
+                                "shown above and has not changed. Refer to that output instead of "
+                                "re-reading.")
+                    stub_ids.add(getattr(tc, "id", None))
+                    self._t2_read_dedup = getattr(self, "_t2_read_dedup", 0) + 1
+                    print("[T2_READ_DEDUP] stub tool=%s" % getattr(tc, "name", None),
+                          file=sys.stderr, flush=True)
+                else:
+                    to_run.append(tc)
+            ran = orig_exec(self, to_run) if to_run else []
+            _rby = {getattr(r, "id", None): r for r in (ran or [])}
+            results = [(_rby.get(getattr(tc, "id", None)) or stubs.get(getattr(tc, "id", None)))
+                       for tc in tool_calls]
+            results = [r for r in results if r is not None]
+            min_len = int(os.environ.get("T2_READ_DEDUP_MIN", "2000"))
+            for tc in to_run:
+                out = _rby.get(getattr(tc, "id", None))
+                if out is None:
+                    continue
+                if _is_effective_write(_eff_tool_name(tc)):
+                    if not getattr(out, "error", False):
+                        cache.clear()  # 세상이 바뀜 → 이전 read 신선도 보장 불가
+                elif not getattr(out, "error", False) and len(_content_str(out) or "") >= min_len:
+                    cache[_call_key(tc)] = True
+        else:
+            results = orig_exec(self, tool_calls)
         env = getattr(self, "environment", None)
         a2 = _domain_a2(getattr(env, "domain_name", None)) if env is not None else None
         if a2 is None:
             return results
         gate = getattr(getattr(self, "agent", None), "_t2_gate", None)
-        by_id = {getattr(r, "id", None): r for r in (results or [])}
+        by_id = {getattr(r, "id", None): r for r in (results or [])
+                 if getattr(r, "id", None) not in stub_ids}
         auth_tools = a2["_auth_tools"]
         present_on = os.environ.get("T2_PRESENT_READS") == "1"
         g6 = next((g for g in a2["gates"] if g.get("kind") == "select_confirm"), None) if present_on else None
