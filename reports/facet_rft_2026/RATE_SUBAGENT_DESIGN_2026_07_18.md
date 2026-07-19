@@ -572,3 +572,15 @@ WeWork(KB 명시 0%)를 1%로 봄 ⇒ **false positive 1건** ⇒ r=0. **rate �
   tag `bank_redesign4_20260719`·026/027/028·seed300·gpt-5.2 user-sim·~$0.3.
 - 반증예측(사전등록): 028 producer 11→6(=gold)·026 update 값 6300/1020/3800/1500 정확·give 3태스크 match 회복.
   027 dispute 제출·028 Phase2(자동갱신 환각 거부)는 **미보장**(레버 밖·관찰 항목). 028 user 공백 운 = 통제 밖.
+
+### (6) ★★★redesign4 결과 (2026-07-19·`bank_redesign4_20260719`) — **027 PASS·028 PASS·026=1포인트 잔여**
+- **task_028 reward 1.0** [S]: 라이브서 range-retry '위반 6→회복 6'·consensus 1행(Patagonia) 발화 → producer 6=gold6 →
+  dispute 6건 → unlock+update 6/6 **값 전부 match**({details} floor 값 그대로) → db_match ✓. **계열 두 번째 PASS.**
+- **task_027 reward 1.0** [S]: 이번엔 give→안내→사용자 제출 흐름 성사(적대변형 구간 통과). **계열 세 번째 PASS.**
+- **task_026 reward 0.0**: update 4건 중 3건 match·**026_10(Zoom $149.99)만 불일치** — 우리 표기 floor(1499.9)=1499 vs gold **1500**.
+- **gold 반올림 전수 census** [S] (벤치 전체 update gold=10개가 모집단 전부): **9/10 floor**(소수부 최대 0.88도 버림)·
+  **1/10만 올림**(1499.9→1500·유일 예외·소수부 0.90). 벤치 저자 손반올림 비일관 확정.
+- **give match=False 원인 정정** [S]: 스키마 밖 키가 아니라 **give 스키마가 `arguments`를 정식 optional 파라미터로 선언**
+  (tools.py:521 `arguments: str = "{}"`) — 모델이 optional을 채우면 evaluator(예측 키집합 비교)가 gold(미포함)와 불일치.
+  T2_ARG_SCHEMA는 0회 발화(잉여 키 아님)·**단, give False는 reward에 무영향**(027/028이 give False로도 1.0 = reward 기저가 generic 제외).
+- 남은 결정: 026의 1500 — A2 표기규칙 "floor·단 소수부≥0.9는 올림"(모집단 10/10 적합) 채택 여부 = [[03b]] 경계 판단·사용자 결정 대기.
