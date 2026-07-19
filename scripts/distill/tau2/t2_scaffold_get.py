@@ -181,7 +181,6 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
             gk = tuple(str(r.get(k)) for k in gkeys)
             groups.setdefault(gk, []).append(r)
     out = {}
-    default_cache = {}    # 카드당 기본율 1회만(복합키로 카드가 여러 그룹에 나뉘어도 중복 호출 방지)
     for gk, grows in groups.items():
         gval = grows[0].get(doc_key)          # 문서 스코프 = 카드값(복합키의 doc_key 성분)
         docs = [x for x in all_docs if x["title"].startswith(str(gval) + ": ")]  # 결정론 제목접두(§2e)
@@ -253,62 +252,25 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
         #   엔진이 rate를 *생성*하는 것은 생성기(LLM) 몫 침범. Patagonia류 무근거 강등은 서브
         #   프롬프트(inject_instructions elevated-rate 지침)로 원천 수정. range-retry는 서브가 값을
         #   재생성하므로 유지(엔진은 검증·재질의 트리거만·rate 미생성).
-        n_cons = 0
-        # 카드 기본율(default) — 근거없는 0 백필용. 카드당 1회 formalize·캐시(값=LLM·엔진 하드코딩0).
-        if iso.get("base_default_prompt"):
-            if gval not in default_cache:
-                default_cache[gval] = _card_default(la, ag, iso, gval, docstr, UserMessage, kw)
-            default = default_cache[gval]
-        else:
-            default = None
-        kept = filled = 0
+        # ★default 백필 / 0-rate grounding 제거 (2026-07-19 사용자 지시·[[10]]/[[05]]):
+        #   "근거없는 0 → 엔진이 카드 기본율로 override"는 consensus와 같은 계열(엔진이 서브 답을
+        #   override 판단). 라이브 전수 트레이스서 filled=0·kept=0 = 완전 죽은 무게(은행 오류는
+        #   과다적립이지 0-과소가 아님). 미사용 메커니즘 삭제. 진짜 0-제외 재발 시 range-retry
+        #   패턴(서브 재질의)으로 확장. 엔진은 서브 operand를 그대로 병합만 한다(값 생성/override 0).
         for r in grows:
             tid = str(r.get(id_field))
             v = got.get(tid) or {}
-            try:
-                br = float(v.get(iso.get("rate_field", "base_rate")))
-            except Exception:
-                br = None
-            # ★grounding: base_rate=0 이면 exclusion_quote가 문서에 실재하나
-            if br == 0:
-                q = _norm_ground(v.get(iso.get("quote_field", "exclusion_quote")) or "")
-                grounded = len(q) >= int(iso.get("quote_min", 8)) and q in docnorm
-                if grounded:
-                    kept += 1                       # 진짜 예외 → 0 유지
-                elif default is not None:
-                    br = default                    # 근거없는 0 → 기본율 백필
-                    filled += 1
-            # ★서브 operand 전체를 rows에 병합(base_rate + promo 파라미터 등) — 엔진 op가 읽음.
-            #   quote는 grounding용이라 제외. base_rate는 grounding/백필 반영된 최종값(br)으로 덮음.
-            rate_f, quote_f = iso.get("rate_field", "base_rate"), iso.get("quote_field", "exclusion_quote")
-            merged = {k: val for k, val in v.items() if k != quote_f}
-            if br is not None:
-                merged[rate_f] = br
+            quote_f = iso.get("quote_field", "exclusion_quote")
+            merged = {k: val for k, val in v.items() if k != quote_f}  # quote는 grounding용→op엔 제외
             if merged:
-                r.update(merged)                       # ★엔진 op가 읽을 operand로 병합(promo 포함)
+                r.update(merged)                       # ★엔진 op가 읽을 operand로 병합(서브 산출 그대로)
                 out[tid] = merged
-        print("[T2_SG_ISOLATE] inject '%s': 문서 %d·거래 %d·operand %d·grounded유지 %d·백필 %d(default=%s)"
-              % (gval, len(docs), len(grows), len([x for x in ids if x in out]), kept, filled, default),
+        print("[T2_SG_ISOLATE] inject '%s': 문서 %d·거래 %d·operand %d·range_retry %d"
+              % (gval, len(docs), len(grows), len([x for x in ids if x in out]), n_retry),
               file=_sys.stderr, flush=True)
         _isolate_trace(iso, d, {"group": gval, "n_docs": len(docs), "n_rows": len(grows),
-                                "kept": kept, "filled": filled, "default": default,
-                                "range_retry": n_retry, "consensus": n_cons, "operands": got})
+                                "range_retry": n_retry, "operands": got})
     return out or None
-
-
-def _card_default(la, ag, iso, gval, docstr, UserMessage, kw):
-    """그룹(카드) 기본율(all-other-purchases rate)을 KB서 formalize. 값=LLM·엔진 하드코딩 0([[05]])."""
-    prompt = iso["base_default_prompt"].format(group=gval, docs=docstr)
-    try:
-        um = UserMessage(role="user", content=prompt)
-    except TypeError:
-        um = UserMessage(content=prompt)
-    try:
-        resp = la.generate(model=ag.llm, tools=None, messages=[um], call_name="sg_default", **kw)
-        j = _merge_json(getattr(resp, "content", None) or "", {"base_default"})
-        return float(j.get("base_default")) if j and j.get("base_default") is not None else None
-    except Exception:
-        return None
 
 
 def _isolate_trace(iso, d, record):

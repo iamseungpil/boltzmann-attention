@@ -48,12 +48,11 @@ SG._DOC_CACHE["banking_knowledge"] = DOCS
 
 # 가짜 서브 응답: 카드별로 다른 답. base_rate + exclusion_quote.
 RESP = {
-    # Silver: Travel=4 +promo2, Software 과엄격 0 (근거없음 → 백필돼야)
-    "Silver Rewards Card": '{"t_s1": {"base_rate": 4, "exclusion_quote": "", "promo_mult": 2, "promo_window_months": 6, "promo_start": "01/01/2025", "promo_end": "12/31/2025"}, "t_s2": {"base_rate": 0, "exclusion_quote": "", "promo_mult": 1}}',
-    # Business Silver: WeWork=0 (근거 있음 → 유지)
+    # Silver: Travel=4 +promo2, Software=1 (정상 base)
+    "Silver Rewards Card": '{"t_s1": {"base_rate": 4, "exclusion_quote": "", "promo_mult": 2, "promo_window_months": 6, "promo_start": "01/01/2025", "promo_end": "12/31/2025"}, "t_s2": {"base_rate": 1, "exclusion_quote": "", "promo_mult": 1}}',
+    # Business Silver: WeWork=0 (근거 있음·서브 산출 그대로 병합)
     "Business Silver Rewards Card": '{"t_b1": {"base_rate": 0, "exclusion_quote": "The following merchants earn 0% cash back: WeWork, Regus.", "promo_mult": 1}}',
 }
-DEFAULTS = {"Silver Rewards Card": '{"base_default": 1}', "Business Silver Rewards Card": '{"base_default": 1}'}
 CALLS = []
 
 
@@ -66,8 +65,6 @@ def fake_generate(model=None, tools=None, messages=None, call_name=None, **kw):
     CALLS.append(call_name)
     txt = messages[0].content
     card = "Business Silver Rewards Card" if "Business Silver" in txt else "Silver Rewards Card"
-    if call_name == "sg_default":
-        return _Resp(DEFAULTS[card])
     return _Resp(RESP[card])
 
 
@@ -80,7 +77,6 @@ ISO = {
     "inject_docs": True, "rate_field": "base_rate", "quote_field": "exclusion_quote", "quote_min": 8,
     "operand_schema": {"base_rate": "<n>", "exclusion_quote": "<s>"},
     "inject_instructions": "{group}\n{docs}\n{items}\n{schema}",
-    "base_default_prompt": "{group}\n{docs}",
 }
 
 
@@ -94,7 +90,6 @@ def main():
         {"transaction_id": "t_b1", "credit_card_type": "Business Silver Rewards Card", "category": "Other", "merchant_name": "WeWork", "amount": 380},
     ]
     ctx = {"transactions": rows}
-    ISO["base_default_prompt"] = ISO["base_default_prompt"]  # keep
     out = SG._sub_inject(orch, {"name": "get_reward_discrepancies"}, ISO, ctx, _la, UserMessage)
 
     ok = True
@@ -107,11 +102,11 @@ def main():
     print("① 그룹핑(카드×카테고리 복합키 서브 호출):")
     chk(CALLS.count("sg_inject") == 3,
         "복합키: Silver-Travel·Silver-Software·BizSilver-Other = sg_inject 3회 (부하축소)")
-    print("② operand 병합 + grounding:")
+    print("② operand 병합 (엔진=서브 산출 그대로·override/생성 0):")
     r = {x["transaction_id"]: x for x in rows}
-    chk(r["t_s1"].get("base_rate") == 4, "Silver Travel = 4 (정상)")
-    chk(r["t_s2"].get("base_rate") == 1, "Silver Software 과엄격0 → 기본율 1 백필 (근거없음)")
-    chk(r["t_b1"].get("base_rate") == 0, "WeWork = 0 유지 (근거 문서에 실재)")
+    chk(r["t_s1"].get("base_rate") == 4, "Silver Travel = 4 (서브 산출)")
+    chk(r["t_s2"].get("base_rate") == 1, "Silver Software = 1 (서브 산출·엔진 백필 없음)")
+    chk(r["t_b1"].get("base_rate") == 0, "WeWork = 0 (서브 산출 그대로·엔진 override 없음)")
     print("③ promo 파라미터 병합(엔진 op가 읽음):")
     chk(r["t_s1"].get("promo_mult") == 2 and r["t_s1"].get("promo_start") == "01/01/2025",
         "Silver Travel promo_mult=2·기간 병합됨")
