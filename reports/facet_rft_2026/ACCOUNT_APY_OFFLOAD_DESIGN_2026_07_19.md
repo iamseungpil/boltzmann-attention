@@ -15,6 +15,20 @@
   credit-card APY bonus 최고 1개·relationship/tier bonus는 스택. 즉 올바른 APY = base + max(checking_boosts)
   + max(card_bonuses) + Σ(스택형) — **조항-결합 비교 = LLM이 눈대중으로 지는 지점**(ratefix 이전의 rate 오독과 동형).
 
+## 0b. 설계 리뷰 반영 (2026-07-19 밤·사용자 리뷰 7건 — ①④ 필수 반영 완료·②③⑤⑥ 스펙 수정·⑦ 상설)
+①: 신규 op을 `apy_argmax`/`interest_delta`(도메인-리터럴 이름·엔진 컨벤션 첫 위반) → **범용 프리미티브 1개
+`group_reduce`** + 기존 op 합성으로 교체(§2). ②: `days` 파라미터 폐기 → `period_start/end` 복사+엔진 `days_between`.
+③: `base_apy_source` grounding 대칭 요구. ④: kind 오분류=grounding 사각 → 프로브 별도 축 + unknown-kind 명시
+플래그(silent drop 금지). ⑤: `constraints`=에코-전용으로 명시. ⑥: 무회귀 결론은 유료 대조런만(오프라인=참고).
+⑦: [[05]] 3질문 답 §1에 상설(이하)·**향후 모든 설계서에 3질문 섹션 상설**(두 연속 누락→[[07]] 논리로 관례 불가).
+
+### [[05]] 3질문 (상설 섹션)
+- **Q1 A2 순증? Yes** — GET 도구 2 + `stack_rules`. 정당화 = §4 측정 게이트. `stack_rules`는 KB 사실의 A2 복제본이므로
+  **§4-0 gold census가 복제 정합성 검증을 겸한다**(KB 조항 ↔ stack_rules 대조를 census 항목에 포함).
+- **Q2 유동성 동결? Yes — 의도적** — 조항-결합 산술 = concrete → [[10]]상 offload 정당. 근거 = 눈대중 패배 7미스 실측
+  (055/059/063/066/071/095) + fresh 097(8/18·계산층 사망).
+- **Q3 도메인 행동 수행? No** — 후보 발굴·조항 해석 = LLM(서브), 엔진은 선언된 combinator 산술만.
+
 ## 1. 분담 설계 (ratefix keystone 완전 동형 · [[05]]/[[10]]/[[03b]])
 ```
 LLM(격리 서브·INFER):  후보별 "APY 구성요소" formalize — base_apy · boost 후보(종류·값·출처 조항)
@@ -25,32 +39,50 @@ LLM(격리 서브·INFER):  후보별 "APY 구성요소" formalize — base_apy 
                         (provenance·reference_filter·WEV-류) — 본 설계는 값 *생산* 측만
 ```
 
-## 2. A2 스키마 (scaffold_get_tools 확장 — 엔진 신규 op 2개 외 전부 데이터)
+## 2. A2 스키마 (scaffold_get_tools 확장 — **엔진 신규 프리미티브 1개**·나머지 전부 데이터/기존 op 합성)
+
+### 2-0. 엔진 신규 프리미티브 `group_reduce` (리뷰① 반영 — 도메인-일반·합성 가능)
+```
+group_reduce(over=<list>, group_by=<field>, reducers={<group값>: "max1"|"sum", ...},
+             unknown_policy="flag", value_field=<field>) → scalar + {flags}
+```
+- 항목을 `group_by` 필드로 묶고, 그룹별 A2-선언 reducer(max1/sum) 적용 후 총합. 이름·상수 도메인 리터럴 0 —
+  기존 `argmax·diff·multiply·days_between·const`와 표현트리 문법으로 합성:
+  - **effective APY** = `base + group_reduce(boosts, by=kind, reducers=stack_rules)`
+  - **계좌-선택** = 기존 `argmax`(over=candidates, key=위 합성)
+  - **보정액** = `multiply(diff(effective, applied), principal, div(days_between(period_start, period_end), day_basis))`
+    — `day_basis`(365)도 A2 파라미터.
+- **unknown-kind 정책(리뷰④)**: `reducers`에 없는 kind 존재 시 **silent drop 금지** — 해당 boost 미합성 + 반환에
+  `[UNKNOWN-KIND: <k> — not composed; verify manually]` 플래그를 낸다([[03b]] 인접 회피).
 
 ### 2a. `get_best_account_option` (계좌-선택·055/066/071 + 최적화군 057/064~069 표적)
 ```json
 {"name": "get_best_account_option",
- "description": "USE THIS when the customer wants to choose/open the account (or account+card combo) that maximizes APY (or meets stated constraints). Pass the candidate options you found in the KB with their APY components; it applies Rho-Bank stacking rules deterministically and returns the best option with the effective APY.",
- "params": {"candidates": "JSON array: [{option: <account/card name>, base_apy: <number>, boosts: [{kind: 'checking'|'card'|'relationship'|'tier'|..., value: <number>, source: <doc quote>}...]}]",
-            "constraints": "JSON object of the user's hard constraints (deposit amount, disallowed types, required perks) — copy from the conversation, do not invent"},
- "return_template": "Best option by effective APY under stacking rules: {result}. Per-candidate effective APY: {details}",
- "op": {"op": "apy_argmax", "over": "candidates",
-        "stack_rules": {"checking": "max1", "card": "max1", "relationship": "sum", "tier": "sum"}},
- "isolate": { "…rate-formalize isolate 동형…": "후보별 격리 formalize — inject_docs=계좌/카드 문서군·row_fields
-   화이트리스트·max_batch(§2d cap)·quote-grounding은 boosts[].source에 원문 요구" }}
+ "description": "USE THIS when the customer wants to choose/open the account (or account+card combo) that maximizes APY. Pass the candidate options you found in the KB with their APY components; it applies the declared stacking rules deterministically and returns the best option with the effective APY.",
+ "params": {"candidates": "JSON array: [{option: <name>, base_apy: <number>, base_apy_source: <verbatim doc quote>, boosts: [{kind: 'checking'|'card'|'relationship'|'tier'|..., value: <number>, source: <verbatim doc quote>}...]}]",
+            "constraints": "ECHO-ONLY: the user's stated hard constraints, copied from the conversation. NOT applied by this tool — returned back so YOU verify them against the winner."},
+ "return_template": "Best option by effective APY under stacking rules, among {n} provided candidates: {result}. Per-candidate: {details}. Constraints (verify these yourself against the winner — this tool only compared APY): {constraints}",
+ "op": {"op": "argmax", "over": "candidates",
+        "key": {"op": "sum", "of": ["r.base_apy", {"op": "group_reduce", "over": "r.boosts", "group_by": "kind", "value_field": "value", "reducers": {"checking": "max1", "card": "max1", "relationship": "sum", "tier": "sum"}, "unknown_policy": "flag"}]}}}
 ```
-- **엔진 신규 op `apy_argmax`** (t2_compute): 종류별 max1/sum 합성 → effective APY → argmax + per-후보 상세.
-  스택 *규칙표는 A2 데이터*(`stack_rules`) — 엔진은 "max1"/"sum" 두 combinator만 안다(도메인 리터럴 0).
+- grounding(리뷰③): `base_apy_source`·`boosts[].source` **둘 다** 원문 인용 요구 — §2e `_norm_ground` 검증·탈락 시
+  해당 구성요소 드롭+플래그·전멸 시 폴백. `constraints`는 **에코-전용**(리뷰⑤) — 엔진 필터 아님을 반환문이 자백.
+- return_template의 "among {n} provided candidates"(리뷰-경미): 도구는 **비교만** 고친다 — 후보 발굴(L1) 누락에
+  과신을 입히지 않도록 반환문 자체가 경계를 드러냄.
 
 ### 2b. `get_interest_correction` (보정액·093~097 표적)
 ```json
 {"name": "get_interest_correction",
- "params": {"principal": "...", "days": "...", "correct_components": "위와 같은 components 스키마", "applied_apy": "실제 적용된 APY(조회값 복사)"},
- "op": {"op": "interest_delta", "uses_stack_rules": true},
- "return_template": "correct APY {apy_correct}% vs applied {apy_applied}% → interest difference over {days} days: {amount}"}
+ "params": {"principal": "<조회값 복사>", "period_start": "<조회값 복사(문자열)>", "period_end": "<조회값 복사>",
+            "correct_components": "2a와 같은 components 스키마(sources 포함)",
+            "applied_apy": "실제 적용된 APY — 계좌 조회 출력에서 복사"},
+ "op": {"compose": ["group_reduce(correct_components)→effective", "diff(effective, applied_apy)",
+                    "multiply(principal, days_between(period_start, period_end)/day_basis)"], "day_basis": 365},
+ "return_template": "correct APY {apy_correct}% vs applied {apy_applied}% → interest difference over {days} days (computed from the given period): {amount}"}
 ```
-- **엔진 신규 op `interest_delta`**: effective-APY(2a 재사용) − applied → 원금×Δ×days/365 (반올림 규칙 A2).
-  095의 3필드(expected_apy·actual_apy·amount_difference)를 직접 생산.
+- **`days` 파라미터 폐기(리뷰②)**: 일수 세기는 LLM 약점(095가 정확히 이 태스크) — `period_start/end` **문자열 복사**를
+  받아 엔진 `days_between`이 계산. `applied_apy`는 grounding 미요구 — **조회 출력에 실재하는 값의 복사이므로
+  기존 fab-provenance(ctx-실재 검사)가 커버하는 축**(위험 수용 근거 명시).
 
 ### 2c. 추천 합류 (엔진 변경 0)
 - `recommendation_verify`(T3서 research_tool 픽스됨)의 formalize 프롬프트가 **2a 반환을 근거로 인용**하도록
@@ -66,15 +98,21 @@ LLM(격리 서브·INFER):  후보별 "APY 구성요소" formalize — base_apy 
 | 026 gold버그 선례(벤치 자체 오류) | gold 검증 census를 대책 *前* 1회: D+G gold의 APY 값이 자기 정책과 일치하는지(§5-0) |
 
 ## 4. 측정 계획 (무료 먼저 · [[09]])
-0. **gold 자기일관 census**: D+G gold 인자(APY·account_class)를 KB 정책으로 재유도 — 벤치버그 분리.
+0. **gold 자기일관 census**: D+G gold 인자(APY·account_class)를 KB 정책으로 재유도 — 벤치버그 분리 +
+   **stack_rules ↔ KB 조항 정합성 검증 겸임**(§0b Q1).
 1. **formalize 프로브**(GPU0·rate-프로브 동형·`bank_apy_formalize_probe.py`): 055/066/071/095의 실제 후보·계좌로
-   서브가 components를 정확히 내는지 — 셀별 정답률·grounding 탈락률. 기준: ratefix 선례(카테고리 격리서 오독 0)와 동급.
-2. **엔진 op 단위테스트**: stack_rules 조합·argmax·interest_delta (gold 값 재현 — 095의 98.0 등).
+   — 축 3개: ①값 정답률 ②grounding 탈락률 ③**kind 분류 정확도(리뷰④ — grounding이 못 잡는 판단 지점·별도 축)**.
+   기준: ratefix 선례(카테고리 격리서 오독 0)와 동급.
+2. **엔진 단위테스트**: `group_reduce`(max1/sum·unknown-flag) + 합성식이 gold 값 재현(095의 6.85/5.625/98.0 등).
 3. **유료 스모크(승인 후)**: L2-실패 대표 2태스크(095·066) 단일변수(`T2_SG_EXCLUDE`로 도구 유/무 대조).
-4. Δspurious: 새 도구 주입 arm에서 기존 PASS 계열(018~029) 무회귀 확인은 프로브·오프라인 재생으로.
+4. **무회귀(리뷰⑥ 정정)**: 도구 주입=프롬프트 분포 변화라 **오프라인 재생으로는 원리적으로 결론 불가**
+   (기록 궤적은 무도구 프롬프트에 조건화·§2m cue overload가 이 설계 자신의 부작용 채널 — 도구 설명 2개=cue 추가).
+   오프라인=참고만·**결론은 §4-3의 T2_SG_EXCLUDE 유/무 유료 대조런**. 기존 PASS 계열(018~029) 대표 1-2태스크를
+   대조런 scope에 포함.
 
 ## 5. 구현 단계
-- P0: `t2_compute`에 `apy_argmax`·`interest_delta` op + 단위테스트(§4-2) — 엔진 일반 combinator.
+- P0: `t2_compute`에 **`group_reduce` 프리미티브 1개**(도메인-일반·unknown-flag 포함) + 단위테스트(§4-2).
+  2a/2b는 기존 op(argmax·sum·diff·multiply·days_between)과의 표현트리 합성 — 신규 op 추가분은 이 1개뿐(리뷰①).
 - P1: A2 2a/2b 선언 + isolate 스펙(카드 격리 선례 복제) + §4-0/4-1 프로브.
 - P2: §4-3 스모크 → D+G 확대. (L1은 T3/batch_a2 결과에 따라 별도 트랙.)
 
