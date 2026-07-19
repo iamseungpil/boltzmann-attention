@@ -66,6 +66,19 @@ def _add_months(d, m):
     return d.replace(year=y, month=mo, day=min(d.day, monthrange(y, mo)[1]))
 
 
+def _month_window_index(anchor, target):
+    """★023 리베이트: target(posting date)이 anchor(개설일) 기준 몇 번째 월별-윈도우(0-based)인가.
+    윈도우 = [anchor+k월, anchor+(k+1)월). 달력 산술만(도메인일반·KB의 '월별 anniversary 윈도우' 규칙).
+    범위 밖(target<anchor)=None. cardmember year=0..11만 유효(호출측이 필터)."""
+    da, dt = _parse_date(anchor), _parse_date(target)
+    if da is None or dt is None or dt < da:
+        return None
+    k = (dt.year - da.year) * 12 + (dt.month - da.month)
+    if _add_months(da, k) > dt:      # 일(day) 보정: anniversary일 이전이면 한 윈도우 앞
+        k -= 1
+    return k
+
+
 def _date_in_window(anchor, target, months):
     """target ∈ [anchor, anchor+months] ? (결정론·`C113` rate 만료판정). 날짜파싱 실패=False."""
     da, dt = _parse_date(anchor), _parse_date(target)
@@ -115,6 +128,26 @@ def apply_op(spec, ctx):
             vals = [_num(apply_op(r, ctx)) if isinstance(r, dict) and r.get("op")
                     else _num(_get(ctx, r)) for r in (spec.get("of") or [])]
             return sum(v for v in vals if v is not None)
+        if op == "bucket_month_window":
+            # ★023: 거래에 월별-윈도우 인덱스 태그(개설일 기준). group_reduce가 이 필드로 group_by.
+            #   달력 산술=엔진(LLM 날짜계산 약점 회피·095). anchor=개설일·date_field=posting date·
+            #   out_field=태그명·within_year=True면 0..11만(카드멤버 연도). 반환=태그된 record list.
+            recs = _get(ctx, spec.get("over"))
+            if not isinstance(recs, list):
+                return None
+            anchor = _get(ctx, spec.get("anchor"))
+            df = spec.get("date_field", "date")
+            of = spec.get("out_field", "window")
+            within = spec.get("within_year", True)
+            out = []
+            for r in recs:
+                if not isinstance(r, dict):
+                    continue
+                k = _month_window_index(anchor, r.get(df))
+                if k is None or (within and not (0 <= k <= 11)):
+                    continue
+                out.append(dict(r, **{of: k}))
+            return out
         if op == "group_reduce":
             # ★도메인-일반 프리미티브 (ACCOUNT_APY_OFFLOAD §2-0·리뷰① — apy_argmax/interest_delta를
             #   1개로 대체). 항목을 group_by로 묶고, 그룹별 A2-선언 reducer(max1|sum) 적용 후 총합.
@@ -127,6 +160,11 @@ def apply_op(spec, ctx):
             gkey = spec.get("group_by"); vfield = spec.get("value_field")
             reducers = spec.get("reducers") or {}
             unknown_policy = spec.get("unknown_policy", "flag")
+            # ★across (2026-07-20·023 리베이트): 그룹별 reduce값을 그룹-간 어떻게 합치나.
+            #   "sum"(기본·APY 스택=base+Σ그룹) · "min"/"max"(023="모든 월≥임계"→월별합의 min).
+            #   default_reducer = reducers에 없는 그룹의 기본 처리("sum"이면 자동합·미지정이면 flag).
+            across = spec.get("across", "sum")
+            default_reducer = spec.get("default_reducer")
             groups = {}
             for it in items:
                 if not isinstance(it, dict):
@@ -136,18 +174,24 @@ def apply_op(spec, ctx):
                 if v is None:
                     continue
                 groups.setdefault(g, []).append(v)
-            total = 0.0
             flags = ctx.setdefault("_gr_flags", []) if isinstance(ctx, dict) else []
+            reduced = []
             for g, vs in groups.items():
-                red = reducers.get(g)
+                red = reducers.get(g, default_reducer)
                 if red == "max1":
-                    total += max(vs)
+                    reduced.append(max(vs))
                 elif red == "sum":
-                    total += sum(vs)
+                    reduced.append(sum(vs))
                 else:                                   # unknown group — 미합성 + 플래그
                     if unknown_policy == "flag":
                         flags.append(g)
-            return total
+            if not reduced:
+                return None if across in ("min", "max") else 0.0
+            if across == "min":
+                return min(reduced)
+            if across == "max":
+                return max(reduced)
+            return sum(reduced)
         if op == "diff":
             _a, _b = spec.get("a"), spec.get("b")       # a/b = ref 경로 or nested op-스펙(multiply 동형)
             a = _num(apply_op(_a, ctx)) if isinstance(_a, dict) and _a.get("op") else _num(_get(ctx, _a))

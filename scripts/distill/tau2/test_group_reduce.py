@@ -96,3 +96,34 @@ if __name__ == "__main__":
     t_interest_delta_composition()
     t_empty_and_missing()
     print("ALL PASS")
+
+
+def t_across_min_023():
+    # 023: 월별윈도우 합의 min ≥ threshold (개설 2024-11-15, 3거래/월 예시)
+    txns=[
+        {"date":"2024-11-20","amount":5000},{"date":"2024-12-01","amount":3000},  # win0: 8000
+        {"date":"2024-12-20","amount":4000},{"date":"2025-01-05","amount":4000},  # win1: 8000
+        {"date":"2025-01-20","amount":3000},{"date":"2025-02-01","amount":3000},  # win2: 6000 (<7500!)
+    ]
+    bucketed=apply_op({"op":"bucket_month_window","over":"txns","anchor":"open",
+                       "date_field":"date","out_field":"win"},{"txns":txns,"open":"2024-11-15"})
+    # min over windows
+    mn=apply_op({"op":"group_reduce","over":"b","group_by":"win","value_field":"amount",
+                 "default_reducer":"sum","across":"min"},{"b":bucketed})
+    assert mn==6000.0, mn                 # win2 미달 → min=6000
+    print("t_across_min_023 OK min_monthly=%.0f (qualifies=%s)"%(mn, mn>=7500))
+    # 모든 월 충족 케이스
+    txns2=[{"date":"2024-11-20","amount":8000},{"date":"2024-12-20","amount":9000},{"date":"2025-01-20","amount":7500}]
+    b2=apply_op({"op":"bucket_month_window","over":"t","anchor":"o","date_field":"date","out_field":"win"},{"t":txns2,"o":"2024-11-15"})
+    mn2=apply_op({"op":"group_reduce","over":"b","group_by":"win","value_field":"amount","default_reducer":"sum","across":"min"},{"b":b2})
+    assert mn2==7500.0 and mn2>=7500, mn2
+    print("t_across_min_023 qualify-case OK min=%.0f qualifies=%s"%(mn2,mn2>=7500))
+
+
+def t_dg_sum_unchanged():
+    # D+G APY: across 미지정=sum 유지(회귀 없음)
+    ctx={"boosts":[{"kind":"checking","value":0.75},{"kind":"card","value":0.5},{"kind":"relationship","value":0.1}]}
+    r=apply_op({"op":"group_reduce","over":"boosts","group_by":"kind","value_field":"value",
+                "reducers":{"checking":"max1","card":"max1","relationship":"sum"}},ctx)
+    assert abs(r-1.35)<1e-9, r
+    print("t_dg_sum_unchanged OK", r)
