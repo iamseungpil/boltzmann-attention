@@ -584,3 +584,15 @@ WeWork(KB 명시 0%)를 1%로 봄 ⇒ **false positive 1건** ⇒ r=0. **rate �
   (tools.py:521 `arguments: str = "{}"`) — 모델이 optional을 채우면 evaluator(예측 키집합 비교)가 gold(미포함)와 불일치.
   T2_ARG_SCHEMA는 0회 발화(잉여 키 아님)·**단, give False는 reward에 무영향**(027/028이 give False로도 1.0 = reward 기저가 generic 제외).
 - 남은 결정: 026의 1500 — A2 표기규칙 "floor·단 소수부≥0.9는 올림"(모집단 10/10 적합) 채택 여부 = [[03b]] 경계 판단·사용자 결정 대기.
+
+### (7) ★★★task_026 gold 버그 확정 + 표기규칙 철회 (2026-07-19·사용자 지시)
+- **KB `doc_credit_cards_credit_cards_(general)_007` "Rewards Points Rounding Policy" 발견** [S]:
+  "always truncates (floors) … $99.99 at 2.5% = 249.975 → awards **249**" — **전 카드·전 카테고리 무예외 버림** 명문.
+- ⇒ **task_026 gold "1500 points"(149.99×10=1499.9)는 벤치 자체 문서화 정책 위반 = gold 저작 버그** [S].
+  3중 근거: doc_007 명문 + update gold 전수 census 9/10 floor(§2i(6)) + 유일 예외 1건.
+  정책상 정답 = 1499 = 우리 floor 표기. **026 미통과의 유일 잔여 원인 = 이 gold 버그.**
+- `display_round_up_frac=0.9` 안(§2i(6))은 **gold-fitting이라 철회**(사용자 지시·[[03b]]). A2=floor 복원.
+  redesign5(`bank_redesign5_20260719`·0.9 규칙 상태로 launch됨)는 **tainted 검증런**으로만 기록 —
+  1.0이 나오면 "값 경로 작동 + 잔여 blocker=gold 버그" 증명용, 공식 수치로 인용 금지.
+- 처리: 026 = "벤치 gold 버그로 미통과" 각주·tau2-bench 업스트림 이슈 보고 후보.
+- **계열 상태: 020·027·028 = PASS(3/4) · 026 = gold-버그 블록(정책상 우리가 옳음).**
