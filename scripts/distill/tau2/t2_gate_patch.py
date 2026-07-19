@@ -3007,6 +3007,30 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
                               file=_sys.stderr, flush=True)
                     break
+            # ★follow_up_chains (2026-07-20 Q1 coverage·050형 "submit 후 절차 미완 만족종료"):
+            #   scaffold follow_up의 **디스패처 확장** — after/requires를 effective 도구명(_eff_tool_name·
+            #   call_ unwrap·suffix strip)으로 대조. A2 선언(도구쌍·문구)·엔진=집합 대조만(리터럴 0).
+            #   requires는 무조건-필수 단계만(예: CLI 적격성 체크 — approve는 decline 정답 케이스가 있어
+            #   금지·Δspurious 방지). 같은 사임-임계·1/sim cap 공유.
+            if not getattr(self, "_t2_followup", 0):
+                _eff0 = {_eff_tool_name(tc) for m in state.messages
+                         for tc in (getattr(m, "tool_calls", None) or [])}
+                for _fc in ((a2 or {}).get("follow_up_chains") or []):
+                    if (_fc.get("after") in _eff0 and _fc.get("requires") not in _eff0
+                            and _fc.get("feedback")):
+                        _th = int(os.environ.get("T2_FOLLOWUP_RESIGN_TH", "2") or 2)
+                        self._t2_fu_resigns = getattr(self, "_t2_fu_resigns", 0) + 1
+                        if self._t2_fu_resigns < _th:
+                            break
+                        self._t2_followup = getattr(self, "_t2_followup", 0) + 1
+                        print("[T2_FOLLOWUP] chain fired after=%s missing=%s"
+                              % (_fc.get("after"), _fc.get("requires")), file=_sys.stderr, flush=True)
+                        _new1 = _ap_regen(_fc["feedback"], "followup_chain",
+                                          tool_choice=("required"
+                                                       if os.environ.get("T2_FOLLOWUP_FORCE") == "1" else None))
+                        if _new1 is not None:
+                            am = _new1
+                        break
         # (a1) write-provenance — **완료-주장 게이트**(③형·2026-07-17 사용자 제안: "출력도 출처를 밝혀라").
         #   C45(입력 출처선언)의 출력측 쌍대: 완료를 주장하려면 근거 이벤트가 원장에 있어야 한다.
         #   ③형의 급소 = pass("당신이 실행하라")와 fail("내가 제출했다")이 **구조 동일·말만 다름** →
