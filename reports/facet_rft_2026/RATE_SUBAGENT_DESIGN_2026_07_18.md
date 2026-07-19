@@ -648,3 +648,39 @@ WeWork(KB 명시 0%)를 1%로 봄 ⇒ **false positive 1건** ⇒ r=0. **rate �
   'target'∈인용=survive·무관 상인('Reformation') 토큰불일치=미앵커(승격 유지). 오프라인 4/4 통과. live+probe 공용(단일소스·[[03b]]).
 - **프로브 하네스 결함도 수정**: 구 전역 (card×category) 병합 → **user_id 포함 그룹핑**(라이브=한 사용자 거래만·[[30]]).
   구 23행 EcoGreen 병합셀은 비대표(실 셀=Fatima6·Dmitri4·Isabella13). **v4 재런 중**(수정 검증).
+
+## 2k. ★★게이트 전면 감사 — "엔진이 도메인 값을 생성/override하는가" 렌즈 (2026-07-19·사용자 지시)
+
+렌즈: [[10]] — 생성(값 만들기)=LLM 몫·검증/선택/트리거=엔진 몫. 각 활성 메커니즘이 **답에 들어갈 도메인 값(rate·금액·id·이름)을 엔진이 쓰는가**로 분류.
+
+### 활성(redesign 플래그) — 분류 [S]
+| 메커니즘 | 하는 일 | 값 생성? | 판정 |
+|---|---|---|---|
+| SCAFFOLD_GET/SG_ISOLATE | 서브가 rate formalize·엔진 병합 | 아니오(서브 산출 그대로) | ✓ (consensus·default백필 제거 후) |
+| range-retry | 범위위반→서브 재질의 | 아니오(서브 재생성) | ✓ |
+| COMPUTE(select_discrepant) | amount×rate×promo 산술·discrepant 선별 | 계산은 엔진 몫·leaf=서브 | ✓ |
+| {details} | 엔진 계산 expected 노출 | 자기 계산 노출 | ✓ |
+| TOOLGATE | placeholder/예시값 인자 deny | 아니오(deny) | ✓ |
+| FOLLOWUP_REQUIRED | producer 후 give 안하면 deny+재질의 | 아니오(deny·문구) | ✓ |
+| WRITE_PROV | 미실행 완료-주장 deny | 아니오(deny) | ✓ |
+| ARG_SCHEMA | 스키마밖 인자 deny+재질의 | 아니오(deny) | ✓ |
+| RESOLVE(resolver_directive) | producer/필드 지목 문구 | 아니오(문구만·값 안 읽음) | ✓ (banking=specs 부재→항상 None) |
+| FAB_STRIP | 날조값 제거 | 아니오(제거) | ✓ |
+| SG_TRUTH | **우리 도구명** 인자 호출에 사실응답 | 자기 도구명만(도메인값 아님) | ✓ |
+| EPLAN | discovery-required 트리거 | 아니오(트리거) | ✓ |
+| **GROUND(단일후보 치환)** | 날조 인자를 **문맥의 유일 실재값**으로 치환 | **문맥-출처 값 씀**(발명 아님·단일후보=결정론 선택) | ▲ 경계-방어가능 |
+
+### 경계선 상세 — GROUND 치환 ▲
+- 모델이 **날조한**(문맥에 없는) 인자값을, 문맥에 그란딩되는 **후보가 정확히 1개**일 때 그 값으로 치환.
+- consensus/default백필과 **다른 계열**: 값을 엔진이 발명(modal)하거나 override 판단하는 게 아니라, **문맥에 이미 존재하는
+  유일한 실재값을 선택**(선택기 역할=[[10]] 엔진 몫)·날조에만 발화. → **방어 가능**.
+- 다만 "엔진이 모델 출력을 편집"하는 최약 형태이긴 함. 더 엄격하려면 항상-regen(모델이 재선택). 현행=단일후보만 치환·복수후보=regen.
+
+### 비활성 + banking A2 데이터 부재 = 이중 차단 (값-쓰기 계열) [S]
+- **AUTOFETCH**(과거 위반 이력·[[05]] memory)·**CALC**([COMPUTED FACTS] 주입)·**PRINCIPLE_DEFAULT**(원리-디폴트 silent 치환)·
+  **PRESENT**(nested choice 주입): redesign 플래그 **미설정** AND banking A2에 `default_specs/calc_specs/present_specs/principle_defaults`
+  **전부 부재** → 은행 거동 영향 0. 코드에 존재하나 은행에선 이중으로 꺼짐. (타 도메인 재활성 시 이 렌즈로 재감사 필수.)
+
+### ⇒ 감사 결론
+**활성 스택서 엔진이 도메인 값을 생성/override하는 메커니즘 = 없음**(consensus·default백필 제거로 종결). GROUND 단일후보 치환만
+경계선이나 문맥-출처 선택이라 방어 가능. 값-쓰기 계열(autofetch/calc/principle-default)은 은행서 이중 차단.
