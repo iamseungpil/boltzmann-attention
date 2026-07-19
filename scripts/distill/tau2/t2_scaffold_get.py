@@ -67,17 +67,6 @@ def _norm_ground(s):
     return re.sub(r"[^a-z0-9%]+", " ", str(s).lower()).strip()
 
 
-def _quote_anchored(merchant, category, quote_norm, min_tok=4):
-    """인용이 *이 행*에 관련됨을 검증(consensus/grounding 공용·엔진 결정론·도메인 리터럴 0).
-    ★양방향 토큰 매칭: 상인명/카테고리의 유의미 토큰(len>=min_tok) 하나라도 인용에 있으면 앵커.
-    구 `merchant_norm in quote`는 접미사 상인명("Target - Eco Collection" vs 인용 "Target")서
-    정당 제외를 놓쳐 consensus가 오승격(2026-07-19 task_022 Target 회귀). 토큰이면 'target'∈인용=survive,
-    무관 상인('Reformation')은 토큰 불일치=미앵커. 값/인용/토큰 전부 데이터·서브 산출."""
-    toks = [t for t in _norm_ground(merchant).split() if len(t) >= min_tok]
-    toks += [t for t in _norm_ground(category).split() if len(t) >= min_tok]
-    return any(t in quote_norm for t in toks)
-
-
 import re  # noqa: E402  (grounding 정규화용)
 
 
@@ -260,38 +249,11 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
                 rv = _rv(i)
                 if rv is not None and not (lo_r <= rv <= hi_r):
                     (got.get(i) or {}).pop(rate_f, None)
-        # ★셀-consensus 강등 가드 (A2 `consensus_demote_guard`=true·프로브 cons1=Patagonia 1→5).
-        #   같은 (card×category) 셀은 같은 정책이 적용된다 — 소수 강등(0<rate<다수값)은 그 행의
-        #   merchant/category가 담긴 인용이 문서에 실재할 때만 인정, 아니면 다수값으로 백필.
-        #   다수값·인용·앵커 전부 데이터/서브 산출(엔진 리터럴 0). 0-rate는 기존 quote-grounding 경로 유지.
+        # ★consensus_demote_guard(엔진이 셀 modal을 rate로 씀) 제거 (2026-07-19 사용자 지시·[[10]]):
+        #   엔진이 rate를 *생성*하는 것은 생성기(LLM) 몫 침범. Patagonia류 무근거 강등은 서브
+        #   프롬프트(inject_instructions elevated-rate 지침)로 원천 수정. range-retry는 서브가 값을
+        #   재생성하므로 유지(엔진은 검증·재질의 트리거만·rate 미생성).
         n_cons = 0
-        if iso.get("consensus_demote_guard") and got:
-            from collections import Counter as _Counter
-            q_f = iso.get("quote_field", "exclusion_quote")
-
-            def _rv2(i):
-                try:
-                    return float((got.get(i) or {}).get(rate_f))
-                except Exception:
-                    return None
-            _rates = [_rv2(i) for i in ids if _rv2(i) is not None]
-            if len(_rates) >= 3:
-                _modal, _cnt = _Counter(_rates).most_common(1)[0]
-                if _cnt * 2 > len(_rates):
-                    _byid = {str(r.get(id_field)): r for r in grows}
-                    for i in ids:
-                        rv = _rv2(i)
-                        if rv is None or not (0 < rv < _modal):
-                            continue
-                        q = _norm_ground((got.get(i) or {}).get(q_f) or "")
-                        anch = _quote_anchored(_byid[i].get("merchant_name", ""),
-                                               _byid[i].get("category", ""), q)
-                        if not (len(q) >= int(iso.get("quote_min", 8)) and q in docnorm and anch):
-                            got.setdefault(i, {})[rate_f] = _modal
-                            n_cons += 1
-            if n_cons:
-                print("[T2_SG_ISOLATE] consensus '%s': 무근거 강등 %d행 → 다수값 백필"
-                      % (gval, n_cons), file=_sys.stderr, flush=True)
         # 카드 기본율(default) — 근거없는 0 백필용. 카드당 1회 formalize·캐시(값=LLM·엔진 하드코딩0).
         if iso.get("base_default_prompt"):
             if gval not in default_cache:

@@ -150,12 +150,11 @@ def _rate_of(v):
 
 
 def apply_fix(base, model, iso, gval, grows, docs, temp, out, lo, hi, docnorm):
-    """엔진 포팅 예정 메커니즘의 프로브 시뮬:
-    (1) 범위위반 행 → 그룹 1회 재질의(피드백 포함) → 위반행만 갱신
-    (2) 셀 다수값 미만 강등(소수)인데 merchant/category-anchored 인용 실재 없음 → 다수값 백필.
-    도메인 리터럴 0(범위=A2 선언 시뮬·다수값/인용=데이터)."""
+    """라이브 _sub_inject 수정 경로 시뮬 (2026-07-19 consensus 제거·[[10]]):
+    범위위반 행 → 그룹 1회 재질의(피드백) → 위반행만 갱신. **엔진은 값을 생성하지 않는다**
+    (서브가 재생성). Patagonia류 무근거 강등은 서브 프롬프트(elevated-rate)로 원천 수정."""
     ids = [str(r.get(iso["id_field"])) for r in grows]
-    n_retry = n_cons = 0
+    n_retry = 0
     bad = [i for i in ids if not (_rate_of(out.get(i) or {}) is not None and lo <= _rate_of(out.get(i) or {}) <= hi)]
     if bad:
         extra = RETRY_FEEDBACK.format(ids=", ".join(bad), lo=lo, hi=hi)
@@ -168,25 +167,7 @@ def apply_fix(base, model, iso, gval, grows, docs, temp, out, lo, hi, docnorm):
             if v2 is not None and _rate_of(v2) is not None and lo <= _rate_of(v2) <= hi:
                 out[i] = v2
                 n_retry += 1
-    # (2) 셀 다수값 consensus 가드
-    from collections import Counter
-    valid = [(_rate_of(out.get(i) or {}), i) for i in ids]
-    rates = [r for r, _ in valid if r is not None and lo <= r <= hi]
-    if len(rates) >= 3:
-        modal, cnt = Counter(rates).most_common(1)[0]
-        if cnt * 2 > len(rates):                      # 절대다수만
-            byid = {str(r.get(iso["id_field"])): r for r in grows}
-            for rt, i in valid:
-                if rt is None or rt >= modal:
-                    continue
-                q = SG._norm_ground((out.get(i) or {}).get(iso.get("quote_field", "exclusion_quote")) or "")
-                anch = SG._quote_anchored(byid[i].get("merchant_name", ""),
-                                          byid[i].get("category", ""), q)
-                grounded = len(q) >= int(iso.get("quote_min", 8)) and q in docnorm and anch
-                if not grounded:
-                    out.setdefault(i, {})["base_rate"] = modal
-                    n_cons += 1
-    return out, n_retry, n_cons
+    return out, n_retry, 0
 
 
 def main():
