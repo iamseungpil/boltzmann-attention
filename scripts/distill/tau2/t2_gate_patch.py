@@ -2226,6 +2226,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         rescue_skipped = set()
         rescue_excl = set()   # ★PERARG(C65): (id(tc),k,s) — rescue-스킵된 fab 제외하고 재스캔
         while True:
+            force_required = False   # ★T2_FORCE_ACTION: say-don't-do → 다음 재생성서 tool_choice=required 강제
             fab = _first_fab_call(am, ctx, hints, exclude=rescue_excl)
             # ★T5-C P-A (N1: _denied_calls 前 — 게이트 check는 상태-변이라 버려질 반복서 소진 금지)
             if fab is not None and ground and subs < 8:
@@ -2514,6 +2515,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             if _ar.get("status") == "deny":
                                 rw_fb = ((am.tool_calls or [None])[0], _ar["feedback"])
                                 self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
+                                # ★T2_FORCE_ACTION (2026-07-20·사용자 통찰 "say한 tool do하면 됨"): say-don't-do
+                                #   (모델이 실행 의도를 텍스트로만 말하고 호출 0) = 재생성서 tool_choice=required 강제.
+                                #   의도는 이미 모델 안에 있으니 산문→호출로 뒤집힘. required=vLLM 구조화디코딩(봉투드롭 불가).
+                                #   ★[[10]] 정합: 어느 도구·인자는 모델 몫(강제 안 함)·디코딩 제약만. cap=action_deny 승계·
+                                #   provenance/게이트가 다음 라운드서 backstop(날조 인자 차단). 기본 OFF.
+                                if os.environ.get("T2_FORCE_ACTION") == "1" and not (am.tool_calls or []):
+                                    force_required = True
+                                    print("[T2_FORCE_ACTION] say-don't-do → tool_choice=required 재생성",
+                                          file=_sys.stderr, flush=True)
                                 print("[T2_RESOLVE] action-required reason=%s target=%s"
                                       % (_ar.get("reason"), _tgt), file=_sys.stderr, flush=True)
                     # ★Lever 3 verify-persistence (task_023형·신원수집+검증미완+포기): action-required가
@@ -2630,7 +2640,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except TypeError:
                     fb.append(UserMessage(content=rw_fb[1]))
             work = work + fb
-            am = _gen(self, work, bw(), "agent_response_unified_regen")
+            am = _gen(self, work, bw(), "agent_response_unified_regen",
+                      tool_choice="required" if force_required else None)
 
         # R8 종단: 잔존 게이트-deny 호출 strip (재과금 없음·히스토리 replay-clean)
         if gate is not None:
