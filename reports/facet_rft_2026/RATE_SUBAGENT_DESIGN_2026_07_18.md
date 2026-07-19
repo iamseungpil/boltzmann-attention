@@ -765,3 +765,30 @@ WeWork(KB 명시 0%)를 1%로 봄 ⇒ **false positive 1건** ⇒ r=0. **rate �
 ⑤ **축퇴-엔트로피(Boltzmann) 모델**: log-linear(UF)·primacy-창·유사성-게이팅·causal 비대칭을 한 식(ΔF=ΔE−T·log g)으로 통합 — P3/P4로 반증가능.
 ⑥ 합성 아닌 **실제 tool-use 파이프라인의 태스크 pass/fail 결과**로 연결(τ²-bench).
 ⇒ **포지셔닝**: "현상 발견" 논문이 아니라 **"간섭의 단위(조항)와 기전(축퇴 희석)을 확정하고 구조적 완화를 도출"**한 논문으로. 관련연구에 1~5 전부 인용·양보.
+
+### §2n (2026-07-19 저녁) — redesign7b 판정 [S] + WEV 배선버그 확정·수정 + 7c 재런
+**7b 스코어(022/028/029·YaRN 40960·T2_WRITE_EVIDENCE=1): 0/3.** 로그·results = `sim_results/bank_redesign7b_20260719.*` [S].
+- **028 = 0.0 (user_stop)**: 값·update 전부 정확(agent-측 action 028_8~14 모두 match=True·{details} 6/6) —
+  실패는 단 하나, **Phase 1 생략**: `give_discoverable_user_tool`(028_1) 미호출 → 사용자 dispute 6건(028_2~7) 미제출 →
+  dispute 레코드 부재로 db_check=false. 흐름: 조기 unlock→update 직행.
+- **029 = 0.0 (user_stop)**: 이번엔 **전 흐름 수행**(give→user dispute 6건 제출→unlock→update 6건). 그러나 029 gold=
+  **dispute 제출까지만**(auto_resolve=false·8 actions·update 없음) — "사용자가 Phase 2에서 resolved 거짓말→에이전트는
+  SUBMITTED 확인하고 update 거절"이 정답. update 6건 = 과잉-write → DB 오염. (give match=False는 기지 quirk
+  (optional arguments 채움)·reward 무영향 — §3 각주.)
+- **022 = infra (ContextWindowExceeded 재발)**: 41038 > 40960 (78 토큰 초과·n_msgs 0 기록).
+**★WEV deny 0회의 근본원인 [S] — 배선버그**: 드라이버 env = T2_GATE_REGEN=1 ∧ T2_GROUND=1 → t2_run_gated가
+`apply_unified_regen`(통합패치)로 라우팅·`apply()`는 미호출. `_write_evidence_deny`는 **apply() 경로에만** 배선돼
+unified 런에서 死코드. "오프라인 4/4·라이브 0회" 완전 설명. (같은 함정 재발 방지: 새 레버는 *라이브 배선 경로*(unified)에
+넣고 스모크에서 발화 확인 — calc 31/342 미발화 사고와 동형.)
+**수정 (commit a7acf252)**: 코어를 `_wev_deny_msgs(messages,tc,specs)`로 분리(구 경로=어댑터 유지)·unified 체인에
+ep/cons/ra/te 동렬로 삽입(silent-repair 뒤=교정된 최종 인자 검사·무과금·turn당 1·sim당 T2_WEV_CAP=8·E-PLAN cap 선례).
+[[05]] 감사: 엔진=공존확인만·spec/문구=A2·값 생성 0.
+**오프라인 검증 4/4 [S]** (기록 궤적 재생·`/tmp/r7b_verify.sh`): ①029-재생(SUBMITTED만) update→DENY ②028-조기(무 dispute)
+update→DENY ③028-양성(auto_resolve 제출출력 = Arguments{txn}+`Status: RESOLVED` 공존) update→ALLOW ④타-txn→DENY.
+env 구현 확인: submit_cash_back_dispute_0589가 auto_resolve=true면 출력에 RESOLVED 포함(tools.py:4137) = 028 정당-update
+증거원 실재. ⇒ **WEV 수정이 028(조기-update 차단→dispute 경로 유도)·029(과잉-update 차단) 양쪽의 기전 레버** — 단
+028 PASS는 에이전트가 deny 피드백에서 give-tool 경로로 넘어가야 성립(라이브 궤적으로만 증명·[[03b]]).
+**서버**: :8141 YaRN 49152 시도→KV 10.97GiB 부족(최대 44912)→**44672(factor 1.375) 재기동·실추론 OK**(`serve_8141_yarn44k.sh`).
+022 여유 +3712 토큰(초과분 78 대비 충분 추정·pass^1 변동성 유의).
+**7c 재런 launch**: `run_redesign7c_20260719.sh`(=7b sed 변형·distinct tag·자동 persist) 022/028/029·현재 진행 중.
+판정 시 [[08]]: WEV 발화 수·발화 지점(조기 vs 거짓말)·피드백 후 행동 전환 여부 전수 확인.
