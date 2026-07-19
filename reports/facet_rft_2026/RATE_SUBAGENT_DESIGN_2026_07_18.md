@@ -906,3 +906,19 @@ P0=_sub_wrap+A2 policy_qa+오프라인 4/4·[05] 정직: A2 순증→측정 게�
 - ⇒ **getter 수정 = 부분 유효**(043/050/054 진입 실증·특히 054). 잔여 2벽: ①발견 미진입(031/038=say-don't-do·
   soft-천장) ②진입 후 coverage/calc(043/050/054). 다음 레버 = ①엔=FIND controller 강화(말-실행 괴리 차단) or learn
   ②=eplan coverage + calc-offload(023형 자격판정 포함).
+
+### §2v (2026-07-20) — A2 배선: 023 완결 + calc-offload 엔진 확장 + FORCE_ACTION 검증 + tau2 patch
+**023 calc-offload A2 완전 배선 [S]** (check_rebate_qualification·엔진+도구+테스트):
+- KB census[S]: 임계 환각 아님(doc_007/010·$150 iff 매월 $7500 모든 달·posting date·anniversary 윈도우·1달 미달=실격).
+- 엔진 확장: group_reduce `across`(sum/min/max)·`default_reducer`·`over` nested-op · `bucket_month_window`(달력·LLM
+  날짜약점 회피) · `compare` op. 단위 7/7 + exec-path sim(자격→QUALIFIES·미자격→DOES NOT). 리터럴 0(threshold/개설일=인자).
+- 파이프라인: bucket→group_reduce(across=min)→compare(≥threshold)→verdict. isolate 불요(per-txn KB해석 없음).
+**FORCE_ACTION 검증 [S]** (031 재런): say-don't-do → tool_choice=required 3회 발화 → **모델이 say한 dispute 호출 실제 방출**
+= 개념 검증. 단 forced 호출 args가 JSON-문자열 → **tau2 ToolCall 크래시(093 동일)**. ⇒ tau2 patch(문자열→dict coerce·
+OpenAI 계약 정합·채점무변경·`tau2_patches/toolcall_string_args_tolerance.md`). 093+FORCE 동시 해소. 038 옛프로세스라 patched
+재런 필요(진짜 FORCE 판정).
+**D+G APY = 체크포인트(다음)**: doc_012(10+ checking+savings 페어링·각 boost값)·doc_046("최고 checking boost만"·카드/
+relationship/tier 다층 스택). 023(단일 임계)과 달리 **다-문서 census 필수**(boost값 전수·스택 precedence)—gold-fitting 방지 위해
+신중 작업으로 이월. 엔진(group_reduce max1/sum·argmax·interest_delta)은 준비완료. 남은 것 = census→stack_rules→
+get_best_account_option/get_interest_correction 도구 선언(ACCOUNT_APY_OFFLOAD §2a/2b 스키마 이미 작성).
+**Q1 coverage(043/050/054)**: CLI WEV-체인(§T3) 확장으로 프로토콜 필수단계 선언 = 별도 이월.
