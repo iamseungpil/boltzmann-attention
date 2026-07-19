@@ -374,11 +374,11 @@
         "b": "steps.rate"
        }
       },
-      "expected_ref": "steps.expected",
-      "display_round_up_frac": 0.9
+      "expected_ref": "steps.expected"
      },
      "return_template": "Transactions whose recorded reward does NOT match the expected reward under the reward-rate policy (each needs a cash back dispute). The CORRECT total reward per policy is shown for each — after its dispute is resolved, update that transaction's rewards to EXACTLY the correct value shown: {details}",
-     "detail_item_template": "{id} (recorded {actual_int} points, correct {expected_disp} points)",
+     "detail_item_template": "{id} (recorded {actual_int} points, correct {expected_floor} points)",
+     "_note_rounding": "2026-07-19 표기=floor 확정. KB doc_007 'Rewards Points Rounding Policy'가 전면 truncate 명시(249.975→249·무예외). task_026 gold 1500(=1499.9)은 벤치 자체 정책 위반 = gold 저작 버그(전수 census 9/10 floor·유일 예외). display_round_up_frac=0.9 안은 gold-fitting이라 사용자 지시로 철회(redesign5=tainted 검증런).",
      "_note_details": "2026-07-19 · task_026 포렌식: 기대값 미반환→에이전트가 기록값 재기입(no-op)·gold 6300/1020/3800/1500 전부 MISS. 엔진이 이미 계산한 expected를 반환에 노출(값=서브 formalize+엔진 op·리터럴 0·[[10]]). floor 표기=gold 실증(95=floor(95.66) 등 6/6).",
      "isolate": {
       "over": "transactions",
