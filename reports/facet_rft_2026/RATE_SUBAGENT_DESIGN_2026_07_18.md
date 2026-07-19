@@ -528,3 +528,47 @@ WeWork(KB 명시 0%)를 1%로 봄 ⇒ **false positive 1건** ⇒ r=0. **rate �
 3. 2 통과 시 **엔진 `promo_active` op 구현**(`add_months`+구간판정·`t2_compute`) + `t2_scaffold_get` 도구노출.
 4. task_026류 라이브 단일변수(유료·소수) → 통합 검증.
 - **불통과 시**: §PROD-2 원결론 유지(offload 경계). **정직 보고·재설계 안 함.**
+
+---
+
+## 2i. ★★★2026-07-19 — 026/027/028 전수 포렌식 + 레버 4종 (redesign4)
+
+### (1) task_028 오탐5 원인 확정 — 부하 아님·EcoCard 셀 formalize ×100 [S]
+- trace `bank_redesign3_20260718_operands.jsonl.gz` 정독: EcoCard-Green 6행에 서브가
+  base_rate **500**(오탐5·정답5)·Patagonia **100**(정답5·gold 642=128.47×5). 격리는 정상(6행 분리).
+- 인지경로: KB `ecocard_002/003/004`가 rate를 **"$5.00 sustainability points per dollar"**로 표기(포인트에 $)
+  + 스키마 "percent number" 지시 → "$5.00/dollar=500%" 단위 오변환. 해소 문서
+  `credit_cards_(general)_006`("5 points per dollar"·1pt=$0.01)은 title 접두 필터 밖 → 미주입.
+- **공유문서 주입 = 반증됨** [S]: `bank_shared_docs_probe.py` arm=shared(카드+general 25문서·+46K chars):
+  EcoCard-Green **0/6 그대로**(500 유지)·타 셀 변화 0. (사용자 제안 레버·정직 기각. 부하 회귀도 0.)
+- **범위재질의+consensus = 실증** [S]: arm=fix — A2 `rate_range=[0,20]` 위반→그룹 1회 재질의(단위 지시)
+  →500/100 회복, 셀 다수값-미만 무근거 강등(merchant/category-anchored quote 없음)→다수값 백필(Patagonia 1→5).
+  **EcoCard-Green 0/6→6/6·전체 67/73(92%)→73/73(100%)·타 셀 retry0·cons0=부작용 0.**
+  정당 강등(BizSilver Microsoft/Coursera·quote 앵커 실재)은 생존. 로그 `bank_shared_docs_probe_v2_20260719.log`.
+
+### (2) task_026 — update 4건 "MISS"의 실체 = **기록값 재기입 no-op** [S]
+- 호출은 4/4 성공(msg58-65). 그러나 값 = 3150/2550/1520/600 = **기존 기록값 그대로**(gold 6300/1020/3800/1500).
+- 원인: producer 반환이 txn id만 주고 **엔진이 이미 계산한 expected를 버림** → update 값 원천 부재.
+- 레버: `select_discrepant`가 expected를 `_sg_details`로 노출, A2 ratefix `return_template`={details}·
+  `detail_item_template`="{id} (recorded N points, correct M points)". floor 표기=gold 실증(95=floor(95.66) 등 6/6).
+  오프라인 PASS(6300 정확·promo 날짜판정 포함).
+
+### (3) task_027 — 적대변형 도달 전 Phase1 give-핸드셰이크 사망 [S]
+- producer 4=gold4 완벽. give는 됐으나(msg28) 직후 "도구로 제출하세요" 안내 없이 KB 검색으로 표류:
+  **KB_search_dense가 라이브서 상시 에러**(alltools=openai 임베더 고정·OPENAI_API_KEY 없음)→혼란 나선→
+  user tool을 agent tool로 unlock 시도(범주오류)→사용자 ###TRANSFER###.
+- env 수리 옵션: `alltools-qwen`(openrouter 임베더·키 보유) 또는 kwargs 오버라이드 — **arm 정의 변경이라 보류·
+  단일변수 규율.** (우리 기존 alltools 런 전부 dense 고장 상태로 일관 — 내부 A/B는 공정, 리더보드 비교는 주의.)
+
+### (4) evaluator 정밀 판정 (compare_with_tool_call 직독) [S]
+- 예측 호출의 **키 집합으로 dict 비교** → ①gold give 3태스크 전부 실패 원인 = 스키마 밖 `arguments` 키 잉여.
+  → 레버: `T2_ARG_SCHEMA=1` regen(자기 도구 스키마 밖 인자→반려 피드백→재발화·도메인일반·기본OFF).
+  ②내부 `arguments`는 **JSON 문자열 그대로 비교** → 028 user 제출 6건 gold 전부가 공백 포맷 차이로 사망
+  ("user_id":"…" vs gold "user_id": "…"). 026/027은 user-sim이 공백 포맷으로 내 우연히 생존.
+  **user-sim 직렬화 운 = 통제 불가·벤치 quirk. 수치 해석 시 필수 각주.**
+
+### (5) 라이브 확인런 redesign4 (2026-07-19·launch)
+- `run_redesign4_20260719.sh`: redesign3 + `T2_ARG_SCHEMA=1` + (A2/엔진: range-retry·consensus·{details}).
+  tag `bank_redesign4_20260719`·026/027/028·seed300·gpt-5.2 user-sim·~$0.3.
+- 반증예측(사전등록): 028 producer 11→6(=gold)·026 update 값 6300/1020/3800/1500 정확·give 3태스크 match 회복.
+  027 dispute 제출·028 Phase2(자동갱신 환각 거부)는 **미보장**(레버 밖·관찰 항목). 028 user 공백 운 = 통제 밖.
