@@ -835,3 +835,24 @@ P0=_sub_wrap+A2 policy_qa+오프라인 4/4·[05] 정직: A2 순증→측정 게�
 - **028 wrap-arm [S]**: dedup+FN_ISOLATE로 **CWE 0 첫 완주**(68msgs·wrap 7발화·7d dedup-only=45,243 폭사 대비).
   잔여 실패 = dispute 커버리지(give 1회·user 제출 1/6·update 2시도) = 완결 층. §5-3 컨텍스트 축 통과·pass 축 미달.
 - 함정 2건 기록: tag-재사용 resume 거부(batch_a 즉사)·auto_resume 재생서 몽키패치 인터셉터 미적용 mismatch 크래시.
+
+### §2r (2026-07-20 새벽) — 028 커버리지 정독 [S] + 079/093/026 잔여 규명 + FN_ISOLATE 신 Δspurious 채널
+**028 wrap-arm 정독 (per-step·results.json)**: 실패 = **에이전트 자가붕괴 + wrap 오유도**(WEV·컨텍스트 아님).
+- **WEV 완벽 확인 [S]**(오프라인 재생): pre-dispute 조기 update=DENY(정당·근거 없음)·post-RESOLVED(msg40=txn+RESOLVED
+  공존) Slack update=**ALLOW**. 라이브 deny 2회 = 전부 dispute 제출 *전* 조기시도 = **오차단 0·Δspurious 0**.
+- **실failure**: msg40서 auto_resolve로 정당 RESOLVED 획득 → 그러나 에이전트가 **자기 증거를 불신·과검증**:
+  get_user_dispute_history_7291(=transaction_disputes 테이블)로 확인 시도 → cash_back_disputes(실제 제출처)와
+  **다른 테이블** → "No disputes found" 거짓음성 → not-resolved 오판 → 포기·transfer. update 호출 자체를 안 함.
+- **★policy_qa wrap = 신 Δspurious 채널 [S]**(리뷰⑥ 경고 실증): msg49 wrap="use get_debit_dispute_status"·
+  msg51="use get_user_dispute_history" — wrap이 **도구-라우팅 조언**을 주며 과검증 루프에 잘못된 도구를 먹였다.
+  KB-grounded지만 이 dispute-type엔 오답. ⇒ **설계 정정: policy_qa는 정책-사실만 반환·도구-라우팅 조언 금지**
+  (증거 계약 → 라우팅 계약으로 확장). FUNCTION_AGENT 설계서 §3 보강 필요.
+- 함의: 028 = 완결(coverage) 층이나 신 하위유형 = **유효증거 불신·과검증**(없는 정보 아님). 레버 후보 =
+  "ledger에 RESOLVED 있으면 재검증 말고 완료" 완결-넛지(read-only) — 단 wrap 라우팅 정정이 선행.
+**잔여 3건 규명 [S]**:
+- **079 = litellm.Timeout**(openrouter gpt-5.2 user-sim API 타임아웃) — 우리 레버 무관·transient·재런이면 통과. 실패 아님.
+- **093 = tau2 ToolCall pydantic 검증 크래시**: 모델이 `arguments`를 dict 아닌 **JSON-문자열**로 방출→tau2 strict
+  validation 거부(우리 패치가 보기 *전* ingestion서 크래시). 모델-포맷 취약(_parse_nested_args로 우리 하류는 처리하나
+  tau2 ToolCall 생성 단계라 사거리 밖)·재런 or ingestion-tolerance 패치 후보.
+- **026 = 벤치 gold버그 확정**(재확인): update 4건 중 026_10(Zoom $149.99)만 불일치 = gold **1500** vs KB doc_007
+  floor정책(내림)=**1499**. gold가 자기 KB 정책 위반 → 업스트림 보고 후보. 분모 제외 정당.
