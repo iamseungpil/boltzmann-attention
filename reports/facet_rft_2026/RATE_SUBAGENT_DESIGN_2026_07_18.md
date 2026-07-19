@@ -922,3 +922,15 @@ relationship/tier 다층 스택). 023(단일 임계)과 달리 **다-문서 cens
 신중 작업으로 이월. 엔진(group_reduce max1/sum·argmax·interest_delta)은 준비완료. 남은 것 = census→stack_rules→
 get_best_account_option/get_interest_correction 도구 선언(ACCOUNT_APY_OFFLOAD §2a/2b 스키마 이미 작성).
 **Q1 coverage(043/050/054)**: CLI WEV-체인(§T3) 확장으로 프로토콜 필수단계 선언 = 별도 이월.
+
+### §2w (2026-07-20) — D+G APY calc-offload A2 완결 (calc-offload 트랙 전체 배선 완료)
+**D+G census[S] doc_046**: APY 스택 = 최고 checking boost(max1)+최고 card bonus(max1)+relationship 전부(sum)+
+tier 전부(sum)+base. ACCOUNT_APY 설계 stack_rules 확증(gold-fitting 아님·정책 원문).
+**2도구 배선·gold 095 재현 [S]**:
+- `get_correct_savings_apy`(components→stacking): 에이전트가 KB서 모든 boost{kind,value,source} 나열→엔진 max1/sum.
+  unknown kind=flag(합산 아님·default_reducer 제거로 리뷰④ 준수). gold 095 expected=**6.85** 정확.
+- `get_interest_correction`(expected/actual/principal/period→amount): principal×Δapy%×days/365. gold 095=**98.0** 정확.
+- 리터럴 0(boost값=KB formalize·ratefix동형·stacking구조만 정책사실). V1=isolate 미탑재(에이전트 main formalize).
+**⇒ calc-offload 트랙(023+D+G) 전체 A2 배선 완료.** 023(check_rebate_qualification)+D+G(2도구)=scaffold_get 5개.
+엔진 프리미티브(group_reduce across·bucket_month_window·compare·argmax합성) 전부 단위+gold 재현. **라이브 검증(유료)만 남음.**
+**남은 트랙**: Q1 coverage(043/050/054 프로토콜 선언)·FORCE_ACTION patched 재런·023/D+G 라이브.
