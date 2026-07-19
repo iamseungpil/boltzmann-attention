@@ -108,23 +108,78 @@ def gold_and_rows():
             rr["account_open"] = accts.get((uid, r["credit_card_type"]))
             rows.append(rr)
             pts = fixed.get(r["transaction_id"], _num(r["rewards_earned"]))
-            gold[r["transaction_id"]] = pts / _num(r["transaction_amount"])
+            gold[r["transaction_id"]] = int(pts)     # 정수 포인트 그대로(엔진 비교 재현·rate 나눗셈 반올림 오염 방지)
     return users, rows, gold
 
 
-def run_cell(base, model, iso, gval, grows, docs, temp):
-    """라이브 _sub_inject 프롬프트 재현."""
+def run_cell(base, model, iso, gval, grows, docs, temp, extra=""):
+    """라이브 _sub_inject 프롬프트 재현. extra=재질의 피드백(범위위반 시)."""
     keep = set(iso.get("row_fields") or [])
     raw = [{k: v for k, v in r.items() if k in keep} for r in grows]
     ids = [str(r.get(iso["id_field"])) for r in grows]
     docstr = "\n\n".join("### %s\n%s" % (x["title"], x["content"]) for x in docs)
     schema = json.dumps({i: iso.get("operand_schema", {}) for i in ids}, ensure_ascii=False)
     prompt = iso["inject_instructions"].format(group=gval, docs=docstr, schema=schema,
-                                               items=json.dumps(raw, ensure_ascii=False, indent=1))
+                                               items=json.dumps(raw, ensure_ascii=False, indent=1)) + extra
     r = post(base, {"model": model, "temperature": temp, "max_tokens": 3000, "n": 1,
                     "messages": [{"role": "user", "content": prompt}]}, timeout=600)
     ch = r["choices"][0]
     return SG._merge_json(ch["message"].get("content") or "", set(ids)), len(prompt)
+
+
+# ★재질의 피드백 초안(포팅 시 A2 `range_retry_prompt`로 이동 — 계약문=A2 소속 [[05]]).
+#   도메인 리터럴 0: 범위값은 A2 선언·id는 데이터·카드/상인/문서 문구 인용 없음.
+RETRY_FEEDBACK = ("\n\n★FEEDBACK: your base_rate for item(s) {ids} was outside the declared valid "
+                  "range [{lo}, {hi}] for this field. Report the rate NUMBER exactly as the policy "
+                  "states it per dollar; do NOT convert units or scale by 100. Reply again with the "
+                  "same full JSON object.")
+
+
+def _rate_of(v):
+    try:
+        return float(v.get("base_rate"))
+    except Exception:
+        return None
+
+
+def apply_fix(base, model, iso, gval, grows, docs, temp, out, lo, hi, docnorm):
+    """엔진 포팅 예정 메커니즘의 프로브 시뮬:
+    (1) 범위위반 행 → 그룹 1회 재질의(피드백 포함) → 위반행만 갱신
+    (2) 셀 다수값 미만 강등(소수)인데 merchant/category-anchored 인용 실재 없음 → 다수값 백필.
+    도메인 리터럴 0(범위=A2 선언 시뮬·다수값/인용=데이터)."""
+    ids = [str(r.get(iso["id_field"])) for r in grows]
+    n_retry = n_cons = 0
+    bad = [i for i in ids if not (_rate_of(out.get(i) or {}) is not None and lo <= _rate_of(out.get(i) or {}) <= hi)]
+    if bad:
+        extra = RETRY_FEEDBACK.format(ids=", ".join(bad), lo=lo, hi=hi)
+        try:
+            out2, _ = run_cell(base, model, iso, gval, grows, docs, temp, extra=extra)
+        except Exception:
+            out2 = {}
+        for i in bad:
+            v2 = out2.get(i)
+            if v2 is not None and _rate_of(v2) is not None and lo <= _rate_of(v2) <= hi:
+                out[i] = v2
+                n_retry += 1
+    # (2) 셀 다수값 consensus 가드
+    from collections import Counter
+    valid = [(_rate_of(out.get(i) or {}), i) for i in ids]
+    rates = [r for r, _ in valid if r is not None and lo <= r <= hi]
+    if len(rates) >= 3:
+        modal, cnt = Counter(rates).most_common(1)[0]
+        if cnt * 2 > len(rates):                      # 절대다수만
+            byid = {str(r.get(iso["id_field"])): r for r in grows}
+            for rt, i in valid:
+                if rt is None or rt >= modal:
+                    continue
+                q = SG._norm_ground((out.get(i) or {}).get(iso.get("quote_field", "exclusion_quote")) or "")
+                anch = SG._norm_ground(str(byid[i].get("merchant_name", ""))) in q or \
+                    SG._norm_ground(str(byid[i].get("category", ""))) in q
+                grounded = len(q) >= int(iso.get("quote_min", 8)) and q in docnorm and anch
+                if not grounded:
+                    out.setdefault(i, {})["base_rate"] = modal
+                    n_cons += 1
+    return out, n_retry, n_cons
 
 
 def main():
@@ -132,10 +187,12 @@ def main():
     ap.add_argument("--base", default="http://localhost:8140/v1")
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--temp", type=float, default=0.0)
-    ap.add_argument("--arms", default="card,shared")
+    ap.add_argument("--arms", default="card,shared", help="card|shared|fix (fix=card문서+범위재질의+consensus가드)")
     ap.add_argument("--shared_prefix", default=SHARED_PREFIX_DEFAULT)
+    ap.add_argument("--rate_range", default="0,20", help="fix arm: A2 선언 시뮬 범위 lo,hi")
     ap.add_argument("--only_card", default="", help="카드명 필터(빈=전부)")
     a = ap.parse_args()
+    lo, hi = (float(x) for x in a.rate_range.split(","))
 
     iso = load_iso_spec()
     all_docs = load_docs()
@@ -160,38 +217,44 @@ def main():
         if not card_docs:
             print("### %s — 카드문서 0 SKIP" % (gk,))
             continue
+        docnorm = SG._norm_ground(" ".join(x["content"] for x in card_docs))
         for arm in a.arms.split(","):
-            docs = card_docs if arm == "card" else card_docs + [d for d in shared_docs if d not in card_docs]
+            docs = card_docs if arm in ("card", "fix") else \
+                card_docs + [d for d in shared_docs if d not in card_docs]
             try:
                 out, plen = run_cell(a.base, a.model, iso, gval, grows, docs, a.temp)
             except Exception as e:
                 print("### %s [%s] ERR %r" % (gk, arm, str(e)[:80]))
                 continue
-            ok = bad = 0
+            n_retry = n_cons = 0
+            if arm == "fix":
+                out, n_retry, n_cons = apply_fix(a.base, a.model, iso, gval, grows, docs, a.temp,
+                                                 out, lo, hi, docnorm)
+            ok = 0
             det = []
             for r in grows:
                 tid = str(r["transaction_id"])
-                g = round(gold[tid], 2)
+                gp = gold[tid]                       # 정수 포인트(엔진과 동일 비교)
+                amt = _num(r["transaction_amount"])
                 v = out.get(tid) or {}
+                br = _rate_of(v)
                 try:
-                    br = float(v.get("base_rate"))
-                except Exception:
-                    br = None
-                pm = v.get("promo_mult") or 1
-                try:
-                    pm = float(pm)
+                    pm = float(v.get("promo_mult") or 1)
                 except Exception:
                     pm = 1.0
-                hit = br is not None and (round(br, 2) == g or round(br * pm, 2) == g)
+                hit = False
+                if br is not None:
+                    for rr in ({br, br * pm}):
+                        if int(amt * rr) == gp or round(amt * rr) == gp:
+                            hit = True
                 ok += hit
-                bad += (not hit)
                 if not hit:
-                    det.append("%s(%s@%s): sub=%s promo=%s gold=%s" % (tid[-6:], r["merchant_name"],
-                                                                       r["category"], br, pm, g))
+                    det.append("%s(%s@%s): sub=%s promo=%s gold_pts=%s" % (tid[-6:], r["merchant_name"],
+                                                                           r["category"], br, pm, gp))
             tally[arm][0] += ok
             tally[arm][1] += len(grows)
-            print("### %s [%s] 문서%d·행%d·prompt %dch → 정확 %d/%d %s"
-                  % ("×".join(gk), arm, len(docs), len(grows), plen, ok, len(grows),
+            print("### %s [%s] 문서%d·행%d·prompt %dch·retry%d·cons%d → 정확 %d/%d %s"
+                  % ("×".join(gk), arm, len(docs), len(grows), plen, n_retry, n_cons, ok, len(grows),
                      (" | MISS: " + " ; ".join(det)) if det else ""))
     print("\n=== 합계 ===")
     for arm, (ok, n) in sorted(tally.items()):
