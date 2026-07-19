@@ -946,3 +946,16 @@ reason 기록·pending-replacement 확인 → **WEV 3스펙**(account-id 공존�
 **⇒ Q1(진입 후 coverage) 배선 완료.** 054=CLI 체인(050과 동일 스펙)+기존 WEV 적용. 잔여=라이브 검증(유료).
 **금일 배선 총결산**: calc-offload(023+D+G 3도구)·Q1 coverage(WEV 7스펙+chains)·FORCE_ACTION·tau2 patch —
 전부 오프라인/gold 검증 완료·라이브 대기.
+
+### §2y (2026-07-20) — T2_CLAIM_PROV: "모든 '했다' 주장 원장대조" (사용자 일반화) + verify_ 술어 교정
+**계기**: 043 e2e 확인-날조(KB 실호출 0·"checked KB" 주장 1→조기 transfer). WRITEPROV는 4회 평가·전부
+claims_completion=False로 **정확히** 판정(완료-주장 아님) — 사각은 주장유형(확인)×대조축(read) 2차원.
+기전 정정(사용자 지적): "게이트가 학습시켰다"는 내 표현은 오류 — 가중치 불변·이 에피소드에 notice_text 노출 0.
+실기전 = **정책 전제조건("KB 소진 후 transfer")을 행동 대신 텍스트로 주장**하는 prior-경로(전제조건-주장 날조).
+**일반화 구현**: 주장유형 열거 대신 — 자기-선언이 답변의 모든 과거-행동 주장을 {kind,what} 목록으로 formalize
+([[10]]) → 엔진은 A2 `claim_prov.event_map`(kind→도구 접두 or __effective_write__)으로 원장 이벤트 실재 대조
+(집합 교차·[[03b]]). 미등재 kind=skip. WRITEPROV 상위호환(완료=kind:write 흡수). 기본 OFF·T2_CLAIM_PROV=1.
+오프라인 5/5(043-재현 DENY·실검색 PASS·write무이벤트 DENY·디스패처-write PASS·unknown skip).
+**★실버그 발견·교정**: `verify_identity`(scaffold 판정 도구·read성)가 **실효-write로 오분류** — ①claim_prov
+write축 거짓통과 ②**WRITEPROV가 verify만 한 sim서 조기 break**(완료-주장 게이트 약화). `^verify_`를
+_PROCEDURAL_RE에 추가(도메인-일반·_verification$ 대칭). 부수영향(FAB_STRIP/WRITEPROV) 다음 arm 계측 항목.
