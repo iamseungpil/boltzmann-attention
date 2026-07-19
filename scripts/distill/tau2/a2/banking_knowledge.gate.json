@@ -613,6 +613,70 @@
     }
    },
    "_note": "2026-07-20 023 calc-offload (ACCOUNT_APY 자매). KB census[S]: doc_007/010 = $150 리베이트 iff 매월 threshold 모든 달 충족·posting date·anniversary 윈도우·한 달 미달=실격. 엔진=bucket_month_window→group_reduce(across=min)→compare(리터럴 0·threshold/opening_date=인자). LLM=거래 copy+threshold KB조회(단순). isolate 불요(per-txn KB해석 없음)."
+  },
+  {
+   "name": "get_correct_savings_apy",
+   "description": "USE THIS to compute the correct APY on a savings account under Rho-Bank stacking rules. Do NOT add the boosts up yourself. First read the savings account's base APY and identify EVERY applicable boost from the knowledge base — checking-account APY boosts (from the checking+savings pairing table), credit card APY bonuses, relationship bonuses, and account tier bonuses — then call this tool. It applies the stacking policy: only the HIGHEST checking boost counts, only the HIGHEST card bonus counts, while relationship and tier bonuses all add on top.",
+   "params": {
+    "components": "A JSON array of the APY components you read from the knowledge base for THIS savings account. Each element: {kind: one of 'base'|'checking'|'card'|'relationship'|'tier', value: <number, percentage points, no %>, source: <verbatim quote from the KB doc stating this value>}. Include the base APY as {kind:'base', value:<base>} and EVERY applicable boost (list all checking boosts and all card bonuses you find; the tool keeps only the highest of each per policy). Do not pre-select or pre-sum."
+   },
+   "return_template": "Correct savings APY under the stacking policy (base + highest checking boost + highest card bonus + all relationship/tier bonuses): {result}%. Compare this to the APY the system actually applied; if they differ, the difference is an interest discrepancy.",
+   "op": {
+    "op": "group_reduce",
+    "over": "components",
+    "group_by": "kind",
+    "value_field": "value",
+    "reducers": {
+     "base": "sum",
+     "checking": "max1",
+     "card": "max1",
+     "relationship": "sum",
+     "tier": "sum"
+    },
+    "unknown_policy": "flag"
+   },
+   "_note": "2026-07-20 D+G calc-offload. KB census[S] doc_046: checking=max1·card=max1·relationship=sum·tier=sum(base=sum). boost값=서브/에이전트가 KB formalize(ratefix동형)·엔진=stacking(리터럴0). gold 095 재현 6.85. isolate 미탑재(V1·에이전트 formalize)."
+  },
+  {
+   "name": "get_interest_correction",
+   "description": "USE THIS to compute the dollar interest correction owed when a savings account was paid the wrong APY. Do NOT do this arithmetic yourself. Provide the correct APY (from get_correct_savings_apy), the APY the system actually applied, the account principal/balance, and the period over which the wrong APY was applied. It returns the interest difference to credit.",
+   "params": {
+    "expected_apy": "The correct APY (percentage points, no %) — from get_correct_savings_apy.",
+    "actual_apy": "The APY the system actually applied (percentage points, no %), copied from the account record.",
+    "principal": "The savings account balance the APY applies to (number, no $), copied from the account record.",
+    "period_start": "Start date of the wrong-APY period (MM/DD/YYYY), copied from the account record.",
+    "period_end": "End date of the wrong-APY period (MM/DD/YYYY), copied from the account record."
+   },
+   "return_template": "Interest correction to credit = principal x (correct APY - applied APY) x (period / 365): {result}. Use this as the credit amount and the amount_difference on the discrepancy report.",
+   "op": {
+    "op": "multiply",
+    "a": {
+     "op": "multiply",
+     "a": "principal",
+     "b": {
+      "op": "multiply",
+      "a": {
+       "op": "diff",
+       "a": "expected_apy",
+       "b": "actual_apy"
+      },
+      "b": 0.01
+     }
+    },
+    "b": {
+     "op": "multiply",
+     "a": {
+      "op": "days_between",
+      "a": "period_start",
+      "b": "period_end"
+     },
+     "b": {
+      "op": "const",
+      "value": 0.0027397260273972603
+     }
+    }
+   },
+   "_note": "2026-07-20 D+G. amount=principal×Δapy%×days/365. gold 095 재현 98.0(full yr·8000). 리터럴 0(전부 인자). isolate 불요(순 산술)."
   }
  ],
  "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수.",
