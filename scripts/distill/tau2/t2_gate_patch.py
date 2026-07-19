@@ -494,6 +494,15 @@ REGEN_FEEDBACK_DIRECTIVE = (
 
 
 def _write_evidence_deny(orch, tc, specs):
+    """구 apply() 경로 어댑터 — 코어는 _wev_deny_msgs (unified와 공유)."""
+    try:
+        msgs = orch.get_messages()
+    except Exception:
+        return None
+    return _wev_deny_msgs(msgs, tc, specs)
+
+
+def _wev_deny_msgs(messages, tc, specs):
     """★T2_WRITE_EVIDENCE (2026-07-19·task_029 포렌식): A2 `write_evidence_specs` — 선언된 write 전,
     요구 토큰이 대상 id와 **같은 도구 출력**(role=tool·env 생성물·user *발화*는 제외)에 공존해야 실행.
     029 실측: 사용자 거짓말("해결됐다")만 믿고 update 6건→db 오염. 도메인-일반: 도구명/조건/토큰/문구
@@ -525,17 +534,14 @@ def _write_evidence_deny(orch, tc, specs):
             continue
         tokens = sp.get("require_tokens") or []
         found = False
-        try:
-            for m in orch.get_messages():
-                if getattr(m, "role", None) != "tool":
-                    continue
-                c = getattr(m, "content", None)
-                c = c if isinstance(c, str) else str(c or "")
-                if str(idv) in c and all(t in c for t in tokens):
-                    found = True
-                    break
-        except Exception:
-            return None
+        for m in messages:
+            if getattr(m, "role", None) != "tool":
+                continue
+            c = getattr(m, "content", None)
+            c = c if isinstance(c, str) else str(c or "")
+            if str(idv) in c and all(t in c for t in tokens):
+                found = True
+                break
         if not found:
             fb = sp.get("feedback") or "Error: [WRITE-EVIDENCE] required evidence not found for {id}."
             return fb.replace("{id}", str(idv))
@@ -2107,6 +2113,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[T2_EPLAN] ledger build failed: %r" % (_e,), file=_sys.stderr, flush=True)
                 ep_led = None
 
+        # ★T2_WRITE_EVIDENCE unified 배선(2026-07-19 028 포렌식): 구 apply()에만 있던 WEV가
+        #   unified 런(T2_GATE_REGEN∧T2_GROUND)서 死코드 → deny 0회/증거없는 update 6건 통과.
+        #   생성-레벨 deny(ep/cons/ra/te와 동렬·무과금·sim당 cap)로 이설. 검사 코어=_wev_deny_msgs 공유.
+        wev_specs = (a2.get("write_evidence_specs") or []) \
+            if (a2 is not None and os.environ.get("T2_WRITE_EVIDENCE") == "1") else []
+        _wev_cap = int(os.environ.get("T2_WEV_CAP", "8"))
+
         def bw():
             return [v for v in (self._t2_static_bl | self._t2_session_bl) if v.lower() not in ctx]
 
@@ -2164,7 +2177,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 terr = None
                 print("[T2_TOOLERR] error (no-op): %r" % (_te,), file=_sys.stderr, flush=True)
         am = _gen(self, work, bw(), "agent_response")
-        gate_rounds = prov_rounds = eplan_rounds = cons_rounds = ra_rounds = te_rounds = 0
+        gate_rounds = prov_rounds = eplan_rounds = cons_rounds = ra_rounds = te_rounds = wev_rounds = 0
         subs = 0
         rescue_skipped = set()
         rescue_excl = set()   # ★PERARG(C65): (id(tc),k,s) — rescue-스킵된 fab 제외하고 재스캔
@@ -2381,13 +2394,34 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               % (_cp["param"], _cp["old"], _cp["computed"]), file=_sys.stderr, flush=True)
                 except Exception as _cpe:
                     print("[T2_RESOLVE] compute error (no-op): %r" % (_cpe,), file=_sys.stderr, flush=True)
+            # ★T2_WRITE_EVIDENCE (unified 배선·2026-07-19 028 포렌식): 증거(도구출력 token+id 공존)
+            #   없는 선언-write deny. silent-repair(reffilter/compute) *뒤* 배치 = 교정된 최종 인자를 검사.
+            #   무과금·turn당 1회·sim당 T2_WEV_CAP(기본 8) — E-PLAN cap 선례(불응 무한루프 방지·소진 후 통과).
+            wev_fb = None
+            if (wev_specs and not do_gate and not do_prov and ep_fb is None
+                    and cons_fb is None and ra_fb is None and te_fb is None
+                    and wev_rounds < 1 and getattr(self, "_t2_wev_deny", 0) < _wev_cap):
+                try:
+                    for c in (am.tool_calls or []):
+                        if id(c) in denied_by_objid:
+                            continue
+                        wd = _wev_deny_msgs(state.messages, c, wev_specs)
+                        if wd:
+                            wev_fb = (c, wd)
+                            print("[T2_WRITE_EVIDENCE] deny tool=%s" % getattr(c, "name", None),
+                                  file=_sys.stderr, flush=True)
+                            break
+                except Exception as _wve:
+                    wev_fb = None
+                    print("[T2_WRITE_EVIDENCE] error (no-op): %r" % (_wve,),
+                          file=_sys.stderr, flush=True)
             # ★T2_RESOLVE (통일 인터프리터·UNIFIED_OPERAND_A2 §7-3): per-operand 해소 디스패처.
             #   deny-kind(operator/membership/provenance) 통합 = L10+L3+operator 한 경로.
             #   개별 플래그(T2_CONSISTENCY/T2_PROV_ORIGIN) 대체용(driver가 상호배타 설정).
             rw_fb = None
             if (os.environ.get("T2_RESOLVE") == "1" and a2 is not None
                     and not do_gate and not do_prov and ep_fb is None and cons_fb is None
-                    and ra_fb is None and te_fb is None
+                    and ra_fb is None and te_fb is None and wev_fb is None
                     and getattr(self, "_t2_resolve_deny", 0) < 3):
                 try:
                     import t2_resolve as _rz
@@ -2454,7 +2488,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   재생성(regenerate-with-directive·eplan-reminder류·작업버퍼만·test_action_reminder 14/14).
             #   transfer-only 회피는 tool_call 앵커로 이미 처리·per-operand rw_fb(deny-kind)도 라이브.
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
-                    and ra_fb is None and te_fb is None and rw_fb is None):
+                    and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -2508,6 +2542,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if te_fb is not None:
                 te_rounds += 1
                 self._t2_toolerr_deny = getattr(self, "_t2_toolerr_deny", 0) + 1
+            if wev_fb is not None:
+                wev_rounds += 1
+                self._t2_wev_deny = getattr(self, "_t2_wev_deny", 0) + 1
+                if self._t2_wev_deny == _wev_cap:  # 관측 마커(sim당 1회): 이후 WEV deny 중단
+                    print("[T2_WRITE_EVIDENCE] deny cap %d reached — no further WEV denies this sim"
+                          % _wev_cap, file=_sys.stderr, flush=True)
             if rw_fb is not None:
                 self._t2_resolve_deny = getattr(self, "_t2_resolve_deny", 0) + 1
             fb = [am]
@@ -2525,6 +2565,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     content = "Error: " + ra_fb[1]
                 elif te_fb is not None and c is te_fb[0]:
                     content = "Error: " + te_fb[1]
+                elif wev_fb is not None and c is wev_fb[0]:
+                    # A2 feedback이 "Error:"로 시작하면 그대로(이중 접두 방지)
+                    content = wev_fb[1] if str(wev_fb[1]).lstrip().startswith("Error:") \
+                        else "Error: " + wev_fb[1]
                 elif rw_fb is not None and c is rw_fb[0]:
                     content = "Error: " + rw_fb[1]
                 else:
