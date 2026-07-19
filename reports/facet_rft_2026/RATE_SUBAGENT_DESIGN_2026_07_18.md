@@ -596,3 +596,38 @@ WeWork(KB 명시 0%)를 1%로 봄 ⇒ **false positive 1건** ⇒ r=0. **rate �
   1.0이 나오면 "값 경로 작동 + 잔여 blocker=gold 버그" 증명용, 공식 수치로 인용 금지.
 - 처리: 026 = "벤치 gold 버그로 미통과" 각주·tau2-bench 업스트림 이슈 보고 후보.
 - **계열 상태: 020·027·028 = PASS(3/4) · 026 = gold-버그 블록(정책상 우리가 옳음).**
+
+---
+
+## 2j. ★★확장 4태스크(018/021/022/029) 재설계 레버 설계 (2026-07-19·사용자 지시)
+
+### 태스크 프로필 (tasks.json·db 직독 [S])
+| task | 사용자 | tx/카드/셀 | gold | 성격 | 과거 실패(전수 확인) |
+|---|---|---|---|---|---|
+| 018 | Fatima(=028) | 47/4/17 | 8액션=**Phase1만**(dispute 6·update 없음) | 028의 Phase1 절단판 | all97: 20msg 조기 transfer(재설계 前) |
+| 029 | Fatima(=028) | 47/4/17 | 8액션=Phase1만 | **적대변형**: Phase2서 해결 거짓말→agent가 dispute 상태 검증·update **거부**해야 | all97: infra_error(0msg) |
+| 021 | Dmitri | 17/2(BizBronze+Eco)/10 | 4액션(dispute 2) | 정밀도 태스크("예외 vs 실오류 구별") | all97: under-flag 1/2 · e2e: over-flag 3(FP1) |
+| 022 | Isabella | **77**/4(Diamond Elite+BPlat+BSilver+Eco)/19 | 12액션(dispute **10**) | "extreme 018"(공식 notes) | all97: producer **"(none)"**(행 전멸) · e2e: infra_error(0msg) |
+
+### 레버 매핑 — 기존 스택 그대로 ([[05]] 최소·전부 기구현·redesign4 실증)
+1. **isolate+inject**(card×category·문서주입): 018/029는 028과 동일 사용자·동일 셀 → EcoCard-Green 함정 포함 그대로 커버.
+2. **range-retry+consensus**: EcoCard ×100·무근거 강등 — 신규 사용자(021/022)의 EcoCard 셀에도 도메인일반으로 발화.
+3. **{details}**: 4태스크 모두 update gold 없음 → 값 표시는 무해. ⚠029 관찰점: "update to EXACTLY" 문구가 적대 거짓말과
+   결합해 무단 update를 유도하는지 — **027 PASS 전례**(동형 적대·redesign4서 거부 성공)로 레버 추가 없이 관찰만.
+4. **T2_ARG_SCHEMA**: 유지(발화 0·무해).
+
+### 신규 리스크와 대응 (측정 우선·[[08]])
+- **(R1) 022 = 77행 main-복사 병목**: producer 인자로 77행 JSON을 main이 emit → 과거 "(none)"(행 탈락) 실증.
+  ledger서 엔진이 행을 파싱하는 것은 **[[03b]] 금지**(evidence는 role/이름만·내용 파싱 0). 레버 후보(재발 시에만):
+  **fetch-sub** — 격리 서브가 get 도구를 직접 호출해 행을 formalize(§2b "operand는 서브가 산출" 정신·파싱=LLM 몫).
+  이번 런은 **관찰 먼저**(ratefix params 계약 강화 이후 재발 여부 미확인). 사전등록: 실패 시 관찰=인자 행수<77 or (none).
+- **(R2) 신규 카드 문서(Business Bronze·Diamond Elite) formalize 미검증**: 프로브 v3(`bank_shared_docs_probe` 8태스크
+  확장·must-flag 판정 추가)로 무료 계측 → 셀 오류 발견 시 그 셀만 대응 후 라이브.
+- **(R3) infra_error(0msg) 클래스**: 027/028도 e2e서 같은 증상→redesign3/4 정상 실행 = 과거/일시 결함. 재런으로 검증.
+
+### 실행 계획 + 사전등록 예측
+1. 프로브 v3(무료·진행 중) → R2 판정 → 필요 시 셀 대응.
+2. 라이브 redesign6 = 4태스크 1런(~$0.4·seed300·config 동일·distinct tag).
+3. [[08]] 전수 포렌식 → 실패는 셀/단계 단위 원인 확정 후 레버.
+- 예측: **018 PASS 유력**(028 Phase1 완주 실증·동일 셀) · **029 = 027 전례 재현 여부**(레버 밖 관찰) ·
+  **021 = 프로브 clean이면 PASS 유력** · **022 = 최대 불확실(R1)**. user-sim 직렬화 운은 reward 무영향(§2i(6) 실증).
