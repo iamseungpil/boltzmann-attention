@@ -869,3 +869,21 @@ P0=_sub_wrap+A2 policy_qa+오프라인 4/4·[05] 정직: A2 순증→측정 게�
 말라 명시·이름은 KB에 있다). **⇒ 이건 프롬프트 불응 아니라 배선버그 = 고칠 수 있음.** 잠정 soft-천장 해석 정직 철회.
 **미검증**: KB_search가 "open bank account" 질의에 tool-name 문서를 실제 surfacing하는지(t068은 policy 질의만 해서 못
 찾음) — 다음 재런이 검증. 못 하면 그때가 진짜 다음 갈림길(질의 formalize 서브 or 이름-추출 offload).
+
+### §2t (2026-07-20) — ★정정: 023 "PASS"는 recommendation 레버 아님 = pass^1 변동 + t3fix getter 결과
+**★023 정정 [S] (내 이전 주장 철회)**: §2o/handoff의 "023=1.0 = recommendation 버그픽스 실증"은 **틀렸다**.
+- **recommendation 레버 발화 = 옛 t3b(1.0)·신 t3fix(0.0) 둘 다 0회.** 레버가 아예 안 걸렸다. 이유: 023 apply는
+  **user-직접 실행**(apply_for_credit_card by user)이라 recommendation_verify의 offer-감지(give-nested)가 매칭 안 됨.
+- 즉 023의 1.0은 **모델 sampling 운** — 카드-선택(Diamond Elite vs Silver = 계산/참조 판단)을 32B가 한 번은 맞고
+  (Diamond→PASS) 한 번은 틀림(Silver→FAIL). seed 동일(300)이나 getter 수정이 컨텍스트(피드백 문구)를 교란→
+  불안정 판단이 Diamond→Silver로 뒤집힘. ⇒ **023은 robust PASS 아님. 카드-비교를 ACCOUNT_APY류로 offload하거나
+  recommendation 레버를 user-직접 apply flow에 발화하도록 확장해야 진짜 닫힘.** (FORENSIC GUARD 정확한 사례:
+  집계 1.0→결론 직행을 궤적정독(레버 0발화)이 반증.)
+**t3fix(수정 getter) 결과 [S]** — discovery 부분성공·0 PASS:
+- **054: 2/17 → 7/17** = **발견 체인 실제 발화**(KB 7·unlock 5·call 4). getter 수정이 이 태스크엔 유효(빈 lister
+  →포기가 사라지고 실제 발견). 단 완결 미달로 0.0.
+- 043(unlock1·call1)·050(unlock1·call0) = 소폭 진입 · 031(발견 0)·038(KB5·unlock0) = 미전환. lister 전부 0(스티어 제거됨).
+- ⇒ getter 수정은 **부분 유효**(054 실증)이나 전환 일관성 없음. KB검색이 도구-이름 문서를 태스크마다 다르게 surfacing.
+  다음 갈림길 = 질의 formalize 서브(action-명명 질의를 안정 생성) or 이름-추출 offload.
+- 037 = 78분+ 실행(비정상·verify-persistence·max_steps 200 대기 중) · 039/040 진행 중.
+**순 성과 정정**: 이 세션 계열 신규 PASS = **022·029 둘뿐**(WEV·컨텍스트 확정). 023은 PASS에서 제외(변동·미해결).
