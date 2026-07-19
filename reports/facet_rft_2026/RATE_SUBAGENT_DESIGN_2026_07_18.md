@@ -887,3 +887,22 @@ P0=_sub_wrap+A2 policy_qa+오프라인 4/4·[05] 정직: A2 순증→측정 게�
   다음 갈림길 = 질의 formalize 서브(action-명명 질의를 안정 생성) or 이름-추출 offload.
 - 037 = 78분+ 실행(비정상·verify-persistence·max_steps 200 대기 중) · 039/040 진행 중.
 **순 성과 정정**: 이 세션 계열 신규 PASS = **022·029 둘뿐**(WEV·컨텍스트 확정). 023은 PASS에서 제외(변동·미해결).
+
+### §2u (2026-07-20) — 023 원인 확정 + t3fix 5태스크 전수 per-step 포렌식
+**★023 근본원인 [S] (per-step 대조·결정 지점 격리)**: 023 = **조건분기 태스크** — Platinum 리베이트 자격 판정
+(매월 지출이 *모든 달* $7,500 이상인가) → 자격이면 Diamond Elite 신청(gold)·아니면 Silver.
+- PASS(옛) msg32: "매월 $7,500을 모든 달 충족 → **자격 있음**" → Diamond → gold match.
+- FAIL(신) msg26-28: 같은 정책 인용하나 "자격 없음" 결론 → Silver.
+- ⇒ **recommendation 아님. per-month 지출 집계+임계 판정을 32B가 눈대중**(한 번 충족·한 번 미충족). ratefix/APY와
+  동일 계산-오프로드 클래스. 레버 = group_reduce(월별 지출 합)→min≥threshold. **recommendation_verify는 023에
+  애초 부적합**(user-직접 apply·offer-nested 아님). §2o/handoff "023=recommendation PASS" 완전 오귀속 확정.
+**t3fix 5태스크 포렌식 [S] — getter 수정이 2분할 산출**:
+- **미전환(031·038)**: 발견 체인 미진입 지속. 031(28msgs)="I will now file the dispute" **말만 하고 도구 미호출**
+  (say-don't-do·action-required 15발화에도 언어적 무마) · 038(50msgs)=미발견→transfer. **진짜 프롬프트-천장 후보**
+  (넛지에 "하겠다" 답하고 실행 안 함·[[42]] 라인).
+- **전환·다음층 노출(043·050·054)**: getter 수정으로 발견 **실제 진입**. 043(104msgs 처닝)·050(CLI 제출까진)·
+  **054(7/17·unlock5·call4=최다 진전)**. 그러나 완결 미달 = **coverage(다단 완주)+인자-formalize** 층이 드러남.
+  054/050은 approve_credit_limit_increase(WEV CLI-체인 표적) 근처까지 갔으나 체크체인 미완으로 approve 도달 못 함.
+- ⇒ **getter 수정 = 부분 유효**(043/050/054 진입 실증·특히 054). 잔여 2벽: ①발견 미진입(031/038=say-don't-do·
+  soft-천장) ②진입 후 coverage/calc(043/050/054). 다음 레버 = ①엔=FIND controller 강화(말-실행 괴리 차단) or learn
+  ②=eplan coverage + calc-offload(023형 자격판정 포함).
