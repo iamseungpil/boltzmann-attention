@@ -68,6 +68,16 @@
 - `quote_grounding=true`: 반환 quotes가 **실제 KB 문서의 substring인지 엔진이 결정론 검증**(§2e `_norm_ground`
   재사용) — 불일치 quote는 드롭·전부 드롭이면 폴백. 서브 환각이 메인에 "근거"로 못 들어간다([[03b]]).
 
+## 3-0. ★라우팅 계약 (2026-07-20 028 정독 실증 — 신 Δspurious 채널·리뷰⑥ 경고 실증)
+- **실측(028 wrap-arm)**: policy_qa가 "dispute 상태 확인법" 질의에 `get_user_dispute_history`/`get_debit_dispute_status`를
+  **도구-라우팅 조언**으로 반환 → 에이전트가 잘못된 테이블 도구로 과검증 → 거짓음성 → 포기. KB-grounded지만
+  이 dispute-type엔 오답. wrap이 컨텍스트를 줄이는 대신 **잘못된 도구 선택을 주입**(도구 설명 2개=cue 추가의 실현).
+- **정정**: policy_qa 반환은 **정책-사실**(자격조건·임계·상태 의미)만. **"어느 도구를 불러라"식 라우팅 조언 금지.**
+  return_contract에 명시: `"Answer WHAT the policy says, NOT which tool to call. Never name internal tools as
+  instructions."` + answer에서 도구명(`_\d{4}$` 패턴) 등장 시 엔진이 스트립하거나 폴백(계측 대상).
+- 격리 서브가 GET에 쓰는 getter는 그대로(내부 검색)·**반환 answer의 라우팅-지시만** 차단. [[10]] 정합: 라우팅
+  판단은 메인 몫(유동성)·서브는 사실 공급(생성기)만.
+
 ## 3. ★게이트 증거 계약 (WEV 상호작용 — 필수 설계점)
 - WEV·gate.observe·`_rebuild_gate_state`가 스캔하는 것은 **메인 `state.messages`의 role=tool 내용**이다.
 - 서브로 격리된 기능의 출력에 게이트 증거(예: dispute의 `txn_...`+`RESOLVED` 공존)가 있으면, **반환의
