@@ -253,6 +253,16 @@
    "dispute_type"
   ]
  },
+ "write_evidence_specs": [
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {"arg": "agent_tool_name", "prefix": "update_transaction_rewards"},
+   "id_key": "transaction_id",
+   "require_tokens": ["RESOLVED"],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows a RESOLVED dispute for transaction {id} — a customer's verbal claim is NOT evidence. Do NOT update this transaction. First verify the dispute status from actual tool results (e.g., the dispute submission result). If the dispute is not RESOLVED, refuse the update and explain that the correction will be applied once the dispute is actually resolved.",
+   "_note": "2026-07-19 task_029 포렌식: 서브밋 반환이 'Status: SUBMITTED'인데 사용자 거짓말('승인·해결됐다')만 믿고 update 6건→db 오염 0점. 증거=도구출력 substring 공존(txn id+RESOLVED)·user *발화*는 배제(role=tool만). 026/028 auto-resolve 반환문('Status: RESOLVED - approved'+Arguments에 txn id)에 실재→무회귀. T2_WRITE_EVIDENCE=1 구동·기본 OFF."
+  }
+ ],
  "scaffold_get_tools": [
   {
    "name": "get_reward_discrepancies",

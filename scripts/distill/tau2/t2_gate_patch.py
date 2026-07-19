@@ -290,6 +290,9 @@ def apply():
         wcap_k = int(os.environ.get("T2_WRITE_CAP_K", "2"))
         wcap_tools = _confirm_write_tools(a2) if wcap_on else set()
         wdone = self._t2_wdone = getattr(self, "_t2_wdone", {})
+        # ★T2_WRITE_EVIDENCE=1: A2 write_evidence_specs 구동(기본 OFF·§_write_evidence_deny).
+        wev_specs = (a2.get("write_evidence_specs") or []) \
+            if os.environ.get("T2_WRITE_EVIDENCE") == "1" else []
 
         results = []
         for tc in tool_calls:
@@ -327,6 +330,15 @@ def apply():
                 _mark_fail(key, why)
                 results.append(_deny_msg(tc, g, why))
                 continue
+            # ★T2_WRITE_EVIDENCE: 원장(도구 출력) 증거 없는 선언-write 반려 (§_write_evidence_deny)
+            if wev_specs:
+                wd = _write_evidence_deny(self, tc, wev_specs)
+                if wd:
+                    self.num_errors += 1
+                    _mark_fail(key, wd)
+                    print("[T2_WRITE_EVIDENCE] deny tool=%s" % tc.name, file=sys.stderr, flush=True)
+                    results.append(_deny_msg(tc, "WRITE_EVIDENCE", wd))
+                    continue
             # ★T2_WRITE_CAP (S1a-1·F5): 이미 K회 성공한 동일-write → 재실행 안 함·deny("완료")
             if wcap_on and tc.name in wcap_tools:
                 _wk = _call_key(tc)
@@ -479,6 +491,55 @@ REGEN_FEEDBACK_DIRECTIVE = (
     "— it looks invented. Do NOT ask the user; instead call `{producer}`({in_arg}={in_val}) and read "
     "'{field}' from its output, then emit a corrected tool call with the real value from that output."
 )
+
+
+def _write_evidence_deny(orch, tc, specs):
+    """★T2_WRITE_EVIDENCE (2026-07-19·task_029 포렌식): A2 `write_evidence_specs` — 선언된 write 전,
+    요구 토큰이 대상 id와 **같은 도구 출력**(role=tool·env 생성물·user *발화*는 제외)에 공존해야 실행.
+    029 실측: 사용자 거짓말("해결됐다")만 믿고 update 6건→db 오염. 도메인-일반: 도구명/조건/토큰/문구
+    전부 A2·엔진은 substring 공존 실재확인만([[03b]] provenance 계열·값 추출/생성 0). id는 호출 인자
+    (중첩 JSON-문자열 포함=_args_dict 계열·모델 자신의 출력 파싱). id 못 읽으면 skip(false-block 회피)."""
+    name = getattr(tc, "name", None)
+    args = _args_dict(tc)
+    for sp in specs:
+        if name != sp.get("applies_to"):
+            continue
+        aw = sp.get("applies_when") or {}
+        if aw.get("arg"):
+            v = str(args.get(aw["arg"]) or "")
+            pref = aw.get("prefix")
+            if pref and not v.startswith(pref):
+                continue
+        idk = sp.get("id_key")
+        idv = args.get(idk)
+        if idv is None and idk:
+            for vv in args.values():                   # 중첩 JSON-문자열 인자(디스패처형 도구)
+                if isinstance(vv, str) and idk in vv:
+                    try:
+                        idv = (json.loads(vv) or {}).get(idk)
+                    except Exception:
+                        pass
+                if idv:
+                    break
+        if not idv:
+            continue
+        tokens = sp.get("require_tokens") or []
+        found = False
+        try:
+            for m in orch.get_messages():
+                if getattr(m, "role", None) != "tool":
+                    continue
+                c = getattr(m, "content", None)
+                c = c if isinstance(c, str) else str(c or "")
+                if str(idv) in c and all(t in c for t in tokens):
+                    found = True
+                    break
+        except Exception:
+            return None
+        if not found:
+            fb = sp.get("feedback") or "Error: [WRITE-EVIDENCE] required evidence not found for {id}."
+            return fb.replace("{id}", str(idv))
+    return None
 
 
 def _resolver_directive(a2, tc, k, s):
