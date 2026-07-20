@@ -1242,3 +1242,21 @@ discoverable·mutating)를 직호출→live선 TOOLGATE가 "not available"로 �
 env `_has_tool` 실재 이름은 가로채지 않음(통과=env 판단=replay 정합·TOOLGATE는 진짜 발명된 이름만 ASK).
 **레버 상태 종합(e2e9 중간)**: 관문1(grounding)·3(closure 판정)·2(chain)·CLAIMPROV(다회 감사) = **라이브 발화
 검증 완료**. 잔여 결함은 전부 "발화 후 마지막 1홉"(문구·예산·사전화)이었고 이번에 배선. 라이브 재검증=차기 런.
+
+### §2ap (2026-07-20) — e2e9 최종 집계 + 095/097 포렌식: 잔여=INFER-calibration([[16]] 예측 정합)
+**최종**: 023=**1.0**·031/038/043/050/095=0.0(전부 user_stop 완주·실궤적)·052/054/097=infra(각 원인 규명·픽스).
+9태스크 중 크래시-무효 3건 전부 별개 신규 버그(문자열-args v2·TOOLGATE replay·overflow가드 범위) — **§2ah 크래시
+사슬의 재발 아님**(별개 층·각각 근절).
+**095(0.0·88msg) [S]**: gold 9액션 중 **7 match**(인증+read 쌍들+unlock 전부·이전 런 INFRA×2와 격세) — False는
+종단 write 2개의 **인자만**. 궤적: get_correct_savings_apy 5회(components 소스-인용 정합·grounding 통과)→
+get_interest_correction(expected 6.0·**actual 0.46875·principal 96000·기간 1개월**) vs gold **98.00**(=8000
+principal·full-yr·§2af 설계 시 재현). = 도구 채택·절차·grounding 전부 정상·**어느 principal/기간/actual을
+쓰나의 formalize 의미론**이 오답 = [[16]]의 "유일잔여=INFER-calibration(learn)" 예측과 정확히 정합. 스캐폴드로
+닫을 수 없는 축(설계 문서 명시·[[13]] 우선순위: scale→learn→scaffold최후).
+**097(infra) [S]**: CWE 44745>44672 — **overflow 가드가 FullDuplex.step만 래핑·banking 실사용은 text-모드
+BaseOrchestrator.step**이라 누출(§2ai 가드의 설치-범위 버그). 픽스=`_wrap_step` 양쪽(base+full_duplex·override별
+개별·이중래핑 방지). CWE 자체는 §2ai 진단대로 heavy 태스크 잔여(97=4계좌 components 인라인)—fetch-iso 미선언
+도구(get_correct_savings_apy)로의 확장이 다음 컨텍스트 레버.
+**e2e9 종합 판정**: ①인프라: 신규 3버그 규명·픽스(재발 사슬 아님) ②레버: 관문1/2/3/CLAIMPROV 라이브 검증·
+관문4/5는 마지막-1홉 픽스 배선(§2ao) ③잔여 스펙트럼 확정 = 발견-분산(038)·formalize-calibration(095)·컨텍스트
+(097) — 앞 둘은 learn/scale 축·스캐폴드 아님([[13]]·[[16]]). ④052 프로브 본판정은 크래시로 미완(픽스 후 재런).

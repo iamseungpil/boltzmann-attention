@@ -1956,30 +1956,39 @@ def _install_overflow_guard():
       태스크 미완이므로 reward≈0 — **소실(제외) 대신 정직한 실패 계상**(평균 인플레 방지). crash 픽스(_reassemble)로
       부분 tick의 call↔result 쌍이 이미 유효 → replay 안전."""
     try:
+        from tau2.orchestrator.orchestrator import BaseOrchestrator as _BO
         from tau2.orchestrator.full_duplex_orchestrator import FullDuplexOrchestrator
         from tau2.data_model.simulation import TerminationReason
         from litellm import ContextWindowExceededError
     except Exception as _e:
         print("[T2_OVERFLOW_GUARD] not installed (import): %r" % (_e,), file=sys.stderr, flush=True)
         return
-    if getattr(FullDuplexOrchestrator, "_t2_overflow_wrapped", False):
-        return
-    _orig_step = FullDuplexOrchestrator.step
 
-    def _guarded_step(self, *a, **kw):
-        try:
-            return _orig_step(self, *a, **kw)
-        except ContextWindowExceededError as _ce:
-            # 예외 전 기록된 tick은 유효(부분 궤적). done+reason 설정 → run 루프 종료 → finalize 채점.
-            self.done = True
-            self.termination_reason = TerminationReason.CONTEXT_WINDOW_EXCEEDED
-            print("[T2_OVERFLOW_GUARD] context window exceeded -> terminate sim as scored failure. %s"
-                  % (str(_ce)[:140],), file=sys.stderr, flush=True)
-            return None
+    def _wrap_step(cls):
+        """cls.step을 CWE-가드로 래핑. ★e2e9 097 정정(§2ao): 구판은 FullDuplex만 래핑 — text-모드
+        (banking 런 실사용)는 BaseOrchestrator.step이라 CWE가 그대로 새어 sim 무효. **양쪽** 래핑
+        (서브클래스 override별 개별·이중래핑 방지 마커)."""
+        if getattr(cls, "_t2_overflow_wrapped", False) or "step" not in cls.__dict__:
+            return
+        _orig_step = cls.step
 
-    FullDuplexOrchestrator.step = _guarded_step
-    FullDuplexOrchestrator._t2_overflow_wrapped = True
-    print("[T2_OVERFLOW_GUARD] ON", file=sys.stderr, flush=True)
+        def _guarded_step(self, *a, **kw):
+            try:
+                return _orig_step(self, *a, **kw)
+            except ContextWindowExceededError as _ce:
+                # 예외 전 기록 히스토리는 유효(부분 궤적). done+reason → run 루프 종료 → finalize 채점.
+                self.done = True
+                self.termination_reason = TerminationReason.CONTEXT_WINDOW_EXCEEDED
+                print("[T2_OVERFLOW_GUARD] context window exceeded -> terminate sim as scored failure. %s"
+                      % (str(_ce)[:140],), file=sys.stderr, flush=True)
+                return None
+
+        cls.step = _guarded_step
+        cls._t2_overflow_wrapped = True
+
+    _wrap_step(_BO)                       # text-모드(banking 실사용 경로)
+    _wrap_step(FullDuplexOrchestrator)    # speech 모드(자체 step override)
+    print("[T2_OVERFLOW_GUARD] ON (base+full_duplex)", file=sys.stderr, flush=True)
 
 
 def _install_regen_exec():
