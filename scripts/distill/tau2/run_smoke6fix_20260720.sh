@@ -18,6 +18,7 @@ run_arm() {
   export T2_SG_ISOLATE=1 T2_WRITE_EVIDENCE=1 T2_READ_DEDUP=1
   export T2_ACTION_DENY_CAP=3 T2_FORCE_ACTION=1 T2_CLAIM_PROV=1 T2_VERIFY_DENY_CAP=2 T2_ARG_SCHEMA=1
   export T2_SG_GROUND=1
+  export T2_LLM_TIMEOUT=300 T2_LLM_RETRIES=1     # 097 stall 방지: hang 요청 5분 상한·재시도 1(최악 10분→infra_error)
   export T2_SG_ISOLATE_TRACE=$SCRATCH/${TAG}_operands.jsonl
   rm -f $T2_SG_ISOLATE_TRACE
   /home/woori/venvs/seka_env/bin/python -u $REPO/scripts/distill/tau2/t2_run_gated.py \

@@ -223,6 +223,20 @@ def main():
     # 비결정성은 serve-side enforce-eager/max-num-seqs=1로, seed는 샘플링-RNG 보조)
     if a.agent_seed is not None and not a.agent_llm:
         llm_args_agent["seed"] = a.agent_seed
+    # ★LLM 요청 timeout/재시도 (2026-07-20·097 stall 진단): completion()에 timeout이 없어 hang 요청이
+    #   litellm 기본(~600s)×num_retries(config 3)=~40분 조용한 stall(097 실측·conc=1 블록). **opt-in env**로만
+    #   주입(미설정=공유 드라이버 기본거동 불변). T2_LLM_TIMEOUT=초(요청당 상한)·T2_LLM_RETRIES=재시도수.
+    #   agent(vLLM)·user-sim·judge 셋 다 적용(어느 호출이 hang하든 bound). generate()는 kwargs로 completion에 통과.
+    _llm_to = os.environ.get("T2_LLM_TIMEOUT")
+    _llm_rt = os.environ.get("T2_LLM_RETRIES")
+    if _llm_to or _llm_rt:
+        for _ar in (user_args, judge_args, llm_args_agent):
+            if _llm_to:
+                _ar["timeout"] = float(_llm_to)
+            if _llm_rt is not None:
+                _ar["num_retries"] = int(_llm_rt)
+        print("[t2_run] LLM timeout=%s num_retries=%s (hang 방지·097 stall 진단)"
+              % (_llm_to, _llm_rt))
     _extra_cfg = {}
     if a.retrieval_config:
         _extra_cfg["retrieval_config"] = a.retrieval_config
