@@ -3241,8 +3241,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         #   038 실측: "I will file 3 disputes..."(SAY)→TRANSFER NOTICE로 탈출(정당 도구호출이라
         #   FORCE_ACTION 사각·미래형이라 구판 CLAIM 사각). transfer 패턴=A2 event_map['transfer'] 재사용.
         _cpv_transfer = _is_transfer_call(am, _cpv.get("event_map") or {})
+        # ★cap env화(2026-07-20·smoke023d 포렌식·§2am): 1/sim 고정은 빈손 regen(tool_calls=[]·기지의
+        #   43~50%) 1회에 레버 전소 → 이후 완료날조·transfer-escape 무방비(실측: 첫 발화 빈손→msg21
+        #   "이미 logged" 날조·msg37 transfer 탈출 모두 무검사). 기본 1=거동보존·스모크 3.
+        _cpv_cap = int(os.environ.get("T2_CLAIMPROV_CAP", "1") or 1)
         if (os.environ.get("T2_CLAIM_PROV") == "1" and (_resign or _cpv_transfer)
-                and not getattr(self, "_t2_claimprov", 0)
+                and getattr(self, "_t2_claimprov", 0) < _cpv_cap
                 and _cpv.get("question") and _cpv.get("feedback") and _cpv.get("event_map")):
             for _once in (True,):
                 _cl, _pd = None, None
