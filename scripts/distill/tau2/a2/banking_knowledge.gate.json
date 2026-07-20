@@ -648,7 +648,9 @@
        "over": "transactions",
        "anchor": "account_opening_date",
        "date_field": "date",
-       "out_field": "__win"
+       "out_field": "__win",
+       "year_select": "latest",
+       "_note": "2026-07-20 §2ak: KB doc_010=cardmember year 연도별 평가 → 최근 기념년(latest). 구판 첫해-고정이 023 오판정(전거래 드롭) 근본."
       },
       "group_by": "__win",
       "value_field": "amount",

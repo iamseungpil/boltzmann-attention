@@ -89,13 +89,33 @@ def t_empty_and_missing():
     print("t_empty_and_missing OK")
 
 
-if __name__ == "__main__":
-    t_group_reduce_basic()
-    t_unknown_kind_flag()
-    t_argmax_composed_key()
-    t_interest_delta_composition()
-    t_empty_and_missing()
-    print("ALL PASS")
+def t_year_select_latest():
+    # ★§2ak (smoke023b 실측 재현): 개설 2022·거래 2024-25(k=24..35) — 구판(첫해 0..11)은 전 드롭→
+    #   빈 집계→오판정. year_select=latest는 최근 기념년만 취해 0..11 재인덱스 → 판정 역전.
+    txns = [{"date": "%02d/12/%d" % (m, y), "amount": 7600}
+            for (m, y) in [(11, 2024), (12, 2024)] + [(m, 2025) for m in range(1, 11)]]
+    ctx = {"t": txns, "o": "11/10/2022"}
+    old = apply_op({"op": "bucket_month_window", "over": "t", "anchor": "o",
+                    "date_field": "date", "out_field": "w"}, dict(ctx))
+    assert old == [], old                                  # 구판: 전 거래 드롭(023 오판 기전)
+    new = apply_op({"op": "bucket_month_window", "over": "t", "anchor": "o",
+                    "date_field": "date", "out_field": "w", "year_select": "latest"}, dict(ctx))
+    assert len(new) == 12 and sorted(r["w"] for r in new) == list(range(12)), new
+    mn = apply_op({"op": "group_reduce", "over": "b", "group_by": "w", "value_field": "amount",
+                   "default_reducer": "sum", "across": "min"}, {"b": new})
+    assert mn == 7600.0 and mn >= 7500, mn                 # → QUALIFIES (gold 분기)
+    # 거동보존: 개설 첫해 거래는 latest서도 동일(0..11 그대로)
+    t1 = [{"date": "11/20/2022", "amount": 100}]
+    a = apply_op({"op": "bucket_month_window", "over": "t", "anchor": "o", "date_field": "date",
+                  "out_field": "w", "year_select": "latest"}, {"t": t1, "o": "11/10/2022"})
+    b = apply_op({"op": "bucket_month_window", "over": "t", "anchor": "o", "date_field": "date",
+                  "out_field": "w"}, {"t": t1, "o": "11/10/2022"})
+    assert a == b == [{"date": "11/20/2022", "amount": 100, "w": 0}], (a, b)
+    # 빈 입력 → [] (None 아님·abstain은 상위 compare가)
+    assert apply_op({"op": "bucket_month_window", "over": "t", "anchor": "o", "date_field": "date",
+                     "out_field": "w", "year_select": "latest"}, {"t": [], "o": "11/10/2022"}) == []
+    print("t_year_select_latest OK (구판 drop→오판 재현·latest 12/12·거동보존)")
+
 
 
 def t_across_min_023():
@@ -127,3 +147,14 @@ def t_dg_sum_unchanged():
                 "reducers":{"checking":"max1","card":"max1","relationship":"sum"}},ctx)
     assert abs(r-1.35)<1e-9, r
     print("t_dg_sum_unchanged OK", r)
+
+if __name__ == "__main__":
+    t_group_reduce_basic()
+    t_unknown_kind_flag()
+    t_argmax_composed_key()
+    t_interest_delta_composition()
+    t_empty_and_missing()
+    t_across_min_023()          # ★러너 갭 수정(2026-07-20): __main__ 뒤 정의라 미실행이었음
+    t_dg_sum_unchanged()
+    t_year_select_latest()
+    print("ALL PASS")

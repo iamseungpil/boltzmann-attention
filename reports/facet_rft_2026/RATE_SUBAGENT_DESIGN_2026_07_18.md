@@ -1161,3 +1161,19 @@ TOOLGATE=미지도구 replay-skip·READ_DEDUP=read 비교제외·scaffold도구=
 이번 런은 SG_GROUND/SG_TRUTH 발화 0=모델이 그 경로를 안 탐). **인프라 픽스 총 4종**(exec 1:1·LLM timeout·
 overflow 가드+fetch-iso+regen예산·SG_TRUTH replay) = struggling 태스크서 순차 노출된 사슬 — 하나 고치면 다음
 층이 드러나는 구조였음([[08]] 포렌식 반복의 가치).
+
+### §2ak (2026-07-20) — 023 reward-실패 포렌식 [S]: 엔진 cardmember-year 의미론 결함 → year_select=latest
+**궤적 전수 정독(smoke023b·48msg)**: verify→log_verification(gold 023_0 ✓ 1.0)→거래 60건 read→
+check_rebate(개설일 11/10/2022·threshold 7500·fetch-iso로 거래 서브-fetch)→**"DOES NOT QUALIFY"**(msg 32)→
+user-sim 분기 지침("불자격→Silver 신청 / 자격→**Diamond Elite** 신청")따라 **Silver 신청**(msg 43)→gold(023_1=
+Diamond Elite) 불일치·DB 0. **모든 인프라 정상**(크래시 0·fetch-iso 발화·정상 채점) — 실패는 순수 **판정 오답**.
+**근본 [S·판정역전 실증]**: 입력 전수 검증 — 개설일=DB 정본과 일치(11/10/2022·**§2ae "개설일 오독" 진단은 이
+궤적엔 부정확→정정**·사용자 발화 "Nov 2024"가 오히려 부정확)·threshold=7500 정확·거래 60건 정확(11/2024~10/2025).
+결함=**엔진 bucket_month_window의 within_year=개설 첫해(0..11) 고정** → 거래 k=24..35 전량 드롭→빈 집계→오판.
+KB doc_010 정본: "cardmember year"=**연도별 평가**(12연속 월별 기념일 윈도우). 실제 60거래 로컬 재계산:
+구판=0윈도우→불자격(오판) vs 최근-기념년=12/12 전부 ≥7500(min $7,594)→**QUALIFIES=gold 분기 일치**.
+**픽스**: 엔진 `year_select:"latest"`(거래 실재하는 최근 기념년만·0..11 재인덱스·달력 산술만·미선언=거동보존)+
+A2 op 선언. `test_group_reduce.py` 9/9(오판 기전 재현·판정 역전·거동보존·빈 입력). +**러너 갭 2건 복원**
+(t_across_min_023·t_dg_sum_unchanged가 __main__ 뒤 정의라 미실행이었음 — "7/7" 주장 시절 실제 미커버·정직 정정).
+**교훈**: ①"오독" 계열 진단은 **입력이 아니라 엔진 의미론**일 수 있다 — 포렌식은 입력 검증+엔진 의미론 검증
+둘 다([[08]] 확장) ②시간-앵커 프리미티브는 "어느 연도인가"가 별도 자유도 — A2가 명시 선언해야.

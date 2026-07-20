@@ -139,15 +139,27 @@ def apply_op(spec, ctx):
             df = spec.get("date_field", "date")
             of = spec.get("out_field", "window")
             within = spec.get("within_year", True)
-            out = []
+            # ★year_select="latest" (2026-07-20·smoke023b 포렌식 §2ak): "cardmember year"는 **연도별**
+            #   평가(KB doc_010: 12연속 월별 윈도우·해당 연도)인데 구판은 개설 **첫해(0..11) 고정** —
+            #   개설 2022·거래 2024-25(k=24..35)면 전 거래 드롭→빈 집계→오판정(실측: QUALIFIES를
+            #   DOES NOT로·사용자가 오답 분기·DB 0). latest = 거래가 실재하는 **최근 기념년**(Y=max k//12)만
+            #   취해 윈도우를 0..11로 재인덱스. 달력 산술만(도메인일반)·미선언=기존 거동보존.
+            ysel = spec.get("year_select")
+            tagged = []
             for r in recs:
                 if not isinstance(r, dict):
                     continue
                 k = _month_window_index(anchor, r.get(df))
-                if k is None or (within and not (0 <= k <= 11)):
+                if k is None:
                     continue
-                out.append(dict(r, **{of: k}))
-            return out
+                tagged.append((k, r))
+            if ysel == "latest":
+                if not tagged:
+                    return []
+                yy = max(k // 12 for k, _ in tagged)
+                return [dict(r, **{of: k % 12}) for k, r in tagged if k // 12 == yy]
+            return [dict(r, **{of: k}) for k, r in tagged
+                    if not (within and not (0 <= k <= 11))]
         if op == "group_reduce":
             # ★도메인-일반 프리미티브 (ACCOUNT_APY_OFFLOAD §2-0·리뷰① — apy_argmax/interest_delta를
             #   1개로 대체). 항목을 group_by로 묶고, 그룹별 A2-선언 reducer(max1|sum) 적용 후 총합.
