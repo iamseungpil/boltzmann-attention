@@ -3143,8 +3143,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         #   붙는지·피드백 문구 = A2(`scaffold_get_tools[].follow_up`). 상한 1/sim·regen 채택 전 게이트 재검사.
         #   ★임계=사임 2회째(기본·env 조정가능): 오프라인 replay 실측 — 1회째는 pass 6/6 전부에 발화
         #   (pass 궤적도 결과 제시→확인 사임이 한 번 있음)·2회째는 실패 4/4 커버 + pass 2/6만 접촉.
+        # ★T2_FOLLOWUP_CAP (2026-07-20 §2au·e2e10 050/052 실측): 고정 1/sim은 chain 1회 발화 후 소진 —
+        #   4체크 중 2개만 진행돼도 레버 끝(CLAIMPROV cap 전소와 동일 패턴). 기본 1=거동보존·재런 3.
+        _fu_cap = int(os.environ.get("T2_FOLLOWUP_CAP", "1") or 1)
         if (os.environ.get("T2_FOLLOWUP_REQUIRED") == "1" and _resign
-                and not getattr(self, "_t2_followup", 0)):
+                and getattr(self, "_t2_followup", 0) < _fu_cap):
             _called0 = _called_tools(state.messages)
             for _d0 in ((a2 or {}).get("scaffold_get_tools") or []):
                 _fu = _d0.get("follow_up") or {}
@@ -3179,7 +3182,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   전량 대조 + 누락 도구 **전량 나열**(`{missing}` 치환·050 follow-through+054 query-gap 동시 커버).
             #   ＋종단결정 nudge: requires 전부 충족·사임·`decision_tools` 미호출이면 `decision_feedback` 1회
             #   (approve **강제 아님** — decline-정답 케이스(052)가 있어 문구가 양방향 명시·Δspurious 계측 대상).
-            if not getattr(self, "_t2_followup", 0):
+            if getattr(self, "_t2_followup", 0) < _fu_cap:
                 _eff0 = {_eff_tool_name(tc) for m in state.messages
                          for tc in (getattr(m, "tool_calls", None) or [])}
                 for _fc in ((a2 or {}).get("follow_up_chains") or []):

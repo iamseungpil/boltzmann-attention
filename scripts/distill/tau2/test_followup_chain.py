@@ -27,7 +27,11 @@ def check(label, cond):
 
 def main():
     check("A2: requires=full set 4체크", isinstance(REQ, list) and len(REQ) == 4)
-    check("A2: decision_tools 선언", CHAIN.get("decision_tools") == ["approve_credit_limit_increase"])
+    check("A2: decision_tools=approve+deny(§2au·052 gold=deny 도구 호출)",
+          CHAIN.get("decision_tools") == ["approve_credit_limit_increase", "deny_credit_limit_increase"])
+    check("A2: decision 문구=도구-호출 명시+unlock 프로토콜",
+          "deny_credit_limit_increase" in CHAIN["decision_feedback"]
+          and "unlock_discoverable_agent_tool" in CHAIN["decision_feedback"])
 
     # ── 050 재현: submit + history만 호출·pending 등 3체크 건너뜀 (구판=미발화·신판=발화) ──
     eff = {"submit_credit_limit_increase_request", "get_credit_limit_increase_history"}
@@ -51,13 +55,17 @@ def main():
     eff = {"submit_credit_limit_increase_request"} | set(REQ)
     hit = _chain_dispatch(CHAIN, eff)
     check("전체크 완료·approve 미호출 → decision nudge", hit is not None and hit[1] == "followup_decision")
-    check("decision 문구 양방향(approve|decline 명시·052 보호)", hit is not None
-          and "declined" in hit[0] and "Declining is a valid outcome" in hit[0]
-          and "approve_credit_limit_increase" in hit[0])
+    check("decision 문구 양방향 도구-호출(approve|deny·§2au)", hit is not None
+          and "deny_credit_limit_increase" in hit[0]
+          and "approve_credit_limit_increase" in hit[0]
+          and "ANY" in hit[0])          # deny 조건(어느 하나라도 실패) 명시
 
     # ── 전체크+approve 호출됨 → 미발화 (완료 케이스 무간섭) ──
     hit = _chain_dispatch(CHAIN, eff | {"approve_credit_limit_increase"})
     check("전체크+approve → 미발화(무간섭)", hit is None)
+    # ── 전체크+deny 호출됨 → 미발화 (052 decline-정답 케이스 무간섭·§2au) ──
+    hit = _chain_dispatch(CHAIN, eff | {"deny_credit_limit_increase"})
+    check("전체크+deny → 미발화(무간섭)", hit is None)
 
     # ── after 미호출 → 미발화 (submit 전 사임에 간섭 0) ──
     hit = _chain_dispatch(CHAIN, set(REQ))

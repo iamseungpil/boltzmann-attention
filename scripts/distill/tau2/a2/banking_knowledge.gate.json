@@ -945,11 +945,12 @@
     "get_payment_history"
    ],
    "decision_tools": [
-    "approve_credit_limit_increase"
+    "approve_credit_limit_increase",
+    "deny_credit_limit_increase"
    ],
-   "decision_feedback": "Error: [FOLLOW-UP] you ran the eligibility checks but never made the terminal decision on the credit limit increase request. Per the CLI procedure you must now either (a) call approve_credit_limit_increase — ONLY if every requirement passed — or (b) clearly tell the customer the request is declined and exactly which requirement failed. Declining is a valid outcome; do NOT approve unless every check passed. Do not end the conversation with the request undecided.",
+   "decision_feedback": "Error: [FOLLOW-UP] you ran the eligibility checks but never made the terminal decision on the credit limit increase request. The decision is made with a TOOL CALL, not just words: call approve_credit_limit_increase ONLY if every requirement passed, or call deny_credit_limit_increase if ANY requirement failed. Both are DISCOVERABLE tools - first unlock_discoverable_agent_tool with the full suffixed name, then call_discoverable_agent_tool. Do NOT merely tell the customer the outcome in text, and do NOT end the conversation with the request undecided.",
    "feedback": "Error: [FOLLOW-UP] you submitted the credit limit increase request but have NOT completed the required eligibility check procedure. Checks still missing for this account: {missing}. These checks are DISCOVERABLE tools: for EACH one, first call unlock_discoverable_agent_tool with the tool's full name (including its numeric suffix, from the knowledge base), then call it via call_discoverable_agent_tool — do NOT call the bare name directly. Run EVERY check — get_user_dispute_history, get_pending_replacement_orders, get_credit_limit_increase_history, get_payment_history — and then make the decision: approve_credit_limit_increase if every requirement passed, or clearly decline and explain which requirement failed. Do NOT end the conversation with the request merely submitted.",
-   "_note": "2026-07-20 Q1 + 관문2 확장(§2aa): requires=full required-set 4체크(050 실증: 단일 requires는 이미-호출된 history만 봐 pending 건너뜀을 못 잡음). {missing}=누락 전량 나열(050 follow-through+054 query-gap 동시 커버). decision_tools/decision_feedback=종단결정 nudge — approve 강제 아님(052 decline-정답 보호·문구 양방향·Δspurious 계측 대상). 엔진=집합 대조·치환만(리터럴 0)."
+   "_note": "2026-07-20 Q1 + 관문2 확장(§2aa): requires=full required-set 4체크(050 실증: 단일 requires는 이미-호출된 history만 봐 pending 건너뜀을 못 잡음). {missing}=누락 전량 나열(050 follow-through+054 query-gap 동시 커버). decision_tools/decision_feedback=종단결정 nudge — approve 강제 아님(052 decline-정답 보호·문구 양방향·Δspurious 계측 대상). 엔진=집합 대조·치환만(리터럴 0). ★e2e10 052 포렌식(§2au): gold 종단=deny 도구 호출인데 구문구가 '텍스트 decline 가능'을 가르침(마지막-1홉 결함 6호)→decision_tools에 deny 추가·도구-호출 명시·unlock 프로토콜 포함."
   },
   {
    "after": "file_credit_card_transaction_dispute",
