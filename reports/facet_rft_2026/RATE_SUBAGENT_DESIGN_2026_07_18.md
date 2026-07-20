@@ -1192,3 +1192,18 @@ get_current_time서 copy·**ground 선언**=날짜 형식-불문 파싱 대조):
 레버×레버 상호작용 부작용(등대 §1.3 합성 원리의 실례). **픽스**: 서브 env 호출=`_t2_dedup_bypass`(신선 실행·
 캐시 불변·main dedup 유지)·`_run`/`_run_fa` 양쪽. **트레이스 파일이 없었으면 영영 못 봤다**(§2b 계측 선견지명).
 잔여: 023d 확인런(as_of+bypass 스택)으로 QUALIFIES→Diamond Elite 경로 라이브 확증.
+
+### §2am (2026-07-20) — ★★023 REWARD 1.0 [S]: 6층 사슬 전부 근절·e2e 0/32 이후 첫 PASS 전환
+**smoke023f 최종**: `user_stop·47msg·reward 1.0·db_match True` — **QUALIFIES 판정→사용자 Diamond Elite
+신청(gold 분기)→log_verification·apply 양 액션 match·DB 일치**. 서브 트레이스 n_tx=**60**(dedup-bypass로
+진짜 거래 전량 fetch·날조 0). 전 사슬 라이브 확증: fetch-iso(60건 off-ledger)→as_of last_complete(12윈도우
+전부 ≥7500)→QUALIFIES→정답 분기→**1.0**.
+**중간 2층 추가**(023d/e 포렌식): ⑤**CLAIMPROV cap 전소**(023d·[S]) — 고정 1/sim이 빈손 regen 1회에 소진→
+이후 완료날조("이미 logged")·transfer-escape 무방비→검증 기회 자체 상실. 픽스=`T2_CLAIMPROV_CAP` env(기본 1=
+거동보존·스모크 3)·023e서 4회 다회감사 라이브 확인. ⑥**timeout 캘리브레이션**(023e·[S]) — 097용 300s 상한이
+무거운 꼬리 요청(정상 지연)을 사살(litellm.Timeout→sim 즉사). 480s로 교정(무한대기·조기사살 사이 중간값).
+**023 최종 사슬(6층·모두 [S]·순차 노출)**: ①exec 1:1(id-mismatch) ②컨텍스트 overflow ③SG_TRUTH replay
+④엔진 year 의미론+dedup×서브 날조 ⑤CLAIMPROV cap 전소 ⑥timeout 캘리브레이션. **방법론 교훈**: struggling
+태스크 하나를 reward 1.0까지 벗기는 데 인프라 3·엔진 1·레버×레버 상호작용 1·레버 예산 1 — 집계(0/32)에서는
+이 층들이 전부 "실패 1"로 뭉개진다([[08]]의 정량 실증). ⚠️일반화 주의: nt=1·단일 태스크 — 8태스크 재측정
+(관문 2~5 라이브 검증 포함)이 다음 단계·023 스택의 Δspurious(다른 태스크 부작용)도 그때 계측.
