@@ -311,6 +311,73 @@ def _sub_formalize(orch, d, iso, ctx, run_env_calls):
     return None
 
 
+def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
+    """★fetch-first 격리 서브 (2026-07-20·023 컨텍스트 초과·isolate-승격·§2ah·사용자 지시).
+    문제: 계산도구(check_rebate 등)가 `transactions`(전체 리스트) 등을 **인자로** 받으면 에이전트가
+      레코드를 main 컨텍스트로 읽어 넘겨야 한다 — 그 read+인자에코가 main 컨텍스트를 부풀린다(023 overflow).
+    이 모드: 에이전트는 **참조(`iso['ref_params']`·예 account id)만** 넘기고, 서브가 getter_tools로 레코드를
+      **off-ledger fetch** + 전체 operand dict를 formalize → 메인은 참조+결과만 본다(레코드 read 0=진짜 turn-free).
+    기존 `_sub_formalize`(row-기반·리스트가 이미 ctx에 있어야)와 대비 — 이 모드는 **fetch-first**(참조→서브가 읽음).
+    - 메인 턴 소모 0(서브 generate/도구호출 state.messages 미기입·_sub_formalize와 동형).
+    - GET=진짜 getter(env 결정론 실행)·엔진 리터럴 0(도구명·지시·형식·operand_keys 전부 A2·[[03b]]).
+    반환: operand dict(top-level·ctx.update용) · 실패=None(폴백=에이전트 인자·거동보존)."""
+    import tau2.agent.llm_agent as la
+    from tau2.data_model.message import UserMessage
+    ag = getattr(orch, "agent", None)
+    if ag is None:
+        return None
+    ref = {k: ctx.get(k) for k in (iso.get("ref_params") or []) if ctx.get(k) is not None}
+    if not ref:
+        print("[T2_SG_ISOLATE] fetch: ref_params 부재 → 격리 생략", file=_sys.stderr, flush=True)
+        return None
+    tools = [t for t in (getattr(ag, "tools", None) or [])
+             if getattr(t, "name", None) in set(iso.get("getter_tools") or [])]
+    if not tools:
+        print("[T2_SG_ISOLATE] fetch: getter_tools 부재 → 격리 생략", file=_sys.stderr, flush=True)
+        return None
+    keys = set(iso.get("operand_keys") or [])
+    if not keys:
+        print("[T2_SG_ISOLATE] fetch: operand_keys 미선언 → 격리 생략", file=_sys.stderr, flush=True)
+        return None
+    prompt = "%s\n\n=== REFERENCE ===\n%s\n\n%s" % (
+        iso["instructions"], json.dumps(ref, ensure_ascii=False, indent=1), iso["answer_format"])
+    try:
+        um = UserMessage(role="user", content=prompt)
+    except TypeError:
+        um = UserMessage(content=prompt)
+    msgs = [um]
+    kw = {k: v for k, v in dict(getattr(ag, "llm_args", None) or {}).items() if "tool" not in k}
+    if iso.get("temperature") is not None:
+        kw["temperature"] = iso["temperature"]
+    queries = []
+    for rnd in range(int(iso.get("max_rounds", 4))):
+        try:
+            resp = la.generate(model=ag.llm, tools=tools, messages=msgs, call_name="sg_fetch_iso",
+                               **(dict(kw, tool_choice="required") if rnd == 0 else kw))
+        except Exception as e:
+            print("[T2_SG_ISOLATE] fetch generate 실패(%d라운드): %r" % (rnd, e), file=_sys.stderr, flush=True)
+            _isolate_trace(iso, d, {"error": str(e)[:200], "round": rnd, "queries": queries})
+            return None
+        tcs = list(getattr(resp, "tool_calls", None) or [])
+        if tcs:
+            for _tc in tcs:
+                _fn = getattr(_tc, "function", None) or _tc
+                queries.append(getattr(_tc, "name", None) or getattr(_fn, "name", None))
+            msgs.append(resp)
+            msgs.extend(run_env_calls(tcs))          # ★GET = env 결정론 실행(off-ledger)
+            continue
+        got = _merge_json(getattr(resp, "content", None) or "", keys)
+        getter = sum(1 for m in msgs if getattr(m, "role", "") == "tool")
+        print("[T2_SG_ISOLATE] fetch %s: %d라운드·getter %d회·operand keys=%s"
+              % (d.get("name"), rnd + 1, getter, list(got or {})), file=_sys.stderr, flush=True)
+        _isolate_trace(iso, d, {"mode": "fetch", "round": rnd + 1, "getter": getter,
+                                "queries": queries, "operands": got})
+        return got or None
+    print("[T2_SG_ISOLATE] fetch max_rounds 소진 → 격리 생략", file=_sys.stderr, flush=True)
+    _isolate_trace(iso, d, {"mode": "fetch", "error": "max_rounds", "queries": queries})
+    return None
+
+
 def _sub_inject(orch, d, iso, ctx, la, UserMessage):
     """★★재설계 격리(§2e·2026-07-18 실증 105/105): 카드당 격리 + 문서 주입(검색 0) + grounding.
     거래를 `group_by`(레코드 필드)로 그룹핑 → 그룹마다 그 그룹값의 문서를 제목접두로 주입 →
@@ -781,17 +848,26 @@ def apply():
                 if _iso:
                     def _run(tcs, _self=self):
                         return orig_exec(_self, tcs)
-                    _sub = _sub_formalize(self, d, _iso, _ctx, _run)
-                    if _sub:
-                        _rows = _ctx.get(_iso["over"]) or []
-                        _hit = 0
-                        for _r in _rows:
-                            _v = _sub.get(str(_r.get(_iso["id_field"]))) if isinstance(_r, dict) else None
-                            if isinstance(_v, dict):
-                                _r.update(_v)          # 서브 operand가 메인 추측을 대체
-                                _hit += 1
-                        print("[T2_SG_ISOLATE] %s: %d/%d행 operand를 격리 서브가 산출"
-                              % (getattr(tc, "name"), _hit, len(_rows)), file=_sys.stderr, flush=True)
+                    if _iso.get("mode") == "fetch_formalize":
+                        # ★fetch-first(2026-07-20 isolate-승격): 서브가 참조로 레코드를 off-ledger fetch
+                        #   → 전체 operand dict를 top-level 주입. 에이전트는 참조만 넘겨 레코드 read 0(turn-free).
+                        _sub = _sub_fetch_formalize(self, d, _iso, _ctx, _run)
+                        if isinstance(_sub, dict) and _sub:
+                            _ctx.update(_sub)          # top-level operand(서브가 fetch+formalize)
+                            print("[T2_SG_ISOLATE] %s: fetch-formalize operand 주입 keys=%s"
+                                  % (getattr(tc, "name"), list(_sub)), file=_sys.stderr, flush=True)
+                    else:
+                        _sub = _sub_formalize(self, d, _iso, _ctx, _run)
+                        if _sub:
+                            _rows = _ctx.get(_iso["over"]) or []
+                            _hit = 0
+                            for _r in _rows:
+                                _v = _sub.get(str(_r.get(_iso["id_field"]))) if isinstance(_r, dict) else None
+                                if isinstance(_v, dict):
+                                    _r.update(_v)      # 서브 operand가 메인 추측을 대체
+                                    _hit += 1
+                            print("[T2_SG_ISOLATE] %s: %d/%d행 operand를 격리 서브가 산출"
+                                  % (getattr(tc, "name"), _hit, len(_rows)), file=_sys.stderr, flush=True)
                 # ★operand grounding (T2_SG_GROUND=1·기본 OFF·A2 `ground` 선언 시만·관문1·2026-07-20).
                 #   op 실행 前 미검증(날조/오독) operand를 드롭+플래그 → abstain. 실패해도 폴백 없음
                 #   (드롭=abstain이 목적). 미선언 or OFF = 거동 변화 0.

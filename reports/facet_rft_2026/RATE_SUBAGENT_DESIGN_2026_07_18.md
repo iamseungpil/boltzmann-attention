@@ -1121,3 +1121,27 @@ arm A 5회+097 2회: `base=5.5 (source not in KB)`·`period not in records`·097
    피드백 누적). 미해결·후보=max_model_len↑(서버재시작)·regen cap·컨텍스트 프루닝. **grounding 무관 확인.**
 **⇒ 6관문 배선 + 인프라 크래시 근절 완료. 잔여**: 023 컨텍스트(별개)·전 관문 Δspurious 유료 계측·095/097 리워드
 (heavy 태스크·timeout 하에 재측정 필요).
+
+### §2ai (2026-07-20) — 023 컨텍스트 초과 해소: fetch-first isolate(내부 turn-free 완성) + 예산 2종 [S설계]
+**사용자 지시**: "윈도우 늘리든지, 턴을 줄일 수 있게 하라. 내부 기능은 턴을 안 쓰게 하면 안 되나" → 방향 확정
+= **isolate-승격**(사용자 선택). 측정 근거: vLLM 44672=YaRN 1.375·GPU 0.95util(2GB 여유·KV 13%만 사용) →
+윈도우↑=YaRN 품질저하+OOM위험+재시작+루프면 미룰 뿐. **내부 기계장치는 대부분 이미 turn-free**(isolate=
+off-ledger·게이트 regen=응답 교체·claimprov 프로브=비커밋·READ_DEDUP=중복 stub) — **유일 잔여 = 계산도구
+operand 공급**: check_rebate가 `transactions`(전체 리스트)를 인자로 받아 에이전트가 레코드를 main으로 읽고
+인자로 재에코(이중 비용)=023 bloat 주범.
+**픽스 3종(전부 기본 OFF·오프라인 검증·라이브 미검증):**
+1. **fetch-first isolate**(`mode=fetch_formalize`·`_sub_fetch_formalize`): 에이전트는 참조(user_id/account_id)만
+   넘기고 **서브가 getter로 레코드를 off-ledger fetch+formalize**(§2b LOCK "operand는 sub agent로 격리 리턴"의
+   fetch-first 확장·[[16]] GET 루프). main=참조+결과만(레코드 read 0=진짜 turn-free). 최소화: transactions만
+   서브로·opening_date/threshold는 에이전트 공급 유지(T2_SG_GROUND 경로 보존). 서브 실패=인자 폴백(거동보존).
+   `test_sg_fetch_iso.py` 13/13. [[05]] 정직 판정: Q1/Q3 부분-YES — 정당화=023 실측 [S]+사용자 방향+§2b LOCK
+   선례+기본 OFF+폴백. **금지류(엔진-결정론 spoon-feed) 아님** — 서브-LLM이 getter 선택·호출.
+2. **전역 regen 예산**(`T2_REGEN_BUDGET`·`_regen_budget_ok/spend`): 개별 cap(FORCE=3·RESOLVE=3·기타 1/sim)은
+   있으나 **전역 예산 부재** → struggling 태스크서 게이트 스택 총 개입이 무제한. 등대 §1.3(게이트 자신도 비용)의
+   컨텍스트-비용 상한. `_ap_regen` 경로 소진 시 skip(모델 무관·게이트만 침묵). 미설정=무제한(거동보존).
+3. **overflow 우아한 종료**(`_install_overflow_guard`): tau2 `CONTEXT_WINDOW_EXCEEDED` 종료사유가 **정의만 되고
+   미배선** — full_duplex `step()` 래핑으로 그 의도된 처리를 구현: overflow→done+reason 설정→finalize→**부분
+   tick으로 채점(scored 실패)**. sim 소실(무효·평균 인플레) 대신 정직한 실패 계상. crash 픽스(§2ah)로 부분
+   tick replay 안전 전제.
+**다음**: 023 재런(fetch-iso+예산+가드 스택)으로 overflow 해소·리워드 채점 확인. Δspurious 계측 지점 추가:
+fetch-iso(서브 fetch 실패율·operand 품질 vs 에이전트-공급 arm).

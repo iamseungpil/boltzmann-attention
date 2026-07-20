@@ -1221,6 +1221,24 @@ def _is_transfer_call(am, emap):
     return False
 
 
+def _regen_budget_ok(self):
+    """★전역 per-sim regen 예산 (2026-07-20·023 컨텍스트 초과 진단·§2ah).
+    개별 게이트 cap(FORCE=T2_ACTION_DENY_CAP·RESOLVE 3·writeprov/claimprov/discreq 1)은 있으나
+    **전역 예산이 없어** struggling 태스크(023)서 게이트 스택 regen 누적+에이전트 조사가 vLLM
+    max_model_len(44672)을 초과→ContextWindowExceededError→sim 무효. 등대 §1.3: 게이트 자신도 비용
+    (over-action)을 낸다 — 그 비용(여기선 컨텍스트)을 **측정·상한**한다. 도메인-일반·리터럴 0.
+    T2_REGEN_BUDGET=정수(총 regen 상한)·미설정=무제한(기존거동 불변). 소진 후 모든 regen skip→
+    에이전트가 종단행동으로 수렴하거나 max_steps로 종료(FORCE→RESOLVE 무한루프 차단)."""
+    _b = os.environ.get("T2_REGEN_BUDGET")
+    if not _b:
+        return True
+    return getattr(self, "_t2_regen_total", 0) < int(_b)
+
+
+def _regen_budget_spend(self):
+    self._t2_regen_total = getattr(self, "_t2_regen_total", 0) + 1
+
+
 def _chain_dispatch(fc, eff):
     """★관문2(2026-07-20·§2aa): follow_up_chain 1건의 발화 판정 (순수 함수·단위테스트 공유 —
     [[03b]] 별도구현 금지·라이브와 같은 코드를 잰다).
@@ -1925,6 +1943,43 @@ def _budget_tick(agent):
             orch.num_errors = getattr(orch, "num_errors", 0) + 1
         except Exception:
             pass
+
+
+def _install_overflow_guard():
+    """★컨텍스트 초과 우아한 종료 (2026-07-20·023 진단·§2ah). 하네스-일반(도메인 무관·[[05]] 3질문 NO).
+    문제: full_duplex `step()`이 `ContextWindowExceededError`를 안 잡아 예외가 러너까지 전파→sim 전체가
+      `infrastructure_error`(무효·unscored·0 msg)로 **소실**. 023이 게이트스택 regen+에이전트 루프 누적으로
+      46089>vLLM 44672 초과서 실측(§2ah). tau2엔 `CONTEXT_WINDOW_EXCEEDED` 종료사유가 **정의만 되고 미배선** —
+      그 의도된 처리를 구현.
+    처방: `step()`을 래핑해 overflow를 잡고 done=True + reason=CONTEXT_WINDOW_EXCEEDED로 정상 종료 →
+      run 루프가 done 감지 → finalize → **이미 기록된 부분 tick으로 reward 계산(scored)**. 비수렴 궤적은
+      태스크 미완이므로 reward≈0 — **소실(제외) 대신 정직한 실패 계상**(평균 인플레 방지). crash 픽스(_reassemble)로
+      부분 tick의 call↔result 쌍이 이미 유효 → replay 안전."""
+    try:
+        from tau2.orchestrator.full_duplex_orchestrator import FullDuplexOrchestrator
+        from tau2.data_model.simulation import TerminationReason
+        from litellm import ContextWindowExceededError
+    except Exception as _e:
+        print("[T2_OVERFLOW_GUARD] not installed (import): %r" % (_e,), file=sys.stderr, flush=True)
+        return
+    if getattr(FullDuplexOrchestrator, "_t2_overflow_wrapped", False):
+        return
+    _orig_step = FullDuplexOrchestrator.step
+
+    def _guarded_step(self, *a, **kw):
+        try:
+            return _orig_step(self, *a, **kw)
+        except ContextWindowExceededError as _ce:
+            # 예외 전 기록된 tick은 유효(부분 궤적). done+reason 설정 → run 루프 종료 → finalize 채점.
+            self.done = True
+            self.termination_reason = TerminationReason.CONTEXT_WINDOW_EXCEEDED
+            print("[T2_OVERFLOW_GUARD] context window exceeded -> terminate sim as scored failure. %s"
+                  % (str(_ce)[:140],), file=sys.stderr, flush=True)
+            return None
+
+    FullDuplexOrchestrator.step = _guarded_step
+    FullDuplexOrchestrator._t2_overflow_wrapped = True
+    print("[T2_OVERFLOW_GUARD] ON", file=sys.stderr, flush=True)
 
 
 def _install_regen_exec():
@@ -3031,7 +3086,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             """피드백 1회 → regen. 게이트-deny 유입 시 원본 유지(부작용 0). 성공 시 새 am.
             ★tool_choice(레버 A·2026-07-18·`HANDOFF_LEVER_DESIGN §2`): regen 응답의 **채널만** 강제
             (어느 도구를 부를지는 모델이 고름). 실측 근거 = forced 프로브: 강제 하 24/24 정답 선택 ·
-            같은 지시를 **말로** 하면 56%로 악화(단일변수·`forced_probe_20260718`)."""
+            같은 지시를 **말로** 하면 56%로 악화(단일변수·`forced_probe_20260718`).
+            ★전역 regen 예산(§2ah): 소진 시 발화 skip(원본 유지)=컨텍스트 누적 상한(023 overflow 차단)."""
+            if not _regen_budget_ok(self):
+                print("[%s] skipped: global regen budget exhausted" % tag.upper(),
+                      file=_sys.stderr, flush=True)
+                return None
             try:
                 _fb = UserMessage(role="user", content=fbtxt)
             except TypeError:
@@ -3041,6 +3101,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[%s] rejected: regen introduced gate-denied call; keeping original" % tag.upper(),
                       file=_sys.stderr, flush=True)
                 return None
+            _regen_budget_spend(self)
             return _am2
 
         # (a0) follow-up required — **완료 날조(fabricated completion) 차단** (2026-07-16 §14.3).
@@ -3294,6 +3355,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
     LLMAgent._generate_next_message = unified
     # (3) exec-side: auth observe + nested/calc 읽기증강 (게이트 경로와 동일·직교)
     _install_regen_exec()
+    # (4) 컨텍스트 초과 우아한 종료 (023 진단·§2ah): overflow를 sim-무효 대신 scored 실패로.
+    _install_overflow_guard()
     return unified
 
 

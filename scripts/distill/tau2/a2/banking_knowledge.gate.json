@@ -629,9 +629,11 @@
    "name": "check_rebate_qualification",
    "description": "USE THIS to determine whether a customer qualifies for a spend-threshold annual fee rebate (e.g. the Platinum Rewards Card annual fee rebate). Do NOT eyeball the monthly totals yourself. First read the customer's transactions and their card account opening date, and look up the required monthly spending threshold from the knowledge base, then call this tool. It buckets every transaction into the anniversary-based monthly windows of the cardmember year (by posting date, from the opening date), sums each window, and returns QUALIFIES only if EVERY window meets the threshold (a single month below disqualifies; no proration).",
    "params": {
-    "transactions": "A JSON array of the card's transactions you read from the records. Each element MUST have ONLY these raw fields, copied as-is: date (string, the POSTING date, MM/DD/YYYY), amount (number, the purchase/spend amount, no $). Copy every transaction in the cardmember year; do not pre-filter or pre-sum.",
+    "transactions": "A JSON array of the card's transactions you read from the records. Each element MUST have ONLY these raw fields, copied as-is: date (string, the POSTING date, MM/DD/YYYY), amount (number, the purchase/spend amount, no $). Copy every transaction in the cardmember year; do not pre-filter or pre-sum. If you provide user_id and credit_card_account_id, you may OMIT this — the tool will read the transactions itself.",
     "account_opening_date": "The date the credit card account was opened (MM/DD/YYYY), copied from the account record. Monthly windows are anchored to this date.",
-    "monthly_threshold": "The required per-month spending threshold for the rebate, as a plain number (no $), copied from the applicable rebate policy document in the knowledge base."
+    "monthly_threshold": "The required per-month spending threshold for the rebate, as a plain number (no $), copied from the applicable rebate policy document in the knowledge base.",
+    "user_id": "The customer user id (needed only if you omit transactions - the tool will read the card transactions itself).",
+    "credit_card_account_id": "The credit card account id whose transactions should be checked (needed only if you omit transactions)."
    },
    "return_template": "Rebate qualification, computed deterministically over every anniversary monthly window of the cardmember year (by posting date): {result}. The customer qualifies only if EVERY month met the threshold; a single month below disqualifies (no proration).",
    "op": {
@@ -666,12 +668,44 @@
    },
    "ground": {
     "scalar_fields": [
-     {"param": "account_opening_date", "corpus": ["ledger"], "kind": "date", "on_fail": "drop"},
-     {"param": "monthly_threshold", "corpus": ["kb", "ledger"], "kind": "number", "on_fail": "drop"}
+     {
+      "param": "account_opening_date",
+      "corpus": [
+       "ledger"
+      ],
+      "kind": "date",
+      "on_fail": "drop"
+     },
+     {
+      "param": "monthly_threshold",
+      "corpus": [
+       "kb",
+       "ledger"
+      ],
+      "kind": "number",
+      "on_fail": "drop"
+     }
     ]
    },
    "_ground_note": "관문1 grounding(T2_SG_GROUND=1). 023 결함=account_opening_date 오독(11/10/2022 vs 실제 11/2024)→ledger(계좌레코드 도구출력)에 실재하는 날짜인지 형식-불문 대조·미검증 드롭→anchor None→abstain. monthly_threshold=KB/ledger 실재 검사. 엔진 리터럴 0(필드·코퍼스=A2).",
-   "_note": "2026-07-20 023 calc-offload (ACCOUNT_APY 자매). KB census[S]: doc_007/010 = $150 리베이트 iff 매월 threshold 모든 달 충족·posting date·anniversary 윈도우·한 달 미달=실격. 엔진=bucket_month_window→group_reduce(across=min)→compare(리터럴 0·threshold/opening_date=인자). LLM=거래 copy+threshold KB조회(단순). isolate 불요(per-txn KB해석 없음)."
+   "_note": "2026-07-20 023 calc-offload (ACCOUNT_APY 자매). KB census[S]: doc_007/010 = $150 리베이트 iff 매월 threshold 모든 달 충족·posting date·anniversary 윈도우·한 달 미달=실격. 엔진=bucket_month_window→group_reduce(across=min)→compare(리터럴 0·threshold/opening_date=인자). LLM=거래 copy+threshold KB조회(단순). isolate 불요(per-txn KB해석 없음).",
+   "isolate": {
+    "mode": "fetch_formalize",
+    "ref_params": [
+     "user_id",
+     "credit_card_account_id"
+    ],
+    "getter_tools": [
+     "get_credit_card_transactions_by_user"
+    ],
+    "operand_keys": [
+     "transactions"
+    ],
+    "max_rounds": 4,
+    "instructions": "You are a data-extraction sub-task. Using the getter tool, read the credit card transactions for the user/account given in REFERENCE. Then output ONLY a JSON object with the card transactions: for the account in REFERENCE, every transaction as {\"date\": \"MM/DD/YYYY\" (the POSTING date), \"amount\": <number, purchase/spend amount, no $>}. Copy raw values exactly as returned by the tool; do not filter, sum, or round.",
+    "answer_format": "Reply with exactly one JSON object and nothing else: {\"transactions\": [{\"date\": \"MM/DD/YYYY\", \"amount\": 0.0}, ...]}",
+    "_note": "2026-07-20 isolate-승격(023 ContextWindowExceeded·§2ah·사용자 지시 \"내부 기능은 턴을 안 쓰게\"): transactions(대형 리스트=main 부풀림 주범)를 서브가 off-ledger fetch. 에이전트=참조만 넘김(레코드 read 0). opening_date/threshold는 여전히 에이전트 공급(소형·T2_SG_GROUND 유지). 서브 실패=에이전트 인자 폴백(거동보존). §2b LOCK 패턴의 fetch-first 확장·엔진 리터럴 0."
+   }
   },
   {
    "name": "get_correct_savings_apy",
@@ -696,8 +730,16 @@
    },
    "ground": {
     "array_fields": [
-     {"param": "components", "value_field": "value", "source_field": "source",
-      "label_field": "kind", "corpus": ["kb"], "require_value_in_source": true}
+     {
+      "param": "components",
+      "value_field": "value",
+      "source_field": "source",
+      "label_field": "kind",
+      "corpus": [
+       "kb"
+      ],
+      "require_value_in_source": true
+     }
     ]
    },
    "_ground_note": "관문1 grounding(T2_SG_GROUND=1). 097(source='Base APY for...'=축자아님+base 0.05 추측)·095(base 값 오독)=결함. source가 KB 축자 substring인지(날조 차단) + value가 자기 인용 안 숫자인지(오독 차단) 검증·미검증 component 드롭+플래그. base 드롭 시 결과 저평가→플래그로 재독 유도. 엔진=검증만(KB서 값 추출 0·[[03b]]).",
@@ -744,10 +786,38 @@
    },
    "ground": {
     "scalar_fields": [
-     {"param": "principal", "corpus": ["ledger"], "kind": "number", "on_fail": "drop"},
-     {"param": "actual_apy", "corpus": ["ledger"], "kind": "number", "on_fail": "drop"},
-     {"param": "period_start", "corpus": ["ledger"], "kind": "date", "on_fail": "drop"},
-     {"param": "period_end", "corpus": ["ledger"], "kind": "date", "on_fail": "drop"}
+     {
+      "param": "principal",
+      "corpus": [
+       "ledger"
+      ],
+      "kind": "number",
+      "on_fail": "drop"
+     },
+     {
+      "param": "actual_apy",
+      "corpus": [
+       "ledger"
+      ],
+      "kind": "number",
+      "on_fail": "drop"
+     },
+     {
+      "param": "period_start",
+      "corpus": [
+       "ledger"
+      ],
+      "kind": "date",
+      "on_fail": "drop"
+     },
+     {
+      "param": "period_end",
+      "corpus": [
+       "ledger"
+      ],
+      "kind": "date",
+      "on_fail": "drop"
+     }
     ]
    },
    "_ground_note": "관문1 grounding(T2_SG_GROUND=1). 097 결함=principal 95000 추측(gold $100,000). '레코드서 복사'라 선언된 operand(principal·actual_apy·기간)를 원장(계좌레코드 도구출력)에 실재하는지 대조·미검증 드롭→op None→abstain. expected_apy는 미ground(get_correct_savings_apy 산출물=상류서 이미 grounded). 엔진 리터럴 0.",
@@ -781,7 +851,15 @@
    },
    "ground": {
     "scalar_fields": [
-     {"param": "outstanding_balance", "source_param": "balance_source", "corpus": ["ledger"], "kind": "number", "on_fail": "drop"}
+     {
+      "param": "outstanding_balance",
+      "source_param": "balance_source",
+      "corpus": [
+       "ledger"
+      ],
+      "kind": "number",
+      "on_fail": "drop"
+     }
     ]
    },
    "missing_hint": "COULD NOT VERIFY — the balance you provided could not be verified against the account records. Re-read the credit card account record and copy the outstanding balance and its verbatim source line exactly.",
@@ -836,7 +914,7 @@
  ],
  "claim_prov": {
   "question": "Before your reply is sent, audit yourself. (1) In YOUR REPLY ONLY: list every assertion that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did do NOT count. (2) Across the WHOLE conversation: list every action YOU said you WILL do / are about to do (e.g. 'I will file the disputes') that you have NOT completed yet. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"search|verify|write|give|transfer\", \"what\": \"<5-10 words>\"}], \"pending\": [{\"kind\": \"search|verify|write|give|transfer\", \"what\": \"<5-10 words>\"}]} — empty lists if none.",
- "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why).",
+  "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why).",
   "event_map": {
    "search": [
     "KB_",
