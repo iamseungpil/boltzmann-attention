@@ -33,11 +33,14 @@ def main():
     eff = {"submit_credit_limit_increase_request", "get_credit_limit_increase_history"}
     hit = _chain_dispatch(CHAIN, eff)
     check("050: 부분체크(구판 사각) → 발화", hit is not None and hit[1] == "followup_chain")
-    _missing_part = hit[0].split("Per the CLI")[0] if hit else ""   # "Checks still missing...: <나열>."
+    # 누락 나열부 = "missing for this account: <나열>. These checks..." 사이 (신 문구 앵커·e2e9 050 보강판)
+    _missing_part = hit[0].split("missing for this account:")[-1].split(". These checks")[0] if hit else ""
     check("050: 누락 3종 전량 나열·기호출 history는 누락 아님", hit is not None
           and all(t in _missing_part for t in ("get_user_dispute_history",
                                                "get_pending_replacement_orders", "get_payment_history"))
           and "get_credit_limit_increase_history" not in _missing_part)
+    check("050 보강: 피드백이 unlock 프로토콜 명시(직호출 거부 루프 차단)",
+          hit is not None and "unlock_discoverable_agent_tool" in hit[0])
 
     # ── 054 재현: submit만·체크 0 (query-gap) ──
     hit = _chain_dispatch(CHAIN, {"submit_credit_limit_increase_request"})

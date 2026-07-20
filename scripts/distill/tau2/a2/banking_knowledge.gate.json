@@ -858,7 +858,7 @@
     },
     "else": {
      "op": "const",
-     "value": "CLOSURE_BLOCKED_OUTSTANDING_BALANCE — this account still has an outstanding balance. Per the closure protocol the balance must be paid in full before the account can be closed. Have the customer pay the balance, re-read the account record, then call this tool again with the new balance."
+     "value": "CLOSURE_BLOCKED_OUTSTANDING_BALANCE — this account still has an outstanding balance. Per the closure protocol the balance must be paid in full before the account can be closed. YOU (the agent) can execute the payment: search the knowledge base for how to pay a credit card balance from the customer's checking account — there is a DISCOVERABLE agent tool for this (unlock it via unlock_discoverable_agent_tool with its full name including the numeric suffix, then call it via call_discoverable_agent_tool, with the customer's consent). Do NOT tell the customer to pay through the app themselves. After paying, re-read the account record and call this tool again with the new balance."
     }
    },
    "ground": {
@@ -875,7 +875,7 @@
     ]
    },
    "missing_hint": "COULD NOT VERIFY — the balance you provided could not be verified against the account records. Re-read the credit card account record and copy the outstanding balance and its verbatim source line exactly.",
-   "_note": "2026-07-20 관문3(043·§2aa 요건②③): 종단행동(close)을 '체크했나'가 아닌 **실제 실격조건(잔액>0)**으로 게이트하는 calc-offload 반쪽. LLM=잔액 copy+축자인용(유동)·엔진=compare+if_then(결정론·3-값=미검증 abstain). 반환문이 id+판정토큰 에코→WEV(require_tokens=CLOSURE_OK)의 증거 채널(user_id-키/id-공존 불성립 해소). 잔액0 날조=source_param 축자검증이 차단(존재검사는 0-편재로 무력). 토큰 비중첩(CLOSURE_OK ⊄ CLOSURE_BLOCKED_OUTSTANDING_BALANCE)."
+   "_note": "2026-07-20 관문3(043·§2aa 요건②③): 종단행동(close)을 '체크했나'가 아닌 **실제 실격조건(잔액>0)**으로 게이트하는 calc-offload 반쪽. LLM=잔액 copy+축자인용(유동)·엔진=compare+if_then(결정론·3-값=미검증 abstain). 반환문이 id+판정토큰 에코→WEV(require_tokens=CLOSURE_OK)의 증거 채널(user_id-키/id-공존 불성립 해소). 잔액0 날조=source_param 축자검증이 차단(존재검사는 0-편재로 무력). 토큰 비중첩(CLOSURE_OK ⊄ CLOSURE_BLOCKED_OUTSTANDING_BALANCE). ★e2e9 043 포렌식(§2an): 구 else 문구 'Have the customer pay'가 오답 경로(사용자 앱 떠넘김→영원 대기)를 직접 유도 — gold=에이전트-측 pay 도구(discoverable) 실행. 문구=KB 검색 지시(도구명 직접 주지 않음·발견은 에이전트 몫·spoon-feed 아님)+unlock 프로토콜 안내."
   }
  ],
  "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수.",
@@ -912,7 +912,7 @@
     "approve_credit_limit_increase"
    ],
    "decision_feedback": "Error: [FOLLOW-UP] you ran the eligibility checks but never made the terminal decision on the credit limit increase request. Per the CLI procedure you must now either (a) call approve_credit_limit_increase — ONLY if every requirement passed — or (b) clearly tell the customer the request is declined and exactly which requirement failed. Declining is a valid outcome; do NOT approve unless every check passed. Do not end the conversation with the request undecided.",
-   "feedback": "Error: [FOLLOW-UP] you submitted the credit limit increase request but have NOT completed the required eligibility check procedure. Checks still missing for this account: {missing}. Per the CLI procedure you must run EVERY check — get_user_dispute_history, get_pending_replacement_orders, get_credit_limit_increase_history, get_payment_history — and then make the decision: approve_credit_limit_increase if every requirement passed, or clearly decline and explain which requirement failed. Do NOT end the conversation with the request merely submitted.",
+   "feedback": "Error: [FOLLOW-UP] you submitted the credit limit increase request but have NOT completed the required eligibility check procedure. Checks still missing for this account: {missing}. These checks are DISCOVERABLE tools: for EACH one, first call unlock_discoverable_agent_tool with the tool's full name (including its numeric suffix, from the knowledge base), then call it via call_discoverable_agent_tool — do NOT call the bare name directly. Run EVERY check — get_user_dispute_history, get_pending_replacement_orders, get_credit_limit_increase_history, get_payment_history — and then make the decision: approve_credit_limit_increase if every requirement passed, or clearly decline and explain which requirement failed. Do NOT end the conversation with the request merely submitted.",
    "_note": "2026-07-20 Q1 + 관문2 확장(§2aa): requires=full required-set 4체크(050 실증: 단일 requires는 이미-호출된 history만 봐 pending 건너뜀을 못 잡음). {missing}=누락 전량 나열(050 follow-through+054 query-gap 동시 커버). decision_tools/decision_feedback=종단결정 nudge — approve 강제 아님(052 decline-정답 보호·문구 양방향·Δspurious 계측 대상). 엔진=집합 대조·치환만(리터럴 0)."
   },
   {

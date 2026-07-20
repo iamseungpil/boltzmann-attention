@@ -1207,3 +1207,19 @@ get_current_time서 copy·**ground 선언**=날짜 형식-불문 파싱 대조):
 태스크 하나를 reward 1.0까지 벗기는 데 인프라 3·엔진 1·레버×레버 상호작용 1·레버 예산 1 — 집계(0/32)에서는
 이 층들이 전부 "실패 1"로 뭉개진다([[08]]의 정량 실증). ⚠️일반화 주의: nt=1·단일 태스크 — 8태스크 재측정
 (관문 2~5 라이브 검증 포함)이 다음 단계·023 스택의 Δspurious(다른 태스크 부작용)도 그때 계측.
+
+### §2an (2026-07-20) — e2e9 중간: 023 1.0 **재현**·043/050 per-step 포렌식 = "레버 발화·문구 마지막 1홉 결함"
+**e2e9**(9태스크=8 e2e+052 Δspurious 프로브·풀스택·nt=1): **023=1.0 재현**(독립 2nd trial·55msg — 판정 결정론
+재현). 054=문자열-args 크래시 재발(비정형 이스케이프가 v1 coerce 뚫음)→**tau2 패치 v2**(raw_decode 폴백→실패 시
+`{}` 강등=복구가능 도구에러·sim 사망 근절·리모트 적용·검증 3케이스). 037c449c.
+**043 포렌식(0.0·54msg)**: 관문3 eligibility **라이브 작동**(BLOCKED·$75 정확) → 사용자 "checking에서 갚아줘"
+(=gold: 에이전트가 `pay_credit_card_from_checking` discoverable 실행) → 에이전트 발견실패(shell 오질의
+'transfer funds') + **내 BLOCKED 문구 "Have the customer pay"가 오답 경로(앱 떠넘김) 직접 유도** → 사용자
+가짜-결제→영원 대기 루프→transfer. **게이트 문구 역효과 실례 2호**(1호=§2aa WEV 불완전 체크셋).
+**050 포렌식(0.0·44msg)**: submit ✓·"That's all" 사임→**관문2 chain 라이브 발화**→regen이 체크 시도 —
+`get_user_dispute_history` **직호출**→TOOLGATE 거부→`..._4829`(접미사까지 정확) 직호출→거부→사용자 STOP.
+**내 chain 피드백이 도구명만 주고 unlock 프로토콜을 안 알림**(WEV 피드백들은 "unlock and call" 명시·chain만 누락).
+**공통 패턴 확정: 레버는 발화·방향 정확·문구의 마지막 1홉("어떻게")이 부정확해 실행 무산.** 문구 2건 수정:
+①chain 피드백=unlock→call 프로토콜 명시 ②BLOCKED else=에이전트-측 pay 절차 KB-검색 지시(도구명 직접 안 줌·
+발견은 에이전트 몫·"Do NOT tell the customer to pay through the app"). 오프라인 회귀 전체 green(chain 테스트
+앵커 갱신+unlock-명시 단언 추가). 라이브 검증=다음 재런.
