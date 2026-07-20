@@ -975,3 +975,19 @@ WEV가 approve를 미완 체크로 게이트 → 영영 미완. **레버는 부�
 **함의**: 다음 벽=**발견-완전성**(태스크가 요구하는 *각* 액션마다 KB검색·발견 강제 = E-PLAN FIND 루프의 미구현 축·[[14]]).
 crash(023/095)=auto_resume 재생-mismatch(레버 아님·max_conc 3 재시도 부산물)·클린 재런 필요. **레버 스택 자체는 유효**
 (v1→v2 coverage 상승 실증)·문제는 발견 천장. FORCE_ACTION/CLAIM_PROV/calc/coverage 전부 라이브 배선·발화 확인.
+
+### §2aa (2026-07-20) — 발견-완전성 per-task 정밀 포렌식: 050·054·043 (진단 정정·심화)
+**공통 확정 [S]: KB 검색은 도구명을 성공 노출 — 발견 자체는 작동**(getter 수정 유효). 실패는 발견 이후 층.
+- **050(순수 CLI·최고 9/13)**: 에이전트가 **"pending replacement orders check" 검색·`get_pending_replacement_orders_5765`
+  노출까지 했으나 미호출**(msg46 노출→msg48부터 다른 체크만·pending 건너뜀)·approve 미도달·종료. = **절차-완전성
+  실패**(체크리스트 부재·비체계 walk). ※내 §054 "pending 발견불가" 결론 정정: 질의만 맞으면 노출됨.
+- **054(3중충돌·최고 10/17)**: 054 궤적은 pending을 *검색 안 함*(query-gap)·050은 *검색·노출·미호출*(follow-through
+  gap) — 둘 다 뿌리=**required-set 체크리스트 부재**. approve 미도달.
+- **043(해지·최고 7/15)**: ★**새 실패모드 + 내 WEV 구멍**. gold=$75 미납→해지 차단(close 없음)·납부(pay)가 핵심.
+  에이전트는 3체크만 하고 **잔액 체크(get_all_accounts+pay) 누락한 채 close 수행=오해지**. 그런데 **내 T3 WEV
+  해지-체인이 그 3체크만 게이트→에이전트가 충족→close 초록불**. 정작 핵심 잔액체크는 내가 "user_id-키라 제외"→
+  **게이트가 불완전 체크셋 강제로 잘못된 종단행동에 초록불**(모트 제1원리·게이트 역효과 실례).
+**⇒ 레버 요건 강화(확정)**: ①resign-앵커 **완전 required-set** 커버리지(누락 도구 전량 나열·050 follow-through+054
+  query-gap 동시 커버) ②종단행동은 **실제 실격조건**으로 게이트("체크했나" 아닌 "조건 만족하나") ③043 잔액판정처럼
+  user_id-키라 id-공존 안 되는 조건은 **calc-offload로 오프로드**(출력서 잔액추출·>0 판정) 후 게이트. follow_up_chains를
+  requires=전량+종단결정으로 확장. [[03b]] 준수(required-set=문서화 절차의 A2 선언).
