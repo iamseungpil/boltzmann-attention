@@ -959,3 +959,19 @@ claims_completion=False로 **정확히** 판정(완료-주장 아님) — 사각
 **★실버그 발견·교정**: `verify_identity`(scaffold 판정 도구·read성)가 **실효-write로 오분류** — ①claim_prov
 write축 거짓통과 ②**WRITEPROV가 verify만 한 sim서 조기 break**(완료-주장 게이트 약화). `^verify_`를
 _PROCEDURAL_RE에 추가(도메인-일반·_verification$ 대칭). 부수영향(FAB_STRIP/WRITEPROV) 다음 arm 계측 항목.
+
+### §2z (2026-07-20) — e2e nt=4 (풀스택+CLAIM_PROV) 수거·[[08]] 전수: 0/32 PASS·근본벽=발견-완전성
+**매트릭스 (8태스크×4trial·b측 클린·a측 일부 INFRA)**: 전 sim reward 0 (pass^4=0/8). 표적별 acts:
+023=INFRA×3+1/2 · 031=1~2/5 · 038=1/9(고정) · 095=INFRA×2 · 043=0~7/15 · 050=3~9/13 · 054=4~10/17 · 097=1~2/18.
+**★CLAIM_PROV+verify_fix 효과 실증 [S]** (v1 t1b vs v2 t1b·동일 trial): 043 1→**6**·050 5→**9**·054 2→**10**·097 1→1.
+= "했다-주장 원장대조"가 에이전트를 실제 실행으로 밀어 **coverage 대폭 상승**(054는 2→10/17). 긍정 신호.
+**calc-offload 라이브 채택 확인 [S]**: get_correct_savings_apy 7·get_interest_correction 6·check_rebate 1 실호출.
+도구는 채택·작동하나 태스크는 상류(발견/crash)서 막혀 미통과.
+**★0 PASS 근본원인=발견-완전성 [S]** (지속-미스 전수): 050/054/043이 **모든 trial서 항상 미스하는** gold =
+CLI 적격성 체인(get_user_dispute_history·get_pending_replacement_orders·get_credit_limit_increase_history·
+get_payment_history) + approve_credit_limit_increase + (043)pay/apply_flag. 전부 **discoverable 도구**.
+에이전트는 태스크당 필요한 5~7 도구 중 **2~4개만 발견**(follow_up_chains가 일부 밀지만 전량 아님)·나머지 미발견 →
+WEV가 approve를 미완 체크로 게이트 → 영영 미완. **레버는 부분 coverage를 크게 올리나 없는 발견을 만들지 못함.**
+**함의**: 다음 벽=**발견-완전성**(태스크가 요구하는 *각* 액션마다 KB검색·발견 강제 = E-PLAN FIND 루프의 미구현 축·[[14]]).
+crash(023/095)=auto_resume 재생-mismatch(레버 아님·max_conc 3 재시도 부산물)·클린 재런 필요. **레버 스택 자체는 유효**
+(v1→v2 coverage 상승 실증)·문제는 발견 천장. FORCE_ACTION/CLAIM_PROV/calc/coverage 전부 라이브 배선·발화 확인.
