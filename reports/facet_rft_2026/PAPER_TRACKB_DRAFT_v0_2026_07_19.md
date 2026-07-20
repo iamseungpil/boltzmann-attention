@@ -18,15 +18,20 @@ patterns (multiplicity g ≈ k): the free energy of the clause-retrieval state i
 (lexically anchored) items and small for low-margin (inference-bound) ones. This one expression organizes our
 behavioral findings — causal asymmetry (only predecessors interfere), similarity gating (dissimilar items leave
 g unchanged), item-conditionality (explicit anchors raise ΔE), sharp thresholds with instability at k*, and the
-log-linear interference decay reported in prior PI work. We test the account at three levels on an open-weights
-model that reproduces the behavior (Qwen2.5-3B): behaviorally (staircase reproduction across 1.5B–32B),
-attentionally (clause-attention mass a_C(k) under similar vs dissimilar loading ⟦TBD B1⟧), and causally:
-a position-preserving attention-mask knockout of the interfering rows **fully restores** the collapsed judgment
-(P(5): 0.10 → 0.99 at k=2, and likewise at k=4, 8), while a size-matched control mask restores nothing and a
-readout-only blockade shows the corruption flows through the target item's own representation
-(⟦TBD B3: attention-temperature manipulation, which should shift k* exponentially⟧). We
-position the result not as a new attention pathology but as the practical manifestation, and unit-level
-identification, of a known property of associative memories: correlated patterns corrupt retrieval.
+log-linear interference decay reported in prior PI work. We then test the account at three levels on an
+open-weights model that reproduces the behavior (Qwen2.5-3B; staircase present at every scale from 1.5B to
+32B), and the data *refine* it in an unexpected way. Causally, a position-preserving attention-mask knockout of
+the interfering rows **fully restores** the collapsed judgment (P(5): 0.10 → 0.99 at k=2, likewise at k=4, 8;
+size-matched controls restore nothing), and localizes the channel to the **construction of the target item's own
+representation** — blocking only the target row's queries recovers (0.96+), blocking everything downstream
+recovers nothing. Attentionally, however, the traffic on that causal route is *condition-blind*: a row under
+construction reads its predecessor rows at ~20–26% attention mass whether they are interfering or not — the
+route is structural; the interference rides in the **content of the mixed-in values** (the predecessors'
+inferred verdicts). Consistently, attention-temperature manipulation *inverts* the naive prediction: sharpening
+deepens the collapse and softening partially protects — the failing state is a dominant echo attractor, not a
+marginally eroded correct one. We position the result not as a new attention pathology but as a unit-level
+identification of how correlated content corrupts in-context judgment: through value mixture over a fixed
+structural route, invisible to attention-mass accounting, and causally severable.
 
 ## 1. Introduction
 
@@ -102,8 +107,8 @@ Lexically-anchored items retrieve via near-duplicate token matching (induction-l
 | — | default retreat = fallback to strongest surviving attractor (the base-rate prior) | ✅ behavioral (interpretive) |
 | — | instability at k* = near-tie mixture state (output-level: unit slips; logit-level: mass scatter at 14B k=1) | ✅ behavioral |
 | P3 | readout clause-mass a_C(k) decreases under similar loading | ✗ disconfirmed at readout (honest negative, §4) — refined to P3′ at the construction stage ⟦TBD B1b⟧ |
-| P6 | blocking judgment-position attention to interfering rows (positions preserved) restores P(5) | ✅ **full recovery** (0.98–0.99 at k=2/4/8; controls fail; §5) |
-| P4 | attention-temperature manipulation shifts k* exponentially (k* ~ e^{βΔE−θ}) | ⟦TBD B3⟧ |
+| P6 | blocking judgment-position attention to interfering rows (positions preserved) restores P(5) | ✅ **full recovery** (0.98–0.99 at k=2/4/8; controls fail; localized to target-row construction; §5) |
+| P4 | attention-temperature: β↑ raises k* | ✗ **inverted** (β↑ deepens collapse monotonically; β↓ partially protects; diagnostic of a dominant echo attractor, ΔE<0; §6) |
 | P7 (opt) | interfering-row keys grow a W_K-projected C-direction component with k | ⟦TBD B4 optional⟧ |
 
 ## 3. Behavioral evidence (summary; details in companion paper)
@@ -139,18 +144,33 @@ and dissimilar loading (a_C flat and tiny; a_iv rises in both; a_tgt collapses ~
 separates cleanly (similar: 0.04–0.11 at k≥2; dissimilar: 0.50–0.90). The readout's attention *distribution*
 does not carry the effect — consistent with §5's causal finding that blocking the readout's (and all post-row)
 access to the interfering rows restores nothing. What the readout consumes is the target row's already-built
-representation; the interference must act where that representation is built. (Per-layer curves are archived;
-a layer-specific readout effect remains possible but cannot be the primary channel given §5.) Two frame notes,
+representation; the interference must act where that representation is built. (Per-layer curves are archived.
+One layer-resolved observation: in late layers L27–33 the readout's clause mass *is* similarity-modulated —
+under dissimilar loading it exceeds the k=0 level (≈0.0002–0.0003) while under similar loading it falls toward
+zero (≈0.00001–0.00009). Given §5's ko_post result — blocking all post-row attention recovers nothing — we read
+this as a downstream *echo* of the already-decided upstream state, not as the channel.) Two frame notes,
 recorded honestly: at k=1 both conditions dip (0.22/0.33) — the first predecessor of either type disturbs this
 primed frame, and the similarity-specific separation emerges at k≥2; dissimilar P(5) recovers *toward* baseline
 with k (0.33→0.90), a release-from-PI-like pattern in-frame.
 
-### 4b. Construction-stage attention (B1b) ⟦TBD — running⟧
+### 4b. Construction-stage attention (B1b): the route is structural; the mass is innocent
 
 The refined prediction P3′: the *target row's own token queries*, during prefill, lose clause mass / gain
 interfering-row (echo) mass specifically under similar loading. Design: 2-pass with the split at the target-row
 start; pass-2 emits the target-row queries' attention over all prior positions (sdpa prefill, eager measurement
-pass). ⟦results⟧
+pass; final-logit fidelity preserved, k=0 P(5)=0.987).
+
+Result: **P3′ is also disconfirmed at the mass level — and that is informative.** The target row's queries put
+a large and nearly identical fraction of their attention on the predecessor rows under both loadings
+(row→interfering mass: similar 0.202→0.235→0.249→0.263 for k=1,2,4,8; dissimilar 0.199→0.229→0.243 for
+k=1,2,4), and row→clause mass is small and similarity-nonspecific (~0.0002–0.0004) — while behavior separates
+(similar 0.24/0.11/0.10/0.03 vs dissimilar 0.38/0.42/0.87). A row under construction reads its predecessor rows
+heavily *because they are predecessor rows* — a structural, content-agnostic route (plausibly format/schema
+copying). What differs between conditions is therefore not *how much* flows through the route but *what* flows:
+when the predecessors are same-clause echoes, the values mixed into the target row's representation carry their
+inferred verdicts and bias the judgment computation. This reconciles all three measurements: the route is
+causally necessary (B2: severing it recovers 0.96–0.99), its traffic volume is condition-blind (B1, B1b), so
+the interference must ride in the *content* of the mixed-in values.
 
 ## 5. Causal test (B2): knockout with positions preserved — full recovery
 
@@ -185,11 +205,29 @@ same-clause predecessors during prefill, and what they absorb there determines t
 downstream, including the readout's direct access to the interfering rows, is causally inert. ⟦optional:
 layer-wise knockout⟧
 
-## 6. Temperature test (B3): moving k* ⟦TBD⟧
+## 6. Temperature test (B3): the pre-registered direction is wrong — and the inversion is diagnostic
 
-k* ≈ e^{βΔE−θ} predicts an exponential shift of the threshold under attention-temperature scaling (β = 1/T
-applied to attention logits, not output sampling). Implementation: scale attention scores by hooking the
-attention modules on 3B; sweep T around 1 and locate k*(T) in the logit-readout frame. ⟦results⟧
+k* ≈ e^{βΔE−θ} with ΔE > 0 predicts that sharpening attention (β↑, T↓) *raises* the threshold. Implementation:
+scale all layers' attention logits (the `scaling` factor; sdpa path; β=1 arm reproduces the sweep exactly; k=0
+rows serve as a competence control for this global manipulation).
+
+| β× | k=0 | k=1 | k=2 | k=4 |
+|---|---|---|---|---|
+| 0.85 | 0.820 | 0.256 | **0.449** | **0.374** |
+| 0.93 | 0.963 | 0.298 | 0.320 | 0.253 |
+| 1.00 | 0.983 | 0.259 | 0.100 | 0.120 |
+| 1.07 | 0.979 | 0.121 | 0.025 | 0.068 |
+| 1.15 | 0.966 | 0.078 | 0.007 | 0.059 |
+| 1.30 | 0.890 | 0.026 | 0.002 | 0.029 |
+
+**Observed: the opposite, monotonically.** Sharpening deepens the collapse at every k ≥ 1; softening partially
+protects at k ≥ 2 (P(5) 0.10 → 0.45 at k=2 under β=0.85) while k=0 competence degrades only mildly (0.82–0.98
+across the range). The inversion is diagnostic rather than merely negative: it says the failing state is not a
+correct attractor marginally eroded by entropy (which sharpening would rescue) but a regime in which the
+echo/default attractor *dominates* the target row's judgment computation (effective ΔE < 0) — sharpening
+amplifies the winner, softening dilutes the structural row-to-row capture (§4b) and lets document evidence back
+in. Honest bounds: this is a global, layer-unspecific manipulation, so we make a directional claim only; k=1 is
+not rescued by softening (0.256 at β=0.85) — the protection is non-uniform in k and we record it as such.
 
 ## 7. Related work (mechanism axis)
 
@@ -207,6 +245,17 @@ and release-from-PI (Watkins) — we import the paradigm, and the "cue overload"
   interference is a *theorem-level* property of exponential associative memories; we show it is the operative
   cause of a real agent failure, at clause granularity, and derive its practical geometry (edges protected,
   k* threshold, anchor immunity).
+- **What the three levels jointly established (revised mechanism).** (i) The causal channel is the target row's
+  construction-stage reads of its predecessors (B2 + fine arms). (ii) That route is structural — its attention
+  mass is large and condition-blind (B1b) — so the similarity gating observed behaviorally must act in *content*
+  space: same-clause predecessors inject their verdict representations into the target row. (iii) The
+  temperature inversion (B3) shows the injected content forms the *dominant* attractor of the judgment
+  computation once present, rather than merely eroding the correct one. The associative-memory frame survives
+  with its locus moved: the "store" being corrupted is the target row's in-construction representation, the
+  correlated "patterns" are value contributions, and softmax temperature modulates how winner-take-all the
+  contamination is. The clean behavioral staircase (k*), edge protection, and anchor immunity all follow, but
+  from mixture composition rather than retrieval routing — a distinction only the causal + mass measurements
+  together could make.
 - **Unification.** One free-energy expression with a degeneracy entropy term covers: LiM-style positional
   effects (distance term), PI log-linear decay (−log g), primacy protection (no predecessors ⇒ g=1), and our
   clause gating (only C-correlated patterns count in g). ⟦keep modest: unification *sketch*, formal treatment
@@ -238,4 +287,5 @@ F1 theory overview (degenerate free-energy landscape) / F2 behavioral triptych (
 F6 k*(temperature) ⟦B3⟧ / F7 (opt) layer localization.
 ### Provenance
 theory §2 = §2m 수학모델 초안 · behavior = Track A draft §4–5 · B0/size = size_k_sweep_20260719 ·
-B1 = b1_attn_curve_20260719 ⟦running⟧ · B2 = b2_knockout_20260719 ⟦running⟧ · B3 = ⟦not launched⟧.
+B1 = b1_attn_curve_20260719 · B1b = b1b_construction_attn_20260719 · B2 = b2_knockout_20260719 (+_fine) ·
+B3 = b3_temperature_20260719 · 전부 sim_results/ 영속.
