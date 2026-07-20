@@ -1038,3 +1038,15 @@ FORCE_ACTION 사각(탈출구=transfer=정당 도구호출·"무호출 종료" �
 +인프라(resume-replay)=023/095→concurrency=1 클린런.
 **결론**: 0 PASS 원인=이 6관문. 대부분 기존 패턴(WEV·follow_up_chains·CLAIM_PROV·grounding·isolate) **완전화**로 닿음
 (새 발명 아님). 다음 세션 레버 우선순위=위 표.
+
+### §2ae (2026-07-20) — 023 정밀: rebate 도구 기계적 정확·operand(개설일) 오독으로 오판 = calc 전체 grounding 확증
+**023(유일완주 t4a·1/2)**: check_rebate_qualification **호출·작동**·get_credit_card_transactions **실데이터 읽음**·
+branching 정확(DOES NOT QUALIFY→Silver). 유일결함 [S]: **account_opening_date를 11/10/2022로 오독**(실제 ~11/2024·
+거래 11/2024+)→anchor 2022로 버킷팅→2024거래 전부 year0-11 윈도우 밖→빈그룹→min=None→DOES NOT QUALIFY→Silver
+(gold=Diamond). **도구는 주어진 입력으로 정확계산·입력(개설일)이 틀림** = 095/097 APY오독 동일기전.
+⇒ grounding이 APY값뿐 아니라 **날짜·principal 등 전 operand**에 필요. 023은 read도 branching도 맞았고 operand grounding
+하나가 유일벽.
+**★★8태스크 완전분석 종료 — 0/32 근본=6관문(발견=표면·getter 작동)**:
+1.절차-완전성(050/054) 2.실격조건/종단게이트구멍(043·내WEV 오초록불) 3.**operand grounding(097/095/023·최다3태스크·
+최우선)** 4.user-side give-flow(031) 5.transfer-escape(038·미래주장+notice티켓) 6.발견미진입say-don't-do(038부분·FORCE검증됨).
+각 관문=기존레버 **완전화**로 닿음(새발명 아님). 다음세션=6관문 보강.
