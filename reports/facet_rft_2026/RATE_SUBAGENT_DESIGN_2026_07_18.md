@@ -1098,3 +1098,26 @@ WEV형 강화는 dispute 인자명 라이브 확인 후.
 **⚠️전 관문 공통 미검증**: 라이브 발화·Δspurious — 각 레버 기본 OFF·§2af와 같은 clean 유료 스모크 필요.
 게이트 자신의 역효과(043 교훈) 계측 지점: 관문2 decision-nudge(decline 케이스 접촉)·관문3 over-block
 (잔액 미표시 레코드)·관문4 over-fire(last4 불요 태스크)·관문5(정당 transfer 지연).
+
+### §2ah (2026-07-20) — 라이브 스모크 + 인프라 3픽스: grounding 라이브 실증·크래시 근절·097 진단 [S]
+**smoke6**(nt=1·conc=1·T2_SG_GROUND=1·8태스크): **관문1 grounding 라이브 발화 실증([[30]] 갭 해소)** —
+arm A 5회+097 2회: `base=5.5 (source not in KB)`·`period not in records`·097 전량-날조 `base=1.0/checking/card`
+전부 드롭→0.0 abstain. 095/097 APY 날조가 **설계대로 실제 드롭**. 관문3 closure·관문5 pending(`['verify','write']`)
+라이브 발화. CLAIMPROV 32 window-hit 중 실 regen 4(과개입 아님).
+**인프라 픽스 3건(전부 라이브 포렌식서 발견·오프라인 검증 후 재런 확증):**
+1. **크래시 근절 [S검증]**: 023/031/043 `infrastructure_error`="Tool call id mismatch"의 근본 = exec 체인
+   두 레이어(`exec2`·`exec_augment` READ_DEDUP)가 결과를 tool_calls와 **1:1 아니게** 반환(드롭/오정렬) →
+   full-duplex tick의 call↔result 쌍 붕괴 → eval replay(`get_actions_from_messages`) 크래시. 비결정론=
+   레이어/순서 의존(이전 런서 같은 태스크 trial마다 크래시/생존). **픽스**=`_reassemble`(id-매칭·누락은 에러
+   ToolMessage로 채움·드롭 0)+exec_augment 동형. `test_reassemble.py` 9/9. **재런 확증**: 031/043이 이전 크래시→
+   이제 user_stop 완주(32/62 msg·크래시 0). 커밋 113db17f.
+2. **097 stall 진단 [S]**: 최난도(4계좌)서 11:32 이후 completion() 1건 hang → tau2 `generate()`가 timeout 없이
+   `num_retries=3`만 걸어 litellm이 기본~600s×4시도≈40분 조용한 재시도→conc=1 블록(rc=143=내 SIGTERM). 루프/
+   grounding폭주 아님(097 scaffold~10·grounding2). **픽스**=`t2_run_gated` opt-in `T2_LLM_TIMEOUT`/`T2_LLM_RETRIES`
+   (agent·user·judge·미설정=기본거동 불변). 스모크=300s/1재시도. 커밋 301e3977.
+3. **023 컨텍스트 초과 [S·신규 별개 이슈]**: 크래시 픽스 후 023이 "id mismatch" 너머로 진행→진짜
+   `ContextWindowExceededError`(46089>vLLM 44672). 원인=**풀 게이트 스택 regen 누적**(WRITEPROV/FORCE6/RESOLVE6/
+   CLAIMPROV4+scaffold17+check_rebate4)·grounding 아님(023서 0회 발화). = 게이트-밀도 이슈(struggling 태스크서
+   피드백 누적). 미해결·후보=max_model_len↑(서버재시작)·regen cap·컨텍스트 프루닝. **grounding 무관 확인.**
+**⇒ 6관문 배선 + 인프라 크래시 근절 완료. 잔여**: 023 컨텍스트(별개)·전 관문 Δspurious 유료 계측·095/097 리워드
+(heavy 태스크·timeout 하에 재측정 필요).
