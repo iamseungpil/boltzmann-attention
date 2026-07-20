@@ -1145,3 +1145,19 @@ operand 공급**: check_rebate가 `transactions`(전체 리스트)를 인자로 
    tick replay 안전 전제.
 **다음**: 023 재런(fetch-iso+예산+가드 스택)으로 overflow 해소·리워드 채점 확인. Δspurious 계측 지점 추가:
 fetch-iso(서브 fetch 실패율·operand 품질 vs 에이전트-공급 arm).
+
+### §2aj (2026-07-20) — 023 인프라 완전 해소 확증 [S] + SG_TRUTH replay-safety (4번째 인프라 픽스)
+**smoke023(§2ai 스택 1차)**: CWE 0(overflow 해소)·fetch-iso 라이브 발화(2라운드·getter 1회·transactions
+off-ledger 추출) — 단 **새 크래시**: replay 내용 불일치. eval replay(`environment.set_state`)는 mutating 도구를
+**재실행해 내용 비교** — SG_TRUTH가 라이브서 unlock(우리도구)에 진실 텍스트를 답했는데 replay는 무패치 env가
+원래 거짓("Unknown agent tool")을 냄→불일치→ValueError→sim 무효. **코드베이스 replay 불변식**("응답 바꾸는
+개입=히스토리 미커밋(R8 strip) 또는 env-동일") 위반자 = SG_TRUTH 유일(전수 감사: unified-WEV=생성레벨 비커밋·
+TOOLGATE=미지도구 replay-skip·READ_DEDUP=read 비교제외·scaffold도구=env부재 skip·calc/present=read 증강 — 전부
+안전). **픽스**=`_truth_text` 단일 정본 + `Environment.get_response` 클래스 패치(라이브·replay 바이트 동일·
+상태 무변경 분기·기본 OFF 동일). 커밋 fa7e74cb.
+**smoke023b(재런) 최종 확증 [S]**: `user_stop·48msg·reward 0.0 채점(scored)`·크래시 0·CWE 0·overflow 발화 0·
+예산 미소진·fetch-iso 2회 발화. **023의 인프라 사망 사슬(id-mismatch→CWE→replay-mismatch) 3층 전부 근절** —
+이제 023은 정상 완주·채점된다. reward 0.0=태스크 자체 미해결(관문1 grounding·리워드 전환은 §2af 잔여 축·
+이번 런은 SG_GROUND/SG_TRUTH 발화 0=모델이 그 경로를 안 탐). **인프라 픽스 총 4종**(exec 1:1·LLM timeout·
+overflow 가드+fetch-iso+regen예산·SG_TRUTH replay) = struggling 태스크서 순차 노출된 사슬 — 하나 고치면 다음
+층이 드러나는 구조였음([[08]] 포렌식 반복의 가치).
