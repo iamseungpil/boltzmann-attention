@@ -1964,9 +1964,22 @@ def _install_regen_exec():
                     to_run.append(tc)
             ran = orig_exec(self, to_run) if to_run else []
             _rby = {getattr(r, "id", None): r for r in (ran or [])}
-            results = [(_rby.get(getattr(tc, "id", None)) or stubs.get(getattr(tc, "id", None)))
-                       for tc in tool_calls]
-            results = [r for r in results if r is not None]
+            # ★크래시 픽스(2026-07-20·023/031 infrastructure_error): 결과는 tool_calls와 **1:1·순서**
+            #   보장. 안 그러면 full-duplex tick의 agent_tool_calls↔agent_tool_results 쌍이 깨져
+            #   eval replay(`environment.get_actions_from_messages`)가 "Tool call id mismatch"로 크래시.
+            #   구판은 id 매칭 실패 시 None을 **드롭**해 results가 짧아졌다(비결정론=하위 레이어 id/순서 의존).
+            #   id 매칭 우선·id없는 결과만 위치폴백·그래도 없으면 에러 ToolMessage로 채운다(드롭 금지).
+            _idless = iter([r for r in (ran or []) if getattr(r, "id", None) is None])
+            results = []
+            for tc in tool_calls:
+                _tid = getattr(tc, "id", None)
+                r = stubs.get(_tid) if _tid in stub_ids else _rby.get(_tid)
+                if r is None:
+                    r = next(_idless, None)
+                if r is None:
+                    r = _TM(id=_tid, role="tool", requestor=getattr(tc, "requestor", "assistant"),
+                            error=True, content="(no result returned for this tool call)")
+                results.append(r)
             min_len = int(os.environ.get("T2_READ_DEDUP_MIN", "2000"))
             for tc in to_run:
                 out = _rby.get(getattr(tc, "id", None))

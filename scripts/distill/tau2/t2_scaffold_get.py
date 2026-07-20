@@ -551,6 +551,39 @@ def _isolate_trace(iso, d, record):
         print("[T2_SG_ISOLATE] trace 실패: %r" % (e,), file=_sys.stderr, flush=True)
 
 
+def _reassemble(tool_calls, ours, rest_res, ToolMessage):
+    """★exec 결과 재조립 (2026-07-20 크래시 픽스·순수함수=단위테스트 공유·[[03b]]).
+    **불변식**: 반환은 `tool_calls`와 **정확히 1:1·같은 순서**. 안 지키면 full-duplex tick의
+    agent_tool_calls↔agent_tool_results 쌍이 깨져 eval replay(`environment.get_actions_from_messages`)가
+    "Tool call id mismatch"로 크래시(023/031 infrastructure_error의 근본·비결정론=orig_exec 순서 의존).
+    - 우리가 답한 tc(`ours[id(tc)]`)는 그대로.
+    - 나머지는 `orig_exec` 결과를 **tc.id로 매칭**(위치 의존 제거 — orig_exec가 순서/개수 바꿔도 안전).
+      id 매칭 실패 시 남은 결과서 순서대로 소비(id 없는 백엔드 하위호환), 그래도 없으면 에러 ToolMessage로
+      **채운다**(드롭 금지 — 드롭이 tick 쌍 붕괴의 직접 원인)."""
+    by_id, leftover = {}, []
+    for r in (rest_res or []):
+        rid = getattr(r, "id", None)
+        if rid is not None and rid not in by_id:
+            by_id[rid] = r
+        else:
+            leftover.append(r)
+    lo = iter(leftover)
+    out = []
+    for tc in tool_calls:
+        if id(tc) in ours:
+            out.append(ours[id(tc)])
+            continue
+        r = by_id.pop(getattr(tc, "id", None), None)
+        if r is None:
+            r = next(lo, None)
+        if r is None:
+            r = ToolMessage(id=getattr(tc, "id", None), role="tool",
+                            requestor=getattr(tc, "requestor", "assistant"),
+                            error=True, content="(no result returned for this tool call)")
+        out.append(r)
+    return out
+
+
 def _build_tool(Tool, d):
     """A2 선언 → tau2 Tool. ★tau2 `Tool.__init__`은 **함수 객체에서** 스키마를 유도한다
     (`tool.py:61-73`: `name = func.__name__` · `parse_data(sig, doc, ...)`) — 우리가 넘기는
@@ -854,17 +887,7 @@ def apply():
             else:
                 rest.append(tc)
         rest_res = orig_exec(self, rest) if rest else []
-        ri = iter(rest_res)
-        out = []
-        for tc in tool_calls:
-            if id(tc) in ours:
-                out.append(ours[id(tc)])
-            else:
-                try:
-                    out.append(next(ri))
-                except StopIteration:
-                    pass
-        return out
+        return _reassemble(tool_calls, ours, rest_res, ToolMessage)
 
     BaseOrchestrator._execute_tool_calls = exec2
     print("[T2_SCAFFOLD_GET] ON", file=_sys.stderr, flush=True)
