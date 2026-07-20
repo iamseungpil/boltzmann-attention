@@ -1187,6 +1187,61 @@ def _eff_tool_name(tc):
     return re.sub(r"_\d+$", "", nm)
 
 
+def _claim_unbacked(claims, emap, evs, messages):
+    """★claim_prov 원장대조 코어 (2026-07-20 관문5 추출·순수함수=단위테스트 공유·[[03b]]).
+    LLM이 formalize한 주장 목록({kind, what})을 A2 event_map으로 원장 이벤트 실재 대조.
+    미등재 kind=skip(오탐 방지)·kind=__effective_write__는 실효 write 존재로 판정. 반환=미입증 목록."""
+    out = []
+    for c in (claims or []):
+        k = str((c or {}).get("kind", "")).strip().lower()
+        spec = emap.get(k)
+        if spec is None:
+            continue
+        if spec == "__effective_write__":
+            if not _any_effective_write(messages):
+                out.append(c)
+            continue
+        pats = spec if isinstance(spec, list) else [spec]
+        if not any(any(str(e).startswith(p) for e in evs) for p in pats):
+            out.append(c)
+    return out
+
+
+def _is_transfer_call(am, emap):
+    """★관문5(038 transfer-escape): 이번 응답에 transfer-류 호출이 있나 — 패턴=A2 event_map['transfer']
+    재사용(새 A2 필드 0·엔진 리터럴 0). raw명+effective명 둘 다 대조."""
+    pats = (emap or {}).get("transfer")
+    pats = pats if isinstance(pats, list) else ([pats] if pats else [])
+    if not pats:
+        return False
+    for tc in (getattr(am, "tool_calls", None) or []):
+        for n in (str(getattr(tc, "name", "") or ""), _eff_tool_name(tc)):
+            if any(n.startswith(p) for p in pats):
+                return True
+    return False
+
+
+def _chain_dispatch(fc, eff):
+    """★관문2(2026-07-20·§2aa): follow_up_chain 1건의 발화 판정 (순수 함수·단위테스트 공유 —
+    [[03b]] 별도구현 금지·라이브와 같은 코드를 잰다).
+    - requires = 문자열 or **리스트(full required-set)** — 누락 있으면 feedback(`{missing}`=누락 전량 나열·
+      050 follow-through+054 query-gap 동시 커버).
+    - requires 전부 충족 + `decision_tools` 전부 미호출이면 decision_feedback(종단결정 nudge —
+      approve 강제 아님·문구가 양방향(approve|decline) 명시·Δspurious 계측 대상).
+    반환: (feedback_text, tag) or None. 엔진=집합 대조·치환만(도메인 리터럴 0)."""
+    if fc.get("after") not in eff:
+        return None
+    req = fc.get("requires") or []
+    req = [req] if isinstance(req, str) else list(req)
+    missing = [r for r in req if r not in eff]
+    if missing and fc.get("feedback"):
+        return fc["feedback"].replace("{missing}", ", ".join(missing)), "followup_chain"
+    if (not missing and fc.get("decision_tools") and fc.get("decision_feedback")
+            and not any(t in eff for t in fc["decision_tools"])):
+        return fc["decision_feedback"], "followup_decision"
+    return None
+
+
 def _is_effective_write(name):
     return bool(name) and not _READ_PREFIX_RE.match(name) and not _PROCEDURAL_RE.search(name)
 
@@ -3012,27 +3067,34 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             # ★follow_up_chains (2026-07-20 Q1 coverage·050형 "submit 후 절차 미완 만족종료"):
             #   scaffold follow_up의 **디스패처 확장** — after/requires를 effective 도구명(_eff_tool_name·
             #   call_ unwrap·suffix strip)으로 대조. A2 선언(도구쌍·문구)·엔진=집합 대조만(리터럴 0).
-            #   requires는 무조건-필수 단계만(예: CLI 적격성 체크 — approve는 decline 정답 케이스가 있어
-            #   금지·Δspurious 방지). 같은 사임-임계·1/sim cap 공유.
+            #   같은 사임-임계·1/sim cap 공유.
+            # ★관문2 확장(2026-07-20·§2aa): requires = 문자열 or **리스트(full required-set)**.
+            #   050 실증 = 단일 requires(history)는 이미 호출됐고 **pending을 건너뜀** → 단일 대조는 못 잡음.
+            #   전량 대조 + 누락 도구 **전량 나열**(`{missing}` 치환·050 follow-through+054 query-gap 동시 커버).
+            #   ＋종단결정 nudge: requires 전부 충족·사임·`decision_tools` 미호출이면 `decision_feedback` 1회
+            #   (approve **강제 아님** — decline-정답 케이스(052)가 있어 문구가 양방향 명시·Δspurious 계측 대상).
             if not getattr(self, "_t2_followup", 0):
                 _eff0 = {_eff_tool_name(tc) for m in state.messages
                          for tc in (getattr(m, "tool_calls", None) or [])}
                 for _fc in ((a2 or {}).get("follow_up_chains") or []):
-                    if (_fc.get("after") in _eff0 and _fc.get("requires") not in _eff0
-                            and _fc.get("feedback")):
-                        _th = int(os.environ.get("T2_FOLLOWUP_RESIGN_TH", "2") or 2)
-                        self._t2_fu_resigns = getattr(self, "_t2_fu_resigns", 0) + 1
-                        if self._t2_fu_resigns < _th:
-                            break
-                        self._t2_followup = getattr(self, "_t2_followup", 0) + 1
-                        print("[T2_FOLLOWUP] chain fired after=%s missing=%s"
-                              % (_fc.get("after"), _fc.get("requires")), file=_sys.stderr, flush=True)
-                        _new1 = _ap_regen(_fc["feedback"], "followup_chain",
-                                          tool_choice=("required"
-                                                       if os.environ.get("T2_FOLLOWUP_FORCE") == "1" else None))
-                        if _new1 is not None:
-                            am = _new1
+                    _hit1 = _chain_dispatch(_fc, _eff0)     # (feedback, tag) or None — 순수함수(단위테스트 공유)
+                    if _hit1 is None:
+                        continue
+                    _fb1, _tag1 = _hit1
+                    _th = int(os.environ.get("T2_FOLLOWUP_RESIGN_TH", "2") or 2)
+                    self._t2_fu_resigns = getattr(self, "_t2_fu_resigns", 0) + 1
+                    if self._t2_fu_resigns < _th:
                         break
+                    self._t2_followup = getattr(self, "_t2_followup", 0) + 1
+                    print("[T2_FOLLOWUP] chain fired(%s) after=%s"
+                          % (_tag1, _fc.get("after")), file=_sys.stderr, flush=True)
+                    _new1 = _ap_regen(_fb1, _tag1,
+                                      tool_choice=("required"
+                                                   if os.environ.get("T2_FOLLOWUP_FORCE") == "1"
+                                                   and _tag1 == "followup_chain" else None))
+                    if _new1 is not None:
+                        am = _new1
+                    break
         # (a1) write-provenance — **완료-주장 게이트**(③형·2026-07-17 사용자 제안: "출력도 출처를 밝혀라").
         #   C45(입력 출처선언)의 출력측 쌍대: 완료를 주장하려면 근거 이벤트가 원장에 있어야 한다.
         #   ③형의 급소 = pass("당신이 실행하라")와 fail("내가 제출했다")이 **구조 동일·말만 다름** →
@@ -3097,11 +3159,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         #   "checked" 주장) 직접 표적·완료-주장은 kind=write로 흡수(WRITEPROV 상위호환·병행 시 중복 주의).
         #   기본 OFF(T2_CLAIM_PROV=1)·사임-윈도우·1/sim.
         _cpv = (a2 or {}).get("claim_prov") or {}
-        if (os.environ.get("T2_CLAIM_PROV") == "1" and _resign
+        # ★관문5(2026-07-20·038 transfer-escape·§2ad): 발화창 = 사임 ∨ **transfer-류 호출**.
+        #   038 실측: "I will file 3 disputes..."(SAY)→TRANSFER NOTICE로 탈출(정당 도구호출이라
+        #   FORCE_ACTION 사각·미래형이라 구판 CLAIM 사각). transfer 패턴=A2 event_map['transfer'] 재사용.
+        _cpv_transfer = _is_transfer_call(am, _cpv.get("event_map") or {})
+        if (os.environ.get("T2_CLAIM_PROV") == "1" and (_resign or _cpv_transfer)
                 and not getattr(self, "_t2_claimprov", 0)
                 and _cpv.get("question") and _cpv.get("feedback") and _cpv.get("event_map")):
             for _once in (True,):
-                _cl = None
+                _cl, _pd = None, None
                 try:
                     try:
                         _dm2 = _gen(self, work + [am, UserMessage(role="user", content=_cpv["question"])],
@@ -3115,11 +3181,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _j2 = json.loads(_mj.group(0))
                         if isinstance(_j2, dict) and isinstance(_j2.get("claims"), list):
                             _cl = _j2["claims"]
+                        # ★관문5 미래형: pending = 대화 전체서 "하겠다" 약속·미이행 목록(A2 question v2가 요구).
+                        if isinstance(_j2, dict) and isinstance(_j2.get("pending"), list):
+                            _pd = _j2["pending"]
                 except Exception as _ce2:
                     print("[T2_CLAIMPROV] declaration failed (no-op): %r" % (_ce2,),
                           file=_sys.stderr, flush=True)
-                if not _cl:
-                    print("[T2_CLAIMPROV] window hit claims=%s" % (_cl,), file=_sys.stderr, flush=True)
+                if not _cl and not _pd:
+                    print("[T2_CLAIMPROV] window hit claims=%s pending=%s" % (_cl, _pd),
+                          file=_sys.stderr, flush=True)
                     break
                 # 원장 이벤트 집합: 원명 + effective명(디스패처 unwrap·suffix strip)
                 _evs = set()
@@ -3128,26 +3198,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _evs.add(str(getattr(_tc3, "name", "") or ""))
                         _evs.add(_eff_tool_name(_tc3))
                 _emap = _cpv["event_map"]
-                _unbacked = []
-                for _c3 in _cl:
-                    _k3 = str((_c3 or {}).get("kind", "")).strip().lower()
-                    _spec3 = _emap.get(_k3)
-                    if _spec3 is None:
-                        continue                        # 미등재 kind = skip(오탐 방지)
-                    if _spec3 == "__effective_write__":
-                        if not _any_effective_write(state.messages):
-                            _unbacked.append(_c3)
-                        continue
-                    _pats = _spec3 if isinstance(_spec3, list) else [_spec3]
-                    if not any(any(str(e).startswith(p) for e in _evs) for p in _pats):
-                        _unbacked.append(_c3)
-                print("[T2_CLAIMPROV] window hit claims=%d unbacked=%d %s"
-                      % (len(_cl), len(_unbacked),
-                         [c.get("kind") for c in _unbacked][:4]), file=_sys.stderr, flush=True)
-                if _unbacked:
+                _unbacked = _claim_unbacked(_cl, _emap, _evs, state.messages)
+                # 미래-약속: 같은 원장대조 — 이 창(사임/transfer)에서 미이행 약속 = 영영 미이행(탈출티켓).
+                #   feedback_pending 미선언(구판 A2)이면 발화 0(거동보존).
+                _unb_p = (_claim_unbacked(_pd, _emap, _evs, state.messages)
+                          if _cpv.get("feedback_pending") else [])
+                print("[T2_CLAIMPROV] window hit(%s) claims=%d unbacked=%d pending=%d unb_p=%d %s"
+                      % ("transfer" if _cpv_transfer and not _resign else "resign",
+                         len(_cl or []), len(_unbacked), len(_pd or []), len(_unb_p),
+                         [c.get("kind") for c in (_unbacked + _unb_p)][:4]), file=_sys.stderr, flush=True)
+                if _unbacked or _unb_p:
                     self._t2_claimprov = getattr(self, "_t2_claimprov", 0) + 1
-                    _desc = "; ".join("%s: %s" % (c.get("kind"), str(c.get("what"))[:60]) for c in _unbacked[:3])
-                    _new2 = _ap_regen(_cpv["feedback"].replace("{claims}", _desc), "claimprov")
+
+                    def _desc3(cc):
+                        return "; ".join("%s: %s" % (c.get("kind"), str(c.get("what"))[:60])
+                                         for c in cc[:3])
+                    _parts = []
+                    if _unbacked:
+                        _parts.append(_cpv["feedback"].replace("{claims}", _desc3(_unbacked)))
+                    if _unb_p:
+                        _parts.append(_cpv["feedback_pending"].replace("{claims}", _desc3(_unb_p)))
+                    _new2 = _ap_regen("\n".join(_parts), "claimprov")
                     if _new2 is not None:
                         am = _new2
                         print("[T2_CLAIMPROV] regen tool_calls=%s"

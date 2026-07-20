@@ -137,6 +137,23 @@ def _val_grounded(val, corpus_texts, kind=None):
     return bool(nv) and any(nv in _norm_ground(t) for t in corpus_texts)
 
 
+class _SafeMap(dict):
+    """format_map용: 미존재 키는 원문 유지(KeyError 회피·기존 {result}-only template 거동보존)."""
+    def __missing__(self, k):
+        return "{%s}" % k
+
+
+def _render_scalar(d, ctx, res):
+    """★스칼라 반환문 렌더 (2026-07-20 관문3·순수함수=단위테스트 공유·[[03b]]).
+    template 키 확장: {result} 외에 **호출 인자**({계좌id} 등)를 에코할 수 있게 — WEV의 토큰+id
+    공존 게이트가 우리 반환문을 증거로 쓰는 채널(user_id-키/id-공존 불성립 해소). 엔진=치환만."""
+    sm = _SafeMap({k: v for k, v in ctx.items()
+                   if isinstance(v, (str, int, float)) and not k.startswith("_")})
+    sm["result"] = (res if res is not None
+                    else d.get("missing_hint", "(could not compute — check your arguments)"))
+    return str(d.get("return_template", "{result}")).format_map(sm)
+
+
 def _ground_operands(orch, d, ctx):
     """★operand grounding (관문1·`ACCOUNT_APY_OFFLOAD §2a` 리뷰③·2026-07-20 배선). A2 `ground` 선언 시
     op 실행 前 각 grounded operand가 **KB/원장에 실재하는지 검증** — 미검증=드롭+플래그(→abstain).
@@ -184,6 +201,22 @@ def _ground_operands(orch, d, ctx):
     for scf in (gspec.get("scalar_fields") or []):
         param = scf.get("param")
         if param not in ctx:
+            continue
+        # ★source_param(2026-07-20 관문3): 존재검사가 무력한 값(잔액 0 등 편재값)은 **축자 인용** 요구 —
+        #   source∈코퍼스(실재) + value∈source(자기 인용 안 값·array-field와 동형). 날조-0 차단.
+        sp = scf.get("source_param")
+        if sp:
+            src = ctx.get(sp)
+            ns = _norm_ground(src) if src else ""
+            corp = [_norm_ground(t) for t in _corpus_texts(orch, scf.get("corpus") or ["ledger"])]
+            src_ok = bool(ns) and any(ns in c for c in corp if c)
+            val_ok = _val_grounded(ctx.get(param), [str(src or "")], scf.get("kind"))
+            if not (src_ok and val_ok):
+                flags.append("%s=%s (%s)" % (param, ctx.get(param),
+                             "source quote not found in the records" if not src_ok
+                             else "the value is not present in the source you quoted"))
+                if scf.get("on_fail", "drop") == "drop":
+                    ctx[param] = None
             continue
         if not _val_grounded(ctx.get(param), _corpus_texts(orch, scf.get("corpus") or ["ledger"]),
                              scf.get("kind")):
@@ -751,8 +784,7 @@ def apply():
                         ids=", ".join(_res) if _res else "(none)", details=_details)
                     _n = len(_res)
                 else:                                         # 스칼라형(verdict 등)
-                    _txt = d.get("return_template", "{result}").format(result=_res if _res is not None
-                                                                       else d.get("missing_hint", "(could not compute — check your arguments)"))
+                    _txt = _render_scalar(d, _ctx, _res)      # 순수함수(관문3·단위테스트 공유)
                     _n = _res
                 # ★grounding 플래그를 반환문 맨 앞에 붙인다 — 드롭된 미검증 operand를 에이전트가 보고
                 #   레코드를 다시 읽게(가짜 정밀도 신뢰 차단·§2ab). 플래그 없으면 거동 변화 0.

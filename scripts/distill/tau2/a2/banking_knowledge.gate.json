@@ -369,6 +369,19 @@
    ],
    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement card check (get_pending_replacement_orders*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_pending_replacement_orders tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure.",
    "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5)."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "close_credit_card_account"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "CLOSURE_OK"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that account {id} is ELIGIBLE for closure (CLOSURE_OK). The closure protocol disqualifies closing an account with an outstanding balance. First read the credit card account record for {id}, then call check_card_closure_eligibility with the account id, the outstanding balance copied from the record, and the verbatim balance line. If it reports an outstanding balance, the customer must pay the balance in full first; after paying, re-read the record and re-check, then re-attempt the closure.",
+   "_note": "2026-07-20 관문3(043·§2aa 요건②): 구판 3체크 WEV는 '체크했나'만 게이트→$75 미납인데 close 초록불(오해지·게이트 역효과 실례). 신판=close를 실제 실격조건 판정(check_card_closure_eligibility의 CLOSURE_OK 토큰+id 공존)으로 게이트. 판정=엔진 결정론(잔액≤0)·잔액0 날조=source_param 축자 grounding이 차단. Δspurious 계측 대상(잔액 미표시 레코드서 over-block 가능성)."
   }
  ],
  "scaffold_get_tools": [
@@ -739,6 +752,40 @@
    },
    "_ground_note": "관문1 grounding(T2_SG_GROUND=1). 097 결함=principal 95000 추측(gold $100,000). '레코드서 복사'라 선언된 operand(principal·actual_apy·기간)를 원장(계좌레코드 도구출력)에 실재하는지 대조·미검증 드롭→op None→abstain. expected_apy는 미ground(get_correct_savings_apy 산출물=상류서 이미 grounded). 엔진 리터럴 0.",
    "_note": "2026-07-20 D+G. amount=principal×Δapy%×days/365. gold 095 재현 98.0(full yr·8000). 리터럴 0(전부 인자). isolate 불요(순 산술)."
+  },
+  {
+   "name": "check_card_closure_eligibility",
+   "description": "USE THIS before closing a credit card account to determine whether the account is eligible for closure. The closure protocol disqualifies closing an account that still has an outstanding balance — the balance must be paid in full FIRST. Read the credit card account record, then call this tool with the account id and the outstanding balance copied from the record (plus the verbatim line from the record showing that balance). It returns the deterministic eligibility verdict.",
+   "params": {
+    "credit_card_account_id": "The credit card account id being closed, copied from the account record.",
+    "outstanding_balance": "The account's current outstanding balance (number, no $), copied EXACTLY from the account record. If you just paid the balance, re-read the account record first and copy the NEW balance.",
+    "balance_source": "The verbatim line/snippet from the account record (tool output) showing this balance. Copy it exactly — it is checked against the records."
+   },
+   "return_template": "Closure eligibility for credit card account {credit_card_account_id} (outstanding balance {outstanding_balance}): {result}",
+   "op": {
+    "op": "if_then",
+    "cond": {
+     "op": "compare",
+     "cmp": "<=",
+     "a": "outstanding_balance",
+     "b": 0
+    },
+    "then": {
+     "op": "const",
+     "value": "CLOSURE_OK — no outstanding balance; the balance requirement of the closure protocol is satisfied."
+    },
+    "else": {
+     "op": "const",
+     "value": "CLOSURE_BLOCKED_OUTSTANDING_BALANCE — this account still has an outstanding balance. Per the closure protocol the balance must be paid in full before the account can be closed. Have the customer pay the balance, re-read the account record, then call this tool again with the new balance."
+    }
+   },
+   "ground": {
+    "scalar_fields": [
+     {"param": "outstanding_balance", "source_param": "balance_source", "corpus": ["ledger"], "kind": "number", "on_fail": "drop"}
+    ]
+   },
+   "missing_hint": "COULD NOT VERIFY — the balance you provided could not be verified against the account records. Re-read the credit card account record and copy the outstanding balance and its verbatim source line exactly.",
+   "_note": "2026-07-20 관문3(043·§2aa 요건②③): 종단행동(close)을 '체크했나'가 아닌 **실제 실격조건(잔액>0)**으로 게이트하는 calc-offload 반쪽. LLM=잔액 copy+축자인용(유동)·엔진=compare+if_then(결정론·3-값=미검증 abstain). 반환문이 id+판정토큰 에코→WEV(require_tokens=CLOSURE_OK)의 증거 채널(user_id-키/id-공존 불성립 해소). 잔액0 날조=source_param 축자검증이 차단(존재검사는 0-편재로 무력). 토큰 비중첩(CLOSURE_OK ⊄ CLOSURE_BLOCKED_OUTSTANDING_BALANCE)."
   }
  ],
  "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수.",
@@ -765,13 +812,31 @@
  "follow_up_chains": [
   {
    "after": "submit_credit_limit_increase_request",
-   "requires": "get_credit_limit_increase_history",
-   "feedback": "Error: [FOLLOW-UP] you submitted the credit limit increase request but never ran the eligibility check procedure. Per the CLI procedure, after submitting you must run the checks for this account — get_user_dispute_history, get_pending_replacement_orders, get_credit_limit_increase_history, get_payment_history — and then make the decision: approve_credit_limit_increase if eligible, or clearly decline and explain which requirement failed. Do NOT end the conversation with the request merely submitted.",
-   "_note": "2026-07-20 Q1(050형: submit 후 만족종료). requires=무조건-필수 체크(CLI history)만 — approve는 decline-정답 케이스(052 cooldown)가 있어 requires 금지(Δspurious 방지). 문구가 전체 체크체인+양방향 결정을 안내. 엔진=follow_up_chains(effective-name 대조)."
+   "requires": [
+    "get_user_dispute_history",
+    "get_pending_replacement_orders",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ],
+   "decision_tools": [
+    "approve_credit_limit_increase"
+   ],
+   "decision_feedback": "Error: [FOLLOW-UP] you ran the eligibility checks but never made the terminal decision on the credit limit increase request. Per the CLI procedure you must now either (a) call approve_credit_limit_increase — ONLY if every requirement passed — or (b) clearly tell the customer the request is declined and exactly which requirement failed. Declining is a valid outcome; do NOT approve unless every check passed. Do not end the conversation with the request undecided.",
+   "feedback": "Error: [FOLLOW-UP] you submitted the credit limit increase request but have NOT completed the required eligibility check procedure. Checks still missing for this account: {missing}. Per the CLI procedure you must run EVERY check — get_user_dispute_history, get_pending_replacement_orders, get_credit_limit_increase_history, get_payment_history — and then make the decision: approve_credit_limit_increase if every requirement passed, or clearly decline and explain which requirement failed. Do NOT end the conversation with the request merely submitted.",
+   "_note": "2026-07-20 Q1 + 관문2 확장(§2aa): requires=full required-set 4체크(050 실증: 단일 requires는 이미-호출된 history만 봐 pending 건너뜀을 못 잡음). {missing}=누락 전량 나열(050 follow-through+054 query-gap 동시 커버). decision_tools/decision_feedback=종단결정 nudge — approve 강제 아님(052 decline-정답 보호·문구 양방향·Δspurious 계측 대상). 엔진=집합 대조·치환만(리터럴 0)."
+  },
+  {
+   "after": "file_credit_card_transaction_dispute",
+   "requires": [
+    "get_card_last_4_digits"
+   ],
+   "feedback": "Error: [FOLLOW-UP] you filed a credit card transaction dispute but the card's last 4 digits were never actually obtained from the customer. Missing: {missing}. The dispute procedure requires the CUSTOMER to run the get_card_last_4_digits tool themselves: call give_discoverable_user_tool to give the customer the get_card_last_4_digits tool, ask them to run it and tell you the digits, then file (or re-file) the dispute using the true digits. Do NOT guess or fabricate the digits.",
+   "_note": "2026-07-20 관문4(031·§2ad): 에이전트가 file_dispute는 실행하나 give-flow(사용자-측 get_card_last_4_digits) 통째 생략→뒷4자리 없이 dispute. requires 대조=effective name(_eff_tool_name이 call_discoverable_user_tool의 user_tool_name unwrap+접미 strip)→사용자-실행도 인지. 한계: 도구-호출 여부만 봄(날조 자릿수는 못 잡음)→WEV형 강화(자릿수 인자+give출력 공존)는 dispute 도구 인자명 라이브 확인 후. debit dispute와 after 정확일치라 교차발화 0. Δspurious 계측 대상(last4 불요 credit-dispute 태스크 존재 시 over-fire)."
   }
  ],
  "claim_prov": {
-  "question": "Before your reply is sent, audit YOUR REPLY ONLY. List every assertion in it that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did, or what you WILL do, do NOT count. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"search|verify|write|give|transfer\", \"what\": \"<5-10 words>\"}]} — empty list if none.",
+  "question": "Before your reply is sent, audit yourself. (1) In YOUR REPLY ONLY: list every assertion that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did do NOT count. (2) Across the WHOLE conversation: list every action YOU said you WILL do / are about to do (e.g. 'I will file the disputes') that you have NOT completed yet. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"search|verify|write|give|transfer\", \"what\": \"<5-10 words>\"}], \"pending\": [{\"kind\": \"search|verify|write|give|transfer\", \"what\": \"<5-10 words>\"}]} — empty lists if none.",
+ "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why).",
   "event_map": {
    "search": [
     "KB_",
@@ -792,6 +857,6 @@
    ]
   },
   "feedback": "Error: [CLAIM-PROVENANCE] your reply asserts you already did the following, but the conversation ledger shows NO such event: {claims}. Do NOT claim actions you have not actually performed — that misleads the customer. Either actually do it now (call the real tools: search the knowledge base, run the verification, execute the action), or correct your statement to say you have not done it yet.",
-  "_note": "2026-07-20 사용자 일반화('모든 했다 주장을 원장대조'). 043 e2e 실측: KB실호출 0·'checked KB' 주장 1→조기 transfer. WRITEPROV(완료-주장·write축)의 상위호환 — kind별 event_map으로 search/verify/give/transfer까지. 미등재 kind=엔진 skip. T2_CLAIM_PROV=1 구동·기본 OFF."
+  "_note": "2026-07-20 사용자 일반화('모든 했다 주장을 원장대조'). 043 e2e 실측: KB실호출 0·'checked KB' 주장 1→조기 transfer. WRITEPROV(완료-주장·write축)의 상위호환 — kind별 event_map으로 search/verify/give/transfer까지. 미등재 kind=엔진 skip. T2_CLAIM_PROV=1 구동·기본 OFF. ★관문5 확장(2026-07-20·038·§2ad): ①발화창=사임∨transfer호출(event_map.transfer 패턴 재사용·notice-티켓 탈출 차단) ②question v2=claims(과거·답변만)+pending(미래약속·전대화)·feedback_pending=지금 실행 후 transfer 지시. 한계: pending kind=write는 __effective_write__ 광역대조(무관 write 존재 시 false-negative·주의). Δspurious 계측 대상(정당 즉시-transfer는 pending 0라 무간섭 설계)."
  }
 }

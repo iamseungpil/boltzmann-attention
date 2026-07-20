@@ -262,7 +262,13 @@ def apply_op(spec, ctx):
                     return _res(row)
             return None
         if op == "if_then":
+            # ★3-값 논리(2026-07-20 관문3 자기감사): cond=None(미확정)은 False가 **아니다** — else로 새면
+            #   드롭/미확정 입력에 **오판정**을 낸다(023 기전의 엔진-내 재현: grounding이 개설일 드롭→
+            #   빈 버킷→min None→compare None→구판 else="DOES NOT QUALIFY"). bool_expr의 명시 철학
+            #   (미확정=None=abstain·§3 안전)과 동형화. None이면 missing_hint 경로로 abstain.
             cond = apply_op(spec.get("cond"), ctx)
+            if cond is None:
+                return None
             return apply_op(spec.get("then"), ctx) if cond else apply_op(spec.get("else"), ctx)
         if op == "bool_expr":
             # ★정책 불리언식(도메인일반·3-값 논리). all/any/not 트리 + leaf(ref|expr + eq|in|비교).

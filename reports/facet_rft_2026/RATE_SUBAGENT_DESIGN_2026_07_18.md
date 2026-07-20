@@ -1071,3 +1071,30 @@ branching 정확(DOES NOT QUALIFY→Silver). 유일결함 [S]: **account_opening
 - **미검증(다음)**: [[30]] 단위통과≠라이브발화 — **T2_SG_GROUND 라이브 발화·실제 드롭은 미확인**(clean
   concurrency=1 유료런 필요·[[09]] 승인). 관문1 잔여 = ②read-선행(grounding의 ledger-abstain이 상당부분
   대체: read 안 하면 principal∉원장→드롭) ③isolate 서브 승격(별도 레버·미착수).
+
+### §2ag (2026-07-20) — 관문2~5 배선 완료·오프라인 11+16+13 [S] (관문6=FORCE 기검증·6관문 전 배선)
+**관문2 절차-완전성(050/054)**: `follow_up_chains.requires` 문자열→**리스트(full required-set 4체크)** —
+050 실증대로 단일 requires(기호출 history)는 pending 건너뜀을 못 잡음. `{missing}`=누락 전량 나열(050
+follow-through+054 query-gap 동시 커버). +**종단결정 nudge**(`decision_tools`/`decision_feedback`): 전체크
+충족·사임·approve 미호출이면 1회 — approve **강제 아님**(052 decline-정답 보호·문구 양방향). 디스패치=
+`_chain_dispatch` 순수함수 추출(라이브==테스트 공유). `test_followup_chain.py` **11/11**.
+**관문3 실격조건/종단게이트(043)**: §2aa 요건②③ — ①신규 A2 도구 `check_card_closure_eligibility`
+(LLM=잔액 copy+**축자인용**(`balance_source`)·엔진=`잔액≤0` 결정론 판정·반환문이 **id+판정토큰 에코**) ②WEV
+신규 스펙: close는 `CLOSURE_OK` 토큰+id 공존 요구 = **"체크했나"가 아닌 실제 실격조건**으로 게이트(user_id-키
+id-공존 불성립을 우리 반환문 에코가 해소). ③**엔진버그 수정: `if_then` 3-값화** — cond=None(미확정)이 else로
+새서 드롭입력에 오판정(023 기전의 엔진-내 재현·bool_expr 철학과 동형화). ④scalar grounding `source_param`
+확장(잔액0 날조=존재검사 무력(0 편재)→축자인용 검증). ⑤`_render_scalar` 추출(template이 호출인자 에코).
+`test_closure_eligibility.py` **16/16**(043 재현=BLOCKED·날조0 차단·완납 경로·타계좌 id 불공존).
+**관문4 give-flow(031)**: follow_up_chains 신규 —after=`file_credit_card_transaction_dispute`·requires=
+[`get_card_last_4_digits`]·피드백=give_discoverable_user_tool 흐름 지시. `_eff_tool_name`이 user-실행
+(call_discoverable_user_tool) unwrap하므로 사용자-측 실행 인지. 한계: 도구-호출 여부만(날조 자릿수 못 잡음)→
+WEV형 강화는 dispute 인자명 라이브 확인 후.
+**관문5 transfer-escape(038)**: ①발화창=사임∨**transfer-류 호출**(`_is_transfer_call`·패턴=event_map.transfer
+재사용·새 A2 필드 0) — notice-티켓 탈출 차단 ②**미래형**: question v2가 `claims`(과거·답변만)+`pending`
+(약속·전대화) 요구·`feedback_pending`=지금 실행 후 transfer. 원장대조 코어=`_claim_unbacked` 순수함수 추출.
+정당 즉시-transfer=pending 0→무간섭 설계. `test_claim_pending.py` **13/13**(038 재현=약속2건 적발·이행후 통과).
+**관문6 발견미진입(say-don't-do)**: FORCE_ACTION 기검증(§전세션)·잔여 사각(transfer-경로)=관문5가 흡수. **완료.**
+**전 스위트 회귀 0**(12 스위트 ALL PASS·기존 unified_regen/nlnum/banking_gate 포함).
+**⚠️전 관문 공통 미검증**: 라이브 발화·Δspurious — 각 레버 기본 OFF·§2af와 같은 clean 유료 스모크 필요.
+게이트 자신의 역효과(043 교훈) 계측 지점: 관문2 decision-nudge(decline 케이스 접촉)·관문3 over-block
+(잔액 미표시 레코드)·관문4 over-fire(last4 불요 태스크)·관문5(정당 transfer 지연).
