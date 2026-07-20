@@ -869,7 +869,11 @@
     ]
    },
    "_ground_note": "관문1 grounding(T2_SG_GROUND=1). 097 결함=principal 95000 추측(gold $100,000). '레코드서 복사'라 선언된 operand(principal·actual_apy·기간)를 원장(계좌레코드 도구출력)에 실재하는지 대조·미검증 드롭→op None→abstain. expected_apy는 미ground(get_correct_savings_apy 산출물=상류서 이미 grounded). 엔진 리터럴 0.",
-   "_note": "2026-07-20 D+G. amount=principal×Δapy%×days/365. gold 095 재현 98.0(full yr·8000). 리터럴 0(전부 인자). isolate 불요(순 산술)."
+   "_note": "2026-07-20 D+G. amount=principal×Δapy%×days/365. gold 095 재현 98.0(full yr·8000). 리터럴 0(전부 인자). isolate 불요(순 산술). §2aw: read-선행 게이트(r095 3trial: 계산 前 저축 레코드·거래 미읽음 불변→principal 96000/기간 1개월 오답). requires_reads=gold read 쌍의 effective명·T2_SG_REQREADS=1 구동.",
+   "requires_reads": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ]
   },
   {
    "name": "check_card_closure_eligibility",

@@ -835,6 +835,31 @@ def apply():
                 continue
             if getattr(tc, "name", None) in decls:
                 d = decls[getattr(tc, "name")]
+                # ★read-선행 게이트 (T2_SG_REQREADS=1·§2aw·r095 gather-순서 실측: 계산 前 저축 레코드·
+                #   거래 read 미실행이 3trial 불변). A2 `requires_reads`(effective 도구명) 미실행이면 계산을
+                #   거부하고 read 지시 — §1.5 허용축(read 강제=write 강제 아님)·엔진=집합 대조만·리터럴 0.
+                #   우리 도구는 env 부재라 replay서 hallucinated-skip → replay-safe.
+                _rr = d.get("requires_reads") or []
+                if _rr and os.environ.get("T2_SG_REQREADS") == "1":
+                    try:
+                        _effc = {_g._eff_tool_name(_t2) for _m2 in self.get_messages()
+                                 for _t2 in (getattr(_m2, "tool_calls", None) or [])}
+                    except Exception:
+                        _effc = None
+                    _missing_r = [r for r in _rr if r not in _effc] if _effc is not None else []
+                    if _missing_r:
+                        _msg_r = ("Error: [READ-FIRST] this calculation depends on records you have not read "
+                                  "yet in this conversation. Missing required reads: %s. These are discoverable "
+                                  "tools: unlock each with unlock_discoverable_agent_tool (full suffixed name), "
+                                  "call it via call_discoverable_agent_tool, read the ACTUAL values from the "
+                                  "records, then call this tool again with values copied from those records."
+                                  % ", ".join(_missing_r))
+                        ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
+                                                   requestor=getattr(tc, "requestor", "assistant"),
+                                                   error=True, content=_msg_r)
+                        print("[T2_SG_REQREADS] %s denied: missing reads %s"
+                              % (getattr(tc, "name"), _missing_r), file=_sys.stderr, flush=True)
+                        continue
                 # ★LLM이 formalize한 clean operand(각 인자)를 ctx로([[10]]). 엔진은 op 실행만·원시파싱 안함.
                 _args = getattr(tc, "arguments", None) or {}
                 _ctx = {}
