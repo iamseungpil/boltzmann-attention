@@ -1275,6 +1275,19 @@ BaseOrchestrator.step**이라 누출(§2ai 가드의 설치-범위 버그). 픽�
 **방법론**: ①분류는 반드시 부하-격리+정보-실재 검사로 검증 후 확정([[08]] 확장 — "궤적 정독"만으론 INFER/
 gather를 오분류할 수 있다·인자 오답의 겉모습은 동일) ②이 프로브는 무료(user-sim 0)·수분 — **분류 확정의
 기본 절차로 승격**.
+### §2at (2026-07-20) — e2e10 중간: 038 t0 크래시 = READ_DEDUP×unlock replay 불일치 (술어 이원성)
+**e2e10 t0 스냅샷**: 052·054 **크래시 해소 확증**(TOOLGATE env-실재 통과·tau2 패치 v2 — 이전 크래시 2종이
+user_stop 완주로)·관문4 WEV last4 라이브 발화(arm A 18회)·unlock 활동 급증(a16/b22=chain unlock-피드백 효과)·
+APY fetch-iso 발화(b 8회). 단 **038 t0 = 신규 크래시**: 반복 unlock을 READ_DEDUP이 stub 처리(우리 술어상
+unlock=procedural non-write·출력 2000자↑) → replay는 unlock을 **mutating으로 재실행** → "Tool unlocked..." ≠
+"[DUPLICATE-READ]" stub → sim 무효. **근본=술어 이원성**: 우리 `_is_effective_write`(게이트용)와 tau2
+`_is_mutating_tool`(replay용)이 다른 분류 — 캐시 가부는 **replay 술어가 정본**이어야. §2aj 감사의 "READ_DEDUP
+안전" 판단의 2번째 반례(1번째=TOOLGATE·§2ao). **픽스**=`_dedup_cache_safe`(env._is_mutating_tool 위임·판정불가=
+캐시 안 함·5/5)·캐시 입구 배선. e2e10 잔여 trial은 구코드로 돌므로 038류 재발 가능(데이터는 유효 trial만 채점).
+**replay-불변식 감사 최종 상태**: 응답-변경/생략 개입 전수 = SG_TRUTH(env-패치·§2aj)·TOOLGATE(env-실재 통과·
+§2ao)·READ_DEDUP(mutating 캐시금지·본절)·deny류(비커밋)·scaffold도구(env부재 skip)·calc/present(read 증강) —
+**mutating-재실행 축으로 3차 감사 완료**.
+
 ### §2as (2026-07-20) — 095 심화: grounding 참값-드롭 × 0.0-포이즈닝 → required_groups abstain
 **정밀화 [S]**: expected_apy 축의 진근본 = **grounding 참값-드롭 × 0.0-포이즈닝**.
 궤적 실측: KB 문서(msg19)에 base 5.5% 명백 실재 — 에이전트 source가 **패러프레이즈**("Base APY for Gold

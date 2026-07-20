@@ -1935,6 +1935,20 @@ def _denied_calls(am, gate, last_user, transfer_sent):
     return out
 
 
+def _dedup_cache_safe(orch, name):
+    """★READ_DEDUP 캐시 가부 (2026-07-20 e2e10 038 크래시·§2at·순수함수=테스트 공유).
+    근본: 우리 write-술어(_is_effective_write)와 **tau2 replay의 mutating-술어**가 불일치 —
+    unlock은 우리에겐 procedural(non-write)이라 캐시됐는데 replay는 mutating으로 **재실행** →
+    "Tool unlocked..." ≠ "[DUPLICATE-READ]" stub → sim 무효(실측 038 t0). 캐시 가부의 정본을
+    tau2 술어로: env가 mutating으로 보는 도구는 **캐시 금지**(stub이 히스토리에 남으면 replay 불일치).
+    판정 불가(env 부재/예외)=False(캐시 안 함·안전측). 도메인 리터럴 0."""
+    env = getattr(orch, "environment", None)
+    try:
+        return env is not None and not env._is_mutating_tool(name)
+    except Exception:
+        return False
+
+
 def _budget_tick(agent):
     """R1: 차단 turn마다 orchestrator.num_errors++ → too_many_errors 예산 동일(best-of-K 방지)."""
     orch = getattr(agent, "_t2_orch", None)
@@ -2056,7 +2070,9 @@ def _install_regen_exec():
                 if _is_effective_write(_eff_tool_name(tc)):
                     if not getattr(out, "error", False):
                         cache.clear()  # 세상이 바뀜 → 이전 read 신선도 보장 불가
-                elif not getattr(out, "error", False) and len(_content_str(out) or "") >= min_len:
+                elif (not getattr(out, "error", False) and len(_content_str(out) or "") >= min_len
+                      and _dedup_cache_safe(self, getattr(tc, "name", "") or "")):
+                    # ★§2at: env-mutating(unlock 등)은 캐시 금지 — stub이 히스토리에 남으면 replay 불일치
                     cache[_call_key(tc)] = True
         else:
             results = orig_exec(self, tool_calls)
