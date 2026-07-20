@@ -720,6 +720,13 @@ def _evidence_ctx(orch):
             "__tool_outputs": {k: v.lower() for k, v in outs.items()}}
 
 
+def _truth_text(outer, tn):
+    """★SG_TRUTH 문구 단일 정본 (2026-07-20 replay-safety·§2aj): exec2 라이브 intercept와
+    env-레벨 replay 패치가 **바이트 동일** 텍스트를 내야 eval replay 내용비교가 통과한다."""
+    return ("`%s` is not managed by `%s`. `%s` is already one of the tools provided to you — "
+            "call `%s` directly with its arguments." % (tn, outer, tn, tn))
+
+
 def _a2_named_in_args(tc, decls):
     """(a1) 호출 `tc`의 인자 값 중 **우리 A2 도구 이름과 정확히 일치**하는 게 있으면 그 이름을 반환.
     구조적 사실만 본다 — env 응답 텍스트를 읽지 않고([[03b]] 엔진-formalize 금지), 도메인 도구명을
@@ -940,8 +947,7 @@ def apply():
                 #   ⚠️over-action 위험(모트 제1원리: 레버는 하나 사면 하나 판다) = 우리 도구명을 인자로 쓰는
                 #   **정당한** 호출(예: KB 검색 query)까지 가로챌 수 있다 → Δspurious 계측 전엔 기본 OFF.
                 _tn = _a2_named_in_args(tc, decls)
-                _msg = ("`%s` is not managed by `%s`. `%s` is already one of the tools provided to you — "
-                        "call `%s` directly with its arguments." % (_tn, getattr(tc, "name", "") or "", _tn, _tn))
+                _msg = _truth_text(getattr(tc, "name", "") or "", _tn)   # 정본 공유(replay와 동일 텍스트)
                 ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
                                            requestor=getattr(tc, "requestor", "assistant"), content=_msg)
                 print("[T2_SG_TRUTH] '%s(%s)' -> interface fact (env would have denied our tool)"
@@ -966,5 +972,34 @@ def apply():
         return _reassemble(tool_calls, ours, rest_res, ToolMessage)
 
     BaseOrchestrator._execute_tool_calls = exec2
+
+    # (5) ★SG_TRUTH replay-safety (2026-07-20·§2aj·023 smoke023 크래시 근본): eval replay
+    #   (`environment.set_state`)는 **mutating 도구를 재실행해 내용 비교**한다. exec2의 SG_TRUTH는
+    #   라이브만 가로채므로 replay서 env가 원래 거짓("Unknown agent tool")을 내 기록과 불일치→
+    #   ValueError→sim 무효. 코드베이스 불변식("응답 바꾸는 개입=히스토리서 strip이거나 env-동일")을
+    #   충족시키는 정합 픽스 = **env 클래스 레벨**서도 같은 진실 텍스트를 응답(라이브·replay 공히).
+    #   상태 무변경 분기(env는 그 호출에 원래 에러·state 변화 0)라 replay 상태분기 없음. 기본 OFF 동일.
+    from tau2.environment.environment import Environment as _Env
+    if not getattr(_Env, "_t2_sg_truth_wrapped", False):
+        _orig_get_response = _Env.get_response
+
+        def _get_response2(self, message):
+            if os.environ.get("T2_SG_TRUTH") == "1":
+                _a2e = _g._domain_a2(getattr(self, "domain_name", None))
+                if _a2e:
+                    _dn = {d.get("name") for d in (_a2e.get("scaffold_get_tools") or [])}
+                    for _x in {x.strip() for x in (os.environ.get("T2_SG_EXCLUDE") or "").split(",")
+                               if x.strip()}:
+                        _dn.discard(_x)
+                    _tn = _a2_named_in_args(message, _dn)
+                    if _tn:
+                        from tau2.data_model.message import ToolMessage as _TM2
+                        return _TM2(id=getattr(message, "id", None), role="tool",
+                                    requestor=getattr(message, "requestor", "assistant"),
+                                    content=_truth_text(getattr(message, "name", "") or "", _tn))
+            return _orig_get_response(self, message)
+
+        _Env.get_response = _get_response2
+        _Env._t2_sg_truth_wrapped = True
     print("[T2_SCAFFOLD_GET] ON", file=_sys.stderr, flush=True)
     return True
