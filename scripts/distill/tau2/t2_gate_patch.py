@@ -1996,7 +1996,11 @@ def _install_regen_exec():
         #   캐시 전체 무효화 → 상태-의존 read(dispute status 등)는 write 후 항상 재실행. 정보손실 0(원 출력이
         #   위에 실재)·대형 출력만 캐시(T2_READ_DEDUP_MIN 기본 2000자)라 시각/소형 read는 대상 밖.
         stub_ids = set()
-        dedup_on = os.environ.get("T2_READ_DEDUP") == "1"
+        dedup_on = (os.environ.get("T2_READ_DEDUP") == "1"
+                    and not getattr(self, "_t2_dedup_bypass", False))
+        # ★_t2_dedup_bypass (2026-07-20·smoke023c 포렌식·§2al): 격리 서브의 env 호출은 dedup 제외 —
+        #   main이 이미 읽은 (name,args)에 stub("위 출력 참조")을 주면 **서브 문맥엔 '위'가 없어**
+        #   빈손 날조를 유발(실측: fetch-iso가 60건 대신 3건 날조→오판정). 서브는 신선 실행·캐시 불변.
         if dedup_on:
             from tau2.data_model.message import ToolMessage as _TM
             cache = self._t2_read_cache = getattr(self, "_t2_read_cache", {})

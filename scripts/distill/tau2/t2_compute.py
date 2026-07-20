@@ -139,11 +139,13 @@ def apply_op(spec, ctx):
             df = spec.get("date_field", "date")
             of = spec.get("out_field", "window")
             within = spec.get("within_year", True)
-            # ★year_select="latest" (2026-07-20·smoke023b 포렌식 §2ak): "cardmember year"는 **연도별**
-            #   평가(KB doc_010: 12연속 월별 윈도우·해당 연도)인데 구판은 개설 **첫해(0..11) 고정** —
-            #   개설 2022·거래 2024-25(k=24..35)면 전 거래 드롭→빈 집계→오판정(실측: QUALIFIES를
-            #   DOES NOT로·사용자가 오답 분기·DB 0). latest = 거래가 실재하는 **최근 기념년**(Y=max k//12)만
-            #   취해 윈도우를 0..11로 재인덱스. 달력 산술만(도메인일반)·미선언=기존 거동보존.
+            # ★year_select="last_complete" (2026-07-20·§2ak·as_of판 — [[05]] 회색지대 교정): "cardmember
+            #   year"는 **연도별** 평가(KB doc_010)인데 구판은 개설 **첫해(0..11) 고정** — 개설 2022·거래
+            #   2024-25(k=24..35)면 전량 드롭→빈 집계→오판정(smoke023b 실측·QUALIFIES를 DOES NOT로).
+            #   평가 연도 = **as_of(현재시각·에이전트가 copy·grounding 가능) 기준 마지막 완결 기념년**
+            #   Y=k(as_of)//12-1 — 데이터-의존 선택("거래 있는 최근 연도") 배제: 최근 연도 거래 0건이면
+            #   빈 윈도우가 **보이는** 채로 평가된다(조용한 옛-연도 평가 방지). 달력 산술만(도메인일반)·
+            #   as_of 미제공/파싱불가=None(abstain·3-값)·아직 완결 연도 없음(Y<0)=[]. 미선언=기존 거동보존.
             ysel = spec.get("year_select")
             tagged = []
             for r in recs:
@@ -153,10 +155,13 @@ def apply_op(spec, ctx):
                 if k is None:
                     continue
                 tagged.append((k, r))
-            if ysel == "latest":
-                if not tagged:
-                    return []
-                yy = max(k // 12 for k, _ in tagged)
+            if ysel == "last_complete":
+                k_asof = _month_window_index(anchor, _get(ctx, spec.get("as_of")))
+                if k_asof is None:
+                    return None                      # as_of 부재/불가 → abstain(추측 금지)
+                yy = k_asof // 12 - 1
+                if yy < 0:
+                    return []                        # 첫 기념년 미완 → 평가할 완결 연도 없음
                 return [dict(r, **{of: k % 12}) for k, r in tagged if k // 12 == yy]
             return [dict(r, **{of: k}) for k, r in tagged
                     if not (within and not (0 <= k <= 11))]

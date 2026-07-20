@@ -89,32 +89,39 @@ def t_empty_and_missing():
     print("t_empty_and_missing OK")
 
 
-def t_year_select_latest():
-    # ★§2ak (smoke023b 실측 재현): 개설 2022·거래 2024-25(k=24..35) — 구판(첫해 0..11)은 전 드롭→
-    #   빈 집계→오판정. year_select=latest는 최근 기념년만 취해 0..11 재인덱스 → 판정 역전.
+def t_year_last_complete():
+    # ★§2ak as_of판 (smoke023b 실측 재현): 개설 2022·거래 2024-25(k=24..35)·as_of=11/14/2025 —
+    #   구판(첫해 0..11)은 전 드롭→빈 집계→오판정. last_complete는 as_of 기준 마지막 완결 기념년
+    #   (Y=k(as_of)//12-1=2)만 취해 0..11 재인덱스 → 판정 역전. 데이터-의존 선택 아님([[05]] 교정).
     txns = [{"date": "%02d/12/%d" % (m, y), "amount": 7600}
             for (m, y) in [(11, 2024), (12, 2024)] + [(m, 2025) for m in range(1, 11)]]
-    ctx = {"t": txns, "o": "11/10/2022"}
+    ctx = {"t": txns, "o": "11/10/2022", "today": "11/14/2025"}
     old = apply_op({"op": "bucket_month_window", "over": "t", "anchor": "o",
                     "date_field": "date", "out_field": "w"}, dict(ctx))
     assert old == [], old                                  # 구판: 전 거래 드롭(023 오판 기전)
-    new = apply_op({"op": "bucket_month_window", "over": "t", "anchor": "o",
-                    "date_field": "date", "out_field": "w", "year_select": "latest"}, dict(ctx))
+    LC = {"op": "bucket_month_window", "over": "t", "anchor": "o", "date_field": "date",
+          "out_field": "w", "year_select": "last_complete", "as_of": "today"}
+    new = apply_op(dict(LC), dict(ctx))
     assert len(new) == 12 and sorted(r["w"] for r in new) == list(range(12)), new
     mn = apply_op({"op": "group_reduce", "over": "b", "group_by": "w", "value_field": "amount",
                    "default_reducer": "sum", "across": "min"}, {"b": new})
     assert mn == 7600.0 and mn >= 7500, mn                 # → QUALIFIES (gold 분기)
-    # 거동보존: 개설 첫해 거래는 latest서도 동일(0..11 그대로)
-    t1 = [{"date": "11/20/2022", "amount": 100}]
-    a = apply_op({"op": "bucket_month_window", "over": "t", "anchor": "o", "date_field": "date",
-                  "out_field": "w", "year_select": "latest"}, {"t": t1, "o": "11/10/2022"})
+    # as_of 부재/파싱불가 → None (abstain·데이터로 추측 금지)
+    assert apply_op(dict(LC), {"t": txns, "o": "11/10/2022"}) is None
+    assert apply_op(dict(LC), {"t": txns, "o": "11/10/2022", "today": "junk"}) is None
+    # 첫 기념년 미완(as_of가 개설 첫해 안) → [] (평가할 완결 연도 없음)
+    assert apply_op(dict(LC), {"t": txns, "o": "11/10/2022", "today": "05/01/2023"}) == []
+    # 최근 완결 연도에 거래 0건 → 빈 윈도우가 보이는 채로 평가(조용한 옛-연도 평가 방지 = as_of의 요점)
+    old_txns = [{"date": "12/01/2022", "amount": 9999}]
+    assert apply_op(dict(LC), {"t": old_txns, "o": "11/10/2022", "today": "11/14/2025"}) == []
+    # 기념일 당일 as_of → 직전 연도가 완결(경계)
+    r = apply_op(dict(LC), {"t": txns, "o": "11/10/2022", "today": "11/10/2025"})
+    assert len(r) == 12, len(r)
+    # 거동보존: year_select 미선언 = 기존 0..11
     b = apply_op({"op": "bucket_month_window", "over": "t", "anchor": "o", "date_field": "date",
-                  "out_field": "w"}, {"t": t1, "o": "11/10/2022"})
-    assert a == b == [{"date": "11/20/2022", "amount": 100, "w": 0}], (a, b)
-    # 빈 입력 → [] (None 아님·abstain은 상위 compare가)
-    assert apply_op({"op": "bucket_month_window", "over": "t", "anchor": "o", "date_field": "date",
-                     "out_field": "w", "year_select": "latest"}, {"t": [], "o": "11/10/2022"}) == []
-    print("t_year_select_latest OK (구판 drop→오판 재현·latest 12/12·거동보존)")
+                  "out_field": "w"}, {"t": [{"date": "11/20/2022", "amount": 100}], "o": "11/10/2022"})
+    assert b == [{"date": "11/20/2022", "amount": 100, "w": 0}], b
+    print("t_year_last_complete OK (오판 재현·as_of 역전·abstain·미완연도·경계·거동보존)")
 
 
 
@@ -156,5 +163,5 @@ if __name__ == "__main__":
     t_empty_and_missing()
     t_across_min_023()          # ★러너 갭 수정(2026-07-20): __main__ 뒤 정의라 미실행이었음
     t_dg_sum_unchanged()
-    t_year_select_latest()
+    t_year_last_complete()
     print("ALL PASS")

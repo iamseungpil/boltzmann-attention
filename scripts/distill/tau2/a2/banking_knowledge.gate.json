@@ -627,13 +627,14 @@
   },
   {
    "name": "check_rebate_qualification",
-   "description": "USE THIS to determine whether a customer qualifies for a spend-threshold annual fee rebate (e.g. the Platinum Rewards Card annual fee rebate). Do NOT eyeball the monthly totals yourself. First read the customer's transactions and their card account opening date, and look up the required monthly spending threshold from the knowledge base, then call this tool. It buckets every transaction into the anniversary-based monthly windows of the cardmember year (by posting date, from the opening date), sums each window, and returns QUALIFIES only if EVERY window meets the threshold (a single month below disqualifies; no proration).",
+   "description": "USE THIS to determine whether a customer qualifies for a spend-threshold annual fee rebate (e.g. the Platinum Rewards Card annual fee rebate). Do NOT eyeball the monthly totals yourself. First read the customer's transactions and their card account opening date, and look up the required monthly spending threshold from the knowledge base, then call this tool. It buckets every transaction into the anniversary-based monthly windows of the cardmember year (by posting date, from the opening date), sums each window, and returns QUALIFIES only if EVERY window meets the threshold (a single month below disqualifies; no proration). Call get_current_time first and pass today's date as as_of_date - the tool evaluates the last complete cardmember year as of that date.",
    "params": {
     "transactions": "A JSON array of the card's transactions you read from the records. Each element MUST have ONLY these raw fields, copied as-is: date (string, the POSTING date, MM/DD/YYYY), amount (number, the purchase/spend amount, no $). Copy every transaction in the cardmember year; do not pre-filter or pre-sum. If you provide user_id and credit_card_account_id, you may OMIT this — the tool will read the transactions itself.",
     "account_opening_date": "The date the credit card account was opened (MM/DD/YYYY), copied from the account record. Monthly windows are anchored to this date.",
     "monthly_threshold": "The required per-month spending threshold for the rebate, as a plain number (no $), copied from the applicable rebate policy document in the knowledge base.",
     "user_id": "The customer user id (needed only if you omit transactions - the tool will read the card transactions itself).",
-    "credit_card_account_id": "The credit card account id whose transactions should be checked (needed only if you omit transactions)."
+    "credit_card_account_id": "The credit card account id whose transactions should be checked (needed only if you omit transactions).",
+    "as_of_date": "Today's date (MM/DD/YYYY), copied from get_current_time. The tool evaluates the LAST COMPLETE cardmember year as of this date."
    },
    "return_template": "Rebate qualification, computed deterministically over every anniversary monthly window of the cardmember year (by posting date): {result}. The customer qualifies only if EVERY month met the threshold; a single month below disqualifies (no proration).",
    "op": {
@@ -649,8 +650,9 @@
        "anchor": "account_opening_date",
        "date_field": "date",
        "out_field": "__win",
-       "year_select": "latest",
-       "_note": "2026-07-20 §2ak: KB doc_010=cardmember year 연도별 평가 → 최근 기념년(latest). 구판 첫해-고정이 023 오판정(전거래 드롭) 근본."
+       "year_select": "last_complete",
+       "as_of": "as_of_date",
+       "_note": "2026-07-20 §2ak as_of판: KB doc_010=연도별 평가 → as_of(현재시각) 기준 마지막 완결 기념년. latest-by-data(데이터-의존)는 [[05]] 회색지대라 폐기."
       },
       "group_by": "__win",
       "value_field": "amount",
@@ -685,6 +687,14 @@
        "ledger"
       ],
       "kind": "number",
+      "on_fail": "drop"
+     },
+     {
+      "param": "as_of_date",
+      "corpus": [
+       "ledger"
+      ],
+      "kind": "date",
       "on_fail": "drop"
      }
     ]

@@ -1177,3 +1177,18 @@ A2 op 선언. `test_group_reduce.py` 9/9(오판 기전 재현·판정 역전·�
 (t_across_min_023·t_dg_sum_unchanged가 __main__ 뒤 정의라 미실행이었음 — "7/7" 주장 시절 실제 미커버·정직 정정).
 **교훈**: ①"오독" 계열 진단은 **입력이 아니라 엔진 의미론**일 수 있다 — 포렌식은 입력 검증+엔진 의미론 검증
 둘 다([[08]] 확장) ②시간-앵커 프리미티브는 "어느 연도인가"가 별도 자유도 — A2가 명시 선언해야.
+
+### §2al (2026-07-20) — year_select as_of판([[05]] 교정) + smoke023c 포렌식: dedup×서브 상호작용 날조
+**as_of 전환(사용자 지시)**: latest-by-data("거래 있는 최근 연도")는 **데이터-의존 선택** — 최근 연도 거래 0건이면
+조용히 옛 연도를 평가(오판 잠재)·[[05]] 회색지대. → `year_select:"last_complete"`+`as_of`(현재시각·에이전트가
+get_current_time서 copy·**ground 선언**=날짜 형식-불문 파싱 대조): 평가연도=**as_of 기준 마지막 완결 기념년**
+(Y=k(as_of)//12−1·산술만). as_of 부재=None(abstain)·완결연도 없음=[]·최근연도 거래0=빈 윈도우 **보이는** 채
+평가. `test_group_reduce` 9/9(재현·역전·abstain·미완·경계·거동보존).
+**smoke023c 포렌식 [S] — 새 근본: READ_DEDUP × fetch-iso 서브 상호작용**: 023c(latest 적용 라이브)도
+"DOES NOT QUALIFY" — operand 트레이스가 결정타: 서브 transactions=**3건·10/2023·소액 날조**(실제 60건 아님).
+기전 = main이 msg28서 같은 (name,args)를 이미 읽음→READ_DEDUP 캐시→**서브의 getter 호출에 "[DUPLICATE-READ]
+위 출력 참조" stub** 반환→서브 문맥엔 '위'가 없음→빈손으로 답형식 채우려 날조→날조 3건으로 연산→오판.
+= **§13류 "scaffold가 만든 것"**: dedup(컨텍스트 절약 레버)이 격리서브(부하 절약 레버)의 입력을 끊음 —
+레버×레버 상호작용 부작용(등대 §1.3 합성 원리의 실례). **픽스**: 서브 env 호출=`_t2_dedup_bypass`(신선 실행·
+캐시 불변·main dedup 유지)·`_run`/`_run_fa` 양쪽. **트레이스 파일이 없었으면 영영 못 봤다**(§2b 계측 선견지명).
+잔여: 023d 확인런(as_of+bypass 스택)으로 QUALIFIES→Diamond Elite 경로 라이브 확증.

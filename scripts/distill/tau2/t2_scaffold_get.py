@@ -854,7 +854,14 @@ def apply():
                 _iso = _isolate_spec(d) if os.environ.get("T2_SG_ISOLATE") == "1" else None
                 if _iso:
                     def _run(tcs, _self=self):
-                        return orig_exec(_self, tcs)
+                        # ★dedup 우회(2026-07-20·smoke023c 포렌식): main이 이미 읽은 (name,args)를 서브가
+                        #   다시 부르면 READ_DEDUP이 "위 출력 참조" stub을 주는데 **서브 문맥엔 '위'가 없다**
+                        #   → 서브가 빈손 날조(실측: 60건 대신 3건 날조→오판). 서브 env 호출은 신선 실행.
+                        _self._t2_dedup_bypass = True
+                        try:
+                            return orig_exec(_self, tcs)
+                        finally:
+                            _self._t2_dedup_bypass = False
                     if _iso.get("mode") == "fetch_formalize":
                         # ★fetch-first(2026-07-20 isolate-승격): 서브가 참조로 레코드를 off-ledger fetch
                         #   → 전체 operand dict를 top-level 주입. 에이전트는 참조만 넘겨 레코드 read 0(turn-free).
@@ -925,7 +932,11 @@ def apply():
                     _wtxt = _fc[_fk]
                 else:
                     def _run_fa(tcs, _self=self):
-                        return orig_exec(_self, tcs)
+                        _self._t2_dedup_bypass = True     # 서브 env 호출=dedup 우회(위 _run과 동형·§2al)
+                        try:
+                            return orig_exec(_self, tcs)
+                        finally:
+                            _self._t2_dedup_bypass = False
                     _wtxt = _sub_wrap(self, _fa, tc, _run_fa)
                     if _wtxt is not None:
                         _fc[_fk] = _wtxt
