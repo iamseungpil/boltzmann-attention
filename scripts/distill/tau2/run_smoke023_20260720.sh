@@ -4,7 +4,7 @@
 #   ③완주 시 reward 채점. 최소 scope([[09]]): 1태스크·nt=1·conc=1.
 REPO=/home/woori/workspace_common/boltzmann-attention-pi
 SCRATCH=/home/woori/scratch
-TAG=bank_smoke023_20260720
+TAG=bank_smoke023b_20260720
 
 cd $SCRATCH/tau2-bench
 source /home/woori/.openrouter_key
