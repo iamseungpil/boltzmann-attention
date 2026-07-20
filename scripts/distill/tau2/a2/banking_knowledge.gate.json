@@ -795,13 +795,13 @@
   },
   {
    "name": "get_interest_correction",
-   "description": "USE THIS to compute the dollar interest correction owed when a savings account was paid the wrong APY. Do NOT do this arithmetic yourself. Provide the correct APY (from get_correct_savings_apy), the APY the system actually applied, the account principal/balance, and the period over which the wrong APY was applied. It returns the interest difference to credit.",
+   "description": "USE THIS to compute the dollar interest correction owed when a savings account was paid the wrong APY. Do NOT do this arithmetic yourself. Provide the correct APY (from get_correct_savings_apy), the APY the system actually applied, the account principal/balance, and the period over which the wrong APY was applied. It returns the interest difference to credit. The correction amount = principal x (expected_apy - actual_apy)/100 / 12, i.e. ONE monthly interest credit difference (this account family credits interest MONTHLY at APY/12). If multiple months were wrong, call once per month.",
    "params": {
     "expected_apy": "The correct APY (percentage points, no %) — from get_correct_savings_apy.",
     "actual_apy": "The APY the system actually applied (percentage points, no %), copied from the account record.",
     "principal": "The savings account balance the APY applies to (number, no $), copied from the account record.",
-    "period_start": "Start date of the wrong-APY period (MM/DD/YYYY), copied from the account record.",
-    "period_end": "End date of the wrong-APY period (MM/DD/YYYY), copied from the account record."
+    "period_start": "Start date (MM/DD/YYYY) of the affected MONTHLY interest credit period (for the record; the correction is computed as one monthly credit: principal x (expected-actual)% / 12).",
+    "period_end": "End date (MM/DD/YYYY) of the affected monthly period (the month whose interest credit used the wrong APY)."
    },
    "return_template": "Interest correction to credit = principal x (correct APY - applied APY) x (period / 365): {result}. Use this as the credit amount and the amount_difference on the discrepancy report.",
    "op": {
@@ -820,17 +820,10 @@
      }
     },
     "b": {
-     "op": "multiply",
-     "a": {
-      "op": "days_between",
-      "a": "period_start",
-      "b": "period_end"
-     },
-     "b": {
-      "op": "const",
-      "value": 0.0027397260273972603
-     }
-    }
+     "op": "const",
+     "value": 0.08333333333333333
+    },
+    "_note": "§2ay(r095b t1 해독): 이 계좌군의 이자=MONTHLY INTEREST CREDIT(월할=연이율/12·실측 450=96000x5.625%/12 정확). 구판 days/365 일할은 gold(98.00=96000x1.225%/12)와 불일치=엔진-의미론 결함 2호(1호=023 year). period 파라미터는 대상 월 문서화용으로 유지."
    },
    "ground": {
     "scalar_fields": [
