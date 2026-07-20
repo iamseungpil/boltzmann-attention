@@ -98,6 +98,13 @@ def main():
     chk(ISO.get("operand_keys") == ["transactions"], "operand_keys=transactions만(최소 offload)")
     chk("user_id" in REBATE["params"] and "credit_card_account_id" in REBATE["params"],
         "ref 파라미터가 도구 스키마에 존재")
+    # §2aq: get_correct_savings_apy도 fetch-iso(097 컨텍스트 레버)
+    APY = next(x for x in A2["scaffold_get_tools"] if x["name"] == "get_correct_savings_apy")
+    chk((APY.get("isolate") or {}).get("mode") == "fetch_formalize"
+        and (APY["isolate"].get("operand_keys") == ["components"])
+        and set(APY["isolate"].get("ref_params") or []) <= set(APY["params"]),
+        "APY: fetch_formalize 선언·ref가 스키마에 존재")
+    chk(bool(APY.get("ground")), "APY: 서브 산출도 기존 ground가 검증(심층방어)")
 
     sub = SG._sub_fetch_formalize(orch, REBATE, ISO, ctx, run_env)
     print("② 서브 흐름:")

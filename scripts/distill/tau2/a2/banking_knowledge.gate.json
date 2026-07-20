@@ -734,9 +734,11 @@
   },
   {
    "name": "get_correct_savings_apy",
-   "description": "USE THIS to compute the correct APY on a savings account under Rho-Bank stacking rules. Do NOT add the boosts up yourself. First read the savings account's base APY and identify EVERY applicable boost from the knowledge base — checking-account APY boosts (from the checking+savings pairing table), credit card APY bonuses, relationship bonuses, and account tier bonuses — then call this tool. It applies the stacking policy: only the HIGHEST checking boost counts, only the HIGHEST card bonus counts, while relationship and tier bonuses all add on top.",
+   "description": "USE THIS to compute the correct APY on a savings account under Rho-Bank stacking rules. Do NOT add the boosts up yourself. First read the savings account's base APY and identify EVERY applicable boost from the knowledge base — checking-account APY boosts (from the checking+savings pairing table), credit card APY bonuses, relationship bonuses, and account tier bonuses — then call this tool. It applies the stacking policy: only the HIGHEST checking boost counts, only the HIGHEST card bonus counts, while relationship and tier bonuses all add on top. If you provide savings_account_type and customer_products, you may OMIT components - the tool will search the knowledge base itself.",
    "params": {
-    "components": "A JSON array of the APY components you read from the knowledge base for THIS savings account. Each element: {kind: one of 'base'|'checking'|'card'|'relationship'|'tier', value: <number, percentage points, no %>, source: <verbatim quote from the KB doc stating this value>}. Include the base APY as {kind:'base', value:<base>} and EVERY applicable boost (list all checking boosts and all card bonuses you find; the tool keeps only the highest of each per policy). Do not pre-select or pre-sum."
+    "components": "A JSON array of the APY components you read from the knowledge base for THIS savings account. Each element: {kind: one of 'base'|'checking'|'card'|'relationship'|'tier', value: <number, percentage points, no %>, source: <verbatim quote from the KB doc stating this value>}. Include the base APY as {kind:'base', value:<base>} and EVERY applicable boost (list all checking boosts and all card bonuses you find; the tool keeps only the highest of each per policy). Do not pre-select or pre-sum.",
+    "savings_account_type": "The savings account's type/name (e.g. from the account record). Needed only if you omit components - the tool will look up the components itself.",
+    "customer_products": "Short summary of the customer's boost-relevant products copied from their records (checking account type, credit card type, tenure/tier). Needed only if you omit components."
    },
    "return_template": "Correct savings APY under the stacking policy (base + highest checking boost + highest card bonus + all relationship/tier bonuses): {result}%. Compare this to the APY the system actually applied; if they differ, the difference is an interest discrepancy.",
    "op": {
@@ -768,7 +770,24 @@
     ]
    },
    "_ground_note": "관문1 grounding(T2_SG_GROUND=1). 097(source='Base APY for...'=축자아님+base 0.05 추측)·095(base 값 오독)=결함. source가 KB 축자 substring인지(날조 차단) + value가 자기 인용 안 숫자인지(오독 차단) 검증·미검증 component 드롭+플래그. base 드롭 시 결과 저평가→플래그로 재독 유도. 엔진=검증만(KB서 값 추출 0·[[03b]]).",
-   "_note": "2026-07-20 D+G calc-offload. KB census[S] doc_046: checking=max1·card=max1·relationship=sum·tier=sum(base=sum). boost값=서브/에이전트가 KB formalize(ratefix동형)·엔진=stacking(리터럴0). gold 095 재현 6.85. isolate 미탑재(V1·에이전트 formalize)."
+   "_note": "2026-07-20 D+G calc-offload. KB census[S] doc_046: checking=max1·card=max1·relationship=sum·tier=sum(base=sum). boost값=서브/에이전트가 KB formalize(ratefix동형)·엔진=stacking(리터럴0). gold 095 재현 6.85. isolate 미탑재(V1·에이전트 formalize).",
+   "isolate": {
+    "mode": "fetch_formalize",
+    "ref_params": [
+     "savings_account_type",
+     "customer_products"
+    ],
+    "getter_tools": [
+     "KB_search_bm25"
+    ],
+    "operand_keys": [
+     "components"
+    ],
+    "max_rounds": 5,
+    "instructions": "You are a KB-extraction sub-task. Using the search tool, find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Search as many times as needed. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum).",
+    "answer_format": "Reply with exactly one JSON object and nothing else: {\"components\": [{\"kind\": \"base|checking|card|relationship|tier\", \"value\": 0.0, \"source\": \"<verbatim quote>\"}]}",
+    "_note": "2026-07-20 §2aq(097 CWE 잔여·컨텍스트 레버): main이 4계좌x KB문서를 이고 인자로 재에코하는 대신 참조 2개만 넘기고 서브가 off-ledger 검색·formalize. 산출 components는 기존 ground(array·kb·require_value_in_source)가 그대로 검증(심층방어). 실패=에이전트 인자 폴백(거동보존)."
+   }
   },
   {
    "name": "get_interest_correction",
