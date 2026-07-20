@@ -1006,3 +1006,17 @@ crash(023/095)=auto_resume 재생-mismatch(레버 아님·max_conc 3 재시도 �
 ②계산 전 read 선행 커버리지 게이트(get_bank_account_transactions) ③isolate 서브 승격(main 날조→격리 read 대체).
 **4태스크(050·054·043·097) 종합**: 발견=작동. 진짜 벽 3관문 = **절차-완전성**(체크리스트 부재)·**실격조건/종단게이트**
 (043 잔액·내 WEV 구멍)·**입력 grounding**(097 날조). 발견-완전성은 표면·심층은 이 3관문.
+
+### §2ac (2026-07-20) — 095 정밀: calc-offload "날조(097)→오독(095)"·둘 다 grounding이 잡음
+**095(단일 Gold 저축·최고 2/9)**: 097과 달리 **KB 실제 정독**(cat 페어링문서·grep boost). 그러나 [S]:
+- **읽어도 오독**: base 0.05(실제 ~5%·스케일 10배 오류)·expected_apy 0.75(gold 6.85)·boost값을 expected로 오용.
+- source="Base APY for..."=축자 아님→**grounding 켜졌으면 드롭→실값 복사 강제**. 097(날조)·095(오독) 둘 다 차단.
+- apply/submit용 account_id를 grep으로 못 찾아 종료(get_all_accounts 커버리지 부재).
+**⇒ V1(isolate·grounding 미탑재) 불충분 이중실증**: main 컨텍스트 formalize가 날조/오독. 요건=①source 축자
+grounding 필수화 ②isolate 서브 승격(ratefix 021 선례). 리뷰③ 필수성 확정.
+**6태스크 종합 — 4관문(발견은 표면·이것이 심층)**:
+1. 절차-완전성(체크리스트 부재)=050/054 → resign-앵커 full required-set 커버리지
+2. 실격조건/종단게이트 구멍=043 → 종단행동을 실제 실격조건으로 게이트(+잔액 calc-offload)
+3. 입력 grounding(날조/오독)=097/095 → grounding 필수화+isolate 서브
+4. 발견 미진입(say-don't-do)=031/038 → FORCE_ACTION(검증됨·별도 family)
+발견 자체(getter)=이미 작동. 다음 세션 레버 우선순위=위 4관문.
