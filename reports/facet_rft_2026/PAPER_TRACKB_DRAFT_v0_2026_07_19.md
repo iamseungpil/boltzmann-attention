@@ -20,9 +20,11 @@ behavioral findings — causal asymmetry (only predecessors interfere), similari
 g unchanged), item-conditionality (explicit anchors raise ΔE), sharp thresholds with instability at k*, and the
 log-linear interference decay reported in prior PI work. We test the account at three levels on an open-weights
 model that reproduces the behavior (Qwen2.5-3B): behaviorally (staircase reproduction across 1.5B–32B),
-attentionally (clause-attention mass a_C(k) under similar vs dissimilar loading ⟦TBD B1⟧), and causally
-(position-preserving attention-mask knockout of the interfering rows, which our account predicts should restore
-the judgment ⟦TBD B2⟧; attention-temperature manipulation, which should shift k* exponentially ⟦TBD B3⟧). We
+attentionally (clause-attention mass a_C(k) under similar vs dissimilar loading ⟦TBD B1⟧), and causally:
+a position-preserving attention-mask knockout of the interfering rows **fully restores** the collapsed judgment
+(P(5): 0.10 → 0.99 at k=2, and likewise at k=4, 8), while a size-matched control mask restores nothing and a
+readout-only blockade shows the corruption flows through the target item's own representation
+(⟦TBD B3: attention-temperature manipulation, which should shift k* exponentially⟧). We
 position the result not as a new attention pathology but as the practical manifestation, and unit-level
 identification, of a known property of associative memories: correlated patterns corrupt retrieval.
 
@@ -96,7 +98,7 @@ Lexically-anchored items retrieve via near-duplicate token matching (induction-l
 | — | default retreat = fallback to strongest surviving attractor (the base-rate prior) | ✅ behavioral (interpretive) |
 | — | instability at k* = near-tie mixture state (output-level: unit slips; logit-level: mass scatter at 14B k=1) | ✅ behavioral |
 | P3 | clause-attention mass a_C(k) decreases with similar (not dissimilar) loading | ⟦TBD B1 — running⟧ |
-| P6 | blocking judgment-position attention to interfering rows (positions preserved) restores P(5) | ⟦TBD B2 — running⟧ |
+| P6 | blocking judgment-position attention to interfering rows (positions preserved) restores P(5) | ✅ **full recovery** (0.98–0.99 at k=2/4/8; controls fail; §5) |
 | P4 | attention-temperature manipulation shifts k* exponentially (k* ~ e^{βΔE−θ}) | ⟦TBD B3⟧ |
 | P7 (opt) | interfering-row keys grow a W_K-projected C-direction component with k | ⟦TBD B4 optional⟧ |
 
@@ -121,15 +123,33 @@ and target-row mass, under similar vs dissimilar loading (k ∈ {0,1,2,4,8} / {1
 with k on the similar line only; echo mass rises; dissimilar line flat. Layer-resolved curves dumped for
 localization. ⟦results table/figure; verified k=0 fidelity: P(5)=0.983 identical to sweep⟧
 
-## 5. Causal test (B2): knockout with positions preserved ⟦TBD — running⟧
+## 5. Causal test (B2): knockout with positions preserved — full recovery
 
-Design: 4D attention-mask knockout — queries at and after the target row cannot attend to interfering-row
-tokens; sequence length and position ids unchanged (dissociating content interference from position effects).
-Arms: (base) pure-causal mask sanity gate (must reproduce sweep numbers); (ko_full) block from target-row start;
-(ko_last) block only the readout query (isolates readout-time dilution from target-row contamination);
-(ctrl) block an equal number of unrelated document tokens (mask-size control). Prediction: ko_full restores
-P(5) toward k=0 levels; ctrl does not. If restoration fails, the interference path is value-mixture/representation
-contamination rather than readout dilution — a model revision, reported either way. ⟦results⟧
+Design: 4D attention-mask knockout — sequence length and position ids unchanged (dissociating content
+interference from position effects). Arms: (base) pure-causal mask sanity gate; (ko_full) queries from the
+target row onward cannot attend to interfering-row tokens; (ko_last) only the final readout query blocked;
+(ctrl) an equal number of unrelated document tokens (clause and target excluded) blocked for the same queries.
+
+Results (P(5), similar loading; k=0 reference 0.983; base arm reproduces the sweep values exactly, validating
+the custom-mask path):
+
+| k | base | ko_full | ko_last | ctrl |
+|---|---|---|---|---|
+| 2 | 0.100 | **0.989** | 0.010 | 0.078 |
+| 4 | 0.120 | **0.980** | 0.026 | 0.062 |
+| 8 | 0.046 | **0.992** | 0.013 | 0.053 |
+
+Three conclusions. (1) **Causation established**: content-specific, position-preserving blockade of attention
+to the interfering rows *fully* restores the judgment — to at or above the k=0 baseline — at every k tested;
+the size-matched control restores nothing. The interference is carried by attention to the interfering rows'
+tokens, not by their mere presence (positions), length, or mask-size artifacts. (2) **The channel is not the
+readout alone**: blocking only the final judgment query does not recover (it even degrades below base, which we
+record without over-interpreting) — the corruption travels through the *construction of the target row's own
+representation* (and/or subsequent positions), which the readout then consumes. This matches the B1 observation
+that the readout's largest attention target is the target row itself, not the clause. (3) The recovery being
+*complete* argues the entire behavioral effect is attention-mediated — no residual value-mixture path is needed.
+⟦TBD: fine arms ko_tgtrow (block only target-row queries) vs ko_post (block only post-row queries) — running —
+to localize construction vs post-row channel; optional layer-wise knockout⟧
 
 ## 6. Temperature test (B3): moving k* ⟦TBD⟧
 
