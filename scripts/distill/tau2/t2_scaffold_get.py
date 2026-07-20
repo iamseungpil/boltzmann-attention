@@ -965,7 +965,13 @@ def apply():
                       % (getattr(tc, "name", "") or "", _tn), file=_sys.stderr, flush=True)
             elif (os.environ.get("T2_TOOLGATE") == "1"
                   and getattr(self, "_t2_known_tools", None)
-                  and getattr(tc, "name", None) not in self._t2_known_tools):
+                  and getattr(tc, "name", None) not in self._t2_known_tools
+                  # ★e2e9 052 크래시(§2ao): env에 **실재**하는 이름(discoverable 접미사-직호출 등)은
+                  #   가로채지 않는다 — env가 허용·실행하는 호출을 우리가 "not available"로 답하면
+                  #   ①over-block ②replay(재실행=진짜 결과)와 내용 불일치→sim 무효. env-실재=통과
+                  #   (기록=env 결과=replay 동일·정합). TOOLGATE는 **진짜 발명된 이름**만 ASK.
+                  and not (hasattr(getattr(self, "environment", None), "_has_tool")
+                           and self.environment._has_tool(getattr(tc, "name", "") or ""))):
                 # ★invalid 선택 → ASK (GET/FIND/INFER/ASK의 ASK 분기·단순 fail/forcing/추천 아님).
                 #   LLM은 유한 도구집합서 선택만 함(생성 아님). 매칭 실패 = 필요값을 사용자에게 물어라.
                 _msg = ("'%s' is not one of your available tools, so nothing was called. Do not invent tools — "

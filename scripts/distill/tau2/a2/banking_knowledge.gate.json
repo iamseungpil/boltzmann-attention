@@ -382,6 +382,19 @@
    ],
    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that account {id} is ELIGIBLE for closure (CLOSURE_OK). The closure protocol disqualifies closing an account with an outstanding balance. First read the credit card account record for {id}, then call check_card_closure_eligibility with the account id, the outstanding balance copied from the record, and the verbatim balance line. If it reports an outstanding balance, the customer must pay the balance in full first; after paying, re-read the record and re-check, then re-attempt the closure.",
    "_note": "2026-07-20 관문3(043·§2aa 요건②): 구판 3체크 WEV는 '체크했나'만 게이트→$75 미납인데 close 초록불(오해지·게이트 역효과 실례). 신판=close를 실제 실격조건 판정(check_card_closure_eligibility의 CLOSURE_OK 토큰+id 공존)으로 게이트. 판정=엔진 결정론(잔액≤0)·잔액0 날조=source_param 축자 grounding이 차단. Δspurious 계측 대상(잔액 미표시 레코드서 over-block 가능성)."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_credit_card_transaction_dispute"
+   },
+   "id_key": "card_last_4_digits",
+   "require_tokens": [
+    "get_card_last_4_digits"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows the card's last 4 digits ({id}) actually obtained from the CUSTOMER running the get_card_last_4_digits tool. Do NOT guess or fabricate the digits. First call give_discoverable_user_tool to give the customer the get_card_last_4_digits tool, ask them to run it and tell you the result, then file the dispute using the true digits.",
+   "_note": "2026-07-20 관문4 WEV형(§2ao·e2e9 031 포렌식): 에이전트가 last4를 날조(1654 vs gold 5320·나머지 인자 전원 일치)해 env가 수용→사용자 만족 STOP→resign-임계 chain은 구조적 미발화. 사전 게이트=write 전에 사용자-실행 give-flow 출력(도구명+4자리 공존)을 증거로 요구. id_key=nested arguments서 추출(WEV 코어 지원)·last4 인자 없는 dispute 변형=idv 부재 skip(false-block 회피)."
   }
  ],
  "scaffold_get_tools": [

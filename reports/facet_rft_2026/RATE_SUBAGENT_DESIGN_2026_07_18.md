@@ -1223,3 +1223,22 @@ get_current_time서 copy·**ground 선언**=날짜 형식-불문 파싱 대조):
 ①chain 피드백=unlock→call 프로토콜 명시 ②BLOCKED else=에이전트-측 pay 절차 KB-검색 지시(도구명 직접 안 줌·
 발견은 에이전트 몫·"Do NOT tell the customer to pay through the app"). 오프라인 회귀 전체 green(chain 테스트
 앵커 갱신+unlock-명시 단언 추가). 라이브 검증=다음 재런.
+
+### §2ao (2026-07-20) — e2e9 031/038/052 포렌식: 관문4 WEV형 완성·transfer-창 예산·TOOLGATE replay 버그
+**031(0.0·24msg) [S]**: dispute는 정확한 txn으로 filed — 인자 정밀대조가 결정타: `card_last_4_digits`
+**"1654"(날조)** vs gold **"5320"**(give-flow 진짜 값)·나머지 인자 전원 일치. env가 날조를 수용→"filed 성공"→
+사용자 만족 ###STOP###→**resign 2회 임계의 관문4 chain은 구조적 발화 불가**(write 성공하면 사후-체인은 못
+잡는다). **픽스=관문4 WEV형**(§2ag 예고분·인자명 이제 확보): write 전 사용자-실행 get_card_last_4_digits
+출력(도구명+4자리 공존)을 증거 요구·날조=deny→give-flow 지시. `test_wev_last4.py` 6/6(날조 deny·진짜 허용·
+인자부재 skip).
+**038(0.0·34msg) [S]**: verify✓→거래 read→사용자가 txn id까지 명시한 3건 dispute+취소 요구→**에이전트가 먼저
+transfer 제안**(msg 18·F5 조기포기)→KB 오질의(절차 문서만·도구 미발견 — 031은 shell grep으로 같은 도구를 찾음=
+질의 분산)→TRANSFER. **관문5 transfer-창 0 발화**: arm A 16 hit 전부 resign-창 = cap(3)이 사임들에서 소진돼
+탈출 직전 최후 감사가 무산. **픽스=transfer-창 별도 예산**(cap 독립·sim당 1회 보장·상호배타라 안전).
+**052(크래시) [S] — TOOLGATE replay 버그(§2aj 감사의 내 오판 정정)**: 에이전트가 `submit_..._7392`(env-실재
+discoverable·mutating)를 직호출→live선 TOOLGATE가 "not available"로 가로챔→**replay는 재실행=진짜 submit 성공**
+≠기록→sim 무효. "TOOLGATE=미지도구 replay-skip=안전" 판단이 **env-실재 접미사-직호출** 케이스를 놓침(mutating만
+크래시·read는 replay-skip이라 050서 무증상). TOOLGATE는 over-block이기도(env가 허용하는 호출을 차단). **픽스**=
+env `_has_tool` 실재 이름은 가로채지 않음(통과=env 판단=replay 정합·TOOLGATE는 진짜 발명된 이름만 ASK).
+**레버 상태 종합(e2e9 중간)**: 관문1(grounding)·3(closure 판정)·2(chain)·CLAIMPROV(다회 감사) = **라이브 발화
+검증 완료**. 잔여 결함은 전부 "발화 후 마지막 1홉"(문구·예산·사전화)이었고 이번에 배선. 라이브 재검증=차기 런.

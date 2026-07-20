@@ -3245,8 +3245,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         #   43~50%) 1회에 레버 전소 → 이후 완료날조·transfer-escape 무방비(실측: 첫 발화 빈손→msg21
         #   "이미 logged" 날조·msg37 transfer 탈출 모두 무검사). 기본 1=거동보존·스모크 3.
         _cpv_cap = int(os.environ.get("T2_CLAIMPROV_CAP", "1") or 1)
+        # ★transfer-창 별도 예산(2026-07-20·e2e9 038 포렌식·§2ao): resign-창 발화가 cap을 소진하면
+        #   **탈출 직전**(transfer 호출) 최후 감사가 무산(038 실측: 16 hit 전부 resign·transfer-창 0).
+        #   transfer-창은 cap과 독립적으로 sim당 1회 보장(사임-창과 상호배타: transfer=tool_call 있음).
+        _cpv_win_ok = ((_resign and getattr(self, "_t2_claimprov", 0) < _cpv_cap)
+                       or (_cpv_transfer and not getattr(self, "_t2_claimprov_tr", 0)))
         if (os.environ.get("T2_CLAIM_PROV") == "1" and (_resign or _cpv_transfer)
-                and getattr(self, "_t2_claimprov", 0) < _cpv_cap
+                and _cpv_win_ok
                 and _cpv.get("question") and _cpv.get("feedback") and _cpv.get("event_map")):
             for _once in (True,):
                 _cl, _pd = None, None
@@ -3291,6 +3296,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                          [c.get("kind") for c in (_unbacked + _unb_p)][:4]), file=_sys.stderr, flush=True)
                 if _unbacked or _unb_p:
                     self._t2_claimprov = getattr(self, "_t2_claimprov", 0) + 1
+                    if _cpv_transfer and not _resign:
+                        self._t2_claimprov_tr = 1        # transfer-창 예산(1/sim) 소진 마킹
 
                     def _desc3(cc):
                         return "; ".join("%s: %s" % (c.get("kind"), str(c.get("what"))[:60])
