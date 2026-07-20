@@ -849,10 +849,12 @@ def apply():
                     _missing_r = [r for r in _rr if r not in _effc] if _effc is not None else []
                     if _missing_r:
                         _msg_r = ("Error: [READ-FIRST] this calculation depends on records you have not read "
-                                  "yet in this conversation. Missing required reads: %s. These are discoverable "
-                                  "tools: unlock each with unlock_discoverable_agent_tool (full suffixed name), "
-                                  "call it via call_discoverable_agent_tool, read the ACTUAL values from the "
-                                  "records, then call this tool again with values copied from those records."
+                                  "yet in this conversation. Missing required reads (BASE names): %s. These are "
+                                  "discoverable tools whose REAL names carry a numeric suffix - do NOT unlock "
+                                  "the base name as-is; first find each tool's full suffixed name in the "
+                                  "knowledge base (search for the base name), then unlock_discoverable_agent_tool "
+                                  "with that full name and call it via call_discoverable_agent_tool. Read the "
+                                  "ACTUAL values from the records, then call this tool again."
                                   % ", ".join(_missing_r))
                         ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
                                                    requestor=getattr(tc, "requestor", "assistant"),
