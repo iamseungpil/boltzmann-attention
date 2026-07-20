@@ -1050,3 +1050,24 @@ branching 정확(DOES NOT QUALIFY→Silver). 유일결함 [S]: **account_opening
 1.절차-완전성(050/054) 2.실격조건/종단게이트구멍(043·내WEV 오초록불) 3.**operand grounding(097/095/023·최다3태스크·
 최우선)** 4.user-side give-flow(031) 5.transfer-escape(038·미래주장+notice티켓) 6.발견미진입say-don't-do(038부분·FORCE검증됨).
 각 관문=기존레버 **완전화**로 닿음(새발명 아님). 다음세션=6관문 보강.
+
+### §2af (2026-07-20) — 관문1 operand grounding 배선 완료·오프라인 검증 14/14 [S]
+**보강 = ACCOUNT_APY §2a 리뷰③의 V1 미룬 grounding을 exec2 op 경로에 배선**(§2ab/2ac/2ae 확증대로 최우선).
+- **엔진**(`t2_scaffold_get.py`): `_ground_operands`(op 실행 前 검증) + 헬퍼 `_nums_in`/`_dates_in`/`_corpus_texts`/
+  `_val_grounded`. `T2_SG_GROUND=1`·기본 OFF·A2 `ground` 선언 시만. 미검증 operand 드롭→abstain + 반환문
+  맨앞 `[GROUNDING WARNING]`(에이전트 재독 유도). 코퍼스=`_load_domain_docs`(kb)·`_evidence_ctx`(ledger) 재사용.
+  - **array-field**(`components`): source가 KB 축자 substring인지(날조 차단) + value가 자기 인용 안 숫자인지
+    (`require_value_in_source`·오독 차단). **엔진은 KB서 정답값 추출 0 — LLM의 (value,source) 정합만 검증**([[03b]]).
+  - **scalar-field**(개설일·principal·기간·threshold): 원장/KB에 실재하는 값인지 형식-불문(날짜·숫자) 대조.
+    한계 자백: source-필드 없어 *전-코퍼스 존재*만 봄 → 총체적 날조/오독은 잡되 우연-일치 오값은 못 잡음.
+- **A2**(`banking_knowledge.gate.json`): 3도구에 `ground` 선언(도메인 리터럴 0·필드·코퍼스 태그만). SCAFFOLD_GUARD
+  [[05]] 3질문 통과(A2순증=검증선언뿐·유동판단 미동결·행동수행 X=사실게이트).
+- **오프라인 검증**(`test_operand_grounding.py`·무료·실제 A2 로드·통제코퍼스) **14/14 PASS**:
+  - 097 날조(source 축자아님+base 0.05) → component 전멸 드롭. principal 95000 추측 → 드롭→None.
+  - 095 오독(실제 인용·base 값 0.05≠5.0) → base만 드롭·정상 checking/tier 유지(**false-drop 0**).
+  - 023 개설일 오독(11/10/2022 vs 레코드 11/05/2024) → 드롭→anchor None→abstain. threshold 9999 날조 → 드롭.
+  - 회귀: 전-정상 operand·정답 100000·정답 개설일 = 유지·플래그 0. **group_reduce 단위 5/5 무회귀**.
+  - 버그수정: `_nums_in`이 천단위 콤마($2,000)서 `2`+`000`으로 깨져 정답값 false-drop → 자릿수-콤마 흡수.
+- **미검증(다음)**: [[30]] 단위통과≠라이브발화 — **T2_SG_GROUND 라이브 발화·실제 드롭은 미확인**(clean
+  concurrency=1 유료런 필요·[[09]] 승인). 관문1 잔여 = ②read-선행(grounding의 ledger-abstain이 상당부분
+  대체: read 안 하면 principal∉원장→드롭) ③isolate 서브 승격(별도 레버·미착수).

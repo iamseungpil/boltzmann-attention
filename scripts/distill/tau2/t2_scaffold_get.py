@@ -70,6 +70,130 @@ def _norm_ground(s):
 import re  # noqa: E402  (grounding 정규화용)
 
 
+def _nums_in(text):
+    """raw 텍스트의 숫자 토큰 → float 집합(소수점 보존). ★`_norm_ground`는 '.'을 공백으로 지워
+    3.35→'3 35'로 부수므로 수치 매칭엔 못 쓴다 — grounding value 대조는 raw서 추출한다.
+    ★천단위 콤마 흡수($2,000→2000): 안 하면 정답값도 드롭(false-drop·offline 검증서 실측)."""
+    text = re.sub(r"(?<=\d),(?=\d)", "", str(text or ""))     # 2,000 → 2000
+    out = set()
+    for m in re.findall(r"\d+(?:\.\d+)?", text):
+        try:
+            out.add(float(m))
+        except Exception:
+            pass
+    return out
+
+
+def _dates_in(text):
+    """raw 텍스트의 날짜 토큰 → date 집합(형식-불문 매칭·023 개설일 grounding용)."""
+    import t2_compute as _c
+    out = set()
+    for m in re.findall(r"\d{1,4}[/-]\d{1,2}[/-]\d{1,4}", str(text or "")):
+        dt = _c._parse_date(m)
+        if dt is not None:
+            out.add(dt.date() if hasattr(dt, "date") else dt)
+    return out
+
+
+def _corpus_texts(orch, which):
+    """grounding 대조 코퍼스 (A2 선언 `corpus`: 'kb'|'ledger'). 도메인 리터럴 0·기존 소스 재사용.
+    kb=도메인 KB 문서 전량 · ledger=지금까지 원장(에이전트 도구 출력)+사용자 발화. 엔진은 텍스트만 본다."""
+    texts = []
+    if "kb" in which:
+        domain = getattr(getattr(orch, "environment", None), "domain_name", None)
+        texts += [d0.get("content") or "" for d0 in (_load_domain_docs(domain) if domain else [])]
+    if "ledger" in which:
+        ev = _evidence_ctx(orch)
+        texts += list((ev.get("__tool_outputs") or {}).values())
+        texts.append(ev.get("__user_text") or "")
+    return [t for t in texts if t]
+
+
+def _as_float(v):
+    """grounding 수치 파싱(%·$·, 흡수). 파싱 불가=None."""
+    try:
+        return float(str(v).replace("%", "").replace("$", "").replace(",", "").strip())
+    except Exception:
+        return None
+
+
+def _val_grounded(val, corpus_texts, kind=None):
+    """값 하나가 코퍼스에 실재하나 = 에이전트가 지어내거나 오독하지 않았나(결정론 검증만·[[03b]]).
+    ⚠️전-코퍼스 존재 검사라 **총체적 날조/오독**(레코드에 없는 값)은 잡지만, *다른 곳에 우연히
+    있는* 틀린 값은 못 잡는다(source-필드 없는 스칼라의 원리적 한계). 날짜·숫자는 형식-불문 매칭."""
+    if val is None or (isinstance(val, str) and not val.strip()):
+        return True                       # 빈 값=grounding 대상 아님(op가 처리)
+    if kind == "date":
+        import t2_compute as _c
+        dv = _c._parse_date(val)
+        if dv is None:
+            return True                   # 날짜 아님=통과(형식 게이트 몫)
+        target = dv.date() if hasattr(dv, "date") else dv
+        return any(target in _dates_in(t) for t in corpus_texts)
+    fv = _as_float(val)
+    if fv is not None:                    # 수치 값=숫자 토큰 매칭(형식-불문)
+        return any(any(abs(fv - n) < 1e-9 for n in _nums_in(t)) for t in corpus_texts)
+    nv = _norm_ground(val)                # 문자열 값=정규화 substring
+    return bool(nv) and any(nv in _norm_ground(t) for t in corpus_texts)
+
+
+def _ground_operands(orch, d, ctx):
+    """★operand grounding (관문1·`ACCOUNT_APY_OFFLOAD §2a` 리뷰③·2026-07-20 배선). A2 `ground` 선언 시
+    op 실행 前 각 grounded operand가 **KB/원장에 실재하는지 검증** — 미검증=드롭+플래그(→abstain).
+    - [[03b]] **검증만**: 엔진이 KB서 정답값을 *추출*하지 않는다. LLM이 낸 (value, source)가 실재하는지·
+      value가 자기 인용 안에 있는지만 본다. 엔진 리터럴 0(어느 필드·코퍼스=전부 A2 `ground`).
+    - [[10]] 분담: 생성(값·인용)=LLM, 검증(존재 대조)=결정론 엔진.
+    - 097(source 축자아님+base 추측)·095(값 오독)=array `require_value_in_source`가 드롭. 023(개설일
+      오독)=scalar date-ledger 대조가 드롭. 셋 다 abstain으로 '가짜 정밀도'를 막는다(§2ab 역설).
+    반환: 드롭 항목 설명 리스트(플래그). ctx는 in-place로 미검증 operand 제거."""
+    gspec = d.get("ground")
+    if not isinstance(gspec, dict):
+        return []
+    flags = []
+    # (a) array-field: 원소별 {value, source} — source∈코퍼스(실재) + value∈source(오독 차단)
+    for af in (gspec.get("array_fields") or []):
+        arr = ctx.get(af.get("param"))
+        if not isinstance(arr, list):
+            continue
+        vf, sf = af.get("value_field", "value"), af.get("source_field", "source")
+        lf = af.get("label_field", "kind")
+        norm_corpus = [_norm_ground(t) for t in _corpus_texts(orch, af.get("corpus") or ["kb"])]
+        req_vis = af.get("require_value_in_source", True)
+        kept = []
+        for el in arr:
+            if not isinstance(el, dict):
+                kept.append(el)
+                continue
+            src = el.get(sf)
+            ns = _norm_ground(src) if src else ""
+            src_ok = bool(ns) and any(ns in nc for nc in norm_corpus if nc)
+            val_ok = True
+            if req_vis:
+                fv = _as_float(el.get(vf))
+                if fv is not None:
+                    val_ok = any(abs(fv - n) < 1e-9 for n in _nums_in(src))
+            if src_ok and val_ok:
+                kept.append(el)
+            else:
+                why = ("source not found in the knowledge base" if not src_ok
+                       else "the value is not present in the source you cited")
+                flags.append("%s=%s (%s)" % (el.get(lf, "?"), el.get(vf), why))
+        if len(kept) != len(arr):
+            ctx[af.get("param")] = kept
+    # (b) scalar-field: top-level operand가 원장/KB에 실재하는지(023 개설일·097 principal 등)
+    for scf in (gspec.get("scalar_fields") or []):
+        param = scf.get("param")
+        if param not in ctx:
+            continue
+        if not _val_grounded(ctx.get(param), _corpus_texts(orch, scf.get("corpus") or ["ledger"]),
+                             scf.get("kind")):
+            flags.append("%s=%s (not found in the records — re-read the exact value)"
+                         % (param, ctx.get(param)))
+            if scf.get("on_fail", "drop") == "drop":
+                ctx[param] = None          # op가 missing_hint로 abstain(가짜 정밀도 차단)
+    return flags
+
+
 def _sub_formalize(orch, d, iso, ctx, run_env_calls):
     """★격리 서브 (2026-07-18 NIGHT+·`RATE_SUBAGENT_DESIGN §2b` LOCK — 사용자 원칙:
     *"operator operand 는 sub agent 로 부하 없이 격리로 결과 리턴 받아야 한다."*)
@@ -602,6 +726,16 @@ def apply():
                                 _hit += 1
                         print("[T2_SG_ISOLATE] %s: %d/%d행 operand를 격리 서브가 산출"
                               % (getattr(tc, "name"), _hit, len(_rows)), file=_sys.stderr, flush=True)
+                # ★operand grounding (T2_SG_GROUND=1·기본 OFF·A2 `ground` 선언 시만·관문1·2026-07-20).
+                #   op 실행 前 미검증(날조/오독) operand를 드롭+플래그 → abstain. 실패해도 폴백 없음
+                #   (드롭=abstain이 목적). 미선언 or OFF = 거동 변화 0.
+                _gflags = []
+                if os.environ.get("T2_SG_GROUND") == "1" and d.get("ground"):
+                    _gflags = _ground_operands(self, d, _ctx)
+                    if _gflags:
+                        print("[T2_SG_GROUND] %s: %d ungrounded operand 드롭 -> %s"
+                              % (getattr(tc, "name"), len(_gflags), "; ".join(_gflags)),
+                              file=_sys.stderr, flush=True)
                 _res = _c.apply_op(d.get("op"), _ctx)
                 if isinstance(_res, list):                    # 목록형(discrepancy ids)
                     _res = [str(i) for i in _res if i]
@@ -620,6 +754,13 @@ def apply():
                     _txt = d.get("return_template", "{result}").format(result=_res if _res is not None
                                                                        else d.get("missing_hint", "(could not compute — check your arguments)"))
                     _n = _res
+                # ★grounding 플래그를 반환문 맨 앞에 붙인다 — 드롭된 미검증 operand를 에이전트가 보고
+                #   레코드를 다시 읽게(가짜 정밀도 신뢰 차단·§2ab). 플래그 없으면 거동 변화 0.
+                if _gflags:
+                    _txt = ("[GROUNDING WARNING] %d input value(s) could not be verified against the "
+                            "account records / knowledge base and were dropped: %s. Re-read the exact "
+                            "value(s) from the records before relying on this result.\n%s"
+                            % (len(_gflags), "; ".join(_gflags), _txt))
                 # requestor는 tau2 원본과 동형으로 **미러링**(environment.get_response: requestor=message.requestor).
                 ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
                                            requestor=getattr(tc, "requestor", "assistant"), content=_txt)
