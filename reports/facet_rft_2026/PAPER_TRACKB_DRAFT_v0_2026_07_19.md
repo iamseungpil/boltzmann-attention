@@ -72,8 +72,12 @@ applying C without a lexical bridge — has, in prefill, (i) absorbed clause con
 along C's key direction. The store now contains g ≈ k+1 patterns correlated in the C-direction: the clause
 itself and k row-echoes of it.
 
-Softmax normalization splits the retrieval mass among them. Writing ΔE for the energy (logit) margin between
-the C-pattern and the row-echoes under cue q_t, the odds of clean clause retrieval degrade as
+Softmax normalization splits the retrieval mass among them. Where does the failing retrieval happen? Our causal
+data (§5) localize it: not at the final readout (whose access to the interfering rows is causally inert) but at
+the **construction of the target row's own representation** — the target row's token queries are the cue q_t,
+retrieving "how does a row like me relate to clause C" from a store now crowded with k same-clause row-echoes.
+Writing ΔE for the energy (logit) margin between the C-pattern and the row-echoes under cue q_t, the odds of
+clean clause retrieval degrade as
 
   log-odds(retrieve C) ≈ β·ΔE − log g,
 
@@ -97,7 +101,7 @@ Lexically-anchored items retrieve via near-duplicate token matching (induction-l
 | P5 | similarity gating; item-conditionality (anchors ⇒ immunity) | ✅ behavioral |
 | — | default retreat = fallback to strongest surviving attractor (the base-rate prior) | ✅ behavioral (interpretive) |
 | — | instability at k* = near-tie mixture state (output-level: unit slips; logit-level: mass scatter at 14B k=1) | ✅ behavioral |
-| P3 | clause-attention mass a_C(k) decreases with similar (not dissimilar) loading | ⟦TBD B1 — running⟧ |
+| P3 | readout clause-mass a_C(k) decreases under similar loading | ✗ disconfirmed at readout (honest negative, §4) — refined to P3′ at the construction stage ⟦TBD B1b⟧ |
 | P6 | blocking judgment-position attention to interfering rows (positions preserved) restores P(5) | ✅ **full recovery** (0.98–0.99 at k=2/4/8; controls fail; §5) |
 | P4 | attention-temperature manipulation shifts k* exponentially (k* ~ e^{βΔE−θ}) | ⟦TBD B3⟧ |
 | P7 (opt) | interfering-row keys grow a W_K-projected C-direction component with k | ⟦TBD B4 optional⟧ |
@@ -115,13 +119,38 @@ production model's failure pattern. First attempt honesty note: an earlier P3 at
 prompt failed its k=0 precondition and was voided; all mechanism experiments below use the full-fidelity prompt
 verbatim.
 
-## 4. Attention-level test (B1): clause-mass dilution ⟦TBD — running⟧
+## 4. Attention-level test (B1): the readout is the wrong place to look — an honest negative
 
-Design: KV-cache 2-pass — prefill the prompt, then compute the final judgment-position query's attention over
-all positions, per layer/head. Measure a_C(k) = mass on clause-C tokens, echo mass on interfering-row tokens,
-and target-row mass, under similar vs dissimilar loading (k ∈ {0,1,2,4,8} / {1,2,4,8}). Prediction: a_C falls
-with k on the similar line only; echo mass rises; dissimilar line flat. Layer-resolved curves dumped for
-localization. ⟦results table/figure; verified k=0 fidelity: P(5)=0.983 identical to sweep⟧
+Design: KV-cache 2-pass — prefill the prompt, then compute the final judgment-position (readout) query's
+attention over all positions, per layer/head. Measure a_C(k) = mass on clause-C tokens, echo mass on
+interfering-row tokens, and target-row mass, under similar vs dissimilar loading (k ∈ {0,1,2,4,8} / {1,2,4,8}).
+Original prediction (P3): a_C falls with k on the similar line only.
+
+Results (layer/head means; behavior columns confirm the frame reproduces the dissociation):
+
+| cond | k | P(5) | a_C | a_iv | a_tgt |
+|---|---|---|---|---|---|
+| similar | 0 | 0.983 | 0.00009 | — | 0.00301 |
+| similar | 1/2/4/8 | 0.22/0.08/0.11/0.04 | 0.00005–0.00010 | 0.0018→0.0032 | 0.0004–0.0007 |
+| dissimilar | 1/2/4/8 | 0.33/0.50/0.86/0.90 | 0.00007–0.00021 | 0.0022→0.0028 | 0.0005–0.0010 |
+
+**P3 in its original form is disconfirmed**: every readout-attention aggregate moves the same way under similar
+and dissimilar loading (a_C flat and tiny; a_iv rises in both; a_tgt collapses ~5× in both), while behavior
+separates cleanly (similar: 0.04–0.11 at k≥2; dissimilar: 0.50–0.90). The readout's attention *distribution*
+does not carry the effect — consistent with §5's causal finding that blocking the readout's (and all post-row)
+access to the interfering rows restores nothing. What the readout consumes is the target row's already-built
+representation; the interference must act where that representation is built. (Per-layer curves are archived;
+a layer-specific readout effect remains possible but cannot be the primary channel given §5.) Two frame notes,
+recorded honestly: at k=1 both conditions dip (0.22/0.33) — the first predecessor of either type disturbs this
+primed frame, and the similarity-specific separation emerges at k≥2; dissimilar P(5) recovers *toward* baseline
+with k (0.33→0.90), a release-from-PI-like pattern in-frame.
+
+### 4b. Construction-stage attention (B1b) ⟦TBD — running⟧
+
+The refined prediction P3′: the *target row's own token queries*, during prefill, lose clause mass / gain
+interfering-row (echo) mass specifically under similar loading. Design: 2-pass with the split at the target-row
+start; pass-2 emits the target-row queries' attention over all prior positions (sdpa prefill, eager measurement
+pass). ⟦results⟧
 
 ## 5. Causal test (B2): knockout with positions preserved — full recovery
 
@@ -148,8 +177,13 @@ record without over-interpreting) — the corruption travels through the *constr
 representation* (and/or subsequent positions), which the readout then consumes. This matches the B1 observation
 that the readout's largest attention target is the target row itself, not the clause. (3) The recovery being
 *complete* argues the entire behavioral effect is attention-mediated — no residual value-mixture path is needed.
-⟦TBD: fine arms ko_tgtrow (block only target-row queries) vs ko_post (block only post-row queries) — running —
-to localize construction vs post-row channel; optional layer-wise knockout⟧
+**Fine arms — localization decisive**: blocking *only the target-row queries'* access to the interfering rows
+(ko_tgtrow) recovers almost fully (P(5) = 0.959 at k=2, 0.968 at k=4), while blocking only the post-row
+queries — schema region and readout included — recovers nothing (ko_post: 0.020, 0.031). The interference
+channel is therefore **the construction of the target row's representation**: its tokens' queries read the
+same-clause predecessors during prefill, and what they absorb there determines the judgment; everything
+downstream, including the readout's direct access to the interfering rows, is causally inert. ⟦optional:
+layer-wise knockout⟧
 
 ## 6. Temperature test (B3): moving k* ⟦TBD⟧
 
