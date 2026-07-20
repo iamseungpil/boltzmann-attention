@@ -991,3 +991,18 @@ crash(023/095)=auto_resume 재생-mismatch(레버 아님·max_conc 3 재시도 �
   query-gap 동시 커버) ②종단행동은 **실제 실격조건**으로 게이트("체크했나" 아닌 "조건 만족하나") ③043 잔액판정처럼
   user_id-키라 id-공존 안 되는 조건은 **calc-offload로 오프로드**(출력서 잔액추출·>0 판정) 후 게이트. follow_up_chains를
   requires=전량+종단결정으로 확장. [[03b]] 준수(required-set=문서화 절차의 A2 선언).
+
+### §2ab (2026-07-20) — 097 정밀: calc-offload 트랙 치명적 결함 = grounding 미탑재→입력 날조
+**097(4계좌 APY 조사·최저 2/18)**: calc 도구 **채택됨**(get_correct_savings_apy 4회·get_interest_correction 4회) —
+그러나 [S]:
+- **에이전트가 계산 입력을 날조**: get_bank_account_transactions(계좌 실데이터·gold 5회) **0회 호출**·components
+  base APY를 **추측**(0.05 등·실제 4%+·스케일부터 오류)·source="Base APY for..."=**KB 축자 아님**·principal 95000
+  (gold Silver $100,000).
+- **내 V1(grounding 미탑재·"에이전트 formalize")가 날조 통과**→엔진이 거짓을 충실 계산=**가짜 정밀도의 헛수**.
+  리뷰③(base_apy_source grounding)이 선택 아닌 **필수** 실증.
+- 헛수마저 미적용(apply/submit 없이 transfer 포기).
+**⇒ calc-offload 역설 [S]**: grounding 없으면 도구 채택이 **미채택보다 나쁨**(가짜 정밀도). "도구 채택"≠성공 지표·
+**입력 grounding이 진짜 관문**. 요건: ①grounding 필수화(source 축자 검증·wrap _norm_ground 재사용·미검증 드롭+플래그)
+②계산 전 read 선행 커버리지 게이트(get_bank_account_transactions) ③isolate 서브 승격(main 날조→격리 read 대체).
+**4태스크(050·054·043·097) 종합**: 발견=작동. 진짜 벽 3관문 = **절차-완전성**(체크리스트 부재)·**실격조건/종단게이트**
+(043 잔액·내 WEV 구멍)·**입력 grounding**(097 날조). 발견-완전성은 표면·심층은 이 3관문.
