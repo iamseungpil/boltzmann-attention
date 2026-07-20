@@ -1971,6 +1971,7 @@ def _install_overflow_guard():
       부분 tick의 call↔result 쌍이 이미 유효 → replay 안전."""
     try:
         from tau2.orchestrator.orchestrator import BaseOrchestrator as _BO
+        from tau2.orchestrator.orchestrator import Orchestrator as _TO
         from tau2.orchestrator.full_duplex_orchestrator import FullDuplexOrchestrator
         from tau2.data_model.simulation import TerminationReason
         from litellm import ContextWindowExceededError
@@ -2000,9 +2001,11 @@ def _install_overflow_guard():
         cls.step = _guarded_step
         cls._t2_overflow_wrapped = True
 
-    _wrap_step(_BO)                       # text-모드(banking 실사용 경로)
+    _wrap_step(_BO)                       # BaseOrchestrator.step (기본 구현)
+    _wrap_step(_TO)                       # ★Orchestrator.step **override**(text-모드 실사용·e2e10 038t2/097t1
+    #                                       CWE 크래시 실측: base만 래핑해선 서브클래스 override가 우회 — 3번째 우회)
     _wrap_step(FullDuplexOrchestrator)    # speech 모드(자체 step override)
-    print("[T2_OVERFLOW_GUARD] ON (base+full_duplex)", file=sys.stderr, flush=True)
+    print("[T2_OVERFLOW_GUARD] ON (base+text+full_duplex)", file=sys.stderr, flush=True)
 
 
 def _install_regen_exec():
