@@ -848,14 +848,20 @@ def apply():
                         _effc = None
                     _missing_r = [r for r in _rr if r not in _effc] if _effc is not None else []
                     if _missing_r:
-                        _msg_r = ("Error: [READ-FIRST] this calculation depends on records you have not read "
-                                  "yet in this conversation. Missing required reads (BASE names): %s. These are "
-                                  "discoverable tools whose REAL names carry a numeric suffix - do NOT unlock "
-                                  "the base name as-is; first find each tool's full suffixed name in the "
-                                  "knowledge base (search for the base name), then unlock_discoverable_agent_tool "
-                                  "with that full name and call it via call_discoverable_agent_tool. Read the "
-                                  "ACTUAL values from the records, then call this tool again."
-                                  % ", ".join(_missing_r))
+                        # ★문구=A2 오버라이드 가능(`requires_reads_feedback`·{missing} 치환) — 기본 문구는
+                        #   도메인 어휘 0(unlock/디스패처/접미사 = 벤치-환경 인터페이스 구조 안내만·[[05]] 심문 반영).
+                        _fb_r = d.get("requires_reads_feedback")
+                        if _fb_r:
+                            _msg_r = _fb_r.replace("{missing}", ", ".join(_missing_r))
+                        else:
+                            _msg_r = ("Error: [READ-FIRST] this calculation depends on records you have not read "
+                                      "yet in this conversation. Missing required reads (BASE names): %s. These are "
+                                      "discoverable tools whose REAL names carry a numeric suffix - do NOT unlock "
+                                      "the base name as-is; first find each tool's full suffixed name in the "
+                                      "knowledge base (search for the base name), then unlock_discoverable_agent_tool "
+                                      "with that full name and call it via call_discoverable_agent_tool. Read the "
+                                      "ACTUAL values from the records, then call this tool again."
+                                      % ", ".join(_missing_r))
                         ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
                                                    requestor=getattr(tc, "requestor", "assistant"),
                                                    error=True, content=_msg_r)
