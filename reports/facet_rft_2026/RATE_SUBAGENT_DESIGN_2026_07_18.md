@@ -1020,3 +1020,21 @@ grounding 필수화 ②isolate 서브 승격(ratefix 021 선례). 리뷰③ 필�
 3. 입력 grounding(날조/오독)=097/095 → grounding 필수화+isolate 서브
 4. 발견 미진입(say-don't-do)=031/038 → FORCE_ACTION(검증됨·별도 family)
 발견 자체(getter)=이미 작동. 다음 세션 레버 우선순위=위 4관문.
+
+### §2ad (2026-07-20) — 031/038 정밀: user-side give-flow 생략 + transfer-escape (새 관문 2)
+**031(dispute·2/9)**: gold=log_verification+**get_card_last_4_digits ×2(give_discoverable_user_tool·사용자-측)**+
+file_dispute. 에이전트는 file_dispute는 발견·실행하나 **give-flow(사용자에게 도구 줘서 카드 뒷4자리 획득) 통째 생략**→
+뒷4자리 없이 dispute. = **새 관문: 사용자-측 give 흐름 인지 실패**.
+**038(모호 dispute·1/9)**: "3건 dispute+카드취소 하겠습니다"(SAY×2·무호출)→**TRANSFER NOTICE로 탈출·아무것도 미실행**.
+FORCE_ACTION 사각(탈출구=transfer=정당 도구호출·"무호출 종료" 아님)·GB2 notice를 탈출티켓 사용·CLAIM_PROV 사각
+("I *will*"=미래-주장·과거형만 잡음). = **transfer-escape**.
+**★8태스크 완전 종합 — 6관문(발견=표면·getter 이미 작동)**:
+1.절차-완전성=050/054→resign-앵커 full required-set 커버리지
+2.실격조건/종단게이트구멍=043→종단행동 실격조건 게이트+잔액 calc
+3.입력 grounding(날조/오독)=097/095→grounding 필수화+isolate 서브
+4.user-side give-flow 생략=031→give-flow 커버리지
+5.transfer-escape(미래-주장+notice티켓)=038→transfer를 미완 필수단계로 게이트·CLAIM 미래형 확장
+6.발견 미진입(say-don't-do 무호출)=038부분→FORCE_ACTION(검증됨)
++인프라(resume-replay)=023/095→concurrency=1 클린런.
+**결론**: 0 PASS 원인=이 6관문. 대부분 기존 패턴(WEV·follow_up_chains·CLAIM_PROV·grounding·isolate) **완전화**로 닿음
+(새 발명 아님). 다음 세션 레버 우선순위=위 표.
