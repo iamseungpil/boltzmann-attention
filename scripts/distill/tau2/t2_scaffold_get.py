@@ -988,6 +988,18 @@ def apply():
                                            requestor=getattr(tc, "requestor", "assistant"), content=_msg)
                 print("[T2_SG_TRUTH] '%s(%s)' -> interface fact (env would have denied our tool)"
                       % (getattr(tc, "name", "") or "", _tn), file=_sys.stderr, flush=True)
+            elif (os.environ.get("T2_SG_TRUTH") == "1"
+                  and getattr(tc, "name", None) in ((a2 or {}).get("unavailable_tools") or {})):
+                # ★unavailable-tool 사실 정정 (2026-07-20 §2ax·r095b t0 실측): 백엔드 미설정으로 **항상
+                #   실패하는 도구**(KB_search_dense="Missing credentials")를 env가 목록에 노출 — 에이전트가
+                #   연속 선택·낭비 후 조기 transfer(C108류 거짓 인터페이스). A2가 선언한 도구는 실행 없이
+                #   대체-경로 안내를 답한다(SG_TRUTH 동류·A2-구동·리터럴 0). read 도구=replay 비교 제외로 안전.
+                _msg = a2["unavailable_tools"][getattr(tc, "name")]
+                ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
+                                           requestor=getattr(tc, "requestor", "assistant"),
+                                           error=True, content=_msg)
+                print("[T2_SG_TRUTH] unavailable-tool fact: %s" % (getattr(tc, "name", "") or ""),
+                      file=_sys.stderr, flush=True)
             elif (os.environ.get("T2_TOOLGATE") == "1"
                   and getattr(self, "_t2_known_tools", None)
                   and getattr(tc, "name", None) not in self._t2_known_tools
