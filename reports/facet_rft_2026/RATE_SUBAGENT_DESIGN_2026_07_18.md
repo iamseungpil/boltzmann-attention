@@ -1275,6 +1275,16 @@ BaseOrchestrator.step**이라 누출(§2ai 가드의 설치-범위 버그). 픽�
 **방법론**: ①분류는 반드시 부하-격리+정보-실재 검사로 검증 후 확정([[08]] 확장 — "궤적 정독"만으론 INFER/
 gather를 오분류할 수 있다·인자 오답의 겉모습은 동일) ②이 프로브는 무료(user-sim 0)·수분 — **분류 확정의
 기본 절차로 승격**.
+### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
+**결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
+**검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0
+②fetch-iso 5회 발화(서브-components가 에이전트 인라인을 대체) ③actual_apy 개선(0.46875 파생값→5.5·문서
+기반 — 0.0-포이즈닝류 소멸). **잔여 [S]**: principal=96000·기간=1개월 지속 — **gather-순서**: 에이전트가
+저축계좌 레코드·거래(gold read 쌍)를 **계산 전에 안 읽는** 패턴 불변(t0도 read 쌍 미매치). 후보 레버 =
+기존 `T2_DISCOVERY_REQUIRED`(analysis_producers)를 get_interest_correction에 A2 선언(계산 전 read-선행 게이트·
+§1.5 허용축=read 강제) 또는 interest 인자도 fetch-iso 확장. **분류 최종**: 095 = gather-순서(scaffold-가능)
+— learn 불요 재확인(§2ar 재분류 유지).
+
 ### §2at (2026-07-20) — e2e10 중간: 038 t0 크래시 = READ_DEDUP×unlock replay 불일치 (술어 이원성)
 **e2e10 t0 스냅샷**: 052·054 **크래시 해소 확증**(TOOLGATE env-실재 통과·tau2 패치 v2 — 이전 크래시 2종이
 user_stop 완주로)·관문4 WEV last4 라이브 발화(arm A 18회)·unlock 활동 급증(a16/b22=chain unlock-피드백 효과)·
