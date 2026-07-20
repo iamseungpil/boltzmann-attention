@@ -162,9 +162,9 @@ pass; final-logit fidelity preserved, k=0 P(5)=0.987).
 
 Result: **P3′ is also disconfirmed at the mass level — and that is informative.** The target row's queries put
 a large and nearly identical fraction of their attention on the predecessor rows under both loadings
-(row→interfering mass: similar 0.202→0.235→0.249→0.263 for k=1,2,4,8; dissimilar 0.199→0.229→0.243 for
-k=1,2,4), and row→clause mass is small and similarity-nonspecific (~0.0002–0.0004) — while behavior separates
-(similar 0.24/0.11/0.10/0.03 vs dissimilar 0.38/0.42/0.87). A row under construction reads its predecessor rows
+(row→interfering mass: similar 0.202→0.235→0.249→0.263 for k=1,2,4,8; dissimilar 0.199→0.229→0.243→0.259),
+and row→clause mass is small and similarity-nonspecific (~0.0002–0.0004) — while behavior separates
+(similar 0.24/0.11/0.10/0.03 vs dissimilar 0.38/0.42/0.87/0.92). A row under construction reads its predecessor rows
 heavily *because they are predecessor rows* — a structural, content-agnostic route (plausibly format/schema
 copying). What differs between conditions is therefore not *how much* flows through the route but *what* flows:
 when the predecessors are same-clause echoes, the values mixed into the target row's representation carry their
