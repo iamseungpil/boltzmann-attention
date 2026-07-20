@@ -125,6 +125,21 @@ def t_year_last_complete():
 
 
 
+def t_required_groups():
+    # ★§2as (095 0.0-포이즈닝): base 그룹이 grounding 드롭으로 부재 → 합 0.0%(오판정) 대신 None(abstain)
+    spec = {"op": "group_reduce", "over": "c", "group_by": "kind", "value_field": "value",
+            "reducers": {"base": "sum", "card": "max1"}, "required_groups": ["base"]}
+    assert apply_op(spec, {"c": [{"kind": "card", "value": 0.5}]}) is None      # base 부재 → abstain
+    assert apply_op(spec, {"c": []}) is None                                    # 전부 드롭 → abstain
+    r = apply_op(spec, {"c": [{"kind": "base", "value": 5.5}, {"kind": "card", "value": 0.5}]})
+    assert abs(r - 6.0) < 1e-9, r                                               # base 실재 → 정상 합성
+    # 미선언 = 거동보존(기존 0.0)
+    spec2 = {"op": "group_reduce", "over": "c", "group_by": "kind", "value_field": "value",
+             "reducers": {"base": "sum"}}
+    assert apply_op(spec2, {"c": []}) == 0.0
+    print("t_required_groups OK (base 부재→abstain·실재→합성·미선언 거동보존)")
+
+
 def t_across_min_023():
     # 023: 월별윈도우 합의 min ≥ threshold (개설 2024-11-15, 3거래/월 예시)
     txns=[
@@ -164,4 +179,5 @@ if __name__ == "__main__":
     t_across_min_023()          # ★러너 갭 수정(2026-07-20): __main__ 뒤 정의라 미실행이었음
     t_dg_sum_unchanged()
     t_year_last_complete()
+    t_required_groups()
     print("ALL PASS")

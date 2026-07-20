@@ -1,5 +1,13 @@
 # INFER-Calibration Learn 축 설계 (2026-07-20)
 
+> ★★**정정 (2026-07-20 저녁·부하-격리 프로브·§2ar)**: 사용자 제안으로 **learn 착수 전 부하-격리 실험을
+> 먼저** 수행(`probe_095_load_iso.py`·무료·정보-맞춘 격리 n=9) — 결과가 본 설계의 **전제를 뒤집음**.
+> p_iso=0/9(라이브와 동일 오답)·presence 선검사: gold 값들(저축원금 8000·actual 5.625·checking 3.5)이
+> **그 시점 문맥에 아예 없음**(문맥의 "8000"은 EcoCard 신용한도). ⇒ **095 = INFER가 아니라 gather(정보수집)
+> 미완** — 격리해도 없는 정보로는 못 푼다. 처방은 learn이 아니라 **fetch-iso 확장**(서브가 저축 레코드·
+> 이율·boost KB를 직접 fetch = scaffold-가능). 본 설계는 **예비 축으로 강등·보존**(INFER 증거 태스크가
+> 실측으로 확보될 때까지 착수 금지). 등대 측정 규율("정보-빈약 프로브=부하판정 무효")의 가치 실증.
+
 > 계기: e2e9 095 포렌식(§2ap) — gold 9액션 중 7 match·잔여=**계산도구 인자 formalize 의미론**
 > (principal 96000/1개월/actual 0.46875 vs gold 8000/full-yr→98.00). [[16]] GENERALIZED_SCAFFOLD LOCK의
 > "유일잔여=INFER-calibration(learn)" 예측과 정합. 본 문서 = 그 learn 축의 설계.

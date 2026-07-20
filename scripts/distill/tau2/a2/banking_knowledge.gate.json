@@ -753,7 +753,11 @@
      "relationship": "sum",
      "tier": "sum"
     },
-    "unknown_policy": "flag"
+    "unknown_policy": "flag",
+    "required_groups": [
+     "base"
+    ],
+    "_note": "§2as: base 그룹 드롭/부재 시 0.0% 오판정 대신 abstain(095 포이즈닝 실측)."
    },
    "ground": {
     "array_fields": [

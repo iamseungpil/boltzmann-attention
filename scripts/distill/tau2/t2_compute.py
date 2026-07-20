@@ -193,6 +193,12 @@ def apply_op(spec, ctx):
                     continue
                 groups.setdefault(g, []).append(v)
             flags = ctx.setdefault("_gr_flags", []) if isinstance(ctx, dict) else []
+            # ★required_groups (2026-07-20 §2as·095 0.0-포이즈닝): 핵심 그룹(예: APY의 base)이
+            #   드롭/부재면 합계 "0.0%"는 **유해한 오판정**(에이전트 도구불신 유발·실측 msg25/31) —
+            #   None(abstain·missing_hint 경로)으로. A2 선언 시만·미선언=거동보존. 도메인 리터럴 0.
+            for _rg in (spec.get("required_groups") or []):
+                if str(_rg) not in groups:
+                    return None
             reduced = []
             for g, vs in groups.items():
                 red = reducers.get(g, default_reducer)

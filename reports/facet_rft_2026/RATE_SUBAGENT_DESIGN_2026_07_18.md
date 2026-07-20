@@ -1260,3 +1260,27 @@ BaseOrchestrator.step**이라 누출(§2ai 가드의 설치-범위 버그). 픽�
 **e2e9 종합 판정**: ①인프라: 신규 3버그 규명·픽스(재발 사슬 아님) ②레버: 관문1/2/3/CLAIMPROV 라이브 검증·
 관문4/5는 마지막-1홉 픽스 배선(§2ao) ③잔여 스펙트럼 확정 = 발견-분산(038)·formalize-calibration(095)·컨텍스트
 (097) — 앞 둘은 learn/scale 축·스캐폴드 아님([[13]]·[[16]]). ④052 프로브 본판정은 크래시로 미완(픽스 후 재런).
+
+### §2ar (2026-07-20) — ★부하-격리 프로브가 §2ap의 095 분류를 **뒤집음**: INFER→gather (사용자 제안 실험)
+**실험**(`probe_095_load_iso.py`·무료·정보-맞춘 격리: 그 시점까지의 사용자 발화+도구 출력 전부·assistant
+자기생성만 제거·n=9): **p_iso=0/9 — 전 샘플이 라이브와 동일 오답**(96000/5.5/0.47/30일). load=p_iso−p_traj=0.
+**결정타=presence 선검사**(등대 측정 규율 "정보-빈약 프로브=부하판정 무효"의 순방향 적용): gold 값들이 문맥에
+**아예 없음** — actual 5.625 ✗·checking boost 3.5 ✗·저축원금 8000 ✗(문맥의 "8000"=EcoCard **신용한도**·96000도
+부재=파생합성). 문맥엔 `get_correct_savings_apy→0.0%`(grounding 드롭) 반환까지.
+**⇒ 재분류 [S]: 095 = INFER-calibration 아님 → gather(정보수집) 미완** — 필요한 원시 정보가 수집 자체가 안 돼
+격리·부하 무관하게 못 푸는 상태였고, 에이전트는 없는 정보 위에서 파생값을 합성. §2ap의 "learn 축·스캐폴드
+불가" 판정 **정정** — 처방=**fetch-iso 확장**(get_interest_correction에 ref=account_id·서브가 저축 레코드·
+적용이율·boost KB 직접 fetch = §2aq APY-fetch-iso와 동형·scaffold-가능). learn 설계서는 예비 축으로 강등
+(INFER 증거 태스크 실측 확보 시까지 착수 금지·설계서 헤더 정정 완료).
+**방법론**: ①분류는 반드시 부하-격리+정보-실재 검사로 검증 후 확정([[08]] 확장 — "궤적 정독"만으론 INFER/
+gather를 오분류할 수 있다·인자 오답의 겉모습은 동일) ②이 프로브는 무료(user-sim 0)·수분 — **분류 확정의
+기본 절차로 승격**.
+### §2as (2026-07-20) — 095 심화: grounding 참값-드롭 × 0.0-포이즈닝 → required_groups abstain
+**정밀화 [S]**: expected_apy 축의 진근본 = **grounding 참값-드롭 × 0.0-포이즈닝**.
+궤적 실측: KB 문서(msg19)에 base 5.5% 명백 실재 — 에이전트 source가 **패러프레이즈**("Base APY for Gold
+Savings Account is 5.5%" ≠ 원문 "Your account earns an APY of 5.5%...")라 축자-검증이 규칙대로 드롭(5회
+재시도에도 계속 패러프레이즈 = 부하 하 축자인용 실패·§2al 동류) → **엔진이 빈 집계로 "Correct APY: 0.0%"
+판정을 발화**(경고 첨부했으나 verdict 자체가 유해) → 에이전트 도구 불신·자기추정 6.0 사용. §2ah서 이
+드롭들을 "날조 차단 실증"으로 자축한 것 **정정 — 참값 드롭이었다**(값은 옳고 인용만 엉성). 처방 2종:
+①§2aq APY fetch-iso(서브가 원문서 직접 인용=축자 가능) — **이미 배선·e2e10서 검증 중** ②`required_groups`
+abstain(핵심 그룹(base) 드롭 시 0.0 verdict 대신 missing_hint abstain — 아래 §2as).
