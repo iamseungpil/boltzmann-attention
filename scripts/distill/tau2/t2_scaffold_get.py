@@ -351,6 +351,7 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
         kw["temperature"] = iso["temperature"]
     queries = []
     _maxr = int(iso.get("max_rounds", 4))
+    _gfb = 0                      # ★서브-내 ground 피드백 발화 수(T2_SG_ISOFB·관측용)
     for rnd in range(_maxr):
         try:
             # ★마감 라운드(2026-07-21 §2ba·r095e/f 실측: 서브가 라운드 내내 getter만 돌고 답을 안 내
@@ -372,15 +373,45 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
             msgs.extend(run_env_calls(tcs))          # ★GET = env 결정론 실행(off-ledger)
             continue
         got = _merge_json(getattr(resp, "content", None) or "", keys)
+        # ★서브-내 ground 피드백 (T2_SG_ISOFB=1·2026-07-21 §2bb·r095g 실측): 서브 답을 메인 관문1과
+        #   동일한 A2 `ground` 선언으로 즉석 검증 — 실패 플래그를 **검색 도구를 쥔 서브**에게 되먹여
+        #   같은 루프서 재검색 기회를 준다(현행은 메인 쪽 드롭이라 서브가 실패를 모른 채 종료 —
+        #   r095g: checking 값-없는 인용 4-trial 반복). 라운드 소진 임박(마감 라운드)이면 현행대로
+        #   반환 = 거동보존·메인 관문1이 재검증(심층방어). 엔진=검증+반사만·값 생성=LLM([[03b]]/[[10]]).
+        if (got and os.environ.get("T2_SG_ISOFB") == "1" and rnd < _maxr - 1
+                and isinstance(d.get("ground"), dict)):
+            try:
+                _fl = _ground_operands(orch, d, dict(got))
+            except Exception as _ge:
+                _fl = []
+                print("[T2_SG_ISOLATE] ground-피드백 검사 실패(no-op): %r" % (_ge,),
+                      file=_sys.stderr, flush=True)
+            if _fl:
+                _gfb += 1
+                msgs.append(resp)
+                _fbt = ("GROUNDING CHECK FAILED - these items were rejected: %s. An item is only "
+                        "accepted when its 'source' is a quote copied VERBATIM from a document or "
+                        "record AND that quote itself contains the exact numeric value. Do not "
+                        "guess or infer values. Search again for the line or table that states "
+                        "the exact number, then re-send the complete JSON answer."
+                        % "; ".join(_fl))
+                try:
+                    msgs.append(UserMessage(role="user", content=_fbt))
+                except TypeError:
+                    msgs.append(UserMessage(content=_fbt))
+                print("[T2_SG_ISOLATE] fetch %s: ground-피드백 %d건 → 서브 재시도(%d라운드)"
+                      % (d.get("name"), len(_fl), rnd + 1), file=_sys.stderr, flush=True)
+                continue
         getter = sum(1 for m in msgs if getattr(m, "role", "") == "tool")
         print("[T2_SG_ISOLATE] fetch %s: %d라운드·getter %d회·operand keys=%s"
               % (d.get("name"), rnd + 1, getter, list(got or {})), file=_sys.stderr, flush=True)
         _isolate_trace(iso, d, {"mode": "fetch", "round": rnd + 1, "getter": getter,
-                                "queries": queries, "operands": got})
+                                "queries": queries, "ground_fb": _gfb, "operands": got})
         return got or None
     print("[T2_SG_ISOLATE] fetch %s: max_rounds 소진 → 격리 생략" % d.get("name"),
           file=_sys.stderr, flush=True)
-    _isolate_trace(iso, d, {"mode": "fetch", "error": "max_rounds", "queries": queries})
+    _isolate_trace(iso, d, {"mode": "fetch", "error": "max_rounds", "queries": queries,
+                            "ground_fb": _gfb})
     return None
 
 

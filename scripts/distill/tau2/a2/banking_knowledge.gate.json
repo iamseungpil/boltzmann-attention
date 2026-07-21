@@ -788,7 +788,7 @@
      "components"
     ],
     "max_rounds": 5,
-    "instructions": "You are a KB-extraction sub-task. Using the search tool, find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Search as many times as needed. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum).",
+    "instructions": "You are a KB-extraction sub-task. Using the search tool, find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Search as many times as needed. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum). IMPORTANT: a component is only accepted if its 'source' quote itself contains the exact numeric value; if you cannot find a document stating the number, omit that component rather than guessing.",
     "answer_format": "Reply with exactly one JSON object and nothing else: {\"components\": [{\"kind\": \"base|checking|card|relationship|tier\", \"value\": 0.0, \"source\": \"<verbatim quote>\"}]}",
     "_note": "2026-07-20 §2aq(097 CWE 잔여·컨텍스트 레버): main이 4계좌x KB문서를 이고 인자로 재에코하는 대신 참조 2개만 넘기고 서브가 off-ledger 검색·formalize. 산출 components는 기존 ground(array·kb·require_value_in_source)가 그대로 검증(심층방어). 실패=에이전트 인자 폴백(거동보존)."
    }
@@ -1004,5 +1004,7 @@
  },
  "unavailable_tools": {
   "KB_search_dense": "Error: KB_search_dense is not available in this environment (dense retrieval backend is not configured). Use KB_search_bm25 with the same query instead - it searches the same knowledge base."
- }
+ },
+ "nonlisted_tool_feedback": "Discoverable agent tools must first be unlocked with unlock_discoverable_agent_tool(agent_tool_name=...) and then invoked through call_discoverable_agent_tool(agent_tool_name=..., arguments=...); discoverable user tools are granted to the customer via give_discoverable_user_tool.",
+ "_note_nonlisted_tool_feedback": "2026-07-21 §2bb T2_TOOLLIST용 도메인 안내문(unavailable_tools 동족=인터페이스 사실). 근거: r095g g-t0 접미사 직호출로 gold 형식(unlock+디스패처 쌍) 건너뜀·gold census 직호출 0."
 }

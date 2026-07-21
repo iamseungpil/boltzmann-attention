@@ -1290,7 +1290,35 @@ gold-형식 무관 DB-일치 평가 수용 (b)통과를 "안내로 강등"(실�
 **095 최종 스코어(오늘)**: INFRA×2 → **7/9 안정 천장**(3회)·재현-닫힌 축=read-순서·actual·principal·기간·
 월할 / 잔여=①expected-boost 발견·선택 ②액션-형식 정합. (여전히 pass 0 — 정직 기록.)
 
-### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
+### §2bb (2026-07-21) — 095 잔여 2슬롯 배선: T2_SG_ISOFB(서브-내 ground 피드백)·T2_TOOLLIST(생성-레벨 목록-밖 deny)
+**포렌식 정밀화 [S]** (r095g operands 트레이스 정독): expected_apy 서브는 pairing **목록** 문서까지 도달
+(18개 pairing 전문 인용·#14 "Purple Account (checking) + Gold Account (savings)" 실재)했으나 **boost 값
+테이블 문서는 4-trial 전부 미도달** — checking=0.75를 값-없는 인용과 함께 반환→관문1 규칙대로 드롭.
+card 슬롯은 값 테이블 발견(EcoCard +0.6% 표 인용) = 검색력 자체는 있음. **구조 결함: 드롭이 메인 쪽에서
+일어나 검색 도구를 쥔 서브는 실패를 모른 채 종료**(피드백 부재) — GET/FIND 루프에 검증 신호가 안 닫힘.
+**배선①(엔진·`T2_SG_ISOFB=1`)**: `_sub_fetch_formalize`가 서브 답을 기존 `_ground_operands`(A2 `ground`
+선언)로 즉석 검증 — 플래그를 서브 대화에 UserMessage로 되먹여 같은 루프서 재검색(라운드 소진 임박이면
+현행대로 반환=거동보존·메인 관문1 재검증=심층방어). 기존 A2-선언 2메커니즘(`ground`+`isolate`)의 배선
+결합·도메인 리터럴 0·값 생성은 여전히 LLM. trace에 `ground_fb` 수 기록. `test_sg_isofb.py` 7/7.
+**배선②(액션-형식 = §2ba 대안 판정)**: (a)"DB-일치 평가 수용"=**채점 변경=[[03b]] 위반 기각**·(b)안내
+강등=handoff §0-1 분석대로 **replay-불변식 위반 기각**(안내=error ToolMessage=비실행인데 replay는 재실행
+비교) → **(c) 생성-레벨 이설 채택 = `T2_TOOLLIST=1`**: unified 루프서 도구목록-**밖** 이름 호출(발명명+
+접미사-직호출 공히)을 deny-피드백+재생성(작업버퍼만=비커밋=replay-clean)·턴당 1라운드·sim당
+`T2_TOOLLIST_CAP`(기본 6) 소진 후 통과(liveness·env-실재 통과는 §2ao대로 replay 정합). 술어=자기
+도구목록 대조뿐(엔진 리터럴 0)·도메인 안내문=A2 `nonlisted_tool_feedback`(unlock→디스패처 프로토콜·
+`unavailable_tools` 동족=인터페이스 사실). **over-block 0 실증**: 로컬 results 전수 gold 액션 census —
+gold는 전 태스크서 접미사 직호출 0(디스패처 쌍만). `test_toollist.py` 전건 PASS·기존 스위트 회귀 0.
+**A2 미세수정**: APY isolate.instructions에 ground **계약 명세** 1문장("source 인용문 안에 숫자 실재해야
+채택·못 찾으면 추측 말고 생략") — KB-구조 힌트("목록 문서엔 값 없음·이렇게 검색하라")는 **넣었다가 가드
+문답서 제거**(측정 정당화 없는 095-표적 spoonfeed·[[05]](1) 위반). 동적 피드백(배선①)이 같은 신호를
+도메인-일반으로 전달 — 실측서 안 닫히면 그때 측정 근거로 재론.
+**[[05]] 3질문 답**([[17]] 의무): (1)도메인-특화 순증? 엔진 2건=리터럴 0(자기 도구목록·A2-선언 배선)·
+A2 순증=인터페이스 사실 2건(ground 계약 명세·디스패처 프로토콜)뿐이며 측정 근거(r095g 4-trial 드롭·
+g-t0 액션 1/9·census 직호출 0) 첨부. (2)유동 판단 동결? No — 검색·값 선택·도구 선택 전부 모델 몫·
+검증 실패의 반사와 cap-후 통과만. (3)scaffold가 도메인 행동 수행? No — 대체 실행·값 추출 0.
+**다음**: r095h(nt=3·`T2_SG_ISOFB=1 T2_TOOLLIST=1` 추가) — 판정 ①ground-피드백 후 checking 1.35 도달
+여부(트레이스 `ground_fb`·components) ②액션형식 unlock+디스패처 쌍 복원(g-t0 1/9→) ③§2ba 마감 라운드
+마커(`fetch get_interest_correction` 주입) ④REQREADS/actual/principal 재현 유지. 유료([[09]] 승인 후). — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0
 ②fetch-iso 5회 발화(서브-components가 에이전트 인라인을 대체) ③actual_apy 개선(0.46875 파생값→5.5·문서

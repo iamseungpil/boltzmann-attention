@@ -2379,6 +2379,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[T2_TOOLERR] error (no-op): %r" % (_te,), file=_sys.stderr, flush=True)
         am = _gen(self, work, bw(), "agent_response")
         gate_rounds = prov_rounds = eplan_rounds = cons_rounds = ra_rounds = te_rounds = wev_rounds = 0
+        tl_rounds = 0
         subs = 0
         rescue_skipped = set()
         rescue_excl = set()   # ★PERARG(C65): (id(tc),k,s) — rescue-스킵된 fab 제외하고 재스캔
@@ -2700,8 +2701,34 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ✅라이브 배선(2026-07-13): rw_fb[0] is None 케이스는 아래 fb-빌드서 UserMessage 리마인더로
             #   재생성(regenerate-with-directive·eplan-reminder류·작업버퍼만·test_action_reminder 14/14).
             #   transfer-only 회피는 tool_call 앵커로 이미 처리·per-operand rw_fb(deny-kind)도 라이브.
+            # ★T2_TOOLLIST (2026-07-21 §2bb·r095g g-t0 실측): 도구목록 **밖** 이름 호출(발명명+
+            #   discoverable 접미사-직호출 공히) = 생성-레벨 deny+재생성. 근거: ①TOOLGATE env-실재
+            #   통과(§2ao 픽스)가 접미사 직호출을 허용 → unlock+디스패처 쌍(gold 액션형식) 건너뜀
+            #   (g-t0 액션 1/9) ②gold census(로컬 results 전수): gold는 전 태스크서 직호출 0 =
+            #   over-block 0 ③실행-레벨 deny는 mutating replay 불일치(§2ao·052) — 생성-레벨은
+            #   작업버퍼만(비커밋)=replay-clean. 술어=자기 도구목록 대조뿐(도메인 리터럴 0)·도메인
+            #   안내문=A2 `nonlisted_tool_feedback`. cap 소진 후엔 통과(liveness·env-실재=replay 정합).
+            tl_fb = None
+            if (os.environ.get("T2_TOOLLIST") == "1"
+                    and not do_gate and not do_prov and ep_fb is None and cons_fb is None
+                    and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
+                    and tl_rounds < 1
+                    and getattr(self, "_t2_toollist_deny", 0)
+                    < int(os.environ.get("T2_TOOLLIST_CAP", "6"))):
+                _vis = {getattr(t, "name", None) for t in (self.tools or [])}
+                for c in (am.tool_calls or []):
+                    nm = getattr(c, "name", None)
+                    if nm and _vis and nm not in _vis:
+                        _extra = str((a2 or {}).get("nonlisted_tool_feedback") or "").strip()
+                        tl_fb = (c, ("'%s' is not one of your provided tools, so it was not "
+                                     "called. Only call tools that appear in your tool list.%s"
+                                     % (nm, (" " + _extra) if _extra else "")))
+                        print("[T2_TOOLLIST] deny nonlisted tool=%s" % nm,
+                              file=_sys.stderr, flush=True)
+                        break
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
-                    and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None):
+                    and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
+                    and tl_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -2763,6 +2790,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                           % _wev_cap, file=_sys.stderr, flush=True)
             if rw_fb is not None:
                 self._t2_resolve_deny = getattr(self, "_t2_resolve_deny", 0) + 1
+            if tl_fb is not None:
+                tl_rounds += 1
+                self._t2_toollist_deny = getattr(self, "_t2_toollist_deny", 0) + 1
+                if self._t2_toollist_deny == int(os.environ.get("T2_TOOLLIST_CAP", "6")):
+                    print("[T2_TOOLLIST] deny cap reached — nonlisted calls pass through hereafter",
+                          file=_sys.stderr, flush=True)
             fb = [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:
@@ -2784,6 +2817,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         else "Error: " + wev_fb[1]
                 elif rw_fb is not None and c is rw_fb[0]:
                     content = "Error: " + rw_fb[1]
+                elif tl_fb is not None and c is tl_fb[0]:
+                    content = "Error: " + tl_fb[1]
                 else:
                     content = "Error: resolve the flagged call(s) first; do not call this tool yet."
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
