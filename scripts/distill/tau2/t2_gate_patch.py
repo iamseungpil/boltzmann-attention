@@ -2016,6 +2016,45 @@ def _install_overflow_guard():
     _wrap_step(FullDuplexOrchestrator)    # speech 모드(자체 step override)
     print("[T2_OVERFLOW_GUARD] ON (base+text+full_duplex)", file=sys.stderr, flush=True)
 
+    # ★(§2bd) 평가-시점 id-mismatch post-mortem 덤프 (로그 전용·예외는 그대로 재전파):
+    #   rall4 050t2 재현 2회인데 T2_PAIRCHECK(에이전트-턴 검사)는 무발화 = 부패가 마지막
+    #   에이전트 턴 이후(유저-측 종반 or 평가 입력 조립)에서 발생. set_state 실패 시
+    #   message_history의 (idx·role·requestor·tool·id) 압축 시퀀스를 덤프해 지점 특정.
+    try:
+        from tau2.environment.environment import Environment as _PmEnv
+        if not getattr(_PmEnv, "_t2_pairdump_wrapped", False):
+            _orig_ss = _PmEnv.set_state
+
+            def _ss2(self, initialization_data, initialization_actions, message_history):
+                try:
+                    return _orig_ss(self, initialization_data, initialization_actions,
+                                    message_history)
+                except ValueError as _ve:
+                    if "id mismatch" in str(_ve) or "Tool message" in str(_ve):
+                        print("[T2_PAIRDUMP] set_state failed: %s" % str(_ve)[:160],
+                              file=sys.stderr, flush=True)
+                        for _i, _m in enumerate(message_history or []):
+                            _r = getattr(_m, "role", "?")
+                            _rq = getattr(_m, "requestor", "")
+                            _tcs = getattr(_m, "tool_calls", None) or []
+                            if _tcs:
+                                _d = ",".join("%s#%s" % (getattr(t, "name", "?"),
+                                                         str(getattr(t, "id", ""))[-8:])
+                                              for t in _tcs)
+                                print("[T2_PAIRDUMP] %3d %s(%s) CALLS %s" % (_i, _r, _rq, _d),
+                                      file=sys.stderr, flush=True)
+                            elif _r == "tool":
+                                print("[T2_PAIRDUMP] %3d tool(%s) id..%s err=%s"
+                                      % (_i, _rq, str(getattr(_m, "id", ""))[-8:],
+                                         getattr(_m, "error", False)),
+                                      file=sys.stderr, flush=True)
+                    raise
+
+            _PmEnv.set_state = _ss2
+            _PmEnv._t2_pairdump_wrapped = True
+    except Exception as _e2:
+        print("[T2_PAIRDUMP] not installed: %r" % (_e2,), file=sys.stderr, flush=True)
+
 
 def _install_regen_exec():
     """slim _execute_tool_calls: 실행 + auth observe + read-augment(present/nested/calc). deny 없음
