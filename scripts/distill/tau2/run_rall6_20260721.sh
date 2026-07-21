@@ -55,7 +55,7 @@ if [ "$MODE" = "smoke" ]; then
   persist
   echo "RALL6_SMOKE_ALL_DONE"
 else
-  run_arm bank_rall6a_20260721 8141 task_095,task_052 3 &
+  run_arm bank_rall6a_20260721 8140 task_095,task_052 3 &
   PA=$!
   run_arm bank_rall6b_20260721 8140 task_050,task_054 3 &
   PB=$!
