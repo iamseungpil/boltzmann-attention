@@ -302,7 +302,7 @@
    "require_tokens": [
     "get_payment_history"
    ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the payment history check (get_payment_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_payment_history tool for account {id} first, then re-attempt the approval.",
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the payment history check (get_payment_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_payment_history tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
    "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제)."
   },
   {
@@ -315,7 +315,7 @@
    "require_tokens": [
     "get_credit_limit_increase_history"
    ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the credit limit increase history check (get_credit_limit_increase_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_credit_limit_increase_history tool for account {id} first, then re-attempt the approval.",
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the credit limit increase history check (get_credit_limit_increase_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_credit_limit_increase_history tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
    "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제)."
   },
   {
@@ -328,7 +328,7 @@
    "require_tokens": [
     "get_pending_replacement_orders"
    ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement orders check (get_pending_replacement_orders*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_pending_replacement_orders tool for account {id} first, then re-attempt the approval.",
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement orders check (get_pending_replacement_orders*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_pending_replacement_orders tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
    "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제)."
   },
   {
@@ -341,7 +341,7 @@
    "require_tokens": [
     "get_closure_reason_history"
    ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason history (retention-abuse check) (get_closure_reason_history*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_closure_reason_history tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure.",
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason history (retention-abuse check) (get_closure_reason_history*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_closure_reason_history tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
    "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5)."
   },
   {
@@ -354,7 +354,7 @@
    "require_tokens": [
     "log_credit_card_closure_reason"
    ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason logging (log_credit_card_closure_reason*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the log_credit_card_closure_reason tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure.",
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason logging (log_credit_card_closure_reason*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the log_credit_card_closure_reason tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
    "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5)."
   },
   {
@@ -367,7 +367,7 @@
    "require_tokens": [
     "get_pending_replacement_orders"
    ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement card check (get_pending_replacement_orders*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_pending_replacement_orders tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure.",
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement card check (get_pending_replacement_orders*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_pending_replacement_orders tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
    "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5)."
   },
   {
@@ -391,10 +391,10 @@
    },
    "id_key": "card_last_4_digits",
    "require_tokens": [
-    "get_card_last_4_digits"
+    "card_last_4_digits"
    ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows the card's last 4 digits ({id}) actually obtained from the CUSTOMER running the get_card_last_4_digits tool. Do NOT guess or fabricate the digits. First call give_discoverable_user_tool to give the customer the get_card_last_4_digits tool, ask them to run it and tell you the result, then file the dispute using the true digits.",
-   "_note": "2026-07-20 관문4 WEV형(§2ao·e2e9 031 포렌식): 에이전트가 last4를 날조(1654 vs gold 5320·나머지 인자 전원 일치)해 env가 수용→사용자 만족 STOP→resign-임계 chain은 구조적 미발화. 사전 게이트=write 전에 사용자-실행 give-flow 출력(도구명+4자리 공존)을 증거로 요구. id_key=nested arguments서 추출(WEV 코어 지원)·last4 인자 없는 dispute 변형=idv 부재 skip(false-block 회피)."
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows the card's last 4 digits ({id}). Do NOT guess or fabricate the digits, and do NOT file the dispute with the digits missing or empty. Obtain the TRUE digits from an actual tool result first: read the credit card account record (it contains card_last_4_digits), or call give_discoverable_user_tool to give the customer the get_card_last_4_digits tool and ask them to run it. Then file the dispute using the digits exactly as shown in that tool output.",
+   "_note": "2026-07-20 관문4 WEV형(§2ao·e2e9 031 포렌식) → 2026-07-21 §2bc 정밀화(054 실측): 구판 require_tokens=give-flow 도구명 = 단일 provenance 경로 강제 — 054는 진짜 last4(7823)가 에이전트 자신의 계좌 레코드 출력에 실재하는데 유저가 도구 실행 거부('카드 없음')→충족불가 deny 8회→유저 포기·붕괴. 신판 token='card_last_4_digits'=레코드 필드 라벨이자 give-flow 도구명(get_card_last_4_digits)의 substring → 두 정당 경로 모두 수용·날조(어느 출력에도 없는 값)는 여전히 차단(031 give-flow 실행 t1/t2 실증=무회귀). 빈-값 write는 WEV 코어 신판(§2bc 키실재-빈값 deny)이 차단."
   }
  ],
  "scaffold_get_tools": [
@@ -967,16 +967,9 @@
    "decision_feedback": "Error: [FOLLOW-UP] you ran the eligibility checks but never made the terminal decision on the credit limit increase request. The decision is made with a TOOL CALL, not just words: call approve_credit_limit_increase ONLY if every requirement passed, or call deny_credit_limit_increase if ANY requirement failed. Both are DISCOVERABLE tools - first unlock_discoverable_agent_tool with the full suffixed name, then call_discoverable_agent_tool. Do NOT merely tell the customer the outcome in text, and do NOT end the conversation with the request undecided.",
    "feedback": "Error: [FOLLOW-UP] you submitted the credit limit increase request but have NOT completed the required eligibility check procedure. Checks still missing for this account: {missing}. These checks are DISCOVERABLE tools: for EACH one, first call unlock_discoverable_agent_tool with the tool's full name (including its numeric suffix, from the knowledge base), then call it via call_discoverable_agent_tool — do NOT call the bare name directly. Run EVERY check — get_user_dispute_history, get_pending_replacement_orders, get_credit_limit_increase_history, get_payment_history — and then make the decision: approve_credit_limit_increase if every requirement passed, or clearly decline and explain which requirement failed. Do NOT end the conversation with the request merely submitted.",
    "_note": "2026-07-20 Q1 + 관문2 확장(§2aa): requires=full required-set 4체크(050 실증: 단일 requires는 이미-호출된 history만 봐 pending 건너뜀을 못 잡음). {missing}=누락 전량 나열(050 follow-through+054 query-gap 동시 커버). decision_tools/decision_feedback=종단결정 nudge — approve 강제 아님(052 decline-정답 보호·문구 양방향·Δspurious 계측 대상). 엔진=집합 대조·치환만(리터럴 0). ★e2e10 052 포렌식(§2au): gold 종단=deny 도구 호출인데 구문구가 '텍스트 decline 가능'을 가르침(마지막-1홉 결함 6호)→decision_tools에 deny 추가·도구-호출 명시·unlock 프로토콜 포함."
-  },
-  {
-   "after": "file_credit_card_transaction_dispute",
-   "requires": [
-    "get_card_last_4_digits"
-   ],
-   "feedback": "Error: [FOLLOW-UP] you filed a credit card transaction dispute but the card's last 4 digits were never actually obtained from the customer. Missing: {missing}. The dispute procedure requires the CUSTOMER to run the get_card_last_4_digits tool themselves: call give_discoverable_user_tool to give the customer the get_card_last_4_digits tool, ask them to run it and tell you the digits, then file (or re-file) the dispute using the true digits. Do NOT guess or fabricate the digits.",
-   "_note": "2026-07-20 관문4(031·§2ad): 에이전트가 file_dispute는 실행하나 give-flow(사용자-측 get_card_last_4_digits) 통째 생략→뒷4자리 없이 dispute. requires 대조=effective name(_eff_tool_name이 call_discoverable_user_tool의 user_tool_name unwrap+접미 strip)→사용자-실행도 인지. 한계: 도구-호출 여부만 봄(날조 자릿수는 못 잡음)→WEV형 강화(자릿수 인자+give출력 공존)는 dispute 도구 인자명 라이브 확인 후. debit dispute와 after 정확일치라 교차발화 0. Δspurious 계측 대상(last4 불요 credit-dispute 태스크 존재 시 over-fire)."
   }
  ],
+ "_note_dispute_chain_removed": "2026-07-21 §2bc: dispute post-write chain(after=file_..., requires=get_card_last_4_digits) 제거. 근거(054 t0 실측): WEV 사전 게이트가 provenance를 이미 커버(빈-값 deny 포함)하는데 post-write chain이 give-flow 단일 경로를 추가 강제 → 054(gold 무-give·record-경로)서 give 2회 잡음+유저('카드 없음') 마찰. 031 날조 차단은 WEV 신판(값-실재)이 유지. 사전-게이트 > 사후-추격.",
  "claim_prov": {
   "question": "Before your reply is sent, audit yourself. (1) In YOUR REPLY ONLY: list every assertion that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did do NOT count. (2) Across the WHOLE conversation: list every action YOU said you WILL do / are about to do (e.g. 'I will file the disputes') that you have NOT completed yet. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"search|verify|write|give|transfer\", \"what\": \"<5-10 words>\"}], \"pending\": [{\"kind\": \"search|verify|write|give|transfer\", \"what\": \"<5-10 words>\"}]} — empty lists if none.",
   "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why).",

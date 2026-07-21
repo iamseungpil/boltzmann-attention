@@ -248,6 +248,14 @@ class PlanLedger:
             eid = (args or {}).get(ek)
             if eid:
                 self.examined.add(_norm(eid))
+            # ★동일-도구 이중역할 (2026-07-21 §2bc·054 실측): detail_reader가 list_enumerator이기도
+            #   한 도메인(banking: user_id-키 벌크 reader가 최심 reader·출력이 곧 전체 상세)은
+            #   per-entity 인자 호출 자체가 불가능 — 인자-마킹만으론 examined가 구조적 공집합 =
+            #   L2 deny가 **충족불가 술어**(054 t1: 피드백 지시대로 4회 재호출에도 탈출 불가→유저
+            #   포기·전체 붕괴). A2가 선언한 도구 역할(양쪽 선언)에서 유도·엔진 리터럴 0:
+            #   이 도구 출력에 전개된 entity id는 '검토됨'으로 마킹.
+            if tool_name in le_set:
+                self.examined |= _extract_entity_ids(output_text, ek)
 
     def accumulate_qty(self, user_text):
         """사용자 발화의 수량 언급 누적 — 최대값 유지("실은 두 대" 중반 계시 반영·v1.2).

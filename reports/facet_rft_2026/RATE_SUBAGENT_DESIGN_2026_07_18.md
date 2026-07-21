@@ -1318,7 +1318,44 @@ g-t0 액션 1/9·census 직호출 0) 첨부. (2)유동 판단 동결? No — 검
 검증 실패의 반사와 cap-후 통과만. (3)scaffold가 도메인 행동 수행? No — 대체 실행·값 추출 0.
 **다음**: r095h(nt=3·`T2_SG_ISOFB=1 T2_TOOLLIST=1` 추가) — 판정 ①ground-피드백 후 checking 1.35 도달
 여부(트레이스 `ground_fb`·components) ②액션형식 unlock+디스패처 쌍 복원(g-t0 1/9→) ③§2ba 마감 라운드
-마커(`fetch get_interest_correction` 주입) ④REQREADS/actual/principal 재현 유지. 유료([[09]] 승인 후). — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
+마커(`fetch get_interest_correction` 주입) ④REQREADS/actual/principal 재현 유지. 유료([[09]] 승인 후).
+
+### §2bc (2026-07-21) — 054/050 잔여 포렌식([[08]] 전수 정독): 충족불가 술어 2건 + 빈-값 구멍 + 접미사명 발견
+**대상**: r5052+e2e10 로컬 persist 전 trial(054×6·050×6·052×6·031×3·038×1·043×3) 궤적 정독.
+**054 [S]** (13/17은 t0 1회뿐·나머지 1~2/17 붕괴): 붕괴 기점 = **충족불가 술어 2건의 deny 소모**.
+①**EPLAN L2 충족불가**: banking detail_reader=list_enumerator 동일 도구(user_id-키 벌크 reader)라
+인자-마킹 examined가 **구조적 공집합** → L2 "unexamined siblings" deny가 어떤 호출로도 해소 불가 —
+t1 실측: 피드백 지시대로 동일 read 4연발(출력은 이미 전체 상세!)·cap 4 전소. ②**WEV dispute 충족불가**:
+구판 require_tokens=give-flow 도구명 = 단일 경로 강제 — 진짜 last4(7823)가 **에이전트 자신의 계좌
+레코드 출력에 실재**(msg29 실측)하는데 유저가 "카드 없음" 거부 → deny 8회 전소·유저 transfer·후속
+하위작업 전멸. ③**빈-값 구멍**: t0 dispute write는 gold와 유일 diff가 `card_last_4_digits:""` —
+WEV `if not idv: skip`(변형 오차단 회피 분기)이 **빈-값 write를 무검사 통과**. ④**접미사명 발견 실패**:
+t0서 "get_payment_history tool does not exist in the knowledge base" 단정 8회(접미사명 6183은 컨텍스트
+0회 노출) → 대체 read 우회 → WEV cap 소진 후 approve만 통과(체크 쌍 미스). ⑤CLI request 2500 vs 4000
+= 유저 중반 정정("4000→cap이면 2500") 후 수정-write 미실행 — 시나리오-분기 축·기록만.
+**050 [S]** (7/13×4·3/13×2 안정): 유저="request increase"만 요청·에이전트 submit+일부 체크 후 유저
+만족-STOP — **approve 권한-행사 회피 6/6**(관문2 chain 발화 실증·불응=F5/prior-override [[42]] 축).
++bare-name unlock 실측(t2: 접미사 없이 unlock→env "Unknown"→그 체크 포기 = ④ 동형).
+**052**: deny_credit_limit_increase 쌍 6/6 미스 — §2au deny-도구 픽스는 구코드 런이라 **미검증**(재런 대기).
+**031 [S]**: give-flow는 실행됨(t1/t2 "Last 4: 5320" 획득 3회 = 관문4 작동 실증) — 잔여=give 인자
+여분 키(형식)·유저 첫-호출 시퀀스 잡음·**dispute txn ⋈ 오선택**(txn_2017... vs gold txn_adea...=경계축).
+**043**: 052/050 체크-쌍 계열+closure 체크 3종 미스(3/3) — ④·권한-회피 복합 추정(심층은 재런 후).
+**픽스 5건**(`test_forensic054_fixes.py` 12/12·회귀 전건 PASS): **A**(엔진) eplan `note_read` —
+detail_reader가 list_enumerator이기도 하면 출력-전개 entity를 examined 마킹(A2 역할 선언에서 유도·
+리터럴 0·retail 무영향=도구 상이). **B**(엔진) WEV — id 키 **부재=skip 유지·실재+빈값=deny**(불완전
+write 차단·도메인일반). **C**(A2) dispute WEV token `get_card_last_4_digits`→`card_last_4_digits`
+(레코드 필드 라벨이자 give-flow 도구명 substring = **두 정당 provenance 경로 자연 수용**·날조 여전히
+차단·031 무회귀) + post-write chain 제거(WEV 사전-게이트가 커버·054 give×2 잡음 제거 = A2 순감).
+**D**(관측성) WEV deny 로그에 내부 도구명(§2ba 교훈). **E**(A2 문구) WEV 6스펙에 "접미사명 모르면
+KB_search_bm25로 검색·존재-부정 금지·bare-name unlock 금지" 1문장(인터페이스 사실·④ 직격).
+**[[05]] 3질문**([[17]]): (1) A/B=A2-선언 유도·형식 검사뿐(리터럴 0)·C=경로 강제 **해제**(순감)·E=
+인터페이스 사실(측정: ④ 8회+bare-name 실측). (2) No — C는 오히려 동결 해제·판단 전부 모델 몫.
+(3) No — 값 주입·대체 실행 0. **이연**: bare-name unlock 생성-레벨 패턴체크(신규 레버·측정 후)·050
+approve-회피 잔여(chain 불응=learn/scale 축)·031 ⋈(경계)·CLI 수정-write(시나리오 분기).
+**다음 재런 판정축(054)**: L2 deny 0·WEV 빈-값 deny 발화·record-경로 dispute(7823)·payment_history
+접미사명 KB-검색 시도·t1/t2 붕괴 소멸(분산↓).
+
+### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0
 ②fetch-iso 5회 발화(서브-components가 에이전트 인라인을 대체) ③actual_apy 개선(0.46875 파생값→5.5·문서

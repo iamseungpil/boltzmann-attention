@@ -520,18 +520,27 @@ def _wev_deny_msgs(messages, tc, specs):
             if pref and not v.startswith(pref):
                 continue
         idk = sp.get("id_key")
+        present = idk in args
         idv = args.get(idk)
         if idv is None and idk:
             for vv in args.values():                   # 중첩 JSON-문자열 인자(디스패처형 도구)
                 if isinstance(vv, str) and idk in vv:
+                    present = True
                     try:
                         idv = (json.loads(vv) or {}).get(idk)
                     except Exception:
                         pass
                 if idv:
                     break
-        if not idv:
-            continue
+        # ★키 부재 vs 빈 값 구분 (2026-07-21 §2bc·054 t0 실측): 구판 `if not idv: skip`은
+        #   `card_last_4_digits: ""` **빈-값 write를 무검사 통과**시켰다(false-block 회피 분기의
+        #   구멍·gold와 유일한 diff가 빈 last4). 키 자체가 없는 변형 = skip 유지(변형 오차단 회피)·
+        #   키가 실재하는데 값이 비면 = 불완전 write → deny(증거 요구 문구 그대로).
+        if not (str(idv).strip() if idv is not None else ""):
+            if not present:
+                continue
+            fb = sp.get("feedback") or "Error: [WRITE-EVIDENCE] required evidence not found for {id}."
+            return fb.replace("{id}", "(missing — the argument was left empty)")
         tokens = sp.get("require_tokens") or []
         found = False
         for m in messages:
@@ -2611,7 +2620,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         wd = _wev_deny_msgs(state.messages, c, wev_specs)
                         if wd:
                             wev_fb = (c, wd)
-                            print("[T2_WRITE_EVIDENCE] deny tool=%s" % getattr(c, "name", None),
+                            # ★내부 도구명 로깅(§2ba 오귀속 교훈: per-도구 로그에 이름 필수)
+                            _inner = _args_dict(c).get("agent_tool_name") or ""
+                            print("[T2_WRITE_EVIDENCE] deny tool=%s inner=%s"
+                                  % (getattr(c, "name", None), _inner),
                                   file=_sys.stderr, flush=True)
                             break
                 except Exception as _wve:
