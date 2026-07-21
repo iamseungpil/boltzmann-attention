@@ -350,9 +350,14 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
     if iso.get("temperature") is not None:
         kw["temperature"] = iso["temperature"]
     queries = []
-    for rnd in range(int(iso.get("max_rounds", 4))):
+    _maxr = int(iso.get("max_rounds", 4))
+    for rnd in range(_maxr):
         try:
-            resp = la.generate(model=ag.llm, tools=tools, messages=msgs, call_name="sg_fetch_iso",
+            # ★마감 라운드(2026-07-21 §2ba·r095e/f 실측: 서브가 라운드 내내 getter만 돌고 답을 안 내
+            #   소진→폴백): 마지막 라운드는 **도구 없이** 생성 — 구조적으로 tool-call 불가 → JSON 답 강제.
+            _last = (rnd == _maxr - 1)
+            resp = la.generate(model=ag.llm, tools=(None if _last else tools), messages=msgs,
+                               call_name="sg_fetch_iso",
                                **(dict(kw, tool_choice="required") if rnd == 0 else kw))
         except Exception as e:
             print("[T2_SG_ISOLATE] fetch generate 실패(%d라운드): %r" % (rnd, e), file=_sys.stderr, flush=True)
@@ -373,7 +378,8 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
         _isolate_trace(iso, d, {"mode": "fetch", "round": rnd + 1, "getter": getter,
                                 "queries": queries, "operands": got})
         return got or None
-    print("[T2_SG_ISOLATE] fetch max_rounds 소진 → 격리 생략", file=_sys.stderr, flush=True)
+    print("[T2_SG_ISOLATE] fetch %s: max_rounds 소진 → 격리 생략" % d.get("name"),
+          file=_sys.stderr, flush=True)
     _isolate_trace(iso, d, {"mode": "fetch", "error": "max_rounds", "queries": queries})
     return None
 
