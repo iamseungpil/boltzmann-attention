@@ -1427,6 +1427,40 @@ step-래핑 4번째 우회의 실체=미상이나 **_gen 수준 graceful-stop �
 **다음 재런(승인 시)**: rall6 = rall4 스택(FOLLOWUP 확대 제외)+graceful-stop — 판정: CWE-무소실·095 분산
 (nt≥3)·054 t0 재현. 회피 클러스터는 더 이상 재런 대상 아님(학습 축).
 
+### §2bg (2026-07-21) — ★frontier per-step 판정: 회피 클러스터 = **user-sim 문제 아님 [S]**·실체 3분해 (사용자 질문 검증)
+**질문**(사용자): "유저가 '감사합니다, 됐어요' 하는데 더 진행 안 하는 게 정상 아닌가 — user-sim 문제인지
+frontier 궤적 per-step으로 확정하라." **데이터**: `/c/tmp/traj/*_banking.json`(리더보드 raw·gpt-5.2 user-sim·
+[[47]] 정본 인벤토리·17모델×4trial 궤적).
+**성적 분포 [S]**: 050 — gpt5.5 4/4·gpt5.2 4/4·opus45 4/4·opus47 4/4·gemini31pro 4/4 **안정 PASS** /
+052 — gpt5.5 4/4·gpt5.2 3/4 PASS·opus 계열 0/12 / 054 — **frontier 사실상 전멸**(최고 gpt5.2·gpt5.4·opus45
+각 1/4). ⇒ 050/052는 같은 user-sim서 완주 가능 = **user-sim 무죄의 1차 증거**.
+**per-step 정독 [S]**: ①**PASS 궤적(gpt5.5 050)**: KB에서 CLI **절차 문서를 submit 전에 정독**(007/008
+직독 3회) → submit 직후 **한 턴에 4체크 전부 unlock**(msg32) → 4체크 실행 → approve unlock+call →
+**그제서야** 결과 보고(msg46) → 유저 감사·종료. 유저에게 턴을 내주지 않는 **연속 tool-call 완주** —
+유저의 "감사합니다"는 절차 완료 **후에만** 등장. ②**FAIL 궤적(gemini25pro 050)**: 유저는 내내 협조적
+("check 진행해주세요")·에이전트가 부분 절차(payment만)+approve 후 완료 선언 → 유저 감사·종료.
+③**opus47 052 (FAIL)**: **deny 결정은 호출함** — 실패 원인은 우리와 **정확히 같은 2체크
+(dispute_history·pending_orders) 누락**. = 교차-모델 동일-슬롯 실패.
+**⇒ 판정 [S]**: **user-sim 문제 아님** — 유저 조기-종료는 에이전트의 완료-선언에 대한 *반응*이지 자발적
+거부가 아니며, 동일 sim서 다수 frontier가 안정 완주. "회피 클러스터"의 실체를 3분해로 정정:
+(1)**절차-지식/계획**(상류·가장 큼): required 체크 4종이 절차 문서에 있고, PASS 모델은 **행동 전 문서
+정독**으로 이를 계획에 넣음. 비직관 체크 2종(분쟁이력·교체카드—CLI와 의미적 거리 멂)은 문서 없이는
+opus47도 누락 = 모델-일반 prior 효과. (2)**연속-실행 스타일**: PASS=유저에게 턴 안 내주고 완주 /
+FAIL=중간 상태보고→유저 종결 유도. (3)**결정-권한 행사**: opus47도 deny는 함 — 우리 모델의 approve
+미행사(unlock 0)는 상대적으로 우리-고유(작은 모델의 prior-override·[[42]]) 잔여.
+**전수 교차표 [S·robust]** (17모델×전 trial·4체크 각각의 effective-name 호출 결정론 카운트·가드 문답
+후 보강): pass/fail **분수령 = 비직관 체크 2종(disp·pend) 수행 여부**로 거의 완벽 상관 —
+050: PASS 5모델(gemini31·gpt52·gpt55·opus45·opus47)=disp/pend **4/4 전부** / FAIL 모델=disp·pend 0~3
+(grok41fast·grok42는 직관 체크 2종+**결정까지 4/4** 하고도 disp/pend 0/4→전패 = 우리 Qwen과 동일-슬롯).
+052: 동일 패턴 강화(opus45/46/47 disp/pend 0/4→전패·gpt5x 4/4→PASS). 결정(approve/deny) 호출은 050서
+frontier 거의 전원 수행(17중 14모델 3~4/4) → 우리 Qwen의 approve-미행사(0/6)는 frontier-이하의
+우리-고유 추가 갭이나, **frontier 안에서의 pass/fail 결정 변수는 아니다**.
+**함의**: ①§2bf "스캐폴드 소진→learn 축" 유지하되 학습 표적이 선명해짐 — **"절차 문서 선행 정독 →
+플랜 → 연속 완주" 행동**이 SFT/DPO 재료(FOLLOWUP 문구는 4체크를 나열해 줘도 불응 — 지식 주입이 아니라
+행동 설치가 필요하다는 실측). ②054는 별개 — frontier 전멸이므로 우리 13/17은 frontier-급·천장 재분류.
+③논문: 비직관-체크 2종의 모델-일반 누락(17모델 교차표)+문서-grounded 계획이 분수령 = F4/F5 서사의
+frontier-공유 잔여 증거(우리 벤치 잔여가 부끄러운 게 아니라 공유 경계임을 정량화).
+
 ### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0
