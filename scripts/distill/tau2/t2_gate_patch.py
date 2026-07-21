@@ -2358,8 +2358,33 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             kw["extra_body"] = eb
         if tool_choice:                          # ★레버 A(2026-07-18): tau2 `generate`의 일급 파라미터로 통과
             kw["tool_choice"] = tool_choice
-        return la.generate(model=self.llm, tools=self.tools,
-                           messages=self._system_messages + work, call_name=call_name, **kw)
+        try:
+            return la.generate(model=self.llm, tools=self.tools,
+                               messages=self._system_messages + work, call_name=call_name, **kw)
+        except Exception as _ce:
+            # ★CWE graceful-stop @_gen (§2bf·rall5 실측): step-래핑 가드가 4번째 경로로 우회 —
+            #   LLM_DIAG가 특정한 두 누출(call_name=agent_response·followup_decision) 모두 _gen 경유.
+            #   여기서 잡아 orch.done+CONTEXT_WINDOW_EXCEEDED(§2ah 의도된 종료사유)로 우아한 종료 →
+            #   sim 무효(infra) 대신 부분 궤적 채점(정직한 실패 계상). step-가드는 백스톱 존치.
+            if "ContextWindow" not in type(_ce).__name__:
+                raise
+            _orch = getattr(self, "_t2_orch", None)
+            try:
+                from tau2.data_model.simulation import TerminationReason as _TR2
+                if _orch is not None:
+                    _orch.done = True
+                    _orch.termination_reason = _TR2.CONTEXT_WINDOW_EXCEEDED
+            except Exception:
+                pass
+            print("[T2_OVERFLOW_GUARD] CWE at %s -> graceful stop (scored partial)" % call_name,
+                  file=_sys.stderr, flush=True)
+            _txt = "(context limit reached - conversation ending)"
+            try:
+                from tau2.data_model.message import AssistantMessage as _AM2
+                return _AM2(role="assistant", content=_txt)
+            except Exception:
+                import types as _types
+                return _types.SimpleNamespace(role="assistant", content=_txt, tool_calls=None)
 
     def unified(self, message, state):
         if not hasattr(self, "_t2_static_bl"):

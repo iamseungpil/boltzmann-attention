@@ -1404,6 +1404,29 @@ gold=월이자 역산 5.625. 서술을 역산-우선("레코드 명시값=intend
 진행률 [095] 0.0-주입 소멸·actual 슬롯 무-누출 재검·interest 서브 err0으로 비수렴 원인 특정 [공통]
 PAIRDUMP/LLM_DIAG 대기.
 
+### §2bf (2026-07-21) — rall5 판정: 레버①(FOLLOWUP 확대) **음성·되돌림**·0.0-주입 소멸 [S]·CWE=_gen 경유 확정
+**rall5**(rall4 동일 4태스크·nt=3·+FOLLOWUP_CAP=3/FORCE=1·§2be 픽스): 052={7,7,4}/13·050={2,4,6}/13·
+054={infra(CWE),3/17,infra(CWE)}·095={infra(CWE),5/9,1/9(조기 transfer·계좌 접근 0=구-행동 회귀 trial)}.
+**레버① 판정 [S·음성]**: 표적 지표(dispute_history·pending_orders·approve/deny 쌍) **rall4↔rall5 완전
+동일 — 전부 0/2**(교차표 §스크립트·payment/CLI-history만 기존대로 수행). cap 3배+빈손-강제에도 그 두
+체크·종단결정은 불이행 = **문구-불가침 확정 강화**([[42]] prior-override·[[45]] 인용축). 부작용만 매입:
+대화 연장(m75·m90)→CWE 1건이 followup_decision regen서 발생(제1원리 — 산 것 0·판 것 컨텍스트).
+**⇒ 되돌림**: 차기 드라이버부터 FOLLOWUP_CAP=1(기본)·FORCE=0. **회피 클러스터 = learn/scale 축으로
+공식 이연**(스캐폴드 소진 판정 — [[13]] 순서상 학습 재료로 승격·이 실측 자체가 논문 F5-잔여 증거).
+**§2be 픽스 판정 [S·양성]**: ①0.0-주입 **소멸** — forced_bad 차단 6회 발화(rall5a 2·smoke 3+…)·폐기→
+에이전트-인자 폴백·interest→100.0(스모크). ②err0 관측이 비수렴 원인 **정밀화: unlock-실패 가설 기각**
+(ok=4·err=0 — 서브는 레코드를 성공적으로 읽고도 0.0 답 = formalize-태만·마감-답 품질). 폴백이 무해
+흡수하므로 서브 추가 개입은 보류(개입=또 하나의 레버 비용). ③actual 역산: 스모크서 무-누출 5.625 재현
+(gold-누출 제거 후 순수 재검 1건 통과·nt 부족=[D]).
+**CWE [S]**: LLM_DIAG가 두 누출 모두 `_gen` 경유(call_name=agent_response·followup_decision)로 특정 —
+step-래핑 4번째 우회의 실체=미상이나 **_gen 수준 graceful-stop 배선**(orch.done+CONTEXT_WINDOW_EXCEEDED·
+부분 궤적 채점·step-가드는 백스톱)으로 이 계열 infra-소실을 구조적으로 종결(차기 런서 검증).
+**095 해석 주의**: rall5 095 악화는 CWE(t0)+조기-transfer trial(t2)이 주인 — 레버 인과 아님(t1은 read
+정상·write만 미이행). rall4 t2 PASS와 합쳐 "PASS 도달 가능·분산이 지배" 유지. 컨텍스트 성장(44.7k 도달)이
+095/054 공통 상한 — 다음 컨텍스트 레버(히스토리 압축류)는 별도 설계 필요.
+**다음 재런(승인 시)**: rall6 = rall4 스택(FOLLOWUP 확대 제외)+graceful-stop — 판정: CWE-무소실·095 분산
+(nt≥3)·054 t0 재현. 회피 클러스터는 더 이상 재런 대상 아님(학습 축).
+
 ### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0
