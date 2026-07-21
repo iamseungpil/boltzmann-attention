@@ -1355,6 +1355,33 @@ approve-회피 잔여(chain 불응=learn/scale 축)·031 ⋈(경계)·CLI 수정
 **다음 재런 판정축(054)**: L2 deny 0·WEV 빈-값 deny 발화·record-경로 dispute(7823)·payment_history
 접미사명 KB-검색 시도·t1/t2 붕괴 소멸(분산↓).
 
+### §2bd (2026-07-21) — ★rall4 통합 재런 판정: **095 최초 PASS(1.0)** ·충족불가 술어 해소 실증·잔여=회피 클러스터
+**런**: rall4(095/052 @8141 ∥ 050/054 @8140·nt=3·r095g 스택+`T2_SG_ISOFB`+`T2_TOOLLIST`+§2bc 픽스·
+스모크 선행([[30]])·infra 재개 2회 포함 12/12 채점). 데이터=sim_results/bank_rall4{s095,a,b}_20260721*.
+**★095 = {1.0(t2·9/9), 7/9(t0), 6/9(t1)}** — **0/32 시대 태스크 최초 완전 PASS**. t2: unlock+디스패처
+gold 형식 9/9(TOOLLIST 직호출 deny 3회→유도 실증)·expected 6.85/actual 5.625/amount 98.00 전 슬롯 정합.
+스모크서 ISOFB 피드백 1회 만에 checking 1.35 발견(4-trial 연속 미발견→해소·§2bb 예측 적중). 잔여=
+**슬롯-조합 분산**: t0=expected 6.875(relationship 0.025 과잉·적용성 판단)+actual 5.5(명시값 vs gold 월이자-역산
+5.625)+amount 100.83 / t1=boost 미발견(6.125)+principal 96000. 전 슬롯이 각 trial 어딘가에선 정답 = 능력이
+아니라 선택 안정성(ISOFB 라운드·문구 미세 or 분산 자체).
+**054 = {13/17(t0), 2/17(t1), too_many_errors(t2)}**: §2bc 픽스 판정축 **전부 양성** — L2 deny 4+cap→2회·
+WEV deny 8+cap→1회(충족불가 술어 소멸)·dispute **record-경로 성공**(t0 7823 정합·t1도 filed 성공=구판 고착
+해소)·payment_history 접미사명 발견 성공(t0·"does not exist" 단정 소멸). 잔여가 **이동**: t1=CLI submit
+say-don't-do+체크·종단결정 회피 후 유저 만족-STOP / t2=**verify_identity 2-매칭 교착 신규 관찰**(유저가 동일
+정보 7회 반복 제공·에이전트 동일 질문 반복→too_many_errors·FORCE_ACTION 3회도 탈출 실패).
+**050 = {6/13×2, 3/13}·052 = {6,7,6}/13**: 잔여 클러스터 수렴 — **①dispute_history·pending_orders 체크 쌍
+회피 ②종단결정(approve/deny) 회피**. 052 deny-도구(§2au 재검) **음성**: decision nudge 0회 발화 — 사슬이
+상류(체크 미완)에서 막혀 종단결정 단계 도달 자체를 못 함. FOLLOWUP {missing} 나열에도 불응 =
+[[42]] prior-override 축(문구 한계·8회 fired 실측).
+**infra 계보**: ①"Tool call id mismatch" 신규 계열(054t1·050t2 1차·전 런 0회)→재개서 **미재현**(비결정론)·
+T2_PAIRCHECK(에이전트-턴 보행) 무발화 = 부패는 마지막 에이전트 턴 이후(유저-측 종반/평가 조립) —
+**PAIRDUMP**(set_state 실패 시 압축 시퀀스 덤프·로그 전용) 무장 완료·다음 발생 시 특정. ②CWE 1회(095t0
+1차·44780>44672)=overflow 가드 4번째 우회 — **LLM_DIAG**(generate call_name 로거) 무장. ③timeout 1회(기지 ~10%).
+**다음 레버 후보(우선순위)**: ①**회피 클러스터**(05x 공통 최대 조각·체크쌍+종단결정) — 사슬은 발화하나
+불응: 발화 시점(유저 만족-STOP 직전 잡히는지)·decision 단계 선행조건 완화(체크 미완이어도 nudge) 검토·
+아니면 [[42]]대로 learn/scale 축 이연 ②095 분산 안정화(ISOFB 라운드 확대·마감 라운드 상호작용) ③verify
+2-매칭 교착(문턱 대비 제공-필드 파싱 확인) ④054 t1 say-don't-do(FORCE_ACTION cap 소진 후 무방비).
+
 ### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0
