@@ -999,5 +999,14 @@
   "KB_search_dense": "Error: KB_search_dense is not available in this environment (dense retrieval backend is not configured). Use KB_search_bm25 with the same query instead - it searches the same knowledge base."
  },
  "nonlisted_tool_feedback": "Discoverable agent tools must first be unlocked with unlock_discoverable_agent_tool(agent_tool_name=...) and then invoked through call_discoverable_agent_tool(agent_tool_name=..., arguments=...); discoverable user tools are granted to the customer via give_discoverable_user_tool.",
+ "discoverable_name_check": {
+  "tools": {
+   "unlock_discoverable_agent_tool": "agent_tool_name",
+   "give_discoverable_user_tool": "discoverable_tool_name"
+  },
+  "pattern": "_[0-9]+$",
+  "feedback": "Error: '{name}' is missing its numeric suffix, so it was not looked up. Discoverable tools must be referenced by their FULL name including the numeric suffix (e.g. ..._1234). You do NOT know the suffix from memory - search the knowledge base NOW (KB_search_bm25, query the tool's purpose or base name) to find the exact suffixed tool name in the procedure documents, then retry with that full name.",
+  "_note": "2026-07-21 §2bh (rall5 실측·§2bf 철회 근거): FOLLOWUP CAP3+FORCE는 행동을 움직였다 - 모델이 dispute_history·pending_orders unlock을 sim당 3회 시도. 전부 bare-name→env 'Unknown tool'→포기 반복(6 sim×2도구×3회). 마지막 고리=이름-형식. 생성-레벨 deny(비커밋·replay-clean)+required regen으로 KB-검색 유도. 엔진=패턴 대조만(이름 리터럴 0·검색·선택=모델). give용 인자도 선언(031 계열 대비)."
+ },
  "_note_nonlisted_tool_feedback": "2026-07-21 §2bb T2_TOOLLIST용 도메인 안내문(unavailable_tools 동족=인터페이스 사실). 근거: r095g g-t0 접미사 직호출로 gold 형식(unlock+디스패처 쌍) 건너뜀·gold census 직호출 0."
 }

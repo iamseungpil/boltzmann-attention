@@ -1461,6 +1461,27 @@ frontier 거의 전원 수행(17중 14모델 3~4/4) → 우리 Qwen의 approve-�
 ③논문: 비직관-체크 2종의 모델-일반 누락(17모델 교차표)+문서-grounded 계획이 분수령 = F4/F5 서사의
 frontier-공유 잔여 증거(우리 벤치 잔여가 부끄러운 게 아니라 공유 경계임을 정량화).
 
+### §2bh (2026-07-21) — ★§2bf 철회(사용자 반론이 옳았다): FOLLOWUP 강제는 **행동을 움직였다**·마지막 고리=bare-name → T2_UNLOCK_NAME
+**사용자 반론**: "이연이 말이 안 된다 — 완료-선언하고 감사받는 행동 자체를 없애면 된다. tool_choice
+required로 해결 안 되나?" **재검 결과: 반론이 옳고 §2bf 판정이 틀렸다.**
+**오판의 해부 [[08]] 교훈**: §2bf 교차표는 **gold 액션-매치** 기준이었다 — 매치 0 = "행동 불변"으로
+직행. **호출-시도 기준으로 재집계**하니: rall5서 dispute_history·pending_orders unlock을 **sim당 2-3회
+시도**(rall4: 0-1회) = CAP3+FORCE가 행동을 **움직였다**. 시도 전패의 원인 = **전부 bare-name**
+("get_user_dispute_history" 접미사 없이) → env "Unknown agent tool ... not available"(C108류 거짓
+인터페이스) → 포기, nudge마다 반복(6 sim×2도구×3회 실측). FOLLOWUP 문구의 "including its numeric
+suffix, from the knowledge base"로는 검색 행동이 유발 안 됨. +코드 결함: `followup_decision` regen엔
+required 미적용(`_tag1=="followup_chain"`만·decision 3회 발화 전부 빈손).
+**⇒ 처방(§2bc ④ 이연분의 측정-정당화 도달)**: ①**T2_UNLOCK_NAME** — A2 `discoverable_name_check`
+(도구→인자 맵·접미사 패턴·문구)로 bare-name 참조를 생성-레벨 deny(비커밋=replay-clean)+**required
+regen**(사용자 제안 반영: 재생성은 반드시 도구 호출=KB 검색 유도). 엔진=패턴 대조만(이름 리터럴 0·
+autocomplete-변형은 [[05]](3)으로 기각). cap 6·소진=통과. `test_unlockname.py` 전건 PASS.
+②decision regen에도 required 적용(방향-중립·양방향 문구·FORCE_ACTION 선례). ③FOLLOWUP CAP=3/FORCE=1
+**재도입**(rall6·§2bf 되돌림의 되돌림 — 이제 완결 고리: nudge→시도→이름-게이트→KB검색→성공 경로).
+**§2bf 수정 판정**: "회피 클러스터=스캐폴드 소진·learn 축" **철회** → "nudge-반응성은 실증·잔여 병목=
+이름-발견(scaffold-가능·§2bh 배선)+연속-완주 스타일(§2bg·미검)". learn-축 이연은 rall6 실측 후 재판정.
+**방법론 융착**: 액션-매치 0 ≠ 행동 불변 — **시도-수준 카운트를 교차표에 병기**해야 레버 인과를 오판
+안 함(§2bf가 그 반례·[[08]] 확장). rall6 판정축에 추가: UNLOCK_NAME 발화→KB검색→접미사명 unlock 성공률.
+
 ### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0

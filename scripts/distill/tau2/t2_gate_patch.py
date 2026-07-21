@@ -2842,9 +2842,36 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         print("[T2_TOOLLIST] deny nonlisted tool=%s" % nm,
                               file=_sys.stderr, flush=True)
                         break
+            # ★T2_UNLOCK_NAME (2026-07-21 §2bh·rall5 실측): A2 `discoverable_name_check` — 선언된
+            #   (도구→인자) 값이 접미사 패턴에 불일치하면 생성-레벨 deny+required regen(비커밋=replay-clean).
+            #   근거: FOLLOWUP 강제는 행동을 움직였으나(체크 unlock 3회씩 시도) 전부 bare-name→env
+            #   "Unknown tool"→포기 반복(6 sim×2도구×3회) = 마지막 고리가 이름-형식. 엔진=패턴 대조만
+            #   (이름 리터럴 0·KB 검색·이름 선택=모델·[[05]](3) autocomplete-변형 기각). cap 소진=통과(현행).
+            un_fb = None
+            _unspec = (a2 or {}).get("discoverable_name_check") or {}
+            if (os.environ.get("T2_UNLOCK_NAME") == "1" and _unspec
+                    and not do_gate and not do_prov and ep_fb is None and cons_fb is None
+                    and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
+                    and tl_fb is None
+                    and getattr(self, "_t2_unlockname_deny", 0)
+                    < int(os.environ.get("T2_UNLOCK_NAME_CAP", "6"))):
+                _upat = _unspec.get("pattern") or "_[0-9]+$"
+                for c in (am.tool_calls or []):
+                    _uarg = (_unspec.get("tools") or {}).get(getattr(c, "name", None))
+                    if not _uarg:
+                        continue
+                    _uval = str(_args_dict(c).get(_uarg) or "")
+                    if _uval and not re.search(_upat, _uval):
+                        un_fb = (c, str(_unspec.get("feedback") or
+                                        "Error: '{name}' is missing its required suffix.")
+                                 .replace("{name}", _uval))
+                        force_required = True     # ★사용자 제안: 재생성은 반드시 도구 호출(KB 검색 유도)
+                        print("[T2_UNLOCK_NAME] deny bare name tool=%s val=%s"
+                              % (getattr(c, "name", None), _uval), file=_sys.stderr, flush=True)
+                        break
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
-                    and tl_fb is None):
+                    and tl_fb is None and un_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -2912,6 +2939,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 if self._t2_toollist_deny == int(os.environ.get("T2_TOOLLIST_CAP", "6")):
                     print("[T2_TOOLLIST] deny cap reached — nonlisted calls pass through hereafter",
                           file=_sys.stderr, flush=True)
+            if un_fb is not None:
+                self._t2_unlockname_deny = getattr(self, "_t2_unlockname_deny", 0) + 1
             fb = [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:
@@ -2935,6 +2964,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     content = "Error: " + rw_fb[1]
                 elif tl_fb is not None and c is tl_fb[0]:
                     content = "Error: " + tl_fb[1]
+                elif un_fb is not None and c is un_fb[0]:
+                    content = un_fb[1] if str(un_fb[1]).lstrip().startswith("Error:") \
+                        else "Error: " + un_fb[1]
                 else:
                     content = "Error: resolve the flagged call(s) first; do not call this tool yet."
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
@@ -3348,10 +3380,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     self._t2_followup = getattr(self, "_t2_followup", 0) + 1
                     print("[T2_FOLLOWUP] chain fired(%s) after=%s"
                           % (_tag1, _fc.get("after")), file=_sys.stderr, flush=True)
+                    # ★§2bh: 구판은 followup_chain만 required — decision regen(종단결정 nudge)은
+                    #   강제 없이 빈손 가능(rall5 실측: followup_decision 3회 발화·미이행). 문구가
+                    #   양방향(approve/deny)이라 방향-중립·도구-호출 강제는 안전.
                     _new1 = _ap_regen(_fb1, _tag1,
                                       tool_choice=("required"
                                                    if os.environ.get("T2_FOLLOWUP_FORCE") == "1"
-                                                   and _tag1 == "followup_chain" else None))
+                                                   and _tag1 in ("followup_chain", "followup_decision")
+                                                   else None))
                     if _new1 is not None:
                         am = _new1
                     break
