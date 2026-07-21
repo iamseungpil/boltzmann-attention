@@ -885,6 +885,12 @@ def apply():
                 # ★격리 서브가 operand 산출 (T2_SG_ISOLATE=1·기본 OFF·A2 `isolate` 선언 시만)
                 #   `RATE_SUBAGENT_DESIGN §2b` LOCK. 실패=None → 메인 인자로 폴백(거동 변화 0).
                 _iso = _isolate_spec(d) if os.environ.get("T2_SG_ISOLATE") == "1" else None
+                if os.environ.get("T2_SG_TRACE") == "1":
+                    # ★계측(2026-07-21·r095e 침묵 진단): isolate 디스패치 진입을 무조건 가시화 —
+                    #   침묵-스킵이 불가능하도록. 계측 전용(기본 OFF·거동 무변).
+                    print("[T2_SG_TRACE] %s: iso=%s mode=%s ctx=%s" % (
+                        getattr(tc, "name", ""), bool(_iso), (_iso or {}).get("mode"),
+                        sorted(list(_ctx))[:8]), file=_sys.stderr, flush=True)
                 if _iso:
                     def _run(tcs, _self=self):
                         # ★dedup 우회(2026-07-20·smoke023c 포렌식): main이 이미 읽은 (name,args)를 서브가
