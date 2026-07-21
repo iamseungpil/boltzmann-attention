@@ -24,7 +24,7 @@ run_arm() {
   export T2_SG_GROUND=1 T2_SG_TRACE=1
   export T2_LLM_TIMEOUT=480 T2_LLM_RETRIES=1
   export T2_REGEN_BUDGET=12 T2_CLAIMPROV_CAP=3 T2_SG_REQREADS=1
-  export T2_SG_ISOFB=1 T2_TOOLLIST=1
+  export T2_SG_ISOFB=1 T2_TOOLLIST=1 T2_PAIRCHECK=1
   export T2_SG_ISOLATE_TRACE=$SCRATCH/${TAG}_operands.jsonl
   rm -f $T2_SG_ISOLATE_TRACE
   /home/woori/venvs/seka_env/bin/python -u $REPO/scripts/distill/tau2/t2_run_gated.py \

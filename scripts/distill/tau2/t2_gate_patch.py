@@ -2236,6 +2236,36 @@ def apply_gate_regen(max_regen=1):
 # ═══════════════════════════════════════════════════════════════════════════
 
 
+def _paircheck(messages):
+    """커밋 히스토리의 call↔result 쌍 불변식 검사(로그 전용·2026-07-21 §2bd).
+    evaluator `get_actions_from_messages`(environment.py:334)와 동일 보행 — rall4 054t1/050t2가
+    평가-시점 "Tool call id mismatch"로 sim 무효(신규 계열·전 런 0회)인데 메시지 덤프가 없어
+    부패 지점 특정 불가 → 라이브서 매 턴 검사·첫 위반의 도구명/id를 로그. 행동 무변경."""
+    i, n = 0, len(messages)
+    while i < n:
+        m = messages[i]
+        tcs = getattr(m, "tool_calls", None) or []
+        if getattr(m, "role", None) in ("assistant", "user") and tcs:
+            j = i + 1
+            for tc in tcs:
+                if j >= n:
+                    return None          # 말미 미실행 호출 = 아직 결과 대기 중(정상·판정 불가)
+                tm = messages[j]
+                if getattr(tm, "role", None) != "tool":
+                    return ("idx %d: %s(id=%s) 다음이 tool이 아님 role=%s"
+                            % (j, getattr(tc, "name", None), getattr(tc, "id", None),
+                               getattr(tm, "role", None)))
+                if getattr(tm, "id", None) != getattr(tc, "id", None):
+                    return ("idx %d: call %s id=%s vs result id=%s"
+                            % (j, getattr(tc, "name", None), getattr(tc, "id", None),
+                               getattr(tm, "id", None)))
+                j += 1
+            i = j
+        else:
+            i += 1
+    return None
+
+
 def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwords=False,
                         ground=False, disamb_mode="dialog", prov_mode="full"):
     import sys as _sys
@@ -2298,6 +2328,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             self._t2_session_bl = set()
         self._system_messages = state.system_messages
         _append(state, message)
+        # ★T2_PAIRCHECK (§2bd·로그 전용): 커밋 히스토리 call↔result 쌍 불변식 라이브 검사 —
+        #   rall4 id-mismatch(평가-시점 크래시·덤프 부재)의 부패 지점을 다음 발생 시 특정.
+        if os.environ.get("T2_PAIRCHECK") == "1" and not getattr(self, "_t2_paircheck_hit", False):
+            try:
+                _pc = _paircheck(state.messages)
+            except Exception:
+                _pc = None
+            if _pc:
+                self._t2_paircheck_hit = True
+                print("[T2_PAIRCHECK] pairing broken: %s" % _pc, file=_sys.stderr, flush=True)
         gate = getattr(self, "_t2_gate", None)
         a2 = getattr(self, "_t2_a2", None)
         last_user = transfer_sent = None
@@ -3450,6 +3490,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
     _install_regen_exec()
     # (4) 컨텍스트 초과 우아한 종료 (023 진단·§2ah): overflow를 sim-무효 대신 scored 실패로.
     _install_overflow_guard()
+    # (5) ★LLM CWE 발생원 로거 (§2bd·로그 전용): rall4 095t0 CWE가 overflow 가드(step-래핑)를
+    #   우회해 러너까지 전파(4번째 우회 경로) — 어느 generate(call_name)서 새는지 특정.
+    #   래핑=la.generate 모듈 함수·예외는 그대로 re-raise(행동 무변경).
+    if not getattr(la, "_t2_llmdiag", False):
+        _og_gen = la.generate
+
+        def _gen_diag(*_a, **_kw):
+            try:
+                return _og_gen(*_a, **_kw)
+            except Exception as _e:
+                if "ContextWindow" in type(_e).__name__:
+                    print("[T2_LLM_DIAG] CWE escaped at call_name=%s"
+                          % _kw.get("call_name"), file=_sys.stderr, flush=True)
+                raise
+
+        la.generate = _gen_diag
+        la._t2_llmdiag = True
     return unified
 
 
