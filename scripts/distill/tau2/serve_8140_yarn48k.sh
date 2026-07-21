@@ -5,5 +5,5 @@
 #   fp8 KV(sm86 불가)·TP2(IOMMU NCCL) 모두 폐기 이력은 §2bg-2 참조.
 CUDA_VISIBLE_DEVICES=0 /home/woori/venvs/tau2_vllm_env/bin/vllm serve Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8 \
   --port 8140 --enable-auto-tool-choice --tool-call-parser hermes \
-  --max-model-len 49152 --rope-scaling '{"rope_type":"yarn","factor":1.5,"original_max_position_embeddings":32768}' \
+  --max-model-len 48640 --rope-scaling '{"rope_type":"yarn","factor":1.5,"original_max_position_embeddings":32768}' \
   --enforce-eager --gpu-memory-utilization 0.97
