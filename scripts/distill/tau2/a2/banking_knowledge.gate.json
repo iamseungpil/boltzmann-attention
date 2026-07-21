@@ -798,7 +798,7 @@
    "description": "ALWAYS provide account_id (so the tool can verify against the records itself). USE THIS to compute the dollar interest correction owed when a savings account was paid the wrong APY. Do NOT do this arithmetic yourself. Provide the correct APY (from get_correct_savings_apy), the APY the system actually applied, the account principal/balance, and the period over which the wrong APY was applied. It returns the interest difference to credit. The correction amount = principal x (expected_apy - actual_apy)/100 / 12, i.e. ONE monthly interest credit difference (this account family credits interest MONTHLY at APY/12). If multiple months were wrong, call once per month.",
    "params": {
     "expected_apy": "The correct APY (percentage points, no %) — from get_correct_savings_apy.",
-    "actual_apy": "The APY the system actually applied (percentage points, no %), copied from the account record.",
+    "actual_apy": "The APY the system ACTUALLY applied (percentage points, no %). Derive it from the latest MONTHLY INTEREST CREDIT in the transactions: monthly credit amount x 12 / principal x 100. The APY stated on the account record may be the intended rate, NOT the rate actually applied - use the stated value only if no interest credit transaction is available.",
     "principal": "The savings account balance the APY applies to (number, no $), copied from the account record.",
     "period_start": "Start date (MM/DD/YYYY) of the affected MONTHLY interest credit period (for the record; the correction is computed as one monthly credit: principal x (expected-actual)% / 12).",
     "period_end": "End date (MM/DD/YYYY) of the affected monthly period (the month whose interest credit used the wrong APY).",
@@ -882,7 +882,7 @@
      "actual_apy"
     ],
     "max_rounds": 5,
-    "instructions": "You are a records-extraction sub-task. For the savings account in REFERENCE: (1) call call_discoverable_agent_tool with agent_tool_name='get_all_user_accounts_by_user_id_3847' style getters ALREADY UNLOCKED in this session, or the transactions getter, to read the account record and its transactions. (2) principal = the account's current_holdings (number, exactly as in the record). (3) actual_apy = the APY actually applied: derive it from the latest MONTHLY INTEREST CREDIT as credit x 12 / principal x 100 (e.g. 450.00 x 12 / 96000 x 100 = 5.625), or copy it if a record states it directly. Copy raw values exactly; show your derivation.",
+    "instructions": "You are a records-extraction sub-task. For the savings account in REFERENCE: (1) call call_discoverable_agent_tool with agent_tool_name='get_all_user_accounts_by_user_id_3847' style getters ALREADY UNLOCKED in this session, or the transactions getter, to read the account record and its transactions. (2) principal = the account's current_holdings (number, exactly as in the record). (3) actual_apy = the APY actually applied: derive it from the latest MONTHLY INTEREST CREDIT as monthly credit x 12 / principal x 100. The APY stated on the account record may be the intended rate, not the applied one - use it only if no interest credit transaction exists. Copy raw values exactly; show your derivation.",
     "answer_format": "Reply with exactly one JSON object and nothing else: {\"principal\": 0.0, \"actual_apy\": 0.0}",
     "_note": "2026-07-20 §2az(마지막 배선·r095b/c 3-trial: 슬롯값 trial-간 불안정 — t1 actual 5.625 정답·c-t0 5.5 오독). 서브가 격리 문맥서 레코드 재조회·formalize(§2b 105/105 실증 축). 디스패처 getter=REQREADS로 main이 이미 unlock한 도구 재호출. 산출은 기존 ground(existence)가 재검증. 실패=에이전트 인자 폴백."
    }

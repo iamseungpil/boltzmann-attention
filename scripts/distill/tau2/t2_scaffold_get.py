@@ -352,6 +352,7 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
     queries = []
     _maxr = int(iso.get("max_rounds", 4))
     _gfb = 0                      # ★서브-내 ground 피드백 발화 수(T2_SG_ISOFB·관측용)
+    _ok_outs, _err_outs = [], []  # ★서브 getter 성공/실패 출력(§2be·0.0-주입 차단+비수렴 원인 관측)
     for rnd in range(_maxr):
         try:
             # ★마감 라운드(2026-07-21 §2ba·r095e/f 실측: 서브가 라운드 내내 getter만 돌고 답을 안 내
@@ -370,9 +371,44 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
                 _fn = getattr(_tc, "function", None) or _tc
                 queries.append(getattr(_tc, "name", None) or getattr(_fn, "name", None))
             msgs.append(resp)
-            msgs.extend(run_env_calls(tcs))          # ★GET = env 결정론 실행(off-ledger)
+            _res = run_env_calls(tcs)                # ★GET = env 결정론 실행(off-ledger)
+            for _rm in _res:
+                (_err_outs if getattr(_rm, "error", False) else _ok_outs).append(
+                    str(getattr(_rm, "content", "") or ""))
+            msgs.extend(_res)
             continue
         got = _merge_json(getattr(resp, "content", None) or "", keys)
+        # ★무근거-답 차단 (2026-07-21 §2be·rall4 실측): interest 서브가 getter 전패(성공 출력 0)인
+        #   채로 마감 라운드 강제-답에서 {principal:0.0, actual_apy:0.0} 리터럴을 주입 — §2as
+        #   0.0-포이즈닝의 신형 재발(전 trial·t2 PASS는 에이전트가 판정 무시한 덕). 규칙(도메인일반):
+        #   ①성공 도구출력 0건 → 답을 버리고 None(=에이전트-인자 폴백·거동보존 경로)
+        #   ②마감 라운드(도구 없는 강제-답)의 스칼라 operand는 **서브 자신의 성공 출력**에 숫자-실재해야
+        #     주입 — 아니면 None. (메인-원장 대조는 0.00 편재로 무력·§2be. 배열 operand는 ISOFB/관문1 관할.)
+        _last_forced = (rnd == _maxr - 1)
+        if got and not _ok_outs:
+            print("[T2_SG_ISOLATE] fetch %s: 성공 getter 출력 0 → 답 폐기·폴백 (err=%s)"
+                  % (d.get("name"), (_err_outs[0][:80] if _err_outs else "none")),
+                  file=_sys.stderr, flush=True)
+            _isolate_trace(iso, d, {"mode": "fetch", "round": rnd + 1, "queries": queries,
+                                    "ground_fb": _gfb, "ok_outs": 0, "err_outs": len(_err_outs),
+                                    "err0": (_err_outs[0][:120] if _err_outs else None),
+                                    "discarded": got})
+            return None
+        if got and _last_forced:
+            _bad = []
+            for _k, _v in got.items():
+                _fv = _as_float(_v)
+                if _fv is not None and not any(abs(_fv - n) < 1e-9
+                                               for t in _ok_outs for n in _nums_in(t)):
+                    _bad.append("%s=%s" % (_k, _v))
+            if _bad:
+                print("[T2_SG_ISOLATE] fetch %s: 마감-답 값이 서브 출력에 부재(%s) → 폐기·폴백"
+                      % (d.get("name"), "; ".join(_bad)), file=_sys.stderr, flush=True)
+                _isolate_trace(iso, d, {"mode": "fetch", "round": rnd + 1, "queries": queries,
+                                        "ground_fb": _gfb, "ok_outs": len(_ok_outs),
+                                        "err_outs": len(_err_outs), "forced_bad": _bad,
+                                        "discarded": got})
+                return None
         # ★서브-내 ground 피드백 (T2_SG_ISOFB=1·2026-07-21 §2bb·r095g 실측): 서브 답을 메인 관문1과
         #   동일한 A2 `ground` 선언으로 즉석 검증 — 실패 플래그를 **검색 도구를 쥔 서브**에게 되먹여
         #   같은 루프서 재검색 기회를 준다(현행은 메인 쪽 드롭이라 서브가 실패를 모른 채 종료 —
@@ -406,7 +442,10 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
         print("[T2_SG_ISOLATE] fetch %s: %d라운드·getter %d회·operand keys=%s"
               % (d.get("name"), rnd + 1, getter, list(got or {})), file=_sys.stderr, flush=True)
         _isolate_trace(iso, d, {"mode": "fetch", "round": rnd + 1, "getter": getter,
-                                "queries": queries, "ground_fb": _gfb, "operands": got})
+                                "queries": queries, "ground_fb": _gfb,
+                                "ok_outs": len(_ok_outs), "err_outs": len(_err_outs),
+                                "err0": (_err_outs[0][:120] if _err_outs else None),
+                                "operands": got})
         return got or None
     print("[T2_SG_ISOLATE] fetch %s: max_rounds 소진 → 격리 생략" % d.get("name"),
           file=_sys.stderr, flush=True)

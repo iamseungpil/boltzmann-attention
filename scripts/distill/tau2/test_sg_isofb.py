@@ -149,6 +149,48 @@ def main():
         c.get("value") == 0.75 for c in sub.get("components") or []),
         "소진 시 마지막 답 그대로 반환(None 아님·폴백 아님)")
     os.environ.pop("T2_SG_ISOFB", None)
+
+    print("⑤ §2be 무근거-답 차단 (interest 0.0-주입 재발 방지):")
+    INT = next(x for x in A2["scaffold_get_tools"] if x["name"] == "get_interest_correction")
+    IISO = dict(INT["isolate"], getter_tools=["KB_search_bm25"])
+    ictx = {"account_id": "sav_x_gold"}
+    SCALAR_ANS = '{"principal": 0.0, "actual_apy": 0.0}'
+    GOOD_ANS = '{"principal": 96000, "actual_apy": 5.625}'
+    REC = "account record: current_holdings: 96000  monthly interest credit: 450.00 (5.625 derived)"
+
+    def run_env_err(tcs):
+        return [ToolMessage(id=t.id, content="Error: tool has not been unlocked", error=True)
+                for t in tcs]
+
+    # (a) 성공 출력 0 → None (에이전트-인자 폴백)
+    CALLS.clear(); SCRIPT.clear(); trace.clear()
+    SCRIPT.extend([_Resp(tool_calls=[_TC("KB_search_bm25", {"query": "x"})]),
+                   _Resp(content=SCALAR_ANS)])
+    chk(SG._sub_fetch_formalize(mk_orch(), INT, IISO, dict(ictx), run_env_err) is None,
+        "getter 전패(성공 출력 0) → None 폴백 (0.0 주입 차단)")
+    chk(trace and trace[-1].get("ok_outs") == 0 and trace[-1].get("err0"),
+        "trace에 ok_outs=0·err0 스니펫 기록(비수렴 원인 관측)")
+
+    # (b) 마감 라운드 강제-답: 값이 서브 자신의 출력에 부재 → None
+    CALLS.clear(); SCRIPT.clear(); trace.clear()
+    _mr = int(IISO.get("max_rounds", 5))
+    SCRIPT.extend([_Resp(tool_calls=[_TC("KB_search_bm25", {"query": "x"})])]
+                  + [_Resp(tool_calls=[_TC("KB_search_bm25", {"query": "y"})])] * (_mr - 2)
+                  + [_Resp(content=SCALAR_ANS)])
+    def run_env_rec(tcs):
+        return [ToolMessage(id=t.id, content=REC) for t in tcs]
+    chk(SG._sub_fetch_formalize(mk_orch(), INT, IISO, dict(ictx), run_env_rec) is None,
+        "마감-답 스칼라(0.0)가 서브 출력에 부재 → None 폴백")
+    chk(trace and trace[-1].get("forced_bad"), "trace에 forced_bad 기록")
+
+    # (c) 마감-답이라도 값이 서브 출력에 실재하면 채택
+    CALLS.clear(); SCRIPT.clear(); trace.clear()
+    SCRIPT.extend([_Resp(tool_calls=[_TC("KB_search_bm25", {"query": "x"})])]
+                  + [_Resp(tool_calls=[_TC("KB_search_bm25", {"query": "y"})])] * (_mr - 2)
+                  + [_Resp(content=GOOD_ANS)])
+    sub = SG._sub_fetch_formalize(mk_orch(), INT, IISO, dict(ictx), run_env_rec)
+    chk(isinstance(sub, dict) and sub.get("principal") == 96000,
+        "마감-답 값 실재(96000/5.625) → 정상 채택")
     SG._isolate_trace = _orig_tr
 
     print("\n%s" % ("PASS — T2_SG_ISOFB 배선 정상 (라이브 발화는 별도 검증·[[30]])" if ok else "FAIL"))

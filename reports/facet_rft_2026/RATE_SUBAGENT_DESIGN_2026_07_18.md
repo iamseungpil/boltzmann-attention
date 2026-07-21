@@ -1382,6 +1382,28 @@ T2_PAIRCHECK(에이전트-턴 보행) 무발화 = 부패는 마지막 에이전�
 아니면 [[42]]대로 learn/scale 축 이연 ②095 분산 안정화(ISOFB 라운드 확대·마감 라운드 상호작용) ③verify
 2-매칭 교착(문턱 대비 제공-필드 파싱 확인) ④054 t1 say-don't-do(FORCE_ACTION cap 소진 후 무방비).
 
+### §2be (2026-07-21) — rall4 후속 포렌식: FOLLOWUP cap-소진(§2au 미배선)·interest 서브 0.0-주입·gold-누출 자기교정
+**①회피 클러스터 기계 원인 [S]**: `T2_FOLLOWUP_CAP` 기본 1/sim — §2au가 "1회 발화 후 소진(CLAIMPROV
+동형)·재런 3 권고"를 **주석으로만** 남기고 rall4 드라이버에 미배선. 사슬 1회 발화→체크 1-2개 진행→cap
+소진→잔여 체크·종단결정 영영 무-nudge (052/050 6/6 실측과 정합). 처방=rall5 `T2_FOLLOWUP_CAP=3` +
+`T2_FOLLOWUP_FORCE=1`(빈손 regen 43~50%·nt=20 기실측 레버·이번 활성).
+**②interest fetch-iso = 0.0-주입 [S]** (operands 트레이스 전수): 서브가 디스패처 getter 4회 전패 후
+마감 라운드 강제-답에서 `{principal:0.0, actual_apy:0.0}` 리터럴 — **§2as 0.0-포이즈닝의 신형 재발**
+(전 trial·ISOFB의 원장-대조는 "$0.00" 편재로 무력·**t2 PASS는 에이전트가 이 판정을 무시하고 자기 계산
+98.00을 쓴 덕**). 처방(엔진·도메인일반·`test_sg_isofb` ⑤ 3케이스): ⓐ성공 getter 출력 0건이면 답 폐기→
+None(에이전트-인자 폴백=거동보존 경로) ⓑ마감 강제-답의 스칼라는 **서브 자신의 성공 출력**에 숫자-실재
+요구·부재=None ⓒ트레이스에 ok/err 카운트+첫 에러 스니펫(비수렴 원인은 rall5서 특정).
+**③actual_apy 오선택(t0 5.5)**: param 서술 "copied from the account record"가 명시값 복사를 유도 —
+gold=월이자 역산 5.625. 서술을 역산-우선("레코드 명시값=intended rate일 수 있음·거래 없을 때만")으로.
+**④gold-누출 자기교정 [중요]**: §2az 때 iso.instructions에 넣은 워크드 예시 "450.00×12/96000=**5.625**"
+= **095 인스턴스 값이자 gold actual_apy 그 자체**(param 서술에 복사하려다 가드 문답서 자각) — 양쪽 다
+추상 공식("monthly credit×12/principal×100")으로 교체. r095g~rall4의 actual 5.625 안정 재현이 이 누출
+효과였을 가능성 있음 → **rall5의 actual 슬롯이 순수 실력 재검**이 된다(정직 기록·결과 해석 시 주의).
+**[[05]] 3질문**: (1)①=기왕 권고 배선·②=엔진 형식검사(리터럴 0)·③=도메인 의미론(§2ay 확정)·④=**순감**.
+(2)No — ②는 무근거 주입의 차단만·값 선택은 모델. (3)No. **rall5 판정축**: [05x] cap3 하 체크쌍·종단결정
+진행률 [095] 0.0-주입 소멸·actual 슬롯 무-누출 재검·interest 서브 err0으로 비수렴 원인 특정 [공통]
+PAIRDUMP/LLM_DIAG 대기.
+
 ### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0
