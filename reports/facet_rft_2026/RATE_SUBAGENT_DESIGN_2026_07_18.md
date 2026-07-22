@@ -1546,6 +1546,24 @@ get_interest_correction 출력("Interest correction" 템플릿)과 공존해야 
 (2) L1=계산-오프로드 집행(기왕 확정 설계·[[10]])·L2=발화 시점 확장뿐. (3) No.
 **rall9**: 전 로스터 9태스크 nt=1(A=095/097/023/031 ∥ B=050/052/054/038/043)·rall8 완료 후 자동.
 
+### §2bm (2026-07-22) — rall8 분석: give 오차단(자해·즉시 교정)·038 진전+잔여·043=레버 사각
+**031 (2/5)**: §2bl 기록대로 — 정박-치환 소멸(txn=gold)·잔여=디스패처 역할 혼동 3종 → DISPATCH_ROLE
+배선 완료(rall9 시험).
+**038 (1/9·52msg) [S]**: 구판 대비 구조 진전 — 조기 transfer 소멸(§2bc WEV 완화 효과·26→52msg·3건
+정리·확인까지 도달). 잔여 3중: ①**give 접미사-검사 오차단 6회(자해)** — §2bh discoverable_name_check에
+give를 넣었는데 **user-도구명은 접미사 無가 정상**(e2e10 bare-give 성공 실증) → 정당 give 전부 deny →
+give-flow 봉쇄 → last4 미확보 → dispute 0. **즉시 교정**: give를 검사에서 제거(unlock만 잔류)·rall9
+재기동 반영. ②검색-루프+say-don't-do(WRITEPROV window 24회=완료-주장·write 0) — L2 READLOOP 표적과
+동형. ③교체를 해지로 오해(check_card_closure_eligibility 오호출→유저 정정). 유저는 에이전트의 완료-
+선언을 믿고 만족-STOP(§2bg 패턴 재현).
+**043 (2/15·46msg) [S]**: 게이트 개입 0(chain·UNLOCK_NAME 마커 전무) — 043의 절차(pay→closure 체크→
+log→close)는 **close 시도가 있어야** WEV가 걸리는데 시도 자체 부재·follow_up_chains는 CLI(submit-
+트리거)만 선언 = **현 레버 스택의 사각**. 후보: closure-계열 chain 추가(KB 절차 문서 근거·A2) — 단
+§2bf 교훈(사슬 확대 단독은 무효였고 이름-게이트와 결합해야 열림·054 실증)이 있으므로 rall9의
+READLOOP×UNLOCK_NAME 결합 결과 확인 후 결정.
+**교훈(가드 문답감)**: §2bh 선언 때 "give도 접미사겠지"는 **미실측 일반화** — 인터페이스 사실도 실측
+(census) 후 선언해야 한다(unlock-도구만 census했음). 레버 자해 3호(§1.3 계보).
+
 ### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0
