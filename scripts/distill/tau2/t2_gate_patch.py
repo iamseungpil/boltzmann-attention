@@ -3262,6 +3262,48 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         print("[T2_UNLOCK_NAME] deny bare name tool=%s val=%s"
                               % (getattr(c, "name", None), _uval), file=_sys.stderr, flush=True)
                         break
+            # ★T2_UNKNOWN_NAME_BL (2026-07-22 §2bt·rall11 050 실측): env가 "Unknown ... tool"로
+            #   이미 거부한 이름의 재시도 차단. 050: 환각 접미사 _8374를 env 에러 후에도 3연발 —
+            #   에러 에코로 이름이 ctx에 들어가 PROV의 ctx-실재 검사가 무력화되는 구멍.
+            #   엔진=env 에러 문자열의 인용명 수집(인터페이스 사실)+집합 소속 deny(리터럴 0).
+            if (un_fb is None and os.environ.get("T2_UNKNOWN_NAME_BL") == "1"
+                    and not do_gate and not do_prov and ep_fb is None and cons_fb is None
+                    and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
+                    and tl_fb is None
+                    and getattr(self, "_t2_unknownbl_deny", 0)
+                    < int(os.environ.get("T2_UNKNOWN_NAME_BL_CAP", "6"))):
+                _ubl = getattr(self, "_t2_unknown_bl", None)
+                if _ubl is None:
+                    _ubl = self._t2_unknown_bl = set()
+                for m in state.messages[-14:]:
+                    if getattr(m, "role", None) == "tool":
+                        for _mt in re.finditer(r"Unknown (?:agent|discoverable) tool '([^']+)'",
+                                               str(getattr(m, "content", "") or "")):
+                            _ubl.add(_mt.group(1))
+                if _ubl:
+                    _na3 = dict(((a2 or {}).get("dispatcher_role_check") or {}).get("name_args") or {})
+                    for _k3, _v3 in ((_unspec.get("tools") or {}) if _unspec else {}).items():
+                        _na3.setdefault(_k3, _v3)
+                    for c in (am.tool_calls or []):
+                        _ua3 = _na3.get(getattr(c, "name", None))
+                        _uv3 = str(_args_dict(c).get(_ua3) or "") if _ua3 else ""
+                        if _uv3 and _uv3 in _ubl:
+                            _upat3 = (_unspec.get("pattern") if _unspec else None) or "_[0-9]+$"
+                            un_fb = (c, ("Error: '{name}' was already rejected by the environment "
+                                         "as an unknown tool earlier in this conversation - that "
+                                         "exact name does not exist and retrying it will fail again. "
+                                         "Do NOT guess or reuse it. Search the knowledge base with "
+                                         "plain words describing the step (for '{name}' e.g. "
+                                         "\"{name_words}\") to find the correct full suffixed name, "
+                                         "then retry with that name.")
+                                     .replace("{name}", _uv3)
+                                     .replace("{name_words}",
+                                              re.sub(_upat3, "", _uv3).replace("_", " ").strip()))
+                            self._t2_unknownbl_deny = getattr(self, "_t2_unknownbl_deny", 0) + 1
+                            force_required = True
+                            print("[T2_UNKNOWN_NAME_BL] deny env-rejected name tool=%s val=%s"
+                                  % (getattr(c, "name", None), _uv3), file=_sys.stderr, flush=True)
+                            break
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
                     and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None):
@@ -3747,15 +3789,37 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 for _c2 in (getattr(_am2, "tool_calls", None) or []):
                     _ua = (_ns.get("tools") or {}).get(getattr(_c2, "name", None))
                     _uv = str(_args_dict(_c2).get(_ua) or "") if _ua else ""
-                    if _uv and not re.search(_ns.get("pattern") or "_[0-9]+$", _uv):
+                    _upat2 = _ns.get("pattern") or "_[0-9]+$"
+                    _fb2 = None
+                    if _uv and not re.search(_upat2, _uv):
                         self._t2_unlockname_deny = getattr(self, "_t2_unlockname_deny", 0) + 1
                         print("[T2_UNLOCK_NAME] deny bare name (followup-regen) tool=%s val=%s"
                               % (getattr(_c2, "name", None), _uv), file=_sys.stderr, flush=True)
-                        _fb2 = str(_ns.get("feedback") or "Error: '{name}' needs its suffix.")\
-                            .replace("{name}", _uv)\
+                        _fb2 = str(_ns.get("feedback") or "Error: '{name}' needs its suffix.")
+                    # ★T2_UNLOCK_PROV (2026-07-22 §2bt·rall11 050 실측): regen-경로 접미사-환각 차단.
+                    #   §2bi가 bare-name만 이식해, regen이 낸 fabricated 접미사(_8374)는 무검사 커밋
+                    #   → env "Unknown tool" 3연발. 메인 PROV와 동형 술어: suffixed 값이 대화 실측
+                    #   근거(role=tool∪user)에 부재 or env-거부 이력(_t2_unknown_bl)이면 deny+재생성.
+                    #   KB서 발견한 진짜 이름은 검색결과에 실재→통과. 엔진=부분문자열 실재확인(리터럴 0).
+                    elif (_uv and os.environ.get("T2_UNLOCK_PROV") == "1"):
+                        _ctx2 = " ".join(
+                            str(getattr(_m3, "content", "") or "") for _m3 in state.messages
+                            if getattr(_m3, "role", None) in ("tool", "user")).lower()
+                        if (_uv in getattr(self, "_t2_unknown_bl", set())
+                                or _uv.lower() not in _ctx2):
+                            print("[T2_UNLOCK_PROV] deny unprovenanced name (followup-regen) "
+                                  "tool=%s val=%s" % (getattr(_c2, "name", None), _uv),
+                                  file=_sys.stderr, flush=True)
+                            _fb2 = ("Error: '{name}' does not appear in any knowledge-base result "
+                                    "or tool output in this conversation - you may be inventing "
+                                    "the numeric suffix, and a guessed name will be rejected. Do "
+                                    "NOT guess suffixes. Search the knowledge base with plain "
+                                    "words describing the step (for '{name}' e.g. \"{name_words}\") "
+                                    "to find the real full suffixed name, then retry with it.")
+                    if _fb2:
+                        _fb2 = _fb2.replace("{name}", _uv)\
                             .replace("{name_words}",
-                                     re.sub(_ns.get("pattern") or "_[0-9]+$", "", _uv)
-                                     .replace("_", " ").strip())
+                                     re.sub(_upat2, "", _uv).replace("_", " ").strip())
                         _fb2m = ToolMessage(id=_c2.id, role="tool", requestor="assistant",
                                             error=True, content=_fb2)
                         _am3 = _gen(self, work + [am, _fb, _am2, _fb2m], bw(),
