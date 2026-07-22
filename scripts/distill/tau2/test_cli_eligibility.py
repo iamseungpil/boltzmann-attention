@@ -103,5 +103,19 @@ fb2 = _wev_deny_msgs(H_PART, CLOSE, WEV)
 check("W11_verdict_is_last_barrier", fb2 is not None and "CLOSURE_OK" in fb2
       and "KEEP the account open" in fb2)
 
+# ── fix 10 (054·§2bu): approve WEV의 payment 증거 술어 = 실제 출력 포맷 정합 ──
+APPROVE = TC("call_discoverable_agent_tool",
+             {"agent_tool_name": "approve_credit_limit_increase_5847",
+              "arguments": json.dumps({"credit_card_account_id": "cc_584f9c5d00_gold",
+                                       "user_id": "584f9c5d00", "new_credit_limit": 7500})})
+PAY_OUT = ("Payment history for account 'cc_584f9c5d00_gold' (last 3 months):\n"
+           "Consecutive on-time payments: 3\n  - Payment Date: 10/15/2025")
+H_EV = [Msg("tool", PAY_OUT),
+        Msg("tool", "Credit limit increase history retrieved.\nExecuted: get_credit_limit_increase_history_4829\nfor cc_584f9c5d00_gold"),
+        Msg("tool", "Pending replacement orders check completed.\nExecuted: get_pending_replacement_orders_5765\nfor cc_584f9c5d00_gold")]
+check("W12_approve_with_real_payment_output_pass", _wev_deny_msgs(H_EV, APPROVE, WEV) is None)
+check("W13_approve_without_payment_denied",
+      _wev_deny_msgs(H_EV[1:], APPROVE, WEV) is not None)
+
 print("\n%s" % ("ALL PASS" if not FAILS else "FAILS: %s" % FAILS))
 sys.exit(1 if FAILS else 0)

@@ -333,10 +333,10 @@
    },
    "id_key": "credit_card_account_id",
    "require_tokens": [
-    "get_payment_history"
+    "Consecutive on-time payments"
    ],
    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the payment history check (get_payment_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_payment_history tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
-   "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제)."
+   "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제). ★2026-07-22 §2bu(rall11 054 실측·rall9 8연발 소급): get_payment_history 도구 출력에는 도구명 토큰이 없음(\"Payment history for account...( )Consecutive on-time payments: N\" 포맷·Executed 헤더 無)→증거 확보 후에도 8 deny·재수집 9연발·cap 소진. 토큰을 출력-실재 문자열로 교정(id 공존 조건 유지)."
   },
   {
    "applies_to": "call_discoverable_agent_tool",
