@@ -2390,6 +2390,42 @@ def _compact_view(messages, keep_recent=6, min_len=800, min_total=120000):
     return out, digested
 
 
+def _annotate_view(messages, specs):
+    """★뷰 필드-주석 (T2_VIEW_ANNOTATE=1·2026-07-22 §2bs·rall10 054 실측).
+    원리: 커밋 히스토리는 불변(_compact_view와 동일·replay-safe) — 생성-시점 뷰의 role=tool
+    비에러 출력에 A2 선언 부분문자열 집합(contains 전부 공존)이 보이면 A2 주석(note)을 append.
+    054: 교체주문이 기록한 status: CLOSED(舊카드)·account_status: ACTIVE 병존 뷰를 "계좌 폐쇄"로
+    오독→CLI 전면 거부. KB(replacements_003)=카드≠계좌 명시 — 주석 텍스트 전부 A2(KB 인용).
+    엔진=부분문자열 공존 검사+append만(내용 추출/합성 0·[[03b]]·도메인 리터럴 0).
+    반환: (뷰 리스트, 주석된 메시지 수)."""
+    out, n = [], 0
+    for m in messages:
+        c = getattr(m, "content", None)
+        if (getattr(m, "role", None) == "tool" and isinstance(c, str)
+                and not getattr(m, "error", False)):
+            adds = [str(sp.get("note")) for sp in specs
+                    if sp.get("note") and (sp.get("contains") or [])
+                    and all(s in c for s in (sp.get("contains") or []))
+                    and str(sp.get("note")) not in c]
+            if adds:
+                d = c + "\n" + "\n".join(adds)
+                try:
+                    m2 = m.model_copy(update={"content": d})
+                except Exception:
+                    import copy as _cp
+                    m2 = _cp.copy(m)
+                    try:
+                        m2.content = d
+                    except Exception:
+                        m2 = m
+                if getattr(m2, "content", None) == d:
+                    n += 1
+                    out.append(m2)
+                    continue
+        out.append(m)
+    return out, n
+
+
 def _pairfix(messages):
     """★커밋-시점 pairing 교정 (T2_PAIRFIX=1·2026-07-21 §2bi·rall6 054t2 PAIRDUMP 실측).
     실측 부패 시그니처: 다중 동일-도구 read 턴에서 결과 **집합은 정확·순서만 스왑**(호출 [a,b,c] vs
@@ -2603,6 +2639,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_vc_logged = True
                 print("[T2_VIEW_COMPACT] active: %d tool output(s) digested in view"
                       % len(_dg), file=_sys.stderr, flush=True)
+        # ★T2_VIEW_ANNOTATE (2026-07-22 §2bs): A2-선언 필드-주석을 생성-뷰에만 부가(비커밋).
+        #   COMPACT 뒤에 적용 — 실제로 보이는 뷰 기준으로만 주석. 기본 OFF(거동보존).
+        if os.environ.get("T2_VIEW_ANNOTATE") == "1" and a2 is not None:
+            _vas = a2.get("view_field_annotations") or []
+            if _vas:
+                work, _nva = _annotate_view(work, _vas)
+                if _nva and not getattr(self, "_t2_va_logged", False):
+                    self._t2_va_logged = True
+                    print("[T2_VIEW_ANNOTATE] active: %d tool output(s) annotated in view"
+                          % _nva, file=_sys.stderr, flush=True)
         _rem = getattr(self, "_t2_eplan_reminder", None)
         if _rem:  # CP5 walk 리마인더(작업버퍼만·히스토리 비커밋 = 채널 절대규칙)
             self._t2_eplan_reminder = None
