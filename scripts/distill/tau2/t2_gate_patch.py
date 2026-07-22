@@ -2218,13 +2218,25 @@ def _install_regen_exec():
                 if k in cache and cache.get(k) in _dgset:
                     cache.pop(k, None)
                 if k in cache and not _is_effective_write(_eff_tool_name(tc)):
+                    # ★2026-07-23 (050 flail 근본원인 확정·KB probe): 반복된 read가 KB/검색 도구면
+                    #   redirect 힌트 추가 — 도메인-일반. 원인=에이전트가 discoverable 도구를 *함수명*으로
+                    #   BM25 검색(점수 0.0·문서 산문엔 함수명 없음)→무한반복. plain-words로 돌림(closure 피드백이
+                    #   이미 가진 사실을 flail 지점에 표면화). 배제=[[10]] 생성 무해·행동 게이트 아님.
+                    _dn = (getattr(tc, "name", "") or "").lower()
+                    _redir = ""
+                    if "search" in _dn or "bm25" in _dn or "kb_" in _dn or "grep" in _dn:
+                        _redir = (" Do NOT repeat this exact search. If you are looking up a discoverable "
+                                  "tool, note that a bare function-name query matches no document text — "
+                                  "search PLAIN WORDS describing the action/step (the everyday words a policy "
+                                  "document would use), not the tool's function name. If you already have the "
+                                  "information you need, proceed to the next step instead of searching again.")
                     stubs[getattr(tc, "id", None)] = _TM(
                         id=tc.id, role="tool",
                         requestor=getattr(tc, "requestor", "assistant"), error=False,
                         content="[DUPLICATE-READ] This exact call (same tool, same arguments) was "
                                 "already executed earlier in this conversation; its full output is "
                                 "shown above and has not changed. Refer to that output instead of "
-                                "re-reading.")
+                                "re-reading." + _redir)
                     stub_ids.add(getattr(tc, "id", None))
                     self._t2_read_dedup = getattr(self, "_t2_read_dedup", 0) + 1
                     print("[T2_READ_DEDUP] stub tool=%s" % getattr(tc, "name", None),
