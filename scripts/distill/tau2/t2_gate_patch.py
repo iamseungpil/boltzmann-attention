@@ -2956,6 +2956,57 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   근거: FOLLOWUP 강제는 행동을 움직였으나(체크 unlock 3회씩 시도) 전부 bare-name→env
             #   "Unknown tool"→포기 반복(6 sim×2도구×3회) = 마지막 고리가 이름-형식. 엔진=패턴 대조만
             #   (이름 리터럴 0·KB 검색·이름 선택=모델·[[05]](3) autocomplete-변형 기각). cap 소진=통과(현행).
+            # ★T2_DISPATCH_ROLE (2026-07-22 §2bl·rall8 031 실측): 디스패처 역할 혼동 deny —
+            #   dispute를 user-디스패처로 제출·user-도구를 에이전트가 직접 호출(4회). 술어=대화
+            #   자기-이력(이 대화서 unlock된 이름=agent-도구·give된 이름=user-도구)·엔진 이름-리터럴 0.
+            #   +tool_arg_allowlist: 선언 외 인자 키 strip(give 여분 'arguments' 실측·커밋 전=replay-safe).
+            dr_fb = None
+            _drs = (a2 or {}).get("dispatcher_role_check") or {}
+            if (os.environ.get("T2_DISPATCH_ROLE") == "1" and _drs
+                    and not do_gate and not do_prov and ep_fb is None and cons_fb is None
+                    and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
+                    and getattr(self, "_t2_dispatchrole_deny", 0)
+                    < int(os.environ.get("T2_DISPATCH_ROLE_CAP", "6"))):
+                _na = _drs.get("name_args") or {}
+                def _iname(tc):
+                    _ar = _args_dict(tc)
+                    return str(_ar.get(_na.get(getattr(tc, "name", None), ""), "") or "")
+                _unl = {_iname(tc) for m2 in state.messages
+                        for tc in (getattr(m2, "tool_calls", None) or [])
+                        if getattr(tc, "name", None) == _drs.get("unlock_tool")}
+                _gvn = {_iname(tc) for m2 in state.messages
+                        for tc in (getattr(m2, "tool_calls", None) or [])
+                        if getattr(tc, "name", None) == _drs.get("give_tool")}
+                for c in (am.tool_calls or []):
+                    nm = getattr(c, "name", None); iv = _iname(c)
+                    if not iv:
+                        continue
+                    fbt = None
+                    if nm == _drs.get("user_call") and iv in _unl:
+                        fbt = _drs.get("agent_via_user_feedback")
+                    elif nm == _drs.get("agent_call") and iv in _gvn:
+                        fbt = _drs.get("user_via_agent_feedback")
+                    elif nm == _drs.get("user_call") and iv in _gvn:
+                        fbt = _drs.get("agent_runs_user_feedback")
+                    if fbt:
+                        dr_fb = (c, str(fbt).replace("{name}", iv))
+                        print("[T2_DISPATCH_ROLE] deny tool=%s name=%s" % (nm, iv),
+                              file=_sys.stderr, flush=True)
+                        break
+            _awl = (a2 or {}).get("tool_arg_allowlist") or {}
+            if os.environ.get("T2_DISPATCH_ROLE") == "1" and _awl:
+                for c in (am.tool_calls or []):
+                    _al = _awl.get(getattr(c, "name", None))
+                    if not isinstance(_al, list):
+                        continue
+                    _ar = getattr(c, "arguments", None)
+                    if isinstance(_ar, dict):
+                        _extra = [k for k in list(_ar.keys()) if k not in _al]
+                        for k in _extra:
+                            _ar.pop(k, None)
+                        if _extra:
+                            print("[T2_DISPATCH_ROLE] stripped extra args %s from %s"
+                                  % (_extra, getattr(c, "name", None)), file=_sys.stderr, flush=True)
             un_fb = None
             _unspec = (a2 or {}).get("discoverable_name_check") or {}
             if (os.environ.get("T2_UNLOCK_NAME") == "1" and _unspec
@@ -2980,7 +3031,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         break
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
-                    and tl_fb is None and un_fb is None):
+                    and tl_fb is None and un_fb is None and dr_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -3050,6 +3101,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                           file=_sys.stderr, flush=True)
             if un_fb is not None:
                 self._t2_unlockname_deny = getattr(self, "_t2_unlockname_deny", 0) + 1
+            if dr_fb is not None:
+                self._t2_dispatchrole_deny = getattr(self, "_t2_dispatchrole_deny", 0) + 1
             fb = [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:
@@ -3076,6 +3129,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 elif un_fb is not None and c is un_fb[0]:
                     content = un_fb[1] if str(un_fb[1]).lstrip().startswith("Error:") \
                         else "Error: " + un_fb[1]
+                elif dr_fb is not None and c is dr_fb[0]:
+                    content = dr_fb[1] if str(dr_fb[1]).lstrip().startswith("Error:") \
+                        else "Error: " + dr_fb[1]
                 else:
                     content = "Error: resolve the flagged call(s) first; do not call this tool yet."
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
