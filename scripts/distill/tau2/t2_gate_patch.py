@@ -3109,6 +3109,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             if _ar.get("status") == "deny":
                                 rw_fb = ((am.tool_calls or [None])[0], _ar["feedback"])
                                 self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
+                                # ★진행-감응 환급용 target 스냅샷 (2026-07-22 §2bt·rall10 097 실측:
+                                #   초반 flail이 cap3 소진→종반 say-loop 8연속 무방비 = FOLLOWUP
+                                #   cap-소진과 동형). 발화 시점에 미실행인 target만 기록 —
+                                #   이후 시도-수준 착수가 보이면 cap 1회 환급(1b와 동일 원리).
+                                _effa2 = {_eff_tool_name(tc) for m2 in state.messages
+                                          for tc in (getattr(m2, "tool_calls", None) or [])}
+                                self._t2_action_target = ({str(_tgt)}
+                                                          if str(_tgt) not in _effa2 else None)
                                 # ★T2_FORCE_ACTION (2026-07-20·사용자 통찰 "say한 tool do하면 됨"): say-don't-do
                                 #   (모델이 실행 의도를 텍스트로만 말하고 호출 0) = 재생성서 tool_choice=required 강제.
                                 #   의도는 이미 모델 안에 있으니 산문→호출로 뒤집힘. required=vLLM 구조화디코딩(봉투드롭 불가).
@@ -3787,6 +3795,24 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     print("[T2_FOLLOWUP] chain progress refund hit=%s"
                           % (sorted(_hitp),), file=_sys.stderr, flush=True)
                 self._t2_chain_missing = None
+        # ★T2_ACTION_PROGRESS_REFUND (2026-07-22 §2bt·rall10 097 실측): action-required deny의
+        #   진행-감응 환급 — 1b(FOLLOWUP)와 동일 원리. 097: cap3이 초반 compute-flail에 소진돼
+        #   종반 say-loop([122-134] 8연속 무-도구 산문·write 0)가 무방비. 발화 시 기록한 target에
+        #   시도-수준 착수(§2bh)가 보이면 cap 1회 환급 — 무진행 발화만 예산 소모.
+        #   엔진=집합 교집합만(리터럴 0·[[05]]). 기본 OFF(거동보존).
+        if os.environ.get("T2_ACTION_PROGRESS_REFUND") == "1":
+            _atv = getattr(self, "_t2_action_target", None)
+            if _atv:
+                _effn2 = {_eff_tool_name(tc) for m in state.messages
+                          for tc in (getattr(m, "tool_calls", None) or [])}
+                _effn2 |= {_eff_tool_name(tc)
+                           for tc in (getattr(am, "tool_calls", None) or [])}
+                _hita = set(_atv) & _effn2
+                if _hita:
+                    self._t2_action_deny = max(0, getattr(self, "_t2_action_deny", 0) - 1)
+                    print("[T2_RESOLVE] action progress refund hit=%s"
+                          % (sorted(_hita),), file=_sys.stderr, flush=True)
+                self._t2_action_target = None
         _fu_cap = int(os.environ.get("T2_FOLLOWUP_CAP", "1") or 1)
         if (os.environ.get("T2_FOLLOWUP_REQUIRED") == "1" and _resign
                 and getattr(self, "_t2_followup", 0) < _fu_cap):

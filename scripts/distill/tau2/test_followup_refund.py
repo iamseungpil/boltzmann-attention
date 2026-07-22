@@ -107,5 +107,26 @@ ag._generate_next_message(UserMessage("ok"), st)
 check("R4_floor_zero", getattr(ag, "_t2_followup", None) == 0)
 os.environ.pop("T2_FOLLOWUP_PROGRESS_REFUND", None)
 
+# ══ T2_ACTION_PROGRESS_REFUND (2026-07-22 §2bt·097 say-loop cap-소진) ══
+# ⑤ 진행(target 시도) → action_deny 환급
+os.environ["T2_ACTION_PROGRESS_REFUND"] = "1"
+ag, orch, st = setup(HIST); SCRIPT[:] = [AM([PROG()])]
+ag._t2_action_deny, ag._t2_action_target = 2, {"get_user_dispute_history"}
+ag._generate_next_message(UserMessage("ok"), st)
+check("A1_action_refund", getattr(ag, "_t2_action_deny", None) == 1)
+check("A1_target_cleared", getattr(ag, "_t2_action_target", "X") is None)
+# ⑥ 무진행 → 미환급·스냅샷 소거
+ag, orch, st = setup(HIST); SCRIPT[:] = [AM([NOPROG()])]
+ag._t2_action_deny, ag._t2_action_target = 2, {"get_user_dispute_history"}
+ag._generate_next_message(UserMessage("ok"), st)
+check("A2_no_refund", getattr(ag, "_t2_action_deny", None) == 2)
+check("A2_target_cleared", getattr(ag, "_t2_action_target", "X") is None)
+# ⑦ OFF → 거동보존
+os.environ.pop("T2_ACTION_PROGRESS_REFUND", None)
+ag, orch, st = setup(HIST); SCRIPT[:] = [AM([PROG()])]
+ag._t2_action_deny, ag._t2_action_target = 2, {"get_user_dispute_history"}
+ag._generate_next_message(UserMessage("ok"), st)
+check("A3_off_no_refund", getattr(ag, "_t2_action_deny", None) == 2)
+
 print("\n%s" % ("ALL PASS" if not FAILS else "FAILS: %s" % FAILS))
 sys.exit(1 if FAILS else 0)
