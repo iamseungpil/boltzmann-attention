@@ -15,7 +15,11 @@
 >   실물 증거로 지목했던 3건(038/052/097)이 **전부 격리서 회복=scaffold**. formalize(§2.1)는 GENERALIZED_SCAFFOLD가
 >   이론상 "유일 잔여"라 했으나 **banking 실측 실물은 아직 0**(전부 부하/순서/활성화). ⇒ 확실한 활성 learn 잔여는
 >   **054 crossover 하나로 좁혀짐**(scaffold 사정권이 예상보다 넓음·crossover 모트가 더 날카로워짐).
-> 교훈 재확인: **부하 vs 능력은 격리로만 판정**·궤적→learn 직행 금지([[08]]). 세 번 연속 사용자 가설(scaffold) 지지.
+> 교훈 재확인: **부하 vs 능력은 격리로만 판정**·궤적→learn 직행 금지([[08]]). 038/052/097 세 건 사용자 가설(scaffold) 지지.
+> - **054 prior-격리(`probe_054_prior_iso`)**: C1(규칙 상식·규칙 미제공)=**9/9 wait**·C2(순서·힌트有)=**0/9 CLI-먼저** ⇒
+>   초판 "발견불가·prior 없음" **부분 오류** — 규칙-prior는 있음(C1). 진짜 잔여=**규칙→순서 적용-추론**(C2·질의 힌트도 0/9=
+>   scaffold 안 닫힘). **054는 여전히 learn/scale 경계이나 성격 교정**: 규칙 무지 아니라 적용-추론. crossover 정밀화(§2.2).
+>   ⇒ **확실한 활성 learn 잔여 = 054 순서-적용 추론 하나**(§2.1 formalize는 banking 실물 0·§2.3 데이터 대기).
 
 > **이 문서가 learn 축의 단일 정본이다.** 상위=`RESEARCH_MASTER.md`(등대). learn 관련 설계문서 9개를
 > 통합하고, **실험으로 종결/흡수/강등된 것은 §1로 격리**(재개 트리거만 보존)·**살아있는 잔여만 §2에
@@ -41,8 +45,8 @@
 ```
 제외(종결/흡수/강등·§1)                          활성 learn 잔여(§2)                learn 못 닫는 경계(§3)
 ─────────────────────────────                    ──────────────────────           ────────────────────
-완료-증거 날조    [게이트FAIL·NOGO]               ① formalize(FIND) 정확도         ⋈ systematic 8/8동일오답
-disamb-select    [≥2→ASK 흡수]                    ② 순서-계획(054 crossover)        genuine 표현-애매성(over-ask)
+완료-증거 날조    [게이트FAIL·NOGO]               ② 순서-적용추론(054·C2 0/9)     ⋈ systematic 8/8동일오답
+disamb-select    [≥2→ASK 흡수]                    ① formalize(이론·banking실물0)   genuine 표현-애매성(over-ask)
 값-grounding     [WRITE_ARG_GROUND 흡수]           ③ gather 재시험(D1~D4 대기)       state-track scale-gated≥13B
 집계/argmax      [CALC/결정론]                                                       └→ 7B는 결정론 controller
 INFER-calib      [강등·095=gather]
@@ -106,8 +110,18 @@ evidence_quote}` 동반(§4b)해 엔진이 quote∈source를 검증(값-충실�
 **실측(054·[S]·§2bu·§2bt)**: env 히든룰 "pending dispute/replacement면 CLI approve 거부"(tools.py 확정).
 고객이 "dispute 먼저"를 시키는데 gold 순서는 CLI-완결→replacement→dispute. **dispute를 먼저 접수하면 그 sim의
 CLI는 회복 불가.** 이 규칙은 **KB 698문서·도구설명·에러문구 어디에도 없음**(census·역grep 0)=agent-가시 채널 전무.
-- **scaffold 불가 판정**: env소스→A2 이식=[[03b]] cheating. scaffold 살 수 있는 것 다 삼(액션 4/17→**16/17**)·잔여=이 순서 1건.
-- **frontier도 대부분 못 풂**(§2bg: 054 frontier 전멸·최고 1/4). 그 1/4이 사는 것=①은행 실무 **상식-prior**(scale)+②**계획-먼저 습관**.
+
+**★prior-격리 실측(2026-07-22·`probe_054_prior_iso`·사용자 지시)** — 054의 진짜 성격 확정(초판 "발견불가·prior 없음" **부분 오류 교정**):
+- **C1(규칙 상식·규칙 미제공)=9/9 "wait"**: 모델은 "pending dispute/replacement면 CLI 보류"를 **규칙-prior로 완벽히 안다**
+  (이유도 정확). ⇒ 초판 "발견불가·prior 부재"는 **틀림** — 규칙 지식은 작은 모델(32B)도 scale-불변으로 보유.
+- **C2(3요청 순서·"일부가 다른 걸 막음" 힌트)=0/9 CLI-먼저**: 규칙을 알면서도 순서 결정엔 **경쟁 상식("보안 먼저=dispute
+  선처리")이 이겨** dispute를 앞에 둠. ⇒ **진짜 잔여 = 규칙-지식을 순서-적용에 연결하는 다단계 추론**(규칙 무지 아님).
+- **정밀 재판정**: 054 = "prior 없음"이 아니라 **"규칙-prior 有(C1) · 순서-적용 추론 실패(C2)"**. 038(단일 판단·질의
+  8/8로 닫힘)과 다른 층 — C2는 힌트 줘도 0/9라 **질의 게이트로 안 닫힘**·순서-추론은 scale/learn.
+- **scaffold 불가 재확인**: ①규칙 A2 이식=[[03b]] cheating(KB 부재) ②C2 힌트도 0/9(순서 게이트 무효). scaffold 살 수
+  있는 것 다 삼(액션 4/17→**16/17**)·잔여=순서-추론 1건.
+- **crossover 정밀화(모트 강화)**: scale이 사는 것은 규칙-지식(불변·C1)이 **아니라** 규칙→순서 **적용-추론**(C2). frontier
+  054 1/4도 이 적용-추론이 가끔 됨(§2bg 계획-먼저 습관). ⇒ 논문 crossover = "지식은 scale-불변·적용추론이 scale-gated".
 
 **learn 경로**: 054를 가르치는 게 아니라([[11]] 도메인-타깃 금지) **"순서-의존 write-쌍" P-primitive를 학습벤치에**
 구성(요청 A 부작용→요청 B 차단 구조·다양한 도메인 표면)하고, "다중 요청 수령 시 실행 전 상호작용 검토→심사-완결
