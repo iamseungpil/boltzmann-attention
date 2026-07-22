@@ -2026,6 +2026,17 @@ def _install_overflow_guard():
             _orig_ss = _PmEnv.set_state
 
             def _ss2(self, initialization_data, initialization_actions, message_history):
+                # ★T2_PAIRFIX @평가-입력 (§2bi 정정): rall6 실측 — 라이브 PAIRCHECK 침묵 + 평가서만
+                #   mismatch = 스왑은 tick→message 변환/직렬화 층에서 발생. 여기(원 검사 직전)서
+                #   같은 id 집합·순서-스왑 블록을 호출 순서로 교정(내용 불변·의미론 no-op).
+                if os.environ.get("T2_PAIRFIX") == "1" and message_history:
+                    try:
+                        _nfx = _pairfix(message_history)
+                        if _nfx:
+                            print("[T2_PAIRFIX] eval-input: reordered %d swapped block(s)" % _nfx,
+                                  file=sys.stderr, flush=True)
+                    except Exception:
+                        pass
                 try:
                     return _orig_ss(self, initialization_data, initialization_actions,
                                     message_history)
@@ -2079,8 +2090,13 @@ def _install_regen_exec():
             from tau2.data_model.message import ToolMessage as _TM
             cache = self._t2_read_cache = getattr(self, "_t2_read_cache", {})
             to_run, stubs = [], {}
+            _dgset = getattr(getattr(self, "agent", None), "_t2_view_digested", None) or set()
             for tc in tool_calls:
                 k = _call_key(tc)
+                # ★§2bi: 뷰-압축으로 다이제스트된 출력의 재열람은 stub 금지(재실행 허용) —
+                #   안 그러면 "위 출력 참조" stub이 다이제스트를 가리켜 재열람 탈출구가 막힘.
+                if k in cache and cache.get(k) in _dgset:
+                    cache.pop(k, None)
                 if k in cache and not _is_effective_write(_eff_tool_name(tc)):
                     stubs[getattr(tc, "id", None)] = _TM(
                         id=tc.id, role="tool",
@@ -2124,7 +2140,8 @@ def _install_regen_exec():
                 elif (not getattr(out, "error", False) and len(_content_str(out) or "") >= min_len
                       and _dedup_cache_safe(self, getattr(tc, "name", "") or "")):
                     # ★§2at: env-mutating(unlock 등)은 캐시 금지 — stub이 히스토리에 남으면 replay 불일치
-                    cache[_call_key(tc)] = True
+                    # ★§2bi: 값=결과 메시지 id(뷰-압축 다이제스트 면제 판정용·구판 True와 truthy 동일)
+                    cache[_call_key(tc)] = getattr(out, "id", True)
         else:
             results = orig_exec(self, tool_calls)
         env = getattr(self, "environment", None)
@@ -2275,6 +2292,77 @@ def apply_gate_regen(max_regen=1):
 # ═══════════════════════════════════════════════════════════════════════════
 
 
+def _compact_view(messages, keep_recent=6, min_len=800, min_total=120000):
+    """★뷰-압축 (T2_VIEW_COMPACT=1·2026-07-21 §2bi·097 컨텍스트 레버·사용자 승인 기본안).
+    원리: **커밋 히스토리는 불변**(replay-불변식 자동 충족·게이트/관문은 원문 대조 유지) — LLM
+    생성-시점 프롬프트 뷰에서만 오래된 벌크 tool 출력을 기계적 다이제스트(head+tail 절단)로 대체.
+    read 액션의 주체는 모델로 유지(서브-이관 변형은 [[05]]③ autofetch-류로 기각·§2bi 문답).
+    - 대상: role=tool·비에러·min_len 초과·최근 keep_recent개 제외. 전체 뷰가 min_total 미만이면 무개입.
+    - 다이제스트=순수 절단(head 300+tail 150)+안내문 — 엔진의 내용 추출/합성 0([[03b]]).
+    - 반환: (뷰 리스트, 다이제스트된 ToolMessage id 집합) — id는 READ_DEDUP 면제(재열람 탈출구)용."""
+    msgs = list(messages)
+    total = sum(len(str(getattr(m, "content", "") or "")) for m in msgs)
+    if total < int(min_total):
+        return msgs, set()
+    tool_idx = [i for i, m in enumerate(msgs) if getattr(m, "role", None) == "tool"]
+    keep = set(tool_idx[-int(keep_recent):]) if keep_recent else set()
+    out, digested = [], set()
+    for i, m in enumerate(msgs):
+        c = getattr(m, "content", None)
+        if (getattr(m, "role", None) == "tool" and i not in keep
+                and isinstance(c, str) and len(c) > int(min_len)
+                and not getattr(m, "error", False)):
+            d = (c[:300] + "\n...[view digest: %d chars total. The FULL output was recorded "
+                 "earlier in this conversation; re-call the same tool if you need the "
+                 "details again.]...\n" % len(c) + c[-150:])
+            try:
+                m2 = m.model_copy(update={"content": d})
+            except Exception:
+                import copy as _cp
+                m2 = _cp.copy(m)
+                try:
+                    m2.content = d
+                except Exception:
+                    m2 = m
+            if getattr(m2, "content", None) == d:
+                digested.add(getattr(m, "id", None))
+                out.append(m2)
+            else:
+                out.append(m)
+        else:
+            out.append(m)
+    return out, digested
+
+
+def _pairfix(messages):
+    """★커밋-시점 pairing 교정 (T2_PAIRFIX=1·2026-07-21 §2bi·rall6 054t2 PAIRDUMP 실측).
+    실측 부패 시그니처: 다중 동일-도구 read 턴에서 결과 **집합은 정확·순서만 스왑**(호출 [a,b,c] vs
+    결과 [a,c,b]) → 평가 replay "Tool call id mismatch"로 sim 무효. 부패 주입층은 미상(우리 두 래퍼는
+    id-재조립 정합·§2ah/_reassemble)이나, **같은 id 집합·순서 불일치** 블록을 호출 순서로 재정렬하면
+    내용 불변의 의미론 no-op이고 pairing이 복원된다(read는 replay 재실행-비교 제외·env-일치).
+    반환: 교정 블록 수. messages는 in-place 재배열."""
+    fixed, i, n = 0, 0, len(messages)
+    while i < n:
+        m = messages[i]
+        tcs = getattr(m, "tool_calls", None) or []
+        if getattr(m, "role", None) in ("assistant", "user") and tcs:
+            j, k = i + 1, len(tcs)
+            block = messages[j:j + k]
+            if (len(block) == k and all(getattr(b, "role", None) == "tool" for b in block)):
+                want = [getattr(t, "id", None) for t in tcs]
+                have = [getattr(b, "id", None) for b in block]
+                if want != have and set(want) == set(have) and len(set(have)) == k:
+                    by = {getattr(b, "id", None): b for b in block}
+                    messages[j:j + k] = [by[w] for w in want]
+                    fixed += 1
+                i = j + k
+            else:
+                i += 1
+        else:
+            i += 1
+    return fixed
+
+
 def _paircheck(messages):
     """커밋 히스토리의 call↔result 쌍 불변식 검사(로그 전용·2026-07-21 §2bd).
     evaluator `get_actions_from_messages`(environment.py:334)와 동일 보행 — rall4 054t1/050t2가
@@ -2392,6 +2480,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             self._t2_session_bl = set()
         self._system_messages = state.system_messages
         _append(state, message)
+        # ★T2_PAIRFIX (§2bi): 같은 id 집합·순서-스왑 블록을 호출 순서로 교정(내용 불변·크래시 계열 종결).
+        if os.environ.get("T2_PAIRFIX") == "1":
+            try:
+                _nfx = _pairfix(state.messages)
+            except Exception:
+                _nfx = 0
+            if _nfx:
+                print("[T2_PAIRFIX] reordered %d swapped result block(s)" % _nfx,
+                      file=_sys.stderr, flush=True)
         # ★T2_PAIRCHECK (§2bd·로그 전용): 커밋 히스토리 call↔result 쌍 불변식 라이브 검사 —
         #   rall4 id-mismatch(평가-시점 크래시·덤프 부재)의 부패 지점을 다음 발생 시 특정.
         if os.environ.get("T2_PAIRCHECK") == "1" and not getattr(self, "_t2_paircheck_hit", False):
@@ -2438,6 +2535,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             return [v for v in (self._t2_static_bl | self._t2_session_bl) if v.lower() not in ctx]
 
         work = list(state.messages)
+        # ★T2_VIEW_COMPACT (§2bi): 생성-뷰만 압축(커밋 히스토리·게이트 ctx는 원문 유지=replay-safe).
+        if os.environ.get("T2_VIEW_COMPACT") == "1":
+            work, _dg = _compact_view(
+                state.messages,
+                keep_recent=int(os.environ.get("T2_VIEW_COMPACT_KEEP", "6")),
+                min_len=int(os.environ.get("T2_VIEW_COMPACT_MINLEN", "800")),
+                min_total=int(os.environ.get("T2_VIEW_COMPACT_MINTOTAL", "120000")))
+            self._t2_view_digested = _dg
+            if _dg and not getattr(self, "_t2_vc_logged", False):
+                self._t2_vc_logged = True
+                print("[T2_VIEW_COMPACT] active: %d tool output(s) digested in view"
+                      % len(_dg), file=_sys.stderr, flush=True)
         _rem = getattr(self, "_t2_eplan_reminder", None)
         if _rem:  # CP5 walk 리마인더(작업버퍼만·히스토리 비커밋 = 채널 절대규칙)
             self._t2_eplan_reminder = None
@@ -3316,6 +3425,28 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[%s] rejected: regen introduced gate-denied call; keeping original" % tag.upper(),
                       file=_sys.stderr, flush=True)
                 return None
+            # ★§2bi (rall6 실측·UNLOCK_NAME 0발화 원인): bare-name unlock이 태어나는 곳이 바로 이
+            #   resign-경로 regen인데, 반환 am은 while-루프의 un_fb 검사를 **우회**해 그대로 커밋됐다
+            #   (chain 18발화·un_fb 0·bare 3회 커밋 = rall6 정합). 여기서 name-check 교정 1회 수행.
+            _ns = (a2 or {}).get("discoverable_name_check") or {}
+            if _ns and os.environ.get("T2_UNLOCK_NAME") == "1":
+                for _c2 in (getattr(_am2, "tool_calls", None) or []):
+                    _ua = (_ns.get("tools") or {}).get(getattr(_c2, "name", None))
+                    _uv = str(_args_dict(_c2).get(_ua) or "") if _ua else ""
+                    if _uv and not re.search(_ns.get("pattern") or "_[0-9]+$", _uv):
+                        self._t2_unlockname_deny = getattr(self, "_t2_unlockname_deny", 0) + 1
+                        print("[T2_UNLOCK_NAME] deny bare name (followup-regen) tool=%s val=%s"
+                              % (getattr(_c2, "name", None), _uv), file=_sys.stderr, flush=True)
+                        _fb2 = str(_ns.get("feedback") or "Error: '{name}' needs its suffix.")\
+                            .replace("{name}", _uv)
+                        _fb2m = ToolMessage(id=_c2.id, role="tool", requestor="assistant",
+                                            error=True, content=_fb2)
+                        _am3 = _gen(self, work + [am, _fb, _am2, _fb2m], bw(),
+                                    "agent_response_" + tag + "_namefix", tool_choice="required")
+                        if not (gate is not None and _denied_calls(_am3, gate, last_user,
+                                                                   transfer_sent)):
+                            _am2 = _am3
+                        break
             _regen_budget_spend(self)
             return _am2
 

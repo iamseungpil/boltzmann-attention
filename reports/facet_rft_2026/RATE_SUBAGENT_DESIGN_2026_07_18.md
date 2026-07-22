@@ -1482,6 +1482,31 @@ autocomplete-변형은 [[05]](3)으로 기각). cap 6·소진=통과. `test_unlo
 **방법론 융착**: 액션-매치 0 ≠ 행동 불변 — **시도-수준 카운트를 교차표에 병기**해야 레버 인과를 오판
 안 함(§2bf가 그 반례·[[08]] 확장). rall6 판정축에 추가: UNLOCK_NAME 발화→KB검색→접미사명 unlock 성공률.
 
+### §2bi (2026-07-22) — rall6(48k·8140 단일GPU) 판정 + 우회-경로 2건 봉합 + 뷰-압축 구현(사용자 기본안)
+**rall6 full**(48640 서빙·양 arm 8140·nt=3): 095={7,6,7}/9 **infra 0**(48k 효과·CWE-사망 소멸)·
+052={7,7,2}/13·050={6,6,1}/13·054={12/17, **CWE-scored**, infra(id-mismatch)}. 스모크: **023=1.0 무회귀**
+(yarn1.5/48k 카나리아)·095s=timeout infra(기지 ~10% 확률 사건).
+**graceful-stop 라이브 검증 [S]**: 054 t1 = `context_window_exceeded`로 **채점된 종료**(reward 0.0·83msg
+— 구판이면 infra-소실). 단 action_checks 0/0 = 평가기가 CWE-종료 sim의 액션 대조를 생략 — 부분-채점
+완성은 추후(액션 평가 경로 확인).
+**UNLOCK_NAME 0-발화 근본 [S]**: bare-name이 태어나는 곳 = **resign-경로 FOLLOWUP regen**(`_ap_regen`
+직반환)이라 while-루프의 un_fb 검사를 통째 우회(chain 18발화·un_fb 0·bare 3회 커밋 = 정합). 픽스 =
+`_ap_regen` 내 name-check 교정 1회(required·게이트 재검사 후 채택). 부수 관찰: 050 t0는 **full-접미사
+시도 2회 자발 발생** — 이름만 해결되면 경로가 열림의 방증.
+**id-mismatch 부패 시그니처 확정 [S]**: PAIRDUMP 첫 실전 포획(054 t2) — 다중 동일-도구 read 턴에서
+호출 [a,b,c] vs 커밋결과 [a,c,b] **순서만 스왑**(집합 정확). 라이브 PAIRCHECK 침묵 = 부패는 tick→message
+**평가-입력 조립층**(우리 두 래퍼는 정합·§2ah/_reassemble). 픽스 = **T2_PAIRFIX**: 같은 id 집합·순서-스왑
+블록을 호출 순서로 재정렬(내용 불변=의미론 no-op·[[03b]] 채점조작 아님) — 평가 set_state 직전+생성-턴
+양쪽 배선·멱등·집합불일치 무개입(`test_view_compact.py` ⑤ 5/5).
+**T2_VIEW_COMPACT 구현**(사용자 승인 기본안·§2bi 문답: 서브-read-커밋 변형은 [[05]]③ autofetch-류 기각):
+커밋 히스토리·게이트 ctx 원문 불변(=replay-safe)·**생성-뷰만** 오래된 벌크 tool 출력을 head+tail 절단
+다이제스트로 대체. READ_DEDUP 면제(다이제스트된 출력 재열람=stub 금지=탈출구). 문턱(120k chars) 미만
+무개입=거동보존. 12/12 오프라인. **097 포함 차기 런의 컨텍스트 레버**(48k와의 합성 = 자연 ablation).
+**[[05]] 3질문**: (1)전부 엔진-일반(패턴/순서/절단·리터럴 0)·A2 순증 0. (2)뷰-압축은 재열람 탈출구로
+접근 복원·name-check는 형식 반사만. (3)수행 0(서브-커밋 변형 기각이 그 증빙). **다음 런 판정축**:
+①UNLOCK_NAME(regen-경로) 발화→KB검색→full-name 성공률 ②PAIRFIX 발화·id-mismatch 0 ③CWE-scored의
+액션 대조 여부 ④(097 추가 시) VIEW_COMPACT 발화·CWE 0.
+
 ### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0
