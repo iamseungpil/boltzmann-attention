@@ -21,9 +21,9 @@ class M:
 
 
 def hist():
-    # 에이전트가 KB_search 함(apply-flow 신호·research_tool 게이트 충족)
+    # 에이전트가 KB_search_bm25 함(apply-flow 신호·research_tool 게이트 충족 — 실환경 도구명, e3a8654f)
     return [M("user", "I need a card with NO foreign transaction fees and purchase protection."),
-            M("assistant", tool_calls=[TC("KB_search", {"query": "credit cards no foreign fee"})]),
+            M("assistant", tool_calls=[TC("KB_search_bm25", {"query": "credit cards no foreign fee"})]),
             M("tool", "Silver Rewards Card: no foreign transaction fees, purchase protection, $120k limit. "
                       "Platinum Rewards Card: has foreign transaction fees, travel perks.")]
 

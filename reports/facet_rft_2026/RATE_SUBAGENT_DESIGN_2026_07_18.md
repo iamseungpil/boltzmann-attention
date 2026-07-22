@@ -1594,6 +1594,20 @@ READLOOP(chain-한정)·모든 게이트 우회**. DISPATCH_ROLE strip 5회는 �
 그 read들이 표적과 무관 → ending-등가). rall10(§2bo user-instruct + give-fix + closure-chain) 검증 후 설계.
 **레버 판정 잔여**: L1(interest-provenance)은 이번 run서 미교전(시도 부재) — 판정 이월.
 
+### §2bs (2026-07-22) — T6 오프라인 테스트 적자 근본원인: e3a8654f research_tool 실명화가 픽스처를 고아화
+**증상**: test_action_reminder.py T6 쌍(recommend_fired/offer_reminder) FAIL — bisect로 07-21/22 레버
+작업 **이전**(08c62c31)부터 동일 실패 확인(최근 T2_* 레버 무관). trace: resolve_recommendation 경로B
+(제안 없이 종결)가 formalize 서브콜 없이 "ok" 반환 → SCRIPT[1](recommend formalize JSON)을 후속
+intent_operator_formalize가 오소비 → `_t2_recommend_deny=0`.
+**근본원인 [S]**: 경로B 비용 게이트 `_rt not in _tool_names(msgs)`의 정확-일치 조건. c23a013c(07-13)는
+spec `research_tool: "KB_search"`·픽스처도 KB_search로 정합했으나, **e3a8654f(T3 포렌식)가 spec을 실환경
+도구명 "KB_search_bm25"로 교정**(라이브서 레버 영구침묵=0발화 픽스)하면서 테스트 픽스처 2곳(T6·
+test_recommend_verify hist())을 미갱신 — 라이브를 고치자 오프라인이 조용히 퇴행(경로A는 게이트 비경유라
+유닛 12/15는 계속 PASS·경로B 3건만 침묵 FAIL이라 미발견). **픽스**: 픽스처를 spec 선언명 KB_search_bm25로
+정합(spec/술어 무변경 — spec 완화는 라이브 재침묵이라 금지). test_action_reminder 23/23·
+test_recommend_verify 15/15 전녹. **교훈**: A2 데이터의 도구명 개명은 그 이름을 하드코딩한 오프라인
+픽스처와 동시 grep-감사가 필요(정확-일치 비용 게이트는 개명 시 침묵-스킵이라 실패가 아닌 무발화로 위장).
+
 ### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0

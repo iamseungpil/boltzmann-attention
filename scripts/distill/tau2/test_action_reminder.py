@@ -172,11 +172,12 @@ check("T5_reminder_delivered",
       any("[VERIFY-PERSISTENCE]" in (u or "") for u in regen_user_msgs()), regen_user_msgs())
 check("T5_action_not_fired", getattr(ag, "_t2_action_deny", 0) == 0)  # apply=user-실행이라 action-req 무발화
 
-# ── T6 (Lever 4 live·오추천): KB_search 후 텍스트로 틀린 카드 추천+종결 → recommendation-offer 재생성 ──
+# ── T6 (Lever 4 live·오추천): KB_search_bm25(=spec research_tool·실환경명) 후 텍스트로 틀린 카드
+#     추천+종결 → recommendation-offer 재생성 ──
 GENCALLS[:] = []
 ag, orch, st = setup([
     UserMessage("I want a credit card with no foreign transaction fees and purchase protection."),
-    AM(tool_calls=[ToolCall("KB_search", {"query": "cards no foreign fee"})]),
+    AM(tool_calls=[ToolCall("KB_search_bm25", {"query": "cards no foreign fee"})]),
     ToolMessage(id="k1", content="Silver Rewards Card: no foreign fee, purchase protection. "
                                  "Platinum Rewards Card: has foreign fee."),
 ])
