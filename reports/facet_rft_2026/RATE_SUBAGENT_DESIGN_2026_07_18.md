@@ -1579,6 +1579,21 @@ test_action_reminder T1/T4/T5가 Lever 2(디스패처-경유 액션의 발견-�
 **잔여 감시**: 합집합 하에서도 formalize가 디스패처를 오선택하면 같은 오지시 재발 가능 — rall10+
 로그서 `reason=discovery-required` 발화의 target·문맥을 계측(정당/오지시 분류)해 데이터로 재론.
 
+### §2bq (2026-07-22) — rall9 판정: **054=15/17 신기록**·infra 0·잔여 통합 = "write-의도 계류 중 read-flail"
+**rall9**(9태스크 nt=1·§2bm 교정판): infra/크래시/CWE/id-mismatch **전부 0**(PAIRFIX 무사고·인프라 완전
+안정 2연속). **054 = 15/17 신기록**(13→12→15) — READLOOP 8회·UNLOCK_NAME(regen) 7회 합성의 실증. 잔여
+2 = 전부 인자-diff 층(submit 금액=유저-sim 2500/4000 분기·approve 값) = "안 함"→"함·값 diff" 전환 완료.
+052 5/13·050 3/13·095 5/9(이번 trial은 종단 write 시도 자체 부재=L1 미교전·nt=1 분산)·097 1/18(마라톤
+미진입)·023 0.0(§2bo 원인·rall9 코드엔 미반영)·031 1/5(신규 관찰 ↓).
+**031 shell-flail 변형 [S]**: give/unlock 도달 전에 shell grep 6연발("dispute form/tool/navigate...") —
+023족(존재하지 않는 절차를 문서에서 탐색)이되 **호출이 계속 있어 agent_ending 불성립 → action-required·
+READLOOP(chain-한정)·모든 게이트 우회**. DISPATCH_ROLE strip 5회는 발화(형식 레버 작동).
+**잔여 패턴 통합**: 최대 조각 = **"write-의도 계류 중 read-flail"** — chain-태스크는 READLOOP가 커버
+(054 실증)·non-chain(031 dispute·023 apply·097 마라톤)은 사각. **다음 레버 후보**: action-required
+트리거의 flail-등가 확장(READLOOP 일반화: 의도 formalize가 미이행 write를 지목 ∧ 연속 N턴 read-only ∧
+그 read들이 표적과 무관 → ending-등가). rall10(§2bo user-instruct + give-fix + closure-chain) 검증 후 설계.
+**레버 판정 잔여**: L1(interest-provenance)은 이번 run서 미교전(시도 부재) — 판정 이월.
+
 ### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0
