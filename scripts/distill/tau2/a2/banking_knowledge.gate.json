@@ -999,7 +999,7 @@
     "current_balance": "The current balance as a plain number (no $ or commas), from the account record.",
     "credit_limit": "The credit limit as a plain number (no $ or commas), from the account record.",
     "consecutive_on_time_payments": "The 'Consecutive on-time payments' number from the payment history tool output.",
-    "last_approved_cli_submitted_date": "The submitted_date of the most recent APPROVED request in the CLI request history output, EXCLUDING the request you are deciding now. Pass 'none' if there is no approved prior request."
+    "last_approved_cli_submitted_date": "Look at the CLI request history tool output. Among the requests whose status is 'approved', copy the most recent submitted_date (as shown, e.g. 2025-09-15). The request the customer just submitted in THIS conversation has status 'pending' (not 'approved'), so it is automatically excluded - do not confuse it with a prior approval. Pass 'none' ONLY if NO request in the history has status 'approved'."
    },
    "return_template": "CLI eligibility for {credit_card_account_id} ({card_type}): {result}",
    "missing_hint": "COULD NOT VERIFY - one or more inputs are missing or unparseable, so no verdict is given. Re-read the account record, the CLI request history and the payment history, then call again with exact values (balances/limits as plain numbers, dates exactly as shown, 'none' for the last-approved date only if no approved prior request exists).",
@@ -1221,7 +1221,7 @@
      }
     }
    },
-   "_note": "2026-07-22 §2bu(rall11 052 실측): 4체크를 다 읽고도 approve 실행(gold=deny·cooldown). 자격 4기준은 KB에 결정론 명시(logistics_005/006·티어 목록=replacements_002)→[[10]] 분담: 판정=결정론 offload(check_rebate/closure_eligibility 선례). 문구=양방향(approve|deny)·default None=미지 카드타입 abstain([[05]] 3-값). gold 무관·전거는 KB."
+   "_note": "2026-07-22 §2bu(rall11 052 실측): 4체크를 다 읽고도 approve 실행(gold=deny·cooldown). 자격 4기준은 KB에 결정론 명시(logistics_005/006·티어 목록=replacements_002)→[[10]] 분담: 판정=결정론 offload(check_rebate/closure_eligibility 선례). 문구=양방향(approve|deny)·default None=미지 카드타입 abstain([[05]] 3-값). gold 무관·전거는 KB. ★2026-07-22 rall12 smoke(052) 실측: 모델이 history의 status:approved submitted_date:2025-09-15을 못 뽑고 'none' emit→cooldown 관문 skip→ELIGIBLE 오판(gold=deny). 원인=舊문구 'EXCLUDING the request you are deciding now' 과적용(pending과 과거 approved 혼동). 문구를 'approved만 보라·pending은 자동제외'로 교정. 근본(문맥값→slot 매핑)=formalize 잔여(LEARN §2.1)라 문구로 완전히 못 닫음·라이브 재검 대상."
   }
  ],
  "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수.",
