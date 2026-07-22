@@ -2884,8 +2884,35 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _exec_map = (a2 or {}).get("action_tool_executor") or {}
                         _acts = {t for t in ((a2 or {}).get("action_tools") or [])
                                  if _exec_map.get(t, "assistant") == "assistant"}
+                        # ★user-실행 분기 (2026-07-22 §2bo·rall9 023 실측): apply류(user-실행)는
+                        #   기존에 스퓨리어스 방지로 필터만 되고 **아무 nudge도 없어**, 모델이 "에이전트-측
+                        #   절차가 KB에 있을 것"이라는 거짓 전제로 8턴 검색-루프→transfer(C108 변형).
+                        #   executor 맵(A2·기왕 선언)을 모델에 *전달*: intent가 user-실행 도구로 formalize
+                        #   되고 그 도구가 아직 미실행이면 "고객이 실행하는 도구다·검색 중단·안내하라"
+                        #   피드백. tool_choice 강제 없음(정답 행동=안내 텍스트)·cap=action_deny 공유.
+                        _uacts = {t for t in ((a2 or {}).get("action_tools") or [])
+                                  if _exec_map.get(t) == "user"}
                         _called = {getattr(c, "name", None) for c in (am.tool_calls or [])}
-                        if _acts and not (_called & _acts) and _rz._agent_ending(am, _transfer_tools(a2)):
+                        if (_uacts and _rz._agent_ending(am, _transfer_tools(a2))):
+                            _effall = {_eff_tool_name(tc) for m2 in state.messages
+                                       for tc in (getattr(m2, "tool_calls", None) or [])}
+                            _upending = sorted(_uacts - _effall)
+                            if _upending:
+                                _utgt = _rz.formalize_intent_tool(self, la, UserMessage,
+                                                                 state.messages, set(_upending))
+                                if _utgt in _upending:
+                                    _ufb = str((a2 or {}).get("user_action_feedback")
+                                               or ("Error: [ACTION] '{tool}' is run by the CUSTOMER, "
+                                                   "not by you, and needs no agent-side KB procedure - "
+                                                   "STOP searching. In your next message tell the "
+                                                   "customer to run {tool} now with their details, "
+                                                   "then confirm the result. Do not transfer for this.")
+                                               ).replace("{tool}", _utgt)
+                                    rw_fb = ((am.tool_calls or [None])[0], _ufb)
+                                    self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
+                                    print("[T2_RESOLVE] user-action instruct target=%s" % _utgt,
+                                          file=_sys.stderr, flush=True)
+                        if rw_fb is None and _acts and not (_called & _acts) and _rz._agent_ending(am, _transfer_tools(a2)):
                             _tgt = _rz.formalize_intent_tool(self, la, UserMessage,
                                                              state.messages, _acts)
                             # ★고정밀(Δspurious): formalize가 구체 agent-실행 target을 낼 때만 발화.
