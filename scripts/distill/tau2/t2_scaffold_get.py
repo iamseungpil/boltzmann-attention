@@ -375,7 +375,29 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
             for _rm in _res:
                 (_err_outs if getattr(_rm, "error", False) else _ok_outs).append(
                     str(getattr(_rm, "content", "") or ""))
-            msgs.extend(_res)
+            # ★서브 tool 출력 절단 (2026-07-22 §2bu·rall11 097 실측: 서브가 getter(KB APY규칙·
+            #   전체계좌)를 라운드마다 누적→52854 tokens > 48640 max=ContextWindowExceededError→서브
+            #   실패·폴백→메인 오추측(95000) 사용=097 부하의 인프라 형태). 서브는 값-추출이 목적이라
+            #   전체 문서 불요·값은 출력 앞부분(레코드 필드)에 실재 → 서브 뷰만 절단(메인 무관·비커밋=
+            #   replay-safe·_ok_outs 원문은 위에서 이미 확보=마감검증 무영향). 엔진 순수 절단(리터럴 0).
+            _stc = int(os.environ.get("T2_SG_SUB_TOOLCAP", "3000"))
+
+            def _capm(_m, _cap=_stc):
+                _c = getattr(_m, "content", None)
+                if isinstance(_c, str) and len(_c) > _cap:
+                    _d = _c[:_cap] + "\n...[truncated for sub-extraction context]"
+                    try:
+                        return _m.model_copy(update={"content": _d})
+                    except Exception:
+                        import copy as _cp
+                        _m2 = _cp.copy(_m)
+                        try:
+                            _m2.content = _d
+                            return _m2
+                        except Exception:
+                            return _m
+                return _m
+            msgs.extend(_capm(_rm) for _rm in _res)
             continue
         got = _merge_json(getattr(resp, "content", None) or "", keys)
         # ★무근거-답 차단 (2026-07-21 §2be·rall4 실측): interest 서브가 getter 전패(성공 출력 0)인
