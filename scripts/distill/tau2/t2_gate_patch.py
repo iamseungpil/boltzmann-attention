@@ -613,6 +613,58 @@ def _wev_deny_msgs(messages, tc, specs):
     return None
 
 
+def _write_arg_ground_deny(messages, tc, specs):
+    """★T2_WRITE_ARG_GROUND (2026-07-22 §2bs·rall10 031 실측): A2 `write_arg_grounding` —
+    선언된 write의 선언된 인자 **값**이 대화의 실측 근거(role=tool 출력 ∪ user 발화)에
+    부분문자열로 실재해야 실행. 031: WRITE_EVIDENCE(선행-read 강제)는 통과했으나 뷰에 실재한
+    5320 대신 '1234'를 기입해 dispute 제출 — read-강제와 값-전사는 별개 구멍. 도메인-일반:
+    도구/인자/문구 전부 A2·엔진=값 실재확인만(substring·값 추출/생성 0·[[03b]] provenance 계열
+    — SG_GROUND의 discoverable-write 확장). user 발화 포함=고객이 직접 준 값은 정당 근거.
+    값 없음/키 없음=skip(false-block 회피·빈-값은 WEV 담당)."""
+    name = getattr(tc, "name", None)
+    args = _args_dict(tc)
+    for sp in specs:
+        if name != sp.get("applies_to"):
+            continue
+        aw = sp.get("applies_when") or {}
+        if aw.get("arg"):
+            v = str(args.get(aw["arg"]) or "")
+            pref = aw.get("prefix")
+            if pref and not v.startswith(pref):
+                continue
+        inner = {}
+        for vv in args.values():                 # 중첩 JSON-문자열 인자(디스패처형 도구)
+            if isinstance(vv, str) and vv.strip().startswith("{"):
+                try:
+                    j = json.loads(vv)
+                    if isinstance(j, dict):
+                        inner.update(j)
+                except Exception:
+                    pass
+        for k2, v2 in args.items():
+            if not isinstance(v2, (dict, list)):
+                inner.setdefault(k2, v2)
+        for ga in (sp.get("grounded_args") or []):
+            gv = inner.get(ga)
+            gs = str(gv).strip() if gv is not None else ""
+            if not gs:
+                continue
+            found = False
+            for m in messages:
+                if getattr(m, "role", None) not in ("tool", "user"):
+                    continue
+                c = getattr(m, "content", None)
+                c = c if isinstance(c, str) else str(c or "")
+                if gs in c:
+                    found = True
+                    break
+            if not found:
+                fb = sp.get("feedback") or ("Error: [WRITE-GROUNDING] value '{val}' for {arg} "
+                                            "does not appear anywhere in this conversation.")
+                return fb.replace("{arg}", str(ga)).replace("{val}", gs)
+    return None
+
+
 def _resolver_directive(a2, tc, k, s):
     """★B-max① (2026-07-11): fab 인자 k에 A2 resolver_path가 있으면 지시형 피드백 문구, 없으면 None.
     resolver_path=[in_arg, producer, field] — 호출 인자에 in_arg 값이 실재(알려진 입력)할 때만 그 producer/
@@ -2621,6 +2673,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         #   생성-레벨 deny(ep/cons/ra/te와 동렬·무과금·sim당 cap)로 이설. 검사 코어=_wev_deny_msgs 공유.
         wev_specs = (a2.get("write_evidence_specs") or []) \
             if (a2 is not None and os.environ.get("T2_WRITE_EVIDENCE") == "1") else []
+        # ★T2_WRITE_ARG_GROUND (§2bs): WEV 블록에 합류(동일 라운드·cap·적용 배관 공유 — 문서화됨)
+        wag_specs = (a2.get("write_arg_grounding") or []) \
+            if (a2 is not None and os.environ.get("T2_WRITE_ARG_GROUND") == "1") else []
         _wev_cap = int(os.environ.get("T2_WEV_CAP", "8"))
 
         def bw():
@@ -2925,7 +2980,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   없는 선언-write deny. silent-repair(reffilter/compute) *뒤* 배치 = 교정된 최종 인자를 검사.
             #   무과금·turn당 1회·sim당 T2_WEV_CAP(기본 8) — E-PLAN cap 선례(불응 무한루프 방지·소진 후 통과).
             wev_fb = None
-            if (wev_specs and not do_gate and not do_prov and ep_fb is None
+            if ((wev_specs or wag_specs) and not do_gate and not do_prov and ep_fb is None
                     and cons_fb is None and ra_fb is None and te_fb is None
                     and wev_rounds < 1 and getattr(self, "_t2_wev_deny", 0) < _wev_cap):
                 try:
@@ -2933,12 +2988,17 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         if id(c) in denied_by_objid:
                             continue
                         wd = _wev_deny_msgs(state.messages, c, wev_specs)
+                        _wtag = "T2_WRITE_EVIDENCE"
+                        if not wd and wag_specs:
+                            # ★값-grounding(§2bs·031): WEV(선행-read)와 별개 구멍=값-전사.
+                            wd = _write_arg_ground_deny(state.messages, c, wag_specs)
+                            _wtag = "T2_WRITE_ARG_GROUND"
                         if wd:
                             wev_fb = (c, wd)
                             # ★내부 도구명 로깅(§2ba 오귀속 교훈: per-도구 로그에 이름 필수)
                             _inner = _args_dict(c).get("agent_tool_name") or ""
-                            print("[T2_WRITE_EVIDENCE] deny tool=%s inner=%s"
-                                  % (getattr(c, "name", None), _inner),
+                            print("[%s] deny tool=%s inner=%s"
+                                  % (_wtag, getattr(c, "name", None), _inner),
                                   file=_sys.stderr, flush=True)
                             break
                 except Exception as _wve:

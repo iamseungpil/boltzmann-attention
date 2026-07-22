@@ -1046,6 +1046,18 @@
    "_note": "2026-07-22 §2bn(rall8 043 실측): pay unlock까지 도달 후 체킹 계좌 id를 KB 문서(shell 4연발)서 찾다 transfer(C108류) - reader(get_all_user_accounts)가 requires에 있어 {missing} 나열로 안내됨. 앵커=check_card_closure_eligibility(§2bc 관문3·자발 호출 실증). requires 근거=KB doc_credit_card_account_logistics_002/003. 조건부 단계(잔액 0이면 pay 불요)는 문구에 명시=over-fire 시 모델이 설명으로 해소 가능(deny 아닌 nudge). ★2026-07-22 §2bs(rall10 043 실측+KB 재정독): ①구판 requires에 dispute-체크 누락(리텐션 프로토콜 Step1.1=get_user_dispute_history) 추가 ②close를 requires에서 제거 — logistics_003 Step4: annual_fee+장기고객=waive(apply_credit_card_account_flag)가 정답 분기라 close 고정은 KB-불일치(gold-불일치는 결과·근거는 KB) → 종단을 decision_tools[apply_flag|close] 양방향 nudge로 전환(CLI chain approve|deny와 동형·Δspurious 계측 대상)."
   }
  ],
+ "write_arg_grounding": [
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_credit_card_transaction_dispute"
+   },
+   "grounded_args": ["card_last_4_digits", "transaction_id"],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be READ from the records (or given by the customer), never invented. Look the value up in the account/transaction records already retrieved in this conversation (or retrieve them / ask the customer), then retry the dispute with the actual value.",
+   "_note": "2026-07-22 §2bs(rall10 031 실측): WRITE_EVIDENCE(선행-read 강제) 2회 deny 후 read는 했으나 뷰에 실재한 last4(5320) 대신 '1234'를 기입·gold와 다른 txn id로 dispute 제출 성공(env 미검증). read-강제≠값-전사 — 값 실재확인(provenance 사실게이트·SG_GROUND의 discoverable-write 확장). grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제). user 발화도 근거(고객이 직접 준 값=정당). KB 근거=credit_cards_(general)_014(dispute 인자 명세)."
+  }
+ ],
  "view_field_annotations": [
   {
    "contains": ["account_status: ACTIVE", "status: CLOSED"],
