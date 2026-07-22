@@ -202,8 +202,21 @@ that the readout's largest attention target is the target row itself, not the cl
 queries — schema region and readout included — recovers nothing (ko_post: 0.020, 0.031). The interference
 channel is therefore **the construction of the target row's representation**: its tokens' queries read the
 same-clause predecessors during prefill, and what they absorb there determines the judgment; everything
-downstream, including the readout's direct access to the interfering rows, is causally inert. ⟦optional:
-layer-wise knockout⟧
+downstream, including the readout's direct access to the interfering rows, is causally inert.
+
+**Layer localization**: applying the knockout mask in layer windows only (hook-swapped masks; sanity gates:
+empty window reproduces base 0.120, full window reproduces 0.980), at k=4: blocking layers 0–8 alone recovers
+to 0.864; layers 9–17 alone: 0.058; 18–26: 0.551; 27–35: 0.131; the first half (0–17) reaches 0.928. The
+contaminating reads are dominated by **early-layer** row-to-row attention, with a secondary mid-late channel
+(18–26) — consistent with early layers performing the structural row-copying whose values carry the echo
+content forward.
+
+**Geometry (P7) — unsupported at the granularity tested**: layer-mean cosine similarity between predecessor-row
+key/value projections (pre-RoPE) and clause-token projections is condition-blind (keys: 0.783 similar vs 0.777
+dissimilar; values: 0.298 vs 0.278); the only whiff is the target row's value-projection drifting slightly away
+from the clause under similar loading (0.264 vs 0.289/0.292). We record P7 as not supported at this coarse
+granularity — the similarity gating evidently lives in finer structure (per-head, post-RoPE, or deeper
+representation content) than layer-mean projection geometry.
 
 ## 6. Temperature test (B3): the pre-registered direction is wrong — and the inversion is diagnostic
 
