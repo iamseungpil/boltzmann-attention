@@ -1507,6 +1507,22 @@ autocomplete-변형은 [[05]](3)으로 기각). cap 6·소진=통과. `test_unlo
 ①UNLOCK_NAME(regen-경로) 발화→KB검색→full-name 성공률 ②PAIRFIX 발화·id-mismatch 0 ③CWE-scored의
 액션 대조 여부 ④(097 추가 시) VIEW_COMPACT 발화·CWE 0.
 
+### §2bj (2026-07-22) — 031·038 per-step 포렌식 (사용자 요청): 각 1-장면 원인 확정
+**031 [S]** (e2e10 t1 정독): 신원확인→47건 조회→**유저가 "Marriott $167.34 (11/07/2025)" 2회 정확
+지목**→give-flow로 last4(5320) 확보→dispute 제출 — 인자 전원 정답인데 **transaction_id만
+txn_2017c3b2b119(=Amazon $89.99)** 기입. gold txn_adea68821a1d(Marriott 167.34)는 목록에 유일-실재.
+= C43 **정박-치환**(문맥 인접 id 오복사) 그 자체·⋈ 확신 오류 아님(후보 혼동 여지 자체가 없었음).
+**처방(측정-정당화 슬롯)**: `reference_filter`(결정론 레코드-⋈ 치환·C77 키스톤)가 **debit 변형만
+선언** — credit 변형(file_credit_card_transaction_dispute·criteria=merchant/amount/date) A2 확장으로
+닫힘. rall7 후 적용.
+**038 [S]** (e2e10 t1 정독): 신원확인→조회→**유저가 분쟁 3건 txn id 정확 지목**→에이전트 3건 정확
+복창("will assist")→"진행해주세요" 직후 **구판 WEV(give-flow 단일경로)가 dispute write를 5회 연속
+deny**(레코드에 last4 5320 실재인데 '고객이 도구 실행'만 증거 인정) → 모델 "no further actions I can
+take" 오결론 → **TRANSFER NOTICE** → 종료. = "선제-transfer(F5)" 재분류: **게이트-유발 포기**(C108류
+거짓-불가능 믿음·우리 구판 게이트가 유발). §2bc WEV 완화(record-경로 인정)로 **이미 제거된 원인** —
+수정 스택 재시험 가치. 단 frontier 1/67 태스크라 게이트 원인 제거 후에도 잔여 난도(3중 분쟁+해지+
+재발급 완주)는 공유 경계로 남을 수 있음(정직 한계).
+
 ### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0
