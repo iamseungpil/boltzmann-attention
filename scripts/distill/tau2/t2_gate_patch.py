@@ -2893,13 +2893,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _uacts = {t for t in ((a2 or {}).get("action_tools") or [])
                                   if _exec_map.get(t) == "user"}
                         _called = {getattr(c, "name", None) for c in (am.tool_calls or [])}
-                        if (_uacts and _rz._agent_ending(am, _transfer_tools(a2))):
+                        _tgt_pre = None      # ★공유 formalize(합집합 1회) — 아래 원 블록이 재사용(이중 서브콜 방지)
+                        if ((_uacts or _acts) and _rz._agent_ending(am, _transfer_tools(a2))):
                             _effall = {_eff_tool_name(tc) for m2 in state.messages
                                        for tc in (getattr(m2, "tool_calls", None) or [])}
                             _upending = sorted(_uacts - _effall)
-                            if _upending:
-                                _utgt = _rz.formalize_intent_tool(self, la, UserMessage,
-                                                                 state.messages, set(_upending))
+                            if _upending or (_acts and not (_called & _acts)):
+                                _tgt_pre = _rz.formalize_intent_tool(self, la, UserMessage,
+                                                                    state.messages,
+                                                                    set(_upending) | _acts)
+                                _utgt = _tgt_pre
                                 if _utgt in _upending:
                                     _ufb = str((a2 or {}).get("user_action_feedback")
                                                or ("Error: [ACTION] '{tool}' is run by the CUSTOMER, "
@@ -2913,8 +2916,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     print("[T2_RESOLVE] user-action instruct target=%s" % _utgt,
                                           file=_sys.stderr, flush=True)
                         if rw_fb is None and _acts and not (_called & _acts) and _rz._agent_ending(am, _transfer_tools(a2)):
-                            _tgt = _rz.formalize_intent_tool(self, la, UserMessage,
-                                                             state.messages, _acts)
+                            _tgt = _tgt_pre if _tgt_pre in _acts else None
                             # ★고정밀(Δspurious): formalize가 구체 agent-실행 target을 낼 때만 발화.
                             #   target=None(=action-ask)은 미발화 — discovery/user-실행 의도서 스퓨리어스
                             #   (banking 잔여=⋈/reach이지 deflect-vs-ask 아님·BANK_ACTIONREQ_PROBE_FORENSIC).
