@@ -1523,6 +1523,29 @@ take" 오결론 → **TRANSFER NOTICE** → 종료. = "선제-transfer(F5)" 재�
 수정 스택 재시험 가치. 단 frontier 1/67 태스크라 게이트 원인 제거 후에도 잔여 난도(3중 분쟁+해지+
 재발급 완주)는 공유 경계로 남을 수 있음(정직 한계).
 
+### §2bk (2026-07-22) — rall7 per-step 전수 분해(사용자 요청) + rall9 처방 2건
+**rall7**(nt=1·infra 0·크래시 0·CWE 0). 태스크별 1-장면 분해:
+**095 (7/9)**: 절차·형식 완주. 미스=종단 write 2개 인자 — expected 6.875(=checking 1.35 ✓발견+
+**relationship 0.025 적용성 오판**·고객 Gold Rewards Card 미보유)·actual 5.5(레코드 명시값)·amount
+100.83(**자기-계산**). 기제 [S]: REQREADS가 transactions-미독을 deny했으나 모델이 도구 재호출 대신
+**손계산으로 write** = "Do NOT do this arithmetic yourself" 우회·무검증 통과. ⇒ **처방 L1**.
+**097 (2/18·90msg 완주)**: VIEW_COMPACT 무발화(109k<문턱=정상)·CWE 0 — 컨텍스트 벽 소멸. 미스=계좌
+1개만 읽고 5-계좌 read+credit+report 마라톤 미진입 = **coverage 지속(F4)**·shell 14회로 문서만 탐색.
+**054 (12/17)**: §2bh 사슬 완결 실증 — UNLOCK_NAME(regen-경로) deny 4회→**dispute_history·pending_orders
+full-접미사 각 3회·approve 4회**(rall4~6 내내 0이던 슬롯 전부 개방). 잔여 5=인자층(submit 금액=시나리오-
+분기·approve 인자·dispute 인자·payment쌍 1건 미전환).
+**050 (3/13)**: submit ✓ 후 유저 질문에 **KB-검색 5연발로 응대(리서치-루프)** → 사임(텍스트-턴) 이벤트
+부재 → **chain nudge 0회** → 체크·결정 전멸. = FOLLOWUP 트리거의 2번째 구멍. ⇒ **처방 L2**.
+**052 (3/13)**: submit 자체를 마지막-턴 say-don't-do로 회피(after-조건 미충족=사슬 원천 불가)+유저
+STOP 레이스. (FORCE_ACTION cap 내 미구제·어려운 잔여로 기록.)
+**처방(rall9)**: **L1**=A2 WEV 2스펙 — apply_credit.amount / report.amount_difference가
+get_interest_correction 출력("Interest correction" 템플릿)과 공존해야 write(오프라인 3/3·rall7 095
+재현 deny 확인). **L2**=`T2_FOLLOWUP_READLOOP` — after-실행됨∧requires-누락∧이번 턴 전부 비-write∧
+누락 requires 무관이면 사임-등가 카운트(엔진 술어 일반·A2 chain 선언 구동·cap 불변).
+**[[05]] 3질문**: (1) L1=기존 WEV 선언 확장(측정: 095 손계산 write)·L2=엔진-일반 술어(리터럴 0).
+(2) L1=계산-오프로드 집행(기왕 확정 설계·[[10]])·L2=발화 시점 확장뿐. (3) No.
+**rall9**: 전 로스터 9태스크 nt=1(A=095/097/023/031 ∥ B=050/052/054/038/043)·rall8 완료 후 자동.
+
 ### §2av (2026-07-20) — r095(수정-스택 nt=3) 판정: 인프라 검증·잔여=gather-순서(read-선행 미도달)
 **결과**: t0 0.0(2/9·76msg)·t1 infra(**LLM timeout 재발** — 480s에도 hang·확률 사건)·t2 0.0(1/9·32msg).
 **검증된 것 [S]**: ①overflow 가드 3-클래스 라이브 ON("base+text+full_duplex")·overflow 발화 0·CWE 0

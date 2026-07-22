@@ -3405,6 +3405,29 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         #   상한 1/sim(에이전트 인스턴스=sim). regen 채택 전 게이트 재검사(NLNUM과 동형·안전측).
         _resign = (not getattr(am, "tool_calls", None)
                    and isinstance(getattr(am, "content", None), str) and am.content.strip())
+        # ★T2_FOLLOWUP_READLOOP (2026-07-22 §2bk·rall7 050 실측): post-submit에 모델이 KB-검색류
+        #   read만 계속 돌리면 사임(텍스트-턴) 이벤트가 영영 없어 chain nudge 0회로 종료(리서치-루프
+        #   회피). 확장 술어(도메인일반·A2 chain 선언 대조): after-도구 실행됨 ∧ requires 누락 ∧ 이번
+        #   턴 호출 전부 비-write ∧ 그 호출들이 누락 requires와 무관 → 사임-등가로 카운트.
+        if (os.environ.get("T2_FOLLOWUP_READLOOP") == "1" and not _resign
+                and getattr(am, "tool_calls", None) and a2 is not None):
+            try:
+                _effh = {_eff_tool_name(tc) for m2 in state.messages
+                         for tc in (getattr(m2, "tool_calls", None) or [])}
+                _hitc = next(((_fc, _chain_dispatch(_fc, _effh))
+                              for _fc in (a2.get("follow_up_chains") or [])
+                              if _chain_dispatch(_fc, _effh) is not None), None)
+                if _hitc is not None:
+                    _ame = [_eff_tool_name(tc) for tc in (am.tool_calls or [])]
+                    _reqs = _hitc[0].get("requires")
+                    _reqs = set(_reqs if isinstance(_reqs, list) else [_reqs])
+                    if (all(not _is_effective_write(e) for e in _ame)
+                            and not (set(_ame) & _reqs)):
+                        _resign = True
+                        print("[T2_FOLLOWUP] readloop-turn counted as resignation",
+                              file=_sys.stderr, flush=True)
+            except Exception:
+                pass
 
         def _ap_regen(fbtxt, tag, tool_choice=None):
             """피드백 1회 → regen. 게이트-deny 유입 시 원본 유지(부작용 0). 성공 시 새 am.

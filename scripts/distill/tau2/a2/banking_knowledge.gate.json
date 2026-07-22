@@ -428,6 +428,32 @@
    ],
    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows the card's last 4 digits ({id}). Do NOT guess or fabricate the digits, and do NOT file the dispute with the digits missing or empty. Obtain the TRUE digits from an actual tool result first: read the credit card account record (it contains card_last_4_digits), or call give_discoverable_user_tool to give the customer the get_card_last_4_digits tool and ask them to run it. Then file the dispute using the digits exactly as shown in that tool output.",
    "_note": "2026-07-20 관문4 WEV형(§2ao·e2e9 031 포렌식) → 2026-07-21 §2bc 정밀화(054 실측): 구판 require_tokens=give-flow 도구명 = 단일 provenance 경로 강제 — 054는 진짜 last4(7823)가 에이전트 자신의 계좌 레코드 출력에 실재하는데 유저가 도구 실행 거부('카드 없음')→충족불가 deny 8회→유저 포기·붕괴. 신판 token='card_last_4_digits'=레코드 필드 라벨이자 give-flow 도구명(get_card_last_4_digits)의 substring → 두 정당 경로 모두 수용·날조(어느 출력에도 없는 값)는 여전히 차단(031 give-flow 실행 t1/t2 실증=무회귀). 빈-값 write는 WEV 코어 신판(§2bc 키실재-빈값 deny)이 차단."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "apply_savings_account_credit"
+   },
+   "id_key": "amount",
+   "require_tokens": [
+    "Interest correction"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] the credit amount ({id}) does not appear in any get_interest_correction tool output in this conversation. Do NOT compute the correction yourself - the tool call is required. First read the account record AND its transactions, then call get_interest_correction with the values from those records, and use the amount EXACTLY as that tool returns it.",
+   "_note": "2026-07-22 §2bk(rall7 095 실측): REQREADS deny 후 모델이 도구 재호출 대신 자기-계산(100.83)으로 write=계산-오프로드 우회. 증거=amount가 interest 도구 출력('Interest correction' 템플릿)과 공존. 도구 산출 사용 시 자동 충족·무회귀."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "submit_interest_discrepancy_report"
+   },
+   "id_key": "amount_difference",
+   "require_tokens": [
+    "Interest correction"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] the amount_difference ({id}) does not appear in any get_interest_correction tool output in this conversation. Do NOT compute it yourself - call get_interest_correction (after reading the account record and transactions) and copy the amount exactly from its output.",
+   "_note": "위와 동일 근거(보고서 write 쌍대)."
   }
  ],
  "scaffold_get_tools": [
