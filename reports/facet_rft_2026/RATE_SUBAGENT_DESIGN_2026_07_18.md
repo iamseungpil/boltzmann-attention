@@ -1728,3 +1728,47 @@ temp0에도 **서버측 비결정론**→발화가 런마다 다름. 최초 분�
 선독→last_approved 정확→COOLDOWN verdict·gold=deny 방향)·REQREADS 라이브 정상발화.
 
 **다음**: 052/054/097 nt=3 재런(분산통제)→후퇴가 분산범위 내면 픽스 무죄·체계적 하락이면 fix9/절단 조건화. [[09]] 유료.
+
+### §2bw (2026-07-23) — ★★per-step 근본원인 파이프라인으로 3개 메커니즘 fix 확정·잔여=chain-reach [S]
+
+> 데이터=sim_results/bank_rall13{a,b}·rall14·rall15·rall16·rall17{a,b}. 프로브=bank_054_greenlight_iso·
+> bank_052_approve_iso·bank_050_flail_iso·test_cli_eligibility(W14-17)·kb_probe(BM25). rall13 스택+아래 3 fix.
+> ★방법=**per-step 전수추적 근본원인 → 결정점 격리replay → A2/엔진 fix → 오프라인+라이브 검증**([[08]]/[[05]]).
+> rall13(8태스크 nt=1)=rall12 후퇴 재확인·**비단조 분산**(054=4→16→8→2·050=5→11→13→7) 4런 재확증=user-sim 무죄([[47]]).
+
+**★Fix1 — A2 met_template 시각 provenance hint (054 verify-루프)**: 원인=agent가 verify 후 게이트 초록불
+("you may now call log_verification")을 받고도 **`get_current_time` 미호출**→time_verified 못 채워 *고객에게 시각을
+물으며* temp0 무한루프(그린라이트後 tool-call 0/9·apology 9). 격리: r11=get_current_time 호출(16/17)·r12=호출-but-날조·
+r13=미호출(2/17). base-replay=시각 리터럴 주입(B)=산문 0/9 실패 vs "get_current_time 먼저" 힌트(D)=9/9·shipped
+A2 met_template(E)=9/9. Fix=verify_identity ledger met_template에 provenance hint(엔진 불변·A2 데이터). **라이브 rall14
+054=2→15·rall17 get_current_time 3/3(루프 소멸)**. [S] 메커니즘. (반응형 write_arg_grounding feedback은 agent가
+log_verification을 호출조차 안 해 死→선제 met_template이 필요.)
+
+**★Fix2 — A2 CLI approve verdict-grounding WEV (052 approve-when-should-deny)**: 원인=agent가 쿨다운 60일을
+**직접 "120일 지났다" 2배 오판**→approve(gold=deny). 결정론 판정도구 `check_cli_eligibility`가 존재하는데 READ-FIRST
+차단 후 재호출 안 하고 우회. Fix=write_evidence_specs에 approve verdict-grounding(check_cli의 `ELIGIBLE - all tier
+requirements` 토큰+account-id 공존 필수·closure CLOSURE_OK 게이트 동형·토큰 비중첩). 오프라인: Part1 도구(052→
+NOT_ELIGIBLE_COOLDOWN·days_between 60<120 확정)·게이트 로직 W14-17(3-read만은 차단·NOT_ELIGIBLE도 차단·
+ELIGIBLE+id만 허용)·라우팅 iso(block→check_cli 9/9). **라이브 rall15 deny 실현(cooldown_period_active)·rall17
+approve 0/3(spurious approve 소멸)**. [S] 메커니즘. deny-측 미게이트(다중 정당근거→over-block 회피).
+
+**★Fix3 — 엔진 T2_READ_DEDUP redirect (050 KB_search 반복-flail)**: 원인=agent가 discoverable 도구를 **함수명으로
+BM25 검색**(kb_probe 결정론 확정: `get_pending_replacement_orders` score **0.0** vs plain-words `pending replacement
+orders` score **18**·함수명은 문서산문에 없음)→[DUPLICATE-READ] 무시·temp0 동일쿼리 **8회 반복**. dedup 피드백이
+"재조회말라"만 하고 plain-words 대안 미제시(closure 피드백엔 이미 있음·flail 지점 미표면화). Fix=검색-도구(search/bm25/
+kb_/grep) 반복 dedup 시 "함수명 말고 plain-words로" redirect 추가(도메인-일반·예시 제거). **라이브 rall16 052[17]
+redirect 발화→반복 깸→다른 쿼리→실제문서(score 12.27)·rall17 050 파국루프 0·t1=13/13 첫 완전 PASS**. [S] 메커니즘·
+집계=변동. (반복-동일 호출 flail은 9 task-trial 공통 잔여=사용자 "두번째 say 금지"의 tool판.)
+
+**★잔여 확정 [S] — (1)052-deny = (2)054-reach = 동일 = 다중-write 사슬 완주(F4 coverage)**: gold 052=log_verif→
+**submit**→history→dispute→pending→payment→**deny**(긴 사슬). rall17 per-trial: deny 0/3·submit 0/3=term=user_stop로
+**사슬 조기 절단**(어느 trial은 deny만·어느 건 submit만). 054도 동일(submit→gather→approve→order→file 9,3,2 절단).
+원인=**user-sim 대화 scope < gold 사슬 + agent 능동완주 안 함**. deny/submit=write→**강제=over-action**(등대 §1.5
+"완결게이트 단 write강제 금지"·모트 §1.3). ⇒ band-aid 금지·원칙레버=**E-PLAN**(plan/execute·[[14]]·e2e 미배선).
+
+**판정 [S]**: 3 fix 전부 **메커니즘 수준 작동·무해**(get_current_time 항상 호출·spurious approve 항상 차단·파국 KB루프
+소멸·050 첫 PASS)·[[05]] 준수(A2 2 + 도메인일반 엔진 1·스캐폴드가드 3질문 통과). **집계는 nt=1/nt=3 모두 user-sim
+변동 지배**→메커니즘 발화율은 신뢰·태스크-매치는 노이즈([[08]] 상시). **잔여 이동: 기계적 결함(시각루프·오판·검색마찰)
+소멸→chain-reach(F4)+user-sim scope로 수렴** = §2bu "learn 경계 근접" 재확인.
+
+**다음**: E-PLAN e2e 배선(F4 사슬완주·[[14]])이 052/054 잔여의 유일 원칙레버. 또는 nt≥5로 3-fix net효과 분포 확정.
