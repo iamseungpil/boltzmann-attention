@@ -3093,6 +3093,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         fbt = _drs.get("user_via_agent_feedback")
                     elif nm == _drs.get("user_call") and iv in _gvn:
                         fbt = _drs.get("agent_runs_user_feedback")
+                    # ★give 대상=agent-도구 deny (2026-07-22 §2bs·rall10 031 실측): 에이전트가
+                    #   자기 도구(get_credit_card_accounts_by_user)를 give → env "Unknown discoverable
+                    #   tool" 2회에도 같은 오선택 고수. 술어=자기 도구 목록 소속(인터페이스-구조·
+                    #   카탈로그 census 불요·이름 리터럴 0): 에이전트가 스스로 부를 수 있는 도구는
+                    #   정의상 user-측 discoverable이 아님. 문구=A2(user-지명 이름 재사용 힌트 포함).
+                    elif (nm == _drs.get("give_tool")
+                          and iv in {getattr(t, "name", None)
+                                     for t in (getattr(self, "tools", None) or [])}):
+                        fbt = _drs.get("give_agent_tool_feedback")
                     if fbt:
                         dr_fb = (c, str(fbt).replace("{name}", iv))
                         print("[T2_DISPATCH_ROLE] deny tool=%s name=%s" % (nm, iv),

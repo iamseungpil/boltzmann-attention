@@ -1091,7 +1091,8 @@
    "give_discoverable_user_tool": "discoverable_tool_name",
    "call_discoverable_user_tool": "discoverable_tool_name"
   },
-  "agent_via_user_feedback": "Error: '{name}' is an AGENT tool (you unlocked it in this conversation). Invoke it via call_discoverable_agent_tool, NOT call_discoverable_user_tool.",
+  "give_agent_tool_feedback": "Error: '{name}' is one of YOUR OWN agent tools - it cannot be given to the customer, and the environment will reject it. give_discoverable_user_tool is ONLY for USER-side discoverable tools. If the customer already told you the exact name of the tool they need, give THAT exact name; otherwise search the knowledge base with plain words for what the customer needs to do themselves, and give the user-side tool named there.",
+ "agent_via_user_feedback": "Error: '{name}' is an AGENT tool (you unlocked it in this conversation). Invoke it via call_discoverable_agent_tool, NOT call_discoverable_user_tool.",
   "user_via_agent_feedback": "Error: '{name}' is a USER tool (you gave it to the customer). You cannot run it yourself and must not route it through the agent dispatcher - ask the CUSTOMER to run it and tell you the result.",
   "agent_runs_user_feedback": "Error: '{name}' is a USER tool. The CUSTOMER must run it themselves after you give it with give_discoverable_user_tool - ask them to run it and report the result; do not call it yourself.",
   "_note": "2026-07-22 §2bl(rall8 031 실측): dispute를 user-디스패처로 제출·user-도구를 에이전트가 직접 호출 4회. 술어=대화 자기-이력(unlock/give 이벤트)로 이름의 역할 판정 — 엔진 이름-리터럴 0·A2=디스패처 5도구명+문구."
