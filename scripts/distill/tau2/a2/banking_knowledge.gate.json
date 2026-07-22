@@ -374,8 +374,8 @@
    "require_tokens": [
     "get_closure_reason_history"
    ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason history (retention-abuse check) (get_closure_reason_history*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_closure_reason_history tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
-   "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5)."
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason history (retention-abuse check) (get_closure_reason_history*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_closure_reason_history tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix. Find the tool's full suffixed name in the knowledge base by searching plain words describing the step (e.g. \"closure reason history\") - a bare tool-name query matches no document text.",
+   "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5). ★2026-07-22 §2bu(rall11 038 실측): 8회 deny 전부 이 계열인데 에이전트가 도구명-질의(score 0)로 발견 실패→cap 소진→close 통과. 질의-가이드(1a 동형) 주입."
   },
   {
    "applies_to": "call_discoverable_agent_tool",
@@ -387,8 +387,8 @@
    "require_tokens": [
     "log_credit_card_closure_reason"
    ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason logging (log_credit_card_closure_reason*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the log_credit_card_closure_reason tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
-   "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5)."
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason logging (log_credit_card_closure_reason*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the log_credit_card_closure_reason tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix. Find the tool's full suffixed name in the knowledge base by searching plain words describing the step (e.g. \"log credit card closure reason\") - a bare tool-name query matches no document text.",
+   "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5). ★2026-07-22 §2bu(rall11 038 실측): 8회 deny 전부 이 계열인데 에이전트가 도구명-질의(score 0)로 발견 실패→cap 소진→close 통과. 질의-가이드(1a 동형) 주입."
   },
   {
    "applies_to": "call_discoverable_agent_tool",
@@ -400,8 +400,8 @@
    "require_tokens": [
     "get_pending_replacement_orders"
    ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement card check (get_pending_replacement_orders*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_pending_replacement_orders tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
-   "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5)."
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement card check (get_pending_replacement_orders*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_pending_replacement_orders tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix. Find the tool's full suffixed name in the knowledge base by searching plain words describing the step (e.g. \"pending replacement orders\") - a bare tool-name query matches no document text.",
+   "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5). ★2026-07-22 §2bu(rall11 038 실측): 8회 deny 전부 이 계열인데 에이전트가 도구명-질의(score 0)로 발견 실패→cap 소진→close 통과. 질의-가이드(1a 동형) 주입."
   },
   {
    "applies_to": "call_discoverable_agent_tool",
@@ -413,8 +413,8 @@
    "require_tokens": [
     "CLOSURE_OK"
    ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that account {id} is ELIGIBLE for closure (CLOSURE_OK). The closure protocol disqualifies closing an account with an outstanding balance. First read the credit card account record for {id}, then call check_card_closure_eligibility with the account id, the outstanding balance copied from the record, and the verbatim balance line. If it reports an outstanding balance, the customer must pay the balance in full first; after paying, re-read the record and re-check, then re-attempt the closure.",
-   "_note": "2026-07-20 관문3(043·§2aa 요건②): 구판 3체크 WEV는 '체크했나'만 게이트→$75 미납인데 close 초록불(오해지·게이트 역효과 실례). 신판=close를 실제 실격조건 판정(check_card_closure_eligibility의 CLOSURE_OK 토큰+id 공존)으로 게이트. 판정=엔진 결정론(잔액≤0)·잔액0 날조=source_param 축자 grounding이 차단. Δspurious 계측 대상(잔액 미표시 레코드서 over-block 가능성)."
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that account {id} is ELIGIBLE for closure (CLOSURE_OK). The closure protocol disqualifies closing an account with an outstanding balance. First read the credit card account record for {id}, then call check_card_closure_eligibility with the account id, the outstanding balance copied from the record, and the verbatim balance line. If it reports an outstanding balance, the customer must pay the balance in full first; after paying, re-read the record and re-check, then re-attempt the closure. If the customer wants a replacement card or asked to KEEP the account open, do NOT close the account - use the replacement-card procedure instead.",
+   "_note": "2026-07-20 관문3(043·§2aa 요건②): 구판 3체크 WEV는 '체크했나'만 게이트→$75 미납인데 close 초록불(오해지·게이트 역효과 실례). 신판=close를 실제 실격조건 판정(check_card_closure_eligibility의 CLOSURE_OK 토큰+id 공존)으로 게이트. 판정=엔진 결정론(잔액≤0)·잔액0 날조=source_param 축자 grounding이 차단. Δspurious 계측 대상(잔액 미표시 레코드서 over-block 가능성). ★2026-07-22 §2bu: 038(명시 거부 후 close 2회) 대응 keep-open 경고 병합(중복 신설 스펙은 제거·minimize-A2)."
   },
   {
    "applies_to": "call_discoverable_agent_tool",
@@ -987,6 +987,241 @@
    },
    "missing_hint": "COULD NOT VERIFY — the balance you provided could not be verified against the account records. Re-read the credit card account record and copy the outstanding balance and its verbatim source line exactly.",
    "_note": "2026-07-20 관문3(043·§2aa 요건②③): 종단행동(close)을 '체크했나'가 아닌 **실제 실격조건(잔액>0)**으로 게이트하는 calc-offload 반쪽. LLM=잔액 copy+축자인용(유동)·엔진=compare+if_then(결정론·3-값=미검증 abstain). 반환문이 id+판정토큰 에코→WEV(require_tokens=CLOSURE_OK)의 증거 채널(user_id-키/id-공존 불성립 해소). 잔액0 날조=source_param 축자검증이 차단(존재검사는 0-편재로 무력). 토큰 비중첩(CLOSURE_OK ⊄ CLOSURE_BLOCKED_OUTSTANDING_BALANCE). ★e2e9 043 포렌식(§2an): 구 else 문구 'Have the customer pay'가 오답 경로(사용자 앱 떠넘김→영원 대기)를 직접 유도 — gold=에이전트-측 pay 도구(discoverable) 실행. 문구=KB 검색 지시(도구명 직접 주지 않음·발견은 에이전트 몫·spoon-feed 아님)+unlock 프로토콜 안내."
+  },
+  {
+   "name": "check_cli_eligibility",
+   "description": "USE THIS before deciding (approve or deny) a credit limit increase request. It applies the tier CLI eligibility policy deterministically: minimum account age, cooldown after the most recent APPROVED request, maximum utilization, and consecutive on-time payment months. First read the credit card account record, the CLI request history, and the payment history; then call this tool with values copied EXACTLY from those tool outputs. It returns the policy verdict; you then execute the decision with the approve/deny tool.",
+   "params": {
+    "credit_card_account_id": "The credit card account id, from the account record.",
+    "card_type": "The card_type string copied exactly from the credit card account record.",
+    "date_of_account_open": "The date_of_account_open from the account record, exactly as shown.",
+    "as_of_date": "Today's date from get_current_time.",
+    "current_balance": "The current balance as a plain number (no $ or commas), from the account record.",
+    "credit_limit": "The credit limit as a plain number (no $ or commas), from the account record.",
+    "consecutive_on_time_payments": "The 'Consecutive on-time payments' number from the payment history tool output.",
+    "last_approved_cli_submitted_date": "The submitted_date of the most recent APPROVED request in the CLI request history output, EXCLUDING the request you are deciding now. Pass 'none' if there is no approved prior request."
+   },
+   "return_template": "CLI eligibility for {credit_card_account_id} ({card_type}): {result}",
+   "missing_hint": "COULD NOT VERIFY - one or more inputs are missing or unparseable, so no verdict is given. Re-read the account record, the CLI request history and the payment history, then call again with exact values (balances/limits as plain numbers, dates exactly as shown, 'none' for the last-approved date only if no approved prior request exists).",
+   "op": {
+    "op": "if_then",
+    "cond": {
+     "op": "compare",
+     "cmp": "<",
+     "a": {
+      "op": "days_between",
+      "a": "as_of_date",
+      "b": "date_of_account_open"
+     },
+     "b": {
+      "op": "case",
+      "key": "card_type",
+      "cases": {
+       "Bronze Rewards Card": 120,
+       "EcoCard": 120,
+       "Business Bronze Rewards Card": 120,
+       "Silver Rewards Card": 90,
+       "Business Silver Rewards Card": 90,
+       "Green Rewards Card": 90,
+       "Silver Zoom Card": 90,
+       "Gold Rewards Card": 60,
+       "Business Gold Rewards Card": 60,
+       "Platinum Rewards Card": 60,
+       "Business Platinum Rewards Card": 60,
+       "Diamond Elite Card": 60
+      },
+      "default": null
+     }
+    },
+    "then": {
+     "op": "const",
+     "value": "NOT_ELIGIBLE_ACCOUNT_AGE - the account has not been open long enough for a CLI at this card tier ('CLI Eligibility Requirements by Card Tier'). Per policy the request must be DENIED: unlock and call deny_credit_limit_increase with an appropriate denial_reason, and explain the requirement to the customer."
+    },
+    "else": {
+     "op": "if_then",
+     "cond": {
+      "op": "str_eq",
+      "a": "last_approved_cli_submitted_date",
+      "b": "none"
+     },
+     "then": {
+      "op": "if_then",
+      "cond": {
+       "op": "compare",
+       "cmp": ">",
+       "a": "current_balance",
+       "b": {
+        "op": "multiply",
+        "a": "credit_limit",
+        "b": {
+         "op": "case",
+         "key": "card_type",
+         "cases": {
+          "Bronze Rewards Card": 0.7,
+          "EcoCard": 0.7,
+          "Business Bronze Rewards Card": 0.7,
+          "Silver Rewards Card": 0.8,
+          "Business Silver Rewards Card": 0.8,
+          "Green Rewards Card": 0.8,
+          "Silver Zoom Card": 0.8,
+          "Gold Rewards Card": 0.9,
+          "Business Gold Rewards Card": 0.9,
+          "Platinum Rewards Card": 0.9,
+          "Business Platinum Rewards Card": 0.9,
+          "Diamond Elite Card": 0.9
+         },
+         "default": null
+        }
+       }
+      },
+      "then": {
+       "op": "const",
+       "value": "NOT_ELIGIBLE_UTILIZATION - the current balance exceeds the tier's maximum utilization of the credit limit at request time ('CLI Eligibility Requirements by Card Tier'). Per policy the request must be DENIED: unlock and call deny_credit_limit_increase with an appropriate denial_reason, and explain the utilization requirement."
+      },
+      "else": {
+       "op": "if_then",
+       "cond": {
+        "op": "compare",
+        "cmp": "<",
+        "a": "consecutive_on_time_payments",
+        "b": {
+         "op": "case",
+         "key": "card_type",
+         "cases": {
+          "Bronze Rewards Card": 6,
+          "EcoCard": 6,
+          "Business Bronze Rewards Card": 6,
+          "Silver Rewards Card": 3,
+          "Business Silver Rewards Card": 3,
+          "Green Rewards Card": 3,
+          "Silver Zoom Card": 3,
+          "Gold Rewards Card": 3,
+          "Business Gold Rewards Card": 3,
+          "Platinum Rewards Card": 3,
+          "Business Platinum Rewards Card": 3,
+          "Diamond Elite Card": 3
+         },
+         "default": null
+        }
+       },
+       "then": {
+        "op": "const",
+        "value": "NOT_ELIGIBLE_PAYMENT_HISTORY - the consecutive on-time payment months are below this tier's requirement ('CLI Payment History and Approval Criteria'). Per policy the request must be DENIED: unlock and call deny_credit_limit_increase with an appropriate denial_reason, and explain the payment-history requirement."
+       },
+       "else": {
+        "op": "const",
+        "value": "ELIGIBLE - all tier requirements (account age, cooldown, utilization, payment history) are satisfied. Decide with a TOOL CALL: approve_credit_limit_increase, choosing the new limit within the tier's maximum increase cap from the CLI policy documents - or deny only if a different documented requirement fails."
+       }
+      }
+     },
+     "else": {
+      "op": "if_then",
+      "cond": {
+       "op": "compare",
+       "cmp": "<",
+       "a": {
+        "op": "days_between",
+        "a": "as_of_date",
+        "b": "last_approved_cli_submitted_date"
+       },
+       "b": {
+        "op": "case",
+        "key": "card_type",
+        "cases": {
+         "Bronze Rewards Card": 120,
+         "EcoCard": 120,
+         "Business Bronze Rewards Card": 120,
+         "Silver Rewards Card": 90,
+         "Business Silver Rewards Card": 90,
+         "Green Rewards Card": 90,
+         "Silver Zoom Card": 90,
+         "Gold Rewards Card": 60,
+         "Business Gold Rewards Card": 60,
+         "Platinum Rewards Card": 60,
+         "Business Platinum Rewards Card": 60,
+         "Diamond Elite Card": 60
+        },
+        "default": null
+       }
+      },
+      "then": {
+       "op": "const",
+       "value": "NOT_ELIGIBLE_COOLDOWN - the tier cooldown since the most recent APPROVED credit limit increase request has not elapsed ('CLI Eligibility Requirements by Card Tier': the cooldown counts from the last approved request's submission date; denied requests do not trigger it). Per policy the request must be DENIED: unlock and call deny_credit_limit_increase with an appropriate denial_reason, and tell the customer when they can reapply."
+      },
+      "else": {
+       "op": "if_then",
+       "cond": {
+        "op": "compare",
+        "cmp": ">",
+        "a": "current_balance",
+        "b": {
+         "op": "multiply",
+         "a": "credit_limit",
+         "b": {
+          "op": "case",
+          "key": "card_type",
+          "cases": {
+           "Bronze Rewards Card": 0.7,
+           "EcoCard": 0.7,
+           "Business Bronze Rewards Card": 0.7,
+           "Silver Rewards Card": 0.8,
+           "Business Silver Rewards Card": 0.8,
+           "Green Rewards Card": 0.8,
+           "Silver Zoom Card": 0.8,
+           "Gold Rewards Card": 0.9,
+           "Business Gold Rewards Card": 0.9,
+           "Platinum Rewards Card": 0.9,
+           "Business Platinum Rewards Card": 0.9,
+           "Diamond Elite Card": 0.9
+          },
+          "default": null
+         }
+        }
+       },
+       "then": {
+        "op": "const",
+        "value": "NOT_ELIGIBLE_UTILIZATION - the current balance exceeds the tier's maximum utilization of the credit limit at request time ('CLI Eligibility Requirements by Card Tier'). Per policy the request must be DENIED: unlock and call deny_credit_limit_increase with an appropriate denial_reason, and explain the utilization requirement."
+       },
+       "else": {
+        "op": "if_then",
+        "cond": {
+         "op": "compare",
+         "cmp": "<",
+         "a": "consecutive_on_time_payments",
+         "b": {
+          "op": "case",
+          "key": "card_type",
+          "cases": {
+           "Bronze Rewards Card": 6,
+           "EcoCard": 6,
+           "Business Bronze Rewards Card": 6,
+           "Silver Rewards Card": 3,
+           "Business Silver Rewards Card": 3,
+           "Green Rewards Card": 3,
+           "Silver Zoom Card": 3,
+           "Gold Rewards Card": 3,
+           "Business Gold Rewards Card": 3,
+           "Platinum Rewards Card": 3,
+           "Business Platinum Rewards Card": 3,
+           "Diamond Elite Card": 3
+          },
+          "default": null
+         }
+        },
+        "then": {
+         "op": "const",
+         "value": "NOT_ELIGIBLE_PAYMENT_HISTORY - the consecutive on-time payment months are below this tier's requirement ('CLI Payment History and Approval Criteria'). Per policy the request must be DENIED: unlock and call deny_credit_limit_increase with an appropriate denial_reason, and explain the payment-history requirement."
+        },
+        "else": {
+         "op": "const",
+         "value": "ELIGIBLE - all tier requirements (account age, cooldown, utilization, payment history) are satisfied. Decide with a TOOL CALL: approve_credit_limit_increase, choosing the new limit within the tier's maximum increase cap from the CLI policy documents - or deny only if a different documented requirement fails."
+        }
+       }
+      }
+     }
+    }
+   },
+   "_note": "2026-07-22 §2bu(rall11 052 실측): 4체크를 다 읽고도 approve 실행(gold=deny·cooldown). 자격 4기준은 KB에 결정론 명시(logistics_005/006·티어 목록=replacements_002)→[[10]] 분담: 판정=결정론 offload(check_rebate/closure_eligibility 선례). 문구=양방향(approve|deny)·default None=미지 카드타입 abstain([[05]] 3-값). gold 무관·전거는 KB."
   }
  ],
  "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수.",
@@ -1053,14 +1288,20 @@
     "arg": "agent_tool_name",
     "prefix": "file_credit_card_transaction_dispute"
    },
-   "grounded_args": ["card_last_4_digits", "transaction_id"],
+   "grounded_args": [
+    "card_last_4_digits",
+    "transaction_id"
+   ],
    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be READ from the records (or given by the customer), never invented. Look the value up in the account/transaction records already retrieved in this conversation (or retrieve them / ask the customer), then retry the dispute with the actual value.",
    "_note": "2026-07-22 §2bs(rall10 031 실측): WRITE_EVIDENCE(선행-read 강제) 2회 deny 후 read는 했으나 뷰에 실재한 last4(5320) 대신 '1234'를 기입·gold와 다른 txn id로 dispute 제출 성공(env 미검증). read-강제≠값-전사 — 값 실재확인(provenance 사실게이트·SG_GROUND의 discoverable-write 확장). grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제). user 발화도 근거(고객이 직접 준 값=정당). KB 근거=credit_cards_(general)_014(dispute 인자 명세)."
   }
  ],
  "view_field_annotations": [
   {
-   "contains": ["account_status: ACTIVE", "status: CLOSED"],
+   "contains": [
+    "account_status: ACTIVE",
+    "status: CLOSED"
+   ],
    "note": "[FIELD NOTE] This record shows BOTH account_status: ACTIVE and status: CLOSED. Per the knowledge base ('What Happens When You Order a Replacement Card'): ordering a replacement cancels the current CARD and issues a new one, while 'your account number remains unchanged' and account functions continue. Do not treat a replaced/cancelled card as a closed ACCOUNT - the account's state is account_status. Account-level operations (e.g. credit limit requests) are governed by their own knowledge-base eligibility criteria, which do not include any card-replacement condition.",
    "_note": "2026-07-22 §2bs(rall10 054 실측): dispute(cancel_and_reissue)+교체주문이 DB에 status: CLOSED/closed_date 기록(account_status: ACTIVE 병존)→모델이 '계좌 폐쇄→CLI 불가' 오독·CLI 12액션 미시도(user-sim 수긍 STOP). KB 근거=replacements_003('account number remains unchanged')+CLI 자격 문서(logistics_004/005/006)에 계좌-상태/교체 요건 부재(2026-07-22 census·역방향 grep 0건). rall9 15/17은 submit 전 재조회 안 해서 통과=운. 인스턴스-완화 — 근본 클래스(모호 상태 오추론)=INFER-calibration(learn) 영역."
   }
@@ -1116,7 +1357,7 @@
    "call_discoverable_user_tool": "discoverable_tool_name"
   },
   "give_agent_tool_feedback": "Error: '{name}' is one of YOUR OWN agent tools - it cannot be given to the customer, and the environment will reject it. give_discoverable_user_tool is ONLY for USER-side discoverable tools. If the customer already told you the exact name of the tool they need, give THAT exact name; otherwise search the knowledge base with plain words for what the customer needs to do themselves, and give the user-side tool named there.",
- "agent_via_user_feedback": "Error: '{name}' is an AGENT tool (you unlocked it in this conversation). Invoke it via call_discoverable_agent_tool, NOT call_discoverable_user_tool.",
+  "agent_via_user_feedback": "Error: '{name}' is an AGENT tool (you unlocked it in this conversation). Invoke it via call_discoverable_agent_tool, NOT call_discoverable_user_tool.",
   "user_via_agent_feedback": "Error: '{name}' is a USER tool (you gave it to the customer). You cannot run it yourself and must not route it through the agent dispatcher - ask the CUSTOMER to run it and tell you the result.",
   "agent_runs_user_feedback": "Error: '{name}' is a USER tool. The CUSTOMER must run it themselves after you give it with give_discoverable_user_tool - ask them to run it and report the result; do not call it yourself.",
   "_note": "2026-07-22 §2bl(rall8 031 실측): dispute를 user-디스패처로 제출·user-도구를 에이전트가 직접 호출 4회. 술어=대화 자기-이력(unlock/give 이벤트)로 이름의 역할 판정 — 엔진 이름-리터럴 0·A2=디스패처 5도구명+문구."
