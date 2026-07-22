@@ -1363,8 +1363,13 @@ def _chain_dispatch(fc, eff):
       050 follow-through+054 query-gap 동시 커버).
     - requires 전부 충족 + `decision_tools` 전부 미호출이면 decision_feedback(종단결정 nudge —
       approve 강제 아님·문구가 양방향(approve|decline) 명시·Δspurious 계측 대상).
-    반환: (feedback_text, tag) or None. 엔진=집합 대조·치환만(도메인 리터럴 0)."""
-    if fc.get("after") not in eff:
+    반환: (feedback_text, tag) or None. 엔진=집합 대조·치환만(도메인 리터럴 0).
+    ★after = 문자열 or 리스트(2026-07-22 §2bv 강건화·rall12 052 실측): scaffold 판정도구(check_cli)가
+    절차 anchor(submit)를 우회하는 경로서도 chain이 발화하도록 anchor 다중화 — anchor 중 하나라도
+    호출되면 requires(submit 포함) 대조 → submit 미실행이 {missing}에 뜸(절차 대체 방지)."""
+    _after = fc.get("after")
+    _anchors = _after if isinstance(_after, list) else [_after]
+    if not any(a in eff for a in _anchors):
         return None
     req = fc.get("requires") or []
     req = [req] if isinstance(req, str) else list(req)

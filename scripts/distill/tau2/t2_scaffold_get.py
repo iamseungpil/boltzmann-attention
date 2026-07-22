@@ -380,12 +380,18 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
             #   실패·폴백→메인 오추측(95000) 사용=097 부하의 인프라 형태). 서브는 값-추출이 목적이라
             #   전체 문서 불요·값은 출력 앞부분(레코드 필드)에 실재 → 서브 뷰만 절단(메인 무관·비커밋=
             #   replay-safe·_ok_outs 원문은 위에서 이미 확보=마감검증 무영향). 엔진 순수 절단(리터럴 0).
-            _stc = int(os.environ.get("T2_SG_SUB_TOOLCAP", "3000"))
+            # ★값-보존 절단 (2026-07-22 §2bv 강건화·rall12 097 실측: head-only 절단이 KB APY 규칙
+            #   (문서 뒤/중간)을 잘라 actual_apy 산출 실패→GROUNDING 드롭→IC 14회 루프·apply 미도달).
+            #   head+tail 절단(VIEW_COMPACT 동형): 레코드 필드(앞)+계산 규칙/예시(뒤) 둘 다 보존.
+            _stc = int(os.environ.get("T2_SG_SUB_TOOLCAP", "4000"))
 
             def _capm(_m, _cap=_stc):
                 _c = getattr(_m, "content", None)
                 if isinstance(_c, str) and len(_c) > _cap:
-                    _d = _c[:_cap] + "\n...[truncated for sub-extraction context]"
+                    _hd = int(_cap * 0.65)
+                    _tl = _cap - _hd
+                    _d = (_c[:_hd] + "\n...[middle truncated for sub-extraction; head+tail kept]...\n"
+                          + _c[-_tl:])
                     try:
                         return _m.model_copy(update={"content": _d})
                     except Exception:

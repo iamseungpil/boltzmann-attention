@@ -26,50 +26,52 @@ def check(label, cond):
 
 
 def main():
-    check("A2: requires=full set 4체크", isinstance(REQ, list) and len(REQ) == 4)
-    check("A2: decision_tools=approve+deny(§2au·052 gold=deny 도구 호출)",
+    # ★§2bv 강건화: requires=submit + 4체크(5)·after=[submit, check_cli_eligibility] 리스트
+    check("A2: requires=submit+4체크(5)", isinstance(REQ, list) and len(REQ) == 5
+          and REQ[0] == "submit_credit_limit_increase_request")
+    check("A2: after=리스트[submit, check_cli](강건 anchor)",
+          isinstance(CHAIN.get("after"), list) and "check_cli_eligibility" in CHAIN["after"])
+    check("A2: decision_tools=approve+deny",
           CHAIN.get("decision_tools") == ["approve_credit_limit_increase", "deny_credit_limit_increase"])
-    check("A2: decision 문구=도구-호출 명시+unlock 프로토콜",
+    check("A2: decision 문구=deny 도구+DISCOVERABLE 명시",
           "deny_credit_limit_increase" in CHAIN["decision_feedback"]
-          and "unlock_discoverable_agent_tool" in CHAIN["decision_feedback"])
+          and "DISCOVERABLE" in CHAIN["decision_feedback"])
+    CHK = ["get_user_dispute_history", "get_pending_replacement_orders",
+           "get_credit_limit_increase_history", "get_payment_history"]
 
-    # ── 050 재현: submit + history만 호출·pending 등 3체크 건너뜀 (구판=미발화·신판=발화) ──
+    # ── 052 강건화: check_cli anchor·submit 스킵 경로 → 발화·submit이 missing ──
+    hit = _chain_dispatch(CHAIN, {"check_cli_eligibility"})
+    check("052강건: check_cli anchor·submit 스킵 → 발화", hit is not None and hit[1] == "followup_chain")
+    check("052강건: submit 미실행이 missing에 뜸(절차 대체 방지)",
+          hit is not None and "submit_credit_limit_increase_request" in hit[0])
+    check("052강건: 문구=check_cli는 판정보조·절차대체 아님 명시",
+          hit is not None and "check_cli_eligibility" in hit[0] and "replace" in hit[0].lower())
+
+    # ── 050 재현: submit + history만·pending 등 3체크 건너뜀 → 발화·누락 나열 ──
     eff = {"submit_credit_limit_increase_request", "get_credit_limit_increase_history"}
     hit = _chain_dispatch(CHAIN, eff)
-    check("050: 부분체크(구판 사각) → 발화", hit is not None and hit[1] == "followup_chain")
-    # 누락 나열부 = "missing for this account: <나열>. These checks..." 사이 (신 문구 앵커·e2e9 050 보강판)
-    _missing_part = hit[0].split("missing for this account:")[-1].split(". These checks")[0] if hit else ""
-    check("050: 누락 3종 전량 나열·기호출 history는 누락 아님", hit is not None
+    _missing_part = hit[0].split("missing:")[-1].split(". The customer")[0] if hit else ""
+    check("050: 부분체크 → 발화·누락 3종 나열·기호출 제외", hit is not None and hit[1] == "followup_chain"
           and all(t in _missing_part for t in ("get_user_dispute_history",
                                                "get_pending_replacement_orders", "get_payment_history"))
           and "get_credit_limit_increase_history" not in _missing_part)
-    check("050 보강: 피드백이 unlock 프로토콜 명시(직호출 거부 루프 차단)",
-          hit is not None and "unlock_discoverable_agent_tool" in hit[0])
 
-    # ── 054 재현: submit만·체크 0 (query-gap) ──
-    hit = _chain_dispatch(CHAIN, {"submit_credit_limit_increase_request"})
-    check("054: 체크 0 → 발화·4종 전량 나열", hit is not None
-          and all(t in hit[0].split("Per the CLI")[0] for t in REQ))
-
-    # ── suffix-strip 대조: effective-name(_NNNN 제거)은 호출부(_eff_tool_name) 몫 — 여기선 이미 strip된 셋 ──
-    eff = {"submit_credit_limit_increase_request"} | set(REQ)
+    # ── 전체크 완료(submit+4체크)·decision 미호출 → decision nudge(양방향) ──
+    eff = set(REQ)
     hit = _chain_dispatch(CHAIN, eff)
-    check("전체크 완료·approve 미호출 → decision nudge", hit is not None and hit[1] == "followup_decision")
-    check("decision 문구 양방향 도구-호출(approve|deny·§2au)", hit is not None
+    check("전체크 완료·decision 미호출 → nudge", hit is not None and hit[1] == "followup_decision")
+    check("decision 문구 양방향(approve|deny)", hit is not None
           and "deny_credit_limit_increase" in hit[0]
           and "approve_credit_limit_increase" in hit[0]
-          and "ANY" in hit[0])          # deny 조건(어느 하나라도 실패) 명시
+          and "NOT_ELIGIBLE" in hit[0])
 
-    # ── 전체크+approve 호출됨 → 미발화 (완료 케이스 무간섭) ──
-    hit = _chain_dispatch(CHAIN, eff | {"approve_credit_limit_increase"})
-    check("전체크+approve → 미발화(무간섭)", hit is None)
-    # ── 전체크+deny 호출됨 → 미발화 (052 decline-정답 케이스 무간섭·§2au) ──
-    hit = _chain_dispatch(CHAIN, eff | {"deny_credit_limit_increase"})
-    check("전체크+deny → 미발화(무간섭)", hit is None)
+    # ── 완료 케이스 무간섭 ──
+    check("전체크+approve → 미발화", _chain_dispatch(CHAIN, eff | {"approve_credit_limit_increase"}) is None)
+    check("전체크+deny → 미발화(052 decline-정답)", _chain_dispatch(CHAIN, eff | {"deny_credit_limit_increase"}) is None)
 
-    # ── after 미호출 → 미발화 (submit 전 사임에 간섭 0) ──
-    hit = _chain_dispatch(CHAIN, set(REQ))
-    check("after(submit) 미호출 → 미발화", hit is None)
+    # ── anchor(submit·check_cli) 둘 다 미호출 → 미발화 (4체크만·간섭 0) ──
+    hit = _chain_dispatch(CHAIN, set(CHK))
+    check("anchor 둘 다 미호출 → 미발화", hit is None)
 
     # ── 하위호환: 문자열 requires (구판 A2 선언 형태) ──
     old = {"after": "A", "requires": "B", "feedback": "missing: {missing}"}
