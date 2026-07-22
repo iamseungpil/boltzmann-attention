@@ -644,17 +644,24 @@ def _write_arg_ground_deny(messages, tc, specs):
         for k2, v2 in args.items():
             if not isinstance(v2, (dict, list)):
                 inner.setdefault(k2, v2)
+        _markers = sp.get("arg_corpus_marker") or {}
         for ga in (sp.get("grounded_args") or []):
             gv = inner.get(ga)
             gs = str(gv).strip() if gv is not None else ""
             if not gs:
                 continue
+            # ★arg_corpus_marker (2026-07-22 §2bv·054 time_verified): 특정 arg는 marker를 포함하는
+            #   출력에서만 grounding 검색(오매칭 방지). 054: time_verified는 "current time is"(get_current_time
+            #   출력)에만 매칭 — 다른 레코드의 2023 날짜에 우연-통과 차단·병렬호출(결과 전)이면 미실재→deny.
+            _mk = _markers.get(ga)
             found = False
             for m in messages:
                 if getattr(m, "role", None) not in ("tool", "user"):
                     continue
                 c = getattr(m, "content", None)
                 c = c if isinstance(c, str) else str(c or "")
+                if _mk and _mk not in c:
+                    continue
                 if gs in c:
                     found = True
                     break

@@ -940,10 +940,11 @@
      "principal",
      "actual_apy"
     ],
-    "max_rounds": 5,
+    "max_rounds": 3,
     "instructions": "You are a records-extraction sub-task. For the savings account in REFERENCE: (1) call call_discoverable_agent_tool with agent_tool_name='get_all_user_accounts_by_user_id_3847' style getters ALREADY UNLOCKED in this session, or the transactions getter, to read the account record and its transactions. (2) principal = the account's current_holdings (number, exactly as in the record). (3) actual_apy = the APY actually applied: derive it from the latest MONTHLY INTEREST CREDIT as monthly credit x 12 / principal x 100. The APY stated on the account record may be the intended rate, not the applied one - use it only if no interest credit transaction exists. Copy raw values exactly; show your derivation.",
     "answer_format": "Reply with exactly one JSON object and nothing else: {\"principal\": 0.0, \"actual_apy\": 0.0}",
-    "_note": "2026-07-20 §2az(마지막 배선·r095b/c 3-trial: 슬롯값 trial-간 불안정 — t1 actual 5.625 정답·c-t0 5.5 오독). 서브가 격리 문맥서 레코드 재조회·formalize(§2b 105/105 실증 축). 디스패처 getter=REQREADS로 main이 이미 unlock한 도구 재호출. 산출은 기존 ground(existence)가 재검증. 실패=에이전트 인자 폴백."
+    "_note": "2026-07-20 §2az(마지막 배선·r095b/c 3-trial: 슬롯값 trial-간 불안정 — t1 actual 5.625 정답·c-t0 5.5 오독). 서브가 격리 문맥서 레코드 재조회·formalize(§2b 105/105 실증 축). 디스패처 getter=REQREADS로 main이 이미 unlock한 도구 재호출. 산출은 기존 ground(existence)가 재검증. 실패=에이전트 인자 폴백.",
+    "_robust_note": "2026-07-22 §2bv(rall12 097 실측): 서브가 5라운드 KB_search(APY규칙 큰문서)+call_discoverable(8계좌) 누적→52854>48640 초과→실패→폴백 오추측. 압축(절단)이 값 훼손(actual_apy 드롭). 사용자 제안=서브 분리: max_rounds 5→3(작업 분할·누적 상한)+head+tail 절단(엔진 T2_SG_SUB_TOOLCAP 4000·값보존). 3×2×4000+prompt≈26k<48.6k. 완전 2단계 서브(서브-of-서브)는 미구현·이 조합으로 초과·훼손 완화."
    }
   },
   {
@@ -1304,6 +1305,17 @@
    ],
    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} does not appear in any tool output or customer message in this conversation - record values must be READ from the records (or given by the customer), never invented. Look the value up in the account/transaction records already retrieved in this conversation (or retrieve them / ask the customer), then retry the dispute with the actual value.",
    "_note": "2026-07-22 §2bs(rall10 031 실측): WRITE_EVIDENCE(선행-read 강제) 2회 deny 후 read는 했으나 뷰에 실재한 last4(5320) 대신 '1234'를 기입·gold와 다른 txn id로 dispute 제출 성공(env 미검증). read-강제≠값-전사 — 값 실재확인(provenance 사실게이트·SG_GROUND의 discoverable-write 확장). grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제). user 발화도 근거(고객이 직접 준 값=정당). KB 근거=credit_cards_(general)_014(dispute 인자 명세)."
+  },
+  {
+   "applies_to": "log_verification",
+   "grounded_args": [
+    "time_verified"
+   ],
+   "arg_corpus_marker": {
+    "time_verified": "current time is"
+   },
+   "feedback": "Error: [WRITE-GROUNDING] the time_verified value '{val}' is not the current time returned by get_current_time. Call get_current_time FIRST, wait for its result, and copy that exact timestamp into time_verified - do not invent a timestamp or reuse a date from another record. If you called get_current_time in the SAME turn as log_verification, its result was not available yet: call log_verification only AFTER the get_current_time output is in the conversation.",
+   "_note": "2026-07-22 §2bv(rall12 054 실측·격리로 순서 확정): get_current_time과 log_verification 병렬 호출→결과([19] 2025-11-14 03:40) 전에 time_verified 날조(2023-11-14 15:20·다른 레코드값). 격리 프로브 presence 전부 False=정보빈약=부하 아님·병렬호출 구조문제. arg_corpus_marker='current time is'로 get_current_time 출력에만 매칭(다른 2023 날짜 오통과 차단·병렬시 미실재→deny→순차 강제)."
   }
  ],
  "view_field_annotations": [
