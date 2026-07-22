@@ -34,6 +34,8 @@ run_arm() {
   export T2_FOLLOWUP_PROGRESS_REFUND=1 T2_ACTION_PROGRESS_REFUND=1 T2_VIEW_ANNOTATE=1 T2_WRITE_ARG_GROUND=1
   # ★§2bu 픽스 스위치 (rall12 신규·rall11 실패에서 도입): 환각-접미사 2경로 차단
   export T2_UNKNOWN_NAME_BL=1 T2_UNLOCK_PROV=1
+  # ★038 처방-redirect (§2bu·격리 L2 8/8=활성화)·052 check_cli 선독은 T2_SG_REQREADS(위)로 자동
+  export T2_PRESCRIPTION=1
   export T2_SG_ISOLATE_TRACE=$SCRATCH/${TAG}_operands.jsonl
   rm -f $T2_SG_ISOLATE_TRACE
   /home/woori/venvs/seka_env/bin/python -u $REPO/scripts/distill/tau2/t2_run_gated.py \
