@@ -3179,9 +3179,43 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   dispute를 user-디스패처로 제출·user-도구를 에이전트가 직접 호출(4회). 술어=대화
             #   자기-이력(이 대화서 unlock된 이름=agent-도구·give된 이름=user-도구)·엔진 이름-리터럴 0.
             #   +tool_arg_allowlist: 선언 외 인자 키 strip(give 여분 'arguments' 실측·커밋 전=replay-safe).
+            # ★T2_PRESCRIPTION (2026-07-22 §2bu·rall11 038 실측·격리 L2 8/8=활성화 실패): 처방-오선택 deny.
+            #   038: 사기 dispute 요청(unauthorized/fraudulent)인데 apply_statement_credit 오선택(dispute 미착수).
+            #   L2 프로브=명시질의 시 file_dispute 8/8 앎 → 자유생성 미발현(활성화). 게이트가 상기:
+            #   대화에 dispute-신호 ∧ file_dispute 미호출인데 statement_credit류 write면 deny+dispute 안내.
+            #   KB 근거=doc_014(dispute)·doc_017(statement_credit=선의/프로모션/수수료만). 신호·문구=A2·엔진=
+            #   문자열 대조+집합(리터럴 0). Δspurious 계측(dispute 후 정당 credit=absent_tool 조건으로 통과).
+            pr_fb = None
+            _prs = (a2 or {}).get("prescription_redirect") or []
+            if (os.environ.get("T2_PRESCRIPTION") == "1" and _prs
+                    and not do_gate and not do_prov and ep_fb is None and cons_fb is None
+                    and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
+                    and pc_fb is None
+                    and getattr(self, "_t2_prescription_deny", 0)
+                    < int(os.environ.get("T2_PRESCRIPTION_CAP", "3"))):
+                _conv = " ".join(str(getattr(m2, "content", "") or "") for m2 in state.messages
+                                 if getattr(m2, "role", None) in ("user", "tool")).lower()
+                _effp = {_eff_tool_name(tc) for m2 in state.messages
+                         for tc in (getattr(m2, "tool_calls", None) or [])}
+                for c in (am.tool_calls or []):
+                    for sp in _prs:
+                        _pn = str(_args_dict(c).get(sp.get("arg", "")) or getattr(c, "name", "") or "")
+                        if not _pn.startswith(sp.get("prefix", "\0")):
+                            continue
+                        _abt = sp.get("requires_absent_tool")
+                        if _abt and _abt in _effp:
+                            continue                     # 이미 정답 도구 호출됨(예: dispute 접수) → 정당 통과
+                        if any(sig in _conv for sig in (sp.get("signals") or [])):
+                            pr_fb = (c, str(sp.get("feedback") or "Error: [PRESCRIPTION] wrong tool."))
+                            self._t2_prescription_deny = getattr(self, "_t2_prescription_deny", 0) + 1
+                            print("[T2_PRESCRIPTION] deny tool=%s prefix=%s"
+                                  % (_pn, sp.get("prefix")), file=_sys.stderr, flush=True)
+                            break
+                    if pr_fb:
+                        break
             dr_fb = None
             _drs = (a2 or {}).get("dispatcher_role_check") or {}
-            if (os.environ.get("T2_DISPATCH_ROLE") == "1" and _drs
+            if (pr_fb is None and os.environ.get("T2_DISPATCH_ROLE") == "1" and _drs
                     and not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
                     and getattr(self, "_t2_dispatchrole_deny", 0)
@@ -3306,7 +3340,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             break
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
-                    and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None):
+                    and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None
+                    and pr_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -3409,6 +3444,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 elif dr_fb is not None and c is dr_fb[0]:
                     content = dr_fb[1] if str(dr_fb[1]).lstrip().startswith("Error:") \
                         else "Error: " + dr_fb[1]
+                elif pr_fb is not None and c is pr_fb[0]:
+                    content = pr_fb[1] if str(pr_fb[1]).lstrip().startswith("Error:") \
+                        else "Error: " + pr_fb[1]
                 else:
                     content = "Error: resolve the flagged call(s) first; do not call this tool yet."
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",

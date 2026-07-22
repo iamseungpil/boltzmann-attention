@@ -1408,5 +1408,28 @@
    "feedback": "Error: [POLICY-CAP] the requested increase ({value}) exceeds this card's tier maximum of {cap} per request ({pct} of the current credit limit {limit}, per the CLI policy). Do NOT submit this amount. Inform the customer of the maximum they are eligible for ({cap}) and ask whether they would like to proceed with that amount instead; submit only after they confirm.",
    "_note": "2026-07-22 §2br(rall9 054 실측·rall4 t0 동일): 유저 요청 4000 무검증 제출(gold=캡 2500=50%x5000 적용·안내 후 consent). 정책[S]=doc_..._006(entry 25%·mid/premium 50%)+티어 분류[S]=doc_credit_card_replacements_002(Entry:Bronze/Eco/BizBronze·Mid:Silver/BizSilver/Green/SilverZoom·Premium+:Gold/BizGold/Platinum/BizPlatinum/DiamondElite). 미기재 카드(Crypto 등)=맵 부재→무개입(안전). deny+안내=consent 보존."
   }
+ ],
+ "prescription_redirect": [
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "arg": "agent_tool_name",
+   "prefix": "apply_statement_credit",
+   "signals": [
+    "unauthorized",
+    "fraudulent",
+    "did not make this",
+    "didn't make this",
+    "do not recognize",
+    "don't recognize",
+    "never made this",
+    "i did not authorize",
+    "did not authorize this",
+    "charge i didn't",
+    "fraud"
+   ],
+   "requires_absent_tool": "file_credit_card_transaction_dispute",
+   "feedback": "Error: [PRESCRIPTION] the customer is describing a disputed or unauthorized charge. That is handled by FILING A FORMAL DISPUTE (file_credit_card_transaction_dispute), NOT by applying a statement credit. apply_statement_credit is only for goodwill adjustments, promotional credits, or fee reversals - never for disputing a charge. First file the dispute: it is a DISCOVERABLE tool, so find its full suffixed name in the knowledge base (search plain words like \"file credit card dispute\"), unlock it, and call it with the transaction and card details. Do not apply a statement credit for a disputed charge.",
+   "_note": "2026-07-22 §2bu(rall11 038 실측·격리 L2 8/8): 사기청구 dispute 요청에 apply_statement_credit 오선택(dispute 미착수·gold=file_dispute). 격리=명시질의 시 file_dispute 8/8 앎=활성화 실패(능력·부하 아님). 게이트=dispute-신호∧file_dispute 미호출인데 statement_credit이면 deny+dispute 안내(nudge). KB=doc_014/017. requires_absent_tool=file_dispute 이미 호출 시 통과(dispute 후 정당 provisional credit 보호). ★[[05]] 회색: signals=dispute판정 근사(유동판단 동결 우려)·기본 OFF·Δspurious(정당 credit 오차단) rall12 계측. T2_PRESCRIPTION. ★signals 정제(test 자체발견): 'dispute' 단독=도구명(file_..._dispute)·KB 문서에 편재→over-fire 자기오염 → 제거. 사기-특정 어구만(unauthorized/fraudulent/did not make this/never made this/do not recognize 등). Δspurious 축소."
+  }
  ]
 }
