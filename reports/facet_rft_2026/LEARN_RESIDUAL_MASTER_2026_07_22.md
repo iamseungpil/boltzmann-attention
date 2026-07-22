@@ -8,8 +8,14 @@
 >   도구(calc)·coverage=E-PLAN. **전부 scaffold 영역**(사용자 "097=calc/subagent" 지지).
 > - **038 처방선택**: L0(격리)=**8/8**·L2(라이브 다중요청)=**8/8** file_dispute ⇒ **능력·부하 아님**. 명시 질의엔
 >   100% 정답인데 자유생성서 미발현=**활성화 실패**([[42]]) → 처방 결정지점 명시-질의 게이트(action-required 처방판).
-> ⇒ **§2에서 038/097 제거·§1(부하/활성화=scaffold)로 이관.** 진짜 learn 잔여는 **더 좁다**(§2는 formalize·순서·gather만).
-> 교훈 재확인: **부하 vs 능력은 격리로만 판정**(095·052도 격리 전엔 미판정)·궤적→learn 직행 금지.
+> - **052 last_approved formalize**: p_traj(라이브)=**0**('none') vs p_iso(정보완비 격리)=**8/9**(2025-09-15) ⇒
+>   **gather-순서**(라이브서 check_cli를 CLI history 선독 전 호출·cut 시점 CLI history 부재 확인). formalize 아님
+>   → scaffold(CLI-history 선독 precondition·READLOOP). `probe_052_load_iso`.
+> ⇒ **§2에서 038/097 제거·052도 §1(gather-순서=scaffold)로.** ★**중대 함의**: banking에서 "formalize learn"의
+>   실물 증거로 지목했던 3건(038/052/097)이 **전부 격리서 회복=scaffold**. formalize(§2.1)는 GENERALIZED_SCAFFOLD가
+>   이론상 "유일 잔여"라 했으나 **banking 실측 실물은 아직 0**(전부 부하/순서/활성화). ⇒ 확실한 활성 learn 잔여는
+>   **054 crossover 하나로 좁혀짐**(scaffold 사정권이 예상보다 넓음·crossover 모트가 더 날카로워짐).
+> 교훈 재확인: **부하 vs 능력은 격리로만 판정**·궤적→learn 직행 금지([[08]]). 세 번 연속 사용자 가설(scaffold) 지지.
 
 > **이 문서가 learn 축의 단일 정본이다.** 상위=`RESEARCH_MASTER.md`(등대). learn 관련 설계문서 9개를
 > 통합하고, **실험으로 종결/흡수/강등된 것은 §1로 격리**(재개 트리거만 보존)·**살아있는 잔여만 §2에
@@ -44,7 +50,12 @@ gather-cfbsynth  [측정무효·base 0.98]
 present / E9     [폐기 / 환경집행 죽은레버]
 097 값-formalize [부하→SG_ISOLATE·격리 6/9]
 038 처방선택     [활성화실패→질의게이트·L2 8/8]
+052 last_approved[gather순서→선독게이트·격리 8/9]
 ```
+
+> ★**§2.1 formalize 실물 미확보 주의**: banking 격리 3전 3승(038/052/097 모두 scaffold) — formalize learn은
+> **이론 축이나 banking 실측 실물 0**. 확실한 활성 learn 잔여 = **§2.2 순서-계획(054)** 하나. §2.1/§2.3은
+> 이론·데이터-대기 축(실물 격리-저항 증거 확보 시 활성화). scaffold 사정권이 넓다는 것이 핵심 발견.
 
 ---
 
@@ -62,6 +73,7 @@ present / E9     [폐기 / 환경집행 죽은레버]
 | **E9 id-날조 차단** | **[죽은레버·환경집행]** | 환경이 이미 거부(C12 `93/93`). | — | E11 §7 |
 | **097 값-formalize(principal)** | **[부하→scaffold]** | p_traj(라이브)=0 vs **p_iso=6/9**(격리 회복)=부하. 값 실재(100000). | SG_ISOLATE(계좌별 subagent 격리)+get_correct_savings_apy(calc)+E-PLAN(coverage) | `probe_097_load_iso`·§2bu |
 | **038 처방-선택** | **[활성화실패→scaffold]** | L0=8/8·**L2(라이브)=8/8** file_dispute=능력有·자유생성 미발현. | 처방 결정지점 명시-질의 게이트(action-required 처방판) | `probe_038_prescription_load` |
+| **052 last_approved formalize** | **[gather-순서→scaffold]** | p_traj=0 vs **p_iso=8/9**(2025-09-15). 라이브서 check_cli를 CLI history 선독 전 호출. | check_cli precondition(CLI-history 선독 증거·WEV 동형)·READLOOP | `probe_052_load_iso`·rall12 smoke |
 
 ---
 
