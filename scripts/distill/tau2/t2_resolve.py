@@ -435,9 +435,19 @@ def resolve_reference_filter(am, msgs, a2, agent=None, la=None, UserMessage=None
     """★reference-filter 레버(keystone·사용자 참조축): call_discoverable의 참조 id 파라미터를
     formalize(user→기준) → 결정론 filter(수집 record) → 올바른 id로 검증/교정. 반환 {status, ...}.
     ⋈를 LLM 아닌 결정론에 offload(§3 정당·수집사실 위). A2 reference_filter가 도구/필드/매칭 선언."""
-    spec = (a2 or {}).get("reference_filter")
-    if not spec or agent is None or la is None:
+    _rfspec = (a2 or {}).get("reference_filter")
+    if not _rfspec or agent is None or la is None:
         return {"status": "ok"}
+    # ★§2bj: 복수 스펙 지원(A2 리스트·구판 단일 dict 하위호환) — 031 실측: credit-dispute 변형이
+    #   미선언이라 debit만 커버(Amazon-id 정박-치환이 무검증 통과). 엔진=순회만·선언=A2.
+    for spec in (_rfspec if isinstance(_rfspec, list) else [_rfspec]):
+        _r1 = _resolve_one_reference_filter(am, msgs, spec, agent, la, UserMessage)
+        if _r1.get("status") != "ok":
+            return _r1
+    return {"status": "ok"}
+
+
+def _resolve_one_reference_filter(am, msgs, spec, agent, la, UserMessage):
     offer = spec.get("dispatch_tool", "call_discoverable_agent_tool")
     tp = spec.get("tool_prefix"); param = spec.get("param", "transaction_id")
     keyf = spec.get("key_field", param); require = tuple(spec.get("require") or ("date", "amount"))

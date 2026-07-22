@@ -112,36 +112,69 @@
   "call_discoverable_agent_tool",
   "give_discoverable_user_tool"
  ],
- "reference_filter": {
-  "dispatch_tool": "call_discoverable_agent_tool",
-  "tool_prefix": "file_debit_card_transaction_dispute",
-  "param": "transaction_id",
-  "key_field": "transaction_id",
-  "require": [
-   "date",
-   "amount"
-  ],
-  "criteria_fields": [
-   "date",
-   "merchant",
-   "transaction_type"
-  ],
-  "match": [
-   {
-    "field": "date",
-    "eq": "criteria.date"
-   },
-   {
-    "field": "description",
-    "contains": "criteria.merchant"
-   },
-   {
-    "field": "type",
-    "eq": "criteria.transaction_type"
-   }
-  ],
-  "on_ambiguous": "none"
- },
+ "reference_filter": [
+  {
+   "dispatch_tool": "call_discoverable_agent_tool",
+   "tool_prefix": "file_debit_card_transaction_dispute",
+   "param": "transaction_id",
+   "key_field": "transaction_id",
+   "require": [
+    "date",
+    "amount"
+   ],
+   "criteria_fields": [
+    "date",
+    "merchant",
+    "transaction_type"
+   ],
+   "match": [
+    {
+     "field": "date",
+     "eq": "criteria.date"
+    },
+    {
+     "field": "description",
+     "contains": "criteria.merchant"
+    },
+    {
+     "field": "type",
+     "eq": "criteria.transaction_type"
+    }
+   ],
+   "on_ambiguous": "none"
+  },
+  {
+   "dispatch_tool": "call_discoverable_agent_tool",
+   "tool_prefix": "file_credit_card_transaction_dispute",
+   "param": "transaction_id",
+   "key_field": "transaction_id",
+   "require": [
+    "transaction_date",
+    "transaction_amount"
+   ],
+   "criteria_fields": [
+    "date",
+    "merchant",
+    "amount"
+   ],
+   "match": [
+    {
+     "field": "transaction_date",
+     "eq": "criteria.date"
+    },
+    {
+     "field": "merchant_name",
+     "contains": "criteria.merchant"
+    },
+    {
+     "field": "transaction_amount",
+     "contains": "criteria.amount"
+    }
+   ],
+   "on_ambiguous": "none",
+   "_note": "2026-07-22 §2bj(031 실측): 유저가 merchant/amount/date 축자 지목에도 인접 Amazon id 기입(C43 정박-치환)·credit 변형 미선언이 원인. debit 스펙(C77)과 동형·필드명=credit 레코드 실측. on_ambiguous=none=다중매치 무개입."
+  }
+ ],
  "_note_reference_filter": "★Step2-3(keystone·참조축·C77): banking hard-core 지배=참조-⋈(올바른 거래 지목)·frontier조차 82% 필터가능인데 실패. formalize(user발화→date/merchant/type 기준)→결정론 filter(수집 record)→올바른 transaction_id 검증. ⋈를 LLM 아닌 결정론에 offload(수집사실 위·§3 정당·autofetch 아님). 매칭=엔진 filter op·기준/필드=이 A2. on_ambiguous=none(진짜중복 18%=미개입). record 파서=엔진(key_field/require A2선언). retail 미기재=무발동. ⚠C80/C81 교정: ⋈는 지배 아님(4%)·진짜 지배 decidable slice=아래 compute_ops(16.7%·liability 51%오답).",
  "compute_ops": {
   "file_debit_card_transaction_dispute": {
