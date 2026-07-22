@@ -1668,3 +1668,36 @@ abstain(핵심 그룹(base) 드롭 시 0.0 verdict 대신 missing_hint abstain �
 **2a 기각(정직 기록)**: statement-credit 제한 WEV — KB credit_cards_(general)_017은 광범위 허용(goodwill/promotional/fee reversal/other)·"ONLY" 제한 목록은 checking-크레딧(별도 도구) 문서. deny 게이트=gold-맞추기 위험으로 미구현. 038류 잔여=formalize/learn 영역.
 
 **다음(rall11 전 설계 순서):** ①ACTION_DENY에도 진행-감응 환급 확장(097 실측 근거·1b와 동일 원리·미구현) ②say-loop 커버 검토 — WRITEPROV 완료-주장에 "미래형 약속 반복" 변형 추가 여부(flail-등가 확장 §2bq와 통합 설계) ③rall11: 신규 스위치 3종 ON(PROGRESS_REFUND·VIEW_ANNOTATE·WRITE_ARG_GROUND)+nt≥3 분포 확정([[08]]·054 재조회 분산·095 슬롯 분산 포함)·스모크 선행·[[09]] 승인 후 launch.
+
+### §2bu (2026-07-22) — ★★rall11 판정: 픽스 6종 실전 실증·031 승격·054 crossover 경계 확정 [S]
+
+> 데이터=sim_results/bank_rall11{s,a,b}_20260722.*(nt=1·seed300·gpt-5.2 user-sim·48k). rall10 스택+§2bt/§2bu
+> 픽스 스위치 ON. 스모크(050)=크래시0·환급 라이브 발화. 커밋 d4e367bf~2c8f57b5(fix 1a~10).
+
+**스코어보드 (액션-매치 = 시도-수준 병기·§2bh):**
+```
+task    rall10      rall11      Δ
+023     1.0 2/2     1.0 2/2     무회귀(user-instruct 안정·1176→411s)
+031     0.0 2/5     1.0 3/5     ★승격 (give 대상 오선택 소멸+WRITE_ARG_GROUND이 진짜 last4 강제)
+038     0.0 1/9     0.0 1/9     불변 (처방 오선택=게이트 사각·아래 잔여)
+043     0.0 4/15    0.0 2/15    nt=1 분산(위임-픽션 재현·all_accounts 발견실패 상류)
+050     0.0 5/13    0.0 11/13   ★대폭 (chain+progress-refund가 4체크+approve 견인·잔여=환각접미사 1쌍)
+052     0.0 3/13    0.0 10/13   ★대폭 (동상·잔여=환각접미사+approve/deny 판정)
+054     0.0 4/17    0.0 16/17   ★신기록 (PARAM_CAP 최초 성공·잔여=env 히든룰 1건=crossover)
+097     0.0 8/18    0.0 10/18   say-loop 소멸·write 도달(잔여=값-계산 정확도)
+PASS: rall10=1/8 → rall11=2/8. 액션-매치 총합 대폭 상승(레버가 사슬을 종단까지 견인 실증).
+```
+
+**픽스 6종(전부 오프라인 선검증·회귀 11스위트 green·신규 스위치 기본 OFF):**
+- fix 1a `{name_words}`+질의힌트: bare-name→자연어질의 파생(BM25 env-고정이라 토크나이저 수정 기각). 043 chain이 리텐션문서 score17 히트 실증.
+- fix 1b `T2_FOLLOWUP_PROGRESS_REFUND` / fix 5 `T2_ACTION_PROGRESS_REFUND`: cap-소진 구조(043/050/052 FOLLOWUP·097 ACTION 동형)에 진행-감응 환급("일하는 발화는 공짜"). 050 로그 refund 5회 실증.
+- fix 2b give=자기도구 deny·fix 4 `T2_WRITE_ARG_GROUND`: 031 승격의 두 축(give 대상+값 grounding).
+- fix 3 `T2_VIEW_ANNOTATE`: 054 카드≠계좌 주석(rall11 054는 재조회 안 함·미교전=nt분산 대상).
+- fix 6 closure chain KB 문서-제목 앵커·fix 7 `T2_UNKNOWN_NAME_BL`+`T2_UNLOCK_PROV`: 환각-접미사 2경로(env-거부 재시도+regen 첫발명). 050/052 실측 이중.
+- fix 8 close-WEV 질의가이드+keep-open(038 파괴적 close 대응·신설중복 자기제거)·fix 9 `check_cli_eligibility` scaffold(052 판정 offload·KB규칙 DSL·3값abstain)·fix 10 approve-WEV 증거토큰 교정(054 9연발 readloop 진범=출력에 도구명 토큰 부재·rall9 8연발 소급설명).
+
+**★054 crossover 경계 확정 [S] (모트 실물):** 잔여 1승=approve의 env 히든룰("pending dispute/replacement면 거부"·tools.py 확정). ①KB 698문서 無 ②도구설명 無 ③에러문구 원인無 = **agent-가시 채널 전무**. env소스→A2 이식=[[03b]] cheating(자기플래그·미실행). scaffold가 살 수 있는 것 전부 삼(4/17→16/17)·잔여=**발견불가 의존성 하 승리 순서**=①상식-prior(scale)+②계획-먼저 습관(§2bg frontier PASS 공통·[[45]] load). frontier도 054 전멸(최고1/4)—사는 건 규칙지식 아니라 prior+습관. **learn 경로=순서-의존 write-쌍 P-primitive를 학습벤치서 SFT(도메인-타깃 아님·[[11]])→계획-먼저 습관 이식**. [46] crossover(scale-불변 잔여+non-scaling 레버) 양면 실증.
+
+**잔여 클래스(§2bv 후보·전부 레버 밖):** ①038 처방-오선택(dispute↔statement-credit↔close·eligible-circumstance 판단=formalize/learn) ②097 값-계산 정확도(apply 금액 gold-불일치·interest-correction 산출·scaffold 계산 신뢰 문제) ③043 위임-픽션+발견실패 연쇄 ④038 부정-제약 위반 write(명시거부 후 close=E-PLAN user-제약 formalize). **핵심: rall11로 "cap-소진·환각접미사·검색마찰"의 기계적 잔여는 대거 소멸→잔여는 판단/계획/계산 층으로 이동=learn 경계 근접.**
+
+**다음:** ①nt≥3 누적(054 재조회분산·043 nt분산·050/052/054 저저항 재현 확정)=사용자 판단 대기 ②잔여 클래스는 E-PLAN([[14]])/learn 설계. rall11 드라이버 스위치에 fix7 2종 추가하면 다음 라운드 완비(6/8/9/10=A2 자동).
