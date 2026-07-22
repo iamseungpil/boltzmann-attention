@@ -201,9 +201,24 @@ majority at k=2 — against our pre-registered expectation (smaller ⇒ earlier 
 (not a claim) is that its weaker baseline binding (k=0 only 0.869) shrinks both the margin and the interference
 that attacks it. Two honesty notes: (i) the primed-readout frame lowers the threshold relative to free
 generation (k*=1 vs k*=2) — output-ordering freedom is itself protective, so thresholds are frame-dependent and
-we compare only within frame; (ii) 32B is quantized and served by a different stack than the CPU bf16 models, so
-cross-size orderings involving it are confounded; the claim we retain is only that **no scale in this family is
-immune**. ⟦optional: 0.5B row; 32B bf16 CPU spot-check to deconfound quantization⟧
+we compare only within frame; (ii) the served 32B is Int8-quantized, so we re-ran the 32B row in bf16 on the
+CPU stack: k=0 P(5)=0.999 → k=1 P(1)=0.799 → k=2 P(1)=0.973 — the same collapse, ruling out a
+quantization/serving-stack artifact. The claim we retain: **no scale in this family is immune**.
+⟦optional: 0.5B row⟧
+
+### 5.6 A second domain: the structure, not the banking surface
+
+τ²-bench's official domains have procedural policies without per-item clause judgment, so for domain generality
+we mirrored the *structure* in a synthetic domain with a realistic policy and a fully disjoint surface
+vocabulary: airline checked-baggage fees — a waiver clause ("sports and adventure gear from certified
+adventure-sports outfitters", fee $0, category tag authoritative), an explicit retailer exclusion list, a $35
+standard fee, and a target item from a recognizable brand named nowhere in the documents (Burton snowboard,
+category Sports). Logit-readout on the same 3B model: k=0 P($0)=1.000; similar (no-name outfitter gear)
+predecessors collapse the target to the standard fee at k=1 (P($0)=0.076, k=4: 0.003); dissimilar predecessors
+protect (P($0)=0.905/0.818/0.963 at k=1/2/4). Notably the whole prompt is 694–1456 tokens — interference at
+under 900 tokens is a further, cross-domain refutation of context-length accounts. Honest note: at k=8
+dissimilar, P($0) drops to 0.373 — in this short-prompt regime a nonspecific load effect appears at high k,
+which we report rather than smooth over; the similarity gating is clean through k=4.
 
 ## 6. A structural fix, and why prompts don't work
 
@@ -249,8 +264,10 @@ organizing frame here and *do not* claim mechanism identification in this paper;
 - Live results are pass^1 (single trial per task; deterministic agent but stochastic user-sim); multi-trial
   robustness for the live suite is future work. Probe results are temp-0 deterministic with construction-variation
   CIs instead (§5.4).
-- One domain (banking), one benchmark, primarily two cells; a cross-domain spot-check is pending ⟦TBD A③⟧.
-- The 32B agent is Int8-quantized; scale comparisons across serving stacks are confounded (§5.5).
+- One live benchmark (banking); the cross-domain replication (§5.6) is a structural mirror in a synthetic
+  domain with a realistic policy, not a second live pipeline.
+- The 32B agent is Int8-quantized in the live pipeline; the bf16 spot-check (§5.5) deconfounds the probe
+  results but the live runs themselves remain Int8.
 - Benchmark quirks are footnoted where they touch numbers: evaluator dict-comparison keys (optional-argument
   filling kills action match without affecting reward), user-sim JSON whitespace luck (no reward effect), and the
   026 gold bug.

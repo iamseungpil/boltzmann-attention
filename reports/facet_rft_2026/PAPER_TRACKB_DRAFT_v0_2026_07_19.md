@@ -109,7 +109,7 @@ Lexically-anchored items retrieve via near-duplicate token matching (induction-l
 | P3 | readout clause-mass a_C(k) decreases under similar loading | ✗ disconfirmed at readout (honest negative, §4) — refined to P3′ at the construction stage ⟦TBD B1b⟧ |
 | P6 | blocking judgment-position attention to interfering rows (positions preserved) restores P(5) | ✅ **full recovery** (0.98–0.99 at k=2/4/8; controls fail; localized to target-row construction; §5) |
 | P4 | attention-temperature: β↑ raises k* | ✗ **inverted** (β↑ deepens collapse monotonically; β↓ partially protects; diagnostic of a dominant echo attractor, ΔE<0; §6) |
-| P7 (opt) | interfering-row keys grow a W_K-projected C-direction component with k | ⟦TBD B4 optional⟧ |
+| P7 (opt) | interfering-row keys/values carry a clause-direction component (similar-specific) | ✗ not supported at layer-mean pre-RoPE granularity (condition-blind; §5) |
 
 ## 3. Behavioral evidence (summary; details in companion paper)
 
@@ -285,7 +285,8 @@ and release-from-PI (Watkins) — we import the paradigm, and the "cue overload"
 - The logit-readout frame differs from live generation (k* offset by 1); all mechanism claims are within-frame.
 - a_C(k) correlation (B1) alone cannot establish causation — that burden is on B2; if B2's restoration is
   partial, the account is partially attention-mediated ⟦quantify⟧.
-- Layer/head localization is exploratory (no pre-registered layer hypothesis).
+- Layer localization (early-layer dominance) had no pre-registered layer hypothesis; head-level and post-RoPE
+  geometry remain open (P7 negative is at layer-mean granularity only).
 
 ## References ⟦TBD⟧
 
