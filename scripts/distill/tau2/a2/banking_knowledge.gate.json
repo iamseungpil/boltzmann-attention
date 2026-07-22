@@ -1221,7 +1221,13 @@
      }
     }
    },
-   "_note": "2026-07-22 §2bu(rall11 052 실측): 4체크를 다 읽고도 approve 실행(gold=deny·cooldown). 자격 4기준은 KB에 결정론 명시(logistics_005/006·티어 목록=replacements_002)→[[10]] 분담: 판정=결정론 offload(check_rebate/closure_eligibility 선례). 문구=양방향(approve|deny)·default None=미지 카드타입 abstain([[05]] 3-값). gold 무관·전거는 KB. ★2026-07-22 rall12 smoke(052) 실측: 모델이 history의 status:approved submitted_date:2025-09-15을 못 뽑고 'none' emit→cooldown 관문 skip→ELIGIBLE 오판(gold=deny). 원인=舊문구 'EXCLUDING the request you are deciding now' 과적용(pending과 과거 approved 혼동). 문구를 'approved만 보라·pending은 자동제외'로 교정. 근본(문맥값→slot 매핑)=formalize 잔여(LEARN §2.1)라 문구로 완전히 못 닫음·라이브 재검 대상."
+   "_note": "2026-07-22 §2bu(rall11 052 실측): 4체크를 다 읽고도 approve 실행(gold=deny·cooldown). 자격 4기준은 KB에 결정론 명시(logistics_005/006·티어 목록=replacements_002)→[[10]] 분담: 판정=결정론 offload(check_rebate/closure_eligibility 선례). 문구=양방향(approve|deny)·default None=미지 카드타입 abstain([[05]] 3-값). gold 무관·전거는 KB. ★2026-07-22 rall12 smoke(052) 실측: 모델이 history의 status:approved submitted_date:2025-09-15을 못 뽑고 'none' emit→cooldown 관문 skip→ELIGIBLE 오판(gold=deny). 원인=舊문구 'EXCLUDING the request you are deciding now' 과적용(pending과 과거 approved 혼동). 문구를 'approved만 보라·pending은 자동제외'로 교정. 근본(문맥값→slot 매핑)=formalize 잔여(LEARN §2.1)라 문구로 완전히 못 닫음·라이브 재검 대상. ★2026-07-22 052 격리(probe_052 p_iso 8/9): 라이브 실패=check_cli를 CLI history 선독 前 호출→last_approved 'none'(gather-순서·formalize 아님). requires_reads로 계좌+CLI이력+납부이력 선독 강제(REQREADS 기존 메커니즘·T2_SG_REQREADS). 정보완비면 formalize 정확(격리 8/9 지지).",
+   "requires_reads": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ],
+   "requires_reads_feedback": "Error: [READ-FIRST] before checking CLI eligibility you must first read the inputs from the records. Missing required reads: {missing}. Read the credit card account record (get_credit_card_accounts_by_user), the CLI request history (get_credit_limit_increase_history) and the payment history (get_payment_history) - the last two are DISCOVERABLE tools, so find each full suffixed name in the knowledge base (search plain words for the step), unlock and call it. Only after those reads are in the conversation can you copy exact values (balances, dates, approved-request date, on-time payment count) into check_cli_eligibility. Then call it again."
   }
  ],
  "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수.",
