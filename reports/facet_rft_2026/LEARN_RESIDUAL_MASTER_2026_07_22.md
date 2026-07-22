@@ -1,5 +1,16 @@
 # LEARN 잔여 통합 정본 (2026-07-22)
 
+> ## ★★교정 (2026-07-22 저녁·사용자 지시 격리 실험·`probe_097/038_load`): 038·097을 learn서 제거
+> 초판이 038(처방)·097(값)을 §2 활성 learn 잔여로 넣었으나 **궤적 관찰만·격리 없음=[[08]] 위반**이었다.
+> 사용자 지시로 부하-격리 프로브 실행(무료·n=8+1) → **둘 다 learn 아님**으로 교정:
+> - **097 principal**: p_traj(라이브 150msg)=**0** vs p_iso(격리)=**6/9** ⇒ **부하**. 값 실재(100000)·긴대화가
+>   formalize 흐림(095=값부재 gather와 정반대). 처방=SG_ISOLATE(subagent 계좌별 격리)·APY=get_correct_savings_apy
+>   도구(calc)·coverage=E-PLAN. **전부 scaffold 영역**(사용자 "097=calc/subagent" 지지).
+> - **038 처방선택**: L0(격리)=**8/8**·L2(라이브 다중요청)=**8/8** file_dispute ⇒ **능력·부하 아님**. 명시 질의엔
+>   100% 정답인데 자유생성서 미발현=**활성화 실패**([[42]]) → 처방 결정지점 명시-질의 게이트(action-required 처방판).
+> ⇒ **§2에서 038/097 제거·§1(부하/활성화=scaffold)로 이관.** 진짜 learn 잔여는 **더 좁다**(§2는 formalize·순서·gather만).
+> 교훈 재확인: **부하 vs 능력은 격리로만 판정**(095·052도 격리 전엔 미판정)·궤적→learn 직행 금지.
+
 > **이 문서가 learn 축의 단일 정본이다.** 상위=`RESEARCH_MASTER.md`(등대). learn 관련 설계문서 9개를
 > 통합하고, **실험으로 종결/흡수/강등된 것은 §1로 격리**(재개 트리거만 보존)·**살아있는 잔여만 §2에
 > 활성 유지**한다. 규율: **[[11]]** 학습은 학습벤치(synth)서만·banking=eval 전용(ABox-swap 전이) ·
@@ -28,9 +39,11 @@
 disamb-select    [≥2→ASK 흡수]                    ② 순서-계획(054 crossover)        genuine 표현-애매성(over-ask)
 값-grounding     [WRITE_ARG_GROUND 흡수]           ③ gather 재시험(D1~D4 대기)       state-track scale-gated≥13B
 집계/argmax      [CALC/결정론]                                                       └→ 7B는 결정론 controller
-INFER-calib      [강등·095=gather·097미부활]
+INFER-calib      [강등·095=gather]
 gather-cfbsynth  [측정무효·base 0.98]
 present / E9     [폐기 / 환경집행 죽은레버]
+097 값-formalize [부하→SG_ISOLATE·격리 6/9]
+038 처방선택     [활성화실패→질의게이트·L2 8/8]
 ```
 
 ---
@@ -47,6 +60,8 @@ present / E9     [폐기 / 환경집행 죽은레버]
 | **gather-before-act(cfbsynth 데이터)** | **[측정무효]** | cfbsynth가 *"I don't have the id"* 큐를 **150/150(100%)** 제공(tau2=120중 1건)+규칙 명시 ⇒ base 이미 **0.98**=gradient 없음. DPO off-policy(지지집합 밖)·SFT 첫행동 lookup 2000/2000=퇴화정책(tme 13→25). | **§2.3 재시험**(결손-보존 데이터)=**살아있는 축 §2.3으로 이관** | C38·E6PRIME |
 | **present(정보 주입)** | **[폐기]** | pass +4.7pp 사지만 order조회 2.62→0.48(5.5×억제)·미조회날조 5.6%→10.4%. C31: read→act 지워 **학습신호 파괴**. | — (baseline=floor 확정) | E11 §1 |
 | **E9 id-날조 차단** | **[죽은레버·환경집행]** | 환경이 이미 거부(C12 `93/93`). | — | E11 §7 |
+| **097 값-formalize(principal)** | **[부하→scaffold]** | p_traj(라이브)=0 vs **p_iso=6/9**(격리 회복)=부하. 값 실재(100000). | SG_ISOLATE(계좌별 subagent 격리)+get_correct_savings_apy(calc)+E-PLAN(coverage) | `probe_097_load_iso`·§2bu |
+| **038 처방-선택** | **[활성화실패→scaffold]** | L0=8/8·**L2(라이브)=8/8** file_dispute=능력有·자유생성 미발현. | 처방 결정지점 명시-질의 게이트(action-required 처방판) | `probe_038_prescription_load` |
 
 ---
 
@@ -61,8 +76,10 @@ GENERALIZED_SCAFFOLD §4d/§5가 "**유일 semantic 잔여·make-or-break**"로 
 그런데 **오/과엄격 형식화가 유효집합을 1개(틀린 것)로 붕괴**시키거나 **유효집합 *밖* 단일값**을 confident-emit하면
 ≥2 트리거가 안 걸려 **silent-wrong**이 통과한다. evidence-quote 게이트는 값-날조는 잡지만 predicate-오형식화는 못 잡음.
 - 렌즈: t106 `INFER("smaller"→XL)` — 모델이 1값 confident-emit·GET-집합에 애매성이 후보로 안 뜸 → ASK 미발동.
-- rall11 부분귀속: **038 처방-선택**(dispute↔statement-credit↔close·"eligible circumstances ONLY in..." KB doc_017)
-  = 조건 formalize(어느 절차가 이 상황에 적용되는가)의 한 형태. 038은 close·credit·dispute를 오선택하며 이 축을 실증.
+- ~~rall11 부분귀속 038~~: **제거**(상단 교정) — 038 처방은 격리 8/8=능력有·활성화 실패(scaffold §1). formalize 아님.
+- **미격리 후보 052**(check_cli `last_approved`): CLI history에 status:approved 2025-09-15 실재인데 'none' emit→ELIGIBLE
+  오판(gold=deny). 재스모크(문구교정)서도 'none'=문구로 안 닫힘. **단 부하 여부 미격리** — 097 선례상 격리 회복
+  가능성 있음. formalize 확정 전 052 격리 프로브 필요([[08]] 규율·궤적→learn 직행 금지).
 
 **learn 경로**: 학습벤치서 NL제약→predicate·NL값→유효집합-항 매핑을 **다양성**([[12]])으로 SFT. 출력에 `{value,
 evidence_quote}` 동반(§4b)해 엔진이 quote∈source를 검증(값-충실도는 흡수·형식화 정확도만 남김). on-policy rejected(C38).
