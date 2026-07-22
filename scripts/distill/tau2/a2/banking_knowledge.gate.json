@@ -368,6 +368,19 @@
    "applies_to": "call_discoverable_agent_tool",
    "applies_when": {
     "arg": "agent_tool_name",
+    "prefix": "approve_credit_limit_increase"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "ELIGIBLE - all tier requirements"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows account {id} is ELIGIBLE (the check_cli_eligibility tool returning the 'ELIGIBLE - all tier requirements ... satisfied' verdict). Do NOT decide approve or deny from your own arithmetic about account age, cooldown, utilization or payment months - the cooldown days especially are easy to miscount. Call check_cli_eligibility with the values copied exactly from the account record, the CLI request history and the payment history, then execute the verdict it returns: approve ONLY if it says ELIGIBLE; if it returns a NOT_ELIGIBLE_* verdict, unlock and call deny_credit_limit_increase with the reason it gives.",
+   "_note": "2026-07-22: 052 실측(rall14·전수추적) — approve의 기존 3 read-WEV(payment/history/replacement '읽었나'만)는 통과했는데 에이전트가 쿨다운 60일을 '120일 지났다'로 직접 오판→approve(gold=deny). closure의 CLOSURE_OK 게이트와 동형: 종단결정(approve)을 결정론 판정도구(check_cli_eligibility)의 ELIGIBLE 판정+id공존에 정박=직접 산수 무력화([[10]]·F2b·decidable). 판정=엔진 결정론(days_between/compare/case·Part1 오프라인 검증 052→NOT_ELIGIBLE_COOLDOWN·60<120). 토큰 비중첩: 'ELIGIBLE - all tier requirements'는 NOT_ELIGIBLE_* 렌더에 미출현. deny측 미게이트(pending_disputes/replacement 등 다중 정당근거→over-block 회피). Δspurious 계측 대상(적격 케이스 approve 지연=도구 1콜 추가)."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
     "prefix": "close_credit_card_account"
    },
    "id_key": "credit_card_account_id",

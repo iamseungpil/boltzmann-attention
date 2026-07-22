@@ -104,18 +104,37 @@ check("W11_verdict_is_last_barrier", fb2 is not None and "CLOSURE_OK" in fb2
       and "KEEP the account open" in fb2)
 
 # ── fix 10 (054·§2bu): approve WEV의 payment 증거 술어 = 실제 출력 포맷 정합 ──
+GID = "cc_584f9c5d00_gold"
 APPROVE = TC("call_discoverable_agent_tool",
              {"agent_tool_name": "approve_credit_limit_increase_5847",
-              "arguments": json.dumps({"credit_card_account_id": "cc_584f9c5d00_gold",
+              "arguments": json.dumps({"credit_card_account_id": GID,
                                        "user_id": "584f9c5d00", "new_credit_limit": 7500})})
-PAY_OUT = ("Payment history for account 'cc_584f9c5d00_gold' (last 3 months):\n"
-           "Consecutive on-time payments: 3\n  - Payment Date: 10/15/2025")
+PAY_OUT = ("Payment history for account '%s' (last 3 months):\n"
+           "Consecutive on-time payments: 3\n  - Payment Date: 10/15/2025" % GID)
 H_EV = [Msg("tool", PAY_OUT),
-        Msg("tool", "Credit limit increase history retrieved.\nExecuted: get_credit_limit_increase_history_4829\nfor cc_584f9c5d00_gold"),
-        Msg("tool", "Pending replacement orders check completed.\nExecuted: get_pending_replacement_orders_5765\nfor cc_584f9c5d00_gold")]
-check("W12_approve_with_real_payment_output_pass", _wev_deny_msgs(H_EV, APPROVE, WEV) is None)
-check("W13_approve_without_payment_denied",
-      _wev_deny_msgs(H_EV[1:], APPROVE, WEV) is not None)
+        Msg("tool", "Credit limit increase history retrieved.\nExecuted: get_credit_limit_increase_history_4829\nfor %s" % GID),
+        Msg("tool", "Pending replacement orders check completed.\nExecuted: get_pending_replacement_orders_5765\nfor %s" % GID)]
+check("W13_approve_without_payment_denied", _wev_deny_msgs(H_EV[1:], APPROVE, WEV) is not None)
+
+# ── NEW (2026-07-22·052 verdict-grounding): approve는 3-read만으론 부족·ELIGIBLE 판정 필수 ──
+def render(ctx):
+    return TOOL["return_template"].format(
+        credit_card_account_id=ctx["credit_card_account_id"], card_type=ctx["card_type"],
+        result=apply_op(OP, dict(ctx)))
+GBASE = {"credit_card_account_id": GID, "card_type": "Gold Rewards Card",
+         "date_of_account_open": "01/10/2023", "as_of_date": "2025-11-14",
+         "current_balance": 500.0, "credit_limit": 5000.0, "consecutive_on_time_payments": 6}
+ELIG_G = render(dict(GBASE, last_approved_cli_submitted_date="none"))            # → ELIGIBLE
+COOL_G = render(dict(GBASE, last_approved_cli_submitted_date="2025-10-20"))      # → NOT_ELIGIBLE_COOLDOWN (25d<60)
+# W14: 3-read 있어도 ELIGIBLE 판정 없으면 approve 차단 (052 구멍 폐색·직접 산수 무력화)
+check("W14_approve_reads_only_but_no_verdict_denied", _wev_deny_msgs(H_EV, APPROVE, WEV) is not None)
+# W15: NOT_ELIGIBLE 판정만 있어도 approve 여전히 차단 (052형: deny로 강제)
+check("W15_approve_with_NOT_ELIGIBLE_still_denied", _wev_deny_msgs(H_EV + [Msg("tool", COOL_G)], APPROVE, WEV) is not None)
+# W16: ELIGIBLE 판정(id공존) → approve 허용
+check("W16_approve_with_ELIGIBLE_pass", _wev_deny_msgs(H_EV + [Msg("tool", ELIG_G)], APPROVE, WEV) is None)
+# W17: 타계좌 ELIGIBLE → id 불공존 차단
+check("W17_approve_other_account_ELIGIBLE_denied",
+      _wev_deny_msgs(H_EV + [Msg("tool", ELIG_G.replace(GID, "cc_OTHER_gold"))], APPROVE, WEV) is not None)
 
 print("\n%s" % ("ALL PASS" if not FAILS else "FAILS: %s" % FAILS))
 sys.exit(1 if FAILS else 0)
