@@ -3127,9 +3127,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         continue
                     _uval = str(_args_dict(c).get(_uarg) or "")
                     if _uval and not re.search(_upat, _uval):
+                        # ★{name_words} (2026-07-22 §2bs·rall10 050/052 실측): bare-name을 자연어
+                        #   질의로 파생(suffix 제거+언더스코어→공백) — 도구명 질의=BM25 0.0 마찰의 해소.
+                        #   엔진=순수 문자열 연산(리터럴 0)·문구는 A2.
                         un_fb = (c, str(_unspec.get("feedback") or
                                         "Error: '{name}' is missing its required suffix.")
-                                 .replace("{name}", _uval))
+                                 .replace("{name}", _uval)
+                                 .replace("{name_words}",
+                                          re.sub(_upat, "", _uval).replace("_", " ").strip()))
                         force_required = True     # ★사용자 제안: 재생성은 반드시 도구 호출(KB 검색 유도)
                         print("[T2_UNLOCK_NAME] deny bare name tool=%s val=%s"
                               % (getattr(c, "name", None), _uval), file=_sys.stderr, flush=True)
@@ -3624,7 +3629,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         print("[T2_UNLOCK_NAME] deny bare name (followup-regen) tool=%s val=%s"
                               % (getattr(_c2, "name", None), _uv), file=_sys.stderr, flush=True)
                         _fb2 = str(_ns.get("feedback") or "Error: '{name}' needs its suffix.")\
-                            .replace("{name}", _uv)
+                            .replace("{name}", _uv)\
+                            .replace("{name_words}",
+                                     re.sub(_ns.get("pattern") or "_[0-9]+$", "", _uv)
+                                     .replace("_", " ").strip())
                         _fb2m = ToolMessage(id=_c2.id, role="tool", requestor="assistant",
                                             error=True, content=_fb2)
                         _am3 = _gen(self, work + [am, _fb, _am2, _fb2m], bw(),
@@ -3645,6 +3653,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         #   (pass 궤적도 결과 제시→확인 사임이 한 번 있음)·2회째는 실패 4/4 커버 + pass 2/6만 접촉.
         # ★T2_FOLLOWUP_CAP (2026-07-20 §2au·e2e10 050/052 실측): 고정 1/sim은 chain 1회 발화 후 소진 —
         #   4체크 중 2개만 진행돼도 레버 끝(CLAIMPROV cap 전소와 동일 패턴). 기본 1=거동보존·재런 3.
+        # ★진행-감응 cap 환급 T2_FOLLOWUP_PROGRESS_REFUND (2026-07-22 §2bs·rall10 043/050/052 실측):
+        #   chain cap3 < 사슬 6단계 — 발화가 견인한 턴은 매 발화 ~1쌍 전진했는데 "일하는 발화"까지
+        #   cap을 소모해 소진 후 잔여 사슬 무방비(043 TRANSFER-포기·050/052 wrap-up). 직전 chain
+        #   발화의 {missing} 중 하나라도 이후 **시도-수준** 호출(§2bh: 성공 불문)이 생기면 그 발화의
+        #   cap 소모를 1회 환급 — 무진행 발화만 예산 소모(over-fire 억제는 기존과 동일).
+        #   엔진=집합 교집합만(리터럴 0·[[05]]). 기본 OFF(거동보존).
+        if os.environ.get("T2_FOLLOWUP_PROGRESS_REFUND") == "1":
+            _cmv = getattr(self, "_t2_chain_missing", None)
+            if _cmv:
+                _effn = {_eff_tool_name(tc) for m in state.messages
+                         for tc in (getattr(m, "tool_calls", None) or [])}
+                _effn |= {_eff_tool_name(tc)
+                          for tc in (getattr(am, "tool_calls", None) or [])}
+                _hitp = _cmv & _effn
+                if _hitp:
+                    self._t2_followup = max(0, getattr(self, "_t2_followup", 0) - 1)
+                    print("[T2_FOLLOWUP] chain progress refund hit=%s"
+                          % (sorted(_hitp),), file=_sys.stderr, flush=True)
+                self._t2_chain_missing = None
         _fu_cap = int(os.environ.get("T2_FOLLOWUP_CAP", "1") or 1)
         if (os.environ.get("T2_FOLLOWUP_REQUIRED") == "1" and _resign
                 and getattr(self, "_t2_followup", 0) < _fu_cap):
@@ -3697,6 +3724,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     self._t2_followup = getattr(self, "_t2_followup", 0) + 1
                     print("[T2_FOLLOWUP] chain fired(%s) after=%s"
                           % (_tag1, _fc.get("after")), file=_sys.stderr, flush=True)
+                    # ★진행-감응 환급용 스냅샷(2026-07-22 §2bs): 발화 시점의 미이행 집합 기록.
+                    #   다음 평가에서 이 중 하나라도 시도-수준 호출이 보이면 cap 소모 1회 환급.
+                    if _tag1 == "followup_decision":
+                        self._t2_chain_missing = {d for d in (_fc.get("decision_tools") or [])
+                                                  if d not in _eff0}
+                    else:
+                        _rq1 = _fc.get("requires")
+                        _rq1 = _rq1 if isinstance(_rq1, list) else [_rq1]
+                        self._t2_chain_missing = {r for r in _rq1 if r not in _eff0}
                     # ★§2bh: 구판은 followup_chain만 required — decision regen(종단결정 nudge)은
                     #   강제 없이 빈손 가능(rall5 실측: followup_decision 3회 발화·미이행). 문구가
                     #   양방향(approve/deny)이라 방향-중립·도구-호출 강제는 안전.

@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
-"""T2_UNLOCK_NAME(생성-레벨 bare-name deny·2026-07-21 §2bh) 오프라인 배선 테스트.
-검정: ①bare-name unlock → deny+피드백(KB 검색 지시)+required 재생성 → 접미사명으로 교정
-②패턴 일치(정상 접미사) → 무간섭 ③OFF → 통과 ④cap 소진 → 통과.
-⚠️단위통과≠라이브발화([[30]])."""
-import sys, os, types, json
+"""T2_FOLLOWUP_PROGRESS_REFUND(진행-감응 cap 환급·2026-07-22 §2bs) 오프라인 배선 테스트.
+
+rall10 실측(043/050/052): chain cap3 < 사슬 6단계 — 발화가 견인한 턴까지 cap을 소모해
+소진 후 잔여 사슬 무방비. 신규 스위치: 직전 chain 발화의 {missing} 중 하나라도 이후
+시도-수준 호출(§2bh: 성공 불문)이 보이면 cap 소모 1회 환급.
+검정: ①진행(call_discoverable 언랩·suffix strip 대조) → 환급 ②무진행 → 미환급·스냅샷 소거
+③OFF → 미환급·스냅샷 보존 ④바닥 0 클램프.
+⚠️단위통과≠라이브발화([[30]]) — 라이브 검정은 rall11 로그의 'chain progress refund' 태그.
+"""
+import sys, os, types
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 try:
     sys.stdout.reconfigure(encoding="utf-8"); sys.stderr.reconfigure(encoding="utf-8")
@@ -33,12 +38,8 @@ class ToolCall:
 class AM:
     def __init__(self, tool_calls=None, content=None):
         self.role, self.tool_calls, self.content = "assistant", tool_calls, content
-SCRIPT, FEEDBACKS, CHOICES = [], [], []
+SCRIPT = []
 def generate(model=None, tools=None, messages=None, call_name=None, **kw):
-    CHOICES.append(kw.get("tool_choice"))
-    for m in reversed(messages or []):
-        if getattr(m, "role", "") == "tool" and getattr(m, "error", False):
-            FEEDBACKS.append(m.content); break
     if not SCRIPT: raise AssertionError("SCRIPT exhausted")
     return SCRIPT.pop(0)
 la.generate = generate
@@ -68,30 +69,43 @@ FAILS = []
 def check(n, c, d=""):
     print(("PASS " if c else "FAIL ") + n + ((" | " + str(d)) if d and not c else ""))
     if not c: FAILS.append(n)
-HIST = auth() + [UserMessage("please check my dispute history get_user_dispute_history_7291")]
-BARE = lambda: ToolCall("unlock_discoverable_agent_tool", {"agent_tool_name": "get_user_dispute_history"})
-FULL = lambda: ToolCall("unlock_discoverable_agent_tool", {"agent_tool_name": "get_user_dispute_history_7291"})
-os.environ["T2_UNLOCK_NAME"] = "1"
-ag, orch, st = setup(HIST); SCRIPT[:] = [AM([BARE()]), AM([FULL()])]; FEEDBACKS[:] = []; CHOICES[:] = []
-am = ag._generate_next_message(UserMessage("yes"), st)
-check("U1_corrected", am.tool_calls and am.tool_calls[0].arguments["agent_tool_name"].endswith("_7291"))
-check("U1_fb_kb", any("search the knowledge base" in str(f) for f in FEEDBACKS))
-# ★{name_words} (2026-07-22 §2bs): bare-name의 자연어 파생 질의가 피드백에 실려야 함
-check("U1_fb_name_words", any("get user dispute history" in str(f) for f in FEEDBACKS))
-check("U1_required", "required" in [c for c in CHOICES if c])
-check("U1_cnt", getattr(ag, "_t2_unlockname_deny", 0) == 1)
-ag, orch, st = setup(HIST); SCRIPT[:] = [AM([FULL()])]
-am = ag._generate_next_message(UserMessage("yes"), st)
-check("U2_full_untouched", am.tool_calls and am.tool_calls[0].arguments["agent_tool_name"].endswith("_7291"))
-os.environ.pop("T2_UNLOCK_NAME", None)
-ag, orch, st = setup(HIST); SCRIPT[:] = [AM([BARE()])]
-am = ag._generate_next_message(UserMessage("yes"), st)
-check("U3_off_pass", am.tool_calls and am.tool_calls[0].arguments["agent_tool_name"] == "get_user_dispute_history")
-os.environ["T2_UNLOCK_NAME"] = "1"; os.environ["T2_UNLOCK_NAME_CAP"] = "1"
-ag, orch, st = setup(HIST); SCRIPT[:] = [AM([BARE()]), AM([BARE()])]
-am = ag._generate_next_message(UserMessage("yes"), st)
-check("U4_cap1_then_pass", am.tool_calls and am.tool_calls[0].arguments["agent_tool_name"] == "get_user_dispute_history")
-check("U4_cnt1", getattr(ag, "_t2_unlockname_deny", 0) == 1)
-os.environ.pop("T2_UNLOCK_NAME_CAP", None); os.environ.pop("T2_UNLOCK_NAME", None)
+
+# suffixed 이름을 히스토리에 둬 PROV(출처) 게이트 충족 — 환급 로직만 고립 검정
+HIST = auth() + [UserMessage("docs mention get_user_dispute_history_7291. thanks, that's all")]
+PROG = lambda: ToolCall("call_discoverable_agent_tool",
+                        {"agent_tool_name": "get_user_dispute_history_7291", "arguments": "{}"})
+NOPROG = lambda: ToolCall("KB_search_bm25", {"query": "dispute history"})
+
+# ① 진행 → 환급 (call_discoverable 언랩+suffix strip으로 missing과 대조)
+os.environ["T2_FOLLOWUP_PROGRESS_REFUND"] = "1"
+ag, orch, st = setup(HIST); SCRIPT[:] = [AM([PROG()])]
+ag._t2_followup, ag._t2_chain_missing = 2, {"get_user_dispute_history"}
+ag._generate_next_message(UserMessage("ok"), st)
+check("R1_refund", getattr(ag, "_t2_followup", None) == 1)
+check("R1_snapshot_cleared", getattr(ag, "_t2_chain_missing", "X") is None)
+
+# ② 무진행 → 미환급·스냅샷 소거(발화당 1회 판정)
+ag, orch, st = setup(HIST); SCRIPT[:] = [AM([NOPROG()])]
+ag._t2_followup, ag._t2_chain_missing = 2, {"get_user_dispute_history"}
+ag._generate_next_message(UserMessage("ok"), st)
+check("R2_no_refund", getattr(ag, "_t2_followup", None) == 2)
+check("R2_snapshot_cleared", getattr(ag, "_t2_chain_missing", "X") is None)
+
+# ③ OFF → 미환급·스냅샷 보존(거동보존)
+os.environ.pop("T2_FOLLOWUP_PROGRESS_REFUND", None)
+ag, orch, st = setup(HIST); SCRIPT[:] = [AM([PROG()])]
+ag._t2_followup, ag._t2_chain_missing = 2, {"get_user_dispute_history"}
+ag._generate_next_message(UserMessage("ok"), st)
+check("R3_off_no_refund", getattr(ag, "_t2_followup", None) == 2)
+check("R3_off_snapshot_kept", getattr(ag, "_t2_chain_missing", None) == {"get_user_dispute_history"})
+
+# ④ 바닥 0 클램프
+os.environ["T2_FOLLOWUP_PROGRESS_REFUND"] = "1"
+ag, orch, st = setup(HIST); SCRIPT[:] = [AM([PROG()])]
+ag._t2_followup, ag._t2_chain_missing = 0, {"get_user_dispute_history"}
+ag._generate_next_message(UserMessage("ok"), st)
+check("R4_floor_zero", getattr(ag, "_t2_followup", None) == 0)
+os.environ.pop("T2_FOLLOWUP_PROGRESS_REFUND", None)
+
 print("\n%s" % ("ALL PASS" if not FAILS else "FAILS: %s" % FAILS))
 sys.exit(1 if FAILS else 0)
