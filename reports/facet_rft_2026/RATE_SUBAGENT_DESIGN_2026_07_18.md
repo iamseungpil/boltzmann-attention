@@ -1640,3 +1640,31 @@ Savings Account is 5.5%" ≠ 원문 "Your account earns an APY of 5.5%...")라 �
 드롭들을 "날조 차단 실증"으로 자축한 것 **정정 — 참값 드롭이었다**(값은 옳고 인용만 엉성). 처방 2종:
 ①§2aq APY fetch-iso(서브가 원문서 직접 인용=축자 가능) — **이미 배선·e2e10서 검증 중** ②`required_groups`
 abstain(핵심 그룹(base) 드롭 시 0.0 verdict 대신 missing_hint abstain — 아래 §2as).
+
+### §2bt (2026-07-22) — ★★rall10 전수 판정: 023 최초 e2e PASS·cap-소진 구조 확정·픽스 5종 구현 [S]
+
+> (§2bs는 T6 픽스처 건이 선점 — rall10 판정은 본 절.) 데이터=sim_results/bank_rall10{a,b}_20260722.*
+> (nt=1·seed300·gpt-5.2 user-sim·48k yarn). 스코어: **023=1.0** | 031/038/043/050/052/054/097=0.0.
+> 궤적 전수 포렌식+stderr 게이트 로그 대조 완료(본 세션). 픽스=커밋 d4e367bf·35fcf792·0e1f6612·65b901c6·c7c8008d.
+
+**판정축(첫 라이브 5레버):**
+- ②user-instruct: **[S] 완전 실증** — 023서 agent가 KB 무도구 확인→user 안내→**user가 apply 직접 호출**(gold 매치)·reward 1.0. §2bo 픽스 목적 그대로.
+- ③give 교정: 부분 양성 — give 호출 자체 복구(오차단 소멸). 신규 결함=**give 대상 오선택**(031: agent 자기 DB 도구를 give·env 거부 2회에도 고수→dispute args fabrication '1234').
+- ④closure-chain: 발화 3회(=cap) **방향 정확·견인 실증**(043 all_accounts→pay 회복 arc) 후 **cap 소진→잔여 4단계 무방비→TRANSFER-포기 5연발**.
+- ⑤DISPATCH_ROLE: unlock 정상화(031 dispute unlock 매치)+give args strip 1회. 역할-혼동의 unlock 축 해소.
+- ①PARAM_CAP: **미교전** — 054가 submit 미도달(아래), 052는 요청액($400)이 캡 이하.
+
+**per-task 1-장면 원인:** 031=give 대상 오선택+값 fabrication(1234·오txn). 038=처방 오선택(dispute 대신 statement credit 5연발·KB 최상위 히트가 Provisional Credit=프라이밍)→환각 도구명 3종(PROV 전부 포획)→TRANSFER. 043=pay 위임→user-sim pending 픽션 45msg(GROUNDING이 $0.00 드롭·회복)→chain 견인→cap 소진→TRANSFER(pay call 매치실패는 "75.00"str vs 75.0float 아티팩트·시도-수준=성공). 050/052=chain 3발화가 "regen bare-name→UNLOCK_NAME deny→KB 도구명-질의 score 0.0" **마찰 루프**에 소모(발화당 ~1쌍)·052는 shell이 오도메인(debit) 문서 히트 후 자진 철수. 054=**재조회 함정**: dispute(cancel_and_reissue)가 DB에 status: CLOSED 기록(account_status: ACTIVE 병존)→"계좌 폐쇄→CLI 불가" 오독→CLI 12액션 미시도. rall9 15/17은 재조회 안 해서 통과=운(§2bq 수정). 054 dispute call은 13/14 인자 일치(last4 7823 정확)·유일 diff=issue_noticed_date(오늘 날짜 대입). 097=**신규 변형 "say-loop"**: 초반 compute-flail(가정 APY 6회·READ-FIRST/GROUNDING이 결국 실측 교정=게이트 성공)이 ACTION_DENY cap3 소진→종반 [122–134] **8연속 무-도구 산문**("Let's proceed...")·apply/submit 0회·user-sim이 날조 완료 수용("Platinum is submitted")·WRITEPROV는 미래형 약속이라 완료-주장 트리거 불성립(사각 정당)→케이스번호 grep→TRANSFER. +silverplus 4번째 계좌 미도달(coverage t95형).
+
+**구조 확정(최중요): cap-소진 = 도메인 불변 구조.** 043/050/052(FOLLOWUP cap3)와 097(ACTION_DENY cap3)이 동형 — "일하는 발화까지 cap을 소모→소진 후 결정적 구간 무방비". 레버 부재가 아니라 **예산 회계 결함**.
+
+**픽스 구현(오프라인 전검증·회귀 10/10 green·기본 OFF=거동보존):**
+1a `{name_words}`: bare-name deny 피드백이 자연어 질의를 자기 시도명에서 파생 제시(엔진=suffix 제거+언더스코어→공백·문구=A2). **BM25 토크나이저 수정은 기각**(banking_knowledge=upstream tau2 커밋=env 고정·비교가능성). 유해 문구 "or base name" 제거.
+1b `T2_FOLLOWUP_PROGRESS_REFUND`: chain 발화 {missing}에 시도-수준 착수 시 cap 1회 환급(무진행 발화만 예산 소모). test_followup_refund R1–R4.
+2b DISPATCH_ROLE 4술어: give 대상∈자기 도구 목록→deny(인터페이스-구조·census 불요)+user-지명 이름 재사용 힌트. test_dispatch_role D1–D4.
+1c closure chain KB 재정렬: 리텐션 프로토콜(logistics_003) 전사 — dispute-체크 추가·close를 requires에서 제거·종단=decision_tools[apply_flag|close] 양방향(CLI approve|deny 동형). test_followup_chain 21/21.
+3 `T2_VIEW_ANNOTATE`: A2-선언 필드-주석을 생성-뷰에 append(_annotate_view·비커밋·replay-safe). 054 주석=KB replacements_003 인용("account number remains unchanged")+CLI 자격문서에 교체 요건 부재(census 확정·역grep 0건). test_view_annotate V1–V5.
+4 `T2_WRITE_ARG_GROUND`: 선언된 기록-값 인자(card_last_4_digits·transaction_id)가 도구출력∪user발화에 실재해야 write(SG_GROUND의 discoverable-write 확장·WEV 배관 공유). 031 '1234' 차단. test_write_arg_ground G1–G6.
+**2a 기각(정직 기록)**: statement-credit 제한 WEV — KB credit_cards_(general)_017은 광범위 허용(goodwill/promotional/fee reversal/other)·"ONLY" 제한 목록은 checking-크레딧(별도 도구) 문서. deny 게이트=gold-맞추기 위험으로 미구현. 038류 잔여=formalize/learn 영역.
+
+**다음(rall11 전 설계 순서):** ①ACTION_DENY에도 진행-감응 환급 확장(097 실측 근거·1b와 동일 원리·미구현) ②say-loop 커버 검토 — WRITEPROV 완료-주장에 "미래형 약속 반복" 변형 추가 여부(flail-등가 확장 §2bq와 통합 설계) ③rall11: 신규 스위치 3종 ON(PROGRESS_REFUND·VIEW_ANNOTATE·WRITE_ARG_GROUND)+nt≥3 분포 확정([[08]]·054 재조회 분산·095 슬롯 분산 포함)·스모크 선행·[[09]] 승인 후 launch.
