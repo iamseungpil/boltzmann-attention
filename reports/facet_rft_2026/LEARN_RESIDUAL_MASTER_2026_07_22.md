@@ -20,6 +20,10 @@
 >   초판 "발견불가·prior 없음" **부분 오류** — 규칙-prior는 있음(C1). 진짜 잔여=**규칙→순서 적용-추론**(C2·질의 힌트도 0/9=
 >   scaffold 안 닫힘). **054는 여전히 learn/scale 경계이나 성격 교정**: 규칙 무지 아니라 적용-추론. crossover 정밀화(§2.2).
 >   ⇒ **확실한 활성 learn 잔여 = 054 순서-적용 추론 하나**(§2.1 formalize는 banking 실물 0·§2.3 데이터 대기).
+> - **054c elicitation sweep(`probe_054c_elicit`·2026-07-22)**: M1-M4(pairwise/규칙명시/greedy/chain) **전부 0/9**·M5
+>   인과질문 **9/9 "blocked"** ⇒ **knowing-doing gap 확정**: 규칙+인과 앎(C1·M5)이나 어떤 elicitation도 순서로 연결 못함
+>   (M4=자기추론 모순). 원인=강한 "보안-먼저" 경쟁 prior·[[42]] prior-override(scale-emergent). **scaffold 최종 불가**
+>   (M2/M3/M4 게이트 다 0/9). ⇒ 054 = **crossover 모트의 결정적 단일 실증**(knowing scale-불변·doing scale-gated).
 
 > **이 문서가 learn 축의 단일 정본이다.** 상위=`RESEARCH_MASTER.md`(등대). learn 관련 설계문서 9개를
 > 통합하고, **실험으로 종결/흡수/강등된 것은 §1로 격리**(재개 트리거만 보존)·**살아있는 잔여만 §2에
@@ -122,6 +126,22 @@ CLI는 회복 불가.** 이 규칙은 **KB 698문서·도구설명·에러문구
   있는 것 다 삼(액션 4/17→**16/17**)·잔여=순서-추론 1건.
 - **crossover 정밀화(모트 강화)**: scale이 사는 것은 규칙-지식(불변·C1)이 **아니라** 규칙→순서 **적용-추론**(C2). frontier
   054 1/4도 이 적용-추론이 가끔 됨(§2bg 계획-먼저 습관). ⇒ 논문 crossover = "지식은 scale-불변·적용추론이 scale-gated".
+
+**★★elicitation sweep 실측(2026-07-22·`probe_054c_elicit`·사용자 지시 "여러 방법으로 규칙→순서 연결 되는가")**
+— 진짜 성격 = **knowing-doing gap·prior-override 실패([[42]])**로 최종 확정. C2 0/9를 세분화:
+| 방법 | CLI-먼저/규칙적용 | 해석 |
+|---|---|---|
+| M1 pairwise(규칙 미제공) | **0/9** | 2택 분해로도 dispute-먼저 |
+| M2 pairwise(**규칙 명시**) | **0/9** | 규칙 코앞에 줘도 순서 안 바뀜 |
+| M3 greedy 첫선택(규칙 명시) | **0/9** | "지금 하나만" 골라도 dispute |
+| M4 chain 단계분해 | **0/9** | **(b)="CLI 불가" 자답하고도 (c)=dispute** — 자기추론 모순 |
+| M5 인과 질문(dispute먼저→CLI승인?) | **9/9 "no, blocked"** | 인과는 완벽히 앎 |
+- **dissociation 확정**: 규칙 지식(C1 9/9)+인과 인지(M5 9/9) **有** ↔ 순서 연결(M1-M4 0/9) **완전 실패**(모든 elicitation).
+  원인=**"보안 먼저(dispute 선처리=계좌 보호)" 경쟁 prior가 규칙/인과-추론을 이김**·명시·분해·chain 다 무력.
+- **scaffold 불가 최종 확정**: ①규칙 A2 이식=cheating ②규칙 명시(M2)·greedy(M3)·chain(M4) 전부 0/9=**어떤 게이트도 무효**.
+  유일 개입=순서를 A2에 직접 박기=[[03b]] cheating. ⇒ **순수 scale/train 영역**([[42]] prior-override=scale-emergent).
+- **논문 결정 데이터**: M5(knowing) vs M1-M4(doing)의 9/9↔0/9 대비 = crossover 모트의 가장 깨끗한 단일 실증
+  (knowing-doing gap이 scale-gated·32B는 강 prior 못 이김·frontier 1/4만 이김). [46] crossover·[[45]] load 정합.
 
 **learn 경로**: 054를 가르치는 게 아니라([[11]] 도메인-타깃 금지) **"순서-의존 write-쌍" P-primitive를 학습벤치에**
 구성(요청 A 부작용→요청 B 차단 구조·다양한 도메인 표면)하고, "다중 요청 수령 시 실행 전 상호작용 검토→심사-완결
