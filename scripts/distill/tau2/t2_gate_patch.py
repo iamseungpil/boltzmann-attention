@@ -502,6 +502,62 @@ def _write_evidence_deny(orch, tc, specs):
     return _wev_deny_msgs(msgs, tc, specs)
 
 
+def _param_cap_deny(messages, tc, specs):
+    """★정책-캡 게이트 (T2_PARAM_CAP=1·2026-07-22 §2br·rall9 054 실측). A2 `param_cap_check`:
+    선언된 write의 수치 param이 [레코드 필드 × 티어별 비율(A2 맵)] 캡을 초과하면 deny+안내
+    (consent 보존 — silent-repair 금지·정책 원문이 '최대치 안내 후 진행 여부 문의').
+    엔진=파싱·산술·비교만(정책 수치·필드·맵 전부 A2·[[03b]]). 맵 미기재 카드=무개입."""
+    import re as _re
+    import t2_resolve as _rz
+    name = getattr(tc, "name", None)
+    args = _args_dict(tc)
+    for sp in (specs or []):
+        if name != sp.get("applies_to"):
+            continue
+        aw = sp.get("applies_when") or {}
+        v = str(args.get(aw.get("arg")) or "")
+        if aw.get("prefix") and not v.startswith(aw["prefix"]):
+            continue
+        pn = sp.get("param")
+        nested = args.get("arguments")
+        if isinstance(nested, str):
+            try:
+                nested = json.loads(nested)
+            except Exception:
+                nested = {}
+        d = nested if isinstance(nested, dict) else args
+        try:
+            val = float(str(d.get(pn)).replace(",", "").replace("$", ""))
+        except Exception:
+            continue
+        recs = []
+        for m in messages:
+            if getattr(m, "role", None) == "tool" and not getattr(m, "error", False):
+                c = getattr(m, "content", None)
+                if isinstance(c, str):
+                    recs += _rz.parse_records(c, sp.get("record_key_field", "account_id"),
+                                              tuple(sp.get("record_require") or ()))
+        if not recs:
+            continue
+        rec = recs[-1]
+        pb = sp.get("pct_by") or {}
+        pct = (pb.get("map") or {}).get(str(rec.get(pb.get("field", "card_type"), "")).strip())
+        if pct is None:
+            continue
+        try:
+            lim = float(_re.sub(r"[^0-9.]", "", str(rec.get(sp.get("limit_field", "credit_limit")))))
+        except Exception:
+            continue
+        cap = pct * lim
+        if val > cap + 1e-6:
+            fb = (sp.get("feedback") or "Error: [POLICY-CAP] {value} exceeds {cap}.")
+            for k, vv in (("{value}", val), ("{cap}", cap), ("{pct}", "%d%%" % round(pct * 100)),
+                          ("{limit}", lim)):
+                fb = fb.replace(k, ("%g" % vv) if not isinstance(vv, str) else vv)
+            return fb
+    return None
+
+
 def _wev_deny_msgs(messages, tc, specs):
     """★T2_WRITE_EVIDENCE (2026-07-19·task_029 포렌식): A2 `write_evidence_specs` — 선언된 write 전,
     요구 토큰이 대상 id와 **같은 도구 출력**(role=tool·env 생성물·user *발화*는 제외)에 공존해야 실행.
@@ -2843,6 +2899,26 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     wev_fb = None
                     print("[T2_WRITE_EVIDENCE] error (no-op): %r" % (_wve,),
                           file=_sys.stderr, flush=True)
+            # ★T2_PARAM_CAP (§2br): 정책-캡 deny (A2 param_cap_check·054 실측)
+            pc_fb = None
+            _pcs = (a2 or {}).get("param_cap_check") or []
+            if (os.environ.get("T2_PARAM_CAP") == "1" and _pcs
+                    and not do_gate and not do_prov and ep_fb is None and cons_fb is None
+                    and ra_fb is None and te_fb is None and wev_fb is None
+                    and getattr(self, "_t2_paramcap_deny", 0)
+                    < int(os.environ.get("T2_PARAM_CAP_CAP", "4"))):
+                try:
+                    for c in (am.tool_calls or []):
+                        _pd = _param_cap_deny(state.messages, c, _pcs)
+                        if _pd:
+                            pc_fb = (c, _pd)
+                            self._t2_paramcap_deny = getattr(self, "_t2_paramcap_deny", 0) + 1
+                            print("[T2_PARAM_CAP] deny param over policy cap", file=_sys.stderr,
+                                  flush=True)
+                            break
+                except Exception as _pce:
+                    pc_fb = None
+                    print("[T2_PARAM_CAP] error (no-op): %r" % (_pce,), file=_sys.stderr, flush=True)
             # ★T2_RESOLVE (통일 인터프리터·UNIFIED_OPERAND_A2 §7-3): per-operand 해소 디스패처.
             #   deny-kind(operator/membership/provenance) 통합 = L10+L3+operator 한 경로.
             #   개별 플래그(T2_CONSISTENCY/T2_PROV_ORIGIN) 대체용(driver가 상호배타 설정).
@@ -3060,7 +3136,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         break
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
-                    and tl_fb is None and un_fb is None and dr_fb is None):
+                    and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -3158,6 +3234,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 elif un_fb is not None and c is un_fb[0]:
                     content = un_fb[1] if str(un_fb[1]).lstrip().startswith("Error:") \
                         else "Error: " + un_fb[1]
+                elif pc_fb is not None and c is pc_fb[0]:
+                    content = pc_fb[1] if str(pc_fb[1]).lstrip().startswith("Error:") else "Error: " + pc_fb[1]
                 elif dr_fb is not None and c is dr_fb[0]:
                     content = dr_fb[1] if str(dr_fb[1]).lstrip().startswith("Error:") \
                         else "Error: " + dr_fb[1]

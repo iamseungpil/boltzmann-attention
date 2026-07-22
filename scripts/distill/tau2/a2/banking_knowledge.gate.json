@@ -1101,5 +1101,40 @@
    "discoverable_tool_name"
   ],
   "_note": "2026-07-22 §2bl(rall8 031 실측): give에 여분 'arguments' 키 첨부=gold-형식 미스. 선언 외 키는 생성-시 strip(silent-repair·커밋 전=replay-safe)."
- }
+ },
+ "param_cap_check": [
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "submit_credit_limit_increase_request"
+   },
+   "param": "requested_increase_amount",
+   "record_key_field": "account_id",
+   "record_require": [
+    "credit_limit",
+    "card_type"
+   ],
+   "limit_field": "credit_limit",
+   "pct_by": {
+    "field": "card_type",
+    "map": {
+     "Bronze Rewards Card": 0.25,
+     "EcoCard": 0.25,
+     "Business Bronze Rewards Card": 0.25,
+     "Silver Rewards Card": 0.5,
+     "Business Silver Rewards Card": 0.5,
+     "Green Rewards Card": 0.5,
+     "Silver Zoom Card": 0.5,
+     "Gold Rewards Card": 0.5,
+     "Business Gold Rewards Card": 0.5,
+     "Platinum Rewards Card": 0.5,
+     "Business Platinum Rewards Card": 0.5,
+     "Diamond Elite Card": 0.5
+    }
+   },
+   "feedback": "Error: [POLICY-CAP] the requested increase ({value}) exceeds this card's tier maximum of {cap} per request ({pct} of the current credit limit {limit}, per the CLI policy). Do NOT submit this amount. Inform the customer of the maximum they are eligible for ({cap}) and ask whether they would like to proceed with that amount instead; submit only after they confirm.",
+   "_note": "2026-07-22 §2br(rall9 054 실측·rall4 t0 동일): 유저 요청 4000 무검증 제출(gold=캡 2500=50%x5000 적용·안내 후 consent). 정책[S]=doc_..._006(entry 25%·mid/premium 50%)+티어 분류[S]=doc_credit_card_replacements_002(Entry:Bronze/Eco/BizBronze·Mid:Silver/BizSilver/Green/SilverZoom·Premium+:Gold/BizGold/Platinum/BizPlatinum/DiamondElite). 미기재 카드(Crypto 등)=맵 부재→무개입(안전). deny+안내=consent 보존."
+  }
+ ]
 }
