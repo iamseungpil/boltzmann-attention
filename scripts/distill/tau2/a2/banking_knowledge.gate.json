@@ -686,7 +686,7 @@
        "email"
       ],
       "threshold": 2,
-      "met_template": "VERIFIED — {count} identity values match the account record ({matched}); you may now call log_verification.",
+      "met_template": "VERIFIED — {count} identity values match the account record ({matched}); you may now call log_verification. Its time_verified argument must be the CURRENT time: FIRST call get_current_time, wait for its result, then copy that exact timestamp into time_verified — do not ask the customer for the time and do not make one up.",
       "unmet_template": "NOT_VERIFIED — only {count} of the required {threshold} values the customer gave match the account record (matched: {matched}). Ask the customer for ONE more of: {missing} — then call verify_identity again passing ALL values they have given so far in this conversation.",
       "no_record_template": "NOT_VERIFIED — the account record has not been fetched yet, so nothing can be matched. Ask the customer for their name, email, or user ID (phone/DOB cannot be used to look up), call get_user_information_by_name/by_email/by_id, then call this tool again."
      },

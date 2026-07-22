@@ -100,11 +100,28 @@ def main():
         conv[-1] = dict(conv[-1]); conv[-1]["content"] = gl_text + extra
         return conv
 
+    # ★E arm = 실제 shipped A2 met_template(ledger variant) 렌더 = 배포 문구 그대로 검증([[03b]])
+    a2met = None
+    try:
+        mt = a2["scaffold_get_tools"]
+        vt = [d for d in mt if d.get("name") == "verify_identity"][0]
+        tmpl = vt["variants"]["ledger"]["op"]["met_template"]
+        a2met = tmpl.format(count=3, matched="address, phone_number, email")
+    except Exception as e:
+        print("A2 met_template load failed:", e)
+
+    def replace_gl(newtext):
+        conv = [dict(m) for m in base_conv]
+        conv[-1] = dict(conv[-1]); conv[-1]["content"] = newtext
+        return conv
+
     arms = {
         "A_asis":  base_conv,
         "B_time":  with_gl(f" The current time is {GOLD_TIME}."),
         "D_hint":  with_gl(" If you need the timestamp for time_verified, call get_current_time first, then call log_verification."),
     }
+    if a2met:
+        arms["E_a2met_shipped"] = replace_gl(a2met)
     for name, conv in arms.items():
         c0 = run_arm(a.base, a.model, conv, tools, 0.0, 1)
         c7 = run_arm(a.base, a.model, conv, tools, 0.7, a.n)
