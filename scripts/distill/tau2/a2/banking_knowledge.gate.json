@@ -1030,15 +1030,20 @@
   {
    "after": "check_card_closure_eligibility",
    "requires": [
+    "get_user_dispute_history",
+    "get_pending_replacement_orders",
     "get_all_user_accounts_by_user_id",
     "pay_credit_card_from_checking",
-    "get_pending_replacement_orders",
     "get_closure_reason_history",
-    "log_credit_card_closure_reason",
+    "log_credit_card_closure_reason"
+   ],
+   "decision_tools": [
+    "apply_credit_card_account_flag",
     "close_credit_card_account"
    ],
-   "feedback": "Error: [FOLLOW-UP] you started the card-closure eligibility check but the closure procedure is NOT complete. Steps still missing: {missing}. Per the closure procedure: if there is an outstanding balance, read the customer's accounts (get_all_user_accounts_by_user_id - this also gives you the CHECKING account id) and pay the balance from checking with the customer's authorization; check pending replacement orders and closure-reason history; log the closure reason; then close the account. These are DISCOVERABLE tools - if you do not know a tool's full suffixed name, search the knowledge base (KB_search_bm25) for it using plain words describing the step (e.g. \"closure reason history\"; a bare tool-name query matches no document text); do NOT conclude a tool or record does not exist, and do NOT transfer while these tool steps remain available.",
-   "_note": "2026-07-22 §2bn(rall8 043 실측): pay unlock까지 도달 후 체킹 계좌 id를 KB 문서(shell 4연발)서 찾다 transfer(C108류) - reader(get_all_user_accounts)가 requires에 있어 {missing} 나열로 안내됨. 앵커=check_card_closure_eligibility(§2bc 관문3·자발 호출 실증). 054 실증 3중 결합(chain→READLOOP→UNLOCK_NAME)의 043 연결. requires 근거=KB doc_credit_card_account_logistics_002/003(기왕 WEV 노트 인용). 조건부 단계(잔액 0이면 pay 불요)는 문구에 명시=over-fire 시 모델이 설명으로 해소 가능(deny 아닌 nudge)."
+   "decision_feedback": "Error: [FOLLOW-UP] you completed the closure checks but never executed the terminal step with a TOOL CALL. Per the retention protocol in the knowledge base: after logging the closure reason, address the concern - if the reason qualifies for a retention remedy under that protocol (e.g. an annual-fee waiver via apply_credit_card_account_flag for eligible long-tenured customers), offer it and apply it with the customer's consent; if the customer still wants to close or no retention remedy applies, process the closure with close_credit_card_account. Both are DISCOVERABLE tools - unlock the full suffixed name first (find it in the knowledge base by searching plain words describing the step). Do NOT merely describe the outcome in text, and do NOT transfer with the decision unmade.",
+   "feedback": "Error: [FOLLOW-UP] you started the card-closure eligibility check but the closure procedure is NOT complete. Steps still missing: {missing}. Per the closure/retention protocol: check the customer's pending disputes (dispute history) and pending replacement orders; if there is an outstanding balance, read the customer's accounts (get_all_user_accounts_by_user_id - this also gives you the CHECKING account id) and pay the balance from checking with the customer's authorization; check closure-reason history; ask the customer's reason and log it. These are DISCOVERABLE tools - if you do not know a tool's full suffixed name, search the knowledge base (KB_search_bm25) for it using plain words describing the step (e.g. \"closure reason history\"; a bare tool-name query matches no document text); do NOT conclude a tool or record does not exist, and do NOT transfer while these tool steps remain available.",
+   "_note": "2026-07-22 §2bn(rall8 043 실측): pay unlock까지 도달 후 체킹 계좌 id를 KB 문서(shell 4연발)서 찾다 transfer(C108류) - reader(get_all_user_accounts)가 requires에 있어 {missing} 나열로 안내됨. 앵커=check_card_closure_eligibility(§2bc 관문3·자발 호출 실증). requires 근거=KB doc_credit_card_account_logistics_002/003. 조건부 단계(잔액 0이면 pay 불요)는 문구에 명시=over-fire 시 모델이 설명으로 해소 가능(deny 아닌 nudge). ★2026-07-22 §2bs(rall10 043 실측+KB 재정독): ①구판 requires에 dispute-체크 누락(리텐션 프로토콜 Step1.1=get_user_dispute_history) 추가 ②close를 requires에서 제거 — logistics_003 Step4: annual_fee+장기고객=waive(apply_credit_card_account_flag)가 정답 분기라 close 고정은 KB-불일치(gold-불일치는 결과·근거는 KB) → 종단을 decision_tools[apply_flag|close] 양방향 nudge로 전환(CLI chain approve|deny와 동형·Δspurious 계측 대상)."
   }
  ],
  "_note_dispute_chain_removed": "2026-07-21 §2bc: dispute post-write chain(after=file_..., requires=get_card_last_4_digits) 제거. 근거(054 t0 실측): WEV 사전 게이트가 provenance를 이미 커버(빈-값 deny 포함)하는데 post-write chain이 give-flow 단일 경로를 추가 강제 → 054(gold 무-give·record-경로)서 give 2회 잡음+유저('카드 없음') 마찰. 031 날조 차단은 WEV 신판(값-실재)이 유지. 사전-게이트 > 사후-추격.",

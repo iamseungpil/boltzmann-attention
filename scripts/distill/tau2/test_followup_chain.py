@@ -76,6 +76,34 @@ def main():
     check("하위호환: 문자열 requires 발화", _chain_dispatch(old, {"A"}) == ("missing: B", "followup_chain"))
     check("하위호환: 충족 시 미발화(decision 미선언)", _chain_dispatch(old, {"A", "B"}) is None)
 
+    # ══ closure chain 재설계 (2026-07-22 §2bs·rall10 043+KB 리텐션 프로토콜 재정독) ══
+    CH2 = A2["follow_up_chains"][1]
+    R2 = CH2["requires"]
+    check("closure: requires에 dispute-체크 포함(logistics_003 Step1.1)",
+          "get_user_dispute_history" in R2)
+    check("closure: close는 requires에서 제거(리텐션 분기 보존)",
+          "close_credit_card_account" not in R2)
+    check("closure: 종단=decision_tools 양방향(waive|close)",
+          CH2.get("decision_tools") == ["apply_credit_card_account_flag", "close_credit_card_account"])
+    # 043 재현: eligibility 후 all_accounts+pay만 완료(rall10 도달점) → 잔여 나열
+    eff2 = {"check_card_closure_eligibility", "get_all_user_accounts_by_user_id",
+            "pay_credit_card_from_checking"}
+    hit = _chain_dispatch(CH2, eff2)
+    check("closure-043: 부분진행 → 발화·잔여 나열", hit is not None and hit[1] == "followup_chain"
+          and all(t in hit[0] for t in ("get_user_dispute_history", "get_pending_replacement_orders",
+                                        "get_closure_reason_history", "log_credit_card_closure_reason")))
+    # 전체크 완료·종단 미실행 → decision nudge(양방향 문구)
+    hit = _chain_dispatch(CH2, {"check_card_closure_eligibility"} | set(R2))
+    check("closure: 전체크·종단 미실행 → decision nudge", hit is not None and hit[1] == "followup_decision"
+          and "apply_credit_card_account_flag" in hit[0] and "close_credit_card_account" in hit[0])
+    # 종단 실행(waive 또는 close) → 미발화
+    check("closure: waive 실행 → 미발화",
+          _chain_dispatch(CH2, {"check_card_closure_eligibility"} | set(R2)
+                          | {"apply_credit_card_account_flag"}) is None)
+    check("closure: close 실행 → 미발화",
+          _chain_dispatch(CH2, {"check_card_closure_eligibility"} | set(R2)
+                          | {"close_credit_card_account"}) is None)
+
     print("\n== 결과: %d PASS / %d FAIL ==" % (len(PASS), len(FAIL)))
     if FAIL:
         for f in FAIL:
