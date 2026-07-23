@@ -672,6 +672,99 @@ def _write_arg_ground_deny(messages, tc, specs):
     return None
 
 
+# ─── ★T2_HAVE_VALUE (2026-07-23 C115·"have-value → act" 일반레버) ───
+# 통합 통찰(시각054·CLI052·last-4 039·flail050 = 한 가족): 에이전트가 write W의 필수 인자 A를
+#   *이미 대화에 갖고 있는데도* 재요청·재확인을 반복하고 W를 재시도 안 함(temp0 고착). 개별 fix
+#   (met_template·verdict-gate·dedup) 대신 provenance 채널서 단일 엔진으로 수렴.
+# 정의: ①A가 이전엔 미충족(에이전트 재요청 이력) ②지금 대화에 실재(producer 성공 출력) ③에이전트가
+#   A를 또 재요청(W 미시도) → None-anchor 리마인더("A는 이미 있다·다시 묻지 말고 W를 그 값으로 지금
+#   호출"). W는 에이전트가 emit(강제 0).
+# [[05]] 3질문: (1)도메인-특화 순증? No — 도구/인자/신호/문구 전부 A2 `have_value_reask`(리터럴0=WAG의
+#   grounded_args 재사용 계열). 엔진=이력/실재/재요청 판정만. (2)유동판단 동결? No — 어느 값을 쓸지는
+#   에이전트 판단·엔진은 "이미 있으니 재요청 말고 써라"만(값 선택 안 함·유일할 때만 인용=자기 fetch 회상).
+#   (3)스캐폴드가 write 수행? No — 넛지만·W는 에이전트가 emit(autofetch/ToolCall 아님·§1.5 준수).
+
+def _producer_outputs(messages, marker):
+    """producer 성공-실행을 표시하는 marker(A2 문자열)를 담은 role=tool 출력 content 목록(시간순).
+    ★user-측 실행(call_discoverable_user_tool)도 결과는 role=tool 메시지 → assistant-툴콜 페어링에
+    의존 않고 marker 매칭으로 포착(039 실측: last-4는 손님이 실행). marker='Executed: <tool>'류가
+    성공 출력에만 있어 에러출력(§'has not been given')·재요청과 구분(도메인 리터럴은 A2·엔진=substring)."""
+    if not marker:
+        return []
+    ml = str(marker).lower()
+    outs = []
+    for m in messages:
+        if getattr(m, "role", None) != "tool" or getattr(m, "error", False):
+            continue
+        c = _content_str(m)
+        if ml in str(c).lower():
+            outs.append(c)
+    return outs
+
+
+def _pattern_values(outs, pattern):
+    """producer 출력서 value_pattern(A2 regex·그룹1) 매칭값(중복제거·순서보존). 없으면 []."""
+    if not pattern:
+        return []
+    try:
+        rx = re.compile(pattern, re.I)
+    except Exception:
+        return []
+    seen, res = set(), []
+    for c in outs:
+        for mm in rx.finditer(str(c)):
+            v = (mm.group(1) if mm.groups() else mm.group(0)).strip()
+            if v and v not in seen:
+                seen.add(v)
+                res.append(v)
+    return res
+
+
+HAVE_VALUE_FEEDBACK_DEFAULT = (
+    "[HAVE-VALUE] You ALREADY have '{arg}' in this conversation ({producer} has been run and its "
+    "result is in the tool output above, and the customer has stated it){valclause}. Do NOT ask "
+    "for it again and do NOT re-run any lookup for it. Call {write} NOW using that value, then "
+    "continue to the next item.")
+
+
+def _have_value_reask_fb(am, messages, specs):
+    """★have-value→act (C115): (spec 순회) W 미시도 ∧ producer 값 실재(marker) ∧ (이전+지금) 재요청
+    → None-anchor 리마인더 문구(또는 None). 값 선택 안 함(value_pattern이 유일값 낼 때만 자기-fetch 인용)."""
+    if not specs:
+        return None
+    cur_calls = {_eff_tool_name(tc) for tc in (getattr(am, "tool_calls", None) or [])}
+    cur_text = str(getattr(am, "content", "") or "").lower()
+    for sp in specs:
+        W = sp.get("write")
+        producer = sp.get("producer")
+        A = sp.get("arg")
+        marker = sp.get("producer_marker") or producer
+        signals = [str(s).lower() for s in (sp.get("reask_signals") or [])]
+        if not (W and A and signals):
+            continue
+        if W in cur_calls:                                   # 이미 W 호출 중 → 넛지 불요
+            continue
+        outs = _producer_outputs(messages, marker)           # ② 값 실재(producer 성공 출력·user측 포함)
+        if not outs:
+            continue
+        # ① 이전 이력: committed 이전 assistant 발화에 재요청 신호(정당한 첫-질문서 오발 방지)
+        prior = any(getattr(m, "role", None) == "assistant"
+                    and any(s in str(getattr(m, "content", "") or "").lower() for s in signals)
+                    for m in messages)
+        if not prior:
+            continue
+        # ③ 지금 턴: A 재요청(prose 신호) 또는 producer 재호출 (그리고 위에서 W 미시도 확인됨)
+        if not (any(s in cur_text for s in signals) or (producer in cur_calls)):
+            continue
+        vals = _pattern_values(outs, sp.get("value_pattern"))  # 인용은 옵션(기본=value-free)
+        valclause = (" — its value is %s" % vals[0]) if len(vals) == 1 else ""
+        fb = sp.get("feedback") or HAVE_VALUE_FEEDBACK_DEFAULT
+        return (fb.replace("{arg}", str(A)).replace("{producer}", str(producer or marker))
+                  .replace("{write}", str(W)).replace("{valclause}", valclause)
+                  .replace("{value}", vals[0] if len(vals) == 1 else ""))
+    return None
+
+
 def _resolver_directive(a2, tc, k, s):
     """★B-max① (2026-07-11): fab 인자 k에 A2 resolver_path가 있으면 지시형 피드백 문구, 없으면 None.
     resolver_path=[in_arg, producer, field] — 호출 인자에 in_arg 값이 실재(알려진 입력)할 때만 그 producer/
@@ -2701,6 +2794,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         wag_specs = (a2.get("write_arg_grounding") or []) \
             if (a2 is not None and os.environ.get("T2_WRITE_ARG_GROUND") == "1") else []
         _wev_cap = int(os.environ.get("T2_WEV_CAP", "8"))
+        # ★T2_HAVE_VALUE (C115·2026-07-23): have-value→act 일반레버 spec(도구/인자/신호/문구=A2)
+        hv_specs = (a2.get("have_value_reask") or []) \
+            if (a2 is not None and os.environ.get("T2_HAVE_VALUE") == "1") else []
 
         def bw():
             return [v for v in (self._t2_static_bl | self._t2_session_bl) if v.lower() not in ctx]
@@ -3028,6 +3124,22 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _wve:
                     wev_fb = None
                     print("[T2_WRITE_EVIDENCE] error (no-op): %r" % (_wve,),
+                          file=_sys.stderr, flush=True)
+            # ★T2_HAVE_VALUE (C115): 값-실재인데 재요청 반복 → None-anchor 리마인더(W를 지금 호출).
+            #   WAG(fab 값 차단)의 *반대* 케이스이므로 그 뒤에 배치(상호배타)·무과금·turn당1·sim당 cap.
+            hv_fb = None
+            if (hv_specs and not do_gate and not do_prov and ep_fb is None
+                    and cons_fb is None and ra_fb is None and te_fb is None and wev_fb is None
+                    and getattr(self, "_t2_havevalue_deny", 0)
+                    < int(os.environ.get("T2_HAVE_VALUE_CAP", "3"))):
+                try:
+                    hv_fb = _have_value_reask_fb(am, state.messages, hv_specs)
+                    if hv_fb:
+                        print("[T2_HAVE_VALUE] reask-with-value → nudge (regen)",
+                              file=_sys.stderr, flush=True)
+                except Exception as _hve:
+                    hv_fb = None
+                    print("[T2_HAVE_VALUE] error (no-op): %r" % (_hve,),
                           file=_sys.stderr, flush=True)
             # ★T2_PARAM_CAP (§2br): 정책-캡 deny (A2 param_cap_check·054 실측)
             pc_fb = None
@@ -3365,7 +3477,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
                     and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None
-                    and pr_fb is None):
+                    and pr_fb is None and hv_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -3437,6 +3549,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_unlockname_deny = getattr(self, "_t2_unlockname_deny", 0) + 1
             if dr_fb is not None:
                 self._t2_dispatchrole_deny = getattr(self, "_t2_dispatchrole_deny", 0) + 1
+            if hv_fb is not None:
+                self._t2_havevalue_deny = getattr(self, "_t2_havevalue_deny", 0) + 1
             fb = [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:
@@ -3483,6 +3597,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     fb.append(UserMessage(role="user", content=rw_fb[1]))
                 except TypeError:
                     fb.append(UserMessage(content=rw_fb[1]))
+            # ★T2_HAVE_VALUE 리마인더 (None-anchor·산문 회피 또는 producer 재호출 커버·비커밋=replay-clean)
+            if hv_fb is not None:
+                try:
+                    fb.append(UserMessage(role="user", content=hv_fb))
+                except TypeError:
+                    fb.append(UserMessage(content=hv_fb))
             work = work + fb
             am = _gen(self, work, bw(), "agent_response_unified_regen",
                       tool_choice="required" if force_required else None)

@@ -79,11 +79,47 @@ def main():
     print(f"frozen at 1652-user idx={fi}", flush=True)
     base_conv = frozen
     dir_conv = frozen + [{"role": "user", "content": DIRECTIVE}]  # 지시=시스템 리마인더 대용(user 채널)
-    for name, conv in (("A_asis", base_conv), ("B_directive", dir_conv)):
+    # ★C_shipped: 엔진이 실제로 주입하는 shipped 넛지 문구(A2 have_value_reask 구동·_have_value_reask_fb
+    #   실호출로 산출 = 문구 drift 0). frozen 히스토리(producer 성공출력 marker + 이전 재요청 실재)에
+    #   '지금 재요청' am 얹어 검출기 발화 → 그 문구를 user 채널 리마인더로 주입(엔진 배선과 동형).
+    shipped = _shipped_nudge(frozen)
+    print("SHIPPED nudge = %r" % shipped, flush=True)
+    ship_conv = frozen + ([{"role": "user", "content": shipped}] if shipped else [])
+    arms = [("A_asis", base_conv), ("B_directive", dir_conv)]
+    if shipped:
+        arms.append(("C_shipped", ship_conv))
+    for name, conv in arms:
         c0 = run(a.base, a.model, conv, tools, 0.0, 1)
         c7 = run(a.base, a.model, conv, tools, 0.7, a.n)
         print(f"\n[{name}] temp0={dict(c0)}\n         temp0.7(n={a.n})={dict(c7)}", flush=True)
-    print("\n판정: B_directive가 file_dispute(또는 unlock:file)로 가면 → '값 있으면 재-file' 지시가 루프 깬다.", flush=True)
+    print("\n판정: C_shipped가 B_directive처럼 file_dispute(또는 unlock:file)로 가면 → shipped 문구 검증(라이브 前).", flush=True)
+
+
+def _shipped_nudge(frozen_openai):
+    """엔진 검출기(_have_value_reask_fb)를 frozen 히스토리에 실호출해 실제 shipped 넛지 문구 산출.
+    OpenAI-dict 히스토리 → NS 객체(role/content/tool_calls/error/id) 변환 후 '재요청' am 얹음."""
+    from types import SimpleNamespace as NS
+    import t2_gate_patch as G
+    A2 = json.load(open(os.path.join(HERE, "a2", "banking_knowledge.gate.json"), encoding="utf-8"))
+    specs = A2.get("have_value_reask") or []
+    if not specs:
+        return None
+
+    def cvt(m):
+        tcs = []
+        for tc in (m.get("tool_calls") or []):
+            fn = tc.get("function", {}) if "function" in tc else tc
+            try:
+                ar = json.loads(fn.get("arguments") or "{}")
+            except Exception:
+                ar = {}
+            tcs.append(NS(name=fn.get("name"), arguments=ar, id=tc.get("id")))
+        return NS(role=m.get("role"), content=m.get("content") or "",
+                  tool_calls=tcs or None, error=False, id=m.get("id"))
+    hist = [cvt(m) for m in frozen_openai if m.get("role") != "system"]
+    am = NS(role="assistant", error=False, id=None, tool_calls=None,
+            content="I apologize. It seems we need to ensure we have the correct last 4 digits of your card.")
+    return G._have_value_reask_fb(am, hist, specs)
 
 if __name__ == "__main__":
     main()
