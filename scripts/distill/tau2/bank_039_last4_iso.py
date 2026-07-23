@@ -58,7 +58,10 @@ def run(base, model, conv, tools, temp, n, tool_choice=None):
     for _ in range(n):
         try:
             body = {"model": model, "messages": conv, "tools": tools,
-                    "temperature": temp, "max_tokens": 450, "n": 1}
+                    # ★max_tokens 하한 (2026-07-23 근본원인·vLLM #19051/#36794): tool_choice=required는
+                    #   강제 tool-call JSON 완성 필요 — 작으면 절단→hermes EOF→오도성 400. 넉넉히(cap이라
+                    #   짧으면 알아서 적게 씀). 라이브는 max_tokens 미설정(대형)이라 무영향.
+                    "temperature": temp, "max_tokens": 1500, "n": 1}
             if tool_choice:
                 body["tool_choice"] = tool_choice  # ★force_required 라이브 배선 동형 검증
             r = post(base, body, timeout=420)

@@ -40,6 +40,10 @@ DEFAULT_PLACEHOLDERS = {
 PROV_ARG_HINT = DEFAULT_ARG_HINTS          # 호환 alias
 COMMON_PLACEHOLDERS = DEFAULT_PLACEHOLDERS  # 호환 alias
 
+# ★tool_choice='required' 강제 생성의 max_tokens 하한 (2026-07-23·vLLM #19051/#36794 근본원인):
+#   강제 tool-call JSON이 절단되면 hermes 파서 EOF→오도성 400. 라이브(미설정) 무영향·소형설정 방어.
+_FORCE_MIN_TOKENS = int(os.environ.get("T2_FORCE_MIN_TOKENS", "1024"))
+
 _A2_CACHE = {}
 
 
@@ -2710,10 +2714,30 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             kw["extra_body"] = eb
         if tool_choice:                          # ★레버 A(2026-07-18): tau2 `generate`의 일급 파라미터로 통과
             kw["tool_choice"] = tool_choice
+            # ★max_tokens 하한 (2026-07-23 근본원인 규명·vLLM #19051/#36794): tool_choice='required'는
+            #   강제 tool-call JSON을 *완성*해야 하는데 max_tokens가 작으면 중간 절단 → hermes 파서 EOF →
+            #   vLLM이 오도성 `__log_extra_fields__` 400 보고(실측: mt=20 실패·mt≥100 성공·전 도구수). 라이브
+            #   llm_args엔 max_tokens 미설정(=vLLM 기본=문맥잔량=대형)이라 무영향 — 소형 설정 시만 상향(방어).
+            _mt = kw.get("max_tokens")
+            if _mt is not None and _mt < _FORCE_MIN_TOKENS:
+                kw["max_tokens"] = _FORCE_MIN_TOKENS
         try:
             return la.generate(model=self.llm, tools=self.tools,
                                messages=self._system_messages + work, call_name=call_name, **kw)
         except Exception as _ce:
+            # ★force_required 안전판 (2026-07-23): 하한 보장 뒤에도 남는 400 = 병리적 케이스(퇴행 루프서
+            #   강제 시 닫히지 않는 runaway JSON·mt를 아무리 키워도 미완=039 실측)·기타 transient. → 강제 없이
+            #   1회 재시도(넛지·work 유지=효과 보존·프로즈 봉쇄만 포기). 크래시(sim 무효) 대신 우아한 강등.
+            #   un_fb 등 모든 force 경로 공용.
+            if tool_choice and ("BadRequest" in type(_ce).__name__ or " 400" in (" " + str(_ce))):
+                print("[T2_FORCE] tool_choice=%s rejected (400) -> retry without force" % tool_choice,
+                      file=_sys.stderr, flush=True)
+                kw.pop("tool_choice", None)
+                try:
+                    return la.generate(model=self.llm, tools=self.tools,
+                                       messages=self._system_messages + work, call_name=call_name, **kw)
+                except Exception as _ce2:
+                    _ce = _ce2
             # ★CWE graceful-stop @_gen (§2bf·rall5 실측): step-래핑 가드가 4번째 경로로 우회 —
             #   LLM_DIAG가 특정한 두 누출(call_name=agent_response·followup_decision) 모두 _gen 경유.
             #   여기서 잡아 orch.done+CONTEXT_WINDOW_EXCEEDED(§2ah 의도된 종료사유)로 우아한 종료 →
@@ -3556,11 +3580,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_havevalue_deny = getattr(self, "_t2_havevalue_deny", 0) + 1
                 # ★force_required (T2_UNLOCK_NAME 선례·[[10]]): 실패모드=프로즈 재요청(say-don't-do).
                 #   넛지 후 재생성을 tool_choice=required로 봉쇄 → 산문 대신 반드시 도구 호출(어느 도구=모델).
-                #   ⚠기본 OFF(2026-07-23 프로브 D 실측): 서빙 vLLM(--tool-call-parser hermes)이 raw
-                #   tool_choice='required'를 HTTP 400 거부(9/9) → 라이브 tau2 generate 경로 호환 미확인 →
-                #   크래시 위험으로 OFF 유지. 넛지 단독이 이미 검증(C_shipped≈B_directive·run3 6/9 vs 6/9·
-                #   ≫대조 0-1/9). force는 서버-호환 확인 後 T2_HAVE_VALUE_FORCE=1로 opt-in.
-                if os.environ.get("T2_HAVE_VALUE_FORCE", "0") == "1":
+                #   기본 ON. ★2026-07-23 근본원인 규명: required는 라이브 경로서 정상 동작(라이브 llm_args가
+                #   max_tokens 미설정=vLLM 기본 대형 → 강제 tool-call 완성). 앞선 프로브 400은 스크립트가
+                #   max_tokens=450/20을 하드코딩해 강제 JSON이 절단된 아티팩트(vLLM #19051/#36794)였음 —
+                #   _gen의 max_tokens 하한이 교정. 병리적 runaway(039 퇴행루프)만 _gen 폴백으로 강등.
+                if os.environ.get("T2_HAVE_VALUE_FORCE", "1") == "1":
                     force_required = True
             fb = [am]
             for c in (am.tool_calls or []):
