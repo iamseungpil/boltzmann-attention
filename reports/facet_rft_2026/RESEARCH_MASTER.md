@@ -57,6 +57,10 @@ symbolic 추론은 test-time compute가 싸게 산다 — **단 그것은 persis
 > **부하(load) 정의**: $\text{load}(s) = p_{iso}(s) - p_{traj}(s) > 0$ — 격리하면 푸는데 궤적서 못 푼다.
 > ★**측정 규율**: $p_{iso}$는 **에이전트가 그 지점에 실제로 갖고 있던 정보와 맞춰야** 한다. 정보가 더 빈약한 프로브로
 > 재면 "부하 없음"이 정보량 차이일 뿐이다(역도 성립). **정보-맞춘 격리 replay만이 부하를 잰다.**
+> ★★**F3/⋈ 판정 프로토콜(2026-07-23 사용자 지시·C124)**: 의미-경계로 분류하려는 **모든** 사례는 먼저
+> A_minimal(핵심 정보만) vs B_fullctx(실제 궤적 문맥) 격리 프로브를 돌린다 — **부하/전사-슬립/자기-정박일
+> 확률이 높다**(C124: 039 wrong-pick=A 9/9 완벽·B 9/9 오류 재현=인접-행 id 전사+자기-정박). A_minimal도
+> 실패할 때만 경계 후보. 격리 없이 "경계·map" 선언 금지. 기존 ⋈ 귀속(E3 43~52% 등)도 소급 재감사 대상(E-F3-ISO).
 
 | 기능 | 실패 양상 | 진단 | 측정 근거 | 처방 | 등급 |
 |---|---|---|---|---|---|
@@ -323,6 +327,7 @@ Q5. 실패가 "틀림"이 아니라 "안 함"인가? (coverage·persistence)
 ## 4. 실험 큐 (우선순위·상태 · 2026-07-09 정렬)
 | ID | 실험 | 닫는 것 | 비용 | 상태 |
 |---|---|---|---|---|
+| **★★E-F3-ISO** | **⋈ 귀속 소급 재감사**(기존 F3-분류 wrong-pick 표본 — E3 "gold 조회했는데 틀림" 43~52%·C15 ⋈ +8 등 — 을 C124 프로토콜 A_minimal vs B_fullctx 격리 프로브로 전수 재판정·`probe_039_join_iso.py` 패턴 일반화) | **⋈ 경계 추정치의 참값**(경계 vs 부하/전사/자기-정박 분해) — 경계가 줄면 "닫히는 축"이 늘고 P2 모트 서사·레버 설계가 바뀜 | **무료**(로컬 vLLM·user-sim 0) | **[D] 프로토콜 확정(C124·§1.4)·구현 대기** — retail 표본은 E3 산출물서 추출 |
 | **★E-REGIME** | **banking per-step regime partition**(각 실패 스텝을 {voting|verify|ASK}로 분류·greedy×maj@k 2×2·actual-prefix primary·⋈ k=8+k=32·gold-free 라우터 검증 §8) | **C88 화이트스페이스 정량**(voting%/verify%/ASK%)·라우터/특허 실현성(gold-free 신호가 regime 예측하나) | 무료(32B 로컬·gpt-4.1=0) | **[D] 설계확정 v2·구현대기** — `BANK_REGIME_PARTITION_PROBE_DESIGN_2026_07_14`(사용자 리뷰 6결함 반영·Phase0 go/no-go 게이트·coverage→E-PLAN 이관). C88 파생·리뷰 후 구현 |
 | **★E-XFER-bank** | **Phase 3 도메인 전이 실측 — banking**(32B floor + 게이트 arm·97태스크) | A2 전이가설(처방 전이)·덱 결과⑩ banking 칸·특허 도메인-일반 청구 | 유료(승인 2026-07-10) | ⏸ **재시퀀싱(사용자 2026-07-11): retail 스택 확정 후 최종 스택으로 gate arm 재실측**. 근거=C52(banking binding=reach/coverage/horizon인데 구스택은 F1/날조/⋈ 표적=이중지출 방지·[[09]]). ✅확보분: **floor nt2 n=192 mean 0.050 pass 9 infra 13**(`bankxfer_floor_bank_t2.gz`) + 구스택 gate arm partial **n=13 pass 1 infra 0**(`..._t1_partial_oldstack.gz`·진단표본) + 스모크 UNI_OK(banking A2·레버 라이브 검증됨). 재개 조건 = retail 종결(census 레버+E-PLAN 편입·0.66~0.70) | 
 | ~~(구) E-XFER-bank gate arm nt1~~ | 구스택(게이트+prov+DISAMB+calc) 전이 arm | — | — | ❌ **13/97서 중단**(사용자 결정)·partial 영속. 예측-확인 가치는 partial+스모크로 갈음 |
