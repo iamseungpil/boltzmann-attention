@@ -22,14 +22,15 @@ def load_sim():
         return next(s for s in json.load(f)["simulations"] if s["task_id"] == "task_039")
 
 def freeze_idx(msgs):
-    """last user msg containing '1652' that is followed by an assistant apology/no-file."""
-    idx = None
+    """FIRST user msg that gives 1652 AND asks to file (before frustration/transfer escalation).
+    (last-1652 msg = 손님 transfer 요청 지점 → 오판. 첫 file-요청 지점서 얼려야 루프 테스트.)"""
     for i, m in enumerate(msgs):
-        if m.get("role") == "user" and "1652" in str(m.get("content", "")):
-            idx = i
-    if idx is None:
-        raise RuntimeError("no 1652 user msg")
-    return idx
+        if m.get("role") != "user":
+            continue
+        c = str(m.get("content", "")).lower()
+        if "1652" in c and ("file" in c or "proceed" in c) and "transfer" not in c:
+            return i
+    raise RuntimeError("no 1652+file user msg")
 
 def classify(msg):
     tcs = msg.get("tool_calls") or []
