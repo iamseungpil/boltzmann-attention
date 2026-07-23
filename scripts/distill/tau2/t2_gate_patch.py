@@ -601,17 +601,27 @@ def _wev_deny_msgs(messages, tc, specs):
                 continue
             fb = sp.get("feedback") or "Error: [WRITE-EVIDENCE] required evidence not found for {id}."
             return fb.replace("{id}", "(missing — the argument was left empty)")
+        # ★require_tokens_any (2026-07-23 C121·rall19 031.1 실측): 구판 AND-substring은 KB doc의
+        #   무관 예시 숫자("(e.g., 1234, 4321)")와 도구명 substring이 한 출력에 우연 공존하면 날조값도
+        #   통과(evidence-collision). any-토큰은 "{id}"를 값으로 치환한 라벨-값 인접 문자열 중 하나가
+        #   도구 출력에 실재해야 통과 — 라벨·문구는 전부 A2·엔진은 치환+substring 대조만([[03b]]).
         tokens = sp.get("require_tokens") or []
+        any_tokens = sp.get("require_tokens_any") or []
         found = False
+        found_any = not any_tokens
         for m in messages:
             if getattr(m, "role", None) != "tool":
                 continue
             c = getattr(m, "content", None)
             c = c if isinstance(c, str) else str(c or "")
-            if str(idv) in c and all(t in c for t in tokens):
+            if not found and str(idv) in c and all(t in c for t in tokens):
                 found = True
+            if not found_any and any(t.replace("{id}", str(idv)) in c
+                                     for t in any_tokens):
+                found_any = True
+            if found and found_any:
                 break
-        if not found:
+        if not (found and found_any):
             fb = sp.get("feedback") or "Error: [WRITE-EVIDENCE] required evidence not found for {id}."
             return fb.replace("{id}", str(idv))
     return None

@@ -436,11 +436,12 @@
     "prefix": "file_credit_card_transaction_dispute"
    },
    "id_key": "card_last_4_digits",
-   "require_tokens": [
-    "card_last_4_digits"
-   ],
    "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows the card's last 4 digits ({id}). Do NOT guess or fabricate the digits, and do NOT file the dispute with the digits missing or empty. Obtain the TRUE digits from an actual tool result first: read the credit card account record (it contains card_last_4_digits), or call give_discoverable_user_tool to give the customer the get_card_last_4_digits tool and ask them to run it. Then file the dispute using the digits exactly as shown in that tool output.",
-   "_note": "2026-07-20 관문4 WEV형(§2ao·e2e9 031 포렌식) → 2026-07-21 §2bc 정밀화(054 실측): 구판 require_tokens=give-flow 도구명 = 단일 provenance 경로 강제 — 054는 진짜 last4(7823)가 에이전트 자신의 계좌 레코드 출력에 실재하는데 유저가 도구 실행 거부('카드 없음')→충족불가 deny 8회→유저 포기·붕괴. 신판 token='card_last_4_digits'=레코드 필드 라벨이자 give-flow 도구명(get_card_last_4_digits)의 substring → 두 정당 경로 모두 수용·날조(어느 출력에도 없는 값)는 여전히 차단(031 give-flow 실행 t1/t2 실증=무회귀). 빈-값 write는 WEV 코어 신판(§2bc 키실재-빈값 deny)이 차단."
+   "_note": "2026-07-20 관문4 WEV형(§2ao·e2e9 031 포렌식) → 2026-07-21 §2bc 정밀화(054 실측): 구판 require_tokens=give-flow 도구명 = 단일 provenance 경로 강제 — 054는 진짜 last4(7823)가 에이전트 자신의 계좌 레코드 출력에 실재하는데 유저가 도구 실행 거부('카드 없음')→충족불가 deny 8회→유저 포기·붕괴. 신판 token='card_last_4_digits'=레코드 필드 라벨이자 give-flow 도구명(get_card_last_4_digits)의 substring → 두 정당 경로 모두 수용·날조(어느 출력에도 없는 값)는 여전히 차단(031 give-flow 실행 t1/t2 실증=무회귀). 빈-값 write는 WEV 코어 신판(§2bc 키실재-빈값 deny)이 차단. ★2026-07-23 C121(rall19 031.1 실측): 구 require_tokens=['card_last_4_digits']는 KB doc의 PIN 예시 '(e.g., 1234, 4321)'와 도구명 substring이 한 출력에 공존해 날조값 1234 통과(evidence-collision)→오염 write. require_tokens_any(라벨-값 인접·{id} 치환)로 교체: 정당 경로 2개(user-도구 'Last 4 digits of card: N'·계좌/dispute 레코드 'card_last_4_digits: N')만 수용·doc 예시 충돌 차단. rall19 실궤적 오프라인 재검으로 검증.",
+   "require_tokens_any": [
+    "Last 4 digits of card: {id}",
+    "card_last_4_digits: {id}"
+   ]
   },
   {
    "applies_to": "call_discoverable_agent_tool",
@@ -1338,7 +1339,14 @@
    "producer_marker": "Executed: get_card_last_4_digits",
    "arg": "card_last_4_digits",
    "value_pattern": "Last 4 digits of card:\\s*(\\d{3,6})",
-   "reask_signals": ["last 4", "last four", "last-4", "four digits", "4 digits", "correct last 4"],
+   "reask_signals": [
+    "last 4",
+    "last four",
+    "last-4",
+    "four digits",
+    "4 digits",
+    "correct last 4"
+   ],
    "feedback": "[HAVE-VALUE] The customer has already retrieved and confirmed the last 4 digits of the card: {value}. You already have this value - do NOT ask for it again and do NOT re-run any lookup for it. File the dispute NOW: unlock file_credit_card_transaction_dispute and call it via call_discoverable_agent_tool with the transaction_id of the charge being disputed and card_last_4_digits='{value}'. Then move on to the next disputed charge.",
    "_note": "2026-07-23 C115(HAVE_VALUE_RETRY_LEVER_DESIGN·have-value→act 일반레버·격리 idx55 8/9): last-4(1652)를 손님이 get_card_last_4_digits(user측 call_discoverable_user_tool)로 실행·확인해 tool출력(marker 'Executed: get_card_last_4_digits')+user발화에 실재하는데도 에이전트가 '올바른 last 4가 필요' 재요청 7턴 반복·file 미시도(temp0 고착). 엔진 술어=W미시도∧producer성공출력실재∧(이전+지금)재요청(도메인 리터럴0). value_pattern은 producer 성공출력의 값 인용용(옵션·유일할 때만). 시각054·CLI052·flail050과 한 가족—provenance 채널 단일수렴(개별 A2 hint 증식 대신). Δspurious: 넛지는 요구된 write만 유도(새 write 안 만듦)·미실재면 미발화."
   }
@@ -1350,7 +1358,14 @@
    "acquire_tool": "get_card_last_4_digits",
    "give_tool": "give_discoverable_user_tool",
    "producer_marker": "Executed: get_card_last_4_digits",
-   "reask_signals": ["last 4", "last four", "last-4", "four digits", "4 digits", "correct last 4"],
+   "reask_signals": [
+    "last 4",
+    "last four",
+    "last-4",
+    "four digits",
+    "4 digits",
+    "correct last 4"
+   ],
    "feedback": "[VALUE-ACQUIRE] The customer cannot read the last 4 digits off the card and they are NOT stored in the account records - they must be retrieved by the CUSTOMER running get_card_last_4_digits. Stop re-asking the customer for them. Use give_discoverable_user_tool to give get_card_last_4_digits to the customer NOW, then have them run it with their credit_card_account_id and read the value from its output. Then file the dispute with that value.",
    "_note": "2026-07-23 C119(8-task per-step 포렌식·031hv/039 실측): have-value의 앞단계 = 값 획득 경로 실패. 에이전트가 last-4를 재요청하나 ①값 미실재(producer 성공출력0) ②계좌record에 없음 ③get_card_last_4_digits를 give_discoverable_user_tool로 손님에게 안 줌 → 손님이 값 못 얻어 재요청 무한→draft만 열고 STOP(031hv) 또는 앱로그인 안내(039). 031 base는 give함→file 도달(pass). 검출기=재요청∧값미실재∧give미실행(엔진 일반·[[05]]). have-value(값 실재)와 상보·상호배타(값 있으면 skip)."
   }
