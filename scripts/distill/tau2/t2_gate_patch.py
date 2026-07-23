@@ -772,6 +772,33 @@ def _have_value_reask_fb(am, messages, specs):
     return None
 
 
+def _stale_call_ids(am, messages, wtools):
+    """★T2_STALE_STRIP (over-action 억제): am.tool_calls 중 strip 대상 id 집합.
+    ①같은 am 내 완전중복(동일 eff+args 2회+·read/write 공통) ②committed서 이미 성공한 *write* 재호출.
+    read의 committed-재조회는 미포함(상태변화 존중·over-fire 방지). 도메인 리터럴 0(eff+args 대조)."""
+    ok_ids = {getattr(m, "id", None) for m in messages
+              if getattr(m, "role", None) == "tool" and not getattr(m, "error", False)}
+    done_w = set()
+    for m in messages:
+        if getattr(m, "role", None) == "assistant":
+            for tc in (getattr(m, "tool_calls", None) or []):
+                if getattr(tc, "id", None) in ok_ids:
+                    eff = _eff_tool_name(tc)
+                    if eff in wtools or getattr(tc, "name", "") in wtools:
+                        done_w.add((eff, _call_key(tc)))
+    seen, stale = set(), set()
+    for tc in (getattr(am, "tool_calls", None) or []):
+        eff = _eff_tool_name(tc)
+        key = (eff, _call_key(tc))
+        is_w = eff in wtools or getattr(tc, "name", "") in wtools
+        if key in seen:
+            stale.add(id(tc))
+        elif is_w and key in done_w:
+            stale.add(id(tc))
+        seen.add(key)
+    return stale
+
+
 def _resolver_directive(a2, tc, k, s):
     """★B-max① (2026-07-11): fab 인자 k에 A2 resolver_path가 있으면 지시형 피드백 문구, 없으면 None.
     resolver_path=[in_arg, producer, field] — 호출 인자에 in_arg 값이 실재(알려진 입력)할 때만 그 producer/
@@ -3690,6 +3717,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[T2_FAB_STRIP] dropped %d ungrounded write call(s) (exhaustion->abstain)"
                       % len(_fab_ids), file=_sys.stderr, flush=True)
         # prov-fab 잔존 = 통과 (기존 prov semantics·id 날조는 env가 거부=C12)
+
+        # ★T2_STALE_STRIP (2026-07-23·8-task per-step 포렌식): over-action 억제 — 한 턴에 12개 도구
+        #   대량 병렬 중복 재호출(043[24]·054[55]·038[36] 실측: 이미 성공한 조회/write를 재호출=낭비/DB오염).
+        #   ①같은 am 내 완전중복(동일 eff+args 2회+·read/write 공통·명백 무의미) ②committed서 이미 성공한
+        #   *write* 재호출(중복 write=DB오염·054 gold-diff). strip만(넛지 없음·R8/FAB_STRIP 동형). read의
+        #   committed-재조회는 상태변화 가능성 존중해 미strip(over-fire 방지·같은-턴 반복만). 도메인 리터럴 0
+        #   (eff+args 대조·write집합=A2 confirm/eplan 도출). [[05]]: 결정론 중복감지·모델판단 아님·strip만.
+        if os.environ.get("T2_STALE_STRIP") == "1" and getattr(am, "tool_calls", None):
+            _wtools = _confirm_write_tools(a2) | set(((a2 or {}).get("eplan") or {}).get("write_tools") or [])
+            _stale = _stale_call_ids(am, state.messages, _wtools)
+            if _stale:
+                _kept = [tc for tc in (am.tool_calls or []) if id(tc) not in _stale]
+                am.tool_calls = _kept or None
+                am.content = (am.content or "") + " [중복 호출 제거: 이미 완료한 조회/작업은 반복하지 않았습니다.]"
+                self._t2_stale_strips = getattr(self, "_t2_stale_strips", 0) + len(_stale)
+                print("[T2_STALE_STRIP] dropped %d stale/dup call(s)" % len(_stale),
+                      file=_sys.stderr, flush=True)
 
         # ── DISAMB: 문맥-실재값·같은-형식 후보 2+ → 1회 재확인 (기존 로직 이식) ──
         # ★#2 operand 스코프(2026-07-13 A1-v2 실패분석): variant operand(new_item_ids)는 L4 전담 —
