@@ -3556,8 +3556,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_havevalue_deny = getattr(self, "_t2_havevalue_deny", 0) + 1
                 # ★force_required (T2_UNLOCK_NAME 선례·[[10]]): 실패모드=프로즈 재요청(say-don't-do).
                 #   넛지 후 재생성을 tool_choice=required로 봉쇄 → 산문 대신 반드시 도구 호출(어느 도구=모델).
-                #   기본 ON(T2_HAVE_VALUE_FORCE=0으로 ablation). 프로브 D_shipped_forced로 오프라인 검증.
-                if os.environ.get("T2_HAVE_VALUE_FORCE", "1") == "1":
+                #   ⚠기본 OFF(2026-07-23 프로브 D 실측): 서빙 vLLM(--tool-call-parser hermes)이 raw
+                #   tool_choice='required'를 HTTP 400 거부(9/9) → 라이브 tau2 generate 경로 호환 미확인 →
+                #   크래시 위험으로 OFF 유지. 넛지 단독이 이미 검증(C_shipped≈B_directive·run3 6/9 vs 6/9·
+                #   ≫대조 0-1/9). force는 서버-호환 확인 後 T2_HAVE_VALUE_FORCE=1로 opt-in.
+                if os.environ.get("T2_HAVE_VALUE_FORCE", "0") == "1":
                     force_required = True
             fb = [am]
             for c in (am.tool_calls or []):
