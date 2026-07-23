@@ -600,7 +600,8 @@ def _wev_deny_msgs(messages, tc, specs):
             if not present:
                 continue
             fb = sp.get("feedback") or "Error: [WRITE-EVIDENCE] required evidence not found for {id}."
-            return fb.replace("{id}", "(missing — the argument was left empty)")
+            return _wev_fill(fb, "(missing — the argument was left empty)", messages,
+                             sp.get("require_tokens_any") or [])
         # ★require_tokens_any (2026-07-23 C121·rall19 031.1 실측): 구판 AND-substring은 KB doc의
         #   무관 예시 숫자("(e.g., 1234, 4321)")와 도구명 substring이 한 출력에 우연 공존하면 날조값도
         #   통과(evidence-collision). any-토큰은 "{id}"를 값으로 치환한 라벨-값 인접 문자열 중 하나가
@@ -623,8 +624,32 @@ def _wev_deny_msgs(messages, tc, specs):
                 break
         if not (found and found_any):
             fb = sp.get("feedback") or "Error: [WRITE-EVIDENCE] required evidence not found for {id}."
-            return fb.replace("{id}", str(idv))
+            return _wev_fill(fb, str(idv), messages, any_tokens)
     return None
+
+
+def _wev_fill(fb, idtxt, messages, any_tokens):
+    """WEV 피드백 치환: {id} + {evidence}. {evidence}=A2 any-토큰의 라벨 프리픽스({id} 제거분)가
+    실재하는 도구-출력 **라인의 축자 인용**(2026-07-23 C122·rall19 031.0 실측: 정답이 도구출력에
+    실재하는데 deny 피드백이 교정으로 안 이어져 6회 공전 — C116 "처방적 구체성만 유효 변수" 적용).
+    엔진=라인 인용만(값 추출·생성·기입 0·문구는 A2 feedback 소관·[[03b]] present 계열)."""
+    if "{evidence}" in fb:
+        labels = [t.replace("{id}", "").strip() for t in (any_tokens or [])]
+        labels = [lb for lb in labels if lb]
+        ev = []
+        if labels:
+            for m in messages:
+                if getattr(m, "role", None) != "tool":
+                    continue
+                c = getattr(m, "content", None)
+                c = c if isinstance(c, str) else str(c or "")
+                for ln in c.splitlines():
+                    if any(lb in ln for lb in labels):
+                        ln = ln.strip()
+                        if ln and ln not in ev:
+                            ev.append(ln)
+        fb = fb.replace("{evidence}", " | ".join(ev)[:300])
+    return fb.replace("{id}", idtxt)
 
 
 def _write_arg_ground_deny(messages, tc, specs):

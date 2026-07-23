@@ -85,6 +85,25 @@ def synthetic():
     return ok
 
 
+def evidence_quote():
+    """C122 {evidence} 인용: 031.0 재현 — 정답(5320)이 도구출력 실재·오값/빈값 시도 → deny
+    피드백에 정답 라인 축자 인용. 정답 부재 시엔 빈 인용(날조 유도 금지)."""
+    ok = True
+    fb = deny([tm(USER_TOOL_OUT)], "9999")
+    good = fb is not None and "Last 4 digits of card: 5320" in fb
+    print("[%s] evidence_quote_wrong_value(031.0 재현): 정답 라인 인용=%s" % ("PASS" if good else "FAIL", good))
+    ok &= good
+    fb = deny([tm(USER_TOOL_OUT)], "")
+    good = fb is not None and "5320" in fb
+    print("[%s] evidence_quote_empty_value: 정답 라인 인용=%s" % ("PASS" if good else "FAIL", good))
+    ok &= good
+    fb = deny([tm(DOC_COLLISION)], "1234")
+    good = fb is not None and "{evidence}" not in fb and "5320" not in fb
+    print("[%s] evidence_quote_no_source: 빈 인용·플레이스홀더 잔존 없음=%s" % ("PASS" if good else "FAIL", good))
+    ok &= good
+    return ok
+
+
 def replay():
     """rall19 실궤적 재검 — sim_results gz가 있으면 실행([M] 승급 근거)."""
     import gzip
@@ -116,6 +135,6 @@ def replay():
 
 
 if __name__ == "__main__":
-    ok = synthetic() & replay()
+    ok = synthetic() & evidence_quote() & replay()
     print("ALL PASS" if ok else "FAILURES")
     sys.exit(0 if ok else 1)
