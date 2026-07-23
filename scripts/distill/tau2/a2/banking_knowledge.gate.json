@@ -1339,7 +1339,7 @@
    "arg": "card_last_4_digits",
    "value_pattern": "Last 4 digits of card:\\s*(\\d{3,6})",
    "reask_signals": ["last 4", "last four", "last-4", "four digits", "4 digits", "correct last 4"],
-   "feedback": "[HAVE-VALUE] You have ALREADY retrieved and confirmed the last 4 digits of the card in this conversation (get_card_last_4_digits was run and the customer confirmed the result){valclause}. Do NOT ask for them again and do NOT re-run any lookup. File the dispute NOW: call file_credit_card_transaction_dispute (via call_discoverable_agent_tool) with the transaction_id of the charge being disputed and card_last_4_digits set to that confirmed value. Then move on to the next disputed charge.",
+   "feedback": "[HAVE-VALUE] The customer has already retrieved and confirmed the last 4 digits of the card: {value}. You already have this value - do NOT ask for it again and do NOT re-run any lookup for it. File the dispute NOW: unlock file_credit_card_transaction_dispute and call it via call_discoverable_agent_tool with the transaction_id of the charge being disputed and card_last_4_digits='{value}'. Then move on to the next disputed charge.",
    "_note": "2026-07-23 C115(HAVE_VALUE_RETRY_LEVER_DESIGN·have-value→act 일반레버·격리 idx55 8/9): last-4(1652)를 손님이 get_card_last_4_digits(user측 call_discoverable_user_tool)로 실행·확인해 tool출력(marker 'Executed: get_card_last_4_digits')+user발화에 실재하는데도 에이전트가 '올바른 last 4가 필요' 재요청 7턴 반복·file 미시도(temp0 고착). 엔진 술어=W미시도∧producer성공출력실재∧(이전+지금)재요청(도메인 리터럴0). value_pattern은 producer 성공출력의 값 인용용(옵션·유일할 때만). 시각054·CLI052·flail050과 한 가족—provenance 채널 단일수렴(개별 A2 hint 증식 대신). Δspurious: 넛지는 요구된 write만 유도(새 write 안 만듦)·미실재면 미발화."
   }
  ],

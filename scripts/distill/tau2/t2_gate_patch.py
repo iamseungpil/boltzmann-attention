@@ -759,6 +759,9 @@ def _have_value_reask_fb(am, messages, specs):
         vals = _pattern_values(outs, sp.get("value_pattern"))  # 인용은 옵션(기본=value-free)
         valclause = (" — its value is %s" % vals[0]) if len(vals) == 1 else ""
         fb = sp.get("feedback") or HAVE_VALUE_FEEDBACK_DEFAULT
+        # ★값 미유일인데 문구가 {value} 인라인 참조 → 빈 치환(깨진 문구·''날조) 방지: 일반 폴백
+        if "{value}" in fb and len(vals) != 1:
+            fb = HAVE_VALUE_FEEDBACK_DEFAULT
         return (fb.replace("{arg}", str(A)).replace("{producer}", str(producer or marker))
                   .replace("{write}", str(W)).replace("{valclause}", valclause)
                   .replace("{value}", vals[0] if len(vals) == 1 else ""))
