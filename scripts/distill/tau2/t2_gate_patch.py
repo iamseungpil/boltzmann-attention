@@ -1136,6 +1136,27 @@ COV_REMINDER = (
     "if they are not, briefly confirm that with the user before finishing."
 )
 
+# ★T2_COV_MIDDRIVE (C118·EPLAN_MIDDRIVE_DESIGN §2.1): "종료시 1회" → "갭 열린 동안 매 드리프트 견인".
+COV_REMINDER_DRIVE = (
+    "[COVERAGE-DRIVE] The customer's request covers {n} item(s); you have completed {done} but "
+    "{ids} are NOT yet done. Do the NEXT one NOW — call the write/action tool for it directly. "
+    "Do not end, transfer, or move to other topics until every covered item is handled."
+)
+
+
+def _last_assistant_did_write(messages, write_tools):
+    """가장 최근 assistant 메시지의 tool_calls에 write(eff∈write_tools)가 있나 (드리프트 판정 반대).
+    write가 있으면 진행 중(드리프트 아님)·없으면(read/prose/타도구) 드리프트. write_tools=A2 도출."""
+    for m in reversed(messages):
+        if getattr(m, "role", None) != "assistant":
+            continue
+        for tc in (getattr(m, "tool_calls", None) or []):
+            eff = _eff_tool_name(tc)
+            if eff in write_tools or getattr(tc, "name", "") in write_tools:
+                return True
+        return False   # 최근 assistant 턴에 write 없음 = 드리프트
+    return False
+
 
 # ─── ★TOOLERR 도구-에러 라우팅 (T2_TOOLERR=1·사용자 지시 2026-07-13) ───
 # 일반 로직(엔진): 방금 committed된 tool-error를 A2 `tool_error_specs`로 분류·라우팅.
@@ -2911,6 +2932,41 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             work = work + [UserMessage(content=_cr)]
             except Exception as _cve:
                 print("[T2_COV] error (no-op): %r" % (_cve,), file=_sys.stderr, flush=True)
+        # ★T2_COV_MIDDRIVE (C118·EPLAN_MIDDRIVE_DESIGN §2.1): "종료시 1회"(T2_COV) → "갭 열린 동안
+        #   매 드리프트 견인". 트리거 3AND: ①M(coverage 대상·formalize)≥2 ②remaining=M∖executed≠∅
+        #   ③직전 assistant 턴이 write 아님(드리프트). → 리마인더(남은 것 지금 처리) 매턴. 진행(executed↑)
+        #   시 stall 리셋·K턴 연속 미진행 중단(무한넛지 방지·§2.1). M=LLM formalize(1회캐시·[[10]])·나머지
+        #   결정론(drift/diff/K). write 강제 0(soft·§1.5). 052/043(CLI/close 사슬)엔 미적용(dispute-coverage).
+        if (os.environ.get("T2_COV_MIDDRIVE") == "1" and ep_led is not None):
+            try:
+                execd = {str(e.get("entity") or "").strip()
+                         for e in getattr(ep_led, "executed", [])}
+                execd.discard("")
+                M = getattr(self, "_t2_cov_M", None)
+                if M is None:
+                    M = _cov_formalize_M(self, la, UserMessage, state.messages,
+                                         a2.get("eplan") if a2 else None, a2)
+                    self._t2_cov_M = M
+                remaining = [m for m in (M or []) if m not in execd]
+                if len(execd) > getattr(self, "_t2_cov_execn", 0):   # 진행 감지 → stall 리셋
+                    self._t2_cov_stall = 0
+                self._t2_cov_execn = len(execd)
+                _drift = not _last_assistant_did_write(state.messages, ep_writes)
+                _K = int(os.environ.get("T2_COV_MIDDRIVE_K", "4"))
+                if (remaining and len(M) >= 2 and _drift
+                        and getattr(self, "_t2_cov_stall", 0) < _K):
+                    self._t2_cov_stall = getattr(self, "_t2_cov_stall", 0) + 1
+                    print("[T2_COV] mid-drive M=%s acted=%s remaining=%s stall=%d/%d"
+                          % (",".join(M), ",".join(sorted(execd)), ",".join(remaining),
+                             self._t2_cov_stall, _K), file=_sys.stderr, flush=True)
+                    _cd = COV_REMINDER_DRIVE.format(n=len(M), done=(", ".join(sorted(execd)) or "none"),
+                                                    ids=", ".join(remaining))
+                    try:
+                        work = work + [UserMessage(role="user", content=_cd)]
+                    except TypeError:
+                        work = work + [UserMessage(content=_cd)]
+            except Exception as _cde:
+                print("[T2_COV] mid-drive error (no-op): %r" % (_cde,), file=_sys.stderr, flush=True)
         # ★TOOLERR (T2_TOOLERR=1): 방금 난 tool-error를 A2로 분류·directive 주입(in-flight)
         terr = None
         if os.environ.get("T2_TOOLERR") == "1" and a2 is not None:

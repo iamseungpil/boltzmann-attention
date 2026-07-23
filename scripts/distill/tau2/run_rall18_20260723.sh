@@ -1,13 +1,14 @@
 #!/bin/bash
-# ★rall18 (2026-07-23·C117): over-action 억제(T2_STALE_STRIP) 검증. 8-task per-step 포렌식 산출.
-#   단일변수: baseline(rall17 스택) vs treatment(+T2_STALE_STRIP=1 +T2_HAVE_VALUE=1).
-#   표적=over-action 실증 태스크(043[24]·054[55] 12개 병렬 중복 재호출) + 사슬/대조(052·038).
-#   판정: [T2_STALE_STRIP] 발화(중복 strip 수)·Δreward(baseline 대비·회귀0)·크래시0·term 분포([[08]]).
-#   ⚠기대: stale-strip은 over-action(낭비/DB오염) 억제이지 사슬완주 견인 아님(진짜레버=E-PLAN mid-drive).
+# ★rall18 (2026-07-23·C117+C118): over-action 억제(STALE_STRIP) + E-PLAN mid-drive(COV_MIDDRIVE) 검증.
+#   8-task per-step 포렌식 산출(user-sim 변동 지배·레버증가 무효·근본=다중-write 사슬완주).
+#   단일변수: baseline(rall17 스택) vs treatment(+STALE_STRIP +COV_MIDDRIVE +HAVE_VALUE).
+#   표적=dispute-coverage(038 3건·039 8건=mid-drive) + over-action(043·054 12개 병렬 재호출=stale-strip).
+#   판정: [T2_COV] mid-drive 발화(남은 dispute 견인)·[T2_STALE_STRIP] 발화·Δreward(baseline 대비·[[08]]).
+#   ⚠mid-drive=dispute-coverage용(038/039). 052/043(CLI/close 사슬)엔 미적용(다른 사슬).
 #   A@8141=baseline ∥ B@8140=treatment. nt=2·seq·seed 300. user-sim=gpt-5.2.
 REPO=/home/woori/workspace_common/boltzmann-attention-pi
 SCRATCH=/home/woori/scratch
-TASKS=task_043,task_054,task_052,task_038
+TASKS=task_038,task_039,task_043,task_054
 
 run_arm() {
   TAG=$1; PORT=$2; MODE=$3
@@ -28,11 +29,11 @@ run_arm() {
   export T2_FOLLOWUP_CAP=3 T2_FOLLOWUP_FORCE=1
   export T2_FOLLOWUP_PROGRESS_REFUND=1 T2_ACTION_PROGRESS_REFUND=1 T2_VIEW_ANNOTATE=1 T2_WRITE_ARG_GROUND=1
   export T2_UNKNOWN_NAME_BL=1 T2_UNLOCK_PROV=1 T2_PRESCRIPTION=1
-  # ── C117 수정 (treatment arm만·단일변수) ──
+  # ── C117/C118 수정 (treatment arm만·단일변수): over-action 억제 + E-PLAN mid-drive + have-value ──
   if [ "$MODE" = "treat" ]; then
-    export T2_STALE_STRIP=1 T2_HAVE_VALUE=1 T2_HAVE_VALUE_FORCE=1
+    export T2_STALE_STRIP=1 T2_HAVE_VALUE=1 T2_HAVE_VALUE_FORCE=1 T2_COV_MIDDRIVE=1 T2_COV_MIDDRIVE_K=4
   else
-    unset T2_STALE_STRIP T2_HAVE_VALUE T2_HAVE_VALUE_FORCE
+    unset T2_STALE_STRIP T2_HAVE_VALUE T2_HAVE_VALUE_FORCE T2_COV_MIDDRIVE
   fi
   export T2_SG_ISOLATE_TRACE=$SCRATCH/${TAG}_operands.jsonl
   rm -f $T2_SG_ISOLATE_TRACE
