@@ -53,12 +53,15 @@ def classify(msg):
         return "last-4 도구 재시도"
     return "다른도구:" + str(names[0])
 
-def run(base, model, conv, tools, temp, n):
+def run(base, model, conv, tools, temp, n, tool_choice=None):
     c = Counter()
     for _ in range(n):
         try:
-            r = post(base, {"model": model, "messages": conv, "tools": tools,
-                            "temperature": temp, "max_tokens": 450, "n": 1}, timeout=420)
+            body = {"model": model, "messages": conv, "tools": tools,
+                    "temperature": temp, "max_tokens": 450, "n": 1}
+            if tool_choice:
+                body["tool_choice"] = tool_choice  # ★force_required 라이브 배선 동형 검증
+            r = post(base, body, timeout=420)
             c[classify(r["choices"][0]["message"])] += 1
         except Exception as e:
             c["ERR:" + repr(e)[:40]] += 1
@@ -85,12 +88,15 @@ def main():
     shipped = _shipped_nudge(frozen)
     print("SHIPPED nudge = %r" % shipped, flush=True)
     ship_conv = frozen + ([{"role": "user", "content": shipped}] if shipped else [])
-    arms = [("A_asis", base_conv), ("B_directive", dir_conv)]
+    # arm = (name, conv, tool_choice) — D_shipped_forced = C_shipped 넛지 + tool_choice=required
+    #   (라이브 hv_fb force_required 배선 동형: say-don't-do 프로즈 회피를 구조적 디코딩으로 봉쇄).
+    arms = [("A_asis", base_conv, None), ("B_directive", dir_conv, None)]
     if shipped:
-        arms.append(("C_shipped", ship_conv))
-    for name, conv in arms:
-        c0 = run(a.base, a.model, conv, tools, 0.0, 1)
-        c7 = run(a.base, a.model, conv, tools, 0.7, a.n)
+        arms.append(("C_shipped", ship_conv, None))
+        arms.append(("D_shipped_forced", ship_conv, "required"))
+    for name, conv, tchoice in arms:
+        c0 = run(a.base, a.model, conv, tools, 0.0, 1, tool_choice=tchoice)
+        c7 = run(a.base, a.model, conv, tools, 0.7, a.n, tool_choice=tchoice)
         print(f"\n[{name}] temp0={dict(c0)}\n         temp0.7(n={a.n})={dict(c7)}", flush=True)
     print("\n판정: C_shipped가 B_directive처럼 file_dispute(또는 unlock:file)로 가면 → shipped 문구 검증(라이브 前).", flush=True)
 

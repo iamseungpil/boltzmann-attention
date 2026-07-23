@@ -3554,6 +3554,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_dispatchrole_deny = getattr(self, "_t2_dispatchrole_deny", 0) + 1
             if hv_fb is not None:
                 self._t2_havevalue_deny = getattr(self, "_t2_havevalue_deny", 0) + 1
+                # ★force_required (T2_UNLOCK_NAME 선례·[[10]]): 실패모드=프로즈 재요청(say-don't-do).
+                #   넛지 후 재생성을 tool_choice=required로 봉쇄 → 산문 대신 반드시 도구 호출(어느 도구=모델).
+                #   기본 ON(T2_HAVE_VALUE_FORCE=0으로 ablation). 프로브 D_shipped_forced로 오프라인 검증.
+                if os.environ.get("T2_HAVE_VALUE_FORCE", "1") == "1":
+                    force_required = True
             fb = [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:
