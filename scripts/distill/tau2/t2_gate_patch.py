@@ -772,6 +772,67 @@ def _have_value_reask_fb(am, messages, specs):
     return None
 
 
+# ─── ★T2_VALUE_ACQUIRE (C119·2026-07-23·8-task per-step 포렌식): "값 획득 경로 표면화" ───
+# have-value의 *앞단계*: agent가 write W의 인자 A를 재요청하는데 ①값이 아직 대화에 없고(producer
+#   성공출력0) ②손님이 직접 제공 못 함(카드 없음) ③획득 도구 P(get_card_last_4_digits)를 손님에게
+#   *give 안 함*(give_discoverable_user_tool(P) 미호출) → 손님이 값을 못 얻어 재요청 무한(031hv·039 실측).
+# 넛지: "이 값은 손님이 P로 직접 조회해야 함 — give_tool로 P를 손님에게 주고 실행을 안내하라."
+# [[05]]: 도구/문구=A2(value_acquisition_specs)·엔진=재요청∧값미실재∧give미실행 판정만·리터럴0·넛지만.
+
+def _tool_given(messages, give_tool, acquire_tool):
+    """committed서 give_tool(예: give_discoverable_user_tool)로 acquire_tool을 손님에게 준 적 있나."""
+    for m in messages:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            if getattr(tc, "name", "") == give_tool or _eff_tool_name(tc) == give_tool:
+                a = _args_dict(tc)
+                vals = " ".join(str(v) for v in a.values())
+                if acquire_tool in vals or a.get("discoverable_tool_name") == acquire_tool \
+                        or a.get("agent_tool_name") == acquire_tool:
+                    return True
+    return False
+
+
+VALUE_ACQUIRE_FEEDBACK_DEFAULT = (
+    "[VALUE-ACQUIRE] The customer cannot provide '{arg}' directly, and it is NOT in the account "
+    "records. It must be retrieved by the CUSTOMER running {acquire_tool}. Stop re-asking — use "
+    "{give_tool} to give {acquire_tool} to the customer now, then have them run it and read the "
+    "value from its output, then proceed with {write}.")
+
+
+def _value_acquire_fb(am, messages, specs):
+    """★give 표면화: (spec) W 재요청 ∧ 값 미실재(producer 출력 0) ∧ acquire_tool을 give 안 함 → 넛지.
+    반환=문구 or None. have-value(값 실재)와 상보(값 미실재+획득경로 미실행)·중복 회피(값 있으면 skip)."""
+    if not specs:
+        return None
+    cur_text = str(getattr(am, "content", "") or "").lower()
+    cur_calls = {_eff_tool_name(tc) for tc in (getattr(am, "tool_calls", None) or [])}
+    for sp in specs:
+        W = sp.get("write")
+        arg = sp.get("arg")
+        acq = sp.get("acquire_tool")
+        give = sp.get("give_tool")
+        signals = [str(s).lower() for s in (sp.get("reask_signals") or [])]
+        if not (W and arg and acq and give and signals):
+            continue
+        # ① 값이 이미 있으면(producer 성공출력) → have-value 관할·skip
+        if _producer_outputs(messages, sp.get("producer_marker") or ("Executed: " + acq)):
+            continue
+        # ② acquire_tool을 이미 give했으면(031 base) → skip(경로 이미 열림)
+        if _tool_given(messages, give, acq):
+            continue
+        # ③ 재요청: 이전 or 지금 assistant가 arg 재요청(prose 신호), 그리고 W 미완(값 없으니 당연)
+        prior = any(getattr(m, "role", None) == "assistant"
+                    and any(s in str(getattr(m, "content", "") or "").lower() for s in signals)
+                    for m in messages)
+        cur_reask = any(s in cur_text for s in signals)
+        if not (prior or cur_reask):
+            continue
+        fb = sp.get("feedback") or VALUE_ACQUIRE_FEEDBACK_DEFAULT
+        return (fb.replace("{arg}", str(arg)).replace("{acquire_tool}", str(acq))
+                  .replace("{give_tool}", str(give)).replace("{write}", str(W)))
+    return None
+
+
 def _stale_call_ids(am, messages, wtools):
     """★T2_STALE_STRIP (over-action 억제): am.tool_calls 중 strip 대상 id 집합.
     ①같은 am 내 완전중복(동일 eff+args 2회+·read/write 공통) ②committed서 이미 성공한 *write* 재호출.
@@ -2872,6 +2933,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         # ★T2_HAVE_VALUE (C115·2026-07-23): have-value→act 일반레버 spec(도구/인자/신호/문구=A2)
         hv_specs = (a2.get("have_value_reask") or []) \
             if (a2 is not None and os.environ.get("T2_HAVE_VALUE") == "1") else []
+        # ★T2_VALUE_ACQUIRE (C119): give 표면화 spec(도구/문구=A2)
+        va_specs = (a2.get("value_acquisition") or []) \
+            if (a2 is not None and os.environ.get("T2_VALUE_ACQUIRE") == "1") else []
 
         def bw():
             return [v for v in (self._t2_static_bl | self._t2_session_bl) if v.lower() not in ctx]
@@ -3250,6 +3314,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _hve:
                     hv_fb = None
                     print("[T2_HAVE_VALUE] error (no-op): %r" % (_hve,),
+                          file=_sys.stderr, flush=True)
+            # ★T2_VALUE_ACQUIRE (C119): 값 미실재 + give 미실행 → give 표면화 넛지(have-value 앞단계).
+            if (va_specs and hv_fb is None and not do_gate and not do_prov and ep_fb is None
+                    and cons_fb is None and ra_fb is None and te_fb is None and wev_fb is None
+                    and getattr(self, "_t2_valacq_deny", 0)
+                    < int(os.environ.get("T2_VALUE_ACQUIRE_CAP", "3"))):
+                try:
+                    _va = _value_acquire_fb(am, state.messages, va_specs)
+                    if _va:
+                        hv_fb = _va   # hv_fb 채널 재사용(None-anchor 리마인더·상호배타)
+                        self._t2_valacq_fired = True
+                        print("[T2_VALUE_ACQUIRE] give-surfacing → nudge (regen)",
+                              file=_sys.stderr, flush=True)
+                except Exception as _vae:
+                    print("[T2_VALUE_ACQUIRE] error (no-op): %r" % (_vae,),
                           file=_sys.stderr, flush=True)
             # ★T2_PARAM_CAP (§2br): 정책-캡 deny (A2 param_cap_check·054 실측)
             pc_fb = None
@@ -3660,7 +3739,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if dr_fb is not None:
                 self._t2_dispatchrole_deny = getattr(self, "_t2_dispatchrole_deny", 0) + 1
             if hv_fb is not None:
-                self._t2_havevalue_deny = getattr(self, "_t2_havevalue_deny", 0) + 1
+                if getattr(self, "_t2_valacq_fired", False):   # ★C119: va가 hv_fb 채널 재사용 → 별도 카운터
+                    self._t2_valacq_deny = getattr(self, "_t2_valacq_deny", 0) + 1
+                    self._t2_valacq_fired = False
+                else:
+                    self._t2_havevalue_deny = getattr(self, "_t2_havevalue_deny", 0) + 1
                 # ★force_required (T2_UNLOCK_NAME 선례·[[10]]): 실패모드=프로즈 재요청(say-don't-do).
                 #   넛지 후 재생성을 tool_choice=required로 봉쇄 → 산문 대신 반드시 도구 호출(어느 도구=모델).
                 #   기본 ON. ★2026-07-23 근본원인 규명: required는 라이브 경로서 정상 동작(라이브 llm_args가
