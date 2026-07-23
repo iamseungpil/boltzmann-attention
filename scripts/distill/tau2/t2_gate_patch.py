@@ -2453,6 +2453,13 @@ def _install_regen_exec():
         if dedup_on:
             from tau2.data_model.message import ToolMessage as _TM
             cache = self._t2_read_cache = getattr(self, "_t2_read_cache", {})
+            # ★loop-break (2026-07-23 C123·rall19 043 실측): 캐시는 대형 출력(min_len)만 저장하므로
+            #   한 줄짜리 결과의 동일-read 반복은 스텁이 영원히 안 걸림 — 043.1서 shell grep
+            #   'checking_account_id' **15회+ 동일 반복**(값은 DB getter에만 실재) 방치. 동일
+            #   (name,args) read가 K회(기본 3) *실행*되면 크기 무관 스텁+redirect. write는 대상 밖·
+            #   실효 write 시 카운터도 리셋(신선도 동일 규율).
+            seen = self._t2_read_seen = getattr(self, "_t2_read_seen", {})
+            loop_k = int(os.environ.get("T2_READ_DEDUP_LOOP_K", "3"))
             to_run, stubs = [], {}
             _dgset = getattr(getattr(self, "agent", None), "_t2_view_digested", None) or set()
             for tc in tool_calls:
@@ -2461,12 +2468,15 @@ def _install_regen_exec():
                 #   안 그러면 "위 출력 참조" stub이 다이제스트를 가리켜 재열람 탈출구가 막힘.
                 if k in cache and cache.get(k) in _dgset:
                     cache.pop(k, None)
-                if k in cache and not _is_effective_write(_eff_tool_name(tc)):
+                if ((k in cache or seen.get(k, 0) >= loop_k)
+                        and not _is_effective_write(_eff_tool_name(tc))):
                     # ★2026-07-23 (050 flail 근본원인 확정·KB probe): 반복된 read가 KB/검색 도구면
                     #   redirect 힌트 추가 — 도메인-일반. 원인=에이전트가 discoverable 도구를 *함수명*으로
                     #   BM25 검색(점수 0.0·문서 산문엔 함수명 없음)→무한반복. plain-words로 돌림(closure 피드백이
                     #   이미 가진 사실을 flail 지점에 표면화). 배제=[[10]] 생성 무해·행동 게이트 아님.
-                    _dn = (getattr(tc, "name", "") or "").lower()
+                    #   ★C123: 키워드 검사를 이름+인자로 확장(043 실측: 도구명 'shell'·grep은 인자에).
+                    _dn = ((getattr(tc, "name", "") or "")
+                           + " " + str(getattr(tc, "arguments", "") or "")).lower()
                     _redir = ""
                     if "search" in _dn or "bm25" in _dn or "kb_" in _dn or "grep" in _dn:
                         _redir = (" Do NOT repeat this exact search. If you are looking up a discoverable "
@@ -2486,6 +2496,8 @@ def _install_regen_exec():
                     print("[T2_READ_DEDUP] stub tool=%s" % getattr(tc, "name", None),
                           file=sys.stderr, flush=True)
                 else:
+                    if not _is_effective_write(_eff_tool_name(tc)):
+                        seen[k] = seen.get(k, 0) + 1     # C123: 실행되는 read만 계수
                     to_run.append(tc)
             ran = orig_exec(self, to_run) if to_run else []
             _rby = {getattr(r, "id", None): r for r in (ran or [])}
@@ -2513,6 +2525,7 @@ def _install_regen_exec():
                 if _is_effective_write(_eff_tool_name(tc)):
                     if not getattr(out, "error", False):
                         cache.clear()  # 세상이 바뀜 → 이전 read 신선도 보장 불가
+                        seen.clear()   # C123: loop-break 계수도 동일 규율로 리셋
                 elif (not getattr(out, "error", False) and len(_content_str(out) or "") >= min_len
                       and _dedup_cache_safe(self, getattr(tc, "name", "") or "")):
                     # ★§2at: env-mutating(unlock 등)은 캐시 금지 — stub이 히스토리에 남으면 replay 불일치
