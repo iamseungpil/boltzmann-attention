@@ -388,6 +388,72 @@ def _covers(e, p):
     return (not pi) or (not ei) or pi <= ei or ei <= pi
 
 
+def chain_gap(messages, spec):
+    """★intent-chain coverage (2026-07-24 피벗·C133 처방·write_tools 확장). qty 모델(다중-dispute)이
+    못 잡는 **순차 사슬**(close/pay/log/apply·052 submit→deny 등)을 필수 read/write 집합으로 커버.
+    A2 `intent_chains`=[{signals, required_reads, required_writes, phrase}]·엔진=신호매칭+집합차(결정론·
+    도메인 리터럴 0·[[05]]/[[10]]). 반환: {phrase, missing_reads, missing_writes, executed_count} or None.
+    성공 실행만 계수(에러 tool 제외)·디스패처 unwrap·suffix 무시(_fam)."""
+    chains = spec.get("intent_chains") or []
+    if not chains:
+        return None
+    _fam = lambda n: re.sub(r"_\d+$", "", str(n or ""))
+    disp_tool = spec.get("dispatch_tool")
+    disp_name_key = spec.get("dispatch_name_key", "agent_tool_name")
+    utext = "\n".join(str(_g(m, "content") or "") for m in messages
+                      if _g(m, "role") == "user").lower()
+    res_by_id = {_g(m, "id"): m for m in messages
+                 if _g(m, "role") == "tool" and _g(m, "id") is not None}
+    executed = set()
+    for m in messages:
+        if _g(m, "role") != "assistant":
+            continue
+        for tc in (_g(m, "tool_calls") or []):
+            nm = _g(tc, "name") or ""
+            ar = _g(tc, "arguments")
+            if isinstance(ar, str):
+                try:
+                    ar = json.loads(ar)
+                except Exception:
+                    ar = {}
+            ar = ar if isinstance(ar, dict) else {}
+            eff = _fam(ar.get(disp_name_key, "")) if (disp_tool and nm == disp_tool) else _fam(nm)
+            tm = res_by_id.get(_g(tc, "id"))
+            if tm is not None and not _g(tm, "error"):
+                executed.add(eff)
+    best = None
+    for ch in chains:
+        if not any(s.lower() in utext for s in (ch.get("signals") or [])):
+            continue
+        mr = [r for r in (ch.get("required_reads") or []) if _fam(r) not in executed]
+        mw = [w for w in (ch.get("required_writes") or []) if _fam(w) not in executed]
+        if not (mr or mw):
+            continue
+        req = set(_fam(x) for x in (ch.get("required_reads") or []) + (ch.get("required_writes") or []))
+        ec = len(req & executed)
+        cand = {"phrase": ch.get("phrase"), "missing_reads": mr, "missing_writes": mw,
+                "executed_count": ec}
+        if best is None or (len(mr) + len(mw)) < (len(best["missing_reads"]) + len(best["missing_writes"])):
+            best = cand
+    return best
+
+
+def chain_reminder(chain):
+    """intent-chain directive 리마인더(C116 처방·능동 완주·write 강제 0=에이전트 emit)."""
+    _mark("chain gap: missing_reads=%d missing_writes=%d exec=%d"
+          % (len(chain["missing_reads"]), len(chain["missing_writes"]), chain["executed_count"]))
+    parts = []
+    if chain["missing_reads"]:
+        parts.append("read (unlock+call): " + ", ".join(chain["missing_reads"]))
+    if chain["missing_writes"]:
+        parts.append("then execute (with the customer's consent already given): "
+                     + ", ".join(chain["missing_writes"]))
+    tail = (" " + chain["phrase"]) if chain.get("phrase") else ""
+    return ("[E-PLAN] This request is not finished — required steps remain. Do NOT end or defer to "
+            "the user. Complete them now: " + "; ".join(parts) + "."
+            + tail + " Find each discoverable tool's full suffixed name in the knowledge base if needed.")
+
+
 def coverage_gap(ledger):
     """CP5 diff(v1.2): **replan** 기준(CP0 planned 아님) — expand_scope 후
     executed에 _covers 매칭 없는 항목. gap=∅면 리마인더 없이 즉시 종결(R1b)."""
@@ -784,9 +850,17 @@ def apply():
                 _exec_now = len(getattr(led, "executed", []) or [])
                 unexamined = sorted(led.listed - led.examined)
                 reminder = None
+                # ★intent-chain coverage (2026-07-24 피벗·C133): 순차 사슬(close/pay/log/apply·
+                #   052형)을 qty 모델보다 우선. 사슬 gap 있으면 directive 리마인더·exec=사슬 실행 수
+                #   (progress-guard가 사슬 write 완료를 진전으로 셈). 사슬 미적용/무gap → 아래 qty 폴백.
+                _chain = chain_gap(msgs, spec)
+                if _chain is not None:
+                    reminder = chain_reminder(_chain)
+                    _exec_now = _chain["executed_count"]
                 # ★레버4(T2_EPLAN_REPLAN=1): 격리 서브콜(구조화 ledger 프롬프트) →
                 #   결정론 diff(coverage_gap replan 경로). 실패=기존 결정론 신호 폴백(안전측).
-                if os.environ.get("T2_EPLAN_REPLAN") == "1":
+                #   chain이 발화했으면 skip(chain 우선·C133).
+                if reminder is None and os.environ.get("T2_EPLAN_REPLAN") == "1":
                     try:
                         obligations = _cp5_replan_subcall(self, led, msgs, spec)
                     except Exception as _re:
