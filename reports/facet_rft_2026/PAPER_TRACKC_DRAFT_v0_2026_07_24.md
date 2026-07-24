@@ -296,6 +296,23 @@ This differs from re-asking/self-correction (which operates in the polluted cont
 and from disambiguation sub-calls that include the full transcript — the essence is *removing* self-generated
 mappings, not adding deliberation.
 
+**The strongest form removes the LLM from id emission entirely.** The transcription slip is, at bottom, an LLM
+copying an id and landing one row off. A *formalize-then-match* step eliminates it: the LLM emits only the
+selection *criteria* (the merchant and amount the customer stated — a reading-comprehension task it does well),
+and deterministic code emits the id of the uniquely matching row. On our four audited instances this closes the
+residual the LLM re-pick leaves open: `{merchant=Costco, amount=$267.34}` matches exactly one listing row (the
+gold `…5db822`) and never the slip row (`…d2d06d` = Home Depot $456.78) — including r20.039, where the isolated
+LLM re-pick still slipped (§6). Even a purely deterministic *verifier* — no LLM at all — is strikingly
+effective as a slip detector: flag any filed dispute whose record's **merchant was never mentioned by the
+customer**. Across the four instances this catches **8/8** wrong picks (every slip landed on an unmentioned
+merchant: Home Depot, Facebook Ads, Airport Parking, Panera, W.B. Mason, Spotify) with **0/25** false blocks on
+gold — because the customer's actual merchants (Costco, Amazon, Marriott) always appear. (Adding an amount
+constraint raises false-block risk when the customer gives an approximate figure — "around $160" for a $167.34
+charge — so merchant-absence is the robust deny signal; the amount dimension is needed only to disambiguate
+*within* a repeated merchant, the harder match that the formalize-then-match repair handles.) This is the
+deterministic endpoint of the isolation idea: the load never touches the id at all. [S: offline over committed
+trajectories; live wiring pending R22 outcome.]
+
 ### 7.2 Validation
 
 Unit probes (stubbed sub-call): 8/8 — wrong→gold substitution, correct→keep, UNSURE no-op,
