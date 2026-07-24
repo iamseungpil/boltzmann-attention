@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""T2_REF_ISO selftest (C124/C125) — 격리 재선택 치환 로직 검증 (la=stub·모델 불요).
-케이스: ①오선택→정답 치환 ②정답 유지 ③UNSURE no-op ④목록-밖 답(날조) no-op
-⑤listing 부재 no-op ⑥비대상 도구 no-op. Run: py -3 test_ref_iso.py"""
+"""T2_REF_ISO selftest (C124/C125/C126) — 격리 재선택 치환 로직 검증 (la=stub·모델 불요).
+케이스(8): ①오선택→정답 치환 ②정답 유지 ③UNSURE no-op ④목록-밖 답 no-op
+⑤listing 부재 no-op ⑥비대상 도구 no-op ⑦다중-hit→UNSURE no-op(C126) ⑧memoize 단일 서브콜(C126).
+Run: py -3 test_ref_iso.py"""
 import json
 import os
 import sys

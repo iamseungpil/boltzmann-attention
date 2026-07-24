@@ -25,8 +25,10 @@ deterministic attribution flip. The error also recurs across independent live ru
 and — a mechanism we did not anticipate — laundered through the user simulator, which echoes the agent's wrong
 id back as apparent customer evidence), and interacts pathologically with evidence gates: hard denial collapses
 the episode, pass-through pollutes the database. A mechanism-derived mitigation — an isolated minimal-context re-pick of
-reference arguments at write time, accepted only if the answer exists verbatim in the producer listing —
-closes the slip in unit probes (6/6) ⟦and in live runs: TBD rall21⟧. A retro-audit of failures previously
+reference arguments at write time, accepted only if the answer exists verbatim in the producer listing (so the
+repair itself cannot introduce an out-of-listing value) — closes the slip in unit probes (8/8), and in live
+runs confirms the design's safety half (0/16 false switches); corrective efficacy remains ⟦TBD: R22⟧. A
+retro-audit of failures previously
 attributed to semantic reference-matching finds ⟦TBD⟧% flip under isolation replay ⟦E-F3-ISO⟧. We argue that
 agent failure taxonomies built on observational labeling systematically overattribute context-induced load to
 semantic capability, and that per-failure isolation replay should be a standard attribution control.
@@ -40,8 +42,9 @@ grounding is the residual*. These conclusions matter — they decide whether tea
 fine-tuning, or scaffolding.
 
 This paper is about a failure that wears the wrong-entity costume convincingly. In our live banking pipeline
-(τ²-bench `banking_knowledge`, Qwen2.5-32B agent, deterministic scaffold), a customer asks to dispute a hotel
-charge; the agent retrieves a 57-record transaction listing, correctly *describes* the target transaction —
+(τ²-bench `banking_knowledge`, Qwen2.5-32B agent, deterministic scaffold), a customer asks to dispute a
+warehouse-club charge (Costco, $267.34); the agent retrieves a 57-record transaction listing, correctly
+*describes* the target transaction —
 right merchant, right amount, right date — and then files the dispute against a different record. Scored by any
 existing taxonomy, this is a semantic reference-selection error. Our own evidence ledger initially classified it
 exactly that way, into the same bucket as the ~44%-ceiling reference-matching boundary we had measured
@@ -65,9 +68,12 @@ Forensics identify the mechanism in two parts:
   replay deterministic — the wrong binding is *in the prompt*.
 
 The same signature recurs in an independent run on the same task (same wrong id), in a second task (a
-date-adjacent wrong pick from a different listing), and in a fabrication variant (a placeholder-pattern id
-`txn_a1b2c3d4e502`, and a card-digit argument `1234` anchored to a PIN example in a knowledge-base document
-read moments earlier). None of these are semantic confusions; all of them would be scored as such.
+date-adjacent wrong pick from a different listing), and in two variants that look like fabrication but are not:
+a placeholder-pattern id `txn_a1b2c3d4e502` that is in fact a *real* listing record (Philadelphia Airport
+Parking) mis-bound to the wrong item, and a card-digit argument `1234` transplanted from a PIN example in a
+knowledge-base document read moments earlier. None of these are semantic confusions; all of them would be
+scored as such — and every wrong value is real text already present in the agent's context, never a string
+invented from nothing (§4).
 
 Contributions:
 
@@ -85,10 +91,10 @@ Contributions:
    includes the fraction of "wrong pick despite gold record retrieved" cases (43–52% in our earlier census
    [M]) that flip⟧ (§6).
 4. **A mitigation**: write-time isolated re-pick of reference arguments — re-run the selection in minimal
-   context and substitute only if the answer exists verbatim in the producer listing (fabrication-proof by
-   construction). Unit probes 6/6; ⟦TBD live: rall21 switched/keep/unsure counts and end-to-end effect⟧ (§7).
-   We also document why evidence *gates* cannot close this failure class: the deny-forever/pass-through dilemma
-   (§7.3).
+   context and substitute only if the answer exists verbatim in the producer listing (so the repair cannot
+   itself introduce an out-of-listing value). Unit probes 8/8; live (rall21): 0/16 false switches (safety half
+   confirmed), corrective switch ⟦TBD: R22⟧ (§7). We also document why evidence *gates* cannot close this
+   failure class: the deny-forever/pass-through dilemma (§7.3).
 
 ## 2. Related work
 
@@ -179,6 +185,14 @@ The row-slip family signature: the written value is a *real record id from the l
 otherwise co-listed row — bound to the wrong item; not a random string and not a semantically plausible
 alternative reading of the user's request.
 
+### 4.3 Why gates cannot see it
+
+The pipeline's evidence gates check that written values exist in tool outputs. A neighboring row's id *does*
+exist in the listing; a document example *does* exist in a tool output. Substring-existence evidence is
+structurally blind to mis-binding — it validates that a value was read, not that it was bound to the right
+attributes. (We measured this the hard way: a `1234` transplanted from a document's PIN example passed an
+evidence gate because those digits appeared in an unrelated document line; §7.3.)
+
 ### 4.4 The error propagates through the user simulator (not just fabrication, not pure self-anchor)
 
 A forensic follow-up (§6 audit) overturned two of our own earlier characterizations and refined the mechanism.
@@ -191,14 +205,6 @@ simulator artifact. The self-anchor is therefore not purely intra-agent: **the e
 is laundered through the conversation partner and returns as apparent user-provided evidence** — which is
 exactly why downstream gates and replays treat it as grounded. This strengthens the load account (the error
 lives in the trajectory, now demonstrably in the *user-visible* channel) while correcting its mechanism.
-
-### 4.3 Why gates cannot see it
-
-The pipeline's evidence gates check that written values exist in tool outputs. A neighboring row's id *does*
-exist in the listing; a document example *does* exist in a tool output. Substring-existence evidence is
-structurally blind to mis-binding — it validates that a value was read, not that it was bound to the right
-attributes. (We measured this the hard way: a fabricated `1234` passed an evidence gate because the digits
-appeared in an unrelated document line; §7.3.)
 
 ## 5. Isolation replay: the attribution flip
 
@@ -257,14 +263,14 @@ mappings, not adding deliberation.
 
 ### 7.2 Validation
 
-Unit probes (stubbed sub-call): 8/8 — wrong→gold substitution, correct→keep, UNSURE no-op, fabricated-answer
-rejection (not in listing), no-listing no-op, non-target tool no-op, multi-hit conservatism, verdict
+Unit probes (stubbed sub-call): 8/8 — wrong→gold substitution, correct→keep, UNSURE no-op,
+out-of-listing-answer rejection, no-listing no-op, non-target tool no-op, multi-hit conservatism, verdict
 memoization. Live (run R21, one episode per task): 16 firings — **keep 8** (the agent's pick was correct this
 run and the sub-call confirmed it every time: zero false switches, the safety half of the design validated
 [S]), **unsure 8** (in the 8-item task the per-call mapping question under-determined the item; conservative
 no-op), **switched 0** — corrective efficacy not yet demonstrated live, because (i) the correctable error did
 not recur on the checked calls this run, and (ii) same-value re-checks exhausted the per-episode cap before the
-later calls (including two fabricated ids) were reached. Three fixes derived and unit-verified (verdict
+later calls (including two further wrong-record ids) were reached. Three fixes derived and unit-verified (verdict
 memoization; multi-hit answers treated as UNSURE; an itemized-mapping instruction); in R22 the lever fires
 `switched`/`memo-switch` live ⟦TBD: R22 forensic — does the switch recover the gold id end-to-end, Δspurious⟧.
 Notably, the same wrong-record id recurs across independent runs — the wrong *binding*, like the slip that
@@ -308,9 +314,11 @@ rival preprints (§2) are recent and unreplicated — framing overlap is acknowl
 
 ## 9. Reproducibility
 
-All trajectories (results.json + logs, gzipped), the isolation-probe script and its artifacts, the mitigation
-implementation and unit tests, and the evidence ledger are in the repository. The probe requires only a local
-vLLM endpoint; no benchmark re-runs are needed to reproduce §5.
+All trajectories (results.json + logs, gzipped), the isolation-probe script with its committed input artifacts
+(the reconstructed listing, customer messages, and trajectory prefix), the mitigation implementation and its
+unit tests, and the evidence ledger are in the repository. The §5 result is reproducible by re-running the
+probe against a local vLLM endpoint (no benchmark re-runs needed); the full per-run probe transcripts are
+Appendix A ⟦TBD — to be regenerated and committed alongside this draft⟧.
 
 ---
 ### Appendix A ⟦TBD⟧: full probe transcripts (A_minimal / B_fullctx, 18 runs)
