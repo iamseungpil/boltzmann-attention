@@ -1967,6 +1967,19 @@ def _ref_iso_repair(self, la, UserMessage, msgs, am, specs):
             cur = str((nd or {}).get(pn) or args.get(pn) or "")
             if not cur:
                 continue
+            # ★C126 라이브 교정(rall21): 같은 (param,값) 재검이 cap을 소진(031서 keep×8=동일 값)
+            #   → verdict 메모이즈. switch 결과도 기억(같은 오값 재등장 시 무비용 치환).
+            _memo = self._t2_refiso_memo = getattr(self, "_t2_refiso_memo", {})
+            _mk = (pn, cur)
+            if _mk in _memo:
+                _mv = _memo[_mk]
+                if _mv not in (None, cur) and nd is not None:
+                    nd[pn] = _mv
+                    if isinstance(nested, str):
+                        args["arguments"] = json.dumps(nd)
+                    print("[T2_REF_ISO] memo-switch param=%s %s->%s" % (pn, cur, _mv),
+                          file=_s.stderr, flush=True)
+                continue
             _prod = set(sp.get("producer_tools") or [])
             _pids = {getattr(c2, "id", None)
                      for m in msgs for c2 in (getattr(m, "tool_calls", None) or [])
@@ -1989,8 +2002,11 @@ def _ref_iso_repair(self, la, UserMessage, msgs, am, specs):
                       + "\n\n=== ACTION BEING FILED ===\n"
                       + json.dumps(others, default=str)[:800]
                       + "\n\nWhich single '" + str(pn) + "' value from the RECORD LISTING does this "
-                        "action refer to, based on the customer's messages? Answer with EXACTLY one "
-                        "value copied from the listing, or UNSURE.")
+                        "action refer to, based on the customer's messages? If the customer listed "
+                        "several items, first match EVERY listed item to its record"
+                      + ((" (" + str(sp.get("match_hint")) + ")") if sp.get("match_hint") else "")
+                      + ", then answer for THIS action only. Answer with EXACTLY "
+                        "one value copied from the listing, or UNSURE.")
             try:
                 um = UserMessage(role="user", content=prompt)
             except TypeError:
@@ -2003,11 +2019,16 @@ def _ref_iso_repair(self, la, UserMessage, msgs, am, specs):
             pat = sp.get("id_pattern") or r"[A-Za-z0-9_]{6,}"
             hits = [h for h in _re.findall(pat, stxt) if h in listing]
             self._t2_refiso = getattr(self, "_t2_refiso", 0) + 1
-            if "UNSURE" in stxt or not hits:
-                print("[T2_REF_ISO] unsure param=%s cur=%s" % (pn, cur), file=_s.stderr, flush=True)
+            # ★C126: 서로 다른 listing-멤버가 2개+ 언급되면(추론 산문 오염) 첫-hit 오채택 위험 →
+            #   보수적으로 unsure. 단일 고유 hit만 채택.
+            if "UNSURE" in stxt or not hits or len(set(hits)) > 1:
+                _memo[_mk] = None
+                print("[T2_REF_ISO] unsure param=%s cur=%s nhits=%d"
+                      % (pn, cur, len(set(hits))), file=_s.stderr, flush=True)
                 continue
             ans = hits[0]
             if ans == cur:
+                _memo[_mk] = cur
                 print("[T2_REF_ISO] keep param=%s val=%s" % (pn, cur), file=_s.stderr, flush=True)
                 continue
             try:
@@ -2019,6 +2040,7 @@ def _ref_iso_repair(self, la, UserMessage, msgs, am, specs):
                     args[pn] = ans
             except Exception:
                 continue
+            _memo[_mk] = ans
             print("[T2_REF_ISO] switched param=%s %s->%s" % (pn, cur, ans),
                   file=_s.stderr, flush=True)
 

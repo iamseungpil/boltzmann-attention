@@ -96,6 +96,28 @@ def main():
     st = "PASS" if got == "txn_41735bd2d06d" else "FAIL"
     ok &= (got == "txn_41735bd2d06d")
     print("[%s] non_target_tool_noop -> %s" % (st, got))
+    # ★C126: 다중-hit(추론 산문에 두 id) → unsure(no-op)
+    am = run("Candidates are txn_39469d5db822 and txn_41735bd2d06d; I pick txn_39469d5db822")
+    got = cur_txn(am)
+    st = "PASS" if got == "txn_41735bd2d06d" else "FAIL"
+    ok &= (got == "txn_41735bd2d06d")
+    print("[%s] multi_hit_unsure_noop -> %s" % (st, got))
+    # ★C126: memoize — 같은 (param,값) 재검 시 서브콜 미호출·switch 재적용
+    calls = {"n": 0}
+
+    class CountLA:
+        def generate(self, **kw):
+            calls["n"] += 1
+            return NS(content="txn_39469d5db822")
+    slf = NS(llm="m", llm_args={})
+    la = CountLA()
+    for _ in range(3):
+        am = mk_am("txn_41735bd2d06d")
+        G._ref_iso_repair(slf, la, lambda **k: NS(role="user", **k), mk_msgs(), am, SPECS)
+    good = calls["n"] == 1 and cur_txn(am) == "txn_39469d5db822"
+    st = "PASS" if good else "FAIL"
+    ok &= good
+    print("[%s] memoize_single_subcall_3runs (calls=%d, final=%s)" % (st, calls["n"], cur_txn(am)))
     print("ALL PASS" if ok else "FAILURES")
     sys.exit(0 if ok else 1)
 

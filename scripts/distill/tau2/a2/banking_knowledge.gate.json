@@ -1512,7 +1512,8 @@
     "get_credit_card_transactions_by_user"
    ],
    "id_pattern": "txn_[0-9a-f]{6,}",
-   "_note": "2026-07-24 C124/C125: wrong-txn 참조 슬립(인접-행 전사+자기-정박)이 rall19/20서 3회 재발(041735 2회·9a72b 1회)+날조 a1b2c3d4. 격리 재선택(A_minimal 9/9 실증) → 불일치 시 치환. 답이 producer 목록에 실재해야 채택=날조 id 차단."
+   "_note": "2026-07-24 C124/C125: wrong-txn 참조 슬립(인접-행 전사+자기-정박)이 rall19/20서 3회 재발(041735 2회·9a72b 1회)+날조 a1b2c3d4. 격리 재선택(A_minimal 9/9 실증) → 불일치 시 치환. 답이 producer 목록에 실재해야 채택=날조 id 차단. ★C126 rall21 라이브 판정: switched 0(keep 8=031 정답 확인·unsure 8=039 다중항목)·over-switch 0. 교정: memoize(동일값 재검 cap낭비=031 keep×8)·다중-hit unsure(오채택 방지)·match_hint(다중항목 매핑 지시·A2 소관).",
+   "match_hint": "by merchant, amount, and date"
   }
  ]
 }
