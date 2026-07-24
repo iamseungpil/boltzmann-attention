@@ -94,8 +94,18 @@ def flat(msgs):
 
 
 def utext(sim):
-    return "\n".join(str(m.get("content") or "") for m in sim.get("messages", [])
-                     if m.get("role") == "user")
+    # ★C128 오염 교정: 손님은 "id를 모른다"고 명시 — user 턴의 모든 txn_id는 에이전트 오류가
+    #   시뮬레이터를 통해 되돌아온 오염(self-anchor가 user를 경유). 정보-맞춘 격리는 이를 제거해야
+    #   한다(손님 고유정보=merchant/amount/date/reason만·txn_id는 손님이 준 적 없음=정보손실 0).
+    raw = "\n".join(str(m.get("content") or "") for m in sim.get("messages", [])
+                    if m.get("role") == "user")
+    return re.sub(r"txn_[0-9a-f]+", "[id-redacted]", raw)
+
+
+def user_echoes_wrong(sim, wrong):
+    raw = "\n".join(str(m.get("content") or "") for m in sim.get("messages", [])
+                    if m.get("role") == "user")
+    return [w for w in wrong if w in raw]
 
 
 def call(base, model, content, temp):
@@ -120,9 +130,11 @@ def main():
         filed = filed_ids(sim)
         wrong = [f for f in dict.fromkeys(filed) if f not in gold]
         lst = listing_of(sim)
-        fab = [w for w in wrong if w not in lst]
-        print("== %s gold=%d filed=%d wrong=%s fabricated=%s"
-              % (label, len(gold), len(filed), [w[-6:] for w in wrong], [w[-6:] for w in fab]))
+        fab = [w for w in wrong if w not in lst]        # 목록에 없으면 진짜 날조
+        echoed = user_echoes_wrong(sim, wrong)           # user 턴이 되받은 오염
+        print("== %s gold=%d filed=%d wrong=%s not_in_listing(true-fab)=%s user_echoed=%s"
+              % (label, len(gold), len(filed), [w[-6:] for w in wrong],
+                 [w[-6:] for w in fab], [w[-6:] for w in echoed]))
         if not wrong:
             print("   (no wrong ids — skip)")
             continue
