@@ -49,9 +49,10 @@ def build(variant):
             {"role": "user", "content": u}]
 
 
-def call(base, model, msgs, temp):
+def call(base, model, msgs, temp, headers=None):
     r = requests.post(base + "/chat/completions", json={
-        "model": model, "messages": msgs, "temperature": temp, "max_tokens": 700}, timeout=300)
+        "model": model, "messages": msgs, "temperature": temp, "max_tokens": 700},
+        headers=headers or {}, timeout=300)
     r.raise_for_status()
     return r.json()["choices"][0]["message"]["content"] or ""
 
@@ -60,16 +61,23 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", default="http://localhost:8140/v1")
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
+    ap.add_argument("--provider", default="vllm", choices=["vllm", "openrouter"])
     ap.add_argument("--n", type=int, default=6)
     a = ap.parse_args()
-    print("required steps: %d — %s" % (len(REQUIRED), [r[0] for r in REQUIRED]))
+    import os
+    base, headers = a.base, {}
+    if a.provider == "openrouter":
+        base = "https://openrouter.ai/api/v1"
+        key = os.environ.get("OPENROUTER_API_KEY", "")
+        headers = {"Authorization": "Bearer " + key}
+    print("MODEL=%s provider=%s | required steps: %d" % (a.model, a.provider, len(REQUIRED)))
     for variant in ("A_minimal", "B_fulltraj"):
         msgs = build(variant)
         agg = []
         for i in range(1 + a.n):
             t = 0.0 if i == 0 else 0.7
             try:
-                sc, hit = score(call(a.base, a.model, msgs, t))
+                sc, hit = score(call(base, a.model, msgs, t, headers))
             except Exception as e:
                 print("%s run%d ERROR %r" % (variant, i, e))
                 continue
