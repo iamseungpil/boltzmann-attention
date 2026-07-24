@@ -240,10 +240,17 @@ mappings, not adding deliberation.
 
 ### 7.2 Validation
 
-Unit probes (stubbed sub-call): 6/6 — wrong→gold substitution, correct→keep, UNSURE no-op, fabricated-answer
-rejection (not in listing), no-listing no-op, non-target tool no-op. Live: lever active in run R21
-⟦TBD: switched/keep/unsure counts, whether task_039/031 reference errors are corrected end-to-end, over-switch
-side-effect measurement (Δspurious)⟧.
+Unit probes (stubbed sub-call): 8/8 — wrong→gold substitution, correct→keep, UNSURE no-op, fabricated-answer
+rejection (not in listing), no-listing no-op, non-target tool no-op, multi-hit conservatism, verdict
+memoization. Live (run R21, one episode per task): 16 firings — **keep 8** (the agent's pick was correct this
+run and the sub-call confirmed it every time: zero false switches, the safety half of the design validated
+[S]), **unsure 8** (in the 8-item task the per-call mapping question under-determined the item; conservative
+no-op), **switched 0** — corrective efficacy not yet demonstrated live, because (i) the correctable error did
+not recur on the checked calls this run, and (ii) same-value re-checks exhausted the per-episode cap before the
+later calls (including two fabricated ids) were reached. Three fixes derived and unit-verified (verdict
+memoization; multi-hit answers treated as UNSURE; an itemized-mapping instruction) ⟦TBD: corrective switch
+demonstrated live in R22⟧. Notably, the fabricated id `txn_a1b2c3d4e502` recurred **verbatim across two
+independent runs** — fabrication, like the slip, is an attractor, not noise. [S]
 
 ### 7.3 Why gating alone fails: the deny/pass-through dilemma
 
