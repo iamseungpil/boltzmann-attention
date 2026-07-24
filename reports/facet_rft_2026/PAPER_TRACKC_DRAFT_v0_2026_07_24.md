@@ -21,9 +21,10 @@ confusion. Once written into the conversation, the wrong binding is copied forwa
 **self-anchoring**. We dissociate these from capability limits with **information-matched isolation replay**:
 given exactly the customer's messages and the listing (minimal context), the model identifies the correct
 record set 9/9 times; given the actual trajectory context, it reproduces the *same wrong id* 9/9 times — a
-deterministic attribution flip. The error also recurs across independent live runs (same wrong id, plus a
-fabricated placeholder id), and interacts pathologically with evidence gates: hard denial collapses the episode,
-pass-through pollutes the database. A mechanism-derived mitigation — an isolated minimal-context re-pick of
+deterministic attribution flip. The error also recurs across independent live runs (the same wrong-record id,
+and — a mechanism we did not anticipate — laundered through the user simulator, which echoes the agent's wrong
+id back as apparent customer evidence), and interacts pathologically with evidence gates: hard denial collapses
+the episode, pass-through pollutes the database. A mechanism-derived mitigation — an isolated minimal-context re-pick of
 reference arguments at write time, accepted only if the answer exists verbatim in the producer listing —
 closes the slip in unit probes (6/6) ⟦and in live runs: TBD rall21⟧. A retro-audit of failures previously
 attributed to semantic reference-matching finds ⟦TBD⟧% flip under isolation replay ⟦E-F3-ISO⟧. We argue that
@@ -161,19 +162,35 @@ eight `file_dispute` calls — carries the wrong id; the gold record is never fi
 ### 4.2 Recurrence (independent runs)
 
 - **R20/task_039** (fresh run, same task): the same wrong id `txn_41735bd2d06d` is filed again — consistent
-  with the deterministic full-context replay (§5) — plus a *fabricated* id `txn_a1b2c3d4e502` (sequential
-  placeholder hex) among the eight. [S]
+  with the deterministic full-context replay (§5) — plus another wrong-record id `txn_a1b2c3d4e502` among the
+  eight. (Correction to an earlier draft: this id is **not fabricated** — it is a genuine listing record,
+  "Philadelphia International Airport Parking $87.00"; its suspicious sequential-nibble form initially led us to
+  mislabel it. Verified against the tool output; see §4.4.) [S]
 - **R20/task_031** (different task): the agent files against `txn_9a72b84326d1` (Facebook Ads, $203.58,
   11/06, wrong card) where gold is a Marriott charge of $167.34 on **11/07** — a date-adjacent wrong pick from
   a different listing. [S]
-- **R19/task_031 (trial 2)**: the argument-level variant — `card_last_4_digits: "1234"`, anchored verbatim to a
+- **R19/task_031 (trial 2)**: an argument-level variant — `card_last_4_digits: "1234"`, anchored verbatim to a
   PIN-security example ("Cannot be sequential (e.g., 1234, 4321)") in a KB document the agent had read moments
-  earlier; the true digits were never retrieved. Same family: a nearby-context value transplanted into a write
-  argument. [S]
+  earlier; the true digits were never retrieved. Here the value is transplanted from a document rather than a
+  neighboring record row — a related but distinct source; we keep it separate from the row-slip family below.
+  [S]
 
-The family signature: the written value is *real text from the context* (a neighboring row's id, a document's
-example number) — not a random string and not a semantically plausible alternative reading of the user's
-request.
+The row-slip family signature: the written value is a *real record id from the listing* — a neighboring or
+otherwise co-listed row — bound to the wrong item; not a random string and not a semantically plausible
+alternative reading of the user's request.
+
+### 4.4 The error propagates through the user simulator (not just fabrication, not pure self-anchor)
+
+A forensic follow-up (§6 audit) overturned two of our own earlier characterizations and refined the mechanism.
+(i) *No fabrication.* Every wrong id we file traces to a real listing record; the "fabricated placeholder"
+reading was wrong. (ii) *The channel includes the user.* In R21/task_039, a **user** turn states "Amazon
+$129.45 (`txn_a1b2c3d4e502`)" — the user simulator attaches a wrong id (that record is Airport Parking, not the
+Amazon charge) to a customer item. Since the customer explicitly has no ids ("I don't have the transaction IDs
+handy"), any id in a user turn is the agent's earlier mis-binding reflected back by the simulator, or a
+simulator artifact. The self-anchor is therefore not purely intra-agent: **the erroneous binding, once emitted,
+is laundered through the conversation partner and returns as apparent user-provided evidence** — which is
+exactly why downstream gates and replays treat it as grounded. This strengthens the load account (the error
+lives in the trajectory, now demonstrably in the *user-visible* channel) while correcting its mechanism.
 
 ### 4.3 Why gates cannot see it
 
@@ -248,9 +265,10 @@ run and the sub-call confirmed it every time: zero false switches, the safety ha
 no-op), **switched 0** — corrective efficacy not yet demonstrated live, because (i) the correctable error did
 not recur on the checked calls this run, and (ii) same-value re-checks exhausted the per-episode cap before the
 later calls (including two fabricated ids) were reached. Three fixes derived and unit-verified (verdict
-memoization; multi-hit answers treated as UNSURE; an itemized-mapping instruction) ⟦TBD: corrective switch
-demonstrated live in R22⟧. Notably, the fabricated id `txn_a1b2c3d4e502` recurred **verbatim across two
-independent runs** — fabrication, like the slip, is an attractor, not noise. [S]
+memoization; multi-hit answers treated as UNSURE; an itemized-mapping instruction); in R22 the lever fires
+`switched`/`memo-switch` live ⟦TBD: R22 forensic — does the switch recover the gold id end-to-end, Δspurious⟧.
+Notably, the same wrong-record id recurs across independent runs — the wrong *binding*, like the slip that
+seeds it, is an attractor, not noise. [S]
 
 ### 7.3 Why gating alone fails: the deny/pass-through dilemma
 
