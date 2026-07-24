@@ -3321,10 +3321,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             # ★T2_WRITE_EVIDENCE (unified 배선·2026-07-19 028 포렌식): 증거(도구출력 token+id 공존)
             #   없는 선언-write deny. silent-repair(reffilter/compute) *뒤* 배치 = 교정된 최종 인자를 검사.
             #   무과금·turn당 1회·sim당 T2_WEV_CAP(기본 8) — E-PLAN cap 선례(불응 무한루프 방지·소진 후 통과).
+            #   ★T2_WEV_ROUNDS (2026-07-24 C125·rall20 031.0 실측): turn당 1회 규칙의 구멍 — deny 후
+            #   regen된 호출은 같은 턴서 무검사 커밋(1234 날조가 deny #2 직후 regen으로 통과·오프라인
+            #   재실행은 deny 확인=술어 정상·배관 우회). 재검사 횟수 env화(기본 1=현행 불변·2=regen 1회 재검).
             wev_fb = None
             if ((wev_specs or wag_specs) and not do_gate and not do_prov and ep_fb is None
                     and cons_fb is None and ra_fb is None and te_fb is None
-                    and wev_rounds < 1 and getattr(self, "_t2_wev_deny", 0) < _wev_cap):
+                    and wev_rounds < int(os.environ.get("T2_WEV_ROUNDS", "1"))
+                    and getattr(self, "_t2_wev_deny", 0) < _wev_cap):
                 try:
                     for c in (am.tool_calls or []):
                         if id(c) in denied_by_objid:
