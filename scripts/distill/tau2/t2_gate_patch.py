@@ -652,6 +652,88 @@ def _wev_fill(fb, idtxt, messages, any_tokens):
     return fb.replace("{id}", idtxt)
 
 
+def _ref_verify_deny(messages, tc, specs):
+    """★T2_REF_VERIFY (2026-07-24 C128/C129·결정론 참조-검증기): 선언된 write가 가리키는 레코드의
+    **판별 속성**(예: merchant_name)이 손님 발화에 없으면 deny+처방(손님이 실제 말한 속성값 나열).
+    근거: rall19-22 wrong-pick 8/8이 전부 손님 미언급 상점(cross-merchant 인접-행 전사 슬립)·검증기
+    8/8 검출·false-block 0(C128). LLM 재선택(REF_ISO)은 gold→wrong 해로운 switch(C129)라 이 결정론
+    검증기가 robust. 엔진=substring 대조만(LLM 0·값 추출/생성 0·[[03b]]·[[10]] 검증기=결정론). 도구명·
+    필드·문구 전부 A2. id의 레코드 못 찾으면 skip(false-block 회피). 속성값이 손님 발화에 있으면 통과.
+    ★한계(A2 note): merchant-absence는 cross-merchant만 검출·동일상점 내 오선택은 amount 필요(별 스펙)."""
+    name = getattr(tc, "name", None)
+    args = _args_dict(tc)
+    for sp in (specs or []):
+        if name != sp.get("applies_to"):
+            continue
+        aw = sp.get("applies_when") or {}
+        if aw.get("arg"):
+            v = str(args.get(aw["arg"]) or "")
+            if aw.get("prefix") and not v.startswith(aw["prefix"]):
+                continue
+        idk = sp.get("id_key")
+        idv = args.get(idk)
+        if idv is None and idk:                             # 중첩 JSON-문자열(디스패처형)
+            for vv in args.values():
+                if isinstance(vv, str) and idk in vv:
+                    try:
+                        idv = (json.loads(vv) or {}).get(idk)
+                    except Exception:
+                        pass
+                if idv:
+                    break
+        idv = str(idv or "").strip()
+        if not idv:
+            continue
+        field = sp.get("record_field", "merchant_name")
+        # 1) 도구 출력(producer)서 idv 레코드 블록의 field 값 추출
+        rec_val, all_vals = None, set()
+        for m in messages:
+            if getattr(m, "role", None) != "tool" or getattr(m, "error", False):
+                continue
+            c = getattr(m, "content", None)
+            c = c if isinstance(c, str) else str(c or "")
+            for mm in re.finditer(re.escape(field) + r":\s*([^\n]+)", c):
+                all_vals.add(mm.group(1).strip())
+            k = c.find(idv)
+            if k >= 0 and rec_val is None:
+                win = c[k:k + 400]
+                fm = re.search(re.escape(field) + r":\s*([^\n]+)", win)
+                if fm:
+                    rec_val = fm.group(1).strip()
+        if not rec_val:                                     # id의 레코드/필드 못 읽음 → skip
+            continue
+        # 2) 손님 발화(user)에 그 field 값이 있나. ★정확-문자열은 취약(레코드 "Marriott Hotels" vs
+        #    손님 "Marriott hotel"=단복수/접미어 차이로 gold 오차단·rall22 031 실측). 유의미 토큰
+        #    (길이≥min_tok·언어일반·도메인 리터럴 0) 하나라도 일치하면 언급으로 간주(false-block 회피
+        #    우선=miss가 false-block보다 안전·다른 층이 슬립 재검). min_tok=A2(기본 5·"home"류 generic 제외).
+        min_tok = int(sp.get("match_min_token", 5))
+        utext = "\n".join(str(getattr(m, "content", "") or "") for m in messages
+                          if getattr(m, "role", None) == "user").lower()
+
+        def _mentioned(val):
+            if not val:
+                return False
+            if val.lower() in utext:
+                return True
+            for tok in re.findall(r"[A-Za-z0-9]+", val):
+                if len(tok) >= min_tok and tok.lower() in utext:
+                    return True
+            return False
+
+        if _mentioned(rec_val):                             # 손님이 언급 → 통과
+            continue
+        # 3) 손님이 실제 언급한 (목록 내) 값들 = 처방 피드백용
+        mentioned = sorted({v for v in all_vals if _mentioned(v)})
+        fb = sp.get("feedback") or (
+            "Error: [REF-VERIFY] the record you are filing ({id}) is a '{value}' entry, but the "
+            "customer never mentioned '{value}'. The customer referred to: {mentioned}. Re-check "
+            "which record they meant — read the listing and match on what the customer actually "
+            "described — and file that one instead.")
+        return (fb.replace("{id}", idv).replace("{value}", rec_val)
+                .replace("{mentioned}", ", ".join(mentioned) if mentioned else "(none found)"))
+    return None
+
+
 def _write_arg_ground_deny(messages, tc, specs):
     """★T2_WRITE_ARG_GROUND (2026-07-22 §2bs·rall10 031 실측): A2 `write_arg_grounding` —
     선언된 write의 선언된 인자 **값**이 대화의 실측 근거(role=tool 출력 ∪ user 발화)에
@@ -3088,6 +3170,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         # ★T2_WRITE_ARG_GROUND (§2bs): WEV 블록에 합류(동일 라운드·cap·적용 배관 공유 — 문서화됨)
         wag_specs = (a2.get("write_arg_grounding") or []) \
             if (a2 is not None and os.environ.get("T2_WRITE_ARG_GROUND") == "1") else []
+        # ★T2_REF_VERIFY (C128/C129): 결정론 참조-검증기 spec(도구/필드/문구=A2)·WEV 블록 합류
+        rv_specs = (a2.get("ref_verify") or []) \
+            if (a2 is not None and os.environ.get("T2_REF_VERIFY") == "1") else []
         _wev_cap = int(os.environ.get("T2_WEV_CAP", "8"))
         # ★T2_HAVE_VALUE (C115·2026-07-23): have-value→act 일반레버 spec(도구/인자/신호/문구=A2)
         hv_specs = (a2.get("have_value_reask") or []) \
@@ -3445,7 +3530,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   regen된 호출은 같은 턴서 무검사 커밋(1234 날조가 deny #2 직후 regen으로 통과·오프라인
             #   재실행은 deny 확인=술어 정상·배관 우회). 재검사 횟수 env화(기본 1=현행 불변·2=regen 1회 재검).
             wev_fb = None
-            if ((wev_specs or wag_specs) and not do_gate and not do_prov and ep_fb is None
+            if ((wev_specs or wag_specs or rv_specs) and not do_gate and not do_prov and ep_fb is None
                     and cons_fb is None and ra_fb is None and te_fb is None
                     and wev_rounds < int(os.environ.get("T2_WEV_ROUNDS", "1"))
                     and getattr(self, "_t2_wev_deny", 0) < _wev_cap):
@@ -3459,6 +3544,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             # ★값-grounding(§2bs·031): WEV(선행-read)와 별개 구멍=값-전사.
                             wd = _write_arg_ground_deny(state.messages, c, wag_specs)
                             _wtag = "T2_WRITE_ARG_GROUND"
+                        if not wd and rv_specs:
+                            # ★결정론 참조-검증기(C128/C129): 레코드 판별속성(merchant)이 손님
+                            #   발화에 없으면 deny — 전사-슬립 8/8 검출·false-block 0·LLM 0.
+                            wd = _ref_verify_deny(state.messages, c, rv_specs)
+                            _wtag = "T2_REF_VERIFY"
                         if wd:
                             wev_fb = (c, wd)
                             # ★내부 도구명 로깅(§2ba 오귀속 교훈: per-도구 로그에 이름 필수)

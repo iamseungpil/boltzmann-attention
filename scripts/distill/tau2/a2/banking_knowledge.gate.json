@@ -1515,5 +1515,18 @@
    "_note": "2026-07-24 C124/C125: wrong-txn 참조 슬립(인접-행 전사+자기-정박)이 rall19/20서 3회 재발(041735 2회·9a72b 1회)+날조 a1b2c3d4. 격리 재선택(A_minimal 9/9 실증) → 불일치 시 치환. 답이 producer 목록에 실재해야 채택=날조 id 차단. ★C126 rall21 라이브 판정: switched 0(keep 8=031 정답 확인·unsure 8=039 다중항목)·over-switch 0. 교정: memoize(동일값 재검 cap낭비=031 keep×8)·다중-hit unsure(오채택 방지)·match_hint(다중항목 매핑 지시·A2 소관).",
    "match_hint": "by merchant, amount, and date"
   }
+ ],
+ "ref_verify": [
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_credit_card_transaction_dispute"
+   },
+   "id_key": "transaction_id",
+   "record_field": "merchant_name",
+   "feedback": "Error: [REF-VERIFY] the transaction you are filing ({id}) is a '{value}' charge, but the customer never mentioned '{value}'. The customer's disputes are about: {mentioned}. You have the wrong transaction_id - re-read the transaction listing and match each disputed item by the merchant and amount the customer actually stated, then file that record instead. Do not file a charge the customer did not describe.",
+   "_note": "2026-07-24 C128/C129 결정론 참조-검증기: rall19-22 file_dispute wrong-pick 8/8이 전부 손님 미언급 상점(cross-merchant 인접-행 전사 슬립). merchant-absence deny=슬립 8/8 검출·gold 25/25 통과(false-block 0·efiso_detmatch_proof.py). LLM 재선택(REF_ISO)은 gold(Marriott)→wrong(Facebook Ads) 해로운 switch(C129 rall22 031)→결정론 검증기가 robust. 엔진=substring만·LLM/값생성 0([[03b]]/[[10]]). ★한계: merchant-absence는 cross-merchant만·동일상점 내 오선택(4 Costco 중 오답)은 amount 스펙 별도 필요(formalize+match 소관). T2_REF_VERIFY=1·기본 OFF."
+  }
  ]
 }
