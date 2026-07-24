@@ -1,0 +1,34 @@
+\section{A structural fix, and why prompts don't work}
+\label{sec:fix}
+
+\paragraph{Prompt mitigations fail.}
+Two targeted prompt strengthenings---(a) an explicit anti-fallback instruction (``do NOT fall back to the
+standard rate merely because you are unsure the merchant qualifies''), (b) an authority clause for the
+category field (``the bank's own classification is final'')---were deployed in the live sub-prompt and did not
+eliminate the interference failures (honest record: two failed attempts preceded the diagnosis). This matches
+the mitigation-resistance reported for PI \citep[prompting ``entirely fails'']{wang2025unable} and for batch
+effects \citep[BatchPrompt resorts to permutation and voting rather than instructions]{lin2023batchprompt}.
+
+\paragraph{Mechanism-derived fix.}
+If interference requires interior list positions and $k \ge 2$ same-clause predecessors, then batches of
+$\le 2$ have no interior and never exceed $k{=}1$ at the judgment point: every item is at an edge. We cap the
+formalization batch at 2 (a scaffold parameter declared in the domain adapter, not a prompt change; the engine
+still generates no values).
+
+\paragraph{Validation.}
+(i) targeted probes: 38/38 correct on the previously failing constructions; (ii) non-regression: 166/167
+across \emph{all} probed cells of the 8 task users; (iii) live: the two tasks whose failures traced to this
+cell (018, 021) pass end-to-end with the cap in place; (iv) cost: the shared document prefix is served from
+prefix cache, so the extra calls do not multiply prompt cost proportionally (hit-rate logged). Series
+scoreboard across the 8-task banking suite: \textbf{018/020/021/022/027/029 pass} (single-trial each---we
+report pass$^1$, not pass$^k$); 026 is blocked by a benchmark gold-authoring bug (the bench's own documented
+flooring policy contradicts its gold; census: 9/10 golds floor, the exception is the blocking one)---reported
+upstream; 028 currently fails only on a context-window infrastructure limit (the corrected dispute flow
+lengthens the conversation past the serving window; a lever trade-off we report honestly, mitigation in
+progress).
+
+\paragraph{What the fix is not.}
+Batch $\le 2$ is not a general recommendation to shrink batches for accuracy; it is the \emph{specific}
+consequence of an identified mechanism (edge protection + threshold $k^\ast{=}2$). Under a different clause
+structure the safe batch size would differ; the diagnosis procedure (release-from-PI + dissociation probes) is
+the transferable artifact.

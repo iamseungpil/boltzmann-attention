@@ -1,0 +1,17 @@
+\section{Limitations and honest notes}
+\label{sec:limitations}
+
+\begin{itemize}
+\item Live results are pass$^1$ (single trial per task; deterministic agent but stochastic user-simulator);
+  multi-trial robustness for the live suite is future work. Probe results are temperature-0 deterministic with
+  construction-variation CIs instead.
+\item One live benchmark (banking); the cross-domain replication (\S\ref{sec:crossdomain}) is a structural
+  mirror in a synthetic domain with a realistic policy, not a second live pipeline.
+\item The 32B agent is Int8-quantized in the live pipeline; the bf16 spot-check (\S\ref{sec:scale})
+  deconfounds the probe results but the live runs themselves remain Int8.
+\item Benchmark quirks are footnoted where they touch numbers: evaluator dict-comparison keys
+  (optional-argument filling kills action match without affecting reward), user-simulator JSON whitespace luck
+  (no reward effect), and the 026 gold bug.
+\item $k^\ast{=}2$ is a property of this clause structure and frame, not a universal constant
+  (frame-dependence shown in \S\ref{sec:scale}).
+\end{itemize}

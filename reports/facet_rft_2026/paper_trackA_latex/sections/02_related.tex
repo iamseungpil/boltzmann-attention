@@ -1,0 +1,35 @@
+\section{Related work}
+
+\paragraph{Serial-position effects in LLMs.}
+\citet{guo2024serial} name serial-position effects for option-selection tasks (label choice,
+primacy-dominated, mitigation inconsistent). \citet{wang2023primacy} report label-choice primacy in ChatGPT;
+listwise-reranking position bias is documented in IR. Our task is per-item enumerated judgment, not option
+selection, and we show the driver is not the position itself.
+
+\paragraph{Batch prompting.}
+\citet{cheng2023batch} report accuracy degradation as batch size grows ($\approx$4-item threshold) and per-item
+answers that depend on batch position; BatchPrompt \citep{lin2023batchprompt} mitigates by permutation and
+voting. These works frame the effect as lost-in-the-middle over absolute positions \citep{liu2023lost} and do
+not separate token position from list ordinality, nor manipulate inter-item similarity---the two dissociations
+that localize the cause here.
+
+\paragraph{Instruction-following at scale.}
+IFScale \citep{jaroslawicz2025ifscale} shows primacy favoritism over 500 simultaneous instructions. Consistent
+with our ``edges are protected'' observation, but no interference design.
+
+\paragraph{Proactive interference.}
+Unable to Forget \citep{wang2025unable} establishes log-linear PI decay in key--value overwrite recall;
+Remember First Forget Last \citep{rffl2026} shows primacy protection and recency collapse. Both use explicit
+overwrite memory probes. We show PI-like interference \textbf{without any overwriting}, in a document-grounded
+judgment task, gated by \emph{clause-level semantic similarity}---and we import the classic release-from-PI
+manipulation \citep{watkins1975cue}, and the fan-effect lineage \citep{anderson1974fan}, from cognitive
+psychology to prove it.
+
+\paragraph{Practitioner folklore.}
+``Split calls beyond $\sim$7 items'' circulates as guidance. We upgrade folklore to a measured threshold, an
+identified unit of interference, and a mitigation with quantified non-regression.
+
+\paragraph{Positioning.}
+We claim neither the discovery of position effects nor of PI in LLMs. The claims are the unit (rule clause),
+the dissociation methodology, the failure mode (default retreat with threshold instability), the end-to-end
+task connection, and the mechanism-derived fix.

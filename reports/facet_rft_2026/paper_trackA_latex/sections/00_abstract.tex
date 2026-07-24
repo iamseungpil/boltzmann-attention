@@ -1,0 +1,19 @@
+LLM agent pipelines routinely delegate \emph{per-item judgments} to a model in batches: given a policy document
+and a list of records, judge every record in one call. We report a failure mode of this pattern discovered in a
+live tool-use pipeline ($\tau^2$-bench banking): specific items are judged incorrectly \emph{only when batched
+with other items that engage the same policy clause}, and the failure is a silent retreat to a default answer,
+not a random error. Through a chain of controlled probes on the live prompt (temperature~0, free-form
+generation) we exclude token load, absolute context position, generation order, and category similarity, and
+isolate the interference source: \textbf{previous items that inference-bind the same rule clause without any
+lexical name match}. Items anchored by explicit lexical evidence are immune; judgment-dependent items fail with
+a sharp threshold at $k^\ast{=}2$ interfering items, with output instability (unit slips such as
+$5 \rightarrow 500$) at the threshold. A double dissociation rejects quota-consumption, judgment-budget, and
+category-cue accounts. The mechanism-derived mitigation---capping judgment batches at 2 items so every item
+sits at a list edge---closes the failure in probes (38/38), causes no regression across all probed cells
+(166/167), and turns previously failing live tasks into passes, while prompt mitigations fail entirely,
+consistent with prior reports. A logit-readout size sweep (1.5B--32B) shows the staircase is not an artifact of
+one model scale, and a structural replication in a second domain (airline baggage fees, prompts under 1.5k
+tokens) shows it is not an artifact of one domain or of long context. We position the phenomenon against
+serial-position and proactive-interference literature: what is new is the \emph{unit} of interference (the rule
+clause), the dissociation methodology, the default-retreat failure mode, and a structural fix derived from the
+mechanism rather than from folklore.

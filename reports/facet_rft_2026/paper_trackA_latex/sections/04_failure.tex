@@ -1,0 +1,43 @@
+\section{A live failure and what it is not}
+\label{sec:failure}
+
+\paragraph{The failure.}
+In task\_028 (and its Phase-1 variant 018), the 6-row EcoCard-Green cell of one customer is formalized with
+Patagonia at rate 1 (correct: 5), silently breaking dispute detection. Trajectory forensics show the sub-call's
+output is well-formed JSON; only the value is wrong---a retreat to the base rate.
+
+\paragraph{Not token load.}
+The prompt is dominated by the fixed document prefix; 1-row and 6-row prompts differ negligibly in length, and
+isolating rows into smaller cells does not change per-row token counts materially.
+
+\paragraph{Not absolute context position.}
+Holding 5 companion rows fixed and sliding Patagonia through list positions 0--5 moves its character offset
+only from 77.8\% to 85.3\% of the prompt, yet the judgment flips from correct (positions 0--2) to incorrect
+(3--4) and back to correct (5, last):
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{lcccccc}
+\toprule
+Patagonia list position & 0 & 1 & 2 & 3 & 4 & 5 (last) \\
+\midrule
+judged rate & 5 \checkmark & 5 \checkmark & 5 \checkmark & \textbf{1 $\times$} & \textbf{1 $\times$} & 5 \checkmark \\
+\bottomrule
+\end{tabular}
+\caption{Position sweep: interior list positions fail; edges are protected. Non-monotonic in absolute offset
+(failure at 82\% of the prompt but success at 85\%), within a $\sim$350-token window.}
+\label{tab:position}
+\end{table}
+
+Absolute-position accounts (lost-in-the-middle) are out. What survives is \emph{list} structure: interior items
+fail, edge items are protected.
+
+\paragraph{Not generation order.}
+An input--output dissociation (2 cells $\times$ 4 arms): forcing the failing item to be \emph{emitted first}
+while remaining interior in the input still fails; placing it first in input while emitting it last still
+passes (order compliance verified in the outputs). The damage is done in the prefill, before a single output
+token---generation-side accounts (output-order pressure, autoregressive drift) are out.
+
+\paragraph{Not merchant identity.}
+Across cells, the failing item follows the cell, not the merchant: Patagonia fails in one customer's 6-row
+cell, REI in another's 13-row cell, and a 4-row cell fails nowhere.

@@ -1,0 +1,21 @@
+\section{Setting: a gated tool-use pipeline on $\tau^2$-bench banking}
+\label{sec:setting}
+
+We study $\tau^2$-bench \texttt{banking\_knowledge}: an agent (Qwen2.5-32B-Instruct, GPTQ-Int8, vLLM,
+temperature 0) serves a simulated customer (gpt-5.2 user-simulator, the leaderboard-recommended standard) under
+a deterministic scaffold that routes tool calls, verifies arguments against tool schemas, and isolates
+\emph{formalization}: for each card$\times$category cell of the customer's transactions, a sub-call receives
+ALL policy documents for that card plus the cell's raw transaction records, and must return, per transaction,
+the applicable reward \texttt{base\_rate} (plus raw promo parameters). A deterministic engine then computes
+expected rewards (amount $\times$ rate $\times$ promo), flags discrepancies against recorded rewards, and
+drives the dispute workflow. The engine never generates domain values; the model is the only source of
+judgments (audited mechanism-by-mechanism in the project's evidence ledger).
+
+\paragraph{Judgment structure of the critical cell.}
+The eco-card's policy grants an elevated rate ($5\times$) to the ``Green'' category---the operative clause
+covers ``certified sustainable retailers and eco-labeled products''---with an explicit merchant exclusion
+list, and a general base rate of $1\times$ otherwise. Judging a Green transaction is therefore
+\emph{inference}: the merchant (e.g., Patagonia) is not named anywhere; the model must apply the clause via the
+bank's category field. Judging an excluded merchant (e.g., Target) is \emph{lexical}: the exclusion list names
+it. This distinction---inference-bound vs.\ lexically-anchored engagement of the same clause---turns out to be
+the whole story.

@@ -1,0 +1,42 @@
+% Track A paper — Same-Rule Interference. Build: tectonic main.tex (3-pass automatic).
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[numbers]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{float}
+\graphicspath{{../figures/serial_interference/}}
+\tolerance=1000
+\emergencystretch=3em
+\hfuzz=2pt
+
+\title{Same-Rule Interference: Why Batched Per-Item Judgments Fail\\in LLM Agent Pipelines, and a Structural Fix}
+\author{Anonymous\thanks{Draft v0 (working). Numbers trace to committed experiment logs in the project repository.}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{sections/00_abstract}
+\end{abstract}
+
+\input{sections/01_intro}
+\input{sections/02_related}
+\input{sections/03_setting}
+\input{sections/04_failure}
+\input{sections/05_isolating}
+\input{sections/06_fix}
+\input{sections/07_interpretation}
+\input{sections/08_limitations}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

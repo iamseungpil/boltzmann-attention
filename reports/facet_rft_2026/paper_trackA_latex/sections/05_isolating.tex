@@ -1,0 +1,106 @@
+\section{Isolating the cause: clause-level interference}
+\label{sec:isolating}
+
+\subsection{Release from proactive interference}
+Fixing the target (vulnerable item) in the last position and swapping only the \emph{preceding} items: similar
+predecessors (same-category Green rows) reproduce the failure at $k{=}2$--$4$; dissimilar predecessors (the
+same customer's non-Green rows, matched in count and format) never do. Similarity of the co-batched
+material---not their number or the target's position---is the active ingredient. This is the classic
+release-from-PI signature \citep{watkins1975cue}.
+
+\subsection{Double dissociation: the unit is the clause, engaged by inference}
+Three predecessor types, target always last (two targets: Patagonia, REI; all temperature-0):
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{p{4.4cm}cccc}
+\toprule
+predecessors ($k{=}4$) & judgment needed? & same $5\times$ clause? & lexical anchor? & target \\
+\midrule
+A: no-name eco retailers (synthetic) & yes & yes---by inference & none & \textbf{FAIL} \\
+B: exclusion-list merchants & yes & engaged, denied & exclusion list & pass \\
+C: explicit partners & minimal & yes---by name & partner list & pass \\
+\bottomrule
+\end{tabular}
+\caption{Double dissociation. Arm B consumes as much ``judgment budget'' as A (each item weighed against the
+clause and denied)---yet no interference: quota and judgment-budget accounts die. Arm C grants the same
+$5\times$---the category-cue account dies. Only arm A---items binding the same clause \emph{by inference,
+without a name match}---interferes. Synthetic no-name brands additionally kill a memorization confound.}
+\label{tab:dissociation}
+\end{table}
+
+\subsection{Threshold, and instability at threshold}
+\label{sec:staircase}
+Growing $k$ (synthetic same-clause predecessors, target last): Patagonia is judged 5 at $k \in \{0,1\}$ and 1
+for all $k \ge 2$. REI: 5 at $k \in \{0,1\}$; at exactly $k{=}2$ the output destabilizes to \textbf{500}---a
+unit slip ($5\times$ the percent scale)---then settles to 1 for $k \ge 3$. The transition is a step, not a
+drift, and the step boundary is where malformed outputs appear. (In the live pipeline this unit slip is caught
+by a declared-range re-query; the interference failure itself is not catchable that way because 1 is in
+range---it is a \emph{plausible wrong answer}.)
+
+\subsection{Robustness: the effect survives every construction we varied}
+Because temperature-0 generation is deterministic, we estimate variance over \emph{constructions}: 3
+semantically-preserving instruction paraphrases $\times$ 3 disjoint synthetic brand sets $\times$ all distinct
+interior orders (2 at $k{=}2$, 3 at $k{=}4$), $k \in \{0,2,4\}$, 48 unique prompts. Failure rates: $k{=}0$:
+0/3; \textbf{$k{=}2$: 18/18} (Wilson 95\% CI $[0.82, 1.00]$); \textbf{$k{=}4$: 27/27} (CI $[0.88, 1.00]$).
+The value distribution sharpens the threshold-instability claim: at $k{=}2$, 12/18 cells retreat to the
+default (rate 1) and \textbf{6/18 produce the unit slip (rate 100)}---spread over two of three paraphrases,
+all three brand sets, and both orders---while at $k{=}4$ all 27 cells settle on the default with no slips.
+Instability is a property of the threshold, not of a particular wording, brand surface, or order.
+
+\subsection{Does scale fix it? No}
+\label{sec:scale}
+A logit-readout probe (full-fidelity prompt; target-first primed output so the readout position is the
+judgment token) sweeps model size over the same construction (Table~\ref{tab:sizes},
+Figure~\ref{fig:staircase}).
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{lccccc}
+\toprule
+model & $k{=}0$ $P(5)$ & $k{=}1$ $P(5)/P(1)$ & $k{=}2$ & $k{=}4$ & $k{=}8$ \\
+\midrule
+32B (Int8, server) & 0.999 & 0.154 / 0.756 & 0.024 / 0.970 & 0.025 / 0.966 & 0.100 / 0.863 \\
+14B (bf16) & 0.999 & 0.034 / 0.091 & 0.118 / 0.680 & 0.110 / 0.383 & 0.123 / 0.707 \\
+3B (bf16) & 0.983 & 0.259 / 0.548 & 0.100 / 0.446 & 0.120 / 0.476 & 0.046 / 0.565 \\
+1.5B (bf16) & 0.869 & 0.541 / 0.372 & 0.627 / 0.262 & 0.166 / 0.450 & 0.199 / 0.199 \\
+\bottomrule
+\end{tabular}
+\caption{Logit-readout size sweep. Every scale shows the staircase.}
+\label{tab:sizes}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{fig_staircase_sizes.pdf}
+\caption{$P(\text{correct rate }5)$ vs.\ $k$ same-clause predecessors, logit-readout frame, four model sizes.}
+\label{fig:staircase}
+\end{figure}
+
+Every scale shows the staircase: a confident correct judgment at $k{=}0$ that collapses with interfering
+predecessors. 32B, 14B and 3B collapse at $k{=}1$ in this frame; at exactly $k{=}1$ the 14B mass scatters to
+third-candidate tokens ($P(5){+}P(1){=}0.13$)---the logit-space counterpart of the output instability we
+observe at threshold in generation. The smallest model (1.5B) degrades most gradually and is the only one
+holding a majority at $k{=}2$---against our pre-registered expectation (smaller $\Rightarrow$ earlier
+failure); a candidate reading (not a claim) is that its weaker baseline binding ($k{=}0$ only 0.869) shrinks
+both the margin and the interference that attacks it. Two honesty notes: (i) the primed-readout frame lowers
+the threshold relative to free generation ($k^\ast{=}1$ vs.\ $k^\ast{=}2$)---output-ordering freedom is itself
+protective, so thresholds are frame-dependent and we compare only within frame; (ii) the served 32B is
+Int8-quantized, so we re-ran the 32B row in bf16 on the CPU stack: $k{=}0$ $P(5){=}0.999 \rightarrow k{=}1$
+$P(1){=}0.799 \rightarrow k{=}2$ $P(1){=}0.973$---the same collapse, ruling out a quantization/serving-stack
+artifact. The claim we retain: \textbf{no scale in this family is immune}.
+
+\subsection{A second domain: the structure, not the banking surface}
+\label{sec:crossdomain}
+$\tau^2$-bench's official domains have procedural policies without per-item clause judgment, so for domain
+generality we mirrored the \emph{structure} in a synthetic domain with a realistic policy and a fully disjoint
+surface vocabulary: airline checked-baggage fees---a waiver clause (``sports and adventure gear from certified
+adventure-sports outfitters'', fee \$0, category tag authoritative), an explicit retailer exclusion list, a
+\$35 standard fee, and a target item from a recognizable brand named nowhere in the documents (Burton
+snowboard, category Sports). Logit-readout on the same 3B model: $k{=}0$ $P(\$0){=}1.000$; similar (no-name
+outfitter gear) predecessors collapse the target to the standard fee at $k{=}1$ ($P(\$0){=}0.076$, $k{=}4$:
+0.003); dissimilar predecessors protect ($P(\$0){=}0.905/0.818/0.963$ at $k{=}1/2/4$). Notably the whole
+prompt is 694--1456 tokens---interference at under 900 tokens is a further, cross-domain refutation of
+context-length accounts. Honest note: at $k{=}8$ dissimilar, $P(\$0)$ drops to 0.373---in this short-prompt
+regime a nonspecific load effect appears at high $k$, which we report rather than smooth over; the similarity
+gating is clean through $k{=}4$.

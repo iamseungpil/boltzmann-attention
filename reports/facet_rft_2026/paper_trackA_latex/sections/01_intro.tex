@@ -1,0 +1,41 @@
+\section{Introduction}
+
+Agent frameworks increasingly interpose deterministic scaffolding between an LLM and its tools: the scaffold
+fetches records, groups them, and asks the model to \emph{formalize} a judgment per record---e.g., ``for each
+of these credit-card transactions, report the reward rate the policy documents assign to it.'' Batching these
+judgments is the natural implementation: one call per group amortizes the (large) document prefix.
+
+We describe how this natural implementation silently corrupts a live agent pipeline, and trace the corruption
+to an interference effect that, to our knowledge, has not been isolated at this granularity. The observable is
+mundane: in a $\tau^2$-bench banking task \citep{tau2bench}, one transaction (a Patagonia purchase on an
+eco-themed card) is assigned the default rate 1 instead of the elevated rate 5, causing the downstream
+dispute-detection logic to miss a discrepancy and the task to fail. The cause is not mundane:
+
+\begin{itemize}
+\item The same item is judged \textbf{correctly at list edges and incorrectly inside the list} (positions 4--5
+  of 6), while the absolute token position barely moves (77.8\%$\rightarrow$85.3\% of the prompt) and the
+  effect is non-monotonic in it (\S\ref{sec:failure}).
+\item Interference is caused \textbf{only by co-batched items that engage the same policy clause by
+  inference}---synthetic no-name eco retailers that force the model to apply the ``certified sustainable
+  retailers'' clause without a lexical match. Items that consume the same judgment budget but resolve lexically
+  (explicit exclusion-list merchants; explicit named partners) cause \textbf{no} interference, a double
+  dissociation (\S\ref{sec:isolating}).
+\item The failure has a \textbf{sharp threshold}: $k^\ast{=}2$ interfering items in the generation frame, with
+  the model's output destabilizing exactly at threshold (a $5\rightarrow500$ unit slip) before settling on the
+  default (\S\ref{sec:staircase}).
+\item \textbf{Prompt-level mitigations fail}; a structural change---batch $\le 2$---eliminates the failure
+  with zero measured regression and closes the affected live tasks (\S\ref{sec:fix}).
+\end{itemize}
+
+\paragraph{Contributions.}
+(1) Discovery and forensic isolation of a clause-level interference effect in a \emph{real} tool-use pipeline,
+connected end-to-end to task pass/fail---not a synthetic benchmark-only observation. (2) A four-step exclusion
+chain (token load / absolute position / generation order / category similarity) with an input--output
+dissociation design and a release-from-PI manipulation, both absent from the LLM literature. (3)
+Characterization of the failure mode: default-retreat with threshold instability, distinct from recall/copy
+errors studied in prior work. (4) A mechanism-derived structural mitigation (batch $\le 2$) validated for
+non-regression, plus evidence that the standard prompt-engineering repertoire does not work. (5) A
+construction-variation robustness analysis (100\% failure at $k \ge 2$ across 45 varied constructions), a
+1.5B--32B scale sweep showing no scale in the family is immune, a second-domain structural replication, and an
+associative-memory interpretation that unifies our findings with the proactive-interference literature
+(developed fully in a companion mechanism paper).
