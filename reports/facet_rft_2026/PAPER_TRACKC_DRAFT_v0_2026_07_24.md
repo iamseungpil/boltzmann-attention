@@ -322,11 +322,26 @@ run and the sub-call confirmed it every time: zero false switches, the safety ha
 [S]), **unsure 8** (in the 8-item task the per-call mapping question under-determined the item; conservative
 no-op), **switched 0** — corrective efficacy not yet demonstrated live, because (i) the correctable error did
 not recur on the checked calls this run, and (ii) same-value re-checks exhausted the per-episode cap before the
-later calls (including two further wrong-record ids) were reached. Three fixes derived and unit-verified (verdict
-memoization; multi-hit answers treated as UNSURE; an itemized-mapping instruction); in R22 the lever fires
-`switched`/`memo-switch` live ⟦TBD: R22 forensic — does the switch recover the gold id end-to-end, Δspurious⟧.
-Notably, the same wrong-record id recurs across independent runs — the wrong *binding*, like the slip that
-seeds it, is an attractor, not noise. [S]
+later calls (including two further wrong-record ids) were reached. Three fixes were then derived and unit-verified (verdict
+memoization; multi-hit answers treated as UNSURE; an itemized-mapping instruction), and R22 ran the lever with
+them enabled — where the isolated LLM re-pick **actively harmed**. In R22/task_031 (a Marriott dispute; gold =
+the Marriott $167.34 record), the sub-call switched the *correct* Marriott id to the Facebook Ads $203.58 record
+— a merchant the customer never mentioned — and memoized that switch, so the episode filed the wrong id. The
+task_039 improvement in the same run (the gold Costco id filed for the first time) was **not** the lever's doing
+(it returned UNSURE on all seven 039 calls; the agent simply picked better this run — run-to-run variance).
+Net R22 verdict, by forensic (not aggregate): the LLM re-pick's corrective efficacy is **unreliable and
+two-sided** — it can move a wrong id to gold, but it can also move gold to wrong (Δspurious > 0), because the
+sub-call is still an LLM emitting an id and can itself mis-bind. [S]
+
+**This is the decisive argument for the deterministic endpoint (§7.1).** The exact harm the LLM re-pick caused —
+switching to Facebook Ads for a Marriott dispute — is precisely what the merchant-absence verifier prevents:
+Facebook Ads is unmentioned (blocked as a target), Marriott is mentioned (the gold is protected). An LLM in the
+loop, even in clean context, retains a failure mode that a deterministic merchant check does not. We therefore
+do **not** recommend shipping the LLM re-pick as a corrective switch; the deterministic verifier (slip detection,
+8/8, 0/25 false blocks, §7.1) plus a formalize-then-match repair for within-merchant disambiguation is the
+robust design. The honesty note is itself a finding: R22's aggregate ("5 corrective firings; 039 improved to
+6/8") reads as success and would have been mis-reported as such without per-switch forensics — the same
+observational-attribution trap this paper is about (§8), turned on our own mitigation.
 
 ### 7.3 Why gating alone fails: the deny/pass-through dilemma
 
