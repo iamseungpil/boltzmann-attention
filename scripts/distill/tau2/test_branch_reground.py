@@ -86,6 +86,17 @@ def main():
           % ("PASS" if good else "FAIL", r3.count("[POLICY")))
     ok &= good
 
+    # ⑦b for_finalize=True: finalize_writes(close) 제외·"종결 前 선행 먼저" 프레이밍
+    chain_f = {"missing_reads": ["get_user_dispute_history"],
+               "missing_writes": ["apply_special_flag", "close_credit_card_account"],
+               "executed_count": 3, "phrase": None}
+    rf = E.branch_reground_reminder(chain_f, [tool_msg(KB_OUT)], SPEC, for_finalize=True)
+    good = ("close_credit_card_account" not in rf.split("[POLICY")[0]  # 남은목록서 close 제외
+            and "STOP" in rf and "before you close" in rf.lower()
+            and "get_user_dispute_history" in rf and "annual_fee_waived" in rf)
+    print("[%s] for_finalize_excludes_close" % ("PASS" if good else "FAIL"))
+    ok &= good
+
     # ⑦ rall25a 043 실궤적: apply_flag 조건write=doc_003(annual_fee_waived) 첨부·dispute=이름만
     gz = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026", "sim_results",
                       "bank_rall25a_20260724.results.json.gz")

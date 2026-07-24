@@ -494,15 +494,21 @@ def resurface_doc(messages, tool_family, max_chars=5000):
     return best[:max_chars] if best is not None else None
 
 
-def branch_reground_reminder(chain, messages, spec=None):
+def branch_reground_reminder(chain, messages, spec=None, for_finalize=False):
     """★BRANCH-REGROUND 재부각(C144 해리 구현). chain_reminder의 상위:
     남은 단순단계(missing_reads + 정책문서 없는 write)=compact 이름만·남은 정책조건 write=
     이미 retrieved된 실제 정책문서 재부각(요약 X). 정책문서 유무는 resurface_doc이 결정
-    (transcript에 대상 도구 명시 문서 있으면 조건단계로 취급). write 강제 0(에이전트 emit)."""
+    (transcript에 대상 도구 명시 문서 있으면 조건단계로 취급). write 강제 0(에이전트 emit).
+    for_finalize=True(pre-close 트리거): finalize_writes(A2·close류)를 남은목록서 제외하고
+    "종결 前 선행단계 먼저" 프레이밍 — apply_flag이 close 선행하도록(현 user_stop은 close 後)."""
     mr = list(chain.get("missing_reads") or [])
     mw = list(chain.get("missing_writes") or [])
-    _mark("branch-reground: missing_reads=%d missing_writes=%d exec=%d"
-          % (len(mr), len(mw), chain.get("executed_count", 0)))
+    if for_finalize:
+        _fin = {re.sub(r"_\d+$", "", f) for f in ((spec or {}).get("finalize_writes") or ())}
+        mw = [w for w in mw if re.sub(r"_\d+$", "", w) not in _fin]
+    _mark("branch-reground%s: missing_reads=%d missing_writes=%d exec=%d"
+          % ("(pre-finalize)" if for_finalize else "", len(mr), len(mw),
+             chain.get("executed_count", 0)))
     simple_w, doc_order, doc_names = [], [], {}
     for w in mw:
         name = re.sub(r"_\d+$", "", w)
@@ -522,9 +528,13 @@ def branch_reground_reminder(chain, messages, spec=None):
     if simple_w:
         parts.append("then execute (consent already given): " + ", ".join(simple_w))
     tail = (" " + chain["phrase"]) if chain.get("phrase") else ""
-    body = ("[E-PLAN] This request is not finished — required steps remain before you "
-            "close/finalize. Do NOT end or defer to the user. Complete them now: "
-            + "; ".join(parts) + "." + tail
+    if for_finalize:
+        intro = ("[E-PLAN] STOP — do NOT close/finalize yet. Required prerequisite steps remain "
+                 "and MUST be completed FIRST, before you close: ")
+    else:
+        intro = ("[E-PLAN] This request is not finished — required steps remain before you "
+                 "close/finalize. Do NOT end or defer to the user. Complete them now: ")
+    body = (intro + "; ".join(parts) + "." + tail
             + " Find each discoverable tool's full suffixed name in the knowledge base if needed.")
     for doc in doc_order:
         body += ("\n\n[POLICY you already retrieved — apply it now for %s]\n%s"

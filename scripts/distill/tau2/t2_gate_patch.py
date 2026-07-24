@@ -3379,6 +3379,45 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         if fb:
                             ep_fb = (c, fb)
                             break
+            # ★BRANCH-REGROUND pre-close 트리거 (C144/C146·T2_BRANCH_REGROUND=1): finalize
+            #   write(close류·A2 finalize_writes) 시도 시 정책조건 선행단계(apply_flag 등) 미완이면
+            #   deny + 실제 정책문서 재부각 → apply_flag이 close 선행(현 user_stop 경로는 close 後라 늦음).
+            #   ep_fb 채널·cap 재사용(무과금·regen 공유·discovery 미발화 시만). finalize 제외=for_finalize.
+            if (ep_fb is None and ep_led is not None and eplan_rounds < 2
+                    and os.environ.get("T2_BRANCH_REGROUND") == "1"
+                    and not do_gate and not do_prov
+                    and getattr(self, "_t2_eplan_deny", 0) < _ep_cap):
+                _finals = {re.sub(r"_\d+$", "", f)
+                           for f in (ep_spec.get("finalize_writes") or ())}
+                if _finals:
+                    for c in (am.tool_calls or []):
+                        nm = getattr(c, "name", None)
+                        _cargs = _args_dict(c)
+                        _dt = ep_spec.get("dispatch_tool")
+                        if _dt and nm == _dt:
+                            nm = re.sub(r"_\d+$", "", str(_cargs.get(
+                                ep_spec.get("dispatch_name_key", "agent_tool_name"), "")))
+                        if nm in _finals and id(c) not in denied_by_objid:
+                            try:
+                                _bchain = _epmod.chain_gap(state.messages, ep_spec)
+                            except Exception:
+                                _bchain = None
+                            if _bchain is not None:
+                                _prereq_w = [w for w in _bchain["missing_writes"]
+                                             if re.sub(r"_\d+$", "", w) not in _finals]
+                                if _bchain["missing_reads"] or _prereq_w:
+                                    try:
+                                        _brem = _epmod.branch_reground_reminder(
+                                            _bchain, state.messages, ep_spec, for_finalize=True)
+                                    except Exception:
+                                        _brem = None
+                                    if _brem:
+                                        ep_fb = (c, _brem)
+                                        print("[T2_BRANCH_REGROUND] pre-close deny: finalize=%s "
+                                              "prereq_reads=%d prereq_writes=%d"
+                                              % (nm, len(_bchain["missing_reads"]), len(_prereq_w)),
+                                              file=_sys.stderr, flush=True)
+                                        break
             # ★v3.2 CONSISTENCY (T2_CONSISTENCY=1): L10 멤버십(t35형)+G-noop(t71형)·cap 2/sim
             cons_fb = None
             if (os.environ.get("T2_CONSISTENCY") == "1" and a2 is not None
