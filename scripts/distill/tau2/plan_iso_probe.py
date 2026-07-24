@@ -51,7 +51,7 @@ def build(variant):
 
 def call(base, model, msgs, temp, headers=None):
     r = requests.post(base + "/chat/completions", json={
-        "model": model, "messages": msgs, "temperature": temp, "max_tokens": 700},
+        "model": model, "messages": msgs, "temperature": temp, "max_tokens": 2000},
         headers=headers or {}, timeout=300)
     r.raise_for_status()
     return r.json()["choices"][0]["message"]["content"] or ""
