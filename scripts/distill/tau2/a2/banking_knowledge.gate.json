@@ -96,11 +96,10 @@
           "get_user_dispute_history"
         ],
         "required_writes": [
-          "close_credit_card_account",
           "log_credit_card_closure_reason",
           "apply_credit_card_account_flag"
         ],
-        "phrase": "To close a card you must first read the closure-reason history, any pending replacement orders, and the dispute history; pay off any outstanding balance; then close the account, log the closure reason, and apply the account flag.",
+        "phrase": "To close a card you must FIRST read the closure-reason history, any pending replacement orders, and the dispute history; pay off any outstanding balance; log the closure reason; and OFFER any applicable retention benefit (e.g. fee waiver) before finalizing. Only actually close the account if the customer still wants to after any retention offer.",
         "_note": "2026-07-24 C133/write_tools 확장: 043 close 사슬(rall23 4/15·rall24 변동10/15인데 driver 무관=사슬 미커버). gold=이 read/write 집합. 신호=닫기 요청 어구·엔진 신호매칭+집합차만."
       }
     ],

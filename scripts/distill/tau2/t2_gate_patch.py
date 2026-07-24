@@ -3397,6 +3397,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         if _dt and nm == _dt:
                             nm = re.sub(r"_\d+$", "", str(_cargs.get(
                                 ep_spec.get("dispatch_name_key", "agent_tool_name"), "")))
+                        else:
+                            # ★C148 버그수정: close는 직접호출(name=close_..._7834·디스패처 아님)이
+                            #   가능 → suffix fam-strip 안 하면 _finals 미매칭·게이트 우회(043 실측).
+                            nm = re.sub(r"_\d+$", "", str(nm or ""))
                         if nm in _finals and id(c) not in denied_by_objid:
                             try:
                                 _bchain = _epmod.chain_gap(state.messages, ep_spec)

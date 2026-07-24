@@ -34,23 +34,28 @@ def res(cid, error=False):
 
 def main():
     ok = True
-    # ① close 신호 + write 0 → 전 필수 missing
+    # ① close 신호 + write 0 → 전 필수 missing (C148: close는 required_writes서 제외=강제 안 함·
+    #    finalize_writes 게이트로만·retention-accept시 close 억제). 필수 write=log_reason+apply_flag.
     msgs = [um("I'd like to close my Platinum Rewards Card.")]
     g = E.chain_gap(msgs, SPEC)
-    good = g is not None and "close_credit_card_account" in g["missing_writes"] and len(g["missing_reads"]) == 3
-    print("[%s] close_signal_all_missing" % ("PASS" if good else "FAIL"))
+    good = (g is not None and "close_credit_card_account" not in g["missing_writes"]
+            and "apply_credit_card_account_flag" in g["missing_writes"]
+            and "log_credit_card_closure_reason" in g["missing_writes"]
+            and len(g["missing_reads"]) == 3)
+    print("[%s] close_signal_prereqs_missing_no_close" % ("PASS" if good else "FAIL"))
     ok &= good
-    # ② close 신호 + close 실행(성공) → close는 missing서 빠짐·executed_count↑
+    # ② close 신호 + apply_flag(retention) 실행 → apply_flag missing서 빠짐·executed_count↑
     msgs = [um("close my credit card"),
-            call("close_credit_card_account_7834", ok=True, cid="c1"), res("c1")]
+            call("apply_credit_card_account_flag_6147", ok=True, cid="c1"), res("c1")]
     g = E.chain_gap(msgs, SPEC)
-    good = g is not None and "close_credit_card_account" not in g["missing_writes"] and g["executed_count"] == 1
-    print("[%s] close_executed_removed (exec=%s)" % ("PASS" if good else "FAIL", g and g["executed_count"]))
+    good = (g is not None and "apply_credit_card_account_flag" not in g["missing_writes"]
+            and g["executed_count"] == 1)
+    print("[%s] retention_executed_removed (exec=%s)" % ("PASS" if good else "FAIL", g and g["executed_count"]))
     ok &= good
-    # ③ close 실행이 ERROR → 여전히 missing(성공만 계수)
-    msgs = [um("close my card"), call("close_credit_card_account_7834", cid="c2"), res("c2", error=True)]
+    # ③ apply_flag 실행이 ERROR → 여전히 missing(성공만 계수)
+    msgs = [um("close my card"), call("apply_credit_card_account_flag_6147", cid="c2"), res("c2", error=True)]
     g = E.chain_gap(msgs, SPEC)
-    good = g is not None and "close_credit_card_account" in g["missing_writes"]
+    good = g is not None and "apply_credit_card_account_flag" in g["missing_writes"]
     print("[%s] errored_write_still_missing" % ("PASS" if good else "FAIL"))
     ok &= good
     # ④ 신호 없음(dispute 태스크) → chain None(qty 폴백)
@@ -73,7 +78,8 @@ def main():
     # ⑥ directive 리마인더 문구
     g = E.chain_gap([um("close my platinum card")], SPEC)
     r = E.chain_reminder(g)
-    good = "Do NOT end" in r and "close_credit_card_account" in r and "get_closure_reason_history" in r
+    good = ("Do NOT end" in r and "apply_credit_card_account_flag" in r
+            and "get_closure_reason_history" in r)  # C148: close 제거·retention write가 대신
     print("[%s] directive_names_missing" % ("PASS" if good else "FAIL"))
     ok &= good
 
