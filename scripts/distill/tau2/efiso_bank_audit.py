@@ -108,6 +108,19 @@ def user_echoes_wrong(sim, wrong):
     return [w for w in wrong if w in raw]
 
 
+def usingle(sim):
+    # ★C128 dose-response: 단일 최고-항목 user 메시지만(C124 probe와 동형·가장 깨끗한 문맥).
+    best, bs = "", -1
+    for m in sim.get("messages", []):
+        if m.get("role") != "user":
+            continue
+        c = str(m.get("content") or "")
+        s = len(re.findall(r"\$\d", c)) + len(re.findall(r"\d\d/\d\d/\d{4}", c))
+        if s > bs:
+            bs, best = s, c
+    return re.sub(r"txn_[0-9a-f]+", "[id-redacted]", best)
+
+
 def call(base, model, content, temp):
     r = requests.post(base + "/chat/completions", json={
         "model": model, "temperature": temp, "max_tokens": 600,
@@ -138,12 +151,14 @@ def main():
         if not wrong:
             print("   (no wrong ids — skip)")
             continue
+        ps = ("CUSTOMER MESSAGE:\n" + usingle(sim)[:6000] + "\n\nTRANSACTION HISTORY:\n"
+              + lst[:20000] + "\n\n" + ASK)
         pa = ("CUSTOMER MESSAGES:\n" + utext(sim)[:6000] + "\n\nTRANSACTION HISTORY:\n"
               + lst[:20000] + "\n\n" + ASK)
         pb = ("Below is a bank-agent conversation transcript (including tool outputs).\n\n"
               + flat(prefix_before_first_file(sim))[:60000] + "\n\n" + ASK)
-        row = {"label": label, "wrong": wrong, "fab": fab, "A": [], "B": []}
-        for tag, prompt, bucket in (("A", pa, row["A"]), ("B", pb, row["B"])):
+        row = {"label": label, "wrong": wrong, "fab": fab, "S": [], "A": [], "B": []}
+        for tag, prompt, bucket in (("S", ps, row["S"]), ("A", pa, row["A"]), ("B", pb, row["B"])):
             for i in range(1 + a.n):
                 t = 0.0 if i == 0 else 0.7
                 try:
@@ -158,19 +173,25 @@ def main():
                 print("   %s run%d gold %d/%d wrong_reproduced=%s"
                       % (tag, i, gold_hit, len(gold), wrong_rep))
         grand.append(row)
-    print("\n==== VERDICT PER INSTANCE ====")
+    print("\n==== DOSE-RESPONSE PER INSTANCE (S=single-msg / A=multi-turn / B=full-trajectory) ====")
     for row in grand:
-        A, B = row["A"], row["B"]
-        if not A or not B:
+        S, A, B = row["S"], row["A"], row["B"]
+        if not S or not A or not B:
             print("%s: incomplete" % row["label"])
             continue
-        a_clean = all(not w for _, w in A)
-        a_gold = sum(g for g, _ in A) / len(A)
-        b_rep = sum(1 for _, w in B if w) / len(B)
-        v = ("FLIP-TO-LOAD" if a_clean and b_rep >= 0.5 else
-             "LOAD-PARTIAL" if a_clean else "CAPABILITY/AMBIG")
-        print("%s: A_gold=%.1f A_wrong_free=%s B_wrong_rate=%.2f -> %s"
-              % (row["label"], a_gold, a_clean, b_rep, v))
+        def summ(runs):
+            return (sum(g for g, _ in runs) / len(runs),
+                    all(not w for _, w in runs),
+                    sum(1 for _, w in runs if w) / len(runs))
+        sg, sc, sr = summ(S)
+        ag, ac, ar = summ(A)
+        bg, bc, br = summ(B)
+        # LOAD if the cleanest probe (S) recovers wrong-free; dose = how fast the slip returns
+        v = ("LOAD (clean at S)" if sc and br > 0 else
+             "LOAD-DOSE (slip returns by A)" if sc and not ac else
+             "CAPABILITY/AMBIG (fails even at S)")
+        print("%s: S[gold=%.1f wrong_free=%s] A[gold=%.1f wf=%s] B[gold=%.1f wrong_rate=%.2f] -> %s"
+              % (row["label"], sg, sc, ag, ac, bg, br, v))
 
 
 if __name__ == "__main__":
