@@ -579,6 +579,18 @@ def _cp5_replan_subcall(orch, led, msgs, spec):
     return parse_obligations(getattr(sub, "content", None) or "", ekey)
 
 
+def drive_decision(drives, K, exec_now, last_exec, has_gap):
+    """지속 구동 결정(순수·2026-07-24 피벗). 반환: 'hold'(구동)·'release'(진전0 안전종료)·
+    'terminate'(budget 소진 or plan 충족). progress-guard=§7.3 딜레마 회피(못 고치는 사슬 무한보류 금지)."""
+    if drives >= K:
+        return "terminate"                       # budget 소진 → 놓아줌
+    if drives > 0 and exec_now <= last_exec:
+        return "release"                          # 직전 구동 후 진전 0 → 안전 종료
+    if not has_gap:
+        return "terminate"                        # 필수 write 전부 실행 = 개입 0 (R1b)
+    return "hold"                                 # gap 있음 + 진전/첫구동 → 지속 구동
+
+
 def cp5_gap_reminder(n, m, unexamined):
     """CP5 결정론 리마인더(v1.3·비강제·DB내용 0): 요청수량 N > 수행 M.
     미검토 sibling 있으면 read-지시·없으면 사용자-재확인 지시."""
@@ -748,7 +760,14 @@ def apply():
                     return r
                 if "user_stop" not in str(getattr(self, "termination_reason", "")).lower():
                     return r
-                if getattr(self, "_t2_eplan_walked", False):
+                # ★지속 구동 (2026-07-24 피벗·EPLAN_PERSISTENT_DRIVER_DESIGN): 구판 1회 하드캡
+                #   (_t2_eplan_walked)을 budget K + progress-guard로 교체 — 탐지만 하고 1회 포기하던
+                #   것을 plan 충족까지 지속 구동. rall23b 실측 `walk gap qty=9 executed=1`=9필요 1완료를
+                #   알면서 놓아줌. K=T2_EPLAN_DRIVE_K(기본 4). progress-guard=직전 구동 후 executed write가
+                #   *커졌을 때만* 계속(§7.3 딜레마 회피=못 고치는 사슬 무한보류 금지·진전0→release).
+                _K = int(os.environ.get("T2_EPLAN_DRIVE_K", "4"))
+                _drives = getattr(self, "_t2_eplan_drives", 0)
+                if _drives >= _K:                            # budget 소진 → 놓아줌
                     return r
                 dom = getattr(getattr(self, "environment", None), "domain_name", None)
                 spec = load_eplan_spec(dom)
@@ -757,6 +776,7 @@ def apply():
                 wt = load_write_tools(dom)
                 msgs = self.get_messages() if hasattr(self, "get_messages") else []
                 led = build_ledger_from_messages(msgs, spec, wt)
+                _exec_now = len(getattr(led, "executed", []) or [])
                 unexamined = sorted(led.listed - led.examined)
                 reminder = None
                 # ★레버4(T2_EPLAN_REPLAN=1): 격리 서브콜(구조화 ledger 프롬프트) →
@@ -789,13 +809,22 @@ def apply():
                               % (n, led.item_coverage()))
                         return r
                     reminder = cp5_gap_reminder(n, m, unexamined)
-                self._t2_eplan_walked = True
+                # ★progress-guard (순수 결정): gap 있음 확정(reminder≠None)·budget 여유(drives<K) 상태서
+                #   직전 구동 후 진전(executed↑) 없으면 release=안전종료(§7.3 무한보류/붕괴 회피).
+                if drive_decision(_drives, _K, _exec_now,
+                                  getattr(self, "_t2_eplan_last_exec", -1), True) != "hold":
+                    _mark("drive released: no progress (exec=%d drives=%d)" % (_exec_now, _drives))
+                    return r
+                self._t2_eplan_drives = _drives + 1
+                self._t2_eplan_last_exec = _exec_now
+                self._t2_eplan_walked = True                 # 하위호환(다른 참조)
                 self.done = False
                 self.termination_reason = None
                 ag = getattr(self, "agent", None)
                 if ag is not None:
                     ag._t2_eplan_reminder = reminder
-                _mark("walk: user_stop 보류(1회)·reminder 세팅")
+                _mark("drive %d/%d: user_stop 보류·reminder(exec=%d)"
+                      % (self._t2_eplan_drives, _K, _exec_now))
             except Exception as e:  # walk는 best-effort — 실패 시 종결 그대로
                 _mark("walk skipped: %r" % (e,))
             return r
