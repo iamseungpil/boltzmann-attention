@@ -454,6 +454,85 @@ def chain_reminder(chain):
             + tail + " Find each discoverable tool's full suffixed name in the knowledge base if needed.")
 
 
+# ── BRANCH-REGROUND: 조건단계 실제 정책문서 재부각 (C144·2026-07-24) ────────────
+# C144 해리(실증): 분기점 재부각 실효는 단계 유형별로 다르다 —
+#   · 단순 read(get_user_dispute_history): compact 이름만으로 회복(R_compact 4-5/5).
+#   · 정책조건 write(apply_credit_card_account_flag): **실제 정책문서 재부각만** 회복
+#     (R_rawdoc 4/4)·compact 요약(rationale 포함)으로도 불충분(R_compact_rat 0 —
+#     압축 시 authority/인자명세 소실). ⇒ 남은 조건단계는 이미 retrieved된 실제 문서를 붙인다.
+# 문서는 transcript(에이전트가 이미 긁어온 tool 출력)서 추출 — 새 도메인지식 0·엔진 순수([[05]]).
+_DOC_HEADER_RE = re.compile(r"(?m)^[ \t]*\d+\.[ \t]+.*\n[ \t]*ID:[ \t]*(\S+)")
+
+
+def resurface_doc(messages, tool_family, max_chars=5000):
+    """이미 retrieved된 tool 출력에서 tool_family를 명시한 focused 정책문서 블록만 추출.
+    KB 출력 형식 = 번호목록('N. <title>\\n   ID: <id>\\n   Score: ..\\n   Content: ..').
+    문서-헤더(번호줄+다음줄 ID:) 경계로 분할해 대상 도구를 명시한 *가장 작은* 블록 반환
+    (C143 희석 회피 — 35K 통짜는 실패·focused ~4-5K가 회복). 헤더 없으면 전체(작을 때만
+    유효). 대상 명시 문서 없으면 None(→compact 폴백). 도메인 리터럴 0(순수 문자열 엔진)."""
+    fam = re.sub(r"_\d+$", "", str(tool_family or ""))
+    if not fam:
+        return None
+    best = None
+    for m in messages:
+        if _g(m, "role") != "tool":
+            continue
+        c = _g(m, "content")
+        if not isinstance(c, str) or fam not in c:
+            continue
+        starts = [mo.start() for mo in _DOC_HEADER_RE.finditer(c)]
+        if not starts:
+            blocks = [c]
+        else:
+            bounds = starts + [len(c)]
+            blocks = [c[bounds[i]:bounds[i + 1]] for i in range(len(bounds) - 1)]
+            if starts[0] > 0:                     # 헤더 前 서두도 후보
+                blocks.append(c[:starts[0]])
+        for b in blocks:
+            if fam in b and (best is None or len(b) < len(best)):
+                best = b
+    return best[:max_chars] if best is not None else None
+
+
+def branch_reground_reminder(chain, messages, spec=None):
+    """★BRANCH-REGROUND 재부각(C144 해리 구현). chain_reminder의 상위:
+    남은 단순단계(missing_reads + 정책문서 없는 write)=compact 이름만·남은 정책조건 write=
+    이미 retrieved된 실제 정책문서 재부각(요약 X). 정책문서 유무는 resurface_doc이 결정
+    (transcript에 대상 도구 명시 문서 있으면 조건단계로 취급). write 강제 0(에이전트 emit)."""
+    mr = list(chain.get("missing_reads") or [])
+    mw = list(chain.get("missing_writes") or [])
+    _mark("branch-reground: missing_reads=%d missing_writes=%d exec=%d"
+          % (len(mr), len(mw), chain.get("executed_count", 0)))
+    simple_w, doc_order, doc_names = [], [], {}
+    for w in mw:
+        name = re.sub(r"_\d+$", "", w)
+        doc = resurface_doc(messages, w)
+        if doc:
+            # 같은 정책문서(예: close·apply_flag가 한 프로세스 문서에 공존)는 1회만 첨부·
+            #   라벨 합침(C143 희석 회피 — 동일 4.6K 문서 중복 방지).
+            if doc not in doc_names:
+                doc_order.append(doc)
+                doc_names[doc] = []
+            doc_names[doc].append(name)
+        else:
+            simple_w.append(w)
+    parts = []
+    if mr:
+        parts.append("read (unlock+call): " + ", ".join(mr))
+    if simple_w:
+        parts.append("then execute (consent already given): " + ", ".join(simple_w))
+    tail = (" " + chain["phrase"]) if chain.get("phrase") else ""
+    body = ("[E-PLAN] This request is not finished — required steps remain before you "
+            "close/finalize. Do NOT end or defer to the user. Complete them now: "
+            + "; ".join(parts) + "." + tail
+            + " Find each discoverable tool's full suffixed name in the knowledge base if needed.")
+    for doc in doc_order:
+        body += ("\n\n[POLICY you already retrieved — apply it now for %s]\n%s"
+                 % (", ".join(doc_names[doc]), doc))
+    return body
+
+
+
 def coverage_gap(ledger):
     """CP5 diff(v1.2): **replan** 기준(CP0 planned 아님) — expand_scope 후
     executed에 _covers 매칭 없는 항목. gap=∅면 리마인더 없이 즉시 종결(R1b)."""
@@ -855,7 +934,13 @@ def apply():
                 #   (progress-guard가 사슬 write 완료를 진전으로 셈). 사슬 미적용/무gap → 아래 qty 폴백.
                 _chain = chain_gap(msgs, spec)
                 if _chain is not None:
-                    reminder = chain_reminder(_chain)
+                    # ★BRANCH-REGROUND(C144·T2_BRANCH_REGROUND=1): 남은 정책조건 write에
+                    #   이미 retrieved된 실제 정책문서 재부각(compact 이름은 read엔 충분·조건
+                    #   write엔 불충분). off면 기존 compact-only chain_reminder(A/B 대조).
+                    if os.environ.get("T2_BRANCH_REGROUND") == "1":
+                        reminder = branch_reground_reminder(_chain, msgs, spec)
+                    else:
+                        reminder = chain_reminder(_chain)
                     _exec_now = _chain["executed_count"]
                 # ★레버4(T2_EPLAN_REPLAN=1): 격리 서브콜(구조화 ledger 프롬프트) →
                 #   결정론 diff(coverage_gap replan 경로). 실패=기존 결정론 신호 폴백(안전측).
