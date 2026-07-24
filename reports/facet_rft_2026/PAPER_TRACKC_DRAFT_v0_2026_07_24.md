@@ -235,15 +235,50 @@ single-turn binding literature (§2), here caught inside a live pipeline.
 **Cost.** 18 inference calls, no user simulator, no re-run of the episode: minutes per failure on a local GPU.
 This is the point — the control is cheap enough to apply per failure, routinely.
 
-## 6. Retro-audit of "semantic" failures ⟦TBD — E-F3-ISO⟧
+## 6. Retro-audit of "semantic" failures (E-F3-ISO, Phase 1: banking)
 
-⟦Protocol locked (repo §1.4 F3-isolation protocol): every failure previously attributed to semantic
-reference-matching — including our own ledger's ⋈ bucket and the earlier census finding that 43–52% of wrong
-picks occurred despite the gold record having been retrieved [M] — is re-probed with A_minimal/B_fullctx.
-Report: N, flip rate to load, split {transcription slip / self-anchor / ambiguity (multi-candidate under
-information given) / genuine semantic failure (A_minimal fails)}, per-model. Expected deliverable: the first
-measured decomposition of "wrong entity" into mechanism classes; the taxonomy-overattribution claim (§1
-contribution 3) stands or falls here.⟧
+We re-probe every wrong-reference failure we can recover from three independent live runs (rall19/20/21, the
+`file_dispute` wrong-`transaction_id` cases), as a **dose-response**: three information-matched context levels
+of increasing breadth — **S** (the single customer message enumerating the disputed items, id-redacted) +
+listing; **A** (all customer turns, id-redacted) + listing; **B** (the full agent trajectory prefix up to the
+decision). Greedy + samples, 32B, at the trajectory's settings. Two of our own earlier characterizations were
+overturned in the process and are reported as corrections (§4.4): **zero fabrication** (all wrong ids are real
+listing records; `true-fab = ∅` in every instance), and **user-simulator laundering** (the wrong id appears in
+a *customer* turn in 3 of 4 instances — the agent's error reflected back).
+
+**Results (4 instances).**
+
+| Instance | S (single-msg) | A (multi-turn) | B (full traj.) | Reading |
+|---|---|---|---|---|
+| r19.039 | 8.0/8, wrong-free | 4.3/8 | 0/8 | textbook dose-response — **LOAD** |
+| r20.031 | 1/1 | 1/1 | 0/1 | clean flip — **LOAD** |
+| r21.039 | 6.7/8, wrong-free | 6.0/8, wrong-free | 1.0/8 | wrong id never appears in clean context — **LOAD** |
+| r20.039 | 7/8, **slip persists** | 6.3/8, slip | 5/8, slip | one item wrong even at S — **residual** |
+
+(gold recovered / gold total, mean over runs.) Three of four flip cleanly to load: the minimal-context probe
+recovers the gold set wrong-free and the trajectory collapses; r19.039 shows the dose explicitly (8 → 4.3 → 0).
+The load threshold is **low** — accumulated multi-turn context alone (level A, with the agent's own ids
+redacted) already reintroduces the slip in the 8-item cases. This is consistent with, and localizes, the
+multi-turn degradation reported by Laban et al. (§2): the corrupting content is not only the agent's explicit
+mappings but the conversational accumulation itself.
+
+**The residual (r20.039) is the argument for a deterministic matcher, not against load.** Here even the
+single-message isolated re-pick reproduces the item-3 slip (Home Depot's id for the Costco item). But the
+customer's stated attributes uniquely identify the record: `{merchant=Costco, amount=$267.34}` matches exactly
+one listing row (the gold `…5db822`) and never the slip row (`…d2d06d` = Home Depot, $456.78) — verified
+directly against the listing, in both r19 and r20. An LLM re-pick, even in clean context, can still transcribe
+the neighbor's id; a *formalize-then-match* step (LLM emits the criteria, deterministic code emits the id)
+cannot — it closes the residual the isolated re-pick leaves open (§7.1, and the lever in §7 is being upgraded
+accordingly).
+
+**Scope and honesty.** Phase 1 is 4 instances in one domain — enough to establish the dose-response and the
+mechanism split (load / laundering / residual), not enough for a population flip-rate. The headline
+overattribution number (what fraction of the ⋈/"reference-matching ceiling" bucket flips) requires Phase 2:
+the full census (the earlier 43–52% "wrong pick despite gold retrieved" finding [M]) run through this protocol,
+and the retail domain. We do not report a population percentage until then. Verdict logic note: our first
+auto-classifier under-counted load (it keyed on the trajectory reproducing the *specific* wrong id, but B
+often fails by emitting other/empty ids); the readings above use the correct signal — S wrong-free and
+S-gold ≫ B-gold.
 
 ## 7. Mechanism-derived mitigation
 
