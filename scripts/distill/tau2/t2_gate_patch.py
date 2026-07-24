@@ -3422,6 +3422,29 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                               % (nm, len(_bchain["missing_reads"]), len(_prereq_w)),
                                               file=_sys.stderr, flush=True)
                                         break
+            # ★DISCOVERY-DISPATCH deny (C151·T2_DISCOVERY_DISPATCH=1): discoverable 도구를 *직접
+            #   호출*(suffixed name·dispatcher 미경유)하면 평가 리플레이가 등록 안 함(registration은
+            #   call_discoverable_agent_tool 내부에서만). compliance 게이트로 deny+프로토콜 지시 →
+            #   에이전트가 unlock→call_discoverable로 재발행(reroute 아님=스캐폴드 조작 회피·[[05]]/[[10]]).
+            #   도메인일반: dispatch_tool 선언 도메인만·이름 suffix 휴리스틱(discoverable=랜덤 suffix).
+            dd_fb = None
+            if (os.environ.get("T2_DISCOVERY_DISPATCH") == "1" and ep_spec is not None
+                    and ep_spec.get("dispatch_tool") and ep_fb is None
+                    and not do_gate and not do_prov
+                    and getattr(self, "_t2_dd_deny", 0) < int(os.environ.get("T2_DD_CAP", "8"))):
+                _disp = ep_spec.get("dispatch_tool")
+                _unlock = ep_spec.get("unlock_tool", "unlock_discoverable_agent_tool")
+                _nk = ep_spec.get("dispatch_name_key", "agent_tool_name")
+                _safe = {_disp, _unlock, ep_spec.get("list_tool", "list_discoverable_agent_tools")}
+                for c in (am.tool_calls or []):
+                    nm = getattr(c, "name", "") or ""
+                    if nm not in _safe and re.search(r"_\d{3,4}$", nm) \
+                            and id(c) not in denied_by_objid:
+                        dd_fb = (c, "'%s' is a discoverable tool and must NOT be called directly — "
+                                    "direct calls are not registered. First unlock it: "
+                                    "%s(%s='%s'), then call it: %s(%s='%s', arguments='{...}')."
+                                 % (nm, _unlock, _nk, nm, _disp, _nk, nm))
+                        break
             # ★v3.2 CONSISTENCY (T2_CONSISTENCY=1): L10 멤버십(t35형)+G-noop(t71형)·cap 2/sim
             cons_fb = None
             if (os.environ.get("T2_CONSISTENCY") == "1" and a2 is not None
@@ -3971,7 +3994,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
                     and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None
-                    and pr_fb is None and hv_fb is None):
+                    and pr_fb is None and hv_fb is None and dd_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -4019,6 +4042,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if cons_fb is not None:
                 cons_rounds += 1
                 self._t2_cons_deny = getattr(self, "_t2_cons_deny", 0) + 1
+            if dd_fb is not None:
+                self._t2_dd_deny = getattr(self, "_t2_dd_deny", 0) + 1
+                print("[T2_DISCOVERY_DISPATCH] deny direct call=%s → force dispatcher"
+                      % getattr(dd_fb[0], "name", "?"), file=_sys.stderr, flush=True)
             if ra_fb is not None:
                 ra_rounds += 1
                 self._t2_readall_deny = getattr(self, "_t2_readall_deny", 0) + 1
@@ -4066,6 +4093,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     content = main_prov[1]
                 elif ep_fb is not None and c is ep_fb[0]:
                     content = "Error: " + ep_fb[1]
+                elif dd_fb is not None and c is dd_fb[0]:
+                    content = "Error: [DISCOVERY] " + dd_fb[1]
                 elif cons_fb is not None and c is cons_fb[0]:
                     content = "Error: " + cons_fb[1]
                 elif ra_fb is not None and c is ra_fb[0]:
