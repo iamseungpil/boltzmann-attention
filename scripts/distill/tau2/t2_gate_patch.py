@@ -1934,6 +1934,95 @@ def _in_error_loop(msgs, tool_name, npairs=6):
     return False
 
 
+def _ref_iso_repair(self, la, UserMessage, msgs, am, specs):
+    """★T2_REF_ISO (2026-07-24 C124/C125): 선언-write의 참조-인자를 write 직전 **최소-문맥 격리
+    재선택**(유저 발화 축자 + producer 목록만) 후 불일치 시 제자리 치환. 근거=C124 실측: 동일 정보라도
+    전체-궤적 문맥은 인접-행/자기-정박 슬립을 9/9 재현·최소-문맥은 9/9 정답 — DISAMB subcall(전체
+    transcript)과 달리 **자기-생성 매핑을 프롬프트에서 제거**하는 것이 본질. 재선택 주체=모델(격리
+    서브콜·§1.4 F2 처방 "격리 sub-call+결정론 실행")·엔진=문맥 재구성+정규식 대조+치환만(P-B
+    disamb-subcall 선례·대화/턴 불변·모든 예외 no-op). A2 `ref_iso`(applies_to/applies_when/param/
+    producer_tools/id_pattern) — 엔진 도메인 리터럴 0. 답이 목록에 실재해야만 채택(날조 차단)."""
+    import re as _re
+    import sys as _s
+    for tc in (getattr(am, "tool_calls", None) or []):
+        args = getattr(tc, "arguments", None)
+        if not isinstance(args, dict):
+            continue
+        for sp in (specs or []):
+            if getattr(tc, "name", None) != sp.get("applies_to"):
+                continue
+            aw = sp.get("applies_when") or {}
+            if aw.get("arg") and not str(args.get(aw["arg"]) or "").startswith(aw.get("prefix", "")):
+                continue
+            pn = sp.get("param")
+            nested = args.get("arguments")
+            nd = None
+            if isinstance(nested, str):
+                try:
+                    nd = json.loads(nested)
+                except Exception:
+                    nd = None
+            elif isinstance(nested, dict):
+                nd = nested
+            cur = str((nd or {}).get(pn) or args.get(pn) or "")
+            if not cur:
+                continue
+            _prod = set(sp.get("producer_tools") or [])
+            _pids = {getattr(c2, "id", None)
+                     for m in msgs for c2 in (getattr(m, "tool_calls", None) or [])
+                     if getattr(c2, "name", None) in _prod}
+            listing = ""
+            for m in msgs:
+                if (getattr(m, "role", None) == "tool" and getattr(m, "id", None) in _pids
+                        and not getattr(m, "error", False)):
+                    c3 = getattr(m, "content", None)
+                    if isinstance(c3, str) and len(c3) > len(listing):
+                        listing = c3
+            if not listing:
+                continue
+            utext = "\n".join(str(getattr(m, "content", "") or "") for m in msgs
+                              if getattr(m, "role", None) == "user")[:6000]
+            others = {k2: v2 for k2, v2 in (nd or {}).items() if k2 != pn}
+            prompt = ("You are a precise banking assistant.\n\n"
+                      "=== CUSTOMER MESSAGES (verbatim) ===\n" + utext
+                      + "\n\n=== RECORD LISTING (tool output) ===\n" + listing[:20000]
+                      + "\n\n=== ACTION BEING FILED ===\n"
+                      + json.dumps(others, default=str)[:800]
+                      + "\n\nWhich single '" + str(pn) + "' value from the RECORD LISTING does this "
+                        "action refer to, based on the customer's messages? Answer with EXACTLY one "
+                        "value copied from the listing, or UNSURE.")
+            try:
+                um = UserMessage(role="user", content=prompt)
+            except TypeError:
+                um = UserMessage(content=prompt)
+            kw = {kk: vv for kk, vv in dict(getattr(self, "llm_args", None) or {}).items()
+                  if "tool" not in kk}
+            sub = la.generate(model=self.llm, tools=None, messages=[um],
+                              call_name="ref_iso_subcall", **kw)
+            stxt = str(getattr(sub, "content", "") or "")
+            pat = sp.get("id_pattern") or r"[A-Za-z0-9_]{6,}"
+            hits = [h for h in _re.findall(pat, stxt) if h in listing]
+            self._t2_refiso = getattr(self, "_t2_refiso", 0) + 1
+            if "UNSURE" in stxt or not hits:
+                print("[T2_REF_ISO] unsure param=%s cur=%s" % (pn, cur), file=_s.stderr, flush=True)
+                continue
+            ans = hits[0]
+            if ans == cur:
+                print("[T2_REF_ISO] keep param=%s val=%s" % (pn, cur), file=_s.stderr, flush=True)
+                continue
+            try:
+                if nd is not None:
+                    nd[pn] = ans
+                    if isinstance(nested, str):
+                        args["arguments"] = json.dumps(nd)
+                else:
+                    args[pn] = ans
+            except Exception:
+                continue
+            print("[T2_REF_ISO] switched param=%s %s->%s" % (pn, cur, ans),
+                  file=_s.stderr, flush=True)
+
+
 def _t5c_disamb_subcall(self, la, UserMessage, state_msgs, tc, k, s, sub_args):
     """P-B: 격리 서브콜로 |C|>=2 선택 판정 → 서브콜 답이 원값과 다르고 화이트리스트(A2
     disamb_sub_args) 타입일 때만 인자 제자리 치환. 원턴·대화 완전 불변·모든 예외 = no-op.
@@ -3318,6 +3407,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               % (_cp["param"], _cp["old"], _cp["computed"]), file=_sys.stderr, flush=True)
                 except Exception as _cpe:
                     print("[T2_RESOLVE] compute error (no-op): %r" % (_cpe,), file=_sys.stderr, flush=True)
+            # ★T2_REF_ISO (2026-07-24 C124/C125): 참조-슬립 최소-문맥 격리 재선택 → 제자리 치환.
+            #   WEV *앞* 배치(치환된 id 기준으로 증거 검사). cap=T2_REF_ISO_CAP(기본 8)·예외 no-op.
+            if (os.environ.get("T2_REF_ISO") == "1" and a2 is not None
+                    and (a2 or {}).get("ref_iso")
+                    and getattr(self, "_t2_refiso", 0) < int(os.environ.get("T2_REF_ISO_CAP", "8"))):
+                try:
+                    _ref_iso_repair(self, la, UserMessage, state.messages, am, (a2 or {}).get("ref_iso"))
+                except Exception as _rie:
+                    print("[T2_REF_ISO] error (no-op): %r" % (_rie,), file=_sys.stderr, flush=True)
             # ★T2_WRITE_EVIDENCE (unified 배선·2026-07-19 028 포렌식): 증거(도구출력 token+id 공존)
             #   없는 선언-write deny. silent-repair(reffilter/compute) *뒤* 배치 = 교정된 최종 인자를 검사.
             #   무과금·turn당 1회·sim당 T2_WEV_CAP(기본 8) — E-PLAN cap 선례(불응 무한루프 방지·소진 후 통과).
@@ -3903,7 +4001,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if _fab_ids:
                 _kept = [tc for tc in (am.tool_calls or []) if id(tc) not in _fab_ids]
                 am.tool_calls = _kept or None
-                am.content = (am.content or "") + " [E-PLAN abstain: 근거를 확인할 수 없는 항목은 처리하지 않았습니다.]"
+                # C125: 유저-대면 문자열은 영어(한글 산문 노출이 rall20 043.0 [24] 유저 혼란 실측)
+                am.content = ((am.content or "")
+                              + " [Note: items whose supporting records could not be verified were not processed.]")
                 self._t2_fab_strips = getattr(self, "_t2_fab_strips", 0) + len(_fab_ids)
                 print("[T2_FAB_STRIP] dropped %d ungrounded write call(s) (exhaustion->abstain)"
                       % len(_fab_ids), file=_sys.stderr, flush=True)

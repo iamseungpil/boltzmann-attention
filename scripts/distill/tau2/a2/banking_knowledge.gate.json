@@ -1499,5 +1499,20 @@
    "feedback": "Error: [PRESCRIPTION] the customer is describing a disputed or unauthorized charge. That is handled by FILING A FORMAL DISPUTE (file_credit_card_transaction_dispute), NOT by applying a statement credit. apply_statement_credit is only for goodwill adjustments, promotional credits, or fee reversals - never for disputing a charge. First file the dispute: it is a DISCOVERABLE tool, so find its full suffixed name in the knowledge base (search plain words like \"file credit card dispute\"), unlock it, and call it with the transaction and card details. Do not apply a statement credit for a disputed charge.",
    "_note": "2026-07-22 §2bu(rall11 038 실측·격리 L2 8/8): 사기청구 dispute 요청에 apply_statement_credit 오선택(dispute 미착수·gold=file_dispute). 격리=명시질의 시 file_dispute 8/8 앎=활성화 실패(능력·부하 아님). 게이트=dispute-신호∧file_dispute 미호출인데 statement_credit이면 deny+dispute 안내(nudge). KB=doc_014/017. requires_absent_tool=file_dispute 이미 호출 시 통과(dispute 후 정당 provisional credit 보호). ★[[05]] 회색: signals=dispute판정 근사(유동판단 동결 우려)·기본 OFF·Δspurious(정당 credit 오차단) rall12 계측. T2_PRESCRIPTION. ★signals 정제(test 자체발견): 'dispute' 단독=도구명(file_..._dispute)·KB 문서에 편재→over-fire 자기오염 → 제거. 사기-특정 어구만(unauthorized/fraudulent/did not make this/never made this/do not recognize 등). Δspurious 축소."
   }
+ ],
+ "ref_iso": [
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_credit_card_transaction_dispute"
+   },
+   "param": "transaction_id",
+   "producer_tools": [
+    "get_credit_card_transactions_by_user"
+   ],
+   "id_pattern": "txn_[0-9a-f]{6,}",
+   "_note": "2026-07-24 C124/C125: wrong-txn 참조 슬립(인접-행 전사+자기-정박)이 rall19/20서 3회 재발(041735 2회·9a72b 1회)+날조 a1b2c3d4. 격리 재선택(A_minimal 9/9 실증) → 불일치 시 치환. 답이 producer 목록에 실재해야 채택=날조 id 차단."
+  }
  ]
 }
