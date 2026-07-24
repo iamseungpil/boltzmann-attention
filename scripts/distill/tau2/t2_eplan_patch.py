@@ -591,17 +591,22 @@ def drive_decision(drives, K, exec_now, last_exec, has_gap):
     return "hold"                                 # gap 있음 + 진전/첫구동 → 지속 구동
 
 
-def cp5_gap_reminder(n, m, unexamined):
-    """CP5 결정론 리마인더(v1.3·비강제·DB내용 0): 요청수량 N > 수행 M.
-    미검토 sibling 있으면 read-지시·없으면 사용자-재확인 지시."""
+def cp5_gap_reminder(n, m, unexamined, done_entities=(), action_phrase=None):
+    """CP5 결정론 리마인더(v1.4 directive·2026-07-24 피벗·비강제·DB내용 0): 요청수량 N > 수행 M.
+    ★C116 처방화: (a)이미 처리한 엔티티 명시(done_entities·에이전트 자기출력서) (b)남은 수 지목
+    (c)수동 탈출구("손님께 재확인/설명") → **능동 완주 지시**(지속 구동의 효과 결정 변수). 미검토
+    sibling 있으면 read-우선. action_phrase=spec(A2)·없으면 도메인일반 문구. write 강제 0(에이전트 emit)."""
     _mark("walk gap: qty=%d executed=%d unexamined=%d" % (n, m, len(unexamined)))
+    _act = action_phrase or "take the required action for each remaining one"
+    _done = (" You have already completed: %s." % ", ".join(sorted(done_entities))) if done_entities else ""
     if unexamined:
-        return ("[E-PLAN] The user mentioned %d item(s)/record(s) for this request but you have "
-                "completed %d. You have listed record(s) %s without reading their details — read "
-                "them first, then decide." % (n, m, ", ".join(unexamined)))
-    return ("[E-PLAN] The user mentioned %d item(s)/record(s) for this request but you have "
-            "completed %d. Before ending, re-check with the user whether anything is left, "
-            "then act or explain." % (n, m))
+        return ("[E-PLAN] The user asked about %d record(s); you have completed %d.%s You listed "
+                "record(s) %s but have not read their details — read them first, then %s. Do not "
+                "end until every record the user asked about is handled."
+                % (n, m, _done, ", ".join(unexamined), _act))
+    return ("[E-PLAN] The user asked about %d item(s)/record(s); you have completed only %d.%s "
+            "Do NOT end or defer to the user yet — %d remain. Identify the remaining one(s) from "
+            "what the user described and %s now." % (n, m, _done, n - m, _act))
 
 
 # ── 피드백 텍스트 (생성-레벨 전용·히스토리 커밋 금지) ─────────────────────────
@@ -808,7 +813,9 @@ def apply():
                         _mark("walk suppressed: qty item-covered (n=%d cov=%d)"
                               % (n, led.item_coverage()))
                         return r
-                    reminder = cp5_gap_reminder(n, m, unexamined)
+                    _done_ent = {str(e.get("entity")) for e in led.executed if e.get("entity")}
+                    reminder = cp5_gap_reminder(n, m, unexamined, _done_ent,
+                                                spec.get("write_action_phrase"))
                 # ★progress-guard (순수 결정): gap 있음 확정(reminder≠None)·budget 여유(drives<K) 상태서
                 #   직전 구동 후 진전(executed↑) 없으면 release=안전종료(§7.3 무한보류/붕괴 회피).
                 if drive_decision(_drives, _K, _exec_now,

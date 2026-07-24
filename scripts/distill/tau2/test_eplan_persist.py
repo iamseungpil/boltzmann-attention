@@ -47,6 +47,22 @@ def main():
     good = holds == 4  # 4번 구동(K), 5번째=gap 닫힘 terminate
     print("[%s] scenario_drives_to_completion (holds=%d)" % ("PASS" if good else "FAIL", holds))
     ok &= good
+    # ── directive 리마인더(v1.4·C116 처방화) ──
+    print("--- directive reminder ---")
+    r = E.cp5_gap_reminder(8, 3, [], {"txn_a", "txn_b", "txn_c"}, "file the dispute for each remaining record")
+    checks = [("names_done", "txn_a" in r and "txn_b" in r),
+              ("states_remaining", "5 remain" in r),
+              ("active_not_passive", "Do NOT end" in r and "re-check with the user" not in r),
+              ("names_action", "file the dispute" in r)]
+    for nm, c in checks:
+        st = "PASS" if c else "FAIL"
+        ok &= c
+        print("[%s] directive_%s" % (st, nm))
+    r2 = E.cp5_gap_reminder(2, 0, ["W1", "W3"], set(), None)
+    good = "W1" in r2 and "read their details" in r2 and "Do not end" in r2
+    print("[%s] directive_unexamined_read_first" % ("PASS" if good else "FAIL"))
+    ok &= good
+
     print("ALL PASS" if ok else "FAILURES")
     sys.exit(0 if ok else 1)
 
