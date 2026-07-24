@@ -310,8 +310,12 @@ gold — because the customer's actual merchants (Costco, Amazon, Marriott) alwa
 constraint raises false-block risk when the customer gives an approximate figure — "around $160" for a $167.34
 charge — so merchant-absence is the robust deny signal; the amount dimension is needed only to disambiguate
 *within* a repeated merchant, the harder match that the formalize-then-match repair handles.) This is the
-deterministic endpoint of the isolation idea: the load never touches the id at all. [S: offline over committed
-trajectories; live wiring pending R22 outcome.]
+deterministic endpoint of the isolation idea: the load never touches the id at all. We wired this verifier into
+the live generation-level gate stack (deny a `file_dispute` whose record's merchant is unmentioned; matching on
+significant name tokens, robust to "Marriott Hotels" vs "Marriott hotel"); replayed through the actual engine
+path over all recovered trajectories (rall19–22) it flags **9/9** wrong picks — including the exact Facebook-Ads
+switch the LLM re-pick caused in R22 — with **26/26** gold passes (zero false blocks). [S: offline + live-engine
+replay over committed trajectories; end-to-end live run pending.]
 
 ### 7.2 Validation
 
