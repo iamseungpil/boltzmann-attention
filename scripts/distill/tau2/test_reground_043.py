@@ -27,6 +27,15 @@ COMPACT = ("[PLAN — required steps for this closure, with progress]\n"
            "log_credit_card_closure_reason, get_pending_replacement_orders, close_credit_card_account\n"
            "  REMAINING (do these before finalizing): get_user_dispute_history, "
            "apply_credit_card_account_flag")
+# ★rationale 실은 compact(PLAN-CAPTURE가 깨끗맥락서 도출 시 자연 산출·조건단계 근거 포함)
+COMPACT_RAT = ("[PLAN — required steps for this closure, with progress]\n"
+               "  done: verify_identity, pay, get_closure_reason_history, log_closure_reason, "
+               "get_pending_replacement_orders, close_credit_card_account\n"
+               "  REMAINING (do before finalizing):\n"
+               "   - get_user_dispute_history (eligibility check: no open disputes)\n"
+               "   - apply_credit_card_account_flag  (annual-fee-waiver retention offer: this "
+               "customer's reason is the annual fee and tenure is over 2 years, so per the "
+               "retention policy you must offer the fee waiver by applying this flag)")
 
 ASK = "What is the very next tool call you make? Name the tool."
 
@@ -98,6 +107,7 @@ def main():
         "R_none": poll + "\n\n" + ASK,
         "R_rawdoc": poll + "\n\n[RETENTION POLICY]\n" + doc003 + "\n\n" + ASK,
         "R_compact": poll + "\n\n" + COMPACT + "\n\n" + ASK,
+        "R_compact_rat": poll + "\n\n" + COMPACT_RAT + "\n\n" + ASK,
     }
     print("MODEL=%s | polluted ctx=%d chars" % (a.model, len(poll)))
     for label, ctx in conds.items():
