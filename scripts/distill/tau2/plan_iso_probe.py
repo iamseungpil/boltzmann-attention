@@ -42,6 +42,12 @@ def build(variant):
     if variant == "A_minimal":
         u = ("CUSTOMER: " + ART["request"] + "\n\nACCOUNT RECORD:\n" + ART.get("account", "")
              + "\n\nCLOSURE POLICY:\n" + ART.get("kb", "") + "\n\n" + ASK)
+    elif variant == "C_fullkb":
+        # ★정보 vs 능력 격리(2026-07-24): 전체 절차(doc_001/002/003)를 명시 주입 → 그래도
+        #   못 조립하면 능력·조립하면 정보-부재. 절차엔 log_reason/apply_flag/closure_reason_history 명시.
+        u = ("CUSTOMER: " + ART["request"] + "\n\nACCOUNT RECORD:\n" + ART.get("account", "")
+             + "\n\nFULL CLOSURE PROCEDURE (bank policy documents):\n" + ART.get("fullkb", "")
+             + "\n\n" + ASK)
     else:
         u = ("Below is an in-progress bank-agent conversation transcript.\n\n" + ART["traj"]
              + "\n\n" + ASK)
@@ -62,6 +68,8 @@ def main():
     ap.add_argument("--base", default="http://localhost:8140/v1")
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--provider", default="vllm", choices=["vllm", "openrouter"])
+    ap.add_argument("--variants", default="A_minimal,B_fulltraj",
+                    help="comma-separated: A_minimal,B_fulltraj,C_fullkb")
     ap.add_argument("--n", type=int, default=6)
     a = ap.parse_args()
     import os
@@ -71,7 +79,7 @@ def main():
         key = os.environ.get("OPENROUTER_API_KEY", "")
         headers = {"Authorization": "Bearer " + key}
     print("MODEL=%s provider=%s | required steps: %d" % (a.model, a.provider, len(REQUIRED)))
-    for variant in ("A_minimal", "B_fulltraj"):
+    for variant in [v.strip() for v in a.variants.split(",")]:
         msgs = build(variant)
         agg = []
         for i in range(1 + a.n):
