@@ -3440,10 +3440,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     nm = getattr(c, "name", "") or ""
                     if nm not in _safe and re.search(r"_\d{3,4}$", nm) \
                             and id(c) not in denied_by_objid:
-                        dd_fb = (c, "'%s' is a discoverable tool and must NOT be called directly — "
-                                    "direct calls are not registered. First unlock it: "
-                                    "%s(%s='%s'), then call it: %s(%s='%s', arguments='{...}')."
-                                 % (nm, _unlock, _nk, nm, _disp, _nk, nm))
+                        # ★C153: 처방적 구체성(C116) — 에이전트가 방금 쓴 실제 인자를 그대로 echo한
+                        #   복사-가능 2단계 예시. 막연한 '{...}'은 포기 유발(C152 abandon)·구체 예시=재발행 유도.
+                        _uarg = json.dumps(_args_dict(c)).replace('"', '\\"')
+                        dd_fb = (c, "You called '%s' directly, but it is a DISCOVERABLE tool — a direct "
+                                    "call is NOT registered and does NOT complete the step. Do NOT abandon "
+                                    "this step. Redo it in TWO steps with the SAME arguments you just used:\n"
+                                    "  1) %s(%s=\"%s\")\n"
+                                    "  2) %s(%s=\"%s\", arguments=\"%s\")"
+                                 % (nm, _unlock, _nk, nm, _disp, _nk, nm, _uarg))
                         break
             # ★v3.2 CONSISTENCY (T2_CONSISTENCY=1): L10 멤버십(t35형)+G-noop(t71형)·cap 2/sim
             cons_fb = None
