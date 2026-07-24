@@ -2,6 +2,7 @@
 # ★rall23 (2026-07-24·C130 라이브 검증): 결정론 참조-검증기 T2_REF_VERIFY=1·해로운 REF_ISO OFF(C129).
 #   판정: [T2_REF_VERIFY] deny가 에이전트를 올바른 레코드 재선택으로 유도해 db_pass로 이어지나(vs
 #   deny/pass-through 딜레마 §7.3 재발)·gold false-block 0 유지. nt=1·4task·2-GPU.
+REPO=/home/woori/workspace_common/boltzmann-attention-pi
 SCRATCH=/home/woori/scratch
 
 run_arm() {
