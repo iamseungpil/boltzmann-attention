@@ -54,6 +54,12 @@
 - **(3) 모델 대신 행동 수행?** 아니오. write 날조/실행 0. 조기종료 보류 + "남은 단계" 통지만·에이전트가 emit.
   §1.5 write-강제 금지 준수(FORCE_ACTION 선례 동형). progress-guard가 over-drive 역효과 계측·차단.
 
+> **★진행 상태(2026-07-24·C146)**: 설계 피벗 완료 — PLAN-CAPTURE upfront(F_topk 약함·C144)는 폐기,
+> **BRANCH-REGROUND가 주경로**. 구현=`t2_eplan_patch.py` `resurface_doc`+`branch_reground_reminder`
+> (조건 write=transcript-추출 실제 정책문서·read=compact 이름·dedup). `T2_BRANCH_REGROUND=1` 배선
+> (`_check_termination` user_stop 경로). **검증**: (a/b 대체) make-or-break 통과(32B·043·apply_flag 0→5/6·
+> R_chain 3/6과 대조로 doc의 의미정확성 순증)·selftest 7/7. (c) 라이브 nt1=미실행(유료·승인 대기).
+
 ## 5. 검증 순서 (무료 先·[[09]])
 - (a) **오프라인 PLAN-CAPTURE**: 043 실궤적서 focused-입력(요청+doc_003 상위매칭)으로 서브콜→apply_flag
   포함 plan 나오나(C142 E0 재현·C143 35K 실패와 대조). **make-or-break**.
