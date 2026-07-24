@@ -108,6 +108,11 @@ def main():
         "R_rawdoc": poll + "\n\n[RETENTION POLICY]\n" + doc003 + "\n\n" + ASK,
         "R_compact": poll + "\n\n" + COMPACT + "\n\n" + ASK,
         "R_compact_rat": poll + "\n\n" + COMPACT_RAT + "\n\n" + ASK,
+        # ★조합: 남은 단순단계 compact 이름 + 남은 조건단계의 실제 정책문서 재부각
+        "R_both": (poll + "\n\n[PLAN — remaining before finalizing]\n"
+                   "  - get_user_dispute_history (eligibility read)\n"
+                   "  - the annual-fee-waiver retention step, per this policy:\n[RETENTION POLICY]\n"
+                   + doc003 + "\n\n" + ASK),
     }
     print("MODEL=%s | polluted ctx=%d chars" % (a.model, len(poll)))
     for label, ctx in conds.items():
