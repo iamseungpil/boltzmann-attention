@@ -20,7 +20,10 @@ source /home/woori/.openrouter_key                       # export OPENROUTER_API
 # ── [GO] 기본 스택 (nt4 계보·E11-e2e GO·C146~C149 아크) ────────────────────
 export T2_OVERFLOW_GUARD=1
 export T2_GATE_REGEN=1          # UNIFIED regen의 gate 축 (단독 아님·아래 PROV와 통합 라우팅)
-export T2_GATE_REGEN_K=1
+export T2_GATE_REGEN_K=2        # ★C173(2026-07-25): 1→2. 044 실측 — K=1은 finalize-deny 1회 넛지 후
+                                #   cap 소진돼 두 번째 close 시도가 통과(선행 read/write 미완인 채
+                                #   CLOSED=상태 오염 3건). finalize-deny는 선행조건 미완 시에만 발화
+                                #   하므로 over-block 위험 낮음. 044 재런으로 검증.
 export T2_PROV_REGEN=1          # 출처선언/provenance (E11 GO·C45 67→0%)
 export T2_PROV_REGEN_K=4
 export T2_PROV_MODE=full
