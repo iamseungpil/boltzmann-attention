@@ -526,4 +526,22 @@ if __name__ == "__main__":
     need = _require_before(a2rb)["apply_for_credit_card"]
     assert [n for n in need if _fam(n) not in _called_fams([])] == ["check_card_application_fit"]
     assert [n for n in need if _fam(n) not in cf] == []
+    # ★C191 디스패처-중첩 write에도 걸려야(070/099/046: open/submit/pay는 call_discoverable 경유)
+    a2c = {"require_tool_before": {"open_bank_account": ["get_all_user_accounts_by_user_id"]}}
+    tc_open = {"name": "call_discoverable_agent_tool",
+               "arguments": {"agent_tool_name": "open_bank_account_4821"}}
+    assert _effective_fams(tc_open) == ["open_bank_account"]          # 게이트 대상으로 인식
+    hist_no = [{"role": "assistant", "tool_calls": [{"name": "KB_search"}]}]
+    need = _require_before(a2c)["open_bank_account"]
+    assert [n for n in need if _fam(n) not in _called_fams(hist_no)] == ["get_all_user_accounts_by_user_id"]
+    # 디스패처로 실행한 read도 충족으로 인정(서픽스 제거)
+    hist_yes = [{"role": "assistant", "tool_calls": [
+        {"name": "call_discoverable_agent_tool",
+         "arguments": {"agent_tool_name": "get_all_user_accounts_by_user_id_3847"}}]}]
+    assert [n for n in need if _fam(n) not in _called_fams(hist_yes)] == []
+    # unlock만 한 경우는 '실행'이 아니므로 여전히 결핍(C159 규율)
+    hist_unlock = [{"role": "assistant", "tool_calls": [
+        {"name": "unlock_discoverable_agent_tool",
+         "arguments": {"agent_tool_name": "get_all_user_accounts_by_user_id_3847"}}]}]
+    assert _called_fams(hist_unlock) >= {"get_all_user_accounts_by_user_id"}   # 이름은 수집됨(관대)
     print("selftest OK · trigger_fams=%s" % sorted(fams))

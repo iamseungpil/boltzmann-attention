@@ -1762,7 +1762,16 @@
   "require_tool_before": {
     "apply_for_credit_card": [
       "check_card_application_fit"
+    ],
+    "open_bank_account": [
+      "get_all_user_accounts_by_user_id"
+    ],
+    "submit_referral": [
+      "get_all_user_accounts_by_user_id"
+    ],
+    "pay_credit_card_from_checking": [
+      "get_all_user_accounts_by_user_id"
     ]
   },
-  "_note_require_tool_before": "★C190(2026-07-25·W5 063 실측): 카드 신청 태스크인데 자격필터를 한 번도 호출하지 않고 곧장 권해 오선택(gold=Silver·신청=Platinum). 002/003/006/024는 호출했고 전부 eligible 안에서 골랐다 = 설계는 작동·063은 진입 부재. prekb_tools(KB 검색 증거)로는 못 막는 공백이라 별도 술어(선행 도구 실행 여부)로 1회 deny. 요구=점검의 실행뿐·어느 카드인지 미지정([[03b]]). 엔진은 A2의 도구 이름만 읽는다([[05]] 리터럴 0)·cap=fam당 1회."
+  "_note_require_tool_before": "★C190/C191(2026-07-25 실측). apply_for_credit_card←check_card_application_fit: W5 063이 자격필터를 한 번도 호출 않고 오선택(002/003/006/024는 호출·전부 eligible 내 선택=설계는 작동·063은 진입 부재). ★C191: open_bank_account·submit_referral·pay_credit_card_from_checking ← get_all_user_accounts_by_user_id. 근거=W3 전수: 070(gold MISS)·099(gold MISS)·046(계좌 id 미발굴→'ca_..._green' not found→무관문서 7회 반복→컨텍스트 초과). **intent_chains는 이 셋 모두 신호 매칭에 성공했는데도 실패**했다 — chain_gap은 soft reminder일 뿐이라 3/3 무시(C152 'deny=soft' 재현). 게다가 075는 'open a **new personal** checking'이 신호 'open a personal checking'/'open a new account' 어느 쪽과도 부분일치하지 않아 **매칭 자체가 미스**. write 도구 이름으로 거는 하드 게이트는 이 취약한 문자열 매칭을 우회한다. ★[[05]] §1.5 허용축: **read 강제는 write 강제가 아니다**(무엇을 쓸지·어느 상품인지 일절 미지정). ★close_credit_card_account는 제외 — 기존 close 체인이 043 PASS를 만든 작동 경로라 교란 회피."
 }
