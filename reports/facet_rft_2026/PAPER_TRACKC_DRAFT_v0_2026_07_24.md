@@ -1,9 +1,10 @@
 # [DRAFT v0 · 2026-07-24] Not a Semantic Error: Isolation Replay Dissociates Transcription Slips and Self-Anchoring from Capability Limits in LLM Tool Agents
 
 > Working draft (English, markdown → LaTeX later). Placeholders marked ⟦TBD⟧.
-> Evidence ledger: RESEARCH_MASTER §3 C121/C124/C125/C126 · sim_results/bank_rall19*/bank_rall20*/bank_rall21* ·
-> probe_039_join_iso.py. Grades follow the repo convention ([S]=trajectory-verified, [M]=measured with stated caveats).
-> Related-work map: RELWORK_ISOLATION_ATTRIBUTION_2026_07_24.md (105-agent verified survey, 2026-07-24).
+> Evidence ledger: RESEARCH_MASTER §3 C121/C124/C125/C126 (case 1: 039) · C135–C157 + RESULTS_043_INVESTIGATION_2026_07_25.md
+> (case 2: 043) · sim_results/bank_rall19*–rall25*/nt4 · probe_039_join_iso.py. Grades follow the repo convention
+> ([S]=trajectory-verified, [M]=measured with stated caveats).
+> Related-work map: RELWORK_ISOLATION_ATTRIBUTION_2026_07_24.md (105-agent verified survey) + C145 (106-agent, case-2 lineage).
 > ⚠️Honesty gates carried into the text: single-domain case study until §6 audit lands · B_fullctx replay uses
 > flattened-transcript serialization (stated) · rival preprints cited for framing, not numbers (their headline
 > mitigation number failed our verification) · self-correction hedge for RL-trained reasoning models.
@@ -24,14 +25,27 @@ record set 9/9 times; given the actual trajectory context, it reproduces the *sa
 deterministic attribution flip. The error also recurs across independent live runs (the same wrong-record id,
 and — a mechanism we did not anticipate — laundered through the user simulator, which echoes the agent's wrong
 id back as apparent customer evidence), and interacts pathologically with evidence gates: hard denial collapses
-the episode, pass-through pollutes the database. A mechanism-derived mitigation — an isolated minimal-context re-pick of
-reference arguments at write time, accepted only if the answer exists verbatim in the producer listing (so the
-repair itself cannot introduce an out-of-listing value) — closes the slip in unit probes (8/8), and in live
-runs confirms the design's safety half (0/16 false switches); corrective efficacy remains ⟦TBD: R22⟧. A
-retro-audit of failures previously
-attributed to semantic reference-matching finds ⟦TBD⟧% flip under isolation replay ⟦E-F3-ISO⟧. We argue that
-agent failure taxonomies built on observational labeling systematically overattribute context-induced load to
-semantic capability, and that per-failure isolation replay should be a standard attribution control.
+the episode, pass-through pollutes the database. Mitigation follows the mechanism, and lands on determinism: an isolated
+minimal-context LLM re-pick of reference arguments is safe in one live run (0/16 false switches) but proves
+two-sided in the next — in clean context it can still mis-bind, once switching a *correct* id to a wrong one —
+so the robust design removes the LLM from id emission entirely: a deterministic merchant-absence verifier flags
+9/9 wrong picks with 26/26 gold passes in engine replay over all recovered trajectories, and a
+formalize-then-match repair (LLM emits criteria, code emits the id) closes the residual. A retro-audit of the
+recoverable wrong-reference failures (Phase 1, four instances) shows a dose-response — minimal context recovers
+the gold set, accumulated context reintroduces the slip, the full trajectory collapses — with 3/4 flipping
+cleanly to load; the one residual slip is itself closed by the deterministic matcher (population flip-rate
+deferred to Phase 2 ⟦TBD⟧). A second,
+independent case study shows the method generalizes beyond binding: a task failure that presents as a
+planning/capability deficit (the agent closes a card before running the retention procedure whose policy it had
+*already retrieved*) flips to load under the same control — 6/6 correct in clean context vs 0/6 under the
+buried-policy context — and yields a graded prescription ladder (pre-action reasoning 3/6, source-document
+resurfacing 4/6, clean isolation 6/6), with a different repair than the binding case: resurfacing the source
+policy document recovers a policy-conditioned write from 0/6 to 5/6 live-context completions, where resurfacing
+a compact plan name yields only wrong-meaning parroting — mirroring, and positively extending, the negative
+plan-resurfacing result of prior work. Along the way the method repeatedly corrected *our own* expert
+attributions (six refuted surface labels across the two investigations). We argue that agent failure taxonomies
+built on observational labeling systematically overattribute context-induced load to semantic capability, and
+that per-failure isolation replay should be a standard attribution control.
 
 ## 1. Introduction
 
@@ -85,7 +99,9 @@ Contributions:
 2. **A method**: information-matched isolation replay as a per-failure attribution control — minimal-context vs
    full-trajectory replay of the same decision with the same information (§5). Ancestors exist (isolated
    re-prompting, information-matched single-turn controls); per-failure application to live tool-use failures
-   is, to our knowledge, unclaimed.
+   is, to our knowledge, unclaimed. A second case (§5.5) shows the control generalizes across failure families
+   — a binary flip for a binding slip, a graded ladder for a buried-policy execution failure — and that it
+   audits the auditor: six of our own surface attributions were refuted by it before the true mechanism held.
 3. **An audit**: re-attribution of failures previously labeled semantic-reference errors. ⟦TBD E-F3-ISO: N
    failures re-probed, X% flip to load (transcription/self-anchor), Y% ambiguous, Z% remain capability;
    includes the fraction of "wrong pick despite gold record retrieved" cases (43–52% in our earlier census
@@ -109,7 +125,12 @@ aptitude/reliability decomposition attributes apparent capability loss mostly to
 +112%). None of these operate on live tool-use trajectories or entity binding; none replay *specific failed
 decisions*. Intrinsic self-correction failure [Huang et al., ICLR 2024, arXiv:2310.01798] supports the premise
 that agents do not spontaneously re-verify earlier mappings (hedged for RL-trained reasoning models, which
-exhibit trained within-trace re-verification).
+exhibit trained within-trace re-verification). For our second case (§5.5), the decisive near-prior is
+Plans-Don't-Persist [arXiv:2606.22953]: plan-following failures are representational (per-action decay
+$\sim$4.1$\times$ as the plan recedes in context), and — their negative result — resurfacing the *stale plan*
+does not repair them. Our delta is to turn that negative into a positive: resurfacing the *source policy
+document* (not the plan) recovers the policy-conditioned action (0/6 → 5/6), with deterministic extraction of
+the already-retrieved document rather than LLM re-summarization.
 
 *Binding and interference.* PI-LLM [arXiv:2506.08184] shows log-linear retrieval decay under same-key
 interference with a diagnostic error signature (earlier values for the same key), dissociated from context
@@ -147,8 +168,9 @@ paper's manipulations are the replay probes and one added lever, §7). All traje
 committed; every number below traces to a logged artifact.
 
 Tasks referenced: task_039 (8 disputed transactions described in prose, to be matched against a 57-record
-listing and filed individually), task_031 (single dispute, card-digit acquisition via user-side tool), plus two
-others in the same runs (043, 054) not central here.
+listing and filed individually; case 1), task_031 (single dispute, card-digit acquisition via user-side tool),
+task_043 (card-closure request whose gold path is a policy-prescribed retention flow; case 2, §5.5), plus
+task_054 in the same runs, not central here.
 
 ## 4. The phenomenon
 
@@ -234,6 +256,47 @@ single-turn binding literature (§2), here caught inside a live pipeline.
 
 **Cost.** 18 inference calls, no user simulator, no re-run of the episode: minutes per failure on a local GPU.
 This is the point — the control is cheap enough to apply per failure, routinely.
+
+### 5.5 A second case: an apparent planning failure is buried-policy load (task_043)
+
+The binding slip of §4–5 could be dismissed as one failure family, so we applied the same control to a failure
+with a completely different surface. In task_043 the customer asks to close a Platinum card; the gold behavior
+is a *retention* flow (offer the annual-fee waiver the policy prescribes; the customer accepts; the card stays
+open). Across four live trials the agent passes 0/4, dominantly by **closing the card before the retention
+procedure** — despite having *already retrieved* the policy document that prescribes the waiver step. Scored
+observationally this is a planning / instruction-following capability failure, and our own ledger tried, in
+sequence, plan-capability, scale-invariant capability, missing-information, salience/position, and
+lost-in-the-middle labels — **five surface attributions, each refuted by the next probe** (the first probe's
+context had lacked the procedure; retrieval was in fact clean; position was irrelevant, presence dominated) —
+before isolation settled it.
+
+**Attribution.** Information-matched isolation at the pre-close decision (policy text 1.3KB, extracted verbatim
+from the trajectory's own retrieved document): clean context + policy ⇒ **retain 6/6** (the model infers the
+waiver, plans, and acts); the actual polluted context (~27KB), neutral prompt ⇒ **0/6** (reproducing the live
+close); same polluted context + a pre-action *reasoning* instruction ⇒ 3/6; + the source policy document
+*resurfaced* ⇒ 4/6. A graded ladder — clean 6/6 → resurfaced 4/6 → reasoning 3/6 → neutral 0/6 — rather than
+§5's binary flip: the failure is load (policy buried under the trajectory), not capability, and partial context
+repair buys partial recovery. [M: single decision, n=6 per condition, single trial per rung]
+
+**Prescription, and another aggregate trap.** At a live pre-close cut, the policy-conditioned write (apply the
+waiver flag) goes 0/6 (no resurfacing) → 3/6 (resurfacing a compact *name* of the pending step) → **5/6**
+(resurfacing the *source policy document*). String counts understate the gap: read raw, the compact-name arm's
+mentions are wrong-meaning parroting (the flag misread as "mark account closed"), while the document arm's are
+correct policy inferences (annual fee + tenure ⇒ waiver). Deployed live in a matched pair, the resurfacing
+mechanism fires as designed — the waiver action executes with gold-exact arguments in the treated arm (base:
+never called), and after fixing two scaffold-induced bugs the treated arm stops closing the card where base
+still closes — the causal chain from resurfaced document to corrected action holds end-to-end, though the
+episode still misses the benchmark's strict full-DB-hash pass (§8). [S: matched pair, single episode]
+
+**What this adds.** (i) The control is not specific to reference binding: it dissociates load from capability
+for an execution-ordering failure too. (ii) Its output is not always binary; graded recovery localizes how much
+damage each repair removes. (iii) The repair differs by family — and resurfacing the *source document* is what
+works, where resurfacing a compact plan fails (wrong-meaning parroting), consistent with the negative
+plan-resurfacing result of Plans-Don't-Persist (§2) and extending it positively. (iv) It corrects the
+investigator: the five refuted labels above, plus a sixth during live forensics (a payment step first blamed
+for the residual failure was gold-identical; the real residual was an over-action our own scaffold spec had
+induced, which we fixed and verified causally), are internal evidence for this paper's thesis — observational
+attributions, including ours, do not survive counterfactual probing.
 
 ## 6. Retro-audit of "semantic" failures (E-F3-ISO, Phase 1: banking)
 
@@ -358,6 +421,28 @@ write. Denial assumes the model can repair a binding it cannot see is wrong; pas
 verification without re-derivation cannot fix binding errors — which is why the mitigation above re-derives in
 clean context instead of arguing with the model. [S: both live episodes logged]
 
+The second case (§5.5) sharpens the soft/hard distinction. There, a pre-close deny-and-resurface gate *fires*
+and is simply overridden by the agent across trials; a deny-and-regenerate dispatch gate makes the agent give
+up the goal instead of rerouting; explicit prompt rules lose to a knowledge-base "Use X" prior. All of these
+are **soft** — they depend on the model complying. The interventions that moved behavior were of a different
+kind: content repair (resurfacing the source document into the context the model actually reads) and, for
+format-level slips (out-of-schema tool names hallucinated from KB text), constrained decoding — enforcement in
+the *decoder*, not the conversation. Gates advise; context and decoding decide.
+
+### 7.4 Matching the repair to the failure family
+
+The two cases converge on one design rule with two instantiations. For **reference bindings** (case 1), the
+selection criteria are formalizable, so the endpoint is deterministic: verify by merchant-absence, repair by
+formalize-then-match — the LLM never emits the id (§7.1–7.2; the R22 harm case is the proof that even
+clean-context LLM re-picks retain the slip mode). For **policy-conditioned actions** (case 2), the decision is
+not formalizable without curating domain policy into the scaffold, so the repair must stay content-side:
+deterministically *resurface the source document* at the decision point and let the main model decide in full
+context. Full isolation is the attribution instrument, not the repair, in this family — an isolated sub-agent
+deciding a broad action risks exactly the context-loss harm R22 exhibited for bindings, and resurfacing a
+compact plan instead of the source fails by wrong-meaning parroting (§5.5). In both families the common core
+is: do not argue with the model in the polluted context; either take the decision away from the LLM
+(formalizable case) or repair the context it decides in (non-formalizable case).
+
 ## 8. Discussion
 
 **For taxonomies.** Observational labels are hypotheses, not measurements. Our case would be scored
@@ -369,19 +454,26 @@ minimal-context replay is provisional. ⟦Strength of final claim pends §6 and 
 appendices.⟧
 
 **For scaffolds.** The lever hierarchy shifts: evidence gates (existence checks) close fabrication-from-thin-air
-but not binding; binding requires either re-derivation in clean context (§7) or deterministic matching when the
-selection criteria are formalizable. The dilemma of §7.3 suggests a general design rule: verification gates
-should escalate to *re-derivation*, not to repeated denial.
+but not binding; and deny-style gates in general proved *soft* — fired, then overridden or deadlocked (§7.3).
+What worked was either removing the LLM from the formalizable decision (deterministic verify/match, case 1) or
+repairing the context the LLM decides in (source-document resurfacing, case 2) — §7.4's rule: verification
+should escalate to re-derivation, and re-derivation must be scoped to the failure family.
 
 **Relation to companion work.** Our companion papers analyze same-clause interference in batched judgments with
 an associative-memory account; the present paper stays behavioral. The shared thread — correlated context
 content corrupts a targeted retrieval/binding — differs in unit (record rows vs policy clauses) and in
 deliverable (attribution methodology vs mechanism). PI-LLM is a shared citation; we differentiate explicitly.
 
-**Limitations.** Single domain and model family until §6 lands; B_fullctx uses flattened serialization (the
-live path interleaves tool-call structures); the isolated re-pick mitigation assumes a recoverable producer
-listing in context; RL-trained reasoning models may re-verify within trace and need separate measurement;
-rival preprints (§2) are recent and unreplicated — framing overlap is acknowledged, numbers are not relied on.
+**Limitations.** Single domain and model family (banking, Qwen2.5-32B) pending Phase-2 audit and a second
+domain; B_fullctx uses flattened serialization (the live path interleaves tool-call structures); the
+deterministic verifier and formalize-then-match assume a recoverable producer listing and formalizable
+criteria; case 2's probe rungs are n=6 single-trial and its reasoning-instruction rung is mildly leading;
+case 2's live episode still fails the benchmark's strict full-DB-hash metric even with the corrected action —
+that metric requires the full gold read-set through the dispatcher path and zero over-actions (9/97 tasks pass
+it under our best stack), so per-step action match may be the more informative signal, a benchmark-metric
+question we flag rather than resolve; RL-trained reasoning models may re-verify within trace and need separate
+measurement; rival preprints (§2) are recent and unreplicated — framing overlap is acknowledged, numbers are
+not relied on.
 
 ## 9. Reproducibility
 
@@ -395,3 +487,5 @@ Appendix A ⟦TBD — to be regenerated and committed alongside this draft⟧.
 ### Appendix A ⟦TBD⟧: full probe transcripts (A_minimal / B_fullctx, 18 runs)
 ### Appendix B ⟦TBD⟧: E-F3-ISO per-failure table
 ### Appendix C: gate-interplay episodes (R19/031 denial collapse; R20/031 pass-through) — trace excerpts
+### Appendix D ⟦TBD⟧: case-2 (task_043) probe ladders, resurfacing-arm completions (wrong-meaning parroting vs
+policy inference), and the matched-pair (base vs treat) traces
