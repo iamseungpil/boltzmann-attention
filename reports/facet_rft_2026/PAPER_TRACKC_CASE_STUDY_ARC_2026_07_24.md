@@ -77,3 +77,33 @@ internally endorse as mandatory; gpt-5.2 rows are small-n and noisy (C141); the 
 4-sample per condition. The arc establishes the *mechanism* and the *method*, not a population rate — that is
 the §6 audit's job. ⟦?⟧ Whether reactive-execution generalizes beyond policy-mandated (customer-unnamed) steps
 is untested here.
+
+---
+
+## Follow-up (2026-07-25 · ledger C159/C160/C161) — mechanism confirmed, then **eliminated**; one measurement hazard
+
+**The mechanism claim above stands on its own data.** Re-analysis by *execution path* (dispatcher call vs
+mere unlock) plus independent DB-diff confirms real `close_credit_card_account` **executions** in the runs this
+arc rests on: rall24a @95, rall25a @84 (both with no `apply_flag`), and reg043_base/treat, fix_base. So the
+agent genuinely closed on the way past the retention step.
+
+**Two updates the paper must carry:**
+
+1. **The prescribed lever worked (new [S] result).** A deterministic *pre-close* gate — deny the finalizing
+   write while prerequisites are outstanding, and resurface the source policy document — removed the behavior:
+   matched pair, gate **off** → close executed (fix_base @52); gate **on** → close **0** across fix_treat, dd,
+   pr, and all 4 nt4 trials, with `apply_flag` executed in 3/4. This strengthens rather than weakens the
+   §"plan = LLM, controller = deterministic" claim, and it contradicts an earlier draft line calling the
+   pre-close gate "soft"; that line was based on a miscount (see 2) and must be removed.
+2. **⚠ Measurement hazard — do not count tool events by argument-string matching.** In this environment the
+   *unlock* call carries the target tool's name **in its arguments**, so a substring match counts unlocks as
+   executions. Both a prior session and this one made exactly that error, concluding "the agent still closes"
+   when it had only unlocked. **Rule: attribute events by execution path (dispatcher/direct call), and confirm
+   with a DB-diff on final state.** Any per-step count in this case study that was produced by name matching
+   needs re-derivation before it ships.
+
+**Scope note for the population claim (C160).** A validated 97-task DB-diff re-tally (replay reproduces the
+official db_match exactly, 9/97, mismatch 0) finds that behavior failures still dominate: 63% of tasks differ
+from gold in **both** state and bookkeeping, 24% in state only, and only **4%** are "behaviorally correct,
+blocked solely by discovery-registration bookkeeping." So the residual reported for task_043 after the gate
+(bookkeeping) is a *local* endpoint, not the benchmark-wide one.

@@ -38,11 +38,13 @@ deferred to Phase 2 ⟦TBD⟧). A second,
 independent case study shows the method generalizes beyond binding: a task failure that presents as a
 planning/capability deficit (the agent closes a card before running the retention procedure whose policy it had
 *already retrieved*) flips to load under the same control — 6/6 correct in clean context vs 0/6 under the
-buried-policy context — and yields a graded prescription ladder (pre-action reasoning 3/6, source-document
-resurfacing 4/6, clean isolation 6/6), with a different repair than the binding case: resurfacing the source
-policy document recovers a policy-conditioned write from 0/6 to 5/6 live-context completions, where resurfacing
-a compact plan name yields only wrong-meaning parroting — mirroring, and positively extending, the negative
-plan-resurfacing result of prior work. Along the way the method repeatedly corrected *our own* expert
+buried-policy context — with a different repair than the binding case: resurfacing the source policy document
+recovers a policy-conditioned write from 0/6 to 5/6 live-context completions, where resurfacing a compact plan
+name yields only wrong-meaning parroting — mirroring, and positively extending, the negative plan-resurfacing
+result of prior work. Deployed live, a deterministic gate that denies the irreversible write until prerequisites
+complete eliminates the closing behavior outright (matched pair: gate off ⇒ closes; gate on ⇒ zero closes over
+12 trials), leaving a residual that is bookkeeping rather than behavior — though at population scale (97 tasks,
+validated replay) behavior failures still dominate and that bookkeeping endpoint covers only 4%. Along the way the method repeatedly corrected *our own* expert
 attributions (six refuted surface labels across the two investigations). We argue that agent failure taxonomies
 built on observational labeling systematically overattribute context-induced load to semantic capability, and
 that per-failure isolation replay should be a standard attribution control.
@@ -281,6 +283,21 @@ close); same polluted context + a pre-action *reasoning* instruction ⇒ 3/6; + 
 §5's binary flip: the failure is load (policy buried under the trajectory), not capability, and partial context
 repair buys partial recovery. [M: single decision, n=6 per condition, single trial per rung]
 
+> ⚠️ **Correction (ledger C158/C159/C161) — two rungs of this ladder do not survive re-measurement.**
+> (a) **The reasoning rung was an artifact of a leading prompt.** That instruction named the domain specifics
+> ("annual fee", "long-tenured", "retention"). A purification ladder that strips them (n=12) finds *purely
+> domain-general* reasoning no better than the control: premature-close 7 (control), 6 (metacognitive: "is this
+> reversible? does anything have to happen first?"), 6 (generic prerequisite framing), against 2 for a
+> structural checklist. Read raw, the reason is mechanical: the model *does* enumerate prerequisites, but its
+> self-generated checklist has no retention slot, so it concludes "balance zero, no disputes, reason logged ⇒
+> proceed." **Reasoning strengthens the list the model already has; it does not create the missing entry.**
+> Even given a checklist naming `retention_offers`, a stricter re-count finds the correct fee-waiver recall at
+> **0/16** (13/16 discuss rewards forfeiture instead) — an earlier 6/16 was our own over-generous regex.
+> (b) **The outcome variable is not a task-failure predictor.** These probes score "CLOSE" when the completion
+> names the close tool. In the live system that same act (an *unlock*) was intercepted by the pre-close gate and
+> the trajectory ended correctly. Both facts below must be read with this in mind; the load-vs-capability
+> dissociation (clean 6/6 vs buried 0/6) stands, the prescription ordering does not.
+
 **Prescription, and another aggregate trap.** At a live pre-close cut, the policy-conditioned write (apply the
 waiver flag) goes 0/6 (no resurfacing) → 3/6 (resurfacing a compact *name* of the pending step) → **5/6**
 (resurfacing the *source policy document*). String counts understate the gap: read raw, the compact-name arm's
@@ -424,13 +441,21 @@ write. Denial assumes the model can repair a binding it cannot see is wrong; pas
 verification without re-derivation cannot fix binding errors — which is why the mitigation above re-derives in
 clean context instead of arguing with the model. [S: both live episodes logged]
 
-The second case (§5.5) sharpens the soft/hard distinction. There, a pre-close deny-and-resurface gate *fires*
-and is simply overridden by the agent across trials; a deny-and-regenerate dispatch gate makes the agent give
-up the goal instead of rerouting; explicit prompt rules lose to a knowledge-base "Use X" prior. All of these
-are **soft** — they depend on the model complying. The interventions that moved behavior were of a different
-kind: content repair (resurfacing the source document into the context the model actually reads) and, for
-format-level slips (out-of-schema tool names hallucinated from KB text), constrained decoding — enforcement in
-the *decoder*, not the conversation. Gates advise; context and decoding decide.
+The second case (§5.5) sharpens the soft/hard distinction — **but not in the direction we first reported.**
+A deny-and-regenerate *dispatch* gate makes the agent give up the goal instead of rerouting, and explicit
+prompt rules lose to a knowledge-base "Use X" prior: those are **soft**, since they need the model to comply.
+The **pre-close** gate is not in that class. We previously wrote that it "fires and is simply overridden";
+re-analysis by execution path plus DB-diff shows the opposite (ledger C161). The close events we counted as
+overrides were *unlock* calls — in this environment the unlock carries the target tool's name in its arguments,
+so substring matching counts unlocks as executions. Attributing by execution path instead, a matched pair is
+unambiguous: gate off ⇒ the card is closed; gate on ⇒ **zero** closes across four runs (12 trials), with the
+waiver action executed in 3 of 4 trials of the largest, and the final DB showing no status change. A gate that
+denies a *write* is enforced by the environment, not by persuasion; what makes the dispatch gate soft is that
+it asks for a *reissue* the agent may decline. The distinction is therefore not gate-vs-context but **whether
+compliance is required of the model at all**: denying an irreversible write is hard, requesting a different
+call is soft, and out-of-schema name slips need enforcement in the *decoder*. Content repair (resurfacing the
+source document) remains the lever that supplies missing information — it is complementary to, not a
+replacement for, the gate.
 
 ### 7.4 Matching the repair to the failure family
 
@@ -457,10 +482,21 @@ minimal-context replay is provisional. ⟦Strength of final claim pends §6 and 
 appendices.⟧
 
 **For scaffolds.** The lever hierarchy shifts: evidence gates (existence checks) close fabrication-from-thin-air
-but not binding; and deny-style gates in general proved *soft* — fired, then overridden or deadlocked (§7.3).
-What worked was either removing the LLM from the formalizable decision (deterministic verify/match, case 1) or
+but not binding. Deny-style gates split by *what they demand of the model* (§7.3, corrected): denying an
+irreversible **write** is environment-enforced and held across every trial we measured, whereas asking the
+agent to **reissue** a call in a different form is soft — it was declined or deadlocked. Alongside those,
+what worked was removing the LLM from the formalizable decision (deterministic verify/match, case 1) and
 repairing the context the LLM decides in (source-document resurfacing, case 2) — §7.4's rule: verification
 should escalate to re-derivation, and re-derivation must be scoped to the failure family.
+
+**Scope of the second case's endpoint.** After the pre-close gate removes the closing behavior, task_043's
+remaining gap is bookkeeping: the benchmark hashes the whole database, including a table recording which
+discoverable tools were *called through the dispatcher*, so a read fetched by direct call leaves the state
+correct but the ledger short — two trials differ from gold by one and two such records with **no** state
+difference. That endpoint is local, not general: a validated 97-task re-tally (replay reproduces the official
+metric exactly, 9/97, zero mismatches) finds only **4%** of tasks behaviorally correct and blocked solely by
+this bookkeeping, against 63% differing in both state and bookkeeping and 24% in state alone. Behavior, not
+call-path bookkeeping, remains the dominant failure at population scale.
 
 **Relation to companion work.** Our companion papers analyze same-clause interference in batched judgments with
 an associative-memory account; the present paper stays behavioral. The shared thread — correlated context
