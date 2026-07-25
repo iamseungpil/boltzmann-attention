@@ -137,5 +137,20 @@ ck("a2_003_silver_eligible_with_premium",
        _sp, {"max_fx_fee": 0, "needs_purchase_protection": True, "min_credit_limit": 100000,
              "premium_subscriber": True, "credit_score": 720, "business": False})["eligible"]], True)
 
+
+# ★C189: eligible 공집합 안내(024 실측 = 과잉 형식화 → 공집합 → 사임 위험) + 요율 범위 라벨
+_e = C.apply_op(CAT, {"min_cashback": 99, "business": False})
+ck("empty_eligible_flagged", _e["eligible"], [])
+ck("empty_eligible_guidance", "no card is in 'eligible'" in _e["note"], True)
+ck("empty_eligible_warns_invented", "invent thresholds" in _e["note"], True)
+ck("nonempty_has_no_empty_note", "no card is in 'eligible'" in _r["note"], False)
+_bs = [x for x in C.apply_op(_sp, {"business": True, "credit_score": 700})["eligible"]
+       if x["card"] == "Business Silver Rewards Card"]
+ck("a2_category_rate_labeled", _bs and _bs[0]["facts"].get("cashback_scope") is not None, True)
+ck("a2_category_rate_has_base", _bs and _bs[0]["facts"].get("base_cashback") == 1.0, True)
+_pl = [x for x in C.apply_op(_sp, {"min_cashback": 5, "business": False})["eligible"]
+       if x["card"] == "Platinum Rewards Card"]
+ck("a2_all_purchase_rate_labeled", _pl and _pl[0]["facts"].get("cashback_scope") == "all", True)
+
 print("\n%d FAIL" % len(FAILS) if FAILS else "\nALL PASS (t2_compute 일반 op)")
 sys.exit(1 if FAILS else 0)

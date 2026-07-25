@@ -1329,7 +1329,8 @@
             "min_score": 750,
             "limit_max": 150000,
             "purchase_protection": true,
-            "virtual_card": true
+            "virtual_card": true,
+            "cashback_scope": "all"
           },
           {
             "card": "Gold Rewards Card",
@@ -1341,7 +1342,8 @@
             "min_score": 720,
             "limit_max": 112500,
             "purchase_protection": true,
-            "virtual_card": true
+            "virtual_card": true,
+            "cashback_scope": "all"
           },
           {
             "card": "Silver Rewards Card",
@@ -1354,7 +1356,9 @@
             "cashback": 4.0,
             "limit_max": 100000,
             "purchase_protection": true,
-            "virtual_card": false
+            "virtual_card": false,
+            "cashback_scope": "top_categories(travel/software)",
+            "base_cashback": 1.0
           },
           {
             "card": "Bronze Rewards Card",
@@ -1364,7 +1368,8 @@
             "min_payment_pct": 1.0,
             "min_score": 640,
             "source": "doc bronze_rewards_card_*",
-            "virtual_card": false
+            "virtual_card": false,
+            "cashback_scope": "all"
           },
           {
             "card": "EcoCard",
@@ -1385,7 +1390,8 @@
             "min_score": 660,
             "cashback": 2.0,
             "purchase_protection": false,
-            "virtual_card": true
+            "virtual_card": true,
+            "cashback_scope": "all"
           },
           {
             "card": "Diamond Elite Card",
@@ -1397,7 +1403,8 @@
             "source": "doc diamond_elite_card_*",
             "min_score": 780,
             "purchase_protection": true,
-            "virtual_card": true
+            "virtual_card": true,
+            "cashback_scope": "all"
           },
           {
             "card": "Business Bronze Rewards Card",
@@ -1405,7 +1412,8 @@
             "annual_fee": 0.0,
             "fx_fee": 2.75,
             "cashback": 1.0,
-            "source": "doc business_bronze_rewards_card_*"
+            "source": "doc business_bronze_rewards_card_*",
+            "cashback_scope": "all"
           },
           {
             "card": "Business Silver Rewards Card",
@@ -1415,7 +1423,9 @@
             "cashback": 10.0,
             "source": "doc business_silver_rewards_card_*",
             "min_score": 700,
-            "limit_max": 112500
+            "limit_max": 112500,
+            "cashback_scope": "top_categories(travel/software)",
+            "base_cashback": 1.0
           },
           {
             "card": "Business Gold Rewards Card",
@@ -1441,7 +1451,9 @@
             "fx_fee": 1.0,
             "cashback": 3.0,
             "source": "doc green_rewards_card_*",
-            "limit_max": 75000
+            "limit_max": 75000,
+            "cashback_scope": "top_categories",
+            "base_cashback": 1.0
           },
           {
             "card": "Silver Zoom Card",
@@ -1457,7 +1469,8 @@
             "when": "premium_subscriber"
           }
         },
-        "_note_v2": "★C187(b)(c)(d)·2026-07-25: KB 축자 사실 보강. min_score 전 카드(EcoCard=0=요건없음·Crypto 660·Diamond 780) · limit_max(최대 승인 한도) · purchase_protection(Crypto=No 명시) · virtual_card(Silver=No·Bronze=No 명시) · Silver fx 조건부(무구독 2.75/premium 0)=conditional_fields. cashback은 **최상위 카테고리 요율**(Platinum 10%=travel/software·Silver 4%=travel/software·기타 1%) — '가장 높은 cash back' 질의의 비교 기준. 미문서 필드는 넣지 않는다(EcoCard/Green cashback=포인트제·biz_bronze/green min_score 미문서) → 제약 걸리면 unverified로 정직하게 반환."
+        "_note_v2": "★C187(b)(c)(d)·2026-07-25: KB 축자 사실 보강. min_score 전 카드(EcoCard=0=요건없음·Crypto 660·Diamond 780) · limit_max(최대 승인 한도) · purchase_protection(Crypto=No 명시) · virtual_card(Silver=No·Bronze=No 명시) · Silver fx 조건부(무구독 2.75/premium 0)=conditional_fields. cashback은 **최상위 카테고리 요율**(Platinum 10%=travel/software·Silver 4%=travel/software·기타 1%) — '가장 높은 cash back' 질의의 비교 기준. 미문서 필드는 넣지 않는다(EcoCard/Green cashback=포인트제·biz_bronze/green min_score 미문서) → 제약 걸리면 unverified로 정직하게 반환. ★C189(2026-07-25·024 실측): `cashback`은 카드마다 **적용 범위가 다르다** — Platinum 10%/Gold 2.5%/Diamond 5%는 전 구매, **Silver 4%·Business Silver 10%·Green 3%는 카테고리 한정(그 외 base_cashback 1.0%)**. 평면 비교하면 오도한다(024: 모델이 Business Silver 10%를 최고로 보고 선택했으나 $40k 트럭은 비해당 카테고리라 1%이고, gold=Business Bronze는 1%+**프로모 $500 statement credit**로 실질 우위). ⇒ `cashback_scope`/`base_cashback`을 표에 실어 **모델이 평면 비교를 하지 않게** 한다. 가입 보너스·프로모는 표에 넣지 않는다(원문 소관·note가 확인을 지시).",
+        "_note_limit": "⚠**이 표의 한계**: 하드 제약 판정에는 충분하지만 '최대 수익' 류 질의의 결정축(가입 보너스·카테고리 적격·기간 프로모)은 표에 없다. 그런 질의에서는 eligible 목록을 **후보 축소**로만 쓰고 최종 비교는 원문 확인으로 해야 한다."
       },
       "_note": "★C181(2026-07-25·C179 처방): 클러스터① 카드 오선택(002/003/006/024/063·W2+W4 이중증거=문서-유입 불충분) → 결정론 자격필터. 표=KB 문서 사실의 선언적 추출(각 행 source 명시·조건부 조항은 note로 재확인 지시=오염 방지). 최종 선택·선호 매칭=모델 몫. 002 텍스트-행동 divergence는 description의 MUST 절이 표적."
     }

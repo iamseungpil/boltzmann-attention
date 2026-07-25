@@ -349,8 +349,17 @@ def apply_op(spec, ctx):
                                   "source": row.get("source")})
                 else:
                     elig.append({"card": name, "facts": facts, "source": row.get("source")})
+            # ★C189: eligible 공집합 안내 — (a)+(c)로 결측/조건부가 통과하지 않게 되면서 **과잉
+            #   형식화 시 eligible이 빌 수 있다**(024 실측: 손님은 "$40k 구매에 최고 수익"만 말했는데
+            #   모델이 min_cashback=2를 발명 → gold(Business Bronze 1.0%) 배제 → 신판에선 공집합).
+            #   공집합을 "맞는 카드 없음"으로 오독해 사임하는 것이 다음 실패 모드이므로 대처를 명시.
+            empty = ("" if elig else
+                     " NOTE: no card is in 'eligible'. Do NOT conclude that nothing fits: re-check "
+                     "which limits the CUSTOMER actually stated (do not invent thresholds they did "
+                     "not give) and call again, and/or read the source docs of the 'unverified' "
+                     "candidates.")
             return {"eligible": elig, "excluded": excl, "unverified": unver,
-                    "note": ("Deterministic filter over documented facts. 'eligible' = the "
+                    "note": (empty + " Deterministic filter over documented facts. 'eligible' = the "
                              "documented value satisfies your constraint. 'excluded' = it "
                              "violates it. 'unverified' = that fact is NOT in the catalog for "
                              "that card, so it is NOT known to satisfy your constraint — do not "
