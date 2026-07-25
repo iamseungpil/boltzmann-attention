@@ -91,6 +91,7 @@
           "cancel my credit card"
         ],
         "required_reads": [
+          "get_all_user_accounts_by_user_id",
           "get_closure_reason_history",
           "get_pending_replacement_orders",
           "get_user_dispute_history"
@@ -99,8 +100,8 @@
           "log_credit_card_closure_reason",
           "apply_credit_card_account_flag"
         ],
-        "phrase": "To close a card you must FIRST read the closure-reason history, any pending replacement orders, and the dispute history; pay off any outstanding balance; log the closure reason; and OFFER any applicable retention benefit (e.g. fee waiver) before finalizing. Only actually close the account if the customer still wants to after any retention offer.",
-        "_note": "2026-07-24 C133/write_tools 확장: 043 close 사슬(rall23 4/15·rall24 변동10/15인데 driver 무관=사슬 미커버). gold=이 read/write 집합. 신호=닫기 요청 어구·엔진 신호매칭+집합차만."
+        "phrase": "To close a card you must FIRST list the customer's accounts (to locate the funding checking account), read the closure-reason history, any pending replacement orders, and the dispute history; pay off any outstanding balance from the checking account; log the closure reason; and OFFER any applicable retention benefit (e.g. fee waiver) before finalizing. Only actually close the account if the customer still wants to after any retention offer.",
+        "_note": "2026-07-24 C133/write_tools 확장: 043 close 사슬(rall23 4/15·rall24 변동10/15인데 driver 무관=사슬 미커버). gold=이 read/write 집합. 신호=닫기 요청 어구·엔진 신호매칭+집합차만. ★2026-07-25 C169: get_all_user_accounts_by_user_id 추가 — gold 소속(nt4 4/4 MISS·C149 등록요건)·KB 절차 문서 명시 도구·guided가 직접호출 탈출구를 막자 발굴-실패 노출(gd4 W4: 날조 checking id→8회 반복루프→transfer). 체인이 이름을 대면 에이전트가 KB서 suffixed 이름 찾아 dispatcher로 호출(행동-키 검색·guided 정합)."
       }
     ],
     "finalize_writes": [
