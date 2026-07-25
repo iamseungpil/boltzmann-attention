@@ -175,7 +175,29 @@ def apply():
             if hit:
                 break
         if hit is None:
-            return orig_exec(self, tool_calls)
+            out = orig_exec(self, tool_calls)
+            # ★C181b: 가공 user-도구 피드백(012/075/015 패밀리 — navigate_to_section 등 반복 발명
+            #   →env 에러 후 모델이 말-안내로 후퇴). env 자체 에러 문구(도메인-일반)를 트리거로
+            #   처방적 지시를 덧붙임(C116). 목록 제공=spoon-feeding이라 금지·KB 재검색 지시만.
+            #   cap 2/sim. 엔진은 문자열 덧붙임뿐(도구 목록·이름 미주입).
+            try:
+                nfb = getattr(self, "_t2_utool_fb", 0)
+                if nfb < 2:
+                    for r in (out or []):
+                        c = getattr(r, "content", "") or ""
+                        if "Unknown discoverable tool" in c:
+                            r.content = (c + " [GUIDANCE] That tool name does not exist — you "
+                                         "invented it. Do NOT fall back to verbal instructions: "
+                                         "search the knowledge base for the documented tool that "
+                                         "serves this customer request (query by the capability, "
+                                         "e.g. 'travel notification tool' / 'referral link tool'), "
+                                         "then re-issue give/call with the EXACT documented name.")
+                            self._t2_utool_fb = nfb + 1
+                            _mark("utool feedback appended (n=%d)" % (nfb + 1))
+                            break
+            except Exception:
+                pass
+            return out
         tc0, nm0, fam0 = hit
         denied.add(fam0)                             # cap: fam당 1회
         _mark("deny fam=%s (no action-keyed KB evidence) — instructing search" % fam0)

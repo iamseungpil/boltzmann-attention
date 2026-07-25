@@ -1300,6 +1300,125 @@
         "get_payment_history"
       ],
       "requires_reads_feedback": "Error: [READ-FIRST] before checking CLI eligibility you must first read the inputs from the records. Missing required reads: {missing}. Read the credit card account record (get_credit_card_accounts_by_user), the CLI request history (get_credit_limit_increase_history) and the payment history (get_payment_history) - the last two are DISCOVERABLE tools, so find each full suffixed name in the knowledge base (search plain words for the step), unlock and call it. Only after those reads are in the conversation can you copy exact values (balances, dates, approved-request date, on-time payment count) into check_cli_eligibility. Then call it again."
+    },
+    {
+      "name": "check_card_application_fit",
+      "description": "MANDATORY before recommending or applying for ANY credit card: formalize the customer's stated constraints (max annual fee, max foreign-transaction fee %, max minimum-payment %, min cashback %, their credit score, business vs personal) and call this tool. It deterministically filters Rho-Bank's documented card catalog and returns eligible cards with source docs plus excluded cards with reasons. Choose ONLY among the eligible cards; verify each remaining candidate's source docs for conditional clauses (e.g. subscriber discounts) and the customer's soft preferences before the final pick. The card_type you then pass to apply_for_credit_card MUST be one of the eligible cards you named to the customer.",
+      "params": {
+        "max_annual_fee": "number, optional",
+        "max_fx_fee": "number, optional (percent)",
+        "max_min_payment_pct": "number, optional (percent)",
+        "min_cashback": "number, optional (percent)",
+        "credit_score": "number, optional",
+        "business": "boolean, optional (default false)",
+        "invited": "boolean, optional (Diamond Elite invitation)"
+      },
+      "op": {
+        "op": "catalog_filter",
+        "table": [
+          {
+            "card": "Platinum Rewards Card",
+            "annual_fee": 200.0,
+            "fx_fee": 0.0,
+            "cashback": 10.0,
+            "min_payment_pct": 2.5,
+            "source": "doc platinum_rewards_card_*"
+          },
+          {
+            "card": "Gold Rewards Card",
+            "annual_fee": 0.0,
+            "fx_fee": 0.0,
+            "cashback": 2.5,
+            "min_payment_pct": 2.0,
+            "source": "doc gold_rewards_card_*"
+          },
+          {
+            "card": "Silver Rewards Card",
+            "annual_fee": 0.0,
+            "fx_fee": 2.75,
+            "min_payment_pct": 1.5,
+            "min_score": 680,
+            "source": "doc silver_rewards_card_*"
+          },
+          {
+            "card": "Bronze Rewards Card",
+            "annual_fee": 0.0,
+            "fx_fee": 2.75,
+            "cashback": 1.0,
+            "min_payment_pct": 1.0,
+            "min_score": 640,
+            "source": "doc bronze_rewards_card_*"
+          },
+          {
+            "card": "EcoCard",
+            "annual_fee": 50.0,
+            "fx_fee": 1.0,
+            "min_payment_pct": 1.0,
+            "source": "doc ecocard_*"
+          },
+          {
+            "card": "Crypto-Cash Back",
+            "annual_fee": 75.0,
+            "fx_fee": 0.0,
+            "min_payment_pct": 1.5,
+            "source": "doc crypto-cash_back_*"
+          },
+          {
+            "card": "Diamond Elite Card",
+            "annual_fee": 495.0,
+            "fx_fee": 0.0,
+            "cashback": 5.0,
+            "min_payment_pct": 3.0,
+            "invite_only": true,
+            "source": "doc diamond_elite_card_*"
+          },
+          {
+            "card": "Business Bronze Rewards Card",
+            "business": true,
+            "annual_fee": 0.0,
+            "fx_fee": 2.75,
+            "cashback": 1.0,
+            "source": "doc business_bronze_rewards_card_*"
+          },
+          {
+            "card": "Business Silver Rewards Card",
+            "business": true,
+            "annual_fee": 122.5,
+            "fx_fee": 1.5,
+            "cashback": 10.0,
+            "source": "doc business_silver_rewards_card_*"
+          },
+          {
+            "card": "Business Gold Rewards Card",
+            "business": true,
+            "annual_fee": 200.0,
+            "fx_fee": 0.0,
+            "source": "doc business_gold_rewards_card_*"
+          },
+          {
+            "card": "Business Platinum Rewards Card",
+            "business": true,
+            "annual_fee": 450.0,
+            "fx_fee": 0.0,
+            "source": "doc business_platinum_rewards_card_*"
+          },
+          {
+            "card": "Green Rewards Card",
+            "business": true,
+            "annual_fee": 100.0,
+            "fx_fee": 1.0,
+            "cashback": 3.0,
+            "source": "doc green_rewards_card_*"
+          },
+          {
+            "card": "Silver Zoom Card",
+            "business": true,
+            "fx_fee": 2.5,
+            "source": "doc silver_zoom_card_*"
+          }
+        ]
+      },
+      "_note": "★C181(2026-07-25·C179 처방): 클러스터① 카드 오선택(002/003/006/024/063·W2+W4 이중증거=문서-유입 불충분) → 결정론 자격필터. 표=KB 문서 사실의 선언적 추출(각 행 source 명시·조건부 조항은 note로 재확인 지시=오염 방지). 최종 선택·선호 매칭=모델 몫. 002 텍스트-행동 divergence는 description의 MUST 절이 표적."
     }
   ],
   "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수.",

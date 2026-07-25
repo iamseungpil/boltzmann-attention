@@ -263,6 +263,51 @@ def apply_op(spec, ctx):
             recs = _get(ctx, spec.get("over")) or []
             cf, cv = spec.get("cond_field"), spec.get("cond_value")
             return sum(1 for r in recs if isinstance(r, dict) and r.get(cf) == cv)
+        if op == "catalog_filter":
+            # ★C181(2026-07-25·C179 처방): A2-선언 카탈로그(spec.table=행 리스트)를 모델이
+            #   formalize해 넘긴 제약(ctx)으로 결정론 필터([[10]]: formalize=LLM·실행=엔진).
+            #   도메인-일반: 행 스키마·값은 전부 A2. 제약 키(있을 때만 적용):
+            #   max_annual_fee/max_fx_fee/max_min_payment_pct(이하)·min_cashback(이상)·
+            #   needs_virtual_card(참이면 행 virtual_card 참)·credit_score(행 min_score 이상)·
+            #   business(행 business와 일치·미지정시 비즈니스 행 제외).
+            #   invite_only 행은 ctx.invited 참 아니면 항상 제외(문서 사실).
+            rows = spec.get("table") or []
+            biz = bool(ctx.get("business"))
+            elig, excl = [], []
+            for row in rows:
+                name = row.get("card")
+                why = None
+                if bool(row.get("business")) != biz:
+                    continue                                  # 세그먼트 불일치=조용히 스킵
+                if row.get("invite_only") and not ctx.get("invited"):
+                    why = "invitation-only"
+                for ck, rk, sense in (("max_annual_fee", "annual_fee", "le"),
+                                      ("max_fx_fee", "fx_fee", "le"),
+                                      ("max_min_payment_pct", "min_payment_pct", "le"),
+                                      ("min_cashback", "cashback", "ge")):
+                    if why:
+                        break
+                    cv, rv = _num(ctx.get(ck)), _num(row.get(rk))
+                    if cv is None or rv is None:
+                        continue                              # 미지정/미문서 필드=미적용(보수)
+                    if (sense == "le" and rv > cv) or (sense == "ge" and rv < cv):
+                        why = "%s=%s violates %s=%s" % (rk, rv, ck, cv)
+                if not why and ctx.get("needs_virtual_card") and not row.get("virtual_card"):
+                    why = "no virtual card management"
+                if not why:
+                    cs, ms = _num(ctx.get("credit_score")), _num(row.get("min_score"))
+                    if cs is not None and ms is not None and cs < ms:
+                        why = "min_score %s > customer %s" % (ms, cs)
+                (excl if why else elig).append(
+                    {"card": name, "reason": why} if why else
+                    {"card": name, "facts": {k: v for k, v in row.items()
+                                             if k not in ("card", "business")},
+                     "source": row.get("source")})
+            return {"eligible": elig, "excluded": excl,
+                    "note": ("Deterministic filter over documented facts. Some fees/rates have "
+                             "CONDITIONAL clauses (e.g. subscriber discounts) not in this table — "
+                             "before the final choice, verify the cited source docs for each "
+                             "remaining candidate and match the customer's stated preferences.")}
         if op == "lookup_table":
             # 조건 리스트를 순서대로 평가 → 첫 매칭의 result. cond = {ref, op, value} 또는 days 비교.
             key = apply_op(spec.get("key"), ctx) if isinstance(spec.get("key"), dict) \
