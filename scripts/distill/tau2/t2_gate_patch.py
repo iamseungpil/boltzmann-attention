@@ -3424,6 +3424,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     if _brem:
                                         ep_fb = (c, _brem)
                                         # C173-corr: 전용 예산 소모(독립 카운터·기본 2/sim)
+                                        # C174: kind 플래그 — 공유 증가 지점서 discovery
+                                        #   카운터를 건드리지 않게 표시(예산 전면 독립).
+                                        self._t2_ep_fb_preclose = True
                                         self._t2_preclose_deny = getattr(
                                             self, "_t2_preclose_deny", 0) + 1
                                         print("[T2_BRANCH_REGROUND] pre-close deny: finalize=%s "
@@ -4050,10 +4053,17 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 _budget_tick(self)  # ★게이트 라운드만 과금 (prov=무과금=C53 semantics)
             if ep_fb is not None:
                 eplan_rounds += 1
-                self._t2_eplan_deny = getattr(self, "_t2_eplan_deny", 0) + 1
-                if self._t2_eplan_deny == _ep_cap:  # 관측 마커(sim당 1회): 이후 discovery deny 중단
-                    print("[T2_EPLAN] deny cap %d reached — no further discovery denies this sim"
-                          % _ep_cap, file=_sys.stderr, flush=True)
+                # ★C174(사용자 지시 2026-07-25): deny 예산 **전면 독립** — 공용 예산 폐지.
+                #   같은 종류의 deny는 자기 cap 안에서 여러 번 발화 가능하되, 무관한 deny끼리는
+                #   서로의 예산을 건드리지 않는다. pre-close 발화는 발화 지점서 자기 카운터
+                #   (_t2_preclose_deny)만 소모하므로 여기선 discovery 카운터를 증가시키지 않음.
+                if getattr(self, "_t2_ep_fb_preclose", False):
+                    self._t2_ep_fb_preclose = False
+                else:
+                    self._t2_eplan_deny = getattr(self, "_t2_eplan_deny", 0) + 1
+                    if self._t2_eplan_deny == _ep_cap:  # 관측 마커: 이후 discovery deny 중단
+                        print("[T2_EPLAN] deny cap %d reached — no further discovery denies this sim"
+                              % _ep_cap, file=_sys.stderr, flush=True)
             if cons_fb is not None:
                 cons_rounds += 1
                 self._t2_cons_deny = getattr(self, "_t2_cons_deny", 0) + 1
