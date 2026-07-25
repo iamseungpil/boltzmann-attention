@@ -124,24 +124,21 @@ def grammar_for_tools(tools):
 
 
 # ── 패치 배선 ────────────────────────────────────────────────────────────────
-# 표적 호출만 제약한다: call_name="agent_response"(에이전트 본생성).
-# user-sim·judge·기타 보조 호출은 건드리지 않음(측정 오염 방지).
-TARGET_CALL_NAMES = ("agent_response",)
+# ★C166 교훈(032 관통): identity-check 체이닝은 다른 패치(gate/maxprompt)가 la.generate를
+#   먼저 감쌌으면 스킵됐고, gate의 regen은 자기 apply 시점의 la.generate를 캡처(_og_gen)해
+#   직접 호출한다 → guided가 에이전트 경로에 사실상 비활성이었다. 수정:
+#   ① la.generate를 **무조건 체인-랩**(현재 값이 무엇이든 그 위에)
+#   ② 드라이버에서 guided를 **gate보다 먼저** 적용(gate의 _og_gen 캡처에 guided가 포함되도록)
+#   ③ call_name 필터 폐기 — 격리는 *모듈 바인딩*으로 달성:
+#      la.generate = 에이전트 모듈 경유 호출만 / user-sim은 자기 모듈의 from-import 바인딩
+#      (원본)을 쓰므로 llm_utils.generate 패치의 영향을 받지 않는다(import 시점 캡처).
+#   주입 조건 = tools 有 ∧ tool_choice∈{None,"auto"} (tools=None 서브콜은 자동 제외).
 
 
-def apply():
-    """tau2.utils.llm_utils.generate 몽키패치. T2_GUIDED=1일 때만 문법 주입."""
-    global _APPLIED
-    if _APPLIED:
-        return
-    from tau2.utils import llm_utils
-
-    _orig = llm_utils.generate
-
+def _make_wrapper(inner):
     def _generate(model, messages, tools=None, tool_choice=None, call_name=None, **kwargs):
         if (os.environ.get("T2_GUIDED") == "1"
                 and tools
-                and (call_name in TARGET_CALL_NAMES)
                 and tool_choice in (None, "auto")):
             g = grammar_for_tools(tools)
             if g:
@@ -150,19 +147,26 @@ def apply():
                     eb["structured_outputs"] = {"grammar": g}
                     kwargs["extra_body"] = eb
                     _mark("guided applied (call=%s tools=%d)" % (call_name, len(tools)))
-        return _orig(model, messages, tools=tools, tool_choice=tool_choice,
+        return inner(model, messages, tools=tools, tool_choice=tool_choice,
                      call_name=call_name, **kwargs)
+    return _generate
 
-    llm_utils.generate = _generate
-    # llm_agent가 from-import한 심볼도 교체(모듈 로드 순서 무관하게)
+
+def apply():
+    """generate 몽키패치(체인-랩). T2_GUIDED=1일 때만 문법 주입.
+    드라이버는 이 apply()를 gate/eplan/scaffold_get **이전**에 불러야 한다(위 ② 참조)."""
+    global _APPLIED
+    if _APPLIED:
+        return
+    from tau2.utils import llm_utils
+    llm_utils.generate = _make_wrapper(llm_utils.generate)
     try:
         from tau2.agent import llm_agent as _la
-        if getattr(_la, "generate", None) is _orig:
-            _la.generate = _generate
+        _la.generate = _make_wrapper(_la.generate)   # 현재 체인 위에 무조건 랩
     except Exception:
         pass
     _APPLIED = True
-    _mark("patch applied")
+    _mark("patch applied (chain-wrap)")
 
 
 if __name__ == "__main__":

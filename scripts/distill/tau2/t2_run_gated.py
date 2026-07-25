@@ -124,6 +124,15 @@ def main():
         import t2_agent_maxprompt_patch
         t2_agent_maxprompt_patch.apply()
 
+    # ★GUIDED DECODING (T2_GUIDED=1) — 반드시 gate **이전** 적용(C166):
+    #   gate의 regen이 apply 시점의 la.generate를 _og_gen으로 캡처해 직접 호출하므로,
+    #   guided가 나중이면 regen 경로가 문법을 우회한다(032 관통 사고). 여기서 먼저 감싸
+    #   gate가 guided-포함 체인을 캡처하게 한다. 문법=라이브 스키마 유래([[05]] 리터럴 0).
+    if os.environ.get("T2_GUIDED") == "1":
+        import t2_guided_patch
+        t2_guided_patch.apply()
+        print("[t2_run] GUIDED ON (tool-name grammar from live schema · auto 유지 · pre-gate)")
+
     if a.gate:
         import t2_gate_patch
         regen_on = os.environ.get("T2_PROV_REGEN") == "1"
@@ -191,15 +200,17 @@ def main():
         t2_scaffold_get.apply()
         print("[t2_run] SCAFFOLD-GET ON (A2 scaffold_get_tools)")
 
-    # ★GUIDED DECODING (T2_GUIDED=1): 에이전트 tool_call **이름**을 라이브 스키마로 decode-레벨 제약.
-    #   표적=KB "Use X_3847" 문구서 온 스키마밖 이름 직접방출(→dispatcher 미경유→CALLED 미등록→
-    #   db_match 실패·C159 043 잔여 blocker). deny/prompt=soft(C152/C153)와 달리 토큰 마스킹=hard.
-    #   문법은 generate()가 받는 tools(라이브 스키마)서 생성 → 도메인 리터럴 0·A2 순증 0([[05]]).
-    #   SCAFFOLD-GET 뒤에 적용(주입된 도구도 스키마에 포함된 뒤 문법 생성되도록).
-    if os.environ.get("T2_GUIDED") == "1":
-        import t2_guided_patch
-        t2_guided_patch.apply()
-        print("[t2_run] GUIDED ON (tool-name grammar from live schema · auto 유지)")
+    # (T2_GUIDED는 gate 이전 블록에서 이미 적용됨 — C166 순서 교정. 문법은 per-call tools
+    #  인자에서 생성되므로 scaffold_get이 주입한 도구도 런타임에 자동 포함된다.)
+
+    # ★PRE-ACTION-KB (T2_PREKB=1): 종결성 도구 실행 직전, '그 행동'으로 KB를 조회했는지 확인.
+    #   미조회면 1회 deny + 행동-키 검색 지시(C165: 문제-기반 쿼리는 절차 문서를 못 찾고
+    #   행동-기반 쿼리는 1~2위 — 032/033/035 기전). 문서를 찾게만 하고 답은 안 줌([[03b]]).
+    #   scaffold_get/gate 뒤 적용(_execute_tool_calls 최외곽 체이닝).
+    if os.environ.get("T2_PREKB") == "1":
+        import t2_prekb_patch
+        t2_prekb_patch.apply()
+        print("[t2_run] PRE-ACTION-KB ON (action-keyed retrieval check · 1회/fam)")
 
     # user-sim·judge 모델 결정: --user_llm(원격 API, 예 openrouter/...) 우선, 아니면 로컬 vllm
     if a.user_llm:
