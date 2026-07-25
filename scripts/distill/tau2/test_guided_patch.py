@@ -60,6 +60,8 @@ def main():
     names, tools = live_names()
     print("live schema: %d tools" % len(names))
     assert names, "no tool names from live schema"
+    # get_tools()는 dict(name→Tool). API 호출용 OpenAI 스키마로 변환.
+    tool_objs = list(tools.values()) if isinstance(tools, dict) else list(tools)
     g = G.build_grammar(names)
     assert g, "grammar build failed"
     # [[05]] 감사: 문법에 discoverable(suffixed) 이름이 들어가면 안 됨(스키마가 이미 제외)
@@ -71,7 +73,13 @@ def main():
         print("requests 없음 — 문법 생성까지만 검증. OK")
         return
 
-    schema = [t.openai_schema for t in tools]
+    schema = []
+    for t in tool_objs:
+        s = getattr(t, "openai_schema", None)
+        if isinstance(s, dict):
+            schema.append(s)
+    assert schema, "could not build OpenAI schema from tools"
+    print("openai schema entries: %d" % len(schema))
     P_TOOL = ("Knowledge base: to list a customer's accounts use "
               "get_all_user_accounts_by_user_id_3847 with the user_id.\n"
               "Discoverable tools must be unlocked first, then invoked through the dispatcher.\n"

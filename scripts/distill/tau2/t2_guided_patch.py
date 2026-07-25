@@ -82,15 +82,28 @@ def build_grammar(names):
 
 
 def _names_from_tools(tools):
-    """tau2 Tool 객체 리스트 → 이름. openai_schema(function.name) 우선, 폴백 .name."""
+    """도구 컨테이너 → 이름 리스트. 도메인 무관·형태 무관:
+      · dict(name→tool)  : env.tools.get_tools() 반환형(키가 이름)
+      · list[Tool]       : generate()가 받는 형태(openai_schema.function.name)
+      · list[dict]       : 이미 OpenAI 스키마인 경우
+    """
+    if not tools:
+        return []
+    if isinstance(tools, dict):
+        return [str(k) for k in tools.keys()]
     out = []
-    for t in (tools or []):
+    for t in tools:
         nm = None
-        sch = getattr(t, "openai_schema", None)
-        if isinstance(sch, dict):
-            nm = (sch.get("function") or {}).get("name")
-        if not nm:
-            nm = getattr(t, "name", None)
+        if isinstance(t, str):
+            nm = t
+        elif isinstance(t, dict):
+            nm = (t.get("function") or {}).get("name") or t.get("name")
+        else:
+            sch = getattr(t, "openai_schema", None)
+            if isinstance(sch, dict):
+                nm = (sch.get("function") or {}).get("name")
+            if not nm:
+                nm = getattr(t, "name", None)
         if nm:
             out.append(str(nm))
     return out
