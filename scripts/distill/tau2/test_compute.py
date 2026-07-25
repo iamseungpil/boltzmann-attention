@@ -94,5 +94,48 @@ ck("catalog_no_constraint_all_eligible",
 # note가 unverified 의미를 설명해야(모델이 오해 없이 쓰도록)
 ck("catalog_note_explains_unverified", "unverified" in _r["note"], True)
 
+# ★C187(c)(d) 조건부 값 + 신규 제약(한도·구매보호). 003 실측: Silver fx=무구독 2.75/premium 0인데
+#   구판이 무조건부 2.75만 보고 gold를 하드 배제했다.
+CAT2 = {"op": "catalog_filter",
+        "conditional_fields": {"fx_fee": {"alt": "fx_fee_with_premium", "when": "premium_subscriber"}},
+        "table": [
+            {"card": "CondCard", "fx_fee": 2.75, "fx_fee_with_premium": 0.0,
+             "limit_max": 100000, "purchase_protection": True, "source": "doc s"},
+            {"card": "FlatBad", "fx_fee": 2.75, "limit_max": 100000, "source": "doc f"},
+            {"card": "NoProt", "fx_fee": 0.0, "purchase_protection": False, "source": "doc n"},
+            {"card": "SmallLimit", "fx_fee": 0.0, "limit_max": 50000, "source": "doc l"},
+        ]}
+_c1 = C.apply_op(CAT2, {"max_fx_fee": 0, "premium_subscriber": True, "business": False})
+ck("cond_true_uses_alt", sorted(x["card"] for x in _c1["eligible"]),
+   ["CondCard", "NoProt", "SmallLimit"])
+_c2 = C.apply_op(CAT2, {"max_fx_fee": 0, "premium_subscriber": False, "business": False})
+ck("cond_false_uses_base", "CondCard" in [x["card"] for x in _c2["excluded"]], True)
+_c3 = C.apply_op(CAT2, {"max_fx_fee": 0, "business": False})           # 조건 미지
+ck("cond_unknown_is_unverified", [x["card"] for x in _c3["unverified"]], ["CondCard"])
+ck("cond_unknown_cites_clause", "premium_subscriber" in _c3["unverified"][0]["undocumented"][0], True)
+ck("cond_flat_still_excluded", "FlatBad" in [x["card"] for x in _c3["excluded"]], True)
+# 신규 제약: 한도(ge)·구매보호
+_c4 = C.apply_op(CAT2, {"min_credit_limit": 100000, "business": False})
+ck("min_credit_limit_excludes", "SmallLimit" in [x["card"] for x in _c4["excluded"]], True)
+ck("min_credit_limit_missing_unverified", "NoProt" in [x["card"] for x in _c4["unverified"]], True)
+_c5 = C.apply_op(CAT2, {"needs_purchase_protection": True, "business": False})
+ck("needs_prot_excludes_documented_no", "NoProt" in [x["card"] for x in _c5["excluded"]], True)
+ck("needs_prot_missing_unverified", "FlatBad" in [x["card"] for x in _c5["unverified"]], True)
+# 실제 A2 카탈로그 회귀(002/006 gold 보존)
+import json as _json
+_a2 = _json.load(open("a2/banking_knowledge.gate.json", encoding="utf-8"))
+_sp = [t["op"] for t in _a2["scaffold_get_tools"] if t["name"] == "check_card_application_fit"][0]
+ck("a2_002_platinum_only",
+   [x["card"] for x in C.apply_op(_sp, {"min_cashback": 5, "business": False})["eligible"]],
+   ["Platinum Rewards Card"])
+ck("a2_006_ecocard_only",
+   [x["card"] for x in C.apply_op(_sp, {"max_fx_fee": 1.5, "max_min_payment_pct": 1.5,
+                                        "needs_virtual_card": True, "credit_score": 540,
+                                        "business": False})["eligible"]], ["EcoCard"])
+ck("a2_003_silver_eligible_with_premium",
+   "Silver Rewards Card" in [x["card"] for x in C.apply_op(
+       _sp, {"max_fx_fee": 0, "needs_purchase_protection": True, "min_credit_limit": 100000,
+             "premium_subscriber": True, "credit_score": 720, "business": False})["eligible"]], True)
+
 print("\n%d FAIL" % len(FAILS) if FAILS else "\nALL PASS (t2_compute 일반 op)")
 sys.exit(1 if FAILS else 0)

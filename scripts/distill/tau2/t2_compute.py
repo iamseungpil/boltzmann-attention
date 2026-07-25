@@ -294,22 +294,49 @@ def apply_op(spec, ctx):
                     continue                                  # 세그먼트 불일치=조용히 스킵
                 if row.get("invite_only") and not ctx.get("invited"):
                     why = "invitation-only"
+                # ★C187(c): 조건부 값 — A2 `conditional_fields`가 (기본 필드 → 대체 필드, 조건
+                #   파라미터)를 선언한다(예: fx_fee → fx_fee_with_premium, when=premium_subscriber).
+                #   003 실측: Silver의 fx는 무구독 2.75%/**premium 구독 시 0%**인데 구판은 무조건부
+                #   2.75만 보고 **gold를 하드 배제**했다. 조건이 참=대체값 / 거짓=기본값 /
+                #   **미지=두 값의 판정이 갈리면 unverified**(조항 인용·배제 금지).
+                cond = spec.get("conditional_fields") or {}
                 for ck, rk, sense in (("max_annual_fee", "annual_fee", "le"),
                                       ("max_fx_fee", "fx_fee", "le"),
                                       ("max_min_payment_pct", "min_payment_pct", "le"),
-                                      ("min_cashback", "cashback", "ge")):
+                                      ("min_cashback", "cashback", "ge"),
+                                      ("min_credit_limit", "limit_max", "ge")):
                     if why:
                         break
                     cv, rv = _num(ctx.get(ck)), _num(row.get(rk))
                     if cv is None:
                         continue                              # 모델이 제약 미지정=미적용
-                    if rv is None:
+                    cspec = cond.get(rk) or {}
+                    av = _num(row.get(cspec.get("alt"))) if cspec else None
+                    wv = ctx.get(cspec.get("when")) if cspec else None
+                    if av is not None and wv is not None:
+                        rv = av if bool(wv) else rv            # 조건 확정 → 해당 값 사용
+                        av = None
+                    if rv is None and av is None:
                         missing.append("%s (constraint %s=%s)" % (rk, ck, cv))
                         continue                              # ★결측=통과 아님(unverified로)
-                    if (sense == "le" and rv > cv) or (sense == "ge" and rv < cv):
+                    def _bad(x):
+                        return x is not None and ((sense == "le" and x > cv)
+                                                  or (sense == "ge" and x < cv))
+                    if av is not None and _bad(rv) != _bad(av):
+                        missing.append("%s depends on %s (documented %s=%s, %s=%s) — confirm it"
+                                       % (rk, cspec.get("when"), rk, rv, cspec.get("alt"), av))
+                        continue                              # 조건 미지 & 판정 갈림 → unverified
+                    if _bad(rv) if av is None else (_bad(rv) and _bad(av)):
                         why = "%s=%s violates %s=%s" % (rk, rv, ck, cv)
-                if not why and ctx.get("needs_virtual_card") and not row.get("virtual_card"):
-                    why = "no virtual card management"
+                for ck, rk in (("needs_virtual_card", "virtual_card"),
+                               ("needs_purchase_protection", "purchase_protection")):
+                    if why or not ctx.get(ck):
+                        continue
+                    rv = row.get(rk)
+                    if rv is None:
+                        missing.append("%s (constraint %s)" % (rk, ck))   # 결측=통과 아님
+                    elif not rv:
+                        why = "%s is documented as not available" % rk
                 if not why:
                     cs, ms = _num(ctx.get("credit_score")), _num(row.get("min_score"))
                     if cs is not None and ms is not None and cs < ms:
