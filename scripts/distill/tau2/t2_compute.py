@@ -271,12 +271,25 @@ def apply_op(spec, ctx):
             #   needs_virtual_card(참이면 행 virtual_card 참)·credit_score(행 min_score 이상)·
             #   business(행 business와 일치·미지정시 비즈니스 행 제외).
             #   invite_only 행은 ctx.invited 참 아니면 항상 제외(문서 사실).
+            # ★C185(a)(2026-07-25·C184 실측 결함 교정·최우선): **결측 필드는 제약을 통과시키지
+            #   않는다.** 구판은 (제약 있음 ∧ 행에 그 사실 없음)을 `continue`로 넘겨 카드를
+            #   eligible에 실어, 결정론 도구가 "충족한다"고 **사실상 단언**했다 — W5 002 실측:
+            #   `min_cashback=5` 호출에 cashback 필드 없는 Silver/EcoCard/Crypto가 eligible로
+            #   통과 → 에이전트가 "Silver=5% cash back"(KB 정본 4%/1% = **거짓**)을 손님에게
+            #   말하고 손님이 복창·gold(Platinum) 대신 Silver 신청. **우리 레버가 거짓 사실을
+            #   생성**한 사례(등대 §1.3 게이트 자기-역효과). 교정 = 3버킷:
+            #     eligible   문서화된 값이 제약을 충족
+            #     excluded   문서화된 값이 제약을 위반(사유 명시)
+            #     unverified **그 사실이 표에 없음** → 충족 주장 금지·원문 확인 지시
+            #   (배제가 아니라 미검증으로 두는 이유: 하드-배제는 gold를 떨어뜨릴 위험·003의
+            #    조건부 조항 문제와 동일 계열. 최종 선택은 여전히 모델 몫.)
             rows = spec.get("table") or []
             biz = bool(ctx.get("business"))
-            elig, excl = [], []
+            elig, excl, unver = [], [], []
             for row in rows:
                 name = row.get("card")
                 why = None
+                missing = []
                 if bool(row.get("business")) != biz:
                     continue                                  # 세그먼트 불일치=조용히 스킵
                 if row.get("invite_only") and not ctx.get("invited"):
@@ -288,8 +301,11 @@ def apply_op(spec, ctx):
                     if why:
                         break
                     cv, rv = _num(ctx.get(ck)), _num(row.get(rk))
-                    if cv is None or rv is None:
-                        continue                              # 미지정/미문서 필드=미적용(보수)
+                    if cv is None:
+                        continue                              # 모델이 제약 미지정=미적용
+                    if rv is None:
+                        missing.append("%s (constraint %s=%s)" % (rk, ck, cv))
+                        continue                              # ★결측=통과 아님(unverified로)
                     if (sense == "le" and rv > cv) or (sense == "ge" and rv < cv):
                         why = "%s=%s violates %s=%s" % (rk, rv, ck, cv)
                 if not why and ctx.get("needs_virtual_card") and not row.get("virtual_card"):
@@ -298,16 +314,24 @@ def apply_op(spec, ctx):
                     cs, ms = _num(ctx.get("credit_score")), _num(row.get("min_score"))
                     if cs is not None and ms is not None and cs < ms:
                         why = "min_score %s > customer %s" % (ms, cs)
-                (excl if why else elig).append(
-                    {"card": name, "reason": why} if why else
-                    {"card": name, "facts": {k: v for k, v in row.items()
-                                             if k not in ("card", "business")},
-                     "source": row.get("source")})
-            return {"eligible": elig, "excluded": excl,
-                    "note": ("Deterministic filter over documented facts. Some fees/rates have "
-                             "CONDITIONAL clauses (e.g. subscriber discounts) not in this table — "
-                             "before the final choice, verify the cited source docs for each "
-                             "remaining candidate and match the customer's stated preferences.")}
+                facts = {k: v for k, v in row.items() if k not in ("card", "business")}
+                if why:
+                    excl.append({"card": name, "reason": why})
+                elif missing:
+                    unver.append({"card": name, "undocumented": missing, "facts": facts,
+                                  "source": row.get("source")})
+                else:
+                    elig.append({"card": name, "facts": facts, "source": row.get("source")})
+            return {"eligible": elig, "excluded": excl, "unverified": unver,
+                    "note": ("Deterministic filter over documented facts. 'eligible' = the "
+                             "documented value satisfies your constraint. 'excluded' = it "
+                             "violates it. 'unverified' = that fact is NOT in the catalog for "
+                             "that card, so it is NOT known to satisfy your constraint — do not "
+                             "claim that it does; read the cited source docs first if you want "
+                             "to consider it. Some fees/rates also have CONDITIONAL clauses "
+                             "(e.g. subscriber discounts) not in this table — before the final "
+                             "choice, verify the cited source docs for each remaining candidate "
+                             "and match the customer's stated preferences.")}
         if op == "lookup_table":
             # 조건 리스트를 순서대로 평가 → 첫 매칭의 result. cond = {ref, op, value} 또는 days 비교.
             key = apply_op(spec.get("key"), ctx) if isinstance(spec.get("key"), dict) \
