@@ -141,14 +141,57 @@ def deny_text(nm, fam):
             "Do NOT abandon the customer's request." % (nm, q, nm, nm))
 
 
-def _atool_guidance(c, a2):
+def _declared_give_tool(a2):
+    """A2가 선언한 '손님에게 도구를 건네는' 디스패처 이름(ABox 유래·엔진 리터럴 0).
+
+    ★[[05]]: `give_discoverable_user_tool`은 banking 전용 이름이라(프레임워크 공통 아님·
+    tau2 5도메인 중 banking에만 존재) 엔진에 박으면 도메인 리터럴 위반. A2
+    scaffold_get_tools[].follow_up.tool에 이미 선언돼 있으므로 거기서 읽는다.
+    미선언 도메인이면 None → 채널 교정 자체를 하지 않음(안전한 no-op)."""
+    for t in (a2 or {}).get("scaffold_get_tools") or []:
+        if not isinstance(t, dict):
+            continue
+        nm = (t.get("follow_up") or {}).get("tool")
+        if nm:
+            return str(nm)
+    return None
+
+
+def _is_user_channel(env, name):
+    """이름이 **손님-측** discoverable 도구인지 라이브 환경 레지스트리로 판정.
+
+    ★[[05]]: 판정 근거 = tau2 프레임워크 API(`env.user_tools`)뿐 — 도메인 어휘 0.
+    guided decoding이 라이브 스키마에서 문법을 뽑는 것과 같은 원리."""
+    if not env or not name:
+        return False
+    try:
+        ut = getattr(env, "user_tools", None)
+        if ut is None:
+            return False
+        if hasattr(ut, "has_discoverable_tool"):
+            return bool(ut.has_discoverable_tool(name))
+        if hasattr(ut, "has_tool"):
+            return bool(ut.has_tool(name))
+    except Exception:
+        return False
+    return False
+
+
+def _atool_guidance(c, a2, env=None):
     """★C182 'Unknown agent tool' 에러에 붙일 처방 문구(순수 함수·selftest 대상).
 
     017/019 회귀 기전: scaffold-주입 도구(get_reward_discrepancies)를 에이전트가
     unlock_discoverable_agent_tool로 오주소 → env 에러가 '없는 도구'라고만 말해
     직접-호출 재시도 없이 포기. 이름이 A2 scaffold_get_tools 명단에 있으면
     '직접 호출하라', 아니면 'KB에서 정확한(서픽스 포함) 이름을 재확인하라'.
-    엔진은 이름 대조·문자열 덧붙임뿐([[05]] 리터럴 0). None=미변경."""
+
+    ★C182b 채널 교정(018/020/022 실측): 반대 방향 오주소 — **손님-측** 도구
+    (submit_cash_back_dispute_0589 등)를 agent 채널로 unlock/call. 이 경우
+    "그 도구는 손님 것이니 <A2 선언 give-도구>로 건네라"고 채널만 교정한다.
+    ★[[03b]] 자기감사: 도구 **선택은 이미 모델이 한 것**(KB서 스스로 발굴한 이름)이고
+    엔진은 그 이름이 어느 채널 소속인지만 알려준다 — 어떤 도구를 쓸지·인자·수행 여부는
+    전부 모델 몫이므로 gold-planting 아님(C182 직접-호출 분기와 동형).
+    엔진은 이름 대조·문자열 덧붙임뿐([[05]] 리터럴 0)."""
     m = re.search(r"Unknown agent tool '([^']+)'", c or "")
     bad = m.group(1) if m else None
     sg = {str(t.get("name")) for t in (a2 or {}).get("scaffold_get_tools") or []
@@ -157,6 +200,12 @@ def _atool_guidance(c, a2):
         return (c + " [GUIDANCE] '%s' is NOT a discoverable tool — it is already "
                 "available in your regular tool list. Do NOT unlock or dispatch it: "
                 "call '%s' directly with its documented parameters." % (bad, bad))
+    give = _declared_give_tool(a2)
+    if bad and give and _is_user_channel(env, bad):
+        return (c + " [GUIDANCE] '%s' is a CUSTOMER-side tool, not an agent tool — "
+                "that is why unlocking it fails. You cannot execute it yourself: hand "
+                "it to the customer by calling '%s' with discoverable_tool_name='%s' "
+                "and the arguments it requires." % (bad, give, bad))
     return (c + " [GUIDANCE] No agent tool with that exact name exists. If you saw "
             "this capability in the knowledge base, re-read the document for the "
             "EXACT documented name (documented names carry a numeric suffix) and "
@@ -223,7 +272,7 @@ def apply():
                     #   유도·에러 후 직접 호출 미시도·포기). 트리거=env 에러 문구(도메인-일반)·
                     #   이름 판정=A2 scaffold_get_tools 명단 대조만(엔진 리터럴 0). cap 2/sim.
                     if afb < 2 and "Unknown agent tool" in c:
-                        newc = _atool_guidance(c, a2)
+                        newc = _atool_guidance(c, a2, env)
                         if newc:
                             r.content = newc
                             self._t2_atool_fb = afb + 1
@@ -307,4 +356,38 @@ if __name__ == "__main__":
     assert "numeric suffix" in g3          # 이름 미추출도 일반 처방은 붙음
     # scaffold 명단 비어도 크래시 없음
     assert _atool_guidance(err, {}) and "numeric suffix" in _atool_guidance(err, {})
+
+    # ★C182b 채널 교정(018/020/022): 손님-측 도구를 agent 채널로 오주소
+    class _FakeUT:
+        def __init__(self, names): self._n = set(names)
+        def has_discoverable_tool(self, n): return n in self._n
+
+    class _FakeEnv:
+        def __init__(self, names): self.user_tools = _FakeUT(names)
+
+    a2fu = dict(a2sg)
+    a2fu["scaffold_get_tools"] = [
+        {"name": "get_reward_discrepancies",
+         "follow_up": {"tool": "give_discoverable_user_tool"}},
+        {"name": "check_cli_eligibility"}]
+    assert _declared_give_tool(a2fu) == "give_discoverable_user_tool"
+    assert _declared_give_tool(a2sg) is None           # follow_up 미선언 → None
+    envu = _FakeEnv(["submit_cash_back_dispute_0589"])
+    assert _is_user_channel(envu, "submit_cash_back_dispute_0589")
+    assert not _is_user_channel(envu, "file_credit_card_transaction_dispute_4829")
+    assert not _is_user_channel(None, "submit_cash_back_dispute_0589")
+    erru = "Error: Unknown agent tool 'submit_cash_back_dispute_0589'. This tool is not available."
+    g4 = _atool_guidance(erru, a2fu, envu)
+    assert "CUSTOMER-side tool" in g4 and "give_discoverable_user_tool" in g4
+    assert "discoverable_tool_name='submit_cash_back_dispute_0589'" in g4
+    # 손님-측 아님(진짜 agent 도구 오타) → 일반 처방 유지
+    erra = "Error: Unknown agent tool 'file_credit_card_transaction_dispute_482'. This tool is not available."
+    assert "numeric suffix" in _atool_guidance(erra, a2fu, envu)
+    # scaffold 분기가 채널 분기보다 우선(주입 도구는 직접 호출)
+    assert "call 'get_reward_discrepancies' directly" in _atool_guidance(
+        err, a2fu, _FakeEnv(["get_reward_discrepancies"]))
+    # A2가 give-도구 미선언이면 채널 교정 안 함(도메인 리터럴 0의 대가·안전 no-op)
+    assert "numeric suffix" in _atool_guidance(erru, a2sg, envu)
+    # env 없어도 크래시 없음
+    assert "numeric suffix" in _atool_guidance(erru, a2fu, None)
     print("selftest OK · trigger_fams=%s" % sorted(fams))
