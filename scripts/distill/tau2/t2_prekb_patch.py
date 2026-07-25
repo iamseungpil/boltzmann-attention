@@ -141,6 +141,29 @@ def deny_text(nm, fam):
             "Do NOT abandon the customer's request." % (nm, q, nm, nm))
 
 
+def _atool_guidance(c, a2):
+    """★C182 'Unknown agent tool' 에러에 붙일 처방 문구(순수 함수·selftest 대상).
+
+    017/019 회귀 기전: scaffold-주입 도구(get_reward_discrepancies)를 에이전트가
+    unlock_discoverable_agent_tool로 오주소 → env 에러가 '없는 도구'라고만 말해
+    직접-호출 재시도 없이 포기. 이름이 A2 scaffold_get_tools 명단에 있으면
+    '직접 호출하라', 아니면 'KB에서 정확한(서픽스 포함) 이름을 재확인하라'.
+    엔진은 이름 대조·문자열 덧붙임뿐([[05]] 리터럴 0). None=미변경."""
+    m = re.search(r"Unknown agent tool '([^']+)'", c or "")
+    bad = m.group(1) if m else None
+    sg = {str(t.get("name")) for t in (a2 or {}).get("scaffold_get_tools") or []
+          if isinstance(t, dict)}
+    if bad and bad in sg:
+        return (c + " [GUIDANCE] '%s' is NOT a discoverable tool — it is already "
+                "available in your regular tool list. Do NOT unlock or dispatch it: "
+                "call '%s' directly with its documented parameters." % (bad, bad))
+    return (c + " [GUIDANCE] No agent tool with that exact name exists. If you saw "
+            "this capability in the knowledge base, re-read the document for the "
+            "EXACT documented name (documented names carry a numeric suffix) and "
+            "unlock that exact name. If the tool is already in your regular tool "
+            "list, call it directly instead of unlocking.")
+
+
 def apply():
     """BaseOrchestrator._execute_tool_calls 체인-랩(최외곽). T2_PREKB=1일 때만 개입."""
     global _APPLIED
@@ -182,18 +205,29 @@ def apply():
             #   cap 2/sim. 엔진은 문자열 덧붙임뿐(도구 목록·이름 미주입).
             try:
                 nfb = getattr(self, "_t2_utool_fb", 0)
-                if nfb < 2:
-                    for r in (out or []):
-                        c = getattr(r, "content", "") or ""
-                        if "Unknown discoverable tool" in c:
-                            r.content = (c + " [GUIDANCE] That tool name does not exist — you "
-                                         "invented it. Do NOT fall back to verbal instructions: "
-                                         "search the knowledge base for the documented tool that "
-                                         "serves this customer request (query by the capability, "
-                                         "e.g. 'travel notification tool' / 'referral link tool'), "
-                                         "then re-issue give/call with the EXACT documented name.")
-                            self._t2_utool_fb = nfb + 1
-                            _mark("utool feedback appended (n=%d)" % (nfb + 1))
+                afb = getattr(self, "_t2_atool_fb", 0)
+                for r in (out or []):
+                    c = getattr(r, "content", "") or ""
+                    if nfb < 2 and "Unknown discoverable tool" in c:
+                        r.content = (c + " [GUIDANCE] That tool name does not exist — you "
+                                     "invented it. Do NOT fall back to verbal instructions: "
+                                     "search the knowledge base for the documented tool that "
+                                     "serves this customer request (query by the capability, "
+                                     "e.g. 'travel notification tool' / 'referral link tool'), "
+                                     "then re-issue give/call with the EXACT documented name.")
+                        self._t2_utool_fb = nfb + 1
+                        _mark("utool feedback appended (n=%d)" % (nfb + 1))
+                        break
+                    # ★C182: scaffold-주입 도구를 unlock/dispatcher 채널로 오주소(017/019
+                    #   회귀 기전 — dispatcher-규율이 주입 도구까지 discoverable로 오분류하게
+                    #   유도·에러 후 직접 호출 미시도·포기). 트리거=env 에러 문구(도메인-일반)·
+                    #   이름 판정=A2 scaffold_get_tools 명단 대조만(엔진 리터럴 0). cap 2/sim.
+                    if afb < 2 and "Unknown agent tool" in c:
+                        newc = _atool_guidance(c, a2)
+                        if newc:
+                            r.content = newc
+                            self._t2_atool_fb = afb + 1
+                            _mark("atool feedback appended (n=%d)" % (afb + 1))
                             break
             except Exception:
                 pass
@@ -260,4 +294,17 @@ if __name__ == "__main__":
     t = deny_text("transfer_to_human_agents", "transfer_to_human_agents")
     assert 'KB_search(query="transfer to human agents procedure")' in t
     assert "initial_transfer" not in t and "Do NOT abandon" in t
+    # ★C182: Unknown-agent-tool 처방 문구
+    a2sg = {"scaffold_get_tools": [{"name": "get_reward_discrepancies"},
+                                   {"name": "check_cli_eligibility"}]}
+    err = "Error: Unknown agent tool 'get_reward_discrepancies'. This tool is not available."
+    g1 = _atool_guidance(err, a2sg)
+    assert "call 'get_reward_discrepancies' directly" in g1 and "Do NOT unlock" in g1
+    err2 = "Error: Unknown agent tool 'submit_cash_back_dispute'. This tool is not available."
+    g2 = _atool_guidance(err2, a2sg)
+    assert "numeric suffix" in g2 and "directly" in g2 and "call 'submit" not in g2
+    g3 = _atool_guidance("Error: something else entirely", a2sg)
+    assert "numeric suffix" in g3          # 이름 미추출도 일반 처방은 붙음
+    # scaffold 명단 비어도 크래시 없음
+    assert _atool_guidance(err, {}) and "numeric suffix" in _atool_guidance(err, {})
     print("selftest OK · trigger_fams=%s" % sorted(fams))
