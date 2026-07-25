@@ -3383,10 +3383,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   write(close류·A2 finalize_writes) 시도 시 정책조건 선행단계(apply_flag 등) 미완이면
             #   deny + 실제 정책문서 재부각 → apply_flag이 close 선행(현 user_stop 경로는 close 後라 늦음).
             #   ep_fb 채널·cap 재사용(무과금·regen 공유·discovery 미발화 시만). finalize 제외=for_finalize.
+            # ★C173-corr(2026-07-25): pre-close 예산을 공유 _ep_cap에서 **분리** — 044 실측:
+            #   초반 E-PLAN/discovery deny들이 공유 4회를 소진해 msg66의 2번째 close 시도가
+            #   무방비 통과(선행 read/write 미완인 채 CLOSED·상태오염 3). claimprov transfer-창
+            #   별도예산(§2ao) 선례와 동일 패턴: finalize 방어는 독립 예비(기본 2/sim)로 보장.
+            #   (구 C173의 T2_GATE_REGEN_K=2는 unified 경로서 미사용=no-op이라 철회.)
             if (ep_fb is None and ep_led is not None and eplan_rounds < 2
                     and os.environ.get("T2_BRANCH_REGROUND") == "1"
                     and not do_gate and not do_prov
-                    and getattr(self, "_t2_eplan_deny", 0) < _ep_cap):
+                    and getattr(self, "_t2_preclose_deny", 0)
+                        < int(os.environ.get("T2_PRECLOSE_CAP", "2"))):
                 _finals = {re.sub(r"_\d+$", "", f)
                            for f in (ep_spec.get("finalize_writes") or ())}
                 if _finals:
@@ -3417,9 +3423,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                         _brem = None
                                     if _brem:
                                         ep_fb = (c, _brem)
+                                        # C173-corr: 전용 예산 소모(독립 카운터·기본 2/sim)
+                                        self._t2_preclose_deny = getattr(
+                                            self, "_t2_preclose_deny", 0) + 1
                                         print("[T2_BRANCH_REGROUND] pre-close deny: finalize=%s "
-                                              "prereq_reads=%d prereq_writes=%d"
-                                              % (nm, len(_bchain["missing_reads"]), len(_prereq_w)),
+                                              "prereq_reads=%d prereq_writes=%d (pc_deny=%d)"
+                                              % (nm, len(_bchain["missing_reads"]), len(_prereq_w),
+                                                 self._t2_preclose_deny),
                                               file=_sys.stderr, flush=True)
                                         break
             # ★DISCOVERY-DISPATCH deny (C151·T2_DISCOVERY_DISPATCH=1): discoverable 도구를 *직접
