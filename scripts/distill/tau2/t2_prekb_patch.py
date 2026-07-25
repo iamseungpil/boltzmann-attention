@@ -106,9 +106,12 @@ def _effective_fams(tc):
 
 
 def _has_evidence(messages, fam):
-    """행동-키 조회 증거: ①KB_search 쿼리에 fam의 내용 토큰이 들어갔거나
-    ②tool 출력(검색결과 등)에 fam 리터럴이 이미 존재. messages=dict 또는 pydantic 혼용 허용."""
+    """행동-키 조회 증거: ①KB_search 쿼리가 *행동-키*였거나(★C178: fam의 동사 토큰[첫 토큰]
+    필수 + 다른 fam 토큰 ≥1 — 구 술어 "아무 토큰 1개"는 credit/card류 범용 토큰이 모든 쿼리에
+    있어 W2서 deny 0발화=레버 미검증) ②tool 출력에 fam 리터럴 존재."""
     toks = _tokens(fam)
+    verb = (fam.split("_") or [""])[0].lower()          # apply/open/transfer/submit/close…
+    rest = [t for t in toks if t != verb]
     for m in messages or []:
         role = getattr(m, "role", None) or (m.get("role") if isinstance(m, dict) else None)
         tcs = getattr(m, "tool_calls", None) or (m.get("tool_calls") if isinstance(m, dict) else None) or []
@@ -116,7 +119,8 @@ def _has_evidence(messages, fam):
             nm = str(_tc_name(tc) or "")
             if nm.startswith("KB_search"):
                 q = str(_tc_args(tc).get("query") or "").lower()
-                if any(t in q for t in toks):
+                if (len(verb) >= 3 and verb in q
+                        and (not rest or any(t in q for t in rest))):
                     return True
         if role == "tool":
             c = getattr(m, "content", None) or (m.get("content") if isinstance(m, dict) else None) or ""
@@ -220,6 +224,16 @@ if __name__ == "__main__":
                                  "arguments": {"query": "resolve unpaid statement issue"}}]},
                 {"role": "tool", "content": "1. True Blue Account: Dedicated Support ..."}]
     assert not _has_evidence(msgs_bad, "transfer_to_human_agents")
+    # ★C178 회귀: 범용 토큰(credit/card)만 있는 쿼리는 증거 아님(W2 002 실제 쿼리)
+    msgs_generic = [{"role": "assistant",
+                     "tool_calls": [{"name": "KB_search",
+                                     "arguments": {"query": "Rho-Bank credit cards with highest cash back rewards"}}]}]
+    assert not _has_evidence(msgs_generic, "apply_for_credit_card")
+    # 행동-키 쿼리(동사+타 토큰)는 증거 맞음
+    msgs_act = [{"role": "assistant",
+                 "tool_calls": [{"name": "KB_search",
+                                 "arguments": {"query": "apply for credit card procedure"}}]}]
+    assert _has_evidence(msgs_act, "apply_for_credit_card")
     # deny 문구: 복사-가능 쿼리 포함·절차 내용(정답) 미포함
     t = deny_text("transfer_to_human_agents", "transfer_to_human_agents")
     assert 'KB_search(query="transfer to human agents procedure")' in t
