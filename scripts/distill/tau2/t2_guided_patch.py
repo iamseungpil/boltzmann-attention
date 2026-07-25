@@ -1,0 +1,163 @@
+#!/usr/bin/env python
+"""tau2 guided-decoding hook: 에이전트 tool_call **이름**을 라이브 스키마로 decode-레벨 제약.
+
+★표적(C154·C159·C162): 모델이 KB 문구("Use get_x_3847")를 따라 **스키마 밖 이름**을 top-level
+  tool_call로 방출 → tau2가 실행은 하지만 dispatcher를 안 거쳐 `agent_discoverable_tools` CALLED
+  레코드가 안 남음 → full-DB 해시(db_match) 실패. 043 nt4 잔여 blocker가 정확히 이것
+  (sim0 ndiff=2·sim2 ndiff=1·상태차 0·C159).
+
+★왜 decode-레벨인가([[45]]/[[07]]/[[42]]): deny 게이트·프롬프트는 **모델 준수에 의존=soft**
+  (C152 재발행 포기·C153 프롬프트 무력). 문법 제약은 **토큰 마스킹**이라 준수 불요 = hard.
+  단 `tool_choice="required"`는 순수 대화 턴서도 도구를 강제 발화(C162 실측)→대화 불가.
+  그래서 **auto 유지 + 이름만 제약**하는 문법을 쓴다(C162: 3조건 검증 통과).
+
+★[[05]] 준수: 문법의 이름 집합은 **호출 시점 `tools` 인자(라이브 스키마)서 생성**한다.
+  엔진에 도메인 도구명·도메인 분기 리터럴 **0**. A2 항목 추가도 **불필요**(A2 순증 0).
+  새 도메인 = 스키마가 바뀌면 문법이 자동으로 따라감 = ABox-swap만으로 동작.
+★[[10]] 준수: 문법은 **형식(이름 집합)만** 제약한다. 어떤 도구를 언제 부를지·인자값은
+  전부 모델 결정(유동성 동결 0). 스캐폴드가 tool_call을 주입·재작성하지 않는다.
+
+활성화: `import t2_guided_patch; t2_guided_patch.apply()` + env `T2_GUIDED=1`.
+전달 경로(C162 실측): litellm `extra_body`가 OpenAI-호환 body 최상위로 평탄화되어
+  vLLM `structured_outputs={"grammar": ...}`로 도달. (raw HTTP body에 "extra_body" 키를
+  그대로 넣으면 **무시**됨 — C162 음성대조.)
+"""
+import os
+import re
+import sys
+
+_APPLIED = False
+_MARKS = []
+
+
+def _mark(msg):
+    _MARKS.append(msg)
+    if os.environ.get("T2_GUIDED_VERBOSE"):
+        print("[T2_GUIDED] %s" % msg, file=sys.stderr, flush=True)
+
+
+def marks():
+    return list(_MARKS)
+
+
+# ── 문법 생성 (도메인-일반·라이브 스키마 구동) ───────────────────────────────
+# hermes 표면형: <tool_call>\n{"name": "...", "arguments": {...}}\n</tool_call>
+# text는 "<t"로 시작하는 시퀀스만 배제(=<tool_call> 진입을 문법 분기로 강제).
+_GRAMMAR_TMPL = r'''root ::= text | calls | text calls
+text ::= textchar+
+textchar ::= [^<] | "<" [^t]
+calls ::= call (ws call)*
+call ::= "<tool_call>" ws obj ws "</tool_call>"
+obj ::= "{" ws (namefirst | argsfirst) ws "}"
+namefirst ::= "\"name\"" ws ":" ws name ws "," ws "\"arguments\"" ws ":" ws value
+argsfirst ::= "\"arguments\"" ws ":" ws value ws "," ws "\"name\"" ws ":" ws name
+name ::= %(alts)s
+value ::= object | array | string | number | "true" | "false" | "null"
+object ::= "{" ws (pair (ws "," ws pair)*)? ws "}"
+pair ::= string ws ":" ws value
+array ::= "[" ws (value (ws "," ws value)*)? ws "]"
+string ::= "\"" schar* "\""
+schar ::= [^"\\] | "\\" esc
+esc ::= ["\\/bfnrt] | "u" hex hex hex hex
+hex ::= [0-9a-fA-F]
+number ::= "-"? int frac? exp?
+int ::= "0" | [1-9] [0-9]*
+frac ::= "." [0-9]+
+exp ::= [eE] [+-]? [0-9]+
+ws ::= [ \t\n\r]*
+'''
+
+
+def _esc_name(n):
+    return n.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def build_grammar(names):
+    """허용 tool 이름 집합 → EBNF. names=라이브 스키마서 온 문자열 리스트(도메인 무관)."""
+    uniq = [n for n in dict.fromkeys(str(x) for x in names if x)]
+    if not uniq:
+        return None
+    alts = " | ".join('"\\"%s\\""' % _esc_name(n) for n in uniq)
+    return _GRAMMAR_TMPL % {"alts": alts}
+
+
+def _names_from_tools(tools):
+    """tau2 Tool 객체 리스트 → 이름. openai_schema(function.name) 우선, 폴백 .name."""
+    out = []
+    for t in (tools or []):
+        nm = None
+        sch = getattr(t, "openai_schema", None)
+        if isinstance(sch, dict):
+            nm = (sch.get("function") or {}).get("name")
+        if not nm:
+            nm = getattr(t, "name", None)
+        if nm:
+            out.append(str(nm))
+    return out
+
+
+_CACHE = {}
+
+
+def grammar_for_tools(tools):
+    names = _names_from_tools(tools)
+    if not names:
+        return None
+    key = tuple(sorted(names))
+    if key not in _CACHE:
+        _CACHE[key] = build_grammar(names)
+        _mark("grammar built for %d tools: %s" % (len(names), ",".join(sorted(names)[:4]) + "..."))
+    return _CACHE[key]
+
+
+# ── 패치 배선 ────────────────────────────────────────────────────────────────
+# 표적 호출만 제약한다: call_name="agent_response"(에이전트 본생성).
+# user-sim·judge·기타 보조 호출은 건드리지 않음(측정 오염 방지).
+TARGET_CALL_NAMES = ("agent_response",)
+
+
+def apply():
+    """tau2.utils.llm_utils.generate 몽키패치. T2_GUIDED=1일 때만 문법 주입."""
+    global _APPLIED
+    if _APPLIED:
+        return
+    from tau2.utils import llm_utils
+
+    _orig = llm_utils.generate
+
+    def _generate(model, messages, tools=None, tool_choice=None, call_name=None, **kwargs):
+        if (os.environ.get("T2_GUIDED") == "1"
+                and tools
+                and (call_name in TARGET_CALL_NAMES)
+                and tool_choice in (None, "auto")):
+            g = grammar_for_tools(tools)
+            if g:
+                eb = dict(kwargs.get("extra_body") or {})
+                if "structured_outputs" not in eb and "guided_grammar" not in eb:
+                    eb["structured_outputs"] = {"grammar": g}
+                    kwargs["extra_body"] = eb
+                    _mark("guided applied (call=%s tools=%d)" % (call_name, len(tools)))
+        return _orig(model, messages, tools=tools, tool_choice=tool_choice,
+                     call_name=call_name, **kwargs)
+
+    llm_utils.generate = _generate
+    # llm_agent가 from-import한 심볼도 교체(모듈 로드 순서 무관하게)
+    try:
+        from tau2.agent import llm_agent as _la
+        if getattr(_la, "generate", None) is _orig:
+            _la.generate = _generate
+    except Exception:
+        pass
+    _APPLIED = True
+    _mark("patch applied")
+
+
+if __name__ == "__main__":
+    # 오프라인 자기검사: 문법 생성만(서버 불요)
+    demo = ["unlock_discoverable_agent_tool", "call_discoverable_agent_tool", "get_current_time"]
+    g = build_grammar(demo)
+    assert g and 'name ::= ' in g
+    for n in demo:
+        assert ('\\"%s\\"' % n) in g, n
+    assert "get_all_user_accounts_by_user_id_3847" not in g
+    print("selftest OK · grammar %d chars · %d names" % (len(g), len(demo)))
