@@ -50,10 +50,18 @@ def _fam(name):
 
 
 def _trigger_fams(a2):
-    """트리거 fam 집합 = 프레임워크 종결 도구 ∪ A2 eplan.finalize_writes(fam)."""
+    """트리거 fam 집합 = 프레임워크 종결 도구 ∪ A2 eplan.finalize_writes ∪ A2 prekb_tools.
+    ★C176: `prekb_tools` = finalize 아닌 결과적(consequential) write에 PREKB만 거는 A2 키
+    (예: apply_for_credit_card — 클러스터① card_type 오선택: 자격 문서 미열람 채 프리미엄
+    카드로 직행. finalize_writes에 넣으면 close-체인 게이트 의미가 오염되므로 별도 키)."""
     fams = {_fam(n) for n in FRAMEWORK_FINAL}
     try:
         for w in ((a2 or {}).get("eplan") or {}).get("finalize_writes") or []:
+            fams.add(_fam(w))
+    except Exception:
+        pass
+    try:
+        for w in (a2 or {}).get("prekb_tools") or []:
             fams.add(_fam(w))
     except Exception:
         pass
@@ -186,9 +194,11 @@ def apply():
 
 if __name__ == "__main__":
     # 오프라인 selftest(서버·tau2 불요 — 순수 함수만)
-    a2 = {"eplan": {"finalize_writes": ["close_credit_card_account"]}}
+    a2 = {"eplan": {"finalize_writes": ["close_credit_card_account"]},
+          "prekb_tools": ["apply_for_credit_card"]}
     fams = _trigger_fams(a2)
     assert "transfer_to_human_agents" in fams and "close_credit_card_account" in fams
+    assert "apply_for_credit_card" in fams          # C176: prekb_tools 키
     assert _fam("close_credit_card_account_7834") == "close_credit_card_account"
     # dispatcher 내부 이름·unlock 제외
     tc_call = {"name": "call_discoverable_agent_tool",

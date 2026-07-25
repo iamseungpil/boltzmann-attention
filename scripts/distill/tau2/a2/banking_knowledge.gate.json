@@ -107,6 +107,10 @@
     "finalize_writes": [
       "close_credit_card_account"
     ],
+    "prekb_tools": [
+      "apply_for_credit_card"
+    ],
+    "_note_prekb_tools": "★C176(2026-07-25): PREKB-only 트리거(finalize 아님·close-체인 게이트와 무관). 클러스터① 실측(002/003/006/024/063 — card_type만 오선택·전부 프리미엄-bias·kbq=1 즉시신청): 신청 전 행동-키 KB 조회('apply for credit card procedure')로 자격/절차 문서를 문맥 유입. 문서=KB 실재(bronze_001 min score 640·diamond_001 invitation-only 등)·선택 자체는 모델 몫(gold-planting 0).",
     "unlock_tool": "unlock_discoverable_agent_tool",
     "list_tool": "list_discoverable_agent_tools"
   },
