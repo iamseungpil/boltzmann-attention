@@ -82,6 +82,68 @@ _CH = {}                     # 이름 → 채널(라이브 레지스트리 유�
 _WR = set()                  # ToolType.WRITE 이름(서픽스 제거)·프레임워크 표시가 권위본
 
 
+def _setup(env_ctor):
+    a2 = None
+    try:
+        import t2_gate_patch as _g
+        a2 = _g._domain_a2("banking_knowledge")
+    except Exception as e:
+        print("[warn] A2 미로드(scaffold 채널 판정 생략): %s" % str(e)[:60])
+    _CH.update(build_channels(env_ctor, a2))
+    print("[channels] %d names · %s · WRITE %d"
+          % (len(_CH), dict(Counter(_CH.values())), len(_WR)))
+
+
+def main_by_task(paths):
+    """전수 포렌식: 태스크당 1 sim·기전 클러스터 + 원인별 집계."""
+    env_ctor = registry.get_env_constructor("banking_knowledge")
+    tasks = {t.id: t for t in registry.get_tasks_loader("banking_knowledge")()}
+    _setup(env_ctor)
+    passed, chosen, src = set(), {}, {}
+    for cp in paths:
+        try:
+            res = Results.load(Path(cp))
+        except Exception as e:
+            print("[skip]", cp, e); continue
+        for sim in res.simulations:
+            ri = sim.reward_info
+            rw = getattr(ri, "reward", None) if ri else None
+            if rw == 1.0:
+                passed.add(sim.task_id); continue
+            chosen[sim.task_id] = sim
+            src[sim.task_id] = Path(cp).parent.name
+    fails = {t: s for t, s in chosen.items() if t not in passed}
+    print("\n측정 태스크 %d · pass %d · FAIL %d"
+          % (len(set(chosen) | passed), len(passed), len(fails)))
+    clusters, rows, agg = defaultdict(list), [], Counter()
+    for tid in sorted(fails):
+        t = tasks.get(tid)
+        if t is None:
+            continue
+        try:
+            labels, feat, top = autopsy_sim(fails[tid], t, env_ctor)
+        except Exception as e:
+            labels, feat, top = ["AUTOPSY_ERR"], {"err": str(e)[:60]}, []
+        clusters["+".join(labels)].append(tid)
+        rows.append((tid, labels, feat, top, src.get(tid, "")))
+        for L in labels:
+            agg[L] += 1
+    print("\n=== 라벨별 태스크 수(중복 허용) ===")
+    for k, v in agg.most_common():
+        print("  %-30s %2d  %s" % (k, v, ",".join(
+            r[0].replace("task_", "") for r in rows if k in r[1])))
+    print("\n=== 기전 조합 클러스터 ===")
+    for k in sorted(clusters, key=lambda x: -len(clusters[x])):
+        print("  %-58s %2d  %s" % (k, len(clusters[k]),
+              ",".join(i.replace("task_", "") for i in sorted(clusters[k]))))
+    print("\n=== 태스크별 상세 ===")
+    for tid, labels, feat, top, run in sorted(rows):
+        print("%s [%s] (%s)" % (tid, "+".join(labels), run))
+        print("     %s" % feat)
+        for tl in top:
+            print("       ", tl)
+
+
 def _gold_tool_names(task):
     """gold 액션이 요구하는 도구 이름 집합(디스패처 인자에 중첩된 이름까지·서픽스 제거)."""
     out = set()
@@ -283,9 +345,16 @@ def autopsy_sim(sim, task, env_ctor):
 
 
 def main():
+    # ★--by-task: 태스크당 1 sim으로 중복 제거(어디서든 pass한 태스크는 제외) — 전수 포렌식용.
+    #   우선순위 = 커맨드라인 순서(뒤에 오는 체크포인트가 이김·신스택을 뒤에 두면 최신이 채택),
+    #   같은 런 내에서는 마지막 trial.
+    argv = [a for a in sys.argv[1:] if a != "--by-task"]
+    by_task = "--by-task" in sys.argv[1:]
     paths = []
-    for p in sys.argv[1:]:
+    for p in argv:
         paths += glob.glob(p)
+    if by_task:
+        return main_by_task(paths)
     env_ctor = registry.get_env_constructor("banking_knowledge")
     tasks = {t.id: t for t in registry.get_tasks_loader("banking_knowledge")()}
     # ★C183 채널 사전(라이브 레지스트리 + A2). A2 없으면 scaffold 채널만 비고 나머지는 정상.
