@@ -69,18 +69,26 @@ def main():
     ap.add_argument("--base", default="http://localhost:8140/v1")
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--n", type=int, default=8)
+    ap.add_argument("--dump", default="", help="raw completion 전문 저장 경로(JSON·Appendix A용)")
     a = ap.parse_args()
     print("GOLD:", GOLD)
+    dump = []
     for variant in ("A_minimal", "B_fullctx"):
         msgs = build(variant)
         runs = [("greedy", 0.0)] + [("s%d" % i, 0.7) for i in range(a.n)]
         agg = []
         for tag, t in runs:
             try:
-                s = score(call(a.base, msgs, t, a.model))
+                raw = call(a.base, msgs, t, a.model)
+                s = score(raw)
             except Exception as e:
                 print("%s %s ERROR %r" % (variant, tag, e))
                 continue
+            if a.dump:
+                dump.append({"variant": variant, "run": tag, "temp": t,
+                             "raw": raw, "score": s})
+                with open(a.dump, "w", encoding="utf-8") as f:
+                    json.dump({"gold": GOLD, "runs": dump}, f, ensure_ascii=False, indent=1)
             agg.append(s)
             print("%s %s ordered=%d/8 set=%d/8 item3=%s pick41735=%s"
                   % (variant, tag, s["ordered_correct"], s["set_overlap"],
