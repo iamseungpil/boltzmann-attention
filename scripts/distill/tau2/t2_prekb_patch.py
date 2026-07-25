@@ -191,6 +191,28 @@ def _declared_give_tool(a2):
     return None
 
 
+def _is_agent_regular(env, name):
+    """이름이 **에이전트 일반 도구**(직접 호출 가능·discoverable 아님)인지 라이브 레지스트리 판정.
+
+    ★C182c(2026-07-25·W3 099 실측): 에이전트가 `unlock_discoverable_agent_tool
+    ('get_user_information_by_name')`을 호출 — 이건 **자기 도구 목록에 이미 있는 일반 도구**다.
+    C182 초판은 A2 scaffold 명단만 대조해서 이 경우 일반 분기로 떨어졌고, 그 문구는
+    "KB에서 서픽스 포함 정확한 이름을 재확인하라"라 **틀린 처방**이었다(그런 이름은 없다).
+    라이브 레지스트리로 판정하면 정확히 "이미 있으니 그냥 호출하라"고 말할 수 있다.
+    ★[[05]]: 근거=프레임워크 API(`env.tools`)뿐·도메인 어휘 0."""
+    if not env or not name:
+        return False
+    try:
+        at = getattr(env, "tools", None)
+        if at is None:
+            return False
+        if hasattr(at, "has_discoverable_tool") and at.has_discoverable_tool(name):
+            return False                      # discoverable = unlock이 정상 경로
+        return bool(hasattr(at, "has_tool") and at.has_tool(name))
+    except Exception:
+        return False
+
+
 def _is_user_channel(env, name):
     """이름이 **손님-측** discoverable 도구인지 라이브 환경 레지스트리로 판정.
 
@@ -230,7 +252,7 @@ def _atool_guidance(c, a2, env=None):
     bad = m.group(1) if m else None
     sg = {str(t.get("name")) for t in (a2 or {}).get("scaffold_get_tools") or []
           if isinstance(t, dict)}
-    if bad and bad in sg:
+    if bad and (bad in sg or _is_agent_regular(env, bad)):
         return (c + " [GUIDANCE] '%s' is NOT a discoverable tool — it is already "
                 "available in your regular tool list. Do NOT unlock or dispatch it: "
                 "call '%s' directly with its documented parameters." % (bad, bad))
@@ -463,6 +485,28 @@ if __name__ == "__main__":
     assert "numeric suffix" in _atool_guidance(erru, a2sg, envu)
     # env 없어도 크래시 없음
     assert "numeric suffix" in _atool_guidance(erru, a2fu, None)
+    # ★C182c 에이전트 일반 도구 오주소(099 실측: unlock('get_user_information_by_name'))
+    class _FakeAT:
+        def __init__(self, reg, disc): self._r=set(reg); self._d=set(disc)
+        def has_tool(self, n): return n in self._r or n in self._d
+        def has_discoverable_tool(self, n): return n in self._d
+    class _FakeEnv2:
+        def __init__(self, reg, disc, user=()):
+            self.tools=_FakeAT(reg, disc); self.user_tools=_FakeAT((), user)
+    env2=_FakeEnv2(reg=["get_user_information_by_name"], disc=["open_bank_account_4821"],
+                   user=["submit_cash_back_dispute_0589"])
+    assert _is_agent_regular(env2, "get_user_information_by_name")
+    assert not _is_agent_regular(env2, "open_bank_account_4821")   # discoverable=unlock이 정상
+    assert not _is_agent_regular(env2, "submit_cash_back_dispute_0589")
+    assert not _is_agent_regular(None, "x")
+    err099="Error: Unknown agent tool 'get_user_information_by_name'. This tool is not available."
+    g=_atool_guidance(err099, {}, env2)
+    assert "already" in g and "call 'get_user_information_by_name' directly" in g
+    assert "numeric suffix" not in g          # 구판의 틀린 처방이 안 나와야
+    # 손님-측 분기가 여전히 우선 동작
+    a2g={"scaffold_get_tools":[{"name":"x","follow_up":{"tool":"give_discoverable_user_tool"}}]}
+    gu=_atool_guidance("Error: Unknown agent tool 'submit_cash_back_dispute_0589'. x", a2g, env2)
+    assert "CUSTOMER-side tool" in gu
     # ★C190 require_tool_before(063 표적)
     a2rb = {"require_tool_before": {"apply_for_credit_card": ["check_card_application_fit"]}}
     assert _require_before(a2rb) == {"apply_for_credit_card": ["check_card_application_fit"]}
