@@ -191,6 +191,16 @@ def main():
         t2_scaffold_get.apply()
         print("[t2_run] SCAFFOLD-GET ON (A2 scaffold_get_tools)")
 
+    # ★GUIDED DECODING (T2_GUIDED=1): 에이전트 tool_call **이름**을 라이브 스키마로 decode-레벨 제약.
+    #   표적=KB "Use X_3847" 문구서 온 스키마밖 이름 직접방출(→dispatcher 미경유→CALLED 미등록→
+    #   db_match 실패·C159 043 잔여 blocker). deny/prompt=soft(C152/C153)와 달리 토큰 마스킹=hard.
+    #   문법은 generate()가 받는 tools(라이브 스키마)서 생성 → 도메인 리터럴 0·A2 순증 0([[05]]).
+    #   SCAFFOLD-GET 뒤에 적용(주입된 도구도 스키마에 포함된 뒤 문법 생성되도록).
+    if os.environ.get("T2_GUIDED") == "1":
+        import t2_guided_patch
+        t2_guided_patch.apply()
+        print("[t2_run] GUIDED ON (tool-name grammar from live schema · auto 유지)")
+
     # user-sim·judge 모델 결정: --user_llm(원격 API, 예 openrouter/...) 우선, 아니면 로컬 vllm
     if a.user_llm:
         user_llm, user_args = a.user_llm, {"temperature": a.user_temp}
