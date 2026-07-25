@@ -102,15 +102,18 @@ Contributions:
    is, to our knowledge, unclaimed. A second case (§5.5) shows the control generalizes across failure families
    — a binary flip for a binding slip, a graded ladder for a buried-policy execution failure — and that it
    audits the auditor: six of our own surface attributions were refuted by it before the true mechanism held.
-3. **An audit**: re-attribution of failures previously labeled semantic-reference errors. ⟦TBD E-F3-ISO: N
-   failures re-probed, X% flip to load (transcription/self-anchor), Y% ambiguous, Z% remain capability;
-   includes the fraction of "wrong pick despite gold record retrieved" cases (43–52% in our earlier census
-   [M]) that flip⟧ (§6).
-4. **A mitigation**: write-time isolated re-pick of reference arguments — re-run the selection in minimal
-   context and substitute only if the answer exists verbatim in the producer listing (so the repair cannot
-   itself introduce an out-of-listing value). Unit probes 8/8; live (rall21): 0/16 false switches (safety half
-   confirmed), corrective switch ⟦TBD: R22⟧ (§7). We also document why evidence *gates* cannot close this
-   failure class: the deny-forever/pass-through dilemma (§7.3).
+3. **An audit**: re-attribution of failures previously labeled semantic-reference errors. Phase 1 (all four
+   recoverable wrong-reference instances from three independent runs): a dose-response over three context
+   levels — 3/4 flip cleanly to load, one residual slip persists even in minimal context and motivates the
+   deterministic matcher (§6). ⟦TBD Phase 2: the full census (incl. the 43–52% "wrong pick despite gold
+   retrieved" bucket [M]) and a second domain — population flip-rate reported only then⟧.
+4. **A mitigation arc that ends in determinism**: an isolated LLM re-pick of reference arguments is validated
+   safe (unit 8/8; live 0/16 false switches) but proves two-sided in a further live run (it can switch gold to
+   wrong: the sub-call is still an LLM emitting an id). The robust design removes the LLM from id emission —
+   a merchant-absence verifier (engine replay: 9/9 wrong picks flagged, 26/26 gold passes) plus
+   formalize-then-match repair (§7). We also document why deny-style evidence gates cannot close this failure
+   class: the deny-forever/pass-through dilemma (§7.3), and a repair-matching rule across failure families
+   (§7.4).
 
 ## 2. Related work
 
