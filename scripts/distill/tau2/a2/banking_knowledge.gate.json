@@ -1758,5 +1758,11 @@
       "feedback": "Error: [REF-VERIFY] the transaction you are filing ({id}) is a '{value}' charge, but the customer never mentioned '{value}'. The customer's disputes are about: {mentioned}. You have the wrong transaction_id - re-read the transaction listing and match each disputed item by the merchant and amount the customer actually stated, then file that record instead. Do not file a charge the customer did not describe.",
       "_note": "2026-07-24 C128/C129 결정론 참조-검증기: rall19-22 file_dispute wrong-pick 8/8이 전부 손님 미언급 상점(cross-merchant 인접-행 전사 슬립). merchant-absence deny=슬립 8/8 검출·gold 25/25 통과(false-block 0·efiso_detmatch_proof.py). LLM 재선택(REF_ISO)은 gold(Marriott)→wrong(Facebook Ads) 해로운 switch(C129 rall22 031)→결정론 검증기가 robust. 엔진=substring만·LLM/값생성 0([[03b]]/[[10]]). ★한계: merchant-absence는 cross-merchant만·동일상점 내 오선택(4 Costco 중 오답)은 amount 스펙 별도 필요(formalize+match 소관). T2_REF_VERIFY=1·기본 OFF."
     }
-  ]
+  ],
+  "require_tool_before": {
+    "apply_for_credit_card": [
+      "check_card_application_fit"
+    ]
+  },
+  "_note_require_tool_before": "★C190(2026-07-25·W5 063 실측): 카드 신청 태스크인데 자격필터를 한 번도 호출하지 않고 곧장 권해 오선택(gold=Silver·신청=Platinum). 002/003/006/024는 호출했고 전부 eligible 안에서 골랐다 = 설계는 작동·063은 진입 부재. prekb_tools(KB 검색 증거)로는 못 막는 공백이라 별도 술어(선행 도구 실행 여부)로 1회 deny. 요구=점검의 실행뿐·어느 카드인지 미지정([[03b]]). 엔진은 A2의 도구 이름만 읽는다([[05]] 리터럴 0)·cap=fam당 1회."
 }

@@ -68,6 +68,40 @@ def _trigger_fams(a2):
     return fams
 
 
+def _require_before(a2):
+    """★C190 A2 `require_tool_before` = {결과적 도구 base 이름: [선행 필수 도구, ...]}.
+
+    W5 063 실측: 카드 신청 태스크인데 `check_card_application_fit`(자격필터)을 **한 번도
+    호출하지 않고** 곧장 Platinum을 권해 신청됐다(gold=Silver). 002/003/006/024는 필터를
+    호출했고 **전부 eligible 안에서 골랐다** — 즉 설계는 작동했고 063은 *진입 자체*가 없었다.
+    `prekb_tools`는 'KB를 행동-키로 검색했나'만 보므로 이 공백을 못 막는다.
+    ★[[05]]: 요구하는 것은 **점검의 실행**이지 결과가 아니다(어느 카드인지 일절 미지정).
+    ★[[03b]]: 필터는 에이전트가 호출한다(scaffold가 대행하지 않음)·정답 미주입.
+    ★적용 지점: `apply_for_credit_card`는 **손님-측** 도구라 에이전트 호출을 막을 수 없다 —
+    C176 `prekb_tools`/C181c utool 피드백과 동일하게 orchestrator 실행 경로(손님 호출 포함)에서
+    1회 deny하고 에이전트가 점검 후 재안내하게 한다. cap=fam당 1회(교착 방지·PREKB 선례)."""
+    spec = (a2 or {}).get("require_tool_before")
+    return spec if isinstance(spec, dict) else {}
+
+
+def _called_fams(msgs):
+    """히스토리에서 실제 호출된 도구 fam 집합(디스패처 내부 이름 포함)."""
+    out = set()
+    for m in msgs:
+        md = m.model_dump() if hasattr(m, "model_dump") else m
+        if not isinstance(md, dict):
+            continue
+        for tc in (md.get("tool_calls") or []):
+            nm = _fam(_tc_name(tc))
+            if nm:
+                out.add(nm)
+            a = _tc_args(tc)
+            for k in ("agent_tool_name", "discoverable_tool_name"):
+                if a.get(k):
+                    out.add(_fam(str(a[k])))
+    return out
+
+
 def _tokens(fam):
     return [t for t in fam.split("_") if len(t) >= 4 and t not in _STOP]
 
@@ -238,6 +272,45 @@ def apply():
             msgs = self.get_messages() if hasattr(self, "get_messages") else []
         except Exception:
             msgs = []
+        # ★C190 선행-도구 요구(063 표적): KB 검색 증거와 **다른 술어** = "그 점검을 실행했나".
+        rb = _require_before(a2)
+        if rb:
+            rbd = getattr(self, "_t2_prekb_rb", None)
+            if rbd is None:
+                rbd = set()
+                self._t2_prekb_rb = rbd
+            called = _called_fams(msgs)
+            for tc in tool_calls:
+                for fam in _effective_fams(tc):
+                    need = rb.get(fam)
+                    if not need or fam in rbd:
+                        continue
+                    miss = [n for n in need if _fam(n) not in called]
+                    if not miss:
+                        continue
+                    rbd.add(fam)
+                    _mark("require_before deny fam=%s (missing %s)" % (fam, ",".join(miss)))
+                    out = []
+                    for t2 in tool_calls:
+                        if t2 is tc:
+                            out.append(ToolMessage(
+                                id=t2.id, role="tool", requestor=getattr(t2, "requestor", "assistant"),
+                                error=True,
+                                content=("Error: [CHECK-FIRST] '%s' was not carried out yet. Before "
+                                         "this action is finalized you must run %s and base your "
+                                         "recommendation on what it returns — it filters the "
+                                         "documented catalog against the requirements the customer "
+                                         "actually stated. Call %s now, tell the customer which "
+                                         "options it reports, and only then have this action "
+                                         "re-issued. Do NOT abandon the customer's request."
+                                         % (", ".join(miss), ", ".join(miss), ", ".join(miss)))))
+                        else:
+                            out.append(ToolMessage(
+                                id=t2.id, role="tool", requestor=getattr(t2, "requestor", "assistant"),
+                                error=True,
+                                content="Error: [CHECK-FIRST] deferred: resolve the check above "
+                                        "first, then re-issue this call."))
+                    return out
         hit = None                                   # (tc, nm, fam) 최초 트리거
         for tc in tool_calls:
             for fam in _effective_fams(tc):
@@ -390,4 +463,23 @@ if __name__ == "__main__":
     assert "numeric suffix" in _atool_guidance(erru, a2sg, envu)
     # env 없어도 크래시 없음
     assert "numeric suffix" in _atool_guidance(erru, a2fu, None)
+    # ★C190 require_tool_before(063 표적)
+    a2rb = {"require_tool_before": {"apply_for_credit_card": ["check_card_application_fit"]}}
+    assert _require_before(a2rb) == {"apply_for_credit_card": ["check_card_application_fit"]}
+    assert _require_before({}) == {}
+    assert _require_before({"require_tool_before": "nope"}) == {}
+    # 호출 이력 수집: 평문 도구 + dispatcher 내부 이름 + 서픽스 제거
+    hist = [{"role": "assistant", "tool_calls": [{"name": "check_card_application_fit"}]},
+            {"role": "assistant", "tool_calls": [
+                {"name": "call_discoverable_agent_tool",
+                 "arguments": {"agent_tool_name": "open_bank_account_4821"}}]}]
+    cf = _called_fams(hist)
+    assert "check_card_application_fit" in cf and "open_bank_account" in cf
+    assert _called_fams([]) == set()
+    # 손님-측 apply도 effective fam으로 잡혀야(게이트 대상)
+    assert _effective_fams({"name": "apply_for_credit_card"}) == ["apply_for_credit_card"]
+    # 미호출이면 결핍 검출 · 호출했으면 통과
+    need = _require_before(a2rb)["apply_for_credit_card"]
+    assert [n for n in need if _fam(n) not in _called_fams([])] == ["check_card_application_fit"]
+    assert [n for n in need if _fam(n) not in cf] == []
     print("selftest OK · trigger_fams=%s" % sorted(fams))
