@@ -4518,10 +4518,24 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             except TypeError:
                 _fb = UserMessage(content=fbtxt)
             _am2 = _gen(self, work + [am, _fb], bw(), "agent_response_" + tag, tool_choice=tool_choice)
-            if gate is not None and _denied_calls(_am2, gate, last_user, transfer_sent):
-                print("[%s] rejected: regen introduced gate-denied call; keeping original" % tag.upper(),
-                      file=_sys.stderr, flush=True)
-                return None
+            if gate is not None:
+                _den = _denied_calls(_am2, gate, last_user, transfer_sent)
+                if _den:
+                    # ★C170 부분-수용(W6 조정·2026-07-25): all-or-nothing 기각이 좋은 호출까지 버렸다
+                    #   (cand4 035 실측: regen=unlock+call(emergency)+transfer 묶음서 transfer만 GB2-deny
+                    #   인데 전체 기각→emergency 호출 소실→유저 토큰 종료로 실행 기회 상실). 조정:
+                    #   denied 호출만 제거·허용 호출 유지. 전부 denied면 원본 유지(구 거동). 게이트
+                    #   판정 자체는 불변(denied는 어차피 실행 단계서도 deny)·부작용-0 원칙 유지·도메인 리터럴 0.
+                    _denset = {id(x[0]) for x in _den}
+                    _keep = [tc for tc in (getattr(_am2, "tool_calls", None) or [])
+                             if id(tc) not in _denset]
+                    if not _keep:
+                        print("[%s] rejected: regen introduced gate-denied call; keeping original"
+                              % tag.upper(), file=_sys.stderr, flush=True)
+                        return None
+                    _am2.tool_calls = _keep
+                    print("[%s] partial-accept: dropped %d gate-denied, kept %d call(s)"
+                          % (tag.upper(), len(_den), len(_keep)), file=_sys.stderr, flush=True)
             # ★§2bi (rall6 실측·UNLOCK_NAME 0발화 원인): bare-name unlock이 태어나는 곳이 바로 이
             #   resign-경로 regen인데, 반환 am은 while-루프의 un_fb 검사를 **우회**해 그대로 커밋됐다
             #   (chain 18발화·un_fb 0·bare 3회 커밋 = rall6 정합). 여기서 name-check 교정 1회 수행.
