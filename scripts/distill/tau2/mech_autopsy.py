@@ -79,6 +79,7 @@ def diff(g, p, path="", out=None):
 
 
 _CH = {}                     # 이름 → 채널(라이브 레지스트리 유래·main()서 1회 구성)
+_WR = set()                  # ToolType.WRITE 이름(서픽스 제거)·프레임워크 표시가 권위본
 
 
 def _gold_tool_names(task):
@@ -119,6 +120,19 @@ def build_channels(env_ctor, a2=None):
                 ch.setdefault(str(n), reg_tag)
         except Exception:
             pass
+        # ★write 판정 = 프레임워크 ToolType 표시(도메인 무관·A2 write_tools는 3개뿐이라 불완전)
+        allt = {}
+        for getter in ("get_tools", "get_discoverable_tools"):
+            try:
+                allt.update(getattr(kit, getter)() or {})
+            except Exception:
+                pass
+        for n in allt:
+            try:
+                if "WRITE" in str(kit.tool_type(n)).upper():
+                    _WR.add(_SUFF.sub("", str(n)))
+            except Exception:
+                pass
     for t in (a2 or {}).get("scaffold_get_tools") or []:
         if isinstance(t, dict) and t.get("name"):
             ch.setdefault(str(t["name"]), "scaffold")
@@ -243,11 +257,20 @@ def autopsy_sim(sim, task, env_ctor):
         pass
     gold_names = _gold_tool_names(task)
     spur_exec = sorted(set(execs) - gold_names)
+    spur_w = [t for t in spur_exec if t in _WR] if _WR else []
+    spur_r = [t for t in spur_exec if t not in _WR] if _WR else spur_exec
     spur_leaves = [d for d in st if d[0] == "ONLY-PRED"]
     feat.update(missed_gold=len(missed), spur_leaves=len(spur_leaves))
-    if spur_exec:
-        feat["spur_exec"] = ",".join(spur_exec[:3])
-    if spur_leaves and missed:
+    if spur_w:
+        feat["spur_WRITE"] = ",".join(spur_w[:3])
+    if spur_r:
+        feat["spur_read"] = ",".join(spur_r[:3])
+    # ★SUBSTITUTE_WRITE(교정판): gold-밖 **write 도구를 실제 EXEC**했고 동시에 gold 요구가
+    #   미충족 = "막힌 정규 경로 대신 자기가 할 수 있는 write로 대체". 초판은 ONLY-PRED 리프로
+    #   판정했으나 표적(018/020/021 update_transaction_rewards)은 **기존 레코드 수정=DIFF**로
+    #   나타나 라벨이 안 붙었다(자기 계측 결함·[[08]] 교정). 인자-오류형(002/003/006 = 같은
+    #   액션 잘못된 카드)은 OVER_ACTION+MISSING_WRITE로 이미 표현되므로 여기서 분리한다.
+    if spur_w and (missed or any(d[0] in ("ONLY-GOLD", "DIFF") for d in st)):
         labels.append("SUBSTITUTE_WRITE")
     if resign:
         labels.append("RESIGN")
@@ -306,7 +329,7 @@ def main():
             if "SUBSTITUTE_WRITE" in labels:
                 spur["subst"] += 1
             spur["leaves"] += int(feat.get("spur_leaves") or 0)
-            for t in str(feat.get("spur_exec") or "").split(","):
+            for t in str(feat.get("spur_WRITE") or "").split(","):
                 if t:
                     spur["tools"][t] += 1
             for k2 in ("MISROUTE_user_as_agent", "MISROUTE_scaffold_as_agent",
@@ -318,10 +341,12 @@ def main():
         ids = sorted(set(clusters[k]))
         print("%-42s %2d  %s" % (k, len(ids), ",".join(i.replace("task_", "") for i in ids)))
     print("\n=== EXECUTOR-ROUTING / Δspurious (C183) ===")
-    print("fail sims=%d · OVER_ACTION=%d · SUBSTITUTE_WRITE=%d · gold-밖 write leaf 합=%d"
-          % (spur["sims"], spur["over"], spur["subst"], spur["leaves"]))
+    print("fail sims=%d · OVER_ACTION(ONLY-PRED 상태)=%d · SUBSTITUTE_WRITE=%d · "
+          "gold-밖 write leaf 합=%d" % (spur["sims"], spur["over"], spur["subst"],
+                                        spur["leaves"]))
     print("오라우팅 발생 sim 수: %s" % (dict(spur["misroute"]) or "없음"))
-    print("대체 실행 도구(gold 밖·EXEC): %s" % (dict(spur["tools"]) or "없음"))
+    print("대체 실행 write 도구(gold 밖·ToolType.WRITE): %s" % (dict(spur["tools"]) or "없음"))
+    print("(write 판정 근거: 프레임워크 ToolType 표시 %d개 이름)" % len(_WR))
     print("\n=== PER-TASK DETAIL (fails) ===")
     for tid, key, feat, top in sorted(rows, key=lambda r: (r[0], r[1])):
         print("%s  [%s]  %s" % (tid, key, feat))
