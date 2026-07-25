@@ -25,8 +25,14 @@ except Exception:
 
 
 def live_names(domain="banking_knowledge"):
+    """라이브 에이전트 스키마. no_knowledge variant = KB 임베딩(OpenAI 유료) 우회.
+    도구 스키마 자체는 variant 무관(검색 파이프라인만 다름)."""
     from tau2.registry import registry
-    env = registry.get_env_constructor(domain)()
+    ctor = registry.get_env_constructor(domain)
+    try:
+        env = ctor(retrieval_variant="no_knowledge")
+    except TypeError:
+        env = ctor()
     tools = env.tools.get_tools()
     return G._names_from_tools(tools), tools
 
