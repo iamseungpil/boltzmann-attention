@@ -91,3 +91,38 @@
 - 실패 = termination **context_window_exceeded**(reward 0.0·nmsg 79): 26-txn 다단계(분쟁 11건→상태확인 루프→갱신)에서
   전체 txn 재-fetch 반복+대형 echo로 창 초과. 별개 축 = coverage/discovery-load.
 - 처방 = 신규 발명 불요·기존 설계 적용 후보: rate 도구 fetch-first isolate(ref_params·§2ah 동형)·E-PLAN([[14]]).
+
+## §7 front 25/32 시점 신호 4건 정밀 포렌식 (2026-07-26 저녁·C199)
+> 궤적 덤프=리모트 `day2_sig4.txt`(032/033/022/023/029 전문·action_checks 대조).
+
+### §7A 032 회귀 [S] = notice-레이스 아님 → **말-완결(claimed-completion) 슬립**
+- notice 미등장(noticerep 0 정합)=C193 표적 밖 — **어제 야간 분류(032=notice-레이스·C192 A그룹)는 이 건에 한해 재분류**.
+- 기전 3단: ①미끼 접미사 `initial_transfer_to_human_agent_1822` 언락·2회 호출("단계 미달" decoy 반환에 고착)
+  ②불요 신원확인 우회로 3턴(transfer에 검증 불요·0-match에도 지속) ③0218 2회 호출(gold=3회) 후
+  `transfer_to_human_agents` **무호출·"연결해 드렸습니다" 단언**(m38)→유저 STOP. action_checks: transfer만 X.
+
+### §7B 033 PASS [S] = 032의 살아있는 대조군
+- 같은 프로토콜 계열: 1822(033 gold 포함)→0218→busy→**TRANSFER NOTICE→동의→transfer 실호출**(m18~m21) 완결.
+- C193 표적 흐름(notice 1회→동의→즉시 호출)의 라이브 정상 작동 실증. 032와의 차이=마지막 실호출 유무뿐.
+
+### §7C 022/023/029 [S] — 도구 결백·실패층 3색
+- **022**: rate 도구 **9/10 gold 검출·과잉 0·coverage 55/55**(77 fetch 중 55 입력 — 미검출 txn_ffeede…=입력 커버리지 갭 의심).
+  실패=유저 dispute 실행 0 — 에이전트가 "조정 게시" **날조 완결 선언**(발명 타임스탬프·조정 엔트리명 포함)→유저 audit-note
+  만족 STOP. 기존 completion_guard **워딩 우회**(claim_question이 "dispute 제출" 주장만 겨냥·"adjustment 게시" 통과).
+- **023**: `check_rebate_qualification` 정상(DOES NOT QUALIFY 결정론·60행). 실패=피벗 국면 — 유저 "간단한 카드(Silver?)"에
+  **미발화 제약 4종 발명 투입**(max_annual_fee='95000'=소득 오전사·max_fx_fee 3·max_min_payment_pct 2·credit_score 700)
+  +대안 비교/제시 없이 Silver 승인→유저 Silver 신청(gold=**Diamond Elite**). D-축(발명 형식화)+선택 축.
+- **029**: rate-축 아님(도구 미도달) — **`johndoe@example.com` 플레이스홀더 이메일 날조 조회**(m12)+NOT_VERIFIED 가드의
+  명시 지시("이름/이메일/ID로 조회")에서 이름-경로 불이행(끝내 안 물음)→검증 데드엔드→transfer. 신원-조회 경로 슬립.
+
+### §7D 재시도 빈발 [M 정련] = 단발 폭풍 아님·**포화-마진 상시 운전**
+- 타임아웃 시간당 1~4건 지속(12~15시 A:1/1/4/1·B:3/2/3/2)·isolate 주입 81회(A34/B47)+메인 6판+user-sim 병행.
+- 긴 대화(infra-헤비)에 집중·**재시도=전체 대화 재실행**이라 비용 제곱(008: 12:32→13:33→14:43·~65분 주기 재소진).
+- 레버 후보: isolate 전용 인스턴스/스로틀·arm 시차 기동·resume-형 재시도(러너 개조).
+
+### §7E 교차 발견 — **말-완결 슬립 = 결정적 실패 3건의 공통 결정타** (C199 후보 레버)
+- 032(transfer 연결 단언)·022(adjustment 게시 단언)·[§2A] 019(발명-txn 흐름 인접) — 유저-sim이 단언을 신뢰하고 STOP하면
+  gold 행동이 영영 미실행되는 종결 기전.
+- 레버 후보=completion-claim 게이트 일반화: (a) transfer-류 적용 확대 (b) claim_question 술어를 "제출" 한정→"행동-완료 주장
+  일반"(게시/조정/연결)로 확대. [[03b]] 안전(주장-사실 대조만·행동 미지정)·[[19]] 합성-우선으로 다음 런 스택에.
+- 별개 층: 발명-operand(023)·플레이스홀더-날조(029)=D-축 동형 — C197 fix#1(형식 검사)과 직교(형식 유효·내용 발명).
