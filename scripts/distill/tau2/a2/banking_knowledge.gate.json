@@ -692,6 +692,8 @@
             "rate_field": "base_rate",
             "quote_field": "exclusion_quote",
             "quote_min": 8,
+            "quote_must_contain_field": "merchant_name",
+            "_note_quote_ground": "C197(2026-07-26): exclusion 강등 quote를 엔진이 결정론 대조 — quote∈주입문서(축자) ∧ 이 행의 merchant_name∈quote. 불성립=rate 드롭(판정불가 abstain·coverage 표면화). 근거=019 실측 Thrive Market에 ThredUp 제외문 오적용(FN). 엔진=문자열 포함 검사만·값 생성 0.",
             "rate_range": [
               0,
               20

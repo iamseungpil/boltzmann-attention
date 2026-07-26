@@ -80,17 +80,20 @@ def _month_window_index(anchor, target):
 
 
 def _date_in_window(anchor, target, months):
-    """target ∈ [anchor, anchor+months] ? (결정론·`C113` rate 만료판정). 날짜파싱 실패=False."""
+    """target ∈ [anchor, anchor+months] ? (결정론·`C113` rate 만료판정).
+    ★C197: 입력 누락/파싱실패=None(미확정) — False로 강제하면 결여 leaf가 **침묵 오판정**이 된다
+    (020 실측: account_open 누락→promo false 강제→8 FP+1 FN). None은 if_then/bool_expr의
+    3-값 논리로 전파되어 해당 행이 '판정불가'로 계상된다(coverage에 표면화)."""
     da, dt = _parse_date(anchor), _parse_date(target)
     if da is None or dt is None or months is None:
-        return False
+        return None
     return da <= dt <= _add_months(da, months)
 
 
 def _date_between(x, lo, hi):
     dx, dl, dh = _parse_date(x), _parse_date(lo), _parse_date(hi)
     if None in (dx, dl, dh):
-        return False
+        return None                       # ★C197: 미확정=None(위와 동일 원칙)
     return dl <= dx <= dh
 
 
@@ -396,7 +399,11 @@ def apply_op(spec, ctx):
             #   (미확정=None=abstain·§3 안전)과 동형화. None이면 missing_hint 경로로 abstain.
             cond = apply_op(spec.get("cond"), ctx)
             if cond is None:
-                return None
+                # ★C197 정련: cond 미확정이어도 then/else가 **같은 값**이면 cond와 무관 → 그 값.
+                #   (무-프로모 행: then=r.promo_mult=1 == else=1 → 1. 값이 갈리면 기존대로 abstain.)
+                _tv = apply_op(spec.get("then"), ctx)
+                _ev = apply_op(spec.get("else"), ctx)
+                return _tv if _tv == _ev else None
             return apply_op(spec.get("then"), ctx) if cond else apply_op(spec.get("else"), ctx)
         if op == "bool_expr":
             # ★정책 불리언식(도메인일반·3-값 논리). all/any/not 트리 + leaf(ref|expr + eq|in|비교).
@@ -542,6 +549,10 @@ def apply_op(spec, ctx):
             #   actual_field와 tol 초과 차이면 id 수집. leaf(r.*)=LLM formalize·steps 공식=A2·엔진=실행만([[05]]/[[10]]).
             recs = _get(ctx, spec.get("over")) or []
             if not isinstance(recs, list):
+                # ★C197: 리스트가 아니면(인자 파싱실패 잔류 str 등) 빈 결과로 위장하지 않는다 —
+                #   stats를 계상해 C195 coverage("0 of 0")가 반드시 붙게(019 실측: str 잔류→stats 前
+                #   조기반환→"(none)"이 깨끗한 빈 결과로 위장·완전 침묵). 판단 추가 0·표면화만.
+                ctx["_sg_stats"] = {"judged": 0, "skipped": 0, "total": 0}
                 return []
             idf, af = spec.get("id_field"), spec.get("actual_field")
             tol = _num(spec.get("tolerance")) or 0

@@ -587,6 +587,24 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
                 v = got.get(tid) or {}
                 quote_f = iso.get("quote_field", "exclusion_quote")
                 merged = {k: val for k, val in v.items() if k != quote_f}  # quote=grounding용→op 제외
+                # ★C197 quote-grounding(A2 `quote_must_contain_field` 선언 시만·미선언=거동 변화 0):
+                #   서브가 exclusion으로 rate를 강등하며 붙인 quote를 엔진이 **결정론 대조**만 한다 —
+                #   (a) quote가 실제 주입 문서의 축자인가(docnorm substring) (b) quote 안에 이 행의
+                #   선언 필드값(예: merchant)이 실재하는가. 019 실측: ThredUp 제외문을 Thrive Market에
+                #   오적용(이웃-상인 혼동)→false-negative. 불성립이면 rate 드롭=판정불가 abstain
+                #   (엔진은 값 생성/승격 0·[[03b]]·문자열 포함 검사만).
+                _mcf = iso.get("quote_must_contain_field")
+                if _mcf and merged.get(rate_f) is not None:
+                    _q = str(v.get(quote_f) or "").strip()
+                    if _q:
+                        _qn = _norm_ground(_q)
+                        _fv = _norm_ground(str(r.get(_mcf) or ""))
+                        _qok = (len(_q) >= int(iso.get("quote_min") or 0)) and \
+                               (_qn in docnorm) and bool(_fv) and (_fv in _qn)
+                        if not _qok:
+                            merged.pop(rate_f, None)
+                            print("[T2_SG_ISOLATE] quote-ground 불성립: %s(%s) → rate 드롭(abstain)"
+                                  % (tid, str(r.get(_mcf) or "")[:40]), file=_sys.stderr, flush=True)
                 if merged:
                     r.update(merged)                   # ★엔진 op가 읽을 operand로 병합(서브 산출 그대로)
                     out[tid] = merged
@@ -982,6 +1000,25 @@ def apply():
                         except Exception:
                             pass
                     _ctx[_k] = _v
+                # ★C197: 목록형 op(over 선언)의 인자가 json.loads 실패로 str 잔류 = **침묵 3중 통과**
+                #   (019 실측: python-repr+leading-zero 인자 → isolate 무언 skip → select_discrepant
+                #   stats 前 [] → C195 coverage 우회 → "(none)"이 빈 결과로 위장). 엔진이 대신 파싱하면
+                #   엔진-formalize=[[03b]] 위반 — 재송신을 **요구**한다(formalize=LLM 몫 유지·리터럴 0).
+                _ov = (d.get("op") or {}).get("over")
+                if _ov and isinstance(_ctx.get(_ov), str):
+                    ours[id(tc)] = ToolMessage(
+                        id=tc.id, role="tool",
+                        requestor=getattr(tc, "requestor", "assistant"), error=True,
+                        content=("Error: [ARGS-FORMAT] the '%s' argument could not be read as a "
+                                 "JSON array — it arrived as a plain string that is not valid "
+                                 "JSON. Re-issue this exact call with '%s' as a VALID JSON array: "
+                                 "use double quotes for all keys and string values, plain numbers "
+                                 "without leading zeros or unit words, and no Python-style "
+                                 "quoting. Copy the raw field values exactly as they appear in "
+                                 "the records." % (_ov, _ov)))
+                    print("[T2_SG_ARGS] %s: '%s' 인자 str 잔류(JSON 파싱실패) → 재송신 요구"
+                          % (getattr(tc, "name"), _ov), file=_sys.stderr, flush=True)
+                    continue
                 # ★원장-결합 op는 인자 밖 증거가 필요하다 — **op가 `evidence_from`을 선언할 때만** 주입
                 #   (도메인일반 조건·미선언 op는 거동 변화 0).
                 if (d.get("op") or {}).get("evidence_from"):
@@ -1057,13 +1094,19 @@ def apply():
                         _txt += ("\n[coverage] %d of %d rows were checked (%d could not be "
                                  "verified)." % (_st.get("judged", 0), _st.get("total", 0),
                                                  _st.get("skipped", 0)))
-                        if not _res:
+                        if not _res and _st.get("judged", 0) > 0:
                             _txt += (" An empty result means the checked rows matched the rates "
                                      "that were looked up for them — it is only as reliable as "
                                      "those rates. If the customer insists specific items look "
                                      "wrong, re-read those items' rate lines in the policy "
                                      "documents (per-category rates are a common source of "
                                      "error) instead of repeating this call.")
+                        elif not _res:
+                            # ★C197: 0행 판정 = 빈 결과가 아니라 **무판정** — 신뢰 금지·입력 재점검 지시.
+                            _txt += (" NOTHING was actually checked (0 rows were readable) — this "
+                                     "is NOT a clean empty result. Do not rely on it: re-read the "
+                                     "records and re-issue the call with every row's raw values "
+                                     "copied as valid JSON.")
                 else:                                         # 스칼라형(verdict 등)
                     _txt = _render_scalar(d, _ctx, _res)      # 순수함수(관문3·단위테스트 공유)
                     _n = _res

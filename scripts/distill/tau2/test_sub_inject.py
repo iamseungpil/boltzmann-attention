@@ -50,8 +50,11 @@ SG._DOC_CACHE["banking_knowledge"] = DOCS
 RESP = {
     # Silver: Travel=4 +promo2, Software=1 (정상 base)
     "Silver Rewards Card": '{"t_s1": {"base_rate": 4, "exclusion_quote": "", "promo_mult": 2, "promo_window_months": 6, "promo_start": "01/01/2025", "promo_end": "12/31/2025"}, "t_s2": {"base_rate": 1, "exclusion_quote": "", "promo_mult": 1}}',
-    # Business Silver: WeWork=0 (근거 있음·서브 산출 그대로 병합)
-    "Business Silver Rewards Card": '{"t_b1": {"base_rate": 0, "exclusion_quote": "The following merchants earn 0% cash back: WeWork, Regus.", "promo_mult": 1}}',
+    # Business Silver: t_b1=WeWork 0(근거 성립) · t_b2=이웃-상인 혼동(019 Thrive/ThredUp형: 문서 축자
+    # 인용이지만 이 행의 merchant가 quote에 없음→드롭) · t_b3=날조 인용(문서에 없음→드롭)
+    "Business Silver Rewards Card": ('{"t_b1": {"base_rate": 0, "exclusion_quote": "The following merchants earn 0% cash back: WeWork, Regus.", "promo_mult": 1}, '
+                                     '"t_b2": {"base_rate": 1, "exclusion_quote": "The following merchants earn 0% cash back: WeWork, Regus.", "promo_mult": 1}, '
+                                     '"t_b3": {"base_rate": 1, "exclusion_quote": "Notion purchases never earn cash back at this bank.", "promo_mult": 1}}'),
 }
 CALLS = []
 
@@ -75,6 +78,7 @@ ISO = {
     "group_by": ["credit_card_type", "category"], "doc_key": "credit_card_type",  # ★복합키(부하축소)
     "row_fields": ["transaction_id", "credit_card_type", "category", "merchant_name"],
     "inject_docs": True, "rate_field": "base_rate", "quote_field": "exclusion_quote", "quote_min": 8,
+    "quote_must_contain_field": "merchant_name",   # ★C197 quote-ground 활성(A2 선언)
     "operand_schema": {"base_rate": "<n>", "exclusion_quote": "<s>"},
     "inject_instructions": "{group}\n{docs}\n{items}\n{schema}",
 }
@@ -88,6 +92,8 @@ def main():
         {"transaction_id": "t_s1", "credit_card_type": "Silver Rewards Card", "category": "Travel", "merchant_name": "Delta", "amount": 100},
         {"transaction_id": "t_s2", "credit_card_type": "Silver Rewards Card", "category": "Software", "merchant_name": "Coursera", "amount": 50},
         {"transaction_id": "t_b1", "credit_card_type": "Business Silver Rewards Card", "category": "Other", "merchant_name": "WeWork", "amount": 380},
+        {"transaction_id": "t_b2", "credit_card_type": "Business Silver Rewards Card", "category": "Other", "merchant_name": "Notion", "amount": 120},
+        {"transaction_id": "t_b3", "credit_card_type": "Business Silver Rewards Card", "category": "Other", "merchant_name": "Notion", "amount": 60},
     ]
     ctx = {"transactions": rows}
     out = SG._sub_inject(orch, {"name": "get_reward_discrepancies"}, ISO, ctx, _la, UserMessage)
@@ -107,6 +113,11 @@ def main():
     chk(r["t_s1"].get("base_rate") == 4, "Silver Travel = 4 (서브 산출)")
     chk(r["t_s2"].get("base_rate") == 1, "Silver Software = 1 (서브 산출·엔진 백필 없음)")
     chk(r["t_b1"].get("base_rate") == 0, "WeWork = 0 (서브 산출 그대로·엔진 override 없음)")
+    print("②b C197 quote-ground(불성립=rate 드롭·abstain — 값 생성/승격 0):")
+    chk("base_rate" not in r["t_b2"],
+        "이웃-상인 혼동(019 Thrive/ThredUp형): quote는 문서 축자지만 merchant(Notion)∉quote → rate 드롭")
+    chk("base_rate" not in r["t_b3"], "날조 인용: quote∉주입문서 → rate 드롭")
+    chk(r["t_b2"].get("promo_mult") == 1, "드롭은 rate만 — 나머지 operand는 병합 유지")
     print("③ promo 파라미터 병합(엔진 op가 읽음):")
     chk(r["t_s1"].get("promo_mult") == 2 and r["t_s1"].get("promo_start") == "01/01/2025",
         "Silver Travel promo_mult=2·기간 병합됨")
