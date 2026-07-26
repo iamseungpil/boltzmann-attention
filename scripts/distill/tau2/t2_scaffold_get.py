@@ -1049,6 +1049,21 @@ def apply():
                     _txt = d.get("return_template", "{ids}").format(
                         ids=", ".join(_res) if _res else "(none)", details=_details)
                     _n = len(_res)
+                    # ★C195: 판정 커버리지 병기(op가 _sg_stats를 남긴 경우만·거동보존).
+                    #   "(none)"의 침묵-신뢰 차단: 몇 행을 판정했고 몇 행이 판정불가였는지 +
+                    #   빈 결과일 때 재확인 지시(도메인 어휘 0). 근거=야간 020/027/029 거짓 "(none)".
+                    _st = _ctx.get("_sg_stats")
+                    if isinstance(_st, dict):
+                        _txt += ("\n[coverage] %d of %d rows were checked (%d could not be "
+                                 "verified)." % (_st.get("judged", 0), _st.get("total", 0),
+                                                 _st.get("skipped", 0)))
+                        if not _res:
+                            _txt += (" An empty result means the checked rows matched the rates "
+                                     "that were looked up for them — it is only as reliable as "
+                                     "those rates. If the customer insists specific items look "
+                                     "wrong, re-read those items' rate lines in the policy "
+                                     "documents (per-category rates are a common source of "
+                                     "error) instead of repeating this call.")
                 else:                                         # 스칼라형(verdict 등)
                     _txt = _render_scalar(d, _ctx, _res)      # 순수함수(관문3·단위테스트 공유)
                     _n = _res

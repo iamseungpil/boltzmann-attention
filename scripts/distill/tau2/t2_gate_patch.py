@@ -2677,13 +2677,28 @@ def _install_regen_exec():
                                   "search PLAIN WORDS describing the action/step (the everyday words a policy "
                                   "document would use), not the tool's function name. If you already have the "
                                   "information you need, proceed to the next step instead of searching again.")
+                    # ★C194(2026-07-26·16건 정독 실측): 동일-문구 stub은 루프를 못 끊는다 — 041은
+                    #   동일 KB 쿼리 15회+(stub 매번 발화·행동 불변)·020/027 5~6회·035/012 동형.
+                    #   동일 입력→동일 출력 어트랙터라 같은 텍스트 반복 제시는 같은 선택을 재생산.
+                    #   교정: ①반복 횟수를 문구에 넣어 매번 다른 텍스트 ②3회+ 시 행동-전환 지시
+                    #   +error 채널 승격(피드백 채널 자체 변경). read 한정·도메인 리터럴 0.
+                    _rep = self._t2_dup_rep = getattr(self, "_t2_dup_rep", {})
+                    _rep[k] = _rep.get(k, 0) + 1
+                    _n_rep = _rep[k]
+                    _esc = ""
+                    if _n_rep >= 3:
+                        _esc = (" You have now issued this IDENTICAL call %d times and the result "
+                                "has not changed once — repeating it again cannot produce new "
+                                "information. Change what you do: use DIFFERENT search words, or "
+                                "act on the information you already have, or ask the customer. Do "
+                                "not issue this same call again." % _n_rep)
                     stubs[getattr(tc, "id", None)] = _TM(
                         id=tc.id, role="tool",
-                        requestor=getattr(tc, "requestor", "assistant"), error=False,
+                        requestor=getattr(tc, "requestor", "assistant"), error=(_n_rep >= 3),
                         content="[DUPLICATE-READ] This exact call (same tool, same arguments) was "
                                 "already executed earlier in this conversation; its full output is "
                                 "shown above and has not changed. Refer to that output instead of "
-                                "re-reading." + _redir)
+                                "re-reading." + _redir + _esc)
                     stub_ids.add(getattr(tc, "id", None))
                     self._t2_read_dedup = getattr(self, "_t2_read_dedup", 0) + 1
                     print("[T2_READ_DEDUP] stub tool=%s" % getattr(tc, "name", None),
@@ -4780,6 +4795,48 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
                               file=_sys.stderr, flush=True)
                 break
+        # ★C193 notice-재발화 억제 (2026-07-26·야간 97-런 회귀 3/3 실측: 005·032·035 — 어제 pass가
+        #   전부 이 기전으로 fail. +004·016 동형). 도메인 정책(notice 게이트)은 [notice 송신 →
+        #   손님 동의 → transfer 도구 호출] 순서를 요구하는데, 에이전트가 **동의 확보 후에도
+        #   notice를 재발화**하며 턴을 넘기면 user-sim이 터미널 신호로 응답해 sim이 그 자리에서
+        #   종료 → gold transfer 도구 영영 미호출(레이스). 실측: 005 msg19 손님 "Yes, please" 평문
+        #   동의 → msg20 재발화 → 터미널 / 035는 도구 출력이 즉시-transfer를 지시했는데도 재발화.
+        #   엔진이 보는 것 = A2 notice_text 문자열의 {현재 발화 포함 ∧ 과거 송신 실재 ∧ transfer
+        #   호출 부재} 결정론 대조뿐. **도구명도 A2에서**: notice 게이트 tool 키 ∨
+        #   claim_prov.event_map['transfer'] 패턴([[05]] 엔진 리터럴 0). 교정=재발화 대신 도구
+        #   호출을 지시하는 regen 1회(cap 1/sim·호출·인자·계속여부=모델·[[10]]).
+        if (os.environ.get("T2_NOTICE_REPEAT", "1") == "1"
+                and not getattr(self, "_t2_noticerep", 0)):
+            _ngate = next((g for g in ((a2 or {}).get("gates") or [])
+                           if g.get("kind") == "notice" and g.get("notice_text")), None)
+            _ntxt = (_ngate or {}).get("notice_text") or ""
+            _emap4 = ((a2 or {}).get("claim_prov") or {}).get("event_map") or {}
+            _trname = ((_ngate or {}).get("tool")
+                       or (_emap4.get("transfer") if isinstance(_emap4.get("transfer"), str) else None)
+                       or "the transfer tool named in your policy")
+            _amc4 = str(getattr(am, "content", None) or "")
+            _nkey = _ntxt[:40] if _ntxt else ""
+            if _nkey and _nkey in _amc4:
+                _sent_before = any(
+                    _nkey in str(getattr(_m4, "content", None) or "")
+                    for _m4 in state.messages
+                    if getattr(_m4, "role", None) == "assistant")
+                if _sent_before and not _is_transfer_call(am, _emap4):
+                    self._t2_noticerep = 1
+                    print("[T2_NOTICEREP] repeated notice without transfer call — regen",
+                          file=_sys.stderr, flush=True)
+                    _new4 = _ap_regen(
+                        "You already sent that exact transfer notice earlier in this conversation, "
+                        "and the customer has already responded to it. Do NOT send the notice again "
+                        "— repeating the question only stalls the request. If the transfer should "
+                        "proceed, CALL %s NOW (as a tool call, with an appropriate summary); "
+                        "otherwise continue helping the customer without re-sending the notice."
+                        % _trname, "noticerep")
+                    if _new4 is not None:
+                        am = _new4
+                        print("[T2_NOTICEREP] regen tool_calls=%s"
+                              % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
+                              file=_sys.stderr, flush=True)
         # (a1b) ★T2_CLAIM_PROV (2026-07-20·사용자: "모든 '했다' 주장을 원장대조") — WRITEPROV의 일반형.
         #   완료-주장(write축)만 묻던 이진 선언을 **모든 과거-행동 주장 목록 formalize**로 확장:
         #   LLM이 자기 답변의 "이미 했다" 주장들을 {kind, what}로 선언([[10]] formalize) → 엔진은

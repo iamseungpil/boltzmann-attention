@@ -581,6 +581,14 @@ def apply_op(spec, ctx):
             if skipped:
                 print("[T2_COMPUTE] select_discrepant: %d/%d행 판정불가(operand가 숫자 아님) — "
                       "under-action 위험" % (skipped, len(recs)), file=_sys.stderr, flush=True)
+            # ★C195(2026-07-26·야간 020/027/029 실측): "(none)" 단독 반환은 **판정 커버리지를 숨긴다**
+            #   — 세 태스크서 도구가 "(none)"을 단언했고 gold는 4건+의 분쟁을 요구(2026-07-25 019는
+            #   3/4만 검출). 원인 후보=격리 서브의 rate formalize 품질(카테고리-무시)·엔진은 그 값을
+            #   신뢰할 수밖에 없으므로, 최소한 **몇 행을 무슨 근거로 판정했는지**를 결과에 병기해
+            #   모델·후속 포렌식이 "(none)"을 무조건 신뢰하지 않게 한다(C185a unverified와 동일 원칙·
+            #   엔진은 자기 집계의 표면화만·판단 추가 0).
+            ctx["_sg_stats"] = {"judged": len(recs) - skipped, "skipped": skipped,
+                                "total": len(recs)}
             return out_ids
         if op == "filter":
             # ★reference-filter(keystone): 수집 record를 criteria로 결정론 매칭 → return field.
