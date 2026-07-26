@@ -1657,6 +1657,27 @@ def _claim_unbacked(claims, emap, evs, messages):
     return out
 
 
+def _claim_has_kind(claims, kinds):
+    """★C201/D3 보조(순수함수·단위테스트 공유): 주장 목록에 A2 선언 `reserve_kinds` 중 하나가 있나.
+    엔진은 kind 문자열 대조만 — 어떤 kind가 '중요'한지는 A2가 정한다(도메인 리터럴 0)."""
+    ks = {str(k).strip().lower() for k in (kinds or [])}
+    return any(str((c or {}).get("kind", "")).strip().lower() in ks for c in (claims or []))
+
+
+def _cpv_window(resign, transfer, cur, cap, tr_spent, rsv_spent, has_reserve):
+    """★C201/D3 발화창 판정 (순수함수·2026-07-26·§7-0 실측: `unbacked>0인데 regen 무발생` A11·B5 =
+    cap 소진이 실재 → **행동-kind 주장 전용 예비 1회**를 sim당 보장). 반환: None | 'resign' | 'transfer' | 'reserve'.
+    - 'reserve'는 cap 소진 후에만 열리고, 실제 regen은 unbacked에 reserve_kind가 있을 때만 집행(호출부).
+    - 예비는 sim당 1회·전역 T2_REGEN_BUDGET과 함께 상한(컨텍스트 팽창=게이트 자신의 비용·등대 §1)."""
+    if transfer and not tr_spent:
+        return "transfer"
+    if resign and cur < cap:
+        return "resign"
+    if resign and has_reserve and not rsv_spent:
+        return "reserve"
+    return None
+
+
 def _is_transfer_call(am, emap):
     """★관문5(038 transfer-escape): 이번 응답에 transfer-류 호출이 있나 — 패턴=A2 event_map['transfer']
     재사용(새 A2 필드 0·엔진 리터럴 0). raw명+effective명 둘 다 대조."""
@@ -4712,7 +4733,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     if _hit1 is None:
                         continue
                     _fb1, _tag1 = _hit1
+                    # ★C201/D2(2026-07-26·리뷰 결함2 실측): 전역 임계(기본 2)는 **1회 사임 뒤 종료되는
+                    #   궤적**(035: 에스컬 호출→notice 1턴→유저 terminal)에서 구조적 미발화. 체인별
+                    #   `resign_th`로 override(미선언=env 기본=거동 보존). 전역을 낮추면 기존 체인까지
+                    #   조기 발화해 Δspurious가 스택 전체로 번지므로 per-chain으로 국소화.
                     _th = int(os.environ.get("T2_FOLLOWUP_RESIGN_TH", "2") or 2)
+                    if _fc.get("resign_th") is not None:
+                        _th = int(_fc["resign_th"])
                     self._t2_fu_resigns = getattr(self, "_t2_fu_resigns", 0) + 1
                     if self._t2_fu_resigns < _th:
                         break
@@ -4856,8 +4883,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         # ★transfer-창 별도 예산(2026-07-20·e2e9 038 포렌식·§2ao): resign-창 발화가 cap을 소진하면
         #   **탈출 직전**(transfer 호출) 최후 감사가 무산(038 실측: 16 hit 전부 resign·transfer-창 0).
         #   transfer-창은 cap과 독립적으로 sim당 1회 보장(사임-창과 상호배타: transfer=tool_call 있음).
-        _cpv_win_ok = ((_resign and getattr(self, "_t2_claimprov", 0) < _cpv_cap)
-                       or (_cpv_transfer and not getattr(self, "_t2_claimprov_tr", 0)))
+        # ★C201/D3(2026-07-26·§7-0): cap 소진 뒤에도 **행동-kind 주장 전용 예비 1회**(A2 reserve_kinds).
+        #   근거 실측: unbacked>0인데 regen 무발생 A11·B5 — 초반 저가치 발화가 예산을 태우고 종단
+        #   완료-날조(032 transfer·026/028 record_update)가 무검사 통과. 판정=순수함수 _cpv_window.
+        _cpv_rsv_kinds = _cpv.get("reserve_kinds") or []
+        _cpv_mode = _cpv_window(bool(_resign), bool(_cpv_transfer),
+                                getattr(self, "_t2_claimprov", 0), _cpv_cap,
+                                getattr(self, "_t2_claimprov_tr", 0),
+                                getattr(self, "_t2_claimprov_rsv", 0), bool(_cpv_rsv_kinds))
+        _cpv_win_ok = _cpv_mode is not None
         if (os.environ.get("T2_CLAIM_PROV") == "1" and (_resign or _cpv_transfer)
                 and _cpv_win_ok
                 and _cpv.get("question") and _cpv.get("feedback") and _cpv.get("event_map")):
@@ -4902,8 +4936,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                       % ("transfer" if _cpv_transfer and not _resign else "resign",
                          len(_cl or []), len(_unbacked), len(_pd or []), len(_unb_p),
                          [c.get("kind") for c in (_unbacked + _unb_p)][:4]), file=_sys.stderr, flush=True)
+                # ★C201/D3: 예비-창은 **행동-kind 주장**에만 쓴다(저가치 주장으로 예비 소진 방지).
+                if _cpv_mode == "reserve" and not (_claim_has_kind(_unbacked, _cpv_rsv_kinds)
+                                                   or _claim_has_kind(_unb_p, _cpv_rsv_kinds)):
+                    print("[T2_CLAIMPROV] reserve window: no action-kind claim — skip",
+                          file=_sys.stderr, flush=True)
+                    break
                 if _unbacked or _unb_p:
                     self._t2_claimprov = getattr(self, "_t2_claimprov", 0) + 1
+                    if _cpv_mode == "reserve":
+                        self._t2_claimprov_rsv = 1       # 예비-창(1/sim) 소진 마킹
                     if _cpv_transfer and not _resign:
                         self._t2_claimprov_tr = 1        # transfer-창 예산(1/sim) 소진 마킹
 

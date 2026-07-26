@@ -1474,7 +1474,60 @@
         "_note_v2": "★C187(b)(c)(d)·2026-07-25: KB 축자 사실 보강. min_score 전 카드(EcoCard=0=요건없음·Crypto 660·Diamond 780) · limit_max(최대 승인 한도) · purchase_protection(Crypto=No 명시) · virtual_card(Silver=No·Bronze=No 명시) · Silver fx 조건부(무구독 2.75/premium 0)=conditional_fields. cashback은 **최상위 카테고리 요율**(Platinum 10%=travel/software·Silver 4%=travel/software·기타 1%) — '가장 높은 cash back' 질의의 비교 기준. 미문서 필드는 넣지 않는다(EcoCard/Green cashback=포인트제·biz_bronze/green min_score 미문서) → 제약 걸리면 unverified로 정직하게 반환. ★C189(2026-07-25·024 실측): `cashback`은 카드마다 **적용 범위가 다르다** — Platinum 10%/Gold 2.5%/Diamond 5%는 전 구매, **Silver 4%·Business Silver 10%·Green 3%는 카테고리 한정(그 외 base_cashback 1.0%)**. 평면 비교하면 오도한다(024: 모델이 Business Silver 10%를 최고로 보고 선택했으나 $40k 트럭은 비해당 카테고리라 1%이고, gold=Business Bronze는 1%+**프로모 $500 statement credit**로 실질 우위). ⇒ `cashback_scope`/`base_cashback`을 표에 실어 **모델이 평면 비교를 하지 않게** 한다. 가입 보너스·프로모는 표에 넣지 않는다(원문 소관·note가 확인을 지시).",
         "_note_limit": "⚠**이 표의 한계**: 하드 제약 판정에는 충분하지만 '최대 수익' 류 질의의 결정축(가입 보너스·카테고리 적격·기간 프로모)은 표에 없다. 그런 질의에서는 eligible 목록을 **후보 축소**로만 쓰고 최종 비교는 원문 확인으로 해야 한다."
       },
-      "_note": "★C181(2026-07-25·C179 처방): 클러스터① 카드 오선택(002/003/006/024/063·W2+W4 이중증거=문서-유입 불충분) → 결정론 자격필터. 표=KB 문서 사실의 선언적 추출(각 행 source 명시·조건부 조항은 note로 재확인 지시=오염 방지). 최종 선택·선호 매칭=모델 몫. 002 텍스트-행동 divergence는 description의 MUST 절이 표적."
+      "_note": "★C181(2026-07-25·C179 처방): 클러스터① 카드 오선택(002/003/006/024/063·W2+W4 이중증거=문서-유입 불충분) → 결정론 자격필터. 표=KB 문서 사실의 선언적 추출(각 행 source 명시·조건부 조항은 note로 재확인 지시=오염 방지). 최종 선택·선호 매칭=모델 몫. 002 텍스트-행동 divergence는 description의 MUST 절이 표적.",
+      "ground": {
+        "scalar_fields": [
+          {
+            "param": "max_annual_fee",
+            "corpus": [
+              "ledger"
+            ],
+            "kind": "number",
+            "on_fail": "drop"
+          },
+          {
+            "param": "max_fx_fee",
+            "corpus": [
+              "ledger"
+            ],
+            "kind": "number",
+            "on_fail": "drop"
+          },
+          {
+            "param": "max_min_payment_pct",
+            "corpus": [
+              "ledger"
+            ],
+            "kind": "number",
+            "on_fail": "drop"
+          },
+          {
+            "param": "min_cashback",
+            "corpus": [
+              "ledger"
+            ],
+            "kind": "number",
+            "on_fail": "drop"
+          },
+          {
+            "param": "credit_score",
+            "corpus": [
+              "ledger"
+            ],
+            "kind": "number",
+            "on_fail": "drop"
+          },
+          {
+            "param": "min_credit_limit",
+            "corpus": [
+              "ledger"
+            ],
+            "kind": "number",
+            "on_fail": "drop"
+          }
+        ],
+        "_note": "C201/D4(2026-07-26·023 [S]): 손님이 말한 적 없는 제약 발명(소득 95000→max_annual_fee) 차단. corpus=ledger(도구 출력+손님 발화)·불성립=드롭(제약 소멸=eligible 넓어짐·안전 방향). 값 생성 0."
+      }
     }
   ],
   "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수.",
@@ -1536,6 +1589,18 @@
       "decision_feedback": "Error: [FOLLOW-UP] you completed the closure checks but never executed the terminal step with a TOOL CALL. Per the retention protocol in the knowledge base: after logging the closure reason, address the concern - if the reason qualifies for a retention remedy under that protocol (e.g. an annual-fee waiver via apply_credit_card_account_flag for eligible long-tenured customers), offer it and apply it with the customer's consent; if the customer still wants to close or no retention remedy applies, process the closure with close_credit_card_account. Both are DISCOVERABLE tools - unlock the full suffixed name first (find it in the knowledge base by searching plain words describing the step). Do NOT merely describe the outcome in text, and do NOT transfer with the decision unmade.",
       "feedback": "Error: [FOLLOW-UP] you started the card-closure eligibility check but the closure procedure is NOT complete. Steps still missing: {missing}. Per the closure/retention protocol: check the customer's pending disputes (dispute history) and pending replacement orders; if there is an outstanding balance, read the customer's accounts (get_all_user_accounts_by_user_id - this also gives you the CHECKING account id; its full suffixed name is in the knowledge-base document titled 'Retrieving Customer Account Information' - search e.g. \"retrieve customer bank accounts\") and pay the balance from checking with the customer's authorization; check closure-reason history; ask the customer's reason and log it (the 'Credit Card Retention Protocol' document covers these closure steps and annual-fee remedies). These are DISCOVERABLE tools - if you do not know a tool's full suffixed name, search the knowledge base (KB_search_bm25) for it using plain words describing the step (e.g. \"closure reason history\"; a bare tool-name query matches no document text); do NOT conclude a tool or record does not exist, and do NOT transfer while these tool steps remain available.",
       "_note": "2026-07-22 §2bn(rall8 043 실측): pay unlock까지 도달 후 체킹 계좌 id를 KB 문서(shell 4연발)서 찾다 transfer(C108류) - reader(get_all_user_accounts)가 requires에 있어 {missing} 나열로 안내됨. 앵커=check_card_closure_eligibility(§2bc 관문3·자발 호출 실증). requires 근거=KB doc_credit_card_account_logistics_002/003. 조건부 단계(잔액 0이면 pay 불요)는 문구에 명시=over-fire 시 모델이 설명으로 해소 가능(deny 아닌 nudge). ★2026-07-22 §2bs(rall10 043 실측+KB 재정독): ①구판 requires에 dispute-체크 누락(리텐션 프로토콜 Step1.1=get_user_dispute_history) 추가 ②close를 requires에서 제거 — logistics_003 Step4: annual_fee+장기고객=waive(apply_credit_card_account_flag)가 정답 분기라 close 고정은 KB-불일치(gold-불일치는 결과·근거는 KB) → 종단을 decision_tools[apply_flag|close] 양방향 nudge로 전환(CLI chain approve|deny와 동형·Δspurious 계측 대상)."
+    },
+    {
+      "after": [
+        "initial_transfer_to_human_agent",
+        "emergency_credit_bureau_incident_transfer"
+      ],
+      "requires": [
+        "transfer_to_human_agents"
+      ],
+      "feedback": "Error: [FOLLOW-UP] you already executed the escalation step, but the ledger shows {missing} was never called, so the customer has NOT actually been transferred. Saying that you have connected them does not transfer anyone. If your policy's escalation protocol still requires further steps (for example repeating the escalation tool the prescribed number of times), perform those steps first; once the protocol is satisfied and the customer has agreed, call the transfer tool itself in a tool call.",
+      "_note": "C201/D2(2026-07-26·035 [S]): 에스컬 도구 출력이 즉시-transfer를 지시했는데 notice 발화(사임-턴)로 창 소멸. 발화창=기존 _chain_dispatch. 문구는 양방향(프로토콜 잔여 단계 우선 허용)=조기 transfer Δspurious 완화. ★리뷰 결함2 반영(2026-07-26): 전역 T2_FOLLOWUP_RESIGN_TH=2는 035형(사임 1턴 뒤 terminal) 궤적서 구조적 미발화 → 이 체인만 resign_th=1. 전역 하향은 기존 체인까지 조기 발화(Δspurious 확산)라 국소화. 033형 PASS 회귀를 §9 계측에 추가.",
+      "resign_th": 1
     }
   ],
   "write_arg_grounding": [
@@ -1614,8 +1679,8 @@
   ],
   "_note_dispute_chain_removed": "2026-07-21 §2bc: dispute post-write chain(after=file_..., requires=get_card_last_4_digits) 제거. 근거(054 t0 실측): WEV 사전 게이트가 provenance를 이미 커버(빈-값 deny 포함)하는데 post-write chain이 give-flow 단일 경로를 추가 강제 → 054(gold 무-give·record-경로)서 give 2회 잡음+유저('카드 없음') 마찰. 031 날조 차단은 WEV 신판(값-실재)이 유지. 사전-게이트 > 사후-추격.",
   "claim_prov": {
-    "question": "Before your reply is sent, audit yourself. (1) In YOUR REPLY ONLY: list every assertion that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did do NOT count. (2) Across the WHOLE conversation: list every action YOU said you WILL do / are about to do (e.g. 'I will file the disputes') that you have NOT completed yet. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"search|verify|write|give|transfer\", \"what\": \"<5-10 words>\"}], \"pending\": [{\"kind\": \"search|verify|write|give|transfer\", \"what\": \"<5-10 words>\"}]} — empty lists if none.",
-    "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why).",
+    "question": "Before your reply is sent, audit yourself. (1) In YOUR REPLY ONLY: list every assertion that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did do NOT count. (2) Across the WHOLE conversation: list every action YOU said you WILL do / are about to do (e.g. 'I will file the disputes') that you have NOT completed yet. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"search|verify|record_update|dispute_file|give|transfer|write\", \"what\": \"<5-10 words>\"}], \"pending\": [{\"kind\": \"search|verify|record_update|dispute_file|give|transfer|write\", \"what\": \"<5-10 words>\"}]} — empty lists if none. Choose the MOST SPECIFIC kind that fits (record_update for changing a stored record's values, dispute_file for filing/submitting a dispute or report); use the generic \"write\" ONLY when no specific kind applies.",
+    "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why). Do not end your involvement by describing the work as done or under way — either call the tool now, or state explicitly that it has NOT been performed.",
     "event_map": {
       "search": [
         "KB_",
@@ -1633,10 +1698,31 @@
       "transfer": [
         "transfer_",
         "request_human"
+      ],
+      "record_update": [
+        "update_transaction_rewards",
+        "update_",
+        "apply_statement_credit",
+        "apply_checking_account_credit"
+      ],
+      "dispute_file": [
+        "file_credit_card_transaction_dispute",
+        "submit_cash_back_dispute",
+        "submit_interest_discrepancy_report",
+        "file_",
+        "submit_"
       ]
     },
-    "feedback": "Error: [CLAIM-PROVENANCE] your reply asserts you already did the following, but the conversation ledger shows NO such event: {claims}. Do NOT claim actions you have not actually performed — that misleads the customer. Either actually do it now (call the real tools: search the knowledge base, run the verification, execute the action), or correct your statement to say you have not done it yet.",
-    "_note": "2026-07-20 사용자 일반화('모든 했다 주장을 원장대조'). 043 e2e 실측: KB실호출 0·'checked KB' 주장 1→조기 transfer. WRITEPROV(완료-주장·write축)의 상위호환 — kind별 event_map으로 search/verify/give/transfer까지. 미등재 kind=엔진 skip. T2_CLAIM_PROV=1 구동·기본 OFF. ★관문5 확장(2026-07-20·038·§2ad): ①발화창=사임∨transfer호출(event_map.transfer 패턴 재사용·notice-티켓 탈출 차단) ②question v2=claims(과거·답변만)+pending(미래약속·전대화)·feedback_pending=지금 실행 후 transfer 지시. 한계: pending kind=write는 __effective_write__ 광역대조(무관 write 존재 시 false-negative·주의). Δspurious 계측 대상(정당 즉시-transfer는 pending 0라 무간섭 설계)."
+    "feedback": "Error: [CLAIM-PROVENANCE] your reply asserts you already did the following, but the conversation ledger shows NO such event: {claims}. Do NOT claim actions you have not actually performed — that misleads the customer. Either actually do it now (call the real tools: search the knowledge base, run the verification, execute the action), or correct your statement to say you have not done it yet. A statement to the customer is NOT a substitute for the tool call: if the action is still required, make the call in THIS reply; if you cannot make it (for example it is the customer who must run that tool), say plainly that it has NOT been done and tell them exactly what remains.",
+    "_note": "2026-07-20 사용자 일반화('모든 했다 주장을 원장대조'). 043 e2e 실측: KB실호출 0·'checked KB' 주장 1→조기 transfer. WRITEPROV(완료-주장·write축)의 상위호환 — kind별 event_map으로 search/verify/give/transfer까지. 미등재 kind=엔진 skip. T2_CLAIM_PROV=1 구동·기본 OFF. ★관문5 확장(2026-07-20·038·§2ad): ①발화창=사임∨transfer호출(event_map.transfer 패턴 재사용·notice-티켓 탈출 차단) ②question v2=claims(과거·답변만)+pending(미래약속·전대화)·feedback_pending=지금 실행 후 transfer 지시. 한계: pending kind=write는 __effective_write__ 광역대조(무관 write 존재 시 false-negative·주의). Δspurious 계측 대상(정당 즉시-transfer는 pending 0라 무간섭 설계).",
+    "_note_granular_kinds": "C201/D1(2026-07-26·§7-0 실측): generic write는 __effective_write__라 **무관한 write**(예: 유저의 dispute 제출)가 별개 완료-날조를 뒷받침했다(026/028 실측 backed). 세분 kind=도구 접두 등록만(정답 미지정·엔진 무변경).",
+    "reserve_kinds": [
+      "record_update",
+      "dispute_file",
+      "transfer",
+      "write"
+    ],
+    "_note_reserve": "C201/D3(2026-07-26): cap 소진 후 sim당 1회 예비-창 — 행동-kind 주장에만 집행. 엔진은 kind 문자열 대조만(어떤 kind가 행동인지=A2 소관)."
   },
   "unavailable_tools": {
     "KB_search_dense": "Error: KB_search_dense is not available in this environment (dense retrieval backend is not configured). Use KB_search_bm25 with the same query instead - it searches the same knowledge base."
