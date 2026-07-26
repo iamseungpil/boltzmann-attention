@@ -66,3 +66,28 @@
 ## §5 남는 관찰 (판정 대기·front 완주 후)
 - 회귀 3(005 완료=KB-확인 층·032/035 대기)·pass 4 유지·infra 12 완주 여부 = handoff §2 프레임.
 - PASS 인과 확정分: 002(min_cashback 발명 소멸·catalog v2 eligible 정확·CHECK-FIRST 첫 행동) · 003(동일 경로) — 클러스터① 라이브 2연속.
+
+## §6 front 19/32 시점 신호 3건 포렌식 (2026-07-26 오후·C198)
+### §6A 021 회귀 = C197 침묵 경로 그대로 [S] (Δspurious 혐의 해소)
+- 021 1차 시도 timeout 크래시 → **R1 재시도 영속**(log `task_021.0(…R1)`·Retry 1회). 재시도 인자 = python-repr 문자열
+  (`json.loads` FAIL 재현) → isolate 무언 skip → **coverage 없는 "(none)"**(전문 확인) = 019와 완전 동형.
+- gold 분쟁 2건(txn_ccbb948ffa10 Chipotle·txn_5b30a52ac9d6)은 무판정에 매몰·에이전트는 WeWork(txn_fa793baabcf4)만
+  dispute(오귀속·유저-sim이 Chipotle을 에이전트의 "dining 1pt/$2" 환각 설명에 근거해 자진 철회하는 2차 피해 포함).
+- ⇒ 어제 flip-pass(021)를 깬 것은 C193~C195 부작용이 아니라 **C197 입력-결함 구멍**. fix#1([ARGS-FORMAT])이 직접 차단.
+- **[D] 관찰**: python-repr 슬립 = 재시도 시도 2/2(019 R1·021 R1)·정상 1차 시도(017/020/027)=전부 유효 JSON. retry-상관 후보(표본 2).
+
+### §6B infra None 5건(001/006/007/008/010) = vLLM 큐 포화 [M] — "timeout 1200 확정" 기각 방향
+- 5건 전부 termination=infrastructure_error·nmsg 0(attempt 폐기)·**agent 모델(Qwen-32B vLLM) litellm.Timeout 3/3 소진**
+  (user-sim 아님·에러 문맥 model=Qwen 확인). B: 001/007/010 · A: 006/008.
+- 결정 단서: 12:30~12:33 **양-arm 8태스크 동시 Retry-1**(001/003/006/019/022/023/024/025) = 일시 큐-포화 이벤트.
+  rate-태스크 isolate 문서주입 폭주(대형 프롬프트 다발) 시간대와 일치 의심([M]·타임스탬프 부분 대조).
+- 사후 헬스: 양 포트 /v1/models 8ms 정상·GPU0 100%/GPU1 36% — 영구 stall 아님.
+- ⇒ handoff §2-3 "timeout 1200 처방 확정" **기각 방향**: 포화 창에서는 1200도 소진. 다음-런 후보: isolate 서브 스로틀/
+  전용 인스턴스·conc 축소·arm 시차 기동. (final 판정은 front 완주 후 infra 전수와 함께.)
+
+### §6C 027 = C197 아님·context-overflow 축(023/t95형) [S 관찰]
+- rate 호출 **건강**: 유효 JSON·**account_open 26행 포함**·coverage 26/26·**403 검출(6300 vs 3150)** — 020이 놓친 FN을
+  같은 유저·같은 배치에서 잡음(= C197 §2B 원인 귀속의 대조군 재확인: 차이는 오직 account_open 유무).
+- 실패 = termination **context_window_exceeded**(reward 0.0·nmsg 79): 26-txn 다단계(분쟁 11건→상태확인 루프→갱신)에서
+  전체 txn 재-fetch 반복+대형 echo로 창 초과. 별개 축 = coverage/discovery-load.
+- 처방 = 신규 발명 불요·기존 설계 적용 후보: rate 도구 fetch-first isolate(ref_params·§2ah 동형)·E-PLAN([[14]]).
