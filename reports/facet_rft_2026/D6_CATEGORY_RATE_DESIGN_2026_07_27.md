@@ -45,14 +45,6 @@
    있는 것처럼 계산하지 않는 3버킷 철학·C185 동형).
 4. `spend_category` 미제공 시 = **현행 그대로**(주석 없음·거동 변화 0).
 
-### §2b ★변경 지점·규모 (rev2 보강 — D4의 "엔진 무변경" 오기 재발 방지)
-| 대상 | 위치 | 규모 |
-|---|---|---|
-| 엔진 | `t2_compute.py` `catalog_filter`(269행~) 내부의 **eligible/unverified 엔트리 구성부**(`facts` 산출 직후·347행 부근) | ~15줄(딕셔너리 조회+주석 문자열 1개·**리터럴 0**) |
-| A2 | `check_card_application_fit.params`에 `spend_category` 항목 추가(어휘 열거 포함·§2-3b) | 1항목 |
-| A2 | 표 재구조화: `cashback_scope` 문자열 → `category_rates`/`base_cashback` 선언형 | **9행**(§2a) |
-- ctx-키→행-필드 매핑은 기존 관행과 동형(`max_annual_fee→annual_fee` 등 306~310행) — 새 패턴 도입 아님.
-
 ### §2a A2 데이터 재구조화 (필수 선행)
 현행 `cashback_scope`는 `"top_categories(travel/software)"` 같은 **문자열**이다. 엔진이 이걸 파싱하면
 **엔진-formalize = [[03b]] 위반**이므로, 표를 선언형으로 바꾼다:
@@ -71,6 +63,14 @@ EcoCard / Business Gold / Business Platinum / Silver Zoom: 미문서 → 필드 
   현행 scope 문자열을 그대로 옮기면 **모순이 선언형으로 굳는다**. ⇒ 재구조화 시 **9행 전수를 KB 원문과 대조**
   (최소 Platinum·Green은 필수)하고, 확정 불가한 행은 `category_rates`를 넣지 않고 unverified로 남긴다.
 
+### §2b ★변경 지점·규모 (rev2 보강 — D4의 "엔진 무변경" 오기 재발 방지)
+| 대상 | 위치 | 규모 |
+|---|---|---|
+| 엔진 | `t2_compute.py` `catalog_filter`(269행~) 내부의 **eligible/unverified 엔트리 구성부**(`facts` 산출 직후·347행 부근) | ~15줄(딕셔너리 조회+주석 문자열 1개·**리터럴 0**) |
+| A2 | `check_card_application_fit.params`에 `spend_category` 항목 추가(어휘 열거 포함·§2-3b) | 1항목 |
+| A2 | 표 재구조화: `cashback_scope` 문자열 → `category_rates`/`base_cashback` 선언형 | **9행**(§2a) |
+- ctx-키→행-필드 매핑은 기존 관행과 동형(`max_annual_fee→annual_fee` 등 306~310행) — 새 패턴 도입 아님.
+
 ## §3 무엇을 하지 않는가 (경계)
 - 카드를 **고르지 않는다**. 순위·추천·정렬도 하지 않는다 — 요율 주석만 붙인다.
 - 손님의 카테고리를 엔진이 **추론하지 않는다**(모델이 operand로 준다). 미제공이면 아무 일도 안 한다.
@@ -78,7 +78,7 @@ EcoCard / Business Gold / Business Platinum / Silver Zoom: 미문서 → 필드 
 
 ## §4 [[05]] 3질문 (설계서 상설 의무·[[17]])
 1. **도메인-특화 순증?** A2 표의 **재구조화**가 주(문자열 scope → 선언형 category_rates)이고 새 도메인 규칙 추가는 없다.
-   순증분 = 카테고리별 요율 8행(전부 KB 축자·이미 `cashback_scope`로 같은 사실이 표현돼 있던 것). 엔진 리터럴 0.
+   순증분 = 카테고리별 요율 9행(전부 KB 축자·이미 `cashback_scope`로 같은 사실이 표현돼 있던 것). 엔진 리터럴 0.
    전이 시 ABox-swap 대상(도메인마다 표만 교체·엔진 불변).
 2. **유동 판단 동결?** 아니다 — (a) 손님 발화에서 어떤 카테고리가 결정축인지 = 모델 (b) 어느 카드를 추천할지 = 모델.
    엔진은 "선언된 표에서 그 카테고리의 값을 꺼내 보여주기"만 한다(산수도 아닌 조회).
