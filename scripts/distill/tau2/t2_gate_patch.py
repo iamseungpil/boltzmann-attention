@@ -1657,6 +1657,52 @@ def _claim_unbacked(claims, emap, evs, messages):
     return out
 
 
+def _known_tool_names(self_tools, env, msgs):
+    """★C207/C2-a 대조 집합 (순수함수·리뷰 필수3): 에이전트가 **실제로 쓸 수 있는** 도구 이름 전체.
+    `self.tools`만 보면 discoverable 도구(잠금 상태·목록 밖·`_NNNN` 접미사)를 **미보유로 오탐**한다
+    — 022/019처럼 유저-측 dispute 도구를 정당히 안내하는 경로가 정확히 그 길을 밟는다.
+    집합 = 도구목록 ∪ env user-side discoverable ∪ 이 대화서 unlock/give된 이름 ∪ 실제 호출된 이름.
+    전부 접미사 strip 정규화(도메인 리터럴 0·구조 사실만)."""
+    def _n(x):
+        return re.sub(r"_\d+$", "", str(x or "").strip())
+    out = {_n(getattr(t, "name", None)) for t in (self_tools or []) if getattr(t, "name", None)}
+    out |= {_n(x) for x in _user_discoverable(env)}
+    for m in (msgs or []):
+        for tc in (getattr(m, "tool_calls", None) or []):
+            out.add(_n(getattr(tc, "name", None)))
+            out.add(_n(_eff_tool_name(tc)))
+            ar = _args_dict(tc)
+            for k in ("agent_tool_name", "user_tool_name", "discoverable_tool_name"):
+                if isinstance(ar, dict) and ar.get(k):
+                    out.add(_n(ar[k]))
+    return {x for x in out if x}
+
+
+def _unavailable_promises(pending, known):
+    """약속(pending)에 실린 도구명이 `known`에 없으면 = **모델이 없는 기능을 약속**. 집합 대조만.
+    `tool` 미선언 항목은 판정하지 않는다(구판 A2 하위호환·거동 보존)."""
+    def _n(x):
+        return re.sub(r"_\d+$", "", str(x or "").strip())
+    out = []
+    for p in (pending or []):
+        t = (p or {}).get("tool")
+        if t and _n(t) not in known:
+            out.append(p)
+    return out
+
+
+def _fu_window(cap_used, cap, reserve_declared, reserve_used, genuine_resign):
+    """★C207/B1 chain 예산 판정 (순수함수·`_cpv_window`와 **동형 반환형**: None|'normal'|'reserve').
+    035 day4b 실측: chain 3회 정확 발화(전부 빈손)→cap 소진→**정작 종국 notice 턴에 레버 부재**.
+    ⇒ A2 `reserve: true` 선언 체인에 한해 sim당 1회 예비. 단 예비는 **진성 사임-턴**(텍스트-턴)에서만
+    소비한다 — readloop 변환 턴(도구는 부르되 requires와 무관)서 태우면 종국에 또 비게 된다(리뷰 필수2)."""
+    if cap_used < cap:
+        return "normal"
+    if reserve_declared and not reserve_used and genuine_resign:
+        return "reserve"
+    return None
+
+
 def _claim_has_kind(claims, kinds):
     """★C201/D3 보조(순수함수·단위테스트 공유): 주장 목록에 A2 선언 `reserve_kinds` 중 하나가 있나.
     엔진은 kind 문자열 대조만 — 어떤 kind가 '중요'한지는 A2가 정한다(도메인 리터럴 0)."""
@@ -4554,12 +4600,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     if (all(not _is_effective_write(e) for e in _ame)
                             and not (set(_ame) & _reqs)):
                         _resign = True
+                        # ★C207/B1(리뷰 필수2): readloop 변환 턴을 **표시**한다 — chain 예비-예산은
+                        #   진성 사임-턴에서만 소비해야 한다(035 day4b 실측: cap 소진 국면이 전부
+                        #   KB-루프 턴이었고 발화 3회 전부 빈손 → 예비도 같은 곳에 버려질 위험).
+                        self._t2_fu_readloop_turn = True
                         print("[T2_FOLLOWUP] readloop-turn counted as resignation",
                               file=_sys.stderr, flush=True)
             except Exception:
                 pass
 
-        def _ap_regen(fbtxt, tag, tool_choice=None):
+        def _ap_regen(fbtxt, tag, tool_choice=None, am_override=None):
             """피드백 1회 → regen. 게이트-deny 유입 시 원본 유지(부작용 0). 성공 시 새 am.
             ★tool_choice(레버 A·2026-07-18·`HANDOFF_LEVER_DESIGN §2`): regen 응답의 **채널만** 강제
             (어느 도구를 부를지는 모델이 고름). 실측 근거 = forced 프로브: 강제 하 24/24 정답 선택 ·
@@ -4573,7 +4623,19 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 _fb = UserMessage(role="user", content=fbtxt)
             except TypeError:
                 _fb = UserMessage(content=fbtxt)
-            _am2 = _gen(self, work + [am, _fb], bw(), "agent_response_" + tag, tool_choice=tool_choice)
+            # ★C207(리뷰 필수1): regen 프롬프트에 실리는 직전 응답을 **호출부가 대체**할 수 있게 한다.
+            #   근거: 폭주 응답(33k자·8k토큰)을 그대로 실으면 regen 호출 자체가 창 초과로 죽고, 그 예외는
+            #   여기서 전파돼 **ctxover로 끝날 sim을 더 이른 크래시로** 바꾼다. blob은 어차피 비커밋이라
+            #   절단본 대체는 역사 훼손이 아니다(프레임워크 층·도메인 리터럴 0).
+            _am_for_prompt = am if am_override is None else am_override
+            try:
+                _am2 = _gen(self, work + [_am_for_prompt, _fb], bw(),
+                            "agent_response_" + tag, tool_choice=tool_choice)
+            except Exception as _ge:
+                # ★C207: regen 실패(창 초과 등)는 **원본 유지로 흡수**(현행 거동) — 크래시 승격 금지.
+                print("[%s] regen failed (keeping original): %r" % (tag.upper(), _ge),
+                      file=_sys.stderr, flush=True)
+                return None
             if gate is not None:
                 _den = _denied_calls(_am2, gate, last_user, transfer_sent)
                 if _den:
@@ -4688,6 +4750,72 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     print("[T2_RESOLVE] action progress refund hit=%s"
                           % (sorted(_hita),), file=_sys.stderr, flush=True)
                 self._t2_action_target = None
+        # ★★C207/A2·A4 (2026-07-27·`RUNAWAY_CONVERSION_DESIGN` §8-1/§8-2·day4b 실측):
+        #   **모든 의미-게이트보다 먼저** 돈다 — 폭주로 오염된 응답을 뒤 게이트가 판정하면 전부 오판이고
+        #   (사임-창으로 분류돼 CLAIMPROV formalize 서브콜까지 낭비), 그 blob이 커밋되면 3~5턴 만에 창이 죽는다.
+        #   근거(006 m4 재파싱): 닫힌 tool_call 블록 7/7 **JSON 유효**·깨진 곳은 미종결 8번째뿐 ⇒ 형식 위반이
+        #   아니라 **정지 실패**. vLLM hermes 파서가 all-or-nothing이라 유효 7개가 통째로 폐기되고 33k가 content로.
+        #   엔진은 봉투 태그(서빙 포맷 상수·env) 존재와 finish_reason만 본다 — 도메인 리터럴 0([[05]]).
+        _envtag = os.environ.get("T2_ENVELOPE_TAG", "<tool_call>")
+
+        def _trunc_for_prompt(_m):
+            """폭주 blob을 regen 프롬프트에 싣지 않기 위한 절단본(비커밋·리뷰 필수1)."""
+            _c = str(getattr(_m, "content", None) or "")
+            _lim = int(os.environ.get("T2_ENVELOPE_TRUNC", "1200") or 1200)
+            if len(_c) <= _lim:
+                return _m
+            try:
+                _cp = _m.model_copy(deep=True)
+            except Exception:
+                try:
+                    _cp = _m.copy(deep=True)
+                except Exception:
+                    return _m
+            _cp.content = _c[:_lim] + "\n…[truncated: the reply degenerated into repeated output]"
+            return _cp
+
+        if (os.environ.get("T2_ENVELOPE_GUARD") == "1"
+                and not getattr(am, "tool_calls", None)
+                and _envtag in str(getattr(am, "content", None) or "")
+                and getattr(self, "_t2_envguard", 0)
+                < int(os.environ.get("T2_ENVELOPE_CAP", "2") or 2)):
+            self._t2_envguard = getattr(self, "_t2_envguard", 0) + 1
+            print("[T2_ENVGUARD] tool-call envelope unparsed (len=%d) — required-channel regen"
+                  % len(str(getattr(am, "content", None) or "")), file=_sys.stderr, flush=True)
+            _newE = _ap_regen(
+                "Error: [TOOL-CALL ENVELOPE] your previous reply contained tool-call markup that "
+                "could not be parsed, so NO tool was executed and the customer saw nothing useful. "
+                "Do not repeat the same call over and over. Issue ONE tool call now, as a real tool "
+                "call, and stop.", "envguard", tool_choice="required",
+                am_override=_trunc_for_prompt(am))
+            if _newE is not None:
+                am = _newE
+                print("[T2_ENVGUARD] regen tool_calls=%s"
+                      % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
+                      file=_sys.stderr, flush=True)
+        # A4: 길이 상한 절단 응답은 **커밋하지 않는다**(cap 1 — 재생성도 잘리면 통과·무한 regen 금지).
+        if (os.environ.get("T2_TRUNC_GUARD") == "1"
+                and not getattr(self, "_t2_truncguard", 0)):
+            _fr = None
+            try:
+                _fr = ((getattr(am, "raw_data", None) or {}).get("choices") or [{}])[0].get("finish_reason")
+            except Exception:
+                _fr = None
+            if _fr == "length":
+                self._t2_truncguard = 1
+                print("[T2_TRUNCGUARD] finish_reason=length — regen (cap 1)",
+                      file=_sys.stderr, flush=True)
+                _newT = _ap_regen(
+                    "Error: [TRUNCATED] your previous reply hit the length limit and was cut off — "
+                    "it was almost certainly repeating itself. Answer again BRIEFLY, without "
+                    "repetition; if an action is needed, make the tool call instead of describing it.",
+                    "truncguard", am_override=_trunc_for_prompt(am))
+                if _newT is not None:
+                    am = _newT
+        # ★A2/A4가 am을 교체했을 수 있다 — 뒤 게이트의 사임-판정을 **재계산**(오판 방지).
+        if os.environ.get("T2_ENVELOPE_GUARD") == "1" or os.environ.get("T2_TRUNC_GUARD") == "1":
+            _resign = (not getattr(am, "tool_calls", None)
+                       and isinstance(getattr(am, "content", None), str) and am.content.strip())
         _fu_cap = int(os.environ.get("T2_FOLLOWUP_CAP", "1") or 1)
         if (os.environ.get("T2_FOLLOWUP_REQUIRED") == "1" and _resign
                 and getattr(self, "_t2_followup", 0) < _fu_cap):
@@ -4725,10 +4853,19 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   전량 대조 + 누락 도구 **전량 나열**(`{missing}` 치환·050 follow-through+054 query-gap 동시 커버).
             #   ＋종단결정 nudge: requires 전부 충족·사임·`decision_tools` 미호출이면 `decision_feedback` 1회
             #   (approve **강제 아님** — decline-정답 케이스(052)가 있어 문구가 양방향 명시·Δspurious 계측 대상).
-            if getattr(self, "_t2_followup", 0) < _fu_cap:
+            # ★C207/B1: cap 소진 후에도 A2 `reserve` 선언 체인은 **진성 사임-턴** 1회 보장(_fu_window).
+            _fu_res_declared = any(_fc.get("reserve")
+                                   for _fc in ((a2 or {}).get("follow_up_chains") or []))
+            _fu_genuine = not getattr(self, "_t2_fu_readloop_turn", False)
+            _fu_mode = _fu_window(getattr(self, "_t2_followup", 0), _fu_cap,
+                                  _fu_res_declared, getattr(self, "_t2_fu_reserve", 0),
+                                  _fu_genuine)
+            if _fu_mode is not None:
                 _eff0 = {_eff_tool_name(tc) for m in state.messages
                          for tc in (getattr(m, "tool_calls", None) or [])}
                 for _fc in ((a2 or {}).get("follow_up_chains") or []):
+                    if _fu_mode == "reserve" and not _fc.get("reserve"):
+                        continue              # 예비-창은 선언 체인에만
                     _hit1 = _chain_dispatch(_fc, _eff0)     # (feedback, tag) or None — 순수함수(단위테스트 공유)
                     if _hit1 is None:
                         continue
@@ -4932,6 +5069,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 #   feedback_pending 미선언(구판 A2)이면 발화 0(거동보존).
                 _unb_p = (_claim_unbacked(_pd, _emap, _evs, state.messages)
                           if _cpv.get("feedback_pending") else [])
+                # ★C207/C2-a(2026-07-27): **미보유 기능 약속** — 약속에 실린 도구가 쓸 수 있는 도구
+                #   집합에 아예 없으면(=OTP/SMS 발송처럼 존재하지 않는 기능) 원장 대조 이전에 불가능한
+                #   약속이다(004·035 실측: 없는 OTP를 여러 턴 반복 약속하며 창 소진). 엔진=집합 대조만·
+                #   discoverable(잠금·접미사)까지 포함해 오탐 0(리뷰 필수3).
+                _unavail = []
+                if os.environ.get("T2_UNAVAIL_PROMISE") == "1" and _cpv.get("feedback_unavailable"):
+                    try:
+                        _known = _known_tool_names(getattr(self, "tools", None),
+                                                   getattr(self, "environment", None)
+                                                   or getattr(orch, "environment", None),
+                                                   state.messages)
+                        _unavail = _unavailable_promises(_pd, _known)
+                        if _unavail:
+                            print("[T2_UNAVAIL] promised tools not available: %s"
+                                  % [p.get("tool") for p in _unavail][:3],
+                                  file=_sys.stderr, flush=True)
+                    except Exception as _ue:
+                        print("[T2_UNAVAIL] skipped (no-op): %r" % (_ue,),
+                              file=_sys.stderr, flush=True)
                 print("[T2_CLAIMPROV] window hit(%s) claims=%d unbacked=%d pending=%d unb_p=%d %s"
                       % ("transfer" if _cpv_transfer and not _resign else "resign",
                          len(_cl or []), len(_unbacked), len(_pd or []), len(_unb_p),
@@ -4957,6 +5113,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _parts.append(_cpv["feedback"].replace("{claims}", _desc3(_unbacked)))
                     if _unb_p:
                         _parts.append(_cpv["feedback_pending"].replace("{claims}", _desc3(_unb_p)))
+                    if _unavail:                       # C207/C2-a
+                        _parts.append(_cpv["feedback_unavailable"].replace(
+                            "{claims}", "; ".join("%s (tool: %s)" % (str(p.get("what"))[:50], p.get("tool"))
+                                                  for p in _unavail[:3])))
                     _new2 = _ap_regen("\n".join(_parts), "claimprov")
                     if _new2 is not None:
                         am = _new2

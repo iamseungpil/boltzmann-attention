@@ -81,6 +81,10 @@ export T2_PREKB=1               # C165 행동-키 검색 게이트
 # ★C204/D7(2026-07-27): 동일-인자 계산도구 반복=결정론 stub(022 ctx초과 10회·003 5회 실측 표적).
 #   evidence_from(원장-의존)·fetch_formalize(env-가변)는 자동 제외 — 005형 정당 재호출 보호.
 export T2_SG_DEDUP=1
+# ★C207(2026-07-27·day4b ctxover 20건): 폭주-디코드 방어 3종.
+#   ENVELOPE_GUARD=봉투 파싱 실패(정지 실패)→required-channel regen · TRUNC_GUARD=length 절단 미커밋(cap 1)
+#   UNAVAIL_PROMISE=미보유 기능 약속 차단(집합 대조). 전부 프레임워크 층·도메인 리터럴 0.
+export T2_ENVELOPE_GUARD=1 T2_ENVELOPE_CAP=2 T2_TRUNC_GUARD=1 T2_UNAVAIL_PROMISE=1
 export T2_CLAIM_PROV=1          # claim-날조 원장대조(사임/transfer 창·035 기전 표적)
 export T2_CLAIMPROV_CAP=3       # cap=1은 빈손 regen 1회에 전소(코드 포렌식 실측)→스모크 권장 3
 
