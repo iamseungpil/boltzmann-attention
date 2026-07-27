@@ -13,19 +13,23 @@
 <tool_call>\n{"name":"give_discoverable_user_tool","arguments":{"discoverable_tool_name":
 "apply_for_credit_card","arguments":"{\"card_type\":\"EcoCard\",\"user_id\":\"bob_nakamoto\"}"}}</tool_call>
 <tool_call>[공백 95칸]\n{ ...동일 블록... }</tool_call>        ← ×6 반복(공백 패딩이 매 회 삽입)
-{"name":...,"arguments":"{\"card_type\": \"EcoCard\", "  \n }        ← 7번째에서 **문법 붕괴**
-\r\r\n\r\r\r\n\r\r\r\n ... (끝까지)                                  ← 저엔트로피 어트랙터로 낙하·max_tokens서 절단
+<tool_call>  ...열고 닫지 않음...  \r\r\r\n\r\r\r\n ...      ← **8번째 블록에서 붕괴**·31,321자 잔여·cap서 절단
 ```
-- tool_call 블록 7개·공백 25.6%·20칸 이상 공백런 7회(최장 95).
-- **3상 전개**: ①정상 블록 1회 → ②동일 블록 복사 루프(패딩 오염 누적) → ③문법 붕괴 후 `\r\r\r\n` 무한 반복.
+### ★★정정(2026-07-27·재파싱 실증): **JSON 형식 위반이 원인이 아니다**
+닫힌 `<tool_call>` 블록 **7개 전부 `json.loads` 유효**(전부 동일한 `give_discoverable_user_tool` 호출·인자 키도 정상).
+문법이 깨진 곳은 **닫히지 않은 8번째 블록**뿐이고, 그 안에서 `\r\r\r\n` 퇴화가 31,321자 이어지다 cap에 잘렸다.
+⇒ 모델은 **형식을 못 지킨 게 아니라 "멈추지" 못했다**(첫 호출 뒤 EOS 대신 같은 블록을 계속 생성).
+⇒ 그리고 **vLLM hermes 파서는 all-or-nothing** — 미종결 8번째 때문에 **유효한 7개를 통째로 폐기**하고
+   전체를 content로 넘긴다(serve 로그 `json.loads(match…)` 예외와 정합).
 
 ### §1b 인과 사슬 (5단·각 단계 실측 근거)
 | 단계 | 내용 | 근거 |
 |---|---|---|
-| ①**트리거** | `give_discoverable_user_tool`에 **중첩 JSON 문자열 인자**(`"arguments":"{\"card_type\":...}"`)를 실은 블록 — 이스케이프 따옴표가 중첩된 고엔트로피 봉투 | 006·001 폭주 첫 블록 **둘 다 nested_args=True**(040만 산문형) |
-| ②**복사 루프** | 직전 자기 출력이 다음 토큰 분포를 지배 → 동일 블록 반복(induction/copy attractor) | 블록 6회 동일·질의 문자열 완전 일치 |
-| ③**탈출 불가** | `temperature=0.0`(우리 스택이 결정론 위해 **의도적으로** 설정)+`repetition_penalty` 미설정(vLLM 기본 1.0=무패널티) ⇒ 샘플링 탈출구가 **원리적으로 없음**. 그리디 디코딩의 고전적 퇴화(Holtzman 2019 계열) | `t2_run_gated.py` llm_args={temperature 0.0(+seed/max_tokens)}·다른 penalty 인자 없음 |
-| ④**파서 실패** | 7번째 블록 문법 붕괴 → vLLM hermes 파서 `json.loads` 예외 → **tool_calls=[] · 전체가 content로** | serve 로그 `hermes_tool_parser.py:157 Error in extracting tool call` 다발·궤적의 `calls=[]` |
+| ①**정지 실패(핵심)** | 유효한 tool_call 1개를 낸 뒤 **EOS를 내지 않고** 같은 블록을 계속 생성 — 형식 문제가 아니라 **종료 실패** | 닫힌 블록 7/7 **JSON 유효**(재파싱 실증) |
+| ②**복사 루프** | 직전 자기 출력이 다음 토큰 분포를 지배 → 동일 블록 반복(induction/copy attractor)·공백 패딩 오염 누적 | 7블록 전부 동일 호출·95칸 공백런 |
+| ③**탈출 불가(진짜 뿌리)** | `temperature=0.0`(우리 스택이 결정론 위해 **의도적으로** 설정)+`repetition_penalty` 미설정(vLLM 기본 1.0=무패널티) ⇒ 샘플링 탈출구가 **원리적으로 없음**. 그리디 디코딩의 고전적 퇴화 | `t2_run_gated.py` llm_args={temperature 0.0(+seed/max_tokens)}·다른 penalty 인자 없음 |
+| ④**파서 all-or-nothing** | 미종결 8번째 블록 하나 때문에 **유효한 7개 호출이 통째로 폐기**되고 33k 전체가 content로 커밋 | serve 로그 `hermes_tool_parser.py:157` 예외·궤적 `calls=[]` |
+| (부가)**중첩 인자 상관** | 006·001의 반복 대상 블록이 둘 다 give의 중첩 JSON-문자열 인자형(040은 산문형) — **원인이 아니라 반복 대상의 특징**([D]) | 3건 표본 |
 | ⑤**창 소멸** | 8,192토큰 덩어리가 대화에 커밋 → 3~5턴이면 48,640 초과 → `context_window_exceeded` | 006=nmsg 11서 사망·001 동형·A arm ctxover 12건 |
 
 ### §1c 왜 **지금** 보이나 (day3와의 관계)
@@ -40,6 +44,13 @@ day3에도 같은 폭주가 있었다 — 다만 max_tokens 무제한이라 **20
 | **A2** | **봉투-퇴화 게이트**: content에 `<tool_call>` 텍스트가 있는데 파싱된 tool_calls가 **비면** → `tool_choice="required"`로 regen(구조화 디코딩 경로는 텍스트 파서를 안 타므로 이 실패가 성립 불가·기존 레버 A 실측 24/24) | 원인 ④⑤ 차단·엔진 게이트(기존 FORCE/TOOLLIST 동형) | regen 1회 비용·[[03b]] 안전(봉투=프레임워크 프로토콜이지 도메인 formalize 아님) |
 | **A3** | give-계열의 **중첩 인자 예방**: A2 `tool_arg_allowlist`가 이미 여분 `arguments`를 strip 중 — 이를 **생성 이전 지시**(params 설명에 "중첩 JSON 금지·인자 없이 도구명만")로 승격 | 원인 ① 예방·A2 문구 | soft(006에서 soft 무시 전례) |
 | **A4** | 절단 응답 자체를 대화에 **커밋하지 않기**(finish_reason=length면 regen) | 원인 ⑤ 완화 | 정당 장문 응답과 구분 필요(8192 캡이 있으므로 length=사실상 폭주 신호) |
+### §1e ★정정이 처방에 주는 함의
+- **A3(중첩 인자 예방)의 우선순위 하향** — 트리거가 형식 위반이 아니므로 예방 효과는 [D].
+- **A2가 더 강하게 정당화됨** — `tool_choice="required"`(구조화 디코딩)는 문법을 **강제 종료**까지 규정하므로
+  ①정지 실패·④파서 폐기 둘 다 성립 불가.
+- **신규 A5(구제·salvage) 후보**: content에 닫힌 유효 블록이 N개 있는데 파싱 결과가 0이면, **닫힌 블록만 재파싱해 실행**
+  (동일 호출은 D7 dedup이 1개로 접음). 프레임워크 봉투 파싱이라 [[03b]]의 도메인-formalize와 다르지만, 파서가 버린 호출을
+  엔진이 되살리는 것이라 **A2보다 공격적** — A2 우선, A5는 A2 실패 시 대안.
 **권고 조합 = A2(주) + A4(보조)**. A1은 효과가 가장 확실하나 **비교성 비용**이 있어 별도 arm 승인 후. A3는 무료라 동반.
 
 ---
