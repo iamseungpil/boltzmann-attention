@@ -1476,57 +1476,96 @@
       },
       "_note": "★C181(2026-07-25·C179 처방): 클러스터① 카드 오선택(002/003/006/024/063·W2+W4 이중증거=문서-유입 불충분) → 결정론 자격필터. 표=KB 문서 사실의 선언적 추출(각 행 source 명시·조건부 조항은 note로 재확인 지시=오염 방지). 최종 선택·선호 매칭=모델 몫. 002 텍스트-행동 divergence는 description의 MUST 절이 표적.",
       "ground": {
-        "scalar_fields": [
+        "intent_fields": [
           {
             "param": "max_annual_fee",
             "corpus": [
-              "ledger"
+              "user"
             ],
-            "kind": "number",
+            "cue_any": [
+              "annual fee",
+              "yearly fee",
+              "no fee",
+              "fee-free",
+              "without a fee",
+              "membership fee",
+              "card fee"
+            ],
             "on_fail": "drop"
           },
           {
             "param": "max_fx_fee",
             "corpus": [
-              "ledger"
+              "user"
             ],
-            "kind": "number",
+            "cue_any": [
+              "foreign transaction",
+              "foreign fee",
+              "fx fee",
+              "overseas",
+              "abroad",
+              "international purchase",
+              "travel abroad"
+            ],
             "on_fail": "drop"
           },
           {
             "param": "max_min_payment_pct",
             "corpus": [
-              "ledger"
+              "user"
             ],
-            "kind": "number",
+            "cue_any": [
+              "minimum payment",
+              "min payment",
+              "monthly payment",
+              "pay the full statement",
+              "statement balance"
+            ],
             "on_fail": "drop"
           },
           {
             "param": "min_cashback",
             "corpus": [
-              "ledger"
+              "user"
             ],
-            "kind": "number",
+            "cue_any": [
+              "cash back",
+              "cashback",
+              "rewards rate",
+              "points per",
+              "earn rate"
+            ],
             "on_fail": "drop"
           },
           {
             "param": "credit_score",
             "corpus": [
-              "ledger"
+              "user"
             ],
-            "kind": "number",
+            "cue_any": [
+              "credit score",
+              "fico",
+              "my score"
+            ],
             "on_fail": "drop"
           },
           {
             "param": "min_credit_limit",
             "corpus": [
-              "ledger"
+              "user"
             ],
-            "kind": "number",
+            "cue_any": [
+              "credit limit",
+              "limit of",
+              "spending limit",
+              "line of credit",
+              "high limit",
+              "limit at least"
+            ],
             "on_fail": "drop"
           }
         ],
-        "_note": "C201/D4(2026-07-26·023 [S]): 손님이 말한 적 없는 제약 발명(소득 95000→max_annual_fee) 차단. corpus=ledger(도구 출력+손님 발화)·불성립=드롭(제약 소멸=eligible 넓어짐·안전 방향). 값 생성 0."
+        "_note": "C203/D4'(2026-07-26): 구 D4(scalar_fields=값-존재 검사) **폐기** — 006/023(손님이 말한 다른 값=소득 95000이 실재해 발명 제약 통과)·003(정성 표현 'no foreign transaction fees'를 0으로 수치화하자 정당 제약 드롭)·자기-그라운딩(도구 출력이 코퍼스에 들어가 2번째 호출부터 무력)로 순효용 0·오탐 실재. 대체=intent_fields: **값이 아니라 주제어의 실재**를 손님 발화(corpus=user·도구 출력 제외)에서 본다. 불성립=드롭(제약 소멸=후보 확대=안전 방향). 수치화는 모델 몫([[10]])·엔진은 부분문자열 대조만·어휘는 A2."
       }
     }
   ],

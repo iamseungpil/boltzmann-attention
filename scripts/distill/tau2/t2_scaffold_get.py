@@ -106,6 +106,11 @@ def _corpus_texts(orch, which):
         ev = _evidence_ctx(orch)
         texts += list((ev.get("__tool_outputs") or {}).values())
         texts.append(ev.get("__user_text") or "")
+    if "user" in which:
+        # ★C203: **손님 발화만**(도구 출력 제외). 'ledger'는 도구 출력을 포함해 **자기-그라운딩**이
+        #   생긴다 — 도구가 한 번 뱉은 값은 그 다음 호출부터 무조건 '실재'가 된다(003 실측: 2번째
+        #   호출부터 경고 소멸). 손님이 실제로 말한 것만 볼 때는 이 코퍼스를 쓴다.
+        texts.append((_evidence_ctx(orch).get("__user_text") or ""))
     return [t for t in texts if t]
 
 
@@ -224,6 +229,26 @@ def _ground_operands(orch, d, ctx):
                          % (param, ctx.get(param)))
             if scf.get("on_fail", "drop") == "drop":
                 ctx[param] = None          # op가 missing_hint로 abstain(가짜 정밀도 차단)
+    # (c) ★intent-field (C203·D4′ 재설계·2026-07-26 D4 폐기 후속): **값의 실재가 아니라 제약 의도의
+    #   실재**를 본다. 값-존재 검사(구 D4)는 두 방향으로 다 틀렸다 — (i)006/023: 손님이 말한 *다른*
+    #   값(소득 95000)을 엔진이 실재로 보고 통과시켜 발명 제약을 못 막았다(엔진은 필드 의미를 모른다)
+    #   (ii)003: 손님의 정성 표현("no foreign transaction fees")을 모델이 0으로 수치화하자 '0이 원장에
+    #   없다'며 **정당한 제약을 드롭**했다. ⇒ 새 술어: 이 파라미터의 **주제어(A2 `cue_any`)가 손님
+    #   발화에 실재하는가**. 값은 보지 않는다(수치화=모델 몫·[[10]]). 불성립=드롭(제약 소멸=후보 확대=
+    #   안전 방향). 엔진=부분문자열 대조만·도메인 어휘는 전부 A2.
+    for itf in (gspec.get("intent_fields") or []):
+        param = itf.get("param")
+        if param not in ctx or ctx.get(param) in (None, "", []):
+            continue
+        cues = [_norm_ground(c) for c in (itf.get("cue_any") or [])]
+        if not any(cues):
+            continue
+        utext = _norm_ground(" ".join(_corpus_texts(orch, itf.get("corpus") or ["user"])))
+        if not any(c and c in utext for c in cues):
+            flags.append("%s=%s (the customer never mentioned this kind of requirement — "
+                         "do not add limits they did not state)" % (param, ctx.get(param)))
+            if itf.get("on_fail", "drop") == "drop":
+                ctx[param] = None
     return flags
 
 

@@ -125,26 +125,59 @@ def d3_reserve_window():
 
 
 def d4_fit_grounding():
-    print("D4 fit-도구 operand grounding 선언:")
+    """D4' 재설계(C203): 값-존재 검사 폐기 → **제약 의도(주제어) 실재** 검사."""
+    print("D4' intent-field grounding (구 D4 폐기·값-존재 검사 제거):")
     fit = next((t for t in A2["scaffold_get_tools"]
                 if t.get("name") == "check_card_application_fit"), None)
     chk(fit is not None and fit.get("ground"), "check_card_application_fit에 ground 선언")
     if not (fit and fit.get("ground")):
         return
-    params = {s["param"] for s in fit["ground"]["scalar_fields"]}
-    chk({"max_annual_fee", "min_cashback", "credit_score"} <= params, "발명 위험 제약 전부 포함")
-    chk(all(s.get("on_fail") == "drop" for s in fit["ground"]["scalar_fields"]),
-        "on_fail=drop(제약 소멸=안전 방향·값 생성 0)")
-    chk(all(s.get("corpus") == ["ledger"] for s in fit["ground"]["scalar_fields"]),
-        "corpus=ledger(도구 출력+손님 발화)")
+    gr = fit["ground"]
+    chk("scalar_fields" not in gr, "구 D4(scalar_fields 값-존재 검사) 제거됨")
+    itf = {x["param"]: x for x in gr.get("intent_fields", [])}
+    chk({"max_annual_fee", "max_fx_fee", "min_credit_limit", "credit_score"} <= set(itf),
+        "발명 위험 제약 전부 intent_fields로 전환")
+    chk(all(x.get("corpus") == ["user"] for x in itf.values()),
+        "corpus=user(도구 출력 제외) — 003 자기-그라운딩 봉쇄")
+    chk(all(x.get("on_fail") == "drop" for x in itf.values()), "불성립=드롭(안전 방향)")
+
     import t2_scaffold_get as SG
-    chk(SG._val_grounded("180000", ["I make about $180,000/year"], "number"),
-        "손님이 말한 값 = 통과(오탐 0)")
-    chk(not SG._val_grounded("700", ["My annual income is $95,000. I want a simpler card."], "number"),
-        "코퍼스에 전혀 없는 발명값(credit_score=700) = 드롭 ← D4의 실제 커버")
-    chk(SG._val_grounded("95000", ["My annual income is $95,000. I want a simpler card."], "number"),
-        "⚠rev2 결함4 한계 박제: 023의 max_annual_fee=95000(소득 오전사)은 값이 실재해 **통과**한다 "
-        "— 의미-오전사는 D4로 못 잡는다(효능 부분 [M])")
+
+    def run(user_text, ctx):
+        """_ground_operands를 손님 발화 코퍼스로 실행(엔진 경로 그대로)."""
+        orig = SG._corpus_texts
+        SG._corpus_texts = lambda orch, which: [user_text]
+        try:
+            return SG._ground_operands(None, fit, ctx), ctx
+        finally:
+            SG._corpus_texts = orig
+
+    # 006 실측: 손님은 소득만 말했는데 모델이 min_credit_limit=95000 발명
+    u006 = ("Foreign transaction fee: 1.5% or lower. Minimum payment: 1.5% or lower. "
+            "Must include virtual card management. My credit score is 540. "
+            "My annual income is $95,000.")
+    f, c = run(u006, {"min_credit_limit": "95000", "max_fx_fee": "1.5",
+                      "max_min_payment_pct": "1.5", "credit_score": "540"})
+    chk(c["min_credit_limit"] is None,
+        "★006 표적 포착: 손님이 한도 얘기를 한 적 없음 → min_credit_limit 드롭 (구 D4는 통과시켰음)")
+    chk(c["max_fx_fee"] == "1.5" and c["credit_score"] == "540",
+        "손님이 말한 제약(fx·score)은 보존 = 오탐 0")
+    chk(any("min_credit_limit" in x for x in f), "드롭 사유가 플래그로 반환")
+
+    # 003 실측: 정성 표현 → 모델이 0으로 수치화. 구 D4는 '0이 원장에 없다'며 드롭(오탐)
+    u003 = ("No foreign transaction fees. Purchase protection. A credit limit that could "
+            "potentially be at least $100,000. I have a Rho-Bank+ subscription.")
+    f2, c2 = run(u003, {"max_fx_fee": "0", "min_credit_limit": "100000"})
+    chk(c2["max_fx_fee"] == "0",
+        "★003 오탐 해소: 정성 표현('no foreign transaction fees')도 주제어가 있으므로 보존")
+    chk(c2["min_credit_limit"] == "100000", "명시된 한도 요구는 보존")
+
+    # 023 실측: 소득 95000 → max_annual_fee 오전사
+    u023 = ("I'd rather switch to something simpler without complicated rebate rules. "
+            "My annual income is $95,000 and I have no Rho-Bank+ subscription.")
+    f3, c3 = run(u023, {"max_annual_fee": "95000", "credit_score": "700"})
+    chk(c3["max_annual_fee"] is None, "★023 표적 포착: 연회비 얘기 없음 → 드롭")
+    chk(c3["credit_score"] is None, "코퍼스에 없는 발명값(신용점수 언급 0) → 드롭")
 
 
 def d5_wording():
