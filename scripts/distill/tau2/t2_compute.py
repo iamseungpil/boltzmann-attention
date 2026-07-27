@@ -289,6 +289,12 @@ def apply_op(spec, ctx):
             rows = spec.get("table") or []
             biz = bool(ctx.get("business"))
             elig, excl, unver = [], [], []
+            # ★C204/D6 rev2 결함1: 토큰이 **어느 행의 category_rates 키에도 없으면** 행별 base 폴백
+            #   주석이 정답 카드 요율을 깎아 보이게 한다(동의어 'flights'→Silver 1.0% 오표기) —
+            #   그 경우 행별 주석을 전부 생략하고 정직한 안내만 낸다(§2-3b).
+            _spc0 = str(ctx.get("spend_category") or "").strip().lower()
+            _spc_known = any(_spc0 in {str(k).lower() for k in (r.get("category_rates") or {})}
+                             for r in rows) if _spc0 else False
             for row in rows:
                 name = row.get("card")
                 why = None
@@ -345,6 +351,28 @@ def apply_op(spec, ctx):
                     if cs is not None and ms is not None and cs < ms:
                         why = "min_score %s > customer %s" % (ms, cs)
                 facts = {k: v for k, v in row.items() if k not in ("card", "business")}
+                # ★C204/D6(2026-07-27·`D6_CATEGORY_RATE_DESIGN` rev2): 손님이 말한 지출 카테고리
+                #   (`spend_category`=모델 formalize·선택적)에 대한 **그 카드의 문서화 요율**을 주석.
+                #   조회만 한다(값 생성·선택·순위 0): category_rates[token] → base_cashback →
+                #   cashback(전-구매) → 'unverified'. 미제공=주석 자체가 없음(거동 변화 0).
+                _spc = _spc0 if _spc_known else ""
+                if _spc:
+                    _cr = row.get("category_rates") or {}
+                    _crl = {str(k).lower(): v for k, v in _cr.items()} if isinstance(_cr, dict) else {}
+                    if _spc in _crl:
+                        _rate = "%s%% (other categories: %s%%)" % (
+                            _crl[_spc], row.get("base_cashback")) \
+                            if row.get("base_cashback") is not None else "%s%%" % _crl[_spc]
+                    elif _crl and row.get("base_cashback") is not None:
+                        _rate = "%s%% (base rate — its documented bonus categories do not "\
+                                "include this one)" % row.get("base_cashback")
+                    elif row.get("base_cashback") is not None:
+                        _rate = "%s%% (all purchases)" % row.get("base_cashback")
+                    elif row.get("cashback") is not None and not _crl:
+                        _rate = "%s%% (all purchases)" % row.get("cashback")
+                    else:
+                        _rate = "unverified — no documented rate for this category"
+                    facts["rate_for('%s')" % _spc] = _rate
                 if why:
                     excl.append({"card": name, "reason": why})
                 elif missing:
@@ -361,6 +389,12 @@ def apply_op(spec, ctx):
                      "which limits the CUSTOMER actually stated (do not invent thresholds they did "
                      "not give) and call again, and/or read the source docs of the 'unverified' "
                      "candidates.")
+            # ★C204/D6 rev2: 미등재 카테고리 토큰 = 오표기 대신 정직 안내(문서화 어휘로 재호출 지시).
+            if _spc0 and not _spc_known:
+                empty += (" NOTE: no documented category-specific rate exists for spend_category="
+                          "'%s' — it matches none of the documented category keywords; re-call "
+                          "with one of the documented keywords (see the tool's parameter "
+                          "description) or omit spend_category." % _spc0)
             return {"eligible": elig, "excluded": excl, "unverified": unver,
                     "note": (empty + " Deterministic filter over documented facts. 'eligible' = the "
                              "documented value satisfies your constraint. 'excluded' = it "

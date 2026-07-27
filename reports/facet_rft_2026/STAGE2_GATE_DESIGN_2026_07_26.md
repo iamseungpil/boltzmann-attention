@@ -206,3 +206,13 @@ corpus=`ledger`, 불성립 시 `on_fail=drop`.
 - 주제어가 **다른 맥락**으로 등장하면(예: "limit"이 다른 뜻) 발명값을 통과시킨다 — 값-검사보다 느슨한 대신
   치명 오탐이 없다는 교환.
 - 배포: **현행 day3 런에는 미배포**(단일 스택 비교성). 다음 런부터 적용하고 Δspurious(드롭 건수·정당 제약 드롭 여부)를 계측.
+
+## §13 C204 — 다음-런(day4) 추가 레버 3종 (2026-07-27·day3 전수 포렌식 기반)
+| | 표적(실측) | 설계 | 위치 |
+|---|---|---|---|
+| **D7** 계산도구 dedup | 022=동일 인자 rate 도구 **10회**(매회 2,127자 에코)→ctx초과 · 003=fit 5회 | 동일 (도구, 인자) 재호출=결정론 stub("같은 인자=같은 결과 보장")+3회≥ 행동-전환 지시(C194 동형). **제외**=evidence_from(원장-의존·005형 정당 재호출)·fetch_formalize(env-가변). `T2_SG_DEDUP=1` | `t2_scaffold_get.py` exec2 (~30줄) |
+| **D8** dispute→update chain | 028=검출 6/6·분쟁 6/6 후 **갱신 거부** · 021=실행 1/2 · day2 026=갱신 말-완결 | `follow_up_chains`+={after: submit_cash_back_dispute(유저-실행 effective명), requires: update_transaction_rewards}. 문구 양방향(**미해결 시 갱신 금지 명시**=조기-갱신 Δspurious 완화)·resign_th 미선언(장문 대화·전역 기본) | A2만 |
+| **D9** 정규화 도구명 매칭 | 019=자기 도구를 "get reward discrepancies"(공백형)로 KB 6회+ 검색·끝내 미호출 | `_a2_named_in_args` 확장: 정확-일치→**정규화-동등**(값 전체 equality 유지=산문 부분일치 오탐 방어 보존) | `t2_scaffold_get.py` (~8줄) |
+- [[05]] 3질문: 세 레버 모두 (1)엔진 도메인 리터럴 0 (2)판단 동결 0(안내/서-순서 nudge뿐·다음 행동=모델) (3)행동 대행 0.
+- 오프라인: `test_c204_nextrun.py` 전 항목 PASS(D7은 제외-조건 선언 정합까지·라이브 발화는 day4 판정)+회귀 11종 PASS.
+- **day4 구성**: conc 1 유지·`T2_LLM_TIMEOUT=2400`(C202 단독-초과 처방)·스택=64-레버+C197+C201(D1/D2/D3/D5a)+C203(D4′)+C204(D6/D7/D8/D9)·**리모트 pull은 day3 완주 후**(mid-run A2 재독 위험 차단).

@@ -885,6 +885,14 @@ def _a2_named_in_args(tc, decls):
     for _v in _args.values():
         if isinstance(_v, str) and _v.strip() in decls:
             return _v.strip()
+        # ★C204/D9(2026-07-27·day3 019 실측): "get reward discrepancies"(공백형)로 KB를 6회+ 검색하며
+        #   자기 도구를 끝내 못 찾음 — 정확-일치만 보던 게 사각. **정규화-동등**으로 확장(여전히 값
+        #   전체의 equality — 산문 부분일치는 안 보므로 기존 오탐 방어 유지).
+        if isinstance(_v, str):
+            _nv = re.sub(r"[^a-z0-9]+", "_", _v.lower()).strip("_")
+            for _dn in decls:
+                if _nv == re.sub(r"[^a-z0-9]+", "_", str(_dn).lower()).strip("_"):
+                    return _dn
     return None
 
 
@@ -1044,6 +1052,44 @@ def apply():
                     print("[T2_SG_ARGS] %s: '%s' 인자 str 잔류(JSON 파싱실패) → 재송신 요구"
                           % (getattr(tc, "name"), _ov), file=_sys.stderr, flush=True)
                     continue
+                # ★C204/D7(2026-07-27·day3 022/003 실측): **동일-인자 계산도구 반복 차단**(T2_SG_DEDUP=1).
+                #   022=같은 인자로 rate 도구 10회(매회 2,127자 인자 에코)→context_window_exceeded ·
+                #   003=fit 도구 5회. 우리 스캐폴드 op는 결정론이라 같은 인자=같은 결과가 **보장**되므로
+                #   재실행 대신 결정론 안내를 반환한다(READ_DEDUP의 계산도구 판·C194 에스컬 동형).
+                #   제외(정합성): ①op가 `evidence_from` 선언(원장-상태 의존: verify_identity ledger형 —
+                #   같은 인자여도 fetch 후 결과가 달라진다·005 실측) ②isolate mode=fetch_formalize(env
+                #   DB를 서브가 읽음=가변). 기본 OFF=거동 변화 0.
+                if (os.environ.get("T2_SG_DEDUP") == "1"
+                        and not (d.get("op") or {}).get("evidence_from")
+                        and (_isolate_spec(d) or {}).get("mode") != "fetch_formalize"):
+                    try:
+                        _dk = (d.get("name"), json.dumps(_ctx, sort_keys=True, default=str))
+                    except Exception:
+                        _dk = None
+                    if _dk is not None:
+                        _seen = getattr(self, "_t2_sg_seen", None)
+                        if _seen is None:
+                            _seen = self._t2_sg_seen = {}
+                        _n = _seen.get(_dk, 0)
+                        if _n:
+                            _seen[_dk] = _n + 1
+                            _extra = ("" if _n < 3 else
+                                      " You have now repeated this exact call %d times — STOP "
+                                      "repeating it. Use the values already returned to take the "
+                                      "next concrete step, or change the arguments if you meant a "
+                                      "different computation." % (_n + 1))
+                            ours[id(tc)] = ToolMessage(
+                                id=tc.id, role="tool",
+                                requestor=getattr(tc, "requestor", "assistant"), error=True,
+                                content=("[DUPLICATE-COMPUTE] This exact call (same tool, same "
+                                         "arguments) was already executed; this tool is "
+                                         "deterministic, so the same arguments always return the "
+                                         "SAME result — refer to the earlier output instead of "
+                                         "re-computing.%s" % _extra))
+                            print("[T2_SG_DEDUP] %s repeat#%d — stub"
+                                  % (d.get("name"), _n + 1), file=_sys.stderr, flush=True)
+                            continue
+                        _seen[_dk] = 1
                 # ★원장-결합 op는 인자 밖 증거가 필요하다 — **op가 `evidence_from`을 선언할 때만** 주입
                 #   (도메인일반 조건·미선언 op는 거동 변화 0).
                 if (d.get("op") or {}).get("evidence_from"):

@@ -124,3 +124,13 @@ EcoCard / Business Gold / Business Platinum / Silver Zoom: 미문서 → 필드 
 - 재구조화 9행의 KB 원문 대조(특히 **Platinum scope 모순**·Green `top_categories` 목록) = 구현 착수 시 선행(§2a).
 - 손님이 카테고리를 **여러 개** 말한 경우(주 카테고리 판정)는 모델 몫으로 남긴다 — 엔진은 준 것만 조회.
 - 이 레버는 **정보 제공**이므로, 모델이 정보를 보고도 틀리면 잔여는 scale/learn 축([[13]]/[[45]]·C202와 동형 논리).
+
+## §10 구현 완료 기록 (2026-07-27·사용자 GO-오버라이드)
+- §6 기준상 NO-GO(003 1건)였으나 **사용자 지시("다음런에 D6 포함 모든 레버")로 GO 오버라이드** — §8 라이브 지표가 판정을 대신한다.
+- **KB 9행 전수 대조 결과(§2a 이행)**: ①**Platinum 모순 해소** — 본문 축자 "You earn 10.0% cash back on **all** eligible
+  purchases"·"on all categories"(제목 "Earning 4%"는 벤치 오제목) ⇒ scope=all·base 10.0 확정(C187 문구가 오류였음)
+  ②**rev2 "미문서 4행" 정정** — Business Gold(operations 2.5%/기타 1.0%)·Business Platinum(travel/software/media_advertising
+  4.0%/기타 1.5%)은 KB에 **문서화 실재**(C189 당시 표에 미수록) → 재구조화는 **11행**(9+2). EcoCard(포인트제)·Silver Zoom(미문서)만 제외.
+- 구현: 엔진 `catalog_filter` 주석부(~20줄·조회만)+미등재 토큰 안내(§2-3b 권장안 포함)·A2 `spend_category`(어휘 열거)+11행
+  `category_rates`/`base_cashback`. 전-구매 카드는 "(all purchases)"로 표기(카테고리-한정 카드의 base 폴백과 문구 구분).
+- 오프라인: `test_c204_nextrun.py` D6 절 전부 PASS(§7-1/2/2b/3/4/6 전 항목)+회귀 11종 PASS.

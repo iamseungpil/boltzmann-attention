@@ -1316,7 +1316,8 @@
         "invited": "boolean, optional (Diamond Elite invitation)",
         "min_credit_limit": "number, optional — the minimum credit limit the customer needs to be possible",
         "needs_purchase_protection": "boolean, optional — true if the customer requires purchase protection",
-        "premium_subscriber": "boolean, optional — true if the customer has the bank's premium subscription (some fees are waived for subscribers); omit if unknown"
+        "premium_subscriber": "boolean, optional — true if the customer has the bank's premium subscription (some fees are waived for subscribers); omit if unknown",
+        "spend_category": "optional string — ONLY if the customer stated a clear spending emphasis, the ONE documented category keyword it maps to. Documented keywords: travel, software, operations, media_advertising, green (=sustainable/eco). Normalize synonyms to these exact keywords (flights/hotels/airfare -> travel; SaaS/cloud -> software; eco/sustainable -> green). Omit entirely if the customer stated no category emphasis — do NOT guess one. When provided, each eligible card is annotated with its documented rate for that category so you can compare them honestly (a category-limited bonus is not comparable to an all-purchases rate)."
       },
       "op": {
         "op": "catalog_filter",
@@ -1332,7 +1333,8 @@
             "limit_max": 150000,
             "purchase_protection": true,
             "virtual_card": true,
-            "cashback_scope": "all"
+            "cashback_scope": "all",
+            "base_cashback": 10.0
           },
           {
             "card": "Gold Rewards Card",
@@ -1345,7 +1347,8 @@
             "limit_max": 112500,
             "purchase_protection": true,
             "virtual_card": true,
-            "cashback_scope": "all"
+            "cashback_scope": "all",
+            "base_cashback": 2.5
           },
           {
             "card": "Silver Rewards Card",
@@ -1360,7 +1363,11 @@
             "purchase_protection": true,
             "virtual_card": false,
             "cashback_scope": "top_categories(travel/software)",
-            "base_cashback": 1.0
+            "base_cashback": 1.0,
+            "category_rates": {
+              "software": 4.0,
+              "travel": 4.0
+            }
           },
           {
             "card": "Bronze Rewards Card",
@@ -1371,7 +1378,8 @@
             "min_score": 640,
             "source": "doc bronze_rewards_card_*",
             "virtual_card": false,
-            "cashback_scope": "all"
+            "cashback_scope": "all",
+            "base_cashback": 1.0
           },
           {
             "card": "EcoCard",
@@ -1393,7 +1401,8 @@
             "cashback": 2.0,
             "purchase_protection": false,
             "virtual_card": true,
-            "cashback_scope": "all"
+            "cashback_scope": "all",
+            "base_cashback": 2.0
           },
           {
             "card": "Diamond Elite Card",
@@ -1406,7 +1415,8 @@
             "min_score": 780,
             "purchase_protection": true,
             "virtual_card": true,
-            "cashback_scope": "all"
+            "cashback_scope": "all",
+            "base_cashback": 5.0
           },
           {
             "card": "Business Bronze Rewards Card",
@@ -1415,7 +1425,8 @@
             "fx_fee": 2.75,
             "cashback": 1.0,
             "source": "doc business_bronze_rewards_card_*",
-            "cashback_scope": "all"
+            "cashback_scope": "all",
+            "base_cashback": 1.0
           },
           {
             "card": "Business Silver Rewards Card",
@@ -1427,7 +1438,11 @@
             "min_score": 700,
             "limit_max": 112500,
             "cashback_scope": "top_categories(travel/software)",
-            "base_cashback": 1.0
+            "base_cashback": 1.0,
+            "category_rates": {
+              "software": 10.0,
+              "travel": 10.0
+            }
           },
           {
             "card": "Business Gold Rewards Card",
@@ -1435,7 +1450,11 @@
             "annual_fee": 200.0,
             "fx_fee": 0.0,
             "source": "doc business_gold_rewards_card_*",
-            "min_score": 735
+            "min_score": 735,
+            "category_rates": {
+              "operations": 2.5
+            },
+            "base_cashback": 1.0
           },
           {
             "card": "Business Platinum Rewards Card",
@@ -1444,7 +1463,13 @@
             "fx_fee": 0.0,
             "source": "doc business_platinum_rewards_card_*",
             "min_score": 765,
-            "purchase_protection": true
+            "purchase_protection": true,
+            "category_rates": {
+              "media_advertising": 4.0,
+              "software": 4.0,
+              "travel": 4.0
+            },
+            "base_cashback": 1.5
           },
           {
             "card": "Green Rewards Card",
@@ -1455,7 +1480,11 @@
             "source": "doc green_rewards_card_*",
             "limit_max": 75000,
             "cashback_scope": "top_categories",
-            "base_cashback": 1.0
+            "base_cashback": 1.0,
+            "category_rates": {
+              "green": 3.0,
+              "sustainable": 3.0
+            }
           },
           {
             "card": "Silver Zoom Card",
@@ -1566,7 +1595,8 @@
           }
         ],
         "_note": "C203/D4'(2026-07-26): 구 D4(scalar_fields=값-존재 검사) **폐기** — 006/023(손님이 말한 다른 값=소득 95000이 실재해 발명 제약 통과)·003(정성 표현 'no foreign transaction fees'를 0으로 수치화하자 정당 제약 드롭)·자기-그라운딩(도구 출력이 코퍼스에 들어가 2번째 호출부터 무력)로 순효용 0·오탐 실재. 대체=intent_fields: **값이 아니라 주제어의 실재**를 손님 발화(corpus=user·도구 출력 제외)에서 본다. 불성립=드롭(제약 소멸=후보 확대=안전 방향). 수치화는 모델 몫([[10]])·엔진은 부분문자열 대조만·어휘는 A2."
-      }
+      },
+      "_note_d6": "C204/D6(2026-07-27·`D6_CATEGORY_RATE_DESIGN` rev2): category_rates/base_cashback=KB 원문 축자 재구조화(11행·2026-07-27 전수 대조: Platinum=all 10% 확정[본문 축자·C187 문구 오류]·Business Gold(operations 2.5/1.0)·Business Platinum(travel/software/media 4.0/1.5)은 표에 없던 문서화 사실 추가). 엔진=조회·주석만(선택·순위·값생성 0)·미제공=거동 변화 0·미등재 토큰=행별 주석 생략+정직 안내(rev2 결함1)."
     }
   ],
   "_note_scaffold_get_tools": "BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수.",
@@ -1640,6 +1670,16 @@
       "feedback": "Error: [FOLLOW-UP] you already executed the escalation step, but the ledger shows {missing} was never called, so the customer has NOT actually been transferred. Saying that you have connected them does not transfer anyone. If your policy's escalation protocol still requires further steps (for example repeating the escalation tool the prescribed number of times), perform those steps first; once the protocol is satisfied and the customer has agreed, call the transfer tool itself in a tool call.",
       "_note": "C201/D2(2026-07-26·035 [S]): 에스컬 도구 출력이 즉시-transfer를 지시했는데 notice 발화(사임-턴)로 창 소멸. 발화창=기존 _chain_dispatch. 문구는 양방향(프로토콜 잔여 단계 우선 허용)=조기 transfer Δspurious 완화. ★리뷰 결함2 반영(2026-07-26): 전역 T2_FOLLOWUP_RESIGN_TH=2는 035형(사임 1턴 뒤 terminal) 궤적서 구조적 미발화 → 이 체인만 resign_th=1. 전역 하향은 기존 체인까지 조기 발화(Δspurious 확산)라 국소화. 033형 PASS 회귀를 §9 계측에 추가.",
       "resign_th": 1
+    },
+    {
+      "after": [
+        "submit_cash_back_dispute"
+      ],
+      "requires": [
+        "update_transaction_rewards"
+      ],
+      "feedback": "Error: [FOLLOW-UP] cash back disputes were submitted, but the ledger shows {missing} was never called. The reward-check tool's own output states that AFTER a dispute is resolved, that transaction's rewards must be updated to EXACTLY the correct value it showed. If the customer has confirmed the disputes are resolved, unlock and call the update tool now with those exact values — a verbal summary does not update any record. If resolution has NOT been confirmed yet, do not update; tell the customer plainly what remains and that no update has happened.",
+      "_note": "C204/D8(2026-07-27·day3 028[검출 6/6·분쟁 6/6 후 갱신 거부]·021[실행 1/2]·day2 026[갱신 말-완결] 실측): 분쟁-제출 후 갱신 단계의 이행 nudge. 문구 양방향(미해결 시 갱신 금지 명시)=조기 갱신 Δspurious 완화. after=유저-실행 dispute의 effective명(디스패처 unwrap)·resign_th 미선언=전역 기본(거동 보존)."
     }
   ],
   "write_arg_grounding": [

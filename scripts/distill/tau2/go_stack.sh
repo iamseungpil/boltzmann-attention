@@ -78,6 +78,9 @@ export T2_REGEN_BUDGET=12 T2_LLM_RETRIES=1 T2_LLM_TIMEOUT=480
 # ── 신규 레버 (합성-우선 원칙에 따라 전부 기본 ON·C168) ─────────────────────
 export T2_GUIDED=1              # C162 실증·C166 체인수정(pre-gate 순서=합성 조정물)
 export T2_PREKB=1               # C165 행동-키 검색 게이트
+# ★C204/D7(2026-07-27): 동일-인자 계산도구 반복=결정론 stub(022 ctx초과 10회·003 5회 실측 표적).
+#   evidence_from(원장-의존)·fetch_formalize(env-가변)는 자동 제외 — 005형 정당 재호출 보호.
+export T2_SG_DEDUP=1
 export T2_CLAIM_PROV=1          # claim-날조 원장대조(사임/transfer 창·035 기전 표적)
 export T2_CLAIMPROV_CAP=3       # cap=1은 빈손 regen 1회에 전소(코드 포렌식 실측)→스모크 권장 3
 
