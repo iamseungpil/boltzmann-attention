@@ -244,6 +244,13 @@ def main():
     # 비결정성은 serve-side enforce-eager/max-num-seqs=1로, seed는 샘플링-RNG 보조)
     if a.agent_seed is not None and not a.agent_llm:
         llm_args_agent["seed"] = a.agent_seed
+    # ★C205(2026-07-27·[S] 서버로그 확정): max_tokens 미설정 = vLLM 기본 "EOS ∨ 컨텍스트 한계까지 생성"
+    #   → 캡은 **정당 최장 응답(77-행 거래 JSON 에코 ~8k tok)이 안 잘리는 8192 권장** — 그래도 폭주 상한 8192/10.7≈13분 < timeout이라 재시도 폭풍 소멸. 폭주(반복-루프) 응답 1건이 10.7tok/s로 20분+ 단독 디코드(001 실측: prompt 0.0/gen 10.7/
+    #   Running 1/Waiting 0 연속)→클라 타임아웃→전체 재시도. **생성 상한 = 단독-초과 클래스의 근본 캡**
+    #   (정상 응답 수백 tok에는 무영향·폭주 응답은 어차피 쓰레기). 에이전트(vLLM)에만 적용 —
+    #   user-sim(원격 추론 모델)은 reasoning 토큰이 있어 캡 금지. opt-in env·미설정=거동 불변.
+    if os.environ.get("T2_AGENT_MAX_TOKENS"):
+        llm_args_agent["max_tokens"] = int(os.environ["T2_AGENT_MAX_TOKENS"])
     # ★LLM 요청 timeout/재시도 (2026-07-20·097 stall 진단): completion()에 timeout이 없어 hang 요청이
     #   litellm 기본(~600s)×num_retries(config 3)=~40분 조용한 stall(097 실측·conc=1 블록). **opt-in env**로만
     #   주입(미설정=공유 드라이버 기본거동 불변). T2_LLM_TIMEOUT=초(요청당 상한)·T2_LLM_RETRIES=재시도수.
