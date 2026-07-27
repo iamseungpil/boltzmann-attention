@@ -122,3 +122,70 @@ D9(정규화 매칭)는 이번엔 불필요했다(KB 4회 만에 도달·발화 
 - day2/day3 infra 13건 중 폭주 비중은 궤적 부재로 [M] — day4b 이후 런에서만 계측 가능.
 - 040 폭주는 nested-args 없이 산문에서 시작 = 트리거가 중첩 인자 **전용은 아님**(복사 루프 자체가 일반).
 - B-arm 잔여 11건 완주 후 축 분포 재확정 필요(특히 021·023·026 heavy).
+
+---
+## §8 구현 명세 (rev2·2026-07-27) — **리뷰 대상**. 승인 후 구현.
+
+### §8-0 도달성 선검증 ([[08]]·D2/D4 실패 재발 방지·전부 코드 확인 [S])
+| 필요 조건 | 확인 결과 |
+|---|---|
+| 응답의 `finish_reason` 접근 | ✅ `llm_utils.generate`가 `AssistantMessage.raw_data = response.to_dict()`로 보존 → `raw_data["choices"][0]["finish_reason"]` |
+| 커밋 前 개입 지점 | ✅ `t2_gate_patch.py` 게이트부의 `am`(=`_gen(...)` 결과)은 **커밋 전 작업버퍼** — NOTICEREP/CLAIMPROV가 이미 여기서 regen |
+| 채널 강제 regen | ✅ `_ap_regen(fbtxt, tag, tool_choice=None)` 3번째 인자 지원(레버 A 경로) |
+| chain 예산 위치 | ✅ `_fu_cap = int(os.environ.get("T2_FOLLOWUP_CAP","1"))`(go_stack=3)·카운터 `self._t2_followup` |
+| 도구목록 집합 | ✅ `{getattr(t,"name",None) for t in (self.tools or [])}`(TOOLLIST가 사용 중) |
+
+### §8-1 A2 — 봉투-퇴화 게이트 (주 처방)
+- **위치**: `t2_gate_patch.py` · `am` 확정 직후, NOTICEREP 블록 **앞**(가장 이른 방어선).
+- **술어**(전부 구조적·도메인 리터럴 0):
+  `env T2_ENVELOPE_GUARD=1` ∧ `am.tool_calls` 비어 있음 ∧ `content`에 봉투 여는 태그(`T2_ENVELOPE_TAG`, 기본 `<tool_call>`)가 **1회 이상** ∧ `self._t2_envguard < cap(T2_ENVELOPE_CAP, 기본 2)`
+- **동작**: `_ap_regen(feedback, "envguard", tool_choice="required")` — 구조화 디코딩은 문법·**종료**까지 규정하므로 정지 실패가 성립 불가.
+- **feedback 문구**(프레임워크 층·도메인 무관): "직전 응답의 도구 호출 봉투가 파싱되지 않아 **아무 도구도 실행되지 않았다**. 같은 호출을 반복하지 말고, 필요한 도구 **하나**를 지금 호출하라."
+- **오탐 방어**: `tool_calls`가 하나라도 파싱된 정상 응답 → 술어 거짓. 봉투 태그 없는 순수 산문 → 거짓. cap 소진 후 통과(liveness).
+- **replay 안전**: 작업버퍼 교체만(비커밋).
+
+### §8-2 A4 — 절단 응답 미커밋 (보조)
+- **위치**: A2 바로 뒤(순서: A2 → A4).
+- **술어**: `env T2_TRUNC_GUARD=1` ∧ `finish_reason == "length"` ∧ `self._t2_truncguard < cap(T2_TRUNC_CAP, 기본 1)`
+- **동작**: `_ap_regen(feedback, "truncguard")` — **채널 강제 없음**(정당한 장문 요약이 잘렸을 수도 있으므로 산문 재작성도 허용).
+- **문구**: "직전 응답이 길이 상한에서 잘렸다. 반복 없이 **짧게** 다시 답하되, 행동이 필요하면 도구를 호출하라."
+- **핵심 안전장치**: 재생성도 `length`면 **그대로 통과**(cap 1) — 무한 regen 금지.
+- **[S] 근거**: 정당 응답이 8,192에 닿은 사례 0(최장 정당=77행 에코 ~8k·절단 안 됨) ⇒ `length`=사실상 폭주 신호.
+
+### §8-3 B1 — chain 예비-예산
+- **위치**: `follow_up_chains` 디스패치부(`_fu_cap` 검사 지점).
+- **술어**: cap 소진 ∧ 발화 대상 chain이 **A2에 `reserve: true` 선언** ∧ `self._t2_fu_reserve` 미사용 → 1회 허용 후 소진 마킹.
+- **A2**: 에스컬→transfer chain에 `"reserve": true`(035 표적). 다른 chain 미선언=거동 보존.
+- **순수함수 분리**: `_fu_window(cap_used, cap, reserve_declared, reserve_used) -> bool`(단위테스트 공유·`_cpv_window`와 동형).
+
+### §8-4 C2-a — 미보유 기능 약속 차단
+- **위치**: `claim_prov` pending 판정부(`_claim_unbacked` 호출 인접).
+- **설계**: A2 `claim_prov.question`의 `pending` 지시에 "**네가 하겠다고 말한 행동에 필요한 도구 이름**"을 함께 선언하게 하고(`{kind, what, tool}`), 엔진은 그 `tool`이 **자기 도구목록에 없으면** unbacked로 계상(집합 대조만·TOOLLIST 술어 재사용).
+- **문구**: "그 기능을 제공할 도구가 네게 없다 — 할 수 있다고 말하지 말고, 가능한 대안이나 이관을 제시하라."
+- **오탐 방어**: `tool` 미선언 pending은 기존 경로 그대로(거동 보존). 도구명이 목록에 있으면 무발화.
+- **표적**: 004·035day3의 OTP/SMS 반복 약속.
+
+### §8-5 순서·상호작용 (게이트 스택 내 배치)
+`A2(봉투) → A4(절단) → NOTICEREP → WRITEPROV → CLAIMPROV(+C2-a) → FOLLOWUP chains(+B1)`
+- A2/A4가 먼저 도는 이유: **오염된 `am`을 뒤 게이트가 판정하면 전부 오판**(폭주 텍스트에는 어떤 술어든 걸릴 수 있음).
+- 전역 `T2_REGEN_BUDGET=12`는 유지 — A2/A4는 폭주 턴에서만 발화하므로 예산 잠식 미미(예상 ≤2/sim).
+
+### §8-6 오프라인 검증 (구현과 동시·`test_c207_envelope.py` 신설)
+1. **A2**: 006 m4 원문 픽스처 → 발화 ✓ / 정상 tool_call 응답 → 무발화 / 봉투 없는 산문 → 무발화 / cap 소진 후 → 무발화.
+2. **A4**: `raw_data.choices[0].finish_reason="length"` 모의 → 발화 ✓ / `"stop"` → 무발화 / 재생성도 length → 통과(무한루프 0).
+3. **B1**: `_fu_window` 4케이스(여유·소진+예비 선언·예비 소진·예비 미선언).
+4. **C2-a**: pending `tool`이 목록 내/외 각각 무발화/unbacked.
+5. 회귀 12종(test_c201_stage2·test_c204_nextrun·test_followup_chain·test_claim_pending·test_toollist·test_compute·test_notice_gate·test_sub_inject·test_c197_inputholes·test_operand_grounding·test_banking_gate·test_sg_isolate).
+
+### §8-7 [[05]] 3질문 (레버별)
+| 레버 | (1)도메인 순증 | (2)판단 동결 | (3)행동 대행 |
+|---|---|---|---|
+| A2 | 0 — 봉투 태그는 **서빙 포맷**(hermes) 상수·env로 노출 | 0 — 어떤 도구든 모델이 고름 | 0 — regen만 |
+| A4 | 0 — `finish_reason`은 프로토콜 필드 | 0 — 재작성 내용 자유 | 0 |
+| B1 | A2 플래그 1개(`reserve`) | 0 — 예산만 1회 추가 | 0 |
+| C2-a | 0 — 도구목록 집합 대조 | 0 — 대안 선택은 모델 | 0 |
+
+### §8-8 미채택(승인 대기) 재확인
+- **A1**(repetition_penalty): 원인 ③ 직격이나 **샘플링 변경 = 비교성·결정론 arm 영향** → 별도 arm 승인 필요.
+- **A5**(salvage): 파서가 버린 호출을 엔진이 되살림 — A2가 실패할 때만.
+- **B2**(채널 강제 일반화): 유저-측 도구 오호출 위험 → "도구 특정 가능 kind" 한정안으로만.
