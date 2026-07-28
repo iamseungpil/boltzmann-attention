@@ -83,6 +83,34 @@ required 인자를 못 채우자 인자 없는 도구로 우회한 **경로-최�
 - **F8 오도구 선택(040/041)**: dispute-계열 도구 선택이 갈리는 지점의 A2 설명 보강(cash-back dispute=캐시백 전용 명시)
   — A2 데이터 수정만. 값-층(028 rate 품질)은 isolate 개선 별도(C185a 트랙).
 
+## 3b. ★완결 패스 (2026-07-28 2차 — 사용자 "전건 분석됐나" 지적으로 미정독 15건 정독·정정 3·신규 5)
+
+초판은 21건을 gold-diff·DB-diff·레버 지도로 **분류**했으나 per-step 정독은 6건뿐이었다. 완결 패스 결과:
+
+**정정 [S] 3건**:
+1. **041 ≠ 오도구 제출** — §2d에서 분리. 실제 = **도구 0회·전면 말-안내 이탈**: [20]부터 "포털 수동 제출"
+   안내·[24] 확정·유저의 **가공-제출 보고**("all 16 disputes")를 [34]가 승인. DB-diff predicted 항목 0이
+   증거였는데 초판이 rw.py gold 목록만 보고 040과 묶었다. Unknown-tool 에러조차 없어 C181b/P2 트리거
+   자체가 안 걸리는 **무-시도형**(F8도 무력 — required-arg 에러가 없음).
+2. **004 ≠ "deny→종료·grant 미발화가 사인"** — deny 후 [36] **재발행 성공**(`Transfer successful`),
+   실패 사인은 **reason enum 오선택**(`customer_requests_human_no_specific_reason` vs gold
+   `account_ownership_dispute`) = day5 008과 동일 티어-선택층(scale/learn). grant 미발화는 성공-호출
+   실재로 ⓑ가 **정당하게** 막은 것. ⇒ **F2 수정의 day6 실사례 근거는 소멸**(수정 논리는 유효·
+   오프라인 검증 유지·deny-종료 시나리오는 여전히 가능한 계열).
+3. **029 오프라인 재현 실패 = dbdiff 도구 한계** — 궤적의 `call_discoverable_agent_tool(get_reward_
+   discrepancies)`(오주소)를 라이브는 SG_TRUTH 정합 배선으로 일관 처리하나 우리 재현 스크립트는 순정
+   tau2라 불일치. **라이브 채점 무결**(user_stop 정상). 재현 도구에 스캐폴드-패치 로드 필요(비긴급).
+
+**신규 관찰 5건**:
+- **040**: 오도구 전환의 상류 = 문서-id를 서픽스로 발명(`_018`) + **agent-discoverable(_4829·unlock 경유)을
+  give로 채널 오분류**. 미존재-분기 안내문이 "give/call로 재발행"만 말해 **unlock 가능성 누락**(F9 후보=문구 1줄).
+- **014**: referral **링크 자체를 산문 날조**(도구 0회·URL 형식도 실물과 상이) — 날조 표면 확장(day5=도구로
+  발급·조건 미대조 → day6=발급조차 날조).
+- **035**: 발명 케이스번호("CASE-123456") 날조. 단 KB 발견·transfer 2회 성공 = 전진 확인.
+- **026**: verify-before-update 자기규율 × dispute-이력 조회 특성 충돌 → 교착(RESOLVED 확인 실패→update
+  거부→이중 ###TRANSFER###). 027은 같은 지점을 강행해 값이라도 씀 — 값-층 신규 기전.
+- **015**: day5와 달리 조건 대조 후 Platinum까지 도달 — 마지막 스텝(도구 재사용)에서 말-안내 이탈(부분 전진).
+
 ## 4. 판정 요약 (등대 원칙: 레버는 하나를 사면 하나를 판다)
 
 - **산 것**: ctxover·infra·무음실패 소멸 / 023 회수·008 완결 / grant 9회 발화·035 transfer 최초 실행 /
