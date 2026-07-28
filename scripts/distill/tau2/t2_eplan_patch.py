@@ -753,8 +753,9 @@ def _terminal_grant_check(orch):
         return None
     msgs = orch.get_messages() if hasattr(orch, "get_messages") else []
     last_user = None
-    called = set()
     a_texts = []
+    id2name, errored = {}, set()
+    called_ids = {}
     for m in msgs:
         role = getattr(m, "role", None)
         c = getattr(m, "content", None)
@@ -763,7 +764,15 @@ def _terminal_grant_check(orch):
         elif role == "assistant" and isinstance(c, str):
             a_texts.append(c)
         for tc in (getattr(m, "tool_calls", None) or []):
-            called.add(str(getattr(tc, "name", "") or ""))
+            tid = getattr(tc, "id", None)
+            id2name[tid] = str(getattr(tc, "name", "") or "")
+            called_ids[tid] = id2name[tid]
+        if role == "tool" and getattr(m, "error", False):
+            errored.add(getattr(m, "id", None))
+    # ★F2(C210·day6 004 [S]): deny/에러로 끝난 호출은 '호출됨'이 아니다 — 구판은 PREKB deny된
+    #   transfer도 ⓑ에 걸려 유예를 미발화(004: notice→동의→호출→deny→종료·grant 0). 성공 응답이
+    #   있는 호출만 계상(응답 자체가 없는 in-flight는 안전측=계상).
+    called = {nm for tid, nm in called_ids.items() if tid not in errored}
     if not last_user or "###TRANSFER###" not in last_user:      # ⓐ′
         return None
     for g in notices:

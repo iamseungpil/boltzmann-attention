@@ -3413,9 +3413,19 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         #   prekb가 큐잉(`_t2_view_fb`)·여기서 작업버퍼에만 주입(히스토리 비커밋=위 채널 절대규칙 동일).
         _vfb = getattr(self, "_t2_view_fb", None)
         if _vfb:
-            self._t2_view_fb = None
-            _vtxt = "\n".join(str(x) for x in _vfb)
-            print("[T2_FB_VIEW] %d queued feedback item(s) injected in view" % len(_vfb),
+            # ★F5(C210): 항목=[텍스트, 잔여횟수] — 이번 뷰에 주입 후 잔여>0이면 다음 생성에도
+            #   재노출(day6 033 [S]: 1회 노출은 무시됨). 구형 str 항목=1회(하위호환).
+            _texts, _keep = [], []
+            for _it in _vfb:
+                if isinstance(_it, (list, tuple)) and len(_it) == 2:
+                    _texts.append(str(_it[0]))
+                    if int(_it[1]) - 1 > 0:
+                        _keep.append([str(_it[0]), int(_it[1]) - 1])
+                else:
+                    _texts.append(str(_it))
+            self._t2_view_fb = _keep or None
+            _vtxt = "\n".join(_texts)
+            print("[T2_FB_VIEW] %d queued feedback item(s) injected in view" % len(_texts),
                   file=_sys.stderr, flush=True)
             try:
                 work = work + [UserMessage(role="user", content=_vtxt)]

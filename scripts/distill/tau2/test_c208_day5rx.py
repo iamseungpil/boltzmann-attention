@@ -115,7 +115,7 @@ def test_replay_hygiene():
     # 생성-레벨 채널
     orch = FakeOrch([], env)
     chk(PK._view_fb(orch, "hello-fb", "t") is True and
-        orch.agent._t2_view_fb == ["hello-fb"], "뷰-채널 큐잉(_t2_view_fb)")
+        orch.agent._t2_view_fb[0][0] == "hello-fb", "뷰-채널 큐잉(_t2_view_fb·[txt,K] 형식)")
     # 잔존 감사: mutating 도구 결과에 content 직접 append하는 코드가 prekb에 안 남았나
     src = io.open(os.path.join(HERE, "t2_prekb_patch.py"), encoding="utf-8").read()
     chk("That tool name does not exist — you invented it" not in src,
@@ -339,6 +339,47 @@ def test_failed_persist():
     os.environ.pop("T2_FAILED_DIR", None)
 
 
+def test_c210_fixes():
+    print("[test_c210_fixes] day6 결함 수정 4종 (F1 rb-postcheck·F2 grant ⓑ·F4 notice-면제·F5 재노출)")
+    a2 = GP._domain_a2("banking_knowledge")
+    nt = next(g["notice_text"] for g in a2["gates"] if g.get("kind") == "notice")
+    env = FakeEnv()
+    # F2: deny(error)로 끝난 transfer 호출은 '호출됨'이 아니다 → grant 발화 (day6 004 재현)
+    call = TCall("transfer_to_human_agents", cid="tx1")
+    msgs = [M("assistant", nt + " ..."),
+            M("user", "Yes please. ###TRANSFER###"),
+            M("assistant", None, tool_calls=[call]),
+            M("tool", "Error: [PRE-ACTION-KB] STOP...", mid="tx1", error=True),
+            M("user", "Yes, transfer me now. ###TRANSFER###")]
+    g = EP._terminal_grant_check(FakeOrch(msgs, env))
+    chk(g == "transfer_to_human_agents", "F2: deny된 호출 → 미호출 계상 → grant 발화(%s)" % g)
+    # F2 회귀: 성공 호출은 여전히 무개입
+    msgs2 = [M("assistant", nt + " ..."),
+             M("assistant", None, tool_calls=[TCall("transfer_to_human_agents", cid="tx2")]),
+             M("tool", "Transfer successful", mid="tx2", error=False),
+             M("user", "###TRANSFER###")]
+    chk(EP._terminal_grant_check(FakeOrch(msgs2, env)) is None, "F2 회귀: 성공 호출 → 무개입")
+    # F4: notice 공표 후 transfer-fam은 PREKB deny 면제 판정
+    chk(PK._notice_done(a2, [M("assistant", nt + " tail")], "transfer_to_human_agents") is True,
+        "F4: notice 공표 → _notice_done True(면제)")
+    chk(PK._notice_done(a2, [M("assistant", "Hello")], "transfer_to_human_agents") is False,
+        "F4: notice 미공표 → False(기존 deny 유지)")
+    chk(PK._notice_done(a2, [M("assistant", nt)], "give_discoverable_user_tool") is False,
+        "F4: notice 비관할 도구 → False")
+    # F5: view-fb 항목=[txt, K] 큐잉
+    orch = FakeOrch([], env)
+    os.environ["T2_FB_VIEW_K"] = "2"
+    PK._view_fb(orch, "check-now", "t")
+    it = orch.agent._t2_view_fb[0]
+    chk(isinstance(it, list) and it == ["check-now", 2], "F5: [텍스트, 잔여 2] 큐잉: %s" % it)
+    os.environ.pop("T2_FB_VIEW_K", None)
+    # F1: rb 표적(apply/submit_referral 등 mutating user tool)은 _replay_compared=True → 스텁 금지 경로
+    env2 = FakeEnv(user_tools={"apply_for_credit_card": True, "submit_referral": True})
+    chk(PK._replay_compared(env2, "apply_for_credit_card") and
+        PK._replay_compared(env2, "submit_referral"),
+        "F1: rb 표적=replay-비교 대상 판정(post-check 경로로 라우팅)")
+
+
 def test_near_dup_tokens():
     print("[test_near_dup] P5-3 근사-중복 판정(기본 OFF·순수 로직 스모크)")
     import re as _re
@@ -356,7 +397,7 @@ def test_near_dup_tokens():
 
 
 if __name__ == "__main__":
-    for fn in (test_dyn_mt, test_replay_hygiene, test_terminal_grant,
+    for fn in (test_dyn_mt, test_replay_hygiene, test_terminal_grant, test_c210_fixes,
                test_abstain_actionable, test_prod_bind_and_p4b, test_view_budget,
                test_unavail_env, test_dup_represent, test_sg_byref,
                test_failed_persist, test_near_dup_tokens):

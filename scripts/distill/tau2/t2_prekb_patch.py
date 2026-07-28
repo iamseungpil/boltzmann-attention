@@ -233,6 +233,30 @@ def _is_user_channel(env, name):
     return False
 
 
+def _notice_done(a2, msgs, fam):
+    """★F4(C210): fam의 도구가 A2 notice 게이트(applies_to) 관할이고 notice_text(앞 48자)가
+    assistant 발화에 실재하면 True. 판정=A2 데이터 부분문자열만(도메인 리터럴 0)."""
+    try:
+        for g in (a2 or {}).get("gates") or []:
+            if not (isinstance(g, dict) and g.get("kind") == "notice" and g.get("notice_text")):
+                continue
+            ap = g.get("applies_to")
+            tools = ap if isinstance(ap, list) else [ap]
+            if not any(_fam(str(t)) == fam for t in tools if t):
+                continue
+            nt = str(g["notice_text"])[:48]
+            for m in msgs:
+                if isinstance(m, dict):
+                    r, c = m.get("role"), m.get("content")
+                else:
+                    r, c = getattr(m, "role", None), getattr(m, "content", None)
+                if r == "assistant" and nt in str(c or ""):
+                    return True
+    except Exception:
+        return False
+    return False
+
+
 def _is_user_native(env, name):
     """이름이 **손님-측 네이티브** 도구(손님이 직접 실행·discoverable 아님)인지 레지스트리 판정.
     day5 024/010 실측: `apply_for_credit_card`/`submit_referral`이 이 부류 — "Unknown discoverable
@@ -299,7 +323,10 @@ def _view_fb(orch, txt, mark):
         if ag is None:
             return False
         lst = list(getattr(ag, "_t2_view_fb", None) or [])
-        lst.append(txt)
+        # ★F5(C210·day6 033 [S]): 1회 노출은 in-history append보다 약하다 — 033서 view-fb 1회
+        #   직후에도 말-안내 후퇴(day5의 GUIDANCE는 히스토리에 남아 준수됨). K회(기본 2) 연속
+        #   생성에 재노출. 항목=[텍스트, 잔여횟수].
+        lst.append([txt, int(os.environ.get("T2_FB_VIEW_K", "2"))])
         ag._t2_view_fb = lst
         _mark("view-fb queued (%s)" % mark)
         return True
@@ -385,8 +412,37 @@ def apply():
                     miss = [n for n in need if _fam(n) not in called]
                     if not miss:
                         continue
+                    # ★F1(C210·day6 [S]): 대상 호출이 replay-비교 도구(env 등록∧mutating —
+                    #   apply_for_credit_card/submit_referral 등 rb 표적 전부)면 **미실행 deny 스텁을
+                    #   커밋할 수 없다** — tau2 replay가 깨끗한 env에서 재실행해 content 정확비교
+                    #   (day6 007/010/025 ValueError 3건·재시도 소각 실측). ⇒ 실행은 통과시키고
+                    #   점검-지시는 생성-레벨 채널(view-fb)로: "방금 X가 점검 Y 없이 실행됐다 —
+                    #   지금 Y를 실행해 결과와 대조·필요시 교정 안내하라". 레버는 사후-점검으로
+                    #   약화되지만 측정 정합성이 우선([[19]] 조정=끄기 아님).
+                    if _replay_compared(env, getattr(tc, "name", None)):
+                        rbd.add(fam)
+                        _view_fb(self,
+                                 "NOTE: the tool '%s' was just executed WITHOUT the required "
+                                 "pre-check %s. Run %s NOW and compare its output with what was "
+                                 "just done; if they disagree, tell the customer and correct "
+                                 "course before going further."
+                                 % (getattr(tc, "name", fam), ", ".join(miss), ", ".join(miss)),
+                                 "rb-postcheck")
+                        _mark("require_before post-check (replay-safe) fam=%s (missing %s)"
+                              % (fam, ",".join(miss)))
+                        continue
                     rbd.add(fam)
                     _mark("require_before deny fam=%s (missing %s)" % (fam, ",".join(miss)))
+                    # ★F1: 형제-호출 중 replay-비교 대상은 스텁 대신 실행(메인 deny 경로와 동일 규율).
+                    _sib2 = [t2 for t2 in tool_calls
+                             if t2 is not tc and _replay_compared(env, getattr(t2, "name", None))]
+                    _sibres2 = {}
+                    if _sib2:
+                        try:
+                            for _r3 in (orig_exec(self, _sib2) or []):
+                                _sibres2[getattr(_r3, "id", None)] = _r3
+                        except Exception:
+                            _sibres2 = {}
                     out = []
                     for t2 in tool_calls:
                         if t2 is tc:
@@ -401,6 +457,8 @@ def apply():
                                          "options it reports, and only then have this action "
                                          "re-issued. Do NOT abandon the customer's request."
                                          % (", ".join(miss), ", ".join(miss), ", ".join(miss)))))
+                        elif getattr(t2, "id", None) in _sibres2:
+                            out.append(_sibres2[t2.id])
                         else:
                             out.append(ToolMessage(
                                 id=t2.id, role="tool", requestor=getattr(t2, "requestor", "assistant"),
@@ -412,6 +470,15 @@ def apply():
         for tc in tool_calls:
             for fam in _effective_fams(tc):
                 if fam in fams and fam not in denied and not _has_evidence(msgs, fam):
+                    # ★F4(C210·day6 004 [S]): A2 notice 게이트가 이 도구를 관장하고 **notice가
+                    #   이미 공표**됐다면 deny 면제 — notice 프로토콜(KB 확인·전 절차 시도 후에만
+                    #   공표)이 PREKB의 확인 의무를 포섭하며, 특히 동의-터미널 직후의 deny는
+                    #   마지막 행동 턴을 소각한다(004: 호출→deny→종료·notice-레이스의 공범).
+                    #   판정=A2 notice_text 부분문자열(도메인 리터럴 0).
+                    if _notice_done(a2, msgs, fam):
+                        _mark("deny waived fam=%s (notice already announced)" % fam)
+                        denied.add(fam)
+                        continue
                     hit = (tc, _tc_name(tc), fam)
                     break
             if hit:
