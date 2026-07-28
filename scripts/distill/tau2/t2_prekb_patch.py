@@ -233,6 +233,81 @@ def _is_user_channel(env, name):
     return False
 
 
+def _is_user_native(env, name):
+    """이름이 **손님-측 네이티브** 도구(손님이 직접 실행·discoverable 아님)인지 레지스트리 판정.
+    day5 024/010 실측: `apply_for_credit_card`/`submit_referral`이 이 부류 — "Unknown discoverable
+    tool" 에러는 이미 비-discoverable을 함의하므로 user_tools.has_tool만으로 충분.
+    ★[[05]]: 근거=프레임워크 API(`env.user_tools`)뿐·도메인 어휘 0."""
+    if not env or not name:
+        return False
+    try:
+        ut = getattr(env, "user_tools", None)
+        return bool(ut is not None and hasattr(ut, "has_tool") and ut.has_tool(name))
+    except Exception:
+        return False
+
+
+def _replay_compared(env, name):
+    """★P2(C208②·DAY5_PRESCRIPTIONS §P2) 불변식 판정: 이 도구의 ToolMessage.content를 변형하면
+    tau2 평가 replay가 깨지는가. replay(`environment.py:374~390`)는 **env 등록 ∧ mutating** 도구만
+    깨끗한 env에서 재실행해 content를 정확 비교한다 — 그 대상의 content는 절대 불변이어야 한다
+    (day5 024/010 = give_discoverable_user_tool 결과에 GUIDANCE append → ValueError → sim 사망).
+    env 미등록(우리 주입 도구·환각 이름)·비-mutating(read)은 replay가 스킵 = append 무해.
+    판정불가 시 True(안전측=불변). 판정=레지스트리 질의만(도메인 리터럴 0)."""
+    if not env or not name:
+        return False
+    for tk in (getattr(env, "tools", None), getattr(env, "user_tools", None)):
+        if tk is None:
+            continue
+        try:
+            if hasattr(tk, "has_tool") and tk.has_tool(name):
+                try:
+                    return bool(tk.tool_mutates_state(name))
+                except Exception:
+                    return True
+        except Exception:
+            continue
+    return False
+
+
+def _utool_guidance_txt(c, env=None):
+    """★P2 사실화(C208② 오진 교정): 'Unknown discoverable tool' 피드백 3-분기 — 구판 단일 문구
+    ("you invented it")는 실재 유저-네이티브 도구에 **거짓 피드백**이었다(진짜 오류=채널 오분류).
+    반환=덧붙일 문구만(부착 위치는 호출부가 replay-안전성에 따라 결정). 판정=레지스트리·리터럴 0."""
+    m = re.search(r"Unknown discoverable tool '([^']+)'", c or "")
+    bad = m.group(1) if m else None
+    if bad and _is_user_native(env, bad):
+        return (" [GUIDANCE] '%s' DOES exist — but it is a tool the customer runs directly "
+                "on their side, not a discoverable tool, so it cannot be handed over or "
+                "dispatched by you. Do not retry give/call: instruct the customer to run "
+                "'%s' themselves with the required arguments." % (bad, bad))
+    if bad and _is_agent_regular(env, bad):
+        return (" [GUIDANCE] '%s' is already in your own tool list — call it directly "
+                "instead of dispatching it." % bad)
+    return (" [GUIDANCE] No tool with that exact name exists. Do NOT fall back to verbal "
+            "instructions: search the knowledge base for the documented tool that serves "
+            "this customer request (query by the capability, e.g. by what the customer is "
+            "trying to do), then re-issue give/call with the EXACT documented name.")
+
+
+def _view_fb(orch, txt, mark):
+    """★P2: replay-비교 대상 도구의 피드백은 히스토리 대신 **생성-레벨(뷰 전용) 채널**로 —
+    다음 생성의 프롬프트 뷰에만 주입되고 커밋 안 됨(repo 원칙 "생성-레벨=작업버퍼=replay-clean"·
+    `_t2_eplan_reminder` 선례 동형). 소비=t2_gate_patch unified."""
+    try:
+        ag = getattr(orch, "agent", None)
+        if ag is None:
+            return False
+        lst = list(getattr(ag, "_t2_view_fb", None) or [])
+        lst.append(txt)
+        ag._t2_view_fb = lst
+        _mark("view-fb queued (%s)" % mark)
+        return True
+    except Exception as e:
+        _mark("view-fb failed (no-op): %r" % (e,))
+        return False
+
+
 def _atool_guidance(c, a2, env=None):
     """★C182 'Unknown agent tool' 에러에 붙일 처방 문구(순수 함수·selftest 대상).
 
@@ -350,17 +425,23 @@ def apply():
             try:
                 nfb = getattr(self, "_t2_utool_fb", 0)
                 afb = getattr(self, "_t2_atool_fb", 0)
+                _id2nm = {getattr(t, "id", None): getattr(t, "name", None)
+                          for t in (tool_calls or [])}
                 for r in (out or []):
                     c = getattr(r, "content", "") or ""
+                    _rnm = _id2nm.get(getattr(r, "id", None))
+                    # ★P2(C208②): give/call 디스패처는 mutating=replay-비교 대상 — content 불변.
+                    #   피드백은 사실화 3-분기 문구(_utool_guidance_txt)로 생성-레벨 채널에 싣는다.
+                    #   비-비교 도구(이론상)면 구판대로 append(거동 최소 변화).
                     if nfb < 2 and "Unknown discoverable tool" in c:
-                        r.content = (c + " [GUIDANCE] That tool name does not exist — you "
-                                     "invented it. Do NOT fall back to verbal instructions: "
-                                     "search the knowledge base for the documented tool that "
-                                     "serves this customer request (query by the capability, "
-                                     "e.g. 'travel notification tool' / 'referral link tool'), "
-                                     "then re-issue give/call with the EXACT documented name.")
+                        _txt = _utool_guidance_txt(c, env)
+                        if _replay_compared(env, _rnm):
+                            _view_fb(self, "About your last '%s' call, which failed:%s"
+                                     % (_rnm, _txt), "utool")
+                        else:
+                            r.content = c + _txt
                         self._t2_utool_fb = nfb + 1
-                        _mark("utool feedback appended (n=%d)" % (nfb + 1))
+                        _mark("utool feedback (n=%d)" % (nfb + 1))
                         break
                     # ★C182: scaffold-주입 도구를 unlock/dispatcher 채널로 오주소(017/019
                     #   회귀 기전 — dispatcher-규율이 주입 도구까지 discoverable로 오분류하게
@@ -369,9 +450,13 @@ def apply():
                     if afb < 2 and "Unknown agent tool" in c:
                         newc = _atool_guidance(c, a2, env)
                         if newc:
-                            r.content = newc
+                            if _replay_compared(env, _rnm):
+                                _view_fb(self, "About your last '%s' call, which failed:%s"
+                                         % (_rnm, newc[len(c):]), "atool")
+                            else:
+                                r.content = newc
                             self._t2_atool_fb = afb + 1
-                            _mark("atool feedback appended (n=%d)" % (afb + 1))
+                            _mark("atool feedback (n=%d)" % (afb + 1))
                             break
             except Exception:
                 pass
@@ -379,11 +464,27 @@ def apply():
         tc0, nm0, fam0 = hit
         denied.add(fam0)                             # cap: fam당 1회
         _mark("deny fam=%s (no action-keyed KB evidence) — instructing search" % fam0)
+        # ★P2(C208② 잠재위험 봉합): 배치의 **비-hit mutating(=replay-비교 대상)** 호출을 미실행
+        #   deferred-스텁으로 남기면 replay가 그 호출을 재실행해 content 불일치 = 같은 사망 계열.
+        #   → 그런 형제-호출은 정상 실행하고 결과를 그대로 배치한다(비-비교 형제만 스텁 유지).
+        _sib = [tc for tc in tool_calls
+                if tc is not tc0 and _replay_compared(env, getattr(tc, "name", None))]
+        _sibres = {}
+        if _sib:
+            try:
+                for _r2 in (orig_exec(self, _sib) or []):
+                    _sibres[getattr(_r2, "id", None)] = _r2
+                _mark("deny: executed %d replay-compared sibling call(s) (no stub)" % len(_sib))
+            except Exception as _se:
+                _sibres = {}
+                _mark("deny sibling exec failed (no-op): %r" % (_se,))
         out = []
         for tc in tool_calls:
             if tc is tc0:
                 out.append(ToolMessage(id=tc.id, role="tool", requestor="assistant",
                                        error=True, content=deny_text(nm0, fam0)))
+            elif getattr(tc, "id", None) in _sibres:
+                out.append(_sibres[tc.id])
             else:
                 out.append(ToolMessage(
                     id=tc.id, role="tool", requestor="assistant", error=True,

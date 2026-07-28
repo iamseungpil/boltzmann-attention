@@ -594,8 +594,14 @@
       "variants": {
         "ratefix": {
           "params": {
-            "transactions": "JSON array. For EACH transaction include ONLY these raw fields, normalized to plain values:\n- transaction_id (string), transaction_amount (NUMBER, e.g. 126.36 — strip any currency symbol), rewards_earned (NUMBER, e.g. 126 — strip any unit word), transaction_date (MM/DD/YYYY)\n- credit_card_type, merchant_name, category — copied from the transaction record\n- account_open (MM/DD/YYYY) — the opening date of the account that card belongs to\n★Do NOT look up, reason about, or provide reward RATES, promos, or any computed value — a separate deterministic system reads the reward-rate policy and computes the expected reward itself."
+            "transactions": "JSON array. For EACH transaction include ONLY these raw fields, normalized to plain values:\n- transaction_id (string), transaction_amount (NUMBER, e.g. 126.36 — strip any currency symbol), rewards_earned (NUMBER, e.g. 126 — strip any unit word), transaction_date (MM/DD/YYYY)\n- credit_card_type, merchant_name, category — copied from the transaction record\n- account_open (MM/DD/YYYY) — the opening date of the account that card belongs to, copied EXACTLY from the account record you fetched (do NOT guess it from transaction dates)\n★Do NOT look up, reason about, or provide reward RATES, promos, or any computed value — a separate deterministic system reads the reward-rate policy and computes the expected reward itself."
           },
+          "grounded_params": {
+            "account_open": {
+              "producer_contains": ["credit_card_accounts"]
+            }
+          },
+          "_note_grounded_params": "P4b(C208④·DAY5_PRESCRIPTIONS §P4b·2026-07-28): account_open은 레코드-유래 값인데 day5 027이 accounts 미조회인 채 전행 단일값(02/01/2025)으로 날조(실개설일 02/13)→우연히 gold 재현. producer_contains=그 값이 실재해야 하는 출력의 식별 selector(계좌 레코드 덤프). 엔진=부분문자열 실재 검사만(C186 ledger 동형)·불성립=결핍 강등(P4 지목 경로 합류).",
           "op": {
             "op": "select_discrepant",
             "over": "transactions",

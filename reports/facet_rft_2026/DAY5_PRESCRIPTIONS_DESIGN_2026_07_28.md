@@ -57,6 +57,10 @@ completion 실측 p95=1,115·8k 초과 1/500. 7건 전부 36.5~40.2k에서 사�
 
 프롬프트-토큰 사전 추정은 채택하지 않음(chars/3.3 추정=비결정·오차): 에러가 정확한 수를 주므로 반응형이 더 단순·정확.
 
+**[소소1] 수치 주의**: day5 라이브 에러 원문은 48,640이나 `_regen_budget_ok` 주석(07-20)은 44,672 —
+serve 설정에 따라 다르다. **P1 동작은 에러 원문 파싱이라 무영향**(하드코딩 금지·파싱값만 사용).
+§P5 "천장의 40%" 서사 수치는 구현 시 현행 serve 설정 실측으로 확정·본 문서 정정.
+
 - **[[05]]**: 서빙 파라미터·도메인 무관. ①②③ 전부 no.
 - **검증(오프라인)**: 가짜 CWE 에러 문자열 → 파싱·재시도 경로 단위테스트(`test_dyn_mt`)·플로어 경계·파싱 실패 시 기존 경로 폴백.
 - **반사실 근거**: cap 2048 시 7/7 그 스텝 생존(포렌식 §1). 동적화는 2048 고정보다 우월 — 평시 8192 유지로 A4 절단-미커밋과 007형 폭주 방어 불변.
@@ -98,8 +102,13 @@ coverage 모델 의존(004·035=gap 0→턴 0·008=spurious gap이 우연히 구
 `t2_eplan_patch._check_termination` wrap 내부, drive 판정과 **별도 분기**(drive 앞에 배치).
 
 - **술어**(전부 결정론·기존 데이터만): `termination_reason=user_stop` ∧ ⓐ notice 공표됨
-  (assistant 메시지에 A2 `notice_text` 부분문자열 실재 — A2 gate spec에서 읽음) ∧ ⓑ 해당 게이트의
+  (assistant 메시지에 A2 `notice_text` 부분문자열 실재 — A2 gate spec에서 읽음) ∧
+  **ⓐ′ [리뷰 필수2 반영] 마지막 유저 메시지에 동의-터미널 토큰(`###TRANSFER###`) 실재** ∧ ⓑ 해당 게이트의
   대상 도구(A2 spec의 tool·family)가 **한 번도 호출 안 됨**(툴콜 원장 대조) ∧ ⓒ 본 유예 미사용(1회/sim).
+  ⓐ′ 없으면 "notice 공표 + 비동의 ###STOP###"에서도 성립해 유예+required 합성이 **동의 없는 transfer를
+  유도**(Δspurious 최악 방향=무단 행동). 토큰=프레임워크 프로토콜 상수라 [[05]] 무해.
+  **day5 근거 인용[소소2]**: 004의 transfer 미호출은 day5 궤적 기준(`DAY5_FULL_FORENSIC §5.1` — day5에서 호출 0·
+  §5.1b 턴 0 기전). day4b §3b의 "004 호출했음(enum 감점)"과 충돌 아님 — 런이 다르다.
 - **동작**: `done=False·termination_reason=None`(drive 보류와 동일 기법) + 생성-레벨 reminder
   "The customer has already agreed. Do not repeat the notice — CALL {tool} now with an appropriate summary."
   + 그 턴에 한해 **기존 FORCE_ACTION 레버로 `tool_choice=required`**(재-notice 산문 봉쇄·신규 강제 아님·기존 레버 합성).
@@ -136,6 +145,10 @@ coverage 모델 의존(004·035=gap 0→턴 0·008=spurious gap이 우연히 구
 - **[[05]]**: 신규 A2 선언 1(producer selector=도메인 데이터)·엔진=부분문자열 실재 검사(기존 `_val_grounded`/ledger 계열 재사용). ②판정불가→통지이지 값 대입 아님. ③no.
 - **검증(오프라인)**: 020 실제 페이로드(account_open 無)→"missing: account_open(14 rows)" 지목·
   027 실제 페이로드(날조)→P4b 강등으로 동일 지목·완전 페이로드→무개입·019 quote-ground 행은 별도 사유 표기(`test_abstain_actionable`).
+- **간섭 감시 W-f [리뷰 필수3 반영]**: P4 지시문("call again with the completed input")은 **P6(참조-전달) 없이는
+  결핍 행 재타이핑 재호출을 유도** — 정확히 C208①의 재직렬화·CWE 경로다(④축을 닫으며 ①축을 키움).
+  계측: P4 지목 발화 후 같은 compute 재호출의 **인자 문자수·completion 토큰·프롬프트 성장**을 로그
+  (`[T2_ABSTAIN_FIELDS] refetch-recall args={n}ch comp={m}tok`). **이 W-f 실측이 P6 ON의 GO 판정 신호**(§P6).
 - **기대**: 020/026형 직접 회수 + 027의 운-의존 제거. P3와 독립·P6과 합성 시 시너지(§P6).
 
 ## §P5. 뷰-예산 재설계 — KB 44.8% 축
@@ -146,10 +159,13 @@ coverage 모델 의존(004·035=gap 0→턴 0·008=spurious gap이 우연히 구
 
 1. **문턱 하향**: `T2_VIEW_COMPACT_MINTOTAL` 기본 120,000→**60,000자**(≈17k tok·천장의 40%선에서 개입 시작).
    코드 기본값+go_stack 동시 수정(문서-실제 불일치 방지·C186 교훈).
-2. **per-메시지 뷰 캡(신설·`T2_VIEW_MSG_CAP` 기본 8,000자)**: **최신 tool 출력 1개를 제외한** 모든 비에러
+2. **per-메시지 뷰 캡(신설·`T2_VIEW_MSG_CAP` 기본 8,000자)**: **최신 배치를 제외한** 모든 비에러
   tool 출력이 캡 초과면 뷰에서 head 300+tail 150 다이제스트(기존 `_compact_view` 다이제스트 함수 재사용).
-  모델은 도착 턴에 전문을 봤고, 이후 턴부터 다이제스트 — read 주체=모델 유지([[05]]③ autofetch-류 아님·
-  기존 VIEW_COMPACT과 같은 원리의 강화이며 keep_recent 의미를 "최신 1개 전문"으로 좁힘).
+  **[리뷰 필수1 반영] "최신 배치" = 마지막 어시스턴트 턴 이후의 전 tool 출력** — 멀티-콜 턴(unlock+call 묶음·
+  regen 다중 호출)에서는 출력들이 함께 커밋되고 다음 생성이 첫 노출이므로, "최신 1개"로 정의하면 같은 배치의
+  나머지가 **한 번도 안 읽힌 채 다이제스트**된다(cand4 035 실측 "unlock+call+transfer 묶음"). 배치 전체를
+  전문 유지해야 "도착 턴에 전문을 봤다" 전제가 성립. read 주체=모델 유지([[05]]③ autofetch-류 아님).
+  `test_view_budget`에 **멀티-콜 배치 케이스 필수**.
 3. **근사-중복 질의 안내(기본 OFF·`T2_READ_NEARDUP=1`)**: KB류 read의 질의를 정규화(소문자·불용어 제거·토큰
   집합)해 Jaccard≥0.8이면 스텁: "This query is nearly identical to an earlier one (differs only in: {diff
   tokens}); the earlier output is above. Refine with genuinely NEW terms, or proceed with what you have."
@@ -186,6 +202,9 @@ coverage 모델 의존(004·035=gap 0→턴 0·008=spurious gap이 우연히 구
 
 - **검증(오프라인)**: 022 실제 궤적에서 참조-해석이 77행 무손실 재구성(포렌식 파서와 대조)·`@last` 미존재/에러
   출력 참조 시 명확한 에러·pass-by-value 경로 무회귀(`test_sg_byref`).
+- **[리뷰 결론 반영] 도입 경로**: **이번 사이클에 구현+오프라인 검증(`test_sg_byref`)까지 완료·day6은 OFF**로
+  런 → day6에서 **W-f(§P4) 실측 = P6 ON의 GO 신호** → day7 ON. 경계-해석 확장 선례 방지: 파서는
+  `Record ID:` 기계 포맷 **전용**을 코드 assert로 강제(다른 텍스트 입력 시 해석 거부·폴백 없이 에러).
 - **기대**: 020형 재직렬화 소멸·행 유실 0·P8의 재호출 비용도 무해화. **P4/P4b와 합성이 완결형**
   (결핍 지목→모델이 getter 읽음→참조로 공급).
 
@@ -215,9 +234,9 @@ coverage 모델 의존(004·035=gap 0→턴 0·008=spurious gap이 우연히 구
 
 | 안 | 내용 | 비용/리스크 |
 |---|---|---|
-| **(a) 권고** | 스코어보드에서 **주석부 제외**: "n=31 유효 + 005 gold-파손 1" 병기(수치 조작 아님·매 보고 명시) | 이전 런과 분모 불일치 — 소급 재표기 필요(day2~5 전부 005 fail이었으므로 순위 무영향) |
-| (b) | gold JSON 로컬 패치(센티널→실값) | 벤치 개변=비교성·상류 재현성 훼손 — 비권고 |
-| (c) | 현행 유지(분모 포함) | pass율이 구조적으로 1/32 저평가 지속 |
+| **(a) ✅채택(리뷰 동의·2026-07-28)** | 스코어보드에서 **주석부 제외**: "n=31 유효 + 005 gold-파손 1" **매 보고 병기 조건** | 이전 런과 분모 불일치 — 소급 재표기(day2~5 전부 005 fail이라 순위 무영향 확인됨=비용 낮음) |
+| (b) 기각 | gold JSON 로컬 패치(센티널→실값) | 벤치 개변=비교성·재현성 훼손([[47]] 동형 규율 위반) |
+| (c) 기각 | 현행 유지(분모 포함) | 구조적 저평가를 알면서 방치=계측 왜곡 |
 
 ## §P10. 실패-sim 궤적 영속 (사이드카)
 
@@ -236,6 +255,9 @@ persist 데몬 수집 대상에 포함. 검증: 강제 실패 주입 단위테�
 **오프라인 게이트(전부 무료·[[09]])**: 신규 테스트 7종(`test_dyn_mt`·`test_replay_hygiene`·`test_terminal_grant`·
 `test_abstain_actionable`·`test_view_budget`·`test_unavail_env`·`test_dup_represent`(+`test_sg_byref`·`test_failed_persist`))
 + 기존 회귀 12종 + day5 실궤적 재생 검정(018 뷰-예산·020 페이로드 지목·024 replay·004 유예).
+**[리뷰 반영 필수 케이스]**: `test_view_budget`에 멀티-콜 배치(한 어시스턴트 턴의 복수 tool 출력=전부 전문 유지) ·
+`test_terminal_grant`에 "notice 공표+비동의 ###STOP### → 무개입". [소소3] LEVER_HEALTH 집계는 기존
+"skipped (no-op)" 마커 카운트 재사용으로 구현.
 
 **go_stack 갱신**([[19]]·C186 교훈=코드 기본값과 동시): 신규 `T2_DYN_MT=1 T2_TERM_GRANT=1 T2_ABSTAIN_FIELDS=1
 T2_PROD_BIND=1 T2_DUP_REPRESENT=1 T2_FAILED_PERSIST=1` + `T2_VIEW_COMPACT_MINTOTAL=60000 T2_VIEW_MSG_CAP=8000`.

@@ -734,6 +734,50 @@ def _cp5_replan_subcall(orch, led, msgs, spec):
     return parse_obligations(getattr(sub, "content", None) or "", ekey)
 
 
+def _terminal_grant_check(orch):
+    """★P3(C208③) 술어 판정(결정론·기존 데이터만). 성립 시 미호출 대상 도구명 반환·아니면 None.
+    ⓐ notice 공표: A2 gates(kind=notice)의 notice_text 앞 48자가 assistant 발화에 부분문자열 실재.
+    ⓐ′ 동의: **마지막 유저 메시지**에 ###TRANSFER###(동의-터미널·프레임워크 프로토콜 상수 —
+        리뷰 필수2: 비동의 ###STOP###이면 무개입=무단 행동 방지).
+    ⓑ 미호출: applies_to의 도구가 원장(tool_calls)에 0회.
+    notice_text·도구명 전부 A2에서 읽음(엔진 도메인 리터럴 0)."""
+    import t2_gate_patch as _g
+    dom = getattr(getattr(orch, "environment", None), "domain_name", None)
+    a2 = _g._domain_a2(dom)
+    if not a2:
+        return None
+    notices = [g for g in (a2.get("gates") or [])
+               if isinstance(g, dict) and g.get("kind") == "notice"
+               and g.get("notice_text") and g.get("applies_to")]
+    if not notices:
+        return None
+    msgs = orch.get_messages() if hasattr(orch, "get_messages") else []
+    last_user = None
+    called = set()
+    a_texts = []
+    for m in msgs:
+        role = getattr(m, "role", None)
+        c = getattr(m, "content", None)
+        if role == "user" and isinstance(c, str) and c.strip():
+            last_user = c
+        elif role == "assistant" and isinstance(c, str):
+            a_texts.append(c)
+        for tc in (getattr(m, "tool_calls", None) or []):
+            called.add(str(getattr(tc, "name", "") or ""))
+    if not last_user or "###TRANSFER###" not in last_user:      # ⓐ′
+        return None
+    for g in notices:
+        nt = str(g["notice_text"])[:48]
+        if not any(nt in t for t in a_texts):                   # ⓐ
+            continue
+        ap = g.get("applies_to")
+        tools = ap if isinstance(ap, list) else [ap]
+        for t in tools:
+            if t and str(t) not in called:                      # ⓑ
+                return str(t)
+    return None
+
+
 def drive_decision(drives, K, exec_now, last_exec, has_gap):
     """지속 구동 결정(순수·2026-07-24 피벗). 반환: 'hold'(구동)·'release'(진전0 안전종료)·
     'terminate'(budget 소진 or plan 충족). progress-guard=§7.3 딜레마 회피(못 고치는 사슬 무한보류 금지)."""
@@ -904,7 +948,7 @@ def apply():
         return None
     _mark("apply(): ledger+L1/L2=unified 배선·walk=%s"
           % ("ON" if os.environ.get("T2_EPLAN_WALK") == "1" else "off"))
-    if os.environ.get("T2_EPLAN_WALK") != "1":
+    if os.environ.get("T2_EPLAN_WALK") != "1" and os.environ.get("T2_TERM_GRANT") != "1":
         return None
 
     import tau2.orchestrator.orchestrator as _om
@@ -919,6 +963,38 @@ def apply():
                 if not getattr(self, "done", False):
                     return r
                 if "user_stop" not in str(getattr(self, "termination_reason", "")).lower():
+                    return r
+                # ★P3(C208③·DAY5_PRESCRIPTIONS §P3): 터미널-턴 보장 — walk gap과 **독립**.
+                #   day5 [S]: 유저 터미널 토큰=즉시 종료·유일 예외=아래 drive 보류인데 gap 산출은
+                #   coverage 모델 의존(004·035=gap 0→동의 후 행동 턴 0·008=spurious gap이 우연 구제).
+                #   술어(전부 결정론): ⓐ notice 공표(A2 notice_text 부분문자열·assistant) ∧
+                #   ⓐ′ 마지막 유저 메시지에 동의-터미널 토큰(###TRANSFER###·리뷰 필수2: 비동의
+                #   ###STOP###이면 무개입=무단 행동 방지) ∧ ⓑ 대상 도구 미호출(원장 대조) ∧ ⓒ 1회/sim.
+                #   동작=보류(아래 drive와 동일 기법)+생성-레벨 reminder+그 턴만 required(gate_patch).
+                #   호출은 모델이 emit(write 강제 0)·notice_text/도구=A2에서 읽음(신규 선언 0).
+                if (os.environ.get("T2_TERM_GRANT") == "1"
+                        and not getattr(self, "_t2_term_granted", False)):
+                    try:
+                        _gtool = _terminal_grant_check(self)
+                    except Exception as _tge:
+                        _gtool = None
+                        _mark("term-grant skipped (no-op): %r" % (_tge,))
+                    if _gtool:
+                        self._t2_term_granted = True
+                        self.done = False
+                        self.termination_reason = None
+                        _ag = getattr(self, "agent", None)
+                        if _ag is not None:
+                            _ag._t2_eplan_reminder = (
+                                "[TERMINAL] The customer has ALREADY AGREED to the hand-off "
+                                "you announced. Do not repeat the notice and do not say "
+                                "goodbye — CALL %s NOW as a tool call, with an appropriate "
+                                "summary of the issue and what was attempted." % _gtool)
+                            _ag._t2_term_force = True
+                        _mark("terminal grant: notice+consent, %s uncalled -> 1 extra turn"
+                              % _gtool)
+                        return r
+                if os.environ.get("T2_EPLAN_WALK") != "1":
                     return r
                 # ★지속 구동 (2026-07-24 피벗·EPLAN_PERSISTENT_DRIVER_DESIGN): 구판 1회 하드캡
                 #   (_t2_eplan_walked)을 budget K + progress-guard로 교체 — 탐지만 하고 1회 포기하던

@@ -85,6 +85,19 @@ export T2_SG_DEDUP=1
 #   ENVELOPE_GUARD=봉투 파싱 실패(정지 실패)→required-channel regen · TRUNC_GUARD=length 절단 미커밋(cap 1)
 #   UNAVAIL_PROMISE=미보유 기능 약속 차단(집합 대조). 전부 프레임워크 층·도메인 리터럴 0.
 export T2_ENVELOPE_GUARD=1 T2_ENVELOPE_CAP=2 T2_TRUNC_GUARD=1 T2_UNAVAIL_PROMISE=1
+
+# ── ★C208/day5 처방(DAY5_PRESCRIPTIONS_DESIGN_2026_07_28·P1~P10) ─────────────
+export T2_DYN_MT=1              # P1 동적 max_tokens(CWE 파싱→축소 1회 재시도·플로어 미만=graceful)
+export T2_MT_FLOOR=256 T2_DYN_MT_MARGIN=64
+export T2_TERM_GRANT=1          # P3 터미널-턴 보장(notice 공표+동의+미호출→1턴 유예·required)
+export T2_ABSTAIN_FIELDS=1      # P4 abstain 결핍-필드 지목(coverage에 필드명+공급 지시)
+export T2_PROD_BIND=1           # P4b producer-binding(A2 grounded_params·날조=결핍 강등)
+export T2_DUP_REPRESENT=1       # P8 DUP-COMPUTE 스텁에 이전 결과 재제시(상한 2·shrink 시 생략)
+export T2_FAILED_PERSIST=1      # P10 실패-sim 궤적 사이드카(set_state 예외 시 덤프)
+export T2_VIEW_COMPACT_MINTOTAL=60000   # P5-1 문턱 하향(구 120000=사망선 위·day5 6/32 발동)
+export T2_VIEW_MSG_CAP=8000     # P5-2 per-메시지 뷰 캡(최신 배치 제외·리뷰 필수1=배치 전체 전문)
+# OFF 유지(승격 조건 명기): T2_READ_NEARDUP(P5-3·오탐 계측 후) ·
+#   T2_SG_BYREF(P6·day6 W-f 실측=[T2_ABSTAIN_FIELDS] refetch-recall 성장이 GO 신호→day7 ON)
 export T2_CLAIM_PROV=1          # claim-날조 원장대조(사임/transfer 창·035 기전 표적)
 export T2_CLAIMPROV_CAP=3       # cap=1은 빈손 regen 1회에 전소(코드 포렌식 실측)→스모크 권장 3
 

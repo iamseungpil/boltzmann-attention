@@ -595,6 +595,24 @@ def apply_op(spec, ctx):
             espec = spec.get("expected")   # 하위호환(직접 expected op)
             out_ids = []
             skipped = 0
+            # ★P4(C208④·DAY5_PRESCRIPTIONS §P4): op가 참조하는 행-필드(r.*) 집합 — 스킵 행의
+            #   **어느 필드가 결핍인지**를 지목하기 위해. day5 020/026 [S]: account_open 누락으로
+            #   14행 판정불가인데 메시지가 "14 could not be verified"뿐이라 모델이 자기-수복 불가
+            #   (엔진은 null이 난 operand를 알면서 침묵). 수집=spec 문자열 워크(판단 0·도메인 무관).
+            _refs = set()
+
+            def _collect_refs(o):
+                if isinstance(o, dict):
+                    for v in o.values():
+                        _collect_refs(v)
+                elif isinstance(o, list):
+                    for v in o:
+                        _collect_refs(v)
+                elif isinstance(o, str) and o.startswith("r."):
+                    _refs.add(o[2:])
+            _collect_refs(steps)
+            _collect_refs(espec if isinstance(espec, dict) else {})
+            _missing = {}
             for r in recs:
                 if not isinstance(r, dict):
                     continue
@@ -610,6 +628,11 @@ def apply_op(spec, ctx):
                     #   under-action이 "discrepant 0건"으로 위장된다 — 2026-07-18 실측 사고(계약문이
                     #   "레코드에 나타난 그대로"라 모델이 "$126.36"을 넘겨 17행 전부 탈락→0건). ⇒ 계측만 추가.
                     skipped += 1
+                    for _f in _refs:                           # P4: 결핍 필드 계상(입력에 없거나 빈 값)
+                        if r.get(_f) in (None, ""):
+                            _missing[_f] = _missing.get(_f, 0) + 1
+                    if act is None and r.get(af) not in (None, ""):
+                        _missing["(unparsable %s)" % af] = _missing.get("(unparsable %s)" % af, 0) + 1
                     continue
                 if abs(en - act) > tol:
                     out_ids.append(r.get(idf))
@@ -633,7 +656,7 @@ def apply_op(spec, ctx):
             #   모델·후속 포렌식이 "(none)"을 무조건 신뢰하지 않게 한다(C185a unverified와 동일 원칙·
             #   엔진은 자기 집계의 표면화만·판단 추가 0).
             ctx["_sg_stats"] = {"judged": len(recs) - skipped, "skipped": skipped,
-                                "total": len(recs)}
+                                "total": len(recs), "missing_fields": _missing}
             return out_ids
         if op == "filter":
             # ★reference-filter(keystone): 수집 record를 criteria로 결정론 매칭 → return field.

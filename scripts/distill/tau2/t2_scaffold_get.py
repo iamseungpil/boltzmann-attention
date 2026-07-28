@@ -841,6 +841,97 @@ def _variant(d, name=None):
     return d2
 
 
+class _ByrefError(Exception):
+    """P6 참조-해석 실패(모델에게 그대로 통지되는 메시지)."""
+
+
+def _dup_stub_content(n, prev=None, represent_on=False, shrunk=False):
+    """★P8(C208①) 순수함수: DUPLICATE-COMPUTE 스텁 본문. represent_on(∧이전 결과 실재∧n≤2∧
+    천장 비근접)이면 이전 결과를 재게시 — '위 출력 참조' 지시만으로는 재호출 유인을 못 끊는다
+    (day5 020: 동일 인자 5회=창 29%). 상한·shrink-생략=W-d."""
+    rep = ""
+    if represent_on and prev and n <= 2 and not shrunk:
+        rep = " Previous result (unchanged): %s" % prev
+    extra = ("" if n < 3 else
+             " You have now repeated this exact call %d times — STOP repeating it. Use the "
+             "values already returned to take the next concrete step, or change the arguments "
+             "if you meant a different computation." % (n + 1))
+    return ("[DUPLICATE-COMPUTE] This exact call (same tool, same arguments) was already "
+            "executed; this tool is deterministic, so the same arguments always return the "
+            "SAME result — refer to the earlier output instead of re-computing.%s%s"
+            % (rep, extra)), bool(rep)
+
+
+def _parse_record_dump(text):
+    """★P6(DAY5_PRESCRIPTIONS §P6): env 기계 포맷("Found N record(s) … Record ID: <id>
+    <field>: <value> …") **전용** 결정론 파서. [[03b]] 경계: NL formalize가 아니라 env가 찍는
+    고정 포맷의 전사이며, 다른 텍스트는 assert로 거부(경계-확장 선례 방지·리뷰 지시).
+    값 정규화도 같은 포맷-층만: '$'/천단위 콤마/' points' 접미 — 표기 전사이지 판단 아님."""
+    import re as _re2
+    if "Record ID:" not in (text or ""):
+        raise _ByrefError("the referenced output is not a record dump (no 'Record ID:' "
+                          "lines) — @last:/@call: may only reference record-read outputs")
+    parts = _re2.split(r"Record ID: ([A-Za-z0-9_\-]+)", text)
+    rows = []
+    for i in range(1, len(parts) - 1, 2):
+        body = parts[i + 1]
+        row = {}
+        for m in _re2.finditer(r"^\s{1,8}([A-Za-z_][A-Za-z0-9_]*):\s*(.+?)\s*$", body, _re2.M):
+            k, v = m.group(1), m.group(2)
+            mv = _re2.match(r"^\$?([\d,]+(?:\.\d+)?)(?:\s*points?)?$", v)
+            row[k] = mv.group(1).replace(",", "") if mv else v
+        if row:
+            rows.append(row)
+    if not rows:
+        raise _ByrefError("the referenced record dump contained no parseable records")
+    return rows
+
+
+def _resolve_ref_output(orch, ref):
+    """@last:<도구명> → 그 도구의 최신 비에러 커밋 출력 / @call:<tool_call_id> → 해당 결과."""
+    kind, _, key = ref.partition(":")
+    key = key.strip()
+    if not key:
+        raise _ByrefError("empty reference '%s'" % ref)
+    id2name, best = {}, None
+    for m in orch.get_messages():
+        for tc in (getattr(m, "tool_calls", None) or []):
+            id2name[getattr(tc, "id", None)] = getattr(tc, "name", None)
+        if getattr(m, "role", None) != "tool" or getattr(m, "error", False):
+            continue
+        c = getattr(m, "content", None)
+        if not isinstance(c, str):
+            continue
+        mid = getattr(m, "id", None)
+        if kind == "@call" and mid == key:
+            return c
+        if kind == "@last" and id2name.get(mid) == key:
+            best = c                                   # 마지막 것 유지
+    if best is None:
+        raise _ByrefError("no committed non-error output of '%s' found in this conversation "
+                          "— call that tool first, then reference it" % key)
+    return best
+
+
+def _byref_resolve(orch, d, ctx):
+    """★P6 엔진: op의 `over` 배열 인자에 한해 @last:/@call: 참조를 해석해 rows로 치환.
+    fetch는 모델이 이미 수행·커밋한 것만 재사용(autofetch 아님·E-PLAN C101 기계-파싱 선례).
+    ★비-over(스칼라/행-필드) 인자의 참조는 이번 판에서 **미지원**(도메인 필드명 join을 엔진에
+    박는 것은 [[05]] 위반 소지 — A2 join-spec 설계 후 별도). 시도 시 명확한 에러."""
+    over = (d.get("op") or {}).get("over")
+    for k in list(ctx.keys()):
+        v = ctx.get(k)
+        if not (isinstance(v, str) and (v.startswith("@last:") or v.startswith("@call:"))):
+            continue
+        if k != over:
+            raise _ByrefError("only the '%s' argument supports @last:/@call: references; "
+                              "provide '%s' as a literal value" % (over, k))
+        rows = _parse_record_dump(_resolve_ref_output(orch, v))
+        ctx[k] = rows
+        print("[T2_SG_BYREF] %s: '%s' resolved by reference -> %d row(s)"
+              % (d.get("name"), v, len(rows)), file=_sys.stderr, flush=True)
+
+
 def _evidence_ctx(orch):
     """원장(=실제 호출 이력) → `{__user_text, __tool_outputs}`. `match_verdict_grounded`용.
     ★엔진은 **역할과 호출 이름만** 본다 — 내용 파싱/추출 0([[03b]]). 도메인 리터럴 0.
@@ -931,6 +1022,17 @@ def apply():
         for d in decls:
             if d["name"] in existing:
                 continue
+            # ★P6(§P6): BYREF ON일 때만 over-인자 설명에 참조 문구 부가 — OFF면 문구도 없음
+            #   (엔진이 해석 못 하는 지시를 모델에게 주지 않는다·문구=도메인-일반·A2 파일 불변).
+            if os.environ.get("T2_SG_BYREF") == "1":
+                _ovk = (d.get("op") or {}).get("over")
+                if _ovk and isinstance((d.get("params") or {}).get(_ovk), str):
+                    d = dict(d)
+                    d["params"] = dict(d["params"])
+                    d["params"][_ovk] += (
+                        " INSTEAD of retyping the rows, you MAY pass the string "
+                        "\"@last:<name of the tool whose output contains these records>\" — "
+                        "the deterministic system will reuse that exact earlier output.")
             try:
                 tools.append(_build_tool(Tool, d))
             except Exception as e:
@@ -1025,6 +1127,17 @@ def apply():
                         continue
                 # ★LLM이 formalize한 clean operand(각 인자)를 ctx로([[10]]). 엔진은 op 실행만·원시파싱 안함.
                 _args = getattr(tc, "arguments", None) or {}
+                # ★W-f(리뷰 필수3·DAY5_PRESCRIPTIONS §P4): abstain-지목 직후 같은 도구 재호출의
+                #   비용 계측 — P4 지시가 P6 없이는 재타이핑 재호출(=C208① 재직렬화·CWE 경로)을
+                #   유도하는지의 실측이 **P6 ON의 GO 판정 신호**. 계측만(거동 무변).
+                if getattr(self, "_t2_abstain_last", None) == d.get("name"):
+                    self._t2_abstain_last = None
+                    try:
+                        _wf_n = len(json.dumps(_args, ensure_ascii=False, default=str))
+                    except Exception:
+                        _wf_n = -1
+                    print("[T2_ABSTAIN_FIELDS] refetch-recall %s args=%dch"
+                          % (d.get("name"), _wf_n), file=_sys.stderr, flush=True)
                 _ctx = {}
                 for _k, _v in (_args.items() if isinstance(_args, dict) else []):
                     if isinstance(_v, str):
@@ -1033,6 +1146,24 @@ def apply():
                         except Exception:
                             pass
                     _ctx[_k] = _v
+                # ★P6(C208①·DAY5_PRESCRIPTIONS §P6·T2_SG_BYREF=1·기본 OFF): 커밋-출력 참조 해석 —
+                #   "@last:<도구명>" 값을 **모델이 이미 읽어 커밋한** 그 도구의 최신 비에러 출력으로
+                #   해석해 재타이핑을 제거(fetch는 여전히 모델 수행=autofetch 아님·E-PLAN C101 선례).
+                #   파서는 env 기계 포맷("Record ID:") **전용**(assert·[[03b]] 경계 확장 방지).
+                if os.environ.get("T2_SG_BYREF") == "1":
+                    try:
+                        _byref_resolve(self, d, _ctx)
+                    except _ByrefError as _bre:
+                        ours[id(tc)] = ToolMessage(
+                            id=tc.id, role="tool",
+                            requestor=getattr(tc, "requestor", "assistant"), error=True,
+                            content="Error: [BYREF] %s" % _bre)
+                        print("[T2_SG_BYREF] %s: %s" % (d.get("name"), _bre),
+                              file=_sys.stderr, flush=True)
+                        continue
+                    except Exception as _bre2:
+                        print("[T2_SG_BYREF] skipped (no-op): %r" % (_bre2,),
+                              file=_sys.stderr, flush=True)
                 # ★C197: 목록형 op(over 선언)의 인자가 json.loads 실패로 str 잔류 = **침묵 3중 통과**
                 #   (019 실측: python-repr+leading-zero 인자 → isolate 무언 skip → select_discrepant
                 #   stats 前 [] → C195 coverage 우회 → "(none)"이 빈 결과로 위장). 엔진이 대신 파싱하면
@@ -1059,6 +1190,7 @@ def apply():
                 #   제외(정합성): ①op가 `evidence_from` 선언(원장-상태 의존: verify_identity ledger형 —
                 #   같은 인자여도 fetch 후 결과가 달라진다·005 실측) ②isolate mode=fetch_formalize(env
                 #   DB를 서브가 읽음=가변). 기본 OFF=거동 변화 0.
+                _pend_key = None
                 if (os.environ.get("T2_SG_DEDUP") == "1"
                         and not (d.get("op") or {}).get("evidence_from")
                         and (_isolate_spec(d) or {}).get("mode") != "fetch_formalize"):
@@ -1073,23 +1205,29 @@ def apply():
                         _n = _seen.get(_dk, 0)
                         if _n:
                             _seen[_dk] = _n + 1
-                            _extra = ("" if _n < 3 else
-                                      " You have now repeated this exact call %d times — STOP "
-                                      "repeating it. Use the values already returned to take the "
-                                      "next concrete step, or change the arguments if you meant a "
-                                      "different computation." % (_n + 1))
+                            # ★P8(C208①·DAY5_PRESCRIPTIONS §P8·T2_DUP_REPRESENT=1): 스텁이 이전
+                            #   결과를 재제시하지 않으면 "earlier output 참조" 지시가 재호출 유인을
+                            #   못 끊는다(020 실측: 동일 인자 5회=창 29%). 자기 출력 캐시 재게시만
+                            #   (우리 주입 도구=env 밖=replay 무관)·상한 2회·**천장 근접(P1 shrink
+                            #   발생) 시 생략**(W-d: 작은 창에서 재제시=역효과).
+                            _prev = (getattr(self, "_t2_sg_out", None) or {}).get(_dk)
+                            _shrunk = getattr(getattr(self, "agent", None),
+                                              "_t2_dyn_shrunk", False)
+                            _stub, _did_rep = _dup_stub_content(
+                                _n, prev=_prev,
+                                represent_on=(os.environ.get("T2_DUP_REPRESENT") == "1"),
+                                shrunk=_shrunk)
                             ours[id(tc)] = ToolMessage(
                                 id=tc.id, role="tool",
                                 requestor=getattr(tc, "requestor", "assistant"), error=True,
-                                content=("[DUPLICATE-COMPUTE] This exact call (same tool, same "
-                                         "arguments) was already executed; this tool is "
-                                         "deterministic, so the same arguments always return the "
-                                         "SAME result — refer to the earlier output instead of "
-                                         "re-computing.%s" % _extra))
-                            print("[T2_SG_DEDUP] %s repeat#%d — stub"
-                                  % (d.get("name"), _n + 1), file=_sys.stderr, flush=True)
+                                content=_stub)
+                            print("[T2_SG_DEDUP] %s repeat#%d — stub%s"
+                                  % (d.get("name"), _n + 1,
+                                     " (+prev result)" if _did_rep else ""),
+                                  file=_sys.stderr, flush=True)
                             continue
                         _seen[_dk] = 1
+                        _pend_key = _dk
                 # ★원장-결합 op는 인자 밖 증거가 필요하다 — **op가 `evidence_from`을 선언할 때만** 주입
                 #   (도메인일반 조건·미선언 op는 거동 변화 0).
                 if (d.get("op") or {}).get("evidence_from"):
@@ -1143,6 +1281,39 @@ def apply():
                         print("[T2_SG_GROUND] %s: %d ungrounded operand 드롭 -> %s"
                               % (getattr(tc, "name"), len(_gflags), "; ".join(_gflags)),
                               file=_sys.stderr, flush=True)
+                # ★P4b(C208④·DAY5_PRESCRIPTIONS §P4b·T2_PROD_BIND=1): 비-레코드-유래 operand의
+                #   producer-binding — A2 `grounded_params` 선언 필드의 행 값이 **선언된 producer
+                #   출력**(내용 selector로 식별) 안에 부분문자열로 실재하지 않으면 결핍(None)으로
+                #   강등해 P4 지목 경로에 합류. day5 027 [S]: accounts 미조회인 채 account_open을
+                #   전행 단일값(02/01/2025)으로 날조(실개설일 02/13)→우연히 gold 재현 — 날조와
+                #   정직 생략을 같은 abstain+지시로 수렴시킨다. 검사=부분문자열 실재(C186 ledger
+                #   동형)·selector=A2 데이터·엔진 판단 0.
+                _gp = ((d.get("grounded_params") or {})
+                       if os.environ.get("T2_PROD_BIND") == "1" else {})
+                if _gp:
+                    _ev2 = _evidence_ctx(self)
+                    _outs2 = _ev2.get("__tool_outputs") or {}
+                    _overk = (d.get("op") or {}).get("over")
+                    _rows2 = _ctx.get(_overk) if _overk else None
+                    _dem = {}
+                    for _fld, _gs in _gp.items():
+                        _sels = [str(s).lower()
+                                 for s in ((_gs or {}).get("producer_contains") or [])]
+                        _cands = [t for t in _outs2.values()
+                                  if any(s in t for s in _sels)]
+                        for _r2 in (_rows2 or []):
+                            if not isinstance(_r2, dict):
+                                continue
+                            _v2 = _r2.get(_fld)
+                            if _v2 in (None, ""):
+                                continue
+                            if not any(str(_v2).lower() in t for t in _cands):
+                                _r2[_fld] = None
+                                _dem[_fld] = _dem.get(_fld, 0) + 1
+                    if _dem:
+                        print("[T2_PROD_BIND] %s: ungrounded field value(s) demoted to "
+                              "missing: %s" % (d.get("name"), _dem),
+                              file=_sys.stderr, flush=True)
                 _res = _c.apply_op(d.get("op"), _ctx)
                 if isinstance(_res, list):                    # 목록형(discrepancy ids)
                     _res = [str(i) for i in _res if i]
@@ -1165,6 +1336,21 @@ def apply():
                         _txt += ("\n[coverage] %d of %d rows were checked (%d could not be "
                                  "verified)." % (_st.get("judged", 0), _st.get("total", 0),
                                                  _st.get("skipped", 0)))
+                        # ★P4(C208④·DAY5_PRESCRIPTIONS §P4·T2_ABSTAIN_FIELDS=1): abstain의
+                        #   actionable화 — 어느 입력 필드가 결핍이라 판정불가였는지 지목+공급 지시.
+                        #   day5 020/026 [S]: account_open 누락→14행 전멸인데 결핍 필드 미지목이라
+                        #   자기-수복 불가(정직 생략이 날조(027)보다 낮은 점수). 필드명=A2 params
+                        #   키(도메인 데이터)·문구 도메인-일반·판단 0(엔진 자기 집계 표면화).
+                        _mf = (_st.get("missing_fields") or {}
+                               if os.environ.get("T2_ABSTAIN_FIELDS") == "1" else {})
+                        if _mf and _st.get("skipped", 0):
+                            _mtxt = ", ".join("'%s' (%d rows)" % (k, v)
+                                              for k, v in sorted(_mf.items(), key=lambda x: -x[1]))
+                            _txt += (" The unverified rows are missing input field(s): %s. "
+                                     "Read the missing value(s) from the records that contain "
+                                     "them, then call again with the completed input for those "
+                                     "rows." % _mtxt)
+                            self._t2_abstain_last = d.get("name")   # W-f: 재호출 성장 계측 anchor
                         if not _res and _st.get("judged", 0) > 0:
                             _txt += (" An empty result means the checked rows matched the rates "
                                      "that were looked up for them — it is only as reliable as "
@@ -1189,6 +1375,12 @@ def apply():
                             "value(s) from the records before relying on this result.\n%s"
                             % (len(_gflags), "; ".join(_gflags), _txt))
                 # requestor는 tau2 원본과 동형으로 **미러링**(environment.get_response: requestor=message.requestor).
+                # ★P8: 결정론 결과 캐시(같은 인자 재호출의 재제시용·우리 도구=replay 무관).
+                if _pend_key is not None:
+                    _oc = getattr(self, "_t2_sg_out", None)
+                    if _oc is None:
+                        _oc = self._t2_sg_out = {}
+                    _oc[_pend_key] = _txt
                 ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
                                            requestor=getattr(tc, "requestor", "assistant"), content=_txt)
                 print("[T2_SCAFFOLD_GET] %s -> %s" % (getattr(tc, "name"), _n), file=_sys.stderr, flush=True)

@@ -83,8 +83,11 @@ def t4_missing_account_open_abstains():
     res = C.apply_op(RATEFIX_OP, ctx)
     st = ctx["_sg_stats"]
     assert sorted(res) == ["t506"], res
-    assert st == {"judged": 1, "skipped": 2, "total": 3}, st
-    print("t4 account_open 누락=abstain(판정 1·불가 2) OK")
+    # ★P4(C208④·2026-07-28): _sg_stats에 missing_fields 키 추가(결핍-필드 지목) — 부분집합 대조로 갱신.
+    assert {k: st[k] for k in ("judged", "skipped", "total")} == \
+        {"judged": 1, "skipped": 2, "total": 3}, st
+    assert (st.get("missing_fields") or {}).get("account_open") == 2, st
+    print("t4 account_open 누락=abstain(판정 1·불가 2·missing_fields 지목) OK")
 
 
 def t5_with_account_open_full_judgment():
@@ -100,7 +103,9 @@ def t5_with_account_open_full_judgment():
     res = C.apply_op(RATEFIX_OP, ctx)
     st = ctx["_sg_stats"]
     assert sorted(res) == ["t403", "t506"], res            # 401=프로모 정당(9000=9000)·403=FN 해소
-    assert st == {"judged": 4, "skipped": 0, "total": 4}, st
+    assert {k: st[k] for k in ("judged", "skipped", "total")} == \
+        {"judged": 4, "skipped": 0, "total": 4}, st        # P4: missing_fields 키 추가(완전입력={})
+    assert st.get("missing_fields") == {}, st
     print("t5 개설일 주입=전수 판정·403 검출 OK")
 
 
@@ -110,7 +115,9 @@ def t6_no_regression_017_shape():
             row("b", 100.0, 100, "02/02/2025", 4.0)]      # 100≠400 → 플래그
     ctx = {"transactions": rows}
     res = C.apply_op(RATEFIX_OP, ctx)
-    assert res == ["b"] and ctx["_sg_stats"] == {"judged": 2, "skipped": 0, "total": 2}
+    st = ctx["_sg_stats"]
+    assert res == ["b"] and {k: st[k] for k in ("judged", "skipped", "total")} == \
+        {"judged": 2, "skipped": 0, "total": 2}            # P4: missing_fields 키 추가
     print("t6 무-프로모 회귀보존 OK")
 
 

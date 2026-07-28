@@ -20,6 +20,39 @@ from gate_interpreter import (  # noqa: E402
     GateInterpreter, auth_satisfier_tools, load_domain_a2, resolvers_from_env,
     candidate_summary, nested_candidate_summary, compute_facts)
 
+# ── ★P7(C208⑥·DAY5_PRESCRIPTIONS §P7): 레버 무음실패 금지 — try/except로 삼켜진 레버 예외가
+#    "정상"으로 위장하는 것을 런 종료 요약이 자동 고발한다(day5 unavail 0/223 전량 NameError 실측).
+#    카운터만(판단 0·도메인 무관). 종료 시 [T2_LEVER_HEALTH] 1줄.
+_LEVER_HEALTH = {}
+
+
+def _lever_health(lever, kind):
+    _LEVER_HEALTH.setdefault(lever, {}).setdefault(kind, 0)
+    _LEVER_HEALTH[lever][kind] += 1
+
+
+def _lever_health_report():
+    for lv, c in sorted(_LEVER_HEALTH.items()):
+        line = " ".join("%s=%d" % (k, v) for k, v in sorted(c.items()))
+        flag = "  ⚠ALL-SKIPPED" if (c.get("skipped") and not c.get("ok")) else ""
+        print("[T2_LEVER_HEALTH] %s: %s%s" % (lv, line, flag), file=sys.stderr, flush=True)
+
+
+import atexit  # noqa: E402
+atexit.register(_lever_health_report)
+
+
+def _dyn_mt_target(err_str, margin=64, floor=256):
+    """★P1(C208①) 순수함수: vLLM CWE 에러 원문에서 (model_max, input_tokens)를 파싱해
+    새 max_tokens를 계산. 파싱 실패 또는 플로어 미만(진짜 창 소진) = None → graceful-stop.
+    추정 0(에러가 정확한 수를 준다)·도메인 무관."""
+    m = re.search(r"maximum context length is (\d+) tokens and your "
+                  r"request has (\d+) input tokens", str(err_str or ""))
+    if not m:
+        return None
+    new_mt = int(m.group(1)) - int(m.group(2)) - int(margin)
+    return new_mt if new_mt >= int(floor) else None
+
 # ── 도메인-일반 기본값 (A2가 override·enrich; retail/도메인 하드코딩 아님) ──
 # ★[[05]] 감사(2026-07-13): 도메인-일반 식별 토큰만 엔진에. 도메인-특화 어휘
 #   (order_id·item=retail·reservation=airline)는 A2 identifying_arg_types로 이관 —
@@ -2771,6 +2804,45 @@ def _install_regen_exec():
                     print("[T2_READ_DEDUP] stub tool=%s" % getattr(tc, "name", None),
                           file=sys.stderr, flush=True)
                 else:
+                    # ★P5-3(C208①·DAY5_PRESCRIPTIONS §P5-3·T2_READ_NEARDUP=1·기본 OFF): 근사-중복
+                    #   질의 안내 — 018/028/029 [S]: "get credit card transactions"↔"tool to get …"↔
+                    #   "…by user" 재표현 5연발(각 15~23k자)이 exact-dedup을 전부 통과해 창 60% 소진.
+                    #   판정=정규화 토큰집합 Jaccard(도메인 무관·검색류 read만)·안내 스텁(원 출력은
+                    #   위에 실재). 오탐(정당 질의-정련) 리스크 → 기본 OFF·격리 arm 계측 후 승격.
+                    _nd_hit = None
+                    if (os.environ.get("T2_READ_NEARDUP") == "1"
+                            and not _is_effective_write(_eff_tool_name(tc))):
+                        _dn2 = ((getattr(tc, "name", "") or "")
+                                + " " + str(getattr(tc, "arguments", "") or "")).lower()
+                        if "search" in _dn2 or "bm25" in _dn2 or "kb_" in _dn2:
+                            _stop = {"the", "a", "an", "for", "to", "of", "in", "on", "how",
+                                     "tool", "get", "and", "or", "with", "by", "is", "do"}
+                            _tk = {w for w in re.findall(r"[a-z0-9_]+", _dn2) if w not in _stop}
+                            _hist = self._t2_nd_hist = getattr(self, "_t2_nd_hist", [])
+                            for _pk, _ptk in _hist:
+                                if _pk != getattr(tc, "name", None) or not (_tk | _ptk):
+                                    continue
+                                _j = len(_tk & _ptk) / float(len(_tk | _ptk))
+                                if _j >= float(os.environ.get("T2_READ_NEARDUP_J", "0.8")):
+                                    _nd_hit = sorted((_tk ^ _ptk))[:6]
+                                    break
+                            if _nd_hit is None:
+                                _hist.append((getattr(tc, "name", None), _tk))
+                    if _nd_hit is not None:
+                        stubs[getattr(tc, "id", None)] = _TM(
+                            id=tc.id, role="tool",
+                            requestor=getattr(tc, "requestor", "assistant"), error=False,
+                            content=("[NEAR-DUPLICATE-READ] This query is nearly identical to an "
+                                     "earlier one in this conversation (it differs only in: %s); "
+                                     "the earlier output is shown above and this rephrasing will "
+                                     "return largely the same documents. Refine with genuinely NEW "
+                                     "terms, or proceed with the information you already have."
+                                     % (", ".join(_nd_hit) or "(word order)")))
+                        stub_ids.add(getattr(tc, "id", None))
+                        print("[T2_READ_NEARDUP] stub tool=%s diff=%s"
+                              % (getattr(tc, "name", None), _nd_hit),
+                              file=sys.stderr, flush=True)
+                        continue
                     if not _is_effective_write(_eff_tool_name(tc)):
                         seen[k] = seen.get(k, 0) + 1     # C123: 실행되는 read만 계수
                     to_run.append(tc)
@@ -2956,26 +3028,42 @@ def apply_gate_regen(max_regen=1):
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def _compact_view(messages, keep_recent=6, min_len=800, min_total=120000):
+def _compact_view(messages, keep_recent=6, min_len=800, min_total=60000, msg_cap=0):
     """★뷰-압축 (T2_VIEW_COMPACT=1·2026-07-21 §2bi·097 컨텍스트 레버·사용자 승인 기본안).
     원리: **커밋 히스토리는 불변**(replay-불변식 자동 충족·게이트/관문은 원문 대조 유지) — LLM
     생성-시점 프롬프트 뷰에서만 오래된 벌크 tool 출력을 기계적 다이제스트(head+tail 절단)로 대체.
     read 액션의 주체는 모델로 유지(서브-이관 변형은 [[05]]③ autofetch-류로 기각·§2bi 문답).
     - 대상: role=tool·비에러·min_len 초과·최근 keep_recent개 제외. 전체 뷰가 min_total 미만이면 무개입.
     - 다이제스트=순수 절단(head 300+tail 150)+안내문 — 엔진의 내용 추출/합성 0([[03b]]).
-    - 반환: (뷰 리스트, 다이제스트된 ToolMessage id 집합) — id는 READ_DEDUP 면제(재열람 탈출구)용."""
+    - 반환: (뷰 리스트, 다이제스트된 ToolMessage id 집합) — id는 READ_DEDUP 면제(재열람 탈출구)용.
+    ★P5(C208①⑤·DAY5_PRESCRIPTIONS §P5·2026-07-28):
+    - min_total 기본 120,000→60,000자 — 구 문턱은 사망선(≈40k tok) 위라 32sim 중 6회만 발동.
+    - msg_cap(신설·>0일 때): **최신 배치**(마지막 assistant 이후의 전 tool 출력 — 리뷰 필수1:
+      멀티-콜 턴은 출력들이 함께 커밋되고 다음 생성이 첫 노출이라 "최신 1개"면 미열람 절단)를
+      제외한 비에러 tool 출력이 cap 초과면 **총량과 무관하게** 다이제스트. 모델은 도착 턴에
+      전문을 봤고 이후 턴부터 다이제스트(read 주체=모델 유지)."""
     msgs = list(messages)
+    last_a = max([i for i, m in enumerate(msgs)
+                  if getattr(m, "role", None) == "assistant"] or [-1])
+    batch = {i for i in range(last_a + 1, len(msgs))
+             if getattr(msgs[i], "role", None) == "tool"}
     total = sum(len(str(getattr(m, "content", "") or "")) for m in msgs)
-    if total < int(min_total):
+    if total < int(min_total) and not msg_cap:
         return msgs, set()
     tool_idx = [i for i, m in enumerate(msgs) if getattr(m, "role", None) == "tool"]
-    keep = set(tool_idx[-int(keep_recent):]) if keep_recent else set()
+    keep = (set(tool_idx[-int(keep_recent):]) if keep_recent else set()) | batch
     out, digested = [], set()
     for i, m in enumerate(msgs):
         c = getattr(m, "content", None)
-        if (getattr(m, "role", None) == "tool" and i not in keep
-                and isinstance(c, str) and len(c) > int(min_len)
-                and not getattr(m, "error", False)):
+        _is_tool = (getattr(m, "role", None) == "tool" and isinstance(c, str)
+                    and not getattr(m, "error", False))
+        _hit = False
+        if _is_tool and i not in batch:
+            if msg_cap and len(c) > int(msg_cap):
+                _hit = True                                   # P5-2 per-메시지 캡
+            elif total >= int(min_total) and i not in keep and len(c) > int(min_len):
+                _hit = True                                   # 기존 총량-문턱 경로
+        if _hit:
             d = (c[:300] + "\n...[view digest: %d chars total. The FULL output was recorded "
                  "earlier in this conversation; re-call the same tool if you need the "
                  "details again.]...\n" % len(c) + c[-150:])
@@ -3176,6 +3264,29 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   sim 무효(infra) 대신 부분 궤적 채점(정직한 실패 계상). step-가드는 백스톱 존치.
             if "ContextWindow" not in type(_ce).__name__:
                 raise
+            # ★P1(C208①·DAY5_PRESCRIPTIONS §P1): 동적 max_tokens — day5 ctxover 7건의 직접 사인은
+            #   고정 예약(8192)이 깎은 천장(48,640−8,192=40,448·7건 전부 36.5~40.2k서 사망·모델 창
+            #   초과 0건). vLLM 에러 원문이 정확한 수를 주므로 **추정 없이** 파싱→축소→1회 재시도.
+            #   플로어 미만 = 진짜 창 소진 → 기존 graceful-stop 그대로. 도메인 무관·판단 0.
+            if os.environ.get("T2_DYN_MT") == "1":
+                _newmt = _dyn_mt_target(str(_ce),
+                                        margin=int(os.environ.get("T2_DYN_MT_MARGIN", "64")),
+                                        floor=int(os.environ.get("T2_MT_FLOOR", "256")))
+                if _newmt is not None:
+                    print("[T2_DYN_MT] shrink %s->%d (at %s)"
+                          % (kw.get("max_tokens"), _newmt, call_name),
+                          file=_sys.stderr, flush=True)
+                    self._t2_dyn_shrunk = True         # P8이 참조(천장 근접 시 재제시 생략)
+                    kw2 = dict(kw)
+                    kw2["max_tokens"] = _newmt
+                    try:
+                        return la.generate(model=self.llm, tools=self.tools,
+                                           messages=self._system_messages + work,
+                                           call_name=call_name, **kw2)
+                    except Exception as _ce3:
+                        if "ContextWindow" not in type(_ce3).__name__:
+                            raise
+                        _ce = _ce3                   # 재시도도 CWE → graceful-stop으로
             _orch = getattr(self, "_t2_orch", None)
             try:
                 from tau2.data_model.simulation import TerminationReason as _TR2
@@ -3273,7 +3384,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 state.messages,
                 keep_recent=int(os.environ.get("T2_VIEW_COMPACT_KEEP", "6")),
                 min_len=int(os.environ.get("T2_VIEW_COMPACT_MINLEN", "800")),
-                min_total=int(os.environ.get("T2_VIEW_COMPACT_MINTOTAL", "120000")))
+                # ★P5: 기본 60,000자(구 120,000=사망선 위·day5 6/32만 발동)·per-메시지 캡 8,000자.
+                min_total=int(os.environ.get("T2_VIEW_COMPACT_MINTOTAL", "60000")),
+                msg_cap=int(os.environ.get("T2_VIEW_MSG_CAP", "8000")))
             self._t2_view_digested = _dg
             if _dg and not getattr(self, "_t2_vc_logged", False):
                 self._t2_vc_logged = True
@@ -3296,6 +3409,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 work = work + [UserMessage(role="user", content=_rem)]
             except TypeError:
                 work = work + [UserMessage(content=_rem)]
+        # ★P2(C208②·DAY5_PRESCRIPTIONS §P2): replay-비교 대상 도구의 피드백 뷰-채널 소비 —
+        #   prekb가 큐잉(`_t2_view_fb`)·여기서 작업버퍼에만 주입(히스토리 비커밋=위 채널 절대규칙 동일).
+        _vfb = getattr(self, "_t2_view_fb", None)
+        if _vfb:
+            self._t2_view_fb = None
+            _vtxt = "\n".join(str(x) for x in _vfb)
+            print("[T2_FB_VIEW] %d queued feedback item(s) injected in view" % len(_vfb),
+                  file=_sys.stderr, flush=True)
+            try:
+                work = work + [UserMessage(role="user", content=_vtxt)]
+            except TypeError:
+                work = work + [UserMessage(content=_vtxt)]
         # ★COV FIND-subset 백스톱 (T2_COV=1): ≥1 write 후 M∖acted ≠ ∅ → in-flight 리마인더 1회
         if (os.environ.get("T2_COV") == "1" and ep_led is not None
                 and not getattr(self, "_t2_cov_reminded", False)):
@@ -3376,7 +3501,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             except Exception as _te:
                 terr = None
                 print("[T2_TOOLERR] error (no-op): %r" % (_te,), file=_sys.stderr, flush=True)
-        am = _gen(self, work, bw(), "agent_response")
+        # ★P3(C208③·DAY5_PRESCRIPTIONS §P3): 터미널-턴 유예의 그 1턴만 tool_choice=required —
+        #   재-notice 산문 봉쇄(기존 FORCE_ACTION 기제 재사용·도구/인자 미지정=write 강제 아님).
+        if getattr(self, "_t2_term_force", False):
+            self._t2_term_force = False
+            am = _gen(self, work, bw(), "agent_response", tool_choice="required")
+        else:
+            am = _gen(self, work, bw(), "agent_response")
         gate_rounds = prov_rounds = eplan_rounds = cons_rounds = ra_rounds = te_rounds = wev_rounds = 0
         tl_rounds = 0
         subs = 0
@@ -5076,16 +5207,22 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 _unavail = []
                 if os.environ.get("T2_UNAVAIL_PROMISE") == "1" and _cpv.get("feedback_unavailable"):
                     try:
+                        # ★P7(C208⑥·DAY5_PRESCRIPTIONS §P7): 구판 `getattr(orch, ...)`는 이 스코프에
+                        #   `orch`가 없어 **전량 NameError**(day5 0/223 무음 스킵). env는 init_inject가
+                        #   심어둔 `_t2_orch`(orchestrator)에서 해석한다.
                         _known = _known_tool_names(getattr(self, "tools", None),
-                                                   getattr(self, "environment", None)
-                                                   or getattr(orch, "environment", None),
+                                                   getattr(getattr(self, "_t2_orch", None),
+                                                           "environment", None),
                                                    state.messages)
                         _unavail = _unavailable_promises(_pd, _known)
+                        _lever_health("unavail", "ok")
                         if _unavail:
+                            _lever_health("unavail", "fired")
                             print("[T2_UNAVAIL] promised tools not available: %s"
                                   % [p.get("tool") for p in _unavail][:3],
                                   file=_sys.stderr, flush=True)
                     except Exception as _ue:
+                        _lever_health("unavail", "skipped")
                         print("[T2_UNAVAIL] skipped (no-op): %r" % (_ue,),
                               file=_sys.stderr, flush=True)
                 print("[T2_CLAIMPROV] window hit(%s) claims=%d unbacked=%d pending=%d unb_p=%d %s"

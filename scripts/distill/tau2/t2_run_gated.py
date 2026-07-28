@@ -12,6 +12,49 @@ import argparse
 import os
 
 
+def _install_failed_persist(env_cls):
+    """★P10(C208②·DAY5_PRESCRIPTIONS §P10): 실패-sim 궤적 사이드카 영속(모듈-레벨=테스트 가능).
+    tau2 러너는 4회 재시도 소진 시 메시지를 하나도 영속하지 않아(day5 024/010 messages 0) infra
+    원인 규명 불가. replay-검증 ValueError의 발생지 `Environment.set_state`가 전체 궤적을 인자로
+    받으므로 예외 시 best-effort 덤프 후 재-raise(러너 거동 무변·tau2 코어 비수정)."""
+    import gzip as _gz
+    import json as _json
+    import time as _time
+    _orig_set_state = env_cls.set_state
+    if getattr(_orig_set_state, "_t2_fp_wrapped", False):
+        return
+
+    def _set_state_persist(self, *aa, **kk):
+        try:
+            return _orig_set_state(self, *aa, **kk)
+        except Exception as _spe:
+            try:
+                _mh = kk.get("message_history")
+                if _mh is None and len(aa) >= 3:
+                    _mh = aa[2]
+                _dir = os.environ.get("T2_FAILED_DIR", "failed_sims")
+                os.makedirs(_dir, exist_ok=True)
+                _fp = os.path.join(_dir,
+                                   "failed_setstate_%d.json.gz" % int(_time.time() * 1000))
+                _ser = []
+                for _m in (_mh or []):
+                    try:
+                        _ser.append(_json.loads(_m.model_dump_json()))
+                    except Exception:
+                        _ser.append({"repr": repr(_m)[:2000]})
+                with _gz.open(_fp, "wt", encoding="utf-8") as _f:
+                    _json.dump({"error": str(_spe)[:4000], "n_messages": len(_ser),
+                                "messages": _ser}, _f, ensure_ascii=False)
+                print("[T2_FAILED_PERSIST] set_state failed -> trajectory persisted: %s"
+                      % _fp, flush=True)
+            except Exception as _ppe:
+                print("[T2_FAILED_PERSIST] persist failed (no-op): %r" % (_ppe,), flush=True)
+            raise
+
+    _set_state_persist._t2_fp_wrapped = True
+    env_cls.set_state = _set_state_persist
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--gate", type=int, default=0)
@@ -211,6 +254,15 @@ def main():
         import t2_prekb_patch
         t2_prekb_patch.apply()
         print("[t2_run] PRE-ACTION-KB ON (action-keyed retrieval check · 1회/fam)")
+
+    # ★P10(C208②·DAY5_PRESCRIPTIONS §P10·T2_FAILED_PERSIST=1): 실패-sim 궤적 사이드카 영속.
+    #   tau2 러너는 4회 재시도 소진 시 메시지를 하나도 영속하지 않아(day5 024/010 messages 0)
+    #   infra 원인 규명이 불가능했다. replay-검증 ValueError의 발생지 `Environment.set_state`가
+    #   전체 궤적을 인자로 받으므로, 거기서 예외 시 best-effort 덤프 후 재-raise(러너 거동 무변).
+    if os.environ.get("T2_FAILED_PERSIST") == "1":
+        from tau2.environment.environment import Environment as _T2Env
+        _install_failed_persist(_T2Env)
+        print("[t2_run] FAILED-PERSIST ON (set_state failure -> sidecar trajectory)")
 
     # user-sim·judge 모델 결정: --user_llm(원격 API, 예 openrouter/...) 우선, 아니면 로컬 vllm
     if a.user_llm:
