@@ -784,6 +784,17 @@ def _terminal_grant_check(orch):
         for t in tools:
             if t and str(t) not in called:                      # ⓑ
                 return str(t)
+    # ★C212/A4 (day7 008 회귀 [S]): 공식 notice 없이 어물거리다 유저가 ###TRANSFER###를
+    #   직접 방출한 경로는 ⓐ 미충족으로 grant 0 → 미호출 종료. 유저의 명시-터미널 토큰은
+    #   notice-동의보다 강한 동의이므로 ⓐ를 면제(ⓐ′·ⓑ·1회/sim은 그대로). 도구명=A2
+    #   applies_to(리터럴 0)·플래그 T2_TERM_GRANT_USERDEMAND=1·Δspurious 계측 대상.
+    if os.environ.get("T2_TERM_GRANT_USERDEMAND") == "1":
+        for g in notices:
+            ap = g.get("applies_to")
+            tools = ap if isinstance(ap, list) else [ap]
+            for t in tools:
+                if t and str(t) not in called:                  # ⓑ
+                    return str(t)
     return None
 
 
@@ -995,10 +1006,11 @@ def apply():
                         _ag = getattr(self, "agent", None)
                         if _ag is not None:
                             _ag._t2_eplan_reminder = (
-                                "[TERMINAL] The customer has ALREADY AGREED to the hand-off "
-                                "you announced. Do not repeat the notice and do not say "
-                                "goodbye — CALL %s NOW as a tool call, with an appropriate "
-                                "summary of the issue and what was attempted." % _gtool)
+                                "[TERMINAL] The customer has ALREADY AGREED to (or explicitly "
+                                "demanded) the hand-off. Do not repeat the notice, do not ask "
+                                "for more identifiers, and do not say goodbye — CALL %s NOW as "
+                                "a tool call, with an appropriate summary of the issue and "
+                                "what was attempted." % _gtool)
                             _ag._t2_term_force = True
                         _mark("terminal grant: notice+consent, %s uncalled -> 1 extra turn"
                               % _gtool)

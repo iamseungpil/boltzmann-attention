@@ -49,7 +49,7 @@
       "predicate": "the mandatory pre-transfer notice (knowledge base exhausted + ask-first) has been communicated to the user",
       "satisfiers": {},
       "notice_text": "TRANSFER NOTICE: I have checked the knowledge base and there are no further actions I can take for this request. Would you like to be transferred to a human agent?",
-      "ask": "policy: transfer only if you absolutely have to and you are SURE there are no potential actions you can take as specified in the knowledge base or in your policy — and never without asking the user first. Search the knowledge base and attempt every applicable procedure for this request; when (and only when) nothing remains, send the user exactly this message first: \"TRANSFER NOTICE: I have checked the knowledge base and there are no further actions I can take for this request. Would you like to be transferred to a human agent?\" — then retry the transfer IMPORTANT: send the notice at most ONCE. If the customer has already agreed to the transfer (or already asked for it), do NOT send the notice again and do NOT ask again — immediately CALL transfer_to_human_agents as a tool call with an appropriate summary. Saying you will transfer, or repeating the notice, does not transfer anyone.",
+      "ask": "policy: transfer only if you absolutely have to and you are SURE there are no potential actions you can take as specified in the knowledge base or in your policy — and never without asking the user first. Search the knowledge base and attempt every applicable procedure for this request; when (and only when) nothing remains, send the user exactly this message first: \"TRANSFER NOTICE: I have checked the knowledge base and there are no further actions I can take for this request. Would you like to be transferred to a human agent?\" — then retry the transfer IMPORTANT: send the notice at most ONCE. If the customer has already agreed to the transfer (or already asked for it), do NOT send the notice again and do NOT ask again — immediately CALL transfer_to_human_agents as a tool call with an appropriate summary. Saying you will transfer, or repeating the notice, does not transfer anyone. When you DO call transfer_to_human_agents, pick the MOST SPECIFIC reason option that matches the situation (for example: the customer's stated identity values do not match the account record -> an ownership-dispute reason; a mailed offer/flyer that cannot be verified in the knowledge base -> an unconfirmed-external-communication reason; a knowledge-base search that failed while the customer asks for a human -> that specific reason). Use the generic no-specific-reason option ONLY when no other option fits.",
       "applies_to": [
         "transfer_to_human_agents"
       ],
@@ -584,6 +584,10 @@
       ],
       "follow_up": {
         "tool": "give_discoverable_user_tool",
+        "tool_args": {
+          "discoverable_tool_name": "submit_cash_back_dispute_0589"
+        },
+        "_note_tool_args": "C212/A1(day7 022/027 [S]): 도구명 단위 이행 판정은 무관-대상 give(get_card_last_4_digits)로 영구 침묵 → 인자-대조 이행 판정. 값=feedback 문구에 이미 있던 동일 리터럴(순증 0).",
         "feedback": "Error: [FOLLOW-UP] you found reward discrepancies with 'get_reward_discrepancies', but you have not given the customer the dispute tool. Per Rho-Bank policy, cash back disputes can ONLY be submitted by the CUSTOMER themselves: call 'give_discoverable_user_tool' with discoverable_tool_name='submit_cash_back_dispute_0589' once per discrepant transaction (with the customer's user_id and that transaction_id as arguments), then tell the customer to run the tool themselves. Do NOT claim that any dispute has been submitted or filed, do NOT invent case/reference numbers, and do NOT say you will submit it — you cannot submit disputes.",
         "completion_guard": {
           "user_execution_tool": "call_discoverable_user_tool",

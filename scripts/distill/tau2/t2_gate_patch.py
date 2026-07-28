@@ -1855,6 +1855,82 @@ def _called_tools(msgs):
     return out
 
 
+def _fu_target_called(msgs, tool, tool_args):
+    """★C212/A1 (day7 022/027 [S]): follow_up 이행 판정 — A2가 `tool_args`를 선언하면
+    그 인자 부분집합이 일치하는 assistant 호출이 실재해야 '이행'. 도구명 단위 판정은
+    무관-대상 동명 호출(give(get_card_last_4_digits))로 영구 침묵했다(022/027 실측).
+    엔진=dict 부분집합 문자열 대조만·대상 값=A2([[05]])."""
+    for m in msgs:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            if (getattr(tc, "name", None) == tool
+                    and getattr(tc, "requestor", "assistant") == "assistant"):
+                if not tool_args:
+                    return True
+                ar = _args_dict(tc)
+                if all(str(ar.get(k, "")) == str(v) for k, v in tool_args.items()):
+                    return True
+    return False
+
+
+_COVERAGE_RE = re.compile(
+    r"\[coverage\] (\d+) of (\d+) rows were checked \((\d+) could not be verified\)")
+
+
+def _coverage_pending(msgs):
+    """★C212/B1 (day7 019/022/027 [S]): 엔진 자기-생성 `[coverage]` 라인의 미판정(skipped>0)
+    잔존 검출 — 이후 같은 도구의 skipped==0 결과가 나오면 해소. 엔진↔엔진 프로토콜 파싱만
+    (자기 템플릿 regex·NL 판단 0). 반환: (tool_name, coverage_line) or None."""
+    id2name, pend = {}, None
+    for m in msgs:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            id2name[getattr(tc, "id", None)] = getattr(tc, "name", None)
+        if getattr(m, "role", None) != "tool":
+            continue
+        c = getattr(m, "content", None)
+        if not isinstance(c, str):
+            continue
+        mt = _COVERAGE_RE.search(c)
+        if not mt:
+            continue
+        nm = id2name.get(getattr(m, "id", None))
+        line = c[mt.start():].split("\n", 1)[0]
+        if int(mt.group(3)) > 0:
+            pend = (nm, line)
+        elif pend and pend[0] == nm:
+            pend = None
+    return pend
+
+
+_UNKNOWN_TOOL_RE = re.compile(r"Unknown discoverable tool '([^']+)'")
+_UNEXPECTED_PARAM_RE = re.compile(r"Unexpected parameter: ([A-Za-z_][A-Za-z0-9_]*)")
+
+
+def _rejected_params(msgs):
+    """★C212/A3 (day7 018 [S]): env가 'Unexpected parameter'로 반려한 인자명 집합(축자·발명 0).
+    018은 같은 오인자(correct_rewards) give를 6회 반복 전멸했다."""
+    out = set()
+    for m in msgs:
+        if getattr(m, "role", None) != "tool" or not getattr(m, "error", True):
+            continue
+        c = getattr(m, "content", None)
+        if isinstance(c, str):
+            out.update(_UNEXPECTED_PARAM_RE.findall(c))
+    return out
+
+
+def _unknown_tool_names(msgs):
+    """★C212/B3 (day7 010/014/015/016 [S]): env가 'Unknown discoverable tool'로 반려한
+    이름 집합(에이전트 give 시도·user 호출 에러 양 채널). 이름=env 에러 축자(엔진 발명 0)."""
+    out = set()
+    for m in msgs:
+        if getattr(m, "role", None) != "tool":
+            continue
+        c = getattr(m, "content", None)
+        if isinstance(c, str):
+            out.update(_UNKNOWN_TOOL_RE.findall(c))
+    return out
+
+
 def _parse_declaration(text):
     """LLM 선언의 JSON 라인만 파싱. 엔진은 이 **구조체**만 읽는다(답변 본문 아님).
     파싱 실패 = 선언 없음 = 무개입 폴백(T5-C 불변량 iv: 실패 시 레버 ≥ floor)."""
@@ -4158,11 +4234,26 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _ar = getattr(c, "arguments", None)
                     if isinstance(_ar, dict):
                         _extra = [k for k in list(_ar.keys()) if k not in _al]
+                        _kept = {k: _ar[k] for k in _extra if str(_ar.get(k) or "").strip()}
                         for k in _extra:
                             _ar.pop(k, None)
                         if _extra:
                             print("[T2_DISPATCH_ROLE] stripped extra args %s from %s"
                                   % (_extra, getattr(c, "name", None)), file=_sys.stderr, flush=True)
+                        # ★C212/A2 (day7 021 회귀 [S]): strip이 값을 무통보 소실 → user-sim이
+                        #   실행 템플릿을 못 받아 좌초(FOLLOWUP-regen 경로만 인자 보존=경로 불일치).
+                        #   수복=모델이 직접 쓴 값의 결정론 릴레이(엔진 값 생성 0)를 응답 본문에
+                        #   병기 — 호출 자체는 종전대로 gold-형식(strip 유지). Δspurious 계측 대상.
+                        if _kept and os.environ.get("T2_DISPATCH_ROLE_NOTE") == "1":
+                            try:
+                                _kj = json.dumps(_kept, ensure_ascii=False)
+                            except Exception:
+                                _kj = str(_kept)
+                            am.content = ((getattr(am, "content", None) or "")
+                                          + "\n\n(Reference values for running this: %s)" % _kj)
+                            print("[T2_DISPATCH_ROLE] stripped args restated in reply "
+                                  "text tool=%s" % getattr(c, "name", None),
+                                  file=_sys.stderr, flush=True)
             un_fb = None
             _unspec = (a2 or {}).get("discoverable_name_check") or {}
             if (os.environ.get("T2_UNLOCK_NAME") == "1" and _unspec
@@ -4966,6 +5057,85 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         if os.environ.get("T2_ENVELOPE_GUARD") == "1" or os.environ.get("T2_TRUNC_GUARD") == "1":
             _resign = (not getattr(am, "tool_calls", None)
                        and isinstance(getattr(am, "content", None), str) and am.content.strip())
+        # ★C212/B3 (day7 010/014/015/016 [S]): env가 이미 'Unknown discoverable tool'로 반려한
+        #   이름을 응답 본문이 다시 지시 → 반복 차단 regen(cap 2). 이름=env 에러 축자(발명 0)·
+        #   대안 선택은 모델. 010/014는 같은 지시를 에러 후 2~3회 반복했다.
+        if (os.environ.get("T2_UNKNOWN_REPEAT_GUARD") == "1"
+                and getattr(self, "_t2_unkrep", 0) < 2
+                and isinstance(getattr(am, "content", None), str) and am.content.strip()):
+            _unk = _unknown_tool_names(state.messages)
+            _hitn = next((n for n in _unk if n and n in am.content), None)
+            if _hitn:
+                self._t2_unkrep = getattr(self, "_t2_unkrep", 0) + 1
+                print("[T2_UNKNOWN_REPEAT] name=%s (cap %d/2)" % (_hitn, self._t2_unkrep),
+                      file=_sys.stderr, flush=True)
+                _newU = _ap_regen(
+                    "Error: [UNKNOWN-TOOL REPEAT] '%s' does not exist — the environment already "
+                    "returned \"Unknown discoverable tool\" for that exact name. Do NOT instruct "
+                    "the customer to run it again and do NOT call it again. Search the knowledge "
+                    "base with PLAIN WORDS describing the action to find the real tool or "
+                    "procedure; if none exists, say so honestly instead." % _hitn, "unkrepeat")
+                if _newU is not None:
+                    am = _newU
+                    _resign = (not getattr(am, "tool_calls", None)
+                               and isinstance(getattr(am, "content", None), str)
+                               and am.content.strip())
+        # ★C212/A3 (day7 018 [S]): env가 이미 'Unexpected parameter'로 반려한 인자를 give-경로
+        #   호출이 다시 실음 → 반복 차단 regen(cap 2). 인자명=env 에러 축자·give 도구명=A2
+        #   dispatcher_role 선언(리터럴 0)·재작성은 모델.
+        if (os.environ.get("T2_UNKNOWN_REPEAT_GUARD") == "1"
+                and getattr(self, "_t2_argrep", 0) < 2
+                and getattr(am, "tool_calls", None)):
+            _gtn = ((a2 or {}).get("dispatcher_role_check") or {}).get("give_tool")
+            _rej = _rejected_params(state.messages) if _gtn else set()
+            _hitp = None
+            if _rej:
+                for _tcx in (am.tool_calls or []):
+                    if getattr(_tcx, "name", None) != _gtn:
+                        continue
+                    _blob = json.dumps(_args_dict(_tcx), ensure_ascii=False, default=str)
+                    _hitp = next((p for p in _rej if p in _blob), None)
+                    if _hitp:
+                        break
+            if _hitp:
+                self._t2_argrep = getattr(self, "_t2_argrep", 0) + 1
+                print("[T2_ARG_REPEAT] param=%s (cap %d/2)" % (_hitp, self._t2_argrep),
+                      file=_sys.stderr, flush=True)
+                _newP = _ap_regen(
+                    "Error: [ARG-REPEAT] the environment already rejected the parameter '%s' "
+                    "(\"Unexpected parameter\") on a previous call. Re-issue the call WITHOUT "
+                    "'%s' — pass ONLY the parameters that tool accepts; put any extra values "
+                    "in your reply text for the customer instead." % (_hitp, _hitp),
+                    "argrepeat", tool_choice=("required" if os.environ.get(
+                        "T2_FOLLOWUP_FORCE") == "1" else None))
+                if _newP is not None:
+                    am = _newP
+                    _resign = (not getattr(am, "tool_calls", None)
+                               and isinstance(getattr(am, "content", None), str)
+                               and am.content.strip())
+        # ★C212/B1 (day7 019/022/027 [S]): 엔진 [coverage] 미판정-행 재호출 지시가 무시된 채
+        #   사임 → 1회 regen으로 표면화(지시문=엔진 자기-생성 라인 재인용·판단 0). 019/022는
+        #   그 미판정 행이 gold 디스퓨트를 직접 삼켰다.
+        if (os.environ.get("T2_COVERAGE_FOLLOWUP") == "1" and _resign
+                and not getattr(self, "_t2_covfu", 0)):
+            _cvp = _coverage_pending(state.messages)
+            if _cvp and _cvp[0]:
+                self._t2_covfu = 1
+                print("[T2_COVERAGE_FU] fired tool=%s" % _cvp[0],
+                      file=_sys.stderr, flush=True)
+                _newC = _ap_regen(
+                    "Error: [COVERAGE-FOLLOWUP] an earlier '%s' result reported rows it could "
+                    "not verify: \"%s\" — that instruction has not been carried out. Read the "
+                    "missing value(s) from the records that contain them and call '%s' again "
+                    "with the completed input for those rows BEFORE concluding or handing off."
+                    % (_cvp[0], _cvp[1], _cvp[0]), "covfollowup",
+                    tool_choice=("required"
+                                 if os.environ.get("T2_FOLLOWUP_FORCE") == "1" else None))
+                if _newC is not None:
+                    am = _newC
+                    _resign = (not getattr(am, "tool_calls", None)
+                               and isinstance(getattr(am, "content", None), str)
+                               and am.content.strip())
         _fu_cap = int(os.environ.get("T2_FOLLOWUP_CAP", "1") or 1)
         if (os.environ.get("T2_FOLLOWUP_REQUIRED") == "1" and _resign
                 and getattr(self, "_t2_followup", 0) < _fu_cap):
@@ -4973,7 +5143,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             for _d0 in ((a2 or {}).get("scaffold_get_tools") or []):
                 _fu = _d0.get("follow_up") or {}
                 _ft = _fu.get("tool")
-                if (_ft and _d0.get("name") in _called0 and _ft not in _called0
+                # ★C212/A1: tool_args 선언 시 인자-대조 이행 판정 — 무관-대상 동명 give가
+                #   조건을 영구 충족시키던 갭(day7 022/027 [S]) 차단. 미선언=종전 동작.
+                if (_ft and _d0.get("name") in _called0
+                        and not _fu_target_called(state.messages, _ft,
+                                                  _fu.get("tool_args") or {})
                         and _fu.get("feedback")):
                     _th = int(os.environ.get("T2_FOLLOWUP_RESIGN_TH", "2") or 2)
                     self._t2_fu_resigns = getattr(self, "_t2_fu_resigns", 0) + 1
