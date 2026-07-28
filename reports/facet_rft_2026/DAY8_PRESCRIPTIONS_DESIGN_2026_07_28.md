@@ -3,6 +3,11 @@
 > 근거 = day7 **중간** 포렌식(런 라이브 중·완료 22 sims·실패 16 전건 per-step 정독·[[08]] 준수).
 > 회귀 3건(003/008/021) day6-대조 포함. 최종 수치는 day7 완주 후 C212 원장에서 확정.
 > A/B = 본 세션 구현 완료(오프라인 ALL PASS). C/D = 설계·판단 절차(미구현).
+>
+> ⚠**공정 이탈 기록(리뷰 지적·수용)**: A/B는 이 설계서와 같은 세션에서 리뷰 **전에** 구현됨 =
+> "설계서→리뷰→구현" 규율 위반(사후 리뷰). 배포 게이트(리모트 미배포·스모크 필수)가 살아 있어
+> 실해 없음이나, **다음부터 A/B급 기존-레버 조정도 설계 표 승인 후 착수**(D2/D4를 잡은 것이
+> 구현-전 리뷰였음). 리뷰 수정 3건(A4 문구 A2-이전·A4 감시 추가·B3 오탐 계측)은 반영 완료(§1·§5).
 
 ## §0. 포렌식 요약 (등급: 전부 [S] — 궤적 축자 인용 가능)
 
@@ -22,7 +27,7 @@
 | A1 | 022/027 FOLLOWUP 침묵 | 이행판정을 `_fu_target_called`(인자-부분집합 대조)로. 대상 값=A2 `follow_up.tool_args`(feedback 문구에 이미 있던 동일 리터럴·순증 0). 미선언=종전 동작 | t2_gate_patch.py + gate.json |
 | A2 | 021 회귀(strip 무통보 소실) | `T2_DISPATCH_ROLE_NOTE=1`: strip된 비어있지 않은 인자를 응답 본문에 결정론 릴레이(`(Reference values for running this: {...})`) — 값=모델 자신이 쓴 것(엔진 생성 0)·호출은 종전대로 gold-형식 | t2_gate_patch.py |
 | A3 | 018 오인자 give 6연속 전멸 | `T2_ARG_REPEAT`(UNKNOWN_REPEAT_GUARD 산하·cap 2): env가 `Unexpected parameter: X`로 반려한 X를 give-경로 호출이 재탑재 시 regen. X=env 에러 축자 | t2_gate_patch.py |
-| A4 | 008 TERM_GRANT 미발동 | `T2_TERM_GRANT_USERDEMAND=1`: 유저가 ###TRANSFER###를 직접 방출했으면 notice-공표 요건(ⓐ) 면제. ⓐ′(동의 토큰)·ⓑ(미호출)·1회/sim 유지 + reminder 문구에 "do not ask for more identifiers" 추가 | t2_eplan_patch.py |
+| A4 | 008 TERM_GRANT 미발동 | `T2_TERM_GRANT_USERDEMAND=1`: 유저가 ###TRANSFER###를 직접 방출했으면 notice-공표 요건(ⓐ) 면제. ⓐ′(동의 토큰)·ⓑ(미호출)·1회/sim 유지. **리뷰 반영**: "identifiers 불요" 보강 문구는 엔진 하드코딩 제거 → A2 notice gate `term_grant_reminder_extra` 선언에서만(`_term_grant_reminder_extra`·근거=banking verify note "Transfer/incident tools do not need verification"·미선언 도메인=빈 문자열=타 도메인 정책위반 지시 차단) | t2_eplan_patch.py + gate.json |
 
 ## §2. B — 기존 패턴 복제·확장 (구현 완료)
 
@@ -59,6 +64,9 @@
    (실재=정당 인용→통과), (b) `_any_effective_write` / 해당 write 도구 호출 실재.
 3. **불성립 → regen**: "그 번호/제출은 이 시스템에 존재하지 않는다. 완료를 주장하지 말고,
    실제 절차(도구 지급→고객 실행)를 밟거나 못 하면 정직하게 말하라." cap 2.
+   **오탐 계측(리뷰 조건 b)**: 정당한 실존 번호를 모델이 **재포맷**(하이픈 삽입 등)해 인용하면
+   부분문자열 대조가 불일치=오탐. 드물 것으로 예상하나 발화 건마다 "원장 근접-일치(정규화 후 일치)"
+   여부를 로그에 병기해 오탐률 실측 — 계측 없이 넘기지 않는다.
 4. **주의(실측 제약)**: day7에서 CLAIMPROV regen이 반복 빈손 — regen에 `tool_choice=required`를 걸면
    이 순간은 부적절(정정 발화가 정답인 턴). **문구-재작성 regen(채널 자유)**로 두고 빈손율을 계측.
 5. **선행 확인**: 027 구간에서 기존 completion_guard가 발화했는지 day7 완주 로그로 확정(발화-후-무력 vs 미발화는
@@ -82,8 +90,11 @@
    - 역행-프로브 A_minimal: 005의 KB 문서(코드-대입 지시+필드 표) + 계정 정보 + "log_verification 인자를 채워라"
      단발 프롬프트 → 문서대로 코드를 넣는가. 015 동형(pre-check 문서+EcoCard 주장 → 반려하는가).
    - 프로브는 로컬 vLLM 단발-콜(user-sim 불요·[[09]] 무료).
-2. **day7 완주 점수 판정**: 최종 pass가 day6(11/32) 대비 개선 없으면(§6-3) scaffold 추가가 아니라
-   **nt 축적이 병목**이라는 신호로 읽는다(n=31·[D] 명기·005 gold 파손 병기).
+2. **day7 완주 점수 판정**(리뷰 반영·조건 좁힘): 최종 pass가 day6(11/32) 대비 **개선 없음 ∧
+   기전-지표는 소멸**(replay ValueError 0·발명-id 에코 0·재타이핑 소멸·grant 전환 등이 실측 유지)일
+   때만 nt-병목 신호로 읽는다(`HANDOFF_2026_07_28_NIGHT` §6-3의 정련). 기전-지표가 함께 부진하면
+   **처방 무효/새 회귀 상쇄** 쪽이 대안 설명 — 그땐 nt 축적이 아니라 처방 재점검([[08]]).
+   판정 병기=n=31·[D]·005 gold 파손.
 3. **비용 비교([[13]] 흡수 우선순위)**: scale→학습→최후에 scaffold. C1(scaffold 신규)은 가공-완료 축만,
    확언·역행 축은 프로브가 "경계"로 판정되면 scaffold 추가 시도 없이 learn 축으로.
 4. **learn 축 편입 시 경로([[11]] 절대 규율)**: banking/tau2 타깃 학습 금지.
@@ -101,7 +112,12 @@
 
 1. day7 수확(§1 프레임 7항목)·C212 원장 기록 — 이 문서의 중간-포렌식을 완주분(잔여 10 태스크)으로 보강.
 2. **day8 = day7 스택 + C212 A/B** (플래그는 go_stack에 이미 등록). 발사 전 스모크([[30]])로
-   신규 마크 4종(`T2_DISPATCH_ROLE] stripped args restated`·`T2_ARG_REPEAT`·`T2_COVERAGE_FU`·`T2_UNKNOWN_REPEAT`) 라이브 발화 확인.
-3. C1은 §3-5 선행 확인(completion_guard 발화 여부) 후 구현 여부 결정. D 프로브는 실험 대기 사이 무료 실행.
-4. Δspurious 감시: A2-NOTE(본문 병기)와 A4(grant 완화)가 통과-태스크에 마찰을 만드는지 — day8에서
-   day7-PASS 태스크(001/002/006/017/020/023)의 유지 여부로 판정.
+   신규 마크 4종(`[T2_DISPATCH_ROLE] stripped args restated`·`[T2_ARG_REPEAT]`·`[T2_COVERAGE_FU]`·`[T2_UNKNOWN_REPEAT]`) 라이브 발화 확인.
+3. C1은 §3-5 선행 확인(completion_guard 발화 여부)을 **구현 GO의 하드 게이트**로 유지(리뷰 조건 a) —
+   미발화면 창 확장이 1차 수정. D 프로브는 실험 대기 사이 무료 실행.
+4. Δspurious 감시(리뷰 반영 확장): ①A2-NOTE(본문 병기)·A4(grant 완화)가 통과-태스크에 마찰을
+   만드는지 — day7-PASS 태스크(001/002/006/017/020/023) 유지 여부로 판정.
+   ②**A4 grant 발화 건마다 선행 프로토콜 단계 이행 여부 병기** — 032/033형 에스컬 선행단계 미이행
+   상태의 grant+required는 D2 조기-transfer Δspurious와 동형(notice 요건 ⓐ가 막던 것).
+   ③**B3 발화 건마다 재지시/부인 분류** — 부분문자열 대조는 "X 재지시"와 "X는 없다고 부인하며
+   대안 안내"를 구분 못 함(cap 2가 피해 한정·오탐률 실측). A3은 give-경로 호출 한정이라 오탐 여지 좁음(동일 분류 병기).

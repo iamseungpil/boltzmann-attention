@@ -80,6 +80,21 @@ def test_a4_term_grant_userdemand():
     chk(src.index("T2_TERM_GRANT_USERDEMAND") > src.index("notice_text"),
         "폴백은 notice 경로 실패 후에만(우선순위 보존)")
     chk("###TRANSFER###" in src, "동의-터미널 토큰 요건(ⓐ′) 유지")
+    # 리뷰 반영: 도메인-의존 보강 문구는 엔진 하드코딩 금지 → A2 선언에서만
+    esrc = inspect.getsource(EP)
+    chk("identifiers" not in esrc, "엔진에 identifiers 문구 하드코딩 없음(리뷰 A4-1)")
+    chk("term_grant_reminder_extra" in esrc, "A2 선언 조회 경로 실재")
+    ntc = next(g for g in A2["gates"]
+               if isinstance(g, dict) and g.get("kind") == "notice")
+    chk("identity verification is not required"
+        in str(ntc.get("term_grant_reminder_extra") or ""),
+        "banking A2에 reminder_extra 선언(verify note 사실 근거)")
+    class _FakeEnv:
+        domain_name = "no_such_domain_x"
+    class _FakeOrch:
+        environment = _FakeEnv()
+    chk(EP._term_grant_reminder_extra(_FakeOrch()) == "",
+        "A2 미선언 도메인 → 빈 문자열(타 도메인 정책위반 지시 없음)")
 
 
 def test_b1_coverage_pending():

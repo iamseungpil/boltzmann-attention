@@ -787,7 +787,8 @@ def _terminal_grant_check(orch):
     # ★C212/A4 (day7 008 회귀 [S]): 공식 notice 없이 어물거리다 유저가 ###TRANSFER###를
     #   직접 방출한 경로는 ⓐ 미충족으로 grant 0 → 미호출 종료. 유저의 명시-터미널 토큰은
     #   notice-동의보다 강한 동의이므로 ⓐ를 면제(ⓐ′·ⓑ·1회/sim은 그대로). 도구명=A2
-    #   applies_to(리터럴 0)·플래그 T2_TERM_GRANT_USERDEMAND=1·Δspurious 계측 대상.
+    #   applies_to(리터럴 0)·플래그 T2_TERM_GRANT_USERDEMAND=1·Δspurious 계측 대상
+    #   (리뷰: 발화 시점의 선행 프로토콜 단계 이행 여부를 day8서 계측 — D2 조기-transfer 동형 감시).
     if os.environ.get("T2_TERM_GRANT_USERDEMAND") == "1":
         for g in notices:
             ap = g.get("applies_to")
@@ -796,6 +797,20 @@ def _terminal_grant_check(orch):
                 if t and str(t) not in called:                  # ⓑ
                     return str(t)
     return None
+
+
+def _term_grant_reminder_extra(orch):
+    """★C212 리뷰 반영: grant reminder의 도메인-의존 보강 문구는 A2 notice gate의
+    `term_grant_reminder_extra` 선언에서만 읽는다(엔진 하드코딩 금지 — transfer-전-검증이
+    필요한 도메인서 엔진 문구가 정책 위반을 지시하게 됨·[[05]]). 미선언=빈 문자열."""
+    import t2_gate_patch as _g
+    dom = getattr(getattr(orch, "environment", None), "domain_name", None)
+    a2 = _g._domain_a2(dom) or {}
+    for g in (a2.get("gates") or []):
+        if isinstance(g, dict) and g.get("kind") == "notice" \
+                and g.get("term_grant_reminder_extra"):
+            return " " + str(g["term_grant_reminder_extra"]).strip()
+    return ""
 
 
 def drive_decision(drives, K, exec_now, last_exec, has_gap):
@@ -1007,10 +1022,10 @@ def apply():
                         if _ag is not None:
                             _ag._t2_eplan_reminder = (
                                 "[TERMINAL] The customer has ALREADY AGREED to (or explicitly "
-                                "demanded) the hand-off. Do not repeat the notice, do not ask "
-                                "for more identifiers, and do not say goodbye — CALL %s NOW as "
-                                "a tool call, with an appropriate summary of the issue and "
-                                "what was attempted." % _gtool)
+                                "demanded) the hand-off. Do not repeat the notice and do not "
+                                "say goodbye — CALL %s NOW as a tool call, with an appropriate "
+                                "summary of the issue and what was attempted.%s"
+                                % (_gtool, _term_grant_reminder_extra(self)))
                             _ag._t2_term_force = True
                         _mark("terminal grant: notice+consent, %s uncalled -> 1 extra turn"
                               % _gtool)
