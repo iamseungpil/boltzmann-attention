@@ -233,6 +233,23 @@ def _is_user_channel(env, name):
     return False
 
 
+def _argprod_hits(a2, content):
+    """★F8(C211·DAY7 §F8) 순수 트리거: 도구 에러 content에 'required/missing'류 + A2 `arg_producers`
+    선언 인자명이 부분문자열로 실재하면 [(arg, user_tool)] 반환. day6 040/041 [S]: 필수인자
+    (card_last_4_digits)의 생산자가 **한 번도 실행된 적 없는 유저-도구**라 VALUE_ACQUIRE(producer 출력
+    실재 전제)가 원리적 불발 → 오도구 전환(경로-최소저항). 판정=A2 선언 대조뿐(도메인 리터럴 0)."""
+    ap = (a2 or {}).get("arg_producers") or {}
+    c = str(content or "")
+    if not ap or not ("required" in c.lower() or "missing" in c.lower()):
+        return []
+    out = []
+    for arg, spec in ap.items():
+        tool = (spec or {}).get("user_tool")
+        if tool and arg in c:
+            out.append((arg, tool))
+    return out
+
+
 def _notice_done(a2, msgs, fam):
     """★F4(C210): fam의 도구가 A2 notice 게이트(applies_to) 관할이고 notice_text(앞 48자)가
     assistant 발화에 실재하면 True. 판정=A2 데이터 부분문자열만(도메인 리터럴 0)."""
@@ -527,6 +544,47 @@ def apply():
                             break
             except Exception:
                 pass
+            # ★F8(C211·T2_ARG_PRODUCERS=1): 필수-인자 결핍 에러 → 생산자 give-흐름 넛지.
+            #   cap 2/sim·해당 유저-도구가 이미 대화에 등장(give/실행)했으면 무발화.
+            #   [명세 보강2] 발화 시점의 도구명을 로그(오선택-고착 가정의 day7 실측용).
+            try:
+                if os.environ.get("T2_ARG_PRODUCERS") == "1" and a2 is not None:
+                    apfb = getattr(self, "_t2_argprod_fb", 0)
+                    if apfb < 2:
+                        _seen_tools = set()
+                        for _m4 in (msgs or []):
+                            _md4 = _m4.model_dump() if hasattr(_m4, "model_dump") else {}
+                            for _tc4 in (_md4.get("tool_calls") or []):
+                                _seen_tools.add(str(_tc4.get("name") or ""))
+                                _a4 = _tc4.get("arguments")
+                                if isinstance(_a4, str):
+                                    _seen_tools |= {w for w in re.findall(r"[a-z0-9_]+", _a4)}
+                                elif isinstance(_a4, dict):
+                                    _seen_tools |= {str(v) for v in _a4.values()
+                                                    if isinstance(v, str)}
+                        _id2nm2 = {getattr(t, "id", None): getattr(t, "name", None)
+                                   for t in (tool_calls or [])}
+                        for r in (out or []):
+                            _hits = _argprod_hits(a2, getattr(r, "content", "") or "")
+                            _hits = [(a, t) for a, t in _hits if t not in _seen_tools]
+                            if not _hits:
+                                continue
+                            _arg, _ptool = _hits[0]
+                            _ftool = _id2nm2.get(getattr(r, "id", None))
+                            _view_fb(self,
+                                     "Argument '%s' is produced by the customer-side tool '%s'. "
+                                     "Hand it to the customer with give_discoverable_user_tool, "
+                                     "ask them to run it, then retry the SAME tool you just "
+                                     "attempted with the value — do NOT switch to a different "
+                                     "tool just because an argument is missing."
+                                     % (_arg, _ptool), "argprod")
+                            self._t2_argprod_fb = apfb + 1
+                            _mark("arg-producer nudge arg=%s producer=%s" % (_arg, _ptool))
+                            print("[T2_ARG_PRODUCERS] fired tool=%s arg=%s producer=%s"
+                                  % (_ftool, _arg, _ptool), file=sys.stderr, flush=True)
+                            break
+            except Exception as _ape:
+                _mark("arg-producer skipped (no-op): %r" % (_ape,))
             return out
         tc0, nm0, fam0 = hit
         denied.add(fam0)                             # cap: fam당 1회

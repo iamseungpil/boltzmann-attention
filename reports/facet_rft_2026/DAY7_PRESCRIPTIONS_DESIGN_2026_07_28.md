@@ -32,11 +32,18 @@
 1. **F6a — 페이로드 행-정체 grounding(주 방어)**: A2 ratefix `grounded_params`에
    `"transaction_id": {"producer_contains": ["credit_card_transaction_history"]}` 추가(P4b 스키마 그대로).
    엔진 소수정 1건: **id_field가 결핍(강등 포함)인 행은 판정에서 제외하고 skipped+missing_fields로 계상**
-   (현행은 id=None인 채 out_ids에 실릴 수 있음). 효과: 발명 행 → "N rows could not be verified —
-   missing/ungrounded field(s): transaction_id" 지목 → **에코-정당화 소멸**. txn id는 장문 유일 문자열이라
-   값-실재 검사가 강함(D4 폐기 사유였던 '흔한 값 우연 실재'가 성립 안 함).
-2. **F6b — FAB_STRIP give-구멍 수리(보조 방어)**: inner-key 목록에 `discoverable_tool_name` 추가 +
-   실효-이름을 inner로 벗긴 **뒤에만** read/procedural 면제 판정(외피 이름으로 면제 금지).
+   — [소소1 반영·라인 인용] 현행 `t2_compute.py:638` `out_ids.append(r.get(idf))`는 id 값을 무검사
+   append하므로 P4b 강등(id=None) 행이 discrepant로 판정되면 **None이 결과에 실린다**(선검증 [S]).
+   효과: 발명 행 → "N rows could not be verified — missing/ungrounded field(s): transaction_id" 지목 →
+   **에코-정당화 소멸**. txn id는 장문 유일 문자열이라 값-실재 검사가 강함(D4 폐기 사유였던
+   '흔한 값 우연 실재'가 성립 안 함).
+2. **F6b — FAB_STRIP give-구멍 수리(보조 방어·[리뷰 가드레일 반영] 공유 술어 불변·국소 수정)**:
+   수리는 **FAB_STRIP의 지역 함수 `_fab_write_ungrounded` 안에서만** — 공유 `_PROCEDURAL_RE`(1653)와
+   `_eff_tool_name`(1659)은 **불변**(둘은 `_is_effective_write`→claim_prov write축·WRITEPROV·readloop의
+   공통 기반이고, give/unlock/discoverable의 procedural 면제는 2026-07-18 교정으로 의도된 의미론).
+   ⓐ 4413 inner-key 목록에 `discoverable_tool_name` 추가 ⓑ **give/call 디스패처에 한해** inner가 있으면
+   inner 이름으로만 면제 판정(외피 이름 면제 금지·unlock은 inner-판정 제외=안전측).
+   회귀 필수: `_is_effective_write("give_discoverable_user_tool")=False` **유지** 케이스.
    → day5 022형(give 인자에 nested txn) 어시스턴트-측 차단 복원. 유저-측 실행은 차단 불가(D1 교훈:
    유저 호출 deny=replay 폭탄)·어시스턴트의 give/SAY 단계가 유일한 개입점임을 명기.
 
@@ -69,6 +76,9 @@ P4 abstain으로 회귀). 해소 = **A2-선언 일반 equijoin**:
 ```
 - 엔진 = **일반 equijoin 실행기**(row_field==source_field인 소스 행에서 take 필드 복사·필드명 전부 A2 데이터·
   파서는 기존 `Record ID:` 전용 재사용). 조인 불성립 행 = account_open 미기입(=P4 지목 경로·안전측).
+- **[명세 보강1 반영] 복수-매칭 처리**: 소스에 같은 match 값의 행이 2개 이상이면 조인 모호 —
+  "첫 행" 채택은 침묵-오값 경로(D4형)를 연다. **유일 매칭만 유효·복수 매칭=불성립**(조인 불성립과 동일
+  경로=abstain 안전측). §6 테스트에 복수-매칭 픽스처 필수.
 - [[05]] ①: A2 성장 +1 — 정당화 = 이 조인이 없으면 byref와 promo 판정이 양립 불가(측정: day6 BS 전멸 지속).
   ②: 조인=결정론 값-이동(판단 0). ③: 참조 대상은 **모델이 읽어 커밋한** 출력뿐.
 - **비-over 스칼라/필드 참조 일반 허용은 계속 미지원**(C209 결정 유지) — 조인은 `byref_join` 선언이 있는
@@ -96,6 +106,11 @@ W-i: P4 지목 문구+byref 안내가 같은 턴에 겹칠 때 재호출이 참�
 - 마지막 문장이 040/041의 전환-우회를 직접 겨냥(도구명 미지정=선택은 모델·"same tool" 지시는 이미 모델이
   고른 도구의 유지 요구라 gold-planting 아님).
 - **발화 조건 좁게**: 에러 원문에 인자명 실재(A2 선언 대조)일 때만·cap 2/sim·give 이후엔 무발화.
+- **[명세 보강2 반영] 인자-공유 오탐 감시**: 트리거가 인자명 기준이라 복수 도구가 같은 인자를 공유하면
+  "retry the SAME tool" 넛지가 **오선택을 고착**시킬 수 있다(모델이 틀린 도구를 골라 그 인자 에러를 냈을 때).
+  현 도메인은 `card_last_4_digits`=formal dispute 전용이라 실질 무해로 보나 가정을 실측으로: §5 판정 ⑥의
+  세부 지표로 **"트리거 발화 시점의 도구 = gold 도구 일치 여부"**를 계측(`[T2_ARG_PRODUCERS] fired
+  tool=<명>` 로그 → 포렌식 시 gold 대조).
 
 **검증(오프라인)**: 040 실궤적의 미싱-인자 에러 픽스처 → 발화+문구 · 인자명 무관 에러 → 무발화 ·
 give 완료 후 → 무발화 · retail A2(선언 없음) → 전역 무개입.

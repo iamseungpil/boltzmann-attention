@@ -594,13 +594,26 @@
       "variants": {
         "ratefix": {
           "params": {
-            "transactions": "JSON array. For EACH transaction include ONLY these raw fields, normalized to plain values:\n- transaction_id (string), transaction_amount (NUMBER, e.g. 126.36 — strip any currency symbol), rewards_earned (NUMBER, e.g. 126 — strip any unit word), transaction_date (MM/DD/YYYY)\n- credit_card_type, merchant_name, category — copied from the transaction record\n- account_open (MM/DD/YYYY) — the opening date of the account that card belongs to, copied EXACTLY from the account record you fetched (do NOT guess it from transaction dates)\n★Do NOT look up, reason about, or provide reward RATES, promos, or any computed value — a separate deterministic system reads the reward-rate policy and computes the expected reward itself."
+            "transactions": "JSON array. For EACH transaction include ONLY these raw fields, normalized to plain values:\n- transaction_id (string), transaction_amount (NUMBER, e.g. 126.36 — strip any currency symbol), rewards_earned (NUMBER, e.g. 126 — strip any unit word), transaction_date (MM/DD/YYYY)\n- credit_card_type, merchant_name, category — copied from the transaction record\n- account_open (MM/DD/YYYY) — the opening date of the account that card belongs to, copied EXACTLY from the account record you fetched (do NOT guess it from transaction dates)\n★Do NOT look up, reason about, or provide reward RATES, promos, or any computed value — a separate deterministic system reads the reward-rate policy and computes the expected reward itself.",
+            "account_open": "OPTIONAL. Normally leave this empty and put account_open inside each transaction row instead. Use this argument ONLY when you pass 'transactions' by \"@last:\" reference: then pass this too as \"@last:<the tool whose output contains the account records>\" and the deterministic system fills each row's account_open by exact record match."
           },
           "grounded_params": {
             "account_open": {
               "producer_contains": ["credit_card_accounts"]
+            },
+            "transaction_id": {
+              "producer_contains": ["credit_card_transaction_history"]
             }
           },
+          "byref_join": {
+            "account_open": {
+              "from_ref_param": "account_open",
+              "source_selector": "credit_card_accounts",
+              "match": {"row_field": "credit_card_type", "source_field": "card_type"},
+              "take": "date_of_account_open"
+            }
+          },
+          "_note_f6a_f7b": "C211(2026-07-28): transaction_id grounding=발명-행이 discrepant로 에코되던 경로 봉쇄(day6 020/028 비-hex 발명 id [S]·값-실재 검사는 장문 유일 문자열이라 강함). byref_join=참조-전달(rows=거래 덤프 유래)에 account_open을 계좌 덤프에서 결정론 equijoin(유일 매칭만 유효·복수/불성립=abstain 안전측·필드명 전부 A2=[[05]]).",
           "_note_grounded_params": "P4b(C208④·DAY5_PRESCRIPTIONS §P4b·2026-07-28): account_open은 레코드-유래 값인데 day5 027이 accounts 미조회인 채 전행 단일값(02/01/2025)으로 날조(실개설일 02/13)→우연히 gold 재현. producer_contains=그 값이 실재해야 하는 출력의 식별 selector(계좌 레코드 덤프). 엔진=부분문자열 실재 검사만(C186 ledger 동형)·불성립=결핍 강등(P4 지목 경로 합류).",
           "op": {
             "op": "select_discrepant",
@@ -1935,6 +1948,10 @@
       "_note": "2026-07-24 C128/C129 결정론 참조-검증기: rall19-22 file_dispute wrong-pick 8/8이 전부 손님 미언급 상점(cross-merchant 인접-행 전사 슬립). merchant-absence deny=슬립 8/8 검출·gold 25/25 통과(false-block 0·efiso_detmatch_proof.py). LLM 재선택(REF_ISO)은 gold(Marriott)→wrong(Facebook Ads) 해로운 switch(C129 rall22 031)→결정론 검증기가 robust. 엔진=substring만·LLM/값생성 0([[03b]]/[[10]]). ★한계: merchant-absence는 cross-merchant만·동일상점 내 오선택(4 Costco 중 오답)은 amount 스펙 별도 필요(formalize+match 소관). T2_REF_VERIFY=1·기본 OFF."
     }
   ],
+  "arg_producers": {
+    "card_last_4_digits": {"user_tool": "get_card_last_4_digits"}
+  },
+  "_note_arg_producers": "F8(C211·2026-07-28): 필수인자의 생산자가 유저-측 discoverable 도구인 경우의 선언 — day6 040/041 [S]: last-4를 못 얻자 formal dispute 대신 cash-back dispute로 오도구 전환. 트리거=도구 에러에 required/missing+인자명 실재(엔진=선언 대조·문구 지시만·give는 모델이 emit).",
   "require_tool_before": {
     "apply_for_credit_card": [
       "check_card_application_fit"

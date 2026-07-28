@@ -616,6 +616,14 @@ def apply_op(spec, ctx):
             for r in recs:
                 if not isinstance(r, dict):
                     continue
+                # ★F6a(C211·DAY7 §F6): id_field 결핍(P4b 강등 포함) 행은 판정 제외+계상 —
+                #   구판(:638 out_ids.append(r.get(idf)))은 id를 무검사 append라 발명-행이
+                #   discrepant로 에코돼 날조를 정당화(day6 020/028 [S]: 발명 txn id의 첫 등장=
+                #   페이로드→에코→dispute 전파). 제외=지목 경로 합류(안전측).
+                if idf and r.get(idf) in (None, ""):
+                    skipped += 1
+                    _missing[idf] = _missing.get(idf, 0) + 1
+                    continue
                 rctx = dict(ctx); rctx["r"] = r; rctx["steps"] = {}
                 for nm, sp in steps.items():                 # 역참조 DAG: 순서대로·steps에 저장
                     rctx["steps"][nm] = apply_op(sp, rctx)

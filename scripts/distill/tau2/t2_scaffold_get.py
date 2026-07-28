@@ -919,10 +919,14 @@ def _byref_resolve(orch, d, ctx):
     ★비-over(스칼라/행-필드) 인자의 참조는 이번 판에서 **미지원**(도메인 필드명 join을 엔진에
     박는 것은 [[05]] 위반 소지 — A2 join-spec 설계 후 별도). 시도 시 명확한 에러."""
     over = (d.get("op") or {}).get("over")
+    join_params = {(js or {}).get("from_ref_param") or t
+                   for t, js in (d.get("byref_join") or {}).items()}
     for k in list(ctx.keys()):
         v = ctx.get(k)
         if not (isinstance(v, str) and (v.startswith("@last:") or v.startswith("@call:"))):
             continue
+        if k in join_params:
+            continue                                   # F7b: _byref_join이 처리
         if k != over:
             raise _ByrefError("only the '%s' argument supports @last:/@call: references; "
                               "provide '%s' as a literal value" % (over, k))
@@ -930,6 +934,50 @@ def _byref_resolve(orch, d, ctx):
         ctx[k] = rows
         print("[T2_SG_BYREF] %s: '%s' resolved by reference -> %d row(s)"
               % (d.get("name"), v, len(rows)), file=_sys.stderr, flush=True)
+
+
+def _byref_join(orch, d, ctx):
+    """★F7b(C211·DAY7 §F7b): A2-선언 일반 equijoin — byref rows(거래 덤프 유래)에 없는 필드
+    (account_open)를 참조된 소스 덤프에서 결정론 복사. 필드명 전부 A2 데이터(엔진=일반 실행기·
+    [[05]])·**유일 매칭만 유효**(복수 매칭=불성립=abstain 안전측·리뷰 명세 보강1 — "첫 행" 채택은
+    침묵-오값(D4형))·불성립 행=필드 미기입(P4 지목 경로 합류)."""
+    spec = d.get("byref_join") or {}
+    over = (d.get("op") or {}).get("over")
+    rows = ctx.get(over)
+    for tgt, js in spec.items():
+        p = (js or {}).get("from_ref_param") or tgt
+        v = ctx.get(p)
+        if not (isinstance(v, str) and (v.startswith("@last:") or v.startswith("@call:"))):
+            continue
+        txt = _resolve_ref_output(orch, v)
+        sel = str((js or {}).get("source_selector") or "").lower()
+        if sel and sel not in txt.lower():
+            raise _ByrefError("the output referenced for '%s' does not contain the expected "
+                              "source records ('%s') — reference the read whose output holds "
+                              "them" % (p, js.get("source_selector")))
+        src = _parse_record_dump(txt)
+        mf = js["match"]["row_field"]
+        sf = js["match"]["source_field"]
+        take = js["take"]
+        groups = {}
+        for s in src:
+            groups.setdefault(str(s.get(sf, "")).strip().lower(), []).append(s)
+        joined = amb = miss = 0
+        for r in (rows or []):
+            if not isinstance(r, dict):
+                continue
+            cand = groups.get(str(r.get(mf, "")).strip().lower()) or []
+            if len(cand) == 1 and cand[0].get(take) not in (None, ""):
+                r[tgt] = cand[0][take]
+                joined += 1
+            elif len(cand) > 1:
+                amb += 1                                # 유일-매칭만 유효
+            else:
+                miss += 1
+        if p != over:
+            ctx.pop(p, None)                            # 소비된 참조 파라미터 제거
+        print("[T2_SG_BYREF] %s: join '%s' -> joined=%d ambiguous=%d unmatched=%d"
+              % (d.get("name"), tgt, joined, amb, miss), file=_sys.stderr, flush=True)
 
 
 def _evidence_ctx(orch):
@@ -1033,6 +1081,15 @@ def apply():
                         " INSTEAD of retyping the rows, you MAY pass the string "
                         "\"@last:<name of the tool whose output contains these records>\" — "
                         "the deterministic system will reuse that exact earlier output.")
+                    # ★F7b: join-선언 파라미터에도 참조 안내(예: account_open="@last:<accounts read>")
+                    for _jt, _js in (d.get("byref_join") or {}).items():
+                        _jp = (_js or {}).get("from_ref_param") or _jt
+                        if isinstance(d["params"].get(_jp), str):
+                            d["params"][_jp] += (
+                                " If you pass the rows by \"@last:\" reference, you MAY also pass "
+                                "this argument as \"@last:<name of the tool whose output contains "
+                                "the records holding this value>\" — the deterministic system will "
+                                "copy it into each row by exact record match.")
             try:
                 tools.append(_build_tool(Tool, d))
             except Exception as e:
@@ -1153,6 +1210,7 @@ def apply():
                 if os.environ.get("T2_SG_BYREF") == "1":
                     try:
                         _byref_resolve(self, d, _ctx)
+                        _byref_join(self, d, _ctx)      # F7b: A2-선언 equijoin(유일 매칭만)
                     except _ByrefError as _bre:
                         ours[id(tc)] = ToolMessage(
                             id=tc.id, role="tool",

@@ -96,8 +96,11 @@ export T2_DUP_REPRESENT=1       # P8 DUP-COMPUTE 스텁에 이전 결과 재제�
 export T2_FAILED_PERSIST=1      # P10 실패-sim 궤적 사이드카(set_state 예외 시 덤프)
 export T2_VIEW_COMPACT_MINTOTAL=60000   # P5-1 문턱 하향(구 120000=사망선 위·day5 6/32 발동)
 export T2_VIEW_MSG_CAP=8000     # P5-2 per-메시지 뷰 캡(최신 배치 제외·리뷰 필수1=배치 전체 전문)
-# OFF 유지(승격 조건 명기): T2_READ_NEARDUP(P5-3·오탐 계측 후) ·
-#   T2_SG_BYREF(P6·day6 W-f 실측=[T2_ABSTAIN_FIELDS] refetch-recall 성장이 GO 신호→day7 ON)
+# ── ★C211/day7 처방(DAY7_PRESCRIPTIONS_DESIGN_2026_07_28·F6~F8) ──────────────
+export T2_SG_BYREF=1            # F7a 참조-전달 승격(day6 W-f 실측=GO 충족·+F7b A2 equijoin)
+export T2_ARG_PRODUCERS=1       # F8 필수인자-생산자 give-흐름 넛지(040/041 오도구 전환 표적)
+# F6a/F6b=A2 선언·버그픽스라 스위치 없음(P4b/FAB_STRIP 기존 플래그 하위).
+# OFF 유지(승격 조건 명기): T2_READ_NEARDUP(P5-3·오탐 계측 후)
 export T2_CLAIM_PROV=1          # claim-날조 원장대조(사임/transfer 창·035 기전 표적)
 export T2_CLAIMPROV_CAP=3       # cap=1은 빈손 regen 1회에 전소(코드 포렌식 실측)→스모크 권장 3
 

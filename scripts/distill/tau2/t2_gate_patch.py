@@ -4410,9 +4410,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             def _fab_write_ungrounded(tc):
                 nm = getattr(tc, "name", "") or ""
                 ar = _args_dict(tc)
-                inner = ar.get("agent_tool_name") or ar.get("user_tool_name") or ""
+                # ★F6b(C211·리뷰 가드레일: **국소 수정** — 공유 _PROCEDURAL_RE/_eff_tool_name 불변):
+                #   ⓐ inner-key에 discoverable_tool_name 추가(give의 실효 이름은 이 키에 실림 —
+                #   _eff_tool_name(1667)엔 있는데 여기 없던 unwrap 불일치가 day6 발명-id give 통과 구멍)
+                #   ⓑ give/call 디스패처는 inner 이름으로만 면제 판정(외피 'give_/discoverable' 매칭 금지·
+                #   unlock은 구판 외피-판정 유지=안전측). 회귀: _is_effective_write("give_…")=False 유지.
+                inner = (ar.get("agent_tool_name") or ar.get("user_tool_name")
+                         or ar.get("discoverable_tool_name") or "")
                 eff = re.sub(r"_\d+$", "", str(inner or nm))
-                if not eff or _RDP.match(eff) or _PRC.search(eff):
+                if inner and re.match(r"^(give|call)_", str(nm), re.I):
+                    if _RDP.match(eff) or _PRC.search(eff):
+                        return False  # inner가 read/procedural일 때만 무해
+                elif not eff or _RDP.match(eff) or _PRC.search(eff):
                     return False  # read/procedural = 무해
                 sub = ar.get("arguments")
                 if isinstance(sub, str):
