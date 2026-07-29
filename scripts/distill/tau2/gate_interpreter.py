@@ -28,6 +28,22 @@ _ACTED_TOKENS = ("modified", "requested", "cancelled", "canceled")
 _A2_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "a2")
 
 
+def notice_norm(s):
+    """★C213/G1 (day8 032 [S]·경계정본 §3-1): notice 판정 정규화 — **닫힌 연산만**
+    (소문자화·공백 압축·영숫자/공백 외 제거). 유사도/의미 매칭 금지(열린 술어 재도입 방지)."""
+    return re.sub(r"[^a-z0-9 ]", "", re.sub(r"\s+", " ", str(s or "").lower())).strip()
+
+
+def notice_sent_in(texts, notice_text, prefix=48):
+    """★C213/G1: notice-송신 **공용 술어**(게이트 GB2·EPLAN grant·compliance 측정층 일원화 —
+    032=", Sofia" 1토큰 개인화가 전문-일치를 영구 불충족·EPLAN(prefix48)과 술어 불일치 [S]).
+    판정=정규화 후 앞 prefix자 부분문자열. notice_text 부재=None(판단 불가)."""
+    key = notice_norm(notice_text)[:prefix]
+    if not key:
+        return None
+    return any(key in notice_norm(t) for t in texts if isinstance(t, str))
+
+
 def pick_steer(gate, status):
     """preconditions deny 시 *현재 status 값*에 맞는 방향지시 선택 (도메인-일반·status는 A2 사실).
 

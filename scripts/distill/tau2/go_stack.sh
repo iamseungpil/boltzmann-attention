@@ -136,3 +136,8 @@ t2_launch() {
     --max_steps 200 \
     --save_to "$TAG" "$@"
 }
+# ── ★C213/day9 처방(DAY9_PRESCRIPTIONS_DESIGN_2026_07_29·경계정본 §4) ─────────
+export T2_GIVE_RELEVANCE_NUDGE=1  # N1 원장-미등장 give 확인 넛지(021 DB-오염 [S]·강제 금지·cap1)
+# W1: EPLAN walk 강제-보류는 기본 OFF로 강등(gap=표면화만·001 [S]) — 종전 보류는 T2_EPLAN_WALK_HOLD=1(격리 arm 전용)
+# G1: notice 공용 정규화 술어(gate_interpreter.notice_sent_in)=무스위치 교체(GB2·EPLAN·compliance 3층 일원화)
+# R1: 제외(017=후속-턴 자체 발화 확인→learn 축). T1: 접지 기선언 확인(코드 변경 0)·undercount 조사 별도.

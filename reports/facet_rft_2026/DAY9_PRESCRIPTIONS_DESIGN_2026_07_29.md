@@ -17,6 +17,7 @@
 
 - **G1 스코프 결정(리뷰 필수1)=(a) 3층 전부 공용 술어 일원화**: 게이트(gate_interpreter `transfer_msg_sent`)+EPLAN(`_terminal_grant_check` ⓐ)+**측정층(t2_compliance:108·t2_gate:42 TRANSFER_MSG)**. 근거=측정이 행동을 잘못 세는 것을 알면서 유지=계측 왜곡. **원장 주석 필수**: "C213 시점 전후 compliance 산정 변경(notice 정규화)" — 런-간 비교성 관리는 P9a(n=31 병기)와 동형. 분석 스크립트(notice_pergate_census)는 다음 사용 시 갱신.
 - **T1 선행 확인(리뷰 권고1)**: ⓐ구현 전 gate.json rebate `_ground_note`에 monthly_threshold ground 선언이 **이미 있는지** 확인 — 있는데 무력했다면 처방은 "편입"이 아니라 무력 원인 규명. ⓑ존재-검사의 한계 명기: KB에 복수 상품 threshold 공존 시 오른 값/틀린 값 구분 불가(D4 교훈) → 부족하면 `source_param` 축자-인용 변형(기존 메커니즘·엔진 변경 0)이 다음 단계.
+- **T1 선행 확인 결과(구현 시 확정)**: monthly_threshold ground는 **기선언·활성**(rebate ground.scalar_fields·kb/ledger·on_fail=drop) — ⓐ편입 불요. day8 023의 7500=존재-검사 정상 통과한 정답 값·실패는 엔진 undercount. 잔여=존재-검사 한계(D4형: 틀린 값도 KB 실재 시 통과)→source_param 축자-인용 변형이 다음 단계·**undercount 조사 선행(산식 수정 금지)**.
 - **구현 순서(리뷰 합의)**: W1→G1→N1→T1 (R1 제외 확정).
 
 - G1 정규화 규칙은 **닫힌 연산만**(소문자화·공백 압축·구두점/접미 절단·prefix N자) — 유사도/의미 매칭 금지(열린 술어 재도입 방지).

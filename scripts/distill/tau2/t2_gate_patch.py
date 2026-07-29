@@ -454,16 +454,15 @@ def _last_user_text(orch):
 
 
 def _transfer_msg_sent(orch, notice_text):
-    """notice: 고정 transfer 문구가 어시스턴트 발화로 이미 송신됐는가 (불가 판단 시 None)."""
+    """notice: transfer 문구가 어시스턴트 발화로 이미 송신됐는가 (불가 판단 시 None).
+    ★C213/G1: 전문-일치 → gate_interpreter.notice_sent_in **공용 정규화 술어**(032 [S])."""
     if not notice_text:
         return None
     try:
-        for m in orch.get_messages():
-            if getattr(m, "role", None) == "assistant":
-                c = getattr(m, "content", None)
-                if isinstance(c, str) and notice_text in c:
-                    return True
-        return False
+        from gate_interpreter import notice_sent_in
+        texts = [getattr(m, "content", None) for m in orch.get_messages()
+                 if getattr(m, "role", None) == "assistant"]
+        return notice_sent_in(texts, notice_text)
     except Exception:
         return None
 
@@ -2654,14 +2653,13 @@ def _regen_last_user(messages):
 
 
 def _regen_transfer_sent(messages, notice_text):
+    # ★C213/G1: 공용 정규화 술어로 일원화(032 [S]).
     if not notice_text:
         return None
-    for m in messages:
-        if getattr(m, "role", None) == "assistant":
-            c = getattr(m, "content", None)
-            if isinstance(c, str) and notice_text in c:
-                return True
-    return False
+    from gate_interpreter import notice_sent_in
+    texts = [getattr(m, "content", None) for m in messages
+             if getattr(m, "role", None) == "assistant"]
+    return notice_sent_in(texts, notice_text)
 
 
 def _denied_calls(am, gate, last_user, transfer_sent):
@@ -5057,6 +5055,39 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         if os.environ.get("T2_ENVELOPE_GUARD") == "1" or os.environ.get("T2_TRUNC_GUARD") == "1":
             _resign = (not getattr(am, "tool_calls", None)
                        and isinstance(getattr(am, "content", None), str) and am.content.strip())
+        # ★C213/N1 (day8 021 [S]: 성공한 비-gold give↔db_match=false 완전 상관 8/8·7/7, n 소):
+        #   give 대상이 원장(도구 결과·KB 회수문)에 미등장 → **넛지 1회**(강제 금지 — 술어는
+        #   닫혔으나 "무관하다" 처방은 열림·경계정본 §3-2). 정당한 정책-지식 선제-give가 있을 수
+        #   있어 판단은 모델에 — 발화 건 정당/무관 분류 실측 후에만 강제 승격 논의.
+        if (os.environ.get("T2_GIVE_RELEVANCE_NUDGE") == "1"
+                and not getattr(self, "_t2_giverel", 0)
+                and getattr(am, "tool_calls", None)):
+            _gtn2 = ((a2 or {}).get("dispatcher_role_check") or {}).get("give_tool")
+            if _gtn2:
+                _ledger_txt = "\n".join(
+                    str(getattr(m2, "content", "") or "") for m2 in state.messages
+                    if getattr(m2, "role", None) == "tool")
+                for _tc3 in (am.tool_calls or []):
+                    if getattr(_tc3, "name", None) != _gtn2:
+                        continue
+                    _tgt = str(_args_dict(_tc3).get("discoverable_tool_name") or "")
+                    if _tgt and _tgt not in _ledger_txt:
+                        self._t2_giverel = 1
+                        print("[T2_GIVE_RELEVANCE] nudge target=%s (not in ledger)" % _tgt,
+                              file=_sys.stderr, flush=True)
+                        _newG = _ap_regen(
+                            "Error: [GIVE-RELEVANCE] you are about to give the customer the "
+                            "tool '%s', but nothing retrieved in this conversation (no policy "
+                            "document or tool output) mentions it. Confirm it is actually "
+                            "required for the customer's CURRENT request — if not, do NOT "
+                            "give it and proceed with the request instead; if policy you have "
+                            "read does require it, give it again." % _tgt, "giverel")
+                        if _newG is not None:
+                            am = _newG
+                            _resign = (not getattr(am, "tool_calls", None)
+                                       and isinstance(getattr(am, "content", None), str)
+                                       and am.content.strip())
+                        break
         # ★C212/B3 (day7 010/014/015/016 [S]): env가 이미 'Unknown discoverable tool'로 반려한
         #   이름을 응답 본문이 다시 지시 → 반복 차단 regen(cap 2). 이름=env 에러 축자(발명 0)·
         #   대안 선택은 모델. 010/014는 같은 지시를 에러 후 2~3회 반복했다.

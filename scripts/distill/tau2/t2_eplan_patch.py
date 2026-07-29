@@ -776,8 +776,10 @@ def _terminal_grant_check(orch):
     if not last_user or "###TRANSFER###" not in last_user:      # ⓐ′
         return None
     for g in notices:
-        nt = str(g["notice_text"])[:48]
-        if not any(nt in t for t in a_texts):                   # ⓐ
+        # ★C213/G1: prefix48 원시-일치 → 공용 정규화 술어(GB2·compliance와 일원화·032 [S]
+        #   에서 두 레버가 같은 사실을 다른 술어로 판정하던 불일치 제거).
+        from gate_interpreter import notice_sent_in
+        if not notice_sent_in(a_texts, g["notice_text"]):       # ⓐ
             continue
         ap = g.get("applies_to")
         tools = ap if isinstance(ap, list) else [ap]
@@ -1099,6 +1101,19 @@ def apply():
                                                 spec.get("write_action_phrase"))
                 # ★progress-guard (순수 결정): gap 있음 확정(reminder≠None)·budget 여유(drives<K) 상태서
                 #   직전 구동 후 진전(executed↑) 없으면 release=안전종료(§7.3 무한보류/붕괴 회피).
+                # ★C213/W1 (day8 001 [S]·경계정본 §3): 'walk gap'은 열린 술어(계획-이행 해석)라
+                #   user_stop 강제 보류가 정답-DB를 오염시켰다(001: gold write 완료 상태를
+                #   executed=0으로 오계상→연장 턴 중복 신청). ⓐuser-실행 write를 exec에 가산
+                #   (원장 실측·gold-무관) ⓑ기본=보류하지 않고 gap을 마크로 표면화만(done 유지).
+                #   종전 강제-보류는 T2_EPLAN_WALK_HOLD=1로만(격리 arm 대조용).
+                _user_writes = sum(
+                    1 for m2 in msgs for tc2 in (getattr(m2, "tool_calls", None) or [])
+                    if getattr(tc2, "requestor", "assistant") == "user")
+                _exec_now = _exec_now + _user_writes
+                if os.environ.get("T2_EPLAN_WALK_HOLD") != "1":
+                    _mark("walk gap surfaced only (no hold): exec=%d(user+%d) drives=%d"
+                          % (_exec_now, _user_writes, _drives))
+                    return r
                 if drive_decision(_drives, _K, _exec_now,
                                   getattr(self, "_t2_eplan_last_exec", -1), True) != "hold":
                     _mark("drive released: no progress (exec=%d drives=%d)" % (_exec_now, _drives))

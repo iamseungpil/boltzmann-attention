@@ -105,7 +105,11 @@ def violations_of_sim(sim, C, order_owner=None):
             continue
         if isinstance(mc, str):
             for g in notice_gates:
-                if g.get("notice_text") and g["notice_text"] in mc:
+                # ★C213/G1(스코프 (a)·리뷰 필수1): 측정층도 공용 정규화 술어 — 전문-일치 유지 시
+                #   ", Sofia"형 개인화 notice가 게이트는 통과하는데 지표만 위반 계상=계측 왜곡.
+                #   ⚠원장 주석: C213 전후 compliance 산정 변경(런-간 비교 시 병기).
+                from gate_interpreter import notice_sent_in
+                if g.get("notice_text") and notice_sent_in([mc], g["notice_text"]):
                     n_sent[g["id"]] = True
         for tc in (m.get("tool_calls") or []):
             name = tc.get("name")
