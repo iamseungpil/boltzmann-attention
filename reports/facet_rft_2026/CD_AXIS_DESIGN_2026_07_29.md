@@ -92,13 +92,22 @@ day7 028 실측: user가 dispute 6건을 전부 성사시켰는데 028_2~7이 �
 - ✅ **counterfactual 재채점 열(리뷰 보강1)**: 과거 궤적의 gold vs 실제 인자를 **`json.loads` 후 dict 비교로 재채점**한 열을 census에 병기(평가기 수정이 아니라 별도 계측이므로 규율 안). 각주가 "영향 가능"→**"영향 실측 N건"**으로 강해지고, 깎기/살려주기 양방향도 같은 계산에서 나온다.
 - **1차 실측(029/041 포렌식 [S])**: 전 결과파일 **nested-arg 액션 328건 중 매치 6건(1.8%)** — 매치된 사례(day6B/021)는 실제 호출이 gold와 동일하게 **공백이 있는** JSON이었다. 029_2~7 6건, 041_4~7 4건이 **전부 공백-단독 불일치**로 확인. ⇒ **action-기반 지표는 사실상 무의미**하고, 이 문자열은 **user-sim이 생성**하므로 에이전트가 통제할 수도 없다(=gold-fitting 대상조차 못 됨).
 
-### D-3. **[M·신규·중대] db_match 해시에 read-only discoverable CALLED가 포함**
+### D-3. **[S 확정·중대] db_match 해시에 read-only discoverable CALLED가 포함**
 
 029는 **6건 디스퓨트 제출 집합이 gold와 정확히 일치**하고 rewards 미갱신도 gold와 같은데 `db_match=false`다. 권위본(`dbdiff_task.py` docstring·C149)은 db_match를 **strict full-DB 해시**로 규정하고 banking은 `agent_discoverable_tools`(호출된 discoverable 도구 CALLED)가 해시에 포함된다고 명시한다. 029에서 gold 대비 남는 유일한 DB-영향 차이는 **`get_user_dispute_history_7291` CALLED 2건**(gold action list에는 어떤 상태확인 read도 없음).
 교차검증(전부 반증 0): 반복 give·성공 unlock·실패 call은 해시에 무영향(task_020 db=True 유지)·dispute id는 결정론(3런 동일)이라 순서/난수 가설 배제.
 - ⚠**자기모순 gold**: 029의 gold notes는 "Agent must verify dispute status"를 요구하는데 gold action에는 그 read가 없다 → **시키는 대로 확인하면 해시가 깨진다.**
 - ⚠**실험 해석 오염 위험**: read 레버를 켤수록 db_match가 떨어지는 **역상관**이 생길 수 있다 — [[19]] 합성 런 해석 시 반드시 통제. day6~9 결과 재해석 시 이 요인을 분리할 것.
-- 처치 규율은 D-2와 동일(평가기·db_check 수정 금지) + **계량**: read-only CALLED만 다른 태스크 수를 census에 포함.
+- **[M]→[S] 확정(리뷰 ⓐ 승인·2026-07-29 dbdiff 실행·LLM 0)**: `dbdiff_task.py bank_day7frontB_20260728 task_029` 결과 —
+```
+agent_db_match: False | user_db_match: False
+=== AGENT DB diff (gold vs pred) ===
+  ONLY-PRED .agent_discoverable_tools.data.67b5d746b18c8002 = {'tool_name': 'get_user_dispute_history_7291', 'status': 'CALLED'}
+=== USER DB diff ===
+  ONLY-PRED .agent_discoverable_tools.data.67b5d746b18c8002 = {'tool_name': 'get_user_dispute_history_7291', 'status': 'CALLED'}
+```
+**gold와의 DB 차이가 read-only 도구 CALLED 레코드 단 1건뿐**이다(디스퓨트 6건은 완전 일치). 즉 029는 업무적으로 gold와 동일한데 **상태확인 read 1회 때문에 0점**. 가설이 아니라 실측 확정.
+- 처치 규율은 D-2와 동일(평가기·db_check 수정 금지) + **계량**: read-only CALLED만 다른 태스크 수를 census에 포함(다음 실행분).
 
 ## §6.5. 029/041 포렌식이 낳은 **A축 신규 표적** (이 문서 밖·day10 처방 후보)
 
