@@ -5067,11 +5067,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 _ledger_txt = "\n".join(
                     str(getattr(m2, "content", "") or "") for m2 in state.messages
                     if getattr(m2, "role", None) == "tool")
+                # ★C213/N1 rev1 (day9 스모크 [S]): 초판 술어("원장 미등장")의 첫 발화가
+                #   task_001의 **gold give**(apply_for_credit_card)였다 = 리뷰가 예고한 오탐 경로
+                #   실현(discoverable 도구명이 KB 회수문에 문자열로 안 나오는 태스크는 gold give도
+                #   항상 미등장). 강화: **이 대화에서 다른 give가 이미 성사**된 뒤의 추가 give만
+                #   넛지 → 단독/최초 give(=gold 단일-give 태스크)는 발화 0.
+                _prior_gives, _gid2n = set(), {}
+                for _m3 in state.messages:
+                    for _tc4 in (getattr(_m3, "tool_calls", None) or []):
+                        if (getattr(_tc4, "name", None) == _gtn2
+                                and getattr(_tc4, "requestor", "assistant") == "assistant"):
+                            _gid2n[getattr(_tc4, "id", None)] = str(
+                                _args_dict(_tc4).get("discoverable_tool_name") or "")
+                    if getattr(_m3, "role", None) == "tool" and not getattr(_m3, "error", False):
+                        _n3 = _gid2n.get(getattr(_m3, "id", None))
+                        if _n3:
+                            _prior_gives.add(_n3)
                 for _tc3 in (am.tool_calls or []):
                     if getattr(_tc3, "name", None) != _gtn2:
                         continue
                     _tgt = str(_args_dict(_tc3).get("discoverable_tool_name") or "")
-                    if _tgt and _tgt not in _ledger_txt:
+                    if _tgt and _tgt not in _ledger_txt and (_prior_gives - {_tgt}):
                         self._t2_giverel = 1
                         print("[T2_GIVE_RELEVANCE] nudge target=%s (not in ledger)" % _tgt,
                               file=_sys.stderr, flush=True)

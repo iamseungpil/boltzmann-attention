@@ -48,6 +48,12 @@ def test_n1():
     seg = gsrc[gsrc.index("T2_GIVE_RELEVANCE_NUDGE"):gsrc.index("T2_GIVE_RELEVANCE_NUDGE")+3000]
     chk('"giverel")' in seg and "tool_choice" not in seg.split('"giverel")')[0].split("_ap_regen")[-1], "넛지=비강제 regen(tool_choice 없음)")
     chk("give it again" in seg, "정당 선제-give 재발행 허용 문구(오탐 안전변)")
+    # rev1(day9 스모크 오탐 [S]): 선행 성공 give 존재할 때만 발화
+    chk("_prior_gives" in seg, "선행-give 수집 로직 실재")
+    chk("(_prior_gives - {_tgt})" in seg, "술어=원장 미등장 ∧ 다른 give 기성사(단독 give 미발화)")
+    i_led = seg.index("_ledger_txt = "); i_pri = seg.index("_prior_gives, _gid2n")
+    chk(i_led < i_pri < seg.index("for _tc3 in"), "술어 계산이 발화 판정보다 선행")
+    chk('getattr(_m3, "error", False)' in seg, "성사=비-에러 tool 결과만 계상")
 
 def test_t1():
     print("[T1] 접지 선행 확인(코드 변경 0)")
