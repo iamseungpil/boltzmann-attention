@@ -32,7 +32,19 @@
 | P-iii (오독) | referral 레코드 15건(최신=IN_PROGRESS) + "보너스 지급됐나?" | 동 궤적 | A에서도 COMPLETE 오독 → 경계 |
 | P-iv (발명) | 도구 목록 없이 "dispute 도구 이름을 KB에서 찾아라" + 서픽스 다른 문서 2개 | 동 궤적 | A에서도 서픽스 접합 → 경계 |
 
-- 각 프로브 n≥9(temp 0 + 문구 3변형 × 3회·[[12]] 다양성 최소치)·로컬 vLLM(비용 0).
+### §3.1 표본 설계 (리뷰 필수1 반영·초판의 "3변형×3회" 폐기)
+
+초판은 `n≥9 = 문구 3변형 × 3회`였으나 **우리 스택은 temp 0(그리디)** 이라 같은 프롬프트 반복은 배칭 수치 노이즈를 빼면 동일 출력 = **실질 표본 3**. 반복 차원이 정보를 주려면 temp>0이어야 하고 그러면 배포 레짐과 달라져 대표성이 깨진다. ⇒ **n≥9 = 서로 다른 변형 9개**(문구 3 × 문서 배치/제시 순서 3의 교차), **각 1회·temp 0 유지**. [[12]] 다양성 요건의 취지와도 이쪽이 정합.
+
+### §3.2 판정 임계 (리뷰 필수1-①)
+
+A_minimal 9변형 중 실패 건수 기준: **0 = 부하**(scaffold/뷰 조정 대상) · **1~4 = 혼합**(별도 보고·유형 분해 후 재프로브) · **≥5(과반) = 경계**(learn 표적). 혼합은 learn 편입 근거로 쓰지 않는다.
+
+### §3.3 B_fullctx의 역할 = 원 관찰 재현 확인 (리뷰 필수1-②)
+
+B에서 day7/8의 원 실패가 **재현되지 않으면** 그 관찰 자체가 표집 노이즈일 수 있다(C192 user-sim 비결정 전례). 이 경우 **경계/부하 판정 이전에 원 관찰의 등급을 강등**([S]→[M] 또는 [?])하고 판정 보류 — 프로브 결과로 learn을 논하지 않는다.
+
+- 실행: 로컬 vLLM 단발콜(비용 0). **⚠day9c와 같은 vLLM 인스턴스면 큐 경합**(day6 §6B 큐-포화 아티팩트=양 arm 동시 timeout의 재현 경로) → **직렬·스로틀 실행 또는 day9c 완주 후**. 총 36콜이라도 infra 원인을 우리 손으로 만들지 않는다.
 - **선행 필수**: 프로브 없이 "learn 필요" 단정 금지(day5~8에서 반복 교정된 규율).
 
 ## §4. C1(가공-완료 차단)과의 관계 — 중복 방지
@@ -53,15 +65,48 @@ C-iii의 027(가짜 번호)은 **DAY8 §3의 C1이 관할**(서브콜 감지 + �
 원리상 통과 불가. 처리=**n=31 병기**(P9a 채택분) — 모든 보고에 유지.
 
 ### D-2. **[S 확정·신규] nested-JSON 인자의 원시 문자열 비교**
-평가기 실측(`tau2-bench/src/tau2/data_model/tasks.py:178 compare_with_tool_call`): `compare_args=None`이면 **인자 dict 전체를 `==`로 비교**한다. `call_discoverable_user_tool`의 `arguments`는 **JSON 문자열**이므로,
+
+**근거 발췌(리뷰 보강2·provenance 문서-내 완결)** — `tau2-bench/src/tau2/data_model/tasks.py:178`:
+```python
+    def compare_with_tool_call(self, tool_call: ToolCall) -> bool:
+        if self.name != tool_call.name:
+            return False
+        if self.compare_args is None:
+            compare_args = tool_call.arguments.keys()
+        else:
+            compare_args = self.compare_args
+        if len(compare_args) == 0:
+            return True
+        tool_args = {k: v for k, v in tool_call.arguments.items() if k in compare_args}
+        action_args = {k: v for k, v in self.arguments.items() if k in compare_args}
+        return tool_args == action_args        # ← 중첩 JSON은 '문자열'로 비교됨
+```
+`compare_args=None`이면 **인자 dict 전체를 `==`로 비교**한다. `call_discoverable_user_tool`의 `arguments`는 **JSON 문자열**이므로,
 `'{"user_id": "890389b165", "transaction_id": "txn_…"}'`(gold·공백 있음) vs `'{"user_id":"890389b165",…}'`(실제·공백 없음)은 **의미가 같아도 불일치** → `action_match=false`.
 day7 028 실측: user가 dispute 6건을 전부 성사시켰는데 028_2~7이 전부 false.
 
 **처치 규율(중요)**:
 - ⛔ **평가기 수정 금지** — 벤치 불변식([[03b]]·리더보드 비교성).
 - ⛔ **에이전트에게 gold 공백/키순서를 맞추도록 지시·학습 금지** — gold-fitting=cheating.
-- ✅ **계량 후 병기 보고**: ⓐ census(무료) = 전 태스크 gold action 중 `call_discoverable_*` + `arguments` 문자열 + `compare_args=null`인 건수, 그중 **reward_basis에 ACTION 포함**인 태스크 목록 ⓑ 해당 태스크는 결과 표에 각주(“nested-JSON 원시 비교 아티팩트 영향 가능”) ⓒ db_match-basis 태스크는 무영향(DB 상태 비교)이므로 구분 표기.
-- 판단 보류: 이 아티팩트가 우리 점수를 **깎기만** 하는지(우리 형식이 공백 없음일 때) 혹은 gold와 우연 일치로 **살려주기도** 하는지 — census에서 양방향 확인.
+- ✅ **계량 후 병기 보고**: ⓐ census(무료) = 전 태스크 gold action 중 `call_discoverable_*` + `arguments` 문자열 + `compare_args=null`인 건수, 그중 **reward_basis에 ACTION 포함**인 태스크 목록 ⓑ 해당 태스크는 결과 표에 각주 ⓒ db_match-basis 태스크는 무영향(DB 상태 비교)이므로 구분 표기.
+- ✅ **counterfactual 재채점 열(리뷰 보강1)**: 과거 궤적의 gold vs 실제 인자를 **`json.loads` 후 dict 비교로 재채점**한 열을 census에 병기(평가기 수정이 아니라 별도 계측이므로 규율 안). 각주가 "영향 가능"→**"영향 실측 N건"**으로 강해지고, 깎기/살려주기 양방향도 같은 계산에서 나온다.
+- **1차 실측(029/041 포렌식 [S])**: 전 결과파일 **nested-arg 액션 328건 중 매치 6건(1.8%)** — 매치된 사례(day6B/021)는 실제 호출이 gold와 동일하게 **공백이 있는** JSON이었다. 029_2~7 6건, 041_4~7 4건이 **전부 공백-단독 불일치**로 확인. ⇒ **action-기반 지표는 사실상 무의미**하고, 이 문자열은 **user-sim이 생성**하므로 에이전트가 통제할 수도 없다(=gold-fitting 대상조차 못 됨).
+
+### D-3. **[M·신규·중대] db_match 해시에 read-only discoverable CALLED가 포함**
+
+029는 **6건 디스퓨트 제출 집합이 gold와 정확히 일치**하고 rewards 미갱신도 gold와 같은데 `db_match=false`다. 권위본(`dbdiff_task.py` docstring·C149)은 db_match를 **strict full-DB 해시**로 규정하고 banking은 `agent_discoverable_tools`(호출된 discoverable 도구 CALLED)가 해시에 포함된다고 명시한다. 029에서 gold 대비 남는 유일한 DB-영향 차이는 **`get_user_dispute_history_7291` CALLED 2건**(gold action list에는 어떤 상태확인 read도 없음).
+교차검증(전부 반증 0): 반복 give·성공 unlock·실패 call은 해시에 무영향(task_020 db=True 유지)·dispute id는 결정론(3런 동일)이라 순서/난수 가설 배제.
+- ⚠**자기모순 gold**: 029의 gold notes는 "Agent must verify dispute status"를 요구하는데 gold action에는 그 read가 없다 → **시키는 대로 확인하면 해시가 깨진다.**
+- ⚠**실험 해석 오염 위험**: read 레버를 켤수록 db_match가 떨어지는 **역상관**이 생길 수 있다 — [[19]] 합성 런 해석 시 반드시 통제. day6~9 결과 재해석 시 이 요인을 분리할 것.
+- 처치 규율은 D-2와 동일(평가기·db_check 수정 금지) + **계량**: read-only CALLED만 다른 태스크 수를 census에 포함.
+
+## §6.5. 029/041 포렌식이 낳은 **A축 신규 표적** (이 문서 밖·day10 처방 후보)
+
+C/D 분류 중 나온 결정론-가능 항목이라 여기 기록만 하고 처방은 별도 설계서로:
+1. **★쓰기-인자 근거 결속을 discoverable 경로로 확장(최우선)**: 041은 16행 거래목록이 컨텍스트에 2회(각 4,796자) 있었는데도 **12건의 transaction_id를 `txn_1234abcd` 류 순차 자리표시자로 창작**하고 2건은 타 거래 실ID로 오배정한 뒤 **16회 실쓰기를 실행**했다. env는 존재하지 않는 id를 검증 없이 수락. 148스텝 전체에서 provenance 계열 개입 **0건** — 현행 `T2_WRITEPROV`가 `call_discoverable_agent_tool`의 **중첩 arguments**에 미적용이기 때문. 술어("쓰기 인자의 ID형 값이 대화 내 도구 결과에 축자 등장하는가")는 완전히 닫히고 처방도 상황 무관(관측 안 된 id로 쓰기가 정당한 상황은 없음) ⇒ **A급**. 이것만으로 041의 DB 오염 14/16이 차단된다.
+2. **DUPLICATE-READ 경고 → 3회 시 하드 차단**: 029 [12][14][16]에서 동일 쿼리 3연속·리다이렉트 3회 무시 실측([[07]] "soft만으론 통제 안 됨" 재확증).
+3. 날짜 형식 강제(041 `issue_noticed_date="unknown"` 12건 vs 스키마 `MM/DD/YYYY`·`get_current_time` 결과 실재), 필드-문서 의존성 강제(스키마가 "이 문서를 근거로 판단하라"고 명시한 필드는 그 문서 획득 전 쓰기 차단·[[16]] GET/FIND 루프 정합), 미부여 도구 실행 지시 차단.
+4. **B급**: "사용자가 모른다고 한 값"의 처리 — 041에서 날짜는 시스템 값을 써야 정답, 주소도 DB 값이 정답이었으나 무조건 강제는 PII 맥락에서 역효과 ⇒ 넛지.
 
 ## §7. [[05]] 3질문
 
@@ -72,4 +117,5 @@ day7 028 실측: user가 dispute 6건을 전부 성사시켰는데 028_2~7이 �
 1. **무료 선행**: ⓐ D-2 census(즉시 가능) ⓑ §3 프로브 4종(로컬·비용 0) — day9c 대기 중 진행 가능.
 2. 프로브 결과가 "경계"면 §5 학습 데이터 설계서(별도)로, "부하"면 scaffold 조정으로 회귀.
 3. 027 등 원장-대조 가능 조각은 **C1 우선**(DAY8 §3-5 선행 확인 후).
-- 리뷰 요청: (a) §3 프로브 구성·n 최소치 동의 여부 (b) §5 스킬 2종의 명세 수준(더 잘게 쪼갤지) (c) D-2 처치 규율(계량·병기, 수정 금지) 동의 여부 (d) 무료 선행 2건을 day9c 완주 전에 착수할지.
+- **리뷰 결과 반영 완료**: (a) 프로브 = 9변형·판정 임계·B 재현확인 반영 후 동의 (b) 스킬 2종 유지 — 하위 분해는 프로브 결과가 나온 뒤 데이터 설계서에서(지금 쪼개면 근거 없는 선험 분류) (c) D-2 규율 동의 + counterfactual 열·근거 발췌 보강 (d) census 즉시·프로브는 스로틀/완주 후.
+- **잔여 리뷰 요청(신규분)**: ⓐ D-3(read CALLED 해시 포함)의 등급을 [M]→[S]로 올리려면 리모트 `dbdiff_task.py` 실행이 필요 — 실행 승인 여부 ⓑ §6.5-1(write-provenance discoverable 확장)을 day10 처방 1순위로 둘지 ⓒ D-2/D-3가 확정되면 **day5~9 결과 재해석 범위**(action-기반 지표 전면 재계산·read 레버 역상관 통제)를 어디까지 소급할지.
