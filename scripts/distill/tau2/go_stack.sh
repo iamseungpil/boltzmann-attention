@@ -141,3 +141,9 @@ export T2_GIVE_RELEVANCE_NUDGE=1  # N1 원장-미등장 give 확인 넛지(021 D
 # W1: EPLAN walk 강제-보류는 기본 OFF로 강등(gap=표면화만·001 [S]) — 종전 보류는 T2_EPLAN_WALK_HOLD=1(격리 arm 전용)
 # G1: notice 공용 정규화 술어(gate_interpreter.notice_sent_in)=무스위치 교체(GB2·EPLAN·compliance 3층 일원화)
 # R1: 제외(017=후속-턴 자체 발화 확인→learn 축). T1: 접지 기선언 확인(코드 변경 0)·undercount 조사 별도.
+# ── ★C214 (day9 재발사 전 A/B 보강·DAY9 설계서 §5 추가분) ─────────────────────
+export T2_UNVERIFIED_FOLLOWUP=1   # E1 unverified 조건-확정 재호출 넛지(003 [S]·비강제)
+export T2_GIVE_EXEC_NUDGE=1       # E2 give 성사·user 미실행 시 실행 안내 넛지(019 [S])
+export T2_SEARCH_EXHAUST_NUDGE=1  # E3 중복-검색 소진 시 전략 전환·날조 금지 넛지(012/033/032 [S])
+export T2_SEARCH_EXHAUST_TH=2
+# E4=A2 dispute→update 체인 resign_th=1(028 구조적 미발화)+`chain suppressed` 진단 마크

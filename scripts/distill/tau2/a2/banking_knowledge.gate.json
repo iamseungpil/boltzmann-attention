@@ -1705,7 +1705,8 @@
         "update_transaction_rewards"
       ],
       "feedback": "Error: [FOLLOW-UP] cash back disputes were submitted, but the ledger shows {missing} was never called. The reward-check tool's own output states that AFTER a dispute is resolved, that transaction's rewards must be updated to EXACTLY the correct value it showed. If the customer has confirmed the disputes are resolved, unlock and call the update tool now with those exact values — a verbal summary does not update any record. If resolution has NOT been confirmed yet, do not update; tell the customer plainly what remains and that no update has happened.",
-      "_note": "C204/D8(2026-07-27·day3 028[검출 6/6·분쟁 6/6 후 갱신 거부]·021[실행 1/2]·day2 026[갱신 말-완결] 실측): 분쟁-제출 후 갱신 단계의 이행 nudge. 문구 양방향(미해결 시 갱신 금지 명시)=조기 갱신 Δspurious 완화. after=유저-실행 dispute의 effective명(디스패처 unwrap)·resign_th 미선언=전역 기본(거동 보존)."
+      "resign_th": 1,
+      "_note": "C204/D8(2026-07-27·day3 028[검출 6/6·분쟁 6/6 후 갱신 거부]·021[실행 1/2]·day2 026[갱신 말-완결] 실측): 분쟁-제출 후 갱신 단계의 이행 nudge. 문구 양방향(미해결 시 갱신 금지 명시)=조기 갱신 Δspurious 완화. after=유저-실행 dispute의 effective명(디스패처 unwrap). ★C214: resign_th=1로 하향 — day7 028 실측=분쟁 6건 성사 후 남은 사임 턴이 2회뿐(101/103)이고 곧 transfer 종료라 전역 임계 2로는 구조적 미발화(C201/D2 035형과 동일 사유). 억제 시 `chain suppressed` 마크로 원인 계측."
     }
   ],
   "write_arg_grounding": [

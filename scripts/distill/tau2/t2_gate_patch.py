@@ -1900,6 +1900,31 @@ def _coverage_pending(msgs):
     return pend
 
 
+_UNVERIFIED_RE = re.compile(r"'unverified':\s*\[\s*\{")
+
+
+def _unverified_pending(msgs):
+    """★C214/E1 (day8 003 [S]): scaffold 판정도구가 'unverified'(미문서화·조건부 사실) 행을
+    돌려줬는데 **조건을 확정하는 재호출이 없는** 상태 검출. 엔진 자기-출력 구조 파싱만
+    (coverage-FU와 동형·NL 판단 0). 반환 (tool_name, 요약) or None."""
+    id2name, pend = {}, None
+    for m in msgs:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            nm = getattr(tc, "name", None)
+            id2name[getattr(tc, "id", None)] = nm
+            if pend and nm == pend[0]:
+                pend = None                      # 같은 도구 재호출 = 조건 확정 시도 → 해소
+        if getattr(m, "role", None) != "tool":
+            continue
+        c = getattr(m, "content", None)
+        if isinstance(c, str) and _UNVERIFIED_RE.search(c):
+            nm = id2name.get(getattr(m, "id", None))
+            if nm:
+                seg = c[c.index("'unverified'"):][:220]
+                pend = (nm, seg)
+    return pend
+
+
 _UNKNOWN_TOOL_RE = re.compile(r"Unknown discoverable tool '([^']+)'")
 _UNEXPECTED_PARAM_RE = re.compile(r"Unexpected parameter: ([A-Za-z_][A-Za-z0-9_]*)")
 
@@ -5183,6 +5208,91 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _resign = (not getattr(am, "tool_calls", None)
                                and isinstance(getattr(am, "content", None), str)
                                and am.content.strip())
+        # ★C214/E1 (day8 003 [S]): 판정도구가 'unverified'(조건부·미문서화) 행을 돌려줬고 그 조건을
+        #   확정하는 재호출이 없는 채 사임 → 1회 넛지. 003=Silver의 fx_fee가 premium 조건부라
+        #   unverified였는데 유저가 premium 보유를 밝힌 뒤에도 재실행 0 → gold 카드 오선택.
+        #   **강제 없음**(지금 재호출이 맞는지는 상황 의존·경계정본 §3-2).
+        if (os.environ.get("T2_UNVERIFIED_FOLLOWUP") == "1" and _resign
+                and not getattr(self, "_t2_unvfu", 0)):
+            _uvp = _unverified_pending(state.messages)
+            if _uvp:
+                self._t2_unvfu = 1
+                print("[T2_UNVERIFIED_FU] fired tool=%s" % _uvp[0], file=_sys.stderr, flush=True)
+                _newV = _ap_regen(
+                    "Error: [UNVERIFIED-FOLLOWUP] an earlier '%s' result flagged fact(s) it could "
+                    "NOT verify: %s — a conditional/undocumented value is NOT known to hold. If the "
+                    "customer has since told you something that settles that condition, call '%s' "
+                    "again with it (or read the cited source document) BEFORE recommending or "
+                    "concluding; if it cannot be settled, say so plainly instead of assuming."
+                    % (_uvp[0], _uvp[1], _uvp[0]), "unverifiedfu")
+                if _newV is not None:
+                    am = _newV
+                    _resign = (not getattr(am, "tool_calls", None)
+                               and isinstance(getattr(am, "content", None), str)
+                               and am.content.strip())
+        # ★C214/E2 (day7 019 [S]): give는 성사됐는데 유저가 그 도구를 한 번도 실행하지 않은 채
+        #   사임 → 실행 안내 1회 넛지(019=포털 불가라던 유저에게 "이 대화에서 실행 가능"을 끝내
+        #   안 알려 디스퓨트 0건). 술어=구조 사실(give 성공 ∧ user 호출 0)·처방=안내(넛지).
+        if (os.environ.get("T2_GIVE_EXEC_NUDGE") == "1" and _resign
+                and not getattr(self, "_t2_givexec", 0)):
+            _gtn3 = ((a2 or {}).get("dispatcher_role_check") or {}).get("give_tool")
+            _ucall = ((a2 or {}).get("dispatcher_role_check") or {}).get("user_call")
+            if _gtn3 and _ucall:
+                _given, _g2n = set(), {}
+                _ran = set()
+                for _m4 in state.messages:
+                    for _tc5 in (getattr(_m4, "tool_calls", None) or []):
+                        _nm5 = getattr(_tc5, "name", None)
+                        _iv5 = str(_args_dict(_tc5).get("discoverable_tool_name") or "")
+                        if _nm5 == _gtn3:
+                            _g2n[getattr(_tc5, "id", None)] = _iv5
+                        elif _nm5 == _ucall and _iv5:
+                            _ran.add(_iv5)
+                    if getattr(_m4, "role", None) == "tool" and not getattr(_m4, "error", False):
+                        _n5 = _g2n.get(getattr(_m4, "id", None))
+                        if _n5:
+                            _given.add(_n5)
+                _idle = sorted(_given - _ran)
+                if _idle:
+                    self._t2_givexec = 1
+                    print("[T2_GIVE_EXEC] nudge idle=%s" % _idle, file=_sys.stderr, flush=True)
+                    _newX = _ap_regen(
+                        "Error: [GIVE-EXEC] you gave the customer %s but they have not run it. "
+                        "They do NOT need a portal, an app, or a link — the tool runs right here "
+                        "in this conversation. Tell them plainly to run it now (name it and give "
+                        "the exact arguments), instead of ending or handing off."
+                        % ", ".join("'%s'" % t for t in _idle), "givexec")
+                    if _newX is not None:
+                        am = _newX
+                        _resign = (not getattr(am, "tool_calls", None)
+                                   and isinstance(getattr(am, "content", None), str)
+                                   and am.content.strip())
+        # ★C214/E3 (day7 012/033 · day8 032 [S]): 같은-검색 반복이 엔진 스텁으로 이미 여러 번
+        #   반려됐는데 계속 검색·표류 → 1회 넛지(012=8회 전패 후 앱 절차 날조·033/032=1~수회 후
+        #   전용 경로 포기). 술어=엔진 자기 스텁 계수(닫힘)·처방=전략 전환 권고(넛지).
+        if (os.environ.get("T2_SEARCH_EXHAUST_NUDGE") == "1" and _resign
+                and not getattr(self, "_t2_srchex", 0)):
+            _stubs = sum(1 for _m6 in state.messages
+                         if getattr(_m6, "role", None) == "tool"
+                         and isinstance(getattr(_m6, "content", None), str)
+                         and ("[DUPLICATE-READ]" in _m6.content
+                              or "[NEAR-DUPLICATE-READ]" in _m6.content))
+            if _stubs >= int(os.environ.get("T2_SEARCH_EXHAUST_TH", "2") or 2):
+                self._t2_srchex = 1
+                print("[T2_SEARCH_EXHAUST] nudge stubs=%d" % _stubs, file=_sys.stderr, flush=True)
+                _newS = _ap_regen(
+                    "Error: [SEARCH-EXHAUST] the knowledge base has already rejected %d repeated "
+                    "search(es) as duplicates — repeating them will not return anything new. "
+                    "Either search with DIFFERENT plain words describing the action a policy "
+                    "document would use, or act on what you already retrieved. Do NOT invent a "
+                    "procedure, menu path, or tool name that no document gave you; if nothing "
+                    "covers this request, say so honestly and follow the escalation policy."
+                    % _stubs, "searchexhaust")
+                if _newS is not None:
+                    am = _newS
+                    _resign = (not getattr(am, "tool_calls", None)
+                               and isinstance(getattr(am, "content", None), str)
+                               and am.content.strip())
         _fu_cap = int(os.environ.get("T2_FOLLOWUP_CAP", "1") or 1)
         if (os.environ.get("T2_FOLLOWUP_REQUIRED") == "1" and _resign
                 and getattr(self, "_t2_followup", 0) < _fu_cap):
@@ -5250,6 +5360,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _th = int(_fc["resign_th"])
                     self._t2_fu_resigns = getattr(self, "_t2_fu_resigns", 0) + 1
                     if self._t2_fu_resigns < _th:
+                        # ★C214 진단(day7 028 [S]: dispute→update 체인이 A2에 선언돼 있는데
+                        #   라이브 미발화 — 원인 미확정). 억제 사실을 마크로 남겨 다음 런에서
+                        #   "임계 미달 억제"인지 "판정 자체 미도달"인지 구분한다(계측만·거동 0).
+                        print("[T2_FOLLOWUP] chain suppressed(th=%d resigns=%d) after=%s"
+                              % (_th, self._t2_fu_resigns, _fc.get("after")),
+                              file=_sys.stderr, flush=True)
                         break
                     self._t2_followup = getattr(self, "_t2_followup", 0) + 1
                     print("[T2_FOLLOWUP] chain fired(%s) after=%s"
