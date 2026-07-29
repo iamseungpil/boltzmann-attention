@@ -9,11 +9,15 @@
 |---|---|---|---|---|---|
 | G1 | 032 ", Sofia" deny-루프·008/032 성패쌍 | **notice 판정 정규화·일원화**: GB2 `_transfer_msg_sent`와 EPLAN `_terminal_grant_check` ⓐ를 공용 술어 1개로 — notice_text **정규화 prefix 매칭**(공백 압축·마침 문장부호/호칭 접미 무시·앞 N자) | ①정규화로 닫힘(과소-정규화 교정) ②deny 유지하되 술어 공용화만(처방 불변) | t2_gate_patch·t2_eplan_patch | 정규화 오인정(무관 발화를 notice로) 0 확인·032형 재발 0 |
 | W1 | 001 정답-DB 보류→오염 | **walk-gap 수정+강등**: ⓐexec 산입을 실측 write(원장 실효 write·user-실행 포함)로 교정 ⓑ강제 보류→**리마인더 1회**(비보류·done 유지) — 열린 술어(계획 이행 해석) 위 강제 제거 | ①열림(정규화 불가)→강제 금지 ②리마인더=표면화(닫힘) | t2_eplan_patch | day8-PASS 6태스크 유지·001형 연장-오염 0 |
-| R1 | 017 툴콜-교체+구본문 잔존 | **강제-채널 regen=전체 응답 재생성**: `_ap_regen`류가 tool_choice 강제 시 구본문 폐기·본문+툴콜 일체 재생성(생성 방식의 닫힌 규칙·정합 "검사" 금지) | ①② 모두 형식-층(닫힘) | t2_gate_patch | regen 후 본문-툴콜 모순 발화 0·regen 비용 증가량 |
+| ~~R1~~ | 017 | **제외(리뷰 필수2 확인 결과)**: `_ap_regen`은 이미 전체 교체이고, 017의 모순 서사는 regen 산출이 아니라 **give-성공 tool 결과([45][46]) 직후의 후속 assistant 턴([47]) 자체 발화**로 확인([S]·접합 지점 부재) → R1=no-op. 017은 **learn-축 잔여**(도구-성공 결과 해석 실패=prior-override 계열·[[42]])로 재분류·D 절차 대상 | — | — | — |
 | N1 | 021 무관-give DB-오염(8/8 상관·n 소) | **무관-give 확인 넛지(강제 금지)**: give 대상이 원장(도구 결과·KB 회수문)에 미등장 시 1회 넛지 "이 give가 현재 요청 절차에 필요한 근거를 확인하라 — 불필요하면 생략" cap 1 | ①닫힘(원장 등장 대조) ②열림("무관" 단정 불가)→넛지 | t2_gate_patch | 발화 건 정당/무관 분류 실측(정당 선제-give 오탐률) 후에만 강제 논의 |
 | T1 | 023 비접지 threshold·엔진 undercount | ⓐ`monthly_threshold`류 적응-값을 A2 grounded_params에 편입(SG_GROUND 커버=비접지 드롭·재독 지시) ⓑ**rebate 산정 undercount 별도 조사**(윈도 경계 $94 슬립·조사 전 산식 수정 금지) | ①접지=닫힘 ②드롭+재독 지시=기존 SG_GROUND 처방(닫힘) | gate.json(+t2_scaffold_get 조사) | 023 QUALIFIES 정판정·threshold 접지 발화율 |
 
 ## §2. 비고
+
+- **G1 스코프 결정(리뷰 필수1)=(a) 3층 전부 공용 술어 일원화**: 게이트(gate_interpreter `transfer_msg_sent`)+EPLAN(`_terminal_grant_check` ⓐ)+**측정층(t2_compliance:108·t2_gate:42 TRANSFER_MSG)**. 근거=측정이 행동을 잘못 세는 것을 알면서 유지=계측 왜곡. **원장 주석 필수**: "C213 시점 전후 compliance 산정 변경(notice 정규화)" — 런-간 비교성 관리는 P9a(n=31 병기)와 동형. 분석 스크립트(notice_pergate_census)는 다음 사용 시 갱신.
+- **T1 선행 확인(리뷰 권고1)**: ⓐ구현 전 gate.json rebate `_ground_note`에 monthly_threshold ground 선언이 **이미 있는지** 확인 — 있는데 무력했다면 처방은 "편입"이 아니라 무력 원인 규명. ⓑ존재-검사의 한계 명기: KB에 복수 상품 threshold 공존 시 오른 값/틀린 값 구분 불가(D4 교훈) → 부족하면 `source_param` 축자-인용 변형(기존 메커니즘·엔진 변경 0)이 다음 단계.
+- **구현 순서(리뷰 합의)**: W1→G1→N1→T1 (R1 제외 확정).
 
 - G1 정규화 규칙은 **닫힌 연산만**(소문자화·공백 압축·구두점/접미 절단·prefix N자) — 유사도/의미 매칭 금지(열린 술어 재도입 방지).
 - W1 ⓐ는 gold-무관(원장 실측 write 계상) — [[03b]] 위반 없음. ⓑ로 001의 "정답-DB 강제 연장" 경로 자체가 소멸.
