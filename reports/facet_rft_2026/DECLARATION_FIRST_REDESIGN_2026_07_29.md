@@ -6,7 +6,8 @@
 > 가능인지/다른 방법 있는지 확인"(=rev1·전면화 확정)**.
 > 상위: `AXIS_DECISION`(코어 동결·금지선)·`STACK_PREDICATE_AUDIT`(배터리)·[[16]] LOCK(fexec·
 > FIND=근거-요구)·C45(출처선언·날조 67→0%·Δspurious 0)·[[10]](LLM=formalize·검증=결정론).
-> 상태: **rev1 설계** — 리뷰 → 구현(스위치-오버 순서 §1c). 딥리서치(run `wf_df853bf1-7a4`) 대조分 추후 편입.
+> 상태: **rev2 설계** — 2026-07-30 리뷰 반영(§1d verification 완결화 R1~R10·처방 열·
+> normalization / §0c 명확화 2 / §1c 제거=기본-OFF / §2·§6 전파 / §1b X4 인용). 구현 대기. 딥리서치(run `wf_df853bf1-7a4`) 대조分 추후 편입.
 
 ## §0b. 전면화 (rev1 LOCK 후보) — 아키텍처 완성형
 
@@ -35,51 +36,116 @@
 (모든 도메인이 같은 봉투를 씀) — 도메인 A2는 내용(producer 맵·레지스트리·slot·claim_kinds)만
 공급하고 **enum 확장은 금지**(확장=온톨로지 절차·[[16]] §3 검증 필요).
 
-## §1d. A2 `formalize_spec` 정본 초안 (base layer = 도메인-불변 데이터·엔진 동봉)
+**명확화 1 (리뷰·enum 금지의 사정거리)**: 금지 대상은 **base enum**(`turn_type`·`user_act`·
+`ask.reason`)뿐이다. `enum_from(domain.*)`(예: `done_report.kind` ← `domain.claim_kinds`)은
+**명시적 파라미터화**이므로 허용 — 구조는 불변·내용만 도메인([[05]] ABox 패턴). **X6 유한성
+측정의 분모도 이 구분을 따른다**: 스왑 간 diff는 **base 필드·base enum에 대해서만** 집계하고
+(불변이면 공집합), `enum_from(domain.*)`의 내용 변화는 분모 밖(정상적 도메인 공급).
+
+**명확화 2 (`mixed` 불일치 해소)**: `user_act` enum은 §1d를 정본으로 하여
+`[question, provides_slot, consent, refusal, smalltalk, mixed]` — §2 본문의 5종 열거는 `mixed`
+누락(오기). `mixed`는 실사례 최빈일 수 있으므로 **최보수 분기**를 명시한다:
+**mixed = provides_slot 처리(슬롯 갱신) + question 응답 허용(강제 없음)** — 즉 정보는 반영하되
+행동 강제는 걸지 않는다(오분류 시 피해 최소).
+
+## §1d. A2 `formalize_spec` 정본 (rev2·2026-07-30 리뷰 반영 — **verification 완결화·처방 열·정규화**)
 
 ```yaml
 formalize_spec:                    # ── base layer: 도메인-불변 (전 도메인 동일·수정=온톨로지 절차)
-  version: 1
+  version: 2
   envelope:                        # 매 assistant 턴 선언
     turn_type:   {enum: [ACT, ASK, CONFIRM, INFORM, DONE], required: true}
     next_action: {type: tool_ref, required_if: turn_type==ACT}
-    ask:         {required_if: turn_type==ASK,
+    ask:         {required_if: turn_type in [ASK, CONFIRM],
                   fields: {slot: slot_ref, reason: {enum: [missing, confirm]}}}
     done_report: {type: list[{kind: enum_from(domain.claim_kinds), what: str}],
-                  required_if: terminal_turn}          # CLAIMPROV/WRITEPROV 서브콜 통합(§1b 정정)
+                  required_if: turn_type==DONE or terminal_turn}
     instruct_user_run: {type: tool_ref(domain.user_runnable), nullable: true}
     evidence_quote:   {required_for: [give, FIND-값], verify: substring_in_ledger}
   user_act:                        # 유저 발화 formalize (컨트롤러 입력)
     enum: [question, provides_slot, consent, refusal, smalltalk, mixed]
-    slots_extracted: list[{slot: slot_ref, value: str, quote: str}]   # verify: quote∈발화
+    slots_extracted: list[{slot: slot_ref, value: str, quote: str}]
+  demand_ledger:                   # ★rev2: 요구 목록(수요측) — user_act formalize의 산출
+    items: list[{demand_id, description, quote, status: enum[open, done]}]
+    verify: quote ∈ utterance      # 등재 조건(근거 인용 필수·환각-demand 차단)
   guide: |                         # 시스템-프롬프트 주입 가이드(데이터·C47: placeholder-명백 예시만)
     <formalize 방법 지시문 — 엔진 불변·A2 텍스트>
-  verification:                    # 엔진 정합 규칙 (전부 닫힌 술어·이 목록이 검증기의 전부)
-    - ACT ⇒ tool_calls ≠ ∅
-    - ask(slot, missing) ⇒ slot ∉ filled_ledger
-    - done_report ⊆ executed_events(domain.event_map)
-    - instruct_user_run ∈ domain.user_runnable
-    - evidence_quote ∈ ledger / slots_extracted.quote ∈ utterance
+  normalization:                   # ★rev2: 규칙 R5/R9의 정규화 명세(032·031 전과 대응)
+    text: [trim, collapse_ws, casefold, strip_punct_edges, strip_honorific_suffix]
+    number: [strip_thousands_sep, canonical_float, strip_currency_sym]
+    match: normalized_substring     # 정규화-후 substring(G1형)·부분토큰 완화 금지
+    instrument: false_block_count   # ★false-block 상시 계측(min_tok 완화형 전과 재발 감시)
+  verification:                    # ★엔진 정합 규칙 = 검증기의 전부(목록 밖 검사=위반)
+    # id | 술어(닫힘)                                             | 처방(R-닫힌 메뉴)
+    - {id: R1, pred: "turn_type==ACT ⇒ tool_calls ≠ ∅",            rx: full_regen}
+    - {id: R2, pred: "tool_calls ≠ ∅ ⇒ turn_type==ACT",            rx: full_regen}   # ★역방향
+    - {id: R3, pred: "ask(slot, missing) ⇒ slot ∉ filled_ledger",  rx: surface}
+    - {id: R4, pred: "ask(slot, confirm) ⇒ slot ∈ filled_ledger",  rx: surface}      # ★대칭(W4)
+    - {id: R5, pred: "done_report ⊆ executed_events(domain.event_map)",
+                                                                   rx: surface}      # 3b(강제 금지)
+    - {id: R6, pred: "instruct_user_run ∈ domain.user_runnable",    rx: deny_g2}      # ★등급2 포맷
+    - {id: R7, pred: "turn_type==DONE ⇒ demand_ledger.open == ∅",  rx: surface}      # ★DONE-게이트
+    - {id: R8, pred: "next_action 선언 후 K턴 내 해당 호출 실재",     rx: surface, K: 3}  # ★§1 편입
+    - {id: R9, pred: "evidence_quote ∈ ledger ∧ slots_extracted.quote ∈ utterance",
+                                                                   rx: surface}      # 정규화 적용
+    - {id: R10, pred: "직전 assistant ask 선언 = ∅ ∧ user_act == provides_slot → 이상",
+                                                                   rx: surface}      # ★우회 부분검출
+  prescriptions:                   # R-닫힌 메뉴 정의(이 5종 외 처방 금지)
+    full_regen:  전체 응답 재생성(본문+툴콜 일체·형식-층·cap 2)
+    subst:       결정론 치환(치환값이 유일 계산될 때만)
+    deny_g2:     차단 + **오류-계약 등급 2 포맷**(위반-제약 식별: 무엇이 왜 위반인지 +
+                 스키마-파생 사실만 · 정답 이름/인스턴스 값 **금지** · bare 금지)
+    surface:     표면화(행동 요구 0·pending 통지)
+    read_force:  read-계열 호출 강제(대상 도구가 유일 결정될 때만·§1.5 write 금지)
   routing:                         # 결정론 turn-policy (도메인-불변 default)
     provides_slot: ledger 갱신 → eligible(read)=required 허용
-    consent_token: write-게이트 해제 (eligibility ∧ ask-escape 보존 시만 required·DR §8 수정1)
+    consent_token: write-게이트 해제 (**eligibility ∧ ask-escape act 보존 시에만** required)
     question|refusal: 강제 없음 (pending 표면화 유지)
-    stuck: ask(slot) k회 ∧ binding 0 → producer-경로 표면화
-domain:                            # ── 도메인 layer: 내용만 공급 (enum 확장 불가)
-  slot_types: <스키마 파생>         # 거의 무료([[16]] §3)
+    mixed:         provides_slot 처리 + question 응답 허용(강제 없음)   # ★명확화 2
+    stuck:         ask(slot) k회 ∧ 신규 binding 0 → producer-경로 **표면화**(승급=표면화·§4-3)
+domain:                            # ── 도메인 layer: 내용만 공급 (base enum 확장 불가)
+  slot_types: <스키마 파생>
   arg_producers: {<arg>: {tool: <t>, side: agent|user}}
   user_runnable: [<도구 레지스트리·환경 파생>]
   claim_kinds / event_map: <기존 claim_prov 재사용>
 ```
 
+**rev2 변경 근거 (리뷰 대응)**
+- **R7 DONE-게이트 신설** + `demand_ledger` 필드 신설: §1b가 EPLAN 수요-측 파서를 폐기했으므로
+  그 대체(요구 목록 formalize)를 **검증기에 연결**해야 아키텍처의 수요측이 살아난다. DR2 §1의
+  "결정론 coverage → DONE 차단"이자 논문①의 포지셔닝(over-action gate의 **under-action 대칭**).
+  등재 조건에 `quote ∈ utterance`를 걸어 환각-demand를 구조적으로 차단.
+- **R4 confirm 대칭 신설**: W4 종속항(confirm(filled)=합법 / request(filled)=위반)의 구현 근거.
+  `ask`를 CONFIRM 턴에도 필수화(envelope 수정)해 두 방향이 다 판정되게 함.
+- **R2 역방향 turn_type 신설**: 단방향(R1)만으로는 "INFORM 선언 + 도구 호출"이 어느 규칙에도
+  안 걸린다. 방향을 "tool_calls 있으면 ACT"로 고정 — §2-1의 공존(답변+호출)은 **ACT + 산문**으로
+  표현되므로 충돌 없음.
+- **R8 K턴 편입**(§1 표에만 있던 규칙): 목록-폐쇄 원칙상 목록 외 검사는 그 자체가 위반이므로
+  편입. 처방은 **표면화**(강제 아님·K=3).
+- **R10 교차-턴 우회 부분검출 신설**(3회 지적분): 산문으로 묻고 선언은 무해하게 다는 우회는
+  단일-턴 구조 모순에 안 걸린다. **양쪽 선언(우리 봉투 + user_act)** 을 쓰는 닫힌 규칙으로
+  부분 검출 → X3 모순-주입에 이 클래스 포함(§6·잔여 맹점 [S] 정량).
+- **처방 열 신설**: 배터리 R-검사는 규칙마다 닫힌-메뉴 처방을 요구. 특히 **R6는 `deny_g2`** —
+  X5 v2 실측(bare 거부 회복 0/4 vs 등급 2 4/4·X5 v3에서 클래스-의존 확인)이 예고한 실패를
+  피하려면 차단 메시지가 **위반-제약 식별 포맷**이어야 한다(스키마-파생만·인스턴스 값 금지).
+- **`normalization` 신설**: R5/R9의 substring이 과소-정규화(032 ", Sofia" deny-루프)·과대-완화
+  (rall22 031 "Marriott" false-block) 양쪽 전과를 가졌다. 정규화-후 substring 고정 +
+  **false-block 상시 계측**(부분토큰 완화 금지).
+
 - **형식 보장 사슬**: `formalize_spec` → guided 문법 컴파일(결정론) → 디코딩 강제 → 파싱
   실패 시 ENVELOPE regen. 스키마가 데이터라 문법도 자동 파생 — 엔진 수정 없이 스키마 진화.
 - **검증기의 완결성**: `verification` 목록 밖의 검사를 엔진이 하면 위반(§1b 집행 장치).
+  규칙 추가는 본 절 개정으로만(원장 기록 필수).
 
 ## §1b. P2-b 전면 폐기 목록 (rev1b·2026-07-30 **regex 전수 스윕으로 확정** — 사용자 질의 "5개 외 더 있나")
 
 스윕 방법: 전 패치 파일(t2_gate/prekb/scaffold_get/eplan/resolve) regex·substring 사이트 전수
 색출 → 매칭 대상이 {자유 NL} vs {기계-포맷/선언/스키마}인지 분류.
+
+**★폐기의 최강 근거 = X4 flip 실측 [M]**(`X_FREE_TRACK_RESULTS` §4): 프록시 술어 3종이
+의미-보존 변이에서 **전건 flip**(Wilson LB 0.65~0.78·miss와 false-fire 대칭). 특히
+`reask_signals`는 **A2 데이터인데도 열림** ⇒ 리터럴 거처를 바꿔도 프록시는 열린 채라는 실증
+(§0c "A2에 둘 자격은 닫힌 구조에만"의 근거).
 
 **폐기 확정 (자유-NL 해석)**:
 | 폐기 | 현행(산문 해석) | 대체 |
@@ -118,8 +184,15 @@ done_report로 통합(개선)이지 폐기가 아님.** 초판 §1b의 "산문 c
 ## §1c. 스위치-오버 순서 (폐기 실행 규율)
 
 **선언 채널 배선 → 구 트리거 제거** — 배선 전 제거는 표면화까지 죽인다. ①봉투 확장(turn_type·
-ask·done_report) + 검증기 ②E-DECL-COMP 프로브(§6)로 준수율 확인 ③구 P2-b 트리거 OFF(플래그
-단위·원장 기록) ④E-MFIX 후 라이브 검증. 설계서 리뷰 승인 전 구현 착수 금지([[03]]).
+ask·done_report·demand_ledger) + 검증기(§1d R1~R10) ②E-DECL-COMP 프로브(§6)로 준수율 확인
+③구 P2-b 트리거 OFF ④E-MFIX 후 라이브 검증. 설계서 리뷰 승인 전 구현 착수 금지([[03]]).
+
+**★"제거"의 정의 (리뷰 확정·순차 확정·병행 기각)**: ③의 제거 = **플래그 기본-OFF 전환이며
+코드 삭제가 아니다.** 근거 2: (i) X3 실패 시 롤백이 플래그 복원으로 값싸다 (ii) **Y2 arm2
+(코어+넛지층=현행 go_stack)가 구 트리거 ON 상태의 재현을 요구** — 코드를 지우면 Y2의 비교
+arm이 소멸한다. **코드 보존 시한 = Y2 종료**(그 후 삭제 여부 재판단·원장 기록).
+**병행(혼재) 기각**: 구 트리거와 신 검증기가 같은 이벤트에 이중 발화하면([[19]]) 귀속 불가.
+X3는 격리 프로브라 라이브 스택과 무관하므로 arm 정의에 혼재 변수는 없다.
 
 ## §0. 원리 — 정보 흐름의 역전
 
@@ -137,7 +210,7 @@ ask·done_report) + 검증기 ②E-DECL-COMP 프로브(§6)로 준수율 확인 
 
 | 구 레버(금지) | 선언(LLM formalize) | 결정론 체크(엔진·전부 닫힘) | 잔여(LLM/learn) |
 |---|---|---|---|
-| FORCE_ACTION | 매 턴 봉투 `turn_type: ACT\|ASK\|CONFIRM\|INFORM\|DONE` (+`next_action: tool` or null) | **ACT ∧ tool_calls=∅ = 자기-선언 모순** → 형식-층 regen. `next_action` 선언 후 K턴 미이행 = 선언-이벤트 불일치 | 선언 충실도 |
+| FORCE_ACTION | 매 턴 봉투 `turn_type: ACT\|ASK\|CONFIRM\|INFORM\|DONE` (+`next_action: tool` or null) | **ACT ∧ tool_calls=∅ = 자기-선언 모순** → 형식-층 regen (§1d **R1**·역방향 **R2**). `next_action` K턴 미이행 = §1d **R8**(표면화) | 선언 충실도 |
 | HAVE_VALUE | ask 행위를 `{ask_slot: X, reason: missing\|confirm}`으로 선언 | `reason=missing ∧ X 원장 접지 실재 = 모순` → 표면화("X는 이미 <ref>"). 확인/재요청 구분=모델 자기-선언 | 선언 충실도 |
 | VALUE_ACQUIRE | 동일 ask 선언 + A2 `arg_producers` | `ask_slot=X ∧ A2 user-측 producer P ∧ P 미-give` → P 경로 표면화 (membership) | — |
 | UNKNOWN_REPEAT | 유저-실행 지시를 `{instruct_user_run: T}`로 선언 | `T ∉ 실행가능 레지스트리` = membership 위반. **선언 시점**에 차단(반려-후-재지시 산문 매칭 불필요) | — |
@@ -159,9 +232,12 @@ ask·done_report) + 검증기 ②E-DECL-COMP 프로브(§6)로 준수율 확인 
    LLM이 닫힌 enum으로 분류 `user_act: question|provides_slot|consent|refusal|smalltalk` →
    컨트롤러가 (user_act × DAG 상태 × slot 표 × 게이트 상태)에서 **결정론 라우팅**:
    - provides_slot → 표 갱신 → eligible이면 ACT(required)
-   - consent(토큰) → ACT(required·write 허용)
+   - consent(토큰) → write-게이트 해제 — **required는 eligibility ∧ ask-escape 보존 시에만**
+     (⚠**§1d `routing`이 정본**·DR2 §8 수정 1 우선. 본 행의 구판 "ACT(required·write 허용)"은 철회)
    - 선행 read 미충족 → read required(§1.5 자유)
    - question/refusal → 응답 허용·강제 없음(단 pending 표면화 유지)
+   - **mixed → provides_slot 처리 + question 응답 허용(강제 없음)**(§0c 명확화 2)
+   ※ 본 절의 enum 열거는 설명용 — **정본 enum·라우팅은 §1d**(`mixed` 포함 6종).
    = 고전 task-oriented dialogue의 **NLU → DST → policy** 3분할과 동형·우리 분담([[10]])과 일치.
 
 ⇒ **턴 결정은 "유저-발화 formalize 정확도"라는 좁은 잔여를 빼면 결정론으로 닫힌다.** 그
@@ -184,8 +260,10 @@ ask·done_report) + 검증기 ②E-DECL-COMP 프로브(§6)로 준수율 확인 
    라벨이 되며 (c) C45 실측상 선언 강제만으로 행동이 교정되는 성분이 크다. 잔여=learn.
 2. **형식 부담**: 소형 모델의 봉투 준수 비용 — ENVELOPE_GUARD가 백스톱·C45에서 32B 준수 실증.
    단 선언 필드 증가 = 파싱 실패 표면 증가 → 봉투 스키마는 최소로.
-3. **게임 가능성**: required 회피를 위해 ASK만 선언하는 퇴행 — pending-표면화 + K턴 유예 후
-   승급(TERM_GRANT 패턴)으로 유계. 계측 필수(Δspurious·모트 규율).
+3. **게임 가능성**: required 회피를 위해 ASK만 선언하는 퇴행 — pending-표면화 + K턴 유예로
+   유계. **"승급"의 처방 = 표면화**(리뷰 2회 지적 해소): K턴 경과 시 §1d `R8`(next_action 미이행)
+   과 `stuck` 라우팅이 **표면화**로만 발화하며, **강제 승급은 없다**(R-메뉴상 `surface`).
+   TERM_GRANT식 1턴 유예는 게이트-층(닫힌 술어)에 한정. 계측 필수(Δspurious·모트 규율).
 4. **검증 대기**: 본 설계는 무료 오프라인 검증(격리 프로브: 선언 준수율·모순 검출율) 가능하나
    효과 판정은 **E-MFIX(측정 고정) 후**. 딥리서치 결과로 선행 실증(TOD policy·declaration
    패턴) 대조 후 rev1.
@@ -199,10 +277,13 @@ ask·done_report) + 검증기 ②E-DECL-COMP 프로브(§6)로 준수율 확인 
 | ③선언 충실도 | 선언=실제 의도·사실 | **여기만 learn**(SFT 설치+DPO 거짓-선언 벌점·[[42]] 처방 일치). 단 C45의 자기-정합 효과가 상당분 무료 | C30(행동 규칙 프롬프트 무효)·fexec 0.79·INFER-calibration 미확립([[16]]) |
 
 - few-shot 형식 예시는 **C47 주의**(예시 복사 오염) — 값이 명백 placeholder인 스키마만.
-- **E-DECL-COMP (무료 격리 프로브·구현 전 관문)**: 신규 선언(turn_type·ask) 3-arm =
-  prompt-only / prompt+guided / prompt+regen. 측정 = 봉투 준수율·모순-검출율(의도적 모순 주입
-  재생)·ASK-남발율(게임 감시). 32B·로컬 vLLM·[[18]] 정보-맞춘 구성. 통과 기준 = guided arm
-  준수 100%(구조 보장 확인)·regen arm ≥ C45 수준.
+- **E-DECL-COMP = X3 (무료 격리 프로브·구현 전 관문)**: **정본 스펙 =
+  `EXPERIMENT_PLAN_PATENT_PAPERS` §1-X3**(4-arm: prompt-only / **tail-제약 guided** /
+  prompt+검증기+regen / **two-pass**). 측정 = 봉투 준수율(다중 시드·장문)·**모순-검출율**
+  (주입: R1 ACT∧무호출 · R2 도구호출∧非ACT · R4 confirm(미충족) · R5 done_report 허위 ·
+  R7 DONE∧demand 잔여 · **R10 교차-턴 산문-우회**) · ASK-남발율 · **Δprose** · constraint-tax.
+  32B+7B(dense)·로컬 vLLM·[[18]]. 통과 기준 = guided arm 준수 100% · regen arm ≥ C45 수준 ·
+  Δprose/Δtask 유의 손실 없음. **산문-우회 잔여율은 GO/NO-GO가 아니라 보고 의무**(맹점 정량).
 - 외부 선행연구 대조 = DR1(`wf_df853bf1-7a4`)·DR2(`wf_781f7000-938`) 편입 완료.
 - **★DR2 구현 확정분(정본=`DR_DECLFIRST_DR2` §6)**: ①혼합 생성=**tail-제약 단일-pass**
   (In-Writing식 eos-트리거·기술 확정) vs two-pass(2606.25605)를 E-DECL-COMP arm으로 비교
