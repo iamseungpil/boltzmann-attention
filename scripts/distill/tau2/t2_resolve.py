@@ -86,13 +86,21 @@ ACTION_ASK_FB = (
 # ★Lever 2 (discovery controller·BANK_ACTIONREQ_PROBE_FORENSIC §6b (A) REACH 580):
 #   target이 discoverable dispatcher면 발견체인(getter→unlock→call)을 명시. 별도 컨트롤러 아님 —
 #   action-required 피드백을 발견-인지형으로 특화(A2 operands 참조·도메인-일반).
+# ★C241 U3': banking 어휘 제거. 구판은 액션 예시 3종('open bank account'…)과 **실제 도구
+#   인스턴스 이름**('open_bank_account_4821')과 디스패처 3종 이름을 산문에 박고 있었다 —
+#   페르소나 명사(gate `:2286`)보다 심각한 형태였다. 처방 = Q1 ⓐ(A2 키 순증 0):
+#   ①디스패처 이름은 `{unlock}`/`{call}`/`{list}` 플레이스홀더로 A2에서 주입
+#   ②구체 예시는 삭제하고 **쿼리 스타일 지침만 남긴다** — "함수명이 아니라 평문으로 행동을
+#     지칭하라"는 것은 C114/C139 실측(밑줄 함수명 쿼리는 BM25 점수 0·평문은 절차 문서 1~2위)에서
+#     온 **도메인-일반** 사실이므로 유지해도 리터럴이 아니다. 도메인별 예시가 필요하다는
+#     반증이 나오면 그때 A2 키를 신설한다(순증 1).
 DISCOVERY_REQUIRED_FB = (
     "[DISCOVERY-REQUIRED] this request needs a specialized internal tool whose name is written inside a "
-    "knowledge-base document. Do the discovery chain: (1) call {getter} with a query naming the ACTION "
-    "you need (e.g. 'open bank account', 'close bank account', 'apply savings interest correction') — the "
-    "matching KB document states the exact tool name (like 'open_bank_account_4821'); (2) unlock_discoverable_agent_tool "
-    "with that name; (3) call_discoverable_agent_tool with that name and its arguments. Do NOT rely on "
-    "list_discoverable_agent_tools (it only lists tools you already called) and do NOT transfer — the tool "
+    "knowledge-base document. Do the discovery chain: (1) call {getter} with a query that names the ACTION "
+    "you need in PLAIN WORDS (not as a function name with underscores — plain wording is what matches the "
+    "documents); the matching KB document states the exact tool name, which carries a numeric suffix; "
+    "(2) {unlock} with that name; (3) {call} with that name and its arguments. Do NOT rely on "
+    "{list} (it only lists tools you already called) and do NOT transfer — the tool "
     "name is in the knowledge base, search for it."
 )
 
@@ -136,8 +144,17 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
         # ★Lever 2: target이 discoverable dispatcher면 발견체인 안내(getter→unlock→call).
         _disc = _discoverable_dispatchers(a2)
         if target_tool in _disc:
+            # ★C241 U3': 디스패처 3종 이름을 A2에서 주입. 미선언이면 이 레버를 끈다(B3 교훈 —
+            #   플레이스홀더가 None으로 새어 모델에게 "None with that name"이 가면 더 나쁘다).
+            _ep3 = ((a2 or {}).get("eplan") or {})
+            _u3, _c3, _l3 = (_ep3.get("unlock_tool"), _ep3.get("dispatch_tool"),
+                             _ep3.get("list_tool"))
+            if not (_u3 and _c3 and _l3):
+                return {"status": "ok"}
             return {"status": "deny", "reason": "discovery-required",
-                    "feedback": DISCOVERY_REQUIRED_FB.format(target=target_tool, getter=_disc[target_tool])}
+                    "feedback": DISCOVERY_REQUIRED_FB.format(
+                        target=target_tool, getter=_disc[target_tool],
+                        unlock=_u3, call=_c3, list=_l3)}
         return {"status": "deny", "reason": "action-required",
                 "feedback": ACTION_REQUIRED_FB.format(target=target_tool)}
     return {"status": "deny", "reason": "action-ask", "feedback": ACTION_ASK_FB}

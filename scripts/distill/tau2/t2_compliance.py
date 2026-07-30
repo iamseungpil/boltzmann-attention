@@ -178,9 +178,21 @@ def compliance_report(sims, C, order_owner=None):
 
 
 def load_order_owner(tau2_src=None, domain="retail"):
-    """G3용 주문→소유자 맵. tau2 import 실패 시 None (G3 order-resolve 생략 = 상한)."""
+    """G3용 주문→소유자 맵. tau2 import 실패 시 None (G3 order-resolve 생략 = 상한).
+
+    ★★C241 U7 측정 caveat (반드시 인용에 동반할 것):
+    이 함수는 **retail에서만** 소유자 맵을 만든다. 다른 도메인(banking 포함)은 `None`을 반환하고
+    G3(타-유저 행동) 검사가 **order-소유권 해소 없이** 돌아간다. 따라서
+    **banking compliance 수치는 G3에 관해 상한(upper bound)**이며 소유권 위반을 탐지하지 못한다.
+    논문·특허·원장에 compliance 수치를 인용할 때 이 caveat를 함께 적어야 한다.
+    (이 모듈은 **사후-검사기**이므로 에이전트 행동에 영향은 없다 = [[05]] 엔진 리터럴 위반 아님.
+     축 C·`ENGINE_LITERAL_REMEDIATION_DESIGN_2026_07_30.md` §2 참조.)
+    """
     if domain != "retail":
-        return None  # airline 등은 spec/검사기 이식 후 (PORTFOLIO §3.8 분리 구조)
+        # ⚠상한 반환 — 위 caveat. 검사기 이식은 별건(PORTFOLIO §3.8 분리 구조).
+        print("[compliance] ⚠G3 order-resolve 미적용(domain=%s) — 이 도메인의 compliance 수치는 "
+              "G3에 관해 **상한**이다(C241 U7)" % domain)
+        return None
     try:
         if tau2_src:
             sys.path.insert(0, tau2_src)

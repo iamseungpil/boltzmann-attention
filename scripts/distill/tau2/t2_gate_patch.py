@@ -2334,7 +2334,11 @@ def _ref_iso_repair(self, la, UserMessage, msgs, am, specs):
             utext = "\n".join(str(getattr(m, "content", "") or "") for m in msgs
                               if getattr(m, "role", None) == "user")[:6000]
             others = {k2: v2 for k2, v2 in (nd or {}).items() if k2 != pn}
-            prompt = ("You are a precise banking assistant.\n\n"
+            # ★C241 U3': 도메인 명사 제거. 이 서브콜의 과제는 "제시된 listing에서 어느 항목을
+            #   가리키는가"의 참조 해소이고, 그 판정은 listing과 손님 발화에서 나온다 —
+            #   업종 명사는 정보를 더하지 않는다. A2 키를 신설하지 않는 쪽을 택했다(순증 0).
+            #   ⚠프롬프트 변경이므로 **행동 불변을 주장하지 않는다** — 측정 게이트 §5 참조.
+            prompt = ("You are a precise assistant.\n\n"
                       "=== CUSTOMER MESSAGES (verbatim) ===\n" + utext
                       + "\n\n=== RECORD LISTING (tool output) ===\n" + listing[:20000]
                       + "\n\n=== ACTION BEING FILED ===\n"
