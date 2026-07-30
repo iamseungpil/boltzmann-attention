@@ -14,6 +14,7 @@ x9의 요약은 응답 **전문 동등**으로 일치를 셌다. 그래서 양�
 용법: py -3 x9b_refiso_adjudicate.py <rows.jsonl>
 """
 import argparse
+import gzip
 import json
 import os
 import sys
@@ -43,7 +44,11 @@ def main():
     except Exception:
         pass
 
-    rows = [json.loads(l) for l in open(args.rows, encoding="utf-8") if l.strip()]
+    # 영속화 규율([[30]]·야간 함정 3): 리모트 repo에는 `.gz`만 남긴다 ⇒ 판정 도구가 gz를 직접 읽어야
+    # 평문 사본을 만들 이유가 없어진다.
+    _open = (lambda p: gzip.open(p, "rt", encoding="utf-8")) if args.rows.endswith(".gz") \
+        else (lambda p: open(p, encoding="utf-8"))
+    rows = [json.loads(l) for l in _open(args.rows) if l.strip()]
     ok = [r for r in rows if "error" not in r]
     print(f"행 {len(rows)} · 유효 {len(ok)} · 에러 {len(rows) - len(ok)}")
     if not ok:
