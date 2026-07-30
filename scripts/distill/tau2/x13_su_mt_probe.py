@@ -62,7 +62,8 @@ ENVELOPE_SCHEMA = {
 ENVELOPE_GUIDE = (
     "\n\n<declaration>\nRULE: every message you send MUST contain a declaration envelope as a single "
     "JSON object in the message content. This is mandatory **even when you also call a tool in the "
-    "same turn** — never leave the content empty. Format:\n"
+    "same turn** — never leave the content empty. **Write the envelope FIRST, before any tool call** "
+    "— text placed after a tool call is discarded by the server and does not count. Format:\n"
     '{"turn_type":"ACT|ASK|CONFIRM|INFORM|DONE","next_action":"<tool you are calling now or null>",'
     '"ask":{"slot":"<slot>","reason":"missing|confirm"} or null,'
     '"done_report":[{"kind":"<claim kind>","what":"<what you did>","resolves":null}],'
@@ -93,6 +94,9 @@ def system_prompt(env, arm):
     return sp + (ENVELOPE_GUIDE if arm != "D_TWOPASS" else "")
 
 
+LAST_USAGE = {}
+
+
 def call_llm(msgs, seed, tools=None, guided=None, max_tokens=700):
     body = {"model": MODEL, "messages": msgs, "temperature": 0.0, "seed": seed,
             "max_tokens": max_tokens}
@@ -108,7 +112,13 @@ def call_llm(msgs, seed, tools=None, guided=None, max_tokens=700):
                                  data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=300) as r:
-        return json.loads(r.read())["choices"][0]["message"]
+        d = json.loads(r.read())
+    # ★hermes 파서는 `<tool_call>` **뒤** 텍스트를 버린다(2026-07-30 실측: 호출 뒤에 봉투를 쓰면
+    #   completion_tokens는 늘어나는데 content는 빈 문자열로 온다). "봉투 없음"과 "봉투가 잘림"을
+    #   구분하려면 생성 토큰 수를 함께 봐야 한다.
+    LAST_USAGE.clear()
+    LAST_USAGE.update(d.get("usage") or {})
+    return d["choices"][0]["message"]
 
 
 # ── 봉투 파싱·검증(§1d 축소판·전부 닫힌 술어) ────────────────────────────────
@@ -191,13 +201,22 @@ def run_case(case, arm, seed, K=40):
            "script_len": len(script), "script_consumed": 1,
            # ★rev4 §10-6 부수관찰: 한 턴에 도구를 몰아 부르는 형태(multi-act)를 계측한다.
            "max_calls_in_turn": 0, "multiact_turns": 0,
+           # ★파서-드롭 의심 계측: 도구를 불렀고 content는 비었는데 생성 토큰이 호출분보다 많은 턴.
+           "drop_suspect_turns": 0, "gen_tokens": 0,
            "prose_chars": 0, "endpoint": BASE, "model": MODEL}
 
     for _ in range(K):
         row["turns"] += 1
         am = call_llm(msgs, seed, tools=tools)
+        gen = int(LAST_USAGE.get("completion_tokens") or 0)
+        row["gen_tokens"] += gen
         tcs = am.get("tool_calls") or []
         content = am.get("content") or ""
+        if tcs and not content.strip():
+            need = sum(len(c["function"]["name"]) + len(c["function"]["arguments"] or "")
+                       for c in tcs) / 3.0          # 호출을 싣는 데 필요한 대략 토큰
+            if gen > need + 20:
+                row["drop_suspect_turns"] += 1
 
         # ── 선언 채널 ──
         env_obj = None
