@@ -1,0 +1,76 @@
+{
+ "gates": [
+  {
+   "id": "G1_USER_ID_PROVIDED",
+   "kind": "auth",
+   "predicate": "authenticated user identity",
+   "satisfiers": {},
+   "satisfied_by": "user_provided_user_id",
+   "applies_to": [
+    "book_reservation",
+    "cancel_reservation",
+    "get_reservation_details",
+    "get_user_details",
+    "send_certificate",
+    "update_reservation_baggages",
+    "update_reservation_flights",
+    "update_reservation_passengers"
+   ],
+   "note": "the user must provide their user id themselves"
+  },
+  {
+   "id": "G2_CONFIRM_WRITE",
+   "kind": "confirm",
+   "predicate": "explicit user confirmation (yes) of the action details in the latest user message",
+   "satisfiers": {},
+   "ask": "list the action details to the user and ask them to confirm",
+   "applies_to": [
+    "book_reservation",
+    "cancel_reservation",
+    "send_certificate",
+    "update_reservation_baggages",
+    "update_reservation_flights",
+    "update_reservation_passengers"
+   ]
+  },
+  {
+   "id": "G3_RESERVATION_OWNER",
+   "kind": "ownership",
+   "predicate": "target reservation belongs to the authenticated user",
+   "satisfiers": {},
+   "owner_field": "user_id",
+   "resolver_path": [
+    "reservation_id",
+    "get_reservation_details",
+    "user_id"
+   ],
+   "terminal": "deny: you can only act on the authenticated user's own reservations",
+   "applies_to": [
+    "cancel_reservation",
+    "update_reservation_baggages",
+    "update_reservation_flights",
+    "update_reservation_passengers"
+   ]
+  }
+ ],
+ "producers": {
+  "authenticated_user_record": {
+   "tool": "get_user_details",
+   "args_from": {
+    "user_id": "@auth_user"
+   }
+  }
+ },
+ "eplan": {
+  "list_enumerator": "get_user_details",
+  "detail_reader": "get_reservation_details",
+  "entity_key": "reservation_id"
+ },
+ "_meta": {
+  "domain": "airline",
+  "layer": "core",
+  "source": "airline.gate.json",
+  "classifier": "x6b_a2_split.CORE/DISCARD (2026-07-30)",
+  "note": "도메인-불변 기대 기능군 — 유한성 주장의 분모(X6-c로 검정)"
+ }
+}

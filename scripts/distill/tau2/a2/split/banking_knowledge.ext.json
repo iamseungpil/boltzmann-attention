@@ -1,0 +1,273 @@
+{
+ "identifying_arg_types": [
+  "time_verified"
+ ],
+ "reference_filter": [
+  {
+   "dispatch_tool": "call_discoverable_agent_tool",
+   "tool_prefix": "file_debit_card_transaction_dispute",
+   "param": "transaction_id",
+   "key_field": "transaction_id",
+   "require": [
+    "date",
+    "amount"
+   ],
+   "criteria_fields": [
+    "date",
+    "merchant",
+    "transaction_type"
+   ],
+   "match": [
+    {
+     "field": "date",
+     "eq": "criteria.date"
+    },
+    {
+     "field": "description",
+     "contains": "criteria.merchant"
+    },
+    {
+     "field": "type",
+     "eq": "criteria.transaction_type"
+    }
+   ],
+   "on_ambiguous": "none"
+  },
+  {
+   "dispatch_tool": "call_discoverable_agent_tool",
+   "tool_prefix": "file_credit_card_transaction_dispute",
+   "param": "transaction_id",
+   "key_field": "transaction_id",
+   "require": [
+    "transaction_date",
+    "transaction_amount"
+   ],
+   "criteria_fields": [
+    "date",
+    "merchant",
+    "amount"
+   ],
+   "match": [
+    {
+     "field": "transaction_date",
+     "eq": "criteria.date"
+    },
+    {
+     "field": "merchant_name",
+     "contains": "criteria.merchant"
+    },
+    {
+     "field": "transaction_amount",
+     "contains": "criteria.amount"
+    }
+   ],
+   "on_ambiguous": "none",
+   "_note": "2026-07-22 §2bj(031 실측): 유저가 merchant/amount/date 축자 지목에도 인접 Amazon id 기입(C43 정박-치환)·credit 변형 미선언이 원인. debit 스펙(C77)과 동형·필드명=credit 레코드 실측. on_ambiguous=none=다중매치 무개입."
+  }
+ ],
+ "compute_ops": {
+  "file_debit_card_transaction_dispute": {
+   "customer_max_liability_amount": {
+    "op": "lookup_table",
+    "key": {
+     "op": "days_between",
+     "a": "params.transaction_date",
+     "b": "params.discovery_date"
+    },
+    "table": [
+     {
+      "cmp": "<=",
+      "thr": 30,
+      "result": 50
+     },
+     {
+      "cmp": "<=",
+      "thr": 60,
+      "result": 500
+     },
+     {
+      "result": {
+       "op": "ref",
+       "path": "params.disputed_amount"
+      }
+     }
+    ]
+   }
+  },
+  "submit_interest_discrepancy_report": {
+   "amount_difference": {
+    "op": "round",
+    "ndigits": 2,
+    "value": {
+     "op": "multiply",
+     "a": {
+      "op": "divide",
+      "a": {
+       "op": "subtract",
+       "a": "params.expected_apy",
+       "b": "params.actual_apy"
+      },
+      "b": {
+       "op": "const",
+       "value": 100
+      }
+     },
+     "b": "params.balance"
+    }
+   }
+  }
+ },
+ "action_tool_executor": {
+  "apply_for_credit_card": "user",
+  "submit_referral": "user",
+  "submit_transaction": "user",
+  "change_user_email": "assistant",
+  "unlock_discoverable_agent_tool": "assistant",
+  "call_discoverable_agent_tool": "assistant",
+  "give_discoverable_user_tool": "assistant"
+ },
+ "field_ops": {
+  "_note": "field→operator 분류(도메인 필드명=ABox·엔진 하드코딩 금지·[[05]]). compute는 compute_ops 키도 포함. 리뷰 ❶ 반영 2026-07-16.",
+  "compute": [
+   "customer_max_liability_amount",
+   "amount_difference",
+   "expected_apy",
+   "actual_apy",
+   "new_rewards_earned"
+  ],
+  "judgment": [
+   "eligible_for_provisional_credit",
+   "provisional_credit_eligible",
+   "partial_refund_amount"
+  ],
+  "id_ref": [
+   "transaction_id",
+   "account_id",
+   "card_id",
+   "user_id",
+   "order_id",
+   "card_last_4_digits",
+   "dispute_id",
+   "report_id"
+  ],
+  "enum": [
+   "dispute_reason",
+   "dispute_category",
+   "transaction_type",
+   "card_action",
+   "closure_reason",
+   "account_class",
+   "account_type",
+   "card_design",
+   "delivery_option",
+   "resolution_requested",
+   "pin_compromised",
+   "card_in_possession",
+   "police_report_filed",
+   "written_statement_provided",
+   "dispute_type"
+  ]
+ },
+ "function_agents": [
+  {
+   "name": "policy_qa",
+   "mode": "wrap",
+   "wraps": [
+    "KB_search_bm25",
+    "KB_search_dense",
+    "shell"
+   ],
+   "getter_tools": [
+    "KB_search_bm25"
+   ],
+   "instructions": "You are a knowledge-base lookup specialist for a bank agent. The main agent issued the tool call shown below to look up policy/procedure information from the knowledge base. Use the provided search tools, read the results, and produce a direct, complete answer to what the main agent was trying to find out. Include every concrete detail the main agent would need (exact steps, required fields, thresholds, statuses).",
+   "return_contract": "Respond ONLY with a single JSON object: {\"answer\": \"<direct, complete answer>\", \"quotes\": [\"<1-3 VERBATIM excerpts copied character-for-character from the KB documents that support the answer>\"], \"found\": true|false}. If the knowledge base does not contain the information, set found=false and say so in answer.",
+   "return_template": "[POLICY_QA] {answer}\n\nEvidence (verbatim from KB):\n{quotes}",
+   "max_rounds": 4,
+   "max_getter_calls": 4,
+   "max_sub_chars": 60000,
+   "quote_grounding": true,
+   "temperature": 0,
+   "_note": "FUNCTION_AGENT_ISOLATION_DESIGN_2026_07_19 (W)wrap 1호기 — 자료-read(KB)만 wrap. 상태 read(dispute status·거래·계좌 조회)는 wrap 금지(WEV 증거가 메인에 원문으로 남아야·§3 게이트 증거 계약). shell=KB 브라우징이라 wraps에 포함하되 getter론 미제공(서브는 검색으로). KB_search_dense=getter 제외(2026-07-19 사용자 지적·라이브 4/4 'Missing credentials' 오류=임베딩 키 의도적 부재·wraps엔 유지=메인의 dense 호출을 bm25-기반 실질 답으로 대체). T2_FN_ISOLATE=1 구동·기본 OFF."
+  }
+ ],
+ "analysis_producers": [
+  {
+   "data_source": "get_credit_card_transactions_by_user",
+   "producer": "get_reward_discrepancies",
+   "subject": "whether the rewards earned on those transactions match the expected rate for each card and category"
+  }
+ ],
+ "assertion_operands": {
+  "reward discrepancies": "get_reward_discrepancies",
+  "expected reward for a transaction": "get_reward_discrepancies"
+ },
+ "view_field_annotations": [
+  {
+   "contains": [
+    "account_status: ACTIVE",
+    "status: CLOSED"
+   ],
+   "note": "[FIELD NOTE] This record shows BOTH account_status: ACTIVE and status: CLOSED. Per the knowledge base ('What Happens When You Order a Replacement Card'): ordering a replacement cancels the current CARD and issues a new one, while 'your account number remains unchanged' and account functions continue. Do not treat a replaced/cancelled card as a closed ACCOUNT - the account's state is account_status. Account-level operations (e.g. credit limit requests) are governed by their own knowledge-base eligibility criteria, which do not include any card-replacement condition.",
+   "_note": "2026-07-22 §2bs(rall10 054 실측): dispute(cancel_and_reissue)+교체주문이 DB에 status: CLOSED/closed_date 기록(account_status: ACTIVE 병존)→모델이 '계좌 폐쇄→CLI 불가' 오독·CLI 12액션 미시도(user-sim 수긍 STOP). KB 근거=replacements_003('account number remains unchanged')+CLI 자격 문서(logistics_004/005/006)에 계좌-상태/교체 요건 부재(2026-07-22 census·역방향 grep 0건). rall9 15/17은 submit 전 재조회 안 해서 통과=운. 인스턴스-완화 — 근본 클래스(모호 상태 오추론)=INFER-calibration(learn) 영역."
+  }
+ ],
+ "param_cap_check": [
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "submit_credit_limit_increase_request"
+   },
+   "param": "requested_increase_amount",
+   "record_key_field": "account_id",
+   "record_require": [
+    "credit_limit",
+    "card_type"
+   ],
+   "limit_field": "credit_limit",
+   "pct_by": {
+    "field": "card_type",
+    "map": {
+     "Bronze Rewards Card": 0.25,
+     "EcoCard": 0.25,
+     "Business Bronze Rewards Card": 0.25,
+     "Silver Rewards Card": 0.5,
+     "Business Silver Rewards Card": 0.5,
+     "Green Rewards Card": 0.5,
+     "Silver Zoom Card": 0.5,
+     "Gold Rewards Card": 0.5,
+     "Business Gold Rewards Card": 0.5,
+     "Platinum Rewards Card": 0.5,
+     "Business Platinum Rewards Card": 0.5,
+     "Diamond Elite Card": 0.5
+    }
+   },
+   "feedback": "Error: [POLICY-CAP] the requested increase ({value}) exceeds this card's tier maximum of {cap} per request ({pct} of the current credit limit {limit}, per the CLI policy). Do NOT submit this amount. Inform the customer of the maximum they are eligible for ({cap}) and ask whether they would like to proceed with that amount instead; submit only after they confirm.",
+   "_note": "2026-07-22 §2br(rall9 054 실측·rall4 t0 동일): 유저 요청 4000 무검증 제출(gold=캡 2500=50%x5000 적용·안내 후 consent). 정책[S]=doc_..._006(entry 25%·mid/premium 50%)+티어 분류[S]=doc_credit_card_replacements_002(Entry:Bronze/Eco/BizBronze·Mid:Silver/BizSilver/Green/SilverZoom·Premium+:Gold/BizGold/Platinum/BizPlatinum/DiamondElite). 미기재 카드(Crypto 등)=맵 부재→무개입(안전). deny+안내=consent 보존."
+  }
+ ],
+ "ref_iso": [
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_credit_card_transaction_dispute"
+   },
+   "param": "transaction_id",
+   "producer_tools": [
+    "get_credit_card_transactions_by_user"
+   ],
+   "id_pattern": "txn_[0-9a-f]{6,}",
+   "_note": "2026-07-24 C124/C125: wrong-txn 참조 슬립(인접-행 전사+자기-정박)이 rall19/20서 3회 재발(041735 2회·9a72b 1회)+날조 a1b2c3d4. 격리 재선택(A_minimal 9/9 실증) → 불일치 시 치환. 답이 producer 목록에 실재해야 채택=날조 id 차단. ★C126 rall21 라이브 판정: switched 0(keep 8=031 정답 확인·unsure 8=039 다중항목)·over-switch 0. 교정: memoize(동일값 재검 cap낭비=031 keep×8)·다중-hit unsure(오채택 방지)·match_hint(다중항목 매핑 지시·A2 소관).",
+   "match_hint": "by merchant, amount, and date"
+  }
+ ],
+ "_meta": {
+  "domain": "banking_knowledge",
+  "layer": "ext",
+  "source": "banking_knowledge.gate.json",
+  "classifier": "x6b_a2_split.CORE/DISCARD (2026-07-30)",
+  "note": "도메인-특화 스펙 = 정직한 per-domain opex (특허 유한성 주장에서 제외)"
+ }
+}

@@ -1,0 +1,156 @@
+{
+ "placeholders": [
+  "#W0000000"
+ ],
+ "variant_operand": [
+  "new_item_ids"
+ ],
+ "variant_spec": {
+  "trigger_tool": "get_product_details",
+  "nested_field": "variants",
+  "id_field": "item_id",
+  "anchor_operand": "item_ids",
+  "tie_break": "min_price"
+ },
+ "calc_specs": [
+  {
+   "trigger_tool": "get_product_details",
+   "op": "count_where",
+   "nested_field": "variants",
+   "cond_field": "available",
+   "cond_value": true,
+   "label": "number of CURRENTLY AVAILABLE variants of this product"
+  },
+  {
+   "trigger_tool": "get_order_details",
+   "op": "sum",
+   "nested_field": "items",
+   "item_field": "price",
+   "label": "sum of current item prices in this order (USD)"
+  },
+  {
+   "trigger_tool": "get_product_details",
+   "op": "argmax_where",
+   "nested_field": "variants",
+   "cond_field": "available",
+   "cond_value": true,
+   "rank_field": "price",
+   "id_field": "item_id",
+   "label": "most expensive available variant"
+  },
+  {
+   "trigger_tool": "get_product_details",
+   "op": "argmin_where",
+   "nested_field": "variants",
+   "cond_field": "available",
+   "cond_value": true,
+   "rank_field": "price",
+   "id_field": "item_id",
+   "label": "cheapest available variant"
+  }
+ ],
+ "regen_resolver_specs": [
+  {
+   "arg": "address1",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "address1"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "address2",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "address2"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "city",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "city"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "state",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "state"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "zip",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "zip"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "country",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "country"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  }
+ ],
+ "calc_tool": "calculate",
+ "tool_error_specs": [
+  {
+   "applies_to": [
+    "exchange_delivered_order_items",
+    "modify_pending_order_items"
+   ],
+   "match": "not found or available|item not found|variant not found",
+   "class": "recover",
+   "hint": "The item/variant id does not exist for this product/order. Re-read the correct id from get_product_details / get_order_details and use it."
+  },
+  {
+   "applies_to": [
+    "get_order_details"
+   ],
+   "match": "order not found",
+   "class": "recover",
+   "hint": "The order id was wrong. Re-derive it from the user's order list (get_user_details)."
+  },
+  {
+   "applies_to": [
+    "find_user_id_by_email",
+    "find_user_id_by_name_zip"
+   ],
+   "match": "user not found",
+   "class": "recover",
+   "hint": "The lookup key was wrong. Ask the user for the other identifier (email vs name+zip) and retry."
+  }
+ ],
+ "_meta": {
+  "domain": "retail",
+  "layer": "ext",
+  "source": "retail.gate.json",
+  "classifier": "x6b_a2_split.CORE/DISCARD (2026-07-30)",
+  "note": "도메인-특화 스펙 = 정직한 per-domain opex (특허 유한성 주장에서 제외)"
+ }
+}

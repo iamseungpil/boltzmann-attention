@@ -1,0 +1,15 @@
+{
+ "identifying_arg_types": [
+  "flight",
+  "passenger",
+  "certificate",
+  "membership"
+ ],
+ "_meta": {
+  "domain": "airline",
+  "layer": "ext",
+  "source": "airline.gate.json",
+  "classifier": "x6b_a2_split.CORE/DISCARD (2026-07-30)",
+  "note": "도메인-특화 스펙 = 정직한 per-domain opex (특허 유한성 주장에서 제외)"
+ }
+}
