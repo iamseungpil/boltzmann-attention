@@ -1648,9 +1648,44 @@ NLNUM_FEEDBACK = (
 # 여기 hoist하고 `T2_FAB_STRIP`(2398)이 쓰던 인라인 사본을 이걸로 대체한다.
 # ⚠️`mutates_state`(env 속성)를 쓰면 **안 된다**: 실측 결과 `log_verification`·`give_discoverable_user_tool`·
 #   `unlock_…`이 전부 True라 "상태변경 0"이 거의 모든 sim서 거짓 → 게이트가 영영 안 뜬다(2026-07-18 설계 교정).
+# `_NNNN` 접미사 제거 = env discoverable 명명 관행(도메인 리터럴 아님·패턴). 파일 내 인라인
+# `re.sub(r"_\d+$", ...)` 관용구의 정본 상수(C241 U1'에서 신설).
+_SUFFIX_RE = re.compile(r"_\d+$")
 _READ_PREFIX_RE = re.compile(r"^(get|search|list|lookup|find|retrieve|read|view|check)_", re.I)
 _PROCEDURAL_RE = re.compile(
-    r"(^log_|^verify_|_verification$|^kb_|^shell$|discoverable|transfer_to_human|^give_|^unlock_)", re.I)
+    r"(^log_|^verify_|_verification$|^kb_|^shell$|transfer_to_human)", re.I)
+# ★C241 U1'(리뷰 B2): 도메인 어휘 가지(`discoverable`·`^give_`·`^unlock_`)를 **A2 파생**으로 분리.
+#   ⚠전역 frozenset은 금지 — ①순서 의존(도메인 A2 로드 전 호출 시 `_is_effective_write("give_…")`가
+#   True로 뒤집혀 `:4543` 회귀조건이 무너짐) ②교차-도메인 누출(전역 last-wins → airline A2-swap
+#   스모크가 통과하면서 누출은 실재). ⇒ **a2를 명시 전달**한다(시그니처 불변 포기).
+#   `transfer_to_human`은 5/5 도메인 공통이라 엔진에 남긴다.
+
+
+def _a2_of(obj):
+    """orchestrator/self 에서 현 도메인 A2 도출 (C241 U1' 배선용·기존 `_domain_a2` 캐시 재사용)."""
+    try:
+        env = getattr(obj, "environment", None)
+        return _domain_a2(getattr(env, "domain_name", None)) if env is not None else None
+    except Exception:
+        return None
+
+
+def _a2_procedural(a2):
+    """A2가 선언한 **절차적**(=실효 write 아님) 디스패처 이름 집합. 미선언이면 공집합.
+
+    구 정규식의 `discoverable`/`^give_`/`^unlock_`가 잡던 것 = banking discoverable-dispatcher
+    4종. 그 이름들은 A2 `eplan.{dispatch,unlock,list}_tool`·`scaffold_get_tools[].follow_up.tool`에
+    **이미 선언**돼 있다(새 키 0)."""
+    if not a2:
+        return frozenset()
+    ep = (a2.get("eplan") or {})
+    out = {ep.get("dispatch_tool"), ep.get("unlock_tool"), ep.get("list_tool")}
+    for t in (a2.get("scaffold_get_tools") or []):
+        if isinstance(t, dict):
+            nm = (t.get("follow_up") or {}).get("tool")
+            if nm:
+                out.add(nm)
+    return frozenset(_SUFFIX_RE.sub("", str(x)) for x in out if x)
 # ★^verify_ 추가(2026-07-20): verify_identity(scaffold 판정 도구·read-성)가 실효-write로 오분류되던 실버그 —
 #   CLAIM_PROV write축 거짓통과 + WRITEPROV 조기 break(완료-주장 게이트 약화) 교정. _verification$의 대칭·도메인 일반.
 # ★C238 U0(2026-07-30): `|get_current_time` 가지 **삭제** — `_READ_PREFIX_RE`의 `^get_`가 이미 잡으므로
@@ -1674,7 +1709,7 @@ def _eff_tool_name(tc):
     return re.sub(r"_\d+$", "", nm)
 
 
-def _claim_unbacked(claims, emap, evs, messages):
+def _claim_unbacked(claims, emap, evs, messages, a2=None):
     """★claim_prov 원장대조 코어 (2026-07-20 관문5 추출·순수함수=단위테스트 공유·[[03b]]).
     LLM이 formalize한 주장 목록({kind, what})을 A2 event_map으로 원장 이벤트 실재 대조.
     미등재 kind=skip(오탐 방지)·kind=__effective_write__는 실효 write 존재로 판정. 반환=미입증 목록."""
@@ -1685,7 +1720,7 @@ def _claim_unbacked(claims, emap, evs, messages):
         if spec is None:
             continue
         if spec == "__effective_write__":
-            if not _any_effective_write(messages):
+            if not _any_effective_write(messages, a2):
                 out.append(c)
             continue
         pats = spec if isinstance(spec, list) else [spec]
@@ -1819,16 +1854,21 @@ def _chain_dispatch(fc, eff):
     return None
 
 
-def _is_effective_write(name):
-    return bool(name) and not _READ_PREFIX_RE.match(name) and not _PROCEDURAL_RE.search(name)
+def _is_effective_write(name, a2=None):
+    """실효 write 술어. ★C241 U1': 도메인 어휘는 a2에서 온다(전역 상태 없음)."""
+    if not name:
+        return False
+    if _READ_PREFIX_RE.match(name) or _PROCEDURAL_RE.search(name):
+        return False
+    return _SUFFIX_RE.sub("", str(name)) not in _a2_procedural(a2)
 
 
-def _any_effective_write(msgs):
+def _any_effective_write(msgs, a2=None):
     """원장에 **실효 write 실행**이 하나라도 있나 (requestor 무관 — 사용자 실행도 세상을 바꾼다).
     ★`_called_tools`와 달리 user 호출을 **포함**한다: 완료-주장의 근거는 *누가 했든* 실행 이벤트다."""
     for m in msgs:
         for tc in (getattr(m, "tool_calls", None) or []):
-            if _is_effective_write(_eff_tool_name(tc)):
+            if _is_effective_write(_eff_tool_name(tc), a2):
                 return True
     return False
 
@@ -2849,6 +2889,7 @@ def _install_regen_exec():
         #   빈손 날조를 유발(실측: fetch-iso가 60건 대신 3건 날조→오판정). 서브는 신선 실행·캐시 불변.
         if dedup_on:
             from tau2.data_model.message import ToolMessage as _TM
+            _a2w = _a2_of(self)                  # C241 U1': 실효-write 술어용 도메인 A2
             cache = self._t2_read_cache = getattr(self, "_t2_read_cache", {})
             # ★loop-break (2026-07-23 C123·rall19 043 실측): 캐시는 대형 출력(min_len)만 저장하므로
             #   한 줄짜리 결과의 동일-read 반복은 스텁이 영원히 안 걸림 — 043.1서 shell grep
@@ -2866,7 +2907,7 @@ def _install_regen_exec():
                 if k in cache and cache.get(k) in _dgset:
                     cache.pop(k, None)
                 if ((k in cache or seen.get(k, 0) >= loop_k)
-                        and not _is_effective_write(_eff_tool_name(tc))):
+                        and not _is_effective_write(_eff_tool_name(tc), _a2w)):
                     # ★2026-07-23 (050 flail 근본원인 확정·KB probe): 반복된 read가 KB/검색 도구면
                     #   redirect 힌트 추가 — 도메인-일반. 원인=에이전트가 discoverable 도구를 *함수명*으로
                     #   BM25 검색(점수 0.0·문서 산문엔 함수명 없음)→무한반복. plain-words로 돌림(closure 피드백이
@@ -2915,7 +2956,7 @@ def _install_regen_exec():
                     #   위에 실재). 오탐(정당 질의-정련) 리스크 → 기본 OFF·격리 arm 계측 후 승격.
                     _nd_hit = None
                     if (os.environ.get("T2_READ_NEARDUP") == "1"
-                            and not _is_effective_write(_eff_tool_name(tc))):
+                            and not _is_effective_write(_eff_tool_name(tc), _a2w)):
                         _dn2 = ((getattr(tc, "name", "") or "")
                                 + " " + str(getattr(tc, "arguments", "") or "")).lower()
                         if "search" in _dn2 or "bm25" in _dn2 or "kb_" in _dn2:
@@ -2947,7 +2988,7 @@ def _install_regen_exec():
                               % (getattr(tc, "name", None), _nd_hit),
                               file=sys.stderr, flush=True)
                         continue
-                    if not _is_effective_write(_eff_tool_name(tc)):
+                    if not _is_effective_write(_eff_tool_name(tc), _a2w):
                         seen[k] = seen.get(k, 0) + 1     # C123: 실행되는 read만 계수
                     to_run.append(tc)
             ran = orig_exec(self, to_run) if to_run else []
@@ -2973,7 +3014,7 @@ def _install_regen_exec():
                 out = _rby.get(getattr(tc, "id", None))
                 if out is None:
                     continue
-                if _is_effective_write(_eff_tool_name(tc)):
+                if _is_effective_write(_eff_tool_name(tc), _a2w):
                     if not getattr(out, "error", False):
                         cache.clear()  # 세상이 바뀜 → 이전 read 신선도 보장 불가
                         seen.clear()   # C123: loop-break 계수도 동일 규율로 리셋
@@ -4873,7 +4914,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _ame = [_eff_tool_name(tc) for tc in (am.tool_calls or [])]
                     _reqs = _hitc[0].get("requires")
                     _reqs = set(_reqs if isinstance(_reqs, list) else [_reqs])
-                    if (all(not _is_effective_write(e) for e in _ame)
+                    if (all(not _is_effective_write(e, a2) for e in _ame)
                             and not (set(_ame) & _reqs)):
                         _resign = True
                         # ★C207/B1(리뷰 필수2): readloop 변환 턴을 **표시**한다 — chain 예비-예산은
@@ -5425,7 +5466,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 and _cgd.get("claim_question") and _cgd.get("feedback")):
             for _once in (True,):                 # 구조 유지용 단일 루프(break 재사용)
                 _cg = _cgd
-                if _any_effective_write(state.messages):
+                if _any_effective_write(state.messages, _a2_of(self)):
                     break                          # 세상을 바꾼 실행이 원장에 있음 → 완료 주장 정당(오탐 방지)
                 _claims = None
                 try:
@@ -5563,10 +5604,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _evs.add(str(getattr(_tc3, "name", "") or ""))
                         _evs.add(_eff_tool_name(_tc3))
                 _emap = _cpv["event_map"]
-                _unbacked = _claim_unbacked(_cl, _emap, _evs, state.messages)
+                _unbacked = _claim_unbacked(_cl, _emap, _evs, state.messages, _a2_of(self))
                 # 미래-약속: 같은 원장대조 — 이 창(사임/transfer)에서 미이행 약속 = 영영 미이행(탈출티켓).
                 #   feedback_pending 미선언(구판 A2)이면 발화 0(거동보존).
-                _unb_p = (_claim_unbacked(_pd, _emap, _evs, state.messages)
+                _unb_p = (_claim_unbacked(_pd, _emap, _evs, state.messages, _a2_of(self))
                           if _cpv.get("feedback_pending") else [])
                 # ★C207/C2-a(2026-07-27): **미보유 기능 약속** — 약속에 실린 도구가 쓸 수 있는 도구
                 #   집합에 아예 없으면(=OTP/SMS 발송처럼 존재하지 않는 기능) 원장 대조 이전에 불가능한
