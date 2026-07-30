@@ -18,6 +18,8 @@
 | §5·§6 | ⚠️**v1 잔존·§4 검증계획 v2가 대체**. U1/U2 서술은 §4 U1'/U2'로 교체됨 |
 | §7 미결 | 유효 |
 | **§8 리뷰 결과** | ✅유효 — 반려 근거·차단 3건·교정 수치 |
+| **§9 2차 감사 처방** | ✅**유효·리뷰 대기**(필드 namespace 23건 건별 판정 6클래스 + 수정단위 V0~V6 + 검증 C1~C6) |
+| **§10 U3′ 측정 게이트** | ⚠️**부분 이행**(32B on 8141) — **페르소나 축만** 측정: 행동 변화 0/81·값 축 분모 = 케이스 8/궤적 2. **`DISCOVERY_REQUIRED_FB` 어휘 축은 미측정**(§10-5). 원장 C246 |
 
 ### 반려 사유 요약
 
@@ -202,7 +204,7 @@ v1 Q1 답 "새 A2 키 0 (순감)"은 5 수정단위 기준이라 **무효**. 재
 | **U0** | `get_current_time` 죽은 가지 | 삭제 | ✅**완료**(122도구 판정 diff 0 · 8배터리 PASS). 문구 하향: **"측정-불변, 논리-불변 아님"**(`RDP.match` 앵커 vs `PRC.search` 비앵커라 122도구 namespace 위에서만 동치) |
 | **U1'** | 공유 실효-write 술어 어휘 (A1~A2 정규식) | **B2 반영**: 모듈 전역 폐기 → `_A2_PROC_BY_DOMAIN[domain]` 키잉 + `_is_effective_write(name, a2=None)` **명시 전달**. "시그니처 불변" 포기(호출부 6곳 수정이 전역 상태보다 싸고 안전) | ⚠C211 동결 해제 **재승인 필수** |
 | **U2'** | banking 기본값 (A1·A2·A7) | **B3 반영**: `_safe` truthy 필터가 아니라 **"세 키 중 하나라도 미선언이면 DD 레버 자체를 skip"**. 근거는 `_unlock`이 `:3786` 피드백 산문에 보간되므로 기본값 제거 시 `"1) None(agent_tool_name=…)"`이 모델에 전달됨 | 재리뷰 |
-| **U3'** | B1 페르소나 + **A6 산문**(액션 예시·도구 인스턴스명) | 리뷰 §8-D대로 **한 단위로 묶어 프로브 1회**. Q1 ⓐ/ⓑ 선택을 이 프로브가 결정 | 재리뷰 · 측정 게이트 |
+| **U3'** | B1 페르소나 + **A6 산문**(액션 예시·도구 인스턴스명) | 리뷰 §8-D대로 **한 단위로 묶어 프로브 1회**. Q1 ⓐ/ⓑ 선택을 이 프로브가 결정 | ⚠️**부분 이행**(§10·C246) — **B1 페르소나 축 = 32B 행동 변화 0 [M]**(케이스 8·궤적 2) / **A6 `DISCOVERY_REQUIRED_FB` 어휘 축 = 미측정**(프로브가 페르소나만 대조했다·§10-5에 잔여 게이트 명시) |
 | **U4** | `_effective_fams` (A3·A4) | `_effective_fams(tc, a2)`. 호출부 `:425`·`:488` 모두 a2 스코프 확보(리뷰 확인) | 재리뷰 |
 | **U5** | give 도구명 (A5) | `_declared_give_tool(a2)` 재사용(`:178` 헬퍼·`:378` 선례) | 재리뷰 |
 | **U6**(신규) | A8·A9 + `discoverable_tool_name` arg-key | `eplan.dispatch_tool`·`dispatch_name_key`에서 읽기 | 재리뷰 |
@@ -354,3 +356,204 @@ selftest 53.
 5. **재리뷰**
 
 **현 승인 상태**: **U0만 진행**(구현·검증 완료·8배터리 PASS). U1·U2·U3·U4·U5 = 개정 후 재리뷰.
+
+---
+
+# §9. 2차 감사(필드 namespace 축) — 건별 판정 + 처방 설계 (2026-07-30 야간)
+
+> 전판 handoff §5가 "23 사이트 열림·처방은 다음 세션"으로 남긴 것을 여기서 판정한다.
+> 감사 재현 = `x6h_engine_literal_audit.py`(폐포 14파일) · live 도메인-필드명 = **23건**
+> (`t2_gate_patch` 8 · `t2_resolve` 7 · `gate_interpreter` 6 · `t2_compliance` 2).
+> **판정 방법 = 23건 전건 코드 정독 + 각 키의 A2 실선언 대조.** 집계로 판정하지 않는다([[08]]).
+
+## §9-0. 한 문단
+
+23건은 **한 종류가 아니다** — 6클래스로 갈리고, 그중 **진짜 미배선은 1건**뿐이다. 최대 덩어리인
+**13건은 A2가 이미 선언한 키의 엔진 fallback**이고, 3도메인 A2를 대조하니 **전건이 정적으로 죽은
+값**이다(선언한 도메인만 그 레버를 갖고, 갖지 않은 도메인은 스펙 자체가 없어 경로가 안 열린다).
+따라서 처방은 값 변경이 아니라 **fallback 삭제 + 미선언이면 skip**(U2′ 원칙의 확장)이고 **예상
+diff 0**이며, 그 diff 0은 주장이 아니라 **도구로 증명**한다(§9-3). 나머지는 **동음이의어 오탐 4건**
+(`membership` = 엔진 operand-kind 이름이지 airline 필드가 아니다), **문서화된 도메인-일반 토큰 1건**,
+**retail 어휘 2건**(`T2_DISAMB_ORDER` 경로 — 정본 스택 `go_stack.sh`에 없어 라이브 OFF),
+**계측-지표 2건**(compliance G3 정의 = U7 caveat와 같은 뿌리), **하드코딩 1건**(`t2_resolve.py:539`).
+⇒ **[[05]] 위반으로 고쳐야 하는 것은 13+2+1 = 16건**이고, 계측 2건은 지표 정의라 별 축으로 다룬다.
+
+### [[05]] 3질문 ([[17]] 상설 의무)
+
+| # | 질문 | 답 | 근거 |
+|---|---|---|---|
+| **Q1** | scaffold **또는 A2**의 도메인-특화를 *순증*시키나? | **No (순감)** | fallback 13건의 키는 3도메인이 이미 선언(§9-1 대조표) = 새 키 0. V4는 새 키 1개(`disamb_sub_args_optin`)를 쓰지만 엔진 리터럴 2 제거와 교환. V5는 기존 `compute_ops` 스펙에 필드 2개 추가. 엔진 필드 리터럴 16 → 0. |
+| **Q2** | 모델의 *유동적 판단*을 결정론에 동결하나? | **No** | 판정 술어·발화 조건·프롬프트 산문 전부 불변. 바뀌는 것은 **같은 문자열을 어디서 읽는가**와 **미선언 시 켜지느냐 꺼지느냐**뿐. 모델 입력 변경 0(U3와 달리 측정 게이트 불요). |
+| **Q3** | scaffold가 모델 대신 *도메인 행동을 수행*하나? | **No** | 새 도구 호출·fetch·값 선택 0. |
+
+⇒ 전부 No = 기본 허용. 단 **V6(계측)**은 지표 정의를 건드리므로 수치 재산출 의무가 붙는다(§9-2).
+
+### [[22]] 닫힌/열린 술어 점검 (상설 항목)
+
+바뀌는 술어는 전부 **닫힘**이다: "이 키가 A2에 선언됐는가"(문자열 존재 여부) · "이 게이트 kind가
+있는가". 열린 술어(자연어 해석·의도 판단)를 새로 만들지 않는다. 미선언 시 **skip = 안전측**이라
+열린 판단으로 메우지 않는다.
+
+## §9-1. 건별 판정 (23건 · 6클래스)
+
+### 클래스 A — 동음이의어 오탐 4건 (**수정 대상 아님**)
+
+| 사이트 | 코드 | 판정 |
+|---|---|---|
+| `t2_resolve.py:580` | `if kind == "membership":` | `kind` = 엔진 operand 분류 |
+| `t2_resolve.py:587` | `"reason": "membership"` | deny 이유 코드 |
+| `t2_resolve.py:627` | `order = {"provenance":0,"membership":1,"value":2,"operator":3}` | 엔진 고정 해소 순서 |
+| `t2_gate_patch.py:3875` | `print("[T2_CONS] membership deny …")` | 계측 로그 문자열 |
+
+`resolve_operand`의 docstring이 명시하듯 `kind ∈ {operator, membership, provenance, value}`는
+**엔진 자신의 operand 분류 어휘**다. airline A2에 `membership` 필드가 있어 필드-namespace가 같은
+문자열에 걸린 것이고, 도메인 어휘 누수가 아니다. ⇒ **오탐**.
+
+⚠단 이 4건을 감사 도구에서 *지우지 않는다*. 허용목록으로 숨기면 새 occurrence도 같이 숨는다.
+처방 = **판정 원장 파일**(literal+함수명+근거)로 박제하고, 도구는 계속 보고하되 원장에 있는 건만
+"판정됨"으로 접는다(§9-2 V0).
+
+### 클래스 B — A2 선언 키의 엔진 fallback 13건 (**전건 정적 死값**)
+
+| 사이트 | 코드(요약) | 키 | 선언 도메인 | 미선언 도메인에서 경로가 열리나? |
+|---|---|---|---|---|
+| `gate_interpreter.py:154` | `src.get("user_id_arg","user_id")` | `entity_source.user_id_arg` | retail(G_EXHAUST) | ❌ `exhaust_before_escalate` 게이트 없음 |
+| `gate_interpreter.py:161` | `gate.get("owner_field","user_id")` | `owner_field` | retail G3 · airline G3 | ❌ `ownership` 게이트 없음 |
+| `gate_interpreter.py:181` | `gate.get("user_id_arg","user_id")` | `user_id_arg` | retail G6 | ❌ `select_confirm` 없음 |
+| `gate_interpreter.py:185` | `gate.get("detail_id_arg","order_id")` | `detail_id_arg` | retail G6 | ❌ 동일 |
+| `gate_interpreter.py:367` | `gate.get("user_id_arg","user_id")` | 동일 | retail G6 | ❌ 동일 |
+| `gate_interpreter.py:371` | `gate.get("detail_id_arg","order_id")` | 동일 | retail G6 | ❌ 동일 |
+| `t2_gate_patch.py:407` | `g6.get("user_id_arg","user_id")` | 동일 | retail G6 | ❌ `g6 is None` 가드가 선행 |
+| `t2_gate_patch.py:3063` | 동일(두 번째 배선점) | 동일 | retail G6 | ❌ 동일 |
+| `t2_gate_patch.py:574` | `sp.get("record_key_field","account_id")` | `param_cap_check[].record_key_field` | banking | ❌ `param_cap_check` 스펙 없음 |
+| `t2_gate_patch.py:719` | `sp.get("record_field","merchant_name")` | `ref_verify[].record_field` | banking | ❌ `ref_verify` 없음 |
+| `t2_resolve.py:403` | `def parse_records(text, key_field="transaction_id", …)` | 호출측이 항상 전달 | banking | ❌ 기본값 도달 경로 없음(§9-3 C2에서 확인) |
+| `t2_resolve.py:483` | `spec.get("param","transaction_id")` | `reference_filter[].param` | banking | ❌ `reference_filter` 없음 |
+| `t2_resolve.py:502` | `spec.get("criteria_fields") or [date,merchant,transaction_type]` | `reference_filter[].criteria_fields` | banking | ❌ 동일 |
+
+**대조 근거**(실측): banking = `key_field`·`param`·`criteria_fields`·`record_key_field`·
+`record_field`·`record_require` 전부 선언 / retail = `user_id_arg`(G6·G_EXHAUST)·`detail_id_arg`·
+`owner_field` 선언 / airline = `owner_field` 선언. **어떤 도메인도 fallback에 의존하지 않는다.**
+
+⇒ 위험은 "지금 틀린 값이 쓰인다"가 아니라 **"새 도메인이 키를 빼먹으면 엔진이 조용히 banking/
+retail 어휘로 동작한다"**다. B3/U2′가 세운 원칙(미선언 = 레버 skip)의 정반대. 그래서 고친다.
+
+### 클래스 C — 문서화된 도메인-일반 토큰 1건 (**유지**)
+
+`t2_gate_patch.py:62` `DEFAULT_ARG_HINTS = ("email","name","zip","user_id","username","id",…)`.
+2026-07-13 [[05]] 감사가 도메인-특화 어휘를 A2로 이관하고 **도메인-일반 식별 토큰만** 남긴 결과다
+(주석에 근거 보존). `user_id`는 3도메인 공통 식별자. ⇒ 유지·원장 박제(V0).
+
+### 클래스 D — retail 어휘 2건 (**A2로 이관**·라이브 OFF)
+
+`t2_gate_patch.py:2471`·`:3359` `if T2_DISAMB_ORDER: sub_args |= {"order","order_id"}`.
+바로 위 줄이 `sub_args = A2["disamb_sub_args"]`(retail=`["item"]`)인데, **환경 플래그가 A2를
+우회해 retail 어휘를 엔진에서 주입**한다. `T2_DISAMB_ORDER`는 `generalized_*.sh`(구 retail 캠페인)
+에만 있고 **정본 `go_stack.sh`에 없다** ⇒ 라이브 banking 스택 발화 0. 위험 0·부채 확정.
+
+### 클래스 E — 계측 지표 정의 2건 (**별 축**)
+
+`t2_compliance.py:139` `args.get("user_id")` · `:143` `args.get("order_id")` — G3(타-유저 접근)
+위반 판정. 즉 **우리가 논문·특허에 인용하는 compliance 지표의 정의**가 retail/banking 필드명에
+묶여 있다. U7 caveat("banking은 G3 order-resolve 생략 = 상한")와 **같은 뿌리**다. 에이전트-면
+레버가 아니므로 [[05]] 위반은 아니지만 **지표의 도메인-일반성** 문제라 처방 축이 다르다.
+
+### 클래스 F — 진짜 하드코딩 1건 (**배선**)
+
+`t2_resolve.py:539` `recs = _gathered_records(msgs, "transaction_id", ("date","amount"))` —
+`resolve_compute_params` 안. **A2 override 경로가 아예 없다**(클래스 B와 결정적 차이). 같은 함수가
+U6b에서 dispatcher 이름은 A2로 옮겼는데 이 record-키는 남았다.
+
+**부수 발견(도구가 못 잡음)**: `t2_resolve.py:484` `tuple(spec.get("require") or ("date","amount"))`
+의 기본값 `date`/`amount`는 A2 필드 namespace(37개)에 없어 **감사에 안 걸렸다**. §5 교훈("축을 하나
+더 열면 clean이 뒤집힌다")의 재확인이고, V5에 함께 넣는다.
+
+## §9-2. 처방 (수정단위 V0~V6)
+
+| 단위 | 대상 | 처방 | 비용/위험 |
+|---|---|---|---|
+| **V0** | 클래스 A 4건 + C 1건 | **판정 원장** `engine_literal_adjudications.json` 신설(키 = literal+함수명+근거·line-anchor는 취약해 배제). 감사 도구가 원장 대조 후 "판정됨/신규"로 분리 출력 | 무료·행동 0 |
+| **V1** | `gate_interpreter.py` 6건 | fallback 삭제 → **미선언이면 그 레버 skip**(owner 해소 불가 = 기존 `None` 보수 경로 · select_confirm 미선언 = `None` 반환) | 무료·diff 0 예상(§9-3 C1) |
+| **V2** | `t2_gate_patch.py` 4건(407·574·719·3063) | 동일. 스펙은 있는데 키가 없으면 **그 레버만 skip + 1회 통지** | 무료·diff 0 예상 |
+| **V3** | `t2_resolve.py` 3건(403·483·502) | `parse_records`의 `key_field`를 **필수 인자로 승격**(기본값 삭제) · `param`/`criteria_fields` 미선언 시 해당 spec skip | 무료·호출부 전수 확인 선결(C2) |
+| **V4** | `t2_gate_patch.py` 2건(2471·3359) | 엔진 리터럴 삭제. 플래그는 **A2 `disamb_sub_args_optin`**(기존 배열의 opt-in 부분집합)을 켜는 역할로 축소 | 무료·라이브 OFF |
+| **V5** | `t2_resolve.py:539`(+484) | `resolve_compute_params`가 A2 `compute_ops[].record_key_field`/`record_require`를 읽고 **미선언이면 records 수집 생략** | 무료·**행동 변화 가능** ⇒ C3 선결 |
+| **V6** | `t2_compliance.py` 2건 | G3 필드를 **A2 게이트 선언에서 도출**(`gates[kind=ownership].owner_field`·`detail_id_arg`). banking은 ownership 게이트가 없으므로 **G3 = 측정불가로 명시 산출**(현 caveat를 각주에서 **기계-도출 값**으로 승격) | 무료·**수치 재산출 의무**(U7 문구 갱신·논문/특허 전파) |
+
+**순서**: V0 → V1·V2·V3(동질·diff 0 증명 묶음) → V4 → **V5·V6은 별 승인**(전자는 행동 변화 가능,
+후자는 인용 수치 변경).
+
+## §9-3. 검증 계획 (make-or-break)
+
+| # | 검사 | 통과 기준 | 성격 |
+|---|---|---|---|
+| **C1** | **정적 死값 증명 도구** 신설: 3도메인 A2 × 13사이트에 "해당 레버 스펙 존재 ⇒ 키 선언 존재" 전수 검사 | **13/13 참**(반례 0) ⇒ V1~V3의 diff 0이 *주장이 아니라 증명* | 필수·무료 |
+| **C2** | `parse_records` **호출부 전수**(폐포 14파일 + selftest) — `key_field` 미전달 호출 0 | 0건 | 필수 |
+| **C3** | `resolve_compute_params`에서 `recs`가 실제로 쓰이는 op 경로 확인(records 없으면 어떤 op가 죽나) | 죽는 op 목록 확정 → V5 확정 or 보류 | 필수([[14]] 동형: 조용한 사망 금지) |
+| **C4** | 회귀 배터리 12종 + `test_c241_u1_predicate` | 전부 PASS | 필수 |
+| **C5** | A2-swap diff(`x6_a2_swap_diff.py`) 재실행 | 기능군 diff 불변 | 권고 |
+| **C6** | V6 후 compliance 수치 재산출 · banking G3 = "측정불가" 명시 | 기존 수치와의 차이 전건 설명 | V6 조건 |
+
+⚠**배포 시점**: Y1 본런이 8140에서 진행 중이다. 실행 중 프로세스는 코드를 이미 로드했으므로 로컬
+커밋은 무해하나, **리모트 배포·재기동은 Y1 완주 후**로 미룬다(측정 위생·[[30]]).
+
+## §9-4. 미결 / 리스크
+
+1. **V5가 행동을 바꿀 수 있다** — C3 결과에 따라 "미선언 시 records 생략"이 무해한지 판정. banking은
+   선언할 것이므로 실질 영향은 새 도메인뿐이지만, 그 주장도 C1처럼 **증명**해야 한다.
+2. **V6은 수치 축** — compliance는 논문·특허 인용 대상이다. 재산출 없이 코드만 고치면 인용과 코드가
+   갈린다. V6은 반드시 C6과 묶어서만 진행.
+3. **축이 또 열릴 수 있다** — 부수 발견(`require=("date","amount")`)이 보여준 대로 필드 namespace도
+   완전하지 않다(A2 유래 37개 기준). **enum 값·상태 문자열 축**이 다음 후보다. "clean"을 선언하지 말 것.
+
+---
+
+# §10. U3′ 측정 게이트 — 32B 이행 결과 (2026-07-30 야간·원장 C246)
+
+> §4 U3′ 행의 "⚠**측정 게이트 미이행**"을 여기서 닫는다.
+> 도구 = `x9_refiso_persona_probe.py`(프롬프트 축자 복제) + 판정 `x9b_refiso_adjudicate.py`
+> 데이터 = `sim_results/x9_refiso_persona_32B.jsonl.gz`(영속·평문 사본 없음)
+> 조건 = **32B GPTQ-Int8 · 8141(GPU1) · 8140과 동일 서빙 스펙** · 케이스 27 × 시드 3 · temp 0 · 에러 0
+
+## §10-1. 선결 조건이 어떻게 열렸나
+
+전판은 "8140이 Y1 점유 → 32B arm 불가"로 기록했으나, **실제 차단 원인은 프로브의 PORTS
+하드코딩**이었다(32B → 8140 고정). `--base_url` 오버라이드를 넣고 **GPU1의 7B(8142)를 내리고
+32B를 8141에 올려** 게이트를 열었다. 7B에는 작업이 0건이었으므로 손실은 없다.
+
+## §10-2. 판정
+
+| 칸 | 쌍 | 비율 |
+|---|---|---|
+| 둘 다 기권(행동 동일) | 57 | 70.4% |
+| 둘 다 같은 값(행동 동일) | 24 | 29.6% |
+| **기권 결정이 갈림(행동 변화)** | **0** | 0% |
+| **값이 갈림(행동 변화)** | **0** | 0% |
+
+⇒ **행동 변화 0/81.** 기권 결정 81/81 일치 · 양쪽이 답한 24쌍의 값 24/24 동일. 기권율도
+base 57/81 = treat 57/81로 같다. **REF_ISO 서브콜에서 페르소나 명사(`banking`) 제거는
+32B의 선택을 바꾸지 않는다 = U3′ GO [M].**
+
+## §10-3. 분모를 정직하게 (이 절이 이 결과의 한계다)
+
+- **7B는 해상도 0**이었다(27케이스 전 시드 양쪽 기권 = 전판의 "무효" 판정). 32B는 **케이스 8개**에서
+  양쪽이 실제로 값을 답한다 ⇒ **바닥 효과는 부분적으로만 해소**됐다.
+- 값 축 결론의 분모는 **쌍 81이 아니라 케이스 8**이고, 그 8케이스는 **궤적 2개**에서 나온다.
+  나머지 19케이스는 전 시드 양쪽 기권 = **구별력 없음**(no-information)이며 **불변의 증거가 아니다**.
+- temp 0이므로 시드 3은 독립 표본이 아니다. 강한 불변 주장 금지 — **"이 조건에서 분기 0"**이 결론이다.
+- **정확도는 판정하지 않았다**(어느 arm이 gold에 가까운가). gold 대조는 별건이며, 이 프로브는
+  **분기 여부만** 본다.
+- 70%가 기권한다는 사실 자체가 프로브가 라이브 REF_ISO 조건(궤적 전체 문맥·다중턴)을 다 재현하지
+  못한다는 신호일 수 있다(**C42·X5 천장과 동형**). 배포-유사 조건에서의 재확인은 열려 있다.
+
+## §10-4. 이 게이트에서 잡은 내 도구 결함 2건
+
+1. **x9 요약이 응답 전문 동등으로 일치를 셌다** — 그래서 "일치율 44.4% · 불일치 45건"이 나왔다.
+   실체는 **양쪽 다 UNSURE인데 뒤 산문만 다른 쌍**이다. 엔진 관점에서 행동 분기는 ①기권 여부
+   ②값 선택 둘뿐이므로 축을 분리했고, 그러자 불일치는 **0**이 됐다. 7B 판 각주가 지적했던 그
+   아티팩트가 32B에서 45건으로 커진 것이다.
+2. **첫 분모 집계가 케이스를 `sim`으로 묶어 "케이스 4개"를 냈다** — 한 궤적에 REF_ISO 케이스가
+   여럿이므로 케이스 축은 `i`다. 케이스(27)와 궤적(4)을 **둘 다 보고**하도록 교체했다.
+
+⇒ 교훈은 §5·§8과 같은 형태다: **집계는 그럴듯한데 사례를 읽으면 다르다.** 이번에는 사례가 아니라
+**집계 정의**가 틀렸고, 그것도 사례(응답 원문)를 읽어서 잡았다.
