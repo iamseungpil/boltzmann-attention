@@ -55,9 +55,14 @@ ENVELOPE_SCHEMA = {
     "required": ["turn_type", "prose"],
 }
 
+# ★문구 강도 교정(2026-07-30 야간·실측): 초판 문구로는 **행동 턴에서 content가 빈 문자열**이었다
+#   (도구를 부르면 봉투를 아예 안 낸다). 채널 제약인지 프롬프트 강도인지 격리 테스트한 결과
+#   **강한 지시에서는 tool_calls와 봉투가 함께 나온다** ⇒ 채널 제약 아님·문구 문제.
+#   초판 문구로 잰 준수율은 "배포 조건의 결손"이 아니라 **내 가이드의 결손**이었다([[42]] 동형).
 ENVELOPE_GUIDE = (
-    "\n\n<declaration>\nBefore or alongside any action, state a declaration envelope as a single "
-    "JSON object in your message content:\n"
+    "\n\n<declaration>\nRULE: every message you send MUST contain a declaration envelope as a single "
+    "JSON object in the message content. This is mandatory **even when you also call a tool in the "
+    "same turn** — never leave the content empty. Format:\n"
     '{"turn_type":"ACT|ASK|CONFIRM|INFORM|DONE","next_action":"<tool you are calling now or null>",'
     '"ask":{"slot":"<slot>","reason":"missing|confirm"} or null,'
     '"done_report":[{"kind":"<claim kind>","what":"<what you did>","resolves":null}],'
