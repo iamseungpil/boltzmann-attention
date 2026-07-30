@@ -1,0 +1,48 @@
+{"sample_id":"u000","acts":["REFUSE","ASK"],"slots":[],"note":"이메일·전화 제공 거절 + 대체 식별수단 문의. 볼드 3개는 전부 필드명(값 아님)"}
+{"sample_id":"u001","acts":["REFUSE","REQUEST"],"slots":[],"note":"도구 미보유+날짜 모름 → 에이전트가 조회해달라"}
+{"sample_id":"u002","acts":["REFUSE","REQUEST"],"slots":["submit_cash_back_dispute_0589"],"note":"도구 프로비저닝 실패 보고형 거절. 볼드 4개는 강조(값 아님). 도구명은 give-흐름의 operand"}
+{"sample_id":"u003","acts":["PROVIDE","REQUEST"],"slots":["zhang.mei33@gmail.com","San Diego, CA"],"note":"★이메일이 볼드 아님 — 볼드-베이스라인이 놓치는 케이스"}
+{"sample_id":"u004","acts":["PROVIDE","REFUSE"],"slots":["wei.chen.boston@gmail.com"],"note":"이메일 공급+주소 거절. 볼드 'phone number'·'date of birth'는 필드명"}
+{"sample_id":"u005","acts":["REFUSE","PROVIDE","REQUEST"],"slots":["617-555-0834"],"note":"주소 거절+전화 공급+이관 요구"}
+{"sample_id":"u006","acts":["CONFIRM","REQUEST"],"slots":[],"note":"제시된 이관에 긍정 후 재요구"}
+{"sample_id":"u007","acts":["CONTROL"],"slots":[],"note":"###TRANSFER### 단독"}
+{"sample_id":"u008","acts":["PROVIDE","ASK"],"slots":["new","$10,000","2 months","$1,000"],"note":"'new'=신규/기존 enum 답. 인용된 홍보문에서 숫자만 operand로 추출"}
+{"sample_id":"u009","acts":["CONTROL"],"slots":[],"note":"###STOP### 단독"}
+{"sample_id":"u010","acts":["PROVIDE","REQUEST"],"slots":["Jordan Mitchell"],"note":"이름 공급+카드 추천 요구. '최고 보너스'·'최저 연회비'=정렬기준(제외)"}
+{"sample_id":"u011","acts":["PROVIDE","REQUEST"],"slots":["Business Silver Rewards Card","Silver Rewards Card"],"note":"카드명=enum operand"}
+{"sample_id":"u012","acts":["PROVIDE","REQUEST"],"slots":["Apple Music","$100,000"],"note":"가맹점/카테고리+금액"}
+{"sample_id":"u013","acts":["CONTROL"],"slots":[],"note":"###OUT-OF-SCOPE### 단독"}
+{"sample_id":"u014","acts":["CONTROL"],"slots":[],"note":"###TRANSFER### 단독"}
+{"sample_id":"u015","acts":["REQUEST"],"slots":[],"note":"'four friends'·'two'=검증 대상 주장(operand 아님)"}
+{"sample_id":"u016","acts":["CONTROL"],"slots":[],"note":"###STOP### 단독"}
+{"sample_id":"u017","acts":["REFUSE","ASK"],"slots":["$1,000","$10,000","2 months"],"note":"DOB/주소 거절. 'physical flyer'·'promo/offer ID'=강조·필드명"}
+{"sample_id":"u018","acts":["CLOSE"],"slots":[],"note":"'I will wait'+###STOP###. 토큰 단독 아니므로 CONTROL 아님"}
+{"sample_id":"u019","acts":["ASK","PROVIDE"],"slots":["txn_b7e2d4c5f506","dsp_f7619ed9476f","txn_a8f1c2d3e403","dsp_c16631293b89","txn_a8f1c2d3e410","dsp_ebffb9d8483f","txn_a8f1c2d3e411","dsp_4a1414aa6359"],"note":"타임라인·통지방식 질문 + 원장 재진술. 볼드 'Expected timelines:'·'How I will be notified:'=필드명"}
+{"sample_id":"u020","acts":["REPORT"],"slots":["txn_0be1ccc37761","890389b165","dsp_cc5d01425fec","SUBMITTED"],"note":"유저-측 도구 실행 결과 보고"}
+{"sample_id":"u021","acts":["REQUEST"],"slots":[],"note":"불만 표명+즉시 이관 요구"}
+{"sample_id":"u022","acts":["REFUSE","REQUEST"],"slots":[],"note":"본인 수행 거절+대행 이관 요구"}
+{"sample_id":"u023","acts":["CONFIRM","REQUEST"],"slots":[],"note":"긍정+이관 요구"}
+{"sample_id":"u024","acts":["CONTROL"],"slots":[],"note":"###STOP### 단독"}
+{"sample_id":"u025","acts":["CLOSE","PROVIDE"],"slots":["dsp_d313c3405dc0","dsp_d2b606a746e5","5-7 business days","+181 points"],"note":"종결+추적 대상 재진술. 'Disputes'=앱 섹션명(값 아님)"}
+{"sample_id":"u026","acts":["PROVIDE","REQUEST"],"slots":["$0"],"note":"연회비 조건값 $0. '최고 캐시백'=정렬기준(제외)"}
+{"sample_id":"u027","acts":["REQUEST"],"slots":[],"note":"급여 입금 누락 조회 요구"}
+{"sample_id":"u028","acts":["CONTROL"],"slots":[],"note":"###TRANSFER### 단독"}
+{"sample_id":"u029","acts":["CONTROL"],"slots":[],"note":"###STOP### 단독"}
+{"sample_id":"u030","acts":["CONFIRM","PROVIDE","REQUEST"],"slots":["sofia.p@outlook.com","1456 Astoria Boulevard, Queens, NY 11102"],"note":"확인+값 재공급+이관 요구"}
+{"sample_id":"u031","acts":["PROVIDE","REQUEST"],"slots":["Business Silver Rewards Card","Silver Rewards Card"],"note":"카드명 2종. '전화 없음'=제약 서술"}
+{"sample_id":"u032","acts":["PROVIDE","REQUEST"],"slots":["Bob Nakamoto","1.5% or lower","1.5% or lower","virtual card management","540","$95,000","Rho-Bank+"],"note":"자격 필드 전량 공급. 'do not'=Rho-Bank+ 부정(값 No)"}
+{"sample_id":"u033","acts":["CLOSE","PROVIDE"],"slots":["-3374 points"],"note":"일치 확인+종결. 순 조정액이 operand"}
+{"sample_id":"u034","acts":["PROVIDE","REQUEST"],"slots":["Bob Nakamoto","1.5% or lower","1.5% or lower","virtual card management","540","$95,000","No"],"note":"u032 동형(day6판). 볼드에 필드명 다수 혼입"}
+{"sample_id":"u035","acts":["PROVIDE","REQUEST"],"slots":["Marcus","$10,000","2 months","$1,000"],"note":"이름+홍보 숫자"}
+{"sample_id":"u036","acts":["CLOSE","PROVIDE"],"slots":["16 disputes","provisional credit"],"note":"종결. 개수 16은 에이전트 행동 결과 확인값이라 포함(주장 아님)"}
+{"sample_id":"u037","acts":["REQUEST","ASK"],"slots":["127 points","60-day"],"note":"점수 하락폭·연체 기간=조사 operand"}
+{"sample_id":"u038","acts":["PROVIDE","REQUEST"],"slots":["Marcus","$10,000","2 months","$1,000"],"note":"u035 동형(day8판)"}
+{"sample_id":"u039","acts":["REQUEST","CONTROL"],"slots":[],"note":"이관 요구+###TRANSFER###. 토큰 단독 아님"}
+{"sample_id":"u040","acts":["REPORT","ASK"],"slots":["dsp_c278b0e9183b","SUBMITTED / queued for review","dsp_86ccdcd2a195"],"note":"유저 실행 보고+큐 확인 요청. ###STOP### 있으나 질문 있어 CLOSE 아님"}
+{"sample_id":"u041","acts":["CONFIRM","REPORT","PROVIDE"],"slots":["Diamond Elite Card","Yuki Nakamura","$95,000","No","5-7 business days"],"note":"긍정+유저 실행 보고+신청 필드 공급"}
+{"sample_id":"u042","acts":["PROVIDE","ASK"],"slots":["Crypto-Cash Back Card","$100","$500","2 months"],"note":"'referral link'=필드명(제외)"}
+{"sample_id":"u043","acts":["ASK"],"slots":[],"note":"검토기간·주의사항 질문. 'one email per dispute'=질문 내 선택지(공급값 아님). ###STOP### 있으나 질문 있어 CLOSE 아님"}
+{"sample_id":"u044","acts":["PROVIDE","ASK"],"slots":["Crypto-Cash Back card","$100","$500","2 months"],"note":"u042 동형(day6판)"}
+{"sample_id":"u045","acts":["PROVIDE","REQUEST"],"slots":["Bob Nakamoto","1.5% or lower","1.5% or lower","virtual card management","540","$95,000","Rho-Bank+"],"note":"u032 동형(day7판)"}
+{"sample_id":"u046","acts":["REFUSE","REQUEST"],"slots":["$500"],"note":"제시된 business card 대안 거부+이관 요구. 'eighth time'=강조"}
+{"sample_id":"u047","acts":["CONFIRM","REQUEST"],"slots":[],"note":"확인+이관 요구"}

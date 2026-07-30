@@ -1,0 +1,169 @@
+{
+ "final": {
+  "n": 20,
+  "total": 64,
+  "avg": 0.4,
+  "running": {
+   "task_022.0": 4620,
+   "task_025.0": 3271
+  }
+ },
+ "done": [
+  {
+   "sim": "task_003.0",
+   "dur_s": 205,
+   "passed": true,
+   "ambig": false,
+   "gained_in_block": 1,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_004.0",
+   "dur_s": 292,
+   "passed": false,
+   "ambig": false,
+   "gained_in_block": 0,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_002.0",
+   "dur_s": 750,
+   "passed": true,
+   "ambig": false,
+   "gained_in_block": 1,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_005.0",
+   "dur_s": 296,
+   "passed": false,
+   "ambig": false,
+   "gained_in_block": 0,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_006.0",
+   "dur_s": 1026,
+   "passed": true,
+   "ambig": false,
+   "gained_in_block": 1,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_008.0",
+   "dur_s": 547,
+   "passed": true,
+   "ambig": false,
+   "gained_in_block": 1,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_010.0",
+   "dur_s": 445,
+   "passed": false,
+   "ambig": false,
+   "gained_in_block": 0,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_012.0",
+   "dur_s": 331,
+   "passed": false,
+   "ambig": false,
+   "gained_in_block": 0,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_014.0",
+   "dur_s": 134,
+   "passed": false,
+   "ambig": false,
+   "gained_in_block": 0,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_015.0",
+   "dur_s": 132,
+   "passed": false,
+   "ambig": false,
+   "gained_in_block": 0,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_016.0",
+   "dur_s": 330,
+   "passed": false,
+   "ambig": false,
+   "gained_in_block": 0,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_017.0",
+   "dur_s": 621,
+   "passed": true,
+   "ambig": false,
+   "gained_in_block": 1,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_018.0",
+   "dur_s": 1135,
+   "passed": true,
+   "ambig": false,
+   "gained_in_block": 1,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_019.0",
+   "dur_s": 1310,
+   "passed": false,
+   "ambig": false,
+   "gained_in_block": 0,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_007.0",
+   "dur_s": 6772,
+   "passed": false,
+   "ambig": false,
+   "gained_in_block": 0,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_020.0",
+   "dur_s": 1205,
+   "passed": false,
+   "ambig": false,
+   "gained_in_block": 0,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_021.0",
+   "dur_s": 683,
+   "passed": true,
+   "ambig": false,
+   "gained_in_block": 1,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_023.0",
+   "dur_s": 601,
+   "passed": true,
+   "ambig": false,
+   "gained_in_block": 1,
+   "left_in_block": 1
+  },
+  {
+   "sim": "task_024.0",
+   "dur_s": 355,
+   "passed": false,
+   "ambig": false,
+   "gained_in_block": 0,
+   "left_in_block": 1
+  }
+ ],
+ "pairs": {},
+ "flips": 0,
+ "agree": 0,
+ "ambiguous": 0
+}
