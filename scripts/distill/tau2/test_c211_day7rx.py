@@ -2,7 +2,11 @@
 # -*- coding: utf-8 -*-
 """C211/day7 처방(F6·F7·F8) 오프라인 검증 (2026-07-28·무료·모델 불요).
 `DAY7_PRESCRIPTIONS_DESIGN_2026_07_28` §6 배터리 + 리뷰 반영 케이스:
-- [가드레일] 공유 술어 불변: _is_effective_write("give_discoverable_user_tool")=False 유지
+- [가드레일] 공유 술어 **의도** 불변: banking에서 give_/unlock_ 은 실효 write가 아니다.
+  ⚠2026-07-30 C241 U1': 이 술어는 도메인 어휘를 **A2에서** 읽도록 바뀌었다(엔진 리터럴 제거·
+  전역 상태 없이 a2 명시 전달). 따라서 a2 없이 호출하면 도메인 어휘를 알 수 없어 write로
+  판정된다 — 그게 **설계된 동작**이다(교차-도메인 누출 방지). 검사는 banking A2를 넘겨
+  **의도**를 확인하도록 갱신했다. 도메인별 등가성 전수는 `test_c241_u1_predicate.py`.
 - [보강1] F7b 복수-매칭=불성립(abstain 안전측)
 ⚠단위통과≠라이브발화([[30]])."""
 import io
@@ -92,10 +96,15 @@ def test_f6a():
 def test_f6b():
     print("[test_f6b] FAB_STRIP give-구멍 수리 (국소·공유 술어 불변)")
     # [가드레일] 공유 술어 회귀: give는 여전히 비-실효-write
-    chk(GP._is_effective_write("give_discoverable_user_tool") is False,
-        "공유 _is_effective_write('give_…')=False 유지(claim_prov/WRITEPROV 기반 불변)")
-    chk(GP._is_effective_write("unlock_discoverable_agent_tool") is False,
-        "공유 _is_effective_write('unlock_…')=False 유지")
+    from gate_interpreter import load_domain_a2 as _lda
+    _a2b = _lda("banking_knowledge")
+    chk(GP._is_effective_write("give_discoverable_user_tool", _a2b) is False,
+        "공유 _is_effective_write('give_…', bankingA2)=False 유지(claim_prov/WRITEPROV 기반 불변)")
+    chk(GP._is_effective_write("unlock_discoverable_agent_tool", _a2b) is False,
+        "공유 _is_effective_write('unlock_…', bankingA2)=False 유지")
+    # ★C241 U1' 신설 가드레일: a2 없이는 도메인 어휘를 모른다 = 누출 방지의 설계된 결과
+    chk(GP._is_effective_write("give_discoverable_user_tool", None) is True,
+        "a2 미전달 시 도메인 어휘 미적용(전역 누출 부재의 대우)")
     # 국소 술어 동형 재현(수리 후 로직): inner=discoverable_tool_name까지 unwrap·디스패처는 inner 판정
     import re as _re
     RDP, PRC = GP._READ_PREFIX_RE, GP._PROCEDURAL_RE
