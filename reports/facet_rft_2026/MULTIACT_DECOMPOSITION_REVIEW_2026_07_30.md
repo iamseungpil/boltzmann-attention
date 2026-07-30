@@ -234,6 +234,66 @@ sim당 action_check를 많이 낸다(중앙값 2·평균 4.7·최대 24). 태스
 ③day2·day3 런이 포함된 **구 스택 혼재**(초판 docstring "day6~9c"는 glob과 불일치했고 표기를
 실제[day 전체]로 맞췄다).
 
+## §6d. ★C243 census 교정 + OPERAND 분해 (C244 · `x10`/`x11`)
+
+§6c의 census에 **결함 5개**가 있었고 전부 사례 정독으로 잡았다. 교정 결과가 §6c의 판정을 바꾼다.
+
+### 교정 1 — `unlock`을 "호출"로 셌다 (census 수치 변경)
+
+`unlock_discoverable_agent_tool`도 `agent_tool_name`을 갖는데 그걸 "그 도구를 호출했다"로 셌다.
+**unlock은 실행이 아니다**(prekb `_effective_fams`·C159). 66건이 OPERAND→EXEC_GAP으로 이동:
+
+| 클래스 | §6c(결함) | **C244 교정** |
+|---|---|---|
+| OPERAND | 397 (57.1%) | **331 (47.6%)** |
+| **EXEC_GAP** | 77 (11.1%) | **143 (20.6%)** |
+| DISCOVERY | 140 (20.1%) | 140 (20.1%) |
+| DECISION | 81 (11.7%) | 81 (11.7%) |
+
+⇒ **C140의 실행 잔여는 11%가 아니라 20.6%**다. 그 정체는 **"unlock까지 했는데 call 안 함"** =
+이름을 잠금해제했으니 **확실히 알았고**, C140 "알았는데 안 했다"의 **가장 순수한 형태**다.
+§6c 판정("EXEC_GAP 11%로 지배적 아님")은 **수치가 두 배로 정정**되나 **서열은 유지**(OPERAND 47.6% 우위).
+
+### 교정 2~5 — OPERAND 331은 operand가 아닌 것들을 품고 있었다
+
+| # | 결함 | 실체 |
+|---|---|---|
+| 2 | 기대 action이 **give 단계**(도구명만·내부 인자 0)면 diff할 operand가 없는데 "차이 없음"으로 계상 | **프로비저닝/user-실행 실패**(실측: give 23회 vs user 실행 2/4) |
+| 3 | 기대 N건이 실제 M<N건에 **중복 매칭**(1:1 배정 부재) | **coverage/F4**(횟수 부족) |
+| 4 | `requestor`(누가 실행) 미비교 | **채널 축**(기대 user vs 실제 assistant 등) |
+| 5 | (도구 범위) docstring "day6~9c" vs glob day 전체 | 표기를 실제로 정정 |
+
+### OPERAND 최종 분해 (257건 · 차이 338개)
+
+| 클래스 | 건수 | 비율 | 레버 귀속 |
+|---|---|---|---|
+| `NO_ARG_DIFF` | 84 | 19.9% | ⚠**미해명 잔여** — 인자·주체 다 같은데 불일치. 채점 규약 미파악분 |
+| `OTHER` | 76 | 18.0% | 미분류(자유형 인자) |
+| **`REQUESTOR`** | **75** | **17.8%** | ★operand 아님 — **채널 축**(give 채널·`completion_guard`) |
+| **`REF_WRONG`** | **60** | **14.2%** | ★**F3/⋈ · REF_ISO·reference_filter** (`transaction_id` 55) |
+| `COUNT_SHORT` | 40 | 9.5% | ★operand 아님 — **coverage/F4** |
+| `GIVE_STEP` | 34 | 8.1% | ★operand 아님 — 프로비저닝 |
+| `ENUM_WRONG` | 26 | 6.2% | enum 접지·prekb (`card_type` 13) |
+| `MISSING` | 17 | 4.0% | 완결 게이트(단 write 강제 금지) |
+| `CALC_WRONG` | **1** | 0.2% | compute offload — **거의 없다** |
+
+**판정 4**:
+1. **"OPERAND 57%"는 과대였다.** 진짜 operand 계열(`REF_WRONG`+`ENUM_WRONG`+`CALC_WRONG`)은
+   **87건 = 20.6%**다. 나머지는 채널(17.8%)·coverage(9.5%)·프로비저닝(8.1%)·미해명(37.9%)이다.
+2. **`CALC_WRONG` = 1건.** 계산 오류는 실질적으로 **없다** — compute offload가 이미 닫았다는
+   신호(또는 계산-요구 태스크가 드물다). **다음 레버 후보에서 제외.**
+3. **`REF_WRONG` 60건이 operand 중 최대**이고 `transaction_id`가 55건이다 ⇒ **F3/⋈ 참조 재선택**
+   (REF_ISO·reference_filter)이 operand 축의 유일한 유효 표적이다.
+4. **`REQUESTOR` 75건이 그보다 크다** ⇒ **"누가 실행하나"(채널)가 operand보다 큰 조각**이고,
+   이건 기존 give-채널·`completion_guard` 레버 소관이다. **미측정 축이 하나 드러났다.**
+
+### ⚠이 측정의 신뢰도 (정직)
+
+**같은 census에서 결함 5개를 연속으로 잡았다.** 전부 집계가 그럴듯해 보이는데 사례를 읽으면
+틀린 형태였다. `NO_ARG_DIFF` 84 + `OTHER` 76 = **160건(37.9%)이 여전히 미해명**이므로 위 표를
+"실패 원인의 확정 분해"로 인용하면 안 된다. **인용 가능한 것은** ①`CALC_WRONG`≈0 ②`REF_WRONG`이
+operand 축 최대 ③`REQUESTOR`가 그보다 큼 — 세 부등호뿐이다. 정확한 비율은 미해명분 해소 후.
+
 ## §7. 필수 반대편 계측 (§1.3 제1원리 — 부작용 없는 레버는 없다)
 
 이 설계가 사는 것과 파는 것을 **같이** 재지 않으면 채택 불가:

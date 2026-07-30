@@ -38,6 +38,26 @@ _SIM = os.path.abspath(os.path.join(_HERE, "..", "..", "..",
                                     "reports", "facet_rft_2026", "sim_results"))
 _SUF = re.compile(r"_\d{3,4}$")
 
+# ★C244 자기정정: `unlock_`/`list_` 호출도 `agent_tool_name`을 갖는다. 그걸 "그 도구를 호출했다"로
+#   세면 (a)X10에서 미호출을 OPERAND로 오분류 (b)X11에서 인자 없는 unlock을 짝지어 전 인자를
+#   MISSING으로 오계상한다. **unlock/list는 실행이 아니다**(prekb `_effective_fams`·C159 교훈).
+#   ⇒ **실행으로 세는 것은 dispatch(call_)·give_ 계열뿐**. 이름은 A2에서 읽는다(리터럴 0).
+_A2_PATH = os.path.join(_HERE, "a2", "banking_knowledge.gate.json")
+
+
+def _dispatch_cfg():
+    try:
+        ep = (json.load(open(_A2_PATH, encoding="utf-8")).get("eplan") or {})
+    except Exception:
+        return set(), set()
+    exec_names = {ep.get("dispatch_tool")}
+    nonexec = {ep.get("unlock_tool"), ep.get("list_tool")}
+    return {x for x in exec_names if x}, {x for x in nonexec if x}
+
+
+_EXEC_DISP, _NONEXEC_DISP = _dispatch_cfg()
+
+
 
 def fam(n):
     return _SUF.sub("", str(n or ""))
@@ -48,7 +68,10 @@ def called_names(msgs):
     out = set()
     for m in msgs:
         for tc in (m.get("tool_calls") or []):
-            out.add(fam(tc.get("name")))
+            nm = tc.get("name")
+            out.add(fam(nm))
+            if nm in _NONEXEC_DISP:
+                continue                       # ★C244: unlock/list = 실행 아님(inner 미계상)
             a = tc.get("arguments") or {}
             if isinstance(a, str):
                 try:
