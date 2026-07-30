@@ -6,7 +6,7 @@
 > 가능인지/다른 방법 있는지 확인"(=rev1·전면화 확정)**.
 > 상위: `AXIS_DECISION`(코어 동결·금지선)·`STACK_PREDICATE_AUDIT`(배터리)·[[16]] LOCK(fexec·
 > FIND=근거-요구)·C45(출처선언·날조 67→0%·Δspurious 0)·[[10]](LLM=formalize·검증=결정론).
-> 상태: **rev2 설계** — 2026-07-30 리뷰 반영(§1d verification 완결화 R1~R10·처방 열·
+> 상태: **rev3 설계** — 2026-07-30 2차 리뷰 반영(§1d R1~R13·demand 상태전이·ask 독립화·
 > normalization / §0c 명확화 2 / §1c 제거=기본-OFF / §2·§6 전파 / §1b X4 인용). 구현 대기. 딥리서치(run `wf_df853bf1-7a4`) 대조分 추후 편입.
 
 ## §0b. 전면화 (rev1 LOCK 후보) — 아키텍처 완성형
@@ -48,26 +48,37 @@
 **mixed = provides_slot 처리(슬롯 갱신) + question 응답 허용(강제 없음)** — 즉 정보는 반영하되
 행동 강제는 걸지 않는다(오분류 시 피해 최소).
 
-## §1d. A2 `formalize_spec` 정본 (rev2·2026-07-30 리뷰 반영 — **verification 완결화·처방 열·정규화**)
+## §1d. A2 `formalize_spec` 정본 (**rev3**·2026-07-30 2차 리뷰 반영 — R1~R13·처방 열·정규화·상태 전이)
 
 ```yaml
 formalize_spec:                    # ── base layer: 도메인-불변 (전 도메인 동일·수정=온톨로지 절차)
-  version: 2
+  version: 3
   envelope:                        # 매 assistant 턴 선언
     turn_type:   {enum: [ACT, ASK, CONFIRM, INFORM, DONE], required: true}
     next_action: {type: tool_ref, required_if: turn_type==ACT}
-    ask:         {required_if: turn_type in [ASK, CONFIRM],
+    # ★rev3 구멍 B: ask는 **turn_type-독립 optional** — ASK/CONFIRM에서 required, ACT에서도 허용.
+    #   근거: 복합 턴(도구 호출 + 유저 질문·tau2 공존·§2-1)에서 R2가 ACT를 강제하는데 ask가
+    #   문법상 빠지면 질문이 산문으로만 나가 R3/R4 검사를 우회하고, 다음 턴에 R10이 정당한
+    #   턴을 오발화한다(R2×R10 조합 오탐 채널). guided 문법(X3 arm B)이 이 조건을 직접 반영.
+    ask:         {optional: true, required_if: turn_type in [ASK, CONFIRM],
                   fields: {slot: slot_ref, reason: {enum: [missing, confirm]}}}
-    done_report: {type: list[{kind: enum_from(domain.claim_kinds), what: str}],
+    done_report: {type: list[{kind: enum_from(domain.claim_kinds), what: str,
+                              resolves: demand_id or null}],   # ★rev3 구멍 A: demand 소거 링크
                   required_if: turn_type==DONE or terminal_turn}
     instruct_user_run: {type: tool_ref(domain.user_runnable), nullable: true}
     evidence_quote:   {required_for: [give, FIND-값], verify: substring_in_ledger}
   user_act:                        # 유저 발화 formalize (컨트롤러 입력)
     enum: [question, provides_slot, consent, refusal, smalltalk, mixed]
     slots_extracted: list[{slot: slot_ref, value: str, quote: str}]
-  demand_ledger:                   # ★rev2: 요구 목록(수요측) — user_act formalize의 산출
-    items: list[{demand_id, description, quote, status: enum[open, done]}]
-    verify: quote ∈ utterance      # 등재 조건(근거 인용 필수·환각-demand 차단)
+  demand_ledger:                   # 요구 목록(수요측) — user_act formalize의 산출
+    items: list[{demand_id, description, quote, status: enum[open, done, retracted]}]
+    emit: user_act formalize        # ★권고3: 발생 지점 = 유저 턴마다 append-only(엔진이 생성 안 함)
+    verify: quote ∈ utterance       # 등재 조건(근거 인용 필수·환각-demand 차단)
+    # ★rev3 구멍 A — 상태 전이도 닫힌 규칙으로(소거가 열려 있으면 R7이 무력):
+    transitions:
+      open -> done:      R11(그 demand_id를 resolves하는 done_report 항목이 R5를 통과)
+      open -> retracted: R12(유저 번복 발화의 quote 근거·[[21]] 시나리오)
+      # 엔진은 전이를 *판단*하지 않고 선언(resolves/retract quote)의 정합만 검증
   guide: |                         # 시스템-프롬프트 주입 가이드(데이터·C47: placeholder-명백 예시만)
     <formalize 방법 지시문 — 엔진 불변·A2 텍스트>
   normalization:                   # ★rev2: 규칙 R5/R9의 정규화 명세(032·031 전과 대응)
@@ -89,7 +100,14 @@ formalize_spec:                    # ── base layer: 도메인-불변 (전 �
     - {id: R9, pred: "evidence_quote ∈ ledger ∧ slots_extracted.quote ∈ utterance",
                                                                    rx: surface}      # 정규화 적용
     - {id: R10, pred: "직전 assistant ask 선언 = ∅ ∧ user_act == provides_slot → 이상",
-                                                                   rx: surface}      # ★우회 부분검출
+                                                                   rx: log_only}     # ★rev3: 수신자=계측
+    # ★rev3 신설 — demand 상태 전이(구멍 A)와 봉투 정합(권고 2)
+    - {id: R11, pred: "demand.status==done ⇐ 그 demand_id를 resolves하는 done_report 항목이 R5 통과",
+                                                                   rx: surface}
+    - {id: R12, pred: "demand.status==retracted ⇒ 번복 quote ∈ utterance",
+                                                                   rx: surface}
+    - {id: R13, pred: "turn_type==CONFIRM ⇒ ask.reason==confirm (ASK ⇒ reason==missing)",
+                                                                   rx: full_regen}   # 형식-층
   prescriptions:                   # R-닫힌 메뉴 정의(이 5종 외 처방 금지)
     full_regen:  전체 응답 재생성(본문+툴콜 일체·형식-층·cap 2)
     subst:       결정론 치환(치환값이 유일 계산될 때만)
@@ -97,6 +115,9 @@ formalize_spec:                    # ── base layer: 도메인-불변 (전 �
                  스키마-파생 사실만 · 정답 이름/인스턴스 값 **금지** · bare 금지)
     surface:     표면화(행동 요구 0·pending 통지)
     read_force:  read-계열 호출 강제(대상 도구가 유일 결정될 때만·§1.5 write 금지)
+    log_only:    **모델에 통지하지 않음** — 계측·learn 라벨 로그 전용(★rev3 권고1: R10은
+                 유저 자발-제공(묻지 않았는데 정보 제공)과 구조적으로 구분 불가 = 오탐 원천이
+                 잔존하므로 통지 승격은 X3의 **R10 false-fire율 실측 후**에만 논의)
   routing:                         # 결정론 turn-policy (도메인-불변 default)
     provides_slot: ledger 갱신 → eligible(read)=required 허용
     consent_token: write-게이트 해제 (**eligibility ∧ ask-escape act 보존 시에만** required)
@@ -109,6 +130,21 @@ domain:                            # ── 도메인 layer: 내용만 공급 (b
   user_runnable: [<도구 레지스트리·환경 파생>]
   claim_kinds / event_map: <기존 claim_prov 재사용>
 ```
+
+**rev3 변경 근거 (2026-07-30 2차 리뷰 — 신설 규칙이 만든 잔여 구멍 2건 + 권고 3건)**
+- **구멍 A (R7 무력화 방지)**: `demand_ledger`의 등재는 닫혔으나(quote∈발화) **소거가 열려
+  있었다** — LLM이 임의로 done을 달면 R7이 무력하고, 엔진이 판단하면 산문-해석 금지 위반.
+  → `done_report.resolves: demand_id` 링크 + **R11**(소거는 R5를 통과한 완료-보고로만) +
+  **R12/`retracted`**(유저 번복·quote 근거·[[21]] 시나리오에서 취소된 요구가 open으로 남아
+  R7을 영구 오염시키는 것 방지). **엔진은 전이를 판단하지 않고 선언의 정합만 검증.**
+- **구멍 B (R2×R10 오탐 채널)**: `ask`를 **turn_type-독립 optional**로 — 복합 턴(도구 호출 +
+  질문)에서 R2가 ACT를 강제하면 ask가 문법상 빠져 질문이 산문으로 새고, 다음 턴 R10이 정당한
+  턴을 오발화한다. guided 문법이 이 조건을 직접 반영해야 하므로 스펙에 선반영.
+- **권고 1**: R10의 처방을 `log_only`로 강등 — 유저 자발-제공과 구조적으로 구분 불가하므로
+  모델-대면 통지 금지, 계측/learn 라벨로만. **X3 측정 항목에 R10 false-fire율 추가.**
+- **권고 2**: `reason` 중복 → 제거하지 않고 **R13**(CONFIRM⇒confirm·ASK⇒missing) 정합 규칙을
+  달아 무규칙 상태 해소(형식-층이므로 full_regen).
+- **권고 3**: `demand_ledger.emit` 명시 — 유저 턴마다 user_act formalize가 append(엔진 생성 0).
 
 **rev2 변경 근거 (리뷰 대응)**
 - **R7 DONE-게이트 신설** + `demand_ledger` 필드 신설: §1b가 EPLAN 수요-측 파서를 폐기했으므로
