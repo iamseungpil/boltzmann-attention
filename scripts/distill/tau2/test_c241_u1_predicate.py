@@ -36,21 +36,25 @@ def main():
     except Exception:
         pass
     ns = json.load(open(os.path.join(_HERE, "tau2_domain_toolnames.json"), encoding="utf-8"))
-    names = sorted({t for v in ns.values() for t in v if not t.startswith("_")})
-    # 접미사 붙은 실제 discoverable 인스턴스도 포함(명명 관행 경로 검사)
-    names += ["close_credit_card_account_7834", "give_discoverable_user_tool",
-              "unlock_discoverable_agent_tool", "call_discoverable_agent_tool",
-              "list_discoverable_agent_tools"]
+
+    def names_of(dom):
+        """★그 도메인이 **실제로 갖는** 도구명만. 초판은 122개 전체를 모든 도메인에 돌려
+        airline/retail에서 banking 도구명 diff 7건이 나왔는데, 그 이름은 해당 도메인에
+        존재하지 않으므로 **테스트 아티팩트**였다(리뷰가 요구한 '자기 A2' 원칙의 대칭)."""
+        out = [x for x in ns.get(dom, []) if not x.startswith("_")]
+        return sorted(set(out + ["close_credit_card_account_7834"] if dom == "banking_knowledge"
+                          else out))
 
     fails = 0
     print("=== T1 등가성: 각 도메인을 **자기 A2**로 로드 ===")
     for dom in sorted(ns):
         a2 = load_domain_a2(dom)
         proc = G._a2_procedural(a2)
-        diff = [n for n in names if old_is_write(n) != G._is_effective_write(n, a2)]
+        diff = [n for n in names_of(dom)
+                if old_is_write(n) != G._is_effective_write(n, a2)]
         tag = "A2 없음(=구 술어와 다를 수 있음·기대)" if a2 is None else ""
-        print(f"  {dom:20s} A2={'있음' if a2 else '없음':4s} 절차집합 {len(proc)}개 "
-              f"· diff {len(diff)}건 {tag}")
+        print(f"  {dom:20s} A2={'있음' if a2 else '없음':4s} 도구 {len(names_of(dom)):3d}개 "
+              f"· 절차집합 {len(proc)}개 · diff {len(diff)}건 {tag}")
         if a2 is not None and diff:
             print(f"      ⚠diff: {diff[:8]}")
             fails += 1

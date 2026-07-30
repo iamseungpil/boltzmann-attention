@@ -1680,11 +1680,22 @@ def _a2_procedural(a2):
         return frozenset()
     ep = (a2.get("eplan") or {})
     out = {ep.get("dispatch_tool"), ep.get("unlock_tool"), ep.get("list_tool")}
+    # ★user-측 디스패처도 절차적이다. banking은 agent-측(call_…agent_tool)과 **별개로**
+    #   user-측(call_…user_tool)을 갖는데, U1' 초판이 agent 것만 읽어 회귀 테스트가
+    #   `call_discoverable_user_tool`의 판정 뒤집힘(procedural→write) 1건을 잡았다.
+    #   A2가 **이미 선언**한 곳에서 읽는다(순증 0): `completion_guard.user_execution_tool` ·
+    #   `scaffold_get_tools[].follow_up.{tool, completion_guard.user_execution_tool}` ·
+    #   `value_acquisition[].give_tool`.
+    out.add(((a2.get("completion_guard") or {}) or {}).get("user_execution_tool"))
     for t in (a2.get("scaffold_get_tools") or []):
-        if isinstance(t, dict):
-            nm = (t.get("follow_up") or {}).get("tool")
-            if nm:
-                out.add(nm)
+        if not isinstance(t, dict):
+            continue
+        fu = (t.get("follow_up") or {})
+        out.add(fu.get("tool"))
+        out.add(((fu.get("completion_guard") or {}) or {}).get("user_execution_tool"))
+    for v in (a2.get("value_acquisition") or []):
+        if isinstance(v, dict):
+            out.add(v.get("give_tool"))
     return frozenset(_SUFFIX_RE.sub("", str(x)) for x in out if x)
 # ★^verify_ 추가(2026-07-20): verify_identity(scaffold 판정 도구·read-성)가 실효-write로 오분류되던 실버그 —
 #   CLAIM_PROV write축 거짓통과 + WRITEPROV 조기 break(완료-주장 게이트 약화) 교정. _verification$의 대칭·도메인 일반.
