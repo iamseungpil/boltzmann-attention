@@ -4568,6 +4568,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     fb.append(UserMessage(role="user", content=hv_fb))
                 except TypeError:
                     fb.append(UserMessage(content=hv_fb))
+            # ★사이드카(MT_PROBE_DESIGN §1-d·2026-07-30): 이 `fb`는 **비커밋**이라 궤적에 남지
+            #   않는다(바로 위 "채널 절대규칙"). 그래서 메시지-수준 포렌식이 불가능했다([[08]]).
+            #   궤적은 그대로 두고 **별도 파일에만** 발화 사실을 남긴다. T2_FB_SIDECAR 미설정=no-op.
+            if fb:
+                try:
+                    import t2_fbsidecar as _fbsc
+                    _fbsc.record_many(fb, state.messages, channel="unified_regen")
+                except Exception:
+                    pass
             work = work + fb
             am = _gen(self, work, bw(), "agent_response_unified_regen",
                       tool_choice="required" if force_required else None)
