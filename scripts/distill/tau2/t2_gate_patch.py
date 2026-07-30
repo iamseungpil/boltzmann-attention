@@ -1650,9 +1650,14 @@ NLNUM_FEEDBACK = (
 #   `unlock_…`이 전부 True라 "상태변경 0"이 거의 모든 sim서 거짓 → 게이트가 영영 안 뜬다(2026-07-18 설계 교정).
 _READ_PREFIX_RE = re.compile(r"^(get|search|list|lookup|find|retrieve|read|view|check)_", re.I)
 _PROCEDURAL_RE = re.compile(
-    r"(^log_|^verify_|_verification$|^kb_|^shell$|discoverable|transfer_to_human|^give_|^unlock_|get_current_time)", re.I)
+    r"(^log_|^verify_|_verification$|^kb_|^shell$|discoverable|transfer_to_human|^give_|^unlock_)", re.I)
 # ★^verify_ 추가(2026-07-20): verify_identity(scaffold 판정 도구·read-성)가 실효-write로 오분류되던 실버그 —
 #   CLAIM_PROV write축 거짓통과 + WRITEPROV 조기 break(완료-주장 게이트 약화) 교정. _verification$의 대칭·도메인 일반.
+# ★C238 U0(2026-07-30): `|get_current_time` 가지 **삭제** — `_READ_PREFIX_RE`의 `^get_`가 이미 잡으므로
+#   **죽은 중복**이었다(`_is_effective_write = not READ and not PROC` 이라 OR 관계). 실측: tau2 5도메인
+#   public 도구명 122개 전수에서 이 가지 제거로 `is_write` 판정이 바뀌는 이름 **0개**. 두 사용처
+#   (`_is_effective_write` 1818·`T2_FAB_STRIP` 4534)가 동일 논리라 양쪽 무해. 정본=
+#   `ENGINE_LITERAL_REMEDIATION_DESIGN_2026_07_30.md` §4 U0 · 감사 도구 `x6h_engine_literal_audit.py`.
 
 
 def _eff_tool_name(tc):
