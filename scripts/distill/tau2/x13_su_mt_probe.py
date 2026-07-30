@@ -1,0 +1,333 @@
+# -*- coding: utf-8 -*-
+"""X13 SU-MT — 대본-유저 다중턴 프로브 본체 (MT_PROBE_DESIGN rev3 · 2026-07-30 야간).
+
+설계 = `reports/facet_rft_2026/MT_PROBE_DESIGN_2026_07_30.md`(rev3). 요지:
+  · 유저 = **대본**(실 궤적의 user 발화 순서 재생) → user-sim 비용 0
+  · 도구 = **진짜 tau2 env**(banking_knowledge·bm25) → 실 스키마·실 오류
+  · 에이전트 = 로컬 32B(8141) → 비용 0
+  ⇒ 장문·다중턴·실도구라는 배포-유사 3요소를 무료로 얻는다.
+
+★arm(rev3 §3-2b 실측 반영):
+  A_PROMPT    프롬프트로만 봉투 요구(도구 정상 제공)
+  B_SAYGUIDED 말-채널(도구 미제공) 요청에만 guided_json — **행동 채널에 문법을 걸면 호출이 0이 된다**
+  C_VERIFY    A + §1d 검증기 + 위반 시 regen 1회
+  D_TWOPASS   1패스=행동(문법 없음) → 2패스=그 행동을 봉투로 형식화(문법·도구 미제공)
+
+⚠채점 금지 목록(설계서 §2-1·§7): 태스크 pass 채점 금지 · ASK를 페널티로 채점 금지
+  (대본 유저는 답하지 않는다) · 지평 초과율은 **1차 지표**로 보고 · 이탈 행은 별도 칸.
+
+용법:
+  py -3 x13_su_mt_probe.py --check-env            # V2: env 격리(get_db_hash 전후 대조)
+  py -3 x13_su_mt_probe.py --smoke                # V3: 2케이스 × 1시드 × 4 arm
+  py -3 x13_su_mt_probe.py --cases 12 --seeds 3 --out rows.jsonl
+"""
+import argparse
+import json
+import os
+import sys
+import urllib.request
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import x13_su_mt_cases as _cases                                    # noqa: E402
+
+BASE = os.environ.get("X13_BASE", "http://localhost:8141/v1")
+MODEL = os.environ.get("X13_MODEL", "Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
+DOMAIN = "banking_knowledge"
+RETRIEVAL = "bm25"          # ★비용 0 — openai_embeddings는 외부 호출이라 쓰지 않는다([[09]])
+ARMS = ["A_PROMPT", "B_SAYGUIDED", "C_VERIFY", "D_TWOPASS"]
+
+ENVELOPE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "turn_type": {"type": "string", "enum": ["ACT", "ASK", "CONFIRM", "INFORM", "DONE"]},
+        "next_action": {"type": ["string", "null"]},
+        "ask": {"type": ["object", "null"],
+                "properties": {"slot": {"type": "string"},
+                               "reason": {"type": "string", "enum": ["missing", "confirm"]}},
+                "required": ["slot", "reason"]},
+        "done_report": {"type": "array", "items": {
+            "type": "object",
+            "properties": {"kind": {"type": "string"}, "what": {"type": "string"},
+                           "resolves": {"type": ["string", "null"]}},
+            "required": ["kind", "what"]}},
+        "prose": {"type": "string"},
+    },
+    "required": ["turn_type", "prose"],
+}
+
+ENVELOPE_GUIDE = (
+    "\n\n<declaration>\nBefore or alongside any action, state a declaration envelope as a single "
+    "JSON object in your message content:\n"
+    '{"turn_type":"ACT|ASK|CONFIRM|INFORM|DONE","next_action":"<tool you are calling now or null>",'
+    '"ask":{"slot":"<slot>","reason":"missing|confirm"} or null,'
+    '"done_report":[{"kind":"<claim kind>","what":"<what you did>","resolves":null}],'
+    '"prose":"<what you tell the customer>"}\n'
+    "The declaration must match what you actually do this turn.\n</declaration>"
+)
+
+
+# ── 엔진 접점 ────────────────────────────────────────────────────────────────
+def make_env():
+    from tau2.domains.banking_knowledge.environment import get_environment
+    return get_environment(retrieval_variant=RETRIEVAL)
+
+
+def tool_schemas(env):
+    out = []
+    for t in env.get_tools():
+        try:
+            out.append(t.openai_schema)
+        except Exception as e:
+            print("  ⚠스키마 실패 %r: %r" % (getattr(t, "name", "?"), e), file=sys.stderr)
+    return out
+
+
+def system_prompt(env, arm):
+    from tau2.agent.llm_agent import SYSTEM_PROMPT, AGENT_INSTRUCTION
+    sp = SYSTEM_PROMPT.format(domain_policy=env.get_policy(), agent_instruction=AGENT_INSTRUCTION)
+    return sp + (ENVELOPE_GUIDE if arm != "D_TWOPASS" else "")
+
+
+def call_llm(msgs, seed, tools=None, guided=None, max_tokens=700):
+    body = {"model": MODEL, "messages": msgs, "temperature": 0.0, "seed": seed,
+            "max_tokens": max_tokens}
+    if tools:
+        body["tools"] = tools
+        body["tool_choice"] = "auto"
+    if guided is not None:
+        # ⚠rev3 §3-2b: tools와 동시에 걸면 tool_calls가 0이 된다 — 호출측이 배타를 보장한다.
+        assert not tools, "문법과 도구를 같은 호출에 걸지 말 것(행동 채널이 죽는다)"
+        body["guided_json"] = guided
+        body["guided_decoding_backend"] = "xgrammar"
+    req = urllib.request.Request(BASE + "/chat/completions",
+                                 data=json.dumps(body).encode(),
+                                 headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=300) as r:
+        return json.loads(r.read())["choices"][0]["message"]
+
+
+# ── 봉투 파싱·검증(§1d 축소판·전부 닫힌 술어) ────────────────────────────────
+def parse_env_obj(content):
+    t = (content or "").strip()
+    if t.startswith("```"):
+        t = t.strip("`")
+        t = t[t.find("{"):] if "{" in t else t
+    i, j = t.find("{"), t.rfind("}")
+    if i < 0 or j <= i:
+        return None
+    try:
+        return json.loads(t[i:j + 1])
+    except Exception:
+        return None
+
+
+def verify_envelope(env_obj, tool_calls):
+    """§1d 부분 구현 — 선언과 실제 행동의 정합만 본다(닫힌 술어)."""
+    v = []
+    if env_obj is None:
+        return ["NO_ENVELOPE"]
+    tt = env_obj.get("turn_type")
+    acted = bool(tool_calls)
+    if tt == "ACT" and not acted:
+        v.append("R1_ACT_WITHOUT_CALL")          # 선언만 하고 행동 안 함
+    if tt in ("ASK", "INFORM", "DONE") and acted:
+        v.append("R2_CALL_WITHOUT_ACT")          # 행동했는데 다르게 선언
+    na = env_obj.get("next_action")
+    if acted:
+        names = [c["function"]["name"] for c in tool_calls]
+        if na and na not in names:
+            v.append("R4_NEXT_ACTION_MISMATCH")
+    if tt == "ASK" and not env_obj.get("ask"):
+        v.append("R13_ASK_WITHOUT_SLOT")
+    return v
+
+
+# ── 본 루프 ─────────────────────────────────────────────────────────────────
+def run_case(case, arm, seed, K=12):
+    env = make_env()
+    tools = tool_schemas(env)
+    msgs = [{"role": "system", "content": system_prompt(env, arm)}]
+    script, si = case["script"], 0
+    msgs.append({"role": "user", "content": script[si]}); si += 1
+
+    row = {"case": case["sim"], "task_id": case["task_id"], "source": case["source"],
+           "arm": arm, "seed": seed, "turns": 0, "tool_calls": 0, "tool_errors": 0,
+           "envelopes": 0, "envelope_ok": 0, "violations": [], "regens": 0,
+           "horizon_hit": False, "script_exhausted": False, "deviated": False,
+           "prose_chars": 0, "endpoint": BASE, "model": MODEL}
+
+    for _ in range(K):
+        row["turns"] += 1
+        am = call_llm(msgs, seed, tools=tools)
+        tcs = am.get("tool_calls") or []
+        content = am.get("content") or ""
+
+        # ── 선언 채널 ──
+        env_obj = None
+        if arm == "D_TWOPASS":
+            # 2패스: 방금 한 행동을 봉투로 형식화(도구 미제공 → 문법 적용 가능)
+            desc = ("You just produced this turn:\ncontent=%r\ntool_calls=%s\n"
+                    "Emit the declaration envelope describing that turn."
+                    % (content[:800], json.dumps([c["function"]["name"] for c in tcs])))
+            fm = call_llm(msgs + [{"role": "user", "content": desc}], seed,
+                          guided=ENVELOPE_SCHEMA, max_tokens=400)
+            env_obj = parse_env_obj(fm.get("content"))
+        elif arm == "B_SAYGUIDED" and not tcs:
+            fm = call_llm(msgs + [{"role": "user",
+                                   "content": "Emit the declaration envelope for this turn."}],
+                          seed, guided=ENVELOPE_SCHEMA, max_tokens=400)
+            env_obj = parse_env_obj(fm.get("content"))
+        else:
+            env_obj = parse_env_obj(content)
+
+        if env_obj is not None:
+            row["envelopes"] += 1
+            row["prose_chars"] += len(str(env_obj.get("prose") or ""))
+        viol = verify_envelope(env_obj, tcs)
+        if not viol:
+            row["envelope_ok"] += 1
+        row["violations"] += viol
+
+        if arm == "C_VERIFY" and viol:
+            row["regens"] += 1
+            fb = ("Your declaration violated: " + ",".join(viol) +
+                  ". Re-emit so the declaration matches what you actually do.")
+            am = call_llm(msgs + [{"role": "assistant", "content": content},
+                                  {"role": "user", "content": fb}], seed, tools=tools)
+            tcs = am.get("tool_calls") or []
+            content = am.get("content") or ""
+
+        # ── 행동 채널: 실제 env 실행 ──
+        if tcs:
+            msgs.append({"role": "assistant", "content": content, "tool_calls": tcs})
+            for c in tcs:
+                row["tool_calls"] += 1
+                name = c["function"]["name"]
+                try:
+                    args = json.loads(c["function"]["arguments"] or "{}")
+                except Exception:
+                    args = {}
+                try:
+                    res = env.use_tool(name, **args)
+                    out, err = str(res), False
+                except Exception as e:
+                    out, err = "Error: %s" % (e,), True
+                    row["tool_errors"] += 1
+                msgs.append({"role": "tool", "tool_call_id": c.get("id") or name,
+                             "content": out[:20000]})
+            continue                                   # 도구 턴 = 유저 발화 투입 안 함
+
+        # 말 턴 → 대본 다음 발화 투입(설계서 §2-1-2)
+        msgs.append({"role": "assistant", "content": content})
+        if si >= len(script):
+            row["script_exhausted"] = True
+            break
+        msgs.append({"role": "user", "content": script[si]}); si += 1
+    else:
+        row["horizon_hit"] = True
+
+    row["viol_counts"] = {v: row["violations"].count(v) for v in set(row["violations"])}
+    row.pop("violations")
+    row["db_hash"] = env.get_db_hash()
+    return row
+
+
+# ── V2 / V3 ─────────────────────────────────────────────────────────────────
+def check_env_isolation():
+    """V2 — 케이스별 새 env가 초기 DB 상태에서 시작하는지(get_db_hash 대조)."""
+    print("=== V2: env 인스턴스 격리 ===")
+    e1 = make_env(); h0 = e1.get_db_hash()
+    print("  초기 해시            %s" % h0)
+    try:
+        e1.use_tool("change_user_email", user_id="user_1", new_email="probe@example.com")
+        print("  (mutating 도구 1회 실행)")
+    except Exception as ex:
+        print("  (mutating 시도 실패 — 격리 판정엔 무관: %r)" % (ex,))
+    h1 = e1.get_db_hash()
+    e2 = make_env(); h2 = e2.get_db_hash()
+    print("  변형 후 해시(같은 env) %s  %s" % (h1, "변함" if h1 != h0 else "불변"))
+    print("  새 env 해시            %s  %s" % (h2, "초기 복귀 ✅" if h2 == h0 else "❌오염"))
+    ok = (h2 == h0)
+    print("  ⇒ V2 %s" % ("PASS" if ok else "FAIL — 케이스 간 오염 위험"))
+    return ok
+
+
+def smoke(seeds=1, n=2, K=6):
+    print("=== V3: 스모크 (케이스 %d × 시드 %d × arm %d · K=%d) ===" % (n, seeds, len(ARMS), K))
+    cases = sorted(_cases.load_cases(), key=lambda c: -c["tool_chars"])[:n]
+    rows = []
+    for c in cases:
+        for arm in ARMS:
+            for s in range(seeds):
+                try:
+                    r = run_case(c, arm, s, K=K)
+                except Exception as e:
+                    print("  ✗ %s/%s: %r" % (c["sim"], arm, e))
+                    continue
+                rows.append(r)
+                print("  %s %-12s turns=%d calls=%d err=%d env=%d/%d regen=%d %s%s"
+                      % (r["case"], arm, r["turns"], r["tool_calls"], r["tool_errors"],
+                         r["envelope_ok"], r["turns"], r["regens"],
+                         "지평초과 " if r["horizon_hit"] else "",
+                         "대본소진" if r["script_exhausted"] else ""))
+    # 발화 확인(설계서 V3 기준): arm별 개입이 실제로 일어났나
+    print("\n  arm별 개입 실발화:")
+    for arm in ARMS:
+        rs = [r for r in rows if r["arm"] == arm]
+        if not rs:
+            print("    %-12s 행 0 ⚠" % arm); continue
+        print("    %-12s 봉투 %d/%d턴 · regen %d · 도구호출 %d"
+              % (arm, sum(r["envelopes"] for r in rs), sum(r["turns"] for r in rs),
+                 sum(r["regens"] for r in rs), sum(r["tool_calls"] for r in rs)))
+    ok = bool(rows) and all(sum(r["tool_calls"] for r in rows if r["arm"] == a) > 0 for a in ARMS)
+    print("\n  ⇒ V3 %s (전 arm이 도구를 실제로 호출했는가 = 행동 채널 생존)"
+          % ("PASS" if ok else "FAIL"))
+    return rows, ok
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--check-env", action="store_true")
+    ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--cases", type=int, default=12)
+    ap.add_argument("--seeds", type=int, default=3)
+    ap.add_argument("--K", type=int, default=12)
+    ap.add_argument("--out", default="")
+    args = ap.parse_args()
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+    if args.check_env:
+        sys.exit(0 if check_env_isolation() else 1)
+    if args.smoke:
+        rows, ok = smoke()
+        if args.out:
+            with open(args.out, "w", encoding="utf-8") as f:
+                for r in rows:
+                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
+            print("[saved] %s" % args.out)
+        sys.exit(0 if ok else 1)
+
+    cases = sorted(_cases.load_cases(), key=lambda c: -c["tool_chars"])[:args.cases]
+    print("본런: 케이스 %d(장문 상위) · 시드 %d · arm %d · K=%d"
+          % (len(cases), args.seeds, len(ARMS), args.K))
+    rows = []
+    for c in cases:
+        for arm in ARMS:
+            for s in range(args.seeds):
+                try:
+                    rows.append(run_case(c, arm, s, K=args.K))
+                except Exception as e:
+                    print("  ✗ %s/%s/s%d: %r" % (c["sim"], arm, s, e))
+    out = args.out or "x13_su_mt_rows.jsonl"
+    with open(out, "w", encoding="utf-8") as f:
+        for r in rows:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    print("[saved] %s (%d행)" % (out, len(rows)))
+    print("⚠판정은 별도 도구로([[08]]) — 태스크 pass 채점 금지·ASK 페널티 금지·지평 초과율 1차 보고.")
+
+
+if __name__ == "__main__":
+    main()
