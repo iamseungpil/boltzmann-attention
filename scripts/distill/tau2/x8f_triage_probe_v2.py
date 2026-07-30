@@ -175,6 +175,8 @@ def main():
     ap.add_argument("--temp", type=float, default=0.7)
     ap.add_argument("--regen-cap", type=int, default=2)
     ap.add_argument("--out", default="")
+    # ★2026-07-30 야간: 8140은 Y1 본런 점유 → 32B 스케일 축은 GPU1의 8141로 돌린다(포트만 교체).
+    ap.add_argument("--base_url", default="", help="PORTS 기본 endpoint 덮어쓰기(예: http://localhost:8141/v1)")
     args = ap.parse_args()
     try:
         sys.stdout.reconfigure(encoding="utf-8")
@@ -187,8 +189,11 @@ def main():
     gold = {json.loads(l)["sample_id"]: json.loads(l)
             for l in open(os.path.join(_SIM, "x8_gold_labels_v2.jsonl"), encoding="utf-8")}
     base, model = PORTS[args.model]
+    if args.base_url:
+        base = args.base_url.rstrip("/")
     arms = args.arms.split(",")
-    print(f"model={args.model} arms={arms} seeds={args.seeds} temp={args.temp} n={len(samp)}")
+    print(f"model={args.model} endpoint={base} arms={arms} seeds={args.seeds} "
+          f"temp={args.temp} n={len(samp)}")
 
     rows = []
     for arm in arms:
@@ -237,7 +242,8 @@ def main():
                 ps = {norm(x) for x in vals if norm(x)}
                 gsn = {norm(x) for x in gs}
                 rows.append(dict(
-                    arm=arm, seed=seed, sample_id=r["sample_id"], day=r["day"],
+                    arm=arm, seed=seed, endpoint=base, model=model,
+                    sample_id=r["sample_id"], day=r["day"],
                     task_id=r["task_id"], pos=r["pos"],
                     gold_acts=sorted(ga), gold_slots=sorted(gs),
                     pred_acts=sorted(pa), pred_slots=sorted(ps),
