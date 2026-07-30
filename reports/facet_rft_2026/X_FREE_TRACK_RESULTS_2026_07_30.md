@@ -383,6 +383,13 @@ airline 미보유 16키를 per-case 분류하면 **두 부류로 깨끗하게 �
 | **A2-CORE** | 채움만 | 기본 스킬 세팅(게이트·생산자·레지스트리·완료-보고 대조·근거 접지·선행조건·수요-원장) |
 | **A2-EXT** | E1~E3만 | 위 (e) 화이트리스트 |
 
+> ⚠️**2026-07-30 정정(C238) — 아래 "위반 2건" 판정은 양방향으로 틀렸다. 이 문단을 인용하지 말고
+> `ENGINE_LITERAL_REMEDIATION_DESIGN_2026_07_30.md`를 볼 것.** AST 전수 감사 결과 ②`t2_prekb_patch.py:627`은
+> **selftest 픽스처=비위반**(과대 1)이고, 이 grep이 **놓친 실제 위반이 6곳 더**(과소 6) 있다. 확정 =
+> **7 사이트 / 5 수정단위**, 근본원인 1개(banking dispatcher 어휘가 A2 선언 존재에도 엔진 6곳 중복).
+> **교훈: grep으로 [[05]] 준수를 주장하지 말 것** — grep은 주석·selftest 픽스처·포맷 플레이스홀더·
+> 정규식 가지를 구분하지 못한다. 검증 수단 = `x6h_engine_literal_audit.py`.
+
 **실측 검증(현 코드)**: 엔진 파일 6종의 도메인 리터럴을 grep — 대부분이 **주석·실측 기록**이고
 **실제 코드 위반은 2건**: ①`t2_gate_patch.py:2281` REF_ISO 서브콜 프롬프트에 `"a precise
 banking assistant"` 하드코딩 ②`t2_prekb_patch.py:627` `close_credit_card_account` 리터럴.
