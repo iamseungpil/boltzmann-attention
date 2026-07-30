@@ -113,17 +113,45 @@ def call_llm(msgs, seed, tools=None, guided=None, max_tokens=700):
 
 # ── 봉투 파싱·검증(§1d 축소판·전부 닫힌 술어) ────────────────────────────────
 def parse_env_obj(content):
+    """봉투 추출. ★초판은 `첫 { ~ 마지막 }`를 통째로 잘라 파싱했다 — 산문 뒤에 봉투가 붙거나
+    본문에 중괄호가 있으면 **오파싱**한다(원문 정독서 실제 확인). 이제 **균형 잡힌 중괄호 블록**을
+    전부 찾아 그중 `turn_type`을 가진 첫 객체만 봉투로 인정한다(닫힌 술어)."""
     t = (content or "").strip()
-    if t.startswith("```"):
-        t = t.strip("`")
-        t = t[t.find("{"):] if "{" in t else t
-    i, j = t.find("{"), t.rfind("}")
-    if i < 0 or j <= i:
+    if not t or "{" not in t:
         return None
-    try:
-        return json.loads(t[i:j + 1])
-    except Exception:
-        return None
+    t = t.replace("```json", "```")
+    out = []
+    for i, ch in enumerate(t):
+        if ch != "{":
+            continue
+        depth, in_str, esc = 0, False, False
+        for j in range(i, len(t)):
+            c = t[j]
+            if in_str:
+                if esc:
+                    esc = False
+                elif c == "\\":
+                    esc = True
+                elif c == '"':
+                    in_str = False
+                continue
+            if c == '"':
+                in_str = True
+            elif c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    out.append(t[i:j + 1])
+                    break
+    for blk in out:
+        try:
+            o = json.loads(blk)
+        except Exception:
+            continue
+        if isinstance(o, dict) and "turn_type" in o:
+            return o
+    return None
 
 
 def verify_envelope(env_obj, tool_calls):
