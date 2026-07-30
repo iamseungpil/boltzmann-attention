@@ -1,0 +1,94 @@
+총 92 건
+[00] frontA_2 task_019 t72 amt=1,850.16  pre=N post=N arith=Y | eviewed period:  - **Gold Rewards Card:**   - Total Spend: $1,850.16   - Total Cash Back Earned: 4,4
+[01] frontA_2 task_019 t72 amt=1,675.47  pre=N post=N arith=Y | Back Earned: 4,474 points  - **EcoCard:**   - Total Spend: $1,675.47   - Total Cash Back Earned: 4,4
+[02] frontA_2 task_019 t72 amt=1,850.16  pre=N post=N arith=Y | eviewed period:  - **Gold Rewards Card:**   - Total Spend: $1,850.16   - Total Cash Back Earned: 4,4
+[03] frontA_2 task_019 t72 amt=1,675.47  pre=N post=N arith=Y | Back Earned: 4,474 points  - **EcoCard:**   - Total Spend: $1,675.47   - Total Cash Back Earned: 4,4
+[04] frontA_2 task_019 t74 amt=1,850.16  pre=N post=N arith=Y | .0%  ### Summary - **Gold Rewards Card:**   - Total Spend: $1,850.16   - Total Points Earned: 4,474 
+[05] frontA_2 task_019 t74 amt=1,675.47  pre=N post=N arith=Y |  Rate: 100 points = $1.00  - **EcoCard:**   - Total Spend: $1,675.47   - Total Points Earned: 4,462 
+[06] frontA_2 task_019 t74 amt=1,850.16  pre=N post=N arith=Y | .0%  ### Summary - **Gold Rewards Card:**   - Total Spend: $1,850.16   - Total Points Earned: 4,474 
+[07] frontA_2 task_019 t74 amt=1,675.47  pre=N post=N arith=Y |  Rate: 100 points = $1.00  - **EcoCard:**   - Total Spend: $1,675.47   - Total Points Earned: 4,462 
+[08] frontA_2 task_019 t76 amt=1,850.16  pre=N post=N arith=Y | nts  ### Summary - **Gold Rewards Card:**   - Total Spend: $1,850.16   - Correct Total Points Earned
+[09] frontA_2 task_019 t76 amt=1,675.47  pre=N post=N arith=Y | e correct earn structure)  - **EcoCard:**   - Total Spend: $1,675.47   - Correct Total Points Earned
+[10] frontA_2 task_019 t76 amt=974.01    pre=N post=N arith=Y | unt:** $324.67    - **Correct Points Earned:** 324.67 * 3 = 974.01 ≈ 974 points  #### EcoCard 1. **T
+[11] frontA_2 task_019 t76 amt=1,850.16  pre=N post=N arith=Y | nts  ### Summary - **Gold Rewards Card:**   - Total Spend: $1,850.16   - Correct Total Points Earned
+[12] frontA_2 task_019 t76 amt=1,675.47  pre=N post=N arith=Y | e correct earn structure)  - **EcoCard:**   - Total Spend: $1,675.47   - Correct Total Points Earned
+[13] frontA_2 task_019 t80 amt=1,364.42  pre=N post=N arith=Y | arized Breakdown for EcoCard - **Total Spend at 5x Rate:** $1,364.42   - **Points Earned:** 6,821 po
+[14] frontA_2 task_019 t80 amt=283.32    pre=N post=N arith=Y | oints Earned:** 6,821 points - **Total Spend at 1x Rate:** $283.32   - **Points Earned:** 283 points
+[15] frontA_2 task_019 t80 amt=1,364.42  pre=N post=N arith=Y | arized Breakdown for EcoCard - **Total Spend at 5x Rate:** $1,364.42   - **Points Earned:** 6,821 po
+[16] frontA_2 task_019 t80 amt=283.32    pre=N post=N arith=Y | oints Earned:** 6,821 points - **Total Spend at 1x Rate:** $283.32   - **Points Earned:** 283 points
+[17] frontB_2 task_023 t42 amt=7,508.38  pre=N post=N arith=Y | ak down the spending for each month:  - **November 2024**: $7,508.38 (meets threshold) - **December 
+[18] frontB_2 task_023 t42 amt=7,372.75  pre=N post=N arith=Y | r 2024**: $7,508.38 (meets threshold) - **December 2024**: $7,372.75 (falls short by $127.25) - **Ja
+[19] frontB_2 task_023 t42 amt=127.25    pre=N post=N arith=Y |  threshold) - **December 2024**: $7,372.75 (falls short by $127.25) - **January 2025**: $7,188.33 (f
+[20] frontB_2 task_023 t42 amt=7,188.33  pre=N post=N arith=Y | **: $7,372.75 (falls short by $127.25) - **January 2025**: $7,188.33 (falls short by $311.67) - **Fe
+[21] frontB_2 task_023 t42 amt=311.67    pre=N post=N arith=Y |  by $127.25) - **January 2025**: $7,188.33 (falls short by $311.67) - **February 2025**: $5,451.11 (
+[22] frontB_2 task_023 t42 amt=5,451.11  pre=N post=N arith=Y | *: $7,188.33 (falls short by $311.67) - **February 2025**: $5,451.11 (falls short by $2,048.89) - **
+[23] frontB_2 task_023 t42 amt=2,048.89  pre=N post=N arith=Y | by $311.67) - **February 2025**: $5,451.11 (falls short by $2,048.89) - **March 2025**: $7,936.98 (m
+[24] frontB_2 task_023 t42 amt=7,936.98  pre=N post=N arith=Y | **: $5,451.11 (falls short by $2,048.89) - **March 2025**: $7,936.98 (meets threshold) - **April 202
+[25] frontB_2 task_023 t42 amt=6,383.01  pre=N post=N arith=Y | arch 2025**: $7,936.98 (meets threshold) - **April 2025**: $6,383.01 (falls short by $1,116.99) - **
+[26] frontB_2 task_023 t42 amt=1,116.99  pre=N post=N arith=Y | ets threshold) - **April 2025**: $6,383.01 (falls short by $1,116.99) - **May 2025**: $7,429.91 (fal
+[27] frontB_2 task_023 t42 amt=7,429.91  pre=N post=N arith=Y | 25**: $6,383.01 (falls short by $1,116.99) - **May 2025**: $7,429.91 (falls short by $70.09) - **Jun
+[28] frontB_2 task_023 t42 amt=70.09     pre=N post=N arith=Y | rt by $1,116.99) - **May 2025**: $7,429.91 (falls short by $70.09) - **June 2025**: $7,691.51 (meets
+[29] frontB_2 task_023 t42 amt=7,691.51  pre=N post=N arith=Y | 2025**: $7,429.91 (falls short by $70.09) - **June 2025**: $7,691.51 (meets threshold) - **July 2025
+[30] frontB_2 task_023 t42 amt=2,997.72  pre=N post=N arith=Y | *June 2025**: $7,691.51 (meets threshold) - **July 2025**: $2,997.72 (falls short by $4,502.28) - **
+[31] frontB_2 task_023 t42 amt=4,502.28  pre=N post=N arith=Y | eets threshold) - **July 2025**: $2,997.72 (falls short by $4,502.28) - **August 2025**: $7,631.94 (
+[32] frontB_2 task_023 t42 amt=7,631.94  pre=N post=N arith=Y | *: $2,997.72 (falls short by $4,502.28) - **August 2025**: $7,631.94 (meets threshold)  From this br
+[33] frontB_2 task_023 t42 amt=7,508.38  pre=N post=N arith=Y | ak down the spending for each month:  - **November 2024**: $7,508.38 (meets threshold) - **December 
+[34] frontB_2 task_023 t42 amt=7,372.75  pre=N post=N arith=Y | r 2024**: $7,508.38 (meets threshold) - **December 2024**: $7,372.75 (falls short by $127.25) - **Ja
+[35] frontB_2 task_023 t42 amt=127.25    pre=N post=N arith=Y |  threshold) - **December 2024**: $7,372.75 (falls short by $127.25) - **January 2025**: $7,188.33 (f
+[36] frontB_2 task_023 t42 amt=7,188.33  pre=N post=N arith=Y | **: $7,372.75 (falls short by $127.25) - **January 2025**: $7,188.33 (falls short by $311.67) - **Fe
+[37] frontB_2 task_023 t42 amt=311.67    pre=N post=N arith=Y |  by $127.25) - **January 2025**: $7,188.33 (falls short by $311.67) - **February 2025**: $5,451.11 (
+[38] frontB_2 task_023 t42 amt=5,451.11  pre=N post=N arith=Y | *: $7,188.33 (falls short by $311.67) - **February 2025**: $5,451.11 (falls short by $2,048.89) - **
+[39] frontB_2 task_023 t42 amt=2,048.89  pre=N post=N arith=Y | by $311.67) - **February 2025**: $5,451.11 (falls short by $2,048.89) - **March 2025**: $7,936.98 (m
+[40] frontB_2 task_023 t42 amt=7,936.98  pre=N post=N arith=Y | **: $5,451.11 (falls short by $2,048.89) - **March 2025**: $7,936.98 (meets threshold) - **April 202
+[41] frontB_2 task_023 t42 amt=6,383.01  pre=N post=N arith=Y | arch 2025**: $7,936.98 (meets threshold) - **April 2025**: $6,383.01 (falls short by $1,116.99) - **
+[42] frontB_2 task_023 t42 amt=1,116.99  pre=N post=N arith=Y | ets threshold) - **April 2025**: $6,383.01 (falls short by $1,116.99) - **May 2025**: $7,429.91 (fal
+[43] frontB_2 task_023 t42 amt=7,429.91  pre=N post=N arith=Y | 25**: $6,383.01 (falls short by $1,116.99) - **May 2025**: $7,429.91 (falls short by $70.09) - **Jun
+[44] frontB_2 task_023 t42 amt=70.09     pre=N post=N arith=Y | rt by $1,116.99) - **May 2025**: $7,429.91 (falls short by $70.09) - **June 2025**: $7,691.51 (meets
+[45] frontB_2 task_023 t42 amt=7,691.51  pre=N post=N arith=Y | 2025**: $7,429.91 (falls short by $70.09) - **June 2025**: $7,691.51 (meets threshold) - **July 2025
+[46] frontB_2 task_023 t42 amt=2,997.72  pre=N post=N arith=Y | *June 2025**: $7,691.51 (meets threshold) - **July 2025**: $2,997.72 (falls short by $4,502.28) - **
+[47] frontB_2 task_023 t42 amt=4,502.28  pre=N post=N arith=Y | eets threshold) - **July 2025**: $2,997.72 (falls short by $4,502.28) - **August 2025**: $7,631.94 (
+[48] frontB_2 task_023 t42 amt=7,631.94  pre=N post=N arith=Y | *: $2,997.72 (falls short by $4,502.28) - **August 2025**: $7,631.94 (meets threshold)  From this br
+[49] frontB_2 task_025 t16 amt=1,650     pre=N post=Y arith=Y | ,500 from the purchase + $150 from the annual fee rebate = $1,650 total**  Would you like to proceed
+[50] frontA_2 task_024 t10 amt=3,000     pre=N post=Y arith=Y | - There is a sign-up bonus of 50,000 points after spending $3,000 in the first 3 months. These point
+[51] frontA_2 task_024 t10 amt=1,500     pre=N post=Y arith=Y |  purchase plus $500 from the sign-up bonus, for a total of $1,500.  Please proceed with the applicat
+[52] frontB_2 task_020 t56 amt=10.20     pre=N post=N arith=N | the transaction should be 1020 points, which translates to $10.20 in cash back.  Once the dispute is
+[53] frontB_2 task_020 t56 amt=10.20     pre=N post=N arith=N | the transaction should be 1020 points, which translates to $10.20 in cash back.  Once the dispute is
+[54] frontB_2 task_020 t56 amt=10.20     pre=N post=N arith=N | the transaction should be 1020 points, which translates to $10.20 in cash back.  Once the dispute is
+[55] frontB_2 task_020 t56 amt=10.20     pre=N post=N arith=N | the transaction should be 1020 points, which translates to $10.20 in cash back.  Once the dispute is
+[56] frontB_2 task_023 t48 amt=6,980.30  pre=N post=N arith=Y | d of $7500.00 in the following months: - **January 2025**: $6,980.30 (shortfall of $519.70) - **Febr
+[57] frontB_2 task_023 t48 amt=519.70    pre=N post=N arith=Y | lowing months: - **January 2025**: $6,980.30 (shortfall of $519.70) - **February 2025**: $4,609.27 (
+[58] frontB_2 task_023 t48 amt=4,609.27  pre=N post=N arith=Y | 5**: $6,980.30 (shortfall of $519.70) - **February 2025**: $4,609.27 (shortfall of $2,890.73) - **Ap
+[59] frontB_2 task_023 t48 amt=2,890.73  pre=N post=N arith=Y | l of $519.70) - **February 2025**: $4,609.27 (shortfall of $2,890.73) - **April 2025**: $6,633.11 (s
+[60] frontB_2 task_023 t48 amt=6,633.11  pre=N post=N arith=Y | 25**: $4,609.27 (shortfall of $2,890.73) - **April 2025**: $6,633.11 (shortfall of $866.89) - **Sept
+[61] frontB_2 task_023 t48 amt=866.89    pre=N post=N arith=Y | ll of $2,890.73) - **April 2025**: $6,633.11 (shortfall of $866.89) - **September 2025**: $3,395.82 
+[62] frontB_2 task_023 t48 amt=3,395.82  pre=N post=N arith=Y | **: $6,633.11 (shortfall of $866.89) - **September 2025**: $3,395.82 (shortfall of $4,104.18)  There
+[63] frontB_2 task_023 t48 amt=4,104.18  pre=N post=N arith=Y |  of $866.89) - **September 2025**: $3,395.82 (shortfall of $4,104.18)  Therefore, you do not qualify
+[64] frontB_2 task_023 t48 amt=6,980.30  pre=N post=N arith=Y | d of $7500.00 in the following months: - **January 2025**: $6,980.30 (shortfall of $519.70) - **Febr
+[65] frontB_2 task_023 t48 amt=519.70    pre=N post=N arith=Y | lowing months: - **January 2025**: $6,980.30 (shortfall of $519.70) - **February 2025**: $4,609.27 (
+[66] frontB_2 task_023 t48 amt=4,609.27  pre=N post=N arith=Y | 5**: $6,980.30 (shortfall of $519.70) - **February 2025**: $4,609.27 (shortfall of $2,890.73) - **Ap
+[67] frontB_2 task_023 t48 amt=2,890.73  pre=N post=N arith=Y | l of $519.70) - **February 2025**: $4,609.27 (shortfall of $2,890.73) - **April 2025**: $6,633.11 (s
+[68] frontB_2 task_023 t48 amt=6,633.11  pre=N post=N arith=Y | 25**: $4,609.27 (shortfall of $2,890.73) - **April 2025**: $6,633.11 (shortfall of $866.89) - **Sept
+[69] frontB_2 task_023 t48 amt=866.89    pre=N post=N arith=Y | ll of $2,890.73) - **April 2025**: $6,633.11 (shortfall of $866.89) - **September 2025**: $3,395.82 
+[70] frontB_2 task_023 t48 amt=3,395.82  pre=N post=N arith=Y | **: $6,633.11 (shortfall of $866.89) - **September 2025**: $3,395.82 (shortfall of $4,104.18)  There
+[71] frontB_2 task_023 t48 amt=4,104.18  pre=N post=N arith=Y |  of $866.89) - **September 2025**: $3,395.82 (shortfall of $4,104.18)  Therefore, you do not qualify
+[72] frontB_2 task_023 t52 amt=6,980.30  pre=N post=N arith=Y | you did not meet the $7,500 threshold: - **January 2025**: $6,980.30 (shortfall of $519.70) - **Febr
+[73] frontB_2 task_023 t52 amt=519.70    pre=N post=N arith=Y | 500 threshold: - **January 2025**: $6,980.30 (shortfall of $519.70) - **February 2025**: $4,609.27 (
+[74] frontB_2 task_023 t52 amt=4,609.27  pre=N post=N arith=Y | 5**: $6,980.30 (shortfall of $519.70) - **February 2025**: $4,609.27 (shortfall of $2,890.73) - **Ap
+[75] frontB_2 task_023 t52 amt=2,890.73  pre=N post=N arith=Y | l of $519.70) - **February 2025**: $4,609.27 (shortfall of $2,890.73) - **April 2025**: $6,633.11 (s
+[76] frontB_2 task_023 t52 amt=6,633.11  pre=N post=N arith=Y | 25**: $4,609.27 (shortfall of $2,890.73) - **April 2025**: $6,633.11 (shortfall of $866.89) - **Sept
+[77] frontB_2 task_023 t52 amt=866.89    pre=N post=N arith=Y | ll of $2,890.73) - **April 2025**: $6,633.11 (shortfall of $866.89) - **September 2025**: $3,395.82 
+[78] frontB_2 task_023 t52 amt=3,395.82  pre=N post=N arith=Y | **: $6,633.11 (shortfall of $866.89) - **September 2025**: $3,395.82 (shortfall of $4,104.18)  If yo
+[79] frontB_2 task_023 t52 amt=4,104.18  pre=N post=N arith=Y |  of $866.89) - **September 2025**: $3,395.82 (shortfall of $4,104.18)  If you have any other questio
+[80] frontB_2 task_023 t52 amt=6,980.30  pre=N post=N arith=Y | you did not meet the $7,500 threshold: - **January 2025**: $6,980.30 (shortfall of $519.70) - **Febr
+[81] frontB_2 task_023 t52 amt=519.70    pre=N post=N arith=Y | 500 threshold: - **January 2025**: $6,980.30 (shortfall of $519.70) - **February 2025**: $4,609.27 (
+[82] frontB_2 task_023 t52 amt=4,609.27  pre=N post=N arith=Y | 5**: $6,980.30 (shortfall of $519.70) - **February 2025**: $4,609.27 (shortfall of $2,890.73) - **Ap
+[83] frontB_2 task_023 t52 amt=2,890.73  pre=N post=N arith=Y | l of $519.70) - **February 2025**: $4,609.27 (shortfall of $2,890.73) - **April 2025**: $6,633.11 (s
+[84] frontB_2 task_023 t52 amt=6,633.11  pre=N post=N arith=Y | 25**: $4,609.27 (shortfall of $2,890.73) - **April 2025**: $6,633.11 (shortfall of $866.89) - **Sept
+[85] frontB_2 task_023 t52 amt=866.89    pre=N post=N arith=Y | ll of $2,890.73) - **April 2025**: $6,633.11 (shortfall of $866.89) - **September 2025**: $3,395.82 
+[86] frontB_2 task_023 t52 amt=3,395.82  pre=N post=N arith=Y | **: $6,633.11 (shortfall of $866.89) - **September 2025**: $3,395.82 (shortfall of $4,104.18)  If yo
+[87] frontB_2 task_023 t52 amt=4,104.18  pre=N post=N arith=Y |  of $866.89) - **September 2025**: $3,395.82 (shortfall of $4,104.18)  If you have any other questio
+[88] frontB_2 task_025 t10 amt=4,000     pre=N post=Y arith=Y | Amount**: $100,000 - **Total Cashback**: $100,000 * 4.0% = $4,000  Therefore, the Business Platinum 
+[89] frontB_2 task_025 t10 amt=4,000     pre=N post=Y arith=Y | Amount**: $100,000 - **Total Cashback**: $100,000 * 4.0% = $4,000  Therefore, the Business Platinum 
+[90] cfrontA_ task_024 t10 amt=1,000     pre=N post=Y arith=Y | s to:  \[ \text{Total Cashback} = \$40,000 \times 0.025 = \$1,000 \]  Additionally, the Business Gol
+[91] cfrontA_ task_024 t10 amt=1,000     pre=N post=Y arith=Y | s to:  \[ \text{Total Cashback} = \$40,000 \times 0.025 = \$1,000 \]  Additionally, the Business Gol
+AGG {'pre_N': 92, 'arith_Y': 88, 'arith_N': 4}

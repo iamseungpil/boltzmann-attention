@@ -1,0 +1,70 @@
+=== 7B flagged sample 10/ 314
+  9 t20 $169.99 |  (similar product, but with higher brightness)    - Price: $169.99    - Options: Color: white, Brigh
+  19 t38 $15.99 |  water bottle, the cheapest version available is priced at $15.99.  Here are the estimated costs:  -
+  109 t22 $858.69 | osts $159.99, the price difference is $1018.68 - $159.99 = $858.69.  2. **Update the Order**: We'll 
+  105 t34 $14.78 | ew price: $109.58    - Price difference: $109.58 - $94.8 = $14.78 (additional cost)  Total price dif
+  90 t34 $156.36 |  price: $3066.23 - Price difference: $3066.23 - $2909.87 = $156.36  We will use your credit card (`c
+  20 t18 $400.34 | l price difference: $65.96 + $114.87 + $102.95 + $114.56 = $400.34  To proceed, you need to provide 
+  98 t16 $699.99 |   - Frame Size: 24 inches (Larger than medium)    - Price: $699.99    - Features: Suspension Fork, S
+  75 t16 $50 | ed on the descriptions.  Assuming the current earbuds cost $50 and the desired earbuds cost $30, the
+  94 t34 $300 | sed on the estimate, the price difference is approximately $300. Since you prefer to use your credit
+  80 t44 $11.15 |  the balance is exactly $11.00 and the price difference is $11.15, the gift card will be used up com
+=== 14B flagged sample 10/ 286
+  21 t22 $44.08 | nce will be:  \[ \text{New Balance} = \$86.00 - \$41.92 = \$44.08 \]  Would you like to proceed with
+  20 t28 $11.62 | rice differences are: - Running Shoes: $158.67 - $147.05 = $11.62 - Makeup Kit: $258.71 - $235.44 = 
+  5 t22 $12.07 | desk lamp costs $150.01, so there is a price difference of $12.07.  To complete the exchange, we nee
+  54 t24 $3.21 | o the cheaper option would result in a price difference of $3.21 ($239.78 - $236.57).  Would you lik
+  4 t22 $0.21 | lyester, v-neck style. There was a small price increase of $0.21. - Order #W4776164: The T-Shirt has
+  5 t30 $12.07 | or the water bottle is $1.38, and for the desk lamp, it is $12.07. The total price difference is $13
+  64 t20 $35.53 | 394 - **New Item ID:** 6700049080 - **Price Difference:** -$35.53 (refund) - **Payment Method for Re
+  5 t20 $12.07 | : $46.51 - $45.13 = $1.38 - Desk Lamp: $150.01 - $137.94 = $12.07  Total price difference: $1.38 + $
+  95 t14 $167.87 | rice: $2459.74   - Price difference: $2459.74 - $2291.87 = $167.87  - For the second laptop in order
+  109 t33 $77.65 | rdable 7-inch, 128GB black tablet. The price difference of $77.65 has been charged to your credit ca
+=== 32B flagged sample 10/ 266
+  79 t18 $3.28 | ter bottle (item_id: 2439754078).  The price difference is $3.28, which will be charged to your exis
+  46 t24 $875.53 | , the total cost of the patio umbrella and dumbbell set is $875.53 ($329.85 for the patio umbrella a
+  95 t14 $60.78 | price: $2459.74 - Price difference: $2459.74 - $2520.52 = -$60.78 (you will receive a refund of $60.
+  106 t22 $4.20 |  was priced at $46.85, there will be a price difference of $4.20.   Would you like to proceed with t
+  6 t20 $12.07 | d the new desk lamp costs $150.01. The price difference is $12.07.  Could you confirm if you would l
+  3 t18 $0.05 | 647292434` and a price of $53.48.  The price difference is $0.05.  Would you like to proceed with th
+  80 t16 $7.99 | efund Application**: The refund from the price difference ($7.99) will be applied to the gift card u
+  98 t20 $14.54 | : 5606522780)    - Price difference: $1917.21 - $1902.67 = $14.54 (refund)  2. **Jigsaw Puzzle**:   
+  0 t26 $13.46 | rice difference for the thermostat is $249.01 - $262.47 = -$13.46 (you will receive a refund of $13.
+  47 t24 $875.53 | , the total cost of the patio umbrella and dumbbell set is $875.53. Here’s the breakdown:  - Patio U
+=== 32Br flagged sample 10/ 431
+  76 t28 $1939.05 |  The total price for these grills is:  $985.66 + $953.39 = $1939.05  So, the total price for all the
+  54 t30 $1230.39 | fund from `#W4836353`: $1430.81 - Refund from `#W7342738`: $1230.39 - Refund from `#W4597054`: $1186
+  54 t40 $3,646.68 |  3646.68 \]  Therefore, you will receive a total refund of $3,646.68 to your gift card.  Is there an
+  46 t28 $875.53 | r the remaining items (patio umbrella and dumbbell set) is $875.53.  You will receive an email short
+  90 t12 $156.36 | the order again. Also, there will be a price difference of $156.36. You can use your credit card to 
+  56 t22 $74.12 | changed to the cheaper option, and the price difference of $74.12 has been refunded to your gift car
+  65 t34 $499.99 | tion Camera**    - **Item ID:** 3377618313    - **Price:** $499.99  2. **Backpack**    - **Item ID:*
+  54 t32 $3847.67 |  - Refund from `#W4597054`: $1186.47  Total refund amount: $3847.67  Your gift card balance has been
+  95 t16 $167.87 | rice: $2291.87   - Price difference: $2459.74 - $2291.87 = $167.87  - For the second laptop (`221666
+  36 t30 $1135.66 | ent) - $198.00  The total cost after these changes will be $1135.66, which is slightly over your bud
+=== RECALL probe: grounded 표본 25 (오판=접지 실재 여부 정독) ===
+  [7B] 49 t20 $258.97 |  Item: Wireless Earbuds (IPX7) - Item ID 2757705742, Price $258.97   - New Item: Wireless Earbuds (I
+  [32Br] 94 t22 $167.87 | how to return the current laptop.  The price difference of $167.87 has been charged to your credit c
+  [32Br] 30 t20 $1054.43 | GB storage, black color** - Item ID: `2235648106` - Price: $1054.43 7. **7-inch screen size, 64GB st
+  [14B] 68 t14 $523.31 |  Cycling Helmet priced at $209.91 - Air Purifier priced at $523.31  The total amount you paid for th
+  [32Br] 20 t38 $219.43 |  available version is item_id `8084436579` with a price of $219.43. 4. **Wristwatch**: The most expe
+  [7B] 28 t50 $95.08 | urned items: - Skateboard: $200.80 - Garden Hose: $96.35 + $95.08 = $191.43 - Backpack: $193.38 - Me
+  [32Br] 56 t22 $518.31 |  - Filter Type: HEPA    - Features: Night Mode    - Price: $518.31  5. **Item ID: 3676786561**    - 
+  [32B] 18 t18 $499.28 | rest, High-Back**:     - Item ID: `8069050545`    - Price: $499.28  2. **Leather, Gray, Fixed Armres
+  [32B] 100 t26 $184.13 | : "plastic", "length 34 inch", "design custom"    - Price: $184.13  The price difference for the Lug
+  [14B] 95 t22 $60.78 |  been successfully requested. You will receive a refund of $60.78 for this exchange.  To summarize: 
+  [7B] 20 t36 $235.13 | $100.00 - $54.04 = $45.96 - Mechanical Keyboard: $300.00 - $235.13 = $64.87 - Running Shoes: $200.00
+  [7B] 63 t32 $248.85 | 64): Delivered, $53.53 2. Makeup Kit (#W5061109): Pending, $248.85 3. Office Chair (#W3973757): Proc
+  [14B] 42 t17 $45.39 | - Difficulty Level: Beginner    - Pieces: 1500    - Price: $45.39  3. **Item ID: 5645314103**    - T
+  [32B] 5 t18 $47.76 | Stainless Steel, 750ml, Red**: Item ID `6777246137`, Price $47.76 5. **Glass, 750ml, Black**: Item I
+  [7B] 59 t17 $625.60 | ellation:** No longer needed    - **Total Refund Amount:** $625.60 (immediately credited to your cre
+  [14B] 80 t14 $46.85 | 68549`)  The old item costs $54.84, and the new item costs $46.85. The price difference is $54.84 - 
+  [14B] 5 t14 $52.79 | ty: 500ml, Material: Stainless Steel, Color: Black, Price: $52.79 - **Item ID: 2439754078** - Capaci
+  [32Br] 27 t24 $23.99 | ceive the new ones.  Additionally, the price difference of $23.99 will be refunded to your PayPal ac
+  [32B] 96 t20 $302.67 | $298.91  The current Bluetooth Speaker in your order costs $302.67. Therefore, you will receive a sm
+  [32Br] 65 t20 $2714.51 | tion: 24MP    - Zoom: 5x    - Storage: CF card    - Price: $2714.51  2. **Item ID: 8363011723**    -
+  [32B] 101 t38 $535.97 | edium size with HEPA filter and quiet operation, priced at $535.97. The price difference will be an 
+  [14B] 19 t10 $195.11 | e Chair for the Cheapest Versions - Current Pet Bed Price: $195.11 - Current Office Chair Price: $49
+  [32Br] 0 t18 $16.63 | on how to return the original items.  The refunds totaling $16.63 will be credited to your Visa card
+  [32B] 79 t22 $3.28 | is now "pending (item modified)".  The price difference of $3.28 has been charged to your existing p
+  [14B] 20 t20 $155.33 | ack color and rubber sole (`item_id=4107812777`) priced at $155.33. - **Makeup Kit**: The most expen

@@ -35,9 +35,17 @@ def variants(num):
 
 
 def amounts(text):
-    out = []
+    """span-dedup(2026-07-30 gold 감사 결함 수정): MONEY·BARE_DEC 중복 매칭 제거 —
+    같은 위치의 금액은 1회만. + 동일 턴 내 같은 금액의 반복 등장도 1회로(주장 단위)."""
+    spans, seen_vals, out = set(), set(), []
     for rx in (MONEY, BARE_DEC):
         for m in rx.finditer(text or ""):
+            key = (m.start(1) // 1, m.group(1))
+            span_overlap = any(not (m.end(1) <= s or m.start(1) >= e) for s, e in spans)
+            if span_overlap or m.group(1) in seen_vals:
+                continue
+            spans.add((m.start(1), m.end(1)))
+            seen_vals.add(m.group(1))
             out.append(m.group(1))
     return out
 
