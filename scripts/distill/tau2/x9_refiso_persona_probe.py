@@ -135,6 +135,9 @@ def main():
     ap.add_argument("--temp", type=float, default=0.0)
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--out", default="")
+    # ★2026-07-30 야간: 8140은 Y1 본런이 점유 중이라 32B arm은 GPU1의 8141로 돌린다.
+    #   모델 id는 PORTS 그대로(동일 체크포인트·동일 서빙 스펙) — 포트만 갈아끼운다.
+    ap.add_argument("--base_url", default="", help="PORTS 기본 endpoint 덮어쓰기(예: http://localhost:8141/v1)")
     args = ap.parse_args()
     try:
         sys.stdout.reconfigure(encoding="utf-8")
@@ -156,6 +159,9 @@ def main():
         sys.exit("케이스 0 — 추출 술어 확인")
 
     base, model = PORTS[args.model]
+    if args.base_url:
+        base = args.base_url.rstrip("/")
+    print(f"endpoint={base} model={model}")
     rows, agree, diff_rows = [], 0, []
     for i, c in enumerate(cases):
         for seed in range(args.seeds):
@@ -171,7 +177,7 @@ def main():
             agree += same
             r = {"i": i, "seed": seed, "sim": c["sim"], "file": c["file"],
                  "agent_chose": c["agent_chose"], "base": norm(rb), "treat": norm(rt),
-                 "same": same}
+                 "same": same, "endpoint": base, "model": model}
             rows.append(r)
             if not same:
                 diff_rows.append(r)
