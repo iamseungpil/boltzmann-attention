@@ -89,16 +89,25 @@ def main():
     # ★해상도의 정직한 분모: 같은 케이스의 시드 3개는 독립 표본이 아니다(temp 0에서는 특히).
     #   값 축의 유효 표본 = **양쪽이 답한 서로 다른 케이스 수**이고, 양쪽 기권 케이스는
     #   불변의 증거가 아니라 **구별력 없음**(no-information)이다.
-    cases = {}
-    for r in ok:
-        cases.setdefault(r.get("sim") or r.get("i"), []).append(r)
-    both_ans = [c for c, rs in cases.items()
-                if any(not is_abstain(r["base"]) and not is_abstain(r["treat"]) for r in rs)]
-    all_abst = [c for c, rs in cases.items()
-                if all(is_abstain(r["base"]) and is_abstain(r["treat"]) for r in rs)]
-    print(f"케이스 {len(cases)}개 중 값 축 유효(양쪽 답함 시드 ≥1) = **{len(both_ans)}** · "
-          f"전 시드 양쪽 기권 = {len(all_abst)}")
-    print("  ⇒ 값 축 결론의 분모는 케이스 %d개다(쌍 %d개가 아니다)." % (len(both_ans), n))
+    # ⚠자기정정: 초판이 `sim`으로 묶어 "케이스 4개"를 냈다. 한 궤적(sim)에 REF_ISO 적용 케이스가
+    #   여러 개 있으므로 케이스 축은 `i`(케이스 인덱스)다. 궤적 축은 그보다 더 거친 상관 단위라
+    #   **둘 다** 보고한다(궤적 4개에서 나온 27케이스는 27개의 독립 표본이 아니다).
+    def group(keyf):
+        g = {}
+        for r in ok:
+            g.setdefault(keyf(r), []).append(r)
+        return g
+
+    for label, keyf in (("케이스(i)", lambda r: r.get("i")),
+                        ("궤적(sim)", lambda r: r.get("sim"))):
+        g = group(keyf)
+        both_ans = [c for c, rs in g.items()
+                    if any(not is_abstain(r["base"]) and not is_abstain(r["treat"]) for r in rs)]
+        all_abst = [c for c, rs in g.items()
+                    if all(is_abstain(r["base"]) and is_abstain(r["treat"]) for r in rs)]
+        print(f"{label} {len(g)}개 중 값 축 유효(양쪽 답함 시드 ≥1) = **{len(both_ans)}** · "
+              f"전 시드 양쪽 기권 = {len(all_abst)}")
+    print("  ⇒ 값 축 결론의 분모는 위 '값 축 유효' 수다(쌍 %d개가 아니다)." % n)
 
     if changed:
         print(f"\n--- 기권 결정이 갈린 {len(changed)}건 (어느 arm이 답했나) ---")
