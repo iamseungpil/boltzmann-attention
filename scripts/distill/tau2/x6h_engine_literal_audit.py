@@ -37,16 +37,52 @@ _TOOLNAMES = os.path.join(_HERE, "tau2_domain_toolnames.json")
 
 # 엔진 = 우리 스캐폴드 코드(도메인이 늘어도 무수정이어야 하는 층). tau2 domains/<d>/tools.py는
 # 도메인 공급물이라 대상 아님(§13e 표의 "도메인 도구"층).
-ENGINE_FILES = [
-    "t2_gate_patch.py",
-    "t2_prekb_patch.py",
-    "t2_eplan_patch.py",
-    "t2_resolve_patch.py",
-    "t2_guided_patch.py",
-    "t2_agent_rules_patch.py",
-    "t2_agent_maxprompt_patch.py",
-    "gate_interpreter.py",
-]
+#
+# ★★2026-07-30 리뷰 B1 교정: 초판은 이 목록을 **손으로 적었고** 그래서 `t2_resolve.py`를 놓쳤다 —
+#   그 모듈은 `t2_gate_patch.py`가 런타임에 4곳(:547·:3885·:3911·:4035)에서 import하는 **라이브
+#   엔진**이고 최소 5건의 도메인 리터럴을 갖고 있었다(그중 `DISCOVERY_REQUIRED_FB`는 실제 suffixed
+#   도구명 `open_bank_account_4821`과 banking 액션 어휘를 **모델 입력 산문**에 먹인다).
+#   ⇒ 손으로 적은 목록은 **proxy**다. [[05]] §메타 실패모드가 경고한 그 형태이며, 실패 위치가
+#   방법(grep→AST)에서 **스코프**로 옮겨간 것에 불과했다. 이제 **라이브 드라이버에서 시작한
+#   import 폐포**로 산출한다(목록을 손으로 늘리는 대신 폐포가 늘어나면 자동 편입).
+ENTRY_POINTS = ["t2_run_gated.py"]      # 라이브 드라이버 (실제 실험이 실행하는 것)
+# ⚠버그 이력: 초판 `[\w,\s]+` 의 `\s` 가 **개행을 먹어** 여러 import 를 한 덩어리로 삼켰다
+#   (폐포가 3개로 과소 산출). import 목록은 **한 줄**로 제한한다.
+_IMPORT_RE = re.compile(r"^[ \t]*(?:import[ \t]+([^\n]+)|from[ \t]+(\.?[\w.]+)[ \t]+import)", re.M)
+# 폐포에서 제외 — 도메인 공급물·표준/서드파티·분석 스크립트가 아닌 것만 남긴다는 뜻이 아니라,
+# **우리 디렉터리의 로컬 모듈만** 엔진으로 센다(외부 패키지는 우리 코드가 아니다).
+
+
+def discover_engine_files(verbose=False):
+    """라이브 드라이버에서 시작한 **로컬 import 폐포** = 엔진 파일 집합.
+
+    손으로 적은 목록이 리뷰 B1에서 스코프 누락(t2_resolve.py)을 낳았으므로 기계 산출로 대체.
+    같은 디렉터리의 `.py`만 로컬 모듈로 인정한다(외부 패키지는 우리 엔진이 아님).
+    """
+    seen, queue, order = set(), list(ENTRY_POINTS), []
+    while queue:
+        fn = queue.pop(0)
+        if fn in seen:
+            continue
+        path = os.path.join(_HERE, fn)
+        if not os.path.exists(path):
+            continue
+        seen.add(fn)
+        order.append(fn)
+        src = open(path, encoding="utf-8", errors="replace").read()
+        for m in _IMPORT_RE.finditer(src):
+            mods = []
+            if m.group(1):
+                mods = [x.strip().split(" as ")[0].strip() for x in m.group(1).split(",")]
+            elif m.group(2):
+                mods = [m.group(2).lstrip(".")]
+            for mod in mods:
+                cand = mod.split(".")[0] + ".py"
+                if cand not in seen and os.path.exists(os.path.join(_HERE, cand)):
+                    queue.append(cand)
+    if verbose:
+        print(f"[scope] import 폐포 {len(order)}개 (진입점 {ENTRY_POINTS}): {sorted(order)}")
+    return sorted(order)
 
 # tau2 5도메인 이름. 산문 리터럴에 박히면 도메인-특화.
 DOMAIN_NOUNS = ("banking", "retail", "airline", "telecom", "doordash")
@@ -259,6 +295,8 @@ def main():
     except Exception:
         pass
 
+    engine_files = discover_engine_files(verbose=True)
+    print()
     tool2domains, all_domains = load_namespaces()
     common = sorted(t for t, d in tool2domains.items() if d >= all_domains)
     print(f"[ns] 도메인 {len(all_domains)}: {sorted(all_domains)}")
@@ -266,7 +304,7 @@ def main():
     print()
 
     report, tot = {}, {"noun": 0, "specific": 0, "regex": 0, "common": 0, "selftest": 0}
-    for fn in ENGINE_FILES:
+    for fn in engine_files:
         path = os.path.join(_HERE, fn)
         if not os.path.exists(path):
             print(f"[skip] {fn} 없음")
