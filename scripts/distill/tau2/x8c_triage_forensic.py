@@ -160,7 +160,7 @@ def main():
         tp = sum(r["slots_tp"] for r in rs)
         fp = sum(r["slots_fp"] for r in rs)
         fn = sum(r["slots_fn"] for r in rs)
-        fab = sum(r["slot_fabricated"] for r in rs)
+        fab = sum(r.get("slot_fabricated", 0) for r in rs)   # v2 행엔 없음(하위호환)
         P = tp / (tp + fp) if tp + fp else 0
         R = tp / (tp + fn) if tp + fn else 0
         print(f"{arm:5s} TP={tp:3d} FP={fp:3d} FN={fn:3d} P={P:.2f} R={R:.2f} "

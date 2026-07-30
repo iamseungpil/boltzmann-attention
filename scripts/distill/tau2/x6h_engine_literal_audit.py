@@ -87,7 +87,57 @@ def discover_engine_files(verbose=False):
 # tau2 5도메인 이름. 산문 리터럴에 박히면 도메인-특화.
 DOMAIN_NOUNS = ("banking", "retail", "airline", "telecom", "doordash")
 
+_FIELD_NS = None
 _PLACEHOLDER_RE = re.compile(r"\{[^{}]*\}")     # f-string/format 주입점 = 파라미터화(정답)
+
+
+def load_field_namespace():
+    """★2차 감사(리뷰 §8-D·C241): **DB 필드·인자 이름** namespace.
+
+    도구명 namespace로는 `parse_records(key_field="transaction_id")` 같은 **키워드-인자 기본값**을
+    못 잡는다(필드명은 도구명이 아니므로). 필드 이름은 A2가 선언한 것에서 수확한다 —
+    A2는 정의상 도메인 데이터이므로 순환이 아니고, 도구명 때와 같은 판별을 쓴다:
+      필드명이 **일부 도메인 A2에만** 등장 → domain-specific (엔진 참조 = 위반)
+    수확 위치 = 값이 필드 이름인 A2 키(`field_ops`의 카테고리 목록·`identifying_arg_types`·
+    `operands[].param`·`ref_iso[].param`/`id_key`·`reference_filter[].{param,key_field}`).
+    """
+    a2dir = os.path.join(_HERE, "a2")
+    f2d = {}
+    if not os.path.isdir(a2dir):
+        return {}, set()
+    doms = set()
+    for fn in sorted(os.listdir(a2dir)):
+        if not fn.endswith(".json"):
+            continue
+        dom = fn.split(".")[0]
+        doms.add(dom)
+        try:
+            data = json.load(open(os.path.join(a2dir, fn), encoding="utf-8"))
+        except Exception:
+            continue
+        fields = set()
+        fo = data.get("field_ops") or {}
+        if isinstance(fo, dict):
+            for k, v in fo.items():
+                if k.startswith("_") or not isinstance(v, list):
+                    continue
+                fields |= {x for x in v if isinstance(x, str)}
+        for x in (data.get("identifying_arg_types") or []):
+            if isinstance(x, str):
+                fields.add(x)
+        for key in ("operands", "ref_iso", "reference_filter", "ref_verify", "assertion_operands"):
+            v = data.get(key)
+            it = v if isinstance(v, list) else ([v] if isinstance(v, dict) else [])
+            for e in it:
+                if not isinstance(e, dict):
+                    continue
+                for kk in ("param", "key_field", "id_key", "record_field", "operand"):
+                    if isinstance(e.get(kk), str):
+                        fields.add(e[kk])
+        for f in fields:
+            if re.match(r"^[a-z][a-z0-9_]{2,}$", f):
+                f2d.setdefault(f, set()).add(dom)
+    return f2d, doms
 
 
 def load_namespaces():
@@ -260,6 +310,12 @@ def audit_file(path, tool2domains, all_domains):
                 continue
             kind = "framework-common" if doms >= all_domains else "domain-specific"
             found.append((w, kind, sorted(doms)))
+        if _FIELD_NS:
+            f2d, fdoms = _FIELD_NS
+            for w in words:
+                fd = f2d.get(w)
+                if fd and not (fd >= fdoms):
+                    found.append((w, "domain-field", sorted(fd)))
         if not found:
             continue
         hits.append({
@@ -295,6 +351,9 @@ def main():
     except Exception:
         pass
 
+    global _FIELD_NS
+    _FIELD_NS = load_field_namespace()
+    print(f"[ns2] A2 유래 필드명 {len(_FIELD_NS[0])}개 (2차 감사·리뷰 §8-D)")
     engine_files = discover_engine_files(verbose=True)
     print()
     tool2domains, all_domains = load_namespaces()
@@ -303,7 +362,7 @@ def main():
     print(f"[ns] public 도구명 {len(tool2domains)}개 · 전-도메인 공통 {len(common)}: {common}")
     print()
 
-    report, tot = {}, {"noun": 0, "specific": 0, "regex": 0, "common": 0, "selftest": 0}
+    report, tot = {}, {"noun": 0, "specific": 0, "field": 0, "regex": 0, "common": 0, "selftest": 0}
     for fn in engine_files:
         path = os.path.join(_HERE, fn)
         if not os.path.exists(path):
@@ -312,7 +371,7 @@ def main():
         hits = audit_file(path, tool2domains, all_domains)
         report[fn] = hits
         viol = [h for h in hits if h["zone"] == "live"
-                and any(t["kind"] in ("domain-specific", "domain-noun", "domain-discriminating-regex")
+                and any(t["kind"] in ("domain-specific", "domain-noun", "domain-field", "domain-discriminating-regex")
                         for t in h["tokens"])]
         comm = [h for h in hits if h["zone"] == "live"
                 and all(t["kind"] == "framework-common" for t in h["tokens"])]
@@ -322,12 +381,14 @@ def main():
         print(f"=== {fn}: live-위반후보 {len(viol)} · live-프레임워크 {len(comm)} · selftest {len(stf)} ===")
         for h in viol:
             bad = [t for t in h["tokens"]
-                   if t["kind"] in ("domain-specific", "domain-noun", "domain-discriminating-regex")]
+                   if t["kind"] in ("domain-specific", "domain-noun", "domain-field", "domain-discriminating-regex")]
             ks = {t["kind"] for t in bad}
             if "domain-noun" in ks:
                 tot["noun"] += 1
             elif "domain-specific" in ks:
                 tot["specific"] += 1
+            elif "domain-field" in ks:
+                tot["field"] += 1
             else:
                 tot["regex"] += 1
             for t in bad:
@@ -339,6 +400,7 @@ def main():
     print("=== 총계 ===")
     print(f"live 도메인-명사 리터럴  : {tot['noun']}")
     print(f"live 도메인-특화 도구명  : {tot['specific']}")
+    print(f"live 도메인-필드명(2차)   : {tot['field']}")
     print(f"live 도메인-판별 정규식   : {tot['regex']}")
     print(f"live 프레임워크-공통(허용): {tot['common']}")
     print(f"selftest 픽스처(비위반)  : {tot['selftest']}")
