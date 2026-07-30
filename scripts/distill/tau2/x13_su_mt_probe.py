@@ -176,7 +176,7 @@ def verify_envelope(env_obj, tool_calls):
 
 
 # ── 본 루프 ─────────────────────────────────────────────────────────────────
-def run_case(case, arm, seed, K=12):
+def run_case(case, arm, seed, K=40):
     env = make_env()
     tools = tool_schemas(env)
     msgs = [{"role": "system", "content": system_prompt(env, arm)}]
@@ -187,6 +187,10 @@ def run_case(case, arm, seed, K=12):
            "arm": arm, "seed": seed, "turns": 0, "tool_calls": 0, "tool_errors": 0,
            "envelopes": 0, "envelope_ok": 0, "violations": [], "regens": 0,
            "horizon_hit": False, "script_exhausted": False, "deviated": False,
+           # ★rev4 §10-5: 지평 초과 여부보다 **대본을 얼마나 진행했는지**가 비교 가능한 양이다.
+           "script_len": len(script), "script_consumed": 1,
+           # ★rev4 §10-6 부수관찰: 한 턴에 도구를 몰아 부르는 형태(multi-act)를 계측한다.
+           "max_calls_in_turn": 0, "multiact_turns": 0,
            "prose_chars": 0, "endpoint": BASE, "model": MODEL}
 
     for _ in range(K):
@@ -232,6 +236,9 @@ def run_case(case, arm, seed, K=12):
 
         # ── 행동 채널: 실제 env 실행 ──
         if tcs:
+            row["max_calls_in_turn"] = max(row["max_calls_in_turn"], len(tcs))
+            if len(tcs) > 1:
+                row["multiact_turns"] += 1
             msgs.append({"role": "assistant", "content": content, "tool_calls": tcs})
             for c in tcs:
                 row["tool_calls"] += 1
@@ -260,9 +267,11 @@ def run_case(case, arm, seed, K=12):
             row["script_exhausted"] = True
             break
         msgs.append({"role": "user", "content": script[si]}); si += 1
+        row["script_consumed"] = si
     else:
         row["horizon_hit"] = True
 
+    row["script_rate"] = round(row["script_consumed"] / max(1, row["script_len"]), 3)
     row["viol_counts"] = {v: row["violations"].count(v) for v in set(row["violations"])}
     row.pop("violations")
     row["db_hash"] = env.get_db_hash()
@@ -342,7 +351,9 @@ def main():
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--cases", type=int, default=12)
     ap.add_argument("--seeds", type=int, default=3)
-    ap.add_argument("--K", type=int, default=12)
+    ap.add_argument("--K", type=int, default=40)
+    ap.add_argument("--max-user-turns", type=int, default=14,
+                    help="대본이 이보다 길면 제외(지평 안에 못 끝냄). ★버린 수를 로그한다(무음 절단 금지)")
     ap.add_argument("--out", default="")
     args = ap.parse_args()
     try:
@@ -361,22 +372,41 @@ def main():
             print("[saved] %s" % args.out)
         sys.exit(0 if ok else 1)
 
-    cases = sorted(_cases.load_cases(), key=lambda c: -c["tool_chars"])[:args.cases]
-    print("본런: 케이스 %d(장문 상위) · 시드 %d · arm %d · K=%d"
-          % (len(cases), args.seeds, len(ARMS), args.K))
-    rows = []
-    for c in cases:
-        for arm in ARMS:
-            for s in range(args.seeds):
-                try:
-                    rows.append(run_case(c, arm, s, K=args.K))
-                except Exception as e:
-                    print("  ✗ %s/%s/s%d: %r" % (c["sim"], arm, s, e))
+    allc = _cases.load_cases()
+    dropped = [c for c in allc if c["n_user"] > args.max_user_turns]
+    pool = [c for c in allc if c["n_user"] <= args.max_user_turns]
+    cases = sorted(pool, key=lambda c: -c["tool_chars"])[:args.cases]
+    # ★무음 절단 금지: 무엇을 왜 뺐는지 남긴다.
+    print("케이스 풀 %d → 대본 >%d턴 제외 %d건 → 남은 %d 중 장문 상위 %d 선택"
+          % (len(allc), args.max_user_turns, len(dropped), len(pool), len(cases)))
+    print("  제외된 긴 대본(유저턴 상위): %s"
+          % sorted((c["n_user"] for c in dropped), reverse=True)[:12])
+    print("  선택 케이스 유저턴: %s" % [c["n_user"] for c in cases])
+    print("  서로 다른 task %d · 서로 다른 궤적 %d"
+          % (len({c["task_id"] for c in cases}), len({c["sim"] for c in cases})))
+    print("본런: 케이스 %d · 시드 %d · arm %d · K=%d → 총 %d런"
+          % (len(cases), args.seeds, len(ARMS), args.K, len(cases) * args.seeds * len(ARMS)))
     out = args.out or "x13_su_mt_rows.jsonl"
+    # ★행 즉시 영속([[30]] 결과소실 방지) — 중간에 죽어도 완료분은 남는다.
+    n = 0
     with open(out, "w", encoding="utf-8") as f:
-        for r in rows:
-            f.write(json.dumps(r, ensure_ascii=False) + "\n")
-    print("[saved] %s (%d행)" % (out, len(rows)))
+        for c in cases:
+            for arm in ARMS:
+                for s in range(args.seeds):
+                    try:
+                        r = run_case(c, arm, s, K=args.K)
+                    except Exception as e:
+                        print("  ✗ %s/%s/s%d: %r" % (c["sim"], arm, s, e), flush=True)
+                        continue
+                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
+                    f.flush()
+                    n += 1
+                    print("  [%d] %s %-12s s%d turns=%d calls=%d 대본 %d/%d(%.0f%%) 봉투 %d%s"
+                          % (n, r["case"], arm, s, r["turns"], r["tool_calls"],
+                             r["script_consumed"], r["script_len"], 100 * r["script_rate"],
+                             r["envelopes"], " 지평초과" if r["horizon_hit"] else ""),
+                          flush=True)
+    print("[saved] %s (%d행)" % (out, n))
     print("⚠판정은 별도 도구로([[08]]) — 태스크 pass 채점 금지·ASK 페널티 금지·지평 초과율 1차 보고.")
 
 
