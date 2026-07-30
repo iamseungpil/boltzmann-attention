@@ -64,7 +64,7 @@ ask k회∧binding 0) / **slot 소스 구분**(producer-도구-반환 vs 유저-
 | 부하 | **C14**(plan-structure: 격리 정답·궤적 실패)·C13(F2=비부하 대조) | formalize-기능(user_act·slot 추출·INFER) 위 triage 1회전 |
 | 능력/경계 | **C3b/C46**(⋈: 격리서도 잔존·scale-flat) | — |
 | 배터리·h(π) | 감사 분류 [M]·발화 실측 | E-FLIP(flip율 [M] 승격) |
-| 유한성(최소 기능군=도메인-불변·유한) | ⚠**1차 부정 방향**(X6-a): 기존 A2 3도메인 union 44 vs **intersection 3** / **2층 분할 후**(X6-b·c·무손실): **A2-core** banking 19·retail 5·airline 3 — **폐기로는 diff가 +30→+26만 개선**(=주원인은 CORE 비대칭·"폐기 후 급감" 예측 철회). EXT(banking 11·retail 7)는 **per-domain opex로 분리 회계·청구서 제외** | **make-or-break 확정·본검정 이관**: banking의 CORE 상위집합이 "쓸 수 없다"(유한성 실패)인지 "안 써놨다"(작성 미완)인지 A2로는 판별 불가 ⇒ **동일 CORE 19키를 retail·airline에 채워 엔진 무수정 작동 확인**이 실질 판정. 현 수치는 어느 방향으로도 인용 금지 |
+| 유한성(최소 기능군=도메인-불변·유한) | ⚠**1차 부정 방향**(X6-a): 기존 A2 3도메인 union 44 vs **intersection 3** / **2층 분할 후**(X6-b·c·무손실): **A2-core** banking 19·retail 5·airline 3 — **폐기로는 diff가 +30→+26만 개선**(=주원인은 CORE 비대칭·"폐기 후 급감" 예측 철회). EXT(banking 11·retail 7)는 **per-domain opex로 분리 회계·청구서 제외** | **기준 정정(2026-07-30·§13b)**: 유한성 = "전 도메인이 같은 기능군을 *채운다*"가 아니라 **"어떤 도메인도 새 기능군을 요구하지 않는다(상한 고정)"** ⇒ retail 5·airline 3의 **부분집합 사용은 무해**. 진짜 쟁점 = **airline→banking +30(제거 0)의 귀속**: (a)day 캠페인 사례-표적 레버(폐기로 복원 가능·1차 확인 4키) vs (b)banking 본질 요구. **per-case 판정 완료(§13c)**: airline 미보유 16키 = **환경-프로파일 의존 6**(discoverable-tool 디스패처 계열 — retail/airline엔 그 환경 자체가 없음) + **작성 미완 10**(claim_prov·근거접지·coverage·선행조건 등 도메인-일반 개념). ⇒ **유한성 정식화 정련**: CORE는 **환경 프로파일의 함수로서 유한**·프로파일 내 도메인-불변(엔진은 양 프로파일 해석기 보유=상한 고정). 잔여 검정 = (B)10키를 retail/airline에 채워 엔진 무수정 작동 확인. 유한성 **미확정 유지** |
 | e2e 우월성 | — | E-MFIX(측정 고정) 후 스위치-오버 대조 |
 
 ## §4b. ★W1~W5 선점 판정 결과 (2026-07-30 DR2 도착·정본=`DR_DECLFIRST_DR2` §5)
