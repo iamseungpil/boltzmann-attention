@@ -209,9 +209,13 @@ def run_case(case, arm, seed, K=12):
                     args = {}
                 try:
                     res = env.use_tool(name, **args)
-                    out, err = str(res), False
+                    out = str(res)
+                    # ★env는 예외 대신 "Error: ..." 문자열을 돌려준다(V2 진단서 확인).
+                    #   예외만 세면 실패가 조용히 성공으로 계상된다.
+                    if out.strip().startswith("Error"):
+                        row["tool_errors"] += 1
                 except Exception as e:
-                    out, err = "Error: %s" % (e,), True
+                    out = "Error: %s" % (e,)
                     row["tool_errors"] += 1
                 msgs.append({"role": "tool", "tool_call_id": c.get("id") or name,
                              "content": out[:20000]})
@@ -233,22 +237,36 @@ def run_case(case, arm, seed, K=12):
 
 
 # ── V2 / V3 ─────────────────────────────────────────────────────────────────
+def _a_real_user_id(env):
+    """DB에서 실제 user id 하나. ★래퍼 구조 주의 — 최상위 컬렉션이 `{'data': {...}}` 형태다."""
+    d = env.tools.db.model_dump()
+    u = d.get("users") or {}
+    inner = u.get("data") if isinstance(u, dict) and "data" in u else u
+    return next(iter(inner)) if isinstance(inner, dict) and inner else None
+
+
 def check_env_isolation():
-    """V2 — 케이스별 새 env가 초기 DB 상태에서 시작하는지(get_db_hash 대조)."""
+    """V2 — 케이스별 새 env가 초기 DB 상태에서 시작하는지(get_db_hash 대조).
+
+    ★양성 대조가 필수다: 변형이 해시를 **실제로 움직이는지** 먼저 보인다. 초판은 존재하지 않는
+    user_id를 넘겨 도구가 `Error: User with ID 'data' not found`를 돌려줬고, 해시가 안 변한 채
+    "PASS"가 찍혔다 — **대조가 죽은 검사는 격리를 증명하지 못한다**([[08]]).
+    """
     print("=== V2: env 인스턴스 격리 ===")
     e1 = make_env(); h0 = e1.get_db_hash()
-    print("  초기 해시            %s" % h0)
-    try:
-        e1.use_tool("change_user_email", user_id="user_1", new_email="probe@example.com")
-        print("  (mutating 도구 1회 실행)")
-    except Exception as ex:
-        print("  (mutating 시도 실패 — 격리 판정엔 무관: %r)" % (ex,))
+    uid = _a_real_user_id(e1)
+    print("  초기 해시            %s" % h0[:32])
+    print("  대조용 user id       %s" % uid)
+    res = e1.use_tool("change_user_email", user_id=uid, new_email="probe_v2@example.com")
+    print("  변형 결과            %s" % str(res).split("\n")[0][:60])
     h1 = e1.get_db_hash()
+    ctrl = (h1 != h0)
+    print("  변형 후 해시(같은 env) %s  %s" % (h1[:32], "변함 ✅" if ctrl else "★불변 = 양성대조 실패"))
     e2 = make_env(); h2 = e2.get_db_hash()
-    print("  변형 후 해시(같은 env) %s  %s" % (h1, "변함" if h1 != h0 else "불변"))
-    print("  새 env 해시            %s  %s" % (h2, "초기 복귀 ✅" if h2 == h0 else "❌오염"))
-    ok = (h2 == h0)
-    print("  ⇒ V2 %s" % ("PASS" if ok else "FAIL — 케이스 간 오염 위험"))
+    print("  새 env 해시            %s  %s" % (h2[:32], "초기 복귀 ✅" if h2 == h0 else "❌오염"))
+    ok = ctrl and (h2 == h0)
+    print("  ⇒ V2 %s" % ("PASS" if ok else
+                         ("FAIL — 양성대조 실패(검사 무효)" if not ctrl else "FAIL — 케이스 간 오염")))
     return ok
 
 
