@@ -87,6 +87,9 @@ def main():
                     help="user-sim temperature (ⓟ1 분산통제 arm = 0.0)")
     ap.add_argument("--agent_seed", type=int, default=None,
                     help="agent 요청 seed 고정 (결정론 실험; 로컬 vllm arm 전용)")
+    ap.add_argument("--user_seed", type=int, default=None,
+                    help="user-sim 요청 seed 고정 (E-MFIX Y1a: 원격 provider가 seed를 "
+                         "존중하는지 마이크로-확인용·agent_seed와 동일 계열 인프라 인자)")
     ap.add_argument("--allow-frontier", action="store_true", dest="allow_frontier",
                     help="COST GUARD override: explicitly allow Claude/Anthropic (expensive) models "
                          "on the shared OpenRouter key. Default REFUSES — user-sim must be gpt-4.1.")
@@ -296,6 +299,10 @@ def main():
     # 비결정성은 serve-side enforce-eager/max-num-seqs=1로, seed는 샘플링-RNG 보조)
     if a.agent_seed is not None and not a.agent_llm:
         llm_args_agent["seed"] = a.agent_seed
+    # E-MFIX Y1a: user-sim seed 고정(원격 provider의 seed 존중 여부 확인용·미설정=거동 불변)
+    if a.user_seed is not None:
+        user_args["seed"] = a.user_seed
+        print(f"[t2_run] user_seed={a.user_seed} (E-MFIX Y1a)")
     # ★C205(2026-07-27·[S] 서버로그 확정): max_tokens 미설정 = vLLM 기본 "EOS ∨ 컨텍스트 한계까지 생성"
     #   → 캡은 **정당 최장 응답(77-행 거래 JSON 에코 ~8k tok)이 안 잘리는 8192 권장** — 그래도 폭주 상한 8192/10.7≈13분 < timeout이라 재시도 폭풍 소멸. 폭주(반복-루프) 응답 1건이 10.7tok/s로 20분+ 단독 디코드(001 실측: prompt 0.0/gen 10.7/
     #   Running 1/Waiting 0 연속)→클라 타임아웃→전체 재시도. **생성 상한 = 단독-초과 클래스의 근본 캡**
