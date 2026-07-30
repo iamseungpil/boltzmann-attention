@@ -127,14 +127,31 @@ def _tc_args(tc):
     return a if isinstance(a, dict) else {}
 
 
-def _effective_fams(tc):
-    """이 tool_call이 '실행하는' fam들(dispatcher면 내부 이름 포함·unlock은 실행 아님)."""
+def _dispatch_names(a2):
+    """A2가 선언한 dispatcher 3종 이름 + 내부-이름 인자 키. 미선언이면 None들.
+
+    ★C241 U4: 이 이름들은 banking 전용(tau2 5도메인 중 banking에만 존재)이라 엔진에 박으면
+    [[05]] 위반이다. A2 `eplan`에 **이미 선언**돼 있으므로 거기서 읽는다(새 키 0).
+    미선언 도메인이면 dispatcher 개념 자체가 없으므로 unwrap 없이 겉이름만 쓴다(안전한 no-op).
+    """
+    ep = ((a2 or {}).get("eplan") or {})
+    return (ep.get("dispatch_tool"), ep.get("unlock_tool"),
+            ep.get("dispatch_name_key") or "agent_tool_name")
+
+
+def _effective_fams(tc, a2=None):
+    """이 tool_call이 '실행하는' fam들(dispatcher면 내부 이름 포함·unlock은 실행 아님).
+
+    ★C241 U4: dispatcher 이름을 **A2에서** 읽는다(구 판은 하드코딩·fallback조차 없었다).
+    a2=None(또는 미선언)이면 unwrap 없이 `[fam]` — 구 동작과 동일한 안전측.
+    """
     nm = _tc_name(tc)
     fam = _fam(nm)
-    if fam == "unlock_discoverable_agent_tool":
+    disp, unlock, name_key = _dispatch_names(a2)
+    if unlock and fam == _fam(unlock):
         return []                                   # 잠금해제=실행 아님(C159 교훈)
-    if fam == "call_discoverable_agent_tool":
-        inner = _fam(_tc_args(tc).get("agent_tool_name"))
+    if disp and fam == _fam(disp):
+        inner = _fam(_tc_args(tc).get(name_key))
         return [inner] if inner else []
     return [fam]
 
@@ -422,7 +439,7 @@ def apply():
                 self._t2_prekb_rb = rbd
             called = _called_fams(msgs)
             for tc in tool_calls:
-                for fam in _effective_fams(tc):
+                for fam in _effective_fams(tc, a2):
                     need = rb.get(fam)
                     if not need or fam in rbd:
                         continue
@@ -485,7 +502,7 @@ def apply():
                     return out
         hit = None                                   # (tc, nm, fam) 최초 트리거
         for tc in tool_calls:
-            for fam in _effective_fams(tc):
+            for fam in _effective_fams(tc, a2):
                 if fam in fams and fam not in denied and not _has_evidence(msgs, fam):
                     # ★F4(C210·day6 004 [S]): A2 notice 게이트가 이 도구를 관장하고 **notice가
                     #   이미 공표**됐다면 deny 면제 — notice 프로토콜(KB 확인·전 절차 시도 후에만
@@ -571,13 +588,19 @@ def apply():
                                 continue
                             _arg, _ptool = _hits[0]
                             _ftool = _id2nm2.get(getattr(r, "id", None))
+                            # ★C241 U5: give 도구명을 A2에서 읽는다. 같은 파일 `_declared_give_tool`
+                            #   docstring이 "banking 전용이라 엔진에 박으면 [[05]] 위반"이라 명시했는데
+                            #   이 자리만 하드코딩이었다(자기모순). 미선언 도메인이면 도구명을 빼고
+                            #   채널 사실만 알린다(`:198-201` 관례의 최소판 — 넛지 자체는 유지).
+                            _give = _declared_give_tool(a2)
+                            _how = ("Hand it to the customer with %s, ask them to run it, then "
+                                    % _give) if _give else "Have the customer run it, then "
                             _view_fb(self,
-                                     "Argument '%s' is produced by the customer-side tool '%s'. "
-                                     "Hand it to the customer with give_discoverable_user_tool, "
-                                     "ask them to run it, then retry the SAME tool you just "
-                                     "attempted with the value — do NOT switch to a different "
-                                     "tool just because an argument is missing."
-                                     % (_arg, _ptool), "argprod")
+                                     ("Argument '%s' is produced by the customer-side tool '%s'. "
+                                      + _how +
+                                      "retry the SAME tool you just attempted with the value — "
+                                      "do NOT switch to a different tool just because an argument "
+                                      "is missing.") % (_arg, _ptool), "argprod")
                             self._t2_argprod_fb = apfb + 1
                             _mark("arg-producer nudge arg=%s producer=%s" % (_arg, _ptool))
                             print("[T2_ARG_PRODUCERS] fired tool=%s arg=%s producer=%s"
@@ -624,7 +647,12 @@ def apply():
 
 if __name__ == "__main__":
     # 오프라인 selftest(서버·tau2 불요 — 순수 함수만)
-    a2 = {"eplan": {"finalize_writes": ["close_credit_card_account"]},
+    # ★C241 U4: dispatcher 키 3종을 픽스처에 추가 — 실제 banking A2(`eplan`)가 선언하는 것과
+    #   동일. 구 픽스처엔 없었는데 엔진이 하드코딩으로 대신하고 있었다(그게 위반이었다).
+    a2 = {"eplan": {"finalize_writes": ["close_credit_card_account"],
+                    "dispatch_tool": "call_discoverable_agent_tool",
+                    "unlock_tool": "unlock_discoverable_agent_tool",
+                    "dispatch_name_key": "agent_tool_name"},
           "prekb_tools": ["apply_for_credit_card"]}
     fams = _trigger_fams(a2)
     assert "transfer_to_human_agents" in fams and "close_credit_card_account" in fams
@@ -633,9 +661,12 @@ if __name__ == "__main__":
     # dispatcher 내부 이름·unlock 제외
     tc_call = {"name": "call_discoverable_agent_tool",
                "arguments": {"agent_tool_name": "close_credit_card_account_7834"}}
-    assert _effective_fams(tc_call) == ["close_credit_card_account"]
+    assert _effective_fams(tc_call, a2) == ["close_credit_card_account"]
     assert _effective_fams({"name": "unlock_discoverable_agent_tool",
-                            "arguments": {"agent_tool_name": "close_credit_card_account_7834"}}) == []
+                            "arguments": {"agent_tool_name": "close_credit_card_account_7834"}},
+                           a2) == []
+    # ★C241 U4 회귀: a2 미전달(미선언 도메인)이면 unwrap 없이 겉이름 — 안전한 no-op
+    assert _effective_fams({"name": "unlock_discoverable_agent_tool"}) ==         ["unlock_discoverable_agent_tool"]
     # 증거: 행동-키 쿼리
     msgs_q = [{"role": "assistant",
                "tool_calls": [{"name": "KB_search_bm25",
@@ -747,7 +778,7 @@ if __name__ == "__main__":
     assert "check_card_application_fit" in cf and "open_bank_account" in cf
     assert _called_fams([]) == set()
     # 손님-측 apply도 effective fam으로 잡혀야(게이트 대상)
-    assert _effective_fams({"name": "apply_for_credit_card"}) == ["apply_for_credit_card"]
+    assert _effective_fams({"name": "apply_for_credit_card"}, a2) == ["apply_for_credit_card"]
     # 미호출이면 결핍 검출 · 호출했으면 통과
     need = _require_before(a2rb)["apply_for_credit_card"]
     assert [n for n in need if _fam(n) not in _called_fams([])] == ["check_card_application_fit"]
@@ -756,7 +787,7 @@ if __name__ == "__main__":
     a2c = {"require_tool_before": {"open_bank_account": ["get_all_user_accounts_by_user_id"]}}
     tc_open = {"name": "call_discoverable_agent_tool",
                "arguments": {"agent_tool_name": "open_bank_account_4821"}}
-    assert _effective_fams(tc_open) == ["open_bank_account"]          # 게이트 대상으로 인식
+    assert _effective_fams(tc_open, a2) == ["open_bank_account"]          # 게이트 대상으로 인식
     hist_no = [{"role": "assistant", "tool_calls": [{"name": "KB_search"}]}]
     need = _require_before(a2c)["open_bank_account"]
     assert [n for n in need if _fam(n) not in _called_fams(hist_no)] == ["get_all_user_accounts_by_user_id"]
