@@ -294,6 +294,64 @@ sim당 action_check를 많이 낸다(중앙값 2·평균 4.7·최대 24). 태스
 "실패 원인의 확정 분해"로 인용하면 안 된다. **인용 가능한 것은** ①`CALC_WRONG`≈0 ②`REF_WRONG`이
 operand 축 최대 ③`REQUESTOR`가 그보다 큼 — 세 부등호뿐이다. 정확한 비율은 미해명분 해소 후.
 
+## §6e. ★엄격 분해 — 채점 규약을 소스에서 읽고 축자 재구현 (C245 · `x12_action_fail_exact.py`)
+
+§6d가 미해명 37.9%를 남긴 원인은 내가 **채점 규약을 추측**했기 때문이다. tau2 소스를 직독했다
+(`evaluator/evaluator_action.py` · `data_model/tasks.py`):
+
+```
+match(gold, pred) :=
+    gold.name == pred.name                      # ★**외부** 도구명 (inner discoverable 아님)
+    compare_args := gold.compare_args if not None else **pred.arguments.keys()**
+    len(compare_args) == 0  →  True             # ★예측 인자가 {} 면 **무조건 매치**
+    {k:v for pred if k in compare_args} == {k:v for gold if k in compare_args}
+gold action은 **어떤** 예측과도 매치 안 될 때만 실패 (1:1 배정 **없음**)
+예측 = assistant·user **양쪽** tool_calls · **requestor 미비교**
+```
+
+**★재구현 검증: 저장된 `action_match`와 1080/1080 = 100.0% 일치.** 이제 분해가 채점과 동형이다.
+
+### §6d(X11) 축 4개가 **규약상 존재하지 않았다**
+
+| X11 축 | 건수 | 규약 대조 결과 |
+|---|---|---|
+| `REQUESTOR` | 75 | **소멸** — 규약이 `requestor`를 **비교하지 않는다**(예측은 assistant·user 양쪽 수집) |
+| `MISSING` | 17 | **소멸** — gold 키가 예측에 없으면 `compare_args`에서 **빠지므로** 오히려 매치가 쉬워진다. 실패 원인이 **될 수 없다** |
+| `COUNT_SHORT` | 40 | **소멸** — 1:1 배정은 규약에 없다. **내 "교정 3"이 오히려 오류였다**(한 예측이 여러 gold를 만족시킬 수 있다) |
+| inner 짝짓기 | — | **오류** — 규약은 **외부** 도구명을 본다. 내부 discoverable로 짝지은 전제가 틀렸다 |
+
+### 엄격 분해 (실패 750건 · 미해명 **0**)
+
+| 클래스 | 건수 | % | 성격·레버 |
+|---|---|---|---|
+| **`NAME_ABSENT`** | **341** | **45.5%** | 외부 도구를 **한 번도 호출 안 함** = **미실행 축**(X10의 EXEC_GAP/DISCOVERY/DECISION이 이 안의 분해) |
+| **`NESTED_VALUE`** | **201** | **26.8%** | 내부 인자 오류. 내부 종류 **REF 179** · OTHER 118 · NUM 39 · ENUM 27 ⇒ **F3/⋈가 최대** |
+| **`TOP_VALUE`** | **136** | **18.1%** | ★그중 **도구 오지목 108**(`agent_tool_name` 64 + `discoverable_tool_name` 44) + enum 22 |
+| `PRED_EXTRA_KEY` | 37 | 4.9% | ★**채점 규약 상호작용** — `give_…`에 여분 `arguments` 키를 넣으면 **필패**. 레버가 아니라 **인자 스키마 준수** |
+| `NESTED_SERIAL` | 35 | 4.7% | ★**채점 아티팩트** — 파싱하면 **의미 동일**·직렬화만 다름. 레버 대상 아님 |
+
+**판정 5**:
+1. **미해명 37.9% → 0.** §6d의 표는 폐기하고 이 표를 쓴다.
+2. **지배 조각은 `NAME_ABSENT` 45.5%** = "그 도구를 아예 부르지 않았다". ⇒ operand가 아니라
+   **미실행**이 최대이고, 그 내부 분해가 X10(EXEC_GAP 20.6%·DISCOVERY·DECISION)이다.
+   C243의 "OPERAND 57%"는 **규약 오해의 산물**이다.
+3. **operand 축 안에서는 `REF`(179)가 여전히 최대** — §6d의 그 결론만은 **살아남았다**.
+   ⇒ **F3/⋈ 참조 재선택(REF_ISO·reference_filter)**이 operand 표적으로 확정.
+4. **★새 축: 도구 오지목 108건(14.4%)** — 올바른 operand를 넣어도 **어느 discoverable을 부를지**를
+   틀린다. 참조(F3)가 아니라 **도구 선택(F2 계열)**이고 별 레버가 필요하다.
+5. **★채점-측 조각 72건(9.6%)**(`PRED_EXTRA_KEY`+`NESTED_SERIAL`)은 **레버 대상이 아니다**.
+   특히 `NESTED_SERIAL`은 의미가 맞는데 직렬화로 실패한 것이라 **우리 pass율을 깎는 아티팩트**다.
+
+### ⚠남는 caveat
+
+- **`NUM`을 "계산 오류"로 읽지 말 것**: 내 분류는 **형식 기반**(숫자처럼 보임)이고 계산 여부가
+  아니다. 실제로 `card_last_4_digits`(조회값)와 `partial_refund_amount`(계산값)가 섞여 있다.
+  ⇒ §6d의 "`CALC_WRONG`≈0"도, 여기 "NUM 39"도 **계산 오류의 측정이 아니다**. 계산 축은 미측정.
+- **표본 차이**: X12는 **모든 sim**의 `action_checks`(실패 750)를, X10/X11은 **실패 sim만**(695)
+  봤다. 통과 sim에도 실패 check가 있다(reward가 다른 축에서 난 경우). 수치를 섞어 인용하지 말 것.
+- `TOP_VALUE`의 `('arguments','OTHER') 89`는 중첩 문자열 + 다른 최상위 키가 **같이** 다른 경우라
+  `NESTED_VALUE`로 안 내려갔다. 그 89건의 내부 분해는 미실시.
+
 ## §7. 필수 반대편 계측 (§1.3 제1원리 — 부작용 없는 레버는 없다)
 
 이 설계가 사는 것과 파는 것을 **같이** 재지 않으면 채택 불가:
