@@ -230,7 +230,41 @@ arms: A=prompt-only / B=tail-제약 guided(`guided_json`+xgrammar) / C=검증기
 - 잔여(계획 rev1 대비 미달분): **32B arm**(8140이 Y1 점유 중 — Y1 완주 후) · **D arm two-pass** ·
   **장문·다중턴 조건**(Δprose·tax의 유의 측정 조건) · ASK-남발율 · R10 false-fire율(rev3 권고 1).
 
-## §12. 산출물·상태
+## §12. X6-(a) 유한성 증거 1차 — **현 A2로는 유한성 주장 불가** (특허 make-or-break 부정 신호·무료)
+
+도구 `x6_a2_swap_diff.py`. 기존 A2 gate 스펙 3도메인의 **엔진-해석 키(기능군)** 집합을 대조
+(주석·메타 제외). 유한성 기대 = 스왑 간 기능군 diff ≈ 공집합.
+
+| 도메인 | 스펙 키(기능군) | 내용 항목 |
+|---|---|---|
+| airline | 4 | 11 |
+| retail | 15 | 48 |
+| banking_knowledge | **34** | 120 |
+
+- **union 44 · intersection 3**(`eplan`·`gates`·`producers`만 공통).
+- 도메인 고유 키: banking **28** · retail 10 · airline 0.
+- 스왑 diff: airline→banking **+30/−0** · banking→retail **+10/−29** · airline→retail +12/−1.
+
+**★판정(정직)**: **현 상태로는 "엔진 무수정·명세 공급만으로 전이"라는 유한성 주장을 할 수
+없다.** 각 스펙 키는 엔진 측 해석기를 요구하므로, 새 도메인에서 새 키가 필요하면 그것은
+명세 공급이 아니라 **엔진 확장**이다. 특허 §5-1 리스크(유한성 미증명)가 **정량화된 형태로
+확인**됐다 — 회피하지 않고 기록한다.
+
+**단 해석에 3가지 단서가 있다(반박이 아니라 재측정 조건)**:
+1. **banking 고유 28키의 대부분은 day 캠페인이 추가한 레버-전용 스펙**이고, 그 레버들이 지금
+   **P2-b 폐기 목록(§1b)의 대상**이다(have_value_reask·value_acquisition·prescription_redirect·
+   present류 등). 폐기 후 코어만 남기고 재측정하면 diff가 크게 줄 수 있다 — **폐기의 정량
+   근거이자 유한성 재측정의 전제**.
+2. retail·airline A2는 **구스택 시절 산물**이라 최신 기능군이 아예 없다(비대칭 = 시간차
+   아티팩트·유한성과 무관한 노이즈).
+3. 본 측정은 **기존 레버-스택 A2**를 잰 것이고, `formalize_spec`(§1d rev3) 기준 유한성은
+   아직 측정되지 않았다 — base 필드/enum이 도메인-불변인지가 진짜 분모(§0c 명확화 1).
+
+**⇒ 다음(순서 고정)**: ①P2-b 폐기 적용 후 코어-A2만으로 3도메인 재측정 ②`formalize_spec`
+base 필드 diff 측정(선언-우선 구현 후) ③그때의 diff가 공집합에 수렴하는지가 특허 유한성
+청구의 실질 판정. **현 수치를 특허·논문에 유한성 근거로 인용 금지**(반대 방향 증거).
+
+## §13. 산출물·상태
 
 - 도구: `x2_restatement_fidelity.py`(span-dedup 수정판)·`x4_flip_probe.py`(신규)·
   `x5_fb_ladder.py`(리모트 `/home/woori/`·v2 재설계 예정).

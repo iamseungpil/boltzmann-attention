@@ -64,7 +64,7 @@ ask k회∧binding 0) / **slot 소스 구분**(producer-도구-반환 vs 유저-
 | 부하 | **C14**(plan-structure: 격리 정답·궤적 실패)·C13(F2=비부하 대조) | formalize-기능(user_act·slot 추출·INFER) 위 triage 1회전 |
 | 능력/경계 | **C3b/C46**(⋈: 격리서도 잔존·scale-flat) | — |
 | 배터리·h(π) | 감사 분류 [M]·발화 실측 | E-FLIP(flip율 [M] 승격) |
-| 유한성(최소 기능군=도메인-불변·유한) | 4도메인 A2-swap 부분 증거 | **보편 미증명 = make-or-break**([[16]] §4e 동일) |
+| 유한성(최소 기능군=도메인-불변·유한) | ⚠**1차 측정은 부정 방향**(X6-a·2026-07-30): 기존 A2 3도메인 기능군 union 44 vs **intersection 3**·banking 고유 28 ⇒ 현 레버-스택 A2로는 유한성 주장 불가 | **make-or-break 확정**. 재측정 조건: ①P2-b 폐기 후 코어-A2 ②`formalize_spec` base 필드 기준. 그때 공집합 수렴이 청구의 실질 판정 |
 | e2e 우월성 | — | E-MFIX(측정 고정) 후 스위치-오버 대조 |
 
 ## §4b. ★W1~W5 선점 판정 결과 (2026-07-30 DR2 도착·정본=`DR_DECLFIRST_DR2` §5)
