@@ -220,7 +220,7 @@ RECOMMEND_OFFER_FB = (
     "[RECOMMEND-OFFER] the user wants '{action}', but you are only describing options in text (or "
     "deflecting) instead of formally offering it. Based on the user's hard requirements and the "
     "available options, '{operand}={correct}' is the match. Offer it now by calling '{offer}' with "
-    "discoverable_tool_name='{action}' and {operand}='{correct}', so the user can act on the correct "
+    "{name_key}='{action}' and {operand}='{correct}', so the user can act on the correct "
     "option. If no option satisfies all requirements, tell the user that plainly."
 )
 
@@ -309,13 +309,21 @@ def _formalize_recommendation(agent, la, UserMessage, msgs, action, operand):
         return (False, None)
 
 
-def _offered_in_history(msgs, offer, action):
-    """이전에 offer_tool로 그 action을 이미 제안했나(중복 nag 방지)."""
+def _offered_in_history(msgs, offer, action, name_key=None):
+    """이전에 offer_tool로 그 action을 이미 제안했나(중복 nag 방지).
+
+    ★C241 U6c: 인자 키(`discoverable_tool_name`)는 **banking 전용**이고 `dispatch_name_key`
+    (=`agent_tool_name`·call 디스패처용)와 **다른 키**라 그걸로 대체할 수 없다. A2
+    `recommendation_verify.offer_name_key`에서 읽는다(**순증 1키** — Q1 재계산 반영).
+    미선언이면 중복-판정을 하지 않는다(=nag 억제 비활성·기능적으로 안전측).
+    """
+    if not name_key:
+        return False
     for m in msgs:
         for tc in (getattr(m, "tool_calls", None) or []):
             if getattr(tc, "name", None) == offer:
                 a = getattr(tc, "arguments", None) or {}
-                if str(a.get("discoverable_tool_name")) == str(action):
+                if str(a.get(name_key)) == str(action):
                     return True
     return False
 
@@ -330,14 +338,16 @@ def resolve_recommendation(am, msgs, a2, agent=None, la=None, UserMessage=None, 
     if not spec or agent is None or la is None:
         return {"status": "ok"}
     offer = spec.get("offer_tool"); action = spec.get("action_tool"); operand = spec.get("operand")
-    if not (offer and action and operand):
+    # ★C241 U6c: offer 도구의 내부-이름 인자 키를 A2에서 읽는다(신규 키·순증 1).
+    name_key = spec.get("offer_name_key")
+    if not (offer and action and operand and name_key):
         return {"status": "ok"}
     # (A) 이번 턴에 offer_tool로 제안 중 → operand 검증
     for tc in (getattr(am, "tool_calls", None) or []):
         if getattr(tc, "name", None) != offer:
             continue
         a = getattr(tc, "arguments", None) or {}
-        if str(a.get("discoverable_tool_name")) != str(action):
+        if str(a.get(name_key)) != str(action):
             continue
         chosen = _parse_nested_args(a.get("arguments")).get(operand)
         if not chosen:
@@ -356,12 +366,12 @@ def resolve_recommendation(am, msgs, a2, agent=None, la=None, UserMessage=None, 
     _rt = spec.get("research_tool")
     if _rt and _rt not in _tool_names(msgs):
         return {"status": "ok"}
-    if _offered_in_history(msgs, offer, action):
+    if _offered_in_history(msgs, offer, action, name_key):
         return {"status": "ok"}       # 이전에 제안함 → 중복 nag 금지
     applies, correct = _formalize_recommendation(agent, la, UserMessage, msgs, action, operand)
     if applies and correct:
         return {"status": "deny", "reason": "recommendation-offer",
-                "feedback": RECOMMEND_OFFER_FB.format(
+                "feedback": RECOMMEND_OFFER_FB.format(name_key=name_key, 
                     action=action, operand=operand, correct=correct, offer=offer)}
     return {"status": "ok"}
 
@@ -448,7 +458,11 @@ def resolve_reference_filter(am, msgs, a2, agent=None, la=None, UserMessage=None
 
 
 def _resolve_one_reference_filter(am, msgs, spec, agent, la, UserMessage):
-    offer = spec.get("dispatch_tool", "call_discoverable_agent_tool")
+    # ★C241 U6a: banking 기본값 제거 — A2 `reference_filter[].dispatch_tool`이 이미 선언한다.
+    #   미선언이면 dispatcher 개념이 없는 도메인이므로 이 레버를 **끈다**(안전측·B3 교훈).
+    offer = spec.get("dispatch_tool")
+    if not offer:
+        return {"status": "ok"}
     tp = spec.get("tool_prefix"); param = spec.get("param", "transaction_id")
     keyf = spec.get("key_field", param); require = tuple(spec.get("require") or ("date", "amount"))
     match = spec.get("match") or []
@@ -507,11 +521,17 @@ def resolve_compute_params(am, msgs, a2):
     now = _current_time_str(msgs)
     recs = _gathered_records(msgs, "transaction_id", ("date", "amount"))
     out = []
+    # ★C241 U6b: dispatcher 이름·인자 키를 A2에서 읽는다(구 판은 하드코딩).
+    _ep = ((a2 or {}).get("eplan") or {})
+    _disp = _ep.get("dispatch_tool")
+    _nkey = _ep.get("dispatch_name_key") or "agent_tool_name"
+    if not _disp:
+        return []                      # dispatcher 미선언 도메인 = 이 경로 없음(안전한 no-op)
     for tc in (getattr(am, "tool_calls", None) or []):
-        if getattr(tc, "name", None) != "call_discoverable_agent_tool":
+        if getattr(tc, "name", None) != _disp:
             continue
         a = getattr(tc, "arguments", None) or {}
-        nm = fam(a.get("agent_tool_name"))
+        nm = fam(a.get(_nkey))
         smap = next((m for pref, m in ops.items() if pref in nm), None)
         if not smap:
             continue

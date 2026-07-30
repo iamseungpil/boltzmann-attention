@@ -3768,14 +3768,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   에이전트가 unlock→call_discoverable로 재발행(reroute 아님=스캐폴드 조작 회피·[[05]]/[[10]]).
             #   도메인일반: dispatch_tool 선언 도메인만·이름 suffix 휴리스틱(discoverable=랜덤 suffix).
             dd_fb = None
+            # ★C241 U2'(리뷰 B3): banking 기본값을 지우는 것만으로는 **레버가 꺼지지 않는다** —
+            #   `_unlock`/`_disp`는 아래 피드백 산문에 보간되므로 미선언 시 `"1) None(...)"`이
+            #   모델에게 전달된다. 진입 조건이 `dispatch_tool` 하나뿐이라 나머지 두 키는 보호되지
+            #   않았다. ⇒ **세 키(dispatch/unlock/list)가 다 선언된 도메인에서만** 이 레버를 켠다.
+            #   banking은 3개 다 있으므로 행동 동일.
+            _dd_keys = (ep_spec or {}) if ep_spec is not None else {}
+            _dd_ready = all(_dd_keys.get(k) for k in ("dispatch_tool", "unlock_tool", "list_tool"))
             if (os.environ.get("T2_DISCOVERY_DISPATCH") == "1" and ep_spec is not None
-                    and ep_spec.get("dispatch_tool") and ep_fb is None
+                    and _dd_ready and ep_fb is None
                     and not do_gate and not do_prov
                     and getattr(self, "_t2_dd_deny", 0) < int(os.environ.get("T2_DD_CAP", "8"))):
                 _disp = ep_spec.get("dispatch_tool")
-                _unlock = ep_spec.get("unlock_tool", "unlock_discoverable_agent_tool")
-                _nk = ep_spec.get("dispatch_name_key", "agent_tool_name")
-                _safe = {_disp, _unlock, ep_spec.get("list_tool", "list_discoverable_agent_tools")}
+                _unlock = ep_spec.get("unlock_tool")
+                _nk = ep_spec.get("dispatch_name_key") or "agent_tool_name"
+                _safe = {_disp, _unlock, ep_spec.get("list_tool")}
                 for c in (am.tool_calls or []):
                     nm = getattr(c, "name", "") or ""
                     if nm not in _safe and re.search(r"_\d{3,4}$", nm) \
