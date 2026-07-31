@@ -4650,7 +4650,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 _writes = {_eff_tool_name(tc) for m in state.messages
                            for tc in (getattr(m, "tool_calls", None) or [])
                            if _is_effective_write(_eff_tool_name(tc), a2)}
-                _res = _df.run(a2, _df_gen, self._system_messages + work, am, _writes)
+                # ★alias_fn(2026-07-31 Z4 교정): 디스패처 도메인에서 모델은 **내부** 도구명을
+                #   선언하는데 검증기는 **외피** 이름만 갖고 있어 R4가 오탐했다. 내부 이름 해석은
+                #   엔진(여기)이 알고 t2_declfirst는 모른다 — 모듈 일반성 유지.
+                _res = _df.run(a2, _df_gen, self._system_messages + work, am, _writes,
+                               alias_fn=_eff_tool_name)
                 if _res and _res.get("violations"):
                     self._t2_df_viol = getattr(self, "_t2_df_viol", 0) + len(_res["violations"])
             except Exception as _de:
