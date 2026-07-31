@@ -120,3 +120,63 @@ a2/<domain>.gate.json        ← **생성물**(레거시 105개 read-site 호환
 - **L3가 크다고 곧 나쁜 것은 아니다** — airline(L3 0키)은 성능을 안 밀어붙인 상태다. 비용과 성능을
   같은 축에 놓고 비교하려면 도메인별 pass를 함께 봐야 한다.
 - 이 분리는 **회계를 정직하게 만들 뿐 비용을 줄이지 않는다.** 줄이는 것은 §6-1·6-2다.
+
+
+---
+
+## 8. [[23]] 출처 감사 결과 (2026-07-31·무료·`x19` + `x19b`)
+
+사용자 지시: *"A2 는 도메인 특화라도 정책만으로 해야지. gold 보고 하는게 들어가면 안된다."*
+
+### 8-1. 방법과 **세 번의 자기 교정**
+
+리터럴의 출처를 ENV / POLICY / DOC / OURS / NEITHER로 가른다. 근거 코퍼스에서 **경로에 `task`가
+든 파일은 전량 배제**한다(gold가 섞이면 질문 자체가 무의미·[[03b]]). 도구가 읽을 만해지기까지
+내 수치를 **세 번** 고쳤다 — 전부 집계가 아니라 원문을 읽어서 잡았다([[08]]):
+
+| # | 오류 | 결과 | 교정 |
+|---|---|---|---|
+| 1 | 스펙 어휘를 **손으로 20개** 나열 | banking NEITHER **234/350**(대부분 A2 자신의 스키마 키워드) | 엔진 **import 폐포**에서 기계 산출 |
+| 2 | 그 폐포를 디렉터리 `*.py`로 잡음 | 분석 프로브가 도메인 이름을 인용 → 진짜 리터럴이 **거짓 면죄** | x6h의 라이브-드라이버 폐포로 스코프 고정 |
+| 3 | env는 **집합 소속**·gold는 **부분문자열**로 검사(비대칭) | `request_human`(env 도구 `request_human_agent_transfer`의 접두사)이 **gold 전용으로 거짓 고발** | env도 접두사 매칭 허용(`_env_prefix`) |
+
+추가로 **OURS** 축을 신설했다. `verify_identity`(scaffold GET 도구)·`policy_qa`(함수 에이전트)·
+`customer_max_liability_amount`(계산 필드)는 env에도 정책에도 없지만 **gold에서 온 것도 아니다** —
+우리가 지은 이름이다. 초판은 이걸 NEITHER로 묶어 의심 큐를 부풀렸다.
+
+### 8-2. 결정적 검사와 결론 (`x19b_goldcheck_remote.py`)
+
+검토 큐 생존 리터럴 20개를 **gold 코퍼스(4.93MB) vs 비-gold(1.21MB)**에 대조:
+
+| 판정 | 수 | 예 |
+|---|---|---|
+| **★gold 전용 = 위반** | **1** | `task_029` (아래 8-3) |
+| 비-gold에 실재(정당) | 1 | `cash_back_disputes`(DB 테이블) |
+| 어디에도 없음 = **우리 발명** | 18 | `check_cli`·`file_dispute`(약칭) · `verify_identity`(scaffold GET) · `policy_qa` · `biz_bronze` |
+
+⇒ **banking A2 34키 중 gold 유래로 확정된 것은 1건뿐이다.** 나머지 검토 큐는 접두사 패턴(env
+도출)이거나 우리 scaffold 어휘다.
+
+### 8-3. 확정 위반 1건과 처리
+
+`write_evidence_specs`의 주석이 출처를 **"2026-07-19 task_029 포렌식"**이라 밝히고 있었다. 그런데
+**규칙 자체는 KB로 사전에 쓸 수 있었다** — `doc_credit_cards_(general)_004`가 *"look up the user's
+**resolved** disputes … to find the transaction_id values that need rewards adjustments"*라고 자격을
+정하고, `doc_bank_accounts_(general)_035`가 상태 taxonomy를 열거한다.
+
+**gold 경유의 실제 대가는 부정직이 아니라 틀린 규칙이었다**: A2는 `require_tokens=["RESOLVED"]`
+substring을 요구했는데 KB의 실제 상태값은 `RESOLVED_CUSTOMER_FAVOR`/**`RESOLVED_BANK_FAVOR`
+(크레딧 없음)**/`RESOLVED_PARTIAL`이라, **은행 승소 건까지 증거로 인정**하고 있었다 — 막으려던
+오염을 한 갈래 열어둔 것이다. 처리 = `forbid_tokens` 신설(엔진은 집합 비포함만 판정)·주석을 KB
+축자 인용으로 교체·`RESOLVED_PARTIAL`은 문서가 정하지 않아 **보수적 차단 + 확인 요구**.
+회귀 `test_wev_forbid` 6/6.
+
+### 8-4. 남은 것
+
+- `action_tool_executor`: 주석이 출처를 **gold `action_checks[].requestor`**라 밝히는데, env의
+  도구 소속(`user_tools` vs `tools`)으로 **7/7 재현**된다 ⇒ 엔진이 env에서 도출하고 **키 삭제**
+  (opex −1). gold 경유 제거 + 비용 감소가 동시에 된다. **미구현.**
+- 출처 주석이 **아예 없는 키 16개**. 위반은 아니지만 [[23]]의 "새 키마다 정책 축자 출처를 적어라"를
+  소급 적용해야 한다.
+- 정책 산문 근거는 **런타임 `get_policy()` 결과**로 재확인할 것. 파일별 grep은 실패한다 —
+  V7 근거 2문이 `prompts/*.md` 14개 어디에도 없지만 조립된 정책에는 @2944·@3136에 실재했다.

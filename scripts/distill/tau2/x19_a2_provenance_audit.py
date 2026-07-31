@@ -77,6 +77,48 @@ def literals_of(value):
     return sorted({t for t in _IDENT.findall(s) if t not in _ENGINE_VOCAB})
 
 
+_ENV_CACHE = {}
+
+
+def _env_prefix(dom, tok):
+    """★비대칭 교정(2026-07-31 3차): env는 **집합 소속**으로, gold는 **부분문자열**로 재는 바람에
+    `request_human`(= env 도구 `request_human_agent_transfer`의 접두사 패턴)이 'gold 전용'으로
+    보였다. A2는 접두사 매칭을 쓰는 곳이 많다(`event_map`: `"KB_"`·`"give_"`·`"transfer_"`).
+    ⇒ 리터럴이 env 도구명의 **접두사이거나 그 반대**면 env 도출로 인정한다."""
+    if dom not in _ENV_CACHE:
+        p = os.path.join(_A2, "env_surface.json")
+        try:
+            _ENV_CACHE[dom] = set(load(p).get(dom, {}).get("tools", {}))
+        except Exception:
+            _ENV_CACHE[dom] = set()
+    names = _ENV_CACHE[dom]
+    if not tok or len(tok) < 5:
+        return False
+    return any(n.startswith(tok) or tok.startswith(n) for n in names)
+
+
+def self_defined(dom):
+    """★A2가 **스스로 정의한 이름**(2026-07-31 2차 교정). scaffold가 만든 GET 도구
+    (`verify_identity`)·계산 필드(`customer_max_liability_amount`)·함수 에이전트(`policy_qa`)는
+    env에도 정책에도 없지만 **gold에서 온 것도 아니다** — 우리가 지은 이름이다. 초판은 이걸
+    NEITHER로 묶어 gold 의심 큐를 부풀렸다.
+
+    판정: 그 도메인 A2 어딘가에서 **JSON 키로 등장**하면 자기 어휘다(값에만 있으면 외부 참조)."""
+    keys = set()
+
+    def walk(o):
+        if isinstance(o, dict):
+            for k, v in o.items():
+                if not k.startswith("_"):
+                    keys.add(k)
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+    walk(domain_keys(dom))
+    return keys
+
+
 def domain_keys(dom):
     """L3(specific) + L2(settings) 실키 → {key: value}. 분리 전이면 단일 파일."""
     out = {}
@@ -135,21 +177,25 @@ def main():
         if not keys:
             continue
         notes = notes_of(dom)
+        selfdef = self_defined(dom)
         review = []
         print("\n[%s] 키 %d" % (dom, len(keys)))
-        print("  %-28s %5s %5s %5s %5s  %s" % ("key", "lit", "env", "pol", "doc", "NEITHER(앞 4개)"))
+        print("  %-28s %5s %5s %5s %5s %5s  %s"
+              % ("key", "lit", "env", "pol", "doc", "ours", "NEITHER(앞 4개)"))
         for k in sorted(keys):
             lits = keys[k]
-            e = p = d_ = 0
+            e = p = d_ = o_ = 0
             nei = []
             for t in lits:
                 m = (mem.get(dom) or {}).get(t) or {}
                 if t.startswith("task_"):
                     nei.append("★GOLD:" + t)   # task id = gold 참조. 절대 정당화되지 않는다.
-                elif m.get("env"):
+                elif m.get("env") or _env_prefix(dom, t):
                     e += 1
                 elif m.get("policy"):
                     p += 1
+                elif t in selfdef:
+                    o_ += 1            # OURS = A2/scaffold가 스스로 정의한 이름
                 elif m.get("doc") or t.startswith("doc_"):
                     # `doc_*` = KB_search가 **질의 시점에 붙이는 문서 id**라 원본 파일 본문·이름에는
                     # 없다. 배포 시점에 검색으로 얻는 것이므로 정당한 DOC 출처다(초판은 이걸
@@ -158,8 +204,9 @@ def main():
                 else:
                     nei.append(t)
             flag = "★" if nei else " "
-            print("%s %-28s %5d %5d %5d %5d  %s" %
-                  (flag, k, len(lits), e, p, d_, ", ".join(nei[:4]) + (" …" if len(nei) > 4 else "")))
+            print("%s %-28s %5d %5d %5d %5d %5d  %s" %
+                  (flag, k, len(lits), e, p, d_, o_,
+                   ", ".join(nei[:4]) + (" …" if len(nei) > 4 else "")))
             if nei:
                 review.append((k, nei, bool(notes.get("_note_" + k))))
         print("\n  ★검토 큐 %d키 (NEITHER 리터럴 보유)" % len(review))
