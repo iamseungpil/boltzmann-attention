@@ -2529,7 +2529,14 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
         # ★W-A(arm③): A2 base-layer의 선언 가이드를 시스템 프롬프트 말미에 보간(미선언=skip).
         try:
             import t2_declfirst as _df
-            _g = _df.guide_text(a2) if os.environ.get("T2_DECLFIRST") == "1" else ""
+            # ★관찰자 ↔ 개입 분리(2026-07-31): 이 가이드 주입은 **행동을 바꾼다**(X13 A_PROMPT arm
+            #   실측: 가이드만으로 턴의 31.8%에서 봉투 산출). 반면 2패스 형식화는 이미 확정된 턴을
+            #   비커밋으로 재구성하므로 **에이전트에게 아무것도 말하지 않는다**. 둘을 한 플래그로
+            #   묶어두면 "pass 레버 다 켜고 계측만 얹기"가 불가능하고, Y1(가이드 없음) 대비
+            #   비교성도 깨진다. ⇒ `T2_DECLFIRST_GUIDE=0`이면 **관찰자만** 돈다.
+            #   기본은 1(=종전 동작 보존·arm③ 아키텍처).
+            _guide_on = os.environ.get("T2_DECLFIRST_GUIDE", "1") == "1"
+            _g = _df.guide_text(a2) if (os.environ.get("T2_DECLFIRST") == "1" and _guide_on) else ""
             if _g and self._system_messages and not getattr(self, "_t2_df_guided", False):
                 _sm = self._system_messages[-1]
                 _sm.content = (getattr(_sm, "content", "") or "") + _g
@@ -3523,7 +3530,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         # ★W-A(arm③): A2 base-layer의 선언 가이드를 시스템 프롬프트 말미에 보간(미선언=skip).
         try:
             import t2_declfirst as _df
-            _g = _df.guide_text(a2) if os.environ.get("T2_DECLFIRST") == "1" else ""
+            # ★관찰자 ↔ 개입 분리(2026-07-31): 이 가이드 주입은 **행동을 바꾼다**(X13 A_PROMPT arm
+            #   실측: 가이드만으로 턴의 31.8%에서 봉투 산출). 반면 2패스 형식화는 이미 확정된 턴을
+            #   비커밋으로 재구성하므로 **에이전트에게 아무것도 말하지 않는다**. 둘을 한 플래그로
+            #   묶어두면 "pass 레버 다 켜고 계측만 얹기"가 불가능하고, Y1(가이드 없음) 대비
+            #   비교성도 깨진다. ⇒ `T2_DECLFIRST_GUIDE=0`이면 **관찰자만** 돈다.
+            #   기본은 1(=종전 동작 보존·arm③ 아키텍처).
+            _guide_on = os.environ.get("T2_DECLFIRST_GUIDE", "1") == "1"
+            _g = _df.guide_text(a2) if (os.environ.get("T2_DECLFIRST") == "1" and _guide_on) else ""
             if _g and self._system_messages and not getattr(self, "_t2_df_guided", False):
                 _sm = self._system_messages[-1]
                 _sm.content = (getattr(_sm, "content", "") or "") + _g
