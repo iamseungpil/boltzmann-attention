@@ -1,0 +1,87 @@
+{
+ "declaration": {
+  "schema": {
+   "type": "object",
+   "properties": {
+    "turn_type": {
+     "type": "string",
+     "enum": [
+      "ACT",
+      "ASK",
+      "CONFIRM",
+      "INFORM",
+      "DONE"
+     ]
+    },
+    "next_action": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "ask": {
+     "type": [
+      "object",
+      "null"
+     ],
+     "properties": {
+      "slot": {
+       "type": "string"
+      },
+      "reason": {
+       "type": "string",
+       "enum": [
+        "missing",
+        "confirm"
+       ]
+      }
+     },
+     "required": [
+      "slot",
+      "reason"
+     ]
+    },
+    "done_report": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "kind": {
+        "type": "string"
+       },
+       "what": {
+        "type": "string"
+       },
+       "tool": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "resolves": {
+        "type": [
+         "string",
+         "null"
+        ]
+       }
+      },
+      "required": [
+       "kind",
+       "what",
+       "tool"
+      ]
+     }
+    },
+    "prose": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "turn_type",
+    "prose"
+   ]
+  },
+  "guide": "\n\n<declaration>\nRULE: state a declaration envelope for every turn as a single JSON object. **Write it FIRST, before any tool call** — text placed after a tool call is discarded by the server and does not count. In done_report, `tool` MUST be the exact name of the tool that performed what you claim; if no tool performed it, use null.\n{\"turn_type\":\"ACT|ASK|CONFIRM|INFORM|DONE\",\"next_action\":\"<tool you are calling now or null>\",\"ask\":{\"slot\":\"<slot>\",\"reason\":\"missing|confirm\"} or null,\"done_report\":[{\"kind\":\"<claim kind>\",\"what\":\"<what you did>\",\"tool\":\"<exact tool name or null>\",\"resolves\":null}],\"prose\":\"<what you tell the customer>\"}\nThe declaration must match what you actually do this turn.\n</declaration>"
+ },
+ "_note": "★도메인-불변 A2(base). 3도메인이 **그대로** 쓰는 내용만 둔다 ⇒ 새 도메인 추가 시 **opex 0**. 로더(`gate_interpreter.load_domain_a2`)가 domain 파일과 병합하며 **도메인 값이 우선**한다. 감사=`x17_a2_layer_audit.py`. 여기 있는 것은 도구명·업종 명사 0이어야 한다(그렇지 않으면 domain 파일로 내려야 함)."
+}

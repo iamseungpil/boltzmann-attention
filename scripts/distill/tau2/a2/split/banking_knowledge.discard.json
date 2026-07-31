@@ -3,7 +3,9 @@
   "offer_tool": "give_discoverable_user_tool",
   "action_tool": "apply_for_credit_card",
   "operand": "card_type",
-  "research_tool": "KB_search_bm25"
+  "research_tool": "KB_search_bm25",
+  "offer_name_key": "discoverable_tool_name",
+  "_note_offer_name_key": "C241 U6c: offer_tool 의 '내부 도구 이름' 인자 키. banking 전용이고 eplan.dispatch_name_key(=agent_tool_name·call 디스패처용)와 **다른 키**라 그걸로 대체 불가 → 엔진 리터럴을 없애기 위한 신규 A2 키(순증 1). 미선언 도메인은 recommendation_verify 자체가 no-op."
  },
  "have_value_reask": [
   {
