@@ -116,13 +116,15 @@ R5가 핵심이다 — 산문을 파싱하지 않고 **완료 주장을 write �
 **45 → 3**). ⇒ **arm③이 DB-basis 태스크에서 pass를 올린다면 그 경로는 십중팔구 여기다.**
 그런데 그 경로를 **측정하지 않으면 "왜 올랐는지"를 말할 수 없다**(운과 구별 불가).
 
-**계측 3종(전부 닫힌 술어·gold 미참조)**:
+**계측 5종(전부 닫힌 술어·gold 미참조)** — ★초판 3종에서 **O4·O5 추가**(§5-b 실측이 요구):
 
 | # | 지표 | 정의 |
 |---|---|---|
-| **O1** | **write 횟수/런** | 실효-write 도구 호출 수(`_is_effective_write`) — arm 간 직접 비교 |
-| **O2** | **미선언 write 비율** | 봉투 `next_action`/`done_report`에 **없는데 실행된** write ÷ 전체 write. **선언-우선의 정의적 지표**이고 arm①②에서는 봉투가 없으므로 **arm③ 내부 지표**로만 쓴다 |
-| **O3** | **중복·재실행 write** | 같은 도구·같은 인자의 2회차 이상 호출 수(멱등 재호출) |
+| **O1** | **DB-쓰는 행동 수/런** | 경계는 **소스가 정한다**: `unlock`=제외("in-memory only, DB write happens on call") · `call_…`=포함(`agent_discoverable_tools` **CALLED**) · **`give_…`=포함**(`user_discoverable_tools` **GIVEN**) |
+| **O2** | **미선언 write 비율** | 봉투에 **없는데 실행된** write ÷ 전체. 봉투가 필요하므로 **arm③ 내부 지표** |
+| **O3** | **중복·재실행 write** | 같은 도구·같은 인자의 2회차 이상 |
+| **★O4** | **DB 등록 집합 크기** | CALLED ∪ GIVEN의 **서로 다른 도구 수**. ★**읽기 도구도 등록된다** ⇒ write 술어로 안 보이는 해시 차이를 잡는다 |
+| **★O5** | **건넸는데 미실행** | `GIVEN` ∧ 그 도구의 `call` 없음 — 정책 "필요할 때만 give"의 닫힌 대우(unlock-미사용의 give 판) |
 
 **판정 규칙(사전 고정)**:
 
@@ -147,28 +149,42 @@ R5가 핵심이다 — 산문을 파싱하지 않고 **완료 주장을 write �
 | **Z6** | 비용 실측 — 모델 호출 수·턴 수 증가분 | 수치 기록(게이트 아님) |
 | **Z7**(신설) | **over-action 계측기 오프라인 검증** — Y1 궤적 64 sim에 O1·O2·O3를 돌려 ①O1이 `_is_effective_write`와 일치 ②O3가 실제 중복 호출과 일치 ③flip 3건(020·023·027)에서 **PASS/fail trial의 O1·O3 차이가 실제로 보이는가** | ③이 안 보이면 이 계측으로는 그 flip을 설명 못 한다는 뜻 — **한계로 기록**하고 진행 |
 
-### §5-b. Z7 실행 결과 (2026-07-31 · `x16_overaction.py` · Y1 64 sim) — **조건부 통과**
+### §5-b. Z7 실행 결과 (2026-07-31 · `x16_overaction.py` · Y1 64 sim) — **통과**
+
+> ⚠이 절의 수치는 **두 번 정정됐다**(§5-c). 최종본만 인용할 것.
 
 | 검사 | 결과 |
 |---|---|
-| **Z7-①** write 술어 점검 | ✅ 계상된 실효-이름이 전부 **진짜 write**다(`submit_cash_back_dispute_0589` 190 · `apply_for_credit_card` 21 · `update_transaction_rewards_3847` 13 · `change_user_email` 2 …). `give_`·`unlock_`·`KB_search` **누출 0** |
-| **Z7-②** O3 중복 판정 | ✅ 실제 중복 검출(예: task_017 trial1 — **같은 분쟁을 2회 제출**·O3=2) |
-| **★Z7-③** flip 3건에서 보이는가 | ⚠**3건 중 2건** |
+| **Z7-①** write 술어 점검 | ✅ 계상 대상이 전부 DB-쓰는 행동(`submit_cash_back_dispute_0589`·`apply_for_credit_card`·`change_user_email` …). `unlock`·`KB_search` 누출 0 |
+| **Z7-②** O3 중복 판정 | ✅ 실검출(task_017 trial1 — **같은 분쟁 2회 제출**) |
+| **★Z7-③** flip 3건에서 보이는가 | ✅ **3건 전부** |
 
-**보인 2건**:
+| task | 갈린 지점 | 지표 |
+|---|---|---|
+| **020** | fail만 `get_card_last_4_digits`를 **건넴**(GIVEN)·유저 미실행 | ΔO1 **+1** · ΔO4 **+1** · ΔO5 **+1** |
+| **023** | fail은 `apply_statement_credit_8472`·`claim_annual_fee_rebate`를 **직접 실행**(CALLED) / PASS는 3개를 **건네기만**(GIVEN) | ΔO1 **−1** · ΔO4 **−1** · ΔO5 −2 |
+| **027** | fail만 `get_user_dispute_history_7291`을 **조회**(CALLED 등록) | ΔO1 0 · **ΔO4 +1** |
 
-| task | PASS | fail | 차이 |
-|---|---|---|---|
-| **023** | O1=4 | **O1=5** | fail에만 `apply_statement_credit_8472`×2·`apply_checking_account_credit_5829`×1 / PASS에만 `apply_for_credit_card`·`submit_credit_card_application` ⇒ **여분이자 다른 수단**(단순 과행동이 아니라 **도구 오선택 + 추가 실행**) |
-| **027** | O1=8 | **O1=10** | fail에만 `update_transaction_rewards_3847`·추가 `submit_cash_back_dispute_0589` ⇒ **전형적 과행동** |
+⇒ **O4가 가장 넓게 잡는다**(3/3). O1만으로는 027을 못 본다 — 읽기 호출도 DB에 등록되기 때문이다.
 
-**안 보인 1건(task_020)**: 양쪽 **O1=8·O3=0으로 동일**. ⇒ DB는 **write 개수가 아니라 다른 축**에서
-갈렸다 — 후보는 ①**같은 도구·다른 인자 값**(O1/O3는 **개수** 지표라 값 차이를 못 본다) ②discovery
-호출 **등록 경로**(C149). **이 계측의 한계로 확정 기록**하고, 값-수준 규명이 필요하면
-`dbdiff_task.py`(gold vs agent DB diff)를 별건으로 돌린다.
+### §5-c. ★계측 정의를 두 번 고쳤다 (둘 다 내 오류·[[08]])
 
-⇒ **판정**: O1·O3는 과행동 축을 **실제로 본다**(2/3). 다만 **"과행동을 0으로 만들면 DB가 맞는다"는
-예단은 금지**다 — 최소 1/3은 다른 축이다. §4-b 말미 경고가 실측으로 확인됐다.
+1. **unlock을 write로 계상** → 027의 "여분 write `update_transaction_rewards_3847`"는 실은
+   **unlock만 하고 안 쓴 것**이었다. Z7-③이 **2/3으로 과대**하게 나왔다. ⇒ 제외.
+2. **그걸 고치며 `give`까지 뺀 과교정** → 020·023을 놓쳐 **1/3으로 과소**해졌다. `give`는
+   `add_to_db("user_discoverable_tools", …, "GIVEN")`으로 **DB에 쓴다**(소스 확인). ⇒ 포함.
+
+**지금 정의의 근거는 추측이 아니라 소스다**(§4-b O1 행). 그리고 이 두 정정을 강제한 것은
+**task_020의 값-수준 추적**이었다 — DB-영향 호출을 인자까지 정렬 비교하니 두 trial의 차이가
+**정확히 둘**(fail의 `give(get_card_last_4_digits)` · PASS의 `transfer`)이었고, PASS가
+`db_match=True`이므로 **transfer는 DB에 안 쓴다**가 확정돼 범인이 하나로 좁혀졌다.
+
+### §5-d. 관측 가능 ≠ 억제 가능 (판정에 반드시 병기)
+
+| flip | 억제 가능한가 |
+|---|---|
+| 020 · 027 | ✅ 여분 give·여분 조회 = 정책 "필요할 때만" + O5 같은 **닫힌 술어**로 억제 가능 |
+| **023** | ❌ **불가** — KB 문서(`doc_credit_cards_credit_cards_(general)_017`)가 `apply_statement_credit_8472`를 **"fee reversals"** 용도로 명시한다. 정책의 "KB에서 발견한 이름만" 조건도 충족 ⇒ **틀렸다고 말하는 근거는 gold뿐** |
 
 ## §6. 리스크 · 미결
 
