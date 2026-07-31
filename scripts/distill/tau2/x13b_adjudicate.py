@@ -133,16 +133,40 @@ def main():
         print("  A_PROMPT vs %-13s A만 %2d · %s만 %2d · McNemar p=%.4f"
               % (a, b, a, c, mcnemar(b, c)))
 
-    # ── 봉투율 자체의 arm 대비(턴 단위 Fisher) ──
-    print("\n턴 단위 봉투 유무 (Fisher exact · A_PROMPT 대비):")
-    if base:
-        for a in arms:
-            if a == "A_PROMPT":
+    # ── ★런 단위 짝지은 부호검정 (턴은 독립이 아니다 — 의사반복 회피) ──
+    print("\n" + "=" * 86)
+    print("★런 단위 짝지은 비교 — 같은 케이스·시드의 **봉투율 차**(부호검정)")
+    print("  ⚠턴 단위 Fisher는 한 런의 턴들을 독립으로 취급해 p를 과대평가한다 ⇒ 쓰지 않는다")
+    print("=" * 86)
+    for a in arms:
+        if a == "A_PROMPT" or "A_PROMPT" not in arms:
+            continue
+        up = dn = tie = 0
+        deltas = []
+        for k, d in idx.items():
+            if "A_PROMPT" not in d or a not in d:
                 continue
-            p = per[a]
-            pv = fisher(base["env"], base["turns"] - base["env"], p["env"], p["turns"] - p["env"])
-            print("  A %d/%d vs %-13s %d/%d  p=%.2e"
-                  % (base["env"], base["turns"], a, p["env"], p["turns"], pv))
+            ra = d["A_PROMPT"]["envelopes"] / max(1, d["A_PROMPT"]["turns"])
+            rb = d[a]["envelopes"] / max(1, d[a]["turns"])
+            deltas.append(rb - ra)
+            if rb > ra + 1e-9:
+                up += 1
+            elif ra > rb + 1e-9:
+                dn += 1
+            else:
+                tie += 1
+        med = sorted(deltas)[len(deltas) // 2] if deltas else 0
+        print("  A_PROMPT → %-13s 상승 %2d · 하락 %2d · 동률 %2d · 중앙 Δ %+.2f · 부호검정 p=%.2e"
+              % (a, up, dn, tie, med, mcnemar(up, dn)))
+
+    # ── 드롭-보정 상한 (C248: 호출 뒤에 쓴 봉투는 파서가 버린다) ──
+    print("\n★드롭 보정 — 봉투율의 **하한 ~ 상한**(드롭 의심 턴을 전부 봉투로 세면 상한)")
+    for a in arms:
+        p2 = per[a]
+        lo = 100.0 * p2["env"] / p2["turns"]
+        hi = 100.0 * min(p2["turns"], p2["env"] + p2["drop"]) / p2["turns"]
+        print("  %-13s %3.0f%% ~ %3.0f%%   (드롭 의심 %d턴)" % (a, lo, hi, p2["drop"]))
+    print("  ⇒ **상한으로 봐도 서열이 유지되는지**가 판정의 조건이다.")
 
     # ── 위반 내역 ──
     print("\n위반 내역(§1d 축소판):")
