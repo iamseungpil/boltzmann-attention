@@ -72,7 +72,17 @@ export T2_FORCE_ACTION=1 T2_ACTION_DENY_CAP=3 T2_ACTION_PROGRESS_REFUND=1
 export T2_VERIFY_DENY_CAP=2 T2_PARAM_CAP=1 T2_PAIRCHECK=1 T2_PAIRFIX=1
 export T2_STALE_STRIP=1 T2_READ_DEDUP=1 T2_VIEW_COMPACT=1 T2_VIEW_ANNOTATE=1
 export T2_COV_MIDDRIVE=1 T2_COV_MIDDRIVE_K=4 T2_EPLAN_DRIVE_K=4
-export T2_REGEN_BUDGET=12 T2_LLM_RETRIES=1 T2_LLM_TIMEOUT=480
+export T2_REGEN_BUDGET=12 T2_LLM_RETRIES=1 T2_LLM_TIMEOUT=2400
+# ★생성 설정 표준 (2026-07-31 사용자 결정·C269) — 런처가 이걸 쥐고 있어야 런마다 표류하지 않는다.
+#   ① `T2_LLM_TIMEOUT=2400` (구 480) — 480은 느린 턴을 조기 절단한다. Y1·Y2-B가 쓴 값으로 통일.
+#   ② **`T2_AGENT_MAX_TOKENS`는 설정하지 않는다 = 최대 프롬프트 창**. 8192 고정은 매 턴 프롬프트
+#      천장을 model_max−8192로 **자해**한다(C208①: Y1에서 천장 사건 8회·DYN_MT가 매번 축소-재시도).
+#      미설정이면 vLLM이 `model_max − prompt`로 자동 배정 ⇒ 천장 자해 0.
+#   ⚠맞바꾼 위험(정직): 폭주 응답의 상한이 창 전체가 된다(C205: 1건이 10.7tok/s로 20분+ 단독 디코드).
+#      완화 = timeout 2400 + `T2_DYN_MT`(아래) 유지 + 런 중 `Running:1`이 장시간 지속되면 그 sim을 본다.
+#      실측(스모크 4태스크): 폭주 0건·최장 응답 5,007자 — 이 도메인에선 캡 없이도 문제 없었다.
+#   ⚠**짝비교 주의**: Y1은 `max_tokens=8192`로 돌았다. 이 설정으로 도는 런을 Y1과 짝지으면
+#      프롬프트 창이 다르다는 **알려진 델타**를 안고 비교하는 것이다 — 판정문에 반드시 명시할 것.
 # (제외 유지: dd_fb·retry·투표 = 실측 해로움·C154/C168)
 
 # ── 신규 레버 (합성-우선 원칙에 따라 전부 기본 ON·C168) ─────────────────────
