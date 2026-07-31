@@ -80,6 +80,52 @@ def split_domain(d, layer):
     return out
 
 
+def _engine_capex():
+    """엔진 폐포의 크기 = 한 번만 내는 비용. 스코프는 x6h의 import 폐포와 **같은 것**을 쓴다
+    (손 목록은 스코프 누락을 낳는다·x6h 리뷰 B1)."""
+    import ast as _ast
+    try:
+        from x6h_engine_literal_audit import discover_engine_files
+        files = discover_engine_files()
+    except Exception:
+        files = []
+    loc = code = fns = 0
+    for f in files:
+        try:
+            src = io.open(os.path.join(_HERE, f), encoding="utf-8", errors="replace").read()
+        except Exception:
+            continue
+        lines = src.splitlines()
+        loc += len(lines)
+        code += sum(1 for l in lines if l.strip() and not l.strip().startswith("#"))
+        try:
+            fns += sum(1 for n in _ast.walk(_ast.parse(src))
+                       if isinstance(n, (_ast.FunctionDef, _ast.AsyncFunctionDef)))
+        except Exception:
+            pass
+    return {"files": len(files), "loc": loc, "code": code, "fns": fns}
+
+
+def _a2_read_sites(layer):
+    """엔진 소스가 A2 키를 **이름으로 직독**하는 지점 수(층별). L3 수치가 곧 callback 리팩터 범위."""
+    import re as _re
+    try:
+        from x6h_engine_literal_audit import discover_engine_files
+        files = discover_engine_files()
+    except Exception:
+        files = []
+    src = ""
+    for f in files:
+        try:
+            src += io.open(os.path.join(_HERE, f), encoding="utf-8", errors="replace").read()
+        except Exception:
+            pass
+    out = {"L1": 0, "L2": 0, "L3": 0}
+    for k, L in layer.items():
+        out[L] = out.get(L, 0) + len(_re.findall(r'["\']%s["\']' % _re.escape(k), src))
+    return out
+
+
 def merged(base, settings, specific):
     m = dict(real(base))
     m.update(settings)
@@ -174,6 +220,43 @@ def main():
     zero = [d for d, c, _ in rows if c["L3"] == 0]
     if zero:
         print("  ⇒ **%s 는 L3가 0** = L2만으로 도메인이 선다(최소 비용 실측 사례)." % ", ".join(zero))
+
+    # ── §③ capex vs opex 회계 (논문·특허용·사용자 지시 2026-07-31) ──────────────
+    print("\n" + "=" * 78)
+    print("③ ★capex(한 번 짓는다) vs opex(도메인마다 낸다)")
+    print("=" * 78)
+    cap = _engine_capex()
+    print("  **capex** — 엔진 import 폐포(라이브 드라이버 `t2_run_gated.py` 기준·x6h와 동일 스코프)")
+    print("     파일 %d · 전체 %,d줄 · 코드 %,d줄 · 함수 %d개"
+          .replace(",d", "d") % (cap["files"], cap["loc"], cap["code"], cap["fns"]))
+    print("     이 비용은 **도메인 수와 무관**하다 — 새 도메인이 늘어도 다시 짓지 않는다.")
+    reads = _a2_read_sites(layer)
+    print("\n  엔진이 A2를 읽는 지점 %d곳 (층별):" % sum(reads.values()))
+    for L in ("L1", "L2", "L3"):
+        print("     %-4s %3d곳%s" % (L, reads.get(L, 0),
+              "   ← 이만큼이 도메인-특화 분기 = callback 계약 리팩터 범위(설계 §4)"
+              if L == "L3" else ""))
+
+    print("\n  **opex** — 도메인마다 내는 것")
+    print("     %-18s %8s %10s %8s %10s %10s"
+          % ("도메인", "L2키", "L2바이트", "L3키", "L3바이트", "L3줄"))
+    for dom, cnt, byt in rows:
+        d = real(mono.get(dom, {}))
+        l3_lines = sum(json.dumps(v, ensure_ascii=False, indent=1).count("\n") + 1
+                       for k, v in d.items() if layer.get(k) == "L3")
+        print("     %-18s %8d %10d %8d %10d %10d"
+              % (dom, cnt["L2"], byt["L2"], cnt["L3"], byt["L3"], l3_lines))
+
+    print("\n  ★**새 도메인 1개 추가 비용** (한 줄):")
+    print("     엔진 0줄 · L1 0(그대로 복사) · **L2 %d키 채우기** · L3는 넣고 싶은 만큼"
+          % max(c["L2"] for _, c, _ in rows))
+    zero = [(d, c) for d, c, _ in rows if c["L3"] == 0]
+    if zero:
+        print("     실측 하한 = **%s**: L2 %d키만으로 도메인이 섰다(L3 0키·엔진 수정 0)."
+              % (zero[0][0], zero[0][1]["L2"]))
+    print("     ⚠단 지금은 L3를 넣으려면 **엔진 분기도 함께** 늘어난다(위 L3 %d곳). callback 계약"
+          % reads.get("L3", 0))
+    print("       전까지는 'opex만 증가'가 아니라 **capex도 증가**한다 — 정직한 회계는 이쪽이다.")
 
     if args.emit:
         print("\n" + "=" * 78)

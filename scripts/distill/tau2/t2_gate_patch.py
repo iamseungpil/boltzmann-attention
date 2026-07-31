@@ -667,19 +667,28 @@ def _wev_deny_msgs(messages, tc, specs):
         any_tokens = sp.get("require_tokens_any") or []
         found = False
         found_any = not any_tokens
+        blocked_by = []                 # ★어느 forbid 토큰이 막았나(리뷰 D: over-block 사후 귀속)
         for m in messages:
             if getattr(m, "role", None) != "tool":
                 continue
             c = getattr(m, "content", None)
             c = c if isinstance(c, str) else str(c or "")
-            if (not found and str(idv) in c and all(t in c for t in tokens)
-                    and not any(t in c for t in forbid)):
-                found = True
+            if not found and str(idv) in c and all(t in c for t in tokens):
+                hit = [t for t in forbid if t in c]
+                if hit:
+                    blocked_by.extend(h for h in hit if h not in blocked_by)
+                else:
+                    found = True
             if not found_any and any(t.replace("{id}", str(idv)) in c
                                      for t in any_tokens):
                 found_any = True
             if found and found_any:
                 break
+        if blocked_by and not found:
+            # ★리뷰 D: over-block 사후 귀속 — 이 deny가 **어느 자격 없는 상태 때문**인지 남긴다.
+            #   RESOLVED_PARTIAL(보수적 차단)이 몇 건인지 가려야 판정이 뒤집힐 때 근거가 된다.
+            print("[T2_WRITE_EVIDENCE] deny forbid=%s id=%s"
+                  % (",".join(blocked_by), str(idv)[:40]), file=sys.stderr, flush=True)
         if not (found and found_any):
             fb = sp.get("feedback") or "Error: [WRITE-EVIDENCE] required evidence not found for {id}."
             return _wev_fill(fb, str(idv), messages, any_tokens)
