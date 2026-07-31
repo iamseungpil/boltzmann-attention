@@ -35,18 +35,28 @@ def load_a2():
         return json.load(f)
 
 
-# ★절차 외피(실행 아님) — 여기서 내부 이름을 꺼내면 **unlock/give가 write로 둔갑**한다.
-#   2026-07-31 자기정정: 초판이 이 구분을 안 해 027의 "여분 write update_transaction_rewards_3847"가
-#   실은 **unlock**이었다(Z7-③ 판정이 그만큼 부풀었다).
-_PROCEDURAL_WRAPPERS = {"unlock_discoverable_agent_tool", "give_discoverable_user_tool",
-                        "list_discoverable_agent_tools"}
+# ★DB를 바꾸는 행동의 경계 — **소스가 정한다**(추측 금지·tau2 `domains/banking_knowledge/tools.py`):
+#   · `unlock_…`  → 주석 축자 "in-memory only, **DB write happens on call**"      ⇒ **제외**
+#   · `call_…`    → `add_to_db("agent_discoverable_tools", …, status="CALLED")`   ⇒ **포함**
+#   · `give_…`    → `add_to_db("user_discoverable_tools", …, status="GIVEN")`     ⇒ **★포함**
+#   2026-07-31 자기정정 2회: (1)초판이 unlock의 내부 이름을 write로 계상해 027 판정이 부풀었다
+#   (2)그걸 고치며 **give까지 같이 뺀 것이 과교정**이었다 — give는 DB에 GIVEN 레코드를 남기고,
+#   task_020의 flip이 **정확히 그 한 번의 give**로 갈렸다(전문 대조: 다른 모든 호출은 바이트 동일).
+_INMEM_ONLY = {"unlock_discoverable_agent_tool", "list_discoverable_agent_tools"}
 _EXEC_WRAPPERS = {"call_discoverable_agent_tool", "call_discoverable_user_tool"}
+_GIVE_WRAPPER = "give_discoverable_user_tool"
 
 
 def eff_name(name, args):
-    """**실행** dispatcher면 내부 도구명이 실효 이름. 절차 외피(unlock/give)는 **실행이 아니므로 제외**."""
-    if name in _PROCEDURAL_WRAPPERS:
+    """DB에 흔적을 남기는 행동이면 실효 이름, 아니면 None.
+
+    give는 **외피 이름 자체로** 센다(내부 도구를 실행한 게 아니라 '건넨 사실'이 기록되므로).
+    """
+    if name in _INMEM_ONLY:
         return None
+    if name == _GIVE_WRAPPER:
+        inner = (args or {}).get("discoverable_tool_name")
+        return ("GIVEN:" + str(inner)) if inner else None
     if name in _EXEC_WRAPPERS and isinstance(args, dict):
         for k in ("agent_tool_name", "discoverable_tool_name"):
             if args.get(k):
@@ -71,14 +81,21 @@ def sim_metrics(sim, a2):
                     a = {}
             a = a if isinstance(a, dict) else {}
             en = eff_name(tc.get("name"), a)
-            if en is None or not GP._is_effective_write(en, a2):
+            if en is None:
+                continue
+            # GIVEN:* 은 도구 실행이 아니라 **DB 기록 행위**라 write 술어를 태우지 않는다.
+            if not en.startswith("GIVEN:") and not GP._is_effective_write(en, a2):
                 continue
             key = (en, json.dumps(a, sort_keys=True, ensure_ascii=False)[:400])
             writes.append(en)
             if key in seen:
                 dupes.append(en)
             seen.add(key)
-    return {"O1": len(writes), "O3": len(dupes),
+    # ★O5: 건넸는데 유저가 실행하지 않은 도구(정책 "필요할 때만 give"의 닫힌 대우).
+    given = {w[6:] for w in writes if w.startswith("GIVEN:")}
+    called = {w for w in writes if not w.startswith("GIVEN:")}
+    return {"O1": len(writes), "O3": len(dupes), "O5": len(given - called),
+            "given_unused": sorted(given - called),
             "writes": Counter(writes), "dupes": Counter(dupes)}
 
 
