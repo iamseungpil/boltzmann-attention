@@ -4491,7 +4491,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ⇒ 다른 deny 레버와 같은 자리(생성 레벨)로 옮긴다. 엔진은 여전히 인자를 떼지 않고
             #   deny+재발행만 한다(C151 compliance 패턴·[[10]] 분담).
             sig_fb = None
-            if os.environ.get("T2_TOOL_SIGNATURE") == "1":
+            # ★관찰 전용 모드(2026-07-31): 레버가 OFF여도 **술어는 평가해 로그만** 남긴다.
+            #   V7을 끈 런에서도 "몇 번 물었을 것인가"가 남아야 §7 상쇄-arm의 모집단이 실측된다.
+            #   `T2_TOOL_SIGNATURE=1`일 때만 실제 deny(`sig_fb`)를 세운다 — 동작 변화 0.
+            _sig_on = os.environ.get("T2_TOOL_SIGNATURE") == "1"
+            if _sig_on or os.environ.get("T2_TOOL_SIGNATURE_OBSERVE") == "1":
                 # ★계측 추가(2026-07-31·Y2-B 26 sim 포렌식): V7은 이 사슬의 **맨 끝**이라 앞 레버가
                 #   피드백을 잡으면 그 턴엔 발화하지 못한다. 실측 = deny 28회인데 **위반 호출 24건이
                 #   그대로 채점에 도달**했고 cap(6)은 sim당 1.08회라 닿지도 않았다 ⇒ 선점이 유력하나
@@ -4507,9 +4511,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 try:
                     import t2_signature as _sg
                     for c in (am.tool_calls or []):
-                        _sv = _sg.signature_violation(getattr(c, "name", None), _args_dict(c), a2)
+                        _sv = _sg.signature_violation(getattr(c, "name", None), _args_dict(c), a2,
+                                                      force=True)
                         if not _sv:
                             continue
+                        if not _sig_on:      # 관찰 전용 — 레버는 꺼져 있고 로그만 남긴다
+                            print("[T2_TOOL_SIGNATURE] would-deny tool=%s but observe-only"
+                                  % getattr(c, "name", None), file=_sys.stderr, flush=True)
+                            break
                         if _blocker or _capped:
                             print("[T2_TOOL_SIGNATURE] would-deny tool=%s but %s"
                                   % (getattr(c, "name", None),

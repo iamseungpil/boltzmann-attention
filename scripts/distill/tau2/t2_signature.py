@@ -33,9 +33,13 @@ def declared_signature(tool_name, a2):
     return list(sig) if isinstance(sig, (list, tuple)) and sig else None
 
 
-def signature_violation(tool_name, args, a2):
-    """선언 서명 밖 키가 실렸으면 피드백 문자열, 아니면 None (순수 함수)."""
-    if os.environ.get("T2_TOOL_SIGNATURE") != "1":
+def signature_violation(tool_name, args, a2, force=False):
+    """선언 서명 밖 키가 실렸으면 피드백 문자열, 아니면 None (순수 함수).
+
+    `force=True` = **관찰 전용 호출**(2026-07-31): 레버가 꺼져 있어도 술어만 평가한다.
+    끈 런에서도 "몇 번 물었을 것인가"를 로그로 남겨 상쇄-arm의 모집단을 실측하기 위한 것이고,
+    호출자는 이때 deny를 세우지 않는다(동작 변화 0)."""
+    if not force and os.environ.get("T2_TOOL_SIGNATURE") != "1":
         return None
     allowed = declared_signature(tool_name, a2)
     if allowed is None:
