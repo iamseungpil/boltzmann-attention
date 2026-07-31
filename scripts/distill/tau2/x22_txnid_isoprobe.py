@@ -33,7 +33,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import x12_action_fail_exact as X12  # noqa: E402
 
 TXN = re.compile(r"txn_[0-9a-f]+")
-ARMS = ("A_minimal", "A_policy", "B_fullctx", "A_split", "A_all")
+ARMS = ("A_minimal", "A_policy", "B_fullctx", "A_split", "A_all", "A_reverse")
 # KB 문서 출력 판별 — tau2 검색 도구의 **출력 형식**으로 기계 판별한다(손으로 고른 목록 금지).
 KBDOC = re.compile(r"\bID: doc_|\bScore: \d")
 
@@ -53,12 +53,30 @@ def extract(results_path):
         #   문맥 한계(44,672 토큰)를 넘어 프로브가 그냥 에러로 죽는다.
         #   ⇒ 문맥·후보 모두 **모델이 처음 txn을 고른 메시지 이전**까지만 쓴다.
         dec = len(msgs)
+        dec_tool = ""
         for i, m in enumerate(msgs):
             if m.get("role") != "assistant":
                 continue
-            if any("transaction_id" in json.dumps(tc.get("arguments") or {}, ensure_ascii=False)
-                   for tc in (m.get("tool_calls") or [])):
+            _hit = None
+            for tc in (m.get("tool_calls") or []):
+                _aj = json.dumps(tc.get("arguments") or {}, ensure_ascii=False)
+                if "transaction_id" in _aj:
+                    _hit = tc
+                    break
+            if _hit is not None:
                 dec = i
+                # ★결정의 목적 (2026-07-31 2차 교정) — 1차 프로브는 *무엇에 쓸 id*인지 말하지 않아
+                #   질문이 미결정이었고, 모델이 **첫 후보로 정박**했다(A_minimal 16건 중 14건).
+                #   에이전트는 그 순간 자기가 어떤 도구를 부르려는지 알고 있었으므로, 그 **도구 이름**을
+                #   같이 주는 것이 정보-맞춤이다(gold 아님 — 모델 자신의 선택·전 arm 동일).
+                _in = _hit.get("arguments") or {}
+                if isinstance(_in, str):
+                    try:
+                        _in = json.loads(_in)
+                    except Exception:
+                        _in = {}
+                dec_tool = str(_in.get("agent_tool_name") or _in.get("discoverable_tool_name")
+                               or _hit.get("name") or "")
                 break
         # 모델이 실제로 본 도구 출력만 (role=tool) — 순서 보존·결정 시점까지
         tool_out = [str(m.get("content") or "")
@@ -111,6 +129,7 @@ def extract(results_path):
                 "candidates": cand,               # 출력 순서 그대로
                 "cand_records": cand_records,     # A_minimal용 레코드 원문(같은 순서)
                 "user_text": user_txt[:1500],
+                "decision_tool": dec_tool,       # 모델이 그 순간 부르려던 도구(전 arm 동일)
                 "tool_outputs": tool_out,         # B_fullctx용(결정 시점까지)
             })
     if drop_not_yet_seen:
@@ -122,9 +141,13 @@ def extract(results_path):
 def prompt_for(case, arm):
     """★gold 미포함. A와 B의 후보 집합은 동일하다."""
     cands = case["candidates"]
-    ask = ("Which transaction_id should be used? Answer with exactly one id and nothing else."
-           if arm != "A_all" else
-           "Which transaction_ids should be used? Answer with a JSON list of ids and nothing else.")
+    # ★질문에 **목적**을 넣는다(전 arm 동일·gold 무관). 없으면 미결정 질문이 되어
+    #   모델이 첫 후보에 정박한다(1차 실측 14/16).
+    purpose = ("You are about to call `%s`. " % case["decision_tool"]) if case.get("decision_tool") else ""
+    ask = purpose + (
+        "Which transaction_id should be used? Answer with exactly one id and nothing else."
+        if arm != "A_all" else
+        "Which transaction_ids should be used? Answer with a JSON list of ids and nothing else.")
     recs = case.get("cand_records") or cands
     if arm == "A_policy":
         # ★사다리 중간칸 — 후보 레코드 + **정책/KB 문서**만. 어떤 결정(예: 보상 오적립 탐지)은
@@ -134,6 +157,10 @@ def prompt_for(case, arm):
         ctx = "\n\n".join(recs + docs)
     elif arm == "B_fullctx":
         ctx = "\n".join(case["tool_outputs"])
+    elif arm == "A_reverse":
+        # H3: 위치 정박 계량 — 같은 정보, 순서만 뒤집는다. 정답률이 그대로면 위치는 무관하고,
+        #     선택이 위치를 따라 움직이면 그 실패는 의미 경계가 아니라 **위치 사전확률**이다.
+        ctx = "\n\n".join(list(reversed(recs)))
     elif arm == "A_split":
         ctx = "\n\n---\n\n".join(recs)      # H1: 레코드를 명시적 구분선으로 분리(전사-슬립 축)
     else:
