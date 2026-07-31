@@ -35,12 +35,23 @@ def load_a2():
         return json.load(f)
 
 
+# ★절차 외피(실행 아님) — 여기서 내부 이름을 꺼내면 **unlock/give가 write로 둔갑**한다.
+#   2026-07-31 자기정정: 초판이 이 구분을 안 해 027의 "여분 write update_transaction_rewards_3847"가
+#   실은 **unlock**이었다(Z7-③ 판정이 그만큼 부풀었다).
+_PROCEDURAL_WRAPPERS = {"unlock_discoverable_agent_tool", "give_discoverable_user_tool",
+                        "list_discoverable_agent_tools"}
+_EXEC_WRAPPERS = {"call_discoverable_agent_tool", "call_discoverable_user_tool"}
+
+
 def eff_name(name, args):
-    """dispatcher 호출이면 **내부 도구명**이 실효 이름이다(외피는 절차 도구)."""
-    if isinstance(args, dict):
+    """**실행** dispatcher면 내부 도구명이 실효 이름. 절차 외피(unlock/give)는 **실행이 아니므로 제외**."""
+    if name in _PROCEDURAL_WRAPPERS:
+        return None
+    if name in _EXEC_WRAPPERS and isinstance(args, dict):
         for k in ("agent_tool_name", "discoverable_tool_name"):
             if args.get(k):
                 return str(args[k])
+        return None
     return name
 
 
@@ -60,7 +71,7 @@ def sim_metrics(sim, a2):
                     a = {}
             a = a if isinstance(a, dict) else {}
             en = eff_name(tc.get("name"), a)
-            if not GP._is_effective_write(en, a2):
+            if en is None or not GP._is_effective_write(en, a2):
                 continue
             key = (en, json.dumps(a, sort_keys=True, ensure_ascii=False)[:400])
             writes.append(en)
