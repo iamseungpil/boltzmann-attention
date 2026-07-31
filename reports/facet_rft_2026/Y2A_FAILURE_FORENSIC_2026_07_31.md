@@ -221,3 +221,49 @@ C251의 *"032·033: gold는 unlock→call을 요구하는데 에이전트는 use
 반대편(over-block) 계측을 먼저** 설계해야 한다. 지금 확인된 것은 "8 sim에서 give 우회 7건"이고,
 **그 우회를 막으면 unlock→call로 갈아타는지는 미확인**이다(막기만 하고 대안 행동이 없으면
 transfer만 앞당길 수 있다).
+
+
+---
+
+## 10. 나머지 두 축 (2026-07-31 · Y1 전수 · 무료)
+
+### 10-1. `TOP_VALUE` 36건 — ★**wrong-pick이 `transaction_id`에 국한되지 않는다**
+
+| 도구 | 키 | 차이 | gold가 문맥에 | 수 |
+|---|---|---|---|---|
+| `call_discoverable_agent_tool` | `agent_tool_name` | OTHER | **∈ctx** | **14** |
+| `call_discoverable_agent_tool` | `arguments` | OTHER | ∉ctx | 14 |
+| `call_discoverable_user_tool` | `discoverable_tool_name` | OTHER | **∈ctx** | **10** |
+| `call_discoverable_user_tool` | `arguments` | OTHER | ∉ctx | 10 |
+| `transfer_to_human_agents` | `reason` | ENUM | ∉ctx | 3 |
+| `give_discoverable_user_tool` | `discoverable_tool_name` | OTHER | ∈ctx | 3 |
+| `apply_for_credit_card` | `card_type` | ENUM | ∈ctx | 3 |
+
+실례: gold `update_transaction_rewards_3847` ← pred `submit_cash_back_dispute_0589`. **둘 다 실재하는
+도구**이고 **gold는 문맥에 있었다**.
+
+**⇒ 도구명 오선택 27건도 `transaction_id`와 같은 성격의 wrong-pick이다**(딸린 `arguments` 24건은
+종속 계상 — 도구가 틀렸으니 인자도 틀린다). 합치면 **wrong-pick ≈ 91건 = 전체 실패의 45%**가
+"실재 후보 중 틀린 것을 골랐다"는 **한 축**이다. §9-1의 격리 프로브는 이 45% 전체의 성격을 가른다.
+
+`reason` ENUM 3건만 **gold∉ctx** — enum은 문맥이 아니라 스키마/정책에서 와야 하므로 성격이 다르다.
+
+### 10-2. ★`NESTED_SERIAL` 13건 = **채점 아티팩트**(모델 잘못 아님)
+
+```
+gold: '{"user_id": "6680a37184", "transaction_id": "txn_913d14a20dc5"}'
+pred: '{"user_id":"6680a37184","transaction_id":"txn_913d14a20dc5"}'
+                    ↑ 공백만 다름 · 파싱 결과 완전 동일 · compare_args=None
+```
+
+tau2가 중첩 `arguments`를 **문자열 그대로** 비교해 **의미가 같은데 실패**로 채점된다.
+`x12`는 저장된 `action_match`와 1080/1080 일치가 검증된 재구현이므로, **tau2 본체가 그렇게 센다**.
+
+**⇒ 실패 분류에서 13/202(6.4%)는 에이전트 결함이 아니다.** 원인 귀속에서 제외해야 한다.
+
+**단 pass 영향은 0이다**(과장 금지): 직렬화-only 실패가 있는 **13 sim 전부 다른 실패도 함께**
+갖고 있어, 이것만 고쳐도 **뒤집히는 sim은 0건**이다.
+
+그리고 이건 모델의 고정 습관이 아니다 — 같은 런에서 **공백형 105 · 압축형 97**로 반반이다.
+`json.dumps` 기본값이 공백형이라 **어느 쪽을 뱉느냐가 운**에 가깝다. frontier 비교 시에도 같은
+복권이 걸리므로, **직렬화 차이를 능력 격차로 읽으면 안 된다.**
