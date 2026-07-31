@@ -2513,6 +2513,16 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
             self._t2_static_bl = _static_blacklist(self.tools, placeholders)
             self._t2_session_bl = set()
         self._system_messages = state.system_messages
+        # ★W-A(arm③): A2 base-layer의 선언 가이드를 시스템 프롬프트 말미에 보간(미선언=skip).
+        try:
+            import t2_declfirst as _df
+            _g = _df.guide_text(a2) if os.environ.get("T2_DECLFIRST") == "1" else ""
+            if _g and self._system_messages and not getattr(self, "_t2_df_guided", False):
+                _sm = self._system_messages[-1]
+                _sm.content = (getattr(_sm, "content", "") or "") + _g
+                self._t2_df_guided = True
+        except Exception:
+            pass
         _append(state, message)
         ctx = _ctx_with_toolnames(self, _ctx_from_messages(state.messages))
 
@@ -3497,6 +3507,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             self._t2_static_bl = _static_blacklist(self.tools, placeholders)
             self._t2_session_bl = set()
         self._system_messages = state.system_messages
+        # ★W-A(arm③): A2 base-layer의 선언 가이드를 시스템 프롬프트 말미에 보간(미선언=skip).
+        try:
+            import t2_declfirst as _df
+            _g = _df.guide_text(a2) if os.environ.get("T2_DECLFIRST") == "1" else ""
+            if _g and self._system_messages and not getattr(self, "_t2_df_guided", False):
+                _sm = self._system_messages[-1]
+                _sm.content = (getattr(_sm, "content", "") or "") + _g
+                self._t2_df_guided = True
+        except Exception:
+            pass
         _append(state, message)
         # ★T2_PAIRFIX (§2bi): 같은 id 집합·순서-스왑 블록을 호출 순서로 교정(내용 불변·크래시 계열 종결).
         if os.environ.get("T2_PAIRFIX") == "1":
@@ -4607,6 +4627,34 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             work = work + fb
             am = _gen(self, work, bw(), "agent_response_unified_regen",
                       tool_choice="required" if force_required else None)
+
+        # ★W-B~W-D(arm③·검출 전용): 턴의 **최종 응답**에 대해 2패스 형식화 + §1d 검증.
+        #   · 도구 **미제공** + guided_json (문법과 도구를 같이 걸면 tool_calls가 0이 된다·rev3 §3-2b)
+        #   · **비커밋**: state.messages에 넣지 않는다(C208 replay 위생) — 기록은 사이드카
+        #   · ENFORCE=0이면 세기만 한다(집행은 Δspurious를 만들므로 별 마일스톤)
+        if os.environ.get("T2_DECLFIRST") == "1":
+            try:
+                import t2_declfirst as _df
+
+                def _df_gen(msgs, schema):
+                    kw = dict(self.llm_args)
+                    kw.pop("tools", None)
+                    eb = dict(kw.get("extra_body") or {})
+                    eb["guided_json"] = schema
+                    eb["guided_decoding_backend"] = "xgrammar"
+                    kw["extra_body"] = eb
+                    r = la.generate(model=self.llm, tools=None, messages=msgs,
+                                    call_name="declfirst_formalize", **kw)
+                    return getattr(r, "content", "") or ""
+
+                _writes = {_eff_tool_name(tc) for m in state.messages
+                           for tc in (getattr(m, "tool_calls", None) or [])
+                           if _is_effective_write(_eff_tool_name(tc), a2)}
+                _res = _df.run(a2, _df_gen, self._system_messages + work, am, _writes)
+                if _res and _res.get("violations"):
+                    self._t2_df_viol = getattr(self, "_t2_df_viol", 0) + len(_res["violations"])
+            except Exception as _de:
+                print("[T2_DECLFIRST] 배선 예외(무시): %r" % (_de,), file=_sys.stderr, flush=True)
 
         # R8 종단: 잔존 게이트-deny 호출 strip (재과금 없음·히스토리 replay-clean)
         if gate is not None:
