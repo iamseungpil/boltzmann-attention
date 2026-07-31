@@ -111,6 +111,12 @@ def self_defined(dom):
             for k, v in o.items():
                 if not k.startswith("_"):
                     keys.add(k)
+                # ★5차 교정: 선언이 **리스트 안의 name 필드**로 오는 경우(`scaffold_get_tools`는
+                #   dict가 아니라 list of {"name": …})를 초판이 놓쳐, 우리가 만든 GET 도구
+                #   (`check_card_application_fit` 등)를 gold 의심으로 올렸다. Y1 궤적에서 17회
+                #   호출되어 `{'eligible': [...]}`를 정상 반환하는 **우리 도구**다.
+                if k in ("name", "tool", "tool_name") and isinstance(v, str):
+                    keys.add(v)
                 walk(v)
         elif isinstance(o, list):
             for v in o:
