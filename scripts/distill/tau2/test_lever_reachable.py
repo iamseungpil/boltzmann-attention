@@ -42,24 +42,42 @@ GATED = body_of("gated")
 ON = set(re.findall(r"\b(T2_[A-Z0-9_]+)=1\b", GO))
 IMPLEMENTED = set(re.findall(r"environ\.get\(\s*[\'\"](T2_[A-Z0-9_]+)[\'\"]", SRC))
 
-# `gated`에만 있어도 정당한 것: 실행-레벨 read-augment 계열(deny가 아니라 응답 가공)
-EXEC_LEVEL_OK = {"T2_PRESENT_READS", "T2_PRESENT_NESTED", "T2_CALC", "T2_GATE_KINDS",
-                 "T2_WRITE_CAP", "T2_WRITE_CAP_K", "T2_RETRY_CONTROLLER", "T2_RETRY_K",
-                 "T2_PROVENANCE", "T2_AUTOFETCH"}
+# ★손으로 적은 예외 목록 폐기(2026-07-31 2차 교정).
+#   초판은 "실행-레벨 read-augment는 정당"이라며 예외 목록을 **가정으로** 적었고, 거기에
+#   `T2_WRITE_CAP`을 넣었다. 그런데 그 레버는 `gated` 안에서 **`_deny_msg`로 deny**한다 —
+#   V7과 **동일한 죽은 경로**다. 즉 이 테스트가 잡으려던 바로 그 버그를 **내 예외 목록이 가렸다.**
+#   ⇒ 기계 판정으로 바꾼다: `gated` 전용 레버라도 **deny를 만들면 죽은 코드**,
+#      응답 가공만 하면 정당(설치되는 `exec_augment`가 같은 augment를 한다).
+def denies_in_gated(flag):
+    """그 레버의 `gated` 내 사용 지점 뒤 40줄 안에 `_deny_msg(`가 있나 = deny 레버인가."""
+    body = GATED.splitlines()
+    for i, l in enumerate(body):
+        if flag in l:
+            if any("_deny_msg(" in x for x in body[i:i + 40]):
+                return True
+    return False
 
 OK = True
 print("[경로 가드] go_stack ON 레버가 **설치되는 경로**(unified)에 있는가")
 print("  unified 본문 %d자 · gated 본문 %d자" % (len(UNIFIED), len(GATED)))
-dead = []
-for f in sorted(ON & IMPLEMENTED):
-    if f in EXEC_LEVEL_OK:
-        continue
+dead, latent = [], []
+# ★검사 대상 = go_stack이 켜는 것 + **엔진이 구현한 모든 on/off 레버**.
+#   초판은 켜진 것만 봐서, 꺼져 있는 죽은 레버(`T2_WRITE_CAP`)를 놓쳤다 — 꺼져 있어도
+#   **켜면 안 도는** 코드는 결함이다(승격 시점에 무음 실패한다).
+for f in sorted(IMPLEMENTED):
     in_u, in_g = (f in UNIFIED), (f in GATED)
-    if in_g and not in_u:
-        dead.append(f)
+    if not (in_g and not in_u):
+        continue
+    dny = denies_in_gated(f)
+    on = f in ON
+    if dny and on:
+        dead.append(f)          # ★활성 버그: 켜져 있는데 발화 불가(V7이 이 상태였다)
         OK = False
-    print("  %-26s unified=%-5s gated=%-5s %s"
-          % (f, in_u, in_g, "★죽은 경로(gated 전용)" if (in_g and not in_u) else ""))
+    elif dny:
+        latent.append(f)        # 잠재 위험: 꺼져 있어 지금은 무해하나 **켜면 무음 실패**
+    print("  %-26s gated 전용 · deny=%-5s ON=%-5s %s"
+          % (f, dny, on, "★★활성 버그" if (dny and on) else
+             ("⚠잠재(켜면 무음 실패)" if dny else "(augment만 — 정당)")))
 
 if dead:
     print("\n✗ FAIL — 설치되지 않는 경로에만 있는 레버: %s" % ", ".join(dead))
