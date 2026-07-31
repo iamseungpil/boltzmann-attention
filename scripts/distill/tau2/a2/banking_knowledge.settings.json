@@ -1,0 +1,173 @@
+{
+ "gates": [
+  {
+   "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS",
+   "kind": "auth",
+   "predicate": "customer identity verified and logged (log_verification) in this conversation",
+   "verify_gather_prefix": "get_user_information_by",
+   "_note_verify_gather_prefix": "★Lever 3(BANK_ACTIONREQ_PROBE_FORENSIC §6b·verify미완+신원수집+포기 26 sims·task_023형): 신원정보 수집 도구 prefix. 에이전트가 이 prefix로 신원을 모았는데 satisfier(log_verification) 미호출 상태로 포기하면 완결 리마인더. 도메인 데이터(도구명 prefix)·로직=도메인일반.",
+   "satisfiers": {
+    "log_verification": [
+     "name",
+     "user_id",
+     "address",
+     "email",
+     "phone_number",
+     "date_of_birth",
+     "time_verified"
+    ]
+   },
+   "applies_to": [
+    "change_user_email",
+    "get_referrals_by_user",
+    "get_credit_card_transactions_by_user",
+    "get_credit_card_accounts_by_user",
+    "submit_referral",
+    "call_discoverable_agent_tool"
+   ],
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "not_in": [
+     "initial_transfer_to_human_agent_0218",
+     "initial_transfer_to_human_agent_1822",
+     "emergency_credit_bureau_incident_transfer_1114"
+    ]
+   },
+   "note": "verify the customer FIRST: confirm 2 of {date of birth, email, phone number, address} against the record (use the get_user_information_by_* read tools), then call log_verification with the verified values and get_current_time() — only then perform account actions. Transfer/incident tools do not need verification."
+  },
+  {
+   "id": "GB2_NOTICE_BEFORE_TRANSFER",
+   "kind": "notice",
+   "predicate": "the mandatory pre-transfer notice (knowledge base exhausted + ask-first) has been communicated to the user",
+   "satisfiers": {},
+   "notice_text": "TRANSFER NOTICE: I have checked the knowledge base and there are no further actions I can take for this request. Would you like to be transferred to a human agent?",
+   "term_grant_reminder_extra": "Do not ask for more identifiers — identity verification is not required for a transfer.",
+   "_note_reminder_extra": "C212 리뷰 반영: 이 문구는 도메인 사실(위 verify note 'Transfer/incident tools do not need verification')에 근거한 A2 선언 — 엔진 하드코딩이면 transfer-전-검증이 필요한 도메인서 정책 위반 지시가 됨([[05]]).",
+   "ask": "policy: transfer only if you absolutely have to and you are SURE there are no potential actions you can take as specified in the knowledge base or in your policy — and never without asking the user first. Search the knowledge base and attempt every applicable procedure for this request; when (and only when) nothing remains, send the user exactly this message first: \"TRANSFER NOTICE: I have checked the knowledge base and there are no further actions I can take for this request. Would you like to be transferred to a human agent?\" — then retry the transfer IMPORTANT: send the notice at most ONCE. If the customer has already agreed to the transfer (or already asked for it), do NOT send the notice again and do NOT ask again — immediately CALL transfer_to_human_agents as a tool call with an appropriate summary. Saying you will transfer, or repeating the notice, does not transfer anyone. When you DO call transfer_to_human_agents, pick the MOST SPECIFIC reason option that matches the situation (for example: the customer's stated identity values do not match the account record -> an ownership-dispute reason; a mailed offer/flyer that cannot be verified in the knowledge base -> an unconfirmed-external-communication reason; a knowledge-base search that failed while the customer asks for a human -> that specific reason). Use the generic no-specific-reason option ONLY when no other option fits.",
+   "applies_to": [
+    "transfer_to_human_agents"
+   ],
+   "_note_gb2": "BANKING_FLOOR_LEVER_FIT §2.6/§0.1-row10 EARLY_TRANSFER 36 sims(21.2%·gold-밖 transfer) 표적. 정책-사실 근거=policy §5 원문('Do this only if you absolutely have to, and you are sure that there are no potential actions you can take as specified in the knowledge base, or in your policy. Do not transfer without asking the user first.'). notice_text 자체는 정책에 고정문구 없어 §5의 두 요건(exhaust-확신+ask-first)을 그대로 진술한 합성 문구 — deny 메시지(ask)가 exact text를 제공하므로 gold-transfer 복구=1턴. applies_to=policy가 명명한 transfer_to_human_agents만(궤적 66콜=이관 질량 대부분; dispatcher 내부 initial_transfer_* 8콜은 gold-예외 태스크 경로라 미게이트=Δspurious 최소화). ⚠계측 필요: floor pass 9 sims 중 4개(033 t0/t1·034 t0/t1)가 transfer_to_human_agents 호출 → 이 게이트 발화(1턴 마찰) — Δspurious≤0는 재실측으로 확인할 것."
+  }
+ ],
+ "producers": {},
+ "identifying_arg_types": [
+  "time_verified"
+ ],
+ "eplan": {
+  "list_enumerator": [
+   "get_credit_card_transactions_by_user",
+   "get_bank_account_transactions"
+  ],
+  "detail_reader": "get_credit_card_transactions_by_user",
+  "entity_key": "transaction_id",
+  "list_from_reads": true,
+  "dispatch_tool": "call_discoverable_agent_tool",
+  "dispatch_name_key": "agent_tool_name",
+  "dispatch_args_key": "arguments",
+  "write_tools": [
+   "file_credit_card_transaction_dispute",
+   "file_debit_card_transaction_dispute",
+   "submit_cash_back_dispute"
+  ],
+  "write_action_phrase": "file the dispute (or take the required action) for each remaining record the customer described",
+  "intent_chains": [
+   {
+    "signals": [
+     "close my",
+     "cancel my card",
+     "close the account",
+     "close my credit card",
+     "close my platinum",
+     "close my account",
+     "cancel my credit card"
+    ],
+    "required_reads": [
+     "get_all_user_accounts_by_user_id",
+     "get_closure_reason_history",
+     "get_pending_replacement_orders",
+     "get_user_dispute_history"
+    ],
+    "required_writes": [
+     "log_credit_card_closure_reason",
+     "apply_credit_card_account_flag"
+    ],
+    "phrase": "To close a card you must FIRST list the customer's accounts (to locate the funding checking account), read the closure-reason history, any pending replacement orders, and the dispute history; pay off any outstanding balance from the checking account; log the closure reason; and OFFER any applicable retention benefit (e.g. fee waiver) before finalizing. Only actually close the account if the customer still wants to after any retention offer. If any check reveals a blocker (e.g. a pending dispute), STOP and inform the customer instead of proceeding.",
+    "_note": "2026-07-24 C133/write_tools 확장: 043 close 사슬(rall23 4/15·rall24 변동10/15인데 driver 무관=사슬 미커버). gold=이 read/write 집합. 신호=닫기 요청 어구·엔진 신호매칭+집합차만. ★2026-07-25 C169: get_all_user_accounts_by_user_id 추가 — gold 소속(nt4 4/4 MISS·C149 등록요건)·KB 절차 문서 명시 도구·guided가 직접호출 탈출구를 막자 발굴-실패 노출(gd4 W4: 날조 checking id→8회 반복루프→transfer). 체인이 이름을 대면 에이전트가 KB서 suffixed 이름 찾아 dispatcher로 호출(행동-키 검색·guided 정합). ★2026-07-25 C177: phrase에 blocker-STOP 절 — 046 Δspurious(§1.3 자기-역효과: dispute-확인 후 중단이 gold인 태스크서 체인 넛지가 pay+closure_log 유도) 반영."
+   },
+   {
+    "signals": [
+     "open a new account",
+     "open a business checking",
+     "open a personal checking",
+     "open a checking account",
+     "open a savings account",
+     "open an account",
+     "open a new checking",
+     "open a new business"
+    ],
+    "required_reads": [
+     "get_all_user_accounts_by_user_id"
+    ],
+    "required_writes": [
+     "open_bank_account"
+    ],
+    "phrase": "Opening an account is done BY YOU (the agent) with the internal account-opening tool — do not hand this off to the customer or invent customer-side tools. First list the customer's existing accounts, verify identity per policy, confirm the account type the customer chose, then execute the opening yourself.",
+    "_note": "★2026-07-25 C177: 계좌-개설 체인 신설. 측정 근거=075(행위자 오귀속: 에이전트가 말로 안내+가공 user-도구 navigate_to_section 발명→계좌 미생성)·070/071(개설 흐름 미완). gold-membership: 058/070/071/075 전부 open_bank_account 포함·KB doc_003(Internal: Opening Business Checking Accounts)=에이전트-측 절차 문서화. account_type 선택은 모델 몫(비처방)."
+   }
+  ],
+  "finalize_writes": [
+   "close_credit_card_account"
+  ],
+  "prekb_tools": [
+   "apply_for_credit_card",
+   "open_bank_account"
+  ],
+  "_note_prekb_tools": "★C176(2026-07-25): PREKB-only 트리거(finalize 아님·close-체인 게이트와 무관). 클러스터① 실측(002/003/006/024/063 — card_type만 오선택·전부 프리미엄-bias·kbq=1 즉시신청): 신청 전 행동-키 KB 조회('apply for credit card procedure')로 자격/절차 문서를 문맥 유입. 문서=KB 실재(bronze_001 min score 640·diamond_001 invitation-only 등)·선택 자체는 모델 몫(gold-planting 0).",
+  "unlock_tool": "unlock_discoverable_agent_tool",
+  "list_tool": "list_discoverable_agent_tools"
+ },
+ "operands": {
+  "unlock_discoverable_agent_tool": {
+   "agent_tool_name": {
+    "kind": "operator",
+    "arg": "agent_tool_name",
+    "name_pattern": "[a-z_]+_[0-9]{4}",
+    "getter": "KB_search_bm25",
+    "operator_resolution": "discoverable",
+    "find_intent": true
+   }
+  },
+  "call_discoverable_agent_tool": {
+   "agent_tool_name": {
+    "kind": "operator",
+    "arg": "agent_tool_name",
+    "name_pattern": "[a-z_]+_[0-9]{4}",
+    "getter": "KB_search_bm25",
+    "operator_resolution": "discoverable",
+    "find_intent": true
+   }
+  }
+ },
+ "action_tools": [
+  "apply_for_credit_card",
+  "submit_referral",
+  "change_user_email",
+  "submit_transaction",
+  "unlock_discoverable_agent_tool",
+  "call_discoverable_agent_tool",
+  "give_discoverable_user_tool"
+ ],
+ "_meta": {
+  "domain": "banking_knowledge",
+  "source": "policy_header.md + additional_instructions.md (no_knowledge variant) — 'verify identity (2 of 4 fields) then call the verification logging tool BEFORE accessing/modifying customer information in internal databases'",
+  "compiler": "Fable-5 in-session 2026-07-10 (Phase 2 · DOMAIN_TRANSFER_STATUS_AND_PLAN §3.2)",
+  "gold_validation": "97 tasks census: 81 gold include log_verification, ordering violations 0; 4 exception tasks (015/032/033/035) are transfer/incident inner tools or give get_referral_link — handled via applies_when.not_in + give_discoverable_user_tool excluded (over-block 0 by construction)",
+  "not_instantiated": "confirm(정책에 전역 확인규칙 없음)·ownership(auth_user=검증마커라 owner비교 불가)·preconditions/constraints(도구가 이미 검증=env-enforced·C12)·present/calc_specs(도구출력=포맷문자열·JSON 아님→no-op)·default_specs(후보 issue_noticed_date/time_verified←get_current_time은 무인자 producer라 resolver_path=[seed_arg,tool,field] 스킴으로 표현 불가 + 대상 인자가 디스패처 내부 nested JSON이라 _apply_principle_default 사거리 밖 — BANKING_FLOOR_LEVER_FIT §2.5 잠재 spec은 엔진 확장 없인 A2-only 불가)",
+  "a2_only_ext_2026_07_11": "BANKING_FLOOR_LEVER_FIT §4 A2-only 확장: GB2 notice(§2.6 EARLY_TRANSFER 36) + identifying_arg_types[time_verified](§2.6 LOGV_TIME_FAB 59) + eplan(§3.3 discovery). 엔진 파일 수정 0."
+ },
+ "_note_identifying_arg_types": "BANKING_FLOOR_LEVER_FIT §2.6/§0.1-row10 LOGV_TIME_FAB 59 sims(34.7%·time_verified 과거시각 날조=DB 단독-치명) 표적. 정책-사실 근거=policy §4 원문('If you need the current time, always use the get_current_time() tool. Do not make up or assume the current time.'). 엔진 소비=t2_gate_patch._domain_a2의 _hints enrich(DEFAULT_ARG_HINTS ∪ 이 목록·기존 지원 키) — 'time_verified'는 해당 인자 key에만 substring-매칭(DEFAULT의 'id'류는 이 key 미포착·오프라인 확인). producer는 get_current_time(결정론)이나 엔진 autofetch는 authenticated_user_record만 소비 → producers 미등재(dead-config 회피). 오프라인 검증(floor gz t0/t1): fab 66콜 전건 ctx-부재=deny 표적·honest 52콜(get_current_time 복사) 전건 ctx-실재=발화 0.",
+ "_note_eplan": "BANKING_FLOOR_LEVER_FIT §3.3(E-PLAN=discovery-read 강제 표적·[[14]]) 대응물 식별: floor 궤적 실존 직접 도구만 — 목록형 reader=get_credit_card_accounts_by_user(101콜·per-user 계좌 record 열거·account_id 필드), 상세형 reader=get_credit_card_transactions_by_user(188콜·gold 지배 read). ⚠최유력이나 retail 대응이 불완전한 구조적 한계 3건(엔진 사실·보고용): (a) banking 도구출력=포맷문자열(비JSON)→_extract_entity_ids 파싱 실패=listed 항상 ∅, (b) per-entity 상세 reader가 직접 도구에 없음(get_bank_account_transactions_9173류=디스패처 내부라 ledger가 이름 귀속 불가)·get_credit_card_transactions_by_user는 user_id 키라 entity_key=account_id로 examined 미갱신, (c) confirm 게이트 부재→_confirm_write_tools=∅→unified L1/L2 deny 비발화. 현 배선(T2_EPLAN)서 사실상 불활성 — 표적인 discovery-read 강제는 [[14]] 배선 진화 필요.",
+ "_note_operands": "UNIFIED_OPERAND_A2 §8b: operator(도구명)도 operand. GET=discovery·PROV=grounded 도구명.",
+ "_note_layer": "L2 settings — 구조는 3층 공통, 값만 이 도메인. 정본=A2_THREE_LAYER_SPLIT_DESIGN_2026_07_31.md"
+}

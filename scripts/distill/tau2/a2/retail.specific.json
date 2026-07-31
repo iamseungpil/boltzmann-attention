@@ -1,0 +1,204 @@
+{
+ "placeholders": [
+  "#W0000000"
+ ],
+ "variant_operand": [
+  "new_item_ids"
+ ],
+ "variant_spec": {
+  "trigger_tool": "get_product_details",
+  "nested_field": "variants",
+  "id_field": "item_id",
+  "anchor_operand": "item_ids",
+  "tie_break": "min_price"
+ },
+ "present_specs": [
+  {
+   "trigger_tool": "get_order_details",
+   "nested_field": "items",
+   "id_field": "item_id",
+   "fields": [
+    "name",
+    "product_id",
+    "options"
+   ],
+   "label": "item line in this order"
+  },
+  {
+   "trigger_tool": "get_product_details",
+   "nested_field": "variants",
+   "id_field": "item_id",
+   "fields": [
+    "options",
+    "available",
+    "price"
+   ],
+   "label": "purchasable variant of this product"
+  }
+ ],
+ "calc_specs": [
+  {
+   "trigger_tool": "get_product_details",
+   "op": "count_where",
+   "nested_field": "variants",
+   "cond_field": "available",
+   "cond_value": true,
+   "label": "number of CURRENTLY AVAILABLE variants of this product"
+  },
+  {
+   "trigger_tool": "get_order_details",
+   "op": "sum",
+   "nested_field": "items",
+   "item_field": "price",
+   "label": "sum of current item prices in this order (USD)"
+  },
+  {
+   "trigger_tool": "get_product_details",
+   "op": "argmax_where",
+   "nested_field": "variants",
+   "cond_field": "available",
+   "cond_value": true,
+   "rank_field": "price",
+   "id_field": "item_id",
+   "label": "most expensive available variant"
+  },
+  {
+   "trigger_tool": "get_product_details",
+   "op": "argmin_where",
+   "nested_field": "variants",
+   "cond_field": "available",
+   "cond_value": true,
+   "rank_field": "price",
+   "id_field": "item_id",
+   "label": "cheapest available variant"
+  }
+ ],
+ "disamb_sub_args": [
+  "item"
+ ],
+ "default_specs": [
+  {
+   "arg": "payment_method_id",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "payment_method_id"
+   ],
+   "applies_to": [
+    "modify_pending_order_payment",
+    "modify_pending_order_items",
+    "exchange_delivered_order_items",
+    "return_delivered_order_items"
+   ]
+  }
+ ],
+ "regen_resolver_specs": [
+  {
+   "arg": "address1",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "address1"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "address2",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "address2"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "city",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "city"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "state",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "state"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "zip",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "zip"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  },
+  {
+   "arg": "country",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "country"
+   ],
+   "applies_to": [
+    "modify_pending_order_address"
+   ]
+  }
+ ],
+ "calc_tool": "calculate",
+ "tool_error_specs": [
+  {
+   "applies_to": [
+    "exchange_delivered_order_items",
+    "modify_pending_order_items"
+   ],
+   "match": "not found or available|item not found|variant not found",
+   "class": "recover",
+   "hint": "The item/variant id does not exist for this product/order. Re-read the correct id from get_product_details / get_order_details and use it."
+  },
+  {
+   "applies_to": [
+    "get_order_details"
+   ],
+   "match": "order not found",
+   "class": "recover",
+   "hint": "The order id was wrong. Re-derive it from the user's order list (get_user_details)."
+  },
+  {
+   "applies_to": [
+    "find_user_id_by_email",
+    "find_user_id_by_name_zip"
+   ],
+   "match": "user not found",
+   "class": "recover",
+   "hint": "The lookup key was wrong. Ask the user for the other identifier (email vs name+zip) and retry."
+  }
+ ],
+ "_note_placeholders": "[[05]] 감사 2026-07-13: retail 주문-id placeholder 포맷을 엔진 DEFAULT_PLACEHOLDERS서 A2로 이관(엔진 도메인-리터럴 제거). 식별-arg hints(order_id·item)는 엔진 'id' 토큰이 포괄해 A2 추가 불요(minimize-A2).",
+ "_note_variant": "L4 fexec-variants(A1_V3): new_item_id 애매 시 get_product_details variants서 극값/속성 결정론 선택. 구조=A2 선언(엔진 리터럴 0).",
+ "_note_present_specs": "operand-grounding(L2 item·L3 variant) present 확장 (2026-06-25 priority-2). engine nested_candidate_summary가 generic 소비(필드=여기 그대로 dump). retail 사실(order.items list·product.variants dict). airline swap=다른 specs(flights/passengers). flag=T2_PRESENT_NESTED.",
+ "_note_calc_specs": "calc_NL offload(계산/수치 NL 실패·~20%). engine compute_facts=general op{count_where·sum}만·경로(variants/available·items/price)=여기 retail 사실. flag=T2_CALC·report-conversion 측정. airline swap=다른 calc_specs. (refund-of-subset=operand 의존이라 미포함·available-count·order-total=깨끗.)",
+ "_note_calc_ext": "CALC-EXT(CENSUS_LEVERS_DESIGN_2026_07_11 §2a v1.1): argmax_where/argmin_where 스펙 2개 추가(표적 t20 최고가·t36/t37 최저가). 스키마=comp_retail_t4.gz 실데이터 확인(variants=dict-of-dict·available:bool·price:float·item_id). most_recent op는 엔진에 있으나 retail 스펙 미부착 — comp gz 456 sim 전수서 tool 출력에 날짜 필드 부재(t71은 이 op로 못 닫음). pairwise_diff_sum=v1.1서 notice 채널로 이동·calc 아님.",
+ "_note_minimize_a2": "identifying_arg_types·placeholders 제거 = 도메인-일반→scaffold DEFAULT_ARG_HINTS/DEFAULT_PLACEHOLDERS 폴백 (minimize-A2·2026-06-22). A2=도메인 사실(gates·producers·resolver_path)만.",
+ "_note_default_specs": "T5-C P2 원리-디폴트(C58 .940): refund/modify의 payment_method_id 기본=주문 원결제(resolver_path=order서 조회). 사용자가 명시 override(그 값이 user 발화에 등장)하지 않으면 원결제로 제자리 치환. 엔진=general(resolve→비교→치환)·이 spec=retail 정책사실(arg·resolver_path)·[[05]] 통과. C58: 원리디폴트 .940 vs LLM .38·V0 payment net-1(열거로는 못 여는 규칙). silent(턴불파기).",
+ "_note_regen_resolver_specs": "B-max① t17 (NEWSTACK_GAIN_SIDEEFFECT §G · OVERNIGHT §결과2): PROV regen이 주소 인자 날조 시 지시형 피드백으로 producer(get_order_details)+알려진 입력(order_id)을 지목 — 'getter 호출·읽어라, 되묻지 마라'. default_specs와 달리 silent 치환 아님(엔진이 대신 안 읽음=autofetch 아님·문구만·read강제 §1.5). 엔진=general(_resolver_directive가 arg→resolver_path 조회해 텍스트만 생성)·이 spec=retail 정책사실(주소는 주문 원주소가 기본). airline swap=다른 resolver_specs. modify_user_address(user-record 기반)는 미포함(order_id 부재·다른 producer).",
+ "_note_disamb_sub_args": "T5-C P-B(subcall) 치환 화이트리스트 = key-token(측정-도출·엔진에 어휘 0=[B2]). 근거 c51 [M]: item .079→.545·new_item .116→.658 / order·payment·address는 미등재(confirm-only — E-ISO ③ id-열거 역효과·이미 높음). V0(T5C_SILENT_REPAIR_DESIGN §7)가 정량 GO로 갱신.",
+ "_note_calc_tool": "NL-NUM-PROV(T2_NLNUM_PROV·t47형 NL-산술 환각) 도메인 사실: 금액 검증용 계산 도구명만 ABox. 엔진(t2_gate_patch._unverified_amounts)=통화기호+숫자 패턴(도메인 어휘 0)·regen 피드백이 이 도구명을 지시. 키 부재=레버 비활성.",
+ "_note_tool_error_specs": "v-toolerr(2026-07-13): 에러패턴→recover|abstain 분류(도메인정보). 엔진=T2_TOOLERR 일반 라우팅.",
+ "_note_layer": "L3 specific — 이 도메인에만 있는 도구·규칙. 엔진 접속은 현재 하드와이어(44사이트)이고 callback 계약은 설계 §4(미구현)."
+}

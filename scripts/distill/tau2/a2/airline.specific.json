@@ -1,0 +1,4 @@
+{
+ "_note_minimize_a2": "generic hints(email/name/id/payment/…)·placeholders 제거 = 도메인-일반→scaffold DEFAULT (union·minimize-A2·2026-06-22). 남은 4개 = airline 도메인-특화 identifying arg(DEFAULT 미포함)=정당 A2 사실.",
+ "_note_layer": "L3 specific — 이 도메인에만 있는 도구·규칙. 엔진 접속은 현재 하드와이어(44사이트)이고 callback 계약은 설계 §4(미구현)."
+}

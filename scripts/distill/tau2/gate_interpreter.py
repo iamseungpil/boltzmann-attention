@@ -63,29 +63,41 @@ def pick_steer(gate, status):
 
 
 def load_domain_a2(domain):
-    """A2 로드 = **base(도메인-불변) + domain(도메인 저작)** 병합. 없으면 None(=게이트 비활성).
+    """A2 로드 = **3층 병합**. 없으면 None(=게이트 비활성).
 
-    ★분리 이유(2026-07-31 사용자 지시): capex/opex를 정직하게 계상하려면 "새 도메인마다 새로
-    써야 하는 내용"이 **파일 경계로** 갈려야 한다. `a2/base/shared.json`은 3도메인이 **그대로
-    복사해 쓰는 내용**(값이 바이트-동일)이라 **새 도메인 추가 시 opex 0**이고,
-    `a2/<domain>.gate.json`이 그 도메인이 **저작한** 내용 = opex 계상 대상이다.
+    ★층 정의(2026-07-31 사용자 지시): capex/opex를 정직하게 계상하려면 "새 도메인마다 새로
+    써야 하는 내용"이 **파일 경계로** 갈려야 한다.
+      L1 `a2/base/shared.json`        — 벤치마크 공통·수정 0으로 그대로 씀 → 새 도메인 비용 **0**
+      L2 `a2/<domain>.settings.json`  — **구조는 동일**하고 값만 도메인별 → 템플릿 채우기
+      L3 `a2/<domain>.specific.json`  — 그 도메인에만 있는 도구·규칙 → **저작 + 엔진 접속**
 
-    병합 규칙: **도메인 값이 우선**(도메인이 같은 키를 정의하면 base를 덮는다) ⇒ 기존 동작 불변.
-    감사 도구 = `x17_a2_layer_audit.py`.
+    병합 순서 L1 → L2 → L3 (뒤가 앞을 덮는다) ⇒ 기존 동작 불변.
+    `<domain>.gate.json`은 레거시 read-site(105곳) 호환용 **생성물**이며, 분리 파일이 있으면
+    그쪽이 정본이다. 둘이 갈라지지 않는지는 `x18_a2_three_layer.py --verify`가 강제한다.
+    정본 설계 = `A2_THREE_LAYER_SPLIT_DESIGN_2026_07_31.md`.
     """
-    path = os.path.join(_A2_DIR, f"{domain}.gate.json")
-    if not os.path.exists(path):
-        return None
-    with open(path, encoding="utf-8") as f:
-        dom = json.load(f)
-    base_path = os.path.join(_A2_DIR, "base", "shared.json")
-    if os.path.exists(base_path):
-        with open(base_path, encoding="utf-8") as f:
-            base = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
-        merged = dict(base)
-        merged.update(dom)                      # 도메인 우선
+    def _read(p):
+        if not os.path.exists(p):
+            return None
+        with open(p, encoding="utf-8") as f:
+            return json.load(f)
+
+    merged = {}
+    base = _read(os.path.join(_A2_DIR, "base", "shared.json"))
+    if base:
+        merged.update({k: v for k, v in base.items() if not k.startswith("_")})
+    settings = _read(os.path.join(_A2_DIR, f"{domain}.settings.json"))
+    specific = _read(os.path.join(_A2_DIR, f"{domain}.specific.json"))
+    if settings is None and specific is None:
+        dom = _read(os.path.join(_A2_DIR, f"{domain}.gate.json"))   # 분리 전 체크아웃 대비
+        if dom is None:
+            return None
+        merged.update(dom)
         return merged
-    return dom
+    for part in (settings, specific):
+        if part:
+            merged.update(part)
+    return merged
 
 
 def render_recovery(gate, detail=""):

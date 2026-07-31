@@ -1,0 +1,1020 @@
+{
+ "banking_knowledge": {
+  "tools": {
+   "KB_search": {
+    "side": "tools",
+    "args": [
+     "query"
+    ],
+    "mutates": false,
+    "desc": "Search the knowledge base for relevant documents.\n\nArgs:\n    query: The search query to find relevant documents\n\nReturns:\n    Relevant document excerpts matching the query"
+   },
+   "activate_debit_card_8291": {
+    "side": "tools",
+    "args": [
+     "card_id",
+     "last_4_digits",
+     "expiration_date",
+     "cvv",
+     "pin"
+    ],
+    "mutates": true,
+    "desc": "Activate a NEW debit card for a customer. Use ONLY for first-time cards on a checking account (issue_reason = 'new_account' or 'first_card'). For replacement or reissued cards, use the appropriate var"
+   },
+   "activate_debit_card_8292": {
+    "side": "tools",
+    "args": [
+     "card_id",
+     "last_4_digits",
+     "expiration_date",
+     "cvv",
+     "pin"
+    ],
+    "mutates": true,
+    "desc": "Activate a REPLACEMENT debit card. Use ONLY for cards replacing lost, stolen, or fraud-suspected cards (issue_reason = 'lost', 'stolen', or 'fraud'). For new or reissued cards, use the appropriate var"
+   },
+   "activate_debit_card_8293": {
+    "side": "tools",
+    "args": [
+     "card_id",
+     "last_4_digits",
+     "expiration_date",
+     "cvv",
+     "pin"
+    ],
+    "mutates": true,
+    "desc": "Activate a REISSUED debit card. Use ONLY for cards reissued due to expiration, damage, design upgrade, or bank-initiated replacement (issue_reason = 'expired', 'damaged', 'upgrade', or 'bank_reissue')"
+   },
+   "apply_checking_account_credit_5829": {
+    "side": "tools",
+    "args": [
+     "account_id",
+     "amount",
+     "credit_type"
+    ],
+    "mutates": true,
+    "desc": "Apply a credit to a customer's checking account.\n\nArgs:\n    account_id (string): The checking account ID to credit\n    amount (number): The positive dollar amount to credit (must be greater than 0)\n  "
+   },
+   "apply_credit_card_account_flag_6147": {
+    "side": "tools",
+    "args": [
+     "credit_card_account_id",
+     "user_id",
+     "flag_type",
+     "expiration_date",
+     "reason"
+    ],
+    "mutates": true,
+    "desc": "Apply a flag to a customer's credit card account. Flags can include annual fee waivers, promotional APR rates, rewards bonuses, or other account-level modifiers. Each flag has an effective date and ex"
+   },
+   "apply_savings_account_credit_6831": {
+    "side": "tools",
+    "args": [
+     "account_id",
+     "amount",
+     "credit_type"
+    ],
+    "mutates": true,
+    "desc": "Apply a credit to a customer's savings account for interest corrections, fee refunds, or goodwill adjustments.\n\nArgs:\n    account_id (string): The savings account ID to credit\n    amount (number): The"
+   },
+   "apply_statement_credit_8472": {
+    "side": "tools",
+    "args": [
+     "user_id",
+     "credit_card_account_id",
+     "amount",
+     "reason"
+    ],
+    "mutates": true,
+    "desc": "Apply a statement credit to a customer's credit card account.\n\nArgs:\n    user_id (string): The user's unique identifier in the system\n    credit_card_account_id (string): The credit card account ID to"
+   },
+   "approve_credit_limit_increase_5847": {
+    "side": "tools",
+    "args": [
+     "credit_card_account_id",
+     "user_id",
+     "new_credit_limit"
+    ],
+    "mutates": true,
+    "desc": "Approve and apply a credit limit increase for a customer's credit card.\n\nArgs:\n    credit_card_account_id (string): The credit card account ID\n    user_id (string): The customer's unique identifier in"
+   },
+   "call_discoverable_agent_tool": {
+    "side": "tools",
+    "args": [
+     "agent_tool_name",
+     "arguments"
+    ],
+    "mutates": true,
+    "desc": "Call an agent discoverable tool that you have previously unlocked.\n\nUse this after unlocking a tool with `unlock_discoverable_agent_tool`. The knowledge base\nwill tell you which tool to use and what a"
+   },
+   "change_debit_card_pin_6285": {
+    "side": "tools",
+    "args": [
+     "card_id",
+     "current_pin",
+     "new_pin"
+    ],
+    "mutates": true,
+    "desc": "Change a debit card PIN when the customer knows their current PIN.\n\nArgs:\n    card_id (string): The debit card ID to change PIN for\n    current_pin (string): The customer's current 4-digit PIN\n    new"
+   },
+   "change_user_email": {
+    "side": "tools",
+    "args": [
+     "user_id",
+     "new_email"
+    ],
+    "mutates": true,
+    "desc": "Change the email address for a user.\n\nArgs:\n    user_id: The ID of the user whose email should be changed\n    new_email: The new email address to set for the user"
+   },
+   "clear_debit_card_fraud_alert_4892": {
+    "side": "tools",
+    "args": [
+     "card_id",
+     "reason"
+    ],
+    "mutates": true,
+    "desc": "Clear a fraud alert or velocity block on a debit card.\n\nArgs:\n    card_id (string): The debit card ID to clear the alert/block for\n    reason (string): Reason for clearing: 'customer_verified' (for fr"
+   },
+   "close_bank_account_7392": {
+    "side": "tools",
+    "args": [
+     "account_id",
+     "reason",
+     "waive_early_closure_fee"
+    ],
+    "mutates": true,
+    "desc": "Close a customer's bank account (checking or savings).\n\nArgs:\n    account_id (string): The ID of the bank account to close\n    reason (string, optional): The reason for closing the account\n    waive_e"
+   },
+   "close_credit_card_account_7834": {
+    "side": "tools",
+    "args": [
+     "credit_card_account_id",
+     "user_id"
+    ],
+    "mutates": true,
+    "desc": "Close a customer's credit card account permanently.\n\nArgs:\n    credit_card_account_id (string): The credit card account ID to close\n    user_id (string): The user's unique identifier in the system\n\nRe"
+   },
+   "close_debit_card_4721": {
+    "side": "tools",
+    "args": [
+     "card_id",
+     "reason"
+    ],
+    "mutates": true,
+    "desc": "Close or cancel a debit card permanently.\n\nArgs:\n    card_id (string): The debit card ID to close\n    reason (string): Reason for closing: lost, stolen, fraud_suspected, damaged, no_longer_needed, or "
+   },
+   "deny_credit_limit_increase_5848": {
+    "side": "tools",
+    "args": [
+     "credit_card_account_id",
+     "user_id",
+     "denial_reason"
+    ],
+    "mutates": true,
+    "desc": "Deny a credit limit increase request for a customer's credit card.\n\nArgs:\n    credit_card_account_id (string): The credit card account ID\n    user_id (string): The customer's unique identifier in the "
+   },
+   "emergency_credit_bureau_incident_transfer_1114": {
+    "side": "tools",
+    "args": [],
+    "mutates": false,
+    "desc": "Emergency escalation tool for the 11/14 credit bureau reporting incident. Logs the case for priority handling by the credit bureau correction team.\n\nReturns:\n    Emergency escalation logged. Case has "
+   },
+   "example_agent_tool_0000": {
+    "side": "tools",
+    "args": [],
+    "mutates": true,
+    "desc": "An example agent discoverable tool placeholder.\n\nReturns:\n    Example tool executed successfully."
+   },
+   "file_credit_card_transaction_dispute_4829": {
+    "side": "tools",
+    "args": [
+     "transaction_id",
+     "card_action",
+     "card_last_4_digits",
+     "full_name",
+     "user_id",
+     "phone",
+     "email",
+     "address",
+     "contacted_merchant",
+     "purchase_date",
+     "issue_noticed_date",
+     "dispute_reason",
+     "resolution_requested",
+     "eligible_for_provisional_credit",
+     "partial_refund_amount"
+    ],
+    "mutates": true,
+    "desc": "File a formal dispute for a credit card transaction.\n\nArgs:\n    transaction_id (string): The unique identifier for the transaction being disputed\n    card_action (string): Flag indicating the card's s"
+   },
+   "file_debit_card_transaction_dispute_6281": {
+    "side": "tools",
+    "args": [
+     "transaction_id",
+     "account_id",
+     "card_id",
+     "user_id",
+     "dispute_category",
+     "transaction_date",
+     "discovery_date",
+     "disputed_amount",
+     "transaction_type",
+     "card_in_possession",
+     "pin_compromised",
+     "contacted_merchant",
+     "police_report_filed",
+     "written_statement_provided",
+     "provisional_credit_eligible",
+     "customer_max_liability_amount",
+     "card_action"
+    ],
+    "mutates": true,
+    "desc": "File a formal dispute for a debit card transaction under Regulation E. Debit card disputes affect actual bank funds and have different liability rules based on reporting timing.\n\nArgs:\n    transaction"
+   },
+   "freeze_debit_card_3892": {
+    "side": "tools",
+    "args": [
+     "card_id"
+    ],
+    "mutates": true,
+    "desc": "Temporarily freeze a debit card. The card can be unfrozen later.\n\nArgs:\n    card_id (string): The debit card ID to freeze\n\nReturns:\n    Debit card frozen successfully."
+   },
+   "get_all_user_accounts_by_user_id_3847": {
+    "side": "tools",
+    "args": [
+     "user_id"
+    ],
+    "mutates": false,
+    "desc": "Retrieve all accounts (checking, savings, credit cards) for a customer.\n\nArgs:\n    user_id (string): The customer's unique identifier in the system\n\nReturns:\n    User accounts retrieved successfully."
+   },
+   "get_atm_deposit_images_8473": {
+    "side": "tools",
+    "args": [
+     "transaction_id"
+    ],
+    "mutates": false,
+    "desc": "Retrieve ATM deposit envelope/check images for a specific ATM deposit transaction.\n\nArgs:\n    transaction_id (string): The transaction ID of the ATM deposit to retrieve images for\n\nReturns:\n    ATM de"
+   },
+   "get_bank_account_transactions_9173": {
+    "side": "tools",
+    "args": [
+     "account_id"
+    ],
+    "mutates": false,
+    "desc": "Retrieve the transaction history for a bank account.\n\nArgs:\n    account_id (string): The bank account ID to retrieve transactions for\n\nReturns:\n    Bank account transactions retrieved successfully."
+   },
+   "get_closure_reason_history_8293": {
+    "side": "tools",
+    "args": [
+     "credit_card_account_id"
+    ],
+    "mutates": false,
+    "desc": "Retrieve the closure reason history for a specific credit card account.\n\nArgs:\n    credit_card_account_id (string): The credit card account ID to check for previous closure attempts\n\nReturns:\n    Clos"
+   },
+   "get_credit_card_accounts_by_user": {
+    "side": "tools",
+    "args": [
+     "user_id"
+    ],
+    "mutates": false,
+    "desc": "Get all credit card accounts for a user.\n\nReturns information about each credit card account including card type,\ndate opened, current balance, and reward points.\n\nArgs:\n    user_id: The ID of the use"
+   },
+   "get_credit_card_transactions_by_user": {
+    "side": "tools",
+    "args": [
+     "user_id"
+    ],
+    "mutates": false,
+    "desc": "Get all credit card transactions for a user.\n\nArgs:\n    user_id: The ID of the user to look up transactions for"
+   },
+   "get_credit_limit_increase_history_4829": {
+    "side": "tools",
+    "args": [
+     "credit_card_account_id"
+    ],
+    "mutates": false,
+    "desc": "Retrieve the credit limit increase request history for a specific credit card account. Returns all previous CLI requests including dates, amounts, and statuses.\n\nArgs:\n    credit_card_account_id (stri"
+   },
+   "get_current_time": {
+    "side": "tools",
+    "args": [],
+    "mutates": false,
+    "desc": "Get the current time. Use this to get the current timestamp for logging verification records.\n\nReturns:\n    The current time in the format \"YYYY-MM-DD HH:MM:SS TZ\""
+   },
+   "get_debit_cards_by_account_id_7823": {
+    "side": "tools",
+    "args": [
+     "account_id"
+    ],
+    "mutates": false,
+    "desc": "Retrieve all debit cards associated with a checking account. Returns card details including status, issue reason, and expiration date.\n\nArgs:\n    account_id (string): The checking account ID to retrie"
+   },
+   "get_debit_dispute_status_7483": {
+    "side": "tools",
+    "args": [
+     "user_id"
+    ],
+    "mutates": false,
+    "desc": "Retrieve a user's debit card dispute history from the debit_card_disputes table. Returns all debit card disputes filed by the user, including dispute IDs, categories, amounts, statuses, and provisiona"
+   },
+   "get_payment_history_6183": {
+    "side": "tools",
+    "args": [
+     "credit_card_account_id",
+     "months"
+    ],
+    "mutates": false,
+    "desc": "Retrieve payment history for a credit card account.\n\nArgs:\n    credit_card_account_id (string): The credit card account ID to check payment history for\n    months (integer): Number of months of paymen"
+   },
+   "get_pending_replacement_orders_5765": {
+    "side": "tools",
+    "args": [
+     "credit_card_account_id"
+    ],
+    "mutates": false,
+    "desc": "Check if a credit card account has any pending replacement card orders.\n\nArgs:\n    credit_card_account_id (string): The credit card account ID to check for pending replacement orders\n\nReturns:\n    Pen"
+   },
+   "get_referrals_by_user": {
+    "side": "tools",
+    "args": [
+     "user_id"
+    ],
+    "mutates": false,
+    "desc": "Get all referrals made by a user.\n\nArgs:\n    user_id: The ID of the user (referrer) to look up referrals for"
+   },
+   "get_user_dispute_history_7291": {
+    "side": "tools",
+    "args": [
+     "user_id"
+    ],
+    "mutates": false,
+    "desc": "Retrieve a user's credit card transaction dispute history from the transaction_disputes table. Returns all credit card transaction disputes filed by the user, including dispute IDs, transaction IDs, d"
+   },
+   "get_user_information_by_email": {
+    "side": "tools",
+    "args": [
+     "email"
+    ],
+    "mutates": false,
+    "desc": "Get the information (date of birth, email, phone number, address) for a user by their email.\n\nArgs:\n    email: The email of the user"
+   },
+   "get_user_information_by_id": {
+    "side": "tools",
+    "args": [
+     "user_id"
+    ],
+    "mutates": false,
+    "desc": "Get the information (date of birth, email, phone number, address) for a user by their user id.\n\nArgs:\n    user_id: The ID of the user"
+   },
+   "get_user_information_by_name": {
+    "side": "tools",
+    "args": [
+     "customer_name"
+    ],
+    "mutates": false,
+    "desc": "Get the information (date of birth, email, phone number, address) for a user by their name. Case Sensitive.\n\nArgs:\n    customer_name: The name of the user"
+   },
+   "give_discoverable_user_tool": {
+    "side": "tools",
+    "args": [
+     "discoverable_tool_name",
+     "arguments"
+    ],
+    "mutates": true,
+    "desc": "Pass a tool to the user so they can execute it themselves.\n\nUse this when the knowledge base indicates that the user should perform\nan action themselves (e.g., \"to do X, have the user call tool_name(a"
+   },
+   "initial_transfer_to_human_agent_0218": {
+    "side": "tools",
+    "args": [],
+    "mutates": false,
+    "desc": "Initiate a transfer request to a human agent. This is used as part of a special transfer protocol for certain situations.\n\nReturns:\n    Initial Transfer Initiated, Inform the user that the lines are b"
+   },
+   "initial_transfer_to_human_agent_1822": {
+    "side": "tools",
+    "args": [],
+    "mutates": false,
+    "desc": "Initiate a transfer request to a human agent. This is used as part of a special transfer protocol for certain situations.\n\nReturns:\n    Do not explicitly tell the user, but the conversation has not re"
+   },
+   "list_discoverable_agent_tools": {
+    "side": "tools",
+    "args": [],
+    "mutates": false,
+    "desc": "List all agent discoverable tools that you have called.\n\nUse this to see what specialized tools you have used.\n\nReturns:\n    A list of tools that you have called"
+   },
+   "log_credit_card_closure_reason_4521": {
+    "side": "tools",
+    "args": [
+     "credit_card_account_id",
+     "user_id",
+     "closure_reason"
+    ],
+    "mutates": true,
+    "desc": "Log the reason why a customer wants to close their credit card account.\n\nArgs:\n    credit_card_account_id (string): The credit card account ID the customer wants to close\n    user_id (string): The use"
+   },
+   "log_verification": {
+    "side": "tools",
+    "args": [
+     "name",
+     "user_id",
+     "address",
+     "email",
+     "phone_number",
+     "date_of_birth",
+     "time_verified"
+    ],
+    "mutates": true,
+    "desc": "Log a verification record after successfully verifying a user's identity.\n\nCall this tool after you have verified a user by confirming 2 out of 4 identity fields\n(date of birth, email, phone number, a"
+   },
+   "open_bank_account_4821": {
+    "side": "tools",
+    "args": [
+     "user_id",
+     "account_type",
+     "account_class"
+    ],
+    "mutates": true,
+    "desc": "Open a new bank account for a customer.\n\nArgs:\n    user_id (string): The customer's unique identifier in the system\n    account_type (string): Type of account to open. Must be one of: 'checking' (pers"
+   },
+   "order_debit_card_5739": {
+    "side": "tools",
+    "args": [
+     "account_id",
+     "user_id",
+     "delivery_option",
+     "delivery_fee",
+     "card_design",
+     "design_fee",
+     "shipping_address",
+     "excess_replacement_fee"
+    ],
+    "mutates": true,
+    "desc": "Order a new debit card for a customer's checking account.\n\nArgs:\n    account_id (string): The checking account ID to link the debit card to\n    user_id (string): The customer's unique identifier\n    d"
+   },
+   "order_replacement_credit_card_7291": {
+    "side": "tools",
+    "args": [
+     "credit_card_account_id",
+     "user_id",
+     "shipping_address",
+     "reason",
+     "expedited_shipping"
+    ],
+    "mutates": true,
+    "desc": "Order a replacement credit card for a customer. The old card will be automatically cancelled when the replacement is ordered.\n\nArgs:\n    credit_card_account_id (string): The credit card account ID for"
+   },
+   "pay_credit_card_from_checking_9182": {
+    "side": "tools",
+    "args": [
+     "user_id",
+     "checking_account_id",
+     "credit_card_account_id",
+     "amount"
+    ],
+    "mutates": true,
+    "desc": "Pay off a credit card balance using funds from the customer's Rho-Bank checking account. This deducts the specified amount from the checking account and reduces the credit card balance by the same amo"
+   },
+   "request_temporary_debit_card_limit_increase_8374": {
+    "side": "tools",
+    "args": [
+     "card_id",
+     "limit_type",
+     "new_limit"
+    ],
+    "mutates": true,
+    "desc": "Request a temporary 24-hour increase to a debit card's daily ATM or purchase limit.\n\nArgs:\n    card_id (string): The debit card ID to increase limits for\n    limit_type (string): Type of limit to incr"
+   },
+   "reset_debit_card_pin_6284": {
+    "side": "tools",
+    "args": [
+     "card_id",
+     "last_4_digits",
+     "new_pin"
+    ],
+    "mutates": true,
+    "desc": "Reset a debit card PIN when the customer has forgotten it.\n\nArgs:\n    card_id (string): The debit card ID to reset PIN for\n    last_4_digits (string): Last 4 digits of the card number (for verificatio"
+   },
+   "set_debit_card_recurring_block_7382": {
+    "side": "tools",
+    "args": [
+     "card_id",
+     "block_recurring"
+    ],
+    "mutates": true,
+    "desc": "Block or unblock all recurring payments on a debit card. When blocked, all recurring/subscription charges will be declined. One-time purchases are not affected.\n\nArgs:\n    card_id (string): The debit "
+   },
+   "submit_credit_limit_increase_request_7392": {
+    "side": "tools",
+    "args": [
+     "credit_card_account_id",
+     "user_id",
+     "requested_increase_amount"
+    ],
+    "mutates": true,
+    "desc": "Submit a credit limit increase request for a customer's credit card.\n\nArgs:\n    credit_card_account_id (string): The credit card account ID to request increase for\n    user_id (string): The customer's"
+   },
+   "submit_interest_discrepancy_report_7294": {
+    "side": "tools",
+    "args": [
+     "account_id",
+     "user_id",
+     "expected_apy",
+     "actual_apy",
+     "amount_difference"
+    ],
+    "mutates": true,
+    "desc": "Submit a report for interest calculation discrepancies to the backend team for investigation. Use this when the interest credited to a customer's account does not match expected APY calculations.\n\nArg"
+   },
+   "transfer_funds_between_bank_accounts_7291": {
+    "side": "tools",
+    "args": [
+     "source_account_id",
+     "destination_account_id",
+     "amount"
+    ],
+    "mutates": true,
+    "desc": "Transfer funds from one bank account to another.\n\nArgs:\n    source_account_id (string): The account ID to transfer funds from\n    destination_account_id (string): The account ID to transfer funds to\n "
+   },
+   "transfer_to_human_agents": {
+    "side": "tools",
+    "args": [
+     "summary",
+     "reason"
+    ],
+    "mutates": false,
+    "desc": "Transfer the user to a human agent.\n\nThe proper transfer reason enum can be found in the knowledge base: search it before calling this tool to select the proper applicable reason.\n\nArgs:\n    summary: "
+   },
+   "unfreeze_debit_card_3893": {
+    "side": "tools",
+    "args": [
+     "card_id"
+    ],
+    "mutates": true,
+    "desc": "Unfreeze a previously frozen debit card.\n\nArgs:\n    card_id (string): The debit card ID to unfreeze\n\nReturns:\n    Debit card unfrozen successfully."
+   },
+   "unlock_discoverable_agent_tool": {
+    "side": "tools",
+    "args": [
+     "agent_tool_name"
+    ],
+    "mutates": true,
+    "desc": "Unlock an agent discoverable tool that was found in the knowledge base.\n\nUse this when the knowledge base indicates that you have access to a specialized\ninternal tool. The knowledge base will tell yo"
+   },
+   "update_transaction_rewards_3847": {
+    "side": "tools",
+    "args": [
+     "transaction_id",
+     "new_rewards_earned"
+    ],
+    "mutates": true,
+    "desc": "Update the rewards_earned field on a credit card transaction.\n\nArgs:\n    transaction_id (string): The unique identifier for the transaction to update\n    new_rewards_earned (string): The corrected rew"
+   },
+   "apply_for_credit_card": {
+    "side": "user_tools",
+    "args": [
+     "card_type",
+     "customer_name",
+     "annual_income",
+     "rho_bank_subscription"
+    ],
+    "mutates": true,
+    "desc": "Apply for a credit card.\n\nArgs:\n    card_type: Type of credit card\n    customer_name: Full legal name\n    annual_income: Annual income in USD\n    rho_bank_subscription: Whether user has Rho-Bank+ subs"
+   },
+   "call_discoverable_user_tool": {
+    "side": "user_tools",
+    "args": [
+     "discoverable_tool_name",
+     "arguments"
+    ],
+    "mutates": true,
+    "desc": "Call a tool that was given to you by the agent.\n\nUse this when the agent has instructed you to perform an action using\na discoverable tool. The agent will have told you the tool name and arguments.\n\nT"
+   },
+   "deposit_check_3847": {
+    "side": "user_tools",
+    "args": [
+     "account_id",
+     "check_amount"
+    ],
+    "mutates": true,
+    "desc": "Deposit a check into a checking or savings account. The user takes a photo of the check and submits it through their mobile banking app.\n\nArgs:\n    account_id (string): The bank account ID to deposit "
+   },
+   "get_card_last_4_digits": {
+    "side": "user_tools",
+    "args": [
+     "credit_card_account_id"
+    ],
+    "mutates": false,
+    "desc": "Look up the last 4 digits of a credit card number.\n\nArgs:\n    credit_card_account_id (string): The credit card account ID to look up (e.g., 'cc_76ad9cc60e_gold')\n\nReturns:\n    Card information retriev"
+   },
+   "get_referral_link": {
+    "side": "user_tools",
+    "args": [
+     "user_id",
+     "card_name"
+    ],
+    "mutates": true,
+    "desc": "Generate a referral link for a specific credit card to share with friends or family.\n\nArgs:\n    user_id (string): The user's unique identifier in the system (the referrer)\n    card_name (string): The "
+   },
+   "list_discoverable_user_tools": {
+    "side": "user_tools",
+    "args": [],
+    "mutates": false,
+    "desc": "List all tools that have been given to you by the agent.\n\nUse this to see what actions the agent has instructed you to perform.\n\nReturns:\n    A list of tools that have been given to you"
+   },
+   "request_human_agent_transfer": {
+    "side": "user_tools",
+    "args": [],
+    "mutates": true,
+    "desc": "Request to be transferred to a human agent for assistance.\n\nUse this when you want to speak with a real human agent instead of\nthe automated system. Each request will be logged and processed.\n\nReturns"
+   },
+   "submit_cash_back_dispute_0589": {
+    "side": "user_tools",
+    "args": [
+     "user_id",
+     "transaction_id"
+    ],
+    "mutates": true,
+    "desc": "Submit a cash back dispute for a specific transaction.\n\nArgs:\n    user_id (string): The user's unique identifier in the system\n    transaction_id (string): The unique identifier for the transaction wi"
+   },
+   "submit_referral": {
+    "side": "user_tools",
+    "args": [
+     "user_id",
+     "account_type"
+    ],
+    "mutates": true,
+    "desc": "Submit a referral request to refer someone to open an account.\n\nArgs:\n    user_id: Your user ID (the referrer)\n    account_type: The type of account you are referring someone to open"
+   },
+   "submit_transaction": {
+    "side": "user_tools",
+    "args": [
+     "user_id",
+     "credit_card_type",
+     "merchant_name",
+     "amount",
+     "category"
+    ],
+    "mutates": true,
+    "desc": "Submit a credit card transaction.\n\nArgs:\n    user_id: Your user ID\n    credit_card_type: Type of credit card used (e.g., \"Bronze Rewards Card\", \"Gold Rewards Card\")\n    merchant_name: Name of the merc"
+   }
+  },
+  "exposed": [
+   "KB_search",
+   "apply_for_credit_card",
+   "call_discoverable_agent_tool",
+   "call_discoverable_user_tool",
+   "change_user_email",
+   "get_credit_card_accounts_by_user",
+   "get_credit_card_transactions_by_user",
+   "get_current_time",
+   "get_referrals_by_user",
+   "get_user_information_by_email",
+   "get_user_information_by_id",
+   "get_user_information_by_name",
+   "give_discoverable_user_tool",
+   "list_discoverable_agent_tools",
+   "list_discoverable_user_tools",
+   "log_verification",
+   "request_human_agent_transfer",
+   "submit_referral",
+   "submit_transaction",
+   "transfer_to_human_agents",
+   "unlock_discoverable_agent_tool"
+  ],
+  "discoverable_user_tools": [
+   "deposit_check_3847",
+   "get_card_last_4_digits",
+   "get_referral_link",
+   "submit_cash_back_dispute_0589"
+  ],
+  "policy_len": 5734
+ },
+ "retail": {
+  "tools": {
+   "calculate": {
+    "side": "tools",
+    "args": [
+     "expression"
+    ],
+    "mutates": false,
+    "desc": "Calculate the result of a mathematical expression.\n\nArgs:\n    expression: The mathematical expression to calculate, such as '2 + 2'. The expression can contain numbers, operators (+, -, *, /), parenth"
+   },
+   "cancel_pending_order": {
+    "side": "tools",
+    "args": [
+     "order_id",
+     "reason"
+    ],
+    "mutates": true,
+    "desc": "Cancel a pending order. If the order is already processed or delivered,\nit cannot be cancelled. The agent needs to explain the cancellation detail\nand ask for explicit user confirmation (yes/no) to pr"
+   },
+   "exchange_delivered_order_items": {
+    "side": "tools",
+    "args": [
+     "order_id",
+     "item_ids",
+     "new_item_ids",
+     "payment_method_id"
+    ],
+    "mutates": true,
+    "desc": "Exchange items in a delivered order to new items of the same product type.\nFor a delivered order, return or exchange can be only done once by the agent.\nThe agent needs to explain the exchange detail "
+   },
+   "find_user_id_by_email": {
+    "side": "tools",
+    "args": [
+     "email"
+    ],
+    "mutates": false,
+    "desc": "Find user id by email. If the user is not found, the function will return an error message.\n\nArgs:\n    email: The email of the user, such as 'something@example.com'.\n\nReturns:\n    str: The user id if "
+   },
+   "find_user_id_by_name_zip": {
+    "side": "tools",
+    "args": [
+     "first_name",
+     "last_name",
+     "zip"
+    ],
+    "mutates": false,
+    "desc": "Find user id by first name, last name, and zip code. If the user is not found, the function\nwill return an error message. By default, find user id by email, and only call this function\nif the user is "
+   },
+   "get_item_details": {
+    "side": "tools",
+    "args": [
+     "item_id"
+    ],
+    "mutates": false,
+    "desc": "Get the inventory details of an item.\n\nArgs:\n    item_id: The item id, such as '6086499569'. Be careful the item id is different from the product id.\n\nReturns:\n    Variant: The item details.\n\nRaises:\n"
+   },
+   "get_order_details": {
+    "side": "tools",
+    "args": [
+     "order_id"
+    ],
+    "mutates": false,
+    "desc": "Get the status and details of an order.\n\nArgs:\n    order_id: The order id, such as '#W0000000'. Be careful there is a '#' symbol at the beginning of the order id.\n\nReturns:\n    Order: The order detail"
+   },
+   "get_product_details": {
+    "side": "tools",
+    "args": [
+     "product_id"
+    ],
+    "mutates": false,
+    "desc": "Get the inventory details of a product.\n\nArgs:\n    product_id: The product id, such as '6086499569'. Be careful the product id is different from the item id.\n\nReturns:\n    Product: The product details"
+   },
+   "get_user_details": {
+    "side": "tools",
+    "args": [
+     "user_id"
+    ],
+    "mutates": false,
+    "desc": "Get the details of a user, including their orders.\n\nArgs:\n    user_id: The user id, such as 'sara_doe_496'.\n\nReturns:\n    User: The user details.\n\nRaises:\n    ValueError: If the user is not found."
+   },
+   "list_all_product_types": {
+    "side": "tools",
+    "args": [],
+    "mutates": false,
+    "desc": "List the name and product id of all product types.\nEach product type has a variety of different items with unique item ids and options.\nThere are only 50 product types in the store.\n\nReturns:\n    str:"
+   },
+   "modify_pending_order_address": {
+    "side": "tools",
+    "args": [
+     "order_id",
+     "address1",
+     "address2",
+     "city",
+     "state",
+     "country",
+     "zip"
+    ],
+    "mutates": true,
+    "desc": "Modify the shipping address of a pending order. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed.\n\nArgs:\n    order_id: The order id, such a"
+   },
+   "modify_pending_order_items": {
+    "side": "tools",
+    "args": [
+     "order_id",
+     "item_ids",
+     "new_item_ids",
+     "payment_method_id"
+    ],
+    "mutates": true,
+    "desc": "Modify items in a pending order to new items of the same product type. For a pending order, this function can only be called once. The agent needs to explain the exchange detail and ask for explicit u"
+   },
+   "modify_pending_order_payment": {
+    "side": "tools",
+    "args": [
+     "order_id",
+     "payment_method_id"
+    ],
+    "mutates": true,
+    "desc": "Modify the payment method of a pending order. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed.\n\nArgs:\n    order_id: The order id, such as "
+   },
+   "modify_user_address": {
+    "side": "tools",
+    "args": [
+     "user_id",
+     "address1",
+     "address2",
+     "city",
+     "state",
+     "country",
+     "zip"
+    ],
+    "mutates": true,
+    "desc": "Modify the default address of a user. The agent needs to explain the modification detail and ask for explicit user confirmation (yes/no) to proceed.\n\nArgs:\n    user_id: The user id, such as 'sara_doe_"
+   },
+   "return_delivered_order_items": {
+    "side": "tools",
+    "args": [
+     "order_id",
+     "item_ids",
+     "payment_method_id"
+    ],
+    "mutates": true,
+    "desc": "Return some items of a delivered order.\nThe order status will be changed to 'return requested'.\nThe agent needs to explain the return detail and ask for explicit user confirmation (yes/no) to proceed."
+   },
+   "transfer_to_human_agents": {
+    "side": "tools",
+    "args": [
+     "summary"
+    ],
+    "mutates": false,
+    "desc": "Transfer the user to a human agent, with a summary of the user's issue.\nOnly transfer if\n -  the user explicitly asks for a human agent\n -  given the policy and the available tools, you cannot solve t"
+   }
+  },
+  "exposed": [
+   "calculate",
+   "cancel_pending_order",
+   "exchange_delivered_order_items",
+   "find_user_id_by_email",
+   "find_user_id_by_name_zip",
+   "get_item_details",
+   "get_order_details",
+   "get_product_details",
+   "get_user_details",
+   "list_all_product_types",
+   "modify_pending_order_address",
+   "modify_pending_order_items",
+   "modify_pending_order_payment",
+   "modify_user_address",
+   "return_delivered_order_items",
+   "transfer_to_human_agents"
+  ],
+  "discoverable_user_tools": [],
+  "policy_len": 6699
+ },
+ "airline": {
+  "tools": {
+   "book_reservation": {
+    "side": "tools",
+    "args": [
+     "user_id",
+     "origin",
+     "destination",
+     "flight_type",
+     "cabin",
+     "flights",
+     "passengers",
+     "payment_methods",
+     "total_baggages",
+     "nonfree_baggages",
+     "insurance"
+    ],
+    "mutates": true,
+    "desc": "Book a reservation.\n\nArgs:\n    user_id: The ID of the user to book the reservation such as 'sara_doe_496'`.\n    origin: The IATA code for the origin city such as 'SFO'.\n    destination: The IATA code "
+   },
+   "calculate": {
+    "side": "tools",
+    "args": [
+     "expression"
+    ],
+    "mutates": false,
+    "desc": "Calculate the result of a mathematical expression.\n\nArgs:\n    expression: The mathematical expression to calculate, such as '2 + 2'. The expression can contain numbers, operators (+, -, *, /), parenth"
+   },
+   "cancel_reservation": {
+    "side": "tools",
+    "args": [
+     "reservation_id"
+    ],
+    "mutates": true,
+    "desc": "Cancel the whole reservation.\n\nArgs:\n    reservation_id: The reservation ID, such as 'ZFA04Y'.\n\nReturns:\n    The updated reservation.\n\nRaises:\n    ValueError: If the reservation is not found."
+   },
+   "get_flight_status": {
+    "side": "tools",
+    "args": [
+     "flight_number",
+     "date"
+    ],
+    "mutates": false,
+    "desc": "Get the status of a flight.\n\nArgs:\n    flight_number: The flight number.\n    date: The date of the flight.\n\nReturns:\n    The status of the flight.\n\nRaises:\n    ValueError: If the flight is not found."
+   },
+   "get_reservation_details": {
+    "side": "tools",
+    "args": [
+     "reservation_id"
+    ],
+    "mutates": false,
+    "desc": "Get the details of a reservation.\n\nArgs:\n    reservation_id: The reservation ID, such as '8JX2WO'.\n\nReturns:\n    The reservation details.\n\nRaises:\n    ValueError: If the reservation is not found."
+   },
+   "get_user_details": {
+    "side": "tools",
+    "args": [
+     "user_id"
+    ],
+    "mutates": false,
+    "desc": "Get the details of a user, including their reservations.\n\nArgs:\n    user_id: The user ID, such as 'sara_doe_496'.\n\nReturns:\n    The user details.\n\nRaises:\n    ValueError: If the user is not found."
+   },
+   "list_all_airports": {
+    "side": "tools",
+    "args": [],
+    "mutates": false,
+    "desc": "Returns a list of all available airports.\n\nReturns:\n    A dictionary mapping IATA codes to AirportInfo objects."
+   },
+   "search_direct_flight": {
+    "side": "tools",
+    "args": [
+     "origin",
+     "destination",
+     "date"
+    ],
+    "mutates": false,
+    "desc": "Search for direct flights between two cities on a specific date.\n\nArgs:\n    origin: The origin city airport in three letters, such as 'JFK'.\n    destination: The destination city airport in three lett"
+   },
+   "search_onestop_flight": {
+    "side": "tools",
+    "args": [
+     "origin",
+     "destination",
+     "date"
+    ],
+    "mutates": false,
+    "desc": "Search for one-stop flights between two cities on a specific date.\n\nArgs:\n    origin: The origin city airport in three letters, such as 'JFK'.\n    destination: The destination city airport in three le"
+   },
+   "send_certificate": {
+    "side": "tools",
+    "args": [
+     "user_id",
+     "amount"
+    ],
+    "mutates": true,
+    "desc": "Send a certificate to a user. Be careful!\n\nArgs:\n    user_id: The ID of the user to book the reservation, such as 'sara_doe_496'.\n    amount: The amount of the certificate to send.\n\nReturns:\n    A mes"
+   },
+   "transfer_to_human_agents": {
+    "side": "tools",
+    "args": [
+     "summary"
+    ],
+    "mutates": false,
+    "desc": "Transfer the user to a human agent, with a summary of the user's issue.\nOnly transfer if\n -  the user explicitly asks for a human agent\n -  given the policy and the available tools, you cannot solve t"
+   },
+   "update_reservation_baggages": {
+    "side": "tools",
+    "args": [
+     "reservation_id",
+     "total_baggages",
+     "nonfree_baggages",
+     "payment_id"
+    ],
+    "mutates": true,
+    "desc": "Update the baggage information of a reservation.\n\nArgs:\n    reservation_id: The reservation ID, such as 'ZFA04Y'\n    total_baggages: The updated total number of baggage items included in the reservati"
+   },
+   "update_reservation_flights": {
+    "side": "tools",
+    "args": [
+     "reservation_id",
+     "cabin",
+     "flights",
+     "payment_id"
+    ],
+    "mutates": true,
+    "desc": "Update the flight information of a reservation.\n\n\nArgs:\n    reservation_id: The reservation ID, such as 'ZFA04Y'.\n    cabin: The cabin class of the reservation\n    flights: An array of objects contain"
+   },
+   "update_reservation_passengers": {
+    "side": "tools",
+    "args": [
+     "reservation_id",
+     "passengers"
+    ],
+    "mutates": true,
+    "desc": "Update the passenger information of a reservation.\n\nArgs:\n    reservation_id: The reservation ID, such as 'ZFA04Y'.\n    passengers: An array of objects containing details about each passenger.\n\nReturn"
+   }
+  },
+  "exposed": [
+   "book_reservation",
+   "calculate",
+   "cancel_reservation",
+   "get_flight_status",
+   "get_reservation_details",
+   "get_user_details",
+   "list_all_airports",
+   "search_direct_flight",
+   "search_onestop_flight",
+   "send_certificate",
+   "transfer_to_human_agents",
+   "update_reservation_baggages",
+   "update_reservation_flights",
+   "update_reservation_passengers"
+  ],
+  "discoverable_user_tools": [],
+  "policy_len": 7676
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "gates": [
+  {
+   "id": "G1_USER_ID_PROVIDED",
+   "kind": "auth",
+   "predicate": "authenticated user identity",
+   "satisfiers": {},
+   "satisfied_by": "user_provided_user_id",
+   "applies_to": [
+    "book_reservation",
+    "cancel_reservation",
+    "get_reservation_details",
+    "get_user_details",
+    "send_certificate",
+    "update_reservation_baggages",
+    "update_reservation_flights",
+    "update_reservation_passengers"
+   ],
+   "note": "the user must provide their user id themselves"
+  },
+  {
+   "id": "G2_CONFIRM_WRITE",
+   "kind": "confirm",
+   "predicate": "explicit user confirmation (yes) of the action details in the latest user message",
+   "satisfiers": {},
+   "ask": "list the action details to the user and ask them to confirm",
+   "applies_to": [
+    "book_reservation",
+    "cancel_reservation",
+    "send_certificate",
+    "update_reservation_baggages",
+    "update_reservation_flights",
+    "update_reservation_passengers"
+   ]
+  },
+  {
+   "id": "G3_RESERVATION_OWNER",
+   "kind": "ownership",
+   "predicate": "target reservation belongs to the authenticated user",
+   "satisfiers": {},
+   "owner_field": "user_id",
+   "resolver_path": [
+    "reservation_id",
+    "get_reservation_details",
+    "user_id"
+   ],
+   "terminal": "deny: you can only act on the authenticated user's own reservations",
+   "applies_to": [
+    "cancel_reservation",
+    "update_reservation_baggages",
+    "update_reservation_flights",
+    "update_reservation_passengers"
+   ]
+  }
+ ],
+ "producers": {
+  "authenticated_user_record": {
+   "tool": "get_user_details",
+   "args_from": {
+    "user_id": "@auth_user"
+   }
+  }
+ },
+ "identifying_arg_types": [
+  "flight",
+  "passenger",
+  "certificate",
+  "membership"
+ ],
+ "eplan": {
+  "list_enumerator": "get_user_details",
+  "detail_reader": "get_reservation_details",
+  "entity_key": "reservation_id"
+ },
+ "_meta": {
+  "domain": "airline",
+  "source": "tau2 data/tau2/domains/airline/policy.md (166줄)",
+  "compiler": "Fable-5 in-session + A2_DRIVEN_SCAFFOLD_KEYSTONE_IMPL_2026_06_21 (auth/confirm/ownership swap)",
+  "scope_note": "키스톤 = auth/confirm/ownership 4-kind만. G4/G5/G6 eligibility(db_check DSL)=후속(preconditions kind와 함께)."
+ },
+ "_note_eplan": "v6 전이(2026-07-13): READALL/COV용. items_id_path 미선언=L10 침묵(우아한 강등). 데이터만·엔진 무수정.",
+ "_note_layer": "L2 settings — 구조는 3층 공통, 값만 이 도메인. 정본=A2_THREE_LAYER_SPLIT_DESIGN_2026_07_31.md"
+}
