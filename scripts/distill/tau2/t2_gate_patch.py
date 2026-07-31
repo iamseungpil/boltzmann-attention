@@ -2486,8 +2486,14 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
             kw["extra_body"] = eb
         if tool_choice:                          # ★레버 A(2026-07-18): tau2 `generate`의 일급 파라미터로 통과
             kw["tool_choice"] = tool_choice
-        return la.generate(model=self.llm, tools=self.tools,
-                           messages=self._system_messages + work, call_name=call_name, **kw)
+        _r = la.generate(model=self.llm, tools=self.tools,
+                         messages=self._system_messages + work, call_name=call_name, **kw)
+        try:                                    # ★P3 살리기(C248·기본 OFF) — 위 경로와 동일
+            import t2_salvage as _sv
+            _sv.salvage_message(_r)
+        except Exception:
+            pass
+        return _r
 
     def patched(self, message, state):
         if not hasattr(self, "_t2_static_bl"):
@@ -3402,8 +3408,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if _mt is not None and _mt < _FORCE_MIN_TOKENS:
                 kw["max_tokens"] = _FORCE_MIN_TOKENS
         try:
-            return la.generate(model=self.llm, tools=self.tools,
-                               messages=self._system_messages + work, call_name=call_name, **kw)
+            _r = la.generate(model=self.llm, tools=self.tools,
+                             messages=self._system_messages + work, call_name=call_name, **kw)
+            # ★P3 살리기(C248·기본 OFF): hermes 파서가 텍스트로 강등한 호출을 회수한다.
+            #   모델이 이미 낸 첫 블록만 복구하고 복제분은 버린다([[10]] 정합).
+            try:
+                import t2_salvage as _sv
+                _sv.salvage_message(_r)
+            except Exception:
+                pass
+            return _r
         except Exception as _ce:
             # ★force_required 안전판 (2026-07-23): 하한 보장 뒤에도 남는 400 = 병리적 케이스(퇴행 루프서
             #   강제 시 닫히지 않는 runaway JSON·mt를 아무리 키워도 미완=039 실측)·기타 transient. → 강제 없이
