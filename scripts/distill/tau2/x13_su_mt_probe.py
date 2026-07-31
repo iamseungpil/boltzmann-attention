@@ -222,9 +222,18 @@ def run_case(case, arm, seed, K=40):
         env_obj = None
         if arm == "D_TWOPASS":
             # 2패스: 방금 한 행동을 봉투로 형식화(도구 미제공 → 문법 적용 가능)
-            desc = ("You just produced this turn:\ncontent=%r\ntool_calls=%s\n"
-                    "Emit the declaration envelope describing that turn."
-                    % (content[:800], json.dumps([c["function"]["name"] for c in tcs])))
+            # ★프롬프트 누출 교정(2026-07-31 실측): 초판 설명문에 `tool_calls=[...]`가 들어 있었고
+            #   모델이 **값 대신 키 이름 `tool_calls`를 복사**했다(또 `KB_search`를 `SEARCH_KB`로
+            #   지어냈다). 그 상태로 잰 R4 불일치 107건은 **내 프롬프트의 산물**이지 선언 불충실이
+            #   아니다 ⇒ 이름을 **축자 복사**하도록 명시하고 호출이 없으면 null을 요구한다.
+            _names = [c["function"]["name"] for c in tcs]
+            desc = ("This is the turn you just produced.\n"
+                    "Message text: %r\n"
+                    "Tools you actually called (exact names): %s\n\n"
+                    "Emit the declaration envelope for that turn. For next_action, copy ONE name "
+                    "VERBATIM from the list above (do not invent or abbreviate); if the list is "
+                    "empty, use null."
+                    % (content[:800], ", ".join(_names) if _names else "(none)"))
             fm = call_llm(msgs + [{"role": "user", "content": desc}], seed,
                           guided=ENVELOPE_SCHEMA, max_tokens=400)
             env_obj = parse_env_obj(fm.get("content"))
@@ -371,6 +380,7 @@ def main():
     ap.add_argument("--cases", type=int, default=12)
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--K", type=int, default=40)
+    ap.add_argument("--arms", default="", help="쉼표 구분 arm 부분집합(예: D_TWOPASS)")
     ap.add_argument("--max-user-turns", type=int, default=14,
                     help="대본이 이보다 길면 제외(지평 안에 못 끝냄). ★버린 수를 로그한다(무음 절단 금지)")
     ap.add_argument("--out", default="")
@@ -405,6 +415,10 @@ def main():
           % (len({c["task_id"] for c in cases}), len({c["sim"] for c in cases})))
     print("본런: 케이스 %d · 시드 %d · arm %d · K=%d → 총 %d런"
           % (len(cases), args.seeds, len(ARMS), args.K, len(cases) * args.seeds * len(ARMS)))
+    global ARMS
+    if args.arms:
+        ARMS = [a for a in args.arms.split(",") if a]
+        print("  ★arm 부분집합 실행: %s" % ARMS)
     out = args.out or "x13_su_mt_rows.jsonl"
     # ★행 즉시 영속([[30]] 결과소실 방지) — 중간에 죽어도 완료분은 남는다.
     n = 0
