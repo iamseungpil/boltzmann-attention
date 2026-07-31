@@ -269,5 +269,11 @@
   "source": "banking_knowledge.gate.json",
   "classifier": "x6b_a2_split.CORE/DISCARD (2026-07-30)",
   "note": "도메인-특화 스펙 = 정직한 per-domain opex (특허 유한성 주장에서 제외)"
- }
+ },
+ "tool_signatures": {
+  "give_discoverable_user_tool": [
+   "discoverable_tool_name"
+  ]
+ },
+ "_note_tool_signatures": "V7(2026-07-31): 도메인 **정책**이 서명을 명시한다 — 'Use the give_discoverable_user_tool(discoverable_tool_name) function' / '인자는 유저에게 말로 설명하라'. gold가 아니라 정책이 출처이므로 A2 EXT(스키마 상수) 선언이 정당. 엔진은 deny+재발행만 하고 인자를 떼지 않는다(C151)."
 }

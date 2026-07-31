@@ -376,6 +376,19 @@ def apply():
                     print("[T2_WRITE_EVIDENCE] deny tool=%s" % tc.name, file=sys.stderr, flush=True)
                     results.append(_deny_msg(tc, "WRITE_EVIDENCE", wd))
                     continue
+            # ★V7 T2_TOOL_SIGNATURE: A2가 선언한 호출 서명 밖 키 → deny+재발행(엔진은 인자를
+            #   떼지 않는다·C151 compliance 패턴). 근거=도메인 **정책**(§12)·기본 OFF.
+            try:
+                import t2_signature as _sg
+                _sv = _sg.signature_violation(tc.name, _args_dict(tc), a2)
+            except Exception:
+                _sv = None
+            if _sv:
+                self.num_errors += 1
+                _mark_fail(key, _sv)
+                print("[T2_TOOL_SIGNATURE] deny tool=%s" % tc.name, file=sys.stderr, flush=True)
+                results.append(_deny_msg(tc, "TOOL_SIGNATURE", _sv))
+                continue
             # ★T2_WRITE_CAP (S1a-1·F5): 이미 K회 성공한 동일-write → 재실행 안 함·deny("완료")
             if wcap_on and tc.name in wcap_tools:
                 _wk = _call_key(tc)

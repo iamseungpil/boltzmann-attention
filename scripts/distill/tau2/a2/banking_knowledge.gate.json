@@ -1984,5 +1984,11 @@
    "get_all_user_accounts_by_user_id"
   ]
  },
- "_note_require_tool_before": "★C190/C191(2026-07-25 실측). apply_for_credit_card←check_card_application_fit: W5 063이 자격필터를 한 번도 호출 않고 오선택(002/003/006/024는 호출·전부 eligible 내 선택=설계는 작동·063은 진입 부재). ★C191: open_bank_account·submit_referral·pay_credit_card_from_checking ← get_all_user_accounts_by_user_id. 근거=W3 전수: 070(gold MISS)·099(gold MISS)·046(계좌 id 미발굴→'ca_..._green' not found→무관문서 7회 반복→컨텍스트 초과). **intent_chains는 이 셋 모두 신호 매칭에 성공했는데도 실패**했다 — chain_gap은 soft reminder일 뿐이라 3/3 무시(C152 'deny=soft' 재현). 게다가 075는 'open a **new personal** checking'이 신호 'open a personal checking'/'open a new account' 어느 쪽과도 부분일치하지 않아 **매칭 자체가 미스**. write 도구 이름으로 거는 하드 게이트는 이 취약한 문자열 매칭을 우회한다. ★[[05]] §1.5 허용축: **read 강제는 write 강제가 아니다**(무엇을 쓸지·어느 상품인지 일절 미지정). ★close_credit_card_account는 제외 — 기존 close 체인이 043 PASS를 만든 작동 경로라 교란 회피."
+ "_note_require_tool_before": "★C190/C191(2026-07-25 실측). apply_for_credit_card←check_card_application_fit: W5 063이 자격필터를 한 번도 호출 않고 오선택(002/003/006/024는 호출·전부 eligible 내 선택=설계는 작동·063은 진입 부재). ★C191: open_bank_account·submit_referral·pay_credit_card_from_checking ← get_all_user_accounts_by_user_id. 근거=W3 전수: 070(gold MISS)·099(gold MISS)·046(계좌 id 미발굴→'ca_..._green' not found→무관문서 7회 반복→컨텍스트 초과). **intent_chains는 이 셋 모두 신호 매칭에 성공했는데도 실패**했다 — chain_gap은 soft reminder일 뿐이라 3/3 무시(C152 'deny=soft' 재현). 게다가 075는 'open a **new personal** checking'이 신호 'open a personal checking'/'open a new account' 어느 쪽과도 부분일치하지 않아 **매칭 자체가 미스**. write 도구 이름으로 거는 하드 게이트는 이 취약한 문자열 매칭을 우회한다. ★[[05]] §1.5 허용축: **read 강제는 write 강제가 아니다**(무엇을 쓸지·어느 상품인지 일절 미지정). ★close_credit_card_account는 제외 — 기존 close 체인이 043 PASS를 만든 작동 경로라 교란 회피.",
+ "tool_signatures": {
+  "give_discoverable_user_tool": [
+   "discoverable_tool_name"
+  ]
+ },
+ "_note_tool_signatures": "V7(2026-07-31): 도메인 **정책**이 서명을 명시한다 — 'Use the give_discoverable_user_tool(discoverable_tool_name) function' / '인자는 유저에게 말로 설명하라'. gold가 아니라 정책이 출처이므로 A2 EXT(스키마 상수) 선언이 정당. 엔진은 deny+재발행만 하고 인자를 떼지 않는다(C151)."
 }
