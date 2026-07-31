@@ -4399,7 +4399,22 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     #   tool" 2회에도 같은 오선택 고수. 술어=자기 도구 목록 소속(인터페이스-구조·
                     #   카탈로그 census 불요·이름 리터럴 0): 에이전트가 스스로 부를 수 있는 도구는
                     #   정의상 user-측 discoverable이 아님. 문구=A2(user-지명 이름 재사용 힌트 포함).
+                    # ★판정 집합 교체(2026-07-31·C257·`T2_DISPATCH_ROLE_ENVSET=1`·기본 OFF):
+                    #   구판은 give 대상이 **`self.tools` 소속**일 때만 deny한다. 그런데 **잠긴
+                    #   agent-discoverable 도구는 `self.tools`에 없어서** 그 검사를 빠져나간다 —
+                    #   Y1 전수에서 give 89회 중 **18회가 env user-discoverable 집합 밖**이었고,
+                    #   그 우회가 `unlock`→`call` 미호출 **55건(전체 실패의 27%)**으로 이어졌다.
+                    #   ⇒ 새 레버가 아니라 **판정 집합을 env가 실제로 넘길 수 있는 것**으로 바꾼다.
+                    #   오차단 구조적 불가: 정당한 give 71건은 전부 집합 안이라 통과(038 자해는
+                    #   **접미사 패턴**이었고 이건 **집합 소속**이다). 정책 근거 = "The unlock step is
+                    #   required before calling" · "Do not invent or guess user discoverable tools".
                     elif (nm == _drs.get("give_tool")
+                          and os.environ.get("T2_DISPATCH_ROLE_ENVSET") == "1"
+                          and iv and iv not in _user_discoverable(
+                              getattr(getattr(self, "_t2_orch", None), "environment", None))):
+                        fbt = _drs.get("give_agent_tool_feedback")
+                    elif (nm == _drs.get("give_tool")
+                          and os.environ.get("T2_DISPATCH_ROLE_ENVSET") != "1"
                           and iv in {getattr(t, "name", None)
                                      for t in (getattr(self, "tools", None) or [])}):
                         fbt = _drs.get("give_agent_tool_feedback")
