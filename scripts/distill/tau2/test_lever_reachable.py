@@ -85,5 +85,59 @@ if dead:
 else:
     print("\n✓ PASS — gated 전용 레버 없음")
 
+# ─────────────────────────────────────────────────────────────────────────────
+# ★2번째 사망 유형 — **표적 집합이 공집합** (2026-07-31·C263)
+#   `T2_WRITE_CAP`은 훅(위 검사)만이 아니라 *표적*으로도 죽어 있었다: 캡 대상 = `kind=='confirm'`
+#   게이트의 `applies_to`인데 **banking_knowledge A2엔 confirm 게이트가 없다** ⇒ 훅을 고쳐도
+#   0건 발화. 위 검사는 이걸 통과시킨다(경로만 보므로). ⇒ **A2에서 표적을 뽑는 레버는
+#   설정 도메인에서 그 집합이 비었는지도 봐야 한다.**
+#   판정: ON ∧ 공집합 = FAIL · OFF ∧ 공집합 = 경고(승격 시 무음 실패).
+# ─────────────────────────────────────────────────────────────────────────────
+print("\n[표적 가드] A2-도출 표적 집합이 설정 도메인에서 비어 있지 않은가")
+
+# 소스에서 (플래그, A2 도출식) 쌍을 **기계 추출**한다 — 손목록 금지([[03b]]·C261 교훈).
+#   형태 ①  x = (a2.get("KEY") or []) if os.environ.get("T2_F") == "1" else []
+#   형태 ②  x = _helper(a2) if f_on else set()      (f_on = os.environ.get("T2_F") == "1")
+PAIRS = {}
+for m in re.finditer(r"a2\.get\(\s*[\'\"]([a-z0-9_]+)[\'\"]", SRC):
+    key = m.group(1)
+    seg = SRC[m.end():m.end() + 220]
+    fm = re.search(r"environ\.get\(\s*[\'\"](T2_[A-Z0-9_]+)[\'\"]", seg)
+    if fm:
+        PAIRS.setdefault(fm.group(1), set()).add(("key", key))
+for m in re.finditer(r"=\s*(_[a-z0-9_]+)\(a2\)\s+if\s+([a-z0-9_]+)\b", SRC):
+    helper, var = m.group(1), m.group(2)
+    vm = re.search(r"%s\s*=\s*os\.environ\.get\(\s*[\'\"](T2_[A-Z0-9_]+)[\'\"]" % re.escape(var), SRC)
+    if vm:
+        PAIRS.setdefault(vm.group(1), set()).add(("fn", helper))
+
+DOMAINS = [d for d in re.findall(r"--domain\s+([a-z_]+)", GO)] or ["banking_knowledge"]
+try:
+    import t2_gate_patch as G
+    empty_on, empty_off = [], []
+    for flag in sorted(PAIRS):
+        for kind, name in sorted(PAIRS[flag]):
+            for dom in sorted(set(DOMAINS)):
+                a2 = G._domain_a2(dom)
+                if a2 is None:
+                    continue
+                got = (a2.get(name) or []) if kind == "key" else getattr(G, name)(a2)
+                if got:
+                    continue
+                (empty_on if flag in ON else empty_off).append("%s→%s(%s)" % (flag, name, dom))
+    for x in empty_on:
+        print("  ★★활성 버그(ON인데 표적 0): %s" % x)
+        OK = False
+    for x in empty_off:
+        print("  ⚠잠재(OFF·켜면 0건 발화): %s" % x)
+    # 커버리지는 **항상** 출력한다 — 무엇을 검사했는지 안 보이면 "이상 없음"이 신뢰 불가다.
+    print("  검사 대상 %d 레버(도메인 %s): %s"
+          % (len(PAIRS), ",".join(sorted(set(DOMAINS))),
+             ", ".join("%s→%s" % (f, "/".join(n for _, n in sorted(PAIRS[f]))) for f in sorted(PAIRS))))
+    if not empty_on and not empty_off:
+        print("  ✓ 공집합 표적 없음")
+except Exception as e:      # A2 로더가 없는 환경에선 이 절만 건너뛴다(경로 가드는 유지)
+    print("  ⚠표적 가드 미실행(%r) — A2 로더 사용 가능한 환경에서 돌릴 것" % (e,))
+
 print("RESULT: %s" % ("ALL PASS" if OK else "FAIL"))
 sys.exit(0 if OK else 1)
