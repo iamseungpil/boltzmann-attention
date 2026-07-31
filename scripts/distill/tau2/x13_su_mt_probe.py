@@ -401,6 +401,11 @@ def main():
             print("[saved] %s" % args.out)
         sys.exit(0 if ok else 1)
 
+    global ARMS
+    if args.arms:                       # ★arm 부분집합(재측정용) — ARMS 참조보다 **먼저** 확정해야 한다
+        ARMS = [a for a in args.arms.split(",") if a]
+        print("★arm 부분집합 실행: %s" % ARMS)
+
     allc = _cases.load_cases()
     dropped = [c for c in allc if c["n_user"] > args.max_user_turns]
     pool = [c for c in allc if c["n_user"] <= args.max_user_turns]
@@ -415,10 +420,6 @@ def main():
           % (len({c["task_id"] for c in cases}), len({c["sim"] for c in cases})))
     print("본런: 케이스 %d · 시드 %d · arm %d · K=%d → 총 %d런"
           % (len(cases), args.seeds, len(ARMS), args.K, len(cases) * args.seeds * len(ARMS)))
-    global ARMS
-    if args.arms:
-        ARMS = [a for a in args.arms.split(",") if a]
-        print("  ★arm 부분집합 실행: %s" % ARMS)
     out = args.out or "x13_su_mt_rows.jsonl"
     # ★행 즉시 영속([[30]] 결과소실 방지) — 중간에 죽어도 완료분은 남는다.
     n = 0
