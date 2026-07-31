@@ -4418,6 +4418,37 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #     없으면 재진술할 값이 없다. 021형 좌초(유저가 실행 템플릿을 못 받음)를 막는 책임은
             #     V7 피드백 문구("인자 값이 필요하면 호출이 아니라 **답변 본문에** 적어라")로 넘어간다
             #     — 결정론 릴레이 → 모델 행동으로 바뀌므로 **재스모크에서 021형을 확인**해야 한다.
+            # ★V7 이설(2026-07-31·포렌식으로 근본원인 확정): 구판은 V7을 `gated`
+            #   (=`BaseOrchestrator._execute_tool_calls`)에 뒀는데, go_stack은 `T2_GATE_REGEN=1`이라
+            #   런처가 `_unified` 분기를 타고 **`t2_gate_patch.apply()`를 아예 호출하지 않는다**
+            #   (`t2_run_gated.py:196`). 실행 훅은 `exec_augment`("deny 없음")가 차지한다 ⇒ V7은
+            #   **구조적으로 발화 불가한 죽은 경로**에 있었다. Z4·Z5·Y2에서 deny 0이었던 진짜 이유다
+            #   (앞선 "strip 선점" 진단은 불완전했다 — strip이 없어도 못 떴다).
+            #   ★실증: Y2 015·021이 `give_discoverable_user_tool(discoverable_tool_name, arguments)`로
+            #   호출해 채점에서 `PRED_EXTRA_KEY`로 실패했는데 V7 deny는 0이었다. 술어 자체는 그 인자로
+            #   VIOLATION을 정상 판정한다(오프라인 확인) ⇒ 배선 문제.
+            #   ⇒ 다른 deny 레버와 같은 자리(생성 레벨)로 옮긴다. 엔진은 여전히 인자를 떼지 않고
+            #   deny+재발행만 한다(C151 compliance 패턴·[[10]] 분담).
+            sig_fb = None
+            if (os.environ.get("T2_TOOL_SIGNATURE") == "1"
+                    and not do_gate and not do_prov and ep_fb is None and cons_fb is None
+                    and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
+                    and tl_fb is None and dr_fb is None and pr_fb is None
+                    and getattr(self, "_t2_signature_deny", 0)
+                    < int(os.environ.get("T2_TOOL_SIGNATURE_CAP", "6"))):
+                try:
+                    import t2_signature as _sg
+                    for c in (am.tool_calls or []):
+                        _sv = _sg.signature_violation(getattr(c, "name", None), _args_dict(c), a2)
+                        if _sv:
+                            sig_fb = (c, _sv)
+                            print("[T2_TOOL_SIGNATURE] deny tool=%s" % getattr(c, "name", None),
+                                  file=_sys.stderr, flush=True)
+                            break
+                except Exception as _sge:
+                    print("[T2_TOOL_SIGNATURE] 배선 예외(무시): %r" % (_sge,),
+                          file=_sys.stderr, flush=True)
+
             un_fb = None
             _unspec = (a2 or {}).get("discoverable_name_check") or {}
             if (os.environ.get("T2_UNLOCK_NAME") == "1" and _unspec
@@ -4490,7 +4521,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
                     and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None
-                    and pr_fb is None and hv_fb is None and dd_fb is None):
+                    and pr_fb is None and hv_fb is None and dd_fb is None and sig_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -4569,6 +4600,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 if self._t2_toollist_deny == int(os.environ.get("T2_TOOLLIST_CAP", "6")):
                     print("[T2_TOOLLIST] deny cap reached — nonlisted calls pass through hereafter",
                           file=_sys.stderr, flush=True)
+            if sig_fb is not None:
+                self._t2_signature_deny = getattr(self, "_t2_signature_deny", 0) + 1
             if un_fb is not None:
                 self._t2_unlockname_deny = getattr(self, "_t2_unlockname_deny", 0) + 1
             if dr_fb is not None:
@@ -4612,6 +4645,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     content = "Error: " + rw_fb[1]
                 elif tl_fb is not None and c is tl_fb[0]:
                     content = "Error: " + tl_fb[1]
+                elif sig_fb is not None and c is sig_fb[0]:
+                    content = sig_fb[1] if str(sig_fb[1]).lstrip().startswith("Error:") \
+                        else "Error: " + sig_fb[1]
                 elif un_fb is not None and c is un_fb[0]:
                     content = un_fb[1] if str(un_fb[1]).lstrip().startswith("Error:") \
                         else "Error: " + un_fb[1]
