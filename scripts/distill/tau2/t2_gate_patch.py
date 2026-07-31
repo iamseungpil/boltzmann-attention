@@ -140,6 +140,52 @@ def _hint_hit(k, hints):
     return any(t.startswith(h) for t in toks for h in hints)
 
 
+_UNKNOWN_RE = re.compile(r"Unknown (agent|discoverable) tool '([^']+)'")
+
+
+def unknown_bl_collect(messages):
+    """env가 거부한 이름을 **채널과 함께** 수집한다 (2026-07-31 교정).
+
+    ★고친 버그(Y2-B 실측): 구판은 이름만 모아서 채널을 무시했다. task_017에서 실제로 일어난 일 —
+      ①모델이 user 도구를 agent 채널로 unlock 시도 → env `Unknown **agent** tool 'X'`
+      ②블랙리스트에 이름 X만 등록
+      ③모델이 **올바른 채널**로 gold 액션 `give_discoverable_user_tool(X)` → **차단**(18회)
+      ⇒ 우리 스캐폴드가 정답을 막았다. Y1에서도 46회 발화한 선재 버그.
+    같은 접미사 이름이 채널마다 유효/무효가 갈리므로, 거부는 **거부가 난 그 채널에서만** 유효하다.
+
+    반환 (blocked, kind_by_tool):
+      blocked      = {(kind, name)}          — kind = env가 말한 'agent' | 'discoverable'
+      kind_by_tool = {호출도구명: kind}       — 그 도구가 어느 채널인지 **관측으로** 확정(리터럴 0)
+    """
+    call_tool = {}
+    for m in messages:
+        if getattr(m, "role", None) == "assistant":
+            for tc in (getattr(m, "tool_calls", None) or []):
+                call_tool[getattr(tc, "id", None)] = getattr(tc, "name", None)
+    blocked, kind_by_tool = set(), {}
+    for m in messages:
+        if getattr(m, "role", None) != "tool":
+            continue
+        for mt in _UNKNOWN_RE.finditer(str(getattr(m, "content", "") or "")):
+            kind, name = mt.group(1), mt.group(2)
+            blocked.add((kind, name))
+            src = call_tool.get(getattr(m, "id", None))
+            if src:
+                kind_by_tool.setdefault(src, kind)
+    return blocked, kind_by_tool
+
+
+def unknown_bl_hit(blocked, kind_by_tool, tool_name, value):
+    """이 호출이 **같은 채널에서** 이미 거부된 이름인가.
+
+    채널을 모르면(그 도구로 거부가 난 적 없음) **막지 않는다** — 넓게 막다 gold를 막는 것보다
+    좁게 막고 env가 한 번 더 거부하게 두는 편이 낫다(그때 채널이 확정된다)."""
+    if not value:
+        return False
+    kind = kind_by_tool.get(tool_name)
+    return bool(kind) and (kind, value) in blocked
+
+
 def _args_dict(tc):
     """ToolCall.arguments 를 dict로 (string JSON도 robust 파싱)."""
     a = getattr(tc, "arguments", None)
@@ -4501,14 +4547,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and tl_fb is None
                     and getattr(self, "_t2_unknownbl_deny", 0)
                     < int(os.environ.get("T2_UNKNOWN_NAME_BL_CAP", "6"))):
+                # ★채널-인식으로 교정(2026-07-31·Y2-B 실측) — 구판은 이름만 모아 **gold를 막았다**
+                #   (task_017: agent 채널 거부 → user 채널 gold give를 18회 차단). `unknown_bl_*`
+                #   헬퍼 docstring에 사고 전말·회귀 테스트 = `test_unknown_name_channel.py`.
+                #   창(-14)은 유지하되 도구 대응은 **전 대화**서 모은다(호출-결과 짝이 창 밖일 수 있다).
                 _ubl = getattr(self, "_t2_unknown_bl", None)
+                _ukind = getattr(self, "_t2_unknown_kind", None)
                 if _ubl is None:
                     _ubl = self._t2_unknown_bl = set()
-                for m in state.messages[-14:]:
-                    if getattr(m, "role", None) == "tool":
-                        for _mt in re.finditer(r"Unknown (?:agent|discoverable) tool '([^']+)'",
-                                               str(getattr(m, "content", "") or "")):
-                            _ubl.add(_mt.group(1))
+                    _ukind = self._t2_unknown_kind = {}
+                _b2, _k2 = unknown_bl_collect(state.messages)
+                _ubl |= _b2
+                _ukind.update(_k2)
                 if _ubl:
                     _na3 = dict(((a2 or {}).get("dispatcher_role_check") or {}).get("name_args") or {})
                     for _k3, _v3 in ((_unspec.get("tools") or {}) if _unspec else {}).items():
@@ -4516,7 +4566,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     for c in (am.tool_calls or []):
                         _ua3 = _na3.get(getattr(c, "name", None))
                         _uv3 = str(_args_dict(c).get(_ua3) or "") if _ua3 else ""
-                        if _uv3 and _uv3 in _ubl:
+                        if unknown_bl_hit(_ubl, _ukind, getattr(c, "name", None), _uv3):
                             _upat3 = (_unspec.get("pattern") if _unspec else None) or "_[0-9]+$"
                             un_fb = (c, ("Error: '{name}' was already rejected by the environment "
                                          "as an unknown tool earlier in this conversation - that "
