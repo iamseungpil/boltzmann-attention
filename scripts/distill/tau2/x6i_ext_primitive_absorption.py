@@ -35,7 +35,7 @@ _INTERP_FILES = ["t2_compute.py", "gate_interpreter.py", "bank_eplan_controller.
 # C234(§13d) EXT 화이트리스트 — 허용 3종.
 EXT_WHITELIST = {
     "E1_계산명세": ["compute_ops", "calc_specs", "field_ops"],
-    "E2_도구셋": ["calc_tool", "action_tool_executor", "function_agents"],
+    "E2_도구셋": ["calc_tool", "function_agents"],
     "E3_스키마상수": ["identifying_arg_types", "variant_spec", "variant_operand"],
 }
 _WL_FLAT = {k: cat for cat, ks in EXT_WHITELIST.items() for k in ks}

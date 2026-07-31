@@ -1,4 +1,22 @@
 {
+ "action_tools": [
+  "cancel_pending_order",
+  "modify_pending_order_items",
+  "modify_pending_order_address",
+  "modify_pending_order_payment",
+  "exchange_delivered_order_items",
+  "return_delivered_order_items"
+ ],
+ "eplan": {
+  "list_enumerator": "get_user_details",
+  "detail_reader": "get_order_details",
+  "entity_key": "order_id",
+  "items_key": "item_ids",
+  "items_id_path": [
+   "items",
+   "item_id"
+  ]
+ },
  "gates": [
   {
    "id": "G1_AUTH_FIRST",
@@ -208,24 +226,6 @@
    "note": "escalation is allowed once every candidate record has been inspected"
   }
  ],
- "producers": {
-  "authenticated_user_record": {
-   "tool": "get_user_details",
-   "args_from": {
-    "user_id": "@auth_user"
-   }
-  }
- },
- "eplan": {
-  "list_enumerator": "get_user_details",
-  "detail_reader": "get_order_details",
-  "entity_key": "order_id",
-  "items_key": "item_ids",
-  "items_id_path": [
-   "items",
-   "item_id"
-  ]
- },
  "operands": {
   "modify_pending_order_items": {
    "item_ids": {
@@ -276,19 +276,12 @@
    }
   }
  },
- "action_tools": [
-  "cancel_pending_order",
-  "modify_pending_order_items",
-  "modify_pending_order_address",
-  "modify_pending_order_payment",
-  "exchange_delivered_order_items",
-  "return_delivered_order_items"
- ],
- "_meta": {
-  "domain": "retail",
-  "layer": "core",
-  "source": "retail.gate.json",
-  "classifier": "x6b_a2_split.CORE/DISCARD (2026-07-30)",
-  "note": "도메인-불변 기대 기능군 — 유한성 주장의 분모(X6-c로 검정)"
+ "producers": {
+  "authenticated_user_record": {
+   "tool": "get_user_details",
+   "args_from": {
+    "user_id": "@auth_user"
+   }
+  }
  }
 }

@@ -1,17 +1,4 @@
 {
- "placeholders": [
-  "#W0000000"
- ],
- "variant_operand": [
-  "new_item_ids"
- ],
- "variant_spec": {
-  "trigger_tool": "get_product_details",
-  "nested_field": "variants",
-  "id_field": "item_id",
-  "anchor_operand": "item_ids",
-  "tie_break": "min_price"
- },
  "calc_specs": [
   {
    "trigger_tool": "get_product_details",
@@ -48,6 +35,10 @@
    "id_field": "item_id",
    "label": "cheapest available variant"
   }
+ ],
+ "calc_tool": "calculate",
+ "placeholders": [
+  "#W0000000"
  ],
  "regen_resolver_specs": [
   {
@@ -117,7 +108,6 @@
    ]
   }
  ],
- "calc_tool": "calculate",
  "tool_error_specs": [
   {
    "applies_to": [
@@ -146,11 +136,14 @@
    "hint": "The lookup key was wrong. Ask the user for the other identifier (email vs name+zip) and retry."
   }
  ],
- "_meta": {
-  "domain": "retail",
-  "layer": "ext",
-  "source": "retail.gate.json",
-  "classifier": "x6b_a2_split.CORE/DISCARD (2026-07-30)",
-  "note": "도메인-특화 스펙 = 정직한 per-domain opex (특허 유한성 주장에서 제외)"
+ "variant_operand": [
+  "new_item_ids"
+ ],
+ "variant_spec": {
+  "trigger_tool": "get_product_details",
+  "nested_field": "variants",
+  "id_field": "item_id",
+  "anchor_operand": "item_ids",
+  "tie_break": "min_price"
  }
 }

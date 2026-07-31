@@ -15,7 +15,7 @@ A2에 두는 건 문제 없다. 문제는 계산이나 도메인 특화로 어�
 import json, io, os, glob, sys
 
 E1_CALC = {"compute_ops", "calc_specs", "field_ops"}
-E2_TOOLSET = {"calc_tool", "action_tool_executor", "function_agents"}
+E2_TOOLSET = {"calc_tool", "function_agents"}
 E3_SCHEMA = {"identifying_arg_types", "variant_spec", "variant_operand"}
 
 # E-OUT의 처분(근거를 코드에 명시)

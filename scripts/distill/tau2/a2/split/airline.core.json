@@ -1,4 +1,9 @@
 {
+ "eplan": {
+  "list_enumerator": "get_user_details",
+  "detail_reader": "get_reservation_details",
+  "entity_key": "reservation_id"
+ },
  "gates": [
   {
    "id": "G1_USER_ID_PROVIDED",
@@ -60,17 +65,5 @@
     "user_id": "@auth_user"
    }
   }
- },
- "eplan": {
-  "list_enumerator": "get_user_details",
-  "detail_reader": "get_reservation_details",
-  "entity_key": "reservation_id"
- },
- "_meta": {
-  "domain": "airline",
-  "layer": "core",
-  "source": "airline.gate.json",
-  "classifier": "x6b_a2_split.CORE/DISCARD (2026-07-30)",
-  "note": "도메인-불변 기대 기능군 — 유한성 주장의 분모(X6-c로 검정)"
  }
 }

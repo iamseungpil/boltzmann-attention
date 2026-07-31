@@ -7,7 +7,10 @@ from collections import Counter, defaultdict
 
 A2 = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                  "a2", "banking_knowledge.gate.json"), encoding="utf-8"))
-EXEC = A2["action_tool_executor"]
+# ★A2 `action_tool_executor` 삭제(2026-07-31·[[23]] 감사): 출처가 gold `action_checks[].requestor`
+#   였고 env 도구 소속으로 7/7 재현되어 엔진이 도출하도록 바꿨다. 이 분석 스크립트도 같은 술어를 쓴다.
+EXEC = {}   # 도구→실행주체: 에이전트 도구 목록에 있으면 assistant, 아니면 user(env 구조)
+
 
 
 def calls(msgs):

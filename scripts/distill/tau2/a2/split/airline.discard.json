@@ -1,9 +1,1 @@
-{
- "_meta": {
-  "domain": "airline",
-  "layer": "discard",
-  "source": "airline.gate.json",
-  "classifier": "x6b_a2_split.CORE/DISCARD (2026-07-30)",
-  "note": "P2-b 폐기·anti-drift 금지분 (스위치-오버 시 기본-OFF)"
- }
-}
+{}

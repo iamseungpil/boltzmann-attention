@@ -297,16 +297,6 @@
   "_note_offer_name_key": "C241 U6c: offer_tool 의 '내부 도구 이름' 인자 키. banking 전용이고 eplan.dispatch_name_key(=agent_tool_name·call 디스패처용)와 **다른 키**라 그걸로 대체 불가 → 엔진 리터럴을 없애기 위한 신규 A2 키(순증 1). 미선언 도메인은 recommendation_verify 자체가 no-op."
  },
  "_note_recommendation_verify": "★Lever 4(사용자 2026-07-13·오추천 방지·BANK_ACTIONREQ_PROBE_FORENSIC §6b apply ⋈ 22): apply_for_credit_card=user-실행이라 write는 못 게이트하나, 에이전트가 give_discoverable_user_tool로 카드를 *제안*하는 호출은 게이트 가능. 제안 시 card_type을 요구사항→올바른 카드 formalize(직접실행 dry-run)로 검증·틀리면 교정. 카드선택=compound-criterion(F2b·요구→카드)=formalize로 닫힘(⋈경계 아님). 로직 도메인일반·이 맵=도메인 데이터.",
- "action_tool_executor": {
-  "apply_for_credit_card": "user",
-  "submit_referral": "user",
-  "submit_transaction": "user",
-  "change_user_email": "assistant",
-  "unlock_discoverable_agent_tool": "assistant",
-  "call_discoverable_agent_tool": "assistant",
-  "give_discoverable_user_tool": "assistant"
- },
- "_note_action_tool_executor": "★BANK_ACTIONREQ_PROBE_FORENSIC §3(도메인 사실·gold action_checks[].requestor): banking action은 user-실행(apply/submit_referral/submit_transaction — 에이전트 호출불가·발견/추천만)과 agent-실행(change_user_email·unlock/call_discoverable)로 갈림. action-required(조언 대신 도구호출 강제)는 **agent-실행만** 대상(user-실행은 스퓨리어스). requestor 미기재 도메인(retail)=전부 agent-실행 폴백(하위호환). [[05]]: 로직 도메인-일반·이 맵=도메인 데이터.",
  "field_ops": {
   "_note": "field→operator 분류(도메인 필드명=ABox·엔진 하드코딩 금지·[[05]]). compute는 compute_ops 키도 포함. 리뷰 ❶ 반영 2026-07-16.",
   "compute": [
@@ -1988,5 +1978,24 @@
    "discoverable_tool_name"
   ]
  },
- "_note_tool_signatures": "V7(2026-07-31): 도메인 **정책**이 서명을 명시한다 — 'Use the give_discoverable_user_tool(discoverable_tool_name) function' / '인자는 유저에게 말로 설명하라'. gold가 아니라 정책이 출처이므로 A2 EXT(스키마 상수) 선언이 정당. 엔진은 deny+재발행만 하고 인자를 떼지 않는다(C151)."
+ "_note_tool_signatures": "V7(2026-07-31): 도메인 **정책**이 서명을 명시한다 — 'Use the give_discoverable_user_tool(discoverable_tool_name) function' / '인자는 유저에게 말로 설명하라'. gold가 아니라 정책이 출처이므로 A2 EXT(스키마 상수) 선언이 정당. 엔진은 deny+재발행만 하고 인자를 떼지 않는다(C151).",
+ "_note_action_tools": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 3개 = env 3 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_gates": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 11개 = env 11 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_producers": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 0개 = env 0 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_claim_prov": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 11개 = env 8 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 2 · 미해소 1(verify_identity). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_discoverable_name_check": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 3개 = env 0 · 정책 0 · KB/DB 1 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 2(name_words, pending_orders). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_dispatcher_role_check": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 1개 = env 1 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_field_ops": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 27개 = env 0 · 정책 0 · KB/DB 19 · 자기어휘(scaffold가 지은 이름) 6 · 미해소 2(dispute_type, report_id). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_follow_up_chains": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 21개 = env 15 · 정책 0 · KB/DB 3 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 3(apply_flag, check_card_closure_eligibility, check_cli). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_function_agents": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 1개 = env 0 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 1(policy_qa). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_have_value_reask": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 4개 = env 3 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 1 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_param_cap_check": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 3개 = env 1 · 정책 0 · KB/DB 2 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_prescription_redirect": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 4개 = env 2 · 정책 0 · KB/DB 1 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 1(file_dispute). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_ref_iso": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 2개 = env 2 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_ref_verify": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 3개 = env 1 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 2(efiso_detmatch_proof, file_dispute). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_unavailable_tools": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 0개 = env 0 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_value_acquisition": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 4개 = env 2 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 2 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_view_field_annotations": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 5개 = env 0 · 정책 0 · KB/DB 5 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_write_arg_grounding": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 4개 = env 3 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 1 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "_note_write_evidence_specs": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 21개 = env 12 · 정책 0 · KB/DB 2 · 자기어휘(scaffold가 지은 이름) 3 · 미해소 4(cash_back_disputes, check_card_closure_eligibility, get_interest_correction, task_029). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상)."
 }

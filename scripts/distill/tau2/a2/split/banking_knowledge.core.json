@@ -1,56 +1,96 @@
 {
- "gates": [
-  {
-   "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS",
-   "kind": "auth",
-   "predicate": "customer identity verified and logged (log_verification) in this conversation",
-   "verify_gather_prefix": "get_user_information_by",
-   "_note_verify_gather_prefix": "★Lever 3(BANK_ACTIONREQ_PROBE_FORENSIC §6b·verify미완+신원수집+포기 26 sims·task_023형): 신원정보 수집 도구 prefix. 에이전트가 이 prefix로 신원을 모았는데 satisfier(log_verification) 미호출 상태로 포기하면 완결 리마인더. 도메인 데이터(도구명 prefix)·로직=도메인일반.",
-   "satisfiers": {
-    "log_verification": [
-     "name",
-     "user_id",
-     "address",
-     "email",
-     "phone_number",
-     "date_of_birth",
-     "time_verified"
-    ]
-   },
-   "applies_to": [
-    "change_user_email",
-    "get_referrals_by_user",
-    "get_credit_card_transactions_by_user",
-    "get_credit_card_accounts_by_user",
-    "submit_referral",
-    "call_discoverable_agent_tool"
-   ],
-   "applies_when": {
-    "arg": "agent_tool_name",
-    "not_in": [
-     "initial_transfer_to_human_agent_0218",
-     "initial_transfer_to_human_agent_1822",
-     "emergency_credit_bureau_incident_transfer_1114"
-    ]
-   },
-   "note": "verify the customer FIRST: confirm 2 of {date of birth, email, phone number, address} against the record (use the get_user_information_by_* read tools), then call log_verification with the verified values and get_current_time() — only then perform account actions. Transfer/incident tools do not need verification."
-  },
-  {
-   "id": "GB2_NOTICE_BEFORE_TRANSFER",
-   "kind": "notice",
-   "predicate": "the mandatory pre-transfer notice (knowledge base exhausted + ask-first) has been communicated to the user",
-   "satisfiers": {},
-   "notice_text": "TRANSFER NOTICE: I have checked the knowledge base and there are no further actions I can take for this request. Would you like to be transferred to a human agent?",
-   "term_grant_reminder_extra": "Do not ask for more identifiers — identity verification is not required for a transfer.",
-   "_note_reminder_extra": "C212 리뷰 반영: 이 문구는 도메인 사실(위 verify note 'Transfer/incident tools do not need verification')에 근거한 A2 선언 — 엔진 하드코딩이면 transfer-전-검증이 필요한 도메인서 정책 위반 지시가 됨([[05]]).",
-   "ask": "policy: transfer only if you absolutely have to and you are SURE there are no potential actions you can take as specified in the knowledge base or in your policy — and never without asking the user first. Search the knowledge base and attempt every applicable procedure for this request; when (and only when) nothing remains, send the user exactly this message first: \"TRANSFER NOTICE: I have checked the knowledge base and there are no further actions I can take for this request. Would you like to be transferred to a human agent?\" — then retry the transfer IMPORTANT: send the notice at most ONCE. If the customer has already agreed to the transfer (or already asked for it), do NOT send the notice again and do NOT ask again — immediately CALL transfer_to_human_agents as a tool call with an appropriate summary. Saying you will transfer, or repeating the notice, does not transfer anyone. When you DO call transfer_to_human_agents, pick the MOST SPECIFIC reason option that matches the situation (for example: the customer's stated identity values do not match the account record -> an ownership-dispute reason; a mailed offer/flyer that cannot be verified in the knowledge base -> an unconfirmed-external-communication reason; a knowledge-base search that failed while the customer asks for a human -> that specific reason). Use the generic no-specific-reason option ONLY when no other option fits.",
-   "applies_to": [
-    "transfer_to_human_agents"
-   ],
-   "_note_gb2": "BANKING_FLOOR_LEVER_FIT §2.6/§0.1-row10 EARLY_TRANSFER 36 sims(21.2%·gold-밖 transfer) 표적. 정책-사실 근거=policy §5 원문('Do this only if you absolutely have to, and you are sure that there are no potential actions you can take as specified in the knowledge base, or in your policy. Do not transfer without asking the user first.'). notice_text 자체는 정책에 고정문구 없어 §5의 두 요건(exhaust-확신+ask-first)을 그대로 진술한 합성 문구 — deny 메시지(ask)가 exact text를 제공하므로 gold-transfer 복구=1턴. applies_to=policy가 명명한 transfer_to_human_agents만(궤적 66콜=이관 질량 대부분; dispatcher 내부 initial_transfer_* 8콜은 gold-예외 태스크 경로라 미게이트=Δspurious 최소화). ⚠계측 필요: floor pass 9 sims 중 4개(033 t0/t1·034 t0/t1)가 transfer_to_human_agents 호출 → 이 게이트 발화(1턴 마찰) — Δspurious≤0는 재실측으로 확인할 것."
-  }
+ "action_tools": [
+  "apply_for_credit_card",
+  "submit_referral",
+  "change_user_email",
+  "submit_transaction",
+  "unlock_discoverable_agent_tool",
+  "call_discoverable_agent_tool",
+  "give_discoverable_user_tool"
  ],
- "producers": {},
+ "arg_producers": {
+  "card_last_4_digits": {
+   "user_tool": "get_card_last_4_digits"
+  }
+ },
+ "claim_prov": {
+  "question": "Before your reply is sent, audit yourself. (1) In YOUR REPLY ONLY: list every assertion that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did do NOT count. (2) Across the WHOLE conversation: list every action YOU said you WILL do / are about to do (e.g. 'I will file the disputes') that you have NOT completed yet. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"search|verify|record_update|dispute_file|give|transfer|write\", \"what\": \"<5-10 words>\"}], \"pending\": [{\"kind\": \"search|verify|record_update|dispute_file|give|transfer|write\", \"what\": \"<5-10 words>\", \"tool\": \"<the exact tool name you would need to call for it, or omit if none>\"}]} — empty lists if none. Choose the MOST SPECIFIC kind that fits (record_update for changing a stored record's values, dispute_file for filing/submitting a dispute or report); use the generic \"write\" ONLY when no specific kind applies.",
+  "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why). Do not end your involvement by describing the work as done or under way — either call the tool now, or state explicitly that it has NOT been performed.",
+  "event_map": {
+   "search": [
+    "KB_",
+    "shell",
+    "list_discoverable"
+   ],
+   "verify": [
+    "verify_identity",
+    "log_verification"
+   ],
+   "write": "__effective_write__",
+   "give": [
+    "give_"
+   ],
+   "transfer": [
+    "transfer_",
+    "request_human"
+   ],
+   "record_update": [
+    "update_transaction_rewards",
+    "update_",
+    "apply_statement_credit",
+    "apply_checking_account_credit"
+   ],
+   "dispute_file": [
+    "file_credit_card_transaction_dispute",
+    "submit_cash_back_dispute",
+    "submit_interest_discrepancy_report",
+    "file_",
+    "submit_"
+   ]
+  },
+  "feedback": "Error: [CLAIM-PROVENANCE] your reply asserts you already did the following, but the conversation ledger shows NO such event: {claims}. Do NOT claim actions you have not actually performed — that misleads the customer. Either actually do it now (call the real tools: search the knowledge base, run the verification, execute the action), or correct your statement to say you have not done it yet. A statement to the customer is NOT a substitute for the tool call: if the action is still required, make the call in THIS reply; if you cannot make it (for example it is the customer who must run that tool), say plainly that it has NOT been done and tell them exactly what remains.",
+  "_note": "2026-07-20 사용자 일반화('모든 했다 주장을 원장대조'). 043 e2e 실측: KB실호출 0·'checked KB' 주장 1→조기 transfer. WRITEPROV(완료-주장·write축)의 상위호환 — kind별 event_map으로 search/verify/give/transfer까지. 미등재 kind=엔진 skip. T2_CLAIM_PROV=1 구동·기본 OFF. ★관문5 확장(2026-07-20·038·§2ad): ①발화창=사임∨transfer호출(event_map.transfer 패턴 재사용·notice-티켓 탈출 차단) ②question v2=claims(과거·답변만)+pending(미래약속·전대화)·feedback_pending=지금 실행 후 transfer 지시. 한계: pending kind=write는 __effective_write__ 광역대조(무관 write 존재 시 false-negative·주의). Δspurious 계측 대상(정당 즉시-transfer는 pending 0라 무간섭 설계).",
+  "_note_granular_kinds": "C201/D1(2026-07-26·§7-0 실측): generic write는 __effective_write__라 **무관한 write**(예: 유저의 dispute 제출)가 별개 완료-날조를 뒷받침했다(026/028 실측 backed). 세분 kind=도구 접두 등록만(정답 미지정·엔진 무변경).",
+  "reserve_kinds": [
+   "record_update",
+   "dispute_file",
+   "transfer",
+   "write"
+  ],
+  "_note_reserve": "C201/D3(2026-07-26): cap 소진 후 sim당 1회 예비-창 — 행동-kind 주장에만 집행. 엔진은 kind 문자열 대조만(어떤 kind가 행동인지=A2 소관).",
+  "feedback_unavailable": "Error: [UNAVAILABLE-CAPABILITY] you told the customer you would do the following, but the tool it requires does not exist among the tools available to you: {claims}. Do not offer or promise capabilities you do not have — it strands the customer waiting for something that will never happen. Say plainly that you cannot do it, and either use a capability you actually have or follow the escalation path in your policy.",
+  "_note_unavail": "C207/C2-a(2026-07-27·004·035 실측: 존재하지 않는 OTP/SMS 발송을 여러 턴 반복 약속하며 창 소진). 엔진=약속 도구명이 {도구목록 ∪ user-discoverable ∪ 대화서 unlock/give된 이름 ∪ 호출된 이름}에 있는지 집합 대조만(접미사 strip). tool 미선언 pending=판정 안 함(하위호환). T2_UNAVAIL_PROMISE=1."
+ },
+ "completion_guard": {
+  "user_execution_tool": "call_discoverable_user_tool",
+  "claim_question": "Before your reply is sent, answer ONE question about YOUR REPLY ONLY. Does your reply state or imply that some action has already been completed, submitted, filed, scheduled, or confirmed — OR that YOU (the agent) will submit/schedule/perform it? Merely giving the customer a tool to run, or instructing THEM to run it, does NOT count. Reply with exactly one JSON object and nothing else: {\"claims_completion\": true} or {\"claims_completion\": false}",
+  "feedback": "Error: [WRITE-PROVENANCE] your reply claims an action was completed/submitted/scheduled, but there is no record of any state-changing action having executed in this conversation. You cannot perform actions the customer must run themselves; only the CUSTOMER can, by calling the tool you gave them. Do NOT claim any action has been submitted, filed, or scheduled; do NOT invent case/reference/confirmation numbers; do NOT promise callbacks or confirmation emails. Instead, restate your reply: hand the customer the appropriate tool and tell them to run it themselves."
+ },
+ "discoverable_name_check": {
+  "tools": {
+   "unlock_discoverable_agent_tool": "agent_tool_name"
+  },
+  "pattern": "_[0-9]+$",
+  "feedback": "Error: '{name}' is missing its numeric suffix, so it was not looked up. Discoverable tools must be referenced by their FULL name including the numeric suffix (e.g. ..._1234). You do NOT know the suffix from memory - search the knowledge base NOW to find the exact suffixed tool name in the procedure documents. Query with plain words describing the action - for '{name}' query e.g. \"{name_words}\" - because a bare tool-name query matches no document text. Then retry the unlock with that full suffixed name.",
+  "_note": "2026-07-21 §2bh (rall5 실측·§2bf 철회 근거): FOLLOWUP CAP3+FORCE는 행동을 움직였다 - 모델이 dispute_history·pending_orders unlock을 sim당 3회 시도. 전부 bare-name→env 'Unknown tool'→포기 반복(6 sim×2도구×3회). 마지막 고리=이름-형식. 생성-레벨 deny(비커밋·replay-clean)+required regen으로 KB-검색 유도. 엔진=패턴 대조만(이름 리터럴 0·검색·선택=모델). give용 인자도 선언(031 계열 대비). ★2026-07-22 §2bm 교정: give(user-도구)는 접미사 無가 정상(e2e10 bare-give 성공 실증) — rall8 038서 정당 give 6회 오차단(give-flow 봉쇄→dispute 0)의 자해 실측 → give를 검사에서 제거(unlock만 잔류). ★2026-07-22 §2bs(rall10 050/052 실측): 舊문구 'query the tool's purpose or base name'의 base-name 질의=BM25 score 0.0(문서에 도구명 토큰 부재)→deny→검색실패 마찰 루프가 FOLLOWUP cap을 소모. env BM25 토크나이저는 upstream 벤치 고정([[05]]·비교가능성)이라 불가침 — 피드백이 자연어 질의를 직접 예시({name_words}=엔진 일반 파생: suffix 제거+언더스코어→공백)하는 것으로 교정. 접미사 자체는 여전히 미제공(발견=모델+KB 몫)."
+ },
+ "dispatcher_role_check": {
+  "unlock_tool": "unlock_discoverable_agent_tool",
+  "agent_call": "call_discoverable_agent_tool",
+  "give_tool": "give_discoverable_user_tool",
+  "user_call": "call_discoverable_user_tool",
+  "name_args": {
+   "unlock_discoverable_agent_tool": "agent_tool_name",
+   "call_discoverable_agent_tool": "agent_tool_name",
+   "give_discoverable_user_tool": "discoverable_tool_name",
+   "call_discoverable_user_tool": "discoverable_tool_name"
+  },
+  "give_agent_tool_feedback": "Error: '{name}' is one of YOUR OWN agent tools - it cannot be given to the customer, and the environment will reject it. give_discoverable_user_tool is ONLY for USER-side discoverable tools. If the customer already told you the exact name of the tool they need, give THAT exact name; otherwise search the knowledge base with plain words for what the customer needs to do themselves, and give the user-side tool named there.",
+  "agent_via_user_feedback": "Error: '{name}' is an AGENT tool (you unlocked it in this conversation). Invoke it via call_discoverable_agent_tool, NOT call_discoverable_user_tool.",
+  "user_via_agent_feedback": "Error: '{name}' is a USER tool (you gave it to the customer). You cannot run it yourself and must not route it through the agent dispatcher - ask the CUSTOMER to run it and tell you the result.",
+  "agent_runs_user_feedback": "Error: '{name}' is a USER tool. The CUSTOMER must run it themselves after you give it with give_discoverable_user_tool - ask them to run it and report the result; do not call it yourself.",
+  "_note": "2026-07-22 §2bl(rall8 031 실측): dispute를 user-디스패처로 제출·user-도구를 에이전트가 직접 호출 4회. 술어=대화 자기-이력(unlock/give 이벤트)로 이름의 역할 판정 — 엔진 이름-리터럴 0·A2=디스패처 5도구명+문구."
+ },
  "eplan": {
   "list_enumerator": [
    "get_credit_card_transactions_by_user",
@@ -124,6 +164,122 @@
   "unlock_tool": "unlock_discoverable_agent_tool",
   "list_tool": "list_discoverable_agent_tools"
  },
+ "follow_up_chains": [
+  {
+   "after": [
+    "submit_credit_limit_increase_request",
+    "check_cli_eligibility"
+   ],
+   "requires": [
+    "submit_credit_limit_increase_request",
+    "get_user_dispute_history",
+    "get_pending_replacement_orders",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ],
+   "decision_tools": [
+    "approve_credit_limit_increase",
+    "deny_credit_limit_increase"
+   ],
+   "decision_feedback": "Error: [FOLLOW-UP] you computed the eligibility verdict but never executed the terminal decision with a TOOL CALL. If the verdict is ELIGIBLE, call approve_credit_limit_increase; if it is NOT_ELIGIBLE (cooldown, utilization, age, or payment history), call deny_credit_limit_increase with the matching denial_reason. Both are DISCOVERABLE tools - unlock the full suffixed name first. A verbal explanation to the customer is NOT a substitute for the decision tool call. Do not stop here.",
+   "feedback": "Error: [FOLLOW-UP] the credit limit increase procedure is NOT complete. Steps still missing: {missing}. The customer requested a credit limit increase, so you must (1) submit the request with submit_credit_limit_increase_request (this formally logs the customer's request - do it even if you suspect the outcome), (2) run every eligibility check, then (3) make the terminal decision with a tool call. Do NOT let check_cli_eligibility replace these steps - it only computes the verdict; the request and the decision are separate REQUIRED tool calls. These checks are DISCOVERABLE tools: for each, search the knowledge base with plain words for the step, unlock the full suffixed name, then call it. Do not end the conversation with the request unsubmitted or the decision unmade.",
+   "_note": "2026-07-20 Q1 + 관문2 확장(§2aa): requires=full required-set 4체크(050 실증: 단일 requires는 이미-호출된 history만 봐 pending 건너뜀을 못 잡음). {missing}=누락 전량 나열(050 follow-through+054 query-gap 동시 커버). decision_tools/decision_feedback=종단결정 nudge — approve 강제 아님(052 decline-정답 보호·문구 양방향·Δspurious 계측 대상). 엔진=집합 대조·치환만(리터럴 0). ★e2e10 052 포렌식(§2au): gold 종단=deny 도구 호출인데 구문구가 '텍스트 decline 가능'을 가르침(마지막-1홉 결함 6호)→decision_tools에 deny 추가·도구-호출 명시·unlock 프로토콜 포함. ★2026-07-22 §2bv 강건화(rall12 052 실측): check_cli가 submit·deny 도구 절차를 우회(사전판정→구두안내 종결)→submit·deny X. anchor에 check_cli 추가(submit 스킵 경로도 chain 발화)·requires에 submit 추가(미실행 시 missing)·문구=check_cli는 판정보조·절차대체 아님 명시. user가 지름길 유도해도 절차 완주(경로-무관 강건)."
+  },
+  {
+   "after": "check_card_closure_eligibility",
+   "requires": [
+    "get_user_dispute_history",
+    "get_pending_replacement_orders",
+    "get_all_user_accounts_by_user_id",
+    "pay_credit_card_from_checking",
+    "get_closure_reason_history",
+    "log_credit_card_closure_reason"
+   ],
+   "decision_tools": [
+    "apply_credit_card_account_flag",
+    "close_credit_card_account"
+   ],
+   "decision_feedback": "Error: [FOLLOW-UP] you completed the closure checks but never executed the terminal step with a TOOL CALL. Per the retention protocol in the knowledge base: after logging the closure reason, address the concern - if the reason qualifies for a retention remedy under that protocol (e.g. an annual-fee waiver via apply_credit_card_account_flag for eligible long-tenured customers), offer it and apply it with the customer's consent; if the customer still wants to close or no retention remedy applies, process the closure with close_credit_card_account. Both are DISCOVERABLE tools - unlock the full suffixed name first (find it in the knowledge base by searching plain words describing the step). Do NOT merely describe the outcome in text, and do NOT transfer with the decision unmade.",
+   "feedback": "Error: [FOLLOW-UP] you started the card-closure eligibility check but the closure procedure is NOT complete. Steps still missing: {missing}. Per the closure/retention protocol: check the customer's pending disputes (dispute history) and pending replacement orders; if there is an outstanding balance, read the customer's accounts (get_all_user_accounts_by_user_id - this also gives you the CHECKING account id; its full suffixed name is in the knowledge-base document titled 'Retrieving Customer Account Information' - search e.g. \"retrieve customer bank accounts\") and pay the balance from checking with the customer's authorization; check closure-reason history; ask the customer's reason and log it (the 'Credit Card Retention Protocol' document covers these closure steps and annual-fee remedies). These are DISCOVERABLE tools - if you do not know a tool's full suffixed name, search the knowledge base (KB_search_bm25) for it using plain words describing the step (e.g. \"closure reason history\"; a bare tool-name query matches no document text); do NOT conclude a tool or record does not exist, and do NOT transfer while these tool steps remain available.",
+   "_note": "2026-07-22 §2bn(rall8 043 실측): pay unlock까지 도달 후 체킹 계좌 id를 KB 문서(shell 4연발)서 찾다 transfer(C108류) - reader(get_all_user_accounts)가 requires에 있어 {missing} 나열로 안내됨. 앵커=check_card_closure_eligibility(§2bc 관문3·자발 호출 실증). requires 근거=KB doc_credit_card_account_logistics_002/003. 조건부 단계(잔액 0이면 pay 불요)는 문구에 명시=over-fire 시 모델이 설명으로 해소 가능(deny 아닌 nudge). ★2026-07-22 §2bs(rall10 043 실측+KB 재정독): ①구판 requires에 dispute-체크 누락(리텐션 프로토콜 Step1.1=get_user_dispute_history) 추가 ②close를 requires에서 제거 — logistics_003 Step4: annual_fee+장기고객=waive(apply_credit_card_account_flag)가 정답 분기라 close 고정은 KB-불일치(gold-불일치는 결과·근거는 KB) → 종단을 decision_tools[apply_flag|close] 양방향 nudge로 전환(CLI chain approve|deny와 동형·Δspurious 계측 대상)."
+  },
+  {
+   "after": [
+    "initial_transfer_to_human_agent",
+    "emergency_credit_bureau_incident_transfer"
+   ],
+   "requires": [
+    "transfer_to_human_agents"
+   ],
+   "feedback": "Error: [FOLLOW-UP] you already executed the escalation step, but the ledger shows {missing} was never called, so the customer has NOT actually been transferred. Saying that you have connected them does not transfer anyone. If your policy's escalation protocol still requires further steps (for example repeating the escalation tool the prescribed number of times), perform those steps first; once the protocol is satisfied and the customer has agreed, call the transfer tool itself in a tool call.",
+   "_note": "C201/D2(2026-07-26·035 [S]): 에스컬 도구 출력이 즉시-transfer를 지시했는데 notice 발화(사임-턴)로 창 소멸. 발화창=기존 _chain_dispatch. 문구는 양방향(프로토콜 잔여 단계 우선 허용)=조기 transfer Δspurious 완화. ★리뷰 결함2 반영(2026-07-26): 전역 T2_FOLLOWUP_RESIGN_TH=2는 035형(사임 1턴 뒤 terminal) 궤적서 구조적 미발화 → 이 체인만 resign_th=1. 전역 하향은 기존 체인까지 조기 발화(Δspurious 확산)라 국소화. 033형 PASS 회귀를 §9 계측에 추가.",
+   "resign_th": 1,
+   "reserve": true
+  },
+  {
+   "after": [
+    "submit_cash_back_dispute"
+   ],
+   "requires": [
+    "update_transaction_rewards"
+   ],
+   "feedback": "Error: [FOLLOW-UP] cash back disputes were submitted, but the ledger shows {missing} was never called. The reward-check tool's own output states that AFTER a dispute is resolved, that transaction's rewards must be updated to EXACTLY the correct value it showed. If the customer has confirmed the disputes are resolved, unlock and call the update tool now with those exact values — a verbal summary does not update any record. If resolution has NOT been confirmed yet, do not update; tell the customer plainly what remains and that no update has happened.",
+   "resign_th": 1,
+   "_note": "C204/D8(2026-07-27·day3 028[검출 6/6·분쟁 6/6 후 갱신 거부]·021[실행 1/2]·day2 026[갱신 말-완결] 실측): 분쟁-제출 후 갱신 단계의 이행 nudge. 문구 양방향(미해결 시 갱신 금지 명시)=조기 갱신 Δspurious 완화. after=유저-실행 dispute의 effective명(디스패처 unwrap). ★C214: resign_th=1로 하향 — day7 028 실측=분쟁 6건 성사 후 남은 사임 턴이 2회뿐(101/103)이고 곧 transfer 종료라 전역 임계 2로는 구조적 미발화(C201/D2 035형과 동일 사유). 억제 시 `chain suppressed` 마크로 원인 계측."
+  }
+ ],
+ "gates": [
+  {
+   "id": "GB1_VERIFY_BEFORE_ACCOUNT_ACCESS",
+   "kind": "auth",
+   "predicate": "customer identity verified and logged (log_verification) in this conversation",
+   "verify_gather_prefix": "get_user_information_by",
+   "_note_verify_gather_prefix": "★Lever 3(BANK_ACTIONREQ_PROBE_FORENSIC §6b·verify미완+신원수집+포기 26 sims·task_023형): 신원정보 수집 도구 prefix. 에이전트가 이 prefix로 신원을 모았는데 satisfier(log_verification) 미호출 상태로 포기하면 완결 리마인더. 도메인 데이터(도구명 prefix)·로직=도메인일반.",
+   "satisfiers": {
+    "log_verification": [
+     "name",
+     "user_id",
+     "address",
+     "email",
+     "phone_number",
+     "date_of_birth",
+     "time_verified"
+    ]
+   },
+   "applies_to": [
+    "change_user_email",
+    "get_referrals_by_user",
+    "get_credit_card_transactions_by_user",
+    "get_credit_card_accounts_by_user",
+    "submit_referral",
+    "call_discoverable_agent_tool"
+   ],
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "not_in": [
+     "initial_transfer_to_human_agent_0218",
+     "initial_transfer_to_human_agent_1822",
+     "emergency_credit_bureau_incident_transfer_1114"
+    ]
+   },
+   "note": "verify the customer FIRST: confirm 2 of {date of birth, email, phone number, address} against the record (use the get_user_information_by_* read tools), then call log_verification with the verified values and get_current_time() — only then perform account actions. Transfer/incident tools do not need verification."
+  },
+  {
+   "id": "GB2_NOTICE_BEFORE_TRANSFER",
+   "kind": "notice",
+   "predicate": "the mandatory pre-transfer notice (knowledge base exhausted + ask-first) has been communicated to the user",
+   "satisfiers": {},
+   "notice_text": "TRANSFER NOTICE: I have checked the knowledge base and there are no further actions I can take for this request. Would you like to be transferred to a human agent?",
+   "term_grant_reminder_extra": "Do not ask for more identifiers — identity verification is not required for a transfer.",
+   "_note_reminder_extra": "C212 리뷰 반영: 이 문구는 도메인 사실(위 verify note 'Transfer/incident tools do not need verification')에 근거한 A2 선언 — 엔진 하드코딩이면 transfer-전-검증이 필요한 도메인서 정책 위반 지시가 됨([[05]]).",
+   "ask": "policy: transfer only if you absolutely have to and you are SURE there are no potential actions you can take as specified in the knowledge base or in your policy — and never without asking the user first. Search the knowledge base and attempt every applicable procedure for this request; when (and only when) nothing remains, send the user exactly this message first: \"TRANSFER NOTICE: I have checked the knowledge base and there are no further actions I can take for this request. Would you like to be transferred to a human agent?\" — then retry the transfer IMPORTANT: send the notice at most ONCE. If the customer has already agreed to the transfer (or already asked for it), do NOT send the notice again and do NOT ask again — immediately CALL transfer_to_human_agents as a tool call with an appropriate summary. Saying you will transfer, or repeating the notice, does not transfer anyone. When you DO call transfer_to_human_agents, pick the MOST SPECIFIC reason option that matches the situation (for example: the customer's stated identity values do not match the account record -> an ownership-dispute reason; a mailed offer/flyer that cannot be verified in the knowledge base -> an unconfirmed-external-communication reason; a knowledge-base search that failed while the customer asks for a human -> that specific reason). Use the generic no-specific-reason option ONLY when no other option fits.",
+   "applies_to": [
+    "transfer_to_human_agents"
+   ],
+   "_note_gb2": "BANKING_FLOOR_LEVER_FIT §2.6/§0.1-row10 EARLY_TRANSFER 36 sims(21.2%·gold-밖 transfer) 표적. 정책-사실 근거=policy §5 원문('Do this only if you absolutely have to, and you are sure that there are no potential actions you can take as specified in the knowledge base, or in your policy. Do not transfer without asking the user first.'). notice_text 자체는 정책에 고정문구 없어 §5의 두 요건(exhaust-확신+ask-first)을 그대로 진술한 합성 문구 — deny 메시지(ask)가 exact text를 제공하므로 gold-transfer 복구=1턴. applies_to=policy가 명명한 transfer_to_human_agents만(궤적 66콜=이관 질량 대부분; dispatcher 내부 initial_transfer_* 8콜은 gold-예외 태스크 경로라 미게이트=Δspurious 최소화). ⚠계측 필요: floor pass 9 sims 중 4개(033 t0/t1·034 t0/t1)가 transfer_to_human_agents 호출 → 이 게이트 발화(1턴 마찰) — Δspurious≤0는 재실측으로 확인할 것."
+  }
+ ],
+ "nonlisted_tool_feedback": "Discoverable agent tools must first be unlocked with unlock_discoverable_agent_tool(agent_tool_name=...) and then invoked through call_discoverable_agent_tool(agent_tool_name=..., arguments=...); discoverable user tools are granted to the customer via give_discoverable_user_tool.",
  "operands": {
   "unlock_discoverable_agent_tool": {
    "agent_tool_name": {
@@ -146,174 +302,34 @@
    }
   }
  },
- "action_tools": [
-  "apply_for_credit_card",
-  "submit_referral",
-  "change_user_email",
-  "submit_transaction",
-  "unlock_discoverable_agent_tool",
-  "call_discoverable_agent_tool",
-  "give_discoverable_user_tool"
- ],
- "write_evidence_specs": [
-  {
-   "applies_to": "call_discoverable_agent_tool",
-   "applies_when": {
-    "arg": "agent_tool_name",
-    "prefix": "update_transaction_rewards"
-   },
-   "id_key": "transaction_id",
-   "require_tokens": [
-    "RESOLVED"
-   ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows a RESOLVED dispute for transaction {id} — a customer's verbal claim is NOT evidence. Do NOT update this transaction. First verify the dispute status from actual tool results (e.g., the dispute submission result). If the dispute is not RESOLVED, refuse the update and explain that the correction will be applied once the dispute is actually resolved.",
-   "_note": "2026-07-19 task_029 포렌식: 서브밋 반환이 'Status: SUBMITTED'인데 사용자 거짓말('승인·해결됐다')만 믿고 update 6건→db 오염 0점. 증거=도구출력 substring 공존(txn id+RESOLVED)·user *발화*는 배제(role=tool만). 026/028 auto-resolve 반환문('Status: RESOLVED - approved'+Arguments에 txn id)에 실재→무회귀. T2_WRITE_EVIDENCE=1 구동·기본 OFF."
-  },
-  {
-   "applies_to": "call_discoverable_agent_tool",
-   "applies_when": {
-    "arg": "agent_tool_name",
-    "prefix": "approve_credit_limit_increase"
-   },
-   "id_key": "credit_card_account_id",
-   "require_tokens": [
-    "Consecutive on-time payments"
-   ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the payment history check (get_payment_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_payment_history tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
-   "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제). ★2026-07-22 §2bu(rall11 054 실측·rall9 8연발 소급): get_payment_history 도구 출력에는 도구명 토큰이 없음(\"Payment history for account...( )Consecutive on-time payments: N\" 포맷·Executed 헤더 無)→증거 확보 후에도 8 deny·재수집 9연발·cap 소진. 토큰을 출력-실재 문자열로 교정(id 공존 조건 유지)."
-  },
-  {
-   "applies_to": "call_discoverable_agent_tool",
-   "applies_when": {
-    "arg": "agent_tool_name",
-    "prefix": "approve_credit_limit_increase"
-   },
-   "id_key": "credit_card_account_id",
-   "require_tokens": [
-    "get_credit_limit_increase_history"
-   ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the credit limit increase history check (get_credit_limit_increase_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_credit_limit_increase_history tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
-   "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제)."
-  },
-  {
-   "applies_to": "call_discoverable_agent_tool",
-   "applies_when": {
-    "arg": "agent_tool_name",
-    "prefix": "approve_credit_limit_increase"
-   },
-   "id_key": "credit_card_account_id",
-   "require_tokens": [
-    "get_pending_replacement_orders"
-   ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement orders check (get_pending_replacement_orders*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_pending_replacement_orders tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
-   "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제)."
-  },
-  {
-   "applies_to": "call_discoverable_agent_tool",
-   "applies_when": {
-    "arg": "agent_tool_name",
-    "prefix": "approve_credit_limit_increase"
-   },
-   "id_key": "credit_card_account_id",
-   "require_tokens": [
-    "ELIGIBLE - all tier requirements"
-   ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows account {id} is ELIGIBLE (the check_cli_eligibility tool returning the 'ELIGIBLE - all tier requirements ... satisfied' verdict). Do NOT decide approve or deny from your own arithmetic about account age, cooldown, utilization or payment months - the cooldown days especially are easy to miscount. Call check_cli_eligibility with the values copied exactly from the account record, the CLI request history and the payment history, then execute the verdict it returns: approve ONLY if it says ELIGIBLE; if it returns a NOT_ELIGIBLE_* verdict, unlock and call deny_credit_limit_increase with the reason it gives.",
-   "_note": "2026-07-22: 052 실측(rall14·전수추적) — approve의 기존 3 read-WEV(payment/history/replacement '읽었나'만)는 통과했는데 에이전트가 쿨다운 60일을 '120일 지났다'로 직접 오판→approve(gold=deny). closure의 CLOSURE_OK 게이트와 동형: 종단결정(approve)을 결정론 판정도구(check_cli_eligibility)의 ELIGIBLE 판정+id공존에 정박=직접 산수 무력화([[10]]·F2b·decidable). 판정=엔진 결정론(days_between/compare/case·Part1 오프라인 검증 052→NOT_ELIGIBLE_COOLDOWN·60<120). 토큰 비중첩: 'ELIGIBLE - all tier requirements'는 NOT_ELIGIBLE_* 렌더에 미출현. deny측 미게이트(pending_disputes/replacement 등 다중 정당근거→over-block 회피). Δspurious 계측 대상(적격 케이스 approve 지연=도구 1콜 추가)."
-  },
-  {
-   "applies_to": "call_discoverable_agent_tool",
-   "applies_when": {
-    "arg": "agent_tool_name",
-    "prefix": "close_credit_card_account"
-   },
-   "id_key": "credit_card_account_id",
-   "require_tokens": [
-    "get_closure_reason_history"
-   ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason history (retention-abuse check) (get_closure_reason_history*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_closure_reason_history tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix. Find the tool's full suffixed name in the knowledge base by searching plain words describing the step (e.g. \"closure reason history\") - a bare tool-name query matches no document text.",
-   "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5). ★2026-07-22 §2bu(rall11 038 실측): 8회 deny 전부 이 계열인데 에이전트가 도구명-질의(score 0)로 발견 실패→cap 소진→close 통과. 질의-가이드(1a 동형) 주입."
-  },
-  {
-   "applies_to": "call_discoverable_agent_tool",
-   "applies_when": {
-    "arg": "agent_tool_name",
-    "prefix": "close_credit_card_account"
-   },
-   "id_key": "credit_card_account_id",
-   "require_tokens": [
-    "log_credit_card_closure_reason"
-   ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason logging (log_credit_card_closure_reason*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the log_credit_card_closure_reason tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix. Find the tool's full suffixed name in the knowledge base by searching plain words describing the step (e.g. \"log credit card closure reason\") - a bare tool-name query matches no document text.",
-   "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5). ★2026-07-22 §2bu(rall11 038 실측): 8회 deny 전부 이 계열인데 에이전트가 도구명-질의(score 0)로 발견 실패→cap 소진→close 통과. 질의-가이드(1a 동형) 주입."
-  },
-  {
-   "applies_to": "call_discoverable_agent_tool",
-   "applies_when": {
-    "arg": "agent_tool_name",
-    "prefix": "close_credit_card_account"
-   },
-   "id_key": "credit_card_account_id",
-   "require_tokens": [
-    "get_pending_replacement_orders"
-   ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement card check (get_pending_replacement_orders*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_pending_replacement_orders tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix. Find the tool's full suffixed name in the knowledge base by searching plain words describing the step (e.g. \"pending replacement orders\") - a bare tool-name query matches no document text.",
-   "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5). ★2026-07-22 §2bu(rall11 038 실측): 8회 deny 전부 이 계열인데 에이전트가 도구명-질의(score 0)로 발견 실패→cap 소진→close 통과. 질의-가이드(1a 동형) 주입."
-  },
-  {
-   "applies_to": "call_discoverable_agent_tool",
-   "applies_when": {
-    "arg": "agent_tool_name",
-    "prefix": "close_credit_card_account"
-   },
-   "id_key": "credit_card_account_id",
-   "require_tokens": [
-    "CLOSURE_OK"
-   ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that account {id} is ELIGIBLE for closure (CLOSURE_OK). The closure protocol disqualifies closing an account with an outstanding balance. First read the credit card account record for {id}, then call check_card_closure_eligibility with the account id, the outstanding balance copied from the record, and the verbatim balance line. If it reports an outstanding balance, the customer must pay the balance in full first; after paying, re-read the record and re-check, then re-attempt the closure. If the customer wants a replacement card or asked to KEEP the account open, do NOT close the account - use the replacement-card procedure instead.",
-   "_note": "2026-07-20 관문3(043·§2aa 요건②): 구판 3체크 WEV는 '체크했나'만 게이트→$75 미납인데 close 초록불(오해지·게이트 역효과 실례). 신판=close를 실제 실격조건 판정(check_card_closure_eligibility의 CLOSURE_OK 토큰+id 공존)으로 게이트. 판정=엔진 결정론(잔액≤0)·잔액0 날조=source_param 축자 grounding이 차단. Δspurious 계측 대상(잔액 미표시 레코드서 over-block 가능성). ★2026-07-22 §2bu: 038(명시 거부 후 close 2회) 대응 keep-open 경고 병합(중복 신설 스펙은 제거·minimize-A2)."
-  },
+ "producers": {},
+ "ref_verify": [
   {
    "applies_to": "call_discoverable_agent_tool",
    "applies_when": {
     "arg": "agent_tool_name",
     "prefix": "file_credit_card_transaction_dispute"
    },
-   "id_key": "card_last_4_digits",
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows the card's last 4 digits ({id}). Do NOT guess or fabricate the digits (numbers seen in knowledge-base documents or examples are NOT the card's digits), and do NOT file the dispute with the digits missing or empty. Any line quoted after this colon already contains the TRUE digits retrieved earlier in this conversation - if one is shown, copy the digits from it EXACTLY and re-issue the call: {evidence} If no line is quoted, obtain the digits from an actual tool result first: read the credit card account record (it contains card_last_4_digits), or call give_discoverable_user_tool to give the customer the get_card_last_4_digits tool and ask them to run it, then file using the digits exactly as shown in that tool output.",
-   "_note": "2026-07-20 관문4 WEV형(§2ao·e2e9 031 포렌식) → 2026-07-21 §2bc 정밀화(054 실측): 구판 require_tokens=give-flow 도구명 = 단일 provenance 경로 강제 — 054는 진짜 last4(7823)가 에이전트 자신의 계좌 레코드 출력에 실재하는데 유저가 도구 실행 거부('카드 없음')→충족불가 deny 8회→유저 포기·붕괴. 신판 token='card_last_4_digits'=레코드 필드 라벨이자 give-flow 도구명(get_card_last_4_digits)의 substring → 두 정당 경로 모두 수용·날조(어느 출력에도 없는 값)는 여전히 차단(031 give-flow 실행 t1/t2 실증=무회귀). 빈-값 write는 WEV 코어 신판(§2bc 키실재-빈값 deny)이 차단. ★2026-07-23 C121(rall19 031.1 실측): 구 require_tokens=['card_last_4_digits']는 KB doc의 PIN 예시 '(e.g., 1234, 4321)'와 도구명 substring이 한 출력에 공존해 날조값 1234 통과(evidence-collision)→오염 write. require_tokens_any(라벨-값 인접·{id} 치환)로 교체: 정당 경로 2개(user-도구 'Last 4 digits of card: N'·계좌/dispute 레코드 'card_last_4_digits: N')만 수용·doc 예시 충돌 차단. rall19 실궤적 오프라인 재검으로 검증. ★{evidence} 인용(C122·rall19 031.0 실측): 정답(5320)이 도구출력 실재인데 deny 6회 공전(오값/빈값 재시도·유저에 '시스템 미기록' 오귀인) → 피드백에 라벨-실재 라인 축자 인용(C116 처방적 구체성). 엔진=_wev_fill 라인 인용만.",
-   "require_tokens_any": [
-    "Last 4 digits of card: {id}",
-    "card_last_4_digits: {id}"
-   ]
-  },
-  {
-   "applies_to": "call_discoverable_agent_tool",
-   "applies_when": {
-    "arg": "agent_tool_name",
-    "prefix": "apply_savings_account_credit"
-   },
-   "id_key": "amount",
-   "require_tokens": [
-    "Interest correction"
-   ],
-   "feedback": "Error: [WRITE-EVIDENCE] the credit amount ({id}) does not appear in any get_interest_correction tool output in this conversation. Do NOT compute the correction yourself - the tool call is required. First read the account record AND its transactions, then call get_interest_correction with the values from those records, and use the amount EXACTLY as that tool returns it.",
-   "_note": "2026-07-22 §2bk(rall7 095 실측): REQREADS deny 후 모델이 도구 재호출 대신 자기-계산(100.83)으로 write=계산-오프로드 우회. 증거=amount가 interest 도구 출력('Interest correction' 템플릿)과 공존. 도구 산출 사용 시 자동 충족·무회귀."
-  },
-  {
-   "applies_to": "call_discoverable_agent_tool",
-   "applies_when": {
-    "arg": "agent_tool_name",
-    "prefix": "submit_interest_discrepancy_report"
-   },
-   "id_key": "amount_difference",
-   "require_tokens": [
-    "Interest correction"
-   ],
-   "feedback": "Error: [WRITE-EVIDENCE] the amount_difference ({id}) does not appear in any get_interest_correction tool output in this conversation. Do NOT compute it yourself - call get_interest_correction (after reading the account record and transactions) and copy the amount exactly from its output.",
-   "_note": "위와 동일 근거(보고서 write 쌍대)."
+   "id_key": "transaction_id",
+   "record_field": "merchant_name",
+   "feedback": "Error: [REF-VERIFY] the transaction you are filing ({id}) is a '{value}' charge, but the customer never mentioned '{value}'. The customer's disputes are about: {mentioned}. You have the wrong transaction_id - re-read the transaction listing and match each disputed item by the merchant and amount the customer actually stated, then file that record instead. Do not file a charge the customer did not describe.",
+   "_note": "2026-07-24 C128/C129 결정론 참조-검증기: rall19-22 file_dispute wrong-pick 8/8이 전부 손님 미언급 상점(cross-merchant 인접-행 전사 슬립). merchant-absence deny=슬립 8/8 검출·gold 25/25 통과(false-block 0·efiso_detmatch_proof.py). LLM 재선택(REF_ISO)은 gold(Marriott)→wrong(Facebook Ads) 해로운 switch(C129 rall22 031)→결정론 검증기가 robust. 엔진=substring만·LLM/값생성 0([[03b]]/[[10]]). ★한계: merchant-absence는 cross-merchant만·동일상점 내 오선택(4 Costco 중 오답)은 amount 스펙 별도 필요(formalize+match 소관). T2_REF_VERIFY=1·기본 OFF."
   }
  ],
+ "require_tool_before": {
+  "apply_for_credit_card": [
+   "check_card_application_fit"
+  ],
+  "open_bank_account": [
+   "get_all_user_accounts_by_user_id"
+  ],
+  "submit_referral": [
+   "get_all_user_accounts_by_user_id"
+  ],
+  "pay_credit_card_from_checking": [
+   "get_all_user_accounts_by_user_id"
+  ]
+ },
  "scaffold_get_tools": [
   {
    "name": "get_reward_discrepancies",
@@ -1416,75 +1432,9 @@
    "_note_d6": "C204/D6(2026-07-27·`D6_CATEGORY_RATE_DESIGN` rev2): category_rates/base_cashback=KB 원문 축자 재구조화(11행·2026-07-27 전수 대조: Platinum=all 10% 확정[본문 축자·C187 문구 오류]·Business Gold(operations 2.5/1.0)·Business Platinum(travel/software/media 4.0/1.5)은 표에 없던 문서화 사실 추가). 엔진=조회·주석만(선택·순위·값생성 0)·미제공=거동 변화 0·미등재 토큰=행별 주석 생략+정직 안내(rev2 결함1)."
   }
  ],
- "completion_guard": {
-  "user_execution_tool": "call_discoverable_user_tool",
-  "claim_question": "Before your reply is sent, answer ONE question about YOUR REPLY ONLY. Does your reply state or imply that some action has already been completed, submitted, filed, scheduled, or confirmed — OR that YOU (the agent) will submit/schedule/perform it? Merely giving the customer a tool to run, or instructing THEM to run it, does NOT count. Reply with exactly one JSON object and nothing else: {\"claims_completion\": true} or {\"claims_completion\": false}",
-  "feedback": "Error: [WRITE-PROVENANCE] your reply claims an action was completed/submitted/scheduled, but there is no record of any state-changing action having executed in this conversation. You cannot perform actions the customer must run themselves; only the CUSTOMER can, by calling the tool you gave them. Do NOT claim any action has been submitted, filed, or scheduled; do NOT invent case/reference/confirmation numbers; do NOT promise callbacks or confirmation emails. Instead, restate your reply: hand the customer the appropriate tool and tell them to run it themselves."
+ "unavailable_tools": {
+  "KB_search_dense": "Error: KB_search_dense is not available in this environment (dense retrieval backend is not configured). Use KB_search_bm25 with the same query instead - it searches the same knowledge base."
  },
- "follow_up_chains": [
-  {
-   "after": [
-    "submit_credit_limit_increase_request",
-    "check_cli_eligibility"
-   ],
-   "requires": [
-    "submit_credit_limit_increase_request",
-    "get_user_dispute_history",
-    "get_pending_replacement_orders",
-    "get_credit_limit_increase_history",
-    "get_payment_history"
-   ],
-   "decision_tools": [
-    "approve_credit_limit_increase",
-    "deny_credit_limit_increase"
-   ],
-   "decision_feedback": "Error: [FOLLOW-UP] you computed the eligibility verdict but never executed the terminal decision with a TOOL CALL. If the verdict is ELIGIBLE, call approve_credit_limit_increase; if it is NOT_ELIGIBLE (cooldown, utilization, age, or payment history), call deny_credit_limit_increase with the matching denial_reason. Both are DISCOVERABLE tools - unlock the full suffixed name first. A verbal explanation to the customer is NOT a substitute for the decision tool call. Do not stop here.",
-   "feedback": "Error: [FOLLOW-UP] the credit limit increase procedure is NOT complete. Steps still missing: {missing}. The customer requested a credit limit increase, so you must (1) submit the request with submit_credit_limit_increase_request (this formally logs the customer's request - do it even if you suspect the outcome), (2) run every eligibility check, then (3) make the terminal decision with a tool call. Do NOT let check_cli_eligibility replace these steps - it only computes the verdict; the request and the decision are separate REQUIRED tool calls. These checks are DISCOVERABLE tools: for each, search the knowledge base with plain words for the step, unlock the full suffixed name, then call it. Do not end the conversation with the request unsubmitted or the decision unmade.",
-   "_note": "2026-07-20 Q1 + 관문2 확장(§2aa): requires=full required-set 4체크(050 실증: 단일 requires는 이미-호출된 history만 봐 pending 건너뜀을 못 잡음). {missing}=누락 전량 나열(050 follow-through+054 query-gap 동시 커버). decision_tools/decision_feedback=종단결정 nudge — approve 강제 아님(052 decline-정답 보호·문구 양방향·Δspurious 계측 대상). 엔진=집합 대조·치환만(리터럴 0). ★e2e10 052 포렌식(§2au): gold 종단=deny 도구 호출인데 구문구가 '텍스트 decline 가능'을 가르침(마지막-1홉 결함 6호)→decision_tools에 deny 추가·도구-호출 명시·unlock 프로토콜 포함. ★2026-07-22 §2bv 강건화(rall12 052 실측): check_cli가 submit·deny 도구 절차를 우회(사전판정→구두안내 종결)→submit·deny X. anchor에 check_cli 추가(submit 스킵 경로도 chain 발화)·requires에 submit 추가(미실행 시 missing)·문구=check_cli는 판정보조·절차대체 아님 명시. user가 지름길 유도해도 절차 완주(경로-무관 강건)."
-  },
-  {
-   "after": "check_card_closure_eligibility",
-   "requires": [
-    "get_user_dispute_history",
-    "get_pending_replacement_orders",
-    "get_all_user_accounts_by_user_id",
-    "pay_credit_card_from_checking",
-    "get_closure_reason_history",
-    "log_credit_card_closure_reason"
-   ],
-   "decision_tools": [
-    "apply_credit_card_account_flag",
-    "close_credit_card_account"
-   ],
-   "decision_feedback": "Error: [FOLLOW-UP] you completed the closure checks but never executed the terminal step with a TOOL CALL. Per the retention protocol in the knowledge base: after logging the closure reason, address the concern - if the reason qualifies for a retention remedy under that protocol (e.g. an annual-fee waiver via apply_credit_card_account_flag for eligible long-tenured customers), offer it and apply it with the customer's consent; if the customer still wants to close or no retention remedy applies, process the closure with close_credit_card_account. Both are DISCOVERABLE tools - unlock the full suffixed name first (find it in the knowledge base by searching plain words describing the step). Do NOT merely describe the outcome in text, and do NOT transfer with the decision unmade.",
-   "feedback": "Error: [FOLLOW-UP] you started the card-closure eligibility check but the closure procedure is NOT complete. Steps still missing: {missing}. Per the closure/retention protocol: check the customer's pending disputes (dispute history) and pending replacement orders; if there is an outstanding balance, read the customer's accounts (get_all_user_accounts_by_user_id - this also gives you the CHECKING account id; its full suffixed name is in the knowledge-base document titled 'Retrieving Customer Account Information' - search e.g. \"retrieve customer bank accounts\") and pay the balance from checking with the customer's authorization; check closure-reason history; ask the customer's reason and log it (the 'Credit Card Retention Protocol' document covers these closure steps and annual-fee remedies). These are DISCOVERABLE tools - if you do not know a tool's full suffixed name, search the knowledge base (KB_search_bm25) for it using plain words describing the step (e.g. \"closure reason history\"; a bare tool-name query matches no document text); do NOT conclude a tool or record does not exist, and do NOT transfer while these tool steps remain available.",
-   "_note": "2026-07-22 §2bn(rall8 043 실측): pay unlock까지 도달 후 체킹 계좌 id를 KB 문서(shell 4연발)서 찾다 transfer(C108류) - reader(get_all_user_accounts)가 requires에 있어 {missing} 나열로 안내됨. 앵커=check_card_closure_eligibility(§2bc 관문3·자발 호출 실증). requires 근거=KB doc_credit_card_account_logistics_002/003. 조건부 단계(잔액 0이면 pay 불요)는 문구에 명시=over-fire 시 모델이 설명으로 해소 가능(deny 아닌 nudge). ★2026-07-22 §2bs(rall10 043 실측+KB 재정독): ①구판 requires에 dispute-체크 누락(리텐션 프로토콜 Step1.1=get_user_dispute_history) 추가 ②close를 requires에서 제거 — logistics_003 Step4: annual_fee+장기고객=waive(apply_credit_card_account_flag)가 정답 분기라 close 고정은 KB-불일치(gold-불일치는 결과·근거는 KB) → 종단을 decision_tools[apply_flag|close] 양방향 nudge로 전환(CLI chain approve|deny와 동형·Δspurious 계측 대상)."
-  },
-  {
-   "after": [
-    "initial_transfer_to_human_agent",
-    "emergency_credit_bureau_incident_transfer"
-   ],
-   "requires": [
-    "transfer_to_human_agents"
-   ],
-   "feedback": "Error: [FOLLOW-UP] you already executed the escalation step, but the ledger shows {missing} was never called, so the customer has NOT actually been transferred. Saying that you have connected them does not transfer anyone. If your policy's escalation protocol still requires further steps (for example repeating the escalation tool the prescribed number of times), perform those steps first; once the protocol is satisfied and the customer has agreed, call the transfer tool itself in a tool call.",
-   "_note": "C201/D2(2026-07-26·035 [S]): 에스컬 도구 출력이 즉시-transfer를 지시했는데 notice 발화(사임-턴)로 창 소멸. 발화창=기존 _chain_dispatch. 문구는 양방향(프로토콜 잔여 단계 우선 허용)=조기 transfer Δspurious 완화. ★리뷰 결함2 반영(2026-07-26): 전역 T2_FOLLOWUP_RESIGN_TH=2는 035형(사임 1턴 뒤 terminal) 궤적서 구조적 미발화 → 이 체인만 resign_th=1. 전역 하향은 기존 체인까지 조기 발화(Δspurious 확산)라 국소화. 033형 PASS 회귀를 §9 계측에 추가.",
-   "resign_th": 1,
-   "reserve": true
-  },
-  {
-   "after": [
-    "submit_cash_back_dispute"
-   ],
-   "requires": [
-    "update_transaction_rewards"
-   ],
-   "feedback": "Error: [FOLLOW-UP] cash back disputes were submitted, but the ledger shows {missing} was never called. The reward-check tool's own output states that AFTER a dispute is resolved, that transaction's rewards must be updated to EXACTLY the correct value it showed. If the customer has confirmed the disputes are resolved, unlock and call the update tool now with those exact values — a verbal summary does not update any record. If resolution has NOT been confirmed yet, do not update; tell the customer plainly what remains and that no update has happened.",
-   "resign_th": 1,
-   "_note": "C204/D8(2026-07-27·day3 028[검출 6/6·분쟁 6/6 후 갱신 거부]·021[실행 1/2]·day2 026[갱신 말-완결] 실측): 분쟁-제출 후 갱신 단계의 이행 nudge. 문구 양방향(미해결 시 갱신 금지 명시)=조기 갱신 Δspurious 완화. after=유저-실행 dispute의 effective명(디스패처 unwrap). ★C214: resign_th=1로 하향 — day7 028 실측=분쟁 6건 성사 후 남은 사임 턴이 2회뿐(101/103)이고 곧 transfer 종료라 전역 임계 2로는 구조적 미발화(C201/D2 035형과 동일 사유). 억제 시 `chain suppressed` 마크로 원인 계측."
-  }
- ],
  "write_arg_grounding": [
   {
    "applies_to": "call_discoverable_agent_tool",
@@ -1511,120 +1461,167 @@
    "_note": "2026-07-22 §2bv(rall12 054 실측·격리로 순서 확정): get_current_time과 log_verification 병렬 호출→결과([19] 2025-11-14 03:40) 전에 time_verified 날조(2023-11-14 15:20·다른 레코드값). 격리 프로브 presence 전부 False=정보빈약=부하 아님·병렬호출 구조문제. arg_corpus_marker='current time is'로 get_current_time 출력에만 매칭(다른 2023 날짜 오통과 차단·병렬시 미실재→deny→순차 강제)."
   }
  ],
- "claim_prov": {
-  "question": "Before your reply is sent, audit yourself. (1) In YOUR REPLY ONLY: list every assertion that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did do NOT count. (2) Across the WHOLE conversation: list every action YOU said you WILL do / are about to do (e.g. 'I will file the disputes') that you have NOT completed yet. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"search|verify|record_update|dispute_file|give|transfer|write\", \"what\": \"<5-10 words>\"}], \"pending\": [{\"kind\": \"search|verify|record_update|dispute_file|give|transfer|write\", \"what\": \"<5-10 words>\", \"tool\": \"<the exact tool name you would need to call for it, or omit if none>\"}]} — empty lists if none. Choose the MOST SPECIFIC kind that fits (record_update for changing a stored record's values, dispute_file for filing/submitting a dispute or report); use the generic \"write\" ONLY when no specific kind applies.",
-  "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why). Do not end your involvement by describing the work as done or under way — either call the tool now, or state explicitly that it has NOT been performed.",
-  "event_map": {
-   "search": [
-    "KB_",
-    "shell",
-    "list_discoverable"
+ "write_evidence_specs": [
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "update_transaction_rewards"
+   },
+   "id_key": "transaction_id",
+   "require_tokens": [
+    "RESOLVED"
    ],
-   "verify": [
-    "verify_identity",
-    "log_verification"
-   ],
-   "write": "__effective_write__",
-   "give": [
-    "give_"
-   ],
-   "transfer": [
-    "transfer_",
-    "request_human"
-   ],
-   "record_update": [
-    "update_transaction_rewards",
-    "update_",
-    "apply_statement_credit",
-    "apply_checking_account_credit"
-   ],
-   "dispute_file": [
-    "file_credit_card_transaction_dispute",
-    "submit_cash_back_dispute",
-    "submit_interest_discrepancy_report",
-    "file_",
-    "submit_"
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows a dispute for transaction {id} that is resolved in the customer's favor — a customer's verbal claim is NOT evidence. Do NOT update this transaction. Read the dispute status from an actual tool result. Only a dispute resolved in the customer's favor qualifies for a rewards correction: RESOLVED_BANK_FAVOR means the transaction was found valid and no credit is issued, so it must NOT be updated. If the status is RESOLVED_PARTIAL, do not update on your own — tell the customer what the partial resolution says and ask how they want to proceed. Otherwise explain that the correction will be applied once the dispute is actually resolved.",
+   "_note": "출처=KB(정책·문서만·gold 금지·[[23]]). ①자격: doc_credit_cards_(general)_004 축자 \"Look up the user's **resolved** disputes in the cash_back_disputes database to find the transaction_id values that need rewards adjustments\". ②상태 taxonomy: doc_bank_accounts_(general)_035 축자 \"RESOLVED_CUSTOMER_FAVOR: … credit is permanent / RESOLVED_BANK_FAVOR: Investigation found transaction was valid, no credit issued / RESOLVED_PARTIAL: Partial credit issued\". ★2026-07-31 교정: 구판은 `require_tokens=[\"RESOLVED\"]` substring이라 **RESOLVED_BANK_FAVOR까지 증거로 인정**했다(막으려던 오염을 한 갈래 열어둠). 긍정 토큰은 넓게 유지(도구 출력이 `Status: RESOLVED - approved` 형식으로도 나온다)하고 자격 없는 상태명을 forbid_tokens로 배제한다. RESOLVED_PARTIAL은 **문서가 조정 대상인지 정하지 않아 보수적으로 차단+확인 요구**(통과로 정하면 그게 추측=gold 경유). ⚠계측 의무: 이 좁힘은 over-block을 만들 수 있다 — Δspurious와 함께 정당 update 차단 수를 재야 한다(RESEARCH_MASTER §1.3 '부작용 없는 레버는 없다'). 구 주석의 task_029 포렌식 언급은 제거했다 — 규칙 자체는 KB로 사전에 쓸 수 있었다. T2_WRITE_EVIDENCE=1 구동·기본 OFF.",
+   "forbid_tokens": [
+    "RESOLVED_BANK_FAVOR",
+    "RESOLVED_PARTIAL"
    ]
   },
-  "feedback": "Error: [CLAIM-PROVENANCE] your reply asserts you already did the following, but the conversation ledger shows NO such event: {claims}. Do NOT claim actions you have not actually performed — that misleads the customer. Either actually do it now (call the real tools: search the knowledge base, run the verification, execute the action), or correct your statement to say you have not done it yet. A statement to the customer is NOT a substitute for the tool call: if the action is still required, make the call in THIS reply; if you cannot make it (for example it is the customer who must run that tool), say plainly that it has NOT been done and tell them exactly what remains.",
-  "_note": "2026-07-20 사용자 일반화('모든 했다 주장을 원장대조'). 043 e2e 실측: KB실호출 0·'checked KB' 주장 1→조기 transfer. WRITEPROV(완료-주장·write축)의 상위호환 — kind별 event_map으로 search/verify/give/transfer까지. 미등재 kind=엔진 skip. T2_CLAIM_PROV=1 구동·기본 OFF. ★관문5 확장(2026-07-20·038·§2ad): ①발화창=사임∨transfer호출(event_map.transfer 패턴 재사용·notice-티켓 탈출 차단) ②question v2=claims(과거·답변만)+pending(미래약속·전대화)·feedback_pending=지금 실행 후 transfer 지시. 한계: pending kind=write는 __effective_write__ 광역대조(무관 write 존재 시 false-negative·주의). Δspurious 계측 대상(정당 즉시-transfer는 pending 0라 무간섭 설계).",
-  "_note_granular_kinds": "C201/D1(2026-07-26·§7-0 실측): generic write는 __effective_write__라 **무관한 write**(예: 유저의 dispute 제출)가 별개 완료-날조를 뒷받침했다(026/028 실측 backed). 세분 kind=도구 접두 등록만(정답 미지정·엔진 무변경).",
-  "reserve_kinds": [
-   "record_update",
-   "dispute_file",
-   "transfer",
-   "write"
-  ],
-  "_note_reserve": "C201/D3(2026-07-26): cap 소진 후 sim당 1회 예비-창 — 행동-kind 주장에만 집행. 엔진은 kind 문자열 대조만(어떤 kind가 행동인지=A2 소관).",
-  "feedback_unavailable": "Error: [UNAVAILABLE-CAPABILITY] you told the customer you would do the following, but the tool it requires does not exist among the tools available to you: {claims}. Do not offer or promise capabilities you do not have — it strands the customer waiting for something that will never happen. Say plainly that you cannot do it, and either use a capability you actually have or follow the escalation path in your policy.",
-  "_note_unavail": "C207/C2-a(2026-07-27·004·035 실측: 존재하지 않는 OTP/SMS 발송을 여러 턴 반복 약속하며 창 소진). 엔진=약속 도구명이 {도구목록 ∪ user-discoverable ∪ 대화서 unlock/give된 이름 ∪ 호출된 이름}에 있는지 집합 대조만(접미사 strip). tool 미선언 pending=판정 안 함(하위호환). T2_UNAVAIL_PROMISE=1."
- },
- "unavailable_tools": {
-  "KB_search_dense": "Error: KB_search_dense is not available in this environment (dense retrieval backend is not configured). Use KB_search_bm25 with the same query instead - it searches the same knowledge base."
- },
- "nonlisted_tool_feedback": "Discoverable agent tools must first be unlocked with unlock_discoverable_agent_tool(agent_tool_name=...) and then invoked through call_discoverable_agent_tool(agent_tool_name=..., arguments=...); discoverable user tools are granted to the customer via give_discoverable_user_tool.",
- "discoverable_name_check": {
-  "tools": {
-   "unlock_discoverable_agent_tool": "agent_tool_name"
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "approve_credit_limit_increase"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "Consecutive on-time payments"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the payment history check (get_payment_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_payment_history tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
+   "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제). ★2026-07-22 §2bu(rall11 054 실측·rall9 8연발 소급): get_payment_history 도구 출력에는 도구명 토큰이 없음(\"Payment history for account...( )Consecutive on-time payments: N\" 포맷·Executed 헤더 無)→증거 확보 후에도 8 deny·재수집 9연발·cap 소진. 토큰을 출력-실재 문자열로 교정(id 공존 조건 유지)."
   },
-  "pattern": "_[0-9]+$",
-  "feedback": "Error: '{name}' is missing its numeric suffix, so it was not looked up. Discoverable tools must be referenced by their FULL name including the numeric suffix (e.g. ..._1234). You do NOT know the suffix from memory - search the knowledge base NOW to find the exact suffixed tool name in the procedure documents. Query with plain words describing the action - for '{name}' query e.g. \"{name_words}\" - because a bare tool-name query matches no document text. Then retry the unlock with that full suffixed name.",
-  "_note": "2026-07-21 §2bh (rall5 실측·§2bf 철회 근거): FOLLOWUP CAP3+FORCE는 행동을 움직였다 - 모델이 dispute_history·pending_orders unlock을 sim당 3회 시도. 전부 bare-name→env 'Unknown tool'→포기 반복(6 sim×2도구×3회). 마지막 고리=이름-형식. 생성-레벨 deny(비커밋·replay-clean)+required regen으로 KB-검색 유도. 엔진=패턴 대조만(이름 리터럴 0·검색·선택=모델). give용 인자도 선언(031 계열 대비). ★2026-07-22 §2bm 교정: give(user-도구)는 접미사 無가 정상(e2e10 bare-give 성공 실증) — rall8 038서 정당 give 6회 오차단(give-flow 봉쇄→dispute 0)의 자해 실측 → give를 검사에서 제거(unlock만 잔류). ★2026-07-22 §2bs(rall10 050/052 실측): 舊문구 'query the tool's purpose or base name'의 base-name 질의=BM25 score 0.0(문서에 도구명 토큰 부재)→deny→검색실패 마찰 루프가 FOLLOWUP cap을 소모. env BM25 토크나이저는 upstream 벤치 고정([[05]]·비교가능성)이라 불가침 — 피드백이 자연어 질의를 직접 예시({name_words}=엔진 일반 파생: suffix 제거+언더스코어→공백)하는 것으로 교정. 접미사 자체는 여전히 미제공(발견=모델+KB 몫)."
- },
- "dispatcher_role_check": {
-  "unlock_tool": "unlock_discoverable_agent_tool",
-  "agent_call": "call_discoverable_agent_tool",
-  "give_tool": "give_discoverable_user_tool",
-  "user_call": "call_discoverable_user_tool",
-  "name_args": {
-   "unlock_discoverable_agent_tool": "agent_tool_name",
-   "call_discoverable_agent_tool": "agent_tool_name",
-   "give_discoverable_user_tool": "discoverable_tool_name",
-   "call_discoverable_user_tool": "discoverable_tool_name"
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "approve_credit_limit_increase"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "get_credit_limit_increase_history"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the credit limit increase history check (get_credit_limit_increase_history*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_credit_limit_increase_history tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
+   "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제)."
   },
-  "give_agent_tool_feedback": "Error: '{name}' is one of YOUR OWN agent tools - it cannot be given to the customer, and the environment will reject it. give_discoverable_user_tool is ONLY for USER-side discoverable tools. If the customer already told you the exact name of the tool they need, give THAT exact name; otherwise search the knowledge base with plain words for what the customer needs to do themselves, and give the user-side tool named there.",
-  "agent_via_user_feedback": "Error: '{name}' is an AGENT tool (you unlocked it in this conversation). Invoke it via call_discoverable_agent_tool, NOT call_discoverable_user_tool.",
-  "user_via_agent_feedback": "Error: '{name}' is a USER tool (you gave it to the customer). You cannot run it yourself and must not route it through the agent dispatcher - ask the CUSTOMER to run it and tell you the result.",
-  "agent_runs_user_feedback": "Error: '{name}' is a USER tool. The CUSTOMER must run it themselves after you give it with give_discoverable_user_tool - ask them to run it and report the result; do not call it yourself.",
-  "_note": "2026-07-22 §2bl(rall8 031 실측): dispute를 user-디스패처로 제출·user-도구를 에이전트가 직접 호출 4회. 술어=대화 자기-이력(unlock/give 이벤트)로 이름의 역할 판정 — 엔진 이름-리터럴 0·A2=디스패처 5도구명+문구."
- },
- "ref_verify": [
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "approve_credit_limit_increase"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "get_pending_replacement_orders"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement orders check (get_pending_replacement_orders*) was run for account {id}. Before APPROVING a credit limit increase you MUST run the full eligibility checks for this account: unlock and call the get_pending_replacement_orders tool for account {id} first, then re-attempt the approval. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix.",
+   "_note": "2026-07-19 T3보강(050/054 조립-계획): CLI approve 前 적격성 체크 실행-증거. 증거=디스패처 출력의 Executed/Arguments 에코(도구명+account id 공존). get_user_dispute_history는 user_id-키라 id-공존 불성립→제외(정직·부분 3/4 강제)."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "approve_credit_limit_increase"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "ELIGIBLE - all tier requirements"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows account {id} is ELIGIBLE (the check_cli_eligibility tool returning the 'ELIGIBLE - all tier requirements ... satisfied' verdict). Do NOT decide approve or deny from your own arithmetic about account age, cooldown, utilization or payment months - the cooldown days especially are easy to miscount. Call check_cli_eligibility with the values copied exactly from the account record, the CLI request history and the payment history, then execute the verdict it returns: approve ONLY if it says ELIGIBLE; if it returns a NOT_ELIGIBLE_* verdict, unlock and call deny_credit_limit_increase with the reason it gives.",
+   "_note": "2026-07-22: 052 실측(rall14·전수추적) — approve의 기존 3 read-WEV(payment/history/replacement '읽었나'만)는 통과했는데 에이전트가 쿨다운 60일을 '120일 지났다'로 직접 오판→approve(gold=deny). closure의 CLOSURE_OK 게이트와 동형: 종단결정(approve)을 결정론 판정도구(check_cli_eligibility)의 ELIGIBLE 판정+id공존에 정박=직접 산수 무력화([[10]]·F2b·decidable). 판정=엔진 결정론(days_between/compare/case·Part1 오프라인 검증 052→NOT_ELIGIBLE_COOLDOWN·60<120). 토큰 비중첩: 'ELIGIBLE - all tier requirements'는 NOT_ELIGIBLE_* 렌더에 미출현. deny측 미게이트(pending_disputes/replacement 등 다중 정당근거→over-block 회피). Δspurious 계측 대상(적격 케이스 approve 지연=도구 1콜 추가)."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "close_credit_card_account"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "get_closure_reason_history"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason history (retention-abuse check) (get_closure_reason_history*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_closure_reason_history tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix. Find the tool's full suffixed name in the knowledge base by searching plain words describing the step (e.g. \"closure reason history\") - a bare tool-name query matches no document text.",
+   "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5). ★2026-07-22 §2bu(rall11 038 실측): 8회 deny 전부 이 계열인데 에이전트가 도구명-질의(score 0)로 발견 실패→cap 소진→close 통과. 질의-가이드(1a 동형) 주입."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "close_credit_card_account"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "log_credit_card_closure_reason"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the closure reason logging (log_credit_card_closure_reason*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the log_credit_card_closure_reason tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix. Find the tool's full suffixed name in the knowledge base by searching plain words describing the step (e.g. \"log credit card closure reason\") - a bare tool-name query matches no document text.",
+   "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5). ★2026-07-22 §2bu(rall11 038 실측): 8회 deny 전부 이 계열인데 에이전트가 도구명-질의(score 0)로 발견 실패→cap 소진→close 통과. 질의-가이드(1a 동형) 주입."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "close_credit_card_account"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "get_pending_replacement_orders"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that the pending replacement card check (get_pending_replacement_orders*) was done for account {id}. The closure protocol requires it BEFORE closing: unlock and call the get_pending_replacement_orders tool for account {id} first (check eligibility and log the reason per the closure procedure), then re-attempt the closure. If you do not know that tool's full name with its numeric suffix, search the knowledge base (KB_search_bm25) for it — do NOT conclude the tool does not exist, and do NOT unlock the bare name without its suffix. Find the tool's full suffixed name in the knowledge base by searching plain words describing the step (e.g. \"pending replacement orders\") - a bare tool-name query matches no document text.",
+   "_note": "2026-07-20 Q1 coverage(043 조립-계획): KB doc_credit_card_account_logistics_002/003 해지 프로토콜 — close 前 pending-replacement 확인·closure-reason history 확인(리텐션 남용)·reason 기록 필수. 증거=디스패처 Executed/Arguments 에코(도구명+account id 공존). balance/disputes 체크는 조건적(잔액0이면 pay 불요)·user_id-키라 제외(오차단 방지·정직 부분강제 3/5). ★2026-07-22 §2bu(rall11 038 실측): 8회 deny 전부 이 계열인데 에이전트가 도구명-질의(score 0)로 발견 실패→cap 소진→close 통과. 질의-가이드(1a 동형) 주입."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "close_credit_card_account"
+   },
+   "id_key": "credit_card_account_id",
+   "require_tokens": [
+    "CLOSURE_OK"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows that account {id} is ELIGIBLE for closure (CLOSURE_OK). The closure protocol disqualifies closing an account with an outstanding balance. First read the credit card account record for {id}, then call check_card_closure_eligibility with the account id, the outstanding balance copied from the record, and the verbatim balance line. If it reports an outstanding balance, the customer must pay the balance in full first; after paying, re-read the record and re-check, then re-attempt the closure. If the customer wants a replacement card or asked to KEEP the account open, do NOT close the account - use the replacement-card procedure instead.",
+   "_note": "2026-07-20 관문3(043·§2aa 요건②): 구판 3체크 WEV는 '체크했나'만 게이트→$75 미납인데 close 초록불(오해지·게이트 역효과 실례). 신판=close를 실제 실격조건 판정(check_card_closure_eligibility의 CLOSURE_OK 토큰+id 공존)으로 게이트. 판정=엔진 결정론(잔액≤0)·잔액0 날조=source_param 축자 grounding이 차단. Δspurious 계측 대상(잔액 미표시 레코드서 over-block 가능성). ★2026-07-22 §2bu: 038(명시 거부 후 close 2회) 대응 keep-open 경고 병합(중복 신설 스펙은 제거·minimize-A2)."
+  },
   {
    "applies_to": "call_discoverable_agent_tool",
    "applies_when": {
     "arg": "agent_tool_name",
     "prefix": "file_credit_card_transaction_dispute"
    },
-   "id_key": "transaction_id",
-   "record_field": "merchant_name",
-   "feedback": "Error: [REF-VERIFY] the transaction you are filing ({id}) is a '{value}' charge, but the customer never mentioned '{value}'. The customer's disputes are about: {mentioned}. You have the wrong transaction_id - re-read the transaction listing and match each disputed item by the merchant and amount the customer actually stated, then file that record instead. Do not file a charge the customer did not describe.",
-   "_note": "2026-07-24 C128/C129 결정론 참조-검증기: rall19-22 file_dispute wrong-pick 8/8이 전부 손님 미언급 상점(cross-merchant 인접-행 전사 슬립). merchant-absence deny=슬립 8/8 검출·gold 25/25 통과(false-block 0·efiso_detmatch_proof.py). LLM 재선택(REF_ISO)은 gold(Marriott)→wrong(Facebook Ads) 해로운 switch(C129 rall22 031)→결정론 검증기가 robust. 엔진=substring만·LLM/값생성 0([[03b]]/[[10]]). ★한계: merchant-absence는 cross-merchant만·동일상점 내 오선택(4 Costco 중 오답)은 amount 스펙 별도 필요(formalize+match 소관). T2_REF_VERIFY=1·기본 OFF."
+   "id_key": "card_last_4_digits",
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows the card's last 4 digits ({id}). Do NOT guess or fabricate the digits (numbers seen in knowledge-base documents or examples are NOT the card's digits), and do NOT file the dispute with the digits missing or empty. Any line quoted after this colon already contains the TRUE digits retrieved earlier in this conversation - if one is shown, copy the digits from it EXACTLY and re-issue the call: {evidence} If no line is quoted, obtain the digits from an actual tool result first: read the credit card account record (it contains card_last_4_digits), or call give_discoverable_user_tool to give the customer the get_card_last_4_digits tool and ask them to run it, then file using the digits exactly as shown in that tool output.",
+   "_note": "2026-07-20 관문4 WEV형(§2ao·e2e9 031 포렌식) → 2026-07-21 §2bc 정밀화(054 실측): 구판 require_tokens=give-flow 도구명 = 단일 provenance 경로 강제 — 054는 진짜 last4(7823)가 에이전트 자신의 계좌 레코드 출력에 실재하는데 유저가 도구 실행 거부('카드 없음')→충족불가 deny 8회→유저 포기·붕괴. 신판 token='card_last_4_digits'=레코드 필드 라벨이자 give-flow 도구명(get_card_last_4_digits)의 substring → 두 정당 경로 모두 수용·날조(어느 출력에도 없는 값)는 여전히 차단(031 give-flow 실행 t1/t2 실증=무회귀). 빈-값 write는 WEV 코어 신판(§2bc 키실재-빈값 deny)이 차단. ★2026-07-23 C121(rall19 031.1 실측): 구 require_tokens=['card_last_4_digits']는 KB doc의 PIN 예시 '(e.g., 1234, 4321)'와 도구명 substring이 한 출력에 공존해 날조값 1234 통과(evidence-collision)→오염 write. require_tokens_any(라벨-값 인접·{id} 치환)로 교체: 정당 경로 2개(user-도구 'Last 4 digits of card: N'·계좌/dispute 레코드 'card_last_4_digits: N')만 수용·doc 예시 충돌 차단. rall19 실궤적 오프라인 재검으로 검증. ★{evidence} 인용(C122·rall19 031.0 실측): 정답(5320)이 도구출력 실재인데 deny 6회 공전(오값/빈값 재시도·유저에 '시스템 미기록' 오귀인) → 피드백에 라벨-실재 라인 축자 인용(C116 처방적 구체성). 엔진=_wev_fill 라인 인용만.",
+   "require_tokens_any": [
+    "Last 4 digits of card: {id}",
+    "card_last_4_digits: {id}"
+   ]
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "apply_savings_account_credit"
+   },
+   "id_key": "amount",
+   "require_tokens": [
+    "Interest correction"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] the credit amount ({id}) does not appear in any get_interest_correction tool output in this conversation. Do NOT compute the correction yourself - the tool call is required. First read the account record AND its transactions, then call get_interest_correction with the values from those records, and use the amount EXACTLY as that tool returns it.",
+   "_note": "2026-07-22 §2bk(rall7 095 실측): REQREADS deny 후 모델이 도구 재호출 대신 자기-계산(100.83)으로 write=계산-오프로드 우회. 증거=amount가 interest 도구 출력('Interest correction' 템플릿)과 공존. 도구 산출 사용 시 자동 충족·무회귀."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "submit_interest_discrepancy_report"
+   },
+   "id_key": "amount_difference",
+   "require_tokens": [
+    "Interest correction"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] the amount_difference ({id}) does not appear in any get_interest_correction tool output in this conversation. Do NOT compute it yourself - call get_interest_correction (after reading the account record and transactions) and copy the amount exactly from its output.",
+   "_note": "위와 동일 근거(보고서 write 쌍대)."
   }
- ],
- "arg_producers": {
-  "card_last_4_digits": {
-   "user_tool": "get_card_last_4_digits"
-  }
- },
- "require_tool_before": {
-  "apply_for_credit_card": [
-   "check_card_application_fit"
-  ],
-  "open_bank_account": [
-   "get_all_user_accounts_by_user_id"
-  ],
-  "submit_referral": [
-   "get_all_user_accounts_by_user_id"
-  ],
-  "pay_credit_card_from_checking": [
-   "get_all_user_accounts_by_user_id"
-  ]
- },
- "_meta": {
-  "domain": "banking_knowledge",
-  "layer": "core",
-  "source": "banking_knowledge.gate.json",
-  "classifier": "x6b_a2_split.CORE/DISCARD (2026-07-30)",
-  "note": "도메인-불변 기대 기능군 — 유한성 주장의 분모(X6-c로 검정)"
- }
+ ]
 }

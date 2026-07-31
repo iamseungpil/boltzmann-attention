@@ -1,4 +1,23 @@
 {
+ "default_specs": [
+  {
+   "arg": "payment_method_id",
+   "resolver_path": [
+    "order_id",
+    "get_order_details",
+    "payment_method_id"
+   ],
+   "applies_to": [
+    "modify_pending_order_payment",
+    "modify_pending_order_items",
+    "exchange_delivered_order_items",
+    "return_delivered_order_items"
+   ]
+  }
+ ],
+ "disamb_sub_args": [
+  "item"
+ ],
  "present_specs": [
   {
    "trigger_tool": "get_order_details",
@@ -22,31 +41,5 @@
    ],
    "label": "purchasable variant of this product"
   }
- ],
- "disamb_sub_args": [
-  "item"
- ],
- "default_specs": [
-  {
-   "arg": "payment_method_id",
-   "resolver_path": [
-    "order_id",
-    "get_order_details",
-    "payment_method_id"
-   ],
-   "applies_to": [
-    "modify_pending_order_payment",
-    "modify_pending_order_items",
-    "exchange_delivered_order_items",
-    "return_delivered_order_items"
-   ]
-  }
- ],
- "_meta": {
-  "domain": "retail",
-  "layer": "discard",
-  "source": "retail.gate.json",
-  "classifier": "x6b_a2_split.CORE/DISCARD (2026-07-30)",
-  "note": "P2-b 폐기·anti-drift 금지분 (스위치-오버 시 기본-OFF)"
- }
+ ]
 }

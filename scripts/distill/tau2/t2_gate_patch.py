@@ -4206,10 +4206,19 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             < int(os.environ.get("T2_ACTION_DENY_CAP", "1"))):
                         # ★Lever 0(BANK_ACTIONREQ_PROBE_FORENSIC §3): action-required는 agent-실행
                         #   도구만 대상 — user-실행(apply/submit 등)은 에이전트가 못 부르므로 스퓨리어스.
-                        #   A2 action_tool_executor 맵(도메인 데이터)로 필터·미기재=assistant 폴백(retail 하위호환).
-                        _exec_map = (a2 or {}).get("action_tool_executor") or {}
+                        #   ★실행 주체는 **env에서 도출**한다(2026-07-31·[[23]] 감사): 구판은 A2
+                        #   `action_tool_executor` 맵을 읽었는데, 그 키의 주석이 출처를 축자로
+                        #   **"gold `action_checks[].requestor`"**라 밝히고 있었다 = [[23]] 위반.
+                        #   그런데 **gold를 볼 필요조차 없었다** — 에이전트가 스스로 부를 수 있는
+                        #   도구면 agent-실행, 아니면 user-실행이라는 **인터페이스 구조**로 7/7
+                        #   재현된다. ⇒ A2 키 삭제(opex −1)·엔진은 집합 소속만 본다(리터럴 0).
+                        _agent_names = {getattr(t, "name", None)
+                                        for t in (getattr(self, "tools", None) or [])}
+
+                        def _exec_side(_n):
+                            return "assistant" if _n in _agent_names else "user"
                         _acts = {t for t in ((a2 or {}).get("action_tools") or [])
-                                 if _exec_map.get(t, "assistant") == "assistant"}
+                                 if _exec_side(t) == "assistant"}
                         # ★user-실행 분기 (2026-07-22 §2bo·rall9 023 실측): apply류(user-실행)는
                         #   기존에 스퓨리어스 방지로 필터만 되고 **아무 nudge도 없어**, 모델이 "에이전트-측
                         #   절차가 KB에 있을 것"이라는 거짓 전제로 8턴 검색-루프→transfer(C108 변형).
@@ -4217,7 +4226,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         #   되고 그 도구가 아직 미실행이면 "고객이 실행하는 도구다·검색 중단·안내하라"
                         #   피드백. tool_choice 강제 없음(정답 행동=안내 텍스트)·cap=action_deny 공유.
                         _uacts = {t for t in ((a2 or {}).get("action_tools") or [])
-                                  if _exec_map.get(t) == "user"}
+                                  if _exec_side(t) == "user"}
                         _called = {getattr(c, "name", None) for c in (am.tool_calls or [])}
                         _tgt_pre = None      # ★공유 formalize(합집합 1회) — 아래 원 블록이 재사용(이중 서브콜 방지)
                         if ((_uacts or _acts) and _rz._agent_ending(am, _transfer_tools(a2))):

@@ -11,7 +11,7 @@
   DISCARD: P2-b 폐기 목록(§1b) 또는 [[16]] anti-drift 금지(개입레버·default·present)
   EXT  : 위 어디도 아닌 도메인-특화 스펙(도메인 계산식·변형·문구·뷰 등) = 정직한 opex
 """
-import json, io, glob, os, collections
+import json, io, glob, os, sys, collections
 
 CORE = {
     # 정책 게이트·선행조건
@@ -100,6 +100,20 @@ def main():
     print("\n=== DISCARD (P2-b·anti-drift) ===")
     for n in names:
         print("  %-20s %s" % (n, ", ".join(sorted(layers["DISCARD"][n])) or "-"))
+
+    # ★--emit(2026-07-31): 이 도구는 출력만 하고 `a2/split/*`를 **쓰지 않았다**. 그래서 A2가
+    #   바뀌면 split 파일이 조용히 낡고, x17 §①(등가 검증)이 그 낡음을 "불일치"로 잡는다.
+    #   생성물은 생성기가 다시 쓸 수 있어야 한다.
+    if "--emit" in sys.argv:
+        out = os.path.join(base, "split")
+        os.makedirs(out, exist_ok=True)
+        for n in names:
+            for lay in ("CORE", "EXT", "DISCARD"):
+                part = {k: doms[n][k] for k in sorted(layers[lay][n])}
+                p = os.path.join(out, "%s.%s.json" % (n, lay.lower()))
+                io.open(p, "w", encoding="utf-8", newline="\n").write(
+                    json.dumps(part, ensure_ascii=False, indent=1))
+        print("\n[emit] a2/split/*.{core,ext,discard}.json 재생성 (%d도메인)" % len(names))
 
 
 if __name__ == "__main__":

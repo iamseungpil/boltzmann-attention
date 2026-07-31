@@ -1,70 +1,15 @@
 {
- "identifying_arg_types": [
-  "time_verified"
- ],
- "reference_filter": [
+ "analysis_producers": [
   {
-   "dispatch_tool": "call_discoverable_agent_tool",
-   "tool_prefix": "file_debit_card_transaction_dispute",
-   "param": "transaction_id",
-   "key_field": "transaction_id",
-   "require": [
-    "date",
-    "amount"
-   ],
-   "criteria_fields": [
-    "date",
-    "merchant",
-    "transaction_type"
-   ],
-   "match": [
-    {
-     "field": "date",
-     "eq": "criteria.date"
-    },
-    {
-     "field": "description",
-     "contains": "criteria.merchant"
-    },
-    {
-     "field": "type",
-     "eq": "criteria.transaction_type"
-    }
-   ],
-   "on_ambiguous": "none"
-  },
-  {
-   "dispatch_tool": "call_discoverable_agent_tool",
-   "tool_prefix": "file_credit_card_transaction_dispute",
-   "param": "transaction_id",
-   "key_field": "transaction_id",
-   "require": [
-    "transaction_date",
-    "transaction_amount"
-   ],
-   "criteria_fields": [
-    "date",
-    "merchant",
-    "amount"
-   ],
-   "match": [
-    {
-     "field": "transaction_date",
-     "eq": "criteria.date"
-    },
-    {
-     "field": "merchant_name",
-     "contains": "criteria.merchant"
-    },
-    {
-     "field": "transaction_amount",
-     "contains": "criteria.amount"
-    }
-   ],
-   "on_ambiguous": "none",
-   "_note": "2026-07-22 §2bj(031 실측): 유저가 merchant/amount/date 축자 지목에도 인접 Amazon id 기입(C43 정박-치환)·credit 변형 미선언이 원인. debit 스펙(C77)과 동형·필드명=credit 레코드 실측. on_ambiguous=none=다중매치 무개입."
+   "data_source": "get_credit_card_transactions_by_user",
+   "producer": "get_reward_discrepancies",
+   "subject": "whether the rewards earned on those transactions match the expected rate for each card and category"
   }
  ],
+ "assertion_operands": {
+  "reward discrepancies": "get_reward_discrepancies",
+  "expected reward for a transaction": "get_reward_discrepancies"
+ },
  "compute_ops": {
   "file_debit_card_transaction_dispute": {
    "customer_max_liability_amount": {
@@ -116,15 +61,6 @@
     }
    }
   }
- },
- "action_tool_executor": {
-  "apply_for_credit_card": "user",
-  "submit_referral": "user",
-  "submit_transaction": "user",
-  "change_user_email": "assistant",
-  "unlock_discoverable_agent_tool": "assistant",
-  "call_discoverable_agent_tool": "assistant",
-  "give_discoverable_user_tool": "assistant"
  },
  "field_ops": {
   "_note": "field→operator 분류(도메인 필드명=ABox·엔진 하드코딩 금지·[[05]]). compute는 compute_ops 키도 포함. 리뷰 ❶ 반영 2026-07-16.",
@@ -191,26 +127,8 @@
    "_note": "FUNCTION_AGENT_ISOLATION_DESIGN_2026_07_19 (W)wrap 1호기 — 자료-read(KB)만 wrap. 상태 read(dispute status·거래·계좌 조회)는 wrap 금지(WEV 증거가 메인에 원문으로 남아야·§3 게이트 증거 계약). shell=KB 브라우징이라 wraps에 포함하되 getter론 미제공(서브는 검색으로). KB_search_dense=getter 제외(2026-07-19 사용자 지적·라이브 4/4 'Missing credentials' 오류=임베딩 키 의도적 부재·wraps엔 유지=메인의 dense 호출을 bm25-기반 실질 답으로 대체). T2_FN_ISOLATE=1 구동·기본 OFF."
   }
  ],
- "analysis_producers": [
-  {
-   "data_source": "get_credit_card_transactions_by_user",
-   "producer": "get_reward_discrepancies",
-   "subject": "whether the rewards earned on those transactions match the expected rate for each card and category"
-  }
- ],
- "assertion_operands": {
-  "reward discrepancies": "get_reward_discrepancies",
-  "expected reward for a transaction": "get_reward_discrepancies"
- },
- "view_field_annotations": [
-  {
-   "contains": [
-    "account_status: ACTIVE",
-    "status: CLOSED"
-   ],
-   "note": "[FIELD NOTE] This record shows BOTH account_status: ACTIVE and status: CLOSED. Per the knowledge base ('What Happens When You Order a Replacement Card'): ordering a replacement cancels the current CARD and issues a new one, while 'your account number remains unchanged' and account functions continue. Do not treat a replaced/cancelled card as a closed ACCOUNT - the account's state is account_status. Account-level operations (e.g. credit limit requests) are governed by their own knowledge-base eligibility criteria, which do not include any card-replacement condition.",
-   "_note": "2026-07-22 §2bs(rall10 054 실측): dispute(cancel_and_reissue)+교체주문이 DB에 status: CLOSED/closed_date 기록(account_status: ACTIVE 병존)→모델이 '계좌 폐쇄→CLI 불가' 오독·CLI 12액션 미시도(user-sim 수긍 STOP). KB 근거=replacements_003('account number remains unchanged')+CLI 자격 문서(logistics_004/005/006)에 계좌-상태/교체 요건 부재(2026-07-22 census·역방향 grep 0건). rall9 15/17은 submit 전 재조회 안 해서 통과=운. 인스턴스-완화 — 근본 클래스(모호 상태 오추론)=INFER-calibration(learn) 영역."
-  }
+ "identifying_arg_types": [
+  "time_verified"
  ],
  "param_cap_check": [
   {
@@ -263,17 +181,82 @@
    "match_hint": "by merchant, amount, and date"
   }
  ],
- "_meta": {
-  "domain": "banking_knowledge",
-  "layer": "ext",
-  "source": "banking_knowledge.gate.json",
-  "classifier": "x6b_a2_split.CORE/DISCARD (2026-07-30)",
-  "note": "도메인-특화 스펙 = 정직한 per-domain opex (특허 유한성 주장에서 제외)"
- },
+ "reference_filter": [
+  {
+   "dispatch_tool": "call_discoverable_agent_tool",
+   "tool_prefix": "file_debit_card_transaction_dispute",
+   "param": "transaction_id",
+   "key_field": "transaction_id",
+   "require": [
+    "date",
+    "amount"
+   ],
+   "criteria_fields": [
+    "date",
+    "merchant",
+    "transaction_type"
+   ],
+   "match": [
+    {
+     "field": "date",
+     "eq": "criteria.date"
+    },
+    {
+     "field": "description",
+     "contains": "criteria.merchant"
+    },
+    {
+     "field": "type",
+     "eq": "criteria.transaction_type"
+    }
+   ],
+   "on_ambiguous": "none"
+  },
+  {
+   "dispatch_tool": "call_discoverable_agent_tool",
+   "tool_prefix": "file_credit_card_transaction_dispute",
+   "param": "transaction_id",
+   "key_field": "transaction_id",
+   "require": [
+    "transaction_date",
+    "transaction_amount"
+   ],
+   "criteria_fields": [
+    "date",
+    "merchant",
+    "amount"
+   ],
+   "match": [
+    {
+     "field": "transaction_date",
+     "eq": "criteria.date"
+    },
+    {
+     "field": "merchant_name",
+     "contains": "criteria.merchant"
+    },
+    {
+     "field": "transaction_amount",
+     "contains": "criteria.amount"
+    }
+   ],
+   "on_ambiguous": "none",
+   "_note": "2026-07-22 §2bj(031 실측): 유저가 merchant/amount/date 축자 지목에도 인접 Amazon id 기입(C43 정박-치환)·credit 변형 미선언이 원인. debit 스펙(C77)과 동형·필드명=credit 레코드 실측. on_ambiguous=none=다중매치 무개입."
+  }
+ ],
  "tool_signatures": {
   "give_discoverable_user_tool": [
    "discoverable_tool_name"
   ]
  },
- "_note_tool_signatures": "V7(2026-07-31): 도메인 **정책**이 서명을 명시한다 — 'Use the give_discoverable_user_tool(discoverable_tool_name) function' / '인자는 유저에게 말로 설명하라'. gold가 아니라 정책이 출처이므로 A2 EXT(스키마 상수) 선언이 정당. 엔진은 deny+재발행만 하고 인자를 떼지 않는다(C151)."
+ "view_field_annotations": [
+  {
+   "contains": [
+    "account_status: ACTIVE",
+    "status: CLOSED"
+   ],
+   "note": "[FIELD NOTE] This record shows BOTH account_status: ACTIVE and status: CLOSED. Per the knowledge base ('What Happens When You Order a Replacement Card'): ordering a replacement cancels the current CARD and issues a new one, while 'your account number remains unchanged' and account functions continue. Do not treat a replaced/cancelled card as a closed ACCOUNT - the account's state is account_status. Account-level operations (e.g. credit limit requests) are governed by their own knowledge-base eligibility criteria, which do not include any card-replacement condition.",
+   "_note": "2026-07-22 §2bs(rall10 054 실측): dispute(cancel_and_reissue)+교체주문이 DB에 status: CLOSED/closed_date 기록(account_status: ACTIVE 병존)→모델이 '계좌 폐쇄→CLI 불가' 오독·CLI 12액션 미시도(user-sim 수긍 STOP). KB 근거=replacements_003('account number remains unchanged')+CLI 자격 문서(logistics_004/005/006)에 계좌-상태/교체 요건 부재(2026-07-22 census·역방향 grep 0건). rall9 15/17은 submit 전 재조회 안 해서 통과=운. 인스턴스-완화 — 근본 클래스(모호 상태 오추론)=INFER-calibration(learn) 영역."
+  }
+ ]
 }
