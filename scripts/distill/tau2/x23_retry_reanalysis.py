@@ -162,6 +162,17 @@ def main():
         print("  부호검정 p=%.3f   Δpass(짝지은)=%+.3f"
               % (sign_test(b_only, c_only), (c_only - b_only) / max(len(keys), 1)))
 
+        # ★민감도 — 비-모델 실패(infrastructure_error) 오염 제거. 종료사유가 arm 간
+        #   비대칭이면(retry arm에 더 많음) 그것만으로 Δpass가 음으로 기울 수 있다([[08]] ①).
+        clean = [k for k in keys
+                 if bi[k].get("termination_reason") != "infrastructure_error"
+                 and ri[k].get("termination_reason") != "infrastructure_error"]
+        cb = sum(1 for k in clean if passed(bi[k]) and not passed(ri[k]))
+        cc = sum(1 for k in clean if passed(ri[k]) and not passed(bi[k]))
+        print("  ★민감도(infra 제외) N=%d: g15만 %d · retry만 %d → p=%.3f  Δ=%+.3f"
+              % (len(clean), cb, cc, sign_test(cb, cc),
+                 (cc - cb) / max(len(clean), 1)))
+
         # ★발화-층화: 레버가 실제로 발화한 짝만
         if fire_keys:
             fb = sum(1 for k in fire_keys if passed(bi[k]) and not passed(ri[k]))

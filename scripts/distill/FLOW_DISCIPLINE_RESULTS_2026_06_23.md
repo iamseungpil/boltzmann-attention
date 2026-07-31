@@ -39,7 +39,11 @@
 ## ★핵심 결론
 1. **게이트 = compliant-pass를 bench와 동일하게 만든다(위반 0)**: floor는 bench>compliant(위반 gap·32B 0.056), gated(g14/g15/g15retry)는 **bench==compliant**(런타임 게이트가 auth/confirm/ownership 위반을 0으로). = 배포-실제 지표서 게이트의 핵심 가치.
 2. **G5(precondition-steering)는 전 scale서 compliant-pass↑** (g14→g15): 7B +0.021·14B +0.024·**32B +0.042**. 32B서 최대(addressable이 pass로 전환되는 지점).
-3. **★retry-controller는 scale-게이트 음성**: 7B −0.067·14B −0.097(해침!)·32B +0.010(중립~약양). = §35c "retry=잘못된레버" *정량 확증*·**소형엔 retry 빼야**. ⇒ 배포: **소형=g15(G1-G5·retry 없음)·32B만 +retry**.
+3. **★retry-controller는 scale-게이트 음성**: 7B −0.067·14B −0.097(해침!)·32B +0.010(중립~약양). ⇒ 배포: **소형=g15(retry 없음)**.
+   > **2026-07-31 재측정(C262·`x23_retry_reanalysis.py`)** — 원자료 짝지은 ITT(같은 task·trial·infra 제외)로 다시 잼:
+   > **소형 확증** 7B+14B 4쌍 풀링 **127 vs 84·p=0.0037**(4/4 음의 방향·보수적으로 다시행만 **90 vs 67·p=0.079**).
+   > **32B는 철회** — 60 vs 66·**p=0.66 = null**이므로 *"32B만 +retry"*는 근거 없음(nt=3의 +0.087은 §정정이 **G5 손실 복구**로 귀속했고 G5는 폐기).
+   > 인용 수치 −0.067/−0.097 자체도 이 문서가 철회한 nt=1 계열이니 **짝비교 수치로 대체**할 것. 최적 조성 `g14+retry` arm은 **존재한 적 없음**.
 4. **★최적 deploy = g15**: floor compliant→g15 compliant = 7B 0.130→0.191(+0.061)·14B 0.404→0.440(+0.036)·**32B 0.491→0.573(+0.082)**. 전 scale 양성·deployment 지표(compliant)서.
 5. **scaffold가 addressable 클래스를 전 scale서 닫음**(census): eligibility 7B 58→2·14B 32→1·32B 25→0 / loop 7B 113→38·14B 44→9·32B 20→6. **그러나 pass 전환은 32B서 주로**(7B는 닫아도 capability 벽서 실패·pass 0.188→0.191 무변). = §1b "addressable ~25%·나머지 capability" *확증*.
 6. **H1 확증(addressable는 scale↑서 수축)**: floor loop 113→44→20·elig 58→32→25. 큰 모델일수록 그런 실수 덜 함. *그러나* scaffold의 pass-lift는 32B서 최대(닫은 게 success로 전환되는 sweet-spot).
