@@ -33,7 +33,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import x12_action_fail_exact as X12  # noqa: E402
 
 TXN = re.compile(r"txn_[0-9a-f]+")
-ARMS = ("A_minimal", "B_fullctx", "A_split", "A_all")
+ARMS = ("A_minimal", "A_policy", "B_fullctx", "A_split", "A_all")
+# KB 문서 출력 판별 — tau2 검색 도구의 **출력 형식**으로 기계 판별한다(손으로 고른 목록 금지).
+KBDOC = re.compile(r"\bID: doc_|\bScore: \d")
 
 
 def extract(results_path):
@@ -61,14 +63,28 @@ def extract(results_path):
         # 모델이 실제로 본 도구 출력만 (role=tool) — 순서 보존·결정 시점까지
         tool_out = [str(m.get("content") or "")
                     for m in msgs[:dec] if m.get("role") == "tool"]
-        user_txt = next((str(m.get("content") or "") for m in msgs
-                         if m.get("role") == "user"), "")
+        # ★사용자 요구도 결정 시점까지 전부 (2026-07-31 수정) — 초판은 **첫 발화 하나**만 썼다.
+        #   이 벤치는 다중턴이라 "어느 거래인지"는 대개 뒤 턴에서 나온다. 첫 발화만 주면
+        #   A_minimal은 답이 없는 문제가 되고, 그 실패가 "경계"로 오독된다([[18]]).
+        user_txt = "\n".join(str(m.get("content") or "") for m in msgs[:dec]
+                             if m.get("role") == "user" and (m.get("content") or "").strip())
         cand, seen = [], set()
         for c in tool_out:
             for t in TXN.findall(c):
                 if t not in seen:
                     seen.add(t)
                     cand.append(t)
+        # ★후보 **레코드 원문** (2026-07-31 수정) — 초판 A_minimal은 불투명한 id 목록만 줬다.
+        #   금액·상인·날짜 없이 hex id 중에서 고르라는 건 답이 없는 문제다(실측: A 전건 오답).
+        #   설계 문구("사용자 요구 + 후보 txn 레코드 원문")대로 **도구 출력의 그 레코드 블록**을
+        #   그대로 붙인다 ⇒ A의 정보 ⊆ B의 정보가 유지된다.
+        recs = {}
+        for c in tool_out:
+            for blk in re.split(r"\n\s*\n", c):
+                for t in set(TXN.findall(blk)):
+                    if t not in recs:
+                        recs[t] = blk.strip()
+        cand_records = [recs.get(t, t) for t in cand]
         for chk in ((s.get("reward_info") or {}).get("action_checks") or []):
             if chk.get("action_match"):
                 continue
@@ -93,6 +109,7 @@ def extract(results_path):
                 "task": s.get("task_id"), "trial": s.get("trial"),
                 "gold": gid,                      # ★채점 전용 — 프롬프트 금지
                 "candidates": cand,               # 출력 순서 그대로
+                "cand_records": cand_records,     # A_minimal용 레코드 원문(같은 순서)
                 "user_text": user_txt[:1500],
                 "tool_outputs": tool_out,         # B_fullctx용(결정 시점까지)
             })
@@ -108,12 +125,19 @@ def prompt_for(case, arm):
     ask = ("Which transaction_id should be used? Answer with exactly one id and nothing else."
            if arm != "A_all" else
            "Which transaction_ids should be used? Answer with a JSON list of ids and nothing else.")
-    if arm == "B_fullctx":
+    recs = case.get("cand_records") or cands
+    if arm == "A_policy":
+        # ★사다리 중간칸 — 후보 레코드 + **정책/KB 문서**만. 어떤 결정(예: 보상 오적립 탐지)은
+        #   레코드만으론 답이 없고 기준 문서가 있어야 한다. A_minimal 실패가 "경계"인지
+        #   "기준 부재"인지는 이 칸이 가른다. 선별은 출력 형식으로 기계 판별(KBDOC).
+        docs = [t for t in case["tool_outputs"] if KBDOC.search(t)]
+        ctx = "\n\n".join(recs + docs)
+    elif arm == "B_fullctx":
         ctx = "\n".join(case["tool_outputs"])
     elif arm == "A_split":
-        ctx = "\n".join("- %s" % c for c in cands)          # H1: 한 줄씩 분리
+        ctx = "\n\n---\n\n".join(recs)      # H1: 레코드를 명시적 구분선으로 분리(전사-슬립 축)
     else:
-        ctx = ", ".join(cands)
+        ctx = "\n\n".join(recs)             # A_minimal: 후보 레코드 원문(도구 출력 그대로)
     return ("Customer request:\n%s\n\nTransaction records available to you:\n%s\n\n%s"
             % (case["user_text"], ctx, ask))
 
@@ -185,9 +209,13 @@ def main():
             shadow = {k: v for k, v in c.items() if k != "gold"}
             assert prompt_for(shadow, arm) == p, "★프롬프트가 gold 필드를 참조했다 — 중단"
             if arm in ("A_minimal", "A_all"):
-                seq = TXN.findall(p)
-                assert [x for x in seq if x in set(c["candidates"])][:len(c["candidates"])] \
-                    == c["candidates"], "★후보 순서가 바뀌었다(정렬 금지) — 중단"
+                # 레코드 원문엔 같은 id가 여러 번 나온다(`Record ID:`·`transaction_id:`) ⇒
+                # **최초 출현 순서**로 비교한다(초판은 중복을 안 걷어 오탐으로 죽었다).
+                seen_p, first = set(c["candidates"]), []
+                for x in TXN.findall(p):
+                    if x in seen_p and x not in first:
+                        first.append(x)
+                assert first == c["candidates"], "★후보 순서가 바뀌었다(정렬 금지) — 중단"
             try:
                 r = litellm.completion(model="openai/" + args.model, api_base=args.base,
                                        api_key="x", temperature=0.0,
@@ -219,6 +247,18 @@ def main():
            "재현 실패(둘 다 정답)" if (a and b) else "역전(A오답·B정답)")] += 1
     for k, n in v.most_common():
         print("   %-24s %d" % (k, n))
+    # 사다리: A_minimal → A_policy → B_fullctx (정보량 단조 증가)
+    lad = Counter()
+    for k, d_ in by.items():
+        t = tuple(d_.get(a) for a in ("A_minimal", "A_policy", "B_fullctx"))
+        if any(x is None for x in t):
+            continue
+        lad["".join("O" if x else "X" for x in t)] += 1
+    if lad:
+        print("\n=== 사다리 (A_minimal/A_policy/B_fullctx)")
+        for k, n in sorted(lad.items()):
+            print("   %s  %d" % (k, n))
+        print("   해석: XOO/XO*=기준 부재(정책 동석이 산다) · OXX/O**=부하 · XXX=경계 후보")
     print("\n⚠판정은 **쌍이 완성된 사례만**. 재현 실패가 많으면 프로브 설계 결함이다(설계 §2).")
 
 
