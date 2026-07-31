@@ -608,9 +608,14 @@ def _param_cap_deny(messages, tc, specs):
 
 
 def _wev_deny_msgs(messages, tc, specs):
-    """★T2_WRITE_EVIDENCE (2026-07-19·task_029 포렌식): A2 `write_evidence_specs` — 선언된 write 전,
-    요구 토큰이 대상 id와 **같은 도구 출력**(role=tool·env 생성물·user *발화*는 제외)에 공존해야 실행.
-    029 실측: 사용자 거짓말("해결됐다")만 믿고 update 6건→db 오염. 도메인-일반: 도구명/조건/토큰/문구
+    """★T2_WRITE_EVIDENCE: A2 `write_evidence_specs` — 선언된 write 전, 요구 토큰이 대상 id와
+    **같은 도구 출력**(role=tool·env 생성물·user *발화*는 제외)에 공존해야 실행.
+    ★출처(2026-07-31 [[23]] 교정): 근거는 태스크 포렌식이 아니라 **KB**다 —
+    `doc_credit_cards_(general)_004`가 "look up the user's **resolved** disputes … to find the
+    transaction_id values that need rewards adjustments"라고 자격을 정하고,
+    `doc_bank_accounts_(general)_035`가 상태 taxonomy를 열거한다(BANK_FAVOR=크레딧 없음).
+    즉 gold 없이 사전에 쓸 수 있는 규칙이었고, 실제로 gold 경유로 쓴 탓에 `RESOLVED` substring이
+    은행-승소까지 통과시키는 결함이 있었다(→ `forbid_tokens`). 도메인-일반: 도구명/조건/토큰/문구
     전부 A2·엔진은 substring 공존 실재확인만([[03b]] provenance 계열·값 추출/생성 0). id는 호출 인자
     (중첩 JSON-문자열 포함=_args_dict 계열·모델 자신의 출력 파싱). id 못 읽으면 skip(false-block 회피)."""
     name = getattr(tc, "name", None)
@@ -651,7 +656,14 @@ def _wev_deny_msgs(messages, tc, specs):
         #   무관 예시 숫자("(e.g., 1234, 4321)")와 도구명 substring이 한 출력에 우연 공존하면 날조값도
         #   통과(evidence-collision). any-토큰은 "{id}"를 값으로 치환한 라벨-값 인접 문자열 중 하나가
         #   도구 출력에 실재해야 통과 — 라벨·문구는 전부 A2·엔진은 치환+substring 대조만([[03b]]).
+        # ★forbid_tokens (2026-07-31·[[23]] 감사): 증거 판정에 **부정 조건**이 필요하다.
+        #   require_tokens는 substring이라 `"RESOLVED"` 하나로 `RESOLVED_CUSTOMER_FAVOR`뿐 아니라
+        #   **`RESOLVED_BANK_FAVOR`(거래 정당·크레딧 없음)**까지 증거로 인정했다 — 막으려던 오염을
+        #   한 갈래 열어둔 셈이다. 그렇다고 토큰을 `RESOLVED_CUSTOMER_FAVOR`로 좁히면 도구 출력
+        #   형식(`Status: RESOLVED - approved`·026/028 실재)이 막혀 회귀한다. ⇒ 긍정 토큰은 넓게
+        #   두고 **자격 없는 상태명을 A2가 선언**해 배제한다. 엔진은 집합 비포함만 본다(리터럴 0).
         tokens = sp.get("require_tokens") or []
+        forbid = sp.get("forbid_tokens") or []
         any_tokens = sp.get("require_tokens_any") or []
         found = False
         found_any = not any_tokens
@@ -660,7 +672,8 @@ def _wev_deny_msgs(messages, tc, specs):
                 continue
             c = getattr(m, "content", None)
             c = c if isinstance(c, str) else str(c or "")
-            if not found and str(idv) in c and all(t in c for t in tokens):
+            if (not found and str(idv) in c and all(t in c for t in tokens)
+                    and not any(t in c for t in forbid)):
                 found = True
             if not found_any and any(t.replace("{id}", str(idv)) in c
                                      for t in any_tokens):

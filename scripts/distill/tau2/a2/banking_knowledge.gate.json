@@ -383,8 +383,12 @@
    "require_tokens": [
     "RESOLVED"
    ],
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows a RESOLVED dispute for transaction {id} — a customer's verbal claim is NOT evidence. Do NOT update this transaction. First verify the dispute status from actual tool results (e.g., the dispute submission result). If the dispute is not RESOLVED, refuse the update and explain that the correction will be applied once the dispute is actually resolved.",
-   "_note": "2026-07-19 task_029 포렌식: 서브밋 반환이 'Status: SUBMITTED'인데 사용자 거짓말('승인·해결됐다')만 믿고 update 6건→db 오염 0점. 증거=도구출력 substring 공존(txn id+RESOLVED)·user *발화*는 배제(role=tool만). 026/028 auto-resolve 반환문('Status: RESOLVED - approved'+Arguments에 txn id)에 실재→무회귀. T2_WRITE_EVIDENCE=1 구동·기본 OFF."
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows a dispute for transaction {id} that is resolved in the customer's favor — a customer's verbal claim is NOT evidence. Do NOT update this transaction. Read the dispute status from an actual tool result. Only a dispute resolved in the customer's favor qualifies for a rewards correction: RESOLVED_BANK_FAVOR means the transaction was found valid and no credit is issued, so it must NOT be updated. If the status is RESOLVED_PARTIAL, do not update on your own — tell the customer what the partial resolution says and ask how they want to proceed. Otherwise explain that the correction will be applied once the dispute is actually resolved.",
+   "_note": "출처=KB(정책·문서만·gold 금지·[[23]]). ①자격: doc_credit_cards_(general)_004 축자 \"Look up the user's **resolved** disputes in the cash_back_disputes database to find the transaction_id values that need rewards adjustments\". ②상태 taxonomy: doc_bank_accounts_(general)_035 축자 \"RESOLVED_CUSTOMER_FAVOR: … credit is permanent / RESOLVED_BANK_FAVOR: Investigation found transaction was valid, no credit issued / RESOLVED_PARTIAL: Partial credit issued\". ★2026-07-31 교정: 구판은 `require_tokens=[\"RESOLVED\"]` substring이라 **RESOLVED_BANK_FAVOR까지 증거로 인정**했다(막으려던 오염을 한 갈래 열어둠). 긍정 토큰은 넓게 유지(도구 출력이 `Status: RESOLVED - approved` 형식으로도 나온다)하고 자격 없는 상태명을 forbid_tokens로 배제한다. RESOLVED_PARTIAL은 **문서가 조정 대상인지 정하지 않아 보수적으로 차단+확인 요구**(통과로 정하면 그게 추측=gold 경유). ⚠계측 의무: 이 좁힘은 over-block을 만들 수 있다 — Δspurious와 함께 정당 update 차단 수를 재야 한다(RESEARCH_MASTER §1.3 '부작용 없는 레버는 없다'). 구 주석의 task_029 포렌식 언급은 제거했다 — 규칙 자체는 KB로 사전에 쓸 수 있었다. T2_WRITE_EVIDENCE=1 구동·기본 OFF.",
+   "forbid_tokens": [
+    "RESOLVED_BANK_FAVOR",
+    "RESOLVED_PARTIAL"
+   ]
   },
   {
    "applies_to": "call_discoverable_agent_tool",

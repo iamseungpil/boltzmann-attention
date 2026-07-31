@@ -91,6 +91,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true")
     ap.add_argument("--verify", action="store_true")
+    ap.add_argument("--sync-mono", action="store_true",
+                    help="분리 파일(정본) → <domain>.gate.json(레거시 생성물) 재생성. "
+                         "키 순서는 기존 단일파일을 따른다(잡음 diff 방지).")
     args = ap.parse_args()
     try:
         sys.stdout.reconfigure(encoding="utf-8")
@@ -108,6 +111,24 @@ def main():
     layer, present = classify(mono)
     for k in real(base):
         layer[k] = "L1"
+
+    if args.sync_mono:
+        # 정본은 분리 파일이다(설계 §3). 레거시 read-site 105곳이 아직 단일파일을 읽으므로
+        # 여기서 **생성물로** 다시 쓴다. 새 키는 뒤에 붙이고 기존 키 순서는 보존한다.
+        for dom in DOMAINS:
+            st_p = os.path.join(_A2, dom + ".settings.json")
+            sp_p = os.path.join(_A2, dom + ".specific.json")
+            if not (os.path.exists(st_p) and os.path.exists(sp_p)):
+                continue
+            parts = {}
+            for p in (st_p, sp_p):
+                parts.update({k: v for k, v in load(p).items() if k != "_note_layer"})
+            old = mono.get(dom, {})
+            out = {k: parts[k] for k in old if k in parts}
+            out.update({k: v for k, v in parts.items() if k not in out})
+            dump(os.path.join(_A2, dom + ".gate.json"), out)
+            print("  %-18s gate.json 재생성 %d키 (분리 파일 = 정본)" % (dom, len(out)))
+        return
 
     if args.verify:
         bad = 0
