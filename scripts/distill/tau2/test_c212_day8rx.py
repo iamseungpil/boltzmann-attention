@@ -151,9 +151,12 @@ def test_b2_reason_guidance():
 def test_go_stack_flags():
     print("[test_flags] go_stack C212 플래그 등록")
     src = io.open(os.path.join(HERE, "go_stack.sh"), encoding="utf-8").read()
-    for f in ("T2_DISPATCH_ROLE_NOTE=1", "T2_TERM_GRANT_USERDEMAND=1",
-              "T2_COVERAGE_FOLLOWUP=1", "T2_UNKNOWN_REPEAT_GUARD=1"):
+    # ★T2_DISPATCH_ROLE_NOTE는 2026-07-31 폐기(딸린 strip을 V7로 대체) — 부재를 검사한다.
+    for f in ("T2_TERM_GRANT_USERDEMAND=1", "T2_COVERAGE_FOLLOWUP=1",
+              "T2_UNKNOWN_REPEAT_GUARD=1", "T2_TOOL_SIGNATURE=1"):
         chk(f in src, f)
+    chk("export T2_DISPATCH_ROLE_NOTE=1" not in src,
+        "폐기 플래그가 스택에 남아 있지 않음(V7 대체)")
 
 
 if __name__ == "__main__":

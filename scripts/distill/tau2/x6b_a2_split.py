@@ -19,7 +19,9 @@ CORE = {
     # GET·생산자(operand 해소)
     "producers", "arg_producers", "scaffold_get_tools", "operands",
     # 레지스트리·membership(instruct_user_run·도구명)
-    "discoverable_name_check", "nonlisted_tool_feedback", "tool_arg_allowlist",
+    # ★`tool_arg_allowlist` 삭제(2026-07-31): V7로 통일 — 같은 내용이 `tool_signatures`에 있고
+    #   그건 도메인 **정책**이 정한 서명이라 CORE가 아니라 EXT(정직한 opex)로 계상된다.
+    "discoverable_name_check", "nonlisted_tool_feedback",
     "unavailable_tools", "dispatcher_role_check",
     # 완료-보고 대조(done_report ⊆ executed_events)
     "claim_prov", "completion_guard",

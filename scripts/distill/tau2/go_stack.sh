@@ -104,7 +104,12 @@ export T2_ARG_PRODUCERS=1       # F8 필수인자-생산자 give-흐름 넛지(0
 export T2_CLAIM_PROV=1          # claim-날조 원장대조(사임/transfer 창·035 기전 표적)
 export T2_CLAIMPROV_CAP=3       # cap=1은 빈손 regen 1회에 전소(코드 포렌식 실측)→스모크 권장 3
 # ── ★C212/day7 중간-포렌식 처방(DAY8_PRESCRIPTIONS_DESIGN_2026_07_28·A1~A4/B1~B3) ──
-export T2_DISPATCH_ROLE_NOTE=1  # A2 strip 값 응답본문 재진술(021 회귀=무통보 소실 [S])
+# ★T2_DISPATCH_ROLE_NOTE 폐기(2026-07-31): 딸린 strip(`tool_arg_allowlist`)을 V7로 대체해
+#   재진술할 "떼어낸 값" 자체가 없다. 021형 좌초 방지는 V7 피드백 문구가 진다(§아래).
+export T2_TOOL_SIGNATURE=1      # ★V7 give 서명 deny+재발행(구 strip 대체·C151 compliance 패턴)
+#   ⚠구 strip은 엔진이 호출을 대신 고쳐 로그 위반을 0으로 만들었다(Z4: strip 2 / V7 0).
+#   이제 모델이 고친다 — 무한 deny 방지는 rule① RETRY_LOOP(동일-호출 반복 차단)에 의존하고,
+#   통과-캡은 두지 않았다(순수 compliance 측정). 좌초 관측 시 cap 도입이 조정 후보([[19]]).
 export T2_TERM_GRANT_USERDEMAND=1  # A4 유저 ###TRANSFER### 직접-방출 시 notice-요건 면제(008 [S])
 export T2_COVERAGE_FOLLOWUP=1   # B1 [coverage] 미판정-행 재호출 지시 무시+사임→1회 regen(019/022/027 [S])
 export T2_UNKNOWN_REPEAT_GUARD=1  # B3 Unknown-tool 반려된 이름 재지시 차단(cap 2·010/014/015/016 [S])

@@ -4286,7 +4286,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             # ★T2_DISPATCH_ROLE (2026-07-22 §2bl·rall8 031 실측): 디스패처 역할 혼동 deny —
             #   dispute를 user-디스패처로 제출·user-도구를 에이전트가 직접 호출(4회). 술어=대화
             #   자기-이력(이 대화서 unlock된 이름=agent-도구·give된 이름=user-도구)·엔진 이름-리터럴 0.
-            #   +tool_arg_allowlist: 선언 외 인자 키 strip(give 여분 'arguments' 실측·커밋 전=replay-safe).
+            #   (구 +tool_arg_allowlist strip은 2026-07-31 V7로 대체·삭제 — 아래 §인자-strip 폐기.)
             # ★T2_PRESCRIPTION (2026-07-22 §2bu·rall11 038 실측·격리 L2 8/8=활성화 실패): 처방-오선택 deny.
             #   038: 사기 dispute 요청(unauthorized/fraudulent)인데 apply_statement_credit 오선택(dispute 미착수).
             #   L2 프로브=명시질의 시 file_dispute 8/8 앎 → 자유생성 미발현(활성화). 게이트가 상기:
@@ -4363,35 +4363,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         print("[T2_DISPATCH_ROLE] deny tool=%s name=%s" % (nm, iv),
                               file=_sys.stderr, flush=True)
                         break
-            _awl = (a2 or {}).get("tool_arg_allowlist") or {}
-            if os.environ.get("T2_DISPATCH_ROLE") == "1" and _awl:
-                for c in (am.tool_calls or []):
-                    _al = _awl.get(getattr(c, "name", None))
-                    if not isinstance(_al, list):
-                        continue
-                    _ar = getattr(c, "arguments", None)
-                    if isinstance(_ar, dict):
-                        _extra = [k for k in list(_ar.keys()) if k not in _al]
-                        _kept = {k: _ar[k] for k in _extra if str(_ar.get(k) or "").strip()}
-                        for k in _extra:
-                            _ar.pop(k, None)
-                        if _extra:
-                            print("[T2_DISPATCH_ROLE] stripped extra args %s from %s"
-                                  % (_extra, getattr(c, "name", None)), file=_sys.stderr, flush=True)
-                        # ★C212/A2 (day7 021 회귀 [S]): strip이 값을 무통보 소실 → user-sim이
-                        #   실행 템플릿을 못 받아 좌초(FOLLOWUP-regen 경로만 인자 보존=경로 불일치).
-                        #   수복=모델이 직접 쓴 값의 결정론 릴레이(엔진 값 생성 0)를 응답 본문에
-                        #   병기 — 호출 자체는 종전대로 gold-형식(strip 유지). Δspurious 계측 대상.
-                        if _kept and os.environ.get("T2_DISPATCH_ROLE_NOTE") == "1":
-                            try:
-                                _kj = json.dumps(_kept, ensure_ascii=False)
-                            except Exception:
-                                _kj = str(_kept)
-                            am.content = ((getattr(am, "content", None) or "")
-                                          + "\n\n(Reference values for running this: %s)" % _kj)
-                            print("[T2_DISPATCH_ROLE] stripped args restated in reply "
-                                  "text tool=%s" % getattr(c, "name", None),
-                                  file=_sys.stderr, flush=True)
+            # ★인자-strip 폐기 (2026-07-31 사용자 결정: "V7으로 대체하고 A2도 V7으로 통일하라").
+            #   여기 있던 `tool_arg_allowlist` strip은 **엔진이 모델의 호출을 대신 고쳤다** —
+            #   C151이 gaming으로 기각한 바로 그 방식이고, 로그상 위반을 0으로 만들어 V7(실행-레벨
+            #   deny+재발행)이 **볼 입력을 구조적으로 없앴다**(Z4 실측: strip 2회·V7 0회).
+            #   이제 서명 위반은 V7 한 곳에서만 판정한다(§379) — 고치는 주체는 모델([[10]] 분담).
+            #   A2도 `tool_signatures` 하나로 통일(`tool_arg_allowlist` 삭제 = 도메인 opex −1키).
+            #   ⚠딸린 폐기: `T2_DISPATCH_ROLE_NOTE`(strip된 값의 결정론 재진술·C212/A2)는 strip이
+            #     없으면 재진술할 값이 없다. 021형 좌초(유저가 실행 템플릿을 못 받음)를 막는 책임은
+            #     V7 피드백 문구("인자 값이 필요하면 호출이 아니라 **답변 본문에** 적어라")로 넘어간다
+            #     — 결정론 릴레이 → 모델 행동으로 바뀌므로 **재스모크에서 021형을 확인**해야 한다.
             un_fb = None
             _unspec = (a2 or {}).get("discoverable_name_check") or {}
             if (os.environ.get("T2_UNLOCK_NAME") == "1" and _unspec
