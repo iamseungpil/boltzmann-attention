@@ -168,8 +168,9 @@ def main():
             dO1, dO3 = f[2]["O1"] - p[2]["O1"], f[2]["O3"] - p[2]["O3"]
             visible = (dO1 != 0 or dO3 != 0)
             seen_diff += visible
-            print("\n  %s  PASS(trial %s) O1=%d O3=%d   vs   fail(trial %s) O1=%d O3=%d"
-                  % (t, p[0], p[2]["O1"], p[2]["O3"], f[0], f[2]["O1"], f[2]["O3"]))
+            print("\n  %s  PASS(trial %s) O1=%d O3=%d O5=%d   vs   fail(trial %s) O1=%d O3=%d O5=%d"
+                  % (t, p[0], p[2]["O1"], p[2]["O3"], p[2].get("O5", 0),
+                     f[0], f[2]["O1"], f[2]["O3"], f[2].get("O5", 0)))
             print("     ΔO1=%+d · ΔO3=%+d → %s" % (dO1, dO3, "**차이 보임**" if visible
                                                    else "차이 없음(이 계측으로 설명 불가)"))
             only_f = f[2]["writes"] - p[2]["writes"]
