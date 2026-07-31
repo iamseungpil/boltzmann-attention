@@ -52,6 +52,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("results", nargs="+")
     ap.add_argument("--task", default="")
+    ap.add_argument("--args", action="store_true",
+                    help="★인자 수준 대조 — 분류(TOP_VALUE 등)만으로는 원인을 말할 수 없다. "
+                         "gold 값 vs 모델이 실제로 넣은 값을 나란히 찍는다.")
     args = ap.parse_args()
     try:
         sys.stdout.reconfigure(encoding="utf-8")
@@ -75,7 +78,8 @@ def main():
                 if g["matched"]:
                     continue
                 cls, detail = X12.classify(g, plist)
-                fails.append((cls, g["name"], detail))
+                same = [a for n, a in plist if n == g["name"]]
+                fails.append((cls, g["name"], detail, g["arguments"], same))
             rows.append({
                 "task": tid, "trial": s.get("trial"),
                 "reward": ri.get("reward"), "db": (ri.get("db_check") or {}).get("db_match"),
@@ -94,11 +98,30 @@ def main():
     print("  %-10s %-6s %-7s %-6s %-24s %-6s %s"
           % ("task", "trial", "reward", "db", "종료사유", "호출", "실패 분류"))
     for r in sorted(rows, key=lambda x: (str(x["task"]), str(x["trial"]))):
-        cls = ", ".join("%s(%s)" % (c, n) for c, n, _ in r["fails"][:3]) or "-"
+        cls = ", ".join("%s(%s)" % (f[0], f[1]) for f in r["fails"][:3]) or "-"
         if len(r["fails"]) > 3:
             cls += " …+%d" % (len(r["fails"]) - 3)
         print("  %-10s %-6s %-7s %-6s %-24s %-6s %s"
               % (r["task"], r["trial"], r["reward"], r["db"], str(r["term"])[:24], r["calls"], cls))
+
+    if args.args:
+        print("\n" + "=" * 100)
+        print("①-b ★인자 수준 대조 — gold가 요구한 값 vs 모델이 실제로 넣은 값")
+        print("=" * 100)
+        for r in sorted(rows, key=lambda x: (str(x["task"]), str(x["trial"]))):
+            if not r["fails"]:
+                continue
+            print("\n  [%s trial %s]" % (r["task"], r["trial"]))
+            for cls, name, det, gargs, same in r["fails"]:
+                print("    %-16s %s" % (cls, name))
+                # 분류기가 준 차이-종류(x12 `sub_kind`)를 그대로 — 재구현하지 않는다([[03b]])
+                if isinstance(det, dict):
+                    print("        차이: %s" % json.dumps(det, ensure_ascii=False)[:200])
+                print("        gold: %s" % json.dumps(gargs, ensure_ascii=False)[:200])
+                for i, pa in enumerate(same[:2]):
+                    print("        pred[%d]: %s" % (i, json.dumps(pa, ensure_ascii=False)[:200]))
+                if not same:
+                    print("        pred: **그 도구를 한 번도 부르지 않았다**")
 
     print("\n" + "=" * 100)
     print("② 태스크별 — 같은 태스크의 여러 trial이 **같은 방식으로** 실패하는가")
@@ -108,7 +131,7 @@ def main():
         by[r["task"]].append(r)
     for t in sorted(by):
         rs = by[t]
-        sigs = {tuple(sorted(c for c, _, _ in r["fails"])) for r in rs}
+        sigs = {tuple(sorted(f[0] for f in r["fails"])) for r in rs}
         rw = [r["reward"] for r in rs]
         verdict = ("trial %d개 · reward %s · " % (len(rs), rw)
                    + ("**분류 동일**(안정적 결손)" if len(sigs) == 1 and len(rs) > 1
@@ -118,7 +141,7 @@ def main():
     print("\n" + "=" * 100)
     print("③ 실패 분류 분포 · 종료사유 교차표")
     print("=" * 100)
-    cc = Counter(c for r in rows for c, _, _ in r["fails"])
+    cc = Counter(f[0] for r in rows for f in r["fails"])
     print("  실패 분류:", cc.most_common() or "(없음)")
     tt = Counter((r["term"], "pass" if (r["reward"] or 0) >= 1 else "fail") for r in rows)
     for k, n in sorted(tt.items()):
