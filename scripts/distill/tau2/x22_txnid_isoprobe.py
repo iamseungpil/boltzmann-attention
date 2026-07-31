@@ -41,11 +41,26 @@ def extract(results_path):
     with open(results_path, encoding="utf-8") as f:
         d = json.load(f)
     cases = []
+    drop_not_yet_seen = 0
     for s in (d.get("simulations") or []):
         msgs = s.get("messages") or []
         plist = X12.preds(msgs)
-        # 모델이 실제로 본 도구 출력만 (role=tool) — 순서 보존
-        tool_out = [str(m.get("content") or "") for m in msgs if m.get("role") == "tool"]
+        # ★결정 시점 절단 (2026-07-31 수정) — 초판은 궤적 *전체*의 도구 출력을 B_fullctx로 줬다.
+        #   그건 두 가지로 틀렸다: ①에이전트가 결정 시 **갖지 않았던 이후 정보**까지 주므로
+        #   [[18]]의 "정보-맞춘 격리"가 깨진다(부하가 과소·경계가 과대 추정된다) ②9/16 사례가
+        #   문맥 한계(44,672 토큰)를 넘어 프로브가 그냥 에러로 죽는다.
+        #   ⇒ 문맥·후보 모두 **모델이 처음 txn을 고른 메시지 이전**까지만 쓴다.
+        dec = len(msgs)
+        for i, m in enumerate(msgs):
+            if m.get("role") != "assistant":
+                continue
+            if any("transaction_id" in json.dumps(tc.get("arguments") or {}, ensure_ascii=False)
+                   for tc in (m.get("tool_calls") or [])):
+                dec = i
+                break
+        # 모델이 실제로 본 도구 출력만 (role=tool) — 순서 보존·결정 시점까지
+        tool_out = [str(m.get("content") or "")
+                    for m in msgs[:dec] if m.get("role") == "tool"]
         user_txt = next((str(m.get("content") or "") for m in msgs
                          if m.get("role") == "user"), "")
         cand, seen = [], set()
@@ -67,15 +82,23 @@ def extract(results_path):
                 continue
             gj = X12._pj(g["arguments"].get("arguments")) or {}
             gid = gj.get("transaction_id")
-            if not gid or gid not in cand:
-                continue           # gold가 후보에 없으면 정보-맞춤이 성립하지 않는다 → 제외
+            if not gid:
+                continue
+            if gid not in cand:
+                # 결정 시점까지의 출력에 gold가 없다 = 그 순간 **고를 수 없었다**.
+                # 이건 wrong-pick(⋈)이 아니라 **발굴/reach 실패**다 — 다른 축이므로 제외하고 센다.
+                drop_not_yet_seen += 1
+                continue
             cases.append({
                 "task": s.get("task_id"), "trial": s.get("trial"),
                 "gold": gid,                      # ★채점 전용 — 프롬프트 금지
                 "candidates": cand,               # 출력 순서 그대로
                 "user_text": user_txt[:1500],
-                "tool_outputs": tool_out,         # B_fullctx용
+                "tool_outputs": tool_out,         # B_fullctx용(결정 시점까지)
             })
+    if drop_not_yet_seen:
+        print("  ⚠결정 시점에 gold가 아직 안 보인 사례 %d건 제외 = wrong-pick 아니라 발굴 실패 축"
+              % drop_not_yet_seen)
     return cases
 
 
@@ -104,6 +127,9 @@ def main():
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--arms", default="A_minimal,B_fullctx")
     ap.add_argument("--limit", type=int, default=0)
+    # B_fullctx가 서빙 문맥(44,672 토큰)을 넘으면 프로브가 에러로 죽어 쌍이 안 생긴다.
+    # 넘는 사례는 **제외하고 수를 보고**한다(조용히 자르면 B의 정보량이 달라져 판정이 오염된다).
+    ap.add_argument("--maxctx", type=int, default=0, help="B_fullctx 최대 문자수(0=무제한)")
     args = ap.parse_args()
     try:
         sys.stdout.reconfigure(encoding="utf-8")
@@ -112,6 +138,10 @@ def main():
 
     if args.cases:
         cs = extract(args.cases)
+        if args.maxctx:
+            n0 = len(cs)
+            cs = [c for c in cs if sum(len(t) for t in c["tool_outputs"]) <= args.maxctx]
+            print("  ⚠B_fullctx가 문맥 한계를 넘어 제외: %d/%d" % (n0 - len(cs), n0))
         if args.limit:
             # ★설계 §7: 한 태스크 특성으로 기울지 않도록 **태스크별 라운드로빈**으로 뽑는다
             by = defaultdict(list)
@@ -146,7 +176,18 @@ def main():
     for c in cases:
         for arm in arms:
             p = prompt_for(c, arm)
-            assert c["gold"] not in p, "★gold가 프롬프트에 샜다 — 중단"
+            # ★오염 가드 (2026-07-31 교정) — 초판은 `gold not in p`를 걸었는데 **설계와 모순**이라
+            #   첫 사례에서 즉사했다(그래서 지난 세션에 프로브가 못 돌았다): 정보-맞춤이 성립하려면
+            #   gold는 후보 안에 *있어야* 한다. 금지할 것은 gold의 *존재*가 아니라 **정답 표시**다.
+            #   ⇒ ①gold ∈ 후보 ②프롬프트가 `gold` 필드를 읽지 않았음(그림자 case로 동일성 확인)
+            #   ③후보 순서 = 추출 순서(정렬·필터 금지) ④A와 B의 후보 집합 동일.
+            assert c["gold"] in c["candidates"], "★gold가 후보에 없다 — 정보-맞춤 위반"
+            shadow = {k: v for k, v in c.items() if k != "gold"}
+            assert prompt_for(shadow, arm) == p, "★프롬프트가 gold 필드를 참조했다 — 중단"
+            if arm in ("A_minimal", "A_all"):
+                seq = TXN.findall(p)
+                assert [x for x in seq if x in set(c["candidates"])][:len(c["candidates"])] \
+                    == c["candidates"], "★후보 순서가 바뀌었다(정렬 금지) — 중단"
             try:
                 r = litellm.completion(model="openai/" + args.model, api_base=args.base,
                                        api_key="x", temperature=0.0,
