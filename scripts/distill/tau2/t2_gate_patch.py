@@ -4491,21 +4491,35 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ⇒ 다른 deny 레버와 같은 자리(생성 레벨)로 옮긴다. 엔진은 여전히 인자를 떼지 않고
             #   deny+재발행만 한다(C151 compliance 패턴·[[10]] 분담).
             sig_fb = None
-            if (os.environ.get("T2_TOOL_SIGNATURE") == "1"
-                    and not do_gate and not do_prov and ep_fb is None and cons_fb is None
-                    and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
-                    and tl_fb is None and dr_fb is None and pr_fb is None
-                    and getattr(self, "_t2_signature_deny", 0)
-                    < int(os.environ.get("T2_TOOL_SIGNATURE_CAP", "6"))):
+            if os.environ.get("T2_TOOL_SIGNATURE") == "1":
+                # ★계측 추가(2026-07-31·Y2-B 26 sim 포렌식): V7은 이 사슬의 **맨 끝**이라 앞 레버가
+                #   피드백을 잡으면 그 턴엔 발화하지 못한다. 실측 = deny 28회인데 **위반 호출 24건이
+                #   그대로 채점에 도달**했고 cap(6)은 sim당 1.08회라 닿지도 않았다 ⇒ 선점이 유력하나
+                #   로그가 그걸 구분하지 못했다. 그래서 술어는 **항상** 평가하고(순수함수·비용 0),
+                #   못 뜬 턴엔 **누가 선점했는지**를 남긴다. 다음 런은 이 줄로 원인을 확정한다([[08]]).
+                _chain = [("gate", do_gate), ("prov", do_prov), ("eplan", ep_fb), ("cons", cons_fb),
+                          ("resolve_action", ra_fb), ("te", te_fb), ("wev", wev_fb),
+                          ("resolve_write", rw_fb), ("toollist", tl_fb), ("dispatch_role", dr_fb),
+                          ("prekb", pr_fb)]
+                _blocker = next((n for n, v in _chain if v), None)
+                _capped = (getattr(self, "_t2_signature_deny", 0)
+                           >= int(os.environ.get("T2_TOOL_SIGNATURE_CAP", "6")))
                 try:
                     import t2_signature as _sg
                     for c in (am.tool_calls or []):
                         _sv = _sg.signature_violation(getattr(c, "name", None), _args_dict(c), a2)
-                        if _sv:
-                            sig_fb = (c, _sv)
-                            print("[T2_TOOL_SIGNATURE] deny tool=%s" % getattr(c, "name", None),
+                        if not _sv:
+                            continue
+                        if _blocker or _capped:
+                            print("[T2_TOOL_SIGNATURE] would-deny tool=%s but %s"
+                                  % (getattr(c, "name", None),
+                                     "capped" if _capped else "preempted-by=%s" % _blocker),
                                   file=_sys.stderr, flush=True)
                             break
+                        sig_fb = (c, _sv)
+                        print("[T2_TOOL_SIGNATURE] deny tool=%s" % getattr(c, "name", None),
+                              file=_sys.stderr, flush=True)
+                        break
                 except Exception as _sge:
                     print("[T2_TOOL_SIGNATURE] 배선 예외(무시): %r" % (_sge,),
                           file=_sys.stderr, flush=True)
