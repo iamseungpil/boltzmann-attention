@@ -31,6 +31,14 @@ def load(path):
         return json.load(f)
 
 
+def basis_of(sim):
+    """★채점 기준. 실측: Y1 32태스크 중 **DB 24 / ACTION 8** — 태스크마다 다르다.
+    DB-basis면 보상은 `db_check.db_match`(엄격 full-DB 해시·C149)가 정하고 `action_checks`는
+    **참고값**이다. 구분하지 않으면 action 분류를 실패 '원인'으로 오귀속한다(내 초판 오류)."""
+    ri = sim.get("reward_info") or {}
+    return "+".join(ri.get("reward_basis") or []) or "?", (ri.get("db_check") or {}).get("db_match")
+
+
 def sim_actions(sim):
     """gold action별 (매치 여부, 분류, 상세)."""
     ri = sim.get("reward_info") or {}
@@ -105,8 +113,14 @@ def main():
         sig1 = tuple((a["id"], a["cls"]) for a in a1)
         same = sig0 == sig1
         stable["동일" if same else "상이"] += 1
-        print("\n--- %s  (gold action %d개) %s" % (t, len(a0), "· 두 trial 원인 동일" if same
-                                                   else "· ⚠trial마다 원인 다름"))
+        _b, _db0 = basis_of(per[sorted(per)[0]][2])
+        _, _db1 = basis_of(per[sorted(per)[1]][2])
+        print("\n--- %s  [basis=%s · db_match %s/%s]  (gold action %d개) %s"
+              % (t, _b, _db0, _db1, len(a0),
+                 "· 두 trial 원인 동일" if same else "· ⚠trial마다 원인 다름"))
+        if _b == "DB":
+            print("     ⚠DB-basis: 보상은 **db_match**가 정한다 — 아래 action 분류는 행동 서술이지 "
+                  "채점 원인이 아니다(C149 엄격 해시).")
         for i, a in enumerate(a0):
             b = a1[i] if i < len(a1) else {"cls": "?", "det": {}}
             cls_all[a["cls"]] += 1
@@ -150,7 +164,10 @@ def main():
             info[k] = dict(acts=acts, plist=plist, rw=rw, s=s)
         p = [k for k in ks if info[k]["rw"] == 1][0]
         f = [k for k in ks if info[k]["rw"] == 0][0]
-        print("\n--- %s   PASS=trial %s · fail=trial %s" % (t, p, f))
+        _b, dbp = basis_of(info[p]["s"])
+        _, dbf = basis_of(info[f]["s"])
+        print("\n--- %s   PASS=trial %s · fail=trial %s   [basis=%s · db PASS=%s/fail=%s]"
+              % (t, p, f, _b, dbp, dbf))
         ap_, af = info[p]["acts"], info[f]["acts"]
         for i, a in enumerate(af):
             b = ap_[i] if i < len(ap_) else {"matched": None, "cls": "?"}
