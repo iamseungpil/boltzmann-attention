@@ -49,17 +49,13 @@
    ]
   },
   "feedback": "Error: [CLAIM-PROVENANCE] your reply asserts you already did the following, but the conversation ledger shows NO such event: {claims}. Do NOT claim actions you have not actually performed — that misleads the customer. Either actually do it now (call the real tools: search the knowledge base, run the verification, execute the action), or correct your statement to say you have not done it yet. A statement to the customer is NOT a substitute for the tool call: if the action is still required, make the call in THIS reply; if you cannot make it (for example it is the customer who must run that tool), say plainly that it has NOT been done and tell them exactly what remains.",
-  "_note": "2026-07-20 사용자 일반화('모든 했다 주장을 원장대조'). 043 e2e 실측: KB실호출 0·'checked KB' 주장 1→조기 transfer. WRITEPROV(완료-주장·write축)의 상위호환 — kind별 event_map으로 search/verify/give/transfer까지. 미등재 kind=엔진 skip. T2_CLAIM_PROV=1 구동·기본 OFF. ★관문5 확장(2026-07-20·038·§2ad): ①발화창=사임∨transfer호출(event_map.transfer 패턴 재사용·notice-티켓 탈출 차단) ②question v2=claims(과거·답변만)+pending(미래약속·전대화)·feedback_pending=지금 실행 후 transfer 지시. 한계: pending kind=write는 __effective_write__ 광역대조(무관 write 존재 시 false-negative·주의). Δspurious 계측 대상(정당 즉시-transfer는 pending 0라 무간섭 설계).",
-  "_note_granular_kinds": "C201/D1(2026-07-26·§7-0 실측): generic write는 __effective_write__라 **무관한 write**(예: 유저의 dispute 제출)가 별개 완료-날조를 뒷받침했다(026/028 실측 backed). 세분 kind=도구 접두 등록만(정답 미지정·엔진 무변경).",
   "reserve_kinds": [
    "record_update",
    "dispute_file",
    "transfer",
    "write"
   ],
-  "_note_reserve": "C201/D3(2026-07-26): cap 소진 후 sim당 1회 예비-창 — 행동-kind 주장에만 집행. 엔진은 kind 문자열 대조만(어떤 kind가 행동인지=A2 소관).",
-  "feedback_unavailable": "Error: [UNAVAILABLE-CAPABILITY] you told the customer you would do the following, but the tool it requires does not exist among the tools available to you: {claims}. Do not offer or promise capabilities you do not have — it strands the customer waiting for something that will never happen. Say plainly that you cannot do it, and either use a capability you actually have or follow the escalation path in your policy.",
-  "_note_unavail": "C207/C2-a(2026-07-27·004·035 실측: 존재하지 않는 OTP/SMS 발송을 여러 턴 반복 약속하며 창 소진). 엔진=약속 도구명이 {도구목록 ∪ user-discoverable ∪ 대화서 unlock/give된 이름 ∪ 호출된 이름}에 있는지 집합 대조만(접미사 strip). tool 미선언 pending=판정 안 함(하위호환). T2_UNAVAIL_PROMISE=1."
+  "feedback_unavailable": "Error: [UNAVAILABLE-CAPABILITY] you told the customer you would do the following, but the tool it requires does not exist among the tools available to you: {claims}. Do not offer or promise capabilities you do not have — it strands the customer waiting for something that will never happen. Say plainly that you cannot do it, and either use a capability you actually have or follow the escalation path in your policy."
  },
  "completion_guard": {
   "user_execution_tool": "call_discoverable_user_tool",

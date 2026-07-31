@@ -97,7 +97,41 @@ def load_domain_a2(domain):
     for part in (settings, specific):
         if part:
             merged.update(part)
+    _compose_claim_audit(merged)
     return merged
+
+
+def _compose_claim_audit(merged):
+    """★L1 산문 + L2 결합 → 구 `claim_prov`/`completion_guard`(2026-07-31 승격).
+
+    두 키는 [[23]] 감사에서 **정책 근거가 없다**고 확정된 유이한 것인데, gold 경유도 아니었다 —
+    담고 있는 것이 banking 사실이 아니라 **도메인-일반 무결성 원리**("한 일을 했다고 말했으면
+    실행 원장과 대조한다")여서다. 산문은 L1(`base/shared.json`·새 도메인 비용 0), 이 도메인의
+    결합 5개(kinds·kind_guidance·event_map·reserve_kinds·user_execution_tool)만 L2에 둔다.
+    ★`kind_guidance`는 등가 테스트 §③이 잡아냈다 — 산문에 kind 용어집이 박혀 있어
+      도메인-불변이 아니었다. 게이트가 없었으면 그대로 승격했을 것이다.
+
+    ★소비자 코드는 하나도 바꾸지 않는다 — 여기서 **구 형태와 바이트 동일한 dict**를 만든다.
+    등가는 `test_claim_promotion.py`가 강제한다. 정본 =
+    `CLAIM_AUDIT_ENGINE_PROMOTION_DESIGN_2026_07_31.md`.
+    """
+    ca, cb = merged.get("claim_audit"), merged.get("claim_bindings")
+    if not (isinstance(ca, dict) and isinstance(cb, dict)):
+        return                      # 미선언 도메인 = 레버 skip(U2′ 안전측·retail/airline 현행)
+    merged.setdefault("claim_prov", {
+        "question": (ca["question"].replace("{kinds}", cb["kinds"])
+                     .replace("{kind_guidance}", cb.get("kind_guidance", ""))),
+        "feedback_pending": ca["feedback_pending"],
+        "event_map": cb["event_map"],
+        "feedback": ca["feedback"],
+        "reserve_kinds": cb["reserve_kinds"],
+        "feedback_unavailable": ca["feedback_unavailable"],
+    })
+    merged.setdefault("completion_guard", {
+        "user_execution_tool": cb["user_execution_tool"],
+        "claim_question": ca["completion_question"],
+        "feedback": ca["completion_feedback"],
+    })
 
 
 def render_recovery(gate, detail=""):

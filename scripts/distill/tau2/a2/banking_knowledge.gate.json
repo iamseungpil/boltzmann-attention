@@ -1642,12 +1642,6 @@
  },
  "_note_assertion_operands": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || arm `self-declaration` (같은 설계문). 사임 시 LLM이 각 항목에 {claimed, source∈GET/FIND/INFER/ASK}를 JSON 선언 → 엔진은 **선언 구조체만** 검증: claimed ∧ source=INFER ∧ producer 미호출 → regen. [[10]] LLM=formalize·엔진=검증(답변 텍스트 파싱 0). ★기본 OFF(T2_SELF_DECLARATION=1). ★caveat: 항목 열거가 리마인더로 작용할 수 있음(spoon-feed 경계·[[16]]) — 발화·효과를 계측으로 판정.",
  "_note_follow_up": "scaffold_get_tools[].follow_up (2026-07-16 §14.3 완료날조 차단): 엔진(T2_FOLLOWUP_REQUIRED=1)은 사임 시 {tool 호출됨 ∧ follow_up.tool 미호출}이라는 구조 이벤트만 보고 이 feedback으로 regen 1회/sim. 후속도구·문구=여기(ABox)·엔진 리터럴 0. 실측근거: 실패 4/10 전부 완료날조·그중 3/4은 give 호출 0.",
- "_note_completion_guard": "★출처(정책 축자·[[23]] 소급 2026-07-31): ★**정책 근거 없음**(확인 완료·정책에 \"all of the\"·\"each\"·\"every\" 0회). claim_prov와 같은 성격 = **도메인-일반 완결 원리** ⇒ 엔진 승격 후보([[05]]). gold 경유 아님.",
- "completion_guard": {
-  "user_execution_tool": "call_discoverable_user_tool",
-  "claim_question": "Before your reply is sent, answer ONE question about YOUR REPLY ONLY. Does your reply state or imply that some action has already been completed, submitted, filed, scheduled, or confirmed — OR that YOU (the agent) will submit/schedule/perform it? Merely giving the customer a tool to run, or instructing THEM to run it, does NOT count. Reply with exactly one JSON object and nothing else: {\"claims_completion\": true} or {\"claims_completion\": false}",
-  "feedback": "Error: [WRITE-PROVENANCE] your reply claims an action was completed/submitted/scheduled, but there is no record of any state-changing action having executed in this conversation. You cannot perform actions the customer must run themselves; only the CUSTOMER can, by calling the tool you gave them. Do NOT claim any action has been submitted, filed, or scheduled; do NOT invent case/reference/confirmation numbers; do NOT promise callbacks or confirmation emails. Instead, restate your reply: hand the customer the appropriate tool and tell them to run it themselves."
- },
  "follow_up_chains": [
   {
    "after": [
@@ -1787,54 +1781,6 @@
   }
  ],
  "_note_dispute_chain_removed": "2026-07-21 §2bc: dispute post-write chain(after=file_..., requires=get_card_last_4_digits) 제거. 근거(054 t0 실측): WEV 사전 게이트가 provenance를 이미 커버(빈-값 deny 포함)하는데 post-write chain이 give-flow 단일 경로를 추가 강제 → 054(gold 무-give·record-경로)서 give 2회 잡음+유저('카드 없음') 마찰. 031 날조 차단은 WEV 신판(값-실재)이 유지. 사전-게이트 > 사후-추격.",
- "claim_prov": {
-  "question": "Before your reply is sent, audit yourself. (1) In YOUR REPLY ONLY: list every assertion that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did do NOT count. (2) Across the WHOLE conversation: list every action YOU said you WILL do / are about to do (e.g. 'I will file the disputes') that you have NOT completed yet. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"search|verify|record_update|dispute_file|give|transfer|write\", \"what\": \"<5-10 words>\"}], \"pending\": [{\"kind\": \"search|verify|record_update|dispute_file|give|transfer|write\", \"what\": \"<5-10 words>\", \"tool\": \"<the exact tool name you would need to call for it, or omit if none>\"}]} — empty lists if none. Choose the MOST SPECIFIC kind that fits (record_update for changing a stored record's values, dispute_file for filing/submitting a dispute or report); use the generic \"write\" ONLY when no specific kind applies.",
-  "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why). Do not end your involvement by describing the work as done or under way — either call the tool now, or state explicitly that it has NOT been performed.",
-  "event_map": {
-   "search": [
-    "KB_",
-    "shell",
-    "list_discoverable"
-   ],
-   "verify": [
-    "verify_identity",
-    "log_verification"
-   ],
-   "write": "__effective_write__",
-   "give": [
-    "give_"
-   ],
-   "transfer": [
-    "transfer_",
-    "request_human"
-   ],
-   "record_update": [
-    "update_transaction_rewards",
-    "update_",
-    "apply_statement_credit",
-    "apply_checking_account_credit"
-   ],
-   "dispute_file": [
-    "file_credit_card_transaction_dispute",
-    "submit_cash_back_dispute",
-    "submit_interest_discrepancy_report",
-    "file_",
-    "submit_"
-   ]
-  },
-  "feedback": "Error: [CLAIM-PROVENANCE] your reply asserts you already did the following, but the conversation ledger shows NO such event: {claims}. Do NOT claim actions you have not actually performed — that misleads the customer. Either actually do it now (call the real tools: search the knowledge base, run the verification, execute the action), or correct your statement to say you have not done it yet. A statement to the customer is NOT a substitute for the tool call: if the action is still required, make the call in THIS reply; if you cannot make it (for example it is the customer who must run that tool), say plainly that it has NOT been done and tell them exactly what remains.",
-  "_note": "2026-07-20 사용자 일반화('모든 했다 주장을 원장대조'). 043 e2e 실측: KB실호출 0·'checked KB' 주장 1→조기 transfer. WRITEPROV(완료-주장·write축)의 상위호환 — kind별 event_map으로 search/verify/give/transfer까지. 미등재 kind=엔진 skip. T2_CLAIM_PROV=1 구동·기본 OFF. ★관문5 확장(2026-07-20·038·§2ad): ①발화창=사임∨transfer호출(event_map.transfer 패턴 재사용·notice-티켓 탈출 차단) ②question v2=claims(과거·답변만)+pending(미래약속·전대화)·feedback_pending=지금 실행 후 transfer 지시. 한계: pending kind=write는 __effective_write__ 광역대조(무관 write 존재 시 false-negative·주의). Δspurious 계측 대상(정당 즉시-transfer는 pending 0라 무간섭 설계).",
-  "_note_granular_kinds": "C201/D1(2026-07-26·§7-0 실측): generic write는 __effective_write__라 **무관한 write**(예: 유저의 dispute 제출)가 별개 완료-날조를 뒷받침했다(026/028 실측 backed). 세분 kind=도구 접두 등록만(정답 미지정·엔진 무변경).",
-  "reserve_kinds": [
-   "record_update",
-   "dispute_file",
-   "transfer",
-   "write"
-  ],
-  "_note_reserve": "C201/D3(2026-07-26): cap 소진 후 sim당 1회 예비-창 — 행동-kind 주장에만 집행. 엔진은 kind 문자열 대조만(어떤 kind가 행동인지=A2 소관).",
-  "feedback_unavailable": "Error: [UNAVAILABLE-CAPABILITY] you told the customer you would do the following, but the tool it requires does not exist among the tools available to you: {claims}. Do not offer or promise capabilities you do not have — it strands the customer waiting for something that will never happen. Say plainly that you cannot do it, and either use a capability you actually have or follow the escalation path in your policy.",
-  "_note_unavail": "C207/C2-a(2026-07-27·004·035 실측: 존재하지 않는 OTP/SMS 발송을 여러 턴 반복 약속하며 창 소진). 엔진=약속 도구명이 {도구목록 ∪ user-discoverable ∪ 대화서 unlock/give된 이름 ∪ 호출된 이름}에 있는지 집합 대조만(접미사 strip). tool 미선언 pending=판정 안 함(하위호환). T2_UNAVAIL_PROMISE=1."
- },
  "unavailable_tools": {
   "KB_search_dense": "Error: KB_search_dense is not available in this environment (dense retrieval backend is not configured). Use KB_search_bm25 with the same query instead - it searches the same knowledge base."
  },
@@ -1982,7 +1928,6 @@
  "_note_action_tools": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 3개 = env 3 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
  "_note_gates": "★출처(정책 축자·[[23]] 소급 2026-07-31): 정책 축자 2건으로 전량 확립. ①auth 게이트 = *\"for any scenario involving accessing customer information in internal databases, you must first verify their identify before proceeding\"* + *\"ensure that they are able to give correctly any 2 out of the following values: date of birth, email, phone number, address\"* + *\"After verification, you must call the verification logging tool\"*. ②notice 게이트 = *\"ask the user whether they would like to be transferred… Do this only if you absolutely have to, and you are sure that there are no potential actions you can take as specified in the knowledge base… **Do not transfer without asking the user first**\"*. ⇒ 두 게이트 모두 **정책이 출처**이고 gold 불참조([[23]] 통과). || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 11개 = env 11 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
  "_note_producers": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 0개 = env 0 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
- "_note_claim_prov": "★출처(정책 축자·[[23]] 소급 2026-07-31): ★**정책 근거 없음**(확인 완료). 후보였던 정책 7항은 *\"Do not give intermediate responses… that would give away internal rho-bank information/policies\"* = **내부 정보 유출 금지**이지 완료-주장 대조가 아니다. 이 규칙(\"완료를 주장하면 실행 원장과 대조한다\")은 **도메인-일반 무결성 원리**이고 banking 사실이 아니다 ⇒ [[05]] 관점에서 **A2가 아니라 엔진으로 올라가야 할 후보**. 리터럴은 전부 env 도구명·접두사 패턴이라 gold 경유는 아니다. || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 11개 = env 8 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 2 · 미해소 1(verify_identity). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
  "_note_discoverable_name_check": "★출처(정책 축자·[[23]] 소급 2026-07-31): 정책 축자: *\"Do not invent or guess user discoverable tools\"* · *\"Only use tool names and arguments discovered in the knowledge base\"* · *\"Provide the exact tool name as specified in the knowledge base\"*. ⇒ 이름 형식 검사는 **정책이 요구**한다. 엔진은 패턴 대조만 하고 이름 선택은 모델이 한다([[10]]). || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 3개 = env 0 · 정책 0 · KB/DB 1 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 2(name_words, pending_orders). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
  "_note_dispatcher_role_check": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 1개 = env 1 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
  "_note_field_ops": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 27개 = env 0 · 정책 0 · KB/DB 19 · 자기어휘(scaffold가 지은 이름) 6 · 미해소 2(dispute_type, report_id). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
@@ -1997,5 +1942,98 @@
  "_note_value_acquisition": "★출처([[23]] 소급 2026-07-31): ★**정책 근거 미확립** + `x6b` **DISCARD 분류** ⇒ 제거 대상(have_value_reask 동족). || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 4개 = env 2 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 2 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
  "_note_view_field_annotations": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 5개 = env 0 · 정책 0 · KB/DB 5 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
  "_note_write_arg_grounding": "★출처([[23]] 소급 2026-07-31): **정책 확립.** 정책 Guideline 1 축자: *\"Do not make up policies, information or actions that you can take on behalf of the user. All instructions will be found here or in the knowledge base. If you cannot find relevant information, let the user know.\"* ⇒ write 인자를 원장·KB에 접지시키는 것은 정책이 요구한다. 엔진은 substring 실재확인만([[03b]]). || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 4개 = env 3 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 1 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
- "_note_write_evidence_specs": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 21개 = env 12 · 정책 0 · KB/DB 2 · 자기어휘(scaffold가 지은 이름) 3 · 미해소 4(cash_back_disputes, check_card_closure_eligibility, get_interest_correction, task_029). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상)."
+ "_note_write_evidence_specs": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 21개 = env 12 · 정책 0 · KB/DB 2 · 자기어휘(scaffold가 지은 이름) 3 · 미해소 4(cash_back_disputes, check_card_closure_eligibility, get_interest_correction, task_029). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "claim_bindings": {
+  "kinds": "search|verify|record_update|dispute_file|give|transfer|write",
+  "event_map": {
+   "search": [
+    "KB_",
+    "shell",
+    "list_discoverable"
+   ],
+   "verify": [
+    "verify_identity",
+    "log_verification"
+   ],
+   "write": "__effective_write__",
+   "give": [
+    "give_"
+   ],
+   "transfer": [
+    "transfer_",
+    "request_human"
+   ],
+   "record_update": [
+    "update_transaction_rewards",
+    "update_",
+    "apply_statement_credit",
+    "apply_checking_account_credit"
+   ],
+   "dispute_file": [
+    "file_credit_card_transaction_dispute",
+    "submit_cash_back_dispute",
+    "submit_interest_discrepancy_report",
+    "file_",
+    "submit_"
+   ]
+  },
+  "reserve_kinds": [
+   "record_update",
+   "dispute_file",
+   "transfer",
+   "write"
+  ],
+  "user_execution_tool": "call_discoverable_user_tool",
+  "kind_guidance": "(record_update for changing a stored record's values, dispute_file for filing/submitting a dispute or report)"
+ },
+ "_note_claim_bindings": "L2(2026-07-31): L1 `claim_audit` 산문에 꽂히는 **이 도메인의 결합**. kinds=주장 종류 enum · event_map=kind→도구명 접두사(env 도출) · reserve_kinds=예비창 대상 · user_execution_tool=env 도구명. 새 도메인은 **이 4개만** 채우면 같은 무결성 검사를 얻는다(산문 복사 불요). kind_guidance=각 kind의 뜻(도메인 용어집).",
+ "claim_prov": {
+  "question": "Before your reply is sent, audit yourself. (1) In YOUR REPLY ONLY: list every assertion that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did do NOT count. (2) Across the WHOLE conversation: list every action YOU said you WILL do / are about to do (e.g. 'I will file the disputes') that you have NOT completed yet. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"search|verify|record_update|dispute_file|give|transfer|write\", \"what\": \"<5-10 words>\"}], \"pending\": [{\"kind\": \"search|verify|record_update|dispute_file|give|transfer|write\", \"what\": \"<5-10 words>\", \"tool\": \"<the exact tool name you would need to call for it, or omit if none>\"}]} — empty lists if none. Choose the MOST SPECIFIC kind that fits (record_update for changing a stored record's values, dispute_file for filing/submitting a dispute or report); use the generic \"write\" ONLY when no specific kind applies.",
+  "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why). Do not end your involvement by describing the work as done or under way — either call the tool now, or state explicitly that it has NOT been performed.",
+  "event_map": {
+   "search": [
+    "KB_",
+    "shell",
+    "list_discoverable"
+   ],
+   "verify": [
+    "verify_identity",
+    "log_verification"
+   ],
+   "write": "__effective_write__",
+   "give": [
+    "give_"
+   ],
+   "transfer": [
+    "transfer_",
+    "request_human"
+   ],
+   "record_update": [
+    "update_transaction_rewards",
+    "update_",
+    "apply_statement_credit",
+    "apply_checking_account_credit"
+   ],
+   "dispute_file": [
+    "file_credit_card_transaction_dispute",
+    "submit_cash_back_dispute",
+    "submit_interest_discrepancy_report",
+    "file_",
+    "submit_"
+   ]
+  },
+  "feedback": "Error: [CLAIM-PROVENANCE] your reply asserts you already did the following, but the conversation ledger shows NO such event: {claims}. Do NOT claim actions you have not actually performed — that misleads the customer. Either actually do it now (call the real tools: search the knowledge base, run the verification, execute the action), or correct your statement to say you have not done it yet. A statement to the customer is NOT a substitute for the tool call: if the action is still required, make the call in THIS reply; if you cannot make it (for example it is the customer who must run that tool), say plainly that it has NOT been done and tell them exactly what remains.",
+  "reserve_kinds": [
+   "record_update",
+   "dispute_file",
+   "transfer",
+   "write"
+  ],
+  "feedback_unavailable": "Error: [UNAVAILABLE-CAPABILITY] you told the customer you would do the following, but the tool it requires does not exist among the tools available to you: {claims}. Do not offer or promise capabilities you do not have — it strands the customer waiting for something that will never happen. Say plainly that you cannot do it, and either use a capability you actually have or follow the escalation path in your policy."
+ },
+ "completion_guard": {
+  "user_execution_tool": "call_discoverable_user_tool",
+  "claim_question": "Before your reply is sent, answer ONE question about YOUR REPLY ONLY. Does your reply state or imply that some action has already been completed, submitted, filed, scheduled, or confirmed — OR that YOU (the agent) will submit/schedule/perform it? Merely giving the customer a tool to run, or instructing THEM to run it, does NOT count. Reply with exactly one JSON object and nothing else: {\"claims_completion\": true} or {\"claims_completion\": false}",
+  "feedback": "Error: [WRITE-PROVENANCE] your reply claims an action was completed/submitted/scheduled, but there is no record of any state-changing action having executed in this conversation. You cannot perform actions the customer must run themselves; only the CUSTOMER can, by calling the tool you gave them. Do NOT claim any action has been submitted, filed, or scheduled; do NOT invent case/reference/confirmation numbers; do NOT promise callbacks or confirmation emails. Instead, restate your reply: hand the customer the appropriate tool and tell them to run it themselves."
+ }
 }

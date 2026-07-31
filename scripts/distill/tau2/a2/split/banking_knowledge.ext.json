@@ -10,6 +10,49 @@
   "reward discrepancies": "get_reward_discrepancies",
   "expected reward for a transaction": "get_reward_discrepancies"
  },
+ "claim_bindings": {
+  "kinds": "search|verify|record_update|dispute_file|give|transfer|write",
+  "event_map": {
+   "search": [
+    "KB_",
+    "shell",
+    "list_discoverable"
+   ],
+   "verify": [
+    "verify_identity",
+    "log_verification"
+   ],
+   "write": "__effective_write__",
+   "give": [
+    "give_"
+   ],
+   "transfer": [
+    "transfer_",
+    "request_human"
+   ],
+   "record_update": [
+    "update_transaction_rewards",
+    "update_",
+    "apply_statement_credit",
+    "apply_checking_account_credit"
+   ],
+   "dispute_file": [
+    "file_credit_card_transaction_dispute",
+    "submit_cash_back_dispute",
+    "submit_interest_discrepancy_report",
+    "file_",
+    "submit_"
+   ]
+  },
+  "reserve_kinds": [
+   "record_update",
+   "dispute_file",
+   "transfer",
+   "write"
+  ],
+  "user_execution_tool": "call_discoverable_user_tool",
+  "kind_guidance": "(record_update for changing a stored record's values, dispute_file for filing/submitting a dispute or report)"
+ },
  "compute_ops": {
   "file_debit_card_transaction_dispute": {
    "customer_max_liability_amount": {

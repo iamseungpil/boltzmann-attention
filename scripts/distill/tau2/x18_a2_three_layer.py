@@ -169,6 +169,19 @@ def main():
             parts = {}
             for p in (st_p, sp_p):
                 parts.update({k: v for k, v in load(p).items() if k != "_note_layer"})
+            # ★합성 키도 넣는다(2026-07-31): 로더가 L1 산문 + L2 결합으로 만드는
+            #   `claim_prov`/`completion_guard`를 생성물에도 담아야 **레거시 read-site 105곳**이
+            #   깨지지 않는다. gate.json은 "로더가 내놓는 것"의 투영이어야 한다.
+            try:
+                import gate_interpreter as _gi
+                _syn = dict(parts)
+                _syn.update({k: v for k, v in (base or {}).items() if not k.startswith("_")})
+                _gi._compose_claim_audit(_syn)
+                for k in ("claim_prov", "completion_guard"):
+                    if k in _syn and k not in parts:
+                        parts[k] = _syn[k]
+            except Exception as _ce:
+                print("  ⚠합성 키 생성 실패(%r) — 레거시 산출물이 불완전할 수 있다" % (_ce,))
             old = mono.get(dom, {})
             out = {k: parts[k] for k in old if k in parts}
             out.update({k: v for k, v in parts.items() if k not in out})

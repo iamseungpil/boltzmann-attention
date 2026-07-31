@@ -172,5 +172,49 @@
  "_note_layer": "L2 settings — 구조는 3층 공통, 값만 이 도메인. 정본=A2_THREE_LAYER_SPLIT_DESIGN_2026_07_31.md",
  "_note_action_tools": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 3개 = env 3 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
  "_note_gates": "★출처(정책 축자·[[23]] 소급 2026-07-31): 정책 축자 2건으로 전량 확립. ①auth 게이트 = *\"for any scenario involving accessing customer information in internal databases, you must first verify their identify before proceeding\"* + *\"ensure that they are able to give correctly any 2 out of the following values: date of birth, email, phone number, address\"* + *\"After verification, you must call the verification logging tool\"*. ②notice 게이트 = *\"ask the user whether they would like to be transferred… Do this only if you absolutely have to, and you are sure that there are no potential actions you can take as specified in the knowledge base… **Do not transfer without asking the user first**\"*. ⇒ 두 게이트 모두 **정책이 출처**이고 gold 불참조([[23]] 통과). || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 11개 = env 11 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
- "_note_producers": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 0개 = env 0 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상)."
+ "_note_producers": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 0개 = env 0 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "claim_bindings": {
+  "kinds": "search|verify|record_update|dispute_file|give|transfer|write",
+  "event_map": {
+   "search": [
+    "KB_",
+    "shell",
+    "list_discoverable"
+   ],
+   "verify": [
+    "verify_identity",
+    "log_verification"
+   ],
+   "write": "__effective_write__",
+   "give": [
+    "give_"
+   ],
+   "transfer": [
+    "transfer_",
+    "request_human"
+   ],
+   "record_update": [
+    "update_transaction_rewards",
+    "update_",
+    "apply_statement_credit",
+    "apply_checking_account_credit"
+   ],
+   "dispute_file": [
+    "file_credit_card_transaction_dispute",
+    "submit_cash_back_dispute",
+    "submit_interest_discrepancy_report",
+    "file_",
+    "submit_"
+   ]
+  },
+  "reserve_kinds": [
+   "record_update",
+   "dispute_file",
+   "transfer",
+   "write"
+  ],
+  "user_execution_tool": "call_discoverable_user_tool",
+  "kind_guidance": "(record_update for changing a stored record's values, dispute_file for filing/submitting a dispute or report)"
+ },
+ "_note_claim_bindings": "L2(2026-07-31): L1 `claim_audit` 산문에 꽂히는 **이 도메인의 결합**. kinds=주장 종류 enum · event_map=kind→도구명 접두사(env 도출) · reserve_kinds=예비창 대상 · user_execution_tool=env 도구명. 새 도메인은 **이 4개만** 채우면 같은 무결성 검사를 얻는다(산문 복사 불요). kind_guidance=각 kind의 뜻(도메인 용어집)."
 }

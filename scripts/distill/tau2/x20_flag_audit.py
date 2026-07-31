@@ -30,6 +30,10 @@ _BOOL_PAT = [
     re.compile(r'getenv\(\s*[\'"](T2_[A-Z0-9_]+)[\'"][^)]*\)\s*[=!]=\s*[\'"]1[\'"]'),
     re.compile(r'environ\.get\(\s*[\'"](T2_[A-Z0-9_]+)[\'"][^)]*\)\s+in\s+\([^)]*[\'"]1[\'"]'),
 ]
+# ★기본값이 "1"인 플래그 = **미설정이면 켜짐**. 초판은 "go_stack에 없다=OFF"로 세어
+#   `T2_NOTICE_REPEAT`(기본 "1")를 침묵 OFF로 **오분류**했다. 부재는 OFF가 아니라 **기본값**이다.
+_DEFAULT_ON = re.compile(
+    r'environ\.get\(\s*[\'"](T2_[A-Z0-9_]+)[\'"]\s*,\s*[\'"]1[\'"]\s*\)')
 
 
 def engine_files():
@@ -38,6 +42,18 @@ def engine_files():
         return discover_engine_files()
     except Exception:
         return ["t2_gate_patch.py", "gate_interpreter.py"]
+
+
+def default_on():
+    """기본값이 "1"인 = 미설정이어도 켜지는 플래그."""
+    out = set()
+    for f in engine_files():
+        try:
+            src = io.open(os.path.join(_HERE, f), encoding="utf-8", errors="replace").read()
+        except Exception:
+            continue
+        out |= set(_DEFAULT_ON.findall(src))
+    return out
 
 
 def collect():
@@ -75,7 +91,9 @@ def main():
         pass
 
     levers = collect()
+    defon = default_on()
     on, assigned, zeroed, comments = go_stack_state()
+    on |= defon                       # ★기본값 ON = 미설정이어도 켜져 있다
     param = {k: v for k, v in assigned.items() if v != "1" and k not in levers}
     silent, documented = [], []
     for k in sorted(levers):
@@ -91,7 +109,10 @@ def main():
     print("레버 회계 (기계 산출 · 스코프 = 엔진 import 폐포 %d파일)" % len(engine_files()))
     print("=" * 78)
     print("  on/off 레버        %3d" % len(levers))
-    print("  go_stack ON(=1)   %3d" % len([k for k in levers if k in on]))
+    print("  ON                %3d  (go_stack =1 %d + **기본값 ON** %d)"
+          % (len([k for k in levers if k in on]),
+             len([k for k in levers if k in on and k not in defon]),
+             len([k for k in levers if k in defon])))
     print("  사유 있는 OFF      %3d  (주석 언급 또는 비-1 값 대입)" % len(documented))
     print("  ★무사유 침묵 OFF  %3d" % len(silent))
     print("  `=0` 명시적 OFF    %3d  ← **OFF는 명시가 아니라 부재다**" % len(zeroed))
