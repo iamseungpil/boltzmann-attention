@@ -66,9 +66,14 @@ def eff_name(name, args):
 
 
 def sim_metrics(sim, a2):
-    """한 sim의 O1·O3 (+ write 목록)."""
+    """한 sim의 O1·O3·O4·O5 (+ 목록).
+
+    ★O4 = **DB 등록 집합**. tau2는 discoverable 호출을 `agent_discoverable_tools`(CALLED)와
+    `user_discoverable_tools`(GIVEN)에 남기는데 **읽기 도구도 등록된다** ⇒ write 술어(O1)로는
+    안 보이는 해시 차이가 여기서 보인다(task_027 = 여분 조회 1회).
+    """
     seen = set()
-    writes, dupes = [], []
+    writes, dupes, registered = [], [], set()
     for m in sim.get("messages") or []:
         if m.get("role") not in ("assistant", "user"):
             continue
@@ -80,7 +85,14 @@ def sim_metrics(sim, a2):
                 except Exception:
                     a = {}
             a = a if isinstance(a, dict) else {}
-            en = eff_name(tc.get("name"), a)
+            _nm = tc.get("name")
+            if _nm in _EXEC_WRAPPERS:                      # O4: write 여부 무관하게 등록됨
+                _in = a.get("agent_tool_name") or a.get("discoverable_tool_name")
+                if _in:
+                    registered.add("CALLED:" + str(_in))
+            elif _nm == _GIVE_WRAPPER and a.get("discoverable_tool_name"):
+                registered.add("GIVEN:" + str(a["discoverable_tool_name"]))
+            en = eff_name(_nm, a)
             if en is None:
                 continue
             # GIVEN:* 은 도구 실행이 아니라 **DB 기록 행위**라 write 술어를 태우지 않는다.
@@ -94,8 +106,10 @@ def sim_metrics(sim, a2):
     # ★O5: 건넸는데 유저가 실행하지 않은 도구(정책 "필요할 때만 give"의 닫힌 대우).
     given = {w[6:] for w in writes if w.startswith("GIVEN:")}
     called = {w for w in writes if not w.startswith("GIVEN:")}
-    return {"O1": len(writes), "O3": len(dupes), "O5": len(given - called),
-            "given_unused": sorted(given - called),
+    given = {w[6:] for w in writes if w.startswith("GIVEN:")}
+    called = {w for w in writes if not w.startswith("GIVEN:")}
+    return {"O1": len(writes), "O3": len(dupes), "O4": len(registered),
+            "O5": len(given - called), "reg": registered,
             "writes": Counter(writes), "dupes": Counter(dupes)}
 
 
@@ -166,13 +180,22 @@ def main():
             p = [r for r in rows if r[1] == 1][0]
             f = [r for r in rows if r[1] == 0][0]
             dO1, dO3 = f[2]["O1"] - p[2]["O1"], f[2]["O3"] - p[2]["O3"]
-            visible = (dO1 != 0 or dO3 != 0)
+            dO4 = f[2].get("O4", 0) - p[2].get("O4", 0)
+            dO5 = f[2].get("O5", 0) - p[2].get("O5", 0)
+            visible = (dO1 != 0 or dO3 != 0 or dO4 != 0 or dO5 != 0)
             seen_diff += visible
             print("\n  %s  PASS(trial %s) O1=%d O3=%d O5=%d   vs   fail(trial %s) O1=%d O3=%d O5=%d"
                   % (t, p[0], p[2]["O1"], p[2]["O3"], p[2].get("O5", 0),
                      f[0], f[2]["O1"], f[2]["O3"], f[2].get("O5", 0)))
-            print("     ΔO1=%+d · ΔO3=%+d → %s" % (dO1, dO3, "**차이 보임**" if visible
-                                                   else "차이 없음(이 계측으로 설명 불가)"))
+            print("     ΔO1=%+d · ΔO3=%+d · **ΔO4=%+d** · ΔO5=%+d → %s"
+                  % (dO1, dO3, dO4, dO5,
+                     "**차이 보임**" if visible else "차이 없음(이 계측으로 설명 불가)"))
+            _rf = sorted(f[2].get("reg", set()) - p[2].get("reg", set()))
+            _rp = sorted(p[2].get("reg", set()) - f[2].get("reg", set()))
+            if _rf:
+                print("     fail에만 등록: %s" % _rf)
+            if _rp:
+                print("     PASS에만 등록: %s" % _rp)
             only_f = f[2]["writes"] - p[2]["writes"]
             only_p = p[2]["writes"] - f[2]["writes"]
             if only_f:
