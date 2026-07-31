@@ -147,6 +147,29 @@ R5가 핵심이다 — 산문을 파싱하지 않고 **완료 주장을 write �
 | **Z6** | 비용 실측 — 모델 호출 수·턴 수 증가분 | 수치 기록(게이트 아님) |
 | **Z7**(신설) | **over-action 계측기 오프라인 검증** — Y1 궤적 64 sim에 O1·O2·O3를 돌려 ①O1이 `_is_effective_write`와 일치 ②O3가 실제 중복 호출과 일치 ③flip 3건(020·023·027)에서 **PASS/fail trial의 O1·O3 차이가 실제로 보이는가** | ③이 안 보이면 이 계측으로는 그 flip을 설명 못 한다는 뜻 — **한계로 기록**하고 진행 |
 
+### §5-b. Z7 실행 결과 (2026-07-31 · `x16_overaction.py` · Y1 64 sim) — **조건부 통과**
+
+| 검사 | 결과 |
+|---|---|
+| **Z7-①** write 술어 점검 | ✅ 계상된 실효-이름이 전부 **진짜 write**다(`submit_cash_back_dispute_0589` 190 · `apply_for_credit_card` 21 · `update_transaction_rewards_3847` 13 · `change_user_email` 2 …). `give_`·`unlock_`·`KB_search` **누출 0** |
+| **Z7-②** O3 중복 판정 | ✅ 실제 중복 검출(예: task_017 trial1 — **같은 분쟁을 2회 제출**·O3=2) |
+| **★Z7-③** flip 3건에서 보이는가 | ⚠**3건 중 2건** |
+
+**보인 2건**:
+
+| task | PASS | fail | 차이 |
+|---|---|---|---|
+| **023** | O1=4 | **O1=5** | fail에만 `apply_statement_credit_8472`×2·`apply_checking_account_credit_5829`×1 / PASS에만 `apply_for_credit_card`·`submit_credit_card_application` ⇒ **여분이자 다른 수단**(단순 과행동이 아니라 **도구 오선택 + 추가 실행**) |
+| **027** | O1=8 | **O1=10** | fail에만 `update_transaction_rewards_3847`·추가 `submit_cash_back_dispute_0589` ⇒ **전형적 과행동** |
+
+**안 보인 1건(task_020)**: 양쪽 **O1=8·O3=0으로 동일**. ⇒ DB는 **write 개수가 아니라 다른 축**에서
+갈렸다 — 후보는 ①**같은 도구·다른 인자 값**(O1/O3는 **개수** 지표라 값 차이를 못 본다) ②discovery
+호출 **등록 경로**(C149). **이 계측의 한계로 확정 기록**하고, 값-수준 규명이 필요하면
+`dbdiff_task.py`(gold vs agent DB diff)를 별건으로 돌린다.
+
+⇒ **판정**: O1·O3는 과행동 축을 **실제로 본다**(2/3). 다만 **"과행동을 0으로 만들면 DB가 맞는다"는
+예단은 금지**다 — 최소 1/3은 다른 축이다. §4-b 말미 경고가 실측으로 확인됐다.
+
 ## §6. 리스크 · 미결
 
 1. **비용이 2배다.** 2패스는 턴마다 추가 호출이다. Y2 GPU 시간이 arm③에서 늘어난다(§5-Z6로 계량).
