@@ -71,8 +71,13 @@ Theorem 3.1: CWA 하에서 minimal answer는 전부 definite = **지식 간극�
 - 축자(자기 한계): *"the enforceable rate should be read as a conservative lower bound"*
 - **분류 축**: neural=귀납(LLM-as-judge) / symbolic=연역. **LLM이 명세를 생성·실행하면 결정론 아님**으로
   판정 — GuardAgent·NeMo Guardrails·ShieldAgent를 명시적으로 neural에 배치([[10]]과 같은 규율).
-- **측정**: **τ²-Bench**·CRMArena-Pro·MedAgentBench 요구사항 전수 분류 → **74%가 symbolic 강제 가능,
-  그중 95%는 단순·저비용**. 벤치 80개 중 **85%가 verifiable requirement를 명시조차 안 함**.
+- **측정**(⚠2026-08-01 초록 직독으로 정정 — 벤치 이름 오기 교정 + **3부 구성**임이 드러남):
+  **(1)** 에이전트 보안·안전 벤치 **80개 systematic review** → **85%가 verifiable requirement 미명시**
+  (**61% 전무 · 24% 고수준 목표만**) **(2)** **τ²-Bench · CAR-bench**(⚠CRMArena-Pro 아님) **· MedAgentBench**
+  applicability 분석 → **74% symbolic 강제 가능 · 그중 95%는 단순·저비용** **(3)** ★**같은 세 벤치에서
+  symbolic guardrail의 실증 평가** — *"improve security and safety without sacrificing utility, and often
+  improve it"*. **코드·아티팩트 전량 공개**(github.com/hyn0027/agent-symbolic-guardrails).
+  ⇒ **분류 연구가 아니라 시스템 평가까지 포함** — 겹침이 C281 초판 기록보다 크다.
 - symbolic 수단 6종 카탈로그: API validation · schema constraint · temporal logic · information flow ·
   user confirmation · response template.
 
