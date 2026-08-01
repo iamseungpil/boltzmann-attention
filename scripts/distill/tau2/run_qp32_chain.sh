@@ -1,8 +1,13 @@
 #!/bin/bash
 # ─────────────────────────────────────────────────────────────────────────────
-# QP-32 밤샘 체인 — `T2_QUOTE_PIN=1` 승격 판정용 front32 × nt=2
+# QP-32 밤샘 체인 — `T2_QUOTE_PIN` 승격 판정 (기본 = **같은 밤 짝지은 2-arm**)
 #
-# 설계: Y2-C(OFF arm)와 **단일 변수만 다르다**. 대조 기준 = `bank_y2cp3_*_20260801`
+# ★왜 짝지은 대조인가: 과거 런과 비교하면 C272가 확정한 **동일 설정 런-간 산포**
+#   (Y2-C 12→9→8→5→10)가 그대로 교락으로 들어온다 — arm 귀속 불가라고 결론 내려놓고
+#   같은 설계를 반복하는 셈이다. ⇒ 두 arm을 **같은 밤·같은 32태스크**로 동시에 돌린다.
+#   사는 것=arm 귀속 / 파는 것=재현성(각 arm nt=1) / 잔여 교락=GPU·포트 비대칭 1개.
+#
+# 설계: 양 arm은 **단일 변수만 다르다**. 설정 기준 = `bank_y2cp3_*_20260801`
 #   info 실측 대조 완료(2026-08-02): git 5ebebbe8 · max_steps 200 · max_errors 10 ·
 #   user gpt-5.2/temp0/timeout2400 · agent max_tokens 8192/timeout 2400 — **전부 동일**.
 #   유일 변경 = T2_QUOTE_PIN=1 (+ ISOLATE_TRACE=1 = 관측 전용 로깅·거동 무영향).
@@ -28,14 +33,14 @@ for P in 8140 8141; do
 done
 log "선행 점검 통과 — 드라이버 유휴 · serve 8140/8141 응답"
 
-one(){ # $1=tag $2=gpu(0/1) $3=port $4=tasks
+one(){ # $1=tag $2=gpu(0/1) $3=port $4=tasks $5=QP(0|1)
   cd /home/woori/scratch/tau2-bench
   rm -rf data/simulations/bank_$1_gpu$2_$D
   source $R/scripts/distill/tau2/go_stack.sh
   export T2_DECLFIRST=1 T2_DECLFIRST_GUIDE=0 T2_DECLFIRST_ENFORCE=0
   export T2_TOOL_SIGNATURE=0 T2_TOOL_SIGNATURE_OBSERVE=1
-  export T2_QUOTE_PIN=1                 # ★유일한 처치 변수
-  export T2_SG_ISOLATE_TRACE=1          # 관측 전용(핀·kind·verdict 기록·거동 무영향)
+  export T2_QUOTE_PIN=$5                # ★유일한 처치 변수 (1=처치 / 0=대조)
+  export T2_SG_ISOLATE_TRACE=1          # 관측 전용(핀·kind·verdict 기록·거동 무영향·양 arm 동일)
   export T2_FB_SIDECAR=/home/woori/scratch/$1_gpu$2_sidecar.jsonl
   echo "[cfg gpu$2] QUOTE_PIN=$T2_QUOTE_PIN TRACE=$T2_SG_ISOLATE_TRACE TIMEOUT=${T2_LLM_TIMEOUT:-unset} MAXTOK=${T2_AGENT_MAX_TOKENS:-unset} SIG=$T2_TOOL_SIGNATURE OBS=$T2_TOOL_SIGNATURE_OBSERVE DECLFIRST=$T2_DECLFIRST"
   /home/woori/venvs/seka_env/bin/python -u $R/scripts/distill/tau2/t2_run_gated.py \
@@ -60,12 +65,12 @@ persist(){ # $1=tag
   log "$1 영속화+push 완료"
 }
 
-envcheck(){ # $1=tag — 완주 후 info를 OFF arm 기준과 대조(함정 3)
-  /home/woori/venvs/seka_env/bin/python - "$1" "$D" <<'PY'
+envcheck(){ # $1=tag $2=gpu — 완주 후 info를 Y2-C 기준과 대조(함정 3)
+  /home/woori/venvs/seka_env/bin/python - "$1" "$D" "$2" <<'PY'
 import json, sys
-tag, D = sys.argv[1], sys.argv[2]
+tag, D, g = sys.argv[1], sys.argv[2], sys.argv[3]
 base = "/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/sim_results/bank_y2cp3_gpu0_20260801.results.json.gz"
-cur = "/home/woori/scratch/tau2-bench/data/simulations/bank_%s_gpu0_%s/results.json" % (tag, D)
+cur = "/home/woori/scratch/tau2-bench/data/simulations/bank_%s_gpu%s_%s/results.json" % (tag, g, D)
 import gzip
 b = json.load(gzip.open(base, "rt", encoding="utf-8"))["info"]
 c = json.load(open(cur, encoding="utf-8"))["info"]
@@ -86,14 +91,35 @@ print("[envcheck] " + ("OFF arm과 동일 ✓" if not bad else "⚠차이: " + "
 PY
 }
 
-log "체인 시작 — front32 × 2 pass · QUOTE_PIN=1"
-for TAG in qp32p1 qp32p2; do
-  log "$TAG 발사 (gpu0=G0 · gpu1=G1)"
-  one $TAG 0 8140 "$G0" &
-  one $TAG 1 8141 "$G1" &
+# ── 모드 (기본 = paired) ─────────────────────────────────────────────────────
+#  paired : GPU0 = QP **ON** front32 · GPU1 = QP **OFF** front32 — **같은 밤·같은 태스크·짝지은 대조**.
+#           C272가 확정한 교락(동일 설정 런-간 산포)을 설계에서 제거한다. 잔여 교락 = GPU/포트
+#           비대칭 하나(같은 모델·같은 serve 설정·하룻밤에 swap 불가 — 정직하게 남긴다).
+#  nt2    : 양 GPU 모두 QP ON, 16+16을 2 pass — QP 재현성만 본다(대조는 어제 Y2-C = 교락 잔존).
+MODE=${1:-paired}
+ALL="$G0,$G1"
+
+if [ "$MODE" = "paired" ]; then
+  log "체인 시작 — **짝지은 2-arm** · front32 동일 · GPU0=QP ON / GPU1=QP OFF"
+  one qp32on  0 8140 "$ALL" 1 &
+  one qp32off 1 8141 "$ALL" 0 &
   wait
-  log "$TAG 완주"
-  envcheck $TAG
-  persist $TAG
-done
-log "체인 종료 — QP arm nt=2 확보(64 sim)"
+  log "양 arm 완주"
+  envcheck qp32on 0
+  envcheck qp32off 1
+  persist qp32on
+  persist qp32off
+  log "체인 종료 — 짝지은 32×2 arm 확보(64 sim)"
+else
+  log "체인 시작 — front32 × 2 pass · QUOTE_PIN=1 (대조 = 과거 Y2-C)"
+  for TAG in qp32p1 qp32p2; do
+    log "$TAG 발사 (gpu0=G0 · gpu1=G1)"
+    one $TAG 0 8140 "$G0" 1 &
+    one $TAG 1 8141 "$G1" 1 &
+    wait
+    log "$TAG 완주"
+    envcheck $TAG 0
+    persist $TAG
+  done
+  log "체인 종료 — QP arm nt=2 확보(64 sim)"
+fi
