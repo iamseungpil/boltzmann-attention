@@ -78,8 +78,38 @@ closed world assumption is necessary"* = **공리를 고쳐라**이지 *"이 도
 **"open world"라는 표현은 pp.191–238에 단 한 번도 나오지 않는다.**
 
 **⑤ 쿼리 축은 이 챕터에 없다.** §2.4(p.202)의 유일한 연결이 방향이 반대 — *"There is no need for the
-concept of a safe query."* (DCA를 쿼리 안전성 조건을 **제거**하는 근거로 사용). existential vs
-universal/negative 구분은 **JACM 1980 소관**.
+concept of a safe query."* (DCA를 쿼리 안전성 조건을 **제거**하는 근거로 사용).
+
+### ★★Reiter 1980 (JACM 27(2):235–249) 전문 확보 — **그가 직접 "실용적 문제"라고 물러선다**
+
+경로: ACM DL PDF(브라우저 UA·curl). ⚠**서지 정정**: PODS 1982 *"Assumptions in Relational Database
+Theory"*는 **Atzeni & Parker**의 논문이지 Reiter의 것이 아니다(dblp 전수 확인). 1984 챕터의 precursor 아님.
+
+**★결정적 인용 (p.241)** — 우리 방어선의 최강 근거:
+> *"…to be treated as closed is clearly a pragmatic question"*
+
+즉 **Reiter 본인이 "이 도메인을 닫힌 것으로 취급해도 되는가"를 판정 대상에서 명시적으로 제외**하고,
+대신 "naturally closed" 사례를 **열거만** 한다(inventories, education domain, blocks worlds, flight
+schedules). 그가 준 유일한 준-기준도 도메인에 대한 테스트가 아니라 **모델러의 의도 선언**이다(p.241):
+전칭양화사를 *"for all x that you know about"*으로 읽으면 DCA 필요, *"for all x, even those whose
+possible existence you may not be aware of"*로 읽으면 불필요.
+
+**정직한 반대 증거 — 부분적으로 기계 확인 가능한 가정이 둘 있다**
+- **τ-completeness**(제4의 가정·p.237): TDB가 단항 술어논리라 *"the monadic predicate calculus is
+  decidable"*(p.238) ⇒ **결정 절차 존재**. §5의 모든 DCA-제거 결과가 이것을 전제한다.
+- **E-saturation**(=UNA 대응·p.247): 부등식 리터럴이 DB에 실제로 들어있는지 **구문적으로 확인 가능**.
+⇒ "Reiter는 검증을 전혀 논하지 않는다"고 쓰면 과장이다. 정확히는 **DCA·CWA(외연의 폐쇄성)는 검증하지
+않고, 부수 가정 둘만 구문·결정절차로 확인**한다.
+
+**★쿼리 축의 정확한 결과 (인용 시 오기 주의)**
+- **Theorem 4.1(p.241)**: **존재 질의에 대해 DCA는 무관(inert)** — `DB ⊢ (Ey/θ)W(y) iff DB−{DC} ⊢ …`
+- **Theorem 5.3(p.243–245)**: 전칭 질의에서는 DCA가 **제거되는 게 아니라 재배치**된다 —
+  *"completely embodied in the division operator"*. 정리증명기가 공리를 무시할 수 있게 될 뿐
+  **의미론적 효과는 대수 연산자 안으로 이동**한다.
+- ⚠**이분법은 "존재 vs 전칭"이지 "긍정 vs 부정"이 아니다.** 부정을 지배하는 것은 CWA이고 별개 논문
+  (1978) 소관 — "existential vs universal/**negative**"로 인용하면 오기다.
+- **§8(p.247–248)**: 상수를 가산무한으로 허용하면 DCA가 무한 논리식이 되어 *"a theory in an infinitary
+  logic"* ⇒ **DCA는 유한 도메인 밖으로 확장되지 않는다**(§5 "finitely foldable" 논의의 원전 근거).
 
 **★방어선 (셋 중 하나라도 흐려지면 Reiter가 그대로 선행기술이 된다)**
 1. 조건이 **이론이 아니라 관측 가능한 도메인/판단**에 대해 진술된다.
@@ -119,10 +149,38 @@ Theorem 3.1: CWA 하에서 minimal answer는 전부 definite = **지식 간극�
 - symbolic 수단 6종 카탈로그: API validation · schema constraint · temporal logic · information flow ·
   user confirmation · response template.
 
-**우리와의 델타(현재 판단)**: 이들 기준은 **수단 기준**(6종 카탈로그 중 하나에 걸리는가)이고 우리는
-**대상 기준**(술어 외연의 유한성·전수성)이라 카탈로그 확장에 독립적이다. 역으로 이 논문은 세 조건의
-**경험적 지지 증거**(74%/95%)로 인용 가능하다. ⚠**같은 벤치(τ²)를 쓰는 인접 그룹이므로 scoop 위험 최상 —
-원문 정독을 최우선 대기열에 올린다.**
+### ★정독 완료 (2026-08-01·HTML+PDF+**GitHub 아티팩트 `spec.json` 3차 교차검증**)
+
+**양보해야 할 것 (선점 확정)**: *"일부 요구사항은 결정론적으로 offload 가능하고, 그것이 utility를 해치지
+않는다"* — **이 명제는 선점됐다.** τ²-Bench(airline) violation 52.0%→**0.0%**(GPT-4o)·20.0%→0.0%(GPT-5)를
+공개 아티팩트와 함께 냈다. 우리가 이걸 새로 주장하면 안 되고, 인용·양보 후 차별화해야 한다.
+
+**그러나 그들의 중심 주장에는 계측상 약점이 넷 있다 (전부 원문·아티팩트 확인)**
+1. **74%의 분모가 저자 보정치다** — τ²는 후보 120개 중 **69개(57.5%)를 out-of-scope로 버린** 뒤 51개
+   위에서 42/51=82.4%다. 3벤치 합산 93/126=73.8%. "정책 문장 전체의 74%"가 아니다.
+2. **핵심 분류의 inter-annotator agreement가 미보고**다. 논문의 κ=0.88은 **무관한 전처리 단계**
+   (이 논문이 벤치마크인가?)의 수치이고, enforceability 분류는 *"all authors discussed them and reached
+   consensus"*뿐이다.
+3. **guardrail 조건의 Unsafe 0.0%는 측정값이 아니라 동어반복**이다 — 저자 축자:
+   *"By construction, our symbolic guardrails prevent violations by rejecting all noncompliant tool calls"*.
+   guardrail이 정의한 술어로 guardrail을 채점한다.
+4. **τ²에서 utility 개선은 통계적으로 뒷받침되지 않는다** — Pass^1 p=0.18(GPT-4o), **p=1.00(GPT-5)**.
+   초록의 *"often improve it"*은 **CAR-bench(p<0.01)** 근거이지 τ² 근거가 아니다.
+   ⚠아티팩트 `plot_data.csv`가 stale해서 공개 그림 재현 시 논문 수치가 안 나온다(MedAgentBench 행 불일치).
+   venue 미기재(arXiv Comments 없음)·NSF 2206859 + Google GARA 지원.
+
+**남는 whitespace (강함 — 우리 델타 확정)**
+| 축 | 그들 | 우리 |
+|---|---|---|
+| **열거의 소진성 측정** | **0건.** 요구사항을 주어진 것으로 받고 *"the enforceable rate should be read as a conservative lower bound"*로 회피. MedAgentBench는 **5,138 → 4% 랜덤샘플 → 77 → 20 랜덤샘플 → 88**로 **구성상 비완전** | census + missing mass(§8-2·별도 설계서) |
+| **역방향(over-block·Δspurious)** | **0건.** 오히려 §IV-C2에서 **과잉형식화를 권장** — "보상을 먼저 제안하지 말 것"을 *"사용자 응답이 'compensation'과 정확히 일치할 때까지 보상 도구 차단"*으로 **weaker but more precise** 재정식화하라면서 그로 인한 오차단은 **측정하지 않음**. `Unknown` 컬럼은 오차단이 아니라 **replay 재현 실패율** | §1.3 상쇄법칙 계측 |
+| **닫힌/열린 술어의 원리적 경계** | **없음.** 기준이 6항 카탈로그 **비형식 매칭**이고 저자도 *"Our guardrail catalog may also be incomplete"* 인정. **Reiter/CWA·Lutz closed predicate·DMN·Schneider·Kambhampati를 단 하나도 인용하지 않음**(78개 레퍼런스 grep 검증) | [[22]] — **미선점 강한 증거** |
+| **scale 축** | **전무**(GPT-4o→GPT-5 백본 1건). 오히려 *"future models … may reduce these errors further"*로 scale 낙관 수용 | [[46]] crossover **무손상** |
+| **도메인** | **τ²는 airline 단독**(`policy_analysis/tau2-airline/spec.json` 하나). τ²에 banking 도메인 자체가 없음 | banking — **직접 충돌 0** |
+
+**그들이 남긴 미해결 자백**: MedAgentBench enforceable 34개 중 23개만 구현, 나머지는
+*"require substantial medical domain knowledge an expert could enumerate but was not available to us"* —
+**도메인 전문지식 열거 문제를 명시적으로 열어둠**(= 우리 (iii)의 자리).
 
 ---
 
