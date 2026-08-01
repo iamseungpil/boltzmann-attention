@@ -1,6 +1,6 @@
 # QUOTE-GROUND 재설계: pin_kind 선언 + 종류별 닫힌-검사 라우팅 (2026-08-01)
 
-> **상태 = 설계서·리뷰 대기(구현 금지)**. 근거 원장 = **C275**(quote-ground false-abstain이 022 실패의 1차 원인·"call again" 지시가 이행 불가능한 모순) · **C276**(gold-free 전수 계수: 현행 구조적 false-abstain 9종·별칭 채널 불요·범주어 false-apply 표면·⑤ 대문자 게이트 철회).
+> **상태 = 리뷰 반영 완료(2026-08-01 사용자 리뷰: R1·R2·R4 동의·R3 조건부·R5 채택·발견 2~7 반영)·구현 승인 대기**. 근거 원장 = **C275**(quote-ground false-abstain이 022 실패의 1차 원인·"call again" 지시가 이행 불가능한 모순) · **C276**(gold-free 전수 계수: 현행 구조적 false-abstain 9종·별칭 채널 불요·범주어 false-apply 표면·⑤ 대문자 게이트 철회).
 > 원칙 권위 = [[22]] 근거-우선 formalize 계약(2026-08-01 따름정리+보강): **의미 판단·근거·근거의 종류까지 LLM이 형식 산출, 엔진은 종류별 닫힌 필요조건 라우팅만.**
 > 관련 코드(현행): `t2_scaffold_get.py:613-632`(C197 가드) · `t2_scaffold_get.py:1400-1434`(C195 coverage 문구) · `t2_compute.py select_discrepant`(P4 `_missing` 계상) · A2 `banking_knowledge.gate.json` ratefix `isolate`(quote_must_contain_field=merchant_name).
 
@@ -25,17 +25,31 @@ C197 가드는 "제외문 quote가 행 merchant_name을 **축자 포함**해야 
 `operand_schema`에 2필드 추가(문구는 도메인-일반·값은 sub 산출):
 
 ```json
-"exclusion_policy_merchant": "<if you downgraded this item because the policy EXCLUDES this specific merchant: the merchant name EXACTLY as the policy text names it, copied verbatim from your exclusion_quote (policies often use a short brand name, e.g. 'Target'). Empty otherwise>",
-"exclusion_pin_kind": "<'named_merchant' if the exclusion sentence names this specific merchant; 'category' if it excludes a TYPE of merchant or purchase (e.g. 'general retailers', 'gaming subscriptions') and you judged this item to belong to that type; empty if no exclusion applies>"
+"exclusion_policy_merchant": "<if you downgraded this item because the policy EXCLUDES this specific merchant: the merchant name EXACTLY and COMPLETELY as the policy text names it, copied verbatim from your exclusion_quote — copy the WHOLE name the policy uses (e.g. 'Target'), never a fragment of it. Empty otherwise>",
+"exclusion_pin_kind": "<'named_merchant' if the exclusion sentence names this specific merchant; 'category' if it excludes a TYPE of merchant or purchase (e.g. 'General Retailers', 'Gaming Subscription Merchants') and you judged this item to belong to that type; empty if no exclusion applies>"
 ```
 
-`instructions`에 표기-지식 1문장 추가(엔진 강제 아님·LLM 가이드): *"In policy prose, category words are usually lowercase common nouns; a specific merchant is usually a proper name — quote the sentence and copy the exact name it uses."*
+**[[23]] 출처 의무(발견 2 반영·배포 전 확인 완료 2026-08-01)**: 예시 문자열 전부 env-축자 — `'Target'`·`'General Retailers'` = `doc_credit_cards_ecocard_004`(*"### General Retailers (even for eco-friendly product purchases)"* / *"- Target"*) · `'Gaming Subscription Merchants'` = `doc_business_credit_cards_business_silver_rewards_card_005`(*"**Gaming Subscription Merchants (Software Exclusion):**"*·리모트 grep 확인). 각 신설 A2 항목에 `_note_` 필수: 위 축자 출처 + "gold 경유 0" 명기.
 
-가드 바인딩 선언 신설(엔진이 읽는 필드명 바인딩·구조는 도메인-일반):
+`instructions`에 지시-대상 기준 1문장 추가(엔진 강제 아님·LLM 가이드·**발견 3 반영** — 표기 기준 문장은 C276⑤ 철회 상관물의 재도입이라 기각): *"A merchant pin names ONE business; words describing a TYPE of merchant or purchase ('retailers', 'markets', 'airlines') are a category even when capitalized as a heading."*
+
+가드 바인딩 선언 신설(엔진이 읽는 필드명 바인딩·구조는 도메인-일반·**R5 앵커 + 발견 4 문구 템플릿 포함**):
 
 ```json
-"quote_pin": {"policy_field": "exclusion_policy_merchant", "kind_field": "exclusion_pin_kind", "row_field": "merchant_name"}
+"quote_pin": {
+  "policy_field": "exclusion_policy_merchant",
+  "kind_field": "exclusion_pin_kind",
+  "row_field": "merchant_name",
+  "pin_anchor": "leading",
+  "reject_note": "the policy text you quoted names '{pin}', but this row's merchant is '{merchant}' — the mapping was rejected and this row's rate was NOT applied.",
+  "retry_prompt": "Re-check this item: copy the merchant name exactly and completely as the policy sentence names it into exclusion_policy_merchant, or if the exclusion is by TYPE of merchant/purchase, set exclusion_pin_kind='category'.",
+  "category_note": "category-based exclusion ('{pin}') — merchant membership unverified.",
+  "unverified_note": "could not be verified from the reward-rate policy for this card; the row(s) remain UNVERIFIED. Do NOT supply rates or promo values yourself — tell the customer which transactions could not be checked."
+}
 ```
+
+- **R5 `pin_anchor: "leading"`(리뷰 발견 1·채택)**: named 경로에 `norm(row[row_field]).startswith(norm(pin))` 추가. 근거 = C276② 회수 9종의 다리가 **전부 선행**이고(x28 `leading_ngrams` 계수) 비선행 매칭 35종은 **전부 범주어** ⇒ 케이스 5("market" 핀)의 유일 다리가 죽고, 재질의 피드백을 받은 sub가 category로 재선언하면 마크 경로로 정직 회수. [[22]] 자기감사(리뷰 판단 동의): 종류 판단을 건드리지 않는 핀↔행 **위치 관계(닫힘)**이며, 코퍼스 경험 규칙이므로 엔진 하드코딩이 아닌 **A2 선언**(비선행 별칭이 실재하는 다른 ABox는 미선언으로 해제).
+- **발견 4**: `reject_note`/`retry_prompt`/`category_note`/`unverified_note` 문구는 전부 A2 선언(placeholder `{pin}`/`{merchant}` 치환·`range_retry_prompt` 선례). 엔진 기본값은 도메인 어휘 0의 중립 문구("the source documents") — `grep merchant|policy` 0 유지.
 
 기존 `quote_must_contain_field`는 플래그 승격 후 제거 예정(과도기 공존·OFF 경로가 사용).
 
@@ -46,9 +60,9 @@ C197 가드는 "제외문 quote가 행 merchant_name을 **축자 포함**해야 
 | 단계 | 검사 (전부 닫힘) | 불성립 처리 |
 |---|---|---|
 | 공통 | `len(quote) ≥ quote_min` ∧ `norm(quote) ∈ docnorm` | rate 드롭 + 사유 표면화 (현행 유지 — 날조 차단) |
-| kind=`named_merchant` | `pin ≠ ∅` ∧ `norm(pin) ∈ norm(quote)` ∧ `norm(pin) ∈ norm(row[row_field])` | rate 드롭 + **사유 표면화**: `policy names '<pin>' but this row's merchant is '<merchant>' — mapping rejected` + **재질의 1회**(이행 가능: 올바른 핀/종류로 재산출 요구) |
-| kind=`category` | (포함/등가 검사 **미적용**) | — 항상 통과하되 `_sg_details`와 반환에 **category-마크** 병기: `category-based ('<pin or quote 요지>') — membership unverified` |
-| kind 결측 (quote는 있고 rate 강등형) | — | 드롭 아닌 **재질의 1회**("declare exclusion_pin_kind") → 실패 시 abstain(안전측·사유 명시) |
+| kind=`named_merchant` | `pin ≠ ∅` ∧ `norm(pin) ∈ norm(quote)` ∧ **`norm(row[row_field]).startswith(norm(pin))`**(R5 앵커·A2 `pin_anchor:"leading"` 선언 시·미선언이면 포함으로 완화) | rate 드롭 + **사유 표면화**(A2 `reject_note` 치환) + **재질의 1회**(A2 `retry_prompt`) |
+| kind=`category` | (포함/앵커 검사 **미적용**) | — 항상 통과하되 `_sg_details`와 반환에 **category-마크** 병기(A2 `category_note` 치환) |
+| kind 결측 **또는 열거 밖 값**(발견 6: 오타 "named" 등 = 결측 동일 취급) (quote는 있고 강등형) | 필드 존재·열거 멤버십(닫힘) | 드롭 아닌 **재질의 1회**("declare exclusion_pin_kind") → 실패 시 abstain(안전측·사유 명시) |
 
 - "rate 강등형" 판정: 엔진은 강등 여부를 의미로 판단하지 않는다 — `exclusion_quote ≠ ∅`인 행을 대상으로만 라우팅(닫힘: 필드 존재 검사).
 - 재질의 = 기존 isolate 재호출 경로 재사용(`max_rounds` 소진 내·해당 행만·guard 피드백 문구 포함). 신규 판단 0.
@@ -58,9 +72,10 @@ C197 가드는 "제외문 quote가 행 merchant_name을 **축자 포함**해야 
 `_missing` 필드를 두 그룹으로 분할해 문구를 가른다(멤버십 = A2 선언 대조·판단 0):
 
 - **record-유래**(`iso.row_fields` ∋ 필드): 현행 문구 유지 — *"Read the missing value(s) from the records… call again with the completed input."*
-- **sub-유래**(`iso.operand_schema` ∋ 필드): *"…could not be verified from the policy documents; these rows remain UNVERIFIED. Do NOT supply rates or promo values yourself — tell the customer which transactions could not be checked."*
+- **sub-유래**(`iso.operand_schema` ∋ 필드): A2 `unverified_note` 문구(§2a) — "UNVERIFIED·직접 값 공급 금지·고객에 고지".
+- **엣지 규칙(발견 5·결정론)**: 필드가 양쪽에 다 있으면 **row_fields 우선**(="call again"·레코드에서 완성 가능하므로 이행 가능 지시가 정당) / 어느 쪽에도 없으면 **sub-유래 취급**(안전측 — 이행 불가능 지시를 내는 것보다 unverified 정직 표기).
 
-이건 계측 문구의 **사실-모순 수정(버그픽스)**이므로 `T2_QUOTE_PIN`과 독립으로 즉시 적용을 제안한다(§8 리뷰 포인트 R3).
+이건 계측 문구의 **사실-모순 수정(버그픽스)**이므로 `T2_QUOTE_PIN`과 독립 적용 — 단 **R3 조건(리뷰 확정): "즉시" = repo 반영·다음 런부터**. 진행 중 라이브 런(pass3 등)에는 배포하지 않는다(런 내 비교가능성 오염 — C272 시간-표류와 같은 축).
 
 ### 2d. 명시적 비채택 (재론 방지)
 
@@ -96,33 +111,39 @@ C197 가드는 "제외문 quote가 행 merchant_name을 **축자 포함**해야 
 | 2 | Microsoft 365 | pin="Microsoft"·kind=named | 통과 |
 | 3 | 019형 | Thrive Market 행·quote=ThredUp 문장·pin="ThredUp"·kind=named | **드롭**(pin ∉ merchant)+사유+재질의 |
 | 4 | Delta | Delta Sky Club 행·pin="Delta Airlines"·kind=named | 드롭(포함 불성립) |
-| 5 | 범주어 게이밍 | pin="market"·kind=named·quote="…grocery markets…" | *통과함*(포함 성립) — **잔여**: kind 오선언 1중 오류·category-마크 없이 강등. §6 Δspurious의 계측 표적(닫힌 검사로 못 막음을 정직 기재) |
-| 6 | 정직한 범주 주장 | kind=category·quote="gaming subscriptions are excluded" | 통과+**category-마크 표면화** |
+| 5 | 범주어 핀 (R5로 봉쇄) | pin="market"·kind=named·merchant="Thrive Market" | **드롭+재질의**(비선행 — 앵커 불성립) → sub가 category 재선언 시 마크 경로로 정직 회수 |
+| 6 | 정직한 범주 주장 | kind=category·quote="**Gaming Subscription Merchants (Software Exclusion):**"(축자) | 통과+**category-마크 표면화** |
 | 7 | kind 결측 | quote 있음·kind="" | 재질의 1회→abstain |
+| 7b | kind 열거 밖(발견 6) | kind="named"(오타) | 결측과 동일(재질의→abstain) |
 | 8 | quote 날조 | quote ∉ docs | 드롭(현행 동일) |
 | 9 | 회귀 | 기존 test_c197 계열(019 차단·0행 무판정 문구) | OFF 경로 불변·ON 경로 동등 이상 |
+| 10 | **앵커 잔여 A — 관사-접두 이름형** | 가상: 정책이 "Cheesecake Factory"로 명명·행="The Cheesecake Factory" | 드롭+재질의→abstain(**정당 강등의 false-abstain·표면화됨**). 코퍼스 실측 0(x28: The-접두 상인의 제외-문맥 명명 없음)·발생 시 A2 `pin_anchor` 미선언으로 해제 가능 |
+| 11 | **앵커 잔여 B — 부분-핀 접두 충돌**(자기감사 신규 발견) | 정책 불릿 "- LinkedIn Learning"에서 핀을 "LinkedIn"으로 **부분 복사**·행="LinkedIn Ads" | *통과함*(pin∈quote ∧ 앵커 성립) = **false-apply 잔여**. 완전-복사는 sub 지시(§2a "COMPLETELY")로 유도·토큰-최대 강제는 이름-경계 판정(열림)이라 기각. 표면화("policy names 'LinkedIn'")·Δ계측 표적 |
 
 ## 6. 검증 계획 (순서 고정·[[09]])
 
 1. **오프라인 단위**(무료): `test_c277_quotepin.py` — §5 매트릭스 9종 + 기존 회귀. 리모트 배터리 PASS 후 배포.
-2. **x28 정적 재검**(무료): 계수기에 새 술어 시뮬 추가 — C276① 9종이 named-핀 경로로 전부 회수되는지(핀=각 다리 n-gram 가정) + 범주어 35종이 category 경로로 빠지는지.
-3. **022 replay**(무료·GPU만): P2 궤적의 77행 입력 재실행 → ba8b rate 생존 → `select_discrepant` 10건 → coverage 라인 "77 of 77" 확인.
+2. **x28 정적 재검**(무료): 계수기에 새 술어 시뮬 추가 — C276① 9종이 named-핀+선행-앵커 경로로 전부 회수되는지(핀=각 다리 n-gram 가정·**주의: 회수=술어 충족-가능성 회복이지 9종 전부 강등이 정답이라는 뜻 아님** — 예: LinkedIn Ads는 정책상 비제외가 옳을 수 있음) + **비선행 범주어 35종이 named-앵커 경로에서 전부 기각되는지**(R5 채택 조건 검증).
+3. **022 replay**(무료·GPU만·**sub 재호출 필수** — 신규 필드는 궤적에 없음): P2 궤적의 77행 입력 재실행 → ba8b rate 생존 → `select_discrepant` 10건 → coverage 라인 "77 of 77" 확인. **발견 7**: replay 산출물에 **드롭 사유별 계수**(quote-날조/핀-비포함/앵커-불성립/kind-결측/sub-미채움) 포함 — 실패 시 엔진 결함인지 sub 채움 품질인지 즉시 귀속 가능하게.
 4. **라이브**(유료·승인 후): 다음 Y2 계열 런에 `T2_QUOTE_PIN=1` 편입([[19]] 합성 스택). **판정은 pass 비교가 아니라 기전 지표**(C272 시간-표류 교훈): 022 discrepancy 집합 정확도(replay-대조)·**Δspurious 양방향** — false-abstain(드롭 사유 로그 중 semantic 매핑 실재 건수) / false-apply(category-마크·named-강등의 gold-diff — *계측만*, A2 수정 근거로 사용 금지 [[23]]). 스모크로 신규 마크 라이브 발화 확인 후 full([[30]]).
 5. **승격/기각 임계(사전등록)**: 회귀(§5-9) 0 ∧ 022 replay 10/10 → go_stack ON 승격. 라이브 false-apply 신규 발생이 false-abstain 회수분을 초과하면 OFF 원복(플래그 롤백=1줄).
 
-## 7. 상쇄·위험 (§1.3 — 이 레버가 파는 것)
+## 7. 상쇄·위험 (§1.3 — 이 레버가 파는 것·R5 반영 갱신)
 
-1. **category 오선언(케이스 5)**: 등가류 검사를 우회하는 유일한 문 — 닫힌 검사로 못 막는다(브랜드-됨=열림). 대가 지불 방식 = 표면화(마크)+Δ계측+장기 learn. **숨은 실패가 아니라 감사 가능한 주장**이라는 것이 현행 대비 순개선.
+1. **category 오선언**: 앵커 검사를 우회하는 문 — 닫힌 검사로 못 막는다(브랜드-됨=열림). 단 R5 채택으로 "선행 위치의 범주어 핀"(코퍼스 실측 0)으로 표면이 좁아졌고, 케이스 5의 주 경로(비선행 범주어)는 재질의→category 재선언으로 흡수. 대가 지불 방식 = 표면화(마크)+Δ계측+장기 learn. **숨은 실패가 아니라 감사 가능한 주장**이라는 것이 현행 대비 순개선.
+1b. **R5 앵커의 자기 잔여 2종(§5 케이스 10·11)**: (A) 관사-접두 이름형 false-abstain — 코퍼스 실측 0·표면화됨·A2 미선언으로 해제 가능. (B) 부분-핀 접두 충돌 false-apply(LinkedIn Learning→"LinkedIn"→LinkedIn Ads형) — sub 지시("COMPLETELY")로 유도·닫힌 검사 추가는 이름-경계 판정(열림)이라 중단·표면화+Δ계측. **휴리스틱 추가 중단 원칙**: 이 아크에서 문자열 규칙 3개(토큰-교집합·대문자·토큰-최대)가 전부 열린 술어 동결로 기각됐다 — 잔여는 규칙이 아니라 계측·learn으로.
 2. **스키마 부하 +2필드**: formalize 품질 저하 가능(스키마 비대·§2h max_batch 상호작용) — 계측: operand 채움률·range_retry 빈도(기존 로그 라인 재사용).
 3. **재질의 1회**: sub 호출 증가(행-단위·bounded) — 계측: inject 라인 수 diff.
 4. **표면화 자체의 역효과**(C270⚠ 동형): category-마크·unverified 문구가 agent의 over-action(무근거 재시도 남발)을 유발하는지 — Δspurious에 "동일-인자 재호출 3회+" 지문 포함.
 
-## 8. 리뷰 포인트 (사용자 결정 요청)
+## 8. 리뷰 판정 (2026-08-01 사용자 리뷰·반영 완료)
 
-- **R1**: P1(policy-핀 포함)로 시작하고 P2(양측-핀·별도-문맥)는 Δ실측 후 승격 — 동의하는가? (§2d 근거: 같은-문맥 채움은 상관 오류라 이득 0)
-- **R2**: category 경로를 "통과+마크"로 두는 것(강등 적용됨·미검증 표시) vs "통과하되 rate를 abstain"(보수) — 전자 제안. 근거: 후자는 정직한 범주 제외(General Retailers=Target 공동 제외가 정답인 사례)까지 죽여 false-abstain을 재생산.
-- **R3**: coverage 문구 분화(§2c)를 플래그와 독립인 즉시 버그픽스로 — 동의하는가?
-- **R4**: 재질의 1회의 위치 — guard 불성립 행만 대상·max_rounds 내 재사용. 추가 라운드 예산 필요 없다고 판단.
+- **R1 동의(확정)**: P1(policy-핀)로 시작·P2(양측-핀 별도-문맥)는 Δ실측 후 승격. C276②가 policy-핀 단독 9/9 회수를 이미 보임.
+- **R2 동의(확정)**: category = 통과+마크. abstain은 정당 공동-제외(General Retailers→Target·C276⑥ 축자)까지 죽여 false-abstain 재생산.
+- **R3 조건부 동의(확정)**: 문구 분화는 버그픽스로 독립 적용하되 **"즉시"=repo 반영·다음 런부터** — 진행 중 라이브 런(pass3)에 배포 금지(런 내 비교가능성).
+- **R4 동의(확정)**: guard-불성립 행만·`sg_inject_retry` 경로 재사용·추가 예산 0.
+- **R5 채택(확정·리뷰 발견 1)**: `pin_anchor: "leading"` A2 선언 — §2b 반영. [[22]] 자기감사: 종류 판단이 아닌 위치 관계(닫힘)·x28 반례 0·A2 선언이라 도메인-일반 유지. **구현자 자기감사 추가(같은 날)**: 앵커의 자기 잔여 2종을 신규 문서화(§5 케이스 10·11·§7-1b) — 관사-접두 false-abstain(실측 0)·부분-핀 접두 충돌 false-apply(LinkedIn형). 추가 문자열 규칙으로 막지 않는다(열린 술어 동결 3연속 기각의 교훈).
+- **발견 2~7 반영 위치**: 2→§2a 출처 의무(gaming subscriptions 리모트 grep 확인 완료) · 3→§2a instructions 재작성(지시-대상 기준) · 4→§2a/§2b A2 문구 템플릿 · 5→§2c 엣지 규칙 · 6→§2b/§5-7b · 7→§6-3 드롭-사유 계수.
 
 ## 9. 구현 순서 (리뷰 승인 후)
 
