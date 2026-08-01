@@ -147,9 +147,7 @@ for flag in ("1", "0"):
         if "txn_ba8b473f295d" in ops:
             print(f"  [qp={flag}] group={rec.get('group')} → {json.dumps(ops['txn_ba8b473f295d'], ensure_ascii=False)[:400]}")
 
-print(f"
-{'='*70}
-★핀 선언 전수 (arm ON) — 019형 오적용 유무")
+print("\n" + "=" * 70 + "\n★핀 선언 전수 — 019형 오적용 유무")
 for flag in ("1","0"):
     p2 = os.path.join(A.outdir, f"trace_{A.tag}_qp{flag}.jsonl")
     if not os.path.exists(p2): continue
