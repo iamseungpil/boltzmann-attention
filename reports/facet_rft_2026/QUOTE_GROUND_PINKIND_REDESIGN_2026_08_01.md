@@ -147,6 +147,77 @@ C197 가드는 "제외문 quote가 행 merchant_name을 **축자 포함**해야 
 - **R5 채택(확정·리뷰 발견 1)**: `pin_anchor: "leading"` A2 선언 — §2b 반영. [[22]] 자기감사: 종류 판단이 아닌 위치 관계(닫힘)·x28 반례 0·A2 선언이라 도메인-일반 유지. **구현자 자기감사 추가(같은 날)**: 앵커의 자기 잔여 2종을 신규 문서화(§5 케이스 10·11·§7-1b) — 관사-접두 false-abstain(실측 0)·부분-핀 접두 충돌 false-apply(LinkedIn형). 추가 문자열 규칙으로 막지 않는다(열린 술어 동결 3연속 기각의 교훈).
 - **발견 2~7 반영 위치**: 2→§2a 출처 의무(gaming subscriptions 리모트 grep 확인 완료) · 3→§2a instructions 재작성(지시-대상 기준) · 4→§2a/§2b A2 문구 템플릿 · 5→§2c 엣지 규칙 · 6→§2b/§5-7b · 7→§6-3 드롭-사유 계수.
 
+## 8b. ★rev2 제안 — R5 철회 + 정책-참조 상인 식별표(사용자 제안·2026-08-01 저녁·리뷰 대기)
+
+**계기**: 사용자 지적 2건 — ⑴ "패턴 매칭 안 하기로 한 것 아닌가"(→ `row.startswith(pin)`=지시 동일성을
+문자열로 동결·**R5는 4번째 회귀**이며 리뷰어의 "위치 관계라 닫힘" 방어를 내가 수용한 것이 오류) ⑵ "A2에
+별도 약어집을 두면 안 되나".
+
+**⒜ R5 철회**: `pin_anchor` 폐기. 근거 = 술어가 묻는 것이 *연산의 모양*(위치)이 아니라 *지시 동일성*(열림)
+이고, 실제로 `'Target'`→`'Targeting Solutions'`로 깨졌으며 케이스 11은 지금도 통과한다. **가드 계열의
+실측 가치도 음수**: 라이브 발화 3종 중 **2종이 오차단**(ba8b=022 상실 · `txn_a8f1c2d3e404` Microsoft 365 =
+Business Silver 정책이 "Hardware/Electronics Merchants" 아래 Microsoft를 실제 제외 ⇒ 서브가 옳았다·db+KB
+확인)·1종만 옳음(Thrive).
+
+**⒝ 정책-참조 상인 식별표(A2)** — 열린 술어를 **열거로 닫는다**([[16]] A2 EXT "닫힌 3종"과 동류·enum 상수의
+연장). 형식 = `policy_merchant_rows: {<정책이 쓰는 이름>: [<카탈로그 merchant_name…>]}`.
+엔진 검사 = **집합 멤버십**(문자열 유사도·접두·포함 전부 불필요):
+
+| 케이스 | 표 조회 | 결과 |
+|---|---|---|
+| ba8b | "Target" → {Target - Eco Collection, Target} | 행 ∈ 집합 → **통과**(회수) |
+| 019 | "ThredUp" → {ThredUp} | Thrive Market ∉ 집합 → **차단**(현행 유일 정당 발화 보존) |
+| Microsoft 365 | "Microsoft" → {Microsoft 365} | 통과(회수) |
+| 케이스 11 | "LinkedIn Learning" → 카탈로그 대응 0 | 어떤 행도 ∉ → **차단**(⚠현 설계가 못 막던 잔여가 닫힌다) |
+| 범주 주장 | 표에 없음 | category 경로(마크·미검증) — 불변 |
+| 표 미수록 상인 | 조회 실패 | abstain+표면화(안전측·표 갱신 신호) |
+
+**규모 실측(gold-free·`x28` 계열)**: 제외-문맥 불릿 고유명 **30개** 중 카탈로그 대응이 있는 것 **11개** —
+`Amazon·Apple(→Apple Store)·Coursera·Dell(→Dell, Dell Technologies)·Microsoft(→Microsoft 365)·Salesforce·
+Slack(→Slack Technologies)·Target(→Target - Eco Collection, Target)·ThredUp·WeWork·Zoom(→Zoom Video)`.
+⇒ 표는 **카탈로그(138) 크기가 아니라 정책 언급 수에 유계**. 기존 rate 표(`Gold Rewards Card: 2.5`)와 같은
+A2 도메인 데이터 등급.
+
+**☠⚠️치명적 주의(자기 플래그·[[03b]])**: 위 11개 목록은 내가 **`norm(m)==n or startswith(n+" ")` = 방금
+기각한 접두 규칙으로 기계 생성**한 것이다. 이대로 A2에 실으면 **폐기된 휴리스틱의 출력을 데이터로 동결**
+하는 것이라 런타임에서 뺀 의미가 사라진다. ⇒ **측정치(=11·유계성)만 채택하고 내용은 재작성**한다:
+표 내용은 정책 문서와 카탈로그를 보고 **판단으로 저작**(사람 또는 LLM 저작+사람 검토)하며, 접두 규칙
+산출물을 그대로 쓰지 않는다. 검수 항목 = 접두로 안 잡히는 쌍(비-접두 별칭)이 있는지·접두로 잡히지만
+실은 다른 업체인 쌍이 있는지.
+
+**[[23]] 출처 판정(리뷰 필요·새 범주)**: 이 표는 정책 산문도 env 기계도출도 아니고 **운영자 지식**이다
+(현실 정합: 은행은 실제로 merchant normalization/DBA 정규화 테이블을 갖는다 — 벤치 편법이 아님).
+gold 경유는 아니므로 [[23]] 금지선은 아니나, **"정책·환경" 두 범주에 안 들어가므로 명시 승인 필요**.
+승인 시 `_note_`에 "운영자 데이터·gold 미열람·저작 근거(정책 불릿 ↔ 카탈로그 행)" 기재.
+
+**[[05]] 비용**: A2 +11 엔트리(도메인별). 엔진 순증 = 멤버십 조회 1회(리터럴 0). 전이 = 새 도메인마다
+표 저작 — **A2-swap 범위 내**이나 capex 순증이므로 특허 §유한성 서술에 반영 필요.
+
+**⒞ ★범주도 대부분 닫힌다(추가 실측)**: 이 KB의 제외 범주는 **거의 전부 구성원을 열거**한다 —
+`### General Retailers → {Target, Walmart, Amazon}` · `### Thrift and Resale Markets → {ThredUp}` ·
+`**Gaming Subscription Merchants** → {Xbox Game Pass, PlayStation Plus, Nintendo Switch Online}` ·
+`**Hardware/Electronics Merchants** → {Apple, Microsoft, Dell}`. ⇒ 표의 키를 **정책 제외-그룹**(단일 상인
+불릿 *또는* 열거를 동반한 제목) 단위로 두면, named든 category든 **하나의 멤버십 조회로 해소**된다.
+019가 그 실례: 서브가 "Thrift and Resale Markets"를 근거로 삼아도 그 그룹의 구성원은 {ThredUp}뿐이라
+`Thrive Market ∉` → **차단**. ⇒ §5 케이스 5·11 + 019가 전부 같은 닫힌 검사로 닫힌다.
+
+**미해결(진짜 잔여)**: **열거 없는 산문 범주**만 열려 있다 — 예: silver_003 *"Vacation rentals or
+home-sharing platforms coded under real estate or 'miscellaneous' categories"*(구성원 목록 없음).
+이 경우만 category 경로·표면화 유지(R2 불변)·Δ계측.
+
+**⒟ 019의 실제 해악(수치)**: `txn_f093f96e2001` = EcoCard·Green·$175.00·recorded **175 points**.
+정상 rate 5 ⇒ expected **875** ≠ 175 = **진짜 discrepancy**. 서브가 exclusion을 적용하면 rate 1 ⇒
+expected 175 = recorded ⇒ **불일치가 사라진다(false-negative)**. 즉 이 오적용은 *있어야 할 dispute를
+지운다*. 현행 가드는 그것을 막는 대신 rate를 드롭해 **행을 미판정으로** 만들었다(역시 dispute 없음·단
+"1 row could not be verified"로 표면화는 됨). ⒝⒞의 표는 이 행을 **판정 가능 상태로 되돌린다**(제외 기각
+→ rate 5 → discrepancy 검출).
+
+**⒠ 미확정(정직)**: 서브가 ⑴두 회사를 동일 업체로 착각했는지 ⑵"Thrift and Resale **Markets**" 범주에
+`Thrive **Market**`이 속한다고 판단했는지는 **현 로그로 구분 불가**(isolate trace 미설정·서브 출력이
+궤적에 없음). 구조적으로 ⑵가 유력(제목이 범주형·이름에 "Market" 공유). **pin_kind 필드 자체가 이 구분을
+처음으로 관측 가능하게 만드는 계기**다 — 서브가 named인지 category인지 선언하므로. 확인 프로브(무료·
+GPU 필요) = pass3 완주 후 1콜.
+
 ## 9. 구현 순서 (리뷰 승인 후)
 
 ① `t2_scaffold_get.py` 가드 교체(플래그)+문구 분화 → ② A2 스키마/바인딩 추가 → ③ `test_c277_quotepin.py` + 회귀 → ④ x28 정적 재검 → ⑤ 022 replay → ⑥ 커밋/push/리모트 배터리 → ⑦ 스모크→라이브 편입(승인). 롤백 = `T2_QUOTE_PIN` OFF(1줄).
