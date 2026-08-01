@@ -170,6 +170,48 @@ print(f"\n[D] 별칭 후보(제외-문맥 개체 중 어떤 merchant와도 전�
 for e, ds in D:
     print(f"    '{e}'  ({', '.join(d[:40] for d in ds[:2])})")
 
+# ---------- 5b. C278 술어 정적 시뮬 (설계서 §6-2) ----------
+# 가정: sub가 정책이 쓰는 이름을 핀한다 = 각 merchant의 "다리" n-gram(코퍼스 등장 최장 선행) 또는
+#       비선행 매칭 토큰. 엔진 판정만 결정론 재현(LLM 없음).
+print("\n[C278 정적 시뮬] named 경로(선행 앵커) 통과/기각")
+try:
+    import importlib.util as _ilu
+    _p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "t2_scaffold_get.py")
+    _sp = _ilu.spec_from_file_location("_sg_for_census", _p)
+    _sg = _ilu.module_from_spec(_sp)
+    import types as _t, sys as _s
+    for _m, _a in (("tau2", {}), ("tau2.data_model", {}), ("tau2.data_model.message", {"UserMessage": object, "ToolMessage": object, "MultiToolMessage": object})):
+        if _m not in _s.modules:
+            _mod = _t.ModuleType(_m)
+            for _k, _v in _a.items():
+                setattr(_mod, _k, _v)
+            _s.modules[_m] = _mod
+    _sp.loader.exec_module(_sg)
+    QP = {"policy_field": "p", "kind_field": "k", "row_field": "m", "pin_anchor": "leading"}
+
+    def _verdict(pin, merchant, quote):
+        return _sg._quote_pin_check(QP, {"exclusion_quote": quote, "p": pin, "k": "named_merchant"},
+                                    {"m": merchant}, "exclusion_quote", 0, norm(quote))[0]
+    a_pass = [r["merchant"] for r in rows
+              if r["head_in_exclusion"] and not r["full_in_corpus"] and r["bridge_ngram"]
+              and _verdict(r["bridge_ngram"], r["merchant"], r["bridge_ngram"]) == "pass"]
+    print(f"  현행 구조적-abstain 후보 중 named+앵커로 회수: {len(a_pass)}/{len(A)}  {a_pass}")
+    # 비선행 범주어(위 [B] 무-다리 중 임의 토큰 매칭)가 named 경로에서 기각되는지
+    gen_rej = gen_pass = []
+    gen_rej, gen_pass = [], []
+    for m in merchants:
+        if any(r["merchant"] == m and r["bridge_ngram"] for r in rows):
+            continue
+        toks = norm(m).split()
+        for t in toks[1:]:                      # 비선행 토큰만
+            if len(t) >= 4 and t in corpus_n:
+                (gen_pass if _verdict(t, m, t) == "pass" else gen_rej).append((m, t))
+                break
+    print(f"  비선행 토큰 핀(범주어 축): 기각 {len(gen_rej)} / 통과 {len(gen_pass)}"
+          f"  {'✓ R5 목표 달성(전부 기각)' if not gen_pass else '⚠통과 사례: %s' % gen_pass[:5]}")
+except Exception as _e:
+    print(f"  (시뮬 생략: {_e!r})")
+
 # 검증: 실측 3사례
 print("\n[검증] 실측 사례 분류:")
 for probe in ("Target - Eco Collection", "Microsoft 365", "Thrive Market", "ThredUp"):
