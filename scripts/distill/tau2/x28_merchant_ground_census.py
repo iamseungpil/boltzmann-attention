@@ -57,17 +57,26 @@ corpus_n = " ".join(norm(ln) for _, ln in lines_raw)
 
 EXCL_RE = re.compile(r"exclu|not eligible|does not (earn|qualify)|excluded|standard rate|"
                      r"do(es)? not count|no (points|rewards)|only qualifies|not qualify", re.I)
-HEAD_RE = re.compile(r"^\s*#{1,6}\s")
+HEAD_RE = re.compile(r"^\s*(#{1,6})\s")
 
-# ★섹션-스코프(2026-08-01 자기수정): 라인 단위로 잡으면 `## What is excluded…` 제목 밑의
-#   불릿(`- Target`)이 누락된다(실측: Target이 [A]서 빠짐). 제외-제목 이후 다음 제목 전까지를
-#   전부 제외 문맥으로 본다 + 제외 표현이 직접 있는 라인도 포함.
-excl_lines, in_excl, cur_doc = [], False, None
+# ★섹션-스코프 + 깊이 상속(2026-08-01 자기수정 2회):
+#   (1차) 라인 단위로 잡으면 `## What is excluded…` 제목 밑 불릿(`- Target`)이 누락된다.
+#   (2차) 섹션을 잡아도 `### General Retailers`처럼 **키워드 없는 하위 제목**이 제외 섹션을 껐다
+#         (실측: Target이 [A]서 계속 빠짐 — ecocard_004 구조가 정확히 이 형태).
+#   ⇒ 제외-제목의 깊이를 기억하고, 더 깊은 제목은 상속·같거나 얕은 제목에서만 해제.
+excl_lines, in_excl, excl_depth, cur_doc = [], False, 0, None
 for d, ln in lines_raw:
     if d != cur_doc:
-        cur_doc, in_excl = d, False
-    if HEAD_RE.match(ln):
-        in_excl = bool(EXCL_RE.search(ln))
+        cur_doc, in_excl, excl_depth = d, False, 0
+    hm = HEAD_RE.match(ln)
+    if hm:
+        lvl = len(hm.group(1))
+        if EXCL_RE.search(ln):
+            in_excl, excl_depth = True, lvl
+        elif in_excl and lvl > excl_depth:
+            pass                      # 하위 제목 = 제외 섹션 상속
+        else:
+            in_excl, excl_depth = False, 0
     if in_excl or EXCL_RE.search(ln):
         excl_lines.append((d, ln))
 excl_n = " ".join(norm(ln) for _, ln in excl_lines)
