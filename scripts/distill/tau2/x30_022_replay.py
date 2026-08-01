@@ -28,6 +28,7 @@ ap.add_argument("--base", default="http://localhost:8140/v1")
 ap.add_argument("--model", default="openai/Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
 ap.add_argument("--user", default="f9bf8de0be")          # task_022 고객(env 유래)
 ap.add_argument("--outdir", default="/home/woori/scratch/x30run")
+ap.add_argument("--tag", default="022")
 A = ap.parse_args()
 os.makedirs(A.outdir, exist_ok=True)
 
@@ -89,9 +90,10 @@ ROWS0 = [{"transaction_id": r["transaction_id"], "transaction_amount": num(r["tr
          for r in raw]
 print(f"입력 거래 {len(ROWS0)}행 (user {A.user}) · 계좌 {len(ACC)}종")
 
-GOLD = ["txn_ba8b473f295d", "txn_ffeede5eeacd", "txn_4f5e249acc6c", "txn_30cb41175311",
+GOLD_BY_USER = {"f9bf8de0be": ["txn_ba8b473f295d", "txn_ffeede5eeacd", "txn_4f5e249acc6c", "txn_30cb41175311",
         "txn_508e275e27af", "txn_097c072e7df3", "txn_f84fa27a1b54", "txn_8a8873edaac2",
-        "txn_4d2b795c6f98", "txn_1a4918670323"]     # 대조용(채점 gold·판정엔 미사용·[[23]] 저작 무관)
+        "txn_4d2b795c6f98", "txn_1a4918670323"]}   # 대조용(채점 gold·판정엔 미사용·[[23]] 저작 무관)
+GOLD = GOLD_BY_USER.get(A.user, [])
 
 orch = types.SimpleNamespace(
     agent=types.SimpleNamespace(llm=A.model, llm_args={
@@ -102,7 +104,7 @@ orch = types.SimpleNamespace(
 
 def run(flag):
     os.environ["T2_QUOTE_PIN"] = flag
-    os.environ["T2_SG_ISOLATE_TRACE"] = os.path.join(A.outdir, f"trace_qp{flag}.jsonl")
+    os.environ["T2_SG_ISOLATE_TRACE"] = os.path.join(A.outdir, f"trace_{A.tag}_qp{flag}.jsonl")
     rows = [dict(r) for r in ROWS0]
     ctx = {"transactions": rows}
     SG._sub_inject(orch, {"name": TOOL["name"]}, ISO, ctx, la, UserMessage)
@@ -133,7 +135,7 @@ for flag in ("1", "0"):
 # ── ⓔ 서브가 ba8b에 declare한 것 (trace 직독) ──────────────────────────────────
 print(f"\n{'='*70}\nⓔ 서브 산출 원본(trace) — ba8b·pin/kind")
 for flag in ("1", "0"):
-    p = os.path.join(A.outdir, f"trace_qp{flag}.jsonl")
+    p = os.path.join(A.outdir, f"trace_{A.tag}_qp{flag}.jsonl")
     if not os.path.exists(p):
         print(f"  [qp={flag}] trace 없음"); continue
     for ln in open(p, encoding="utf-8"):
@@ -144,6 +146,22 @@ for flag in ("1", "0"):
         ops = rec.get("operands") or {}
         if "txn_ba8b473f295d" in ops:
             print(f"  [qp={flag}] group={rec.get('group')} → {json.dumps(ops['txn_ba8b473f295d'], ensure_ascii=False)[:400]}")
+
+print(f"
+{'='*70}
+★핀 선언 전수 (arm ON) — 019형 오적용 유무")
+for flag in ("1","0"):
+    p2 = os.path.join(A.outdir, f"trace_{A.tag}_qp{flag}.jsonl")
+    if not os.path.exists(p2): continue
+    print(f"  [qp={flag}]")
+    for ln in open(p2, encoding="utf-8"):
+        try: rec = json.loads(ln)
+        except Exception: continue
+        for tid, o in (rec.get("operands") or {}).items():
+            if isinstance(o, dict) and (o.get("exclusion_policy_merchant") or o.get("exclusion_quote")):
+                mer = next((r["merchant_name"] for r in ROWS0 if r["transaction_id"] == tid), "?")
+                print(f"     {tid[:18]} merchant={mer:24s} pin={o.get('exclusion_policy_merchant')!r} "
+                      f"kind={o.get('exclusion_pin_kind')!r} rate={o.get('base_rate')}")
 
 # ── ⓓ 드롭 사유별 계수 (2차 리뷰: 엔진/sub/표 귀속 분리) ────────────────────────
 print(f"\n{'='*70}\nⓓ 드롭 사유별 계수 (arm ON)")
@@ -156,6 +174,6 @@ print("  ", cnt or "(없음)")
 print(f"  표면화 노트 {len(R1['notes'])}건 (사유 문구가 귀속을 준다)")
 
 json.dump({k: {"ids": v["ids"], "stats": v["stats"], "notes": v["notes"]} for k, v in OUT.items()},
-          open(os.path.join(A.outdir, "x30_result.json"), "w", encoding="utf-8"),
+          open(os.path.join(A.outdir, f"x30_{A.tag}_result.json"), "w", encoding="utf-8"),
           ensure_ascii=False, indent=1)
 print(f"\n→ {A.outdir}/x30_result.json · trace_qp{{0,1}}.jsonl")
