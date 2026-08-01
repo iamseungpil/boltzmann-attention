@@ -1,0 +1,94 @@
+merchant 전집: 138종 · KB 라인 11719 · 제외-문맥 라인 162
+
+[A] 현행 규칙 구조적-abstain 후보 (head∈제외문맥 ∧ 전체이름∉코퍼스): 9종
+    Apple Store  (head='apple' 다리=apple)
+    Dell Technologies  (head='dell' 다리=dell)
+    Electronics Express Miami  (head='electronics' 다리=electronics)
+    Home Depot  (head='home' 다리=home)
+    LinkedIn Ads  (head='linkedin' 다리=linkedin)
+    Microsoft 365  (head='microsoft' 다리=microsoft)
+    Slack Technologies  (head='slack' 다리=slack)
+    Target - Eco Collection  (head='target' 다리=target)
+    Zoom Video  (head='zoom' 다리=zoom)
+
+[B] 핀+등가 다리 존재(선행 n-gram∈코퍼스): 35종 / 다리 없음(KB 무언급→매핑 불요): 103종
+    그중 전체이름은 없고 다리만 있음(=핀+등가가 현행 대비 순회수하는 표면): 22종
+    American Airlines  ← 다리 'american'
+    Apple Store  ← 다리 'apple'  [제외문맥]
+    Best Buy  ← 다리 'best'
+    Budget Car Rental  ← 다리 'budget'
+    Dell Technologies  ← 다리 'dell'  [제외문맥]
+    Delta Airlines  ← 다리 'delta'
+    Delta Sky Club  ← 다리 'delta sky'
+    Departure Restaurant  ← 다리 'departure'
+    Electronics Express Miami  ← 다리 'electronics'  [제외문맥]
+    Enterprise Rent-A-Car  ← 다리 'enterprise'
+    Home Depot  ← 다리 'home'  [제외문맥]
+    LinkedIn Ads  ← 다리 'linkedin'  [제외문맥]
+    Love's Travel Stop  ← 다리 'love'
+    Microsoft 365  ← 다리 'microsoft'  [제외문맥]
+    National Car Rental  ← 다리 'national'
+    Office Depot  ← 다리 'office'
+    Screen Door Restaurant  ← 다리 'screen'
+    Slack Technologies  ← 다리 'slack'  [제외문맥]
+    Target - Eco Collection  ← 다리 'target'  [제외문맥]
+    United Airlines  ← 다리 'united'
+    Whole Foods Market  ← 다리 'whole'
+    Zoom Video  ← 다리 'zoom'  [제외문맥]
+
+[C] head 공유 충돌 그룹(코퍼스 등장 head): 3그룹 / 그중 제외-문맥 등장: 2그룹
+    'dell': ['Dell', 'Dell Technologies']  ★제외문맥
+    'delta': ['Delta Airlines', 'Delta Sky Club']
+    'target': ['Target', 'Target - Eco Collection']  ★제외문맥
+
+[D] 별칭 후보(제외-문맥 개체 중 어떤 merchant와도 전체/부분 무매칭): 42종 — 의미 확인은 열린 판단(나열까지만)
+    'Access'  (doc_business_savings_accounts_diamond_va)
+    'BNPL Bronze'  (doc_buy_now_pay_later_bnpl_bronze_002.js, doc_buy_now_pay_later_bnpl_bronze_006.js)
+    'Certain'  (doc_business_checking_accounts_hunter_gr)
+    'ChargePoint'  (doc_credit_cards_ecocard_004.json)
+    'Concur'  (doc_business_credit_cards_business_silve)
+    'Dispute'  (doc_credit_cards_credit_cards_(general)_)
+    'EVgo'  (doc_credit_cards_ecocard_004.json)
+    'EveryonePay'  (doc_checking_accounts_dark_green_account)
+    'Expect'  (doc_business_savings_accounts_diamond_va)
+    'Expensify'  (doc_business_credit_cards_business_silve)
+    'Focus'  (doc_buy_now_pay_later_bnpl_management_da)
+    'For EV'  (doc_credit_cards_ecocard_004.json)
+    'Gusto'  (doc_business_credit_cards_business_bronz)
+    'High'  (doc_checking_accounts_purple_account_006)
+    'HubSpot'  (doc_business_credit_cards_business_bronz)
+    'Improve'  (doc_buy_now_pay_later_bnpl_management_da)
+    'Industrious'  (doc_business_credit_cards_business_bronz)
+    'Invoices'  (doc_business_credit_cards_business_plati)
+    'LinkedIn Learning'  (doc_business_credit_cards_business_silve)
+    'Losses'  (doc_checking_accounts_purple_account_006)
+    'Navan'  (doc_business_credit_cards_business_silve)
+    'Nintendo Switch Online'  (doc_business_credit_cards_business_silve)
+    'Paychex'  (doc_business_credit_cards_business_bronz)
+    'PlayStation Plus'  (doc_business_credit_cards_business_silve)
+    'Pluralsight'  (doc_business_credit_cards_business_silve)
+    'Professional'  (doc_business_credit_cards_business_plati)
+    'Public'  (doc_business_credit_cards_business_plati)
+    'Regus'  (doc_business_credit_cards_business_bronz)
+    'Returned'  (doc_credit_cards_silver_rewards_card_002)
+    'Returns'  (doc_credit_cards_ecocard_009.json)
+    'Rippling'  (doc_business_credit_cards_business_bronz)
+    'SAP Concur'  (doc_business_credit_cards_business_silve)
+    'Skillshare'  (doc_business_credit_cards_business_silve)
+    'Telecom'  (doc_business_credit_cards_business_plati)
+    'Telecommunications'  (doc_credit_cards_silver_rewards_card_004)
+    'Track'  (doc_credit_cards_ecocard_009.json)
+    'Transaction'  (doc_credit_cards_credit_cards_(general)_)
+    'Traveling'  (doc_checking_accounts_purple_account_006)
+    'Udemy'  (doc_business_credit_cards_business_silve)
+    'Vacation'  (doc_credit_cards_silver_rewards_card_003)
+    'Walmart'  (doc_credit_cards_ecocard_004.json)
+    'Xbox Game Pass'  (doc_business_credit_cards_business_silve)
+
+[검증] 실측 사례 분류:
+    Target - Eco Collection: {"merchant": "Target - Eco Collection", "head": "target", "full_in_corpus": false, "bridge_ngram": "target", "head_in_exclusion": true, "full_in_exclusion": false}
+    Microsoft 365: {"merchant": "Microsoft 365", "head": "microsoft", "full_in_corpus": false, "bridge_ngram": "microsoft", "head_in_exclusion": true, "full_in_exclusion": false}
+    Thrive Market: {"merchant": "Thrive Market", "head": "thrive", "full_in_corpus": false, "bridge_ngram": null, "head_in_exclusion": false, "full_in_exclusion": false}
+    ThredUp: {"merchant": "ThredUp", "head": "thredup", "full_in_corpus": true, "bridge_ngram": "thredup", "head_in_exclusion": true, "full_in_exclusion": true}
+
+JSON → /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/sim_results/x28_merchant_census_20260801.json

@@ -1,0 +1,1211 @@
+{
+ "rows": [
+  {
+   "merchant": "ACME Markets",
+   "head": "acme",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "AMC Theatres",
+   "head": "amc",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "AT&T",
+   "head": "at",
+   "full_in_corpus": true,
+   "bridge_ngram": "at t",
+   "head_in_exclusion": false,
+   "full_in_exclusion": true
+  },
+  {
+   "merchant": "AT&T Business",
+   "head": "at",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "AWS",
+   "head": "aws",
+   "full_in_corpus": true,
+   "bridge_ngram": "aws",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Adobe Creative Cloud",
+   "head": "adobe",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Alaska Airlines",
+   "head": "alaska",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Allbirds",
+   "head": "allbirds",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Amazon",
+   "head": "amazon",
+   "full_in_corpus": true,
+   "bridge_ngram": "amazon",
+   "head_in_exclusion": true,
+   "full_in_exclusion": true
+  },
+  {
+   "merchant": "American Airlines",
+   "head": "american",
+   "full_in_corpus": false,
+   "bridge_ngram": "american",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Apple Store",
+   "head": "apple",
+   "full_in_corpus": false,
+   "bridge_ngram": "apple",
+   "head_in_exclusion": true,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Atlassian",
+   "head": "atlassian",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Avis Car Rental",
+   "head": "avis",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Barnes & Noble",
+   "head": "barnes",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Best Buy",
+   "head": "best",
+   "full_in_corpus": false,
+   "bridge_ngram": "best",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Bloomingdale's",
+   "head": "bloomingdale",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Budget Car Rental",
+   "head": "budget",
+   "full_in_corpus": false,
+   "bridge_ngram": "budget",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "CVS Pharmacy",
+   "head": "cvs",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Chipotle",
+   "head": "chipotle",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Coinbase",
+   "head": "coinbase",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Columbia Sportswear",
+   "head": "columbia",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Comcast",
+   "head": "comcast",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "ConEdison",
+   "head": "conedison",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Costco",
+   "head": "costco",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Costco Business",
+   "head": "costco",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Coursera",
+   "head": "coursera",
+   "full_in_corpus": true,
+   "bridge_ngram": "coursera",
+   "head_in_exclusion": true,
+   "full_in_exclusion": true
+  },
+  {
+   "merchant": "Courtyard by Marriott",
+   "head": "courtyard",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "DHL",
+   "head": "dhl",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "DTE Energy",
+   "head": "dte",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Datadog",
+   "head": "datadog",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Dell",
+   "head": "dell",
+   "full_in_corpus": true,
+   "bridge_ngram": "dell",
+   "head_in_exclusion": true,
+   "full_in_exclusion": true
+  },
+  {
+   "merchant": "Dell Technologies",
+   "head": "dell",
+   "full_in_corpus": false,
+   "bridge_ngram": "dell",
+   "head_in_exclusion": true,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Delta Airlines",
+   "head": "delta",
+   "full_in_corpus": false,
+   "bridge_ngram": "delta",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Delta Sky Club",
+   "head": "delta",
+   "full_in_corpus": false,
+   "bridge_ngram": "delta sky",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Departure Restaurant",
+   "head": "departure",
+   "full_in_corpus": false,
+   "bridge_ngram": "departure",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Eileen Fisher",
+   "head": "eileen",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Electronics Express Miami",
+   "head": "electronics",
+   "full_in_corpus": false,
+   "bridge_ngram": "electronics",
+   "head_in_exclusion": true,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Enterprise Rent-A-Car",
+   "head": "enterprise",
+   "full_in_corpus": false,
+   "bridge_ngram": "enterprise",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Everlane",
+   "head": "everlane",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Expedia",
+   "head": "expedia",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Facebook Ads",
+   "head": "facebook",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "FedEx",
+   "head": "fedex",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Figma",
+   "head": "figma",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "GamerZone LA",
+   "head": "gamerzone",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "GitHub Enterprise",
+   "head": "github",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Google Ads",
+   "head": "google",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Grainger",
+   "head": "grainger",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "HBO Max",
+   "head": "hbo",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Hertz Car Rental",
+   "head": "hertz",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Hilton Chicago",
+   "head": "hilton",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Hilton Hotels",
+   "head": "hilton",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Hilton Seattle",
+   "head": "hilton",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Home Depot",
+   "head": "home",
+   "full_in_corpus": false,
+   "bridge_ngram": "home",
+   "head_in_exclusion": true,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Hyatt Hotels",
+   "head": "hyatt",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Hyatt Regency",
+   "head": "hyatt",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "JetBlue Airways",
+   "head": "jetblue",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "JetBrains",
+   "head": "jetbrains",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Le Bernardin",
+   "head": "le",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "LinkedIn Ads",
+   "head": "linkedin",
+   "full_in_corpus": false,
+   "bridge_ngram": "linkedin",
+   "head_in_exclusion": true,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Lloyd Center",
+   "head": "lloyd",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Love's Travel Stop",
+   "head": "love",
+   "full_in_corpus": false,
+   "bridge_ngram": "love",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Marriott Bonvoy",
+   "head": "marriott",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Marriott Hotels",
+   "head": "marriott",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "McMenamins",
+   "head": "mcmenamins",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Microsoft 365",
+   "head": "microsoft",
+   "full_in_corpus": false,
+   "bridge_ngram": "microsoft",
+   "head_in_exclusion": true,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Morton's The Steakhouse",
+   "head": "morton",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Multnomah Athletic Club",
+   "head": "multnomah",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "National Car Rental",
+   "head": "national",
+   "full_in_corpus": false,
+   "bridge_ngram": "national",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Neiman Marcus",
+   "head": "neiman",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Netflix",
+   "head": "netflix",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "New Relic",
+   "head": "new",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "New Seasons Market",
+   "head": "new",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Newegg",
+   "head": "newegg",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Nike Portland",
+   "head": "nike",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Nobu Restaurant",
+   "head": "nobu",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Nordstrom",
+   "head": "nordstrom",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Notion",
+   "head": "notion",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Office Depot",
+   "head": "office",
+   "full_in_corpus": false,
+   "bridge_ngram": "office",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Olive Garden",
+   "head": "olive",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "PECO Energy",
+   "head": "peco",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "PagerDuty",
+   "head": "pagerduty",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Panera Bread",
+   "head": "panera",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Patagonia",
+   "head": "patagonia",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Per Se",
+   "head": "per",
+   "full_in_corpus": true,
+   "bridge_ngram": "per se",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Philadelphia International Airport Parking",
+   "head": "philadelphia",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Philadelphia Museum of Art",
+   "head": "philadelphia",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Pilot Flying J",
+   "head": "pilot",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Pok Pok Restaurant",
+   "head": "pok",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Portland Art Museum",
+   "head": "portland",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Portland General Electric",
+   "head": "portland",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Powell's Books",
+   "head": "powell",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Providence Health",
+   "head": "providence",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "REI Co-op",
+   "head": "rei",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Reading Terminal Market",
+   "head": "reading",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Reformation",
+   "head": "reformation",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Ruth's Chris Steak House",
+   "head": "ruth",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Saks Fifth Avenue",
+   "head": "saks",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Salesforce",
+   "head": "salesforce",
+   "full_in_corpus": true,
+   "bridge_ngram": "salesforce",
+   "head_in_exclusion": true,
+   "full_in_exclusion": true
+  },
+  {
+   "merchant": "Salt & Straw",
+   "head": "salt",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Screen Door Restaurant",
+   "head": "screen",
+   "full_in_corpus": false,
+   "bridge_ngram": "screen",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Seventh Generation",
+   "head": "seventh",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Shake Shack",
+   "head": "shake",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Shake Shack Philadelphia",
+   "head": "shake",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Shell Gas Station",
+   "head": "shell",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Slack Technologies",
+   "head": "slack",
+   "full_in_corpus": false,
+   "bridge_ngram": "slack",
+   "head_in_exclusion": true,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Southwest Airlines",
+   "head": "southwest",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Spirit Airlines",
+   "head": "spirit",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Spotify",
+   "head": "spotify",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Sprouts Farmers Market",
+   "head": "sprouts",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Staples",
+   "head": "staples",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Starbucks",
+   "head": "starbucks",
+   "full_in_corpus": true,
+   "bridge_ngram": "starbucks",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Stumptown Coffee",
+   "head": "stumptown",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Sushi Kashiba",
+   "head": "sushi",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Target",
+   "head": "target",
+   "full_in_corpus": true,
+   "bridge_ngram": "target",
+   "head_in_exclusion": true,
+   "full_in_exclusion": true
+  },
+  {
+   "merchant": "Target - Eco Collection",
+   "head": "target",
+   "full_in_corpus": false,
+   "bridge_ngram": "target",
+   "head_in_exclusion": true,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "TechDirect Online",
+   "head": "techdirect",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Tentree",
+   "head": "tentree",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Tesla Supercharger",
+   "head": "tesla",
+   "full_in_corpus": true,
+   "bridge_ngram": "tesla supercharger",
+   "head_in_exclusion": true,
+   "full_in_exclusion": true
+  },
+  {
+   "merchant": "The Capital Grille",
+   "head": "the",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "The Cheesecake Factory",
+   "head": "the",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "ThredUp",
+   "head": "thredup",
+   "full_in_corpus": true,
+   "bridge_ngram": "thredup",
+   "head_in_exclusion": true,
+   "full_in_exclusion": true
+  },
+  {
+   "merchant": "Thrive Market",
+   "head": "thrive",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Tiffany & Co.",
+   "head": "tiffany",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Trader Joe's",
+   "head": "trader",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Twilio",
+   "head": "twilio",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Twitter Ads",
+   "head": "twitter",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "UPS",
+   "head": "ups",
+   "full_in_corpus": true,
+   "bridge_ngram": "ups",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Uber",
+   "head": "uber",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Uline",
+   "head": "uline",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "United Airlines",
+   "head": "united",
+   "full_in_corpus": false,
+   "bridge_ngram": "united",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Verizon Business",
+   "head": "verizon",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "W.B. Mason",
+   "head": "w",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Walgreens",
+   "head": "walgreens",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Wawa",
+   "head": "wawa",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "WeWork",
+   "head": "wework",
+   "full_in_corpus": true,
+   "bridge_ngram": "wework",
+   "head_in_exclusion": true,
+   "full_in_exclusion": true
+  },
+  {
+   "merchant": "Whole Foods Market",
+   "head": "whole",
+   "full_in_corpus": false,
+   "bridge_ngram": "whole",
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "XFINITY",
+   "head": "xfinity",
+   "full_in_corpus": false,
+   "bridge_ngram": null,
+   "head_in_exclusion": false,
+   "full_in_exclusion": false
+  },
+  {
+   "merchant": "Zoom Video",
+   "head": "zoom",
+   "full_in_corpus": false,
+   "bridge_ngram": "zoom",
+   "head_in_exclusion": true,
+   "full_in_exclusion": false
+  }
+ ],
+ "A": [
+  "Apple Store",
+  "Dell Technologies",
+  "Electronics Express Miami",
+  "Home Depot",
+  "LinkedIn Ads",
+  "Microsoft 365",
+  "Slack Technologies",
+  "Target - Eco Collection",
+  "Zoom Video"
+ ],
+ "bridged_not_full": [
+  "American Airlines",
+  "Apple Store",
+  "Best Buy",
+  "Budget Car Rental",
+  "Dell Technologies",
+  "Delta Airlines",
+  "Delta Sky Club",
+  "Departure Restaurant",
+  "Electronics Express Miami",
+  "Enterprise Rent-A-Car",
+  "Home Depot",
+  "LinkedIn Ads",
+  "Love's Travel Stop",
+  "Microsoft 365",
+  "National Car Rental",
+  "Office Depot",
+  "Screen Door Restaurant",
+  "Slack Technologies",
+  "Target - Eco Collection",
+  "United Airlines",
+  "Whole Foods Market",
+  "Zoom Video"
+ ],
+ "collision_groups": {
+  "dell": [
+   "Dell",
+   "Dell Technologies"
+  ],
+  "delta": [
+   "Delta Airlines",
+   "Delta Sky Club"
+  ],
+  "target": [
+   "Target",
+   "Target - Eco Collection"
+  ]
+ },
+ "collision_excl": {
+  "dell": [
+   "Dell",
+   "Dell Technologies"
+  ],
+  "target": [
+   "Target",
+   "Target - Eco Collection"
+  ]
+ },
+ "alias_candidates": [
+  "Access",
+  "BNPL Bronze",
+  "Certain",
+  "ChargePoint",
+  "Concur",
+  "Dispute",
+  "EVgo",
+  "EveryonePay",
+  "Expect",
+  "Expensify",
+  "Focus",
+  "For EV",
+  "Gusto",
+  "High",
+  "HubSpot",
+  "Improve",
+  "Industrious",
+  "Invoices",
+  "LinkedIn Learning",
+  "Losses",
+  "Navan",
+  "Nintendo Switch Online",
+  "Paychex",
+  "PlayStation Plus",
+  "Pluralsight",
+  "Professional",
+  "Public",
+  "Regus",
+  "Returned",
+  "Returns",
+  "Rippling",
+  "SAP Concur",
+  "Skillshare",
+  "Telecom",
+  "Telecommunications",
+  "Track",
+  "Transaction",
+  "Traveling",
+  "Udemy",
+  "Vacation",
+  "Walmart",
+  "Xbox Game Pass"
+ ]
+}
