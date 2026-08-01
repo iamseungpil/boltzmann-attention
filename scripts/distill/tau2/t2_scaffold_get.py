@@ -77,10 +77,15 @@ def _tok_in(needle_n, hay_n):
 
 
 def _quote_pin_check(qp, v, r, quote_f, quote_min, docnorm):
-    """★C278 pin_kind 라우팅(QUOTE_GROUND_PINKIND_REDESIGN_2026_08_01 §2b). 순수함수=단위테스트 공유.
-    LLM이 선언한 핀(policy_field)·종류(kind_field)에 **종류별 닫힌 필요조건만** 검사한다 — 브랜드-됨·
-    범주 소속 같은 의미 판단은 하지 않는다([[22]] 근거-우선 계약·검증=필요조건 자인). 필드명 전부
-    A2 선언(엔진 리터럴 0). 반환 (verdict, info): verdict ∈ pass|category|reject|kind_missing."""
+    """★C279 pin_kind 라우팅 + **식별표 멤버십**(정본 = QUOTE_GROUND_PINKIND_REDESIGN rev2 §8b).
+    순수함수=단위테스트 공유. LLM이 선언한 핀(policy_field)·종류(kind_field)에 **닫힌 필요조건만**:
+      ⑴ quote가 주입 문서의 축자인가(날조 차단)  ⑵ 핀이 그 quote에서 복사된 것인가(복사 검증)
+      ⑶ **A2 `policy_group_rows`(유한 열거) 멤버십** — 지시 동일성 판단은 *저작 시점*에 1회 끝났고
+         런타임은 집합 조회만 한다. 유사도·접두·포함 대조 **전부 없음**(C279 ⒜: 그 부류는 코퍼스-우연
+         필요조건이라 4연속 기각됨).
+    ⑶의 결과는 셋으로 갈린다(§8b ⒢-1): 행∈집합=pass / 키는 있는데 행∉(공집합 포함)=**판단된 무대응**
+    =reject_member / 키 자체가 없음=**표 공백**=lookup_missing(재질의→abstain+갱신 신호).
+    반환 (verdict, info): pass|category|reject|reject_member|lookup_missing|kind_missing."""
     q = str((v or {}).get(quote_f) or "").strip()
     if not q:
         return "pass", None                       # 강등형 아님(quote 없음) → 라우팅 대상 아님
@@ -89,21 +94,26 @@ def _quote_pin_check(qp, v, r, quote_f, quote_min, docnorm):
         return "reject", {"why": "quote_unverbatim"}
     kind = str((v or {}).get(str(qp.get("kind_field") or "")) or "").strip().lower()
     pin = str((v or {}).get(str(qp.get("policy_field") or "")) or "").strip()
-    if kind == "category":
-        return "category", {"pin": pin or q[:60]}
-    if kind != "named_merchant":                  # 결측·열거 밖(오타)=동일 취급(§2b 발견 6)
+    if kind not in ("named_merchant", "category"):   # 결측·열거 밖(오타)=동일 취급(발견 6)
         return "kind_missing", {"kind": kind, "pin": pin}
     pn = _norm_ground(pin)
-    rown = _norm_ground(str((r or {}).get(str(qp.get("row_field") or "")) or ""))
-    if not pn or not _tok_in(pn, qn):
+    if not pn or not _tok_in(pn, qn):                # 복사 검증(핀↔quote·둘 다 LLM 산출/원문)
         return "reject", {"why": "pin_not_in_quote", "pin": pin}
-    # R5 선행-앵커(A2 선언 시만·코퍼스 경험 규칙). ★raw startswith 금지 — 'target'이
-    # 'targeting solutions'에 매칭된다(C276★① 부분-단어 매칭·단위테스트가 실제로 잡음).
-    anchored = ((rown == pn or rown.startswith(pn + " "))
-                if str(qp.get("pin_anchor") or "") == "leading" else _tok_in(pn, rown))
-    if not anchored:
-        return "reject", {"why": "pin_row_mismatch", "pin": pin}
-    return "pass", {"pin": pin}
+    tbl = qp.get("policy_group_rows")
+    if not isinstance(tbl, dict):                    # 표 미선언 = rev1 거동(멤버십 검사 없음)
+        return ("category" if kind == "category" else "pass"), {"pin": pin}
+    rows = None
+    for k, vs in tbl.items():                        # 키 대조 = norm 정확-동등(포함 아님·§8b ⒢-3)
+        if _norm_ground(k) == pn:
+            rows = vs or []
+            break
+    if rows is None:
+        # 표 공백. category = 열거 없는 산문 범주 ⇒ R2 그대로(통과+마크·열린 잔여).
+        return ("category", {"pin": pin}) if kind == "category" else ("lookup_missing", {"pin": pin})
+    rown = _norm_ground(str((r or {}).get(str(qp.get("row_field") or "")) or ""))
+    if rown and any(_norm_ground(x) == rown for x in rows):
+        return "pass", {"pin": pin}
+    return "reject_member", {"pin": pin}
 
 
 def _qp_note(tpl, info, row, qp):
@@ -675,15 +685,21 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
                 for tid0, r0 in _rowof.items():
                     qp_verdicts[tid0] = _quote_pin_check(qp, got.get(tid0) or {}, r0,
                                                          quote_f, _qmin, docnorm)
-                _bad = [t0 for t0, (vd0, _) in qp_verdicts.items()
-                        if vd0 in ("reject", "kind_missing")
+                # 재질의 대상(§8b ⒢-2·R4) = 조각-복사·오타·미선언처럼 **고쳐 쓸 수 있는** 것만.
+                #   `reject_member`(판단된 무대응)·`quote_unverbatim`(날조)은 확정이라 재질의 안 한다.
+                _RETRY_V = ("lookup_missing", "kind_missing")
+                _bad = [t0 for t0, (vd0, i0) in qp_verdicts.items()
+                        if (vd0 in _RETRY_V
+                            or (vd0 == "reject" and (i0 or {}).get("why") == "pin_not_in_quote"))
                         and (got.get(t0) or {}).get(rate_f) is not None]
-                if _bad and qp.get("retry_prompt"):
-                    _fb = "\n".join("- %s: %s" % (t0, _qp_note(qp.get("reject_note"),
-                                                               qp_verdicts[t0][1], _rowof[t0], qp))
-                                    for t0 in _bad)
+                _rp = qp.get("lookup_retry_prompt") or qp.get("retry_prompt")
+                if _bad and _rp:
+                    _fb = "\n".join("- %s: %s" % (t0, _qp_note(
+                        qp.get("lookup_note") if qp_verdicts[t0][0] == "lookup_missing"
+                        else qp.get("reject_note"), qp_verdicts[t0][1], _rowof[t0], qp))
+                        for t0 in _bad)
                     extra2 = "\n\n\u2605FEEDBACK on item(s) %s:\n%s\n%s" % (
-                        ", ".join(_bad), _fb, qp["retry_prompt"])
+                        ", ".join(_bad), _fb, _rp)
                     try:
                         um3 = UserMessage(role="user", content=prompt + extra2)
                     except TypeError:
@@ -722,10 +738,12 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
                     # ★C278 판정 적용: reject/kind_missing=rate 드롭+사유 표면화(A2 reject_note) /
                     #   category=rate 유지+마크 표면화(A2 category_note·R2 "통과+마크") / pass=무개입.
                     _vd, _inf = qp_verdicts.get(tid, ("pass", None))
-                    if _vd in ("reject", "kind_missing") and merged.get(rate_f) is not None:
+                    if _vd in ("reject", "reject_member", "lookup_missing", "kind_missing") \
+                            and merged.get(rate_f) is not None:
                         merged.pop(rate_f, None)
-                        _note = _qp_note(qp.get("reject_note"), _inf, r, qp)
-                        getattr(orch, "_t2_qp_notes", []).append(_note)
+                        _tpl = {"reject_member": qp.get("member_note"),
+                                "lookup_missing": qp.get("lookup_note")}.get(_vd) or qp.get("reject_note")
+                        getattr(orch, "_t2_qp_notes", []).append(_qp_note(_tpl, _inf, r, qp))
                         print("[T2_SG_ISOLATE] quote-pin %s: %s(%s) → rate 드롭(abstain)"
                               % (_vd, tid, str((_inf or {}).get("pin") or (_inf or {}).get("why") or "")[:40]),
                               file=_sys.stderr, flush=True)

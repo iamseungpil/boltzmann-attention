@@ -55,10 +55,19 @@ DOC = ("what is excluded from the higher sustainability points rate on ecocard "
        "gaming subscription merchants software exclusion xbox game pass playstation plus "
        "online learning platform merchants software exclusion linkedin learning skillshare pluralsight "
        "hardware electronics merchants software exclusion apple microsoft dell "
-       "grocery markets are excluded from the bonus rate")
+       "grocery markets are excluded from the bonus rate "
+       "vacation rentals or home sharing platforms coded under real estate do not qualify")
+# rev2(C279): 식별표 멤버십. 표 내용은 A2 저작분의 부분집합(케이스 검정용).
+TBL = {"Target": ["Target", "Target - Eco Collection"], "ThredUp": ["ThredUp"],
+       "Microsoft": ["Microsoft 365"], "Dell": ["Dell", "Dell Technologies"],
+       "LinkedIn Learning": [],                       # 판단된 무대응(LinkedIn Ads=광고·비-학습플랫폼)
+       "Thrift and Resale Markets": ["ThredUp"],
+       "General Retailers": ["Target", "Target - Eco Collection", "Amazon"]}
 QP = {"policy_field": "exclusion_policy_merchant", "kind_field": "exclusion_pin_kind",
-      "row_field": "merchant_name", "pin_anchor": "leading",
+      "row_field": "merchant_name", "policy_group_rows": TBL,
       "reject_note": "the policy text you quoted names '{pin}', but this row's merchant is '{merchant}'.",
+      "member_note": "the policy group '{pin}' does not list '{merchant}' among its members.",
+      "lookup_note": "'{pin}' is not a name this policy lists.",
       "category_note": "category-based exclusion ('{pin}') applied to '{merchant}' — membership unverified."}
 
 
@@ -79,18 +88,19 @@ def main():
     chk(v == "pass", "C2 Microsoft 365 → pass")
 
     v, i = V("Thrift and Resale Markets ThredUp", "ThredUp", "named_merchant", "Thrive Market")
-    chk(v == "reject" and i["why"] == "pin_row_mismatch",
-        "C3 019형(ThredUp → Thrive Market): 드롭 유지")
+    chk(v == "reject_member", "C3 019형(ThredUp → Thrive Market): 표에 비-구성원 → 드롭 유지")
+    v, _ = V("Thrift and Resale Markets ThredUp", "Thrift and Resale Markets", "category", "Thrive Market")
+    chk(v == "reject_member",
+        "C3b ★범주로 선언해도 막힌다 — 그 그룹 구성원은 {ThredUp}뿐(⒞ 그룹-키 표)")
 
     v, i = V("Hardware Electronics Merchants Software Exclusion Apple Microsoft Dell",
              "Dell", "named_merchant", "Delta Sky Club")
-    chk(v == "reject" and i["why"] == "pin_row_mismatch",
-        "C4 Delta: 핀 'Dell'이 행의 선행 토큰 아님 → 드롭 (사유까지 검정)")
+    chk(v == "reject_member", "C4 Delta: 'Dell' 구성원 집합에 Delta Sky Club 없음 → 드롭 (다른 회사)")
 
     v, i = V("grocery markets are excluded from the bonus rate",
              "markets", "named_merchant", "Thrive Market")
-    chk(v == "reject" and i["why"] == "pin_row_mismatch",
-        "C5 ★R5 앵커: 범주어 'markets'는 'Thrive Market'의 비선행 → 드롭+재질의 (false-apply 봉쇄)")
+    chk(v == "lookup_missing",
+        "C5 범주어 핀 'markets': 표에 없는 키 → 조회 실패 → 재질의→abstain (false-apply 없음)")
 
     v, i = V("Gaming Subscription Merchants (Software Exclusion)",
              "Gaming Subscription Merchants", "category", "Xbox Game Pass")
@@ -108,16 +118,25 @@ def main():
 
     v, _ = V("General Retailers even for eco-friendly product purchases Target",
              "Target", "named_merchant", "Targeting Solutions Inc")
-    chk(v == "reject",
-        "C6b ★토큰-경계: 'Target' ⊄ 'Targeting…' (raw substring이면 오통과 — C276★① 교훈)")
+    chk(v == "reject_member",
+        "C6b ★'Targeting Solutions'는 Target 구성원 집합에 없음 (앵커 시절 오통과했던 케이스)")
 
     v, _ = V("", "", "", "Target - Eco Collection")
     chk(v == "pass", "quote 없음(비-강등형) → 라우팅 대상 아님")
 
-    v, i = V("LinkedIn Learning Skillshare Pluralsight",
+    v, _ = V("Online Learning Platform Merchants (Software Exclusion) LinkedIn Learning Skillshare Pluralsight",
+             "LinkedIn Learning", "named_merchant", "LinkedIn Ads")
+    chk(v == "reject_member",
+        "C11 ★rev2서 닫힘: 'LinkedIn Learning'→[] (판단된 무대응) ⇒ LinkedIn Ads 차단")
+    v, _ = V("Online Learning Platform Merchants (Software Exclusion) LinkedIn Learning Skillshare Pluralsight",
              "LinkedIn", "named_merchant", "LinkedIn Ads")
-    chk(v == "pass",
-        "C11 ⚠잔여(설계서 §5-11 기재대로): 부분-핀 'LinkedIn'은 통과한다 — 닫힌 검사로 못 막음·표면화·Δ계측 몫")
+    chk(v == "lookup_missing",
+        "C11b 조각-복사 'LinkedIn': 표에 없는 키 → 재질의(‘WHOLE name’)→abstain")
+
+    v, _ = V("Vacation rentals or home-sharing platforms coded under real estate do not qualify",
+             "home-sharing platforms", "category", "Airbnb Stay")
+    chk(v == "category",
+        "C12 ★열거 없는 산문 범주 = 표 키 없음 → category 경로 유지(R2·열린 잔여 정직 보존)")
 
     print("\n② §2c 결핍 필드 출처 분리 (R3 버그픽스·발견 5 엣지):")
     iso = {"row_fields": ["account_open", "transaction_amount"],
@@ -141,7 +160,7 @@ def main():
         "row_fields": ["transaction_id", "credit_card_type", "merchant_name"],
         "inject_docs": True, "rate_field": "base_rate", "quote_field": "exclusion_quote", "quote_min": 8,
         "quote_must_contain_field": "merchant_name",
-        "quote_pin": dict(QP, retry_prompt="Re-check and declare kind."),
+        "quote_pin": dict(QP, lookup_retry_prompt="Copy the WHOLE name.", retry_prompt="Re-check and declare kind."),
         "operand_schema": {"base_rate": "<n>", "exclusion_quote": "<s>",
                            "exclusion_policy_merchant": "<s>", "exclusion_pin_kind": "<s>"},
         "inject_instructions": "{group}\n{docs}\n{items}\n{schema}",
@@ -181,10 +200,10 @@ def main():
     chk("exclusion_policy_merchant" not in r["t1"] and "exclusion_pin_kind" not in r["t1"],
         "ON: 핀/종류는 op operand서 제외(grounding 전용)")
     chk("sg_inject_retry" in calls, "ON: guard-불성립 행 → 재질의 1회 발화 (R4)")
-    chk(r["t2"].get("base_rate") == 1, "ON C5→C6: 범주어 핀이 재질의 후 category 재선언 → 회수")
+    chk(r["t2"].get("base_rate") == 1, "ON C5→C6: 조회 실패 핀이 재질의 후 category 재선언 → 회수")
     chk(any("category-based" in n for n in orch._t2_qp_notes) if orch._t2_qp_notes else False,
         "ON: category 마크 표면화됨")
-    chk("base_rate" not in r["t3"], "ON C3: 019형은 재질의 후에도 드롭 유지 (false-apply 차단)")
+    chk("base_rate" not in r["t3"], "ON C3: 표 비-구성원은 재질의 후에도 드롭 유지 (false-apply 차단)")
 
     r2, _ = run("0")
     chk("base_rate" not in r2["t1"], "OFF: C197 경로 불변(ba8b형 드롭 = 현행 거동 보존)")

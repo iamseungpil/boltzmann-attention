@@ -564,12 +564,120 @@
        "policy_field": "exclusion_policy_merchant",
        "kind_field": "exclusion_pin_kind",
        "row_field": "merchant_name",
-       "pin_anchor": "leading",
        "reject_note": "the policy text you quoted names '{pin}', but this row's merchant is '{merchant}' — the mapping was rejected and this row's rate was NOT applied.",
        "retry_prompt": "Re-check the flagged item(s): copy the merchant name exactly and COMPLETELY as the policy sentence names it into exclusion_policy_merchant, or if the exclusion is by TYPE of merchant/purchase, set exclusion_pin_kind='category'. Reply with the corrected JSON for the flagged item(s) only.",
        "category_note": "category-based exclusion ('{pin}') was applied to merchant '{merchant}' — merchant membership in that category is the specialist's judgment and was NOT verified against a named-merchant list.",
        "unverified_note": "could not be verified from the reward-rate policy documents; those rows remain UNVERIFIED. Do NOT supply rates or promo values yourself — tell the customer which transactions could not be checked.",
-       "_note_quote_pin": "C278(QUOTE_GROUND_PINKIND_REDESIGN_2026_08_01·리뷰 반영): C197 quote_must_contain_field의 false-abstain(C275·C276 6종) 수정. LLM이 핀+종류를 선언·엔진은 종류별 닫힌 필요조건 라우팅만(named=축자 포함+선행 앵커·category=등가 미적용+표면화). [[23]] 출처: 'Target'/'General Retailers'=doc_credit_cards_ecocard_004 축자('### General Retailers (even for eco-friendly product purchases)'·'- Target')·'Gaming Subscription Merchants'=doc_business_credit_cards_business_silver_rewards_card_005 축자('**Gaming Subscription Merchants (Software Exclusion):**')·gold 경유 0. pin_anchor=leading은 이 코퍼스 경험 규칙(x28: 선행다리 전부 브랜드·비선행 35 전부 범주어) — 비선행 별칭 실재 ABox는 미선언으로 해제. T2_QUOTE_PIN=1일 때만 발화·OFF=C197 경로 불변."
+       "_note_quote_pin": "C278(QUOTE_GROUND_PINKIND_REDESIGN_2026_08_01·리뷰 반영): C197 quote_must_contain_field의 false-abstain(C275·C276 6종) 수정. LLM이 핀+종류를 선언·엔진은 종류별 닫힌 필요조건 라우팅만(named=축자 포함+선행 앵커·category=등가 미적용+표면화). [[23]] 출처: 'Target'/'General Retailers'=doc_credit_cards_ecocard_004 축자('### General Retailers (even for eco-friendly product purchases)'·'- Target')·'Gaming Subscription Merchants'=doc_business_credit_cards_business_silver_rewards_card_005 축자('**Gaming Subscription Merchants (Software Exclusion):**')·gold 경유 0. pin_anchor=leading은 이 코퍼스 경험 규칙(x28: 선행다리 전부 브랜드·비선행 35 전부 범주어) — 비선행 별칭 실재 ABox는 미선언으로 해제. T2_QUOTE_PIN=1일 때만 발화·OFF=C197 경로 불변.",
+       "policy_group_rows": {
+        "WeWork": [
+         "WeWork"
+        ],
+        "Regus": [],
+        "Industrious": [],
+        "Gusto": [],
+        "ADP": [],
+        "Paychex": [],
+        "Rippling": [],
+        "Slack": [
+         "Slack Technologies"
+        ],
+        "Zoom": [
+         "Zoom Video"
+        ],
+        "HubSpot": [],
+        "Salesforce": [
+         "Salesforce"
+        ],
+        "Concur": [],
+        "SAP Concur": [],
+        "Expensify": [],
+        "Navan": [],
+        "Apple": [
+         "Apple Store"
+        ],
+        "Microsoft": [
+         "Microsoft 365"
+        ],
+        "Dell": [
+         "Dell",
+         "Dell Technologies"
+        ],
+        "Xbox Game Pass": [],
+        "PlayStation Plus": [],
+        "Nintendo Switch Online": [],
+        "Coursera": [
+         "Coursera"
+        ],
+        "Udemy": [],
+        "LinkedIn Learning": [],
+        "Skillshare": [],
+        "Pluralsight": [],
+        "Target": [
+         "Target",
+         "Target - Eco Collection"
+        ],
+        "Walmart": [],
+        "Amazon": [
+         "Amazon"
+        ],
+        "ThredUp": [
+         "ThredUp"
+        ],
+        "Coworking Space Merchants": [
+         "WeWork"
+        ],
+        "Payroll Processor Merchants": [],
+        "SaaS Subscriptions": [
+         "Slack Technologies",
+         "Zoom Video",
+         "Salesforce"
+        ],
+        "SaaS Subscriptions (after first 12 months on the card)": [
+         "Slack Technologies",
+         "Zoom Video",
+         "Salesforce"
+        ],
+        "Corporate Expense Platform Merchants": [],
+        "Corporate Expense Platform Merchants (Travel Exclusion)": [],
+        "Hardware/Electronics Merchants": [
+         "Apple Store",
+         "Microsoft 365",
+         "Dell",
+         "Dell Technologies"
+        ],
+        "Hardware/Electronics Merchants (Software Exclusion)": [
+         "Apple Store",
+         "Microsoft 365",
+         "Dell",
+         "Dell Technologies"
+        ],
+        "Gaming Subscription Merchants": [],
+        "Gaming Subscription Merchants (Software Exclusion)": [],
+        "Online Learning Platform Merchants": [
+         "Coursera"
+        ],
+        "Online Learning Platform Merchants (Software Exclusion)": [
+         "Coursera"
+        ],
+        "General Retailers": [
+         "Target",
+         "Target - Eco Collection",
+         "Amazon"
+        ],
+        "General Retailers (even for eco-friendly product purchases)": [
+         "Target",
+         "Target - Eco Collection",
+         "Amazon"
+        ],
+        "Thrift and Resale Markets": [
+         "ThredUp"
+        ]
+       },
+       "lookup_retry_prompt": "The name you copied is not one of the merchant/group names this policy actually lists. Copy the WHOLE name exactly as the policy bullet or heading writes it, or set exclusion_pin_kind='category' if the exclusion is stated only as a description with no list of members. Reply with the corrected JSON for the flagged item(s) only.",
+       "lookup_note": "'{pin}' is not a name this policy lists, so the exclusion could not be resolved and this row's rate was NOT applied — the row is UNVERIFIED.",
+       "member_note": "the policy group '{pin}' does not list '{merchant}' among its members, so the exclusion was not applied to this row.",
+       "_note_policy_group_rows": "[[23]] 신범주 **운영자 지식** — 사용자 승인 2026-08-01(C279 ⑦). 출처 = 정책 제외-불릿/제목(env 축자) × 거래 카탈로그 merchant_name(env) + 업체 동일성 세계지식. **gold 미열람**. 저작 = 30 불릿 전수 × 카탈로그 138 전수를 판단으로 대조(접두·유사도 규칙 미사용 — C279 ⑥ 자기 플래그: 기계 산출 목록을 데이터로 동결하지 않기 위함). 대응 없는 불릿은 **[]로 명시**(=판단된 무대응·조회 실패와 결정론 구분). ★판단 근거 기록(접두로는 반대로 나오는 것들): (a) `LinkedIn Learning`→[] — 카탈로그 `LinkedIn Ads`는 광고 상품이라 'Online Learning Platform'이 아니다(접두 규칙이면 오적용). (b) `Dell`→[Dell, Dell Technologies]이되 `Delta Airlines`/`Delta Sky Club`은 **다른 회사**(Delta Air Lines)라 제외. (c) `Amazon`→[Amazon]만; `AWS`는 클라우드 인프라라 'General Retailers'가 아니다. (d) `ThredUp`→[ThredUp]만; `Thrive Market`(유기농 식료품)·`New Seasons Market`·`Sprouts Farmers Market`·`ACME Markets`·`Reading Terminal Market`는 중고·리세일 업체가 아니다 — **019 오적용의 정본 차단점**. (e) `Hardware/Electronics Merchants`는 정책이 구성원을 **열거**하므로 `Electronics Express Miami`는 비-구성원(열거형 제외는 목록이 외연을 정한다). (f) `Apple`→[Apple Store]·`Microsoft`→[Microsoft 365]·`Slack`→[Slack Technologies]·`Zoom`→[Zoom Video]·`Target`→[Target, Target - Eco Collection](ecocard_004 축자: eco 라벨 상품도 표준 요율). 제목 키는 전체형+괄호 앞 단축형 2종(서브가 어느 쪽을 복사해도 결정론 해소). ★갱신 규율: 갱신 신호는 **표면화된 abstain 로그(조회 실패)→env 재판단**으로만. **라이브 gold-diff를 갱신 근거로 쓰는 것은 [[23]] 위반**이다."
       }
      },
      "_note_isolate": "2026-07-18 NIGHT+ · `RATE_SUBAGENT_DESIGN §2b` LOCK(사용자): operand는 격리 서브가 부하 없이 산출해 리턴한다. 메인은 원시 레코드만 넘기고(params), 격리 서브가 KB를 직접 검색(getter_tools·1라운드 required)해 base_rate/promo를 formalize·엔진이 날짜+곱셈. 엔진 리터럴 0([[05]])·도구명/질의/계약문 전부 A2. T2_SG_ISOLATE=1·기본 OFF."
