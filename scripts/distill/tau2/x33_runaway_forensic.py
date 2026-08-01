@@ -13,6 +13,23 @@
   R3 재호출 사이에 도구 **출력이 달라졌나**(=진전 있음) / 같은 출력을 받고도 또 부르나
   R4 재호출 직전에 **엔진 피드백**(표면화 메시지)이 있었나 = 지시 무시(C275형)
 채점·gold 미열람. 입력 = `sim_results/*.results.json.gz` 영속본.
+
+★★자기정정 2건(2026-08-01·사용자 지적 "뭐라고 했기에 말을 안 듣나 · 프롬프트/부하 문제 아닌가"):
+  ⑴ R3 라벨 오분류 — 008을 "탐색/진전 있음"으로 셌는데, 같은 인자인데 **출력 문구만** 달랐다
+     ('logged successfully'→'Failed: record may already exist'). 진짜 구조는 고정 사이클(R6로 교체).
+  ⑵ **"스텁 무시 = soft 실패([[07]])"는 오진**이다. 궤적 정독 결과:
+     · **008 = 우리 A2 `no_record_template`이 종료 없는 루프를 *지시*한다** — "call
+       get_user_information_by_{name,email,id}, then call this tool again"인데 그 조회가 영구
+       `No records found`(손님이 DB에 없음·발화 3건 전수 확인·에이전트 날조 아님). **찾지 못했을
+       때의 분기가 없다** ⇒ 에이전트는 *순종*했다. C275 ⑤(이행 불가능한 지시)와 동형.
+     · **027 = 전혀 다른 기전** — `no_record_template` 1회·`No records found` 0회.
+       본문은 "`get_user_dispute_history_7291`을 쓰겠다"인데 `call_discoverable_agent_tool` **0회**,
+       대신 `get_user_information_by_name` **52회**. 도달 수단 부재(C154 계열의 폭주 발현).
+       스텁은 "다음 단계로 가라"만 하고 *어떻게*를 안 준다.
+     ⇒ 공통 근인은 "무시"가 아니라 **"여기서 무엇을 해야 하는지 답이 없음"**(불가능한 지시 / 지시 부재).
+  ⑶ 부하 = 방아쇠 아님·증폭기 후보. 첫 정확-재호출 시점 문맥 008=71k자·027=67k자(창의 ~40%)로
+     포화 전이고, 최종 156k/276k자는 **루프의 결과**다. 부하와 문구를 관측만으로 분리 불가 ⇒
+     분리하려면 정보-맞춘 격리 프로브([[18]]).
 """
 import argparse
 import collections
