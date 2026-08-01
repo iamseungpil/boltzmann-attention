@@ -55,9 +55,12 @@ DiaFORGE 27B가 GPT-4o를 +27pp 능가), 유인 교정(Kalai 하한은 모델 �
 | **Dr.Spider** (Chang et al., arXiv:2301.08881) | ICLR 2023 | 17 perturbation. 최강 모델도 전체 −14.0pp·최난(DBcontent-equivalence) −50.7pp. **Codex는 스키마 측엔 강하고 NL paraphrase 측엔 fine-tuned보다 약함** | **비대칭** — 스케일이 한 강건성 축을 사며 다른 축을 팖 |
 | **CFQ** (Keysers et al., arXiv:1912.09713) | ICLR 2020 | random split >95% vs MCD split <20% (전 아키텍처) | — |
 | **Furrer et al.** (arXiv:2007.08970 ⚠️arXiv-only) | preprint | **T5 5단 sweep**: MCD-mean 28.0→31.2→34.8→40.2→40.9% — 200× 파라미터에 +13pp·포화 곡선. SCAN은 비단조 | **No** — 감쇠 수익 |
-| **Qiu et al.** (arXiv:2205.12253) — ★최강 직접 증거 | EMNLP 2022 | **T5 60M→11B + PaLM 8B→540B 동일-과제 sweep**: fine-tuning은 조합 split에서 **flat/음수**(GeoQuery template: T5-small 85.8 → T5-11B 86.1). ICL은 양수(PaLM 8B 25.9→540B 74.1)나 소형 fine-tuned에 미달 | **No**(FT) / **Partially**(ICL) |
+| **Qiu et al.** (arXiv:2205.12253) — ★최강 직접 증거 | EMNLP 2022 | **T5 60M→11B + PaLM 8B→540B 동일-과제 sweep**(Table 6 전수 확보). FT flat/음수: **COGS Gen. 88.7→89.8(+1.1)** · GeoQuery Template1 85.8→86.1(**+0.3·183×**) · **CFQ MCD1 55.9→55.5(음수)**. PT는 FT보다 양의 곡선·ICL은 양수(PaLM)나 소형 FT에 미달 | **No**(FT) / **Partially**(PT·ICL) |
 | **SLOG** (Li et al., arXiv:2310.15040) | EMNLP 2023 | 구조적 일반화: 사전학습 T5 40.6% ≈ LLaMA-7B 40.1% ≈ scratch Transformer 27.1% ≪ 구조-인지 파서 70.8% | **No** — 사전학습이 구조 축에 무력 |
-| **Solid-SQL** (COLING 2025) · **ROUTE** (AAAI 2025) | — | 2025년 LLM 시스템에서도 Spider-Syn 갭 **6~11pp 잔존** (MAC-SQL 76.3→65.1) | 줄지만 0이 안 됨 |
+| **Solid-SQL** (COLING 2025·Table 1) | — | **GPT-4o-mini** 5개 시스템 전부 Spider→Syn EX **−5.3 ~ −11.3pp**(DAIL −11.3·MAC −9.4·DIN −6.0·Solid −5.3/−6.2) | 줄지만 0이 안 됨 |
+| **ROUTE** (**ICLR 2025**·Table 13) — ★논문이 pre~post 직접 보고 | — | Dr.Spider Avg.all: Llama3 69.9→58.8(**−11.1**) · +SFT 82.1→72.2(−9.9) · +SFT+MCP 85.0→74.9(−10.1) · **+ROUTE 85.5→75.8(−9.7)** | **학습을 얹어도 −9.7~−11.4에서 안 닫힘** — (a)축 최강 [S] |
+| **PURPLE** (ICDE 2024·Fig.10) | — | GPT-4 계열 Spider dev 87.8 → **Syn 74.0**(−13.8; ChatGPT 구성이면 −10.8) | frontier도 두 자릿수 잔존 |
+| ★**SQL-R1** (NeurIPS 2025·Table 4) — **동일-family 사다리** | — | Qwen2.5-Coder **3B −11.7 / 7B −10.9 / 14B −8.2** (Spider dev→Syn) | 4.7× 키워도 **좁아질 뿐 안 닫힘** |
 
 ### 의무 인용 nuance — Drozdov et al. (ICLR 2023, arXiv:2209.15003)
 
@@ -66,8 +69,14 @@ code-davinci-002 + **dynamic least-to-most 분해 scaffold**로 CFQ MCD 평균 *
 (CoT 87.2%) — 닫은 것은 스케일이 아니라 **분해 스캐폴드(method 레버)**다. ⇒ 반례가 아니라
 우리 명제(비-스케일 레버가 닫는다)의 지지 사례로 인용. [S]
 
-**(a)축 소결**: 스케일-반응적이되 **완전 폐쇄 사례는 스케일 단독으로는 미발견**. 잔여는
-method(분해)·augmentation(재표현 생성)이 닫는다.
+⚠️**Qiu 인용 시 필수 단서**: 저자 축자는 *"we generally observe flat or negative scaling curves
+when fine-tuning LMs **except on the CFQ dataset**"* — CFQ는 PaLM-62B에서 크게 오른다(MCD1 79.2).
+"FT는 flat"만 떼어 인용하면 반박당한다. 반대로 §4.2의 *"larger models are more likely to overfit
+to the training distribution"*는 우리 편 근거.
+
+**(a)축 소결**: 스케일-반응적이되 **완전 폐쇄 사례는 스케일 단독으로는 미발견**. 동일-family
+사다리(SQL-R1 3B→14B)에서도 갭은 −11.7→−8.2로 **좁아질 뿐**이고, 학습을 얹은 ROUTE도
+−9.7에서 멈춘다. 잔여는 method(분해)·augmentation(재표현 생성)이 닫는다.
 
 ---
 
@@ -90,7 +99,9 @@ method(분해)·augmentation(재표현 생성)이 닫는다.
 |---|---|
 | **CLINC150** (Larson et al., EMNLP 2019) + LLM 후속 (Wang et al., LREC-COLING 2024) | BERT: in-scope 96.9 vs OOS recall 40.3 (−56.6pp). LLM 시대에도 비대칭 유지: ChatGPT **in-scope 격차 13pp vs OOS 격차 56pp** (vs fine-tuned UniNL) |
 | **BFCL 라이브 CSV** (2026-08-01 직접 fetch) — ★동일-계열 sweep | **Qwen3 0.6B→32B: Overall +24.8pp / Irrelevance 80.8→76.4 flat** · **Llama-3.x 1B→70B: Overall +21.1pp / Irrelevance ~52 flat** · xLAM-2 부분 상승 · **Gemma-3 1b→27b: 33→74 상승(반례)** |
-| **When2Call** (Ross et al., NAACL 2025) | **Qwen2.5 7B→72B: F1 32.0→32.8 — 10배 스케일에 flat**. Llama 8B→70B 16.6→37.8(느린 상승). GPT-4o 61.3 — frontier도 천장에서 멂. 훈련(RPO)으로는 8B 31.9→52.4 (+65%). 축자: "does not necessarily improve with model size" |
+| **When2Call** (Ross et al., NAACL 2025·Table 3 원문 대조 완료) | **Qwen2.5 7B→72B: Macro-F1 32.0→32.8 — 10배 스케일에 flat**. Llama 8B→70B 16.6→37.8. **Acc-Norm 축은 스케일 효과 소멸**(8B 44.2→70B 46.1 = +1.9 / 7B 50.9→72B 49.2 = **−1.7**). **4B·8B RPO 학습본(51.0·52.4)이 Qwen 72B(32.8)를 크게 상회** = 학습 레버 > 스케일 레버 직접 증거 |
+| **ToolDial** (ICLR 2025·Table 5) — ★"묻지 않는다"의 최직접 수치 | 누락 파라미터를 되묻는 **`Request` action F1: GPT-4o 13.7% vs fine-tuned TD-Llama 44.8%**. 축자: "GPT-based models often rush to provide answers without collecting further information" |
+| **HammerBench** (arXiv:2412.16516·preprint) | **Llama-3.1 irrelevant-detection 8B 8.13% → 70B 12.49%**(붕괴 유지) vs Qwen2.5 7B 41.0 → 72B 73.09(상승) — **계열-불균일 재현** |
 | **ToolSandbox** (Apple, arXiv:2408.04682) | **역상관** — Insufficient-Information 시나리오에서 강한 모델일수록 도구·인자를 더 지어냄 |
 | **API-Bank** (EMNLP 2023) | GPT-4 오류의 **67.9% = 오도구 검색/선택** — 인자 오류(7.1%)의 ~10배 |
 | **AbstentionBench** (Meta FAIR, arXiv:2506.09038) | 20 frontier × 20 데이터셋: abstention은 **scale-flat**("scaling models is of little use") + **reasoning-RL이 −24% 악화** |
@@ -132,7 +143,7 @@ scaffold·열린 술어는 LLM+표면화)의 독립 지지 증거다. 우리 어
 
 | 레버 | 대표 실증 [S] | 효과 | 우리 대응 |
 |---|---|---|---|
-| **되묻기(clarification)** | CLAM (arXiv:2212.07769 ⚠️preprint): +20pp adjusted acc·모델 고정 / ClarifyGPT (FSE 2024): GPT-4 Pass@1 +9.8pp / Tell Me More·IN3 (ACL 2024): 불필요 subtask 22.2→1.9% | +8~20pp를 **모델 고정 하에** | ASK ([[16]]) |
+| **되묻기(clarification)** | CLAM (arXiv:2212.07769 ⚠️preprint): +20pp adjusted acc·모델 고정 / ClarifyGPT (FSE 2024): GPT-4 Pass@1 +9.8pp / Tell Me More·IN3 (ACL 2024): 불필요 subtask 22.2→1.9% / **Ask-before-Plan** (EMNLP 2024 Findings·Table 2): CEP+LLaMA-3-8B clarification acc **99.4** vs Direct 76.8·ICL(GPT-3.5) 65.7 | +8~20pp를 **모델 고정 하에** | ASK ([[16]]) |
 | **경계-타깃 훈련** | When2Call-RPO: 8B F1 +65% / DiaFORGE (SAP): 특화 Gemma-3-**27B** 89% vs GPT-4o 62% / **Mistral-Interact 7B가 GPT-4를 vagueness 판정에서 이김**(85.2 vs 82.4) | 소형 특화 > frontier | 학습 두 날개 ([00]) |
 | **분해 스캐폴드** | Drozdov (ICLR 2023): vanilla 80.8 → least-to-most 94.4 (동일 모델) | +14pp | scaffold 결정론 분담 ([[10]]) |
 | **기권/선택적 예측** | Kamath (ACL 2020): 80% 정확도 조건 coverage +8pp — 단 **트레이드**(능력을 만들지 않음) | risk-coverage 최적화 | INFER-calibration ([16] 유일 잔여) |
@@ -158,7 +169,8 @@ arXiv:2207.05221 — 큰 모델일수록 P(True) 개선), abstention **행동**�
 | DiaFORGE (arXiv:2507.03336) | 3B~70B 6단 + abstention/false-positive 분리 | **이종 family**(교란)·synonym 축 없음 |
 | Skills scaling law (arXiv:2605.16508) | inventory-routing 오류 분해·log-감쇠 법칙 | sweep 축 = library size ≠ model size |
 | T-Eval (ACL 2024) | Qwen 7B→72B 동일-family 사다리 | 분해 축이 파이프라인 단계 |
-| BFCL·When2Call | 동일-계열 flat 실측 | 매핑-부하 격리 아님·(a)/(b) 분리 안 함 |
+| BFCL·When2Call·HammerBench | 동일-계열 flat 실측 | 매핑-부하 격리 아님·(a)/(b) 분리 안 함 |
+| ★**SQL-R1** (NeurIPS 2025) — 2026-08-01 정독으로 **신규 편입** | **동일-family 사다리(Qwen2.5-Coder 3B/7B/14B) × 유사어 강건성** = (a)축 사다리의 최근접 | (b)경계 축 없음·RL-학습 시스템 사다리(base 사다리 아님)·매핑 부하와 SQL 생성 부하가 섞임 |
 
 **문구 규율**: "no published work does X" 금지 → "**no work combines (i) same-family scale
 ladder, (ii) isolated dialogue→inventory mapping load, (iii) surface-variation vs
@@ -186,13 +198,39 @@ arXiv:2304.15004) — emergence는 discontinuous metric의 인공물. 우리 pas
 | "The Art of Saying No" 서베이 | **존재하지 않음** → "Know Your Limits" (TACL 2025·구제목 "The Art of Refusal") | 환각 교정 |
 | Kuhn "CLAM" 2022 단독 연도 | v1 2022-12 / v2 2023-02 | 소소 |
 
-## §8. 인용 등급·검증 실패 목록 (정직 기록)
+## §8. 인용 등급·검증 결과 (2026-08-01 원문 정독으로 갱신)
 
-- **⚠️미검증·인용 금지**: NexusBench(정량 표 검증 실패) · Ask-before-Plan 세부 수치(abstract에
-  없음·본문 필요) · HammerBench/ToolDial(존재만 확인).
-- **⚠️venue 주의**: Furrer 2020(arXiv-only) · CLAM(preprint) · Dr.Spider "top-5%" 뱃지(2차 출처) ·
-  AbstentionBench venue(OpenReview 봇차단·arXiv로 인용) · Intent-Detection-in-the-Age-of-LLMs
-  (venue 미확정).
+### 확정 (원문·1차 출처 대조 완료)
+- **Furrer 2020 = arXiv-only 확정**(arXiv Comments 없음 + DBLP "CoRR / Informal" 단일 히트·
+  컨퍼런스 레코드 0) → **preprint로만 인용**.
+- **Dr.Spider = ICLR 2023 + "top 5% paper" 확정**(iclr.cc 공식 virtual 페이지 배지·1차 확인).
+- **AbstentionBench = NeurIPS 2025 Datasets & Benchmarks 확정**(NeurIPS 공식 poster 페이지).
+  단 **−24%는 abstention recall·2개 모델쌍(R1-Distill-Llama-70B vs Llama-3.3-70B, s1.1-32B vs
+  Qwen2.5-32B) 평균이고 본문에 표가 아닌 Figure 6(a)로만 제시** ⇒ **집계값으로만 인용·개별
+  수치 인용 금지**. Llama 8B/70B/405B 무효과도 그림뿐이라 수치 인용 불가.
+- **Intent Detection in the Age of LLMs = EMNLP 2024 Industry Track 확정**.
+- **When2Call·Ask-before-Plan·ToolDial·HammerBench = 원문 표 대조 완료** ([S] 승격).
+
+### 인용 불가 / 미확정
+- **NexusBench·NexusRaven = 학술 인용 불가**. 논문·arXiv 없음, 공식 자기인용이 blog/GitHub
+  `@misc`. "GPT-4 대비 7% 상회"는 **vendor 자기보고**([D] 고정).
+- **CLAM = archival venue 없음 확정**(DBLP "CoRR / Informal" 단일 히트). ICML 2023 워크숍
+  추정이나 명칭이 출처마다 흔들려 **미확정** → arXiv preprint으로 인용.
+- **ClarifyBench(2511.08798)·AskBench(2602.11199) = 둘 다 preprint**. ClarifyBench의 3B 65.2 >
+  7B 45.1은 **학습법이 교차된 비교**(uncertainty-GRPO vs standard GRPO)라 **순수 scale 비교로
+  인용 금지**. AskBench는 scale 축 자체가 없음.
+- **2026 frontier NL2SQL 강건성**(2603.17017·Oracle) = arXiv-only이고 결과가 Figure에만 있어
+  **수치 추출 불가**([?]).
+- **ToolDial Request-F1 13.7/44.8 = 단일 fetch 근거** — 논문 인용 전 PDF 재확인 권장.
+- **When2Call Table 2 총 문항 수** = HTML 파싱 붕괴로 불일치(4,652 vs 합 3,910) ⇒ **총량 인용
+  금지**.
+
+### 의뢰서 대비 정정 3건 (2026-08-01)
+1. **ROUTE = ICLR 2025**(AAAI 2025 아님).
+2. **Solid-SQL·ROUTE 어디에도 GPT-4o의 Spider-Syn 행은 없다** — Solid-SQL은 **GPT-4o-mini**.
+   frontier GPT-4 계열 Spider-Syn 행은 **PURPLE(ICDE 2024)**과 이를 인용한 **SQL-R1 Table 4**에 있다.
+3. **Ask-before-Plan에는 GPT-4/GPT-4o 결과가 없다** — proprietary는 GPT-3.5 단 하나.
+   "자발적 질문률 %"도 논문에 없음(Direct 47.0·ProCoT 33.7이 최근접 대리값).
 - **τ² 인용 시**: Amazon AGI `tau2-bench-verified`(태스크-정책 불일치 교정판) 존재 — 원본 수치
   인용 시 병기.
 - BFCL 수치는 **라이브 리더보드 CSV**(2026-08-01) — 논문 아닌 리더보드 인용임을 명시할 것.
