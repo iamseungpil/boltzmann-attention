@@ -48,6 +48,44 @@ DST의 **categorical/non-categorical 슬롯**이 2020년에 스키마 필드로 
 | | **MultiWOZ 2.2** — 학습셋 distinct value <50이면 categorical | [S] | **★MEASURE (유한성만)** |
 | | **CMU 2604.15579** — 요구사항 전수 분류: **74% symbolic 강제 가능·그중 95% 단순** | [S] | **★★MEASURE (유일한 완전 대응)** |
 
+### ★Reiter 1984 본문 확보 (2026-08-01·VERIFIED-PRIMARY) — **선점하지 않는다, 단 마진이 얇다**
+
+경로: Springer/ACM/CiteSeerX/ResearchGate/HathiTrust 전부 차단 → **archive.org 스캔본
+`onconceptualmode0000unse`의 full-text 엔드포인트**로 OCR 문단 전문 추출(leaf↔인쇄면 오프셋 16 검증).
+
+**① 세 가정의 축자 형식 (p.191 초록 — 책 전체에서 DCA·UNA는 이 면에만 등장, volume 색인으로 확인)**
+- DCA: *"The individuals occurring in the database are all and only the existing individuals."*
+- UNA: *"Individuals with distinct names are distinct."*
+- CWA: *"The only possible instances of a relation are those implied by the database."*
+⇒ **"세 조건이 함께 닫힌 관계구조를 규정한다"는 통찰은 1984년에 이미 있다. 노벨티로 주장하면 즉사.**
+
+**② iff 정의도 실재한다 (§3.1 p.209)**: *"A first order theory T ⊆ Ψ is a relational theory of R iff it
+satisfies the following properties"* + **Theorem 3.1(p.210)** 유일 모델 동치(양방향).
+**★그러나 이 iff의 조건은 전부 *이론 T의 구문*에 대한 것이다** — "T가 DCA·UNA·completion 공리를
+담고 있는가". **세계·도메인·판단이 실제로 닫혀 있는지에 대해서는 한 마디도 하지 않는다.**
+Theorem 3.1은 적용가능성 판정이 아니라 **proof-theoretic ↔ model-theoretic 번역의 충실성 정리**다.
+§4.2.4(p.227)가 규범적 어조에 가장 근접하나 어휘가 *"is likely to impose"* / *"should"* = **설계
+desiderata**이지 테스트가 아니다.
+
+**③ 검증·측정 논의는 없다 (결정적 negative finding)**. 가장 근접한 것이 §5(p.230, p.232)의
+*"open for inspection"* = **인간의 육안 검토**. 오히려 p.203에서 DCA/CWA를 세계에 관한 사실이 아니라
+**데이터베이스의 인식적 입장**으로 재규정해 **검증 대상 자체를 소거**한다.
+
+**④ 실패 모드는 있으나 *이론 쪽*이다.** p.214 선언적 사실 추가 → 비일관 · p.218 null이
+*"contradicting our presumed ignorance"* · **p.227–228에서 자신의 1978 CWA를 스스로 기각**
+(*"unsuitable"* — null 오취급 + 선언 정보에서 비일관). 그럼에도 처방은 *"some representation of the
+closed world assumption is necessary"* = **공리를 고쳐라**이지 *"이 도메인엔 적용하지 마라"*가 아니다.
+**"open world"라는 표현은 pp.191–238에 단 한 번도 나오지 않는다.**
+
+**⑤ 쿼리 축은 이 챕터에 없다.** §2.4(p.202)의 유일한 연결이 방향이 반대 — *"There is no need for the
+concept of a safe query."* (DCA를 쿼리 안전성 조건을 **제거**하는 근거로 사용). existential vs
+universal/negative 구분은 **JACM 1980 소관**.
+
+**★방어선 (셋 중 하나라도 흐려지면 Reiter가 그대로 선행기술이 된다)**
+1. 조건이 **이론이 아니라 관측 가능한 도메인/판단**에 대해 진술된다.
+2. 성립 여부를 **stipulate가 아니라 measure**한다.
+3. 실패 시 처방이 **"공리 보강"이 아니라 "닫힌 취급 자체의 기각"**(=표면화)이다.
+
 ### 세 조건이 논리적으로 독립임을 문헌이 증언한다
 **Clark completion은 CET(=UNA)를 포함하되 DCA는 배제한다.** 즉 (iii)을 주면서 (i)은 주지 않는 형식이
 실재한다. 세 조건을 **연언**으로 요구하는 것이 자의적 묶음이 아니라는 근거로 쓸 수 있다.
@@ -284,3 +322,10 @@ MultiWOZ 2.2 중 하나로 즉사한다.
 
 **모트** = (3조건 연언) × (NL 정책 코퍼스 census) × (할당 게이트) × (위반 시 false enforcement라는 **측정된
 상쇄**). [[46]]의 패턴과 동일 — 부품은 전부 선점, 모트는 합성.
+
+**★Reiter 대응 문장(§1 ④의 방어선을 문면화)**: 세 조건의 *목록*은 Reiter 1984의 것이므로 양보·인용한다.
+우리 것은 목록이 아니라 **그 조건들의 지위 전환**이다 — Reiter에서 셋은 *이론이 담아야 할 공리*
+(stipulated, syntactic)이고, 우리에게 셋은 *도메인에 대해 성립 여부를 재는 술어*(measured, extensional)이며,
+위반 시 처방이 Reiter의 *"공리를 고쳐라"*가 아니라 **"닫힌 취급을 기각하고 표면화하라"**다.
+⚠**이 세 마디 중 하나라도 약해지면 Reiter가 그대로 선행기술이 된다** — 논문 문면·초록·기여 목록
+전부에서 셋을 함께 유지할 것.
