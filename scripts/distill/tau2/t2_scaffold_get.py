@@ -70,6 +70,63 @@ def _norm_ground(s):
 import re  # noqa: E402  (grounding 정규화용)
 
 
+def _tok_in(needle_n, hay_n):
+    """토큰-경계 포함(정규화된 두 문자열). raw substring의 부분-단어 매칭('target'⊂'targeting')
+    차단 — C276★① 교훈·QUOTE_GROUND_PINKIND_REDESIGN §2b 구현 규칙(닫힌 정련·판단 0)."""
+    return bool(needle_n) and (" %s " % needle_n) in (" %s " % hay_n)
+
+
+def _quote_pin_check(qp, v, r, quote_f, quote_min, docnorm):
+    """★C278 pin_kind 라우팅(QUOTE_GROUND_PINKIND_REDESIGN_2026_08_01 §2b). 순수함수=단위테스트 공유.
+    LLM이 선언한 핀(policy_field)·종류(kind_field)에 **종류별 닫힌 필요조건만** 검사한다 — 브랜드-됨·
+    범주 소속 같은 의미 판단은 하지 않는다([[22]] 근거-우선 계약·검증=필요조건 자인). 필드명 전부
+    A2 선언(엔진 리터럴 0). 반환 (verdict, info): verdict ∈ pass|category|reject|kind_missing."""
+    q = str((v or {}).get(quote_f) or "").strip()
+    if not q:
+        return "pass", None                       # 강등형 아님(quote 없음) → 라우팅 대상 아님
+    qn = _norm_ground(q)
+    if len(q) < int(quote_min or 0) or not _tok_in(qn, docnorm):
+        return "reject", {"why": "quote_unverbatim"}
+    kind = str((v or {}).get(str(qp.get("kind_field") or "")) or "").strip().lower()
+    pin = str((v or {}).get(str(qp.get("policy_field") or "")) or "").strip()
+    if kind == "category":
+        return "category", {"pin": pin or q[:60]}
+    if kind != "named_merchant":                  # 결측·열거 밖(오타)=동일 취급(§2b 발견 6)
+        return "kind_missing", {"kind": kind, "pin": pin}
+    pn = _norm_ground(pin)
+    rown = _norm_ground(str((r or {}).get(str(qp.get("row_field") or "")) or ""))
+    if not pn or not _tok_in(pn, qn):
+        return "reject", {"why": "pin_not_in_quote", "pin": pin}
+    # R5 선행-앵커(A2 선언 시만·코퍼스 경험 규칙). ★raw startswith 금지 — 'target'이
+    # 'targeting solutions'에 매칭된다(C276★① 부분-단어 매칭·단위테스트가 실제로 잡음).
+    anchored = ((rown == pn or rown.startswith(pn + " "))
+                if str(qp.get("pin_anchor") or "") == "leading" else _tok_in(pn, rown))
+    if not anchored:
+        return "reject", {"why": "pin_row_mismatch", "pin": pin}
+    return "pass", {"pin": pin}
+
+
+def _qp_note(tpl, info, row, qp):
+    """A2 문구 템플릿 치환({pin}/{merchant}) — 문구=A2·엔진 기본값=도메인 어휘 0(발견 4)."""
+    pin = str((info or {}).get("pin") or "")
+    merch = str((row or {}).get(str(qp.get("row_field") or "")) or "")
+    tpl = tpl or "the pinned name '{pin}' does not match this row's value '{merchant}' — the mapping was rejected."
+    try:
+        return tpl.format(pin=pin, merchant=merch)
+    except Exception:
+        return str(tpl)
+
+
+def _split_missing_fields(mf, iso):
+    """★C278 §2c: 결핍 필드의 출처별 분리 — record-유래(row_fields="call again" 정당) vs
+    sub-유래(operand_schema=이행-불가 지시 금지→unverified 정직 표기). row_fields 우선·어느 쪽도
+    아니면 sub-측(안전측·발견 5). C275 ⑤정정(모순 지시)의 직접 수정·멤버십 대조만(판단 0)."""
+    recf = set((iso or {}).get("row_fields") or [])
+    rec = {k: n for k, n in (mf or {}).items() if k in recf}
+    sub = {k: n for k, n in (mf or {}).items() if k not in recf}
+    return rec, sub
+
+
 def _nums_in(text):
     """raw 텍스트의 숫자 토큰 → float 집합(소수점 보존). ★`_norm_ground`는 '.'을 공백으로 지워
     3.35→'3 35'로 부수므로 수치 매칭엔 못 쓴다 — grounding value 대조는 raw서 추출한다.
@@ -513,6 +570,7 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
     서브가 `{base_rate, exclusion_quote}` formalize → 엔진 grounding(quote∈문서면 0 유지·아니면 default 백필).
     엔진 리터럴 0: 그룹키·필터규칙·계약문 전부 A2·값/인용 전부 LLM이 KB서·엔진은 substring+백필만."""
     ag = orch.agent
+    orch._t2_qp_notes = []          # ★C278: quote-pin 사유/마크 수집(반환문 표면화·호출당 리셋)
     domain = getattr(getattr(orch, "environment", None), "domain_name", None)
     all_docs = _load_domain_docs(domain) if domain else []
     if not all_docs:
@@ -605,20 +663,76 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
                     rv = _rv(i)
                     if rv is not None and not (lo_r <= rv <= hi_r):
                         (got.get(i) or {}).pop(rate_f, None)
+            # ★C278 quote-pin 라우팅 (T2_QUOTE_PIN=1 ∧ A2 `quote_pin` 선언 시 — C197 검사 대체.
+            #   QUOTE_GROUND_PINKIND_REDESIGN §2b: named=핀 축자 포함+선행 앵커·category=검사 미적용+
+            #   표면화·결측/열거밖=재질의→abstain. 재질의=R4: guard-불성립 행만·sg_inject_retry 경로 1회.)
+            quote_f = iso.get("quote_field", "exclusion_quote")
+            qp = iso.get("quote_pin") if os.environ.get("T2_QUOTE_PIN") == "1" else None
+            qp_verdicts = {}
+            if qp and got:
+                _qmin = iso.get("quote_min") or 0
+                _rowof = {str(r.get(id_field)): r for r in grows}
+                for tid0, r0 in _rowof.items():
+                    qp_verdicts[tid0] = _quote_pin_check(qp, got.get(tid0) or {}, r0,
+                                                         quote_f, _qmin, docnorm)
+                _bad = [t0 for t0, (vd0, _) in qp_verdicts.items()
+                        if vd0 in ("reject", "kind_missing")
+                        and (got.get(t0) or {}).get(rate_f) is not None]
+                if _bad and qp.get("retry_prompt"):
+                    _fb = "\n".join("- %s: %s" % (t0, _qp_note(qp.get("reject_note"),
+                                                               qp_verdicts[t0][1], _rowof[t0], qp))
+                                    for t0 in _bad)
+                    extra2 = "\n\n\u2605FEEDBACK on item(s) %s:\n%s\n%s" % (
+                        ", ".join(_bad), _fb, qp["retry_prompt"])
+                    try:
+                        um3 = UserMessage(role="user", content=prompt + extra2)
+                    except TypeError:
+                        um3 = UserMessage(content=prompt + extra2)
+                    try:
+                        resp3 = la.generate(model=ag.llm, tools=None, messages=[um3],
+                                            call_name="sg_inject_retry", **kw)
+                        got3 = _merge_json(getattr(resp3, "content", None) or "", set(_bad))
+                    except Exception as e:
+                        print("[T2_SG_ISOLATE] quote-pin retry 실패(%s): %r" % (gval, e),
+                              file=_sys.stderr, flush=True)
+                        got3 = {}
+                    for t0 in _bad:
+                        if got3.get(t0):
+                            got[t0] = got3[t0]
+                            qp_verdicts[t0] = _quote_pin_check(qp, got3[t0], _rowof[t0],
+                                                               quote_f, _qmin, docnorm)
+                            g_retry += 1
             # ★consensus·default백필 제거됨(2026-07-19 사용자 지시·[[10]]·§2k) — 엔진은 서브 operand를
             #   그대로 병합만(값 생성/override 0). 서브 오류는 원천(프롬프트·max_batch)서 수정.
             for r in grows:
                 tid = str(r.get(id_field))
                 v = got.get(tid) or {}
-                quote_f = iso.get("quote_field", "exclusion_quote")
-                merged = {k: val for k, val in v.items() if k != quote_f}  # quote=grounding용→op 제외
+                # quote·핀·종류 = grounding/라우팅 전용 → op operand에선 제외
+                _meta_f = {quote_f}
+                if qp:
+                    _meta_f |= {str(qp.get("policy_field") or ""), str(qp.get("kind_field") or "")}
+                merged = {k: val for k, val in v.items() if k not in _meta_f}
                 # ★C197 quote-grounding(A2 `quote_must_contain_field` 선언 시만·미선언=거동 변화 0):
                 #   서브가 exclusion으로 rate를 강등하며 붙인 quote를 엔진이 **결정론 대조**만 한다 —
                 #   (a) quote가 실제 주입 문서의 축자인가(docnorm substring) (b) quote 안에 이 행의
                 #   선언 필드값(예: merchant)이 실재하는가. 019 실측: ThredUp 제외문을 Thrive Market에
                 #   오적용(이웃-상인 혼동)→false-negative. 불성립이면 rate 드롭=판정불가 abstain
                 #   (엔진은 값 생성/승격 0·[[03b]]·문자열 포함 검사만).
-                _mcf = iso.get("quote_must_contain_field")
+                if qp:
+                    # ★C278 판정 적용: reject/kind_missing=rate 드롭+사유 표면화(A2 reject_note) /
+                    #   category=rate 유지+마크 표면화(A2 category_note·R2 "통과+마크") / pass=무개입.
+                    _vd, _inf = qp_verdicts.get(tid, ("pass", None))
+                    if _vd in ("reject", "kind_missing") and merged.get(rate_f) is not None:
+                        merged.pop(rate_f, None)
+                        _note = _qp_note(qp.get("reject_note"), _inf, r, qp)
+                        getattr(orch, "_t2_qp_notes", []).append(_note)
+                        print("[T2_SG_ISOLATE] quote-pin %s: %s(%s) → rate 드롭(abstain)"
+                              % (_vd, tid, str((_inf or {}).get("pin") or (_inf or {}).get("why") or "")[:40]),
+                              file=_sys.stderr, flush=True)
+                    elif _vd == "category" and merged.get(rate_f) is not None:
+                        getattr(orch, "_t2_qp_notes", []).append(
+                            _qp_note(qp.get("category_note"), _inf, r, qp))
+                _mcf = None if qp else iso.get("quote_must_contain_field")
                 if _mcf and merged.get(rate_f) is not None:
                     _q = str(v.get(quote_f) or "").strip()
                     if _q:
@@ -1413,13 +1527,37 @@ def apply():
                         _mf = (_st.get("missing_fields") or {}
                                if os.environ.get("T2_ABSTAIN_FIELDS") == "1" else {})
                         if _mf and _st.get("skipped", 0):
-                            _mtxt = ", ".join("'%s' (%d rows)" % (k, v)
-                                              for k, v in sorted(_mf.items(), key=lambda x: -x[1]))
-                            _txt += (" The unverified rows are missing input field(s): %s. "
-                                     "Read the missing value(s) from the records that contain "
-                                     "them, then call again with the completed input for those "
-                                     "rows." % _mtxt)
-                            self._t2_abstain_last = d.get("name")   # W-f: 재호출 성장 계측 anchor
+                            # ★C278 §2c(R3 버그픽스·플래그 독립): 결핍 필드를 출처별로 갈라 문구를
+                            #   낸다 — record-유래만 "call again"(이행 가능)·sub-유래는 unverified 정직
+                            #   표기(C275 ⑤정정: base_rate를 "레코드서 읽어 재호출하라"는 모순 지시였다).
+                            #   isolate 미선언 도구는 분리 근거가 없으므로 기존 문구 유지(안전).
+                            _iso3 = _isolate_spec(d)
+                            if _iso3:
+                                _rec, _subm = _split_missing_fields(_mf, _iso3)
+                            else:
+                                _rec, _subm = _mf, {}
+                            if _rec:
+                                _mtxt = ", ".join("'%s' (%d rows)" % (k, v)
+                                                  for k, v in sorted(_rec.items(), key=lambda x: -x[1]))
+                                _txt += (" The unverified rows are missing input field(s): %s. "
+                                         "Read the missing value(s) from the records that contain "
+                                         "them, then call again with the completed input for those "
+                                         "rows." % _mtxt)
+                                self._t2_abstain_last = d.get("name")   # W-f: 재호출 성장 계측 anchor
+                            if _subm:
+                                _stxt = ", ".join("'%s' (%d rows)" % (k, v)
+                                                  for k, v in sorted(_subm.items(), key=lambda x: -x[1]))
+                                _unv = (((_iso3 or {}).get("quote_pin") or {}).get("unverified_note")
+                                        or "could not be determined from the source documents; "
+                                           "those rows remain UNVERIFIED — do not supply these "
+                                           "values yourself.")
+                                _txt += " Field(s) %s %s" % (_stxt, _unv)
+                        # ★C278: quote-pin 사유/마크 표면화(숨은 실패→감사 가능한 주장·§5-5)
+                        _qpn = getattr(self, "_t2_qp_notes", None)
+                        if _qpn:
+                            for _l in _qpn:
+                                _txt += "\n[quote-pin] %s" % _l
+                            self._t2_qp_notes = []
                         if not _res and _st.get("judged", 0) > 0:
                             _txt += (" An empty result means the checked rows matched the rates "
                                      "that were looked up for them — it is only as reliable as "
