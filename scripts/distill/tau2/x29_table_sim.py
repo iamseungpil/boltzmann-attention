@@ -64,10 +64,14 @@ def chk(c, m):
     print(("  ✓ " if c else "  ✗ ") + m)
 
 
+QF, PF, KF, RF = "exclusion_quote", QP["policy_field"], QP["kind_field"], QP["row_field"]
+
+
 def V(pin, merchant, kind="named_merchant"):
-    """quote는 표 키를 담은 실 코퍼스라고 두고(축자 검증은 x28/단위테스트 담당) 멤버십만 시뮬."""
-    return SG._quote_pin_check(QP, {"q": pin, "p": pin, "k": kind}, {"m": merchant},
-                               "q", 0, norm(pin))[0]
+    """quote는 핀을 담은 최소 문자열로 두고(축자 검증은 x28·단위테스트 담당) **멤버십만** 시뮬.
+    ⚠필드명은 실 A2 선언(QP)에서 읽는다 — 축약 키를 쓰면 전건 kind_missing이 된다(1차 실행서 실측)."""
+    return SG._quote_pin_check(QP, {QF: pin, PF: pin, KF: kind}, {RF: merchant},
+                               QF, 0, norm(pin))[0]
 
 
 print(f"표 엔트리 {len(TBL)} (비공집합 {sum(1 for v in TBL.values() if v)}) · 카탈로그 {len(merch)}")
