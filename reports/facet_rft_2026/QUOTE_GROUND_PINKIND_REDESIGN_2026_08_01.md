@@ -12,8 +12,8 @@ C197 가드는 "제외문 quote가 행 merchant_name을 **축자 포함**해야 
 
 1. **C275 인과 사슬**: isolate 서브가 ba8b에 Target-제외를 옳게 적용(rate=1+축자 quote) → C197 가드가 quote 안 "Target - Eco Collection" 축자를 요구 → KB엔 "Target"뿐 → rate 드롭(abstain) → select_discrepant 행 skip → coverage 문구가 "call again with the completed input" 지시 → **그 지시가 이행 불가능**(결핍 3필드는 sub-산출값·레코드에 없고·params가 rate 제공 금지) → agent는 KB_search로 이행 시도까지 했으나 닫을 수 없음 → 9/10 dispute → db 실패. 4런(Y1t0/t1·P1/P2) 동일.
 2. **C276 전수 계수**(merchant 138종 × KB 11,719라인·결정론·gold 0):
-   - 현행 술어 구조적 false-abstain = **9종**(Target - Eco Collection·Microsoft 365[둘 다 라이브 드롭 관측]·Apple Store·Dell Technologies·Home Depot·LinkedIn Ads·Slack Technologies·Zoom Video·Electronics Express Miami).
-   - 선행 n-gram 다리로 **9/9 회수 가능**.
+   - 현행 술어 구조적 false-abstain = ~~9종~~ → **6종 정정(C276★① 2026-08-01·매칭 원문 전수 대조)**: Target - Eco Collection·Microsoft 365[둘 다 라이브 드롭 관측]·Apple Store·Dell Technologies·Zoom Video·Slack Technologies(전부 정책 불릿 축자 명명 확인). **허위 3종 제외**: Home Depot("home-**sharing** platforms" 파생 합성어)·Electronics Express Miami("Hardware/Electronics Merchants" 범주 제목)·LinkedIn Ads("LinkedIn **Learning**"=타-상인) — 허위 유형이 정확히 케이스 11·category 경로의 대상이라 설계 방향 불변.
+   - 선행 n-gram 다리로 **6/6 회수 가능**.
    - **비-부분문자열 브랜드 별칭 사례 0** ⇒ 열린 별칭 채널 불요.
    - **새 위험**: 비선행 매칭 35종이 전부 일반 범주어("market"·"airlines"·"restaurant") = 단순 핀+등가/포함이면 범주어가 false-apply 다리("grocery markets"↔Thrive Market)로 019형 부활.
    - 대문자-시작 게이트는 **철회**(C276⑤: Title-Case 범주어 `Electronics Merchants`·`General Retailers`가 코퍼스 내 반례·소문자 브랜드 방향도 실패).
@@ -60,6 +60,8 @@ C197 가드는 "제외문 quote가 행 merchant_name을 **축자 포함**해야 
 | 단계 | 검사 (전부 닫힘) | 불성립 처리 |
 |---|---|---|
 | 공통 | `len(quote) ≥ quote_min` ∧ `norm(quote) ∈ docnorm` | rate 드롭 + 사유 표면화 (현행 유지 — 날조 차단) |
+
+**구현 규칙(C276★① 교훈)**: 모든 포함 검사는 raw substring이 아니라 **정규화 후 토큰-연속-부분열**로 구현한다("target"이 "targeting"에 매칭되는 부류 차단·닫힌 정련·판단 추가 0). 단 이것이 막는 것은 **부분-단어 매칭뿐**이다 — 토큰이 실재해도 지시(referent)가 다른 경우(파생 합성어 "home-sharing"·범주 제목·타-상인)는 문자열로 못 막으며(케이스 10·11) 그것이 §7-1b의 잔여다.
 | kind=`named_merchant` | `pin ≠ ∅` ∧ `norm(pin) ∈ norm(quote)` ∧ **`norm(row[row_field]).startswith(norm(pin))`**(R5 앵커·A2 `pin_anchor:"leading"` 선언 시·미선언이면 포함으로 완화) | rate 드롭 + **사유 표면화**(A2 `reject_note` 치환) + **재질의 1회**(A2 `retry_prompt`) |
 | kind=`category` | (포함/앵커 검사 **미적용**) | — 항상 통과하되 `_sg_details`와 반환에 **category-마크** 병기(A2 `category_note` 치환) |
 | kind 결측 **또는 열거 밖 값**(발견 6: 오타 "named" 등 = 결측 동일 취급) (quote는 있고 강등형) | 필드 존재·열거 멤버십(닫힘) | 드롭 아닌 **재질의 1회**("declare exclusion_pin_kind") → 실패 시 abstain(안전측·사유 명시) |
@@ -118,7 +120,7 @@ C197 가드는 "제외문 quote가 행 merchant_name을 **축자 포함**해야 
 | 8 | quote 날조 | quote ∉ docs | 드롭(현행 동일) |
 | 9 | 회귀 | 기존 test_c197 계열(019 차단·0행 무판정 문구) | OFF 경로 불변·ON 경로 동등 이상 |
 | 10 | **앵커 잔여 A — 관사-접두 이름형** | 가상: 정책이 "Cheesecake Factory"로 명명·행="The Cheesecake Factory" | 드롭+재질의→abstain(**정당 강등의 false-abstain·표면화됨**). 코퍼스 실측 0(x28: The-접두 상인의 제외-문맥 명명 없음)·발생 시 A2 `pin_anchor` 미선언으로 해제 가능 |
-| 11 | **앵커 잔여 B — 부분-핀 접두 충돌**(자기감사 신규 발견) | 정책 불릿 "- LinkedIn Learning"에서 핀을 "LinkedIn"으로 **부분 복사**·행="LinkedIn Ads" | *통과함*(pin∈quote ∧ 앵커 성립) = **false-apply 잔여**. 완전-복사는 sub 지시(§2a "COMPLETELY")로 유도·토큰-최대 강제는 이름-경계 판정(열림)이라 기각. 표면화("policy names 'LinkedIn'")·Δ계측 표적 |
+| 11 | **앵커 잔여 B — 부분-핀 접두 충돌**(자기감사 신규 발견) | 정책 불릿 "- LinkedIn Learning"에서 핀을 "LinkedIn"으로 **부분 복사**·행="LinkedIn Ads" (동형: "home-sharing platforms"→핀 "home"→"Home Depot" — C276★①이 실증한 파생-합성어 유형) | *통과함*(pin∈quote ∧ 앵커 성립) = **false-apply 잔여**. 완전-복사는 sub 지시(§2a "COMPLETELY")로 유도·토큰-최대 강제는 이름-경계 판정(열림)이라 기각. 표면화·Δ계측 표적 |
 
 ## 6. 검증 계획 (순서 고정·[[09]])
 
