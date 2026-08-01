@@ -57,7 +57,19 @@ corpus_n = " ".join(norm(ln) for _, ln in lines_raw)
 
 EXCL_RE = re.compile(r"exclu|not eligible|does not (earn|qualify)|excluded|standard rate|"
                      r"do(es)? not count|no (points|rewards)|only qualifies|not qualify", re.I)
-excl_lines = [(d, ln) for d, ln in lines_raw if EXCL_RE.search(ln)]
+HEAD_RE = re.compile(r"^\s*#{1,6}\s")
+
+# ★섹션-스코프(2026-08-01 자기수정): 라인 단위로 잡으면 `## What is excluded…` 제목 밑의
+#   불릿(`- Target`)이 누락된다(실측: Target이 [A]서 빠짐). 제외-제목 이후 다음 제목 전까지를
+#   전부 제외 문맥으로 본다 + 제외 표현이 직접 있는 라인도 포함.
+excl_lines, in_excl, cur_doc = [], False, None
+for d, ln in lines_raw:
+    if d != cur_doc:
+        cur_doc, in_excl = d, False
+    if HEAD_RE.match(ln):
+        in_excl = bool(EXCL_RE.search(ln))
+    if in_excl or EXCL_RE.search(ln):
+        excl_lines.append((d, ln))
 excl_n = " ".join(norm(ln) for _, ln in excl_lines)
 
 # ---------- 3. merchant별 접지 분류 ----------
@@ -104,11 +116,23 @@ C_excl = {h: ms for h, ms in C.items() if h in excl_n}
 
 # D. 제외-문맥 라인의 개체 후보(대문자 시퀀스) 중 무매칭
 ENT_RE = re.compile(r"\b([A-Z][A-Za-z0-9&'\.]+(?:\s+[A-Z][A-Za-z0-9&'\.]+){0,3})\b")
+# 문두·일반명사 잡음 제거: 불릿 항목만 + 상품/일반어 스톱리스트(도메인 리터럴 아님·문법 범주).
+STOP = set("""account accounts additional additionally after always approved balance bank before bronze
+buying cards cash claims combined common confirm coverage credits debit deposit each eligible example
+exceptions excluded exclusions exclusive gift gold hardware important invitations items keep marketplaces
+merchant merchants mixed note only once other partial payments pending procedure purchases qualify
+qualifying reasons referrals retention savings self situations some these this tips unlimited unsupported
+utilization what will your silver platinum diamond green ecocard rewards card""".split())
+BULLET_RE = re.compile(r"^\s*[-*•]\s+")
 cand = defaultdict(set)
 for did, ln in excl_lines:
-    for mm in ENT_RE.finditer(ln):
+    if not BULLET_RE.match(ln):
+        continue                      # 산문 문장은 개체 추출 잡음이 지배 → 불릿 항목만
+    body = BULLET_RE.sub("", ln)
+    for mm in ENT_RE.finditer(body):
         ent = mm.group(1).strip()
-        if len(norm(ent).replace(" ", "")) >= 4:
+        toks = norm(ent).split()
+        if len(norm(ent).replace(" ", "")) >= 4 and not all(t in STOP for t in toks):
             cand[ent].add(did)
 def matches_some_merchant(ent):
     en = norm(ent)
