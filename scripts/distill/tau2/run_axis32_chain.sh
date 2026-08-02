@@ -51,10 +51,14 @@ one(){ # $1=tag $2=gpu $3=port $4=tasks
   export T2_NO_DIGEST_REEXEC=1 T2_REPEAT_CAP=8
   export T2_RETURN_EMPTY=1 T2_GROUND_HDR=1 T2_NOREC_BRANCH=1
   export T2_AXIS_NOTE_CAP=2
+  # ★부하-격리(사용자 지적 2026-08-02): wrap 기능서브 = 자료-read를 격리 서브가 소비하고
+  #   메인엔 답+원문 인용만. 설계·리뷰·구현 완료인데 **한 번도 발화한 적이 없다**
+  #   (플래그 미설정 + wraps에 실사용 `KB_search` 부재). 022 문맥의 36.6%가 그 대상이다.
+  export T2_FN_ISOLATE=1
   export T2_SG_ISOLATE_TRACE=/home/woori/scratch/axis32run/trace_$1_gpu$2.jsonl
   export T2_FB_SIDECAR=/home/woori/scratch/axis32run/$1_gpu$2_sidecar.jsonl
   mkdir -p /home/woori/scratch/axis32run
-  echo "[cfg gpu$2] CHANNEL=$T2_TOOL_CHANNEL TERM=$T2_TERMINAL_TURN FIT=$T2_FIT_DIFF ARR=$T2_SCALAR_ARRAY NODIGEST=$T2_NO_DIGEST_REEXEC CAP=$T2_REPEAT_CAP EMPTY=$T2_RETURN_EMPTY HDR=$T2_GROUND_HDR NOREC=$T2_NOREC_BRANCH NOTECAP=$T2_AXIS_NOTE_CAP QP=$T2_QUOTE_PIN MAXTOK=${T2_AGENT_MAX_TOKENS:-unset} TIMEOUT=${T2_LLM_TIMEOUT:-unset}"
+  echo "[cfg gpu$2] CHANNEL=$T2_TOOL_CHANNEL TERM=$T2_TERMINAL_TURN FIT=$T2_FIT_DIFF ARR=$T2_SCALAR_ARRAY NODIGEST=$T2_NO_DIGEST_REEXEC CAP=$T2_REPEAT_CAP EMPTY=$T2_RETURN_EMPTY HDR=$T2_GROUND_HDR NOREC=$T2_NOREC_BRANCH NOTECAP=$T2_AXIS_NOTE_CAP FNISO=$T2_FN_ISOLATE QP=$T2_QUOTE_PIN MAXTOK=${T2_AGENT_MAX_TOKENS:-unset} TIMEOUT=${T2_LLM_TIMEOUT:-unset}"
   /home/woori/venvs/seka_env/bin/python -u $R/scripts/distill/tau2/t2_run_gated.py \
     --domain banking_knowledge --retrieval_config bm25 --gate 1 \
     --agent_model Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8 --agent_base http://localhost:$3/v1 \
@@ -88,6 +92,7 @@ if [ "$MODE" = "smoke" ]; then
   log "스모크 완주 — 레버 발화 계수"
   grep -ho "\[T2_AXIS\][^|]\{0,60\}" /home/woori/scratch/logs/axsmoke_gpu*.log | sort | uniq -c | sort -rn | head
   grep -hc "REPEAT-CAP" /home/woori/scratch/logs/axsmoke_gpu*.log
+  echo "-- wrap(FN_ISOLATE) 발화 --"; grep -hc "T2_FN_ISOLATE" /home/woori/scratch/logs/axsmoke_gpu*.log
   persist axsmoke
 else
   for TAG in ax32p1 ax32p2; do
