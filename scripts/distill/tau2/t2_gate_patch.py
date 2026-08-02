@@ -621,15 +621,25 @@ def _axis_surface(orch, tool_calls, results):
             if n:
                 add.append(n)
         if add:
+            # ★P12 (2026-08-02·041 R0 사고): replay 가드를 **버스 여부와 무관하게 상시** 적용.
+            #   사고: 041에서 mutating 도구(`call_discoverable_agent_tool`) 출력에 [axis] 노트가 붙어
+            #   tau2 평가 replay(environment.py:378~390 — mutating 도구 재실행 후 content 비교)가
+            #   불일치 → ValueError → sim 전체 재시도(R0 6,579s 폐기). 기존 코드는 이 가드를
+            #   `T2_SURFACE_BUS=1`일 때만 태웠고, 라이브(버스 OFF)는 **무가드 직접 부착**이었다.
+            #   ⇒ C208② 계열(우리 스캐폴드의 replay 위반) 3번째 재발. 가드는 이제 무조건.
+            _replay_ok = _dedup_cache_safe(orch, str(getattr(tc, "name", "") or ""))
+            if not _replay_ok:
+                print("[T2_AXIS] skip(mutating·replay-safe) %s <- %d note(s) dropped"
+                      % (getattr(tc, "name", ""), len(add)), file=sys.stderr, flush=True)
+                add = []
             # ★T2_SURFACE_BUS=1 (CONSOLIDATION §2b v0·첫 이관 채널): 부착을 버스가 집행 —
-            #   ①replay(=기존 _dedup_cache_safe 술어) ③예산 ④순서. OFF=기존 직접 부착(무변경).
-            if os.environ.get("T2_SURFACE_BUS") == "1":
+            #   ①replay(위 가드와 동일 술어·이중 적용은 무해) ③예산 ④순서. OFF=직접 부착.
+            if add and os.environ.get("T2_SURFACE_BUS") == "1":
                 import t2_surface_bus as _sb
                 _bus = _sb.get_bus(orch)
                 for _x in add:
                     _bus.register("guidance", _x)
-                _ok = _dedup_cache_safe(orch, str(getattr(tc, "name", "") or ""))
-                add = _bus.flush(_ok)
+                add = _bus.flush(_replay_ok)
             if add:
                 try:
                     r.content = (txt + "\n" + "\n".join("[axis] " + x for x in add))
