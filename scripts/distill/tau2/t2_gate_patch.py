@@ -621,12 +621,22 @@ def _axis_surface(orch, tool_calls, results):
             if n:
                 add.append(n)
         if add:
-            try:
-                r.content = (txt + "\n" + "\n".join("[axis] " + x for x in add))
-            except Exception:
-                pass
-            print("[T2_AXIS] %s ← %d note(s)" % (getattr(tc, "name", ""), len(add)),
-                  file=sys.stderr, flush=True)
+            # ★T2_SURFACE_BUS=1 (CONSOLIDATION §2b v0·첫 이관 채널): 부착을 버스가 집행 —
+            #   ①replay(=기존 _dedup_cache_safe 술어) ③예산 ④순서. OFF=기존 직접 부착(무변경).
+            if os.environ.get("T2_SURFACE_BUS") == "1":
+                import t2_surface_bus as _sb
+                _bus = _sb.get_bus(orch)
+                for _x in add:
+                    _bus.register("guidance", _x)
+                _ok = _dedup_cache_safe(orch, str(getattr(tc, "name", "") or ""))
+                add = _bus.flush(_ok)
+            if add:
+                try:
+                    r.content = (txt + "\n" + "\n".join("[axis] " + x for x in add))
+                except Exception:
+                    pass
+                print("[T2_AXIS] %s <- %d note(s)" % (getattr(tc, "name", ""), len(add)),
+                      file=sys.stderr, flush=True)
 
     # 본문-언급 / 터미널-턴 = 대화 이력이 필요한 레버(없으면 무발화)
     msgs = getattr(orch, "messages", None) or getattr(orch, "_t2_msgs", None) or []
