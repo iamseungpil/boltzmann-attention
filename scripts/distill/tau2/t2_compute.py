@@ -454,7 +454,20 @@ def apply_op(spec, ctx):
                 for _k0 in _r0:
                     if _k0 not in ("card", "business", "invite_only", "source") and _k0 not in _cols:
                         _cols.append(_k0)
-            _cov = (" This table only carries these documented attributes: %s. It carries NOTHING "
+            # ★2026-08-03 (task_003 실측): `min_score`는 손님 **선호**가 아니라 카드가 손님에게 거는
+            #   **요구조건**이다 — 그 값이 표에 있는데 `credit_score`를 안 받으면 이 도구는 점수 자격을
+            #   **검증하지 않은 채** eligible을 낸다. 003: 형식화는 완벽했으나 손님 점수를 조회하지
+            #   않아 min_score 750짜리 Platinum이 eligible로 실렸고 모델이 그것을 골랐다(gold=Silver).
+            #   ⇒ 미검증 사실을 실토한다(C185(a) unverified 원칙의 **손님-측 미제공 입력** 확장).
+            #   쌍(credit_score↔min_score)은 이미 엔진 검사 로직에 있는 것 그대로(신규 지식 0).
+            _unchecked = ""
+            if _num(ctx.get("credit_score")) is None and any(
+                    _num(r.get("min_score")) is not None for r in rows):
+                _unchecked = (" WARNING: these cards document a minimum credit score, but you did "
+                              "not supply credit_score — so this 'eligible' list has NOT verified "
+                              "score eligibility for any of them. Read the customer's credit score "
+                              "from their record and call again before recommending a card.")
+            _cov = (_unchecked + " This table only carries these documented attributes: %s. It carries NOTHING "
                     "else — if the customer's decisive criterion is not in that list (for example a "
                     "promotional or sign-up offer), this tool cannot rank on it: search the "
                     "knowledge base for that criterion and decide from the source documents, and do "
