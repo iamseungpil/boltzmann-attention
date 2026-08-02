@@ -642,12 +642,26 @@ def _axis_surface(orch, tool_calls, results):
             utext += " " + c
     tail = results[-1] if results else None
     extra = []
+    # ★발화 상한 (오프라인 재생 x42가 잡은 자기 결함·2026-08-02): 서사가 매 사이클 반복되면
+    #   안내도 매번 붙어 **026에서 55회**가 된다 — 문맥 팽창을 고치려는 레버가 팽창을 만든다.
+    #   ⇒ (sim, 대상) 당 상한 2회. 같은 말을 반복 제시해도 같은 선택이 재생산될 뿐이다(C194).
+    _cap_n = int(os.environ.get("T2_AXIS_NOTE_CAP", "2") or 2)
+    _fired = getattr(orch, "_t2_axis_fired", None)
+    if _fired is None:
+        _fired = orch._t2_axis_fired = {}
+
+    def _allow(key):
+        _fired[key] = _fired.get(key, 0) + 1
+        return _fired[key] <= _cap_n
+
     if tail is not None and os.environ.get("T2_TOOL_CHANNEL") == "1" and said:
-        extra += AX.mention_note(said, called, agent_d, user_d, unlocked, notes_cfg)
+        for _m in AX.mention_note(said, called, agent_d, user_d, unlocked, notes_cfg):
+            if _allow(("mention", _m[:60])):
+                extra.append(_m)
     if tail is not None and os.environ.get("T2_TERMINAL_TURN") == "1" and utext:
         n = AX.terminal_turn_note(utext, notes_cfg.get("transfer_tokens") or [],
                                   any("transfer" in c for c in called), notes_cfg)
-        if n:
+        if n and _allow(("terminal", "")):
             extra.append(n)
     if extra and tail is not None:
         try:
