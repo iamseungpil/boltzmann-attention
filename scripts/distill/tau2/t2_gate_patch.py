@@ -3210,10 +3210,21 @@ def _install_regen_exec():
                     stubs[getattr(tc, "id", None)] = _TM(
                         id=tc.id, role="tool",
                         requestor=getattr(tc, "requestor", "assistant"), error=(_n_rep >= 3),
-                        content="[DUPLICATE-READ] This exact call (same tool, same arguments) was "
-                                "already executed earlier in this conversation; its full output is "
-                                "shown above and has not changed. Refer to that output instead of "
-                                "re-reading." + _redir + _esc)
+                        content=(
+                            # ★상쇄 조정(2026-08-02·5축 동시-ON 감사): NO_DIGEST_REEXEC가 다이제스트된
+                            #   재열람도 스텁으로 막는데, 기존 문구는 "full output is shown above"라고
+                            #   말한다 — 뷰에는 다이제스트만 남아 **허위 문구**(D-계열 재생산)가 된다.
+                            #   다이제스트 케이스는 정직한 대체 문구 + byref 탈출구(@last:)를 준다.
+                            ("[DUPLICATE-READ] This exact call was already executed earlier; its "
+                             "output was COMPACTED from view to save space and has not changed. Do "
+                             "NOT re-run it. If a tool needs that data, pass it BY REFERENCE as "
+                             "@last:%s instead of re-reading." % (getattr(tc, "name", "") or "")
+                             if (k in cache and cache.get(k) in _dgset
+                                 and os.environ.get("T2_NO_DIGEST_REEXEC") == "1") else
+                             "[DUPLICATE-READ] This exact call (same tool, same arguments) was "
+                             "already executed earlier in this conversation; its full output is "
+                             "shown above and has not changed. Refer to that output instead of "
+                             "re-reading.") + _redir + _esc))
                     stub_ids.add(getattr(tc, "id", None))
                     self._t2_read_dedup = getattr(self, "_t2_read_dedup", 0) + 1
                     print("[T2_READ_DEDUP] stub tool=%s" % getattr(tc, "name", None),
