@@ -58,6 +58,7 @@ one(){ # $1=tag $2=gpu $3=port $4=tasks
   export T2_SG_ISOLATE_TRACE=/home/woori/scratch/axis32run/trace_$1_gpu$2.jsonl
   export T2_FB_SIDECAR=/home/woori/scratch/axis32run/$1_gpu$2_sidecar.jsonl
   mkdir -p /home/woori/scratch/axis32run
+  env | grep "^T2_" | sort > /home/woori/scratch/axis32run/env_$1_gpu$2.txt
   echo "[cfg gpu$2] CHANNEL=$T2_TOOL_CHANNEL TERM=$T2_TERMINAL_TURN FIT=$T2_FIT_DIFF ARR=$T2_SCALAR_ARRAY NODIGEST=$T2_NO_DIGEST_REEXEC CAP=$T2_REPEAT_CAP EMPTY=$T2_RETURN_EMPTY HDR=$T2_GROUND_HDR NOREC=$T2_NOREC_BRANCH NOTECAP=$T2_AXIS_NOTE_CAP FNISO=$T2_FN_ISOLATE QP=$T2_QUOTE_PIN MAXTOK=${T2_AGENT_MAX_TOKENS:-unset} TIMEOUT=${T2_LLM_TIMEOUT:-unset}"
   /home/woori/venvs/seka_env/bin/python -u $R/scripts/distill/tau2/t2_run_gated.py \
     --domain banking_knowledge --retrieval_config bm25 --gate 1 \
@@ -76,6 +77,8 @@ persist(){
     [ -f "$L" ] && gzip -c "$L" > $R/reports/facet_rft_2026/sim_results/bank_$1_gpu${g}_$D.log.gz
     T=/home/woori/scratch/axis32run/trace_$1_gpu${g}.jsonl
     [ -f "$T" ] && gzip -c "$T" > $R/reports/facet_rft_2026/sim_results/bank_$1_gpu${g}_$D.trace.jsonl.gz
+    E=/home/woori/scratch/axis32run/env_$1_gpu${g}.txt
+    [ -f "$E" ] && cp -f "$E" $R/reports/facet_rft_2026/sim_results/bank_$1_gpu${g}_$D.env.txt
   done
   cd $R && git add -f reports/facet_rft_2026/sim_results/bank_$1_gpu*_$D.* \
     && git -c user.email=woori@local -c user.name=woori commit -q -m "Persist AXIS-32 $1 (all axis levers on)" \
@@ -93,6 +96,9 @@ if [ "$MODE" = "smoke" ]; then
   grep -ho "\[T2_AXIS\][^|]\{0,60\}" /home/woori/scratch/logs/axsmoke_gpu*.log | sort | uniq -c | sort -rn | head
   grep -hc "REPEAT-CAP" /home/woori/scratch/logs/axsmoke_gpu*.log
   echo "-- wrap(FN_ISOLATE) 발화 --"; grep -hc "T2_FN_ISOLATE" /home/woori/scratch/logs/axsmoke_gpu*.log
+  log "★x44 레버 커버리지 감사 (전 레버 ON/OFF × 발화)"
+  /home/woori/venvs/seka_env/bin/python -u $R/scripts/distill/tau2/x44_lever_coverage.py     --env /home/woori/scratch/axis32run/env_axsmoke_gpu*.txt     --log /home/woori/scratch/logs/axsmoke_gpu0.log /home/woori/scratch/logs/axsmoke_gpu1.log     --json /home/woori/scratch/axis32run/x44_axsmoke.json || log "⚠x44가 감사 대상을 보고했다(exit 2)"
+  cp -f /home/woori/scratch/axis32run/x44_axsmoke.json $R/reports/facet_rft_2026/sim_results/x44_axsmoke_$D.json 2>/dev/null
   persist axsmoke
 else
   for TAG in ax32p1 ax32p2; do
