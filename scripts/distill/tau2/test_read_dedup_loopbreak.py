@@ -35,7 +35,11 @@ def tc(i):
 
 
 def main():
-    slf = NS(agent=None, tools=None)
+    # ★2026-08-03 수리: C241 U1'(2026-07-30) 이후 실효-write 술어가 **도메인 A2에서** 어휘를
+    #   읽는다 — `environment` 없는 페이크 self는 a2=None ⇒ 모든 도구가 write로 판정되어
+    #   dedup 카운터 자체가 안 돌았고, 이 검정은 그 뒤로 조용히 FAIL이었다(레버 회귀가 아니라
+    #   **검정의 부패**). 도메인을 실제로 물려 원래 의도대로 잰다.
+    slf = NS(agent=None, tools=None, environment=NS(domain_name="banking_knowledge"))
     ok = True
     outs = []
     for i in range(5):
