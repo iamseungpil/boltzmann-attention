@@ -84,9 +84,18 @@ def one(sim, width):
     misses = [c for c in (ri.get("action_checks") or []) if not c.get("action_match")]
     if not misses:
         print("     no missed gold action")
+    # A gold action carries a requestor. Only requestor=assistant is the agent's to
+    # emit; requestor=user actions are executed by the customer after the agent hands
+    # the tool over, so "the agent never called it" is the expected shape there and
+    # says nothing about the failure.
     for c in misses:
         g = c.get("action") or {}
+        who = g.get("requestor")
         gname, gargs = g.get("name"), norm(g.get("arguments") or {})
+        if who != "assistant":
+            print(f"     [requestor={who}] {gname} — agent-side non-call is expected; "
+                  f"the agent's obligation is the hand-off, not the call")
+            continue
         same = [e for e in calls if e[1] == gname]
         print(f"     GOLD MISS  {gname}  {json.dumps(gargs, ensure_ascii=False)[:width]}")
         if not same:
