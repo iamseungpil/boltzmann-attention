@@ -344,3 +344,82 @@ v1.0.1은 **채점만이 아니라 런타임 환경도** 바꾼다. 리더보드
 ## 6. 순서
 ①리뷰 → ②ax32 완주·판정(§2 프레임: 022/026 잔여·x44·Δspurious) → ③무료 병행: P4 조사 ✓·P2 선결 ✓·백로그 시드·**029 dbdiff 비교-생략 루프**(029 확정이 P1/P8 표적 판정의 입력·리뷰 G) → ④승인분 구현 순서 **P9→P7→P2→P8→P1→P10→P5→P11**(r7: P8은 ⓐ엔진 산식 수정 후 탑재·**P11=위생이라 최후**·
 P3 보류·P6 검정만) → ⑤스모크→합성 라이브. 대기(032/033/035)=§8 재정 후 별도.
+
+---
+
+# r8 추가 — 구현 판(2026-08-03): P4ⓐ 종결·P1·P6·P8 + A2 드리프트 교정
+
+> 상태: **구현 완료·오프라인 전건 PASS·스모크 발사**(`bank_ax33smoke_20260803`·alltools·6태스크).
+> 커밋 `03b138bd`(구현) + 검정 하네스 수리 2건. 라이브 발화 판정은 스모크 로그가 낸다([[30]]).
+
+## r8-1. P4ⓐ 종결 — §4-1 byref 구조 결함 + §4-2 표본 충분성
+
+**구조 결함(신규 확정)**: `_byref_resolve`가 `(d["op"]).get("over")` = **최상위 op의 over만** 읽었다.
+`check_rebate_qualification`은 over가 중첩(`op.cond.a.over`)이라 **항상 None** ⇒ 모든 by-ref 시도가
+"이 도구엔 by-ref 인자가 없다"로 거부됐다. 023 사슬: ⑴에이전트가 `@last:` 전체-거래 전달을 시도(**옳은
+행동**) → ⑵차단 → ⑶손-전사 1건 폴백(028과 동일 기전) → ⑷그 1건으로 부정 판정 확정.
+
+- **수정**: `_over_params()` = op 트리 전수 워크(구조 순회만·op 이름/도메인 어휘 미참조). 같은 맹점을
+  가진 **4곳 동시 교정** — resolve · join(`_primary_over`) · **인자 설명 어포던스**(중첩 도구는 "@last:
+  써도 된다"는 안내가 아예 없었다) · ARGS-FORMAT str-잔류 검사.
+- **후속 결함 2건도 함께 닫음**:
+  ⓐ **컬럼명 불일치** — 참조된 원본 레코드는 env 컬럼명(`transaction_date`/`transaction_amount`)이고
+    op은 `date`/`amount`를 읽는다 ⇒ 참조가 열려도 전 행 무효. **A2 `byref_field_map`**(env 스키마
+    기계-도출·자매 도구 params 축자와 동일 컬럼·[[23]] opex 0)으로 결정론 복사, 엔진은 복사만.
+  ⓑ **필요 컬럼 부재의 침묵** — `_byref_require_fields`가 부재 컬럼 + **실재 컬럼 목록**을 지목한다
+    (빈 집계로 조용히 넘어가지 않는다). 필드명은 A2 op 키(`date_field` 등)에서 도출.
+
+**§4-2 표본 충분성**: 결여 윈도는 **0이 아니라 미측정**이다(C197 원칙의 미적용 경로).
+`bucket_month_window`가 기대 윈도 집합을 ctx 사이드채널로 공표 → `group_reduce`가 A2
+`require_complete_groups` ∧ `T2_SG_WINDOW_ABSTAIN=1`에서 **abstain(None)** + `_gr_missing` 기록 →
+scaffold가 `_window_coverage_note()`(순수함수)로 "12칸 중 11칸 미측정(#2,#3,…)" + A2 `incomplete_hint`.
+- **측정된 상쇄(등대 §1 모트)**: 진짜 지출 0인 달도 abstain이 된다. 그 경우의 결론(=정책상 실격)은
+  A2 문구가 이행하고 판단은 모델에 남는다. 완결 12윈도 입력에서는 정상 판정(과잉 abstain 0)을
+  오프라인으로 고정했다.
+
+## r8-2. P1 `T2_GIVE_QUOTE` (010)
+
+give 직전 **생성-레벨**에서 응답 본문에 손님 발화의 **토큰-연속 부분열**(min 4토큰·A2 선언)이 실재하는지
+검사 → 불성립 시 재질의 1회·**fail-open**. 인용을 **인자에 얹지 않는다**(설계서 §P1 채널 제약 준수).
+사전등록 지표 = `[T2_GIVE_QUOTE] retract=…` 로그(인용-불성립 후 give 철회율·≈0이면 접는다).
+
+## r8-3. P6 — 관측 확정(처방 아님)
+
+`test_p6_batch_governor.py`: **한 메시지 안의 동일 (name,args) 병렬 콜은 계수된다** — `seen` 카운터가
+배치 내에서 누적돼 4발째부터 스텁, CAP 채널까지 승격. **인자가 다른 6발은 표적이 아니다**(거버너는
+동일성 기반·설계된 거동). ⇒ 018의 "6발 give"는 반복 거버너의 사각이 아니라 **다른 축**이다.
+
+## r8-4. P8 `T2_DISPATCH_LEDGER` (020/027) — 차단 해제 후 구현
+
+⑴scaffold가 **자기 op이 계산한 ids**를 원장에 등재(A2 `dispatch_targets` boolean 1개·리터럴 0)
+⑵터미널 훅(`_check_termination` 래퍼)에서 **실효-write 호출의 인자 leaf**와 집합 대조
+(`_is_effective_write`∘`_eff_tool_name`+`_flatten` = 전부 기존 공유 술어)
+⑶잔여가 있으면 **1회 유예 + 표면화**("N건 중 M건 제출·잔여 [ids]") — **deny 아님**.
+에러로 끝난 write는 미제출로 계상(F2 규율 동형)·read 경유 등장은 제출이 아니다.
+설계서 §P8의 ⓑ(`dispatch_target_pattern` A2 폴백)는 **불필요**로 판명 — ⓐ정공이 성립했다.
+
+## r8-5. ★A2 3층 드리프트 — 어제 P9가 런타임 死코드였다
+
+`write_arg_grounding`의 give 항목이 **`banking_knowledge.gate.json`(레거시 생성물)에만** 기입됐고,
+런타임 로더(`load_domain_a2` = base+settings+**specific** 병합)는 그 파일을 읽지 않는다 ⇒
+`T2_WRITE_ARG_GROUND=1`이 켜져 있어도 **give 접지는 적용되지 않았다**. specific으로 이설해 부활.
+- **왜 안 잡혔나**: `x18 --verify`가 claim 승격(2026-07-31) 이후 banking에서 **항상 ❌**라 신호가 죽어
+  있었다(경보 포화). 살아 있는 검정은 `test_a2_three_layer.py` — 이번에 **ALL PASS로 복구**.
+- **규율 추가**: A2 수정은 **정본 층(settings/specific)** 에 하고, gate.json은 생성물로만 다룬다.
+
+## r8-6. 검정 하네스 부패 2건 수리(가짜 음성)
+
+`test_read_dedup_loopbreak.py`·신설 P6 검정이 **조용히 FAIL**이었다 — C241 U1'(2026-07-30) 이후
+실효-write 술어가 A2 어휘를 읽고 dedup 캐시-가부가 env `_is_mutating_tool`에 위임되므로, 그 둘이 없는
+페이크 self는 **모든 도구를 write로 보고 dedup을 통째로 끈다**. 환경을 물려 원래 의도대로 측정하도록
+수리(레버 회귀가 아니라 **검정의 부패**였다).
+
+## r8-7. [[05]] 3질문 ([[17]] 상설 — 이번 구현분)
+
+1. **변경(A2)**: `byref_field_map`(env 컬럼명·기계도출) · `require_complete_groups`(boolean) ·
+   `incomplete_hint`(정책 산문 유래 문구) · `dispatch_targets`(boolean) · L1 `give_quote` 문구 +
+   `give_quote_min_tokens`. **전부 데이터**이고 도구/필드 이름은 env·op 선언에서 나온다.
+2. **고정(엔진)**: op 트리 구조 워크 · 컬럼 복사 · 기대-그룹 집합 대조 · 토큰-연속 부분열 실재 검사 ·
+   집합 대조(기존 공유 술어 재사용). 도메인 리터럴 0·모델 무변경·scaffold의 도메인-특화 순증 0.
+3. **도메인-특화 아님**: 새 엔진 연산은 전부 도메인-일반이고 A2 추가분은 boolean 3개 + 컬럼 매핑 +
+   문구 2개다. 전이(τ²/retail) 시 바뀌는 것은 A2뿐(엔진 무변경) — [[05]] 경계 유지.
