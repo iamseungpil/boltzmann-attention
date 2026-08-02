@@ -147,6 +147,8 @@ def _make_wrapper(inner):
                     eb["structured_outputs"] = {"grammar": g}
                     kwargs["extra_body"] = eb
                     _mark("guided applied (call=%s tools=%d)" % (call_name, len(tools)))
+                    from t2_lever_beat import beat as _beat
+                    _beat("T2_GUIDED")   # 효과 증거(VERBOSE 없이도·3회 상한)
         return inner(model, messages, tools=tools, tool_choice=tool_choice,
                      call_name=call_name, **kwargs)
     return _generate

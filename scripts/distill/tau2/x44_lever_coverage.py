@@ -80,6 +80,7 @@ _CURATED = {  # 이름은 다르지만 코드 정독으로 1:1 확정한 쌍만(
     "T2_SG_GROUND": {"[GROUNDING WARNING]"},
     "T2_GROUND_HDR": {"[GROUNDING WARNING]"},        # 트리거 공유(발화=경고 자체·HDR는 문구 형태)
     "T2_TOOL_SIGNATURE_OBSERVE": {"[T2_TOOL_SIGNATURE]"},  # observe 모드가 본체 태그로 발화
+    "T2_ARG_SCHEMA": {"[T2_ARGSCHEMA]"},                   # 언더스코어 변형(dark 감사서 확정)
 }
 for fl, ts in _CURATED.items():
     exact_tags[fl] |= ts
