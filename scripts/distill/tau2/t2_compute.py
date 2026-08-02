@@ -10,6 +10,7 @@ op ∈ {const, ref, min, max, argmin, argmax, sum, count_where, diff, clamp, loo
 
 apply_op(spec, ctx) → 계산값 (실패=None·안전). ctx = {"args": 이번호출인자, "records": 조회record list,
   "params": 발견도구 nested 인자, "user": 사용자 발화값}. ref="params.disputed_amount" 형 경로."""
+import os
 import re
 import sys as _sys
 
@@ -560,7 +561,15 @@ def apply_op(spec, ctx):
             else:
                 missing = list(fields)
             if not rtext:            # 아직 조회 안 함 → 날조가 아니라 **순서**의 문제 = 별도 문구(A2)
-                tpl = spec.get("no_record_template") or spec.get("unmet_template") or "{count}"
+                # ★D1/D1b(INSTRUCTION_DEFECT §2b·2c · T2_NOREC_BRANCH=1): 현행 문구는 전제(조회 성공)를
+                #   가정하고 "then call this tool again"으로 닫아 **종료 분기가 없다**(008: 조회가 영구
+                #   `No records found` → 6-호출 사이클 ×30 → ctx 초과). v2는 ⑴같은 인자 반복 금지 +
+                #   미사용 식별자 키 우선(x35 ③: 다른 인자 재조회 성공 73/138 = **즉시-ASK가 놓칠 회복
+                #   상한 52.9%**) ⑵찾지 못하면 손님에게 말하고 다른 식별자 요청 ⑶줄 수 없으면 종결
+                #   ⑷검증 통과 전 기록 금지(긍정형·[[42]]).
+                tpl = ((spec.get("no_record_template_v2")
+                        if os.environ.get("T2_NOREC_BRANCH") == "1" else None)
+                       or spec.get("no_record_template") or spec.get("unmet_template") or "{count}")
             else:
                 tpl = spec.get("met_template" if len(matched) >= thr else "unmet_template") or "{count}"
             try:

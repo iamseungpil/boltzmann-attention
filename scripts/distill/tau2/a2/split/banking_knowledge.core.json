@@ -535,7 +535,9 @@
       "_note_inject": "2026-07-18 재설계(§2e): 카드당 격리+문서주입(검색 대신 title 접두)+{base_rate,exclusion_quote}. 엔진 리터럴 0·엔진은 서브 operand를 그대로 병합(값 생성/override 0). 2026-07-19: consensus·default백필 제거([[10]]·라이브 死자산)·잔여 레버=range-retry(서브 재질의). getter_tools=구 검색모드(미사용).",
       "doc_key": "credit_card_type"
      },
-     "_note_isolate": "2026-07-18 NIGHT+ · `RATE_SUBAGENT_DESIGN §2b` LOCK(사용자): operand는 격리 서브가 부하 없이 산출해 리턴한다. 메인은 원시 레코드만 넘기고(params), 격리 서브가 KB를 직접 검색(getter_tools·1라운드 required)해 base_rate/promo를 formalize·엔진이 날짜+곱셈. 엔진 리터럴 0([[05]])·도구명/질의/계약문 전부 A2. T2_SG_ISOLATE=1·기본 OFF."
+     "_note_isolate": "2026-07-18 NIGHT+ · `RATE_SUBAGENT_DESIGN §2b` LOCK(사용자): operand는 격리 서브가 부하 없이 산출해 리턴한다. 메인은 원시 레코드만 넘기고(params), 격리 서브가 KB를 직접 검색(getter_tools·1라운드 required)해 base_rate/promo를 formalize·엔진이 날짜+곱셈. 엔진 리터럴 0([[05]])·도구명/질의/계약문 전부 A2. T2_SG_ISOLATE=1·기본 OFF.",
+     "return_template_empty": "No transaction among the rows that were checked has a recorded reward differing from the reward the policy expects, so none of them needs a dispute or a rewards update from this result. This says nothing about rows that could not be checked — see the [coverage] line above for those.",
+     "_note_return_empty": "★D1/D1b·D4 처방(INSTRUCTION_DEFECT_REDESIGN r3 §2a/2b/2c·2026-08-02). 출처=정책 축자(\"if the issue cannot be resolved … ask the user whether they would like to be transferred\") + 도구 동작(env: 조회가 레코드를 못 찾음 / 판정 상세 공집합). **gold 경유 0**. 플래그 T2_NOREC_BRANCH / T2_RETURN_EMPTY = 1일 때만 발화·OFF면 거동 변화 0."
     }
    },
    "_note_ratefix": "C113: rate 결정론화. LLM=거래별 base_rate·promo formalize(KB해석·프로브 100%)·엔진=날짜판정+곱셈+discrepant. 엔진 도메인상수 0([[05]])·KB파싱 0([[03b]]). T2_A2_VARIANT=ratefix."
@@ -590,7 +592,9 @@
       "threshold": 2,
       "met_template": "VERIFIED — {count} identity values match the account record ({matched}); you may now call log_verification. Its time_verified argument must be the CURRENT time: FIRST call get_current_time, wait for its result, then copy that exact timestamp into time_verified — do not ask the customer for the time and do not make one up.",
       "unmet_template": "NOT_VERIFIED — only {count} of the required {threshold} values the customer gave match the account record (matched: {matched}). Ask the customer for ONE more of: {missing} — then call verify_identity again passing ALL values they have given so far in this conversation.",
-      "no_record_template": "NOT_VERIFIED — the account record has not been fetched yet, so nothing can be matched. Ask the customer for their name, email, or user ID (phone/DOB cannot be used to look up), call get_user_information_by_name/by_email/by_id, then call this tool again."
+      "no_record_template": "NOT_VERIFIED — the account record has not been fetched yet, so nothing can be matched. Ask the customer for their name, email, or user ID (phone/DOB cannot be used to look up), call get_user_information_by_name/by_email/by_id, then call this tool again.",
+      "no_record_template_v2": "NOT_VERIFIED — the account record has not been fetched yet, so nothing can be matched. Look the customer up with get_user_information_by_name/by_email/by_id, then call this tool again. Use a DIFFERENT identifier each time — repeating the same lookup arguments cannot change the result. If every identifier the customer can give returns no records, STOP calling these tools: tell the customer you cannot locate their account and ask them for another identifier; if they have none, say the account cannot be verified and follow the policy for that situation. Log the verification only AFTER it passes — right now the next step is the lookup.",
+      "_note_norec_v2": "★D1/D1b·D4 처방(INSTRUCTION_DEFECT_REDESIGN r3 §2a/2b/2c·2026-08-02). 출처=정책 축자(\"if the issue cannot be resolved … ask the user whether they would like to be transferred\") + 도구 동작(env: 조회가 레코드를 못 찾음 / 판정 상세 공집합). **gold 경유 0**. 플래그 T2_NOREC_BRANCH / T2_RETURN_EMPTY = 1일 때만 발화·OFF면 거동 변화 0."
      },
      "examples": [
       "verify_identity(provided={\"date_of_birth\":\"11/03/1990\",\"phone_number\":\"312-555-0481\"})  -> VERIFIED (2 values match)"

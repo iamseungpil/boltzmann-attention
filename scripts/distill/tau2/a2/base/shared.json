@@ -93,5 +93,22 @@
   "completion_question": "Before your reply is sent, answer ONE question about YOUR REPLY ONLY. Does your reply state or imply that some action has already been completed, submitted, filed, scheduled, or confirmed — OR that YOU (the agent) will submit/schedule/perform it? Merely giving the customer a tool to run, or instructing THEM to run it, does NOT count. Reply with exactly one JSON object and nothing else: {\"claims_completion\": true} or {\"claims_completion\": false}",
   "completion_feedback": "Error: [WRITE-PROVENANCE] your reply claims an action was completed/submitted/scheduled, but there is no record of any state-changing action having executed in this conversation. You cannot perform actions the customer must run themselves; only the CUSTOMER can, by calling the tool you gave them. Do NOT claim any action has been submitted, filed, or scheduled; do NOT invent case/reference/confirmation numbers; do NOT promise callbacks or confirmation emails. Instead, restate your reply: hand the customer the appropriate tool and tell them to run it themselves."
  },
- "_note_claim_audit": "L1(2026-07-31·C254 감사 후속·정본=CLAIM_AUDIT_ENGINE_PROMOTION_DESIGN_2026_07_31.md): 완료-주장을 실행 원장과 대조하는 **도메인-일반 무결성 원리**의 산문. 업종 명사 0 — 유일한 도메인 접점이던 kind enum은 `{kinds}` 자리표시자로 뽑아 L2가 채운다. 로더가 L1+L2를 합성해 구 `claim_prov`/`completion_guard`와 **바이트 동일**한 dict를 만든다(등가 게이트=test_claim_promotion). [[23]] 출처: 정책 근거 없음이 확인됐고(정책 7항은 내부정보 유출 금지) gold 경유도 아니다 — banking 사실이 아니라 원리이므로 L1이 옳은 자리다. ★2차 교정(같은 날): 산문에 **kind 용어집**(\"record_update for changing…, dispute_file for filing…\")이 박혀 있어 도메인-불변이 아니었다 — 등가 테스트 §③이 잡았다. `{kind_guidance}`로 뽑아 L2가 채운다."
+ "_note_claim_audit": "L1(2026-07-31·C254 감사 후속·정본=CLAIM_AUDIT_ENGINE_PROMOTION_DESIGN_2026_07_31.md): 완료-주장을 실행 원장과 대조하는 **도메인-일반 무결성 원리**의 산문. 업종 명사 0 — 유일한 도메인 접점이던 kind enum은 `{kinds}` 자리표시자로 뽑아 L2가 채운다. 로더가 L1+L2를 합성해 구 `claim_prov`/`completion_guard`와 **바이트 동일**한 dict를 만든다(등가 게이트=test_claim_promotion). [[23]] 출처: 정책 근거 없음이 확인됐고(정책 7항은 내부정보 유출 금지) gold 경유도 아니다 — banking 사실이 아니라 원리이므로 L1이 옳은 자리다. ★2차 교정(같은 날): 산문에 **kind 용어집**(\"record_update for changing…, dispute_file for filing…\")이 박혀 있어 도메인-불변이 아니었다 — 등가 테스트 §③이 잡았다. `{kind_guidance}`로 뽑아 L2가 채운다.",
+ "axis_notes": {
+  "is_scaffold": "`{tool}` is NOT a discoverable tool — it is already provided to you. Call it directly with its arguments; it cannot be unlocked.",
+  "is_user_tool": "`{tool}` is a USER tool: the customer runs it, not you. Hand it over with `give_discoverable_user_tool(\"{tool}\")` and tell the customer what arguments to pass.",
+  "is_agent_tool": "`{tool}` is an AGENT tool: unlock it with `unlock_discoverable_agent_tool(\"{tool}\")`, then call it with `call_discoverable_agent_tool`. It cannot be handed to the customer.",
+  "not_unlocked": "`{tool}` has not been unlocked yet. Call `unlock_discoverable_agent_tool(\"{tool}\")` first, then `call_discoverable_agent_tool`.",
+  "mentioned_agent": "You referred to `{tool}` but have not unlocked it. That name is not directly callable — use `unlock_discoverable_agent_tool(\"{tool}\")` and then `call_discoverable_agent_tool(\"{tool}\", …)`. Describing the call does not perform it.",
+  "mentioned_user": "You referred to `{tool}`, which is a USER tool. Hand it over with `give_discoverable_user_tool(\"{tool}\")` — describing it to the customer does not give it to them.",
+  "diff": "{n} options are eligible; the tool did not narrow them. They differ only in: {fields}. -- {table} -- Choose using what the customer actually said. If their stated requirements do not decide it, ask them.",
+  "no_diff": "{n} options are eligible and they are identical on every field returned. Nothing here distinguishes them — ask the customer what matters to them.",
+  "multi_plain": "{n} options are eligible; the tool did not narrow them. Choose using what the customer actually said, or ask.",
+  "scalar_array": "You passed a list of {n} values in `{field}`, which takes a single value. Issue one call per value.",
+  "already_asked": "The customer has already asked to be transferred. Do not ask again — call the transfer tool now with the most specific reason. Saying you will transfer does not transfer anyone.",
+  "transfer_tokens": [
+   "###TRANSFER###"
+  ]
+ },
+ "_note_axis_notes": "표면화 문구(도메인-일반·L1) — 정본 `FAILURE_AXES_REDESIGN_2026_08_02` / `RUNAWAY_AXIS_REDESIGN_2026_08_02`. 출처: 도구 종류별 절차는 **에이전트 정책 축자**(\"First, unlock the tool using unlock_discoverable_agent_tool … The unlock step is required before calling\") · 이관 재질문 금지는 **A2 gate ask 축자**(\"do NOT send the notice again … Saying you will transfer … does not transfer anyone\") · 종료 토큰은 env 산출. **gold 경유 0**. 도구 이름은 여기 없다 — env `DISCOVERABLE_ATTR`에서 런타임 기계 도출(C208 판정: opex 0). 새 도메인 전이 비용 0(L1)."
 }

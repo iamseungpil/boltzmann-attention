@@ -104,6 +104,16 @@ def _domain_a2(domain):
         #   호환용으로만 보존. ★신규 소비 금지 — 게이트 판정은 per-gate 커링(check callable)로.
         a2["_notice_text"] = next(
             (g.get("notice_text") for g in a2["gates"] if g.get("kind") == "notice"), "")
+        # ★축-레버 문구는 **L1 base/shared.json**(도메인-일반·새 도메인 비용 0)에서 읽는다.
+        #   도메인 A2에 같은 키가 있으면 그것이 우선(도메인 정련 여지·기본은 L1 그대로).
+        if "axis_notes" not in a2:
+            try:
+                _bp = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "a2", "base", "shared.json")
+                with open(_bp, encoding="utf-8") as _bf:
+                    a2["axis_notes"] = (json.load(_bf) or {}).get("axis_notes") or {}
+            except Exception:
+                a2["axis_notes"] = {}
     _A2_CACHE[domain] = a2
     return a2
 
@@ -547,6 +557,105 @@ def _content_str(tool_msg):
         except (ValueError, TypeError):
             return c
     return str(c)
+
+
+def _axis_surface(orch, tool_calls, results):
+    """★축-레버 표면화 진입점 (FAILURE_AXES / RUNAWAY 설계서·2026-08-02).
+
+    [[05]] 3질문: ⑴도메인 리터럴 **0** — 도구 이름은 A2 `tool_registry`/`scaffold_get_tools`,
+    문구는 A2 `axis_notes`. ⑵닫는 술어 = 집합 멤버십·unlock 상태·딕셔너리 diff·단수명 배열·
+    토큰 축자 실재뿐(표면-불변). ⑶**표면화만** — 거부·재작성·값 생성 0.
+    각 레버는 플래그 기본 OFF. A2에 선언이 없으면 무발화(거동 변화 0)."""
+    import t2_axis_levers as AX
+    env = getattr(orch, "environment", None)
+    a2 = _domain_a2(getattr(env, "domain_name", None)) if env is not None else None
+    if not isinstance(a2, dict):
+        return
+    notes_cfg = a2.get("axis_notes") or {}
+    if not notes_cfg:
+        return
+    scaffold, _ad, _ud = AX.registry_from_a2(a2)          # 스캐폴드 이름 = A2 선언
+    agent_d, user_d = AX.registry_from_env(orch)          # ★discoverable = env 기계 도출(opex 0)
+    agent_d |= _ad
+    user_d |= _ud
+    if not (agent_d or user_d):
+        return
+    unlocked = getattr(orch, "_t2_axis_unlocked", None)
+    if unlocked is None:
+        unlocked = orch._t2_axis_unlocked = set()
+
+    by_id = {getattr(r, "id", None): r for r in (results or [])}
+    called = set()
+    for tc in (tool_calls or []):
+        called.add(str(getattr(tc, "name", "") or ""))
+        a = getattr(tc, "arguments", None)
+        if isinstance(a, str):
+            try:
+                a = json.loads(a)
+            except Exception:
+                a = {}
+        a = a if isinstance(a, dict) else {}
+        for k in ("agent_tool_name", "discoverable_tool_name"):
+            if a.get(k):
+                called.add(str(a[k]))
+        r = by_id.get(getattr(tc, "id", None))
+        if r is None:
+            continue
+        txt = _content_str(r) or ""
+        if "Tool unlocked:" in txt:
+            m = re.search(r"Tool unlocked:\s*([A-Za-z0-9_]+)", txt)
+            if m:
+                unlocked.add(m.group(1))
+        add = []
+        if os.environ.get("T2_TOOL_CHANNEL") == "1":
+            n = AX.channel_note(str(getattr(tc, "name", "") or ""), a,
+                                scaffold, agent_d, user_d, unlocked, notes_cfg)
+            if n:
+                add.append(n)
+        if os.environ.get("T2_SCALAR_ARRAY") == "1":
+            n = AX.scalar_array_note(a, notes_cfg)
+            if n:
+                add.append(n)
+        if os.environ.get("T2_FIT_DIFF") == "1" and notes_cfg.get("diff"):
+            n = AX.fit_diff_note(txt, notes_cfg)
+            if n:
+                add.append(n)
+        if add:
+            try:
+                r.content = (txt + "\n" + "\n".join("[axis] " + x for x in add))
+            except Exception:
+                pass
+            print("[T2_AXIS] %s ← %d note(s)" % (getattr(tc, "name", ""), len(add)),
+                  file=sys.stderr, flush=True)
+
+    # 본문-언급 / 터미널-턴 = 대화 이력이 필요한 레버(없으면 무발화)
+    msgs = getattr(orch, "messages", None) or getattr(orch, "_t2_msgs", None) or []
+    said, utext = "", ""
+    for m in list(msgs)[-6:]:
+        role = getattr(m, "role", None) or (m.get("role") if isinstance(m, dict) else None)
+        c = getattr(m, "content", None) or (m.get("content") if isinstance(m, dict) else None)
+        if not isinstance(c, str):
+            continue
+        if role == "assistant":
+            said += " " + c
+        elif role == "user":
+            utext += " " + c
+    tail = results[-1] if results else None
+    extra = []
+    if tail is not None and os.environ.get("T2_TOOL_CHANNEL") == "1" and said:
+        extra += AX.mention_note(said, called, agent_d, user_d, unlocked, notes_cfg)
+    if tail is not None and os.environ.get("T2_TERMINAL_TURN") == "1" and utext:
+        n = AX.terminal_turn_note(utext, notes_cfg.get("transfer_tokens") or [],
+                                  any("transfer" in c for c in called), notes_cfg)
+        if n:
+            extra.append(n)
+    if extra and tail is not None:
+        try:
+            tail.content = (_content_str(tail) or "") + "\n" + \
+                "\n".join("[axis] " + x for x in extra)
+            print("[T2_AXIS] tail ← %d note(s)" % len(extra), file=sys.stderr, flush=True)
+        except Exception:
+            pass
 
 
 def _deny_msg(tc, gate_name, reason):
@@ -3023,7 +3132,12 @@ def _install_regen_exec():
                 k = _call_key(tc)
                 # ★§2bi: 뷰-압축으로 다이제스트된 출력의 재열람은 stub 금지(재실행 허용) —
                 #   안 그러면 "위 출력 참조" stub이 다이제스트를 가리켜 재열람 탈출구가 막힘.
-                if k in cache and cache.get(k) in _dgset:
+                # ★★T2_NO_DIGEST_REEXEC=1 (RUNAWAY_AXIS_REDESIGN §2a·2026-08-02): 이 규칙이
+                #   022에서 **동일 23,291자 테이블을 3부 재유입**시켰다(문맥 25.9%). 전수 계수
+                #   446회/208 sim/7,578,692자. 재열람 탈출구를 **재실행**으로 준 것이 원인이므로
+                #   플래그 ON이면 면제를 끄고 stub을 유지한다(원문은 위에 이미 있다).
+                if k in cache and cache.get(k) in _dgset \
+                        and os.environ.get("T2_NO_DIGEST_REEXEC") != "1":
                     cache.pop(k, None)
                 if ((k in cache or seen.get(k, 0) >= loop_k)
                         and not _is_effective_write(_eff_tool_name(tc), _a2w)):
@@ -3050,7 +3164,23 @@ def _install_regen_exec():
                     _rep[k] = _rep.get(k, 0) + 1
                     _n_rep = _rep[k]
                     _esc = ""
-                    if _n_rep >= 3:
+                    # ★T2_REPEAT_CAP=K (RUNAWAY §2c·x35 ① 사전계측: K=8에서 과차단 하한 0·표적 39 sim).
+                    #   C194 esc(_n_rep>=3) **위에** 얹히는 3번째 강도라 K>3이어야 귀속이 깨지지 않는다.
+                    #   실행 억제는 이미 stub이 하고 있으므로 여기서 더하는 것은 **3층 보고**다.
+                    try:
+                        _cap = int(os.environ.get("T2_REPEAT_CAP", "0") or 0)
+                    except Exception:
+                        _cap = 0
+                    if _cap > 3 and _n_rep >= _cap:
+                        _log = getattr(self, "_t2_repeat_log", None)
+                        if _log is None:
+                            _log = self._t2_repeat_log = []
+                        _log.append((getattr(tc, "name", ""), _n_rep))
+                        _esc = (" [REPEAT-CAP] This identical call has now been issued %d times and is "
+                                "no longer being executed. Stop this line of action: state to the "
+                                "customer what you could not resolve, or take a DIFFERENT action. "
+                                "This has been recorded as an unresolved blocker." % _n_rep)
+                    elif _n_rep >= 3:
                         _esc = (" You have now issued this IDENTICAL call %d times and the result "
                                 "has not changed once — repeating it again cannot produce new "
                                 "information. Change what you do: use DIFFERENT search words, or "
@@ -3128,6 +3258,12 @@ def _install_regen_exec():
                     r = _TM(id=_tid, role="tool", requestor=getattr(tc, "requestor", "assistant"),
                             error=True, content="(no result returned for this tool call)")
                 results.append(r)
+            # ★★축-레버 표면화 (FAILURE_AXES_REDESIGN / RUNAWAY_AXIS_REDESIGN·2026-08-02).
+            #   전부 플래그 기본 OFF·표면화만(거부/값생성 0)·도메인 리터럴 0(이름=A2 레지스트리·문구=A2).
+            try:
+                _axis_surface(self, tool_calls, results)
+            except Exception as _e:                      # 레버 실패가 런을 죽이지 않는다
+                print("[T2_AXIS] 표면화 실패(무시): %r" % (_e,), file=sys.stderr, flush=True)
             min_len = int(os.environ.get("T2_READ_DEDUP_MIN", "2000"))
             for tc in to_run:
                 out = _rby.get(getattr(tc, "id", None))

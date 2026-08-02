@@ -1526,7 +1526,15 @@ def apply():
                         _details = "; ".join(_item_t.format(**it) for it in _dets) if _dets else "(none)"
                     except Exception:
                         _details = ", ".join(_res) if _res else "(none)"
-                    _txt = d.get("return_template", "{ids}").format(
+                    # ★D4 모순 제거(INSTRUCTION_DEFECT §2a·T2_RETURN_EMPTY=1): 판정 상세가
+                    #   **공집합**인데 "표시된 정확한 값으로 갱신하라"를 함께 말하는 모순(실측 20회/14 sim,
+                    #   그중 7회는 coverage 결손 동반). 술어 = `_sg_details` 공집합(닫힘·판단 0).
+                    #   ★empty 문구는 **완결을 주장하지 않는다** — coverage 표면화에 위임(허위 신설 방지).
+                    _tpl_key = "return_template"
+                    if (os.environ.get("T2_RETURN_EMPTY") == "1" and not _dets
+                            and d.get("return_template_empty")):
+                        _tpl_key = "return_template_empty"
+                    _txt = d.get(_tpl_key, "{ids}").format(
                         ids=", ".join(_res) if _res else "(none)", details=_details)
                     _n = len(_res)
                     # ★C195: 판정 커버리지 병기(op가 _sg_stats를 남긴 경우만·거동보존).
@@ -1595,10 +1603,18 @@ def apply():
                 # ★grounding 플래그를 반환문 맨 앞에 붙인다 — 드롭된 미검증 operand를 에이전트가 보고
                 #   레코드를 다시 읽게(가짜 정밀도 신뢰 차단·§2ab). 플래그 없으면 거동 변화 0.
                 if _gflags:
+                    # ★D3 헤더-상세 모순 제거(INSTRUCTION_DEFECT §2d′·T2_GROUND_HDR=1):
+                    #   공통 헤더가 전 필드에 *"레코드에서 다시 읽어라"*를 말하는데, `intent_fields`
+                    #   (corpus=user)의 개별 주석은 *"손님이 말한 적 없다"*로 **정반대 출처**를 가리킨다.
+                    #   실측(x35 ②): ledger 파라미터 회복 38:20 vs user 파라미터 회복 7:43.
+                    #   ⇒ 헤더에서 **지시문을 뺀다**(각 flag의 괄호 주석이 이미 클래스별로 정확하다).
+                    #   엔진 분기 순증 0 · A2 순증 0.
+                    _hdr_tail = ("" if os.environ.get("T2_GROUND_HDR") == "1"
+                                 else " Re-read the exact value(s) from the records before "
+                                      "relying on this result.")
                     _txt = ("[GROUNDING WARNING] %d input value(s) could not be verified against the "
-                            "account records / knowledge base and were dropped: %s. Re-read the exact "
-                            "value(s) from the records before relying on this result.\n%s"
-                            % (len(_gflags), "; ".join(_gflags), _txt))
+                            "account records / knowledge base and were dropped: %s.%s\n%s"
+                            % (len(_gflags), "; ".join(_gflags), _hdr_tail, _txt))
                 # requestor는 tau2 원본과 동형으로 **미러링**(environment.get_response: requestor=message.requestor).
                 # ★P8: 결정론 결과 캐시(같은 인자 재호출의 재제시용·우리 도구=replay 무관).
                 if _pend_key is not None:
