@@ -226,3 +226,66 @@ rev2 arm = 기준선(nt2 스택) 대비 **추가 변수 3개만**: ⓐreader 상
 ③ orchestrator 명시화(라우팅 표·슬라이스 공급기 — 기존 exec2 재배치) → ④ reader 상설·plan e2e 배선 →
 ⑤ 단위·회귀·x45 → ⑥ 오프라인 재생(§6-2) → ⑦ 마이크로-스모크 → ⑧ rev2 arm 본런(승인) → ⑨ 판정·원장.
 **롤백**: 라우팅 표 비우면 전 기능이 현 경로로(변경 0)·arm 플래그 1개.
+
+---
+
+## 10. 부록 A — 계약 스키마 v1 (결정점-타입별 근거 표준 · 2026-08-02 밤 · 리뷰 대기)
+
+> 사용자 지시: *"모든 선택 결정점에서 근거를 대라고 하는 부분을 기능별 에이전트로 쪼개고, 각 에이전트에서
+> 근거 확인하게 루틴을 만드는 건 어떤가."* — §2c 6필드 계약의 **evidence 필드를 타입 시스템으로 구체화**한다.
+> 원칙 재확인: 근거 **제출**은 에이전트(LLM·formalize), 근거 **확인**은 경계의 엔진([[10]]·[[22]] — 실재성만·
+> 의미 판단 0). 에이전트 내부 자기-확인 루틴은 두지 않는다(soft·[[07]]).
+
+### 10a. A2 스키마 골격 (도메인-일반 형식 · 내용은 도메인 A2)
+
+```json
+{"agents": [{
+  "name": "…",                       // 도메인-일반 기능명(selection/reader/coverage/…)
+  "type": "reader|formalize|selection|coverage|controller",
+  "input_slice":  { "docs": ["제목-접두"], "rows": ["row_fields"], "ledger": ["…"], "user_turns": true },
+  "return_schema": { "fields": { "…": "type" }, "extra_fields": "dropped" },
+  "evidence": [{
+     "field": "…",                   // return_schema 내 검증 대상 필드
+     "check": "quote_verbatim|grounded_value|registry_member|set_compare|status_field",
+     "corpus": "kb_docs|records|user_turns|tool_returns",   // ★에코-제외 규칙 상설(P9-감사B):
+                                     //   우리 오류-응답·give-확인 에코는 corpus에서 제외
+     "on_fail": "surface_requery|abstain_surface|fallback_less_intervention"
+  }],
+  "budget": { "rounds": n, "getter_calls": n, "return_chars": n },   // 초과=on_fail·버스 예산 편입(§2d③)
+  "on_fail": "…"                     // §2c-6 그대로(fail-open·덜 개입 쪽)
+}]}
+```
+
+### 10b. ★결정점-타입별 근거 필드 표준 (이번 아크 실증 전량이 원천)
+
+| 결정점 타입 | 근거 필드(evidence.field) | 엔진 검사(check) | 실증 계보 |
+|---|---|---|---|
+| **선택**(카드·대상 추천) | `eligibility_quote` + `exclusion_check_quote` | quote_verbatim(KB) | P4ⓒ — Apple∈제외·truck∉적격 **둘 다 KB 축자 실재**·QP §8b 확장 |
+| **write 인자** | grounded args(기록-값 인자) | grounded_value(records·에코-제외) | §2bs·P9(028 전사·040 placeholder)·C289 |
+| **give** | `user_request_quote` | quote_verbatim(user_turns) | P1(010 여분-give 재현 2/2) |
+| **이관** | `transfer_trigger_quote`(정책 조항 또는 무득점 신호) | quote_verbatim ∨ 구조 신호(P2 ⑴⑵) | 012(4/4)·014 |
+| **완결** | `dispatch_ledger`(지시 대상 집합 vs 제출 집합) | set_compare(구조 필드·A2 패턴 폴백) | P8(020/027 부분-제출) |
+| **상태-판독** | `status_field`(도구 응답의 Status: 구조) | status_field 파싱(닫힘) | 026(RESOLVED 신호 미독) |
+| **주장-수용**(외부 조건 이행) | `claim_quote`(주장 문구의 KB 대조) | quote_verbatim(KB) | P10(014/015 재현 2/2) |
+
+규약(전 타입 공통): 검사 = **실재성/구조만**·불성립 = 표면화+재질의 1회(fail-open·강제 금지)·
+Δspurious 동시 계측·표면화는 버스 경유(§2d③)·개입은 생성-레벨(replay §6-4)·quote 검사는 정규화
+토큰-연속(C276)·**도구 인자에 근거 필드 추가 금지**(P1 ☠채널 제약 — 근거는 선언 봉투에만).
+
+### 10c. 에이전트 인스턴스 골격 (§2a 5유형 매핑)
+
+| 에이전트 | 주 결정점 | evidence 인스턴스 |
+|---|---|---|
+| reader | (판단 없음) | 인용 무편집 반환 — quote_verbatim은 orchestrator 소비 시 검사(F1 명확화 유지) |
+| formalize | write·give·이관 선언 | grounded args + user_request_quote + transfer_trigger_quote |
+| **selection**(신설 후보) | 선택 | eligibility_quote + exclusion_check_quote ⚠QP §8b 식별표와 접점 — **⒡ 운영자-지식 승인([[23]]) 선결·승인 전 표 저작 금지** |
+| coverage | 완결 | dispatch_ledger + status_field |
+| plan-controller | (결정론) | 근거 불요 — 계산·라우팅만(§2f: LLM 라우팅 금지) |
+
+### 10d. 미결(리뷰 항목)
+
+① selection 에이전트의 식별표 의존 — QP §8b ⒡ 승인 전에는 exclusion 검사를 **인용-실재성까지만**
+(표-멤버십 없이) 운용 ② budget 기본값(도메인-일반 상한) ③ `banking_knowledge.agents.json` 신설 vs
+gate.json 내 `agents` 섹션(파일 분리 여부) ④ 학습 연동: 이 계약 준수 궤적을 4벤치-경로 grounds-first
+스킬의 감독 신호로 수출([[11]] — τ² 직접 SFT 금지·C31 "강제 조회가 학습-정합적" 계보) — learn 데이터
+스펙에 등재만.
