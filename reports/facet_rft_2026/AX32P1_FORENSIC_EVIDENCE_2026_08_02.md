@@ -44,6 +44,52 @@ Transactions whose recorded reward does NOT match the expected reward under the 
 ```
 - 반환 txn 집합: ['txn_37b5b8e67a5e', 'txn_580773a8649e', 'txn_a9b0c1d2e3f4', 'txn_c5d6e7f8a9b0', 'txn_d398545ca1a2', 'txn_f093f96e2001']
 
+## 프로브 028 — get_reward_discrepancies 반환 전수 + 전사-id 출처
+
+- #1(call@44) head: Error: [ARGS-FORMAT] the 'transactions' argument could not be read as a JSON array — it arrived as a plain string that is not valid JSON. Re-issue this exact call with 'transaction
+- #2(call@46) head: No transaction among the rows that were checked has a recorded reward differing from the reward the policy expects, so none of them needs a dispute or a rewards update from this re
+- #3(call@54) head: Error: [BYREF] the referenced output is not a record dump (no 'Record ID:' lines) — @last:/@call: may only reference record-read outputs
+- #4(call@58) head: Error: [BYREF] the referenced output is not a record dump (no 'Record ID:' lines) — @last:/@call: may only reference record-read outputs
+- #5(call@64) head: No transaction among the rows that were checked has a recorded reward differing from the reward the policy expects, so none of them needs a dispute or a rewards update from this re
+- txn_d3b830f4a2a4: tool-정확일치 idx=39
+- txn_4c29a0f4a2a4: tool-정확일치 idx=68
+- txn_7d3b830f4a2a4: tool-정확일치 idx=69
+- give@66 args: {"discoverable_tool_name": "submit_cash_back_dispute_0589", "arguments": "{\"user_id\": \"890389b165\", \"transaction_id\": \"txn_d3b830f4a2a4\"}"}
+- give@66 args: {"discoverable_tool_name": "submit_cash_back_dispute_0589", "arguments": "{\"user_id\": \"890389b165\", \"transaction_id\": \"txn_4c29a0f4a2a4\"}"}
+- give@66 args: {"discoverable_tool_name": "submit_cash_back_dispute_0589", "arguments": "{\"user_id\": \"890389b165\", \"transaction_id\": \"txn_7d3b830f4a2a4\"}"}
+
+## 프로브 040 — give 인자 붕괴(placeholder)
+
+- give@4 args: {"discoverable_tool_name": "get_card_last_4_digits", "arguments": "{\"message\": \"Please use this tool to retrieve the last four digits of your credit cards. Enter the c
+- give@6 args: {"discoverable_tool_name": "get_card_last_4_digits", "arguments": "{\"card_account_id\": \"[Enter your credit card account ID here]\"}"}
+
+## 프로브 task_032 — 마커·KB·직전 창(미시도 실증)
+
+- 엔진 마커: 없음 · KB 출력 initial_transfer 언급: False
+- [user@5] Look, I appreciate you trying to help, but I really need to speak with a human agent about this. Can you transfer me please?
+- [assistant@6] TRANSFER NOTICE: I have checked the knowledge base and there are no further actions I can take for this request. Would you like to be transferred to a human age
+- [user@7] Yes — please transfer me to a human agent. This is urgent.
+
+## 프로브 task_033 — 마커·KB·직전 창(미시도 실증)
+
+- 엔진 마커: 없음 · KB 출력 initial_transfer 언급: False
+- [user@9] Yes, please transfer me to a human agent now. My statement closes in two days and I need this fixed before I’m charged interest on a balance I already paid.
+- [assistant@10] TRANSFER NOTICE: I have checked the knowledge base and there are no further actions I can take for this request. Would you like to be transferred to a human age
+- [user@11] ###TRANSFER###
+
+## 프로브 task_020 — [coverage] 마커 원문
+
+- [coverage] 26 of 26 rows were checked (0 could not be verified).
+- [coverage] 26 of 26 rows were checked (0 could not be verified).
+
+## 프로브 task_027 — [coverage] 마커 원문
+
+- [coverage] 26 of 26 rows were checked (0 could not be verified).
+
+## 프로브 024 — fit 출력 head(FIT_DIFF facts 실림)
+
+- fit@2 head: {'eligible': [{'card': 'Business Bronze Rewards Card', 'facts': {'annual_fee': 0.0, 'fx_fee': 2.75, 'cashback': 1.0, 'source': 'doc business_bronze_rewards_card_*', 'cashback_scope': 'all', 'base_cashback': 1.0, "rate_for('operations')": '1.0% (all purchases)'
+
 ## dbdiff — task_010 (initial_state None-가드 변형)
 
 - task_010 agent_db_match=False user_db_match=False
