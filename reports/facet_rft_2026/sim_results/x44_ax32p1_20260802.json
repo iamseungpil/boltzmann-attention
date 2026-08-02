@@ -1,0 +1,2660 @@
+[
+ {
+  "flag": "T2_ARG_SCHEMA",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_ARGSCHEMA]",
+   "[T2_ARG_SCHEMA]",
+   "[T2_LEVER] T2_ARG_SCHEMA"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_BRANCH_REGROUND",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_BRANCH_REGROUND]",
+   "[T2_LEVER] T2_BRANCH_REGROUND"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_COV_MIDDRIVE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_COV_MIDDRIVE]",
+   "[T2_LEVER] T2_COV_MIDDRIVE"
+  ],
+  "shared": [
+   "[T2_COV]",
+   "[T2_TOOLERR]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_DISPATCH_ROLE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_DISPATCH_ROLE]",
+   "[T2_LEVER] T2_DISPATCH_ROLE"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_FAB_STRIP",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_FAB_STRIP]",
+   "[T2_LEVER] T2_FAB_STRIP"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_GIVE_RELEVANCE_NUDGE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_GIVE_RELEVANCE_NUDGE]",
+   "[T2_LEVER] T2_GIVE_RELEVANCE_NUDGE"
+  ],
+  "shared": [
+   "[T2_GIVE_RELEVANCE]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_GROUND",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_GROUND]",
+   "[T2_LEVER] T2_GROUND"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_HAVE_VALUE_FORCE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_HAVE_VALUE_FORCE]",
+   "[T2_LEVER] T2_HAVE_VALUE_FORCE"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_NOREC_BRANCH",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_NOREC_BRANCH",
+   "[T2_NOREC_BRANCH]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_PRESCRIPTION",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_PRESCRIPTION",
+   "[T2_PRESCRIPTION]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_PROV_REGEN",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_PROV_REGEN",
+   "[T2_PROV_REGEN]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_RETURN_EMPTY",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_RETURN_EMPTY",
+   "[T2_RETURN_EMPTY]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_SG_REQREADS",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_SG_REQREADS",
+   "[T2_SG_REQREADS]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_TOOLLIST",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_TOOLLIST",
+   "[T2_TOOLLIST]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_UNKNOWN_NAME_BL",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_UNKNOWN_NAME_BL",
+   "[T2_UNKNOWN_NAME_BL]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_UNLOCK_PROV",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_UNLOCK_PROV",
+   "[T2_UNLOCK_PROV]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_UNVERIFIED_FOLLOWUP",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_UNVERIFIED_FOLLOWUP",
+   "[T2_UNVERIFIED_FOLLOWUP]"
+  ],
+  "shared": [
+   "[T2_UNVERIFIED_FU]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "★ON인데 무발화 — 감사"
+ },
+ {
+  "flag": "T2_ACTION_PROGRESS_REFUND",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_ACTION_PROGRESS_REFUND]",
+   "[T2_LEVER] T2_ACTION_PROGRESS_REFUND"
+  ],
+  "shared": [
+   "[T2_RESOLVE]"
+  ],
+  "fired": 0,
+  "shared_fired": 99,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_COVERAGE_FOLLOWUP",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_COVERAGE_FOLLOWUP]",
+   "[T2_LEVER] T2_COVERAGE_FOLLOWUP"
+  ],
+  "shared": [
+   "[T2_COVERAGE_FU]",
+   "[T2_UNVERIFIED_FU]"
+  ],
+  "fired": 0,
+  "shared_fired": 2,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_DUP_REPRESENT",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_DUP_REPRESENT]",
+   "[T2_LEVER] T2_DUP_REPRESENT"
+  ],
+  "shared": [
+   "[T2_SG_DEDUP]",
+   "[T2_SG_TRACE]"
+  ],
+  "fired": 0,
+  "shared_fired": 67,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_ENVELOPE_GUARD",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_ENVELOPE_GUARD]",
+   "[T2_LEVER] T2_ENVELOPE_GUARD"
+  ],
+  "shared": [
+   "[T2_ENVGUARD]",
+   "[T2_GIVE_RELEVANCE]",
+   "[T2_TRUNCGUARD]"
+  ],
+  "fired": 0,
+  "shared_fired": 14,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_FOLLOWUP_FORCE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_FOLLOWUP_FORCE]",
+   "[T2_LEVER] T2_FOLLOWUP_FORCE"
+  ],
+  "shared": [
+   "[T2_COVERAGE_FU]",
+   "[T2_FOLLOWUP]",
+   "[T2_UNVERIFIED_FU]"
+  ],
+  "fired": 0,
+  "shared_fired": 53,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_FOLLOWUP_PROGRESS_REFUND",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_FOLLOWUP_PROGRESS_REFUND]",
+   "[T2_LEVER] T2_FOLLOWUP_PROGRESS_REFUND"
+  ],
+  "shared": [
+   "[T2_FOLLOWUP]",
+   "[T2_RESOLVE]"
+  ],
+  "fired": 0,
+  "shared_fired": 150,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_FOLLOWUP_READLOOP",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_FOLLOWUP_READLOOP]",
+   "[T2_LEVER] T2_FOLLOWUP_READLOOP"
+  ],
+  "shared": [
+   "[T2_FOLLOWUP]"
+  ],
+  "fired": 0,
+  "shared_fired": 51,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_FOLLOWUP_REQUIRED",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_FOLLOWUP_REQUIRED]",
+   "[T2_LEVER] T2_FOLLOWUP_REQUIRED"
+  ],
+  "shared": [
+   "[T2_FOLLOWUP]"
+  ],
+  "fired": 0,
+  "shared_fired": 51,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_GIVE_EXEC_NUDGE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_GIVE_EXEC_NUDGE]",
+   "[T2_LEVER] T2_GIVE_EXEC_NUDGE"
+  ],
+  "shared": [
+   "[T2_GIVE_EXEC]"
+  ],
+  "fired": 0,
+  "shared_fired": 25,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_GROUND_HDR",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[GROUNDING WARNING]",
+   "[T2_GROUND_HDR]",
+   "[T2_LEVER] T2_GROUND_HDR"
+  ],
+  "shared": [
+   "[T2_SCAFFOLD_GET]"
+  ],
+  "fired": 0,
+  "shared_fired": 331,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_HAVE_VALUE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_HAVE_VALUE]",
+   "[T2_LEVER] T2_HAVE_VALUE"
+  ],
+  "shared": [
+   "[T2_VIEW_ANNOTATE]",
+   "[T2_VIEW_COMPACT]"
+  ],
+  "fired": 0,
+  "shared_fired": 7,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_NO_DIGEST_REEXEC",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_NO_DIGEST_REEXEC",
+   "[T2_NO_DIGEST_REEXEC]"
+  ],
+  "shared": [
+   "[T2_READ_DEDUP]"
+  ],
+  "fired": 0,
+  "shared_fired": 40,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_PAIRCHECK",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_PAIRCHECK",
+   "[T2_PAIRCHECK]"
+  ],
+  "shared": [
+   "[T2_EPLAN]",
+   "[T2_PAIRFIX]"
+  ],
+  "fired": 0,
+  "shared_fired": 59,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_PAIRFIX",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_PAIRFIX",
+   "[T2_PAIRFIX]"
+  ],
+  "shared": [
+   "[T2_EPLAN]",
+   "[T2_PAIRCHECK]",
+   "[T2_PAIRDUMP]"
+  ],
+  "fired": 0,
+  "shared_fired": 59,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_PARAM_CAP",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_PARAM_CAP",
+   "[T2_PARAM_CAP]"
+  ],
+  "shared": [
+   "[T2_RESOLVE]"
+  ],
+  "fired": 0,
+  "shared_fired": 99,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_QUOTE_PIN",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_QUOTE_PIN",
+   "[T2_QUOTE_PIN]",
+   "[T2_SG_ISOLATE] quote-pin"
+  ],
+  "shared": [
+   "[T2_SG_ISOLATE]"
+  ],
+  "fired": 0,
+  "shared_fired": 155,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_REF_VERIFY",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_REF_VERIFY",
+   "[T2_REF_VERIFY]"
+  ],
+  "shared": [
+   "[T2_VIEW_ANNOTATE]",
+   "[T2_VIEW_COMPACT]"
+  ],
+  "fired": 0,
+  "shared_fired": 7,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_SEARCH_EXHAUST_NUDGE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_SEARCH_EXHAUST_NUDGE",
+   "[T2_SEARCH_EXHAUST_NUDGE]"
+  ],
+  "shared": [
+   "[T2_SEARCH_EXHAUST]"
+  ],
+  "fired": 0,
+  "shared_fired": 6,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_SG_ISOFB",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_SG_ISOFB",
+   "[T2_SG_ISOFB]"
+  ],
+  "shared": [
+   "[T2_SG_ISOLATE]"
+  ],
+  "fired": 0,
+  "shared_fired": 155,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_TOOLGATE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_TOOLGATE",
+   "[T2_TOOLGATE]"
+  ],
+  "shared": [
+   "[T2_SG_TRUTH]"
+  ],
+  "fired": 0,
+  "shared_fired": 7,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_TRUNC_GUARD",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_TRUNC_GUARD",
+   "[T2_TRUNC_GUARD]"
+  ],
+  "shared": [
+   "[T2_ENVGUARD]",
+   "[T2_GIVE_RELEVANCE]",
+   "[T2_TRUNCGUARD]"
+  ],
+  "fired": 0,
+  "shared_fired": 14,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_UNAVAIL_PROMISE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_UNAVAIL_PROMISE",
+   "[T2_UNAVAIL_PROMISE]"
+  ],
+  "shared": [
+   "[T2_CLAIMPROV]",
+   "[T2_UNAVAIL]"
+  ],
+  "fired": 0,
+  "shared_fired": 283,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_UNKNOWN_REPEAT_GUARD",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_UNKNOWN_REPEAT_GUARD",
+   "[T2_UNKNOWN_REPEAT_GUARD]"
+  ],
+  "shared": [
+   "[T2_ARG_REPEAT]",
+   "[T2_COVERAGE_FU]",
+   "[T2_UNKNOWN_REPEAT]"
+  ],
+  "fired": 0,
+  "shared_fired": 15,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_VIEW_ANNOTATE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_VIEW_ANNOTATE",
+   "[T2_VIEW_ANNOTATE]"
+  ],
+  "shared": [
+   "[T2_FB_VIEW]",
+   "[T2_VIEW_COMPACT]"
+  ],
+  "fired": 0,
+  "shared_fired": 41,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_WRITE_ARG_GROUND",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_WRITE_ARG_GROUND",
+   "[T2_WRITE_ARG_GROUND]"
+  ],
+  "shared": [
+   "[T2_VIEW_ANNOTATE]",
+   "[T2_VIEW_COMPACT]"
+  ],
+  "fired": 0,
+  "shared_fired": 7,
+  "verdict": "정상?(ON·공유증거만 — 귀속 불확실)"
+ },
+ {
+  "flag": "T2_ABSTAIN_FIELDS",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_ABSTAIN_FIELDS]",
+   "[T2_LEVER] T2_ABSTAIN_FIELDS"
+  ],
+  "shared": [],
+  "fired": 2,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_ARG_PRODUCERS",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_ARG_PRODUCERS]",
+   "[T2_LEVER] T2_ARG_PRODUCERS"
+  ],
+  "shared": [],
+  "fired": 3,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_CLAIM_PROV",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_CLAIMPROV]",
+   "[T2_CLAIM_PROV]",
+   "[T2_LEVER] T2_CLAIM_PROV"
+  ],
+  "shared": [],
+  "fired": 272,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_COMPUTE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_COMPUTE]",
+   "[T2_LEVER] T2_COMPUTE"
+  ],
+  "shared": [
+   "[T2_REF_ISO]",
+   "[T2_RESOLVE]"
+  ],
+  "fired": 3,
+  "shared_fired": 99,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_DECLFIRST",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_DECLFIRST]",
+   "[T2_LEVER] T2_DECLFIRST"
+  ],
+  "shared": [
+   "[T2_GROUND]",
+   "[T2_PAIRCHECK]",
+   "[T2_PAIRFIX]",
+   "[T2_UNIFIED]"
+  ],
+  "fired": 723,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_DYN_MT",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_DYN_MT]",
+   "[T2_LEVER] T2_DYN_MT"
+  ],
+  "shared": [
+   "[T2_OVERFLOW_GUARD]"
+  ],
+  "fired": 10,
+  "shared_fired": 2,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_EPLAN",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_EPLAN]",
+   "[T2_LEVER] T2_EPLAN"
+  ],
+  "shared": [],
+  "fired": 65,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_EPLAN_WALK",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_EPLAN_WALK]",
+   "[T2_LEVER] T2_EPLAN_WALK"
+  ],
+  "shared": [],
+  "fired": 6,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_FAILED_PERSIST",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_FAILED_PERSIST]",
+   "[T2_LEVER] T2_FAILED_PERSIST"
+  ],
+  "shared": [],
+  "fired": 1,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_FIT_DIFF",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_AXIS]",
+   "[T2_FIT_DIFF]",
+   "[T2_LEVER] T2_FIT_DIFF"
+  ],
+  "shared": [],
+  "fired": 1,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_FN_ISOLATE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_FN_ISOLATE]",
+   "[T2_LEVER] T2_FN_ISOLATE"
+  ],
+  "shared": [],
+  "fired": 102,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_FORCE_ACTION",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_FORCE_ACTION]",
+   "[T2_LEVER] T2_FORCE_ACTION"
+  ],
+  "shared": [
+   "[T2_RESOLVE]"
+  ],
+  "fired": 51,
+  "shared_fired": 99,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_GATE_REGEN",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_GATE_REGEN]",
+   "[T2_LEVER] T2_GATE_REGEN"
+  ],
+  "shared": [],
+  "fired": 6,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_GUIDED",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_GUIDED]",
+   "[T2_LEVER] T2_GUIDED"
+  ],
+  "shared": [],
+  "fired": 6,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_PREKB",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_PREKB",
+   "[T2_PREKB]"
+  ],
+  "shared": [],
+  "fired": 49,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_PROD_BIND",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_PROD_BIND",
+   "[T2_PROD_BIND]"
+  ],
+  "shared": [],
+  "fired": 5,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_READ_DEDUP",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_READ_DEDUP",
+   "[T2_READ_DEDUP]"
+  ],
+  "shared": [],
+  "fired": 40,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_RESOLVE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_RESOLVE",
+   "[T2_RESOLVE]"
+  ],
+  "shared": [],
+  "fired": 99,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_SCAFFOLD_GET",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_SCAFFOLD_GET",
+   "[T2_SCAFFOLD_GET]"
+  ],
+  "shared": [],
+  "fired": 331,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_SCALAR_ARRAY",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_AXIS]",
+   "[T2_LEVER] T2_SCALAR_ARRAY",
+   "[T2_SCALAR_ARRAY]"
+  ],
+  "shared": [],
+  "fired": 1,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_SG_BYREF",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_SG_BYREF",
+   "[T2_SG_BYREF]"
+  ],
+  "shared": [
+   "[T2_SCAFFOLD_GET]",
+   "[T2_SG_ARGS]"
+  ],
+  "fired": 27,
+  "shared_fired": 334,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_SG_DEDUP",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_SG_DEDUP",
+   "[T2_SG_DEDUP]"
+  ],
+  "shared": [],
+  "fired": 2,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_SG_GROUND",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[GROUNDING WARNING]",
+   "[T2_LEVER] T2_SG_GROUND",
+   "[T2_SG_GROUND]"
+  ],
+  "shared": [
+   "[T2_PROD_BIND]"
+  ],
+  "fired": 2,
+  "shared_fired": 5,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_SG_ISOLATE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_SG_ISOLATE",
+   "[T2_SG_ISOLATE]"
+  ],
+  "shared": [
+   "[T2_SG_TRACE]"
+  ],
+  "fired": 155,
+  "shared_fired": 65,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_SG_TRACE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_SG_TRACE",
+   "[T2_SG_TRACE]"
+  ],
+  "shared": [
+   "[T2_SG_ISOLATE]"
+  ],
+  "fired": 65,
+  "shared_fired": 155,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_SG_TRUTH",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_SG_TRUTH",
+   "[T2_SG_TRUTH]"
+  ],
+  "shared": [
+   "[T2_SCAFFOLD_GET]",
+   "[T2_TOOLGATE]"
+  ],
+  "fired": 7,
+  "shared_fired": 331,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_STALE_STRIP",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_STALE_STRIP",
+   "[T2_STALE_STRIP]"
+  ],
+  "shared": [],
+  "fired": 7,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_TERMINAL_TURN",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_AXIS]",
+   "[T2_LEVER] T2_TERMINAL_TURN",
+   "[T2_TERMINAL_TURN]"
+  ],
+  "shared": [],
+  "fired": 1,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_TERM_GRANT",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_TERM_GRANT",
+   "[T2_TERM_GRANT]"
+  ],
+  "shared": [],
+  "fired": 11,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_TERM_GRANT_USERDEMAND",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_TERM_GRANT_USERDEMAND",
+   "[T2_TERM_GRANT_USERDEMAND]"
+  ],
+  "shared": [],
+  "fired": 5,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_TOOL_CHANNEL",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_AXIS]",
+   "[T2_LEVER] T2_TOOL_CHANNEL",
+   "[T2_TOOL_CHANNEL]"
+  ],
+  "shared": [],
+  "fired": 1,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_TOOL_SIGNATURE_OBSERVE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_TOOL_SIGNATURE_OBSERVE",
+   "[T2_TOOL_SIGNATURE]",
+   "[T2_TOOL_SIGNATURE_OBSERVE]"
+  ],
+  "shared": [],
+  "fired": 50,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_UNLOCK_NAME",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_UNLOCK_NAME",
+   "[T2_UNLOCK_NAME]"
+  ],
+  "shared": [
+   "[T2_UNLOCK_PROV]"
+  ],
+  "fired": 54,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_VALUE_ACQUIRE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_VALUE_ACQUIRE",
+   "[T2_VALUE_ACQUIRE]"
+  ],
+  "shared": [
+   "[T2_VIEW_ANNOTATE]",
+   "[T2_VIEW_COMPACT]"
+  ],
+  "fired": 19,
+  "shared_fired": 7,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_VIEW_COMPACT",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_VIEW_COMPACT",
+   "[T2_VIEW_COMPACT]"
+  ],
+  "shared": [
+   "[T2_VIEW_ANNOTATE]"
+  ],
+  "fired": 7,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_WRITE_EVIDENCE",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_WRITE_EVIDENCE",
+   "[T2_WRITE_EVIDENCE]"
+  ],
+  "shared": [
+   "[T2_VIEW_COMPACT]"
+  ],
+  "fired": 30,
+  "shared_fired": 7,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_WRITE_PROV",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_WRITE_PROV",
+   "[T2_WRITEPROV]",
+   "[T2_WRITE_PROV]"
+  ],
+  "shared": [],
+  "fired": 63,
+  "shared_fired": 0,
+  "verdict": "정상(ON·발화·정확증거)"
+ },
+ {
+  "flag": "T2_A2_VARIANT",
+  "value": "ledger,ratefix",
+  "on": true,
+  "tags": [
+   "[T2_A2_VARIANT]",
+   "[T2_LEVER] T2_A2_VARIANT"
+  ],
+  "shared": [],
+  "fired": 1218,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_ACTION_DENY_CAP",
+  "value": "3",
+  "on": true,
+  "tags": [
+   "[T2_ACTION_DENY_CAP]",
+   "[T2_LEVER] T2_ACTION_DENY_CAP"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_AGENT_MAX_TOKENS",
+  "value": "8192",
+  "on": true,
+  "tags": [
+   "[T2_AGENT_MAX_TOKENS]",
+   "[T2_LEVER] T2_AGENT_MAX_TOKENS"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_AXIS_NOTE_CAP",
+  "value": "2",
+  "on": true,
+  "tags": [
+   "[T2_AXIS_NOTE_CAP]",
+   "[T2_LEVER] T2_AXIS_NOTE_CAP"
+  ],
+  "shared": [
+   "[T2_AXIS]"
+  ],
+  "fired": 0,
+  "shared_fired": 1,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_CLAIMPROV_CAP",
+  "value": "3",
+  "on": true,
+  "tags": [
+   "[T2_CLAIMPROV_CAP]",
+   "[T2_LEVER] T2_CLAIMPROV_CAP"
+  ],
+  "shared": [
+   "[T2_CLAIMPROV]"
+  ],
+  "fired": 0,
+  "shared_fired": 272,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_COV_MIDDRIVE_K",
+  "value": "4",
+  "on": true,
+  "tags": [
+   "[T2_COV_MIDDRIVE_K]",
+   "[T2_LEVER] T2_COV_MIDDRIVE_K"
+  ],
+  "shared": [
+   "[T2_COV]",
+   "[T2_TOOLERR]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_DYN_MT_MARGIN",
+  "value": "64",
+  "on": true,
+  "tags": [
+   "[T2_DYN_MT_MARGIN]",
+   "[T2_LEVER] T2_DYN_MT_MARGIN"
+  ],
+  "shared": [
+   "[T2_DYN_MT]",
+   "[T2_OVERFLOW_GUARD]"
+  ],
+  "fired": 0,
+  "shared_fired": 12,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_ENVELOPE_CAP",
+  "value": "2",
+  "on": true,
+  "tags": [
+   "[T2_ENVELOPE_CAP]",
+   "[T2_LEVER] T2_ENVELOPE_CAP"
+  ],
+  "shared": [
+   "[T2_ENVGUARD]",
+   "[T2_TRUNCGUARD]"
+  ],
+  "fired": 0,
+  "shared_fired": 14,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_EPLAN_DRIVE_K",
+  "value": "4",
+  "on": true,
+  "tags": [
+   "[T2_EPLAN_DRIVE_K]",
+   "[T2_LEVER] T2_EPLAN_DRIVE_K"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_FB_SIDECAR",
+  "value": "/home/woori/scratch/axis32run/ax32p1_gpu1_sidecar.jsonl",
+  "on": true,
+  "tags": [
+   "[T2_FB_SIDECAR]",
+   "[T2_LEVER] T2_FB_SIDECAR"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_FOLLOWUP_CAP",
+  "value": "3",
+  "on": true,
+  "tags": [
+   "[T2_FOLLOWUP_CAP]",
+   "[T2_LEVER] T2_FOLLOWUP_CAP"
+  ],
+  "shared": [
+   "[T2_FOLLOWUP]"
+  ],
+  "fired": 0,
+  "shared_fired": 51,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_GATE_REGEN_K",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_GATE_REGEN_K]",
+   "[T2_LEVER] T2_GATE_REGEN_K"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_LLM_RETRIES",
+  "value": "1",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_LLM_RETRIES",
+   "[T2_LLM_RETRIES]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_LLM_TIMEOUT",
+  "value": "2400",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_LLM_TIMEOUT",
+   "[T2_LLM_TIMEOUT]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_MT_FLOOR",
+  "value": "256",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_MT_FLOOR",
+   "[T2_MT_FLOOR]"
+  ],
+  "shared": [
+   "[T2_DYN_MT]",
+   "[T2_OVERFLOW_GUARD]"
+  ],
+  "fired": 0,
+  "shared_fired": 12,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_PRECLOSE_CAP",
+  "value": "2",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_PRECLOSE_CAP",
+   "[T2_PRECLOSE_CAP]"
+  ],
+  "shared": [
+   "[T2_BRANCH_REGROUND]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_PROV_MODE",
+  "value": "full",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_PROV_MODE",
+   "[T2_PROV_MODE]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_PROV_REGEN_K",
+  "value": "4",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_PROV_REGEN_K",
+   "[T2_PROV_REGEN_K]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_REGEN_BUDGET",
+  "value": "12",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_REGEN_BUDGET",
+   "[T2_REGEN_BUDGET]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_REPEAT_CAP",
+  "value": "8",
+  "on": true,
+  "tags": [
+   "[REPEAT-CAP",
+   "[T2_LEVER] T2_REPEAT_CAP",
+   "[T2_REPEAT_CAP]"
+  ],
+  "shared": [
+   "[T2_READ_DEDUP]"
+  ],
+  "fired": 0,
+  "shared_fired": 40,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_SEARCH_EXHAUST_TH",
+  "value": "2",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_SEARCH_EXHAUST_TH",
+   "[T2_SEARCH_EXHAUST_TH]"
+  ],
+  "shared": [
+   "[T2_FOLLOWUP]",
+   "[T2_SEARCH_EXHAUST]"
+  ],
+  "fired": 0,
+  "shared_fired": 57,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_SG_ISOLATE_TRACE",
+  "value": "/home/woori/scratch/axis32run/trace_ax32p1_gpu1.jsonl",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_SG_ISOLATE_TRACE",
+   "[T2_SG_ISOLATE_TRACE]"
+  ],
+  "shared": [
+   "[T2_SG_ISOLATE]"
+  ],
+  "fired": 0,
+  "shared_fired": 155,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_VERIFY_DENY_CAP",
+  "value": "2",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_VERIFY_DENY_CAP",
+   "[T2_VERIFY_DENY_CAP]"
+  ],
+  "shared": [
+   "[T2_RESOLVE]",
+   "[T2_TOOLLIST]"
+  ],
+  "fired": 0,
+  "shared_fired": 99,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_VIEW_COMPACT_MINTOTAL",
+  "value": "60000",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_VIEW_COMPACT_MINTOTAL",
+   "[T2_VIEW_COMPACT_MINTOTAL]"
+  ],
+  "shared": [
+   "[T2_FB_VIEW]",
+   "[T2_VIEW_ANNOTATE]",
+   "[T2_VIEW_COMPACT]"
+  ],
+  "fired": 0,
+  "shared_fired": 41,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_VIEW_MSG_CAP",
+  "value": "8000",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_VIEW_MSG_CAP",
+   "[T2_VIEW_MSG_CAP]"
+  ],
+  "shared": [
+   "[T2_FB_VIEW]",
+   "[T2_VIEW_ANNOTATE]",
+   "[T2_VIEW_COMPACT]"
+  ],
+  "fired": 0,
+  "shared_fired": 41,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_WEV_ROUNDS",
+  "value": "2",
+  "on": true,
+  "tags": [
+   "[T2_LEVER] T2_WEV_ROUNDS",
+   "[T2_WEV_ROUNDS]"
+  ],
+  "shared": [
+   "[T2_HAVE_VALUE]",
+   "[T2_WRITE_EVIDENCE]"
+  ],
+  "fired": 0,
+  "shared_fired": 30,
+  "verdict": "파라미터(값 보고만)"
+ },
+ {
+  "flag": "T2_AUTOFETCH",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_AUTOFETCH]",
+   "[T2_LEVER] T2_AUTOFETCH"
+  ],
+  "shared": [
+   "[T2_TOOL_SIGNATURE]",
+   "[T2_WRITE_CAP]",
+   "[T2_WRITE_EVIDENCE]"
+  ],
+  "fired": 0,
+  "shared_fired": 80,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_CALC",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_CALC]",
+   "[T2_LEVER] T2_CALC"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_CONSISTENCY",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_CONSISTENCY]",
+   "[T2_LEVER] T2_CONSISTENCY"
+  ],
+  "shared": [
+   "[T2_CONS]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_COV",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_COV]",
+   "[T2_LEVER] T2_COV"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_DECLFIRST_ENFORCE",
+  "value": "0",
+  "on": false,
+  "tags": [
+   "[T2_DECLFIRST_ENFORCE]",
+   "[T2_LEVER] T2_DECLFIRST_ENFORCE"
+  ],
+  "shared": [
+   "[T2_DECLFIRST]"
+  ],
+  "fired": 0,
+  "shared_fired": 723,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_DECLFIRST_GUIDE",
+  "value": "0",
+  "on": false,
+  "tags": [
+   "[T2_DECLFIRST_GUIDE]",
+   "[T2_LEVER] T2_DECLFIRST_GUIDE"
+  ],
+  "shared": [
+   "[T2_GROUND]",
+   "[T2_PAIRCHECK]",
+   "[T2_PAIRFIX]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_DISAMB",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_DISAMB]",
+   "[T2_LEVER] T2_DISAMB"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_DISAMB_ORDER",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_DISAMB_ORDER]",
+   "[T2_LEVER] T2_DISAMB_ORDER"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_DISCOVERY_DISPATCH",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_DISCOVERY_DISPATCH]",
+   "[T2_LEVER] T2_DISCOVERY_DISPATCH"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_DISCOVERY_REQUIRED",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_DISCOVERY_REQUIRED]",
+   "[T2_LEVER] T2_DISCOVERY_REQUIRED"
+  ],
+  "shared": [
+   "[T2_DISCREQ]",
+   "[T2_SELFDECL]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_DISPATCH_ROLE_ENVSET",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_DISPATCH_ROLE_ENVSET]",
+   "[T2_LEVER] T2_DISPATCH_ROLE_ENVSET"
+  ],
+  "shared": [
+   "[T2_DISPATCH_ROLE]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_EPLAN_EXAMINED_SAFE",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_EPLAN_EXAMINED_SAFE]",
+   "[T2_LEVER] T2_EPLAN_EXAMINED_SAFE"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_EPLAN_READS_ONLY",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_EPLAN_READS_ONLY]",
+   "[T2_LEVER] T2_EPLAN_READS_ONLY"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_EPLAN_REPLAN",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_EPLAN_REPLAN]",
+   "[T2_LEVER] T2_EPLAN_REPLAN"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_FB_SIDECAR_TEXT",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_FB_SIDECAR_TEXT]",
+   "[T2_LEVER] T2_FB_SIDECAR_TEXT"
+  ],
+  "shared": [
+   "[T2_FB_SIDECAR]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_FEXEC",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_FEXEC]",
+   "[T2_LEVER] T2_FEXEC"
+  ],
+  "shared": [
+   "[T2_SUBCALL]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_GROUND_DROP_NAVKEYS",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_GROUND_DROP_NAVKEYS]",
+   "[T2_LEVER] T2_GROUND_DROP_NAVKEYS"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_L4",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_L4]",
+   "[T2_LEVER] T2_L4"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_NLNUM_PROV",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_NLNUM_PROV",
+   "[T2_NLNUM_PROV]"
+  ],
+  "shared": [
+   "[T2_NLNUM]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_NOTICE_REPEAT",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_NOTICE_REPEAT",
+   "[T2_NOTICE_REPEAT]"
+  ],
+  "shared": [
+   "[T2_NOTICEREP]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_PRESENT_NESTED",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_PRESENT_NESTED",
+   "[T2_PRESENT_NESTED]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_PRESENT_READS",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_PRESENT_READS",
+   "[T2_PRESENT_READS]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_PRINCIPLE_DEFAULT",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_PRINCIPLE_DEFAULT",
+   "[T2_PRINCIPLE_DEFAULT]"
+  ],
+  "shared": [
+   "[T2_L4]",
+   "[T2_NLNUM]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_PROVENANCE",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_PROVENANCE",
+   "[T2_PROVENANCE]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_PROV_ADDR_FULL",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_PROV_ADDR_FULL",
+   "[T2_PROV_ADDR_FULL]"
+  ],
+  "shared": [
+   "[T2_DISCOVERY_DISPATCH]",
+   "[T2_EPLAN]"
+  ],
+  "fired": 0,
+  "shared_fired": 59,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_PROV_BADWORDS",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_PROV_BADWORDS",
+   "[T2_PROV_BADWORDS]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_PROV_GROUND",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_PROV_GROUND",
+   "[T2_PROV_GROUND]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_PROV_ORIGIN",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_PROV_ORIGIN",
+   "[T2_PROV_ORIGIN]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_READALL",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_READALL",
+   "[T2_READALL]"
+  ],
+  "shared": [
+   "[T2_CONS]",
+   "[T2_TOOLERR]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_READ_NEARDUP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_READ_NEARDUP",
+   "[T2_READ_NEARDUP]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_REF_ISO",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_REF_ISO",
+   "[T2_REF_ISO]"
+  ],
+  "shared": [
+   "[T2_RESOLVE]"
+  ],
+  "fired": 0,
+  "shared_fired": 99,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_REPEAT_GOV",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_REPEAT_GOV",
+   "[T2_REPEAT_GOV]"
+  ],
+  "shared": [
+   "[T2_READ_DEDUP]"
+  ],
+  "fired": 0,
+  "shared_fired": 40,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_RETRY_CONTROLLER",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_RETRY_CONTROLLER",
+   "[T2_RETRY_CONTROLLER]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_SELF_DECLARATION",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_SELF_DECLARATION",
+   "[T2_SELF_DECLARATION]"
+  ],
+  "shared": [
+   "[T2_SELFDECL]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_SURFACE_BUS",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_SURFACE_BUS",
+   "[T2_SURFACE_BUS]"
+  ],
+  "shared": [
+   "[T2_AXIS]"
+  ],
+  "fired": 0,
+  "shared_fired": 1,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_TOOLERR",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_TOOLERR",
+   "[T2_TOOLERR]"
+  ],
+  "shared": [
+   "[T2_COV]",
+   "[T2_GROUND]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_WRITE_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_WRITE_CAP",
+   "[T2_WRITE_CAP]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "OFF"
+ },
+ {
+  "flag": "T2_CONS_NOOP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_CONS_NOOP]",
+   "[T2_LEVER] T2_CONS_NOOP"
+  ],
+  "shared": [
+   "[T2_CONS]",
+   "[T2_READALL]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_DD_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_DD_CAP]",
+   "[T2_LEVER] T2_DD_CAP"
+  ],
+  "shared": [
+   "[T2_CONS]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_DISAMB_MODE",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_DISAMB_MODE]",
+   "[T2_LEVER] T2_DISAMB_MODE"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_DISPATCH_ROLE_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_DISPATCH_ROLE_CAP]",
+   "[T2_LEVER] T2_DISPATCH_ROLE_CAP"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_ENVELOPE_TAG",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_ENVELOPE_TAG]",
+   "[T2_LEVER] T2_ENVELOPE_TAG"
+  ],
+  "shared": [
+   "[T2_ENVGUARD]"
+  ],
+  "fired": 0,
+  "shared_fired": 13,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_ENVELOPE_TRUNC",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_ENVELOPE_TRUNC]",
+   "[T2_LEVER] T2_ENVELOPE_TRUNC"
+  ],
+  "shared": [
+   "[T2_ENVGUARD]"
+  ],
+  "fired": 0,
+  "shared_fired": 13,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_EPLAN_DENY_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_EPLAN_DENY_CAP]",
+   "[T2_LEVER] T2_EPLAN_DENY_CAP"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_EPLAN_WALK_HOLD",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_EPLAN_WALK_HOLD]",
+   "[T2_LEVER] T2_EPLAN_WALK_HOLD"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_FAILED_DIR",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_FAILED_DIR]",
+   "[T2_LEVER] T2_FAILED_DIR"
+  ],
+  "shared": [
+   "[T2_FAILED_PERSIST]"
+  ],
+  "fired": 0,
+  "shared_fired": 1,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_FB_VIEW_K",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_FB_VIEW_K]",
+   "[T2_LEVER] T2_FB_VIEW_K"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_FOLLOWUP_RESIGN_TH",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_FOLLOWUP_RESIGN_TH]",
+   "[T2_LEVER] T2_FOLLOWUP_RESIGN_TH"
+  ],
+  "shared": [
+   "[T2_FOLLOWUP]"
+  ],
+  "fired": 0,
+  "shared_fired": 51,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_FORCE_MIN_TOKENS",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_FORCE_MIN_TOKENS]",
+   "[T2_LEVER] T2_FORCE_MIN_TOKENS"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_GATE_KINDS",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_GATE_KINDS]",
+   "[T2_LEVER] T2_GATE_KINDS"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_GROUNDING_SPEC",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_GROUNDING_SPEC]",
+   "[T2_LEVER] T2_GROUNDING_SPEC"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_GROUND_LOG",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_GROUND_LOG]",
+   "[T2_LEVER] T2_GROUND_LOG"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_GUIDED_VERBOSE",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_GUIDED_VERBOSE]",
+   "[T2_LEVER] T2_GUIDED_VERBOSE"
+  ],
+  "shared": [
+   "[T2_GUIDED]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_HAVE_VALUE_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_HAVE_VALUE_CAP]",
+   "[T2_LEVER] T2_HAVE_VALUE_CAP"
+  ],
+  "shared": [
+   "[T2_HAVE_VALUE]",
+   "[T2_PARAM_CAP]",
+   "[T2_VALUE_ACQUIRE]"
+  ],
+  "fired": 0,
+  "shared_fired": 19,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_L4_MODE",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_L4_MODE]",
+   "[T2_LEVER] T2_L4_MODE"
+  ],
+  "shared": [
+   "[T2_L4]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_MAXPROMPT",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_MAXPROMPT",
+   "[T2_MAXPROMPT]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_MAXPROMPT_POS",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_MAXPROMPT_POS",
+   "[T2_MAXPROMPT_POS]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_PARAM_CAP_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_PARAM_CAP_CAP",
+   "[T2_PARAM_CAP_CAP]"
+  ],
+  "shared": [
+   "[T2_PARAM_CAP]",
+   "[T2_RESOLVE]"
+  ],
+  "fired": 0,
+  "shared_fired": 99,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_PRESCRIPTION_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_PRESCRIPTION_CAP",
+   "[T2_PRESCRIPTION_CAP]"
+  ],
+  "shared": [
+   "[T2_PRESCRIPTION]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_READALL_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_READALL_CAP",
+   "[T2_READALL_CAP]"
+  ],
+  "shared": [
+   "[T2_READALL]",
+   "[T2_TOOLERR]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_READ_DEDUP_LOOP_K",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_READ_DEDUP_LOOP_K",
+   "[T2_READ_DEDUP_LOOP_K]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_READ_DEDUP_MIN",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_READ_DEDUP_MIN",
+   "[T2_READ_DEDUP_MIN]"
+  ],
+  "shared": [
+   "[T2_AXIS]"
+  ],
+  "fired": 0,
+  "shared_fired": 1,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_READ_NEARDUP_J",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_READ_NEARDUP_J",
+   "[T2_READ_NEARDUP_J]"
+  ],
+  "shared": [
+   "[T2_READ_NEARDUP]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_REF_ISO_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_REF_ISO_CAP",
+   "[T2_REF_ISO_CAP]"
+  ],
+  "shared": [
+   "[T2_REF_ISO]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_RETRY_K",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_RETRY_K",
+   "[T2_RETRY_K]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_RULES_PROMPT",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_RULES_PROMPT",
+   "[T2_RULES_PROMPT]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_SALVAGE",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_SALVAGE",
+   "[T2_SALVAGE]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_SG_EXCLUDE",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_SG_EXCLUDE",
+   "[T2_SG_EXCLUDE]"
+  ],
+  "shared": [
+   "[T2_SCAFFOLD_GET]"
+  ],
+  "fired": 0,
+  "shared_fired": 331,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_SG_SUB_TOOLCAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_SG_SUB_TOOLCAP",
+   "[T2_SG_SUB_TOOLCAP]"
+  ],
+  "shared": [
+   "[T2_SG_ISOLATE]"
+  ],
+  "fired": 0,
+  "shared_fired": 155,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_TOOLLIST_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_TOOLLIST_CAP",
+   "[T2_TOOLLIST_CAP]"
+  ],
+  "shared": [
+   "[T2_TOOLLIST]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_TOOL_SIGNATURE_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_TOOL_SIGNATURE_CAP",
+   "[T2_TOOL_SIGNATURE_CAP]"
+  ],
+  "shared": [
+   "[T2_TOOL_SIGNATURE]"
+  ],
+  "fired": 0,
+  "shared_fired": 50,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_UNKNOWN_NAME_BL_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_UNKNOWN_NAME_BL_CAP",
+   "[T2_UNKNOWN_NAME_BL_CAP]"
+  ],
+  "shared": [
+   "[T2_UNKNOWN_NAME_BL]"
+  ],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_UNLOCK_NAME_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_UNLOCK_NAME_CAP",
+   "[T2_UNLOCK_NAME_CAP]"
+  ],
+  "shared": [
+   "[T2_UNLOCK_NAME]"
+  ],
+  "fired": 0,
+  "shared_fired": 54,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_VALUE_ACQUIRE_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_VALUE_ACQUIRE_CAP",
+   "[T2_VALUE_ACQUIRE_CAP]"
+  ],
+  "shared": [
+   "[T2_PARAM_CAP]",
+   "[T2_VALUE_ACQUIRE]"
+  ],
+  "fired": 0,
+  "shared_fired": 19,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_VIEW_COMPACT_KEEP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_VIEW_COMPACT_KEEP",
+   "[T2_VIEW_COMPACT_KEEP]"
+  ],
+  "shared": [
+   "[T2_VIEW_ANNOTATE]",
+   "[T2_VIEW_COMPACT]"
+  ],
+  "fired": 0,
+  "shared_fired": 7,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_VIEW_COMPACT_MINLEN",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_VIEW_COMPACT_MINLEN",
+   "[T2_VIEW_COMPACT_MINLEN]"
+  ],
+  "shared": [
+   "[T2_VIEW_ANNOTATE]",
+   "[T2_VIEW_COMPACT]"
+  ],
+  "fired": 0,
+  "shared_fired": 7,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_WEV_CAP",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_WEV_CAP",
+   "[T2_WEV_CAP]"
+  ],
+  "shared": [
+   "[T2_VIEW_ANNOTATE]",
+   "[T2_VIEW_COMPACT]"
+  ],
+  "fired": 0,
+  "shared_fired": 7,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_WRITE_CAP_K",
+  "value": null,
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_WRITE_CAP_K",
+   "[T2_WRITE_CAP_K]"
+  ],
+  "shared": [],
+  "fired": 0,
+  "shared_fired": 0,
+  "verdict": "파라미터·미설정"
+ },
+ {
+  "flag": "T2_TOOL_SIGNATURE",
+  "value": "0",
+  "on": false,
+  "tags": [
+   "[T2_LEVER] T2_TOOL_SIGNATURE",
+   "[T2_TOOL_SIGNATURE]"
+  ],
+  "shared": [],
+  "fired": 50,
+  "shared_fired": 0,
+  "verdict": "공유태그(형제 T2_TOOL_SIGNATURE_OBSERVE 귀속)"
+ }
+]
