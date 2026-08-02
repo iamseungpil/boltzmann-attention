@@ -2795,8 +2795,14 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
             am = _gen(self, work, bw(), "agent_response_regen")
 
         # ─── ARG-SCHEMA 위생: 스키마 밖 인자 키 → regen (T2_ARG_SCHEMA=1·기본 OFF) ───
-        # 2026-07-19 포렌식: give_discoverable_user_tool에 스키마 밖 'arguments' 키를 얹어
-        # 026/027/028 gold give 3건 전부 evaluator exact-match 실패(예측 키집합으로 dict 비교).
+        # 2026-07-19 포렌식: give_discoverable_user_tool에 'arguments' 키를 얹어 026/027/028 gold give
+        # 3건 전부 evaluator exact-match 실패(예측 키집합으로 dict 비교).
+        # ★2026-08-02 정정: `arguments`는 env 스키마상 **합법 파라미터**
+        # (`give_discoverable_user_tool(self, discoverable_tool_name: str, arguments: str = "{}")`).
+        # 따라서 당시 사고의 기전은 "스키마 밖 키"가 아니라 **gold 키집합 불일치**(PRED_EXTRA_KEY)다.
+        # 이 검사(ARG_SCHEMA)는 최상위 키만 보므로 arguments **문자열 내부**의 오필드·placeholder는
+        # 잡지 못한다(040 실측) — 그 표적은 write_arg_grounding(내포 unwrap·§2bs)의 몫.
+        # ⚠설치 경로: 이 블록은 patched() 안이고 라이브 러너는 unified()를 설치한다 = 現 死코드(P11 이설 대상).
         # 도메인일반: 근거=자기 도구 스키마(properties)뿐·값 판단 0·재발화는 모델([[05]]/[[07]] enforced).
         if os.environ.get("T2_ARG_SCHEMA") == "1" and getattr(am, "tool_calls", None):
             if not hasattr(self, "_t2_schema_props"):
