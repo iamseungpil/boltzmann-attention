@@ -58,7 +58,9 @@ def main():
     #   `environment` 없는 페이크는 **모든 도구를 write로 판정**해 dedup 카운터가 아예 안 돈다
     #   (그 상태로 재면 "배치를 안 센다"는 **가짜 음성**이 나온다·test_read_dedup_loopbreak가
     #   같은 이유로 조용히 FAIL 중이었다).
-    slf = NS(agent=None, tools=None, environment=NS(domain_name="banking_knowledge"))
+    slf = NS(agent=None, tools=None,
+             environment=NS(domain_name="banking_knowledge",
+                            _is_mutating_tool=lambda n: False))
     # ⒜ 동일 호출 6발을 **한 메시지**로
     EXECUTED["n"] = 0
     res = BaseOrchestrator._execute_tool_calls(slf, [tc(i) for i in range(6)])
