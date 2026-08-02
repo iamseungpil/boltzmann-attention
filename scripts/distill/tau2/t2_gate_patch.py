@@ -3153,8 +3153,15 @@ def _install_regen_exec():
                 if k in cache and cache.get(k) in _dgset \
                         and os.environ.get("T2_NO_DIGEST_REEXEC") != "1":
                     cache.pop(k, None)
+                # ★replay 위생 확장(2026-08-02·qp32p2 026 R1 [S]): §2at 가드는 **캐시 삽입만** 막고
+                #   loop-break(seen>=loop_k) 스텁은 안 거쳤다 → env가 mutating으로 보는 디스패처
+                #   호출(call_discoverable_agent_tool)이 반복되자 스텁이 히스토리에 남았고, eval
+                #   set_state가 재실행 실물과 비교해 sim 무효(실측: failed_setstate_1785632213670).
+                #   ⇒ 스텁 발행 자체에 같은 가드를 건다 — replay가 재실행할 도구는 **절대 스텁 금지**
+                #   (반복 비용은 실행으로 지불·측정 정합성이 우선=C208 ⓐ).
                 if ((k in cache or seen.get(k, 0) >= loop_k)
-                        and not _is_effective_write(_eff_tool_name(tc), _a2w)):
+                        and not _is_effective_write(_eff_tool_name(tc), _a2w)
+                        and _dedup_cache_safe(self, getattr(tc, "name", "") or "")):
                     # ★2026-07-23 (050 flail 근본원인 확정·KB probe): 반복된 read가 KB/검색 도구면
                     #   redirect 힌트 추가 — 도메인-일반. 원인=에이전트가 discoverable 도구를 *함수명*으로
                     #   BM25 검색(점수 0.0·문서 산문엔 함수명 없음)→무한반복. plain-words로 돌림(closure 피드백이
