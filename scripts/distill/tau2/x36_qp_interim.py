@@ -196,3 +196,46 @@ for tid, m, p in rowside[:6]:
     print("     ROW_SIDE %s  merchant=%r  pin=%r" % (tid[-6:], m, p))
 print("  판정(엔진 재계산): %s" % dict(verd))
 print("  핀 이름 top: %s" % ", ".join("%s×%d" % (k, v) for k, v in pin_names.most_common(8)))
+
+# ── E. ★회수 반사실 — 같은 operand에 **구 가드(C197)** 를 돌린다 ────────────────
+#   회수는 verdict=pass로 나오므로 히스토그램에 안 보인다. 구 가드가 드롭했을 행 중
+#   새 검사가 통과시킨 것 = 이 런에서 표가 실제로 **살린 행**이다.
+#   C197 축자 재현: quote가 주입문서의 축자(raw substring) ∧ **행 merchant가 quote 안에**.
+print("\n" + "-" * 84)
+print("E. ★회수 반사실 (구 가드 C197을 같은 operand에 적용)")
+rec_on_off = collections.Counter()
+recovered, newly_blocked = [], []
+for ln in open(A.trace, encoding="utf-8"):
+    try:
+        rec = json.loads(ln)
+    except Exception:
+        continue
+    card = rec.get("group")
+    dn = docnorm_for(card)
+    for tid, v in (rec.get("operands") or {}).items():
+        if not isinstance(v, dict):
+            continue
+        q = str(v.get(QF) or "").strip()
+        if not q:
+            continue                       # 강등-주장 아님 = 양 검사 모두 무개입
+        r = ROWOF.get(tid) or {}
+        qn = SG._norm_ground(q)
+        fv = SG._norm_ground(str(r.get(ISO.get("quote_must_contain_field")) or ""))
+        off_keep = (len(q) >= int(QMIN)) and (qn in dn) and bool(fv) and (fv in qn)
+        vd, _ = SG._quote_pin_check(QPD, v, r, QF, QMIN, dn)
+        on_keep = vd in ("pass", "category")
+        rec_on_off[(on_keep, off_keep)] += 1
+        if on_keep and not off_keep:
+            recovered.append((tid, r.get(ROWF), str(v.get(POLF) or ""), v.get("base_rate")))
+        if off_keep and not on_keep:
+            newly_blocked.append((tid, r.get(ROWF), str(v.get(POLF) or "")))
+tot_claim = sum(rec_on_off.values())
+print("  강등-주장 operand %d 중" % tot_claim)
+print("   · 둘 다 rate 유지        %d" % rec_on_off[(True, True)])
+print("   · **ON만 유지 = 회수     %d**" % rec_on_off[(True, False)])
+print("   · **OFF만 유지 = 새 차단 %d**" % rec_on_off[(False, True)])
+print("   · 둘 다 드롭             %d" % rec_on_off[(False, False)])
+for tid, m, p, br in recovered[:12]:
+    print("     회수 %s  merchant=%-28r pin=%-12r rate=%s" % (tid[-6:], m, p, br))
+for tid, m, p in newly_blocked[:6]:
+    print("     ⚠새 차단 %s  merchant=%r pin=%r" % (tid[-6:], m, p))
