@@ -98,7 +98,49 @@
 Recuse Signal(작업 중 정지 0/40)·2607.22868의 **deny vs note 화이트스페이스 ⓐ**와 정확히 같은 지점이다.
 단 dup≥5는 **n=2**이므로 비율은 존재 증명으로만 읽을 것.
 
-## 7. 판정과 다음
+## 7.5 정독 확장 — 40 실패 sim + 사용자-구조 계측 (2026-08-03 야간)
+
+도구: `ax33g_perstep.py` · `ax33g_taskcause.py` · `ax33g_rescue_scan.py`.
+⚠**§1 재교정**: gold action은 `requestor`를 갖는다(user 132 / assistant 159). MISS 87건이 user-requestor
+(대부분 `call_discoverable_user_tool` 76)이며 **에이전트가 부르면 안 되는 것**이다. §1의 "NEVER ATTEMPTED"
+서술 중 상당수가 이 아티팩트였다.
+
+### 사용자-구조(rescue) 계측 — 내 과대주장 정정
+정의(결정 가능): 사용자 발화가 도구 X를 명명 ∧ 그 전까지 에이전트가 X 미호출 ∧ 이후 호출.
+결과: **user-taught ≥1 n=15 pass .467 / 없음 n=49 pass .347. 통과 24건 중 7건**(29%).
+⇒ 내가 손으로 읽은 6건에서 "통과 대부분이 사용자 덕"이라고 적었던 것은 **표본 선택 편향**(분열 태스크만 읽음).
+정확히는 **7/24이며, 이 정의는 인자 교정·재촉 같은 구조는 못 세므로 하한**이다.
+
+### 엔진 메시지 사건 × 결과 (64 sim)
+| 사건 | 총발화 | 있음 n / pass | 없음 n / pass |
+|---|---|---|---|
+| GRANT_ERR "has not been given to you" | 39 | 21 / **.429** | 43 / .349 |
+| UNKNOWN "Unknown discoverable tool" | 13 | 11 / .545 | 53 / .340 |
+| ARGERR "Unexpected/Missing parameter" | 9 | 3 / **.000** | 61 / .393 |
+| **ASKED "Would you like to be transferred"** | **43** | **29 / .310** | 35 / .429 |
+| DUPWRITE "already exist" | 8 | 8 / **.125** | 56 / .411 |
+
+⚠**E2 격하**: GRANT_ERR은 실패와 **연관되지 않는다**(오히려 pass가 높다 — 인계를 *시도한* 런에서만 나오므로).
+E2는 여전히 **실증된 메시지 결함이자 턴 낭비**지만, **실패의 원인으로는 미입증**이다.
+실패와 연관되는 것은 **ASKED**(최대 n) · DUPWRITE · ARGERR이다.
+
+### 실패 40 sim의 두 계열
+- **계열 A — `Executed:` 0회 (약 18 sim)**: discoverable 경로에 **도달조차 못 함**.
+  005·007·010·012·014·015·016·023·024·032·033·034t1·035t1·041t0·003t0·022t1. ASKED와 조기 인간이관이 지배.
+- **계열 B — `Executed:` >0 (약 12 sim)**: 실행했으나 불완전·오인자.
+  018t1·019·020t0·022t0·026·027t0·028t1·040·041t1.
+
+### task_027 t0 — 커버리지 붕괴의 진짜 위치
+[36] `get_reward_discrepancies` 를 **손으로 타이핑한 리터럴 거래 목록**으로 호출(byref `@last:` 아님)
+→ [38] 축자 *"We have identified **one** discrepancy"* — **gold는 4건**.
+⇒ **에이전트가 조기에 멈춘 게 아니라, 1건뿐이라고 보고받았다.** 이후 처리는 그 잘못된 분모에 대해 완결적이다.
+`[coverage] N of M rows checked` 레버는 **주어진 입력에 대해 정직하게** "12 of 12" 를 보고하므로, **틀린 분모를
+인증**한다. 같은 단계에서 020 t1(통과)은 `@last:` byref를 써 4건을 전부 얻었다.
+추가: `unlock_discoverable_agent_tool` **3회**[44][62][70] · 종말부 `check dispute status` 검색 6회(DUPLICATE 2).
+
+⇒ **byref-vs-리터럴은 P7의 인자 편의 문제가 아니라 커버리지의 상류 원인**이다.
+
+## 8. 판정과 다음
 
 1. **k축 모트 명제는 이 런으로 반증되지 않았다** — 결정론이 분산을 못 줄인 게 아니라, **분산이 실린 채널에
    결정론이 걸려 있지 않았다**. 레버는 회수 이후에만 작동하고 갈림은 회수에서 났다.
