@@ -3133,7 +3133,13 @@ def _install_overflow_guard():
         if not getattr(_PmEnv, "_t2_pairdump_wrapped", False):
             _orig_ss = _PmEnv.set_state
 
-            def _ss2(self, initialization_data, initialization_actions, message_history):
+            # ★2026-08-03 긴급 수리(스모크 실측): v1.0.1이 `set_state(..., strict: bool = True)`로
+            #   **인자를 추가**했는데 이 래퍼가 고정 시그니처라 평가 replay가 전부
+            #   `TypeError: _ss2() got an unexpected keyword argument 'strict'`로 죽었다
+            #   (task_010/023 실측 → Retry 3회 → sim 소실). 우리 래퍼는 **시그니처를 흉내내지 말고
+            #   그대로 통과**시킨다 — 상류 시그니처 변경에 다시 물리지 않도록 *args/**kwargs.
+            def _ss2(self, initialization_data, initialization_actions, message_history,
+                     *_a, **_kw):
                 # ★T2_PAIRFIX @평가-입력 (§2bi 정정): rall6 실측 — 라이브 PAIRCHECK 침묵 + 평가서만
                 #   mismatch = 스왑은 tick→message 변환/직렬화 층에서 발생. 여기(원 검사 직전)서
                 #   같은 id 집합·순서-스왑 블록을 호출 순서로 교정(내용 불변·의미론 no-op).
@@ -3147,7 +3153,7 @@ def _install_overflow_guard():
                         pass
                 try:
                     return _orig_ss(self, initialization_data, initialization_actions,
-                                    message_history)
+                                    message_history, *_a, **_kw)
                 except ValueError as _ve:
                     if "id mismatch" in str(_ve) or "Tool message" in str(_ve):
                         print("[T2_PAIRDUMP] set_state failed: %s" % str(_ve)[:160],
