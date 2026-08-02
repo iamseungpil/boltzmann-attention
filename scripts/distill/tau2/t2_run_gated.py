@@ -85,6 +85,10 @@ def main():
                          "frontier-arm F4b census용; 지정 시 로컬 vllm 불요")
     ap.add_argument("--user_temp", type=float, default=0.7,
                     help="user-sim temperature (ⓟ1 분산통제 arm = 0.0)")
+    ap.add_argument("--user_reasoning_effort", default=None,
+                    help="user-sim reasoning_effort (리더보드 정합: GPT-5.5 제출이 gpt-5.2 user-sim을 "
+                         "reasoning_effort='low'로 돌렸다 — 비교 런은 반드시 맞출 것. "
+                         "미지정=전달 안 함(기존 거동 보존).")
     ap.add_argument("--agent_seed", type=int, default=None,
                     help="agent 요청 seed 고정 (결정론 실험; 로컬 vllm arm 전용)")
     ap.add_argument("--user_seed", type=int, default=None,
@@ -270,6 +274,10 @@ def main():
     # user-sim·judge 모델 결정: --user_llm(원격 API, 예 openrouter/...) 우선, 아니면 로컬 vllm
     if a.user_llm:
         user_llm, user_args = a.user_llm, {"temperature": a.user_temp}
+        # ★리더보드 정합(2026-08-02·[[54]]): GPT-5.5 제출 = user-sim gpt-5.2 `reasoning_effort: low`.
+        #   맞추지 않으면 user-sim 난이도가 달라져 비교가 깨진다. 미지정 시 전달 안 함(기존 거동 보존).
+        if a.user_reasoning_effort:
+            user_args["reasoning_effort"] = a.user_reasoning_effort
         judge_model, judge_args = a.user_llm, {"temperature": 0.0,
                                                "response_format": {"type": "json_object"}}
     else:

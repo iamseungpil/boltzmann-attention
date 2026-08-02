@@ -138,17 +138,23 @@ export T2_UNKNOWN_REPEAT_GUARD=1  # B3 Unknown-tool 반려된 이름 재지시 �
 # export T2_DD_FB=1             # C154 폐기 권고(soft·교란)
 # export T2_MAXPROMPT=1         # 프롬프트-한계 실험 전용
 
+# ★리더보드 정합 기본값(2026-08-02·[[54]]·LEADERBOARD_TRACK_DESIGN):
+#   retrieval_config = alltools (기본 — 보드 상위권 전부 alltools/Terminal·bm25 항목 0개)
+#   user reasoning_effort = low (GPT-5.5 제출이 gpt-5.2 user-sim을 low로 돌림)
+#   arm별 덮어쓰기: GO_RETRIEVAL=bm25 / GO_USER_EFFORT= (귀속 실험용)
+#   ⚠alltools는 OPENAI_API_KEY 필요 — 발사 전 `source /home/woori/.openai_key`
 # ── 공통 런처 함수 ──────────────────────────────────────────────────────────
 # 사용: t2_launch <TAG> <PORT> <TASK_IDS> <NUM_TRIALS> [EXTRA_ARGS...]
 t2_launch() {
   local TAG="$1" PORT="$2" TASKS="$3" NT="$4"; shift 4
   cd "$GO_TAU2" || return 1
   /home/woori/venvs/seka_env/bin/python -u "$GO_REPO/scripts/distill/tau2/t2_run_gated.py" \
-    --domain banking_knowledge --retrieval_config bm25 \
+    --domain banking_knowledge --retrieval_config "${GO_RETRIEVAL:-alltools}" \
     --gate 1 \
     --agent_model Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8 \
     --agent_base "http://localhost:${PORT}/v1" \
     --user_llm openrouter/openai/gpt-5.2 --user_temp 0.0 \
+    --user_reasoning_effort "${GO_USER_EFFORT:-low}" \
     --task_ids "$TASKS" --num_trials "$NT" --max_concurrency 4 \
     --max_steps 200 \
     --save_to "$TAG" "$@"
