@@ -344,11 +344,13 @@
    "name": "policy_qa",
    "mode": "wrap",
    "wraps": [
+    "KB_search",
     "KB_search_bm25",
     "KB_search_dense",
     "shell"
    ],
    "getter_tools": [
+    "KB_search",
     "KB_search_bm25"
    ],
    "instructions": "You are a knowledge-base lookup specialist for a bank agent. The main agent issued the tool call shown below to look up policy/procedure information from the knowledge base. Use the provided search tools, read the results, and produce a direct, complete answer to what the main agent was trying to find out. Include every concrete detail the main agent would need (exact steps, required fields, thresholds, statuses).",
@@ -359,7 +361,9 @@
    "max_sub_chars": 60000,
    "quote_grounding": true,
    "temperature": 0,
-   "_note": "FUNCTION_AGENT_ISOLATION_DESIGN_2026_07_19 (W)wrap 1호기 — 자료-read(KB)만 wrap. 상태 read(dispute status·거래·계좌 조회)는 wrap 금지(WEV 증거가 메인에 원문으로 남아야·§3 게이트 증거 계약). shell=KB 브라우징이라 wraps에 포함하되 getter론 미제공(서브는 검색으로). KB_search_dense=getter 제외(2026-07-19 사용자 지적·라이브 4/4 'Missing credentials' 오류=임베딩 키 의도적 부재·wraps엔 유지=메인의 dense 호출을 bm25-기반 실질 답으로 대체). T2_FN_ISOLATE=1 구동·기본 OFF."
+   "_note": "FUNCTION_AGENT_ISOLATION_DESIGN_2026_07_19 (W)wrap 1호기 — 자료-read(KB)만 wrap. 상태 read(dispute status·거래·계좌 조회)는 wrap 금지(WEV 증거가 메인에 원문으로 남아야·§3 게이트 증거 계약). shell=KB 브라우징이라 wraps에 포함하되 getter론 미제공(서브는 검색으로). KB_search_dense=getter 제외(2026-07-19 사용자 지적·라이브 4/4 'Missing credentials' 오류=임베딩 키 의도적 부재·wraps엔 유지=메인의 dense 호출을 bm25-기반 실질 답으로 대체). T2_FN_ISOLATE=1 구동·기본 OFF.",
+   "_note_wraps_kbsearch": "★2026-08-02: 라이브 실사용 도구는 `KB_search`인데 wraps에 `KB_search_bm25`/`_dense`만 있어 **wrap이 단 한 번도 발화하지 않았다**(qp32p1 전 로그 T2_FN_ISOLATE=0회·KB_search 49회). 설계·리뷰·구현이 끝난 격리 레버가 이름 불일치+플래그 미설정으로 dark였다. 022 문맥의 36.6%가 KB_search 반환이므로 이 선언이 부하-격리의 주 표적이다. 발화 조건은 여전히 `T2_FN_ISOLATE=1`이고 실패 시 원 실행 폴백(무해).",
+   "_note_getter_kbsearch": "★2026-08-02 스모크 실측: wraps에 KB_search를 넣었더니 wrap이 진입은 하는데 getter_tools=['KB_search_bm25']뿐이라 **전건 'getter_tools 부재→폴백'**(gpu0 9회·gpu1 5회). 같은 이름-불일치가 한 층 아래 있었다. 서브가 쓸 getter에 실사용 KB_search 추가."
   }
  ],
  "write_evidence_specs": [
@@ -867,7 +871,9 @@
      "_note_return_empty": "★D1/D1b·D4 처방(INSTRUCTION_DEFECT_REDESIGN r3 §2a/2b/2c·2026-08-02). 출처=정책 축자(\"if the issue cannot be resolved … ask the user whether they would like to be transferred\") + 도구 동작(env: 조회가 레코드를 못 찾음 / 판정 상세 공집합). **gold 경유 0**. 플래그 T2_NOREC_BRANCH / T2_RETURN_EMPTY = 1일 때만 발화·OFF면 거동 변화 0."
     }
    },
-   "_note_ratefix": "C113: rate 결정론화. LLM=거래별 base_rate·promo formalize(KB해석·프로브 100%)·엔진=날짜판정+곱셈+discrepant. 엔진 도메인상수 0([[05]])·KB파싱 0([[03b]]). T2_A2_VARIANT=ratefix."
+   "_note_ratefix": "C113: rate 결정론화. LLM=거래별 base_rate·promo formalize(KB해석·프로브 100%)·엔진=날짜판정+곱셈+discrepant. 엔진 도메인상수 0([[05]])·KB파싱 0([[03b]]). T2_A2_VARIANT=ratefix.",
+   "dispatch_targets": true,
+   "_note_dispatch_targets": "2026-08-03 P8(AX32 설계서 §P8·T2_DISPATCH_LEDGER): 이 도구의 반환 ids = 후속 write의 대상 집합. 터미널 훅이 '지시 N건 중 M건 제출·잔여 [ids]'를 1회 표면화한다(deny 아님·020/027 부분제출 무감지 표적). 집합은 엔진이 계산한 값이라 A2엔 boolean 1개뿐."
   },
   {
    "name": "verify_identity",
@@ -962,7 +968,9 @@
       "group_by": "__win",
       "value_field": "amount",
       "default_reducer": "sum",
-      "across": "min"
+      "across": "min",
+      "require_complete_groups": true,
+      "_note_complete": "2026-08-03 §4-2(핸드오프 §4-2 표본 충분성 미검·T2_SG_WINDOW_ABSTAIN): 결여 윈도=0이 아니라 미측정. 023 라이브서 손-전사 1건만 받고 across=min이 그 1건으로 부정 판정을 확정 발급했다. 출처=정책 산문(KB doc_007/010: 매월 충족 iff·한 달 미달=실격·프로레이션 없음) + 도구 스키마(transactions 생략 시 user_id/credit_card_account_id 위임). gold 무참조([[23]])."
      },
      "b": "monthly_threshold"
     },
@@ -1022,7 +1030,13 @@
     "instructions": "You are a data-extraction sub-task. Using the getter tool, read the credit card transactions for the user/account given in REFERENCE. Then output ONLY a JSON object with the card transactions: for the account in REFERENCE, every transaction as {\"date\": \"MM/DD/YYYY\" (the POSTING date), \"amount\": <number, purchase/spend amount, no $>}. Copy raw values exactly as returned by the tool; do not filter, sum, or round.",
     "answer_format": "Reply with exactly one JSON object and nothing else: {\"transactions\": [{\"date\": \"MM/DD/YYYY\", \"amount\": 0.0}, ...]}",
     "_note": "2026-07-20 isolate-승격(023 ContextWindowExceeded·§2ah·사용자 지시 \"내부 기능은 턴을 안 쓰게\"): transactions(대형 리스트=main 부풀림 주범)를 서브가 off-ledger fetch. 에이전트=참조만 넘김(레코드 read 0). opening_date/threshold는 여전히 에이전트 공급(소형·T2_SG_GROUND 유지). 서브 실패=에이전트 인자 폴백(거동보존). §2b LOCK 패턴의 fetch-first 확장·엔진 리터럴 0."
-   }
+   },
+   "incomplete_hint": "The rebate rule is evaluated over EVERY monthly window of the cardmember year, so a window with no input records cannot be judged and this tool will not issue a verdict on it. Supply the full year instead of a hand-copied subset: pass the rows by reference (\"@last:<the tool whose output holds the card's transactions>\"), or OMIT 'transactions' and pass user_id together with credit_card_account_id so the tool reads them itself. If, from the complete records, a month genuinely had no qualifying spend, then that month is below the threshold and a single month below disqualifies (no proration).",
+   "byref_field_map": {
+    "date": "transaction_date",
+    "amount": "transaction_amount"
+   },
+   "_note_byref_field_map": "2026-08-03 §4-1 후속: byref로 전달된 원본 레코드는 env 컬럼명(transaction_date/transaction_amount)이고 이 op은 date/amount를 읽는다 — 매핑이 없으면 전 행 무효 → 빈 집계. 출처=env 레코드 스키마(자매 도구 get_reward_discrepancies params 축자 요구와 동일 컬럼)·기계-도출이라 opex 0([[23]]). 엔진은 복사만 한다."
   },
   {
    "name": "get_correct_savings_apy",

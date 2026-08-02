@@ -178,4 +178,8 @@ export T2_WRITE_ARG_GROUND=1      # P9 give 내포 인자 접지(A2 write_arg_gr
 export T2_ARG_SCHEMA=1            # P11 스키마-밖 최상위 키 위생(unified 이설 완료·표적 0=위생)
 export T2_TOOL_CHANNEL=1          # P13 채널 오분류 — **예방형 생성-레벨**(출력-부착 금지·041 사고)
 export T2_USER_TOOL_NOTE=1        # P5 user-tool 안내 표준문(018/040·생성-레벨·sim당 1회)
-#   P12(axis replay 가드)·P7(byref 오류 문구)는 플래그 없는 **무조건 위생**이라 등재 불요.
+export T2_GIVE_QUOTE=1            # P1 give-인용 실재성(010 재현 2/2·생성-레벨·재질의 1회 fail-open)
+export T2_DISPATCH_LEDGER=1       # P8 제출-완결 표면화(020/027·터미널 훅·deny 아님·1회/sim)
+export T2_SG_WINDOW_ABSTAIN=1     # §4-2 미측정 윈도 abstain(023 부정-오판정 봉쇄·A2 선언 도구만)
+#   P12(axis replay 가드)·P7(byref 오류 문구)·§4-1(byref 중첩 op 트리)은 플래그 없는
+#   **무조건 위생**이라 등재 불요.

@@ -151,6 +151,13 @@ def apply_op(spec, ctx):
             #   빈 윈도우가 **보이는** 채로 평가된다(조용한 옛-연도 평가 방지). 달력 산술만(도메인일반)·
             #   as_of 미제공/파싱불가=None(abstain·3-값)·아직 완결 연도 없음(Y<0)=[]. 미선언=기존 거동보존.
             ysel = spec.get("year_select")
+            # ★2026-08-03 §4-2(핸드오프 §4-2 "표본 충분성 미검"): 이 op은 **한 기념년의 완결 윈도
+            #   집합**을 안다(달력 산술 — 12개월·도메인 리터럴 아님·아래 within 분기의 0..11과 동일
+            #   근거). 그 기대 집합을 ctx 사이드채널로 공표해 group_reduce가 "빈 윈도=미측정"을
+            #   판별할 수 있게 한다(구판은 1건만 받아도 그 1건의 min으로 **부정 판정을 발급**했다).
+            #   공표는 사실 전달일 뿐 판정을 바꾸지 않는다(소비 측이 A2 선언으로 옵트인).
+            if isinstance(ctx, dict) and (ysel == "last_complete" or within):
+                ctx["_expected_groups"] = {"field": of, "labels": list(range(12))}
             tagged = []
             for r in recs:
                 if not isinstance(r, dict):
@@ -202,6 +209,26 @@ def apply_op(spec, ctx):
             #   None(abstain·missing_hint 경로)으로. A2 선언 시만·미선언=거동보존. 도메인 리터럴 0.
             for _rg in (spec.get("required_groups") or []):
                 if str(_rg) not in groups:
+                    return None
+            # ★2026-08-03 §4-2 (023 사슬의 마지막 고리·T2_SG_WINDOW_ABSTAIN=1 ∧ A2 선언 시만):
+            #   **결여 그룹은 0이 아니라 미측정**이다. 023 라이브: byref 차단(§4-1) → 손-전사 1건 →
+            #   12칸 중 11칸이 빈 채로 across=min이 그 1건을 최솟값으로 삼아 "DOES NOT QUALIFY"를
+            #   **확정 발급**했다(정답 QUALIFIES). C197의 원칙("결여 leaf가 침묵 오판정")이 이
+            #   경로에만 미적용이었다 — 여기서 동형화한다: 기대 윈도가 하나라도 비면 abstain +
+            #   무엇이 비었는지 표면화(호출측이 `_gr_missing`을 읽어 문구를 붙인다).
+            #   ⚠상쇄(등대 §1 모트): 진짜로 지출 0인 달도 abstain이 된다 — 그 경우의 결론은
+            #   표면화 문구가 A2 문안으로 이행한다(정보 손실 0·판단은 모델 몫).
+            _exp = (ctx or {}).get("_expected_groups") if isinstance(ctx, dict) else None
+            if (spec.get("require_complete_groups")
+                    and os.environ.get("T2_SG_WINDOW_ABSTAIN") == "1"
+                    and isinstance(_exp, dict) and _exp.get("field") == gkey):
+                _labels = list(_exp.get("labels") or [])
+                _miss = [l for l in _labels if str(l) not in groups]
+                if _miss:
+                    ctx["_gr_missing"] = {"field": gkey, "missing": _miss,
+                                          "expected": len(_labels), "present": len(groups)}
+                    print("[T2_SG_WINDOW_ABSTAIN] group_reduce: %d/%d groups had no data -> abstain"
+                          % (len(_miss), len(_labels)), file=_sys.stderr, flush=True)
                     return None
             reduced = []
             for g, vs in groups.items():

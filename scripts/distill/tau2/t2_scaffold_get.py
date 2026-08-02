@@ -226,6 +226,27 @@ def _render_scalar(d, ctx, res):
     return str(d.get("return_template", "{result}")).format_map(sm)
 
 
+def _window_coverage_note(d, ctx, res):
+    """★2026-08-03 §4-2: 미측정 윈도 abstain의 **표면화**(순수함수=단위테스트 공유·`_render_scalar` 선례).
+    abstain 자체는 op이 이미 했다(`t2_compute.group_reduce` → None) — 여기서는 "무엇이 비었나"를
+    붙여 에이전트가 자기-수복(전체 참조 or id 위임)하게 한다. 엔진은 자기 집계의 전사만 하고
+    도메인 결론부는 A2 `incomplete_hint`([[05]]·엔진 리터럴 0). 해당 없으면 빈 문자열(거동보존)."""
+    grm = (ctx or {}).get("_gr_missing")
+    if res is not None or not isinstance(grm, dict):
+        return ""
+    miss = list(grm.get("missing") or [])
+    try:                                   # 라벨이 0-based 정수면 1-based 표기(표기만·판단 0)
+        lbl = ", ".join("#%d" % (int(x) + 1) for x in miss)
+    except Exception:
+        lbl = ", ".join(str(x) for x in miss)
+    txt = ("\n[coverage] %d of %d windows had NO input records at all (%s). Those windows were "
+           "NOT measured, so this is NOT a computed shortfall — the tool refuses to issue a "
+           "verdict on them." % (len(miss), grm.get("expected", 0), lbl))
+    if d.get("incomplete_hint"):
+        txt += " " + str(d.get("incomplete_hint"))
+    return txt
+
+
 def _ground_operands(orch, d, ctx):
     """★operand grounding (관문1·`ACCOUNT_APY_OFFLOAD §2a` 리뷰③·2026-07-20 배선). A2 `ground` 선언 시
     op 실행 前 각 grounded operand가 **KB/원장에 실재하는지 검증** — 미검증=드롭+플래그(→abstain).
@@ -1053,12 +1074,49 @@ def _resolve_ref_output(orch, ref):
     return best
 
 
+def _over_params(op):
+    """★2026-08-03 §4-1 (핸드오프 HANDOFF_2026_08_02_NIGHT §4-1·byref 구조 결함): op **트리 전수**에서
+    배열-파라미터로 참조되는 `over` 이름을 선언 순서대로 수집한다.
+    구판은 `(d["op"]).get("over")` = **최상위 op의 over만** 읽었다. `check_rebate_qualification`처럼
+    over가 중첩(`op.cond.a.over`)이면 항상 None ⇒ 모든 byref가 "이 도구는 by-ref 인자가 없다"로
+    거부됐다(023 라이브: 에이전트의 **옳은** 전체-거래 참조 시도를 차단 → 손-전사 1건 폴백 →
+    엔진이 그 1건으로 부정 판정. 028 손-전사 사슬과 공통 원인).
+    워크는 순수 구조 순회다 — op 이름·도메인 어휘를 보지 않는다(엔진 리터럴 0·[[05]])."""
+    out, seen = [], set()
+
+    def _walk(o):
+        if isinstance(o, dict):
+            v = o.get("over")
+            if isinstance(v, str) and v and v not in seen:
+                seen.add(v)
+                out.append(v)
+            for x in o.values():
+                _walk(x)
+        elif isinstance(o, list):
+            for x in o:
+                _walk(x)
+    _walk(op)
+    return out
+
+
+def _primary_over(d, ctx=None):
+    """byref rows(=조인 대상)를 담은 파라미터. 트리 수집분 중 **ctx에 리스트로 실재하는 첫 번째**,
+    없으면 선언 순서 첫 번째. 최상위 over만 있는 기존 스펙에서는 구판과 동일값(거동보존)."""
+    ov = _over_params(d.get("op"))
+    if isinstance(ctx, dict):
+        for k in ov:
+            if isinstance(ctx.get(k), list):
+                return k
+    return ov[0] if ov else None
+
+
 def _byref_resolve(orch, d, ctx):
     """★P6 엔진: op의 `over` 배열 인자에 한해 @last:/@call: 참조를 해석해 rows로 치환.
     fetch는 모델이 이미 수행·커밋한 것만 재사용(autofetch 아님·E-PLAN C101 기계-파싱 선례).
     ★비-over(스칼라/행-필드) 인자의 참조는 이번 판에서 **미지원**(도메인 필드명 join을 엔진에
-    박는 것은 [[05]] 위반 소지 — A2 join-spec 설계 후 별도). 시도 시 명확한 에러."""
-    over = (d.get("op") or {}).get("over")
+    박는 것은 [[05]] 위반 소지 — A2 join-spec 설계 후 별도). 시도 시 명확한 에러.
+    ★2026-08-03: 허용 인자는 **중첩 op 트리 전수**에서 도출한다(§4-1·`_over_params`)."""
+    overs = _over_params(d.get("op"))
     join_params = {(js or {}).get("from_ref_param") or t
                    for t, js in (d.get("byref_join") or {}).items()}
     for k in list(ctx.keys()):
@@ -1067,21 +1125,84 @@ def _byref_resolve(orch, d, ctx):
             continue
         if k in join_params:
             continue                                   # F7b: _byref_join이 처리
-        if k != over:
+        if k not in overs:
             # ★P7⑥ (2026-08-02·023 실측): 구 문구는 `over`가 None인 스펙에서 "only the 'None'
             #   argument supports…"로 렌더돼 **깨진 안내**가 됐고(에이전트의 옳은 byref 시도를 차단),
             #   그 뒤 에이전트가 손-전사 폴백으로 이탈했다(028 사슬과 동형). ⇒ 허용 인자를 정확히
             #   선언하고, 허용 인자가 아예 없으면 그 사실을 말한다. 엔진 판정은 불변(순수 문구).
-            _allow = ("'%s'" % over) if over else "(none — this tool takes no by-reference argument)"
+            _allow = (", ".join("'%s'" % o for o in overs) if overs
+                      else "(none — this tool takes no by-reference argument)")
             raise _ByrefError(
                 "the '%s' argument does not support @last:/@call: references. "
                 "By-reference is accepted only for: %s. "
                 "Provide '%s' as a literal value copied from the records."
                 % (k, _allow, k))
         rows = _parse_record_dump(_resolve_ref_output(orch, v))
+        _byref_map_fields(d, rows)                     # A2 선언 컬럼명 대응(§4-1 후속)
+        _byref_require_fields(d, k, rows)              # 필요한 컬럼 부재 = 침묵 대신 지목
         ctx[k] = rows
         print("[T2_SG_BYREF] %s: '%s' resolved by reference -> %d row(s)"
               % (d.get("name"), v, len(rows)), file=_sys.stderr, flush=True)
+
+
+_ROW_FIELD_KEYS = ("date_field", "value_field", "id_field", "actual_field", "cond_field")
+
+
+def _row_fields(op):
+    """op 트리가 **입력 행에서 직접 읽는** 필드명 집합. 엔진이 아는 op 키(`*_field`)만 본다 —
+    도메인 어휘는 A2 값이고 엔진은 키 이름만 안다([[05]]). `out_field`(엔진 산출)·join의
+    `source_field`/`row_field`(소스 덤프 몫)는 제외."""
+    out = []
+
+    def _walk(o):
+        if isinstance(o, dict):
+            for kk in _ROW_FIELD_KEYS:
+                vv = o.get(kk)
+                if isinstance(vv, str) and vv and vv not in out:
+                    out.append(vv)
+            for x in o.values():
+                _walk(x)
+        elif isinstance(o, list):
+            for x in o:
+                _walk(x)
+    _walk(op)
+    return out
+
+
+def _byref_map_fields(d, rows):
+    """★2026-08-03 §4-1 후속: A2 `byref_field_map`(op 필드명 ← 레코드 덤프 컬럼명) 결정론 복사.
+    필요한 이유(023): 참조가 열려도 **덤프 컬럼명과 op 필드명이 다르면** 전 행이 무효가 되어
+    빈 집계가 된다. 매핑값은 전부 A2(=env 레코드 스키마 기계-도출·[[23]] opex 0)·엔진=복사만."""
+    fm = d.get("byref_field_map") or {}
+    if not isinstance(fm, dict):
+        return
+    for r in (rows or []):
+        if not isinstance(r, dict):
+            continue
+        for tgt, src in fm.items():
+            if r.get(tgt) in (None, "") and r.get(src) not in (None, ""):
+                r[tgt] = r[src]
+
+
+def _byref_require_fields(d, param, rows):
+    """참조된 덤프에 op이 요구하는 컬럼이 **하나도 없으면** 조용히 빈 판정으로 가지 않고 지목한다
+    (023 사슬의 침묵 지점). 어느 컬럼이 실재하는지도 함께 알려 다음 행동을 결정 가능하게 한다."""
+    need = _row_fields(d.get("op"))
+    if not need or not rows:
+        return
+    have = set()
+    for r in rows:
+        if isinstance(r, dict):
+            have |= {k for k, v in r.items() if v not in (None, "")}
+    miss = [f for f in need if f not in have]
+    if not miss:
+        return
+    raise _ByrefError(
+        "the referenced records do not contain the field(s) %s that this computation reads from "
+        "each row (the referenced records provide: %s). Reference the output of the tool whose "
+        "records carry those values, or supply '%s' yourself with those fields filled in — and if "
+        "this tool can read the records itself from an id argument, prefer that."
+        % (", ".join("'%s'" % m for m in miss), ", ".join(sorted(have)) or "(no fields)", param))
 
 
 def _byref_join(orch, d, ctx):
@@ -1090,7 +1211,7 @@ def _byref_join(orch, d, ctx):
     [[05]])·**유일 매칭만 유효**(복수 매칭=불성립=abstain 안전측·리뷰 명세 보강1 — "첫 행" 채택은
     침묵-오값(D4형))·불성립 행=필드 미기입(P4 지목 경로 합류)."""
     spec = d.get("byref_join") or {}
-    over = (d.get("op") or {}).get("over")
+    over = _primary_over(d, ctx)                    # ★2026-08-03 §4-1: 중첩 op 트리 대응
     rows = ctx.get(over)
     for tgt, js in spec.items():
         p = (js or {}).get("from_ref_param") or tgt
@@ -1221,14 +1342,18 @@ def apply():
             # ★P6(§P6): BYREF ON일 때만 over-인자 설명에 참조 문구 부가 — OFF면 문구도 없음
             #   (엔진이 해석 못 하는 지시를 모델에게 주지 않는다·문구=도메인-일반·A2 파일 불변).
             if os.environ.get("T2_SG_BYREF") == "1":
-                _ovk = (d.get("op") or {}).get("over")
-                if _ovk and isinstance((d.get("params") or {}).get(_ovk), str):
+                # ★2026-08-03 §4-1: 안내도 **중첩 op 트리 전수**에서 도출한다. 구판(최상위 over만)은
+                #   rebate처럼 over가 중첩된 도구에서 안내 자체가 없었다 = 어포던스 비가시.
+                _ovks = [o for o in _over_params(d.get("op"))
+                         if isinstance((d.get("params") or {}).get(o), str)]
+                if _ovks:
                     d = dict(d)
                     d["params"] = dict(d["params"])
-                    d["params"][_ovk] += (
-                        " INSTEAD of retyping the rows, you MAY pass the string "
-                        "\"@last:<name of the tool whose output contains these records>\" — "
-                        "the deterministic system will reuse that exact earlier output.")
+                    for _ovk in _ovks:
+                        d["params"][_ovk] += (
+                            " INSTEAD of retyping the rows, you MAY pass the string "
+                            "\"@last:<name of the tool whose output contains these records>\" — "
+                            "the deterministic system will reuse that exact earlier output.")
                     # ★F7b: join-선언 파라미터에도 참조 안내(예: account_open="@last:<accounts read>")
                     for _jt, _js in (d.get("byref_join") or {}).items():
                         _jp = (_js or {}).get("from_ref_param") or _jt
@@ -1385,8 +1510,11 @@ def apply():
                 #   (019 실측: python-repr+leading-zero 인자 → isolate 무언 skip → select_discrepant
                 #   stats 前 [] → C195 coverage 우회 → "(none)"이 빈 결과로 위장). 엔진이 대신 파싱하면
                 #   엔진-formalize=[[03b]] 위반 — 재송신을 **요구**한다(formalize=LLM 몫 유지·리터럴 0).
-                _ov = (d.get("op") or {}).get("over")
-                if _ov and isinstance(_ctx.get(_ov), str):
+                # ★2026-08-03 §4-1: 중첩 op 트리의 over 파라미터도 검사(구판=최상위만 → rebate류
+                #   str 잔류가 무검출로 통과했다).
+                _ov = next((o for o in _over_params(d.get("op"))
+                            if isinstance(_ctx.get(o), str)), None)
+                if _ov:
                     ours[id(tc)] = ToolMessage(
                         id=tc.id, role="tool",
                         requestor=getattr(tc, "requestor", "assistant"), error=True,
@@ -1510,7 +1638,7 @@ def apply():
                 if _gp:
                     _ev2 = _evidence_ctx(self)
                     _outs2 = _ev2.get("__tool_outputs") or {}
-                    _overk = (d.get("op") or {}).get("over")
+                    _overk = _primary_over(d, _ctx)   # ★2026-08-03 §4-1: 중첩 op 트리 대응
                     _rows2 = _ctx.get(_overk) if _overk else None
                     _dem = {}
                     for _fld, _gs in _gp.items():
@@ -1534,6 +1662,18 @@ def apply():
                 _res = _c.apply_op(d.get("op"), _ctx)
                 if isinstance(_res, list):                    # 목록형(discrepancy ids)
                     _res = [str(i) for i in _res if i]
+                    # ★P8 (2026-08-03·AX32 설계서 §P8·T2_DISPATCH_LEDGER=1 ∧ A2 `dispatch_targets`):
+                    #   다건-write 지시의 **대상 집합을 원장에 등재**한다. 020/027 실측: 대상-반환
+                    #   도구가 낸 집합 중 일부만 제출하고 종료해도 아무도 못 본다([coverage]는
+                    #   검증-감사지 제출-완결이 아님). 집합은 **엔진이 이미 계산한 ids**라 리터럴 0·
+                    #   판단 0(등재만) — 대조/표면화는 터미널 훅(t2_eplan_patch)이 한다.
+                    if os.environ.get("T2_DISPATCH_LEDGER") == "1" and d.get("dispatch_targets"):
+                        _dl = getattr(self, "_t2_dispatch_ledger", None)
+                        if _dl is None:
+                            _dl = self._t2_dispatch_ledger = {}
+                        _dl[d["name"]] = sorted(set(_dl.get(d["name"]) or []) | set(_res))
+                        print("[T2_DISPATCH_LEDGER] %s: %d target(s) registered"
+                              % (d["name"], len(_dl[d["name"]])), file=_sys.stderr, flush=True)
                     # ★{details}: op가 남긴 상세(_sg_details)를 A2 detail_item_template로 포맷.
                     #   A2 template이 {details}를 안 쓰면 거동 변화 0(여분 kwarg는 무해).
                     _dets = _ctx.get("_sg_details") or []
@@ -1616,6 +1756,11 @@ def apply():
                 else:                                         # 스칼라형(verdict 등)
                     _txt = _render_scalar(d, _ctx, _res)      # 순수함수(관문3·단위테스트 공유)
                     _n = _res
+                    # ★2026-08-03 §4-2: 미측정 윈도 abstain의 **표면화**(t2_compute가 남긴 사실만).
+                    #   abstain 자체는 op이 이미 했다(None) — 여기서는 "무엇이 비었나"를 붙여
+                    #   에이전트가 자기-수복(전체 거래 재참조 or user_id 위임)하게 한다.
+                    #   문구 중 도메인 결론부는 A2 `incomplete_hint`(엔진 리터럴 0·[[05]]).
+                    _txt += _window_coverage_note(d, _ctx, _res)
                 # ★grounding 플래그를 반환문 맨 앞에 붙인다 — 드롭된 미검증 operand를 에이전트가 보고
                 #   레코드를 다시 읽게(가짜 정밀도 신뢰 차단·§2ab). 플래그 없으면 거동 변화 0.
                 if _gflags:

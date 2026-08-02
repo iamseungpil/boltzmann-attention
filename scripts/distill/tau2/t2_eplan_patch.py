@@ -734,6 +734,41 @@ def _cp5_replan_subcall(orch, led, msgs, spec):
     return parse_obligations(getattr(sub, "content", None) or "", ekey)
 
 
+def _dispatch_ledger_check(orch):
+    """★P8 (2026-08-03·AX32 설계서 §P8·T2_DISPATCH_LEDGER=1): 제출-완결 대조.
+    020/027 실측: 대상-반환 도구가 낸 집합 중 **일부만** 제출하고 종료해도 무감지였다
+    ([coverage]는 검증-감사지 제출-완결이 아니다·확인 완료).
+    술어는 전부 닫힘·기존 공유 것만 쓴다([[22]]·신규 판단 0):
+      ⓐ 대상 집합 = scaffold가 **자기 op으로 계산해 등재**한 ids(`orch._t2_dispatch_ledger`)
+      ⓑ 제출 = **실효 write 호출의 인자 leaf에 그 id가 실재**(`_is_effective_write`∘`_eff_tool_name`
+        + `_flatten` — 셋 다 기존 공유 술어·도메인 리터럴 0)
+    반환 (tool, submitted, remaining) 또는 None. 판정만 하고 아무것도 막지 않는다."""
+    import t2_gate_patch as _g
+    led = getattr(orch, "_t2_dispatch_ledger", None)
+    if not led:
+        return None
+    dom = getattr(getattr(orch, "environment", None), "domain_name", None)
+    a2 = _g._domain_a2(dom)
+    msgs = orch.get_messages() if hasattr(orch, "get_messages") else []
+    errored = {getattr(m, "id", None) for m in msgs
+               if getattr(m, "role", None) == "tool" and getattr(m, "error", False)}
+    submitted = set()
+    for m in msgs:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            if getattr(tc, "id", None) in errored:
+                continue                       # 에러로 끝난 호출은 제출이 아니다(F2와 동일 규율)
+            if not _g._is_effective_write(_g._eff_tool_name(tc), a2):
+                continue
+            leaves = {str(x).strip() for x in _g._flatten(_g._args_dict(tc))}
+            submitted |= leaves
+    for tool, targets in led.items():
+        tset = [str(t) for t in (targets or [])]
+        rem = [t for t in tset if t not in submitted]
+        if tset and rem:
+            return tool, len(tset) - len(rem), rem
+    return None
+
+
 def _terminal_grant_check(orch):
     """★P3(C208③) 술어 판정(결정론·기존 데이터만). 성립 시 미호출 대상 도구명 반환·아니면 None.
     ⓐ notice 공표: A2 gates(kind=notice)의 notice_text 앞 48자가 assistant 발화에 부분문자열 실재.
@@ -989,7 +1024,8 @@ def apply():
         return None
     _mark("apply(): ledger+L1/L2=unified 배선·walk=%s"
           % ("ON" if os.environ.get("T2_EPLAN_WALK") == "1" else "off"))
-    if os.environ.get("T2_EPLAN_WALK") != "1" and os.environ.get("T2_TERM_GRANT") != "1":
+    if (os.environ.get("T2_EPLAN_WALK") != "1" and os.environ.get("T2_TERM_GRANT") != "1"
+            and os.environ.get("T2_DISPATCH_LEDGER") != "1"):   # P8도 이 훅을 쓴다
         return None
 
     import tau2.orchestrator.orchestrator as _om
@@ -1013,6 +1049,37 @@ def apply():
                 #   ###STOP###이면 무개입=무단 행동 방지) ∧ ⓑ 대상 도구 미호출(원장 대조) ∧ ⓒ 1회/sim.
                 #   동작=보류(아래 drive와 동일 기법)+생성-레벨 reminder+그 턴만 required(gate_patch).
                 #   호출은 모델이 emit(write 강제 0)·notice_text/도구=A2에서 읽음(신규 선언 0).
+                # ★P8 (2026-08-03): 제출-완결 표면화 — **deny 아님·유예 1회**(TERM 훅 결합).
+                #   "지시 N건 중 M건 제출·잔여 [ids]"만 말한다. 020의 'as-is 프레이밍'도 잔여
+                #   목록 앞에서는 근거를 대야 한다(표면화의 힘). 모델은 그대로 종료할 수 있다.
+                #   ⚠TERM_GRANT보다 **먼저** 본다: 이관 전에 미제출을 알려야 의미가 있다.
+                if (os.environ.get("T2_DISPATCH_LEDGER") == "1"
+                        and not getattr(self, "_t2_dispatch_surfaced", False)):
+                    try:
+                        _dl = _dispatch_ledger_check(self)
+                    except Exception as _dle:
+                        _dl = None
+                        _mark("dispatch-ledger skipped (no-op): %r" % (_dle,))
+                    if _dl:
+                        _dtool, _dsub, _drem = _dl
+                        from t2_lever_beat import beat as _beat
+                        _beat("T2_DISPATCH_LEDGER", _dtool)
+                        self._t2_dispatch_surfaced = True
+                        self.done = False
+                        self.termination_reason = None
+                        _ag0 = getattr(self, "agent", None)
+                        if _ag0 is not None:
+                            _ag0._t2_eplan_reminder = (
+                                "[DISPATCH] `%s` identified %d item(s) that needed action; %d of "
+                                "them have been submitted through a tool call. Still not "
+                                "submitted: %s. Either act on the remaining item(s) now, or tell "
+                                "the customer explicitly which ones you are not acting on and "
+                                "why — do not close as if everything was handled."
+                                % (_dtool, _dsub + len(_drem), _dsub,
+                                   ", ".join(_drem[:12]) + (" …" if len(_drem) > 12 else "")))
+                        _mark("dispatch ledger: %s %d submitted / %d remaining -> 1 extra turn"
+                              % (_dtool, _dsub, len(_drem)))
+                        return r
                 if (os.environ.get("T2_TERM_GRANT") == "1"
                         and not getattr(self, "_t2_term_granted", False)):
                     try:

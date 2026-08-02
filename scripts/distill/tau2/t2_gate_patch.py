@@ -261,6 +261,26 @@ def _ctx_with_toolnames(agent, ctx):
         return ctx
 
 
+def _quote_tokens(s):
+    """인용 실재성 검사용 토큰화 — **닫힌 연산만**(소문자·영숫자 외 제거·공백 분할).
+    `gate_interpreter.notice_norm`과 동일 철학(유사도·의미 매칭 금지)."""
+    import re as _re
+    return _re.sub(r"[^a-z0-9 ]", " ", str(s or "").lower()).split()
+
+
+def _shared_span(text, source, min_tokens=4):
+    """★P1 (2026-08-03·AX32 설계서 §P1): `text` 안에 `source`에서 **연속으로 복사된** 토큰 열이
+    min_tokens 이상 존재하는가. 판정은 토큰-연속 부분열의 **실재**뿐(C289 인용-핀과 동형·[[22]]
+    닫힌 술어) — 유사도·의미 대조 0, 도메인 리터럴 0. 발화 실재만 보고 '요청했는가'의 의미는
+    모델 몫으로 남긴다."""
+    n = max(1, int(min_tokens or 1))
+    a, b = _quote_tokens(text), _quote_tokens(source)
+    if len(a) < n or len(b) < n:
+        return False
+    grams = {" ".join(b[i:i + n]) for i in range(len(b) - n + 1)}
+    return any(" ".join(a[i:i + n]) in grams for i in range(len(a) - n + 1))
+
+
 def _ctx_has(s, ctx):
     """값 s의 ctx-매칭 (PROV-RESCUE-PERARG ②: id '#'-접두 정규화).
     '#W8665881' vs ctx의 'w8665881'(사용자 발화) = 접두 불일치 거짓양성 fab(t17 1차 방아쇠) →
@@ -6259,6 +6279,46 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             am = _new5
             except Exception as _e5:
                 print("[T2_USER_TOOL_NOTE] skipped: %r" % (_e5,), file=_sys.stderr, flush=True)
+
+        # ─── ★P1 (2026-08-03·AX32 설계서 §P1): give-인용 표면화 — 생성-레벨 ───
+        #   010 실측(재현 2/2): 양 pass의 **유일 dbdiff**가 여분 give(`get_referral_link GIVEN`) —
+        #   손님이 요청하지 않은 도구를 건네 태스크가 죽었다. 레버 = give 직전, 응답 본문에 손님의
+        #   말이 **축자로** 실재하는지만 본다(닫힌 술어·[[22]]) → 불성립 시 재질의 1회(fail-open).
+        #   ☠채널 제약(재제안 방지): 인용을 **give 인자에 얹는 것 금지**(여분 키 = evaluator
+        #   exact-match 파괴 실측·T2_ARG_SCHEMA와 정면 충돌) ⇒ 생성-레벨 선언만.
+        #   ★사전등록 지표: "인용-불성립 후 give 철회율" — regen 후 give가 사라졌는지 로그로 계수
+        #   (≈0이면 접는다·C263 공집합 NO-GO 동형). sim당 1회(예산).
+        if (os.environ.get("T2_GIVE_QUOTE") == "1" and getattr(am, "tool_calls", None)
+                and not getattr(self, "_t2_gq_done", False)):
+            try:
+                _an1 = (a2 or {}).get("axis_notes") or {}
+                _tpl1 = _an1.get("give_quote")
+                _giv1 = next((t for t in (am.tool_calls or [])
+                              if str(getattr(t, "name", "")) == "give_discoverable_user_tool"), None)
+                if _tpl1 and _giv1 is not None:
+                    _min1 = int(_an1.get("give_quote_min_tokens") or 4)
+                    _utext1 = " ".join(str(getattr(m, "content", "") or "")
+                                       for m in state.messages
+                                       if getattr(m, "role", None) == "user")
+                    if not _shared_span(getattr(am, "content", "") or "", _utext1, _min1):
+                        self._t2_gq_done = True
+                        _want1 = str(_args_dict(_giv1).get("discoverable_tool_name") or "").strip()
+                        from t2_lever_beat import beat as _beat1
+                        _beat1("T2_GIVE_QUOTE", "give_quote")
+                        print("[T2_GIVE_QUOTE] no verbatim customer span in message before give=%s"
+                              % _want1, file=_sys.stderr, flush=True)
+                        _new1p = _ap_regen(_tpl1.format(tool=_want1 or "this tool", min=_min1),
+                                           "givequote")
+                        if _new1p is not None:
+                            am = _new1p
+                        # 사전등록 지표: 재질의 후 같은 give가 남았는가(철회=사라짐)
+                        _still = any(str(getattr(t, "name", "")) == "give_discoverable_user_tool"
+                                     for t in (getattr(am, "tool_calls", None) or []))
+                        print("[T2_GIVE_QUOTE] retract=%d (give_present_after_reask=%d)"
+                              % (0 if _still else 1, 1 if _still else 0),
+                              file=_sys.stderr, flush=True)
+            except Exception as _e1p:
+                print("[T2_GIVE_QUOTE] skipped: %r" % (_e1p,), file=_sys.stderr, flush=True)
 
         # ─── ★P11 (2026-08-02): ARG-SCHEMA 위생을 unified 경로로 이설 ───
         #   死코드 사고: 이 검사는 `patched()`(apply_provenance_regen) 안에만 있었는데 라이브 러너는
