@@ -226,6 +226,24 @@ def _render_scalar(d, ctx, res):
     return str(d.get("return_template", "{result}")).format_map(sm)
 
 
+def _tool_backend_live(orch, name):
+    """★2026-08-03 (alltools 전환 실측 교정): A2 `unavailable_tools`는 **그 백엔드가 없던 검색 설정**
+    (bm25 전용)에서 저작됐다 — alltools에서는 `KB_search_dense`가 **실제로 작동한다**(2026-08-03 env
+    프로브: 임베딩 698문서 계산·`Score: 0.2119` 반환). 그 상태에서 우리가 "사용 불가"로 가로채면
+    ⑴손님에게 갈 사실이 **거짓**이 되고 ⑵작동하는 회수 채널을 우리가 막는다(레버의 자기-역효과·
+    등대 §1.3). ⇒ **env가 실제로 그 도구를 살려두었는지**를 기계적으로 확인하고, 살아 있으면
+    A2 선언을 적용하지 않는다. 판정 = **env 도구 등록 여부**(기계 사실·닫힘) — 이 검색 도구를
+    등록하는 변이는 그 백엔드(임베더)를 함께 선언하므로 등록 = 구성됨이다(변이 정의 직독).
+    판정 불가(env 부재/예외) = False = **기존 거동 유지**(안전측)."""
+    try:
+        env = getattr(orch, "environment", None)
+        if env is None:
+            return False
+        return name in {getattr(t, "name", None) for t in (env.get_tools() or [])}
+    except Exception:
+        return False
+
+
 def _window_coverage_note(d, ctx, res):
     """★2026-08-03 §4-2: 미측정 윈도 abstain의 **표면화**(순수함수=단위테스트 공유·`_render_scalar` 선례).
     abstain 자체는 op이 이미 했다(`t2_compute.group_reduce` → None) — 여기서는 "무엇이 비었나"를
@@ -1830,7 +1848,8 @@ def apply():
                 print("[T2_SG_TRUTH] '%s(%s)' -> interface fact (env would have denied our tool)"
                       % (getattr(tc, "name", "") or "", _tn), file=_sys.stderr, flush=True)
             elif (os.environ.get("T2_SG_TRUTH") == "1"
-                  and getattr(tc, "name", None) in ((a2 or {}).get("unavailable_tools") or {})):
+                  and getattr(tc, "name", None) in ((a2 or {}).get("unavailable_tools") or {})
+                  and not _tool_backend_live(self, getattr(tc, "name", None))):
                 # ★unavailable-tool 사실 정정 (2026-07-20 §2ax·r095b t0 실측): 백엔드 미설정으로 **항상
                 #   실패하는 도구**(KB_search_dense="Missing credentials")를 env가 목록에 노출 — 에이전트가
                 #   연속 선택·낭비 후 조기 transfer(C108류 거짓 인터페이스). A2가 선언한 도구는 실행 없이

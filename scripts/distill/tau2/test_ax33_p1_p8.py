@@ -141,7 +141,31 @@ def test_p8_a2():
     chk("_t2_dispatch_ledger" in sg, "scaffold가 대상 집합을 등재")
 
 
-for fn in (test_p1_predicate, test_p1_install_path, test_p8, test_p8_a2):
+# ── P2/P10 (alltools 재설계판·2026-08-03) ────────────────────────────────────
+def test_p2_p10():
+    print("[test_p2/p10] bm25 전-0점 신호(닫힘·env 기계 포맷) + 주장-부분열 라우팅")
+    z = ("1. Internal: X\n   ID: d1\n   Score: 0.0000\n   Content: a\n"
+         "2. Internal: Y\n   ID: d2\n   Score: 0.0000\n   Content: b")
+    chk(GP._kb_zero_hit(z) is True, "전-0점 → True(무의미 질의 실측 포맷)")
+    chk(GP._kb_zero_hit(z.replace("0.0000", "0.2119", 1)) is False, "일부 득점 → False")
+    chk(GP._kb_zero_hit("Found 3 record(s) in 'x'") is None,
+        "점수 행 없는 채널(레코드 덤프·dense 아님) → 판정 불가(None)=오판 안 함")
+    chk(GP._kb_zero_hit(None) is None, "비-문자열 → None")
+    chk(isinstance(NOTES.get("kb_nohit"), str) and "{n}" in NOTES["kb_nohit"], "P2 A2 문구")
+    chk("{query}" in (NOTES.get("kb_claim_nohit") or ""), "P10 A2 문구(질의 에코)")
+    # 라우팅: 질의가 손님 발화의 축자 부분열이면 P10 문구, 아니면 P2 문구
+    user = "my card was charged a foreign transaction fee twice on the same purchase"
+    chk(GP._shared_span("foreign transaction fee twice", user, 4), "주장-질의 → P10 라우팅 성립")
+    chk(not GP._shared_span("annual fee rebate threshold", user, 4), "무관 질의 → P2 라우팅")
+    src = io.open(os.path.join(HERE, "t2_gate_patch.py"), encoding="utf-8").read()
+    i = src.find("T2_KB_NOHIT_SURFACE")
+    chk(src.find("    def unified(self, message, state):") < i
+        < src.find("    LLMAgent._generate_next_message = unified"),
+        "설치 경로 = unified() 내부(死코드 규약)")
+    chk("_ap_regen" in src[i:i + 3000], "채널 = 생성-레벨 regen(KB_search는 mutating이라 출력-부착 금지)")
+
+
+for fn in (test_p1_predicate, test_p1_install_path, test_p8, test_p8_a2, test_p2_p10):
     fn()
-print("\n%s" % ("ALL PASS" if OK else "FAIL"))
+print(chr(10) + ("ALL PASS" if OK else "FAIL"))
 sys.exit(0 if OK else 1)

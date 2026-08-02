@@ -281,6 +281,26 @@ def _shared_span(text, source, min_tokens=4):
     return any(" ".join(a[i:i + n]) in grams for i in range(len(a) - n + 1))
 
 
+_KB_SCORE_RE = re.compile(r"^\s*Score:\s*([0-9]*\.?[0-9]+)\s*$", re.M)
+
+
+def _kb_zero_hit(text):
+    """★P2/P10 신호 (2026-08-03·alltools 실측): 검색 출력의 **env 기계 포맷** `Score: <float>` 행을
+    읽어 "반환 문서가 전부 0점"인지 본다 = 그 질의가 어휘적으로 아무것도 맞히지 못했다.
+    [[03b]] 경계: `_parse_record_dump`와 동일 — env가 찍는 **고정 포맷의 전사**이지 NL formalize가
+    아니다. 점수 행이 하나도 없으면 판정 불가(None) — 다른 채널(dense·shell) 출력을 오판하지 않는다.
+    ★실측 근거(2026-08-03 env 프로브): alltools에서도 `KB_search_bm25`는 그대로 노출되고 무의미
+    질의에 `Score: 0.0000`을 찍는다(검색은 **공집합을 반환하지 않는다** — 그래서 '결과 없음'이 아니라
+    '전부 0점'이 신호다). dense는 항상 양수 유사도를 주므로 문턱이 필요해 **신호로 쓰지 않는다**
+    (임계값=도메인 튜닝=[[05]] 회색지대)."""
+    if not isinstance(text, str):
+        return None
+    vals = [float(m.group(1)) for m in _KB_SCORE_RE.finditer(text)]
+    if not vals:
+        return None
+    return all(v == 0.0 for v in vals)
+
+
 def _ctx_has(s, ctx):
     """값 s의 ctx-매칭 (PROV-RESCUE-PERARG ②: id '#'-접두 정규화).
     '#W8665881' vs ctx의 'w8665881'(사용자 발화) = 접두 불일치 거짓양성 fab(t17 1차 방아쇠) →
@@ -6279,6 +6299,59 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             am = _new5
             except Exception as _e5:
                 print("[T2_USER_TOOL_NOTE] skipped: %r" % (_e5,), file=_sys.stderr, flush=True)
+
+        # ─── ★P2/P10 (2026-08-03·AX32 설계서 §P2·§P10 — alltools 재설계판) ───
+        #   r7의 전제("alltools 전환으로 bm25 신호 무효")는 **실측으로 기각**: alltools는
+        #   KB_search_bm25 + KB_search_dense + shell을 함께 노출하고, bm25는 그대로 `Score:`를
+        #   찍는다(무의미 질의 → 전부 0.0000·env 프로브 2026-08-03). ⇒ 원 신호가 살아 있다.
+        #   · P2 = **k회 연속 전-0점** → "없는 절차를 지어내지 말라·이관 검토" 노트 1회(강제 아님).
+        #   · P10 = 그 무득점 질의가 **손님 발화의 축자 부분열**을 담고 있으면(=손님 주장을 그대로
+        #     찾아본 것인데 KB가 뒷받침하지 않음) 확인-전 수용 금지 노트 1회. 술어 = P1과 **동일**
+        #     `_shared_span`(닫힘·재사용).
+        #   채널 = **생성-레벨**(P13 규약: KB_search는 env mutating이라 출력-부착 금지·041 사고).
+        #   dense는 문턱이 필요해 신호로 쓰지 않는다([[05]] 회색지대 회피) → **과소 발화** 방향.
+        if (os.environ.get("T2_KB_NOHIT_SURFACE") == "1"
+                and not getattr(self, "_t2_nohit_done", False)):
+            try:
+                _an2 = (a2 or {}).get("axis_notes") or {}
+                _z, _zq = 0, []
+                _id2n2 = {}
+                for _m2 in state.messages:
+                    for _t2 in (getattr(_m2, "tool_calls", None) or []):
+                        _id2n2[getattr(_t2, "id", None)] = _args_dict(_t2)
+                    if getattr(_m2, "role", None) != "tool":
+                        continue
+                    _hit2 = _kb_zero_hit(getattr(_m2, "content", None))
+                    if _hit2 is None:
+                        continue                       # 점수 없는 채널 = 판정 대상 아님
+                    if _hit2:
+                        _z += 1
+                        _qa = _id2n2.get(getattr(_m2, "id", None)) or {}
+                        _zq.append(str(_qa.get("query") or ""))
+                    else:
+                        _z = 0                          # 득점하면 연속 카운트 리셋
+                        _zq = []
+                _th2 = int(os.environ.get("T2_KB_NOHIT_K", "2") or 2)
+                if _z >= _th2:
+                    _ut2 = " ".join(str(getattr(m, "content", "") or "")
+                                    for m in state.messages
+                                    if getattr(m, "role", None) == "user")
+                    _min2 = int(_an2.get("give_quote_min_tokens") or 4)
+                    _claim = next((q for q in _zq if _shared_span(q, _ut2, _min2)), None)
+                    _tpl2 = (_an2.get("kb_claim_nohit") if _claim else None) \
+                        or _an2.get("kb_nohit")
+                    if _tpl2:
+                        self._t2_nohit_done = True
+                        from t2_lever_beat import beat as _beat2
+                        _beat2("T2_KB_NOHIT_SURFACE", "claim" if _claim else "nohit")
+                        print("[T2_KB_NOHIT_SURFACE] zero-score streak=%d claim_span=%s"
+                              % (_z, bool(_claim)), file=_sys.stderr, flush=True)
+                        _new2p = _ap_regen(_tpl2.format(n=_z, query=(_claim or _zq[-1])[:80]),
+                                           "kbnohit")
+                        if _new2p is not None:
+                            am = _new2p
+            except Exception as _e2p:
+                print("[T2_KB_NOHIT_SURFACE] skipped: %r" % (_e2p,), file=_sys.stderr, flush=True)
 
         # ─── ★P1 (2026-08-03·AX32 설계서 §P1): give-인용 표면화 — 생성-레벨 ───
         #   010 실측(재현 2/2): 양 pass의 **유일 dbdiff**가 여분 give(`get_referral_link GIVEN`) —

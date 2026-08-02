@@ -181,5 +181,7 @@ export T2_USER_TOOL_NOTE=1        # P5 user-tool 안내 표준문(018/040·생�
 export T2_GIVE_QUOTE=1            # P1 give-인용 실재성(010 재현 2/2·생성-레벨·재질의 1회 fail-open)
 export T2_DISPATCH_LEDGER=1       # P8 제출-완결 표면화(020/027·터미널 훅·deny 아님·1회/sim)
 export T2_SG_WINDOW_ABSTAIN=1     # §4-2 미측정 윈도 abstain(023 부정-오판정 봉쇄·A2 선언 도구만)
+export T2_KB_NOHIT_SURFACE=1      # P2/P10 bm25 전-0점 표면화(012=절차 날조 금지·014/015=주장 미뒷받침)
+export T2_KB_NOHIT_K=2            #   연속 무득점 문턱(설계서 §P2 k=2)
 #   P12(axis replay 가드)·P7(byref 오류 문구)·§4-1(byref 중첩 op 트리)은 플래그 없는
 #   **무조건 위생**이라 등재 불요.
