@@ -36,33 +36,54 @@ ap.add_argument("--log", nargs="+", required=True, help="런 로그 파일(들·
 ap.add_argument("--json", default="")
 A = ap.parse_args()
 
-# ── 코드 정적 스캔: 플래그 전수 + 태그 대응 ──────────────────────────────────
+# ── 코드 정적 스캔: 플래그 전수 + **증거 등급별** 태그 대응 (r2 정제·2026-08-02) ──
+# ★r1 결함(첫 라이브 감사가 스스로 적발): ±40행 휴리스틱이 형제 플래그를 공용 태그에 묶어
+#   "OFF인데 발화" 오탐 19건(T2_DECLFIRST_ENFORCE=0인데 [T2_DECLFIRST] 발화 등)을 냈고,
+#   파라미터형(*_CAP·*_MIN 등)을 on/off처럼 판정했다. r2 = 증거 3등급 분리:
+#   ①정확(beat `[T2_LEVER] <플래그>` · 태그명==플래그명 · 검증된 소수 쌍) → ★/⚠ 판정 자격
+#   ②공유(휴리스틱 근접 태그) → 참고만 · 오염/무발화 판정 금지(귀속 불가)
+#   ③파라미터형(`== "1"` 비교 부재) → 값 보고만(발화 개념 없음)
 ENGINE = [f for f in glob.glob(os.path.join(HERE, "t2_*.py")) +
           [os.path.join(HERE, "gate_interpreter.py")] if os.path.isfile(f)]
 FLAG_RE = re.compile(r'environ(?:\.get)?\(\s*"(T2_[A-Z0-9_]+)"')
+ONOFF_RE = re.compile(r'environ(?:\.get)?\(\s*"(T2_[A-Z0-9_]+)"[^)]*\)\s*==\s*"1"')
 TAG_RE = re.compile(r'"(\[T2_[A-Z0-9_]+)')
-all_flags, tag_flags = set(), collections.defaultdict(set)
-flag_tags = collections.defaultdict(set)
+all_flags, onoff_flags = set(), set()
+exact_tags = collections.defaultdict(set)
+shared_tags = collections.defaultdict(set)
 for f in ENGINE:
-    lines = open(f, encoding="utf-8").read().splitlines()
-    for i, ln in enumerate(lines):
-        for m in FLAG_RE.finditer(ln):
-            all_flags.add(m.group(1))
+    src = open(f, encoding="utf-8").read()
+    lines_ = src.splitlines()
+    for m in FLAG_RE.finditer(src):
+        all_flags.add(m.group(1))
+    for m in ONOFF_RE.finditer(src):
+        onoff_flags.add(m.group(1))
+    for i, ln in enumerate(lines_):
         for m in TAG_RE.finditer(ln):
             tag = m.group(1) + "]"
-            lo, hi = max(0, i - 40), min(len(lines), i + 5)
-            for fm in FLAG_RE.finditer("\n".join(lines[lo:hi])):
-                tag_flags[tag].add(fm.group(1))
-                flag_tags[fm.group(1)].add(tag)
-# [axis] 계열(축-레버 공용 태그)
-for fl in ("T2_TOOL_CHANNEL", "T2_TERMINAL_TURN", "T2_FIT_DIFF", "T2_SCALAR_ARRAY"):
-    flag_tags[fl].add("[T2_AXIS]")
-flag_tags["T2_REPEAT_CAP"].add("[REPEAT-CAP")
-flag_tags["T2_FN_ISOLATE"].add("[T2_FN_ISOLATE]")
-# ★beat 규약(t2_lever_beat·2026-08-02): 모든 플래그는 `[T2_LEVER] <플래그>` 로도 발화를 증명할 수
-#   있다 — 이름 정확 매핑이라 휴리스틱 오탐이 없다. 무태그 레버의 사각을 이것으로 닫는다.
+            lo, hi = max(0, i - 40), min(len(lines_), i + 5)
+            for fm in FLAG_RE.finditer("\n".join(lines_[lo:hi])):
+                shared_tags[fm.group(1)].add(tag)
 for fl in list(all_flags):
-    flag_tags[fl].add("[T2_LEVER] " + fl)
+    exact_tags[fl].add("[T2_LEVER] " + fl)          # beat(정확명)
+    nm = "[" + fl + "]"
+    exact_tags[fl].add(nm)                          # 태그명==플래그명
+    shared_tags[fl].discard(nm)
+_CURATED = {  # 이름은 다르지만 코드 정독으로 1:1 확정한 쌍만(늘릴 땐 반드시 코드 확인·grep 축자)
+    "T2_TOOL_CHANNEL": {"[T2_AXIS]"}, "T2_TERMINAL_TURN": {"[T2_AXIS]"},
+    "T2_FIT_DIFF": {"[T2_AXIS]"}, "T2_SCALAR_ARRAY": {"[T2_AXIS]"},
+    "T2_REPEAT_CAP": {"[REPEAT-CAP"},
+    # 이름-변형 쌍(2026-08-02 grep 확정): 플래그와 태그의 언더스코어/표기 차이
+    "T2_CLAIM_PROV": {"[T2_CLAIMPROV]"},
+    "T2_WRITE_PROV": {"[T2_WRITEPROV]"},
+    "T2_QUOTE_PIN": {"[T2_SG_ISOLATE] quote-pin"},   # 판정 발화(비-pass시)·pass만이면 무발화가 정상
+    "T2_SG_GROUND": {"[GROUNDING WARNING]"},
+    "T2_GROUND_HDR": {"[GROUNDING WARNING]"},        # 트리거 공유(발화=경고 자체·HDR는 문구 형태)
+    "T2_TOOL_SIGNATURE_OBSERVE": {"[T2_TOOL_SIGNATURE]"},  # observe 모드가 본체 태그로 발화
+}
+for fl, ts in _CURATED.items():
+    exact_tags[fl] |= ts
+# ⚠[T2_AXIS]는 4레버 공용 — 발화>0은 존재 증명 수준이고 어느 레버인지는 로그 본문으로(정직 표기).
 
 # ── env 덤프 → ON/OFF ────────────────────────────────────────────────────────
 envmap = {}
@@ -84,7 +105,8 @@ for p in A.log:
     except Exception as e:
         print("⚠로그 읽기 실패 %s: %r" % (p, e))
 TXT = "\n".join(txt_all)
-alltags = set(tag_flags.keys()) | {t for ts in flag_tags.values() for t in ts}
+alltags = ({t for ts in exact_tags.values() for t in ts}
+           | {t for ts in shared_tags.values() for t in ts})
 for tag in alltags:
     n = TXT.count(tag)
     if n:
@@ -95,23 +117,34 @@ rows = []
 for fl in sorted(all_flags):
     raw = envmap.get(fl)
     on = raw not in (None, "", "0")
-    tags = sorted(flag_tags.get(fl) or [])
-    fired = sum(tagcount.get(t, 0) for t in tags)
-    if not tags:
-        verdict = "관측불가(무태그)" if on else "OFF·무태그"
-    elif on and fired:
-        verdict = "정상(ON·발화)"
-    elif on and not fired:
+    ex = sorted(exact_tags.get(fl) or [])
+    sh = sorted((shared_tags.get(fl) or set()) - set(ex))
+    ex_fired = sum(tagcount.get(t, 0) for t in ex)
+    sh_fired = sum(tagcount.get(t, 0) for t in sh)
+    if fl not in onoff_flags:
+        verdict = "파라미터(값 보고만)" if on else "파라미터·미설정"
+    elif on and ex_fired:
+        verdict = "정상(ON·발화·정확증거)"
+    elif on and sh_fired:
+        verdict = "정상?(ON·공유증거만 — 귀속 불확실)"
+    elif on:
         verdict = "★ON인데 무발화 — 감사"
-    elif not on and fired:
-        verdict = "⚠OFF인데 발화 — 오염"
+    elif ex_fired:
+        # ★형제-ON 귀속(r2b): 같은 정확 태그를 가진 **켜진** 형제가 있으면 발화는 그쪽 것이다
+        #   (예: SIG=0·OBS=1에서 [T2_TOOL_SIGNATURE]는 OBSERVE의 발화). 진짜 오염만 ⚠로.
+        _sib = [g for g in all_flags if g != fl
+                and (exact_tags.get(g) or set()) & set(ex)
+                and envmap.get(g) not in (None, "", "0")]
+        verdict = ("공유태그(형제 %s 귀속)" % _sib[0]) if _sib else "⚠OFF인데 발화 — 오염(정확증거)"
     else:
         verdict = "OFF"
-    rows.append({"flag": fl, "value": raw, "on": on, "tags": tags,
-                 "fired": fired, "verdict": verdict})
+    rows.append({"flag": fl, "value": raw, "on": on, "tags": ex, "shared": sh,
+                 "fired": ex_fired, "shared_fired": sh_fired, "verdict": verdict})
 
-order = {"⚠OFF인데 발화 — 오염": 0, "★ON인데 무발화 — 감사": 1, "관측불가(무태그)": 2,
-         "정상(ON·발화)": 3, "OFF": 4, "OFF·무태그": 5}
+order = {"⚠OFF인데 발화 — 오염(정확증거)": 0, "★ON인데 무발화 — 감사": 1,
+         "정상?(ON·공유증거만 — 귀속 불확실)": 2, "정상(ON·발화·정확증거)": 3,
+         "파라미터(값 보고만)": 4, "OFF": 5, "파라미터·미설정": 6}
+# (공유태그(형제…) 판정은 order 미등재 → 말미 출력)
 rows.sort(key=lambda r: (order.get(r["verdict"], 9), r["flag"]))
 print("=" * 96)
 print("%-30s %-8s %-8s %s" % ("flag", "설정값", "발화수", "판정"))
@@ -123,11 +156,13 @@ for r in rows:
     print("%-30s %-8s %-8d %s" % (r["flag"], (r["value"] or "-")[:8], r["fired"],
                                   ",".join(r["tags"])[:44]))
 n_bad = sum(1 for r in rows if r["verdict"].startswith(("★", "⚠")))
-n_blind = sum(1 for r in rows if r["verdict"] == "관측불가(무태그)")
 print("=" * 96)
-print("요약: 감사 대상(ON·무발화) %d · 오염(OFF·발화) %d · 관측불가 %d / 전체 %d"
+print("요약: ★ON·무발화 %d · ⚠오염(정확증거) %d · 공유증거만 %d · 정상 %d · 파라미터 %d / 전체 %d"
       % (sum(1 for r in rows if r["verdict"].startswith("★")),
-         sum(1 for r in rows if r["verdict"].startswith("⚠")), n_blind, len(rows)))
+         sum(1 for r in rows if r["verdict"].startswith("⚠")),
+         sum(1 for r in rows if r["verdict"].startswith("정상?")),
+         sum(1 for r in rows if r["verdict"].startswith("정상(")),
+         sum(1 for r in rows if r["verdict"].startswith("파라미터")), len(rows)))
 if A.json:
     json.dump(rows, open(A.json, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print("→ %s" % A.json)
