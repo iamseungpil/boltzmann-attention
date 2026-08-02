@@ -3184,6 +3184,37 @@ def _install_regen_exec():
                     _rep = self._t2_dup_rep = getattr(self, "_t2_dup_rep", {})
                     _rep[k] = _rep.get(k, 0) + 1
                     _n_rep = _rep[k]
+                    # ★T2_REPEAT_GOV=1 (CONSOLIDATION §2a·L1 준수·기본 OFF): 반복 채널의 문구 조립·
+                    #   순서를 거버너 한 곳으로. **판정 술어는 아래 레거시와 동일하게 여기서 계산**해
+                    #   넘긴다(행동 불변·동등성은 test_repeat_gov 바이트 검정 + x45). OFF=레거시 그대로.
+                    if os.environ.get("T2_REPEAT_GOV") == "1":
+                        import t2_repeat_gov as _rg
+                        _dig = (k in cache and cache.get(k) in _dgset
+                                and os.environ.get("T2_NO_DIGEST_REEXEC") == "1")
+                        _isrch = ("search" in _dn or "bm25" in _dn or "kb_" in _dn
+                                  or "grep" in _dn)
+                        try:
+                            _capk = int(os.environ.get("T2_REPEAT_CAP", "0") or 0)
+                        except Exception:
+                            _capk = 0
+                        _gc, _gerr, _gcap = _rg.ladder(getattr(tc, "name", "") or "",
+                                                       _n_rep, _isrch, _dig, _capk)
+                        if _gcap:
+                            _glog = getattr(self, "_t2_repeat_log", None)
+                            if _glog is None:
+                                _glog = self._t2_repeat_log = []
+                            _glog.append((getattr(tc, "name", ""), _n_rep))
+                        from t2_lever_beat import beat as _gbeat
+                        _gbeat("T2_REPEAT_GOV")
+                        stubs[getattr(tc, "id", None)] = _TM(
+                            id=tc.id, role="tool",
+                            requestor=getattr(tc, "requestor", "assistant"),
+                            error=_gerr, content=_gc)
+                        stub_ids.add(getattr(tc, "id", None))
+                        self._t2_read_dedup = getattr(self, "_t2_read_dedup", 0) + 1
+                        print("[T2_READ_DEDUP] stub tool=%s" % getattr(tc, "name", None),
+                              file=sys.stderr, flush=True)
+                        continue
                     _esc = ""
                     # ★T2_REPEAT_CAP=K (RUNAWAY §2c·x35 ① 사전계측: K=8에서 과차단 하한 0·표적 39 sim).
                     #   C194 esc(_n_rep>=3) **위에** 얹히는 3번째 강도라 K>3이어야 귀속이 깨지지 않는다.

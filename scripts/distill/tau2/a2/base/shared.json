@@ -110,5 +110,13 @@
    "###TRANSFER###"
   ]
  },
- "_note_axis_notes": "표면화 문구(도메인-일반·L1) — 정본 `FAILURE_AXES_REDESIGN_2026_08_02` / `RUNAWAY_AXIS_REDESIGN_2026_08_02`. 출처: 도구 종류별 절차는 **에이전트 정책 축자**(\"First, unlock the tool using unlock_discoverable_agent_tool … The unlock step is required before calling\") · 이관 재질문 금지는 **A2 gate ask 축자**(\"do NOT send the notice again … Saying you will transfer … does not transfer anyone\") · 종료 토큰은 env 산출. **gold 경유 0**. 도구 이름은 여기 없다 — env `DISCOVERABLE_ATTR`에서 런타임 기계 도출(C208 판정: opex 0). 새 도메인 전이 비용 0(L1)."
+ "_note_axis_notes": "표면화 문구(도메인-일반·L1) — 정본 `FAILURE_AXES_REDESIGN_2026_08_02` / `RUNAWAY_AXIS_REDESIGN_2026_08_02`. 출처: 도구 종류별 절차는 **에이전트 정책 축자**(\"First, unlock the tool using unlock_discoverable_agent_tool … The unlock step is required before calling\") · 이관 재질문 금지는 **A2 gate ask 축자**(\"do NOT send the notice again … Saying you will transfer … does not transfer anyone\") · 종료 토큰은 env 산출. **gold 경유 0**. 도구 이름은 여기 없다 — env `DISCOVERABLE_ATTR`에서 런타임 기계 도출(C208 판정: opex 0). 새 도메인 전이 비용 0(L1).",
+ "repeat_governor": {
+  "stub": "[DUPLICATE-READ] This exact call (same tool, same arguments) was already executed earlier in this conversation; its full output is shown above and has not changed. Refer to that output instead of re-reading.",
+  "stub_digested": "[DUPLICATE-READ] This exact call was already executed earlier; its output was COMPACTED from view to save space and has not changed. Do NOT re-run it. If a tool needs that data, pass it BY REFERENCE as @last:{tool} instead of re-reading.",
+  "redirect": " Do NOT repeat this exact search. If you are looking up a discoverable tool, note that a bare function-name query matches no document text — search PLAIN WORDS describing the action/step (the everyday words a policy document would use), not the tool's function name. If you already have the information you need, proceed to the next step instead of searching again.",
+  "escalate": " You have now issued this IDENTICAL call {n} times and the result has not changed once — repeating it again cannot produce new information. Change what you do: use DIFFERENT search words, or act on the information you already have, or ask the customer. Do not issue this same call again.",
+  "cap": " [REPEAT-CAP] This identical call has now been issued {n} times and is no longer being executed. Stop this line of action: state to the customer what you could not resolve, or take a DIFFERENT action. This has been recorded as an unresolved blocker."
+ },
+ "_note_repeat_governor": "반복 거버너 문구(L1·도메인-일반) — 정본 LEVER_CONSOLIDATION_DESIGN §2a. ★전부 t2_gate_patch HEAD 리터럴의 **축자 이관**(2026-08-02·바이트 동일 = test_repeat_gov 13검정): stub=C181 dedup · stub_digested=NO_DIGEST_REEXEC 상쇄 조정 · redirect=C114③ · escalate=C194 · cap=RUNAWAY §2c(K 정본은 그 문서). 판정 술어는 엔진 소유(여기 없음=L1). gold 경유 0."
 }
