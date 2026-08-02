@@ -89,6 +89,23 @@ persist(){
 }
 
 MODE=${1:-smoke}
+if [ "$MODE" = "micro" ]; then
+  # ★마이크로-스모크(2태스크·~15분): wrap 첫 실발화(022=KB 부하 최대 표적)·PREKB 공존·
+  #   다이제스트 스텁 신문구 검증. 본런 직전 최종 게이트.
+  log "★마이크로-스모크 — gpu0=022(wrap 표적) · gpu1=019"
+  one axmicro 0 8140 "task_022" &
+  one axmicro 1 8141 "task_019" &
+  wait
+  log "마이크로 완주 — 판독"
+  for g in 0 1; do
+    L=/home/woori/scratch/logs/axmicro_gpu$g.log
+    echo "gpu$g: FN_ISO_전체=$(grep -c 'T2_FN_ISOLATE' $L) 폴백=$(grep -c '폴백' $L) PREKB=$(grep -c 'T2_PREKB' $L) AXIS=$(grep -c '\[T2_AXIS\]' $L) LEVER=$(grep -c '\[T2_LEVER\]' $L) COMPACTED스텁=$(grep -c 'COMPACTED from view' $L)"
+  done
+  grep -h "T2_FN_ISOLATE" /home/woori/scratch/logs/axmicro_gpu*.log | grep -v 폴백 | head -4
+  /home/woori/venvs/seka_env/bin/python -u $R/scripts/distill/tau2/x44_lever_coverage.py     --env /home/woori/scratch/axis32run/env_axmicro_gpu*.txt     --log /home/woori/scratch/logs/axmicro_gpu0.log /home/woori/scratch/logs/axmicro_gpu1.log     --json /home/woori/scratch/axis32run/x44_axmicro.json | tail -3
+  persist axmicro
+  exit 0
+fi
 if [ "$MODE" = "smoke" ]; then
   log "★스모크 — 4태스크(축 레버가 라이브에서 실제로 발화하는지·[[30]])"
   one axsmoke 0 8140 "$SMOKE0" &
