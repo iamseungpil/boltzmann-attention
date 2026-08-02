@@ -607,11 +607,10 @@ def _axis_surface(orch, tool_calls, results):
             if m:
                 unlocked.add(m.group(1))
         add = []
-        if os.environ.get("T2_TOOL_CHANNEL") == "1":
-            n = AX.channel_note(str(getattr(tc, "name", "") or ""), a,
-                                scaffold, agent_d, user_d, unlocked, notes_cfg)
-            if n:
-                add.append(n)
+        # ★P13 (2026-08-02·승인): CHANNEL은 여기서 **부착하지 않는다**. 발화 조건인 unlock/give/call이
+        #   전부 env mutating(실측)이라 출력-부착은 replay를 깬다(041 사고) — 가드에 걸려 어차피 100%
+        #   드롭된다. ⇒ 예방형 **생성-레벨**(호출 실행 前 교정)로 이설: `unified()` 말미 P13 블록.
+        #   규약: **출력-부착 = 읽기 도구 전용** / mutating 피드백 = 생성-레벨.
         if os.environ.get("T2_SCALAR_ARRAY") == "1":
             n = AX.scalar_array_note(a, notes_cfg)
             if n:
@@ -6201,6 +6200,41 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
                               file=_sys.stderr, flush=True)
                     break
+
+        # ─── ★P13 (2026-08-02·승인): CHANNEL을 **예방형 생성-레벨**로 이설 ───
+        #   구판은 unlock/give/call 출력에 [axis] 노트를 붙였는데 셋 다 env mutating(실측) ⇒ replay 파괴
+        #   (041 R0 6,579s 폐기) → P12 가드에 걸려 100% 드롭. 여기서는 **호출이 실행되기 전에** 채널
+        #   오분류를 잡아 피드백 1회 + regen(비커밋·replay 무영향·ARG_SCHEMA/WAG와 동형).
+        #   판정 = 레지스트리 멤버십(env 기계-도출·opex 0·C208②)뿐 — 값 판단 0·도메인 리터럴 0.
+        if os.environ.get("T2_TOOL_CHANNEL") == "1" and getattr(am, "tool_calls", None):
+            try:
+                import t2_axis_levers as _AX13
+                _o13 = getattr(self, "_t2_orch", None)
+                _nc13 = (a2 or {}).get("axis_notes") or {}
+                if _o13 is not None and _nc13:
+                    _sc13, _ad13, _ud13 = _AX13.registry_from_a2(a2)
+                    _agd13, _usd13 = _AX13.registry_from_env(_o13)
+                    _agd13 |= _ad13
+                    _usd13 |= _ud13
+                    _unl13 = getattr(_o13, "_t2_axis_unlocked", None) or set()
+                    if _agd13 or _usd13:
+                        for _tc13 in (am.tool_calls or []):
+                            _n13 = _AX13.channel_note(
+                                str(getattr(_tc13, "name", "") or ""), _args_dict(_tc13),
+                                _sc13, _agd13, _usd13, _unl13, _nc13)
+                            if not _n13:
+                                continue
+                            from t2_lever_beat import beat as _beat13
+                            _beat13("T2_TOOL_CHANNEL", "channel_pre")
+                            print("[T2_TOOL_CHANNEL] pre-call regen: %s"
+                                  % getattr(_tc13, "name", ""), file=_sys.stderr, flush=True)
+                            _new13 = _ap_regen("Error: [TOOL-CHANNEL] " + _n13, "channel")
+                            if _new13 is not None:
+                                am = _new13
+                            break
+            except Exception as _e13:
+                print("[T2_TOOL_CHANNEL] pre-call check skipped: %r" % (_e13,),
+                      file=_sys.stderr, flush=True)
 
         # ─── ★P11 (2026-08-02): ARG-SCHEMA 위생을 unified 경로로 이설 ───
         #   死코드 사고: 이 검사는 `patched()`(apply_provenance_regen) 안에만 있었는데 라이브 러너는

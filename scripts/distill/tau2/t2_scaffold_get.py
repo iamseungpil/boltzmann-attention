@@ -1001,8 +1001,16 @@ def _parse_record_dump(text):
     값 정규화도 같은 포맷-층만: '$'/천단위 콤마/' points' 접미 — 표기 전사이지 판단 아님."""
     import re as _re2
     if "Record ID:" not in (text or ""):
-        raise _ByrefError("the referenced output is not a record dump (no 'Record ID:' "
-                          "lines) — @last:/@call: may only reference record-read outputs")
+        # ★P7 (2026-08-02·028 사슬): 거부만 하고 **다음 올바른 행동을 지목하지 않아** 에이전트가
+        #   손-전사 폴백으로 이탈했다(→ [ARGS-FORMAT] 거부 → 가짜 음성 → 왜곡 id 제출). 참조 가능한
+        #   출력의 조건을 명시하고 손-전사를 금지한다. 판정 불변(순수 문구·도메인 리터럴 0).
+        raise _ByrefError(
+            "the referenced output is not a record dump (no 'Record ID:' lines) — "
+            "@last:/@call: may only reference the output of a record-read tool "
+            "(one that printed \"Found N record(s)\" with 'Record ID:' lines). "
+            "Re-read the records with that tool and reference ITS output. "
+            "Do NOT hand-copy or re-type the rows into the argument — transcribed values "
+            "are a common source of wrong ids.")
     parts = _re2.split(r"Record ID: ([A-Za-z0-9_\-]+)", text)
     rows = []
     for i in range(1, len(parts) - 1, 2):
@@ -1060,8 +1068,16 @@ def _byref_resolve(orch, d, ctx):
         if k in join_params:
             continue                                   # F7b: _byref_join이 처리
         if k != over:
-            raise _ByrefError("only the '%s' argument supports @last:/@call: references; "
-                              "provide '%s' as a literal value" % (over, k))
+            # ★P7⑥ (2026-08-02·023 실측): 구 문구는 `over`가 None인 스펙에서 "only the 'None'
+            #   argument supports…"로 렌더돼 **깨진 안내**가 됐고(에이전트의 옳은 byref 시도를 차단),
+            #   그 뒤 에이전트가 손-전사 폴백으로 이탈했다(028 사슬과 동형). ⇒ 허용 인자를 정확히
+            #   선언하고, 허용 인자가 아예 없으면 그 사실을 말한다. 엔진 판정은 불변(순수 문구).
+            _allow = ("'%s'" % over) if over else "(none — this tool takes no by-reference argument)"
+            raise _ByrefError(
+                "the '%s' argument does not support @last:/@call: references. "
+                "By-reference is accepted only for: %s. "
+                "Provide '%s' as a literal value copied from the records."
+                % (k, _allow, k))
         rows = _parse_record_dump(_resolve_ref_output(orch, v))
         ctx[k] = rows
         print("[T2_SG_BYREF] %s: '%s' resolved by reference -> %d row(s)"
