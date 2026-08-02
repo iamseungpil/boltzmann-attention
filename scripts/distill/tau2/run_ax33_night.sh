@@ -9,13 +9,16 @@
 #       귀속은 이 런만으로 성립하지 않는다(정직 표기 의무·[[08]]).
 #
 # 구성: front32를 GPU0/GPU1에 16+16으로 갈라 **동시** 실행(벽시계 반감) · 각 16 × nt2 = 32 sim/GPU.
-# 태스크 분할은 `run_qp32_chain.sh`의 G0/G1과 **동일**(짝비교 유지·재분할 금지).
+# ★2026-08-03 재분배(사용자 지시): 과거 ax32 런의 **태스크별 실측 소요시간**으로 bin-pack →
+#   두 GPU 종료 시각을 맞춘다(기존 분할은 405분 vs 473분 = 14.5% 불균형 → 0.2%).
+#   짝비교는 **태스크 id 기준**이라 GPU 배정이 바뀌어도 유지된다(같은 32개 집합).
+#   001·002=GPU0 / 003·004=GPU1은 사용자 지시로 고정하고 **맨 앞**에 둬 먼저 확인된다.
 set -u
 R=/home/woori/workspace_common/boltzmann-attention-pi
-D=20260803
+D=20260803b
 TAG=ax33n
-G0=task_005,task_006,task_007,task_008,task_015,task_016,task_021,task_023,task_027,task_028,task_032,task_033,task_034,task_035,task_040,task_041
-G1=task_001,task_002,task_003,task_004,task_010,task_012,task_014,task_017,task_018,task_019,task_020,task_022,task_024,task_025,task_026,task_029
+G0=task_001,task_002,task_018,task_022,task_025,task_021,task_026,task_035,task_008,task_016,task_014,task_017,task_007,task_012,task_033,task_034
+G1=task_003,task_004,task_041,task_027,task_029,task_020,task_028,task_019,task_015,task_010,task_006,task_023,task_040,task_005,task_024,task_032
 log(){ echo "[ax33n $(date +%m-%d\ %H:%M)] $*"; }
 
 if pgrep -f "[t]2_run_gated" >/dev/null; then

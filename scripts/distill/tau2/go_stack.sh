@@ -183,5 +183,6 @@ export T2_DISPATCH_LEDGER=1       # P8 제출-완결 표면화(020/027·터미�
 export T2_SG_WINDOW_ABSTAIN=1     # §4-2 미측정 윈도 abstain(023 부정-오판정 봉쇄·A2 선언 도구만)
 export T2_KB_NOHIT_SURFACE=1      # P2/P10 bm25 전-0점 표면화(012=절차 날조 금지·014/015=주장 미뒷받침)
 export T2_KB_NOHIT_K=2            #   연속 무득점 문턱(설계서 §P2 k=2)
+export T2_TRANSFER_TIER=1         # P15 이관 사유 티어 표면화(004 실측·정책 doc_042 티어표·A2 구동)
 #   P12(axis replay 가드)·P7(byref 오류 문구)·§4-1(byref 중첩 op 트리)은 플래그 없는
 #   **무조건 위생**이라 등재 불요.

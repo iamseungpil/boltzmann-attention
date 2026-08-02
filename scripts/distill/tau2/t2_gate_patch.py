@@ -6415,6 +6415,54 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             except Exception as _e1p:
                 print("[T2_GIVE_QUOTE] skipped: %r" % (_e1p,), file=_sys.stderr, flush=True)
 
+        # ─── ★P15 (2026-08-03·task_004 실측): 이관 사유 **티어** 표면화 ───
+        #   정책 문서(banking doc_..._042) 축자: 사유 코드는 4단 티어이고
+        #   *"always select from the highest tier that applies"*. 004 실측: 손님 식별자로 조회했는데
+        #   레코드 0(=신원 확인 실패)인데도 TIER3 사유로 이관 → gold는 TIER1. db_check는 통과했고
+        #   **이 사유 하나로 0점**.
+        #   ★[[22]] 경계: "어떤 상황인가"는 열림(모델 몫). 엔진이 판정하는 것은 **닫힌 둘뿐** —
+        #     ⑴원장에 A2-선언 마커가 실재하는가(부분문자열) ⑵티어 정수 비교.
+        #   ★[[05]]: 도구명·사유코드·티어·마커·문구가 **전부 A2**(`transfer_reason_policy`).
+        #     미선언 도메인 = 레버 skip(엔진 도메인 리터럴 0).
+        #   강제 아님: 더 높은 티어 후보와 그 문서적 조건을 알리고 재발화 1회(sim당 1회).
+        if (os.environ.get("T2_TRANSFER_TIER") == "1" and getattr(am, "tool_calls", None)
+                and not getattr(self, "_t2_tier_done", False)):
+            try:
+                _tp = (a2 or {}).get("transfer_reason_policy") or {}
+                _tiers = _tp.get("tiers") or {}
+                _apply7 = [str(x) for x in (_tp.get("applies_to") or [])]
+                _tc7 = next((t for t in (am.tool_calls or [])
+                             if str(getattr(t, "name", "")) in _apply7), None) if _apply7 else None
+                if _tiers and _tc7 is not None:
+                    _chosen = str(_args_dict(_tc7).get(_tp.get("reason_arg") or "") or "")
+                    _ct = int(_tiers.get(_chosen, 99))
+                    _outs7 = "\n".join(str(getattr(m, "content", "") or "")
+                                       for m in state.messages
+                                       if getattr(m, "role", None) == "tool")
+                    for _sg7 in (_tp.get("signals") or []):
+                        _code = str(_sg7.get("code") or "")
+                        _kt = int(_tiers.get(_code, 99))
+                        if _kt >= _ct:
+                            continue                     # 더 높은 티어일 때만 말한다
+                        _ev = next((mk for mk in (_sg7.get("ledger_contains") or [])
+                                    if str(mk) in _outs7), None)
+                        if not _ev:
+                            continue
+                        self._t2_tier_done = True
+                        from t2_lever_beat import beat as _beat7
+                        _beat7("T2_TRANSFER_TIER", _code)
+                        print("[T2_TRANSFER_TIER] chosen=%s(tier %s) -> higher applicable=%s(tier %s) "
+                              "evidence=%r" % (_chosen, _ct, _code, _kt, _ev[:40]),
+                              file=_sys.stderr, flush=True)
+                        _new7 = _ap_regen((_tp.get("note") or "").format(
+                            chosen=_chosen, chosen_tier=_ct, code=_code, code_tier=_kt,
+                            why=_sg7.get("why", ""), evidence=_ev), "transfertier")
+                        if _new7 is not None:
+                            am = _new7
+                        break
+            except Exception as _e7:
+                print("[T2_TRANSFER_TIER] skipped: %r" % (_e7,), file=_sys.stderr, flush=True)
+
         # ─── ★P11 (2026-08-02): ARG-SCHEMA 위생을 unified 경로로 이설 ───
         #   死코드 사고: 이 검사는 `patched()`(apply_provenance_regen) 안에만 있었는데 라이브 러너는
         #   `_unified`(T2_GATE_REGEN ∧ ground2) 조건에서 `apply_unified_regen`만 호출한다 ⇒

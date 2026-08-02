@@ -379,6 +379,21 @@ def apply_op(spec, ctx):
                     if cs is not None and ms is not None and cs < ms:
                         why = "min_score %s > customer %s" % (ms, cs)
                 facts = {k: v for k, v in row.items() if k not in ("card", "business")}
+                # ★2026-08-03 (task_001 실측): 손님이 "일상 지출 최고 캐시백"을 물으면 모델은
+                #   헤드라인 `cashback`으로 카드를 고르는데, 그 값이 **범주-한정**일 수 있다
+                #   (Silver 4.0%는 travel/software 전용·전-구매는 1.0%). 001에서 모델이 Silver를
+                #   추천했고 gold는 Gold(2.5% 전-구매)였다 — 사실은 전부 표에 있었지만 **비교 가능한
+                #   숫자가 없었다**. ⇒ 표에서 파생되는 "전-구매 기준 요율"을 명시한다.
+                #   순수 조회·판단 0(값 생성·순위 0)·도메인 리터럴 0(필드명은 A2 표의 키).
+                _scope = str(row.get("cashback_scope") or "").strip().lower()
+                _allrate = (row.get("base_cashback") if _scope and _scope != "all"
+                            else (row.get("cashback") if row.get("cashback") is not None
+                                  else row.get("base_cashback")))
+                if _allrate is not None:
+                    facts["all_purchases_rate"] = (
+                        "%s%%%s" % (_allrate,
+                                    "" if (not _scope or _scope == "all")
+                                    else " (the headline rate applies only to: %s)" % _scope))
                 # ★C204/D6(2026-07-27·`D6_CATEGORY_RATE_DESIGN` rev2): 손님이 말한 지출 카테고리
                 #   (`spend_category`=모델 formalize·선택적)에 대한 **그 카드의 문서화 요율**을 주석.
                 #   조회만 한다(값 생성·선택·순위 0): category_rates[token] → base_cashback →
@@ -424,7 +439,10 @@ def apply_op(spec, ctx):
                           "with one of the documented keywords (see the tool's parameter "
                           "description) or omit spend_category." % _spc0)
             return {"eligible": elig, "excluded": excl, "unverified": unver,
-                    "note": (empty + " Deterministic filter over documented facts. 'eligible' = the "
+                    "note": (empty + " When the customer asks for the best rate on everyday or "
+                             "general spending, compare 'all_purchases_rate' across the cards — a "
+                             "headline rate that applies only to certain categories is NOT "
+                             "comparable to an all-purchases rate. Deterministic filter over documented facts. 'eligible' = the "
                              "documented value satisfies your constraint. 'excluded' = it "
                              "violates it. 'unverified' = that fact is NOT in the catalog for "
                              "that card, so it is NOT known to satisfy your constraint — do not "

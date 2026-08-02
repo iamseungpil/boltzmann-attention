@@ -1664,5 +1664,44 @@
    "feedback": "Error: [WRITE-EVIDENCE] the amount_difference ({id}) does not appear in any get_interest_correction tool output in this conversation. Do NOT compute it yourself - call get_interest_correction (after reading the account record and transactions) and copy the amount exactly from its output.",
    "_note": "위와 동일 근거(보고서 write 쌍대)."
   }
- ]
+ ],
+ "transfer_reason_policy": {
+  "applies_to": [
+   "transfer_to_human_agents"
+  ],
+  "reason_arg": "reason",
+  "tiers": {
+   "fraud_or_security_concern": 1,
+   "account_closure_request": 1,
+   "deceased_account_holder": 1,
+   "legal_or_regulatory_matter": 1,
+   "account_ownership_dispute": 1,
+   "complex_billing_dispute": 1,
+   "abusive_customer_behavior": 1,
+   "third_party_inquiry": 1,
+   "technical_system_error": 1,
+   "customer_demands_after_unavailable_offer_refusal": 1,
+   "unconfirmed_external_communication": 2,
+   "kb_search_unsuccessful_customer_requests_transfer": 2,
+   "specialized_department_required": 2,
+   "accessibility_or_special_needs": 2,
+   "customer_frustrated_demands_human": 3,
+   "supervisor_request_service_complaint": 3,
+   "customer_requests_human_no_specific_reason": 3,
+   "request_completed_customer_wants_human_followup": 3,
+   "other": 4
+  },
+  "signals": [
+   {
+    "code": "account_ownership_dispute",
+    "ledger_contains": [
+     "No records found in 'users'",
+     "NOT_VERIFIED"
+    ],
+    "why": "identity verification failures requiring specialist"
+   }
+  ],
+  "note": "Error: [TRANSFER-REASON] the documented reason list is tiered and says to always select from the HIGHEST tier that applies. You chose '{chosen}' (tier {chosen_tier}), but this conversation contains {evidence!r}, which the documents place under '{code}' (tier {code_tier}: {why}). Re-issue the transfer with the highest applicable reason code, or state why that one does not apply.",
+  "_note": "2026-08-03 P15(task_004 실측). 출처=KB doc_bank_accounts_bank_accounts_(general)_042 축자 티어표 + \"always select from the highest tier that applies\". 004: 손님 식별자 조회가 레코드 0(신원 확인 실패)인데 TIER3로 이관 → gold=TIER1 account_ownership_dispute. db_check는 통과였고 이 사유 하나로 0점. 엔진=티어 정수 비교+마커 부분문자열만([[22]] 닫힘)."
+ }
 }

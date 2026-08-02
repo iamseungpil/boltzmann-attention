@@ -1947,5 +1947,44 @@
  "_note_value_acquisition": "★출처([[23]] 소급 2026-07-31): ★**정책 근거 미확립** + `x6b` **DISCARD 분류** ⇒ 제거 대상(have_value_reask 동족). || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 4개 = env 2 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 2 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
  "_note_view_field_annotations": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 5개 = env 0 · 정책 0 · KB/DB 5 · 자기어휘(scaffold가 지은 이름) 0 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
  "_note_write_arg_grounding": "★출처([[23]] 소급 2026-07-31): **정책 확립.** 정책 Guideline 1 축자: *\"Do not make up policies, information or actions that you can take on behalf of the user. All instructions will be found here or in the knowledge base. If you cannot find relevant information, let the user know.\"* ⇒ write 인자를 원장·KB에 접지시키는 것은 정책이 요구한다. 엔진은 substring 실재확인만([[03b]]). || [[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 4개 = env 3 · 정책 0 · KB/DB 0 · 자기어휘(scaffold가 지은 이름) 1 · 미해소 0. ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
- "_note_write_evidence_specs": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 21개 = env 12 · 정책 0 · KB/DB 2 · 자기어휘(scaffold가 지은 이름) 3 · 미해소 4(cash_back_disputes, check_card_closure_eligibility, get_interest_correction, task_029). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상)."
+ "_note_write_evidence_specs": "[[23]] 출처 감사(2026-07-31·`x19_a2_provenance_audit.py`): 도메인 리터럴 21개 = env 12 · 정책 0 · KB/DB 2 · 자기어휘(scaffold가 지은 이름) 3 · 미해소 4(cash_back_disputes, check_card_closure_eligibility, get_interest_correction, task_029). 미해소분은 `x19b_goldcheck_remote.py`로 gold 코퍼스 대조 결과 **gold 전용 아님**(=우리 scaffold 어휘·약칭). ⚠**이 감사는 *리터럴*의 출처만 확립한다 — *규칙 내용*의 출처는 별개다.** 정책 축자 인용은 아직 없다([[23]] 소급 대상).",
+ "transfer_reason_policy": {
+  "applies_to": [
+   "transfer_to_human_agents"
+  ],
+  "reason_arg": "reason",
+  "tiers": {
+   "fraud_or_security_concern": 1,
+   "account_closure_request": 1,
+   "deceased_account_holder": 1,
+   "legal_or_regulatory_matter": 1,
+   "account_ownership_dispute": 1,
+   "complex_billing_dispute": 1,
+   "abusive_customer_behavior": 1,
+   "third_party_inquiry": 1,
+   "technical_system_error": 1,
+   "customer_demands_after_unavailable_offer_refusal": 1,
+   "unconfirmed_external_communication": 2,
+   "kb_search_unsuccessful_customer_requests_transfer": 2,
+   "specialized_department_required": 2,
+   "accessibility_or_special_needs": 2,
+   "customer_frustrated_demands_human": 3,
+   "supervisor_request_service_complaint": 3,
+   "customer_requests_human_no_specific_reason": 3,
+   "request_completed_customer_wants_human_followup": 3,
+   "other": 4
+  },
+  "signals": [
+   {
+    "code": "account_ownership_dispute",
+    "ledger_contains": [
+     "No records found in 'users'",
+     "NOT_VERIFIED"
+    ],
+    "why": "identity verification failures requiring specialist"
+   }
+  ],
+  "note": "Error: [TRANSFER-REASON] the documented reason list is tiered and says to always select from the HIGHEST tier that applies. You chose '{chosen}' (tier {chosen_tier}), but this conversation contains {evidence!r}, which the documents place under '{code}' (tier {code_tier}: {why}). Re-issue the transfer with the highest applicable reason code, or state why that one does not apply.",
+  "_note": "2026-08-03 P15(task_004 실측). 출처=KB doc_bank_accounts_bank_accounts_(general)_042 축자 티어표 + \"always select from the highest tier that applies\". 004: 손님 식별자 조회가 레코드 0(신원 확인 실패)인데 TIER3로 이관 → gold=TIER1 account_ownership_dispute. db_check는 통과였고 이 사유 하나로 0점. 엔진=티어 정수 비교+마커 부분문자열만([[22]] 닫힘)."
+ }
 }

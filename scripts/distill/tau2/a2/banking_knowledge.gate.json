@@ -2212,5 +2212,44 @@
   "user_execution_tool": "call_discoverable_user_tool",
   "claim_question": "Before your reply is sent, answer ONE question about YOUR REPLY ONLY. Does your reply state or imply that some action has already been completed, submitted, filed, scheduled, or confirmed — OR that YOU (the agent) will submit/schedule/perform it? Merely giving the customer a tool to run, or instructing THEM to run it, does NOT count. Reply with exactly one JSON object and nothing else: {\"claims_completion\": true} or {\"claims_completion\": false}",
   "feedback": "Error: [WRITE-PROVENANCE] your reply claims an action was completed/submitted/scheduled, but there is no record of any state-changing action having executed in this conversation. You cannot perform actions the customer must run themselves; only the CUSTOMER can, by calling the tool you gave them. Do NOT claim any action has been submitted, filed, or scheduled; do NOT invent case/reference/confirmation numbers; do NOT promise callbacks or confirmation emails. Instead, restate your reply: hand the customer the appropriate tool and tell them to run it themselves."
+ },
+ "transfer_reason_policy": {
+  "applies_to": [
+   "transfer_to_human_agents"
+  ],
+  "reason_arg": "reason",
+  "tiers": {
+   "fraud_or_security_concern": 1,
+   "account_closure_request": 1,
+   "deceased_account_holder": 1,
+   "legal_or_regulatory_matter": 1,
+   "account_ownership_dispute": 1,
+   "complex_billing_dispute": 1,
+   "abusive_customer_behavior": 1,
+   "third_party_inquiry": 1,
+   "technical_system_error": 1,
+   "customer_demands_after_unavailable_offer_refusal": 1,
+   "unconfirmed_external_communication": 2,
+   "kb_search_unsuccessful_customer_requests_transfer": 2,
+   "specialized_department_required": 2,
+   "accessibility_or_special_needs": 2,
+   "customer_frustrated_demands_human": 3,
+   "supervisor_request_service_complaint": 3,
+   "customer_requests_human_no_specific_reason": 3,
+   "request_completed_customer_wants_human_followup": 3,
+   "other": 4
+  },
+  "signals": [
+   {
+    "code": "account_ownership_dispute",
+    "ledger_contains": [
+     "No records found in 'users'",
+     "NOT_VERIFIED"
+    ],
+    "why": "identity verification failures requiring specialist"
+   }
+  ],
+  "note": "Error: [TRANSFER-REASON] the documented reason list is tiered and says to always select from the HIGHEST tier that applies. You chose '{chosen}' (tier {chosen_tier}), but this conversation contains {evidence!r}, which the documents place under '{code}' (tier {code_tier}: {why}). Re-issue the transfer with the highest applicable reason code, or state why that one does not apply.",
+  "_note": "2026-08-03 P15(task_004 실측). 출처=KB doc_bank_accounts_bank_accounts_(general)_042 축자 티어표 + \"always select from the highest tier that applies\". 004: 손님 식별자 조회가 레코드 0(신원 확인 실패)인데 TIER3로 이관 → gold=TIER1 account_ownership_dispute. db_check는 통과였고 이 사유 하나로 0점. 엔진=티어 정수 비교+마커 부분문자열만([[22]] 닫힘)."
  }
 }
