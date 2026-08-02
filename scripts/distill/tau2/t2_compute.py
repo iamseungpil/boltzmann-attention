@@ -385,15 +385,20 @@ def apply_op(spec, ctx):
                 #   추천했고 gold는 Gold(2.5% 전-구매)였다 — 사실은 전부 표에 있었지만 **비교 가능한
                 #   숫자가 없었다**. ⇒ 표에서 파생되는 "전-구매 기준 요율"을 명시한다.
                 #   순수 조회·판단 0(값 생성·순위 0)·도메인 리터럴 0(필드명은 A2 표의 키).
+                #   ★rev2(2026-08-03·task_003 회귀 실측): 초판은 `all_purchases_rate`를 **추가**만
+                #   했고 오도하는 `cashback: 4.0`을 그대로 뒀다 — 모델은 이름이 더 두드러진 쪽을
+                #   읽었고(001 재실패), 게다가 범주-중심 손님(003: 주 지출=travel)에서는 새 필드가
+                #   **일상-지출 쪽으로 편향**시켜 gold(Silver 4% travel) 대신 Gold를 고르게 했다.
+                #   ⇒ 대칭 교정: ⑴범주-한정 값을 **일반 이름으로 내보내지 않는다**(라벨에 범위를
+                #   박는다) ⑵note는 양방향(일반 지출 ↔ 범주 지출)으로 안내. 판단 추가 0(표기 규칙).
                 _scope = str(row.get("cashback_scope") or "").strip().lower()
+                if _scope and _scope != "all" and facts.get("cashback") is not None:
+                    facts["cashback_for(%s)" % _scope] = facts.pop("cashback")
                 _allrate = (row.get("base_cashback") if _scope and _scope != "all"
                             else (row.get("cashback") if row.get("cashback") is not None
                                   else row.get("base_cashback")))
                 if _allrate is not None:
-                    facts["all_purchases_rate"] = (
-                        "%s%%%s" % (_allrate,
-                                    "" if (not _scope or _scope == "all")
-                                    else " (the headline rate applies only to: %s)" % _scope))
+                    facts["all_purchases_rate"] = "%s%%" % _allrate
                 # ★C204/D6(2026-07-27·`D6_CATEGORY_RATE_DESIGN` rev2): 손님이 말한 지출 카테고리
                 #   (`spend_category`=모델 formalize·선택적)에 대한 **그 카드의 문서화 요율**을 주석.
                 #   조회만 한다(값 생성·선택·순위 0): category_rates[token] → base_cashback →
@@ -456,10 +461,13 @@ def apply_op(spec, ctx):
                     "not treat this 'eligible' list as an answer to it."
                     % ", ".join(sorted(_cols)))
             return {"eligible": elig, "excluded": excl, "unverified": unver,
-                    "note": (empty + _cov + " When the customer asks for the best rate on everyday or "
-                             "general spending, compare 'all_purchases_rate' across the cards — a "
-                             "headline rate that applies only to certain categories is NOT "
-                             "comparable to an all-purchases rate. Deterministic filter over documented facts. 'eligible' = the "
+                    "note": (empty + _cov + " Rates are named by the spending they apply to: "
+                             "'all_purchases_rate' applies to everything, while 'cashback_for(...)' "
+                             "applies ONLY to the categories in its name — the two are not "
+                             "comparable. If the customer's spending is general, compare "
+                             "'all_purchases_rate'. If the customer named a main spending category, "
+                             "call again with spend_category set to it and compare the resulting "
+                             "'rate_for(...)' values instead. Deterministic filter over documented facts. 'eligible' = the "
                              "documented value satisfies your constraint. 'excluded' = it "
                              "violates it. 'unverified' = that fact is NOT in the catalog for "
                              "that card, so it is NOT known to satisfy your constraint — do not "
