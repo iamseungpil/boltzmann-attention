@@ -6344,8 +6344,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         self._t2_nohit_done = True
                         from t2_lever_beat import beat as _beat2
                         _beat2("T2_KB_NOHIT_SURFACE", "claim" if _claim else "nohit")
-                        print("[T2_KB_NOHIT_SURFACE] zero-score streak=%d claim_span=%s"
-                              % (_z, bool(_claim)), file=_sys.stderr, flush=True)
+                        # ★관측 병기(2026-08-03·사용자 지적 "다른 채널로 피해가는 것 아닌가"):
+                        #   dense는 항상 양수 유사도라 끼는 즉시 streak가 리셋된다(=과소 발화·안전).
+                        #   그러나 **shell(grep)은 점수 행이 없어 리셋하지 않는다** = 알려진 구멍 —
+                        #   무득점 구간에 shell이 있었는지를 함께 찍어 아침 포렌식이 이 발화를
+                        #   "정당/오발화"로 귀속할 수 있게 한다(조정의 입력·[[19]]).
+                        _sh = sum(1 for _m3 in state.messages
+                                  for _t3 in (getattr(_m3, "tool_calls", None) or [])
+                                  if "shell" in str(getattr(_t3, "name", "")).lower())
+                        print("[T2_KB_NOHIT_SURFACE] zero-score streak=%d claim_span=%s shell_calls=%d"
+                              % (_z, bool(_claim), _sh), file=_sys.stderr, flush=True)
                         _new2p = _ap_regen(_tpl2.format(n=_z, query=(_claim or _zq[-1])[:80]),
                                            "kbnohit")
                         if _new2p is not None:
