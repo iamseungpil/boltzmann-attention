@@ -80,6 +80,8 @@ persist(){
     E=/home/woori/scratch/axis32run/env_$1_gpu${g}.txt
     [ -f "$E" ] && cp -f "$E" $R/reports/facet_rft_2026/sim_results/bank_$1_gpu${g}_$D.env.txt
   done
+  X=$R/reports/facet_rft_2026/sim_results/x44_$1_$D.json
+  [ -f "$X" ] && git -C $R add -f "$X" 2>/dev/null
   cd $R && git add -f reports/facet_rft_2026/sim_results/bank_$1_gpu*_$D.* \
     && git -c user.email=woori@local -c user.name=woori commit -q -m "Persist AXIS-32 $1 (all axis levers on)" \
     && git push -q origin facet-rft-2026
@@ -107,6 +109,9 @@ else
     one $TAG 1 8141 "$G1" &
     wait
     log "$TAG 완주"
+    log "★x44 레버 커버리지 감사 (규율 2: 모든 런에)"
+    /home/woori/venvs/seka_env/bin/python -u $R/scripts/distill/tau2/x44_lever_coverage.py       --env /home/woori/scratch/axis32run/env_${TAG}_gpu*.txt       --log /home/woori/scratch/logs/${TAG}_gpu0.log /home/woori/scratch/logs/${TAG}_gpu1.log       --json /home/woori/scratch/axis32run/x44_${TAG}.json || log "⚠x44 감사 대상 보고(exit 2)"
+    cp -f /home/woori/scratch/axis32run/x44_${TAG}.json $R/reports/facet_rft_2026/sim_results/x44_${TAG}_$D.json 2>/dev/null
     persist $TAG
   done
   log "체인 종료 — AXIS-32 nt=2(64 sim)"
