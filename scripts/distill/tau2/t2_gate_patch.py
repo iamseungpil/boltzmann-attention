@@ -1072,7 +1072,15 @@ def _write_arg_ground_deny(messages, tc, specs):
             _mk = _markers.get(ga)
             found = False
             for m in messages:
-                if getattr(m, "role", None) not in ("tool", "user"):
+                # ★corpus_roles (2026-08-03·015 실측·사용자 지시 "손님 이야기도 근거를 확인하게 하라"):
+                #   구판 코퍼스 = 도구 출력 ∪ **손님 발화** ⇒ 손님이 말했다는 사실만으로 값이 통과한다.
+                #   015: 손님이 "Crypto-Cash Back Card의 리퍼럴"이라 주장 → 그 이름이 손님 발화에
+                #   실재하므로 통과 → 문서(gold=Platinum)와 대조 없이 그대로 인자에 실려 0점.
+                #   ⇒ **인자별 권위 코퍼스를 A2가 선언**한다([[52]]: 권위자는 저작 시점에 정해진다).
+                #   자기-사실(email·전화)=ledger/user 정당 · **정책 주장(카드 자격·요율)=문서만**.
+                #   미선언 = 기존 ("tool","user") = 거동보존.
+                _roles = tuple((sp.get("corpus_roles") or {}).get(ga) or ("tool", "user"))
+                if getattr(m, "role", None) not in _roles:
                     continue
                 c = getattr(m, "content", None)
                 c = c if isinstance(c, str) else str(c or "")
@@ -6454,6 +6462,42 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 if _new2 is None:
                     break
                 am = _new2
+
+        # ─── ★V7 최종-발화 서명 재검 (2026-08-03·선점 실증 후 [[19]] 조정) ───
+        #   위 블록(4763~)의 V7은 피드백 사슬의 **맨 끝**이라 gate/prov/wev가 그 턴을 잡으면
+        #   발화하지 못한다. 2026-07-31 계측이 "선점이 유력"이라 적어뒀고, 2026-08-03 스모크가
+        #   그것을 **확정**했다: 015에서 `[T2_TOOL_SIGNATURE] would-deny … preempted-by=prov`
+        #   → 같은 호출이 `arguments`를 실은 채 커밋 → gold give 불일치(PRED_EXTRA_KEY)로 0점.
+        #   ⇒ 여기(모든 regen이 끝난 **최종 메시지**)서 한 번 더 본다. 선점 불가·순수 인자-형태
+        #   검사(도메인 사실은 A2 `tool_signatures`)·엔진은 여전히 인자를 떼지 않는다(C151).
+        if os.environ.get("T2_TOOL_SIGNATURE") == "1" and getattr(am, "tool_calls", None):
+            try:
+                import t2_signature as _sgf
+                _sf_tries = 0
+                while _sf_tries < 2 and getattr(am, "tool_calls", None):
+                    _hit = None
+                    for _c9 in (am.tool_calls or []):
+                        _v9 = _sgf.signature_violation(getattr(_c9, "name", None),
+                                                       _args_dict(_c9), a2, force=True)
+                        if _v9:
+                            _hit = (_c9, _v9)
+                            break
+                    if _hit is None:
+                        break
+                    _sf_tries += 1
+                    self._t2_signature_deny = getattr(self, "_t2_signature_deny", 0) + 1
+                    from t2_lever_beat import beat as _beat9
+                    _beat9("T2_TOOL_SIGNATURE", "final")
+                    print("[T2_TOOL_SIGNATURE] final-word deny tool=%s (try %d)"
+                          % (getattr(_hit[0], "name", None), _sf_tries),
+                          file=_sys.stderr, flush=True)
+                    _new9 = _ap_regen("Error: " + _hit[1], "signature")
+                    if _new9 is None:
+                        break
+                    am = _new9
+            except Exception as _e9:
+                print("[T2_TOOL_SIGNATURE] final-word skipped: %r" % (_e9,),
+                      file=_sys.stderr, flush=True)
         return am
 
     LLMAgent._generate_next_message = unified

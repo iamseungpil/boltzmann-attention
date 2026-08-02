@@ -1708,6 +1708,26 @@
    ],
    "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} in this hand-off does not appear in any tool output or customer message in this conversation. The customer will run this tool with exactly the arguments you supply, so an invented, transcribed-by-hand, or placeholder value (e.g. '[Enter your ...]') will fail for them. Look the value up in the records already retrieved (or ask the customer), then hand the tool over again with the actual value.",
    "_note": "2026-08-02 P9(AX32 설계서·028/040 실측): §2bs의 discoverable-write 접지가 call_discoverable_agent_tool(dispute)+log_verification에만 걸려 **give 내포 인자는 검사 밖**이었다. 028=손-전사 왜곡 txn id 3건·040=placeholder '[Enter your credit card account ID here]'가 그대로 통과. 엔진은 기존 내포-JSON unwrap 경로 재사용(t2_gate_patch write_arg_grounding·unified 내부·T2_WRITE_ARG_GROUND=1). 인자를 **요구하지 않는다**(요구=스키마 사고 재발) — 이미 있을 때만 검사. 근거 축자=A2 give 파라미터 명세 및 KB dispute 인자 명세(credit_cards_(general)_014)."
+  },
+  {
+   "applies_to": "give_discoverable_user_tool",
+   "applies_when": {
+    "arg": "discoverable_tool_name",
+    "prefix": "get_referral_link"
+   },
+   "grounded_args": [
+    "card_name"
+   ],
+   "corpus_roles": {
+    "card_name": [
+     "tool"
+    ]
+   },
+   "arg_corpus_marker": {
+    "card_name": "referral"
+   },
+   "feedback": "Error: [WRITE-GROUNDING] no retrieved document about the referral program mentions '{val}' as {arg}. The customer's own words are NOT evidence for which cards have a referral program - the knowledge base is. Search the knowledge base for the card that has a DOCUMENTED referral program, use that exact documented card name, and if the customer's claimed card or terms do not match any documented program, say so and explain the discrepancy instead of handing over the tool with their wording.",
+   "_note": "2026-08-03 P10(재설계 2판·015 실측). 출처([[23]]) = 정책 문서 doc_credit_cards_credit_cards_(general)_009 축자: \"Search the knowledge base to confirm the specific card has a documented referral program.\" / \"If no referral program is documented for the requested card, or if the user's claimed terms are incorrect ... explain why and do not provide a referral link tool.\" gold 무참조. ★corpus_roles=[tool]: 손님 발화는 **정책 주장의 근거가 아니다**(권위자=문서·[[52]]). 015 실패: 손님이 'Crypto-Cash Back Card'라 주장 → 그 이름이 손님 발화에 실재해 구판 WAG를 통과 → gold(Platinum Rewards Card)와 불일치로 0점."
   }
  ],
  "have_value_reask": [
