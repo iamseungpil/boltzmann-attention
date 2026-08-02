@@ -101,7 +101,8 @@ QP/NODIGEST 공유-증거만(귀속 판정 금지). ☠**ARG_SCHEMA ON·발화 0
 
 ### P2. KB-무득점 → 이관-후보 표면화 (012) — `T2_KB_NOHIT_SURFACE`
 - **금지선**: 산문 매칭("does not contain") = 자유-NL 프록시 = 열림 → 금지(C216 재적용).
-- **신호 우선순위(고정)**: ⑴**bm25 hit/스코어**(§2bs 축자 계보 *"BM25 score 0.0"*·판독 가능성=선결 조사)
+- **신호 우선순위(고정)**: ⑴**bm25 hit/스코어**(§2bs 계보 — ★선결 조사 완료: env `retrieval.py:205`
+  bm25 파이프라인·결정론·스코어 내부 상태 존재 → **응답기 계약 변경 불요·wrapper 판독 가능** 판정)
   ⑵**검증-후 인용 공집합**(응답기 제출 quote를 엔진이 회수문서 대비 실재성 검사([[22]])·통과 0건 —
   quotes-류 구조 필드 실재 여부도 선결 조사·리뷰 지목 core.json:164는 미검증이었음) ⑶(최후·단독 금지)
   LLM `no_answer` 플래그+⑵ 결합.
@@ -127,12 +128,18 @@ QP/NODIGEST 공유-증거만(귀속 판정 금지). ☠**ARG_SCHEMA ON·발화 0
   **부수 확정: byref 허용-인자 미선언 버그** — 에이전트의 `transactions: "@last:…"` 시도(옳은 행동)를
   *"only the 'None' argument supports @last:"*(문구 자체가 깨진 오류)로 차단 → **P7 범위에 추가**:
   ⑥계산-도구의 byref 허용-인자 A2 선언 + 오류 문구의 'None' 렌더링 수정.
-- ⓑ 019 discrepancy: 여분 2건(Delta·Hilton·Gold Rewards·Travel)의 정책 요율 KB 대조 — 도구 "correct"가
-  10×/$ 일괄 흔적: 요율 결함이면 도구 결함·요율 정당이면 대화-범위 필터 문제로 갈림.
+- ⓑ 019 discrepancy — **★조사 완료·엔진 요율 결함 확정**: KB 축자 *"Cash back on all purchases: 2.5%"*
+  (doc_credit_cards_gold_rewards_card_001·travel 특별요율 부재) → recorded 718(=2.5%×$287.50)이 정당·
+  엔진 "correct 2875"(10×/$)가 결함. **범위-필터 가설 기각**. ⇒ **계산-도구 결함 2종 확정**(ⓐ 과소·
+  ⓑ 과다) — 수정 설계 별도 문서 1건으로 묶음·독립-재계산 스크립트=회귀 테스트 전용.
 - ⓒ 024·025: Business Bronze/Platinum이 gold인 KB 근거(요율·자격) 확인 — 의미-잔여인지 유저-속성
   미조회인지 분리(025의 "10% 캐시백" 서사 검증 포함).
-- **ⓓ 026(r5 추가)**: discrepancy 도구 문구 *"after its dispute is resolved, update…"*의 시점-조건이
-  gold(즉시 update)와 충돌하는지 — 충돌이면 019와 같은 env-지시 결함(문구 관할=INSTRUCTION_DEFECT §2a).
+- **ⓓ 026 — ★조사 완료·반전: 우리 문구는 KB-정합·충돌은 gold↔KB**: 문구 소유는 우리 A2
+  return_template로 확정됐으나, KB 절차 문서 축자(*credit_cards_(general)_004: "**After** a cash back
+  dispute is **resolved and approved**, you must update…"*)와 정합. 제출 응답은 "SUBMITTED (queued)"=
+  미해결이므로 에이전트의 update 보류는 **KB 준수 행동**. gold는 제출 직후 update 기대 ⇒
+  **gold↔KB 충돌 후보**(벤치-결함 계열·005와 함께 분모 논의 대상). [[23]]: gold에 맞춰 문구·KB를
+  고치지 않는다 — 판정만 기록·INSTRUCTION_DEFECT 이관 안 함.
 - **소유 포인터**: 도구의 명령형 지시 **문구**는 INSTRUCTION_DEFECT §2a 관할(문구=그쪽·정합=이쪽).
   요율 결함 확정 시 해당 요율 A2 `_note` 정책-축자 출처 감사 선행([[23]]) · 수정 설계는 별도 문서.
 
@@ -231,9 +238,10 @@ QP/NODIGEST 공유-증거만(귀속 판정 금지). ☠**ARG_SCHEMA ON·발화 0
 - 오프라인 픽스처: P1 3케이스 · P2 k-카운트/상한 · P3 미조회 표기 · P5 부착 1회 · P7 후보 목록 산출 ·
   P8 집합 대조(부분/완전/여분) · P9 give-unwrap 접지+**에코-제외 코퍼스**+placeholder 포획. 회귀 전건.
 - beat 필수·x44 이름-정확 매핑·x45 OFF 바이트-동일. **FIT beat 미표기(024 관측) 정정 포함.**
-- **도구 개선(r5)**: dbdiff **패치-적재 모드** — 라이브 궤적에 레버 문구가 박힌 sim(029)은 vanilla-env
-  재생과 불일치로 diff 불가. T2 패치를 적재한 env로 재생하거나 content-비교 스킵 모드 필요(029 DB-킬러
-  확정의 선결).
+- **도구 개선(r5·★방법 확정 r7)**: dbdiff — 라이브 궤적에 레버 문구가 박힌 sim(029)은 vanilla-env
+  재생과 불일치. `environment.py:378-390` 직독 결과 검사는 mutating 도구 content 비교뿐 → **비교-생략
+  재생 루프**(set_state 대신 자체 루프로 mutating 호출 실행·비교 없음·~30줄)로 패치-적재 없이 해결.
+  029 DB-킬러 확정의 선결·구현 단계에 포함.
 - 라이브: 합성-우선([[19]])·짝 McNemar·Δspurious ≤ 0 게이트.
 - 표적: 010(P1)·012(P2)·001/024(P3·조건부)·018/040(P5)·028(P7+P9)·020/027(P8)·019/023(P4 결과 따라).
 
