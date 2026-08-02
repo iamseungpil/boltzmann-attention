@@ -1862,6 +1862,17 @@
    },
    "feedback": "Error: [WRITE-GROUNDING] the time_verified value '{val}' is not the current time returned by get_current_time. Call get_current_time FIRST, wait for its result, and copy that exact timestamp into time_verified - do not invent a timestamp or reuse a date from another record. If you called get_current_time in the SAME turn as log_verification, its result was not available yet: call log_verification only AFTER the get_current_time output is in the conversation.",
    "_note": "2026-07-22 §2bv(rall12 054 실측·격리로 순서 확정): get_current_time과 log_verification 병렬 호출→결과([19] 2025-11-14 03:40) 전에 time_verified 날조(2023-11-14 15:20·다른 레코드값). 격리 프로브 presence 전부 False=정보빈약=부하 아님·병렬호출 구조문제. arg_corpus_marker='current time is'로 get_current_time 출력에만 매칭(다른 2023 날짜 오통과 차단·병렬시 미실재→deny→순차 강제)."
+  },
+  {
+   "applies_to": "give_discoverable_user_tool",
+   "grounded_args": [
+    "transaction_id",
+    "credit_card_account_id",
+    "card_last_4_digits",
+    "user_id"
+   ],
+   "feedback": "Error: [WRITE-GROUNDING] the value '{val}' you passed for {arg} in this hand-off does not appear in any tool output or customer message in this conversation. The customer will run this tool with exactly the arguments you supply, so an invented, transcribed-by-hand, or placeholder value (e.g. '[Enter your ...]') will fail for them. Look the value up in the records already retrieved (or ask the customer), then hand the tool over again with the actual value.",
+   "_note": "2026-08-02 P9(AX32 설계서·028/040 실측): §2bs의 discoverable-write 접지가 call_discoverable_agent_tool(dispute)+log_verification에만 걸려 **give 내포 인자는 검사 밖**이었다. 028=손-전사 왜곡 txn id 3건·040=placeholder '[Enter your credit card account ID here]'가 그대로 통과. 엔진은 기존 내포-JSON unwrap 경로 재사용(t2_gate_patch write_arg_grounding·unified 내부·T2_WRITE_ARG_GROUND=1). 인자를 **요구하지 않는다**(요구=스키마 사고 재발) — 이미 있을 때만 검사. 근거 축자=A2 give 파라미터 명세 및 KB dispute 인자 명세(credit_cards_(general)_014)."
   }
  ],
  "have_value_reask": [

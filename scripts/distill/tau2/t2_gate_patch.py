@@ -6201,6 +6201,54 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               % ([getattr(t, "name", None) for t in (getattr(am, "tool_calls", None) or [])],),
                               file=_sys.stderr, flush=True)
                     break
+
+        # ─── ★P11 (2026-08-02): ARG-SCHEMA 위생을 unified 경로로 이설 ───
+        #   死코드 사고: 이 검사는 `patched()`(apply_provenance_regen) 안에만 있었는데 라이브 러너는
+        #   `_unified`(T2_GATE_REGEN ∧ ground2) 조건에서 `apply_unified_regen`만 호출한다 ⇒
+        #   `T2_ARG_SCHEMA=1`이 go_stack에 켜져 있어도 **실행되지 않았다**(x43 설치-경로 감사로 확정·
+        #   WEV가 겪은 것과 동형). 표적은 0건(040의 give는 스키마-합법이라 원래 무발화) = **위생 수정**.
+        #   검사 = 자기 도구 스키마(properties) 밖 최상위 키 → 피드백 1회 + regen. 값 판단 0·도메인 리터럴 0.
+        if os.environ.get("T2_ARG_SCHEMA") == "1" and getattr(am, "tool_calls", None):
+            if not hasattr(self, "_t2_schema_props"):
+                _props = {}
+                for _t in (self.tools or []):
+                    try:
+                        _sc = _t.openai_schema
+                        _fn = _sc.get("function") if isinstance(_sc.get("function"), dict) else _sc
+                        _nm2 = _fn.get("name")
+                        _pr2 = ((_fn.get("parameters") or {}).get("properties")) or {}
+                        if _nm2 and _pr2:
+                            _props[_nm2] = set(_pr2.keys())
+                    except Exception:
+                        pass
+                self._t2_schema_props = _props
+            _tries = 0
+            while _tries < 2 and getattr(am, "tool_calls", None):
+                _bad = None
+                for _tc2 in (am.tool_calls or []):
+                    _allowed = self._t2_schema_props.get(getattr(_tc2, "name", None))
+                    if not _allowed:
+                        continue
+                    _extra = [k for k in _args_dict(_tc2).keys() if k not in _allowed]
+                    if _extra:
+                        _bad = (_tc2, _extra, _allowed)
+                        break
+                if _bad is None:
+                    break
+                _tc2, _extra, _allowed = _bad
+                _tries += 1
+                from t2_lever_beat import beat as _beat_as
+                _beat_as("T2_ARG_SCHEMA", "argschema")
+                print("[T2_ARGSCHEMA] regen tool=%s extra=%s" % (_tc2.name, _extra),
+                      file=_sys.stderr, flush=True)
+                _new2 = _ap_regen(
+                    "Error: [ARG-SCHEMA] '%s' does not accept argument(s): %s. Its schema declares ONLY "
+                    "these argument(s): %s. Re-issue the call with ONLY declared arguments — remove "
+                    "everything else." % (_tc2.name, ", ".join(repr(x) for x in _extra),
+                                          ", ".join(sorted(_allowed))), "argschema")
+                if _new2 is None:
+                    break
+                am = _new2
         return am
 
     LLMAgent._generate_next_message = unified
