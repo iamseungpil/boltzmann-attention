@@ -204,12 +204,20 @@ QP/NODIGEST 공유-증거만(귀속 판정 금지). ☠**ARG_SCHEMA ON·발화 0
   접지가 자기-오염). 구현 시 코퍼스 필터 규칙 명세 필수.
 - gold give가 인자 없는 태스크(018류)에서 인자-부착 give의 채점 상호작용(PRED_EXTRA_KEY)은 T2_ARG_SCHEMA
   관할 — 본 레버는 검사만·형태 교정은 그쪽(중복 금지).
-- **감사 C — ★완료(2026-08-02 저녁)·dark 아님**: env 소스 확정 — `give_discoverable_user_tool(self,
-  discoverable_tool_name: str, arguments: str = "{}")` = **arguments는 스키마-합법 파라미터**. ARG_SCHEMA
-  무발화는 정상(스키마-밖 키가 이 런에 없었음)·배선 사망 아님. **2798 주석은 현행과 불일치 — 정정 필요**
-  (당시 사고의 정확한 기전 = "스키마 밖"이 아니라 **gold 키집합 불일치**·오늘 018/015의 인자-부착 give는
-  매칭 통과 실측). 귀결: ⑴P9의 applies_to give 확장에 스키마 충돌 없음(장애물 제거) ⑵P1 채널 제약은
-  유지하되 근거를 "gold 키집합 의존 리스크(PRED_EXTRA_KEY·Y2 실증)"로 정정.
+- **감사 C — ★2단 결론(r7·2026-08-02 밤 재실행·리뷰 A 계기)**:
+  **⑴ env 스키마**: `give_discoverable_user_tool(self, discoverable_tool_name: str, arguments: str="{}")`
+  = arguments는 **스키마-합법** → 2798 주석("스키마 밖")은 현행과 불일치·정확한 기전은 **gold 키집합
+  불일치**(PRED_EXTRA_KEY). 귀결: P9 확장에 스키마 충돌 없음 · P1 채널 제약 근거를 "gold 키집합 의존
+  리스크"로 정정.
+  **⑵ ☠설치 경로 = 死코드(내 1차 결론 "dark 아님" 철회)**: 러너 `t2_run_gated.py:192-207`의
+  `_unified`(T2_GATE_REGEN ∧ ground2 — go_stack 둘 다 ON)가 `apply_unified_regen`→`unified`(6190)를
+  설치. ARG_SCHEMA 블록(2801)은 `patched`(2712) 내부이고 `patched`는 `elif` 경로
+  (`apply_provenance_regen`)에서만 설치 ⇒ **라이브 미설치**. `t2_gate_patch.py:3855` 주석의 WEV 사고
+  (*"구 apply()에만 있던 WEV가 unified 런서 死코드"*)와 **동형 재발**. 040의 give
+  `{"message":…}`·오필드명 통과가 이로써 설명됨(스키마-밖 키인데 무반응).
+  ⇒ **P11 신설**(ARG_SCHEMA를 unified 경로로 이설·WEV/WAG 선례 동형) + **설치-경로 감사 상설**
+  (신규·기존 레버가 실제 설치되는 훅에 있는지 — 발사 게이트 체크박스·AX33 §6).
+  ⚠판별 규율 갱신: dark 판정의 축은 "gated vs 생성-레벨"이 **아니라** "어느 설치자가 최종 승자인가".
 
 ### P10. 유저-주장 KB-대조 표면화 (015·014 가족·r6 신설) — `T2_CLAIM_VERIFY_NOTE`
 - **관찰(재현 2/2)**: user-sim이 첫 발화부터 외부 편지의 프로그램("Crypto-Cash Back referral·$100/$500
