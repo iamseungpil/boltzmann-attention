@@ -118,7 +118,15 @@ QP/NODIGEST 공유-증거만(귀속 판정 금지). ☠**ARG_SCHEMA ON·발화 0
   **FIT beat 마커 미표기 관측** — x44 확인 항목은 유지.
 
 ### P4. 보조 계산-도구 ↔ gold 정합 조사 (023+019+024ⓒ) — 조사(무료)
-- ⓐ 023 rebate: Yuki 월별 재집계 vs threshold·C212($94) 동일 결함인지.
+- ⓐ 023 rebate — **★조사 완료(2026-08-02 저녁·GPU 0)·엔진 결함 확정**: 올바른 기념일-윈도 재계산
+  (env db.json 60건·전부 COMPLETED·anchor=11/10 [env 레코드와 에이전트 입력 일치·오독 아님]) →
+  **12/12 전 윈도 충족·최저 7,594.18 = threshold+$94.18** = 정답 QUALIFIES. 라이브 엔진은 동일 입력으로
+  DOES NOT QUALIFY("Nov24 미달") — **C212 "$94 윈도 경계 슬립"과 수치 일치·재현 2/2·귀속 100% 엔진**.
+  → 수정 설계 별도 문서(윈도 경계 산식)·그 전까지 이 도구 출력 신뢰 강등 표기. [[23]] 청정(gold 무참조·
+  threshold는 에이전트가 KB서 취득한 값 그대로 사용).
+  **부수 확정: byref 허용-인자 미선언 버그** — 에이전트의 `transactions: "@last:…"` 시도(옳은 행동)를
+  *"only the 'None' argument supports @last:"*(문구 자체가 깨진 오류)로 차단 → **P7 범위에 추가**:
+  ⑥계산-도구의 byref 허용-인자 A2 선언 + 오류 문구의 'None' 렌더링 수정.
 - ⓑ 019 discrepancy: 여분 2건(Delta·Hilton·Gold Rewards·Travel)의 정책 요율 KB 대조 — 도구 "correct"가
   10×/$ 일괄 흔적: 요율 결함이면 도구 결함·요율 정당이면 대화-범위 필터 문제로 갈림.
 - ⓒ 024·025: Business Bronze/Platinum이 gold인 KB 근거(요율·자격) 확인 — 의미-잔여인지 유저-속성
@@ -175,9 +183,12 @@ QP/NODIGEST 공유-증거만(귀속 판정 금지). ☠**ARG_SCHEMA ON·발화 0
   접지가 자기-오염). 구현 시 코퍼스 필터 규칙 명세 필수.
 - gold give가 인자 없는 태스크(018류)에서 인자-부착 give의 채점 상호작용(PRED_EXTRA_KEY)은 T2_ARG_SCHEMA
   관할 — 본 레버는 검사만·형태 교정은 그쪽(중복 금지).
-- **감사 C(r5 추가·☠dark 의심 1순위)**: x44에서 **T2_ARG_SCHEMA ON·발화 0** — 018·028·040의
-  give+arguments가 무반응 통과. 2798 주석("arguments는 give 스키마-외")과 모순 ⇒ ⑴give 스키마에
-  arguments가 합법화됐는지 ⑵배선이 죽었는지(V7 죽은-훅 C261 동형) 판별이 P9 구현의 선결.
+- **감사 C — ★완료(2026-08-02 저녁)·dark 아님**: env 소스 확정 — `give_discoverable_user_tool(self,
+  discoverable_tool_name: str, arguments: str = "{}")` = **arguments는 스키마-합법 파라미터**. ARG_SCHEMA
+  무발화는 정상(스키마-밖 키가 이 런에 없었음)·배선 사망 아님. **2798 주석은 현행과 불일치 — 정정 필요**
+  (당시 사고의 정확한 기전 = "스키마 밖"이 아니라 **gold 키집합 불일치**·오늘 018/015의 인자-부착 give는
+  매칭 통과 실측). 귀결: ⑴P9의 applies_to give 확장에 스키마 충돌 없음(장애물 제거) ⑵P1 채널 제약은
+  유지하되 근거를 "gold 키집합 의존 리스크(PRED_EXTRA_KEY·Y2 실증)"로 정정.
 
 ### P10. 유저-주장 KB-대조 표면화 (015·014 가족·r6 신설) — `T2_CLAIM_VERIFY_NOTE`
 - **관찰(재현 2/2)**: user-sim이 첫 발화부터 외부 편지의 프로그램("Crypto-Cash Back referral·$100/$500
