@@ -6236,6 +6236,30 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[T2_TOOL_CHANNEL] pre-call check skipped: %r" % (_e13,),
                       file=_sys.stderr, flush=True)
 
+        # ─── ★P5 (2026-08-02): user-tool 안내 표준문 — 생성-레벨(P13 규약) ───
+        #   018/040 실측: 대화-내 user-tool 실행을 "portal/app 제출"로 오설명 → 손님 2회 거부 → 이관 →
+        #   gold write 0. give는 env mutating이라 출력-부착 불가(P13) ⇒ **give 호출 직전** 1회 표면화.
+        #   표면화만·설득 금지([[21]] 흡수 지점 = 오설명 제거). sim당 1회(예산·중복 억제).
+        if (os.environ.get("T2_USER_TOOL_NOTE") == "1" and getattr(am, "tool_calls", None)
+                and not getattr(self, "_t2_utn_done", False)):
+            try:
+                _tpl5 = ((a2 or {}).get("axis_notes") or {}).get("user_tool_channel")
+                _giv5 = next((t for t in (am.tool_calls or [])
+                              if str(getattr(t, "name", "")) == "give_discoverable_user_tool"), None)
+                if _tpl5 and _giv5 is not None:
+                    _want5 = str(_args_dict(_giv5).get("discoverable_tool_name") or "").strip()
+                    if _want5:
+                        self._t2_utn_done = True
+                        from t2_lever_beat import beat as _beat5
+                        _beat5("T2_USER_TOOL_NOTE", "usertool_note")
+                        print("[T2_USER_TOOL_NOTE] pre-give note: %s" % _want5,
+                              file=_sys.stderr, flush=True)
+                        _new5 = _ap_regen("Note: " + _tpl5.format(tool=_want5), "usertoolnote")
+                        if _new5 is not None:
+                            am = _new5
+            except Exception as _e5:
+                print("[T2_USER_TOOL_NOTE] skipped: %r" % (_e5,), file=_sys.stderr, flush=True)
+
         # ─── ★P11 (2026-08-02): ARG-SCHEMA 위생을 unified 경로로 이설 ───
         #   死코드 사고: 이 검사는 `patched()`(apply_provenance_regen) 안에만 있었는데 라이브 러너는
         #   `_unified`(T2_GATE_REGEN ∧ ground2) 조건에서 `apply_unified_regen`만 호출한다 ⇒

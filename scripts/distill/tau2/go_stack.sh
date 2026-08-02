@@ -170,3 +170,12 @@ export T2_GIVE_EXEC_NUDGE=1       # E2 give 성사·user 미실행 시 실행 �
 export T2_SEARCH_EXHAUST_NUDGE=1  # E3 중복-검색 소진 시 전략 전환·날조 금지 넛지(012/033/032 [S])
 export T2_SEARCH_EXHAUST_TH=2
 # E4=A2 dispute→update 체인 resign_th=1(028 구조적 미발화)+`chain suppressed` 진단 마크
+
+# ── ★AX33 처방 스택 (AX32_MIDRUN_PRESCRIPTIONS_DESIGN r7·2026-08-02·리뷰 승인분) ──────────
+#   구현 완료분만 등재한다. 미구현(P1·P6·P8)·재설계 대기(P2·P10)·보류(P3)는 넣지 않는다.
+#   ⚠P4ⓐ(rebate 윈도 산식)는 엔진 수정이므로 플래그 없음 — 수정 전까지 P8은 차단(설계서 §F).
+export T2_WRITE_ARG_GROUND=1      # P9 give 내포 인자 접지(A2 write_arg_grounding에 give 추가·028/040)
+export T2_ARG_SCHEMA=1            # P11 스키마-밖 최상위 키 위생(unified 이설 완료·표적 0=위생)
+export T2_TOOL_CHANNEL=1          # P13 채널 오분류 — **예방형 생성-레벨**(출력-부착 금지·041 사고)
+export T2_USER_TOOL_NOTE=1        # P5 user-tool 안내 표준문(018/040·생성-레벨·sim당 1회)
+#   P12(axis replay 가드)·P7(byref 오류 문구)는 플래그 없는 **무조건 위생**이라 등재 불요.
