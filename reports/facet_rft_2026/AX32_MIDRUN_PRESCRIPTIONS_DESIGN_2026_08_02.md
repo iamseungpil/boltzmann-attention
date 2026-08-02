@@ -84,6 +84,15 @@ QP/NODIGEST 공유-증거만(귀속 판정 금지). ☠**ARG_SCHEMA ON·발화 0
 
 ## 2. 처방
 
+### 2.0 ★구현 위치 규약 (전 처방 공통·리뷰 재지적 반영·위반 시 死코드)
+
+**신규 생성-레벨 개입(P1·P5·P7·P8·P10·P11)은 전부 `t2_gate_patch.py`의 `unified()`(3789~) 내부에
+구현한다** — 라이브 러너가 `_unified`(T2_GATE_REGEN ∧ ground2·go_stack 실재) 조건에서
+`apply_unified_regen`만 호출하므로 `patched`(2712)·`gen_gated`(3485)·구 `apply()` 안의 코드는
+**설치되지 않는다**(ARG_SCHEMA 死코드·WEV 사고의 원인). P9는 `write_arg_grounding`(3862·`unified()` 내부·
+`T2_WRITE_ARG_GROUND=1`)에 얹으므로 이미 안전. **판별식(상설)**: `go_stack ON 플래그 × 승자-설치자 span
+참조 수 == 0 → 死` — x43에 편입.
+
 ### P1. give-인용 표면화 (010) — `T2_GIVE_QUOTE`
 - **닫힘 판정**: "요청했는가"의 의미=열림(강제 금지) / "인용 발화 실재"=닫힘(토큰-연속 부분열·C289 동형).
 - **☠채널 제약(재제안 방지 축자)**: 인용을 **도구 인자에 얹는 것 절대 금지** — `t2_gate_patch.py:2798`
