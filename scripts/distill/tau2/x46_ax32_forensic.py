@@ -122,6 +122,74 @@ for s in by_task("task_019"):
         L.append("- 반환 txn 집합: %s" % ids)
     L.append("")
 
+# ── 프로브 팩 2 (r4 근거: 028 손-전사 사슬 · 040 give 인자 · 032/033 마커 · 020/027 coverage · 024 fit) ──
+def probe_pack2():
+    out = []
+    # 028: discrepancy 5회 반환 + 의심 id 정확-일치 소스
+    for s in by_task("task_028"):
+        out.append("## 프로브 028 — get_reward_discrepancies 반환 전수 + 전사-id 출처\n")
+        msgs = s.get("messages", [])
+        n = 0
+        for i, role, tc in calls(s, "get_reward_discrepancies"):
+            n += 1
+            j, c = tool_resp(s, i)
+            out.append("- #%d(call@%d) head: %s" % (n, i, " ".join(c.split())[:180]))
+        for sus in ("txn_d3b830f4a2a4", "txn_4c29a0f4a2a4", "txn_7d3b830f4a2a4"):
+            src = None
+            for i, m in enumerate(msgs):
+                if m.get("role") == "tool":
+                    for hit in re.finditer(r"txn_[0-9a-f]+", str(m.get("content"))):
+                        if hit.group(0) == sus:
+                            src = i; break
+                if src is not None:
+                    break
+            out.append("- %s: tool-정확일치 idx=%s" % (sus, src))
+        for i, role, tc in calls(s, "give_discoverable_user_tool"):
+            out.append("- give@%d args: %s" % (i, json.dumps(tc.get("arguments"), ensure_ascii=False)[:150]))
+        out.append("")
+    # 040: give 인자(placeholder 실증) + 이관 요구 발화
+    for s in by_task("task_040"):
+        out.append("## 프로브 040 — give 인자 붕괴(placeholder)\n")
+        for i, role, tc in calls(s, "give_discoverable_user_tool"):
+            out.append("- give@%d args: %s" % (i, json.dumps(tc.get("arguments"), ensure_ascii=False)[:170]))
+        out.append("")
+    # 032/033: 마커·KB 무언급·transfer 직전 창
+    for tid in ("task_032", "task_033"):
+        for s in by_task(tid):
+            out.append("## 프로브 %s — 마커·KB·직전 창(미시도 실증)\n" % tid)
+            msgs = s.get("messages", [])
+            mk = [w for m in msgs if m.get("role") == "tool"
+                  for w in re.findall(r"\[T2_[A-Z_]+\]|\[GUIDANCE\]|\[coverage\]", str(m.get("content")))]
+            hit = any("initial_transfer" in str(m.get("content")) for m in msgs if m.get("role") == "tool")
+            out.append("- 엔진 마커: %s · KB 출력 initial_transfer 언급: %s" % (mk or "없음", hit))
+            ti = [i for i, r, tc in calls(s, "transfer_to_human_agents")]
+            if ti:
+                for k in range(max(0, ti[0] - 3), ti[0] + 1):
+                    m = msgs[k]
+                    if m.get("role") in ("user", "assistant") and isinstance(m.get("content"), str) and m["content"].strip():
+                        out.append("- [%s@%d] %s" % (m["role"], k, " ".join(m["content"].split())[:160]))
+            out.append("")
+    # 020/027: coverage 마커 원문(검증-감사≠제출-완결 실증)
+    for tid in ("task_020", "task_027"):
+        for s in by_task(tid):
+            out.append("## 프로브 %s — [coverage] 마커 원문\n" % tid)
+            for m in s.get("messages", []):
+                c = str(m.get("content"))
+                if m.get("role") == "tool" and "[coverage]" in c:
+                    k = c.find("[coverage]")
+                    out.append("- %s" % " ".join(c[k:k + 160].split()))
+            out.append("")
+    # 024: fit 출력 head(FIT facts 표면화 실증)
+    for s in by_task("task_024"):
+        out.append("## 프로브 024 — fit 출력 head(FIT_DIFF facts 실림)\n")
+        for i, role, tc in calls(s, "check_card_application_fit"):
+            j, c = tool_resp(s, i)
+            out.append("- fit@%d head: %s" % (i, " ".join(c.split())[:260]))
+        out.append("")
+    return out
+
+L.extend(probe_pack2())
+
 # ── dbdiff (opt-in) ──
 if A.dbdiff:
     L.append("## dbdiff — %s (initial_state None-가드 변형)\n" % A.dbdiff)
