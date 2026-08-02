@@ -132,14 +132,25 @@ QP/NODIGEST 공유-증거만(귀속 판정 금지). ☠**ARG_SCHEMA ON·발화 0
   (doc_credit_cards_gold_rewards_card_001·travel 특별요율 부재) → recorded 718(=2.5%×$287.50)이 정당·
   엔진 "correct 2875"(10×/$)가 결함. **범위-필터 가설 기각**. ⇒ **계산-도구 결함 2종 확정**(ⓐ 과소·
   ⓑ 과다) — 수정 설계 별도 문서 1건으로 묶음·독립-재계산 스크립트=회귀 테스트 전용.
-- ⓒ 024·025: Business Bronze/Platinum이 gold인 KB 근거(요율·자격) 확인 — 의미-잔여인지 유저-속성
-  미조회인지 분리(025의 "10% 캐시백" 서사 검증 포함).
-- **ⓓ 026 — ★조사 완료·반전: 우리 문구는 KB-정합·충돌은 gold↔KB**: 문구 소유는 우리 A2
-  return_template로 확정됐으나, KB 절차 문서 축자(*credit_cards_(general)_004: "**After** a cash back
-  dispute is **resolved and approved**, you must update…"*)와 정합. 제출 응답은 "SUBMITTED (queued)"=
-  미해결이므로 에이전트의 update 보류는 **KB 준수 행동**. gold는 제출 직후 update 기대 ⇒
-  **gold↔KB 충돌 후보**(벤치-결함 계열·005와 함께 분모 논의 대상). [[23]]: gold에 맞춰 문구·KB를
-  고치지 않는다 — 판정만 기록·INSTRUCTION_DEFECT 이관 안 함.
+- ⓒ 024·025 — **★조사 완료·"제외/적격 조항 미적용" 확정(의미-잔여 아님)**: ⑴025 = Apple이 Silver 10%
+  **제외 목록에 축자 실재**("Hardware/Electronics … Apple") → $100k는 Silver 1.0%=$1,000(에이전트 서사
+  "$10,000"은 제외 미적용)·Biz-Platinum software 4%=$4,000 → **Platinum 당위=gold 정합**. 에이전트는 10%
+  문서만 회수(부분-회수가 확신 강화)·Exceptions 미회수 ⑵024 = Gold operations 적격 목록에 차량 부재+
+  Non-Qualifying 절 → 트럭 1.0%·순액 Gold $200 < Bronze $400 → **Bronze 당위=gold 정합**. 에이전트는
+  "KB에 따르면 적격"을 **무인용 단정** ⑶**통일 기전(카드-선택 축 001·024·025)**: 판별 결정자(제외·적격·
+  자격·보유속성)를 회수/인용 없이 요율 헤드라인으로 선택 — **검색+인용으로 닫힘 가능했던 실패 = QP-가족**
+  (019 exclusion 동일 기전·경로만 추천-대화). ⇒ 처방 방향 등재: **QP §8b 확장 후보** — 추천/산정 경로에
+  적격-인용 계약(조항 축자 인용+엔진 실재성 검사·rate-quote 서브 경로의 기존 계약을 대화 경로로).
+  부수 감사 2건: fit 판별-입력 전부 null(유저 점수 미주입·001 뿌리 동일)·min_credit_limit 필터 유효성
+  (025서 100000 전달에도 6장 전부 eligible) · A2에 Silver 제외표 스텁 실재(gate.json:817 — §8b 식별표 연결).
+- **ⓓ 026 — ★조사 완료(3중 구조·retrieval-부족 기각)**: ⑴retrieval 충분 — 절차 문서를 @3에서 전문
+  회수·update 도구 unlock까지 이행(gold 7번 액션 일치) ⑵**gold↔KB 시점 충돌 유지** — KB 축자 *"**After**
+  a cash back dispute is **resolved and approved**, you must update…"* vs gold는 "queued" 상태서 즉시
+  update 기대·우리 return_template은 KB-정합 ⑶**★신규 — env 이중-테이블 혼선**: KB step1은
+  **cash_back_disputes** 조회를 지시하는데 제공 조회 도구(get_user_dispute_history_7291)는
+  **transaction_disputes** 테이블을 읽음 → 방금 제출한 dispute 4건이 "No disputes found"로 응답 →
+  에이전트 "기록 안 됨" 오결론 → 이관. **벤치-결함 후보 2겹**(gold↔KB + 테이블 불일치)·005와 함께
+  분모 논의 대상. [[23]]: gold에 맞춰 문구·KB 수정 금지 — 판정만 기록.
 - **소유 포인터**: 도구의 명령형 지시 **문구**는 INSTRUCTION_DEFECT §2a 관할(문구=그쪽·정합=이쪽).
   요율 결함 확정 시 해당 요율 A2 `_note` 정책-축자 출처 감사 선행([[23]]) · 수정 설계는 별도 문서.
 
