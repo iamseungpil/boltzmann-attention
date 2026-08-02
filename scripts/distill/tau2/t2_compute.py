@@ -460,19 +460,26 @@ def apply_op(spec, ctx):
             #   않아 min_score 750짜리 Platinum이 eligible로 실렸고 모델이 그것을 골랐다(gold=Silver).
             #   ⇒ 미검증 사실을 실토한다(C185(a) unverified 원칙의 **손님-측 미제공 입력** 확장).
             #   쌍(credit_score↔min_score)은 이미 엔진 검사 로직에 있는 것 그대로(신규 지식 0).
-            _unchecked = ""
-            if _num(ctx.get("credit_score")) is None and any(
-                    _num(r.get("min_score")) is not None for r in rows):
-                _unchecked = (" WARNING: these cards document a minimum credit score, but you did "
-                              "not supply credit_score — so this 'eligible' list has NOT verified "
-                              "score eligibility for any of them. Read the customer's credit score "
-                              "from their record and call again before recommending a card.")
-            _cov = (_unchecked + " This table only carries these documented attributes: %s. It carries NOTHING "
-                    "else — if the customer's decisive criterion is not in that list (for example a "
-                    "promotional or sign-up offer), this tool cannot rank on it: search the "
-                    "knowledge base for that criterion and decide from the source documents, and do "
-                    "not treat this 'eligible' list as an answer to it."
-                    % ", ".join(sorted(_cols)))
+            # ★rev2(2026-08-03·사용자 지적): 초판은 엔진이 도메인 어휘로 **절차를 지시**했다
+            #   ("these cards document a minimum credit score … read it from their record and call
+            #   again before recommending a card") — 도메인 리터럴 순증 + 모델 판단 동결([[05]] Q1·Q2).
+            #   ⇒ **지시를 버리고 자기 점검 결과만 기계적으로 실토**한다(`select_discrepant`의
+            #   `[coverage]` 관용구와 동형). 필드 이름은 전부 A2 표의 키·문장에 도메인 명사 0·
+            #   무엇을 할지는 모델이 정한다.
+            #   쌍 목록은 위 판정 루프가 이미 쓰는 것과 **같은 것**이다(신규 지식 0).
+            _PAIRS = (("max_annual_fee", "annual_fee"), ("max_fx_fee", "fx_fee"),
+                      ("max_min_payment_pct", "min_payment_pct"), ("min_cashback", "cashback"),
+                      ("min_credit_limit", "limit_max"), ("needs_virtual_card", "virtual_card"),
+                      ("needs_purchase_protection", "purchase_protection"),
+                      ("credit_score", "min_score"))
+            _skipped = [rk for ck, rk in _PAIRS
+                        if any(r.get(rk) is not None for r in rows) and ctx.get(ck) is None]
+            _applied = [rk for ck, rk in _PAIRS
+                        if any(r.get(rk) is not None for r in rows) and ctx.get(ck) is not None]
+            _cov = (" [checks] applied: %s | not applied (no input given): %s | "
+                    "fields carried by this table: %s"
+                    % (", ".join(_applied) or "(none)", ", ".join(_skipped) or "(none)",
+                       ", ".join(sorted(_cols))))
             return {"eligible": elig, "excluded": excl, "unverified": unver,
                     "note": (empty + _cov + " Rates are named by the spending they apply to: "
                              "'all_purchases_rate' applies to everything, while 'cashback_for(...)' "

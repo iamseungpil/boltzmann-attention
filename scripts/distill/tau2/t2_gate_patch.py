@@ -4629,10 +4629,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                 _pn = list(((_fn.get("parameters") or {})
                                                             .get("properties") or {}).keys())
                                         if _pn:
-                                            _ufb += (" It takes these arguments: %s. Give the customer "
-                                                     "the exact value for EVERY one of them, read from "
-                                                     "their records - do not leave any of them to the "
-                                                     "customer's memory." % ", ".join(_pn))
+                                            # ★rev2(사용자 지적): 문구는 **A2**(L1 도메인-일반),
+                                            #   엔진은 인자 목록만 채운다. 미선언이면 목록만 실토
+                                            #   (지시 없음 = 판단은 모델 몫·[[05]] Q2).
+                                            _tpl_a = (((a2 or {}).get("axis_notes") or {})
+                                                      .get("user_action_arglist")
+                                                      or " Arguments of {tool}: {args}.")
+                                            _ufb += _tpl_a.format(tool=_utgt, args=", ".join(_pn))
                                     except Exception:
                                         pass
                                     rw_fb = ((am.tool_calls or [None])[0], _ufb)
