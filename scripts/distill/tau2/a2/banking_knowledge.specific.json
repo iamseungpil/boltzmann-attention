@@ -175,6 +175,7 @@
     "shell"
    ],
    "getter_tools": [
+    "KB_search",
     "KB_search_bm25"
    ],
    "instructions": "You are a knowledge-base lookup specialist for a bank agent. The main agent issued the tool call shown below to look up policy/procedure information from the knowledge base. Use the provided search tools, read the results, and produce a direct, complete answer to what the main agent was trying to find out. Include every concrete detail the main agent would need (exact steps, required fields, thresholds, statuses).",
@@ -186,7 +187,8 @@
    "quote_grounding": true,
    "temperature": 0,
    "_note": "FUNCTION_AGENT_ISOLATION_DESIGN_2026_07_19 (W)wrap 1호기 — 자료-read(KB)만 wrap. 상태 read(dispute status·거래·계좌 조회)는 wrap 금지(WEV 증거가 메인에 원문으로 남아야·§3 게이트 증거 계약). shell=KB 브라우징이라 wraps에 포함하되 getter론 미제공(서브는 검색으로). KB_search_dense=getter 제외(2026-07-19 사용자 지적·라이브 4/4 'Missing credentials' 오류=임베딩 키 의도적 부재·wraps엔 유지=메인의 dense 호출을 bm25-기반 실질 답으로 대체). T2_FN_ISOLATE=1 구동·기본 OFF.",
-   "_note_wraps_kbsearch": "★2026-08-02: 라이브 실사용 도구는 `KB_search`인데 wraps에 `KB_search_bm25`/`_dense`만 있어 **wrap이 단 한 번도 발화하지 않았다**(qp32p1 전 로그 T2_FN_ISOLATE=0회·KB_search 49회). 설계·리뷰·구현이 끝난 격리 레버가 이름 불일치+플래그 미설정으로 dark였다. 022 문맥의 36.6%가 KB_search 반환이므로 이 선언이 부하-격리의 주 표적이다. 발화 조건은 여전히 `T2_FN_ISOLATE=1`이고 실패 시 원 실행 폴백(무해)."
+   "_note_wraps_kbsearch": "★2026-08-02: 라이브 실사용 도구는 `KB_search`인데 wraps에 `KB_search_bm25`/`_dense`만 있어 **wrap이 단 한 번도 발화하지 않았다**(qp32p1 전 로그 T2_FN_ISOLATE=0회·KB_search 49회). 설계·리뷰·구현이 끝난 격리 레버가 이름 불일치+플래그 미설정으로 dark였다. 022 문맥의 36.6%가 KB_search 반환이므로 이 선언이 부하-격리의 주 표적이다. 발화 조건은 여전히 `T2_FN_ISOLATE=1`이고 실패 시 원 실행 폴백(무해).",
+   "_note_getter_kbsearch": "★2026-08-02 스모크 실측: wraps에 KB_search를 넣었더니 wrap이 진입은 하는데 getter_tools=['KB_search_bm25']뿐이라 **전건 'getter_tools 부재→폴백'**(gpu0 9회·gpu1 5회). 같은 이름-불일치가 한 층 아래 있었다. 서브가 쓸 getter에 실사용 KB_search 추가."
   }
  ],
  "write_evidence_specs": [
