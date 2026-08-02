@@ -3,13 +3,15 @@
 > **상태 = 설계 제안 r2(018·019 포렌식 반영) · 리뷰 대기 · 구현 미착수.** 구현·발사는 ⑴리뷰 승인
 > ⑵**ax32 완주 판정 후**(중간 처방을 라이브 체인에 넣지 않는다 — 함정 §6-1·단일변수 보존).
 > 근거 = ax32p1 부분 18/32의 per-step 포렌식(x38 변형·응답 축자 프로브·**dbdiff 확정 2건**)·2026-08-02 오후.
-> 판정 데이터: `x38_ax32p1_partial.md`(scratch) · dbdiff_010(scratch/axis32run) · 본문 §1 축자.
+> **판정 데이터(영속·r3 — 리뷰 G① 반영)**: `AX32P1_FORENSIC_EVIDENCE_2026_08_02.md`(repo·x46 생성·
+> 프로브 4종+dbdiff_010+x38 부록) · 생성기 = `x46_ax32_forensic.py`. scratch-only 인용은 이 영속본으로 대체됨.
 > 규율: 처방은 전부 **관찰→닫힘판정→레버(또는 기각)** 순서. pass 점수는 [D](C217). 새 레버 = beat 필수·
 > x44 이름-정확 매핑·Δspurious 동시 계측(등대 §1.3) · replay-위생(§6-4) 점검 열 상설.
 
 ## 0. 요약 (8줄)
 
-ax32p1 실패 11건(005 제외 10건 기전 확정) 중 6건에서 처방이 갱신됐다. **⑴010: write-dedup 가설은
+ax32p1 실패 11건(005 제외 — ⚠제외는 **잠정**: n=31 병기 규약(FAILURE_AXES §③)이 아직 미추인·10건 기전
+확정) 중 6건에서 처방이 갱신됐다. **⑴010: write-dedup 가설은
 dbdiff가 기각** — env에 이미 idempotence 거부가 있고, DB를 죽인 것은 **여분 give의 GIVEN 등록**(유일
 diff 1건). 레버는 give-인용(닫힌 실재성 검사). **⑵012: env가 무득점을 말해주고 있었지만 그 신호는 LLM
 산문**이라 산문-매칭은 금지선 — 검색층의 **구조 신호 확보가 선결**. **⑶001: FIT_DIFF의 유저-속성
@@ -39,7 +41,7 @@ diff 1건). 레버는 give-인용(닫힌 실재성 검사). **⑵012: env가 무
 | 001 | 유저정보 조회 0회 → `rho_bank_subscription` gold=true/제출=false·Silver 오추천. **qp32p1에서는 통과**(신규 변종·flip) | x38 + qp32 실패 doc에 001 부재 |
 | 023 | rebate-qual 루프가 "Nov24·Jan25 미달" 판정→Silver 유도(gold=Diamond Elite). C212⑤(엔진 undercount [S]) 표면과 동일·**qp32p1의 023은 혼돈형 궤적이라 이 계보가 §0.2 표에 미등재** | x38 양 런 대조 |
 | **019** | **순기능 확정**: coverage *"23 of 23 checked (0 could not be verified)"*(C275 픽스 작동)·gold 4건 전부 제출(**미충족 0**). 킬러 = **여분 dispute 2건**(Delta·Hilton — 실재 거래·날조 아님). 출처 = `get_reward_discrepancies`가 **6건을 명령형으로 지시**(*"each needs a cash back dispute … EXACTLY the correct value shown"*·Delta 718→"2875"=10×/$ 흔적) vs gold 4건 | 축자 프로브(idx=29 이력·discrepancies 출력 전문) |
-| **018** | give 6발은 **정상 배치**(한 메시지·6 txn — "스프레이" 아님 정정). 사슬 = 절차를 **"portal/app 제출"로 오설명** → user 2회 거부(*"running those commands or using the portal/app 불편"*) → give 강행 → 재거부 → NOTICE→`###TRANSFER###`→이관(TERM 정상·턴소진 없음) → **dispute 0건**. qp32p1 통과(flip-down)·**C212④(017 '수동 포털' 서사 괴리) 계보 재발** | 대화 창 축자(@50~@54) |
+| **018** | give 6발은 **정상 배치**(한 메시지·6 txn — "스프레이" 아님 정정). 사슬 = 절차를 **"portal/app 제출"로 오설명** → user 2회 거부(*"running those commands or using the portal/app 불편"*) → give 강행 → 재거부 → NOTICE→`###TRANSFER###`→이관(TERM 정상·턴소진 없음) → **dispute 0건**. qp32p1 통과(flip-down)·계보=DAY9 R1 심의-제외 축의 새-각도 재발(r3 정정·P5 참조) | 영속본 프로브 018 |
 
 ## 2. 처방 설계
 
