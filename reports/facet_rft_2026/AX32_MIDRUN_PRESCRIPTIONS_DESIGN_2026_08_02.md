@@ -49,7 +49,7 @@ facts 표면화), 실패는 가드 *사이*의 무인지대에서 났다 — 손
 | **040** | give 인자 붕괴: #1 인자=안내문(`{"message": "Please use…"}`)·#2=**placeholder** `"[Enter your credit card account ID here]"`+오필드명 → 사용자 실행 불가 → "8건 다 이관으로" → 이관·agent-측 dispute 미시도 | §2bs 표적(031 계열)+축1ⓒ+4 → P9+P5 |
 | 024 | fit 출력에 FIT_DIFF facts 표 실림(Bronze 1.0%/Gold 2.5% 표면화 — **레버는 제 몫**)·Business Gold 선택(gold=Bronze)·유저정보 0회 | 의미-선택 잔여+P3 가족·Bronze-당위=P4ⓒ 조사 |
 | 025 | Business Platinum→Silver 오선택 + "$100k 10% 캐시백=$10,000" 서사·[GROUNDING WARNING]×1 | P3/P4ⓒ 가족(001·024 동렬) |
-| **026** | **⒝ 방출-불가 소멸**(청정 종료·11중 7 이행·제출 성사). 잔여 = `update_transaction_rewards_3847` 대신 `get_user_dispute_history_7291` 호출 — 유력: 도구 문구 *"**after** its dispute is **resolved**, update…"*의 시점-조건 준수(제출 직후=미해결→조회) vs gold 즉시-update | env-지시 계열 → **P4ⓓ** |
+| **026** | **⒝ 방출-불가 소멸**(청정 종료·11중 7 이행·제출 성사). 잔여(r7 최종): submit 응답 말미 *"Status: RESOLVED … need to be updated"*를 **미독**(1행 "queued" 오도 프레이밍) → 검증 사냥 → 타-테이블 리더 "No disputes found" → 오결론·이관. **벤치 결함 아님**(auto_resolve 태스크·gold=KB 준수) | 응답-후반 미독(028 형제) → **P8 확장**(Status-필드 판독)·env 자기모순 문구=INSTRUCTION_DEFECT §2a |
 | **029** | 미충족 0·DB 0(010/019형·여분-등록 후보). **CHANNEL 레버 유일 발화가 여기서 순기능 실증**(기본-제공 도구 unlock 시도→"직접 불러라"). DB-킬러는 **잠정 미확정** — vanilla-env dbdiff가 라이브 궤적 내 레버 문구와 불일치로 중단(라이브 평가는 무사·오프라인 도구 한계) | dbdiff **패치-적재 모드** 개선(§5) |
 | **035** | 과거 기전(notice 턴-소진) 소멸(transfer 이행) — 실패 = `emergency_credit_bureau_…` discoverable agent-tool **미시도** | **존재-인지-0 3호**(032/033과 동일) → 대기 항목 표적 3건 |
 | 041 | 절차 순서 붕괴: history-read·last4 선행 생략·`file_…dispute_4829` 직행(쓰기는 함·접지 통과)·미충족 23·6,180s | E-PLAN 선행-read/완결([[14]])·P8 인접 |
@@ -143,14 +143,17 @@ QP/NODIGEST 공유-증거만(귀속 판정 금지). ☠**ARG_SCHEMA ON·발화 0
   적격-인용 계약(조항 축자 인용+엔진 실재성 검사·rate-quote 서브 경로의 기존 계약을 대화 경로로).
   부수 감사 2건: fit 판별-입력 전부 null(유저 점수 미주입·001 뿌리 동일)·min_credit_limit 필터 유효성
   (025서 100000 전달에도 6장 전부 eligible) · A2에 Silver 제외표 스텁 실재(gate.json:817 — §8b 식별표 연결).
-- **ⓓ 026 — ★조사 완료(3중 구조·retrieval-부족 기각)**: ⑴retrieval 충분 — 절차 문서를 @3에서 전문
-  회수·update 도구 unlock까지 이행(gold 7번 액션 일치) ⑵**gold↔KB 시점 충돌 유지** — KB 축자 *"**After**
-  a cash back dispute is **resolved and approved**, you must update…"* vs gold는 "queued" 상태서 즉시
-  update 기대·우리 return_template은 KB-정합 ⑶**★신규 — env 이중-테이블 혼선**: KB step1은
-  **cash_back_disputes** 조회를 지시하는데 제공 조회 도구(get_user_dispute_history_7291)는
-  **transaction_disputes** 테이블을 읽음 → 방금 제출한 dispute 4건이 "No disputes found"로 응답 →
-  에이전트 "기록 안 됨" 오결론 → 이관. **벤치-결함 후보 2겹**(gold↔KB + 테이블 불일치)·005와 함께
-  분모 논의 대상. [[23]]: gold에 맞춰 문구·KB 수정 금지 — 판정만 기록.
+- **ⓓ 026 — ★최종 판정(r7·2단 정정 끝): 벤치 결함 아님**. 결정 증거 = ⑴initial_state
+  `auto_resolve_disputes: true` + submit 코드의 auto_resolve 분기(status=RESOLVED·resolution=APPROVED)
+  ⑵라이브 submit 응답 4건 **말미 축자** *"Status: RESOLVED - … The transaction rewards need to be
+  updated."* ⇒ **gold의 즉시-update는 KB 절차("after resolved and approved") 완전 준수·합법**.
+  r6의 "gold↔KB 충돌 후보"는 **철회**(응답 전문을 140자에서 절단해 읽은 내 프로브 실수가 원인 —
+  전문-정독 규율 재확인). 실패 배분: **에이전트-측** = 응답 1행의 오도 프레이밍("queued for review" —
+  코드가 분기 무관 고정 접두)에 잡혀 말미 RESOLVED 신호 미독(028 "긴 응답 후반 미독"과 형제) → 불필요
+  검증 사냥 → 유사명 타-테이블 리더(transaction_disputes) "No disputes found" → 오결론·이관. **env 기여
+  2건**(결함 아닌 지시-위생 등급): 같은 응답 내 "queued"↔"RESOLVED" **자기모순 문구**(C290 D2의 env판
+  — INSTRUCTION_DEFECT §2a 등재) · cash_back_disputes 전용 리더 부재+유사명 리더의 오선택 유도.
+  처방: **P8 확장** — 제출-응답의 `Status:` 필드 구조 판독(닫힘)→"RESOLVED n건·update 필요" 표면화.
 - **소유 포인터**: 도구의 명령형 지시 **문구**는 INSTRUCTION_DEFECT §2a 관할(문구=그쪽·정합=이쪽).
   요율 결함 확정 시 해당 요율 A2 `_note` 정책-축자 출처 감사 선행([[23]]) · 수정 설계는 별도 문서.
 
