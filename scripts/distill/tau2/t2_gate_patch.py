@@ -4607,6 +4607,34 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                    "customer to run {tool} now with their details, "
                                                    "then confirm the result. Do not transfer for this.")
                                                ).replace("{tool}", _utgt)
+                                    # ★2026-08-03 (task_001 실측): "with their details"는 **어느 인자를
+                                    #   말해야 하는지** 알려주지 않는다. 001: 에이전트가 카드는 정확히
+                                    #   골랐는데(Gold=gold) 안내가 `{"card_type": …}` 하나뿐이라 손님이
+                                    #   나머지를 자기 기억으로 채웠고 `rho_bank_subscription`을 틀려
+                                    #   **그 한 필드로 0점**. 003(신용점수 미조회)과 같은 가족이다.
+                                    #   ⇒ 그 도구의 **전체 인자 목록을 env 스키마에서 기계 도출**해 붙인다
+                                    #   (도메인 리터럴 0·값 판단은 여전히 모델 몫).
+                                    try:
+                                        _envu = getattr(getattr(self, "_t2_orch", None),
+                                                        "environment", None)
+                                        _pn = []
+                                        for _mm in ("get_user_tools", "get_tools"):
+                                            _ff = getattr(_envu, _mm, None)
+                                            for _tt in (_ff() or []) if callable(_ff) else []:
+                                                if str(getattr(_tt, "name", "")) != _utgt:
+                                                    continue
+                                                _sc = _tt.openai_schema
+                                                _fn = (_sc.get("function")
+                                                       if isinstance(_sc.get("function"), dict) else _sc)
+                                                _pn = list(((_fn.get("parameters") or {})
+                                                            .get("properties") or {}).keys())
+                                        if _pn:
+                                            _ufb += (" It takes these arguments: %s. Give the customer "
+                                                     "the exact value for EVERY one of them, read from "
+                                                     "their records - do not leave any of them to the "
+                                                     "customer's memory." % ", ".join(_pn))
+                                    except Exception:
+                                        pass
                                     rw_fb = ((am.tool_calls or [None])[0], _ufb)
                                     self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
                                     print("[T2_RESOLVE] user-action instruct target=%s" % _utgt,
