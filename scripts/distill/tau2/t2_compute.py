@@ -438,8 +438,25 @@ def apply_op(spec, ctx):
                           "'%s' — it matches none of the documented category keywords; re-call "
                           "with one of the documented keywords (see the tool's parameter "
                           "description) or omit spend_category." % _spc0)
+            # ★2026-08-03 (task_007 실측): 이 표가 **다루지 않는 축**을 손님이 결정 기준으로 삼으면
+            #   구판은 그 사실을 말하지 않고 eligible 목록을 줬다 — 모델은 표 안의 축(연회비)만으로
+            #   골랐고 그건 손님 질문의 부분집합이었다(007: "sign-up bonus 있는 카드 중 최저 연회비"
+            #   → 표에 bonus 컬럼 없음 → Gold 추천·gold=EcoCard). C185(a)의 unverified는 **행**의
+            #   결측만 다루고 **미모델링 속성**은 사각이었다. ⇒ 커버리지를 런타임에 실토한다.
+            #   컬럼명은 표에서 도출(도메인 리터럴 0)·판단 0(순수 열거).
+            _cols = []
+            for _r0 in rows:
+                for _k0 in _r0:
+                    if _k0 not in ("card", "business", "invite_only", "source") and _k0 not in _cols:
+                        _cols.append(_k0)
+            _cov = (" This table only carries these documented attributes: %s. It carries NOTHING "
+                    "else — if the customer's decisive criterion is not in that list (for example a "
+                    "promotional or sign-up offer), this tool cannot rank on it: search the "
+                    "knowledge base for that criterion and decide from the source documents, and do "
+                    "not treat this 'eligible' list as an answer to it."
+                    % ", ".join(sorted(_cols)))
             return {"eligible": elig, "excluded": excl, "unverified": unver,
-                    "note": (empty + " When the customer asks for the best rate on everyday or "
+                    "note": (empty + _cov + " When the customer asks for the best rate on everyday or "
                              "general spending, compare 'all_purchases_rate' across the cards — a "
                              "headline rate that applies only to certain categories is NOT "
                              "comparable to an all-purchases rate. Deterministic filter over documented facts. 'eligible' = the "

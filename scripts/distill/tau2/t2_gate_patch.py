@@ -252,10 +252,27 @@ def _ctx_with_toolnames(agent, ctx):
     도구 이름의 출처는 스키마(모델에게 제시됨)이지 대화가 아니다 — 라이브 실측: 에이전트가
     `unlock_discoverable_agent_tool(agent_tool_name="get_reward_discrepancies")`로 우리 도구를
     호출하려 하자 PROV가 "문맥에 없음=invented"로 11회 반려(ctl_20260716_2230). ★이름만 추가한다 —
-    스키마 전체(설명·예시값)를 넣으면 C47(예시값=복사 원천 47%)의 날조 재료까지 정당화된다."""
+    스키마 전체(설명·예시값)를 넣으면 C47(예시값=복사 원천 47%)의 날조 재료까지 정당화된다.
+
+    ★2026-08-03 확장(라이브 실측·task_002): 같은 오탐이 **discoverable 도구 이름**에서 재발했다 —
+    `give_discoverable_user_tool(discoverable_tool_name="apply_for_credit_card")`가 5회 연속 반려돼
+    9분을 태웠다(에이전트가 `list_discoverable_*`를 부르지 않아 그 이름이 대화 어디에도 없었다).
+    discoverable 이름의 출처도 **스키마가 아니라 env 레지스트리**이고 그 조회는 **닫혀 있다**
+    (`t2_axis_levers.registry_from_env` = DISCOVERABLE_ATTR 기계 도출·opex 0·[[05]]). ⇒ 그 이름들도
+    ctx에 넣는다. **실재하지 않는 이름은 여전히 반려된다**(날조 차단력 불변·오탐만 제거)."""
     try:
         names = " ".join(sorted({str(getattr(t, "name", "") or "").lower()
                                  for t in (getattr(agent, "tools", None) or [])}))
+        try:                                   # env discoverable 레지스트리(있을 때만)
+            import t2_axis_levers as _AXn
+            _orch = getattr(agent, "_t2_orch", None)
+            if _orch is not None:
+                _ag, _us = _AXn.registry_from_env(_orch)
+                _disc = " ".join(sorted({str(x).lower() for x in (_ag | _us) if x}))
+                if _disc:
+                    names = (names + " " + _disc) if names else _disc
+        except Exception:
+            pass
         return ctx + " " + names if names else ctx
     except Exception:
         return ctx
