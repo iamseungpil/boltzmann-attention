@@ -263,14 +263,34 @@ def _ctx_with_toolnames(agent, ctx):
     try:
         names = " ".join(sorted({str(getattr(t, "name", "") or "").lower()
                                  for t in (getattr(agent, "tools", None) or [])}))
-        try:                                   # env discoverable 레지스트리(있을 때만)
-            import t2_axis_levers as _AXn
-            _orch = getattr(agent, "_t2_orch", None)
-            if _orch is not None:
-                _ag, _us = _AXn.registry_from_env(_orch)
-                _disc = " ".join(sorted({str(x).lower() for x in (_ag | _us) if x}))
-                if _disc:
-                    names = (names + " " + _disc) if names else _disc
+        try:
+            # ★2026-08-03 rev2 (라이브 재확인): 첫 판은 `registry_from_env`(DISCOVERABLE_ATTR)만
+            #   넣었는데 **그 집합이 아니었다** — `apply_for_credit_card`는 env의 **user 도구**
+            #   (`get_user_tools()` 6종)이고 discoverable 레지스트리(deposit_check_3847 등)와 별개다.
+            #   ⇒ env가 아는 도구 이름 **전부**(agent-side + user-side)를 넣는다. 전부 env 기계
+            #   도출이라 opex 0·도메인 리터럴 0([[05]])이고, 없는 이름은 여전히 반려된다.
+            _env = getattr(getattr(agent, "_t2_orch", None), "environment", None)
+            _envn = set()
+            for _m in ("get_tools", "get_user_tools"):
+                _f = getattr(_env, _m, None)
+                try:
+                    for _t in (_f() or []) if callable(_f) else []:
+                        _n = str(getattr(_t, "name", "") or "").lower()
+                        if _n:
+                            _envn.add(_n)
+                except Exception:
+                    pass
+            try:                               # discoverable 레지스트리도 함께(별도 집합)
+                import t2_axis_levers as _AXn
+                _o = getattr(agent, "_t2_orch", None)
+                if _o is not None:
+                    _a2s, _u2s = _AXn.registry_from_env(_o)
+                    _envn |= {str(x).lower() for x in (_a2s | _u2s) if x}
+            except Exception:
+                pass
+            if _envn:
+                _j = " ".join(sorted(_envn))
+                names = (names + " " + _j) if names else _j
         except Exception:
             pass
         return ctx + " " + names if names else ctx
