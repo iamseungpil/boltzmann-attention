@@ -59,6 +59,10 @@ for fl in ("T2_TOOL_CHANNEL", "T2_TERMINAL_TURN", "T2_FIT_DIFF", "T2_SCALAR_ARRA
     flag_tags[fl].add("[T2_AXIS]")
 flag_tags["T2_REPEAT_CAP"].add("[REPEAT-CAP")
 flag_tags["T2_FN_ISOLATE"].add("[T2_FN_ISOLATE]")
+# ★beat 규약(t2_lever_beat·2026-08-02): 모든 플래그는 `[T2_LEVER] <플래그>` 로도 발화를 증명할 수
+#   있다 — 이름 정확 매핑이라 휴리스틱 오탐이 없다. 무태그 레버의 사각을 이것으로 닫는다.
+for fl in list(all_flags):
+    flag_tags[fl].add("[T2_LEVER] " + fl)
 
 # ── env 덤프 → ON/OFF ────────────────────────────────────────────────────────
 envmap = {}

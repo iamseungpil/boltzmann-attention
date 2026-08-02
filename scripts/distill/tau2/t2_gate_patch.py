@@ -5330,6 +5330,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 pass
 
         def _ap_regen(fbtxt, tag, tool_choice=None, am_override=None):
+            from t2_lever_beat import beat as _beat
+            _beat("T2_GATE_REGEN", tag)
             """피드백 1회 → regen. 게이트-deny 유입 시 원본 유지(부작용 0). 성공 시 새 am.
             ★tool_choice(레버 A·2026-07-18·`HANDOFF_LEVER_DESIGN §2`): regen 응답의 **채널만** 강제
             (어느 도구를 부를지는 모델이 고름). 실측 근거 = forced 프로브: 강제 하 24/24 정답 선택 ·

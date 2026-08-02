@@ -797,6 +797,8 @@ def _terminal_grant_check(orch):
             tools = ap if isinstance(ap, list) else [ap]
             for t in tools:
                 if t and str(t) not in called:                  # ⓑ
+                    from t2_lever_beat import beat as _beat
+                    _beat("T2_TERM_GRANT_USERDEMAND", str(t))
                     return str(t)
     return None
 
@@ -832,6 +834,8 @@ def cp5_gap_reminder(n, m, unexamined, done_entities=(), action_phrase=None):
     ★C116 처방화: (a)이미 처리한 엔티티 명시(done_entities·에이전트 자기출력서) (b)남은 수 지목
     (c)수동 탈출구("손님께 재확인/설명") → **능동 완주 지시**(지속 구동의 효과 결정 변수). 미검토
     sibling 있으면 read-우선. action_phrase=spec(A2)·없으면 도메인일반 문구. write 강제 0(에이전트 emit)."""
+    from t2_lever_beat import beat as _beat
+    _beat("T2_EPLAN_WALK")
     _mark("walk gap: qty=%d executed=%d unexamined=%d" % (n, m, len(unexamined)))
     _act = action_phrase or "take the required action for each remaining one"
     _done = (" You have already completed: %s." % ", ".join(sorted(done_entities))) if done_entities else ""
@@ -1017,6 +1021,8 @@ def apply():
                         _gtool = None
                         _mark("term-grant skipped (no-op): %r" % (_tge,))
                     if _gtool:
+                        from t2_lever_beat import beat as _beat
+                        _beat("T2_TERM_GRANT", _gtool)
                         self._t2_term_granted = True
                         self.done = False
                         self.termination_reason = None
