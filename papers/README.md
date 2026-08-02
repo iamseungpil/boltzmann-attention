@@ -2,6 +2,7 @@
 
 > ⚠️ **계보 주의(2026-08-02)**: 이 README는 2026-06-26 시점(3편 체제)이다. 이후 **07-30 신규 3편**(`../paper/{declfirst,restate,feedback}/`)과
 > **08-01 `paper5_interpretation_boundary/`**가 추가됐다. **최신 정렬·주장 추림·폐기 명부 = `../reports/facet_rft_2026/PAPER_PATENT_CANON_2026_08_02.md`(정본 지도)** — 논문 번호 인용 금지(세 체계 충돌·CANON §4), 경로-이름으로 부를 것.
+> **★갱신 라인 결정(08-02)**: **3편 통합** = what_scale_buys · declfirst(restate·feedback 흡수) · paper5_interpretation_boundary. 아래 3편 체제 서술은 이 결정 이전(06-26) 것.
 > 단일 진입점. 연구 기록·도구·결과는 `../scripts/distill/`(권위)·`../reports/facet_rft_2026/sim_results/`(결과). 이 디렉터리 = 논문화. branch `facet-rft-2026`.
 > **2026-06-26: Papers 1+4 병합** → 과학(scale이 무엇을 사나)과 경제(그래서 어떻게 싸게 사나)가 *한 인과 호*(compliance scale-invariant → 모든 scale에 gate 필요 → 소형+gate가 신뢰성 대등 → 비용우위)로 완결. 포트폴리오 = **3편**.
 
