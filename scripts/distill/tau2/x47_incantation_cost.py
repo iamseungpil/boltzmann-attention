@@ -5,9 +5,13 @@ The GB2 gate opens only when the agent has uttered a fixed sentence, judged by
 Paraphrases do not count. This measures how many turns the run spent producing
 utterances that meant "shall I transfer you" but missed that prefix.
 
-This is the baseline for the rev4 ① change (§5 1급 지표 1번). It must be run
-against the OLD notice text, which is what the recorded run was played under —
-pass --notice to re-run it against any other wording.
+This is the baseline for the rev4 ① change (§5 1급 지표 1번).
+
+The glob and the notice text must MATCH: each run was played under its own wording,
+and measuring arm A's trajectories against arm B4's notice yields 0 hits / 100% miss
+— a silently wrong number, not an error (2026-08-03: the glob was hardcoded to
+`bank_ax33n_*` and only --notice was passed). So the two travel together as --arm
+presets, the resolved pair is echoed in the header, and an empty glob is fatal.
 
 Decidable definitions (no semantic judgement):
   transfer-intent utterance  an assistant message whose normalized text contains
@@ -34,6 +38,14 @@ SIM = "/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_202
 OLD_NOTICE = ("TRANSFER NOTICE: I have checked the knowledge base and there are no further "
               "actions I can take for this request. Would you like to be transferred to a "
               "human agent?")
+NEW_NOTICE = "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+
+# (glob, notice) pairs. A preset is the only way to be sure the wording being
+# searched for is the wording the run was played under.
+ARMS = {
+    "A":  ("bank_ax33n_gpu*_20260803g", OLD_NOTICE),
+    "B4": ("bank_b4_gpu*_20260803h", NEW_NOTICE),
+}
 
 INTENT_MARKERS = (
     "transfer notice",
@@ -45,24 +57,44 @@ INTENT_MARKERS = (
 )
 
 
-def sims(tag):
-    for p in sorted(glob.glob(f"{SIM}/bank_ax33n_gpu*_{tag}.results.json.gz")):
+def sims(pattern):
+    files = sorted(glob.glob(f"{SIM}/{pattern}.results.json.gz"))
+    if not files:
+        raise SystemExit(f"no runs matched {SIM}/{pattern}.results.json.gz — "
+                         f"check --glob/--arm (arms: {', '.join(ARMS)})")
+    for p in files:
+        print(f"  read {os.path.basename(p)}")
         for s in json.load(gzip.open(p, "rt", encoding="utf-8")).get("simulations") or []:
             yield s
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tag", default="20260803g")
-    ap.add_argument("--notice", default=OLD_NOTICE)
+    ap.add_argument("--arm", choices=sorted(ARMS), default="A",
+                    help="preset pairing a run glob with the notice text it ran under")
+    ap.add_argument("--glob", help="override the arm's run glob (no .results.json.gz suffix)")
+    ap.add_argument("--tag", help="shorthand for --glob bank_ax33n_gpu*_<tag>")
+    ap.add_argument("--notice", help="override the arm's notice text")
     ap.add_argument("--prefix", type=int, default=48)
     args = ap.parse_args()
 
-    key = notice_norm(args.notice)[: args.prefix]
+    pattern, notice = ARMS[args.arm]
+    if args.tag:
+        pattern = f"bank_ax33n_gpu*_{args.tag}"
+    if args.glob:
+        pattern = args.glob
+    if args.notice:
+        notice = args.notice
+
+    key = notice_norm(notice)[: args.prefix]
+    # Echo the pair, not just the prefix: a mismatched (glob, notice) is the failure
+    # mode this script had, and it is only visible when both are printed together.
+    print(f"arm={args.arm}  glob={pattern}")
+    print(f"notice = {notice!r}")
     print(f"compelled prefix{args.prefix} = {key!r}\n")
 
     per_sim, rows = {}, []
-    for s in sims(args.tag):
+    for s in sims(pattern):
         sid = (s.get("task_id"), s.get("trial"))
         hits = misses = 0
         called = False
