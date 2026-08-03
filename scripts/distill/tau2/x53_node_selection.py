@@ -48,11 +48,14 @@ def norm(s):
 
 
 def node_of(fname):
-    """(category, subcategory) straight from the filename — no authoring, no judgement."""
-    m = re.match(r"doc_([a-z_]+?)_((?:[a-z_]+|\([a-z]+\))+?)_(\d+)\.json$", fname)
-    if m:
-        return m.group(1), m.group(2)
-    stem = fname[4:].rsplit("_", 1)[0]
+    """(category, subcategory) straight from the filename — no authoring, no judgement.
+
+    Parsed by splitting, not by a regex: the obvious pattern for this shape
+    (`doc_(cat)_(sub)_(\\d+)`) has two adjacent unbounded groups over the same
+    alphabet and backtracks catastrophically on the parenthesised names — it hung
+    for minutes at full CPU on this very corpus, twice.
+    """
+    stem = fname[4:].rsplit(".", 1)[0].rsplit("_", 1)[0]   # drop 'doc_', '.json', '_017'
     return stem.split("_")[0], stem
 
 
@@ -181,14 +184,39 @@ def main():
     touched = sum(1 for _, _, _, t in reach + spread if t)
     print(f"  ★검색이 정답 노드에 실제로 닿은 비율: {touched}/{len(reach) + len(spread)}")
 
-    print("\n§4 결정론 선택기 — 손님 첫 발화의 단어로 노드 라벨을 고를 수 있나")
+    # A node's name is three or four words; a customer describes their problem in
+    # their own. Terms that are frequent inside a node and rare outside it are the
+    # node's own vocabulary, and they are derived from the corpus, not authored —
+    # so declaring them costs nothing and stays clear of gold ([[23]]).
+    print("\n§5 노드 특성 — 파일명 라벨 + 코퍼스에서 기계 도출한 변별어")
+    node_terms = {}
+    node_df = collections.Counter()
+    for k, files in nodes.items():
+        c = collections.Counter()
+        for f in files:
+            c.update(set(norm(docs[f]).split()) - STOP)
+        node_terms[k] = c
+        for t in c:
+            node_df[t] += 1
+    n_nodes = len(nodes)
+    descriptors = {}
+    for k, c in node_terms.items():
+        scored = sorted(c, key=lambda t: -(c[t] / len(nodes[k]))
+                        * math.log(n_nodes / (1 + node_df[t])))
+        descriptors[k] = [t for t in scored if len(t) > 3][:12]
+    for k in list(sorted(nodes, key=lambda x: -len(nodes[x])))[:6]:
+        print(f"  {k[1][:44]:46s} n={len(nodes[k]):2d}  {', '.join(descriptors[k][:8])}")
+    total_desc = sum(len(v) for v in descriptors.values())
+    print(f"  전체 선언 크기: 노드 {n_nodes} × 변별어 ≤12 = {total_desc} 토큰"
+          f" (라벨 포함 ≈{total_desc + sum(len(v) for v in label_tokens.values())})")
+
+    print("\n§4 결정론 선택기 — 손님 첫 발화의 단어로 노드를 고를 수 있나")
     # Plain idf-weighted overlap between the customer's words and the node label.
     df = collections.Counter()
     for toks in label_tokens.values():
         for t in toks:
             df[t] += 1
-    n_nodes = len(nodes)
-    ok = tried = 0
+    ok = ok_desc = tried = 0
     for s in sorted(fails, key=lambda x: (x["task_id"], x.get("trial") or 0)):
         toks = needed_tokens(s)
         if not toks:
@@ -201,16 +229,25 @@ def main():
         if not want:
             continue
         q = set(norm(first_utterance(s)).split()) - STOP
-        scored = sorted(nodes, key=lambda k: -sum(
-            math.log(n_nodes / (1 + df[t])) for t in (label_tokens[k] & q)))
-        top = scored[:3]
+
+        def rank(keyset):
+            return sorted(nodes, key=lambda k: -sum(
+                math.log(n_nodes / (1 + df[t])) for t in (keyset(k) & q)))
+
+        by_label = rank(lambda k: label_tokens[k])[:3]
+        by_both = rank(lambda k: label_tokens[k] | set(descriptors[k]))[:3]
         tried += 1
-        hit = any(k in want for k in top)
-        ok += hit
-        print(f"  {s['task_id']}/t{s.get('trial'):<2} top3={[k[1][:26] for k in top]}"
-              f"  정답 노드 {len(want)}개  {'HIT' if hit else 'MISS'}")
-    print(f"\n  ★첫 발화만으로 top-3 안에 정답 노드: {ok}/{tried}"
-          + (f" = {ok / tried:.0%}" if tried else ""))
+        h_label = any(k in want for k in by_label)
+        h_both = any(k in want for k in by_both)
+        ok += h_label
+        ok_desc += h_both
+        print(f"  {s['task_id']}/t{s.get('trial'):<2} 정답 노드 {len(want):2d}개  "
+              f"라벨만 {'HIT ' if h_label else 'MISS'}  라벨+변별어 "
+              f"{'HIT ' if h_both else 'MISS'}  top3={[k[1][:22] for k in by_both]}")
+    print(f"\n  ★첫 발화 → top-3 안에 정답 노드  라벨만 {ok}/{tried}"
+          + (f" = {ok / tried:.0%}" if tried else "")
+          + f"   라벨+변별어 {ok_desc}/{tried}"
+          + (f" = {ok_desc / tried:.0%}" if tried else ""))
 
 
 if __name__ == "__main__":
