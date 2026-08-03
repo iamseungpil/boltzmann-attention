@@ -1,4 +1,38 @@
-# 이관 지시 충실도 복원 설계 (2026-08-03 · rev2)
+# 이관 지시 충실도 복원 설계 (2026-08-03 · rev3)
+
+> ## ★rev3 머리말 — 진단이 바뀌었다 (코드 확인분)
+>
+> `gate_interpreter.py:37 notice_sent_in()` 은 **정확 일치가 아니라 정규화 후 앞 48자 부분문자열**이다:
+> ```python
+> key = notice_norm(notice_text)[:prefix]        # prefix=48
+> return any(key in notice_norm(t) for t in texts if isinstance(t, str))
+> ```
+> docstring 축자: *"032=", Sofia" 1토큰 개인화가 전문-일치를 영구 불충족"* — 과거에 이미 한 번 물렸고
+> prefix-48로 완화한 이력이다.
+>
+> **이 사실로 032 t0을 다시 읽으면 게이트는 설계대로 작동했다:**
+>
+> | 스텝 | 발화 | prefix 일치 | 게이트 |
+> |---|---|---|---|
+> | [14] | *"…Would you like to be transferred to a human agent now?"* | ✗ | deny |
+> | [16] | *"…Would you like to be transferred…? Once you confirm…"* | ✗ | deny |
+> | [18] | *"**TRANSFER NOTICE: I have checked the knowledge base**…"* | **✓** | allow |
+> | [20] | `transfer_to_human_agents` 호출 | — | **성공** |
+>
+> ⇒ [14][16]은 *"지시를 무시한 재질문"이 아니라 **탐지자 prefix를 못 맞춘 실패 시도**"* 다.
+> 034 t1은 [18]에서 마침내 맞췄으나 그 턴에 에피소드가 종료됐다.
+>
+> **따라서 rev1·rev2의 핵심 진단 — "우리 절대문이 행동을 질문으로 바꾼다" — 는 부분 철회한다.**
+> 실제 비용은 **축자 탐지자를 맞추는 데 드는 턴**이고, 034형(사용자 요구 5회·호출 0)은 그 비용이
+> 에피소드 예산을 초과한 결과다.
+>
+> **삭제 범위도 바뀐다**: `ask`의 *"send the user exactly this message first: …"* 는 **지울 수 없다**.
+> 지우면 모델이 paraphrase → prefix 불일치 → `sent=False` 영속 → **이관 영구 차단**(034형 악화).
+> 탐지자와 강결합이다.
+>
+> 아래 본문은 rev2 그대로 두되, **§4·§6·§11이 rev3으로 대체**된다.
+
+# (rev2 본문 — 이력 보존)
 
 > 근거: `AX33G_SPLIT_FORENSIC_2026_08_03.md` §7.5 · 런 `bank_ax33n_gpu{0,1}_20260803g`(64 sim 완주·front32×nt2)
 > 원자료 `sim_results/bank_ax33n_gpu*_20260803g.results.json.gz`(커밋 `583af743`)
@@ -202,3 +236,83 @@ guard G2 := scenario_override_retrieved     # 문서 id·도구명 대조 = 닫�
 | **E** `term_grant_reminder_extra` 판정 누락 | **수용** | §4.1 — **삭제 대상 아님**(과잉질문 억제 방향·provenance 기재) |
 | **F** `notice_text` 소비 3개소 | **수용·결론 반전** | §4.1 — 이 사실 때문에 `notice_text`를 **유지**(닫힌 술어 유지)·§9 회귀 대상 |
 | **G** 가드 1개로 시작 | **수용** | §4.2 — G2 단독 |
+
+---
+
+# rev3 — §4·§6·§11 대체본
+
+## 4′. 설계 (rev3)
+
+### 4′.1 재리뷰 신규 지적 수용 — `applies_when` 스키마 불일치
+
+`gate_interpreter.py:263 _gate_applies` 확인:
+```python
+aw = g.get("applies_when")
+if aw:
+    v = str((args or {}).get(aw.get("arg")) or "")     # ← 호출 인자만 본다
+```
+docstring 축자: *"applies_when: {"arg": <인자명>, "in": [...]} 또는 {"arg": ..., "not_in": [...]}"*.
+⇒ `scenario_override_retrieved`(대화 이력 상태)는 **현행 스키마로 표현 불가**. rev2의 B″-1′는 엔진 스키마
+확장(Q1/Q3 재감사)을 요구하므로 **1차로 분류하면서 2차 비용을 내는 것**이 맞다. **지적 수용 — 철회.**
+
+### 4′.2 채택 = B″-1″ (순수 삭제형·`applies_when` 미변경)
+
+| 대상 | 조치 | 근거 |
+|---|---|---|
+| `notice_text` | **유지** | 탐지자 겸용(`sent=None`→게이트 무발화·`:295 sent is False`만 deny) · `_note_gb2` EARLY_TRANSFER 21.2% 표적 |
+| `term_grant_reminder_extra` | **유지** | 과잉질문 억제 방향 · `_note_reminder_extra`에 provenance |
+| `ask` ─ *"transfer only if you absolutely have to and you are SURE …"* | **삭제** | 정책 §5의 중복 재진술 — system prompt에 이미 있음 |
+| `ask` ─ *"Search the knowledge base and attempt every applicable procedure … when (and only when) nothing remains"* | **삭제** | 절차 지시([[05]] Q2) · 검증 불가능한 완결성 주장의 근원 |
+| `ask` ─ *"send the user exactly this message first: <notice_text>"* | **★유지(rev3 반전)** | 탐지자 prefix-48 강결합. 지우면 이관 영구 차단 |
+| `ask` ─ *"IMPORTANT: send the notice at most ONCE … immediately CALL transfer_to_human_agents"* | **유지** | 유일하게 *호출*을 향해 미는 문장. 미집행이나 제거 시 순손실 |
+| `applies_when` | **미변경** | §4′.1 |
+
+⇒ `ask`는 **"이 문장을 먼저 보내고, 보냈으면 즉시 호출하라"** 만 남는다. 절대문·절차 지시·완결성 주장 제거.
+[[05]] 3질문: Q1 **NO(순감)** · Q2 **NO(해동)** · Q3 **NO(엔진 변경 0)**.
+
+### 4′.3 신규 후보 레버 — 탐지자 비용 (별건·본 arm에 포함하지 않음)
+
+rev3 진단이 가리키는 진짜 비용은 **prefix-48을 맞추는 데 드는 턴**이다. 후보:
+`notice_sent_in`의 `prefix` 축소(48 → 더 짧게) 또는 키-토큰 집합 매칭.
+- 도메인-일반 엔진 파라미터 · A2 도메인 리터럴 0 ⇒ [[05]] 깨끗
+- ☠**반대 방향 비용**: 느슨해질수록 "고지 없이 열림"이 늘어 **EARLY_TRANSFER 21.2%로 회귀**
+⇒ **별도 arm으로만.** 본 측정에 섞으면 교락.
+
+## 6′. 측정 (rev3) — 단독·사전등록
+
+재리뷰 권고 수용: **단독 arm**. [[19]] 합성-우선은 *실증된* 레버를 함께 켜라는 규율이지 미완성 설계를
+끼워 넣으라는 것이 아니며, 이번 런의 존재 이유가 "ASKED 상관이 교락됐으니 짝비교로 인과를 얻는다"이므로
+새 교락을 넣을 수 없다.
+
+| arm | 내용 |
+|---|---|
+| **A** | 현행 |
+| **B″-1″** | §4′.2 |
+
+**조건**: front32 × nt2(현 런과 동일).
+
+**사전등록 예측(박제)**
+1. **032·033은 이 수정만으로 뒤집히지 않는다** — `initial_transfer_to_human_agent_0218`이 궤적에 한 번도
+   나타난 적 없다(회수 공백·§7). 예측이 맞으면 회수-공백 설계의 근거가 되고, 틀리면 그 우선순위를 내린다.
+   **어느 쪽이든 정보를 얻는다.**
+2. 판정 표적 = **014·034·035** + `ASKED` 발화 수 + **부당 이관 Δspurious**(기준선 = `_note_gb2` 21.2%).
+3. rev3 진단이 옳다면 `ASKED` 감소분의 상당 부분은 *실패한 prefix 시도*의 감소로 나타나야 한다 —
+   **prefix 일치/불일치를 분리 계측**한다(불일치 발화 수 = 탐지자 비용의 직접 측정).
+
+판정 전 **궤적 전수 포렌식**([[08]]) — 집계 직행 금지.
+
+## 11′. 재리뷰 반영 원장 (rev3)
+
+| 항목 | 판정 | 반영 |
+|---|---|---|
+| B(3도메인) 철회 | 확인 | retail `notice_text`=*"YOU ARE BEING TRANSFERRED…"*(무관)·airline notice 게이트 부재 |
+| A′ 다리 1·2 수용 | 확인 | §2.3·§4′.2 유지 |
+| **신규: `applies_when` 스키마 불일치** | **수용** | §4′.1 — B″-1′ 철회, **B″-1″** 채택 |
+| 합성 vs 단독 | **수용** | §6′ 단독 + 032/033 미전환 사전등록 |
+| D 정련 유지 권고 | 수용 | §2.2 표 그대로 |
+| **★설계자 신규(rev3)**: `notice_sent_in`=prefix-48 | — | 머리말·§4′.2 — *"send exactly this message"* **삭제 불가**로 반전 · §4′.3 신규 후보 레버 |
+
+⚠**한 가지 남는 불편**: rev3 진단이 옳다면 이 수정의 기대 효과는 rev1/rev2가 예상한 것보다 **작다**.
+절대문·절차 지시를 지워도 탐지자 비용은 그대로다. 그래도 진행하는 이유는 (a) 우리 저작분 축소는
+그 자체로 [[05]] 정합이고 (b) 이 arm이 **탐지자 비용을 분리 계측**해 §4′.3의 필요성을 판정해 주기 때문이다.
+효과 크기에 대한 기대를 낮춰 사전등록한다.
