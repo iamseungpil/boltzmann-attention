@@ -91,8 +91,8 @@ def calls(sim):
             args = norm_args(a)
             out.append((n, args))
             # A dispatcher call carries the real tool name and its arguments inside.
-            inner = args.get("agent_tool_name") or args.get("user_tool_name") or \
-                args.get("tool_name")
+            inner = (args.get("agent_tool_name") or args.get("discoverable_tool_name")
+                     or args.get("user_tool_name") or args.get("tool_name"))
             if inner:
                 ia = args.get("arguments")
                 out.append((inner, norm_args(ia) if ia is not None else {}))
@@ -198,8 +198,11 @@ def main():
                 ri = s.get("reward_info") or {}
                 user_missed = [c for c in checks if not c.get("action_match")
                                and (c.get("action") or {}).get("requestor") == "user"]
-                handed = {fam(a.get("agent_tool_name") or a.get("user_tool_name") or
-                              a.get("tool_name") or "")
+                # The handover argument is `discoverable_tool_name`; reading any other
+                # key here silently reports every sim as never having handed anything
+                # over (caught 2026-08-04 doing exactly that).
+                handed = {fam(a.get("discoverable_tool_name") or a.get("agent_tool_name")
+                              or a.get("user_tool_name") or a.get("tool_name") or "")
                           for n, a in cl if "give" in (n or "") or "unlock" in (n or "")}
                 ungiven = [c for c in user_missed
                            if fam((c.get("action") or {}).get("name")) not in handed]
