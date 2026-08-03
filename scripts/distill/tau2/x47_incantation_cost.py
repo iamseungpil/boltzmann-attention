@@ -66,6 +66,10 @@ def main():
         sid = (s.get("task_id"), s.get("trial"))
         hits = misses = 0
         called = False
+        # Only utterances before the toll is paid count as spent turns. Once the
+        # prefix has landed or the transfer has gone through, later mentions of
+        # transferring are confirmations, not attempts.
+        paid = False
         for m in s.get("messages") or []:
             if m.get("role") != "assistant":
                 continue
@@ -73,6 +77,7 @@ def main():
                 n = tc.get("name") or (tc.get("function") or {}).get("name")
                 if n == "transfer_to_human_agents":
                     called = True
+                    paid = True
             c = m.get("content")
             if not isinstance(c, str) or not c:
                 continue
@@ -81,7 +86,8 @@ def main():
                 continue
             if key and key in nc:
                 hits += 1
-            else:
+                paid = True
+            elif not paid:
                 misses += 1
                 rows.append((s.get("task_id"), s.get("trial"), " ".join(c.split())[:90]))
         per_sim[sid] = {"hits": hits, "misses": misses, "called": called,
