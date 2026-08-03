@@ -154,7 +154,10 @@ def variants(v):
     """
     s = str(v).strip().lower()
     out = {s}
-    if isinstance(v, (int, float)) or re.fullmatch(r"-?\d+(\.\d+)?", s):
+    # bool is an int in Python, and `float("true")` raises — the same numbers-only blind
+    # spot the 08-04 read-through found in the grounding check was in this instrument too.
+    if (isinstance(v, (int, float)) and not isinstance(v, bool)) \
+            or re.fullmatch(r"-?\d+(\.\d+)?", s):
         n = str(v)
         out |= {n, f"{float(s):,.0f}" if "." not in s else n, n.rstrip("0").rstrip(".")}
         try:
