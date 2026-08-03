@@ -109,13 +109,22 @@ def main():
                             named.append(c)
                             if first is None:
                                 first = c
+                # What the customer was looking at when they acted. Mentioning a card
+                # in passing five turns earlier is not the same as it being on the
+                # table at the decision — 007 lists six cards and then hands over one.
+                final = []
+                for m in reversed(msgs[:act]):
+                    if m.get("role") == "assistant" and isinstance(m.get("content"), str) \
+                            and m["content"].strip():
+                        final = [c for c in allc if c.lower() in m["content"].lower()]
+                        break
                 asked = sum(1 for m in msgs[:act] if m.get("role") == "user"
                             and isinstance(m.get("content"), str) and ASK_LIST.search(m["content"]))
                 rows.append({
                     "arm": arm, "sim": f"{s['task_id']}/t{s.get('trial')}",
                     "pass": ((s.get("reward_info") or {}).get("reward") or 0.0) == 1.0,
                     "where": where, "elig": len(buckets.get("eligible") or []),
-                    "named": named, "first": first, "asked": asked,
+                    "named": named, "first": first, "asked": asked, "final": final,
                     "gold": gold, "applied": applied,
                 })
 
@@ -135,23 +144,34 @@ def main():
         p, f = t[(w, True)], t[(w, False)]
         print(f"  {w:10s} 통과 {p} / 실패 {f}")
 
-    print("\n=== 실패 사유 분해 ===")
+    print("\n=== 실패 사유 분해 (마지막 안내 기준) ===")
     d = collections.Counter()
     for r in rows:
         if r["pass"]:
             continue
+        fin = r.get("final") or []
         if r["where"] == "excluded":
             d["우리 필터가 gold를 배제"] += 1
         elif r["where"] in ("표에 없음", "fit 미호출"):
             d["gold가 표에 아예 없음/fit 미호출"] += 1
-        elif r["gold"] not in r["named"]:
-            d["★적격이었으나 에이전트가 언급 안 함"] += 1
+        elif r["gold"] not in fin:
+            d["★마지막 안내가 gold를 빼고 좁힘"] += 1
         elif r["applied"] is None:
-            d["언급했으나 손님이 신청 자체를 안 함"] += 1
+            d["마지막 안내에 있었으나 손님 미신청"] += 1
         else:
-            d["언급했는데 손님이 다른 카드 신청"] += 1
+            d["마지막 안내에 있었는데 다른 카드 신청"] += 1
     for k, v in d.most_common():
         print(f"  {k:34s} {v}")
+
+    print("\n=== 마지막 안내가 몇 장을 담았나 × 통과 ===")
+    t3 = collections.Counter()
+    for r in rows:
+        fin = r.get("final") or []
+        t3[("1장" if len(fin) <= 1 else "2장 이상", r["pass"])] += 1
+    for b in ("1장", "2장 이상"):
+        p, f = t3[(b, True)], t3[(b, False)]
+        n = p + f
+        print(f"  {b}: 통과 {p} / 실패 {f}" + (f"  = {p / n:.0%}" if n else ""))
 
 
 if __name__ == "__main__":
