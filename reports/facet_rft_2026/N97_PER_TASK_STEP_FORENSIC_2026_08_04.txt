@@ -1,0 +1,846 @@
+── task_001  [front32] ──────────────────────────────────────────────
+   t0  PASS
+   t1  FAIL  [user_stop]  gold 1 · miss 1
+         1x  user-side · 실행했으나 인자 불일치     apply_for_credit_card                  → user-side
+
+── task_002  [front32] ──────────────────────────────────────────────
+   t0  PASS
+   t1  PASS
+
+── task_003  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 1 · miss 1
+         1x  user-side · 실행했으나 인자 불일치     apply_for_credit_card                  → user-side
+   t1  FAIL  [user_stop]  gold 1 · miss 1
+         1x  user-side · 실행했으나 인자 불일치     apply_for_credit_card                  → user-side
+
+── task_004  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 1 · miss 1
+         1x  wrong-args                   transfer_to_human_agents               → A2 candidate · 틀린 키 ['reason', 'summary']
+   t1  FAIL  [user_stop]  gold 1 · miss 1
+         1x  wrong-args                   transfer_to_human_agents               → A2 candidate · 틀린 키 ['reason', 'summary']
+
+── task_005  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 3 · miss 2
+         1x  never-called-unseen          transfer_to_human_agents               → engine · retrieval
+         1x  wrong-args                   log_verification                       → A2 candidate · 틀린 키 ['name', 'user_id', 'address', 'email', 'phone_number', 'date_of_birth']
+   t1  FAIL  [user_stop]  gold 3 · miss 1
+         1x  wrong-args                   log_verification                       → A2 candidate · 틀린 키 ['name', 'user_id', 'address', 'email', 'phone_number', 'date_of_birth']
+
+── task_006  [front32] ──────────────────────────────────────────────
+   t0  PASS
+   t1  PASS
+
+── task_007  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 1 · miss 1
+         1x  user-side · 손님이 실행 안 함       apply_for_credit_card                  → user-side
+   t1  FAIL  [user_stop]  gold 1 · miss 1
+         1x  user-side · 실행했으나 인자 불일치     apply_for_credit_card                  → user-side
+
+── task_008  [front32] ──────────────────────────────────────────────
+   t0  PASS
+   t1  PASS
+
+── task_010  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 2 · miss 1
+         1x  user-side · 손님이 실행 안 함       submit_referral                        → user-side
+   t1  PASS
+
+── task_012  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 1 · miss 1
+         1x  never-called-unseen          transfer_to_human_agents               → engine · retrieval
+   t1  FAIL  [user_stop]  gold 1 · miss 1
+         1x  never-called-unseen          transfer_to_human_agents               → engine · retrieval
+
+── task_014  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 1 · miss 1
+         1x  wrong-args                   transfer_to_human_agents               → A2 candidate · 틀린 키 ['reason', 'summary']
+   t1  FAIL  [user_stop]  gold 1 · miss 1
+         1x  wrong-args                   transfer_to_human_agents               → A2 candidate · 틀린 키 ['reason', 'summary']
+
+── task_015  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 2 · miss 2
+         1x  never-called-unseen          get_referral_link                      → engine · retrieval
+         1x  user-side · 실행했으나 인자 불일치     get_referral_link                      → user-side
+   t1  FAIL  [user_stop]  gold 2 · miss 2
+         1x  never-called-unseen          get_referral_link                      → engine · retrieval
+         1x  user-side · 실행했으나 인자 불일치     get_referral_link                      → user-side
+
+── task_016  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 2 · miss 1
+         1x  user-side · 손님이 실행 안 함       submit_transaction                     → user-side
+   t1  FAIL  [user_stop]  gold 2 · miss 1
+         1x  user-side · 손님이 실행 안 함       submit_transaction                     → user-side
+
+── task_017  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 4 · miss 2
+         2x  user-side · 실행했으나 인자 불일치     submit_cash_back_dispute               → user-side
+   t1  FAIL  [user_stop]  gold 4 · miss 2
+         2x  user-side · 실행했으나 인자 불일치     submit_cash_back_dispute               → user-side
+
+── task_018  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 8 · miss 6
+         6x  user-side · 실행했으나 인자 불일치     submit_cash_back_dispute               → user-side
+   t1  FAIL  [user_stop]  gold 8 · miss 6
+         6x  user-side · 실행했으나 인자 불일치     submit_cash_back_dispute               → user-side
+
+── task_019  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 6 · miss 4
+         4x  user-side · 실행했으나 인자 불일치     submit_cash_back_dispute               → user-side
+   t1  FAIL  [user_stop]  gold 6 · miss 5
+         4x  user-side · 실행했으나 인자 불일치     submit_cash_back_dispute               → user-side
+         1x  never-called-in-kb-output    submit_cash_back_dispute               → engine · env-derivable
+
+── task_020  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 6 · miss 4
+         4x  user-side · 실행했으나 인자 불일치     submit_cash_back_dispute               → user-side
+   t1  FAIL  [user_stop]  gold 6 · miss 5
+         4x  user-side · 손님이 실행 안 함       submit_cash_back_dispute               → user-side
+         1x  never-called-own-prose-only  submit_cash_back_dispute               → engine · env-derivable
+
+── task_021  [front32] ──────────────────────────────────────────────
+   t0  PASS
+   t1  PASS
+
+── task_022  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [context_window_exceeded]  gold 0 · miss 0
+   t1  FAIL  [user_stop]  gold 12 · miss 12
+        10x  user-side · 손님이 실행 안 함       submit_cash_back_dispute               → user-side
+         1x  never-called-in-kb-output    log_verification                       → engine · env-derivable
+         1x  never-called-unseen          submit_cash_back_dispute               → engine · retrieval
+
+── task_023  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 2 · miss 1
+         1x  user-side · 손님이 실행 안 함       apply_for_credit_card                  → user-side
+   t1  FAIL  [user_stop]  gold 2 · miss 1
+         1x  user-side · 손님이 실행 안 함       apply_for_credit_card                  → user-side
+
+── task_024  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 1 · miss 1
+         1x  user-side · 실행했으나 인자 불일치     apply_for_credit_card                  → user-side
+   t1  FAIL  [user_stop]  gold 1 · miss 1
+         1x  user-side · 실행했으나 인자 불일치     apply_for_credit_card                  → user-side
+
+── task_025  [front32] ──────────────────────────────────────────────
+   t0  PASS
+   t1  PASS
+
+── task_026  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 11 · miss 9
+         4x  user-side · 실행했으나 인자 불일치     submit_cash_back_dispute               → user-side
+         4x  wrong-args                   update_transaction_rewards             → A2 candidate · 틀린 키 ['transaction_id', 'new_rewards_earned']
+         1x  same-args                    submit_cash_back_dispute               → A2 candidate
+   t1  FAIL  [user_stop]  gold 11 · miss 5
+         4x  user-side · 실행했으나 인자 불일치     submit_cash_back_dispute               → user-side
+         1x  wrong-args                   update_transaction_rewards             → A2 candidate · 틀린 키 ['new_rewards_earned']
+
+── task_027  [front32] ──────────────────────────────────────────────
+   t0  PASS
+   t1  FAIL  [too_many_errors]  gold 0 · miss 0
+
+── task_028  [front32] ──────────────────────────────────────────────
+   t0  PASS
+   t1  FAIL  [user_stop]  gold 15 · miss 12
+         6x  user-side · 실행했으나 인자 불일치     submit_cash_back_dispute               → user-side
+         6x  wrong-args                   update_transaction_rewards             → A2 candidate · 틀린 키 ['transaction_id', 'new_rewards_earned']
+
+── task_029  [front32] ──────────────────────────────────────────────
+   t0  PASS
+   t1  FAIL  [user_stop]  gold 8 · miss 6
+         6x  user-side · 실행했으나 인자 불일치     submit_cash_back_dispute               → user-side
+
+── task_032  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 5 · miss 4
+         3x  never-called-unseen          initial_transfer_to_human_agent        → engine · retrieval
+         1x  never-unlocked-unseen        initial_transfer_to_human_agent        → engine · retrieval
+   t1  FAIL  [user_stop]  gold 5 · miss 4
+         3x  never-called-unseen          initial_transfer_to_human_agent        → engine · retrieval
+         1x  never-unlocked-unseen        initial_transfer_to_human_agent        → engine · retrieval
+
+── task_033  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 5 · miss 4
+         2x  never-unlocked-unseen        initial_transfer_to_human_agent        → engine · retrieval
+         2x  never-called-unseen          initial_transfer_to_human_agent        → engine · retrieval
+   t1  FAIL  [user_stop]  gold 5 · miss 4
+         2x  never-unlocked-unseen        initial_transfer_to_human_agent        → engine · retrieval
+         2x  never-called-unseen          initial_transfer_to_human_agent        → engine · retrieval
+
+── task_034  [front32] ──────────────────────────────────────────────
+   t0  PASS
+   t1  PASS
+
+── task_035  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 3 · miss 2
+         1x  never-unlocked-in-kb-output  emergency_credit_bureau_incident_transfer → engine · env-derivable
+         1x  never-called-in-kb-output    emergency_credit_bureau_incident_transfer → engine · env-derivable
+   t1  FAIL  [user_stop]  gold 3 · miss 3
+         1x  never-unlocked-in-kb-output  emergency_credit_bureau_incident_transfer → engine · env-derivable
+         1x  never-called-in-kb-output    emergency_credit_bureau_incident_transfer → engine · env-derivable
+         1x  never-called-in-kb-output    transfer_to_human_agents               → engine · env-derivable
+
+── task_036  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 3 · miss 2
+         1x  never-unlocked-unseen        order_replacement_credit_card          → engine · retrieval
+         1x  never-called-unseen          order_replacement_credit_card          → engine · retrieval
+   t1  FAIL  [user_stop]  gold 3 · miss 2
+         1x  never-unlocked-unseen        order_replacement_credit_card          → engine · retrieval
+         1x  never-called-unseen          order_replacement_credit_card          → engine · retrieval
+
+── task_040  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 15 · miss 9
+         4x  same-args                    file_credit_card_transaction_dispute   → A2 candidate
+         2x  user-side · 실행했으나 인자 불일치     get_card_last_4_digits                 → user-side
+         1x  never-unlocked-in-kb-output  get_user_dispute_history               → engine · env-derivable
+         1x  never-called-in-kb-output    get_user_dispute_history               → engine · env-derivable
+         1x  wrong-args                   file_credit_card_transaction_dispute   → A2 candidate · 틀린 키 ['partial_refund_amount']
+   t1  FAIL  [user_stop]  gold 15 · miss 12
+         7x  wrong-args                   file_credit_card_transaction_dispute   → A2 candidate · 틀린 키 ['transaction_id']
+         2x  user-side · 실행했으나 인자 불일치     get_card_last_4_digits                 → user-side
+         1x  never-unlocked-in-kb-output  get_user_dispute_history               → engine · env-derivable
+         1x  never-called-in-kb-output    get_user_dispute_history               → engine · env-derivable
+         1x  wrong-args                   file_credit_card_transaction_dispute   → A2 candidate · 틀린 키 ['transaction_id', 'resolution_requested', 'partial_refund_amount']
+
+── task_041  [front32] ──────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 25 · miss 24
+        16x  never-called-in-kb-output    file_credit_card_transaction_dispute   → engine · env-derivable
+         4x  user-side · 손님이 실행 안 함       get_card_last_4_digits                 → user-side
+         1x  never-unlocked-in-kb-output  get_user_dispute_history               → engine · env-derivable
+         1x  never-called-in-kb-output    get_user_dispute_history               → engine · env-derivable
+         1x  never-called-own-prose-only  get_card_last_4_digits                 → engine · env-derivable
+         1x  never-unlocked-in-kb-output  file_credit_card_transaction_dispute   → engine · env-derivable
+
+── task_044  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 10 · miss 9
+         1x  never-unlocked-in-kb-output  get_user_dispute_history               → engine · env-derivable
+         1x  never-called-in-kb-output    get_user_dispute_history               → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_pending_replacement_orders         → engine · env-derivable
+         1x  never-called-in-kb-output    get_pending_replacement_orders         → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_closure_reason_history             → engine · env-derivable
+         1x  never-called-in-kb-output    get_closure_reason_history             → engine · env-derivable
+         1x  never-unlocked-in-kb-output  log_credit_card_closure_reason         → engine · env-derivable
+         1x  never-called-in-kb-output    log_credit_card_closure_reason         → engine · env-derivable
+         1x  user-side · 손님이 실행 안 함       apply_for_credit_card                  → user-side
+   t1  FAIL  [user_stop]  gold 10 · miss 9
+         1x  never-unlocked-own-prose-only get_user_dispute_history               → engine · env-derivable
+         1x  never-called-own-prose-only  get_user_dispute_history               → engine · env-derivable
+         1x  never-unlocked-own-prose-only get_pending_replacement_orders         → engine · env-derivable
+         1x  never-called-own-prose-only  get_pending_replacement_orders         → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_closure_reason_history             → engine · env-derivable
+         1x  never-called-in-kb-output    get_closure_reason_history             → engine · env-derivable
+         1x  never-unlocked-in-kb-output  log_credit_card_closure_reason         → engine · env-derivable
+         1x  never-called-in-kb-output    log_credit_card_closure_reason         → engine · env-derivable
+         1x  user-side · 손님이 실행 안 함       apply_for_credit_card                  → user-side
+
+── task_045  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [context_window_exceeded]  gold 0 · miss 0
+   t1  FAIL  [user_stop]  gold 15 · miss 2
+         1x  never-unlocked-unseen        apply_statement_credit                 → engine · retrieval
+         1x  never-called-unseen          apply_statement_credit                 → engine · retrieval
+
+── task_046  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 3 · miss 2
+         1x  never-unlocked-in-kb-output  get_user_dispute_history               → engine · env-derivable
+         1x  never-called-in-kb-output    get_user_dispute_history               → engine · env-derivable
+   t1  FAIL  [user_stop]  gold 3 · miss 0
+
+── task_047  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 15 · miss 4
+         1x  wrong-args                   get_pending_replacement_orders         → A2 candidate · 틀린 키 ['credit_card_account_id']
+         1x  wrong-args                   get_closure_reason_history             → A2 candidate · 틀린 키 ['credit_card_account_id']
+         1x  never-unlocked-in-kb-output  apply_statement_credit                 → engine · env-derivable
+         1x  never-called-in-kb-output    apply_statement_credit                 → engine · env-derivable
+   t1  FAIL  [user_stop]  gold 15 · miss 14
+         2x  never-called-in-kb-output    get_pending_replacement_orders         → engine · env-derivable
+         2x  never-called-in-kb-output    get_closure_reason_history             → engine · env-derivable
+         2x  never-called-in-kb-output    log_credit_card_closure_reason         → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_user_dispute_history               → engine · env-derivable
+         1x  never-called-in-kb-output    get_user_dispute_history               → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_pending_replacement_orders         → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_closure_reason_history             → engine · env-derivable
+         1x  never-unlocked-in-kb-output  log_credit_card_closure_reason         → engine · env-derivable
+         1x  user-side · 손님이 실행 안 함       apply_for_credit_card                  → user-side
+         1x  never-unlocked-in-kb-output  apply_statement_credit                 → engine · env-derivable
+         1x  never-called-in-kb-output    apply_statement_credit                 → engine · env-derivable
+
+── task_048  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 24 · miss 23
+         4x  never-called-own-prose-only  get_pending_replacement_orders         → engine · env-derivable
+         3x  never-called-in-kb-output    get_closure_reason_history             → engine · env-derivable
+         2x  never-called-in-kb-output    log_credit_card_closure_reason         → engine · env-derivable
+         1x  never-unlocked-own-prose-only get_user_dispute_history               → engine · env-derivable
+         1x  never-called-own-prose-only  get_user_dispute_history               → engine · env-derivable
+         1x  never-unlocked-own-prose-only get_pending_replacement_orders         → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_closure_reason_history             → engine · env-derivable
+         1x  never-unlocked-in-kb-output  close_credit_card_account              → engine · env-derivable
+         1x  never-called-in-kb-output    close_credit_card_account              → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-called-in-kb-output    get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-unlocked-own-prose-only pay_credit_card_from_checking          → engine · env-derivable
+         1x  never-called-own-prose-only  pay_credit_card_from_checking          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  log_credit_card_closure_reason         → engine · env-derivable
+         1x  user-side · 손님이 실행 안 함       apply_for_credit_card                  → user-side
+         1x  never-unlocked-unseen        apply_statement_credit                 → engine · retrieval
+         1x  never-called-unseen          apply_statement_credit                 → engine · retrieval
+   t1  FAIL  [user_stop]  gold 24 · miss 23
+         4x  never-called-own-prose-only  get_pending_replacement_orders         → engine · env-derivable
+         3x  never-called-own-prose-only  get_closure_reason_history             → engine · env-derivable
+         2x  never-called-own-prose-only  log_credit_card_closure_reason         → engine · env-derivable
+         1x  never-unlocked-own-prose-only get_user_dispute_history               → engine · env-derivable
+         1x  never-called-own-prose-only  get_user_dispute_history               → engine · env-derivable
+         1x  never-unlocked-own-prose-only get_pending_replacement_orders         → engine · env-derivable
+         1x  never-unlocked-own-prose-only get_closure_reason_history             → engine · env-derivable
+         1x  never-unlocked-unseen        close_credit_card_account              → engine · retrieval
+         1x  never-called-unseen          close_credit_card_account              → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-called-in-kb-output    get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-unlocked-own-prose-only pay_credit_card_from_checking          → engine · env-derivable
+         1x  never-called-own-prose-only  pay_credit_card_from_checking          → engine · env-derivable
+         1x  never-unlocked-own-prose-only log_credit_card_closure_reason         → engine · env-derivable
+         1x  user-side · 손님이 실행 안 함       apply_for_credit_card                  → user-side
+         1x  never-unlocked-unseen        apply_statement_credit                 → engine · retrieval
+         1x  never-called-unseen          apply_statement_credit                 → engine · retrieval
+
+── task_049  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 19 · miss 9
+         2x  wrong-args                   get_pending_replacement_orders         → A2 candidate · 틀린 키 ['credit_card_account_id']
+         1x  never-unlocked-own-prose-only get_user_dispute_history               → engine · env-derivable
+         1x  never-called-own-prose-only  get_user_dispute_history               → engine · env-derivable
+         1x  wrong-args                   log_credit_card_closure_reason         → A2 candidate · 틀린 키 ['closure_reason']
+         1x  never-unlocked-in-kb-output  apply_statement_credit                 → engine · env-derivable
+         1x  never-called-in-kb-output    apply_statement_credit                 → engine · env-derivable
+         1x  user-side · 손님이 실행 안 함       request_human_agent_transfer           → user-side
+         1x  wrong-args                   transfer_to_human_agents               → A2 candidate · 틀린 키 ['summary']
+
+── task_051  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 20 · miss 18
+         2x  wrong-args                   submit_credit_limit_increase_request   → A2 candidate · 틀린 키 ['credit_card_account_id', 'user_id', 'requested_increase_amount']
+         1x  never-unlocked-in-kb-output  get_credit_limit_increase_history      → engine · env-derivable
+         1x  never-called-in-kb-output    get_credit_limit_increase_history      → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_payment_history                    → engine · env-derivable
+         1x  never-called-in-kb-output    get_payment_history                    → engine · env-derivable
+         1x  never-unlocked-unseen        get_user_dispute_history               → engine · retrieval
+         1x  never-called-unseen          get_user_dispute_history               → engine · retrieval
+         1x  never-unlocked-unseen        get_pending_replacement_orders         → engine · retrieval
+         1x  never-called-unseen          get_pending_replacement_orders         → engine · retrieval
+         1x  never-unlocked-in-kb-output  deny_credit_limit_increase             → engine · env-derivable
+         1x  never-called-in-kb-output    deny_credit_limit_increase             → engine · env-derivable
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-unseen        pay_credit_card_from_checking          → engine · retrieval
+         1x  never-called-unseen          pay_credit_card_from_checking          → engine · retrieval
+         1x  never-unlocked-in-kb-output  approve_credit_limit_increase          → engine · env-derivable
+         1x  never-called-in-kb-output    approve_credit_limit_increase          → engine · env-derivable
+   t1  FAIL  [user_stop]  gold 20 · miss 18
+         2x  never-called-unseen          submit_credit_limit_increase_request   → engine · retrieval
+         1x  never-unlocked-unseen        submit_credit_limit_increase_request   → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_credit_limit_increase_history      → engine · env-derivable
+         1x  never-called-in-kb-output    get_credit_limit_increase_history      → engine · env-derivable
+         1x  wrong-args                   get_payment_history                    → A2 candidate · 틀린 키 ['months']
+         1x  never-unlocked-unseen        get_user_dispute_history               → engine · retrieval
+         1x  never-called-unseen          get_user_dispute_history               → engine · retrieval
+         1x  never-unlocked-unseen        get_pending_replacement_orders         → engine · retrieval
+         1x  never-called-unseen          get_pending_replacement_orders         → engine · retrieval
+         1x  never-unlocked-unseen        deny_credit_limit_increase             → engine · retrieval
+         1x  never-called-unseen          deny_credit_limit_increase             → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-called-in-kb-output    get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-unlocked-unseen        pay_credit_card_from_checking          → engine · retrieval
+         1x  never-called-unseen          pay_credit_card_from_checking          → engine · retrieval
+         1x  never-unlocked-unseen        approve_credit_limit_increase          → engine · retrieval
+         1x  never-called-unseen          approve_credit_limit_increase          → engine · retrieval
+
+── task_052  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [context_window_exceeded]  gold 0 · miss 0
+   t1  PASS
+
+── task_053  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 16 · miss 1
+         1x  wrong-args                   get_payment_history                    → A2 candidate · 틀린 키 ['months']
+
+── task_055  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 8 · miss 6
+         1x  never-unlocked-own-prose-only get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-called-own-prose-only  get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_type', 'account_class']
+         1x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_class']
+         1x  never-called-unseen          deposit_check                          → engine · retrieval
+         1x  user-side · 실행했으나 인자 불일치     deposit_check                          → user-side
+   t1  FAIL  [user_stop]  gold 8 · miss 7
+         2x  never-called-in-kb-output    open_bank_account                      → engine · env-derivable
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-in-kb-output  open_bank_account                      → engine · env-derivable
+         1x  never-called-in-kb-output    deposit_check                          → engine · env-derivable
+         1x  user-side · 실행했으나 인자 불일치     deposit_check                          → user-side
+
+── task_056  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 8 · miss 7
+         2x  never-called-in-kb-output    open_bank_account                      → engine · env-derivable
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-in-kb-output  open_bank_account                      → engine · env-derivable
+         1x  never-unlocked-in-kb-output  transfer_funds_between_bank_accounts   → engine · env-derivable
+         1x  never-called-in-kb-output    transfer_funds_between_bank_accounts   → engine · env-derivable
+   t1  FAIL  [user_stop]  gold 8 · miss 6
+         1x  never-unlocked-in-kb-output  get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-called-in-kb-output    get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_class']
+         1x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_type', 'account_class']
+         1x  never-unlocked-in-kb-output  transfer_funds_between_bank_accounts   → engine · env-derivable
+         1x  never-called-in-kb-output    transfer_funds_between_bank_accounts   → engine · env-derivable
+
+── task_058  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 4 · miss 2
+         1x  never-unlocked-unseen        open_bank_account                      → engine · retrieval
+         1x  never-called-unseen          open_bank_account                      → engine · retrieval
+   t1  FAIL  [user_stop]  gold 4 · miss 3
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-unlocked-unseen        open_bank_account                      → engine · retrieval
+         1x  never-called-unseen          open_bank_account                      → engine · retrieval
+
+── task_059  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 6 · miss 4
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  user-side · 실행했으나 인자 불일치     apply_for_credit_card                  → user-side
+         1x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_class']
+
+── task_060  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 7 · miss 3
+         1x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_class']
+         1x  never-unlocked-in-kb-output  close_bank_account                     → engine · env-derivable
+         1x  never-called-in-kb-output    close_bank_account                     → engine · env-derivable
+   t1  FAIL  [user_stop]  gold 7 · miss 6
+         1x  never-unlocked-in-kb-output  get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-called-in-kb-output    get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  open_bank_account                      → engine · env-derivable
+         1x  never-called-in-kb-output    open_bank_account                      → engine · env-derivable
+         1x  never-unlocked-unseen        close_bank_account                     → engine · retrieval
+         1x  never-called-unseen          close_bank_account                     → engine · retrieval
+
+── task_061  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 9 · miss 5
+         1x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_class']
+         1x  never-called-unseen          deposit_check                          → engine · retrieval
+         1x  user-side · 손님이 실행 안 함       deposit_check                          → user-side
+         1x  never-unlocked-in-kb-output  close_bank_account                     → engine · env-derivable
+         1x  never-called-in-kb-output    close_bank_account                     → engine · env-derivable
+
+── task_062  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 13 · miss 7
+         2x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_class']
+         2x  same-args                    close_bank_account                     → A2 candidate
+         2x  wrong-args                   transfer_funds_between_bank_accounts   → open · LLM · 틀린 키 ['destination_account_id', 'amount']
+         1x  wrong-args                   transfer_funds_between_bank_accounts   → open · LLM · 틀린 키 ['destination_account_id']
+   t1  FAIL  [user_stop]  gold 13 · miss 8
+         3x  never-called-in-kb-output    transfer_funds_between_bank_accounts   → engine · env-derivable
+         2x  never-called-unseen          close_bank_account                     → engine · retrieval
+         1x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_type', 'account_class']
+         1x  never-unlocked-in-kb-output  transfer_funds_between_bank_accounts   → engine · env-derivable
+         1x  never-unlocked-unseen        close_bank_account                     → engine · retrieval
+
+── task_063  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 4 · miss 2
+         1x  user-side · 실행했으나 인자 불일치     apply_for_credit_card                  → user-side
+         1x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_class']
+   t1  FAIL  [user_stop]  gold 4 · miss 4
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  user-side · 실행했으나 인자 불일치     apply_for_credit_card                  → user-side
+         1x  never-unlocked-unseen        open_bank_account                      → engine · retrieval
+         1x  never-called-unseen          open_bank_account                      → engine · retrieval
+
+── task_066  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 9 · miss 6
+         2x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_class']
+         1x  never-unlocked-own-prose-only get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-called-own-prose-only  get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  user-side · 손님이 실행 안 함       apply_for_credit_card                  → user-side
+         1x  wrong-args                   close_bank_account                     → open · LLM · 틀린 키 ['account_id']
+
+── task_070  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 5 · miss 1
+         1x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_class']
+
+── task_071  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 6 · miss 6
+         2x  never-called-in-kb-output    open_bank_account                      → engine · env-derivable
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-called-in-kb-output    get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  open_bank_account                      → engine · env-derivable
+
+── task_072  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 9 · miss 8
+         2x  never-called-unseen          get_bank_account_transactions          → engine · retrieval
+         2x  never-called-unseen          apply_checking_account_credit          → engine · retrieval
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-unseen        get_bank_account_transactions          → engine · retrieval
+         1x  never-unlocked-unseen        apply_checking_account_credit          → engine · retrieval
+
+── task_075  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 3 · miss 1
+         1x  wrong-args                   open_bank_account                      → A2 candidate · 틀린 키 ['account_class']
+   t1  FAIL  [user_stop]  gold 3 · miss 3
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-unlocked-in-kb-output  open_bank_account                      → engine · env-derivable
+         1x  never-called-in-kb-output    open_bank_account                      → engine · env-derivable
+
+── task_076  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 3 · miss 2
+         1x  never-unlocked-unseen        open_bank_account                      → engine · retrieval
+         1x  never-called-unseen          open_bank_account                      → engine · retrieval
+   t1  PASS
+
+── task_077  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 25 · miss 6
+         2x  never-called-in-kb-output    get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  order_replacement_credit_card          → engine · env-derivable
+         1x  never-called-in-kb-output    order_replacement_credit_card          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_bank_account_transactions          → engine · env-derivable
+         1x  wrong-args                   order_debit_card                       → open · LLM · 틀린 키 ['delivery_option', 'card_design']
+
+── task_078  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 22 · miss 22
+         3x  never-called-in-kb-output    freeze_debit_card                      → engine · env-derivable
+         3x  never-called-unseen          get_bank_account_transactions          → engine · retrieval
+         2x  never-called-in-kb-output    unfreeze_debit_card                    → engine · env-derivable
+         2x  never-called-in-kb-output    close_debit_card                       → engine · env-derivable
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-in-kb-output  freeze_debit_card                      → engine · env-derivable
+         1x  never-called-in-kb-output    get_credit_card_accounts_by_user       → engine · env-derivable
+         1x  never-unlocked-unseen        get_bank_account_transactions          → engine · retrieval
+         1x  never-unlocked-in-kb-output  unfreeze_debit_card                    → engine · env-derivable
+         1x  never-unlocked-in-kb-output  close_debit_card                       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_debit_cards_by_account_id          → engine · env-derivable
+         1x  never-called-in-kb-output    get_debit_cards_by_account_id          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  order_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    order_debit_card                       → engine · env-derivable
+   t1  FAIL  [user_stop]  gold 22 · miss 22
+         3x  never-called-in-kb-output    freeze_debit_card                      → engine · env-derivable
+         3x  never-called-unseen          get_bank_account_transactions          → engine · retrieval
+         2x  never-called-in-kb-output    unfreeze_debit_card                    → engine · env-derivable
+         2x  never-called-in-kb-output    close_debit_card                       → engine · env-derivable
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-in-kb-output  freeze_debit_card                      → engine · env-derivable
+         1x  never-called-in-kb-output    get_credit_card_accounts_by_user       → engine · env-derivable
+         1x  never-unlocked-unseen        get_bank_account_transactions          → engine · retrieval
+         1x  never-unlocked-in-kb-output  unfreeze_debit_card                    → engine · env-derivable
+         1x  never-unlocked-in-kb-output  close_debit_card                       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_debit_cards_by_account_id          → engine · env-derivable
+         1x  never-called-in-kb-output    get_debit_cards_by_account_id          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  order_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    order_debit_card                       → engine · env-derivable
+
+── task_080  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 34 · miss 27
+         3x  never-called-in-kb-output    freeze_debit_card                      → engine · env-derivable
+         3x  never-called-unseen          unfreeze_debit_card                    → engine · retrieval
+         3x  never-called-unseen          file_credit_card_transaction_dispute   → engine · retrieval
+         2x  never-called-in-kb-output    get_bank_account_transactions          → engine · env-derivable
+         2x  never-called-in-kb-output    close_debit_card                       → engine · env-derivable
+         2x  never-called-unseen          order_replacement_credit_card          → engine · retrieval
+         1x  never-unlocked-in-kb-output  freeze_debit_card                      → engine · env-derivable
+         1x  never-unlocked-unseen        unfreeze_debit_card                    → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  close_debit_card                       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  order_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    order_debit_card                       → engine · env-derivable
+         1x  never-unlocked-unseen        order_replacement_credit_card          → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_user_dispute_history               → engine · env-derivable
+         1x  never-called-in-kb-output    get_user_dispute_history               → engine · env-derivable
+         1x  never-unlocked-unseen        file_credit_card_transaction_dispute   → engine · retrieval
+         1x  never-unlocked-in-kb-output  activate_debit_card                    → engine · env-derivable
+         1x  never-called-in-kb-output    activate_debit_card                    → engine · env-derivable
+
+── task_081  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 37 · miss 32
+         3x  never-called-in-kb-output    get_debit_cards_by_account_id          → engine · env-derivable
+         3x  never-called-in-kb-output    freeze_debit_card                      → engine · env-derivable
+         3x  never-called-in-kb-output    unfreeze_debit_card                    → engine · env-derivable
+         3x  never-called-unseen          file_credit_card_transaction_dispute   → engine · retrieval
+         2x  never-called-in-kb-output    get_bank_account_transactions          → engine · env-derivable
+         2x  never-called-unseen          close_debit_card                       → engine · retrieval
+         2x  never-called-unseen          order_replacement_credit_card          → engine · retrieval
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_debit_cards_by_account_id          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  freeze_debit_card                      → engine · env-derivable
+         1x  never-unlocked-in-kb-output  unfreeze_debit_card                    → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-unseen        close_debit_card                       → engine · retrieval
+         1x  never-unlocked-in-kb-output  order_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    order_debit_card                       → engine · env-derivable
+         1x  never-unlocked-unseen        order_replacement_credit_card          → engine · retrieval
+         1x  never-unlocked-unseen        get_user_dispute_history               → engine · retrieval
+         1x  never-called-unseen          get_user_dispute_history               → engine · retrieval
+         1x  never-unlocked-unseen        file_credit_card_transaction_dispute   → engine · retrieval
+   t1  FAIL  [user_stop]  gold 37 · miss 32
+         3x  never-called-in-kb-output    get_debit_cards_by_account_id          → engine · env-derivable
+         3x  never-called-in-kb-output    freeze_debit_card                      → engine · env-derivable
+         3x  never-called-in-kb-output    unfreeze_debit_card                    → engine · env-derivable
+         3x  never-called-unseen          file_credit_card_transaction_dispute   → engine · retrieval
+         2x  never-called-unseen          get_bank_account_transactions          → engine · retrieval
+         2x  never-called-in-kb-output    close_debit_card                       → engine · env-derivable
+         2x  never-called-unseen          order_replacement_credit_card          → engine · retrieval
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_debit_cards_by_account_id          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  freeze_debit_card                      → engine · env-derivable
+         1x  never-unlocked-in-kb-output  unfreeze_debit_card                    → engine · env-derivable
+         1x  never-unlocked-unseen        get_bank_account_transactions          → engine · retrieval
+         1x  never-unlocked-in-kb-output  close_debit_card                       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  order_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    order_debit_card                       → engine · env-derivable
+         1x  never-unlocked-unseen        order_replacement_credit_card          → engine · retrieval
+         1x  never-unlocked-unseen        get_user_dispute_history               → engine · retrieval
+         1x  never-called-unseen          get_user_dispute_history               → engine · retrieval
+         1x  never-unlocked-unseen        file_credit_card_transaction_dispute   → engine · retrieval
+
+── task_084  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 17 · miss 16
+         3x  never-called-unseen          file_debit_card_transaction_dispute    → engine · retrieval
+         2x  never-called-unseen          get_debit_cards_by_account_id          → engine · retrieval
+         2x  never-called-unseen          get_bank_account_transactions          → engine · retrieval
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-unseen        get_debit_cards_by_account_id          → engine · retrieval
+         1x  never-unlocked-unseen        get_bank_account_transactions          → engine · retrieval
+         1x  never-unlocked-unseen        get_debit_dispute_status               → engine · retrieval
+         1x  never-called-unseen          get_debit_dispute_status               → engine · retrieval
+         1x  never-unlocked-unseen        file_debit_card_transaction_dispute    → engine · retrieval
+         1x  never-unlocked-unseen        close_debit_card                       → engine · retrieval
+         1x  never-called-unseen          close_debit_card                       → engine · retrieval
+   t1  FAIL  [max_steps]  gold 0 · miss 0
+
+── task_085  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 13 · miss 12
+         3x  never-called-in-kb-output    file_debit_card_transaction_dispute    → engine · env-derivable
+         2x  never-called-unseen          get_debit_cards_by_account_id          → engine · retrieval
+         2x  never-called-in-kb-output    get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-unseen        get_debit_cards_by_account_id          → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  file_debit_card_transaction_dispute    → engine · env-derivable
+   t1  FAIL  [user_stop]  gold 13 · miss 12
+         3x  never-called-in-kb-output    file_debit_card_transaction_dispute    → engine · env-derivable
+         2x  never-called-unseen          get_debit_cards_by_account_id          → engine · retrieval
+         2x  never-called-in-kb-output    get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-unseen        get_debit_cards_by_account_id          → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  file_debit_card_transaction_dispute    → engine · env-derivable
+
+── task_086  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 21 · miss 17
+         5x  never-called-in-kb-output    file_debit_card_transaction_dispute    → engine · env-derivable
+         2x  never-called-in-kb-output    get_debit_cards_by_account_id          → engine · env-derivable
+         2x  wrong-args                   get_bank_account_transactions          → A2 candidate · 틀린 키 ['account_id']
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_debit_cards_by_account_id          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  file_debit_card_transaction_dispute    → engine · env-derivable
+         1x  never-unlocked-unseen        close_debit_card                       → engine · retrieval
+         1x  never-called-unseen          close_debit_card                       → engine · retrieval
+         1x  never-unlocked-unseen        order_debit_card                       → engine · retrieval
+         1x  never-called-unseen          order_debit_card                       → engine · retrieval
+   t1  FAIL  [user_stop]  gold 21 · miss 16
+         5x  never-called-in-kb-output    file_debit_card_transaction_dispute    → engine · env-derivable
+         2x  never-called-in-kb-output    get_debit_cards_by_account_id          → engine · env-derivable
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_debit_cards_by_account_id          → engine · env-derivable
+         1x  wrong-args                   get_bank_account_transactions          → A2 candidate · 틀린 키 ['account_id']
+         1x  never-unlocked-in-kb-output  file_debit_card_transaction_dispute    → engine · env-derivable
+         1x  never-unlocked-unseen        close_debit_card                       → engine · retrieval
+         1x  never-called-unseen          close_debit_card                       → engine · retrieval
+         1x  never-unlocked-unseen        order_debit_card                       → engine · retrieval
+         1x  never-called-unseen          order_debit_card                       → engine · retrieval
+
+── task_087  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 20 · miss 15
+         2x  never-called-in-kb-output    unfreeze_debit_card                    → engine · env-derivable
+         2x  wrong-args                   get_debit_cards_by_account_id          → open · LLM · 틀린 키 ['account_id']
+         1x  never-unlocked-in-kb-output  unfreeze_debit_card                    → engine · env-derivable
+         1x  never-unlocked-unseen        clear_debit_card_fraud_alert           → engine · retrieval
+         1x  never-called-unseen          clear_debit_card_fraud_alert           → engine · retrieval
+         1x  never-unlocked-unseen        get_bank_account_transactions          → engine · retrieval
+         1x  never-called-unseen          get_bank_account_transactions          → engine · retrieval
+         1x  never-unlocked-unseen        file_debit_card_transaction_dispute    → engine · retrieval
+         1x  never-called-unseen          file_debit_card_transaction_dispute    → engine · retrieval
+         1x  never-unlocked-in-kb-output  close_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    close_debit_card                       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  order_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    order_debit_card                       → engine · env-derivable
+
+── task_088  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 17 · miss 16
+         3x  never-called-in-kb-output    get_debit_cards_by_account_id          → engine · env-derivable
+         2x  never-called-in-kb-output    get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-called-in-kb-output    get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_debit_cards_by_account_id          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-unseen        file_debit_card_transaction_dispute    → engine · retrieval
+         1x  never-called-unseen          file_debit_card_transaction_dispute    → engine · retrieval
+         1x  never-unlocked-in-kb-output  close_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    close_debit_card                       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  order_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    order_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    transfer_to_human_agents               → engine · env-derivable
+   t1  FAIL  [user_stop]  gold 17 · miss 15
+         3x  never-called-in-kb-output    get_debit_cards_by_account_id          → engine · env-derivable
+         2x  never-called-unseen          get_bank_account_transactions          → engine · retrieval
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_debit_cards_by_account_id          → engine · env-derivable
+         1x  never-unlocked-unseen        get_bank_account_transactions          → engine · retrieval
+         1x  never-unlocked-unseen        file_debit_card_transaction_dispute    → engine · retrieval
+         1x  never-called-unseen          file_debit_card_transaction_dispute    → engine · retrieval
+         1x  never-unlocked-in-kb-output  close_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    close_debit_card                       → engine · env-derivable
+         1x  wrong-args                   order_debit_card                       → open · LLM · 틀린 키 ['account_id', 'user_id', 'delivery_option', 'delivery_fee', 'card_design', 'design_fee', 'shipping_address']
+         1x  wrong-args                   transfer_to_human_agents               → A2 candidate · 틀린 키 ['reason', 'summary']
+
+── task_090  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 16 · miss 14
+         3x  wrong-args                   get_debit_cards_by_account_id          → open · LLM · 틀린 키 ['account_id']
+         2x  never-called-in-kb-output    get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  close_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    close_debit_card                       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  order_debit_card                       → engine · env-derivable
+         1x  never-called-in-kb-output    order_debit_card                       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  reset_debit_card_pin                   → engine · env-derivable
+         1x  never-called-in-kb-output    reset_debit_card_pin                   → engine · env-derivable
+
+── task_091  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 25 · miss 20
+         4x  never-called-in-kb-output    get_bank_account_transactions          → engine · env-derivable
+         3x  wrong-args                   get_debit_cards_by_account_id          → open · LLM · 틀린 키 ['account_id']
+         2x  never-called-in-kb-output    reset_debit_card_pin                   → engine · env-derivable
+         2x  never-called-in-kb-output    close_debit_card                       → engine · env-derivable
+         2x  never-called-in-kb-output    order_debit_card                       → engine · env-derivable
+         2x  never-called-in-kb-output    file_debit_card_transaction_dispute    → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  reset_debit_card_pin                   → engine · env-derivable
+         1x  never-unlocked-in-kb-output  close_debit_card                       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  order_debit_card                       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  file_debit_card_transaction_dispute    → engine · env-derivable
+   t1  FAIL  [user_stop]  gold 25 · miss 25
+         4x  never-called-in-kb-output    get_debit_cards_by_account_id          → engine · env-derivable
+         4x  never-called-unseen          get_bank_account_transactions          → engine · retrieval
+         2x  never-called-unseen          reset_debit_card_pin                   → engine · retrieval
+         2x  never-called-in-kb-output    close_debit_card                       → engine · env-derivable
+         2x  never-called-in-kb-output    order_debit_card                       → engine · env-derivable
+         2x  never-called-unseen          file_debit_card_transaction_dispute    → engine · retrieval
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-in-kb-output  get_debit_cards_by_account_id          → engine · env-derivable
+         1x  never-unlocked-unseen        get_bank_account_transactions          → engine · retrieval
+         1x  never-unlocked-unseen        reset_debit_card_pin                   → engine · retrieval
+         1x  never-unlocked-in-kb-output  close_debit_card                       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  order_debit_card                       → engine · env-derivable
+         1x  never-unlocked-unseen        file_debit_card_transaction_dispute    → engine · retrieval
+
+── task_092  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 21 · miss 19
+         4x  wrong-args                   get_debit_cards_by_account_id          → open · LLM · 틀린 키 ['account_id']
+         3x  never-called-unseen          get_bank_account_transactions          → engine · retrieval
+         2x  never-called-in-kb-output    close_debit_card                       → engine · env-derivable
+         2x  never-called-in-kb-output    order_debit_card                       → engine · env-derivable
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-unlocked-unseen        get_bank_account_transactions          → engine · retrieval
+         1x  never-unlocked-in-kb-output  close_debit_card                       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  order_debit_card                       → engine · env-derivable
+         1x  never-unlocked-unseen        reset_debit_card_pin                   → engine · retrieval
+         1x  never-called-unseen          reset_debit_card_pin                   → engine · retrieval
+         1x  wrong-args                   transfer_to_human_agents               → A2 candidate · 틀린 키 ['summary', 'reason']
+
+── task_094  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 9 · miss 4
+         1x  never-unlocked-in-kb-output  apply_savings_account_credit           → engine · env-derivable
+         1x  never-called-in-kb-output    apply_savings_account_credit           → engine · env-derivable
+         1x  never-unlocked-in-kb-output  submit_interest_discrepancy_report     → engine · env-derivable
+         1x  never-called-in-kb-output    submit_interest_discrepancy_report     → engine · env-derivable
+
+── task_095  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 9 · miss 4
+         1x  never-unlocked-unseen        apply_savings_account_credit           → engine · retrieval
+         1x  never-called-unseen          apply_savings_account_credit           → engine · retrieval
+         1x  never-unlocked-unseen        submit_interest_discrepancy_report     → engine · retrieval
+         1x  never-called-unseen          submit_interest_discrepancy_report     → engine · retrieval
+   t1  FAIL  [user_stop]  gold 9 · miss 4
+         1x  never-unlocked-unseen        apply_savings_account_credit           → engine · retrieval
+         1x  never-called-unseen          apply_savings_account_credit           → engine · retrieval
+         1x  never-unlocked-unseen        submit_interest_discrepancy_report     → engine · retrieval
+         1x  never-called-unseen          submit_interest_discrepancy_report     → engine · retrieval
+
+── task_096  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 12 · miss 6
+         2x  never-called-unseen          apply_savings_account_credit           → engine · retrieval
+         2x  never-called-unseen          submit_interest_discrepancy_report     → engine · retrieval
+         1x  never-unlocked-unseen        apply_savings_account_credit           → engine · retrieval
+         1x  never-unlocked-unseen        submit_interest_discrepancy_report     → engine · retrieval
+   t1  FAIL  [user_stop]  gold 12 · miss 10
+         2x  never-called-in-kb-output    get_bank_account_transactions          → engine · env-derivable
+         2x  never-called-in-kb-output    apply_savings_account_credit           → engine · env-derivable
+         2x  wrong-args                   submit_interest_discrepancy_report     → A2 candidate · 틀린 키 ['account_id', 'expected_apy', 'actual_apy', 'amount_difference']
+         1x  never-unlocked-in-kb-output  get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-called-in-kb-output    get_all_user_accounts_by_user_id       → engine · env-derivable
+         1x  never-unlocked-in-kb-output  get_bank_account_transactions          → engine · env-derivable
+         1x  never-unlocked-in-kb-output  apply_savings_account_credit           → engine · env-derivable
+
+── task_098  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 3 · miss 3
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-called-unseen          get_referrals_by_user                  → engine · retrieval
+         1x  user-side · 실행했으나 인자 불일치     submit_referral                        → user-side
+   t1  FAIL  [user_stop]  gold 3 · miss 3
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-called-unseen          get_referrals_by_user                  → engine · retrieval
+         1x  user-side · 실행했으나 인자 불일치     submit_referral                        → user-side
+
+── task_099  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 5 · miss 5
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_referrals_by_user                  → engine · retrieval
+         1x  user-side · 실행했으나 인자 불일치     submit_referral                        → user-side
+
+── task_100  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 4 · miss 3
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+   t1  FAIL  [user_stop]  gold 4 · miss 3
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-unlocked-unseen        get_all_user_accounts_by_user_id       → engine · retrieval
+         1x  never-called-unseen          get_all_user_accounts_by_user_id       → engine · retrieval
+
+── task_101  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 4 · miss 2
+         1x  never-called-unseen          get_referrals_by_user                  → engine · retrieval
+         1x  user-side · 실행했으나 인자 불일치     submit_referral                        → user-side
+   t1  FAIL  [user_stop]  gold 4 · miss 4
+         2x  user-side · 실행했으나 인자 불일치     submit_referral                        → user-side
+         1x  never-called-unseen          log_verification                       → engine · retrieval
+         1x  never-called-unseen          get_referrals_by_user                  → engine · retrieval
+
+── task_102  [new65] ────────────────────────────────────────────────
+   t0  FAIL  [user_stop]  gold 3 · miss 0
+   t1  FAIL  [user_stop]  gold 3 · miss 2
+         1x  never-called-unseen          get_referrals_by_user                  → engine · retrieval
+         1x  user-side · 실행했으나 인자 불일치     submit_referral                        → user-side
