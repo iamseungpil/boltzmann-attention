@@ -461,3 +461,63 @@ F2가 F1보다 강한 강화다. **사후에 고르지 않기 위해 지금 박�
 ①은 지금 형태로 착수 가능하다.
 
 | **rev4.5** | ④ 연산을 **구 매칭 → 내용어 AND**로 교체(퇴화 72%→25%·실측) · J의 사용집합에 **give 채널** 포함(`_tool_given` 재사용) · ③-join = **노트 고정**·폴백 F1/F2 병기 · §4.5는 목표형 명시 · §9-2 갱신 | `x48_match_coverage.py` 200 질의 전수 · `t2_gate_patch.py:1239` |
+
+---
+
+## 13. 구현 기록 (2026-08-03)
+
+### 13.1 O10 확정 — [?] → [M]
+
+`x47_incantation_cost.py`(커밋 `bc9e3768` 계열) · 산출 영속 `sim_results/x47_incantation_baseline_20260803.txt`.
+술어를 명시: 이관-의도 발화 = 어시스턴트 발화가 INTENT_MARKERS 포함 · **통행료 지불 前**의 것만(이관 후
+확인 발화 제외) · hit = prefix48 부분문자열.
+
+| | 리뷰 계량 | **확정([M])** |
+|---|---|---|
+| 이관-의도 발화 | 103 | **76** |
+| prefix 미일치 | 75 (73%) | **48 (63%)** |
+| 미일치 발생 sim | 28 | **22 / 64** |
+| 끝내 못 맞춘 sim | 2 | **2 — `task_001/t0`·`task_024/t0`**(동일) |
+
+차이는 리뷰가 *"You have been successfully transferred…"* 같은 **이관 후 확인 발화**를 포함한 것이다.
+영구차단 2건은 완전히 일치한다. **§5 1급 지표 1번의 기준선 = 48/76(63%)·22 sim.**
+
+### 13.2 ① 구현 — 설계서에 없던 수정 1건 추가
+
+`predicate`도 고쳤다: *"the mandatory pre-transfer notice (**knowledge base exhausted** + ask-first)…"*
+→ *"the pre-transfer notice (ask-first)…"*. 이유 = deny 메시지 머리가
+`blocked by policy gate: {predicate} not established` 이므로, 문구에서 완결성 주장을 빼도 **머리가 그 주장을
+다시 요구**한다. 안 고쳤으면 반쪽이었다.
+
+탐지자 왕복 실측: 새 문구 **True** / 무관 발화 **False** / **구 문구 False**(x45 화이트리스트 항목·사전등록분) /
+문구 부재 **None**. 회귀 6종 ALL PASS. retail 8게이트·airline 3게이트 무손상.
+
+⚠**[[24]] 양방향 규칙 발견**: 정본만 고치니 `test_a2_three_layer` **FAIL**(불변식 `merge == gate.json`).
+원인은 gate.json에 *다른 문구의* 이력 주석을 넣은 것 — `gates[]`를 정본에서 통째로 복사해야 한다.
+메모리 [[24]] 갱신함.
+
+### 13.3 ④ 구현 — P13 주석의 사실 오류를 정정
+
+`t2_gate_patch.py:6393` 축자 *"KB_search는 env mutating이라 출력-부착 금지"* 는 **사실이 아니다**:
+
+| 도구 | `env._is_mutating_tool` (실측 2026-08-03) |
+|---|---|
+| `KB_search_bm25` / `KB_search_dense` / `shell` / `transfer_to_human_agents` | **False** |
+| `give_discoverable_user_tool` / `call_discoverable_agent_tool` / `log_verification` | True |
+
+`KB_search_bm25`는 소스에서 `@is_tool(ToolType.READ)`이고, replay는 축자로
+*"Non-mutating tools (reads, thinks, etc.) don't change state — skip them"* 이라 재실행하지 않는다.
+⇒ P13 규약(*"출력-부착 = 읽기 도구 전용"*)은 오히려 ④를 **허용**한다. 041 사고는 mutating 도구
+(`call_discoverable_agent_tool`) 출력 부착 건이었고 KB_search와 무관하다.
+
+구현: `t2_match_count.py`(내용어 AND·불용어 닫힌 목록·코퍼스 경로는 `T2_KB_DOCS_DIR`/env 속성 = 설정) +
+`_axis_surface` 파이프라인 배선(플래그 `T2_MATCH_COUNT=1`·기존 P12 replay 가드 그대로 통과) +
+`test_match_count.py`(불변식 4종). 실코퍼스 확인:
+
+```
+'transfer'  -> matches: 195 documents contain all of these words; 2 shown (193 not shown)
+'human agent' -> matches: 8 documents contain all of these words; 2 shown (6 not shown)
+'how to set travel notification for credit card' -> matches: 1 documents ... ; all 1 shown
+```
+
+**남은 것**: 라이브 짝비교(A vs B4) 발사. 발사 전 필수 항목은 모두 해소됐다.
