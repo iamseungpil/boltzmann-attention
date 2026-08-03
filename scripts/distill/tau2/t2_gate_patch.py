@@ -3083,6 +3083,40 @@ def _rebuild_gate_state(gate, a2, messages):
             gate.observe(name, _args_dict(tc), _content_str(tm))
 
 
+def give_exec_idle(messages, give_tool, user_call):
+    """건네졌으나 손님이 **아직 실행하지 않은** discoverable user 도구 (닫힌 술어·순수함수).
+
+    ★2026-08-05 결함 수정([S]·`x64_give_exec_predicate.py`): 구판은 손님의 실행을
+    `call_discoverable_user_tool` 경유만 셌다. 그런데 실측 궤적에서 손님은 **도구 이름 그대로**
+    호출한다(`role=user` 메시지의 tool_calls). 그래서 이미 실행한 손님에게도 *"아직 실행하지
+    않았으니 지금 실행하라고 말하라"* 는 거짓 피드백이 나갔다 — A/B4 전수에서 **발화 17건 중
+    5건이 오발화, 그중 3건은 통과 궤적**(002/t0·002/t1·003/t1)이다. 핸드오프 §5-6이 분석기에서
+    잡은 것과 같은 오독이 엔진에도 있었다.
+
+    실행 판정은 **두 형태를 모두** 센다: 디스패처 경유(`user_call` + `discoverable_tool_name`)와
+    손님의 직접 호출(requestor=user 또는 role=user). 인계 성사는 종전대로 **오류 아닌 결과**가
+    돌아온 give만 인정한다.
+    """
+    given, id2name, ran = set(), {}, set()
+    for m in messages or []:
+        role = getattr(m, "role", None)
+        for tc in (getattr(m, "tool_calls", None) or []):
+            name = getattr(tc, "name", None)
+            inner = str(_args_dict(tc).get("discoverable_tool_name") or "")
+            if name == give_tool:
+                id2name[getattr(tc, "id", None)] = inner
+            elif name == user_call and inner:
+                ran.add(inner)
+            elif name and (role == "user"
+                           or getattr(tc, "requestor", "assistant") == "user"):
+                ran.add(name)
+        if role == "tool" and not getattr(m, "error", False):
+            n = id2name.get(getattr(m, "id", None))
+            if n:
+                given.add(n)
+    return sorted(given - ran)
+
+
 def _regen_last_user(messages):
     for m in reversed(messages):
         if getattr(m, "role", None) == "user" and getattr(m, "content", None):
@@ -5909,21 +5943,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             _gtn3 = ((a2 or {}).get("dispatcher_role_check") or {}).get("give_tool")
             _ucall = ((a2 or {}).get("dispatcher_role_check") or {}).get("user_call")
             if _gtn3 and _ucall:
-                _given, _g2n = set(), {}
-                _ran = set()
-                for _m4 in state.messages:
-                    for _tc5 in (getattr(_m4, "tool_calls", None) or []):
-                        _nm5 = getattr(_tc5, "name", None)
-                        _iv5 = str(_args_dict(_tc5).get("discoverable_tool_name") or "")
-                        if _nm5 == _gtn3:
-                            _g2n[getattr(_tc5, "id", None)] = _iv5
-                        elif _nm5 == _ucall and _iv5:
-                            _ran.add(_iv5)
-                    if getattr(_m4, "role", None) == "tool" and not getattr(_m4, "error", False):
-                        _n5 = _g2n.get(getattr(_m4, "id", None))
-                        if _n5:
-                            _given.add(_n5)
-                _idle = sorted(_given - _ran)
+                # 술어 = 순수함수(단위테스트 공유·`test_give_exec_user_direct.py`).
+                _idle = give_exec_idle(state.messages, _gtn3, _ucall)
                 if _idle:
                     self._t2_givexec = 1
                     print("[T2_GIVE_EXEC] nudge idle=%s" % _idle, file=_sys.stderr, flush=True)
@@ -6281,6 +6302,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _parts.append(_cpv["feedback_unavailable"].replace(
                             "{claims}", "; ".join("%s (tool: %s)" % (str(p.get("what"))[:50], p.get("tool"))
                                                   for p in _unavail[:3])))
+                    # ☠2026-08-05: 이 자리에 `tool_choice="required"`(탐지→행동 전환 강제)를 붙였다가
+                    #   **철회**했다. 등대가 이미 세 번 금지한 것이다 — ①C216 §2-3b: claim 축은
+                    #   **표면화만**으로 강등(코어 6층 동결) ②C216 금지선: *"열린 술어 ∨ 열린 처방 ∨
+                    #   사례-표적 위 강제"*, 그리고 CLAIMPROV는 개입 482건 = 최대 단일이라 3b 강등의
+                    #   40% 제거 대상 ③C218 딥리서치 [S-lit]: **required 강제 = 유해 문서화**(jailbreak·
+                    #   환각 유발) + Verifier Tax(94% 차단해도 safe-success<5%). 여기에 §1.5 Q5
+                    #   (쓰기 강제 금지·p<0.5면 기대-유해)가 더 있다.
+                    #   전환율 0.15(로그 실측)는 **레버로 메울 구멍이 아니라 prompt-ceiling의 표시**이고
+                    #   등대는 그 잔여를 learn 축으로 이관해 뒀다([[13]] 순서·C216 결정).
                     _new2 = _ap_regen("\n".join(_parts), "claimprov")
                     if _new2 is not None:
                         am = _new2

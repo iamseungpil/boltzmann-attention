@@ -11,8 +11,16 @@ import glob
 import gzip
 import json
 
-SIM = ("/home/woori/workspace_common/boltzmann-attention-pi/"
-       "reports/facet_rft_2026/sim_results")
+import os
+
+SIM_REMOTE = ("/home/woori/workspace_common/boltzmann-attention-pi/"
+              "reports/facet_rft_2026/sim_results")
+# The persisted gz live in the repo, so this reads on either side without editing the
+# constant — the hard-coded path was one of the four instrument defects of 2026-08-04.
+SIM_LOCAL = os.path.abspath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "..",
+    "reports", "facet_rft_2026", "sim_results"))
+SIM = SIM_REMOTE if os.path.isdir(SIM_REMOTE) else SIM_LOCAL
 
 ARMS = {
     "A":  "bank_ax33n_gpu*_20260803g",
