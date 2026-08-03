@@ -111,8 +111,14 @@ def needed_tokens(sim):
         a = c.get("action") or {}
         if c.get("action_match") or a.get("requestor") != "assistant":
             continue
-        if fam(a.get("name")) not in called:
-            out.append(a.get("name"))
+        # A dispatcher is not the thing that had to be known: `call_discoverable_
+        # agent_tool` appears in nearly every document, while the tool it carries is
+        # what the run had to find. Resolve to the inner name.
+        ga = norm_args(a.get("arguments"))
+        name = (ga.get("agent_tool_name") or ga.get("discoverable_tool_name")
+                or ga.get("user_tool_name") or a.get("name"))
+        if fam(name) not in called:
+            out.append(name)
     return out
 
 
