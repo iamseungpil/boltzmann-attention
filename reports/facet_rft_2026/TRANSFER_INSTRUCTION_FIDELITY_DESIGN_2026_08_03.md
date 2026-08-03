@@ -108,7 +108,11 @@ compelled prefix48 = "transfer notice i have checked the knowledge bas"
 | | 문구 | prefix48 |
 |---|---|---|
 | 현재 | `TRANSFER NOTICE: I have checked the knowledge base and there are no further actions I can take for this request. Would you like…?` | `transfer notice i have checked the knowledge bas` |
-| **rev4** | `TRANSFER NOTICE: Would you like to be transferred to a human agent?` | `transfer notice would you like to be transferre` |
+| **rev4** | `TRANSFER NOTICE: Would you like to be transferred to a human agent?` | `transfer notice would you like to be transferred` (**48자 정확**) |
+
+`notice_norm`(`gate_interpreter.py:31`) = 소문자화·공백 압축·영숫자와 공백 외 제거 — **닫힌 연산만**
+(docstring 축자: *"유사도/의미 매칭 금지(열린 술어 재도입 방지)"*). 위 prefix48은 실측값이다
+(rev4 초판의 `transferre`(47)는 오기·리뷰 ★5 수용).
 
 동시에 성립하는 것: 탐지자 **닫힘 유지**(연산·prefix 길이 불변) · `TRANSFER NOTICE:` 마커 잔존으로
 **우연 통과 불가**(O8의 21.2% 표적 보존) · **거짓 강제 소멸** · 뒤 문장이 모델이 자연히 쓰는 말이라
@@ -124,16 +128,44 @@ paraphrase→prefix 불일치→**이관 영구 차단**) · *"already asked →
 
 ### 4.2 ④ — 회수 결과에 총 매칭 수 병기 (채택·신규)
 
-`KB_search_bm25` / `KB_search_dense` 반환 머리에 한 줄:
+**★rev4.2 — 세는 연산을 고정한다 (리뷰 ★1 수용).**
+O6(`"transfer"` 195 vs `"human agent"` 4)를 만든 연산은 **코퍼스 부분매칭 계수**(grep 동형)이지
+BM25/dense의 "matched"가 아니다. 두 술어는 다르다:
 
+| 연산 | `"human agent"` 질의 시 수 | 분모 정의 |
+|---|---|---|
+| **구(phrase) 부분매칭** (채택) | **4** | 전 코퍼스 698 — **결정론·임계 없음** |
+| 단어 `agent` 포함 | 36 | — |
+| 단어 `human` 포함 | 8 | — |
+| dense | 전 문서가 점수 보유 | **임계 없이 정의 불가** |
+
+⇒ ④가 보고하는 수는 **정규화 후 질의 문자열의 부분매칭 문서 수**로 고정한다(`notice_norm`과 동형의 닫힌
+연산·임계 없음·다중어는 **구 매칭**). 임계를 우리가 고르면 그 수는 "회수기가 발급한 사실"이 아니라
+우리 선택의 산물이 되고 [[22]] 닫힘 주장이 무너진다. 랭킹 점수 기반 수는 붙이더라도 **보조 표기**로만.
+
+반환 머리에 한 줄:
 ```
-[matches] 4 documents matched; all 4 shown.
-[matches] 195 documents matched; 10 shown (185 not shown).
+[matches] 4 documents contain this phrase; all 4 shown.
+[matches] 195 documents contain this phrase; 10 shown (185 not shown).
 ```
 
-- 도메인-일반. 검색기가 이미 계산하는 수를 표면화할 뿐.
-- **비용 ~0** — 후보를 더 주지 않으므로 ADB 경고(촘촘한 인벤토리 → open-class F1 84.56→66.47)에 덜 걸린다.
-- 이것이 **정직한 통행료의 재료**다: "전부 봤다"가 주장이 아니라 **회수기가 발급한 사실**이 된다.
+- 도메인-일반. 엔진이 이미 셀 수 있는 것을 표면화할 뿐.
+- **비용 ~0** — 후보를 더 주지 않고 **경계만** 알린다 ⇒ ADB 경고(open-class F1 84.56→66.47)에 덜 걸린다.
+- 이것이 **정직한 통행료의 재료**다: "전부 봤다"가 주장이 아니라 **엔진이 발급한 사실**이 된다.
+
+**세 방법을 다 쓰는 것에 대해**(설계 문의 수용): **찾기(recall)에는 전부 쓴다. 인증(completeness)에는 못 쓴다.**
+
+| 목적 | bm25 | dense | 부분매칭 |
+|---|---|---|---|
+| **찾기** — 하나라도 걸리면 이득 | ✅ | ✅ (구 어긋남 흡수) | ✅ |
+| **"전부 봤다" 인증** | ❌ top-k 절단이 구성상 내재 | ❌ 분모 없음 | **✅ 전수·분모 있음** |
+
+불완전한 방법 셋의 합집합은 여전히 불완전하다 — **총커버리지 연산이 하나 이상 있어야** 인증이 선다.
+그리고 합집합 결과에는 **분모가 없다**(bm25 8 + dense 5 + 매칭 4 = "12개, 몇 개 중?"). ⇒ **후보 제시는
+합집합, 개수 보고는 부분매칭만.** 인증 시점은 에피소드당 1회이므로 셋 다 돌려도 비용은 유계다.
+
+⚠**합집합이 못 고치는 것**: 어휘 불일치는 흡수하지만 **주제 누락은 못 고친다.** 033은 "이관"을
+*주제로* 한 번도 질의하지 않았으므로 어떤 방법을 몇 개 합쳐도 `doc_011`이 안 나온다(§6 참조).
 
 ### 4.3 ② — 전수 검색을 게이트 조건으로 (**폐기**·기록 보존)
 
@@ -157,16 +189,48 @@ O11이 보여주듯 grep 한 줄이 032·033·035의 답을 **전부** 낸다 �
 그러나 O12가 보여주듯 **완결성은 인증하지 못한다**. 규칙에 맞는 것만 찾을 뿐이고, 규칙 밖 도구가 실재하며
 (하필 015의 실패 도구), 오탐도 섞인다.
 
-⇒ **확정 가능한 열거는 엔진의 도구 레지스트리에만 있다.** 엔진은 `unlock_discoverable_agent_tool` /
-`give_discoverable_user_tool`을 처리해야 하므로 전체 목록을 **이미 보유**한다. grep은 그 근사치일 뿐이다.
+⇒ **확정 가능한 열거는 엔진의 도구 레지스트리에만 있다.**
+
+**★rev4.3 — 그 레지스트리를 실제로 열었다.** env의 판정 지점은 `tools.py:552`:
+```python
+if not hasattr(KnowledgeUserTools, discoverable_tool_name):        → "Unknown discoverable tool"
+if not getattr(method, DISCOVERABLE_ATTR, False):                  → "Unknown discoverable tool"
+```
+⇒ 완전집합 = **`DISCOVERABLE_ATTR`가 붙은 메서드 전체**이고, 이는 env가 수락/거부에 쓰는 **바로 그 술어**다.
+데이터(db.json)에는 없다 — db.json에 discoverable 테이블은 **부재**하고, task json의 언급은 전부
+`evaluation_criteria`(=gold·[[23]] 열람 금지)뿐이다. **코드가 권위본이다.**
+
+실측 열거 = **49개**:
+
+| | grep `_NNNN`(O11) | **env 레지스트리** |
+|---|---|---|
+| 개수 | 34 | **49** |
+| `get_referral_link`(015 실패 도구) | ❌ 놓침 | **✅** |
+| `get_card_last_4_digits` | ❌ 놓침 | **✅** |
+| 오탐(`dbc_1234`·`nclear_…`) | 포함 | **0** |
+
+⇒ **O12의 불완전성이 완전히 해소된다.** ③은 설계 문제가 아니라 **반사(reflection) 한 줄**이다.
+도메인-일반 형식이며(모든 tau2 도메인이 같은 속성을 쓴다) 이름은 env에서 오므로 저작 0.
+⚠단 이는 **하네스 어댑터**다 — "env 자신의 도구-존재 술어를 조회한다"가 일반 개념이고
+`DISCOVERABLE_ATTR`는 tau2 접근자다. 엔진 코드에 tau2 상수를 박지 말고 어댑터 층에 둔다.
 
 ⇒ **"모델이 grep으로 자기 완결성을 인증한다"는 경로는 닫혔다.** 프로브(O5, 능력)에 이어
 O12(방법의 원리적 불완전성)가 두 번째 반증이다.
 
-**그래도 ④가 여전히 1순위인 이유**: ③은 "존재하는 도구 목록"을 주므로 인벤토리를 촘촘하게 만들고
-ADB 경고(open-class F1 84.56→66.47)·C226 spoonfeed 경고에 직접 걸린다. ④는 후보를 더 주지 않고
-**경계만 알려주므로** 비용이 ~0이다. 순서는 **④ → (잔여 측정) → ③**.
-③ 착수 시 미해결 선결: 소유(RUNAWAY §2b ↔ FAILURE_AXES §2b 정본 재정)·TOOLLIST 은퇴 감사 상충.
+**비용의 위치가 바뀐다(rev4.3)**: ③에서 비싼 것은 **목록을 얻는 것이 아니라 목록을 보여주는 것**이다.
+49개를 나열하면 인벤토리가 촘촘해져 ADB 경고(open-class F1 84.56→66.47)·C226 spoonfeed에 직접 걸린다.
+
+⇒ **③-lite (채택 후보)**: 이름을 나열하지 않고 **수만 보고**한다.
+```
+[tools] 49 documented discoverable tools exist in this environment; 46 have not been used in this conversation.
+```
+- **densification 0** — 이름을 안 준다. 문맥 비용 ~1줄.
+- 그런데 *"there are no further actions I can take"* 를 **즉시 반증한다** — 46개가 미사용인데 "남은 게 없다"는
+  성립하지 않는다. 거짓 통행료를 정보로 무너뜨리는 가장 싼 형태다.
+- 이름이 필요하면 모델이 `shell`/`KB_search`로 찾으면 된다(스푼피드 아님·[[13]] 정합).
+
+순서: **① → ④ → ③-lite**. ③-full(이름 나열)은 ③-lite로도 안 닫히는 잔여에만.
+③-full 착수 시 미해결 선결: 소유(RUNAWAY §2b ↔ FAILURE_AXES §2b 정본 재정)·TOOLLIST 은퇴 감사 상충.
 
 ### 4.5 정직한 통행료의 최종형 (목표 형태)
 
@@ -190,15 +254,35 @@ notice가 완결성 주장 없이 발화됐는가(①) · `[matches]` 줄이 있
 
 **조건**: front32 × nt2(현 런과 동일·비교 가능).
 
-**1급 지표**: 이관-의도 발화 중 prefix **미일치 수**(통행료 비용의 직접 계측) · `transfer_to_human_agents`
-호출률 · pass · **Δspurious = gold-밖 이관**(기준선 O8 21.2%).
+**1급 지표(이관 축)**: 이관-의도 발화 중 prefix **미일치 수**(통행료 비용의 직접 계측·기준선 O10) ·
+`transfer_to_human_agents` 호출률 · pass · **Δspurious = gold-밖 이관**(기준선 O8 21.2%).
+
+**1급 지표(④ 축 — 리뷰 ★2 수용)**: ④는 **모든** `KB_search` 반환을 바꾸므로(O2: 64 sim에 200회)
+부작용 계기가 이관 지표만으로는 없다. 양방향 위험을 각각 잰다:
+- *"185 not shown"* 이 추가 검색을 유발 → **KB_search 호출 수 · 메인 문맥 성장**(022형 컨텍스트 초과 회귀)
+- *"all 4 shown"* 이 조기 확신을 유발 → **under-search**: 회수 후 즉시 종결한 sim 수
+- **비-이관 태스크 pass 회귀 = 0** (④는 전역 변경이므로 무해성 확인 필수)
 
 **사전등록 예측**
 1. 통행료 미일치가 줄어든다(문구가 짧고 자연스러움). 안 줄면 ①의 근거가 약해진다.
 2. **032/033은 이 조합만으로는 뒤집히지 않는다** — 두 태스크는 애초에 이관을 *주제로* 질의하지 않았다(033) 
    또는 표준 도구를 쓰지 말라는 시나리오 문서를 못 봤다(032). ④는 질의를 만들어주지 않는다.
    예측이 맞으면 ③의 근거가 되고, 틀리면 ③ 순위를 내린다. **어느 쪽이든 정보를 얻는다.**
-3. Δspurious가 O8 기준선보다 나빠지면 ①이 게이트를 과도하게 열었다는 뜻 ⇒ ③으로.
+3. Δspurious가 O8 기준선보다 나빠지면 ①이 게이트를 과도하게 열었다는 뜻이다.
+   **폴백 방향 정정(리뷰 ★3 수용)**: 그때 ③으로 가면 안 된다 — ③도 ④도 **표면화이지 게이트가 아니라서
+   헐렁해진 통행료를 메우지 못한다.** 폴백은 **참이면서 검증 가능한 통행료로의 강화**다:
+
+   ```
+   TRANSFER NOTICE: I searched the knowledge base and reviewed every matching document.
+                    Would you like to be transferred to a human agent?
+   prefix48 = 'transfer notice i searched the knowledge base an'   (실측 48자)
+   ```
+   - *"searched"* 는 **거짓이 아니고** 엔진이 검증 가능하다(궤적에 `KB_search` 실재 = 닫힘).
+   - *"reviewed every matching document"* 는 **④의 카운터가 근거를 발급한다**(`all N shown`).
+   ⇒ 통행료가 **낭독**에서 **행동 증거**로 바뀌면서 [[22]]를 지킨다. ①의 자연스러운 강화 경로이며
+   ③보다 싸고 일반적이다.
+   ⚠**정직한 한계**: `KB_search`는 거의 모든 sim에 존재하므로 이 강화의 게이트-강도 증가분은 **작다**.
+   그리고 *"올바른 질의를 했는가"* 는 여전히 못 잡는다(033형).
 
 판정 전 **궤적 전수 포렌식**([[08]]) — 집계 직행 금지.
 
@@ -229,20 +313,29 @@ notice가 완결성 주장 없이 발화됐는가(①) · `[matches]` 줄이 있
 
 ## 9. 열린 항목
 
-1. O10(103/75/28/2)의 계량 스크립트를 `x47_incantation_cost.py`로 영속 — **그 전까지 인용 금지**.
+1. **★측정 개시 전 필수(열린 항목 아님·리뷰 ★5b 수용)** — O10(103/75/28/2)의 계량 스크립트를
+   `x47_incantation_cost.py`로 영속. §5 1급 지표 1번(prefix 미일치 수)의 **기준선이 O10**인데 지금 [?]·
+   인용 금지 상태다. 기준선 없이 시작하면 **사후에 기준선을 만들게 된다.** 발사 게이트로 승격.
 2. ④의 `[matches]` 문구 최종형과 dense 검색에서의 "매칭 수" 정의(점수 임계?) 확정.
 3. 프로브 표본 n=4/arm — 방향 지시로만. 필요 시 확대.
 
-## 10. 원칙 후보 (등대 원장 상신)
-
-오늘 실패 전반이 하나로 묶인다:
+## 10. 원칙 — 신규 아님·[[50]] 재적용 (리뷰 ★4 수용)
 
 > **엔진이 열거할 수 있는 유한 집합에 대한 전칭 주장을 모델에게 시키지 마라. 엔진이 세어서 말하라.**
 
-사례: 게이트가 요구한 *"no further actions"*(→ ①) · `KB_search`의 침묵하는 top-k(→ ④) ·
-019 *"All three disputes submitted"*(gold 4) · 021 *"no other discrepancies"* · 027 12/26행 입력.
-이것은 2607.22868의 **화이트스페이스 ⓒ(어느 술어를 Π에 넣을 것인가)** 에 대한 우리 판정 기준 후보이며,
-카운터이므로 정리 7의 단조 조각 안에 들어간다(= 집행 가능).
+⚠**신규 원칙으로 상신하지 않는다.** 이는 [[50]] 정본의 **엔진-이관 3조건(유한·정책유계·전수열거)** 과
+사실상 같은 술어이고, 그 메모리는 **"낱개 전부 선점(Reiter 1984 동형)"** 을 명시한다. 신규로 올리면
+[[41]] 노벨티 위생 위반이다. ⇒ **[[50]]의 재적용 사례**로 등재한다.
+
+사례: 게이트가 요구한 *"no further actions"*(→ ①) · 019 *"All three disputes submitted"*(gold 4) ·
+021 *"no other discrepancies"* · 027 12/26행 입력.
+
+**우리 델타는 여기서만 좁게 주장한다** (§2.4가 실제로 발견한 것):
+
+> **회수기가 top-k를 침묵하여 "195 걸림 중 8 표시"와 "4 걸림 중 4 표시"를 모델 눈에 구분 불가로 만든다.**
+
+이 지점은 선행에 없다. 그리고 자기감사 하나가 진짜 새롭다 — **`[coverage] N of M rows`를 *검증*에는 이미
+적용하면서 *회수*에는 적용하지 않았다.** 2607.22868 화이트스페이스 ⓒ와의 연결도 이 좁힌 형태로만 주장한다.
 
 ## 11. 개정 이력
 
@@ -253,3 +346,5 @@ notice가 완결성 주장 없이 발화됐는가(①) · `[matches]` 줄이 있
 | rev3 | **진단 부분 철회** — 재질문은 지시 무시가 아니라 **prefix48 미일치 시도** | `notice_sent_in`이 prefix-48임을 확인 |
 | **rev4** | **통행료 자체가 거짓 진술** → ①문구 정정 + ④회수 경계 표면화 · ②폐기 | 프로브 8/8 반증 · O6 195 vs 4 |
 | **rev4.1** | ③ 지위 상승 — **확정 가능한 열거의 유일한 출처는 env 레지스트리** · §4.5 목표 형태 추가 | O11(grep 34개·답 전부 포함) · **O12(명명 반례 `get_referral_link`=015 실패 도구·오탐 2)** |
+| **rev4.2** | 리뷰 ★1~★5 반영 — ④의 세는 연산을 **구 부분매칭**으로 고정 · ④ Δspurious 범위 추가 · 폴백을 ③이 아니라 **검증 가능 통행료 강화**로 · §10을 [[50]] 재적용으로 강등 · prefix48 오기 정정 · O10을 발사 게이트로 | BM25 실측(구 4 vs `agent` 36 vs `human` 8/698) · `notice_norm` 실측 48자 |
+| **rev4.3** | **env 레지스트리를 실제로 열음 — 49개 완전집합**(`DISCOVERABLE_ATTR`). O12 불완전성 해소 · ③은 반사 한 줄 · **③-lite(수만 보고)** 신설 | `tools.py:552` 판정 지점 · 데코레이터 전수 49 · db.json에 부재·task json은 gold뿐 |
