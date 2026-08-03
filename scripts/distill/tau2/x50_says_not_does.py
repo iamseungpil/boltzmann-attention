@@ -38,6 +38,11 @@ ARMS = {
     "B4": "bank_b4_gpu*_20260803h",
 }
 
+# Wrappers, not actions: they carry another tool's name in their arguments, so without
+# excluding them every dispatcher call looks like a call gold never asked for.
+DISPATCH = {"call_discoverable_agent_tool", "unlock_discoverable_agent_tool",
+            "give_discoverable_user_tool", "think", ""}
+
 # Assertions that a write already happened. Kept narrow and past-tense on purpose:
 # "I will file the dispute" is a plan, "the dispute has been filed" is a false report.
 DONE = re.compile(
@@ -182,12 +187,30 @@ def main():
             hay = transcript_before_end(s)
             claimed = bool(DONE.search(text))
 
-            missed = [c for c in (s.get("reward_info") or {}).get("action_checks") or []
-                      if not c.get("action_match")
+            checks = (s.get("reward_info") or {}).get("action_checks") or []
+            missed = [c for c in checks if not c.get("action_match")
                       and (c.get("action") or {}).get("requestor") == "assistant"]
             if not missed:
-                no_miss.append((key, claimed))
-                tally["에이전트-측 MISS 없음(sim)"] += 1
+                # The agent emitted every action that was its to emit and still failed.
+                # Two very different things hide here: a customer-executed action that
+                # never happened because the tool was never handed over, and a DB that
+                # diverged from gold while every gold action matched (over-action).
+                ri = s.get("reward_info") or {}
+                user_missed = [c for c in checks if not c.get("action_match")
+                               and (c.get("action") or {}).get("requestor") == "user"]
+                handed = {fam(a.get("agent_tool_name") or a.get("user_tool_name") or
+                              a.get("tool_name") or "")
+                          for n, a in cl if "give" in (n or "") or "unlock" in (n or "")}
+                ungiven = [c for c in user_missed
+                           if fam((c.get("action") or {}).get("name")) not in handed]
+                gold_all = {fam((c.get("action") or {}).get("name")) for c in checks}
+                extra = sorted({fam(n) for n, _ in cl} - gold_all - DISPATCH)
+                sub = ("user-도구 미인계" if ungiven else
+                       "user 실행 실패(도구는 건넴)" if user_missed else
+                       "DB만 불일치(gold 행동 전부 일치)")
+                no_miss.append((key, claimed, sub, len(user_missed), len(ungiven), extra))
+                tally[f"MISS없음·{sub}"] += 1
+                per_sim_class[f"MISS없음 — {sub}"] += 1
                 continue
 
             tally["MISS 있는 sim"] += 1
@@ -242,7 +265,6 @@ def main():
         print("\n  [sim 단위 — 판정은 이 표로]")
         for k, v in per_sim_class.most_common():
             print(f"  {k:34s} {v}")
-        print(f"  {'에이전트-측 MISS 없음':34s} {len(no_miss)}")
         print("\n  [행동 단위 — 소수 태스크가 지배하므로 참고용]")
         for k, v in sorted(tally.items()):
             print(f"  {k:34s} {v}")
@@ -250,9 +272,11 @@ def main():
         for k, v in argkeys.most_common(10):
             print(f"  {k:34s} {v}")
 
-        print(f"\n--- 에이전트-측 MISS 0인 실패 {len(no_miss)}건 (DB 상태·user 실행) ---")
-        print("  " + ", ".join(f"{k}{'!' if c else ''}" for k, c in no_miss))
-        print("  (! = 그럼에도 완료를 주장한 sim)")
+        print(f"\n--- 에이전트-측 MISS 0인 실패 {len(no_miss)}건 ---")
+        for key, c, sub, nu, nug, extra in no_miss:
+            print(f"  {key:16s} {sub:24s} user-MISS {nu} (미인계 {nug})"
+                  f"{'  [완료 주장]' if c else ''}"
+                  + (f"  gold-밖 호출: {', '.join(extra[:4])}" if extra else ""))
 
         if args.detail:
             print("\n--- 놓친 gold 행동 전수 ---")
