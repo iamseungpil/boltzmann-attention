@@ -48,9 +48,12 @@ def load_docs():
     return out
 
 
-def queries():
+def queries(pattern):
     qs = []
-    for p in sorted(glob.glob(f"{SIM}/bank_ax33n_gpu*_20260803g.results.json.gz")):
+    files = sorted(glob.glob(f"{SIM}/{pattern}.results.json.gz"))
+    if not files:
+        raise SystemExit(f"no runs matched {SIM}/{pattern}.results.json.gz — check --glob")
+    for p in files:
         for s in json.load(gzip.open(p, "rt", encoding="utf-8")).get("simulations") or []:
             for m in s.get("messages") or []:
                 if m.get("role") != "assistant":
@@ -74,11 +77,13 @@ def queries():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--show", type=int, default=12)
+    ap.add_argument("--glob", default="bank_ax33n_gpu*_20260803g",
+                    help="run glob (no .results.json.gz suffix)")
     args = ap.parse_args()
 
     docs = load_docs()
-    qs = queries()
-    print(f"documents={len(docs)}  queries={len(qs)}\n")
+    qs = queries(args.glob)
+    print(f"glob={args.glob}  documents={len(docs)}  queries={len(qs)}\n")
 
     lens = collections.Counter(len(norm(q).split()) for _, q in qs)
     tot = sum(lens.values())
