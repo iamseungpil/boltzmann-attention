@@ -99,6 +99,23 @@ def calls(sim):
     return out
 
 
+def user_calls(sim):
+    """What the customer executed themselves.
+
+    These sit in role=user messages with requestor=user. Without reading them, a gold
+    action the customer performed with the wrong arguments is indistinguishable from
+    one they never performed at all — and those have opposite causes: the first is the
+    agent steering them wrong, the second is the agent never getting them to act.
+    """
+    out = []
+    for m in sim.get("messages") or []:
+        if m.get("role") != "user":
+            continue
+        for tc in m.get("tool_calls") or []:
+            out.append(((tc.get("name") or ""), norm_args(tc.get("arguments"))))
+    return out
+
+
 def agent_text(sim):
     return "\n".join(m.get("content") or "" for m in sim.get("messages") or []
                      if m.get("role") == "assistant" and isinstance(m.get("content"), str))
@@ -195,23 +212,37 @@ def main():
                 # Two very different things hide here: a customer-executed action that
                 # never happened because the tool was never handed over, and a DB that
                 # diverged from gold while every gold action matched (over-action).
-                ri = s.get("reward_info") or {}
                 user_missed = [c for c in checks if not c.get("action_match")
                                and (c.get("action") or {}).get("requestor") == "user"]
+                uc = user_calls(s)
                 # The handover argument is `discoverable_tool_name`; reading any other
                 # key here silently reports every sim as never having handed anything
                 # over (caught 2026-08-04 doing exactly that).
                 handed = {fam(a.get("discoverable_tool_name") or a.get("agent_tool_name")
                               or a.get("user_tool_name") or a.get("tool_name") or "")
                           for n, a in cl if "give" in (n or "") or "unlock" in (n or "")}
-                ungiven = [c for c in user_missed
-                           if fam((c.get("action") or {}).get("name")) not in handed]
+                executed, ungiven, detail = [], [], []
+                for c in user_missed:
+                    g = c.get("action") or {}
+                    gname, gargs = g.get("name"), norm_args(g.get("arguments"))
+                    tried = [a for n, a in uc if fam(n) == fam(gname)]
+                    if tried:
+                        best = min(tried, key=lambda e: sum(
+                            1 for k in set(gargs) | set(e) if gargs.get(k) != e.get(k)))
+                        diff = [k for k in sorted(set(gargs) | set(best))
+                                if gargs.get(k) != best.get(k)]
+                        executed.append((gname, diff))
+                        detail.append(f"{fam(gname)}[{','.join(diff[:3])}]")
+                    else:
+                        ungiven.append((gname, fam(gname) in handed))
+                        detail.append(f"{fam(gname)}(미실행"
+                                      f"{'·인계함' if fam(gname) in handed else '·미인계'})")
                 gold_all = {fam((c.get("action") or {}).get("name")) for c in checks}
                 extra = sorted({fam(n) for n, _ in cl} - gold_all - DISPATCH)
-                sub = ("user-도구 미인계" if ungiven else
-                       "user 실행 실패(도구는 건넴)" if user_missed else
+                sub = ("★user 실행·인자 불일치(안내가 틀림)" if executed else
+                       "user 미실행" if ungiven else
                        "DB만 불일치(gold 행동 전부 일치)")
-                no_miss.append((key, claimed, sub, len(user_missed), len(ungiven), extra))
+                no_miss.append((key, claimed, sub, "; ".join(detail), extra))
                 tally[f"MISS없음·{sub}"] += 1
                 per_sim_class[f"MISS없음 — {sub}"] += 1
                 continue
@@ -276,10 +307,9 @@ def main():
             print(f"  {k:34s} {v}")
 
         print(f"\n--- 에이전트-측 MISS 0인 실패 {len(no_miss)}건 ---")
-        for key, c, sub, nu, nug, extra in no_miss:
-            print(f"  {key:16s} {sub:24s} user-MISS {nu} (미인계 {nug})"
-                  f"{'  [완료 주장]' if c else ''}"
-                  + (f"  gold-밖 호출: {', '.join(extra[:4])}" if extra else ""))
+        for key, c, sub, detail, extra in no_miss:
+            print(f"  {key:16s} {sub:30s} {detail}{'  [완료 주장]' if c else ''}"
+                  + (f"\n  {'':16s} gold-밖 호출: {', '.join(extra[:5])}" if extra else ""))
 
         if args.detail:
             print("\n--- 놓친 gold 행동 전수 ---")
