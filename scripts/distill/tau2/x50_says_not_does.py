@@ -168,6 +168,11 @@ def main():
         fails = [s for s in sims if ((s.get("reward_info") or {}).get("reward") or 0.0) != 1.0]
 
         tally = collections.Counter()
+        # Per-action counts are dominated by a few tasks that miss the same call 8-17
+        # times (040, 041). Judging from them would be reading one task as if it were
+        # the run. Every action-level count below is paired with a sim-level one.
+        per_sim_class = collections.Counter()
+        argkeys = collections.Counter()
         no_miss, rows = [], []
         for s in sorted(fails, key=lambda x: (x["task_id"], x.get("trial") or 0)):
             key = f"{s['task_id']}/t{s.get('trial')}"
@@ -186,10 +191,21 @@ def main():
                 continue
 
             tally["MISS 있는 sim"] += 1
+            sim_kinds = set()
             for c in missed:
                 g = c.get("action") or {}
                 gname, gargs = g.get("name"), norm_args(g.get("arguments"))
                 called = fam(gname) in names
+                if called:
+                    # Which argument did it get wrong? Compare against the closest
+                    # call of that tool, the same way the census picks its witness.
+                    tried = [a for n, a in cl if fam(n) == fam(gname)]
+                    if tried:
+                        best = min(tried, key=lambda e: sum(
+                            1 for k in set(gargs) | set(e) if gargs.get(k) != e.get(k)))
+                        for k in sorted(set(gargs) | set(best)):
+                            if gargs.get(k) != best.get(k):
+                                argkeys[k] += 1
                 pres, nchk = values_present(gargs, hay)
                 # Name-reachability is the reach-scan predicate (`ax33g_reach_scan`):
                 # did the model ever see the tool's name? Argument-reachability is
@@ -210,10 +226,28 @@ def main():
                             tally["★★그 위에 완료 주장까지"] += 1
                     if mentioned:
                         tally["NEVER인데 도구명 발화"] += 1
+                sim_kinds.add("말로 바꿈" if kind == "NEVER" and level == "ALL" else kind)
                 rows.append((key, gname, kind, f"{pres}/{nchk}", level, mentioned, claimed))
 
+            if "말로 바꿈" in sim_kinds:
+                per_sim_class["★말로 바꿈 포함"] += 1
+            elif sim_kinds == {"NEVER"}:
+                per_sim_class["NEVER만(정보도 없음)"] += 1
+            elif sim_kinds == {"ARG"}:
+                per_sim_class["ARG만(인자 오류)"] += 1
+            else:
+                per_sim_class["ARG+NEVER 혼합"] += 1
+
         print(f"\n실패 sim {len(fails)} / 완주 {len(sims)}")
+        print("\n  [sim 단위 — 판정은 이 표로]")
+        for k, v in per_sim_class.most_common():
+            print(f"  {k:34s} {v}")
+        print(f"  {'에이전트-측 MISS 없음':34s} {len(no_miss)}")
+        print("\n  [행동 단위 — 소수 태스크가 지배하므로 참고용]")
         for k, v in sorted(tally.items()):
+            print(f"  {k:34s} {v}")
+        print("\n  [틀린 인자 키 (ARG 케이스)]")
+        for k, v in argkeys.most_common(10):
             print(f"  {k:34s} {v}")
 
         print(f"\n--- 에이전트-측 MISS 0인 실패 {len(no_miss)}건 (DB 상태·user 실행) ---")
