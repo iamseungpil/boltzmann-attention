@@ -177,18 +177,32 @@ def main():
                 unreachable.append((key, tok))
                 continue
             hit_node = sorted(hn)[0]
-            (reach if len(hn) == 1 else spread).append((key, tok, hn, hit_node in got_nodes))
+            node_hit = hit_node in got_nodes
+            # The decisive split. Reading the rest of a node only helps if the
+            # document naming the tool was NOT among the ones already returned.
+            doc_hit = any(f.rsplit(".", 1)[0] in got for f in hits)
+            (reach if len(hn) == 1 else spread).append((key, tok, hn, node_hit, doc_hit))
             print(f"  {key:16s} {tok:44s} 노드 {len(hn)}개"
                   f"{' ★단일' if len(hn) == 1 else ''}"
-                  f"  검색이 그 노드에 닿았나: {'YES' if hit_node in got_nodes else 'NO'}"
-                  f"  ({sorted(hn)[0][0]}/{sorted(hn)[0][1]})")
+                  f"  노드 닿음 {'Y' if node_hit else 'N'}"
+                  f"  해당 문서 수신 {'Y' if doc_hit else 'N'}"
+                  f"  ({sorted(hn)[0][1]})")
 
     print(f"\n  단일 노드에 있음 {len(reach)} · 여러 노드에 흩어짐 {len(spread)} · "
           f"코퍼스에 아예 없음 {len(unreachable)}")
     if unreachable:
         print(f"  코퍼스 부재(회수로 못 얻음): {unreachable}")
-    touched = sum(1 for _, _, _, t in reach + spread if t)
-    print(f"  ★검색이 정답 노드에 실제로 닿은 비율: {touched}/{len(reach) + len(spread)}")
+    all_rows = reach + spread
+    touched = sum(1 for r in all_rows if r[3])
+    got_doc = sum(1 for r in all_rows if r[4])
+    node_not_doc = [r for r in all_rows if r[3] and not r[4]]
+    print(f"  ★검색이 정답 노드에 닿은 비율: {touched}/{len(all_rows)}")
+    print(f"  ★해당 문서까지 실제로 받은 비율: {got_doc}/{len(all_rows)}"
+          f"  ⇒ 받고도 안 부른 경우 = 회수 레버 사정거리 밖")
+    print(f"  ★노드는 닿았으나 문서는 못 받음: {len(node_not_doc)}/{len(all_rows)}"
+          f"  ⇒ 노드 완결성 레버의 유일한 표적")
+    for r in node_not_doc[:12]:
+        print(f"      {r[0]:16s} {r[1]}")
 
     # A node's name is three or four words; a customer describes their problem in
     # their own. Terms that are frequent inside a node and rare outside it are the
