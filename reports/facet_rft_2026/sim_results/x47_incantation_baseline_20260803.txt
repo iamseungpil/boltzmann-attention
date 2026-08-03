@@ -1,0 +1,27 @@
+compelled prefix48 = 'transfer notice i have checked the knowledge bas'
+
+이관-의도 발화 : 76
+  prefix 일치  : 28
+  미일치(낭비) : 48  (63%)
+미일치 발생 sim: 22 / 64
+끝내 못 맞춘 sim(이관 호출 0): 2  [('task_001', 0), ('task_024', 0)]
+
+최악 sim (미일치 수):
+  task_008/t0  miss=6 hit=1 called=True rew=1.0
+  task_032/t0  miss=5 hit=1 called=True rew=0.0
+  task_032/t1  miss=5 hit=1 called=True rew=0.0
+  task_026/t1  miss=4 hit=1 called=False rew=0.0
+  task_029/t0  miss=4 hit=1 called=True rew=1.0
+  task_034/t0  miss=3 hit=1 called=True rew=1.0
+
+미일치 발화 표본:
+  task_001/t0: I apologize for the oversight. Let's clarify the details and proceed accordingly. From the
+  task_008/t0: I appreciate your patience, Marcus. It seems there might be a gap in the knowledge base re
+  task_008/t0: I understand your concern, Marcus. Let me clarify the situation. Based on the information 
+  task_008/t0: Thank you for your patience, Marcus. Based on the search results, the Platinum Rewards Car
+  task_008/t0: Thank you for your patience, Marcus. Based on the search results, the Platinum Rewards Car
+  task_008/t0: I understand your frustration, Marcus. Let's focus on the $1,000 statement credit after sp
+  task_008/t0: I understand your frustration, Marcus, and I apologize for the inconvenience. Given that y
+  task_014/t0: I apologize for the inconvenience, but I couldn't find the specific tool to generate a ref
+
+분포(미일치/ sim): {1: 12, 2: 3, 3: 2, 4: 2, 5: 3}
