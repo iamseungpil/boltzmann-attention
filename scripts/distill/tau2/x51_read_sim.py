@@ -25,6 +25,7 @@ SIM = SIM_REMOTE if os.path.isdir(SIM_REMOTE) else SIM_LOCAL
 ARMS = {
     "A":  "bank_ax33n_gpu*_20260803g",
     "B4": "bank_b4_gpu*_20260803h",
+    "N97": "bank_n97_gpu*_20260804",
 }
 
 

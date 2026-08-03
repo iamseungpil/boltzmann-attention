@@ -30,12 +30,21 @@ import json
 import os
 import re
 
-SIM = ("/home/woori/workspace_common/boltzmann-attention-pi/"
-       "reports/facet_rft_2026/sim_results")
+SIM_REMOTE = ("/home/woori/workspace_common/boltzmann-attention-pi/"
+              "reports/facet_rft_2026/sim_results")
+# The persisted gz live in the repo, so this reads on either side without editing the
+# constant — the hard-coded path was one of the four instrument defects of 2026-08-04.
+SIM_LOCAL = os.path.abspath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "..",
+    "reports", "facet_rft_2026", "sim_results"))
+SIM = SIM_REMOTE if os.path.isdir(SIM_REMOTE) else SIM_LOCAL
 
 ARMS = {
     "A":  "bank_ax33n_gpu*_20260803g",
     "B4": "bank_b4_gpu*_20260803h",
+    # The full-97 sweep of 2026-08-04. `main` is the LPT-scheduled block, `batch_NN` the
+    # shared reserve; the glob takes both so the arm grows as the reserve drains.
+    "N97": "bank_n97_gpu*_20260804",
 }
 
 # Wrappers, not actions: they carry another tool's name in their arguments, so without
