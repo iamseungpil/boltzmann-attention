@@ -201,8 +201,16 @@ def main():
           f"  ⇒ 받고도 안 부른 경우 = 회수 레버 사정거리 밖")
     print(f"  ★노드는 닿았으나 문서는 못 받음: {len(node_not_doc)}/{len(all_rows)}"
           f"  ⇒ 노드 완결성 레버의 유일한 표적")
-    for r in node_not_doc[:12]:
-        print(f"      {r[0]:16s} {r[1]}")
+    # Action-level counts are dominated by sims that miss the same call four times;
+    # the sim-level count is what a lever's effect would be measured in.
+    def s_of(rows):
+        return {r[0] for r in rows}
+    print(f"\n  [sim 단위] 문서까지 받고도 미호출 {len(s_of([r for r in all_rows if r[4]]))}"
+          f" · 노드만 닿음 {len(s_of(node_not_doc))}"
+          f" · 노드도 못 닿음 {len(s_of([r for r in all_rows if not r[3]]))}"
+          f"  (중복 소속 가능)")
+    for k in sorted(s_of(node_not_doc)):
+        print(f"      {k:16s} {sorted({r[1] for r in node_not_doc if r[0] == k})}")
 
     # A node's name is three or four words; a customer describes their problem in
     # their own. Terms that are frequent inside a node and rare outside it are the
