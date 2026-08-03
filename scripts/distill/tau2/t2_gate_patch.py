@@ -696,6 +696,23 @@ def _axis_surface(orch, tool_calls, results):
             n = AX.fit_diff_note(txt, notes_cfg)
             if n:
                 add.append(n)
+        # ─── ★④ 회수 경계 표면화 (2026-08-03·TRANSFER_INSTRUCTION_FIDELITY_DESIGN §4.2) ───
+        #   KB_search는 top-k만 조용히 반환하므로 "195개 걸림 중 8개"와 "4개 걸림 중 4개"가
+        #   모델 눈에 같다. 앞은 좁히라는 신호, 뒤는 전수를 봤다는 근거인데 구분이 안 된다.
+        #   엔진이 이미 셀 수 있는 수(내용어 AND·임계 없음·분모=전 코퍼스)를 표면화한다.
+        #   ⚠P13 규약("출력-부착 = 읽기 도구 전용")을 **지킨다**: env 술어 실측(2026-08-03)
+        #   `_is_mutating_tool("KB_search_bm25"/"_dense") = False` — 6393 주석의 "KB_search는
+        #   env mutating"은 사실이 아니며, replay는 비-mutating 도구를 재실행하지 않는다
+        #   (environment.py: "Non-mutating tools ... skip them"). 아래 P12 가드도 그대로 통과한다.
+        if (os.environ.get("T2_MATCH_COUNT") == "1"
+                and str(getattr(tc, "name", "") or "").startswith("KB_search")):
+            try:
+                import t2_match_count as _mc
+                _n4 = _mc.note(a.get("query"), txt, orch)
+                if _n4:
+                    add.append(_n4)
+            except Exception as _e4:
+                print("[T2_MATCH_COUNT] skipped: %r" % (_e4,), file=sys.stderr, flush=True)
         if add:
             # ★P12 (2026-08-02·041 R0 사고): replay 가드를 **버스 여부와 무관하게 상시** 적용.
             #   사고: 041에서 mutating 도구(`call_discoverable_agent_tool`) 출력에 [axis] 노트가 붙어
