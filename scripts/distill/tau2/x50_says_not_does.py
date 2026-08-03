@@ -114,24 +114,46 @@ def transcript_before_end(sim):
     return "\n".join(parts).lower()
 
 
-def values_present(gold_args, hay):
-    """Are all gold argument values already somewhere in the transcript?
+def variants(v):
+    """Surface forms the same value can legitimately take in a transcript.
 
-    Booleans and very short values are excluded: 'true' or '5' appearing somewhere
-    proves nothing. If nothing substantive is left to check, the action is not
-    counted as reachable (conservative — it cannot inflate the claim).
+    62000 is written '62,000' and '$62,000'; a date is punctuated several ways.
+    Without this the check reports 'the model did not have it' for values it plainly
+    had, which would understate reachability.
     """
-    checked = 0
-    for v in (gold_args or {}).values():
+    s = str(v).strip().lower()
+    out = {s}
+    if isinstance(v, (int, float)) or re.fullmatch(r"-?\d+(\.\d+)?", s):
+        n = str(v)
+        out |= {n, f"{float(s):,.0f}" if "." not in s else n, n.rstrip("0").rstrip(".")}
+        try:
+            out.add(f"{int(float(s)):,d}")
+        except Exception:
+            pass
+    out |= {re.sub(r"[^a-z0-9]", "", s), re.sub(r"[_\-]", " ", s)}
+    return {x for x in out if len(x) >= 4}
+
+
+def values_present(gold_args, hay):
+    """How much of this call was already writable from the transcript?
+
+    Returns (present, checked). Free-text arguments the agent is meant to compose
+    (summary, notes, descriptions) are excluded — they are never in context verbatim
+    and counting them would make every action look unreachable.
+    """
+    present = checked = 0
+    for k, v in (gold_args or {}).items():
         if isinstance(v, bool) or v is None:
+            continue
+        if k in ("summary", "notes", "note", "description", "message", "reason_details"):
             continue
         s = str(v).strip().lower()
         if len(s) < 4:
             continue
         checked += 1
-        if s not in hay:
-            return False, checked
-    return (checked > 0), checked
+        if any(x in hay for x in variants(v)):
+            present += 1
+    return present, checked
 
 
 def main():
@@ -168,19 +190,27 @@ def main():
                 g = c.get("action") or {}
                 gname, gargs = g.get("name"), norm_args(g.get("arguments"))
                 called = fam(gname) in names
-                reach, nchk = values_present(gargs, hay)
+                pres, nchk = values_present(gargs, hay)
+                # Name-reachability is the reach-scan predicate (`ax33g_reach_scan`):
+                # did the model ever see the tool's name? Argument-reachability is
+                # the stronger question of whether the call was writable. They are
+                # different measures and the gap between them is the point.
+                name_reach = fam(gname).lower() in hay
                 mentioned = fam(gname).lower() in text.lower()
                 kind = "ARG" if called else "NEVER"
                 tally[f"missed:{kind}"] += 1
+                level = ("ALL" if nchk and pres == nchk else
+                         "NONE" if not pres else "PARTIAL") if nchk else "n/a(검사값 0)"
                 if kind == "NEVER":
-                    tally[f"NEVER·정보보유={reach}"] += 1
-                    if reach:
-                        tally["★말로 바꿈(NEVER∧정보보유)"] += 1
+                    tally[f"NEVER·인자보유 {level}"] += 1
+                    tally[f"NEVER·이름보유={name_reach}"] += 1
+                    if level == "ALL":
+                        tally["★말로 바꿈(NEVER∧인자 ALL)"] += 1
                         if claimed:
                             tally["★★그 위에 완료 주장까지"] += 1
                     if mentioned:
                         tally["NEVER인데 도구명 발화"] += 1
-                rows.append((key, gname, kind, reach, nchk, mentioned, claimed))
+                rows.append((key, gname, kind, f"{pres}/{nchk}", level, mentioned, claimed))
 
         print(f"\n실패 sim {len(fails)} / 완주 {len(sims)}")
         for k, v in sorted(tally.items()):
@@ -192,10 +222,10 @@ def main():
 
         if args.detail:
             print("\n--- 놓친 gold 행동 전수 ---")
-            print(f"  {'sim':14s} {'kind':6s} {'정보보유':6s} {'발화':4s} {'완료주장':5s} tool")
-            for key, gname, kind, reach, nchk, mentioned, claimed in rows:
-                print(f"  {key:14s} {kind:6s} {str(reach):6s} {str(mentioned):4s} "
-                      f"{str(claimed):5s} {gname}  (검사값 {nchk})")
+            print(f"  {'sim':16s} {'kind':6s} {'인자':7s} {'수준':8s} {'발화':6s} {'완료주장':6s} tool")
+            for key, gname, kind, ratio, level, mentioned, claimed in rows:
+                print(f"  {key:16s} {kind:6s} {ratio:7s} {level:8s} {str(mentioned):6s} "
+                      f"{str(claimed):6s} {gname}")
 
 
 if __name__ == "__main__":
