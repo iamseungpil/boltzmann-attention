@@ -323,9 +323,21 @@ def _ground_operands(orch, d, ctx):
             src_ok = bool(ns) and any(ns in c for c in corp if c)
             val_ok = _val_grounded(ctx.get(param), [str(src or "")], scf.get("kind"))
             if not (src_ok and val_ok):
-                flags.append("%s=%s (%s)" % (param, ctx.get(param),
+                # ★P5(N97 §5): 인용이 반려됐을 때 **A2가 `quote_hint`를 켠 필드에 한해**, 그리고
+                #   **모델이 제시한 값이 원장에 실재할 때만** 원장 표기를 지목한다. 값이 없으면
+                #   지목 없이 종전대로 드롭 = 날조 차단 불변(C226 spoonfeed 회피). 지목 여부는
+                #   A2 선언이 정하고 엔진은 기전만 갖는다([[05]]).
+                _qh = ""
+                if not src_ok and scf.get("quote_hint"):
+                    try:
+                        import t2_quote_hint as _QH
+                        _qh = _QH.hint(ctx.get(param),
+                                       _corpus_texts(orch, scf.get("corpus") or ["ledger"]))
+                    except Exception:
+                        _qh = ""
+                flags.append("%s=%s (%s)%s" % (param, ctx.get(param),
                              "source quote not found in the records" if not src_ok
-                             else "the value is not present in the source you quoted"))
+                             else "the value is not present in the source you quoted", _qh))
                 if scf.get("on_fail", "drop") == "drop":
                     ctx[param] = None
             continue

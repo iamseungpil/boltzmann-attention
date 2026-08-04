@@ -1054,7 +1054,8 @@
        "ledger"
       ],
       "kind": "number",
-      "on_fail": "drop"
+      "on_fail": "drop",
+      "quote_hint": true
      }
     ]
    },
@@ -1986,5 +1987,6 @@
   ],
   "note": "Error: [TRANSFER-REASON] the documented reason list is tiered and says to always select from the HIGHEST tier that applies. You chose '{chosen}' (tier {chosen_tier}), but this conversation contains {evidence!r}, which the documents place under '{code}' (tier {code_tier}: {why}). Re-issue the transfer with the highest applicable reason code, or state why that one does not apply.",
   "_note": "2026-08-03 P15(task_004 실측). 출처=KB doc_bank_accounts_bank_accounts_(general)_042 축자 티어표 + \"always select from the highest tier that applies\". 004: 손님 식별자 조회가 레코드 0(신원 확인 실패)인데 TIER3로 이관 → gold=TIER1 account_ownership_dispute. db_check는 통과였고 이 사유 하나로 0점. 엔진=티어 정수 비교+마커 부분문자열만([[22]] 닫힘)."
- }
+ },
+ "_note_quote_hint": "★출처([[23]]): **구조 선언**이지 정책 주장이 아니다 — 이 필드는 `source_param`으로 **축자 인용**을 요구하므로, 반려가 '값이 틀렸다'가 아니라 '인용 형태가 다르다'일 수 있는 유일한 종류다(값-존재만 보는 필드에는 고칠 인용이 없다). 근거 = task_046 t0/t1 자연 실험: 같은 값 0.00에 대해 t0 'current_balance: $0.00'(패러프레이즈)=드롭·동일 호출 7회·11턴 소실, t1 'New Credit Card Balance: $0.00'(원장 축자)=통과. 엔진은 **모델이 제시한 값이 원장에 실재할 때만** 원장 표기를 지목한다(없으면 종전대로 드롭=날조 차단 유지·C226 spoonfeed 회피)."
 }
