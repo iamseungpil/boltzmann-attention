@@ -171,6 +171,33 @@ task_090도 동형(t0 miss 14 / t1 miss 7).
 4. **우리 층의 결함은 부재가 아니라 비강제다.** 68회 경고 무시·접미사 없는 통지·deny 불가 게이트·
    실행 순간의 탈출구.
 
+## §6b 강제 가능성 실측 (`x72_named_toolchoice_feas.py` · 2026-08-04 · 8141 · n=3 · 무료)
+
+`require_tool_before`를 권고로 강등시킨 것은 **deny 스텁이 tool 출력이라 replay 비교를 깬다**는
+제약이었다(C210). 생성-측 제약은 tool 출력을 만들지 않으므로 그 반론이 닿지 않는다 — 그리고
+실제로 되는지 서버에 물었다. 상황은 실패 궤적과 같은 모양(계좌 조회 실패 직후)으로 세웠다.
+
+| arm | 표적 적중 | 실제 emit |
+|---|---|---|
+| T0 `tool_choice=auto` | **0/3** | 호출 0 · 순수 산문 |
+| T1 `tool_choice=required` (**현행 T2_FORCE_ACTION**) | **0/3** | `KB_search_bm25("PIN locked debit card solutions")` |
+| T2 named tool_choice (디스패처 지정) | **0/3** | `unlock(agent_tool_name="AccountLookupTool")` ← **내부 이름 날조** |
+| T3 named + **단일값 enum** | **3/3** | `unlock(agent_tool_name="get_all_user_accounts_by_user_id_3847")` |
+
+세 가지가 동시에 확정된다.
+
+1. **T1이 현행 레버의 한계를 계량한다** — required는 산문을 호출로 바꾸지만 **어느 도구인지는 못 바꾼다.**
+   이번 런 240회 발화가 왜 지배 실패에 안 닿았는지가 이것이다. 기본 선택이 KB 검색이라
+   §2의 검색·grep 막다른 길로 그대로 들어간다.
+2. **T2가 날조 기전을 통제 환경에서 재현한다** — 디스패처만 이름 지정하면 모델이 내부 이름을
+   지어낸다(`AccountLookupTool`). task_091의 `TYLER WASHINGTON`·task_086의 계좌 ID 4회 날조와 동형.
+   **이름 지정만으로는 부족하다.**
+3. **T3가 유일하게 작동한다** — 함수 스키마의 `agent_tool_name`을 단일값 enum으로 고정하면 3/3.
+   vLLM 확장이 아니라 **평범한 JSON schema**다. tool 출력을 만들지 않으므로 replay 무관.
+
+⚠ 이것이 회수하는 것은 **진입 실패 40 sim**뿐이다. §1대로 **관문을 호출한 19 sim도 전부 실패**했으므로
+pass 상승은 이 레버 단독으로 보장되지 않는다.
+
 ## §7 다음 (설계 전 선결)
 
 - shell 사용 계약: DB는 shell로 조회되지 않는다는 사실을 **환경에서 기계도출**해 표면화 가능(env opex 0)
