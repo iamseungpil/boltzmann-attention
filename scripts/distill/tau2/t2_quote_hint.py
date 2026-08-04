@@ -74,6 +74,12 @@ def hint(value, corpus_texts):
     hits = lines_for(value, corpus_texts)
     if not hits:
         return ""
+    # 이 레버도 반려 문구에 덧붙이기만 해서 태그가 없다 — 발화 증명을 남긴다([[30]]·x43).
+    try:
+        from t2_lever_beat import beat as _beat
+        _beat("T2_QUOTE_HINT", "%d line(s)" % len(hits))
+    except Exception:
+        pass
     return (" Your value IS present in the records; only the quoted string differs from how "
             "the records write it. The records say: %s"
             % " | ".join('"%s"' % h for h in hits))

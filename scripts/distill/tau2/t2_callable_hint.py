@@ -70,6 +70,13 @@ def hint(orch, bases, unlock_tool, dispatch_tool):
     tail = ("" if not unresolved else
             " The remaining names (%s) must still be looked up in the knowledge base."
             % ", ".join(unresolved))
+    # 효과 지점의 박동 — 이 레버는 기존 문구에 문장을 덧붙일 뿐이라 태그가 없다. 발화 증명이
+    # 없으면 x43(구현 완료·발화 0)을 반복한다([[30]]).
+    try:
+        from t2_lever_beat import beat as _beat
+        _beat("T2_CALLABLE_HINT", "%d resolved" % len(pairs))
+    except Exception:
+        pass
     return (" Their exact callable forms are: %s.%s" % (forms, tail))
 
 

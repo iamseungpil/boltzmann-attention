@@ -3395,6 +3395,11 @@ def _install_regen_exec():
                         if _log is None:
                             _log = self._t2_repeat_log = []
                         _log.append((getattr(tc, "name", ""), _n_rep))
+                        try:
+                            from t2_lever_beat import beat as _cbeat
+                            _cbeat("T2_REPEAT_CAP", "%s x%d" % (getattr(tc, "name", ""), _n_rep))
+                        except Exception:
+                            pass
                         _esc = (" [REPEAT-CAP] This identical call has now been issued %d times and is "
                                 "no longer being executed. Stop this line of action: state to the "
                                 "customer what you could not resolve, or take a DIFFERENT action. "
