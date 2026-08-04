@@ -103,6 +103,10 @@ def aim(decls, called_before, attempted_before, rule="hub", demanded=()):
             r = fam(r)
             if r in called_before or not r.startswith(_READ_PREFIX) or r in seen:
                 continue
+            # demand2h: 선언 하나만 의존하는 선행 read는 고정 대상에서 뺀다 — 막고 있는 경로가
+            #   하나뿐이라 "무엇을 하려는지"의 증거가 약하다(A2에서 기계 계수·gold 무관).
+            if rule == "demand2h" and rc[r] < 2:
+                continue
             seen.add(r)
             attempted = 0 if (fam(dep) in attempted_before or r in demanded) else 1
             if rule.startswith("demand") and attempted:
@@ -118,13 +122,19 @@ def aim(decls, called_before, attempted_before, rule="hub", demanded=()):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--arm", default="N97")
-    ap.add_argument("--rule", default="hub", choices=["hub", "decl", "demand", "demand2", "demand3"])
+    ap.add_argument("--rule", default="hub", choices=["hub", "decl", "demand", "demand2", "demand3", "demand2h"])
+    ap.add_argument("--trial", type=int, default=None,
+                    help="0 = 규칙을 고른 절반 · 1 = 확인용 절반 (★A 분할 검증)")
+    ap.add_argument("--list-misaim", action="store_true",
+                    help="gold가 요구하지 않는 read를 고정하는 sim을 전부 찍는다 (★B)")
     ap.add_argument("--at", default="any", choices=["any", "first", "start"],
                     help="first = at the first assistant turn that made no call "
                          "(the regen case); start = before anything happened")
     args = ap.parse_args()
 
     sims = load(ARMS[args.arm])
+    if args.trial is not None:
+        sims = [x for x in sims if x.get("trial") == args.trial]
     decls = declarations()
     print("A2 선언 (의존도구 → 선행 read):")
     for dep, reads in decls:
@@ -133,9 +143,12 @@ def main():
 
     tally = collections.Counter()
     targets = collections.Counter()
+    by_signal = collections.defaultdict(lambda: [0, 0])
+    misaim = []
     for s in sims:
         acts = agent_actions(s)
         called, attempted, demanded = set(), set(), set()
+        why = set()          # 어느 신호가 수요를 세웠나: a=의존시도 b=READ-FIRST c=레코드부재
         target = None
         if args.at == "start":
             target = aim(decls, called, attempted, args.rule, demanded)
@@ -152,14 +165,17 @@ def main():
                     #   (env가 세운 error 플래그. 도메인 어휘 0·완전 닫힘).
                     if args.rule == "demand3" and m.get("error"):
                         demanded |= {fam(r) for _d, rs in decls for r in rs}
-                    if (args.rule == "demand2" and isinstance(c, str)
+                        why.add("c")
+                    if (args.rule in ("demand2", "demand2h") and isinstance(c, str)
                             and "not found" in c.lower()):
                         demanded |= {fam(r) for _d, rs in decls for r in rs}
+                        why.add("c")
                     if isinstance(c, str) and "READ-FIRST" in c:
                         for _dep, _reads in decls:
                             for _r in _reads:
                                 if fam(_r) in c:
                                     demanded.add(fam(_r))
+                                    why.add("b")
                     continue
                 if m.get("role") != "assistant":
                     continue
@@ -181,20 +197,35 @@ def main():
                     eff = fam(inner or n)
                     called.add(eff)
                     attempted.add(eff)
+                    if any(fam(dep) == eff for dep, _r in decls):
+                        why.add("a")
         if target:
             tally["고정 발화"] += 1
             targets[target] += 1
-            if target in gold_names(s):
+            hit = target in gold_names(s)
+            sig = "".join(sorted(why)) or "-"
+            by_signal[sig][0] += 1
+            by_signal[sig][1] += 1 if hit else 0
+            if hit:
                 tally["표적이 gold에 있음"] += 1
+            else:
+                misaim.append((s["task_id"], s.get("trial"), target, sig))
             if (s.get("reward_info") or {}).get("reward") == 1:
                 tally["(그 sim은 pass)"] += 1
 
     print("sim %d · 기준 시점 = %s · 순서 규칙 = %s" % (len(sims), args.at, args.rule))
     for k, v in tally.most_common():
         print("  %-22s %d" % (k, v))
+    print("\n수요 신호별 (a=의존도구 시도 · b=우리 층 결손통지 · c=레코드 부재 오류):")
+    for sig, (n, h) in sorted(by_signal.items()):
+        print("  %-10s 발화 %3d · gold 적중 %3d (%.0f%%)" % (sig, n, h, 100.0 * h / max(1, n)))
     print("\n표적 분포:")
     for t, n in targets.most_common(10):
         print("  %-46s %d" % (t, n))
+    if args.list_misaim:
+        print("\n★오조준 %d건 (gold가 요구하지 않는 read를 고정):" % len(misaim))
+        for tid, tr, t, sig in sorted(misaim):
+            print("  %-10s t%s  %-42s 신호=%s" % (tid, tr, t, sig))
 
 
 if __name__ == "__main__":

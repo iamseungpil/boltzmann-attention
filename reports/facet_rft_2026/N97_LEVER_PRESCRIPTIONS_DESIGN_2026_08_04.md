@@ -383,7 +383,9 @@ P4를 REPEAT_CAP으로 교체하면서 required 승격이 사라졌으므로 ⑶
 ```
 PASS ⟸ 궤적(results.json)의 role="tool" 메시지 content 안에
         접미사 포함 호출형 문자열(`unlock_…(agent_tool_name="…_4829")`)이 실재
-```
+        ∧ 그런 메시지가 **≥5건**              ← ★D(재리뷰): 1/1은 만장일치의 가장 약한 형태
+        ∧ READ-FIRST 대비 동봉률 100%
+미달이면 "확인됨"이 아니라 **"표본 부족·미확정"** 으로 남긴다.
 
 **stderr 계수는 증거가 아니다.** 이번 스모크가 정확히 그 함정이었다 — `[T2_LEVER] T2_CALLABLE_HINT` 1회는
 비커밋 view-fb라 모델이 본 적이 없다(같은 계보: discovery-required가 stderr 22/25/29인데 궤적 0).
