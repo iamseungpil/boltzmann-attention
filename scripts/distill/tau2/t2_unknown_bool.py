@@ -12,8 +12,10 @@
     인자명이 회수된 레코드의 **필드로 실재** → 그 레코드가 권위자 → 통과
     실재하지 않음                          → 권위자는 손님뿐 → 손님이 그 값을 **말했을 때만** 통과
 
-전수 실측이 이 분기가 실제로 가른다는 것을 보인다: `invited`는 레코드 필드로 3회 실재/26회 부재,
-`premium_subscriber`·`needs_purchase_protection`·`business`는 **0회 실재**다.
+⚠**표면을 가려야 한다**(`x76` 실측): tool 메시지에 이름이 보이기만 하면 통과시키면 **149건을 허가**하는데
+레코드-앵커면 **44건**이다 — 105건(70%)이 KB 산문·우리 엔진 통지의 *언급*으로 통과한 것이고, 그것은
+이 레버가 막으려는 추론을 우리가 대신 하는 것이다. 엄격히 재면 `business`는 언급 1,006회에 레코드 필드
+**0**, `invited`도 **0**, `premium_subscriber`·`rho_bank_subscription`은 언급조차 0이다.
 
 자료형은 **env 도구 스키마에서 기계도출**한다([[23]] opex 0) — A2에 자료형을 적지 않는다.
 
@@ -62,16 +64,31 @@ def _closed_type(prop):
     return prop.get("type") == "boolean" or bool(prop.get("enum"))
 
 
+# 레코드 목록의 머리말 — 어느 **관계**에서 뽑힌 행인지를 이것이 말한다. 이 표지가 없는 tool
+# 메시지(KB 히트·우리 엔진 통지)는 외연을 닫지 않는다.
+_REC_HEADER = re.compile(r"Found \d+ record\(s\) in '([^']+)'")
+_REC_FIELD = re.compile(r"^\s{2,}([a-z_][a-z0-9_]*):", re.M)
+_DICT_KEY = re.compile(r"['\"]([a-z_][a-z0-9_]*)['\"]\s*:")
+
+
 def _is_record_field(name, messages):
-    """인자명이 회수된 레코드의 **필드**로 나타나는가(값이 아니라 키로)."""
-    pats = ('"%s"' % name, "'%s'" % name, "%s:" % name)
+    """인자명이 회수된 **레코드의 필드**인가.
+
+    ⚠구판은 role=tool 메시지 **전체에 대한 부분문자열 스캔**이었다. tool 메시지는 한 표면이 아니다 —
+    레코드(행), KB 히트(산문), 우리 엔진 통지(에이전트가 준 인자를 되읊음)의 셋이고 **뒤 둘은 외연을
+    닫지 않는다.** 전수 실측: 그 술어면 149건을 허가하는데 레코드-앵커면 **44건**이다(`x76`).
+    즉 105건(70%)이 *언급*만으로 통과했고, 그것은 이 레버가 막으려는 바로 그 추론(허가 없는 CWA)을
+    우리가 대신 하는 것이다. `business`는 언급 1,006회에 레코드 필드 **0**, `invited`도 **0**이다.
+    """
     for m in messages or []:
         if getattr(m, "role", None) != "tool":
             continue
         c = getattr(m, "content", None)
         if not isinstance(c, str):
             continue
-        if any(p in c for p in pats):
+        if _REC_HEADER.search(c) and name in set(_REC_FIELD.findall(c)):
+            return True
+        if name in set(_DICT_KEY.findall(c)):    # 우리 compute 도구의 dict 반환
             return True
     return False
 
@@ -162,9 +179,15 @@ def selftest():
     assert [k for k, _ in got] == ["rho_bank_subscription"], got
     print("  ok   레코드에도 발화에도 없는 불리언 = 미지")
 
-    rec = msgs + [M("tool", '{"rho_bank_subscription": true, "user_id": "a1"}')]
+    rec = msgs + [M("tool", "Found 1 record(s) in 'users':\n  rho_bank_subscription: true"
+                            "\n  user_id: a1")]
     assert unknown_args(orch, "apply_for_credit_card", {"rho_bank_subscription": False}, rec) == []
     print("  ok   레코드 필드로 실재하면 통과(권위자=레코드)")
+
+    prose = msgs + [M("tool", "1. Rho-Bank+ terms ID: doc_x Score: 12.3 Content: rho_bank_subscription benefits ...")]
+    got = unknown_args(orch, "apply_for_credit_card", {"rho_bank_subscription": False}, prose)
+    assert [k for k, _ in got] == ["rho_bank_subscription"], got
+    print("  ok   KB 산문의 *언급*은 허가가 아니다 (x76: 149→44)")
 
     said = [M("user", "yes, I have a rho bank subscription")]
     assert unknown_args(orch, "apply_for_credit_card", {"rho_bank_subscription": True}, said) == []
@@ -188,7 +211,7 @@ def selftest():
     assert unknown_args(orch, "apply_for_credit_card", {"invited": False}, msgs) == []
     os.environ["T2_ASK_UNKNOWN_BOOL"] = "1"
     print("  ok   플래그 OFF면 무발화")
-    print("PASS (8/8)")
+    print("PASS (9/9)")
 
 
 if __name__ == "__main__":
