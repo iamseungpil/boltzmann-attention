@@ -32,13 +32,27 @@ def enabled():
 
 
 def registry(orch):
-    """env가 표시한 discoverable 도구 이름 전체(접미사 포함). 실패하면 빈 집합 = 무발화."""
+    """env가 표시한 discoverable 도구 이름 전체(접미사 포함). 실패하면 빈 집합 = 무발화.
+
+    ⚠호출자가 **에이전트**일 수도 있다. `registry_from_env`는 `.environment`를 보는데 에이전트에는
+    그 속성이 없고 오케스트레이터가 `_t2_orch`로 걸려 있다 — 생성-측(`unified`)에서 부르면 조용히
+    빈 집합이 돼 레버가 죽는다(2026-08-05 라이브: `T2_FORCE_ACTION` 10회 ↔ 고정 0회). 그래서 둘 다 본다.
+    """
     try:
         import t2_axis_levers as _AX
-        agent_d, user_d = _AX.registry_from_env(orch)
-        return set(agent_d or ()) | set(user_d or ())
     except Exception:
         return set()
+    for cand in (orch, getattr(orch, "_t2_orch", None)):
+        if cand is None:
+            continue
+        try:
+            agent_d, user_d = _AX.registry_from_env(cand)
+        except Exception:
+            continue
+        names = set(agent_d or ()) | set(user_d or ())
+        if names:
+            return names
+    return set()
 
 
 def resolve(orch, bases):
@@ -91,7 +105,40 @@ def selftest():
            "get_all_user_accounts_by_user_id_3847", "close_debit_card_4721"}
 
     import t2_callable_hint as M
-    M.registry = lambda orch: reg                      # env 접근을 대체
+
+    # ★라이브 회귀(2026-08-05): 생성-측 호출자는 **에이전트**라 `.environment`가 없고
+    #   오케스트레이터가 `_t2_orch`에 걸려 있다. 대체 없이 실물 경로를 태워 확인한다.
+    class _Tool:
+        def __init__(self, n):
+            self.__name__ = n
+
+    class _Kit:
+        pass
+
+    class _Env:
+        def __init__(self, names):
+            kit = _Kit()
+            for n in names:
+                f = _Tool(n)
+                setattr(f, "__discoverable__", True)
+                setattr(kit, n, f)
+            self.tools, self.user_tools = kit, None
+
+    class _Orch:
+        def __init__(self, names):
+            self.environment = _Env(names)
+
+    class _Agent:
+        def __init__(self, names):
+            self._t2_orch = _Orch(names)
+
+    _names = {"get_all_user_accounts_by_user_id_3847"}
+    assert M.registry(_Orch(_names)) >= _names, "오케스트레이터 경로"
+    assert M.registry(_Agent(_names)) >= _names, "에이전트 경로(_t2_orch 폴백) — 라이브 발화 0의 원인"
+    assert M.registry(object()) == set()
+    print("  ok   레지스트리는 orch·agent 어느 쪽으로 불려도 도출된다")
+
+    M.registry = lambda orch: reg                      # 이하 검정은 env 접근을 대체
 
     os.environ["T2_CALLABLE_HINT"] = "1"
     h = M.hint(None, ["get_credit_limit_increase_history", "get_payment_history"],
@@ -122,7 +169,7 @@ def selftest():
     os.environ["T2_CALLABLE_HINT"] = "1"
     assert M.hint(None, ["get_payment_history"], None, "c") == ""
     print("  ok   디스패처 미선언 도메인이면 무발화")
-    print("PASS (6/6)")
+    print("PASS (7/7)")
 
 
 if __name__ == "__main__":
