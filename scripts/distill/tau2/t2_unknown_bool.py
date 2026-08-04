@@ -7,15 +7,18 @@
 **35건은 대화에 주제조차 없다**(`true`는 30건).
 
 ★술어는 **권위 소재**로 닫는다([[52]]·설계서 §2.2) — "근거가 대화에 있나"를 의미로 판정하면
-그것은 열린 술어이고 N3를 기각한 사유에 걸린다:
+그것은 열린 술어이고 N3를 기각한 사유에 걸린다. 정확히 말하면 이 술어가 재는 것은
+**여기서 CWA가 허가되는가**다 — 부재를 거짓으로 접는 추론은 외연을 닫아 준 권위자가 있을 때만 건전하다:
 
-    인자명이 회수된 레코드의 **필드로 실재** → 그 레코드가 권위자 → 통과
-    실재하지 않음                          → 권위자는 손님뿐 → 손님이 그 값을 **말했을 때만** 통과
+    인자명이 회수된 레코드의 **필드로 실재** → 레코드가 외연을 닫는다 → CWA 허가 → 통과
+    실재하지 않음                          → 닫을 권위자가 손님뿐 → 손님이 **말했을 때만** 통과
 
-⚠**표면을 가려야 한다**(`x76` 실측): tool 메시지에 이름이 보이기만 하면 통과시키면 **149건을 허가**하는데
-레코드-앵커면 **44건**이다 — 105건(70%)이 KB 산문·우리 엔진 통지의 *언급*으로 통과한 것이고, 그것은
-이 레버가 막으려는 추론을 우리가 대신 하는 것이다. 엄격히 재면 `business`는 언급 1,006회에 레코드 필드
-**0**, `invited`도 **0**, `premium_subscriber`·`rho_bank_subscription`은 언급조차 0이다.
+⚠**표면을 가려야 한다**(`x76_cwa_licence_surface.py` 전수): tool 메시지에 이름이 *보이기만* 하면
+통과시키면 N97에서 공급된 닫힌-자료형 인자 **317건 중 181건**을 허가하는데, **레코드가 실제로
+닫아 준 것은 4건**뿐이다(값이 실린 오-허가 176건). N97B는 255 대 **106**이다. 허가의 출처는
+KB 정책 산문과 env TypeError 문자열이었다 — 둘 다 개념을 **언급**할 뿐 종족을 **열거**하지 않는다.
+`business`는 N97에서 언급 939회에 레코드 필드 **0**, `invited`도 **0**,
+`premium_subscriber`·`rho_bank_subscription`은 언급조차 각각 1·0회다.
 
 자료형은 **env 도구 스키마에서 기계도출**한다([[23]] opex 0) — A2에 자료형을 적지 않는다.
 
@@ -64,21 +67,38 @@ def _closed_type(prop):
     return prop.get("type") == "boolean" or bool(prop.get("enum"))
 
 
-# 레코드 목록의 머리말 — 어느 **관계**에서 뽑힌 행인지를 이것이 말한다. 이 표지가 없는 tool
-# 메시지(KB 히트·우리 엔진 통지)는 외연을 닫지 않는다.
-_REC_HEADER = re.compile(r"Found \d+ record\(s\) in '([^']+)'")
-_REC_FIELD = re.compile(r"^\s{2,}([a-z_][a-z0-9_]*):", re.M)
-_DICT_KEY = re.compile(r"['\"]([a-z_][a-z0-9_]*)['\"]\s*:")
-
-
 def _is_record_field(name, messages):
-    """인자명이 회수된 **레코드의 필드**인가.
+    """인자명이 회수된 **레코드의 필드**인가 — **키 자리**에서만 센다.
 
-    ⚠구판은 role=tool 메시지 **전체에 대한 부분문자열 스캔**이었다. tool 메시지는 한 표면이 아니다 —
-    레코드(행), KB 히트(산문), 우리 엔진 통지(에이전트가 준 인자를 되읊음)의 셋이고 **뒤 둘은 외연을
-    닫지 않는다.** 전수 실측: 그 술어면 149건을 허가하는데 레코드-앵커면 **44건**이다(`x76`).
-    즉 105건(70%)이 *언급*만으로 통과했고, 그것은 이 레버가 막으려는 바로 그 추론(허가 없는 CWA)을
-    우리가 대신 하는 것이다. `business`는 언급 1,006회에 레코드 필드 **0**, `invited`도 **0**이다.
+    ⚠구판은 role=tool 메시지 **전체에 대한 부분문자열 스캔**(`'"n"' ∨ "'n'" ∨ "n:"`)이었다.
+    tool 메시지는 한 표면이 아니다 — 레코드(행)·KB 히트(산문)·env 오류 문자열의 셋이고
+    **뒤 둘은 외연을 닫지 않는다.** 구판이 권위자로 받아들인 것들(축자):
+
+      · KB 산문 — *"- Time to qualify once you are **invited:** 1 month(s)."*
+        (`doc_credit_cards_diamond_elite_card_009`) 문장이 콜론으로 끝났을 뿐이다.
+        문서는 개념을 **언급**하지 누가 그것을 만족하는지 **열거**하지 않는다.
+      · env TypeError — *"missing 12 required positional arguments: … **'contacted_merchant'** …"*
+        인자 이름을 나열한 오류 문자열이 사실의 권위자가 된다.
+
+    전수 실측(`x76_cwa_licence_surface.py`) — 공급된 닫힌-자료형 인자:
+
+        arm    레코드가 닫아 준 것   구판이 통과시킨 것   그중 값이 실린 오-허가
+        N97          4                   181                  176
+        N97B       106                   255                  149
+
+    교정 술어 = **키 자리**뿐이다. 키는 콜론 **앞**에 오고, 언급은 그렇지 않다:
+
+        '"name":' ∨ "'name':"        구조화 반환의 키
+        ^[ \\t]*name[ \\t]*:          줄-지향 레코드 나열의 키(줄머리)
+
+    두 arm 720개 인자 자리에서 이 술어는 레코드-표면 판정과 **완전 일치**한다
+    (N97 4·4·0·0 / N97B 106·106·0·0 = 오-허가 0 · 참-허가 손실 0).
+
+    ★출력 형식 리터럴을 쓰지 않는다. `Found N record(s) in '…'` 머리말로 앵커하면 같은 수가
+    나오지만 그것은 tau2 DB 도구의 **렌더링**이라 ABox/env를 갈면 레코드 분기가 조용히 죽는다
+    ([[05]] 전이). 키 자리는 형식과 무관하다. 잔여 실패형은 KB 문서가 `name:`을 **줄머리**에
+    쓰는 정의문이고(두 arm 720자리 중 0건) 그때는 허가 쪽으로 넘어간다 = 레버가 꺼질 뿐
+    정당한 행동을 막지 않는다.
     """
     for m in messages or []:
         if getattr(m, "role", None) != "tool":
@@ -86,9 +106,9 @@ def _is_record_field(name, messages):
         c = getattr(m, "content", None)
         if not isinstance(c, str):
             continue
-        if _REC_HEADER.search(c) and name in set(_REC_FIELD.findall(c)):
+        if ('"%s":' % name) in c or ("'%s':" % name) in c:
             return True
-        if name in set(_DICT_KEY.findall(c)):    # 우리 compute 도구의 dict 반환
+        if re.search(r"^[ \t]*%s[ \t]*:" % re.escape(name), c, re.M):
             return True
     return False
 
@@ -187,7 +207,24 @@ def selftest():
     prose = msgs + [M("tool", "1. Rho-Bank+ terms ID: doc_x Score: 12.3 Content: rho_bank_subscription benefits ...")]
     got = unknown_args(orch, "apply_for_credit_card", {"rho_bank_subscription": False}, prose)
     assert [k for k, _ in got] == ["rho_bank_subscription"], got
-    print("  ok   KB 산문의 *언급*은 허가가 아니다 (x76: 149→44)")
+    print("  ok   KB 산문의 *언급*은 허가가 아니다")
+
+    # x76이 실측한 오-허가 두 표면. 둘 다 콜론/따옴표를 담고 있어 구판을 통과했다.
+    sentence = msgs + [M("tool", "4. Diamond Elite Card: Invitation Promo\n   Score: 0.63\n"
+                                 "   Content: - Time to qualify once you are invited: 1 month(s).")]
+    got = unknown_args(orch, "apply_for_credit_card", {"invited": False}, sentence)
+    assert [k for k, _ in got] == ["invited"], got
+    print("  ok   콜론으로 끝난 **문장**은 키가 아니다(N97 축자·구판 통과)")
+
+    typeerr = msgs + [M("tool", "Error: Invalid arguments: file_dispute() missing 12 required "
+                                "positional arguments: 'card_action', 'invited', 'user_id'")]
+    got = unknown_args(orch, "apply_for_credit_card", {"invited": False}, typeerr)
+    assert [k for k, _ in got] == ["invited"], got
+    print("  ok   인자명을 나열한 **오류 문자열**은 권위자가 아니다(N97 축자·구판 통과)")
+
+    jsonrec = msgs + [M("tool", '{"user_id": "a1", "invited": false}')]
+    assert unknown_args(orch, "apply_for_credit_card", {"invited": False}, jsonrec) == []
+    print("  ok   구조화 반환의 키 자리는 허가(형식 리터럴 없이)")
 
     said = [M("user", "yes, I have a rho bank subscription")]
     assert unknown_args(orch, "apply_for_credit_card", {"rho_bank_subscription": True}, said) == []
@@ -211,7 +248,7 @@ def selftest():
     assert unknown_args(orch, "apply_for_credit_card", {"invited": False}, msgs) == []
     os.environ["T2_ASK_UNKNOWN_BOOL"] = "1"
     print("  ok   플래그 OFF면 무발화")
-    print("PASS (9/9)")
+    print("PASS (12/12)")
 
 
 if __name__ == "__main__":
