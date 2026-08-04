@@ -3856,12 +3856,26 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         else:
             state.messages.append(message)
 
-    def _gen(self, work, bad_words, call_name, tool_choice=None):
+    def _gen(self, work, bad_words, call_name, tool_choice=None, pin=None):
         kw = dict(self.llm_args)
+        _tools = self.tools
         if use_badwords and bad_words:
             eb = dict(kw.get("extra_body") or {})
             eb["bad_words"] = sorted(bad_words)
             kw["extra_body"] = eb
+        # ★P1(N97 §1·x72 3/3): 이름만 지정하면 모델이 **내부 도구명을 날조**한다(x72 T2 실측
+        #   `AccountLookupTool`). 디스패처 인자를 **단일값 enum**으로 함께 고정해야 표적에 닿는다.
+        #   스키마를 안전하게 못 만들면 고정 자체를 포기한다(이름만 지정 = 날조 유도라 더 나쁨).
+        if pin:
+            try:
+                import t2_pin_read as _PR
+                _pt = _PR.tools_with_pin(self.tools, pin[0], pin[1], pin[2])
+                if _pt is not None:
+                    _tools, tool_choice = _pt, _PR.choice(pin[0])
+                    print("[T2_PIN_READ] pinned %s(%s=%s)" % (pin[0], pin[1], pin[2]),
+                          file=_sys.stderr, flush=True)
+            except Exception as _pe:
+                print("[T2_PIN_READ] skipped: %r" % (_pe,), file=_sys.stderr, flush=True)
         if tool_choice:                          # ★레버 A(2026-07-18): tau2 `generate`의 일급 파라미터로 통과
             kw["tool_choice"] = tool_choice
             # ★max_tokens 하한 (2026-07-23 근본원인 규명·vLLM #19051/#36794): tool_choice='required'는
@@ -3872,7 +3886,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if _mt is not None and _mt < _FORCE_MIN_TOKENS:
                 kw["max_tokens"] = _FORCE_MIN_TOKENS
         try:
-            _r = la.generate(model=self.llm, tools=self.tools,
+            _r = la.generate(model=self.llm, tools=_tools,
                              messages=self._system_messages + work, call_name=call_name, **kw)
             # ★P3 살리기(C248·기본 OFF): hermes 파서가 텍스트로 강등한 호출을 회수한다.
             #   모델이 이미 낸 첫 블록만 복구하고 복제분은 버린다([[10]] 정합).
@@ -3892,7 +3906,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                       file=_sys.stderr, flush=True)
                 kw.pop("tool_choice", None)
                 try:
-                    return la.generate(model=self.llm, tools=self.tools,
+                    return la.generate(model=self.llm, tools=_tools,
                                        messages=self._system_messages + work, call_name=call_name, **kw)
                 except Exception as _ce2:
                     _ce = _ce2
@@ -3918,7 +3932,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     kw2 = dict(kw)
                     kw2["max_tokens"] = _newmt
                     try:
-                        return la.generate(model=self.llm, tools=self.tools,
+                        return la.generate(model=self.llm, tools=_tools,
                                            messages=self._system_messages + work,
                                            call_name=call_name, **kw2)
                     except Exception as _ce3:
@@ -5172,8 +5186,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception:
                     pass
             work = work + fb
+            # ★P1: A2 `require_tool_before`가 선언한 선행 read가 미실행이면 이 재생성 1회를
+            #   그 read로 고정한다. deny 스텁이 아니라 **생성-측 제약**이라 replay가 비교할
+            #   tool 출력을 만들지 않는다 — require_tool_before를 권고로 강등시킨 C210 사유가
+            #   여기엔 닿지 않는다. 조건 미충족·해소 실패면 None = 종전 거동.
+            _pin_r = None
+            try:
+                import t2_pin_read as _PRm
+                _pin_r = _PRm.pin_for(self, am, a2, state.messages)
+            except Exception:
+                _pin_r = None
             am = _gen(self, work, bw(), "agent_response_unified_regen",
-                      tool_choice="required" if force_required else None)
+                      tool_choice="required" if force_required else None, pin=_pin_r)
 
         # ★W-B~W-D(arm③·검출 전용): 턴의 **최종 응답**에 대해 2패스 형식화 + §1d 검증.
         #   · 도구 **미제공** + guided_json (문법과 도구를 같이 걸면 tool_calls가 0이 된다·rev3 §3-2b)
