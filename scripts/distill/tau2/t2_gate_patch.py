@@ -4557,6 +4557,48 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             #   발화에 없으면 deny — 전사-슬립 8/8 검출·false-block 0·LLM 0.
                             wd = _ref_verify_deny(state.messages, c, rv_specs)
                             _wtag = "T2_REF_VERIFY"
+                        if not wd:
+                            # ★N2b `T2_ASK_UNKNOWN_BOOL`(설계서 §2·기본 OFF): 닫힌 자료형(불리언·enum)
+                            #   인자를 **모르면서 채운** 경우. 권위 소재로 판정한다([[52]]) — 인자명이
+                            #   회수된 레코드의 필드면 레코드가 답하고, 아니면 손님만 아는 값이다.
+                            #   001: 손님이 답하지 않자 `rho_bank_subscription: false`를 스스로 채웠다(gold=true).
+                            try:
+                                import t2_unknown_bool as _ub
+                                _eff_n, _eff_a = _eff_tool_name(c), _args_dict(c)
+                                _inner_a = _eff_a.get("arguments")
+                                if isinstance(_inner_a, str):
+                                    try:
+                                        _inner_a = json.loads(_inner_a)
+                                    except Exception:
+                                        _inner_a = None
+                                _unk = _ub.unknown_args(self, _eff_n,
+                                                        _inner_a if isinstance(_inner_a, dict) else _eff_a,
+                                                        state.messages)
+                                if _unk:
+                                    wd = _ub.feedback(_eff_n, _unk)
+                                    _wtag = "T2_ASK_UNKNOWN_BOOL"
+                                    from t2_lever_beat import beat as _ubeat
+                                    _ubeat("T2_ASK_UNKNOWN_BOOL",
+                                           ",".join(k for k, _ in _unk))
+                            except Exception:
+                                pass
+                        if not wd and wag_specs:
+                            # ★N1 `T2_HANDOFF_ARG_GROUND`(설계서 §1·기본 OFF): give는 80회 중 75회가
+                            #   **도구명만** 실어 보내고 값은 본문에 실린다 — 손님이 실행한 인자값의 90%가
+                            #   에이전트 산문에 축자로 존재한다. 그래서 A2 give-측 규칙(P9/P10)이 검사할
+                            #   것이 없다. 후보는 본문에서 뽑고 **판정은 위와 같은 함수**가 한다(A2 저작 0).
+                            try:
+                                import t2_handoff_ground as _hg
+                                _hd = _hg.check(_write_arg_ground_deny, state.messages,
+                                                getattr(am, "content", None), wag_specs,
+                                                getattr(c, "name", None))
+                                if _hd:
+                                    wd = _hd
+                                    _wtag = "T2_HANDOFF_ARG_GROUND"
+                                    from t2_lever_beat import beat as _hbeat
+                                    _hbeat("T2_HANDOFF_ARG_GROUND", getattr(c, "name", ""))
+                            except Exception:
+                                pass
                         if wd:
                             wev_fb = (c, wd)
                             # ★내부 도구명 로깅(§2ba 오귀속 교훈: per-도구 로그에 이름 필수)

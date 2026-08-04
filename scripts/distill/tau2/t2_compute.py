@@ -331,6 +331,17 @@ def apply_op(spec, ctx):
                     continue                                  # 세그먼트 불일치=조용히 스킵
                 if row.get("invite_only") and not ctx.get("invited"):
                     why = "invitation-only"
+                    # ★N2a `T2_UNKNOWN_UNVERIFIED` (2026-08-05·설계서 §2.4b·기본 OFF):
+                    #   **미지와 거짓을 가르지 않는 것이 우리 층의 같은 결함이었다.** `not ctx.get()`은
+                    #   키 부재(모른다)와 명시적 false(초대받지 않았다)를 똑같이 배제로 접는다 —
+                    #   모델의 "모르면 false"를 지적하면서 엔진이 한 층 아래서 같은 일을 했다.
+                    #   키가 아예 없으면 그 사실은 **표에 없는 것**이므로 3버킷 규약대로 unverified다
+                    #   (A2 `_note`: "미지=두 값의 판정이 갈리면 unverified"). 명시적 false는 그대로 배제.
+                    if (os.environ.get("T2_UNKNOWN_UNVERIFIED") == "1"
+                            and "invited" not in ctx):
+                        why = None
+                        missing.append("invitation status (you did not state whether the "
+                                       "customer was invited; this card is invitation-only)")
                 # ★C187(c): 조건부 값 — A2 `conditional_fields`가 (기본 필드 → 대체 필드, 조건
                 #   파라미터)를 선언한다(예: fx_fee → fx_fee_with_premium, when=premium_subscriber).
                 #   003 실측: Silver의 fx는 무구독 2.75%/**premium 구독 시 0%**인데 구판은 무조건부
