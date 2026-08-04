@@ -11,7 +11,19 @@ matters is what reached the conversation.
 
 Counting rule, stated because two counts of this disagreed: one occurrence per regex match
 of `matches: …` inside a role=tool message body, deduplicated by nothing — a message
-carrying three notes counts three.
+carrying three notes counts three. Driver-log lines are deliberately excluded: the log can
+hold a line the model never saw, and only what reached the conversation can have acted.
+
+Classification is by the emitting branch of `t2_match_count.note`, matched on a marker that
+is unique to each — the first version of this script tested for "all" and silently folded
+the partial form into the certificate, because every branch says "all of these words":
+
+  0건     `matches: no document contains all of these words; K shown by ranking`
+          → starts with "no document"
+  전부표시  `matches: N documents contain all of these words; all N shown`
+          → contains "; all "          ← the certificate: everything that matched was seen
+  부분표시  `matches: N documents contain all of these words; K shown (M not shown)`
+          → contains "not shown)"      ← the narrow-your-query signal
 """
 
 import argparse
@@ -30,11 +42,15 @@ NOTE = re.compile(r"matches: [^\n]{0,90}")
 
 
 def classify(note):
+    """분기별 **고유 표지**로 가른다 — 세 문구가 전부 "all of these words"를 담고 있어서
+    "all" 포함 여부로 가르면 부분표시가 인증으로 접힌다(초판 실측 149 = 126 + 23)."""
     if "no document" in note:
         return "0건 — 이 낱말 전부를 담은 문서 없음"
-    if "all" in note:
+    if "not shown)" in note:
+        return "부분 표시 — 좁히라는 신호"
+    if "; all " in note:
         return "전부 표시 — 경계 인증 성립"
-    return "일부 표시 — 좁히라는 신호"
+    return "미분류(문구 변경?)"
 
 
 def main():
