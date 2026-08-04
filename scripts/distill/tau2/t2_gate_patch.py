@@ -5236,6 +5236,19 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   "처리됐습니다"라고 보고하는 발화를 되돌린다. 술어는 전수 재계량으로 가장 좁은 것을
             #   골랐다(주장 ∧ 이 메시지에 호출 없음 ∧ 지금까지 실효 write 0 = 28건/23 sim·과차단 후보 1).
             #   **막는 것은 주장이지 행동이 아니다** — 무엇을 할지는 모델이 정한다([[06]]).
+            # ★L5-a `T2_TRANSFER_PREREQ`(기본 OFF): 검색 한 번 없이 사람에게 넘기는 턴만 되돌린다
+            #   (전수 9건/9 sim). 이관을 막지 않고 전제만 요구한다 — 생성-측이라 replay 무관.
+            try:
+                import t2_transfer_prereq as _tp
+                if _tp.missing_prereq(state.messages, am):
+                    try:
+                        fb.append(UserMessage(role="user", content=_tp.FEEDBACK))
+                    except TypeError:
+                        fb.append(UserMessage(content=_tp.FEEDBACK))
+                    from t2_lever_beat import beat as _tbeat
+                    _tbeat("T2_TRANSFER_PREREQ")
+            except Exception:
+                pass
             try:
                 import t2_claim_block as _cb
                 if _cb.blocks(state.messages, getattr(am, "content", None),
