@@ -5232,6 +5232,22 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             # ★action-required 리마인더 채널 (순수-조언 회피=tool_call 0 → 앵커할 ToolMessage 없음).
             #   rw_fb[0] is None = 순수-조언 action-required(2085행). UserMessage 리마인더로 재생성.
             #   작업버퍼(work)만·state.messages 비커밋 = 채널 절대규칙(1849·replay-clean).
+            # ★L4 `T2_CLAIM_BLOCK`(ACTION_HANDOFF_LEVERS rev2·기본 OFF): 실행이 하나도 없는데
+            #   "처리됐습니다"라고 보고하는 발화를 되돌린다. 술어는 전수 재계량으로 가장 좁은 것을
+            #   골랐다(주장 ∧ 이 메시지에 호출 없음 ∧ 지금까지 실효 write 0 = 28건/23 sim·과차단 후보 1).
+            #   **막는 것은 주장이지 행동이 아니다** — 무엇을 할지는 모델이 정한다([[06]]).
+            try:
+                import t2_claim_block as _cb
+                if _cb.blocks(state.messages, getattr(am, "content", None),
+                              bool(am.tool_calls or []), _eff_tool_name):
+                    try:
+                        fb.append(UserMessage(role="user", content=_cb.FEEDBACK))
+                    except TypeError:
+                        fb.append(UserMessage(content=_cb.FEEDBACK))
+                    from t2_lever_beat import beat as _cbeat
+                    _cbeat("T2_CLAIM_BLOCK")
+            except Exception:
+                pass
             if rw_fb is not None and rw_fb[0] is None and not (am.tool_calls or []):
                 try:
                     fb.append(UserMessage(role="user", content=rw_fb[1]))
