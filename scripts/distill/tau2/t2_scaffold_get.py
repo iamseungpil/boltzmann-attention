@@ -1472,9 +1472,19 @@ def apply():
                         #   이제 A2 `eplan`에서 읽고, 미선언 도메인이면 그 문장을 **생략**한다.
                         _ep_r = ((a2 or {}).get("eplan") or {})
                         _unl_r, _cal_r = _ep_r.get("unlock_tool"), _ep_r.get("dispatch_tool")
+                        # ★P3(N97 §3): 접미사 포함 호출형은 **어느 문구를 쓰든** 붙는다.
+                        #   2026-08-05 스모크 실측: banking은 이 도구에 `requires_reads_feedback`를
+                        #   선언해 두었고, 아래 오버라이드 분기가 먼저 반환하는 바람에 호출형이
+                        #   **15회 중 0회** 동봉됐다(052가 같은 거부를 12회 반복하다 죽은 그 문구다).
+                        #   해소 실패 시 빈 문자열이므로 어느 분기에서도 문구 변화는 없다.
+                        try:
+                            import t2_callable_hint as _CH
+                            _hint_r = _CH.hint(self, _missing_r, _unl_r, _cal_r)
+                        except Exception:
+                            _hint_r = ""
                         _fb_r = d.get("requires_reads_feedback")
                         if _fb_r:
-                            _msg_r = _fb_r.replace("{missing}", ", ".join(_missing_r))
+                            _msg_r = _fb_r.replace("{missing}", ", ".join(_missing_r)) + _hint_r
                         elif not (_unl_r and _cal_r):
                             # dispatcher 미선언 = 접미사/잠금해제 개념이 없는 도메인 → 구조 안내 생략
                             _msg_r = ("Error: [READ-FIRST] this calculation depends on records you have "
