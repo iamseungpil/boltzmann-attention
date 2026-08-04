@@ -1470,6 +1470,15 @@ def apply():
                                       "names): %s. Read them first, then retry this calculation."
                                       % ", ".join(_missing_r))
                         else:
+                            # ★P3(N97 §3): 이 문구는 "접미사를 KB에서 찾아라"까지만 말한다. 같은 통지에서
+                            #   050은 KB 검색으로 회복하고 052는 shell grep 6회 끝에 문맥 초과로 죽었다.
+                            #   찾으라고 하는 대신 **접미사를 env 레지스트리에서 뽑아 준다**(A2 저작 0).
+                            #   유일 해소만 지목하고, 못 풀면 빈 문자열이라 문구가 그대로 남는다.
+                            try:
+                                import t2_callable_hint as _CH
+                                _hint_r = _CH.hint(self, _missing_r, _unl_r, _cal_r)
+                            except Exception:
+                                _hint_r = ""
                             _msg_r = ("Error: [READ-FIRST] this calculation depends on records you have not read "
                                       "yet in this conversation. Missing required reads (BASE names): %s. These are "
                                       "discoverable tools whose REAL names carry a numeric suffix - do NOT unlock "
@@ -1477,7 +1486,7 @@ def apply():
                                       "knowledge base (search for the base name), then %s "
                                       "with that full name and call it via %s. Read the "
                                       "ACTUAL values from the records, then call this tool again."
-                                      % (", ".join(_missing_r), _unl_r, _cal_r))
+                                      % (", ".join(_missing_r), _unl_r, _cal_r)) + _hint_r
                         ours[id(tc)] = ToolMessage(id=tc.id, role="tool",
                                                    requestor=getattr(tc, "requestor", "assistant"),
                                                    error=True, content=_msg_r)

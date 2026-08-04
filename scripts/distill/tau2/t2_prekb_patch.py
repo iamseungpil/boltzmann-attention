@@ -455,12 +455,23 @@ def apply():
                     #   약화되지만 측정 정합성이 우선([[19]] 조정=끄기 아님).
                     if _replay_compared(env, getattr(tc, "name", None)):
                         rbd.add(fam)
+                        # ★P3(N97 §3): 이 통지도 base 이름만 준다. discoverable이면 그대로는 부를 수
+                        #   없으므로 env 레지스트리에서 접미사를 뽑아 호출형을 덧붙인다(A2 저작 0·
+                        #   유일 해소만·못 풀면 빈 문자열이라 문구 불변).
+                        try:
+                            import t2_callable_hint as _CH
+                            _ep_rb = ((a2 or {}).get("eplan") or {})
+                            _hint_rb = _CH.hint(self, miss, _ep_rb.get("unlock_tool"),
+                                                _ep_rb.get("dispatch_tool"))
+                        except Exception:
+                            _hint_rb = ""
                         _view_fb(self,
                                  "NOTE: the tool '%s' was just executed WITHOUT the required "
                                  "pre-check %s. Run %s NOW and compare its output with what was "
                                  "just done; if they disagree, tell the customer and correct "
-                                 "course before going further."
-                                 % (getattr(tc, "name", fam), ", ".join(miss), ", ".join(miss)),
+                                 "course before going further.%s"
+                                 % (getattr(tc, "name", fam), ", ".join(miss), ", ".join(miss),
+                                    _hint_rb),
                                  "rb-postcheck")
                         _mark("require_before post-check (replay-safe) fam=%s (missing %s)"
                               % (fam, ",".join(miss)))
