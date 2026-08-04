@@ -107,10 +107,14 @@ def aim(decls, called_before, attempted_before, rule="hub", demanded=()):
             #   하나뿐이라 "무엇을 하려는지"의 증거가 약하다(A2에서 기계 계수·gold 무관).
             if rule == "demand2h" and rc[r] < 2:
                 continue
-            seen.add(r)
             attempted = 0 if (fam(dep) in attempted_before or r in demanded) else 1
             if rule.startswith("demand") and attempted:
                 continue          # 수요 신호가 없으면 고정하지 않는다
+            # ⚠`seen`은 **수요 검사를 통과한 뒤에** 찍는다. 앞에서 찍으면 같은 read를 요구하는
+            #   첫 선언이 그 read를 소비해버려, 뒤에 오는 선언의 수요가 영영 반영되지 않는다
+            #   (2026-08-05 실측: 관문을 요구하는 선언 4개 중 첫 번째만 검사돼 발화 46→36으로
+            #   과소계수됐다. `test_pin_read_replay.py`가 구현과의 불일치로 잡았다).
+            seen.add(r)
             order = (i, j) if rule == "decl" else (-rc[r], i, j)
             ranked.append((attempted, order, r))
     if not ranked:

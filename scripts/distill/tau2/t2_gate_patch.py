@@ -3877,16 +3877,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 _pt = _PR.tools_with_pin(self.tools, pin[0], pin[1], pin[2])
                 if _pt is not None:
                     _tools, tool_choice = _pt, _PR.choice(pin[0])
+                    # 캡은 **적용된 뒤에만** 소모한다 — 스키마 조립 실패는 발화가 아니다.
+                    _PR.mark_pinned(self)
                     print("[T2_PIN_READ] pinned %s(%s=%s)" % (pin[0], pin[1], pin[2]),
                           file=_sys.stderr, flush=True)
+                    try:
+                        from t2_lever_beat import beat as _pbeat
+                        _pbeat("T2_PIN_READ", pin[2])
+                    except Exception:
+                        pass
             except Exception as _pe:
                 print("[T2_PIN_READ] skipped: %r" % (_pe,), file=_sys.stderr, flush=True)
         if tool_choice:                          # ★레버 A(2026-07-18): tau2 `generate`의 일급 파라미터로 통과
             kw["tool_choice"] = tool_choice
             # ★max_tokens 하한 (2026-07-23 근본원인 규명·vLLM #19051/#36794): tool_choice='required'는
             #   강제 tool-call JSON을 *완성*해야 하는데 max_tokens가 작으면 중간 절단 → hermes 파서 EOF →
-            #   vLLM이 오도성 `__log_extra_fields__` 400 보고(실측: mt=20 실패·mt≥100 성공·전 도구수). 라이브
-            #   llm_args엔 max_tokens 미설정(=vLLM 기본=문맥잔량=대형)이라 무영향 — 소형 설정 시만 상향(방어).
+            #   vLLM이 오도성 `__log_extra_fields__` 400 보고(실측: mt=20 실패·mt≥100 성공·전 도구수).
+            #   ⚠2026-08-05 정정: 이 주석은 "라이브는 max_tokens 미설정"이라 적고 있었으나 **낡았다** —
+            #   `go_stack.sh`가 C271 이후 `T2_AGENT_MAX_TOKENS=8192`를 설정하고 러너가 그대로 싣는다.
+            #   8192는 실패 구간(20~100)보다 두 자릿수 위이고 하한(_FORCE_MIN_TOKENS)에도 안 걸린다.
             _mt = kw.get("max_tokens")
             if _mt is not None and _mt < _FORCE_MIN_TOKENS:
                 kw["max_tokens"] = _FORCE_MIN_TOKENS
