@@ -16,16 +16,43 @@ import sys
 
 _SEEN = {}
 _CAP = 3
+_SIM = [None]
+
+
+def set_sim_from(obj):
+    """이 턴이 어느 sim인지 기록한다 — 로그 한 줄이 어느 태스크의 것인지 알기 위해.
+
+    2026-08-05 P1 스모크에서 발화 3건이 **어느 sim의 것인지 말할 수 없었다**(concurrency 4로
+    로그가 섞이는데 줄에 식별자가 없었다). 발화×결과 귀속(C294)이 판정의 1차 지표인데 그 귀속이
+    로그 수준에서 불가능했던 것이다. orchestrator는 `task.id`를 갖고 에이전트는 `_t2_orch`로
+    그것에 닿는다 — 둘 중 어느 쪽으로 불려도 찾는다. 실패하면 종전대로 무기명.
+    """
+    try:
+        for cand in (obj, getattr(obj, "_t2_orch", None)):
+            task = getattr(cand, "task", None)
+            tid = getattr(task, "id", None)
+            if tid:
+                _SIM[0] = str(tid)
+                return
+    except Exception:
+        pass
 
 
 def beat(flag, detail=""):
-    """레버 효과 지점에서 호출 — 동작의 stderr 증거. 실패해도 무해."""
+    """레버 효과 지점에서 호출 — 동작의 stderr 증거. 실패해도 무해.
+
+    캡은 **(레버, sim)별**이다. 프로세스 전체로 세면 한 sim이 캡을 소진해 나머지 sim의 발화가
+    통째로 안 보인다 — 존재 증명에는 충분했지만 귀속에는 못 쓴다.
+    """
     try:
-        n = _SEEN.get(flag, 0) + 1
-        _SEEN[flag] = n
+        sim = _SIM[0]
+        key = (flag, sim)
+        n = _SEEN.get(key, 0) + 1
+        _SEEN[key] = n
         if n <= _CAP:
-            print("[T2_LEVER] %s%s%s" % (flag, (" " + detail) if detail else "",
-                                         " (이후 무음)" if n == _CAP else ""),
+            print("[T2_LEVER] %s%s%s%s" % (flag, (" sim=" + sim) if sim else "",
+                                           (" " + detail) if detail else "",
+                                           " (이후 무음)" if n == _CAP else ""),
                   file=sys.stderr, flush=True)
     except Exception:
         pass

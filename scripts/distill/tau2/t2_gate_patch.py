@@ -3598,6 +3598,11 @@ def apply_gate_regen(max_regen=1):
     orig_gen = LLMAgent._generate_next_message
 
     def gen_gated(self, message, state):
+        try:
+            from t2_lever_beat import set_sim_from as _ssf
+            _ssf(self)
+        except Exception:
+            pass
         gate = getattr(self, "_t2_gate", None)
         if gate is None:
             return orig_gen(self, message, state)
@@ -3972,6 +3977,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 return _types.SimpleNamespace(role="assistant", content=_txt, tool_calls=None)
 
     def unified(self, message, state):
+        # 발화 로그에 sim을 붙인다 — 귀속(C294)이 판정의 1차 지표인데 로그가 무기명이면 못 한다.
+        try:
+            from t2_lever_beat import set_sim_from as _ssf
+            _ssf(self)
+        except Exception:
+            pass
         if not hasattr(self, "_t2_static_bl"):
             self._t2_static_bl = _static_blacklist(self.tools, placeholders)
             self._t2_session_bl = set()
