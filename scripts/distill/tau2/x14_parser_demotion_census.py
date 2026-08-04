@@ -36,7 +36,7 @@ from collections import Counter
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _SIM = os.path.abspath(os.path.join(_HERE, "..", "..", "..",
                                     "reports", "facet_rft_2026", "sim_results"))
-GLOB = "bank_day*front[AB]_*.results.json.gz"
+GLOB = os.environ.get("X14_GLOB", "bank_day*front[AB]_*.results.json.gz")
 
 _TAG = re.compile(r"<tool_call>|</tool_call>|<function_call>|<tools_call>")
 _JSONISH = re.compile(r'\{\s*"name"\s*:\s*"[^"]+"\s*,\s*"arguments"\s*:', re.S)
