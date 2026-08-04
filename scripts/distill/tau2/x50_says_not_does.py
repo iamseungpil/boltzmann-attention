@@ -45,6 +45,8 @@ ARMS = {
     # The full-97 sweep of 2026-08-04. `main` is the LPT-scheduled block, `batch_NN` the
     # shared reserve; the glob takes both so the arm grows as the reserve drains.
     "N97": "bank_n97_gpu*_20260804",
+    # 처방 4종을 켠 재런(2026-08-05). 같은 97×nt2라 N97과 태스크·trial 단위로 짝지어진다.
+    "N97B": "bank_n97_gpu*_20260805",
 }
 
 # Wrappers, not actions: they carry another tool's name in their arguments, so without
