@@ -186,3 +186,14 @@ export T2_KB_NOHIT_K=2            #   연속 무득점 문턱(설계서 §P2 k=2
 export T2_TRANSFER_TIER=1         # P15 이관 사유 티어 표면화(004 실측·정책 doc_042 티어표·A2 구동)
 #   P12(axis replay 가드)·P7(byref 오류 문구)·§4-1(byref 중첩 op 트리)은 플래그 없는
 #   **무조건 위생**이라 등재 불요.
+
+# ── ★N97 처방 스택 (N97_LEVER_PRESCRIPTIONS_DESIGN_2026_08_04·리뷰 2회 반영) ──────────
+#   근거 = 실패 50 태스크 매턴 정독(N97_TASKWISE_FORENSIC) + 전수 194 sim 재계량(x73).
+#   구현 완료분만 등재한다. P2는 폐기(술어는 정상이었다·설계서 §2), P6는 **P3 이후 재계량**이
+#   GO 조건이라 아직 없다.
+export T2_CALLABLE_HINT=1         # P3 통지에 접미사 포함 호출형 동봉([READ-FIRST] 44발화/18sim·051이 이것만 없어 이관)
+export T2_REPEAT_CAP=8            # P4 동일 호출 K회 후 실행 중단·전환 요구(경고 182 ↔ 반복 71·084/t1 max_steps 사망)
+export T2_QUOTE_HINT=1            # P5 인용 반려 시 원장 표기 지목 — **값이 원장에 실재할 때만**(046 t0/t1 자연실험)
+export T2_PIN_READ=1              # P1 선행 read를 named tool_choice + 단일값 enum으로 1회 고정(x72 3/3·replay 무관)
+#   ⚠P1 단독 기대 pass 증가 = **0으로 사전등록**(설계서 §0c). 관문 도달 26 sim도 전부 실패했으므로
+#   1차 지표는 pass가 아니라 원인별 이동(관문 미도달 53 / 0점 410행 / shell 식별자 49 / 최대 반복 71).
