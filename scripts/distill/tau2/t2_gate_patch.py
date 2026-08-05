@@ -9,6 +9,7 @@
 
 활성화: `import t2_gate_patch; t2_gate_patch.apply()`. 게이트는 orchestrator 인스턴스당 1개.
 """
+import collections
 import json
 import os
 import re

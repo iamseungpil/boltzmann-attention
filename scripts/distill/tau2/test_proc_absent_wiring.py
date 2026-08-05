@@ -81,6 +81,21 @@ check("unlock 이름을 A2 선언으로 수집한다", "log_credit_card_closure_
 check("한 번도 unlock 안 된 이름은 빠져 있다",
       "get_closure_reason_history_8293" not in unl)
 
+print("\n①b 절차 경로의 헬퍼를 **실제로 호출**한다 (2026-08-05 사고 재발 방지)")
+# `_executed_tool_counts`는 `collections`를 쓰는데 그 import가 빠져 있었다. py_compile은
+# NameError를 보지 못하고, 이 파일의 기존 검정은 그 함수를 부르지 않아 통과했다 — 라이브에서
+# 절차 레버 2종이 22회 `error (no-op)`으로 죽었고 유료 런을 버렸다. 그래서 절차 경로가 쓰는
+# 헬퍼를 하나도 빠짐없이 실제로 호출한다(컴파일은 이 계열의 오류를 보지 못한다).
+cnt = G._executed_tool_counts(msgs)
+check("_executed_tool_counts가 실행된다", hasattr(cnt, "get"), type(cnt).__name__)
+check("개수를 보존한다(반복 호출이 2회 이상인 도구가 있다)",
+      bool(cnt) and max(cnt.values()) >= 2, "최대 %d회" % (max(cnt.values()) if cnt else 0))
+check("멤버십도 집합처럼 답한다", "verify_identity" in cnt)
+check("min_count를 개수로 판정한다",
+      P._satisfied({"id": "n", "tool": "verify_identity", "min_count": 99}, cnt) is False)
+check("t2_transcribe도 실제로 호출된다",
+      __import__("t2_transcribe").same(0, "0") is True)
+
 print("\n② 부재 조건이 실제로 성립한 구간이 있다")
 clo = next((p for p in procs if "closure" in (p.get("id") or "")), None)
 check("해지 절차 선언이 있다", clo is not None)
