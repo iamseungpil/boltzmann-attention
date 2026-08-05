@@ -2271,9 +2271,9 @@
      "submit_credit_limit_increase_request_7392",
      "approve_credit_limit_increase_5847",
      "deny_credit_limit_increase_5848",
-     "get_credit_limit_increase_history_4829"
+     "check_cli_eligibility"
     ],
-    "_note": "활성화 도구 = 이 절차에만 있는 것들. 공용 read(분쟁 이력·교체 주문·결제 이력)는 다른 흐름에서도 쓰이므로 활성화시키지 않는다 — 그렇게 두면 x80이 잰 28건 과차단이 난다."
+    "_note": "활성화는 **의도를 담은 도구**만 — 스모크 f에서 task_019(캐시백 분쟁)가 get_credit_limit_increase_history를 곁가지로 부르자 절차가 켜지고 write(요청 제출)를 고정할 뻔했다. 공용/조회 도구는 절차를 켜지 않는다."
    },
    "operands": {
     "card_tier": {
