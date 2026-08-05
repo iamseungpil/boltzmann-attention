@@ -1614,19 +1614,19 @@
  "follow_up_chains": [
   {
    "after": [
-    "submit_credit_limit_increase_request",
+    "submit_credit_limit_increase_request_7392",
     "check_cli_eligibility"
    ],
    "requires": [
-    "submit_credit_limit_increase_request",
-    "get_user_dispute_history",
-    "get_pending_replacement_orders",
-    "get_credit_limit_increase_history",
-    "get_payment_history"
+    "submit_credit_limit_increase_request_7392",
+    "get_user_dispute_history_7291",
+    "get_pending_replacement_orders_5765",
+    "get_credit_limit_increase_history_4829",
+    "get_payment_history_6183"
    ],
    "decision_tools": [
-    "approve_credit_limit_increase",
-    "deny_credit_limit_increase"
+    "approve_credit_limit_increase_5847",
+    "deny_credit_limit_increase_5848"
    ],
    "decision_feedback": "Error: [FOLLOW-UP] you computed the eligibility verdict but never executed the terminal decision with a TOOL CALL. If the verdict is ELIGIBLE, call approve_credit_limit_increase; if it is NOT_ELIGIBLE (cooldown, utilization, age, or payment history), call deny_credit_limit_increase with the matching denial_reason. Both are DISCOVERABLE tools - unlock the full suffixed name first. A verbal explanation to the customer is NOT a substitute for the decision tool call. Do not stop here.",
    "feedback": "Error: [FOLLOW-UP] the credit limit increase procedure is NOT complete. Steps still missing: {missing}. The customer requested a credit limit increase, so you must (1) submit the request with submit_credit_limit_increase_request (this formally logs the customer's request - do it even if you suspect the outcome), (2) run every eligibility check, then (3) make the terminal decision with a tool call. Do NOT let check_cli_eligibility replace these steps - it only computes the verdict; the request and the decision are separate REQUIRED tool calls. These checks are DISCOVERABLE tools: for each, search the knowledge base with plain words for the step, unlock the full suffixed name, then call it. Do not end the conversation with the request unsubmitted or the decision unmade.",
@@ -1635,16 +1635,16 @@
   {
    "after": "check_card_closure_eligibility",
    "requires": [
-    "get_user_dispute_history",
-    "get_pending_replacement_orders",
-    "get_all_user_accounts_by_user_id",
-    "pay_credit_card_from_checking",
-    "get_closure_reason_history",
-    "log_credit_card_closure_reason"
+    "get_user_dispute_history_7291",
+    "get_pending_replacement_orders_5765",
+    "get_all_user_accounts_by_user_id_3847",
+    "pay_credit_card_from_checking_9182",
+    "get_closure_reason_history_8293",
+    "log_credit_card_closure_reason_4521"
    ],
    "decision_tools": [
-    "apply_credit_card_account_flag",
-    "close_credit_card_account"
+    "apply_credit_card_account_flag_6147",
+    "close_credit_card_account_7834"
    ],
    "decision_feedback": "Error: [FOLLOW-UP] you completed the closure checks but never executed the terminal step with a TOOL CALL. Per the retention protocol in the knowledge base: after logging the closure reason, address the concern - if the reason qualifies for a retention remedy under that protocol (e.g. an annual-fee waiver via apply_credit_card_account_flag for eligible long-tenured customers), offer it and apply it with the customer's consent; if the customer still wants to close or no retention remedy applies, process the closure with close_credit_card_account. Both are DISCOVERABLE tools - unlock the full suffixed name first (find it in the knowledge base by searching plain words describing the step). Do NOT merely describe the outcome in text, and do NOT transfer with the decision unmade.",
    "feedback": "Error: [FOLLOW-UP] you started the card-closure eligibility check but the closure procedure is NOT complete. Steps still missing: {missing}. Per the closure/retention protocol: check the customer's pending disputes (dispute history) and pending replacement orders; if there is an outstanding balance, read the customer's accounts (get_all_user_accounts_by_user_id - this also gives you the CHECKING account id; its full suffixed name is in the knowledge-base document titled 'Retrieving Customer Account Information' - search e.g. \"retrieve customer bank accounts\") and pay the balance from checking with the customer's authorization; check closure-reason history; ask the customer's reason and log it (the 'Credit Card Retention Protocol' document covers these closure steps and annual-fee remedies). These are DISCOVERABLE tools - if you do not know a tool's full suffixed name, search the knowledge base (KB_search_bm25) for it using plain words describing the step (e.g. \"closure reason history\"; a bare tool-name query matches no document text); do NOT conclude a tool or record does not exist, and do NOT transfer while these tool steps remain available.",
@@ -1652,8 +1652,8 @@
   },
   {
    "after": [
-    "initial_transfer_to_human_agent",
-    "emergency_credit_bureau_incident_transfer"
+    "initial_transfer_to_human_agent_0218", "initial_transfer_to_human_agent_1822",
+    "emergency_credit_bureau_incident_transfer_1114"
    ],
    "requires": [
     "transfer_to_human_agents"
@@ -1665,10 +1665,10 @@
   },
   {
    "after": [
-    "submit_cash_back_dispute"
+    "submit_cash_back_dispute_0589"
    ],
    "requires": [
-    "update_transaction_rewards"
+    "update_transaction_rewards_3847"
    ],
    "feedback": "Error: [FOLLOW-UP] cash back disputes were submitted, but the ledger shows {missing} was never called. The reward-check tool's own output states that AFTER a dispute is resolved, that transaction's rewards must be updated to EXACTLY the correct value it showed. If the customer has confirmed the disputes are resolved, unlock and call the update tool now with those exact values — a verbal summary does not update any record. If resolution has NOT been confirmed yet, do not update; tell the customer plainly what remains and that no update has happened.",
    "resign_th": 1,

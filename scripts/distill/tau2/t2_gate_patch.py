@@ -2118,19 +2118,19 @@ def _agent_discoverable(env):
         return set()
 
 
-def _resolve_exact(name, registry):
-    """선언의 이름 → env의 **정확한** 이름. 모호하면 None(엔진이 고르지 않는다).
+def _in_registry(name, registry):
+    """이 이름이 env 레지스트리에 **그대로** 있는가. 집합 대조뿐 — 철자 규칙은 쓰지 않는다.
 
-    선언은 접미사 없는 이름을 쓰는데(C279 이후 규약) 모델이 부를 수 있는 것은 접미사 붙은 쪽이다.
-    banking에서 접미사를 떼면 충돌하는 계열은 둘뿐이고(`activate_debit_card`·
-    `initial_transfer_to_human_agent`), 그 경우는 **말하지 않는다** — 여럿 중 하나를 고르는 것은
-    엔진의 일이 아니다([[10]]).
+    구판(`_resolve_exact`)은 접미사를 떼어 선언명과 레지스트리명의 **대응을 추정**했다. 그것은
+    사실을 패턴으로 판정하는 것이고(사용자 지시 2026-08-05: *"패턴 매칭은 치팅"*), C279가 이미
+    *"패턴 규칙은 조용한 오탐을 낳는다"* 로 기록한 자리다. 실측도 그랬다 — 접미사 규칙으로 만든
+    `T2_UNLOCK_NAME`은 x99에서 **7발 7오발화**였다(`verify_identity`·`check_cli_eligibility`).
+
+    대응이 필요하면 **선언이 정확한 이름을 말하면 된다**(A2 `follow_up_chains`를 그렇게 고쳤다).
+    매핑 표조차 필요 없었다 — 표는 도메인-일반으로 풀리지 않는 경우에만 쓴다.
     """
     nm = str(name or "")
-    if not nm or nm in (registry or ()):
-        return nm if nm in (registry or ()) else None
-    cand = [r for r in (registry or ()) if re.sub(r"_\d+$", "", r) == nm]
-    return cand[0] if len(cand) == 1 else None
+    return nm if nm and nm in (registry or ()) else None
 
 
 def _docs_naming(tool, docs_dir, _cache={}):
@@ -5484,13 +5484,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and tl_fb is None
                     and getattr(self, "_t2_unlockname_deny", 0)
                     < int(os.environ.get("T2_UNLOCK_NAME_CAP", "6"))):
-                _upat = _unspec.get("pattern") or "_[0-9]+$"
+                # ★트리거 교체(2026-08-05·사용자 지시): 구판은 *"이름에 `_숫자`가 없다"* 는 **철자
+                #   규칙**으로 발화했고 x99에서 **7발 7오발화**였다 — `verify_identity`·
+                #   `check_cli_eligibility` 처럼 애초에 discoverable이 아닌 도구를 붙잡았다.
+                #   env가 discoverable 목록을 주므로 술어는 **집합 밖인가**로 충분하다(패턴 0).
+                _reg2 = _agent_discoverable(
+                    getattr(getattr(self, "_t2_orch", None), "environment", None))
                 for c in (am.tool_calls or []):
                     _uarg = (_unspec.get("tools") or {}).get(getattr(c, "name", None))
                     if not _uarg:
                         continue
                     _uval = str(_args_dict(c).get(_uarg) or "")
-                    if _uval and not re.search(_upat, _uval):
+                    if _uval and _reg2 and not _in_registry(_uval, _reg2):
                         # ★{name_words} (2026-07-22 §2bs·rall10 050/052 실측): bare-name을 자연어
                         #   질의로 파생(suffix 제거+언더스코어→공백) — 도구명 질의=BM25 0.0 마찰의 해소.
                         #   엔진=순수 문자열 연산(리터럴 0)·문구는 A2.
@@ -5507,24 +5512,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         #   철자 규칙으로 대신할 이유가 없다([[22]]: 닫힌 사실은 권위 출처에서 읽는다).
                         #   접미사 없는 이름이 그 목록의 어떤 것과도 대응하지 않으면 **discoverable이
                         #   아닌 것**이고, 그때는 검색이 아니라 "직접 부르라"가 옳다.
-                        _reg2 = _agent_discoverable(
-                            getattr(getattr(self, "_t2_orch", None), "environment", None))
-                        _exact = _resolve_exact(_uval, _reg2)
-                        _known = bool(_reg2) and _uval in _known_tool_names(
+                        # 여기 도달 = 이름이 discoverable 레지스트리 **밖**이다(집합 대조).
+                        # 그 이름의 도구가 실재하면 unlock 대상이 아니라는 뜻이고, 실재하지도
+                        # 않으면 없는 이름이다. 두 경우 모두 검색어를 **파생하지 않는다** —
+                        # 접미사를 떼어 질의를 만드는 것도 패턴이다.
+                        _known = _uval in _known_tool_names(
                             getattr(self, "tools", None),
                             getattr(getattr(self, "_t2_orch", None), "environment", None),
                             state.messages)
-                        if not _exact and _known and _unspec.get("feedback_not_discoverable"):
-                            _tpl = _unspec["feedback_not_discoverable"]
-                        else:
-                            _tpl = (_unspec.get("feedback_resolved") if _exact
-                                    else None) or _unspec.get("feedback") or \
-                                "Error: '{name}' is missing its required suffix."
-                        un_fb = (c, str(_tpl)
-                                 .replace("{name}", _uval)
-                                 .replace("{exact}", _exact or "")
-                                 .replace("{name_words}",
-                                          re.sub(_upat, "", _uval).replace("_", " ").strip()))
+                        _tpl = ((_unspec.get("feedback_not_discoverable") if _known else None)
+                                or _unspec.get("feedback")
+                                or "Error: '{name}' is not a discoverable tool in this domain.")
+                        un_fb = (c, str(_tpl).replace("{name}", _uval))
                         force_required = True     # ★사용자 제안: 재생성은 반드시 도구 호출(KB 검색 유도)
                         print("[T2_UNLOCK_NAME] deny bare name tool=%s val=%s"
                               % (getattr(c, "name", None), _uval), file=_sys.stderr, flush=True)
@@ -6731,7 +6730,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                   _fu_res_declared, getattr(self, "_t2_fu_reserve", 0),
                                   _fu_genuine)
             if _fu_mode is not None:
-                _eff0 = {_eff_tool_name(tc) for m in state.messages
+                # ★패턴 제거(2026-08-05·사용자 지시 "패턴 매칭은 치팅"): 구판은 접미사를 떼서
+                #   (`_eff_tool_name`) 선언과 맞췄다 — 철자 규칙으로 **대응을 추정**한 것이다.
+                #   선언이 레지스트리의 정확한 이름을 말하도록 고쳤으므로(A2 follow_up_chains)
+                #   여기서는 **집합 대조만** 한다. 표도 만들지 않는다: 진실을 선언이 말하면 된다.
+                _eff0 = {_exact_tool_name(tc) for m in state.messages
                          for tc in (getattr(m, "tool_calls", None) or [])}
                 for _fc in ((a2 or {}).get("follow_up_chains") or []):
                     if _fu_mode == "reserve" and not _fc.get("reserve"):
@@ -6750,7 +6753,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _unl1 = _unlocked_names(state.messages, a2)
                         _rq0 = _fc.get("requires")
                         _rq0 = _rq0 if isinstance(_rq0, list) else [_rq0]
-                        _need = [x for x in (_resolve_exact(r, _reg) for r in _rq0 if r)
+                        # 선언이 정확한 이름을 말하므로 집합 대조만 한다(패턴 0).
+                        _need = [x for x in (_in_registry(r, _reg) for r in _rq0 if r)
                                  if x and x not in _unl1]
                         _uh = (a2 or {}).get("tool_unlock_hint")
                         if _need and _uh:
