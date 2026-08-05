@@ -1996,10 +1996,13 @@
   "get_reward_discrepancies": {
    "arg": "transactions",
    "id_key": "transaction_id",
+   "field_sources": {"account_open": {"tool": "get_credit_card_accounts_by_user", "field": "date_of_account_open"}},
+   "_note_field_sources": "F31(2026-08-05·022 실측). 022는 `account_open`을 77행 전부에서 빠뜨려 17행이 판정불가가 되고 discrepancy가 9→5로 줄었다. 처음엔 '조인 누락'으로 봤으나 **어떤 레코드에도 그 이름의 필드가 없다** — 실물은 `date_of_account_open`(카드계좌·272회)·`date_opened`(예금계좌·101회)다. 즉 원인은 **이름 매핑**이고, 매핑은 선언이 쥘 수 있는 스키마 사실이다([[05]] ABox=함수-스키마 config). 엔진은 **어디서 가져오는지만** 말하고 값을 채우지 않는다([[10]]). 출처=도구 출력 스키마(gold 경유 0). ⚠**표면화만**: deny하면 018/t1(같은 필드 없이 통과한 trial)을 깰 수 있다.",
    "require_fields": ["transaction_id", "transaction_amount", "rewards_earned", "transaction_date", "credit_card_type", "merchant_name", "category", "account_open"],
    "_note_require_fields": "★`scaffold_get_tools[0].variants.ratefix.isolate.row_fields`의 복제다 — 두 선언이 갈라지면 `test_transcribe_fields.py`가 실패한다([[24]] 2층 이탈 교훈). 표적 = 022 t0: 77행을 손-전사하며 account_open을 빠뜨려 17행이 판정불가가 됐고 discrepancy가 9건에서 5건으로 줄었다."
   },
   "_note": "F5(2026-08-05·018 t0 실측). 이 도구는 행 배열을 인자로 받고 엔진은 받은 값을 그대로 계산한다 — 손-전사가 틀리면 **없는 불일치**가 만들어진다(rewards_earned 1113 vs 원장 487 → 여분 분쟁 1건 → db_match=False). 검사는 원장 대조뿐이고 값을 고치지 않는다([[10]]). 출처: 정책 Guideline *\"Do not make up policies, information or actions\"* + env 원장 포맷.",
+  "_feedback_source": "Note: the '{tool}' payload is missing field(s) the check needs, and they are stored under a different name: {detail}. Read that tool's records and carry the value across under the name this payload uses - rows without it cannot be judged and are dropped from the result silently.",
   "_feedback_unknown": "Error: the '{tool}' payload names record(s) this conversation never read: {ids}. The engine computes on exactly what you pass, so a row whose record was never retrieved produces a result about nothing. Re-read the records with the read tool and pass the ids exactly as that output printed them.",
   "_feedback": "Error: {count} value(s) in the '{tool}' payload disagree with the record they name: {detail}. Do not re-type record rows into an argument - reference the read tool's output instead, or re-read the record and copy the value exactly as printed."
  },

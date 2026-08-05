@@ -23,7 +23,7 @@ anything and is left alone.
 import json
 import re
 
-__all__ = ["mismatches", "missing_fields", "unknown_ids", "note"]
+__all__ = ["mismatches", "missing_fields", "unknown_ids", "field_sources", "note"]
 
 
 def _txt(s):
@@ -141,6 +141,35 @@ def unknown_ids(spec, args, records):
         rid = _txt(row.get(idk)).strip()
         if rid and rid not in (records or {}):
             out.append(rid)
+    return out
+
+
+def field_sources(spec, args, records, required=()):
+    """[(field, tool, source_field)] — required fields the rows lack, and where the value lives.
+
+    `task_022` typed seventy-seven rows and left `account_open` off every one, so the engine
+    could judge sixty of them and the customer disputed five instead of nine. The obvious
+    reading — the field was dropped in copying — is wrong: no record dump in any run carries
+    a field by that name. It is called `date_of_account_open` where the card accounts are
+    read and `date_opened` where the bank accounts are. The op asks for one name and the
+    environment prints another, which is a mapping, and a mapping is something a declaration
+    can hold ([[05]]: the function-schema config is ABox). So the engine says where to get
+    it and the model goes and gets it — it does not fetch, and it does not rename anything.
+    """
+    arg, idk = (spec or {}).get("arg"), (spec or {}).get("id_key")
+    src_map = (spec or {}).get("field_sources") or {}
+    if not (arg and idk and src_map):
+        return []
+    rows = _rows((args or {}).get(arg))
+    if not rows:
+        return []
+    out = []
+    for f in (required or ()):
+        if f == idk or f not in src_map:
+            continue
+        if any(f not in r for r in rows):
+            s = src_map[f] or {}
+            out.append((f, s.get("tool", ""), s.get("field", "")))
     return out
 
 

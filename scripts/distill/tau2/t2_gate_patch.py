@@ -4720,6 +4720,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             abs_fb = None
             tr_fb = None
             wd_fb = None
+            fs_fb = None
             _procs = ((a2 or {}).get("procedures")
                       if (a2 is not None and os.environ.get("T2_PROCEDURE") == "1") else None)
             if _procs:
@@ -4870,6 +4871,22 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                             getattr(c, "name", None))
                             if _msg:
                                 _msg = _msg.replace("{ids}", ", ".join(_unk[:6]))
+                        if not _msg and not fs_fb:
+                            # ★F31 필드-출처 표면화(2026-08-05·022 실측): op가 요구하는 필드가 행에
+                            #   없고, 그 값이 **다른 이름으로** 다른 도구의 레코드에 있다.
+                            #   022는 `account_open`을 77행 전부에서 빠뜨렸는데, 그 이름의 필드는
+                            #   어떤 레코드에도 없다 — `date_of_account_open`(카드계좌)·`date_opened`
+                            #   (예금계좌)가 실물이다. 이름 매핑은 선언이 쥘 수 있는 사실이므로
+                            #   **어디서 가져오는지만** 말한다(엔진이 대신 가져오지 않는다).
+                            _fs = _TR.field_sources(_sp, _args_dict(c), _byid,
+                                                    _sp.get("require_fields") or ())
+                            if _fs and _trs.get("_feedback_source"):
+                                fs_fb = str(_trs["_feedback_source"]).replace(
+                                    "{detail}", "; ".join(
+                                        "%s -> %s.%s" % (f, tl, sf) for f, tl, sf in _fs[:4]))
+                                print("[T2_FIELD_SOURCE] surface %s"
+                                      % ",".join(f for f, _, _ in _fs[:4]),
+                                      file=_sys.stderr, flush=True)
                         if not _msg:
                             # ★G3 전제: 입력이 깨끗했던 호출만 "확정 행"의 출처로 인정한다.
                             #   오염된 입력으로 나온 행은 가짜일 수 있고, x94 1차의 gold 반례
@@ -5555,7 +5572,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
                     and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None
                     and pr_fb is None and hv_fb is None and dd_fb is None and sig_fb is None
-                    and proc_fb is None and abs_fb is None and tr_fb is None and wd_fb is None):
+                    and proc_fb is None and abs_fb is None and tr_fb is None and wd_fb is None
+                    and fs_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -5748,6 +5766,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             # ★T2_HAVE_VALUE 리마인더 (None-anchor·산문 회피 또는 producer 재호출 커버·비커밋=replay-clean)
             # ★D1′ 부재 표면화 (비커밋·hv_fb와 같은 채널 규약): 차단이 아니라 상태 진술이라
             #   특정 호출에 붙지 않는다 — 호출이 없는 것이 바로 이 레버의 조건이다.
+            if fs_fb is not None:
+                try:
+                    fb.append(UserMessage(role="user", content=fs_fb))
+                except TypeError:
+                    fb.append(UserMessage(content=fs_fb))
             if wd_fb is not None:
                 try:
                     fb.append(UserMessage(role="user", content=wd_fb))
