@@ -128,6 +128,75 @@ def unmet_nodes(proc, tool_name, executed):
     return missing, unobservable
 
 
+def active_procedures(procs, executed):
+    """Procedures whose entry has already happened — the only entry point that takes no call.
+
+    `find_procedure` answers "which procedure is this call inside", which cannot see the
+    failure that dominates the closure cluster: the agent enters and then calls nothing
+    at all, so there is no call to ask about. This asks the other question — which
+    procedures are running right now — from the execution history alone.
+    """
+    done = set(executed or ())
+    return [p for p in procs or []
+            if set((p.get("enter_when") or {}).get("tool_any") or []) & done]
+
+
+def checklist(proc, executed):
+    """[(node_id, tools, done)] in declaration order — what the policy asked for, and where we are.
+
+    `done` is True, False, or None for a node that names no tool: a bound the agent is
+    told to check rather than call cannot be observed from the history, and saying it is
+    done would be a claim this engine cannot make.
+    """
+    return [(n.get("id"), _tools_of(n), _satisfied(n, executed))
+            for n in (proc.get("nodes") or [])]
+
+
+def _blocked_by(proc, node, executed):
+    """Prerequisites of this node that have not run, walked transitively.
+
+    The walk has to be transitive for the same reason `unmet_nodes` is: a step can be
+    executed out of order, so a node whose direct parent is done may still sit behind an
+    unmet grandparent. `task_048` is exactly that — the eligibility check ran first, and
+    reading only direct requires then reports the step after it as ready while the two
+    checks the policy puts before it never happened. Both functions must read the graph
+    the same way or the checklist and the deny disagree about the same state.
+    """
+    by_id = {n.get("id"): n for n in (proc.get("nodes") or [])}
+    seen, out, stack = set(), [], list(node.get("requires") or [])
+    while stack:
+        nid = stack.pop()
+        if nid in seen or nid not in by_id:
+            continue
+        seen.add(nid)
+        if _satisfied(by_id[nid], executed) is False:
+            out.append(nid)
+        stack.extend(by_id[nid].get("requires") or [])
+    return out
+
+
+def next_step(proc, executed):
+    """(candidates, unique) — unmet nodes whose prerequisites are all out of the way.
+
+    The engine does not choose among equals. When several nodes are ready at once — the
+    four checks a limit increase requires are all ready the moment the request is
+    submitted — every one of them is returned and the caller must show them as a list.
+    Naming one would be the engine deciding what the model should do next, which is the
+    generator's job ([[10]]), not a deterministic check's.
+
+    A node that cannot be observed never blocks: it is not something the history can
+    settle, so treating it as outstanding would freeze the walk at the first such node.
+    """
+    out = []
+    for n in (proc.get("nodes") or []):
+        if _satisfied(n, executed) is not False:
+            continue
+        if _blocked_by(proc, n, executed):
+            continue
+        out.append(n)
+    return out, len(out) == 1
+
+
 def table_expectation(proc, tool_name, operands):
     """(arg, expected) when the declaration derives an argument from a table."""
     node = _node_of(proc, tool_name)
