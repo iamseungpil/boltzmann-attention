@@ -2148,6 +2148,27 @@ def _agent_discoverable(env):
         return set()
 
 
+def _arg_consumers(env, arg):
+    """Which tools in this environment actually take an argument by this name.
+
+    `task_048` spent ten messages getting a card's last four digits for a closure, and the
+    closure tool does not take them — one tool in the whole domain does. The map from a value
+    to the calls that consume it is not something we should write down (a table goes stale and
+    a spelling rule guesses); it is readable from the environment's own signatures, so it is
+    read. Both sides count: some values are only ever passed by the customer.
+    """
+    import inspect
+    out = set()
+    for tk in (getattr(env, "tools", None), getattr(env, "user_tools", None)):
+        for name, fn in (getattr(tk, "tools", None) or {}).items():
+            try:
+                if arg in inspect.signature(fn).parameters:
+                    out.add(name)
+            except (TypeError, ValueError):
+                continue
+    return out
+
+
 def _in_registry(name, registry):
     """이 이름이 env 레지스트리에 **그대로** 있는가. 집합 대조뿐 — 철자 규칙은 쓰지 않는다.
 
@@ -5141,6 +5162,24 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 try:
                     _va = _value_acquire_fb(am, state.messages, va_specs)
                     if _va:
+                        # ★C9(2026-08-05·048·사용자 제안 "매핑을 알려주면 안 되나"): 값을 얻는 길만
+                        #   말하면 048처럼 **아무 데도 쓰지 않을 값**을 열 메시지 동안 쫓는다. 그 값을
+                        #   실제로 받는 호출이 무엇인지는 환경 시그니처에서 읽히므로 함께 말한다 —
+                        #   표를 쓰지 않고 매번 환경에서 도출한다(리터럴 0·판단 0·표면화만).
+                        try:
+                            _arg9 = (va_specs[0] or {}).get("arg")
+                            _cons9 = sorted(_arg_consumers(
+                                getattr(getattr(self, "_t2_orch", None), "environment", None),
+                                _arg9)) if _arg9 else []
+                            if _cons9:
+                                _va += (" In this domain the only call(s) that take '%s' are: %s"
+                                        " — if you are not calling one of those, this value is not"
+                                        " needed for what you are doing." % (_arg9, ", ".join(_cons9[:4])))
+                                print("[T2_VALUE_ACQUIRE] consumers %s=%d" % (_arg9, len(_cons9)),
+                                      file=_sys.stderr, flush=True)
+                        except Exception as _c9e:
+                            print("[T2_VALUE_ACQUIRE] consumers error (no-op): %r" % (_c9e,),
+                                  file=_sys.stderr, flush=True)
                         hv_fb = _va   # hv_fb 채널 재사용(None-anchor 리마인더·상호배타)
                         self._t2_valacq_fired = True
                         print("[T2_VALUE_ACQUIRE] give-surfacing → nudge (regen)",

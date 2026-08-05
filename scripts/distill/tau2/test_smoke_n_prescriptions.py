@@ -110,6 +110,33 @@ sp4 = [x for x in specs if x.get("id_key") == "card_last_4_digits"]
 check("C7b 없는 필드를 가리키던 복구문이 사라졌다",
       bool(sp4) and "account record does NOT carry the digits" in sp4[0].get("feedback", ""))
 
+
+# ── C9: 값을 받는 호출이 무엇인지는 환경 시그니처가 안다(표 없음) ─────────────────────
+import types as _t
+
+
+class _TK:
+    def __init__(self, fns):
+        self.tools = fns
+
+
+def _f_dispute(transaction_id, card_last_4_digits, user_id):
+    pass
+
+
+def _f_close(credit_card_account_id, user_id):
+    pass
+
+
+_env = _t.SimpleNamespace(tools=_TK({"file_credit_card_transaction_dispute_4829": _f_dispute,
+                                     "close_credit_card_account_7834": _f_close}),
+                          user_tools=None)
+check("C9 인자를 받는 도구를 시그니처에서 도출한다",
+      G._arg_consumers(_env, "card_last_4_digits") == {"file_credit_card_transaction_dispute_4829"})
+check("C9 해지 도구는 그 인자를 받지 않는다(048의 우회가 무의미한 이유)",
+      "close_credit_card_account_7834" not in G._arg_consumers(_env, "card_last_4_digits"))
+check("C9 환경이 없으면 조용히 빈 집합(무해)", G._arg_consumers(None, "card_last_4_digits") == set())
+
 print()
 print("결과: %s" % ("ALL PASS" if not fail else "FAIL %d — %s" % (len(fail), fail)))
 sys.exit(1 if fail else 0)
