@@ -21,6 +21,12 @@ TRACE=/home/woori/scratch/x30run/smoke_$SUF.jsonl
 [ -f /home/woori/.openrouter_key ] && . /home/woori/.openrouter_key
 . $R/scripts/distill/tau2/go_stack.sh
 export T2_SG_ISOLATE_TRACE="$TRACE"          # 관측 전용(거동 변화 0)
+# ★비커밋 피드백 사이드카([[55]]·2026-08-05): 우리가 **실제로 보낸 지시**를 시간순으로 남긴다.
+#   꺼져 있으면 "모델이 안 했다"와 "우리가 모순되게 말했다"를 구분할 수 없다 — task_048을 세 번
+#   오진한 구조적 원인이 그것이었다(절차 문구 "검색하지 마라" ↔ UNLOCK_NAME "지금 검색하라").
+#   궤적은 건드리지 않는다(모듈 설계 제약 1: replay 위생 유지).
+export T2_FB_SIDECAR="$LOGD/fb_$SUF.jsonl"
+export T2_FB_SIDECAR_TEXT=1
 
 echo "== 이 런이 가졌다고 믿는 플래그 =="
 env | grep -E '^T2_(PROCEDURE|UNINSTRUCTABLE|QUOTE_PIN|MATCH_COUNT|KB_DOCS_DIR)=' | sort
@@ -32,8 +38,11 @@ persist(){
   [ -f "$src" ] || { say "no results.json for $tag"; return; }
   gzip -c "$src" > "$R/reports/facet_rft_2026/sim_results/$tag.results.json.gz"
   gzip -c "$LOGD/$tag.log" > "$R/reports/facet_rft_2026/sim_results/$tag.log.gz" 2>/dev/null
+  [ -f "$T2_FB_SIDECAR" ] && gzip -c "$T2_FB_SIDECAR" \
+    > "$R/reports/facet_rft_2026/sim_results/fb_$SUF.jsonl.gz" 2>/dev/null
   ( cd "$R" && git pull -q --rebase origin facet-rft-2026 \
     && git add -f "reports/facet_rft_2026/sim_results/$tag."* \
+    && git add -f "reports/facet_rft_2026/sim_results/fb_$SUF.jsonl.gz" \
     && git commit -q -m "Persist $tag (targeted smoke)" \
     && git push -q origin facet-rft-2026 ) && say "persisted $tag" || say "PERSIST FAILED $tag"
 }

@@ -6222,6 +6222,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 _fb = UserMessage(role="user", content=fbtxt)
             except TypeError:
                 _fb = UserMessage(content=fbtxt)
+            # ★사이드카 확장(2026-08-05·[[55]]): 구판은 `unified_regen` 한 채널만 기록해서
+            #   이 경로(SEARCH_EXHAUST·FOLLOWUP 체인 등)로 나간 지시가 사후 감사에 잡히지 않았다.
+            #   048 오진 3회의 구조적 원인이 그 사각이다 — 무엇을 보냈는지 모르면 "모델이 안 했다"와
+            #   "우리가 모순되게 말했다"를 가릴 수 없다. 궤적은 그대로 두고 파일에만 남긴다.
+            try:
+                import t2_fbsidecar as _fbsc2
+                _fbsc2.record_many([_fb], state.messages, channel=tag)
+            except Exception:
+                pass
             # ★C207(리뷰 필수1): regen 프롬프트에 실리는 직전 응답을 **호출부가 대체**할 수 있게 한다.
             #   근거: 폭주 응답(33k자·8k토큰)을 그대로 실으면 regen 호출 자체가 창 초과로 죽고, 그 예외는
             #   여기서 전파돼 **ctxover로 끝날 sim을 더 이른 크래시로** 바꾼다. blob은 어차피 비커밋이라
