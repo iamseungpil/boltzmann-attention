@@ -2380,7 +2380,8 @@
    "feedback": {
     "unmet": "[PROCEDURE] 정책이 '{tool}' 앞에 요구하는 단계가 아직 남아 있다: {missing}. 그 단계를 먼저 수행하라(출처: {source}).",
     "cap_exceeded": "[PROCEDURE] 요청 금액이 이 카드 등급의 1회 상한({cap}%)을 넘는다. 상한 금액을 손님에게 알리고 그 금액으로 진행할지 물어라 — 초과 요청은 제출하지 않는다.",
-    "arg_from_table": "[PROCEDURE] '{tool}'의 '{arg}'는 카드 등급에 따라 정해진다: {value}."
+    "arg_from_table": "[PROCEDURE] '{tool}'의 '{arg}'는 카드 등급에 따라 정해진다: {value}.",
+    "arg_table_unknown_key": "[PROCEDURE] '{tool}'의 '{arg}'는 카드 등급({operand})에 따라 정책이 정한다: {table}. 이 카드의 등급을 정하고 그 값을 쓰라 — 임의의 기간을 쓰지 말 것."
    }
   },
   {

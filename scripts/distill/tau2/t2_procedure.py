@@ -169,6 +169,17 @@ def notes_for_call(procs, tool_name, args, executed, operands=None):
         given = (args or {}).get(arg)
         if given is None or str(given) != str(expected):
             out.append(_fill(fb["arg_from_table"], tool=tool_name, arg=arg, value=expected))
+    elif fb.get("arg_table_unknown_key"):
+        # ★키를 모를 때: 값을 고르지 않고 **표 자체**를 보여 준다. task_053은 정책이 3개월을 정한
+        #   자리에 12를 넣었는데, 등급 상수를 모델이 선언한 적이 없어 위 분기는 영원히 침묵한다.
+        #   추측하지 않는다는 원칙은 지키되(엔진이 등급을 정하지 않는다) 판단 재료는 준다([[52]]).
+        node = _node_of(proc, tool_name)
+        spec = (node or {}).get("arg_from_table") or {}
+        table = (proc.get("tables") or {}).get(spec.get("table")) or {}
+        if spec and table and (operands or {}).get(spec.get("operand")) is None:
+            out.append(_fill(fb["arg_table_unknown_key"], tool=tool_name, arg=spec.get("arg"),
+                             operand=spec.get("operand"),
+                             table=", ".join("%s=%s" % (k, v) for k, v in sorted(table.items()))))
     return out
 
 
