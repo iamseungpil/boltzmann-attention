@@ -6444,8 +6444,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     "Either search with DIFFERENT plain words describing the action a policy "
                     "document would use, or act on what you already retrieved. Do NOT invent a "
                     "procedure, menu path, or tool name that no document gave you; if nothing "
-                    "covers this request, say so honestly and follow the escalation policy."
-                    % _stubs, "searchexhaust")
+                    "covers this request, say so honestly and follow the escalation policy. %s"
+                    % (_stubs, (a2 or {}).get("search_exhaust_escalation") or ""),
+                    "searchexhaust")
                 if _newS is not None:
                     am = _newS
                     _resign = (not getattr(am, "tool_calls", None)

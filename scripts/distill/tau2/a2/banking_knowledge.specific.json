@@ -1998,6 +1998,8 @@
   "_note": "F5(2026-08-05·018 t0 실측). 이 도구는 행 배열을 인자로 받고 엔진은 받은 값을 그대로 계산한다 — 손-전사가 틀리면 **없는 불일치**가 만들어진다(rewards_earned 1113 vs 원장 487 → 여분 분쟁 1건 → db_match=False). 검사는 원장 대조뿐이고 값을 고치지 않는다([[10]]). 출처: 정책 Guideline *\"Do not make up policies, information or actions\"* + env 원장 포맷.",
   "_feedback": "Error: {count} value(s) in the '{tool}' payload disagree with the record they name: {detail}. Do not re-type record rows into an argument - reference the read tool's output instead, or re-read the record and copy the value exactly as printed."
  },
+ "search_exhaust_escalation": "If the customer has asked for a person and nothing you retrieved covers their request, the escalation is the transfer_to_human_agents tool. Its reason code is not free text: the tool's own description says the reason enum is in the knowledge base, so search for the transfer reason codes document and pick the code whose 'When to Use' matches this situation - including the one for an unsuccessful knowledge-base search when the customer asks for a person. Do not end the conversation with a procedure no document gave you.",
+ "_note_search_exhaust_escalation": "F23(2026-08-05·012 실측). 출처: ① `transfer_to_human_agents` docstring 축자 *\"The proper transfer reason enum can be found in the knowledge base: search it before calling this tool to select the proper applicable reason.\"* ② 정책 문서 `doc_bank_accounts_bank_accounts_(general)_042 (Internal: Human Agent Transfer Reason Codes)`. **어느 코드를 고를지는 말하지 않는다** — 티어 판정은 열린 술어라 모델 몫이다([[22]]). gold 경유 0. 표적 = x92 실측 '이관해야 하는데 한 번도 안 부른 sim 7건'(012 t0/t1 포함).",
  "procedures": [
   {
    "id": "credit_limit_increase",

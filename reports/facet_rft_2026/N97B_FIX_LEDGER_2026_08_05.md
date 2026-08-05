@@ -330,6 +330,52 @@ scaffold가 잡지 못한다"* 를 박아 뒀다.
 > ★규율 추가: **새 절차 선언·수정은 x91과 x80을 둘 다 통과해야 한다.** x80만으로는
 > "에이전트가 늘 하던 단계"를 필수로 걸어도 0이 나온다.
 
+## 2k. 남은 원인 — 012·019·022 (x92)
+
+### 2k-1. ★레버 하나를 **안 만든** 근거
+
+`transfer_to_human_agents`의 docstring은 *"The proper transfer reason enum can be found in the
+knowledge base"* 라 이관 코드 멤버십은 닫힌 술어다(정책 문서 `doc_bank_accounts_..._042` = 18종).
+멤버십 검사를 만들려다 x92로 먼저 쟀다:
+
+| 계량 | 값 |
+|---|---|
+| 정책에 없는 코드로 이관 | **0건** / 이관 호출 65 |
+| gold이 정책 밖 코드를 쓴 횟수 | 0 |
+
+⇒ **표적이 없다. 만들지 않는다.** 모델은 이관 코드를 날조하지 않는다(음성 확정).
+[[13]] 규율대로 "만들 수 있다"가 아니라 "표적이 있다"가 구현 조건이다.
+
+### 2k-2. 진짜 표적 = **이관해야 하는데 안 한다** (7 sim)
+
+| sim | gold reason |
+|---|---|
+| **012 t0·t1** | `kb_search_unsuccessful_customer_requests_transfer` |
+| 004 t0 | `account_ownership_dispute` |
+| 014 t1 | `unconfirmed_external_communication` |
+| 035 t0 | (빈 값) |
+| 092 t0·t1 | `fraud_or_security_concern` |
+
+"이관해야 하는가"는 **열린 술어**다. 닫힌 부분은 **탐색 소진**(중복 질의·새 문서 id 0 연속)뿐이고
+그건 이미 `T2_SEARCH_EXHAUST_NUDGE`가 잰다. 빠져 있던 것은 **소진 뒤의 경로**였다(핸드오프 §6-4).
+
+| # | 수정 | 상태 |
+|---|---|---|
+| **F23** | 소진 문구에 **이관 경로** 부착 — 엔진엔 슬롯만, 문장은 A2 `search_exhaust_escalation` | ✅ 적용 |
+
+문구는 **어느 코드를 고를지 말하지 않는다** — 티어 판정(*"always select from the highest tier that
+applies"*)은 열린 술어라 모델 몫이다([[22]]). 출처는 도구 docstring + 정책 문서 제목이고 gold 경유 0.
+
+### 2k-3. 019·022 — 같은 축, 아직 안 닫힘
+
+둘 다 gold이 `give_discoverable_user_tool` + `call_discoverable_user_tool(submit_cash_back_dispute_0589)`로
+**손님이 제출**하는 흐름이고, 실패는 *어느 거래를 분쟁하는가*(discrepancy 집합)에서 갈린다.
+
+- **022 t0**: 77행을 손-전사하며 `account_open`을 빠뜨려 17행이 판정불가 → discrepancy 5건(t1은 9건).
+  F5는 **불일치**를 보지만 **누락 필드**는 아직 보지 않는다 ⇒ 다음 확장 후보(`require_fields`).
+- **019 t1**: 엔진이 낸 행을 손님 산문에 설득당해 **철회**했다. [[21]] 축(user-sim이 어떻게 반응해도
+  agent가 옳게)이고, 닫힌 처방은 "원장이 낸 행은 손님 주장으로 사라지지 않는다"의 표면화다 — 미설계.
+
 ## 3. 다음 재런 **발사 전** 체크포인트
 
 - [ ] F1·F2가 `go_stack.sh`에 남아 있는가(다른 세션이 되돌리지 않았는가) — `grep -c 'T2_QUOTE_PIN=1\|T2_MATCH_COUNT=1'` = 2
