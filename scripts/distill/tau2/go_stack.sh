@@ -221,3 +221,12 @@ export T2_MATCH_COUNT=1           # KB_search 회수 경계 표면화("N개 걸�
 #   ⛔ 같은 날 구현된 신규 5종(N2a·N2b·N1·L4·L5-a)은 **등재하지 않는다** — 라이브 발화 미검이고,
 #      특히 N2b는 허가 술어의 지배 분기(`_customer_stated`)가 미교정이라 지금 켜면 측정이 무효다
 #      (`THEORY_AUTHORITY_LICENCE_2026_08_05.md` §3·C295).
+
+# ── ★절차 준수 (2026-08-05·`t2_procedure.py` + A2 L3 `procedures`) ─────────────
+#   정책이 **순서를 명령**하거나 **도구를 금지**한 흐름만 A2가 index로 선언하고, 그 흐름에
+#   진입한 뒤에만 검사한다. 차단 허가는 선언이 준다(`enforce`+MUST 문장 / `prohibits`+금지 문장).
+#   과차단 사전 계량(x80·194 sim 전수): **0건**. 진입 개념 없이 노드 이름만으로 판정하던 1차
+#   설계는 28건을 오차단했고 그 측정으로 폐기했다. 후보 rule "회수 문서가 이름을 댄 도구만
+#   give"도 8건 오차단으로 기각(x81).
+export T2_PROCEDURE=1
+export T2_PROCEDURE_CAP=6         # sim당 deny 상한(불응 무한루프 방지·기존 cap 선례)
