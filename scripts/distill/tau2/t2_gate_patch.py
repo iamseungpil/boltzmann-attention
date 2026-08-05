@@ -5425,7 +5425,31 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
                                     print("[T2_RESOLVE] user-action instruct target=%s" % _utgt,
                                           file=_sys.stderr, flush=True)
-                        if rw_fb is None and _acts and not (_called & _acts) and _rz._agent_ending(am, _transfer_tools(a2)):
+                        # ★C17 단계 소유권 (2026-08-05·050 실측·사용자 질문 "일반화된 문제인가"):
+                        #   같은 구간에서 GB1은 *"먼저 신원을 검증하라"*, 이 레버는 *"지금 전용 도구
+                        #   발견 체인을 돌려라"* 를 보냈다. 050은 그 사이 `verify_identity`(이미 가진
+                        #   표준 도구)를 KB에서 세 번 찾다 24턴을 태웠고, 환경조차 *"already one of the
+                        #   tools provided"* 라고 답했다. 두 문구 다 국소적으로 옳아서 문구를 고쳐도
+                        #   조합이 바뀌면 재발한다 — 그래서 **단계를 소유한 쪽만 말한다**:
+                        #   선언된 auth 게이트가 미충족이면 검증이 그 단계의 주인이고, 행동-유도는 쉰다.
+                        #   술어는 A2 선언(satisfier 실행 이력)뿐이고 도메인 어휘도 판단도 없다.
+                        #   경계는 측정으로 정했다: "검증을 **시도했는가**"까지 조건에 넣으면 손해
+                        #   9건만 지워지고 **통과 sim 노출은 0**이다(시도 전에는 계속 말한다).
+                        _phase17 = "open"
+                        try:
+                            import t2_phase as _PH17
+                            _phase17 = _PH17.phase_of(
+                                a2, state.messages, _exact_tool_name,
+                                executed=_executed_tool_names(state.messages))[0]
+                        except Exception:
+                            _phase17 = "open"
+                        _off_phase = (_phase17 == "verify"
+                                      and os.environ.get("T2_PHASE_OWNER") == "1")
+                        if _off_phase:
+                            print("[T2_PHASE_OWNER] action-push silent — phase=%s" % _phase17,
+                                  file=_sys.stderr, flush=True)
+                        if rw_fb is None and not _off_phase \
+                                and _acts and not (_called & _acts) and _rz._agent_ending(am, _transfer_tools(a2)):
                             _tgt = _tgt_pre if _tgt_pre in _acts else None
                             # ★고정밀(Δspurious): formalize가 구체 agent-실행 target을 낼 때만 발화.
                             #   target=None(=action-ask)은 미발화 — discovery/user-실행 의도서 스퓨리어스
@@ -6873,6 +6897,51 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                    and am.content.strip())
             except Exception as _u12:
                 print("[T2_UNCALLED_UNLOCK] error (no-op): %r" % (_u12,),
+                      file=_sys.stderr, flush=True)
+
+        # ★(2) 분기 판정 표면화 (2026-08-05·사용자 지시 "1,2,3만"): 우리 검사가 이미 낸 판정을
+        #   결정 시점에 그대로 인용한다. 051은 approve와 deny 중 하나를 골라야 했고 둘 다 안 불렀다.
+        #   종단-결정 문구는 **선행 단계가 전부 끝나야** 발화해서 r에서 1회뿐이었다 — 그래서 그 조건과
+        #   분리한다: 판정이 실재하고 결정 도구가 미호출이면 말한다. 어느 쪽인지는 고르지 않는다([[10]]).
+        if (os.environ.get("T2_VERDICT_SURFACE") == "1" and _resign
+                and not getattr(self, "_t2_verdict_fired", 0)):
+            try:
+                _dec2 = [d for _fc2 in ((a2 or {}).get("follow_up_chains") or [])
+                         for d in (_fc2.get("decision_tools") or [])]
+                _eff2 = _executed_tool_names(state.messages)
+                if _dec2 and not (set(_dec2) & _eff2):
+                    _chk2 = sorted({t for _fc2 in ((a2 or {}).get("follow_up_chains") or [])
+                                    for t in ((_fc2.get("after") if isinstance(_fc2.get("after"), list)
+                                               else [_fc2.get("after")]) or []) if t})
+                    _line2, _pend2 = None, {}
+                    for _m2 in state.messages:
+                        if getattr(_m2, "role", None) == "assistant":
+                            for _t2 in (getattr(_m2, "tool_calls", None) or []):
+                                _pend2[getattr(_t2, "id", None)] = _exact_tool_name(_t2)
+                        elif getattr(_m2, "role", None) == "tool":
+                            _nm2v = _pend2.get(getattr(_m2, "id", None)
+                                               or getattr(_m2, "tool_call_id", None))
+                            if _nm2v in _chk2:
+                                _c2v = str(getattr(_m2, "content", "") or "").strip()
+                                if _c2v and not _c2v.startswith("Error:"):
+                                    _line2 = _c2v.split("\n")[0][:220]
+                    if _line2:
+                        self._t2_verdict_fired = 1
+                        print("[T2_VERDICT_SURFACE] surface decision=%s" % ",".join(_dec2[:3]),
+                              file=_sys.stderr, flush=True)
+                        _newV = _ap_regen(
+                            "Error: [VERDICT] the check you ran returned: \"%s\" — and the declared "
+                            "terminal decision has not been made: %s. Choose the one that follows from "
+                            "that result and call it with its arguments, or state plainly why neither "
+                            "applies. Describing the outcome does not record it."
+                            % (_line2, ", ".join(_dec2[:3])), "verdict_surface")
+                        if _newV is not None:
+                            am = _newV
+                            _resign = (not getattr(am, "tool_calls", None)
+                                       and isinstance(getattr(am, "content", None), str)
+                                       and am.content.strip())
+            except Exception as _v2e:
+                print("[T2_VERDICT_SURFACE] error (no-op): %r" % (_v2e,),
                       file=_sys.stderr, flush=True)
 
         if (os.environ.get("T2_SEARCH_EXHAUST_NUDGE") == "1" and _resign
