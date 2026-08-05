@@ -302,6 +302,34 @@ scaffold가 잡지 못한다"* 를 박아 뒀다.
 | F 부작용 | |
 | G pass(참고) | |
 
+## 2j. ★★★x91 — 우리 선언이 **gold 경로 자체를 막고 있었다**
+
+사용자 지시(*"남은 것도 모두 원인 파악하여 구현"*)로 048·051·022·012의 gold을 다시 읽다가,
+**gold의 행동 순서를 우리 DAG에 그대로 재생**해 보니 막혔다. 그 검사가 없었다는 것이 진짜 결함이다.
+
+| 계기 | 모집단 | 볼 수 있는 것 |
+|---|---|---|
+| x80 (기존) | **에이전트가 실제로 한 호출** | 에이전트가 늘 부르던 단계는 **영원히 안 보인다** |
+| **x91 (신규)** | **gold의 행동 순서** | 선언이 *우리가 만들려는 궤적*을 막는가 |
+
+**1차 실측(교정 전)**: gold이 막히는 태스크 **6** · 총 **47곳** — 전부 `eligibility` 선행 요구 탓.
+해지 계열(043·044·045·047·048·049)이 통째로 눌려 있었다. x80은 **0건**을 보고했다(모집단 구멍).
+
+### 교정 (근거는 정책 원문뿐 · gold 모양 베끼기 금지 [[23]])
+
+| 구판 | 정책 원문 | 교정 |
+|---|---|---|
+| `eligibility`(=`check_card_closure_eligibility` 호출)가 Step2~6의 **선행** | Step 1은 *"Check these in order: 1. Pending disputes 2. No pending replacement cards 3. Minimum account age 4. Outstanding balance"* — **확인 4가지**이지 특정 도구 호출이 아니다 | 노드에서 제거, **진입 트리거로만** 유지 |
+| `close`가 `retention_offer`·`log_reason`을 **필수** | Step 2: *"If records are found within the past year … **skip retention offers** and proceed directly to processing the closure … move to Step 6"* | `close.requires = [prior_attempts]` — 무조건인 Step 2만 남기고, **조건부 단계는 체크리스트로 표면화만** |
+
+조건("과거 1년 내 기록이 있나")은 도구 **출력 내용**에 달려 있어 우리 엔진에겐 닫히지 않는다([[22]]) —
+그래서 집행하지 않고 표면화한다. 이것이 이 종류 원인의 일반형이다: **조건부 단계를 무조건으로 걸면 gold을 막는다.**
+
+**2차 실측(교정 후)**: gold 차단 **0** · x80 과차단 **0** · x86 발화 59회/32 sim(▶유일 96.6%·미-unlock 96.6%).
+
+> ★규율 추가: **새 절차 선언·수정은 x91과 x80을 둘 다 통과해야 한다.** x80만으로는
+> "에이전트가 늘 하던 단계"를 필수로 걸어도 0이 나온다.
+
 ## 3. 다음 재런 **발사 전** 체크포인트
 
 - [ ] F1·F2가 `go_stack.sh`에 남아 있는가(다른 세션이 되돌리지 않았는가) — `grep -c 'T2_QUOTE_PIN=1\|T2_MATCH_COUNT=1'` = 2

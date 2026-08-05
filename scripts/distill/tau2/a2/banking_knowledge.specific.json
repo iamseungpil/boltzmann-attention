@@ -2189,19 +2189,11 @@
      "_quote": "No pending replacement cards: If a replacement has been ordered and not yet received or activated, a closure cannot proceed."
     },
     {
-     "id": "eligibility",
-     "tool": "check_card_closure_eligibility",
-     "requires": [
-      "disputes",
-      "pending_replacement"
-     ],
-     "_quote": "Minimum account age … Outstanding balance … If any requirement is not met, explain what must be resolved and do not proceed with retention offers."
-    },
-    {
      "id": "prior_attempts",
      "tool": "get_closure_reason_history_8293",
      "requires": [
-      "eligibility"
+      "disputes",
+      "pending_replacement"
      ],
      "_quote": "Use the get_closure_reason_history_8293 tool to determine whether this specific credit card account has any closure reason records within the past year."
     },
@@ -2230,9 +2222,9 @@
      "id": "close",
      "tool": "close_credit_card_account_7834",
      "requires": [
-      "log_reason",
-      "retention_offer"
+      "prior_attempts"
      ],
+     "_note_requires": "★정책 Step 2 축자: 'If records are found within the past year, inform the customer you will proceed with their closure request and move to Step 6.' — 즉 Step 3(사유 기록)~Step 5가 **조건부로 건너뛰어진다**. 그 조건은 도구 **출력 내용**에 달려 있어 우리 엔진엔 닫히지 않는다([[22]]). 그래서 무조건인 Step 2만 선행으로 걸고, 조건부인 log_reason·retention_offer는 체크리스트로 **표면화만** 한다. 구판은 log_reason을 필수로 걸어 gold 2태스크를 막았다(x91).",
      "_quote": "Use the close_credit_card_account_7834 tool to process the closure."
     }
    ],
@@ -2260,7 +2252,8 @@
     "prohibited": "[PROCEDURE] The policy forbids '{tool}' in this procedure - verbatim: \"{quote}\"",
     "arg_table_unknown_key": "[PROCEDURE] '{arg}' of '{tool}' is set by policy from the card tier ({operand}): {table}."
    },
-   "_note_procedure": "★2026-08-05: x83 실측 — 이 계열 9 태스크가 공유 코어 8종을 갖고, 각 태스크 gold의 50~86%가 그 코어다(9/9가 요구하는 도구 3종). 즉 태스크가 아니라 **절차 하나**다. 실패 지점도 공통: Step 5 보유 제안 미실행 · discoverable 도구 미발견 · 그로 인한 ctx 사망."
+   "_note_procedure": "★2026-08-05: x83 실측 — 이 계열 9 태스크가 공유 코어 8종을 갖고, 각 태스크 gold의 50~86%가 그 코어다(9/9가 요구하는 도구 3종). 즉 태스크가 아니라 **절차 하나**다. 실패 지점도 공통: Step 5 보유 제안 미실행 · discoverable 도구 미발견 · 그로 인한 ctx 사망.",
+   "_note_nodes": "★2026-08-05 교정(x91 gold-경로 게이트): 구판은 ① `eligibility`(=check_card_closure_eligibility 호출)를 Step2~6의 **선행**으로 걸고 ② `close`에 `retention_offer`를 **필수**로 걸었다. 정책 원문은 둘 다 말하지 않는다 — Step 1은 *'Check these in order: 1. Pending disputes 2. No pending replacement cards 3. Minimum account age 4. Outstanding balance'* 라는 **확인 4가지**이지 특정 도구 호출이 아니고, Step 2는 *'If records exist ... skip retention offers and proceed directly to processing the closure'* 로 **보유 제안의 우회를 명시**한다. 그 과잉 규정이 gold 경로를 6 태스크·47곳에서 막고 있었다(x91). 보유-제안은 조건이 도구 **출력 내용**에 달려 있어 우리에겐 닫히지 않으므로 **표면화만** 한다."
   },
   {
    "id": "incident_transfer_order",
