@@ -4602,6 +4602,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                            also_names=_also)
                         if _dc.get("verdict") == "deny" and _dc.get("notes"):
                             proc_fb = (c, _dc["notes"][0])
+                            # ★2026-08-05(051 실측): 차단만으로는 이행되지 않았다 — deny가 누락 단계를
+                            #   이름으로 지목했는데도 끝내 그 호출을 하지 않았다(C286③ "차단은 복원이
+                            #   아니다"). 그래서 **다음 재생성에서 그 단계를 고정**한다(P1 기계 재사용:
+                            #   디스패처 인자를 단일값 enum으로). 값은 선언에서 오고 엔진은 고르지 않는다.
+                            try:
+                                _mn = (_dc.get("missing") or [None])[0]
+                                _pp = _PROC.find_procedure(_procs, _exact_tool_name(c), _done)
+                                _nd = next((n for n in ((_pp or {}).get("nodes") or [])
+                                            if n.get("id") == _mn), None)
+                                _tl = (_PROC._tools_of(_nd) if _nd else []) or []
+                                if len(_tl) == 1:
+                                    self._t2_proc_pin = ("call_discoverable_agent_tool",
+                                                         "agent_tool_name", _tl[0])
+                            except Exception:
+                                pass
                             print("[T2_PROCEDURE] deny %s missing=%s"
                                   % (_exact_tool_name(c), ",".join(_dc.get("missing") or [])),
                                   file=_sys.stderr, flush=True)
@@ -5384,11 +5399,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   tool 출력을 만들지 않는다 — require_tool_before를 권고로 강등시킨 C210 사유가
             #   여기엔 닿지 않는다. 조건 미충족·해소 실패면 None = 종전 거동.
             _pin_r = None
-            try:
-                import t2_pin_read as _PRm
-                _pin_r = _PRm.pin_for(self, am, a2, state.messages)
-            except Exception:
-                _pin_r = None
+            # ★절차 고정이 예약돼 있으면 그것을 먼저 쓴다(1회 소모). 절차가 이름으로 지목한 단계는
+            #   A2 선언에서 온 값이라 P1의 "이름만 지정하면 날조" 위험이 없다(단일값 enum 동일 경로).
+            _pp_pin = getattr(self, "_t2_proc_pin", None)
+            if _pp_pin:
+                self._t2_proc_pin = None
+                _pin_r = _pp_pin
+            else:
+                try:
+                    import t2_pin_read as _PRm
+                    _pin_r = _PRm.pin_for(self, am, a2, state.messages)
+                except Exception:
+                    _pin_r = None
             am = _gen(self, work, bw(), "agent_response_unified_regen",
                       tool_choice="required" if force_required else None, pin=_pin_r)
 
@@ -6186,6 +6208,26 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                          and isinstance(getattr(_m6, "content", None), str)
                          and ("[DUPLICATE-READ]" in _m6.content
                               or "[NEAR-DUPLICATE-READ]" in _m6.content))
+            # ★2026-08-05(012 실측): 술어가 **같은 질의의 반복**만 셌다. 012는 질의를 매번 바꿔
+            #   가며 검색했고 중복 스텁이 문턱에 못 미쳐 침묵했으며, 그 다음 턴에 KB에 없는 앱
+            #   경로를 지어냈다. 소진의 일반형은 "같은 말을 반복했나"가 아니라 **회수가 더 이상
+            #   자라지 않는가**다 — 새 문서 id가 0인 검색을 연속으로 센다(마커는 A2 선언·판단 0).
+            _idm = str((((a2 or {}).get("axis_notes") or {}).get("doc_id_marker") or "")).strip()
+            if _idm:
+                _seen_ids, _dry = set(), 0
+                for _m7 in state.messages:
+                    if getattr(_m7, "role", None) != "tool":
+                        continue
+                    _c7 = getattr(_m7, "content", None)
+                    if not isinstance(_c7, str) or _idm not in _c7:
+                        continue
+                    _ids = set()
+                    for _part in _c7.split(_idm)[1:]:
+                        _ids.add(_part.split()[0] if _part.split() else "")
+                    _new = _ids - _seen_ids
+                    _seen_ids |= _ids
+                    _dry = 0 if _new else _dry + 1
+                _stubs = max(_stubs, _dry)
             if _stubs >= int(os.environ.get("T2_SEARCH_EXHAUST_TH", "2") or 2):
                 self._t2_srchex = 1
                 print("[T2_SEARCH_EXHAUST] nudge stubs=%d" % _stubs, file=_sys.stderr, flush=True)
