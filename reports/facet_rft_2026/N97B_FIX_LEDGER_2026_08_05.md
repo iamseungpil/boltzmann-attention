@@ -229,6 +229,51 @@
 012(부재판정)·051(2라운드 gold)·048(보유-제안·해지 단계)은 여전히 미구현이다(§2 F5·F9·F11·F13).
 
 
+## 2h. 레버 전수 구현 (2026-08-05 · 사용자 지시 "모든 레버 다 구현하라")
+
+**먼저 감사에서 2건이 stale로 드러났다** — 오늘 만든 절차 엔진이 이미 덮고 있었다.
+
+| # | 상태 | 근거 |
+|---|---|---|
+| **F6** 캐시백 흐름 last4 금지 | ✅ **이미 구현** | `cash_back_dispute.prohibits` + 정책 축자 · `prohibited()` deny 확인 |
+| **F14** 요청 없이 승인 호출 | ✅ **이미 구현** | CLI DAG가 `approve`에 `submit_request` 요구 · deny 확인 |
+| **F7** 이관 프로토콜 | ✅ **선언 2종** | doc_011=순서 DAG(`incident_transfer_order`) · doc_010=횟수(`decline_transfer_count`) |
+| **F8** 신용정보국 escalation | ✅ **선언** | doc_012 축자 *"IMMEDIATELY use X **then** Y"* — 양자택일이 아니라 둘 다 |
+| **F13** 미검증 행 재질의 | ✅ **표면화 기구현**(`unverified_requery_note`) · **자동 재질의는 [[05]] Q3 위반이라 NO** | |
+| **F5** 손-전사 대조 | ✅ **신규 구현**(`t2_transcribe.py`·`T2_TRANSCRIBE=1`) | 아래 |
+| **D2** pin sticky | ✅ 구현·**기본 OFF**(`T2_PROC_PIN_REARM=0` = 거동 불변) | 근거가 F19로 소멸했으므로 x87 통과 전 점화 금지 |
+| F9·F11·D3-c | ❌ 미구현 | |
+
+**엔진에 추가된 도메인-일반 개념 3개**: `min_count`(정책이 세는 규칙) · `enter_when.tool_none`(정책끼리의 배제) ·
+`transcription_check`(원장 대조). 전부 값은 A2, 엔진 리터럴 0.
+
+### 2h-1. ★멈춰 세운 것 — `decline_transfer_count` 집행 해제
+
+x80이 **OVERBLOCK 3건**(`task_005`·`task_081`×2 — gold이 원한 `transfer_to_human_agents`를 막음)을 냈다.
+x80의 규칙은 축자로 *"An overblock count above zero is a stop, not a tuning parameter"*.
+원인은 **진입 술어가 열린 것**: `0218` 호출을 "구매 거절 상황"의 대리로 쓸 수 없다([[22]]).
+⇒ `enforce: false`로 내려 **표면화만** 남기고 과차단 **0** 복구. 두 선언 모두 `_note_limit`에
+*"처음부터 표준 도구를 쓴 실패(032/033형)·표준만 하고 끝낸 실패(035 t1형)는 활성 조건이 열린 술어라
+scaffold가 잡지 못한다"* 를 박아 뒀다.
+
+### 2h-2. F5 전사 대조 (x90 게이트 통과)
+
+| 계량 | 값 |
+|---|---|
+| 발화(불일치가 있는 호출) | **3건 / 2 sim** — 018/t0 `rewards_earned 1113↔487` · 028/t1 `488↔487`·`EcoCard↔Business Platinum Rewards Card` |
+| **★게이트: gold 자신이 걸린 횟수** | **0** ⇒ 오차단 0 · 등재 가능 |
+
+- 술어는 **원장 대조**뿐이고 값을 고치지 않는다 — 어긋난 사실만 말하고 재발행은 모델이 한다([[10]]).
+- ⚠**x90이 내 버그를 잡았다**: `str(s or "")`가 **0을 빈 문자열로** 만들어 `rewards_earned: 0`이
+  원장 `0`과 불일치로 잡혔다(task_021/t1). 고치지 않았으면 **정상 호출을 막았을 것**이다.
+
+### 2h-3. 048 ctx 사망의 원인 = **우리 문구**
+
+스모크 h의 048은 msg24에서 **KB 검색 6개를 한 턴에** 날렸고(각 19~26K자·합 114K자) msg31에서 ctx가 죽었다.
+원인은 `unlock_hint`가 **완전한 접미사 이름을 주고서 "모르면 검색하라"** 를 덧붙인 자기모순이었다.
+⇒ *"call unlock_discoverable_agent_tool with exactly that name. Do not search the knowledge base for it"*
+로 교체. 회귀검정(`test_proc_absent_wiring.py`)의 불변식도 **"검색을 시키지 않는다"** 로 뒤집었다.
+
 ## 3. 다음 재런 **발사 전** 체크포인트
 
 - [ ] F1·F2가 `go_stack.sh`에 남아 있는가(다른 세션이 되돌리지 않았는가) — `grep -c 'T2_QUOTE_PIN=1\|T2_MATCH_COUNT=1'` = 2

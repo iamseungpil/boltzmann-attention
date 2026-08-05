@@ -4652,6 +4652,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   남긴다. `T2_TOOL_SIGNATURE_OBSERVE`가 V7 死경로를 확정한 것과 같은 방법이다([[08]]).
             proc_fb = None
             abs_fb = None
+            tr_fb = None
             _procs = ((a2 or {}).get("procedures")
                       if (a2 is not None and os.environ.get("T2_PROCEDURE") == "1") else None)
             if _procs:
@@ -4748,6 +4749,53 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _pae:
                     abs_fb = None
                     print("[T2_PROC_ABSENT] error (no-op): %r" % (_pae,),
+                          file=_sys.stderr, flush=True)
+
+            # ★F5 전사 대조 (2026-08-05·설계 §·게이트=x90): 행 배열 인자에 **손-전사된 값**이
+            #   원장(그 대화가 읽은 record dump)과 어긋나면 deny한다. 018 t0은 `rewards_earned`를
+            #   1113으로 적었고(원장 487) 엔진이 그 값으로 **없는 불일치**를 만들어 여분 분쟁이 나갔다.
+            #   x90 전수(194 sim): 발화 3건/2 sim · **gold 자신이 걸린 횟수 0**(오차단 0).
+            #   엔진은 값을 고치지 않는다 — 어긋난 사실만 말하고 재발행은 모델이 한다([[10]]).
+            _trs = (a2 or {}).get("transcription_check") or {}
+            if (_trs and tr_fb is None and not do_gate and not do_prov
+                    and os.environ.get("T2_TRANSCRIBE") == "1"
+                    and getattr(self, "_t2_transcribe_deny", 0)
+                    < int(os.environ.get("T2_TRANSCRIBE_CAP", "4"))):
+                try:
+                    import t2_transcribe as _TR
+                    from t2_scaffold_get import _parse_record_dump as _PRD
+                    _byid = {}
+                    _specs = {k: v for k, v in _trs.items()
+                              if not k.startswith("_") and isinstance(v, dict)}
+                    for _m in state.messages:
+                        if getattr(_m, "role", None) != "tool":
+                            continue
+                        try:
+                            _rows = _PRD(str(getattr(_m, "content", "") or ""))
+                        except Exception:
+                            continue
+                        for _r in _rows:
+                            for _sp in _specs.values():
+                                _rid = _r.get(_sp.get("id_key"))
+                                if _rid:
+                                    _byid[str(_rid)] = _r
+                    for c in (am.tool_calls or []):
+                        if id(c) in denied_by_objid:
+                            continue
+                        _sp = _specs.get(getattr(c, "name", None))
+                        if not _sp:
+                            continue
+                        _bad = _TR.mismatches(_sp, _args_dict(c), _byid)
+                        _msg = _TR.note(_trs.get("_feedback"), _bad, getattr(c, "name", None))
+                        if _msg:
+                            tr_fb = (c, _msg)
+                            print("[T2_TRANSCRIBE] deny %s bad=%d first=%s"
+                                  % (getattr(c, "name", None), len(_bad), _bad[0][:2]),
+                                  file=_sys.stderr, flush=True)
+                            break
+                except Exception as _tre:
+                    tr_fb = None
+                    print("[T2_TRANSCRIBE] error (no-op): %r" % (_tre,),
                           file=_sys.stderr, flush=True)
 
             wev_fb = None
@@ -5327,7 +5375,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
                     and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None
                     and pr_fb is None and hv_fb is None and dd_fb is None and sig_fb is None
-                    and proc_fb is None and abs_fb is None):
+                    and proc_fb is None and abs_fb is None and tr_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -5396,6 +5444,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_proc_deny = getattr(self, "_t2_proc_deny", 0) + 1
             if abs_fb is not None:
                 self._t2_proc_absent = getattr(self, "_t2_proc_absent", 0) + 1
+            if tr_fb is not None:
+                self._t2_transcribe_deny = getattr(self, "_t2_transcribe_deny", 0) + 1
             if wev_fb is not None:
                 wev_rounds += 1
                 self._t2_wev_deny = getattr(self, "_t2_wev_deny", 0) + 1
@@ -5451,6 +5501,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     # A2 feedback이 "Error:"로 시작하면 그대로(이중 접두 방지)
                     content = wev_fb[1] if str(wev_fb[1]).lstrip().startswith("Error:") \
                         else "Error: " + wev_fb[1]
+                elif tr_fb is not None and c is tr_fb[0]:
+                    content = tr_fb[1] if str(tr_fb[1]).lstrip().startswith("Error:")                         else "Error: " + tr_fb[1]
                 elif proc_fb is not None and c is proc_fb[0]:
                     content = proc_fb[1] if str(proc_fb[1]).lstrip().startswith("Error:") \
                         else "Error: " + proc_fb[1]

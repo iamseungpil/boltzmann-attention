@@ -251,3 +251,11 @@ export T2_UNINSTRUCTABLE=1        # 실행 불가 지시 차단(012): 손님에�
 #                                 #   사전 계량(x82·194 sim): 발화 43 sim(1회/sim 캡)·그 중 17은 나중에
 #                                 #   전달이 실제로 일어남(넛지가 이르지만 문구가 "먼저 전달하라"라 무해).
 export T2_CHOICE_GROUND=1        # 계좌 클래스 등 열린-문자열 선택의 접지 넛지(x84: 이득 7·gold 미접지 3이라 deny 금지)
+
+# ★F5 전사 대조 (2026-08-05·`t2_transcribe.py`·A2 `transcription_check`·게이트=x90):
+#   행 배열 인자의 손-전사 값이 그 대화가 읽은 원장(record dump)과 어긋나면 deny.
+#   018 t0: rewards_earned 1113(원장 487) → 없는 불일치 → 여분 분쟁 1건 → db_match=False.
+#   x90 전수(194 sim): 발화 3건/2 sim · **gold 자신이 걸린 횟수 0**(오차단 0).
+#   엔진은 값을 고치지 않는다 — 어긋난 사실만 말하고 재발행은 모델이 한다([[10]]).
+export T2_TRANSCRIBE=1
+export T2_TRANSCRIBE_CAP=4        # sim당 상한(기존 cap 규약)
