@@ -113,7 +113,13 @@
   "give_quote": "You are about to hand `{tool}` to the customer, but your message does not repeat anything the customer actually wrote. Before handing over a tool, quote the customer's own words that asked for it — copy at least {min} consecutive words from what they wrote, verbatim. If they never asked for it, do not hand it over — act on what the customer actually asked for, not on what you inferred they might want.",
   "give_quote_min_tokens": 4,
   "kb_nohit": "Your last {n} knowledge-base searches scored zero on every document returned — the words you searched appear nowhere in the documents. Do NOT write a procedure, menu path, or requirement that no document gave you. Search with different plain words that a policy document would actually use, or act on what you already retrieved; if nothing in the documents covers this request, say so plainly and follow the escalation path instead of inventing one.",
-  "kb_claim_nohit": "You searched the knowledge base for the customer's own wording ({query}) and every document returned scored zero — the documents do not back that claim up. Do not act on it as if it were established: check what the documents actually say, and if they say nothing, tell the customer that you cannot confirm it rather than proceeding on their word."
+  "kb_claim_nohit": "You searched the knowledge base for the customer's own wording ({query}) and every document returned scored zero — the documents do not back that claim up. Do not act on it as if it were established: check what the documents actually say, and if they say nothing, tell the customer that you cannot confirm it rather than proceeding on their word.",
+  "user_exec_tokens": [
+   "call_discoverable"
+  ],
+  "given_marker": "Tool given to user:",
+  "uninstructable": "Error: [UNINSTRUCTABLE] 손님에게 도구 실행을 안내했는데 **아직 어떤 도구도 손님에게 전달되지 않았다** — 손님은 그 지시를 실행할 수 없다. 전달할 도구가 있으면 give로 먼저 전달하라. 지식베이스에서 절차를 찾지 못한 것이라면 지어내지 말고 **찾지 못했다고 손님에게 말하라**.",
+  "_note_uninstructable": "★2026-08-05(012 실측): KB 검색이 헛돌uc790 존재하지 않는 도구(set_travel_notification)를 손님에게 실행하라고 안내하고 앱 경로까지 지어냈다 — 코퍼스 grep 0건. 술어는 **선언된 토큰의 포함 + 전달 이력 없음**이고 정규식 추출은 하지 않는다(C279 계보). 도메인 어휘가 없으므로 L1(공통)에 둔다."
  },
  "_note_axis_notes": "표면화 문구(도메인-일반·L1) — 정본 `FAILURE_AXES_REDESIGN_2026_08_02` / `RUNAWAY_AXIS_REDESIGN_2026_08_02`. 출처: 도구 종류별 절차는 **에이전트 정책 축자**(\"First, unlock the tool using unlock_discoverable_agent_tool … The unlock step is required before calling\") · 이관 재질문 금지는 **A2 gate ask 축자**(\"do NOT send the notice again … Saying you will transfer … does not transfer anyone\") · 종료 토큰은 env 산출. **gold 경유 0**. 도구 이름은 여기 없다 — env `DISCOVERABLE_ATTR`에서 런타임 기계 도출(C208 판정: opex 0). 새 도메인 전이 비용 0(L1).",
  "repeat_governor": {

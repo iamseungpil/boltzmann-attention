@@ -6622,6 +6622,36 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[T2_TOOL_CHANNEL] pre-call check skipped: %r" % (_e13,),
                       file=_sys.stderr, flush=True)
 
+
+        # ─── ★T2_UNINSTRUCTABLE (2026-08-05·012 실측): 실행할 수 없는 지시 ───
+        #   손님에게 도구 실행을 안내했는데 **아직 아무 도구도 전달되지 않은** 상태 =
+        #   손님은 그 지시를 실행할 수 없다. 012는 그 위에 존재하지 않는 도구 이름과 앱 경로를
+        #   지어냈다(코퍼스 grep 0건). 술어 = A2 선언 토큰의 포함 ∧ 전달-이력 부재(정규식 추출 0).
+        #   도구 호출이 없는 **산문 턴**에서 나므로 출력-부착이 아니라 생성-레벨이어야 한다.
+        if (os.environ.get("T2_UNINSTRUCTABLE") == "1" and not getattr(am, "tool_calls", None)
+                and not getattr(self, "_t2_uninst_done", False)):
+            try:
+                _ax_u = (a2 or {}).get("axis_notes") or {}
+                _toks = _ax_u.get("user_exec_tokens") or []
+                _mark = str(_ax_u.get("given_marker") or "")
+                _fbu = _ax_u.get("uninstructable")
+                _said = str(getattr(am, "content", "") or "")
+                if _fbu and _toks and _mark and any(t in _said for t in _toks):
+                    _given = any(_mark in (_content_str(m) or "")
+                                 for m in (state.messages or [])
+                                 if getattr(m, "role", None) == "tool")
+                    if not _given:
+                        self._t2_uninst_done = True
+                        from t2_lever_beat import beat as _beatu
+                        _beatu("T2_UNINSTRUCTABLE", "uninstructable")
+                        print("[T2_UNINSTRUCTABLE] regen: instruction with nothing given",
+                              file=_sys.stderr, flush=True)
+                        _newu = _ap_regen(_fbu, "uninstructable")
+                        if _newu is not None:
+                            am = _newu
+            except Exception as _eu:
+                print("[T2_UNINSTRUCTABLE] skipped: %r" % (_eu,), file=_sys.stderr, flush=True)
+
         # ─── ★P5 (2026-08-02): user-tool 안내 표준문 — 생성-레벨(P13 규약) ───
         #   018/040 실측: 대화-내 user-tool 실행을 "portal/app 제출"로 오설명 → 손님 2회 거부 → 이관 →
         #   gold write 0. give는 env mutating이라 출력-부착 불가(P13) ⇒ **give 호출 직전** 1회 표면화.

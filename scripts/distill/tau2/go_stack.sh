@@ -230,3 +230,7 @@ export T2_MATCH_COUNT=1           # KB_search 회수 경계 표면화("N개 걸�
 #   give"도 8건 오차단으로 기각(x81).
 export T2_PROCEDURE=1
 export T2_PROCEDURE_CAP=6         # sim당 deny 상한(불응 무한루프 방지·기존 cap 선례)
+export T2_UNINSTRUCTABLE=1        # 실행 불가 지시 차단(012): 손님에게 도구 실행을 안내했는데 전달 이력 0.
+#                                 #   술어=A2 L1 선언 토큰 포함 ∧ 전달 마커 부재(정규식 추출 0·C279 계보).
+#                                 #   사전 계량(x82·194 sim): 발화 43 sim(1회/sim 캡)·그 중 17은 나중에
+#                                 #   전달이 실제로 일어남(넛지가 이르지만 문구가 "먼저 전달하라"라 무해).
