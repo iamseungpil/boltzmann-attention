@@ -2133,6 +2133,43 @@ def _resolve_exact(name, registry):
     return cand[0] if len(cand) == 1 else None
 
 
+def _docs_naming(tool, docs_dir, _cache={}):
+    """이 도구 이름을 담은 문서 id 집합 — 코퍼스 사실이라 A2에 적지 않는다.
+
+    `transfer_to_human_agents`의 docstring이 *"The proper transfer reason enum can be found in
+    the knowledge base: search it before calling this tool"* 라고 스스로 말한다. 그 문서를 읽었는지는
+    회수 이력이라 닫혀 있다 — 어느 프로토콜이 맞는지(열린 술어)는 여전히 모델 몫이고, 여기서는
+    **읽지 않았다는 사실**만 말한다.
+    """
+    key = (tool, docs_dir)
+    if key in _cache:
+        return _cache[key]
+    out = set()
+    try:
+        for f in os.listdir(docs_dir or ""):
+            if not f.endswith(".json"):
+                continue
+            with open(os.path.join(docs_dir, f), encoding="utf-8") as fh:
+                d = json.load(fh)
+            if tool in (d.get("content") or ""):
+                out.add(d.get("id"))
+    except Exception:
+        out = set()
+    _cache[key] = out
+    return out
+
+
+def _docs_seen(messages):
+    """지금까지 도구 출력에 등장한 문서 id — 회수 이력(구조 사실)."""
+    txt = []
+    for m in messages or []:
+        if getattr(m, "role", None) == "tool":
+            c = getattr(m, "content", None)
+            if isinstance(c, str):
+                txt.append(c)
+    return chr(10).join(txt)
+
+
 def _unlocked_names(messages, a2=None):
     """Discoverable names this conversation has asked to unlock (순수함수·리터럴 0).
 
@@ -4833,6 +4870,34 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _tre:
                     tr_fb = None
                     print("[T2_TRANSCRIBE] error (no-op): %r" % (_tre,),
+                          file=_sys.stderr, flush=True)
+
+            # ★G2-a 프로토콜 문서 미열람 표면화 (2026-08-05·설계 `OPEN_PREDICATE_DECOMPOSITION` §1·
+            #   게이트=x93): 035는 신용정보국 사건인데 구매-거절 프로토콜 도구를 썼고, 032는 프로토콜
+            #   없이 표준 이관했다. **어느 상황인가**는 열린 술어라 건드리지 않는다 — 닫힌 것은
+            #   "이 도구를 정의한 문서를 읽었는가"뿐이고 그것만 말한다.
+            #   x93 전수: 미열람 사용 27건 / **gold이 요구한 이관인데 미열람 6건** ⇒ **deny 금지**,
+            #   표면화만. 도구→문서 지도는 코퍼스에서 실행시 도출(A2 아님).
+            _pdc = (a2 or {}).get("require_doc_before") or {}
+            if (_pdc.get("tools") and abs_fb is None and tr_fb is None and proc_fb is None
+                    and os.environ.get("T2_REQUIRE_DOC") == "1"
+                    and not getattr(self, "_t2_reqdoc_fired", False)):
+                try:
+                    _dd = os.environ.get("T2_KB_DOCS_DIR")
+                    _seen_txt = _docs_seen(state.messages)
+                    for c in (am.tool_calls or []):
+                        _nm2 = _exact_tool_name(c)
+                        if _nm2 not in (_pdc.get("tools") or []):
+                            continue
+                        _want = _docs_naming(_nm2, _dd)
+                        if _want and not any(x and x in _seen_txt for x in _want):
+                            abs_fb = str(_pdc.get("feedback") or "").replace("{tool}", _nm2)
+                            self._t2_reqdoc_fired = True
+                            print("[T2_REQUIRE_DOC] surface %s docs=%d unread"
+                                  % (_nm2, len(_want)), file=_sys.stderr, flush=True)
+                            break
+                except Exception as _rde:
+                    print("[T2_REQUIRE_DOC] error (no-op): %r" % (_rde,),
                           file=_sys.stderr, flush=True)
 
             wev_fb = None

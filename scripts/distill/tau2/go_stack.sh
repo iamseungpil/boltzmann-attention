@@ -259,3 +259,8 @@ export T2_CHOICE_GROUND=1        # 계좌 클래스 등 열린-문자열 선택�
 #   엔진은 값을 고치지 않는다 — 어긋난 사실만 말하고 재발행은 모델이 한다([[10]]).
 export T2_TRANSCRIBE=1
 export T2_TRANSCRIBE_CAP=4        # sim당 상한(기존 cap 규약)
+
+# ★G2-a 프로토콜 문서 미열람 표면화 (2026-08-05·게이트=x93·`OPEN_PREDICATE_DECOMPOSITION` §1):
+#   x93 전수(194 sim): 미열람 사용 27건 / **gold이 요구한 이관인데 미열람 6건** ⇒ deny하면 정답을
+#   막는다 ⇒ **표면화만·sim당 1회**. 어느 프로토콜이 맞는가(열린 술어)는 말하지 않는다.
+export T2_REQUIRE_DOC=1

@@ -2269,6 +2269,16 @@
  "_note_search_exhaust_escalation": "F23(2026-08-05·012 실측). 출처: ① `transfer_to_human_agents` docstring 축자 *\"The proper transfer reason enum can be found in the knowledge base: search it before calling this tool to select the proper applicable reason.\"* ② 정책 문서 `doc_bank_accounts_bank_accounts_(general)_042 (Internal: Human Agent Transfer Reason Codes)`. **어느 코드를 고를지는 말하지 않는다** — 티어 판정은 열린 술어라 모델 몫이다([[22]]). gold 경유 0. 표적 = x92 실측 '이관해야 하는데 한 번도 안 부른 sim 7건'(012 t0/t1 포함).",
  "tool_unlock_hint": "The tool(s) for that step are {tools} and they have not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly those names first. Do not search the knowledge base for them: the names above are complete.",
  "_note_tool_unlock_hint": "2026-08-05·028 실측. 체인은 발화했는데(`chain fired` 8회) 모델은 unlock 호출 0회였다 — 문구가 접미사 없는 이름만 줘서 부를 수 있는 이름도 잠금 사실도 없었다(048과 동형). 정확한 이름은 env 레지스트리에서 결정론으로 풀고(모호하면 침묵), 이 문장만 A2가 준다. 검색을 시키지 않는 이유 = 048에서 KB 6연발이 ctx를 죽였다.",
+ "require_doc_before": {
+  "tools": [
+   "transfer_to_human_agents",
+   "initial_transfer_to_human_agent_0218",
+   "initial_transfer_to_human_agent_1822",
+   "emergency_credit_bureau_incident_transfer_1114"
+  ],
+  "feedback": "[PROTOCOL] You are about to use {tool}, but nothing you retrieved in this conversation is the document that defines it. That tool's own description says to search the knowledge base first and pick the applicable reason code there. Search for the transfer protocol and reason-code documents, read which situation each one covers, and only then choose - a transfer sent under the wrong protocol is a different action from the right one.",
+  "_note": "G2-a(2026-08-05·035·032 실측). **어느 프로토콜이 맞는가는 열린 술어라 말하지 않는다** — 닫힌 것은 '이 도구를 정의한 문서를 읽었는가'뿐이다([[22]]). 출처 = `transfer_to_human_agents` docstring 축자 *\"search it before calling this tool\"*. x93 전수: 미열람 사용 27건 / **gold이 요구한 이관인데 미열람 6건** ⇒ deny하면 정답 6건을 막는다 ⇒ **표면화만·sim당 1회**. 도구→문서 지도는 A2가 아니라 코퍼스에서 도출한다."
+ },
  "procedures": [
   {
    "id": "credit_limit_increase",
