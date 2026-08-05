@@ -6764,11 +6764,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     print("[T2_UNCALLED_UNLOCK] surface %s" % ",".join(_idle12[:4]),
                           file=_sys.stderr, flush=True)
                     _newS = _ap_regen(
+                        # ⚠`_ap_regen`은 (문구, tag)를 받는다 — tag 없이 부르면 TypeError로 조용히
+                        #   no-op이 되고 표적을 8번 잡고도 **한 번도 전달되지 않는다**(20260805q 실측 4회).
                         "Error: [UNLOCKED-NOT-CALLED] you unlocked %s in this conversation and never "
                         "called it. Unlocking only makes a tool available — it performs nothing. If "
                         "that step is still required, call it now with its arguments; if it is not "
                         "required, say plainly why you are not calling it."
-                        % ", ".join(_idle12[:4]))
+                        % ", ".join(_idle12[:4]), "uncalled_unlock")
                     if _newS is not None:
                         am = _newS
                         _resign = (not getattr(am, "tool_calls", None)

@@ -137,6 +137,18 @@ check("C9 해지 도구는 그 인자를 받지 않는다(048의 우회가 무�
       "close_credit_card_account_7834" not in G._arg_consumers(_env, "card_last_4_digits"))
 check("C9 환경이 없으면 조용히 빈 집합(무해)", G._arg_consumers(None, "card_last_4_digits") == set())
 
+
+# ── 배선: `_ap_regen`은 (문구, tag) 두 인자를 받는다 ─────────────────────────────────
+# 20260805q 실측: tag 없이 부른 C12가 TypeError로 **조용히 no-op**이 되어, 표적을 8번 잡고도
+# 메시지가 한 번도 전달되지 않았다. py_compile은 이걸 못 본다 — 호출부를 AST로 센다.
+import ast as _ast
+
+_tree = _ast.parse(src)
+_bad = [n.lineno for n in _ast.walk(_tree)
+        if isinstance(n, _ast.Call) and getattr(n.func, "id", None) == "_ap_regen"
+        and len(n.args) < 2]
+check("배선 — `_ap_regen` 호출이 전부 tag를 넘긴다", not _bad, str(_bad[:4]))
+
 print()
 print("결과: %s" % ("ALL PASS" if not fail else "FAIL %d — %s" % (len(fail), fail)))
 sys.exit(1 if fail else 0)
