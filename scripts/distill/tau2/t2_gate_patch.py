@@ -6665,6 +6665,41 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                       file=_sys.stderr, flush=True)
 
 
+        # ─── ★T2_CHOICE_GROUND (2026-08-05·계좌개설 계열 실측): 회수하지 않은 이름을 고른다 ───
+        #   `open_bank_account`류는 상품 이름을 열린 문자열로 받는다(env가 열거하지 않는다). 실측:
+        #   gold 요구 52건 중 47건 실패이고 그 절반이 **오선택**이며, 선택값이 회수 문서 어디에도
+        #   없는 경우가 7건 있었다(x84 — 지어낸 이름). 같은 계량이 **gold도 3건 미접지**임을 보여
+        #   deny는 오차단이 되므로 **넛지 1회**로만 둔다. 술어=선언된 (도구,인자)의 값이 이 대화가
+        #   회수한 도구 출력에 축자로 있는가(포함 검사·추출 0).
+        if (os.environ.get("T2_CHOICE_GROUND") == "1" and getattr(am, "tool_calls", None)
+                and not getattr(self, "_t2_choiceground", False)):
+            try:
+                _cg = (a2 or {}).get("choice_grounding") or []
+                if _cg:
+                    _seen_cg = " ".join(_content_str(m) or "" for m in (state.messages or [])
+                                        if getattr(m, "role", None) == "tool")
+                    for _tc_cg in (am.tool_calls or []):
+                        _nm_cg = _exact_tool_name(_tc_cg)
+                        _ar_cg = _args_dict(_tc_cg)
+                        for _spec_cg in _cg:
+                            if _spec_cg.get("tool") != _nm_cg:
+                                continue
+                            _v_cg = str(_ar_cg.get(_spec_cg.get("arg")) or "").strip()
+                            if not _v_cg or _v_cg in _seen_cg:
+                                continue
+                            self._t2_choiceground = True
+                            print("[T2_CHOICE_GROUND] regen: %s=%r not in retrieved text"
+                                  % (_spec_cg.get("arg"), _v_cg), file=_sys.stderr, flush=True)
+                            _fb_cg = str(_spec_cg.get("feedback") or "").replace("{value}", _v_cg)
+                            _new_cg = _ap_regen(_fb_cg, "choiceground")
+                            if _new_cg is not None:
+                                am = _new_cg
+                            break
+                        if getattr(self, "_t2_choiceground", False):
+                            break
+            except Exception as _ecg:
+                print("[T2_CHOICE_GROUND] skipped: %r" % (_ecg,), file=_sys.stderr, flush=True)
+
         # ─── ★T2_UNINSTRUCTABLE (2026-08-05·012 실측): 실행할 수 없는 지시 ───
         #   손님에게 도구 실행을 안내했는데 **아직 아무 도구도 전달되지 않은** 상태 =
         #   손님은 그 지시를 실행할 수 없다. 012는 그 위에 존재하지 않는 도구 이름과 앱 경로를

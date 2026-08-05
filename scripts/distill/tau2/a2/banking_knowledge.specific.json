@@ -2247,5 +2247,13 @@
    "_note_procedure": "★2026-08-05: x83 실측 — 이 계열 9 태스크가 공유 코어 8종을 갖고, 각 태스크 gold의 50~86%가 그 코어다(9/9가 요구하는 도구 3종). 즉 태스크가 아니라 **절차 하나**다. 실패 지점도 공통: Step 5 보유 제안 미실행 · discoverable 도구 미발견 · 그로 인한 ctx 사망."
   }
  ],
- "_note_procedures": "★절차 DAG(2026-08-05·사용자 지시 \"절차 컨트롤러는 DAG로 만들어 A2 도메인 특화 파일에 기록하라\").\n**왜 데이터인가**: 정책이 단계·순서·도구명·숫자를 전부 축자로 준다 — 판단이 아니라 표 조회다. 엔진은 DAG를 걷고 미충족 선행 노드를 표면화할 뿐이고, 도메인 어휘는 여기에만 있다([[05]]).\n**근거(축자)**: `_source`·`_quote_order`·노드별 `_quote` 참조. gold 경유 0 — 모든 값이 정책 문서에서 복사됐고, 정책이 주지 않는 것(카드명→등급 매핑)은 **일부러 비워** 모델 operand로 남겼다([[23]]/[[52]]).\n**실측 표적**: 스모크 `task_051` — 요청 제출(1단계) 누락 · 분쟁 이력 미확인 · `months` 6→12 · 상한 25%를 넘는 승인(new_limit 5,200 = +30%). 네 결함이 모두 이 DAG의 노드에 대응한다.\n⚠**현재는 데이터만이다** — 이 DAG를 걷는 엔진이 아직 없으므로 라이브 발화는 0이다. 엔진 없이 데이터만 두는 것이 이 repo의 死코드 패턴이므로([[24]]), 원장 F14에 '엔진 미구현'으로 남긴다."
+ "_note_procedures": "★절차 DAG(2026-08-05·사용자 지시 \"절차 컨트롤러는 DAG로 만들어 A2 도메인 특화 파일에 기록하라\").\n**왜 데이터인가**: 정책이 단계·순서·도구명·숫자를 전부 축자로 준다 — 판단이 아니라 표 조회다. 엔진은 DAG를 걷고 미충족 선행 노드를 표면화할 뿐이고, 도메인 어휘는 여기에만 있다([[05]]).\n**근거(축자)**: `_source`·`_quote_order`·노드별 `_quote` 참조. gold 경유 0 — 모든 값이 정책 문서에서 복사됐고, 정책이 주지 않는 것(카드명→등급 매핑)은 **일부러 비워** 모델 operand로 남겼다([[23]]/[[52]]).\n**실측 표적**: 스모크 `task_051` — 요청 제출(1단계) 누락 · 분쟁 이력 미확인 · `months` 6→12 · 상한 25%를 넘는 승인(new_limit 5,200 = +30%). 네 결함이 모두 이 DAG의 노드에 대응한다.\n⚠**현재는 데이터만이다** — 이 DAG를 걷는 엔진이 아직 없으므로 라이브 발화는 0이다. 엔진 없이 데이터만 두는 것이 이 repo의 死코드 패턴이므로([[24]]), 원장 F14에 '엔진 미구현'으로 남긴다.",
+ "choice_grounding": [
+  {
+   "tool": "open_bank_account_4821",
+   "arg": "account_class",
+   "feedback": "Error: [CHOICE-GROUND] '{value}' does not appear in any document this conversation retrieved — it may be a name you produced rather than one the bank offers. Search the knowledge base for the account classes that fit what the customer actually asked for, compare them on those stated criteria, and use the exact class name a document gives."
+  }
+ ],
+ "_note_choice_grounding": "★2026-08-05 실측(x84): 이 인자는 env가 열거하지 않는 열린 문자열이다. gold 52건 중 47 실패·오선택 27·미실행 19. 선택값이 회수 문서에 없는 경우 agent 7건 / **gold 3건** ⇒ deny는 오차단이라 넛지 1회로 둔다."
 }
