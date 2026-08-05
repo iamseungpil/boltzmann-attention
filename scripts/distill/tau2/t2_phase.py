@@ -63,7 +63,16 @@ def phase_of(a2, messages, unwrap, executed=None, procedures_state=None):
             continue
         # 검증을 **시도했는가**가 경계다. 시작도 안 한 상태까지 검증 단계로 부르면, 통과 런에서
         # 정당하게 나가던 행동-유도까지 지운다(실측: 통과 8/8이 그 자리였다).
-        gather = set(g.get("verify_gather_prefix") or []) | {"verify_identity"}
+        #
+        # ★실효 술어 정정 (2026-08-06·035 오귀속 부검). 구판은 `set(g["verify_gather_prefix"])`를
+        #   더했는데 그 선언 값은 **문자열**(`"get_user_information_by"`)이라 `set()`이 **문자 15개의
+        #   집합**을 만들었다 — 도구명과 교집합이 날 수 없어 실효 gather는 `verify_identity` 하나였다.
+        #   그래서 이 함수의 서술("검증을 시도했는가")과 실제("verify_identity를 불렀는가")가 달랐고,
+        #   035의 통과 상실이 반나절 C17에 오귀속됐다(035는 두 런 모두 verify 0턴 = C17 비활성).
+        #   **거동은 그대로 두고 서술을 실제에 맞춘다**: 접두사를 살리는 쪽은 실측상 손해다
+        #   (035가 38턴 중 30턴 verify가 되어 행동-유도가 통째로 지워진다). 넓히려면 별도 플래그와
+        #   035 격리 arm이 선행이다 — 등대 §1.2: 침묵은 공짜가 아니다.
+        gather = {"verify_identity"}
         if called & gather:
             return "verify", "auth gate %s unsatisfied, verification attempted" % (g.get("id") or "?")
 

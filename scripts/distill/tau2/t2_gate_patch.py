@@ -1328,12 +1328,10 @@ def _value_acquire_fb(am, messages, specs, a2=None, executed=None):
         # ★그 "닫힌 술어"가 이것이다(2026-08-06): **선언이 그 도구를 금지했는가**. 열린 술어("이
         #   태스크가 그 write로 가는가")를 찾다 실패한 자리를, 절차 선언이 이미 답하고 있었다.
         #   오프라인 전수(x104 §C): 침묵 = 022의 3발뿐·048/051/035/053의 12발은 유지(over-block 0).
-        try:
-            import t2_speak as _spk
-            if _spk.prohibits_target(a2, executed, acq, lever="VALUE-ACQUIRE", messages=messages):
-                continue
-        except Exception:
-            pass
+        # ★위치(2026-08-06 rev2·라이브 `20260806c` 실측 교정): 초판은 이 검사를 스펙 루프 **맨 앞**에
+        #   뒀다. 거동은 같지만(어차피 침묵) **계기가 거짓말을 했다** — 레버가 애초에 말할 생각이 없던
+        #   턴까지 "침묵"으로 세어 98건이 찍혔고, 실제 억제는 022뿐이었다. 조건 ①②③ 뒤로 옮겨
+        #   **말하기로 결정된 것만** 침묵시키고 그것만 기록한다([[08]] 계기가 신호를 부풀리면 안 된다).
         # ① 값이 이미 있으면(producer 성공출력) → have-value 관할·skip
         if _producer_outputs(messages, sp.get("producer_marker") or ("Executed: " + acq)):
             continue
@@ -1347,6 +1345,13 @@ def _value_acquire_fb(am, messages, specs, a2=None, executed=None):
         cur_reask = any(s in cur_text for s in signals)
         if not (prior or cur_reask):
             continue
+        # ④ 말하기로 결정됐다 — 그런데 지금 돌고 있는 절차가 이 표적을 금지하는가([[22]] 닫힌 술어).
+        try:
+            import t2_speak as _spk
+            if _spk.prohibits_target(a2, executed, acq, lever="VALUE-ACQUIRE", messages=messages):
+                continue
+        except Exception:
+            pass
         fb = sp.get("feedback") or VALUE_ACQUIRE_FEEDBACK_DEFAULT
         return (fb.replace("{arg}", str(arg)).replace("{acquire_tool}", str(acq))
                   .replace("{give_tool}", str(give)).replace("{write}", str(W)))
@@ -5743,14 +5748,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 #   규칙**으로 발화했고 x99에서 **7발 7오발화**였다 — `verify_identity`·
                 #   `check_cli_eligibility` 처럼 애초에 discoverable이 아닌 도구를 붙잡았다.
                 #   env가 discoverable 목록을 주므로 술어는 **집합 밖인가**로 충분하다(패턴 0).
-                _reg2 = _agent_discoverable(
-                    getattr(getattr(self, "_t2_orch", None), "environment", None))
+                # ★★거짓 진술 교정 (2026-08-06·022 루프 부검): 레지스트리를 **agent 측만** 봤다.
+                #   `submit_cash_back_dispute_0589`는 **user-측 discoverable**(env `user_tools`)이라
+                #   이 집합 밖으로 떨어졌고, 우리는 이름이 완전한 실재 도구에 대고 *"접미사가 없다·
+                #   KB를 지금 검색하라"* 고 말했다. 022는 그 문구 6회 + UNKNOWN_NAME_BL 6회("그 이름은
+                #   존재하지 않는다")를 번갈아 받으며 **40턴을 돌다 중단**됐다. 이름이 어느 쪽이든
+                #   레지스트리에 있으면 이 레버는 할 말이 없다 — 채널이 틀린 것이고, 그건 TOOL-CHANNEL이
+                #   이미 정확히 말한다(같은 궤적 turn 48·74). 여기서는 **침묵**이 교정이다(A2 순증 0).
+                _env2 = getattr(getattr(self, "_t2_orch", None), "environment", None)
+                _reg2 = _agent_discoverable(_env2)
+                _regu2 = _user_discoverable(_env2)
                 for c in (am.tool_calls or []):
                     _uarg = (_unspec.get("tools") or {}).get(getattr(c, "name", None))
                     if not _uarg:
                         continue
                     _uval = str(_args_dict(c).get(_uarg) or "")
-                    if _uval and _reg2 and not _in_registry(_uval, _reg2):
+                    if _uval and _reg2 and not _in_registry(_uval, _reg2) \
+                            and not _in_registry(_uval, _regu2):
                         # ★{name_words} (2026-07-22 §2bs·rall10 050/052 실측): bare-name을 자연어
                         #   질의로 파생(suffix 제거+언더스코어→공백) — 도구명 질의=BM25 0.0 마찰의 해소.
                         #   엔진=순수 문자열 연산(리터럴 0)·문구는 A2.
@@ -5771,10 +5785,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         # 그 이름의 도구가 실재하면 unlock 대상이 아니라는 뜻이고, 실재하지도
                         # 않으면 없는 이름이다. 두 경우 모두 검색어를 **파생하지 않는다** —
                         # 접미사를 떼어 질의를 만드는 것도 패턴이다.
-                        _known = _uval in _known_tool_names(
-                            getattr(self, "tools", None),
-                            getattr(getattr(self, "_t2_orch", None), "environment", None),
-                            state.messages)
+                        # ★정규화 불일치 교정(2026-08-06·022): `_known_tool_names`는 접미사를 **떼어**
+                        #   집합을 만드는데(`_n`) 탐침은 원형이라, 접미사 있는 이름은 **영원히 미상**으로
+                        #   판정돼 "접미사가 없다" 갈래로 떨어졌다. 양쪽을 같은 정규화로 맞춘다.
+                        _known = re.sub(r"_\d+$", "", _uval) in _known_tool_names(
+                            getattr(self, "tools", None), _env2, state.messages)
                         _tpl = ((_unspec.get("feedback_not_discoverable") if _known else None)
                                 or _unspec.get("feedback")
                                 or "Error: '{name}' is not a discoverable tool in this domain.")
@@ -5813,6 +5828,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _ua3 = _na3.get(getattr(c, "name", None))
                         _uv3 = str(_args_dict(c).get(_ua3) or "") if _ua3 else ""
                         if unknown_bl_hit(_ubl, _ukind, getattr(c, "name", None), _uv3):
+                            # ★거짓 진술 차단(2026-08-06·022): 아래 문구는 *"that exact name does not
+                            #   exist"* 라고 단정한다. env가 agent 채널에서 거부한 이름이 **user-측
+                            #   레지스트리에 실재하면 그 단정은 거짓**이고(존재하지 않는 게 아니라
+                            #   채널이 틀렸다), 022는 이 거짓을 6회 받으며 루프에 갇혔다. 그 경우엔
+                            #   침묵하고 TOOL-CHANNEL(이미 옳게 말한다)에 맡긴다.
+                            if _in_registry(_uv3, _user_discoverable(
+                                    getattr(getattr(self, "_t2_orch", None), "environment", None))):
+                                continue
                             _upat3 = (_unspec.get("pattern") if _unspec else None) or "_[0-9]+$"
                             un_fb = (c, ("Error: '{name}' was already rejected by the environment "
                                          "as an unknown tool earlier in this conversation - that "
