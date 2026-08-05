@@ -4852,10 +4852,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _unl = _unlocked_names(state.messages, a2)
                     _pat = ((a2 or {}).get("discoverable_name_check") or {}).get("pattern")
                     _K = int(os.environ.get("T2_PROC_ABSENT_K", "3"))
+                    # ★C3(2026-08-05·050/051 실측): **진입한 그 턴에** 체크리스트를 한 번 준다.
+                    #   시간축 계량: 아무도 부르지 않은 도구의 첫 지목 위치 중앙값이 **대화의 0.63**
+                    #   지점(남은 메시지 23)이고, 호출된 것은 0.35(남은 42)였다. 같은 두 read를 048은
+                    #   **일찍 한 번** 받고 불렀고 050·051은 63~68% 지점에서 4~5회 받고도 안 불렀다.
+                    #   K턴 침묵을 기다리는 것은 그 지연의 설계상 원인이므로, 절차가 열린 첫 순간에는
+                    #   침묵 조건을 면제한다(sim·절차당 1회·표면화만·차단 아님).
+                    _ann = getattr(self, "_t2_proc_announced", None)
+                    if _ann is None:
+                        _ann = self._t2_proc_announced = set()
                     for _p in _PROC.active_procedures(_procs, _done2):
                         _nt = {t for n in (_p.get("nodes") or []) for t in (_PROC._tools_of(n) or [])}
-                        if not _nt or _quiet_turns(state.messages, _nt) < _K:
+                        _entry = _p.get("id") not in _ann
+                        if not _nt or (not _entry and _quiet_turns(state.messages, _nt) < _K):
                             continue
+                        _ann.add(_p.get("id"))
                         _msg = _PROC.absent_note(_p, _done2, _unl, _pat)
                         if not _msg:
                             continue
@@ -6766,6 +6777,33 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if _stubs >= int(os.environ.get("T2_SEARCH_EXHAUST_TH", "2") or 2):
                 self._t2_srchex = 1
                 print("[T2_SEARCH_EXHAUST] nudge stubs=%d" % _stubs, file=_sys.stderr, flush=True)
+                # ★C11(2026-08-05): 소진 시점에 **이미 회수한 문서가 이름을 말한 도구**를 다시
+                #   짚는다. 스모크 실측: 아무도 부르지 않은 gold 도구 16건 중 **12건이 이미 검색
+                #   결과 본문에 있었다**. 레지스트리를 통째로 열거하면 그건 발견을 대신 해 주는
+                #   것이라 하지 않는다([[05]] Q3) — 교집합(레지스트리 ∩ 이 대화가 이미 받은 텍스트)
+                #   에서 아직 해제·호출되지 않은 것만, 새 정보 없이 다시 말한다.
+                _seen9 = ""
+                try:
+                    _reg9 = _agent_discoverable(
+                        getattr(getattr(self, "_t2_orch", None), "environment", None))
+                    if _reg9:
+                        _txt9 = "\n".join(str(getattr(_m9, "content", "") or "")
+                                          for _m9 in state.messages
+                                          if getattr(_m9, "role", None) == "tool")
+                        _used9 = {_exact_tool_name(_t9) for _m9 in state.messages
+                                  for _t9 in (getattr(_m9, "tool_calls", None) or [])}
+                        _used9 |= _unlocked_names(state.messages, a2)
+                        _cand9 = sorted(n for n in _reg9 if n in _txt9 and n not in _used9)
+                        if _cand9:
+                            _seen9 = (" The documents you have ALREADY retrieved name these tools,"
+                                      " which you have not called yet: %s. Their names are exact —"
+                                      " unlock and call one of them rather than searching again."
+                                      % ", ".join(_cand9[:6]))
+                            print("[T2_SEARCH_EXHAUST] retrieved-but-unused %d" % len(_cand9),
+                                  file=_sys.stderr, flush=True)
+                except Exception as _s9e:
+                    print("[T2_SEARCH_EXHAUST] retrieved-name error (no-op): %r" % (_s9e,),
+                          file=_sys.stderr, flush=True)
                 _newS = _ap_regen(
                     "Error: [SEARCH-EXHAUST] the knowledge base has already rejected %d repeated "
                     "search(es) as duplicates — repeating them will not return anything new. "

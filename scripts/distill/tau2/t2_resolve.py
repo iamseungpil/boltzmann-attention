@@ -42,7 +42,8 @@ OPERATOR_FIND_FB = (
 )
 
 
-def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=None):
+def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=None,
+                     declared_required=None):
     """operator(도구명) operand 해소. 반환 {status: ok|deny, reason, feedback}.
     ★리뷰 U3: operator=operand는 discoverable 아키텍처서만 성립(§8b agent_tool_name=명시인자).
       direct-dispatch(retail/airline)는 도구선택이 인자 아님 → operator-해소 없음(GATE/L7 관할).
@@ -65,6 +66,12 @@ def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=N
                              "the available tools first (getter %s), then use one of the discovered "
                              "names." % (chosen, opspec.get("getter", "")))}
     # ★FIND(Lever 1): 발견 후보 2+ 중 의도-매칭 도구 선택 검증.
+    # ★C10(2026-08-05·051 실측): 우리 선언이 **이미 요구한 도구**를 "틀린 선택"이라고 말하지 않는다.
+    #   051의 gold는 `get_payment_history_6183`과 `get_credit_limit_increase_history_4829`를 **둘 다**
+    #   요구하는데, 이 레버는 요청이 후자에 매핑된다며 전자를 거부했다. 하나의 요청에 하나의 도구가
+    #   대응한다는 가정이 절차형 태스크에서 깨진다 — 선언된 요구 집합의 원소면 지금 부르는 것이 옳다.
+    if str(chosen) in (declared_required or set()):
+        return {"status": "ok"}
     if (opspec.get("find_intent") and agent is not None and la is not None
             and len(cands) >= 2 and str(chosen) in cands):
         want = formalize_intent_tool(agent, la, UserMessage, msgs, cands)
@@ -576,7 +583,18 @@ def resolve_operand(opspec, tool, arg, args_dict, msgs, a2,
     kind ∈ {operator, membership, provenance, value}. 미지원/누락 = ok(우아한 강등)."""
     kind = (opspec or {}).get("kind")
     if kind == "operator":
-        return resolve_operator(opspec, args_dict, msgs, agent, la, UserMessage)
+        # 선언이 요구한 도구 집합(체인 requires·종단결정·절차 노드) — 집합 대조뿐이다.
+        _req = set()
+        for _fc in ((a2 or {}).get("follow_up_chains") or []):
+            _rq = _fc.get("requires")
+            _req |= set(_rq if isinstance(_rq, list) else ([_rq] if _rq else []))
+            _req |= set(_fc.get("decision_tools") or [])
+        for _pr in ((a2 or {}).get("procedures") or []):
+            for _nd in (_pr.get("nodes") or []):
+                _t = _nd.get("tool") or _nd.get("tools")
+                _req |= set(_t if isinstance(_t, list) else ([_t] if _t else []))
+        return resolve_operator(opspec, args_dict, msgs, agent, la, UserMessage,
+                                declared_required=_req)
     if kind == "membership":
         import t2_gate_patch as _g
         spec = {"entity_key": opspec["entity_key"], "items_key": opspec["items_key"],
