@@ -1314,6 +1314,11 @@ def _value_acquire_fb(am, messages, specs):
         signals = [str(s).lower() for s in (sp.get("reask_signals") or [])]
         if not (W and arg and acq and give and signals):
             continue
+        # ★C4 철회(2026-08-05): 048의 last-4 우회를 막으려고 "선언된 write가 시도된 적이 있어야"를
+        #   걸었더니 **원래 표적까지 침묵**했다 — 053에서 이 넛지는 dispute 도구를 해제하기 20 스텝 전에
+        #   발화해야 옳다(손님이 값을 얻어와야 그 다음이 있다). 048과 053을 가르는 것은 "이 태스크가
+        #   그 write로 가는가"인데 그건 열린 술어라 우리 몫이 아니다([[22]]). 표적을 좁히는 닫힌 술어를
+        #   찾기 전까지 조건을 걸지 않는다 — 대신 x102로 우회 비용(048=10 메시지)을 계속 잰다.
         # ① 값이 이미 있으면(producer 성공출력) → have-value 관할·skip
         if _producer_outputs(messages, sp.get("producer_marker") or ("Executed: " + acq)):
             continue
@@ -5012,11 +5017,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     for c in (am.tool_calls or []):
                         if id(c) in denied_by_objid:
                             continue
-                        wd = _wev_deny_msgs(state.messages, c, wev_specs)
+                        # ★C7(2026-08-05·053 근본원인): 증거는 **양쪽 히스토리**에서 찾는다.
+                        #   `state.messages`는 에이전트가 본 것만 담아, **손님이 실행한** 도구의
+                        #   출력(discoverable user tool)이 빠진다. 053에서 마지막 4자리는 오직
+                        #   손님 실행 결과(step 32)에만 있었고, 그래서 우리는 "어떤 도구 출력에도
+                        #   없다"고 11번 말했다 — 오프라인에서 같은 검사를 병합 히스토리로 돌리면
+                        #   전 구간 통과다. `_executed_tool_names`가 이미 같은 원칙을 쓴다
+                        #   ("양쪽이 센다 — discoverable 단계는 손님이 실행하는 일이 잦다").
+                        _wev_msgs = state.messages
+                        try:
+                            _o7 = getattr(self, "_t2_orch", None)
+                            if _o7 is not None:
+                                _all7 = _o7.get_messages()
+                                if _all7 and len(_all7) >= len(state.messages):
+                                    _wev_msgs = _all7
+                        except Exception:
+                            _wev_msgs = state.messages
+                        wd = _wev_deny_msgs(_wev_msgs, c, wev_specs)
                         _wtag = "T2_WRITE_EVIDENCE"
                         if not wd and wag_specs:
                             # ★값-grounding(§2bs·031): WEV(선행-read)와 별개 구멍=값-전사.
-                            wd = _write_arg_ground_deny(state.messages, c, wag_specs)
+                            wd = _write_arg_ground_deny(_wev_msgs, c, wag_specs)
                             _wtag = "T2_WRITE_ARG_GROUND"
                         if not wd and rv_specs:
                             # ★결정론 참조-검증기(C128/C129): 레코드 판별속성(merchant)이 손님
@@ -5639,8 +5660,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     self._t2_prov_addr_full = getattr(self, "_t2_prov_addr_full", 0) + 1
                 _tmpl = REGEN_FEEDBACK if (prov_mode != "rescue" or _addr_full) \
                     else REGEN_FEEDBACK_NEUTRAL
-                main_prov = (ptc, _directive if _directive is not None
-                             else _tmpl.format(k=k, s=s))
+                # ★C8(2026-08-05·028/050/051/053 실측): 날조된 값이 **도구 이름**이면 위 문구는
+                #   이행 불가다 — "getter를 불러 그 값을 읽어라"라고 말하지만 **도구 이름을 돌려주는
+                #   getter는 없다**. 이름의 진실은 레지스트리에 있고 우리는 이미 레지스트리를 읽는다.
+                #   그래서 이름 인자일 때는 A2의 이름-검사 문구(레지스트리 대조·검색 경로)로 보낸다.
+                #   매핑 표는 만들지 않는다 — 표는 낡고 레지스트리는 낡지 않는다.
+                _fb8 = None
+                if k in ("agent_tool_name", "discoverable_tool_name", "user_tool_name"):
+                    _dnc = (a2 or {}).get("discoverable_name_check") or {}
+                    try:
+                        _reg8 = _agent_discoverable(
+                            getattr(getattr(self, "_t2_orch", None), "environment", None))
+                    except Exception:
+                        _reg8 = None
+                    _fb8 = (_dnc.get("feedback_not_discoverable")
+                            if (_reg8 and s not in _reg8) else _dnc.get("feedback"))
+                    if _fb8:
+                        print("[T2_PROV] name-arg → registry message tool=%s val=%s"
+                              % (getattr(ptc, "name", "?"), s), file=_sys.stderr, flush=True)
+                main_prov = (ptc, str(_fb8).replace("{name}", str(s)) if _fb8
+                             else (_directive if _directive is not None
+                                   else _tmpl.format(k=k, s=s)))
             if do_gate:
                 gate_rounds += 1
                 self._t2_gate_rounds = getattr(self, "_t2_gate_rounds", 0) + 1
@@ -6392,7 +6432,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                           for tc in (getattr(am, "tool_calls", None) or [])}
                 _hitp = _cmv & _effn
                 if _hitp:
-                    self._t2_followup = max(0, getattr(self, "_t2_followup", 0) - 1)
+                    self._t2_followup_chain = max(0, getattr(self, "_t2_followup_chain", 0) - 1)
                     print("[T2_FOLLOWUP] chain progress refund hit=%s"
                           % (sorted(_hitp),), file=_sys.stderr, flush=True)
                 self._t2_chain_missing = None
@@ -6701,9 +6741,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _resign = (not getattr(am, "tool_calls", None)
                                and isinstance(getattr(am, "content", None), str)
                                and am.content.strip())
-        _fu_cap = int(os.environ.get("T2_FOLLOWUP_CAP", "1") or 1)
-        if (os.environ.get("T2_FOLLOWUP_REQUIRED") == "1" and _resign
-                and getattr(self, "_t2_followup", 0) < _fu_cap):
+        # ★follow-up 예산 폐기 (2026-08-05·사용자 지시). 그 전에 예산이 실제로 한 일:
+        #   기본 cap 1을 scaffold 넛지와 체인 디스패처가 **함께** 썼고, give 넛지가 먼저 쓰면
+        #   종국 턴의 체인은 술어가 성립해도 침묵했다 — 028에서 `chain[3]`(분쟁→보상갱신)이 정확히
+        #   그렇게 죽었다(술어 HIT·발화 마크 0·억제 마크 0). 실제 상한은 러너의 `--max_steps 200`이고,
+        #   예산이 막아준 것은 확인되지 않았다. 카운터는 **관측 전용**으로 남긴다(몇 번 말했는지 재려고).
+        if (os.environ.get("T2_FOLLOWUP_REQUIRED") == "1" and _resign):
             _called0 = _called_tools(state.messages)
             for _d0 in ((a2 or {}).get("scaffold_get_tools") or []):
                 _fu = _d0.get("follow_up") or {}
@@ -6718,7 +6761,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     self._t2_fu_resigns = getattr(self, "_t2_fu_resigns", 0) + 1
                     if self._t2_fu_resigns < _th:
                         break
-                    self._t2_followup = getattr(self, "_t2_followup", 0) + 1
+                    self._t2_followup_sg = getattr(self, "_t2_followup_sg", 0) + 1
                     print("[T2_FOLLOWUP] fired tool=%s missing_follow_up=%s"
                           % (_d0.get("name"), _ft), file=_sys.stderr, flush=True)
                     # ★레버 A(T2_FOLLOWUP_FORCE=1·기본 OFF): FOLLOWUP regen의 **빈손 43~50%**(regen이 도구
@@ -6746,9 +6789,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             _fu_res_declared = any(_fc.get("reserve")
                                    for _fc in ((a2 or {}).get("follow_up_chains") or []))
             _fu_genuine = not getattr(self, "_t2_fu_readloop_turn", False)
-            _fu_mode = _fu_window(getattr(self, "_t2_followup", 0), _fu_cap,
-                                  _fu_res_declared, getattr(self, "_t2_fu_reserve", 0),
-                                  _fu_genuine)
+            # 예산 폐기 — 술어가 성립하면 말한다. `_fu_window`/`reserve`는 예산 시절의 장치라
+            # 더 이상 호출하지 않는다(순수함수와 그 검정은 이력 보존을 위해 남겨 둔다).
+            _fu_mode = "normal"
             if _fu_mode is not None:
                 # ★패턴 제거(2026-08-05·사용자 지시 "패턴 매칭은 치팅"): 구판은 접미사를 떼서
                 #   (`_eff_tool_name`) 선언과 맞췄다 — 철자 규칙으로 **대응을 추정**한 것이다.
@@ -6800,7 +6843,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               % (_th, self._t2_fu_resigns, _fc.get("after")),
                               file=_sys.stderr, flush=True)
                         break
-                    self._t2_followup = getattr(self, "_t2_followup", 0) + 1
+                    self._t2_followup_chain = getattr(self, "_t2_followup_chain", 0) + 1
                     print("[T2_FOLLOWUP] chain fired(%s) after=%s"
                           % (_tag1, _fc.get("after")), file=_sys.stderr, flush=True)
                     # ★진행-감응 환급용 스냅샷(2026-07-22 §2bs): 발화 시점의 미이행 집합 기록.

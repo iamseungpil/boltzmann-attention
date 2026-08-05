@@ -81,7 +81,8 @@ os.environ["T2_FOLLOWUP_PROGRESS_REFUND"] = "1"
 ag, orch, st = setup(HIST); SCRIPT[:] = [AM([PROG()])]
 ag._t2_followup, ag._t2_chain_missing = 2, {"get_user_dispute_history"}
 ag._generate_next_message(UserMessage("ok"), st)
-check("R1_refund", getattr(ag, "_t2_followup", None) == 1)
+# ★2026-08-05 예산 폐기: 돌려줄 예산이 없다 — 카운터는 관측 전용이라 불변이어야 한다.
+check("R1_no_budget_to_refund", getattr(ag, "_t2_followup", None) == 2)
 check("R1_snapshot_cleared", getattr(ag, "_t2_chain_missing", "X") is None)
 
 # ② 무진행 → 미환급·스냅샷 소거(발화당 1회 판정)

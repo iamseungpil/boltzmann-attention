@@ -51,7 +51,7 @@
    "notice_text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?",
    "term_grant_reminder_extra": "Do not ask for more identifiers — identity verification is not required for a transfer.",
    "_note_reminder_extra": "C212 리뷰 반영: 이 문구는 도메인 사실(위 verify note 'Transfer/incident tools do not need verification')에 근거한 A2 선언 — 엔진 하드코딩이면 transfer-전-검증이 필요한 도메인서 정책 위반 지시가 됨([[05]]).",
-   "ask": "send the user exactly this message first: \"TRANSFER NOTICE: Would you like to be transferred to a human agent?\" — then retry the transfer IMPORTANT: send the notice at most ONCE. If the customer has already agreed to the transfer (or already asked for it), do NOT send the notice again and do NOT ask again — immediately CALL transfer_to_human_agents as a tool call with an appropriate summary. Saying you will transfer, or repeating the notice, does not transfer anyone. When you DO call transfer_to_human_agents, pick the MOST SPECIFIC reason option that matches the situation (for example: the customer's stated identity values do not match the account record -> an ownership-dispute reason; a mailed offer/flyer that cannot be verified in the knowledge base -> an unconfirmed-external-communication reason; a knowledge-base search that failed while the customer asks for a human -> that specific reason). Use the generic no-specific-reason option ONLY when no other option fits.",
+   "ask": "send the user exactly this message first: \"TRANSFER NOTICE: Would you like to be transferred to a human agent?\" — then retry the transfer IMPORTANT: send the notice at most ONCE. If the customer has already agreed to the transfer (or already asked for it), do NOT send the notice again and do NOT ask again — immediately CALL transfer_to_human_agents as a tool call with an appropriate summary. If a knowledge-base document defines a specific transfer or escalation tool for this situation, call THAT tool instead of the general one - the general transfer is only for cases no protocol document covers. Saying you will transfer, or repeating the notice, does not transfer anyone. When you DO call transfer_to_human_agents, pick the MOST SPECIFIC reason option that matches the situation (for example: the customer's stated identity values do not match the account record -> an ownership-dispute reason; a mailed offer/flyer that cannot be verified in the knowledge base -> an unconfirmed-external-communication reason; a knowledge-base search that failed while the customer asks for a human -> that specific reason). Use the generic no-specific-reason option ONLY when no other option fits.",
    "applies_to": [
     "transfer_to_human_agents"
    ],
@@ -495,7 +495,7 @@
     "prefix": "file_credit_card_transaction_dispute"
    },
    "id_key": "card_last_4_digits",
-   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows the card's last 4 digits ({id}). Do NOT guess or fabricate the digits (numbers seen in knowledge-base documents or examples are NOT the card's digits), and do NOT file the dispute with the digits missing or empty. Any line quoted after this colon already contains the TRUE digits retrieved earlier in this conversation - if one is shown, copy the digits from it EXACTLY and re-issue the call: {evidence} If no line is quoted, obtain the digits from an actual tool result first: read the credit card account record (it contains card_last_4_digits), or call give_discoverable_user_tool to give the customer the get_card_last_4_digits tool and ask them to run it, then file using the digits exactly as shown in that tool output.",
+   "feedback": "Error: [WRITE-EVIDENCE] no tool output in this conversation shows the card's last 4 digits ({id}). Do NOT guess or fabricate the digits (numbers seen in knowledge-base documents or examples are NOT the card's digits), and do NOT file the dispute with the digits missing or empty. Any line quoted after this colon already contains the TRUE digits retrieved earlier in this conversation - if one is shown, copy the digits from it EXACTLY and re-issue the call: {evidence} If no line is quoted, obtain the digits from an actual tool result first: call give_discoverable_user_tool to give the customer the get_card_last_4_digits tool, ask them to run it with their credit_card_account_id, and file using the digits exactly as that tool's output shows them - the account record does NOT carry the digits, so re-reading account or user records cannot produce them.",
    "_note": "2026-07-20 관문4 WEV형(§2ao·e2e9 031 포렌식) → 2026-07-21 §2bc 정밀화(054 실측): 구판 require_tokens=give-flow 도구명 = 단일 provenance 경로 강제 — 054는 진짜 last4(7823)가 에이전트 자신의 계좌 레코드 출력에 실재하는데 유저가 도구 실행 거부('카드 없음')→충족불가 deny 8회→유저 포기·붕괴. 신판 token='card_last_4_digits'=레코드 필드 라벨이자 give-flow 도구명(get_card_last_4_digits)의 substring → 두 정당 경로 모두 수용·날조(어느 출력에도 없는 값)는 여전히 차단(031 give-flow 실행 t1/t2 실증=무회귀). 빈-값 write는 WEV 코어 신판(§2bc 키실재-빈값 deny)이 차단. ★2026-07-23 C121(rall19 031.1 실측): 구 require_tokens=['card_last_4_digits']는 KB doc의 PIN 예시 '(e.g., 1234, 4321)'와 도구명 substring이 한 출력에 공존해 날조값 1234 통과(evidence-collision)→오염 write. require_tokens_any(라벨-값 인접·{id} 치환)로 교체: 정당 경로 2개(user-도구 'Last 4 digits of card: N'·계좌/dispute 레코드 'card_last_4_digits: N')만 수용·doc 예시 충돌 차단. rall19 실궤적 오프라인 재검으로 검증. ★{evidence} 인용(C122·rall19 031.0 실측): 정답(5320)이 도구출력 실재인데 deny 6회 공전(오값/빈값 재시도·유저에 '시스템 미기록' 오귀인) → 피드백에 라벨-실재 라인 축자 인용(C116 처방적 구체성). 엔진=_wev_fill 라인 인용만.",
    "require_tokens_any": [
     "Last 4 digits of card: {id}",
@@ -1913,7 +1913,7 @@
  ],
  "have_value_reask": [
   {
-   "write": "file_credit_card_transaction_dispute",
+   "write": "file_credit_card_transaction_dispute_4829",
    "producer": "get_card_last_4_digits",
    "producer_marker": "Executed: get_card_last_4_digits",
    "arg": "card_last_4_digits",
@@ -1932,7 +1932,7 @@
  ],
  "value_acquisition": [
   {
-   "write": "file_credit_card_transaction_dispute",
+   "write": "file_credit_card_transaction_dispute_4829",
    "arg": "card_last_4_digits",
    "acquire_tool": "get_card_last_4_digits",
    "give_tool": "give_discoverable_user_tool",

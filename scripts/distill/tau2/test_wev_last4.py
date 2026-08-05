@@ -48,7 +48,12 @@ def main():
     check("031 재현: 날조 last4 → deny", deny is not None and "1654" in deny
           and "give_discoverable_user_tool" in deny)
     # 진짜 give-flow: 사용자-실행 출력에 도구명+5320 공존 → 허용
-    give_out = _Msg("tool", "Executed: get_card_last_4_digits_2211\n  - Card: Platinum\n  - Last 4 digits: 5320")
+    # ★2026-08-05 픽스처 교정: 이 형식은 실재한 적이 없어 HEAD에서도 FAIL이었다(검정이 코드가 아니라
+    #   자기 자신을 틀리게 하고 있었다). 실물 축자 형식은 053 궤적 step 32에서 확인한 것이고,
+    #   손님이 실행한 결과도 같은 형식으로 남는다.
+    give_out = _Msg("tool", "Card information retrieved successfully. Executed: get_card_last_4_digits\n"
+                            "Arguments: { \"credit_card_account_id\": \"cc_x_silver\" }\n"
+                            "Last 4 digits of card: 5320")
     disp_true = _TC("call_discoverable_agent_tool",
                     {"agent_tool_name": "file_credit_card_transaction_dispute_4829",
                      "arguments": json.dumps({"transaction_id": "txn_adea68821a1d",
