@@ -5078,8 +5078,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _done16 = _executed_tool_counts(state.messages)
                     _unl16 = _unlocked_names(state.messages, a2)
                     for c in (am.tool_calls or []):
-                        if _exact_tool_name(c) not in (_pdc.get("tools") or []):
+                        _tn16 = _exact_tool_name(c)
+                        if _tn16 not in (_pdc.get("tools") or []):
                             continue
+                        # ★C16 좁힘(2026-08-05·통과 sim 노출 계측): 035는 **이관이 정답**인 태스크이고
+                        #   그 이관은 선언된 절차의 한 단계다 — 거기서 "이관은 그 단계들을 수행하지
+                        #   않는다"고 말하면 통과를 깬다(노출 6회). 이관 자체가 선언된 단계이면 침묵한다.
+                        _isstep16 = any(
+                            _tn16 in {t for n in (_p16b.get("nodes") or [])
+                                      for t in (_PROC16._tools_of(n) or [])}
+                            for _p16b in _PROC16.active_procedures(_procs or [], _done16))
+                        if _isstep16:
+                            print("[T2_TRANSFER_LEAVES_STEPS] silent — transfer is a declared step",
+                                  file=_sys.stderr, flush=True)
+                            break
                         _left = []
                         for _p16 in _PROC16.active_procedures(_procs or [], _done16):
                             _st16 = _PROC16.render_state(_p16, _done16, _unl16, None)
