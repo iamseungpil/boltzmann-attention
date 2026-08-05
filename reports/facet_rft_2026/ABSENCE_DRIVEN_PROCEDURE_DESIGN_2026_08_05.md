@@ -122,6 +122,78 @@ if (_procs and not do_gate and not do_prov and ep_fb is None and cons_fb is None
 
 > ⚠**D0-a 없이 D0-b를 하지 않는다.** "선점일 것이다"는 아직 [?]다. 로그 한 줄이 [M]으로 올린다([[08]]).
 
+### 1.5 ★★★스모크 g가 찾은 것 — 절차 deny는 **모델에게 간 적이 없다**
+
+D0-a를 켜고 돌린 스모크 g(4 sim·concurrency 1)의 1차 지표는 **선점 0건**이었다. 즉 §1.2의 선점 가설은
+**지지되지 않았다**. 대신 훨씬 큰 것이 나왔다.
+
+`t2_gate_patch.py`의 재생성 루프는 *"세워진 피드백이 하나도 없으면 끝낸다"* 는 가드로 끝난다.
+그 가드가 보는 피드백 변수는 14종이었고, **루프가 세우는 것은 15종이었다.** 빠진 하나가 `proc_fb`다
+(AST 전수 대조로 확인·`test_regen_break_guard.py`).
+
+```
+while True:                       # 재생성 루프
+    ...  proc_fb = (c, notes[0])  # 절차 deny 성립 → 여기까지는 정상
+    if (... 14종 전부 None):       # ← proc_fb 미포함
+        break                     # ★절차만 떴으면 여기서 끊긴다
+    ...
+    self._t2_proc_deny += 1       # (a) 카운터  — 도달 못 함
+    ...  content = proc_fb[1]     # (b) 피드백 조립 — 도달 못 함
+```
+
+**결과 두 가지, 둘 다 실측으로 확인된다:**
+
+| 잃은 것 | 실측 |
+|---|---|
+| **(a) sim당 cap이 한 번도 물리지 않았다** | 스모크 g `task_048`에서 절차 deny **11회**(cap=6). retries=0이므로 재시도로도 설명 안 됨 |
+| **(b) deny 문구가 모델에게 전달된 적이 없다** | 048은 같은 deny(`log_credit_card_closure_reason_4521 missing=prior_attempts`)를 **10회** 받고도 행동이 한 번도 바뀌지 않았다 — 받은 적이 없으니 당연하다 |
+
+로그의 `[T2_PROCEDURE] deny …`는 **차단이 아니라 인쇄**였다. 이 파일에서 이번 아크에만 3번째로 나온
+같은 실패 모드다(C257 V7 死경로 · F1/F2 미등재 · 이번).
+
+#### 1.5b 048의 livelock — 우리 엔진이 한쪽 다리였다
+
+스모크 g의 048(150 msg·`user_stop`)은 msg 70~111에서 **8회전 폐루프**를 돈다:
+
+```
+70  call get_closure_reason_history_8293      → Error: "has not been unlocked"
+72  unlock+call log_credit_card_closure_reason_4521   → 성공 (하지만 절차상 아직 이르다)
+75  call get_closure_reason_history_8293      → 같은 Error
+77  unlock+call log_credit_card_closure_reason_4521   → 성공
+…  ×8회전, 그동안 [T2_PROCEDURE] deny missing=prior_attempts 10회 인쇄
+```
+
+- 모델은 **지목받은 단계를 하려고 했다** — `get_closure_reason_history_8293`을 8번 불렀다.
+- 실패 이유는 딱 하나: **그 도구를 unlock하지 않았다.** 엉뚱하게 `log_…_4521`을 반복 unlock한다.
+- 엔진은 에러 결과를 정확히 "미실행"으로 판정한다(`_executed_tool_names`의 error 규약은 옳다)
+  ⇒ `prior_attempts` 영원히 미충족 ⇒ 같은 deny 무한 재생산.
+
+⇒ **D1′이 정확히 이 구멍을 메운다**: `missing=prior_attempts`(노드 id) 대신
+`▶ prior_attempts → get_closure_reason_history_8293 (아직 unlock 안 됨 — 먼저 unlock하라)`.
+모델에게 없던 정보는 **오직 "그 도구를 unlock해야 한다"** 하나였고, unlock 의식 자체는 알고 있었다.
+
+#### 1.5c 이 발견으로 **철회되는 판정**
+
+| 철회 | 이유 |
+|---|---|
+| 스모크 d §2d *"`T2_PROCEDURE` deny 2회 — ✅ 표적대로 발화"* | 발화가 아니라 **인쇄**였다. 전달 0 |
+| 스모크 d §2d *"051 = 차단은 됐는데 이행되지 않았다"* | **차단된 적이 없다.** C286③을 절차 레버에 적용한 것은 무효 |
+| §2.0의 *"노드 id라서 못 알아들었다"* | **부분 철회** — 애초에 못 받았다. id 문제는 배관을 고친 **뒤에야** 검증 가능 |
+| D2(pin sticky)의 근거 *"deny해도 이행 안 하니 고정이 필요하다"* | **근거 소멸.** pin의 필요성은 배관 교정 후 다시 재야 한다 |
+
+#### 1.5d 처방 (적용 완료)
+
+1. **가드에 `proc_fb` 추가** — 술어·문구·차단 조건 불변, **전달 경로만** 잇는다.
+2. **`test_regen_break_guard.py`** — AST로 *루프가 세우는 모든 `*_fb`가 가드에 있는가*를 강제한다.
+   주석·관례로는 재발을 못 막는다([[07]]): 다음 레버도 같은 방식으로 추가될 것이다.
+   **부정 통제 확인**: 교정을 되돌린 사본에서 `FAIL(exit 1)`, 교정본에서 `PASS`.
+3. **호출-레벨 선점도 관측**: 구판은 `denied_by_objid`를 술어 **앞에서** 건너뛰어, 다른 레버가 그 호출을
+   이미 막은 턴은 로그조차 없었다 — **스모크 f의 048 침묵의 남은 후보**가 그것이다.
+   거동은 그대로 두고 `suppressed by=call_denied`를 남긴다.
+
+> ⚠**이제 거동이 실제로 바뀐다**(전달된 적 없던 deny가 전달되기 시작). 다음 스모크의 1차 지표는
+> **① 전달 확인**(같은 deny의 반복이 줄어드는가) · **② cap 6이 무는가** · **③ Δover-block**이다.
+
 ### 1.4 D0-c — 절차 피드백이 **한국어**다
 
 `feedback.unmet`이 한국어인데 대화 전체가 영어다(다른 레버 문구는 전부 영어). 051에서 deny가 단계를

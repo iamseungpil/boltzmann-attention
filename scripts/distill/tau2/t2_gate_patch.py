@@ -4601,8 +4601,6 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     import t2_procedure as _PROC
                     _done = _executed_tool_names(state.messages)
                     for c in (am.tool_calls or []):
-                        if id(c) in denied_by_objid:
-                            continue
                         _ar = _args_dict(c)
                         _also = {str(_ar.get(k)) for k in
                                  ("agent_tool_name", "user_tool_name", "discoverable_tool_name")
@@ -4610,19 +4608,28 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _dc = _PROC.decide(_procs, _exact_tool_name(c), _ar, _done,
                                            also_names=_also)
                         if _dc.get("verdict") == "deny" and _dc.get("notes"):
-                            if _pblocker or _pcapped:
-                                # 거동 불변: 선점·소진 턴은 종전대로 침묵한다. 로그만 남는다.
+                            # ★호출-레벨 선점도 관측한다(2026-08-05 2차): 구판은 `denied_by_objid`를
+                            #   술어 **앞에서** continue해, 다른 레버가 이 호출을 이미 막은 턴은
+                            #   deny도 로그도 남기지 않았다 — 스모크 f의 048 침묵이 그 후보다.
+                            #   거동은 그대로(여전히 건너뛴다), 사유만 남긴다.
+                            if id(c) in denied_by_objid or _pblocker or _pcapped:
+                                _why = ("call_denied" if id(c) in denied_by_objid
+                                        else (_pblocker or "cap"))
+                                # 거동 불변: 선점·소진·이미-막힌 호출은 종전대로 건너뛴다. 로그만 남는다.
                                 print("[T2_PROCEDURE] would-fire but suppressed by=%s tool=%s "
                                       "missing=%s"
-                                      % (_pblocker or "cap", _exact_tool_name(c),
+                                      % (_why, _exact_tool_name(c),
                                          ",".join(_dc.get("missing") or [])),
                                       file=_sys.stderr, flush=True)
+                                if _why == "call_denied":
+                                    continue          # 다른 호출은 계속 본다(턴 전체를 포기하지 않는다)
                                 break
                             proc_fb = (c, _dc["notes"][0])
-                            # ★2026-08-05(051 실측): 차단만으로는 이행되지 않았다 — deny가 누락 단계를
-                            #   이름으로 지목했는데도 끝내 그 호출을 하지 않았다(C286③ "차단은 복원이
-                            #   아니다"). 그래서 **다음 재생성에서 그 단계를 고정**한다(P1 기계 재사용:
+                            # ★2026-08-05: deny 뒤 **다음 재생성에서 누락 단계를 고정**한다(P1 기계 재사용:
                             #   디스패처 인자를 단일값 enum으로). 값은 선언에서 오고 엔진은 고르지 않는다.
+                            #   ⚠단서(2026-08-05 2차 포렌식): 051의 "차단했는데 이행 안 함"은 **무효 판정**이었다
+                            #   — break 가드에 `proc_fb`가 빠져 있어 그 문구가 모델에게 간 적이 없다(§1.5).
+                            #   pin의 필요성은 배관을 고친 뒤 다시 재야 한다.
                             try:
                                 _mn = (_dc.get("missing") or [None])[0]
                                 _pp = _PROC.find_procedure(_procs, _exact_tool_name(c), _done)
@@ -5208,10 +5215,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             print("[T2_UNKNOWN_NAME_BL] deny env-rejected name tool=%s val=%s"
                                   % (getattr(c, "name", None), _uv3), file=_sys.stderr, flush=True)
                             break
+            # ★`proc_fb` 누락 교정 (2026-08-05·스모크 g 포렌식·`ABSENCE_DRIVEN_PROCEDURE_DESIGN` §1.5):
+            #   이 가드는 루프에서 세우는 fb 15종 중 **`proc_fb` 하나만 빠뜨리고 있었다**(AST 전수 확인).
+            #   결과: 절차 레버가 그 턴의 **유일한** 발화면 여기서 루프가 끊겨 (a) 피드백 조립(§5336)에
+            #   닿지 못해 **deny 문구가 모델에게 전달된 적이 없고**, (b) 카운터(§5279)도 오르지 않아
+            #   sim당 cap이 한 번도 물리지 않았다(048에서 11회 deny·cap 6). 로그의 `[T2_PROCEDURE] deny`는
+            #   **차단이 아니라 인쇄**였다 ⇒ "차단했는데 이행하지 않았다"는 판정 전부 무효(§1.5 철회표).
+            #   재발 방지 = `test_regen_break_guard.py`(AST로 fb 전수 대조).
             if (not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
                     and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None
-                    and pr_fb is None and hv_fb is None and dd_fb is None and sig_fb is None):
+                    and pr_fb is None and hv_fb is None and dd_fb is None and sig_fb is None
+                    and proc_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
