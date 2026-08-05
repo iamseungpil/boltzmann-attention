@@ -4627,6 +4627,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     hv_fb = None
                     print("[T2_HAVE_VALUE] error (no-op): %r" % (_hve,),
                           file=_sys.stderr, flush=True)
+            elif hv_specs and getattr(self, "_t2_hv_suppress_log", 0) < 8:
+                # ★관측 전용(2026-08-05·거동 변화 0): 침묵이 "표적 부재"인지 "선행 레버에 밀림"인지
+                #   구분이 안 됐다 — `[T2_HAVE_VALUE]`는 194 sim 전체에서 0회인데, x78 재생은
+                #   task_040/t0의 **같은 턴에서 술어가 8회 성립**함을 보였다(값이 실재하고 재요청 중).
+                #   상호배타 체인은 앞선 레버가 피드백을 내면 hv를 건너뛰므로, 건너뛴 사실과 그 원인을
+                #   남긴다. 술어는 순수 함수라 추가 비용은 문자열 검사뿐이고 반환값은 쓰지 않는다.
+                try:
+                    if _have_value_reask_fb(am, state.messages, hv_specs):
+                        _why = ("gate" if do_gate else "prov" if do_prov
+                                else "eplan" if ep_fb is not None
+                                else "cons" if cons_fb is not None
+                                else "reask" if ra_fb is not None
+                                else "term" if te_fb is not None
+                                else "wev" if wev_fb is not None else "cap")
+                        self._t2_hv_suppress_log = getattr(self, "_t2_hv_suppress_log", 0) + 1
+                        print("[T2_HAVE_VALUE] would-fire but suppressed by=%s" % _why,
+                              file=_sys.stderr, flush=True)
+                except Exception:
+                    pass
             # ★T2_VALUE_ACQUIRE (C119): 값 미실재 + give 미실행 → give 표면화 넛지(have-value 앞단계).
             if (va_specs and hv_fb is None and not do_gate and not do_prov and ep_fb is None
                     and cons_fb is None and ra_fb is None and te_fb is None and wev_fb is None
