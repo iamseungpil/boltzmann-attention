@@ -2025,9 +2025,8 @@
  "withdrawn_row_check": {
   "settle_tool": "get_reward_discrepancies",
   "submit_tool": "submit_cash_back_dispute_0589",
-  "id_pattern": "\btxn_[0-9a-f_]+\b",
   "feedback": "[LEDGER] The reward check settled these transaction(s) and no dispute has been submitted for them: {ids}. The check's own output is the record of what was found - a customer saying a charge looks fine to them does not change what the ledger showed. If you have decided not to dispute one of these, say plainly which one and why; do not simply leave it out.",
-  "_note": "G3(2026-08-05·019 t1 실측: 확정 3행 중 2행만 제출·하나는 손님 산문에 설득당해 철회). [[21]]의 **닫힌 절반** — 손님 문장은 읽지 않고 엔진 출력과 호출 이력만 본다. ⚠**F5 위에서만 건전하다**: x94 1차에서 gold 반례 2건이 나왔는데 둘 다 **오염된 입력**으로 나온 가짜 확정 행이었다(018/t0 1113 오기·028/t1 488). F5(불일치+날조 id)가 막는 호출의 출력은 확정으로 세지 않도록 배선했고, 그 조건에서 재판정하니 **반례 0**. 제출을 강제하지 않는다 — 표면화만([[10]])."
+  "_note": "G3(2026-08-05·019 t1 실측: 확정 3행 중 2행만 제출·하나는 손님 산문에 설득당해 철회). [[21]]의 **닫힌 절반** — 손님 문장은 읽지 않고 엔진 출력과 호출 이력만 본다. ⚠**F5 위에서만 건전하다**: x94 1차에서 gold 반례 2건이 나왔는데 둘 다 **오염된 입력**으로 나온 가짜 확정 행이었다(018/t0 1113 오기·028/t1 488). F5(불일치+날조 id)가 막는 호출의 출력은 확정으로 세지 않도록 배선했고, 그 조건에서 재판정하니 **반례 0**. 제출을 강제하지 않는다 — 표면화만([[10]]). ★2026-08-05 패턴 제거: 여기 있던 `id_pattern`은 JSON 백스페이스 이스케이프로 실려 **어떤 텍스트와도 매치되지 않았다**(엔진 폴백 정규식도 같은 오염) — 이 레버는 켜진 채 확정 행 0으로 죽어 있었고, x94는 자기 정규식을 따로 써서 그 사실을 못 봤다. 이제 엔진이 그 호출에서 계산한 id 목록을 그대로 받고(`_t2_sg_ids`), 제출 여부는 인자 값 멤버십으로 본다 — 철자 규칙 없음."
  },
  "procedures": [
   {

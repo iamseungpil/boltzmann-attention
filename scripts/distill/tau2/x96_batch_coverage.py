@@ -39,6 +39,7 @@ except Exception:
     pass
 
 import t2_procedure as P          # noqa: E402
+import xlib_decl as DECL          # noqa: E402
 import t2_transcribe as T         # noqa: E402
 from t2_scaffold_get import _parse_record_dump as PARSE   # noqa: E402
 from x50_says_not_does import ARMS, SIM                   # noqa: E402
@@ -92,7 +93,6 @@ TRS = {k: v for k, v in (A.get("transcription_check") or {}).items()
 WDS = A.get("withdrawn_row_check") or {}
 RDB = (A.get("require_doc_before") or {}).get("tools") or []
 T2D = docs_naming(RDB) if RDB else {}
-IDP = re.compile(str(WDS.get("id_pattern") or r"\btxn_[0-9a-f_]+\b"))
 
 score = collections.defaultdict(collections.Counter)
 for p in sorted(glob.glob(os.path.join(SIM, ARMS[ARM] + "*.results.json.gz"))):
@@ -106,7 +106,7 @@ for p in sorted(glob.glob(os.path.join(SIM, ARMS[ARM] + "*.results.json.gz"))):
         recs, pend, executed = {}, {}, collections.Counter()
         quiet = collections.Counter()
         seen_docs, settled, submitted, first_use = set(), set(), set(), {}
-        clean_call = None
+        clean_calls = set()
         for m in s.get("messages") or []:
             if m.get("role") == "tool":
                 nm = pend.pop(m.get("id") or m.get("tool_call_id"), None)
@@ -127,8 +127,9 @@ for p in sorted(glob.glob(os.path.join(SIM, ARMS[ARM] + "*.results.json.gz"))):
                     if did and did in c:
                         seen_docs.add(did)
                 if nm == WDS.get("settle_tool") and not err and \
-                        (m.get("id") or m.get("tool_call_id")) == clean_call:
-                    settled |= set(IDP.findall(c))
+                        (m.get("id") or m.get("tool_call_id")) in clean_calls:
+                    # 엔진 출력은 **선언한 문장 틀**로 읽는다(철자 규칙 없음·x94와 같은 판독기).
+                    settled |= DECL.settled_ids(A, WDS.get("settle_tool"), c)
                 continue
             for tc in (m.get("tool_calls") or []):
                 nm = inner(args_of(tc)) or tc.get("name")
@@ -136,9 +137,7 @@ for p in sorted(glob.glob(os.path.join(SIM, ARMS[ARM] + "*.results.json.gz"))):
                 if nm in T2D and nm not in first_use:
                     first_use[nm] = set(seen_docs)
                 if nm == WDS.get("submit_tool"):
-                    for v in args_of(tc).values():
-                        if isinstance(v, str):
-                            submitted |= set(IDP.findall(v))
+                    DECL.arg_values(args_of(tc), submitted)
                 sp = TRS.get(tc.get("name"))
                 if sp:
                     bad = T.mismatches(sp, args_of(tc), recs)
@@ -150,7 +149,10 @@ for p in sorted(glob.glob(os.path.join(SIM, ARMS[ARM] + "*.results.json.gz"))):
                         sc["transcribe_unknown"] += 1
                     if fs:
                         sc["transcribe_fieldsrc"] += 1
-                    clean_call = tc.get("id") if not (bad or unk) else clean_call
+                    # 엔진은 실행 직후에 수확하므로 한 칸이면 되지만, 재생에서는 **깨끗했던
+                    #   호출 전부**를 들고 있어야 같은 집합이 된다(단일 칸은 019를 놓쳤다).
+                    if not (bad or unk):
+                        clean_calls.add(tc.get("id"))
             if m.get("role") != "assistant":
                 continue
             called = {inner(args_of(tc)) or tc.get("name") for tc in (m.get("tool_calls") or [])}

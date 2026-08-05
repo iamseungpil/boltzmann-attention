@@ -4,7 +4,7 @@
 `task_018` passed and failed on one row. Both trials submitted the same six disputes;
 the failing one added a seventh, and the seventh existed because the agent had typed
 `rewards_earned: 1113` into the payload for a transaction whose record said
-`rewards_earned: 487 points`. The engine computed honestly on what it was given and
+`rewards_earned: 487`. The engine computed honestly on what it was given and
 produced a discrepancy that was not there. Two later calls in the same conversation
 re-typed the same row correctly, so this is not a belief the model holds — it is a copy
 that slipped.
@@ -21,7 +21,6 @@ anything and is left alone.
 """
 
 import json
-import re
 
 __all__ = ["mismatches", "missing_fields", "unknown_ids", "field_sources", "note"]
 
@@ -34,26 +33,39 @@ def _txt(s):
 
 
 def _num(s):
-    """The leading number in a rendered value, or None — `$487.99` and `487 points` are numbers."""
-    m = re.search(r"-?\d[\d,]*\.?\d*", _txt(s))
-    if not m:
-        return None
+    """The value as a number when the whole rendering is one, else None.
+
+    This used to take the *leading* number out of a rendering, so that a record printing
+    `487 points` would still meet a payload holding `487`. That is a spelling rule, and
+    `x100` asked what it was buying: over 194 simulations and 1,692 field comparisons it
+    decided **nothing** — every numeric agreement it found (70) is one a whole-string
+    `float()` finds too, and no rendering ever put a unit next to a number here (0). What
+    it could still do is misread `Account 3 of 5` as `3`, so it is gone.
+    """
     try:
-        return float(m.group(0).replace(",", ""))
-    except ValueError:
+        return float(_txt(s).strip())
+    except (TypeError, ValueError):
         return None
 
 
 def same(a, b):
     """Do these two renderings of one value agree?
 
-    The record prints what a human reads (`$487.99`, `487 points`) and the payload holds
-    what a program takes (`487.99`, `487`). Comparing the strings would call every row a
-    mismatch, so numbers are compared as numbers and everything else literally, trimmed.
+    The record prints what a human reads and the payload holds what a program takes
+    (`487.99` against `487.99000`), so numbers are compared as numbers and everything else
+    literally, trimmed.
+
+    When exactly one side reads as a number the two renderings are **not comparable**, and
+    an incomparable pair is not evidence of a mismatch — this reports agreement rather than
+    denying a row on a formatting difference we cannot read. Today that branch is empty
+    (x100: 0 of 1,692); it exists so that a domain which prints units gets silence from us
+    instead of a wrong denial, which is the failure x94 already paid for once.
     """
     na, nb = _num(a), _num(b)
     if na is not None and nb is not None:
         return abs(na - nb) < 1e-9
+    if (na is None) != (nb is None):
+        return True
     return _txt(a).strip().lower() == _txt(b).strip().lower()
 
 

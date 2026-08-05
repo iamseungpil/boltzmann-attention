@@ -626,6 +626,31 @@ def _parse_json(s):
         return None
 
 
+def _arg_values(v, out=None):
+    """호출 인자가 실제로 담은 스칼라 값들(중첩 JSON 포함).
+
+    "이 id를 제출했는가"를 묻는 자리에서 쓴다. 예전 방식은 인자 문자열에 철자 규칙을 돌려
+    id처럼 생긴 것을 뽑았는데, 그러면 **id의 생김새**를 엔진이 알아야 한다. 값을 그대로 모아
+    엔진이 낸 집합과 대조하면 생김새를 알 필요가 없다 — 멤버십이 판정하고 철자는 관여하지 않는다.
+    """
+    if out is None:
+        out = set()
+    if isinstance(v, dict):
+        for x in v.values():
+            _arg_values(x, out)
+    elif isinstance(v, (list, tuple, set)):
+        for x in v:
+            _arg_values(x, out)
+    elif isinstance(v, str):
+        out.add(v.strip())
+        nested = _parse_json(v)
+        if isinstance(nested, (dict, list)):
+            _arg_values(nested, out)
+    elif v is not None and not isinstance(v, bool):
+        out.add(str(v))
+    return out
+
+
 def _content_str(tool_msg):
     c = tool_msg.content
     if isinstance(c, str):
@@ -4917,16 +4942,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _cl = getattr(self, "_t2_settled_clean", None)
                     if _cl is None:
                         _cl = self._t2_settled_clean = set()
-                    _ip = re.compile(str(_wds.get("id_pattern")
-                                         or r"\b[a-z]+_[0-9a-f]{6,}\b"))
-                    for _m8 in state.messages:
-                        if getattr(_m8, "role", None) != "tool":
-                            continue
-                        _k8 = getattr(_m8, "id", None) or getattr(_m8, "tool_call_id", None)
-                        if _cc and _k8 == _cc:
-                            _c8 = str(getattr(_m8, "content", "") or "")
-                            if not _c8.lstrip().startswith("Error:"):
-                                _cl |= set(_ip.findall(_c8))
+                    # ★2026-08-05 패턴 제거: 확정 행을 **출력 텍스트에서 다시 찾지 않는다**.
+                    #   엔진이 그 호출에서 계산한 목록을 그대로 받는다(t2_scaffold_get `_t2_sg_ids`).
+                    #   ⚠이 자리의 옛 철자 규칙은 A2에서 JSON `\b`(=백스페이스)로 실려 있어 **한 번도
+                    #   매치되지 않았다** — `T2_WITHDRAWN_ROW=1`인 채 확정 행 0으로 죽어 있었고,
+                    #   x94는 자기 정규식을 따로 써서 그 사실을 못 봤다([[55]] 계기 부정통제).
+                    _cl |= set((getattr(self, "_t2_sg_ids", None) or {}).get(_cc) or [])
                 except Exception:
                     pass
             if (_wds.get("feedback") and wd_fb is None and tr_fb is None
@@ -4937,13 +4958,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     if _clean is None:
                         _clean = self._t2_settled_clean = set()
                     _sub = set()
-                    _idp = re.compile(str(_wds.get("id_pattern") or r"[a-z]+_[0-9a-f]{6,}"))
+                    # ★제출 여부도 철자가 아니라 **멤버십**으로 본다: 제출 호출의 인자에 실린 값을
+                    #   모아 엔진이 확정한 집합과 대조한다 — id의 생김새를 알 필요가 없다.
                     for _m9 in state.messages:
                         for _t9 in (getattr(_m9, "tool_calls", None) or []):
                             if _exact_tool_name(_t9) == _wds.get("submit_tool"):
-                                for _v9 in _args_dict(_t9).values():
-                                    if isinstance(_v9, str):
-                                        _sub |= set(_idp.findall(_v9))
+                                _sub |= _arg_values(_args_dict(_t9))
                     _drop = sorted(_clean - _sub)
                     if _drop and _sub:
                         wd_fb = str(_wds["feedback"]).replace("{ids}", ", ".join(_drop[:6]))

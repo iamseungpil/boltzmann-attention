@@ -1711,6 +1711,15 @@ def apply():
                 _res = _c.apply_op(d.get("op"), _ctx)
                 if isinstance(_res, list):                    # 목록형(discrepancy ids)
                     _res = [str(i) for i in _res if i]
+                    # ★이 호출이 무엇을 냈는지 호출 id로 등재한다 (2026-08-05·패턴 제거).
+                    #   G3(미제출 확정 행)은 이 집합을 **엔진 출력 텍스트에서 다시 찾아** 썼고, 찾는
+                    #   수단이 A2의 철자 규칙이었다. 그 규칙은 JSON `\b`가 백스페이스로 들어가 있어
+                    #   **한 번도 매치된 적이 없다** — 레버는 켜진 채로 죽어 있었다. 엔진이 방금 계산한
+                    #   목록을 그대로 두면 찾을 일도, 철자도 없다(관측 전용·플래그 무관·거동 0).
+                    _sgi = getattr(self, "_t2_sg_ids", None)
+                    if _sgi is None:
+                        _sgi = self._t2_sg_ids = {}
+                    _sgi[getattr(tc, "id", None)] = list(_res)
                     # ★P8 (2026-08-03·AX32 설계서 §P8·T2_DISPATCH_LEDGER=1 ∧ A2 `dispatch_targets`):
                     #   다건-write 지시의 **대상 집합을 원장에 등재**한다. 020/027 실측: 대상-반환
                     #   도구가 낸 집합 중 일부만 제출하고 종료해도 아무도 못 본다([coverage]는

@@ -36,12 +36,25 @@ try:
 except Exception:
     pass
 
+import xlib_decl as DECL                 # noqa: E402
 from x50_says_not_does import ARMS, SIM  # noqa: E402
 
 ARM = sys.argv[1] if len(sys.argv) > 1 else "N97B"
-SETTLE_TOOL = "get_reward_discrepancies"
-SUBMIT_TOOL = "submit_cash_back_dispute_0589"
-IDPAT = re.compile(r"\btxn_[0-9a-f_]+\b")
+
+
+def _a2():
+    import gate_interpreter as GI
+    return GI.load_domain_a2("banking_knowledge") or {}
+
+
+A2 = _a2()
+WDS = A2.get("withdrawn_row_check") or {}
+SETTLE_TOOL = WDS.get("settle_tool")
+SUBMIT_TOOL = WDS.get("submit_tool")
+# 엔진 출력을 읽는 방법은 하나뿐이어야 한다([[55]]) — 계기가 엔진과 다른 것을 읽으면
+# 부정 통제가 아니다. 이 계기의 옛 `txn_` 정규식이 A2의 죽은 규칙을 가려준 것이 그 실례다.
+def settled_from_output(text):
+    return DECL.settled_ids(A2, SETTLE_TOOL, text)
 
 
 def inner(a):
@@ -65,17 +78,7 @@ def submitted_ids(calls):
     for tc in calls:
         if (inner(args_of(tc)) or tc.get("name")) != SUBMIT_TOOL:
             continue
-        a = args_of(tc)
-        sub = a.get("arguments")
-        if isinstance(sub, str):
-            try:
-                sub = json.loads(sub)
-            except Exception:
-                sub = {}
-        for src in (a, sub if isinstance(sub, dict) else {}):
-            for v in src.values():
-                if isinstance(v, str) and v.startswith("txn_"):
-                    out.add(v)
+        DECL.arg_values(args_of(tc), out)
     return out
 
 
@@ -97,7 +100,7 @@ for p in sorted(glob.glob(os.path.join(SIM, ARMS[ARM] + "*.results.json.gz"))):
                 nm = pend.get(m.get("id") or m.get("tool_call_id"))
                 c = str(m.get("content") or "")
                 if nm == SETTLE_TOOL and not c.lstrip().startswith("Error:"):
-                    settled |= set(IDPAT.findall(c))
+                    settled |= settled_from_output(c)
                 # 시간 창 표적 확인용: 대화가 본 현재 시각
                 for mt in re.findall(r"\b(20\d\d-\d\d-\d\d)\b", c):
                     times[mt] += 1
@@ -110,7 +113,7 @@ for p in sorted(glob.glob(os.path.join(SIM, ARMS[ARM] + "*.results.json.gz"))):
             tally["dropped_sim"] += 1
             tally["dropped_rows"] += len(drop)
             if len(ex) < 10:
-                ex.append((sid, len(settled), len(got), sorted(drop)[:3]))
+                ex.append((sid, len(settled), len(got & settled), sorted(drop)[:3]))
         gold_ids = submitted_ids([(c.get("action") or {})
                                   for c in ((s.get("reward_info") or {}).get("action_checks") or [])])
         if gold_ids and (settled - gold_ids):
