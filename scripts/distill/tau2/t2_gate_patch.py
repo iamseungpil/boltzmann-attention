@@ -4581,13 +4581,22 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   차단은 선언이 허가할 때만(`enforce` + 정책 MUST 문장) — 허가 없는 절차는 표면화만.
             #   엔진에 도구명·필드명·숫자 0(테스트가 AST로 강제). 표적 = 스모크 051(요청 제출·분쟁
             #   이력을 건너뛴 채 승인 호출).
+            # ★D0-a 선점 관측 (2026-08-05·`ABSENCE_DRIVEN_PROCEDURE_DESIGN_2026_08_05` §1):
+            #   스모크 f `task_048`은 절차에 진입(`check_card_closure_eligibility`)했는데 라이브
+            #   `[T2_PROCEDURE]`가 **closure에 대해 0건**이었다(4건 전부 CLI). 같은 인자로 오프라인
+            #   재생하면 정상 deny가 난다 ⇒ 술어가 아니라 **배관**이 조용했다. 원인 후보는 이 블록의
+            #   진입 조건 자체 — 앞선 레버가 그 턴의 피드백을 잡으면 절차는 **평가조차 되지 않는다**.
+            #   그래서 술어는 **항상** 평가하고(순수함수·비용 0·거동 0), 못 뜬 턴엔 누가 선점했는지
+            #   남긴다. `T2_TOOL_SIGNATURE_OBSERVE`가 V7 死경로를 확정한 것과 같은 방법이다([[08]]).
             proc_fb = None
             _procs = ((a2 or {}).get("procedures")
                       if (a2 is not None and os.environ.get("T2_PROCEDURE") == "1") else None)
-            if (_procs and not do_gate and not do_prov and ep_fb is None and cons_fb is None
-                    and ra_fb is None and te_fb is None
-                    and getattr(self, "_t2_proc_deny", 0)
-                    < int(os.environ.get("T2_PROCEDURE_CAP", "6"))):
+            if _procs:
+                _pchain = [("gate", do_gate), ("prov", do_prov), ("eplan", ep_fb),
+                           ("cons", cons_fb), ("resolve_action", ra_fb), ("te", te_fb)]
+                _pblocker = next((n for n, v in _pchain if v), None)
+                _pcapped = (getattr(self, "_t2_proc_deny", 0)
+                            >= int(os.environ.get("T2_PROCEDURE_CAP", "6")))
                 try:
                     import t2_procedure as _PROC
                     _done = _executed_tool_names(state.messages)
@@ -4601,6 +4610,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _dc = _PROC.decide(_procs, _exact_tool_name(c), _ar, _done,
                                            also_names=_also)
                         if _dc.get("verdict") == "deny" and _dc.get("notes"):
+                            if _pblocker or _pcapped:
+                                # 거동 불변: 선점·소진 턴은 종전대로 침묵한다. 로그만 남는다.
+                                print("[T2_PROCEDURE] would-fire but suppressed by=%s tool=%s "
+                                      "missing=%s"
+                                      % (_pblocker or "cap", _exact_tool_name(c),
+                                         ",".join(_dc.get("missing") or [])),
+                                      file=_sys.stderr, flush=True)
+                                break
                             proc_fb = (c, _dc["notes"][0])
                             # ★2026-08-05(051 실측): 차단만으로는 이행되지 않았다 — deny가 누락 단계를
                             #   이름으로 지목했는데도 끝내 그 호출을 하지 않았다(C286③ "차단은 복원이

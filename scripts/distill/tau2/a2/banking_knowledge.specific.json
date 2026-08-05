@@ -2114,10 +2114,10 @@
     }
    },
    "feedback": {
-    "unmet": "[PROCEDURE] 정책이 '{tool}' 앞에 요구하는 단계가 아직 남아 있다: {missing}. 그 단계를 먼저 수행하라(출처: {source}).",
-    "cap_exceeded": "[PROCEDURE] 요청 금액이 이 카드 등급의 1회 상한({cap}%)을 넘는다. 상한 금액을 손님에게 알리고 그 금액으로 진행할지 물어라 — 초과 요청은 제출하지 않는다.",
-    "arg_from_table": "[PROCEDURE] '{tool}'의 '{arg}'는 카드 등급에 따라 정해진다: {value}.",
-    "arg_table_unknown_key": "[PROCEDURE] '{tool}'의 '{arg}'는 카드 등급({operand})에 따라 정책이 정한다: {table}. 이 카드의 등급을 정하고 그 값을 쓰라 — 임의의 기간을 쓰지 말 것."
+    "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Do those steps first (source: {source}).",
+    "cap_exceeded": "[PROCEDURE] The requested amount is above the single-request cap for this card tier ({cap}%). Tell the customer the cap and ask whether to proceed with that amount - do not submit a request above it.",
+    "arg_from_table": "[PROCEDURE] '{arg}' of '{tool}' is fixed by the card tier: {value}.",
+    "arg_table_unknown_key": "[PROCEDURE] '{arg}' of '{tool}' is set by policy from the card tier ({operand}): {table}. Determine this card's tier and use that value - do not use an arbitrary period."
    }
   },
   {
@@ -2139,7 +2139,7 @@
     }
    },
    "feedback": {
-    "prohibited": "[PROCEDURE] 이 절차에서 '{tool}'는 정책이 금지한다 — 축자: \"{quote}\" 분쟁은 손님의 user_id와 transaction_id만으로 제출한다."
+    "prohibited": "[PROCEDURE] The policy forbids '{tool}' in this procedure - verbatim: \"{quote}\" Submit the dispute with only the customer's user_id and transaction_id."
    },
    "_note_prohibits": "금지는 순서가 아니라 한 문장이다. gold 20건(캐시백-분쟁) 중 last4를 요구하는 것은 0건이고, 금지 흐름에서 우회한 8 sim은 전패했다(x81/흐름별 계수). 따옴표 없는 금지는 엔진이 무시한다."
   },
@@ -2240,9 +2240,9 @@
     }
    },
    "feedback": {
-    "unmet": "[PROCEDURE] 정책이 '{tool}' 앞에 요구하는 단계가 아직 남아 있다: {missing}. 그 단계를 먼저 수행하라(출처: {source}).",
-    "prohibited": "[PROCEDURE] 이 절차에서 '{tool}'는 정책이 금지한다 — 축자: \"{quote}\"",
-    "arg_table_unknown_key": "[PROCEDURE] '{tool}'의 '{arg}'는 카드 등급({operand})에 따라 정책이 정한다: {table}."
+    "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Do those steps first (source: {source}).",
+    "prohibited": "[PROCEDURE] The policy forbids '{tool}' in this procedure - verbatim: \"{quote}\"",
+    "arg_table_unknown_key": "[PROCEDURE] '{arg}' of '{tool}' is set by policy from the card tier ({operand}): {table}."
    },
    "_note_procedure": "★2026-08-05: x83 실측 — 이 계열 9 태스크가 공유 코어 8종을 갖고, 각 태스크 gold의 50~86%가 그 코어다(9/9가 요구하는 도구 3종). 즉 태스크가 아니라 **절차 하나**다. 실패 지점도 공통: Step 5 보유 제안 미실행 · discoverable 도구 미발견 · 그로 인한 ctx 사망."
   }
