@@ -2105,6 +2105,34 @@ def _executed_tool_counts(messages):
     return out
 
 
+def _agent_discoverable(env):
+    """env의 **agent-side discoverable** 집합 (user 측과 동형·리터럴 0).
+
+    잠금 여부와 무관하다 — 클래스 속성이라 unlock 전에도 이름이 들어 있다(2026-08-05 확인).
+    그래서 "아직 안 풀린 도구의 정확한 이름"을 말해 줄 수 있다.
+    """
+    try:
+        tk = getattr(env, "tools", None)
+        return set(tk.get_discoverable_tools()) if tk is not None else set()
+    except Exception:
+        return set()
+
+
+def _resolve_exact(name, registry):
+    """선언의 이름 → env의 **정확한** 이름. 모호하면 None(엔진이 고르지 않는다).
+
+    선언은 접미사 없는 이름을 쓰는데(C279 이후 규약) 모델이 부를 수 있는 것은 접미사 붙은 쪽이다.
+    banking에서 접미사를 떼면 충돌하는 계열은 둘뿐이고(`activate_debit_card`·
+    `initial_transfer_to_human_agent`), 그 경우는 **말하지 않는다** — 여럿 중 하나를 고르는 것은
+    엔진의 일이 아니다([[10]]).
+    """
+    nm = str(name or "")
+    if not nm or nm in (registry or ()):
+        return nm if nm in (registry or ()) else None
+    cand = [r for r in (registry or ()) if re.sub(r"_\d+$", "", r) == nm]
+    return cand[0] if len(cand) == 1 else None
+
+
 def _unlocked_names(messages, a2=None):
     """Discoverable names this conversation has asked to unlock (순수함수·리터럴 0).
 
@@ -4787,6 +4815,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         if not _sp:
                             continue
                         _bad = _TR.mismatches(_sp, _args_dict(c), _byid)
+                        # ★관찰(2026-08-05): 발화 0이 "표적 없음"인지 "死배선"인지 구분되지 않아
+                        #   스모크 j 판정을 못 냈다. 검사가 **돌았다는 사실**을 sim당 1회 남긴다.
+                        if not getattr(self, "_t2_tr_seen", False):
+                            self._t2_tr_seen = True
+                            print("[T2_TRANSCRIBE] live tool=%s rows=%d records=%d"
+                                  % (getattr(c, "name", None),
+                                     len(_TR._rows(_args_dict(c).get(_sp.get("arg")))), len(_byid)),
+                                  file=_sys.stderr, flush=True)
                         _msg = _TR.note(_trs.get("_feedback"), _bad, getattr(c, "name", None))
                         if _msg:
                             tr_fb = (c, _msg)
@@ -6510,6 +6546,26 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     if _hit1 is None:
                         continue
                     _fb1, _tag1 = _hit1
+                    # ★2026-08-05(028 실측): 체인은 발화했는데(`chain fired` 8회) 모델은 **unlock 호출
+                    #   0회**였다. 문구가 `{missing}`에 **접미사 없는 이름**만 넣어, 048과 똑같이
+                    #   "부를 수 있는 이름"도 "잠겨 있다는 사실"도 주지 않았다. env 레지스트리로
+                    #   정확한 이름을 풀고(모호하면 침묵) 잠금 절을 A2 문구로 덧붙인다.
+                    try:
+                        _reg = _agent_discoverable(
+                            getattr(getattr(self, "_t2_orch", None), "environment", None))
+                        _unl1 = _unlocked_names(state.messages, a2)
+                        _rq0 = _fc.get("requires")
+                        _rq0 = _rq0 if isinstance(_rq0, list) else [_rq0]
+                        _need = [x for x in (_resolve_exact(r, _reg) for r in _rq0 if r)
+                                 if x and x not in _unl1]
+                        _uh = (a2 or {}).get("tool_unlock_hint")
+                        if _need and _uh:
+                            _fb1 = _fb1 + " " + str(_uh).replace("{tools}", ", ".join(_need[:3]))
+                            print("[T2_FOLLOWUP] unlock-hint %s" % ",".join(_need[:3]),
+                                  file=_sys.stderr, flush=True)
+                    except Exception as _uhe:
+                        print("[T2_FOLLOWUP] unlock-hint error (no-op): %r" % (_uhe,),
+                              file=_sys.stderr, flush=True)
                     # ★C201/D2(2026-07-26·리뷰 결함2 실측): 전역 임계(기본 2)는 **1회 사임 뒤 종료되는
                     #   궤적**(035: 에스컬 호출→notice 1턴→유저 terminal)에서 구조적 미발화. 체인별
                     #   `resign_th`로 override(미선언=env 기본=거동 보존). 전역을 낮추면 기존 체인까지

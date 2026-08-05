@@ -2267,6 +2267,8 @@
  },
  "search_exhaust_escalation": "If the customer has asked for a person and nothing you retrieved covers their request, the escalation is the transfer_to_human_agents tool. Its reason code is not free text: the tool's own description says the reason enum is in the knowledge base, so search for the transfer reason codes document and pick the code whose 'When to Use' matches this situation - including the one for an unsuccessful knowledge-base search when the customer asks for a person. Do not end the conversation with a procedure no document gave you.",
  "_note_search_exhaust_escalation": "F23(2026-08-05·012 실측). 출처: ① `transfer_to_human_agents` docstring 축자 *\"The proper transfer reason enum can be found in the knowledge base: search it before calling this tool to select the proper applicable reason.\"* ② 정책 문서 `doc_bank_accounts_bank_accounts_(general)_042 (Internal: Human Agent Transfer Reason Codes)`. **어느 코드를 고를지는 말하지 않는다** — 티어 판정은 열린 술어라 모델 몫이다([[22]]). gold 경유 0. 표적 = x92 실측 '이관해야 하는데 한 번도 안 부른 sim 7건'(012 t0/t1 포함).",
+ "tool_unlock_hint": "The tool(s) for that step are {tools} and they have not been unlocked in this conversation - call unlock_discoverable_agent_tool with exactly those names first. Do not search the knowledge base for them: the names above are complete.",
+ "_note_tool_unlock_hint": "2026-08-05·028 실측. 체인은 발화했는데(`chain fired` 8회) 모델은 unlock 호출 0회였다 — 문구가 접미사 없는 이름만 줘서 부를 수 있는 이름도 잠금 사실도 없었다(048과 동형). 정확한 이름은 env 레지스트리에서 결정론으로 풀고(모호하면 침묵), 이 문장만 A2가 준다. 검색을 시키지 않는 이유 = 048에서 KB 6연발이 ctx를 죽였다.",
  "procedures": [
   {
    "id": "credit_limit_increase",
