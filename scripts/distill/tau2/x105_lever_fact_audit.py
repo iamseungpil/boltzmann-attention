@@ -116,6 +116,53 @@ def strings_of(node):
                 yield s
 
 
+def audit_fields(docs, tools):
+    """E. 우리가 열거하는 필드 집합이, 그 단계를 실제로 수행하는 도구가 받는 것과 맞는가.
+
+    `task_017`(런 d)이 이 축에서 죽었다. 게이트 문구는 *"2 of {date of birth, email, phone number,
+    address}"* 라고 열거하는데, 그 검증을 끝내려면 먼저 레코드를 가져와야 하고 그 조회 도구는
+    **name / email / user_id** 만 받는다(전화·생년월일로는 조회가 안 된다 — env가 그렇게 답한다).
+    에이전트는 우리 열거를 그대로 따라 손님에게 *"성명과 user ID는 공유하지 마세요"* 라고 말했고,
+    손님은 그 말을 인용해 이름 제공을 거부했다. 대화는 신원 단계에서 끝났다.
+
+    두 집합 다 **선언에서 읽힌다**: 우리 쪽은 게이트 문구, env 쪽은 도구 인자. 그래서 기계적으로
+    비교할 수 있다. 판정은 하지 않는다 — 정책이 검증 필드와 조회 필드를 다르게 두는 것 자체는
+    정당할 수 있다. 이 축이 말하는 것은 **문구가 한쪽만 말하고 다른 쪽을 말하지 않는다**는 사실이다.
+    """
+    print("\n== E. 필드 — 우리가 열거한 필드 집합이 그 단계 도구의 인자와 맞는가 ==")
+    FIELD = re.compile(r"date of birth|email|phone number|address|user id|user_id|full name|name")
+    lookup = {n: set(v.get("args") or []) for n, v in tools.items()
+              if n.startswith("get_user_information_by")}
+    if not lookup:
+        print("  조회 도구를 못 찾음 — 이 축 미적용")
+        return
+    lookup_args = set().union(*lookup.values())
+    print("  env 조회 도구 %s → 인자 %s" % (sorted(lookup), sorted(lookup_args)))
+    hits = 0
+    for f, doc in docs.items():
+        for path, k, v in walk(doc):
+            if not (isinstance(v, str) and len(v) > 60):
+                continue
+            if "verif" not in v.lower():
+                continue
+            said = set(m.group(0).lower() for m in FIELD.finditer(v.lower()))
+            if len(said) < 2:
+                continue
+            # 조회에 필요한 필드를 문구가 하나도 말하지 않으면 그 문구만 따르면 조회가 불가능하다
+            need = {"name", "email", "user id", "user_id", "full name"} & said
+            if need:
+                continue
+            hits += 1
+            print("    ⚠ %s %s" % (os.path.basename(f), (path + "/" + str(k)).lstrip("/")))
+            print("        열거: %s" % ", ".join(sorted(said)))
+            print("        누락: 조회 도구가 받는 %s 중 아무것도 말하지 않는다" % sorted(lookup_args))
+            print("        %r" % v[:120].replace("\n", " "))
+    if not hits:
+        print("    (없음)")
+    print("  ⚠ 판정 아님 — 정책이 두 집합을 다르게 두는 것은 정당할 수 있다. 이 축은 **문구가 한쪽만")
+    print("     말한다**는 사실만 보고한다(017 런 d가 그 결과로 신원 단계에서 종료됐다).")
+
+
 def main():
     tools, AGENT, USER = load_env(DOMAIN)
     REG = AGENT | USER
@@ -261,6 +308,8 @@ def main():
     if not corpus:
         print("  코퍼스 미해결(T2_KB_DOCS_DIR) — 인용 %d건 **미검증**." % len(quotes))
         print("  ⇒ 리모트에서 이 스크립트를 다시 돌려야 이 축이 닫힌다(무료).")
+        audit_fields(docs, tools)
+        return
     else:
         norm = re.sub(r"\s+", " ", corpus)
         miss = [(f, p, q) for f, p, q in quotes if re.sub(r"\s+", " ", q) not in norm]
@@ -269,6 +318,7 @@ def main():
             print("    ⚠ %s %s: %r" % (f, p, q[:110]))
         if not miss:
             print("    (전건 실재)")
+        audit_fields(docs, tools)
 
 
 if __name__ == "__main__":
