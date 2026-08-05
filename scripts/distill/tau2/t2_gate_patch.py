@@ -6747,6 +6747,37 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         # ★C214/E3 (day7 012/033 · day8 032 [S]): 같은-검색 반복이 엔진 스텁으로 이미 여러 번
         #   반려됐는데 계속 검색·표류 → 1회 넛지(012=8회 전패 후 앱 절차 날조·033/032=1~수회 후
         #   전용 경로 포기). 술어=엔진 자기 스텁 계수(닫힘)·처방=전략 전환 권고(넛지).
+        # ★C12(2026-08-05·053 실측): **열어 놓고 부르지 않은 도구**를 사임 턴에 한 번 짚는다.
+        #   053은 처방 후 gold 액션 16개 중 15개를 맞췄고, 남은 하나가 `approve_credit_limit_increase_5847`
+        #   — unlock은 했는데 인자를 실은 호출이 없었다. 술어는 완전히 닫혀 있다(해제 이력 ∧ 호출 이력).
+        #   판단도, 도메인 어휘도 없다: 이름은 대화가 이미 말한 것이고 부를지는 모델이 정한다.
+        if (os.environ.get("T2_UNCALLED_UNLOCK") == "1" and _resign
+                and not getattr(self, "_t2_uncalled_fired", 0)):
+            try:
+                _unl12 = _unlocked_names(state.messages, a2)
+                _called12 = {_exact_tool_name(_t) for _m in state.messages
+                             for _t in (getattr(_m, "tool_calls", None) or [])
+                             if str(getattr(_t, "name", "") or "").startswith("call_")}
+                _idle12 = sorted(_unl12 - _called12)
+                if _idle12:
+                    self._t2_uncalled_fired = 1
+                    print("[T2_UNCALLED_UNLOCK] surface %s" % ",".join(_idle12[:4]),
+                          file=_sys.stderr, flush=True)
+                    _newS = _ap_regen(
+                        "Error: [UNLOCKED-NOT-CALLED] you unlocked %s in this conversation and never "
+                        "called it. Unlocking only makes a tool available — it performs nothing. If "
+                        "that step is still required, call it now with its arguments; if it is not "
+                        "required, say plainly why you are not calling it."
+                        % ", ".join(_idle12[:4]))
+                    if _newS is not None:
+                        am = _newS
+                        _resign = (not getattr(am, "tool_calls", None)
+                                   and isinstance(getattr(am, "content", None), str)
+                                   and am.content.strip())
+            except Exception as _u12:
+                print("[T2_UNCALLED_UNLOCK] error (no-op): %r" % (_u12,),
+                      file=_sys.stderr, flush=True)
+
         if (os.environ.get("T2_SEARCH_EXHAUST_NUDGE") == "1" and _resign
                 and not getattr(self, "_t2_srchex", 0)):
             _stubs = sum(1 for _m6 in state.messages
@@ -6920,6 +6951,22 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               % (_th, self._t2_fu_resigns, _fc.get("after")),
                               file=_sys.stderr, flush=True)
                         break
+                    # ★C13(2026-08-05): 예산 대신 **상태 조건**. 예산을 없앤 뒤 같은 FOLLOW-UP이 한
+                    #   sim에서 최대 6회 반복됐고(048은 중복읽기 1→10·메시지 63→98로 악화), 반복이
+                    #   행동을 바꾼 적은 계량상 없다(048에서 4~5회 반복 후에도 미호출). 숫자 제한이
+                    #   아니라 "새로 할 말이 있을 때만 말한다" — 미이행 집합이 직전과 같으면 침묵한다.
+                    _said = getattr(self, "_t2_chain_said", None)
+                    if _said is None:
+                        _said = self._t2_chain_said = {}
+                    _rq13 = _fc.get("requires")
+                    _rq13 = _rq13 if isinstance(_rq13, list) else ([_rq13] if _rq13 else [])
+                    _key13 = (str(_fc.get("after")), _tag1)
+                    _cur13 = frozenset(r for r in _rq13 if r not in _eff0)
+                    if _said.get(_key13) == _cur13:
+                        print("[T2_FOLLOWUP] chain unchanged — silent after=%s"
+                              % (_fc.get("after"),), file=_sys.stderr, flush=True)
+                        break
+                    _said[_key13] = _cur13
                     self._t2_followup_chain = getattr(self, "_t2_followup_chain", 0) + 1
                     print("[T2_FOLLOWUP] chain fired(%s) after=%s"
                           % (_tag1, _fc.get("after")), file=_sys.stderr, flush=True)

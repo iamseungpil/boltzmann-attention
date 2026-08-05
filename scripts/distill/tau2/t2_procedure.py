@@ -265,7 +265,14 @@ def render_state(proc, executed, unlocked=(), pattern=None):
         elif ok is None:
             rows.append("[?] %s" % nid)          # 도구를 이름하지 않는 단계 = 이력으로 판정 불가
         else:
-            rows.append("[ ] %s%s" % (nid, (" -> " + "/".join(tools)) if tools else ""))
+            # ★C14(2026-08-05·050 실측): 정책이 그 단계의 **인자 값**을 정해 두었으면 선언이 그것을
+            #   한 줄로 말한다. 050은 `get_payment_history_6183`을 불렀지만 `months=24`였고 정책은
+            #   티어별 6/3/3을 요구한다(문서 축자). 값은 여전히 모델이 고른다 — 우리는 정책이 그
+            #   자리에서 무엇을 요구하는지만 옮긴다(엔진 리터럴 0·판단 0).
+            _n = next((n for n in (proc.get("nodes") or []) if n.get("id") == nid), None) or {}
+            _pn = str(_n.get("param_note") or "").strip()
+            rows.append("[ ] %s%s%s" % (nid, (" -> " + "/".join(tools)) if tools else "",
+                                        (" — " + _pn) if _pn else ""))
     cands, uniq = next_step(proc, executed)
     ctools = [t for n in cands for t in (_tools_of(n) or [])]
     # ▶ is only ever attached where the policy itself mandates an order. A procedure the
