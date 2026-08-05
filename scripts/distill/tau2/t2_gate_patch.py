@@ -5477,9 +5477,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         # ★{name_words} (2026-07-22 §2bs·rall10 050/052 실측): bare-name을 자연어
                         #   질의로 파생(suffix 제거+언더스코어→공백) — 도구명 질의=BM25 0.0 마찰의 해소.
                         #   엔진=순수 문자열 연산(리터럴 0)·문구는 A2.
-                        un_fb = (c, str(_unspec.get("feedback") or
-                                        "Error: '{name}' is missing its required suffix.")
+                        # ★★지시-모순 교정 (2026-08-05·x95·048 실측): 구판 문구는 *"You do NOT know
+                        #   the suffix - search the knowledge base NOW"* 라고 **단정**했다. 그런데 절차
+                        #   문구는 같은 대화에서 *"the name above is complete - do not search"* 를 준다.
+                        #   048은 두 지시를 **모두 따라** 중복 검색 8회를 쓰고 40여 메시지를 잃었다.
+                        #   이건 모델의 불이행이 아니라 **우리 결정론의 버그**다. 레지스트리에서
+                        #   이름이 풀리면 검색을 시키지 않고 **그 이름을 준다**; 못 풀 때만 종전 문구.
+                        _exact = _resolve_exact(
+                            _uval, _agent_discoverable(
+                                getattr(getattr(self, "_t2_orch", None), "environment", None)))
+                        _tpl = (_unspec.get("feedback_resolved") if _exact
+                                else None) or _unspec.get("feedback") or \
+                            "Error: '{name}' is missing its required suffix."
+                        un_fb = (c, str(_tpl)
                                  .replace("{name}", _uval)
+                                 .replace("{exact}", _exact or "")
                                  .replace("{name_words}",
                                           re.sub(_upat, "", _uval).replace("_", " ").strip()))
                         force_required = True     # ★사용자 제안: 재생성은 반드시 도구 호출(KB 검색 유도)

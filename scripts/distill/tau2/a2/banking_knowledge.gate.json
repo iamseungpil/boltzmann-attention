@@ -1965,6 +1965,8 @@
  },
  "nonlisted_tool_feedback": "Discoverable agent tools must first be unlocked with unlock_discoverable_agent_tool(agent_tool_name=...) and then invoked through call_discoverable_agent_tool(agent_tool_name=..., arguments=...); discoverable user tools are granted to the customer via give_discoverable_user_tool.",
  "discoverable_name_check": {
+  "feedback_resolved": "Error: '{name}' is missing its numeric suffix, so it was not looked up. The full registry name is {exact} - retry the unlock with exactly that name. Do not search the knowledge base for it: the name above is complete, and this conversation has already been told it.",
+  "_note_feedback_resolved": "★2026-08-05 지시-모순 교정(x95 정적 감사 + 048 로그). 구판은 *'You do NOT know the suffix - search the knowledge base NOW'* 라고 **단정**했는데, 같은 대화의 절차 문구는 *'the name above is complete - do not search'* 를 준다. 048은 **두 지시를 다 따라** 중복 검색 8회를 쓰고 40여 메시지를 잃었다 — 모델의 불이행이 아니라 **우리 결정론의 버그**다([[55]]). 레지스트리에서 이름이 풀리면 `feedback_resolved`(이 키)를 쓰고, 못 풀 때만 종전 `feedback`. 이름 해석은 엔진의 `_resolve_exact`가 env agent-discoverable 집합으로 하고 **모호하면 침묵**한다.",
   "tools": {
    "unlock_discoverable_agent_tool": "agent_tool_name"
   },
