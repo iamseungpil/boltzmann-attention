@@ -163,7 +163,7 @@ t2_launch() {
     --agent_base "http://localhost:${PORT}/v1" \
     --user_llm openrouter/openai/gpt-5.2 --user_temp 0.0 \
     --user_reasoning_effort "${GO_USER_EFFORT:-low}" \
-    --task_ids "$TASKS" --num_trials "$NT" --max_concurrency 4 \
+    --task_ids "$TASKS" --num_trials "$NT" --max_concurrency "${GO_CONCURRENCY:-4}" \
     --max_steps 200 \
     --save_to "$TAG" "$@"
 }

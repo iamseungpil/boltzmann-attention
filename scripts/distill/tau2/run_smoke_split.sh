@@ -62,6 +62,11 @@ for m in T2_PROCEDURE T2_UNINSTRUCTABLE; do
 done
 printf '%-22s %s\n' "구 가드(quote-ground)" "$(cat $L 2>/dev/null | grep -c 'quote-ground 불성립')"
 printf '%-22s %s\n' "미검증 행 재질의 안내" "$(cat $L 2>/dev/null | grep -c 'unverified row')"
+# D0-a(2026-08-05): 절차가 뜰 수 있었는데 다른 레버가 턴을 가져간 횟수 — 048 침묵의 원인 판정용.
+printf '%-22s %s\n' "절차 선점(suppressed)" "$(cat $L 2>/dev/null | grep -c 'would-fire but suppressed')"
+echo "  선점자 분포:"; cat $L 2>/dev/null | grep -o 'suppressed by=[a-z_]*' | sort | uniq -c | sed 's/^/    /'
+# D3-a: give 멤버십 deny의 대상 이름 — 정당 give(4종)를 막지 않았는지 눈으로 확인한다.
+echo "  give 멤버십 deny:"; cat $L 2>/dev/null | grep -o '\[T2_DISPATCH_ROLE\] deny tool=[a-z_]* name=[a-zA-Z0-9_]*' | sort | uniq -c | sed 's/^/    /'
 echo
 echo "== ② 부작용 =="
 printf '%-22s %s\n' "replay ValueError" "$(cat $L 2>/dev/null | grep -c 'ValueError')"
