@@ -2148,6 +2148,26 @@ def _agent_discoverable(env):
         return set()
 
 
+def _is_read_tool(env, name):
+    """Does the environment itself class this tool as a read?
+
+    Forcing a call is only permitted on the read side ([[05]] §1.5: forcing a read is not
+    forcing a write), so the question has to be answered by the environment's own
+    declaration rather than by anything we write down. `__tool_type__` is what tau2's own
+    metrics use to split writes from reads. Unknown means **not** a read: the conservative
+    answer is the one that declines to force.
+    """
+    for tk in (getattr(env, "tools", None), getattr(env, "user_tools", None)):
+        fn = (getattr(tk, "tools", None) or {}).get(name)
+        if fn is None:
+            continue
+        tt = getattr(fn, "__tool_type__", None)
+        if tt is None:
+            return False
+        return "WRITE" not in str(getattr(tt, "name", tt)).upper()
+    return False
+
+
 def _arg_consumers(env, arg):
     """Which tools in this environment actually take an argument by this name.
 
@@ -4872,6 +4892,32 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             continue
                         abs_fb = _msg
                         absent_fired = True
+                        # ★C15 read 강제 (2026-08-05·사용자 지시 "read 강제로 바로 가라"): 지목한
+                        #   잔여 단계가 **환경이 read로 선언한** 유일 도구면, 다음 재생성의 채널을
+                        #   그 호출로 고정한다(P1 기계 재사용: 디스패처 인자를 단일값 enum으로).
+                        #   근거: 050/051은 같은 목록을 3~6회 받고서야 이행했고 048은 6회에도 못 했다
+                        #   — 반복은 대책이 아니라 증상이다. write는 이 경로가 거부한다([[05]] §1.5).
+                        if os.environ.get("T2_PIN_READ_STEPS") == "1":
+                            try:
+                                _st15 = _PROC.render_state(_p, _done2, _unl, _pat)
+                                _cand15 = [t.strip() for t in
+                                           str(_st15.get("ready_tools") or "").split(",")
+                                           if t.strip()]
+                                _env15 = getattr(getattr(self, "_t2_orch", None),
+                                                 "environment", None)
+                                _rd15 = [t for t in _cand15
+                                         if t not in _done2 and _is_read_tool(_env15, t)]
+                                if len(_rd15) == 1:
+                                    self._t2_proc_pin = ("call_discoverable_agent_tool",
+                                                         "agent_tool_name", _rd15[0])
+                                    print("[T2_PIN_READ_STEPS] pin target=%s" % _rd15[0],
+                                          file=_sys.stderr, flush=True)
+                                else:
+                                    print("[T2_PIN_READ_STEPS] no unique read target (%d)"
+                                          % len(_rd15), file=_sys.stderr, flush=True)
+                            except Exception as _p15:
+                                print("[T2_PIN_READ_STEPS] error (no-op): %r" % (_p15,),
+                                      file=_sys.stderr, flush=True)
                         print("[T2_PROC_ABSENT] surface %s quiet>=%d done=%s"
                               % (_p.get("id"), _K, _msg.split("(")[1].split(")")[0]
                                  if "(" in _msg else "?"), file=_sys.stderr, flush=True)
@@ -5018,7 +5064,44 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   "이 도구를 정의한 문서를 읽었는가"뿐이고 그것만 말한다.
             #   x93 전수: 미열람 사용 27건 / **gold이 요구한 이관인데 미열람 6건** ⇒ **deny 금지**,
             #   표면화만. 도구→문서 지도는 코퍼스에서 실행시 도출(A2 아님).
+            # ★C16(2026-08-05·048 q 실측): **이관을 시도하는 그 순간**에 미완 절차를 말한다.
+            #   048은 손님이 두 번 이관을 요구했고(029·042) step 47에서 이관하며 끝났다 — 그때 gold
+            #   7종이 미호출이었고, 우리가 그 순간 한 말은 이관 사유 등급 조언뿐이었다. 절차 미완은
+            #   사임 턴이 아니라 **이 결정 시점**에 말해야 한다([[21]]: 손님이 요구해도 에이전트가 옳게).
+            #   차단하지 않는다 — 무엇이 남았는지만 이름으로 말한다([[10]]).
             _pdc = (a2 or {}).get("require_doc_before") or {}
+            if (_pdc.get("tools") and abs_fb is None and proc_fb is None
+                    and os.environ.get("T2_TRANSFER_LEAVES_STEPS") == "1"
+                    and not getattr(self, "_t2_tls_fired", False)):
+                try:
+                    import t2_procedure as _PROC16
+                    _done16 = _executed_tool_counts(state.messages)
+                    _unl16 = _unlocked_names(state.messages, a2)
+                    for c in (am.tool_calls or []):
+                        if _exact_tool_name(c) not in (_pdc.get("tools") or []):
+                            continue
+                        _left = []
+                        for _p16 in _PROC16.active_procedures(_procs or [], _done16):
+                            _st16 = _PROC16.render_state(_p16, _done16, _unl16, None)
+                            # `ready_tools`는 쉼표 문자열이다(render_state 계약).
+                            _left += [t.strip() for t in
+                                      str(_st16.get("ready_tools") or "").split(",")
+                                      if t.strip() and t.strip() not in _done16]
+                        _left = sorted(set(_left))
+                        if _left:
+                            abs_fb = ("Error: [PROCEDURE-INCOMPLETE] you are about to hand this "
+                                      "conversation off, but the procedure you entered still has "
+                                      "steps nobody has done: %s. A transfer does not perform them. "
+                                      "Either do them now, or tell the customer plainly which ones "
+                                      "you are leaving undone and why." % ", ".join(_left[:5]))
+                            self._t2_tls_fired = True
+                            print("[T2_TRANSFER_LEAVES_STEPS] surface %d left" % len(_left),
+                                  file=_sys.stderr, flush=True)
+                            break
+                except Exception as _tls:
+                    print("[T2_TRANSFER_LEAVES_STEPS] error (no-op): %r" % (_tls,),
+                          file=_sys.stderr, flush=True)
+
             if (_pdc.get("tools") and abs_fb is None and tr_fb is None and proc_fb is None
                     and os.environ.get("T2_REQUIRE_DOC") == "1"
                     and not getattr(self, "_t2_reqdoc_fired", False)):
@@ -6957,13 +7040,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     #   sim에서 최대 6회 반복됐고(048은 중복읽기 1→10·메시지 63→98로 악화), 반복이
                     #   행동을 바꾼 적은 계량상 없다(048에서 4~5회 반복 후에도 미호출). 숫자 제한이
                     #   아니라 "새로 할 말이 있을 때만 말한다" — 미이행 집합이 직전과 같으면 침묵한다.
+                    #   ⚠2026-08-05 교정(p↔q 실측): "미이행 집합 불변이면 침묵"은 **너무 강했다**.
+                    #   050은 FOLLOW-UP 4회를 받고 12/13을 맞췄는데 억제 후 1회·6/13으로, 051은 6회·
+                    #   11/20에서 1회·8/20으로 후퇴했다. 반복이 무효였던 것은 048 하나뿐인데 그 한
+                    #   사례로 일반화했다([[08]]). 조건을 좁힌다 — **직전 발화 이후 도구 호출이 하나도
+                    #   없었을 때만** 침묵한다(공전은 끊고, 뭔가 하고 있으면 계속 짚는다).
                     _said = getattr(self, "_t2_chain_said", None)
                     if _said is None:
                         _said = self._t2_chain_said = {}
                     _rq13 = _fc.get("requires")
                     _rq13 = _rq13 if isinstance(_rq13, list) else ([_rq13] if _rq13 else [])
                     _key13 = (str(_fc.get("after")), _tag1)
-                    _cur13 = frozenset(r for r in _rq13 if r not in _eff0)
+                    _ncalls13 = sum(1 for _m13 in state.messages
+                                    for _t13 in (getattr(_m13, "tool_calls", None) or []))
+                    _cur13 = (frozenset(r for r in _rq13 if r not in _eff0), _ncalls13)
                     if _said.get(_key13) == _cur13:
                         print("[T2_FOLLOWUP] chain unchanged — silent after=%s"
                               % (_fc.get("after"),), file=_sys.stderr, flush=True)

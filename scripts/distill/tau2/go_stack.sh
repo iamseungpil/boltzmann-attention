@@ -242,6 +242,9 @@ export T2_PROCEDURE=1
 #   차단 아님(비커밋 피드백 1건)·▶NEXT는 `enforce` ∧ 후보 유일일 때만·동렬이면 목록만([[10]]).
 #   x86 전수(194 sim·K=3): 발화 54회/29 sim · ▶유일 98.1% · **gold-밖 지목의 write 0** ·
 #   지목 도구의 **100%가 미-unlock**(048 livelock서 모델에게 없던 유일한 정보).
+export T2_PIN_READ_STEPS=1      # C15(사용자 지시): 지목한 잔여 **read**를 named tool_choice+단일값 enum으로 고정(write 제외)
+export T2_PROC_PIN_REARM=1      # C15 보조: 첫 라이브라 재무장 1회만(기회비용 미측정이라 보수적으로)
+export T2_TRANSFER_LEAVES_STEPS=1 # C16(048): 이관 시도 순간에 미완 절차 단계를 이름으로 표면화
 export T2_UNCALLED_UNLOCK=1     # C12(053): 해제해 놓고 부르지 않은 도구를 사임 턴에 1회 표면화
 export T2_PROC_ABSENT=1
 export T2_PROC_ABSENT_K=3         # 무호출 연속 assistant 턴 임계(x86 K-sweep 2/3/5 전부 write 0)

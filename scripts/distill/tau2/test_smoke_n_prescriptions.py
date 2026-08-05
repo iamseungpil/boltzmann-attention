@@ -149,6 +149,34 @@ _bad = [n.lineno for n in _ast.walk(_tree)
         and len(n.args) < 2]
 check("배선 — `_ap_regen` 호출이 전부 tag를 넘긴다", not _bad, str(_bad[:4]))
 
+
+# ── C15/C16: read만 강제한다 · 이관 시점에 남은 단계를 말한다 ────────────────────────
+import t2_procedure as _P16
+
+
+def _mk(tt):
+    def _f(**kw):
+        pass
+    _f.__tool_type__ = _t.SimpleNamespace(name=tt)
+    return _f
+
+
+_env15 = _t.SimpleNamespace(tools=_TK({"get_user_dispute_history_7291": _mk("READ"),
+                                       "close_credit_card_account_7834": _mk("WRITE")}),
+                            user_tools=None)
+check("C15 환경이 read라 선언한 것만 강제 대상", G._is_read_tool(_env15, "get_user_dispute_history_7291"))
+check("C15 write는 강제하지 않는다([[05]] §1.5)",
+      not G._is_read_tool(_env15, "close_credit_card_account_7834"))
+check("C15 미상 도구는 강제하지 않는다(보수)", not G._is_read_tool(_env15, "unknown_tool"))
+
+_pr16 = [p for p in (A2.get("procedures") or []) if p.get("id") == "credit_card_closure_retention"]
+_st16 = _P16.render_state(_pr16[0], {}, set(), None) if _pr16 else {}
+check("C16 이관 시점에 이름 붙일 잔여가 실재한다(048 표적)",
+      bool(str(_st16.get("ready_tools") or "").strip()), str(_st16.get("ready_tools"))[:60])
+check("C15/C16 플래그가 드라이버에 등재돼 있다",
+      all(k in io.open(os.path.join(HERE, "go_stack.sh"), encoding="utf-8").read()
+          for k in ("T2_PIN_READ_STEPS", "T2_TRANSFER_LEAVES_STEPS")))
+
 print()
 print("결과: %s" % ("ALL PASS" if not fail else "FAIL %d — %s" % (len(fail), fail)))
 sys.exit(1 if fail else 0)
