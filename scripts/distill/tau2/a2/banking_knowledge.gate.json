@@ -2253,5 +2253,134 @@
   "note": "Error: [TRANSFER-REASON] the documented reason list is tiered and says to always select from the HIGHEST tier that applies. You chose '{chosen}' (tier {chosen_tier}), but this conversation contains {evidence!r}, which the documents place under '{code}' (tier {code_tier}: {why}). Re-issue the transfer with the highest applicable reason code, or state why that one does not apply.",
   "_note": "2026-08-03 P15(task_004 실측). 출처=KB doc_bank_accounts_bank_accounts_(general)_042 축자 티어표 + \"always select from the highest tier that applies\". 004: 손님 식별자 조회가 레코드 0(신원 확인 실패)인데 TIER3로 이관 → gold=TIER1 account_ownership_dispute. db_check는 통과였고 이 사유 하나로 0점. 엔진=티어 정수 비교+마커 부분문자열만([[22]] 닫힘)."
  },
- "_note_quote_hint": "★출처([[23]]): **구조 선언**이지 정책 주장이 아니다 — 이 필드는 `source_param`으로 **축자 인용**을 요구하므로, 반려가 '값이 틀렸다'가 아니라 '인용 형태가 다르다'일 수 있는 유일한 종류다(값-존재만 보는 필드에는 고칠 인용이 없다). 근거 = task_046 t0/t1 자연 실험: 같은 값 0.00에 대해 t0 'current_balance: $0.00'(패러프레이즈)=드롭·동일 호출 7회·11턴 소실, t1 'New Credit Card Balance: $0.00'(원장 축자)=통과. 엔진은 **모델이 제시한 값이 원장에 실재할 때만** 원장 표기를 지목한다(없으면 종전대로 드롭=날조 차단 유지·C226 spoonfeed 회피)."
+ "_note_quote_hint": "★출처([[23]]): **구조 선언**이지 정책 주장이 아니다 — 이 필드는 `source_param`으로 **축자 인용**을 요구하므로, 반려가 '값이 틀렸다'가 아니라 '인용 형태가 다르다'일 수 있는 유일한 종류다(값-존재만 보는 필드에는 고칠 인용이 없다). 근거 = task_046 t0/t1 자연 실험: 같은 값 0.00에 대해 t0 'current_balance: $0.00'(패러프레이즈)=드롭·동일 호출 7회·11턴 소실, t1 'New Credit Card Balance: $0.00'(원장 축자)=통과. 엔진은 **모델이 제시한 값이 원장에 실재할 때만** 원장 표기를 지목한다(없으면 종전대로 드롭=날조 차단 유지·C226 spoonfeed 회피).",
+ "procedures": [
+  {
+   "id": "credit_limit_increase",
+   "_source": [
+    "doc_credit_cards_credit_card_account_logistics_007 (Processing CLI Approvals and Denials)",
+    "doc_credit_cards_credit_card_account_logistics_006 (CLI Payment History and Approval Criteria)",
+    "doc_credit_cards_credit_card_account_logistics_005 (CLI Eligibility Requirements by Card Tier)"
+   ],
+   "_quote_order": "These steps MUST be followed in the exact order listed.",
+   "enter_when": {
+    "tool_any": [
+     "submit_credit_limit_increase_request_7392",
+     "approve_credit_limit_increase_5847",
+     "deny_credit_limit_increase_5848",
+     "get_credit_limit_increase_history_4829",
+     "get_payment_history_6183"
+    ]
+   },
+   "operands": {
+    "card_tier": {
+     "values": [
+      "entry",
+      "mid",
+      "premium"
+     ],
+     "_note": "정책이 카드명→등급 매핑을 주지 않는다. 모델이 형식화해 넘기는 상수이고 엔진은 표 조회만 한다([[52]]). 추측 매핑을 여기 넣지 말 것([[23]])."
+    }
+   },
+   "nodes": [
+    {
+     "id": "amount_within_tier_cap",
+     "kind": "bound",
+     "table": "max_increase_pct_by_tier",
+     "operand": "card_tier",
+     "_quote": "BEFORE submitting any CLI request, verify that the customer's requested increase amount is within the maximum allowed for their card tier. … Do NOT submit a request that exceeds the tier limit."
+    },
+    {
+     "id": "submit_request",
+     "tool": "submit_credit_limit_increase_request_7392",
+     "requires": [
+      "amount_within_tier_cap"
+     ],
+     "_quote": "submit the request on their behalf … This creates a formal record of the request before eligibility checks are performed."
+    },
+    {
+     "id": "cooldown",
+     "tool": "get_credit_limit_increase_history_4829",
+     "requires": [
+      "submit_request"
+     ]
+    },
+    {
+     "id": "disputes",
+     "tool": "get_user_dispute_history_7291",
+     "requires": [
+      "submit_request"
+     ],
+     "_quote": "No Pending Disputes: Verify the account has no active disputes."
+    },
+    {
+     "id": "pending_replacement",
+     "tool": "get_pending_replacement_orders_5765",
+     "requires": [
+      "submit_request"
+     ],
+     "_quote": "No Pending Replacement Cards … the CLI cannot be processed until the replacement is delivered or cancelled."
+    },
+    {
+     "id": "payment_history",
+     "tool": "get_payment_history_6183",
+     "requires": [
+      "submit_request"
+     ],
+     "arg_from_table": {
+      "arg": "months",
+      "table": "payment_months_by_tier",
+      "operand": "card_tier"
+     },
+     "_quote": "months (integer, required): … Use the appropriate value based on the card tier."
+    },
+    {
+     "id": "decision",
+     "tool_any": [
+      "approve_credit_limit_increase_5847",
+      "deny_credit_limit_increase_5848"
+     ],
+     "requires": [
+      "cooldown",
+      "disputes",
+      "pending_replacement",
+      "payment_history"
+     ]
+    }
+   ],
+   "tables": {
+    "max_increase_pct_by_tier": {
+     "entry": 25,
+     "mid": 50,
+     "premium": 50
+    },
+    "payment_months_by_tier": {
+     "entry": 6,
+     "mid": 3,
+     "premium": 3
+    },
+    "min_account_age_days_by_tier": {
+     "entry": 120,
+     "mid": 90,
+     "premium": 60
+    },
+    "cooldown_days_by_tier": {
+     "entry": 120,
+     "mid": 90,
+     "premium": 60
+    },
+    "max_utilization_pct_by_tier": {
+     "entry": 70,
+     "mid": 80,
+     "premium": 90
+    }
+   },
+   "feedback": {
+    "unmet": "[PROCEDURE] 정책이 '{tool}' 앞에 요구하는 단계가 아직 남아 있다: {missing}. 그 단계를 먼저 수행하라(출처: {source}).",
+    "cap_exceeded": "[PROCEDURE] 요청 금액이 이 카드 등급의 1회 상한({cap}%)을 넘는다. 상한 금액을 손님에게 알리고 그 금액으로 진행할지 물어라 — 초과 요청은 제출하지 않는다.",
+    "arg_from_table": "[PROCEDURE] '{tool}'의 '{arg}'는 카드 등급에 따라 정해진다: {value}."
+   }
+  }
+ ],
+ "_note_procedures": "★절차 DAG(2026-08-05·사용자 지시 \"절차 컨트롤러는 DAG로 만들어 A2 도메인 특화 파일에 기록하라\").\n**왜 데이터인가**: 정책이 단계·순서·도구명·숫자를 전부 축자로 준다 — 판단이 아니라 표 조회다. 엔진은 DAG를 걷고 미충족 선행 노드를 표면화할 뿐이고, 도메인 어휘는 여기에만 있다([[05]]).\n**근거(축자)**: `_source`·`_quote_order`·노드별 `_quote` 참조. gold 경유 0 — 모든 값이 정책 문서에서 복사됐고, 정책이 주지 않는 것(카드명→등급 매핑)은 **일부러 비워** 모델 operand로 남겼다([[23]]/[[52]]).\n**실측 표적**: 스모크 `task_051` — 요청 제출(1단계) 누락 · 분쟁 이력 미확인 · `months` 6→12 · 상한 25%를 넘는 승인(new_limit 5,200 = +30%). 네 결함이 모두 이 DAG의 노드에 대응한다.\n⚠**현재는 데이터만이다** — 이 DAG를 걷는 엔진이 아직 없으므로 라이브 발화는 0이다. 엔진 없이 데이터만 두는 것이 이 repo의 死코드 패턴이므로([[24]]), 원장 F14에 '엔진 미구현'으로 남긴다."
 }
