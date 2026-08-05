@@ -2270,9 +2270,9 @@
      "submit_credit_limit_increase_request_7392",
      "approve_credit_limit_increase_5847",
      "deny_credit_limit_increase_5848",
-     "get_credit_limit_increase_history_4829",
-     "get_payment_history_6183"
-    ]
+     "get_credit_limit_increase_history_4829"
+    ],
+    "_note": "활성화 도구 = 이 절차에만 있는 것들. 공용 read(분쟁 이력·교체 주문·결제 이력)는 다른 흐름에서도 쓰이므로 활성화시키지 않는다 — 그렇게 두면 x80이 잰 28건 과차단이 난다."
    },
    "operands": {
     "card_tier": {
@@ -2382,6 +2382,29 @@
     "cap_exceeded": "[PROCEDURE] 요청 금액이 이 카드 등급의 1회 상한({cap}%)을 넘는다. 상한 금액을 손님에게 알리고 그 금액으로 진행할지 물어라 — 초과 요청은 제출하지 않는다.",
     "arg_from_table": "[PROCEDURE] '{tool}'의 '{arg}'는 카드 등급에 따라 정해진다: {value}."
    }
+  },
+  {
+   "id": "cash_back_dispute",
+   "_source": [
+    "doc_credit_cards_credit_cards_(general)_003 (Submitting a Cash Back Dispute)"
+   ],
+   "enter_when": {
+    "tool_any": [
+     "submit_cash_back_dispute_0589",
+     "get_reward_discrepancies"
+    ],
+    "_note": "이 흐름에만 있는 도구로 활성화한다."
+   },
+   "nodes": [],
+   "prohibits": {
+    "get_card_last_4_digits": {
+     "_quote": "Do not collect sensitive card details; the tool uses the identifiers provided by the user."
+    }
+   },
+   "feedback": {
+    "prohibited": "[PROCEDURE] 이 절차에서 '{tool}'는 정책이 금지한다 — 축자: \"{quote}\" 분쟁은 손님의 user_id와 transaction_id만으로 제출한다."
+   },
+   "_note_prohibits": "금지는 순서가 아니라 한 문장이다. gold 20건(캐시백-분쟁) 중 last4를 요구하는 것은 0건이고, 금지 흐름에서 우회한 8 sim은 전패했다(x81/흐름별 계수). 따옴표 없는 금지는 엔진이 무시한다."
   }
  ],
  "_note_procedures": "★절차 DAG(2026-08-05·사용자 지시 \"절차 컨트롤러는 DAG로 만들어 A2 도메인 특화 파일에 기록하라\").\n**왜 데이터인가**: 정책이 단계·순서·도구명·숫자를 전부 축자로 준다 — 판단이 아니라 표 조회다. 엔진은 DAG를 걷고 미충족 선행 노드를 표면화할 뿐이고, 도메인 어휘는 여기에만 있다([[05]]).\n**근거(축자)**: `_source`·`_quote_order`·노드별 `_quote` 참조. gold 경유 0 — 모든 값이 정책 문서에서 복사됐고, 정책이 주지 않는 것(카드명→등급 매핑)은 **일부러 비워** 모델 operand로 남겼다([[23]]/[[52]]).\n**실측 표적**: 스모크 `task_051` — 요청 제출(1단계) 누락 · 분쟁 이력 미확인 · `months` 6→12 · 상한 25%를 넘는 승인(new_limit 5,200 = +30%). 네 결함이 모두 이 DAG의 노드에 대응한다.\n⚠**현재는 데이터만이다** — 이 DAG를 걷는 엔진이 아직 없으므로 라이브 발화는 0이다. 엔진 없이 데이터만 두는 것이 이 repo의 死코드 패턴이므로([[24]]), 원장 F14에 '엔진 미구현'으로 남긴다."

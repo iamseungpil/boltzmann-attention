@@ -2045,6 +2045,45 @@ def _eff_tool_name(tc):
     return re.sub(r"_\d+$", "", nm)
 
 
+def _exact_tool_name(tc):
+    """The environment's own name for what this call executes — no spelling rules.
+
+    A dispatched call carries the exact registry name in its argument, so it is read
+    rather than derived. `_eff_tool_name` strips a numeric suffix, which is the sort of
+    pattern rule this project retired after it produced quiet mismatches (C279); a
+    procedure declaration quotes the policy's spelling and must match by identity.
+    Wrappers that do not execute the inner tool (unlock, give) keep their own name.
+    """
+    nm = str(getattr(tc, "name", "") or "")
+    if nm.startswith("call_"):
+        ar = _args_dict(tc)
+        inner = (ar.get("agent_tool_name") or ar.get("user_tool_name")
+                 or ar.get("discoverable_tool_name") or "")
+        if inner:
+            return str(inner)
+    return nm
+
+
+def _executed_tool_names(messages):
+    """Tools whose call actually ran, by effective name.
+
+    A call whose result came back as an error did not perform its step, so it must not
+    count as a prerequisite satisfied — otherwise a procedure check would read a failed
+    submission as a completed one. Both sides of the conversation count: discoverable
+    steps are often executed by the customer.
+    """
+    ok, pending = set(), {}
+    for m in messages or []:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            pending[getattr(tc, "id", None)] = _exact_tool_name(tc)
+        if getattr(m, "role", None) == "tool":
+            nm = pending.get(getattr(m, "id", None) or getattr(m, "tool_call_id", None))
+            txt = str(getattr(m, "content", "") or "").lstrip()
+            if nm and not (getattr(m, "error", False) or txt.startswith("Error:")):
+                ok.add(nm)
+    return ok
+
+
 def _claim_unbacked(claims, emap, evs, messages, a2=None):
     """★claim_prov 원장대조 코어 (2026-07-20 관문5 추출·순수함수=단위테스트 공유·[[03b]]).
     LLM이 formalize한 주장 목록({kind, what})을 A2 event_map으로 원장 이벤트 실재 대조.
@@ -4537,9 +4576,43 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ★T2_WEV_ROUNDS (2026-07-24 C125·rall20 031.0 실측): turn당 1회 규칙의 구멍 — deny 후
             #   regen된 호출은 같은 턴서 무검사 커밋(1234 날조가 deny #2 직후 regen으로 통과·오프라인
             #   재실행은 deny 확인=술어 정상·배관 우회). 재검사 횟수 env화(기본 1=현행 불변·2=regen 1회 재검).
+            # ★T2_PROCEDURE (2026-08-05·`t2_procedure.py`·A2 L3 `procedures`): 정책이 **순서를
+            #   명령한** 절차만 A2가 index로 선언하고, 그 index 안의 호출에서만 선행 단계를 검사한다.
+            #   차단은 선언이 허가할 때만(`enforce` + 정책 MUST 문장) — 허가 없는 절차는 표면화만.
+            #   엔진에 도구명·필드명·숫자 0(테스트가 AST로 강제). 표적 = 스모크 051(요청 제출·분쟁
+            #   이력을 건너뛴 채 승인 호출).
+            proc_fb = None
+            _procs = ((a2 or {}).get("procedures")
+                      if (a2 is not None and os.environ.get("T2_PROCEDURE") == "1") else None)
+            if (_procs and not do_gate and not do_prov and ep_fb is None and cons_fb is None
+                    and ra_fb is None and te_fb is None
+                    and getattr(self, "_t2_proc_deny", 0)
+                    < int(os.environ.get("T2_PROCEDURE_CAP", "6"))):
+                try:
+                    import t2_procedure as _PROC
+                    _done = _executed_tool_names(state.messages)
+                    for c in (am.tool_calls or []):
+                        if id(c) in denied_by_objid:
+                            continue
+                        _ar = _args_dict(c)
+                        _also = {str(_ar.get(k)) for k in
+                                 ("agent_tool_name", "user_tool_name", "discoverable_tool_name")
+                                 if _ar.get(k)}
+                        _dc = _PROC.decide(_procs, _exact_tool_name(c), _ar, _done,
+                                           also_names=_also)
+                        if _dc.get("verdict") == "deny" and _dc.get("notes"):
+                            proc_fb = (c, _dc["notes"][0])
+                            print("[T2_PROCEDURE] deny %s missing=%s"
+                                  % (_exact_tool_name(c), ",".join(_dc.get("missing") or [])),
+                                  file=_sys.stderr, flush=True)
+                            break
+                except Exception as _pce:
+                    proc_fb = None
+                    print("[T2_PROCEDURE] error (no-op): %r" % (_pce,), file=_sys.stderr, flush=True)
+
             wev_fb = None
             if ((wev_specs or wag_specs or rv_specs) and not do_gate and not do_prov and ep_fb is None
-                    and cons_fb is None and ra_fb is None and te_fb is None
+                    and cons_fb is None and ra_fb is None and te_fb is None and proc_fb is None
                     and wev_rounds < int(os.environ.get("T2_WEV_ROUNDS", "1"))
                     and getattr(self, "_t2_wev_deny", 0) < _wev_cap):
                 try:
@@ -5171,6 +5244,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if te_fb is not None:
                 te_rounds += 1
                 self._t2_toolerr_deny = getattr(self, "_t2_toolerr_deny", 0) + 1
+            if proc_fb is not None:
+                self._t2_proc_deny = getattr(self, "_t2_proc_deny", 0) + 1
             if wev_fb is not None:
                 wev_rounds += 1
                 self._t2_wev_deny = getattr(self, "_t2_wev_deny", 0) + 1
@@ -5226,6 +5301,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     # A2 feedback이 "Error:"로 시작하면 그대로(이중 접두 방지)
                     content = wev_fb[1] if str(wev_fb[1]).lstrip().startswith("Error:") \
                         else "Error: " + wev_fb[1]
+                elif proc_fb is not None and c is proc_fb[0]:
+                    content = proc_fb[1] if str(proc_fb[1]).lstrip().startswith("Error:") \
+                        else "Error: " + proc_fb[1]
                 elif rw_fb is not None and c is rw_fb[0]:
                     content = "Error: " + rw_fb[1]
                 elif tl_fb is not None and c is tl_fb[0]:

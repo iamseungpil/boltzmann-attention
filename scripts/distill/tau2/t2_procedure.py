@@ -19,6 +19,11 @@ and return the feedback string the declaration itself supplies. It never rewrite
 argument and never blocks a call — the engine states what the policy requires and the
 model acts ([[10]]: generator is the model, the check is deterministic).
 
+Names are matched exactly against the environment's own tool names. An earlier version
+normalised a numeric suffix away, which is the kind of pattern rule this project has
+already retired for producing quiet mismatches (C279) — the dispatched call carries the
+exact name in its argument, so nothing has to be guessed from spelling.
+
 The operand a table is keyed by (a tier, a class, a category) is supplied by the model,
 because the corpus may not map entities to it. When it is missing the table lookup is
 skipped rather than guessed — an engine that guesses the key has decided the case.
@@ -36,15 +41,22 @@ def _tools_of(node):
     return list(node.get("tool_any") or [])
 
 
-def find_procedure(procs, tool_name):
-    """The declared procedure this call belongs to, or None.
+def find_procedure(procs, tool_name, executed=()):
+    """The procedure this call is inside, or None — membership needs the procedure to be active.
 
-    Membership is an index, not an inference: a call is inside a procedure only when
-    the declaration lists its tool, either as an entry point or on a node. Everything
-    else is outside and this file has nothing to say about it.
+    Naming a tool on a node is not enough to claim a call belongs to the procedure: the
+    same read is used by other flows, and treating every appearance as membership blocked
+    28 calls gold wanted when this was measured over the run (x80). So a procedure counts
+    as entered only once one of its **activating** tools has been called — the ones that
+    exist for this procedure alone — and only then are its nodes checked. A shared read on
+    its own leaves the procedure dormant and this file silent.
     """
+    done = set(executed or ())
     for p in procs or []:
-        triggers = (p.get("enter_when") or {}).get("tool_any") or []
+        triggers = set((p.get("enter_when") or {}).get("tool_any") or [])
+        active = bool(triggers & done) or tool_name in triggers
+        if not active:
+            continue
         if tool_name in triggers:
             return p
         for n in p.get("nodes") or []:
@@ -82,7 +94,8 @@ def _satisfied(node, executed):
     tools = _tools_of(node)
     if not tools:
         return None
-    return any(t in executed for t in tools)
+    done = set(executed or ())
+    return any(t in done for t in tools)
 
 
 def unmet_nodes(proc, tool_name, executed):
@@ -141,7 +154,7 @@ def _fill(tpl, **kw):
 
 def notes_for_call(procs, tool_name, args, executed, operands=None):
     """Every line the declaration says about this call. Empty when it says nothing."""
-    proc = find_procedure(procs, tool_name)
+    proc = find_procedure(procs, tool_name, executed)
     if proc is None:
         return []
     fb = proc.get("feedback") or {}
@@ -159,15 +172,49 @@ def notes_for_call(procs, tool_name, args, executed, operands=None):
     return out
 
 
-def decide(procs, tool_name, args, executed, operands=None):
+def prohibited(procs, names, executed):
+    """(procedure, name, quote) when an active procedure forbids one of these names.
+
+    Some policies do not order steps, they forbid one: the cash-back dispute document
+    names the tool to hand over and then says not to collect card details. The engine
+    holds neither fact — the prohibition and the sentence licensing it are declared, and
+    a prohibition without its quote is ignored, exactly as an order without one is.
+
+    `names` is a set because a handover names its tool inside the call: both the wrapper
+    and what it passes are checked, so forbidding a tool also forbids handing it over.
+    """
+    for p in procs or []:
+        block = (p.get("prohibits") or {})
+        if not block:
+            continue
+        triggers = set((p.get("enter_when") or {}).get("tool_any") or [])
+        if not (triggers & set(executed or ())) and not (triggers & set(names or ())):
+            continue
+        for nm in names or ():
+            spec = block.get(nm)
+            if spec and spec.get("_quote"):
+                return p, nm, spec
+    return None, None, None
+
+
+def decide(procs, tool_name, args, executed, operands=None, also_names=()):
     """One verdict for one call: what is missing, what to say, and whether to block.
 
-    `deny` is returned only when the declaration mandates the order (§is_mandatory) and
-    a prerequisite that can be observed from the call history has not run. Nodes that
-    cannot be observed — a bound the agent is told to check rather than call — never
-    produce a block, because their absence is not a fact this engine holds.
+    `deny` is returned in two cases and no others: an active procedure whose declaration
+    mandates the order is missing an observable prerequisite, or an active procedure
+    forbids this tool and quotes the sentence that forbids it. Steps that cannot be
+    observed — a bound the agent is told to check rather than call — never produce a
+    block, because their absence is not a fact this engine holds.
     """
-    proc = find_procedure(procs, tool_name)
+    names = {tool_name} | set(also_names or ())
+    pproc, pname, pspec = prohibited(procs, names, executed)
+    if pproc is not None:
+        return {"procedure": pproc.get("id"), "missing": [], "unobservable": [],
+                "prohibited": pname,
+                "notes": [(pproc.get("feedback") or {}).get("prohibited", "").replace("{tool}", pname)
+                          .replace("{quote}", pspec.get("_quote", "")).strip()],
+                "verdict": "deny"}
+    proc = find_procedure(procs, tool_name, executed)
     if proc is None:
         return {"procedure": None, "missing": [], "notes": [], "verdict": "pass"}
     missing, unobservable = unmet_nodes(proc, tool_name, executed)

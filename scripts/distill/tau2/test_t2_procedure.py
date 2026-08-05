@@ -33,8 +33,9 @@ def check(name, cond, detail=""):
 
 
 print("① 선언이 실려 있는가")
-check("procedures 존재", len(PROCS) == 1, "%d" % len(PROCS))
-proc = PROCS[0] if PROCS else {}
+check("procedures 존재", len(PROCS) >= 1, "%d" % len(PROCS))
+proc = next((p for p in PROCS if p.get("id") == "credit_limit_increase"), {})
+PROHIB = next((p for p in PROCS if p.get("prohibits")), {})
 check("노드 7", len(proc.get("nodes") or []) == 7)
 check("표 5", len(proc.get("tables") or {}) == 5)
 
@@ -42,31 +43,32 @@ print("\n② 051 재현 — 결정 도구를 먼저 부른다")
 DECIDE = "approve_credit_limit_increase_5847"
 executed = {"get_credit_limit_increase_history_4829", "get_payment_history_6183",
             "get_pending_replacement_orders_5765"}          # 스모크가 실제로 부른 것
-missing, unobs = P.unmet_nodes(P.find_procedure(PROCS, DECIDE), DECIDE, executed)
+missing, unobs = P.unmet_nodes(P.find_procedure(PROCS, DECIDE, executed), DECIDE, executed)
 check("요청 제출 누락 검출", "submit_request" in missing, str(missing))
 check("분쟁 이력 누락 검출", "disputes" in missing, str(missing))
 check("이미 부른 것은 미포함", "cooldown" not in missing and "payment_history" not in missing, str(missing))
 check("관측 불가 노드는 분리", "amount_within_tier_cap" in unobs, str(unobs))
 
 print("\n③ 표에서 유도되는 인자")
-te = P.table_expectation(P.find_procedure(PROCS, "get_payment_history_6183"),
+ACT = {"submit_credit_limit_increase_request_7392"}          # 활성화 이력
+te = P.table_expectation(P.find_procedure(PROCS, "get_payment_history_6183", ACT),
                          "get_payment_history_6183", {"card_tier": "entry"})
 check("entry → months 6", te == ("months", 6), str(te))
-te_mid = P.table_expectation(P.find_procedure(PROCS, "get_payment_history_6183"),
+te_mid = P.table_expectation(P.find_procedure(PROCS, "get_payment_history_6183", ACT),
                              "get_payment_history_6183", {"card_tier": "mid"})
 check("mid → months 3", te_mid == ("months", 3), str(te_mid))
 check("등급 미제공이면 추측 안 함",
-      P.table_expectation(P.find_procedure(PROCS, "get_payment_history_6183"),
+      P.table_expectation(P.find_procedure(PROCS, "get_payment_history_6183", ACT),
                           "get_payment_history_6183", {}) is None)
 
 print("\n④ 문구는 A2에서 온다 · 무관 호출엔 침묵")
 notes = P.notes_for_call(PROCS, DECIDE, {}, executed, {"card_tier": "entry"})
 check("미충족 문구 1개", len(notes) == 1, str(notes))
 check("문구에 누락 단계 이름", "submit_request" in notes[0] if notes else False)
-notes2 = P.notes_for_call(PROCS, "get_payment_history_6183", {"months": 12}, executed,
+notes2 = P.notes_for_call(PROCS, "get_payment_history_6183", {"months": 12}, executed | ACT,
                           {"card_tier": "entry"})
 check("months 12 → 교정 문구", any("6" in n for n in notes2), str(notes2))
-notes3 = P.notes_for_call(PROCS, "get_payment_history_6183", {"months": 6}, executed,
+notes3 = P.notes_for_call(PROCS, "get_payment_history_6183", {"months": 6}, executed | ACT,
                           {"card_tier": "entry"})
 check("months 6이면 그 문구 없음", not any("months" in n for n in notes3), str(notes3))
 check("절차 밖 도구엔 침묵", P.notes_for_call(PROCS, "KB_search_bm25", {}, executed) == [])
@@ -111,5 +113,18 @@ check("MUST 문장 없으면 강제 안 함", not P.is_mandatory(no_licence))
 no_flag = dict(proc); no_flag["enforce"] = False
 check("enforce 미선언이면 강제 안 함", not P.is_mandatory(no_flag))
 
-print("\nRESULT2: %s" % ("ALL PASS" if not fail else "FAIL %s" % fail))
+print("\n⑦ 선언한 이름이 env에 실재하는가 (패턴이 아니라 레지스트리)")
+try:
+    from tau2.domains.banking_knowledge.tools import KnowledgeTools, KnowledgeUserTools
+    reg = set(dir(KnowledgeTools)) | set(dir(KnowledgeUserTools))
+    named = set()
+    for n in proc.get("nodes") or []:
+        named |= set(P._tools_of(n))
+    named |= set((proc.get("enter_when") or {}).get("tool_any") or [])
+    missing_reg = sorted(t for t in named if t not in reg)
+    check("A2가 부르는 도구 전부 env에 실재", not missing_reg, str(missing_reg))
+except Exception as e:
+    print("  · env 미탑재(로컬) — 리모트에서 검사됨: %r" % (e,))
+
+print("\nRESULT3: %s" % ("ALL PASS" if not fail else "FAIL %s" % fail))
 sys.exit(1 if fail else 0)
