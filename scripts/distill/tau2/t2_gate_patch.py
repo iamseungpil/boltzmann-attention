@@ -1299,9 +1299,15 @@ VALUE_ACQUIRE_FEEDBACK_DEFAULT = (
     "value from its output, then proceed with {write}.")
 
 
-def _value_acquire_fb(am, messages, specs):
+def _value_acquire_fb(am, messages, specs, a2=None, executed=None):
     """★give 표면화: (spec) W 재요청 ∧ 값 미실재(producer 출력 0) ∧ acquire_tool을 give 안 함 → 넛지.
-    반환=문구 or None. have-value(값 실재)와 상보(값 미실재+획득경로 미실행)·중복 회피(값 있으면 skip)."""
+    반환=문구 or None. have-value(값 실재)와 상보(값 미실재+획득경로 미실행)·중복 회피(값 있으면 skip).
+
+    ★E3-②(2026-08-06·022 실측): 이 레버는 표적(`acquire_tool`)을 **우리가** 고르는 push 레버다.
+    그 표적을 **지금 돌고 있는 절차가 금지**하고 있으면 말하지 않는다 — 022는 이 조건이 없어서
+    "지금 넘겨라"와 "정책이 금지한다"를 같은 턴에 세 번 주고받았다. 판정은 t2_speak(선언만 읽는
+    도메인-일반 규칙·`T2_SPEAK_PROHIBIT=1`일 때만). 표적을 문자열에서 파싱하지 않고 여기서
+    **스코프에 있는 변수**로 넘기는 것이 요점이다(계기가 표적을 반대로 지목한 전례·설계서 §4.2)."""
     if not specs:
         return None
     cur_text = str(getattr(am, "content", "") or "").lower()
@@ -1319,6 +1325,15 @@ def _value_acquire_fb(am, messages, specs):
         #   발화해야 옳다(손님이 값을 얻어와야 그 다음이 있다). 048과 053을 가르는 것은 "이 태스크가
         #   그 write로 가는가"인데 그건 열린 술어라 우리 몫이 아니다([[22]]). 표적을 좁히는 닫힌 술어를
         #   찾기 전까지 조건을 걸지 않는다 — 대신 x102로 우회 비용(048=10 메시지)을 계속 잰다.
+        # ★그 "닫힌 술어"가 이것이다(2026-08-06): **선언이 그 도구를 금지했는가**. 열린 술어("이
+        #   태스크가 그 write로 가는가")를 찾다 실패한 자리를, 절차 선언이 이미 답하고 있었다.
+        #   오프라인 전수(x104 §C): 침묵 = 022의 3발뿐·048/051/035/053의 12발은 유지(over-block 0).
+        try:
+            import t2_speak as _spk
+            if _spk.prohibits_target(a2, executed, acq, lever="VALUE-ACQUIRE", messages=messages):
+                continue
+        except Exception:
+            pass
         # ① 값이 이미 있으면(producer 성공출력) → have-value 관할·skip
         if _producer_outputs(messages, sp.get("producer_marker") or ("Executed: " + acq)):
             continue
@@ -5266,7 +5281,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and getattr(self, "_t2_valacq_deny", 0)
                     < int(os.environ.get("T2_VALUE_ACQUIRE_CAP", "3"))):
                 try:
-                    _va = _value_acquire_fb(am, state.messages, va_specs)
+                    _va = _value_acquire_fb(am, state.messages, va_specs, a2=a2,
+                                            executed=_executed_tool_names(state.messages))
                     if _va:
                         # ★C9(2026-08-05·048·사용자 제안 "매핑을 알려주면 안 되나"): 값을 얻는 길만
                         #   말하면 048처럼 **아무 데도 쓰지 않을 값**을 열 메시지 동안 쫓는다. 그 값을

@@ -245,6 +245,8 @@ export T2_PROCEDURE=1
 export T2_DISCOVERY_NAMES=1     # C11b(032): 발견 문구에 **이미 회수한 문서가 이름을 말한** 미호출 도구를 병기
 export T2_VERDICT_SURFACE=1     # (2) 판정 실재+결정 도구 미호출이면 판정을 인용하고 선택은 남긴다
 export T2_PHASE_OWNER=1         # C17(050): 선언된 auth 게이트 미충족 구간에선 행동-유도 레버가 침묵(단계 소유권)
+export T2_SPEAK_PROHIBIT=1      # E3-②(022): push 레버가 **돌고 있는 절차가 금지한 도구**를 권하지 않는다
+                                #   (표적 3발 침묵·over-block 0을 오프라인 전수로 사전 확정 — x104 §C)
 export T2_PIN_READ_STEPS=1      # C15(사용자 지시): 지목한 잔여 **read**를 named tool_choice+단일값 enum으로 고정(write 제외)
 export T2_PROC_PIN_REARM=1      # C15 보조: 첫 라이브라 재무장 1회만(기회비용 미측정이라 보수적으로)
 export T2_TRANSFER_LEAVES_STEPS=1 # C16(048): 이관 시도 순간에 미완 절차 단계를 이름으로 표면화
