@@ -214,6 +214,62 @@ def table_expectation(proc, tool_name, operands):
     return spec.get("arg"), table[str(key)]
 
 
+def render_state(proc, executed, unlocked=(), pattern=None):
+    """Slot values for the declaration's sentence: where the walk is, and what comes next.
+
+    The engine writes no prose. It fills in only what it can observe — which steps ran,
+    which tool a step calls, whether that name was ever unlocked — and the declaration
+    supplies the sentence around it. That division matters here because the failure this
+    is for is not the model refusing a known step: in `task_048` the deny named the node
+    id `prior_attempts` ten times while the model called the right tool eight times and
+    failed on the one fact nobody told it, that the tool needed unlocking first.
+
+    `next` is filled only when exactly one node is ready. When several are (the four
+    checks a limit increase opens at once), they are listed and the slot stays empty —
+    picking one is the generator's job ([[10]]), not this file's.
+    """
+    unlocked = set(unlocked or ())
+    rows, done = [], 0
+    for nid, tools, ok in checklist(proc, executed):
+        if ok is True:
+            done += 1
+            rows.append("[x] %s" % nid)
+        elif ok is None:
+            rows.append("[?] %s" % nid)          # 도구를 이름하지 않는 단계 = 이력으로 판정 불가
+        else:
+            rows.append("[ ] %s%s" % (nid, (" -> " + "/".join(tools)) if tools else ""))
+    cands, uniq = next_step(proc, executed)
+    ctools = [t for n in cands for t in (_tools_of(n) or [])]
+    # ▶ is only ever attached where the policy itself mandates an order. A procedure the
+    # declaration merely describes gets its remaining steps listed; naming "the next one"
+    # there would be the engine inventing a sequence the policy did not state.
+    nxt = cands[0] if (uniq and is_mandatory(proc)) else None
+    ntool = (_tools_of(nxt) or [None])[0] if nxt is not None else None
+    locked = bool(ntool) and ntool not in unlocked
+    return {
+        "procedure": proc.get("id") or "",
+        "done": done,
+        "total": len(proc.get("nodes") or []),
+        "checklist": "  ".join(rows),
+        "next": ("%s -> %s" % (nxt.get("id"), ntool)) if nxt is not None and ntool else "",
+        "next_tool": ntool or "",
+        "ready": ", ".join(n.get("id") for n in cands),
+        "ready_tools": ", ".join(ctools),
+        "locked": locked,
+        "name_words": _words(ntool, pattern) if locked else "",
+    }
+
+
+def _words(name, pattern=None):
+    """A plain-language query for a tool name — the suffix off, the underscores out.
+
+    `task_048` searched the knowledge base for the tool name itself six times and scored
+    nothing every time; the words are what the documents actually contain. The pattern
+    comes from the declaration, so the engine holds no spelling rule of its own.
+    """
+    return re.sub(pattern or r"_\d+$", "", str(name or "")).replace("_", " ").strip()
+
+
 def _fill(tpl, **kw):
     out = str(tpl or "")
     for k, v in kw.items():
@@ -221,7 +277,37 @@ def _fill(tpl, **kw):
     return re.sub(r"\{[a-z_]+\}", "", out).strip()
 
 
-def notes_for_call(procs, tool_name, args, executed, operands=None):
+def _hint(fb, st):
+    """The unlock clause, or nothing — with its own trailing separator.
+
+    `_fill` strips, so a template that ends in a space loses it and the next sentence runs
+    into this one. The separator belongs to whoever knows the clause is non-empty.
+    """
+    if not st.get("locked"):
+        return ""
+    txt = _fill(fb.get("unlock_hint") or "", **st)
+    return (txt + " ") if txt else ""
+
+
+def absent_note(proc, executed, unlocked=(), pattern=None):
+    """What the declaration says when the walk stopped — or nothing, if it says nothing.
+
+    The engine speaks only through the declaration's own sentence; every slot it fills is
+    an observation (which steps ran, which tool a step calls, whether that name was ever
+    unlocked), never a judgement about what the customer wants.
+    """
+    fb = proc.get("feedback") or {}
+    st = render_state(proc, executed, unlocked, pattern)
+    if not (st["next"] or st["ready"]):
+        return None
+    tpl = fb.get("absent") if st["next"] else fb.get("absent_many")
+    if not tpl:
+        return None
+    return _fill(tpl, unlock_hint=_hint(fb, st), **st)
+
+
+def notes_for_call(procs, tool_name, args, executed, operands=None, unlocked=(),
+                   pattern=None):
     """Every line the declaration says about this call. Empty when it says nothing."""
     proc = find_procedure(procs, tool_name, executed)
     if proc is None:
@@ -230,8 +316,13 @@ def notes_for_call(procs, tool_name, args, executed, operands=None):
     out = []
     missing, _unobs = unmet_nodes(proc, tool_name, executed)
     if missing and fb.get("unmet"):
+        # ★2026-08-05: 구판은 `{missing}`에 **노드 id**만 채웠다. 048은 `missing=prior_attempts`를
+        #   10회 받고 그 이름의 도구를 8회 불렀지만 매번 "unlock 안 됨" 에러였다 — 없던 정보는
+        #   단계 이름이 아니라 **호출 가능한 이름과 그 잠금 상태**였다. 같은 체크리스트를 여기서도 준다.
+        st = render_state(proc, executed, unlocked, pattern)
         out.append(_fill(fb["unmet"], tool=tool_name, missing=", ".join(missing),
-                         source=", ".join(proc.get("_source") or [])[:120]))
+                         source=", ".join(proc.get("_source") or [])[:120],
+                         unlock_hint=_hint(fb, st), **st))
     te = table_expectation(proc, tool_name, operands)
     if te and fb.get("arg_from_table"):
         arg, expected = te
@@ -277,7 +368,8 @@ def prohibited(procs, names, executed):
     return None, None, None
 
 
-def decide(procs, tool_name, args, executed, operands=None, also_names=()):
+def decide(procs, tool_name, args, executed, operands=None, also_names=(), unlocked=(),
+           pattern=None):
     """One verdict for one call: what is missing, what to say, and whether to block.
 
     `deny` is returned in two cases and no others: an active procedure whose declaration
@@ -298,7 +390,7 @@ def decide(procs, tool_name, args, executed, operands=None, also_names=()):
     if proc is None:
         return {"procedure": None, "missing": [], "notes": [], "verdict": "pass"}
     missing, unobservable = unmet_nodes(proc, tool_name, executed)
-    notes = notes_for_call(procs, tool_name, args, executed, operands)
+    notes = notes_for_call(procs, tool_name, args, executed, operands, unlocked, pattern)
     verdict = "deny" if (missing and is_mandatory(proc)) else "pass"
     return {"procedure": proc.get("id"), "missing": missing, "unobservable": unobservable,
             "notes": notes, "verdict": verdict}

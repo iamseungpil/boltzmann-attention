@@ -237,6 +237,14 @@ export T2_MATCH_COUNT=1           # KB_search 회수 경계 표면화("N개 걸�
 #   설계는 28건을 오차단했고 그 측정으로 폐기했다. 후보 rule "회수 문서가 이름을 댄 도구만
 #   give"도 8건 오차단으로 기각(x81).
 export T2_PROCEDURE=1
+# ★D1′ 부재-구동 체크리스트 (2026-08-05·설계 `ABSENCE_DRIVEN_PROCEDURE_DESIGN` §2·게이트=x86):
+#   절차에 **들어와 놓고** K턴 동안 그 절차 쪽으로 아무 호출도 없으면 선언의 체크리스트를 표면화한다.
+#   차단 아님(비커밋 피드백 1건)·▶NEXT는 `enforce` ∧ 후보 유일일 때만·동렬이면 목록만([[10]]).
+#   x86 전수(194 sim·K=3): 발화 54회/29 sim · ▶유일 98.1% · **gold-밖 지목의 write 0** ·
+#   지목 도구의 **100%가 미-unlock**(048 livelock서 모델에게 없던 유일한 정보).
+export T2_PROC_ABSENT=1
+export T2_PROC_ABSENT_K=3         # 무호출 연속 assistant 턴 임계(x86 K-sweep 2/3/5 전부 write 0)
+export T2_PROC_ABSENT_CAP=2       # sim당 상한(불응 시 조용히 소진 — 기존 cap 규약)
 export T2_PROCEDURE_CAP=6         # sim당 deny 상한(불응 무한루프 방지·기존 cap 선례)
 export T2_UNINSTRUCTABLE=1        # 실행 불가 지시 차단(012): 손님에게 도구 실행을 안내했는데 전달 이력 0.
 #                                 #   술어=A2 L1 선언 토큰 포함 ∧ 전달 마커 부재(정규식 추출 0·C279 계보).

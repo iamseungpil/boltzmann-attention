@@ -2084,6 +2084,47 @@ def _executed_tool_names(messages):
     return ok
 
 
+def _unlocked_names(messages, a2=None):
+    """Discoverable names this conversation has asked to unlock (순수함수·리터럴 0).
+
+    Whether the unlock succeeded is deliberately not checked: `task_048` unlocked
+    successfully eight times and unlocked the *wrong* tool each time, so the question the
+    checklist needs answered is "has this name ever been unlocked here", not "did some
+    unlock work". The dispatcher and its argument name come from A2, never from spelling.
+    """
+    spec = ((a2 or {}).get("dispatcher_role_check") or {})
+    tool = spec.get("unlock_tool")
+    arg = (spec.get("name_args") or {}).get(tool) if tool else None
+    if not (tool and arg):
+        return set()
+    out = set()
+    for m in (messages or []):
+        for tc in (getattr(m, "tool_calls", None) or []):
+            if getattr(tc, "name", None) == tool:
+                v = _args_dict(tc).get(arg)
+                if v:
+                    out.add(str(v))
+    return out
+
+
+def _quiet_turns(messages, tools):
+    """Assistant turns since one of `tools` was last called — how long the walk has been idle.
+
+    Counted from the history rather than a counter on the agent, so a regeneration loop
+    that runs three times inside one turn cannot inflate it. A knowledge-base search or a
+    shell command is not a step of the procedure and does not reset this: `task_048` spent
+    thirteen turns searching and never touched the declaration again.
+    """
+    n = 0
+    for m in reversed(messages or []):
+        if getattr(m, "role", None) != "assistant":
+            continue
+        if {_exact_tool_name(tc) for tc in (getattr(m, "tool_calls", None) or [])} & set(tools):
+            return n
+        n += 1
+    return n
+
+
 def _claim_unbacked(claims, emap, evs, messages, a2=None):
     """★claim_prov 원장대조 코어 (2026-07-20 관문5 추출·순수함수=단위테스트 공유·[[03b]]).
     LLM이 formalize한 주장 목록({kind, what})을 A2 event_map으로 원장 이벤트 실재 대조.
@@ -4256,6 +4297,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         subs = 0
         rescue_skipped = set()
         rescue_excl = set()   # ★PERARG(C65): (id(tc),k,s) — rescue-스킵된 fab 제외하고 재스캔
+        absent_fired = False  # ★D1′: 부재 표면화는 **턴당 1회**(재생성 루프가 같은 문구를 도배하지 않게)
         while True:
             force_required = False   # ★T2_FORCE_ACTION: say-don't-do → 다음 재생성서 tool_choice=required 강제
             fab = _first_fab_call(am, ctx, hints, exclude=rescue_excl)
@@ -4589,6 +4631,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   그래서 술어는 **항상** 평가하고(순수함수·비용 0·거동 0), 못 뜬 턴엔 누가 선점했는지
             #   남긴다. `T2_TOOL_SIGNATURE_OBSERVE`가 V7 死경로를 확정한 것과 같은 방법이다([[08]]).
             proc_fb = None
+            abs_fb = None
             _procs = ((a2 or {}).get("procedures")
                       if (a2 is not None and os.environ.get("T2_PROCEDURE") == "1") else None)
             if _procs:
@@ -4605,8 +4648,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _also = {str(_ar.get(k)) for k in
                                  ("agent_tool_name", "user_tool_name", "discoverable_tool_name")
                                  if _ar.get(k)}
-                        _dc = _PROC.decide(_procs, _exact_tool_name(c), _ar, _done,
-                                           also_names=_also)
+                        _dc = _PROC.decide(
+                            _procs, _exact_tool_name(c), _ar, _done, also_names=_also,
+                            unlocked=_unlocked_names(state.messages, a2),
+                            pattern=((a2 or {}).get("discoverable_name_check") or {}).get("pattern"))
                         if _dc.get("verdict") == "deny" and _dc.get("notes"):
                             # ★호출-레벨 선점도 관측한다(2026-08-05 2차): 구판은 `denied_by_objid`를
                             #   술어 **앞에서** continue해, 다른 레버가 이 호출을 이미 막은 턴은
@@ -4648,6 +4693,40 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _pce:
                     proc_fb = None
                     print("[T2_PROCEDURE] error (no-op): %r" % (_pce,), file=_sys.stderr, flush=True)
+
+            # ★D1′ 부재-구동 (2026-08-05·설계 §2·게이트=x86): 절차에 **들어와 놓고** 그 절차 쪽으로
+            #   K턴 동안 아무 호출도 하지 않으면, 선언이 가진 체크리스트를 표면화한다. 차단이 아니라
+            #   비커밋 피드백 1건이고, `verdict`도 `denied_by_objid`도 건드리지 않는다.
+            #   x86 전수(194 sim·K=3): 발화 54회/29 sim · ▶유일 98.1% · **gold-밖 지목의 write 0** ·
+            #   지목 도구의 **100%가 미-unlock** — 048 livelock에서 모델에게 없던 유일한 정보가 그것이다.
+            #   ▶는 `is_mandatory`(=정책이 순서를 명령)일 때만 붙고, 동렬이면 목록만 준다([[10]]).
+            if (_procs and abs_fb is None and proc_fb is None and not absent_fired
+                    and os.environ.get("T2_PROC_ABSENT") == "1"
+                    and getattr(self, "_t2_proc_absent", 0)
+                    < int(os.environ.get("T2_PROC_ABSENT_CAP", "2"))):
+                try:
+                    import t2_procedure as _PROC
+                    _done2 = _executed_tool_names(state.messages)
+                    _unl = _unlocked_names(state.messages, a2)
+                    _pat = ((a2 or {}).get("discoverable_name_check") or {}).get("pattern")
+                    _K = int(os.environ.get("T2_PROC_ABSENT_K", "3"))
+                    for _p in _PROC.active_procedures(_procs, _done2):
+                        _nt = {t for n in (_p.get("nodes") or []) for t in (_PROC._tools_of(n) or [])}
+                        if not _nt or _quiet_turns(state.messages, _nt) < _K:
+                            continue
+                        _msg = _PROC.absent_note(_p, _done2, _unl, _pat)
+                        if not _msg:
+                            continue
+                        abs_fb = _msg
+                        absent_fired = True
+                        print("[T2_PROC_ABSENT] surface %s quiet>=%d done=%s"
+                              % (_p.get("id"), _K, _msg.split("(")[1].split(")")[0]
+                                 if "(" in _msg else "?"), file=_sys.stderr, flush=True)
+                        break
+                except Exception as _pae:
+                    abs_fb = None
+                    print("[T2_PROC_ABSENT] error (no-op): %r" % (_pae,),
+                          file=_sys.stderr, flush=True)
 
             wev_fb = None
             if ((wev_specs or wag_specs or rv_specs) and not do_gate and not do_prov and ep_fb is None
@@ -5226,7 +5305,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
                     and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None
                     and pr_fb is None and hv_fb is None and dd_fb is None and sig_fb is None
-                    and proc_fb is None):
+                    and proc_fb is None and abs_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -5293,6 +5372,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_toolerr_deny = getattr(self, "_t2_toolerr_deny", 0) + 1
             if proc_fb is not None:
                 self._t2_proc_deny = getattr(self, "_t2_proc_deny", 0) + 1
+            if abs_fb is not None:
+                self._t2_proc_absent = getattr(self, "_t2_proc_absent", 0) + 1
             if wev_fb is not None:
                 wev_rounds += 1
                 self._t2_wev_deny = getattr(self, "_t2_wev_deny", 0) + 1
@@ -5411,6 +5492,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except TypeError:
                     fb.append(UserMessage(content=rw_fb[1]))
             # ★T2_HAVE_VALUE 리마인더 (None-anchor·산문 회피 또는 producer 재호출 커버·비커밋=replay-clean)
+            # ★D1′ 부재 표면화 (비커밋·hv_fb와 같은 채널 규약): 차단이 아니라 상태 진술이라
+            #   특정 호출에 붙지 않는다 — 호출이 없는 것이 바로 이 레버의 조건이다.
+            if abs_fb is not None:
+                try:
+                    fb.append(UserMessage(role="user", content=abs_fb))
+                except TypeError:
+                    fb.append(UserMessage(content=abs_fb))
             if hv_fb is not None:
                 try:
                     fb.append(UserMessage(role="user", content=hv_fb))

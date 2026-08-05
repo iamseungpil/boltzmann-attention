@@ -477,6 +477,26 @@ env 구조 확인 완료(`environment.py:58-59` `self.tools`/`self.user_tools`, 
 | **D0-a** ✅ | 절차 술어를 **항상 평가**하고 선점 시 `would-fire but suppressed by=<lever>` 기록. 선점 체인 = gate·prov·eplan·cons·resolve_action·te·cap | **거동 불변**(선점·소진 턴은 종전대로 `proc_fb=None`) · 컴파일 OK |
 | **x88** ✅ | 194 sim 전수. **gold give 41건 중 집합 밖 0** ⇒ 게이트 통과 | §6 사전등록 ④ 충족 |
 | **D3-a** ✅ | `go_stack.sh`에 `T2_DISPATCH_ROLE_ENVSET=1` 등재 + 근거·금지사항 주석 | 라이브 발화는 다음 스모크에서 확인 |
+| **F19~F21** ✅ | 스모크 g 포렌식 → break 가드 `proc_fb` 교정 · AST 회귀검정 · 호출-레벨 선점 관측 | §1.5 |
+| **x86** ✅ | 194 sim 전수·K 스윕 2/3/5 | §6.1 — **gold-밖 write 0** |
+| **D1′** ✅ **배선 완료** | 엔진 순수함수 5(`active_procedures`·`checklist`·`_blocked_by`·`next_step`·`render_state`/`absent_note`) + 패치 헬퍼 2(`_unlocked_names`·`_quiet_turns`) + A2 문구 3키 + `T2_PROC_ABSENT` 등재. 호출-시점 `unmet`도 같은 체크리스트로 교체 | 아래 §7.2 |
+
+### 7.2 D1′ 배선 상세 (2026-08-05)
+
+| 층 | 무엇 | 확인 |
+|---|---|---|
+| 엔진 `t2_procedure.py` | `render_state`(관측 슬롯만 채움) · `absent_note`(A2 문장에 주입) · `_hint`(잠금 절) · `_words`(자연어 질의·패턴은 A2에서) | 도메인 리터럴 0 |
+| 엔진 `t2_gate_patch.py` | `_unlocked_names`(A2 `dispatcher_role_check`로 수집) · `_quiet_turns`(**이력에서** 계산 — 재생성 루프가 부풀리지 못한다) · 부재 블록 · `abs_fb` 가드·카운터·비커밋 전달 | AST 검정 fb **16/16** |
+| A2 (2층 동기) | `absent` · `absent_many` · `unlock_hint` 신규 + `unmet` 교체 + `_note_absent`(출처 선언) | diff **10/2줄**·두 층 `procedures` 동일 |
+| 드라이버 | `T2_PROC_ABSENT=1` · `_K=3` · `_CAP=2` | x77 죽은 플래그 미증가 |
+
+**실궤적 검정** `test_proc_absent_wiring.py` — 스모크 g의 `task_048` 원본 궤적으로:
+절차-무호출 **최대 18턴**(K=3 성립) · 문구가 **노드 id가 아니라 `get_closure_reason_history_8293`**을 주고
+**"has not been unlocked"** 와 자연어 질의 `"get closure reason history"` 를 함께 준다 · CLI 4개 동렬에서는
+**NEXT를 붙이지 않고** 목록만 준다. **ALL PASS.**
+
+⚠**아직 라이브 발화는 확인 안 됨** — 이 아크에서 침묵을 4회 겪었으므로([[30]]) 다음 스모크의
+1차 지표는 `[T2_PROC_ABSENT] surface` 실재 + 048의 반복 deny 감소 + Δover-block이다.
 
 **남은 것의 선결 = D0-a의 로그**: D0-b(블록 이동)도 D1′(체크리스트)도 **같은 사슬 자리**에 얹히므로,
 선점자가 특정되기 전에 그 위에 얹으면 048에서 겪은 침묵을 그대로 물려받는다.

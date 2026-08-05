@@ -2114,7 +2114,11 @@
     }
    },
    "feedback": {
-    "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Do those steps first (source: {source}).",
+    "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
+    "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
+    "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
+    "unlock_hint": "The tool for that step ({next_tool}) has not been unlocked in this conversation - call unlock_discoverable_agent_tool for it first; if you do not know its full suffixed name, search the knowledge base with plain words such as \"{name_words}\", because a query that is just the tool name matches no document text. ",
+    "_note_absent": "D1′(2026-08-05·ABSENCE_DRIVEN_PROCEDURE_DESIGN §2). 출처 = 이 절차의 `_quote_order` 재진술 + 관측 사실(어떤 단계가 실행됐나·그 단계의 도구·그 이름이 unlock됐나). 새 사실 0 ⇒ gold 경유가 구조적으로 불가([[23]]). unlock 문구의 근거 = 048 실측(지목된 도구를 8회 호출·매번 'has not been unlocked' 에러·모델에게 없던 정보는 단계 이름이 아니라 잠금 상태였다).",
     "cap_exceeded": "[PROCEDURE] The requested amount is above the single-request cap for this card tier ({cap}%). Tell the customer the cap and ask whether to proceed with that amount - do not submit a request above it.",
     "arg_from_table": "[PROCEDURE] '{arg}' of '{tool}' is fixed by the card tier: {value}.",
     "arg_table_unknown_key": "[PROCEDURE] '{arg}' of '{tool}' is set by policy from the card tier ({operand}): {table}. Determine this card's tier and use that value - do not use an arbitrary period."
@@ -2240,7 +2244,11 @@
     }
    },
    "feedback": {
-    "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Do those steps first (source: {source}).",
+    "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
+    "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
+    "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
+    "unlock_hint": "The tool for that step ({next_tool}) has not been unlocked in this conversation - call unlock_discoverable_agent_tool for it first; if you do not know its full suffixed name, search the knowledge base with plain words such as \"{name_words}\", because a query that is just the tool name matches no document text. ",
+    "_note_absent": "D1′(2026-08-05·ABSENCE_DRIVEN_PROCEDURE_DESIGN §2). 출처 = 이 절차의 `_quote_order` 재진술 + 관측 사실(어떤 단계가 실행됐나·그 단계의 도구·그 이름이 unlock됐나). 새 사실 0 ⇒ gold 경유가 구조적으로 불가([[23]]). unlock 문구의 근거 = 048 실측(지목된 도구를 8회 호출·매번 'has not been unlocked' 에러·모델에게 없던 정보는 단계 이름이 아니라 잠금 상태였다).",
     "prohibited": "[PROCEDURE] The policy forbids '{tool}' in this procedure - verbatim: \"{quote}\"",
     "arg_table_unknown_key": "[PROCEDURE] '{arg}' of '{tool}' is set by policy from the card tier ({operand}): {table}."
    },
