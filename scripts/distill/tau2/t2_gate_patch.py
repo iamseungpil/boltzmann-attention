@@ -5500,12 +5500,26 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         #   048은 두 지시를 **모두 따라** 중복 검색 8회를 쓰고 40여 메시지를 잃었다.
                         #   이건 모델의 불이행이 아니라 **우리 결정론의 버그**다. 레지스트리에서
                         #   이름이 풀리면 검색을 시키지 않고 **그 이름을 준다**; 못 풀 때만 종전 문구.
-                        _exact = _resolve_exact(
-                            _uval, _agent_discoverable(
-                                getattr(getattr(self, "_t2_orch", None), "environment", None)))
-                        _tpl = (_unspec.get("feedback_resolved") if _exact
-                                else None) or _unspec.get("feedback") or \
-                            "Error: '{name}' is missing its required suffix."
+                        # ★★오발화 교정 (2026-08-05·x99: 이 레버는 **7발 7오발화**였다 —
+                        #   `verify_identity`·`check_cli_eligibility` 처럼 **discoverable이 아닌
+                        #   일반 도구**에 대해 "접미사가 없다·검색하라"고 말했고, 019는 그 때문에 t2에서
+                        #   신원 검증을 잃었다. env는 discoverable 44종을 **목록으로** 준다 —
+                        #   철자 규칙으로 대신할 이유가 없다([[22]]: 닫힌 사실은 권위 출처에서 읽는다).
+                        #   접미사 없는 이름이 그 목록의 어떤 것과도 대응하지 않으면 **discoverable이
+                        #   아닌 것**이고, 그때는 검색이 아니라 "직접 부르라"가 옳다.
+                        _reg2 = _agent_discoverable(
+                            getattr(getattr(self, "_t2_orch", None), "environment", None))
+                        _exact = _resolve_exact(_uval, _reg2)
+                        _known = bool(_reg2) and _uval in _known_tool_names(
+                            getattr(self, "tools", None),
+                            getattr(getattr(self, "_t2_orch", None), "environment", None),
+                            state.messages)
+                        if not _exact and _known and _unspec.get("feedback_not_discoverable"):
+                            _tpl = _unspec["feedback_not_discoverable"]
+                        else:
+                            _tpl = (_unspec.get("feedback_resolved") if _exact
+                                    else None) or _unspec.get("feedback") or \
+                                "Error: '{name}' is missing its required suffix."
                         un_fb = (c, str(_tpl)
                                  .replace("{name}", _uval)
                                  .replace("{exact}", _exact or "")
