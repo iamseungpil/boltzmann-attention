@@ -97,7 +97,11 @@ check("절차가 활성으로 잡힌다", bool(P.active_procedures(procs, execut
 check("문구가 노드 id가 아니라 **도구 이름**을 준다",
       "get_closure_reason_history_8293" in msg)
 check("문구가 **unlock 안 됨**을 말한다", "has not been unlocked" in msg)
-check("문구가 자연어 질의를 준다", "get closure reason history" in msg)
+# ★2026-08-05 교정(스모크 h 실측): 구판 문구는 완전한 접미사 이름을 주고서 "모르면 검색하라"를
+#   덧붙였다. `task_048`은 그 지시대로 한 턴에 KB 검색 6개를 날렸고(각 19~26K자·합 114K자)
+#   msg31에서 ctx가 죽었다. 이름을 이미 줬으면 검색시키지 않는다 — 이게 새 불변식이다.
+check("문구가 **검색을 시키지 않는다**", "Do not search" in msg and "search the knowledge base with" not in msg)
+check("문구가 정확한 이름으로 unlock하라고 한다", "with exactly that name" in msg)
 check("동렬이 아니므로 NEXT가 붙는다", "NEXT:" in msg)
 
 print("\n④ 동렬일 때는 고르지 않는다 (설계 §2.3)")
