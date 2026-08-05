@@ -40,8 +40,21 @@
 |---|---|---|---|---|
 | **F15** | 계측/배관 — **절차 엔진 침묵** | 절차 술어를 **항상 평가**하고 못 뜬 턴엔 `suppressed by=` 기록(→ 확증 시 사슬 앞으로 이동) | 스모크 f `task_048`: msg18 `check_card_closure_eligibility` 진입인데 라이브 `[T2_PROCEDURE]` **closure 0건**(4건 전부 CLI). **오프라인 재생은 deny**(missing=disputes,pending_replacement) ⇒ 술어 정상·배관 침묵 | 📐 설계완료(D0) |
 | **F16** | 완결(절차) — **진입 후 무호출** | 활성 절차 ∧ 미충족 노드 ∧ K턴 절차-무호출 → **표면화**(차단 아님). 지목한 도구가 미-unlock discoverable이면 `{name_words}` 자연어 질의 동봉 | 048 진입 후 노드 호출 **0회**·050 `submit_request` 미호출·051 지목 후 미호출 | 📐 설계완료(D1·게이트=x86) |
-| **F17** | 준수 — **존재하지 않는 도구 give** | `T2_DISPATCH_ROLE_ENVSET=1` **등재**(신규 코드 0·C257 기구현) | 012 msg16 `give_discoverable_user_tool{navigate_to_travel_notification}` — env user-discoverable 4종 밖. 구판 분기(`self.tools` 소속)라 통과. **접미사 규칙 확장은 금지**(정당 give 2종이 무접미사) | 📐 설계완료(D3-a·게이트=x88) |
-| **F18** | 문구 — 절차 피드백이 **한국어** | 영어 통일(A2 문자열 1개) | 대화는 영어인데 `feedback.unmet`만 한국어. 051 불이행의 경합 가설 | 📐 설계완료(D0-c·비용 0) |
+| **F17** | 준수 — **존재하지 않는 도구 give** | `T2_DISPATCH_ROLE_ENVSET=1` **등재**(신규 코드 0·C257 기구현) | 012 msg16 `give_discoverable_user_tool{navigate_to_travel_notification}` — env user-discoverable 4종 밖. 구판 분기(`self.tools` 소속)라 통과. **접미사 규칙 확장은 금지**(정당 give 2종이 무접미사) | ✅ **등재**(x88 게이트 통과) |
+| **F18** | 문구 — 절차 피드백이 **한국어** | 영어 통일(A2 문자열 1개) | 대화는 영어인데 `feedback.unmet`만 한국어. 051 불이행의 경합 가설 | ✅ **완료**(2층 동기·검정 통과) |
+
+### 2e-1. x88 전수 계량 (N97B·194 sim·무료·`x88_give_membership_census.py`)
+
+| 계량 | 값 |
+|---|---|
+| give 총계 | **342** = 집합 안 90 / **집합 밖 252** |
+| 집합 밖 give가 있는 sim | **12** — 그 중 **통과 0** |
+| 집합 밖 이름 | `apply_for_credit_card` **243**(= ROOTCAUSE §1 sim 008의 *한 메시지 241회 폭주*가 이 수를 지배한다) · `submit_referral` 5 · 그 외 4종 각 1 |
+| **★게이트: gold이 요구한 give 41건 중 집합 밖** | **0건** ⇒ 오차단 0 · 등재 가능 |
+
+- 판정 집합은 env에서 직접 읽는다(`ToolKit.get_discoverable_tools()` 동형): agent 44종 / **user 4종**.
+- 정직: 252라는 수는 **폭주 1건이 96%를 만든다**. 레버의 실제 사정거리는 **12 sim**이고 그 12건은 이미 전패다
+  ⇒ 이 등재만으로 pass가 오를 것이라 예측하지 않는다. 표적은 *경로 차단*이지 회수가 아니다.
 
 ## 2b. 스모크 판정 (`bank_qpmc_gpu{0,1}_20260805` · 6 sim · nt1 · $≈0.2)
 

@@ -64,6 +64,14 @@ export T2_COMPUTE=1 T2_RESOLVE=1 T2_ARG_SCHEMA=1 T2_TOOLGATE=1
 export T2_SG_TRUTH=1 T2_SG_ISOLATE=1 T2_SG_ISOFB=1 T2_SG_REQREADS=1 T2_SG_TRACE=1
 export T2_FAB_STRIP=1 T2_UNKNOWN_NAME_BL=1 T2_UNLOCK_NAME=1 T2_UNLOCK_PROV=1
 export T2_DISPATCH_ROLE=1 T2_TOOLLIST=1 T2_PRESCRIPTION=1
+# ★T2_DISPATCH_ROLE_ENVSET (2026-08-05 등재·구현은 C257·`ABSENCE_DRIVEN_PROCEDURE_DESIGN` §4):
+#   give 대상의 판정 집합을 `self.tools` 소속 → **env가 실제로 넘길 수 있는 집합**으로 바꾼다.
+#   구판은 *존재하지 않는 이름*을 통과시킨다 — 012가 `navigate_to_travel_notification`을 손님에게
+#   건넨 자리다. x88 전수(N97B·194 sim): give 342건 중 **집합 밖 252건(12 sim·통과 0)**,
+#   그리고 **gold이 요구한 give 41건 중 집합 밖 = 0건** ⇒ 오차단 0으로 등재 가능.
+#   ⚠접미사 규칙을 give로 확장하지 말 것: user-discoverable 4종 중 `get_card_last_4_digits`·
+#   `get_referral_link`는 무접미사라 정당한 give가 상시 차단된다. 술어는 **집합 소속**이다.
+export T2_DISPATCH_ROLE_ENVSET=1
 export T2_WRITE_EVIDENCE=1 T2_WEV_ROUNDS=2 T2_WRITE_ARG_GROUND=1 T2_WRITE_PROV=1
 export T2_REF_VERIFY=1 T2_VALUE_ACQUIRE=1 T2_HAVE_VALUE=1 T2_HAVE_VALUE_FORCE=1
 export T2_FOLLOWUP_REQUIRED=1 T2_FOLLOWUP_FORCE=1 T2_FOLLOWUP_READLOOP=1
