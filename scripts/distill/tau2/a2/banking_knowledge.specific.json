@@ -688,7 +688,8 @@
        "lookup_note": "'{pin}' is not a name this policy lists, so the exclusion could not be resolved and this row's rate was NOT applied — the row is UNVERIFIED.",
        "member_note": "the policy group '{pin}' does not list '{merchant}' among its members, so the exclusion was not applied to this row.",
        "_note_policy_group_rows": "[[23]] 신범주 **운영자 지식** — 사용자 승인 2026-08-01(C279 ⑦). 출처 = 정책 제외-불릿/제목(env 축자) × 거래 카탈로그 merchant_name(env) + 업체 동일성 세계지식. **gold 미열람**. 저작 = 30 불릿 전수 × 카탈로그 138 전수를 판단으로 대조(접두·유사도 규칙 미사용 — C279 ⑥ 자기 플래그: 기계 산출 목록을 데이터로 동결하지 않기 위함). 대응 없는 불릿은 **[]로 명시**(=판단된 무대응·조회 실패와 결정론 구분). ★판단 근거 기록(접두로는 반대로 나오는 것들): (a) `LinkedIn Learning`→[] — 카탈로그 `LinkedIn Ads`는 광고 상품이라 'Online Learning Platform'이 아니다(접두 규칙이면 오적용). (b) `Dell`→[Dell, Dell Technologies]이되 `Delta Airlines`/`Delta Sky Club`은 **다른 회사**(Delta Air Lines)라 제외. (c) `Amazon`→[Amazon]만; `AWS`는 클라우드 인프라라 'General Retailers'가 아니다. (d) `ThredUp`→[ThredUp]만; `Thrive Market`(유기농 식료품)·`New Seasons Market`·`Sprouts Farmers Market`·`ACME Markets`·`Reading Terminal Market`는 중고·리세일 업체가 아니다 — **019 오적용의 정본 차단점**. (e) `Hardware/Electronics Merchants`는 정책이 구성원을 **열거**하므로 `Electronics Express Miami`는 비-구성원(열거형 제외는 목록이 외연을 정한다). (f) `Apple`→[Apple Store]·`Microsoft`→[Microsoft 365]·`Slack`→[Slack Technologies]·`Zoom`→[Zoom Video]·`Target`→[Target, Target - Eco Collection](ecocard_004 축자: eco 라벨 상품도 표준 요율). 제목 키는 전체형+괄호 앞 단축형 2종(서브가 어느 쪽을 복사해도 결정론 해소). ★갱신 규율: 갱신 신호는 **표면화된 abstain 로그(조회 실패)→env 재판단**으로만. **라이브 gold-diff를 갱신 근거로 쓰는 것은 [[23]] 위반**이다.",
-       "_note_exhaustive": "★전수성 판정(2차 리뷰 조건 2·실측 2026-08-01): 열거된 멤버십을 **기각 근거**로 쓰는 것은 그 열거가 전수일 때만 정당하다(예시-열거면 미열거 정당 구성원 기각 = ba8b-동형 false-abstain 재생산). **census: 제외-그룹 25 = 열거형 21 / 산문형 4 · 열거형 21개 중 개방-표지(including·such as·e.g.·etc·among others) = 0개** ⇒ 이 ABox의 열거는 닫힌 열거다(가정 아님·결정론 계수). 계약문도 축자로 *\"The following **specific merchants**…\"*라 예시가 아니라 지정이다. **다른 ABox로 전이할 때는 이 census를 다시 돌려야 하며, 개방-표지가 있는 그룹은 표에 키로 넣지 말고 category-마크 경로로 보낸다.** ★키 모호성 규칙: 여러 문서에 반복되는 총칭 제목(`Common exclusions`·`Important exclusions` 등)은 **키로 쓰지 않는다**(도메인 내 유일하지 않아 구성원 집합이 갈린다) — 도메인-유일 제목만 키로 (예: `What is excluded from the higher sustainability points rate on EcoCard`). 미수록 제목은 조회 실패/category 경로로 흘러 안전측."
+       "_note_exhaustive": "★전수성 판정(2차 리뷰 조건 2·실측 2026-08-01): 열거된 멤버십을 **기각 근거**로 쓰는 것은 그 열거가 전수일 때만 정당하다(예시-열거면 미열거 정당 구성원 기각 = ba8b-동형 false-abstain 재생산). **census: 제외-그룹 25 = 열거형 21 / 산문형 4 · 열거형 21개 중 개방-표지(including·such as·e.g.·etc·among others) = 0개** ⇒ 이 ABox의 열거는 닫힌 열거다(가정 아님·결정론 계수). 계약문도 축자로 *\"The following **specific merchants**…\"*라 예시가 아니라 지정이다. **다른 ABox로 전이할 때는 이 census를 다시 돌려야 하며, 개방-표지가 있는 그룹은 표에 키로 넣지 말고 category-마크 경로로 보낸다.** ★키 모호성 규칙: 여러 문서에 반복되는 총칭 제목(`Common exclusions`·`Important exclusions` 등)은 **키로 쓰지 않는다**(도메인 내 유일하지 않아 구성원 집합이 갈린다) — 도메인-유일 제목만 키로 (예: `What is excluded from the higher sustainability points rate on EcoCard`). 미수록 제목은 조회 실패/category 경로로 흘러 안전측.",
+       "unverified_requery_note": "The unverified row(s) are: {ids}. Tell the customer which ones could not be checked, and call this tool again with ONLY those row(s) so their rate can be looked up on its own — a single-row call often resolves what a batch could not. Do not supply the rate yourself."
       }
      },
      "_note_isolate": "2026-07-18 NIGHT+ · `RATE_SUBAGENT_DESIGN §2b` LOCK(사용자): operand는 격리 서브가 부하 없이 산출해 리턴한다. 메인은 원시 레코드만 넘기고(params), 격리 서브가 KB를 직접 검색(getter_tools·1라운드 required)해 base_rate/promo를 formalize·엔진이 날짜+곱셈. 엔진 리터럴 0([[05]])·도구명/질의/계약문 전부 A2. T2_SG_ISOLATE=1·기본 OFF.",
@@ -2141,6 +2142,109 @@
     "prohibited": "[PROCEDURE] 이 절차에서 '{tool}'는 정책이 금지한다 — 축자: \"{quote}\" 분쟁은 손님의 user_id와 transaction_id만으로 제출한다."
    },
    "_note_prohibits": "금지는 순서가 아니라 한 문장이다. gold 20건(캐시백-분쟁) 중 last4를 요구하는 것은 0건이고, 금지 흐름에서 우회한 8 sim은 전패했다(x81/흐름별 계수). 따옴표 없는 금지는 엔진이 무시한다."
+  },
+  {
+   "id": "credit_card_closure_retention",
+   "_source": [
+    "doc_credit_cards_credit_card_account_logistics_003 (Credit Card Retention Protocol)",
+    "doc_credit_cards_credit_card_account_logistics_002 (Processing Credit Card Account Closures)",
+    "doc_credit_cards_credit_card_account_logistics_001 (How can I close a credit card account?)"
+   ],
+   "_quote_order": "Check these in order: 1. Pending disputes … 2. No pending replacement cards … 3. Minimum account age … 4. Outstanding balance.",
+   "enforce": true,
+   "_note_enforce": "정책이 Step 1에서 '이 순서로 확인하라'고 명령하고 Step 2가 그 다음임을 지정하므로 순서 강제의 허가가 있다. 허가 문장이 없으면 표면화만 한다.",
+   "enter_when": {
+    "tool_any": [
+     "close_credit_card_account_7834",
+     "log_credit_card_closure_reason_4521",
+     "get_closure_reason_history_8293",
+     "check_card_closure_eligibility"
+    ],
+    "_note": "이 절차에만 있는 도구로 진입한다. 공용 read(분쟁 이력·교체 주문)는 진입시키지 않는다 — x80이 잰 28건 과차단의 원인이 그것이었다."
+   },
+   "nodes": [
+    {
+     "id": "disputes",
+     "tool": "get_user_dispute_history_7291",
+     "_quote": "Pending disputes: The account must not have any active or pending transaction disputes."
+    },
+    {
+     "id": "pending_replacement",
+     "tool": "get_pending_replacement_orders_5765",
+     "requires": [
+      "disputes"
+     ],
+     "_quote": "No pending replacement cards: If a replacement has been ordered and not yet received or activated, a closure cannot proceed."
+    },
+    {
+     "id": "eligibility",
+     "tool": "check_card_closure_eligibility",
+     "requires": [
+      "disputes",
+      "pending_replacement"
+     ],
+     "_quote": "Minimum account age … Outstanding balance … If any requirement is not met, explain what must be resolved and do not proceed with retention offers."
+    },
+    {
+     "id": "prior_attempts",
+     "tool": "get_closure_reason_history_8293",
+     "requires": [
+      "eligibility"
+     ],
+     "_quote": "Use the get_closure_reason_history_8293 tool to determine whether this specific credit card account has any closure reason records within the past year."
+    },
+    {
+     "id": "log_reason",
+     "tool": "log_credit_card_closure_reason_4521",
+     "requires": [
+      "prior_attempts"
+     ],
+     "_quote": "Ask the customer why they want to close their account. Then log it using log_credit_card_closure_reason_4521."
+    },
+    {
+     "id": "retention_offer",
+     "tool_any": [
+      "apply_statement_credit_8472",
+      "apply_credit_card_account_flag_6147",
+      "apply_for_credit_card"
+     ],
+     "requires": [
+      "log_reason"
+     ],
+     "_quote": "Step 5: Make a Retention Offer — If the customer still wants to close after addressing their concerns, make one retention offer based on their card tier: Entry-tier 500 bonus points or a $5 statement credit; Mid-tier 2,000 or $20; Premium and above 5,000 or $50.",
+     "_note": "어느 제안인지는 손님의 사유에 대한 해석이라 모델 몫이다([[52]]). 엔진은 이 단계가 **있었는지**만 본다 — 세 도구 중 어느 것이든 하나면 충족."
+    },
+    {
+     "id": "close",
+     "tool": "close_credit_card_account_7834",
+     "requires": [
+      "log_reason",
+      "retention_offer"
+     ],
+     "_quote": "Use the close_credit_card_account_7834 tool to process the closure."
+    }
+   ],
+   "tables": {
+    "retention_statement_credit_by_tier": {
+     "entry": 5,
+     "mid": 20,
+     "premium": 50
+    },
+    "retention_bonus_points_by_tier": {
+     "entry": 500,
+     "mid": 2000,
+     "premium": 5000
+    },
+    "min_account_age_days": {
+     "all": 60
+    }
+   },
+   "feedback": {
+    "unmet": "[PROCEDURE] 정책이 '{tool}' 앞에 요구하는 단계가 아직 남아 있다: {missing}. 그 단계를 먼저 수행하라(출처: {source}).",
+    "prohibited": "[PROCEDURE] 이 절차에서 '{tool}'는 정책이 금지한다 — 축자: \"{quote}\"",
+    "arg_table_unknown_key": "[PROCEDURE] '{tool}'의 '{arg}'는 카드 등급({operand})에 따라 정책이 정한다: {table}."
+   },
+   "_note_procedure": "★2026-08-05: x83 실측 — 이 계열 9 태스크가 공유 코어 8종을 갖고, 각 태스크 gold의 50~86%가 그 코어다(9/9가 요구하는 도구 3종). 즉 태스크가 아니라 **절차 하나**다. 실패 지점도 공통: Step 5 보유 제안 미실행 · discoverable 도구 미발견 · 그로 인한 ctx 사망."
   }
  ],
  "_note_procedures": "★절차 DAG(2026-08-05·사용자 지시 \"절차 컨트롤러는 DAG로 만들어 A2 도메인 특화 파일에 기록하라\").\n**왜 데이터인가**: 정책이 단계·순서·도구명·숫자를 전부 축자로 준다 — 판단이 아니라 표 조회다. 엔진은 DAG를 걷고 미충족 선행 노드를 표면화할 뿐이고, 도메인 어휘는 여기에만 있다([[05]]).\n**근거(축자)**: `_source`·`_quote_order`·노드별 `_quote` 참조. gold 경유 0 — 모든 값이 정책 문서에서 복사됐고, 정책이 주지 않는 것(카드명→등급 매핑)은 **일부러 비워** 모델 operand로 남겼다([[23]]/[[52]]).\n**실측 표적**: 스모크 `task_051` — 요청 제출(1단계) 누락 · 분쟁 이력 미확인 · `months` 6→12 · 상한 25%를 넘는 승인(new_limit 5,200 = +30%). 네 결함이 모두 이 DAG의 노드에 대응한다.\n⚠**현재는 데이터만이다** — 이 DAG를 걷는 엔진이 아직 없으므로 라이브 발화는 0이다. 엔진 없이 데이터만 두는 것이 이 repo의 死코드 패턴이므로([[24]]), 원장 F14에 '엔진 미구현'으로 남긴다."

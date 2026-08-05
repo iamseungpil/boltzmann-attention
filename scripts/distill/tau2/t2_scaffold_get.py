@@ -1783,6 +1783,13 @@ def apply():
                                            "those rows remain UNVERIFIED — do not supply these "
                                            "values yourself.")
                                 _txt += " Field(s) %s %s" % (_stxt, _unv)
+                                # ★2026-08-05(019): 어느 행인지 + 그 행만 다시 물으라는 지시.
+                                #   문구는 A2, 엔진은 id 나열만 한다.
+                                _uids = (_st.get("unverified_ids") or [])[:8]
+                                _rq = (((_iso3 or {}).get("quote_pin") or {})
+                                       .get("unverified_requery_note"))
+                                if _uids and _rq:
+                                    _txt += " " + str(_rq).replace("{ids}", ", ".join(_uids))
                         # ★C278: quote-pin 사유/마크 표면화(숨은 실패→감사 가능한 주장·§5-5)
                         _qpn = getattr(self, "_t2_qp_notes", None)
                         if _qpn:
