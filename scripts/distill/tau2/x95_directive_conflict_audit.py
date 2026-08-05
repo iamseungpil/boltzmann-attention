@@ -52,8 +52,17 @@ MARKERS = [
     ("CALL_NOW",   [r"call it now", r"unlock and call", r"Do that step before continuing",
                     r"Do them before continuing"]),
     ("DO_NOT_ACT", [r"do not proceed", r"Do NOT invent", r"do not update"]),
+    # ★2026-08-05(032 실측): 이관 축. 발견 문구는 *"do NOT transfer — the tool name is in the
+    #   knowledge base"*라고 말하는데, 같은 sim에서 통지 게이트 복구문이 *"immediately CALL
+    #   transfer_to_human_agents"*라고 **표준 도구를 이름으로** 지목한다. gold는 프로토콜 이관이었고
+    #   에이전트는 뒤엣것을 따랐다. 048과 같은 계열이라 축을 상설한다.
+    ("TRANSFER",   [r"retry the transfer", r"CALL transfer_to_human_agents",
+                    r"call transfer_to_human_agents", r"transfer the customer"]),
+    ("NO_TRANSFER", [r"do NOT transfer", r"Do not transfer for this",
+                     r"do not transfer", r"Do NOT transfer"]),
 ]
-OPPOSED = [("SEARCH", "NO_SEARCH"), ("UNKNOWN_NAME", "KNOWN_NAME")]
+OPPOSED = [("SEARCH", "NO_SEARCH"), ("UNKNOWN_NAME", "KNOWN_NAME"),
+           ("TRANSFER", "NO_TRANSFER")]
 
 
 def classify(text):
