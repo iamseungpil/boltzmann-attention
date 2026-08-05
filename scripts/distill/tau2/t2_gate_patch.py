@@ -5459,7 +5459,36 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 target_tool=_tgt, transfer_tools=_transfer_tools(a2))
                                 if _tgt else {"status": "ok"})
                             if _ar.get("status") == "deny":
-                                rw_fb = ((am.tool_calls or [None])[0], _ar["feedback"])
+                                _fb_ar = _ar["feedback"]
+                                # ★C11b(2026-08-06·032 실측): 발견을 시키는 그 문장에, **이 대화가 이미
+                                #   회수한 문서가 이름을 말한** 미호출 도구를 함께 짚는다. 소진 시점까지
+                                #   기다리던 것을 앞당기는 것뿐이고 새 정보는 0이다(레지스트리 ∩ 이미 받은
+                                #   텍스트). 근거: 아무도 부르지 않은 gold 도구 23건 중 12건이 그 집합이었다.
+                                #   ⚠"검색이 도구명을 못 물어왔다"류의 일반 넛지는 만들지 않았다 —
+                                #   전수 측정에서 실패 26% vs 통과 32%로 구분력이 없었다.
+                                if os.environ.get("T2_DISCOVERY_NAMES") == "1":
+                                    try:
+                                        _reg11 = _agent_discoverable(
+                                            getattr(getattr(self, "_t2_orch", None), "environment", None))
+                                        _txt11 = "\n".join(
+                                            str(getattr(_m11, "content", "") or "")
+                                            for _m11 in state.messages
+                                            if getattr(_m11, "role", None) == "tool")
+                                        _used11 = {_exact_tool_name(_t11) for _m11 in state.messages
+                                                   for _t11 in (getattr(_m11, "tool_calls", None) or [])}
+                                        _used11 |= _unlocked_names(state.messages, a2)
+                                        _cand11 = sorted(n for n in (_reg11 or set())
+                                                         if n in _txt11 and n not in _used11)
+                                        if _cand11:
+                                            _fb_ar += (" The documents you have ALREADY retrieved name"
+                                                       " these tools, and you have not called them: %s."
+                                                       % ", ".join(_cand11[:5]))
+                                            print("[T2_DISCOVERY_NAMES] surface %d" % len(_cand11),
+                                                  file=_sys.stderr, flush=True)
+                                    except Exception as _e11:
+                                        print("[T2_DISCOVERY_NAMES] error (no-op): %r" % (_e11,),
+                                              file=_sys.stderr, flush=True)
+                                rw_fb = ((am.tool_calls or [None])[0], _fb_ar)
                                 self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
                                 # ★진행-감응 환급용 target 스냅샷 (2026-07-22 §2bt·rall10 097 실측:
                                 #   초반 flail이 cap3 소진→종반 say-loop 8연속 무방비 = FOLLOWUP

@@ -242,6 +242,7 @@ export T2_PROCEDURE=1
 #   차단 아님(비커밋 피드백 1건)·▶NEXT는 `enforce` ∧ 후보 유일일 때만·동렬이면 목록만([[10]]).
 #   x86 전수(194 sim·K=3): 발화 54회/29 sim · ▶유일 98.1% · **gold-밖 지목의 write 0** ·
 #   지목 도구의 **100%가 미-unlock**(048 livelock서 모델에게 없던 유일한 정보).
+export T2_DISCOVERY_NAMES=1     # C11b(032): 발견 문구에 **이미 회수한 문서가 이름을 말한** 미호출 도구를 병기
 export T2_VERDICT_SURFACE=1     # (2) 판정 실재+결정 도구 미호출이면 판정을 인용하고 선택은 남긴다
 export T2_PHASE_OWNER=1         # C17(050): 선언된 auth 게이트 미충족 구간에선 행동-유도 레버가 침묵(단계 소유권)
 export T2_PIN_READ_STEPS=1      # C15(사용자 지시): 지목한 잔여 **read**를 named tool_choice+단일값 enum으로 고정(write 제외)

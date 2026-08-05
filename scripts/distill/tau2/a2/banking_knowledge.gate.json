@@ -2430,7 +2430,15 @@
      },
      "_quote": "months (integer, required): … Use the appropriate value based on the card tier.",
      "param_note": "policy requires the tier's consecutive on-time months: entry-tier 6, mid-tier 3, premium-tier 3 - pass that number as `months`",
-     "_note_param": "2026-08-05(050 실측: months=24 호출·gold 3). 출처=정책 문서 `doc_credit_cards_credit_card_account_logistics_006` 축자: 'Entry-tier cards: Requires 6 consecutive months' / 'Mid-tier cards: Requires 3' / 'Premium-tier cards: Requires 3' + 'Use the get_payment_history_6183 tool ... months (integer, required)'. gold 경유 0([[23]]). 값 선택은 여전히 모델 몫 — 표면화만. ⚠비용 정직 기록(2026-08-05): 050·051은 이 문장을 **이미 회수한 상태**였다(문서·축자 문장 둘 다 대화에 실재). 따라서 이 선언이 사는 것은 정보가 아니라 **주의**이고, 값은 opex +1이다. 인용-창(회수된 줄을 그대로 되짚기) 기전이 생기면 이 선언은 은퇴시킬 것 — 그때 opex 0으로 같은 일을 한다."
+     "_note_param": "2026-08-05(050 실측: months=24 호출·gold 3). 출처=정책 문서 `doc_credit_cards_credit_card_account_logistics_006` 축자: 'Entry-tier cards: Requires 6 consecutive months' / 'Mid-tier cards: Requires 3' / 'Premium-tier cards: Requires 3' + 'Use the get_payment_history_6183 tool ... months (integer, required)'. gold 경유 0([[23]]). 값 선택은 여전히 모델 몫 — 표면화만. ⚠비용 정직 기록(2026-08-05): 050·051은 이 문장을 **이미 회수한 상태**였다(문서·축자 문장 둘 다 대화에 실재). 따라서 이 선언이 사는 것은 정보가 아니라 **주의**이고, 값은 opex +1이다. 인용-창(회수된 줄을 그대로 되짚기) 기전이 생기면 이 선언은 은퇴시킬 것 — 그때 opex 0으로 같은 일을 한다.",
+     "param_requirement": {
+      "arg": "months",
+      "one_of": [
+       6,
+       3
+      ]
+     },
+     "_note_param_requirement": "2026-08-06(050 실측: months=12로 호출하자 단계가 [x]가 되어 정책 문구가 영원히 안 나왔다). 출처=`doc_credit_cards_credit_card_account_logistics_006` 축자 'Entry-tier … 6 consecutive months' / 'Mid-tier … 3' / 'Premium-tier … 3' — 정책이 요구하는 값은 6과 3뿐이다. 티어 판정까지 넣으면 `doc_credit_cards_credit_card_replacements_001`의 티어 지도(Gold/Platinum/Diamond=Premium 등)가 추가로 필요하므로, 우선 **허용값 집합**만 선언한다(12·24 같은 정책 밖 값을 잡는다·gold 경유 0)."
     },
     {
      "id": "decision",

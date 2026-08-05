@@ -101,7 +101,7 @@ def _node_of(proc, tool_name):
     return None
 
 
-def _satisfied(node, executed):
+def _satisfied(node, executed, args_by_tool=None):
     """A node counts as done when any tool it names has already been executed.
 
     Nodes that name no tool (a bound the agent must check, not call) cannot be
@@ -122,6 +122,21 @@ def _satisfied(node, executed):
     need = node.get("min_count")
     if need:
         return sum(done.get(t, 0) for t in tools) >= int(need)
+    # ★param_requirement (2026-08-06·050 실측): 어떤 단계는 **어떻게 불렀는지**까지 정책이 정한다.
+    #   050은 `get_payment_history_6183`을 `months=12`로 부르고(정책은 티어별 6/3/3) 그 순간 단계가
+    #   `[x]`로 바뀌어, 요건을 알려주는 문구가 영원히 나오지 않았다 — 이름만 보고 완료를 찍은 탓이다.
+    #   요건이 선언된 노드는 **그 요건을 만족한 호출**이 있어야 완료다. 값은 여전히 모델이 고르고,
+    #   엔진은 선언된 조건의 충족 여부만 본다([[10]]). 미선언 노드의 거동은 완전히 그대로다.
+    req = node.get("param_requirement") or {}
+    if req and isinstance(args_by_tool, dict):
+        arg, ok_vals = req.get("arg"), req.get("one_of")
+        if arg and ok_vals is not None:
+            vals = {str(v) for v in ok_vals}
+            for t in tools:
+                for a in (args_by_tool.get(t) or []):
+                    if str((a or {}).get(arg)) in vals:
+                        return True
+            return False
     return any(done.get(t, 0) for t in tools)
 
 
@@ -169,14 +184,14 @@ def active_procedures(procs, executed):
             and set((p.get("enter_when") or {}).get("tool_any") or []) & done]
 
 
-def checklist(proc, executed):
+def checklist(proc, executed, args_by_tool=None):
     """[(node_id, tools, done)] in declaration order — what the policy asked for, and where we are.
 
     `done` is True, False, or None for a node that names no tool: a bound the agent is
     told to check rather than call cannot be observed from the history, and saying it is
     done would be a claim this engine cannot make.
     """
-    return [(n.get("id"), _tools_of(n), _satisfied(n, executed))
+    return [(n.get("id"), _tools_of(n), _satisfied(n, executed, args_by_tool))
             for n in (proc.get("nodes") or [])]
 
 
@@ -242,7 +257,7 @@ def table_expectation(proc, tool_name, operands):
     return spec.get("arg"), table[str(key)]
 
 
-def render_state(proc, executed, unlocked=(), pattern=None):
+def render_state(proc, executed, unlocked=(), pattern=None, args_by_tool=None):
     """Slot values for the declaration's sentence: where the walk is, and what comes next.
 
     The engine writes no prose. It fills in only what it can observe — which steps ran,
@@ -258,7 +273,7 @@ def render_state(proc, executed, unlocked=(), pattern=None):
     """
     unlocked = set(unlocked or ())
     rows, done = [], 0
-    for nid, tools, ok in checklist(proc, executed):
+    for nid, tools, ok in checklist(proc, executed, args_by_tool):
         if ok is True:
             done += 1
             rows.append("[x] %s" % nid)
@@ -324,7 +339,7 @@ def _hint(fb, st):
     return (txt + " ") if txt else ""
 
 
-def absent_note(proc, executed, unlocked=(), pattern=None):
+def absent_note(proc, executed, unlocked=(), pattern=None, args_by_tool=None):
     """What the declaration says when the walk stopped — or nothing, if it says nothing.
 
     The engine speaks only through the declaration's own sentence; every slot it fills is
@@ -332,7 +347,7 @@ def absent_note(proc, executed, unlocked=(), pattern=None):
     unlocked), never a judgement about what the customer wants.
     """
     fb = proc.get("feedback") or {}
-    st = render_state(proc, executed, unlocked, pattern)
+    st = render_state(proc, executed, unlocked, pattern, args_by_tool)
     if not (st["next"] or st["ready"]):
         return None
     tpl = fb.get("absent") if st["next"] else fb.get("absent_many")
