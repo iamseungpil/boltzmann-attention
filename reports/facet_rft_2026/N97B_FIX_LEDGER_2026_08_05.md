@@ -274,6 +274,34 @@ scaffold가 잡지 못한다"* 를 박아 뒀다.
 ⇒ *"call unlock_discoverable_agent_tool with exactly that name. Do not search the knowledge base for it"*
 로 교체. 회귀검정(`test_proc_absent_wiring.py`)의 불변식도 **"검색을 시키지 않는다"** 로 뒤집었다.
 
+## 2i. 스모크 i **사전등록** (`bank_smk_gpu{0,1}_20260805i` · 6 sim · nt1 · concurrency 1 · $≈0.22)
+
+> 표적을 **새 레버에 맞춰 바꿨다**: gpu0=`048,018,035` · gpu1=`051,028,032`.
+> 048=ctx 교정 확인 · 018/028=F5 · 032=F7 · 035=F8 · 051=절차 deny.
+> 발사 전: 검정 4종 PASS · AST 가드 fb 17/17 · x77 신규 플래그 미사망 · 워킹트리 clean.
+
+| # | 1차 지표 | 예측 | 빗나가면 |
+|---|---|---|---|
+| **A** F5 | `[T2_TRANSCRIBE] deny` **≥1**(018 또는 028) | x90이 오프라인서 잡은 자리 | 0이면 배관 침묵 — 가드·조건 재감사 |
+| **B** ctx 교정 | 048에 **KB 검색 6연발 없음** · `context_window_exceeded` **0** | 문구 교정의 직접 효과 | 재발이면 검색 억제가 부족 |
+| **C** D1′ | `[T2_PROC_ABSENT] surface` ≥1 | h에서 2회 발화 재현 | |
+| **D** F7·F8 | **발화 0을 예측한다** — 032/035의 실패형은 *처음부터 표준 도구*라 활성 조건(열린 술어)에 닿지 않는다(`_note_limit`) | 정직한 음성 예측 | 발화하면 예측이 틀린 것(좋은 쪽) |
+| **E** 오차단 | 새 deny가 gold 호출을 막지 않음 | x80/x90 오프라인 0 재확인 | >0이면 즉시 철회 |
+| **F** 부작용 | replay ValueError 0 · ctx 사망 0 | | |
+| **G** pass | **판정 근거 아님**([D]) | | |
+
+**결과 (재런 후 채운다·빈칸 금지)**
+
+| # | 결과 |
+|---|---|
+| A F5 발화 | |
+| B ctx | |
+| C D1′ | |
+| D F7·F8 | |
+| E 오차단 | |
+| F 부작용 | |
+| G pass(참고) | |
+
 ## 3. 다음 재런 **발사 전** 체크포인트
 
 - [ ] F1·F2가 `go_stack.sh`에 남아 있는가(다른 세션이 되돌리지 않았는가) — `grep -c 'T2_QUOTE_PIN=1\|T2_MATCH_COUNT=1'` = 2
