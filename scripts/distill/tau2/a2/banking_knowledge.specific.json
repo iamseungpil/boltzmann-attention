@@ -1998,6 +1998,7 @@
    "_note_require_fields": "★`scaffold_get_tools[0].variants.ratefix.isolate.row_fields`의 복제다 — 두 선언이 갈라지면 `test_transcribe_fields.py`가 실패한다([[24]] 2층 이탈 교훈). 표적 = 022 t0: 77행을 손-전사하며 account_open을 빠뜨려 17행이 판정불가가 됐고 discrepancy가 9건에서 5건으로 줄었다."
   },
   "_note": "F5(2026-08-05·018 t0 실측). 이 도구는 행 배열을 인자로 받고 엔진은 받은 값을 그대로 계산한다 — 손-전사가 틀리면 **없는 불일치**가 만들어진다(rewards_earned 1113 vs 원장 487 → 여분 분쟁 1건 → db_match=False). 검사는 원장 대조뿐이고 값을 고치지 않는다([[10]]). 출처: 정책 Guideline *\"Do not make up policies, information or actions\"* + env 원장 포맷.",
+  "_feedback_unknown": "Error: the '{tool}' payload names record(s) this conversation never read: {ids}. The engine computes on exactly what you pass, so a row whose record was never retrieved produces a result about nothing. Re-read the records with the read tool and pass the ids exactly as that output printed them.",
   "_feedback": "Error: {count} value(s) in the '{tool}' payload disagree with the record they name: {detail}. Do not re-type record rows into an argument - reference the read tool's output instead, or re-read the record and copy the value exactly as printed."
  },
  "search_exhaust_escalation": "If the customer has asked for a person and nothing you retrieved covers their request, the escalation is the transfer_to_human_agents tool. Its reason code is not free text: the tool's own description says the reason enum is in the knowledge base, so search for the transfer reason codes document and pick the code whose 'When to Use' matches this situation - including the one for an unsuccessful knowledge-base search when the customer asks for a person. Do not end the conversation with a procedure no document gave you.",
@@ -2013,6 +2014,13 @@
   ],
   "feedback": "[PROTOCOL] You are about to use {tool}, but nothing you retrieved in this conversation is the document that defines it. That tool's own description says to search the knowledge base first and pick the applicable reason code there. Search for the transfer protocol and reason-code documents, read which situation each one covers, and only then choose - a transfer sent under the wrong protocol is a different action from the right one.",
   "_note": "G2-a(2026-08-05·035·032 실측). **어느 프로토콜이 맞는가는 열린 술어라 말하지 않는다** — 닫힌 것은 '이 도구를 정의한 문서를 읽었는가'뿐이다([[22]]). 출처 = `transfer_to_human_agents` docstring 축자 *\"search it before calling this tool\"*. x93 전수: 미열람 사용 27건 / **gold이 요구한 이관인데 미열람 6건** ⇒ deny하면 정답 6건을 막는다 ⇒ **표면화만·sim당 1회**. 도구→문서 지도는 A2가 아니라 코퍼스에서 도출한다."
+ },
+ "withdrawn_row_check": {
+  "settle_tool": "get_reward_discrepancies",
+  "submit_tool": "submit_cash_back_dispute_0589",
+  "id_pattern": "\btxn_[0-9a-f_]+\b",
+  "feedback": "[LEDGER] The reward check settled these transaction(s) and no dispute has been submitted for them: {ids}. The check's own output is the record of what was found - a customer saying a charge looks fine to them does not change what the ledger showed. If you have decided not to dispute one of these, say plainly which one and why; do not simply leave it out.",
+  "_note": "G3(2026-08-05·019 t1 실측: 확정 3행 중 2행만 제출·하나는 손님 산문에 설득당해 철회). [[21]]의 **닫힌 절반** — 손님 문장은 읽지 않고 엔진 출력과 호출 이력만 본다. ⚠**F5 위에서만 건전하다**: x94 1차에서 gold 반례 2건이 나왔는데 둘 다 **오염된 입력**으로 나온 가짜 확정 행이었다(018/t0 1113 오기·028/t1 488). F5(불일치+날조 id)가 막는 호출의 출력은 확정으로 세지 않도록 배선했고, 그 조건에서 재판정하니 **반례 0**. 제출을 강제하지 않는다 — 표면화만([[10]])."
  },
  "procedures": [
   {

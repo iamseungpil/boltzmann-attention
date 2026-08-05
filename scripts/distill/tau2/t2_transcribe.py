@@ -23,7 +23,7 @@ anything and is left alone.
 import json
 import re
 
-__all__ = ["mismatches", "missing_fields", "note"]
+__all__ = ["mismatches", "missing_fields", "unknown_ids", "note"]
 
 
 def _txt(s):
@@ -121,6 +121,26 @@ def missing_fields(spec, args, records, required=()):
         for f in need:
             if f not in row:
                 out.append((rid, f))
+    return out
+
+
+def unknown_ids(spec, args, records):
+    """[row_id] — rows naming a record this conversation never read.
+
+    `task_018` passed a row keyed `txn_890389b165_02`, which is the customer's own id with
+    a suffix stuck on it: the shape of an invention, not of a read. The engine then computed
+    on it. The check is the same closed one as `mismatches` — the record either was read or
+    it was not — and it matters for a second reason: a settled row is only trustworthy if
+    its inputs were, so this is what "the engine's own output is true" rests on.
+    """
+    arg, idk = (spec or {}).get("arg"), (spec or {}).get("id_key")
+    if not (arg and idk):
+        return []
+    out = []
+    for row in _rows((args or {}).get(arg)):
+        rid = _txt(row.get(idk)).strip()
+        if rid and rid not in (records or {}):
+            out.append(rid)
     return out
 
 

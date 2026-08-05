@@ -4719,6 +4719,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             proc_fb = None
             abs_fb = None
             tr_fb = None
+            wd_fb = None
             _procs = ((a2 or {}).get("procedures")
                       if (a2 is not None and os.environ.get("T2_PROCEDURE") == "1") else None)
             if _procs:
@@ -4861,6 +4862,19 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                      len(_TR._rows(_args_dict(c).get(_sp.get("arg")))), len(_byid)),
                                   file=_sys.stderr, flush=True)
                         _msg = _TR.note(_trs.get("_feedback"), _bad, getattr(c, "name", None))
+                        if not _msg:
+                            # 원장에 없는 id = 계산의 입력이 날조된 것. 같은 채널·다른 문구.
+                            _unk = _TR.unknown_ids(_sp, _args_dict(c), _byid)
+                            _msg = _TR.note(_trs.get("_feedback_unknown"),
+                                            [(u, "", "", "") for u in _unk],
+                                            getattr(c, "name", None))
+                            if _msg:
+                                _msg = _msg.replace("{ids}", ", ".join(_unk[:6]))
+                        if not _msg:
+                            # ★G3 전제: 입력이 깨끗했던 호출만 "확정 행"의 출처로 인정한다.
+                            #   오염된 입력으로 나온 행은 가짜일 수 있고, x94 1차의 gold 반례
+                            #   2건이 전부 그것이었다.
+                            self._t2_clean_call = getattr(c, "id", None)
                         if _msg:
                             tr_fb = (c, _msg)
                             print("[T2_TRANSCRIBE] deny %s bad=%d first=%s"
@@ -4870,6 +4884,58 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _tre:
                     tr_fb = None
                     print("[T2_TRANSCRIBE] error (no-op): %r" % (_tre,),
+                          file=_sys.stderr, flush=True)
+
+            # ★G3 확정-행 미제출 표면화 (2026-08-05·설계 `OPEN_PREDICATE_DECOMPOSITION` §2·게이트=x94):
+            #   019 t1은 엔진이 확정한 3행 중 2행만 제출하고 하나를 **손님 산문에 설득당해 철회**했다.
+            #   [[21]]("user-sim이 어떻게 반응해도 agent가 옳게")의 **닫힌 절반**이다 — 손님 문장은
+            #   읽지 않고, 엔진 출력과 호출 이력만 본다.
+            #   ⚠**F5 위에서만 건전하다**(x94 재판정): 오염된 입력으로 나온 확정 행은 가짜일 수 있고,
+            #   실제로 gold 반례 2건이 전부 그것이었다. 그래서 **입력이 깨끗했던 출력의 행만** 센다.
+            _wds = (a2 or {}).get("withdrawn_row_check") or {}
+            # 깨끗했던 호출의 **결과**에서 id를 수확한다(엔진 출력 = 확정 행).
+            if _wds.get("settle_tool"):
+                try:
+                    _cc = getattr(self, "_t2_clean_call", None)
+                    _cl = getattr(self, "_t2_settled_clean", None)
+                    if _cl is None:
+                        _cl = self._t2_settled_clean = set()
+                    _ip = re.compile(str(_wds.get("id_pattern")
+                                         or r"\b[a-z]+_[0-9a-f]{6,}\b"))
+                    for _m8 in state.messages:
+                        if getattr(_m8, "role", None) != "tool":
+                            continue
+                        _k8 = getattr(_m8, "id", None) or getattr(_m8, "tool_call_id", None)
+                        if _cc and _k8 == _cc:
+                            _c8 = str(getattr(_m8, "content", "") or "")
+                            if not _c8.lstrip().startswith("Error:"):
+                                _cl |= set(_ip.findall(_c8))
+                except Exception:
+                    pass
+            if (_wds.get("feedback") and wd_fb is None and tr_fb is None
+                    and os.environ.get("T2_WITHDRAWN_ROW") == "1"
+                    and not getattr(self, "_t2_wd_fired", False)):
+                try:
+                    _clean = getattr(self, "_t2_settled_clean", None)
+                    if _clean is None:
+                        _clean = self._t2_settled_clean = set()
+                    _sub = set()
+                    _idp = re.compile(str(_wds.get("id_pattern") or r"[a-z]+_[0-9a-f]{6,}"))
+                    for _m9 in state.messages:
+                        for _t9 in (getattr(_m9, "tool_calls", None) or []):
+                            if _exact_tool_name(_t9) == _wds.get("submit_tool"):
+                                for _v9 in _args_dict(_t9).values():
+                                    if isinstance(_v9, str):
+                                        _sub |= set(_idp.findall(_v9))
+                    _drop = sorted(_clean - _sub)
+                    if _drop and _sub:
+                        wd_fb = str(_wds["feedback"]).replace("{ids}", ", ".join(_drop[:6]))
+                        self._t2_wd_fired = True
+                        print("[T2_WITHDRAWN_ROW] surface dropped=%d" % len(_drop),
+                              file=_sys.stderr, flush=True)
+                except Exception as _wde:
+                    wd_fb = None
+                    print("[T2_WITHDRAWN_ROW] error (no-op): %r" % (_wde,),
                           file=_sys.stderr, flush=True)
 
             # ★G2-a 프로토콜 문서 미열람 표면화 (2026-08-05·설계 `OPEN_PREDICATE_DECOMPOSITION` §1·
@@ -5477,7 +5543,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and ra_fb is None and te_fb is None and wev_fb is None and rw_fb is None
                     and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None
                     and pr_fb is None and hv_fb is None and dd_fb is None and sig_fb is None
-                    and proc_fb is None and abs_fb is None and tr_fb is None):
+                    and proc_fb is None and abs_fb is None and tr_fb is None and wd_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -5670,6 +5736,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             # ★T2_HAVE_VALUE 리마인더 (None-anchor·산문 회피 또는 producer 재호출 커버·비커밋=replay-clean)
             # ★D1′ 부재 표면화 (비커밋·hv_fb와 같은 채널 규약): 차단이 아니라 상태 진술이라
             #   특정 호출에 붙지 않는다 — 호출이 없는 것이 바로 이 레버의 조건이다.
+            if wd_fb is not None:
+                try:
+                    fb.append(UserMessage(role="user", content=wd_fb))
+                except TypeError:
+                    fb.append(UserMessage(content=wd_fb))
             if abs_fb is not None:
                 try:
                     fb.append(UserMessage(role="user", content=abs_fb))
