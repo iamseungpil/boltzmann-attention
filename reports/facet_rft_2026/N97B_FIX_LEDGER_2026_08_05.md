@@ -34,6 +34,15 @@
 
 | **F13** | 형식화 — abstain 회복 | 엔진이 **미검증으로 남긴 행을 단독으로 자동 재질의**(1회) | 스모크 019: agent가 스스로 그렇게 해서 **통과**했다(§2b) — C275 시절 후보였고 미구현 | 📐 설계필요(근거=라이브) |
 
+## 2e. 설계 완료분 (2026-08-05 오후 · `ABSENCE_DRIVEN_PROCEDURE_DESIGN_2026_08_05.md`)
+
+| # | 원인(근본기능) | 처방 한 줄 | 표적 실측 | 상태 |
+|---|---|---|---|---|
+| **F15** | 계측/배관 — **절차 엔진 침묵** | 절차 술어를 **항상 평가**하고 못 뜬 턴엔 `suppressed by=` 기록(→ 확증 시 사슬 앞으로 이동) | 스모크 f `task_048`: msg18 `check_card_closure_eligibility` 진입인데 라이브 `[T2_PROCEDURE]` **closure 0건**(4건 전부 CLI). **오프라인 재생은 deny**(missing=disputes,pending_replacement) ⇒ 술어 정상·배관 침묵 | 📐 설계완료(D0) |
+| **F16** | 완결(절차) — **진입 후 무호출** | 활성 절차 ∧ 미충족 노드 ∧ K턴 절차-무호출 → **표면화**(차단 아님). 지목한 도구가 미-unlock discoverable이면 `{name_words}` 자연어 질의 동봉 | 048 진입 후 노드 호출 **0회**·050 `submit_request` 미호출·051 지목 후 미호출 | 📐 설계완료(D1·게이트=x86) |
+| **F17** | 준수 — **존재하지 않는 도구 give** | `T2_DISPATCH_ROLE_ENVSET=1` **등재**(신규 코드 0·C257 기구현) | 012 msg16 `give_discoverable_user_tool{navigate_to_travel_notification}` — env user-discoverable 4종 밖. 구판 분기(`self.tools` 소속)라 통과. **접미사 규칙 확장은 금지**(정당 give 2종이 무접미사) | 📐 설계완료(D3-a·게이트=x88) |
+| **F18** | 문구 — 절차 피드백이 **한국어** | 영어 통일(A2 문자열 1개) | 대화는 영어인데 `feedback.unmet`만 한국어. 051 불이행의 경합 가설 | 📐 설계완료(D0-c·비용 0) |
+
 ## 2b. 스모크 판정 (`bank_qpmc_gpu{0,1}_20260805` · 6 sim · nt1 · $≈0.2)
 
 **① 라이브 발화** — 구 가드 `quote-ground 불성립` **0**(=QP 적용 확인) · quote-pin 판정 **1** · 서브 핀 선언 **153**(trace) · isolate **48**.
