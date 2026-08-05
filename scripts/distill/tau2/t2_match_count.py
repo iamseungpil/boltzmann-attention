@@ -21,6 +21,7 @@ import glob
 import io
 import os
 import re
+import sys
 
 # Minimal closed stopword list. Fixed here rather than tuned, because a tuned list
 # would make the count our choice instead of the engine's fact.
@@ -32,6 +33,7 @@ STOP = frozenset(
 )
 
 _CACHE = {}
+_WARNED = False        # 코퍼스 미해결 경고는 프로세스당 1회(로그 포화 방지)
 
 
 def norm(s):
@@ -92,6 +94,14 @@ def note(query, result_text, orch=None):
     docs = load_corpus(orch)
     n = count(query, docs)
     if n is None:
+        # ★2026-08-05: 등재 첫 스모크에서 `matches:` 주석이 궤적에 0건이었고 로그에도 아무것도
+        #   없었다 — 코퍼스 미해결과 "붙일 말이 없음"이 **같은 침묵**이었기 때문이다. 전자는 설정
+        #   결함이므로 한 번은 말하게 한다(sim당 1회·거동 변화 0).
+        global _WARNED
+        if docs is None and not _WARNED:
+            _WARNED = True
+            print("[T2_MATCH_COUNT] corpus 미해결 — T2_KB_DOCS_DIR 미설정이거나 경로가 없다: %r"
+                  % (os.environ.get("T2_KB_DOCS_DIR"),), file=sys.stderr, flush=True)
         return None
     shown = shown_in(result_text)
     if n == 0:

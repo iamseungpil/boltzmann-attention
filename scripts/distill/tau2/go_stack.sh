@@ -208,6 +208,11 @@ export T2_QUOTE_PIN=1             # C278/C279 pin_kind 라우팅(C197 열린-술
 #                                 #   대가 = `txn_ba8b473f295d` 오차단으로 **022 t0/t1 2 sim 소각**.
 #                                 #   ⚠회수 아닌 것: 019(Thrive Market)는 **정당 차단**이라 QP로도 안 열린다(C289).
 #                                 #   판다(−): 표 밖 산문-범주는 여전히 열린 잔여(케이스 12)·핀 방향 오류 1/7(C289⑥).
+export T2_KB_DOCS_DIR="$GO_TAU2/data/tau2/domains/banking_knowledge/documents"
+#                                 # ⚠MATCH_COUNT의 **의존물**. 2026-08-05 스모크 실측: 플래그만 등재했더니
+#                                 #   `matches:` 주석이 궤적에 **0건**이었다 — 코퍼스를 못 찾으면
+#                                 #   `t2_match_count.note()`가 조용히 None을 반환한다. run_b4.sh는 이 줄을
+#                                 #   갖고 있었고 go_stack은 없었다(=플래그만 옮기고 의존물을 안 옮긴 것).
 export T2_MATCH_COUNT=1           # KB_search 회수 경계 표면화("N개 걸림 중 K개 표시" ↔ "전부 표시").
 #                                 #   근거: x75 재계량(2026-08-05·B4 202주석) **인증 126/202=62%** = 설계서 §4
 #                                 #   등재 기준(과반) 충족. P3(CALLABLE_HINT)가 만든 **0점 검색 410→1024(+150%)**의
