@@ -23,7 +23,7 @@ anything and is left alone.
 import json
 import re
 
-__all__ = ["mismatches", "note"]
+__all__ = ["mismatches", "missing_fields", "note"]
 
 
 def _txt(s):
@@ -89,6 +89,38 @@ def mismatches(spec, args, records):
                 continue
             if not same(v, src[k]):
                 out.append((rid, k, v, src[k]))
+    return out
+
+
+def missing_fields(spec, args, records, required=()):
+    """[(row_id, field)] — the payload dropped a field the record has and the op needs.
+
+    `task_022` typed seventy-seven rows by hand and left `account_open` off some of them.
+    The engine could not judge those rows, reported `coverage 60 of 77`, and the customer
+    ended up disputing five transactions instead of nine. The row was not wrong, it was
+    incomplete — a different failure from `mismatches`, and the same cause: the rows were
+    re-typed instead of referenced.
+
+    The field does not have to live on the same record. `account_open` is an attribute of
+    the account, not of the transaction, so it has to be joined in from the account read —
+    which is exactly what `task_022` skipped for all seventy-seven rows. Requiring the
+    field to be present in the same-id record made this check silent on its own target, so
+    what is reported is simply: the declaration says this op needs the field, and the row
+    does not have it.
+    """
+    arg, idk = (spec or {}).get("arg"), (spec or {}).get("id_key")
+    need = [f for f in (required or ()) if f != idk]
+    if not (arg and idk and need):
+        return []
+    out = []
+    for row in _rows((args or {}).get(arg)):
+        rid = _txt(row.get(idk)).strip()
+        src = (records or {}).get(rid)
+        if not rid or not src:
+            continue
+        for f in need:
+            if f not in row:
+                out.append((rid, f))
     return out
 
 

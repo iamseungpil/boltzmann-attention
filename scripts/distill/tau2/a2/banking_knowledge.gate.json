@@ -2258,7 +2258,9 @@
  "transcription_check": {
   "get_reward_discrepancies": {
    "arg": "transactions",
-   "id_key": "transaction_id"
+   "id_key": "transaction_id",
+   "require_fields": ["transaction_id", "transaction_amount", "rewards_earned", "transaction_date", "credit_card_type", "merchant_name", "category", "account_open"],
+   "_note_require_fields": "★`scaffold_get_tools[0].variants.ratefix.isolate.row_fields`의 복제다 — 두 선언이 갈라지면 `test_transcribe_fields.py`가 실패한다([[24]] 2층 이탈 교훈). 표적 = 022 t0: 77행을 손-전사하며 account_open을 빠뜨려 17행이 판정불가가 됐고 discrepancy가 9건에서 5건으로 줄었다."
   },
   "_note": "F5(2026-08-05·018 t0 실측). 이 도구는 행 배열을 인자로 받고 엔진은 받은 값을 그대로 계산한다 — 손-전사가 틀리면 **없는 불일치**가 만들어진다(rewards_earned 1113 vs 원장 487 → 여분 분쟁 1건 → db_match=False). 검사는 원장 대조뿐이고 값을 고치지 않는다([[10]]). 출처: 정책 Guideline *\"Do not make up policies, information or actions\"* + env 원장 포맷.",
   "_feedback": "Error: {count} value(s) in the '{tool}' payload disagree with the record they name: {detail}. Do not re-type record rows into an argument - reference the read tool's output instead, or re-read the record and copy the value exactly as printed."
