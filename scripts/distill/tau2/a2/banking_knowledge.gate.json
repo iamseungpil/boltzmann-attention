@@ -2606,6 +2606,44 @@
    },
    "_note_absent": "D1′ 문구 — 내용은 _quote_order 재진술 + 관측 사실뿐([[23]]).",
    "_note_limit": "★한계(정직): 진입이 0218 호출이므로 **처음부터 표준 도구를 쓴 실패**(032/033 실측형)는 이 선언이 잡지 못한다. 그 경우의 활성 조건은 '손님이 구매 거절을 보고했나'라는 열린 술어여서 scaffold 몫이 아니다([[22]]). 잡는 것은 '내부 도구를 1~2회 쓰고 표준으로 건너뛰는' 부분 위반이다."
+  },
+  {
+   "id": "credit_bureau_incident_escalation",
+   "_source": [
+    "doc_credit_cards_credit_cards_(general)_012 (Internal: Backend Incident 11/14 - Erroneous Credit Bureau Reporting)"
+   ],
+   "_quote_order": "IMMEDIATELY use emergency_credit_bureau_incident_transfer_1114() then transfer_to_human_agents.",
+   "enforce": true,
+   "_note_enforce": "'then'이 순서를 명령한다. 두 호출이 **양자택일이 아니라 둘 다**라는 것이 이 선언의 요지다.",
+   "enter_when": {
+    "tool_any": [
+     "emergency_credit_bureau_incident_transfer_1114"
+    ],
+    "_note": "이 프로토콜에만 있는 도구로만 진입한다. 표준 이관으로는 켜지 않는다 — 그러면 모든 정상 이관을 막는다."
+   },
+   "nodes": [
+    {
+     "id": "emergency_escalation",
+     "tool": "emergency_credit_bureau_incident_transfer_1114",
+     "_quote": "IMMEDIATELY use emergency_credit_bureau_incident_transfer_1114()"
+    },
+    {
+     "id": "complete_transfer",
+     "tool": "transfer_to_human_agents",
+     "requires": [
+      "emergency_escalation"
+     ],
+     "_quote": "then transfer_to_human_agents"
+    }
+   ],
+   "feedback": {
+    "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
+    "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
+    "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
+    "unlock_hint": "The tool for that step ({next_tool}) has not been unlocked in this conversation - call unlock_discoverable_agent_tool for it first; if you do not know its full suffixed name, search the knowledge base with plain words such as \"{name_words}\", because a query that is just the tool name matches no document text. "
+   },
+   "_note_absent": "D1′ 문구 — _quote_order 재진술 + 관측 사실뿐([[23]]).",
+   "_note_limit": "★한계(정직): 진입이 1114 호출이라 **표준 이관만 하고 끝낸 실패**(035 t1형)는 잡지 못한다. 그 활성 조건은 '손님이 신용점수 급락을 보고했나'라는 열린 술어다([[22]]). 잡는 것은 **1114만 하고 표준 이관을 빠뜨린 쪽**(035 t0형)이다."
   }
  ],
  "_note_procedures": "★절차 DAG(2026-08-05·사용자 지시 \"절차 컨트롤러는 DAG로 만들어 A2 도메인 특화 파일에 기록하라\").\n**왜 데이터인가**: 정책이 단계·순서·도구명·숫자를 전부 축자로 준다 — 판단이 아니라 표 조회다. 엔진은 DAG를 걷고 미충족 선행 노드를 표면화할 뿐이고, 도메인 어휘는 여기에만 있다([[05]]).\n**근거(축자)**: `_source`·`_quote_order`·노드별 `_quote` 참조. gold 경유 0 — 모든 값이 정책 문서에서 복사됐고, 정책이 주지 않는 것(카드명→등급 매핑)은 **일부러 비워** 모델 operand로 남겼다([[23]]/[[52]]).\n**실측 표적**: 스모크 `task_051` — 요청 제출(1단계) 누락 · 분쟁 이력 미확인 · `months` 6→12 · 상한 25%를 넘는 승인(new_limit 5,200 = +30%). 네 결함이 모두 이 DAG의 노드에 대응한다.\n⚠**현재는 데이터만이다** — 이 DAG를 걷는 엔진이 아직 없으므로 라이브 발화는 0이다. 엔진 없이 데이터만 두는 것이 이 repo의 死코드 패턴이므로([[24]]), 원장 F14에 '엔진 미구현'으로 남긴다.",
