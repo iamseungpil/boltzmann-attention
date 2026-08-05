@@ -1998,6 +1998,8 @@
     "doc_credit_cards_credit_card_account_logistics_005 (CLI Eligibility Requirements by Card Tier)"
    ],
    "_quote_order": "These steps MUST be followed in the exact order listed.",
+   "enforce": true,
+   "_note_enforce": "정책 축자가 \"MUST be followed in the exact order listed\"이므로 순서 강제의 허가가 있다. 이 필드가 없거나 _quote_order가 없으면 엔진은 표면화만 하고 차단하지 않는다(우리가 규칙을 발명하지 않기 위해).",
    "enter_when": {
     "tool_any": [
      "submit_credit_limit_increase_request_7392",
