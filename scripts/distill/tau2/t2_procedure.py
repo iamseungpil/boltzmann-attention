@@ -29,6 +29,7 @@ because the corpus may not map entities to it. When it is missing the table look
 skipped rather than guessed — an engine that guesses the key has decided the case.
 """
 
+import collections
 import re
 
 __all__ = ["find_procedure", "unmet_nodes", "table_expectation", "notes_for_call"]
@@ -53,6 +54,8 @@ def find_procedure(procs, tool_name, executed=()):
     """
     done = set(executed or ())
     for p in procs or []:
+        if _excluded(p, done):
+            continue
         triggers = set((p.get("enter_when") or {}).get("tool_any") or [])
         active = bool(triggers & done) or tool_name in triggers
         if not active:
@@ -63,6 +66,20 @@ def find_procedure(procs, tool_name, executed=()):
             if tool_name in _tools_of(n):
                 return p
     return None
+
+
+def _excluded(proc, done):
+    """Is this procedure ruled out because another one's own tool has run?
+
+    Two transfer documents share a tool. The incident protocol runs
+    1822 -> 0218 -> standard; the purchase-decline protocol uses 0218 three times before
+    the standard tool. Entering on 0218 alone would activate both and they disagree about
+    the count. Which situation the conversation is in is an open question ([[22]]) that
+    this engine must not answer, so the declaration answers a closed one instead: the
+    decline protocol is not in play once the incident protocol's own tool has run.
+    """
+    block = set((proc.get("enter_when") or {}).get("tool_none") or [])
+    return bool(block & set(done or ()))
 
 
 def is_mandatory(proc):
@@ -90,12 +107,22 @@ def _satisfied(node, executed):
     Nodes that name no tool (a bound the agent must check, not call) cannot be
     observed from the call history; they are reported separately rather than
     silently treated as done.
+
+    `min_count` is for the policies that count rather than order: the purchase-decline
+    document says to use the internal transfer tool "for the first, second, and third
+    transfer requests" and the regular one on the fourth. How many times a tool has run
+    is as much a fact of the call history as whether it ran, so this stays a closed
+    predicate ([[22]]) — but it needs a count, and a set has thrown that away. Callers
+    that pass a set still work: without `min_count` nothing reads the multiplicity.
     """
     tools = _tools_of(node)
     if not tools:
         return None
-    done = set(executed or ())
-    return any(t in done for t in tools)
+    done = executed if hasattr(executed, "get") else collections.Counter(executed or ())
+    need = node.get("min_count")
+    if need:
+        return sum(done.get(t, 0) for t in tools) >= int(need)
+    return any(done.get(t, 0) for t in tools)
 
 
 def unmet_nodes(proc, tool_name, executed):
@@ -138,7 +165,8 @@ def active_procedures(procs, executed):
     """
     done = set(executed or ())
     return [p for p in procs or []
-            if set((p.get("enter_when") or {}).get("tool_any") or []) & done]
+            if not _excluded(p, done)
+            and set((p.get("enter_when") or {}).get("tool_any") or []) & done]
 
 
 def checklist(proc, executed):
@@ -356,7 +384,7 @@ def prohibited(procs, names, executed):
     """
     for p in procs or []:
         block = (p.get("prohibits") or {})
-        if not block:
+        if not block or _excluded(p, executed):
             continue
         triggers = set((p.get("enter_when") or {}).get("tool_any") or [])
         if not (triggers & set(executed or ())) and not (triggers & set(names or ())):

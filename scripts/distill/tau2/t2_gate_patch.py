@@ -2084,6 +2084,26 @@ def _executed_tool_names(messages):
     return ok
 
 
+def _executed_tool_counts(messages):
+    """Same as `_executed_tool_names`, keeping how many times — a set threw the count away.
+
+    The purchase-decline document does not order steps, it counts them: the internal
+    transfer tool serves "the first, second, and third transfer requests" and the regular
+    one the fourth. A `Counter` still answers membership the way a set did, so every
+    existing caller reads it unchanged.
+    """
+    out, pending = collections.Counter(), {}
+    for m in messages or []:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            pending[getattr(tc, "id", None)] = _exact_tool_name(tc)
+        if getattr(m, "role", None) == "tool":
+            nm = pending.pop(getattr(m, "id", None) or getattr(m, "tool_call_id", None), None)
+            txt = str(getattr(m, "content", "") or "").lstrip()
+            if nm and not (getattr(m, "error", False) or txt.startswith("Error:")):
+                out[nm] += 1
+    return out
+
+
 def _unlocked_names(messages, a2=None):
     """Discoverable names this conversation has asked to unlock (순수함수·리터럴 0).
 
@@ -4642,7 +4662,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             >= int(os.environ.get("T2_PROCEDURE_CAP", "6")))
                 try:
                     import t2_procedure as _PROC
-                    _done = _executed_tool_names(state.messages)
+                    # 개수-보존: `min_count` 노드(정책이 "첫 3회"처럼 세는 규칙)를 위해서다.
+                    # Counter는 집합처럼 멤버십도 답하므로 나머지 판정은 그대로다.
+                    _done = _executed_tool_counts(state.messages)
                     for c in (am.tool_calls or []):
                         _ar = _args_dict(c)
                         _also = {str(_ar.get(k)) for k in
@@ -4706,7 +4728,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     < int(os.environ.get("T2_PROC_ABSENT_CAP", "2"))):
                 try:
                     import t2_procedure as _PROC
-                    _done2 = _executed_tool_names(state.messages)
+                    _done2 = _executed_tool_counts(state.messages)
                     _unl = _unlocked_names(state.messages, a2)
                     _pat = ((a2 or {}).get("discoverable_name_check") or {}).get("pattern")
                     _K = int(os.environ.get("T2_PROC_ABSENT_K", "3"))
@@ -5523,7 +5545,19 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   A2 선언에서 온 값이라 P1의 "이름만 지정하면 날조" 위험이 없다(단일값 enum 동일 경로).
             _pp_pin = getattr(self, "_t2_proc_pin", None)
             if _pp_pin:
-                self._t2_proc_pin = None
+                # ★D2 sticky (2026-08-05·설계 §3·**기본 OFF**): 구판은 핀을 **1회 소모**해서, 같은 턴의
+                #   후속 재생성이 곧바로 덮었다. 재무장하면 표적이 실제로 나올 때까지 유지된다.
+                #   ⚠근거 상태: 원래 근거("deny해도 이행 안 한다")는 F19로 **소멸**했다 — 그 deny는
+                #   모델에게 간 적이 없었다(§1.5). 그래서 `T2_PROC_PIN_REARM` 기본 0 = **거동 불변**이고,
+                #   켜는 것은 x87이 "전달된 deny로도 부족하다"를 보인 뒤에만이다([[10]]: 핀은 엔진이
+                #   다음 행동을 고르는 데 가장 가까운 레버다).
+                _rearm = int(os.environ.get("T2_PROC_PIN_REARM", "0"))
+                _used = getattr(self, "_t2_proc_pin_used", 0)
+                if _pp_pin[2] in _executed_tool_names(state.messages) or _used >= _rearm:
+                    self._t2_proc_pin = None          # 표적이 나왔거나 예산 소진 = 해제
+                    self._t2_proc_pin_used = 0
+                else:
+                    self._t2_proc_pin_used = _used + 1
                 _pin_r = _pp_pin
             else:
                 try:

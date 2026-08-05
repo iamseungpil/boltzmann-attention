@@ -2253,6 +2253,94 @@
     "arg_table_unknown_key": "[PROCEDURE] '{arg}' of '{tool}' is set by policy from the card tier ({operand}): {table}."
    },
    "_note_procedure": "★2026-08-05: x83 실측 — 이 계열 9 태스크가 공유 코어 8종을 갖고, 각 태스크 gold의 50~86%가 그 코어다(9/9가 요구하는 도구 3종). 즉 태스크가 아니라 **절차 하나**다. 실패 지점도 공통: Step 5 보유 제안 미실행 · discoverable 도구 미발견 · 그로 인한 ctx 사망."
+  },
+  {
+   "id": "incident_transfer_order",
+   "_source": [
+    "doc_credit_cards_credit_cards_(general)_011 (Internal: Backend Incident 11/13)"
+   ],
+   "_quote_order": "You must unlock and call the following agent discoverable tools in this exact order before completing any transfer ... Always maintain this order ... Do not skip steps. Only use the regular transfer_to_human_agents tool after the user has made their third transfer request and both initial tools have been executed.",
+   "enforce": true,
+   "_note_enforce": "정책이 MUST 대신 'exact order'·'Do not skip steps'·'Only ... after'로 명령한다.",
+   "enter_when": {
+    "tool_any": [
+     "initial_transfer_to_human_agent_1822"
+    ],
+    "_note": "이 프로토콜에만 있는 도구로만 진입한다. 0218은 doc_010과 공유라 진입시키지 않는다 — 공유 도구로 켜면 두 정책이 동시에 켜지고 횟수가 어긋난다."
+   },
+   "nodes": [
+    {
+     "id": "initial_first",
+     "tool": "initial_transfer_to_human_agent_1822",
+     "_quote": "1) First transfer request from the user during the incident window"
+    },
+    {
+     "id": "initial_second",
+     "tool": "initial_transfer_to_human_agent_0218",
+     "requires": [
+      "initial_first"
+     ],
+     "_quote": "2) Second transfer request from the user (for the same issue)"
+    },
+    {
+     "id": "complete",
+     "tool": "transfer_to_human_agents",
+     "requires": [
+      "initial_first",
+      "initial_second"
+     ],
+     "_quote": "3) Third transfer request from the user: Complete the transfer using the regular transfer_to_human_agents tool"
+    }
+   ],
+   "feedback": {
+    "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
+    "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
+    "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
+    "unlock_hint": "The tool for that step ({next_tool}) has not been unlocked in this conversation - call unlock_discoverable_agent_tool for it first; if you do not know its full suffixed name, search the knowledge base with plain words such as \"{name_words}\", because a query that is just the tool name matches no document text. "
+   },
+   "_note_absent": "D1′ 문구 — 내용은 _quote_order 재진술 + 관측 사실뿐([[23]])."
+  },
+  {
+   "id": "decline_transfer_count",
+   "_source": [
+    "doc_credit_cards_credit_cards_(general)_010 (Internal: Credit Card Purchase Decline Diagnostic Procedure)"
+   ],
+   "_quote_order": "Call initial_transfer_to_human_agent_0218() for the first, second, and third transfer requests. Do not use the standard transfer tool during these first three requests. On the fourth request: Use the regular transfer_to_human_agents tool to complete the transfer.",
+   "enforce": false,
+   "_note_enforce": "★집행 내림(2026-08-05·x80 실측 OVERBLOCK 3건: task_005·task_081 x2에서 gold이 원한 transfer_to_human_agents를 three_internal_requests 미충족으로 막았다). 원인은 진입 술어가 열린 것 — 0218 호출을 '구매 거절 상황'의 대리로 쓸 수 없다([[22]]). 정책은 실제로 명령하지만 우리가 상황을 닫지 못하므로 **표면화만** 한다. 원문 근거: 'Do not use the standard transfer tool during these first three requests' = 금지 명령.",
+   "enter_when": {
+    "tool_any": [
+     "initial_transfer_to_human_agent_0218"
+    ],
+    "tool_none": [
+     "initial_transfer_to_human_agent_1822"
+    ],
+    "_note": "배제: 1822가 실행됐으면 그건 doc_011 사건 프로토콜이고 거기선 0218 **1회** 뒤 표준이다. 어느 상황인지 판단은 열린 술어라 엔진이 하지 않는다 — 정책끼리의 배제만 선언한다([[22]])."
+   },
+   "nodes": [
+    {
+     "id": "three_internal_requests",
+     "tool": "initial_transfer_to_human_agent_0218",
+     "min_count": 3,
+     "_quote": "Call initial_transfer_to_human_agent_0218() for the first, second, and third transfer requests."
+    },
+    {
+     "id": "fourth_standard",
+     "tool": "transfer_to_human_agents",
+     "requires": [
+      "three_internal_requests"
+     ],
+     "_quote": "On the fourth request - Use the regular transfer_to_human_agents tool to complete the transfer."
+    }
+   ],
+   "feedback": {
+    "unmet": "[PROCEDURE] The policy requires steps before '{tool}' that have not been done yet: {missing}. Where the procedure stands ({done} of {total} done): {checklist}  Ready now: {ready_tools}. {unlock_hint}Do that before '{tool}' (source: {source}).",
+    "absent": "[PROCEDURE] You are inside {procedure} and its next step has not been taken ({done} of {total} done): {checklist}  NEXT: {next}. {unlock_hint}Do that step before continuing.",
+    "absent_many": "[PROCEDURE] You are inside {procedure} and its next steps have not been taken ({done} of {total} done): {checklist}  Ready now, in any order: {ready_tools}. {unlock_hint}Do them before continuing.",
+    "unlock_hint": "The tool for that step ({next_tool}) has not been unlocked in this conversation - call unlock_discoverable_agent_tool for it first; if you do not know its full suffixed name, search the knowledge base with plain words such as \"{name_words}\", because a query that is just the tool name matches no document text. "
+   },
+   "_note_absent": "D1′ 문구 — 내용은 _quote_order 재진술 + 관측 사실뿐([[23]]).",
+   "_note_limit": "★한계(정직): 진입이 0218 호출이므로 **처음부터 표준 도구를 쓴 실패**(032/033 실측형)는 이 선언이 잡지 못한다. 그 경우의 활성 조건은 '손님이 구매 거절을 보고했나'라는 열린 술어여서 scaffold 몫이 아니다([[22]]). 잡는 것은 '내부 도구를 1~2회 쓰고 표준으로 건너뛰는' 부분 위반이다."
   }
  ],
  "_note_procedures": "★절차 DAG(2026-08-05·사용자 지시 \"절차 컨트롤러는 DAG로 만들어 A2 도메인 특화 파일에 기록하라\").\n**왜 데이터인가**: 정책이 단계·순서·도구명·숫자를 전부 축자로 준다 — 판단이 아니라 표 조회다. 엔진은 DAG를 걷고 미충족 선행 노드를 표면화할 뿐이고, 도메인 어휘는 여기에만 있다([[05]]).\n**근거(축자)**: `_source`·`_quote_order`·노드별 `_quote` 참조. gold 경유 0 — 모든 값이 정책 문서에서 복사됐고, 정책이 주지 않는 것(카드명→등급 매핑)은 **일부러 비워** 모델 operand로 남겼다([[23]]/[[52]]).\n**실측 표적**: 스모크 `task_051` — 요청 제출(1단계) 누락 · 분쟁 이력 미확인 · `months` 6→12 · 상한 25%를 넘는 승인(new_limit 5,200 = +30%). 네 결함이 모두 이 DAG의 노드에 대응한다.\n⚠**현재는 데이터만이다** — 이 DAG를 걷는 엔진이 아직 없으므로 라이브 발화는 0이다. 엔진 없이 데이터만 두는 것이 이 repo의 死코드 패턴이므로([[24]]), 원장 F14에 '엔진 미구현'으로 남긴다.",
