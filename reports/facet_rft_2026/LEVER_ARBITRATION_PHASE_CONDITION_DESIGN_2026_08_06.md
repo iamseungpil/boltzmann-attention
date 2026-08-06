@@ -312,6 +312,41 @@ give는 인자를 받지 않고, 거래마다 반복하는 쪽은 손님의 `cal
 E1/E2는 상자에 넣어둔다(§5.3). **이 판정은 프레임의 폐기가 아니라 우선순위의 강등**이다 —
 금지 조건은 라이브에서 작동했고, 남은 조정 칸은 사실 오류를 걷어낸 뒤에 다시 센다.
 
+### 7.2e-정정 ★강등을 철회한다 — 계측이 붙자 조정 문제가 86턴 규모로 나왔다
+
+**위 §7.2e는 사이드카가 없는 데이터에서 내린 판정이다.** 전수 잔여 런(`main_20260806b`·사이드카 ON)의
+완료분에서 우리 문구 **912행**이 처음으로 보였고, 그것을 세면 다음이 나온다:
+
+| | |
+|---|---|
+| 우리 문구가 나간 턴 | **526** |
+| 한 턴에 문구 3개 이상 | 20% · **6개 이상 5%** |
+| ‘지금 하라’ + ‘하지 마라’가 같은 턴 | 92 |
+| **★그중 두 문구가 같은 도구를 가리킴** | **86턴 / 41 sim (93%)** |
+
+같은-도구 모순의 표적: **`transfer_to_human_agents` 38턴** · `get_current_time` 18 · `log_verification` 18
+· `get_card_last_4_digits` 11 · `apply_for_credit_card` 9.
+
+축자 표본(한 턴에 동시 도착):
+```
+[VALUE-ACQUIRE] …give get_card_last_4_digits to the customer NOW, then have them run it with their credit_card_account_id
+[SIGNATURE]     give_discoverable_user_tool takes only discoverable_tool_name; you also passed arguments
+[usertoolnote]  When you hand it over … tell them the arguments to pass
+[givequote]     Before handing over, quote the customer's own words … If they never asked for it, do not hand it over
+[unified_regen] resolve the flagged call(s) first; do not call this tool yet
+[GB2]           do NOT retry this tool now; send the notice first
+```
+여섯 문구가 **전부 국소적으로 옳고**, 합쳐지면 실행 불가능하다. 이것은 사실 오류가 아니라 **조정 실패**다.
+
+⇒ **§7.2e의 강등을 철회한다.** 두 축은 경합이 아니라 병렬이다: 사실 오류(035·022)는 사실 오류대로
+고치고, 조정은 **86턴이라는 실측 표적**을 갖는다. 다만 처방은 이 문서 초판의 추상적 (레버×단계×조건)
+표가 아니라 **표적이 몰린 한 도구부터**다 — `transfer_to_human_agents` 38턴(44%)이 최대 단일 표적이고,
+그 자리에서 겹치는 것은 GB2 통지 게이트("지금 이 도구를 다시 부르지 마라")와 이관을 미는 문구들이다.
+
+⚠ **판정 한계**: 이 수치는 완주 37 sim + 진행 중 sim의 사이드카를 함께 센 것이라 분모가 sim 단위가
+아니다(턴 단위). 전수 완주 후 194 sim으로 다시 센다. 그리고 ‘지금 하라/하지 마라’ 판정은 정규식이므로
+**같은-도구 조건이 없으면 41%까지 부풀었다**(92 → 86은 그 조건을 건 뒤의 값이다).
+
 ### 7.2f 수정 2건 (구현·검정 완료·커밋 `5fad930c`)
 
 **① 022 루프 생성기 — 거짓 진술 2종**(엔진·A2 순증 0)
