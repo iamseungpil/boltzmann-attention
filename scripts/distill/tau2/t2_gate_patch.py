@@ -2466,6 +2466,21 @@ def _any_effective_write(msgs, a2=None):
     return False
 
 
+def _user_all_tools(env):
+    """env의 **손님-측 전체 도구** 집합 — discoverable은 그 부분집합이다.
+
+    `_user_discoverable`만 있으면 "discoverable이 아니다"와 "손님 것이 아니다"를 구별할 수 없다.
+    구판이 그 둘을 합쳐 두어, 손님이 **이미 가진** 도구를 모델에게 "네 자신의 도구"라고 말했다.
+    프레임워크 API 두 개의 차집합이라 도메인 리터럴 0이다(`toolkit.get_discoverable_tools`는
+    `tools` 중 discoverable 표시가 붙은 것만 돌려준다 = 구조적 부분집합).
+    """
+    try:
+        ut = getattr(env, "user_tools", None)
+        return set(getattr(ut, "tools", {}) or {}) if ut is not None else set()
+    except Exception:
+        return set()
+
+
 def _user_discoverable(env):
     """env의 **user-side discoverable** 집합 (도메인일반·리터럴 0).
     banking 실측: `{deposit_check_3847, get_card_last_4_digits, get_referral_link, submit_cash_back_dispute_0589}`.
@@ -5442,6 +5457,30 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                             _ufb += _tpl_a.format(tool=_utgt, args=", ".join(_pn))
                                     except Exception:
                                         pass
+                                    # ★T2 근거-등급 중재 (2026-08-06·사용자 지시 "무조건 근거를 확보한
+                                    #   쪽이 우세하다"·정본 `CONFLICT_ARBITRATION_THEORY_2026_08_06`).
+                                    #   102 실측: `gates[GB1].applies_to`에 `submit_referral`이 **이미**
+                                    #   있는데 게이트가 한 번도 말하지 못했다 — 게이트는 *에이전트의 호출*에
+                                    #   붙고 그 도구는 손님이 실행하므로 붙을 자리가 없다. 그 사이 이 push는
+                                    #   *발화*에 붙어 늘 떴고, 손님이 5건을 제출했다(gold 1건).
+                                    #   ⇒ 선언이 덮는 표적이면 **명령권은 게이트에 있다**: 게이트 술어는
+                                    #   실행 원장(E1), push 표적은 formalize 산문(E5)이다.
+                                    #   ⚠침묵이 아니라 **치환**이다(표적 이름 유지) — 지우면 012 재현
+                                    #   (우리 deny가 일하던 문구의 트리거를 없앴다).
+                                    if os.environ.get("T2_ARBITRATE") == "1":
+                                        try:
+                                            import t2_dominance as _DOMm
+                                            _domg = _DOMm.dominating_gate(
+                                                a2, state.messages, _utgt,
+                                                executed=_executed_tool_names(state.messages),
+                                                unwrap=_exact_tool_name)
+                                        except Exception:
+                                            _domg = None
+                                        if _domg is not None:
+                                            _ufb = _DOMm.requirement_text(a2, _domg, _utgt)
+                                            print("[T2_ARBITRATE] push dominated target=%s gate=%s"
+                                                  % (_utgt, _domg.get("id")),
+                                                  file=_sys.stderr, flush=True)
                                     rw_fb = ((am.tool_calls or [None])[0], _ufb)
                                     self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
                                     print("[T2_RESOLVE] user-action instruct target=%s" % _utgt,
@@ -5661,7 +5700,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                           and os.environ.get("T2_DISPATCH_ROLE_ENVSET") == "1"
                           and iv and iv not in _user_discoverable(
                               getattr(getattr(self, "_t2_orch", None), "environment", None))):
-                        fbt = _drs.get("give_agent_tool_feedback")
+                        # ★T1 소속의 3갈래 판정 (2026-08-06 실측·조정설계 §1 처방 A).
+                        #   구판은 discoverable이 아닌 것을 **전부** "네 자신의 에이전트 도구"라고 말했다.
+                        #   실측된 실패: 손님이 **이미 가진** 도구를 그렇게 말했고, 같은 턴의 다른 문구는
+                        #   "그건 손님이 실행한다"고 말했다 = 같은 명제에 두 진리값([[25]] 정본 오염).
+                        #   우선순위로 풀 문제가 아니다 — 하나가 **틀렸다**.
+                        #   판정은 레지스트리 세 집합의 소속뿐이라 도메인 리터럴 0이고 deny 여부도
+                        #   바뀌지 않는다(문구만 사실에 맞춘다).
+                        _envg = getattr(getattr(self, "_t2_orch", None), "environment", None)
+                        if iv in _user_all_tools(_envg):
+                            fbt = (_drs.get("give_user_held_feedback")
+                                   or _drs.get("give_agent_tool_feedback"))
+                        elif iv in {getattr(t, "name", None)
+                                    for t in (getattr(self, "tools", None) or [])}:
+                            fbt = _drs.get("give_agent_tool_feedback")
+                        else:
+                            fbt = (_drs.get("give_unknown_name_feedback")
+                                   or _drs.get("give_agent_tool_feedback"))
                     elif (nm == _drs.get("give_tool")
                           and os.environ.get("T2_DISPATCH_ROLE_ENVSET") != "1"
                           and iv in {getattr(t, "name", None)
