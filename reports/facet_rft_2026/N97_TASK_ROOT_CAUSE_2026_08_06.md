@@ -791,3 +791,43 @@ records (#3…#11)"* 를 냈다(호출-반환을 `tool_call_id`로 짝지어 확
 **다음 검증(무료·한 걸음)**: 격리 경로를 켠 채 같은 입력으로 재현하고, 서브콜에 넘어간 행 수를 찍는다.
 (`T2_SG_TRACE=1`이 이미 켜져 있으므로 라이브 로그에도 흔적이 있을 수 있다 — 단 로그는 4 sim이
 섞이므로 sim 귀속은 사이드카로 해야 한다.)
+
+### task_023-확정② ★원인은 **인자 형성**이다 — 서브-LLM이 행을 다시 타이핑한다
+
+사용자 지적대로 **결정론 도구 함수는 정상**이고(오프라인 재현 QUALIFIES), 틀린 것은 그 함수에 들어간
+**operand**다. A2 선언이 그 경로를 명시한다:
+
+```
+isolate: {"mode":"fetch_formalize", "operand_keys":["transactions"],
+          "getter_tools":["get_credit_card_transactions_by_user"],
+          "instructions":"… output ONLY a JSON object … every transaction as
+                          {"date":…, "amount":…}. Copy raw values exactly …"}
+```
+라이브 로그가 그 실행을 확인해 준다(6회씩):
+```
+[T2_SG_ISOLATE] fetch check_rebate_qualification: 2라운드·getter 1회·operand keys=['transactions']
+[T2_SG_ISOLATE] check_rebate_qualification: fetch-formalize operand 주입 keys=['transactions']
+```
+⇒ 에이전트가 `@last:`로 준 참조와 무관하게 **`transactions`는 서브콜이 만든 값으로 주입**된다.
+서브가 60행 중 앞부분만 옮기면 창 #0·#1·#2만 차고 나머지 9창이 비어 기권한다 — 관측과 일치한다.
+
+**설계상의 뿌리**: `fetch_formalize`는 **결정론 작업(전사)을 LLM에게 시킨다**([[10]] 분담 위반).
+서브의 목적은 *"대형 리스트가 메인 컨텍스트를 부풀리지 않게"* 인데(`_note`: 2026-07-20 **023
+ContextWindowExceeded** 때문에 승격), 그 목적은 **서브가 fetch만 하고 엔진이 파싱**하면 그대로 달성된다 —
+`_parse_record_dump`가 이미 있다. 023을 구하려던 조치가 023을 죽였다.
+
+**두 번째 인자 결함**: `ground.scalar_fields`는 `monthly_threshold`를 `corpus:[kb, ledger]·on_fail: drop`로
+선언한다. 에이전트가 준 값은 **2000**이고 정책 축자는 *"monthly spend threshold of **$7500.00**"*
+(`doc_credit_cards_platinum_rewards_card_007`) ⇒ 접지 실패로 **드롭**된다. 즉 임계도 사라진 채 계산됐다.
+
+### 처방 (닫힘·도메인 리터럴 0)
+
+1. **전사를 엔진으로 되돌린다**: `fetch_formalize`에서 서브는 **getter 호출까지만** 하고, operand는
+   그 출력에 `_parse_record_dump`+`byref_field_map`을 적용해 **엔진이 만든다**. LLM이 행을 다시
+   쓰는 단계를 삭제한다.
+2. **폐기 전 검산(전환기 안전판)**: 서브가 만든 operand를 쓰더라도, **행 수·id 집합을 getter 원본과
+   대조**해 불일치면 서브 출력을 버리고 엔진 파싱본을 쓴다. 둘 다 우리 손에 있으므로 완전히 닫힌 검사다.
+3. **스칼라 접지 실패를 말한다**: `on_fail: drop`은 조용히 값을 없앤다. 드롭 시 *"이 값(2000)은 정책·원장
+   어디에도 없다 — 정책 문서에서 임계를 확인하라"* 를 1회 표면화(`T2_ABSTAIN_FIELDS` 계열 확장).
+4. 계량: 224 sim에서 ⓐ`fetch-formalize operand 주입` 발생 sim 수 ⓑ그 중 **서브 행 수 ≠ 원본 행 수**인 수
+   ⓒ스칼라 드롭 발생 수. ⓑ가 이 결함의 전체 규모다.
