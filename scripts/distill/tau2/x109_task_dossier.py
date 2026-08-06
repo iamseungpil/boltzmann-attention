@@ -174,13 +174,22 @@ def print_task_def(tid, tasks):
     ui = t.get("user_scenario") or {}
     ins = ui.get("instructions") or {}
     print("\n-- §0a 손님이 받은 시나리오(=외부 주장의 출처) --")
-    for k in ("domain", "reason_for_call", "task_instructions", "known_info", "unknown_info"):
-        if ins.get(k):
-            print("  %-18s %s" % (k, short(ins[k], 1600)))
+    # banking_knowledge는 instructions가 산문 한 덩어리다(다른 도메인은 슬롯 딕셔너리).
+    if isinstance(ins, str):
+        print("  %s" % short(ins, 4000))
+    else:
+        for k in ("domain", "reason_for_call", "task_instructions", "known_info", "unknown_info"):
+            if ins.get(k):
+                print("  %-18s %s" % (k, short(ins[k], 1600)))
     if ui.get("persona"):
         print("  %-18s %s" % ("persona", short(ui["persona"], 400)))
     if t.get("description"):
         print("  %-18s %s" % ("description", short(t["description"], 600)))
+    # 손님이 들고 있는 도구와 태스크가 요구하는 문서 — 채널·회수 판정의 전제다.
+    if t.get("user_tools"):
+        print("  %-18s %s" % ("user_tools", short(t["user_tools"], 400)))
+    if t.get("required_documents"):
+        print("  %-18s %s" % ("required_documents", short(t["required_documents"], 800)))
     acts, comm, nls = gold_actions(t)
     print("\n-- §0b gold 액션 (%d) --" % len(acts))
     for i, a in enumerate(acts):
