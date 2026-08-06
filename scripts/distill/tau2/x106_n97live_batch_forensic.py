@@ -36,7 +36,17 @@ FULL = "--full" in sys.argv
 SIMDIRS = ["/home/woori/scratch/tau2-bench/data/simulations",
            os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "..", "..", "..", "reports", "facet_rft_2026", "sim_results")]
-TAGRE = re.compile(r"\[([A-Z][A-Z0-9_\- ]{2,30})\]")
+# ★1차 실행 교정: `{2,30}`은 `[POLICY GATE GB1_VERIFY_BEFORE_ACCOUNT_ACCESS]`(44자)를 놓쳐
+#   그 발화를 전부 '무태그'로 몰았다. 그리고 tool 메시지의 `Error:`에는 **환경 오류도 섞인다** —
+#   우리 문구와 env 오류를 한 칸에 세면 "우리가 얼마나 말했나"가 곧바로 틀린다([[55]]).
+TAGRE = re.compile(r"\[([A-Z][A-Z0-9_\- ]{2,60})\]")
+# env가 내는 오류의 축자 지문(우리가 만든 문자열이 아니다). 목록은 실측에서 나온 것만 넣는다.
+ENV_SIG = ("Unknown agent tool", "Unknown user tool", "not found", "is not available",
+           "Invalid ", "Missing required", "Error code", "Traceback")
+
+
+def is_env_error(t):
+    return any(sig in t[:200] for sig in ENV_SIG)
 
 
 def load():
@@ -147,6 +157,8 @@ def main():
     print("\n== §5 우리 문구(궤적에 남는 deny만) × 결과 ==")
     tagcnt = collections.defaultdict(lambda: [0, 0, 0])      # tag -> [발화, 통과sim, 실패sim]
     persim_rep = []
+    untagged = collections.Counter()
+    envcnt = collections.Counter()
     for s in sims:
         ok = s["reward_info"]["reward"] == 1.0
         c = collections.Counter()
@@ -156,8 +168,14 @@ def main():
             t = str(m.get("content") or "")
             if not t.lstrip().startswith("Error:"):
                 continue
-            mo = TAGRE.search(t[:120])
-            c[mo.group(1) if mo else "(무태그 deny)"] += 1
+            if is_env_error(t):
+                envcnt[re.sub(r"'[^']*'", "'…'", t.lstrip()[:60])] += 1
+                continue                                   # env 오류 — 우리 문구가 아니다
+            mo = TAGRE.search(t[:160])
+            key = mo.group(1) if mo else "(무태그)"
+            if not mo:
+                untagged[re.sub(r"'[^']*'", "'…'", t.lstrip()[:70])] += 1
+            c[key] += 1
         for k, v in c.items():
             tagcnt[k][0] += v
             tagcnt[k][1 if ok else 2] += v
@@ -165,9 +183,15 @@ def main():
             top = c.most_common(1)[0]
             if top[1] >= 5:
                 persim_rep.append((top[1], s["task_id"], s.get("trial"), top[0], ok))
-    print("  %-26s %6s %8s %8s" % ("deny 태그", "발화", "통과sim", "실패sim"))
+    print("  %-46s %6s %8s %8s" % ("deny 태그(우리 문구만)", "발화", "통과sim", "실패sim"))
     for k, (a, p, f) in sorted(tagcnt.items(), key=lambda kv: -kv[1][0])[:18]:
-        print("  %-26s %6d %8d %8d" % (k, a, p, f))
+        print("  %-46s %6d %8d %8d" % (k, a, p, f))
+    print("\n  · 무태그 우리 문구 상위(문면으로 식별):")
+    for t, n in untagged.most_common(8):
+        print("      %4d  %r" % (n, t))
+    print("  · **env 오류**(우리 문구 아님·비교용) 상위:")
+    for t, n in envcnt.most_common(6):
+        print("      %4d  %r" % (n, t))
 
     print("\n== §6 한 sim 안에서 같은 deny가 5회 이상 (022형 루프 판별선) ==")
     for n, t, tr, k, ok in sorted(persim_rep, reverse=True)[:20]:
