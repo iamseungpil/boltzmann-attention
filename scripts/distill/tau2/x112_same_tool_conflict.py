@@ -92,6 +92,9 @@ def main():
         byturn[(r.get("sim"), r.get("turn"))].append(r)
 
     turns_with_text = len([k for k, v in byturn.items() if any((x.get("text") or "").strip() for x in v)])
+    # 설계서 §7.2e-정정과 **같은 분모**를 내기 위해 중간 단계도 센다:
+    #   both = 한 턴에 DO 행과 DONT 행이 (도구 일치와 무관하게) 함께 온 턴
+    both_turns = 0
     conflict_turns, conflict_sims = 0, set()
     tgt_count = collections.Counter()
     pair_count = collections.Counter()
@@ -106,6 +109,8 @@ def main():
                     dont_map[t].append(r)
                 elif d:
                     do_map[t].append(r)
+        if do_map and dont_map:
+            both_turns += 1
         hit = False
         for t in set(do_map) & set(dont_map):
             # 같은 행이 양쪽에 든 경우는 모순이 아니다 — 서로 다른 행이어야 한다.
@@ -122,8 +127,10 @@ def main():
 
     print("== 결과 (완주분) ==")
     print("  우리 문구가 나간 턴            %d" % turns_with_text)
-    print("  같은 도구에 DO+DONT가 함께 온 턴 **%d** (%.0f%%) · sim %d개"
-          % (conflict_turns, 100.0 * conflict_turns / max(1, turns_with_text), len(conflict_sims)))
+    print("  DO 행과 DONT 행이 함께 온 턴      %d" % both_turns)
+    print("  ★그중 **같은 도구**를 가리킨 턴    **%d** (%.0f%%) · sim %d개"
+          % (conflict_turns, 100.0 * conflict_turns / max(1, both_turns), len(conflict_sims)))
+    print("  (우리 문구 턴 대비 %.0f%%)" % (100.0 * conflict_turns / max(1, turns_with_text)))
     print("\n  표적별:")
     for t, n in tgt_count.most_common(10):
         print("    %-42s %3d턴" % (t, n))
