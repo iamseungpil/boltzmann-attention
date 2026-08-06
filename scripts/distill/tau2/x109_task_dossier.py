@@ -216,12 +216,15 @@ def print_task_def(tid, tasks):
     return t
 
 
-def print_scoring(s):
+def print_scoring(s, task=None):
     ri = s.get("reward_info") or {}
     print("\n-- §1 채점 (trial %s · %s · %s) --" % (s.get("trial"), s["_src"], s.get("id")))
-    print("  reward=%s  종료=%s  메시지=%d  소요=%.0fs"
+    # ★채점 기준을 먼저 찍는다(2026-08-06 018 실측): reward_basis=DB인 태스크는 gold 액션이
+    #   전부 ✗여도 **통과**한다. 기준 없이 액션 표만 읽으면 통과한 sim을 실패로 귀속하게 된다.
+    ec = ((task or {}).get("evaluation_criteria") or {}) if task else {}
+    print("  reward=%s  종료=%s  메시지=%d  소요=%.0fs  **reward_basis=%s**"
           % (ri.get("reward"), s.get("termination_reason"), len(s.get("messages") or []),
-             s.get("duration") or 0))
+             s.get("duration") or 0, ec.get("reward_basis") or "?"))
     db = ri.get("db_check")
     if db is not None:
         print("  db_check=%s %s" % (getattr(db, "get", lambda k: None)("db_match") if isinstance(db, dict) else db,
@@ -380,13 +383,13 @@ def main():
               % ", ".join("%s(%d/%d)" % (t, len(f), len(bytask[t])) for t, f in fails if f))
         return
     for tid in TASKS:
-        print_task_def(tid, tasks)
+        t = print_task_def(tid, tasks)
         mine = sorted([s for s in sims if s.get("task_id") == tid], key=lambda x: x.get("trial") or 0)
         if not mine:
             print("  (이 태그에 sim 없음: tag=%s)" % TAG)
             continue
         for s in mine:
-            print_scoring(s)
+            print_scoring(s, t)
             print_sidecar(s, side)
             print_retrieval(s)
             print_kb(s, docs)
