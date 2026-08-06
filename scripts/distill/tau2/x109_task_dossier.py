@@ -151,8 +151,14 @@ def sidecar_files_for(src):
     d = re.search(r"(\d{8}[a-z]?)$", src or "")
     if not (m and d):
         return []
-    return [f for f in SIDECAR_FILES
-            if ("gpu" + m.group(1)) in f and d.group(1) in f]
+    # ⚠태그는 **동등 비교**여야 한다. 부분 문자열로 보면 전반부(`…20260806`)가 잔여
+    #   런의 파일(`…20260806b`)을 자기 것으로 집어삼킨다 — 1차 수정이 정확히 그렇게 틀렸다.
+    out = []
+    for f in SIDECAR_FILES:
+        ft = re.search(r"_(\d{8}[a-z]?)\.jsonl", f)
+        if ft and ft.group(1) == d.group(1) and ("gpu" + m.group(1)) in f:
+            out.append(f)
+    return out
 
 
 def rows_for(s, side):
