@@ -176,6 +176,85 @@ def uncalled_in_corpus(messages, corpus, a2=None, called=None):
     return sorted(named - called)
 
 
+CLAIM_PROMPT = (
+    "Below is the last thing a customer-service agent said. List only the statements in it that "
+    "assert a LIMIT, a MAXIMUM, an ALLOWANCE, or a COUNT that the company's own policy documents "
+    "or records decide - not things the customer alone would know, and not the agent's plans.\n"
+    "For each one, give the claim and the document id it rests on, or \"\" if none was cited.\n"
+    "Agent said:\n{text}\n"
+    'Reply JSON only: {"claims": [{"claim": "<short>", "doc": "<doc id or empty>"}]}'
+)
+
+UNSOURCED_FB = (
+    "Error: [SOURCE] you stated {n} thing(s) as fact that the policy documents decide, without "
+    "having the document: {claims}. A limit or an allowance is not something the records show - "
+    "the records show how many were used, the document says how many are allowed. Search the "
+    "knowledge base for the document that states it, quote the figure it gives, and only then say "
+    "whether the limit is reached. If the document does not support what you said, correct it."
+)
+
+
+def formalize_claims(agent, la, UserMessage, messages, cap_attr="_t2_source_calls", cap=1):
+    """에이전트의 **직전 발화**에서 정책이 정하는 수량 주장을 뽑는다 (LLM 몫·[[52]]).
+
+    ⚠**호출 순증 0이 아니다.** `formalize_intent_tool`은 user 메시지만 보므로 얹을 수 없다 —
+    별도 서브콜이고, 그 비용을 인정하는 대신 **sim당 `cap`회**로 묶는다.
+
+    엔진은 뽑지 않고 **검증만** 한다. 반환 = [{claim, doc}].
+    """
+    if agent is None or la is None:
+        return []
+    if getattr(agent, cap_attr, 0) >= cap:
+        return []
+    last = ""
+    for m in reversed(messages or []):
+        if getattr(m, "role", None) == "assistant":
+            c = getattr(m, "content", None)
+            if isinstance(c, str) and c.strip():
+                last = c
+                break
+    if not last.strip():
+        return []
+    setattr(agent, cap_attr, getattr(agent, cap_attr, 0) + 1)
+    try:
+        p = CLAIM_PROMPT.replace("{text}", last[:2500])
+        try:
+            um = UserMessage(role="user", content=p)
+        except TypeError:
+            um = UserMessage(content=p)
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+              if "tool" not in k}
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="source_claim_formalize", **kw)
+        txt = getattr(sub, "content", None) or ""
+        out = []
+        for m2 in re.finditer(r'\{[^{}]*"claim"\s*:\s*"([^"]{1,200})"[^{}]*\}', txt):
+            blob = m2.group(0)
+            doc = re.search(r'"doc"\s*:\s*"([^"]*)"', blob)
+            out.append({"claim": m2.group(1).strip(), "doc": (doc.group(1).strip() if doc else "")})
+        return out[:5]
+    except Exception:
+        return []
+
+
+def unsourced_claims(claims, corpus):
+    """근거 문서를 못 댄 주장만. 인용한 doc이 **이 대화에서 실제로 회수됐는지**까지 본다."""
+    bad = []
+    for c in (claims or []):
+        doc = (c.get("doc") or "").strip()
+        if doc and has_source(doc, "document", corpus):
+            continue
+        bad.append(c.get("claim") or "")
+    return [b for b in bad if b]
+
+
+def unsourced_text(a2, bad):
+    tpl = str((((a2 or {}).get("arbitration") or {}).get("unsourced_claim_feedback"))
+              or UNSOURCED_FB)
+    return tpl.replace("{n}", str(len(bad))).replace(
+        "{claims}", "; ".join('"%s"' % b for b in bad))
+
+
 if __name__ == "__main__":                                   # 자기검정 (오프라인)
     class _C:
         def __init__(self, name, args=None):
@@ -232,4 +311,22 @@ if __name__ == "__main__":                                   # 자기검정 (오
     assert "get_referral_link" in un and "submit_referral" in un
     assert "get_referrals_by_user" not in un                    # 이미 호출됨
     assert "log_verification" not in un                         # 회수 텍스트에 없음(레지스트리에만)
+
+    # ── 주장-측: 인용한 doc이 이 대화에서 회수됐는가 ──────────────────────────
+    claims = [{"claim": "Sky Blue limit reached", "doc": ""},
+              {"claim": "Gold Years 6 used", "doc": "doc_business_x"},
+              {"claim": "annual max is 8", "doc": "doc_never_retrieved"}]
+    bad = unsourced_claims(claims, cp)
+    assert bad == ["Sky Blue limit reached", "annual max is 8"], bad
+    txt = unsourced_text({}, bad)
+    assert "Sky Blue limit reached" in txt and "2 thing" in txt
+
+    # 서브콜 캡: sim당 1회
+    class _AG:
+        llm = None
+        llm_args = {}
+    ag = _AG()
+    assert formalize_claims(ag, None, None, []) == []            # la 없음 = 안전 실패
+    ag._t2_source_calls = 1
+    assert formalize_claims(ag, object(), object(), [_M("assistant", "x")]) == []   # 캡 소진
     print("t2_source self-check OK")

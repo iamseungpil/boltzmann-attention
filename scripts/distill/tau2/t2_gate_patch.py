@@ -5482,11 +5482,41 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                 unwrap=_exact_tool_name)
                                         except Exception:
                                             _reqs = []
-                                        if _reqs:
-                                            _ufb = _DOMm.merged_text(a2, _reqs, _utgt)
-                                            print("[T2_ARBITRATE] push dominated target=%s reqs=%s"
-                                                  % (_utgt, ",".join(r["id"] for r in _reqs)),
-                                                  file=_sys.stderr, flush=True)
+                                        # ★C1 출처(2026-08-07): 정책이 정하는 수량을 **근거 없이**
+                                        #   단정하면 그 자리를 짚는다. 102 실측 — 원장에서 건수는
+                                        #   정확히 셌는데(7) 한도는 어디서도 안 가져오고 "도달"로
+                                        #   건너뛰어 **정답을 스스로 제외**했다. 원장에는 한도 필드가
+                                        #   없다: 원장은 몇 건 썼는지, 문서는 몇 건까지인지를 말한다.
+                                        #   뽑는 것은 LLM, 검증(인용한 doc이 실제 회수됐는가)은 엔진.
+                                        #   ⚠출력은 **C3 합병 경로로 합류**시킨다 — 따로 내보내면
+                                        #   같은 턴에 두 명령이 되어 T4b(슬롯 경합)를 재생산한다.
+                                        _bad = []
+                                        if os.environ.get("T2_SOURCE") == "1":
+                                            try:
+                                                import t2_source as _SRC
+                                                _cl = _SRC.formalize_claims(
+                                                    self, la, UserMessage, state.messages)
+                                                _cp = _SRC.build_corpus(
+                                                    state.messages,
+                                                    env=getattr(getattr(self, "_t2_orch", None),
+                                                                "environment", None),
+                                                    agent=self, a2=a2)
+                                                _bad = _SRC.unsourced_claims(_cl, _cp)
+                                                if _cl:
+                                                    print("[T2_SOURCE] claims=%d unsourced=%d"
+                                                          % (len(_cl), len(_bad)),
+                                                          file=_sys.stderr, flush=True)
+                                            except Exception:
+                                                _bad = []
+                                        if _reqs or _bad:
+                                            _ufb = _DOMm.merged_text(a2, _reqs, _utgt) if _reqs else ""
+                                            if _bad:
+                                                _ufb = ((_ufb + "\n") if _ufb else "") + \
+                                                    _SRC.unsourced_text(a2, _bad)
+                                            print("[T2_ARBITRATE] push dominated target=%s reqs=%s "
+                                                  "unsourced=%d"
+                                                  % (_utgt, ",".join(r["id"] for r in _reqs),
+                                                     len(_bad)), file=_sys.stderr, flush=True)
                                     rw_fb = ((am.tool_calls or [None])[0], _ufb)
                                     self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
                                     print("[T2_RESOLVE] user-action instruct target=%s" % _utgt,
