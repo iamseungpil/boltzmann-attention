@@ -29,7 +29,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from x104_lever_arbitration_census import (TAGRE, OURS, lever_of,        # noqa: E402
+from x104_lever_arbitration_census import (TAGRE, OURS, PUSH, lever_of,  # noqa: E402
                                            targets_of, tool_universe)
 
 try:
@@ -62,6 +62,22 @@ def polarity(text, tool):
         elif DO.search(s):
             do = True
     return do, dont
+
+
+def classify(do_row, dont_row):
+    """모순의 **성격**을 가른다 — 처방이 성격마다 다르기 때문이다.
+
+    K1 push↔게이트   : 진짜 조정 대상. 우리가 시키고 우리가 막는다.
+    K2 push↔사실주장 : 두 문구가 그 도구에 대해 **다른 사실**을 말한다(채널·존재). [[25]] 정본 오염.
+    K3 비-push↔무엇 : DO로 잡힌 쪽이 push 레버가 아니다 = 대개 *"당신은 X를 하려 한다"* 라는
+                      서술이 'use/call'을 포함해 걸린 것 = **내 극성 판정의 오탐**.
+    """
+    dl, nl = lever_of(do_row), lever_of(dont_row)
+    if dl not in PUSH:
+        return "K3 비-push가 DO로 잡힘(오탐 후보)"
+    if "POLICY GATE" in (dont_row.get("text") or "")[:200]:
+        return "K1 push ↔ 정책 게이트"
+    return "K2 push ↔ 다른 사실 주장"
 
 
 def load_rows():
@@ -99,6 +115,7 @@ def main():
     tgt_count = collections.Counter()
     pair_count = collections.Counter()
     samples = []
+    kinds = collections.Counter()
     for (sim, turn), rs in sorted(byturn.items()):
         do_map, dont_map = collections.defaultdict(list), collections.defaultdict(list)
         for r in rs:
@@ -119,6 +136,7 @@ def main():
             hit = True
             tgt_count[t] += 1
             pair_count[(lever_of(do_map[t][0]), lever_of(dont_map[t][0]))] += 1
+            kinds[classify(do_map[t][0], dont_map[t][0])] += 1
             if len(samples) < 6:
                 samples.append((sim, turn, t, do_map[t][0], dont_map[t][0]))
         if hit:
