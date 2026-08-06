@@ -361,17 +361,41 @@ merchant_name="Best Buy", amount=750, category="Shopping"}`(**requestor=user**).
 
 ---
 
-## task_017 — ⏳**분석 미완**(다음 배치에서 이어감)
+## task_017 — 분쟁을 **건네고 나서, 분쟁 없이 스스로 정정했다** (순서 위반)
 
-지금까지 **확인된 것만** 적는다(추정 금지).
+**gold 4건** ①`log_verification` ②`give_discoverable_user_tool{submit_cash_back_dispute_0589}`
+③④ **손님이** 그 도구를 두 거래(`txn_cfabb609133d`·`txn_913d14a20dc5`)로 각각 호출.
+**t0** ①✓ ②✓ ③✗ ④✗ · db_check False · 59 메시지·1025초.
 
-- **gold 4건**: `log_verification` → `give_discoverable_user_tool{submit_cash_back_dispute_0589}` →
-  손님이 **두 건의 특정 거래**(`txn_cfabb609133d`·`txn_913d14a20dc5`)로 그 도구를 각각 호출.
-- **t0 채점**: ①✓ ②✓ ③✗ ④✗ — 즉 **도구를 건네는 데까지 갔고 손님의 두 호출에서 죽었다.**
-  59 메시지·1025초로 이 배치에서 가장 긴 sim이다.
-- **턴2에 자리표시자 날조 관측**: `verify_identity{provided={"email":"user@example.com",
-  "address":"123 Main St, Anytown, USA"}}` — 손님이 아무 값도 주기 전에 **예시 값을 지어내 검증에 넣었다**.
-  (`T2_A2_VARIANT=ledger`가 `record` 슬롯의 날조를 구조적으로 막은 것과 같은 계열이 `provided`에서 재발했는지
-  확인 필요 — 우리 도구가 그 호출에 무엇을 돌려줬는지까지 읽어야 판정할 수 있다.)
-- 남은 확인 항목: ⓐ손님 호출이 **아예 없었는지**, 인자가 달랐는지 ⓑ거래 id 두 건이 어느 도구 출력에서
-  나왔는지(=전달 실패인지 식별 실패인지) ⓒ`[coverage]`·`T2_DISPATCH_LEDGER`가 이 자리에서 발화 가능했는지.
+### 순서는 두 곳에 이미 적혀 있었다
+
+- **우리 도구 출력**(턴15 `get_reward_discrepancies`·축자): *"...each needs a cash back dispute. The CORRECT
+  total reward per policy is shown for each — **after its dispute is resolved**, update that transaction's
+  rewards to EXACTLY the correct value shown."*
+- **에이전트가 회수한 정책**(턴16·`doc_credit_cards_credit_cards_(general)_004`,
+  *"Applying Resolved Cash Back Dispute Corrections (Internal)"*): *"**After** a cash back dispute is resolved
+  and approved, you must update the affected transaction(s)…"*
+
+### 실제 순서
+
+턴19 give ✓ → **턴20 `update_transaction_rewards_3847{txn_913d14a20dc5 → 156 points}`** →
+턴21 give 재호출 → **턴22 `update…{txn_cfabb609133d → 87 points}`** → 턴23 *"해결됐습니다"* 로 종결 시도.
+**분쟁은 한 건도 제출되지 않았다.** 손님에게 "이 대화에서 지금 실행하라"고 말한 적이 없고, 대신
+후행 단계를 선행 없이 에이전트가 직접 수행했다. 이후 손님의 추궁에 요약을 제공하다 결국 이관하며
+사유도 틀렸다(`account_ownership_dispute`).
+
+### 레버 판정 — 이 자리에 정확히 맞는 레버가 있는데 **문턱이 늦다**
+
+| 레버 | 술어 | 이 궤적에서 |
+|---|---|---|
+| `T2_GIVE_EXEC_NUDGE`(C214/E2·019 표적) | give 성사 ∧ 손님 호출 0 ∧ **그 턴이 사임**(도구 없는 산문) | 턴20·21·22가 전부 **도구 호출을 달고 있어** 술어가 거짓. 첫 산문 턴은 **턴23** — 두 갱신이 이미 끝난 뒤다 |
+| `follow_up_chains`(A2) | `after: submit_cash_back_dispute_0589 → requires: update_transaction_rewards_3847` | **방향이 반대다**. 분쟁이 있었을 때 갱신을 요구할 뿐, **분쟁 없는 갱신**은 보지 않는다 |
+| `T2_PROCEDURE`(선언 6종) | CLI·해지·이관 흐름만 선언돼 있다(실측: 절차 0=CLI, 2=해지, 3·4·5=이관) | 분쟁→갱신 순서는 **미선언** |
+
+⇒ **조정 후보 J**: `T2_GIVE_EXEC_NUDGE`의 발화 시점을 *사임 턴*에서 **"건넨 도구가 미실행인 채로 다른 write를
+실행하려는 턴"** 까지 넓힌다. 술어는 그대로 구조 사실(give 성공 ∧ user 호출 0)이고 시점만 앞당긴다.
+⇒ **신규 레버 후보 I — 선행 없는 후행 write 차단**: 정책이 순서를 **명령문으로** 적어 둔 흐름
+(*"After a dispute is resolved … you must update"*)을 A2 `procedures`에 `_quote`와 함께 선언하고,
+선행(손님의 분쟁 제출)이 원장에 없으면 후행 write를 1회 deny.
+- [[23]] 준수: 근거는 **정책 문서 축자 + 우리 도구 출력**이지 gold가 아니다(둘 다 이 대화에 실재).
+- ⚠과차단 계량 필수: "분쟁 없이 갱신"이 정당한 흐름(예: 다른 사유의 보상 정정)이 224 sim에 몇 건인지 먼저 센다.
