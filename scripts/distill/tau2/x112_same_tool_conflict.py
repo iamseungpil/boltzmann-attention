@@ -152,6 +152,9 @@ def main():
     print("\n  표적별:")
     for t, n in tgt_count.most_common(10):
         print("    %-42s %3d턴" % (t, n))
+    print("\n  성격별(처방이 성격마다 다르다):")
+    for k, n in kinds.most_common():
+        print("    %-36s %3d" % (k, n))
     print("\n  레버 쌍(DO ← → DONT) 상위:")
     for (a, b), n in pair_count.most_common(10):
         print("    %-24s ↔ %-24s %3d" % (a, b, n))
