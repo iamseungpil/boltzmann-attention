@@ -469,3 +469,43 @@ C289는 019(Thrive Market)를 *"정당 차단이라 quote-pin으로도 안 열�
   `확정 행 − 제출된 행 ≠ ∅`이면 터미널 시도마다 1회 표면화. 술어는 완전히 닫혀 있다
   (우리 출력의 행 id ∪ 원장의 제출 이력) · 도메인 리터럴 0 · gold 미참조.
 - 018(6행 중 1행) + 019(3/4행) ⇒ **DB 채점 분쟁군의 공통 잔여**. 224 sim 계량 대상 1순위.
+
+---
+
+## task_020 — ★**우리 엔진이 없는 불일치를 만들었다** (제외 상점 목록 미적용)
+
+**gold 4건의 분쟁**(`a8f1c2d3e403`·`b7e2d4c5f506`·`a8f1c2d3e410`·`a8f1c2d3e411`) · `reward_basis=['DB']` · t0/t1 전패.
+
+**t0에서 손님이 실제로 제출한 분쟁은 5건** — gold 4건 + **`txn_a8f1c2d3e404`**. 여분 한 건이 DB를 깨뜨렸다.
+
+### 그 여분은 모델의 과잉이 아니라 **우리 출력의 지시**였다
+
+`get_reward_discrepancies` 반환(축자):
+*"…txn_a8f1c2d3e403 (recorded 3150, correct 6300); **txn_a8f1c2d3e404 (recorded 160 points, correct 1599 points)**;
+txn_b7e2d4c5f506 …; txn_a8f1c2d3e410 …; txn_a8f1c2d3e411 … **[coverage] 26 of 26 rows were checked (0 could not be verified)**."*
+기권 행은 **없다**. 우리 엔진이 e404를 **적극적으로 불일치라고 판정**했다.
+
+### 원장과 정책으로 검산하면 recorded 160이 맞다
+
+- 거래 원장: `txn_a8f1c2d3e404` · **Business Silver Rewards Card** · merchant **Microsoft 365** · $79.99 · Software.
+- 정책(`doc_business_credit_cards_business_silver_rewards_card_*`): 여행·소프트웨어 **10.0%**,
+  그러나 같은 계열 문서에 **제외 목록**이 있다 — *"The following specific merchants do NOT earn the 10.0%
+  bonus rate and instead earn the standard 1.0% rate … Hardware/Electronics Merchants (Software Exclusion):
+  Apple, **Microsoft**, Dell"*. 그리고 *"New … customers can earn **2x** cash back … first 6 months"*.
+- 검산: 79.99 × 1.0% × 2 = **$1.60 → 160 포인트 = 원장 값**. 엔진의 1599는 79.99 × 10% × 2 = $15.998 —
+  **제외 목록을 적용하지 않은 값**이다.
+
+⇒ **엔진 결함 [M]**: 상점 기반 **제외 규칙**이 요율 산정에 반영되지 않는다. 019에서 `[quote-pin]`이
+상점 매핑을 거부하는 기계는 있는데, **제외 목록은 그 경로를 타지 않는다.**
+
+### 선행 귀속 정정 [M]
+
+핸드오프 §3.1은 020을 *"같은 메시지에 '확인 못 한 5건' id가 나열돼 11건 전부 제출"* 로 귀속했다.
+이 궤적에서 기권 행은 **0건**이고 목록도 5건이다. 020의 여분 제출은 **표시 혼동이 아니라 오판정**이다.
+
+### 레버 판정
+
+- 레버 자리가 아니다. **정본 수정**이다([[25]]): `get_reward_discrepancies`가 제외 상점 규칙을 적용해야 한다.
+- ⚠파급 계량 필수: 같은 계열로 묶여 있던 **026·027·029**가 같은 원인인지 각각 확인(상속 금지).
+  전수 224 sim에서 **엔진이 불일치로 판정한 행 ∩ gold이 요구하지 않은 행**을 세면 규모가 나온다 —
+  이 값이 크면 분쟁군의 실패 상당수가 레버가 아니라 **우리 산식**의 문제다.
