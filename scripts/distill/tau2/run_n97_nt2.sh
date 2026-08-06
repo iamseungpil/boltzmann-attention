@@ -47,6 +47,10 @@ persist(){  # $1 = tag. Serialised across the two drivers — git is not concurr
 
 run_block(){  # $1 = tag suffix, $2 = comma-separated task ids
   local tag="bank_n97_gpu${G}_$1_$DATE"
+  # An empty id list is not "run nothing" — tau2 reads it as "run every task in the domain",
+  # which is a full paid sweep nobody asked for (2026-08-06: an unexpanded glob below sent
+  # gpu1 back through all 97 tasks after its block had already been persisted).
+  [ -n "$2" ] || { say "empty task list for $1 — refusing to launch"; return; }
   say "start $1 ($(echo "$2" | tr ',' '\n' | wc -l) tasks)"
   rm -rf "$GO_TAU2/data/simulations/$tag"
   # t2_launch, not a copy of its flags — go_stack.sh is the single source of truth for
@@ -59,6 +63,9 @@ run_block(){  # $1 = tag suffix, $2 = comma-separated task ids
 run_block main "$(cat "$PLAN/gpu${G}.tasks")"
 
 # Drain the reserve. Whoever is free claims next; the loop ends when nothing is left.
+# nullglob: with an empty reserve the pattern would otherwise survive as the literal
+# `batch_*`, get claimed, and be launched with no ids at all.
+shopt -s nullglob
 for f in "$PLAN"/reserve/batch_*; do
   b=$(basename "$f")
   mkdir "$PLAN/claims/$b" 2>/dev/null || continue      # someone else took it

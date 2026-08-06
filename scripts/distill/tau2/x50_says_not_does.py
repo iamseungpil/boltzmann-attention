@@ -47,6 +47,9 @@ ARMS = {
     "N97": "bank_n97_gpu*_20260804",
     # 처방 4종을 켠 재런(2026-08-05). 같은 97×nt2라 N97과 태스크·trial 단위로 짝지어진다.
     "N97B": "bank_n97_gpu*_20260805",
+    # 2026-08-06 스윕. 사이드카 없이 돈 전반부(126 sim·50 태스크 두 trial 완결)를 중단·영속화한 것.
+    # reminder 채널은 없지만 **궤적은 전량 있다** — deny·호출·도구응답·양측 발화 전부.
+    "N97C": "bank_n97_gpu*_main_20260806",
 }
 
 # Wrappers, not actions: they carry another tool's name in their arguments, so without
