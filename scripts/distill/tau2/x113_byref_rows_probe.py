@@ -105,6 +105,11 @@ def replay_op(rows, args):
     print("  이름: %s" % spec.get("name"))
     op = spec.get("op")
     print("  op 트리 키: %s" % _j.dumps(op, ensure_ascii=False)[:600])
+    # ★라이브와 같은 조건: byref 경로는 A2 `byref_field_map`으로 컬럼명을 먼저 맞춘다.
+    #   이 단계를 빼면 op이 읽는 필드가 비어 계산이 통째로 null이 된다(1차 재현의 오류).
+    SG._byref_map_fields(spec, rows)
+    print("  byref_field_map: %s" % _j.dumps(spec.get("byref_field_map") or {}, ensure_ascii=False))
+    print("  매핑 후 행 예시: %s" % _j.dumps(rows[0], ensure_ascii=False)[:260])
     ctx = dict(args or {})
     ctx["transactions"] = rows
     try:
