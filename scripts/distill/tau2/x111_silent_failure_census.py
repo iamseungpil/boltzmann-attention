@@ -64,10 +64,12 @@ def main():
     # ★arm을 갈라야 한다: 전반부 `*_main_20260806`은 드라이버가 사이드카를 켜지 않았으므로
     #   그 sim의 "사이드카 0건"은 **침묵의 증거가 아니다**([[55]]).
     sc_arms = {r[5] for r in (silent + spoke) if sidecar_files_for(r[5])}
-    on = [r for r in silent if r[5] in sc_arms]
     off = [r for r in silent if r[5] not in sc_arms]
-    print("  ├ 사이드카가 켜져 있던 arm의 침묵 sim: %d  ⇒ **우리 층이 정말 아무 말도 안 했다**" % len(on))
-    print("  └ 사이드카가 없던 arm의 침묵 sim:     %d  ⇒ 커밋된 문구가 없었다는 것만 안다(판정 불가)" % len(off))
+    dead = [r for r in silent if r[5] in sc_arms and r[3] == 0]
+    remind = [r for r in silent if r[5] in sc_arms and r[3] > 0]
+    print("  ├ 사이드카 arm · 사이드카도 0건:      %d  ⇒ 우리 층이 **정말 아무 말도 안 했다**" % len(dead))
+    print("  ├ 사이드카 arm · reminder는 나갔다:   %d  ⇒ 말은 했으나 **궤적에 남는 개입은 0**" % len(remind))
+    print("  └ 사이드카 없는 arm:                 %d  ⇒ 판정 불가([[55]])" % len(off))
     print("  (사이드카가 확인된 arm: %s)" % (", ".join(sorted(sc_arms)) or "없음"))
     print("  이관 호출로 끝난 실패 sim: %d" % term_exit)
     print("\n  침묵 sim 목록(태스크 t시행 · 메시지 · 사이드카 · 이관종료):")
