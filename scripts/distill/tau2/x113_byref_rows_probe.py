@@ -85,6 +85,36 @@ def main():
               % dict(sorted(collections.Counter(k % 12 for k in sel).items())))
         missing = [i for i in range(12) if i not in {k % 12 for k in sel}]
         print("    ⇒ 비어 있는 창: %s" % (missing or "없음"))
+    replay_op(rows, args)
+
+
+def replay_op(rows, args):
+    """A2가 선언한 rebate 스펙을 **그대로** 오프라인 평가한다 — 행이 어디서 사라지는지 본다."""
+    import json as _j
+    a2p = os.path.join(HERE, "a2", "banking_knowledge.specific.json")
+    a2 = _j.load(io.open(a2p, encoding="utf-8"))
+    spec = None
+    for t in (a2.get("scaffold_get_tools") or []):
+        if "rebate" in str(t.get("name") or ""):
+            spec = t
+            break
+    if not spec:
+        print("
+  (A2에 rebate 선언 없음)")
+        return
+    print("
+== A2 선언 재현 ==")
+    print("  이름: %s" % spec.get("name"))
+    op = spec.get("op")
+    print("  op 트리 키: %s" % _j.dumps(op, ensure_ascii=False)[:600])
+    ctx = dict(args or {})
+    ctx["transactions"] = rows
+    try:
+        out = CP.apply_op(op, ctx)
+        print("  결과: %s" % _j.dumps(out, ensure_ascii=False)[:400])
+    except Exception as e:
+        print("  평가 예외: %r" % (e,))
+    print("  ctx 사이드채널: _expected_groups=%s" % (ctx.get("_expected_groups"),))
 
 
 if __name__ == "__main__":
