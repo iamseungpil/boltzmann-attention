@@ -99,11 +99,9 @@ def replay_op(rows, args):
             spec = t
             break
     if not spec:
-        print("
-  (A2에 rebate 선언 없음)")
+        print("\n  (A2에 rebate 선언 없음)")
         return
-    print("
-== A2 선언 재현 ==")
+    print("\n== A2 선언 재현 ==")
     print("  이름: %s" % spec.get("name"))
     op = spec.get("op")
     print("  op 트리 키: %s" % _j.dumps(op, ensure_ascii=False)[:600])
