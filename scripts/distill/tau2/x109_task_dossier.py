@@ -60,6 +60,7 @@ if "--tag" in sys.argv:
     TAG = sys.argv[sys.argv.index("--tag") + 1]
 WIDE = "--wide" in sys.argv
 NOTRACE = "--no-trace" in sys.argv
+CALLS = "--calls" in sys.argv
 CUT = 1200 if WIDE else 420
 TASKS = [t if t.startswith("task_") else "task_" + t for t in (ARGS[0].split(",") if ARGS else [])]
 
@@ -266,6 +267,27 @@ def print_trace(s, ours):
             print("  [%02d T:%s] %s" % (turn, head, short(txt, CUT if src == "env" else max(CUT, 900))))
 
 
+def print_calls(s):
+    """실행된 호출만 순서대로 — **DB 채점 태스크의 유일한 대조 수단**.
+
+    `db_check`는 `{db_match, db_reward}`만 준다(어느 행이 왜 틀렸는지 없음). 그래서 같은 태스크의
+    통과 trial과 실패 trial의 **호출 원장을 나란히 놓는 것**이 원인을 가르는 방법이다. 손님 호출과
+    에이전트 호출을 구분해 찍는다(gold의 requestor와 맞춰 읽어야 하므로).
+    """
+    print("\n-- §2b 호출 원장 (requestor | 도구 | 인자) --")
+    n = 0
+    for m in s.get("messages") or []:
+        role = m.get("role")
+        for tc in (m.get("tool_calls") or []):
+            if role not in ("assistant", "user"):
+                continue
+            n += 1
+            print("  %2d %-9s %-34s %s" % (n, "손님" if role == "user" else "에이전트",
+                                           eff(tc), short(tc.get("arguments"), 220)))
+    if not n:
+        print("  (호출 없음)")
+
+
 def print_sidecar(s, side):
     rows = side.get(s.get("id")) or []
     print("\n-- §3 우리 층(사이드카) — %d건 --" % len(rows))
@@ -390,6 +412,8 @@ def main():
             continue
         for s in mine:
             print_scoring(s, t)
+            if CALLS:
+                print_calls(s)
             print_sidecar(s, side)
             print_retrieval(s)
             print_kb(s, docs)
