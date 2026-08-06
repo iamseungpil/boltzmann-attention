@@ -152,10 +152,19 @@ def short(x, n=None):
 
 
 def is_ours(text, ours):
+    """출처 판정 — 문면 추측 금지([[55]]), 그리고 **부분 문자열 포함은 신호가 아니다**.
+
+    1차판은 우리 문구의 40자 접두가 메시지 *앞부분 어디에든* 있으면 우리 것으로 봤다.
+    그 규칙이 012 t1에서 순수한 KB 검색 결과(env)를 '우리'로 찍었다 — A2 문구 조각이
+    문서 본문과 겹친 것이다. 우리 층은 **메시지를 앞에서 시작한다**(deny는 `Error:`,
+    표면화는 대괄호 태그). 그러므로 판정은 **접두 일치 또는 선두 태그**로 좁힌다.
+    """
     body = text.lstrip()
     if body.startswith("Error:"):
         body = body[len("Error:"):].lstrip()
-    return any(body.startswith(pre[:40]) or pre[:40] in body[:400] for pre in ours)
+    if TAGRE.match(body):                      # 선두 [T2_…]/[POLICY GATE …]/[SEARCH-EXHAUST] 등
+        return True
+    return any(body.startswith(pre[:40]) for pre in ours)
 
 
 def gold_actions(task):
@@ -305,6 +314,53 @@ def print_kb(s, docs):
             print("      ⚠코퍼스에 **한 문서에도 없는 단어**: %s" % ", ".join(sorted(allw)[:12]))
 
 
+DOCID_RE = re.compile(r"\bID:\s*(doc_[A-Za-z0-9_().\-]+)")
+SCORE_RE = re.compile(r"^\s*Score:\s*([0-9]*\.?[0-9]+)\s*$", re.M)
+
+
+def print_retrieval(s):
+    """회수가 자라는가 — 소진·무득점 두 술어를 궤적에서 그대로 재현한다.
+
+    두 레버가 이 자리에 걸려 있고 둘 다 012를 표적으로 등재돼 있다:
+      `T2_KB_NOHIT_SURFACE`  = 반환 문서가 **전부 0점**인 검색이 K회 연속(t2_gate_patch `_kb_zero_hit`)
+      `T2_SEARCH_EXHAUST`    = **새 문서 id가 0**인 검색이 K회 연속(dry streak) ∧ 그 턴이 사임(도구 없는 산문)
+    술어를 여기서 다시 계산하면, 사이드카가 없는 런에서도 "발화할 수 있었는가"를 무료로 가른다.
+    (발화했는가 ≠ 발화할 수 있었는가 — 후자가 거짓이면 그 레버는 이 실패를 애초에 못 잡는다.)
+    """
+    seen, dry, zero = set(), 0, 0
+    rows = []
+    turn = 0
+    for m in s.get("messages") or []:
+        if m.get("role") == "assistant":
+            turn += 1
+            resign = not (m.get("tool_calls") or []) and str(m.get("content") or "").strip()
+            if resign:
+                rows.append((turn, "(사임 턴: 도구 없는 산문)", "", "", dry, zero))
+            continue
+        if m.get("role") != "tool":
+            continue
+        txt = str(m.get("content") or "")
+        ids = DOCID_RE.findall(txt)
+        scores = [float(x) for x in SCORE_RE.findall(txt)]
+        if not ids and not scores:
+            continue
+        new = [i for i in ids if i not in seen]
+        seen.update(ids)
+        dry = 0 if new else dry + 1
+        if scores:
+            zero = zero + 1 if all(v == 0.0 for v in scores) else 0
+        rows.append((turn, "검색 반환", "%d문서(신규 %d)" % (len(ids), len(new)),
+                     ("점수 %.1f~%.1f" % (min(scores), max(scores))) if scores else "점수행 없음",
+                     dry, zero))
+    if not rows:
+        return
+    print("\n-- §4b 회수 성장 · 술어 재현 (dry=신규0 연속 · zero=전0점 연속) --")
+    for turn, what, a, b, d, z in rows:
+        print("  턴%-3d %-24s %-18s %-16s dry=%d zero=%d" % (turn, what, a, b, d, z))
+    print("  ⇒ 최대 dry=%d · 최대 zero=%d (문턱은 각각 T2_SEARCH_EXHAUST_TH=2 · T2_KB_NOHIT_K=2)"
+          % (max(r[4] for r in rows), max(r[5] for r in rows)))
+
+
 def main():
     ours = our_templates(HERE)
     if not ours:
@@ -332,6 +388,7 @@ def main():
         for s in mine:
             print_scoring(s)
             print_sidecar(s, side)
+            print_retrieval(s)
             print_kb(s, docs)
             if not NOTRACE:
                 print_trace(s, ours)
