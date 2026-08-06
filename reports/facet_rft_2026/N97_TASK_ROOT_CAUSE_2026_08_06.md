@@ -754,3 +754,40 @@ invitation to apply"*. ⇒ gold(Diamond)는 **rebate 자격이 확정됐을 때�
 단 `_resolve_ref`는 **커밋된 메시지 본문**을 읽으므로(코드 확인), 캡이 *뷰에만* 적용된다면 이 경로는
 영향을 받지 않아야 한다 — 따라서 확인 순서는 ⓐ뷰 압축이 **커밋본을 덮어쓰는가** ⓑ덤프 파서가
 자체 상한을 갖는가 ⓒ`@last:` 해소 결과의 행 수를 로그로 찍어 60인지 18인지 본다. **셋 다 무료다.**
+
+### task_023-확정 ★**우리 도구가 재현되지 않는다** (라이브 기권 vs 오프라인 QUALIFIES)
+
+`x113_byref_rows_probe.py`로 **라이브와 같은 조건**을 오프라인에서 재구성했다:
+커밋된 덤프(18,557자·**60행**·2024-11~2025-10 매월 5건) + 궤적의 실제 인자
+(`account_opening_date=11/10/2022 · as_of_date=11/14/2025 · monthly_threshold=2000`)
++ **3층 병합 A2 스펙**(`GI.load_domain_a2`) + `SG._byref_map_fields` + `T2_SG_WINDOW_ABSTAIN=1`.
+
+```
+bucket 결과 행수: 60
+창 분포: {0:5, 1:5, 2:5, 3:5, 4:5, 5:5, 6:5, 7:5, 8:5, 9:5, 10:5, 11:5}
+_gr_missing: None
+결과: "QUALIFIES"
+```
+**라이브는 같은 호출에서** *"(could not compute — check your arguments) … 9 of 12 windows had NO input
+records (#3…#11)"* 를 냈다(호출-반환을 `tool_call_id`로 짝지어 확인 — 그 반환은 `transactions=
+"@last:get_credit_card_transactions_by_user"` 를 준 호출의 것이다).
+
+⇒ **결정론이어야 할 우리 계산이 라이브와 오프라인에서 다른 답을 낸다.** [[25]] 최상위 위반이고,
+023의 gold(Diamond) 분기는 이 한 값에 달려 있었다.
+
+**직접 배제한 경로** (추정 아님·코드/실측):
+| 후보 | 배제 근거 |
+|---|---|
+| `@last:` 해소가 짧은 메시지를 잡음 | 이 sim의 거래 덤프는 **2개뿐이고 둘 다 60행·동일 18,557자** |
+| 덤프 파서 상한 | `_parse_record_dump`에 상한 없음 · 오프라인 60행 파싱 |
+| 컬럼명 불일치 | 병합 A2에 `byref_field_map={date:transaction_date, amount:transaction_amount}` 존재 |
+| 창 산식·연도 선택 | `last_complete`가 yy=2를 고르고 12창 전부 채워짐(오프라인 실측) |
+| 기권 분기 자체 | `T2_SG_WINDOW_ABSTAIN=1`을 켜고 재현해도 `_gr_missing=None` |
+| 뷰 압축이 커밋본 오염 | `_compact_view`는 `model_copy`로 **사본**만 만들고, 다이제스트 형태(head 300+tail 150)는 관측된 "앞 15행"과 모양이 다르다 |
+
+**남은 단일 용의자**: 격리 서브콜 경로(`T2_SG_ISOLATE=1`·`_sub_formalize`/`_sub_fetch_formalize`).
+이 경로는 계산 전에 서브-LLM이 operand를 formalize하며 **행 집합을 다시 구성**할 수 있다 —
+살아남은 창이 #0·#1·#2(=덤프 앞 15행)라는 관측과 부합하는 유일한 남은 기전이다.
+**다음 검증(무료·한 걸음)**: 격리 경로를 켠 채 같은 입력으로 재현하고, 서브콜에 넘어간 행 수를 찍는다.
+(`T2_SG_TRACE=1`이 이미 켜져 있으므로 라이브 로그에도 흔적이 있을 수 있다 — 단 로그는 4 sim이
+섞이므로 sim 귀속은 사이드카로 해야 한다.)
