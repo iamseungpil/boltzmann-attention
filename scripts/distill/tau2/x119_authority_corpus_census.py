@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Which arguments may we declare the records authoritative for?
+"""(see also x118 — the gate census; this file is the corpus census)
+
+Which arguments may we declare the records authoritative for?
 
 The rule is settled (user instruction, 2026-08-06): when the customer talks about record
 contents or policy, they are not the authority. The mechanism is settled too — `corpus_roles`

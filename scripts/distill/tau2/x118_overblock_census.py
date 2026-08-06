@@ -55,11 +55,14 @@ for t in tasks:
             sat = set((g.get("satisfiers") or {}).keys())
             if not sat:
                 continue
+            # ★계기 정정 (2026-08-06): 구판은 첫 매칭 게이트에서 `break` 했다. 한 행동을 **여러
+            #   게이트가 함께** 덮으면(banking: submit이 GB1과 GB3 둘 다에 걸린다) 뒤 게이트가
+            #   아예 검사되지 않는다 — 새 게이트를 넣고 "PASS"를 읽는데 그 게이트는 재보지도
+            #   않은 상태가 된다. 지배는 게이트별로 독립이므로 **전부** 센다.
             covered += 1
             per_gate[g.get("id")] = per_gate.get(g.get("id"), 0) + 1
             if not (sat & set(names[:i])):
                 viol.append((t.get("id"), nm, g.get("id"), names[:i]))
-            break
 
 print("gold의 user-실행 액션           : %d건" % tot_user)
 print("  게이트 applies_to에 덮인 것   : %d건  %s" % (covered, per_gate))
