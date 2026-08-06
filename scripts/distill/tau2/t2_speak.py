@@ -64,6 +64,14 @@ def prohibits_target(a2, executed, target, lever=None, messages=None):
     """True면 이 레버는 이번 턴에 말하지 않는다. 플래그 OFF면 항상 False(거동 변화 0)."""
     if os.environ.get("T2_SPEAK_PROHIBIT") != "1":
         return False
+    # ★T5 억제 자격 (2026-08-06·정본 `CONFLICT_ARBITRATION_THEORY_2026_08_06` §3-T5).
+    #   억제형 레버는 자기 근거를 A2에 선언해야 한다 — 못 대면 침묵시킬 수 없다.
+    try:
+        import t2_authority as _AUTH
+        if not _AUTH.may_suppress(a2, "speak_prohibit"):
+            return False
+    except Exception:
+        pass
     pid, quote = silence_reason(a2, executed, target)
     if pid is None:
         return False

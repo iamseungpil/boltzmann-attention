@@ -5503,7 +5503,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 executed=_executed_tool_names(state.messages))[0]
                         except Exception:
                             _phase17 = "open"
-                        _off_phase = (_phase17 == "verify"
+                        # ★T5 억제 자격(2026-08-06): 단계 소유권도 **다른 레버를 침묵시키는** 레버다.
+                        #   근거를 A2에 선언해야 하고, 못 대면 침묵시키지 않는다(C13이 그 자격 없이
+                        #   050/051의 이행을 만들던 반복을 지웠다).
+                        try:
+                            import t2_authority as _AUTHm
+                            _may17 = _AUTHm.may_suppress(a2, "phase_owner")
+                        except Exception:
+                            _may17 = True
+                        _off_phase = (_phase17 == "verify" and _may17
                                       and os.environ.get("T2_PHASE_OWNER") == "1")
                         if _off_phase:
                             print("[T2_PHASE_OWNER] action-push silent — phase=%s" % _phase17,

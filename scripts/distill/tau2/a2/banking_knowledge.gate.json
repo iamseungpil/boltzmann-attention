@@ -2754,5 +2754,18 @@
  "arbitration": {
   "dominated_push_feedback": "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer acting on your instruction. This has to hold first: {requirement}. Do that now with the real tool calls. Once it holds, then tell the customer to run '{target}'. Telling them to run it before that is the same as doing it early yourself.",
   "_note": "2026-08-06 T2(근거-등급 중재·사용자 지시 \"무조건 근거를 확보한 쪽이 우세하다\"). 지배당한 push를 **침묵시키지 않고 치환**할 때 쓰는 문구. 출처([[23]]) = 이 문장은 도메인 사실을 주장하지 않는다 — {requirement}에 들어가는 내용은 **게이트 자신의 predicate**(정책 축자에서 온 A2 선언)이고 {target}은 모델이 고른 이름이라, 엔진도 이 문구도 도메인 어휘를 만들지 않는다. 침묵이 아닌 이유: 진공은 모델의 prior가 채운다 (012 실측 — 우리 deny가 일하던 문구의 트리거를 없앴다). 선행: 이행 불가가 된 커밋먼트는 공표 의무로 전환된다(Cohen & Levesque, Teamwork 1991) / 전제 미충족 행동에는 그 전제를 **삽입**한다(Ligatti, Bauer & Walker, Edit Automata 2005 §5.3 — 거절만으로는 집행 불가가 정리로 증명됨) / 치환은 억제와 다른 원시연산이다(Brooks 1986: suppression은 \"provides a replacement\", inhibition은 메시지가 사라진다)."
+ },
+ "suppression_authority": {
+  "phase_owner": {
+   "kind": "measurement",
+   "measure": "C17 오프라인 전수(2026-08-05): 조건 추가로 지워지는 행동-유도 9건이 **전부 실패 sim**이고 통과 sim 노출 0. 경계도 측정으로 정했다 — '검증을 시도했는가'를 조건에 넣지 않으면 통과 8/8이 그 자리였다.",
+   "silences": "action-push (user/agent 실행 유도)"
+  },
+  "speak_prohibit": {
+   "kind": "measurement",
+   "measure": "x104 §C 오프라인 전수(2026-08-05): 표적 3발 침묵 · over-block 0을 사전 확정.",
+   "silences": "push 레버가 진행 중 절차의 prohibits 목록에 있는 도구를 권하는 경우"
+  },
+  "_note": "2026-08-06 T5(억제 자격·정본 `CONFLICT_ARBITRATION_THEORY_2026_08_06` §3-T5). 출처([[23]]) = **우리 레버에 대한 메타 기록**이라 도메인 사실을 주장하지 않는다(도메인 리터럴 0·gold 무참조). 이 키는 능력을 더하지 않고 **뺀다** — 여기 없는 억제형 레버는 `T2_SUPPRESS_AUTH=1`에서 다른 레버를 침묵시킬 수 없다(표면화는 그대로). 근거는 정책 축자(kind=policy·quote) 또는 사전 등록 계량(kind=measurement·measure) 둘 중 하나여야 하고, **숫자 우선순위는 쓰지 않는다**(Davis & Buchanan 1977: 서로 다른 차원을 한 숫자로 뭉개면 그 숫자가 어떻게 나왔는지 기록이 남지 않는다). 이 규칙이 있었다면 C13 원판은 근거를 못 대 실격됐을 것이고 050/051의 이행을 만들던 반복을 지우지 못했을 것이다."
  }
 }

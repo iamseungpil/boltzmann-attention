@@ -13,6 +13,7 @@
 기존 primitive 재사용(단방향 의존): t2_gate_patch·t2_formalize_exec. 이 모듈은 순수(라이브
 배선 전 오프라인 검증 가능). 라이브 배선은 unified()가 T2_RESOLVE=1 시 이 함수 호출.
 """
+import os
 import re
 import json
 
@@ -33,6 +34,54 @@ def discovered_names(msgs, name_pattern):
         if isinstance(c, str):
             names |= set(rx.findall(c))
     return names
+
+
+def registry_names(agent):
+    """이 대화에서 **실재하는** 도구 이름 전부(에이전트 것 + 양측 discoverable).
+
+    출처는 프레임워크 레지스트리뿐이라 도메인 리터럴 0이다. 아래 `stated_names`의 필터로만 쓴다.
+    """
+    out = {getattr(t, "name", None) for t in (getattr(agent, "tools", None) or [])}
+    env = getattr(getattr(agent, "_t2_orch", None), "environment", None)
+    for holder in ("tools", "user_tools", "agent_tools"):
+        tk = getattr(env, holder, None)
+        if tk is None:
+            continue
+        try:
+            out |= set(getattr(tk, "tools", {}) or {})
+        except Exception:
+            pass
+        g = getattr(tk, "get_discoverable_tools", None)
+        if callable(g):
+            try:
+                out |= set(g() or {})
+            except Exception:
+                pass
+    return {n for n in out if n}
+
+
+def stated_names(msgs, name_pattern, registry):
+    """우리 층이 이 대화에서 **이미 이름을 말한** 도구들 — 레지스트리 실재분만.
+
+    구판의 출처 집합은 성공한 tool-result뿐이었다. 우리 피드백은 `role=tool, error=True`로 나가므로
+    **구조적으로 제외**됐고, 그래서 절차 체크리스트가 방금 이름을 대 준 도구를 같은 층의 출처 가드가
+    "지어낸 이름"이라고 막는 일이 생겼다. 그 턴에 모델이 할 수 있는 행동이 0이 된다.
+
+    우리 scaffold가 정본이므로([[25]]) 우리가 말한 이름은 출처가 있다. 다만 이 확장이 날조 차단을
+    약화시키지 않도록 **레지스트리 소속을 교집합으로 건다** — 통과 조건은 '레지스트리 밖 이름 통과 0'
+    이고, 이 함수는 그것을 구성으로 보장한다(집합 밖은 애초에 담기지 않는다).
+    """
+    if not name_pattern or not registry:
+        return set()
+    rx = re.compile(name_pattern)
+    out = set()
+    for m in msgs:
+        if getattr(m, "role", None) != "tool" or not getattr(m, "error", False):
+            continue
+        c = getattr(m, "content", None)
+        if isinstance(c, str):
+            out |= {n for n in rx.findall(c) if n in registry}
+    return out
 
 
 OPERATOR_FIND_FB = (
@@ -59,6 +108,14 @@ def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=N
     if not chosen:
         return {"status": "ok"}
     cands = discovered_names(msgs, opspec.get("name_pattern"))
+    # ★T3 출처 집합에 우리 층을 포함 (2026-08-06·정본 `CONFLICT_ARBITRATION_THEORY_2026_08_06` §3-T3).
+    #   우리가 방금 이름을 말해 놓고 그 이름을 "발명"이라 막던 자리다. 레지스트리 교집합이라
+    #   날조 통과는 구조적으로 불가.
+    if agent is not None and os.environ.get("T2_PROV_OURS") == "1":
+        try:
+            cands = cands | stated_names(msgs, opspec.get("name_pattern"), registry_names(agent))
+        except Exception:
+            pass
     if cands and str(chosen) not in cands:
         return {"status": "deny", "reason": "operator-fab",
                 "feedback": ("[OPERATOR-PROVENANCE] tool name '%s' was not discovered from any "
