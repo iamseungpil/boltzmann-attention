@@ -5468,18 +5468,24 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     #   ⚠침묵이 아니라 **치환**이다(표적 이름 유지) — 지우면 012 재현
                                     #   (우리 deny가 일하던 문구의 트리거를 없앴다).
                                     if os.environ.get("T2_ARBITRATE") == "1":
+                                        # ★C3 합병(2026-08-07): 하나를 고르지 않고 **덮는 요건을 전부**
+                                        #   모아 한 번에 말한다. 구판은 첫 미충족 게이트만 돌려줬고,
+                                        #   라이브에서 치환 24회가 **전부 같은 게이트**·뒤에 선 요건은
+                                        #   **0회**였다(순수 우선순위가 하위를 굶긴다). 합병하면 뒤에
+                                        #   선 요건이 굶지 않고, 같은 행동 앞의 다른 선행 read도
+                                        #   밀려나지 않는다 — 명령은 하나, 사실은 합집합.
                                         try:
                                             import t2_dominance as _DOMm
-                                            _domg = _DOMm.dominating_gate(
+                                            _reqs = _DOMm.requirements_for(
                                                 a2, state.messages, _utgt,
                                                 executed=_executed_tool_names(state.messages),
                                                 unwrap=_exact_tool_name)
                                         except Exception:
-                                            _domg = None
-                                        if _domg is not None:
-                                            _ufb = _DOMm.requirement_text(a2, _domg, _utgt)
-                                            print("[T2_ARBITRATE] push dominated target=%s gate=%s"
-                                                  % (_utgt, _domg.get("id")),
+                                            _reqs = []
+                                        if _reqs:
+                                            _ufb = _DOMm.merged_text(a2, _reqs, _utgt)
+                                            print("[T2_ARBITRATE] push dominated target=%s reqs=%s"
+                                                  % (_utgt, ",".join(r["id"] for r in _reqs)),
                                                   file=_sys.stderr, flush=True)
                                     rw_fb = ((am.tool_calls or [None])[0], _ufb)
                                     self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1

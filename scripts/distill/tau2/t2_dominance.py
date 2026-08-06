@@ -38,7 +38,8 @@ literals — `applies_to`, `satisfiers` and `applies_when` are already declared 
 this costs the domain nothing new.
 """
 
-__all__ = ["dominating_gate", "requirement_text", "DEFAULT_FEEDBACK"]
+__all__ = ["dominating_gate", "requirement_text", "DEFAULT_FEEDBACK",
+           "requirements_for", "merged_text", "DEFAULT_MERGED"]
 
 DEFAULT_FEEDBACK = (
     "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer "
@@ -99,6 +100,114 @@ def requirement_text(a2, gate, target):
     return tpl.replace("{target}", str(target)).replace("{requirement}", req)
 
 
+DEFAULT_MERGED = (
+    "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer "
+    "acting on your instruction. All of these have to hold first:\n{items}\n"
+    "Do the ones that are still outstanding now, with real tool calls. Once they all hold, then "
+    "tell the customer to run '{target}'. Telling them to run it earlier is the same as doing it "
+    "early yourself."
+)
+
+
+def _executed(messages, executed=None, unwrap=None):
+    done = set(executed or ())
+    if not done and messages:
+        for m in messages:
+            for tc in (getattr(m, "tool_calls", None) or []):
+                n = unwrap(tc) if unwrap else getattr(tc, "name", None)
+                if n:
+                    done.add(n)
+    return done
+
+
+def _fam(n):
+    """접미사(`_1234`)를 떼어 base 이름으로 — 선언은 base로 적히고 호출은 접미사가 붙는다."""
+    s = str(n or "")
+    i = s.rfind("_")
+    return s[:i] if i > 0 and s[i + 1:].isdigit() else s
+
+
+def requirements_for(a2, messages, target, executed=None, unwrap=None):
+    """`target`을 덮는 **미충족 요건 전부**. 첫 하나가 아니라 전부다.
+
+    라이브가 가르쳐 준 것: 치환 24회가 **전부 GB1**이고 뒤에 선 게이트는 **0회**였다. push가 발화하는
+    창은 좁은데(검증 전·캡 소진 전) 그 창에서 늘 같은 게이트가 이기니, 뒤에 선 요건은 선언돼 있어도
+    존재하지 않는 것과 같다. 순수 우선순위는 하위를 굶긴다.
+
+    그래서 **하나를 고르지 않는다.** 같은 표적을 덮는 요건을 모두 모아 한 번에 말한다 —
+    명령은 하나, 사실은 합집합. 이렇게 하면 뒤에 선 요건이 굶지 않고, 동시에 다른 절차를 요구하는
+    선언(예: 같은 행동 앞의 다른 선행 read)이 **밀려나지 않는다**.
+
+    출처는 세 선언뿐이고 전부 이미 있다: `gates[]` · `require_tool_before` ·
+    `scaffold_get_tools[].requires_reads`. 새 A2 키 0.
+    """
+    if not target:
+        return []
+    done = _executed(messages, executed, unwrap)
+    done_fam = {_fam(n) for n in done}
+    out, seen = [], set()
+
+    for g in ((a2 or {}).get("gates") or []):
+        if target not in set(g.get("applies_to") or ()):
+            continue
+        if _exempt(g, target):
+            continue
+        sat = _satisfier_names(g)
+        if not sat or (sat & done):
+            continue
+        gid = g.get("id") or "gate"
+        if gid in seen:
+            continue
+        seen.add(gid)
+        out.append({"id": gid,
+                    "predicate": str(g.get("predicate") or gid),
+                    "satisfiers": sorted(sat)})
+
+    def _reads(dep, reads):
+        if _fam(dep) != _fam(target):
+            return
+        miss = sorted({r for r in (reads or []) if _fam(r) not in done_fam})
+        if not miss:
+            return
+        key = "reads:" + ",".join(miss)
+        if key in seen:
+            return
+        seen.add(key)
+        out.append({"id": key,
+                    "predicate": "the prior read(s) this action requires have been done",
+                    "satisfiers": miss})
+
+    for dep, reads in ((a2 or {}).get("require_tool_before") or {}).items():
+        _reads(dep, reads)
+    for e in ((a2 or {}).get("scaffold_get_tools") or []):
+        if isinstance(e, dict) and e.get("requires_reads"):
+            _reads(e.get("tool") or e.get("name") or "", e["requires_reads"])
+    return out
+
+
+def merged_text(a2, reqs, target):
+    """요건 여럿을 **한 문장**으로. 문구는 A2, 엔진은 이름만 채운다([[05]] Q2)."""
+    if not reqs:
+        return ""
+    if len(reqs) == 1:
+        tpl = str((((a2 or {}).get("arbitration") or {}).get("dominated_push_feedback"))
+                  or DEFAULT_FEEDBACK)
+        r = reqs[0]
+        req = r["predicate"]
+        # 요건을 **무엇으로 충족하는지**가 빠지면 read 요건은 이행 불가한 지시가 된다.
+        # 술어가 이미 그 도구를 이름으로 말하고 있으면 덧붙이지 않는다(중복 방지).
+        sats = [s for s in (r.get("satisfiers") or []) if s not in req]
+        if sats:
+            req = "%s (do it with: %s)" % (req, ", ".join(sats))
+        return tpl.replace("{target}", str(target)).replace("{requirement}", req)
+    tpl = str((((a2 or {}).get("arbitration") or {}).get("merged_requirement_feedback"))
+              or DEFAULT_MERGED)
+    items = "\n".join("  %d. %s (do it with: %s)"
+                      % (i + 1, r["predicate"], ", ".join(r["satisfiers"]))
+                      for i, r in enumerate(reqs))
+    return tpl.replace("{target}", str(target)).replace("{items}", items)
+
+
 if __name__ == "__main__":                                     # 자기검정 (오프라인)
     class _C:
         def __init__(self, name):
@@ -127,4 +236,40 @@ if __name__ == "__main__":                                     # 자기검정 (�
     assert dominating_gate(A2, [], "submit_referral", executed=set()) is not None
     assert dominating_gate(A2, [], "submit_referral",
                            executed={"log_verification"}) is None
+
+    # ── C3 합병 ────────────────────────────────────────────────────────────
+    A2M = {"gates": [
+        {"id": "G1", "predicate": "identity verified", "satisfiers": {"log_verification": []},
+         "applies_to": ["submit_referral"]},
+        {"id": "G3", "predicate": "referral record checked",
+         "satisfiers": {"get_referrals_by_user": []}, "applies_to": ["submit_referral"]}],
+        "require_tool_before": {"submit_referral": ["get_all_user_accounts_by_user_id"]}}
+
+    # 굶주림 재현 방지: 뒤에 선 요건도 **반드시** 나온다.
+    rs = requirements_for(A2M, [_M([])], "submit_referral")
+    ids = [r["id"] for r in rs]
+    assert ids[:2] == ["G1", "G3"], ids
+    assert any(r["id"].startswith("reads:") for r in rs), ids
+    txt = merged_text(A2M, rs, "submit_referral")
+    for tok in ("G1" and "identity verified", "referral record checked",
+                "get_all_user_accounts_by_user_id", "submit_referral"):
+        assert tok in txt, tok
+
+    # 충족된 것은 빠지고, 남은 것만 말한다.
+    rs2 = requirements_for(A2M, [_M(["log_verification", "get_referrals_by_user"])],
+                           "submit_referral")
+    assert [r["id"] for r in rs2] == ["reads:get_all_user_accounts_by_user_id"], rs2
+    assert "get_all_user_accounts_by_user_id" in merged_text(A2M, rs2, "submit_referral")
+
+    # 접미사 붙은 실제 호출도 base 선언과 맞는다.
+    rs3 = requirements_for(A2M, [_M(["log_verification", "get_referrals_by_user",
+                                     "get_all_user_accounts_by_user_id_3847"])],
+                           "submit_referral")
+    assert rs3 == [], rs3
+    assert merged_text(A2M, rs3, "submit_referral") == ""
+
+    # 하나뿐이면 단수 문구로 떨어진다(기존 거동 유지).
+    rs4 = requirements_for(A2, [_M([])], "submit_referral")
+    assert len(rs4) == 1 and "identity verified" in merged_text(A2, rs4, "submit_referral")
+    assert requirements_for({}, [_M([])], "submit_referral") == []
     print("t2_dominance self-check OK")
