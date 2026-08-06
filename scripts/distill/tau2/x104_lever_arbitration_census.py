@@ -245,7 +245,7 @@ def main():
         for i in range(len(ls)):
             for j in range(i + 1, len(ls)):
                 pair[(ls[i], ls[j])] += 1
-                where[(ls[i], ls[j])].add(key.get(s, "?")[-3:])
+                where[(ls[i], ls[j])].add(key.get(s, "?").replace("task_", ""))
     for (x, y), n in pair.most_common(24):
         print("  %3d회  %-22s + %-22s  %s" % (n, x, y, sorted(where[(x, y)])))
 
