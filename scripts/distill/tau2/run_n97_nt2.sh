@@ -21,6 +21,14 @@ mkdir -p "$LOGD" "$PLAN/claims"
 [ -f /home/woori/.openrouter_key ] && . /home/woori/.openrouter_key
 . $R/scripts/distill/tau2/go_stack.sh                            # [[19]] every lever on
 
+# ★사이드카는 옵션이 아니다 (2026-08-06 사고). 이 드라이버에는 `T2_FB_SIDECAR`가 없었고
+#   `run_smoke_split.sh`에는 있었다. 그 차이 때문에 7시간짜리 전수 런이 **우리 층이 무엇을 언제
+#   말했는지 알 수 없는 상태로** 돌았다 — 같은 세션에서 022·017·035의 원인을 전부 사이드카로
+#   짚어놓고서다. 비커밋 관측이라 거동 변화는 0이고(기록만), 없으면 포렌식의 절반이 원리적으로
+#   불가능하다. 드라이버마다 사람이 기억해서 켜는 방식이 사고의 뿌리이므로 여기 박는다([[07]]).
+export T2_FB_SIDECAR="$LOGD/fb_n97_gpu${G}_$DATE.jsonl"          # GPU별 파일(두 드라이버 동시 append 회피)
+export T2_FB_SIDECAR_TEXT=1
+
 say(){ echo "[n97 gpu$G $(date +%H:%M:%S)] $*"; }
 
 persist(){  # $1 = tag. Serialised across the two drivers — git is not concurrent-safe.

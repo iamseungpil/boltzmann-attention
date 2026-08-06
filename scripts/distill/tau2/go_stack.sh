@@ -155,6 +155,15 @@ export T2_UNKNOWN_REPEAT_GUARD=1  # B3 Unknown-tool 반려된 이름 재지시 �
 # 사용: t2_launch <TAG> <PORT> <TASK_IDS> <NUM_TRIALS> [EXTRA_ARGS...]
 t2_launch() {
   local TAG="$1" PORT="$2" TASKS="$3" NT="$4"; shift 4
+  # ★사이드카 기본 ON (2026-08-06 사고 재발 방지). 전수 런이 7시간 동안 **우리 층이 무엇을 언제
+  #   말했는지 기록하지 않은 채** 돌았다 — 스모크 드라이버는 켜고 전수 드라이버는 안 켰고, 둘이
+  #   같아야 한다고 말하는 코드가 없었다. 비커밋 관측이라 거동 변화 0이고(파일에만 쓴다), 없으면
+  #   포렌식의 절반이 원리적으로 불가능하다. 드라이버가 기억해서 켜는 방식이 사고의 뿌리이므로
+  #   **모든 라이브 런이 통과하는 이 한 자리**에 기본값을 둔다([[07]] hard-constraint).
+  #   드라이버가 이미 지정했으면 그대로 쓴다(`:=`).
+  : "${T2_FB_SIDECAR:=/home/woori/scratch/logs/fb_${TAG}.jsonl}"
+  : "${T2_FB_SIDECAR_TEXT:=1}"
+  export T2_FB_SIDECAR T2_FB_SIDECAR_TEXT
   cd "$GO_TAU2" || return 1
   /home/woori/venvs/seka_env/bin/python -u "$GO_REPO/scripts/distill/tau2/t2_run_gated.py" \
     --domain banking_knowledge --retrieval_config "${GO_RETRIEVAL:-alltools}" \
