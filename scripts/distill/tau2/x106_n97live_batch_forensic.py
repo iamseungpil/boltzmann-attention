@@ -33,6 +33,7 @@ except Exception:
 
 DATE = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("-") else "20260806"
 FULL = "--full" in sys.argv
+OURS = []
 SIMDIRS = ["/home/woori/scratch/tau2-bench/data/simulations",
            os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "..", "..", "..", "reports", "facet_rft_2026", "sim_results")]
@@ -40,13 +41,46 @@ SIMDIRS = ["/home/woori/scratch/tau2-bench/data/simulations",
 #   그 발화를 전부 '무태그'로 몰았다. 그리고 tool 메시지의 `Error:`에는 **환경 오류도 섞인다** —
 #   우리 문구와 env 오류를 한 칸에 세면 "우리가 얼마나 말했나"가 곧바로 틀린다([[55]]).
 TAGRE = re.compile(r"\[([A-Z][A-Z0-9_\- ]{2,60})\]")
-# env가 내는 오류의 축자 지문(우리가 만든 문자열이 아니다). 목록은 실측에서 나온 것만 넣는다.
-ENV_SIG = ("Unknown agent tool", "Unknown user tool", "not found", "is not available",
-           "Invalid ", "Missing required", "Error code", "Traceback")
+# ★2차 교정: "env 오류인가"를 **문면으로 추측하면 틀린다**(1차에서 양방향으로 틀렸다 —
+#   `[READ-FIRST]`(우리 것)를 env로 보내고, `Unexpected parameter`(env 것)를 우리 것으로 셌다).
+#   판정은 출처로 한다: **우리 A2와 엔진 소스에 그 문자열이 있으면 우리 것**이다. 없으면 env.
+def our_templates(here):
+    """A2 선언 + 엔진 리터럴에서 '우리가 보낼 수 있는 문구'의 접두 지문을 만든다."""
+    pref = set()
 
+    def add(s):
+        s = str(s or "").lstrip()
+        if len(s) < 30:
+            return
+        # placeholder 앞까지만 취해 접두 대조(값이 바뀌어도 같은 문구로 묶인다)
+        cut = re.split(r"\{|%s|%d|%\(", s)[0].strip()
+        if len(cut) >= 24:
+            pref.add(cut[:60])
 
-def is_env_error(t):
-    return any(sig in t[:200] for sig in ENV_SIG)
+    def walk(n):
+        if isinstance(n, str):
+            add(n)
+        elif isinstance(n, dict):
+            for v in n.values():
+                walk(v)
+        elif isinstance(n, list):
+            for v in n:
+                walk(v)
+
+    for p in glob.glob(os.path.join(here, "a2", "*.json")) + \
+            glob.glob(os.path.join(here, "a2", "base", "*.json")):
+        try:
+            walk(json.load(io.open(p, encoding="utf-8")))
+        except Exception:
+            pass
+    for p in glob.glob(os.path.join(here, "t2_*.py")) + [os.path.join(here, "gate_interpreter.py")]:
+        try:
+            src = io.open(p, encoding="utf-8", errors="replace").read()
+        except Exception:
+            continue
+        for m in re.finditer(r'"((?:[^"\\]|\\.){30,300})"|\'((?:[^\'\\]|\\.){30,300})\'', src):
+            add((m.group(1) or m.group(2)).replace('\\n', ' ').replace('\\"', '"'))
+    return sorted(pref, key=len, reverse=True)
 
 
 def load():
@@ -81,6 +115,8 @@ def eff(tc):
 
 
 def main():
+    global OURS
+    OURS = our_templates(os.path.dirname(os.path.abspath(__file__)))
     sims = load()
     if not sims:
         print("데이터 없음 (tag=%s)" % DATE)
@@ -168,9 +204,11 @@ def main():
             t = str(m.get("content") or "")
             if not t.lstrip().startswith("Error:"):
                 continue
-            if is_env_error(t):
+            body = t.lstrip()
+            body = body[len("Error:"):].lstrip() if body.startswith("Error:") else body
+            if not any(body.startswith(pre[:40]) or pre[:40] in body[:200] for pre in OURS):
                 envcnt[re.sub(r"'[^']*'", "'…'", t.lstrip()[:60])] += 1
-                continue                                   # env 오류 — 우리 문구가 아니다
+                continue                                   # 우리 소스에 없는 문자열 = env
             mo = TAGRE.search(t[:160])
             key = mo.group(1) if mo else "(무태그)"
             if not mo:
