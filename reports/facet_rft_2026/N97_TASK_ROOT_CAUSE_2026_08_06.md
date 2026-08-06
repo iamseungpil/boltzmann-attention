@@ -249,3 +249,56 @@ gold는 이 사슬의 기계적 끝이다. **손님이 누르는 도구**이므�
 - 1단계(조사 전 지시)는 `T2_UNINSTRUCTABLE`의 인접 자리지만 술어가 다르다 — 손님은 그 도구를 **실제로
   갖고 있었다**(user_tools). 문제는 실행 가능성이 아니라 **근거 없이 시킨 것**이다.
   ⇒ 후보 D의 대칭 조건으로 흡수 가능: *근거(원장·판정)를 전달하기 전에 손님-도구 실행을 지시하지 말 것.*
+
+---
+
+## task_014 — 외부 편지가 말한 오퍼를 **확인 없이 우리 입으로 되풀이했다**
+
+**gold** `transfer_to_human_agents{reason="unconfirmed_external_communication"}` · **결과** 두 trial 전패.
+
+손님 첫 발화(축자): *"I got **a letter in the mail** about a referral program for the Crypto-Cash Back card.
+It says I can get **$100** for every person I refer who spends **$500** in their first **2 months**."*
+⇒ 오퍼의 출처가 **우리 문서가 아니라 외부 통신**이다. gold의 사유 코드가 그것을 그대로 말한다.
+
+**실제**: 에이전트는 그 오퍼가 실재하는지 **한 번도 확인하지 않고** `get_referral_link`를 손님에게 넘겨
+링크를 만들어 줬고, 마지막 턴에 손님의 주장을 **우리 목소리로 재확언**했다 —
+*"once they open and spend $500 within their first 2 months, you should receive the $100 referral bonus."*
+
+### 레버 판정
+
+- `T2_KB_NOHIT_SURFACE`의 **P10 가지**(`kb_claim_nohit` = 손님 주장을 그대로 찾아봤는데 무득점)가 정확히
+  이 자리를 위해 있다. 그러나 이 궤적에서 **점수 있는 검색이 0회**다 — 에이전트가 쓴 회수 채널은
+  `shell{grep -ri 'referral link' .}` 였고, shell 출력에는 `Score:` 행이 없어 `_kb_zero_hit`은 **None**(판정 불가)을
+  돌려준다. 엔진 주석이 이미 *"shell(grep)은 점수 행이 없어 리셋하지 않는다 = 알려진 구멍"* 이라고 적어 둔 그 구멍이
+  **표적 태스크에서 실현됐다**.
+- ⇒ 부재/미확인 계열 레버는 **채널 불변**이어야 한다(bm25·dense·shell·문서 직독 전부). 지금은 bm25 전용이다.
+- 나머지는 후보 **A**(산문 접지)에 흡수된다 — 014의 산문은 *지어낸 것*이 아니라 *손님에게서 온 것*이지만,
+  술어는 같다: **회수물이 뒷받침하지 않는 사실 주장을 우리 산문이 단언했다.**
+
+---
+
+## task_016 — 원장 **15행 중 1행만 읽고** env의 "없음"을 결론으로 받았다
+
+**gold** ①`log_verification` ②`submit_transaction{user_id="friend_user_5839", credit_card_type="Silver Rewards Card",
+merchant_name="Best Buy", amount=750, category="Shopping"}`(**requestor=user**). **결과** t0 = ①✓ ②✗.
+
+### 궤적
+
+- 턴3: 조회 전에 손님에게 `submit_referral` 실행 지시 → 손님이 정정: *"I don't have a `submit_referral` tool on my
+  side—only a transaction submission tool"*. **손님이 도구 집합을 알려 줬다.**
+- 턴9: `get_referrals_by_user(86e92f639e)` → **15 record(s)**. 에이전트는 그 중 **1행**(Bronze COMPLETE 11/11)만
+  언급하고 나머지를 열거·필터하지 않았다.
+- 턴14: 친구 id로 `get_referrals_by_user(friend_user_5839)` → `No records found`(그 표는 **추천인** 키다) →
+  *"추천이 연결되지 않은 것 같다"* 고 단정. **env의 부재 응답을 사실로 받았다**([[25]] 위반 형태).
+- 턴16: 동일 호출 반복 → `[DUPLICATE-READ]`(우리 레버 정상 발화) → 턴19 이관(사유도 틀림:
+  `kb_search_unsuccessful…`).
+
+### 레버 판정
+
+- **후보 D의 일반형이 여기서 필요하다**: 근거 집합이 **N행**인데 산문·행동이 **1행**만 다룬다.
+  `T2_COVERAGE_FOLLOWUP`은 *우리 엔진이 만든 행*(분쟁 등)만 보고, **env 레코드 덤프의 행**은 보지 않는다.
+  ⇒ D의 술어를 "결정 근거 집합"으로 일반화: 우리 도구의 `eligible` · env 덤프의 `Found N record(s)` 둘 다 포함.
+- **미해석 토큰(후보 F)** 도 걸린다: 15행에 섞인 상태값(`IN_PROGRESS` 등)의 의미·조건은 정책 문서에만 있는데
+  조회가 없다(이 sim의 KB 검색은 `"referral bonus"` 1회).
+- 턴3의 없는-도구 지시는 `T2_DISPATCH_ROLE_ENVSET`이 **give 호출**에만 걸리고 **산문 지시**에는 안 걸린다는
+  것을 보여 준다 — 같은 술어(env의 실제 손님-도구 집합)를 산문에도 적용할 수 있다(후보 D의 대칭 조건과 같은 자리).
