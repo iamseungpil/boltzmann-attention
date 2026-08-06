@@ -5495,7 +5495,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                             try:
                                                 import t2_source as _SRC
                                                 _cl = _SRC.formalize_claims(
-                                                    self, la, UserMessage, state.messages)
+                                                    self, la, UserMessage, state.messages,
+                                                    text=getattr(am, "content", None))
                                                 _cp = _SRC.build_corpus(
                                                     state.messages,
                                                     env=getattr(getattr(self, "_t2_orch", None),

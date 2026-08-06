@@ -194,7 +194,8 @@ UNSOURCED_FB = (
 )
 
 
-def formalize_claims(agent, la, UserMessage, messages, cap_attr="_t2_source_calls", cap=1):
+def formalize_claims(agent, la, UserMessage, messages, cap_attr="_t2_source_calls", cap=1,
+                     text=None):
     """에이전트의 **직전 발화**에서 정책이 정하는 수량 주장을 뽑는다 (LLM 몫·[[52]]).
 
     ⚠**호출 순증 0이 아니다.** `formalize_intent_tool`은 user 메시지만 보므로 얹을 수 없다 —
@@ -206,13 +207,16 @@ def formalize_claims(agent, la, UserMessage, messages, cap_attr="_t2_source_call
         return []
     if getattr(agent, cap_attr, 0) >= cap:
         return []
-    last = ""
-    for m in reversed(messages or []):
-        if getattr(m, "role", None) == "assistant":
-            c = getattr(m, "content", None)
-            if isinstance(c, str) and c.strip():
-                last = c
-                break
+    # ★`text`가 우선이다. 검사 대상은 **지금 생성 중인 메시지**이고 그것은 아직 `messages`에 없다
+    #   — 라이브 첫 발사에서 이 함수가 조용히 빈손이었던 이유가 정확히 그것이었다.
+    last = text if isinstance(text, str) else ""
+    if not last.strip():
+        for m in reversed(messages or []):
+            if getattr(m, "role", None) == "assistant":
+                c = getattr(m, "content", None)
+                if isinstance(c, str) and c.strip():
+                    last = c
+                    break
     if not last.strip():
         return []
     setattr(agent, cap_attr, getattr(agent, cap_attr, 0) + 1)
@@ -327,6 +331,26 @@ if __name__ == "__main__":                                   # 자기검정 (오
         llm_args = {}
     ag = _AG()
     assert formalize_claims(ag, None, None, []) == []            # la 없음 = 안전 실패
+    # ★`text` 우선 — 지금 생성 중인 메시지를 검사한다(라이브 첫 발사가 여기서 조용히 빈손이었다).
+    seen = {}
+
+    class _LA:
+        def generate(self, **kw):
+            seen["p"] = kw["messages"][0].content
+
+            class _R:
+                content = '{"claims": [{"claim": "limit reached", "doc": ""}]}'
+            return _R()
+
+    class _UM:
+        def __init__(self, role=None, content=""):
+            self.content = content
+    ag2 = _AG()
+    got = formalize_claims(ag2, _LA(), _UM, [_M("assistant", "OLD MESSAGE")],
+                           text="NEW MESSAGE limit reached")
+    assert "NEW MESSAGE" in seen["p"] and "OLD MESSAGE" not in seen["p"], seen["p"][:200]
+    assert got == [{"claim": "limit reached", "doc": ""}], got
+
     ag._t2_source_calls = 1
     assert formalize_claims(ag, object(), object(), [_M("assistant", "x")]) == []   # 캡 소진
     print("t2_source self-check OK")
