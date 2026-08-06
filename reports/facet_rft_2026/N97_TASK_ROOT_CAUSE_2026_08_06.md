@@ -358,3 +358,20 @@ merchant_name="Best Buy", amount=750, category="Shopping"}`(**requestor=user**).
 엔진이 **고르지는 않는다** — 이름만 정정한다([[10]]). 도메인 리터럴 0·A2 순증 0.
 - 표적 규모: 이 계열은 010 t1·015 t0/t1·016에서 반복 관측됐다. 224 sim에서 `Unknown discoverable tool`
   발생 sim 수와, 그 뒤 **정답 도구를 끝내 안 쓴 sim 수**를 먼저 센다.
+
+---
+
+## task_017 — ⏳**분석 미완**(다음 배치에서 이어감)
+
+지금까지 **확인된 것만** 적는다(추정 금지).
+
+- **gold 4건**: `log_verification` → `give_discoverable_user_tool{submit_cash_back_dispute_0589}` →
+  손님이 **두 건의 특정 거래**(`txn_cfabb609133d`·`txn_913d14a20dc5`)로 그 도구를 각각 호출.
+- **t0 채점**: ①✓ ②✓ ③✗ ④✗ — 즉 **도구를 건네는 데까지 갔고 손님의 두 호출에서 죽었다.**
+  59 메시지·1025초로 이 배치에서 가장 긴 sim이다.
+- **턴2에 자리표시자 날조 관측**: `verify_identity{provided={"email":"user@example.com",
+  "address":"123 Main St, Anytown, USA"}}` — 손님이 아무 값도 주기 전에 **예시 값을 지어내 검증에 넣었다**.
+  (`T2_A2_VARIANT=ledger`가 `record` 슬롯의 날조를 구조적으로 막은 것과 같은 계열이 `provided`에서 재발했는지
+  확인 필요 — 우리 도구가 그 호출에 무엇을 돌려줬는지까지 읽어야 판정할 수 있다.)
+- 남은 확인 항목: ⓐ손님 호출이 **아예 없었는지**, 인자가 달랐는지 ⓑ거래 id 두 건이 어느 도구 출력에서
+  나왔는지(=전달 실패인지 식별 실패인지) ⓒ`[coverage]`·`T2_DISPATCH_LEDGER`가 이 자리에서 발화 가능했는지.
