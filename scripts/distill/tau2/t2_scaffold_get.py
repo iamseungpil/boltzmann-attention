@@ -530,7 +530,21 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
 
             def _capm(_m, _cap=_stc):
                 _c = getattr(_m, "content", None)
+                # ★레코드 덤프는 절단하지 않는다 (2026-08-06·023 실측).
+                #   이 절단은 097에서 **KB 문서(산문)** 가 라운드마다 누적돼 서브가 컨텍스트를 넘긴
+                #   사고 때문에 들어왔다. 그런데 fetch_formalize의 operand 소스는 **레코드 덤프**이고,
+                #   서브는 그것을 전량 봐야 전사가 성립한다. 023 실측: 덤프 18,557자·60행(행당 ≈309자)이
+                #   4,000자(head 2,600+tail 1,400)로 잘려 서브가 본 것은 앞뒤 십여 행뿐 —
+                #   그 전사본이 operand로 주입돼 12개 창 중 9개가 "입력 레코드 0"이 됐고
+                #   `check_rebate_qualification`이 기권했다(부검 §G).
+                #   술어는 파서가 쓰는 바로 그 문자열이다(`Record ID:`) — 판단 0·도메인 리터럴 0.
+                if isinstance(_c, str) and "Record ID:" in _c:
+                    print("[T2_SG_ISOLATE] sub-view: record dump kept whole (%d chars)" % len(_c),
+                          file=_sys.stderr, flush=True)
+                    return _m
                 if isinstance(_c, str) and len(_c) > _cap:
+                    print("[T2_SG_ISOLATE] sub-view: truncated %d -> %d chars" % (len(_c), _cap),
+                          file=_sys.stderr, flush=True)
                     _hd = int(_cap * 0.65)
                     _tl = _cap - _hd
                     _d = (_c[:_hd] + "\n...[middle truncated for sub-extraction; head+tail kept]...\n"
@@ -610,6 +624,19 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
                       % (d.get("name"), len(_fl), rnd + 1), file=_sys.stderr, flush=True)
                 continue
         getter = sum(1 for m in msgs if getattr(m, "role", "") == "tool")
+        # ★계기 (2026-08-06·023): 배열 operand는 서브가 **손으로 옮겨 적은 것**이다. 그 전사가
+        #   원본을 다 담았는지는 지금까지 어디에도 기록되지 않았고, 그래서 이 결함의 규모를
+        #   말할 수 없었다(부검 §G-3). 서브 자신의 getter 출력에서 레코드 수를 세어 나란히 찍는다.
+        #   판정하지 않는다 — **두 수를 남길 뿐**이다(도메인 리터럴 0·거동 변화 0).
+        _src_rows = 0
+        for _t in _ok_outs:
+            _src_rows += _t.count("Record ID:")
+        for _k, _v in (got or {}).items():
+            if isinstance(_v, list):
+                print("[T2_SG_ISOLATE] operand-size %s.%s: sub=%d rows · source=%d rows%s"
+                      % (d.get("name"), _k, len(_v), _src_rows,
+                         "  ⚠MISMATCH" if _src_rows and len(_v) != _src_rows else ""),
+                      file=_sys.stderr, flush=True)
         print("[T2_SG_ISOLATE] fetch %s: %d라운드·getter %d회·operand keys=%s"
               % (d.get("name"), rnd + 1, getter, list(got or {})), file=_sys.stderr, flush=True)
         _isolate_trace(iso, d, {"mode": "fetch", "round": rnd + 1, "getter": getter,
