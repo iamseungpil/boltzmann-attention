@@ -323,3 +323,38 @@ merchant_name="Best Buy", amount=750, category="Shopping"}`(**requestor=user**).
   조회가 없다(이 sim의 KB 검색은 `"referral bonus"` 1회).
 - 턴3의 없는-도구 지시는 `T2_DISPATCH_ROLE_ENVSET`이 **give 호출**에만 걸리고 **산문 지시**에는 안 걸린다는
   것을 보여 준다 — 같은 술어(env의 실제 손님-도구 집합)를 산문에도 적용할 수 있다(후보 D의 대칭 조건과 같은 자리).
+
+---
+
+## task_015 — env가 "그런 도구 없다"고 하자 **실재하는 도구를 영영 안 썼다**
+
+**gold** ①`give_discoverable_user_tool{get_referral_link}` ②손님이 `call_discoverable_user_tool
+{get_referral_link, card_name="Platinum Rewards Card"}`. **결과** 두 trial 전패(둘 다 ①조차 없음).
+
+### 궤적 (t0·32 메시지)
+
+1. 턴3: 손님에게 **`submit_referral`** 실행을 지시 → env `Error: Unknown discoverable tool 'submit_referral'`.
+   (건네지도 않았고, 그 이름은 이 태스크의 손님-도구 집합에 없다.)
+2. 턴4: 그 반려를 받고 **앱에서 하라**는 일반 절차로 이탈(012형 인접).
+3. 턴5~: 카드를 **바꿔가며** 검색 4회 — Crypto-Cash Back → Business Gold → Silver Zoom → Platinum
+   (§4 질의 로그가 그대로 보여 준다). 손님이 원한 것은 링크 생성인데 **오퍼 검증으로 표류**.
+4. `get_referral_link`는 **끝내 한 번도** 건드리지 않고 이관.
+
+**대조군이 같은 런 안에 있다**: 014는 같은 손님 시나리오에서 `get_referral_link`를 정상으로 넘겼다
+(*"Tool given to user: get_referral_link"*). 즉 도구도 경로도 살아 있었고, 015는 **이름 하나에 고착**했다.
+
+### 레버 판정
+
+| 레버 | 이 궤적에서 |
+|---|---|
+| `T2_UNKNOWN_REPEAT_GUARD`(cap2) | 반려된 이름의 **재지시**를 막는다. 015는 반복이 아니라 **표류**라 무발화 |
+| `T2_DISPATCH_ROLE_ENVSET` | **give 호출**의 대상 집합을 검사한다. 015는 give를 아예 안 했다 |
+| `T2_SEARCH_EXHAUST`(+C11 이름 병기) | dry streak **최대 0**(질의마다 새 무관 문서) ⇒ **구조적 침묵**(012와 동일 구조) |
+
+⇒ **신규 레버 후보 H — env 반려에 대한 정본 표면화**([[25]] 지시의 직접 구현):
+`Unknown discoverable tool 'X'`가 오면, **우리 레지스트리가 아는 실제 집합**을 그 자리에서 표면화한다
+— *"'X'는 건넬 수 있는 도구가 아니다. 이 대화에서 손님에게 건넬 수 있는 것은 {…}다."*
+집합은 `_agent_discoverable(env)`로 이미 얻고 있고(SEARCH_EXHAUST의 C11 가지가 같은 소스를 쓴다),
+엔진이 **고르지는 않는다** — 이름만 정정한다([[10]]). 도메인 리터럴 0·A2 순증 0.
+- 표적 규모: 이 계열은 010 t1·015 t0/t1·016에서 반복 관측됐다. 224 sim에서 `Unknown discoverable tool`
+  발생 sim 수와, 그 뒤 **정답 도구를 끝내 안 쓴 sim 수**를 먼저 센다.
