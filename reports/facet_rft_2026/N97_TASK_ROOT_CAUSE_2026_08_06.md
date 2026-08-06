@@ -206,3 +206,46 @@ EcoCard 프로모 창 = *"runs from 2025-08-01 through 2025-12-15"*. 이 환경�
 - 선행 조건: 현재 시각 확보(`get_current_time`은 이미 도구·`T2_*`가 이미 참조).
 - ⚠ 이 레버는 007 하나를 위한 것이 아니다 — 프로모/오퍼 문서는 코퍼스에 다수이고, **선택 태스크군
   (003·007·023·024·025·044·047)** 이 같은 자리에서 죽는지 다음 배치에서 확인한다.
+
+---
+
+## task_010 — 원장 4행을 손에 쥐고도 **아무것도 말해 주지 않았다**
+
+**gold** ①`log_verification{…}` ②`submit_referral{account_type="Platinum Rewards Card", user_id=76ad9cc60e}`(**requestor=user**).
+**결과** t0 = ①✓ ②✗ · t1 = 전패.
+
+### 결정론적 사슬이 전부 회수돼 있었다 (원장 + 정책 = 결론)
+
+t0 턴10 `get_referrals_by_user` 반환(축자):
+Bronze **COMPLETE** 10/20 · Gold **COMPLETE** 10/22 · Platinum **REJECTED** 10/25 · Silver **IN_PROGRESS** 11/05.
+정책 문서 두 건(태스크의 `required_documents`)이 나머지를 결정한다 —
+`…(general)_001`: *"REJECTED — the user has too many referral processes going on"*,
+`…(general)_002`: *"at most 2 referral bonuses in any rolling 7-day window … Auto-denied referrals due to the
+limit cannot be reinstated **within the same 7-day window**"*.
+⇒ 10/20·10/22 두 건이 창을 채워 10/25 Platinum이 자동 거부됐고, 오늘은 11/14라 **창은 지났다** ⇒ 재제출 가능.
+gold는 이 사슬의 기계적 끝이다. **손님이 누르는 도구**이므로 손님에게 전달돼야 눌린다.
+
+### 실제로 일어난 일 — 세 단계에서 끊겼다
+
+1. **조사 전 지시**(턴2): 아무것도 조회하지 않은 상태에서 손님에게 `submit_referral` 실행을 시켰다
+   (인자는 `"user_id": "your_user_id"` 자리표시자). 손님의 거부가 정확하다 —
+   *"I'm not comfortable 'running a tool' to fix this without anyone actually checking my account first."*
+2. **정책 미열람**: 신원확인·원장 회수까지는 정상. 그러나 `REJECTED`의 의미를 규정한 문서를 **조회하지 않았다**
+   (t0의 유일한 KB 검색은 *이관 사유 코드*였다).
+3. **미전달**(턴11·13): 카드별 상태·날짜를 말하지 않고 *"두 건이 IN_PROGRESS 또는 REJECTED"* 라는
+   일반론만 냈다. 손님 시나리오는 *"actually looks up YOUR account and tells you something SPECIFIC"*
+   일 때만 도구를 누르게 돼 있다 ⇒ 이관 요구로 귀결. 그 사이 무관 도구(거래내역·계좌)로 새고,
+   턴15는 도구를 **해제만 하고 부르지 않았다**(`T2_UNCALLED_UNLOCK` 표적 형태).
+
+### 레버 판정
+
+- 3단계(미전달)는 **003과 같은 뿌리**다 ⇒ 후보 **D**(결정권 이양 시 근거 전달 확인)가 여기도 걸린다.
+  003은 우리 도구의 `eligible`, 010은 env 원장의 행 — 둘 다 *우리가 받은 결정 근거*다.
+- 2단계는 새 자리다: **env가 낸 상태 코드(`REJECTED`)의 의미가 정책 문서에만 있다.**
+  ⇒ **신규 레버 후보 F — 미해석 토큰의 정책 조회**(닫힌 술어): 회수한 레코드의 enum 값 또는 손님이 꺼낸
+  절차 용어가 **이 대화가 받은 문서 텍스트 어디에도 없으면** 1회 표면화("이 값의 의미는 정책에 있다").
+  **후보 B는 이것의 손님-측 절반**이므로 둘을 하나의 레버로 합친다 — 출처만 둘(손님 발화 / 원장 출력),
+  술어·문구·캡은 공통. 값은 전부 env 출력에서 오므로 도메인 리터럴 0·gold 미참조.
+- 1단계(조사 전 지시)는 `T2_UNINSTRUCTABLE`의 인접 자리지만 술어가 다르다 — 손님은 그 도구를 **실제로
+  갖고 있었다**(user_tools). 문제는 실행 가능성이 아니라 **근거 없이 시킨 것**이다.
+  ⇒ 후보 D의 대칭 조건으로 흡수 가능: *근거(원장·판정)를 전달하기 전에 손님-도구 실행을 지시하지 말 것.*
