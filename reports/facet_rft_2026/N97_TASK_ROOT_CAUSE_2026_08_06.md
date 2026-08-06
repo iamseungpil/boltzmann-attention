@@ -680,3 +680,50 @@ sim 수는 41 → **52**로 늘었다(데이터가 늘었으므로 방향이 맞
 모순의 레버 쌍 상위: `PROTOCOL ↔ unified_regen` 34 · `ACTION ↔ unified_regen` 11 · `PROCEDURE ↔ unified_regen` 7.
 표적 2~5위: `unlock_discoverable_agent_tool` 14 · `apply_for_credit_card` 10 · `get_user_dispute_history_7291` 6 ·
 `get_card_last_4_digits` 4.
+
+---
+
+## task_023 — 우리 판정이 **"계산할 수 없다"** 로 끝나자 손님이 반대 분기로 갔다
+
+**gold** ①`log_verification`(✓) ②`apply_for_credit_card{card_type="Diamond Elite Card"}` · `reward_basis=['DB']` · t0/t1 전패.
+
+### 분기의 구조 — gold는 우리 판정의 **결과**다
+
+손님 시나리오 축자: *"If the agent tells you that you **DO NOT qualify** … Apply for the **Silver** Rewards Card.
+If the agent tells you that you **DO qualify** … Apply for the **Diamond Elite Card** … and that you have an
+invitation to apply"*. ⇒ gold(Diamond)는 **rebate 자격이 확정됐을 때만** 열리는 분기다.
+
+### 실제로 우리 도구가 낸 것
+
+`check_rebate_qualification` 5회 호출, 반환 축자:
+> *"Rebate qualification … **(could not compute — check your arguments)** … [coverage] **9 of 12 windows had
+> NO input records at all** (#3…#11). Those windows were NOT measured"*
+(2회차는 `[ARGS-FORMAT]` — `transactions`가 JSON 배열이 아니라는 반려.)
+
+그 뒤 `transfer_to_human_agents`를 **4회** 시도하다 손님이 Silver를 신청하고 종료.
+
+### 인자는 원장에 충실했다 — 이건 접지 실패가 아니다 [M]
+
+에이전트가 넘긴 `account_opening_date: "11/10/2022"` 는 원장 축자와 **일치**한다
+(`cc_224959b99e_plat · date_of_account_open: 11/10/2022`). 손님은 *"2024년 11월에 열었다"* 고 말하지만
+그건 외부 주장이고([[21]]), 에이전트는 원장을 따랐다 — **옳은 행동이다.**
+⇒ 남는 것은 **우리 산식**이다: 개설일이 2022년이면 첫 카드회원년(2022–2023)에는 거래가 없고,
+그래서 12개 창 중 9개가 비어 "계산 불가"가 된다. 판정해야 할 창은 **현재 카드회원년**이다.
+
+⚠**이미 알려진 미수정 결함일 가능성이 높다**: `go_stack.sh`의 AX33 주석이
+*"P4ⓐ(rebate 윈도 산식)는 엔진 수정이므로 플래그 없음 — 수정 전까지 P8은 차단"* 이라고 적어 두었다.
+023은 그 미수정의 대가를 라이브에서 보여 준다. (연결은 [?] — 산식 코드를 직접 확인해 확정할 것.)
+
+### 두 번째 결함 — 메시지가 **원인을 오지목**한다
+
+*"could not compute — **check your arguments**"* 는 모델을 **인자 재시도**로 보낸다. 실제 원인이
+"그 창에 원장 기록이 없다"라면 인자를 바꿔도 영원히 같은 답이 나온다 — 실측이 그렇다(5회 재시도·
+그 다음 이관 4회). ⇒ [[25]] 정본 위생: **불가 사유를 갈라 말해야 한다** —
+ⓐ인자 형식 오류(재발행하면 됨) ⓑ원장에 그 구간 기록이 없음(재시도 무의미·다른 경로로 가라).
+
+### 레버 판정
+
+- 레버 사각이 아니라 **정본 두 곳의 수정**이다: ⓐ창 산식 ⓑ불가 사유 분해.
+- 후보 **C**(발화 창 확장)도 여기 걸린다 — 이관 4회 시도가 전부 **행동**이라 사임-창 레버는 침묵했다.
+- ⚠전수 계량 대상: `could not compute`를 받은 sim 수와, 그 뒤 **재시도 횟수·이관 전환율**.
+  이 값이 크면 메시지 분해만으로도 회수되는 잔여가 있다.
