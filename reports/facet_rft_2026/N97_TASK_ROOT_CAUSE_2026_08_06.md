@@ -164,3 +164,45 @@ Silver를 고른다**. pass가 정확히 그 경로다.
 손님이 고르는 도구이므로 N개와 비교 속성을 손님에게 전달하라"*. 어느 카드가 맞는지는 말하지 않는다([[10]]).
 - 술어 재료는 전부 **우리 도구 출력**이다(카드 이름 = 우리 표의 키) ⇒ 도메인 리터럴 0·A2 순증 0·gold 미참조.
 - ⚠과차단 계량: gold이 *단일 추천*을 요구하는 태스크(에이전트가 골라야 하는 흐름)에서 몇 건 걸리는지 194 sim 오프라인 선계량.
+
+---
+
+## task_007 — **만료된 프로모**를 1위 검색결과라는 이유로 추천했다
+
+**gold** `apply_for_credit_card{card_type="EcoCard", …}`(requestor=user) · **결과** 3 sim 전패(Silver 신청).
+
+### 결정 속성이 우리 표에 없다
+
+손님의 유일한 기준은 *"best promotional sign-up offer"* 다. 그런데 `check_card_application_fit`이
+나르는 필드는 축자로 `annual_fee, base_cashback, cashback, cashback_scope, category_rates, fx_fee,
+fx_fee_with_premium, limit_max, min_payment_pct, min_score, purchase_protection, virtual_card` —
+**프로모/사인업 보너스는 없다.** 즉 이 태스크의 결정 근거는 **표 밖(KB 문서)** 에 있다.
+([[50]] ADB 경고의 실례 — 표가 촘촘할수록 밖을 못 본다.)
+
+### 궤적 (t0)
+
+턴4 `KB_search_dense("credit card sign-up bonus")` → **1위 = Silver $500 Statement Credit**.
+턴5 에이전트가 곧바로 Silver를 안내 → 손님이 Silver 신청 → 종료.
+
+**문서 축자**: Silver 프로모 오퍼 창 = *"Accounts must be opened within: 2025-01-01 to 2025-06-30"*,
+EcoCard 프로모 창 = *"runs from 2025-08-01 through 2025-12-15"*. 이 환경의 현재 시각은 2025-11-14
+(005 gold의 `time_verified`가 같은 시점) ⇒ **Silver 프로모는 만료됐고 EcoCard 프로모가 유효하다**.
+
+⇒ **원인 = 회수한 문서의 유효 창을 현재 시각과 대조하지 않았다.** 검색 순위를 유효성으로 읽었다.
+
+### 레버 판정
+
+| 레버 | 왜 안 걸리나 |
+|---|---|
+| `T2_SG_WINDOW_ABSTAIN` | **A2 선언 도구**의 미측정 윈도만 본다(rebate/apy 계열). KB 문서의 오퍼 창은 대상 밖 |
+| `T2_QUOTE_PIN`·`T2_TRANSCRIBE` | 값의 **출처·전사**를 보지 시간적 **유효성**을 보지 않는다 |
+| `T2_VERDICT_SURFACE` | 우리 도구의 판정이 있을 때만. 프로모는 우리 표에 없다 |
+
+⇒ **신규 레버 후보 E — 회수 문서의 유효창 대조**(표면화·닫힌 절반):
+에이전트가 어떤 문서의 오퍼/프로모를 근거로 행동·추천하려 할 때, 그 문서 본문에 **ISO 날짜 구간이
+명시**돼 있고 대화가 확보한 현재 시각이 그 밖이면 1회 표면화 — *"이 문서의 창은 A~B이고 오늘은 C다"*.
+어느 카드가 맞는지·유효한 대안이 무엇인지는 말하지 않는다([[10]]·[[52]]).
+- 날짜 추출은 env 고정 포맷 전사 계보(`_kb_zero_hit`·`_parse_record_dump`)와 동급이라 [[03b]] 경계 안.
+- 선행 조건: 현재 시각 확보(`get_current_time`은 이미 도구·`T2_*`가 이미 참조).
+- ⚠ 이 레버는 007 하나를 위한 것이 아니다 — 프로모/오퍼 문서는 코퍼스에 다수이고, **선택 태스크군
+  (003·007·023·024·025·044·047)** 이 같은 자리에서 죽는지 다음 배치에서 확인한다.
