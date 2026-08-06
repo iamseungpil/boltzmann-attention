@@ -186,6 +186,25 @@ def main():
                          acts[k]["action"]["name"]))
     for k, v in div.most_common():
         print("  %-28s %d" % (k, v))
+
+    # §4b 첫 miss가 어느 '역'에서 나는가 + 두 trial이 같은 역에서 죽는가(=결정론적 실패)
+    station = collections.Counter()
+    bytask_first = collections.defaultdict(dict)
+    for t, tr, tagtxt, n, name in rows:
+        if name:
+            station[name] += 1
+            bytask_first[t][tr] = name
+    print("\n  §4b 첫 miss 도구별(=실패가 서는 역):")
+    for k, v in station.most_common(12):
+        print("    %-40s %3d" % (k, v))
+    same = [t for t, d in bytask_first.items() if len(d) >= 2 and len(set(d.values())) == 1]
+    diff = [t for t, d in bytask_first.items() if len(d) >= 2 and len(set(d.values())) > 1]
+    print("  §4c 두 trial이 다 실패한 태스크 중 **같은 역**에서 죽은 것: %d / %d"
+          % (len(same), len(same) + len(diff)))
+    if diff:
+        print("    다른 역에서 죽은 것: %s" % ", ".join("%s(%s)" % (t, "→".join(
+            "%s:%s" % (k, v.split("_")[0]) for k, v in sorted(bytask_first[t].items())))
+            for t in sorted(diff)[:8]))
     if FULL:
         for r in sorted(rows):
             print("    %-10s t%s %-16s gold %2d  첫 miss=%s" % r)
