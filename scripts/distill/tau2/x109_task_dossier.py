@@ -28,6 +28,7 @@ for one task, the six things an honest attribution needs:
 import collections
 import glob
 import gzip
+import hashlib
 import io
 import json
 import os
@@ -131,6 +132,20 @@ def load_sidecar():
             except Exception:
                 continue
     return by
+
+
+def sim_key(s):
+    """사이드카 조인 키 — **results.json의 id로는 조인되지 않는다**(2026-08-06 실측: 교집합 0).
+
+    `t2_fbsidecar._sim_key`는 tau2 내부 id를 못 보므로 **첫 유저 발화의 sha1 앞 12자**를 지문으로 쓴다.
+    이 함수는 그 규칙의 재현이다. 이걸 맞추기 전까지 이 도구의 "사이드카 0건" 출력은 전부 무의미했다.
+    """
+    for m in s.get("messages") or []:
+        if m.get("role") == "user":
+            c = m.get("content")
+            if isinstance(c, str) and c.strip():
+                return hashlib.sha1(c.strip().encode("utf-8")).hexdigest()[:12]
+    return "nouser"
 
 
 def corpus():
@@ -289,7 +304,7 @@ def print_calls(s):
 
 
 def print_sidecar(s, side):
-    rows = side.get(s.get("id")) or []
+    rows = side.get(sim_key(s)) or []
     print("\n-- §3 우리 층(사이드카) — %d건 --" % len(rows))
     if not rows:
         print("  (이 sim의 사이드카 없음 — '우리 층이 말하지 않았다'는 결론 불가)")

@@ -22,7 +22,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from x109_task_dossier import load_sims, load_sidecar          # noqa: E402
+from x109_task_dossier import load_sims, load_sidecar, sim_key   # noqa: E402
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -53,7 +53,7 @@ def main():
                     ended_by_action = True
         tagtot.update(tags)
         rec = (s["task_id"], s.get("trial"), len(s.get("messages") or []),
-               len(side.get(s.get("id")) or []), ended_by_action)
+               len(side.get(sim_key(s)) or []), ended_by_action, s["_src"])
         (spoke if tags else silent).append(rec)
         if ended_by_action:
             term_exit += 1
@@ -61,14 +61,18 @@ def main():
     tot = len(silent) + len(spoke)
     print("== 실패 sim %d개 ==" % tot)
     print("  우리 문구가 궤적에 **0건**인 sim: %d (%.0f%%)" % (len(silent), 100.0 * len(silent) / max(1, tot)))
-    print("  그 중 사이드카도 0건: %d  ⇒ 이 sim들은 우리 층이 정말 침묵한 것"
-          % sum(1 for r in silent if r[3] == 0))
-    print("  그 중 사이드카는 있었던 sim: %d  ⇒ reminder만 나갔고 커밋된 문구는 없었다"
-          % sum(1 for r in silent if r[3] > 0))
+    # ★arm을 갈라야 한다: 전반부 `*_main_20260806`은 드라이버가 사이드카를 켜지 않았으므로
+    #   그 sim의 "사이드카 0건"은 **침묵의 증거가 아니다**([[55]]).
+    sc_arms = {r[5] for r in (silent + spoke) if r[3] > 0}
+    on = [r for r in silent if r[5] in sc_arms]
+    off = [r for r in silent if r[5] not in sc_arms]
+    print("  ├ 사이드카가 켜져 있던 arm의 침묵 sim: %d  ⇒ **우리 층이 정말 아무 말도 안 했다**" % len(on))
+    print("  └ 사이드카가 없던 arm의 침묵 sim:     %d  ⇒ 커밋된 문구가 없었다는 것만 안다(판정 불가)" % len(off))
+    print("  (사이드카가 확인된 arm: %s)" % (", ".join(sorted(sc_arms)) or "없음"))
     print("  이관 호출로 끝난 실패 sim: %d" % term_exit)
     print("\n  침묵 sim 목록(태스크 t시행 · 메시지 · 사이드카 · 이관종료):")
-    for t, tr, n, sc, ea in sorted(silent)[:40]:
-        print("    %-10s t%-2s msgs %3d  사이드카 %3d  %s" % (t, tr, n, sc, "이관" if ea else ""))
+    for t, tr, n, sc, ea, src in sorted(silent)[:40]:
+        print("    %-10s t%-2s msgs %3d  사이드카 %3d  %-8s %s" % (t, tr, n, sc, "이관" if ea else "", src))
     print("\n  (참고) 실패 sim 전체의 우리 태그 상위:")
     for k, v in tagtot.most_common(12):
         print("    %-28s %d" % (k, v))
