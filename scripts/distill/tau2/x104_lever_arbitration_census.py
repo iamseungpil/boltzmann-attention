@@ -59,6 +59,10 @@ SIM = SIM_REMOTE if os.path.isdir(SIM_REMOTE) else SIM_LOCAL
 # (설계서 §3의 재현 불일치가 이 정의 누락에서 나왔다).
 OURS = ("reminder-user", "tool-deny")
 
+
+# sim 식별자는 처음부터 표시형 문자열 `task_048 t1`로 만든다 — 튜플로 두면 다운스트림
+# (`rew`/`sims` 조회·출력 포맷)이 조용히 어긋난다.
+
 # 문구의 레버 정체는 지금 사이드카에 **없다**(채널만 있다). 태그를 본문 앞머리에서 읽는 것은
 # 임시방편이고, 그 취약성 자체가 설계서 E3의 "발화에 (레버, 표적) 메타데이터를 실어라"의 근거다.
 TAGRE = re.compile(r"\[([A-Z][A-Z0-9_\- ]{2,30})\]")
@@ -177,23 +181,39 @@ def main():
     a2 = GI.load_domain_a2(DOMAIN) or {}
     procs = a2.get("procedures") or []
 
+    # ★전수 런 지원 (2026-08-06): 이 도구는 스모크(`bank_smk_*`·nt=1)만 읽었고 sim을 **task_id로**
+    #   키잉했다 — nt2 전수에 그대로 돌리면 **두 trial이 겹쳐** 발화가 한쪽으로 접힌다.
+    #   그래서 ①파일 glob에 `bank_n97_*`를 추가하고 ②키를 (task_id, trial)로 바꾼다.
+    #   사이드카도 전수 드라이버는 `fb_n97_gpu<G>_<TAG>.jsonl`로 **GPU별로** 쓴다(한 파일 아님).
     sims, key, rew = {}, {}, {}
-    for p in sorted(glob.glob(os.path.join(SIM, "bank_smk_gpu*_%s.results.json.gz" % TAG))):
+    pats = [os.path.join(SIM, "bank_smk_gpu*_%s.results.json.gz" % TAG),
+            os.path.join(SIM, "bank_n97_gpu*%s.results.json.gz" % TAG)]
+    dup = 0
+    for p in sorted(set(sum([glob.glob(x) for x in pats], []))):
         d = json.load(gzip.open(p, "rt", encoding="utf-8"))
         for s in d["simulations"]:
             msgs = [_M(m) for m in s["messages"]]
-            sims[s["task_id"]] = msgs
-            rew[s["task_id"]] = s["reward_info"]["reward"]
+            ident = "%s t%s" % (s["task_id"], s.get("trial"))
+            sims[ident] = msgs
+            rew[ident] = s["reward_info"]["reward"]
             for m in msgs:
                 if m.role == "user" and isinstance(m.content, str) and m.content.strip():
-                    key[hashlib.sha1(m.content.strip().encode("utf-8")).hexdigest()[:12]] = s["task_id"]
+                    k = hashlib.sha1(m.content.strip().encode("utf-8")).hexdigest()[:12]
+                    if k in key:
+                        dup += 1          # 첫 발화가 같은 두 sim = 키 충돌(아래에서 보고)
+                    key[k] = ident
                     break
     if not sims:
-        print("결과 파일 없음: %s/bank_smk_gpu*_%s.results.json.gz" % (SIM, TAG))
+        print("결과 파일 없음: %s (tag=%s)" % (SIM, TAG))
         return
 
-    fb = os.path.join(SIM, "fb_%s.jsonl.gz" % TAG)
-    rows = [json.loads(l) for l in gzip.open(fb, "rt", encoding="utf-8")] if os.path.exists(fb) else []
+    fbs = [os.path.join(SIM, "fb_%s.jsonl.gz" % TAG)] +         sorted(glob.glob("/home/woori/scratch/logs/fb_n97_gpu*_%s.jsonl" % TAG))
+    rows = []
+    for fb in fbs:
+        if not os.path.exists(fb):
+            continue
+        op = gzip.open if fb.endswith(".gz") else io.open
+        rows += [json.loads(l) for l in op(fb, "rt", encoding="utf-8") if l.strip()]
     ours = [r for r in rows if r.get("kind") in OURS]
 
     print("== 계기 규약 ==")
@@ -212,7 +232,7 @@ def main():
         p = sum(v for t, v in c.items() if rew.get(t) == 1.0)
         f = sum(v for t, v in c.items() if rew.get(t) == 0.0)
         print("  %-24s %5d %7d %7d  %s" % (k, sum(c.values()), p, f,
-                                           ",".join(sorted(t[-3:] for t in c))))
+                                           ",".join(sorted(t.replace("task_", "") for t in c))))
 
     # ── B 공발화 ─────────────────────────────────────────────────────────────
     print("\n== B. 같은 (sim, turn)에 함께 도착한 레버 쌍 ==")
