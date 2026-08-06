@@ -22,7 +22,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from x109_task_dossier import load_sims, load_sidecar, sim_key   # noqa: E402
+from x109_task_dossier import load_sims, load_sidecar, rows_for, sidecar_files_for  # noqa: E402
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -53,7 +53,7 @@ def main():
                     ended_by_action = True
         tagtot.update(tags)
         rec = (s["task_id"], s.get("trial"), len(s.get("messages") or []),
-               len(side.get(sim_key(s)) or []), ended_by_action, s["_src"])
+               len(rows_for(s, side)), ended_by_action, s["_src"])
         (spoke if tags else silent).append(rec)
         if ended_by_action:
             term_exit += 1
@@ -63,7 +63,7 @@ def main():
     print("  우리 문구가 궤적에 **0건**인 sim: %d (%.0f%%)" % (len(silent), 100.0 * len(silent) / max(1, tot)))
     # ★arm을 갈라야 한다: 전반부 `*_main_20260806`은 드라이버가 사이드카를 켜지 않았으므로
     #   그 sim의 "사이드카 0건"은 **침묵의 증거가 아니다**([[55]]).
-    sc_arms = {r[5] for r in (silent + spoke) if r[3] > 0}
+    sc_arms = {r[5] for r in (silent + spoke) if sidecar_files_for(r[5])}
     on = [r for r in silent if r[5] in sc_arms]
     off = [r for r in silent if r[5] not in sc_arms]
     print("  ├ 사이드카가 켜져 있던 arm의 침묵 sim: %d  ⇒ **우리 층이 정말 아무 말도 안 했다**" % len(on))

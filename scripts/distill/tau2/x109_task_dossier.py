@@ -52,6 +52,7 @@ SIMDIRS = [os.path.join(TAU2, "data", "simulations"),
 SIDECARS = ["/home/woori/scratch/logs/fb_*.jsonl",
             os.path.join(REPO, "reports", "facet_rft_2026", "sim_results", "fb_*.jsonl.gz")]
 TAGRE = re.compile(r"\[([A-Z][A-Z0-9_\- ]{2,60})\]")
+SIDECAR_FILES = sorted(os.path.basename(p) for pat in SIDECARS for p in glob.glob(pat))
 STOP = set("the a an and or of to for my me i in on is are was were with please can you it "
            "that this what how do does did my have has need want would like get".split())
 
@@ -112,6 +113,12 @@ def load_tasks():
 
 
 def load_sidecar():
+    """사이드카를 **파일별로** 싣는다 — 키가 sim 고유가 아니기 때문이다.
+
+    `t2_fbsidecar._sim_key`는 첫 유저 발화의 sha1 앞 12자다. 같은 태스크를 여러 런에서 돌리면
+    **다른 런의 행이 같은 키로 섞인다**(2026-08-06 실측: 전반부 012 sim에 스모크 런의 104행이 붙었다).
+    그래서 (파일, 키)로 싣고, 조회할 때 **그 sim이 속한 arm의 파일만** 본다.
+    """
     by = collections.defaultdict(list)
     for pat in SIDECARS:
         for p in sorted(glob.glob(pat)):
@@ -128,10 +135,32 @@ def load_sidecar():
                             continue
                         if r.get("sim"):
                             r["_file"] = os.path.basename(p)
-                            by[r["sim"]].append(r)
+                            by[(os.path.basename(p), r["sim"])].append(r)
             except Exception:
                 continue
     return by
+
+
+def sidecar_files_for(src):
+    """arm 태그(`bank_n97_gpu0_main_20260806b`)에 대응하는 사이드카 파일명 조각.
+
+    드라이버가 `fb_n97_gpu<G>_<DATE>.jsonl`로 쓴다(run_n97_nt2.sh). 대응 파일이 하나도 없으면
+    그 arm은 **사이드카를 켜지 않은 것**이고, 그 sim의 '0건'은 침묵의 증거가 아니다.
+    """
+    m = re.search(r"gpu(\d)", src or "")
+    d = re.search(r"(\d{8}[a-z]?)$", src or "")
+    if not (m and d):
+        return []
+    return [f for f in SIDECAR_FILES
+            if ("gpu" + m.group(1)) in f and d.group(1) in f]
+
+
+def rows_for(s, side):
+    """이 sim의 사이드카 행 — arm에 맞는 파일에서만."""
+    out = []
+    for f in sidecar_files_for(s.get("_src")):
+        out += side.get((f, sim_key(s))) or []
+    return out
 
 
 def sim_key(s):
@@ -304,7 +333,7 @@ def print_calls(s):
 
 
 def print_sidecar(s, side):
-    rows = side.get(sim_key(s)) or []
+    rows = rows_for(s, side)
     print("\n-- §3 우리 층(사이드카) — %d건 --" % len(rows))
     if not rows:
         print("  (이 sim의 사이드카 없음 — '우리 층이 말하지 않았다'는 결론 불가)")
