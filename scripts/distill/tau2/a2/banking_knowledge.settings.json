@@ -46,23 +46,6 @@
     "transfer_to_human_agents"
    ],
    "_note_gb2": "BANKING_FLOOR_LEVER_FIT §2.6/§0.1-row10 EARLY_TRANSFER 36 sims(21.2%·gold-밖 transfer) 표적. 정책-사실 근거=policy §5 원문('Do this only if you absolutely have to, and you are sure that there are no potential actions you can take as specified in the knowledge base, or in your policy. Do not transfer without asking the user first.'). notice_text 자체는 정책에 고정문구 없어 §5의 두 요건(exhaust-확신+ask-first)을 그대로 진술한 합성 문구 — deny 메시지(ask)가 exact text를 제공하므로 gold-transfer 복구=1턴. applies_to=policy가 명명한 transfer_to_human_agents만(궤적 66콜=이관 질량 대부분; dispatcher 내부 initial_transfer_* 8콜은 gold-예외 태스크 경로라 미게이트=Δspurious 최소화). ⚠계측 필요: floor pass 9 sims 중 4개(033 t0/t1·034 t0/t1)가 transfer_to_human_agents 호출 → 이 게이트 발화(1턴 마찰) — Δspurious≤0는 재실측으로 확인할 것. ★2026-08-03 rev4 ①: notice_text에서 완결성 주장('I have checked the knowledge base and there are no further actions I can take')을 제거하고 predicate의 'knowledge base exhausted'도 삭제 — 032/033 궤적서 그 진술이 거짓이었음(문서화된 initial_transfer_to_human_agent_0218 미호출). ask에서 정책 §5 절대문 재진술과 절차 지시도 삭제(정책은 system prompt에 이미 있음). 탐지자(notice_sent_in prefix48)·마커·deny는 불변. 정본=TRANSFER_INSTRUCTION_FIDELITY_DESIGN_2026_08_03 §4.1."
-  },
-  {
-   "id": "GB3_ELIGIBILITY_BEFORE_REFERRAL_ADVICE",
-   "kind": "precheck",
-   "predicate": "the customer's eligibility to submit referrals has been checked against their referral record",
-   "satisfiers": {
-    "get_referrals_by_user": [
-     "user_id"
-    ]
-   },
-   "applies_to": [
-    "submit_referral"
-   ],
-   "note": "check the customer's existing referral activity in the record BEFORE giving recommendations or information on referral terms",
-   "_quote": "Before giving any recommendations or information on referral terms, you must check that the user is eligible to submit referrals first, as users who are not eligible to submit referrals while being given recommendations by the agent tend to leave dissatisfactory reviews.",
-   "_quote2": "REJECTED: Do not retry immediately; review the user's existing referral activity before advising next steps.",
-   "_note": "2026-08-06. 출처([[23]]) = 정책 문서 축자 두 곳(위 _quote/_quote2) — **must** + 순서('before giving any recommendations')라 선언 허가가 있다. gold 무참조. 표적 = task_101 계열 실측: 원장(get_referrals_by_user)을 **한 번도 부르지 않고** 손님이 4건을 제출했다. 손님이 '셀 수도 없다'고만 해서 검증할 주장이 없었고, 요구가 '최고 합산 보너스'라 에이전트가 한도가 아니라 보너스 금액을 탐색했다. kind=precheck (auth 아님) — `t2_phase._auth_gates`는 kind=='auth'만 보므로 단계 판정 거동은 불변이다. 집행 경로 = 에이전트가 부를 수 없는 도구라 호출-deny는 발생하지 않고, `t2_dominance`가 손님-실행 push를 이 요건으로 **치환**한다(엔진 순증 0줄). ⚠이 게이트는 '읽었는가'만 본다 — 102는 읽고도 한도를 틀렸으므로 이것으로 닫히지 않는다(정책-근거 계약이 별도 필요)."
   }
  ],
  "producers": {},
@@ -231,5 +214,25 @@
   "user_execution_tool": "call_discoverable_user_tool",
   "kind_guidance": "(record_update for changing a stored record's values, dispute_file for filing/submitting a dispute or report)"
  },
- "_note_claim_bindings": "L2(2026-07-31): L1 `claim_audit` 산문에 꽂히는 **이 도메인의 결합**. kinds=주장 종류 enum · event_map=kind→도구명 접두사(env 도출) · reserve_kinds=예비창 대상 · user_execution_tool=env 도구명. 새 도메인은 **이 4개만** 채우면 같은 무결성 검사를 얻는다(산문 복사 불요). kind_guidance=각 kind의 뜻(도메인 용어집)."
+ "_note_claim_bindings": "L2(2026-07-31): L1 `claim_audit` 산문에 꽂히는 **이 도메인의 결합**. kinds=주장 종류 enum · event_map=kind→도구명 접두사(env 도출) · reserve_kinds=예비창 대상 · user_execution_tool=env 도구명. 새 도메인은 **이 4개만** 채우면 같은 무결성 검사를 얻는다(산문 복사 불요). kind_guidance=각 kind의 뜻(도메인 용어집).",
+ "parked_gates": [
+  {
+   "id": "GB3_ELIGIBILITY_BEFORE_REFERRAL_ADVICE",
+   "kind": "precheck",
+   "predicate": "the customer's eligibility to submit referrals has been checked against their referral record",
+   "satisfiers": {
+    "get_referrals_by_user": [
+     "user_id"
+    ]
+   },
+   "applies_to": [
+    "submit_referral"
+   ],
+   "note": "check the customer's existing referral activity in the record BEFORE giving recommendations or information on referral terms",
+   "_quote": "Before giving any recommendations or information on referral terms, you must check that the user is eligible to submit referrals first, as users who are not eligible to submit referrals while being given recommendations by the agent tend to leave dissatisfactory reviews.",
+   "_quote2": "REJECTED: Do not retry immediately; review the user's existing referral activity before advising next steps.",
+   "_note": "2026-08-06. 출처([[23]]) = 정책 문서 축자 두 곳(위 _quote/_quote2) — **must** + 순서('before giving any recommendations')라 선언 허가가 있다. gold 무참조. 표적 = task_101 계열 실측: 원장(get_referrals_by_user)을 **한 번도 부르지 않고** 손님이 4건을 제출했다. 손님이 '셀 수도 없다'고만 해서 검증할 주장이 없었고, 요구가 '최고 합산 보너스'라 에이전트가 한도가 아니라 보너스 금액을 탐색했다. kind=precheck (auth 아님) — `t2_phase._auth_gates`는 kind=='auth'만 보므로 단계 판정 거동은 불변이다. 집행 경로 = 에이전트가 부를 수 없는 도구라 호출-deny는 발생하지 않고, `t2_dominance`가 손님-실행 push를 이 요건으로 **치환**한다(엔진 순증 0줄). ⚠이 게이트는 '읽었는가'만 본다 — 102는 읽고도 한도를 틀렸으므로 이것으로 닫히지 않는다(정책-근거 계약이 별도 필요).",
+   "_parked": "2026-08-06 사전 등록 계량 FAIL로 **등재 보류**(x118 정정판). 정책 축자는 있으나(위 _quote) gold이 그 순서를 요구하지 않는 태스크가 2건 — task_010(검증만 하고 제출) · task_100(계좌 조회만 하고 제출). 치환은 차단이 아니라 gold 액션 자체는 살아남지만, 읽기 1회를 유도해 턴을 태운다(004형 '마지막 턴 소각' 선례). **특히 task_100은 다음 작업 대상**이라 역효과가 직접적이다. 되살리려면 '무엇이 010/100과 101/102를 가르는가'를 **닫힌 술어**로 찾아야 한다 — 요청 건수(산문·열림)로는 안 된다. 대안: 한도 *주장*이 나올 때만 발화하는 정책-근거 계약(010/100 gold은 한도 주장을 하지 않으므로 구조적으로 오발화 0)."
+  }
+ ]
 }
