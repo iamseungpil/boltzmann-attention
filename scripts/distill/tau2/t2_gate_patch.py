@@ -3863,6 +3863,10 @@ def _install_regen_exec():
             try:
                 import t2_offload as _OFF
                 import t2_ledger as _LG
+                # ★잠복 버그(2026-08-07·`T2_LEDGER`를 처음 켜자 드러남): `la`(LLM 어댑터)는
+                #   `apply_*_regen` 세 곳에서만 import되고 **이 훅 스코프엔 없다** → `NameError`.
+                #   死배선이라 라이브에서 한 번도 실행된 적이 없어 아무도 못 봤다. 지역 import로 닫는다.
+                import tau2.agent.llm_agent as la
                 for _tc in tool_calls:
                     _o = by_id.get(getattr(_tc, "id", None))
                     if _o is None or getattr(_o, "error", False):
@@ -5861,14 +5865,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                       % (_e17,), file=_sys.stderr, flush=True)
                                 _sub17 = ""
                             if _sub17:
-                                print("[T2_PHASE_PRECEDE] substitute (was: silent) target=%s" % _t17,
-                                      file=_sys.stderr, flush=True)
-                                _newPP = _ap_regen(_sub17, "phase_precede")
-                                if _newPP is not None:
-                                    am = _newPP
-                                    _resign = (not getattr(am, "tool_calls", None)
-                                               and isinstance(getattr(am, "content", None), str)
-                                               and am.content.strip())
+                                # ★자기정정(2026-08-07·20260807f 실측 9건): 여기서 `_ap_regen`을
+                                #   부르면 **UnboundLocalError**다 — 그 클로저는 이 함수의 **뒤쪽**
+                                #   (`:6886`)에서 정의되므로 파이썬이 지역변수로 보고 미대입 상태다.
+                                #   감싸는 try/except가 그것을 삼켜서 **`substitute` 로그는 찍히고
+                                #   전달은 0**이었다 = [[55]]의 *"로그 마크 ≠ 전달"* 을 내가 그대로 재현.
+                                #   ⇒ 이웃 코드가 쓰는 채널로 보낸다: `rw_fb=(None, text)`는
+                                #   순수-조언 형태로 `:6497`에서 UserMessage 리마인더가 되어 재생성된다.
+                                if rw_fb is None:
+                                    rw_fb = (None, _sub17)
+                                    print("[T2_PHASE_PRECEDE] substitute (was: silent) target=%s "
+                                          "→ rw_fb(pure-advice)" % _t17,
+                                          file=_sys.stderr, flush=True)
+                                else:
+                                    print("[T2_PHASE_PRECEDE] skipped — rw_fb already set",
+                                          file=_sys.stderr, flush=True)
                             else:
                                 print("[T2_PHASE_OWNER] action-push silent — phase=%s (no DAG req)"
                                       % _phase17, file=_sys.stderr, flush=True)
