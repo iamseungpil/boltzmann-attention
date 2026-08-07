@@ -5782,6 +5782,43 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                          or "\nWhy it is still outstanding: {why}\n"
                                                             "Steps that are possible right now (any of "
                                                             "them, your choice): {options}")
+                                                # ★프런티어를 **실호출 이름**으로 (2026-08-08·C300).
+                                                #   우리가 올리던 `get_all_user_accounts_by_user_id`는
+                                                #   그대로는 호출 불가다 — 이 env의 발견형 도구는
+                                                #   `..._3847`처럼 접미사가 붙는다. 이름을 알려 주는
+                                                #   `T2_DISCOVERY_NAMES`는 **도구를 하나도 안 부른 턴**
+                                                #   에만 발화하므로(`_agent_ending`) 필요한 자리에 닿지
+                                                #   않는다 — 두 런 연속 0회, 그 두 런 모두 계좌조회 누락.
+                                                #   레지스트리는 **잠금 전에도** 정확한 이름을 갖고 있고
+                                                #   (`_agent_discoverable` 주석 축자), 가족명 대조는 이미
+                                                #   쓰는 술어다. 기계 도출이라 도메인 리터럴 0.
+                                                try:
+                                                    _reg12 = _agent_discoverable(
+                                                        getattr(getattr(self, "_t2_orch", None),
+                                                                "environment", None))
+                                                    if _reg12:
+                                                        _fixed12 = []
+                                                        for _n12 in _front:
+                                                            if _n12 in _reg12:
+                                                                _fixed12.append(_n12)
+                                                                continue
+                                                            _hit12 = sorted(
+                                                                x for x in _reg12
+                                                                if _PC._fam(x) == _PC._fam(_n12))
+                                                            _fixed12.append(_hit12[0] if len(_hit12) == 1
+                                                                            else _n12)
+                                                        if _fixed12 != list(_front):
+                                                            print("[T2_CALLABLE_FRONTIER] %s -> %s"
+                                                                  % (list(_front), _fixed12),
+                                                                  file=_sys.stderr, flush=True)
+                                                            _lbeat("T2_CALLABLE_FRONTIER", orch=self,
+                                                                   target=_utgt,
+                                                                   fact="a step was named in a form "
+                                                                        "that cannot be called")
+                                                        _front = _fixed12
+                                                except Exception as _e12b:
+                                                    print("[T2_CALLABLE_FRONTIER] skipped: %r" % (_e12b,),
+                                                          file=_sys.stderr, flush=True)
                                                 if _why or _front:
                                                     _ufb += _tpl2.format(
                                                         why="; ".join(_why) or "(no record)",
