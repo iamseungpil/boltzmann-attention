@@ -160,9 +160,24 @@ def requirements_for(a2, messages, target, executed=None, unwrap=None):
         if gid in seen:
             continue
         seen.add(gid)
+        # ★전이적 도달(2026-08-07·102 대조 부검). satisfier 자신이 혼자 부를 수 없는 도구면
+        #   그것을 명령하는 것은 **실행 불가한 지시**다. GB1의 satisfier는 `log_verification`인데
+        #   같은 게이트의 note가 축자로 경로를 적고 있다 — 레코드 조회 → verify_identity →
+        #   get_current_time → log_verification. 우리는 사슬의 **끝만** 명령했다.
+        #   대조 실측: 통과한 sim은 모델이 경로를 스스로 알았고, 실패한 sim은 verify_identity를
+        #   다섯 번 부르다 이관으로 끝났다(log_verification에 **도달조차** 못 함). 같은 구성이
+        #   0~5건으로 흔들린 것은 표집이 아니라 이 갈림길이었다.
+        #   ⇒ 명령은 **지금 바로 실행 가능한 단계**여야 한다.
+        step = sorted(sat)
+        pre = (g.get("satisfier_requires") or {})
+        for s_name in sorted(sat):
+            miss = [p for p in (pre.get(s_name) or []) if _fam(p) not in done_fam]
+            if miss:
+                step = miss[:1]                       # 사슬의 **다음 한 걸음**만
+                break
         out.append({"id": gid,
                     "predicate": str(g.get("predicate") or gid),
-                    "satisfiers": sorted(sat)})
+                    "satisfiers": step})
 
     def _reads(dep, reads):
         if _fam(dep) != _fam(target):
@@ -265,6 +280,20 @@ if __name__ == "__main__":                                     # 자기검정 (�
     head, tail = txt.split("Still outstanding", 1)
     assert "referral record checked" not in head, head        # 2·3번은 명령부에 없다
     assert "referral record checked" in tail and "prior read" in tail, tail
+
+    # ★전이적 도달: satisfier가 혼자 실행 불가면 **다음 한 걸음**을 명령한다.
+    A2P = {"gates": [{"id": "G1", "predicate": "identity verified",
+                      "satisfiers": {"log_verification": []},
+                      "satisfier_requires": {"log_verification": ["verify_identity",
+                                                                  "get_current_time"]},
+                      "applies_to": ["submit_referral"]}]}
+    r = requirements_for(A2P, [_M([])], "submit_referral")
+    assert r[0]["satisfiers"] == ["verify_identity"], r      # 끝이 아니라 첫 걸음
+    r = requirements_for(A2P, [_M(["verify_identity"])], "submit_referral")
+    assert r[0]["satisfiers"] == ["get_current_time"], r     # 한 걸음 전진
+    r = requirements_for(A2P, [_M(["verify_identity", "get_current_time"])], "submit_referral")
+    assert r[0]["satisfiers"] == ["log_verification"], r     # 이제 끝을 명령할 수 있다
+    assert requirements_for(A2P, [_M(["log_verification"])], "submit_referral") == []
 
     # 충족된 것은 빠지고, 남은 것만 말한다.
     rs2 = requirements_for(A2M, [_M(["log_verification", "get_referrals_by_user"])],
