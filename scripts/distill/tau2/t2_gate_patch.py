@@ -5820,31 +5820,41 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             _t17 = None
                             try:
                                 import t2_dominance as _DOM17
-                                _t17 = _tgt_pre if (_tgt_pre and _tgt_pre in _acts) else None
-                                if _t17 is None and len(_acts) == 1:
-                                    _t17 = next(iter(_acts))
-                                # ★진단은 **두 갈래를 갈라** 찍는다(2026-08-07·20260807c 교훈).
-                                #   전판은 `(no DAG req)` 한 줄뿐이라 *표적을 못 잡았다* 와
-                                #   *DAG가 조용하다* 를 로그로 구분할 수 없었다 = 계기 결함.
-                                #   추측으로 고치면 [[08]] 위반이므로, 고치기 전에 가른다.
-                                if not _t17:
-                                    print("[T2_PHASE_PRECEDE] no-target tgt_pre=%r in_acts=%s acts=%d %s"
-                                          % (_tgt_pre, (_tgt_pre in _acts) if _tgt_pre else False,
-                                             len(_acts), sorted(_acts)[:4]),
+                                # ★★표적을 하나로 좁히지 않는다 (2026-08-07·x126 격리가 판정).
+                                #   전판은 formalize가 낸 표적 하나에만 물었고, 그것이 후보 집합에
+                                #   없으면 **그래프에 묻지도 않았다**. x126 재생 결과: phase=verify 턴
+                                #   **6개 전부**에서 후보 7개 중 4개가 미충족 조상을 갖고 있었다 —
+                                #   즉 그래프는 조용하지 않았고 표적 선택이 침묵을 만들었다.
+                                #   처방은 [[56]] C3와 같은 형태다: **하나를 고르지 않는다.**
+                                #   후보 전체를 돌아 요건을 모으고, 가장 많이 덮는 표적으로 말한다
+                                #   (명령 하나 · 사실 합집합). 새 A2 키 0 · 도메인 어휘 0.
+                                _exec17 = _executed_tool_names(state.messages, a2)
+                                _cands17 = []
+                                for _a17 in sorted(_acts):
+                                    _r = _DOM17.requirements_for(
+                                        a2, state.messages, _a17,
+                                        executed=_exec17, unwrap=_exact_tool_name)
+                                    if _r:
+                                        _cands17.append((_a17, _r))
+                                if _tgt_pre and any(_a == _tgt_pre for _a, _ in _cands17):
+                                    _t17, _rq17 = next((c for c in _cands17 if c[0] == _tgt_pre))
+                                elif _cands17:
+                                    # formalize가 표적을 못 냈으면 **요건이 가장 많은 후보**로 말한다.
+                                    _t17, _rq17 = max(_cands17, key=lambda c: len(c[1]))
+                                else:
+                                    _t17, _rq17 = None, []
+                                if not _cands17:
+                                    print("[T2_PHASE_PRECEDE] silent-DAG acts=%d reqs=0 "
+                                          "(어느 후보에도 미충족 조상이 없다)" % len(_acts),
                                           file=_sys.stderr, flush=True)
                                 else:
-                                    _rq17 = _DOM17.requirements_for(
-                                        a2, state.messages, _t17,
-                                        executed=_executed_tool_names(state.messages),
-                                        unwrap=_exact_tool_name)
-                                    _sub17 = _DOM17.merged_text(a2, _rq17, _t17) if _rq17 else ""
-                                    if not _rq17:
-                                        print("[T2_PHASE_PRECEDE] silent-DAG target=%s reqs=0 "
-                                              "(그래프가 이 표적에 미충족 조상을 안 준다)" % _t17,
-                                              file=_sys.stderr, flush=True)
-                                    elif not _sub17:
-                                        print("[T2_PHASE_PRECEDE] empty-text target=%s reqs=%d "
-                                              "(요건은 있는데 merged_text가 빈 문자열)"
+                                    _sub17 = _DOM17.merged_text(a2, _rq17, _t17)
+                                    print("[T2_PHASE_PRECEDE] cands=%d picked=%s reqs=%s"
+                                          % (len(_cands17), _t17,
+                                             [r.get("id") for r in _rq17][:3]),
+                                          file=_sys.stderr, flush=True)
+                                    if not _sub17:
+                                        print("[T2_PHASE_PRECEDE] empty-text target=%s reqs=%d"
                                               % (_t17, len(_rq17)), file=_sys.stderr, flush=True)
                             except Exception as _e17:
                                 print("[T2_PHASE_PRECEDE] DAG requirement failed (keep silent): %r"
