@@ -70,7 +70,72 @@
 | 10 | 부재판정 | **없는 것을 못 닫음** — 검색 루프 | **부재 종결 게이트** |
 | 11 | 유도 | **손님 지시 실패** | 지시 scaffold |
 
-**레버 이름 대응**(2026-08-06~07 설계서의 C-표기는 이 이름으로 읽는다·문서 표기는 아래를 쓴다):
+### ★★레버 철학 — 구현은 변형돼도 이것은 바뀌지 않는다 (2026-08-07·사용자 지시)
+
+지시: *"해결하고자 하는 일에 어떤 원칙으로 접근하는지가 명확해야 하고, 내부구현 상세는 여러 변형이
+있을 수 있지만 **레버의 철학이 바뀌면 안 된다. 그래야 충돌이 안 난다.**"*
+
+충돌 census(T1~T6 12건)의 뿌리가 이것이다 — 레버가 국소 논리로 하나씩 붙어서, 같은 자리를 두고
+서로 다른 원칙이 부딪혔다. 셀마다 원칙을 **한 문장**으로 못박으면, 같은 셀의 구현들은 서로
+모순될 수 없고 다른 셀과의 충돌은 중재 규칙 하나로 끝난다.
+
+| 레버 | **철학 (구현 불변식)** |
+|---|---|
+| **조건 게이트** | 정책이 선언한 조건이 충족되기 전에는 그 행동을 열지 않는다. 조건은 **정책 축자**에서만 오고, 게이트는 **진위만** 본다 — 행동의 좋고 나쁨은 판단하지 않는다. |
+| **완결 게이트** | 끝났다는 주장은 **실행 원장으로만** 검증한다. 모델의 자기보고는 근거가 아니다. |
+| **선행 강제** | 표적의 **미충족 조상**이 있으면 그 요건이 먼저 말한다. 명령은 **지금 실행 가능한 걸음**이어야 한다(사슬의 끝을 명령하지 않는다). |
+| **계산 이관** | 구조화된 값 위의 **산수는 엔진**, **전사·해석은 모델**. 엔진은 도메인 텍스트를 읽지 않는다([[59]]). |
+| **직렬화·되묻기** | 판별 기준이 형식화되면 결정론으로 좁히고, 안 되면 **되묻는다**. 추측으로 좁히지 않는다. |
+| **정본 상태 대조** | 손으로 옮긴 값은 원장과 대조한다. 엔진은 **고치지 않고** 어긋난 사실만 말한다. |
+| **종료 판정** | 종료는 **남은 절차 단계의 유무**로 판정한다. 피로·반복 횟수로 판정하지 않는다. |
+| **근거 확인** | 행동을 좌우하는 사실 주장은 **출처를 대야 한다**. 엔진은 **출처만** 검증하고 값을 만들지 않는다. |
+| **역할 확인·실행 강제** | 누가 실행하는지는 **레지스트리에서 도출**한다. 판정 불가면 그 문장을 뺀다. 말로 실행을 대체하지 않는다. |
+| **부재 종결** | **없음은 멈출 근거다.** 단 찾은 범위를 함께 말한다(없다와 못 찾았다를 가른다). |
+| **지시 scaffold** | 손님이 실행할 것은 **실행 가능한 형태**로 준다(도구·인자·값). 지시했다는 사실을 실행으로 세지 않는다. |
+
+**메타 두 개**(레버가 아니므로 셀 밖):
+
+| | 철학 |
+|---|---|
+| **중재** | 근거 등급이 높은 쪽이 **자기 선언 범위 안에서만** 명령한다. 진 쪽은 침묵이 아니라 **치환**된다. |
+| **발화 창** | 같은 입력에 **같은 말을 두 번 하지 않는다**. 인자가 바뀌어야 다시 말한다([[57]]). |
+
+**하네스**: 판정하지 않는다. 끄면 능력이 조용히 사라지므로 **arm 정의에서 상수**다(2026-08-07 실측: 세 번 위반).
+
+⇒ **충돌 판정법**: 두 레버가 부딪히면 먼저 *어느 철학을 어긴 구현인가*를 본다. 철학 위반이면 그 구현을
+고친다(레버를 끄지 않는다). 둘 다 철학을 지켰는데 부딪히면 그때만 **중재**가 개입한다.
+
+### ★라이브 레버 전수 배치 (2026-08-07·사용자 지시 *"모든 효과 있는 사용 레버는 기전·레버 분류에 포함"*)
+
+`go_stack.sh` 기준 라이브 플래그를 **전부** 위 11셀에 놓는다. 놓을 셀이 없으면 그 레버는
+**폐기 후보이거나 하네스**다 — 셋째 자리는 없다.
+
+| 기전 → 레버 | 라이브 플래그 |
+|---|---|
+| **정책 미집행 → 조건 게이트** | `TOOLGATE` `PROCEDURE` `PROCEDURE_CAP` `SPEAK_PROHIBIT` `PHASE_OWNER` `ENVELOPE_GUARD` `UNAVAIL_PROMISE` |
+| **미완결 → 완결 게이트** | `COVERAGE_FOLLOWUP` `FOLLOWUP_REQUIRED` `FOLLOWUP_FORCE` `FOLLOWUP_READLOOP` `WITHDRAWN_ROW` `DISPATCH_LEDGER` |
+| **선행 미해결 → 선행 강제** | `FORCE_ACTION` `EPLAN` `EPLAN_WALK` `SCAFFOLD_GET` `SG_REQREADS` `PREKB` `PIN_READ` `PIN_READ_STEPS` `PROC_PIN_REARM` `CALLABLE_HINT` `COV_MIDDRIVE` `UNVERIFIED_FOLLOWUP` |
+| ⤷ *하위: 미사용 표면화* | `DISCOVERY_NAMES` `UNCALLED_UNLOCK` `VERDICT_SURFACE` `TRANSFER_LEAVES_STEPS` |
+| **집계 미수행 → 계산 이관** | `COMPUTE` `RESOLVE` `LEDGER` `SG_ISOLATE` `SG_ISOFB` `SG_TRACE` `SG_DEDUP` `PRESCRIPTION` |
+| **대상 오지목 → 직렬화·되묻기** | `REF_VERIFY` `SG_BYREF` `CHOICE_GROUND` `MATCH_COUNT` `ARG_SCHEMA` |
+| **상태 발산 → 정본 상태 대조** | `TRANSCRIBE` `TRANSCRIBE_CAP` `STALE_STRIP` `BRANCH_REGROUND` |
+| **조기 포기·과잉 지속 → 종료 판정** | `TERM_GRANT` `TERM_GRANT_USERDEMAND` `TRANSFER_TIER` `REQUIRE_DOC` |
+| **근거 없는 값 → 근거 확인** | `SOURCE` `PROV_REGEN` `PROV_MODE` `GROUND` `SG_GROUND` `WRITE_PROV` `WRITE_EVIDENCE` `WRITE_ARG_GROUND` `CLAIM_PROV` `GIVE_QUOTE` `QUOTE_HINT` `QUOTE_PIN` `UNLOCK_PROV` `UNKNOWN_NAME_BL` `UNLOCK_NAME` `FAB_STRIP` `SG_TRUTH` `PROD_BIND` |
+| **실행 회피 → 역할 확인·실행 강제** | `DISPATCH_ROLE` `DISPATCH_ROLE_ENVSET` `TOOL_CHANNEL` `TOOL_SIGNATURE` `TOOLLIST` `VALUE_ACQUIRE` `HAVE_VALUE` `HAVE_VALUE_FORCE` `ARG_PRODUCERS` `GUIDED` |
+| **부재 미종결 → 부재 종결** | `SEARCH_EXHAUST_NUDGE` `SEARCH_EXHAUST_TH` `KB_NOHIT_SURFACE` `KB_NOHIT_K` `PROC_ABSENT` `SG_WINDOW_ABSTAIN` `ABSTAIN_FIELDS` |
+| **손님 유도 실패 → 지시 scaffold** | `USER_TOOL_NOTE` `UNINSTRUCTABLE` `GIVE_EXEC_NUDGE` `GIVE_RELEVANCE_NUDGE` `DUP_REPRESENT` |
+| **(기전 아님) 하네스** | `READ_DEDUP`(채널·216줄) `GATE_REGEN` `PROV_REGEN`(호스트) `OVERFLOW_GUARD` `TRUNC_GUARD` `DYN_MT` `MAXPROMPT` `VIEW_*` `PAIRCHECK` `PAIRFIX` `FAILED_PERSIST` `A2_VARIANT` `LLM_*` |
+| **(레버 아님) 메타** | `ARBITRATE`(레버 간 중재) · `WINDOW`(발화 창) · `*_CAP`/`*_REFUND`(자원 규칙) |
+| **폐기 후보** | `REPEAT_CAP` `UNKNOWN_REPEAT_GUARD` — [[57]]: 반복 억제는 횟수가 아니라 인자 변화로. 정체-과금·지문 억제가 대체 |
+
+### ★이 배치가 드러낸 것 — **C1~C7은 11셀을 7로 뭉갠 거친 분할이었다** [M]
+
+C-표기에는 **완결·참조·지속·중단판단·부재판정·유도 여섯 셀이 없었다.** 그 셀의 레버들
+(`COVERAGE_FOLLOWUP`·`REF_VERIFY`·`TRANSCRIBE`·`TERM_GRANT`·`SEARCH_EXHAUST_NUDGE`·`USER_TOOL_NOTE` …)은
+갈 곳이 없어 C1(출처)이나 C2(선행)로 밀려 들어가 있었다 — 오늘 매핑 초안이 C1에 31개를 몰아넣은 이유다.
+⇒ **분류는 11셀(정본)이 옳고, C-표기는 폐기한다.**
+
+**레버 이름 대응**(구 C-표기 → 이 이름으로 읽는다):
 
 | 구 표기 | **레버 이름** | 겨냥 기전 |
 |---|---|---|
