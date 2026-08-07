@@ -5387,7 +5387,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   deny-kind(operator/membership/provenance) 통합 = L10+L3+operator 한 경로.
             #   개별 플래그(T2_CONSISTENCY/T2_PROV_ORIGIN) 대체용(driver가 상호배타 설정).
             rw_fb = None
-            if (os.environ.get("T2_RESOLVE") == "1" and a2 is not None
+            # ★계약 진입점 분리 (2026-08-07·arm-5 실측). 이 바깥 조건이 `T2_RESOLVE`만 보던 탓에
+            #   그 안에 중첩된 **C1(`T2_SOURCE`)·C3(`T2_ARBITRATE`)가 껍데기와 함께 죽었다**:
+            #   T2_* 120개를 끄고 두 계약만 켠 arm에서 마커 발화가 각각 **0**이었다. 계약이 독립된
+            #   코드 단위가 아니라 기존 레버 **안의 가지**였다는 뜻이고, 그래서 "레버 5개만"이
+            #   플래그로는 도달 불가였다. 진입 자격을 계약 플래그로 넓힌다 — 안쪽의 per-operand
+            #   해소 루프는 여전히 `T2_RESOLVE` 전용이므로 **전부 켠 스택의 거동은 불변**이다.
+            _contract_on = any(os.environ.get(_k) == "1" for _k in
+                               ("T2_RESOLVE", "T2_FORCE_ACTION", "T2_ARBITRATE", "T2_SOURCE"))
+            if (_contract_on and a2 is not None
                     and not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None
                     and getattr(self, "_t2_resolve_deny", 0) < 3):
