@@ -68,7 +68,11 @@ def fill(items, budget=90000, floor=3000):
         if used + len(s) > budget:
             s = s[:max(0, budget - used)]
         if not s:
-            break
+            # ⚠빈 항목에서 **끊으면 안 된다**(1차 실행이 이걸로 574자만 담았다 — 탈락 18).
+            #   빈 것은 건너뛸 뿐이고, 예산이 바닥났을 때만 멈춘다.
+            if used >= budget:
+                break
+            continue
         sel.append(s)
         used += len(s)
     sel.reverse()
