@@ -6600,9 +6600,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 try:
                     import t2_stack as _stk9
                     _ok9, _why9 = _stk9.admit(self, "resolve_write", rw_fb[1])
-                    if not _ok9:
-                        print("[T2_STACK] window dropped guidance tag=resolve_write (%s)" % _why9,
-                              file=_sys.stderr, flush=True)
+                    # 통과도 찍는다 — 접힘만 찍으면 "안 접혔다"와 "창을 안 거쳤다"가 같아 보인다.
+                    print("[T2_STACK] guidance tag=resolve_write %s (%s)"
+                          % ("passed" if _ok9 else "dropped", _why9),
+                          file=_sys.stderr, flush=True)
                 except Exception:
                     _ok9 = True
                 if _ok9:

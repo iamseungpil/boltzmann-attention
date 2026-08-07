@@ -728,10 +728,15 @@ def admit(orch, tag, text):
     seen = getattr(_o, "_t2_stack_said", None)
     if seen is None:
         seen = _o._t2_stack_said = set()
+    # ★기억 크기를 이유에 실어 보낸다 (2026-08-07·led_j 라이브). 접힘이 4회 발화했는데 축자 동일한
+    #   `[ORDER]`가 같은 sim 안에서 계속 나갔다. 후보는 둘이고 로그가 둘을 못 갈랐다:
+    #   ⓐ 창을 안 거친 경로가 따로 있다 · ⓑ 창을 거쳤지만 **기억이 비어 있었다**(주인 객체가
+    #   턴마다 새로 생기면 그렇게 된다). `seen=N`이 그 자리에서 둘을 가른다 — 매번 N=0이면 ⓑ다.
+    n = len(seen)
     if fp in seen:
-        return False, "same fingerprint"
+        return False, "same fingerprint (seen=%d)" % n
     seen.add(fp)
-    return True, "new"
+    return True, "new (seen=%d)" % n
 
 
 def observed():
