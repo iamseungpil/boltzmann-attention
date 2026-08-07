@@ -4495,6 +4495,31 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     self._t2_va_logged = True
                     print("[T2_VIEW_ANNOTATE] active: %d tool output(s) annotated in view"
                           % _nva, file=_sys.stderr, flush=True)
+        # ★연기된 표적 재-제시 (2026-08-08·C300·층 3의 pin 절반). 거절한 표적의 선행이 **풀렸는지**
+        #   매 턴 본다 — 풀렸으면 그 행동을 한 번 다시 내밀고 명부에서 지운다. 판정은 이미 선언된
+        #   요건 그래프의 결정론이고(새 A2 키 0), 전달은 **비커밋 뷰 채널**이다(C298: 궤적에 쓰면
+        #   replay가 깨진다). 우리가 실행하지 않는다 — 호출은 모델이 한다([[05]] Q3).
+        _dfr0 = getattr(self, "_t2_deferred", None)
+        if _dfr0 and a2 is not None:
+            try:
+                import t2_dominance as _DOMc
+                _cl0 = _DOMc.cleared(a2, state.messages, _dfr0,
+                                     executed=_executed_tool_names(state.messages, a2),
+                                     unwrap=_exact_tool_name)
+                if _cl0:
+                    _q0 = list(getattr(self, "_t2_view_fb", None) or [])
+                    for _tgt0, _txt0 in _cl0:
+                        _q0.append([_txt0, int(os.environ.get("T2_DEFERRED_VIEW_KEEP", "2"))])
+                        _dfr0.pop(_tgt0, None)
+                        print("[T2_DEFERRED] re-offered target=%s (its precondition now holds)"
+                              % _tgt0, file=_sys.stderr, flush=True)
+                    self._t2_view_fb = _q0
+                    self._t2_deferred = _dfr0
+                    _lbeat("T2_DEFERRED", orch=self, target=_cl0[0][0],
+                           fact="a step held back earlier is now permitted")
+            except Exception as _de0:
+                print("[T2_DEFERRED] skipped (no-op): %r" % (_de0,),
+                      file=_sys.stderr, flush=True)
         _rem = getattr(self, "_t2_eplan_reminder", None)
         if _rem:  # CP5 walk 리마인더(작업버퍼만·히스토리 비커밋 = 채널 절대규칙)
             self._t2_eplan_reminder = None
@@ -5782,6 +5807,31 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     #   ⇒ 지문 = (표적, 요건집합, 명령단계, 실행원장 크기, 손님 발화 수).
                                     #     하나라도 바뀌면 다시 말할 수 있고, 아무것도 안 바뀌면 침묵한다.
                                     #     숫자가 없고, 상한은 이제 원리적으로 물리지 않는다.
+                                    # ★연기된 표적을 **기억한다** (2026-08-08·원장 C300·사용자 지시
+                                    #   *"선행이 필요하면 선행부터 하고 실행하게 하면 되지 않나"*).
+                                    #   거절만 하고 잊으면 모델이 그 행동을 하려던 **단 한 번의 순간**이
+                                    #   거기서 소멸한다 — task_100이 정확히 그렇게 계좌조회를 잃었다.
+                                    #   `how`에는 모델이 그때 시도한 호출을 **그대로** 담는다: 우리가
+                                    #   프런티어에 올리는 이름은 접미사 없는 형태라 그대로는 호출 불가고
+                                    #   (C300), 모델 자신의 문자열이 유일하게 호출 가능한 형태다.
+                                    #   우리가 대신 실행하지는 않는다([[05]] Q3) — 되살리는 건 의도뿐.
+                                    if _reqs and _utgt:
+                                        try:
+                                            _dfr = dict(getattr(self, "_t2_deferred", None) or {})
+                                            _how = ""
+                                            for _c9 in (am.tool_calls or []):
+                                                if _eff_tool_name(_c9) == _utgt or \
+                                                        getattr(_c9, "name", None) == _utgt:
+                                                    _how = "%s(%s)" % (getattr(_c9, "name", ""),
+                                                                       json.dumps(_args_dict(_c9),
+                                                                                  ensure_ascii=False)[:200])
+                                                    break
+                                            _dfr[str(_utgt)] = {
+                                                "requirement": "; ".join(r["predicate"] for r in _reqs),
+                                                "how": _how or (_dfr.get(str(_utgt)) or {}).get("how", "")}
+                                            self._t2_deferred = _dfr
+                                        except Exception:
+                                            pass
                                     try:
                                         _nuser = sum(1 for _m in state.messages
                                                      if getattr(_m, "role", None) == "user")

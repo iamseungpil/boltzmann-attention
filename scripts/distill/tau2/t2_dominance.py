@@ -198,6 +198,41 @@ def requirements_for(a2, messages, target, executed=None, unwrap=None):
     return out
 
 
+DEFAULT_CLEARED = (
+    "[ORDER] Earlier you moved to '{target}' and it was held back because {requirement}. "
+    "That now holds. Do '{target}' now, as a real tool call, before going further.{how}"
+)
+
+
+def cleared(a2, messages, deferred, executed=None, unwrap=None):
+    """연기됐던 표적 중 **선행이 이제 충족된 것**을 돌려준다 — `[(target, text), …]`.
+
+    왜 필요한가 (led_j task_100·원장 C300): 선행 미충족으로 표적을 거절하면 지금 구현은 **거기서
+    끝난다**. 모델이 그 행동을 하려 했던 순간은 한 번뿐이었고, 검증이 끝난 뒤에도 아무도 그 의도를
+    되살리지 않아 계좌조회가 통째로 빠졌다(gold이 요구하는 상태변경 3개 중 그 하나만 누락). 정본
+    §5.4 층 3의 방법이 `deny/replace/**pin**`인 이유가 이것이다 — **거절만으로는 집행이 안 된다.**
+
+    ⚠우리가 대신 실행하지 않는다([[05]] Q3). 되살리는 것은 **의도**이고, 호출은 모델이 한다.
+
+    `deferred` = `{target: {"requirement": 문구, "how": 실호출 형태(있으면)}}`.
+    `how`에는 **모델이 그때 실제로 시도했던 호출**을 그대로 담는다 — 그래야 이름 문제(C300:
+    `get_all_user_accounts_by_user_id`는 그대로는 호출 불가·`_3847` 접미사와 디스패처가 필요)를
+    새 도메인 지식 없이 닫는다. 우리가 지어내지 않고 **모델 자신의 문자열을 돌려준다**.
+    """
+    out = []
+    for tgt, info in list((deferred or {}).items()):
+        if requirements_for(a2, messages, tgt, executed=executed, unwrap=unwrap):
+            continue                      # 아직 안 풀렸다
+        tpl = str((((a2 or {}).get("arbitration") or {}).get("cleared_feedback"))
+                  or DEFAULT_CLEARED)
+        how = (info or {}).get("how") or ""
+        out.append((tgt, tpl.replace("{target}", str(tgt))
+                    .replace("{requirement}", str((info or {}).get("requirement")
+                                                  or "its precondition was not met"))
+                    .replace("{how}", (" The call you attempted then was: %s" % how) if how else "")))
+    return out
+
+
 def merged_text(a2, reqs, target):
     """요건 여럿을 **한 문장**으로. 문구는 A2, 엔진은 이름만 채운다([[05]] Q2)."""
     if not reqs:
