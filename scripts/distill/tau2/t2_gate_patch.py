@@ -5652,7 +5652,36 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                   "unsourced=%d"
                                                   % (_utgt, ",".join(r["id"] for r in _reqs),
                                                      len(_bad)), file=_sys.stderr, flush=True)
-                                    rw_fb = ((am.tool_calls or [None])[0], _ufb)
+                                    # ★같은 말을 두 번 하지 않는다 (2026-08-07·사용자 지시
+                                    #   "숫자 말고 논리적으로 막을 수 없나"). 실측이 정지 규칙을 준다:
+                                    #   상한을 풀었더니 발화 **106회**가 전부 같은 요구(`log_verification`)
+                                    #   였고 **turn 6~10** 다섯 구간에 몰렸다 = 턴당 ~21회. 턴을 넘나든
+                                    #   반복이 아니라 **한 턴 안의 거부→재생성 루프**였고, 그동안 모델은
+                                    #   요구된 도구를 **한 번도 시도하지 않았다**(verify_identity 호출 0).
+                                    #   같은 입력에 같은 말을 다시 붙이는 것은 **구성상 무의미**하다 —
+                                    #   [[57]]: 반복 억제는 '횟수'가 아니라 '인자 변화'로.
+                                    #   ⇒ 지문 = (표적, 요건집합, 명령단계, 실행원장 크기, 손님 발화 수).
+                                    #     하나라도 바뀌면 다시 말할 수 있고, 아무것도 안 바뀌면 침묵한다.
+                                    #     숫자가 없고, 상한은 이제 원리적으로 물리지 않는다.
+                                    try:
+                                        _nuser = sum(1 for _m in state.messages
+                                                     if getattr(_m, "role", None) == "user")
+                                        _sig = (str(_utgt),
+                                                tuple(r["id"] for r in (_reqs or [])),
+                                                tuple(s for r in (_reqs or [])
+                                                      for s in (r.get("satisfiers") or [])),
+                                                len(_executed_tool_names(state.messages, a2)),
+                                                _nuser)
+                                    except Exception:
+                                        _sig = None
+                                    if _sig is not None and _sig == getattr(self, "_t2_arb_sig", None):
+                                        print("[T2_ARBITRATE] identical demand suppressed "
+                                              "(nothing changed since it was last said)",
+                                              file=_sys.stderr, flush=True)
+                                        _ufb = ""
+                                    elif _sig is not None:
+                                        self._t2_arb_sig = _sig
+                                    rw_fb = ((am.tool_calls or [None])[0], _ufb) if _ufb else None
                                     self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
                                     # ★큐 전진 환급(2026-08-07·task_101 부검). 요건이 셋인데 발화
                                     #   예산은 캡 하나를 공유한다 — 101은 신원 확인에서 헤매느라
