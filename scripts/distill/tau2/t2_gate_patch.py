@@ -6452,6 +6452,24 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 #   _gen의 max_tokens 하한이 교정. 병리적 runaway(039 퇴행루프)만 _gen 폴백으로 강등.
                 if os.environ.get("T2_HAVE_VALUE_FORCE", "1") == "1":
                     force_required = True
+            # ★출구 ② 배선 (2026-08-07·"단일 출구" 전제 교정). `admit()`은 `_ap_regen`(텍스트 발화)
+            #   한 곳에만 걸려 있었는데, deny·치환 문구는 **이 `fb` 배치**라는 두 번째 출구로 나간다.
+            #   그래서 창을 켠 런에서도 `[ORDER] 'submit_referral' …`이 **14회·전부 바이트 동일**로
+            #   나갔다(sim 2개·사이드카 `channel=unified_regen` 실측). `T2_ARBITRATE`의 국소 지문은
+            #   손님 발화 수·실행 원장 크기를 포함해 턴이 바뀌면 다시 말한다 — 문구가 안 바뀐 재발화를
+            #   접는 것은 `admit()`뿐이다([[57]] 인자 변화 기준).
+            #   ⚠**deny는 fail-closed**(버스 불변): 접힐 때도 오류는 그대로 나가고 **본문만** 이미
+            #   아래에 있는 일반 문구로 내려간다. 문구를 새로 만들지 않는다. 지침(UserMessage)은
+            #   반대로 무부착 — 막는 말이 아니므로 접으면 그냥 안 붙인다.
+            _FB_GENERIC = "Error: resolve the flagged call(s) first; do not call this tool yet."
+            _fbtag = {}
+            for _n8, _v8 in (("eplan", ep_fb), ("discovery", dd_fb), ("cons", cons_fb),
+                             ("resolve_action", ra_fb), ("toolerr", te_fb), ("wev", wev_fb),
+                             ("transcribe", tr_fb), ("proc", proc_fb), ("resolve_write", rw_fb),
+                             ("toollist", tl_fb), ("signature", sig_fb), ("unlockname", un_fb),
+                             ("prekb", pc_fb), ("dispatch_role", dr_fb), ("prov", pr_fb)):
+                if _v8 is not None and _v8[0] is not None:
+                    _fbtag.setdefault(id(_v8[0]), _n8)
             fb = [am]
             for c in (am.tool_calls or []):
                 if do_gate and id(c) in denied_by_objid:
@@ -6497,7 +6515,17 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     content = pr_fb[1] if str(pr_fb[1]).lstrip().startswith("Error:") \
                         else "Error: " + pr_fb[1]
                 else:
-                    content = "Error: resolve the flagged call(s) first; do not call this tool yet."
+                    content = _FB_GENERIC
+                if content != _FB_GENERIC:
+                    try:
+                        import t2_stack as _stk8
+                        _ok8, _why8 = _stk8.admit(self, _fbtag.get(id(c), "fb"), content)
+                        if not _ok8:
+                            print("[T2_STACK] window folded fb tag=%s (%s) — deny stays, body generic"
+                                  % (_fbtag.get(id(c), "fb"), _why8), file=_sys.stderr, flush=True)
+                            content = _FB_GENERIC
+                    except Exception:
+                        pass
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                       error=True, content=content))
             # ★action-required 리마인더 채널 (순수-조언 회피=tool_call 0 → 앵커할 ToolMessage 없음).
@@ -6533,10 +6561,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             except Exception:
                 pass
             if rw_fb is not None and rw_fb[0] is None and not (am.tool_calls or []):
+                # 지침 채널이라 접히면 **무부착**이다(위 deny와 반대 — 막는 말이 아니다).
+                _ok9 = True
                 try:
-                    fb.append(UserMessage(role="user", content=rw_fb[1]))
-                except TypeError:
-                    fb.append(UserMessage(content=rw_fb[1]))
+                    import t2_stack as _stk9
+                    _ok9, _why9 = _stk9.admit(self, "resolve_write", rw_fb[1])
+                    if not _ok9:
+                        print("[T2_STACK] window dropped guidance tag=resolve_write (%s)" % _why9,
+                              file=_sys.stderr, flush=True)
+                except Exception:
+                    _ok9 = True
+                if _ok9:
+                    try:
+                        fb.append(UserMessage(role="user", content=rw_fb[1]))
+                    except TypeError:
+                        fb.append(UserMessage(content=rw_fb[1]))
             # ★T2_HAVE_VALUE 리마인더 (None-anchor·산문 회피 또는 producer 재호출 커버·비커밋=replay-clean)
             # ★D1′ 부재 표면화 (비커밋·hv_fb와 같은 채널 규약): 차단이 아니라 상태 진술이라
             #   특정 호출에 붙지 않는다 — 호출이 없는 것이 바로 이 레버의 조건이다.
