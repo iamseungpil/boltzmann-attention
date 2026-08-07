@@ -106,6 +106,23 @@ def caps_from_docs():
     return caps
 
 
+DOCID = re.compile(r"\bID:\s*(doc_[A-Za-z0-9_().\-]+)")
+
+
+def cap_docs_for(type_name, doccaps):
+    """그 유형의 상한을 **담고 있는** 문서 id 집합(확장자 없이)."""
+    slug = type_name.lower().replace(" account", "").replace(" ", "_")
+    out = set()
+    for fn in doccaps:
+        key = re.sub(r"\.json$", "", fn.lower())
+        stem = re.sub(r"^doc_(business_)?(checking_accounts|savings_accounts|bank_accounts|"
+                      r"credit_cards|business_credit_cards)_", "", key)
+        stem = re.sub(r"_\d+$", "", stem)
+        if stem in (slug, slug + "_account"):
+            out.add(re.sub(r"\.json$", "", fn))
+    return out
+
+
 def cap_for(type_name, doccaps):
     """유형 이름 → 그 유형 문서의 상한. 문서 파일명에 유형 슬러그가 들어 있다."""
     # ⚠부분 문자열로 맞추면 "Blue"가 sky_blue·light_blue·world_blue·navy_blue·true_blue를 전부 집어
@@ -211,16 +228,29 @@ def main():
                   % (t, used[t], c if c is not None else "?", (c - used[t]) if c is not None else "?"))
         tot = collections.Counter()
         for s in sorted(mine, key=lambda x: (x["_src"], x.get("trial") or 0)):
-            prose = [str(m.get("content") or "") for m in (s.get("messages") or [])
-                     if m.get("role") == "assistant" and m.get("content")]
+            # ★주장 시점까지 **회수된 문서**를 함께 들고 간다. 상한이 틀렸을 때 그것이
+            #   "문서를 보고 잘못 읽은 것"인지 "문서 없이 지어낸 것"인지는 서로 다른 실패이고,
+            #   서로 다른 레버를 부른다 — 합쳐 세면 둘 다 안 보인다.
+            prose, seen_docs, retrieved_at = [], set(), []
+            for m in (s.get("messages") or []):
+                if m.get("role") == "tool":
+                    seen_docs.update(DOCID.findall(str(m.get("content") or "")))
+                elif m.get("role") == "assistant" and m.get("content"):
+                    prose.append(str(m["content"]))
+                    retrieved_at.append(set(seen_docs))
             txt = "\n".join(prose)
             said_window = bool(re.search(r"rolling (?:\d+[- ]day )?window|9[- ]day", txt, re.I))
             per = collections.Counter()
             details = []
             for t in types:
                 c = cap_for(t, doccaps)
+                capdocs = cap_docs_for(t, doccaps)
                 seen = set()
-                for kind, a, b, seg in claims_about(txt, t):
+                claims = []
+                for i, msg in enumerate(prose):
+                    for cl in claims_about(msg, t):
+                        claims.append(cl + (bool(capdocs & retrieved_at[i]),))
+                for kind, a, b, seg, had_doc in claims:
                     key = (t, kind, a, seg[:60])
                     if key in seen:
                         continue
@@ -237,6 +267,9 @@ def main():
                             continue
                     details.append((t, kind, a, b, ok, seg))
                     per[kind + ("_맞음" if ok else "_틀림")] += 1
+                    if kind in ("cap", "exhausted"):
+                        per["%s_%s_%s" % (kind, "문서있음" if had_doc else "문서없음",
+                                          "맞음" if ok else "틀림")] += 1
             tot["trial"] += 1
             tot["창언급" if said_window else "창미언급"] += 1
             for k, v in per.items():
