@@ -724,9 +724,10 @@ def admit(orch, tag, text):
     if not body:
         return False, "empty"
     fp = (str(tag or ""), body)
-    seen = getattr(orch, "_t2_stack_said", None)
+    _o = _owner(orch)          # 창도 스택과 같은 객체에 산다 — 출구가 둘인데 창이 갈리면 안 접힌다
+    seen = getattr(_o, "_t2_stack_said", None)
     if seen is None:
-        seen = orch._t2_stack_said = set()
+        seen = _o._t2_stack_said = set()
     if fp in seen:
         return False, "same fingerprint"
     seen.add(fp)
@@ -757,11 +758,23 @@ def _cell_enabled(flag):
         return True
 
 
+def _owner(obj):
+    """스택을 **한 객체**에 모은다 — 등록과 발화가 서로 다른 훅에서 일어나기 때문이다.
+
+    생성면(`patched`)의 `self`는 에이전트이고 결과면(`exec_augment`)의 `self`는 오케스트레이터다.
+    각자에게 스택을 달면 같은 턴의 후보가 두 곳으로 갈라져 `route()`가 절반만 보고 판정한다 —
+    합병하려고 만든 기구가 정확히 합병에 실패한다. 오케스트레이터면 그 에이전트로 내려간다.
+    """
+    ag = getattr(obj, "agent", None)
+    return ag if ag is not None and hasattr(ag, "llm") else obj
+
+
 def get_stack(orch):
-    """orchestrator에 스택 1개(시뮬 수명 — 예산이 sim 단위)."""
-    s = getattr(orch, "_t2_stack", None)
+    """스택 1개(시뮬 수명 — 예산이 sim 단위)."""
+    o = _owner(orch)
+    s = getattr(o, "_t2_stack", None)
     if s is None:
-        s = orch._t2_stack = Stack()
+        s = o._t2_stack = Stack()
     return s
 
 
@@ -773,6 +786,28 @@ def register(orch, **kw):
 def speak(orch, **kw):
     """발화 지점이 쓰는 한 줄."""
     return get_stack(orch).speak(orch=orch, **kw)
+
+
+def audit(orch, chose=None):
+    """★순서를 뒤집기 **전에** 순서를 검사한다 — 등록분을 비우고 `route()`의 판정만 남긴다.
+
+    `speak()`를 실제 출구로 쓰는 것은 거동 변경이라 측정이 먼저다. 이 함수는 등록된 후보를
+    드레인해(안 비우면 sim 내내 쌓인다) `route()`가 골랐을 층·표적을 돌려주고, `chose`를 주면
+    **현행 체인이 실제로 고른 것**과 다른지까지 판정한다. 두 판정이 갈리는 자리가 곧 순서
+    뒤집기가 값을 만드는 자리다 — 그게 없으면 뒤집을 이유도 없다.
+
+    반환 = None(등록 0) 또는 {"pick": [...], "chose": …, "differs": bool}
+    """
+    st = get_stack(orch)
+    pend, st._pending = st._pending, []
+    if not pend:
+        return None
+    r = route(pend)
+    picks = [(s.get("layer"), s.get("target"), (s.get("flags") or [None])[0])
+             for s in r.get("speak", [])]
+    differs = bool(chose) and all(chose != f for _l, _t, f in picks)
+    return {"pick": picks, "chose": chose, "differs": differs,
+            "suppressed": r.get("suppressed", [])}
 
 
 def conflicts():
@@ -950,6 +985,8 @@ if __name__ == "__main__":
     print("      하네스를 가르는 것은 *발화 여부*가 아니라 **무엇을 판정하는가**다 —")
     print("      도메인이면 레버, **채널·자원**이면 하네스(`finish_reason=length`는 채널 사실이다).")
     print("    ⚠거동 변경 0 — 지금은 등록·로그만. 순서를 뒤집는 것은 다음 단계다.")
-    print("\n  ⚠전부 **오프라인 자기검사**다. 배선은 `_ap_regen` 한 자리에 들어갔고 **거동은 안 바꿨다**.")
+    print("\n  ⚠전부 **오프라인 자기검사**다. `admit()`은 이제 출구 **두 곳** 다 지킨다 —")
+    print("     `_ap_regen`(텍스트 발화)과 `fb` 배치(deny·치환·지침). 후자를 빠뜨린 탓에 창을 켠")
+    print("     런에서도 `[ORDER]`가 14회·바이트 동일로 나갔다(win_20260807i 사이드카 실측).")
     print("     아직 안 한 것: ①`speak()`를 실제 출구로 쓰기(순서 뒤집기) ②변수 tag 2곳 해소")
-    print("     ③`T2_SURFACE_BUS`·`T2_ARBITRATE`·`T2_WINDOW`가 `go_stack.sh`에 **없다**(비-라이브).")
+    print("     ③접힘의 라이브 실측(=`[T2_STACK] window folded fb` 발화 확인) — 아직 런이 없다.")

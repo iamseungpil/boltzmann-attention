@@ -40,6 +40,11 @@ def _lever_health_report():
 
 
 import atexit  # noqa: E402
+
+# ★층-1 등록점 (2026-08-07·정본 §5.5 배선). 레버가 **자기 이름을 대는 자리**에서 스택에
+#   등록한다 — 바깥에서 `*_fb` 변수명으로 플래그를 되짚는 것은 추측이고, 실제로 틀렸다.
+#   `orch`를 안 주면 종전 stderr 한 줄뿐이라 기존 호출부 거동은 불변이다.
+from t2_lever_beat import beat as _lbeat  # noqa: E402
 atexit.register(_lever_health_report)
 
 
@@ -3186,6 +3191,8 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                     subs += 1
                     print("[T2_GROUND] substituted arg=%s val=%s -> %s" % (k, s, cands[0]),
                           file=sys.stderr, flush=True)
+                    _lbeat("T2_GROUND", orch=self, target=k,
+                           fact="argument was replaced with the value that exists in context")
                     continue
 
             if prov_mode == "rescue" and (_key_tokens(k) & env_args) and \
@@ -3751,6 +3758,8 @@ def _install_regen_exec():
                     self._t2_read_dedup = getattr(self, "_t2_read_dedup", 0) + 1
                     print("[T2_READ_DEDUP] stub tool=%s" % getattr(tc, "name", None),
                           file=sys.stderr, flush=True)
+                    _lbeat("T2_READ_DEDUP", orch=self, target=getattr(tc, "name", None),
+                           fact="this exact read was already executed in this conversation")
                 else:
                     # ★P5-3(C208①·DAY5_PRESCRIPTIONS §P5-3·T2_READ_NEARDUP=1·기본 OFF): 근사-중복
                     #   질의 안내 — 018/028/029 [S]: "get credit card transactions"↔"tool to get …"↔
@@ -4602,6 +4611,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     subs += 1
                     print("[T2_GROUND] substituted arg=%s val=%s -> %s" % (gk, gs, gcands[0]),
                           file=_sys.stderr, flush=True)
+                    _lbeat("T2_GROUND", orch=self, target=gk,
+                           fact="argument was replaced with the value that exists in context")
                     continue  # 치환값은 문맥-실재 → 다음 반복서 fab 해소·게이트가 최종 인자를 검사
             # ★T5-C P-C + PERARG(C65): env-검증형 id 날조 = *개별* 스킵 후 다음 fab 재스캔
             #   (구: fab=None → 같은 호출의 둘째 자유텍스트 fab[t17 address1]이 영영 미검사)
@@ -5140,6 +5151,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             print("[T2_TRANSCRIBE] deny %s bad=%d first=%s"
                                   % (getattr(c, "name", None), len(_bad), _bad[0][:2]),
                                   file=_sys.stderr, flush=True)
+                            _lbeat("T2_TRANSCRIBE", orch=self,
+                                   target=_eff_tool_name(c), fact=_msg, order=_msg)
                             break
                 except Exception as _tre:
                     tr_fb = None
@@ -5350,6 +5363,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 pass
                         if wd:
                             wev_fb = (c, wd)
+                            _lbeat("T2_WRITE_EVIDENCE", orch=self, target=_eff_tool_name(c),
+                                   fact=str(wd), order=str(wd))
                             # ★내부 도구명 로깅(§2ba 오귀속 교훈: per-도구 로그에 이름 필수)
                             _inner = _args_dict(c).get("agent_tool_name") or ""
                             print("[%s] deny tool=%s inner=%s"
@@ -5676,6 +5691,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                     print("[T2_SOURCE] claims=%d unsourced=%d"
                                                           % (len(_cl), len(_bad)),
                                                           file=_sys.stderr, flush=True)
+                                                if _bad:
+                                                    _lbeat("T2_SOURCE", orch=self, target=_utgt,
+                                                           fact="%d claim(s) have no source in the "
+                                                                "ledger or the retrieved documents"
+                                                                % len(_bad))
                                             except Exception:
                                                 _bad = []
                                         if _reqs or _bad:
@@ -6528,6 +6548,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         pass
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                       error=True, content=content))
+            # ★순서 검사 (거동 변경 0). 층-1 레버들이 `beat(orch=…)`로 등록해 둔 후보를 비우고,
+            #   `route()`가 골랐을 층·표적만 남긴다. `speak()`를 실제 출구로 쓰는 것은 순서를
+            #   뒤집는 일이라 **먼저 두 판정이 어디서 갈리는지**가 있어야 한다 — 갈리는 자리가
+            #   없으면 뒤집을 이유도 없고, 있으면 그 자리가 곧 실험 표적이다.
+            #   ⚠비우지 않으면 등록분이 sim 내내 쌓인다(등록점만 만들고 드레인을 안 둔 것이
+            #   이 코드베이스의 死배선 패턴이다).
+            try:
+                import t2_stack as _stkA
+                _aud = _stkA.audit(self)
+                if _aud:
+                    print("[T2_STACK] audit route=%s suppressed=%s"
+                          % (_aud["pick"], _aud["suppressed"]), file=_sys.stderr, flush=True)
+            except Exception:
+                pass
             # ★action-required 리마인더 채널 (순수-조언 회피=tool_call 0 → 앵커할 ToolMessage 없음).
             #   rw_fb[0] is None = 순수-조언 action-required(2085행). UserMessage 리마인더로 재생성.
             #   작업버퍼(work)만·state.messages 비커밋 = 채널 절대규칙(1849·replay-clean).
@@ -6731,6 +6765,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_fab_strips = getattr(self, "_t2_fab_strips", 0) + len(_fab_ids)
                 print("[T2_FAB_STRIP] dropped %d ungrounded write call(s) (exhaustion->abstain)"
                       % len(_fab_ids), file=_sys.stderr, flush=True)
+                _lbeat("T2_FAB_STRIP", orch=self, target="write",
+                       fact="%d ungrounded write call(s) were not sent" % len(_fab_ids))
         # prov-fab 잔존 = 통과 (기존 prov semantics·id 날조는 env가 거부=C12)
 
         # ★T2_STALE_STRIP (2026-07-23·8-task per-step 포렌식): over-action 억제 — 한 턴에 12개 도구
@@ -6749,6 +6785,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_stale_strips = getattr(self, "_t2_stale_strips", 0) + len(_stale)
                 print("[T2_STALE_STRIP] dropped %d stale/dup call(s)" % len(_stale),
                       file=_sys.stderr, flush=True)
+                _lbeat("T2_STALE_STRIP", orch=self, target="turn",
+                       fact="%d repeated call(s) were not sent again" % len(_stale))
 
         # ── DISAMB: 문맥-실재값·같은-형식 후보 2+ → 1회 재확인 (기존 로직 이식) ──
         # ★#2 operand 스코프(2026-07-13 A1-v2 실패분석): variant operand(new_item_ids)는 L4 전담 —
@@ -7811,6 +7849,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[T2_WRITEPROV] window hit (no effective write in ledger) declared_completion=%s"
                       % (_claims,), file=_sys.stderr, flush=True)
                 if _claims:
+                    _lbeat("T2_WRITE_PROV", orch=self, target="write",
+                           fact="completion was declared but no effective write is in the ledger",
+                           order=str(_cg["feedback"]))
                     self._t2_writeprov = getattr(self, "_t2_writeprov", 0) + 1
                     _new1 = _ap_regen(_cg["feedback"], "writeprov")
                     if _new1 is not None:
@@ -7965,6 +8006,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                           file=_sys.stderr, flush=True)
                     break
                 if _unbacked or _unb_p:
+                    _lbeat("T2_CLAIM_PROV", orch=self, target="claim",
+                           fact="%d claimed action(s) are not in the execution ledger"
+                                % (len(_unbacked) + len(_unb_p)))
                     self._t2_claimprov = getattr(self, "_t2_claimprov", 0) + 1
                     if _cpv_mode == "reserve":
                         self._t2_claimprov_rsv = 1       # 예비-창(1/sim) 소진 마킹

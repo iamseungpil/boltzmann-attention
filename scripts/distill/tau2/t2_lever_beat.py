@@ -38,11 +38,20 @@ def set_sim_from(obj):
         pass
 
 
-def beat(flag, detail=""):
+def beat(flag, detail="", orch=None, target=None, fact=None, order=None):
     """레버 효과 지점에서 호출 — 동작의 stderr 증거. 실패해도 무해.
 
     캡은 **(레버, sim)별**이다. 프로세스 전체로 세면 한 sim이 캡을 소진해 나머지 sim의 발화가
     통째로 안 보인다 — 존재 증명에는 충분했지만 귀속에는 못 쓴다.
+
+    ★등록점 승격 (2026-08-07·정본 §5.5 `register()` 배선의 실제 형태).
+    `register()`를 55개 호출부에 따로 넣는 대신 **여기**에 둔다. 이유는 귀속이다: 어느 레버가
+    말했는지를 아는 유일한 자리는 그 레버 자신이고, 바깥에서 `*_fb` 변수명으로 플래그를
+    되짚는 것은 추측이다(실제로 해 보니 `ep_fb` 위 6줄에 `T2_EPLAN_DENY_CAP`이 걸려 있어
+    엉뚱한 이름이 나왔다). 레버가 스스로 이름을 대는 지점이 곧 등록 지점이다.
+
+    `orch`를 주면 스택에 등록한다. 안 주면 종전대로 stderr 한 줄뿐 — **기본 거동 불변**이라
+    이미 있는 17개 호출부는 손대지 않아도 된다.
     """
     try:
         sim = _SIM[0]
@@ -54,5 +63,12 @@ def beat(flag, detail=""):
                                            (" " + detail) if detail else "",
                                            " (이후 무음)" if n == _CAP else ""),
                   file=sys.stderr, flush=True)
+    except Exception:
+        pass
+    if orch is None:
+        return
+    try:
+        import t2_stack as _stk
+        _stk.register(orch, flag=flag, target=target, fact=fact, order=order)
     except Exception:
         pass
