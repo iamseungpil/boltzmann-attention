@@ -69,9 +69,9 @@ rev3에서 세어 보니 **세 벌**이다(재리뷰 B2):
    "params": {"age_field": "date_opened", "date_formats": ["%m/%d/%Y", "%Y-%m-%d"]}},
 
   {"out": "doc_limits",   "inputs": ["corpus"], "op": "formalize", "shape": "pairs",
-   "prompt": "limit_prompt"},
+   "prompt": "limit_prompt",     "params": {"field": "limit"}},
   {"out": "doc_minimums", "inputs": ["corpus"], "op": "formalize", "shape": "pairs",
-   "prompt": "threshold_prompt"},
+   "prompt": "threshold_prompt", "params": {"field": "min_days"}},
 
   {"out": "annual_left", "inputs": ["type_usage", "doc_limits"],    "op": "subtract_by_group"},
   {"out": "tenure_ok",   "inputs": ["tenure_days", "doc_minimums"], "op": "compare_ge"},
@@ -211,7 +211,7 @@ rev2는 그 신호를 약속만 하고 수집 절차가 없었다.
 | `shape` | 엔진이 하는 검증 | 실물 | 필수 `params` |
 |---|---|---|---|
 | `rows` | 리스트 · **선언된 키가 전부 있는 행만** 채택 | `t2_ledger.py:89~95` | `row_keys` |
-| `pairs` | 딕트 · `int` 변환 · **`quote not in hay` 실재 검증** | `t2_ledger.py:230~241` | (없음) |
+| `pairs` | 딕트 · `int` 변환 · **`quote not in hay` 실재 검증** | `t2_ledger.py:230~241` | `field`(어느 수를 읽나) |
 | `scalar` | 단일 토큰 · **날짜 파싱** | `t2_ledger.py:137~138` | `date_formats` |
 
 `shape` 없이 프롬프트 이름이나 `params` 유무로 **추측**하게 두면, 그것이 정확히 이 설계가 없애려는
