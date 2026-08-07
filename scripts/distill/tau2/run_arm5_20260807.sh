@@ -33,6 +33,11 @@ source ./go_stack.sh >/dev/null 2>&1
 KEEP="T2_KB_DOCS_DIR T2_LLM_TIMEOUT T2_LLM_RETRIES T2_AGENT_MAX_TOKENS T2_A2_VARIANT"
 KEEP="$KEEP T2_FB_SIDECAR T2_FB_SIDECAR_TEXT"
 KEEP="$KEEP T2_SOURCE T2_ARBITRATE T2_LEDGER T2_RESOLVE T2_FORCE_ACTION T2_WINDOW"
+# ★호스트 래퍼(2026-08-07·arm-5b 실측): 계약 코드는 전부 `apply_unified_regen` 안에 있고,
+#   그 설치 조건이 `T2_GATE_REGEN=1 ∧ (T2_PROV_REGEN|GROUND|badwords|disamb)`이다.
+#   둘을 끄면 **계약 코드가 설치조차 되지 않는다** — arm-5·arm-5b에서 마커가 전부 0이었던 이유.
+#   즉 이 둘은 레버가 아니라 **우리 층이 말할 수 있게 하는 채널**이다(생성-레벨 deny→재생성).
+KEEP="$KEEP T2_GATE_REGEN T2_GATE_REGEN_K T2_PROV_REGEN T2_PROV_REGEN_K T2_PROV_MODE"
 
 off=0
 for v in $(compgen -e | grep '^T2_' | sort); do
@@ -47,6 +52,8 @@ export T2_ARBITRATE=1   # C3 중재 (합병·등급) — C2 선행 그래프를 
 export T2_FORCE_ACTION=1 # C2 선행 집행: 미충족 표적을 향한 push를 잡는 트리거
 export T2_RESOLVE=1     # C2 선행 집행: per-operand 해소 + user-action 탐지(_utgt)
 export T2_LEDGER=1      # C5 이관: 원장 산수(전사=모델·산수=엔진)
+export T2_GATE_REGEN=1 T2_GATE_REGEN_K=1          # 호스트: 생성-레벨 훅 설치
+export T2_PROV_REGEN=1 T2_PROV_REGEN_K=4 T2_PROV_MODE=full  # C1 출처(+unified 라우팅 조건)
 export T2_WINDOW=1      # C6 창: 사임 ∪ 행동 ∪ **지시**(표적 이름이 답변에 등장)
 # C4 역할 = 무플래그 위생 — t2_role.executor_of로 배선(항상 켜짐)
 
