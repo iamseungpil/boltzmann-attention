@@ -3818,61 +3818,6 @@ def _install_regen_exec():
                 _axis_surface(self, tool_calls, results)
             except Exception as _e:                      # 레버 실패가 런을 죽이지 않는다
                 print("[T2_AXIS] 표면화 실패(무시): %r" % (_e,), file=sys.stderr, flush=True)
-            # ★C5 이관 — 원장 산수 (T2_LEDGER=1·2026-08-07). **살아 있는 훅은 이쪽이다**:
-            #   `install_gate`의 `gated`(:613)를 이 파일 뒤쪽의 `exec_augment`(:3872)가 덮어쓴다.
-            #   1차 배선을 `gated` 안에 넣은 탓에 h1 스모크에서 발화가 **0**이었다(오류 로그조차 없음).
-            #   부검 근거: 원장 29행이 문맥에 들어와도 창_잔여는 19/22 trial에서 미언급인데, 그 수가
-            #   제출 가능 건수를 정하는 유일한 값이다. 계수 자체는 모델이 대체로 맞히므로(35✓/8✗)
-            #   빠진 것은 능력이 아니라 계기다.
-            #   분담([[59]]): **전사는 모델**(A2 formalize_prompt로 JSON), 엔진은 그 위의 산수만.
-            # ★계측을 **분기 밖**에 둔다(2026-08-07). 안에 두면 "안 찍힘"이 곧 "분기 미진입"인지
-            #   "루프가 비었는지"인지 못 가른다 — 오늘 그 모호함으로 네 번 헛짚었다. 여기서는
-            #   플래그 값과 배치 내용을 **조건 없이** 한 번 찍고, 그다음에 조건을 본다.
-            # ⚠`self`에 새 속성을 달지 않는다. orchestrator가 속성 대입을 막는 타입이면 그 대입에서
-            #   예외가 나고, print가 그 **뒤**에 있어 아무것도 안 찍힌다 — 계측이 계측을 못 하게 된다.
-            #   모듈 전역으로 센다(프로세스당 1회).
-            global _T2_LEDGER_PROBED
-            if not _T2_LEDGER_PROBED:
-                _T2_LEDGER_PROBED = True
-                try:
-                    print("[T2_LEDGER] probe: flag=%r a2=%s metrics=%d to_run=%d tools=%s"
-                          % (os.environ.get("T2_LEDGER"),
-                             "None" if _a2w is None else "dict",
-                             len((_a2w or {}).get("ledger_metrics") or []),
-                             len(to_run),
-                             ",".join(sorted({_eff_tool_name(_t) for _t in to_run}))),
-                          file=sys.stderr, flush=True)
-                except Exception as _ep:
-                    print("[T2_LEDGER] probe failed: %r" % (_ep,), file=sys.stderr, flush=True)
-            if os.environ.get("T2_LEDGER") == "1":
-                try:
-                    import t2_offload as _OFF
-                    import t2_ledger as _LG
-                    for tc in to_run:
-                        _o = _rby.get(getattr(tc, "id", None))
-                        if _o is None or getattr(_o, "error", False):
-                            continue
-                        _specs = _LG.specs_for(_a2w, _eff_tool_name(tc))
-                        for _ls in _specs:
-                            _txt = _content_str(_o)
-                            _rows = _LG.formalize_rows(self, la, UserMessage, _txt, _ls)
-                            if not _rows:
-                                # ★침묵을 승인으로 읽지 않는다([[55]]). 구판은 여기서 조용히
-                                #   빠져나가서, 라이브 발화 0이 "선언이 안 붙었나 / 전사가 실패했나 /
-                                #   훅이 죽었나" 중 무엇인지 가릴 수 없었다. 세 번 헛짚은 자리다.
-                                print("[T2_LEDGER] %s: spec matched but transcription returned 0 rows"
-                                      % _eff_tool_name(tc), file=sys.stderr, flush=True)
-                                continue
-                            _tx = [_content_str(_m) for _m in self.get_messages()
-                                   if getattr(_m, "role", None) in ("tool", "user")]
-                            _blk = _OFF.ledger_facts(
-                                _rows, _ls, now=_LG.formalize_now(self, la, UserMessage, _tx, _ls))
-                            if _blk:
-                                _o.content = _content_str(_o) + _blk
-                                print("[T2_LEDGER] %s rows=%d" % (_eff_tool_name(tc), len(_rows)),
-                                      file=sys.stderr, flush=True)
-                except Exception as _e12:
-                    print("[T2_LEDGER] error (no-op): %r" % (_e12,), file=sys.stderr, flush=True)
             min_len = int(os.environ.get("T2_READ_DEDUP_MIN", "2000"))
             for tc in to_run:
                 out = _rby.get(getattr(tc, "id", None))
@@ -3901,6 +3846,43 @@ def _install_regen_exec():
         g6 = next((g for g in a2["gates"] if g.get("kind") == "select_confirm"), None) if present_on else None
         nested_specs = (a2.get("present_specs") or []) if os.environ.get("T2_PRESENT_NESTED") == "1" else []
         calc_specs = (a2.get("calc_specs") or []) if os.environ.get("T2_CALC") == "1" else []
+        # ★C5 이관 — 원장 산수 (T2_LEDGER=1·2026-08-07). **여기가 무조건 도는 자리다**:
+        #   앞의 read-augment 구간은 통째로 `if dedup_on:` 안이라 `T2_READ_DEDUP`가 꺼진 arm에서는
+        #   실행되지 않는다. 그것을 모르고 그 안에 배선한 탓에 계측 probe까지 여섯 번 무음이었다
+        #   — "레버가 안 도는 것"이 아니라 "레버를 담은 블록이 꺼진 것"이었다.
+        #   분담([[59]]): 전사는 모델(A2 formalize_prompt), 엔진은 그 위의 산수만.
+        global _T2_LEDGER_PROBED
+        if not _T2_LEDGER_PROBED:
+            _T2_LEDGER_PROBED = True
+            print("[T2_LEDGER] probe: flag=%r a2=%s metrics=%d tools=%s"
+                  % (os.environ.get("T2_LEDGER"), "None" if a2 is None else "dict",
+                     len((a2 or {}).get("ledger_metrics") or []),
+                     ",".join(sorted({_eff_tool_name(_t) for _t in tool_calls}))),
+                  file=sys.stderr, flush=True)
+        if os.environ.get("T2_LEDGER") == "1":
+            try:
+                import t2_offload as _OFF
+                import t2_ledger as _LG
+                for _tc in tool_calls:
+                    _o = by_id.get(getattr(_tc, "id", None))
+                    if _o is None or getattr(_o, "error", False):
+                        continue
+                    for _ls in _LG.specs_for(a2, _eff_tool_name(_tc)):
+                        _rows = _LG.formalize_rows(self, la, UserMessage, _content_str(_o), _ls)
+                        if not _rows:
+                            print("[T2_LEDGER] %s: spec matched, transcription returned 0 rows"
+                                  % _eff_tool_name(_tc), file=sys.stderr, flush=True)
+                            continue
+                        _tx = [_content_str(_m) for _m in self.get_messages()
+                               if getattr(_m, "role", None) in ("tool", "user")]
+                        _blk = _OFF.ledger_facts(_rows, _ls,
+                                                 now=_LG.formalize_now(self, la, UserMessage, _tx, _ls))
+                        if _blk:
+                            _o.content = _content_str(_o) + _blk
+                            print("[T2_LEDGER] %s rows=%d" % (_eff_tool_name(_tc), len(_rows)),
+                                  file=sys.stderr, flush=True)
+            except Exception as _e12:
+                print("[T2_LEDGER] error (no-op): %r" % (_e12,), file=sys.stderr, flush=True)
         for tc in tool_calls:
             out = by_id.get(getattr(tc, "id", None))
             if out is None or getattr(out, "error", False):
