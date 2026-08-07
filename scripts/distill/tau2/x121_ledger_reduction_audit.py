@@ -108,8 +108,17 @@ def caps_from_docs():
 
 def cap_for(type_name, doccaps):
     """유형 이름 → 그 유형 문서의 상한. 문서 파일명에 유형 슬러그가 들어 있다."""
+    # ⚠부분 문자열로 맞추면 "Blue"가 sky_blue·light_blue·world_blue·navy_blue·true_blue를 전부 집어
+    #   상한이 다섯 개로 보인다. 파일명에서 유형 슬러그를 **정확히** 떼어 비교한다.
     slug = type_name.lower().replace(" account", "").replace(" ", "_")
-    vals = {n for fn, n in doccaps.items() if slug in fn.lower()}
+    vals = set()
+    for fn, n in doccaps.items():
+        key = re.sub(r"\.json$", "", fn.lower())
+        key = re.sub(r"^doc_(business_)?(checking_accounts|savings_accounts|bank_accounts|"
+                     r"credit_cards|business_credit_cards)_", "", key)
+        key = re.sub(r"_\d+$", "", key)
+        if key in (slug, slug + "_account"):
+            vals.add(n)
     if len(vals) > 1:
         # 같은 유형의 문서들이 서로 다른 상한을 말하면 그건 회수 순서에 따라 답이 달라진다는 뜻이다.
         # 조용히 하나를 고르지 말고 드러낸다.
