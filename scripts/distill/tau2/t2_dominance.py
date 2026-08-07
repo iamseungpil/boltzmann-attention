@@ -128,6 +128,62 @@ def _fam(n):
     return s[:i] if i > 0 and s[i + 1:].isdigit() else s
 
 
+def prereq_map(a2):
+    """`{도구: [선행 도구...]}` — 흩어진 선언 셋을 **하나의 그래프**로 모은다.
+
+    출처는 전부 이미 있는 선언이다: `gates[].satisfier_requires` · `require_tool_before` ·
+    `scaffold_get_tools[].requires_reads`. 새 A2 키 0이고 도메인 어휘도 0이다 — 여기서 하는 일은
+    같은 관계(X 앞에 Y)를 세 어휘로 적어 둔 것을 한 자료구조로 합치는 것뿐이다.
+    """
+    edges = {}
+
+    def add(dep, reqs):
+        d = _fam(dep)
+        if not d:
+            return
+        cur = edges.setdefault(d, [])
+        for r in (reqs or []):
+            r = _fam(r)
+            if r and r != d and r not in cur:
+                cur.append(r)
+
+    for g in ((a2 or {}).get("gates") or []):
+        for s_name, reqs in (g.get("satisfier_requires") or {}).items():
+            add(s_name, reqs)
+    for dep, reqs in ((a2 or {}).get("require_tool_before") or {}).items():
+        add(dep, reqs)
+    for e in ((a2 or {}).get("scaffold_get_tools") or []):
+        if isinstance(e, dict) and e.get("requires_reads"):
+            add(e.get("tool") or e.get("name") or "", e["requires_reads"])
+    return edges
+
+
+def first_step(name, done_fam, edges, _seen=None):
+    """`name`을 하려면 **지금 바로 할 수 있는 첫 걸음**. 뿌리까지 전이적으로 내려간다.
+
+    한 단계만 보면 실행 불가한 지시가 나간다(102 실측: `log_verification`을 명령했지만 그것은
+    혼자 부를 수 없어, 모델이 `verify_identity`를 다섯 번 부르다 이관으로 끝났다). 사슬이 세 단계면
+    세 단계를 따라가야 한다.
+
+    ⚠**순환 차단**: 선언이 서로를 요구하면(검증에 필요한 읽기가 다시 검증을 요구하는 형태) 그 자리에서
+    멈추고 그 도구 자신을 돌려준다. 무한 재귀도, 침묵도 만들지 않는다.
+    """
+    n = _fam(name)
+    if not n or n in done_fam:
+        return None
+    seen = set(_seen or ())
+    if n in seen:
+        return n                                  # 순환 — 여기서 끊고 자신을 명령한다
+    seen.add(n)
+    for p in (edges.get(n) or []):
+        if p in done_fam:
+            continue
+        step = first_step(p, done_fam, edges, seen)
+        if step:
+            return step
+    return n
+
+
 def requirements_for(a2, messages, target, executed=None, unwrap=None):
     """`target`을 덮는 **미충족 요건 전부**. 첫 하나가 아니라 전부다.
 
@@ -146,6 +202,7 @@ def requirements_for(a2, messages, target, executed=None, unwrap=None):
         return []
     done = _executed(messages, executed, unwrap)
     done_fam = {_fam(n) for n in done}
+    edges = prereq_map(a2)
     out, seen = [], set()
 
     for g in ((a2 or {}).get("gates") or []):
@@ -168,13 +225,7 @@ def requirements_for(a2, messages, target, executed=None, unwrap=None):
         #   다섯 번 부르다 이관으로 끝났다(log_verification에 **도달조차** 못 함). 같은 구성이
         #   0~5건으로 흔들린 것은 표집이 아니라 이 갈림길이었다.
         #   ⇒ 명령은 **지금 바로 실행 가능한 단계**여야 한다.
-        step = sorted(sat)
-        pre = (g.get("satisfier_requires") or {})
-        for s_name in sorted(sat):
-            miss = [p for p in (pre.get(s_name) or []) if _fam(p) not in done_fam]
-            if miss:
-                step = miss[:1]                       # 사슬의 **다음 한 걸음**만
-                break
+        step = [x for x in (first_step(s, done_fam, edges) for s in sorted(sat)) if x][:1]             or sorted(sat)
         out.append({"id": gid,
                     "predicate": str(g.get("predicate") or gid),
                     "satisfiers": step})
@@ -185,6 +236,8 @@ def requirements_for(a2, messages, target, executed=None, unwrap=None):
         miss = sorted({r for r in (reads or []) if _fam(r) not in done_fam})
         if not miss:
             return
+        # ★모든 요건 경로가 같은 그래프를 탄다 — read 선행도 그 자신의 선행이 있으면 거기부터.
+        miss = [x for x in (first_step(r, done_fam, edges) for r in miss) if x] or miss
         key = "reads:" + ",".join(miss)
         if key in seen:
             return
@@ -280,6 +333,20 @@ if __name__ == "__main__":                                     # 자기검정 (�
     head, tail = txt.split("Still outstanding", 1)
     assert "referral record checked" not in head, head        # 2·3번은 명령부에 없다
     assert "referral record checked" in tail and "prior read" in tail, tail
+
+    # ★그래프를 뿌리까지 — 3단계 사슬·순환·다중 출처를 한 함수가 처리한다.
+    E = prereq_map({"gates": [{"satisfier_requires": {"c": ["b"]}}],
+                    "require_tool_before": {"b": ["a"]},
+                    "scaffold_get_tools": [{"tool": "a", "requires_reads": ["root"]}]})
+    assert E == {"c": ["b"], "b": ["a"], "a": ["root"]}, E
+    assert first_step("c", set(), E) == "root"                 # 뿌리까지 내려간다
+    assert first_step("c", {"root"}, E) == "a"
+    assert first_step("c", {"root", "a"}, E) == "b"
+    assert first_step("c", {"root", "a", "b"}, E) == "c"
+    assert first_step("c", {"c"}, E) is None                   # 이미 됐으면 없음
+    CYC = {"x": ["y"], "y": ["x"]}
+    assert first_step("x", set(), CYC) in ("x", "y")           # 순환에서 멈춘다(무한재귀 없음)
+    assert first_step("z_1234", set(), {"z": ["w"]}) == "w"    # 접미사도 base로 맞춘다
 
     # ★전이적 도달: satisfier가 혼자 실행 불가면 **다음 한 걸음**을 명령한다.
     A2P = {"gates": [{"id": "G1", "predicate": "identity verified",
