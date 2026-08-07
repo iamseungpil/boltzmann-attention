@@ -229,7 +229,7 @@ def _formalize(node, text, hay, ask):
     return val, ("" if val else "형식 불일치")
 
 
-def evaluate(nodes, inputs, ask=None, excerpt_args=None):
+def evaluate(nodes, inputs, ask=None, excerpt_args=None, seed=None):
     """위상순 1회 평가. 반환 `(값, trace)`.
 
     **예외를 삼키지 않는다**(§2b): 노드마다 잡고 `오류`로 남기고, 한 노드의 실패가 다른 노드의
@@ -238,7 +238,8 @@ def evaluate(nodes, inputs, ask=None, excerpt_args=None):
     """
     ordered = _order(nodes)
     ex = dict(excerpt_args or {})
-    vals, trace = {}, []
+    # `seed` = 이미 서 있는 값(스케줄러가 다시 안 본 노드들). 없으면 1회 평가와 같다.
+    vals, trace = dict(seed or {}), []
     hay = " ".join("\n".join(str(t) for t in inputs.corpus).split())
 
     for n in ordered:
@@ -281,6 +282,91 @@ def evaluate(nodes, inputs, ask=None, excerpt_args=None):
             vals[out] = None
             trace.append((out, "오류", repr(e)))
     return vals, trace
+
+
+class Scheduler(object):
+    """단계 1 — **갱신된 입력이 있을 때만** 다시 평가한다(§1b). 값과 계기를 sim 수명으로 들고 있다.
+
+    재평가 규칙(§1b·전부 실측에서 나온 것):
+      · `corpus` 입력 노드 : **개수가 바뀌었고** ∧ **현재 값이 비어 있을 때만** 다시 묻는다
+        (내용 해시가 아니다 — [[59]]) · **노드당 sim `cap`회 상한**([[09]])
+      · `tool:` 입력 노드  : **새 반환이 오면 무효화하고 다시 평가**한다(하류까지).
+        구판 규칙을 그대로 곱하면 *첫 반환이 이기고 재호출이 무시된다* — 제출 후 원장을 다시
+        읽어도 하류가 옛 수를 말한다(재리뷰 B1).
+      · 값이 **안 바뀐** 노드는 표면화하지 않는다(침묵) — 말이 느는 것이 과행동을 부른다(§6 위험 3).
+    """
+
+    def __init__(self, nodes, cap=3, excerpt_args=None):
+        validate(nodes)
+        self.nodes = list(nodes)
+        self.cap = int(cap)
+        self.ex = dict(excerpt_args or {})
+        self.vals, self.asked, self.trace = {}, {}, []
+        self._corpus_n, self._tool_sig = None, {}
+
+    def _stale(self, inputs):
+        """이번 갱신으로 **다시 봐야 하는** 노드 이름 집합. 아무것도 안 바뀌면 빈 집합."""
+        stale = set()
+        if len(inputs.corpus) != self._corpus_n:
+            self._corpus_n = len(inputs.corpus)
+            for n in self.nodes:
+                if "corpus" in (n.get("inputs") or ()) and self.vals.get(n["out"]) in (None, {}, []):
+                    stale.add(n["out"])          # 값이 서 있으면 다시 묻지 않는다(§1b 절약)
+        for n in self.nodes:
+            for i in (n.get("inputs") or ()):
+                if not str(i).startswith("tool:"):
+                    continue
+                fam = i[5:]
+                cur = inputs.tools.get(fam)
+                if cur is None:
+                    continue
+                sig = (len(cur), hash(cur))      # **교체 감지**(내용을 읽는 것이 아니라 동일성만)
+                if self._tool_sig.get(fam) != sig:
+                    self._tool_sig[fam] = sig
+                    stale.add(n["out"])
+        # 하류 전파 — 상류가 다시 계산되면 그 아래도 다시 계산돼야 한다
+        changed = True
+        while changed:
+            changed = False
+            for n in self.nodes:
+                if n["out"] in stale:
+                    continue
+                if any(i in stale for i in (n.get("inputs") or ())):
+                    stale.add(n["out"])
+                    changed = True
+        return stale
+
+    def update(self, inputs, ask=None):
+        """입력이 바뀐 만큼만 다시 평가하고 **값이 바뀐 노드**만 돌려준다 `{이름: 값}`."""
+        stale = self._stale(inputs)
+        if not stale:
+            self.trace = []
+            return {}
+        budget_hit = set()
+        for n in self.nodes:                     # 상한을 넘긴 LLM 노드는 이번 라운드에서 뺀다
+            if n["op"] == "formalize" and self.asked.get(n["out"], 0) >= self.cap:
+                budget_hit.add(n["out"])
+        run = [n for n in self.nodes if n["out"] in stale and n["out"] not in budget_hit]
+        for n in run:
+            if n["op"] == "formalize":
+                self.asked[n["out"]] = self.asked.get(n["out"], 0) + 1
+        keep = {k: v for k, v in self.vals.items() if k not in stale}
+        fresh, trace = evaluate(run, inputs, ask=ask, excerpt_args=self.ex, seed=keep)
+        for name in budget_hit & stale:
+            trace.append((name, "미계산", "sim 상한 %d회 소진" % self.cap))
+        changed = {k: v for k, v in fresh.items()
+                   if v is not None and self.vals.get(k) != v}
+        self.vals.update(fresh)
+        self.trace = trace
+        return changed
+
+    def summary(self):
+        """sim 종료 한 줄 요약 — 포렌식이 로그를 전수로 읽지 않게(§5·재리뷰 C)."""
+        got = [k for k, v in sorted(self.vals.items()) if v is not None]
+        miss = [k for k, v in sorted(self.vals.items()) if v is None]
+        return ("[T2_DAG] sim 종료 · 계산 %d/%d · 미계산 %s · LLM 질의 %s"
+                % (len(got), len(self.vals), ",".join(miss) or "(없음)",
+                   ",".join("%s=%d" % kv for kv in sorted(self.asked.items())) or "(없음)"))
 
 
 def format_trace(trace):
