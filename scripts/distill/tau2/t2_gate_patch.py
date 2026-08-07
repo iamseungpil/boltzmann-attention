@@ -2431,25 +2431,38 @@ def _regen_budget_spend(self):
     self._t2_regen_total = getattr(self, "_t2_regen_total", 0) + 1
 
 
-def _resolve_cap_ok(self):
-    """계약 경로의 진입 상한 — **이것이 진짜 구속 조건이었다** (2026-08-07 실측).
+def _resolve_cap_ok(self, messages=None, a2=None):
+    """계약 경로의 진입 상한 — **정체에만 과금한다**.
 
-    이 자리는 `_t2_resolve_deny < 3`으로 **하드코딩**돼 있었다. 환경변수도 없고 끌 방법도 없었다.
-    그래서 사용자 지시로 `T2_ACTION_DENY_CAP`을 없앴을 때 **아무 변화가 없었다** — 안쪽 cap을 지워도
-    바깥 cap이 먼저 물린다. 계약 발화가 모든 arm에서 정확히 **3회/sim**이었던 이유다.
+    이력(2026-08-07·전부 실측):
+      · 이 자리는 `_t2_resolve_deny < 3`으로 **하드코딩**돼 있었다. 환경변수도 끄는 방법도 없었다.
+        그래서 `T2_ACTION_DENY_CAP`을 없앴을 때 **아무 변화가 없었다** — 바깥 cap이 먼저 물린다.
+        계약 발화가 모든 arm에서 정확히 3회/sim이던 이유다. 그 3회는 turn 4·6·8에 소진되는데
+        첫 요건이 충족되는 것은 turn 11 전후여서, 두 번째 요건(원장 조회)은 101 20 trial 내내
+        **한 번도 "지금 하라"가 되지 못했다**(실제 조회 2/20).
+      · 그래서 무제한으로 열어 봤다. 결과는 **진전이 아니라 반복**이었다: 발화 6 → **100**,
+        그런데 요건 집합이 100회 **전부 동일**(`GB1,GB3,reads:…`)이고 큐는 한 번도 전진하지 않았다.
+        [[57]] — 반복 억제는 '횟수'가 아니라 '인자 변화'로. 무제한은 그 반대편 실패다.
 
-    측정된 대가: 요건 큐가 3회 안에 전진하지 못하면 그 sim에서 우리 층은 **영구히 침묵**한다.
-    101 전수(20 trial)에서 두 번째 요건(원장 조회)이 **한 번도 "지금 하라"가 되지 못했고**, 실제
-    조회는 2/20이었다. 그 3회는 turn 4·6·8에 소진되는데 첫 요건이 충족되는 것은 turn 11 전후다.
-    ⇒ 이익은 측정된 적이 없고 해악은 측정됐다([[56]] 근거 우세) — 사용자 지시대로 없앤다.
-
-    over-action 상한이 필요하면 전역 `T2_REGEN_BUDGET`에 둔다(023 컨텍스트 초과 사고의 실제 층).
-    미설정 = 무제한. 정수를 주면 그 수에서 멈춘다(되돌리기 경로 유지).
+    ⇒ 세는 대상을 바꾼다. **말한 횟수가 아니라 제자리걸음 횟수**를 센다:
+        지난 발화 이후 실제로 실행된 도구가 **하나라도 늘었으면** = 진행 → 카운터를 되돌린다(무과금).
+        하나도 안 늘었으면 = 같은 걸음을 다시 요구하는 것 → 과금, 상한에서 침묵.
+    순응하는 동안은 사실상 무제한이고, 불응하면 유한하다. 그리고 "발화해야 환급된다"는
+    되돌아올 수 없는 상태(구 `T2_ACTION_PROGRESS_REFUND`의 결함)가 원리적으로 생기지 않는다.
     """
     _c = os.environ.get("T2_RESOLVE_CAP")
-    if not (_c or "").strip().isdigit():
-        return True
-    return getattr(self, "_t2_resolve_deny", 0) < int(_c)
+    cap = int(_c) if (_c or "").strip().isdigit() else 3        # 기본 = 종전 하드코딩 값
+    if messages is not None:
+        try:
+            done = _executed_tool_names(messages, a2)
+            prev = getattr(self, "_t2_resolve_done", None)
+            if prev is not None and (done - prev):
+                self._t2_resolve_deny = 0                        # 진행 있음 → 정체 카운터 리셋
+        except Exception:
+            pass
+        # ⚠스냅샷은 여기서 갱신하지 않는다. 이 함수는 한 턴에 여러 번 불리므로 검사마다 갱신하면
+        #   `prev`가 항상 직전 검사 시점이 되어 **발화 사이의 진행을 못 본다**. 갱신은 발화 시점에서.
+    return getattr(self, "_t2_resolve_deny", 0) < cap
 
 
 def _chain_dispatch(fc, eff):
@@ -5425,7 +5438,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if (_contract_on and a2 is not None
                     and not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None
-                    and _resolve_cap_ok(self)):
+                    and _resolve_cap_ok(self, state.messages, a2)):
                 try:
                     import t2_resolve as _rz
                     for c in (am.tool_calls or []):
@@ -6201,6 +6214,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                           % _wev_cap, file=_sys.stderr, flush=True)
             if rw_fb is not None:
                 self._t2_resolve_deny = getattr(self, "_t2_resolve_deny", 0) + 1
+                # ★정체 판정의 기준점 = **발화 시점의 실행 집합**(2026-08-07).
+                #   다음 진입에서 이 집합보다 커졌으면 진행이 있었던 것이고, 그러면 위 카운터를
+                #   되돌린다(`_resolve_cap_ok`). 검사 시점에 갱신하면 발화 사이의 진행을 못 본다.
+                try:
+                    self._t2_resolve_done = _executed_tool_names(state.messages, a2)
+                except Exception:
+                    pass
             if tl_fb is not None:
                 tl_rounds += 1
                 self._t2_toollist_deny = getattr(self, "_t2_toollist_deny", 0) + 1
