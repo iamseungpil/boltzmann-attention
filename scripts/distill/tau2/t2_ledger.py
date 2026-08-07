@@ -34,7 +34,66 @@ import sys
 
 __all__ = ["specs_for", "formalize_rows", "formalize_now", "formalize_limits",
            "formalize_thresholds", "window_and_tally", "earliest_age",
-           "exhausted_text", "ineligible_text", "facts_text"]
+           "exhausted_text", "ineligible_text", "facts_text",
+           "parse_rows", "parse_pairs", "parse_scalar"]
+
+
+# ── 모델 응답 → 값 : 순수 파서 3종 (`FACT_DAG_DESIGN_2026_08_08.md` §2c `shape`) ──────────
+# 왜 꺼내 두나: 파생-사실 DAG의 `formalize` 노드가 **같은 검증**을 걸어야 하는데, 새로 쓰면
+# 두 벌이 되고 갈린다(`t2_precedence.py` 첫 주석이 같은 병을 적어 두었다 — 같은 술어가 두 벌이면
+# T1 사실 모순이 이 층에서 다시 생긴다). LLM 호출 밖으로 꺼내면 **모델 없이 검정**도 된다.
+# 거동은 그대로다 — 아래 세 `formalize_*`가 이 함수들을 부르고, 로직은 옮긴 것뿐이다.
+
+def parse_rows(raw, keys):
+    """`shape="rows"` — 리스트 · **선언된 키가 전부 있는 행만** 채택."""
+    m = re.search(r"\[.*\]", str(raw or ""), re.S)
+    if not m:
+        return []
+    try:
+        rows = json.loads(m.group(0))
+    except Exception:
+        return []
+    out = []
+    for r in rows if isinstance(rows, list) else []:
+        if isinstance(r, dict):
+            keep = {k: r[k] for k in keys if r.get(k) not in (None, "")}
+            if len(keep) == len(keys):
+                out.append(keep)
+    return out
+
+
+def parse_pairs(raw, field, hay):
+    """`shape="pairs"` — 딕트 · `int` · **인용 실재 검증**. 반환 `(값, 거절 수, 모델이 준 수)`.
+
+    엔진은 인용문의 **뜻을 읽지 않는다** — 회수된 텍스트에 그 문자열이 있는지만 본다([[59]]).
+    """
+    m = re.search(r"\{.*\}", str(raw or ""), re.S)
+    if not m:
+        return {}, 0, 0
+    try:
+        got = json.loads(m.group(0))
+    except Exception:
+        return {}, 0, 0
+    out, rejected = {}, 0
+    for k, v in (got.items() if isinstance(got, dict) else []):
+        try:
+            num = int(str((v or {}).get(field)).strip())
+            quote = " ".join(str((v or {}).get("quote") or "").split())
+        except Exception:
+            rejected += 1
+            continue
+        if num <= 0 or len(quote) < 12 or quote not in hay:
+            rejected += 1          # 인용이 회수된 텍스트에 없다 = 채택하지 않는다
+            continue
+        out[str(k)] = (num, quote)
+    return out, rejected, (len(got) if isinstance(got, dict) else 0)
+
+
+def parse_scalar(raw, fmts):
+    """`shape="scalar"` — 첫 토큰 · 선언된 형식으로 파싱되면 그 문자열, 아니면 None."""
+    s = str(raw or "").strip()
+    cand = s.split()[0].strip('".,') if s.split() else ""
+    return cand if _date(cand, fmts) else None
 
 
 def _fam(n):
@@ -79,20 +138,7 @@ def formalize_rows(agent, la, UserMessage, text, spec):
         raw = getattr(sub, "content", None) or ""
     except Exception:
         return []
-    m = re.search(r"\[.*\]", raw, re.S)
-    if not m:
-        return []
-    try:
-        rows = json.loads(m.group(0))
-    except Exception:
-        return []
-    out = []
-    for r in rows if isinstance(rows, list) else []:
-        if isinstance(r, dict):
-            keep = {k: r[k] for k in keys if r.get(k) not in (None, "")}
-            if len(keep) == len(keys):
-                out.append(keep)
-    return out
+    return parse_rows(raw, keys)
 
 
 def formalize_now(agent, la, UserMessage, texts, spec):
@@ -134,8 +180,8 @@ def formalize_now(agent, la, UserMessage, texts, spec):
         raw = (getattr(sub, "content", None) or "").strip()
     except Exception:
         return None
-    cand = raw.split()[0].strip('".,') if raw.split() else ""
-    if not _date(cand, (spec.get("date_formats") or ["%m/%d/%Y"])):
+    cand = parse_scalar(raw, spec.get("date_formats") or ["%m/%d/%Y"])
+    if not cand:
         return None
     try:
         agent._t2_ledger_now = cand
@@ -219,32 +265,17 @@ def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr,
         raw = getattr(sub, "content", None) or ""
     except Exception:
         return {}
-    m = re.search(r"\{.*\}", raw, re.S)
-    if not m:
-        return {}
-    try:
-        got = json.loads(m.group(0))
-    except Exception:
-        return {}
     hay = " ".join("\n".join(str(t) for t in texts).split())
-    out, rejected = {}, 0
-    for k, v in (got.items() if isinstance(got, dict) else []):
-        try:
-            num = int(str((v or {}).get(field)).strip())
-            quote = " ".join(str((v or {}).get("quote") or "").split())
-        except Exception:
-            rejected += 1
-            continue
-        if num <= 0 or len(quote) < 12 or quote not in hay:
-            rejected += 1          # 인용이 회수된 텍스트에 없다 = 채택하지 않는다
-            continue
-        out[str(k)] = (num, quote)
+    # ⚠거동 델타 **한 건**(의도·값 아님): 구판은 응답에 `{...}`가 아예 없으면 **인쇄 없이** 돌아갔다.
+    #   이제는 `model gave 0` 줄이 찍힌다 — §5의 규율("성공만 인쇄하면 못 찾았다와 안 돌았다가
+    #   같아 보인다")이 요구하는 방향이고, **반환 값은 구판과 동일**(빈 dict)이다.
+    out, rejected, _given = parse_pairs(raw, field, hay)
     # ★빈손도 찍는다 (2026-08-08·lim_n 라이브). 성공만 찍으면 "못 찾았다"와 "안 돌았다"가
     #   구분되지 않는다 — 오늘 `seen=N`으로 배운 것과 같은 형태다.
     # 이름까지 찍는다 — 개수만으로는 *"소진된 유형을 못 뽑은 것"* 과 *"뽑았는데 소진이 아닌 것"* 이
     # 구분되지 않는다(dp_p에서 추출 2회·발화 0회가 정확히 그 모호함이었다).
     print("[T2_LEDGER] %s: model gave %d, accepted %d, rejected %d · %s"
-          % (field, len(got) if isinstance(got, dict) else 0, len(out), rejected,
+          % (field, _given, len(out), rejected,
              ", ".join("%s=%s" % (k, v[0]) for k, v in sorted(out.items())) or "(none)"),
           file=sys.stderr, flush=True)
     # ★★빈손은 **기억하지 않는다**. 구판은 `{}`도 메모해 그 sim 내내 재시도가 없었다.
@@ -375,4 +406,21 @@ if __name__ == "__main__":                       # 자기검정 — 산수만(�
     assert (inw, rem) == (2, 0), (inw, rem)      # 경계(정확히 9일)는 **포함**
     assert tal == {"G1": 3, "G0": 2}, tal
     assert window_and_tally(rows, spec, now=None)[0] is None      # 기준일 모르면 미개입
+
+    # ── 파서 3종 (`shape`) — **거절 경로까지** 본다. 채택만 검정하면 "안 걸러졌다"를 못 본다 ──
+    assert parse_rows('noise [{"d":"1","g":"A"},{"d":"2"}] tail', ["d", "g"]) == [{"d": "1", "g": "A"}]
+    assert parse_rows("설명만 있고 리스트가 없다", ["d"]) == []          # 블록 없음 = 빈손
+    _hay = "the annual limit is 3 per year and nothing else"
+    _raw = ('{"A":{"limit":3,"quote":"the annual limit is 3 per year"},'
+            ' "B":{"limit":2,"quote":"a sentence that never appeared"},'
+            ' "C":{"limit":0,"quote":"the annual limit is 3 per year"},'
+            ' "D":{"limit":2,"quote":"too short"}}')
+    _got, _rej, _given = parse_pairs(_raw, "limit", _hay)
+    assert _given == 4 and len(_got) == 1 and _rej == 3, (_given, _got, _rej)
+    assert _got["A"][0] == 3                                       # B=인용 부재 · C=0 · D=너무 짧음
+    assert parse_pairs("no json here", "limit", _hay) == ({}, 0, 0)
+    assert parse_scalar('"11/14/2025" 라고 답함', ["%m/%d/%Y"]) == "11/14/2025"
+    assert parse_scalar("2025-11-14", ["%m/%d/%Y", "%Y-%m-%d"]) == "2025-11-14"   # 선언된 둘째 형식
+    assert parse_scalar("2025-11-14", ["%m/%d/%Y"]) is None         # 선언 안 된 형식 = 미채택
+    assert parse_scalar("", ["%m/%d/%Y"]) is None
     print("t2_ledger self-test OK ·", facts_text(rows, spec, now="11/14/2025").strip())
