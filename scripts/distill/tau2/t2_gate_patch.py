@@ -3903,8 +3903,26 @@ def _install_regen_exec():
                         _blk = _OFF.ledger_facts(_rows, _ls,
                                                  now=_LG.formalize_now(_lgagent, la, UserMessage, _tx, _ls))
                         if _blk:
-                            _o.content = _content_str(_o) + _blk
-                            print("[T2_LEDGER] %s rows=%d" % (_eff_tool_name(_tc), len(_rows)),
+                            # ★비커밋 채널로 (2026-08-07·led_j 라이브 set_state 실패 2회).
+                            #   구판은 `_o.content`에 직접 이어 붙였고, 그것이 **궤적에 커밋된다**.
+                            #   replay(`environment.set_state`)는 non-mutating 도구를 건너뛰므로
+                            #   직접 read 증강은 무사했지만, 이 도메인의 발견형 통로
+                            #   `call_discoverable_agent_tool`은 `@is_tool(ToolType.WRITE)`로
+                            #   **선언**돼 있어(=`mutates_state=True`) 안쪽이 read여도 재실행·바이트
+                            #   대조를 받는다. 그리고 replay는 **환경**의 `get_response`를 부르지
+                            #   우리 훅을 타지 않는다 — 무엇을 붙이든 갈린다(블록을 결정론으로
+                            #   만들어도 소용없다). 실측: 실패 2건의 도구 이름이 둘 다 그 통로였고,
+                            #   같은 런에서 직접 read(`get_referrals_by_user`) 증강 sim은 통과했다.
+                            #   ⇒ `_t2_view_fb`로 큐잉한다. 그 기구의 주석이 이미 같은 말을 한다 —
+                            #   *"replay-비교 대상 도구의 피드백 뷰-채널 소비 · 작업버퍼에만 주입"*.
+                            #   대가: 도구 출력 옆에 영구히 남지 않고 생성-뷰에 N회 노출된다
+                            #   (1회는 무시된다는 실측이 있어 기본 3회·`T2_LEDGER_VIEW_KEEP`).
+                            _q = list(getattr(_lgagent, "_t2_view_fb", None) or [])
+                            _q.append([_blk.strip(),
+                                       int(os.environ.get("T2_LEDGER_VIEW_KEEP", "3"))])
+                            _lgagent._t2_view_fb = _q
+                            print("[T2_LEDGER] %s rows=%d queued to view (non-committed)"
+                                  % (_eff_tool_name(_tc), len(_rows)),
                                   file=sys.stderr, flush=True)
             except Exception as _e12:
                 print("[T2_LEDGER] error (no-op): %r" % (_e12,), file=sys.stderr, flush=True)
