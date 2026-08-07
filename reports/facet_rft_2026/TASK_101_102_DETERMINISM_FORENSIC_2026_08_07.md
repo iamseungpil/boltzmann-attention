@@ -161,7 +161,62 @@ it early yourself"* 라고 **말한다** — 그런데 **집행은 도구 호출
 
 ---
 
-## §6 102의 NL 축: 피연산자가 도달 불가능하다 [S]
+## §6 102의 NL 축 — 설립 연도는 없지만 **자격 신호는 대화 안에 있다** [S]
+
+### 6a 전수 재조사 결과 (2026-08-07·사용자 지시 "더 집요하게")
+
+1차 확인이 얕았다(이름 리터럴 grep + 필드명뿐). 다시 판 결과:
+
+| 축 | 결과 |
+|---|---|
+| tau2 **데이터 트리 전체**에서 `Ember` | `tasks/task_101.json` · `tasks/task_102.json` · `tasks.json` **3파일뿐** |
+| `db.json` 회사 엔티티 테이블 | 없음 (17테이블 전부 사람·계좌·카드·거래) |
+| 설립일 계열 필드 | `date_opened`·`date_of_account_open` = **은행 계좌 개설일** |
+| **손님 도구** 전수(14개) | 회사 정보 도구 없음 |
+| 설립일을 **인자로 받는** 도구 | 없음 |
+| 코퍼스 698개에서 `formation` | **Sky Blue 3개 문서뿐** |
+
+그리고 그 3개가 회사 나이 확인 절차를 **축자로** 말한다:
+
+> `Confirm your company is within 4 years of formation.`
+> `Gather company formation documents and ownership details.`
+> `Verify your company age is within 4. **Confirm using formation documents that match your application details.**`
+> `Re-upload formation documents if dates or legal names differ from what you submitted.`
+
+⇒ **설립 서류는 조회하는 것이 아니라 신청자가 제출하는 것이다.** 레지스트리·제3자 조회 절차는 코퍼스에
+없다. 이 대화에서 제출된 적도 없다. **"5년"은 gold-side `notes`에만 존재한다.**
+
+### 6b ★그런데 자격을 가르는 신호는 **손님 발화 안에 있고, 두 태스크에서 동일하다**
+
+| | 손님 축자 |
+|---|---|
+| Ember | 101: *"They're **past the early startup phase** but still growing fast."* / 102: *"They're doing really well, **past the early startup phase**."* |
+| TechFlow | 101·102: *"**Still very much in startup mode**."* |
+
+그리고 Sky Blue는 **스타트업 상품**이다 — `Getting Started with Sky Blue: Startup Account Setup` ·
+`Help other startups get started with Sky Blue` · `Your startup receives a free period of 6 months`.
+
+⇒ 손님이 Ember를 **스스로 "스타트업 단계를 지났다"고 서술**한다. 설립 연도를 몰라도, 4년 상한이 붙은
+스타트업 상품에 대해 **자기 서술이 자격을 흔드는 쪽**이 Ember이고 TechFlow는 아니다.
+이 신호는 **101과 102 양쪽에 같은 문구로** 있다 — 그래서 "너무 일관되다"는 관측이 맞다.
+
+**분담**([[22]]): 4년 상한이 존재한다는 것과 슬롯이 1개라는 것은 **닫힌 술어**(엔진). *"past the early
+startup phase"* 가 자격을 흔드는가는 **열린 술어**(LLM). 엔진은 규칙과 잔여를 대고, 해석은 모델이 한다.
+
+> ⚠그래도 gold가 요구하는 *"5년이라고 정정"* 은 도달 불가다. 판정문 22건은 모두
+> *"never mentioned or applied the 4-year rule"* 을 이유로 든다 — **규칙을 적용해 TechFlow를 추천**하는
+> 경로로 통과할 여지는 있으나 그런 궤적이 22건 중 0건이라 **[?] 미검증**이다.
+
+### 6c 함께 나온 미표면화 제약 (deposit)
+
+`sky_blue_002` 축자: *"Qualifying deposit: Referred startups must deposit at least **$10,000** to trigger
+the bonus"* · *"deposit must be made within 90 days"* · *"Referrers must meet the **45-day tenure**"*.
+Ember $18,000 · TechFlow $12,000 ⇒ **둘 다 통과**라 102의 선택을 가르지는 않는다. 다만 이것도
+원장·발화에서 기계로 판정되는 닫힌 술어이고 지금 아무도 계산하지 않는다.
+
+---
+
+## §6-old 피연산자 도달 불가 (1차 판단·6a가 대체)
 
 - `Ember Analytics` / `TechFlow Labs`는 **task JSON 밖에 존재하지 않는다** — `db.json` 0회, 문서 0회.
 - 회사 설립일을 돌려주는 READ 도구는 **없다**(도구 전수 확인). 회사 테이블 자체가 없다.
