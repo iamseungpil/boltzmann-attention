@@ -3822,6 +3822,21 @@ def _install_regen_exec():
             #   제출 가능 건수를 정하는 유일한 값이다. 계수 자체는 모델이 대체로 맞히므로(35✓/8✗)
             #   빠진 것은 능력이 아니라 계기다.
             #   분담([[59]]): **전사는 모델**(A2 formalize_prompt로 JSON), 엔진은 그 위의 산수만.
+            # ★계측을 **분기 밖**에 둔다(2026-08-07). 안에 두면 "안 찍힘"이 곧 "분기 미진입"인지
+            #   "루프가 비었는지"인지 못 가른다 — 오늘 그 모호함으로 네 번 헛짚었다. 여기서는
+            #   플래그 값과 배치 내용을 **조건 없이** 한 번 찍고, 그다음에 조건을 본다.
+            if not getattr(self, "_t2_ledger_probe", False):
+                self._t2_ledger_probe = True
+                try:
+                    print("[T2_LEDGER] probe: flag=%r a2=%s metrics=%d to_run=%d tools=%s"
+                          % (os.environ.get("T2_LEDGER"),
+                             "None" if _a2w is None else "dict",
+                             len((_a2w or {}).get("ledger_metrics") or []),
+                             len(to_run),
+                             ",".join(sorted({_eff_tool_name(_t) for _t in to_run}))),
+                          file=sys.stderr, flush=True)
+                except Exception as _ep:
+                    print("[T2_LEDGER] probe failed: %r" % (_ep,), file=sys.stderr, flush=True)
             if os.environ.get("T2_LEDGER") == "1":
                 try:
                     import t2_offload as _OFF
@@ -3830,17 +3845,6 @@ def _install_regen_exec():
                         _o = _rby.get(getattr(tc, "id", None))
                         if _o is None or getattr(_o, "error", False):
                             continue
-                        # ★한 번에 가르는 계측(2026-08-07). 이 레버는 오늘 **네 번** 무음이었고
-                        #   그때마다 다른 곳을 짚었다(죽은 훅 → 설치 조건 → 전사 → ?). 무음이 남으면
-                        #   또 추측하게 되므로, 진입할 때마다 **무엇을 보고 있는지**를 찍는다.
-                        #   sim당 1회만(로그 폭주 방지) — 첫 도구 결과에서 한 번.
-                        if not getattr(self, "_t2_ledger_probe", False):
-                            self._t2_ledger_probe = True
-                            print("[T2_LEDGER] probe: a2=%s metrics=%d tools_in_batch=%s"
-                                  % ("None" if _a2w is None else "dict",
-                                     len((_a2w or {}).get("ledger_metrics") or []),
-                                     ",".join(sorted({_eff_tool_name(_t) for _t in to_run}))),
-                                  file=sys.stderr, flush=True)
                         _specs = _LG.specs_for(_a2w, _eff_tool_name(tc))
                         for _ls in _specs:
                             _txt = _content_str(_o)
