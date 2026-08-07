@@ -3917,44 +3917,22 @@ def _install_regen_exec():
                             #   *"replay-비교 대상 도구의 피드백 뷰-채널 소비 · 작업버퍼에만 주입"*.
                             #   대가: 도구 출력 옆에 영구히 남지 않고 생성-뷰에 N회 노출된다
                             #   (1회는 무시된다는 실측이 있어 기본 3회·`T2_LEDGER_VIEW_KEEP`).
-                            # ★상한 대조 (2026-08-08·C302/C304). 누계만 넘기고 상한과 맞대지
-                            #   않으면 잔여 0인 유형이 그대로 제출된다(def_k t0 `Light Green` 3/3).
-                            #   해석=LLM(어느 문장이 이 유형의 상한인가)·산수=엔진(상한−누계)·
-                            #   인용 실재는 엔진이 확인만 한다([[52]]·[[59]]·[[22]]).
-                            # ★자격 대조 (2026-08-08·task_100 런-간 실측). 우리는 관계기간을
-                            #   **정확히 셈해 넘긴다**(65일). 문서는 상품별 최소 기간을 말한다
-                            #   (`World Blue`: *"at least 90 days"*). 그런데 65와 90을 **아무도
-                            #   맞대지 않아** 그대로 제출됐다(런 i). 상한 대조와 같은 계약이다.
+                            # ★대조에 쓸 **피연산자만** 여기 남긴다 (2026-08-08·lim_n 라이브).
+                            #   상한/문턱 비교를 이 자리에서 하던 1차판은 **구조적으로 이른 시점**이라
+                            #   한 번도 발화하지 못했다: 원장 read는 턴 10~12에 일어나는데 상품 문서는
+                            #   그보다 뒤에 회수된다 — 상한이 문맥에 도착하기 전에 물어본 것이다.
+                            #   그래서 비교는 **결정점**(제출 요구가 나가는 자리)으로 옮겼고, 여기서는
+                            #   엔진이 전사한 수(누계·경과일)를 넘겨줄 뿐이다. 그 수는 지금 확정된다.
                             try:
-                                _ths = _LG.formalize_thresholds(_lgagent, la, UserMessage, _tx, _ls)
-                                _days0 = _LG.earliest_age(
+                                _lgagent._t2_ledger_tally = _LG.window_and_tally(
+                                    _rows, _ls, now=getattr(_lgagent, "_t2_ledger_now", None))[2]
+                                _d0 = _LG.earliest_age(
                                     _rows, _ls, now=getattr(_lgagent, "_t2_ledger_now", None))[1]
-                                _inel = _LG.ineligible_text(_days0, _ths, _ls)
-                                if _inel:
-                                    _blk = _blk.rstrip() + "\n" + _inel
-                                    print("[T2_LIMIT_REDUCE] thresholds=%d ineligible-line emitted"
-                                          % len(_ths), file=sys.stderr, flush=True)
-                                    _lbeat("T2_LIMIT_REDUCE", orch=self,
-                                           target=_eff_tool_name(_tc),
-                                           fact="some options need a longer relationship than this one")
-                            except Exception as _te:
-                                print("[T2_LIMIT_REDUCE] thresholds skipped: %r" % (_te,),
-                                      file=sys.stderr, flush=True)
-                            try:
-                                _lims = _LG.formalize_limits(_lgagent, la, UserMessage, _tx, _ls)
-                                if _lims:
-                                    _tal = _LG.window_and_tally(
-                                        _rows, _ls, now=getattr(_lgagent, "_t2_ledger_now", None))[2]
-                                    _ex = _LG.exhausted_text(_tal, _lims, _ls)
-                                    if _ex:
-                                        _blk = _blk.rstrip() + "\n" + _ex
-                                        print("[T2_LIMIT_REDUCE] limits=%d exhausted-line emitted"
-                                              % len(_lims), file=sys.stderr, flush=True)
-                                        _lbeat("T2_LIMIT_REDUCE", orch=self,
-                                               target=_eff_tool_name(_tc),
-                                               fact="some groups have no annual capacity left")
-                            except Exception as _le:
-                                print("[T2_LIMIT_REDUCE] skipped: %r" % (_le,),
+                                if _d0 is not None:
+                                    _lgagent._t2_ledger_days = _d0
+                                _lgagent._t2_ledger_spec = _ls
+                            except Exception as _se:
+                                print("[T2_LEDGER] operand stash skipped: %r" % (_se,),
                                       file=sys.stderr, flush=True)
                             _q = list(getattr(_lgagent, "_t2_view_fb", None) or [])
                             _q.append([_blk.strip(),
@@ -5865,6 +5843,42 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                             except Exception as _e14:
                                                 print("[T2_ARBITRATE] why/options skipped: %r" % (_e14,),
                                                       file=_sys.stderr, flush=True)
+                                            # ★상한·문턱 대조를 **결정점에서** 한다 (2026-08-08·
+                                            #   lim_n 위치 실측: 상한 문구는 인덱스 15·17·19에
+                                            #   도착하는데 원장 read는 9에 일어난다 — 원장 시점에
+                                            #   물으면 아직 문맥에 없다). 여기는 제출 요구가 나가는
+                                            #   자리라 회수 문서가 전부 들어와 있다.
+                                            #   피연산자(누계·경과일)는 엔진이 이미 전사해 두었고,
+                                            #   상한/문턱은 모델이 인용과 함께 낸다([[52]] 분담).
+                                            try:
+                                                _lsp = getattr(self, "_t2_ledger_spec", None)
+                                                _tal2 = getattr(self, "_t2_ledger_tally", None)
+                                                _day2 = getattr(self, "_t2_ledger_days", None)
+                                                if _lsp is not None:
+                                                    import t2_ledger as _LG2
+                                                    _tx2 = [_content_str(_m) for _m in state.messages
+                                                            if getattr(_m, "role", None) in ("tool", "user")]
+                                                    _add = ""
+                                                    if _tal2:
+                                                        _add += _LG2.exhausted_text(
+                                                            _tal2,
+                                                            _LG2.formalize_limits(self, la, UserMessage,
+                                                                                  _tx2, _lsp), _lsp)
+                                                    if _day2 is not None:
+                                                        _add += _LG2.ineligible_text(
+                                                            _day2,
+                                                            _LG2.formalize_thresholds(self, la, UserMessage,
+                                                                                      _tx2, _lsp), _lsp)
+                                                    if _add.strip():
+                                                        _ufb = ((_ufb + "\n") if _ufb else "") + _add.strip()
+                                                        print("[T2_LIMIT_REDUCE] emitted at decision point",
+                                                              file=_sys.stderr, flush=True)
+                                                        _lbeat("T2_LIMIT_REDUCE", orch=self, target=_utgt,
+                                                               fact="arithmetic against the allowances "
+                                                                    "and minimums you retrieved")
+                                            except Exception as _lre:
+                                                print("[T2_LIMIT_REDUCE] decision-point skipped: %r"
+                                                      % (_lre,), file=_sys.stderr, flush=True)
                                             if _bad:
                                                 _ufb = ((_ufb + "\n") if _ufb else "") + \
                                                     _SRC.unsourced_text(a2, _bad)

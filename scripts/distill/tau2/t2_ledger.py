@@ -190,7 +190,23 @@ def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr,
     memo = getattr(agent, memo_attr, None)
     if memo is not None:
         return memo
-    prompt = tpl.format(text="\n---\n".join(str(t)[:4000] for t in texts[-12:]))
+    # ★발췌는 **꼬리가 아니다** (2026-08-08·lim_n 위치 실측). 상한을 말하는 텍스트가 인덱스
+    #   2·15·17·19처럼 흩어져 있는데 구판은 `texts[-12:]`만 봤다 — 결정점으로 옮겨도 꼬리이면
+    #   앞쪽(2번)을 잃고, 대화가 길어지면 뒤쪽도 같은 방식으로 밀려난다. 오늘 아침 `now_prompt`가
+    #   정확히 같은 형태로 실패했다(오늘 날짜가 대화 머리에 있었다).
+    #   ⇒ **위치로만** 고른다: 전부 주되 각각 절단하고 총량에 상한을 둔다. 어느 텍스트가 상한을
+    #      담았는지 판정하는 것은 모델 몫이고, 엔진이 내용으로 고르면 [[59]] 위반이다.
+    _per = 3000
+    _budget = 90000
+    _sel, _used = [], 0
+    for t in reversed(list(texts)):       # 최신부터 담고, 예산이 남으면 앞쪽도 들어온다
+        s = str(t)[:_per]
+        if _used + len(s) > _budget:
+            break                         # 잘려 나가는 쪽은 **가장 오래된 것**이어야 한다
+        _sel.append(s)
+        _used += len(s)
+    _sel.reverse()                        # 다시 시간 순서로(읽는 쪽이 대화 순서를 본다)
+    prompt = tpl.format(text="\n---\n".join(_sel))
     try:
         kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
               if "tool" not in k}
