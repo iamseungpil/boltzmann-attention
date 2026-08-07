@@ -119,7 +119,17 @@ def main():
         print("=" * 96)
         print("== %s ==" % tid)
         outs = _tool_outputs(sim)
-        texts = [c for _n, c in outs]
+        # ★라이브와 **같은 집합**을 먹여야 한다. 라이브 훅의 `_tx`는 role ∈ {tool, user}이고,
+        #   이 환경이 "오늘"을 말하는 문장은 도구 출력이 아니라 **user 메시지**다 — 도구 출력만
+        #   모으면 그 문장이 통째로 빠져 프로브가 라이브보다 *가난한* 입력으로 판정하게 된다.
+        texts = []
+        for m in sim.get("messages") or []:
+            if m.get("role") not in ("tool", "user"):
+                continue
+            c = m.get("content")
+            if isinstance(c, list):
+                c = "\n".join(str(x) for x in c)
+            texts.append(str(c or ""))
         hit = 0
         for name, content in outs:
             for spec in LG.specs_for(a2, name):
