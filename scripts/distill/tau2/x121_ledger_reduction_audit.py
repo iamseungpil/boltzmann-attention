@@ -86,7 +86,12 @@ def caps_from_docs():
             re.compile(r"up to (\d+) referral bonuses per calendar year", re.I),
             re.compile(r"Annual (?:maximum|cap)\**:?\**\s*(\d+)\s*referral", re.I),
             re.compile(r"Maximum referrals(?: per year)?\s*[:|]\s*(\d+)", re.I),
-            re.compile(r"Maximum referrals:\s*(\d+) per calendar year", re.I)]
+            re.compile(r"Maximum referrals:\s*(\d+) per calendar year", re.I),
+            # ★코퍼스는 같은 상수를 최소 일곱 문형으로 쓴다. Dark Green은 아래 둘로만 쓰여 있어서
+            #   1차판이 상한을 못 찾았고, 그 결과 "소진된 유형"으로 잘못 읽힐 뻔했다(실제 5/6=여유 1).
+            re.compile(r"Maximum per year\**:?\**\s*(\d+)\s*referral", re.I),
+            re.compile(r"\|\s*Annual cap\s*\|\s*(\d+)\s*referrals?\s*\|", re.I),
+            re.compile(r"\|\s*Maximum referrals per year\s*\|\s*(\d+)\s*\|", re.I)]
     caps = {}
     for p in glob.glob(os.path.join(DOMAIN, "documents", "*")):
         try:
@@ -104,11 +109,12 @@ def caps_from_docs():
 def cap_for(type_name, doccaps):
     """유형 이름 → 그 유형 문서의 상한. 문서 파일명에 유형 슬러그가 들어 있다."""
     slug = type_name.lower().replace(" account", "").replace(" ", "_")
-    best = None
-    for fn, n in doccaps.items():
-        if slug in fn.lower():
-            best = n if best is None else min(best, n)
-    return best
+    vals = {n for fn, n in doccaps.items() if slug in fn.lower()}
+    if len(vals) > 1:
+        # 같은 유형의 문서들이 서로 다른 상한을 말하면 그건 회수 순서에 따라 답이 달라진다는 뜻이다.
+        # 조용히 하나를 고르지 말고 드러낸다.
+        print("   ⚠ %s 상한이 문서마다 다르다: %s" % (type_name, sorted(vals)))
+    return min(vals) if vals else None
 
 
 def ledger(task):
