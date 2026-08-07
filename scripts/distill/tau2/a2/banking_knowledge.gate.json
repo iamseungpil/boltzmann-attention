@@ -2804,5 +2804,27 @@
   "Unknown discoverable tool",
   "Unknown agent tool"
  ],
- "_note_failure_markers": "2026-08-07. 출처([[23]]) = **env 반환문 실측 축자**(도메인 지식 아님·gold 무참조): `NOT_VERIFIED — only 1 of the required 2 values the customer gave match the account record` · `Failed to log verification: Record may already exist.` · `Unknown discoverable tool '...'`. 근거 = 이 환경은 실패를 **error=False로 돌려주고 실패 사실을 본문에 쓴다**. 그래서 우리 충족 판정(`_executed_tool_names`)이 플래그만 보고 **실패한 호출을 '실행됨'으로 셌고**, 게이트가 거짓 충족돼 의존 그래프가 조기 전진할 수 있었다(102 부검에서 발견). ⚠**접두사만** 본다 — 본문 중간의 같은 낱말(정상 출력이 실패를 *설명*하는 경우)은 세지 않기 위해서다. ⚠엔진에 이 문자열을 박으면 도메인 리터럴이 되므로 A2에 둔다. 미선언 도메인은 종전 거동(거동 변화 0)."
+ "_note_failure_markers": "2026-08-07. 출처([[23]]) = **env 반환문 실측 축자**(도메인 지식 아님·gold 무참조): `NOT_VERIFIED — only 1 of the required 2 values the customer gave match the account record` · `Failed to log verification: Record may already exist.` · `Unknown discoverable tool '...'`. 근거 = 이 환경은 실패를 **error=False로 돌려주고 실패 사실을 본문에 쓴다**. 그래서 우리 충족 판정(`_executed_tool_names`)이 플래그만 보고 **실패한 호출을 '실행됨'으로 셌고**, 게이트가 거짓 충족돼 의존 그래프가 조기 전진할 수 있었다(102 부검에서 발견). ⚠**접두사만** 본다 — 본문 중간의 같은 낱말(정상 출력이 실패를 *설명*하는 경우)은 세지 않기 위해서다. ⚠엔진에 이 문자열을 박으면 도메인 리터럴이 되므로 A2에 둔다. 미선언 도메인은 종전 거동(거동 변화 0).",
+ "ledger_metrics": [
+  {
+   "trigger_tool": "get_referrals_by_user",
+   "row_keys": [
+    "date",
+    "referred_account_type"
+   ],
+   "date_field": "date",
+   "group_field": "referred_account_type",
+   "date_formats": [
+    "%m/%d/%Y",
+    "%Y-%m-%d"
+   ],
+   "window_days": 9,
+   "window_max": 2,
+   "formalize_prompt": "Below is the raw output of a records lookup. Transcribe it into JSON: a list of objects, one per record, each with exactly these keys: {keys}. Copy the values verbatim from the output; do not summarise, count, infer, or leave any record out. Reply with the JSON array only.\n\n{text}",
+   "window_text": "Referrals dated within the last {days} days: {used}. The rolling-window allowance is {max}, so {remaining} may be submitted right now.",
+   "text": "\n[COMPUTED FACTS] Counted from the records above (arithmetic, not a recommendation): {total} record(s) total.\nPer account type already used this year: {tally}.\n{window}\nThese are counts of what has been used. They are NOT the limits. Each account type's own annual limit is stated in that type's knowledge-base document - retrieve it before saying what any limit is.",
+   "_note_": "2026-08-07. 출처([[23]]) = 정책 문서 축자, gold 무참조. 창 상수 = doc_bank_accounts_bank_accounts_(general)_048: \"at most 2 referral bonuses in any rolling 9-day window ... This limit applies across all checking account types\". ⚠코퍼스에 신용카드용 **7-day** 변종이 따로 있다(credit_cards_(general)_002) - 이 선언은 checking 계열 창이다. row_keys/date_field/group_field = env 도구 출력 필드명(기계 도출·opex 0). ★유형별 **연간 상한은 여기 넣지 않는다**: 원장에 없고 문서에 있으며, A2에 박으면 상품 수만큼 두꺼워지고([[50]] ADB) 문서 변경 시 조용히 틀린다. 상한은 모델이 인용과 함께 가져오고 [SOURCE]가 인용 실재성을 검증한다([[22]]). 실측 근거(102 22 trial): 상한을 문서 회수 후 말하면 2 correct/1 wrong, 문서 없이 말하면 0 correct/5 wrong. ★전사는 LLM이 한다([[59]]) - 엔진은 이 텍스트를 파싱하지 않는다.",
+   "now_prompt": "From the conversation excerpts below, what is TODAY's date according to the system or the records shown? Reply with the date only, formatted MM/DD/YYYY. If the excerpts do not state it, reply NONE.\n\n{text}"
+  }
+ ]
 }

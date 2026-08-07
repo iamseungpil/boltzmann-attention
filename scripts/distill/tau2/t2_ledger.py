@@ -81,6 +81,33 @@ def formalize_rows(agent, la, UserMessage, text, spec):
     return out
 
 
+def formalize_now(agent, la, UserMessage, texts, spec):
+    """대화가 말하는 '오늘' → 날짜 문자열. **모델이 읽는다.** 못 정하면 None = 창 계산 미개입.
+
+    엔진이 도구 결과에서 날짜를 정규식으로 뽑는 길(`t2_resolve._current_time_str`)이 이미 있지만
+    그것이 [[59]]가 금지한 바로 그 형태다 — 문면이 바뀌면 조용히 틀리고, 분담을 뒤집는다.
+    여기서는 텍스트를 **모델에게 주고** 형식만 받는다.
+    """
+    tpl = (spec or {}).get("now_prompt")
+    if not (tpl and agent is not None and la is not None and texts):
+        return None
+    prompt = tpl.format(text="\n---\n".join(str(t)[:1500] for t in texts[-8:]))
+    try:
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+              if "tool" not in k}
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="ledger_now_formalize", **kw)
+        raw = (getattr(sub, "content", None) or "").strip()
+    except Exception:
+        return None
+    cand = raw.split()[0].strip('".,') if raw.split() else ""
+    return cand if _date(cand, (spec.get("date_formats") or ["%m/%d/%Y"])) else None
+
+
 def _date(s, fmts):
     for f in fmts:
         try:
