@@ -7009,9 +7009,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ⚠**거동은 바꾸지 않는다.** 지금은 귀속과 "route()라면 어떻게 판정했을지"만 남긴다.
             #   순서를 뒤집기 전에 순서를 검사할 수 있어야 하고, 검사 없이 켠 배선이 이 코드베이스의
             #   반복 사고였다(MATCH_COUNT 의존물 누락·WRITE_EVIDENCE 死코드·LEDGER 무음 6회).
+            #   ★2026-08-07 승격: 관찰자 → **출구 게이트**. `admit()`이 발화 창을 집행한다
+            #   (같은 tag·같은 문구면 재발화 접기 = [[57]]). 문구가 조금이라도 바뀌면 통과하므로
+            #   *인자 변화* 기준이지 *횟수* 기준이 아니다. 레버는 그대로 켜져 있다([[60]]).
+            #   비상구 = `T2_STACK_WINDOW=0`(귀속 arm 전용·태그에 기록할 것).
             try:
                 import t2_stack as _stk
                 _stk.observe(self, tag, text=fbtxt)
+                _ok_w, _why_w = _stk.admit(self, tag, fbtxt)
+                if not _ok_w:
+                    print("[T2_STACK] window suppressed tag=%s (%s)" % (tag, _why_w),
+                          file=_sys.stderr, flush=True)
+                    return None
             except Exception:
                 pass
             """피드백 1회 → regen. 게이트-deny 유입 시 원본 유지(부작용 0). 성공 시 새 am.

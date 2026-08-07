@@ -701,6 +701,38 @@ def observe(orch, tag, text=None, target=None, order=None):
     return layer
 
 
+def admit(orch, tag, text):
+    """★출구 게이트 — **같은 입력에 같은 말을 두 번 하지 않는다**([[57]] 발화 창).
+
+    반환 `(ok, why)`. `ok=False`면 호출자는 **보내지 않는다**.
+
+    2026-08-07 라이브가 이 규칙의 필요를 세 번 증명했다:
+      · 내 DAG 치환이 캡 없이 9회 (국소 패치로 막았다 — 그게 문제다, 레버마다 다시 짜야 한다)
+      · `[ORDER] '<도구>' cannot be carried out yet` **12회** (기존 레버·패치 없음)
+      · 빈 문구 11회 (다른 경로로 1건은 아직 샌다)
+    셋 다 *같은 병*이고, 레버 수만큼 국소 패치하는 대신 **모든 발화가 지나는 한 자리**에 건다.
+
+    지문 = `(tag, 정규화한 문구 전체)`. **문구가 조금이라도 달라지면 통과한다** —
+    억제 기준이 *횟수*가 아니라 *인자 변화*여야 하기 때문이다([[57]]). 도구·인자가 바뀌면
+    문구가 바뀌므로 자동으로 다시 말한다.
+
+    ⚠**끄기가 아니다.** 레버는 그대로 켜져 있고, 같은 말의 재발화만 접는다([[60]]).
+    """
+    if os.environ.get("T2_STACK_WINDOW", "1") != "1":
+        return True, "window off"
+    body = " ".join(str(text or "").split())
+    if not body:
+        return False, "empty"
+    fp = (str(tag or ""), body)
+    seen = getattr(orch, "_t2_stack_said", None)
+    if seen is None:
+        seen = orch._t2_stack_said = set()
+    if fp in seen:
+        return False, "same fingerprint"
+    seen.add(fp)
+    return True, "new"
+
+
 def observed():
     """지금까지 관측된 (tag, flag, layer) → 횟수. 미매핑·무층이 그대로 보인다."""
     return dict(_OBS)
