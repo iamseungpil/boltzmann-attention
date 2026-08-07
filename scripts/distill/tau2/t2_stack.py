@@ -212,9 +212,13 @@ MECHANISMS = [
     ("부재 미종결", "미측정 윈도를 **부정으로 오판정**",
      "023 · A2 선언 도구만",
      "T2_SG_WINDOW_ABSTAIN", "차단"),
-    ("부재 미종결", "☠반려된 Unknown-tool 이름을 재지시 — **횟수로 억제한 폐기 레버**",
-     "010/014/015/016 [S] · [[57]] 위반 ⇒ 정체-과금·지문 억제가 대체",
-     "T2_UNKNOWN_REPEAT_GUARD", None),
+    # ★2026-08-07 정정: 폐기 아님. 술어가 이미 **인자-변화 기준**이다([[57]] 준수·`t2_levers` RETIRED 주석).
+    ("미검증 단정·정박 치환",
+     "env가 **반려한 그 이름/인자**를 다시 쓴다 — `Unknown discoverable tool` 이름을 손님에게 재지시하거나, "
+     "`Unexpected parameter` 인자를 give 호출에 다시 싣는다",
+     "C212/B3: 010/014/015/016 **[S]**(010/014는 에러 후 2~3회 반복) · C212/A3: 018 [S] · "
+     "⚠[[25]] 위험: 술어의 출처가 **env의 주장**이라 실재 도구를 `Unknown`으로 반려하면 정답을 막는다(레지스트리 재검증 미구현=부채)",
+     "T2_UNKNOWN_REPEAT_GUARD", "차단"),
 
     # ── ④ under-action = 유도 실패 (dual-control) ──────────────────────────
     ("유도 실패", "손님에게 도구 실행을 안내했는데 **전달 이력 0**(실행 불가 지시)",
@@ -644,11 +648,15 @@ TAG_TO_FLAG = {
     "writeprov": "T2_WRITE_PROV",
     "transfertier": "T2_TRANSFER_TIER",
     # ★2026-08-07 호출부 정독으로 해소(게이팅 플래그를 읽어 확정 — 추측 아님):
-    "argrepeat": "T2_UNKNOWN_REPEAT_GUARD",    # :7167/:7190이 게이팅 — **폐기 레버가 아직 발화 경로를 갖고 있다**
+    "argrepeat": "T2_UNKNOWN_REPEAT_GUARD",    # :7190 게이팅 (폐기 아님 — 아래 ★정정 참조)
+    "unkrepeat": "T2_UNKNOWN_REPEAT_GUARD",    # :7167 게이팅
     "noticerep": "T2_NOTICE_REPEAT",           # :7655 — ★기본값 "1" = 라이브인데 go_stack에 없다
     "discreq": "T2_DISCOVERY_REQUIRED",        # :7826 — go_stack에 없음 = 비-라이브
     "selfdecl": "T2_SELF_DECLARATION",         # :7844 — go_stack에 없음 = 비-라이브
-    # ⚠남은 미매핑: 변수 tag 2곳(:7297·:7570) — 실행 시 실물 tag를 보고 채운다.
+    # ★변수 tag 2곳 해소(2026-08-07·정적 확정):
+    "uncalled_unlock": "T2_UNCALLED_UNLOCK",   # :7308 리터럴(긴 주석 뒤라 1차 추출이 놓쳤다)·게이팅 :7296
+    "followup_chain": "T2_FOLLOWUP_REQUIRED",  # :7581 `_tag1` ∈ {chain, decision} — 발원 :2490/:2493
+    "followup_decision": "T2_FOLLOWUP_REQUIRED",  # 게이팅 :7446
 }
 
 _OBS = {}          # sim 밖에서도 세는 전역 관측 카운터(진단용)
@@ -869,7 +877,8 @@ if __name__ == "__main__":
         "unverifiedfu", "givexec", "verdict_surface", "searchexhaust", "followup",
         "writeprov", "noticerep", "claimprov", "discreq", "selfdecl", "channel",
         "choiceground", "uninstructable", "usertoolnote", "kbnohit", "givequote",
-        "transfertier", "argschema", "signature", "<변수tag:7297>", "<변수tag:7570>",
+        "transfertier", "argschema", "signature", "uncalled_unlock",
+        "followup_chain", "followup_decision", "unkrepeat",
     ]
     orch = _Orch()
     mapped = unmapped = nolayer = 0

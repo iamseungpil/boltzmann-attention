@@ -355,7 +355,8 @@ CELLS = {
         ["T2_SOURCE", "T2_PROV_REGEN", "T2_GROUND", "T2_SG_GROUND", "T2_WRITE_PROV",
          "T2_WRITE_EVIDENCE", "T2_WRITE_ARG_GROUND", "T2_CLAIM_PROV", "T2_GIVE_QUOTE",
          "T2_QUOTE_HINT", "T2_QUOTE_PIN", "T2_UNLOCK_PROV", "T2_UNKNOWN_NAME_BL",
-         "T2_UNLOCK_NAME", "T2_FAB_STRIP", "T2_SG_TRUTH", "T2_PROD_BIND"]),
+         "T2_UNLOCK_NAME", "T2_FAB_STRIP", "T2_SG_TRUTH", "T2_PROD_BIND",
+         "T2_UNKNOWN_REPEAT_GUARD", "T2_SELF_DECLARATION"]),
     "역할 확인·실행 강제": (
         "발화-행동 등가 오인", ["치환·고정", "출처 근거 확보"],
         "누가 실행하는지는 레지스트리에서 도출한다. 판정 불가면 그 문장을 뺀다. "
@@ -403,14 +404,41 @@ PARAMS = {
 META = ["T2_ARBITRATE", "T2_WINDOW",
         "T2_VERIFY_DENY_CAP", "T2_PARAM_CAP", "T2_PRECLOSE_CAP"]
 
-# 판정하지 않는 것 — 끄면 능력이 조용히 사라진다(2026-08-07 실측 3회). arm 정의에서 상수.
+# ══════════════════════════════════════════════════════════════════════════════
+#  ★하네스란 무엇인가 (2026-08-07 사용자 질문: *"env도 아니고 오케스트레이터도 아니고 우리 도구도 아닌가?"*)
+# ══════════════════════════════════════════════════════════════════════════════
+#
+# **하네스는 우리 코드다.** env도 오케스트레이터도 아니다. 층위는 넷이다:
+#
+#   ① env (tau2 도메인)        도구·DB·문서. ⚠**수정 금지** — 고치면 벤치 변경 = 실험 무효([[03b]]).
+#                              그리고 [[25]]: env 출력은 **외부 주장**이다(user-sim과 동급).
+#   ② 오케스트레이터 (tau2)     실행 루프. 우리는 **감싼다**(훅), 고치지 않는다.
+#   ③ 우리 층 — **레버**        도메인에 대해 **판정한다**. 모델의 결정을 좌우한다.
+#   ④ 우리 층 — **하네스**      도메인에 대해 **아무것도 주장하지 않는다.** 실행 가능성만 보장한다.
+#
+# ③과 ④는 **같은 우리 코드**이고, 가르는 술어는 하나다(닫힘):
+#
+#   > 이 플래그를 끄면 **sim이 죽거나 무효가 되는가**(자원 초과·크래시·측정 오염)? → **하네스**
+#   > 아니면 **모델의 결정이 달라지는가**?                                        → **레버**
+#
+# 그래서 하네스는 arm 정의에서 **상수**다 — 끄면 능력이 조용히 사라지는 게 아니라
+# **측정 자체가 무효가 된다**(2026-08-07 실측 3회: 호스트·채널·죽은 훅).
+#
+# ★이 술어를 실제로 적용하니 **오분류 1건**이 나왔다 — `T2_A2_VARIANT`를 뺀다.
+#   그것은 `verify_identity`의 **record 슬롯을 A2에서 지운다** = 모델이 낼 수 있는 호출이 달라진다
+#   = 위 술어의 두 번째 가지다. 004 실측이 그 증거다(슬롯이 있으면 모델이 record를 날조하고
+#   우리 도구가 그것을 자기 자신과 대조해 VERIFIED를 발급했다). ⇒ **선언면 레버**로 옮긴다.
 HARNESS = ["T2_GATE_REGEN", "T2_GATE_REGEN_K", "T2_PROV_REGEN_K", "T2_PROV_MODE",
            "T2_OVERFLOW_GUARD", "T2_TRUNC_GUARD", "T2_DYN_MT", "T2_MT_FLOOR",
            "T2_DYN_MT_MARGIN", "T2_MAXPROMPT", "T2_VIEW_COMPACT", "T2_VIEW_ANNOTATE",
            "T2_VIEW_COMPACT_MINTOTAL", "T2_VIEW_MSG_CAP",
-           "T2_PAIRCHECK", "T2_PAIRFIX", "T2_FAILED_PERSIST", "T2_A2_VARIANT",
+           "T2_PAIRCHECK", "T2_PAIRFIX", "T2_FAILED_PERSIST",
            "T2_KB_DOCS_DIR", "T2_LLM_TIMEOUT", "T2_LLM_RETRIES", "T2_AGENT_MAX_TOKENS",
            "T2_REGEN_BUDGET"]
+
+# ★선언면 레버 — **말하지 않고 구조로 막는다.** 문구를 붙이지 않으므로 `speak()`의 대상이 아니고,
+#   그래서 층이 비어 있는 것이 결함이 아니다(작용면이 다르다).
+DECLARATIVE = ["T2_A2_VARIANT"]
 
 # 귀속 arm 전용 — 운영 스택에서는 켜지 않는다(기본 OFF가 정상)
 ARM_ONLY = ["T2_EPLAN_WALK_HOLD"]
@@ -424,7 +452,22 @@ DEFAULT_ON = ["T2_NOTICE_REPEAT"]
 NOT_LAUNCHED = ["T2_DISCOVERY_REQUIRED", "T2_SELF_DECLARATION"]
 
 # [[57]] 위반(횟수로 억제) — 정체-과금·지문 억제가 대체함
-RETIRED = ["T2_REPEAT_CAP", "T2_UNKNOWN_REPEAT_GUARD", "T2_DD_FB"]
+#
+# ★2026-08-07 정정 — `T2_UNKNOWN_REPEAT_GUARD`를 여기서 뺀다(내 오분류였다).
+#   핸드오프·메모리가 *"[[57]] 위반(횟수로 억제)"* 로 적어 놓아 그대로 옮겼는데,
+#   **호출부를 읽으니 술어가 이미 인자-변화 기준이다**(`:7167`·`:7190`):
+#     · unkrepeat = *env가 `Unknown discoverable tool`로 반려한 **그 이름**이 응답에 다시 등장하는가*
+#     · argrepeat = *env가 `Unexpected parameter`로 반려한 **그 인자**가 호출에 다시 실렸는가*
+#   둘 다 **무엇이 바뀌었는가**를 보지 *몇 번 했는가*를 보지 않는다 = [[57]]이 요구하는 형태 그 자체다.
+#   `cap 2`는 이 레버의 성질이 아니라 **보편 규약**이다(PROCEDURE_CAP·TRANSCRIBE_CAP과 동렬).
+#   ⇒ 폐기가 아니라 **재배치**한다. 근거는 010/014/015/016 **[S]** 이고, 지우면 [[60]]이 경고한
+#     *"끄면 능력이 조용히 사라진다"* 를 그대로 재현했을 것이다([[55]] 진단 순서: 코드부터 읽는다).
+#
+# ⚠**남은 진짜 위험은 다른 것이다([[25]])**: 이 술어의 출처가 **env의 주장**이다.
+#   [[25]]는 *"env가 '없다'고 해도 레지스트리에 있으면 있는 것"* 이라고 못박았다.
+#   env가 실재 도구를 `Unknown`으로 반려하면 이 레버는 **정답을 막는다**.
+#   ⇒ 고칠 지점은 삭제가 아니라 **레지스트리 재검증을 술어에 추가**하는 것이다(미구현·부채로 기록).
+RETIRED = ["T2_REPEAT_CAP", "T2_DD_FB"]
 
 
 def enabled(cell):
@@ -447,6 +490,8 @@ def cell_of(flag):
         return "(메타)"
     if flag in HARNESS:
         return "(하네스)"
+    if flag in DECLARATIVE:
+        return "(선언면)"
     if flag in ARM_ONLY:
         return "(arm전용)"
     if flag in RETIRED:
