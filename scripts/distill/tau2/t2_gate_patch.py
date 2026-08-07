@@ -5520,6 +5520,24 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                      len(_bad)), file=_sys.stderr, flush=True)
                                     rw_fb = ((am.tool_calls or [None])[0], _ufb)
                                     self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
+                                    # ★큐 전진 환급(2026-08-07·task_101 부검). 요건이 셋인데 발화
+                                    #   예산은 캡 하나를 공유한다 — 101은 신원 확인에서 헤매느라
+                                    #   6회를 **전부 첫 요건에** 쓰고, 그것이 충족된 뒤에는 채널이
+                                    #   닫혀 두 번째 요건(원장 조회)이 **명령조차 되지 않았다**.
+                                    #   순응했는데 다음을 말할 자리가 없는 것은 잔소리 억제가 아니라
+                                    #   설계 오류다. 그래서 **명령한 요건이 실제로 충족되면 환급**한다
+                                    #   (선례 = 이미 켜져 있는 T2_ACTION_PROGRESS_REFUND).
+                                    #   불응하면 충족이 없으므로 환급도 없다 = 무한 반복 불가.
+                                    if _reqs:
+                                        _head = _reqs[0]
+                                        _prev = getattr(self, "_t2_arb_head", None)
+                                        if _prev and _prev != _head.get("id"):
+                                            self._t2_action_deny = max(
+                                                0, getattr(self, "_t2_action_deny", 0) - 1)
+                                            print("[T2_ARBITRATE] queue advanced %s -> %s (refund)"
+                                                  % (_prev, _head.get("id")),
+                                                  file=_sys.stderr, flush=True)
+                                        self._t2_arb_head = _head.get("id")
                                     print("[T2_RESOLVE] user-action instruct target=%s" % _utgt,
                                           file=_sys.stderr, flush=True)
                         # ★C17 단계 소유권 (2026-08-05·050 실측·사용자 질문 "일반화된 문제인가"):

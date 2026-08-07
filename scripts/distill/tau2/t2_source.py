@@ -178,8 +178,9 @@ def uncalled_in_corpus(messages, corpus, a2=None, called=None):
 
 CLAIM_PROMPT = (
     "Below is the last thing a customer-service agent said. List only the statements in it that "
-    "assert a LIMIT, a MAXIMUM, an ALLOWANCE, or a COUNT that the company's own policy documents "
-    "or records decide - not things the customer alone would know, and not the agent's plans.\n"
+    "assert a LIMIT, a MAXIMUM, an ALLOWANCE, a COUNT, or WHETHER SOMEONE OR SOMETHING QUALIFIES "
+    "- anything the company's own policy documents or records decide, not things the customer "
+    "alone would know, and not the agent's plans.\n"
     "For each one, give the claim and the document id it rests on, or \"\" if none was cited.\n"
     "Agent said:\n{text}\n"
     'Reply JSON only: {"claims": [{"claim": "<short>", "doc": "<doc id or empty>"}]}'
@@ -280,7 +281,13 @@ def unsourced_claims(claims, corpus):
             continue                                  # 문서를 대고 그 문서가 회수됨 = 최강
         figs = _figures(claim)
         if not figs:
-            continue                                  # 수치가 없으면 이 계약의 대상이 아니다
+            # ★수치 없는 갈래 = **자격 판정**("둘 다 자격이 된다"). 102의 마지막 잔여가 이것이다 —
+            #   DB는 맞췄는데 채점자가 *"the agent did not assess or mention the Sky Blue eligibility
+            #   rule ... Instead, the agent stated both would qualify"* 로 떨어뜨렸다.
+            #   대조할 수치가 없으므로 문자열 근접으로는 판정할 수 없다. 자격 판정은 **문서가 정하는
+            #   것**이므로, 회수된 문서를 대지 못하면 근거 없음으로 본다(위에서 doc을 댔으면 이미 통과).
+            bad.append(claim)
+            continue
         anch = _anchors(claim)
         # 공유 단어 **2개 이상**을 요구한다. 1개면 'bonuses' 같은 공용어 하나로 다른 항목 줄이
         # 통과해 버린다(검정이 잡았다) — 그러면 틀린 한도를 놓친다.
@@ -372,7 +379,8 @@ if __name__ == "__main__":                                   # 자기검정 (오
         {"claim": "Sky Blue allows up to 7 referral bonuses per year", "doc": ""},   # ★7은 없다
         {"claim": "Gold Years annual maximum 6 referrals", "doc": ""},               # 실재
         {"claim": "annual max is 8", "doc": "doc_never_retrieved"},                  # 문서 미회수·8은 실재
-        {"claim": "the customer seems unhappy", "doc": ""},                          # 수치 없음 = 대상 아님
+        {"claim": "both companies qualify for Sky Blue", "doc": ""},                 # ★자격·수치없음
+        {"claim": "TechFlow qualifies for Sky Blue", "doc": "doc_business_x"},        # 문서 미회수
     ]
     bad = unsourced_claims(claims, cpk)
     # ★트레이드오프를 검정에 박아 둔다. 단어 근접을 요구하면 "annual max is 8"처럼 **패러프레이즈된
@@ -380,7 +388,9 @@ if __name__ == "__main__":                                   # 자기검정 (오
     #   그래도 요구를 유지하는 이유: 빼면 102 표적을 놓친다 — 틀린 숫자 7이 **다른 카드 줄**에 흔히
     #   있어서 그냥 통과해 버린다. 표적을 지키고 이 오탐을 비용으로 인정한다(§6b-c의 ⓒ 계수 대상).
     assert bad == ["Sky Blue allows up to 7 referral bonuses per year",
-                   "annual max is 8"], bad
+                   "annual max is 8",
+                   "both companies qualify for Sky Blue",
+                   "TechFlow qualifies for Sky Blue"], bad
 
     # 같은 숫자가 **다른 줄**에 있어도 단어가 안 맞으면 통과시키지 않는다.
     cpn = build_corpus([_M("tool", "Platinum card: up to 7 bonuses per calendar year")],
@@ -389,7 +399,7 @@ if __name__ == "__main__":                                   # 자기검정 (오
                             cpn) == ["Sky Blue allows up to 7 referral bonuses"]
 
     txt = unsourced_text({}, bad)
-    assert "up to 7" in txt and "2 thing" in txt
+    assert "up to 7" in txt and "4 thing" in txt
 
     # 서브콜 캡: sim당 1회
     class _AG:
