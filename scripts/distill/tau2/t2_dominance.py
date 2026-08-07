@@ -102,10 +102,11 @@ def requirement_text(a2, gate, target):
 
 DEFAULT_MERGED = (
     "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer "
-    "acting on your instruction. All of these have to hold first:\n{items}\n"
-    "Do the ones that are still outstanding now, with real tool calls. Once they all hold, then "
-    "tell the customer to run '{target}'. Telling them to run it earlier is the same as doing it "
-    "early yourself."
+    "acting on your instruction.\n"
+    "Do this now, with a real tool call: {first}\n"
+    "Still outstanding after that (do not do them in this reply): {rest}\n"
+    "When all of them hold, then tell the customer to run '{target}'. Telling them to run it "
+    "earlier is the same as doing it early yourself."
 )
 
 
@@ -200,12 +201,19 @@ def merged_text(a2, reqs, target):
         if sats:
             req = "%s (do it with: %s)" % (req, ", ".join(sats))
         return tpl.replace("{target}", str(target)).replace("{requirement}", req)
+    # ★합병 ≠ 나열 (2026-08-07·궤적 실측). 초판은 미충족 요건을 **전부 명령형 목록**으로 냈다.
+    #   task_101 turn 4: 네 요건을 한 번에 받은 모델이 **첫 항목만** 집어 신원 확인으로 가고
+    #   나머지(원장 조회 포함)를 흘렸다 — 그 뒤 열 턴이 신원 확인 왕복이었다. 경합은 없앴는데
+    #   **우선순위 없는 나열**이 되어 omission을 만들었다(IFScale이 보고한 지배적 오류와 같은 형태).
+    #   [[56]]에 "명령은 하나, 사실은 합집합"이라 써 두고 구현은 전부 명령이었다.
+    #   ⇒ **지금 할 하나만 명령**하고 나머지는 평서로 남긴다. 다음 턴에 다시 발화해 그 다음으로 간다.
     tpl = str((((a2 or {}).get("arbitration") or {}).get("merged_requirement_feedback"))
               or DEFAULT_MERGED)
-    items = "\n".join("  %d. %s (do it with: %s)"
-                      % (i + 1, r["predicate"], ", ".join(r["satisfiers"]))
-                      for i, r in enumerate(reqs))
-    return tpl.replace("{target}", str(target)).replace("{items}", items)
+    head = reqs[0]
+    first = "%s (do it with: %s)" % (head["predicate"], ", ".join(head["satisfiers"]))
+    rest = "; ".join(r["predicate"] for r in reqs[1:]) or "nothing else"
+    return (tpl.replace("{target}", str(target))
+               .replace("{first}", first).replace("{rest}", rest))
 
 
 if __name__ == "__main__":                                     # 자기검정 (오프라인)
@@ -251,9 +259,12 @@ if __name__ == "__main__":                                     # 자기검정 (�
     assert ids[:2] == ["G1", "G3"], ids
     assert any(r["id"].startswith("reads:") for r in rs), ids
     txt = merged_text(A2M, rs, "submit_referral")
-    for tok in ("G1" and "identity verified", "referral record checked",
-                "get_all_user_accounts_by_user_id", "submit_referral"):
-        assert tok in txt, tok
+    # ★명령은 하나뿐이고, 나머지는 사실로만 남는다(101 turn 4가 나열의 대가를 보였다).
+    assert txt.count("Do this now") == 1, txt
+    assert "identity verified (do it with: log_verification)" in txt, txt
+    head, tail = txt.split("Still outstanding", 1)
+    assert "referral record checked" not in head, head        # 2·3번은 명령부에 없다
+    assert "referral record checked" in tail and "prior read" in tail, tail
 
     # 충족된 것은 빠지고, 남은 것만 말한다.
     rs2 = requirements_for(A2M, [_M(["log_verification", "get_referrals_by_user"])],
