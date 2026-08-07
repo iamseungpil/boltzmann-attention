@@ -145,6 +145,28 @@ def main():
                 print("     now=%s" % now)
                 print("     %s" % ("(블록 없음 — 엔진 산수가 낼 것이 없다)" if not blk
                                    else "\n     ".join(blk.strip().splitlines())))
+                # ── 결정점 대조도 여기서 재현한다 (라이브와 같은 함수·같은 입력) ──
+                #   라이브는 상한/문턱을 **제출 요구가 조립되는 자리**에서 뽑는다. 그 시점의
+                #   입력은 "그때까지의 tool/user 텍스트 전부"이고, 여기서는 궤적 전체가 그것이다.
+                #   개수가 아니라 **이름까지** 찍어야 "소진을 못 뽑았다"와 "뽑았는데 여유가 있다"가
+                #   갈린다(dp_p에서 추출 2회·발화 0회가 그 모호함이었다).
+                for _fresh in ("_t2_ledger_limits", "_t2_ledger_thresholds"):
+                    if hasattr(agent, _fresh):
+                        delattr(agent, _fresh)
+                if spec.get("limit_prompt"):
+                    lims = LG.formalize_limits(agent, la, UserMessage, texts, spec)
+                    tal = LG.window_and_tally(rows, spec, now=now)[2]
+                    print("     상한 %d종: %s" % (len(lims), ", ".join(
+                        "%s=%s(사용 %s)" % (k, v[0], tal.get(k, 0)) for k, v in sorted(lims.items()))
+                        or "(없음)"))
+                    print("     → %s" % (LG.exhausted_text(tal, lims, spec).strip() or "(소진 없음 = 침묵)"))
+                if spec.get("threshold_prompt"):
+                    ths = LG.formalize_thresholds(agent, la, UserMessage, texts, spec)
+                    days = LG.earliest_age(rows, spec, now=now)[1]
+                    print("     문턱 %d종: %s" % (len(ths), ", ".join(
+                        "%s=%s" % (k, v[0]) for k, v in sorted(ths.items())) or "(없음)"))
+                    print("     → %s" % (LG.ineligible_text(days, ths, spec).strip()
+                                         or "(전부 도달 가능 = 침묵)"))
         if not hit:
             print("  ⚠이 sim의 어떤 호출도 선언과 매칭되지 않았다 — 호출 이름: %s"
                   % ", ".join(sorted({n for n, _c in outs})))
