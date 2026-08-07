@@ -3830,10 +3830,16 @@ def _install_regen_exec():
                         _o = _rby.get(getattr(tc, "id", None))
                         if _o is None or getattr(_o, "error", False):
                             continue
-                        for _ls in _LG.specs_for(_a2w, _eff_tool_name(tc)):
+                        _specs = _LG.specs_for(_a2w, _eff_tool_name(tc))
+                        for _ls in _specs:
                             _txt = _content_str(_o)
                             _rows = _LG.formalize_rows(self, la, UserMessage, _txt, _ls)
                             if not _rows:
+                                # ★침묵을 승인으로 읽지 않는다([[55]]). 구판은 여기서 조용히
+                                #   빠져나가서, 라이브 발화 0이 "선언이 안 붙었나 / 전사가 실패했나 /
+                                #   훅이 죽었나" 중 무엇인지 가릴 수 없었다. 세 번 헛짚은 자리다.
+                                print("[T2_LEDGER] %s: spec matched but transcription returned 0 rows"
+                                      % _eff_tool_name(tc), file=sys.stderr, flush=True)
                                 continue
                             _tx = [_content_str(_m) for _m in self.get_messages()
                                    if getattr(_m, "role", None) in ("tool", "user")]
@@ -5645,6 +5651,52 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                 _bad = []
                                         if _reqs or _bad:
                                             _ufb = _DOMm.merged_text(a2, _reqs, _utgt) if _reqs else ""
+                                            # ★"아무 말 없이 deny 하니까 안 하는 거다"(사용자 지시
+                                            #   2026-08-07). 실측이 그 진단을 지지한다: 상한을 풀었더니
+                                            #   같은 단계 이름을 **106회** 반복했는데 모델은 그 도구를
+                                            #   **한 번도 시도하지 않았다**. 이름을 다시 부르는 것은
+                                            #   인자 변화가 아니다([[57]]).
+                                            #   ⇒ 두 가지를 붙인다. 둘 다 **사실**이고 판단이 아니다:
+                                            #     ⓐ 왜 미충족인가 — 시도한 적이 없는가, 아니면 시도했고
+                                            #        env가 무엇을 돌려줬는가(축자·A2 failure_markers 기준)
+                                            #     ⓑ 지금 할 수 있는 것 **전부** — C2 프런티어(선행이 모두
+                                            #        충족된 노드). 하나를 고르는 것은 여전히 모델 몫이다
+                                            #        ([[05]] Q2 — 목록은 사실, 선택은 유동 판단).
+                                            try:
+                                                import t2_precedence as _PC
+                                                _dn = _executed_tool_names(state.messages, a2)
+                                                _front = _PC.frontier(_utgt, _dn,
+                                                                      _PC.graph_for(a2, _utgt))
+                                                # ★실패 사유를 **집합 뺄셈**으로 낸다 — 엔진이 도구 출력
+                                                #   텍스트를 스캔하지 않는다([[59]]·hook이 1차판을 차단).
+                                                #   시도(tool_calls 이름) − 성공(`_executed_tool_names`)
+                                                #   = 불렀는데 성사되지 않은 것. 구조뿐이고 문면 0이다.
+                                                #   축자 사유는 **이미 대화에 있어 모델이 본다** — 우리가
+                                                #   다시 뜯어 옮길 이유가 없고, 뜯는 순간 규칙 위반이다.
+                                                _tried = {_eff_tool_name(_c2) for _m2 in state.messages
+                                                          for _c2 in (getattr(_m2, "tool_calls", None) or [])}
+                                                _failed = _tried - _dn
+                                                _steps = [s for r in _reqs for s in (r.get("satisfiers") or [])]
+                                                _why = []
+                                                for _s2 in dict.fromkeys(_steps):
+                                                    if _s2 in _failed:
+                                                        _why.append("%s was called but has not succeeded "
+                                                                    "yet - its result above says why" % _s2)
+                                                    else:
+                                                        _why.append("%s has not been called in this "
+                                                                    "conversation" % _s2)
+                                                _tpl2 = (((a2 or {}).get("arbitration") or {})
+                                                         .get("why_options")
+                                                         or "\nWhy it is still outstanding: {why}\n"
+                                                            "Steps that are possible right now (any of "
+                                                            "them, your choice): {options}")
+                                                if _why or _front:
+                                                    _ufb += _tpl2.format(
+                                                        why="; ".join(_why) or "(no record)",
+                                                        options=", ".join(_front) or "(none available)")
+                                            except Exception as _e14:
+                                                print("[T2_ARBITRATE] why/options skipped: %r" % (_e14,),
+                                                      file=_sys.stderr, flush=True)
                                             if _bad:
                                                 _ufb = ((_ufb + "\n") if _ufb else "") + \
                                                     _SRC.unsourced_text(a2, _bad)
