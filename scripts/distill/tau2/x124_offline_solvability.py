@@ -39,7 +39,13 @@ CAP = [r"Annual limit\**:?\**\s*(\d+)\s*referral", r"up to (\d+) referral bonuse
 MINE = [r"Your bonus\**:?\**\s*\$([\d,]+)", r"\$([\d,]+) for each (?:qualifying|successful) referral"]
 THEIRS = [r"Their bonus\**:?\**\s*\$([\d,]+)", r"\$([\d,]+) welcome bonus"]
 TENURE = [r"minimum relationship duration of (\d+) days", r"(\d+)[- ]day tenure",
-          r"tenure threshold[^.]{0,40}?(\d+) days", r"requires? (\d+) days of tenure"]
+          r"tenure threshold[^.]{0,40}?(\d+) days", r"requires? (\d+) days of tenure",
+          # ★World Blue는 이 문형으로만 쓰여 있다(2026-08-07): "You must have maintained checking
+          #   account status with Rho-Bank for at least 90 days". 1차판이 이걸 놓쳐 tenure=None으로
+          #   보였고, 그러면 task_100이 102처럼 "결정 상수 부재"로 **오판**된다.
+          #   ⚠"within 90 days of account opening"(예치 기한)과 섞이면 안 되므로 tenure 어구에 앵커한다.
+          r"maintained checking account status[^.]{0,60}?at least (\d+) days",
+          r"checking account holder[^.]{0,80}?at least (\d+) days"]
 DEPOSIT = [r"deposit at least \$([\d,]+)", r"must deposit \$([\d,]+)",
            r"qualifying deposit[^.]{0,40}?\$([\d,]+)"]
 
