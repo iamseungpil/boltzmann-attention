@@ -3866,13 +3866,25 @@ def _install_regen_exec():
                 # ★잠복 버그(2026-08-07·`T2_LEDGER`를 처음 켜자 드러남): `la`(LLM 어댑터)는
                 #   `apply_*_regen` 세 곳에서만 import되고 **이 훅 스코프엔 없다** → `NameError`.
                 #   死배선이라 라이브에서 한 번도 실행된 적이 없어 아무도 못 봤다. 지역 import로 닫는다.
+                #   ★2차(win_20260807i 라이브): `la`만 닫고 `UserMessage`를 빠뜨려 같은 자리에서
+                #   `NameError("name 'UserMessage' is not defined")` 4회 — 한 훅에서 두 이름이
+                #   빠져 있었는데 첫 예외가 둘째를 가렸다. 둘 다 지역 import로 닫는다.
                 import tau2.agent.llm_agent as la
+                from tau2.data_model.message import UserMessage
+                # ★3차(같은 자리): 이 훅의 `self`는 **오케스트레이터**다(위 `getattr(self,"agent")`가
+                #   그 증거). `formalize_*`는 `agent.llm`·`agent.llm_args`를 쓰므로 오케스트레이터를
+                #   넘기면 AttributeError → 내부 `except`가 삼켜 **[]**를 돌려주고, 로그엔
+                #   "transcription returned 0 rows"만 남아 *모델이 전사에 실패한 것처럼 보인다*.
+                #   침묵이 오진을 만드는 형태라 이름을 명시적으로 가른다.
+                _lgagent = getattr(self, "agent", None)
+                if _lgagent is None:
+                    raise RuntimeError("orchestrator has no .agent (ledger formalize needs the LLM agent)")
                 for _tc in tool_calls:
                     _o = by_id.get(getattr(_tc, "id", None))
                     if _o is None or getattr(_o, "error", False):
                         continue
                     for _ls in _LG.specs_for(a2, _eff_tool_name(_tc)):
-                        _rows = _LG.formalize_rows(self, la, UserMessage, _content_str(_o), _ls)
+                        _rows = _LG.formalize_rows(_lgagent, la, UserMessage, _content_str(_o), _ls)
                         if not _rows:
                             print("[T2_LEDGER] %s: spec matched, transcription returned 0 rows"
                                   % _eff_tool_name(_tc), file=sys.stderr, flush=True)
@@ -3880,7 +3892,7 @@ def _install_regen_exec():
                         _tx = [_content_str(_m) for _m in self.get_messages()
                                if getattr(_m, "role", None) in ("tool", "user")]
                         _blk = _OFF.ledger_facts(_rows, _ls,
-                                                 now=_LG.formalize_now(self, la, UserMessage, _tx, _ls))
+                                                 now=_LG.formalize_now(_lgagent, la, UserMessage, _tx, _ls))
                         if _blk:
                             _o.content = _content_str(_o) + _blk
                             print("[T2_LEDGER] %s rows=%d" % (_eff_tool_name(_tc), len(_rows)),
