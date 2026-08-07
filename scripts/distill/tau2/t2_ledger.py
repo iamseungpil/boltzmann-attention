@@ -30,8 +30,11 @@
 import datetime
 import json
 import re
+import sys
 
-__all__ = ["specs_for", "formalize_rows", "window_and_tally", "facts_text"]
+__all__ = ["specs_for", "formalize_rows", "formalize_now", "formalize_limits",
+           "formalize_thresholds", "window_and_tally", "earliest_age",
+           "exhausted_text", "ineligible_text", "facts_text"]
 
 
 def _fam(n):
@@ -208,20 +211,32 @@ def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr,
     except Exception:
         return {}
     hay = " ".join("\n".join(str(t) for t in texts).split())
-    out = {}
+    out, rejected = {}, 0
     for k, v in (got.items() if isinstance(got, dict) else []):
         try:
             num = int(str((v or {}).get(field)).strip())
             quote = " ".join(str((v or {}).get("quote") or "").split())
         except Exception:
+            rejected += 1
             continue
         if num <= 0 or len(quote) < 12 or quote not in hay:
+            rejected += 1          # 인용이 회수된 텍스트에 없다 = 채택하지 않는다
             continue
         out[str(k)] = (num, quote)
-    try:
-        setattr(agent, memo_attr, out)
-    except Exception:
-        pass
+    # ★빈손도 찍는다 (2026-08-08·lim_n 라이브). 성공만 찍으면 "못 찾았다"와 "안 돌았다"가
+    #   구분되지 않는다 — 오늘 `seen=N`으로 배운 것과 같은 형태다.
+    print("[T2_LEDGER] %s: model gave %d, accepted %d, rejected %d"
+          % (field, len(got) if isinstance(got, dict) else 0, len(out), rejected),
+          file=sys.stderr, flush=True)
+    # ★★빈손은 **기억하지 않는다**. 구판은 `{}`도 메모해 그 sim 내내 재시도가 없었다.
+    #   원장 read는 대화 앞쪽(턴 10~12)에서 일어나는데 상품 문서는 그보다 **뒤에** 회수된다 —
+    #   즉 상한이 도착하기 전에 물어보고 그 빈 답을 영구 고정한 셈이었다. 비었으면 다음 read에서
+    #   다시 묻는다(문서가 그 사이에 들어왔을 수 있다).
+    if out:
+        try:
+            setattr(agent, memo_attr, out)
+        except Exception:
+            pass
     return out
 
 
