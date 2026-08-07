@@ -6648,6 +6648,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   반대로 무부착 — 막는 말이 아니므로 접으면 그냥 안 붙인다.
             _FB_GENERIC = "Error: resolve the flagged call(s) first; do not call this tool yet."
             _fbtag = {}
+            # ★단계 1 게이트⒝ 계기: **현행 체인이 실제로 말한 표적**을 모은다(설계서 §7e).
+            #   `audit()`에 넘겨 `route()` 판정과 갈리는 자리를 세기 위한 것이고, 거동은 안 바꾼다.
+            _chose8 = []
             for _n8, _v8 in (("eplan", ep_fb), ("discovery", dd_fb), ("cons", cons_fb),
                              ("resolve_action", ra_fb), ("toolerr", te_fb), ("wev", wev_fb),
                              ("transcribe", tr_fb), ("proc", proc_fb), ("resolve_write", rw_fb),
@@ -6711,6 +6714,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             content = _FB_GENERIC
                     except Exception:
                         pass
+                    if content != _FB_GENERIC:      # 접히지 않고 실제로 나간 것만 센다
+                        _chose8.append((_fbtag.get(id(c), "fb"), _eff_tool_name(c)))
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                       error=True, content=content))
             # ★순서 검사 (거동 변경 0). 층-1 레버들이 `beat(orch=…)`로 등록해 둔 후보를 비우고,
@@ -6721,10 +6726,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   이 코드베이스의 死배선 패턴이다).
             try:
                 import t2_stack as _stkA
-                _aud = _stkA.audit(self)
+                _aud = _stkA.audit(self, chose_targets=[t for _g, t in _chose8])
                 if _aud:
-                    print("[T2_STACK] audit route=%s suppressed=%s"
-                          % (_aud["pick"], _aud["suppressed"]), file=_sys.stderr, flush=True)
+                    # ★한 줄에 **양쪽 판정과 갈림 여부**를 함께 찍는다. 구판은 `route()` 쪽만
+                    #   찍어서, 그 줄만 보면 *"현행과 같은지 다른지"* 를 영영 알 수 없었다 —
+                    #   단계 2b의 착수 조건이 정확히 그 비교인데 계기가 그것을 안 담았다.
+                    print("[T2_STACK] audit route=%s chose=%s differs=%s suppressed=%s"
+                          % (_aud["pick"], _chose8, _aud["target_differs"], _aud["suppressed"]),
+                          file=_sys.stderr, flush=True)
             except Exception:
                 pass
             # ★action-required 리마인더 채널 (순수-조언 회피=tool_call 0 → 앵커할 ToolMessage 없음).

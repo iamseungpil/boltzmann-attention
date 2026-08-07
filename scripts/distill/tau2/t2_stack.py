@@ -814,7 +814,7 @@ def speak(orch, **kw):
     return get_stack(orch).speak(orch=orch, **kw)
 
 
-def audit(orch, chose=None):
+def audit(orch, chose=None, chose_targets=None):
     """★순서를 뒤집기 **전에** 순서를 검사한다 — 등록분을 비우고 `route()`의 판정만 남긴다.
 
     `speak()`를 실제 출구로 쓰는 것은 거동 변경이라 측정이 먼저다. 이 함수는 등록된 후보를
@@ -822,7 +822,14 @@ def audit(orch, chose=None):
     **현행 체인이 실제로 고른 것**과 다른지까지 판정한다. 두 판정이 갈리는 자리가 곧 순서
     뒤집기가 값을 만드는 자리다 — 그게 없으면 뒤집을 이유도 없다.
 
-    반환 = None(등록 0) 또는 {"pick": [...], "chose": …, "differs": bool}
+    ★비교는 **표적**으로 한다 (2026-08-08·단계 1 게이트⒝ 배선). `chose`(현행이 고른 채널 이름:
+    `eplan`·`proc`·…)와 등록 플래그(`T2_*`)는 **이름 공간이 다르다** — 그대로 맞대면 언제나
+    "다름"이 나와 계기가 거짓이 된다. 두 판정이 실제로 갈리는지는 *무엇에 대해 말했는가*로만
+    물을 수 있다: `chose_targets` = 현행이 실제로 문구를 붙인 호출 이름들.
+      target_differs = route()가 고른 표적 집합 ≠ 현행이 말한 표적 집합
+    `differs`(플래그 축)는 호환을 위해 남기되 `chose`가 플래그일 때만 뜻이 있다.
+
+    반환 = None(등록 0) 또는 {"pick", "chose", "chose_targets", "differs", "target_differs", "suppressed"}
     """
     st = get_stack(orch)
     pend, st._pending = st._pending, []
@@ -832,7 +839,11 @@ def audit(orch, chose=None):
     picks = [(s.get("layer"), s.get("target"), (s.get("flags") or [None])[0])
              for s in r.get("speak", [])]
     differs = bool(chose) and all(chose != f for _l, _t, f in picks)
-    return {"pick": picks, "chose": chose, "differs": differs,
+    ct = set(x for x in (chose_targets or ()) if x)
+    pt = set(t for _l, t, _f in picks if t)
+    target_differs = bool(ct) and ct != pt
+    return {"pick": picks, "chose": chose, "chose_targets": sorted(ct),
+            "differs": differs, "target_differs": target_differs,
             "suppressed": r.get("suppressed", [])}
 
 
