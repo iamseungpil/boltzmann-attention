@@ -2431,6 +2431,27 @@ def _regen_budget_spend(self):
     self._t2_regen_total = getattr(self, "_t2_regen_total", 0) + 1
 
 
+def _resolve_cap_ok(self):
+    """계약 경로의 진입 상한 — **이것이 진짜 구속 조건이었다** (2026-08-07 실측).
+
+    이 자리는 `_t2_resolve_deny < 3`으로 **하드코딩**돼 있었다. 환경변수도 없고 끌 방법도 없었다.
+    그래서 사용자 지시로 `T2_ACTION_DENY_CAP`을 없앴을 때 **아무 변화가 없었다** — 안쪽 cap을 지워도
+    바깥 cap이 먼저 물린다. 계약 발화가 모든 arm에서 정확히 **3회/sim**이었던 이유다.
+
+    측정된 대가: 요건 큐가 3회 안에 전진하지 못하면 그 sim에서 우리 층은 **영구히 침묵**한다.
+    101 전수(20 trial)에서 두 번째 요건(원장 조회)이 **한 번도 "지금 하라"가 되지 못했고**, 실제
+    조회는 2/20이었다. 그 3회는 turn 4·6·8에 소진되는데 첫 요건이 충족되는 것은 turn 11 전후다.
+    ⇒ 이익은 측정된 적이 없고 해악은 측정됐다([[56]] 근거 우세) — 사용자 지시대로 없앤다.
+
+    over-action 상한이 필요하면 전역 `T2_REGEN_BUDGET`에 둔다(023 컨텍스트 초과 사고의 실제 층).
+    미설정 = 무제한. 정수를 주면 그 수에서 멈춘다(되돌리기 경로 유지).
+    """
+    _c = os.environ.get("T2_RESOLVE_CAP")
+    if not (_c or "").strip().isdigit():
+        return True
+    return getattr(self, "_t2_resolve_deny", 0) < int(_c)
+
+
 def _chain_dispatch(fc, eff):
     """★관문2(2026-07-20·§2aa): follow_up_chain 1건의 발화 판정 (순수 함수·단위테스트 공유 —
     [[03b]] 별도구현 금지·라이브와 같은 코드를 잰다).
@@ -5404,7 +5425,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if (_contract_on and a2 is not None
                     and not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None
-                    and getattr(self, "_t2_resolve_deny", 0) < 3):
+                    and _resolve_cap_ok(self)):
                 try:
                     import t2_resolve as _rz
                     for c in (am.tool_calls or []):
