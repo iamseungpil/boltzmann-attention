@@ -157,10 +157,34 @@ def formalize_limits(agent, la, UserMessage, texts, spec):
     ⚠상한을 A2에 박지 않는다([[50]] ADB): 상품 수만큼 두꺼워지고 문서가 바뀌면 조용히 틀린다.
     ⚠**못 찾으면 비운다.** 모르는 유형은 결과에서 빠지고, 그 유형에 대해서는 아무 말도 안 한다.
     """
-    tpl = (spec or {}).get("limit_prompt")
+    return _formalize_pairs(agent, la, UserMessage, texts, spec,
+                            key="limit_prompt", field="limit",
+                            memo_attr="_t2_ledger_limits",
+                            call_name="ledger_limits_formalize")
+
+
+def formalize_thresholds(agent, la, UserMessage, texts, spec):
+    """회수된 문서가 말한 **최소 기간 요건**을 모델이 뽑는다 — `{그룹: (일수, 인용문)}`.
+
+    `formalize_limits`와 같은 계약이고 축만 다르다(연간 상한 → 관계기간 문턱). 나눈 이유는
+    두 수가 서로 다른 문서 절에서 오고, 하나만 나온 경우에도 그것만으로 판정이 되기 때문이다.
+
+    실측 근거(task_100): 손님 관계기간은 **65일**이고 우리가 이미 정확히 셈해 넘긴다. 그런데
+    `World Blue`는 *"maintained checking account status with Rho-Bank for at least 90 days"* 라
+    문서가 말하는데 **아무도 65와 90을 맞대지 않아** 그대로 제출됐다(런 i). 해석=LLM·산수=엔진.
+    """
+    return _formalize_pairs(agent, la, UserMessage, texts, spec,
+                            key="threshold_prompt", field="min_days",
+                            memo_attr="_t2_ledger_thresholds",
+                            call_name="ledger_thresholds_formalize")
+
+
+def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr, call_name):
+    """`{그룹: (정수, 인용문)}` 형태를 모델에게 받는 공용 절차 — 인용 실재만 엔진이 확인한다."""
+    tpl = (spec or {}).get(key)
     if not (tpl and agent is not None and la is not None and texts):
         return {}
-    memo = getattr(agent, "_t2_ledger_limits", None)
+    memo = getattr(agent, memo_attr, None)
     if memo is not None:
         return memo
     prompt = tpl.format(text="\n---\n".join(str(t)[:4000] for t in texts[-12:]))
@@ -172,7 +196,7 @@ def formalize_limits(agent, la, UserMessage, texts, spec):
         except TypeError:
             um = UserMessage(content=prompt)
         sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="ledger_limits_formalize", **kw)
+                          call_name=call_name, **kw)
         raw = getattr(sub, "content", None) or ""
     except Exception:
         return {}
@@ -183,24 +207,35 @@ def formalize_limits(agent, la, UserMessage, texts, spec):
         got = json.loads(m.group(0))
     except Exception:
         return {}
-    hay = "\n".join(str(t) for t in texts)
+    hay = " ".join("\n".join(str(t) for t in texts).split())
     out = {}
     for k, v in (got.items() if isinstance(got, dict) else []):
         try:
-            lim = int(str((v or {}).get("limit")).strip())
+            num = int(str((v or {}).get(field)).strip())
             quote = " ".join(str((v or {}).get("quote") or "").split())
         except Exception:
             continue
-        if lim <= 0 or len(quote) < 12:
+        if num <= 0 or len(quote) < 12 or quote not in hay:
             continue
-        if " ".join(quote.split()) not in " ".join(hay.split()):
-            continue                       # 인용이 회수된 텍스트에 없다 = 채택하지 않는다
-        out[str(k)] = (lim, quote)
+        out[str(k)] = (num, quote)
     try:
-        agent._t2_ledger_limits = out
+        setattr(agent, memo_attr, out)
     except Exception:
         pass
     return out
+
+
+def ineligible_text(days, thresholds, spec):
+    """경과일과 인용된 문턱을 맞대어 **아직 못 되는 그룹**만 말한다. 추천하지 않는다."""
+    tpl = (spec or {}).get("ineligible_text")
+    if not (tpl and thresholds and days is not None):
+        return ""
+    blocked, ok = [], []
+    for g, (need, _q) in sorted(thresholds.items()):
+        (blocked if int(days) < need else ok).append("%s needs %d" % (g, need))
+    if not blocked:
+        return ""
+    return tpl.format(days=int(days), blocked="; ".join(blocked), ok="; ".join(ok) or "(none)")
 
 
 def exhausted_text(tally, limits, spec):

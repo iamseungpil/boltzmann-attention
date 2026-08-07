@@ -3921,6 +3921,25 @@ def _install_regen_exec():
                             #   않으면 잔여 0인 유형이 그대로 제출된다(def_k t0 `Light Green` 3/3).
                             #   해석=LLM(어느 문장이 이 유형의 상한인가)·산수=엔진(상한−누계)·
                             #   인용 실재는 엔진이 확인만 한다([[52]]·[[59]]·[[22]]).
+                            # ★자격 대조 (2026-08-08·task_100 런-간 실측). 우리는 관계기간을
+                            #   **정확히 셈해 넘긴다**(65일). 문서는 상품별 최소 기간을 말한다
+                            #   (`World Blue`: *"at least 90 days"*). 그런데 65와 90을 **아무도
+                            #   맞대지 않아** 그대로 제출됐다(런 i). 상한 대조와 같은 계약이다.
+                            try:
+                                _ths = _LG.formalize_thresholds(_lgagent, la, UserMessage, _tx, _ls)
+                                _days0 = _LG.earliest_age(
+                                    _rows, _ls, now=getattr(_lgagent, "_t2_ledger_now", None))[1]
+                                _inel = _LG.ineligible_text(_days0, _ths, _ls)
+                                if _inel:
+                                    _blk = _blk.rstrip() + "\n" + _inel
+                                    print("[T2_LIMIT_REDUCE] thresholds=%d ineligible-line emitted"
+                                          % len(_ths), file=sys.stderr, flush=True)
+                                    _lbeat("T2_LIMIT_REDUCE", orch=self,
+                                           target=_eff_tool_name(_tc),
+                                           fact="some options need a longer relationship than this one")
+                            except Exception as _te:
+                                print("[T2_LIMIT_REDUCE] thresholds skipped: %r" % (_te,),
+                                      file=sys.stderr, flush=True)
                             try:
                                 _lims = _LG.formalize_limits(_lgagent, la, UserMessage, _tx, _ls)
                                 if _lims:
