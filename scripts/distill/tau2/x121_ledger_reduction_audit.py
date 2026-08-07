@@ -135,18 +135,37 @@ EXHAUST = re.compile(r"(maxed|max(?:imum)? (?:out|reached)|limit (?:has been )?(
                      r"cap (?:has been )?reached|fully used|exhausted|not (?:be )?(?:available|eligible) .{0,30}limit)", re.I)
 
 
+SENT = re.compile(r"(?<=[.;:!?\n])\s+|\s+(?=[-*]\s)")
+
+
 def claims_about(txt, type_name):
-    """유형 이름 주변 ±90자에서 수 주장과 소진 주장을 걷는다."""
+    """유형 이름에 **문형으로 결속된** 수만 걷는다.
+
+    ±90자 근접 창을 쓰던 1차판은 "6 referrals for Gold Years"의 6을 같은 문장에 있던
+    Dark Green·Sky Blue의 주장으로도 계수했다 — 오귀속이 오답을 부풀렸다. 그래서 여기서는
+    문장 단위로 자르고, 유형 이름을 **패턴 안에** 넣어 결속한다. 결속되지 않는 수(입금액·
+    보너스 금액)는 세지 않는다.
+
+    세 갈래를 따로 낸다. 원장 계수(used)는 도구 출력에서 세면 나오고, 상한(cap)은 문서 상수이며,
+    소진(exhausted)은 둘의 비교다. 어디서 틀리는지가 서로 다른 레버를 부르기 때문에 합치지 않는다.
+    """
+    base = re.escape(type_name.replace(" Account", ""))
+    T = base + r"(?:\s+Accounts?)?(?:\s+account(?:\s+type)?)?"
     got = []
-    for m in re.finditer(re.escape(type_name.replace(" Account", "")), txt, re.I):
-        seg = txt[max(0, m.start() - 90): m.end() + 90]
-        for mm in re.finditer(r"(\d+)\s*(?:of|/|out of)\s*(\d+)", seg):
-            got.append(("used_of_cap", int(mm.group(1)), int(mm.group(2)), seg))
-        for mm in re.finditer(r"\b(?:made|used|done|submitted|have|had)\b[^.]{0,30}?\b(\d+)\b", seg, re.I):
-            got.append(("used", int(mm.group(1)), None, seg))
-        for w, v in WORDNUM.items():
-            if re.search(r"\b%s\b[^.]{0,25}referral" % w, seg, re.I):
-                got.append(("used", v, None, seg))
+    for seg in SENT.split(txt):
+        if not re.search(base, seg, re.I):
+            continue
+        for rx in (r"(\d+)\s+referrals?\s+(?:for|to|under|on)\s+(?:the\s+)?\**" + T,
+                   r"\**" + T + r"\**\s*[:\-–—]\s*(\d+)\s+referrals?",
+                   r"\**" + T + r"\**[^.]{0,60}?you (?:have|had) (?:already )?(?:made|completed|used|done|submitted)\s+(\d+)",
+                   r"(?:made|completed|used|done|submitted)\s+(\d+)\s+\**" + T):
+            for mm in re.finditer(rx, seg, re.I):
+                got.append(("used", int(mm.group(1)), None, seg))
+        for rx in (r"limit\s+(?:for|of)\s+(?:the\s+)?\**" + T + r"\**[^.]{0,40}?is\s+(\d+)",
+                   r"\**" + T + r"\**[^.]{0,60}?(?:annual\s+)?(?:limit|cap|maximum)[^.\d]{0,20}(\d+)",
+                   r"up to\s+(\d+)\s+referrals?[^.]{0,40}?\**" + T):
+            for mm in re.finditer(rx, seg, re.I):
+                got.append(("cap", int(mm.group(1)), None, seg))
         if EXHAUST.search(seg):
             got.append(("exhausted", None, None, seg))
     return got
@@ -181,31 +200,36 @@ def main():
                      if m.get("role") == "assistant" and m.get("content")]
             txt = "\n".join(prose)
             said_window = bool(re.search(r"rolling (?:\d+[- ]day )?window|9[- ]day", txt, re.I))
-            right = wrong = 0
+            per = collections.Counter()
             details = []
             for t in types:
                 c = cap_for(t, doccaps)
+                seen = set()
                 for kind, a, b, seg in claims_about(txt, t):
-                    if kind == "used_of_cap":
-                        ok = (a == used[t] and (c is None or b == c))
-                    elif kind == "used":
+                    key = (t, kind, a, seg[:60])
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    if kind == "used":
                         ok = (a == used[t])
-                        if a in (0,) or a > 50:
+                    elif kind == "cap":
+                        ok = (c is not None and a == c)
+                        if c is None:
                             continue
-                    else:  # exhausted
-                        ok = (c is not None and used[t] >= c)
-                    (details.append((t, kind, a, b, ok, seg)))
-                    if ok:
-                        right += 1
                     else:
-                        wrong += 1
+                        ok = (c is not None and used[t] >= c)
+                        if c is None:
+                            continue
+                    details.append((t, kind, a, b, ok, seg))
+                    per[kind + ("_맞음" if ok else "_틀림")] += 1
             tot["trial"] += 1
             tot["창언급" if said_window else "창미언급"] += 1
-            tot["주장있음" if (right + wrong) else "주장없음"] += 1
-            tot["맞음"] += right
-            tot["틀림"] += wrong
-            print("  [%-22s t%s] 창언급=%-5s 수주장 %d건(맞음 %d/틀림 %d)"
-                  % (s["_src"], s.get("trial"), said_window, right + wrong, right, wrong))
+            for k, v in per.items():
+                tot[k] += v
+            print("  [%-22s t%s] 창언급=%-5s  계수 %d✓/%d✗  상한 %d✓/%d✗  소진 %d✓/%d✗"
+                  % (s["_src"], s.get("trial"), said_window,
+                     per["used_맞음"], per["used_틀림"], per["cap_맞음"], per["cap_틀림"],
+                     per["exhausted_맞음"], per["exhausted_틀림"]))
             if SHOW:
                 for t, kind, a, b, ok, seg in details:
                     if not ok:
