@@ -241,15 +241,60 @@ def formalize_claims(agent, la, UserMessage, messages, cap_attr="_t2_source_call
         return []
 
 
+_NUM = re.compile(r"\d[\d,]*(?:\.\d+)?")
+
+
+def _figures(text):
+    return {m.group(0).replace(",", "") for m in _NUM.finditer(str(text or ""))}
+
+
+def _anchors(text):
+    """수치에 붙은 명사 — 같은 숫자가 다른 항목으로 우연히 통과하는 것을 막는 최소 단서."""
+    words = re.findall(r"[A-Za-z][A-Za-z_\-]{3,}", str(text or ""))
+    return {w.lower() for w in words}
+
+
 def unsourced_claims(claims, corpus):
-    """근거 문서를 못 댄 주장만. 인용한 doc이 **이 대화에서 실제로 회수됐는지**까지 본다."""
+    """근거를 못 댄 주장만.
+
+    ★구판은 *"모델이 doc id를 인용했는가"* 를 물었다. 라이브가 그것을 기각했다 — 모델은 doc id를
+    쓰지 않는다. 그래서 KB에서 **실제로 회수해 요약한** 수치까지 전부 무근거로 셌다(claims=5 unsourced=5).
+    모델의 협조가 있어야 성립하는 술어였다.
+
+    이제 **우리가 이미 쥔 것으로 판정한다**: 그 주장의 수치가 회수된 문서 텍스트에 실재하는가.
+    doc id를 댔고 그 문서가 회수됐으면 그것도 인정한다(더 강한 근거이므로).
+
+    ⚠약점을 남겨 둔다: 숫자만 대조하면 같은 숫자가 **다른 항목**으로 코퍼스에 있어 거짓 통과할 수 있다.
+    그래서 수치와 함께 **주장의 단어 하나 이상**이 같은 줄에 있을 것을 요구한다. 완전하지 않다 —
+    한 줄 단위 근접성이지 의미 대조가 아니다.
+    """
+    ledger = corpus.get("ledger") or ""
+    lines = [ln for ln in ledger.splitlines() if ln.strip()]
     bad = []
     for c in (claims or []):
+        claim = (c.get("claim") or "").strip()
+        if not claim:
+            continue
         doc = (c.get("doc") or "").strip()
         if doc and has_source(doc, "document", corpus):
-            continue
-        bad.append(c.get("claim") or "")
-    return [b for b in bad if b]
+            continue                                  # 문서를 대고 그 문서가 회수됨 = 최강
+        figs = _figures(claim)
+        if not figs:
+            continue                                  # 수치가 없으면 이 계약의 대상이 아니다
+        anch = _anchors(claim)
+        # 공유 단어 **2개 이상**을 요구한다. 1개면 'bonuses' 같은 공용어 하나로 다른 항목 줄이
+        # 통과해 버린다(검정이 잡았다) — 그러면 틀린 한도를 놓친다.
+        need = min(2, len(anch)) if anch else 0
+        hit = False
+        for ln in lines:
+            if not (figs & _figures(ln)):
+                continue
+            if len(anch & _anchors(ln)) >= need:
+                hit = True
+                break
+        if not hit:
+            bad.append(claim)
+    return bad
 
 
 def unsourced_text(a2, bad):
@@ -317,13 +362,34 @@ if __name__ == "__main__":                                   # 자기검정 (오
     assert "log_verification" not in un                         # 회수 텍스트에 없음(레지스트리에만)
 
     # ── 주장-측: 인용한 doc이 이 대화에서 회수됐는가 ──────────────────────────
-    claims = [{"claim": "Sky Blue limit reached", "doc": ""},
-              {"claim": "Gold Years 6 used", "doc": "doc_business_x"},
-              {"claim": "annual max is 8", "doc": "doc_never_retrieved"}]
-    bad = unsourced_claims(claims, cp)
-    assert bad == ["Sky Blue limit reached", "annual max is 8"], bad
+    # 회수 텍스트에 수치가 실재하면 doc id가 없어도 근거가 있다(라이브가 구판 술어를 기각했다).
+    cpk = build_corpus(
+        [_M("tool", "Sky Blue: you can earn up to 8 referral bonuses per calendar year\n"
+                    "Gold Years: annual maximum 6 referrals")],
+        env=_ENV(), a2=A2)
+    claims = [
+        {"claim": "Sky Blue allows up to 8 referral bonuses per year", "doc": ""},   # 코퍼스 실재
+        {"claim": "Sky Blue allows up to 7 referral bonuses per year", "doc": ""},   # ★7은 없다
+        {"claim": "Gold Years annual maximum 6 referrals", "doc": ""},               # 실재
+        {"claim": "annual max is 8", "doc": "doc_never_retrieved"},                  # 문서 미회수·8은 실재
+        {"claim": "the customer seems unhappy", "doc": ""},                          # 수치 없음 = 대상 아님
+    ]
+    bad = unsourced_claims(claims, cpk)
+    # ★트레이드오프를 검정에 박아 둔다. 단어 근접을 요구하면 "annual max is 8"처럼 **패러프레이즈된
+    #   정당한 주장도 잡힌다**(코퍼스는 "up to 8 ... per calendar year"라 공유 단어가 없다).
+    #   그래도 요구를 유지하는 이유: 빼면 102 표적을 놓친다 — 틀린 숫자 7이 **다른 카드 줄**에 흔히
+    #   있어서 그냥 통과해 버린다. 표적을 지키고 이 오탐을 비용으로 인정한다(§6b-c의 ⓒ 계수 대상).
+    assert bad == ["Sky Blue allows up to 7 referral bonuses per year",
+                   "annual max is 8"], bad
+
+    # 같은 숫자가 **다른 줄**에 있어도 단어가 안 맞으면 통과시키지 않는다.
+    cpn = build_corpus([_M("tool", "Platinum card: up to 7 bonuses per calendar year")],
+                       env=_ENV(), a2=A2)
+    assert unsourced_claims([{"claim": "Sky Blue allows up to 7 referral bonuses", "doc": ""}],
+                            cpn) == ["Sky Blue allows up to 7 referral bonuses"]
+
     txt = unsourced_text({}, bad)
-    assert "Sky Blue limit reached" in txt and "2 thing" in txt
+    assert "up to 7" in txt and "2 thing" in txt
 
     # 서브콜 캡: sim당 1회
     class _AG:
