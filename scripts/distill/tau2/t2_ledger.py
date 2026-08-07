@@ -102,7 +102,23 @@ def formalize_now(agent, la, UserMessage, texts, spec):
     tpl = (spec or {}).get("now_prompt")
     if not (tpl and agent is not None and la is not None and texts):
         return None
-    prompt = tpl.format(text="\n---\n".join(str(t)[:1500] for t in texts[-8:]))
+    # ★한 번 정해지면 그 sim 내내 같다 — 다시 물어 봐야 같은 답이고, 실패한 자리에서 다시 물으면
+    #   같은 이유로 또 실패한다. 성공을 재사용한다(호출도 아낀다).
+    memo = getattr(agent, "_t2_ledger_now", None)
+    if memo:
+        return memo
+    # ★머리 + 꼬리 (2026-08-07·x128 배제 진단). 구판은 꼬리 8개만 줬다. 실측: 이 환경은 "오늘"을
+    #   **대화 첫머리**에 한 번 말하고(`The current time is …`) 그 뒤로는 안 말한다. 그래서 조회가
+    #   대화 중반에 일어나면 꼬리 발췌에 그 문장이 **구조적으로 못 들어간다** — 절단도 아니고 모델이
+    #   못 읽은 것도 아니다(꼬리에 날짜가 들어간 경우엔 읽어 냈다). 머리를 함께 준다.
+    #   위치로만 고르고 내용은 보지 않는다([[59]] — 어느 문장이 날짜인지 판정하는 것은 모델 몫).
+    head, tail = list(texts[:3]), list(texts[-8:])
+    seen, sel = set(), []
+    for t in head + tail:
+        if id(t) not in seen:
+            seen.add(id(t))
+            sel.append(t)
+    prompt = tpl.format(text="\n---\n".join(str(t)[:1500] for t in sel))
     try:
         try:
             um = UserMessage(role="user", content=prompt)
@@ -116,7 +132,13 @@ def formalize_now(agent, la, UserMessage, texts, spec):
     except Exception:
         return None
     cand = raw.split()[0].strip('".,') if raw.split() else ""
-    return cand if _date(cand, (spec.get("date_formats") or ["%m/%d/%Y"])) else None
+    if not _date(cand, (spec.get("date_formats") or ["%m/%d/%Y"])):
+        return None
+    try:
+        agent._t2_ledger_now = cand
+    except Exception:
+        pass
+    return cand
 
 
 def _date(s, fmts):
