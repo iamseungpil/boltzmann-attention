@@ -142,9 +142,15 @@ MECHANISMS = [
     ("조건 재소환 실패", "정책이 **순서를 명령**하거나 **도구를 금지**한 흐름에 진입한 뒤 위반",
      "x80 전수 194 sim 과차단 **0건** · 진입 개념 없이 노드명으로만 판정한 1차 설계는 28건 오차단→폐기",
      "T2_PROCEDURE", "차단"),
-    ("조건 재소환 실패", "auth 게이트 미충족 구간인데 **행동-유도 레버가 발화**(단계 소유권 부재)",
-     "C17 · 050",
-     "T2_PHASE_OWNER", "차단"),
+    # ★2026-08-07 기전 변경(사용자 지시 *"DAG로 정의된 선행행동 순서에 따라 엔진이 동작해야 한다"*):
+    #   침묵 → **치환**. 같은 auth 선언을 읽고 정반대 행동을 내던 두 기제를 DAG 하나로 모은다.
+    ("사슬 역행 실패",
+     "auth 조상이 미충족인 구간에서 행동-유도를 **지우기만 하고 아무도 대신 말하지 않았다** — "
+     "이제 그 자리에 DAG가 낸 미충족 조상 요건을 놓는다(`requirements_for` → `merged_text`)",
+     "20260807b 실측: 침묵 6회 · 우리 층 발화는 claimprov 4건뿐 · 그 게이트 `applies_to`의 read 호출 0 "
+     "⇒ 자기-강화 교착(조상 미충족→침묵→명령 없음→계속 미충족). "
+     "옛 계량(실패 런 9회 침묵·통과 런 0회)은 **무해**를 보였지 유익을 보이지 않았다",
+     "T2_PHASE_OWNER", "선행"),
     ("조건 재소환 실패", "push 레버가 **돌고 있는 절차가 금지한 도구**를 권함",
      "E3-② · 022 · x104 §C: 표적 3발 침묵·over-block 0을 오프라인 전수로 사전 확정",
      "T2_SPEAK_PROHIBIT", "차단"),
@@ -654,6 +660,7 @@ TAG_TO_FLAG = {
     "discreq": "T2_DISCOVERY_REQUIRED",        # :7826 — go_stack에 없음 = 비-라이브
     "selfdecl": "T2_SELF_DECLARATION",         # :7844 — go_stack에 없음 = 비-라이브
     # ★변수 tag 2곳 해소(2026-08-07·정적 확정):
+    "phase_precede": "T2_PHASE_OWNER",         # ★DAG-우선 치환(2026-08-07)·게이팅 :5786
     "uncalled_unlock": "T2_UNCALLED_UNLOCK",   # :7308 리터럴(긴 주석 뒤라 1차 추출이 놓쳤다)·게이팅 :7296
     "followup_chain": "T2_FOLLOWUP_REQUIRED",  # :7581 `_tag1` ∈ {chain, decision} — 발원 :2490/:2493
     "followup_decision": "T2_FOLLOWUP_REQUIRED",  # 게이팅 :7446
@@ -864,7 +871,10 @@ if __name__ == "__main__":
     # ⑤ 폐기 레버는 말하지 않는다
     results.append(_case("폐기 레버(층 없음) → 말하지 않음",
                          _Msg(content="", tool_calls=[_Call("x")]), ("x",), None, True,
-                         [{"flag": "T2_UNKNOWN_REPEAT_GUARD", "target": "x", "fact": "반복", "order": "멈춰라"}], 0))
+                         # ⚠`T2_UNKNOWN_REPEAT_GUARD`를 쓰던 케이스였으나 2026-08-07에 **폐기 판정을
+                         #   철회**해 층이 생겼다(말하는 게 정상). 자기검사가 그 변경을 잡아 FAIL을 냈다 —
+                         #   기대를 고치는 게 맞다. 여전히 폐기인 `T2_REPEAT_CAP`으로 바꾼다.
+                         [{"flag": "T2_REPEAT_CAP", "target": "x", "fact": "반복", "order": "멈춰라"}], 0))
 
     print("\n  %s  (%d/%d)" % ("전부 PASS" if all(results) else "**실패 있음**",
                                sum(1 for r in results if r), len(results)))
@@ -880,23 +890,33 @@ if __name__ == "__main__":
         "transfertier", "argschema", "signature", "uncalled_unlock",
         "followup_chain", "followup_decision", "unkrepeat",
     ]
+    # ★귀속은 **두 단계**다 — 섞어서 한 수로 말하면 안 된다(2026-08-07 사용자 지적):
+    #     ① 플래그 귀속: tag → flag.  "이 발화가 누구 것인가"
+    #     ② 층 귀속:     flag → layer. "그래서 언제 말하는가"
+    #   하네스도 ①은 된다. ②가 없을 뿐이고, **그건 결함이 아니라 하네스의 정의**다.
     orch = _Orch()
-    mapped = unmapped = nolayer = 0
+    f_ok = f_no = l_ok = l_no = 0
     for t in LIVE_TAGS:
         ly = observe(orch, t, text="(검사)")
         f = TAG_TO_FLAG.get(t)
         if not f:
-            unmapped += 1
-            print("    %-18s ✗ 미매핑 (추측 금지 — 실물 tag 보고 채운다)" % t)
-        elif ly is None:
-            nolayer += 1
-            print("    %-18s → %-26s ⚠층 없음(%s)" % (t, f, cell_of_note(f)))
+            f_no += 1
+            print("    %-18s ✗ 플래그 미매핑 (추측 금지 — 실물 tag 보고 채운다)" % t)
+            continue
+        f_ok += 1
+        if ly is None:
+            l_no += 1
+            print("    %-18s → %-26s 층 없음 %s ← 발화하지만 **도메인을 판정하지 않는다**"
+                  % (t, f, cell_of_note(f)))
         else:
-            mapped += 1
-    print("\n    귀속 %d / 층없음 %d / 미매핑 %d  (총 %d)"
-          % (mapped, nolayer, unmapped, len(LIVE_TAGS)))
-    print("    ⇒ 생성면 발화의 **%d%%가 레버·층까지 귀속**된다. 나머지는 감사에 그대로 남는다"
-          % (100 * mapped // len(LIVE_TAGS)))
+            l_ok += 1
+    n = len(LIVE_TAGS)
+    print("\n    ① 플래그 귀속 %d/%d = %d%%   (누구의 발화인가)" % (f_ok, n, 100 * f_ok // n))
+    print("    ② 층   귀속 %d/%d = %d%%   (언제 말하는가 — 하네스는 층이 없는 게 정상)"
+          % (l_ok, n, 100 * l_ok // n))
+    print("\n    ★하네스도 **말한다**. `truncguard`는 `_ap_regen`으로 모델에게 문구를 보낸다.")
+    print("      하네스를 가르는 것은 *발화 여부*가 아니라 **무엇을 판정하는가**다 —")
+    print("      도메인이면 레버, **채널·자원**이면 하네스(`finish_reason=length`는 채널 사실이다).")
     print("    ⚠거동 변경 0 — 지금은 등록·로그만. 순서를 뒤집는 것은 다음 단계다.")
     print("\n  ⚠전부 **오프라인 자기검사**다. 배선은 `_ap_regen` 한 자리에 들어갔고 **거동은 안 바꿨다**.")
     print("     아직 안 한 것: ①`speak()`를 실제 출구로 쓰기(순서 뒤집기) ②변수 tag 2곳 해소")

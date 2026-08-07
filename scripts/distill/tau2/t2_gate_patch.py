@@ -5787,9 +5787,55 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             _may17 = True
                         _off_phase = (_phase17 == "verify" and _may17
                                       and os.environ.get("T2_PHASE_OWNER") == "1")
+                        # ★★DAG-우선 (2026-08-07 사용자 지시: *"DAG로 정의된 선행행동 순서에 따라
+                        #   엔진이 동작해야 한다"*). 여기가 **침묵이 치환으로 바뀌는 자리**다.
+                        #
+                        #   왜: `phase`는 독립 축이 아니라 **선언에서 파생된 상태**다
+                        #   (`t2_phase.phase_of`가 `gates[kind=auth]`의 satisfier 실행 이력만 본다).
+                        #   그래서 같은 auth 게이트 선언을 두 기제가 읽고 **정반대 행동**을 냈다 —
+                        #   선행 강제는 *"미충족 조상이 먼저다"* 라고 명령하고, 단계 소유권은
+                        #   *"행동-유도 침묵"* 을 시켰다. 침묵당한 것이 바로 그 명령이라
+                        #   **자기-강화 교착**이 된다(조상 미충족 → 침묵 → 명령 없음 → 조상 계속 미충족).
+                        #   20260807b 실측: 침묵 6회 · 우리 층 발화는 claimprov 4건뿐 ·
+                        #   그 게이트의 `applies_to`에 선언된 read 도구는 **호출 0**.
+                        #
+                        #   [[56]] C3의 문구가 이미 답이었다: **"진 쪽은 침묵이 아니라 치환된다."**
+                        #   그래서 행동-유도를 지우되 그 자리에 **DAG가 말하는 미충족 조상**을 놓는다.
+                        #   요건 산출은 `t2_dominance.requirements_for`(출처 = `gates[]` ·
+                        #   `require_tool_before` · `requires_reads` — 새 A2 키 0)이고, 도메인 어휘 0이다.
+                        #
+                        #   ⚠**회귀 불가 설계**: DAG가 낼 요건이 없으면 종전 거동(침묵) 그대로다.
+                        #   즉 이 변경은 *침묵을 명령으로 바꿀 수 있을 때만* 바꾼다.
                         if _off_phase:
-                            print("[T2_PHASE_OWNER] action-push silent — phase=%s" % _phase17,
-                                  file=_sys.stderr, flush=True)
+                            _sub17 = ""
+                            _t17 = None
+                            try:
+                                import t2_dominance as _DOM17
+                                _t17 = _tgt_pre if (_tgt_pre and _tgt_pre in _acts) else None
+                                if _t17 is None and len(_acts) == 1:
+                                    _t17 = next(iter(_acts))
+                                if _t17:
+                                    _rq17 = _DOM17.requirements_for(
+                                        a2, state.messages, _t17,
+                                        executed=_executed_tool_names(state.messages),
+                                        unwrap=_exact_tool_name)
+                                    _sub17 = _DOM17.merged_text(a2, _rq17, _t17) if _rq17 else ""
+                            except Exception as _e17:
+                                print("[T2_PHASE_PRECEDE] DAG requirement failed (keep silent): %r"
+                                      % (_e17,), file=_sys.stderr, flush=True)
+                                _sub17 = ""
+                            if _sub17:
+                                print("[T2_PHASE_PRECEDE] substitute (was: silent) target=%s" % _t17,
+                                      file=_sys.stderr, flush=True)
+                                _newPP = _ap_regen(_sub17, "phase_precede")
+                                if _newPP is not None:
+                                    am = _newPP
+                                    _resign = (not getattr(am, "tool_calls", None)
+                                               and isinstance(getattr(am, "content", None), str)
+                                               and am.content.strip())
+                            else:
+                                print("[T2_PHASE_OWNER] action-push silent — phase=%s (no DAG req)"
+                                      % _phase17, file=_sys.stderr, flush=True)
                         if rw_fb is None and not _off_phase \
                                 and _acts and not (_called & _acts) and _rz._agent_ending(am, _transfer_tools(a2)):
                             _tgt = _tgt_pre if _tgt_pre in _acts else None
