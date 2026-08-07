@@ -281,6 +281,13 @@ def main():
             for trig, c in cur.items():
                 node = next(n for n in nodes if ("tool:" + trig) in (n.get("inputs") or ()))
                 eq("%s rows" % trig, vals.get(node["out"]) or [], c["rows"])
+                # ★0행이면 **현행은 거기서 멈춘다** — 라이브 훅이 `continue`(`t2_gate_patch.py:3897`)
+                #   하고 렌더도 빈 문자열(`t2_ledger.py:381`)이다. 1차 실행은 그것을 모르고
+                #   `window_and_tally`를 무조건 불러 **현행이 계산한 적 없는 중간값**과 비교했고,
+                #   불일치 4건이 전부 그 자리였다(`노드=None 현행={'remaining':2,'used':0}`).
+                #   0행에서 창을 세는 쪽은 현행이지 노드가 아니며, 둘 다 아무 말도 안 한다.
+                if not c["rows"]:
+                    continue
                 if c["tally"] and any(n["op"] == "tally" and n["inputs"][0] == node["out"]
                                       for n in nodes):
                     tn = next(n for n in nodes
