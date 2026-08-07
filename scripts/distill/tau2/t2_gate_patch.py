@@ -2115,14 +2115,22 @@ def _exact_tool_name(tc):
     return nm
 
 
-def _executed_tool_names(messages):
+def _executed_tool_names(messages, a2=None):
     """Tools whose call actually ran, by effective name.
 
     A call whose result came back as an error did not perform its step, so it must not
     count as a prerequisite satisfied — otherwise a procedure check would read a failed
     submission as a completed one. Both sides of the conversation count: discoverable
     steps are often executed by the customer.
+
+    ★2026-08-07 (102 부검): 이 판정이 **플래그와 'Error:' 접두사만** 봤다. 그런데 이 환경은
+    실패를 `error=False`로 돌려주고 실패 사실을 **본문에** 쓴다 — 실측 축자:
+    `NOT_VERIFIED — only 1 of the required 2 values ... match` · `Failed to log verification:
+    Record may already exist.` 그래서 **실패한 호출이 '실행됨'으로 잡히고**, 게이트가 거짓 충족돼
+    의존 그래프가 조기 전진한다. 표지는 env 관측에서 오므로 A2가 선언하고(`failure_markers`),
+    미선언이면 종전 거동을 유지한다(거동 변화 0).
     """
+    marks = tuple((a2 or {}).get("failure_markers") or ())
     ok, pending = set(), {}
     for m in messages or []:
         for tc in (getattr(m, "tool_calls", None) or []):
@@ -2130,7 +2138,9 @@ def _executed_tool_names(messages):
         if getattr(m, "role", None) == "tool":
             nm = pending.get(getattr(m, "id", None) or getattr(m, "tool_call_id", None))
             txt = str(getattr(m, "content", "") or "").lstrip()
-            if nm and not (getattr(m, "error", False) or txt.startswith("Error:")):
+            failed = (getattr(m, "error", False) or txt.startswith("Error:")
+                      or any(txt.startswith(k) for k in marks))
+            if nm and not failed:
                 ok.add(nm)
     return ok
 
@@ -5478,7 +5488,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                             import t2_dominance as _DOMm
                                             _reqs = _DOMm.requirements_for(
                                                 a2, state.messages, _utgt,
-                                                executed=_executed_tool_names(state.messages),
+                                                executed=_executed_tool_names(state.messages, a2),
                                                 unwrap=_exact_tool_name)
                                         except Exception:
                                             _reqs = []

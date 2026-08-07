@@ -2796,5 +2796,13 @@
    "silences": "push 레버가 진행 중 절차의 prohibits 목록에 있는 도구를 권하는 경우"
   },
   "_note": "2026-08-06 T5(억제 자격·정본 `CONFLICT_ARBITRATION_THEORY_2026_08_06` §3-T5). 출처([[23]]) = **우리 레버에 대한 메타 기록**이라 도메인 사실을 주장하지 않는다(도메인 리터럴 0·gold 무참조). 이 키는 능력을 더하지 않고 **뺀다** — 여기 없는 억제형 레버는 `T2_SUPPRESS_AUTH=1`에서 다른 레버를 침묵시킬 수 없다(표면화는 그대로). 근거는 정책 축자(kind=policy·quote) 또는 사전 등록 계량(kind=measurement·measure) 둘 중 하나여야 하고, **숫자 우선순위는 쓰지 않는다**(Davis & Buchanan 1977: 서로 다른 차원을 한 숫자로 뭉개면 그 숫자가 어떻게 나왔는지 기록이 남지 않는다). 이 규칙이 있었다면 C13 원판은 근거를 못 대 실격됐을 것이고 050/051의 이행을 만들던 반복을 지우지 못했을 것이다."
- }
+ },
+ "failure_markers": [
+  "Error:",
+  "Failed to",
+  "NOT_VERIFIED",
+  "Unknown discoverable tool",
+  "Unknown agent tool"
+ ],
+ "_note_failure_markers": "2026-08-07. 출처([[23]]) = **env 반환문 실측 축자**(도메인 지식 아님·gold 무참조): `NOT_VERIFIED — only 1 of the required 2 values the customer gave match the account record` · `Failed to log verification: Record may already exist.` · `Unknown discoverable tool '...'`. 근거 = 이 환경은 실패를 **error=False로 돌려주고 실패 사실을 본문에 쓴다**. 그래서 우리 충족 판정(`_executed_tool_names`)이 플래그만 보고 **실패한 호출을 '실행됨'으로 셌고**, 게이트가 거짓 충족돼 의존 그래프가 조기 전진할 수 있었다(102 부검에서 발견). ⚠**접두사만** 본다 — 본문 중간의 같은 낱말(정상 출력이 실패를 *설명*하는 경우)은 세지 않기 위해서다. ⚠엔진에 이 문자열을 박으면 도메인 리터럴이 되므로 A2에 둔다. 미선언 도메인은 종전 거동(거동 변화 0)."
 }
