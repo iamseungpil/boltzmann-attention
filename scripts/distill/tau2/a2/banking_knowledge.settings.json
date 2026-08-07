@@ -268,6 +268,23 @@
    "text": "\n[COMPUTED FACTS] Counted from the records above (arithmetic, not a recommendation): {total} record(s) total.\nPer account type already used this year: {tally}.\n{window}\nThese are counts of what has been used. They are NOT the limits. Each account type's own annual limit is stated in that type's knowledge-base document - retrieve it before saying what any limit is.",
    "_note_": "2026-08-07. 출처([[23]]) = 정책 문서 축자, gold 무참조. 창 상수 = doc_bank_accounts_bank_accounts_(general)_048: \"at most 2 referral bonuses in any rolling 9-day window ... This limit applies across all checking account types\". ⚠코퍼스에 신용카드용 **7-day** 변종이 따로 있다(credit_cards_(general)_002) - 이 선언은 checking 계열 창이다. row_keys/date_field/group_field = env 도구 출력 필드명(기계 도출·opex 0). ★유형별 **연간 상한은 여기 넣지 않는다**: 원장에 없고 문서에 있으며, A2에 박으면 상품 수만큼 두꺼워지고([[50]] ADB) 문서 변경 시 조용히 틀린다. 상한은 모델이 인용과 함께 가져오고 [SOURCE]가 인용 실재성을 검증한다([[22]]). 실측 근거(102 22 trial): 상한을 문서 회수 후 말하면 2 correct/1 wrong, 문서 없이 말하면 0 correct/5 wrong. ★전사는 LLM이 한다([[59]]) - 엔진은 이 텍스트를 파싱하지 않는다.",
    "now_prompt": "From the conversation excerpts below, what is TODAY's date according to the system or the records shown? Reply with the date only, formatted MM/DD/YYYY. If the excerpts do not state it, reply NONE.\n\n{text}"
+  },
+  {
+   "trigger_tool": "get_all_user_accounts_by_user_id",
+   "row_keys": [
+    "level",
+    "date_opened"
+   ],
+   "age_field": "date_opened",
+   "group_field": "level",
+   "date_formats": [
+    "%m/%d/%Y",
+    "%Y-%m-%d"
+   ],
+   "formalize_prompt": "Below is the raw output of an accounts lookup. Transcribe it into JSON: a list of objects, one per account, each with exactly these keys: {keys}. Copy the values verbatim; do not summarise, compute, or leave any account out. Reply with the JSON array only.\n\n{text}",
+   "age_text": "The earliest of these accounts was opened {since}, which is {days} days ago. Any rule that depends on how long this customer has banked here is measured from that date.",
+   "text": "\n[COMPUTED FACTS] Counted from the accounts above (arithmetic, not a recommendation): {total} account(s).\nBy level: {tally}.\n{age}\nThis is elapsed time only. It is NOT a threshold. Whatever minimum each product requires is stated in that product's knowledge-base document - retrieve it before saying whether it is met.",
+   "_note_": "2026-08-07. 출처([[23]]) = env 도구 출력 필드명(기계 도출) + 정책 축자. 규칙 문형 = doc_bank_accounts_(general): \"The tenure threshold is measured from when you opened your very first checking account with us\" / \"calculated from ... the date your earliest checking account was opened\". ★상품별 문턱 일수는 여기 넣지 않는다 - Hunter Green만 \"minimum relationship duration of 60 days\"로 축자 확인되고 World Blue는 그 문형이 없다. 못 찾은 값을 A2에 박으면 지어내는 것이 된다. 문턱은 모델이 인용과 함께 가져오고 [SOURCE]가 검증한다([[22]])."
   }
  ]
 }

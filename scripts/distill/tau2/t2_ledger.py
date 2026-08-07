@@ -34,9 +34,20 @@ import re
 __all__ = ["specs_for", "formalize_rows", "window_and_tally", "facts_text"]
 
 
+def _fam(n):
+    """접미사(`_3847`)를 뗀 base 이름 — 선언은 base로 적히고 호출은 접미사가 붙는다."""
+    s = str(n or "")
+    i = s.rfind("_")
+    return s[:i] if i > 0 and s[i + 1:].isdigit() else s
+
+
 def specs_for(a2, tool_name):
+    """★가족 이름으로 맞춘다. 발견형 도구는 `..._3847`처럼 접미사가 붙어 호출되므로
+    정확 일치로 두면 task_100의 `get_all_user_accounts_by_user_id_3847`이 선언과 안 붙는다."""
+    fam = _fam(tool_name)
     return [s for s in ((a2 or {}).get("ledger_metrics") or [])
-            if s.get("trigger_tool") == tool_name]
+            if s.get("trigger_tool") in (tool_name, fam)
+            or _fam(s.get("trigger_tool")) == fam]
 
 
 def formalize_rows(agent, la, UserMessage, text, spec):
@@ -142,6 +153,31 @@ def window_and_tally(rows, spec, now=None):
     return max(0, int(spec["window_max"]) - inwin), inwin, tally
 
 
+def earliest_age(rows, spec, now=None):
+    """(가장 이른 날짜, 오늘까지 경과일). 관계 기간(tenure) 같은 값이 여기서 나온다.
+
+    task_100이 이 형태다: 추천 자격이 **첫 체킹 계좌 개설일로부터 며칠**인가로 갈린다
+    (정책 축자: *"The tenure threshold is measured from when you opened your **very first**
+    checking account with us"*). 계좌 행은 이미 도구가 돌려주고, 날짜 빼기는 산수다.
+
+    ⚠**문턱은 여기서 말하지 않는다.** 상품별 일수는 원장이 아니라 문서에 있고, 코퍼스가 그것을
+    상품마다 다른 문형으로 쓴다(Hunter Green만 *"minimum relationship duration of 60 days"* 로
+    축자 확인됨·World Blue는 그 문형이 없다). 문턱을 A2에 박으면 못 찾은 값을 지어내게 된다 —
+    상한과 같은 규율로, 문턱은 모델이 **인용과 함께** 가져오고 `[SOURCE]`가 실재성을 검증한다.
+    """
+    df = spec.get("age_field")
+    fmts = spec.get("date_formats") or ["%m/%d/%Y"]
+    ref = _date(now, fmts) if now else None
+    if not (df and ref):
+        return None, None
+    ds = [_date(r.get(df), fmts) for r in rows]
+    ds = [d for d in ds if d is not None]
+    if not ds:
+        return None, None
+    first = min(ds)
+    return first, (ref - first).days
+
+
 def facts_text(rows, spec, now=None):
     """A2 문구에 값을 채운 블록(없으면 빈 문자열). 엔진은 이름과 수만 채운다([[05]] Q2)."""
     if not rows or not spec.get("text"):
@@ -153,7 +189,11 @@ def facts_text(rows, spec, now=None):
     if remain is not None and spec.get("window_text"):
         win_s = spec["window_text"].format(days=spec.get("window_days"), used=inwin,
                                            max=spec.get("window_max"), remaining=remain)
-    out = spec["text"].format(total=len(rows), tally=tally_s, window=win_s)
+    age_s = ""
+    first, days = earliest_age(rows, spec, now)
+    if days is not None and spec.get("age_text"):
+        age_s = spec["age_text"].format(since=first, days=days)
+    out = spec["text"].format(total=len(rows), tally=tally_s, window=win_s, age=age_s)
     return out if out.startswith("\n") else "\n" + out
 
 
