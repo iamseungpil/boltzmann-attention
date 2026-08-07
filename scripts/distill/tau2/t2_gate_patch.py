@@ -5872,7 +5872,22 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 #   전달은 0**이었다 = [[55]]의 *"로그 마크 ≠ 전달"* 을 내가 그대로 재현.
                                 #   ⇒ 이웃 코드가 쓰는 채널로 보낸다: `rw_fb=(None, text)`는
                                 #   순수-조언 형태로 `:6497`에서 UserMessage 리마인더가 되어 재생성된다.
-                                if rw_fb is None:
+                                # ★지문 억제(2026-08-07·20260807g 폭주 실측): 요건은 조상이 충족될
+                                #   때까지 계속 참이므로 **캡이 없으면 매 턴 같은 말을 한다**.
+                                #   g 런 실측: 우리 층 발화 4건(b) → **80건**, `[ORDER]` 계열 15회,
+                                #   그 뒤를 "resolve the flagged call(s) first" 16회가 따라붙어
+                                #   두 문구가 서로를 먹였다. [[57]] *"인자가 바뀌어야 다시 말한다"* 위반.
+                                #   ⇒ 횟수 캡이 아니라 **지문**으로 막는다: (표적, 요건 집합)이 같으면 침묵.
+                                #   조상이 하나라도 충족되면 지문이 바뀌므로 자동으로 다시 말한다.
+                                _fp17 = (_t17, tuple(sorted(r.get("id") or "" for r in _rq17)))
+                                _seen17 = getattr(self, "_t2_pp_seen", None)
+                                if _seen17 is None:
+                                    _seen17 = self._t2_pp_seen = set()
+                                if _fp17 in _seen17:
+                                    print("[T2_PHASE_PRECEDE] suppressed (same fingerprint) %s"
+                                          % (_fp17,), file=_sys.stderr, flush=True)
+                                elif rw_fb is None:
+                                    _seen17.add(_fp17)
                                     rw_fb = (None, _sub17)
                                     print("[T2_PHASE_PRECEDE] substitute (was: silent) target=%s "
                                           "→ rw_fb(pure-advice)" % _t17,
@@ -6978,6 +6993,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
 
         def _ap_regen(fbtxt, tag, tool_choice=None, am_override=None):
             from t2_lever_beat import beat as _beat
+            # ★빈 문구 차단(2026-08-07·20260807g 실측 **11건**): 내용 없는 UserMessage를 열한 번
+            #   보냈다. 재생성 비용은 그대로 내면서 모델에겐 아무 정보도 안 준다 = 순손실이고,
+            #   사이드카에도 빈 줄로 남아 포렌식을 흐린다. 버스의 ②정직 불변이 걸러야 할 것인데
+            #   그 채널은 버스를 안 거치므로(버스는 axis notes 한 채널만) **여기서 막는다** —
+            #   모든 생성면 발화가 지나는 유일한 자리다.
+            if not str(fbtxt or "").strip():
+                print("[T2_GATE_REGEN] refused empty feedback tag=%s" % tag,
+                      file=_sys.stderr, flush=True)
+                return None
             _beat("T2_GATE_REGEN", tag)
             # ★단일 진입점 배선 — 관찰자 단계(2026-08-07·`t2_stack.observe`).
             #   생성면의 발화는 **전부 이 한 자리를 지난다**(호출 26곳). 그래서 55개 호출부를
