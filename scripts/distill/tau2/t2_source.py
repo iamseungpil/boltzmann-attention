@@ -281,11 +281,15 @@ def unsourced_claims(claims, corpus):
             continue                                  # 문서를 대고 그 문서가 회수됨 = 최강
         figs = _figures(claim)
         if not figs:
-            # ★수치 없는 갈래 = **자격 판정**("둘 다 자격이 된다"). 102의 마지막 잔여가 이것이다 —
-            #   DB는 맞췄는데 채점자가 *"the agent did not assess or mention the Sky Blue eligibility
-            #   rule ... Instead, the agent stated both would qualify"* 로 떨어뜨렸다.
-            #   대조할 수치가 없으므로 문자열 근접으로는 판정할 수 없다. 자격 판정은 **문서가 정하는
-            #   것**이므로, 회수된 문서를 대지 못하면 근거 없음으로 본다(위에서 doc을 댔으면 이미 통과).
+            # ★수치 없는 갈래(=자격 판정)를 잡으려던 시도는 **라이브에서 회귀를 냈다**(2026-08-07).
+            #   102는 직전 구성에서 db_match 2/2였는데, 이 갈래를 켠 arm에서 0/2로 떨어졌고 제출도
+            #   1·1 → 5·3으로 늘었다. 대조할 수치가 없어 **거의 모든 자격 문장이 무근거로 분류**되고,
+            #   그만큼 합병 메시지가 길어져 직전에 얻은 이득을 밀어낸 것으로 보인다(귀속 미확정 —
+            #   같은 arm의 다른 레버는 발화 0이라 후보에서 제외됨).
+            #   ⇒ **대조할 수 없는 것은 판정하지 않는다.** 자격 판정을 닫으려면 수치 대조가 아니라
+            #      별도 형식(모델이 요건 문장을 인용하게 하는 quote-back)이 필요하고, 그건 격리 arm에서.
+            if os.environ.get("T2_SOURCE_QUALIFY") != "1":
+                continue
             bad.append(claim)
             continue
         anch = _anchors(claim)
@@ -387,10 +391,14 @@ if __name__ == "__main__":                                   # 자기검정 (오
     #   정당한 주장도 잡힌다**(코퍼스는 "up to 8 ... per calendar year"라 공유 단어가 없다).
     #   그래도 요구를 유지하는 이유: 빼면 102 표적을 놓친다 — 틀린 숫자 7이 **다른 카드 줄**에 흔히
     #   있어서 그냥 통과해 버린다. 표적을 지키고 이 오탐을 비용으로 인정한다(§6b-c의 ⓒ 계수 대상).
+    # 기본(플래그 OFF) = 수치 없는 자격 문장은 **판정하지 않는다**(라이브 회귀로 되돌린 갈래).
     assert bad == ["Sky Blue allows up to 7 referral bonuses per year",
-                   "annual max is 8",
-                   "both companies qualify for Sky Blue",
-                   "TechFlow qualifies for Sky Blue"], bad
+                   "annual max is 8"], bad
+    os.environ["T2_SOURCE_QUALIFY"] = "1"
+    bad_q = unsourced_claims(claims, cpk)
+    assert bad_q[-2:] == ["both companies qualify for Sky Blue",
+                          "TechFlow qualifies for Sky Blue"], bad_q
+    os.environ.pop("T2_SOURCE_QUALIFY", None)
 
     # 같은 숫자가 **다른 줄**에 있어도 단어가 안 맞으면 통과시키지 않는다.
     cpn = build_corpus([_M("tool", "Platinum card: up to 7 bonuses per calendar year")],
@@ -399,7 +407,7 @@ if __name__ == "__main__":                                   # 자기검정 (오
                             cpn) == ["Sky Blue allows up to 7 referral bonuses"]
 
     txt = unsourced_text({}, bad)
-    assert "up to 7" in txt and "4 thing" in txt
+    assert "up to 7" in txt and "2 thing" in txt
 
     # 서브콜 캡: sim당 1회
     class _AG:
