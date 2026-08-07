@@ -574,30 +574,6 @@ def apply():
                             out[0].content = _content_str(out[0]) + summ
                         except Exception:
                             pass
-            # ★원장 산수 (T2_LEDGER=1·2026-08-07): 조회가 돌아온 그 자리에서 창_잔여·유형별 누적을
-            #   낸다. 부검 실측 — 29행이 문맥에 들어와도 창_잔여는 19/22 trial에서 **언급조차 되지
-            #   않았다**(제출 가능 건수를 정하는 유일한 수인데도). 계수 자체는 모델이 대체로 맞히므로
-            #   (35✓/8✗) 빠진 것은 능력이 아니라 계기다.
-            #   ★분담([[59]]): **전사는 모델**(A2 formalize_prompt로 JSON), 엔진은 그 위의 산수만.
-            #   엔진이 도구 출력 텍스트를 파싱하지 않는다. 미확정(전사 실패·기준일 모름)=미개입.
-            if os.environ.get("T2_LEDGER") == "1" and out and not getattr(out[0], "error", False):
-                try:
-                    import t2_ledger as _LG
-                    for _ls in _LG.specs_for(a2, tc.name):
-                        _rows = _LG.formalize_rows(self, la, UserMessage,
-                                                   _content_str(out[0]), _ls)
-                        if not _rows:
-                            continue
-                        _texts = [_content_str(_m) for _m in state.messages
-                                  if getattr(_m, "role", None) in ("tool", "user")]
-                        _now = _LG.formalize_now(self, la, UserMessage, _texts, _ls)
-                        _blk = _LG.facts_text(_rows, _ls, now=_now)
-                        if _blk:
-                            out[0].content = _content_str(out[0]) + _blk
-                            print("[T2_LEDGER] %s rows=%d" % (tc.name, len(_rows)),
-                                  file=_sys.stderr, flush=True)
-                except Exception as _e12:
-                    print("[T2_LEDGER] error (no-op): %r" % (_e12,), file=_sys.stderr, flush=True)
             # calc_NL offload (T2_CALC=1): 결정론 집계 계산·주입(보고는 모델). [COMPUTED FACTS]=census 마커.
             if calc_specs and _rec is not None:
                 cs = [s for s in calc_specs if s.get("trigger_tool") == tc.name]
@@ -3805,6 +3781,36 @@ def _install_regen_exec():
                 _axis_surface(self, tool_calls, results)
             except Exception as _e:                      # 레버 실패가 런을 죽이지 않는다
                 print("[T2_AXIS] 표면화 실패(무시): %r" % (_e,), file=sys.stderr, flush=True)
+            # ★C5 이관 — 원장 산수 (T2_LEDGER=1·2026-08-07). **살아 있는 훅은 이쪽이다**:
+            #   `install_gate`의 `gated`(:613)를 이 파일 뒤쪽의 `exec_augment`(:3872)가 덮어쓴다.
+            #   1차 배선을 `gated` 안에 넣은 탓에 h1 스모크에서 발화가 **0**이었다(오류 로그조차 없음).
+            #   부검 근거: 원장 29행이 문맥에 들어와도 창_잔여는 19/22 trial에서 미언급인데, 그 수가
+            #   제출 가능 건수를 정하는 유일한 값이다. 계수 자체는 모델이 대체로 맞히므로(35✓/8✗)
+            #   빠진 것은 능력이 아니라 계기다.
+            #   분담([[59]]): **전사는 모델**(A2 formalize_prompt로 JSON), 엔진은 그 위의 산수만.
+            if os.environ.get("T2_LEDGER") == "1":
+                try:
+                    import t2_offload as _OFF
+                    import t2_ledger as _LG
+                    for tc in to_run:
+                        _o = _rby.get(getattr(tc, "id", None))
+                        if _o is None or getattr(_o, "error", False):
+                            continue
+                        for _ls in _LG.specs_for(_a2w, _eff_tool_name(tc)):
+                            _txt = _content_str(_o)
+                            _rows = _LG.formalize_rows(self, la, UserMessage, _txt, _ls)
+                            if not _rows:
+                                continue
+                            _tx = [_content_str(_m) for _m in self.get_messages()
+                                   if getattr(_m, "role", None) in ("tool", "user")]
+                            _blk = _OFF.ledger_facts(
+                                _rows, _ls, now=_LG.formalize_now(self, la, UserMessage, _tx, _ls))
+                            if _blk:
+                                _o.content = _content_str(_o) + _blk
+                                print("[T2_LEDGER] %s rows=%d" % (_eff_tool_name(tc), len(_rows)),
+                                      file=sys.stderr, flush=True)
+                except Exception as _e12:
+                    print("[T2_LEDGER] error (no-op): %r" % (_e12,), file=sys.stderr, flush=True)
             min_len = int(os.environ.get("T2_READ_DEDUP_MIN", "2000"))
             for tc in to_run:
                 out = _rby.get(getattr(tc, "id", None))

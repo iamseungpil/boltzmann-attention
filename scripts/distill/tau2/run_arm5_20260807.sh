@@ -31,7 +31,7 @@ source ./go_stack.sh >/dev/null 2>&1
 #                 계약과 무관한 회귀가 섞인다.
 #   FB_SIDECAR    비커밋 관측(거동 변화 0) — 이게 없으면 포렌식의 절반이 불가능하다
 KEEP="T2_KB_DOCS_DIR T2_LLM_TIMEOUT T2_LLM_RETRIES T2_AGENT_MAX_TOKENS T2_A2_VARIANT \
-T2_FB_SIDECAR T2_FB_SIDECAR_TEXT T2_SOURCE T2_ARBITRATE"
+T2_FB_SIDECAR T2_FB_SIDECAR_TEXT \nT2_SOURCE T2_ARBITRATE T2_LEDGER T2_RESOLVE T2_FORCE_ACTION"
 
 off=0
 for v in $(compgen -e | grep '^T2_' | sort); do
@@ -42,7 +42,11 @@ for v in $(compgen -e | grep '^T2_' | sort); do
 done
 
 export T2_SOURCE=1      # C1 출처 (근거 확보)
-export T2_ARBITRATE=1   # C3 중재 — 이 경로가 C2 선행(requirements_for·first_step)을 태운다
+export T2_ARBITRATE=1   # C3 중재 (합병·등급) — C2 선행 그래프를 이 경로가 태운다
+export T2_FORCE_ACTION=1 # C2 선행 집행: 미충족 표적을 향한 push를 잡는 트리거
+export T2_RESOLVE=1     # C2 선행 집행: per-operand 해소 + user-action 탐지(_utgt)
+export T2_LEDGER=1      # C5 이관: 원장 산수(전사=모델·산수=엔진)
+# C4 역할 = 무플래그 위생(t2_role) · C6 창 = t2_window (배선 전이라 이 arm엔 미포함)
 
 echo "arm-5: unset ${off} T2_* flags; on = T2_SOURCE T2_ARBITRATE"
 compgen -e | grep '^T2_' | sort | sed 's/^/  keep /'

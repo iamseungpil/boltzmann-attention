@@ -21,10 +21,71 @@
 여기서는 **어느 원시연산이 적용 가능한가**만 판정하고(`primitive_for`), 실제 집행은 호출부가 한다.
 """
 
-from t2_dominance import prereq_map, first_step, _fam, _executed   # noqa: F401
+import re
 
 __all__ = ["prereq_map", "first_step", "frontier", "ancestors", "primitive_for",
            "graph_for", "DENY", "REPLACE", "PIN"]
+
+
+def _fam(n):
+    """접미사(`_1234`)를 떼어 base 이름으로 — 선언은 base로 적히고 호출은 접미사가 붙는다."""
+    s = str(n or "")
+    i = s.rfind("_")
+    return s[:i] if i > 0 and s[i + 1:].isdigit() else s
+
+
+def prereq_map(a2):
+    """`{도구: [선행 도구...]}` — 흩어진 선언 셋을 **하나의 그래프**로 모은다.
+
+    출처는 전부 이미 있는 선언이다: `gates[].satisfier_requires` · `require_tool_before` ·
+    `scaffold_get_tools[].requires_reads`. 새 A2 키 0이고 도메인 어휘도 0이다 — 여기서 하는 일은
+    같은 관계(X 앞에 Y)를 세 어휘로 적어 둔 것을 한 자료구조로 합치는 것뿐이다.
+    """
+    edges = {}
+
+    def add(dep, reqs):
+        d = _fam(dep)
+        if not d:
+            return
+        cur = edges.setdefault(d, [])
+        for r in (reqs or []):
+            r = _fam(r)
+            if r and r != d and r not in cur:
+                cur.append(r)
+
+    for g in ((a2 or {}).get("gates") or []):
+        for s_name, reqs in (g.get("satisfier_requires") or {}).items():
+            add(s_name, reqs)
+    for dep, reqs in ((a2 or {}).get("require_tool_before") or {}).items():
+        add(dep, reqs)
+    for e in ((a2 or {}).get("scaffold_get_tools") or []):
+        if isinstance(e, dict) and e.get("requires_reads"):
+            add(e.get("tool") or e.get("name") or "", e["requires_reads"])
+    return edges
+
+
+def first_step(name, done_fam, edges, _seen=None):
+    """`name`을 하려면 **지금 바로 할 수 있는 첫 걸음**. 뿌리까지 전이적으로 내려간다.
+
+    한 단계만 보면 실행 불가한 지시가 나간다(102 실측: `log_verification`을 명령했지만 그것은
+    혼자 부를 수 없어, 모델이 `verify_identity`를 다섯 번 부르다 이관으로 끝났다).
+
+    ⚠**순환 차단**: 선언이 서로를 요구하면 그 자리에서 멈추고 그 도구 자신을 돌려준다.
+    """
+    n = _fam(name)
+    if not n or n in done_fam:
+        return None
+    seen = set(_seen or ())
+    if n in seen:
+        return n                                  # 순환 — 여기서 끊고 자신을 명령한다
+    seen.add(n)
+    for p in (edges.get(n) or []):
+        if p in done_fam:
+            continue
+        step = first_step(p, done_fam, edges, seen)
+        if step:
+            return step
+    return n
 
 DENY, REPLACE, PIN = "deny", "replace", "pin"
 
