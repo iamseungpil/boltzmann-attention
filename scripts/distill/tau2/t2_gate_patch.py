@@ -2413,6 +2413,9 @@ def _is_transfer_call(am, emap):
     return False
 
 
+_T2_LEDGER_PROBED = False   # 계측 1회 표식(프로세스 전역·self 오염 금지)
+
+
 def _regen_budget_ok(self):
     """★전역 per-sim regen 예산 (2026-07-20·023 컨텍스트 초과 진단·§2ah).
     개별 게이트 cap(FORCE=T2_ACTION_DENY_CAP·RESOLVE 3·writeprov/claimprov/discreq 1)은 있으나
@@ -3825,8 +3828,12 @@ def _install_regen_exec():
             # ★계측을 **분기 밖**에 둔다(2026-08-07). 안에 두면 "안 찍힘"이 곧 "분기 미진입"인지
             #   "루프가 비었는지"인지 못 가른다 — 오늘 그 모호함으로 네 번 헛짚었다. 여기서는
             #   플래그 값과 배치 내용을 **조건 없이** 한 번 찍고, 그다음에 조건을 본다.
-            if not getattr(self, "_t2_ledger_probe", False):
-                self._t2_ledger_probe = True
+            # ⚠`self`에 새 속성을 달지 않는다. orchestrator가 속성 대입을 막는 타입이면 그 대입에서
+            #   예외가 나고, print가 그 **뒤**에 있어 아무것도 안 찍힌다 — 계측이 계측을 못 하게 된다.
+            #   모듈 전역으로 센다(프로세스당 1회).
+            global _T2_LEDGER_PROBED
+            if not _T2_LEDGER_PROBED:
+                _T2_LEDGER_PROBED = True
                 try:
                     print("[T2_LEDGER] probe: flag=%r a2=%s metrics=%d to_run=%d tools=%s"
                           % (os.environ.get("T2_LEDGER"),
