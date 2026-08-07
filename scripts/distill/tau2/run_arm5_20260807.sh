@@ -30,8 +30,9 @@ source ./go_stack.sh >/dev/null 2>&1
 #                 슬롯을 없애 날조된 VERIFIED 경로를 구조적으로 막는다(task_004 사고). 끄면
 #                 계약과 무관한 회귀가 섞인다.
 #   FB_SIDECAR    비커밋 관측(거동 변화 0) — 이게 없으면 포렌식의 절반이 불가능하다
-KEEP="T2_KB_DOCS_DIR T2_LLM_TIMEOUT T2_LLM_RETRIES T2_AGENT_MAX_TOKENS T2_A2_VARIANT \
-T2_FB_SIDECAR T2_FB_SIDECAR_TEXT \nT2_SOURCE T2_ARBITRATE T2_LEDGER T2_RESOLVE T2_FORCE_ACTION"
+KEEP="T2_KB_DOCS_DIR T2_LLM_TIMEOUT T2_LLM_RETRIES T2_AGENT_MAX_TOKENS T2_A2_VARIANT"
+KEEP="$KEEP T2_FB_SIDECAR T2_FB_SIDECAR_TEXT"
+KEEP="$KEEP T2_SOURCE T2_ARBITRATE T2_LEDGER T2_RESOLVE T2_FORCE_ACTION"
 
 off=0
 for v in $(compgen -e | grep '^T2_' | sort); do
@@ -48,7 +49,7 @@ export T2_RESOLVE=1     # C2 선행 집행: per-operand 해소 + user-action 탐
 export T2_LEDGER=1      # C5 이관: 원장 산수(전사=모델·산수=엔진)
 # C4 역할 = 무플래그 위생(t2_role) · C6 창 = t2_window (배선 전이라 이 arm엔 미포함)
 
-echo "arm-5: unset ${off} T2_* flags; on = T2_SOURCE T2_ARBITRATE"
+echo "arm-5: unset ${off} T2_* flags; contracts on = C1 SOURCE · C2 RESOLVE+FORCE_ACTION · C3 ARBITRATE · C5 LEDGER"
 compgen -e | grep '^T2_' | sort | sed 's/^/  keep /'
 
 TASKS="${1:-task_100,task_101,task_102}"
