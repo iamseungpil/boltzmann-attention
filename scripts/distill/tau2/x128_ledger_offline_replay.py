@@ -84,8 +84,12 @@ class _Agent(object):
     """`formalize_*`가 만지는 것만 — 모델 이름과 호출 인자."""
 
     def __init__(self, model, base):
-        self.llm = model
-        self.llm_args = {"temperature": 0.0, "api_base": base, "api_key": "EMPTY"}
+        # litellm은 provider 접두사로 라우팅한다 — 없으면 호출이 **모델에 닿기 전에** 죽고,
+        # `formalize_rows`의 `except`가 그것을 삼켜 "전사 0행"으로 보인다(1차 실행이 그랬다).
+        # 라이브 러너와 같은 형태(`openai/<served-name>` + api_base)로 맞춘다.
+        self.llm = model if "/" in model.split("/")[0] or model.startswith("openai/") \
+            else "openai/" + model
+        self.llm_args = {"temperature": 0.0, "api_base": base, "api_key": "dummy"}
 
 
 def main():
