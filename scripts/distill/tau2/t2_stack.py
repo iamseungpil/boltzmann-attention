@@ -18,17 +18,37 @@ EPLAN drive), 한쪽이 다른 쪽이 금지한 도구를 권하고(022), auth �
   2. `LAYERS` — 층과 순서. 위층이 말하면 아래층은 **침묵이 아니라 치환**된다.
   3. `route()` — 후보 발화들을 받아 **한 턴 한 명령**으로 접는다.
 
+## ★단일 진입점 = 이미 있는 넷을 한 줄로 꿴다 (새 출구를 만들지 않는다)
+
+사용자 지시 2026-08-07: *"지금까지 만들어진 모든 레버를 통합하라. 충돌나지 않게 **진입점을 통일**하고
+**순서대로 실시**하게 하라."*
+
+경쟁 출구를 새로 만드는 것이 레버를 97개로 만든 바로 그 실수다. 필요한 조각은 **이미 넷 다 있고,
+각자 문제의 한 조각씩만 풀고 있었다**:
+
+| 모듈 | 이미 푸는 것 | 못 푸는 것 |
+|---|---|---|
+| `t2_surface_bus` | 부착의 **단일 출구** + 불변식 4종(replay·정직·예산·채널) | 순서가 **채널 4종**이라 층·결손을 모른다 |
+| `t2_arbitrate` | 등급 E1..E5 · **합병**(명령 하나·사실 합집합) · 억제 자격 | 언제 부르는지 아무도 안 정함 |
+| `t2_window` | **언제 말하는가**(resign ∪ acting ∪ instructing) | 누가 말하는지는 모름 |
+| `t2_stack`(여기) | 층 순서 · 세부 기전 귀속 | 부착·합병·창은 위 셋이 한다 |
+
+⇒ `speak()`가 **넷을 순서대로 실시**한다. 그리고 셋 다 **라이브가 아니다** — `go_stack.sh`에
+`T2_SURFACE_BUS`·`T2_ARBITRATE`·`T2_WINDOW` 어느 것도 없다. 즉 **단일-출구 기구는 만들어져 있고
+한 번도 라이브에서 돈 적이 없다**([[24]] 死코드 패턴). 통합은 그 배선까지다.
+
 ## 무엇이 아닌가 (정직)
 
 **이 파일은 검사를 구현하지 않는다.** 각 레버의 술어는 여전히 자기 모듈에 있다
 (`t2_procedure` `t2_transcribe` `t2_source` …). 이 모듈이 정하는 것은 *무엇을 검사하느냐*가 아니라
-**누가 말하느냐**다. 97개 호출 지점을 이 `route()`로 모으는 배선은 **아직 안 했다** —
-이름을 붙였다고 구현이 된 게 아니라는 것이 2026-08-07의 교훈이다([[03b]]).
+**누가 언제 말하느냐**다. 그리고 **97개 호출 지점을 `register()`로 바꾸는 편집은 아직 안 했다** —
+`speak()`는 오프라인 자기검사로만 증명돼 있다. 이름을 붙였다고 구현이 된 게 아니다([[03b]]).
 """
 
 import os
 
-__all__ = ["LAYERS", "MECHANISMS", "layer_of", "route", "conflicts"]
+__all__ = ["LAYERS", "MECHANISMS", "layer_of", "route", "conflicts",
+           "Stack", "get_stack", "register", "speak"]
 
 
 # ── 층 (순서 = 권위. 위가 말하면 아래는 치환된다) ────────────────────────────
@@ -317,6 +337,171 @@ def route(candidates):
     return {"speak": speak, "suppressed": suppressed}
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+#  ★단일 진입점 — 레버는 `register()`만, 출구는 `speak()` 하나
+# ══════════════════════════════════════════════════════════════════════════════
+#
+#  순서대로 실시한다:
+#    1) 창    `t2_window.opened`      — 지금 말할 자리인가 (아니면 전부 보류)
+#    2) 층    `route`                 — 누가 명령하는가 (7층·최상위만 명령)
+#    3) 자격  `t2_arbitrate.may_suppress` — 남을 지우려면 자격을 대라 (못 대면 표면화로 강등)
+#    4) 합병  `t2_arbitrate.merge`    — 같은 표적은 한 문장 (명령 하나·사실 합집합)
+#    5) 버스  `t2_surface_bus.flush`  — replay·정직·예산·채널 불변식
+#
+#  각 단계는 **떨어뜨리는 이유를 기록**한다(`trace`). 조용한 침묵이 死배선을 만들었기 때문이다.
+
+_CHANNEL_OF_LAYER = {          # 층 → 버스 채널(버스의 ④순서와 정합)
+    "출처 근거 확보": "correction",
+    "차단": "deny_reason",
+    "선행": "deny_reason",
+    "계산 이관": "correction",
+    "표면화": "guidance",
+    "되묻기": "guidance",
+    "하네스": "mark",
+}
+
+
+class Stack(object):
+    """orchestrator(시뮬)당 1개. 레버가 등록하고, 발화 지점에서 `speak()` 한 번."""
+
+    def __init__(self):
+        self._pending = []
+        self.trace = []
+
+    def register(self, flag, target=None, fact=None, order=None,
+                 requires=None, suppresses=False, layer=None):
+        """레버 쪽 API — **문구를 부착하지 않는다. 등록만 한다.**
+
+        flag       : `T2_*` (층 귀속·`enabled` 판정에 쓴다)
+        target     : 이 발화가 겨냥한 호출/단계. **같은 표적끼리 합병된다**
+        fact       : 사실 진술(항상 살아남는다 — 져도 치환될 뿐 지워지지 않는다)
+        order      : 이 레버가 내리려는 명령(없으면 사실만 = 표면화)
+        requires   : 버스의 ②정직 불변용 — 이 문구가 전제하는 상태 키
+        suppresses : 다른 레버의 발화 조건을 지우려는가(자격 검사 대상)
+        """
+        self._pending.append({"flag": flag, "target": target, "fact": fact,
+                              "order": order, "requires": dict(requires or {}),
+                              "suppresses": bool(suppresses),
+                              "layer": layer or layer_of(flag)})
+
+    # ── 출구 ────────────────────────────────────────────────────────────────
+    def speak(self, orch=None, am=None, a2=None, attach_ok=True, state=None,
+              targets=(), name_of=None, window_required=True):
+        """**모든 레버의 단일 출구.** 위 5단계를 순서대로 실시하고 부착할 문구를 돌려준다.
+
+        부착 자체는 호출자가 한다(메시지 소유권은 호출자에게 있다 — 버스와 같은 규약).
+        반환 = [text, ...] · 떨어진 이유는 `self.trace`.
+        """
+        pend, self._pending = self._pending, []
+        self.trace = []
+
+        # ── 1) 창 — 지금 말할 자리인가 ──────────────────────────────────────
+        if window_required and am is not None:
+            try:
+                import t2_window as _w
+                opened = _w.opened(am, targets=targets, name_of=name_of)
+            except Exception as e:
+                opened, self.trace = None, self.trace + [("창", "판정 불가(통과)", repr(e))]
+            if opened is not None and not opened:
+                self.trace.append(("창", "닫힘 — 전부 보류", "%d건" % len(pend)))
+                return []
+            if opened:
+                self.trace.append(("창", "열림", ",".join(sorted(opened))))
+
+        # ── 켜짐 판정 ([[60]] 기본 항상 켬) ────────────────────────────────
+        live = []
+        for c in pend:
+            if c["layer"] is None:
+                self.trace.append(("귀속", "층 없음 — 말하지 않음", c["flag"]))
+                continue
+            if not _cell_enabled(c["flag"]):
+                self.trace.append(("셀", "꺼짐(귀속 arm)", c["flag"]))
+                continue
+            live.append(c)
+        if not live:
+            return []
+
+        # ── 2) 층 — 누가 명령하는가 ────────────────────────────────────────
+        routed = route(live)
+        for f in routed["suppressed"]:
+            self.trace.append(("층", "치환(사실은 살아남음)", f))
+
+        # ── 3) 자격 — 남을 지우려면 자격을 대라 ────────────────────────────
+        others = [c["target"] for c in live if c.get("target")]
+        for c in live:
+            if not c["suppresses"]:
+                continue
+            try:
+                import t2_arbitrate as _arb
+                ok, why = _arb.may_suppress(c["flag"], a2, others)
+            except Exception as e:
+                ok, why = False, "자격 판정 불가: %r" % (e,)
+            if not ok:
+                for s in routed["speak"]:
+                    if s["target"] == c["target"] and c["flag"] in s["flags"]:
+                        s["order"] = None          # ★차단 → 표면화로 강등
+                self.trace.append(("자격", "억제 자격 없음 → 표면화 강등", "%s · %s" % (c["flag"], why)))
+
+        # ── 4) 합병 — 같은 표적은 한 문장 ──────────────────────────────────
+        texts = []
+        for s in routed["speak"]:
+            merged = None
+            if a2 is not None and s.get("target"):
+                try:
+                    import t2_arbitrate as _arb
+                    merged = _arb.merge(s.get("reqs") or [], a2, s["target"]) or None
+                except Exception as e:
+                    self.trace.append(("합병", "실패(사실 나열로 대체)", repr(e)))
+            body = merged or " · ".join([f for f in s["facts"] if f])
+            line = ("%s %s" % (s["order"], body)).strip() if s["order"] else body
+            if line:
+                texts.append((s["layer"], line, s))
+
+        # ── 5) 버스 — replay·정직·예산·채널 ────────────────────────────────
+        try:
+            import t2_surface_bus as _sb
+            bus = _sb.get_bus(orch) if orch is not None else _sb.SurfaceBus()
+            for layer, line, s in texts:
+                req = {}
+                for c in live:
+                    if c["flag"] in s["flags"]:
+                        req.update(c["requires"])
+                bus.register(_CHANNEL_OF_LAYER.get(layer, "mark"), line, requires=req)
+            out = bus.flush(attach_ok, state=state)
+        except Exception as e:                      # 버스 결함 = fail-open(단 deny는 버스가 fail-closed)
+            self.trace.append(("버스", "실패(무부착 통과)", repr(e)))
+            out = []
+        self.trace.append(("출구", "부착", "%d건 / 후보 %d건" % (len(out), len(pend))))
+        return out
+
+
+def _cell_enabled(flag):
+    try:
+        import t2_levers as _L
+        cell = _L.cell_of(flag)
+        return True if cell is None or cell.startswith("(") else _L.enabled(cell)
+    except Exception:
+        return True
+
+
+def get_stack(orch):
+    """orchestrator에 스택 1개(시뮬 수명 — 예산이 sim 단위)."""
+    s = getattr(orch, "_t2_stack", None)
+    if s is None:
+        s = orch._t2_stack = Stack()
+    return s
+
+
+def register(orch, **kw):
+    """레버 호출 지점이 쓰는 한 줄. `stack.register(...)`의 축약."""
+    return get_stack(orch).register(**kw)
+
+
+def speak(orch, **kw):
+    """발화 지점이 쓰는 한 줄."""
+    return get_stack(orch).speak(orch=orch, **kw)
+
+
 def conflicts():
     """같은 표적을 **다른 층에서** 잡을 수 있는 레버 쌍 — 배선 전에 봐야 할 목록.
 
@@ -377,3 +562,77 @@ if __name__ == "__main__":
     print("    치환된 레버: %s" % demo["suppressed"])
     print("\n  ⇒ 기대: 최상위 층(출처 근거 확보)만 명령하고, 차단·표면화의 **사실은 살아서 합쳐진다**.")
     print("     이것이 W1(claim_prov × EPLAN 이중 넛지)·050·022가 각각 국소 패치로 풀던 것의 일반화다.")
+
+    # ── 단일 진입점 5단계 전수 자기검사 ───────────────────────────────────
+    print("\n" + "=" * 72)
+    print("[speak() 자기검사 — 창→층→자격→합병→버스 5단계를 순서대로]")
+
+    class _Call(object):
+        def __init__(self, name):
+            self.name = name
+
+    class _Msg(object):
+        def __init__(self, content="", tool_calls=None):
+            self.content = content
+            self.tool_calls = tool_calls
+
+    class _Orch(object):
+        pass
+
+    def _case(title, am, targets, a2, attach_ok, cands, expect):
+        orch = _Orch()
+        st = get_stack(orch)
+        for c in cands:
+            st.register(**c)
+        out = st.speak(orch=orch, am=am, a2=a2, attach_ok=attach_ok,
+                       state={"ledger_read": True}, targets=targets)
+        print("\n  ── %s" % title)
+        for stage, verdict, detail in st.trace:
+            print("     %-6s %-26s %s" % (stage, verdict, str(detail)[:58]))
+        for t in out:
+            print("     → 부착: %s" % t[:100])
+        ok = (len(out) == expect)
+        print("     %s 기대 %d건 / 실제 %d건" % ("PASS" if ok else "**FAIL**", expect, len(out)))
+        return ok
+
+    three = [
+        {"flag": "T2_DISCOVERY_NAMES", "target": "transfer_to_human_agents",
+         "fact": "이미 회수한 문서가 이름을 댄 미호출 도구 2개", "order": "먼저 이것을 보라"},
+        {"flag": "T2_PROCEDURE", "target": "transfer_to_human_agents",
+         "fact": "돌고 있는 절차가 이 도구를 금지한다", "order": "이 호출을 열지 않는다"},
+        {"flag": "T2_TRANSCRIBE", "target": "transfer_to_human_agents",
+         "fact": "행 값 1113 ≠ 원장 487", "order": "재발행하라"},
+    ]
+    results = []
+    # ① 창이 닫힘 — 호출도 없고 텍스트도 없음 ⇒ 전부 보류
+    results.append(_case("창 닫힘 → 전부 보류(발화 0)",
+                         _Msg(content="", tool_calls=None), ("transfer_to_human_agents",),
+                         None, True, three, 0))
+    # ② 창 열림(ACTING) — 표적 호출 시도 ⇒ 최상위 층 하나만 명령·사실 합집합
+    results.append(_case("창 열림(acting) → 한 문장·최상위만 명령",
+                         _Msg(content="", tool_calls=[_Call("transfer_to_human_agents")]),
+                         ("transfer_to_human_agents",), None, True, three, 1))
+    # ③ 억제 자격 없음 → 차단이 표면화로 강등 (a2에 warrant 미선언)
+    results.append(_case("억제 자격 미선언 → 차단이 표면화로 강등",
+                         _Msg(content="", tool_calls=[_Call("submit_referral")]),
+                         ("submit_referral",), {},
+                         True,
+                         [{"flag": "T2_PROCEDURE", "target": "submit_referral",
+                           "fact": "절차가 금지", "order": "열지 않는다", "suppresses": True}], 1))
+    # ④ replay 불변 — 부착 불가 대상이면 deny는 fail-closed 고정문구, 나머지는 무부착
+    results.append(_case("replay 불변(attach_ok=False) → deny만 fail-closed",
+                         _Msg(content="", tool_calls=[_Call("submit_referral")]),
+                         ("submit_referral",), None, False,
+                         [{"flag": "T2_PROCEDURE", "target": "submit_referral",
+                           "fact": "절차가 금지", "order": "열지 않는다"},
+                          {"flag": "T2_DISCOVERY_NAMES", "target": "other_call",
+                           "fact": "미호출 도구", "order": None}], 1))
+    # ⑤ 폐기 레버는 말하지 않는다
+    results.append(_case("폐기 레버(층 없음) → 말하지 않음",
+                         _Msg(content="", tool_calls=[_Call("x")]), ("x",), None, True,
+                         [{"flag": "T2_UNKNOWN_REPEAT_GUARD", "target": "x", "fact": "반복", "order": "멈춰라"}], 0))
+
+    print("\n  %s  (%d/%d)" % ("전부 PASS" if all(results) else "**실패 있음**",
+                               sum(1 for r in results if r), len(results)))
+    print("\n  ⚠이것은 **오프라인 자기검사**다. 97개 호출 지점을 `register()`로 바꾸는 편집은 안 했고,")
+    print("     `T2_SURFACE_BUS`·`T2_ARBITRATE`·`T2_WINDOW`는 `go_stack.sh`에 **없다**(비-라이브).")
