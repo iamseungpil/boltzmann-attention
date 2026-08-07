@@ -259,14 +259,37 @@ airline에선 실행규율(인자 과채움)이었다. 관찰만으로 처방을
 
 기준은 [[52]]다: **엔진=이론 / LLM=해석.** 방법을 가르는 것은 *엔진이 무엇을 하느냐*이지 어느 실패를 겨냥하느냐가 아니다.
 
-| 방법(우리 이름) | **정식 용어** | 엔진이 하는 일 | 술어 요건 | 겨냥 양태 | **측정된 부작용**(제1원리: 부작용 없는 레버는 없다) |
-|---|---|---|---|---|---|
-| **차단** | **truncation enforcement** (safety) | 조건 미충족이면 그 호출을 **열지 않는다** | 닫힘·진위만 | ③ over-action | **탈출구 이동** — 통행료를 싸게 하자 이관률 37.5→**42.2%** · over-block |
-| **치환·고정** | **edit automata: suppression + insertion** (renewal) | 붙을 자리가 없으면 문장을 바꾸거나, 다음 채널을 **단일값 enum**으로 고정 | 닫힘 | ⑤ 선행 미충족 · ④ | 자율성 축소 · 기회비용 미측정 |
-| **계산 이관** | **program-aided offload** (PAL/PoT 계열) | 구조화된 값 위의 **산수를 엔진이** 한다 | 닫힘 · 유한 · 전수열거 | ⑥ 상태 오염 | **잘못된 operand를 참되게 계산**한다(024: `operations` 전제가 틀렸는데 2.5%를 정확히 반환) |
-| **출처 근거 확보** ★ | **provenance / attribution verification** (source declaration + grounding) | LLM이 `{주장, 출처참조}`를 내면 엔진은 **출처만** 본다. 값을 만들지 않는다 | 닫힘(출처 존재·축자 일치) | **① 날조** · ④ | **자기정당화 통로** — 인접 항목을 핀해 통과할 수 있다 |
-| **표면화** | **surfacing / non-coercive signal** | 출처집합 **안**에 있는데 아직 안 쓴 것을 그 자리에 보인다. 막지 않는다 | 닫힘(집합 차) | ③ⓑ 판정 월권 · ⑤ | 후보 밀도↑ = ADB(84.56→66.47)·[[49]] · **비강제 신호는 무시된다**(Recuse Signal 0/40) |
-| **되묻기** | **clarification / conformal abstention** | 판정을 **권위자에게 넘긴다** | — | ② 오선택(열린 모드) | 턴 비용 · 과잉 질의 |
+| 코드 | 방법(우리 이름) | **정식 용어** | 엔진이 하는 일 | 술어 요건 | 겨냥 양태 | **측정된 부작용**(제1원리: 부작용 없는 레버는 없다) |
+|---|---|---|---|---|---|---|
+| **MT1** | **차단** | **truncation enforcement** (safety) | 조건 미충족이면 그 호출을 **열지 않는다** | 닫힘·진위만 | OB3A | **탈출구 이동** — 통행료를 싸게 하자 이관률 37.5→**42.2%** · over-block |
+| **MT2** | **치환·고정** | **edit automata: suppression + insertion** (renewal) | 붙을 자리가 없으면 문장을 바꾸거나, 다음 채널을 **단일값 enum**으로 고정 | 닫힘 | OB5 · OB4 | 자율성 축소 · 기회비용 미측정 |
+| **MT3** | **계산 이관** | **program-aided offload** (PAL/PoT 계열) | 구조화된 값 위의 **산수를 엔진이** 한다 | 닫힘 · 유한 · 전수열거 | OB6 | **잘못된 operand를 참되게 계산**한다(024: `operations` 전제가 틀렸는데 2.5%를 정확히 반환) |
+| **MT4** | **출처 근거 확보** ★ | **provenance / attribution verification** | LLM이 `{주장, 출처참조}`를 내면 엔진은 **출처만** 본다. 값을 만들지 않는다. **주체를 가리지 않는다** | 닫힘(출처 존재·축자 일치) | **OB1** · OB4 | **자기정당화 통로** — 인접 항목을 핀해 통과할 수 있다 |
+| **MT5** | **표면화** | **surfacing / non-coercive signal** | 출처집합 **안**에 있는데 아직 안 쓴 것을 그 자리에 보인다. 막지 않는다 | 닫힘(집합 차) | OB3B · OB5 | 후보 밀도↑ = ADB(84.56→66.47)·[[49]] · **비강제 신호는 무시된다**(Recuse Signal 0/40) |
+| **MT6** | **되묻기** | **clarification / conformal abstention** | 판정을 **권위자에게 넘긴다** | — | OB2(열린 모드) | 턴 비용 · 과잉 질의 |
+
+#### 3.1b ★방법 → 귀속 레버 (86개 전수·2026-08-07 사용자 지시)
+
+`확정` = `t2_stack.MECHANISMS`가 **세부 기전과 함께** 배정한 것(= `speak()`가 말할 수 있다).
+*상속* = 아직 세부 기전을 안 쓴 것 — 소속 셀의 방법을 물려받았고 **방법이 둘이면 안 갈렸다**.
+생성은 `python t2_levers.py`(레버 → 코드 절).
+
+| 코드 | 방법 | 확정 | 상속 | 귀속 레버 (`확정` / *상속*) |
+|---|---|---|---|---|
+| **MT1** | 차단 | 14 | 10 | `COVERAGE_FOLLOWUP` `DISPATCH_ROLE` `ENVELOPE_GUARD` `FOLLOWUP_REQUIRED` `PHASE_OWNER` `PROCEDURE` `SG_WINDOW_ABSTAIN` `SPEAK_PROHIBIT` `TERM_GRANT` `TOOLGATE` `TOOL_CHANNEL` `TOOL_SIGNATURE` `UNAVAIL_PROMISE` `UNINSTRUCTABLE` · *COV_MIDDRIVE* *EPLAN_WALK* *FOLLOWUP_FORCE* *FOLLOWUP_READLOOP* *FORCE_ACTION* *PIN_READ* *PROC_PIN_REARM* *SCAFFOLD_GET* *SG_REQREADS* *TERM_GRANT_USERDEMAND* |
+| **MT2** | 치환·고정 | **0** | 12 | ★**확정 0** — *COV_MIDDRIVE* *EPLAN_WALK* *FORCE_ACTION* *GUIDED* *HAVE_VALUE* *HAVE_VALUE_FORCE* *PIN_READ* *PROC_PIN_REARM* *SCAFFOLD_GET* *SG_REQREADS* *TOOLLIST* *VALUE_ACQUIRE*  (단 `PIN_READ_STEPS`·`BRANCH_REGROUND`는 LY3 선행에 확정) |
+| **MT3** | 계산 이관 | 4 | 7 | `LEDGER`☠ `SG_BYREF` `SG_DEDUP` `SG_ISOLATE` · *ARG_SCHEMA* *COMPUTE* *PRESCRIPTION* *REF_VERIFY* *RESOLVE* *SG_ISOFB* *SG_TRACE* |
+| **MT4** | 출처 근거 확보 | 8 | 19 | `CLAIM_PROV` `DISPATCH_ROLE_ENVSET` `GIVE_QUOTE` `QUOTE_PIN` `READ_DEDUP` `SG_GROUND` `STALE_STRIP` `TRANSCRIBE` · *FAB_STRIP* *GROUND* *PROD_BIND* *PROV_REGEN* *SG_TRUTH* *SOURCE*☠ *UNKNOWN_NAME_BL* *UNLOCK_NAME* *UNLOCK_PROV* *WRITE_ARG_GROUND* *WRITE_EVIDENCE* *WRITE_PROV* (+ 완결·역할 셀 상속분) |
+| **MT5** | 표면화 | **20** | 0 | `ABSTAIN_FIELDS` `CHOICE_GROUND` `DISCOVERY_NAMES` `DISPATCH_LEDGER` `DUP_REPRESENT` `GIVE_EXEC_NUDGE` `GIVE_RELEVANCE_NUDGE` `KB_NOHIT_SURFACE` `MATCH_COUNT` `PROC_ABSENT` `QUOTE_HINT` `REQUIRE_DOC` `SEARCH_EXHAUST_NUDGE` `TRANSFER_LEAVES_STEPS` `TRANSFER_TIER` `UNCALLED_UNLOCK` `UNVERIFIED_FOLLOWUP` `USER_TOOL_NOTE` `VERDICT_SURFACE` `WITHDRAWN_ROW` |
+| **MT6** | 되묻기 | **0** | 2 | ★**확정 0** — *ARG_SCHEMA* *REF_VERIFY* |
+
+**합계: 확정 52 · 상속 34** (☠ = 비-라이브 死배선).
+
+★**세 자리가 눈에 띈다:**
+- **MT5 표면화만 상속 0**(20개 전부 확정). 가장 큰 층이자 **가장 약한 방법**인데 가장 잘 정리돼 있다.
+- **MT2 치환·고정 · MT6 되묻기 = 확정 0.** 치환·고정은 *"거절만으로는 집행 불가"* 라는 정리가
+  요구하는 방법이고, 되묻기는 **경계의 유일한 처방**이다. 둘 다 세부 기전이 안 써 있다 = **미분석 지대**.
+- **MT4 상속 19**가 최다. `근거 확인` 셀 17개 중 12개가 세부 기전 없이 셀만 물려받은 상태다.
 
 **(레버 아닌) 능력 구매**: thinking(F2 결정정확도를 사고 **완결·persistence를 판다**) · scale(horizon을 산다) ·
 learn(무망각·최후순위). retry는 **소형 음성 확증**(127 vs 84·p=.004) · 32B는 null(p=.66) — 죽은 레버.
@@ -556,7 +579,38 @@ ASK 경로가 스택에 거의 없다. 경계를 인정한다면 ASK가 그만�
 | replay 불변(`attach_ok=False`) | **deny만 fail-closed 고정문구** · guidance는 무부착 |
 | 폐기 레버(층 없음) | **말하지 않음** |
 
-#### 5.5b ⚠아직 안 한 것 (이름 ≠ 구현)
+#### 5.5b ★커버리지 — **아니다. 53/86 = 62%다** (측정·2026-08-07)
+
+물음: *"통합한 호출 지점은 97개 레버를 모두 커버하는가?"* → **세어서 답한다.**
+
+| | 수 |
+|---|---|
+| 라이브 플래그 | 128 |
+| 그중 **레버**(셀 배치) | **86** (나머지 42 = 파라미터·메타·하네스·arm전용·폐기) |
+| 그중 **층 배정**(= `speak()`가 말할 수 있다) | **53 = 62%** |
+| **미배정** | **34** |
+
+셀별 구멍: `근거 확인` 17 중 **12 미배정** · `선행 강제` 12 중 **7** · `계산 이관` 8 중 **5** ·
+`역할 확인` 10 중 **5** · `완결 게이트` 2 · `직렬화` 2 · `종료 판정` 1.
+**빈틈 0인 셀**: 조건 게이트 · 미사용 표면화 · 정본 상태 대조 · 부재 종결 · 지시 scaffold.
+
+#### 5.5c ★그런데 흩어져 있지 않다 — **55/86이 이미 한 함수 안에 있다** (측정)
+
+`t2_gate_patch.py`의 def 경계로 각 레버 참조가 어느 훅에 사는지 셌다:
+
+| 작용면 | 레버 | 위치 |
+|---|---|---|
+| **생성면 — `unified()`** | **55** | `t2_gate_patch.py:4335` (`apply_unified_regen` 안) |
+| 다른 모듈 | 27 | `t2_run_gated`·`t2_scaffold_get`·`t2_prekb` 등 |
+| 결과면 — `exec_augment()` | 2 | `LEDGER` `READ_DEDUP` |
+| 기타 | 2 | `MATCH_COUNT`(`_axis_surface`) `PIN_READ`(`_gen`) |
+
+⇒ ★**"97개 흩어진 호출 지점"은 부정확했다.** 레버의 **64%가 이미 `unified()` 한 함수 안**에 있고,
+문제는 흩어짐이 아니라 **그 안에서 55개가 순서 규율 없는 `if` 블록으로 나열돼 있다**는 것이다.
+배선은 *모으는 일*이 아니라 **그 55개를 `register()`로 바꾸고 끝에서 `speak()` 한 번 부르는 일**이다 —
+훨씬 작은 작업이고, 한 함수 안이라 한 번에 확인된다.
+
+#### 5.5d ⚠아직 안 한 것 (이름 ≠ 구현)
 
 1. **97개 호출 지점을 `register()`로 바꾸는 편집은 안 했다.** 각 레버의 술어는 여전히 자기 모듈에
    있고, `speak()`는 **오프라인 자기검사로만** 증명돼 있다.
@@ -569,7 +623,59 @@ ASK 경로가 스택에 거의 없다. 경계를 인정한다면 ASK가 그만�
 그리고 **첫 배선 전에 死배선 2건**(`T2_LEDGER`·`T2_SOURCE`)을 먼저 정리해야 한다 —
 안 그러면 새 배선의 침묵과 옛 死배선의 침묵이 구분되지 않는다.
 
-### 5.6 ★`READ_DEDUP` 정정 (승계)
+### 5.6 ★★★코드 체계 — 이름은 바뀌어도 **코드는 안 바뀐다** (2026-08-07 사용자 지시)
+
+지시: *"각 축에 코드도 부여하라. 원인 코드와 해결책 코드를 부여하고 **이 코드를 관리함으로써
+나중에 새로운 레버가 추가돼도 기전을 뒤집지 않게** 하라."*
+
+⚠**[[48]]의 *"새 코드 만들지 말 것"* 과 충돌하지 않는다 — 정반대의 처방이다.**
+금지된 것은 *이름 족을 계속 새로 만드는 것*(F→G→BC→N→C·표류 5회)이고, 그 원인은
+**안정된 식별자가 없어서 매번 새 이름을 지은 것**이다. 코드가 그 백신이다:
+이름은 더 정확해져도 되고, **코드는 그대로 간다** ⇒ 개명이 재분류가 되지 않는다.
+
+접두사 충돌 확인(reports 전수 grep): `DF`·`MT`·`OB`·`LY` **전부 0건**.
+피한 것: F·G·BC·N·C·M·P·L·W·T·E·A·B(전부 사용 중).
+
+| 축 | 접두사 | 코드 |
+|---|---|---|
+| 관측 족 | **OB** | OB1 날조 · OB2 오선택 · OB3A over(행동) · OB3B over(판정) · OB4 under · OB5 선행 미충족 · OB6 상태 오염 |
+| **원인(결손)** | **DF** | DF1 미검증 단정·정박 치환 · DF2 의미 소속 판정 불가 · DF3 조건 재소환 실패 · DF4 권한 월권 · DF5 완료 무검증 · DF6 발화-행동 등가 오인 · DF7 부재 미종결 · DF8 유도 실패 · DF9 사슬 역행 실패 · DF10 집계 미발화 · DF11 전사 발산 |
+| **해결책(방법)** | **MT** | MT1 차단 · MT2 치환·고정 · MT3 계산 이관 · MT4 출처 근거 확보 · MT5 표면화 · MT6 되묻기 |
+| 실시 순서 | **LY** | LY0 하네스 · LY1 출처 근거 확보 · LY2 차단 · LY3 선행 · LY4 계산 이관 · LY5 표면화 · LY6 되묻기 |
+
+⚠**LY는 MT와 1:1이 아니다** — LY2(차단)와 LY3(선행)이 둘 다 deny를 쓴다. 층은 *순서*이지 방법이 아니다.
+
+#### 5.6b 코드 관리 규칙 — 새 레버가 기전을 뒤집지 못하게 하는 다섯 문장
+
+1. 코드는 **불변**이다. 한 번 발급하면 뜻을 바꾸지 않는다. 이름은 더 정확해져도 된다.
+2. 폐기는 `RETIRED_CODES`에 사유와 함께 남기고 **번호는 재사용하지 않는다**(재사용하면 옛 로그가 조용히 오역된다).
+3. 새 레버는 **기존 (DFn, MTn) 짝에 붙는다.** 코드를 새로 만들며 들어오지 않는다.
+4. 붙을 짝이 없으면 그것은 **코드 신청**이고 설계 리뷰 트리거다 — 실측 근거([S]/[M])와
+   *왜 기존 코드로 안 되는가*(비-포함)를 대야 발급한다.
+5. 감사는 코드로 한다: **미분류 0 · 死배선 0 · 코드 없는 레버 0 · 폐기코드 재사용 0 · 미선언 불일치 0.**
+
+#### 5.6c ★코드를 켜자마자 잡힌 것 — 셀↔세부기전 불일치 7건 [S]
+
+코드 교차 검사(셀이 말하는 결손 ↔ 세부 기전이 말하는 결손)를 켜자 **7건이 즉시 나왔다.**
+뜯어보니 버그가 아니라 **1:1 가정이 또 좁았던 것**이다(옛 3축의 1:1:1과 같은 병).
+
+| 레버 | 셀 | 세부 기전 | 판정 |
+|---|---|---|---|
+| `UNAVAIL_PROMISE` | DF3 | DF1 | 미보유 기능 약속 = **없는 것을 만드는 것**(주=DF1)·차단은 조건 게이트(DF3) |
+| `DISPATCH_ROLE_ENVSET` | DF6 | DF1 | 없는 도구 이름을 손님에게 = **이름 날조**(주=DF1) + 실행 회피(DF6) |
+| `KB_NOHIT_SURFACE` | DF7 | DF1 | 절차 날조 금지(주=DF1·012) + 없음의 종결 근거(DF7·014/015) |
+| `BRANCH_REGROUND` | DF11 | DF9 | 상태 재확립(주=DF11) + close 선행 차단으로 실측(DF9·C146/C149) |
+| `ARG_PRODUCERS` | DF6 | DF8 | 손님 유도(주=DF8) + 오도구 전환 표적(DF6·040/041) |
+| `ABSTAIN_FIELDS` | DF7 | DF5 | 완결 판정(주=DF5) + 부재 표면화(DF7) |
+| `DUP_REPRESENT` | DF8 | DF10 | 계산 결과 보존(주=DF10) + 손님 안내 재제시(DF8) |
+
+⇒ **다중 결손을 허용하되 `MULTI_CAUSE`에 선언을 요구한다.** 미선언 불일치는 **여전히 위반**이다 —
+그래야 새 레버가 조용히 기전을 뒤집지 못한다. 이것이 코드 체계가 실제로 사는 값이다:
+**이름만 있을 땐 두 곳이 어긋나도 아무도 몰랐다.**
+
+현재 `python t2_levers.py` = **미분류 0 · 코드 규칙 위반 0 · 확정 52 · 상속 34**.
+
+### 5.7 ★`READ_DEDUP` 정정 (승계)
 
 `READ_DEDUP`을 *"하네스(채널)"* 로 분류한 것은 **틀렸다.** 그것은 *중복 read 제거*라는 분명한 레버
 (결손=전사 발산의 입력 오염)다. 216줄을 감싸고 있는 것은 **코드 배치 사고**이지 그 레버의 성질이 아니다.

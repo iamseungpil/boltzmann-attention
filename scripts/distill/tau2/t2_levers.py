@@ -98,8 +98,9 @@ METHODS = {
                   "자율성 축소 · 기회비용 미측정"),
     "계산 이관": ("구조화된 값 위의 산수를 엔진이 한다 (닫힘·유한·전수열거)",
                   "잘못된 operand를 참되게 계산한다 (024: operations 전제가 틀렸는데 2.5%를 정확히 반환)"),
-    "검증": ("LLM이 {주장, 출처참조}를 내면 엔진은 출처만 본다. 값을 만들지 않는다",
-             "자기정당화 통로 — 인접 항목을 핀해 통과할 수 있다"),
+    "출처 근거 확보": ("LLM이 {주장, 출처참조}를 내면 엔진은 출처만 본다. 값을 만들지 않는다. "
+                       "**주체를 가리지 않는다** — 모델·env 출력·손님·우리 층 넷 다 같은 검정",
+                       "자기정당화 통로 — 인접 항목을 핀해 통과할 수 있다"),
     "표면화": ("출처집합 안에 있는데 아직 안 쓴 것을 그 자리에 보인다. 막지 않는다",
                "후보 밀도↑ = ADB(84.56→66.47) · 비강제 신호는 무시된다(Recuse Signal 0/40)"),
     "되묻기": ("판정을 권위자에게 넘긴다",
@@ -114,9 +115,190 @@ PURCHASE = {
     "retry": "☠죽은 레버 — 소형 음성 확증(127 vs 84·p=.004) · 32B는 null(p=.66)",
 }
 
-# 등급 → 허용 방법. 등급이 방법을 고른다(§4.2).
+# ══════════════════════════════════════════════════════════════════════════════
+#  ★코드 체계 — 이름은 바뀌어도 **코드는 안 바뀐다**
+# ══════════════════════════════════════════════════════════════════════════════
+#
+# 사용자 지시 2026-08-07: *"각 축에 코드도 부여하라. 원인 코드와 해결책 코드를 부여하고
+# **이 코드를 관리함으로써 나중에 새로운 레버가 추가돼도 기전을 뒤집지 않게** 하라."*
+#
+# ⚠[[48]]의 *"새 코드 만들지 말 것"* 과 충돌하지 않는다 — **정반대의 처방이다.**
+# 금지된 것은 *이름 족을 계속 새로 만드는 것*(F→G→BC→N→C·표류 5회)이고, 그 원인은
+# **안정된 식별자가 없어서 매번 새 이름을 지은 것**이다. 코드는 그 백신이다:
+#   · 이름은 더 정확해질 수 있다. **코드는 그대로 간다.** ⇒ 개명이 재분류가 되지 않는다.
+#   · 새 레버는 **기존 코드 짝에 붙는다.** 붙을 데가 없으면 그건 코드 신청이고 설계 리뷰다.
+#
+# 접두사 충돌 확인(2026-08-07·reports 전수 grep): DF·MT·OB·LY **전부 0건**.
+# 기존 사용 중이라 피한 것: F·G·BC·N·C·M·P·L·W·T·E·A·B.
+
+FAMILIES = {                       # OB = OBservation (관측 족)
+    "OB1": "날조",
+    "OB2": "오선택",
+    "OB3A": "over-action (행동)",
+    "OB3B": "over-action (판정)",
+    "OB4": "under-action",
+    "OB5": "선행 미충족",
+    "OB6": "상태 오염",
+}
+
+CAUSE_CODES = {                    # DF = DeFicit (결손 = LLM이 못하는 것)
+    "DF1": ("미검증 단정·정박 치환", "OB1"),
+    "DF2": ("의미 소속 판정 불가", "OB2"),
+    "DF3": ("조건 재소환 실패", "OB3A"),
+    "DF4": ("권한 월권", "OB3B"),
+    "DF5": ("완료 무검증", "OB4"),
+    "DF6": ("발화-행동 등가 오인", "OB4"),
+    "DF7": ("부재 미종결", "OB4"),
+    "DF8": ("유도 실패", "OB4"),
+    "DF9": ("사슬 역행 실패", "OB5"),
+    "DF10": ("집계 미발화", "OB6"),
+    "DF11": ("전사 발산", "OB6"),
+}
+
+METHOD_CODES = {                   # MT = MeThod (해결책 = 엔진에게 허용된 동작)
+    "MT1": "차단",
+    "MT2": "치환·고정",
+    "MT3": "계산 이관",
+    "MT4": "출처 근거 확보",
+    "MT5": "표면화",
+    "MT6": "되묻기",
+}
+
+LAYER_CODES = {                    # LY = LaYer (실시 순서 — 방법과 1:1이 아니다)
+    "LY0": ("하네스", None),
+    "LY1": ("출처 근거 확보", "MT4"),
+    "LY2": ("차단", "MT1"),
+    "LY3": ("선행", "MT2"),        # ⚠LY2·LY3 둘 다 deny를 쓴다 — 층은 *순서*이지 방법이 아니다
+    "LY4": ("계산 이관", "MT3"),
+    "LY5": ("표면화", "MT5"),
+    "LY6": ("되묻기", "MT6"),
+}
+
+# 발급했다가 접은 코드 — **번호 재사용 금지**(재사용하면 옛 로그가 조용히 오역된다)
+RETIRED_CODES = {
+    # 옛 "중단판단"은 코드를 받기 전에 해체됐다(조기=DF6 / 과잉=DF7·2026-08-07).
+}
+
+# ★코드 관리 규칙 — 새 레버가 기전을 뒤집지 못하게 하는 다섯 문장
+CODE_RULES = [
+    "1. 코드는 **불변**이다. 한 번 발급하면 뜻을 바꾸지 않는다. 이름은 더 정확해져도 된다.",
+    "2. 폐기는 RETIRED_CODES에 사유와 함께 남기고 **번호는 재사용하지 않는다**.",
+    "3. 새 레버는 **기존 (DFn, MTn) 짝에 붙는다.** 코드를 새로 만들며 들어오지 않는다.",
+    "4. 붙을 짝이 없으면 그것은 코드 신청이고 **설계 리뷰 트리거**다 — "
+    "실측 근거([S]/[M])와 *왜 기존 코드로 안 되는가*(비-포함)를 대야 발급한다.",
+    "5. 감사는 코드로 한다: 미분류 0 · 死배선 0 · **코드 없는 레버 0** · 폐기코드 재사용 0.",
+]
+
+# ★다중 결손 선언 — 한 레버가 둘 이상을 겨냥할 수 있다. **단 선언해야 한다.**
+#
+# 코드 체계를 켜자마자 셀↔세부기전 불일치 **7건**이 나왔다. 뜯어보니 버그가 아니라
+# **1:1 가정이 또 너무 좁았던 것**이다(옛 3축의 1:1:1과 같은 병). 그래서 다중을 허용하되
+# **미선언 불일치는 여전히 위반**으로 둔다 — 그래야 새 레버가 조용히 기전을 뒤집지 못한다.
+# 형식: flag → (주 결손, [부 결손…], 왜 둘인가)
+MULTI_CAUSE = {
+    "T2_UNAVAIL_PROMISE": ("DF1", ["DF3"],
+        "미보유 기능을 약속하는 것은 **없는 것을 만드는 것**(DF1)이고, 차단은 조건 게이트가 한다(DF3)."),
+    "T2_BRANCH_REGROUND": ("DF11", ["DF9"],
+        "분기 후 재접지 = 어긋난 상태를 다시 세우는 것(DF11)이면서, 그 효과는 close 선행 차단(DF9)으로 실측됐다(C146/C149)."),
+    "T2_DISPATCH_ROLE_ENVSET": ("DF1", ["DF6"],
+        "존재하지 않는 도구 이름을 손님에게 건네는 것은 **이름 날조**(DF1)이자 실행 회피(DF6)다. x88: 집합 밖 252건·gold 오차단 0."),
+    "T2_ARG_PRODUCERS": ("DF8", ["DF6"],
+        "필수 인자의 생산자를 짚는 것은 손님 유도(DF8)이면서 오도구 전환(DF6) 표적이다(040/041)."),
+    "T2_KB_NOHIT_SURFACE": ("DF1", ["DF7"],
+        "전-0점 표면화는 **절차 날조 금지**(DF1·012)와 **없음의 종결 근거**(DF7·014/015) 둘 다에 쓰인다."),
+    "T2_ABSTAIN_FIELDS": ("DF5", ["DF7"],
+        "abstain하면서 결핍 필드를 지목하는 것은 완결 판정(DF5)이자 부재 표면화(DF7)다."),
+    "T2_DUP_REPRESENT": ("DF10", ["DF8"],
+        "DUP-COMPUTE 스텁의 이전 결과 재제시는 계산 결과 보존(DF10)이고, 그 재제시가 손님 안내에도 쓰인다(DF8)."),
+}
+
+_CAUSE_BY_NAME = {v[0]: k for k, v in CAUSE_CODES.items()}
+_METHOD_BY_NAME = {v: k for k, v in METHOD_CODES.items()}
+
+
+def code_of_cause(name):
+    return _CAUSE_BY_NAME.get(name)
+
+
+def code_of_method(name):
+    return _METHOD_BY_NAME.get(name)
+
+
+def lever_codes(flag):
+    """이 레버의 (원인코드, [해결책코드…], 확정도). 확정도 = 'fixed' | 'inherited' | None.
+
+    'fixed'     = `t2_stack.MECHANISMS`가 **세부 기전과 함께** 층(=방법)을 배정했다.
+    'inherited' = 아직 세부 기전이 없어 **소속 셀의 방법을 물려받았다** — 방법이 둘이면 안 갈렸다.
+                  규칙 3의 대상이고, 이 상태로는 `speak()`가 말할 수 없다.
+    """
+    hit = None
+    for name, (cause, methods, _p, flags) in CELLS.items():
+        if flag in flags:
+            hit = (name, cause, methods)
+            break
+    if hit is None:
+        return (None, [], None)
+    _n, cause, methods = hit
+    dfc = code_of_cause(cause)
+    try:
+        import t2_stack as _S
+        layer = _S.layer_of(flag)
+    except Exception:
+        layer = None
+    if layer:
+        key = next((k for k, v in LAYER_CODES.items() if v[0] == layer), None)
+        mt = LAYER_CODES.get(key, (None, None))[1] if key else None
+        if mt:
+            return (dfc, [mt], "fixed")
+    return (dfc, [code_of_method(m) for m in methods if code_of_method(m)], "inherited")
+
+
+def audit_codes():
+    """코드 규칙 5의 집행 — 위반 목록. 비어야 정상이다."""
+    bad = []
+    for cause in CAUSES:
+        if code_of_cause(cause) is None:
+            bad.append(("결손에 코드 없음", cause))
+    for m in METHODS:
+        if code_of_method(m) is None:
+            bad.append(("방법에 코드 없음", m))
+    for name, (cause, methods, _p, flags) in CELLS.items():
+        if code_of_cause(cause) is None:
+            bad.append(("셀의 결손이 미등록", "%s ← %s" % (name, cause)))
+        for f in flags:
+            df, mts, _how = lever_codes(f)
+            if df is None or not mts:
+                bad.append(("레버에 코드 없음", f))
+    for d in sorted(set(CAUSE_CODES) & set(RETIRED_CODES)):
+        bad.append(("폐기 코드 재사용", d))
+    # ★교차 검사 — 셀이 말하는 결손과 세부 기전이 말하는 결손이 다르면 하나는 틀렸다.
+    #   이것이 코드 체계의 값이다: 이름만 있을 땐 두 곳이 어긋나도 아무도 모른다.
+    try:
+        import t2_stack as _S
+        mech_cause = {}
+        for cause, _m, _e, f, _l in _S.MECHANISMS:
+            if f:
+                mech_cause.setdefault(f, cause)
+        for name, (cause, _methods, _p, flags) in CELLS.items():
+            for f in flags:
+                mc = mech_cause.get(f)
+                if not mc or mc == cause:
+                    continue
+                decl = MULTI_CAUSE.get(f)
+                pair = {code_of_cause(cause), code_of_cause(mc)}
+                if decl and pair <= ({decl[0]} | set(decl[1])):
+                    continue          # ★선언된 다중 결손 — 통과
+                bad.append(("셀↔세부기전 결손 불일치(미선언)",
+                            "%s: 셀 %s(%s) ↔ 기전 %s(%s)"
+                            % (f, cause, code_of_cause(cause), mc, code_of_cause(mc))))
+    except Exception as e:
+        bad.append(("교차 검사 불가", repr(e)))
+    return bad
+
+
+# 등급 → 허용 방법. 등급이 방법을 고른다(§3.2).
 ALLOWED = {
-    "미집행": ["차단", "검증", "표면화"],
+    "미집행": ["차단", "출처 근거 확보", "표면화"],
     "부하": ["계산 이관", "치환·고정"],
     "능력": [],          # 능력 구매만 — 결정론 강제 금지
     "경계": ["되묻기"],  # ★scaffold 선택기 금지([[05]] 금지선: 열린 술어 위 강제)
@@ -131,7 +313,7 @@ CELLS = {
         ["T2_TOOLGATE", "T2_PROCEDURE", "T2_SPEAK_PROHIBIT", "T2_PHASE_OWNER",
          "T2_ENVELOPE_GUARD", "T2_UNAVAIL_PROMISE"]),
     "완결 게이트": (
-        "완료 무검증", ["차단", "검증"],
+        "완료 무검증", ["차단", "출처 근거 확보"],
         "끝났다는 주장은 실행 원장으로만 검증한다. 모델의 자기보고는 근거가 아니다.",
         ["T2_COVERAGE_FOLLOWUP", "T2_FOLLOWUP_REQUIRED", "T2_FOLLOWUP_FORCE",
          "T2_FOLLOWUP_READLOOP", "T2_WITHDRAWN_ROW", "T2_DISPATCH_LEDGER"]),
@@ -159,22 +341,22 @@ CELLS = {
         "판별 기준이 형식화되면 결정론으로 좁히고, 안 되면 되묻는다. 추측으로 좁히지 않는다.",
         ["T2_REF_VERIFY", "T2_SG_BYREF", "T2_CHOICE_GROUND", "T2_MATCH_COUNT", "T2_ARG_SCHEMA"]),
     "정본 상태 대조": (
-        "전사 발산", ["검증"],
+        "전사 발산", ["출처 근거 확보"],
         "손으로 옮긴 값은 원장과 대조한다. 엔진은 고치지 않고 어긋난 사실만 말한다.",
         ["T2_TRANSCRIBE", "T2_BRANCH_REGROUND", "T2_STALE_STRIP", "T2_READ_DEDUP"]),
     "종료 판정": (
         "발화-행동 등가 오인", ["차단"],
         "종료는 남은 절차 단계의 유무로 판정한다. 피로·반복 횟수로 판정하지 않는다.",
         ["T2_TERM_GRANT", "T2_TERM_GRANT_USERDEMAND", "T2_TRANSFER_TIER", "T2_REQUIRE_DOC"]),
-    "근거 확인": (
-        "미검증 단정·정박 치환", ["검증"],
+    "출처 근거 확보": (
+        "미검증 단정·정박 치환", ["출처 근거 확보"],
         "행동을 좌우하는 사실 주장은 출처를 대야 한다. 엔진은 출처만 검증하고 값을 만들지 않는다.",
         ["T2_SOURCE", "T2_PROV_REGEN", "T2_GROUND", "T2_SG_GROUND", "T2_WRITE_PROV",
          "T2_WRITE_EVIDENCE", "T2_WRITE_ARG_GROUND", "T2_CLAIM_PROV", "T2_GIVE_QUOTE",
          "T2_QUOTE_HINT", "T2_QUOTE_PIN", "T2_UNLOCK_PROV", "T2_UNKNOWN_NAME_BL",
          "T2_UNLOCK_NAME", "T2_FAB_STRIP", "T2_SG_TRUTH", "T2_PROD_BIND"]),
     "역할 확인·실행 강제": (
-        "발화-행동 등가 오인", ["치환·고정", "검증"],
+        "발화-행동 등가 오인", ["치환·고정", "출처 근거 확보"],
         "누가 실행하는지는 레지스트리에서 도출한다. 판정 불가면 그 문장을 뺀다. "
         "말로 실행을 대체하지 않는다.",
         ["T2_DISPATCH_ROLE", "T2_DISPATCH_ROLE_ENVSET", "T2_TOOL_CHANNEL", "T2_TOOL_SIGNATURE",
@@ -210,7 +392,7 @@ PARAMS = {
     "T2_FOLLOWUP_CAP": "완결 게이트", "T2_FOLLOWUP_PROGRESS_REFUND": "완결 게이트",
     "T2_COV_MIDDRIVE_K": "선행 강제", "T2_EPLAN_DRIVE_K": "선행 강제",
     "T2_ACTION_PROGRESS_REFUND": "선행 강제",
-    "T2_CLAIMPROV_CAP": "근거 확인", "T2_WEV_ROUNDS": "근거 확인",
+    "T2_CLAIMPROV_CAP": "출처 근거 확보", "T2_WEV_ROUNDS": "출처 근거 확보",
     "T2_TRANSCRIBE_CAP": "정본 상태 대조",
     "T2_SEARCH_EXHAUST_TH": "부재 종결", "T2_KB_NOHIT_K": "부재 종결",
     "T2_PROC_ABSENT_K": "부재 종결", "T2_PROC_ABSENT_CAP": "부재 종결",
@@ -332,3 +514,45 @@ if __name__ == "__main__":
     print("\n선언됐으나 비-라이브 %d종%s" % (len(dead), ":" if dead else " ✓"))
     for cell, f in dead:
         print("    %-18s %s" % (cell, f))
+
+    # ── 코드 체계 ────────────────────────────────────────────────────────
+    print("\n" + "=" * 72)
+    print("[코드 — 이름은 바뀌어도 코드는 안 바뀐다]")
+    print("\n  관측 족 (OB)")
+    for c in sorted(FAMILIES, key=lambda k: (len(k), k)):
+        dfs = [k for k, v in CAUSE_CODES.items() if v[1] == c]
+        print("    %-5s %-18s ← %s" % (c, FAMILIES[c], " ".join(sorted(dfs, key=lambda x: int(x[2:])))))
+    print("\n  결손 (DF) = 원인 코드")
+    for c in sorted(CAUSE_CODES, key=lambda k: int(k[2:])):
+        nm, fam = CAUSE_CODES[c]
+        print("    %-5s %-22s [%s] %s" % (c, nm, CAUSES.get(nm, ("?",))[0], fam))
+    print("\n  방법 (MT) = 해결책 코드")
+    for c in sorted(METHOD_CODES, key=lambda k: int(k[2:])):
+        print("    %-5s %s" % (c, METHOD_CODES[c]))
+    print("\n  층 (LY) = 실시 순서  ⚠방법과 1:1 아님 — LY2·LY3 둘 다 deny를 쓴다")
+    for c in sorted(LAYER_CODES, key=lambda k: int(k[2:])):
+        nm, mt = LAYER_CODES[c]
+        print("    %-5s %-16s %s" % (c, nm, mt or "(판정 안 함)"))
+
+    print("\n[레버 → 코드]  fixed = 세부 기전 확정 · inherited = 셀 상속(미확정·speak 불가)")
+    fixed_n = inh_n = 0
+    rows = []
+    for cname, (_c, _m, _p, flags) in CELLS.items():
+        for f in sorted(flags):
+            df, mts, how = lever_codes(f)
+            rows.append((df or "??", "+".join(mts) or "??", how or "none", f, cname))
+            if how == "fixed":
+                fixed_n += 1
+            elif how == "inherited":
+                inh_n += 1
+    for df, mt, how, f, cname in sorted(rows, key=lambda r: (int(r[0][2:]) if r[0][2:].isdigit() else 99, r[3])):
+        print("    %-5s %-9s %-10s %-28s %s" % (df, mt, how, f.replace("T2_", ""), cname))
+    print("\n    확정 %d · 상속 %d  (상속 = 다음 작업 목록)" % (fixed_n, inh_n))
+
+    bad = audit_codes()
+    print("\n코드 규칙 위반 %d건%s" % (len(bad), ":" if bad else " ✓"))
+    for what, detail in bad:
+        print("    %-18s %s" % (what, detail))
+    print("\n[코드 관리 규칙]")
+    for r in CODE_RULES:
+        print("  " + r)
