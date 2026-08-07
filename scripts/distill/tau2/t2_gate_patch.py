@@ -3923,14 +3923,19 @@ def _install_regen_exec():
                             #   그보다 뒤에 회수된다 — 상한이 문맥에 도착하기 전에 물어본 것이다.
                             #   그래서 비교는 **결정점**(제출 요구가 나가는 자리)으로 옮겼고, 여기서는
                             #   엔진이 전사한 수(누계·경과일)를 넘겨줄 뿐이다. 그 수는 지금 확정된다.
+                            # ★선언**마다** 따로 보관한다 (2026-08-08·dp_p 계측이 잡음).
+                            #   두 프롬프트는 서로 다른 선언에 산다 — `limit_prompt`는 추천 원장,
+                            #   `threshold_prompt`는 계좌 선언. 구판은 `_t2_ledger_spec` 하나만
+                            #   두어 마지막 호출의 선언으로 덮었고, 그래서 문턱 추출이 **0회**였다
+                            #   (`min_days: model gave` 로그가 한 번도 안 찍혔다).
                             try:
-                                _lgagent._t2_ledger_tally = _LG.window_and_tally(
-                                    _rows, _ls, now=getattr(_lgagent, "_t2_ledger_now", None))[2]
-                                _d0 = _LG.earliest_age(
-                                    _rows, _ls, now=getattr(_lgagent, "_t2_ledger_now", None))[1]
-                                if _d0 is not None:
-                                    _lgagent._t2_ledger_days = _d0
-                                _lgagent._t2_ledger_spec = _ls
+                                _now0 = getattr(_lgagent, "_t2_ledger_now", None)
+                                _ops = dict(getattr(_lgagent, "_t2_ledger_ops", None) or {})
+                                _ops[str(_ls.get("trigger_tool"))] = {
+                                    "spec": _ls,
+                                    "tally": _LG.window_and_tally(_rows, _ls, now=_now0)[2],
+                                    "days": _LG.earliest_age(_rows, _ls, now=_now0)[1]}
+                                _lgagent._t2_ledger_ops = _ops
                             except Exception as _se:
                                 print("[T2_LEDGER] operand stash skipped: %r" % (_se,),
                                       file=sys.stderr, flush=True)
@@ -5851,24 +5856,26 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                             #   피연산자(누계·경과일)는 엔진이 이미 전사해 두었고,
                                             #   상한/문턱은 모델이 인용과 함께 낸다([[52]] 분담).
                                             try:
-                                                _lsp = getattr(self, "_t2_ledger_spec", None)
-                                                _tal2 = getattr(self, "_t2_ledger_tally", None)
-                                                _day2 = getattr(self, "_t2_ledger_days", None)
-                                                if _lsp is not None:
+                                                _ops2 = getattr(self, "_t2_ledger_ops", None) or {}
+                                                if _ops2:
                                                     import t2_ledger as _LG2
                                                     _tx2 = [_content_str(_m) for _m in state.messages
                                                             if getattr(_m, "role", None) in ("tool", "user")]
                                                     _add = ""
-                                                    if _tal2:
-                                                        _add += _LG2.exhausted_text(
-                                                            _tal2,
-                                                            _LG2.formalize_limits(self, la, UserMessage,
-                                                                                  _tx2, _lsp), _lsp)
-                                                    if _day2 is not None:
-                                                        _add += _LG2.ineligible_text(
-                                                            _day2,
-                                                            _LG2.formalize_thresholds(self, la, UserMessage,
-                                                                                      _tx2, _lsp), _lsp)
+                                                    # 선언마다 **그 선언이 말하는 축만** 계산한다 —
+                                                    # 상한은 상한을 선언한 쪽, 문턱은 문턱을 선언한 쪽.
+                                                    for _e2 in _ops2.values():
+                                                        _sp2 = _e2.get("spec") or {}
+                                                        if _e2.get("tally") and _sp2.get("limit_prompt"):
+                                                            _add += _LG2.exhausted_text(
+                                                                _e2["tally"],
+                                                                _LG2.formalize_limits(self, la, UserMessage,
+                                                                                      _tx2, _sp2), _sp2)
+                                                        if _e2.get("days") is not None and _sp2.get("threshold_prompt"):
+                                                            _add += _LG2.ineligible_text(
+                                                                _e2["days"],
+                                                                _LG2.formalize_thresholds(self, la, UserMessage,
+                                                                                          _tx2, _sp2), _sp2)
                                                     if _add.strip():
                                                         _ufb = ((_ufb + "\n") if _ufb else "") + _add.strip()
                                                         print("[T2_LIMIT_REDUCE] emitted at decision point",
