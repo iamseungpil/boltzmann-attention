@@ -5611,6 +5611,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     #   실행 원장(E1), push 표적은 formalize 산문(E5)이다.
                                     #   ⚠침묵이 아니라 **치환**이다(표적 이름 유지) — 지우면 012 재현
                                     #   (우리 deny가 일하던 문구의 트리거를 없앴다).
+                                    # ★버그픽스(2026-08-07·20260807b/c/d 실측 7·7·3건): `_reqs`가
+                                    #   아래 `T2_ARBITRATE` 블록 **안에서만** 대입되는데 :5656부터
+                                    #   **밖에서** 쓰인다. 플래그가 꺼져 있으면 `UnboundLocalError`가
+                                    #   나고, 감싸는 try/except가 그것을 삼켜 **호스트 레버(RESOLVE)가
+                                    #   통째로 no-op**이 된다 — 로그엔 `[T2_RESOLVE] error (no-op)` 한 줄뿐.
+                                    #   :5440 주석이 경고한 *"중첩된 계약이 껍데기와 함께 죽는다"* 의
+                                    #   세 번째 형태이고, 이번엔 **껍데기 쪽이 죽는다**(방향이 반대).
+                                    #   초기화 한 줄로 닫는다 — ARBITRATE가 켜져 있으면 거동 불변.
+                                    _reqs = []
                                     if os.environ.get("T2_ARBITRATE") == "1":
                                         # ★C3 합병(2026-08-07): 하나를 고르지 않고 **덮는 요건을 전부**
                                         #   모아 한 번에 말한다. 구판은 첫 미충족 게이트만 돌려줬고,
