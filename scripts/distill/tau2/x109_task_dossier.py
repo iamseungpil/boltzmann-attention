@@ -63,6 +63,12 @@ if "--tag" in sys.argv:
 WIDE = "--wide" in sys.argv
 NOTRACE = "--no-trace" in sys.argv
 CALLS = "--calls" in sys.argv
+# ★`--tag`는 `bank_n97_gpu*`만 glob한다 — arm 태그(`bank_f1_gpu0`)로 돈 런은 하나도 안 실렸다
+#   (2026-08-07 실측: 그래서 이 도구가 최근 101/102 런을 조용히 "sim 없음"으로 찍었다).
+#   `--dirs`는 sim 디렉터리 glob을 직접 준다(쉼표 여러 개).
+DIRS = None
+if "--dirs" in sys.argv:
+    DIRS = [d.strip() for d in sys.argv[sys.argv.index("--dirs") + 1].split(",") if d.strip()]
 CUT = 1200 if WIDE else 420
 TASKS = [t if t.startswith("task_") else "task_" + t for t in (ARGS[0].split(",") if ARGS else [])]
 
@@ -77,8 +83,12 @@ def load_sims():
     out = []
     seen = set()
     for base in SIMDIRS:
-        pats = [os.path.join(base, "bank_n97_gpu*" + TAG + "*", "results.json"),
-                os.path.join(base, "bank_n97_gpu*" + TAG + "*.results.json.gz")]
+        if DIRS:
+            pats = [os.path.join(base, d, "results.json") for d in DIRS] + \
+                   [os.path.join(base, d + ".results.json.gz") for d in DIRS]
+        else:
+            pats = [os.path.join(base, "bank_n97_gpu*" + TAG + "*", "results.json"),
+                    os.path.join(base, "bank_n97_gpu*" + TAG + "*.results.json.gz")]
         for pat in pats:
             for p in sorted(glob.glob(pat)):
                 src = os.path.basename(p).replace(".results.json.gz", "")
@@ -147,6 +157,11 @@ def sidecar_files_for(src):
     드라이버가 `fb_n97_gpu<G>_<DATE>.jsonl`로 쓴다(run_n97_nt2.sh). 대응 파일이 하나도 없으면
     그 arm은 **사이드카를 켜지 않은 것**이고, 그 sim의 '0건'은 침묵의 증거가 아니다.
     """
+    # arm 런(`bank_f1_gpu0`)은 사이드카를 `fb_f1_gpu0.jsonl`로 쓴다 — 이름이 1:1이므로 먼저 본다.
+    arm = re.sub(r"^bank_", "", src or "")
+    exact = [f for f in SIDECAR_FILES if f in ("fb_%s.jsonl" % arm, "fb_%s.jsonl.gz" % arm)]
+    if exact:
+        return exact
     m = re.search(r"gpu(\d)", src or "")
     d = re.search(r"(\d{8}[a-z]?)$", src or "")
     if not (m and d):
