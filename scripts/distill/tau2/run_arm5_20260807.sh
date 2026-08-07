@@ -32,7 +32,7 @@ source ./go_stack.sh >/dev/null 2>&1
 #   FB_SIDECAR    비커밋 관측(거동 변화 0) — 이게 없으면 포렌식의 절반이 불가능하다
 KEEP="T2_KB_DOCS_DIR T2_LLM_TIMEOUT T2_LLM_RETRIES T2_AGENT_MAX_TOKENS T2_A2_VARIANT"
 KEEP="$KEEP T2_FB_SIDECAR T2_FB_SIDECAR_TEXT"
-KEEP="$KEEP T2_SOURCE T2_ARBITRATE T2_LEDGER T2_RESOLVE T2_FORCE_ACTION"
+KEEP="$KEEP T2_SOURCE T2_ARBITRATE T2_LEDGER T2_RESOLVE T2_FORCE_ACTION T2_WINDOW"
 
 off=0
 for v in $(compgen -e | grep '^T2_' | sort); do
@@ -47,20 +47,22 @@ export T2_ARBITRATE=1   # C3 중재 (합병·등급) — C2 선행 그래프를 
 export T2_FORCE_ACTION=1 # C2 선행 집행: 미충족 표적을 향한 push를 잡는 트리거
 export T2_RESOLVE=1     # C2 선행 집행: per-operand 해소 + user-action 탐지(_utgt)
 export T2_LEDGER=1      # C5 이관: 원장 산수(전사=모델·산수=엔진)
-# C4 역할 = 무플래그 위생(t2_role) · C6 창 = t2_window (배선 전이라 이 arm엔 미포함)
+export T2_WINDOW=1      # C6 창: 사임 ∪ 행동 ∪ **지시**(표적 이름이 답변에 등장)
+# C4 역할 = 무플래그 위생 — t2_role.executor_of로 배선(항상 켜짐)
 
 echo "arm-5: unset ${off} T2_* flags; contracts on = C1 SOURCE · C2 RESOLVE+FORCE_ACTION · C3 ARBITRATE · C5 LEDGER"
 compgen -e | grep '^T2_' | sort | sed 's/^/  keep /'
 
 TASKS="${1:-task_100,task_101,task_102}"
 NT="${2:-1}"
+TAG="${3:-bank_arm5_gpu0}"
 LOG=/home/woori/scratch/logs
 mkdir -p "$LOG"
-export T2_FB_SIDECAR="$LOG/fb_arm5_gpu0.jsonl" T2_FB_SIDECAR_TEXT=1
+export T2_FB_SIDECAR="$LOG/fb_${TAG}.jsonl" T2_FB_SIDECAR_TEXT=1
 # ⚠자식에서 go_stack을 다시 source하면 **끈 플래그가 전부 되살아난다**. 함수만 넘긴다.
 export -f t2_launch
 setsid bash -c "cd '$REPO/scripts/distill/tau2' && \
-  T2_FB_SIDECAR='$LOG/fb_arm5_gpu0.jsonl' t2_launch bank_arm5_gpu0 8140 '$TASKS' $NT" \
-</dev/null >"$LOG/arm5_gpu0.log" 2>&1 &
+  T2_FB_SIDECAR='$LOG/fb_${TAG}.jsonl' t2_launch $TAG 8140 '$TASKS' $NT" \
+</dev/null >"$LOG/${TAG}.log" 2>&1 &
 sleep 2
-echo "launched. log: $LOG/arm5_gpu0.log"
+echo "launched. log: $LOG/${TAG}.log"

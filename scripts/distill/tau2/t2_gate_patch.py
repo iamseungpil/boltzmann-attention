@@ -5455,7 +5455,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _agent_names = {getattr(t, "name", None)
                                         for t in (getattr(self, "tools", None) or [])}
 
+                        # ★C4 역할 배선(2026-08-07): 실행 주체 판정을 **한 함수**로 보낸다.
+                        #   T1(사실 모순)은 중재 대상이 아니라 제거 대상이다 — 우리 층 두 문구가
+                        #   같은 명제에 반대 진리값을 말한 계열 A(`[ACTION]` "손님 도구다" ↔
+                        #   `unified_regen` "네 도구다")가 이 판정이 복제돼 있어서 생겼다.
+                        #   > 불변식 I1: 같은 명제에 다른 진리값을 말하는 턴 수 = 0
+                        #   ⚠지금은 **거동 보존**을 위해 UNKNOWN을 종전대로 "user"로 떨어뜨린다.
+                        #     설계서가 요구하는 "판정 불가면 문장을 뺀다"로 조이는 것은 별도 측정 단계다.
+                        _envr = getattr(getattr(self, "_t2_orch", None), "environment", None)
+
                         def _exec_side(_n):
+                            try:
+                                import t2_role as _role
+                                _r = _role.executor_of(_n, agent=self, env=_envr)
+                            except Exception:
+                                _r = None
+                            if _r:
+                                return _r
                             return "assistant" if _n in _agent_names else "user"
                         _acts = {t for t in ((a2 or {}).get("action_tools") or [])
                                  if _exec_side(t) == "assistant"}
@@ -5469,7 +5485,31 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                   if _exec_side(t) == "user"}
                         _called = {getattr(c, "name", None) for c in (am.tool_calls or [])}
                         _tgt_pre = None      # ★공유 formalize(합집합 1회) — 아래 원 블록이 재사용(이중 서브콜 방지)
-                        if ((_uacts or _acts) and _rz._agent_ending(am, _transfer_tools(a2))):
+                        # ★C6 창 배선(2026-08-07·사용자 지시). `_agent_ending`은 **사임 턴만** 연다
+                        #   (도구 0 또는 transfer만). 그것이 T6의 정체다 — 실패 198 sim 중 109(55%)가
+                        #   우리 개입 0건이고, 101/102 부검이 같은 자리를 짚었다: ORDER는 turn 6 이후
+                        #   침묵인데 우리 층은 turn 58까지 살아 있었고, 예산을 없애도 발화가 안 늘었다
+                        #   (=cap이 아니라 창이 구속조건). 그런데 실제 write는 **산문**을 지난다 —
+                        #   제출 유형이 직전 답변에 101 87/87 · 102 61/63.
+                        #   ⇒ 창 = 사임 ∪ 행동 ∪ **지시**. 술어는 표적 이름의 등장뿐이다(산문 해석 0).
+                        #   ⚠플래그 뒤에 둔다(`T2_WINDOW`): 창을 넓히는 것은 발화 기회를 늘리는 일이라
+                        #     004형 "마지막 턴 소각" 위험이 있다. 미설정 = 종전 거동.
+                        def _win_open():
+                            if os.environ.get("T2_WINDOW") != "1":
+                                return _rz._agent_ending(am, _transfer_tools(a2))
+                            try:
+                                import t2_window as _w
+                                _k = _w.opened(am, sorted(set(_uacts) | set(_acts)),
+                                               name_of=_eff_tool_name)
+                                if _k:
+                                    print("[T2_WINDOW] open=%s" % _w.why(_k),
+                                          file=_sys.stderr, flush=True)
+                                    return True
+                            except Exception as _e13:
+                                print("[T2_WINDOW] error (fallback): %r" % (_e13,),
+                                      file=_sys.stderr, flush=True)
+                            return _rz._agent_ending(am, _transfer_tools(a2))
+                        if ((_uacts or _acts) and _win_open()):
                             _effall = {_eff_tool_name(tc) for m2 in state.messages
                                        for tc in (getattr(m2, "tool_calls", None) or [])}
                             _upending = sorted(_uacts - _effall)
