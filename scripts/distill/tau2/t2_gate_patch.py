@@ -5391,9 +5391,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             print("[T2_RESOLVE] %s deny" % _rvr.get("reason", "recommendation-verify"),
                                   file=_sys.stderr, flush=True)
                     # ★action-required (turn-level): am이 회피(action_tool 미호출)면 operator 해소
-                    #   GET→FIND(intent→도구)→execute|ASK. 조언/포기로 종결 금지. cap 1/sim.
-                    if (rw_fb is None and getattr(self, "_t2_action_deny", 0)
-                            < int(os.environ.get("T2_ACTION_DENY_CAP", "1"))):
+                    #   GET→FIND(intent→도구)→execute|ASK. 조언/포기로 종결 금지.
+                    # ★예산 폐지 (2026-08-07·사용자 지시 "예산 없애라. 예산이 주는 이익이 없다").
+                    #   근거: 이 cap의 **해악은 측정됐고 이익은 측정된 적이 없다**([[56]] 근거 우세).
+                    #   101/102 전수 부검 — 발화 3회가 turn 4·6·8에 전부 소진되는데 첫 요건이 충족되는
+                    #   것은 turn 11 전후다. 그래서 요건 큐의 머리가 한 번도 바뀌지 않았고(`queue
+                    #   advanced` 로그 0회), 환급 판정이 **발화 안에** 있는 탓에 예산이 바닥나면 환급도
+                    #   받을 수 없었다 — 되돌아올 수 없는 상태. 그 결과 두 번째 요건(원장 조회)은
+                    #   20 trial 내내 **한 번도 "지금 하라"가 되지 못했고**, 실제 조회는 2/20이었다.
+                    #   over-action의 실측 사고(023 컨텍스트 초과)는 게이트별 cap이 아니라 **전역**
+                    #   `T2_REGEN_BUDGET`이 막는 층이다 — 상한이 필요하면 거기 두는 것이 맞다.
+                    #   미설정=무제한. 정수를 주면 종전처럼 그 수에서 멈춘다(되돌리기 경로 유지).
+                    _adc = os.environ.get("T2_ACTION_DENY_CAP")
+                    _adc = int(_adc) if (_adc or "").strip().lstrip("-").isdigit() else None
+                    if (rw_fb is None and (_adc is None
+                                           or getattr(self, "_t2_action_deny", 0) < _adc)):
                         # ★Lever 0(BANK_ACTIONREQ_PROBE_FORENSIC §3): action-required는 agent-실행
                         #   도구만 대상 — user-실행(apply/submit 등)은 에이전트가 못 부르므로 스퓨리어스.
                         #   ★실행 주체는 **env에서 도출**한다(2026-07-31·[[23]] 감사): 구판은 A2
