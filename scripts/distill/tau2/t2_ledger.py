@@ -241,8 +241,11 @@ def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr,
         out[str(k)] = (num, quote)
     # ★빈손도 찍는다 (2026-08-08·lim_n 라이브). 성공만 찍으면 "못 찾았다"와 "안 돌았다"가
     #   구분되지 않는다 — 오늘 `seen=N`으로 배운 것과 같은 형태다.
-    print("[T2_LEDGER] %s: model gave %d, accepted %d, rejected %d"
-          % (field, len(got) if isinstance(got, dict) else 0, len(out), rejected),
+    # 이름까지 찍는다 — 개수만으로는 *"소진된 유형을 못 뽑은 것"* 과 *"뽑았는데 소진이 아닌 것"* 이
+    # 구분되지 않는다(dp_p에서 추출 2회·발화 0회가 정확히 그 모호함이었다).
+    print("[T2_LEDGER] %s: model gave %d, accepted %d, rejected %d · %s"
+          % (field, len(got) if isinstance(got, dict) else 0, len(out), rejected,
+             ", ".join("%s=%s" % (k, v[0]) for k, v in sorted(out.items())) or "(none)"),
           file=sys.stderr, flush=True)
     # ★★빈손은 **기억하지 않는다**. 구판은 `{}`도 메모해 그 sim 내내 재시도가 없었다.
     #   원장 read는 대화 앞쪽(턴 10~12)에서 일어나는데 상품 문서는 그보다 **뒤에** 회수된다 —
