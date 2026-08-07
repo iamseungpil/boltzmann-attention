@@ -186,7 +186,40 @@ it early yourself"* 라고 **말한다** — 그런데 **집행은 도구 호출
 ⇒ **설립 서류는 조회하는 것이 아니라 신청자가 제출하는 것이다.** 레지스트리·제3자 조회 절차는 코퍼스에
 없다. 이 대화에서 제출된 적도 없다. **"5년"은 gold-side `notes`에만 존재한다.**
 
-### 6b ★그런데 자격을 가르는 신호는 **손님 발화 안에 있고, 두 태스크에서 동일하다**
+### 6a-2 ★★upstream이 **같은 결론으로 이슈를 열어 뒀다** (독립 확증) [S]
+
+`banking_knowledge`는 우리가 만든 도메인이 아니라 **공식 upstream 도메인**이다
+(`origin = sierra-research/tau2-bench` · 우리 HEAD = `fc0055d` **v1.0.1** 2026-07-16).
+
+> **[Issue #432](https://github.com/sierra-research/tau2-bench/issues/432)** (2026-07-22 · liviosoares · **OPEN** · 댓글 0)
+> *"[banking_knowledge] task_102: how do we verify the age of the 'Ember Analytics' startup?"*
+> — 보고자도 **db·문서·도구 어디에서도 설립일을 찾지 못했다**고 적고, gold가 요구하는 *"5년(2020년 설립)이라고
+> 정정"* 을 근거 없이 어떻게 하느냐고 묻는다.
+
+우리 궤적 부검이 도달한 결론과 **독립적으로 일치**한다. 그리고 **미해결**이다(댓글 0·우리 HEAD가 이슈보다 앞선다).
+
+같은 계열의 열린 이슈가 더 있다 — 이 종류가 인정된 결함군임을 보여준다:
+- **#439** *"Cash-back dispute correction (doc_004) requires a `cash_back_disputes` read that **no tool provides** — task_026/027 undecidable"* (OPEN)
+- **#438** *"Cash-back fixtures **violate the documented floor rounding policy** (task_017, task_026)"* (OPEN)
+- (닫힌 선례) **#402** *"make lost/stolen gold trajectories **agent-realizable** (T077–T086)"* · v1.0.1 릴리스 노트가
+  *"fixed **impossible constraints**"* 를 75+ 수정 항목에 명시
+
+### ★실험 설계 귀결 (반드시 반영할 것)
+
+`102 reward = DB × NL_ASSERTION` 이고 **NL이 원리적으로 도달 불가**이므로:
+
+> **102의 reward는 어떤 레버로도 0을 벗어날 수 없다.** 102를 reward 표적으로 쓰면 안 된다.
+> 레버 효과의 표적은 **101**(`reward_basis=['DB']` 단독)이고, 102는 **DB 축만** 부수 신호로 읽는다.
+
+### 6b 자격을 가르는 신호가 대화 안에 있기는 하다 — **단 5년을 유도하지는 못한다**
+
+⚠**정정(2026-08-07)**: 이 절의 초판은 *"손님이 Ember를 스타트업 단계를 지났다고 서술한다"* 에서
+*"그러므로 판정 가능하다"* 로 미끄러졌다. **질적 자기서술에서 양적 문턱 위반은 나오지 않는다** —
+2년 된 회사도 "초기 단계를 지났다"고 서술될 수 있다. 이 신호가 지지하는 최대치는
+**"자격이 확립되지 않았으니 서류를 요구하라"** 이고, gold 축자(*"exceeds the 4-year limit"*)는 여전히
+도달 불가다. #432가 같은 말을 한다.
+
+그래도 신호 자체는 실재하고 두 태스크에 동일하므로 기록해 둔다:
 
 | | 손님 축자 |
 |---|---|
