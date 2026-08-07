@@ -196,9 +196,36 @@ not because the agent identified Ember as ineligible"* 로 기각됐다.
 
 우리 `[ORDER]` 문구는 두 태스크에서 **바이트 동일**이고 둘 다 6회 발화했다. 즉 게이트 부재가 아니다.
 차이는 손님이다 — 102 손님은 referral 이력을 **먼저 틀리게 말해** 검증을 유발하고, 101 손님은
-*"I can't even count them all"* 이라 말한다. **우리 게이트는 조회를 '나중에 할 것'으로 미루기만 하고
-(*"Still outstanding after that (do not do them in this reply)"*), 다시 강제하지 않는다.**
-101은 그 뒤로 조회 없이 끝난다.
+*"I can't even count them all"* 이라 말한다.
+
+### §7b 왜 "원장을 안 읽는 것"이 한 번도 개선되지 않았는가 [M]
+
+`[ORDER]` 발화를 전수로 펴 보면 답이 나온다. **모든 발화에서 "지금 하라"로 지목된 단계는
+`log_verification` 하나뿐이고, 원장 조회는 예외 없이 '나중' 칸에 있다:**
+
+```
+NOW  = customer identity verified and logged (log_verification)
+잔여 = the customer's eligibility ... checked against their referral record;
+       the prior read(s) this action requires have been done      ← 항상 여기
+```
+
+그리고 **`[ORDER]`는 turn 4와 6(또는 8)에서 두 번 울고 끝난다** — 6개 arm 전수 동일.
+우리 층 자체는 살아 있다(같은 sim에서 `CLAIM-PROVENANCE`가 turn 20·30·40·58까지 계속 운다).
+**멈추는 건 ORDER만이다.**
+
+원인은 트리거다. ORDER는 **모델이 그 도구를 호출하려 할 때** 운다. 초반에 모델이
+`submit_referral`/`give_discoverable_user_tool`을 시도해서 두 번 울었고, 막힌 뒤 모델은 호출을
+그만두고 **산문으로 지시**한다. 산문에는 트리거가 없다. 그런데 §5대로 **실제 write는 산문에서
+나온다**(101 87/87).
+
+⇒ 네 가지가 겹친다:
+1. 원장 조회 요건은 게이트 데이터에 **있지만 항상 '나중' 칸에만 인쇄**된다(첫 단계만 '지금').
+2. 첫 단계가 충족돼도 **재평가·재발화 계기가 없다**.
+3. 트리거가 도구 호출뿐이라 모델이 호출을 멈추면 **게이트도 멈춘다**.
+4. 실제 write 경로(산문 → 손님 도구)에 대해 게이트는 **구조적으로 눈이 멀어 있다**.
+
+**즉 우리는 이 실패를 개선하려고 시도한 적이 없다.** 요건을 인쇄만 했고 집행 지점을 가진 적이 없다.
+"모델이 원장을 안 읽는다"는 관찰은 모델 귀속으로 넘길 근거가 아직 없다([[55]]).
 
 ---
 
