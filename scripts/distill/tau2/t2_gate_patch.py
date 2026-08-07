@@ -3830,6 +3830,17 @@ def _install_regen_exec():
                         _o = _rby.get(getattr(tc, "id", None))
                         if _o is None or getattr(_o, "error", False):
                             continue
+                        # ★한 번에 가르는 계측(2026-08-07). 이 레버는 오늘 **네 번** 무음이었고
+                        #   그때마다 다른 곳을 짚었다(죽은 훅 → 설치 조건 → 전사 → ?). 무음이 남으면
+                        #   또 추측하게 되므로, 진입할 때마다 **무엇을 보고 있는지**를 찍는다.
+                        #   sim당 1회만(로그 폭주 방지) — 첫 도구 결과에서 한 번.
+                        if not getattr(self, "_t2_ledger_probe", False):
+                            self._t2_ledger_probe = True
+                            print("[T2_LEDGER] probe: a2=%s metrics=%d tools_in_batch=%s"
+                                  % ("None" if _a2w is None else "dict",
+                                     len((_a2w or {}).get("ledger_metrics") or []),
+                                     ",".join(sorted({_eff_tool_name(_t) for _t in to_run}))),
+                                  file=sys.stderr, flush=True)
                         _specs = _LG.specs_for(_a2w, _eff_tool_name(tc))
                         for _ls in _specs:
                             _txt = _content_str(_o)
