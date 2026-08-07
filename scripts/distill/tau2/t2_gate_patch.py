@@ -3917,6 +3917,26 @@ def _install_regen_exec():
                             #   *"replay-비교 대상 도구의 피드백 뷰-채널 소비 · 작업버퍼에만 주입"*.
                             #   대가: 도구 출력 옆에 영구히 남지 않고 생성-뷰에 N회 노출된다
                             #   (1회는 무시된다는 실측이 있어 기본 3회·`T2_LEDGER_VIEW_KEEP`).
+                            # ★상한 대조 (2026-08-08·C302/C304). 누계만 넘기고 상한과 맞대지
+                            #   않으면 잔여 0인 유형이 그대로 제출된다(def_k t0 `Light Green` 3/3).
+                            #   해석=LLM(어느 문장이 이 유형의 상한인가)·산수=엔진(상한−누계)·
+                            #   인용 실재는 엔진이 확인만 한다([[52]]·[[59]]·[[22]]).
+                            try:
+                                _lims = _LG.formalize_limits(_lgagent, la, UserMessage, _tx, _ls)
+                                if _lims:
+                                    _tal = _LG.window_and_tally(
+                                        _rows, _ls, now=getattr(_lgagent, "_t2_ledger_now", None))[2]
+                                    _ex = _LG.exhausted_text(_tal, _lims, _ls)
+                                    if _ex:
+                                        _blk = _blk.rstrip() + "\n" + _ex
+                                        print("[T2_LIMIT_REDUCE] limits=%d exhausted-line emitted"
+                                              % len(_lims), file=sys.stderr, flush=True)
+                                        _lbeat("T2_LIMIT_REDUCE", orch=self,
+                                               target=_eff_tool_name(_tc),
+                                               fact="some groups have no annual capacity left")
+                            except Exception as _le:
+                                print("[T2_LIMIT_REDUCE] skipped: %r" % (_le,),
+                                      file=sys.stderr, flush=True)
                             _q = list(getattr(_lgagent, "_t2_view_fb", None) or [])
                             _q.append([_blk.strip(),
                                        int(os.environ.get("T2_LEDGER_VIEW_KEEP", "3"))])

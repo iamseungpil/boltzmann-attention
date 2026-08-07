@@ -141,6 +141,82 @@ def formalize_now(agent, la, UserMessage, texts, spec):
     return cand
 
 
+def formalize_limits(agent, la, UserMessage, texts, spec):
+    """회수된 문서가 **말한 상한**을 모델이 뽑는다 — `{그룹: (상한, 인용문)}`.
+
+    왜 여기까지 오나 (원장 C302·C304): 우리는 유형별 **누계**를 정확히 셈해 넘기고, 문구가
+    *"These are counts of what has been used. They are NOT the limits"* 라고 못 박는다. 그런데
+    상한과의 비교를 **아무도 하지 않는다** — 우리는 안 하기로 했고(상한은 원장에 없다) 모델은
+    실제로 안 했다. 그 결과 잔여 0인 유형이 제출된다(def_k t0: `Light Green` 사용 3/상한 3).
+
+    분담은 그대로다([[52]]·[[10]]): **해석=LLM**(어느 문서의 어느 문장이 이 유형의 상한인가),
+    **산수=엔진**(상한 − 누계). 엔진은 문서를 읽지 않는다([[59]]) — 모델이 낸 JSON만 받는다.
+    인용문은 **존재 검증용**이다(엔진이 뜻을 읽지 않고 회수된 텍스트에 실재하는지만 본다 —
+    `t2_source`가 하는 것과 같은 종류의 확인이고 [[22]] 따름정리가 요구하는 근거-우선 계약이다).
+
+    ⚠상한을 A2에 박지 않는다([[50]] ADB): 상품 수만큼 두꺼워지고 문서가 바뀌면 조용히 틀린다.
+    ⚠**못 찾으면 비운다.** 모르는 유형은 결과에서 빠지고, 그 유형에 대해서는 아무 말도 안 한다.
+    """
+    tpl = (spec or {}).get("limit_prompt")
+    if not (tpl and agent is not None and la is not None and texts):
+        return {}
+    memo = getattr(agent, "_t2_ledger_limits", None)
+    if memo is not None:
+        return memo
+    prompt = tpl.format(text="\n---\n".join(str(t)[:4000] for t in texts[-12:]))
+    try:
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+              if "tool" not in k}
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="ledger_limits_formalize", **kw)
+        raw = getattr(sub, "content", None) or ""
+    except Exception:
+        return {}
+    m = re.search(r"\{.*\}", raw, re.S)
+    if not m:
+        return {}
+    try:
+        got = json.loads(m.group(0))
+    except Exception:
+        return {}
+    hay = "\n".join(str(t) for t in texts)
+    out = {}
+    for k, v in (got.items() if isinstance(got, dict) else []):
+        try:
+            lim = int(str((v or {}).get("limit")).strip())
+            quote = " ".join(str((v or {}).get("quote") or "").split())
+        except Exception:
+            continue
+        if lim <= 0 or len(quote) < 12:
+            continue
+        if " ".join(quote.split()) not in " ".join(hay.split()):
+            continue                       # 인용이 회수된 텍스트에 없다 = 채택하지 않는다
+        out[str(k)] = (lim, quote)
+    try:
+        agent._t2_ledger_limits = out
+    except Exception:
+        pass
+    return out
+
+
+def exhausted_text(tally, limits, spec):
+    """누계와 상한을 맞대어 **남은 자리가 없는 그룹**만 말한다. 산수뿐이고 추천은 하지 않는다."""
+    tpl = (spec or {}).get("exhausted_text")
+    if not (tpl and limits):
+        return ""
+    gone, left = [], []
+    for g, (lim, _q) in sorted(limits.items()):
+        used = int(tally.get(g, 0))
+        (gone if used >= lim else left).append("%s %d/%d" % (g, used, lim))
+    if not gone:
+        return ""
+    return tpl.format(exhausted="; ".join(gone), remaining="; ".join(left) or "(none)")
+
+
 def _date(s, fmts):
     for f in fmts:
         try:
