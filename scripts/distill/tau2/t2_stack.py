@@ -95,7 +95,10 @@ MECHANISMS = [
     # ── ① 날조 = 미검증 단정·정박 치환 ──────────────────────────────────────
     ("미검증 단정·정박 치환", "조회 실패 후 record를 발명 → **우리 도구가 그것을 모델 자신의 provided와 대조해 VERIFIED 발급**(가짜 검증)",
      "004: DOB 01/15/1985·'123 Main St' 날조 · record 날조 46%·grounded 0/24",
-     "T2_A2_VARIANT=ledger", "출처 근거 확보"),
+     # ★층 없음 = **말하지 않는 레버**. 이건 문구를 붙이는 게 아니라 `verify_identity`의 record
+     #   슬롯을 A2에서 지워 그 경로를 **구조적으로 불가능**하게 만든다. `speak()`의 대상이 아니고,
+     #   그래서 층이 비어 있는 것이 결함이 아니다 — 작용면이 다르다(선언면).
+     "T2_A2_VARIANT", None),
     ("미검증 단정·정박 치환", "존재하지 않는 도구 이름을 손님에게 건넴",
      "012 `navigate_to_travel_notification` · x88: give 342 중 집합 밖 252(12 sim·통과 0) · **gold 요구 give 41 중 집합 밖 0**",
      "T2_DISPATCH_ROLE_ENVSET", "출처 근거 확보"),
@@ -287,6 +290,139 @@ MECHANISMS = [
     ("전사 발산", "중복 read가 문맥을 소각 — ⚠216줄을 감싼 것은 **코드 배치 사고**이지 이 레버의 성질이 아니다",
      "미이설 = 부채",
      "T2_READ_DEDUP", "출처 근거 확보"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ★2026-08-07 2차 수확 — 미배정 34개 (커버리지 53/86 → 86/86)
+    #   근거는 전부 `go_stack.sh` 주석 · `t2_gate_patch.py` 인라인 ★주석 · 원장 C번호에서 왔다.
+    #   실측 주석이 없는 것은 **없다고 적는다**(지어내지 않는다).
+    # ══════════════════════════════════════════════════════════════════════
+
+    # ── DF1 미검증 단정·정박 치환 (12) ────────────────────────────────────
+    ("미검증 단정·정박 치환", "출처 선언 4지선다 + provenance 검증 — 인자마다 *어디서 왔는가*를 유한 선택으로 강제",
+     "E11 GO · C45: 32B 날조 **67% → 0%** · over-block 0 · Δspurious 0 (present 없이)",
+     "T2_PROV_REGEN", "출처 근거 확보"),
+    ("미검증 단정·정박 치환", "사임 턴의 **완료-주장에 출처를 묻는다**(A2 `completion_guard.claim_question`)",
+     "`_resign ∧ 미발화` 1회 · `t2_gate_patch:7596`",
+     "T2_WRITE_PROV", "출처 근거 확보"),
+    ("미검증 단정·정박 치환", "write **인자값**이 출처에 있는가 — P9로 give 내포 인자까지 확장",
+     "028/040 · WEV 블록과 동일 라운드·cap·배관 공유",
+     "T2_WRITE_ARG_GROUND", "출처 근거 확보"),
+    ("미검증 단정·정박 치환", "증거 없는 update 차단 — ⚠**구 apply()에만 있어 unified 런에서 死코드였다**",
+     "028 포렌식: deny **0회** · 증거 없는 update **6건 통과** ⇒ 생성-레벨로 이설(死배선 사고의 원형)",
+     "T2_WRITE_EVIDENCE", "출처 근거 확보"),
+    ("미검증 단정·정박 치환", "P-A GROUND — 인자 접지 검사(T5-C rev3)",
+     "go_stack 등재 근거만 · 태스크-단위 실측 주석 **없음**",
+     "T2_GROUND", "출처 근거 확보"),
+    ("미검증 단정·정박 치환", "격리 서브콜 반환의 진위 검사 — 실패 시 **원 도구 실행으로 폴백**(거동 변화 0)",
+     "`t2_gate_patch:1907`",
+     "T2_SG_TRUTH", "출처 근거 확보"),
+    ("미검증 단정·정박 치환", "문맥에 없는 **id-operand를 쓴 write만** strip — read/procedural은 무해라 건드리지 않는다",
+     "over-block 방지 설계가 술어에 박혀 있다 · 디스패처 nested unwrap 포함",
+     "T2_FAB_STRIP", "출처 근거 확보"),
+    ("미검증 단정·정박 치환", "env가 *\"Unknown ... tool\"* 로 반려한 이름을 블랙리스트",
+     "§2bt · rall11 050 실측",
+     "T2_UNKNOWN_NAME_BL", "출처 근거 확보"),
+    ("미검증 단정·정박 치환", "A2 `discoverable_name_check` — **선언된 이름만** 통과",
+     "§2bh · rall5 실측 · C186이 이것을 ①라우팅 표적으로 지목",
+     "T2_UNLOCK_NAME", "출처 근거 확보"),
+    ("미검증 단정·정박 치환", "regen 경로의 **접미사-환각** 차단(해금 이름을 다시 지어내는 것)",
+     "§2bt · rall11 050 실측",
+     "T2_UNLOCK_PROV", "출처 근거 확보"),
+    ("미검증 단정·정박 치환", "producer-binding — A2 `grounded_params`로 **날조를 결핍으로 강등**(값을 만들지 않는다)",
+     "P4b",
+     "T2_PROD_BIND", "출처 근거 확보"),
+    ("미검증 단정·정박 치환", "☠C1 출처 계약 — 유형 9종(값·행·이름·행동·사유·문서·선택·인용·생산자)을 한 술어로",
+     "**미구현**(`t2_source.py`는 있으나 `go_stack.sh`에 없다) · 7키가 같은 문장을 7번 다시 쓴 것이 표적",
+     "T2_SOURCE", "출처 근거 확보"),
+
+    # ── DF2 의미 소속 판정 불가 (2) ───────────────────────────────────────
+    ("의미 소속 판정 불가", "선언된 write가 **가리키는 레코드**를 결정론으로 검증(도구/필드/문구=A2)",
+     "C128/C129 · C186이 ⑨값 표적으로 지목",
+     "T2_REF_VERIFY", "출처 근거 확보"),
+    ("의미 소속 판정 불가", "스키마 **밖 최상위 키** 위생 — 근거는 자기 도구 스키마(`properties`)뿐·값 판단 0",
+     "P11 · unified 이설 완료 · **표적 0 = 위생**(효과 주장 없음)",
+     "T2_ARG_SCHEMA", "출처 근거 확보"),
+
+    # ── DF5 완료 무검증 (2) ───────────────────────────────────────────────
+    ("완료 무검증", "재발행 시 **채널을 강제**(`tool_choice=required`) — 말로 하면 56%로 악화",
+     "forced 프로브: 강제 하 **24/24** 정답 선택 vs 말로 지시 56%(단일변수·`forced_probe_20260718`)",
+     "T2_FOLLOWUP_FORCE", "차단"),
+    ("완료 무검증", "제출 후 **KB-검색류로 새는 것**을 막고 남은 단계로 되돌린다",
+     "§2bk · rall7 050 실측",
+     "T2_FOLLOWUP_READLOOP", "차단"),
+
+    # ── DF6 발화-행동 등가 오인 (6) ───────────────────────────────────────
+    ("발화-행동 등가 오인", "손님이 `###TRANSFER###`를 **직접 방출**하면 notice 요건을 면제 — 과차단 해제 쪽 레버",
+     "A4 · 008 [S]",
+     "T2_TERM_GRANT_USERDEMAND", "차단"),
+    ("발화-행동 등가 오인", "**도구목록 밖 이름** 호출 차단(발명명 포함)",
+     "§2bb · r095g g-t0 실측",
+     "T2_TOOLLIST", "차단"),
+    ("발화-행동 등가 오인", "값을 **어디서 얻는지** 경로를 표면화(쫓을 곳을 알려준다)",
+     "C119 · 8-task per-step 포렌식",
+     "T2_VALUE_ACQUIRE", "표면화"),
+    ("발화-행동 등가 오인", "`have-value → act` 일반레버 — 값을 이미 쥐었으면 행동으로 넘긴다(도구/인자/신호/문구=A2)",
+     "C115",
+     "T2_HAVE_VALUE", "선행"),
+    ("발화-행동 등가 오인", "그 강제판 — ⚠병리적 runaway(039 퇴행루프)만 `_gen` 폴백으로 강등",
+     "C115 · `t2_gate_patch:6332`",
+     "T2_HAVE_VALUE_FORCE", "선행"),
+    ("발화-행동 등가 오인", "pre-gate **순서** 체인 수정 — 합성 런이 드러낸 관통의 조정물",
+     "C162 실증 · C166 체인수정 ([[19]] 합성-우선의 사례)",
+     "T2_GUIDED", "선행"),
+
+    # ── DF9 사슬 역행 실패 (7) ────────────────────────────────────────────
+    ("사슬 역행 실패", "say-don't-do 감지 → **다음 재생성서 `tool_choice=required`**",
+     "`t2_gate_patch:4578`",
+     "T2_FORCE_ACTION", "선행"),
+    ("사슬 역행 실패", "E-PLAN ledger + walk — 커밋 히스토리에서 결정론 ledger 재구성(관측만·[[10]])",
+     "[[14]] · discovery L1/L2 = read-강제 deny(§1.5 허용축)",
+     "T2_EPLAN_WALK", "선행"),
+    ("사슬 역행 실패", "A2 `scaffold_get_tools` — **검증기 GET을 주입**한다(모델이 없는 도구를 찾아 헤매지 않게)",
+     "go_stack 등재 근거 · `t2_run_gated.py:248`에서 체이닝",
+     "T2_SCAFFOLD_GET", "선행"),
+    ("사슬 역행 실패", "read-**선행** 게이트 — 계산 전에 필요한 레코드를 먼저 읽게 한다",
+     "§2aw · r095 gather-순서 실측(계산 前 저축 레코드)",
+     "T2_SG_REQREADS", "선행"),
+    ("사슬 역행 실패", "선행 read를 named `tool_choice` + **단일값 enum**으로 1회 고정",
+     "P1 · x72 **3/3** · replay 무관 · ⚠P1 단독 기대 pass 증가 = **0으로 사전등록**",
+     "T2_PIN_READ", "선행"),
+    ("사슬 역행 실패", "고정의 **재무장** — 첫 라이브라 1회만(기회비용 미측정이라 보수적으로)",
+     "C15 보조",
+     "T2_PROC_PIN_REARM", "선행"),
+    ("사슬 역행 실패", "*\"종료 시 1회\"* → **갭이 열려 있는 동안 매 드리프트마다 견인**",
+     "C118 · `EPLAN_MIDDRIVE_DESIGN §2.1`",
+     "T2_COV_MIDDRIVE", "선행"),
+
+    # ── DF10 집계 미발화 (5) ──────────────────────────────────────────────
+    ("집계 미발화", "liability 계산 이관 — **에이전트 제공값만** 쓰고 미확정이면 개입하지 않는다",
+     "§8-3: liability만 **순 +348** · provisional 드롭 **net −4**",
+     "T2_COMPUTE", "계산 이관"),
+    ("집계 미발화", "per-operand **해소 디스패처**(통일 인터프리터)",
+     "`UNIFIED_OPERAND_A2 §7-3`",
+     "T2_RESOLVE", "계산 이관"),
+    ("집계 미발화", "처방을 A2 구동으로 **결정론 산출**하고 오선택을 deny — ⚠선택 축(DF2)도 건드린다",
+     "§2bu · rall11 038 실측 · 격리 L2 **8/8 = 활성화 실패**",
+     "T2_PRESCRIPTION", "계산 이관"),
+    ("집계 미발화", "격리 서브 **피드백** — 반환은 거동 보존이고 메인 관문1이 재검증한다(심층방어)",
+     "엔진=검증+반사만 · 값 생성=LLM([[03b]]/[[10]])",
+     "T2_SG_ISOFB", "계산 이관"),
+    ("집계 미발화", "격리 서브콜 **궤적 기록** — 서브에서 무슨 일이 있었는지 사후 감사 가능하게",
+     "`t2_gate_patch:1659` · 관측 레버(판정 안 함)",
+     "T2_SG_TRACE", "계산 이관"),
+
+    # ── ★배선이 드러낸 미등록 레버 3종 (2026-08-07) ───────────────────────
+    #   `_ap_regen` tag를 게이팅 플래그까지 되짚자 **레지스트리에 없는 레버**가 나왔다.
+    #   레지스트리의 라이브 목록이 `go_stack.sh` 파싱이라서, **코드에서 기본 ON인 플래그가 안 보였다.**
+    ("발화-행동 등가 오인", "같은 transfer notice를 **호출 없이** 다시 보낸다 — 반복이 요청을 정체시킨다",
+     "★`T2_NOTICE_REPEAT` 기본값 `\"1\"` = **라이브인데 go_stack에 없어 감사에 안 잡혔다** (`:7655`)",
+     "T2_NOTICE_REPEAT", "차단"),
+    ("사슬 역행 실패", "레코드를 읽고도 **판정 도구를 안 부르고** 스스로 판정 — A2 `analysis_producers`",
+     "`:7826` · go_stack에 없음 = **비-라이브**",
+     "T2_DISCOVERY_REQUIRED", "차단"),
+    ("미검증 단정·정박 치환", "답변의 근거를 **스스로 선언**하게 하고, `INFER`인데 그걸 내주는 도구가 있으면 되돌린다",
+     "A2 `assertion_operands` · `:7844` · go_stack에 없음 = **비-라이브**",
+     "T2_SELF_DECLARATION", "출처 근거 확보"),
 ]
 
 
@@ -475,6 +611,96 @@ class Stack(object):
         return out
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+#  ★배선 — `_ap_regen`의 tag가 귀속 키다 (전수 등록)
+# ══════════════════════════════════════════════════════════════════════════════
+#
+# 조사 결과 생성면의 발화는 **전부 `_ap_regen(fbtxt, tag, ...)` 하나를 지난다**(`t2_gate_patch:6886`·
+# 호출 26곳). 즉 55개를 하나씩 고칠 필요가 없다 — **그 한 자리가 이미 공유 원시연산**이다.
+# tag를 플래그로 되돌리면 `register()`가 공짜로 채워진다.
+#
+# ⚠**모르는 tag를 추측해서 매핑하지 않는다.** 미매핑은 `flag=None`으로 등록하고 감사에 드러낸다 —
+# 잘못 귀속시키는 것이 미매핑보다 나쁘다(C294: 귀속이 판정의 1차 지표다).
+TAG_TO_FLAG = {
+    "envguard": "T2_ENVELOPE_GUARD",
+    "truncguard": "T2_TRUNC_GUARD",            # 하네스
+    "giverel": "T2_GIVE_RELEVANCE_NUDGE",
+    "unkrepeat": "T2_UNKNOWN_REPEAT_GUARD",    # 폐기 — 층 없음이라 말하지 않는다
+    "covfollowup": "T2_COVERAGE_FOLLOWUP",
+    "unverifiedfu": "T2_UNVERIFIED_FOLLOWUP",
+    "givexec": "T2_GIVE_EXEC_NUDGE",
+    "verdict_surface": "T2_VERDICT_SURFACE",
+    "searchexhaust": "T2_SEARCH_EXHAUST_NUDGE",
+    "claimprov": "T2_CLAIM_PROV",
+    "channel": "T2_TOOL_CHANNEL",
+    "choiceground": "T2_CHOICE_GROUND",
+    "uninstructable": "T2_UNINSTRUCTABLE",
+    "usertoolnote": "T2_USER_TOOL_NOTE",
+    "kbnohit": "T2_KB_NOHIT_SURFACE",
+    "givequote": "T2_GIVE_QUOTE",
+    "argschema": "T2_ARG_SCHEMA",
+    "signature": "T2_TOOL_SIGNATURE",
+    "followup": "T2_FOLLOWUP_REQUIRED",
+    "writeprov": "T2_WRITE_PROV",
+    "transfertier": "T2_TRANSFER_TIER",
+    # ★2026-08-07 호출부 정독으로 해소(게이팅 플래그를 읽어 확정 — 추측 아님):
+    "argrepeat": "T2_UNKNOWN_REPEAT_GUARD",    # :7167/:7190이 게이팅 — **폐기 레버가 아직 발화 경로를 갖고 있다**
+    "noticerep": "T2_NOTICE_REPEAT",           # :7655 — ★기본값 "1" = 라이브인데 go_stack에 없다
+    "discreq": "T2_DISCOVERY_REQUIRED",        # :7826 — go_stack에 없음 = 비-라이브
+    "selfdecl": "T2_SELF_DECLARATION",         # :7844 — go_stack에 없음 = 비-라이브
+    # ⚠남은 미매핑: 변수 tag 2곳(:7297·:7570) — 실행 시 실물 tag를 보고 채운다.
+}
+
+_OBS = {}          # sim 밖에서도 세는 전역 관측 카운터(진단용)
+
+
+def observe(orch, tag, text=None, target=None, order=None):
+    """★거동 중립 관찰자 — `_ap_regen`이 발화할 때마다 스택에 **등록만** 한다.
+
+    지금은 아무것도 막지 않고 아무것도 합치지 않는다. 하는 일은 둘:
+      · 이 발화가 **어느 레버·어느 층**이었는지 귀속을 남긴다
+      · `route()`가 **어떻게 판정했을지**를 함께 남긴다 ⇒ 순서를 뒤집기 전에 순서를 검사할 수 있다
+
+    왜 관찰자를 먼저 두나: 거동을 바꾸는 배선을 검사 없이 켜는 것이 이 코드베이스의 반복 사고였다
+    (`T2_MATCH_COUNT` 의존물 누락 · `T2_WRITE_EVIDENCE` 死코드 · `T2_LEDGER` 무음 6회).
+    사이드카가 같은 이유로 기본 ON이다 — **비커밋 관측은 거동 변화 0이고, 없으면 포렌식의 절반이 불가능하다**.
+    """
+    if os.environ.get("T2_STACK_OBSERVE", "1") != "1":
+        return None
+    flag = TAG_TO_FLAG.get(tag)
+    layer = layer_of(flag) if flag else None
+    key = (tag, flag or "?", layer or "-")
+    _OBS[key] = _OBS.get(key, 0) + 1
+    try:
+        st = get_stack(orch) if orch is not None else None
+        if st is not None:
+            st.register(flag=flag or tag, target=target, fact=(text or "")[:200],
+                        order=order, layer=layer)
+    except Exception:
+        pass
+    try:
+        from t2_lever_beat import beat as _beat
+        _beat("T2_STACK", "%s|%s|%s" % (tag, flag or "UNMAPPED", layer or "NOLAYER"))
+    except Exception:
+        pass
+    return layer
+
+
+def observed():
+    """지금까지 관측된 (tag, flag, layer) → 횟수. 미매핑·무층이 그대로 보인다."""
+    return dict(_OBS)
+
+
+def cell_of_note(flag):
+    """층이 없는 이유를 한 마디로 — 폐기인가, 하네스인가, 아직 안 쓴 것인가."""
+    try:
+        import t2_levers as _L
+        c = _L.cell_of(flag)
+        return c or "미분류"
+    except Exception:
+        return "?"
+
+
 def _cell_enabled(flag):
     try:
         import t2_levers as _L
@@ -634,5 +860,35 @@ if __name__ == "__main__":
 
     print("\n  %s  (%d/%d)" % ("전부 PASS" if all(results) else "**실패 있음**",
                                sum(1 for r in results if r), len(results)))
-    print("\n  ⚠이것은 **오프라인 자기검사**다. 97개 호출 지점을 `register()`로 바꾸는 편집은 안 했고,")
-    print("     `T2_SURFACE_BUS`·`T2_ARBITRATE`·`T2_WINDOW`는 `go_stack.sh`에 **없다**(비-라이브).")
+
+    # ── 배선 자기검사 — `_ap_regen`의 실제 tag 전수 ──────────────────────
+    print("\n" + "=" * 72)
+    print("[observe() 배선 검사 — `_ap_regen` 실측 tag 26종 전수]")
+    LIVE_TAGS = [  # `t2_gate_patch.py` 호출 26곳에서 추출(2026-08-07)
+        "envguard", "truncguard", "giverel", "unkrepeat", "argrepeat", "covfollowup",
+        "unverifiedfu", "givexec", "verdict_surface", "searchexhaust", "followup",
+        "writeprov", "noticerep", "claimprov", "discreq", "selfdecl", "channel",
+        "choiceground", "uninstructable", "usertoolnote", "kbnohit", "givequote",
+        "transfertier", "argschema", "signature", "<변수tag:7297>", "<변수tag:7570>",
+    ]
+    orch = _Orch()
+    mapped = unmapped = nolayer = 0
+    for t in LIVE_TAGS:
+        ly = observe(orch, t, text="(검사)")
+        f = TAG_TO_FLAG.get(t)
+        if not f:
+            unmapped += 1
+            print("    %-18s ✗ 미매핑 (추측 금지 — 실물 tag 보고 채운다)" % t)
+        elif ly is None:
+            nolayer += 1
+            print("    %-18s → %-26s ⚠층 없음(%s)" % (t, f, cell_of_note(f)))
+        else:
+            mapped += 1
+    print("\n    귀속 %d / 층없음 %d / 미매핑 %d  (총 %d)"
+          % (mapped, nolayer, unmapped, len(LIVE_TAGS)))
+    print("    ⇒ 생성면 발화의 **%d%%가 레버·층까지 귀속**된다. 나머지는 감사에 그대로 남는다"
+          % (100 * mapped // len(LIVE_TAGS)))
+    print("    ⚠거동 변경 0 — 지금은 등록·로그만. 순서를 뒤집는 것은 다음 단계다.")
+    print("\n  ⚠전부 **오프라인 자기검사**다. 배선은 `_ap_regen` 한 자리에 들어갔고 **거동은 안 바꿨다**.")
+    print("     아직 안 한 것: ①`speak()`를 실제 출구로 쓰기(순서 뒤집기) ②변수 tag 2곳 해소")
+    print("     ③`T2_SURFACE_BUS`·`T2_ARBITRATE`·`T2_WINDOW`가 `go_stack.sh`에 **없다**(비-라이브).")

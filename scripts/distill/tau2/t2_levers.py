@@ -347,7 +347,8 @@ CELLS = {
     "종료 판정": (
         "발화-행동 등가 오인", ["차단"],
         "종료는 남은 절차 단계의 유무로 판정한다. 피로·반복 횟수로 판정하지 않는다.",
-        ["T2_TERM_GRANT", "T2_TERM_GRANT_USERDEMAND", "T2_TRANSFER_TIER", "T2_REQUIRE_DOC"]),
+        ["T2_TERM_GRANT", "T2_TERM_GRANT_USERDEMAND", "T2_TRANSFER_TIER", "T2_REQUIRE_DOC",
+         "T2_NOTICE_REPEAT"]),
     "출처 근거 확보": (
         "미검증 단정·정박 치환", ["출처 근거 확보"],
         "행동을 좌우하는 사실 주장은 출처를 대야 한다. 엔진은 출처만 검증하고 값을 만들지 않는다.",
@@ -414,6 +415,14 @@ HARNESS = ["T2_GATE_REGEN", "T2_GATE_REGEN_K", "T2_PROV_REGEN_K", "T2_PROV_MODE"
 # 귀속 arm 전용 — 운영 스택에서는 켜지 않는다(기본 OFF가 정상)
 ARM_ONLY = ["T2_EPLAN_WALK_HOLD"]
 
+# ★코드에서 **기본값이 ON**이라 `go_stack.sh`에 없어도 라이브인 것 (2026-08-07 배선이 드러냄)
+#   라이브 판정을 go_stack 파싱으로만 하면 이들이 **보이지 않는다** — 감사의 사각이었다.
+#   `T2_NOTICE_REPEAT`가 그 실물이다: `os.environ.get("T2_NOTICE_REPEAT", "1") == "1"` (`:7655`).
+DEFAULT_ON = ["T2_NOTICE_REPEAT"]
+
+# 구현은 있으나 `go_stack.sh`에 없어 **라이브가 아닌** 레버(死배선과 구분: 이쪽은 의도적 미등재)
+NOT_LAUNCHED = ["T2_DISCOVERY_REQUIRED", "T2_SELF_DECLARATION"]
+
 # [[57]] 위반(횟수로 억제) — 정체-과금·지문 억제가 대체함
 RETIRED = ["T2_REPEAT_CAP", "T2_UNKNOWN_REPEAT_GUARD", "T2_DD_FB"]
 
@@ -460,12 +469,13 @@ def audit_declared(live_flags):
     `audit()`만 돌리면 이쪽이 안 보인다. 2026-08-07에 `T2_LEDGER`가 셀에 있으면서 실행 0이던
     사고가 정확히 이 방향이었다.
     """
-    live = set(live_flags)
+    live = set(live_flags) | set(DEFAULT_ON)   # ★기본값 ON은 go_stack에 없어도 라이브다
     out = []
     for name, (_c, _m, _p, flags) in CELLS.items():
         for f in flags:
             if f not in live:
-                out.append((name, f))
+                tag = "미착수" if f in NOT_LAUNCHED else "死배선"
+                out.append((name, f, tag))
     return sorted(out)
 
 
@@ -512,8 +522,8 @@ if __name__ == "__main__":
 
     dead = audit_declared(live)
     print("\n선언됐으나 비-라이브 %d종%s" % (len(dead), ":" if dead else " ✓"))
-    for cell, f in dead:
-        print("    %-18s %s" % (cell, f))
+    for cell, f, tag in dead:
+        print("    %-8s %-18s %s" % (tag, cell, f))
 
     # ── 코드 체계 ────────────────────────────────────────────────────────
     print("\n" + "=" * 72)

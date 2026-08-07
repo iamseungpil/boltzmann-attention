@@ -6886,6 +6886,17 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         def _ap_regen(fbtxt, tag, tool_choice=None, am_override=None):
             from t2_lever_beat import beat as _beat
             _beat("T2_GATE_REGEN", tag)
+            # ★단일 진입점 배선 — 관찰자 단계(2026-08-07·`t2_stack.observe`).
+            #   생성면의 발화는 **전부 이 한 자리를 지난다**(호출 26곳). 그래서 55개 호출부를
+            #   하나씩 고칠 필요가 없다 — 여기서 tag를 레버로 되돌려 스택에 등록한다.
+            #   ⚠**거동은 바꾸지 않는다.** 지금은 귀속과 "route()라면 어떻게 판정했을지"만 남긴다.
+            #   순서를 뒤집기 전에 순서를 검사할 수 있어야 하고, 검사 없이 켠 배선이 이 코드베이스의
+            #   반복 사고였다(MATCH_COUNT 의존물 누락·WRITE_EVIDENCE 死코드·LEDGER 무음 6회).
+            try:
+                import t2_stack as _stk
+                _stk.observe(self, tag, text=fbtxt)
+            except Exception:
+                pass
             """피드백 1회 → regen. 게이트-deny 유입 시 원본 유지(부작용 0). 성공 시 새 am.
             ★tool_choice(레버 A·2026-07-18·`HANDOFF_LEVER_DESIGN §2`): regen 응답의 **채널만** 강제
             (어느 도구를 부를지는 모델이 고름). 실측 근거 = forced 프로브: 강제 하 24/24 정답 선택 ·
