@@ -111,20 +111,35 @@ def main():
             gold_cache[tid] = need
         need = gold_cache[tid]
 
-        # ── 우리 쪽: 궤적에서 상태를 바꾸는 호출만 (환경이 판정) ─────────────
+        # ── 우리 쪽: **같은 해시 검정**을 적용한다 ──────────────────────────
+        #   `_is_mutating_tool`은 선언을 읽을 뿐이라 `KB_search_dense`·`verify_identity`처럼
+        #   선언상 mutating인데 해시를 안 바꾸는 것까지 '더함'으로 올린다(1차판이 그랬다).
+        #   gold 쪽에 쓴 검정을 우리 쪽에도 그대로 써야 두 목록이 같은 뜻을 갖는다.
         env2 = get_env()
-        mut = lambda n: env2._is_mutating_tool(n)          # noqa: E731 — 환경의 판정을 그대로 쓴다
-        ours, errored = [], set()
+        init2 = task.initial_state
+        if init2 is not None:
+            env2.set_state(initialization_data=getattr(init2, "initialization_data", None),
+                           initialization_actions=getattr(init2, "initialization_actions", None),
+                           message_history=getattr(init2, "message_history", None) or [])
+        prev2 = (env2.get_db_hash(), env2.get_user_db_hash())
+        ours = []
         by_id = {m.get("id"): m for m in (sim.get("messages") or []) if m.get("role") == "tool"}
         for m in sim.get("messages") or []:
             for tc in (m.get("tool_calls") or []):
                 nm = tc.get("name")
                 out = by_id.get(tc.get("id"))
-                if out is not None and out.get("error"):
-                    errored.add(nm)
+                if not nm or out is None or out.get("error"):
                     continue                                # 실패한 호출은 상태를 안 바꾼다
-                if nm and mut(nm):
+                try:
+                    env2.make_tool_call(tool_name=nm,
+                                        requestor=(out.get("requestor") or "assistant"),
+                                        **_args_of(tc))
+                except Exception:
+                    pass
+                cur2 = (env2.get_db_hash(), env2.get_user_db_hash())
+                if cur2 != prev2:
                     ours.append(_sig(nm, _args_of(tc)))
+                prev2 = cur2
 
         missing = [s for s in need if s not in ours]
         extra = [s for s in ours if s not in need]
