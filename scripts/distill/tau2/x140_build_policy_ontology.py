@@ -71,6 +71,17 @@ AXIS_FIT = {
 }
 
 
+# 인용 실재 검사의 **서식 잡음만** 지운다 — 마크다운 강조(`**`·`` ` ``)뿐이고 글자는 안 건드린다.
+# ⚠왜 필요한가: 스모크서 `- **Maximum per year**: 6 referral bonuses`를 모델이 강조 없이 인용해
+#   **진짜 사실이 떨어졌다**(Dark Green 연간 상한 6). 게이트의 역효과가 실물로 나온 자리다.
+# ⚠`_`는 안 지운다 — `user_id` 같은 식별자를 뭉개 **없는 인용을 통과시킬** 수 있다.
+EMPH = re.compile(r"[*`]")
+
+
+def deformat(s):
+    return " ".join(EMPH.sub("", str(s or "")).split())
+
+
 def axis_fit(axis, value, quote):
     """(통과?, 사유) — B1 값이 인용에 있는가 · B2 축 표지가 인용에 있는가."""
     q = " ".join(str(quote or "").split())
@@ -168,7 +179,11 @@ def parse(raw, doc_text, doc_id, reasons=None, use_axis_fit=True, only_axis=None
             rejected += 1
             rej("축 밖·주어 없음·인용 짧음", r)
             continue
-        if q not in hay:
+        if q in hay:
+            match = "exact"
+        elif deformat(q) and deformat(q) in deformat(hay):
+            match = "normalized"             # 서식만 다르다 — 글자는 그 문서의 것
+        else:
             rejected += 1
             rej("인용이 문서에 없음", r)
             continue
@@ -182,7 +197,7 @@ def parse(raw, doc_text, doc_id, reasons=None, use_axis_fit=True, only_axis=None
                     "subject": subj, "axis": ax, "value": val,
                     "against": AXES[ax]["against"], "compare": AXES[ax]["compare"],
                     "when": [],
-                    "source": {"doc": doc_id, "quote": q}})
+                    "source": {"doc": doc_id, "quote": q, "quote_match": match}})
     return out, rejected
 
 
