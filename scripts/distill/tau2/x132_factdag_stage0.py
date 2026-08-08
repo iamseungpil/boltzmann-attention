@@ -133,8 +133,13 @@ class Cache(object):
             self.d = json.load(io.open(path, encoding="utf-8"))
         self.misses = 0
 
-    def get(self, sim_key, prompt_name, template, text):
-        k = "%s::%s" % (sim_key, prompt_name)
+    def get(self, sim_key, node_out, prompt_name, template, text):
+        # ★키에 **노드 이름**이 들어가야 한다 — 프롬프트 이름만 쓰면 같은 프롬프트를 쓰는 두 노드가
+        #   서로의 응답을 가져간다(`rows:referrals`·`rows:accounts`가 둘 다 `formalize_prompt`).
+        #   실측: sim당 `formalize_prompt` 항목이 **1개**뿐이었고, 계좌 노드가 원장 응답을 받아
+        #   `parse_rows`가 빈 리스트를 내며 *"전사 0행"* 으로 보였다. 양쪽 경로가 같은 잘못된
+        #   입력을 받아 **일치했기 때문에 게이트가 통과했다** — 조용한 오염의 교과서적 형태다.
+        k = "%s::%s::%s" % (sim_key, node_out, prompt_name)
         if k in self.d:
             return self.d[k]
         if self.agent is None:
@@ -147,8 +152,8 @@ class Cache(object):
         self.d[k] = raw
         return raw
 
-    def get_rows(self, sim_key, prompt_name, template, text, keys):
-        k = "%s::%s" % (sim_key, prompt_name)
+    def get_rows(self, sim_key, node_out, prompt_name, template, text, keys):
+        k = "%s::%s::%s" % (sim_key, node_out, prompt_name)
         if k in self.d:
             return self.d[k]
         if self.agent is None:
@@ -232,12 +237,13 @@ def main():
                         raws[n["out"]] = None       # 그 도구를 안 불렀다 = 정당한 미계산
                         continue
                     sel, _ = F.excerpt([body])
-                    raws[n["out"]] = cache.get_rows(sim_key, n["prompt"], tpl,
+                    raws[n["out"]] = cache.get_rows(sim_key, n["out"], n["prompt"], tpl,
                                                     "\n---\n".join(sel),
                                                     list(n["params"]["row_keys"]))
                 else:
                     sel, _ = F.excerpt(texts)
-                    raws[n["out"]] = cache.get(sim_key, n["prompt"], tpl, "\n---\n".join(sel))
+                    raws[n["out"]] = cache.get(sim_key, n["out"], n["prompt"], tpl,
+                                               "\n---\n".join(sel))
                 if raws[n["out"]] is None and (src_in == "corpus" or tools.get(src_in[5:])):
                     ok = False
             if not ok:
