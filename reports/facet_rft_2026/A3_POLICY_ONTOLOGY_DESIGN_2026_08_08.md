@@ -433,6 +433,45 @@ by_tool["submit_referral"] →
   ⚠과잉 거절 위험을 함께 계측한다(등대 §1.3 *"게이트 자신도 역효과"* ) — 현 43행을 통과시키는지가
   1차 관문이고, ⓐ가 새로 낸 행에 대해서도 거절률을 인쇄한다.
 
+### §5b ★축 확장 v2 — **절차를 코퍼스에 맡긴다** (§9-2가 물었던 "절차의 형태"의 답)
+
+**왜 이 형태여야 하는가.** 축을 내가 타이핑하면 출처를 아무도 못 댄다. 이 세션은 특히 위험했다 —
+`tasks.json`의 **정답 노트를 읽은 뒤**였고(task_100의 *"$175"*, task_101의 *"$400"*), 거기서 축을
+고르면 **gold 경유 저작 = 실험 무효**다([[23]]). ⇒ 절차를 다음으로 고정한다:
+
+1. **코퍼스가 제안한다** — `x142`가 *문서가 스스로 붙인 라벨*의 수치만 센다(추천 정책 문서 61개 ·
+   라벨 120종 · LLM 0). 동의어 **병합은 하지 않는다**(병합은 판단이다).
+2. **채택은 정책 축자 인용으로 논증한다** — 아래 표의 인용이 그 축의 출처 증명이다.
+3. **축마다 `fit` 표지를 등록한다**(ⓑ 형식 검사·§5a).
+4. **소비자 배선은 별도 단계다** — 맞댈 런타임 사실이 없는 축은 `against`를 비워 둔다.
+   비어 있는 것을 **채운 척하지 않는다**.
+
+| 축 | 무엇 | 정책 축자 (출처) |
+|---|---|---|
+| `referrer_tenure_days` | 추천인 최소 관계기간(일) | *"Eligibility: A minimum relationship duration of 60 days as a checking account holder is required."* (`…hunter_green_001`) |
+| `annual_referral_limit` | 상품별 연간 추천 보너스 상한 | *"Annual limit: Up to 10 referral bonuses per year"* (`…hunter_green_001`) |
+| **`referrer_bonus_usd`** | 추천인이 받는 금액 | *"Your bonus: $200 for each successful referral"* (`…lime_green_003`) · 라벨 `you earn`/`referrer bonus`/`your reward` |
+| **`referred_bonus_usd`** | 피추천인이 받는 금액 | *"Their bonus: $150 welcome bonus for the referred business"* (`…lime_green_003`) |
+| **`qualifying_deposit_usd`** | 보너스를 촉발하는 최소 예치액 | *"Qualifying deposit: The referred business must deposit at least $7,500 to trigger the referral bonus"* (`…cobalt_blue_005`) |
+| **`deposit_window_days`** | 그 예치의 기한(일) | *"Time window: This deposit must be made within 90 days of account opening"* (`…cobalt_blue_005`) |
+| **`rolling_window_referrals`** | 롤링 창 안 허용 건수 | *"You can receive at most 2 referral bonuses in any rolling 9-day window."* (`…bank_accounts_(general)_047`) |
+| **`rolling_window_days`** | 그 창의 길이(일) | 같은 문장 · 신용카드는 **7일**: *"…at most 2 referral bonuses in any rolling 7-day window"* (`…credit_cards_(general)_009`) |
+
+★**롤링 창을 연간 상한과 **다른 축**으로 세운 것이 핵심이다.** v0는 이 문장을 `annual_referral_limit`
+으로 넣어 틀렸고(§5a), 값이 **계좌 부류마다 다르다**(체킹 9일 / 신용카드 7일). 주어도 상품이 아니라
+**부류**다 — 소비자는 이 점을 알고 조회해야 한다.
+
+⛔**넣지 않은 축 — 사업체 연령.** `tasks.json` 노트는 Sky Blue에 *"5 years old, need <4 years"* 라고
+적지만, **정책 코퍼스에는 그런 진술이 없다**(전 문서 `years old|in business|of operation|
+incorporated|founded` 스캔 → 개인 연령 18+ · 13–24만 나온다). ⇒ [[23]]대로 **gold만 아는 것은
+A3에 안 넣고 '레버 없음'으로 남긴다.** 이 제약은 우리 층이 원리적으로 못 닫는다.
+
+**스모크**(5 문서 × 8 축 = 40 질문·유료 0): 채택 19행 · **거절 0** · **값 충돌 0** · 8축 전부 발화.
+⚠남은 것 셋 — ①`Credit Card`의 `rolling_window_days`가 안 나왔다(한 문장에서 두 축 중 하나만 —
+§5a가 잡은 그 형태가 축 쌍에서도 보인다) ②주어 대소문자가 갈린다(`checking account` ↔
+`Checking Account`) ⇒ **행은 그대로 두고**(§9-4 정규화 금지) **조회를 대소문자 무시로** 한다
+③신설 6축은 `against`가 비어 있다 — 맞댈 런타임 사실(추천 이력 타임스탬프 등)은 소비자 전환에서 만든다.
+
 ## §6 실험 arm — **대비 자체가 결과다**
 
 | arm | 정책 근거 | 측정 |
