@@ -87,13 +87,26 @@ def main():
     SHORT = ("Policy constants on record, for the products not already ruled out by this "
              "customer's tenure or by this year's counts (each value from a retrieved document):")
 
-    def parts(text):
-        rows = [l for l in text.splitlines() if l.startswith("  ")]
-        other = [l for l in text.splitlines() if l and not l.startswith("  ")]
-        return "\n".join(rows), other[0], other[-1]
+    # ⚠**옛 꼬리말은 여기에 축자로 박아 둔다.** A2 에서는 실측 후 지웠으므로(0/5 를 만든 장본인)
+    #   A2 에서 읽어 오면 이 arm 이 조용히 머리말 arm 과 같아진다 — 3라운드 직후 n=10 재실행에서
+    #   실제로 그렇게 됐고, `footer-only 10/10` 이 *"꼬리말은 무해하다"* 로 읽힐 뻔했다.
+    #   증거를 재현 가능하게 두려면 사라진 조건을 프로브가 들고 있어야 한다.
+    OLD_FOOTER = ("This is filtering, not a recommendation - the choice is yours. Read the "
+                  "remaining constants against this customer's situation before choosing: a "
+                  "product is listed here only because it passed the two criteria above, not "
+                  "because every requirement is met. Products with no minimum on record were "
+                  "not filtered on it and are listed unchecked.")
+    OLD_HEADER = ("[STILL OPEN] Having removed the products this customer cannot be a referrer "
+                  "for on the two criteria we can compute (%s days of tenure against each "
+                  "product's minimum, and this year's counts against each product's annual "
+                  "limit), these remain, with the policy constants on record for each:")
 
-    r100, h100, t100 = parts(e100)
-    r099, h099, t099 = parts(e099)
+    def rows_of(text):
+        return "\n".join(l for l in text.splitlines() if l.startswith("  "))
+
+    r100, r099 = rows_of(e100), rows_of(e099)
+    h100 = OLD_HEADER % DAYS["task_100"]
+    t100 = OLD_FOOTER
 
     arms[("task_100", "A0 raw-table")] = table + "\n\n" + f100 + "\n\n" + Q
     arms[("task_100", "A1 full")] = e100 + "\n\n" + f100 + "\n\n" + Q
