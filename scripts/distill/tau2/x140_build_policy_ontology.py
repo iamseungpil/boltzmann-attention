@@ -106,6 +106,16 @@ AXES = {
         # 같은 문장의 **창 길이**. 건수와 창 길이는 둘 다 있어야 판정이 된다.
         "desc": "the length in days of that rolling window (e.g. 'rolling 9-day window')",
         "against": None, "compare": None, "fit": r"(rolling|window)"},
+    "company_max_age_years": {
+        # ⚠이 축은 `x142` 라벨 인구조사가 **구조적으로 못 본다** — 라벨 없는 산문이라서다.
+        #   내가 처음에 *"코퍼스에 없다"* 고 단정했다가 실물에서 뒤집혔다(자기정정).
+        # "Confirm your company is within 4 years of formation." (…_sky_blue_001)
+        # "Eligibility criteria tied to company age are evaluated when you open the account;
+        #  the threshold is 4." (…_sky_blue_008)
+        # "Verify your company age is within 4." (…_sky_blue_009)
+        "desc": "the maximum age in years, counted from formation, that a company may have and "
+                "still be eligible to OPEN this account (a company older than this cannot open it)",
+        "against": None, "compare": None, "fit": r"(year|age|formation|threshold)"},
 }
 
 # ⓑ 축 적합성 — **형식 검사 둘뿐**. 의미 판단은 하지 않는다([[52]]: 엔진=이론·LLM=해석).

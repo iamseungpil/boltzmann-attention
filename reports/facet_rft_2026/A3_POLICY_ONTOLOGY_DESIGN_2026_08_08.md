@@ -441,6 +441,10 @@ by_tool["submit_referral"] →
 
 1. **코퍼스가 제안한다** — `x142`가 *문서가 스스로 붙인 라벨*의 수치만 센다(추천 정책 문서 61개 ·
    라벨 120종 · LLM 0). 동의어 **병합은 하지 않는다**(병합은 판단이다).
+   ⚠**라벨 인구조사만으로는 부족하다**(rev6 자기정정) — *"Confirm your company is within 4 years
+   of formation."* 처럼 **라벨 없는 산문**은 구조적으로 안 보인다. 실제로 그 때문에 `company_max_age_years`
+   를 *"코퍼스에 없다"* 고 단정했다가 실물에서 뒤집혔다. ⇒ 제안 단계는 **라벨 pass + 산문 pass** 둘 다여야 하고,
+   *"없다"* 는 결론은 **한 스캔으로 내지 않는다**.
 2. **채택은 정책 축자 인용으로 논증한다** — 아래 표의 인용이 그 축의 출처 증명이다.
 3. **축마다 `fit` 표지를 등록한다**(ⓑ 형식 검사·§5a).
 4. **소비자 배선은 별도 단계다** — 맞댈 런타임 사실이 없는 축은 `against`를 비워 둔다.
@@ -461,10 +465,16 @@ by_tool["submit_referral"] →
 으로 넣어 틀렸고(§5a), 값이 **계좌 부류마다 다르다**(체킹 9일 / 신용카드 7일). 주어도 상품이 아니라
 **부류**다 — 소비자는 이 점을 알고 조회해야 한다.
 
-⛔**넣지 않은 축 — 사업체 연령.** `tasks.json` 노트는 Sky Blue에 *"5 years old, need <4 years"* 라고
-적지만, **정책 코퍼스에는 그런 진술이 없다**(전 문서 `years old|in business|of operation|
-incorporated|founded` 스캔 → 개인 연령 18+ · 13–24만 나온다). ⇒ [[23]]대로 **gold만 아는 것은
-A3에 안 넣고 '레버 없음'으로 남긴다.** 이 제약은 우리 층이 원리적으로 못 닫는다.
+| **`company_max_age_years`** | 그 계좌를 **열 수 있는** 회사의 최대 연령(설립 기준·년) | *"Confirm your company is within 4 years of formation."* (`…sky_blue_001`) · *"…company age are evaluated when you open the account; the threshold is 4."* (`…sky_blue_008`) · *"Verify your company age is within 4."* (`…sky_blue_009`) |
+
+★**자기정정(rev6)** — 이 마지막 축을 처음엔 *"정책에 없고 gold에만 있으니 [[23]]대로 넣지 않는다"* 고
+적었다. **틀렸다.** 내 grep이 겹치는 매치를 삼켜 그 세 줄을 건너뛴 것이고, `x142`는 라벨 없는 산문을
+구조적으로 못 본다. **한 스캔의 침묵을 '없음'으로 읽은 것**이 잘못이다(§5b-1의 규율은 여기서 나왔다).
+⇒ **102와 혼동하지 말 것**: 102는 `Ember Analytics` **설립 연도라는 *사실*이 db·문서 698·도구 14
+어디에도 없어** 원리적으로 불가능했다(upstream #432). 여기는 **규칙이 정책에 있고**(4년) **사실은
+손님이 말한다**(권위본 `tasks/task_101.json`: *"They incorporated in November 2020"*) ⇒ 도달 가능하고,
+전판이 이미 101의 결정론 gold 도달을 실증했다. ⚠**권위본은 `tasks/<id>.json`** 이고 `tasks.json`과
+내용이 다르다 — 인용은 권위본에서만 뜬다.
 
 **스모크**(5 문서 × 8 축 = 40 질문·유료 0): 채택 19행 · **거절 0** · **값 충돌 0** · 8축 전부 발화.
 ⚠남은 것 셋 — ①`Credit Card`의 `rolling_window_days`가 안 나왔다(한 문장에서 두 축 중 하나만 —
