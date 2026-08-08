@@ -38,8 +38,8 @@ class FactDagError(Exception):
 # ── 닫힌 op 집합 (§2a 동결) ────────────────────────────────────────────────────
 # 새 규칙형은 새 op가 아니라 `formalize`(LLM 노드)가 받는다. 여기에 op를 더하는 것은 설계 변경이다.
 OPS = ("tally", "window_remaining", "days_since_earliest",
-       "subtract_by_group", "compare_ge", "formalize", "a3_map")
-SHAPES = ("rows", "pairs", "scalar")
+       "subtract_by_group", "compare_ge", "formalize", "a3_map", "pick")
+SHAPES = ("rows", "pairs", "scalar", "term")
 
 _REQUIRED = {                       # op → 필수 params (로드 시점 검사)
     "tally": ("group_field",),
@@ -48,11 +48,13 @@ _REQUIRED = {                       # op → 필수 params (로드 시점 검사
     "subtract_by_group": (),
     "compare_ge": (),
     "a3_map": ("axis",),
+    "pick": (),
 }
-_REQUIRED_SHAPE = {"rows": ("row_keys",), "pairs": ("field",), "scalar": ("date_formats",)}
+_REQUIRED_SHAPE = {"rows": ("row_keys",), "pairs": ("field",),
+                   "scalar": ("date_formats",), "term": ()}
 _ARITY = {                          # op → 입력 개수(제어 구성물을 안 넣기 위해 고정한다)
     "tally": 1, "window_remaining": 2, "days_since_earliest": 2,
-    "subtract_by_group": 2, "compare_ge": 2, "formalize": 1, "a3_map": 1,
+    "subtract_by_group": 2, "compare_ge": 2, "formalize": 1, "a3_map": 1, "pick": 2,
 }
 
 
@@ -254,6 +256,24 @@ def _a3_map(rows, p):
     return out
 
 
+def _pick(mapping, focus, _p):
+    """`{주어: 값}` 에서 **모델이 지목한 주어 하나**의 값만 꺼낸다 — 대조의 마지막 조각.
+
+    엔진이 하는 일은 딕셔너리 조회뿐이다. *어느 주어인가* 는 `term` 노드가 낸 것이고(LLM),
+    그것이 온톨로지에 실재하는지는 이미 형식으로 확인됐다. 여기서 이름을 맞추려 들지 않는다.
+
+    ⚠지목이 없으면(모름) **침묵**한다. 지목은 있는데 그 주어에 값이 없으면 그것도 침묵이다 —
+      *'모른다'* 와 *'없다'* 를 뭉개지 않는다(C316 정정).
+    """
+    if not isinstance(focus, dict) or not focus.get("subject"):
+        return None
+    subj = focus["subject"]
+    if not isinstance(mapping, dict) or subj not in mapping:
+        return None
+    v = mapping[subj]
+    return {"subject": subj, "value": v, "quote": focus.get("quote") or ""}
+
+
 def _formalize(node, text, hay, ask):
     """유일한 LLM 노드. `ask(node, text)` 가 **모델 응답 문자열**을 돌려준다(엔진이 부르지 않는다).
 
@@ -271,8 +291,42 @@ def _formalize(node, text, hay, ask):
     if shape == "pairs":
         got, rej, given = parse_pairs(raw, p["field"], hay)
         return (got or None), ("" if got else "모델 %d종 중 채택 0 (거절 %d)" % (given, rej))
+    if shape == "term":
+        return _parse_term(raw, hay, node.get("_choices") or ())
     val = parse_scalar(raw, list(p["date_formats"]))
     return val, ("" if val else "형식 불일치")
+
+
+def _parse_term(raw, hay, choices):
+    """`term` = **이번 결정이 어느 주어에 대한 것인가**를 모델이 대는 자리(사용자 지시 2026-08-08).
+
+    *"비교할 인자들을 채우는 건 LLM이 해야 한다"* — 엔진은 그 답을 **형식으로만** 검사한다:
+      ⓐ 낸 주어가 **온톨로지에 실재하는 문자열 그대로**인가 (집합 원소 검사·유사도 없음)
+      ⓑ 근거 인용이 **회수된 텍스트에 실재**하는가 ([[22]] 근거-우선·`t2_source`와 같은 종류)
+    둘 중 하나라도 아니면 **침묵**한다 — 못 고르는 것과 아무 말이나 하는 것은 다르다.
+
+    ⚠**유사도·부분일치·정규화 금지.** C316 실물: `Light Green Account` ↔ `Light Blue Account`.
+      붙였으면 틀린 상품의 문턱으로 오차단된다. 엔진이 이름을 맞추지 않는다는 것이 이 설계다.
+    ⚠침묵은 결함이 아니다 — *'모른다'* 와 *'없다'* 를 뭉개지 않는 것이 C316의 정정이었다.
+    """
+    import json as _json
+    import re as _re
+    m = _re.search(r"\{.*\}", str(raw or ""), _re.S)
+    if not m:
+        return None, "응답에 JSON 없음"
+    try:
+        obj = _json.loads(m.group(0))
+    except Exception:
+        return None, "JSON 파싱 실패"
+    subj = obj.get("subject")
+    quote = " ".join(str(obj.get("quote") or "").split())
+    if not subj:
+        return None, "주어 미지정(모름)"
+    if subj not in set(choices or ()):
+        return None, "온톨로지에 없는 주어 — 침묵(유사어로 붙이지 않는다)"
+    if len(quote) < 8 or quote not in hay:
+        return None, "근거 인용이 회수 텍스트에 없음"
+    return {"subject": subj, "quote": quote}, ""
 
 
 def _formalize_pairs_per_item(node, items, hay, ask, memo, budget):
@@ -364,6 +418,12 @@ def evaluate(nodes, inputs, ask=None, excerpt_args=None, seed=None, memo=None):
                               "A3 조회 · 축=%s · 주어 %d" % (p.get("axis"), len(v or {}))))
                 continue
             if op == "formalize":
+                if n.get("shape") == "term":
+                    # 후보 = A3가 아는 주어 전부. **주입은 형식화된 키 목록**이고, 모델은 그중
+                    # 하나를 고르거나 침묵한다([[49]] 후보 주입은 선행 문서화된 처방).
+                    n = dict(n)
+                    n["_choices"] = sorted({r.get("subject") for r in getattr(inputs, "a3", ())
+                                            if r.get("subject")})
                 src = ins[0]
                 items = inputs.corpus if src == "corpus" else [inputs.tools[src[5:]]]
                 if n.get("shape") == "pairs" and ask is not None:
@@ -379,6 +439,12 @@ def evaluate(nodes, inputs, ask=None, excerpt_args=None, seed=None, memo=None):
                 trace.append((out, "계산" if v is not None else "미계산", why))
                 continue
             a = vals.get(ins[0]) if ins[0] in vals else None
+            if op == "pick":
+                v = _pick(a, vals.get(ins[1]), p)
+                vals[out] = v
+                trace.append((out, "계산" if v else "미계산",
+                              "지목 조회" if v else "지목 없음 또는 그 주어에 값 없음 = 침묵"))
+                continue
             if op == "tally":
                 v = _tally(a, p)
             elif op == "window_remaining":
