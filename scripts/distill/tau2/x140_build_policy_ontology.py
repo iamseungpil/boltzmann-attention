@@ -125,11 +125,15 @@ def ask(agent, la, UM, text, title, only_axis=None):
     return getattr(sub, "content", None) or ""
 
 
-def parse(raw, doc_text, doc_id, reasons=None, use_axis_fit=True, only_axis=None):
+def parse(raw, doc_text, doc_id, reasons=None, use_axis_fit=True, only_axis=None,
+          debug=False):
     """모델 응답 → 채택 행. **인용이 그 문서에 실재할 때만** 채택한다(+ⓑ 축 적합성)."""
-    def rej(why):
+    def rej(why, row=None):
         if reasons is not None:
             reasons[why] += 1
+        if debug:
+            print("    ✗거절 %s :: %s" % (why, json.dumps(row, ensure_ascii=False)[:200]
+                                          if row else ""), file=sys.stderr)
 
     m = re.search(r"\[.*\]", str(raw or ""), re.S)
     if not m:
@@ -160,15 +164,19 @@ def parse(raw, doc_text, doc_id, reasons=None, use_axis_fit=True, only_axis=None
             rejected += 1
             rej("안 물은 축을 답함")
             continue
-        if ax not in AXES or not subj or val <= 0 or len(q) < 12 or q not in hay:
-            rejected += 1                     # 축 밖 · 인용 부재 = 버린다
-            rej("축 밖·주어 없음·인용 부재" if q in hay else "인용이 문서에 없음")
+        if ax not in AXES or not subj or val <= 0 or len(q) < 12:
+            rejected += 1
+            rej("축 밖·주어 없음·인용 짧음", r)
+            continue
+        if q not in hay:
+            rejected += 1
+            rej("인용이 문서에 없음", r)
             continue
         if use_axis_fit:
             ok, why = axis_fit(ax, val, q)
             if not ok:
                 rejected += 1
-                rej(why)                      # ⓑ 인용은 실재하나 **축이 안 맞는다**
+                rej(why, r)                   # ⓑ 인용은 실재하나 **축이 안 맞는다**
                 continue
         out.append({"applies_to": {"axis_default": True},
                     "subject": subj, "axis": ax, "value": val,
@@ -210,6 +218,7 @@ def main():
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--limit", type=int, default=0, help="스모크용 문서 수 제한")
     ap.add_argument("--only", default="", help="쉼표로 나눈 부분문자열 — 그 문서만 (표적 스모크)")
+    ap.add_argument("--debug-reject", action="store_true", help="거절된 행을 그대로 인쇄")
     ap.add_argument("--save-every", type=int, default=20)
     a = ap.parse_args()
 
@@ -270,7 +279,7 @@ def main():
                 print("  ⚠%s 호출 실패 %r" % (key[-34:], e), file=sys.stderr)
                 continue
             got, rej = parse(raw, d.get("content") or "", did, reasons=reasons,
-                             use_axis_fit=use_fit, only_axis=ax)
+                             use_axis_fit=use_fit, only_axis=ax, debug=a.debug_reject)
             rows.extend(got)
             done[key] = True
             stats["질문"] += 1
