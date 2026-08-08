@@ -116,6 +116,32 @@ AXES = {
         "desc": "the maximum age in years, counted from formation, that a company may have and "
                 "still be eligible to OPEN this account (a company older than this cannot open it)",
         "against": None, "compare": None, "fit": r"(year|age|formation|threshold)"},
+
+    # ── 산문 pass(`x142 --prose`)가 낸 넷 — 라벨 pass는 이것들도 못 봤다 ──────────────
+    "qualifying_spend_usd": {
+        # "The referred business must spend at least $3,000 within 90 days of account opening
+        #  for you to receive the bonus" (…_business_silver_rewards_card_013)
+        # 예치(deposit)와 **다른 축**이다 — 카드는 지출로, 계좌는 예치로 자격을 준다.
+        "desc": "the minimum dollar amount the REFERRED party must SPEND (purchases, not a "
+                "deposit) to trigger the referral bonus",
+        "against": None, "compare": None, "fit": r"\$"},
+    "holder_min_age_years": {
+        # "The referred person must be 18 years or older" (…bank_accounts_(general)_047)
+        # "The person you refer must be eligible for a Gold Years Account (age 62+)"
+        # "You must be … between 13 and 24 years old to open the account." (…light_green_002)
+        "desc": "the minimum age in years a person must be to hold or open this account",
+        "against": None, "compare": None, "fit": r"(year|age)"},
+    "holder_max_age_years": {
+        # "You must remain within the 13–24 age range to maintain the account." (…light_green_002)
+        "desc": "the maximum age in years a person may be and still hold this account "
+                "(only where the policy states an upper bound)",
+        "against": None, "compare": None, "fit": r"(year|age)"},
+    "referred_no_prior_accounts_months": {
+        # "The referred person must be a new Rho-Bank customer with no existing checking,
+        #  savings, or closed accounts within the past 12 months." (…bank_accounts_(general)_047)
+        "desc": "how many months back the REFERRED party must have had no Rho-Bank accounts "
+                "to count as a new customer",
+        "against": None, "compare": None, "fit": r"(month|year)"},
 }
 
 # ⓑ 축 적합성 — **형식 검사 둘뿐**. 의미 판단은 하지 않는다([[52]]: 엔진=이론·LLM=해석).
