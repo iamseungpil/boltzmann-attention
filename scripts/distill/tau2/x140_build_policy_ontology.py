@@ -221,11 +221,15 @@ def ask(agent, la, UM, text, title, only_axis=None):
 
 
 def parse(raw, doc_text, doc_id, reasons=None, use_axis_fit=True, only_axis=None,
-          debug=False):
+          debug=False, dropped=None):
     """모델 응답 → 채택 행. **인용이 그 문서에 실재할 때만** 채택한다(+ⓑ 축 적합성)."""
     def rej(why, row=None):
         if reasons is not None:
             reasons[why] += 1
+        # 거절된 행을 **산출물에 남긴다** — 집계만 남기면 게이트의 반대편(과잉 거절)을 per-case로
+        # 못 읽는다. v2 빌드가 정확히 그 상태였다(거절 12인데 실물이 로그에도 없었다).
+        if dropped is not None and row is not None:
+            dropped.append({"doc": doc_id, "why": why, "row": row})
         if debug:
             print("    ✗거절 %s :: %s" % (why, json.dumps(row, ensure_ascii=False)[:200]
                                           if row else ""), file=sys.stderr)
@@ -336,6 +340,7 @@ def main():
     agent = Agent(a.model, a.base)
     use_fit = not a.no_axis_fit
     reasons = collections.Counter()
+    dropped = []
 
     docs = sorted(glob.glob(os.path.join(a.docs, "*.json")))
     if a.contains:
@@ -378,7 +383,8 @@ def main():
              "targeted_contains": a.contains or None,   # 표적 빌드면 여기 남는다(완결성 주장 금지)
              "docs_total": len(docs), "units_total": len(docs) * len(ax_keys),
              "docs_done": sorted(done), "rows": rows,
-             "stats": dict(stats), "reject_reasons": dict(reasons)},
+             "stats": dict(stats), "reject_reasons": dict(reasons),
+             "dropped": dropped},
             ensure_ascii=False, indent=1))
 
     for i, p in enumerate(docs, 1):
@@ -396,7 +402,8 @@ def main():
                 print("  ⚠%s 호출 실패 %r" % (key[-34:], e), file=sys.stderr)
                 continue
             got, rej = parse(raw, d.get("content") or "", did, reasons=reasons,
-                             use_axis_fit=use_fit, only_axis=ax, debug=a.debug_reject)
+                             use_axis_fit=use_fit, only_axis=ax, debug=a.debug_reject,
+                             dropped=dropped)
             rows.extend(got)
             done[key] = True
             stats["질문"] += 1
