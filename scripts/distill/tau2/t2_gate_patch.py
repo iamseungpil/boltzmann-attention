@@ -5709,12 +5709,28 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                                     set(_upending) | _acts)
                                 _utgt = _tgt_pre
                                 if _utgt in _upending:
+                                    # ★문구 축소 (2026-08-08·C334·라이브 부검). 구판은 두 가지를
+                                    #   한 문장에 묶었는데 하나가 **과잉 일반화**였다: *"실행 절차를
+                                    #   KB에서 찾을 필요가 없다"* 는 참이지만 거기 붙은 *"STOP
+                                    #   searching"* 은 **추천의 근거를 찾는 조회까지** 금지한다.
+                                    #   실측: 그 문장이 나간 직후 에이전트가 비교를 접고 **손님이
+                                    #   보유한** 계좌 중에서 골랐다 — 정작 그 과제가 시험하는 것이
+                                    #   *보유하지 않은 상품도 후보다* 였다(gold 미달·C329 099).
+                                    #   우리 문구가 참이 아닌 것을 말하면 그건 우리 결함이다([[25]]).
+                                    #   ⇒ 주장을 **누가 실행하는가**로 좁히고, 추천 뒤에 남은 일은
+                                    #     모델 판단에 되돌린다(무엇이 부족한지는 말하지 않는다).
                                     _ufb = str((a2 or {}).get("user_action_feedback")
                                                or ("Error: [ACTION] '{tool}' is run by the CUSTOMER, "
-                                                   "not by you, and needs no agent-side KB procedure - "
-                                                   "STOP searching. In your next message tell the "
-                                                   "customer to run {tool} now with their details, "
-                                                   "then confirm the result. Do not transfer for this.")
+                                                   "not by you. There is no agent-side procedure to "
+                                                   "look up for running it, so do not search for one "
+                                                   "and do not transfer for this. Once you have "
+                                                   "everything your recommendation rests on, tell the "
+                                                   "customer in your reply to run {tool} themselves "
+                                                   "with their details, then confirm the result. If "
+                                                   "something you would base that recommendation on is "
+                                                   "still missing, get it first - this message is about "
+                                                   "who runs the tool, not about skipping the work "
+                                                   "behind the recommendation.")
                                                ).replace("{tool}", _utgt)
                                     # ★2026-08-03 (task_001 실측): "with their details"는 **어느 인자를
                                     #   말해야 하는지** 알려주지 않는다. 001: 에이전트가 카드는 정확히
