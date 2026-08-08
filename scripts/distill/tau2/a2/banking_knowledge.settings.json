@@ -32,13 +32,7 @@
     ]
    },
    "note": "verify the customer FIRST: confirm 2 of {date of birth, email, phone number, address} against the record (use the get_user_information_by_* read tools), then call log_verification with the verified values and get_current_time() — only then perform account actions. Transfer/incident tools do not need verification.",
-   "satisfier_requires": {
-    "log_verification": [
-     "verify_identity",
-     "get_current_time"
-    ]
-   },
-   "_note_satisfier_requires": "2026-08-07 전이적 도달. 출처([[23]]) = **이 게이트 자신의 note 축자**를 구조로 옮긴 것이다: \"verify the customer FIRST: confirm 2 of {date of birth, email, phone number, address} against the record (use the get_user_information_by_* read tools), then call log_verification with the verified values and get_current_time()\". gold 무참조·새 사실 0 — 산문에 이미 있던 순서를 기계가 읽을 수 있게 적었을 뿐이다. 근거(102 대조 부검): satisfier인 log_verification은 혼자 부를 수 없는데 우리는 사슬의 **끝만** 명령했다. 통과한 sim은 모델이 경로를 스스로 알았고, 실패한 sim은 verify_identity를 다섯 번 부르다 log_verification에 도달조차 못 하고 이관으로 끝났다. 같은 구성이 0~5건으로 흔들린 것은 표집이 아니라 이 갈림길이었다. get_user_information_by_*는 접두사라 이름이 하나로 정해지지 않아 넣지 않았다 — verify_identity가 실패하면 그 반환문이 어느 read가 필요한지 스스로 말한다(라이브 실측)."
+   "_note_satisfier_requires": "★2026-08-08 이 자리에서 **삭제**했다 — 선행 관계의 유일한 원천은 이제 `banking_knowledge.specific.json`의 `relations`(정본 설계 §1d.1 4단계)이고, 값은 그대로 옮겨 갔다(`log_verification ← verify_identity, get_current_time`). 두 원천이 공존하는 창을 만들지 않으려고 인덱스 투입과 **같은 커밋에서** 지웠다. 아래는 그때의 출처 기록이며 그대로 유효하다. 2026-08-07 전이적 도달. 출처([[23]]) = **이 게이트 자신의 note 축자**를 구조로 옮긴 것이다: \"verify the customer FIRST: confirm 2 of {date of birth, email, phone number, address} against the record (use the get_user_information_by_* read tools), then call log_verification with the verified values and get_current_time()\". gold 무참조·새 사실 0 — 산문에 이미 있던 순서를 기계가 읽을 수 있게 적었을 뿐이다. 근거(102 대조 부검): satisfier인 log_verification은 혼자 부를 수 없는데 우리는 사슬의 **끝만** 명령했다. 통과한 sim은 모델이 경로를 스스로 알았고, 실패한 sim은 verify_identity를 다섯 번 부르다 log_verification에 도달조차 못 하고 이관으로 끝났다. 같은 구성이 0~5건으로 흔들린 것은 표집이 아니라 이 갈림길이었다. get_user_information_by_*는 접두사라 이름이 하나로 정해지지 않아 넣지 않았다 — verify_identity가 실패하면 그 반환문이 어느 read가 필요한지 스스로 말한다(라이브 실측)."
   },
   {
    "id": "GB2_NOTICE_BEFORE_TRANSFER",

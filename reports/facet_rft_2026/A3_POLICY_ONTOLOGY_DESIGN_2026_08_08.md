@@ -354,9 +354,31 @@ by_tool["submit_referral"] →
   빠져 자기검정이 죽었다. 방어는 이제 `_raw_declarations` 한 곳에 있다(자기검정이 실물로 잡았다).
 - 회귀: `pin_read_replay` PASS · `factdag_stage1` 14/14 · `banking_gate` ALL · `audit_divergence` 8/8 ·
   `consistency` 8/8 · 모듈 자기검정 4종 PASS.
-- **4는 아직**이다. 그래서 *"합치는 코드가 사라졌다"* 는 **아직 참이 아니다** — 지금은 입구가
-  하나가 되었을 뿐 원천은 여전히 A2다. 삭제할 때 인덱스를 A3에 **동시에** 넣어야 하고
-  (두 개가 공존하는 창을 만들지 않는다), `banking_knowledge.gate.json` 동기화도 함께다([[24]]).
+#### ✅ 4 완료 (2026-08-08 · 같은 커밋에서 투입+삭제)
+
+- **삭제 전 기준선을 먼저 얼렸다**(`x144 --snapshot` → `a2/frozen/banking_knowledge.prereq_baseline.json`:
+  선언 7쌍 + 표적 16의 그래프 전량). ★이게 없으면 검정이 **공허하게 참**이 된다 — 지우고 나면
+  `_raw_declarations`가 빈 것을 돌려주므로 *"원천 vs 인덱스"* 는 빈 것끼리 비교하는 꼴이다.
+- **투입**: `relations` → `banking_knowledge.specific.json`(L3). 원천 셋 중 둘이 이미 L3이고 내용이
+  그 도메인 도구 배선이라 층 정의에 맞는다(L2 `settings.json`은 손으로 맞춘 압축 블록이 있어
+  기계 재작성이 157줄을 헛되이 가른다는 실무 이유도 같은 방향이었다).
+- **삭제**(같은 커밋): `require_tool_before`(L3 키 통째) · `scaffold_get_tools[].requires_reads`(2곳) ·
+  `gates[].satisfier_requires`(L2 GB1). 실측 확인: 병합 A2에 셋 다 **없고**, `_raw_declarations`가
+  **빈 리스트**이며, `declarations()`는 **인덱스에서 7쌍**을 낸다. **키 수 순감**(3선언 → 1키).
+- **기준선 대조 통과**: 선언 7쌍 일치 · 그래프 **16/16 일치** ⇒ 삭제 전후 거동 동일.
+  [[57]] 음성 통제: 인덱스의 간선 하나를 지우니 **양쪽 층 다 불일치 + exit 1**, 되돌리니 exit 0.
+- **`gate.json` 동기화**([[24]]): banking만 재생성. ⚠1차 재생성이 **적재-합성 키
+  (`claim_prov`·`completion_guard`)를 떨궜다** — 그 둘은 분리 파일에 없고 로더가 적재 시점에
+  만들므로 *"settings+specific"* 만으로 다시 쓰면 사라진다. `x18 --verify`가 그 자리에서 잡았다
+  (살려 둔 검정이 바로 값을 했다). ⇒ 재생성 규칙: **분리 파일에 없는 옛 키는 그대로 둔다**.
+  ⚠`x18 --emit`도 같은 형태의 결함을 갖는다(옛-키-보존 없음) — 쓰기 전에 고칠 것.
+- 회귀 전량 PASS(three_layer·banking_gate·pin_read_replay·factdag 14/14·audit_divergence 8/8·
+  consistency 8/8·모듈 자기검정 5종) · `x18 --verify` 3/3 ✅.
+
+★**이제 "합치는 코드가 사라진다"가 banking에서 참이다** — 런타임은 세 선언을 합치지 않고 인덱스
+**한 곳**을 읽는다. 다만 `_raw_declarations` 자체는 **남긴다**: 다른 도메인이 아직 안 옮겼고,
+모듈 자기검정들이 원천 형태의 A2 dict를 직접 만들어 쓴다. 그래서 5단계(병합 코드 삭제)는
+**전 도메인 이관 후**다.
 
 ## §2 런타임 — **DB 사실만 읽고 비교한다**
 

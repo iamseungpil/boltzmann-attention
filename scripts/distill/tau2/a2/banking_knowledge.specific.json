@@ -996,10 +996,6 @@
    },
    "_ground_note": "관문1 grounding(T2_SG_GROUND=1). 097 결함=principal 95000 추측(gold $100,000). '레코드서 복사'라 선언된 operand(principal·actual_apy·기간)를 원장(계좌레코드 도구출력)에 실재하는지 대조·미검증 드롭→op None→abstain. expected_apy는 미ground(get_correct_savings_apy 산출물=상류서 이미 grounded). 엔진 리터럴 0.",
    "_note": "2026-07-20 D+G. amount=principal×Δapy%×days/365. gold 095 재현 98.0(full yr·8000). 리터럴 0(전부 인자). isolate 불요(순 산술). §2aw: read-선행 게이트(r095 3trial: 계산 前 저축 레코드·거래 미읽음 불변→principal 96000/기간 1개월 오답). requires_reads=gold read 쌍의 effective명·T2_SG_REQREADS=1 구동.",
-   "requires_reads": [
-    "get_all_user_accounts_by_user_id",
-    "get_bank_account_transactions"
-   ],
    "isolate": {
     "mode": "fetch_formalize",
     "ref_params": [
@@ -1297,11 +1293,6 @@
     }
    },
    "_note": "2026-07-22 §2bu(rall11 052 실측): 4체크를 다 읽고도 approve 실행(gold=deny·cooldown). 자격 4기준은 KB에 결정론 명시(logistics_005/006·티어 목록=replacements_002)→[[10]] 분담: 판정=결정론 offload(check_rebate/closure_eligibility 선례). 문구=양방향(approve|deny)·default None=미지 카드타입 abstain([[05]] 3-값). gold 무관·전거는 KB. ★2026-07-22 rall12 smoke(052) 실측: 모델이 history의 status:approved submitted_date:2025-09-15을 못 뽑고 'none' emit→cooldown 관문 skip→ELIGIBLE 오판(gold=deny). 원인=舊문구 'EXCLUDING the request you are deciding now' 과적용(pending과 과거 approved 혼동). 문구를 'approved만 보라·pending은 자동제외'로 교정. 근본(문맥값→slot 매핑)=formalize 잔여(LEARN §2.1)라 문구로 완전히 못 닫음·라이브 재검 대상. ★2026-07-22 052 격리(probe_052 p_iso 8/9): 라이브 실패=check_cli를 CLI history 선독 前 호출→last_approved 'none'(gather-순서·formalize 아님). requires_reads로 계좌+CLI이력+납부이력 선독 강제(REQREADS 기존 메커니즘·T2_SG_REQREADS). 정보완비면 formalize 정확(격리 8/9 지지).",
-   "requires_reads": [
-    "get_credit_card_accounts_by_user",
-    "get_credit_limit_increase_history",
-    "get_payment_history"
-   ],
    "requires_reads_feedback": "Error: [READ-FIRST] before checking CLI eligibility you must first read the inputs from the records. Missing required reads: {missing}. Read the credit card account record (get_credit_card_accounts_by_user), the CLI request history (get_credit_limit_increase_history) and the payment history (get_payment_history) - the last two are DISCOVERABLE tools, so find each full suffixed name in the knowledge base (search plain words for the step), unlock and call it. Only after those reads are in the conversation can you copy exact values (balances, dates, approved-request date, on-time payment count) into check_cli_eligibility. Then call it again."
   },
   {
@@ -1948,20 +1939,6 @@
    "user_tool": "get_card_last_4_digits"
   }
  },
- "require_tool_before": {
-  "apply_for_credit_card": [
-   "check_card_application_fit"
-  ],
-  "open_bank_account": [
-   "get_all_user_accounts_by_user_id"
-  ],
-  "submit_referral": [
-   "get_all_user_accounts_by_user_id"
-  ],
-  "pay_credit_card_from_checking": [
-   "get_all_user_accounts_by_user_id"
-  ]
- },
  "tool_signatures": {
   "give_discoverable_user_tool": [
    "discoverable_tool_name"
@@ -2509,5 +2486,176 @@
   },
   "_note": "2026-08-06 T5(억제 자격·정본 `CONFLICT_ARBITRATION_THEORY_2026_08_06` §3-T5). 출처([[23]]) = **우리 레버에 대한 메타 기록**이라 도메인 사실을 주장하지 않는다(도메인 리터럴 0·gold 무참조). 이 키는 능력을 더하지 않고 **뺀다** — 여기 없는 억제형 레버는 `T2_SUPPRESS_AUTH=1`에서 다른 레버를 침묵시킬 수 없다(표면화는 그대로). 근거는 정책 축자(kind=policy·quote) 또는 사전 등록 계량(kind=measurement·measure) 둘 중 하나여야 하고, **숫자 우선순위는 쓰지 않는다**(Davis & Buchanan 1977: 서로 다른 차원을 한 숫자로 뭉개면 그 숫자가 어떻게 나왔는지 기록이 남지 않는다). 이 규칙이 있었다면 C13 원판은 근거를 못 대 실격됐을 것이고 050/051의 이행을 만들던 반복을 지우지 못했을 것이다."
  },
- "_note_failure_markers": "★2026-08-08 이 층에서 **삭제**했다 — `banking_knowledge.settings.json`(L2)에 **바이트 동일한 값이 있었다**(두 층 중복 = 3층 회계가 깨진 자리·`test_a2_three_layer` ② FAIL의 절반). 구조가 도메인-공통이고 값만 도메인별이므로 소유 층은 L2다. 내용·주석은 그쪽에 그대로 있고 병합 결과는 **바이트 동일**(거동 변화 0)."
+ "_note_failure_markers": "★2026-08-08 이 층에서 **삭제**했다 — `banking_knowledge.settings.json`(L2)에 **바이트 동일한 값이 있었다**(두 층 중복 = 3층 회계가 깨진 자리·`test_a2_three_layer` ② FAIL의 절반). 구조가 도메인-공통이고 값만 도메인별이므로 소유 층은 L2다. 내용·주석은 그쪽에 그대로 있고 병합 결과는 **바이트 동일**(거동 변화 0).",
+ "relations": {
+  "_note": "선행 관계 인덱스 — A2 3선언 + applies_to 게이트 satisfier의 기계 도출. 정본 설계 = A3_POLICY_ONTOLOGY_DESIGN_2026_08_08 §1d·§1d.1. declarations는 출처·순서·다중성을 그대로 진다(refcount가 개수를 센다).",
+  "declarations": [
+   {
+    "source": "satisfier_requires",
+    "dep": "log_verification",
+    "reads": [
+     "verify_identity",
+     "get_current_time"
+    ]
+   },
+   {
+    "source": "require_tool_before",
+    "dep": "apply_for_credit_card",
+    "reads": [
+     "check_card_application_fit"
+    ]
+   },
+   {
+    "source": "require_tool_before",
+    "dep": "open_bank_account",
+    "reads": [
+     "get_all_user_accounts_by_user_id"
+    ]
+   },
+   {
+    "source": "require_tool_before",
+    "dep": "submit_referral",
+    "reads": [
+     "get_all_user_accounts_by_user_id"
+    ]
+   },
+   {
+    "source": "require_tool_before",
+    "dep": "pay_credit_card_from_checking",
+    "reads": [
+     "get_all_user_accounts_by_user_id"
+    ]
+   },
+   {
+    "source": "requires_reads",
+    "dep": "get_interest_correction",
+    "reads": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ]
+   },
+   {
+    "source": "requires_reads",
+    "dep": "check_cli_eligibility",
+    "reads": [
+     "get_credit_card_accounts_by_user",
+     "get_credit_limit_increase_history",
+     "get_payment_history"
+    ]
+   }
+  ],
+  "edges": {
+   "log_verification": [
+    "verify_identity",
+    "get_current_time"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  },
+  "by_tool": {
+   "apply_for_credit_card": {
+    "requires": [
+     "check_card_application_fit"
+    ],
+    "gate_satisfiers": []
+   },
+   "call_discoverable_agent_tool": {
+    "requires": [],
+    "gate_satisfiers": [
+     "log_verification"
+    ]
+   },
+   "change_user_email": {
+    "requires": [],
+    "gate_satisfiers": [
+     "log_verification"
+    ]
+   },
+   "check_cli_eligibility": {
+    "requires": [
+     "get_credit_card_accounts_by_user",
+     "get_credit_limit_increase_history",
+     "get_payment_history"
+    ],
+    "gate_satisfiers": []
+   },
+   "get_credit_card_accounts_by_user": {
+    "requires": [],
+    "gate_satisfiers": [
+     "log_verification"
+    ]
+   },
+   "get_credit_card_transactions_by_user": {
+    "requires": [],
+    "gate_satisfiers": [
+     "log_verification"
+    ]
+   },
+   "get_interest_correction": {
+    "requires": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ],
+    "gate_satisfiers": []
+   },
+   "get_referrals_by_user": {
+    "requires": [],
+    "gate_satisfiers": [
+     "log_verification"
+    ]
+   },
+   "log_verification": {
+    "requires": [
+     "verify_identity",
+     "get_current_time"
+    ],
+    "gate_satisfiers": []
+   },
+   "open_bank_account": {
+    "requires": [
+     "get_all_user_accounts_by_user_id"
+    ],
+    "gate_satisfiers": []
+   },
+   "pay_credit_card_from_checking": {
+    "requires": [
+     "get_all_user_accounts_by_user_id"
+    ],
+    "gate_satisfiers": []
+   },
+   "submit_referral": {
+    "requires": [
+     "get_all_user_accounts_by_user_id"
+    ],
+    "gate_satisfiers": [
+     "log_verification",
+     "get_referrals_by_user"
+    ]
+   },
+   "transfer_to_human_agents": {
+    "requires": [],
+    "gate_satisfiers": []
+   }
+  }
+ },
+ "_note_relations": "★2026-08-08 4단계 — 선행 관계의 **유일한 원천**(정본 설계 `A3_POLICY_ONTOLOGY_DESIGN_2026_08_08` §1d.1). 여기 들어오면서 `require_tool_before`(L3)·`scaffold_get_tools[].requires_reads`(L3)·`gates[].satisfier_requires`(L2)를 **같은 커밋에서 삭제**했다 — 두 원천이 공존하는 창을 만들지 않기 위해서다([[24]] 2026-08-03: 정본만 고치고 소비자·사본을 안 맞추면 옛 값이 쓰인다). 키 수는 **순감**(3선언 → 1키)이고 도메인 리터럴 순증 0. 생성기 = `x144_build_relation_index.py`, 소비자 입구 = `t2_precedence.declarations` 하나(t2_pin_read·t2_prekb_patch·t2_dominance·t2_precedence). ★`declarations`는 **출처·순서·다중성**을 그대로 진다 — 간선으로 합치면 `t2_pin_read._refcount`가 세는 *선언 개수*가 2→1이 되어 조준이 바뀐다. ★재생성: `x144 --domain <d> --out -`로 다시 만들되, **삭제 전 기준선**(`a2/frozen/banking_knowledge.prereq_baseline.json`)과 `--check-snapshot`으로 맞대야 한다. 삭제 후에는 원천이 없어 *'원천 vs 인덱스'* 대조가 공허하게 참이 되기 때문이다."
 }

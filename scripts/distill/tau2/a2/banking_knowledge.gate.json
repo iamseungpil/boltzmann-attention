@@ -40,13 +40,7 @@
     ]
    },
    "note": "verify the customer FIRST: confirm 2 of {date of birth, email, phone number, address} against the record (use the get_user_information_by_* read tools), then call log_verification with the verified values and get_current_time() — only then perform account actions. Transfer/incident tools do not need verification.",
-   "satisfier_requires": {
-    "log_verification": [
-     "verify_identity",
-     "get_current_time"
-    ]
-   },
-   "_note_satisfier_requires": "2026-08-07 전이적 도달. 출처([[23]]) = **이 게이트 자신의 note 축자**를 구조로 옮긴 것이다: \"verify the customer FIRST: confirm 2 of {date of birth, email, phone number, address} against the record (use the get_user_information_by_* read tools), then call log_verification with the verified values and get_current_time()\". gold 무참조·새 사실 0 — 산문에 이미 있던 순서를 기계가 읽을 수 있게 적었을 뿐이다. 근거(102 대조 부검): satisfier인 log_verification은 혼자 부를 수 없는데 우리는 사슬의 **끝만** 명령했다. 통과한 sim은 모델이 경로를 스스로 알았고, 실패한 sim은 verify_identity를 다섯 번 부르다 log_verification에 도달조차 못 하고 이관으로 끝났다. 같은 구성이 0~5건으로 흔들린 것은 표집이 아니라 이 갈림길이었다. get_user_information_by_*는 접두사라 이름이 하나로 정해지지 않아 넣지 않았다 — verify_identity가 실패하면 그 반환문이 어느 read가 필요한지 스스로 말한다(라이브 실측)."
+   "_note_satisfier_requires": "★2026-08-08 이 자리에서 **삭제**했다 — 선행 관계의 유일한 원천은 이제 `banking_knowledge.specific.json`의 `relations`(정본 설계 §1d.1 4단계)이고, 값은 그대로 옮겨 갔다(`log_verification ← verify_identity, get_current_time`). 두 원천이 공존하는 창을 만들지 않으려고 인덱스 투입과 **같은 커밋에서** 지웠다. 아래는 그때의 출처 기록이며 그대로 유효하다. 2026-08-07 전이적 도달. 출처([[23]]) = **이 게이트 자신의 note 축자**를 구조로 옮긴 것이다: \"verify the customer FIRST: confirm 2 of {date of birth, email, phone number, address} against the record (use the get_user_information_by_* read tools), then call log_verification with the verified values and get_current_time()\". gold 무참조·새 사실 0 — 산문에 이미 있던 순서를 기계가 읽을 수 있게 적었을 뿐이다. 근거(102 대조 부검): satisfier인 log_verification은 혼자 부를 수 없는데 우리는 사슬의 **끝만** 명령했다. 통과한 sim은 모델이 경로를 스스로 알았고, 실패한 sim은 verify_identity를 다섯 번 부르다 log_verification에 도달조차 못 하고 이관으로 끝났다. 같은 구성이 0~5건으로 흔들린 것은 표집이 아니라 이 갈림길이었다. get_user_information_by_*는 접두사라 이름이 하나로 정해지지 않아 넣지 않았다 — verify_identity가 실패하면 그 반환문이 어느 read가 필요한지 스스로 말한다(라이브 실측)."
   },
   {
    "id": "GB2_NOTICE_BEFORE_TRANSFER",
@@ -1194,10 +1188,6 @@
    },
    "_ground_note": "관문1 grounding(T2_SG_GROUND=1). 097 결함=principal 95000 추측(gold $100,000). '레코드서 복사'라 선언된 operand(principal·actual_apy·기간)를 원장(계좌레코드 도구출력)에 실재하는지 대조·미검증 드롭→op None→abstain. expected_apy는 미ground(get_correct_savings_apy 산출물=상류서 이미 grounded). 엔진 리터럴 0.",
    "_note": "2026-07-20 D+G. amount=principal×Δapy%×days/365. gold 095 재현 98.0(full yr·8000). 리터럴 0(전부 인자). isolate 불요(순 산술). §2aw: read-선행 게이트(r095 3trial: 계산 前 저축 레코드·거래 미읽음 불변→principal 96000/기간 1개월 오답). requires_reads=gold read 쌍의 effective명·T2_SG_REQREADS=1 구동.",
-   "requires_reads": [
-    "get_all_user_accounts_by_user_id",
-    "get_bank_account_transactions"
-   ],
    "isolate": {
     "mode": "fetch_formalize",
     "ref_params": [
@@ -1495,11 +1485,6 @@
     }
    },
    "_note": "2026-07-22 §2bu(rall11 052 실측): 4체크를 다 읽고도 approve 실행(gold=deny·cooldown). 자격 4기준은 KB에 결정론 명시(logistics_005/006·티어 목록=replacements_002)→[[10]] 분담: 판정=결정론 offload(check_rebate/closure_eligibility 선례). 문구=양방향(approve|deny)·default None=미지 카드타입 abstain([[05]] 3-값). gold 무관·전거는 KB. ★2026-07-22 rall12 smoke(052) 실측: 모델이 history의 status:approved submitted_date:2025-09-15을 못 뽑고 'none' emit→cooldown 관문 skip→ELIGIBLE 오판(gold=deny). 원인=舊문구 'EXCLUDING the request you are deciding now' 과적용(pending과 과거 approved 혼동). 문구를 'approved만 보라·pending은 자동제외'로 교정. 근본(문맥값→slot 매핑)=formalize 잔여(LEARN §2.1)라 문구로 완전히 못 닫음·라이브 재검 대상. ★2026-07-22 052 격리(probe_052 p_iso 8/9): 라이브 실패=check_cli를 CLI history 선독 前 호출→last_approved 'none'(gather-순서·formalize 아님). requires_reads로 계좌+CLI이력+납부이력 선독 강제(REQREADS 기존 메커니즘·T2_SG_REQREADS). 정보완비면 formalize 정확(격리 8/9 지지).",
-   "requires_reads": [
-    "get_credit_card_accounts_by_user",
-    "get_credit_limit_increase_history",
-    "get_payment_history"
-   ],
    "requires_reads_feedback": "Error: [READ-FIRST] before checking CLI eligibility you must first read the inputs from the records. Missing required reads: {missing}. Read the credit card account record (get_credit_card_accounts_by_user), the CLI request history (get_credit_limit_increase_history) and the payment history (get_payment_history) - the last two are DISCOVERABLE tools, so find each full suffixed name in the knowledge base (search plain words for the step), unlock and call it. Only after those reads are in the conversation can you copy exact values (balances, dates, approved-request date, on-time payment count) into check_cli_eligibility. Then call it again."
   },
   {
@@ -2153,20 +2138,6 @@
   }
  },
  "_note_arg_producers": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || F8(C211·2026-07-28): 필수인자의 생산자가 유저-측 discoverable 도구인 경우의 선언 — day6 040/041 [S]: last-4를 못 얻자 formal dispute 대신 cash-back dispute로 오도구 전환. 트리거=도구 에러에 required/missing+인자명 실재(엔진=선언 대조·문구 지시만·give는 모델이 emit).",
- "require_tool_before": {
-  "apply_for_credit_card": [
-   "check_card_application_fit"
-  ],
-  "open_bank_account": [
-   "get_all_user_accounts_by_user_id"
-  ],
-  "submit_referral": [
-   "get_all_user_accounts_by_user_id"
-  ],
-  "pay_credit_card_from_checking": [
-   "get_all_user_accounts_by_user_id"
-  ]
- },
  "_note_require_tool_before": "★출처(정책 축자·[[23]] 소급 2026-07-31): ★부분 확립. 정책 축자로 licensing되는 것은 **unlock→call 순서**뿐이다 — *\"The unlock step is required before calling - you cannot call a tool that hasn't been unlocked\"*. 나머지 체인(`apply_for_credit_card ← check_card_application_fit` 등)의 **선행 도구는 우리가 만든 scaffold GET 도구**(`scaffold_get_tools`에 선언·Y1 궤적 17회 호출·`{\"eligible\": […]}` 정상 반환)이고, **그 체인을 요구하는 정책 문장은 없다**. 구 주석이 근거로 든 것은 실패 태스크 관측(070·099 gold MISS)이었다 ⇒ **[[23]] 소급 대상**: 정책·KB 근거를 찾거나, 못 찾으면 제거해야 한다.",
  "tool_signatures": {
   "give_discoverable_user_tool": [
@@ -2804,35 +2775,135 @@
   "Unknown discoverable tool",
   "Unknown agent tool"
  ],
- "_note_failure_markers": "2026-08-07. 출처([[23]]) = **env 반환문 실측 축자**(도메인 지식 아님·gold 무참조): `NOT_VERIFIED — only 1 of the required 2 values the customer gave match the account record` · `Failed to log verification: Record may already exist.` · `Unknown discoverable tool '...'`. 근거 = 이 환경은 실패를 **error=False로 돌려주고 실패 사실을 본문에 쓴다**. 그래서 우리 충족 판정(`_executed_tool_names`)이 플래그만 보고 **실패한 호출을 '실행됨'으로 셌고**, 게이트가 거짓 충족돼 의존 그래프가 조기 전진할 수 있었다(102 부검에서 발견). ⚠**접두사만** 본다 — 본문 중간의 같은 낱말(정상 출력이 실패를 *설명*하는 경우)은 세지 않기 위해서다. ⚠엔진에 이 문자열을 박으면 도메인 리터럴이 되므로 A2에 둔다. 미선언 도메인은 종전 거동(거동 변화 0).",
+ "_note_failure_markers": "★2026-08-08 이 층에서 **삭제**했다 — `banking_knowledge.settings.json`(L2)에 **바이트 동일한 값이 있었다**(두 층 중복 = 3층 회계가 깨진 자리·`test_a2_three_layer` ② FAIL의 절반). 구조가 도메인-공통이고 값만 도메인별이므로 소유 층은 L2다. 내용·주석은 그쪽에 그대로 있고 병합 결과는 **바이트 동일**(거동 변화 0).",
  "derived": [
-
-   {"out": "today", "inputs": ["corpus"], "op": "formalize", "shape": "scalar",
-    "prompt": "now_prompt",
-    "params": {"date_formats": ["%m/%d/%Y", "%Y-%m-%d"]}},
-
-   {"out": "rows:referrals", "inputs": ["tool:get_referrals_by_user"],
-    "op": "formalize", "shape": "rows", "prompt": "formalize_prompt",
-    "params": {"row_keys": ["date", "referred_account_type"]}},
-   {"out": "rows:accounts", "inputs": ["tool:get_all_user_accounts_by_user_id"],
-    "op": "formalize", "shape": "rows", "prompt": "formalize_prompt",
-    "params": {"row_keys": ["level", "date_opened"]}},
-
-   {"out": "type_usage", "inputs": ["rows:referrals"], "op": "tally",
-    "params": {"group_field": "referred_account_type"}},
-   {"out": "window_left", "inputs": ["rows:referrals", "today"], "op": "window_remaining",
-    "params": {"date_field": "date", "date_formats": ["%m/%d/%Y", "%Y-%m-%d"],
-               "window_days": 9, "window_max": 2}},
-   {"out": "tenure_days", "inputs": ["rows:accounts", "today"], "op": "days_since_earliest",
-    "params": {"age_field": "date_opened", "date_formats": ["%m/%d/%Y", "%Y-%m-%d"]}},
-
-   {"out": "doc_limits", "inputs": ["corpus"], "op": "formalize", "shape": "pairs",
-    "prompt": "limit_prompt", "params": {"field": "limit"}},
-   {"out": "doc_minimums", "inputs": ["corpus"], "op": "formalize", "shape": "pairs",
-    "prompt": "threshold_prompt", "params": {"field": "min_days"}},
-
-   {"out": "annual_left", "inputs": ["type_usage", "doc_limits"], "op": "subtract_by_group"},
-   {"out": "tenure_ok", "inputs": ["tenure_days", "doc_minimums"], "op": "compare_ge"}
+  {
+   "out": "today",
+   "inputs": [
+    "corpus"
+   ],
+   "op": "formalize",
+   "shape": "scalar",
+   "prompt": "now_prompt",
+   "params": {
+    "date_formats": [
+     "%m/%d/%Y",
+     "%Y-%m-%d"
+    ]
+   }
+  },
+  {
+   "out": "rows:referrals",
+   "inputs": [
+    "tool:get_referrals_by_user"
+   ],
+   "op": "formalize",
+   "shape": "rows",
+   "prompt": "formalize_prompt",
+   "params": {
+    "row_keys": [
+     "date",
+     "referred_account_type"
+    ]
+   }
+  },
+  {
+   "out": "rows:accounts",
+   "inputs": [
+    "tool:get_all_user_accounts_by_user_id"
+   ],
+   "op": "formalize",
+   "shape": "rows",
+   "prompt": "formalize_prompt",
+   "params": {
+    "row_keys": [
+     "level",
+     "date_opened"
+    ]
+   }
+  },
+  {
+   "out": "type_usage",
+   "inputs": [
+    "rows:referrals"
+   ],
+   "op": "tally",
+   "params": {
+    "group_field": "referred_account_type"
+   }
+  },
+  {
+   "out": "window_left",
+   "inputs": [
+    "rows:referrals",
+    "today"
+   ],
+   "op": "window_remaining",
+   "params": {
+    "date_field": "date",
+    "date_formats": [
+     "%m/%d/%Y",
+     "%Y-%m-%d"
+    ],
+    "window_days": 9,
+    "window_max": 2
+   }
+  },
+  {
+   "out": "tenure_days",
+   "inputs": [
+    "rows:accounts",
+    "today"
+   ],
+   "op": "days_since_earliest",
+   "params": {
+    "age_field": "date_opened",
+    "date_formats": [
+     "%m/%d/%Y",
+     "%Y-%m-%d"
+    ]
+   }
+  },
+  {
+   "out": "doc_limits",
+   "inputs": [
+    "corpus"
+   ],
+   "op": "formalize",
+   "shape": "pairs",
+   "prompt": "limit_prompt",
+   "params": {
+    "field": "limit"
+   }
+  },
+  {
+   "out": "doc_minimums",
+   "inputs": [
+    "corpus"
+   ],
+   "op": "formalize",
+   "shape": "pairs",
+   "prompt": "threshold_prompt",
+   "params": {
+    "field": "min_days"
+   }
+  },
+  {
+   "out": "annual_left",
+   "inputs": [
+    "type_usage",
+    "doc_limits"
+   ],
+   "op": "subtract_by_group"
+  },
+  {
+   "out": "tenure_ok",
+   "inputs": [
+    "tenure_days",
+    "doc_minimums"
+   ],
+   "op": "compare_ge"
+  }
  ],
  "_note_derived": "2026-08-08. ★파생-사실 DAG 단계 0 (정본 = FACT_DAG_DESIGN_2026_08_08.md rev4). 아직 어느 라이브 경로도 이 키를 읽지 않는다(거동 변화 0). 값은 전부 ledger_metrics 에서 온 것이고 신규 도메인 지식 0이다 — row_keys·group_field·window_days·window_max·age_field·date_formats 전수 대조 확인(x132). 새 op·새 shape 은 로드 시점에 죽는다.",
  "ledger_metrics": [
@@ -2881,5 +2952,177 @@
    "now_prompt": "From the conversation excerpts below, what is TODAY's date according to the system or the records shown? Reply with the date only, formatted MM/DD/YYYY. If the excerpts do not state it, reply NONE.\n\n{text}",
    "_note_": "2026-08-07. 출처([[23]]) = env 도구 출력 필드명(기계 도출) + 정책 축자. 규칙 문형 = doc_bank_accounts_(general): \"The tenure threshold is measured from when you opened your very first checking account with us\" / \"calculated from ... the date your earliest checking account was opened\". ★상품별 문턱 일수는 여기 넣지 않는다 - Hunter Green만 \"minimum relationship duration of 60 days\"로 축자 확인되고 World Blue는 그 문형이 없다. 못 찾은 값을 A2에 박으면 지어내는 것이 된다. 문턱은 모델이 인용과 함께 가져오고 [SOURCE]가 검증한다([[22]]). ★now_prompt 추가(2026-08-07·x128 오프라인 실측): 이 선언에만 `now_prompt`가 없어 `formalize_now`가 항상 None을 돌려줬고, 그래서 `{age}`가 **빈 문자열로 렌더**됐다 — 경과일 문장이 통째로 사라진 것이다. 전사는 2행 정상, 창 선언 쪽은 정상 산출. 100이 필요로 하는 수(첫 계좌로부터의 경과일)가 정확히 이 구멍으로 빠졌다. 문구는 자매 선언과 **축자 동일**(도메인 지식 0·오늘 날짜만 묻는다·gold 무참조)."
   }
- ]
+ ],
+ "_note_layer": "L3 specific — 이 도메인에만 있는 도구·규칙. 엔진 접속은 현재 하드와이어(44사이트)이고 callback 계약은 설계 §4(미구현).",
+ "relations": {
+  "_note": "선행 관계 인덱스 — A2 3선언 + applies_to 게이트 satisfier의 기계 도출. 정본 설계 = A3_POLICY_ONTOLOGY_DESIGN_2026_08_08 §1d·§1d.1. declarations는 출처·순서·다중성을 그대로 진다(refcount가 개수를 센다).",
+  "declarations": [
+   {
+    "source": "satisfier_requires",
+    "dep": "log_verification",
+    "reads": [
+     "verify_identity",
+     "get_current_time"
+    ]
+   },
+   {
+    "source": "require_tool_before",
+    "dep": "apply_for_credit_card",
+    "reads": [
+     "check_card_application_fit"
+    ]
+   },
+   {
+    "source": "require_tool_before",
+    "dep": "open_bank_account",
+    "reads": [
+     "get_all_user_accounts_by_user_id"
+    ]
+   },
+   {
+    "source": "require_tool_before",
+    "dep": "submit_referral",
+    "reads": [
+     "get_all_user_accounts_by_user_id"
+    ]
+   },
+   {
+    "source": "require_tool_before",
+    "dep": "pay_credit_card_from_checking",
+    "reads": [
+     "get_all_user_accounts_by_user_id"
+    ]
+   },
+   {
+    "source": "requires_reads",
+    "dep": "get_interest_correction",
+    "reads": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ]
+   },
+   {
+    "source": "requires_reads",
+    "dep": "check_cli_eligibility",
+    "reads": [
+     "get_credit_card_accounts_by_user",
+     "get_credit_limit_increase_history",
+     "get_payment_history"
+    ]
+   }
+  ],
+  "edges": {
+   "log_verification": [
+    "verify_identity",
+    "get_current_time"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  },
+  "by_tool": {
+   "apply_for_credit_card": {
+    "requires": [
+     "check_card_application_fit"
+    ],
+    "gate_satisfiers": []
+   },
+   "call_discoverable_agent_tool": {
+    "requires": [],
+    "gate_satisfiers": [
+     "log_verification"
+    ]
+   },
+   "change_user_email": {
+    "requires": [],
+    "gate_satisfiers": [
+     "log_verification"
+    ]
+   },
+   "check_cli_eligibility": {
+    "requires": [
+     "get_credit_card_accounts_by_user",
+     "get_credit_limit_increase_history",
+     "get_payment_history"
+    ],
+    "gate_satisfiers": []
+   },
+   "get_credit_card_accounts_by_user": {
+    "requires": [],
+    "gate_satisfiers": [
+     "log_verification"
+    ]
+   },
+   "get_credit_card_transactions_by_user": {
+    "requires": [],
+    "gate_satisfiers": [
+     "log_verification"
+    ]
+   },
+   "get_interest_correction": {
+    "requires": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ],
+    "gate_satisfiers": []
+   },
+   "get_referrals_by_user": {
+    "requires": [],
+    "gate_satisfiers": [
+     "log_verification"
+    ]
+   },
+   "log_verification": {
+    "requires": [
+     "verify_identity",
+     "get_current_time"
+    ],
+    "gate_satisfiers": []
+   },
+   "open_bank_account": {
+    "requires": [
+     "get_all_user_accounts_by_user_id"
+    ],
+    "gate_satisfiers": []
+   },
+   "pay_credit_card_from_checking": {
+    "requires": [
+     "get_all_user_accounts_by_user_id"
+    ],
+    "gate_satisfiers": []
+   },
+   "submit_referral": {
+    "requires": [
+     "get_all_user_accounts_by_user_id"
+    ],
+    "gate_satisfiers": [
+     "log_verification",
+     "get_referrals_by_user"
+    ]
+   },
+   "transfer_to_human_agents": {
+    "requires": [],
+    "gate_satisfiers": []
+   }
+  }
+ },
+ "_note_relations": "★2026-08-08 4단계 — 선행 관계의 **유일한 원천**(정본 설계 `A3_POLICY_ONTOLOGY_DESIGN_2026_08_08` §1d.1). 여기 들어오면서 `require_tool_before`(L3)·`scaffold_get_tools[].requires_reads`(L3)·`gates[].satisfier_requires`(L2)를 **같은 커밋에서 삭제**했다 — 두 원천이 공존하는 창을 만들지 않기 위해서다([[24]] 2026-08-03: 정본만 고치고 소비자·사본을 안 맞추면 옛 값이 쓰인다). 키 수는 **순감**(3선언 → 1키)이고 도메인 리터럴 순증 0. 생성기 = `x144_build_relation_index.py`, 소비자 입구 = `t2_precedence.declarations` 하나(t2_pin_read·t2_prekb_patch·t2_dominance·t2_precedence). ★`declarations`는 **출처·순서·다중성**을 그대로 진다 — 간선으로 합치면 `t2_pin_read._refcount`가 세는 *선언 개수*가 2→1이 되어 조준이 바뀐다. ★재생성: `x144 --domain <d> --out -`로 다시 만들되, **삭제 전 기준선**(`a2/frozen/banking_knowledge.prereq_baseline.json`)과 `--check-snapshot`으로 맞대야 한다. 삭제 후에는 원천이 없어 *'원천 vs 인덱스'* 대조가 공허하게 참이 되기 때문이다."
 }

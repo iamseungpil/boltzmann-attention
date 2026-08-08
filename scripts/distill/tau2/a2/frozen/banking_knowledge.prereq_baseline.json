@@ -1,0 +1,503 @@
+{
+ "_note": "A2 키 삭제 전 기준선 — `x144 --check-snapshot`이 이것과 맞댄다.",
+ "domain": "banking_knowledge",
+ "declarations": [
+  [
+   "log_verification",
+   [
+    "verify_identity",
+    "get_current_time"
+   ]
+  ],
+  [
+   "apply_for_credit_card",
+   [
+    "check_card_application_fit"
+   ]
+  ],
+  [
+   "open_bank_account",
+   [
+    "get_all_user_accounts_by_user_id"
+   ]
+  ],
+  [
+   "submit_referral",
+   [
+    "get_all_user_accounts_by_user_id"
+   ]
+  ],
+  [
+   "pay_credit_card_from_checking",
+   [
+    "get_all_user_accounts_by_user_id"
+   ]
+  ],
+  [
+   "get_interest_correction",
+   [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ]
+  ],
+  [
+   "check_cli_eligibility",
+   [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  ]
+ ],
+ "graphs": {
+  "apply_for_credit_card": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  },
+  "call_discoverable_agent_tool": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ],
+   "call_discoverable_agent_tool": [
+    "log_verification"
+   ]
+  },
+  "change_user_email": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ],
+   "change_user_email": [
+    "log_verification"
+   ]
+  },
+  "check_cli_eligibility": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  },
+  "get_credit_card_accounts_by_user": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ],
+   "get_credit_card_accounts_by_user": [
+    "log_verification"
+   ]
+  },
+  "get_credit_card_transactions_by_user": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ],
+   "get_credit_card_transactions_by_user": [
+    "log_verification"
+   ]
+  },
+  "get_interest_correction": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  },
+  "get_referrals_by_user": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ],
+   "get_referrals_by_user": [
+    "log_verification"
+   ]
+  },
+  "give_discoverable_user_tool": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  },
+  "log_verification": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  },
+  "open_bank_account": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  },
+  "pay_credit_card_from_checking": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  },
+  "submit_referral": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id",
+    "get_referrals_by_user",
+    "log_verification"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  },
+  "submit_transaction": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  },
+  "transfer_to_human_agents": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  },
+  "unlock_discoverable_agent_tool": {
+   "log_verification": [
+    "get_current_time",
+    "verify_identity"
+   ],
+   "apply_for_credit_card": [
+    "check_card_application_fit"
+   ],
+   "open_bank_account": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "submit_referral": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "pay_credit_card_from_checking": [
+    "get_all_user_accounts_by_user_id"
+   ],
+   "get_interest_correction": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "check_cli_eligibility": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_limit_increase_history",
+    "get_payment_history"
+   ]
+  }
+ }
+}

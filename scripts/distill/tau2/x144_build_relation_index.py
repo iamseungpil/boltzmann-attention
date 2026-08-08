@@ -137,17 +137,77 @@ def verify(a2, index):
     return not bad
 
 
+def snapshot(a2, domain):
+    """삭제 **전** 상태를 얼린다 — 4단계(A2 키 삭제)의 유일한 진짜 기준선.
+
+    삭제하고 나면 `_raw_declarations`가 빈 것을 돌려주므로 *"원천 vs 인덱스"* 대조는 **공허하게
+    참**이 된다(빈 것과 빈 것을 비교한다). 그래서 지우기 전에 **모든 표적의 그래프와 선언 전량**을
+    파일로 굳혀 두고, 지운 뒤 그것과 맞댄다.
+    """
+    targets = set()
+    for g in ((a2 or {}).get("gates") or []):
+        targets |= set(g.get("applies_to") or ())
+    targets |= set((a2 or {}).get("action_tools") or ())
+    targets |= set(prec.prereq_map(a2))
+    return {"_note": "A2 키 삭제 전 기준선 — `x144 --check-snapshot`이 이것과 맞댄다.",
+            "domain": domain,
+            "declarations": [list(x) for x in prec.declarations(a2)],
+            "graphs": {t: {k: sorted(v) for k, v in prec.graph_for(a2, t).items()}
+                       for t in sorted(targets)}}
+
+
+def check_snapshot(a2, snap, domain):
+    """삭제 후 상태가 기준선과 **같은 그래프·같은 선언**을 내는가."""
+    if snap.get("domain") != domain:
+        print("⚠기준선 도메인 불일치: %s ≠ %s" % (snap.get("domain"), domain))
+        return False
+    want_d = [tuple(x) for x in (snap.get("declarations") or [])]
+    got_d = prec.declarations(a2)
+    ok_d = want_d == got_d
+    print("선언 %d쌍 · %s" % (len(want_d), "일치" if ok_d else "**불일치**"))
+    if not ok_d:
+        print("   기준선에만: %s" % [x for x in want_d if x not in got_d][:6])
+        print("   현재에만  : %s" % [x for x in got_d if x not in want_d][:6])
+    bad = []
+    for t, want in sorted((snap.get("graphs") or {}).items()):
+        got = {k: sorted(v) for k, v in prec.graph_for(a2, t).items()}
+        if got != want:
+            bad.append((t, want, got))
+    print("그래프 표적 %d · 일치 %d · **불일치 %d**"
+          % (len(snap.get("graphs") or {}), len(snap.get("graphs") or {}) - len(bad), len(bad)))
+    for t, want, got in bad[:10]:
+        print("   ✗ %s" % t)
+        print("      기준선: %s" % want)
+        print("      현재  : %s" % got)
+    return ok_d and not bad
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--domain", default="banking_knowledge")
     ap.add_argument("--out", default="")
     ap.add_argument("--verify", action="store_true")
+    ap.add_argument("--snapshot", default="", help="삭제 전 기준선을 이 파일로 얼린다")
+    ap.add_argument("--check-snapshot", default="", help="그 기준선과 현재를 맞댄다")
     a = ap.parse_args()
 
     a2 = load_domain_a2(a.domain)
     if not a2:
         print("A2 없음: %s" % a.domain)
         return 2
+
+    if a.snapshot:
+        snap = snapshot(a2, a.domain)
+        io.open(a.snapshot, "w", encoding="utf-8").write(
+            json.dumps(snap, ensure_ascii=False, indent=1))
+        print("기준선 얼림: %s (선언 %d쌍 · 표적 %d)"
+              % (a.snapshot, len(snap["declarations"]), len(snap["graphs"])))
+        return 0
+    if a.check_snapshot:
+        with io.open(a.check_snapshot, encoding="utf-8") as f:
+            snap = json.load(f)
+        return 0 if check_snapshot(a2, snap, a.domain) else 1
+
     index = build(a2)
     n_req = sum(1 for v in index["by_tool"].values() if v["requires"])
     n_gs = sum(1 for v in index["by_tool"].values() if v["gate_satisfiers"])
