@@ -38,7 +38,7 @@ class FactDagError(Exception):
 # ── 닫힌 op 집합 (§2a 동결) ────────────────────────────────────────────────────
 # 새 규칙형은 새 op가 아니라 `formalize`(LLM 노드)가 받는다. 여기에 op를 더하는 것은 설계 변경이다.
 OPS = ("tally", "window_remaining", "days_since_earliest",
-       "subtract_by_group", "compare_ge", "formalize")
+       "subtract_by_group", "compare_ge", "formalize", "a3_map")
 SHAPES = ("rows", "pairs", "scalar")
 
 _REQUIRED = {                       # op → 필수 params (로드 시점 검사)
@@ -47,11 +47,12 @@ _REQUIRED = {                       # op → 필수 params (로드 시점 검사
     "days_since_earliest": ("age_field", "date_formats"),
     "subtract_by_group": (),
     "compare_ge": (),
+    "a3_map": ("axis",),
 }
 _REQUIRED_SHAPE = {"rows": ("row_keys",), "pairs": ("field",), "scalar": ("date_formats",)}
 _ARITY = {                          # op → 입력 개수(제어 구성물을 안 넣기 위해 고정한다)
     "tally": 1, "window_remaining": 2, "days_since_earliest": 2,
-    "subtract_by_group": 2, "compare_ge": 2, "formalize": 1,
+    "subtract_by_group": 2, "compare_ge": 2, "formalize": 1, "a3_map": 1,
 }
 
 
@@ -91,7 +92,7 @@ def validate(nodes):
                 if k not in params:
                     raise FactDagError("%s: shape %s 에 필수 params %r 가 없다" % (out, shape, k))
         for i in ins:
-            if i == "corpus" or str(i).startswith("tool:"):
+            if i in ("corpus", "a3") or str(i).startswith("tool:"):
                 continue
             if i not in names:
                 raise FactDagError("%s: 미지의 입력 %r (corpus · tool:<name> · 노드 이름만)" % (out, i))
@@ -134,9 +135,12 @@ class Inputs(object):
     tools  : {가족 이름: 가장 최근 반환 본문}  ← "성공"을 묻지 않는다([[25]]·§1)
     """
 
-    def __init__(self, corpus=(), tools=None):
+    def __init__(self, corpus=(), tools=None, a3=None):
         self.corpus = list(corpus or ())
         self.tools = dict(tools or {})
+        # a3 : 형식화된 정책 온톨로지 행 목록. **정책 상수의 유일한 출처**다 —
+        #      런타임이 문서를 뒤져 근거를 찾는 일을 여기가 대신한다(사용자 지시 2026-08-08).
+        self.a3 = list(a3 or ())
 
 
 def excerpt(items, per=3000, budget=90000):
@@ -221,6 +225,33 @@ def _compare_ge(days, minimums, _p):
     d = int(days["days"] if isinstance(days, dict) else days)
     return {g: d >= int(need[0] if isinstance(need, (tuple, list)) else need)
             for g, need in (minimums or {}).items()}
+
+
+def _a3_map(rows, p):
+    """축 이름 → `{주어: 값}`. **문서도 LLM도 패턴 매칭도 없다** — 형식화된 행의 조회다.
+
+    사용자 지시(2026-08-08): *"정책 상수는 온톨로지에서, 사실은 DB에서 찾아서 대조하면 된다."*
+    지금까지 이 값은 `formalize(corpus)`가 대화 중 회수된 발췌에서 캐냈고, 그래서 **무엇이
+    회수됐느냐에 따라 12~28%까지 흔들렸다**(C313). 온톨로지는 오프라인에서 한 번 만들어졌고
+    행마다 인용을 진다 ⇒ 런타임은 **조회**다.
+
+    ⚠**주어를 정규화하지 않는다**(설계서 §9-4). 문서가 두 표기를 쓰면 행이 둘이고 여기서도 둘이다 —
+    맞추는 것은 의미 판단이라 LLM 몫이고([[22]]), 안 맞았다는 사실은 `unmatched_groups`가 말한다.
+    ⚠같은 (주어, 축)에 값이 갈리면 **고르지 않는다** — 자동 선택은 근거를 지우는 일이다([[25]]).
+      그 노드는 값을 못 내고 trace에 `오류`와 이유가 남는다(§2b·프로세스가 죽지는 않는다·실측).
+    """
+    axis = p.get("axis")
+    out = {}
+    for r in (rows or ()):
+        if r.get("axis") != axis:
+            continue
+        subj, val = r.get("subject"), r.get("value")
+        if subj is None or val is None:
+            continue
+        if subj in out and out[subj] != val:
+            raise FactDagError("A3 값 충돌: %r / %r → %r vs %r" % (subj, axis, out[subj], val))
+        out[subj] = val
+    return out
 
 
 def _formalize(node, text, hay, ask):
@@ -320,10 +351,17 @@ def evaluate(nodes, inputs, ask=None, excerpt_args=None, seed=None, memo=None):
             missing = [i for i in ins
                        if (i.startswith("tool:") and i[5:] not in inputs.tools)
                        or (i in vals and vals[i] is None)
-                       or (not i.startswith("tool:") and i != "corpus" and i not in vals)]
+                       or (not i.startswith("tool:") and i not in ("corpus", "a3")
+                           and i not in vals)]
             if missing:
                 trace.append((out, "미계산", "입력 없음: %s" % ", ".join(missing)))
                 vals[out] = None
+                continue
+            if op == "a3_map":
+                v = _a3_map(getattr(inputs, "a3", ()), p)
+                vals[out] = v
+                trace.append((out, "계산" if v else "미계산",
+                              "A3 조회 · 축=%s · 주어 %d" % (p.get("axis"), len(v or {}))))
                 continue
             if op == "formalize":
                 src = ins[0]
