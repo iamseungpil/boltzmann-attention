@@ -156,6 +156,30 @@ export T2_UNKNOWN_REPEAT_GUARD=1  # B3 Unknown-tool 반려된 이름 재지시 �
 #   ⚠alltools는 OPENAI_API_KEY 필요 — 발사 전 `source /home/woori/.openai_key`
 # ── 공통 런처 함수 ──────────────────────────────────────────────────────────
 # 사용: t2_launch <TAG> <PORT> <TASK_IDS> <NUM_TRIALS> [EXTRA_ARGS...]
+# ★발사 전 키 확인 (2026-08-08·C326). 위 §리더보드 정합 주석은 *"alltools는 OPENAI_API_KEY
+#   필요 — 발사 전 source 하라"* 고 **주석으로만** 말했고, 드라이버 `run_stage1b_20260808.sh`는
+#   이 파일을 source 하면서 키는 안 읽었다. 결과: 유료 2 sim이 **dense KB가 죽은 채로** 돌았고
+#   (두 sim 모두 첫 호출이 `Missing credentials`), 고장난 도구가 스키마에 실린 것을 **런이 끝난
+#   뒤 포렌식으로** 알았다. 사이드카와 똑같은 형태의 사고라 똑같이 **모든 라이브 런이 통과하는
+#   한 자리**로 옮긴다([[07]] hard-constraint — 드라이버 기억에 맡기지 않는다).
+#   dense 없이 가는 것도 정당한 선택이지만 그건 **명시된 결정**이어야 한다(`GO_RETRIEVAL=bm25`).
+#   ⚠키는 절대 커밋하지 않는다 — 경로만 안다([[30]]·2026-06-16 유출 사고).
+#   별도 함수인 이유: 런을 띄우지 않고 이 가드만 검정할 수 있어야 한다(유료 런으로 검정 금지).
+t2_require_key() {
+  [ "${GO_RETRIEVAL:-alltools}" = "alltools" ] || return 0
+  [ -n "$OPENAI_API_KEY" ] && return 0
+  local KP="${GO_OPENAI_KEY:-/home/woori/.openai_key}"
+  [ -f "$KP" ] && . "$KP"
+  if [ -z "$OPENAI_API_KEY" ]; then
+    echo "[t2_launch] REFUSING: retrieval_config=alltools needs OPENAI_API_KEY (dense KB)." >&2
+    echo "  키 파일이 없거나 export 하지 않는다: $KP" >&2
+    echo "  dense 없이 갈 거면 그 결정을 명시하라: GO_RETRIEVAL=bm25 t2_launch ..." >&2
+    return 1
+  fi
+  echo "[t2_launch] OPENAI_API_KEY loaded for alltools (dense KB live)"
+  return 0
+}
+
 t2_launch() {
   local TAG="$1" PORT="$2" TASKS="$3" NT="$4"; shift 4
   # ★사이드카 기본 ON (2026-08-06 사고 재발 방지). 전수 런이 7시간 동안 **우리 층이 무엇을 언제
@@ -167,6 +191,7 @@ t2_launch() {
   : "${T2_FB_SIDECAR:=/home/woori/scratch/logs/fb_${TAG}.jsonl}"
   : "${T2_FB_SIDECAR_TEXT:=1}"
   export T2_FB_SIDECAR T2_FB_SIDECAR_TEXT
+  t2_require_key || return 1
   cd "$GO_TAU2" || return 1
   /home/woori/venvs/seka_env/bin/python -u "$GO_REPO/scripts/distill/tau2/t2_run_gated.py" \
     --domain banking_knowledge --retrieval_config "${GO_RETRIEVAL:-alltools}" \
