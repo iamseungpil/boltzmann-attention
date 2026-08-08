@@ -190,6 +190,14 @@ def main():
                 for k in ("claim_prov", "completion_guard"):
                     if k in _syn and k not in parts:
                         parts[k] = _syn[k]
+                # ★로더가 `derived` 노드 params 에 심는 `name_rules` 도 투영한다(2026-08-08·C335).
+                #   안 하면 병합(주입됨) != gate.json(미주입) 이라 `--verify` 가 상시 ❌가 되고,
+                #   그 상시 ❌ 때문에 이 검정이 다시 신호가 아니게 된다([[24]]가 적어 둔 그 상태).
+                if "derived" in parts:
+                    _syn2 = {"name_rules": parts.get("name_rules"),
+                             "derived": json.loads(json.dumps(parts["derived"]))}
+                    _gi._spread_name_rules(_syn2)
+                    parts["derived"] = _syn2["derived"]
             except Exception as _ce:
                 print("  ⚠합성 키 생성 실패(%r) — 레거시 산출물이 불완전할 수 있다" % (_ce,))
             old = mono.get(dom, {})

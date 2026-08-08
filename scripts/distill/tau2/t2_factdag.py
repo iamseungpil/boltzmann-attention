@@ -455,6 +455,27 @@ def evaluate(nodes, inputs, ask=None, excerpt_args=None, seed=None, memo=None):
                         #     그 구조가 버려진다.
                         if p.get("name_rules"):
                             _txt += "\n\n" + str(p["name_rules"])
+                    # ★전사 시점 정렬 (2026-08-08·C335). 원장 행의 그룹 필드를 **A3 주어로 옮겨
+                    #   쓰게** 한다. 그러지 않으면 `tally` 키(DB 표기)와 `doc_limits` 키(문서 표기)가
+                    #   달라 `subtract_by_group` 이 조인을 못 한다 — 라이브 실측: 손님의 business
+                    #   checking 3종이 전부 판정 불가로 떨어져 상한 산수가 통째로 무력화됐다(C329).
+                    #   ⚠구판(C333)은 이 규칙을 `focus` 노드에만 달았는데, 실패하는 조인은 여기다.
+                    #     같은 규칙·틀린 자리였고 라이브에서 발화 0으로 확인됐다.
+                    #   ★못 맞추면 **원장 표기를 그대로 두게** 한다 — 비우면 그룹이 통째로 사라져
+                    #     "판정 못 했다"는 사실조차 말할 수 없다(C327 표면화 경로 보존).
+                    _af = p.get("align_field")
+                    if _af:
+                        _subs = sorted({r.get("subject") for r in getattr(inputs, "a3", ())
+                                        if r.get("subject")})
+                        if _subs:
+                            _txt += ("\n\nFor the field '%s': the records and the policy documents "
+                                     "do not always spell a product the same way. Write the entry "
+                                     "from the list below that denotes the same product, copied "
+                                     "verbatim. If none of them denotes the same product, keep the "
+                                     "value exactly as the record shows it.\n- " % _af)
+                            _txt += "\n- ".join(_subs)
+                            if p.get("name_rules"):
+                                _txt += "\n\n" + str(p["name_rules"])
                     v, why = _formalize(n, _txt, hay, ask)
                     why += (" · 예산 탈락 %d" % dropped if dropped else "")
                 vals[out] = v

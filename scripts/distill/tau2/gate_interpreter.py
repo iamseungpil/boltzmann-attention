@@ -99,7 +99,27 @@ def load_domain_a2(domain):
             merged.update(part)
     _compose_claim_audit(merged)
     _resolve_a3_refs(merged)
+    _spread_name_rules(merged)
     return merged
+
+
+def _spread_name_rules(merged):
+    """최상위 `name_rules` 를 `derived` 의 formalize 노드 params 에 심는다 — **적재 시점 한 곳**.
+
+    왜 여기인가 (2026-08-08·C335): 이름 대조 규칙이 필요한 노드가 둘이다 — 주어 하나를 고르는
+    `focus`(shape term)와, 원장 행의 그룹 필드를 A3 주어로 옮겨 쓰는 전사(shape rows·`align_field`).
+    노드마다 같은 문장을 적으면 **두 벌이 되어 갈린다**(`_resolve_a3_refs` 가 같은 이유로 여기 있다).
+    A2 는 한 번 쓰고, 노드가 이미 자기 값을 지녔으면 그것을 존중한다.
+    """
+    rules = merged.get("name_rules")
+    if not rules:
+        return
+    for n in (merged.get("derived") or []):
+        if n.get("op") != "formalize":
+            continue
+        p = dict(n.get("params") or {})
+        p.setdefault("name_rules", rules)
+        n["params"] = p
 
 
 def _resolve_a3_refs(merged):
