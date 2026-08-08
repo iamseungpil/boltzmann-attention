@@ -2390,6 +2390,52 @@ def _claim_has_kind(claims, kinds):
     return any(str((c or {}).get("kind", "")).strip().lower() in ks for c in (claims or []))
 
 
+def _limit_reduce_text(agent, a2, messages):
+    """★상한·문턱 대조 문장을 만든다. 반환 = 붙일 문장(만들 수 없으면 "").
+
+    ★왜 함수로 뺐나 (2026-08-08 부검·C324): 이 산수는 원래 `if _reqs or _bad:`
+      (= 아직 밀어낼 요건이 남아 있는가) **안에** 살고 있었다. 그런데 발화 자리를 정하는
+      `[T2_RESOLVE] user-action instruct` 는 그 조건 **밖**에서 찍힌다 — 즉 표적은 살아 있는데
+      산수만 못 나가는 턴이 구조적으로 존재한다. 한 sim이 정확히 그 턴들이었다: 원장이 채워진
+      뒤의 표적 턴이 전부 다른 분기(ORDER·dispatch_role·signature deny)로 갔고, 그래서
+      *"이 그룹은 올해 자리가 없다"* 가 **한 번도 나가지 못했다**. 손님은 바로 그 그룹을
+      골라 실행했다. 오프라인 재현이 그 문장이 실제로 만들어짐을 확증했다 — 원장 28행과
+      A3 상한의 대조에서 소진 그룹 3개가 나왔고 손님이 고른 것이 그중 하나였다.
+      ⇒ **발화 여부는 분기가 아니라 피연산자 가용성에 달려야 한다.**
+
+    피연산자(누계·경과일)는 엔진이 이미 전사해 둔 것이고(`_t2_ledger_ops`), 상한·문턱은
+    **A3 온톨로지 조회**다(사용자 지시 2026-08-08: *"정책 상수는 온톨로지에서, 사실은 db에서"*).
+    값은 **fact DAG를 통해서만** 받는다 — 여기서 따로 조회 함수를 두면 같은 술어가 두 벌이 된다.
+    `ask` 미전달이라 LLM 노드는 침묵하고, 런타임에 문서를 뒤지는 호출은 이 경로에 없다.
+    """
+    ops = getattr(agent, "_t2_ledger_ops", None) or {}
+    if not ops:
+        return ""
+    import t2_ledger as _LG2
+    import t2_factdag as _FD2
+    _tx = [_content_str(_m) for _m in (messages or [])
+           if getattr(_m, "role", None) in ("tool", "user")]
+    _a3v = {}
+    try:
+        _a3v, _ = _FD2.evaluate(_FD2.load(a2),
+                                _FD2.Inputs(corpus=_tx,
+                                            a3=((a2 or {}).get("policy_ontology")
+                                                or {}).get("rows") or ()))
+    except Exception as _fe2:
+        print("[T2_LIMIT_REDUCE] A3 조회 실패: %r" % (_fe2,), file=sys.stderr, flush=True)
+    _lims3 = _a3v.get("doc_limits") or {}
+    _mins3 = _a3v.get("doc_minimums") or {}
+    _add = ""
+    # 선언마다 **그 선언이 말하는 축만** 계산한다 — 상한은 상한을 선언한 쪽, 문턱은 문턱 쪽.
+    for _e2 in ops.values():
+        _sp2 = _e2.get("spec") or {}
+        if _e2.get("tally") and _lims3:
+            _add += _LG2.exhausted_text(_e2["tally"], _lims3, _sp2)
+        if _e2.get("days") is not None and _mins3:
+            _add += _LG2.ineligible_text(_e2["days"], _mins3, _sp2)
+    return _add.strip()
+
+
 def _cpv_window(resign, transfer, cur, cap, tr_spent, rsv_spent, has_reserve):
     """★C201/D3 발화창 판정 (순수함수·2026-07-26·§7-0 실측: `unbacked>0인데 regen 무발생` A11·B5 =
     cap 소진이 실재 → **행동-kind 주장 전용 예비 1회**를 sim당 보장). 반환: None | 'resign' | 'transfer' | 'reserve'.
@@ -5848,60 +5894,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                             except Exception as _e14:
                                                 print("[T2_ARBITRATE] why/options skipped: %r" % (_e14,),
                                                       file=_sys.stderr, flush=True)
-                                            # ★상한·문턱 대조를 **결정점에서** 한다 (2026-08-08·
-                                            #   lim_n 위치 실측: 상한 문구는 인덱스 15·17·19에
-                                            #   도착하는데 원장 read는 9에 일어난다 — 원장 시점에
-                                            #   물으면 아직 문맥에 없다). 여기는 제출 요구가 나가는
-                                            #   자리라 회수 문서가 전부 들어와 있다.
-                                            #   피연산자(누계·경과일)는 엔진이 이미 전사해 두었고,
-                                            #   상한/문턱은 모델이 인용과 함께 낸다([[52]] 분담).
-                                            try:
-                                                _ops2 = getattr(self, "_t2_ledger_ops", None) or {}
-                                                if _ops2:
-                                                    import t2_ledger as _LG2
-                                                    _tx2 = [_content_str(_m) for _m in state.messages
-                                                            if getattr(_m, "role", None) in ("tool", "user")]
-                                                    _add = ""
-                                                    # 선언마다 **그 선언이 말하는 축만** 계산한다 —
-                                                    # 상한은 상한을 선언한 쪽, 문턱은 문턱을 선언한 쪽.
-                                                    # ★상한·문턱은 **A3 온톨로지 조회**로 온다
-                                                    #   (사용자 지시 2026-08-08: *"정책 상수는
-                                                    #   온톨로지에서, 사실은 db에서 찾아서 대조"*).
-                                                    #   값은 **fact DAG를 통해서만** 받는다 — 여기서
-                                                    #   따로 조회 함수를 쓰면 같은 술어가 두 벌이 된다.
-                                                    #   `ask=None`이라 LLM 노드는 침묵하고, 문서를
-                                                    #   뒤지는 호출은 이 경로에서 사라진다.
-                                                    import t2_factdag as _FD2
-                                                    _a3v = {}
-                                                    try:
-                                                        _nd2 = _FD2.load(a2)
-                                                        _rows3 = ((a2 or {}).get("policy_ontology")
-                                                                  or {}).get("rows") or ()
-                                                        _a3v, _ = _FD2.evaluate(
-                                                            _nd2, _FD2.Inputs(corpus=_tx2, a3=_rows3))
-                                                    except Exception as _fe2:
-                                                        print("[T2_LIMIT_REDUCE] A3 조회 실패: %r"
-                                                              % (_fe2,), file=_sys.stderr, flush=True)
-                                                    _lims3 = _a3v.get("doc_limits") or {}
-                                                    _mins3 = _a3v.get("doc_minimums") or {}
-                                                    for _e2 in _ops2.values():
-                                                        _sp2 = _e2.get("spec") or {}
-                                                        if _e2.get("tally") and _lims3:
-                                                            _add += _LG2.exhausted_text(
-                                                                _e2["tally"], _lims3, _sp2)
-                                                        if _e2.get("days") is not None and _mins3:
-                                                            _add += _LG2.ineligible_text(
-                                                                _e2["days"], _mins3, _sp2)
-                                                    if _add.strip():
-                                                        _ufb = ((_ufb + "\n") if _ufb else "") + _add.strip()
-                                                        print("[T2_LIMIT_REDUCE] emitted at decision point",
-                                                              file=_sys.stderr, flush=True)
-                                                        _lbeat("T2_LIMIT_REDUCE", orch=self, target=_utgt,
-                                                               fact="arithmetic against the allowances "
-                                                                    "and minimums you retrieved")
-                                            except Exception as _lre:
-                                                print("[T2_LIMIT_REDUCE] decision-point skipped: %r"
-                                                      % (_lre,), file=_sys.stderr, flush=True)
+                                            # (상한·문턱 대조는 이 분기 **밖**으로 올렸다 — C324.
+                                            #  `_reqs or _bad`가 거짓인 턴에도 표적은 살아 있고,
+                                            #  그 턴에 산수가 못 나가서 한 sim이 통째로 침묵했다.
+                                            #  아래 `_limit_reduce_text` 호출부가 정본이다.)
                                             if _bad:
                                                 _ufb = ((_ufb + "\n") if _ufb else "") + \
                                                     _SRC.unsourced_text(a2, _bad)
@@ -5945,6 +5941,28 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                             self._t2_deferred = _dfr
                                         except Exception:
                                             pass
+                                    # ★C324 (2026-08-08): 상한·문턱 대조는 **분기가 아니라 피연산자**에
+                                    #   달린다. 구판은 `_reqs or _bad` 안에 있어서, 요건이 다 풀린 뒤의
+                                    #   표적 턴(= 정작 손님이 실행 직전인 자리)에서 침묵했다. 한 sim은
+                                    #   원장이 채워진 뒤 그 조건이 한 번도 참이 되지 않아 산수가 **0회**
+                                    #   나갔고, 손님은 소진된 그룹을 골라 실행했다. 여기서는 표적이
+                                    #   살아 있으면 피연산자가 있는 한 같은 문장을 싣는다.
+                                    #   ⚠대가 = 발화가 늘어난다 = **Δspurious**(등대 §1.3: 부작용 없는
+                                    #     레버는 없다). 그래서 아래 지문에 이 문장을 포함시켜, 내용이
+                                    #     바뀌지 않는 한 다시 말하지 않게 한다([[57]] 인자 변화 규칙).
+                                    try:
+                                        _add = _limit_reduce_text(self, a2, state.messages)
+                                    except Exception as _lre:
+                                        _add = ""
+                                        print("[T2_LIMIT_REDUCE] skipped (no-op): %r" % (_lre,),
+                                              file=_sys.stderr, flush=True)
+                                    if _add:
+                                        _ufb = ((_ufb + "\n") if _ufb else "") + _add
+                                        print("[T2_LIMIT_REDUCE] emitted at decision point",
+                                              file=_sys.stderr, flush=True)
+                                        _lbeat("T2_LIMIT_REDUCE", orch=self, target=_utgt,
+                                               fact="arithmetic against the allowances "
+                                                    "and minimums you retrieved")
                                     try:
                                         _nuser = sum(1 for _m in state.messages
                                                      if getattr(_m, "role", None) == "user")
@@ -5953,7 +5971,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                 tuple(s for r in (_reqs or [])
                                                       for s in (r.get("satisfiers") or [])),
                                                 len(_executed_tool_names(state.messages, a2)),
-                                                _nuser)
+                                                _nuser,
+                                                _add)
                                     except Exception:
                                         _sig = None
                                     if _sig is not None and _sig == getattr(self, "_t2_arb_sig", None):
