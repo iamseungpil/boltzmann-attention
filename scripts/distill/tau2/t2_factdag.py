@@ -375,10 +375,39 @@ class Scheduler(object):
         self.vals, self.asked, self.trace = {}, {}, []
         self.memo = {}          # (노드, 항목 내용 다이제스트) → 그 항목에서 뽑힌 쌍 (C313)
         self._corpus_n, self._tool_sig = None, {}
+        self._satisfied = set()   # 수요가 다 찼다고 이미 말한 노드(같은 말 반복 금지)
 
     def _per_item(self, n):
         """항목별로 묻는 노드인가 — `pairs` formalize (C313)."""
         return n["op"] == "formalize" and n.get("shape") == "pairs"
+
+    def _demand(self, n):
+        """이 노드를 **소비하는 쪽이 무엇을 필요로 하는지** 기계로 말할 수 있으면 그 키 집합.
+
+        ★수요-주도 정지 (2026-08-08·사용자 발의): `annual_left = subtract_by_group(type_usage,
+        doc_limits)`에서 **필요한 상한은 `type_usage`의 그룹들뿐**이다. 그것이 다 차면 문서가 더
+        와도 **묻지 않는다** — 공급(문서)을 전수로 훑는 것보다 싸고, 무엇보다 **멈출 자리**가 생긴다.
+
+        ⚠**모든 노드에 되는 것이 아니다.** `tenure_ok = compare_ge(tenure_days, doc_minimums)`의
+        수요는 *손님이 고를 수 있는 상품들*인데 그 후보 집합이 어디에도 없다(원장 C308:
+        `submit_referral(account_type: str)`은 enum이 아니고 DB `accounts.level`은 손님 보유분이지
+        카탈로그가 아니다). 수요를 모르면 완결성은 **공급 전수**로만 얻는다 ⇒ `None`을 돌려주고
+        호출부가 체크리스트로 되돌아간다. 한 규칙으로 통일하면 둘 중 하나가 조용히 틀린다.
+
+        반환 = 필요한 키 집합 · 도출 불가면 `None`.
+        """
+        need, derivable = set(), False
+        for c in self.nodes:
+            if c["op"] != "subtract_by_group":
+                continue
+            ins = list(c.get("inputs") or ())
+            if len(ins) != 2 or ins[1] != n["out"]:
+                continue
+            other = self.vals.get(ins[0])          # 누계 쪽 — 여기 있는 그룹만 상한이 필요하다
+            if isinstance(other, dict):
+                need |= set(other)
+                derivable = True
+        return need if derivable else None
 
     def _unasked(self, n, inputs):
         """이 노드가 **아직 안 물어본 항목**이 하나라도 있는가."""
@@ -402,6 +431,14 @@ class Scheduler(object):
                     #   형태만 바꿔 되살아난다(A에서 상한이 나오면 B의 상한이 영영 안 들어온다).
                     #   이 조건을 쓸 수 있게 해 주는 것이 **항목 동일성**이고, 그것이 memo의
                     #   본래 목적이다(비용 절감은 그 다음 이득이다).
+                    need = self._demand(n)
+                    if need is not None and need <= set(self.vals.get(n["out"]) or {}):
+                        if n["out"] not in self._satisfied:
+                            self._satisfied.add(n["out"])
+                            print("[T2_DAG] %s 수요 충족 — 더 묻지 않는다 (필요 %s)"
+                                  % (n["out"], ", ".join(sorted(need)) or "(없음)"),
+                                  file=sys.stderr, flush=True)
+                        continue                 # 필요한 것이 다 찼다 = 문서가 더 와도 안 묻는다
                     if self._unasked(n, inputs):
                         stale.add(n["out"])
                 elif self.vals.get(n["out"]) in (None, {}, []):

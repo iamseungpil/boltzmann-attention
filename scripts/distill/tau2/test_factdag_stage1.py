@@ -199,6 +199,48 @@ def test_same_document_retrieved_twice_is_asked_once():
     assert calls.count("minimums") == 3, ("중복 문서를 두 번 물었다", calls.count("minimums"))
 
 
+def test_demand_driven_stop_when_every_needed_limit_is_known():
+    """★수요가 다 차면 **문서가 더 와도 안 묻는다** (사용자 발의).
+
+    `left = subtract_by_group(usage, limits)`에서 필요한 상한은 **누계에 있는 그룹뿐**이다.
+    그것이 채워지면 공급(문서)을 더 훑을 이유가 없다 — 여기서 비로소 **멈출 자리**가 생긴다.
+    """
+    calls = []
+
+    def counting(node, text):
+        calls.append(node["out"])
+        return answer(node, text)
+
+    s = _sched()
+    s.update(F.Inputs(corpus=[HEAD, LIMIT_DOC], tools={"get_referrals": REF_BODY}), ask=counting)
+    assert s.vals["usage"] == {"Light Green": 2}, s.vals["usage"]
+    assert s.vals["limits"] == {"Light Green": (3, LIMIT_DOC)}, s.vals["limits"]
+    before = calls.count("limits")
+
+    s.update(F.Inputs(corpus=[HEAD, LIMIT_DOC, "새 문서", "또 다른 문서"],
+                      tools={"get_referrals": REF_BODY}), ask=counting)
+    assert calls.count("limits") == before, ("수요가 찼는데 또 물었다", calls.count("limits"), before)
+
+
+def test_supply_scan_continues_where_demand_is_not_derivable():
+    """수요를 **기계로 못 내는** 노드(문턱)는 계속 훑는다 — 한 규칙으로 통일하면 여기가 조용히 죽는다.
+
+    후보 상품 집합이 어디에도 없다는 것이 원장 C308의 확정 사실이다(도구 인자가 enum이 아니고
+    DB `level`은 손님 보유분이지 카탈로그가 아니다).
+    """
+    calls = []
+
+    def counting(node, text):
+        calls.append(node["out"])
+        return answer(node, text)
+
+    s = _sched()
+    s.update(F.Inputs(corpus=[HEAD, MIN_DOC], tools={}), ask=counting)
+    before = calls.count("minimums")
+    s.update(F.Inputs(corpus=[HEAD, MIN_DOC, "새 문서"], tools={}), ask=counting)
+    assert calls.count("minimums") == before + 1, ("공급 훑기가 멈춰 버렸다", calls.count("minimums"))
+
+
 def test_silence_when_nothing_changed():
     """아무것도 안 바뀌면 **아무 말도 안 한다**(§6 위험 3 — 말이 늘면 과행동이 는다)."""
     s = _sched()
