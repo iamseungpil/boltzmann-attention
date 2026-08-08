@@ -255,13 +255,16 @@ def _formalize_pairs_per_item(node, items, hay, ask, memo, budget):
     비용은 **항목 단위 메모이즈**로 유계다: 같은 내용은 한 번만 묻는다 ⇒ sim당 호출 ≈ **서로 다른
     항목 수**(재평가 횟수에도, 같은 문서의 재회수에도 곱해지지 않는다).
 
-    ★식별자 = **내용 다이제스트**. 처음엔 위치+길이로 썼고 그 근거를 [[59]]로 댔는데 **틀렸다**:
-    [[59]]가 금지하는 것은 엔진이 도메인 텍스트를 **패턴매칭으로 뜯어 내용을 알아내는 것**이고
-    (`parse_records`류), 해시는 정규식도 어휘도 필드 추출도 없이 *같은 바이트인가*만 답한다 —
-    이미 쓰고 있는 `quote not in hay`(부분문자열 멤버십)가 오히려 텍스트에 더 가깝게 닿는다.
-    위치+길이가 실제로 나쁜 이유는 둘이다: ⓐ**같은 문서가 두 번 회수되면 두 번 묻는다**(궤적에
-    실재 — 문턱 문장이 오프셋 5,901·9,147에 각각 두 번) ⓑ같은 인덱스의 내용이 바뀌면 **조용히
-    옛 답을 쓴다**(덧붙기 가정이 깨지는 순간 침묵으로 틀린다 = 이 설계가 없애려는 그 형태).
+    ★식별자 = **텍스트 자체**. 두 번 고쳤고 왜 고쳤는지 남긴다.
+      1차 위치+길이 — 근거를 [[59]]로 댔는데 **틀렸다**: [[59]]가 금지하는 것은 엔진이 도메인
+        텍스트를 **패턴매칭으로 뜯어 내용을 알아내는 것**이고(`parse_records`류), 동일성 판정은
+        아무것도 뽑지 않는다(이미 쓰는 `quote not in hay`가 오히려 텍스트에 더 가깝게 닿는다).
+        실제로 나쁜 이유는 따로 있었다: ⓐ**같은 문서 재회수를 두 번 묻는다**(궤적에 실재 — 문턱
+        문장이 오프셋 5,901·9,147에 각각 두 번) ⓑ같은 인덱스 내용이 바뀌면 조용히 옛 답을 쓴다.
+      2차 해시 — 되지만 **필요가 없다**. 얻는 것은 키 길이뿐이고, 대신 충돌하면 **다른 문서의
+        답을 조용히 재사용**한다. 확률이 사실상 0이어도 그 부류를 **0으로 만들 수 있는데** 굳이
+        "거의 0"을 택할 이유가 없다 — 조용한 오답이 오늘 내내 잡아 온 실패 형태다.
+      ⇒ 키는 텍스트 자체(충돌 원리적으로 없음), 해시는 **로그에 찍을 짧은 이름으로만**.
 
     반환 `(값, 사유, 이번에 실제로 물은 횟수)`.
     """
@@ -271,11 +274,15 @@ def _formalize_pairs_per_item(node, items, hay, ask, memo, budget):
         s = str(t)[:budget]
         if not s.strip():
             continue
-        key = (node["out"], hashlib.sha1(s.encode("utf-8")).hexdigest())
+        key = (node["out"], s)          # ★키는 **텍스트 자체** — 충돌이 원리적으로 없다
         if key not in memo:
             raw = ask(node, s)
             asked += 1
+            _sid = hashlib.sha1(s.encode("utf-8")).hexdigest()[:8]   # 로그용 짧은 이름뿐
             memo[key] = parse_pairs(raw, p["field"], hay)[0] if raw is not None else {}
+            print("[T2_DAG] %s ← 항목 %s (%d자) → %d쌍"
+                  % (node["out"], _sid, len(s), len(memo[key])),
+                  file=sys.stderr, flush=True)
         out.update(memo[key])
     if out:
         return out, ("" if not asked else "항목 %d개 중 %d개 신규 질의" % (len(items), asked)), asked
