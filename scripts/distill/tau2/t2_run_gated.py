@@ -56,6 +56,19 @@ def _install_failed_persist(env_cls):
 
 
 def main():
+    # ★stderr 줄마다 sim 태그 (2026-08-08·C325). 러너는 sim을 스레드로 **동시에** 돌리므로
+    #   로그가 인터리브되는데, 지금까지 sim을 다는 줄은 `[T2_LEVER]` 하나뿐이었고 그 태그마저
+    #   전역 변수라 경합했다(실측: beat가 반대쪽 sim 이름을 달았고 그것을 근거로 원장까지 갔다).
+    #   무기명 줄은 사후에 귀속을 복원할 방법이 **원리적으로 없다** ⇒ 드라이버가 기억해서 켜는
+    #   방식이 아니라 **모든 라이브 런이 통과하는 이 한 자리**에 둔다(사이드카 선례·[[07]]).
+    #   관측 전용(프리픽스만·거동 0)이고, 프리픽스라 행말 앵커 파서(`x134`)도 안 깨진다.
+    try:
+        import t2_lever_beat as _LB
+        if _LB.install_stderr_tagger():
+            print("[t2_run] stderr sim-tagger on (per-line attribution)")
+    except Exception as _te:
+        print("[t2_run] stderr sim-tagger skipped (no-op): %r" % (_te,))
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--gate", type=int, default=0)
     ap.add_argument("--resolve", type=int, default=0,

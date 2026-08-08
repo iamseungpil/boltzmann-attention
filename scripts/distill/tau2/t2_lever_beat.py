@@ -13,10 +13,23 @@
   · print 전용 — 거동 변화 0. 신규 레버는 앞으로 태그 대신 이 헬퍼를 쓴다(표준화).
 """
 import sys
+import threading
 
 _SEEN = {}
 _CAP = 3
-_SIM = [None]
+# ★★전역이 아니라 **thread-local**이다 (2026-08-08·C325). 구판은 `_SIM = [None]` 리스트
+#   하나를 프로세스 전체가 공유했는데, 러너는 sim을 `ThreadPoolExecutor`로 **동시에** 돌린다
+#   (`tau2/runner/batch.py`: `ThreadPoolExecutor(max_workers=config.max_concurrency)`).
+#   ⇒ 마지막으로 `set_sim_from`을 부른 스레드의 값이 **다른 sim의 줄에 찍힌다.**
+#   실측(2 sim 동시 런): beat 3줄이 전부 한 sim의 이름을 달았는데, 레코드마다 sim을 지니는
+#   사이드카로 대조하니 그 문장은 **반대쪽 sim**의 것이었다. 그 잘못된 태그를 근거로 원장
+#   등재까지 갔다가 되돌렸다 — 태그는 *있다*는 것보다 *맞다*는 것이 중요하다([[25]]).
+_LOCAL = threading.local()
+
+
+def current_sim():
+    """이 스레드가 지금 돌리고 있는 sim id(모르면 None). 태그를 붙이는 모든 자리의 단일 출처."""
+    return getattr(_LOCAL, "sim", None)
 
 
 def set_sim_from(obj):
@@ -26,16 +39,74 @@ def set_sim_from(obj):
     로그가 섞이는데 줄에 식별자가 없었다). 발화×결과 귀속(C294)이 판정의 1차 지표인데 그 귀속이
     로그 수준에서 불가능했던 것이다. orchestrator는 `task.id`를 갖고 에이전트는 `_t2_orch`로
     그것에 닿는다 — 둘 중 어느 쪽으로 불려도 찾는다. 실패하면 종전대로 무기명.
+
+    한 sim = 한 워커 스레드이므로 여기서 심은 값은 그 sim의 모든 호출에서 그대로 보인다.
     """
     try:
         for cand in (obj, getattr(obj, "_t2_orch", None)):
             task = getattr(cand, "task", None)
             tid = getattr(task, "id", None)
             if tid:
-                _SIM[0] = str(tid)
+                _LOCAL.sim = str(tid)
                 return
     except Exception:
         pass
+
+
+class _TaggingStderr(object):
+    """stderr의 **모든 줄** 앞에 `[sim=…]`를 붙인다(모르면 종전 그대로).
+
+    왜 줄마다인가: 지금까지 sim을 다는 줄은 `[T2_LEVER]` 하나뿐이었고, 나머지 수백 줄
+    (`[T2_ARBITRATE]`·`[T2_RESOLVE]`·`[T2_LEDGER]`·`[T2_PREKB]`…)은 무기명이었다. 동시 런의
+    로그는 인터리브라서, 무기명 줄은 **어느 sim의 것인지 원리적으로 복원할 수 없다** — 실제로
+    포렌식에서 한 sim의 침묵을 다른 sim의 발화로 읽을 뻔했다. 귀속을 사이드카에만 의존하면
+    사이드카가 없는 런은 포렌식 자체가 불가능하다([[08]]).
+
+    ★프리픽스인 이유: 기존 로그 파서는 `search()`로 찾고 일부는 **행말**에 앵커를 건다
+      (`x134`: `suppressed=(\\[.*?\\])\\s*$`). 접미사는 그것을 깨고 접두사는 깨지 않는다.
+    ★관측 전용이다 — 문자열만 바뀌고 거동은 그대로다(비커밋·모델에 안 보인다).
+    """
+
+    def __init__(self, inner):
+        self._inner = inner
+        self._part = {}                      # thread ident -> 개행 전 잔여
+
+    def write(self, s):
+        try:
+            if not s:
+                return 0
+            tid = threading.get_ident()
+            buf = self._part.pop(tid, "") + s
+            lines = buf.split("\n")
+            self._part[tid] = lines.pop()    # 마지막 조각은 아직 줄이 아니다
+            if not lines:
+                return len(s)
+            sim = current_sim()
+            pre = ("[sim=%s] " % sim) if sim else ""
+            self._inner.write("".join((pre + ln + "\n") if ln else "\n" for ln in lines))
+            return len(s)
+        except Exception:
+            try:
+                return self._inner.write(s)
+            except Exception:
+                return 0
+
+    def flush(self):
+        try:
+            self._inner.flush()
+        except Exception:
+            pass
+
+    def __getattr__(self, name):
+        return getattr(self._inner, name)
+
+
+def install_stderr_tagger():
+    """한 번만 감싼다. 라이브 런이 **전부 통과하는 한 자리**에서 부른다(드라이버 기억 금지·[[07]])."""
+    if isinstance(sys.stderr, _TaggingStderr):
+        return False
+    sys.stderr = _TaggingStderr(sys.stderr)
+    return True
 
 
 def beat(flag, detail="", orch=None, target=None, fact=None, order=None):
@@ -54,7 +125,7 @@ def beat(flag, detail="", orch=None, target=None, fact=None, order=None):
     이미 있는 17개 호출부는 손대지 않아도 된다.
     """
     try:
-        sim = _SIM[0]
+        sim = current_sim()
         key = (flag, sim)
         n = _SEEN.get(key, 0) + 1
         _SEEN[key] = n
