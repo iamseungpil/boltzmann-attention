@@ -195,18 +195,29 @@ UNSOURCED_FB = (
 )
 
 
-def formalize_claims(agent, la, UserMessage, messages, cap_attr="_t2_source_calls", cap=1,
+def formalize_claims(agent, la, UserMessage, messages, cap_attr="_t2_source_calls", cap=None,
                      text=None):
     """에이전트의 **직전 발화**에서 정책이 정하는 수량 주장을 뽑는다 (LLM 몫·[[52]]).
 
     ⚠**호출 순증 0이 아니다.** `formalize_intent_tool`은 user 메시지만 보므로 얹을 수 없다 —
-    별도 서브콜이고, 그 비용을 인정하는 대신 **sim당 `cap`회**로 묶는다.
+    별도 서브콜이고, 그 비용을 인정하는 대신 캡으로 묶는다.
+
+    ★**숫자 캡을 없앴다** (2026-08-08·C336·사용자 지시 *"검사는 무제한이어야 하지 않나"*).
+      구판은 1/sim 이었고, 그 1회가 **초반 무해한 발화에서** 타 버려 정작 수치 단정이 나오는
+      종반 권고 턴에는 감사 자체가 돌지 않았다 — 실측: 에이전트가 이자 문서를 읽고
+      *"추천 보너스 $300, 가장 높다"* 고 단정한 턴에서 `claims=0`. 예산이 일찍 타서 결정적
+      자리에 부재하는 형태는 오늘만 세 번째다(핀 1회/sim·ARBITRATE dedup·여기).
+      캡이 하던 유일한 정당한 일은 *같은 것을 두 번 묻지 않기*였고, 그건 **텍스트 동일성**이
+      더 정확하게 한다([[57]] 반복 억제는 횟수가 아니라 인자 변화로 · `t2_factdag` 메모이즈와
+      같은 규율: 키는 텍스트 자체). 그러면 감사 횟수는 **서로 다른 발화 수**로 자연히 유계다.
+      비용: 발화당 서브콜 1회. 에이전트는 로컬이라 금전 0이고 지연만 는다 — 그 값을 인정한다.
+      (되돌릴 필요가 생기면 `cap=` 인자로 여전히 묶을 수 있다.)
 
     엔진은 뽑지 않고 **검증만** 한다. 반환 = [{claim, doc}].
     """
     if agent is None or la is None:
         return []
-    if getattr(agent, cap_attr, 0) >= cap:
+    if cap is not None and getattr(agent, cap_attr, 0) >= cap:
         return []
     # ★`text`가 우선이다. 검사 대상은 **지금 생성 중인 메시지**이고 그것은 아직 `messages`에 없다
     #   — 라이브 첫 발사에서 이 함수가 조용히 빈손이었던 이유가 정확히 그것이었다.
@@ -220,6 +231,14 @@ def formalize_claims(agent, la, UserMessage, messages, cap_attr="_t2_source_call
                     break
     if not last.strip():
         return []
+    # 같은 텍스트를 두 번 감사하지 않는다 — 한 턴 안의 재생성 루프가 예산을 태우는 것을 막는다.
+    _seen = getattr(agent, "_t2_source_seen", None)
+    if _seen is None:
+        _seen = set()
+        setattr(agent, "_t2_source_seen", _seen)
+    if last.strip() in _seen:
+        return []
+    _seen.add(last.strip())
     setattr(agent, cap_attr, getattr(agent, cap_attr, 0) + 1)
     try:
         p = CLAIM_PROMPT.replace("{text}", last[:2500])
