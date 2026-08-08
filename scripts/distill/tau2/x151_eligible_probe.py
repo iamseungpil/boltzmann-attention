@@ -72,10 +72,22 @@ def main():
     f100, f099 = X.FACTS["task_100"], X.FACTS["task_099"]
     e100, e099 = our_sentence(a2, "task_100"), our_sentence(a2, "task_099")
 
+    # ★1차(2026-08-08) 결과가 문구 축을 열었다: 필터는 옳게 돌았는데(100 에서 `World Blue`가
+    #   실제로 빠졌다) 답이 안 맞았고, **099 는 5/5 → 0/5 로 떨어졌다**. 내용은 x150 P2 와
+    #   같은데 우리 문장에는 P2 에 없던 **머리말·꼬리말**이 있다 — *"제외했다 · 남은 것들이다"*.
+    #   가설: 완결을 주장하는 순간 모델이 **자기 검사를 끈다**(예치 하한을 더 안 본다).
+    #   그래서 행은 그대로 두고 **감싸는 말만** 뺀 arm 을 둔다(정보량 동일·[[18]]).
+    def bare(text):
+        rows = [l for l in text.splitlines() if l.startswith("  ")]
+        return table.splitlines()[0] + "\n" + "\n".join(rows)
+
+    b100, b099 = bare(e100), bare(e099)
+
     arms[("task_100", "A0 raw-table")] = table + "\n\n" + f100 + "\n\n" + Q
     arms[("task_100", "A1 eligible")] = e100 + "\n\n" + f100 + "\n\n" + Q
     arms[("task_100", "A2 eligible+table")] = (table + "\n\n" + e100 + "\n\n" + f100
                                                + "\n\n" + Q)
+    arms[("task_100", "A3 bare-filtered")] = b100 + "\n\n" + f100 + "\n\n" + Q
 
     ctx = Y.render(Y.msgs_of(tag, "task_099"))
     head = "Here is a customer-service conversation so far.\n\n"
@@ -83,6 +95,8 @@ def main():
     arms[("task_099", "B1 eligible")] = e099 + "\n\n" + f099 + "\n\n" + Q
     arms[("task_099", "B2 ctx+table")] = head + ctx + "\n\n" + table + "\n\n" + f099 + "\n\n" + Q
     arms[("task_099", "B3 ctx+eligible")] = head + ctx + "\n\n" + e099 + "\n\n" + f099 + "\n\n" + Q
+    arms[("task_099", "B4 bare-filtered")] = b099 + "\n\n" + f099 + "\n\n" + Q
+    arms[("task_099", "B5 ctx+bare")] = head + ctx + "\n\n" + b099 + "\n\n" + f099 + "\n\n" + Q
 
     print("=== 통과 집합 (task_100 · %d일) ===" % DAYS["task_100"])
     print(e100)
