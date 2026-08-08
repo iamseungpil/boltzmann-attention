@@ -371,7 +371,9 @@ by_tool["submit_referral"] →
   (`claim_prov`·`completion_guard`)를 떨궜다** — 그 둘은 분리 파일에 없고 로더가 적재 시점에
   만들므로 *"settings+specific"* 만으로 다시 쓰면 사라진다. `x18 --verify`가 그 자리에서 잡았다
   (살려 둔 검정이 바로 값을 했다). ⇒ 재생성 규칙: **분리 파일에 없는 옛 키는 그대로 둔다**.
-  ⚠`x18 --emit`도 같은 형태의 결함을 갖는다(옛-키-보존 없음) — 쓰기 전에 고칠 것.
+  ★**정정**: 처음엔 *"`x18 --emit`도 같은 결함"* 이라고 적었는데 **틀렸다** — `--emit`은 이미
+  `_compose_claim_audit`을 불러 그 두 키를 `parts`에 주입한다. 결함은 **내가 손으로 짠 재생성
+  스크립트**에만 있었다. ⇒ 다음부터 gate.json 재생성은 **`x18 --emit`을 쓴다**(손으로 짜지 않는다).
 - 회귀 전량 PASS(three_layer·banking_gate·pin_read_replay·factdag 14/14·audit_divergence 8/8·
   consistency 8/8·모듈 자기검정 5종) · `x18 --verify` 3/3 ✅.
 
