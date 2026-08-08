@@ -242,6 +242,8 @@ def _a3_map(rows, p):
     ⚠같은 (주어, 축)에 값이 갈리면 **고르지 않는다** — 자동 선택은 근거를 지우는 일이다([[25]]).
       그 노드는 값을 못 내고 trace에 `오류`와 이유가 남는다(§2b·프로세스가 죽지는 않는다·실측).
     """
+    # 반환은 `{주어: (값, 인용)}` — 기존 소비자(`subtract_by_group`·`compare_ge`·원장 문구)가
+    # 이미 그 형태를 받는다. 인용을 버리면 근거가 사라진다([[22]] 근거-우선).
     axis = p.get("axis")
     out = {}
     for r in (rows or ()):
@@ -250,9 +252,10 @@ def _a3_map(rows, p):
         subj, val = r.get("subject"), r.get("value")
         if subj is None or val is None:
             continue
-        if subj in out and out[subj] != val:
-            raise FactDagError("A3 값 충돌: %r / %r → %r vs %r" % (subj, axis, out[subj], val))
-        out[subj] = val
+        q = str((r.get("source") or {}).get("quote") or "")
+        if subj in out and out[subj][0] != val:
+            raise FactDagError("A3 값 충돌: %r / %r → %r vs %r" % (subj, axis, out[subj][0], val))
+        out.setdefault(subj, (int(val), q))
     return out
 
 

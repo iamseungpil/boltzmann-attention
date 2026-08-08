@@ -5864,18 +5864,34 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                     _add = ""
                                                     # 선언마다 **그 선언이 말하는 축만** 계산한다 —
                                                     # 상한은 상한을 선언한 쪽, 문턱은 문턱을 선언한 쪽.
+                                                    # ★상한·문턱은 **A3 온톨로지 조회**로 온다
+                                                    #   (사용자 지시 2026-08-08: *"정책 상수는
+                                                    #   온톨로지에서, 사실은 db에서 찾아서 대조"*).
+                                                    #   값은 **fact DAG를 통해서만** 받는다 — 여기서
+                                                    #   따로 조회 함수를 쓰면 같은 술어가 두 벌이 된다.
+                                                    #   `ask=None`이라 LLM 노드는 침묵하고, 문서를
+                                                    #   뒤지는 호출은 이 경로에서 사라진다.
+                                                    import t2_factdag as _FD2
+                                                    _a3v = {}
+                                                    try:
+                                                        _nd2 = _FD2.load(a2)
+                                                        _rows3 = ((a2 or {}).get("policy_ontology")
+                                                                  or {}).get("rows") or ()
+                                                        _a3v, _ = _FD2.evaluate(
+                                                            _nd2, _FD2.Inputs(corpus=_tx2, a3=_rows3))
+                                                    except Exception as _fe2:
+                                                        print("[T2_LIMIT_REDUCE] A3 조회 실패: %r"
+                                                              % (_fe2,), file=_sys.stderr, flush=True)
+                                                    _lims3 = _a3v.get("doc_limits") or {}
+                                                    _mins3 = _a3v.get("doc_minimums") or {}
                                                     for _e2 in _ops2.values():
                                                         _sp2 = _e2.get("spec") or {}
-                                                        if _e2.get("tally") and _sp2.get("limit_prompt"):
+                                                        if _e2.get("tally") and _lims3:
                                                             _add += _LG2.exhausted_text(
-                                                                _e2["tally"],
-                                                                _LG2.formalize_limits(self, la, UserMessage,
-                                                                                      _tx2, _sp2), _sp2)
-                                                        if _e2.get("days") is not None and _sp2.get("threshold_prompt"):
+                                                                _e2["tally"], _lims3, _sp2)
+                                                        if _e2.get("days") is not None and _mins3:
                                                             _add += _LG2.ineligible_text(
-                                                                _e2["days"],
-                                                                _LG2.formalize_thresholds(self, la, UserMessage,
-                                                                                          _tx2, _sp2), _sp2)
+                                                                _e2["days"], _mins3, _sp2)
                                                     if _add.strip():
                                                         _ufb = ((_ufb + "\n") if _ufb else "") + _add.strip()
                                                         print("[T2_LIMIT_REDUCE] emitted at decision point",
