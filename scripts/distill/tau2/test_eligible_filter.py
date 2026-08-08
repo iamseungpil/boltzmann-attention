@@ -115,8 +115,22 @@ def main():
     if tally_spec is not None:
         ops[tally_spec.get("trigger_tool")] = {"spec": tally_spec, "tally": {}, "days": None}
     live = G._limit_reduce_text(_Agent(ops), a2, [])
-    chk("[STILL OPEN]" in live, "라이브 호출부(`_limit_reduce_text`)에서 실제로 발화한다")
-    chk(not any(s + ":" in live for s in high), "라이브 문장에도 미달 주어가 없다")
+    live_rows = {l.strip().split(":")[0].strip()
+                 for l in live.splitlines() if l.startswith("  ")}
+    chk(bool(live_rows & set(low)),
+        "라이브 호출부(`_limit_reduce_text`)에서 실제로 발화한다")
+    chk(not (live_rows & set(high)), "라이브 문장에도 미달 주어가 없다")
+
+    # ★문구 형태를 못박는다 (x151 3라운드 실측·유료 0). 행이 같아도 **꼬리말**이 붙으면
+    #   레버가 뒤집힌다 — 100 은 5/5 → 2/5, 099 는 raw 4~5/5 를 0~1/5 로 떨어뜨렸다.
+    #   모델이 *"자격은 이미 처리됐다"* 로 읽고 자기 검사를 끄기 때문이다. 여기서는
+    #   **행 뒤에 산문이 붙지 않는 것**만 못박는다(문구 내용은 A2 몫).
+    body = spec["eligible_text"]
+    chk(body.rstrip().endswith("{eligible}"),
+        "통과 집합 뒤에 산문이 붙지 않는다  ← 붙이면 레버가 뒤집힌다(x151 A5)")
+    # 열 순서도 실측이다 — 판별 축이 뒤로 밀리면 같은 글자 수에도 099 가 4/5 → 0/5.
+    chk(show.index(cfg["min_days_axis"]) < show.index(cfg["annual_limit_axis"]),
+        "열 순서가 측정된 순서다(문턱이 상한보다 앞)")
 
     # 누계는 **A2가 지목한 선언**에서 온다 — 계좌 쪽 tally 를 섞으면 조용히 틀린다
     tf = cfg.get("tally_from")
