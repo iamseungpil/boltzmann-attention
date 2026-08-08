@@ -50,12 +50,16 @@ AXES = {
 
 PROMPT = """You are reading ONE internal banking policy document.
 
+DOCUMENT TITLE: {title}
+
 Extract ONLY facts of these kinds:
 {axes}
 
 Rules:
 - Report a fact ONLY if this document states it explicitly. Do not infer.
-- "subject" is the product/account name exactly as this document writes it.
+- "subject" is the PRODUCT the fact is about. The sentence often omits it because the
+  whole document is about one product — in that case use the product named in the TITLE.
+  Never use a program name ("referral program", "Startup Referral Program") as the subject.
 - "quote" must be copied VERBATIM from the document (a contiguous span, >= 12 chars).
 - If the document states nothing of these kinds, return an empty list.
 
@@ -73,9 +77,9 @@ class Agent(object):
         self.llm_args = {"temperature": 0.0, "api_base": base, "api_key": "dummy"}
 
 
-def ask(agent, la, UM, text):
+def ask(agent, la, UM, text, title):
     axes = "\n".join("- %s: %s" % (k, v["desc"]) for k, v in AXES.items())
-    prompt = PROMPT.format(axes=axes, text=text[:90000])
+    prompt = PROMPT.format(axes=axes, text=text[:90000], title=title or "(none)")
     try:
         um = UM(role="user", content=prompt)
     except TypeError:
@@ -159,7 +163,7 @@ def main():
         if did in done:
             continue
         try:
-            raw = ask(agent, la, UM, str(d.get("content") or ""))
+            raw = ask(agent, la, UM, str(d.get("content") or ""), str(d.get("title") or ""))
         except Exception as e:
             stats["호출 실패"] += 1
             print("  ⚠%s 호출 실패 %r" % (did[-28:], e), file=sys.stderr)
