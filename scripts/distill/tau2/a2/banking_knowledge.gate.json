@@ -2867,25 +2867,21 @@
   {
    "out": "doc_limits",
    "inputs": [
-    "corpus"
+    "a3"
    ],
-   "op": "formalize",
-   "shape": "pairs",
-   "prompt": "limit_prompt",
+   "op": "a3_map",
    "params": {
-    "field": "limit"
+    "axis": "annual_referral_limit"
    }
   },
   {
    "out": "doc_minimums",
    "inputs": [
-    "corpus"
+    "a3"
    ],
-   "op": "formalize",
-   "shape": "pairs",
-   "prompt": "threshold_prompt",
+   "op": "a3_map",
    "params": {
-    "field": "min_days"
+    "axis": "referrer_tenure_days"
    }
   },
   {
@@ -2953,7 +2949,6 @@
    "_note_": "2026-08-07. 출처([[23]]) = env 도구 출력 필드명(기계 도출) + 정책 축자. 규칙 문형 = doc_bank_accounts_(general): \"The tenure threshold is measured from when you opened your very first checking account with us\" / \"calculated from ... the date your earliest checking account was opened\". ★상품별 문턱 일수는 여기 넣지 않는다 - Hunter Green만 \"minimum relationship duration of 60 days\"로 축자 확인되고 World Blue는 그 문형이 없다. 못 찾은 값을 A2에 박으면 지어내는 것이 된다. 문턱은 모델이 인용과 함께 가져오고 [SOURCE]가 검증한다([[22]]). ★now_prompt 추가(2026-08-07·x128 오프라인 실측): 이 선언에만 `now_prompt`가 없어 `formalize_now`가 항상 None을 돌려줬고, 그래서 `{age}`가 **빈 문자열로 렌더**됐다 — 경과일 문장이 통째로 사라진 것이다. 전사는 2행 정상, 창 선언 쪽은 정상 산출. 100이 필요로 하는 수(첫 계좌로부터의 경과일)가 정확히 이 구멍으로 빠졌다. 문구는 자매 선언과 **축자 동일**(도메인 지식 0·오늘 날짜만 묻는다·gold 무참조)."
   }
  ],
- "_note_layer": "L3 specific — 이 도메인에만 있는 도구·규칙. 엔진 접속은 현재 하드와이어(44사이트)이고 callback 계약은 설계 §4(미구현).",
  "relations": {
   "_note": "선행 관계 인덱스 — A2 3선언 + applies_to 게이트 satisfier의 기계 도출. 정본 설계 = A3_POLICY_ONTOLOGY_DESIGN_2026_08_08 §1d·§1d.1. declarations는 출처·순서·다중성을 그대로 진다(refcount가 개수를 센다).",
   "declarations": [
@@ -3124,5 +3119,2787 @@
    }
   }
  },
- "_note_relations": "★2026-08-08 4단계 — 선행 관계의 **유일한 원천**(정본 설계 `A3_POLICY_ONTOLOGY_DESIGN_2026_08_08` §1d.1). 여기 들어오면서 `require_tool_before`(L3)·`scaffold_get_tools[].requires_reads`(L3)·`gates[].satisfier_requires`(L2)를 **같은 커밋에서 삭제**했다 — 두 원천이 공존하는 창을 만들지 않기 위해서다([[24]] 2026-08-03: 정본만 고치고 소비자·사본을 안 맞추면 옛 값이 쓰인다). 키 수는 **순감**(3선언 → 1키)이고 도메인 리터럴 순증 0. 생성기 = `x144_build_relation_index.py`, 소비자 입구 = `t2_precedence.declarations` 하나(t2_pin_read·t2_prekb_patch·t2_dominance·t2_precedence). ★`declarations`는 **출처·순서·다중성**을 그대로 진다 — 간선으로 합치면 `t2_pin_read._refcount`가 세는 *선언 개수*가 2→1이 되어 조준이 바뀐다. ★재생성: `x144 --domain <d> --out -`로 다시 만들되, **삭제 전 기준선**(`a2/frozen/banking_knowledge.prereq_baseline.json`)과 `--check-snapshot`으로 맞대야 한다. 삭제 후에는 원천이 없어 *'원천 vs 인덱스'* 대조가 공허하게 참이 되기 때문이다."
+ "_note_relations": "★2026-08-08 4단계 — 선행 관계의 **유일한 원천**(정본 설계 `A3_POLICY_ONTOLOGY_DESIGN_2026_08_08` §1d.1). 여기 들어오면서 `require_tool_before`(L3)·`scaffold_get_tools[].requires_reads`(L3)·`gates[].satisfier_requires`(L2)를 **같은 커밋에서 삭제**했다 — 두 원천이 공존하는 창을 만들지 않기 위해서다([[24]] 2026-08-03: 정본만 고치고 소비자·사본을 안 맞추면 옛 값이 쓰인다). 키 수는 **순감**(3선언 → 1키)이고 도메인 리터럴 순증 0. 생성기 = `x144_build_relation_index.py`, 소비자 입구 = `t2_precedence.declarations` 하나(t2_pin_read·t2_prekb_patch·t2_dominance·t2_precedence). ★`declarations`는 **출처·순서·다중성**을 그대로 진다 — 간선으로 합치면 `t2_pin_read._refcount`가 세는 *선언 개수*가 2→1이 되어 조준이 바뀐다. ★재생성: `x144 --domain <d> --out -`로 다시 만들되, **삭제 전 기준선**(`a2/frozen/banking_knowledge.prereq_baseline.json`)과 `--check-snapshot`으로 맞대야 한다. 삭제 후에는 원천이 없어 *'원천 vs 인덱스'* 대조가 공허하게 참이 되기 때문이다.",
+ "policy_ontology": {
+  "axes": {
+   "referrer_tenure_days": "the minimum number of days the REFERRER must already have held a checking account (relationship duration / tenure) to be eligible to refer",
+   "annual_referral_limit": "the maximum number of referral bonuses allowed per year for that product",
+   "referrer_bonus_usd": "the dollar amount the REFERRER receives for one successful referral",
+   "referred_bonus_usd": "the dollar amount the REFERRED person or business receives as a welcome bonus",
+   "qualifying_deposit_usd": "the minimum dollar amount the REFERRED party must deposit to trigger the bonus",
+   "deposit_window_days": "the number of days the REFERRED party has to make the qualifying deposit",
+   "rolling_window_referrals": "the maximum number of referral bonuses allowed inside one rolling window (NOT per year) — this rule applies across account types, not to one product",
+   "rolling_window_days": "the length in days of that rolling window (e.g. 'rolling 9-day window')",
+   "company_max_age_years": "the maximum age in years, counted from formation, that a company may have and still be eligible to OPEN this account (a company older than this cannot open it)",
+   "qualifying_spend_usd": "the minimum dollar amount the REFERRED party must SPEND (purchases, not a deposit) to trigger the referral bonus",
+   "holder_min_age_years": "the minimum age in years a person must be to hold or open this account",
+   "holder_max_age_years": "the maximum age in years a person may be and still hold this account (only where the policy states an upper bound)",
+   "referred_no_prior_accounts_months": "how many months back the REFERRED party must have had no Rho-Bank accounts to count as a new customer"
+  },
+  "rows": [
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Beige Account",
+    "axis": "referrer_tenure_days",
+    "value": 120,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_beige_012",
+     "quote": "Referrer tenure requirement: 120 days since opening your first checking account with us.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Beige Account",
+    "axis": "annual_referral_limit",
+    "value": 15,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_beige_012",
+     "quote": "15 referral bonuses per calendar year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Beige Account",
+    "axis": "annual_referral_limit",
+    "value": 15,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_beige_012",
+     "quote": "Maximum per year | 15",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Cobalt Blue Business Checking",
+    "axis": "annual_referral_limit",
+    "value": 10,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_cobalt_blue_001",
+     "quote": "Maximum referrals: 10 per calendar year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Cobalt Blue",
+    "axis": "referrer_tenure_days",
+    "value": 60,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_cobalt_blue_005",
+     "quote": "your earliest-opened Rho-Bank checking account must have reached 60 days of age.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Hunter Green Business Checking",
+    "axis": "referrer_tenure_days",
+    "value": 60,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_hunter_green_001",
+     "quote": "A minimum relationship duration of 60 days as a checking account holder is required.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Hunter Green Business Checking",
+    "axis": "annual_referral_limit",
+    "value": 10,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_hunter_green_001",
+     "quote": "Up to 10 referral bonuses per year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Lime Green Account",
+    "axis": "referrer_tenure_days",
+    "value": 90,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_lime_green_003",
+     "quote": "You must have maintained checking account status with Rho-Bank for a minimum of 90 days.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Lime Green Account",
+    "axis": "annual_referral_limit",
+    "value": 12,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_lime_green_003",
+     "quote": "- **Annual cap**: 12 referrals per year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Navy Blue Business Checking",
+    "axis": "referrer_tenure_days",
+    "value": 60,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_navy_blue_001",
+     "quote": "Referrer eligibility requires having been a Rho-Bank checking customer for 60 days or more.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Navy Blue Business Checking",
+    "axis": "annual_referral_limit",
+    "value": 10,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_navy_blue_001",
+     "quote": "Maximum referrals per year | 10",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Sky Blue",
+    "axis": "annual_referral_limit",
+    "value": 8,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_sky_blue_001",
+     "quote": "Annual limit: 8 referrals per year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Sky Blue",
+    "axis": "referrer_tenure_days",
+    "value": 45,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_sky_blue_002",
+     "quote": "Referrers must meet the 45-day tenure threshold based on their banking history with Rho-Bank.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "True Blue Account",
+    "axis": "referrer_tenure_days",
+    "value": 90,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_true_blue_002",
+     "quote": "Eligibility is based on how long you've been a Rho-Bank checking customer. The account age threshold is 90 days, calculated from when you opened your oldest checking account.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "True Blue Account",
+    "axis": "annual_referral_limit",
+    "value": 15,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_true_blue_002",
+     "quote": "Maximum referrals per year | 15",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "World Blue International Checking",
+    "axis": "referrer_tenure_days",
+    "value": 90,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_world_blue_001",
+     "quote": "You must have maintained checking account status with Rho-Bank for at least 90 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "World Blue Balance",
+    "axis": "annual_referral_limit",
+    "value": 12,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_world_blue_007",
+     "quote": "- **Annual limit**: 12 referral bonuses per calendar year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Business Bronze Rewards Card",
+    "axis": "annual_referral_limit",
+    "value": 7,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_business_bronze_rewards_card_011",
+     "quote": "You can earn up to 7 referral bonuses per calendar year.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Business Gold Rewards Card",
+    "axis": "annual_referral_limit",
+    "value": 8,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_business_gold_rewards_card_010",
+     "quote": "You can earn up to 8 referral bonuses per calendar year.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Business Platinum Rewards Card",
+    "axis": "annual_referral_limit",
+    "value": 11,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_business_platinum_rewards_card_012",
+     "quote": "- You can earn up to 11 referral bonuses per calendar year.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Business Silver Rewards Card",
+    "axis": "annual_referral_limit",
+    "value": 10,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_business_silver_rewards_card_013",
+     "quote": "You can earn up to 10 referral bonuses per calendar year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Green Rewards Card",
+    "axis": "annual_referral_limit",
+    "value": 7,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_green_rewards_card_010",
+     "quote": "You can earn up to 7 referral bonuses per calendar year.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Silver Zoom Card",
+    "axis": "annual_referral_limit",
+    "value": 10,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_silver_zoom_card_011",
+     "quote": "Bonuses are capped at 10 per calendar year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Blue Account",
+    "axis": "referrer_tenure_days",
+    "value": 30,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_blue_account_010",
+     "quote": "A minimum banking relationship of 30 days is required to participate—this is measured from when you first opened any checking account with us.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Blue Account",
+    "axis": "annual_referral_limit",
+    "value": 5,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_blue_account_010",
+     "quote": "You can earn up to 5 referral bonuses per calendar year.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Bluest Account",
+    "axis": "referrer_tenure_days",
+    "value": 60,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_bluest_account_003",
+     "quote": "Referrers must have established their Rho-Bank checking relationship at least 60 days prior.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Bluest Account",
+    "axis": "annual_referral_limit",
+    "value": 8,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_bluest_account_003",
+     "quote": "Annual limit: 8 referral bonuses per calendar year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Dark Green Account",
+    "axis": "referrer_tenure_days",
+    "value": 45,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_dark_green_account_010",
+     "quote": "You must satisfy the 45-day minimum as a Rho-Bank checking customer.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Dark Green Account",
+    "axis": "annual_referral_limit",
+    "value": 6,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_dark_green_account_010",
+     "quote": "Maximum per year: 6 referral bonuses",
+     "quote_match": "normalized"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Evergreen Account",
+    "axis": "annual_referral_limit",
+    "value": 6,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_evergreen_account_001",
+     "quote": "Earn up to 6 referral bonuses per calendar year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Evergreen Account",
+    "axis": "referrer_tenure_days",
+    "value": 45,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_evergreen_account_007",
+     "quote": "The 45-day tenure threshold applies—calculated from the date you opened your first Rho-Bank checking account.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Gold Years Account",
+    "axis": "referrer_tenure_days",
+    "value": 30,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_gold_years_account_010",
+     "quote": "The referrer must have maintained checking account status with Rho-Bank for 30 days.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Gold Years Account",
+    "axis": "annual_referral_limit",
+    "value": 6,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_gold_years_account_010",
+     "quote": "Max referrals/year | 6",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Green Account",
+    "axis": "referrer_tenure_days",
+    "value": 30,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "Account tenure requirement: 30 days since becoming a Rho-Bank checking customer.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Green Account",
+    "axis": "annual_referral_limit",
+    "value": 5,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "Maximum referrals per year: 5",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Green Fee-Free Account",
+    "axis": "referrer_tenure_days",
+    "value": 30,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_green_fee-free_account_007",
+     "quote": "Your Rho-Bank checking relationship must span at least 30 days.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Green Fee-Free Account",
+    "axis": "annual_referral_limit",
+    "value": 4,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_green_fee-free_account_007",
+     "quote": "Annual limit: 4 referrals per year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Light Blue Account",
+    "axis": "referrer_tenure_days",
+    "value": 30,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_blue_account_007",
+     "quote": "To qualify as a referrer, you must have been a Rho-Bank checking account holder for 30 days or longer.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Light Blue Account",
+    "axis": "annual_referral_limit",
+    "value": 5,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_blue_account_007",
+     "quote": "You can earn up to 5 referral bonuses per calendar year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Light Green Account",
+    "axis": "annual_referral_limit",
+    "value": 3,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "- Maximum referrals: 3 per calendar year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Light Green Account",
+    "axis": "referrer_tenure_days",
+    "value": 14,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_green_account_002",
+     "quote": "Referrer eligibility is based on account tenure: you must have opened your first Rho-Bank checking account at least 14 days ago.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Purple Account",
+    "axis": "referrer_tenure_days",
+    "value": 45,
+    "against": "tenure_days",
+    "compare": "ge",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_purple_account_011",
+     "quote": "Participation requires 45 days of checking account history with Rho-Bank.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Purple Account",
+    "axis": "annual_referral_limit",
+    "value": 6,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_purple_account_011",
+     "quote": "You can earn up to 6 referral bonuses per calendar year.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "EcoCard",
+    "axis": "annual_referral_limit",
+    "value": 7,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_ecocard_011",
+     "quote": "You can earn up to 7 referral bonuses per calendar year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Platinum Rewards Card",
+    "axis": "annual_referral_limit",
+    "value": 7,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_platinum_rewards_card_008",
+     "quote": "- You can earn up to 7 referral bonuses per calendar year.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Silver Rewards Card",
+    "axis": "annual_referral_limit",
+    "value": 7,
+    "against": "type_usage",
+    "compare": "le",
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_silver_rewards_card_011",
+     "quote": "You can earn up to 7 referral bonuses per calendar year",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "open_bank_account",
+       "operand_arg": "account_class"
+      },
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "계좌 보유 자격이면서 동시에 추천 자격이다 — 정책 축자 \"The referred person must be 18 years or older\" (…047·추천 자격) 와 \"You must be … between 13 and 24 years old to open the account.\" (…light_green_002·개설 자격)"
+    },
+    "subject": "Personal Checking Accounts",
+    "axis": "holder_min_age_years",
+    "value": 18,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_001",
+     "quote": "The customer is at least 18 years old.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Personal Savings Accounts",
+    "axis": "deposit_window_days",
+    "value": 30,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_002",
+     "quote": "inform the customer they have 30 days to fund the account (via internal transfer or external deposit) or the account will be closed.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "open_bank_account",
+       "operand_arg": "account_class"
+      },
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "계좌 보유 자격이면서 동시에 추천 자격이다 — 정책 축자 \"The referred person must be 18 years or older\" (…047·추천 자격) 와 \"You must be … between 13 and 24 years old to open the account.\" (…light_green_002·개설 자격)"
+    },
+    "subject": "Debit Card",
+    "axis": "holder_min_age_years",
+    "value": 18,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_023",
+     "quote": "Customer must be at least 18 years old (verify using date_of_birth)",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Checking Account",
+    "axis": "rolling_window_referrals",
+    "value": 2,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_047",
+     "quote": "You can receive at most 2 referral bonuses in any rolling 9-day window.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "checking account",
+    "axis": "rolling_window_days",
+    "value": 9,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_047",
+     "quote": "You can receive at most 2 referral bonuses in any rolling 9-day window.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "open_bank_account",
+       "operand_arg": "account_class"
+      },
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "계좌 보유 자격이면서 동시에 추천 자격이다 — 정책 축자 \"The referred person must be 18 years or older\" (…047·추천 자격) 와 \"You must be … between 13 and 24 years old to open the account.\" (…light_green_002·개설 자격)"
+    },
+    "subject": "checking account",
+    "axis": "holder_min_age_years",
+    "value": 18,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_047",
+     "quote": "The referred person must be 18 years or older, except for the Light Green Account which allows minors with a guardian.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Checking Account",
+    "axis": "referred_no_prior_accounts_months",
+    "value": 12,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_047",
+     "quote": "The referred person must be a new Rho-Bank customer with no existing checking, savings, or closed accounts within the past 12 months.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Checking Account",
+    "axis": "referred_no_prior_accounts_months",
+    "value": 12,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_bank_accounts_bank_accounts_(general)_048",
+     "quote": "The referred person must be a new Rho-Bank customer with no existing or closed accounts within the past 12 months.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Beige Account",
+    "axis": "referrer_bonus_usd",
+    "value": 500,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_beige_012",
+     "quote": "- **Your reward**: $500 for each qualifying referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Beige Account",
+    "axis": "referred_bonus_usd",
+    "value": 350,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_beige_012",
+     "quote": "$350 welcome bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Beige Account",
+    "axis": "qualifying_deposit_usd",
+    "value": 100000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_beige_012",
+     "quote": "They must deposit at least $100,000 within 120 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Beige Account",
+    "axis": "deposit_window_days",
+    "value": 120,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_beige_012",
+     "quote": "Deposit window | 120 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Cobalt Blue Business Checking",
+    "axis": "referrer_bonus_usd",
+    "value": 150,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_cobalt_blue_001",
+     "quote": "- You earn: $150 per successful referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Cobalt Blue Business Checking",
+    "axis": "referred_bonus_usd",
+    "value": 100,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_cobalt_blue_001",
+     "quote": "- They receive: $100 as a welcome bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Cobalt Blue",
+    "axis": "qualifying_deposit_usd",
+    "value": 7500,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_cobalt_blue_005",
+     "quote": "The referred business must deposit at least $7,500 to trigger the referral bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Cobalt Blue",
+    "axis": "deposit_window_days",
+    "value": 90,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_cobalt_blue_005",
+     "quote": "This deposit must be made within 90 days of account opening",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Hunter Green Business Checking",
+    "axis": "referrer_bonus_usd",
+    "value": 175,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_hunter_green_001",
+     "quote": "**Referrer reward**: $175 for each successful referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Hunter Green Business Checking",
+    "axis": "referred_bonus_usd",
+    "value": 125,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_hunter_green_001",
+     "quote": "- **New member bonus**: $125 for the business you refer",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Hunter Green Business Checking",
+    "axis": "qualifying_deposit_usd",
+    "value": 10000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_hunter_green_001",
+     "quote": "Referred business must deposit $10,000 within 90 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Lime Green Account",
+    "axis": "referrer_bonus_usd",
+    "value": 200,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_lime_green_003",
+     "quote": "- **Your bonus**: $200 for each successful referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Lime Green Account",
+    "axis": "referred_bonus_usd",
+    "value": 150,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_lime_green_003",
+     "quote": "$150 welcome bonus for the referred business",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Lime Green Account",
+    "axis": "qualifying_deposit_usd",
+    "value": 15000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_lime_green_003",
+     "quote": "Referred business must deposit $15,000 within 90 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Lime Green Account",
+    "axis": "deposit_window_days",
+    "value": 90,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_lime_green_003",
+     "quote": "Referred business must deposit $15,000 within 90 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Navy Blue Business Checking",
+    "axis": "referrer_bonus_usd",
+    "value": 100,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_navy_blue_001",
+     "quote": "Your referral bonus | $100",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Navy Blue Business Checking",
+    "axis": "referred_bonus_usd",
+    "value": 75,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_navy_blue_001",
+     "quote": "New business welcome bonus | $75",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Navy Blue Business Checking",
+    "axis": "qualifying_deposit_usd",
+    "value": 5000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_navy_blue_001",
+     "quote": "Required qualifying deposit | $5,000",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Navy Blue Business Checking",
+    "axis": "deposit_window_days",
+    "value": 90,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_navy_blue_001",
+     "quote": "Deposit must be made within | 90 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Sky Blue",
+    "axis": "referrer_bonus_usd",
+    "value": 150,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_sky_blue_001",
+     "quote": "- Your bonus: $150 for each successful referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Sky Blue",
+    "axis": "referred_bonus_usd",
+    "value": 250,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_sky_blue_001",
+     "quote": "- Their bonus: $250 welcome bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "open_bank_account",
+       "operand_arg": "account_class"
+      }
+     ],
+     "basis": "env `open_bank_account_4821(user_id, account_type, account_class)` docstring 축자 \"account_class (string): The full official account class name\" + 정책 축자 \"## Verify Eligibility — Confirm your company is within 4 years of formation.\" (…sky_blue_001)"
+    },
+    "subject": "Sky Blue",
+    "axis": "company_max_age_years",
+    "value": 4,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_sky_blue_001",
+     "quote": "Confirm your company is within 4 years of formation.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Sky Blue",
+    "axis": "qualifying_deposit_usd",
+    "value": 10000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_sky_blue_002",
+     "quote": "Referred startups must deposit at least $10,000 to trigger the bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Sky Blue",
+    "axis": "deposit_window_days",
+    "value": 90,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_sky_blue_002",
+     "quote": "The deposit must be made within 90 days of account opening",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "True Blue Account",
+    "axis": "referrer_bonus_usd",
+    "value": 350,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_true_blue_002",
+     "quote": "Referrer bonus | $350 per referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "True Blue Account",
+    "axis": "referred_bonus_usd",
+    "value": 250,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_true_blue_002",
+     "quote": "| New member bonus | $250 |",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "True Blue Account",
+    "axis": "qualifying_deposit_usd",
+    "value": 50000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_true_blue_002",
+     "quote": "The referred business must deposit $50,000 within 120 days of opening their True Blue account.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "True Blue Account",
+    "axis": "deposit_window_days",
+    "value": 120,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_true_blue_002",
+     "quote": "Deposit window | 120 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "World Blue International Checking",
+    "axis": "qualifying_deposit_usd",
+    "value": 25000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_world_blue_001",
+     "quote": "They must deposit at least $25,000 within 90 days of account opening",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "World Blue Balance",
+    "axis": "referrer_bonus_usd",
+    "value": 300,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_world_blue_007",
+     "quote": "- **Your bonus**: $300 for each successful referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "World Blue Balance",
+    "axis": "referred_bonus_usd",
+    "value": 200,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_checking_accounts_world_blue_007",
+     "quote": "$200 welcome bonus for the new business",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Business Bronze Rewards Card",
+    "axis": "referrer_bonus_usd",
+    "value": 75,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_business_bronze_rewards_card_011",
+     "quote": "- Receive $75 for each successful referral.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Business Bronze Rewards Card",
+    "axis": "qualifying_spend_usd",
+    "value": 1750,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_business_bronze_rewards_card_011",
+     "quote": "The referred business must complete at least $1,750 in net purchases within 90 days of account opening.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Business Gold Rewards Card",
+    "axis": "referrer_bonus_usd",
+    "value": 200,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_business_gold_rewards_card_010",
+     "quote": "Earn $200 for each successful referral who is approved and meets the qualifying spend.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Business Gold Rewards Card",
+    "axis": "qualifying_spend_usd",
+    "value": 7500,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_business_gold_rewards_card_010",
+     "quote": "The referred business must spend $7,500 within 90 from account opening to qualify your bonus.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Business Platinum Rewards Card",
+    "axis": "referrer_bonus_usd",
+    "value": 300,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_business_platinum_rewards_card_012",
+     "quote": "When the referred business is approved and completes qualifying spend of $15,000 within 135 days from account opening, you earn a bonus of $300.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Business Platinum Rewards Card",
+    "axis": "qualifying_spend_usd",
+    "value": 15000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_business_platinum_rewards_card_012",
+     "quote": "When the referred business is approved and completes qualifying spend of $15,000 within 135 days from account opening, you earn a bonus of $300.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Business Silver Rewards Card",
+    "axis": "referrer_bonus_usd",
+    "value": 100,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_business_silver_rewards_card_013",
+     "quote": "Earn $100 for each successful referral that is approved and meets the qualifying spend requirement",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Business Silver Rewards Card",
+    "axis": "qualifying_spend_usd",
+    "value": 3000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_business_silver_rewards_card_013",
+     "quote": "The referred business must spend at least $3,000 within 90 days of account opening for you to receive the bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Green Rewards Card",
+    "axis": "qualifying_spend_usd",
+    "value": 2250,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_green_rewards_card_010",
+     "quote": "The referred business must spend at least $2,250 within 90 days from account opening to qualify your bonus.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Silver Zoom Card",
+    "axis": "referrer_bonus_usd",
+    "value": 150,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_silver_zoom_card_011",
+     "quote": "Earn a referral bonus of $150 for each referred logistics business that is approved and meets the qualifying spend requirement",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Silver Zoom Card",
+    "axis": "qualifying_spend_usd",
+    "value": 7500,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_business_credit_cards_silver_zoom_card_011",
+     "quote": "The referred business must complete purchases totaling $7,500 within 90 days of account opening",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Blue Account",
+    "axis": "referrer_bonus_usd",
+    "value": 35,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_blue_account_010",
+     "quote": "When you refer someone to open a Blue Account, you earn $35 for each successful referral.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Blue Account",
+    "axis": "referred_bonus_usd",
+    "value": 30,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_blue_account_010",
+     "quote": "The person you refer receives $30 as a welcome bonus.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Blue Account",
+    "axis": "qualifying_deposit_usd",
+    "value": 500,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_blue_account_010",
+     "quote": "The referred person must deposit at least $500 within 60 days of opening their account.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Blue Account",
+    "axis": "deposit_window_days",
+    "value": 60,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_blue_account_010",
+     "quote": "The referred person must deposit at least $500 within 60 days of opening their account.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Bluest Account",
+    "axis": "referrer_bonus_usd",
+    "value": 75,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_bluest_account_003",
+     "quote": "- Referrer bonus: $75 per successful referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Bluest Account",
+    "axis": "referred_bonus_usd",
+    "value": 50,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_bluest_account_003",
+     "quote": "- New member bonus: $50 for the person you refer",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Bluest Account",
+    "axis": "qualifying_deposit_usd",
+    "value": 2000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_bluest_account_003",
+     "quote": "Qualifying requirement: Referred person must deposit $2,000 within 90 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Dark Green Account",
+    "axis": "referrer_bonus_usd",
+    "value": 40,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_dark_green_account_010",
+     "quote": "**Your bonus**: $40 for each qualifying referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Dark Green Account",
+    "axis": "referred_bonus_usd",
+    "value": 30,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_dark_green_account_010",
+     "quote": "$30 welcome bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Dark Green Account",
+    "axis": "qualifying_deposit_usd",
+    "value": 1000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_dark_green_account_010",
+     "quote": "They must deposit at least $1,000 within 60 days of opening",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Dark Green Account",
+    "axis": "deposit_window_days",
+    "value": 60,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_dark_green_account_010",
+     "quote": "Deposit window | 60 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Evergreen Account",
+    "axis": "referrer_bonus_usd",
+    "value": 35,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_evergreen_account_001",
+     "quote": "- Refer others to join Evergreen and earn $35 per successful referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Evergreen Account",
+    "axis": "referred_bonus_usd",
+    "value": 25,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_evergreen_account_001",
+     "quote": "New members receive $25 as a welcome bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Evergreen Account",
+    "axis": "qualifying_deposit_usd",
+    "value": 750,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_evergreen_account_007",
+     "quote": "The person you refer must deposit at least $750 within 60 days of opening their account to qualify.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Evergreen Account",
+    "axis": "deposit_window_days",
+    "value": 60,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_evergreen_account_007",
+     "quote": "The referred person must deposit $750 within 60 days of account opening to trigger the referral bonus.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Gold Years Account",
+    "axis": "referrer_bonus_usd",
+    "value": 50,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_gold_years_account_010",
+     "quote": "$50 for each successful referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Gold Years Account",
+    "axis": "referred_bonus_usd",
+    "value": 75,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_gold_years_account_010",
+     "quote": "$75 as a welcome bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Gold Years Account",
+    "axis": "deposit_window_days",
+    "value": 90,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_gold_years_account_010",
+     "quote": "They must deposit $1,000 within 90 days of account opening",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "open_bank_account",
+       "operand_arg": "account_class"
+      },
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "계좌 보유 자격이면서 동시에 추천 자격이다 — 정책 축자 \"The referred person must be 18 years or older\" (…047·추천 자격) 와 \"You must be … between 13 and 24 years old to open the account.\" (…light_green_002·개설 자격)"
+    },
+    "subject": "Gold Years Account",
+    "axis": "holder_min_age_years",
+    "value": 62,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_gold_years_account_010",
+     "quote": "The person you refer must be eligible for a Gold Years Account (age 62+)",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Green Account",
+    "axis": "referrer_bonus_usd",
+    "value": 20,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "- You earn: $20 per successful referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Green Account",
+    "axis": "referred_bonus_usd",
+    "value": 30,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "- They receive: $30 welcome bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Green Account",
+    "axis": "qualifying_deposit_usd",
+    "value": 500,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "Qualifying deposit required: $500 within 60 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Green Account",
+    "axis": "deposit_window_days",
+    "value": 60,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "Qualifying deposit required: $500 within 60 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Green Fee-Free Account",
+    "axis": "referrer_bonus_usd",
+    "value": 20,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_green_fee-free_account_007",
+     "quote": "- Your reward: $20 per successful referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Green Fee-Free Account",
+    "axis": "referred_bonus_usd",
+    "value": 35,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_green_fee-free_account_007",
+     "quote": "- New member reward: $35 welcome bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Green Fee-Free Account",
+    "axis": "qualifying_deposit_usd",
+    "value": 300,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_green_fee-free_account_007",
+     "quote": "The new account holder must deposit at least $300",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Green Fee-Free Account",
+    "axis": "deposit_window_days",
+    "value": 60,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_green_fee-free_account_007",
+     "quote": "This deposit must be made within 60 days of opening their account",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Light Blue Account",
+    "axis": "referrer_bonus_usd",
+    "value": 30,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_blue_account_007",
+     "quote": "- Referral bonus: $30 for each successful referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Light Blue Account",
+    "axis": "referred_bonus_usd",
+    "value": 20,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_blue_account_007",
+     "quote": "- Welcome bonus: $20 when they open and fund their account",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Light Blue Account",
+    "axis": "deposit_window_days",
+    "value": 60,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_blue_account_007",
+     "quote": "Deposit window | Within 60 days of account opening",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Light Green Account",
+    "axis": "referrer_bonus_usd",
+    "value": 15,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "- You earn: $15 for each successful referral",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Light Green Account",
+    "axis": "referred_bonus_usd",
+    "value": 25,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "- They receive: $25 as a welcome bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "open_bank_account",
+       "operand_arg": "account_class"
+      },
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "계좌 보유 자격이면서 동시에 추천 자격이다 — 정책 축자 \"The referred person must be 18 years or older\" (…047·추천 자격) 와 \"You must be … between 13 and 24 years old to open the account.\" (…light_green_002·개설 자격)"
+    },
+    "subject": "Light Green Account",
+    "axis": "holder_min_age_years",
+    "value": 13,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_green_account_002",
+     "quote": "You must be the primary account holder and be between 13 and 24 years old to open the account.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "open_bank_account",
+       "operand_arg": "account_class"
+      }
+     ],
+     "basis": "env `open_bank_account_4821(user_id, account_type, account_class)` docstring 축자 \"account_class (string): The full official account class name\" + 정책 축자 \"## Verify Eligibility — Confirm your company is within 4 years of formation.\" (…sky_blue_001)"
+    },
+    "subject": "Light Green Account",
+    "axis": "holder_max_age_years",
+    "value": 24,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_green_account_002",
+     "quote": "- You must remain within the 13–24 age range to maintain the account.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Purple Account",
+    "axis": "referrer_bonus_usd",
+    "value": 45,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_purple_account_011",
+     "quote": "When you refer someone to open a Purple Account, you earn $45 and the person you refer receives $35.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Purple Account",
+    "axis": "referred_bonus_usd",
+    "value": 35,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_purple_account_011",
+     "quote": "When you refer someone to open a Purple Account, you earn $45 and the person you refer receives $35.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Purple Account",
+    "axis": "qualifying_deposit_usd",
+    "value": 1000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_purple_account_011",
+     "quote": "The referred person must deposit at least $1,000 within 60 days of account opening.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Purple Account",
+    "axis": "deposit_window_days",
+    "value": 60,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_purple_account_011",
+     "quote": "The referred person must deposit at least $1,000 within 60 days of account opening.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Credit Card",
+    "axis": "rolling_window_referrals",
+    "value": 2,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_credit_cards_(general)_002",
+     "quote": "You can receive at most 2 referral bonuses in any rolling 7-day window.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Credit Card",
+    "axis": "rolling_window_days",
+    "value": 7,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_credit_cards_(general)_002",
+     "quote": "You can receive at most 2 referral bonuses in any rolling 7-day window.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Credit Card",
+    "axis": "rolling_window_referrals",
+    "value": 2,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_credit_cards_(general)_009",
+     "quote": "Customers can receive at most 2 referral bonuses in any rolling 7-day window; the third and subsequent referrals in that window are automatically denied.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Rho-Bank",
+    "axis": "rolling_window_referrals",
+    "value": 2,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_credit_cards_(general)_020",
+     "quote": "You can earn referral bonuses for up to 2 successful referrals per week. This is calculated on a rolling 7-day basis, so if you've already had 2 referrals complete in the past week, any additional referrals during that time won't qualify for a bonus.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [
+      {
+       "tool": "submit_referral",
+       "operand_arg": "account_type"
+      }
+     ],
+     "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
+    },
+    "subject": "Rho-Bank credit card",
+    "axis": "rolling_window_days",
+    "value": 7,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_credit_cards_(general)_020",
+     "quote": "This is calculated on a rolling 7-day basis, so if you've already had 2 referrals complete in the past week, any additional referrals during that time won't qualify for a bonus.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "EcoCard",
+    "axis": "qualifying_spend_usd",
+    "value": 500,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_ecocard_011",
+     "quote": "The referred person must be approved and spend at least $500 within 60 days of account opening",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Platinum Rewards Card",
+    "axis": "referrer_bonus_usd",
+    "value": 100,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_platinum_rewards_card_008",
+     "quote": "you earn a referral bonus of $100.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Platinum Rewards Card",
+    "axis": "qualifying_spend_usd",
+    "value": 1500,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_platinum_rewards_card_008",
+     "quote": "The referred friend must spend at least $1,500 within 90 days of account opening to qualify you for the bonus.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Silver Rewards Card",
+    "axis": "qualifying_spend_usd",
+    "value": 750,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_silver_rewards_card_011",
+     "quote": "The referred person must be approved and spend at least $750 within 60 days of account opening",
+     "quote_match": "exact"
+    }
+   }
+  ],
+  "targeted_contains": "refer "
+ },
+ "_note_policy_ontology": "★2026-08-08 A3 정책 온톨로지가 런타임 층으로 들어왔다(정본 = A3_POLICY_ONTOLOGY_DESIGN_2026_08_08). 행 = (주어, 축, 값, 인용, applies_to). 생성 `x140`(문서 전수 1회·축별 질의·축 적합성) · 결속 `x145`(§1c) · 독립 누락 검사 `x141`. **정책 상수의 유일한 런타임 출처**다 — 엔진은 여기서 조회하고 사실은 DB에서 읽어 대조만 한다(사용자 지시 2026-08-08). ⚠표적 빌드라(`targeted_contains`) §0a 완결성 주장은 이 산출물로 하지 않는다. ⚠주어 정규화 금지(§9-4) — 표기마다 행이고 각자 인용을 진다. 맞추는 것은 LLM 몫([[22]]·C316)."
 }

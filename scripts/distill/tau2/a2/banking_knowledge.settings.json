@@ -263,10 +263,10 @@
    {"out": "tenure_days", "inputs": ["rows:accounts", "today"], "op": "days_since_earliest",
     "params": {"age_field": "date_opened", "date_formats": ["%m/%d/%Y", "%Y-%m-%d"]}},
 
-   {"out": "doc_limits", "inputs": ["corpus"], "op": "formalize", "shape": "pairs",
-    "prompt": "limit_prompt", "params": {"field": "limit"}},
-   {"out": "doc_minimums", "inputs": ["corpus"], "op": "formalize", "shape": "pairs",
-    "prompt": "threshold_prompt", "params": {"field": "min_days"}},
+   {"out": "doc_limits", "inputs": ["a3"], "op": "a3_map",
+    "params": {"axis": "annual_referral_limit"}},
+   {"out": "doc_minimums", "inputs": ["a3"], "op": "a3_map",
+    "params": {"axis": "referrer_tenure_days"}},
 
    {"out": "annual_left", "inputs": ["type_usage", "doc_limits"], "op": "subtract_by_group"},
    {"out": "tenure_ok", "inputs": ["tenure_days", "doc_minimums"], "op": "compare_ge"}
