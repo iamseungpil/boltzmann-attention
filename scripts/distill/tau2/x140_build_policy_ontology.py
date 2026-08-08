@@ -317,6 +317,11 @@ def main():
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--limit", type=int, default=0, help="스모크용 문서 수 제한")
     ap.add_argument("--only", default="", help="쉼표로 나눈 부분문자열 — 그 문서만 (표적 스모크)")
+    ap.add_argument("--contains", default="",
+                    help="본문에 이 말이 있는 문서만. ⚠**표적 빌드**이지 전수가 아니다 — "
+                         "이걸 쓴 산출물로 *'모집단을 다 봤다'*(§0a)를 주장하면 안 된다. "
+                         "재개 키가 (문서|축)이라 나중에 전수로 이어 돌리면 여기서 한 질문은 "
+                         "그대로 재사용된다.")
     ap.add_argument("--debug-reject", action="store_true", help="거절된 행을 그대로 인쇄")
     ap.add_argument("--save-every", type=int, default=20)
     a = ap.parse_args()
@@ -333,6 +338,18 @@ def main():
     reasons = collections.Counter()
 
     docs = sorted(glob.glob(os.path.join(a.docs, "*.json")))
+    if a.contains:
+        keep, need = [], a.contains.lower()
+        for p in docs:
+            try:
+                d = json.load(io.open(p, encoding="utf-8"))
+            except Exception:
+                continue
+            if need in (str(d.get("content") or "") + str(d.get("title") or "")).lower():
+                keep.append(p)
+        print("⚠표적 빌드: 본문에 %r 있는 문서 %d개만 (전수 %d개 아님·완결성 주장 금지)"
+              % (a.contains, len(keep), len(docs)))
+        docs = keep
     if a.only:
         pats = [s.strip() for s in a.only.split(",") if s.strip()]
         docs = [p for p in docs if any(s in os.path.basename(p) for s in pats)]
@@ -358,6 +375,7 @@ def main():
         io.open(a.out, "w", encoding="utf-8").write(json.dumps(
             {"axes": {k: v["desc"] for k, v in AXES.items()},
              "per_axis": bool(a.per_axis), "axis_fit": use_fit,
+             "targeted_contains": a.contains or None,   # 표적 빌드면 여기 남는다(완결성 주장 금지)
              "docs_total": len(docs), "units_total": len(docs) * len(ax_keys),
              "docs_done": sorted(done), "rows": rows,
              "stats": dict(stats), "reject_reasons": dict(reasons)},
