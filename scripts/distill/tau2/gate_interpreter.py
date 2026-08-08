@@ -98,7 +98,48 @@ def load_domain_a2(domain):
         if part:
             merged.update(part)
     _compose_claim_audit(merged)
+    _resolve_a3_refs(merged)
     return merged
+
+
+def _resolve_a3_refs(merged):
+    """A2 안의 `{"a3": [축, 주어]}` 참조를 **A3 온톨로지의 값**으로 바꾼다.
+
+    왜 적재 시점 한 곳인가: 같은 정책 상수가 두 A2 선언에 **각각 리터럴로** 박혀 있었고(A3 행까지
+    하면 원천 셋), 값이 갈리면 어느 것이 쓰였는지 나중에 귀속이 안 된다. 소비자마다 A3를 읽게 하면
+    그 코드가 소비자 수만큼 생긴다 — **여기서 한 번 푼다.** 그러면 A2를 읽는 모든 코드가
+    **손대지 않고** 같은 값을 본다.
+
+    ⚠**문자열 매칭을 하지 않는다**(사용자 지적 2026-08-08). 온톨로지는 형식화된 포맷이고 참조는
+    그 안의 키다 ⇒ **정확 일치만**. 특히 대소문자를 접으면 안 된다 — 설계서 §9-4가 표기마다 행을
+    따로 두라고 한 그 표기들이 **한 칸으로 뭉개지고 하나가 조용히 사라진다**.
+    ⚠못 찾으면 **죽는다**. 조용히 기본값을 쓰면 그 순간 원천이 다시 둘이 된다.
+    """
+    onto = merged.get("policy_ontology") or {}
+    rows = onto.get("rows") or []
+    if not rows:
+        return
+    table = {}
+    for r in rows:
+        table.setdefault((r.get("axis"), r.get("subject")), r.get("value"))
+
+    def walk(node):
+        if isinstance(node, dict):
+            ref = node.get("a3")
+            if isinstance(ref, list) and len(ref) == 2 and len(node) == 1:
+                key = (ref[0], ref[1])
+                if key not in table:
+                    raise KeyError("A3 참조를 풀 수 없다: %r" % (ref,))
+                return table[key]
+            return {k: walk(v) for k, v in node.items()}
+        if isinstance(node, list):
+            return [walk(v) for v in node]
+        return node
+
+    for k in list(merged):
+        if k == "policy_ontology":
+            continue
+        merged[k] = walk(merged[k])
 
 
 def _compose_claim_audit(merged):

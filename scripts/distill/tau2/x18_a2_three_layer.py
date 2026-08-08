@@ -133,9 +133,14 @@ def merged(base, settings, specific):
     `_compose_claim_audit`으로 `claim_prov`·`completion_guard`를 **적재 시점에 합성**한다.
     그래서 `--verify`가 banking에서 늘 ❌를 냈고, 그 상시 ❌ 때문에 이 검정이 신호가 아니라
     소음이 됐다([[24]]가 *"x18 --verify는 경보 포화라 신호 아님"* 이라고 적어 둔 그 상태).
-    두 벌이면 갈린다 — **로더를 부른다.**
+    두 벌이면 갈린다 — **`--verify`는 이제 로더를 부른다.**
+    ⚠여기 남은 것은 `--split` 경로 전용이다(자기가 방금 쓴 분리 파일을 자기 기준으로 재확인).
+    **새 코드에서 이걸 쓰지 마라** — A2를 '읽는' 목적이면 `gate_interpreter.load_domain_a2`다.
     """
-    raise NotImplementedError("verify는 gate_interpreter.load_domain_a2를 쓴다")
+    m = dict(real(base))
+    m.update(settings)
+    m.update(specific)
+    return m
 
 
 def main():
