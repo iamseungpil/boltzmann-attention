@@ -241,6 +241,35 @@ def test_supply_scan_continues_where_demand_is_not_derivable():
     assert calls.count("minimums") == before + 1, ("공급 훑기가 멈춰 버렸다", calls.count("minimums"))
 
 
+def test_conflicting_numbers_are_not_overwritten_silently(capsys=None):
+    """★두 문서가 같은 키에 **다른 수**를 말하면 조용히 덮지 않는다(리뷰 D·[[25]]).
+
+    어느 쪽이 옳은지는 의미 판단이라 우리 몫이 아니다([[22]]). 값은 고르되 **충돌을 찍는다** —
+    우리 출력이 유일 근거원이므로 조용한 덮어쓰기는 근거원을 오염시킨다.
+    """
+    import io as _io
+    import contextlib
+
+    D1 = "Account Z allows up to 3 referral bonuses per year"
+    D2 = "Account Z allows up to 9 referral bonuses per year"
+
+    def ask(node, text):
+        if node["prompt"] != "limit_prompt":
+            return answer(node, text)
+        if D1 in text:
+            return '{"Z": {"limit": 3, "quote": "%s"}}' % D1
+        if D2 in text:
+            return '{"Z": {"limit": 9, "quote": "%s"}}' % D2
+        return "{}"
+
+    err = _io.StringIO()
+    s = _sched()
+    with contextlib.redirect_stderr(err):
+        s.update(F.Inputs(corpus=[D1, D2], tools={}), ask=ask)
+    assert s.vals["limits"]["Z"][0] == 3, ("먼저 것을 유지해야 한다", s.vals["limits"])
+    assert "충돌" in err.getvalue(), ("충돌이 조용히 지나갔다", err.getvalue())
+
+
 def test_silence_when_nothing_changed():
     """아무것도 안 바뀌면 **아무 말도 안 한다**(§6 위험 3 — 말이 늘면 과행동이 는다)."""
     s = _sched()

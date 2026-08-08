@@ -283,7 +283,17 @@ def _formalize_pairs_per_item(node, items, hay, ask, memo, budget):
             print("[T2_DAG] %s ← 항목 %s (%d자) → %d쌍"
                   % (node["out"], _sid, len(s), len(memo[key])),
                   file=sys.stderr, flush=True)
-        out.update(memo[key])
+        # ★같은 키에 **다른 수**가 오면 조용히 덮지 않는다 (2026-08-08·리뷰 D).
+        #   두 문서가 같은 상품에 다른 값을 말할 수 있고, 어느 쪽이 옳은지는 **의미 판단**이라
+        #   우리 몫이 아니다([[22]]). 값은 고르되(먼저 들어온 것 유지) **충돌을 찍는다** —
+        #   [[25]]: 우리 출력이 유일 근거원이므로 조용한 덮어쓰기는 근거원을 오염시킨다.
+        for k, v in memo[key].items():
+            if k in out and out[k][0] != v[0]:
+                print("[T2_DAG] ⚠충돌 %s.%s: %s ↔ %s (먼저 것 유지) · 인용 %r ↔ %r"
+                      % (node["out"], k, out[k][0], v[0], out[k][1][:60], v[1][:60]),
+                      file=sys.stderr, flush=True)
+                continue
+            out.setdefault(k, v)
     if out:
         return out, ("" if not asked else "항목 %d개 중 %d개 신규 질의" % (len(items), asked)), asked
     return None, "항목 %d개 전부에서 채택 0 (신규 질의 %d)" % (len(items), asked), asked
