@@ -40,7 +40,8 @@ this costs the domain nothing new.
 
 # ★C2가 그래프를 소유한다(2026-08-07). 이 파일에 사본을 두면 두 술어가 갈라지고,
 #   갈라진 술어가 곧 C4가 막으려는 T1(사실 모순)이다 — 그래서 빌려 쓴다.
-from t2_precedence import _fam, prereq_map, first_step, graph_for   # noqa: F401
+from t2_precedence import (_fam, prereq_map, first_step, graph_for,   # noqa: F401
+                           declarations, SRC_REQUIRE_BEFORE, SRC_REQUIRES_READS)
 
 __all__ = ["dominating_gate", "requirement_text", "DEFAULT_FEEDBACK",
            "requirements_for", "merged_text", "DEFAULT_MERGED"]
@@ -190,11 +191,10 @@ def requirements_for(a2, messages, target, executed=None, unwrap=None):
                     "predicate": "the prior read(s) this action requires have been done",
                     "satisfiers": miss})
 
-    for dep, reads in ((a2 or {}).get("require_tool_before") or {}).items():
+    # ★2026-08-08: 두 키를 **직접 읽던 것을 걷어냈다**. 선행 선언의 입구는 `declarations` 하나다
+    #   (설계서 §1d.1 — 그 목록은 이 소비자를 빠뜨렸다·여기서 정정). 순서·다중성 그대로라 거동 0.
+    for dep, reads in declarations(a2, (SRC_REQUIRE_BEFORE, SRC_REQUIRES_READS)):
         _reads(dep, reads)
-    for e in ((a2 or {}).get("scaffold_get_tools") or []):
-        if isinstance(e, dict) and e.get("requires_reads"):
-            _reads(e.get("tool") or e.get("name") or "", e["requires_reads"])
     return out
 
 

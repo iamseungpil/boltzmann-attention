@@ -25,6 +25,9 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import t2_precedence as prec                      # noqa: E402  — 선행 선언의 유일한 입구
+
 _SUFF = re.compile(r"_\d{3,4}$")
 _APPLIED = False
 _MARKS = []
@@ -79,9 +82,19 @@ def _require_before(a2):
     ★[[03b]]: 필터는 에이전트가 호출한다(scaffold가 대행하지 않음)·정답 미주입.
     ★적용 지점: `apply_for_credit_card`는 **손님-측** 도구라 에이전트 호출을 막을 수 없다 —
     C176 `prekb_tools`/C181c utool 피드백과 동일하게 orchestrator 실행 경로(손님 호출 포함)에서
-    1회 deny하고 에이전트가 점검 후 재안내하게 한다. cap=fam당 1회(교착 방지·PREKB 선례)."""
-    spec = (a2 or {}).get("require_tool_before")
-    return spec if isinstance(spec, dict) else {}
+    1회 deny하고 에이전트가 점검 후 재안내하게 한다. cap=fam당 1회(교착 방지·PREKB 선례).
+
+    ★rev(2026-08-08): `require_tool_before`를 **직접 읽던 것을 걷어냈다** — 선행 관계의 원천이
+    A3 인덱스로 옮겨 가는 중이라(설계서 §1d.1), 소비자가 각자 키를 읽으면 원천이 다시 갈린다.
+    보던 범위는 **그대로 그 한 출처**다 ⇒ 거동 변화 0.
+    ⚠**그 범위가 좁은 것 자체는 별건이다**: `t2_pin_read`가 rev2까지 같은 한 키만 봐서 거부 15회를
+    놓쳤던 이력이 있다. 여기도 `requires_reads`를 안 본다 — 넓히는 것은 거동 변화이므로
+    **측정을 붙여 따로** 판단한다(지금 섞으면 전환의 등가가 깨진다)."""
+    out = {}
+    for dep, reads in prec.declarations(a2, (prec.SRC_REQUIRE_BEFORE,)):
+        if dep:
+            out.setdefault(dep, list(reads))
+    return out
 
 
 def _called_fams(msgs):

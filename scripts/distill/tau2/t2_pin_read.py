@@ -41,6 +41,10 @@ discoverable 도구는 `tools` 배열에 없고 디스패처 인자로 실려가
 
 import os
 import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import t2_precedence as prec                      # noqa: E402  — 선행 선언의 유일한 입구
 
 _SUFFIX = re.compile(r"_\d{3,4}$")
 # read만 허용한다. 이 접두 밖의 도구는 고정 대상이 아니다(엔진 리터럴이 아니라 동사 패턴).
@@ -71,19 +75,15 @@ def _called_fams(messages):
 
 
 def _declarations(a2):
-    """(의존 도구, [선행 read]) — A2의 **두 키를 모두** 읽는다, 선언 순서대로.
+    """(의존 도구, [선행 read]) — **`t2_precedence.declarations`가 유일한 입구다**, 선언 순서대로.
 
     rev2까지는 `require_tool_before`만 봤는데, N97 라이브에서 거부 15회는 전부 다른 키
     (`scaffold_get_tools[].requires_reads`)에서 나왔다. 한 키만 보는 것이 P1의 2차 간극이었다.
+    rev3(2026-08-08): 그 **두 키를 여기서 직접 읽던 것을 걷어냈다** — 선행 관계의 원천은
+    A3 인덱스로 옮기는 중이고(설계서 §1d.1), 소비자가 각자 키를 읽으면 원천이 다시 갈린다.
+    보던 범위는 **그대로**다(두 출처) ⇒ 거동 변화 0, `x144 --verify`가 등가를 강제한다.
     """
-    out = []
-    for dep, reads in ((a2 or {}).get("require_tool_before") or {}).items():
-        out.append((_fam(dep), [_fam(r) for r in (reads or [])]))
-    for e in ((a2 or {}).get("scaffold_get_tools") or []):
-        if isinstance(e, dict) and e.get("requires_reads"):
-            dep = e.get("tool") or e.get("name") or ""
-            out.append((_fam(dep), [_fam(r) for r in e["requires_reads"]]))
-    return out
+    return prec.declarations(a2, (prec.SRC_REQUIRE_BEFORE, prec.SRC_REQUIRES_READS))
 
 
 def _refcount(decls):

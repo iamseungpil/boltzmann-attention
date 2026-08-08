@@ -24,7 +24,12 @@
 import re
 
 __all__ = ["prereq_map", "first_step", "frontier", "ancestors", "primitive_for",
-           "graph_for", "DENY", "REPLACE", "PIN"]
+           "graph_for", "declarations", "DENY", "REPLACE", "PIN"]
+
+# 선행 선언의 세 출처 — 이름을 여기 한 번만 적는다(소비자가 각자 적으면 갈린다).
+SRC_SATISFIER = "satisfier_requires"
+SRC_REQUIRE_BEFORE = "require_tool_before"
+SRC_REQUIRES_READS = "requires_reads"
 
 
 def _fam(n):
@@ -34,33 +39,67 @@ def _fam(n):
     return s[:i] if i > 0 and s[i + 1:].isdigit() else s
 
 
+def _raw_declarations(a2):
+    """A2의 **세 선언**을 (출처, 의존 도구, [선행]) 로 편다 — 순서와 **다중성을 보존**한다.
+
+    ⚠합쳐서 간선으로만 주면 안 된다: `t2_pin_read._refcount`는 *선언 개수*를 세고(조준을
+    57%→69%로 올린 그 수), 같은 쌍이 두 선언에 있으면 2로 세야 한다. 간선은 집합이라 1이 된다.
+
+    ⚠**형태를 믿지 않는다.** 소비자마다 방어가 달랐고(구 `t2_prekb_patch._spec`은 dict가 아니면
+    빈 것으로 봤다), 입구를 하나로 모으면서 그 방어가 사라지면 **선언이 문자열인 A2에서 죽는다**
+    (자기검정이 실물로 잡았다). 방어는 이제 여기 한 곳에 있다.
+    """
+    def _lst(v):
+        return list(v) if isinstance(v, (list, tuple)) else ([v] if isinstance(v, str) else [])
+
+    out = []
+    for g in ((a2 or {}).get("gates") or []):
+        sr = (g or {}).get("satisfier_requires") if isinstance(g, dict) else None
+        for s_name, reqs in (sr.items() if isinstance(sr, dict) else ()):
+            out.append({"source": SRC_SATISFIER, "dep": s_name, "reads": _lst(reqs)})
+    rtb = (a2 or {}).get("require_tool_before")
+    for dep, reqs in (rtb.items() if isinstance(rtb, dict) else ()):
+        out.append({"source": SRC_REQUIRE_BEFORE, "dep": dep, "reads": _lst(reqs)})
+    sgt = (a2 or {}).get("scaffold_get_tools")
+    for e in (sgt if isinstance(sgt, (list, tuple)) else ()):
+        if isinstance(e, dict) and e.get("requires_reads"):
+            out.append({"source": SRC_REQUIRES_READS,
+                        "dep": e.get("tool") or e.get("name") or "",
+                        "reads": _lst(e["requires_reads"])})
+    return out
+
+
+def declarations(a2, sources=None):
+    """선행 선언 `[(의존 도구, [선행...])]` — **A3 관계 인덱스가 있으면 그것**, 없으면 A2 3선언.
+
+    ★소비자가 A2 키를 직접 읽지 않게 하는 **단 하나의 입구**다(설계서 §1d.1). 여기 한 곳만
+    인덱스를 보게 해 두면, A2 키를 삭제하는 4단계가 이 함수 안에서 끝난다 — 소비자가 각자
+    키를 읽고 있으면 *"정본만 고치고 소비자 미동기화"* 버그가 난다([[24]] 2026-08-03 실측).
+    `sources`로 출처를 골라 받는다(소비자마다 보던 범위가 다르고, 전환은 **거동 변화 0**이어야 한다).
+    """
+    decls = (((a2 or {}).get("relations") or {}).get("declarations")) or _raw_declarations(a2)
+    keep = set(sources) if sources else None
+    return [(_fam(d.get("dep")), [_fam(r) for r in (d.get("reads") or [])])
+            for d in decls if keep is None or d.get("source") in keep]
+
+
 def prereq_map(a2):
     """`{도구: [선행 도구...]}` — 흩어진 선언 셋을 **하나의 그래프**로 모은다.
 
     출처는 전부 이미 있는 선언이다: `gates[].satisfier_requires` · `require_tool_before` ·
     `scaffold_get_tools[].requires_reads`. 새 A2 키 0이고 도메인 어휘도 0이다 — 여기서 하는 일은
     같은 관계(X 앞에 Y)를 세 어휘로 적어 둔 것을 한 자료구조로 합치는 것뿐이다.
+    (A3 인덱스가 있으면 `declarations`가 그쪽을 읽으므로 이 함수는 그대로 인덱스 위에서 돈다.)
     """
     edges = {}
-
-    def add(dep, reqs):
+    for dep, reqs in declarations(a2):
         d = _fam(dep)
         if not d:
-            return
+            continue
         cur = edges.setdefault(d, [])
-        for r in (reqs or []):
-            r = _fam(r)
+        for r in reqs:
             if r and r != d and r not in cur:
                 cur.append(r)
-
-    for g in ((a2 or {}).get("gates") or []):
-        for s_name, reqs in (g.get("satisfier_requires") or {}).items():
-            add(s_name, reqs)
-    for dep, reqs in ((a2 or {}).get("require_tool_before") or {}).items():
-        add(dep, reqs)
-    for e in ((a2 or {}).get("scaffold_get_tools") or []):
-        if isinstance(e, dict) and e.get("requires_reads"):
-            add(e.get("tool") or e.get("name") or "", e["requires_reads"])
     return edges
 
 
