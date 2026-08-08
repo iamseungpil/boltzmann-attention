@@ -499,6 +499,36 @@ by_tool["submit_referral"] →
 `Checking Account`) ⇒ **행은 그대로 두고**(§9-4 정규화 금지) **조회를 대소문자 무시로** 한다
 ③신설 6축은 `against`가 비어 있다 — 맞댈 런타임 사실(추천 이력 타임스탬프 등)은 소비자 전환에서 만든다.
 
+### §5d 주어 표기 실태 — **18/29 정확 일치**, 그리고 *"표기마다 행"* 이 적중률을 올린다 (`x143`)
+
+기준은 env에서 **기계로** 뽑았다(`accounts.level` · `credit_card_accounts.card_type` ·
+`referrals.referred_account_type`). 태스크 지문의 *"정확한 값 목록"* 은 쓰지 않았다 — 그건
+user-sim에게 준 지시이지 env 제약이 아니고(**`submit_referral`엔 enum 검증이 없다**·문자열을 그대로
+받는다), [[23]]에도 걸린다.
+
+| | 값 |
+|---|---|
+| 온톨로지 v1 주어 | 29 |
+| env 상품명 표기 | 30 |
+| **정확 일치** | **18** |
+
+불일치 11을 per-case로 가르면 **두 부류가 섞여 있었다**:
+- **표기 차이 2** — `Navy Blue Business Checking` ↔ env `Navy Blue` · `Cobalt Blue Business Checking`
+  ↔ env `Cobalt Blue`. ★후자는 **우리가 `Cobalt Blue` 행도 따로 갖고 있어 조회가 적중한다** —
+  §9-4의 *"표기마다 행"* 이 **적중률을 올린 실물**이다(굳혔으면 하나만 남아 빗나갔다).
+- **모집단 차이 9** — Beige · Gold Years · Green Fee-Free · Hunter Green · Lime Green · Sky Blue ·
+  True Blue · World Blue×2 는 **기본 DB에 그 상품 계좌가 없다**. 표기 문제가 아니다(태스크가 DB를
+  갈아끼우면 달라진다). **섞어 세면 오진한다.**
+
+★**env 쪽 구멍도 나왔다**(우리 결손 아님·[[25]]): `referrals` 테이블에 **`Bronze Rewards Card` ·
+`Gold Rewards Card` 추천 이력이 실재하는데**, 그 상품 문서에는 **추천 프로그램이 아예 없다**
+(그 문서들의 `refer`는 전부 `preferences`/`reference`·전수 확인). 정책이 없으면 우리 층은 그 상품의
+자격을 **판정할 수 없고**, 그것이 정직한 상태다. `Diamond Elite Card`도 같다.
+
+⇒ **처방은 바뀌지 않는다**(C316 순서 유지): **정확 일치 → 공짜 판정 / 없으면 표적 질의(이름 해소는
+모델 몫) / 물어도 모르면 침묵.** 유사도 매핑표는 만들지 않는다 — 이번 측정은 그 결정을 **보강**한다.
+다만 조회는 **대소문자 무시**로 한다(§5b 스모크의 `checking account` ↔ `Checking Account`).
+
 ## §6 실험 arm — **대비 자체가 결과다**
 
 | arm | 정책 근거 | 측정 |
