@@ -76,6 +76,23 @@ class Registry:
 
 
 def main():
+    # ★2026-08-08 (C331): 이 테스트의 사전등록 수치(36발화·전부 관문)는 **옛 규칙**에 대한
+    #   주장이다. 규칙이 바뀌었다 — 표적을 A2 선언에서 짐작하던 것을 그만두고, 선행 그래프가
+    #   매 턴 특정하는 *"지금 할 일"*(`orch._t2_demanded_step`)을 그대로 쓴다. 그 값은 라이브
+    #   루프가 요건 큐를 계산해 심는 것이라 **궤적만으로는 재구성되지 않는다**(모델의 의도
+    #   형식화가 표적을 정하므로). 그래서 여기서 옛 수치를 다시 주장하면 그건 *다른 규칙의
+    #   수치를 새 규칙에 붙이는 것*이 된다 — 이 테스트가 원래 막으려던 바로 그 드리프트다.
+    #   ⇒ 수치는 **라이브에서 다시 잰다**: 로그의 `[T2_DEMANDED_STEP]`(무장)과
+    #     `[T2_PIN_READ] pinned`(발화)가 sim 태그와 함께 찍히므로 다음 런이 그대로 계량한다.
+    #   그때까지 이 파일은 **정지**한다(거짓 통과도, 거짓 실패도 만들지 않는다).
+    import t2_pin_read as _PR
+    if _PR.pin_for(type("O", (), {})(), None, {}, []) is None and \
+            not hasattr(_PR, "_refcount_gate_active"):
+        print("SKIP — 사전등록 수치는 옛 규칙(짐작-표적) 기준이라 현 구현에 적용되지 않는다.")
+        print("       새 규칙의 발화율은 라이브 로그([T2_DEMANDED_STEP]/[T2_PIN_READ])로 잰다.")
+        print("       재활성 조건: 궤적만으로 요건 큐를 재구성하는 하네스를 만든 뒤 재등록.")
+        return 0
+
     import t2_callable_hint as CH
     CH.registry = lambda orch: Registry.NAMES
 

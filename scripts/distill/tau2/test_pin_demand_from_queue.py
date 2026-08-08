@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""회귀 검정 (C330): 핀의 수요 신호는 **우리 요건 큐**에서 온다.
+"""회귀 검정 (C330·C331): 강제할 단계는 **선행 그래프가 정한다**.
 
-무엇을 막는 검정인가 — 라이브 2 sim에서 P1 핀은 표적을 정확히 해소할 수 있는 상태였는데
-(피의존 4·read 접두·미실행·레지스트리 유일 해소) **한 번도 시도되지 않았다**. 수요 신호 셋이
-이 계열에서 원리적으로 못 뜨기 때문이다:
-  ⒜ 의존 도구가 **손님 실행**이라 assistant 호출 집합에 영영 없다
-  ⒝ 찾는 태그가 현 어휘에 없고, 게다가 우리 통지는 **비커밋**이라 `messages`에 안 나타난다
-  ⒞ tau2 실제 문구 `No records found in '...'` 가 `"not found"` 에 안 걸린다
-그동안 요건 큐는 매 턴 그 read를 **이름으로** 요구하고 있었다 ⇒ 원천을 직접 쓴다.
+배경 — 라이브 2 sim에서 read 강제는 켜져 있었는데 **한 번도 시도되지 않았다**. 옛 규칙이
+표적을 *짐작*하느라 조준 보조물(수요 신호 프록시 3종·피의존≥2·1회/sim 캡)을 달고 있었고,
+그 프록시가 이 계열에서 원리적으로 못 뜨기 때문이었다(C330 전수 확인).
 
-여기서는 ⒜⒝⒞를 **일부러 전부 죽은 상태로** 두고 ⒟만으로 핀이 서는지 본다.
+지금은 짐작이 없다. 큐가 매 턴 *"지금 할 일"*을 satisfier **하나**로 특정해 주고
+(GB1→verify_identity · GB3→get_referrals_by_user · reads:→그 read), gate_patch 가 그 머리를
+`_t2_demanded_step` 에 심는다. 이 검정은 **정책 순서 ↔ 그 특정 ↔ 핀 판정**이 어긋나지 않는지 본다.
+
 오프라인 전용(서버·LLM 불요). 실행: py -3 test_pin_demand_from_queue.py
 """
 import os
 import sys
-import types
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 try:
@@ -24,6 +22,7 @@ except Exception:
 
 import t2_pin_read as PR                                      # noqa: E402
 import t2_dominance as DOM                                    # noqa: E402
+from gate_interpreter import load_domain_a2                    # noqa: E402
 
 FAILED = []
 
@@ -34,90 +33,85 @@ def chk(cond, label):
         FAILED.append(label)
 
 
-READ = "get_all_user_accounts_by_user_id"
-FULL = READ + "_3847"
-DEP = "submit_referral"
-# 피의존 2 이상이어야 후보가 된다(§1.7) — 실제 A2도 이 read를 4개 선언이 요구한다.
-A2 = {
-    "eplan": {"unlock_tool": "unlock_discoverable_agent_tool"},
-    "require_tool_before": {DEP: [READ], "open_bank_account": [READ]},
-}
+class _Reg(object):
+    def __init__(self, muts):
+        self._m = dict(muts)
+
+    def has_tool(self, n):
+        return n in self._m
+
+    def tool_mutates_state(self, n):
+        return self._m[n]
+
+
+class _Env(object):
+    def __init__(self, muts):
+        self.tools = _Reg(muts)
+        self.user_tools = None
+
+
+class _Tool(object):
+    def __init__(self, name):
+        self.name = name
 
 
 class _Orch(object):
-    """`tools`도 레지스트리도 없는 최소 대역. 해소는 monkeypatch 로 고정한다."""
+    def __init__(self, step=None, own=(), muts=None):
+        self.environment = _Env(muts or {})
+        self.tools = [_Tool(n) for n in own]
+        if step:
+            self._t2_demanded_step = step
 
-    def __init__(self, demanded=None):
-        if demanded is not None:
-            self._t2_demanded_reads = set(demanded)
 
-
-def _msg(role, content=None, calls=()):
-    tcs = [types.SimpleNamespace(name=n, arguments={}) for n in calls]
-    return types.SimpleNamespace(role=role, content=content, tool_calls=tcs or None)
+class _AM(object):
+    tool_calls = None
 
 
 def main():
     os.environ["T2_PIN_READ"] = "1"
-    PR._resolve = lambda orch, base: FULL if base == READ else None   # 레지스트리 해소 고정
+    a2 = load_domain_a2("banking_knowledge")
+    if not a2:
+        print("A2 없음 — skip")
+        return 0
 
-    # 라이브에서 관측된 그대로의 궤적: 손님이 의존 도구를 실행했고, env 는 'No records found',
-    # 우리 통지는 (비커밋이라) 아예 없다.
-    msgs = [
-        _msg("assistant", calls=["KB_search_dense"]),
-        _msg("tool", "No records found in 'referrals'."),
-        _msg("user", calls=[DEP]),                       # ⒜ 는 assistant 만 세므로 신호 아님
-        _msg("assistant", "Next, I need to check your existing accounts."),   # 호출 0
-    ]
-    am = _msg("assistant", "…")
+    # ── ① 그래프가 각 요건을 도구 **하나**로 특정한다 ─────────────────────
+    rs = DOM.requirements_for(a2, [], "submit_referral")
+    ids = [str(r.get("id")) for r in rs or []]
+    sats = [list(r.get("satisfiers") or []) for r in rs or []]
+    print("     요건 순서: %s" % ids)
+    print("     satisfiers: %s" % sats)
+    chk(bool(rs) and all(len(s) == 1 for s in sats),
+        "모든 요건이 satisfier 하나로 특정된다(짐작 0)")
 
-    decls = PR._declarations(A2)
-    chk(PR._refcount(decls).get(READ, 0) >= 2, "이 read 는 피의존 2 이상 (후보 자격)")
+    # ── ② 정책 순서: 게이트가 먼저, 선행 read가 나중 ──────────────────────
+    first_reads = next((i for i, x in enumerate(ids)
+                        if x.startswith(DOM.READS_PREFIX)), None)
+    chk(first_reads is None or first_reads == len(ids) - 1,
+        "선행 read 는 게이트 뒤에 온다(머리 규칙이 조기 무장을 막는 근거)")
 
-    # ── ① 구판 신호 셋은 이 궤적에서 전부 죽어 있다 ─────────────────────────
-    chk(PR._demand(msgs, decls) == set(),
-        "⒜⒝⒞ 만으로는 수요 0  ← 라이브에서 핀이 침묵한 이유")
-    chk(PR.pin_for(_Orch(), am, A2, msgs) is None,
-        "따라서 구판 조건에서는 고정하지 않는다(회귀 기준선)")
+    # ── ③ 머리가 바뀔 때마다 핀 표적도 그대로 따라간다 ────────────────────
+    #     환경 대역: 이 단계들은 전부 상태를 바꾸지 않는다(레지스트리가 그렇게 답한다).
+    muts = {s[0]: False for s in sats if s}
+    PR._resolve = lambda orch, base: (base + "_3847"
+                                      if base == "get_all_user_accounts_by_user_id" else None)
+    for req_id, sat in zip(ids, sats):
+        step = sat[0]
+        # 에이전트 일반 도구인 경우와 discoverable 인 경우를 둘 다 밟는다
+        own = (step,) if step != "get_all_user_accounts_by_user_id" else ()
+        got = PR.pin_for(_Orch(step, own=own, muts=muts), _AM(), a2, [])
+        want = (step, None, None) if own else \
+            ("unlock_discoverable_agent_tool", "agent_tool_name", step + "_3847")
+        chk(got == want, "머리=%s → 고정 %s" % (req_id, got))
 
-    # ── ② 요건 큐가 그 read 를 요구하면 ⒟ 로 선다 ──────────────────────────
-    got = PR.pin_for(_Orch([READ]), am, A2, msgs)
-    chk(got == ("unlock_discoverable_agent_tool", "agent_tool_name", FULL),
-        "요건 큐가 요구하면 고정된다 (본 값: %s)  ← C330" % (got,))
+    # ── ④ 기준선: 그래프가 아무것도 특정하지 않으면 고정하지 않는다 ───────
+    chk(PR.pin_for(_Orch(muts=muts), _AM(), a2, []) is None,
+        "단계 미특정이면 무발화")
 
-    # ── ③ 이미 읽었으면 요구가 남아 있어도 고정하지 않는다 ─────────────────
-    msgs2 = msgs + [_msg("assistant", calls=[FULL])]
-    chk(PR.pin_for(_Orch([READ]), am, A2, msgs2) is None,
-        "이미 실행된 read 는 요구가 남아 있어도 고정 안 함")
-
-    # ── ④ 요구 집합에 없는 read 는 여전히 무발화(⒟가 만능 통과권이 아니다) ─
-    chk(PR.pin_for(_Orch(["some_other_read"]), am, A2, msgs) is None,
-        "요구되지 않은 read 는 고정하지 않는다")
-
-    # ── ⑤ 요건 id 접두는 정본 상수에서 온다(소비자가 리터럴을 짓지 않는다) ─
-    chk(DOM.READS_PREFIX == "reads:", "READS_PREFIX 가 정본에 있다")
-    rs = DOM.requirements_for(A2, [], DEP)
-    ids = [r.get("id") for r in (rs or [])]
-    sat = [s for r in (rs or []) if str(r.get("id") or "").startswith(DOM.READS_PREFIX)
-           for s in (r.get("satisfiers") or [])]
-    print("     요건 id: %s / reads-satisfiers: %s" % (ids, sat))
-    chk((not rs) or READ in sat,
-        "reads 요건의 satisfiers 가 read 이름을 그대로 진다(gate_patch 가 읽는 자리)")
-
-    # ── ⑥ **머리일 때만** 무장한다 — 게이트가 앞서 있으면 read 는 머리가 아니다 ──
-    #    이 조건이 없으면 신원확인이 아직 머리인 첫 발화에서 계좌 read 가 고정돼
-    #    **우리 게이트(검증 우선)를 우리가 위반**시키고 1회뿐인 핀도 거기서 탄다
-    #    (오프라인 재현으로 확인된 실패 형태). 라이브 순서는 GB1 → GB3 → reads 다.
-    from gate_interpreter import load_domain_a2
-    real = load_domain_a2("banking_knowledge")
-    if real:
-        rs2 = DOM.requirements_for(real, [], DEP)
-        ids2 = [str(r.get("id")) for r in (rs2 or [])]
-        print("     실제 A2 요건 순서: %s" % ids2)
-        first_reads = next((i for i, x in enumerate(ids2)
-                            if x.startswith(DOM.READS_PREFIX)), None)
-        chk(bool(ids2) and first_reads not in (0, None) if len(ids2) > 1 else True,
-            "게이트가 남아 있는 동안 reads 요건은 머리가 아니다 (조기 무장 방지)")
+    # ── ⑤ 상태를 바꾸는 단계는 이름과 무관하게 배제된다 ───────────────────
+    chk(PR.pin_for(_Orch("get_all_user_accounts_by_user_id",
+                         muts={"get_all_user_accounts_by_user_id": True}),
+                   _AM(), a2, []) is None,
+        "레지스트리가 mutating 이라 답하면 read 처럼 생겨도 고정 안 함")
 
     print("\n%s  (%d 실패)" % ("PASS" if not FAILED else "FAIL", len(FAILED)))
     return 1 if FAILED else 0

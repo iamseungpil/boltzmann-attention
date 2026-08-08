@@ -4353,8 +4353,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 _pt = _PR.tools_with_pin(self.tools, pin[0], pin[1], pin[2])
                 if _pt is not None:
                     _tools, tool_choice = _pt, _PR.choice(pin[0])
-                    # 캡은 **적용된 뒤에만** 소모한다 — 스키마 조립 실패는 발화가 아니다.
-                    _PR.mark_pinned(self)
+                    # ★1회/sim 캡을 걷어냈다(C331). 멈춤 조건은 예산이 아니라 **그 호출이 실제로
+                    #   나왔는가**다 — 캡이 있으면 권고 턴처럼 정작 필요한 자리에서 못 건다.
                     print("[T2_PIN_READ] pinned %s(%s=%s)" % (pin[0], pin[1], pin[2]),
                           file=_sys.stderr, flush=True)
                     try:
@@ -5970,17 +5970,24 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     #     1회뿐인 핀도 거기서 탄다. 머리로 좁히면 라이브 로그의
                                     #     `queue advanced … -> reads:…` 시점 = 그 read가 실제로
                                     #     "지금 할 일"이 된 턴에서만 무장한다.
+                                    #   ★C331(사용자 지적): 요건 종류로 가르지 않는다. 그래프는
+                                    #     게이트든 선행 read든 **satisfier 하나**로 특정해 준다
+                                    #     (GB1→verify_identity · GB3→get_referrals_by_user ·
+                                    #      reads:→get_all_user_accounts_by_user_id). 짐작이 0이므로
+                                    #     "무엇을 강제할지"는 여기서 이미 끝났다. 남는 배제는 성질뿐
+                                    #     (상태를 바꾸는가·손님이 실행하는가)이고 그 판정은 소비자가 한다.
                                     try:
                                         _head = (_reqs or [None])[0]
-                                        if _head and str(_head.get("id") or "").startswith(
-                                                _DOMm.READS_PREFIX):
-                                            _dr = set(getattr(self, "_t2_demanded_reads", None) or ())
-                                            _dr |= {str(x) for x in (_head.get("satisfiers") or ())}
-                                            self._t2_demanded_reads = _dr
-                                            print("[T2_DEMANDED_READS] armed: %s"
-                                                  % sorted(_dr), file=_sys.stderr, flush=True)
+                                        _sats = [str(x) for x in ((_head or {}).get("satisfiers") or ())]
+                                        if len(_sats) == 1:          # 유일하게 특정될 때만
+                                            self._t2_demanded_step = _sats[0]
+                                            print("[T2_DEMANDED_STEP] head=%s → %s"
+                                                  % ((_head or {}).get("id"), _sats[0]),
+                                                  file=_sys.stderr, flush=True)
+                                        else:
+                                            self._t2_demanded_step = None
                                     except Exception as _dre:
-                                        print("[T2_DEMANDED_READS] skipped (no-op): %r" % (_dre,),
+                                        print("[T2_DEMANDED_STEP] skipped (no-op): %r" % (_dre,),
                                               file=_sys.stderr, flush=True)
                                     try:
                                         _add = _limit_reduce_text(self, a2, state.messages)

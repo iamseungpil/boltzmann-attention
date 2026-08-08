@@ -173,45 +173,74 @@ def _resolve(orch, base):
         return None
 
 
+def _mutates(orch, name):
+    """이 도구가 상태를 바꾸는가 — **레지스트리에 묻는다**(이름 접두로 짐작하지 않는다).
+
+    판정 불가면 True(안전측=강제하지 않음). write 강제 금지의 근거는 이름이 아니라 이 성질이다:
+    틀린 read는 한 턴 낭비지만 틀린 write는 되돌릴 수 없고 replay가 재실행·바이트 대조한다.
+    """
+    env = getattr(getattr(orch, "_t2_orch", None), "environment", None) or \
+        getattr(orch, "environment", None)
+    if env is None or not name:
+        return True
+    for tk in (getattr(env, "tools", None), getattr(env, "user_tools", None)):
+        if tk is None:
+            continue
+        try:
+            if hasattr(tk, "has_tool") and tk.has_tool(name):
+                try:
+                    return bool(tk.tool_mutates_state(name))
+                except Exception:
+                    return True
+        except Exception:
+            continue
+    return True
+
+
 def pin_for(orch, am, a2, messages):
     """이번 재생성에서 고정할 (도구, 인자, 값). 조건 미충족이면 None.
 
-    **sim-범위**다 — 방금 생성된 메시지에 호출이 있든 없든 성립한다. rev2까지는 `am.tool_calls`를
-    순회해서 표적을 찾았는데, 재생성을 실제로 부르는 것은 `T2_FORCE_ACTION`(= 호출이 0일 때)이라
-    창이 열리지 않았다. 그리고 x72가 3/3으로 증명한 상황이 바로 그 무호출 경우였다(설계서 §0).
+    ★C331(2026-08-08·사용자 지시 *"꼭 실행해야 하는 선행 의존성은 DAG로 하기로 했지 않나,
+      그대로 실행하게 하라"*): **표적을 더 이상 짐작하지 않는다.** 선행 그래프가 매 턴
+      *"지금 할 일"*을 satisfier **하나**로 특정해 준다(게이트도 마찬가지다 —
+      GB1→`verify_identity`, GB3→`get_referrals_by_user`, reads:→그 read). gate_patch가 그
+      머리를 `_t2_demanded_step`에 심고, 여기서는 그것을 그대로 쓴다.
 
-        M(sim) = A2가 선언한 선행 read − 이 sim에서 실행된 도구
-        pin ⟸ M ≠ ∅ ∧ 수요 신호 ∧ 피의존≥2 ∧ read 접두 ∧ 레지스트리 유일 해소 ∧ 아직 미고정
+    그래서 옛 규칙 셋을 **지웠다**. 전부 표적을 짐작하던 시절의 조준 보조물이었다:
+      · 수요 신호 프록시 3종 — 이 계열에서 원리적으로 못 뜬다는 것이 전수로 확인됐다(C330)
+      · `피의존≥2`          — 여러 선언이 요구하면 진짜겠지, 라는 짐작. 큐가 이름을 주니 불요
+      · 1회/sim 캡          — 잘못 쏠까 봐 둔 것. 표적이 확정이면 **끝날 때까지** 유지가 맞다.
+        실제로 이번 실패가 그 형태였다: 권고 턴(24·28)이 전부 무호출인데 캡이 있으면 거기서
+        못 건다. 멈춤 조건은 캡이 아니라 **그 호출이 실제로 나왔는가**다.
+
+    남는 배제는 성질뿐이다:
+      · 이미 실행됐다 → 해제(자연스러운 종료)
+      · **상태를 바꾼다** → 강제하지 않는다(등대 §1.5 write 강제 금지). 이름 접두가 아니라
+        레지스트리의 `mutates_state`로 판정한다 — 이름은 규약이고 성질은 사실이다.
+      · 이름을 부를 수 없다 → 고정 포기(에이전트 도구도 아니고 레지스트리서 유일 해소도 안 되면
+        손님이 실행하는 단계이거나 모호한 것이다. 손님 모델의 디코딩은 우리가 못 건드린다).
+
+    반환 형태 둘:
+      · 에이전트 일반 도구      → `(이름, None, None)`      = 지목만(날조할 인자가 없다)
+      · discoverable(디스패처)  → `(unlock, 인자, 실명)`     = 지목 + 단일값 enum
     """
-    if not enabled() or pinned_already(orch):
+    if not enabled():
         return None
-    ep = ((a2 or {}).get("eplan") or {})
-    unlock = ep.get("unlock_tool")
-    decls = _declarations(a2)
-    if not (decls and unlock):
+    step = getattr(orch, "_t2_demanded_step", None)
+    if not step:
         return None
-    # 방금 생성된 호출도 실행 집합에 넣는다 — 그 턴에 이미 부른 read를 다시 고정하지 않도록.
-    called = _called_fams(list(messages or []) + [am])
-    # ⒟ 원천 = 우리 요건 큐가 이 sim에서 이름으로 요구한 read (gate_patch가 심어 둔다·C330).
-    demanded = _demand(messages, decls, getattr(orch, "_t2_demanded_reads", None) or ())
-    rc = _refcount(decls)
-
-    ranked, seen = [], set()
-    for i, (_dep, reads) in enumerate(decls):
-        for j, r in enumerate(reads):
-            if r in seen or r in called or r not in demanded:
-                continue
-            if rc.get(r, 0) < 2:
-                continue                      # 피의존 1 = 증거가 약하다(설계서 §1.7)
-            if not r.startswith(_READ_PREFIX):
-                continue                      # write는 고정하지 않는다([[14]])
-            seen.add(r)
-            ranked.append((-rc[r], i, j, r))
-    ranked.sort()
-    for _rc, _i, _j, r in ranked:
-        full = _resolve(orch, r)
-        if full:                              # 유일 해소만 — 모호하면 다음 후보로
-            return (unlock, "agent_tool_name", full)
+    # 방금 생성된 호출도 실행 집합에 넣는다 — 그 턴에 이미 부른 단계를 다시 고정하지 않도록.
+    if _fam(step) in _called_fams(list(messages or []) + [am]):
+        return None
+    if _mutates(orch, step):
+        return None
+    own = {getattr(t, "name", None) for t in (getattr(orch, "tools", None) or [])}
+    if step in own:                       # 에이전트가 직접 부를 수 있는 도구 = 지목만으로 충분
+        return (step, None, None)
+    unlock = ((a2 or {}).get("eplan") or {}).get("unlock_tool")
+    full = _resolve(orch, step)
+    if unlock and full:                   # discoverable = 안쪽 이름을 enum으로 함께 고정
+        return (unlock, "agent_tool_name", full)
     return None
 
 
@@ -235,7 +264,16 @@ class _PinnedTool:
 
 
 def tools_with_pin(tools, tool_name, arg_name, value):
-    """해당 도구의 `arg_name`을 단일값 enum으로 고정한 도구 목록. 실패하면 None."""
+    """해당 도구의 `arg_name`을 단일값 enum으로 고정한 도구 목록. 실패하면 None.
+
+    ★`arg_name=None` = **스키마를 건드릴 것이 없다**(2026-08-08·C331). 표적이 에이전트의
+      일반 도구면 이름 지목만으로 유일하게 정해진다 — 안쪽 이름을 인자로 실어 나르는
+      디스패처가 아니라서 날조할 자리가 없다. 그 경우 도구 목록을 그대로 돌려주고
+      지목(`choice`)만 건다.
+    """
+    if arg_name is None:
+        return list(tools or []) if any(getattr(t, "name", None) == tool_name
+                                        for t in (tools or [])) else None
     try:
         import copy
         out, hit = [], False
@@ -293,64 +331,66 @@ def selftest():
 
     import t2_pin_read as M
     M._resolve = lambda orch, base: {
-        "get_all_user_accounts_by_user_id": "get_all_user_accounts_by_user_id_3847",
-        "get_bank_account_transactions": "get_bank_account_transactions_9173",
-        "check_card_application_fit": "check_card_application_fit_5512"}.get(base)
-    # 관문 = 3개 선언이 의존(피의존 3) · fit = 1개만(피의존 1) · close_ = write
-    a2 = {"require_tool_before": {"open_bank_account": ["get_all_user_accounts_by_user_id"],
-                                  "submit_referral": ["get_all_user_accounts_by_user_id"],
-                                  "apply_for_credit_card": ["check_card_application_fit"],
-                                  "pay_credit_card": ["close_bank_account"]},
-          "scaffold_get_tools": [{"tool": "get_interest_correction",
-                                  "requires_reads": ["get_all_user_accounts_by_user_id",
-                                                     "get_bank_account_transactions"]}],
-          "eplan": {"unlock_tool": "unlock_discoverable_agent_tool"}}
+        "get_all_user_accounts_by_user_id": "get_all_user_accounts_by_user_id_3847"}.get(base)
+    a2 = {"eplan": {"unlock_tool": "unlock_discoverable_agent_tool"}}
     os.environ["T2_PIN_READ"] = "1"
     GATE = ("unlock_discoverable_agent_tool", "agent_tool_name",
             "get_all_user_accounts_by_user_id_3847")
 
-    # ★핵심 회귀: 호출이 **하나도 없는** 재생성에서 열려야 한다(rev2가 못 열던 그 창).
+    class _Reg:                      # env 레지스트리 대역 — 성질은 여기서 읽는다
+        def __init__(self, muts):
+            self._m = dict(muts)
+
+        def has_tool(self, n):
+            return n in self._m
+
+        def tool_mutates_state(self, n):
+            return self._m[n]
+
+    class _Env:
+        def __init__(self, muts):
+            self.tools = _Reg(muts)
+            self.user_tools = None
+
+    MUTS = {"get_all_user_accounts_by_user_id": False, "verify_identity": False,
+            "close_bank_account": True}
+
+    def _orch(step=None, own=(), muts=None):
+        o = _Orch()
+        o.environment = _Env(MUTS if muts is None else muts)
+        o.tools = [_T(n, {}) for n in own]
+        if step:
+            o._t2_demanded_step = step
+        return o
+
     am0 = _AM([])
-    hist_c = [_TM("Error: Account 'rp65a7b3c4' not found")]
-    assert M.pin_for(_Orch(), am0, a2, hist_c) == GATE
-    print("  ok   무호출 재생성 + 레코드부재 오류 → 관문으로 고정")
 
-    hist_b = [_TM("Error: [READ-FIRST] missing: get_all_user_accounts_by_user_id")]
-    assert M.pin_for(_Orch(), am0, a2, hist_b) == GATE
-    print("  ok   우리 층의 결손 통지도 수요 신호")
+    # ★핵심: 그래프가 특정한 단계를 **호출 0인 턴**에서 고정한다(옛 프록시·조준 규칙 없음).
+    assert M.pin_for(_orch("get_all_user_accounts_by_user_id"), am0, a2, []) == GATE
+    print("  ok   그래프가 준 단계를 그대로 고정(discoverable = 지목 + 단일값 enum)")
 
-    hist_a = [_M([_TC("call_discoverable_agent_tool", {"agent_tool_name": "open_bank_account_4821"})])]
-    assert M.pin_for(_Orch(), am0, a2, hist_a) == GATE
-    print("  ok   의존 도구를 시도했으면 그 선행 read로 고정")
+    assert M.pin_for(_orch(), am0, a2, []) is None
+    print("  ok   그래프가 단계를 특정하지 않으면 무발화")
 
-    assert M.pin_for(_Orch(), am0, a2, []) is None
-    print("  ok   수요 신호가 없으면 무발화 (194/194 발화 방지)")
+    # 에이전트 일반 도구는 **지목만**으로 유일하다 — 날조할 인자가 없다
+    assert M.pin_for(_orch("verify_identity", own=("verify_identity",)), am0, a2, []) \
+        == ("verify_identity", None, None)
+    print("  ok   일반 도구는 지목만(게이트 단계도 강제 대상 — read 전용 아님)")
 
-    hist_done = hist_c + [_M([_TC("call_discoverable_agent_tool",
-                                  {"agent_tool_name": "get_all_user_accounts_by_user_id_3847"})])]
-    assert M.pin_for(_Orch(), am0, a2, hist_done) is None
-    print("  ok   이미 읽었으면 무발화")
+    done = [_M([_TC("call_discoverable_agent_tool",
+                    {"agent_tool_name": "get_all_user_accounts_by_user_id_3847"})])]
+    assert M.pin_for(_orch("get_all_user_accounts_by_user_id"), am0, a2, done) is None
+    print("  ok   그 호출이 실제로 나오면 해제(멈춤 조건 = 캡이 아니라 실행)")
 
-    # fit은 피의존 1 — 수요가 있어도 고정 대상이 아니다(오조준 9건이 여기서 사라졌다)
-    a2_fit = {"require_tool_before": {"apply_for_credit_card": ["check_card_application_fit"]},
-              "eplan": {"unlock_tool": "unlock_discoverable_agent_tool"}}
-    assert M.pin_for(_Orch(), am0, a2_fit, [_TM("not found")]) is None
-    print("  ok   피의존 1인 선행 read는 제외 (§1.7)")
+    # ★write 배제의 근거는 이름이 아니라 **레지스트리가 말하는 성질**이다
+    assert M.pin_for(_orch("close_bank_account"), am0, a2, []) is None
+    print("  ok   상태를 바꾸는 단계는 고정하지 않는다(등대 §1.5·이름 접두 아님)")
 
-    a2_w = {"require_tool_before": {"pay_credit_card": ["close_bank_account"],
-                                    "x": ["close_bank_account"]},
-            "eplan": {"unlock_tool": "unlock_discoverable_agent_tool"}}
-    assert M.pin_for(_Orch(), am0, a2_w, [_TM("not found")]) is None
-    print("  ok   선행이 write면 고정하지 않는다 ([[14]] read만)")
-
-    o = _Orch()
-    assert M.pin_for(o, am0, a2, hist_c) == GATE
-    M.mark_pinned(o)
-    assert M.pin_for(o, am0, a2, hist_c) is None
-    print("  ok   1회/sim 캡 — 적용된 뒤에만 소모")
+    assert M.pin_for(_orch("unknown_tool", muts={}), am0, a2, []) is None
+    print("  ok   부를 수 없는 이름(손님 실행·미해소)은 고정 포기")
 
     os.environ["T2_PIN_READ"] = "0"
-    assert M.pin_for(_Orch(), am0, a2, hist_c) is None
+    assert M.pin_for(_orch("get_all_user_accounts_by_user_id"), am0, a2, []) is None
     os.environ["T2_PIN_READ"] = "1"
     print("  ok   플래그 OFF면 무발화")
 
@@ -368,7 +408,11 @@ def selftest():
     assert M.tools_with_pin(tools, "unlock_discoverable_agent_tool", "no_such_arg", "x") is None
     assert M.tools_with_pin(tools, "no_such_tool", "agent_tool_name", "x") is None
     print("  ok   인자·도구 부재면 고정 포기(이름만 지정 안 함)")
-    print("PASS (9/9)")
+
+    assert M.tools_with_pin(tools, "KB_search_bm25", None, None) is not None
+    assert M.tools_with_pin(tools, "no_such_tool", None, None) is None
+    print("  ok   arg_name=None = 스키마 무변경(일반 도구 지목 경로)")
+    print("PASS (10/10)")
 
 
 if __name__ == "__main__":
