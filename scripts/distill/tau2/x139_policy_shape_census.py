@@ -50,13 +50,23 @@ def sentences(text):
     return [" ".join(p.split()) for p in parts if p and p.strip()]
 
 
+# ★조건절을 다시 가른다 (2026-08-08): 표본을 읽어 보니 상당수가 *정책 사실*이 아니라 **절차**다
+#   (*"If no, inform them they have 30 days to fund the account"* · *"Tool: transfer_funds_…"*).
+#   절차는 **행동 그래프**(`t2_precedence`) 소관이지 사실 온톨로지에 넣을 것이 아니다 —
+#   섞어 세면 *"A3가 못 덮는 19%"* 가 부풀려지고, 없어도 될 규칙 엔진을 짓게 된다.
+PROC = re.compile(r"\b(step|steps|inform|tell the customer|use [a-z_]+_\d|tool:|call |"
+                  r"confirm |ask the customer|proceed|do not proceed|escalate|transfer to)\b", re.I)
+
+
 def classify(s):
+    if COND.search(s) and PROC.search(s):
+        return "절차(사실 아님)"
     if REL.search(s):
         return "관계(주어 둘 이상)"
     if TIER.search(s):
         return "계층(구간·등급)"
     if COND.search(s):
-        return "조건절"
+        return "조건절(사실)"
     return "단순"
 
 
@@ -88,13 +98,16 @@ def main():
     print("문서 %d개 · 문장 %d개 · **정책 수치 문장 %d개**\n" % (len(docs), n_sent, tot))
     print("| 형태 | 건수 | 비율 | A3 (주어,축,값) 한 행으로? |")
     print("|---|---|---|---|")
-    for k in ("단순", "조건절", "계층(구간·등급)", "관계(주어 둘 이상)"):
+    ORDER = ("단순", "관계(주어 둘 이상)", "계층(구간·등급)", "조건절(사실)", "절차(사실 아님)")
+    for k in ORDER:
         c = cnt.get(k, 0)
-        ok = "**예**" if k == "단순" else "아니오"
+        ok = {"단순": "**예**", "관계(주어 둘 이상)": "축 확장으로 예",
+              "계층(구간·등급)": "축 확장으로 예", "조건절(사실)": "when 가드 필요",
+              "절차(사실 아님)": "**대상 아님**(행동 그래프)"}[k]
         print("| %s | %d | %.0f%% | %s |" % (k, c, 100.0 * c / tot if tot else 0, ok))
     print("\n⇒ **A3가 한 행으로 덮는 비율 = %.0f%%**" % (100.0 * cnt.get("단순", 0) / tot if tot else 0))
 
-    for k in ("단순", "조건절", "계층(구간·등급)", "관계(주어 둘 이상)"):
+    for k in ORDER:
         if not samples[k]:
             continue
         print("\n── %s 표본 ──" % k)
