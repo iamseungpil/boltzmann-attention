@@ -2431,6 +2431,10 @@ def _limit_reduce_text(agent, a2, messages):
         _sp2 = _e2.get("spec") or {}
         if _e2.get("tally") and _lims3:
             _add += _LG2.exhausted_text(_e2["tally"], _lims3, _sp2)
+            # ★판정하지 못한 그룹은 **이름을 말한다**(C327). 조용히 빼면 모델 쪽에서 침묵이
+            #   *검사 통과*와 구별되지 않는다. 엔진은 집합 뺄셈만 하고, 이름이 같은 것을
+            #   가리키는지는 여전히 모델 몫이다([[22]]).
+            _add += _LG2.unmatched_text(_e2["tally"], _lims3, _sp2)
         if _e2.get("days") is not None and _mins3:
             _add += _LG2.ineligible_text(_e2["days"], _mins3, _sp2)
     return _add.strip()
@@ -5950,6 +5954,34 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     #   ⚠대가 = 발화가 늘어난다 = **Δspurious**(등대 §1.3: 부작용 없는
                                     #     레버는 없다). 그래서 아래 지문에 이 문장을 포함시켜, 내용이
                                     #     바뀌지 않는 한 다시 말하지 않게 한다([[57]] 인자 변화 규칙).
+                                    # ★C330 (2026-08-08): **우리가 실제로 요구한 read**를 sim-범위로
+                                    #   남긴다. P1 핀(`t2_pin_read`)의 수요 신호가 프록시 셋이었는데
+                                    #   이 계열에서 셋 다 원리적으로 못 뜬다는 것이 전수로 확인됐다 —
+                                    #   ⒜의존 도구가 **손님 실행**이라 assistant 호출 집합에 영영 없고,
+                                    #   ⒝가 찾는 태그는 현 어휘에 없는 문자열인 데다 우리 통지는
+                                    #   비커밋이라 `messages`에 아예 나타나지 않으며, ⒞의 관용구는
+                                    #   env 실제 문구와 어긋난다. 그 결과 핀은 표적을 정확히 해소할 수
+                                    #   있는 상태로 **한 번도 시도되지 않았다**(라이브 발화 0).
+                                    #   프록시를 늘리는 대신 **원천**을 준다: 요건 큐가 이 턴에 이름으로
+                                    #   밀고 있는 read가 곧 수요다. 새 A2 0·새 문자열 0.
+                                    #   ⚠**큐의 머리일 때만** 기록한다. 오프라인 재현에서 이 조건을
+                                    #     빼면 첫 발화(신원확인이 아직 머리인 시점)에 계좌 read가
+                                    #     고정돼 **우리 게이트(검증 우선)를 우리가 위반**시키고,
+                                    #     1회뿐인 핀도 거기서 탄다. 머리로 좁히면 라이브 로그의
+                                    #     `queue advanced … -> reads:…` 시점 = 그 read가 실제로
+                                    #     "지금 할 일"이 된 턴에서만 무장한다.
+                                    try:
+                                        _head = (_reqs or [None])[0]
+                                        if _head and str(_head.get("id") or "").startswith(
+                                                _DOMm.READS_PREFIX):
+                                            _dr = set(getattr(self, "_t2_demanded_reads", None) or ())
+                                            _dr |= {str(x) for x in (_head.get("satisfiers") or ())}
+                                            self._t2_demanded_reads = _dr
+                                            print("[T2_DEMANDED_READS] armed: %s"
+                                                  % sorted(_dr), file=_sys.stderr, flush=True)
+                                    except Exception as _dre:
+                                        print("[T2_DEMANDED_READS] skipped (no-op): %r" % (_dre,),
+                                              file=_sys.stderr, flush=True)
                                     try:
                                         _add = _limit_reduce_text(self, a2, state.messages)
                                     except Exception as _lre:

@@ -100,14 +100,32 @@ def _refcount(decls):
     return c
 
 
-def _demand(messages, decls):
+def _demand(messages, decls, declared=()):
     """이 sim에서 관측된 **수요 신호**가 가리키는 선행 read 집합.
 
-    셋 중 하나라도 서면 그 read가 수요된 것으로 본다(설계서 §1.7):
+    넷 중 하나라도 서면 그 read가 수요된 것으로 본다(설계서 §1.7):
       ⒜ 그 read를 요구하는 의존 도구를 이미 시도했다        — 호출 이력(닫힘)
       ⒝ 우리 층이 그 결손을 이미 통지했다                   — `[READ-FIRST]`
       ⒞ 레코드를 못 찾았다는 환경 오류를 받았다              — `not found`(tau2 env 공통 관용구)
+      ⒟ **우리 요건 큐가 이 sim에서 그 read를 이름으로 요구했다** — 원천(2026-08-08·C330)
     수요가 없으면 고정하지 않는다. 무제한으로 두면 194/194 sim에서 발화한다(§1.7).
+
+    ★왜 ⒟를 더했나 — 전수 재현(라이브 2 sim에 이 게이트를 그대로 돌림)에서 ⒜⒝⒞가
+      **셋 다 원리적으로 못 뜬다**는 것이 나왔다. 표적 read는 나머지 조건을 전부 통과하는데
+      (피의존 4·read 접두·미실행·레지스트리 유일 해소) 수요 하나에서 막혀 **핀이 시도조차
+      되지 않았다**(라이브 발화 0):
+        ⒜ 이 계열의 의존 도구는 **손님이 실행**한다. 이 함수는 의도적으로 assistant 호출만
+           세므로(손님 실행을 신호로 쓰면 이미 늦다) 집합에 영영 들어오지 않는다.
+        ⒝ 찾는 문자열 `[READ-FIRST]`가 **현 피드백 어휘에 없다**(우리는 `[ORDER]`·
+           `[CHECK-FIRST]`·`[PRE-ACTION-KB]`를 쓴다). 게다가 여기서 훑는 것은 커밋된
+           tool 메시지인데 우리 통지는 **비커밋 생성-채널**이라 `messages`에 나타나지 않는다
+           — 문자열을 고쳐도 채널이 어긋난 채다(궤적 태그 스캔 0건으로 확인).
+        ⒞ tau2 실제 문구는 `No records found in '...'` 이고 `"not found"` 부분문자열에
+           **안 걸린다**. "env 공통 관용구" 가정이 이 문형에서 틀렸다.
+      ⇒ 프록시를 늘리는 대신 **원천**을 받는다. 요건 큐(`t2_dominance.requirements_for`)가
+        내는 `reads:` 요건의 `satisfiers`가 곧 *"우리가 지금 이 read를 요구하고 있다"* 이다.
+      ⚠대가: 조준이 넓어진다. 남는 억제는 `피의존≥2`·1회/sim·미실행 조건뿐이므로 §1.7이
+        경고한 과발화를 `x74` 분할 검증으로 다시 재야 한다([[57]] 부정통제).
     """
     all_reads = {r for _d, reads in decls for r in reads}
     # ⒜는 **에이전트가** 시도한 것만 본다(손님이 실행한 도구는 수요 신호가 아니다).
@@ -129,6 +147,7 @@ def _demand(messages, decls):
             out |= {r for r in all_reads if r in c}
         if "not found" in c.lower():                        # ⒞
             out |= all_reads
+    out |= {r for r in all_reads if r in set(declared or ())}   # ⒟
     return out
 
 
@@ -173,7 +192,8 @@ def pin_for(orch, am, a2, messages):
         return None
     # 방금 생성된 호출도 실행 집합에 넣는다 — 그 턴에 이미 부른 read를 다시 고정하지 않도록.
     called = _called_fams(list(messages or []) + [am])
-    demanded = _demand(messages, decls)
+    # ⒟ 원천 = 우리 요건 큐가 이 sim에서 이름으로 요구한 read (gate_patch가 심어 둔다·C330).
+    demanded = _demand(messages, decls, getattr(orch, "_t2_demanded_reads", None) or ())
     rc = _refcount(decls)
 
     ranked, seen = [], set()

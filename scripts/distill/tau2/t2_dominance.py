@@ -44,7 +44,12 @@ from t2_precedence import (_fam, prereq_map, first_step, graph_for,   # noqa: F4
                            declarations, SRC_REQUIRE_BEFORE, SRC_REQUIRES_READS)
 
 __all__ = ["dominating_gate", "requirement_text", "DEFAULT_FEEDBACK",
-           "requirements_for", "merged_text", "DEFAULT_MERGED"]
+           "requirements_for", "merged_text", "DEFAULT_MERGED", "READS_PREFIX"]
+
+# 선행 read 요건의 id 접두. **소비자가 리터럴을 짓지 않도록** 여기서 한 번 정한다 —
+# 이 값을 보고 "우리가 이번 sim에서 어떤 read를 실제로 요구했나"를 읽는 소비자가 생겼다
+# (2026-08-08·C330: pin의 수요 신호). 요건의 `satisfiers`가 그 read 이름을 그대로 진다.
+READS_PREFIX = "reads:"
 
 DEFAULT_FEEDBACK = (
     "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer "
@@ -183,7 +188,7 @@ def requirements_for(a2, messages, target, executed=None, unwrap=None):
             return
         # ★모든 요건 경로가 같은 그래프를 탄다 — read 선행도 그 자신의 선행이 있으면 거기부터.
         miss = [x for x in (first_step(r, done_fam, edges) for r in miss) if x] or miss
-        key = "reads:" + ",".join(miss)
+        key = READS_PREFIX + ",".join(miss)
         if key in seen:
             return
         seen.add(key)
