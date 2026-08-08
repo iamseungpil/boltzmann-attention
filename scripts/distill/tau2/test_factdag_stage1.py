@@ -144,6 +144,42 @@ def test_reread_updates_downstream():
     assert "usage" in changed
 
 
+def test_pairs_asks_each_item_and_unions():
+    """★C313 — `pairs`는 **항목마다 따로** 묻고 결과를 합친다(덩어리 질의 금지).
+
+    두 문서가 각각 다른 상품을 말할 때, 한 덩어리로 물으면 실측 재현율이 12~44%였다.
+    항목별로 물으면 둘 다 나와야 한다.
+    """
+    calls = []
+
+    def counting(node, text):
+        calls.append((node["out"], text[:20]))
+        return answer(node, text)
+
+    s = _sched()
+    s.update(F.Inputs(corpus=[HEAD, LIMIT_DOC, MIN_DOC], tools={}), ask=counting)
+    assert s.vals["limits"] == {"Light Green": (3, LIMIT_DOC)}, s.vals["limits"]
+    assert s.vals["minimums"] == {"Hunter Green": (60, MIN_DOC)}, s.vals["minimums"]
+    per_node = [c for c in calls if c[0] == "limits"]
+    assert len(per_node) == 3, ("항목 3개를 각각 물어야 한다", per_node)
+
+
+def test_pairs_do_not_reask_an_item_already_asked():
+    """비용은 **항목 단위 메모이즈**로 유계다 — 회수된 항목은 불변이므로 다시 묻지 않는다."""
+    calls = []
+
+    def counting(node, text):
+        calls.append(node["out"])
+        return answer(node, text)
+
+    s = _sched()
+    s.update(F.Inputs(corpus=[HEAD, MIN_DOC], tools={}), ask=counting)
+    first = calls.count("limits")
+    s.update(F.Inputs(corpus=[HEAD, MIN_DOC, "새 문서 하나"], tools={}), ask=counting)
+    added = calls.count("limits") - first
+    assert added == 1, ("새로 들어온 항목 1개만 물어야 한다", added, first)
+
+
 def test_silence_when_nothing_changed():
     """아무것도 안 바뀌면 **아무 말도 안 한다**(§6 위험 3 — 말이 늘면 과행동이 는다)."""
     s = _sched()

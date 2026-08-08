@@ -229,7 +229,38 @@ def _formalize(node, text, hay, ask):
     return val, ("" if val else "형식 불일치")
 
 
-def evaluate(nodes, inputs, ask=None, excerpt_args=None, seed=None):
+def _formalize_pairs_per_item(node, items, hay, ask, memo, budget):
+    """★`pairs`는 **항목마다 따로** 묻는다 (2026-08-08·x135·원장 C313).
+
+    실측(threshold 축·5 sim·부정통제 변동 0): 한 덩어리로 물으면 재현율 **12~44%**, 항목별로
+    물으면 **100%**. 기전은 둘이고 둘 다 실재한다 — 잘려서 못 본 것(4)과 **입력에 있는데도 못
+    뽑은 것**(5). 항목별 질의는 둘 다 없앤다. 이것은 등대 §1.4의 부하 정의를 **우리 자신의
+    서브콜**에 적용한 결과이고, 처방도 같다(분해).
+
+    비용은 **항목 단위 메모이즈**로 유계다: 회수된 항목은 불변이므로 한 번 물으면 다시 묻지
+    않는다 ⇒ sim당 호출 ≈ 코퍼스 항목 수(재평가 횟수에 곱해지지 않는다).
+    ⚠식별자는 **위치와 길이**다(내용 해시 아님·[[59]]). 코퍼스는 덧붙기만 하므로 안정적이다.
+
+    반환 `(값, 사유, 이번에 실제로 물은 횟수)`.
+    """
+    p = dict(node.get("params") or {})
+    out, asked = {}, 0
+    for i, t in enumerate(items):
+        s = str(t)[:budget]
+        if not s.strip():
+            continue
+        key = (node["out"], i, len(s))
+        if key not in memo:
+            raw = ask(node, s)
+            asked += 1
+            memo[key] = parse_pairs(raw, p["field"], hay)[0] if raw is not None else {}
+        out.update(memo[key])
+    if out:
+        return out, ("" if not asked else "항목 %d개 중 %d개 신규 질의" % (len(items), asked)), asked
+    return None, "항목 %d개 전부에서 채택 0 (신규 질의 %d)" % (len(items), asked), asked
+
+
+def evaluate(nodes, inputs, ask=None, excerpt_args=None, seed=None, memo=None):
     """위상순 1회 평가. 반환 `(값, trace)`.
 
     **예외를 삼키지 않는다**(§2b): 노드마다 잡고 `오류`로 남기고, 한 노드의 실패가 다른 노드의
@@ -258,11 +289,17 @@ def evaluate(nodes, inputs, ask=None, excerpt_args=None, seed=None):
             if op == "formalize":
                 src = ins[0]
                 items = inputs.corpus if src == "corpus" else [inputs.tools[src[5:]]]
-                sel, dropped = excerpt(items, **ex)
-                v, why = _formalize(n, "\n---\n".join(sel), hay, ask)
+                if n.get("shape") == "pairs" and ask is not None:
+                    # 항목별 질의 — 발췌 예산은 **항목 하나에** 걸린다(자를 이유가 없다).
+                    v, why, _a = _formalize_pairs_per_item(
+                        n, items, hay, ask, memo if memo is not None else {},
+                        int(ex.get("budget", 90000)))
+                else:
+                    sel, dropped = excerpt(items, **ex)
+                    v, why = _formalize(n, "\n---\n".join(sel), hay, ask)
+                    why += (" · 예산 탈락 %d" % dropped if dropped else "")
                 vals[out] = v
-                trace.append((out, "계산" if v is not None else "미계산",
-                              why + (" · 예산 탈락 %d" % dropped if dropped else "")))
+                trace.append((out, "계산" if v is not None else "미계산", why))
                 continue
             a = vals.get(ins[0]) if ins[0] in vals else None
             if op == "tally":
@@ -302,6 +339,7 @@ class Scheduler(object):
         self.cap = int(cap)
         self.ex = dict(excerpt_args or {})
         self.vals, self.asked, self.trace = {}, {}, []
+        self.memo = {}          # (노드, 항목 위치, 길이) → 그 항목에서 뽑힌 쌍 (C313)
         self._corpus_n, self._tool_sig = None, {}
 
     def _stale(self, inputs):
@@ -351,7 +389,8 @@ class Scheduler(object):
             if n["op"] == "formalize":
                 self.asked[n["out"]] = self.asked.get(n["out"], 0) + 1
         keep = {k: v for k, v in self.vals.items() if k not in stale}
-        fresh, trace = evaluate(run, inputs, ask=ask, excerpt_args=self.ex, seed=keep)
+        fresh, trace = evaluate(run, inputs, ask=ask, excerpt_args=self.ex, seed=keep,
+                                memo=self.memo)
         for name in budget_hit & stale:
             trace.append((name, "미계산", "sim 상한 %d회 소진" % self.cap))
         changed = {k: v for k, v in fresh.items()
