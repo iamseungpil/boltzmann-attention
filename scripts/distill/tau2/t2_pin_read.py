@@ -232,14 +232,18 @@ def pin_for(orch, am, a2, messages):
     # 방금 생성된 호출도 실행 집합에 넣는다 — 그 턴에 이미 부른 단계를 다시 고정하지 않도록.
     if _fam(step) in _called_fams(list(messages or []) + [am]):
         return None
-    if _mutates(orch, step):
-        return None
     own = {getattr(t, "name", None) for t in (getattr(orch, "tools", None) or [])}
     if step in own:                       # 에이전트가 직접 부를 수 있는 도구 = 지목만으로 충분
-        return (step, None, None)
+        return None if _mutates(orch, step) else (step, None, None)
     unlock = ((a2 or {}).get("eplan") or {}).get("unlock_tool")
     full = _resolve(orch, step)
-    if unlock and full:                   # discoverable = 안쪽 이름을 enum으로 함께 고정
+    # ★성질은 **해소된 실명**으로 묻는다 (2026-08-08·C332·라이브 실측 버그픽스).
+    #   그래프가 주는 이름은 접미사 없는 base 인데 env 레지스트리는 `..._3847` 로 등록한다.
+    #   base 로 물으면 `has_tool` 이 실패하고 *"판정 불가 → 안전측"* 기본값이 걸려,
+    #   하필 **discoverable 표적만** 통째로 배제된다. 실측이 그 비대칭을 그대로 보여줬다:
+    #   일반 도구(`get_referrals_by_user`) 발화 2회 / discoverable 은 무장 12회에 발화 **0**.
+    #   ⇒ 해소를 먼저 하고 그 실명으로 성질을 판정한다. 순서가 규칙이다.
+    if unlock and full and not _mutates(orch, full):
         return (unlock, "agent_tool_name", full)
     return None
 
@@ -352,7 +356,9 @@ def selftest():
             self.tools = _Reg(muts)
             self.user_tools = None
 
-    MUTS = {"get_all_user_accounts_by_user_id": False, "verify_identity": False,
+    # ★레지스트리는 **접미사 실명**으로 등록한다 — 그래프가 주는 base 이름으로는 안 잡힌다.
+    #   C332 회귀: 성질 판정을 해소 前에 하면 discoverable 표적이 통째로 배제된다(라이브 실측).
+    MUTS = {"get_all_user_accounts_by_user_id_3847": False, "verify_identity": False,
             "close_bank_account": True}
 
     def _orch(step=None, own=(), muts=None):

@@ -91,9 +91,18 @@ def main():
 
     # ── ③ 머리가 바뀔 때마다 핀 표적도 그대로 따라간다 ────────────────────
     #     환경 대역: 이 단계들은 전부 상태를 바꾸지 않는다(레지스트리가 그렇게 답한다).
-    muts = {s[0]: False for s in sats if s}
+    #     ★픽스처 형태가 곧 회귀 방지다(C332): env 는 discoverable 을 **접미사 실명**으로
+    #       등록한다. 성질을 해소 前 base 이름으로 물으면 `has_tool` 이 실패하고 안전측
+    #       기본값(=강제 안 함)이 걸려 **표적만 배제**된다 — 라이브에서 무장 12회·발화 0회로
+    #       실측된 그 버그다. 그래서 여기서도 실명으로만 등록한다.
     PR._resolve = lambda orch, base: (base + "_3847"
                                       if base == "get_all_user_accounts_by_user_id" else None)
+    muts = {}
+    for _s in sats:
+        if not _s:
+            continue
+        _full = PR._resolve(None, _s[0])
+        muts[_full or _s[0]] = False
     for req_id, sat in zip(ids, sats):
         step = sat[0]
         # 에이전트 일반 도구인 경우와 discoverable 인 경우를 둘 다 밟는다
