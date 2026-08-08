@@ -210,13 +210,47 @@ def test_silence_when_nothing_changed():
 
 
 def test_ask_budget_is_capped():
-    """모르는 것을 **무한히 다시 묻지 않는다**([[09]]) — 상한 뒤에는 이유가 남는다."""
+    """모르는 것을 **무한히 다시 묻지 않는다**([[09]]) — 상한 뒤에는 이유가 남는다.
+
+    ⚠표적은 **같은 내용을 다시 묻는 노드**(`today`=scalar)다. 항목별 노드(`pairs`)에는 이 상한을
+    걸지 않는다 — 각 항목을 한 번씩만 묻는 것이 memo로 보장돼 이미 유계이고, 상한을 또 걸면
+    늦게 도착한 문서를 영영 안 묻게 된다(아래 회귀가 그 케이스다).
+    """
+    def never(node, _t):
+        return "" if node["prompt"] == "now_prompt" else answer(node, _t)
+
     s = F.Scheduler(NODES, cap=2)
     for i in range(5):
-        s.update(F.Inputs(corpus=[HEAD] + ["잡담 %d" % j for j in range(i + 1)], tools={}),
-                 ask=answer)
-    assert s.asked["limits"] == 2, s.asked
+        s.update(F.Inputs(corpus=["잡담 %d" % j for j in range(i + 1)], tools={}), ask=never)
+    assert s.asked["today"] == 2, s.asked
     assert any(w.startswith("sim 상한") for _o, _st, w in s.trace), s.trace
+
+
+def test_a_document_arriving_after_a_value_is_still_asked():
+    """★늦게 온 문서를 **영영 안 묻는** 버그의 회귀 (2026-08-08 실측·사용자 질문에서 발견).
+
+    항목별 질의로 바꾼 뒤에도 재평가 조건이 *"값이 비었나"* 로 남아 있었다. 그러면 첫 문서에서
+    상한이 하나 서는 순간 그 노드는 더 이상 stale이 아니고, **나중에 도착한 문서의 상한이 영영
+    안 들어온다** — §0 버그 ②가 형태만 바꿔 되살아난 것이다. 올바른 조건은 **"아직 안 물어본
+    항목이 있나"** 이고, 그 조건을 쓸 수 있게 해 주는 것이 **항목 동일성**이다(memo의 본래 목적).
+    """
+    A = "Account A allows up to 3 referral bonuses per year"
+    B = "Account B allows up to 9 referral bonuses per year"
+
+    def ask(node, text):
+        if node["prompt"] != "limit_prompt":
+            return answer(node, text)
+        if A in text:
+            return '{"A": {"limit": 3, "quote": "%s"}}' % A
+        if B in text:
+            return '{"B": {"limit": 9, "quote": "%s"}}' % B
+        return "{}"
+
+    s = _sched()
+    s.update(F.Inputs(corpus=[A], tools={}), ask=ask)
+    assert sorted(s.vals["limits"]) == ["A"], s.vals["limits"]
+    s.update(F.Inputs(corpus=[A, B], tools={}), ask=ask)
+    assert sorted(s.vals["limits"]) == ["A", "B"], ("늦게 온 문서를 안 물었다", s.vals["limits"])
 
 
 def test_exception_is_not_swallowed():

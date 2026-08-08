@@ -376,13 +376,35 @@ class Scheduler(object):
         self.memo = {}          # (노드, 항목 내용 다이제스트) → 그 항목에서 뽑힌 쌍 (C313)
         self._corpus_n, self._tool_sig = None, {}
 
+    def _per_item(self, n):
+        """항목별로 묻는 노드인가 — `pairs` formalize (C313)."""
+        return n["op"] == "formalize" and n.get("shape") == "pairs"
+
+    def _unasked(self, n, inputs):
+        """이 노드가 **아직 안 물어본 항목**이 하나라도 있는가."""
+        b = int(self.ex.get("budget", 90000))
+        return any((n["out"], str(t)[:b]) not in self.memo
+                   for t in inputs.corpus if str(t).strip())
+
     def _stale(self, inputs):
         """이번 갱신으로 **다시 봐야 하는** 노드 이름 집합. 아무것도 안 바뀌면 빈 집합."""
         stale = set()
         if len(inputs.corpus) != self._corpus_n:
             self._corpus_n = len(inputs.corpus)
             for n in self.nodes:
-                if "corpus" in (n.get("inputs") or ()) and self.vals.get(n["out"]) in (None, {}, []):
+                if "corpus" not in (n.get("inputs") or ()):
+                    continue
+                if self._per_item(n):
+                    # ★항목별 질의 노드의 조건은 *"값이 비었나"* 가 아니라
+                    #   **"아직 안 물어본 항목이 있나"** 다 (2026-08-08 실측 버그).
+                    #   덩어리로 묻던 시절의 규칙("비었을 때만")을 그대로 두면, 첫 문서에서 값이
+                    #   하나 서는 순간 **나중에 도착한 문서를 영영 안 묻는다** — §0의 버그 ②가
+                    #   형태만 바꿔 되살아난다(A에서 상한이 나오면 B의 상한이 영영 안 들어온다).
+                    #   이 조건을 쓸 수 있게 해 주는 것이 **항목 동일성**이고, 그것이 memo의
+                    #   본래 목적이다(비용 절감은 그 다음 이득이다).
+                    if self._unasked(n, inputs):
+                        stale.add(n["out"])
+                elif self.vals.get(n["out"]) in (None, {}, []):
                     stale.add(n["out"])          # 값이 서 있으면 다시 묻지 않는다(§1b 절약)
         for n in self.nodes:
             for i in (n.get("inputs") or ()):
@@ -416,7 +438,12 @@ class Scheduler(object):
             return {}
         budget_hit = set()
         for n in self.nodes:                     # 상한을 넘긴 LLM 노드는 이번 라운드에서 뺀다
-            if n["op"] == "formalize" and self.asked.get(n["out"], 0) >= self.cap:
+            # ★항목별 노드에는 **라운드 상한을 걸지 않는다**: 각 항목을 한 번씩만 묻는 것이
+            #   memo로 보장되므로 호출 수는 이미 *서로 다른 항목 수*로 유계다. 여기에 상한을
+            #   또 걸면 문서가 3라운드 뒤에 도착했을 때 그것을 영영 안 묻게 된다 — 방금 고친
+            #   바로 그 버그를 다른 문으로 다시 들이는 셈이다.
+            if (n["op"] == "formalize" and not self._per_item(n)
+                    and self.asked.get(n["out"], 0) >= self.cap):
                 budget_hit.add(n["out"])
         run = [n for n in self.nodes if n["out"] in stale and n["out"] not in budget_hit]
         for n in run:
