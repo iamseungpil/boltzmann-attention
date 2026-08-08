@@ -127,10 +127,15 @@ def _a2_read_sites(layer):
 
 
 def merged(base, settings, specific):
-    m = dict(real(base))
-    m.update(settings)
-    m.update(specific)
-    return m
+    """⚠**로더의 병합을 여기서 다시 짜지 않는다**(2026-08-08 수정).
+
+    이 함수가 `dict.update` 세 번으로 병합을 흉내 내는 동안, 실제 로더는 그 뒤에
+    `_compose_claim_audit`으로 `claim_prov`·`completion_guard`를 **적재 시점에 합성**한다.
+    그래서 `--verify`가 banking에서 늘 ❌를 냈고, 그 상시 ❌ 때문에 이 검정이 신호가 아니라
+    소음이 됐다([[24]]가 *"x18 --verify는 경보 포화라 신호 아님"* 이라고 적어 둔 그 상태).
+    두 벌이면 갈린다 — **로더를 부른다.**
+    """
+    raise NotImplementedError("verify는 gate_interpreter.load_domain_a2를 쓴다")
 
 
 def main():
@@ -198,10 +203,18 @@ def main():
                 print("  ⚠%s 분리 파일 없음 — --emit 먼저" % dom)
                 bad += 1
                 continue
-            m = merged(base, real(load(s)), real(load(sp)))
-            want = real(mono.get(dom, {}))
-            ok = canon(m) == canon({**real(base), **want})
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            import gate_interpreter as G          # 병합은 **로더가** 한다(두 벌이면 갈린다)
+            m = real(G.load_domain_a2(dom) or {})
+            want = {**real(base), **real(mono.get(dom, {}))}
+            ok = canon(m) == canon(want)
             print("  %-18s 병합 == 단일파일+base : %s" % (dom, "✅" if ok else "❌"))
+            if not ok:
+                print("     병합에만: %s" % sorted(set(m) - set(want)))
+                print("     단일에만: %s" % sorted(set(want) - set(m)))
+                for k in sorted(set(m) & set(want)):
+                    if canon(m[k]) != canon(want[k]):
+                        print("     값 다름: %s" % k)
             bad += (not ok)
         sys.exit(1 if bad else 0)
 

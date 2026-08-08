@@ -309,8 +309,11 @@ export T2_SURFACE_BUS=1           # 부착의 단일 출구(replay·정직·예�
 #                                 #   일 때만" 걸렸고 라이브(버스 OFF)는 **무가드 직접 부착**이었다.
 export T2_WINDOW=1                # C6 발화 창 — resign ∪ acting ∪ instructing(`:5542`).
 #                                 #   ⚠**창을 넓히는 변경**이다. 발화 기회가 늘므로 Δspurious 필수 계측.
-export T2_SUPPRESS_AUTH=1         # 억제 자격 집행. 근거는 A2 L1 `suppression_authority`(오늘 등재:
-#                                 #   phase_owner = measurement "실패 런 9회 침묵·통과 런 0회").
+export T2_SUPPRESS_AUTH=1         # 억제 자격 집행. 근거는 A2 **L3** `suppression_authority`
+#                                 #   (banking_knowledge.specific.json — phase_owner "실패 런 9회
+#                                 #   침묵·통과 런 0회" + speak_prohibit "표적 3발·over-block 0").
+#                                 #   ⚠2026-08-08 L1→L3: 근거가 banking 런에서 잰 수치라 L1에 두면
+#                                 #   **재본 적 없는 도메인의 억제까지 licensing** 한다. banking 거동 0.
 #                                 #   미선언 레버는 **침묵시킬 수 없다**(표면화는 그대로).
 #   ⚠이 5줄은 **거동을 바꾼다**. 한 번에 켜는 이유는 [[19]] 합성-우선(간섭은 합성 런에서만 드러난다)
 #   이고, 대신 스모크에서 **Δspurious·발화 폭증**을 1차 지표로 본다.
