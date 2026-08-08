@@ -28,6 +28,24 @@ except Exception:
 MARK = "Policy constants on record, for the products not already ruled out"
 
 
+def sim_key(sim):
+    """사이드카의 `sim` 키를 궤적에서 **재계산**한다 — 정확 조인의 유일한 길.
+
+    `t2_fbsidecar._sim_key` 가 쓰는 지문 = **첫 손님 발화의 sha1 앞 12자**다(엔진 내부 id 를
+    안 쓰려는 설계). 그래서 결과 파일의 UUID 와는 영영 안 맞고, 본문 대조도 안 된다 —
+    사이드카는 **비커밋 채널**이라 그 문장이 궤적에 남지 않기 때문이다(그게 설계다).
+    턴 번호로 추정하는 길도 있으나 같은 태스크의 두 trial 이 같은 구간을 가지면 갈리지 않는다.
+    ⇒ 지문을 그대로 다시 계산한다. 결정론이고 모호함이 없다.
+    """
+    import hashlib
+    for m in (sim.get("messages") or []):
+        if m.get("role") == "user":
+            c = m.get("content")
+            if isinstance(c, str) and c.strip():
+                return hashlib.sha1(c.strip().encode("utf-8")).hexdigest()[:12]
+    return "nouser"
+
+
 def load_jsonl(p):
     out = []
     op = gzip.open if p.endswith(".gz") else io.open
@@ -63,6 +81,16 @@ def main():
     sims = res.get("simulations") or []
     print("sim %d개\n" % len(sims))
 
+    # ⚠**지문 충돌을 먼저 말한다** (2026-08-08 실측): `_sim_key` 는 첫 손님 발화의 해시라,
+    #   같은 태스크의 두 trial 이 **같은 문장으로 시작하면 한 지문을 공유한다**(run g: 6 sim →
+    #   5 지문). 그 지문의 레코드는 두 sim 이 섞인 것이라 **trial 단위 귀속이 불가**하다.
+    #   조용히 넘어가면 한 sim 의 발화를 다른 sim 것으로 읽는다 — C325 와 같은 병이다.
+    keys = collections.Counter(sim_key(s) for s in sims)
+    dup = {k: n for k, n in keys.items() if n > 1}
+    if dup:
+        print("⚠지문 충돌 %s — 이 지문의 발화는 **sim 단위로 귀속할 수 없다**(첫 발화가 같다)\n"
+              % ", ".join("%s×%d" % (k, n) for k, n in sorted(dup.items())))
+
     agg = collections.Counter()
     for s in sims:
         sid = s.get("id") or s.get("simulation_id")
@@ -80,10 +108,7 @@ def main():
                         except Exception:
                             args = {}
                     subs.append((args or {}).get("account_type"))
-        hits = fired.get(sid) or []
-        # 사이드카가 sim id 대신 task 이름을 쓸 수도 있다 — 둘 다 본다.
-        if not hits:
-            hits = fired.get(task) or []
+        hits = fired.get(sim_key(s)) or []
         agg[(task, bool(hits), rw)] += 1
         print("%-10s reward=%-5s 발화=%-3s turns=%-14s 제출=%-28s 종료=%s"
               % (task, rw, ("%d회" % len(hits)) if hits else "0",
