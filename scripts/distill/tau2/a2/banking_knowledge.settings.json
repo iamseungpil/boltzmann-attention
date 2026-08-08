@@ -272,10 +272,12 @@
    {"out": "tenure_ok", "inputs": ["tenure_days", "doc_minimums"], "op": "compare_ge"},
 
    {"out": "focus", "inputs": ["corpus"], "op": "formalize", "shape": "term",
-    "prompt": "focus_prompt"},
+    "prompt": "focus_prompt",
+    "params": {"name_rules": "How to decide whether two names are the same product: the identity is the leading name phrase. Trailing product-form words - Account, Business Checking, International Checking, Checking - describe the form of the product, not which product it is, so they may differ freely: 'Navy Blue', 'Navy Blue Account' and 'Navy Blue Business Checking' are the same product. The leading name phrase itself must match word for word: 'Light Green' and 'Light Blue' are DIFFERENT products, and so are 'Green' and 'Green Fee-Free' - never pair names that merely look or sound alike. If more than one entry in the list would fit, or none clearly does, leave it empty; an empty answer is correct and useful, a guess is not."}},
    {"out": "focus_min_days", "inputs": ["doc_minimums", "focus"], "op": "pick"},
    {"out": "focus_annual_limit", "inputs": ["doc_limits", "focus"], "op": "pick"}
  ],
+ "_note_name_rules": "2026-08-08 (C333·사용자 지시 *\"유사어 관련 규칙을 따로 뽑아 보강하라\"*). ★**표가 아니라 규칙이다.** 유사어 표는 상품 수 N에 비례해 자라지만([[50]] ADB) 형태어 규칙은 **형태어 수**(여기 4개)에만 비례하고 상품이 늘어도 안 자란다. ★출처([[23]]) = **코퍼스 실측**(gold 무참조): 698문서 census 결과 꼬리말이 상품마다 갈린다 — `Navy Blue Account`×9 · `True Blue Account`×10 · `Lime Green Account`×8 인데 `Cobalt Blue Account`×1 · `Hunter Green Account`×1 · **`World Blue Account`×0**(문서는 `World Blue International Checking`). DB `accounts.level` 자체도 `Cobalt Blue`·`Navy Blue`(꼬리말 없음)와 `Blue Account`·`Green Account`가 섞여 있다 ⇒ **원천 자체가 이름을 하나로 정하지 않았다**(정책 완결성 결함). ★그래서 규칙은 두 방향으로 대칭이다: 꼬리 형태어는 **동일성에 무관**하고, 머리 어구는 **축자 일치**여야 한다. 후자가 C316(`Light Green`↔`Light Blue` 오배정)의 재발 방지선이고, 유사어 표를 안 만드는 이유이기도 하다 — 표는 그 오배정을 조용히 박제한다. ★판단은 여전히 모델 몫이고 엔진은 실재 여부만 본다([[22]]). ★빈 답을 **정답으로 명시**한다: 기권을 벌하면 추측이 생긴다([[43]]). 문헌 근거 = 같은 모델이 유한 inventory 강제 매핑 82.3% vs 자유 서술 98%(`PRIOR_MAPPING_BOUNDARY_SCALE_2026_08_01` §4·원장 C277) — 접기를 요구하는 자리 자체가 병목이므로, 접되 **못 접을 자유**를 남긴다. 실측 표적: 099에서 손님의 business checking 3종(`Cobalt Blue Account`·`Hunter Green Account`·`Navy Blue Account`)이 전부 판정 불가로 떨어져 상한 산수가 무력화됐다.",
  "_note_derived": "2026-08-08. ★파생-사실 DAG 단계 0 (정본 = FACT_DAG_DESIGN_2026_08_08.md rev4). 아직 어느 라이브 경로도 이 키를 읽지 않는다(거동 변화 0). 값은 전부 ledger_metrics 에서 온 것이고 신규 도메인 지식 0이다 — row_keys·group_field·window_days·window_max·age_field·date_formats 전수 대조 확인(x132). 새 op·새 shape 은 로드 시점에 죽는다.",
  "ledger_metrics": [
   {

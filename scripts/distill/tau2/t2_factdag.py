@@ -444,6 +444,17 @@ def evaluate(nodes, inputs, ask=None, excerpt_args=None, seed=None, memo=None):
                         _txt += ("\n\nThe subject must be copied verbatim from this list, "
                                  "or left empty if none of them is what this is about:\n- "
                                  + "\n- ".join(n["_choices"]))
+                        # ★이름 대조 규칙 (2026-08-08·C333). 원천이 같은 상품을 여러 표기로 쓰고
+                        #   (`Navy Blue` / `Navy Blue Account` / `Navy Blue Business Checking`)
+                        #   DB 표기와 문서 표기가 갈리는데, 그 판단은 **모델 몫**이다([[22]]).
+                        #   엔진은 문구를 짓지 않는다 — A2 선언을 그대로 싣는다.
+                        #   ⚠유사도 점수+임계값으로 대신할 수 없다: 실측상 **합쳐야 하는 쌍이
+                        #     분리해야 하는 쌍보다 덜 유사하다**(0.510/0.545 vs 0.811/0.743) —
+                        #     순서가 뒤집혀 어떤 임계값도 둘을 가르지 못한다. 동일성을 정하는 것은
+                        #     *얼마나* 다른가가 아니라 *어느 자리*가 다른가라서, 스칼라로 접으면
+                        #     그 구조가 버려진다.
+                        if p.get("name_rules"):
+                            _txt += "\n\n" + str(p["name_rules"])
                     v, why = _formalize(n, _txt, hay, ask)
                     why += (" · 예산 탈락 %d" % dropped if dropped else "")
                 vals[out] = v
