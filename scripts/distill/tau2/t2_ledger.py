@@ -317,6 +317,28 @@ def exhausted_text(tally, limits, spec):
     return tpl.format(exhausted="; ".join(gone), remaining="; ".join(left) or "(none)")
 
 
+def unmatched_text(tally, limits, spec):
+    """원장에 있는데 **상한 행이 없는** 그룹을 이름과 함께 말한다. 집합 뺄셈뿐이다.
+
+    왜 필요한가 (2026-08-08·C327): 구판은 그런 그룹을 **조용히 뺐다**. 실측에서 7건짜리 그룹
+    하나가 그렇게 사라졌고, 모델 쪽에서 보면 그 그룹은 *검사를 통과한 것*과 구별되지 않는다 —
+    침묵이 "문제 없음"으로 읽힌다. 코퍼스 전수로 확인해 보니 그 이름은 문서에 **다른 표기로만**
+    있었다(원장 표기는 상한과 무관한 제목에 1회 등장할 뿐이다).
+
+    ⚠**엔진이 이름을 맞추지 않는다.** 두 표기가 같은 것을 가리키는지는 의미 판단이라 모델 몫이고
+      ([[22]]·C316), `_a3_map`이 주어를 정규화하지 않는 이유와 같은 규율이다. 엔진이 할 수 있는
+      말은 *우리가 이 그룹을 판정하지 못했다*는 사실뿐이며, 어느 쪽인지(다른 표기인가·아직 회수
+      안 된 문서인가)는 문구가 **양쪽을 다 열어 둔 채** 모델에게 넘긴다.
+    """
+    tpl = (spec or {}).get("unmatched_text")
+    if not (tpl and tally and limits):
+        return ""
+    miss = sorted(g for g in tally if g not in limits)
+    if not miss:
+        return ""
+    return tpl.format(unmatched="; ".join("%s %d" % (g, int(tally[g])) for g in miss))
+
+
 def _date(s, fmts):
     for f in fmts:
         try:

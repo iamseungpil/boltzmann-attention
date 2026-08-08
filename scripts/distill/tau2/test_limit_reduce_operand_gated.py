@@ -87,6 +87,22 @@ def main():
 
     chk(gf is not None, "선언이 group_field를 지닌다(엔진이 필드명을 짓지 않는다)")
 
+    # ── C327: 상한 행이 없는 원장 그룹은 **이름을 말한다**(조용히 빠지지 않는다) ──
+    #   실물 사고: 원장 표기가 A3에 다른 표기로만 있어 7건짜리 그룹이 판정 자체를 못 받았고,
+    #   모델 쪽에서 침묵은 *검사 통과*와 구별되지 않았다. 이름이 같은 것인지는 모델 몫이라
+    #   엔진은 집합 뺄셈만 한다([[22]]).
+    ghost = subj + " __not_in_a3__"          # A3에 없는 표기(테스트가 도메인 어휘를 짓지 않는다)
+    ops3 = {tally_spec.get("trigger_tool"): {
+        "spec": tally_spec, "tally": {subj: int(cap), ghost: 7}, "days": None}}
+    txt3 = G._limit_reduce_text(_Agent(ops3), a2, [])
+    chk(ghost in txt3, "상한 행이 없는 그룹이 이름과 함께 표면화된다  ← C327")
+    chk("NOT checked" in txt3, "그 그룹은 '판정 못 했다'로 말한다(아는 척하지 않는다)")
+    chk(G._limit_reduce_text(_Agent(ops), a2, []).find("NOT checked") < 0,
+        "전부 A3에 있으면 미매칭 문장은 안 나온다 (Δspurious 억제)")
+    import t2_ledger as _LG
+    chk(_LG.unmatched_text({ghost: 7}, lims, {}) == "",
+        "A2가 문구를 선언하지 않으면 침묵한다(구판 거동 보존)")
+
     print("\n%s  (%d 실패)" % ("PASS" if not FAILED else "FAIL", len(FAILED)))
     return 1 if FAILED else 0
 
