@@ -36,7 +36,19 @@ def canon(v):
     return json.dumps(v, sort_keys=True, ensure_ascii=False)
 
 
-print("[①] 합성 결과 == 승격 전 (바이트 동일)")
+# ★의도된 델타 (2026-08-08·C341). 스냅샷을 조용히 갱신하면 이 게이트가 죽는다 — 그러면
+#   다음 사고를 못 잡는다. 그래서 **바꾼 필드만 이름으로 면제**하고 나머지는 그대로 동결하며,
+#   면제한 필드는 **실제로 달라야** 한다(안 다르면 면제가 낡은 것이므로 그것도 실패다).
+DELTA = {
+    ("claim_prov", "question"):
+        "주장마다 `tool`(그것을 수행한 호출 이름)을 함께 내게 한다. 구판은 모델의 `kind` 라벨을 "
+        "event_map 색인으로 썼는데 라벨이 우리 패턴과 어긋나 **거짓 발화**가 났다 — run f 실측: "
+        "`log_verification` 이 양쪽 sim 에서 실행됐는데 kind=record_update 로 선언돼 "
+        "'ledger shows NO such event' 를 결정 턴마다 내보냈다([[25]]). 권위는 실행 원장이고 "
+        "kind 는 해석이다([[52]]). ⚠라이브 효과 미측정.",
+}
+
+print("[①] 합성 결과 == 승격 전 (의도된 델타 제외 바이트 동일)")
 orig_path = os.path.join(HERE, "_orig_claim.json")
 if os.path.exists(orig_path):
     orig = json.load(io.open(orig_path, encoding="utf-8"))
@@ -44,7 +56,12 @@ if os.path.exists(orig_path):
     for k in ("claim_prov", "completion_guard"):
         want = {kk: vv for kk, vv in orig[k].items() if not kk.startswith("_")}
         got = m.get(k) or {}
-        chk(canon(got) == canon(want), "%s 동일 (%d필드)" % (k, len(want)))
+        frozen = [kk for kk in want if (k, kk) not in DELTA]
+        chk(all(canon(got.get(kk)) == canon(want[kk]) for kk in frozen),
+            "%s 동일 (동결 %d필드)" % (k, len(frozen)))
+        for kk in [x for x in want if (k, x) in DELTA]:
+            chk(canon(got.get(kk)) != canon(want[kk]),
+                "%s.%s 는 의도된 델타이고 실제로 달라졌다 (면제가 낡지 않았다)" % (k, kk))
 else:
     chk(False, "_orig_claim.json 없음 — 승격 전 스냅샷이 있어야 등가를 잴 수 있다")
 

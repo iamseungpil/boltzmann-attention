@@ -2319,10 +2319,38 @@ def _quiet_turns(messages, tools):
 
 def _claim_unbacked(claims, emap, evs, messages, a2=None):
     """★claim_prov 원장대조 코어 (2026-07-20 관문5 추출·순수함수=단위테스트 공유·[[03b]]).
-    LLM이 formalize한 주장 목록({kind, what})을 A2 event_map으로 원장 이벤트 실재 대조.
-    미등재 kind=skip(오탐 방지)·kind=__effective_write__는 실효 write 존재로 판정. 반환=미입증 목록."""
+    LLM이 formalize한 주장 목록({kind, what, tool})을 실행 원장과 대조. 반환=미입증 목록.
+
+    ★★**주장이 도구를 지목하면 그것으로 판정한다** (2026-08-08·handoff §5-3·실측 확증):
+      구판은 `kind` → A2 `event_map` 패턴 → 실행 이름 순으로 색인했다. 그런데 `kind` 는
+      **모델이 붙인 라벨**이고 우리 패턴과 어긋난다 — run f 사이드카 실측: `log_verification`
+      이 양쪽 sim 에서 **실제로 실행됐는데** 모델이 kind 를 `record_update` 로 선언해
+      (A2 는 그 tool 을 `verify` 아래 둔다) 결정 턴마다 *"the conversation ledger shows NO
+      such event: record_update: logged verification record"* 라는 **거짓**을 내보냈다.
+      계좌 조회(`call_discoverable_agent_tool` 경유)도 같은 식으로 "없다"고 했다.
+      우리 출력은 이 대화에서 **유일한 근거원**이라 거짓은 그 자체로 오염이다([[25]]).
+    ⇒ 권위는 **실행 원장**이고 `kind` 는 해석이다([[52]]). 그래서 모델에게 *어느 호출이
+      그것을 했는지* 를 함께 내게 하고(A2 `claim_audit` 질문·`done_report.tool` 과 같은 규약),
+      엔진은 **이름 집합 대조**만 한다 — 의미 판단 0([[22]]).
+      지목이 없으면 구판(kind 색인)으로 떨어진다 = 거동 보존.
+    ⚠약함의 대가: 모델이 엉뚱한 도구를 대면 통과한다. 그래도 구판보다 낫다 — 구판은
+      **맞는 행동을 했는데 틀렸다고** 말했고, 그건 모델이 고칠 수 없는 오류다.
+    ⚠라이브 효과 미측정([[57]]) — 다음 런에서 `kind-index rescued` 발화 수로 잰다.
+    """
+    def _n(x):
+        return re.sub(r"_\d+$", "", str(x or "").strip())
+
+    named = {_n(e) for e in (evs or ()) if str(e or "").strip()}
     out = []
     for c in (claims or []):
+        t = _n((c or {}).get("tool"))
+        if t:
+            if t not in named:
+                out.append(c)
+            else:
+                print("[T2_CLAIMPROV] kind-index rescued: kind=%r tool=%r 원장에 있다"
+                      % ((c or {}).get("kind"), t), file=sys.stderr, flush=True)
+            continue
         k = str((c or {}).get("kind", "")).strip().lower()
         spec = emap.get(k)
         if spec is None:
