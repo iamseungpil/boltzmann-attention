@@ -180,6 +180,25 @@ def test_pairs_do_not_reask_an_item_already_asked():
     assert added == 1, ("새로 들어온 항목 1개만 물어야 한다", added, first)
 
 
+def test_same_document_retrieved_twice_is_asked_once():
+    """★같은 문서를 두 번 회수하면 **한 번만** 묻는다.
+
+    구판 식별자(위치+길이)는 인덱스가 다르면 다른 항목으로 봐서 **두 번 물었다** — 궤적에
+    중복 회수가 실재한다(문턱 문장이 오프셋 5,901·9,147에 각각 두 번). 비용을 줄이려고 고른
+    식별자가 비용을 늘리고 있었다. 식별자를 내용 다이제스트로 바꾼 이유가 이것이다.
+    """
+    calls = []
+
+    def counting(node, text):
+        calls.append(node["out"])
+        return answer(node, text)
+
+    s = _sched()
+    s.update(F.Inputs(corpus=[HEAD, MIN_DOC, "사이 문서", MIN_DOC], tools={}), ask=counting)
+    assert s.vals["minimums"] == {"Hunter Green": (60, MIN_DOC)}, s.vals["minimums"]
+    assert calls.count("minimums") == 3, ("중복 문서를 두 번 물었다", calls.count("minimums"))
+
+
 def test_silence_when_nothing_changed():
     """아무것도 안 바뀌면 **아무 말도 안 한다**(§6 위험 3 — 말이 늘면 과행동이 는다)."""
     s = _sched()

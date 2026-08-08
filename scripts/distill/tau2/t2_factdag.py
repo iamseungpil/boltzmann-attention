@@ -20,6 +20,7 @@
 [[05]] 3질문은 설계서 §4에 답이 있다(요지: A2 재배치·판정은 모델 몫·도구를 부르지 않는다).
 """
 
+import hashlib
 import sys
 
 # ★파서는 **한 벌**만 둔다. 새로 쓰면 같은 술어가 두 벌이 되고 갈린다 — `t2_precedence` 첫 주석이
@@ -251,19 +252,26 @@ def _formalize_pairs_per_item(node, items, hay, ask, memo, budget):
     뽑은 것**(5). 항목별 질의는 둘 다 없앤다. 이것은 등대 §1.4의 부하 정의를 **우리 자신의
     서브콜**에 적용한 결과이고, 처방도 같다(분해).
 
-    비용은 **항목 단위 메모이즈**로 유계다: 회수된 항목은 불변이므로 한 번 물으면 다시 묻지
-    않는다 ⇒ sim당 호출 ≈ 코퍼스 항목 수(재평가 횟수에 곱해지지 않는다).
-    ⚠식별자는 **위치와 길이**다(내용 해시 아님·[[59]]). 코퍼스는 덧붙기만 하므로 안정적이다.
+    비용은 **항목 단위 메모이즈**로 유계다: 같은 내용은 한 번만 묻는다 ⇒ sim당 호출 ≈ **서로 다른
+    항목 수**(재평가 횟수에도, 같은 문서의 재회수에도 곱해지지 않는다).
+
+    ★식별자 = **내용 다이제스트**. 처음엔 위치+길이로 썼고 그 근거를 [[59]]로 댔는데 **틀렸다**:
+    [[59]]가 금지하는 것은 엔진이 도메인 텍스트를 **패턴매칭으로 뜯어 내용을 알아내는 것**이고
+    (`parse_records`류), 해시는 정규식도 어휘도 필드 추출도 없이 *같은 바이트인가*만 답한다 —
+    이미 쓰고 있는 `quote not in hay`(부분문자열 멤버십)가 오히려 텍스트에 더 가깝게 닿는다.
+    위치+길이가 실제로 나쁜 이유는 둘이다: ⓐ**같은 문서가 두 번 회수되면 두 번 묻는다**(궤적에
+    실재 — 문턱 문장이 오프셋 5,901·9,147에 각각 두 번) ⓑ같은 인덱스의 내용이 바뀌면 **조용히
+    옛 답을 쓴다**(덧붙기 가정이 깨지는 순간 침묵으로 틀린다 = 이 설계가 없애려는 그 형태).
 
     반환 `(값, 사유, 이번에 실제로 물은 횟수)`.
     """
     p = dict(node.get("params") or {})
     out, asked = {}, 0
-    for i, t in enumerate(items):
+    for t in items:
         s = str(t)[:budget]
         if not s.strip():
             continue
-        key = (node["out"], i, len(s))
+        key = (node["out"], hashlib.sha1(s.encode("utf-8")).hexdigest())
         if key not in memo:
             raw = ask(node, s)
             asked += 1
@@ -358,7 +366,7 @@ class Scheduler(object):
         self.cap = int(cap)
         self.ex = dict(excerpt_args or {})
         self.vals, self.asked, self.trace = {}, {}, []
-        self.memo = {}          # (노드, 항목 위치, 길이) → 그 항목에서 뽑힌 쌍 (C313)
+        self.memo = {}          # (노드, 항목 내용 다이제스트) → 그 항목에서 뽑힌 쌍 (C313)
         self._corpus_n, self._tool_sig = None, {}
 
     def _stale(self, inputs):
