@@ -1,0 +1,120 @@
+# -*- coding: utf-8 -*-
+"""x151 — **통과 집합**(엔진이 거른 것)이 선택을 닫는가. 유료 0·로컬 32B([[18]]·[[57]]).
+
+x150 이 낸 진단: 100 은 **능력**(같은 표 0/5 · 자격 미달 행을 뺀 표 5/5), 099 는 **부하**
+(깨끗한 표 5/5 · 실제 궤적 문맥 0/5). 처방이 하나로 모인다 — **엔진이 걸러 통과 집합만 준다**.
+그 처방은 이제 구현돼 있다(`t2_ledger.eligible_text` + A2 `eligible` 선언). 이 프로브는
+**우리 층이 실제로 내보내는 문장 그대로**를 넣고 재는 것이다 — 프로브용으로 다시 만든 표가
+아니다. 그래야 여기서 산 것이 라이브에서도 산다.
+
+  100 계열 (능력 축 · 손님 관계기간 65일)
+    A0 raw-table       A3 전체 표 + 사실 + 질문                    ← x150 P0 대응(0/5였다)
+    A1 eligible        **우리 문장**(통과 집합)만 + 사실 + 질문     ← 신규 레버
+    A2 eligible+table  통과 집합 + 전체 표 둘 다                   ← handoff §4 ⚠의 미결 질문
+
+  099 계열 (부하 축 · 손님 관계기간 약 2년)
+    B0 raw-table       A3 전체 표 + 사실 + 질문
+    B1 eligible        우리 문장만 + 사실 + 질문
+    B2 ctx+table       **실제 궤적 문맥** + 전체 표                 ← x150 Q0 대응(0/5였다)
+    B3 ctx+eligible    실제 궤적 문맥 + 우리 문장                   ← 부하 아래서도 사는가
+
+부정통제([[57]]): A0/B0·B2 가 그 통제다 — 같은 모델·같은 질문·같은 사실에서 **거른 것만**
+다르다. 통과 집합 arm 이 올라가고 raw arm 이 그대로면 오른 것은 필터이지 재시도가 아니다.
+
+⚠이 표는 **이름 통일 후**의 A3 다(x152). 통일 전에는 `World Blue Balance`(보너스 300·문턱 없음)가
+  필터를 그냥 통과했다 — 그 상태로 이 레버를 켰으면 65일 손님에게 오답을 최고액으로 얹어 줬다.
+
+실행: py -3 x151_eligible_probe.py [TAG] [N]
+"""
+import collections
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
+import x149_choice_isolation as X                              # noqa: E402
+import x150_choice_ablation as Y                               # noqa: E402
+import t2_factdag as FD                                        # noqa: E402
+import t2_ledger as LG                                         # noqa: E402
+from gate_interpreter import load_domain_a2                     # noqa: E402
+
+DOMAIN = "banking_knowledge"
+Q = X.QUESTION
+# 각 sim 의 손님 사실에서 **경과일**만 뽑아 온다(궤적에 실재하는 수·gold 무참조).
+DAYS = {"task_100": 65, "task_099": 730}
+
+
+def our_sentence(a2, task):
+    """라이브가 실제로 내보내는 통과-집합 문장. 프로브가 문구를 다시 짓지 않는다."""
+    specs = a2.get("ledger_metrics") or []
+    spec = next((s for s in specs if s.get("eligible_text")), None)
+    if spec is None:
+        raise SystemExit("A2 에 eligible_text 선언이 없다 — 배선 확인")
+    rows = (a2.get("policy_ontology") or {}).get("rows") or ()
+    axes = list((spec.get("eligible") or {}).get("show_axes") or ())
+    maps = {ax: FD._a3_map(rows, {"axis": ax}) for ax in axes}
+    return LG.eligible_text(DAYS[task], {}, maps, spec).strip()
+
+
+def main():
+    tag = sys.argv[1] if len(sys.argv) > 1 else "bank_remeas_20260808f"
+    n = int(sys.argv[2]) if len(sys.argv) > 2 else 5
+    a2 = load_domain_a2(DOMAIN)
+    table = X.a3_table()
+
+    arms = collections.OrderedDict()
+    f100, f099 = X.FACTS["task_100"], X.FACTS["task_099"]
+    e100, e099 = our_sentence(a2, "task_100"), our_sentence(a2, "task_099")
+
+    arms[("task_100", "A0 raw-table")] = table + "\n\n" + f100 + "\n\n" + Q
+    arms[("task_100", "A1 eligible")] = e100 + "\n\n" + f100 + "\n\n" + Q
+    arms[("task_100", "A2 eligible+table")] = (table + "\n\n" + e100 + "\n\n" + f100
+                                               + "\n\n" + Q)
+
+    ctx = Y.render(Y.msgs_of(tag, "task_099"))
+    head = "Here is a customer-service conversation so far.\n\n"
+    arms[("task_099", "B0 raw-table")] = table + "\n\n" + f099 + "\n\n" + Q
+    arms[("task_099", "B1 eligible")] = e099 + "\n\n" + f099 + "\n\n" + Q
+    arms[("task_099", "B2 ctx+table")] = head + ctx + "\n\n" + table + "\n\n" + f099 + "\n\n" + Q
+    arms[("task_099", "B3 ctx+eligible")] = head + ctx + "\n\n" + e099 + "\n\n" + f099 + "\n\n" + Q
+
+    print("=== 통과 집합 (task_100 · %d일) ===" % DAYS["task_100"])
+    print(e100)
+    print()
+    print("=== 통과 집합 (task_099 · %d일) ===" % DAYS["task_099"])
+    print(e099)
+    print()
+
+    res = collections.OrderedDict()
+    for key, prompt in arms.items():
+        answers = []
+        for i in range(n):
+            try:
+                answers.append(X.ask(prompt, 0.0 if i == 0 else 0.7))
+            except Exception as e:
+                answers.append("ERR %r" % (e,))
+        res[key] = answers
+        gold = X.GOLD[key[0]]
+        hit = sum(1 for a in answers if gold.lower() in str(a).lower())
+        print("%-9s %-18s gold=%-12s %d/%d   %s"
+              % (key[0], key[1], gold, hit, len(answers),
+                 collections.Counter(re.sub(r"\s+", " ", a)[:26] for a in answers).most_common(2)))
+
+    print()
+    print("=== 요약 ===")
+    for key, answers in res.items():
+        gold = X.GOLD[key[0]]
+        print("  %-9s %-18s %d/%d" % (key[0], key[1],
+                                      sum(1 for a in answers if gold.lower() in str(a).lower()),
+                                      len(answers)))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

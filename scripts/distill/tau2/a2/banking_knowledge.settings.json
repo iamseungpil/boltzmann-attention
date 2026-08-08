@@ -270,6 +270,10 @@
     "params": {"axis": "referrer_tenure_days"}},
    {"out": "doc_bonuses", "inputs": ["a3"], "op": "a3_map",
     "params": {"axis": "referrer_bonus_usd"}},
+   {"out": "doc_deposits", "inputs": ["a3"], "op": "a3_map",
+    "params": {"axis": "qualifying_deposit_usd"}},
+   {"out": "doc_company_age", "inputs": ["a3"], "op": "a3_map",
+    "params": {"axis": "company_max_age_years"}},
 
    {"out": "annual_left", "inputs": ["type_usage", "doc_limits"], "op": "subtract_by_group"},
    {"out": "tenure_ok", "inputs": ["tenure_days", "doc_minimums"], "op": "compare_ge"},
@@ -326,6 +330,20 @@
    "age_text": "The earliest of these accounts was opened {since}, which is {days} days ago. Any rule that depends on how long this customer has banked here is measured from that date.",
    "threshold_prompt": "Below are excerpts retrieved in this conversation. Some of them may state, for a particular account type, the minimum time the referring customer must already have banked here before they can refer someone to that type. Report only what the excerpts actually say. Reply with a JSON object only, mapping the account type's full name to {{\"min_days\": <integer number of days>, \"quote\": \"<the sentence from the excerpt, copied exactly>\"}}. Convert months or years to days only if the excerpt itself gives the conversion. Omit any account type whose minimum is not stated in these excerpts - do not infer it, do not carry it over from another type, and do not use general knowledge. If none are stated, reply {{}}.\n\n{text}",
    "ineligible_text": "Arithmetic on the elapsed time above ({days} days) against the minimums you retrieved: not reachable yet - {blocked}. Reachable on this criterion - {ok}. This is a comparison of two numbers, not a recommendation, and it covers only the types whose minimum appeared in a document you retrieved. Other requirements may still apply.",
+   "eligible_text": "\n[STILL OPEN] Having removed the products this customer cannot be a referrer for on the two criteria we can compute ({days} days of tenure against each product's minimum, and this year's counts against each product's annual limit), these remain, with the policy constants on record for each:\n{eligible}\nThis is filtering, not a recommendation - the choice is yours. Read the remaining constants against this customer's situation before choosing: a product is listed here only because it passed the two criteria above, not because every requirement is met. Products with no minimum on record were not filtered on it and are listed unchecked.",
+   "eligible": {
+    "min_days_axis": "referrer_tenure_days",
+    "annual_limit_axis": "annual_referral_limit",
+    "tally_from": "get_referrals_by_user",
+    "show_axes": [
+     "referrer_bonus_usd",
+     "referrer_tenure_days",
+     "annual_referral_limit",
+     "qualifying_deposit_usd",
+     "company_max_age_years"
+    ]
+   },
+   "_note_eligible": "★2026-08-08 신설 (C337·handoff §4·사용자 지시 *\"상품 이름을 통일하라\"* 후속). ★출처([[23]]) = **x150 절제 실측 + A3 조회**, gold 무참조. 실측: 같은 표를 주고 물으면 **0/5**(전부 자격 미달 상품을 고른다), **자격 미달 행을 미리 뺀 표**면 **5/5**. 축 이름을 문장으로 풀어써도 0/5, *\"먼저 자격을 따지고 그 다음 최고를 고르라\"* 고 분해해 줘도 0/5 ⇒ 표면화를 더 얹는 길은 닫혀 있고 **거르는 일 자체를 엔진이** 해야 한다(등대 §1.4 F2b·처방 = 형식화(LLM)→결정론 실행(filter)). ★여기 있는 것은 **축 이름뿐이고 값은 하나도 없다** — 값은 전부 A3 조회라 상품이 늘어도 이 선언은 안 자란다([[50]] ADB). ★거르는 축은 **우리가 결정론으로 쥔 둘뿐**이다(경과일 대 문턱·누계 대 상한). 그 축이 문서에 없는 상품은 **거르지 않고 그대로 싣는다** — 모르는 것을 탈락으로 바꾸지 않으며, 문구가 그 사실을 명시한다. ★**남은 축을 같이 싣는 이유**(자기정정): 통과 집합을 이름+보너스로 줄이면 099가 닫히지 않는다 — 관계기간 2년이라 문턱이 아무도 못 거르고, A3 실측상 `True Blue` 350 > `World Blue` 300 이라 **보너스만 주면 argmax 가 오답을 가리킨다**. 그 sim 을 가르는 것은 예치 하한(손님 $30,000 대 True Blue 50000·Beige 100000)이고, 5/5 를 낸 표에는 그 축이 들어 있었다. ⇒ 걸러 주되 **판단 재료는 빼앗지 않는다**([[05]] Q2: 고르는 것은 모델). ★정렬은 **이름순**이다 — 보너스순으로 내리면 첫 줄이 곧 답이 되어 우리가 argmax 까지 해 버린다. 측정된 조건(P2 표)도 이름순이었다. ⚠Δspurious(등대 §1.3): 발화가 길어진다. 그래서 발화 조건을 좁게 뒀다 — **경과일이 없거나 문턱 축이 비면 침묵**한다(문턱을 못 걸고 만든 '통과 집합'은 전체 표에 통과 도장을 찍는 것이고, 실측상 그 상태의 최고액이 정확히 오답 `World Blue` 300 이었다).",
    "_note_thresholds": "2026-08-08. 출처([[23]]) = **정책 문서 축자**(gold 무참조). 문형이 상품마다 다르다 — `doc_business_checking_accounts_hunter_green_001`: \"**Eligibility**: A minimum relationship duration of 60 days as a checking account holder is required.\" / `doc_business_checking_accounts_world_blue_001`: \"You must have maintained checking account status with Rho-Bank for at least 90 days\" / `navy_blue_001`은 표(`| Your account age requirement | 60 days |`) 형식. ★세 형식이 전부 달라 **엔진 정규식으로는 못 읽는다** — 모델이 뽑고 엔진은 (a)인용 실재 확인 (b)경과일과의 비교만 한다([[59]]·[[22]]). ★**일수를 A2에 넣지 않는다**([[50]] ADB). ★왜 필요한가: 관계기간 65일을 우리가 정확히 셈해 넘기는데 문서의 90일과 **아무도 맞대지 않아** `World Blue`가 그대로 제출됐다(런 i). ⚠추천하지 않는다·못 되는 것만 말한다·'다른 요건이 남아 있을 수 있다'를 문구에 명시(예치 하한 등 우리가 안 보는 축이 있다).",
    "text": "\n[COMPUTED FACTS] Counted from the accounts above (arithmetic, not a recommendation): {total} account(s).\n{age}\nThis is elapsed time only. It is NOT a threshold. Whatever minimum each product requires is stated in that product's knowledge-base document - retrieve it before saying whether it is met. What this customer currently holds does not restrict what they may refer someone to.",
    "_note_no_tally": "2026-08-08. `By level: {tally}` **삭제**(추가가 아니라 제거·minimize-A2 방향). 근거 둘: ①이 결정에 쓰이는 데가 없다 — 정책 축자가 *\"holding one account type does not prevent you from referring someone to a different account type\"* 이라 보유 level은 추천 유형과 무관하다(추천 원장 쪽 tally는 유형별 누계라 필수·거기선 유지). ②원장 C310 실측: 계좌를 읽은 3 sim 중 **2건이 손님 보유 level로 정박**(`World Blue`·`Cobalt Blue`)했고 안 읽은 4건은 전부 정답. 정박원은 원 도구 출력이라 우리가 못 지우지만, **우리가 그 이름을 한 번 더 반복할 이유는 없다**. ⚠이것만으로 정박이 닫힌다는 주장은 아니다 — 우리 기여분만 뺀 것이고 판정은 다음 런. 대신 마지막 문장으로 무관함을 **정책 축자 그대로** 진술한다.",

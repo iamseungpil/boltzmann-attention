@@ -2425,6 +2425,16 @@ def _limit_reduce_text(agent, a2, messages):
         print("[T2_LIMIT_REDUCE] A3 조회 실패: %r" % (_fe2,), file=sys.stderr, flush=True)
     _lims3 = _a3v.get("doc_limits") or {}
     _mins3 = _a3v.get("doc_minimums") or {}
+    # ★축 이름 → 조회 결과. 선언(`derived`)이 이미 축을 말하고 있으므로 여기서 이름을 짓지
+    #   않는다 — 엔진에 도메인 어휘 0. 소비자(`eligible_text`)는 A2가 지목한 축만 꺼내 쓴다.
+    _axm3 = {}
+    for _n3 in ((a2 or {}).get("derived") or ()):
+        if _n3.get("op") != "a3_map":
+            continue
+        _ax3 = (_n3.get("params") or {}).get("axis")
+        _v3 = _a3v.get(_n3.get("out"))
+        if _ax3 and _v3:
+            _axm3[_ax3] = _v3
     _add = ""
     # 선언마다 **그 선언이 말하는 축만** 계산한다 — 상한은 상한을 선언한 쪽, 문턱은 문턱 쪽.
     for _e2 in ops.values():
@@ -2437,6 +2447,14 @@ def _limit_reduce_text(agent, a2, messages):
             _add += _LG2.unmatched_text(_e2["tally"], _lims3, _sp2)
         if _e2.get("days") is not None and _mins3:
             _add += _LG2.ineligible_text(_e2["days"], _mins3, _sp2)
+        # ★통과 집합 (2026-08-08·C337). 못 되는 것을 말하는 것만으로는 안 닫혔다 —
+        #   x150 절제: 같은 표 0/5 vs **미달 행을 뺀 표 5/5**. 그래서 거르는 일 자체를
+        #   엔진이 하고 남은 것만 준다. 누계는 **A2가 지목한 선언**의 것을 쓴다(계좌 선언의
+        #   tally 는 손님 보유 level 이라 연간 상한과 무관하다 — 섞으면 조용히 틀린다).
+        if _e2.get("days") is not None and _sp2.get("eligible_text"):
+            _tf2 = (_sp2.get("eligible") or {}).get("tally_from")
+            _tal2 = ((ops.get(str(_tf2)) or {}).get("tally") or {}) if _tf2 else {}
+            _add += _LG2.eligible_text(_e2["days"], _tal2, _axm3, _sp2)
     return _add.strip()
 
 

@@ -317,8 +317,13 @@ def exhausted_text(tally, limits, spec):
     return tpl.format(exhausted="; ".join(gone), remaining="; ".join(left) or "(none)")
 
 
-def eligible_text(days, tally, minimums, limits, bonuses, spec):
-    """자격을 **엔진이 걸러** 통과한 후보만 값과 함께 말한다. 산수뿐이다.
+def _num(v):
+    """`(값, 인용)` 도 값 그대로도 받는다 — A3 조회와 원장 산수가 같은 자리에서 만난다."""
+    return int(v[0] if isinstance(v, (tuple, list)) else v)
+
+
+def eligible_text(days, tally, axis_maps, spec):
+    """자격을 **엔진이 걸러** 통과한 후보만, 그 상품에 기록된 정책 상수와 함께 말한다. 산수뿐이다.
 
     ★근거 (2026-08-08·C337·x150 절제 실측): 모델은 argmax 를 완벽히 하고 **자격 필터를 못 한다**.
       같은 표를 주고 물으면 0/5(전부 자격 미달 상품을 고른다)인데, **자격 미달 행을 미리 뺀 표**를
@@ -327,34 +332,51 @@ def eligible_text(days, tally, minimums, limits, bonuses, spec):
       무효)의 독립 재현이고, 거기 처방이 *"형식화(LLM)→결정론 실행(filter)"* 이다.
     ⇒ 전체 표를 표면화하는 대신 **통과 집합**을 준다. 고르는 것은 여전히 모델이다([[05]] Q2).
 
+    ★남은 축을 **같이 싣는다** (2026-08-08 자기정정·§ 아래 실측): 통과 집합을 *이름과 보너스만*
+      으로 줄이면 099가 닫히지 않는다 — 그 sim 은 관계기간이 2년이라 문턱이 아무도 못 거르고,
+      정답을 가르는 것은 예치 하한·회사 연령이다(A3 실측: `True Blue` 350 이 `World Blue` 300 보다
+      크다 ⇒ 보너스만 주면 argmax 가 오히려 오답을 가리킨다). x149 A_clean(5/5)·x150 P2(5/5)가
+      쓴 표에는 그 축들이 **들어 있었다** ⇒ 재현하려면 같이 실어야 한다. 축 목록·문턱 축 이름은
+      전부 A2 선언이고 엔진에 도메인 어휘는 없다.
+
     걸 수 있는 기준만 건다(우리가 결정론으로 쥔 것): 경과일 대 문턱, 누계 대 상한.
     문서에 그 기준이 없는 주어는 **거르지 않는다** — 모르는 것을 탈락으로 바꾸지 않는다.
-    다른 요건(예치액·회사 연령 등)은 여전히 남아 있을 수 있고 문구가 그렇게 말한다.
+    다른 요건은 여전히 남아 있을 수 있고, 그래서 남은 축을 **값 그대로** 넘겨 모델이 보게 한다.
+
+    ⚠**닫을 수 없으면 침묵한다**: 경과일이 없거나 문턱 축이 비어 있으면 이 문장은 나가지 않는다.
+      문턱을 못 걸고 만든 '통과 집합'은 통과 집합이 아니라 **전체 표에 통과 도장을 찍은 것**이고,
+      실측상 그 상태의 최고액은 정확히 오답(`World Blue Balance` 300)이다.
+    ⚠정렬은 **이름순**이다. 보너스순으로 내리면 첫 줄이 곧 답이 되어 우리가 argmax 까지 해 버린다
+      ([[05]] Q2: 고르는 것은 모델). 측정된 조건(P2 표)도 이름순이었다.
     """
     tpl = (spec or {}).get("eligible_text")
-    if not tpl:
+    cfg = (spec or {}).get("eligible") or {}
+    min_ax, lim_ax = cfg.get("min_days_axis"), cfg.get("annual_limit_axis")
+    show = list(cfg.get("show_axes") or ())
+    if not (tpl and min_ax and show):
         return ""
-    subs = set(bonuses or {}) | set(minimums or {}) | set(limits or {})
-    if not subs:
+    mins = (axis_maps or {}).get(min_ax) or {}
+    lims = (axis_maps or {}).get(lim_ax) or {} if lim_ax else {}
+    if days is None or not mins:
         return ""
+    subs = set()
+    for a in show:
+        subs |= set((axis_maps or {}).get(a) or {})
     ok = []
     for s in sorted(subs):
-        need = (minimums or {}).get(s)
-        if need is not None and days is not None:
-            if int(days) < int(need[0] if isinstance(need, (tuple, list)) else need):
-                continue
-        cap = (limits or {}).get(s)
-        if cap is not None:
-            c = int(cap[0] if isinstance(cap, (tuple, list)) else cap)
-            if int((tally or {}).get(s, 0)) >= c:
-                continue
-        b = (bonuses or {}).get(s)
-        ok.append((int(b[0] if isinstance(b, (tuple, list)) else b) if b is not None else None, s))
+        need = mins.get(s)
+        if need is not None and int(days) < _num(need):
+            continue
+        cap = lims.get(s)
+        if cap is not None and int((tally or {}).get(s, 0)) >= _num(cap):
+            continue
+        bits = ["%s=%s" % (a, _num((axis_maps or {}).get(a, {})[s]))
+                for a in show if s in ((axis_maps or {}).get(a) or {})]
+        if bits:
+            ok.append("  %s: %s" % (s, ", ".join(bits)))
     if not ok:
         return ""
-    ok.sort(key=lambda t: (-(t[0] if t[0] is not None else -1), t[1]))
-    shown = "; ".join(("%s %s" % (s, v)) if v is not None else s for v, s in ok)
-    return tpl.format(eligible=shown)
+    return tpl.format(days=int(days), eligible="\n".join(ok))
 
 
 def unmatched_text(tally, limits, spec):

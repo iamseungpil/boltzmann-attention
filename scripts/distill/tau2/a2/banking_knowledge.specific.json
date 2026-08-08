@@ -2685,7 +2685,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Beige Account",
+    "subject": "Beige",
     "axis": "referrer_tenure_days",
     "value": 120,
     "against": "tenure_days",
@@ -2707,7 +2707,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Beige Account",
+    "subject": "Beige",
     "axis": "annual_referral_limit",
     "value": 15,
     "against": "type_usage",
@@ -2729,7 +2729,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Beige Account",
+    "subject": "Beige",
     "axis": "annual_referral_limit",
     "value": 15,
     "against": "type_usage",
@@ -2751,7 +2751,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Cobalt Blue Business Checking",
+    "subject": "Cobalt Blue",
     "axis": "annual_referral_limit",
     "value": 10,
     "against": "type_usage",
@@ -2795,7 +2795,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Hunter Green Business Checking",
+    "subject": "Hunter Green",
     "axis": "referrer_tenure_days",
     "value": 60,
     "against": "tenure_days",
@@ -2817,7 +2817,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Hunter Green Business Checking",
+    "subject": "Hunter Green",
     "axis": "annual_referral_limit",
     "value": 10,
     "against": "type_usage",
@@ -2839,7 +2839,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Lime Green Account",
+    "subject": "Lime Green",
     "axis": "referrer_tenure_days",
     "value": 90,
     "against": "tenure_days",
@@ -2861,7 +2861,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Lime Green Account",
+    "subject": "Lime Green",
     "axis": "annual_referral_limit",
     "value": 12,
     "against": "type_usage",
@@ -2883,7 +2883,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Navy Blue Business Checking",
+    "subject": "Navy Blue",
     "axis": "referrer_tenure_days",
     "value": 60,
     "against": "tenure_days",
@@ -2905,7 +2905,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Navy Blue Business Checking",
+    "subject": "Navy Blue",
     "axis": "annual_referral_limit",
     "value": 10,
     "against": "type_usage",
@@ -2971,7 +2971,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "True Blue Account",
+    "subject": "True Blue",
     "axis": "referrer_tenure_days",
     "value": 90,
     "against": "tenure_days",
@@ -2993,7 +2993,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "True Blue Account",
+    "subject": "True Blue",
     "axis": "annual_referral_limit",
     "value": 15,
     "against": "type_usage",
@@ -3015,7 +3015,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "World Blue International Checking",
+    "subject": "World Blue",
     "axis": "referrer_tenure_days",
     "value": 90,
     "against": "tenure_days",
@@ -3037,7 +3037,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "World Blue Balance",
+    "subject": "World Blue",
     "axis": "annual_referral_limit",
     "value": 12,
     "against": "type_usage",
@@ -3191,7 +3191,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Blue Account",
+    "subject": "Blue",
     "axis": "referrer_tenure_days",
     "value": 30,
     "against": "tenure_days",
@@ -3213,7 +3213,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Blue Account",
+    "subject": "Blue",
     "axis": "annual_referral_limit",
     "value": 5,
     "against": "type_usage",
@@ -3235,7 +3235,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Bluest Account",
+    "subject": "Bluest",
     "axis": "referrer_tenure_days",
     "value": 60,
     "against": "tenure_days",
@@ -3257,7 +3257,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Bluest Account",
+    "subject": "Bluest",
     "axis": "annual_referral_limit",
     "value": 8,
     "against": "type_usage",
@@ -3279,7 +3279,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Dark Green Account",
+    "subject": "Dark Green",
     "axis": "referrer_tenure_days",
     "value": 45,
     "against": "tenure_days",
@@ -3301,7 +3301,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Dark Green Account",
+    "subject": "Dark Green",
     "axis": "annual_referral_limit",
     "value": 6,
     "against": "type_usage",
@@ -3323,7 +3323,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Evergreen Account",
+    "subject": "Evergreen",
     "axis": "annual_referral_limit",
     "value": 6,
     "against": "type_usage",
@@ -3345,7 +3345,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Evergreen Account",
+    "subject": "Evergreen",
     "axis": "referrer_tenure_days",
     "value": 45,
     "against": "tenure_days",
@@ -3367,7 +3367,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Gold Years Account",
+    "subject": "Gold Years",
     "axis": "referrer_tenure_days",
     "value": 30,
     "against": "tenure_days",
@@ -3389,7 +3389,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Gold Years Account",
+    "subject": "Gold Years",
     "axis": "annual_referral_limit",
     "value": 6,
     "against": "type_usage",
@@ -3411,7 +3411,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Green Account",
+    "subject": "Green",
     "axis": "referrer_tenure_days",
     "value": 30,
     "against": "tenure_days",
@@ -3433,7 +3433,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Green Account",
+    "subject": "Green",
     "axis": "annual_referral_limit",
     "value": 5,
     "against": "type_usage",
@@ -3455,7 +3455,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Green Fee-Free Account",
+    "subject": "Green Fee-Free",
     "axis": "referrer_tenure_days",
     "value": 30,
     "against": "tenure_days",
@@ -3477,7 +3477,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Green Fee-Free Account",
+    "subject": "Green Fee-Free",
     "axis": "annual_referral_limit",
     "value": 4,
     "against": "type_usage",
@@ -3499,7 +3499,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Light Blue Account",
+    "subject": "Light Blue",
     "axis": "referrer_tenure_days",
     "value": 30,
     "against": "tenure_days",
@@ -3521,7 +3521,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Light Blue Account",
+    "subject": "Light Blue",
     "axis": "annual_referral_limit",
     "value": 5,
     "against": "type_usage",
@@ -3543,7 +3543,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Light Green Account",
+    "subject": "Light Green",
     "axis": "annual_referral_limit",
     "value": 3,
     "against": "type_usage",
@@ -3565,7 +3565,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Light Green Account",
+    "subject": "Light Green",
     "axis": "referrer_tenure_days",
     "value": 14,
     "against": "tenure_days",
@@ -3587,7 +3587,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Purple Account",
+    "subject": "Purple",
     "axis": "referrer_tenure_days",
     "value": 45,
     "against": "tenure_days",
@@ -3609,7 +3609,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Purple Account",
+    "subject": "Purple",
     "axis": "annual_referral_limit",
     "value": 6,
     "against": "type_usage",
@@ -3766,7 +3766,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Checking Account",
+    "subject": "Checking",
     "axis": "rolling_window_referrals",
     "value": 2,
     "against": null,
@@ -3836,7 +3836,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Checking Account",
+    "subject": "Checking",
     "axis": "referred_no_prior_accounts_months",
     "value": 12,
     "against": null,
@@ -3858,7 +3858,7 @@
      ],
      "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"
     },
-    "subject": "Checking Account",
+    "subject": "Checking",
     "axis": "referred_no_prior_accounts_months",
     "value": 12,
     "against": null,
@@ -3875,7 +3875,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Beige Account",
+    "subject": "Beige",
     "axis": "referrer_bonus_usd",
     "value": 500,
     "against": null,
@@ -3892,7 +3892,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Beige Account",
+    "subject": "Beige",
     "axis": "referred_bonus_usd",
     "value": 350,
     "against": null,
@@ -3909,7 +3909,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Beige Account",
+    "subject": "Beige",
     "axis": "qualifying_deposit_usd",
     "value": 100000,
     "against": null,
@@ -3926,7 +3926,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Beige Account",
+    "subject": "Beige",
     "axis": "deposit_window_days",
     "value": 120,
     "against": null,
@@ -3943,7 +3943,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Cobalt Blue Business Checking",
+    "subject": "Cobalt Blue",
     "axis": "referrer_bonus_usd",
     "value": 150,
     "against": null,
@@ -3960,7 +3960,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Cobalt Blue Business Checking",
+    "subject": "Cobalt Blue",
     "axis": "referred_bonus_usd",
     "value": 100,
     "against": null,
@@ -4011,7 +4011,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Hunter Green Business Checking",
+    "subject": "Hunter Green",
     "axis": "referrer_bonus_usd",
     "value": 175,
     "against": null,
@@ -4028,7 +4028,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Hunter Green Business Checking",
+    "subject": "Hunter Green",
     "axis": "referred_bonus_usd",
     "value": 125,
     "against": null,
@@ -4045,7 +4045,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Hunter Green Business Checking",
+    "subject": "Hunter Green",
     "axis": "qualifying_deposit_usd",
     "value": 10000,
     "against": null,
@@ -4062,7 +4062,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Lime Green Account",
+    "subject": "Lime Green",
     "axis": "referrer_bonus_usd",
     "value": 200,
     "against": null,
@@ -4079,7 +4079,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Lime Green Account",
+    "subject": "Lime Green",
     "axis": "referred_bonus_usd",
     "value": 150,
     "against": null,
@@ -4096,7 +4096,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Lime Green Account",
+    "subject": "Lime Green",
     "axis": "qualifying_deposit_usd",
     "value": 15000,
     "against": null,
@@ -4113,7 +4113,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Lime Green Account",
+    "subject": "Lime Green",
     "axis": "deposit_window_days",
     "value": 90,
     "against": null,
@@ -4130,7 +4130,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Navy Blue Business Checking",
+    "subject": "Navy Blue",
     "axis": "referrer_bonus_usd",
     "value": 100,
     "against": null,
@@ -4147,7 +4147,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Navy Blue Business Checking",
+    "subject": "Navy Blue",
     "axis": "referred_bonus_usd",
     "value": 75,
     "against": null,
@@ -4164,7 +4164,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Navy Blue Business Checking",
+    "subject": "Navy Blue",
     "axis": "qualifying_deposit_usd",
     "value": 5000,
     "against": null,
@@ -4181,7 +4181,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Navy Blue Business Checking",
+    "subject": "Navy Blue",
     "axis": "deposit_window_days",
     "value": 90,
     "against": null,
@@ -4288,7 +4288,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "True Blue Account",
+    "subject": "True Blue",
     "axis": "referrer_bonus_usd",
     "value": 350,
     "against": null,
@@ -4305,7 +4305,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "True Blue Account",
+    "subject": "True Blue",
     "axis": "referred_bonus_usd",
     "value": 250,
     "against": null,
@@ -4322,7 +4322,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "True Blue Account",
+    "subject": "True Blue",
     "axis": "qualifying_deposit_usd",
     "value": 50000,
     "against": null,
@@ -4339,7 +4339,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "True Blue Account",
+    "subject": "True Blue",
     "axis": "deposit_window_days",
     "value": 120,
     "against": null,
@@ -4356,7 +4356,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "World Blue International Checking",
+    "subject": "World Blue",
     "axis": "qualifying_deposit_usd",
     "value": 25000,
     "against": null,
@@ -4373,7 +4373,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "World Blue Balance",
+    "subject": "World Blue",
     "axis": "referrer_bonus_usd",
     "value": 300,
     "against": null,
@@ -4390,7 +4390,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "World Blue Balance",
+    "subject": "World Blue",
     "axis": "referred_bonus_usd",
     "value": 200,
     "against": null,
@@ -4594,7 +4594,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Blue Account",
+    "subject": "Blue",
     "axis": "referrer_bonus_usd",
     "value": 35,
     "against": null,
@@ -4611,7 +4611,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Blue Account",
+    "subject": "Blue",
     "axis": "referred_bonus_usd",
     "value": 30,
     "against": null,
@@ -4628,7 +4628,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Blue Account",
+    "subject": "Blue",
     "axis": "qualifying_deposit_usd",
     "value": 500,
     "against": null,
@@ -4645,7 +4645,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Blue Account",
+    "subject": "Blue",
     "axis": "deposit_window_days",
     "value": 60,
     "against": null,
@@ -4662,7 +4662,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Bluest Account",
+    "subject": "Bluest",
     "axis": "referrer_bonus_usd",
     "value": 75,
     "against": null,
@@ -4679,7 +4679,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Bluest Account",
+    "subject": "Bluest",
     "axis": "referred_bonus_usd",
     "value": 50,
     "against": null,
@@ -4696,7 +4696,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Bluest Account",
+    "subject": "Bluest",
     "axis": "qualifying_deposit_usd",
     "value": 2000,
     "against": null,
@@ -4713,7 +4713,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Dark Green Account",
+    "subject": "Dark Green",
     "axis": "referrer_bonus_usd",
     "value": 40,
     "against": null,
@@ -4730,7 +4730,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Dark Green Account",
+    "subject": "Dark Green",
     "axis": "referred_bonus_usd",
     "value": 30,
     "against": null,
@@ -4747,7 +4747,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Dark Green Account",
+    "subject": "Dark Green",
     "axis": "qualifying_deposit_usd",
     "value": 1000,
     "against": null,
@@ -4764,7 +4764,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Dark Green Account",
+    "subject": "Dark Green",
     "axis": "deposit_window_days",
     "value": 60,
     "against": null,
@@ -4781,7 +4781,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Evergreen Account",
+    "subject": "Evergreen",
     "axis": "referrer_bonus_usd",
     "value": 35,
     "against": null,
@@ -4798,7 +4798,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Evergreen Account",
+    "subject": "Evergreen",
     "axis": "referred_bonus_usd",
     "value": 25,
     "against": null,
@@ -4815,7 +4815,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Evergreen Account",
+    "subject": "Evergreen",
     "axis": "qualifying_deposit_usd",
     "value": 750,
     "against": null,
@@ -4832,7 +4832,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Evergreen Account",
+    "subject": "Evergreen",
     "axis": "deposit_window_days",
     "value": 60,
     "against": null,
@@ -4849,7 +4849,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Gold Years Account",
+    "subject": "Gold Years",
     "axis": "referrer_bonus_usd",
     "value": 50,
     "against": null,
@@ -4866,7 +4866,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Gold Years Account",
+    "subject": "Gold Years",
     "axis": "referred_bonus_usd",
     "value": 75,
     "against": null,
@@ -4883,7 +4883,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Gold Years Account",
+    "subject": "Gold Years",
     "axis": "deposit_window_days",
     "value": 90,
     "against": null,
@@ -4909,7 +4909,7 @@
      ],
      "basis": "계좌 보유 자격이면서 동시에 추천 자격이다 — 정책 축자 \"The referred person must be 18 years or older\" (…047·추천 자격) 와 \"You must be … between 13 and 24 years old to open the account.\" (…light_green_002·개설 자격)"
     },
-    "subject": "Gold Years Account",
+    "subject": "Gold Years",
     "axis": "holder_min_age_years",
     "value": 62,
     "against": null,
@@ -4926,7 +4926,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Green Account",
+    "subject": "Green",
     "axis": "referrer_bonus_usd",
     "value": 20,
     "against": null,
@@ -4943,7 +4943,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Green Account",
+    "subject": "Green",
     "axis": "referred_bonus_usd",
     "value": 30,
     "against": null,
@@ -4960,7 +4960,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Green Account",
+    "subject": "Green",
     "axis": "qualifying_deposit_usd",
     "value": 500,
     "against": null,
@@ -4977,7 +4977,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Green Account",
+    "subject": "Green",
     "axis": "deposit_window_days",
     "value": 60,
     "against": null,
@@ -4994,7 +4994,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Green Fee-Free Account",
+    "subject": "Green Fee-Free",
     "axis": "referrer_bonus_usd",
     "value": 20,
     "against": null,
@@ -5011,7 +5011,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Green Fee-Free Account",
+    "subject": "Green Fee-Free",
     "axis": "referred_bonus_usd",
     "value": 35,
     "against": null,
@@ -5028,7 +5028,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Green Fee-Free Account",
+    "subject": "Green Fee-Free",
     "axis": "qualifying_deposit_usd",
     "value": 300,
     "against": null,
@@ -5045,7 +5045,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Green Fee-Free Account",
+    "subject": "Green Fee-Free",
     "axis": "deposit_window_days",
     "value": 60,
     "against": null,
@@ -5062,7 +5062,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Light Blue Account",
+    "subject": "Light Blue",
     "axis": "referrer_bonus_usd",
     "value": 30,
     "against": null,
@@ -5079,7 +5079,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Light Blue Account",
+    "subject": "Light Blue",
     "axis": "referred_bonus_usd",
     "value": 20,
     "against": null,
@@ -5096,7 +5096,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Light Blue Account",
+    "subject": "Light Blue",
     "axis": "deposit_window_days",
     "value": 60,
     "against": null,
@@ -5113,7 +5113,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Light Green Account",
+    "subject": "Light Green",
     "axis": "referrer_bonus_usd",
     "value": 15,
     "against": null,
@@ -5130,7 +5130,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Light Green Account",
+    "subject": "Light Green",
     "axis": "referred_bonus_usd",
     "value": 25,
     "against": null,
@@ -5156,7 +5156,7 @@
      ],
      "basis": "계좌 보유 자격이면서 동시에 추천 자격이다 — 정책 축자 \"The referred person must be 18 years or older\" (…047·추천 자격) 와 \"You must be … between 13 and 24 years old to open the account.\" (…light_green_002·개설 자격)"
     },
-    "subject": "Light Green Account",
+    "subject": "Light Green",
     "axis": "holder_min_age_years",
     "value": 13,
     "against": null,
@@ -5178,7 +5178,7 @@
      ],
      "basis": "env `open_bank_account_4821(user_id, account_type, account_class)` docstring 축자 \"account_class (string): The full official account class name\" + 정책 축자 \"## Verify Eligibility — Confirm your company is within 4 years of formation.\" (…sky_blue_001)"
     },
-    "subject": "Light Green Account",
+    "subject": "Light Green",
     "axis": "holder_max_age_years",
     "value": 24,
     "against": null,
@@ -5195,7 +5195,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Purple Account",
+    "subject": "Purple",
     "axis": "referrer_bonus_usd",
     "value": 45,
     "against": null,
@@ -5212,7 +5212,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Purple Account",
+    "subject": "Purple",
     "axis": "referred_bonus_usd",
     "value": 35,
     "against": null,
@@ -5229,7 +5229,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Purple Account",
+    "subject": "Purple",
     "axis": "qualifying_deposit_usd",
     "value": 1000,
     "against": null,
@@ -5246,7 +5246,7 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
-    "subject": "Purple Account",
+    "subject": "Purple",
     "axis": "deposit_window_days",
     "value": 60,
     "against": null,
