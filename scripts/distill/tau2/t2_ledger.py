@@ -317,6 +317,46 @@ def exhausted_text(tally, limits, spec):
     return tpl.format(exhausted="; ".join(gone), remaining="; ".join(left) or "(none)")
 
 
+def eligible_text(days, tally, minimums, limits, bonuses, spec):
+    """자격을 **엔진이 걸러** 통과한 후보만 값과 함께 말한다. 산수뿐이다.
+
+    ★근거 (2026-08-08·C337·x150 절제 실측): 모델은 argmax 를 완벽히 하고 **자격 필터를 못 한다**.
+      같은 표를 주고 물으면 0/5(전부 자격 미달 상품을 고른다)인데, **자격 미달 행을 미리 뺀 표**를
+      주면 **5/5** 다. 축 이름을 문장으로 풀어써도(0/5), *"먼저 자격을 따지고 그 다음 최고를
+      고르라"* 고 명시적으로 분해해 줘도(0/5) 안 움직인다 — 등대 §1.4 F2b(계산형 기준·thinking
+      무효)의 독립 재현이고, 거기 처방이 *"형식화(LLM)→결정론 실행(filter)"* 이다.
+    ⇒ 전체 표를 표면화하는 대신 **통과 집합**을 준다. 고르는 것은 여전히 모델이다([[05]] Q2).
+
+    걸 수 있는 기준만 건다(우리가 결정론으로 쥔 것): 경과일 대 문턱, 누계 대 상한.
+    문서에 그 기준이 없는 주어는 **거르지 않는다** — 모르는 것을 탈락으로 바꾸지 않는다.
+    다른 요건(예치액·회사 연령 등)은 여전히 남아 있을 수 있고 문구가 그렇게 말한다.
+    """
+    tpl = (spec or {}).get("eligible_text")
+    if not tpl:
+        return ""
+    subs = set(bonuses or {}) | set(minimums or {}) | set(limits or {})
+    if not subs:
+        return ""
+    ok = []
+    for s in sorted(subs):
+        need = (minimums or {}).get(s)
+        if need is not None and days is not None:
+            if int(days) < int(need[0] if isinstance(need, (tuple, list)) else need):
+                continue
+        cap = (limits or {}).get(s)
+        if cap is not None:
+            c = int(cap[0] if isinstance(cap, (tuple, list)) else cap)
+            if int((tally or {}).get(s, 0)) >= c:
+                continue
+        b = (bonuses or {}).get(s)
+        ok.append((int(b[0] if isinstance(b, (tuple, list)) else b) if b is not None else None, s))
+    if not ok:
+        return ""
+    ok.sort(key=lambda t: (-(t[0] if t[0] is not None else -1), t[1]))
+    shown = "; ".join(("%s %s" % (s, v)) if v is not None else s for v, s in ok)
+    return tpl.format(eligible=shown)
+
+
 def unmatched_text(tally, limits, spec):
     """원장에 있는데 **상한 행이 없는** 그룹을 이름과 함께 말한다. 집합 뺄셈뿐이다.
 

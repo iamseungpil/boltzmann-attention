@@ -2889,6 +2889,16 @@
    }
   },
   {
+   "out": "doc_bonuses",
+   "inputs": [
+    "a3"
+   ],
+   "op": "a3_map",
+   "params": {
+    "axis": "referrer_bonus_usd"
+   }
+  },
+  {
    "out": "annual_left",
    "inputs": [
     "type_usage",

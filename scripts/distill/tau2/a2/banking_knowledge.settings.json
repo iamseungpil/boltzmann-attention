@@ -268,6 +268,8 @@
     "params": {"axis": "annual_referral_limit"}},
    {"out": "doc_minimums", "inputs": ["a3"], "op": "a3_map",
     "params": {"axis": "referrer_tenure_days"}},
+   {"out": "doc_bonuses", "inputs": ["a3"], "op": "a3_map",
+    "params": {"axis": "referrer_bonus_usd"}},
 
    {"out": "annual_left", "inputs": ["type_usage", "doc_limits"], "op": "subtract_by_group"},
    {"out": "tenure_ok", "inputs": ["tenure_days", "doc_minimums"], "op": "compare_ge"},
