@@ -49,7 +49,8 @@ except Exception:
 #   annual_referral_limit: "그 상품에 대해 연간 허용되는 추천 보너스 최대 건수"
 NET = {
     "referrer_tenure_days": {
-        "num": re.compile(r"\b(\d{1,4})\s*(?:calendar\s+)?days?\b", re.I),
+        # ⚠`45-day`(하이픈)를 첫 판에서 놓쳤다 — v0 행 5개가 역방향에 걸려 드러났다. 넓힌다.
+        "num": re.compile(r"\b(\d{1,4})[\s-]*(?:calendar[\s-]+)?days?\b", re.I),
         # 기간-문턱을 가리키는 표지 중 **하나라도** 있으면 후보 (넓게)
         "mark": re.compile(r"\b(at least|minimum|minimums|no less than|no fewer than|"
                            r"maintained|maintain|relationship duration|tenure|held|holder|"
