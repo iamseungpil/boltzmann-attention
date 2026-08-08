@@ -17,16 +17,29 @@
 허용된다([[59]]는 엔진을 규율한다) — 산출물만 A3로 가고, 이 스크립트는 런타임에 안 돈다.
 ⚠v0의 축은 **둘**(관계기간 문턱·연간 상한)이다. 늘리는 절차는 설계서 §9-2.
 
+★**v1 (2026-08-08 · C317 반영)** — v0 독립 검사가 낸 결함 둘을 여기서 닫는다:
+  ⓐ **축별 질의**(`--per-axis`) — v0는 한 호출에 두 축을 물었고, **두 축을 다 말하는 문서 13개 중
+     5개서 한 축을 흘렸다**(38%). C313의 *"덩어리로 묻지 마라"* 가 축 방향으로도 산다.
+  ⓑ **축 적합성 형식 검사**(`--axis-fit`·`--audit`) — v0에 *"rolling 9-day window"* 문장이
+     **연간 상한** 행으로 들어갔다. 인용이 실재해도 **축이 틀릴 수 있다**([[22]] 근거-우선의
+     필요조건일 뿐). 검사는 **형식적인 것 둘뿐**이다(의미 판단은 LLM 몫·[[52]]):
+       B1 값이 인용에 축자로 나온다 · B2 인용에 그 축의 표지가 있다.
+     ⚠게이트 자신도 역효과가 있다(등대 §1.3) ⇒ **거절을 이유별로 세어 인쇄**하고,
+     `--audit`로 **기존 산출물을 먼저 통과시켜** 과잉 거절을 잰다.
+
 usage: x140_build_policy_ontology.py --docs <dir> --out ontology.json \
-         [--base http://localhost:8140/v1] [--limit 20] [--save-every 20]
+         [--per-axis] [--base http://localhost:8140/v1] [--limit 20] [--save-every 20]
+       x140_build_policy_ontology.py --audit <ontology.json[.gz]>   # 축 적합성 관문만
 """
 
 import argparse
 import collections
 import glob
+import gzip
 import io
 import json
 import os
+import re
 import sys
 
 try:
@@ -47,6 +60,27 @@ AXES = {
         "desc": "the maximum number of referral bonuses allowed per year for that product",
         "against": "type_usage", "compare": "le"},
 }
+
+# ⓑ 축 적합성 — **형식 검사 둘뿐**. 의미 판단은 하지 않는다([[52]]: 엔진=이론·LLM=해석).
+#   B2 표지는 *그 축이 무엇을 재는가*에서 나온다: 관계기간=일수 / 연간 상한=1년 주기.
+AXIS_FIT = {
+    "referrer_tenure_days": re.compile(r"\b\d{1,4}[\s-]*(?:calendar[\s-]+)?days?\b", re.I),
+    "annual_referral_limit": re.compile(r"(annual|annually|per\s+year|per-year|a\s+year|"
+                                        r"/\s*year|per\s+calendar\s+year|calendar\s+year|"
+                                        r"each\s+year|yearly)", re.I),
+}
+
+
+def axis_fit(axis, value, quote):
+    """(통과?, 사유) — B1 값이 인용에 있는가 · B2 축 표지가 인용에 있는가."""
+    q = " ".join(str(quote or "").split())
+    if not re.search(r"(?<!\d)%d(?!\d)" % int(value), q):
+        return False, "B1 값이 인용에 없음"
+    pat = AXIS_FIT.get(axis)
+    if pat and not pat.search(q):
+        return False, "B2 축 표지가 인용에 없음"
+    return True, ""
+
 
 PROMPT = """You are reading ONE internal banking policy document.
 
@@ -77,8 +111,10 @@ class Agent(object):
         self.llm_args = {"temperature": 0.0, "api_base": base, "api_key": "dummy"}
 
 
-def ask(agent, la, UM, text, title):
-    axes = "\n".join("- %s: %s" % (k, v["desc"]) for k, v in AXES.items())
+def ask(agent, la, UM, text, title, only_axis=None):
+    """`only_axis`가 있으면 **그 축만** 묻는다(ⓐ 축별 질의)."""
+    keys = [only_axis] if only_axis else list(AXES)
+    axes = "\n".join("- %s: %s" % (k, AXES[k]["desc"]) for k in keys)
     prompt = PROMPT.format(axes=axes, text=text[:90000], title=title or "(none)")
     try:
         um = UM(role="user", content=prompt)
@@ -89,21 +125,27 @@ def ask(agent, la, UM, text, title):
     return getattr(sub, "content", None) or ""
 
 
-def parse(raw, doc_text, doc_id):
-    """모델 응답 → 채택 행. **인용이 그 문서에 실재할 때만** 채택한다."""
-    import re
+def parse(raw, doc_text, doc_id, reasons=None, use_axis_fit=True, only_axis=None):
+    """모델 응답 → 채택 행. **인용이 그 문서에 실재할 때만** 채택한다(+ⓑ 축 적합성)."""
+    def rej(why):
+        if reasons is not None:
+            reasons[why] += 1
+
     m = re.search(r"\[.*\]", str(raw or ""), re.S)
     if not m:
+        rej("응답에 JSON 배열 없음")
         return [], 0
     try:
         rows = json.loads(m.group(0))
     except Exception:
+        rej("JSON 파싱 실패")
         return [], 0
     hay = " ".join(str(doc_text).split())
     out, rejected = [], 0
     for r in rows if isinstance(rows, list) else []:
         if not isinstance(r, dict):
             rejected += 1
+            rej("행이 객체가 아님")
             continue
         ax, subj = str(r.get("axis") or ""), str(r.get("subject") or "").strip()
         q = " ".join(str(r.get("quote") or "").split())
@@ -111,10 +153,23 @@ def parse(raw, doc_text, doc_id):
             val = int(str(r.get("value")).strip())
         except Exception:
             rejected += 1
+            rej("값이 정수가 아님")
+            continue
+        # 축별 질의에서는 **물은 축만** 받는다 — 안 물은 축을 끼워 넣으면 분할이 무의미해진다
+        if only_axis and ax != only_axis:
+            rejected += 1
+            rej("안 물은 축을 답함")
             continue
         if ax not in AXES or not subj or val <= 0 or len(q) < 12 or q not in hay:
             rejected += 1                     # 축 밖 · 인용 부재 = 버린다
+            rej("축 밖·주어 없음·인용 부재" if q in hay else "인용이 문서에 없음")
             continue
+        if use_axis_fit:
+            ok, why = axis_fit(ax, val, q)
+            if not ok:
+                rejected += 1
+                rej(why)                      # ⓑ 인용은 실재하나 **축이 안 맞는다**
+                continue
         out.append({"applies_to": {"axis_default": True},
                     "subject": subj, "axis": ax, "value": val,
                     "against": AXES[ax]["against"], "compare": AXES[ax]["compare"],
@@ -123,21 +178,56 @@ def parse(raw, doc_text, doc_id):
     return out, rejected
 
 
+def audit(path):
+    """ⓑ의 **1차 관문** — 기존 산출물에 축 적합성을 걸어 보고 과잉 거절을 잰다(LLM 0)."""
+    op = gzip.open if path.endswith(".gz") else io.open
+    with op(path, "rt", encoding="utf-8") as f:
+        onto = json.load(f)
+    rows = onto.get("rows") or []
+    bad = []
+    for r in rows:
+        ok, why = axis_fit(r.get("axis"), r.get("value"),
+                           (r.get("source") or {}).get("quote"))
+        if not ok:
+            bad.append((r, why))
+    print("축 적합성 관문: 행 %d 중 **통과 %d · 거절 %d**" % (len(rows), len(rows) - len(bad), len(bad)))
+    for r, why in bad:
+        print("  ✗ %s / %s = %s — %s" % (r.get("subject"), r.get("axis"), r.get("value"), why))
+        print("     인용: %s" % " ".join(str((r.get("source") or {}).get("quote") or "").split())[:130])
+    print("⚠거절된 행은 **per-case로 읽어야** 한다 — 진짜 오행과 과잉 거절이 여기서 갈린다.")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--docs", required=True)
-    ap.add_argument("--out", required=True)
+    ap.add_argument("--audit", help="기존 온톨로지에 ⓑ 축 적합성만 걸어 본다(LLM 0)")
+    ap.add_argument("--docs")
+    ap.add_argument("--out")
+    ap.add_argument("--per-axis", action="store_true",
+                    help="ⓐ 축 하나씩 따로 묻는다 (호출 = 문서 × 축)")
+    ap.add_argument("--no-axis-fit", action="store_true", help="ⓑ를 끈다(대조 arm용)")
     ap.add_argument("--base", default="http://localhost:8140/v1")
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--limit", type=int, default=0, help="스모크용 문서 수 제한")
+    ap.add_argument("--only", default="", help="쉼표로 나눈 부분문자열 — 그 문서만 (표적 스모크)")
     ap.add_argument("--save-every", type=int, default=20)
     a = ap.parse_args()
+
+    if a.audit:                               # 관문 모드 — 모델도 문서도 안 쓴다
+        return audit(a.audit)
+    if not a.docs or not a.out:
+        ap.error("--docs 와 --out 이 필요하다 (또는 --audit)")
 
     import tau2.agent.llm_agent as la
     from tau2.data_model.message import UserMessage as UM
     agent = Agent(a.model, a.base)
+    use_fit = not a.no_axis_fit
+    reasons = collections.Counter()
 
     docs = sorted(glob.glob(os.path.join(a.docs, "*.json")))
+    if a.only:
+        pats = [s.strip() for s in a.only.split(",") if s.strip()]
+        docs = [p for p in docs if any(s in os.path.basename(p) for s in pats)]
     if a.limit:
         docs = docs[:a.limit]
 
@@ -151,33 +241,45 @@ def main():
     else:
         rows, stats = [], collections.Counter()
 
+    # ★질문 단위 = (문서, 축). 축별 질의면 축마다 하나, 아니면 문서마다 하나.
+    #   ⚠재개 키에 **축이 들어간다** — 한 프롬프트를 두 단위가 쓰면 양쪽이 같은 답을 받고
+    #     그대로 통과한다(C311의 재생 캐시 오염이 정확히 그 사고였다).
+    ax_keys = list(AXES) if a.per_axis else [None]
+
     def save():
         io.open(a.out, "w", encoding="utf-8").write(json.dumps(
             {"axes": {k: v["desc"] for k, v in AXES.items()},
-             "docs_total": len(docs), "docs_done": sorted(done),
-             "rows": rows, "stats": dict(stats)}, ensure_ascii=False, indent=1))
+             "per_axis": bool(a.per_axis), "axis_fit": use_fit,
+             "docs_total": len(docs), "units_total": len(docs) * len(ax_keys),
+             "docs_done": sorted(done), "rows": rows,
+             "stats": dict(stats), "reject_reasons": dict(reasons)},
+            ensure_ascii=False, indent=1))
 
     for i, p in enumerate(docs, 1):
         d = json.load(io.open(p, encoding="utf-8"))
         did = d.get("id") or os.path.basename(p)
-        if did in done:
-            continue
-        try:
-            raw = ask(agent, la, UM, str(d.get("content") or ""), str(d.get("title") or ""))
-        except Exception as e:
-            stats["호출 실패"] += 1
-            print("  ⚠%s 호출 실패 %r" % (did[-28:], e), file=sys.stderr)
-            continue
-        got, rej = parse(raw, d.get("content") or "", did)
-        rows.extend(got)
-        done[did] = True
-        stats["문서"] += 1
-        stats["채택"] += len(got)
-        stats["거절"] += rej
-        if got:
-            print("  [%3d/%d] %-30s +%d행" % (i, len(docs), did[-30:], len(got)), flush=True)
-        if len(done) % a.save_every == 0:
-            save()
+        for ax in ax_keys:
+            key = did if ax is None else "%s|%s" % (did, ax)
+            if key in done:
+                continue
+            try:
+                raw = ask(agent, la, UM, str(d.get("content") or ""),
+                          str(d.get("title") or ""), only_axis=ax)
+            except Exception as e:
+                stats["호출 실패"] += 1
+                print("  ⚠%s 호출 실패 %r" % (key[-34:], e), file=sys.stderr)
+                continue
+            got, rej = parse(raw, d.get("content") or "", did, reasons=reasons,
+                             use_axis_fit=use_fit, only_axis=ax)
+            rows.extend(got)
+            done[key] = True
+            stats["질문"] += 1
+            stats["채택"] += len(got)
+            stats["거절"] += rej
+            if got:
+                print("  [%3d/%d] %-34s +%d행" % (i, len(docs), key[-34:], len(got)), flush=True)
+            if len(done) % a.save_every == 0:
+                save()
 
     save()
 
@@ -188,12 +290,18 @@ def main():
     conflicts = {k: v for k, v in by_key.items() if len({x["value"] for x in v}) > 1}
 
     print("\n" + "=" * 92)
-    print("문서 %d/%d · 채택 행 %d · 거절 %d · 호출 실패 %d"
-          % (stats["문서"], len(docs), stats["채택"], stats["거절"], stats["호출 실패"]))
+    print("질문 %d/%d(문서 %d × 축 %d) · 채택 행 %d · 거절 %d · 호출 실패 %d"
+          % (stats["질문"], len(docs) * len(ax_keys), len(docs), len(ax_keys),
+             stats["채택"], stats["거절"], stats["호출 실패"]))
+    print("설정: 축별 질의 %s · 축 적합성 %s" % (bool(a.per_axis), use_fit))
     print("서로 다른 (주어, 축) = **%d개** · 그중 **값 충돌 %d개**" % (len(by_key), len(conflicts)))
     for ax in AXES:
         n = len({k for k in by_key if k[1] == ax})
         print("   %-24s 주어 %d개" % (ax, n))
+    if reasons:
+        print("\n거절 사유 (게이트의 반대편을 본다 · 등대 §1.3):")
+        for why, n in reasons.most_common():
+            print("   %-30s %d" % (why, n))
     if conflicts:
         print("\n★값 충돌 — **자동으로 고르지 않는다**(사람이 판정·[[25]]):")
         for (subj, ax), v in sorted(conflicts.items())[:10]:
