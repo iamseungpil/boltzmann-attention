@@ -26,7 +26,8 @@ import sys
 #   같은 병을 적어 두었다. 날짜 변환도 같은 이유로 빌려 쓴다(값 변환이지 도메인 파싱이 아니다).
 from t2_ledger import parse_rows, parse_pairs, parse_scalar, _date
 
-__all__ = ["FactDagError", "load", "validate", "evaluate", "Inputs", "OPS", "SHAPES"]
+__all__ = ["FactDagError", "load", "validate", "evaluate", "Inputs", "OPS", "SHAPES",
+           "Scheduler", "unmatched_groups"]
 
 
 class FactDagError(Exception):
@@ -195,9 +196,22 @@ def _days_since_earliest(rows, now, p):
 
 
 def _subtract_by_group(usage, limits, _p):
-    """상한 − 누계. 상한이 **말해진 그룹만** 답한다 — 모르는 유형은 아무 말도 안 한다."""
+    """상한 − 누계. 상한이 **말해진 그룹만** 답한다 — 모르는 유형은 아무 말도 안 한다.
+
+    ⚠**이름이 안 맞으면 조용히 틀린다**(2026-08-08·x135 limit 축에서 실물 발견): 상한의 키는
+    **문서에서 모델이 읽은 이름**이고 누계의 키는 **DB 행이 말한 이름**이다. 둘이 다르면
+    `usage.get(g, 0)`이 0으로 떨어져 *"자리가 다 남았다"* 는 **틀린 수**가 나온다 —
+    실제로 오라클에 `World Blue International Checking`과 `World Blue`가 **따로** 잡혔다.
+    엔진은 이름을 맞출 수 없고([[22]] 의미 판단은 LLM 몫) 맞춰서도 안 되지만,
+    **안 맞았다는 사실은 반드시 표면화한다**(`unmatched_groups`) — 침묵이 오늘의 병이다.
+    """
     return {g: int(lim[0] if isinstance(lim, (tuple, list)) else lim) - int((usage or {}).get(g, 0))
             for g, lim in (limits or {}).items()}
+
+
+def unmatched_groups(usage, limits):
+    """상한은 말해졌는데 **누계 쪽에 그 이름이 없는** 그룹 — 0으로 셌는지 이름이 어긋났는지 모른다."""
+    return sorted(g for g in (limits or {}) if g not in (usage or {}))
 
 
 def _compare_ge(days, minimums, _p):
@@ -310,6 +324,11 @@ def evaluate(nodes, inputs, ask=None, excerpt_args=None, seed=None, memo=None):
                 v = _days_since_earliest(a, vals.get(ins[1]), p)
             elif op == "subtract_by_group":
                 v = _subtract_by_group(a, vals.get(ins[1]), p)
+                _um = unmatched_groups(a, vals.get(ins[1]))
+                if _um:      # 이름이 어긋난 것을 **말한다** — 조용히 0으로 세지 않는다
+                    trace.append((out, "주의",
+                                  "상한은 있는데 누계 쪽에 이름이 없다(0으로 셌다): %s"
+                                  % ", ".join(_um)))
             else:
                 v = _compare_ge(a, vals.get(ins[1]), p)
             vals[out] = v
