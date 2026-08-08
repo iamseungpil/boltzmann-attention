@@ -10,6 +10,10 @@
   2. 축의 **산문 정의**만 보고 짠 정규식으로 후보 문장을 넓게 긁는다(v0의 답을 보고 짜지 않는다).
   3. 후보를 v0와 **(문서, 값) 단위로** 대조한다 — **숫자 단위로 대조하면 안 된다**(C315:
      `Navy Blue=60` 때문에 `Hunter Green=60`의 누락이 '덮인 것'으로 세어졌다).
+     ★그리고 **상품 계열 단위로 한 번 더** 대조한다: 같은 상품의 *다른 문서*가 이미 그 값을 냈다면
+     온톨로지는 그 사실을 아는 것이고, 문서 단위 미덮음은 중복 문장을 안 담았다는 뜻일 뿐이다.
+     계열 키는 문서 **파일명**에서 기계적으로 얻는다(`…_beige_012` → `…_beige`) — 본문을 안 뜯는다.
+     ⇒ **계열에서도 안 덮인 것**만이 *"온톨로지가 모르는 값"* 후보다.
   4. 안 덮인 후보를 **문서·축자 인용과 함께** 낸다 ⇒ 사람이 per-case로 읽어 *진짜 누락*과
      *축 밖 진술*을 가른다([[08]] — 집계에서 결론 직행 금지).
   5. 역방향도 낸다: v0 행 중 **이 정규식이 못 본 것** = 정규식의 사각지대 크기.
@@ -103,6 +107,14 @@ def candidates(sent):
     return got
 
 
+FAMILY = re.compile(r"_\d{3}$")
+
+
+def family(doc_id):
+    """상품 계열 키 — 파일명의 말미 일련번호만 떼어낸다(본문 해석 아님)."""
+    return FAMILY.sub("", str(doc_id or ""))
+
+
 def load_ontology(path):
     op = gzip.open if path.endswith(".gz") else io.open
     with op(path, "rt", encoding="utf-8") as f:
@@ -120,8 +132,11 @@ def main():
     rows = onto.get("rows") or []
     # v0 색인 — **문서 단위**로 (값 → 행). 전역 숫자 집합은 만들지 않는다(C315).
     by_doc = collections.defaultdict(list)
+    by_fam = collections.defaultdict(list)
     for r in rows:
-        by_doc[str((r.get("source") or {}).get("doc") or "")].append(r)
+        did = str((r.get("source") or {}).get("doc") or "")
+        by_doc[did].append(r)
+        by_fam[family(did)].append(r)
     print("v0: 행 %d · 문서 %d개서 나옴 · 축 %s"
           % (len(rows), len(by_doc), ", ".join(sorted(onto.get("axes") or {}))))
 
@@ -129,7 +144,8 @@ def main():
     print("문서 전수 %d개 스캔 (LLM 0)" % len(docs))
 
     stat = collections.Counter()
-    uncovered = []          # (doc, title, axis, value, sentence)
+    uncovered = []          # (doc, title, axis, value, sentence) — 문서 단위 미덮음
+    unknown = []            # (doc, title, axis, value, sentence) — **계열에서도** 미덮음
     ambiguous = []          # (doc, axis, value, n_cands, n_rows) — 같은 값 다수 후보
     cand_quotes = collections.defaultdict(list)   # doc → 후보 문장들(역방향 대조용)
 
@@ -160,6 +176,11 @@ def main():
             else:
                 stat["안 덮임"] += 1
                 uncovered.append((did, title, ax, v, seen[(ax, v)]))
+                fam_hit = [r for r in (by_fam.get(family(did)) or [])
+                           if r.get("axis") == ax and r.get("value") == v]
+                if not fam_hit:
+                    stat["계열에서도 안 덮임"] += 1
+                    unknown.append((did, title, ax, v, seen[(ax, v)]))
 
     # 역방향 — v0 행의 인용을 이 그물이 후보로 잡았나 (사각지대 크기)
     blind = []
@@ -171,8 +192,10 @@ def main():
             blind.append(r)
 
     print("\n" + "=" * 96)
-    print("후보 (문서,축,값) 조합 %d · **v0가 덮은 %d** · **안 덮은 %d**"
-          % (stat["덮임"] + stat["안 덮임"], stat["덮임"], stat["안 덮임"]))
+    print("후보 (문서,축,값) 조합 %d · **v0가 덮은 %d** · 문서 단위 안 덮은 %d · "
+          "★**상품 계열에서도 안 덮은 %d**"
+          % (stat["덮임"] + stat["안 덮임"], stat["덮임"], stat["안 덮임"],
+             stat["계열에서도 안 덮임"]))
     print("정규식 사각: v0 행 %d개 중 **이 그물이 후보로도 못 잡은 행 %d개**" % (len(rows), len(blind)))
     print("⚠'안 덮은'이 곧 누락은 아니다 — **per-case로 읽어야** 진짜 누락과 축 밖 진술이 갈린다.")
 
@@ -180,7 +203,15 @@ def main():
     for ax in sorted(NET):
         print("   %-24s 안 덮인 후보 %d" % (ax, by_ax.get(ax, 0)))
 
-    print("\n── 안 덮인 후보 (문서 · 값 · 축자) ──────────────────────────────────────────")
+    print("\n── ★상품 계열에서도 안 덮인 후보 = **온톨로지가 모르는 값** 후보 ─────────────")
+    for did, title, ax, v, s in unknown:
+        print("★ [%s] %s = %d" % (did[-34:], ax, v))
+        print("   제목: %s" % title[:88])
+        print("   축자: %s" % s[:180])
+    if not unknown:
+        print("   (없음 — 이 그물로는)")
+
+    print("\n── 문서 단위로 안 덮인 후보 (계열에 있는 것 포함 · 축자) ──────────────────")
     for did, title, ax, v, s in uncovered[:a.dump]:
         print("☐ [%s] %s = %d" % (did[-34:], ax, v))
         print("   제목: %s" % title[:88])
