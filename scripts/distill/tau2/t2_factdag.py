@@ -433,7 +433,15 @@ def evaluate(nodes, inputs, ask=None, excerpt_args=None, seed=None, memo=None):
                         int(ex.get("budget", 90000)))
                 else:
                     sel, dropped = excerpt(items, **ex)
-                    v, why = _formalize(n, "\n---\n".join(sel), hay, ask)
+                    _txt = "\n---\n".join(sel)
+                    if n.get("_choices"):
+                        # 후보를 **텍스트에 실어** 보낸다 — 프롬프트 서식이나 호출부를 안 고쳐도
+                        # 모델이 목록을 본다. `hay`는 건드리지 않는다: 인용 실재 검증은 어디까지나
+                        # **회수된 텍스트**에 대해서만 해야 하고, 주입한 목록을 인용해선 안 된다.
+                        _txt += ("\n\nThe subject must be copied verbatim from this list, "
+                                 "or left empty if none of them is what this is about:\n- "
+                                 + "\n- ".join(n["_choices"]))
+                    v, why = _formalize(n, _txt, hay, ask)
                     why += (" · 예산 탈락 %d" % dropped if dropped else "")
                 vals[out] = v
                 trace.append((out, "계산" if v is not None else "미계산", why))
