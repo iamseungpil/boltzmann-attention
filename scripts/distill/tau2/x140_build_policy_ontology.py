@@ -51,24 +51,72 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 # 축 정의 — **닫힌 집합**. 각 축은 (이름, 산문 정의, 맞댈 사실 이름, 비교).
+# ★축은 **코퍼스가 제안한 것**만 넣는다(`x142` 인구조사·설계서 §9-2). 내가 지어낸 축도,
+#   gold(`tasks.json` 노트)에서 온 축도 없다 — 이 세션은 그 노트를 읽었으므로 특히 엄격히 지킨다([[23]]).
+#   각 축 옆의 인용은 **정책 문서 축자**이고, 그것이 그 축의 출처 증명이다.
 AXES = {
+    # ── v0부터 있던 둘 ──────────────────────────────────────────────────────
     "referrer_tenure_days": {
         "desc": "the minimum number of days the REFERRER must already have held a checking "
                 "account (relationship duration / tenure) to be eligible to refer",
-        "against": "tenure_days", "compare": "ge"},
+        "against": "tenure_days", "compare": "ge",
+        # "Eligibility: A minimum relationship duration of 60 days as a checking account
+        #  holder is required." (…_hunter_green_001)
+        "fit": r"\b\d{1,4}[\s-]*(?:calendar[\s-]+)?days?\b"},
     "annual_referral_limit": {
         "desc": "the maximum number of referral bonuses allowed per year for that product",
-        "against": "type_usage", "compare": "le"},
+        "against": "type_usage", "compare": "le",
+        # "Annual limit: Up to 10 referral bonuses per year" (…_hunter_green_001)
+        "fit": r"(annual|annually|per\s+year|per-year|a\s+year|/\s*year|"
+               r"per\s+calendar\s+year|calendar\s+year|each\s+year|yearly)"},
+
+    # ── v2 신설 — `x142`가 센 라벨에서 왔다(라벨 병합표는 안 만든다·[[52]] 해석은 LLM 몫) ──
+    "referrer_bonus_usd": {
+        # 라벨 `your bonus`·`you earn`·`referrer bonus`·`your reward`
+        # "Your bonus: $200 for each successful referral" (…_lime_green_003)
+        "desc": "the dollar amount the REFERRER receives for one successful referral",
+        "against": None, "compare": None, "fit": r"\$"},
+    "referred_bonus_usd": {
+        # 라벨 `their bonus`·`they receive`·`referred bonus`·`new member bonus`
+        # "Their bonus: $150 welcome bonus for the referred business" (…_lime_green_003)
+        "desc": "the dollar amount the REFERRED person or business receives as a welcome bonus",
+        "against": None, "compare": None, "fit": r"\$"},
+    "qualifying_deposit_usd": {
+        # 라벨 `qualifying deposit`·`required deposit`
+        # "Qualifying deposit: The referred business must deposit at least $7,500 to trigger
+        #  the referral bonus" (…_cobalt_blue_005)
+        "desc": "the minimum dollar amount the REFERRED party must deposit to trigger the bonus",
+        "against": None, "compare": None, "fit": r"\$"},
+    "deposit_window_days": {
+        # 라벨 `deposit window`·`deposit deadline`·`time window`
+        # "Time window: This deposit must be made within 90 days of account opening"
+        #  (…_cobalt_blue_005)
+        "desc": "the number of days the REFERRED party has to make the qualifying deposit",
+        "against": None, "compare": None, "fit": r"\b\d{1,4}[\s-]*days?\b"},
+    "rolling_window_referrals": {
+        # 라벨 `weekly limit` + 산문. **상품이 아니라 계좌 부류 전체에 걸리는 규칙**이고
+        # 값이 부류마다 다르다 — 그래서 연간 상한과 **다른 축**이다(v0는 이걸 연간으로 넣어 틀렸다).
+        # "You can receive at most 2 referral bonuses in any rolling 9-day window."
+        #  (…bank_accounts_(general)_047) / "…in any rolling 7-day window"
+        #  (…credit_cards_(general)_009)
+        "desc": "the maximum number of referral bonuses allowed inside one rolling window "
+                "(NOT per year) — this rule applies across account types, not to one product",
+        "against": None, "compare": None, "fit": r"(rolling|window)"},
+    "rolling_window_days": {
+        # 같은 문장의 **창 길이**. 건수와 창 길이는 둘 다 있어야 판정이 된다.
+        "desc": "the length in days of that rolling window (e.g. 'rolling 9-day window')",
+        "against": None, "compare": None, "fit": r"(rolling|window)"},
 }
 
 # ⓑ 축 적합성 — **형식 검사 둘뿐**. 의미 판단은 하지 않는다([[52]]: 엔진=이론·LLM=해석).
 #   B2 표지는 *그 축이 무엇을 재는가*에서 나온다: 관계기간=일수 / 연간 상한=1년 주기.
-AXIS_FIT = {
-    "referrer_tenure_days": re.compile(r"\b\d{1,4}[\s-]*(?:calendar[\s-]+)?days?\b", re.I),
-    "annual_referral_limit": re.compile(r"(annual|annually|per\s+year|per-year|a\s+year|"
-                                        r"/\s*year|per\s+calendar\s+year|calendar\s+year|"
-                                        r"each\s+year|yearly)", re.I),
-}
+AXIS_FIT = {k: re.compile(v["fit"], re.I) for k, v in AXES.items() if v.get("fit")}
+COMMA = re.compile(r"(?<=\d),(?=\d\d\d)")
+
+
+def to_int(s):
+    """`$7,500` · `7,500` → 7500. 금액 축을 넣으며 필요해졌다 — 쉼표에 걸려 죽으면 사실을 잃는다."""
+    return int(COMMA.sub("", str(s).replace("$", "").strip()))
 
 
 # 인용 실재 검사의 **서식 잡음만** 지운다 — 마크다운 강조(`**`·`` ` ``)뿐이고 글자는 안 건드린다.
@@ -84,7 +132,7 @@ def deformat(s):
 
 def axis_fit(axis, value, quote):
     """(통과?, 사유) — B1 값이 인용에 있는가 · B2 축 표지가 인용에 있는가."""
-    q = " ".join(str(quote or "").split())
+    q = COMMA.sub("", " ".join(str(quote or "").split()))
     if not re.search(r"(?<!\d)%d(?!\d)" % int(value), q):
         return False, "B1 값이 인용에 없음"
     pat = AXIS_FIT.get(axis)
@@ -165,7 +213,7 @@ def parse(raw, doc_text, doc_id, reasons=None, use_axis_fit=True, only_axis=None
         ax, subj = str(r.get("axis") or ""), str(r.get("subject") or "").strip()
         q = " ".join(str(r.get("quote") or "").split())
         try:
-            val = int(str(r.get("value")).strip())
+            val = to_int(r.get("value"))
         except Exception:
             rejected += 1
             rej("값이 정수가 아님")
