@@ -79,6 +79,49 @@ def a3_table():
     return "\n".join(out)
 
 
+FORM = ["International Checking", "Business Checking", "Checking", "Account", "Balance"]
+
+
+def _head(s):
+    t = str(s).strip()
+    for f in FORM:
+        if t.endswith(" " + f):
+            t = t[: -(len(f) + 1)].strip()
+    return t
+
+
+def a3_table_clean():
+    """같은 상품의 여러 표기를 **머리 규칙으로 합친** 표.
+
+    왜 필요한가: raw 표는 우리 A3의 표기 분리를 그대로 안고 있다 — `World Blue Balance`(보너스)와
+    `World Blue International Checking`(tenure)이 **다른 행**이라, 모델이 *"Balance 쪽은 tenure
+    제약이 없네"* 로 읽을 수 있다. 그러면 0/5 가 능력 측정이 아니라 **표 결함 측정**이 된다.
+    이 arm 은 그 교락을 뺀다(축 값이 갈리면 그 축은 `conflict` 로 표시하고 고르지 않는다).
+    """
+    import t2_factdag as FD
+    po = json.load(open(os.path.join(HERE, "a2", "banking_knowledge.specific.json"),
+                        encoding="utf-8"))["policy_ontology"]
+    rows = po["rows"]
+    axes = ["referrer_bonus_usd", "referrer_tenure_days", "qualifying_deposit_usd",
+            "annual_referral_limit", "company_max_age_years"]
+    maps = {a: FD._a3_map(rows, {"axis": a}) for a in axes}
+    merged = {}
+    for a in axes:
+        for s, (v, _q) in maps[a].items():
+            h = _head(s)
+            cur = merged.setdefault(h, {})
+            if a in cur and cur[a] != v:
+                cur[a] = "conflict"
+            else:
+                cur[a] = v
+    out = ["Policy constants on record (one row per product; each value from a retrieved document):"]
+    for h in sorted(merged):
+        bits = ["%s=%s" % (a, merged[h][a]) for a in axes if a in merged[h]]
+        if bits:
+            out.append("  %s: %s" % (h, ", ".join(bits)))
+    return "\n".join(out)
+
+
 def ctx_of(tag, task, upto_role="assistant"):
     """그 sim 의 **결정점까지** 실제 대화. 결정점 = 손님이 submit_referral 을 부르기 직전."""
     p = os.path.join(SIMS, tag + ".json.gz")
@@ -109,13 +152,16 @@ def main():
     tag = sys.argv[1] if len(sys.argv) > 1 else "bank_remeas_20260808f"
     n = int(sys.argv[2]) if len(sys.argv) > 2 else 5
     table = a3_table()
-    print("A3 표 %d줄" % len(table.splitlines()))
+    clean = a3_table_clean()
+    print("A3 표 raw %d줄 · clean %d줄" % (len(table.splitlines()), len(clean.splitlines())))
+    print(clean)
     res = collections.defaultdict(list)
     for task, gold in GOLD.items():
         A = table + "\n\n" + FACTS[task] + "\n\n" + QUESTION
+        Ac = clean + "\n\n" + FACTS[task] + "\n\n" + QUESTION
         B = ("Here is a customer-service conversation so far.\n\n" + ctx_of(tag, task)
              + "\n\n" + table + "\n\n" + FACTS[task] + "\n\n" + QUESTION)
-        for label, prompt in (("A_minimal", A), ("B_fullctx", B)):
+        for label, prompt in (("A_minimal", A), ("A_clean", Ac), ("B_fullctx", B)):
             for i in range(n):
                 try:
                     a = ask(prompt, 0.0 if i == 0 else 0.7)
