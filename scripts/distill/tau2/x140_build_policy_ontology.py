@@ -57,6 +57,8 @@ sys.path.insert(0, HERE)
 AXES = {
     # ── v0부터 있던 둘 ──────────────────────────────────────────────────────
     "referrer_tenure_days": {
+        "applies_to": {"consumers": [{"tool": "submit_referral", "operand_arg": "account_type"}],
+                       "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"},
         "desc": "the minimum number of days the REFERRER must already have held a checking "
                 "account (relationship duration / tenure) to be eligible to refer",
         "against": "tenure_days", "compare": "ge",
@@ -64,6 +66,8 @@ AXES = {
         #  holder is required." (…_hunter_green_001)
         "fit": r"\b\d{1,4}[\s-]*(?:calendar[\s-]+)?days?\b"},
     "annual_referral_limit": {
+        "applies_to": {"consumers": [{"tool": "submit_referral", "operand_arg": "account_type"}],
+                       "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"},
         "desc": "the maximum number of referral bonuses allowed per year for that product",
         "against": "type_usage", "compare": "le",
         # "Annual limit: Up to 10 referral bonuses per year" (…_hunter_green_001)
@@ -72,28 +76,38 @@ AXES = {
 
     # ── v2 신설 — `x142`가 센 라벨에서 왔다(라벨 병합표는 안 만든다·[[52]] 해석은 LLM 몫) ──
     "referrer_bonus_usd": {
+        "applies_to": {"consumers": [],
+                       "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."},
         # 라벨 `your bonus`·`you earn`·`referrer bonus`·`your reward`
         # "Your bonus: $200 for each successful referral" (…_lime_green_003)
         "desc": "the dollar amount the REFERRER receives for one successful referral",
         "against": None, "compare": None, "fit": r"\$"},
     "referred_bonus_usd": {
+        "applies_to": {"consumers": [],
+                       "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."},
         # 라벨 `their bonus`·`they receive`·`referred bonus`·`new member bonus`
         # "Their bonus: $150 welcome bonus for the referred business" (…_lime_green_003)
         "desc": "the dollar amount the REFERRED person or business receives as a welcome bonus",
         "against": None, "compare": None, "fit": r"\$"},
     "qualifying_deposit_usd": {
+        "applies_to": {"consumers": [],
+                       "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."},
         # 라벨 `qualifying deposit`·`required deposit`
         # "Qualifying deposit: The referred business must deposit at least $7,500 to trigger
         #  the referral bonus" (…_cobalt_blue_005)
         "desc": "the minimum dollar amount the REFERRED party must deposit to trigger the bonus",
         "against": None, "compare": None, "fit": r"\$"},
     "deposit_window_days": {
+        "applies_to": {"consumers": [],
+                       "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."},
         # 라벨 `deposit window`·`deposit deadline`·`time window`
         # "Time window: This deposit must be made within 90 days of account opening"
         #  (…_cobalt_blue_005)
         "desc": "the number of days the REFERRED party has to make the qualifying deposit",
         "against": None, "compare": None, "fit": r"\b\d{1,4}[\s-]*days?\b"},
     "rolling_window_referrals": {
+        "applies_to": {"consumers": [{"tool": "submit_referral", "operand_arg": "account_type"}],
+                       "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"},
         # 라벨 `weekly limit` + 산문. **상품이 아니라 계좌 부류 전체에 걸리는 규칙**이고
         # 값이 부류마다 다르다 — 그래서 연간 상한과 **다른 축**이다(v0는 이걸 연간으로 넣어 틀렸다).
         # "You can receive at most 2 referral bonuses in any rolling 9-day window."
@@ -103,10 +117,14 @@ AXES = {
                 "(NOT per year) — this rule applies across account types, not to one product",
         "against": None, "compare": None, "fit": r"(rolling|window)"},
     "rolling_window_days": {
+        "applies_to": {"consumers": [{"tool": "submit_referral", "operand_arg": "account_type"}],
+                       "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"},
         # 같은 문장의 **창 길이**. 건수와 창 길이는 둘 다 있어야 판정이 된다.
         "desc": "the length in days of that rolling window (e.g. 'rolling 9-day window')",
         "against": None, "compare": None, "fit": r"(rolling|window)"},
     "company_max_age_years": {
+        "applies_to": {"consumers": [{"tool": "open_bank_account", "operand_arg": "account_class"}],
+                       "basis": "env `open_bank_account_4821(user_id, account_type, account_class)` docstring 축자 \"account_class (string): The full official account class name\" + 정책 축자 \"## Verify Eligibility — Confirm your company is within 4 years of formation.\" (…sky_blue_001)"},
         # ⚠이 축은 `x142` 라벨 인구조사가 **구조적으로 못 본다** — 라벨 없는 산문이라서다.
         #   내가 처음에 *"코퍼스에 없다"* 고 단정했다가 실물에서 뒤집혔다(자기정정).
         # "Confirm your company is within 4 years of formation." (…_sky_blue_001)
@@ -119,6 +137,8 @@ AXES = {
 
     # ── 산문 pass(`x142 --prose`)가 낸 넷 — 라벨 pass는 이것들도 못 봤다 ──────────────
     "qualifying_spend_usd": {
+        "applies_to": {"consumers": [],
+                       "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."},
         # "The referred business must spend at least $3,000 within 90 days of account opening
         #  for you to receive the bonus" (…_business_silver_rewards_card_013)
         # 예치(deposit)와 **다른 축**이다 — 카드는 지출로, 계좌는 예치로 자격을 준다.
@@ -126,17 +146,24 @@ AXES = {
                 "deposit) to trigger the referral bonus",
         "against": None, "compare": None, "fit": r"\$"},
     "holder_min_age_years": {
+        "applies_to": {"consumers": [{"tool": "open_bank_account", "operand_arg": "account_class"},
+                                     {"tool": "submit_referral", "operand_arg": "account_type"}],
+                       "basis": "계좌 보유 자격이면서 동시에 추천 자격이다 — 정책 축자 \"The referred person must be 18 years or older\" (…047·추천 자격) 와 \"You must be … between 13 and 24 years old to open the account.\" (…light_green_002·개설 자격)"},
         # "The referred person must be 18 years or older" (…bank_accounts_(general)_047)
         # "The person you refer must be eligible for a Gold Years Account (age 62+)"
         # "You must be … between 13 and 24 years old to open the account." (…light_green_002)
         "desc": "the minimum age in years a person must be to hold or open this account",
         "against": None, "compare": None, "fit": r"(year|age)"},
     "holder_max_age_years": {
+        "applies_to": {"consumers": [{"tool": "open_bank_account", "operand_arg": "account_class"}],
+                       "basis": "env `open_bank_account_4821(user_id, account_type, account_class)` docstring 축자 \"account_class (string): The full official account class name\" + 정책 축자 \"## Verify Eligibility — Confirm your company is within 4 years of formation.\" (…sky_blue_001)"},
         # "You must remain within the 13–24 age range to maintain the account." (…light_green_002)
         "desc": "the maximum age in years a person may be and still hold this account "
                 "(only where the policy states an upper bound)",
         "against": None, "compare": None, "fit": r"(year|age)"},
     "referred_no_prior_accounts_months": {
+        "applies_to": {"consumers": [{"tool": "submit_referral", "operand_arg": "account_type"}],
+                       "basis": "env `submit_referral(user_id, account_type)` + A2 `action_tools` + 정책 축자 \"you must check that the user is eligible to submit referrals first\" (…bank_accounts_(general)_047)"},
         # "The referred person must be a new Rho-Bank customer with no existing checking,
         #  savings, or closed accounts within the past 12 months." (…bank_accounts_(general)_047)
         "desc": "how many months back the REFERRED party must have had no Rho-Bank accounts "
