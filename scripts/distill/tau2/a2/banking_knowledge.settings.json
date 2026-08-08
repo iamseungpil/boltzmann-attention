@@ -338,8 +338,8 @@
     "show_axes": [
      "referrer_bonus_usd",
      "referrer_tenure_days",
-     "annual_referral_limit",
      "qualifying_deposit_usd",
+     "annual_referral_limit",
      "company_max_age_years"
     ]
    },

@@ -77,26 +77,43 @@ def main():
     #   같은데 우리 문장에는 P2 에 없던 **머리말·꼬리말**이 있다 — *"제외했다 · 남은 것들이다"*.
     #   가설: 완결을 주장하는 순간 모델이 **자기 검사를 끈다**(예치 하한을 더 안 본다).
     #   그래서 행은 그대로 두고 **감싸는 말만** 뺀 arm 을 둔다(정보량 동일·[[18]]).
-    def bare(text):
-        rows = [l for l in text.splitlines() if l.startswith("  ")]
-        return table.splitlines()[0] + "\n" + "\n".join(rows)
+    #   2차가 그 가설을 확증했다: 행이 같은데 **감싸는 말만** 빼니 100 이 0/5 → **5/5**.
+    #   그리고 099 는 감싸는 말과 무관하게 전부 0/5 였는데, B0(raw) 와 B4(bare) 를 축자 대조하니
+    #   **줄 수·글자 수까지 같고 차이는 열 순서 하나**였다 — `qualifying_deposit_usd` 가
+    #   `annual_referral_limit` 뒤로 밀려 있었다(내가 x149 표의 순서를 임의로 바꿔 둔 것).
+    #   099 를 가르는 축이 예치 하한이므로 그 열이 뒤에 있으면 안 보인다. A2 순서를 복원했다.
+    # ⇒ 3차는 **감싸는 말을 부분 격리**한다: 머리말만 · 꼬리말만 · 짧고 참인 머리말.
+    NEUTRAL = table.splitlines()[0]
+    SHORT = ("Policy constants on record, for the products not already ruled out by this "
+             "customer's tenure or by this year's counts (each value from a retrieved document):")
 
-    b100, b099 = bare(e100), bare(e099)
+    def parts(text):
+        rows = [l for l in text.splitlines() if l.startswith("  ")]
+        other = [l for l in text.splitlines() if l and not l.startswith("  ")]
+        return "\n".join(rows), other[0], other[-1]
+
+    r100, h100, t100 = parts(e100)
+    r099, h099, t099 = parts(e099)
 
     arms[("task_100", "A0 raw-table")] = table + "\n\n" + f100 + "\n\n" + Q
-    arms[("task_100", "A1 eligible")] = e100 + "\n\n" + f100 + "\n\n" + Q
-    arms[("task_100", "A2 eligible+table")] = (table + "\n\n" + e100 + "\n\n" + f100
-                                               + "\n\n" + Q)
-    arms[("task_100", "A3 bare-filtered")] = b100 + "\n\n" + f100 + "\n\n" + Q
+    arms[("task_100", "A1 full")] = e100 + "\n\n" + f100 + "\n\n" + Q
+    arms[("task_100", "A3 bare")] = NEUTRAL + "\n" + r100 + "\n\n" + f100 + "\n\n" + Q
+    arms[("task_100", "A4 header-only")] = h100 + "\n" + r100 + "\n\n" + f100 + "\n\n" + Q
+    arms[("task_100", "A5 footer-only")] = (NEUTRAL + "\n" + r100 + "\n" + t100 + "\n\n"
+                                            + f100 + "\n\n" + Q)
+    arms[("task_100", "A6 short")] = SHORT + "\n" + r100 + "\n\n" + f100 + "\n\n" + Q
 
     ctx = Y.render(Y.msgs_of(tag, "task_099"))
     head = "Here is a customer-service conversation so far.\n\n"
+    b099 = NEUTRAL + "\n" + r099
+    s099 = SHORT + "\n" + r099
     arms[("task_099", "B0 raw-table")] = table + "\n\n" + f099 + "\n\n" + Q
-    arms[("task_099", "B1 eligible")] = e099 + "\n\n" + f099 + "\n\n" + Q
+    arms[("task_099", "B1 full")] = e099 + "\n\n" + f099 + "\n\n" + Q
     arms[("task_099", "B2 ctx+table")] = head + ctx + "\n\n" + table + "\n\n" + f099 + "\n\n" + Q
-    arms[("task_099", "B3 ctx+eligible")] = head + ctx + "\n\n" + e099 + "\n\n" + f099 + "\n\n" + Q
-    arms[("task_099", "B4 bare-filtered")] = b099 + "\n\n" + f099 + "\n\n" + Q
-    arms[("task_099", "B5 ctx+bare")] = head + ctx + "\n\n" + b099 + "\n\n" + f099 + "\n\n" + Q
+    arms[("task_099", "B3 ctx+full")] = head + ctx + "\n\n" + e099 + "\n\n" + f099 + "\n\n" + Q
+    arms[("task_099", "B4 bare")] = b099 + "\n\n" + f099 + "\n\n" + Q
+    arms[("task_099", "B6 short")] = s099 + "\n\n" + f099 + "\n\n" + Q
+    arms[("task_099", "B7 ctx+short")] = head + ctx + "\n\n" + s099 + "\n\n" + f099 + "\n\n" + Q
 
     print("=== 통과 집합 (task_100 · %d일) ===" % DAYS["task_100"])
     print(e100)
