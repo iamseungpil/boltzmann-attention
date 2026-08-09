@@ -228,7 +228,34 @@ def formalize_thresholds(agent, la, UserMessage, texts, spec):
                             call_name="ledger_thresholds_formalize")
 
 
-def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr, call_name):
+def formalize_case_facts(agent, la, UserMessage, texts, spec, wanted):
+    """**손님이 대화에서 말한 수**를 축 이름으로 받는다 — `{축: (값, 인용문)}`.
+
+    왜 필요한가 (2026-08-09·C342 후속·사용자 지적 *"자격 상한 산수로 필터해야 하는 것 아닌가"*):
+    자격 기준 중 둘은 피연산자가 **DB가 아니라 대화**에 있다 — 피추천 사업체가 얼마를 예치할지,
+    설립한 지 얼마나 됐는지. A3 는 그 문턱을 이미 인용과 함께 들고 있는데(`qualifying_deposit_usd`
+    등) 맞댈 상대가 없어서 우리는 그 축을 **표시만 하고 거르지 않았다**. 실측 결과 그것이
+    task_099 의 실패다: 거르지 않으면 통과 집합의 최고액이 `Beige` 500(예치 요건 100000·손님은
+    30000)이고, 걸면 최고액이 `World Blue` 300 = gold 가 된다.
+
+    분담은 다른 형식화와 같다([[52]]·[[10]]): **해석=LLM**(대화의 어느 문장이 그 수인가),
+    **산수·검증=엔진**(인용이 대화에 실재하는지 + 문턱과의 비교). 엔진은 대화를 파싱하지 않는다.
+    ★묻는 항목(`wanted`)은 **A3 축 설명 그대로** 실어 보낸다 — 엔진에도 프롬프트에도 도메인
+      어휘를 새로 쓰지 않는다(도메인 내용은 출처가 있는 A3 한 곳에만 산다).
+    ⚠못 찾으면 비운다. 그 축은 **거르지 않는다** — 모르는 것을 탈락으로 바꾸지 않는다.
+    """
+    if not wanted:
+        return {}
+    extra = ("\n\nReport only these, using exactly these names as the keys:\n- "
+             + "\n- ".join("%s: %s" % (k, v) for k, v in wanted))
+    return _formalize_pairs(agent, la, UserMessage, texts, spec,
+                            key="case_facts_prompt", field="value",
+                            memo_attr="_t2_case_facts",
+                            call_name="case_facts_formalize", extra=extra)
+
+
+def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr, call_name,
+                     extra=""):
     """`{그룹: (정수, 인용문)}` 형태를 모델에게 받는 공용 절차 — 인용 실재만 엔진이 확인한다."""
     tpl = (spec or {}).get(key)
     if not (tpl and agent is not None and la is not None and texts):
@@ -322,7 +349,7 @@ def _num(v):
     return int(v[0] if isinstance(v, (tuple, list)) else v)
 
 
-def eligible_text(days, tally, axis_maps, spec):
+def eligible_text(days, tally, axis_maps, spec, stated=None):
     """자격을 **엔진이 걸러** 통과한 후보만, 그 상품에 기록된 정책 상수와 함께 말한다. 산수뿐이다.
 
     ★근거 (2026-08-08·C337·x150 절제 실측): 모델은 argmax 를 완벽히 하고 **자격 필터를 못 한다**.
@@ -339,11 +366,17 @@ def eligible_text(days, tally, axis_maps, spec):
       쓴 표에는 그 축들이 **들어 있었다** ⇒ 재현하려면 같이 실어야 한다. 축 목록·문턱 축 이름은
       전부 A2 선언이고 엔진에 도메인 어휘는 없다.
 
-    걸 수 있는 기준만 건다(우리가 결정론으로 쥔 것): 경과일 대 문턱, 누계 대 상한.
+    ★기준은 **A2 `eligible.criteria` 선언**이고 엔진에 축 이름이 없다. 피연산자 출처는 셋 —
+      `days`(계좌 원장) · `tally`(추천 원장) · `stated`(손님이 대화에서 말한 수·LLM 형식화).
+      2026-08-09 자기정정: 처음엔 원장에서 온 둘만 걸고 나머지는 **표시만** 했는데, 그것이
+      task_099 를 못 닫은 이유였다 — 그 sim 은 관계기간 2년이라 문턱이 아무도 못 거르고,
+      가르는 축은 예치 하한이다(`Beige` 500 은 100000 을 요구하고 손님은 30000). 거르면
+      최고액이 `World Blue` 300 = gold 가 된다. *"자격 산수로 거른다"* 는 원래 계약이고,
+      피연산자가 DB 밖에 있다는 것은 거르지 않을 이유가 아니라 **형식화할 이유**다([[52]]).
     문서에 그 기준이 없는 주어는 **거르지 않는다** — 모르는 것을 탈락으로 바꾸지 않는다.
-    다른 요건은 여전히 남아 있을 수 있고, 그래서 남은 축을 **값 그대로** 넘겨 모델이 보게 한다.
+    피연산자를 못 구한 축도 **거르지 않는다**. 남은 축은 값 그대로 실어 모델이 보게 한다.
 
-    ⚠**닫을 수 없으면 침묵한다**: 경과일이 없거나 문턱 축이 비어 있으면 이 문장은 나가지 않는다.
+    ⚠**닫을 수 없으면 침묵한다**: 걸 수 있는 기준이 하나도 없으면 이 문장은 나가지 않는다.
       문턱을 못 걸고 만든 '통과 집합'은 통과 집합이 아니라 **전체 표에 통과 도장을 찍은 것**이고,
       실측상 그 상태의 최고액은 정확히 오답(`World Blue Balance` 300)이다.
     ⚠정렬은 **이름순**이다. 보너스순으로 내리면 첫 줄이 곧 답이 되어 우리가 argmax 까지 해 버린다
@@ -351,24 +384,50 @@ def eligible_text(days, tally, axis_maps, spec):
     """
     tpl = (spec or {}).get("eligible_text")
     cfg = (spec or {}).get("eligible") or {}
-    min_ax, lim_ax = cfg.get("min_days_axis"), cfg.get("annual_limit_axis")
     show = list(cfg.get("show_axes") or ())
-    if not (tpl and min_ax and show):
+    crit = list(cfg.get("criteria") or ())
+    if not (tpl and show and crit):
         return ""
-    mins = (axis_maps or {}).get(min_ax) or {}
-    lims = (axis_maps or {}).get(lim_ax) or {} if lim_ax else {}
-    if days is None or not mins:
+    # 피연산자: 원장에서 온 것(경과일·누계)과 대화에서 온 것(`stated`)을 한 자리에서 받는다.
+    # 축마다 피연산자가 **있을 때만** 거른다 — 없는 축은 거르지 않는다(모름 ≠ 탈락).
+    live = []
+    for c in crit:
+        ax, src, rel = c.get("axis"), c.get("operand"), c.get("compare")
+        m = (axis_maps or {}).get(ax) or {}
+        if not (ax and rel and m):
+            continue
+        if src == "tally":
+            # ⚠원장을 **안 읽었으면** 거르지 않는다. 빈 dict 를 0 으로 세면 *"올해 아무것도
+            #   안 썼다"* 는 주장이 되는데 그건 우리가 확인한 사실이 아니다([[25]]).
+            if tally is not None:
+                live.append((m, rel, "tally", None))
+        elif src == "days":
+            if days is not None:
+                live.append((m, rel, "scalar", int(days)))
+        elif src == "stated":
+            v = (stated or {}).get(ax)
+            if v is not None:
+                live.append((m, rel, "scalar", _num(v)))
+    # ★거를 수 있는 기준이 하나도 없으면 침묵한다 — 통과 도장을 찍는 것이 되기 때문이다.
+    if not live:
         return ""
     subs = set()
     for a in show:
         subs |= set((axis_maps or {}).get(a) or {})
     ok = []
     for s in sorted(subs):
-        need = mins.get(s)
-        if need is not None and int(days) < _num(need):
-            continue
-        cap = lims.get(s)
-        if cap is not None and int((tally or {}).get(s, 0)) >= _num(cap):
+        drop = False
+        for m, rel, kind, val in live:
+            th = m.get(s)
+            if th is None:                      # 그 상품엔 그 기준이 문서에 없다 = 안 거른다
+                continue
+            lhs = int((tally or {}).get(s, 0)) if kind == "tally" else val
+            th = _num(th)
+            if (rel == "ge" and lhs < th) or (rel == "le" and lhs > th) \
+                    or (rel == "lt" and lhs >= th) or (rel == "gt" and lhs <= th):
+                drop = True
+                break
+        if drop:
             continue
         bits = ["%s=%s" % (a, _num((axis_maps or {}).get(a, {})[s]))
                 for a in show if s in ((axis_maps or {}).get(a) or {})]
@@ -376,7 +435,7 @@ def eligible_text(days, tally, axis_maps, spec):
             ok.append("  %s: %s" % (s, ", ".join(bits)))
     if not ok:
         return ""
-    return tpl.format(days=int(days), eligible="\n".join(ok))
+    return tpl.format(eligible="\n".join(ok))
 
 
 def unmatched_text(tally, limits, spec):

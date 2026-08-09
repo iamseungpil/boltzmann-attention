@@ -2479,10 +2479,30 @@ def _limit_reduce_text(agent, a2, messages):
         #   x150 절제: 같은 표 0/5 vs **미달 행을 뺀 표 5/5**. 그래서 거르는 일 자체를
         #   엔진이 하고 남은 것만 준다. 누계는 **A2가 지목한 선언**의 것을 쓴다(계좌 선언의
         #   tally 는 손님 보유 level 이라 연간 상한과 무관하다 — 섞으면 조용히 틀린다).
-        if _e2.get("days") is not None and _sp2.get("eligible_text"):
-            _tf2 = (_sp2.get("eligible") or {}).get("tally_from")
-            _tal2 = ((ops.get(str(_tf2)) or {}).get("tally") or {}) if _tf2 else {}
-            _add += _LG2.eligible_text(_e2["days"], _tal2, _axm3, _sp2)
+        if _sp2.get("eligible_text"):
+            _cfg2 = _sp2.get("eligible") or {}
+            _tf2 = _cfg2.get("tally_from")
+            # ⚠원장 선언이 아직 안 돌았으면 **None** 을 넘긴다 — 빈 dict 는 *"0 회 썼다"* 는
+            #   주장이 되고, 그건 우리가 확인한 사실이 아니다([[25]]).
+            _tal2 = (ops.get(str(_tf2)) or {}).get("tally") if _tf2 else None
+            # ★대화에서 오는 피연산자 (2026-08-09). 자격 기준 중 둘은 DB 밖에 있다 —
+            #   피추천자 예치액·회사 연령. 없다고 안 거르면 통과 집합의 최고액이 오답이 된다
+            #   (099 실측: `Beige` 500 은 예치 100000 을 요구하고 손님은 30000).
+            #   묻는 항목은 **A3 축 설명 그대로** 싣는다 — 엔진에 도메인 어휘 0.
+            _want, _stated = [], {}
+            _axd = (((a2 or {}).get("policy_ontology") or {}).get("axes") or {})
+            for _c2 in (_cfg2.get("criteria") or ()):
+                if _c2.get("operand") == "stated" and _axd.get(_c2.get("axis")):
+                    _want.append((_c2["axis"], _axd[_c2["axis"]]))
+            if _want:
+                try:
+                    import tau2.agent.llm_agent as _la2
+                    from tau2.data_model.message import UserMessage as _UM2
+                    _stated = _LG2.formalize_case_facts(agent, _la2, _UM2, _tx, _sp2, _want)
+                except Exception as _fe3:
+                    print("[T2_LIMIT_REDUCE] 대화-피연산자 형식화 건너뜀: %r" % (_fe3,),
+                          file=sys.stderr, flush=True)
+            _add += _LG2.eligible_text(_e2.get("days"), _tal2, _axm3, _sp2, _stated)
     return _add.strip()
 
 

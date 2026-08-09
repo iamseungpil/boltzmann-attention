@@ -27,6 +27,7 @@ except Exception:
 import t2_gate_patch as G                                     # noqa: E402
 import t2_factdag as FD                                       # noqa: E402
 import t2_ledger as LG                                        # noqa: E402
+from t2_ledger import _num as _n                               # noqa: E402
 from gate_interpreter import load_domain_a2                    # noqa: E402
 
 DOMAIN = "banking_knowledge"
@@ -57,11 +58,21 @@ def main():
     cfg = spec.get("eligible") or {}
     rows = (a2.get("policy_ontology") or {}).get("rows") or ()
     show = list(cfg.get("show_axes") or ())
+    crit = list(cfg.get("criteria") or ())
     maps = {ax: FD._a3_map(rows, {"axis": ax}) for ax in show}
-    mins = maps.get(cfg.get("min_days_axis")) or {}
-    lims = maps.get(cfg.get("annual_limit_axis")) or {}
+    by_src = {c.get("operand"): c for c in crit}
+    min_ax = (by_src.get("days") or {}).get("axis")
+    lim_ax = (by_src.get("tally") or {}).get("axis")
+    dep_ax = next((c["axis"] for c in crit if c.get("operand") == "stated"
+                   and c.get("compare") == "ge"), None)
+    mins = maps.get(min_ax) or {}
+    lims = maps.get(lim_ax) or {}
     chk(bool(mins) and bool(lims), "선언한 필터 축이 A3에서 조회된다 (문턱 %d·상한 %d)"
         % (len(mins), len(lims)))
+    chk(all(c.get("axis") in maps for c in crit),
+        "모든 기준 축이 표시 축에 포함돼 있다(거르는 근거를 모델도 본다)")
+    chk(any(c.get("operand") == "stated" for c in crit),
+        "대화에서 오는 피연산자 기준이 선언돼 있다  ← 예치 하한을 표시만 하던 결손")
 
     # 문턱이 갈리는 자리를 **A3에서** 고른다(테스트가 도메인 어휘를 짓지 않는다).
     need = sorted({int(v[0]) for v in mins.values()})
@@ -102,12 +113,33 @@ def main():
     chk(order == sorted(order), "정렬은 이름순이다 (우리가 argmax 하지 않는다)")
 
     # ── ⒜ 못 거르면 침묵한다 (음성 통제·[[57]]) ─────────────────────────────
-    chk(LG.eligible_text(None, {}, maps, spec) == "",
-        "경과일이 없으면 침묵한다  ← 문턱 없는 '통과 집합'은 통과 도장이다")
+    chk(LG.eligible_text(None, None, maps, spec) == "",
+        "걸 수 있는 기준이 하나도 없으면 침묵한다  ← 그런 '통과 집합'은 통과 도장이다")
+    chk(LG.eligible_text(None, {}, maps, spec) != "",
+        "누계가 **있으면**(빈 원장이라도) 상한 기준 하나로 발화한다")
+    chk(LG.eligible_text(None, None, maps, spec, {dep_ax: 1}) != "" if dep_ax else True,
+        "대화-피연산자 하나만 있어도 발화한다(기준 출처는 셋 다 대등하다)")
     chk(LG.eligible_text(days, {}, {}, spec) == "",
         "A3 조회가 비면 침묵한다")
     chk(LG.eligible_text(days, {}, maps, {}) == "",
         "A2가 문구를 선언하지 않으면 침묵한다(선언 없는 도메인은 거동 0)")
+
+    # ── 대화-피연산자: 있으면 거르고, 없으면 안 거른다 ──────────────────────
+    chk(dep_ax is not None, "≥ 방향의 대화-피연산자 기준이 있다 (%s)" % dep_ax)
+    if dep_ax:
+        dep = maps.get(dep_ax) or {}
+        vals = sorted({_n(v) for v in dep.values()})
+        cut = vals[len(vals) // 2]
+        base = {l.strip().split(":")[0].strip()
+                for l in LG.eligible_text(days, {}, maps, spec).splitlines()
+                if l.startswith("  ")}
+        got = {l.strip().split(":")[0].strip()
+               for l in LG.eligible_text(days, {}, maps, spec, {dep_ax: cut}).splitlines()
+               if l.startswith("  ")}
+        too_big = {s for s, v in dep.items() if _n(v) > cut and s in base}
+        chk(bool(too_big), "그 값으로 떨어져야 할 주어가 존재한다 (%d개)" % len(too_big))
+        chk(not (got & too_big), "대화-피연산자로 실제로 걸러진다  ← 099를 가르는 축")
+        chk(got == base - too_big, "그 축이 없는 주어는 그대로 남는다(모름 ≠ 탈락)")
 
     # ── 라이브 경로: `_limit_reduce_text` 를 통해 실제로 나가는가 ────────────
     tally_spec = next((s for s in specs if s.get("exhausted_text")), None)
@@ -129,8 +161,8 @@ def main():
     chk(body.rstrip().endswith("{eligible}"),
         "통과 집합 뒤에 산문이 붙지 않는다  ← 붙이면 레버가 뒤집힌다(x151 A5)")
     # 열 순서도 실측이다 — 판별 축이 뒤로 밀리면 같은 글자 수에도 099 가 4/5 → 0/5.
-    chk(show.index(cfg["min_days_axis"]) < show.index(cfg["annual_limit_axis"]),
-        "열 순서가 측정된 순서다(문턱이 상한보다 앞)")
+    chk(dep_ax and lim_ax and show.index(dep_ax) < show.index(lim_ax),
+        "판별 축(대화-피연산자)이 상한 축보다 **앞**에 온다  ← C340: 뒤로 밀면 4/5→0/5")
 
     # 누계는 **A2가 지목한 선언**에서 온다 — 계좌 쪽 tally 를 섞으면 조용히 틀린다
     tf = cfg.get("tally_from")

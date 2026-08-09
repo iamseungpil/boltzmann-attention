@@ -3009,9 +3009,32 @@
    "threshold_prompt": "Below are excerpts retrieved in this conversation. Some of them may state, for a particular account type, the minimum time the referring customer must already have banked here before they can refer someone to that type. Report only what the excerpts actually say. Reply with a JSON object only, mapping the account type's full name to {{\"min_days\": <integer number of days>, \"quote\": \"<the sentence from the excerpt, copied exactly>\"}}. Convert months or years to days only if the excerpt itself gives the conversion. Omit any account type whose minimum is not stated in these excerpts - do not infer it, do not carry it over from another type, and do not use general knowledge. If none are stated, reply {{}}.\n\n{text}",
    "ineligible_text": "Arithmetic on the elapsed time above ({days} days) against the minimums you retrieved: not reachable yet - {blocked}. Reachable on this criterion - {ok}. This is a comparison of two numbers, not a recommendation, and it covers only the types whose minimum appeared in a document you retrieved. Other requirements may still apply.",
    "eligible_text": "\nPolicy constants on record, for the products not already ruled out by this customer's tenure or by this year's counts (each value from a retrieved document):\n{eligible}",
+   "case_facts_prompt": "Below are excerpts from this conversation. For each item listed after them, report the number ONLY if the conversation actually states it. Reply with a JSON object only, mapping the item's name to {{\"value\": <integer, digits only, no currency symbol or separators>, \"quote\": \"<the sentence from the excerpts, copied exactly>\"}}. If the conversation gives a range or an approximation, use the number it states. Omit any item the conversation does not state - do not infer it, do not estimate it, and do not use general knowledge. If none are stated, reply {{}}.\n\n{text}",
+   "_note_case_facts": "★2026-08-09 신설 (사용자 지적 *\"자격 상한 산수로 필터해야 하는 것 아닌가\"*). 자격 기준 중 둘은 **피연산자가 DB가 아니라 대화**에 있다 — 피추천 사업체가 얼마를 예치할지·설립한 지 얼마나 됐는지. A3 는 그 문턱을 인용과 함께 이미 들고 있는데 맞댈 상대가 없어 우리는 그 축을 **표시만 하고 거르지 않았다**. 그것이 099 를 못 닫은 이유다(오프라인 실측: 안 거르면 최고액 `Beige` 500〔예치 요건 100000·손님 30000〕, 거르면 `World Blue` 300 = gold). ★출처([[23]]) = **A3 축 정의 + 대화**, gold 무참조. ★**이 문구에 도메인 어휘가 없다** — 무엇을 묻는지는 런타임에 A3 `axes` 설명이 주입한다(도메인 내용은 출처가 있는 A3 한 곳에만 산다·새 도메인 opex 0 후보). ★분담([[52]]): 어느 문장이 그 수인지 = LLM · 인용 실재 확인과 비교 = 엔진. ⚠못 찾으면 그 축은 **거르지 않는다**(모름 ≠ 탈락). ⚠근사치(*\"about \\$31,000\"*)를 그대로 쓰게 한 것은 의도다 — 반올림 규칙을 우리가 정하면 정책에 없는 것을 지어내는 것이 된다.",
    "eligible": {
-    "min_days_axis": "referrer_tenure_days",
-    "annual_limit_axis": "annual_referral_limit",
+    "criteria": [
+     {
+      "axis": "referrer_tenure_days",
+      "operand": "days",
+      "compare": "ge"
+     },
+     {
+      "axis": "annual_referral_limit",
+      "operand": "tally",
+      "compare": "lt"
+     },
+     {
+      "axis": "qualifying_deposit_usd",
+      "operand": "stated",
+      "compare": "ge"
+     },
+     {
+      "axis": "company_max_age_years",
+      "operand": "stated",
+      "compare": "le"
+     }
+    ],
+    "_note_criteria": "`compare` = **피연산자가 문턱에 대해 만족해야 하는 관계**다(일관 규약): 경과일 ≥ 최소기간 · 올해 누계 < 연간상한 · 피추천자 예치액 ≥ 최소예치 · 회사 연령 ≤ 최대허용. 방향은 A3 `axes` 설명 축자에서 곧장 나온다(예: qualifying_deposit_usd = *\"the minimum dollar amount the REFERRED party must deposit to trigger the bonus\"*) — 새 도메인 지식 0. 축을 늘리려면 여기 한 줄과 A3 행이면 되고 엔진은 안 바뀐다.",
     "tally_from": "get_referrals_by_user",
     "show_axes": [
      "referrer_bonus_usd",
