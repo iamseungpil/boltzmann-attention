@@ -85,6 +85,21 @@ def main():
         arms["S1 ctx+good"] = ctx + "\n\n" + hand(pg) + "\n\n" + facts + "\n\n" + Q
         arms["S2 ctx+degraded"] = ctx + "\n\n" + hand(pw) + "\n\n" + facts + "\n\n" + Q
         arms["S3 ctx+table"] = ctx + "\n\n" + good + "\n\n" + facts + "\n\n" + Q
+        # ★위험 계량 재설계 (2026-08-09 자기정정): '열화 1단'이 **같은 답**을 냈다 — 깨끗한
+        #   문맥에서는 모델이 예치 조건을 스스로 적용해서 표를 안 걸러도 정답이 나온다.
+        #   그래서 위험이 측정되지 않았다. 진짜 질문은 *"틀린 답을 실으면 따라가는가"* 이므로
+        #   **통과 집합 안의 다른 상품**을 일부러 싣는다(gold 참조 아님 — 1단 답이 아닌 것 중
+        #   보너스가 가장 큰 것을 결정론으로 고른다). 따라가면 이 레버는 1단 품질을 **그대로
+        #   전달**하는 장치이고, 그 사실을 알고 켜야 한다([[25]]·[[57]]).
+        def _bonus(line):
+            seg = [p for p in line.split(",") if "referrer_bonus_usd=" in p]
+            return int(seg[0].split("=")[1]) if seg else -1
+        rows_ = [l.strip() for l in good.splitlines() if l.startswith("  ")]
+        other = [l for l in rows_ if not l.split(":")[0].strip().lower() in pg.lower()]
+        wrong = max(other, key=_bonus).split(":")[0].strip() if other else None
+        if wrong:
+            arms["S4 ctx+WRONG"] = ctx + "\n\n" + hand(wrong) + "\n\n" + facts + "\n\n" + Q
+            print("  일부러 실을 오답: %r" % wrong)
 
         for label, prompt in arms.items():
             ans = [X.ask(prompt, 0.0 if i == 0 else 0.7) for i in range(n)]
