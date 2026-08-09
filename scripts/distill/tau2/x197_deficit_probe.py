@@ -112,7 +112,13 @@ def run(task, arms, choices, n):
                     c[ask(prompt, None, 0.0 if i == 0 else 0.7, mx=180)] += 1
             except Exception as e:
                 c["ERR %s" % type(e).__name__] += 1
-        hit = sum(v for k, v in c.items() if GOLD[task].lower() in str(k).lower())
+        # ★채점은 **정확 일치** (2026-08-09 자기적발): 부분 문자열로 세면 gold `Blue` 가
+        #   `Sky Blue`·`Light Blue`·`Navy Blue` 에 걸려 **부정 통제가 4/8 로 새는 것처럼**
+        #   보였다. 통제가 새면 다른 결론을 못 낸다 — 자유 서술 팔만 포함 검사를 쓴다.
+        if kind == "choice":
+            hit = sum(v for k2, v in c.items() if str(k2).strip() == GOLD[task])
+        else:
+            hit = sum(v for k2, v in c.items() if GOLD[task].lower() in str(k2).lower())
         out[label] = (hit, n, c.most_common(3))
         print("  %-10s gold %d/%d   최빈: %s" % (label, hit, n, c.most_common(2)))
     return out
