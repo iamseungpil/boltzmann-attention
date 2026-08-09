@@ -61,12 +61,27 @@ def main():
     print("%s · 메시지 %d · 범주 %s\n" % (task, len(ms), dict(cnt)))
     cats = [c for c, k in cnt.most_common() if k and c != "other"]
 
+    # ★표는 **모든 arm 에 넣는다** (2026-08-09 자기정정). 1차 실행에서 빼먹었더니
+    #   깨끗한 기준선조차 0/5(`Navy Blue`)라 전 arm 이 0/5 로 붙어 아무것도 안 갈렸다 —
+    #   x154 의 5/5 깨끗한 arm 에는 표가 **있었다**. 표는 우리 층이 늘 공급하는 것이므로
+    #   상수로 두고 **궤적 범주만** 변주해야 오염원이 귀속된다([[18]] 정보-맞춤).
+    import t2_factdag as FD
+    import t2_ledger as LG
+    from gate_interpreter import load_domain_a2
+    _a2 = load_domain_a2("banking_knowledge")
+    _spec = next(s for s in _a2["ledger_metrics"] if s.get("eligible_text"))
+    _rows = _a2["policy_ontology"]["rows"]
+    _maps = {ax: FD._a3_map(_rows, {"axis": ax}) for ax in _spec["eligible"]["show_axes"]}
+    _c = {"task_099": (730, 30000), "task_100": (65, 31000)}[task]
+    TABLE = LG.eligible_text(_c[0], {}, _maps, _spec,
+                             {"qualifying_deposit_usd": _c[1]}).strip()
+
     head = "Here is a customer-service conversation so far.\n\n"
 
     def build(keep):
         sel = [m for m in ms if bucket(m) in keep]
-        return (head + Y.render(sel) + "\n\n" + facts + "\n\n" + Q) if sel \
-            else (facts + "\n\n" + Q)
+        conv = (head + Y.render(sel) + "\n\n") if sel else ""
+        return conv + TABLE + "\n\n" + facts + "\n\n" + Q
 
     arms = collections.OrderedDict()
     arms["FULL"] = build(set(cats))
