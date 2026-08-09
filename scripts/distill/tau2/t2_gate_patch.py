@@ -2632,61 +2632,13 @@ def _limit_reduce_text(agent, a2, messages):
                         #     ([[05]] Q2·[[52]]). 되돌리는 것도 **값**이지 이름이 아니다.
                         #   ⚠기존 단일-축 경로는 **건드리지 않는다** — 그 구성이 099/100 을 3/3 으로
                         #     세우고 있다(런 t·`raw='referrer_bonus_usd'` 6/6). 여기는 순증이다.
+                        # ★C384 (사용자 교정): 합-목적 사슬을 **걷어냈다**. 엔진이 축을 합해
+                        #   argmax 를 내면 결정을 우리가 하는 것이고, 그러면 측정 대상(모델이
+                        #   무엇을 못하는가)이 사라진다 — *"결정론기 짜고 LLM 은 형식적으로 쓰는"*
+                        #   것이라 gold 프로그램과 구별되지 않는다. 099/100 은 격리 프로브로
+                        #   **모델의 결손을 먼저 재고** 그 자리에 레버를 놨다([[18]]). 098/010 은
+                        #   그 측정을 안 한 채 기구부터 지었다. ⇒ 측정 뒤에 다시 세운다.
                         _oax, _olab, _omap = None, None, {}
-                        if not _pick and _sp2.get("rederive_by_axis_prompt") and _axall:
-                            try:
-                                # ★후보 축은 **A2 가 정한다** (2026-08-09·사용자 지적·C377b).
-                                #   구판은 13축을 통째로 보여 줬는데 **조회 가능 ≠ 목적이 될 수
-                                #   있음**이다 — 라이브 첫 런에서 010 은 한도 축
-                                #   (`rolling_window_referrals`)을 목적이라 답했고, 098 은
-                                #   정답 쌍을 냈지만 `referred_bonus_usd` 지도가 없어 순위가
-                                #   비면서 재질의가 **흔적 없이** 안 나갔다.
-                                #   ⇒ ⒜ 무엇이 목적이 될 수 있는지는 A2 선언(`objective_axes`)
-                                #     ⒝ 엔진은 그 위에 **조회 가능**을 한 번 더 거른다(두 목록이
-                                #        갈리면 이번 결함이 재발하므로 회귀가 둘의 일치를 본다).
-                                #   ⚠단일-축 경로는 그대로 둔다 — 13축을 보여 주는 그 구성이
-                                #     099/100 을 3/3 으로 세우고 있어 **측정 뒤에** 옮긴다.
-                                _cand = _sp2.get("objective_axes") or list(_axall)
-                                _axres = {_k: _v for _k, _v in _axall.items()
-                                          if _k in _cand and _k in (_axm3 or {})}
-                                _gone = [_k for _k in _cand if _k not in (_axm3 or {})]
-                                if _gone:
-                                    print("[T2_OBJ_AXES] 선언된 후보 축인데 조회 지도가 없다 %s"
-                                          % (_gone,), file=sys.stderr, flush=True)
-                                _oaxes = _LG2.formalize_objective_axes(agent, _la3, _UM3, _sp2,
-                                                                       _tx, _axres)
-                                _olab, _omap = _LG2.combine_axes(_axm3, _oaxes)
-                                # ★최댓값은 **자격이 실제로 대조된** 주어에서만 뽑는다
-                                #   (2026-08-09 라이브 부검·C381). 통과 집합에는 *"그 기준 값이
-                                #   문서에 없어서 거르지 못한"* 주어가 섞여 있다 — 거르지 않는
-                                #   것은 옳지만(모름≠탈락), 그 주어가 만든 최댓값을 권위 있게
-                                #   되돌리는 것은 없는 근거로 단정하는 것이다([[25]]). 실측:
-                                #   x098 `best=125`·x010 `best=850` 이 나왔고 서브는 **무응답**
-                                #   이었다(표의 답과 우리가 말한 수가 안 맞는다).
-                                _ver7 = _LG2.verified_subjects(_e2.get("days"), _tal2, _axm3,
-                                                               _sp2, _stated)
-                                _rows7 = [(_s7, _b7) for _s7, _b7 in _erows if _s7 in _ver7]
-                                if len(_rows7) != len(_erows):
-                                    print("[T2_OBJ_SUM] 순위 대상 %d/%d (자격 미대조 주어 제외)"
-                                          % (len(_rows7), len(_erows)),
-                                          file=sys.stderr, flush=True)
-                                _rk7 = _LG2._rank_by(_rows7, _omap)
-                                if _rk7:
-                                    # ★C382 — `rederive_prompt` 재사용 금지. 그 문구는 *"손님의
-                                    #   말이 하나를 짚지 못하면 NONE"* 인데 `asked` 는 의도적으로
-                                    #   비어 있어(x158) 서브에겐 `NONE` 이 옳은 답이 된다. 실측
-                                    #   y098: 값은 `best=65`(gold)로 맞았는데 세 번 다 무응답.
-                                    #   ⇒ 손님 말에 기대지 않는 **자기 문구**로 묻는다.
-                                    _p3 = _LG2.rederive_by_axis(
-                                        agent, _la3, _UM3, _sp2, _elig.strip(),
-                                        _ops5, _olab, _rk7[0][1], _rows5)
-                                    print("[T2_OBJ_SUM] axes=%s best=%s → 재질의 NONE→%s"
-                                          % (_olab, _rk7[0][1], _p3 or "무응답"),
-                                          file=sys.stderr, flush=True)
-                                    _pick = _p3 or _pick
-                            except Exception as _s7:
-                                print("[T2_OBJ_SUM] 건너뜀(무발화): %r" % (_s7,),
-                                      file=sys.stderr, flush=True)
                         try:
                             if _pick and _sp2.get("reask_prompt") and _axall and not _omap:
                                 _oax = _LG2.formalize_objective_axis(agent, _la3, _UM3, _sp2,

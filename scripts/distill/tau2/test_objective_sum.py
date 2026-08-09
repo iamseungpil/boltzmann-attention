@@ -154,8 +154,8 @@ ok(all(("{%s}" % k) in (spec or {}).get("objective_axes_prompt", "")
 #   — 실측 y098: 값은 `best=65`(gold)로 맞았는데 세 번 다 무응답.
 byax = (spec or {}).get("rederive_by_axis_prompt", "")
 ok(bool(byax), "되묻는 자기 문구가 선언돼 있다")
-ok(all(("{%s}" % k) in byax for k in ("table", "facts", "axis", "best")),
-   "table/facts/axis/best 자리표시자가 있다")
+ok(all(("{%s}" % k) in byax for k in ("table", "facts", "axis", "ranking")),
+   "table/facts/axis/**ranking** 자리표시자가 있다 (합계는 표에 없으므로 엔진이 실어 준다)")
 ok("customer's words" not in byax,
    "★손님의 말에 기대지 않는다 (그 지시가 빈 `asked` 에서 NONE 을 강제했다)")
 ok("{choice}" not in byax, "우리가 이름을 넣어 주지 않는다 — 표에서 찾는 것은 서브다([[05]] Q2)")
