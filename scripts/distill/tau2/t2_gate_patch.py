@@ -2531,6 +2531,12 @@ def _limit_reduce_text(agent, a2, messages):
             if _u8:
                 _unm_parts.append(_u8)
             _add += _u8
+        # ★C378 상태별 세기 — 누계는 그룹 축으로 뭉개서 *어느 행이 완료되지 않았는지* 를 잃는다.
+        #   010 이 그 자리다(손님: *"넷을 소개했는데 둘만 보너스를 받았다"*). 엔진은 **세기만**
+        #   하고 상태 값이 무엇을 뜻하는지·왜 그 상태인지는 모델과 문서 몫이다([[22]]·[[25]]).
+        #   ⚠상한 조회와 무관하므로 `_lims3` 밖에 둔다 — A3 가 비어도 이 사실은 말할 수 있다.
+        if _e2.get("rows"):
+            _add += _LG2.status_breakdown(_e2["rows"], _sp2)
         if _e2.get("days") is not None and _mins3:
             _add += _LG2.ineligible_text(_e2["days"], _mins3, _sp2)
         # ★통과 집합 (2026-08-08·C337). 못 되는 것을 말하는 것만으로는 안 닫혔다 —
@@ -4232,6 +4238,10 @@ def _install_regen_exec():
                                 _ops[str(_ls.get("trigger_tool"))] = {
                                     "spec": _ls,
                                     "tally": _LG.window_and_tally(_rows, _ls, now=_now0)[2],
+                                    # ★행 자체도 둔다 (C378): 누계는 그룹 축으로 뭉갠 수라
+                                    #   **행마다 다른 상태**를 되살릴 수 없다. 결정점에서
+                                    #   상태별로 세려면 전사된 행이 그대로 있어야 한다.
+                                    "rows": list(_rows or ()),
                                     "days": _LG.earliest_age(_rows, _ls, now=_now0)[1]}
                                 _lgagent._t2_ledger_ops = _ops
                             except Exception as _se:

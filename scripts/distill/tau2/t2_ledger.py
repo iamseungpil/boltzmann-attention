@@ -974,6 +974,42 @@ def window_and_tally(rows, spec, now=None):
     return max(0, int(spec["window_max"]) - inwin), inwin, tally
 
 
+def status_breakdown(rows, spec):
+    """원장 행을 **선언된 상태 필드로** 묶어 센다 — 세기만 하고 뜻은 말하지 않는다.
+
+    ## 왜 (2026-08-09·C378·task_010)
+
+    손님 축자: *"I got four friends to sign up, but I only received bonuses for two."* 원장은
+    그 답을 이미 들고 있다 — 4행 중 둘은 완료, 하나는 진행 중, **하나는 거절**이고 gold 는
+    그 거절된 행의 상품을 다시 제출하는 것이다. 그런데 A2 `row_keys` 가 `date` 와 그룹 필드
+    둘만 선언해서 **엔진은 상태를 아예 읽지 않았다.** 실패 궤적은 이미 완료된 행의 상품을
+    제출했다(런 s·t1). 통과 궤적(2026-08-04)은 정확히 이 구분을 말로 한 뒤에 통과했다.
+
+    ⚠**상태 값을 엔진이 알지 못한다.** 어떤 값이 있는지·무엇을 뜻하는지 하나도 모른 채,
+      모델이 전사해 온 값으로 묶기만 한다(도메인 어휘 0). *왜 그 상태인가* 는 원장이 아니라
+      문서에 있고, 문구가 그것을 명시해 모델을 문서로 보낸다([[22]]·[[25]]).
+    ⚠상태가 하나뿐이면 침묵한다 — 나눌 것이 없으면 말할 것도 없다(발화 예산·Δspurious).
+    """
+    tpl = (spec or {}).get("status_text")
+    sf, gf = (spec or {}).get("status_field"), (spec or {}).get("group_field")
+    if not (tpl and sf and rows):
+        return ""
+    by = {}
+    for r in rows:
+        st = r.get(sf)
+        if not st:
+            continue
+        by.setdefault(str(st), []).append(str(r.get(gf) or "").strip())
+    if len(by) < 2:
+        return ""
+    parts = []
+    for st in sorted(by):
+        names = [n for n in by[st] if n]
+        parts.append("%s %d%s" % (st, len(by[st]), (" — " + ", ".join(sorted(set(names))))
+                                  if names else ""))
+    return tpl.format(total=len(rows), breakdown="; ".join(parts))
+
+
 def earliest_age(rows, spec, now=None):
     """(가장 이른 날짜, 오늘까지 경과일). 관계 기간(tenure) 같은 값이 여기서 나온다.
 
