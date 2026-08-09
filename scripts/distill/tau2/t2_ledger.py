@@ -443,6 +443,95 @@ def formalize_objective_axis(agent, la, UserMessage, spec, texts, axes):
     return out
 
 
+def subject_kinds(rows, field):
+    """A3 가 **행에 적어 둔 종류**를 주어별로 모은다 — 엔진은 그 값의 뜻을 모른다.
+
+    종류는 A3 행이 이미 인용하고 있는 **출처 문서군**에서 빌드 시점에 유도된다(`x203`).
+    엔진이 문서 id 를 뜯으면 그것이 도메인 패턴매칭이므로([[59]]) 여기서는 **선언된 필드를
+    읽기만** 한다.
+
+    ⚠한 주어가 여러 종류에 걸치면 **뺀다** — 강제하지 않는다(§4b). 빠진 주어는 종류 필터에
+      걸리지 않으므로 표에 그대로 남는다(모름 ≠ 탈락·[[25]]).
+    """
+    if not (rows and field):
+        return {}
+    seen = {}
+    for r in rows:
+        s, k = r.get("subject"), r.get(field)
+        if not (s and k):
+            continue
+        seen.setdefault(str(s).strip(), set()).add(str(k).strip())
+    return dict((s, sorted(v)[0]) for s, v in seen.items() if len(v) == 1)
+
+
+def formalize_kind(agent, la, UserMessage, spec, texts, kinds):
+    """손님이 **어떤 종류의 상품**을 말하는지 — A3 가 들고 있는 종류 이름 하나로.
+
+    ## 왜 이것이 필요한가 (x201·격리·n=8·32B)
+
+    098 의 통과 표에는 개인 체킹 5 + 사업자 카드 6 + 카드 3 이 함께 실린다. 손님은 친구가
+    **계좌를 여는** 이야기를 하는데 모델은 카드의 단일 최대 수(referrer 300)를 집는다:
+
+        A_iso  (현행 표)                     0/8   ← `Business Platinum Rewards Card`
+        E_hint (표 + 한 줄로 무엇을 묻는지)   **0/8**   ← 전달로는 안 된다
+        F_kind (종류로 거른 표)               8/8
+        G_llm  (LLM 이 종류 선택 → 엔진 필터) **8/8**  (종류 선택 8/8 정확)
+
+    ⛔0 ②를 지켰다 — **전달 팔을 먼저 재서 실패**했기에 필터가 정당하다([[62]]).
+
+    ## 경계
+
+    종류의 *해석* 은 LLM 이 한다(손님의 말 → 종류 이름). 엔진은 그 답이 **A3 종류 집합의
+    원소인지**만 보고, 그 종류가 아닌 행을 뺀다 — 답을 고르지 않는다([[22]]·[[52]]).
+    거른 뒤에도 다섯 행이 남고 그중 무엇을 고를지는 여전히 모델 몫이다.
+
+    ⚠못 고르면 **None** → 아무것도 거르지 않는다(종전 거동). 모르는 것으로 행을 빼지 않는다.
+    """
+    tpl = (spec or {}).get("kind_prompt")
+    if not (tpl and agent is not None and la is not None and texts and kinds):
+        return None
+    memo = getattr(agent, "_t2_kind", None)
+    if memo is not None:
+        return memo or None
+    names = sorted(set(kinds))
+    listing = "\n".join("  %s" % k for k in names)
+    hay = "\n---\n".join(_excerpt(texts))
+    try:
+        kw = dict((k, v) for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+                  if "tool" not in k)
+        try:
+            um = UserMessage(role="user", content=tpl.format(kinds=listing, text=hay))
+        except TypeError:
+            um = UserMessage(content=tpl.format(kinds=listing, text=hay))
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="kind_formalize", **kw)
+        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+    except Exception as e:
+        print("[T2_KIND] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return None
+    hit = sorted((k for k in names if k and k.lower() in raw.lower()), key=len, reverse=True)
+    out = hit[0] if hit else None
+    print("[T2_KIND] raw=%r → %s" % (raw[:60], out or "종류 집합 밖 = 안 거른다"),
+          file=sys.stderr, flush=True)
+    try:
+        agent._t2_kind = out or ""
+    except Exception:
+        pass
+    return out
+
+
+def restrict_to_kind(axis_maps, kinds_by_subject, kind):
+    """그 종류가 **아닌 것으로 확인된** 주어만 뺀다 — 종류를 모르는 주어는 남긴다([[25]])."""
+    if not (kind and kinds_by_subject):
+        return axis_maps, []
+    drop = set(s for s, k in kinds_by_subject.items() if k != kind)
+    if not drop:
+        return axis_maps, []
+    out = dict((ax, dict((s, v) for s, v in (m or {}).items() if s not in drop))
+               for ax, m in (axis_maps or {}).items())
+    return out, sorted(drop)
+
+
 def _rank_by(rows, axis_map, exclude=()):
     """통과 집합(**구조체**)을 그 축의 값으로 내림차순 — `[(주어, 값)]`. 값이 없는 주어는 뺀다.
 

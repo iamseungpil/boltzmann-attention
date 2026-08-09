@@ -2700,7 +2700,9 @@
      "doc": "doc_business_checking_accounts_beige_012",
      "quote": "Referrer tenure requirement: 120 days since opening your first checking account with us.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2722,7 +2724,9 @@
      "doc": "doc_business_checking_accounts_beige_012",
      "quote": "15 referral bonuses per calendar year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2744,7 +2748,9 @@
      "doc": "doc_business_checking_accounts_beige_012",
      "quote": "Maximum per year | 15",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2766,7 +2772,9 @@
      "doc": "doc_business_checking_accounts_cobalt_blue_001",
      "quote": "Maximum referrals: 10 per calendar year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2788,7 +2796,9 @@
      "doc": "doc_business_checking_accounts_cobalt_blue_005",
      "quote": "your earliest-opened Rho-Bank checking account must have reached 60 days of age.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2810,7 +2820,9 @@
      "doc": "doc_business_checking_accounts_hunter_green_001",
      "quote": "A minimum relationship duration of 60 days as a checking account holder is required.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2832,7 +2844,9 @@
      "doc": "doc_business_checking_accounts_hunter_green_001",
      "quote": "Up to 10 referral bonuses per year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2854,7 +2868,9 @@
      "doc": "doc_business_checking_accounts_lime_green_003",
      "quote": "You must have maintained checking account status with Rho-Bank for a minimum of 90 days.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2876,7 +2892,9 @@
      "doc": "doc_business_checking_accounts_lime_green_003",
      "quote": "- **Annual cap**: 12 referrals per year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2898,7 +2916,9 @@
      "doc": "doc_business_checking_accounts_navy_blue_001",
      "quote": "Referrer eligibility requires having been a Rho-Bank checking customer for 60 days or more.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2920,7 +2940,9 @@
      "doc": "doc_business_checking_accounts_navy_blue_001",
      "quote": "Maximum referrals per year | 10",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2942,7 +2964,9 @@
      "doc": "doc_business_checking_accounts_sky_blue_001",
      "quote": "Annual limit: 8 referrals per year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2964,7 +2988,9 @@
      "doc": "doc_business_checking_accounts_sky_blue_002",
      "quote": "Referrers must meet the 45-day tenure threshold based on their banking history with Rho-Bank.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -2986,7 +3012,9 @@
      "doc": "doc_business_checking_accounts_true_blue_002",
      "quote": "Eligibility is based on how long you've been a Rho-Bank checking customer. The account age threshold is 90 days, calculated from when you opened your oldest checking account.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3008,7 +3036,9 @@
      "doc": "doc_business_checking_accounts_true_blue_002",
      "quote": "Maximum referrals per year | 15",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3030,7 +3060,9 @@
      "doc": "doc_business_checking_accounts_world_blue_001",
      "quote": "You must have maintained checking account status with Rho-Bank for at least 90 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3052,7 +3084,9 @@
      "doc": "doc_business_checking_accounts_world_blue_007",
      "quote": "- **Annual limit**: 12 referral bonuses per calendar year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3074,7 +3108,9 @@
      "doc": "doc_business_credit_cards_business_bronze_rewards_card_011",
      "quote": "You can earn up to 7 referral bonuses per calendar year.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3096,7 +3132,9 @@
      "doc": "doc_business_credit_cards_business_gold_rewards_card_010",
      "quote": "You can earn up to 8 referral bonuses per calendar year.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3118,7 +3156,9 @@
      "doc": "doc_business_credit_cards_business_platinum_rewards_card_012",
      "quote": "- You can earn up to 11 referral bonuses per calendar year.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3140,7 +3180,9 @@
      "doc": "doc_business_credit_cards_business_silver_rewards_card_013",
      "quote": "You can earn up to 10 referral bonuses per calendar year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3162,7 +3204,9 @@
      "doc": "doc_business_credit_cards_green_rewards_card_010",
      "quote": "You can earn up to 7 referral bonuses per calendar year.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3184,7 +3228,9 @@
      "doc": "doc_business_credit_cards_silver_zoom_card_011",
      "quote": "Bonuses are capped at 10 per calendar year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3206,7 +3252,9 @@
      "doc": "doc_checking_accounts_blue_account_010",
      "quote": "A minimum banking relationship of 30 days is required to participate—this is measured from when you first opened any checking account with us.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3228,7 +3276,9 @@
      "doc": "doc_checking_accounts_blue_account_010",
      "quote": "You can earn up to 5 referral bonuses per calendar year.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3250,7 +3300,9 @@
      "doc": "doc_checking_accounts_bluest_account_003",
      "quote": "Referrers must have established their Rho-Bank checking relationship at least 60 days prior.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3272,7 +3324,9 @@
      "doc": "doc_checking_accounts_bluest_account_003",
      "quote": "Annual limit: 8 referral bonuses per calendar year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3294,7 +3348,9 @@
      "doc": "doc_checking_accounts_dark_green_account_010",
      "quote": "You must satisfy the 45-day minimum as a Rho-Bank checking customer.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3316,7 +3372,9 @@
      "doc": "doc_checking_accounts_dark_green_account_010",
      "quote": "Maximum per year: 6 referral bonuses",
      "quote_match": "normalized"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3338,7 +3396,9 @@
      "doc": "doc_checking_accounts_evergreen_account_001",
      "quote": "Earn up to 6 referral bonuses per calendar year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3360,7 +3420,9 @@
      "doc": "doc_checking_accounts_evergreen_account_007",
      "quote": "The 45-day tenure threshold applies—calculated from the date you opened your first Rho-Bank checking account.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3382,7 +3444,9 @@
      "doc": "doc_checking_accounts_gold_years_account_010",
      "quote": "The referrer must have maintained checking account status with Rho-Bank for 30 days.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3404,7 +3468,9 @@
      "doc": "doc_checking_accounts_gold_years_account_010",
      "quote": "Max referrals/year | 6",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3426,7 +3492,9 @@
      "doc": "doc_checking_accounts_green_account_(checking)_001",
      "quote": "Account tenure requirement: 30 days since becoming a Rho-Bank checking customer.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3448,7 +3516,9 @@
      "doc": "doc_checking_accounts_green_account_(checking)_001",
      "quote": "Maximum referrals per year: 5",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3470,7 +3540,9 @@
      "doc": "doc_checking_accounts_green_fee-free_account_007",
      "quote": "Your Rho-Bank checking relationship must span at least 30 days.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3492,7 +3564,9 @@
      "doc": "doc_checking_accounts_green_fee-free_account_007",
      "quote": "Annual limit: 4 referrals per year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3514,7 +3588,9 @@
      "doc": "doc_checking_accounts_light_blue_account_007",
      "quote": "To qualify as a referrer, you must have been a Rho-Bank checking account holder for 30 days or longer.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3536,7 +3612,9 @@
      "doc": "doc_checking_accounts_light_blue_account_007",
      "quote": "You can earn up to 5 referral bonuses per calendar year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3558,7 +3636,9 @@
      "doc": "doc_checking_accounts_light_green_account_001",
      "quote": "- Maximum referrals: 3 per calendar year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3580,7 +3660,9 @@
      "doc": "doc_checking_accounts_light_green_account_002",
      "quote": "Referrer eligibility is based on account tenure: you must have opened your first Rho-Bank checking account at least 14 days ago.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3602,7 +3684,9 @@
      "doc": "doc_checking_accounts_purple_account_011",
      "quote": "Participation requires 45 days of checking account history with Rho-Bank.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3624,7 +3708,9 @@
      "doc": "doc_checking_accounts_purple_account_011",
      "quote": "You can earn up to 6 referral bonuses per calendar year.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3646,7 +3732,9 @@
      "doc": "doc_credit_cards_ecocard_011",
      "quote": "You can earn up to 7 referral bonuses per calendar year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3668,7 +3756,9 @@
      "doc": "doc_credit_cards_platinum_rewards_card_008",
      "quote": "- You can earn up to 7 referral bonuses per calendar year.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3690,7 +3780,9 @@
      "doc": "doc_credit_cards_silver_rewards_card_011",
      "quote": "You can earn up to 7 referral bonuses per calendar year",
      "quote_match": "exact"
-    }
+    },
+    "kind": "credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3716,7 +3808,9 @@
      "doc": "doc_bank_accounts_bank_accounts_(general)_001",
      "quote": "The customer is at least 18 years old.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "bank_accounts",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -3733,7 +3827,9 @@
      "doc": "doc_bank_accounts_bank_accounts_(general)_002",
      "quote": "inform the customer they have 30 days to fund the account (via internal transfer or external deposit) or the account will be closed.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "bank_accounts",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -3759,7 +3855,9 @@
      "doc": "doc_bank_accounts_bank_accounts_(general)_023",
      "quote": "Customer must be at least 18 years old (verify using date_of_birth)",
      "quote_match": "exact"
-    }
+    },
+    "kind": "bank_accounts",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -3781,7 +3879,9 @@
      "doc": "doc_bank_accounts_bank_accounts_(general)_047",
      "quote": "You can receive at most 2 referral bonuses in any rolling 9-day window.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "bank_accounts",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -3803,7 +3903,9 @@
      "doc": "doc_bank_accounts_bank_accounts_(general)_047",
      "quote": "You can receive at most 2 referral bonuses in any rolling 9-day window.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "bank_accounts",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -3829,7 +3931,9 @@
      "doc": "doc_bank_accounts_bank_accounts_(general)_047",
      "quote": "The referred person must be 18 years or older, except for the Light Green Account which allows minors with a guardian.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "bank_accounts",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -3851,7 +3955,9 @@
      "doc": "doc_bank_accounts_bank_accounts_(general)_047",
      "quote": "The referred person must be a new Rho-Bank customer with no existing checking, savings, or closed accounts within the past 12 months.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "bank_accounts",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -3873,7 +3979,9 @@
      "doc": "doc_bank_accounts_bank_accounts_(general)_048",
      "quote": "The referred person must be a new Rho-Bank customer with no existing or closed accounts within the past 12 months.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "bank_accounts",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -3890,7 +3998,9 @@
      "doc": "doc_business_checking_accounts_beige_012",
      "quote": "- **Your reward**: $500 for each qualifying referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3907,7 +4017,9 @@
      "doc": "doc_business_checking_accounts_beige_012",
      "quote": "$350 welcome bonus",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3924,7 +4036,9 @@
      "doc": "doc_business_checking_accounts_beige_012",
      "quote": "They must deposit at least $100,000 within 120 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3941,7 +4055,9 @@
      "doc": "doc_business_checking_accounts_beige_012",
      "quote": "Deposit window | 120 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3958,7 +4074,9 @@
      "doc": "doc_business_checking_accounts_cobalt_blue_001",
      "quote": "- You earn: $150 per successful referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3975,7 +4093,9 @@
      "doc": "doc_business_checking_accounts_cobalt_blue_001",
      "quote": "- They receive: $100 as a welcome bonus",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -3992,7 +4112,9 @@
      "doc": "doc_business_checking_accounts_cobalt_blue_005",
      "quote": "The referred business must deposit at least $7,500 to trigger the referral bonus",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4009,7 +4131,9 @@
      "doc": "doc_business_checking_accounts_cobalt_blue_005",
      "quote": "This deposit must be made within 90 days of account opening",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4026,7 +4150,9 @@
      "doc": "doc_business_checking_accounts_hunter_green_001",
      "quote": "**Referrer reward**: $175 for each successful referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4043,7 +4169,9 @@
      "doc": "doc_business_checking_accounts_hunter_green_001",
      "quote": "- **New member bonus**: $125 for the business you refer",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4060,7 +4188,9 @@
      "doc": "doc_business_checking_accounts_hunter_green_001",
      "quote": "Referred business must deposit $10,000 within 90 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4077,7 +4207,9 @@
      "doc": "doc_business_checking_accounts_lime_green_003",
      "quote": "- **Your bonus**: $200 for each successful referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4094,7 +4226,9 @@
      "doc": "doc_business_checking_accounts_lime_green_003",
      "quote": "$150 welcome bonus for the referred business",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4111,7 +4245,9 @@
      "doc": "doc_business_checking_accounts_lime_green_003",
      "quote": "Referred business must deposit $15,000 within 90 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4128,7 +4264,9 @@
      "doc": "doc_business_checking_accounts_lime_green_003",
      "quote": "Referred business must deposit $15,000 within 90 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4145,7 +4283,9 @@
      "doc": "doc_business_checking_accounts_navy_blue_001",
      "quote": "Your referral bonus | $100",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4162,7 +4302,9 @@
      "doc": "doc_business_checking_accounts_navy_blue_001",
      "quote": "New business welcome bonus | $75",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4179,7 +4321,9 @@
      "doc": "doc_business_checking_accounts_navy_blue_001",
      "quote": "Required qualifying deposit | $5,000",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4196,7 +4340,9 @@
      "doc": "doc_business_checking_accounts_navy_blue_001",
      "quote": "Deposit must be made within | 90 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4213,7 +4359,9 @@
      "doc": "doc_business_checking_accounts_sky_blue_001",
      "quote": "- Your bonus: $150 for each successful referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4230,7 +4378,9 @@
      "doc": "doc_business_checking_accounts_sky_blue_001",
      "quote": "- Their bonus: $250 welcome bonus",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4252,7 +4402,9 @@
      "doc": "doc_business_checking_accounts_sky_blue_001",
      "quote": "Confirm your company is within 4 years of formation.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4269,7 +4421,9 @@
      "doc": "doc_business_checking_accounts_sky_blue_002",
      "quote": "Referred startups must deposit at least $10,000 to trigger the bonus",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4286,7 +4440,9 @@
      "doc": "doc_business_checking_accounts_sky_blue_002",
      "quote": "The deposit must be made within 90 days of account opening",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4303,7 +4459,9 @@
      "doc": "doc_business_checking_accounts_true_blue_002",
      "quote": "Referrer bonus | $350 per referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4320,7 +4478,9 @@
      "doc": "doc_business_checking_accounts_true_blue_002",
      "quote": "| New member bonus | $250 |",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4337,7 +4497,9 @@
      "doc": "doc_business_checking_accounts_true_blue_002",
      "quote": "The referred business must deposit $50,000 within 120 days of opening their True Blue account.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4354,7 +4516,9 @@
      "doc": "doc_business_checking_accounts_true_blue_002",
      "quote": "Deposit window | 120 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4371,7 +4535,9 @@
      "doc": "doc_business_checking_accounts_world_blue_001",
      "quote": "They must deposit at least $25,000 within 90 days of account opening",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4388,7 +4554,9 @@
      "doc": "doc_business_checking_accounts_world_blue_007",
      "quote": "- **Your bonus**: $300 for each successful referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4405,7 +4573,9 @@
      "doc": "doc_business_checking_accounts_world_blue_007",
      "quote": "$200 welcome bonus for the new business",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4422,7 +4592,9 @@
      "doc": "doc_business_credit_cards_business_bronze_rewards_card_011",
      "quote": "- Receive $75 for each successful referral.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4439,7 +4611,9 @@
      "doc": "doc_business_credit_cards_business_bronze_rewards_card_011",
      "quote": "The referred business must complete at least $1,750 in net purchases within 90 days of account opening.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4456,7 +4630,9 @@
      "doc": "doc_business_credit_cards_business_gold_rewards_card_010",
      "quote": "Earn $200 for each successful referral who is approved and meets the qualifying spend.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4473,7 +4649,9 @@
      "doc": "doc_business_credit_cards_business_gold_rewards_card_010",
      "quote": "The referred business must spend $7,500 within 90 from account opening to qualify your bonus.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4490,7 +4668,9 @@
      "doc": "doc_business_credit_cards_business_platinum_rewards_card_012",
      "quote": "When the referred business is approved and completes qualifying spend of $15,000 within 135 days from account opening, you earn a bonus of $300.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4507,7 +4687,9 @@
      "doc": "doc_business_credit_cards_business_platinum_rewards_card_012",
      "quote": "When the referred business is approved and completes qualifying spend of $15,000 within 135 days from account opening, you earn a bonus of $300.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4524,7 +4706,9 @@
      "doc": "doc_business_credit_cards_business_silver_rewards_card_013",
      "quote": "Earn $100 for each successful referral that is approved and meets the qualifying spend requirement",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4541,7 +4725,9 @@
      "doc": "doc_business_credit_cards_business_silver_rewards_card_013",
      "quote": "The referred business must spend at least $3,000 within 90 days of account opening for you to receive the bonus",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4558,7 +4744,9 @@
      "doc": "doc_business_credit_cards_green_rewards_card_010",
      "quote": "The referred business must spend at least $2,250 within 90 days from account opening to qualify your bonus.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4575,7 +4763,9 @@
      "doc": "doc_business_credit_cards_silver_zoom_card_011",
      "quote": "Earn a referral bonus of $150 for each referred logistics business that is approved and meets the qualifying spend requirement",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4592,7 +4782,9 @@
      "doc": "doc_business_credit_cards_silver_zoom_card_011",
      "quote": "The referred business must complete purchases totaling $7,500 within 90 days of account opening",
      "quote_match": "exact"
-    }
+    },
+    "kind": "business_credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4609,7 +4801,9 @@
      "doc": "doc_checking_accounts_blue_account_010",
      "quote": "When you refer someone to open a Blue Account, you earn $35 for each successful referral.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4626,7 +4820,9 @@
      "doc": "doc_checking_accounts_blue_account_010",
      "quote": "The person you refer receives $30 as a welcome bonus.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4643,7 +4839,9 @@
      "doc": "doc_checking_accounts_blue_account_010",
      "quote": "The referred person must deposit at least $500 within 60 days of opening their account.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4660,7 +4858,9 @@
      "doc": "doc_checking_accounts_blue_account_010",
      "quote": "The referred person must deposit at least $500 within 60 days of opening their account.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4677,7 +4877,9 @@
      "doc": "doc_checking_accounts_bluest_account_003",
      "quote": "- Referrer bonus: $75 per successful referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4694,7 +4896,9 @@
      "doc": "doc_checking_accounts_bluest_account_003",
      "quote": "- New member bonus: $50 for the person you refer",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4711,7 +4915,9 @@
      "doc": "doc_checking_accounts_bluest_account_003",
      "quote": "Qualifying requirement: Referred person must deposit $2,000 within 90 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4728,7 +4934,9 @@
      "doc": "doc_checking_accounts_dark_green_account_010",
      "quote": "**Your bonus**: $40 for each qualifying referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4745,7 +4953,9 @@
      "doc": "doc_checking_accounts_dark_green_account_010",
      "quote": "$30 welcome bonus",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4762,7 +4972,9 @@
      "doc": "doc_checking_accounts_dark_green_account_010",
      "quote": "They must deposit at least $1,000 within 60 days of opening",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4779,7 +4991,9 @@
      "doc": "doc_checking_accounts_dark_green_account_010",
      "quote": "Deposit window | 60 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4796,7 +5010,9 @@
      "doc": "doc_checking_accounts_evergreen_account_001",
      "quote": "- Refer others to join Evergreen and earn $35 per successful referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4813,7 +5029,9 @@
      "doc": "doc_checking_accounts_evergreen_account_001",
      "quote": "New members receive $25 as a welcome bonus",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4830,7 +5048,9 @@
      "doc": "doc_checking_accounts_evergreen_account_007",
      "quote": "The person you refer must deposit at least $750 within 60 days of opening their account to qualify.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4847,7 +5067,9 @@
      "doc": "doc_checking_accounts_evergreen_account_007",
      "quote": "The referred person must deposit $750 within 60 days of account opening to trigger the referral bonus.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4864,7 +5086,9 @@
      "doc": "doc_checking_accounts_gold_years_account_010",
      "quote": "$50 for each successful referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4881,7 +5105,9 @@
      "doc": "doc_checking_accounts_gold_years_account_010",
      "quote": "$75 as a welcome bonus",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4898,7 +5124,9 @@
      "doc": "doc_checking_accounts_gold_years_account_010",
      "quote": "They must deposit $1,000 within 90 days of account opening",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4924,7 +5152,9 @@
      "doc": "doc_checking_accounts_gold_years_account_010",
      "quote": "The person you refer must be eligible for a Gold Years Account (age 62+)",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4941,7 +5171,9 @@
      "doc": "doc_checking_accounts_gold_years_account_010",
      "quote": "They must deposit $1,000 within 90 days of account opening",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4958,7 +5190,9 @@
      "doc": "doc_checking_accounts_green_account_(checking)_001",
      "quote": "- You earn: $20 per successful referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4975,7 +5209,9 @@
      "doc": "doc_checking_accounts_green_account_(checking)_001",
      "quote": "- They receive: $30 welcome bonus",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -4992,7 +5228,9 @@
      "doc": "doc_checking_accounts_green_account_(checking)_001",
      "quote": "Qualifying deposit required: $500 within 60 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5009,7 +5247,9 @@
      "doc": "doc_checking_accounts_green_account_(checking)_001",
      "quote": "Qualifying deposit required: $500 within 60 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5026,7 +5266,9 @@
      "doc": "doc_checking_accounts_green_fee-free_account_007",
      "quote": "- Your reward: $20 per successful referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5043,7 +5285,9 @@
      "doc": "doc_checking_accounts_green_fee-free_account_007",
      "quote": "- New member reward: $35 welcome bonus",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5060,7 +5304,9 @@
      "doc": "doc_checking_accounts_green_fee-free_account_007",
      "quote": "The new account holder must deposit at least $300",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5077,7 +5323,9 @@
      "doc": "doc_checking_accounts_green_fee-free_account_007",
      "quote": "This deposit must be made within 60 days of opening their account",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5094,7 +5342,9 @@
      "doc": "doc_checking_accounts_light_blue_account_007",
      "quote": "- Referral bonus: $30 for each successful referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5111,7 +5361,9 @@
      "doc": "doc_checking_accounts_light_blue_account_007",
      "quote": "- Welcome bonus: $20 when they open and fund their account",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5128,7 +5380,9 @@
      "doc": "doc_checking_accounts_light_blue_account_007",
      "quote": "Deposit window | Within 60 days of account opening",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5145,7 +5399,9 @@
      "doc": "doc_checking_accounts_light_blue_account_007",
      "quote": "They deposit at least $500 within 60 days",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5162,7 +5418,9 @@
      "doc": "doc_checking_accounts_light_green_account_001",
      "quote": "- You earn: $15 for each successful referral",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5179,7 +5437,9 @@
      "doc": "doc_checking_accounts_light_green_account_001",
      "quote": "- They receive: $25 as a welcome bonus",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5205,7 +5465,9 @@
      "doc": "doc_checking_accounts_light_green_account_002",
      "quote": "You must be the primary account holder and be between 13 and 24 years old to open the account.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5227,7 +5489,9 @@
      "doc": "doc_checking_accounts_light_green_account_002",
      "quote": "- You must remain within the 13–24 age range to maintain the account.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5244,7 +5508,9 @@
      "doc": "doc_checking_accounts_light_green_account_002",
      "quote": "The person you refer must deposit at least $100 within 90 days of opening their account.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5261,7 +5527,9 @@
      "doc": "doc_checking_accounts_light_green_account_002",
      "quote": "The person you refer must deposit at least $100 within 90 days of opening their account.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5278,7 +5546,9 @@
      "doc": "doc_checking_accounts_purple_account_011",
      "quote": "When you refer someone to open a Purple Account, you earn $45 and the person you refer receives $35.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5295,7 +5565,9 @@
      "doc": "doc_checking_accounts_purple_account_011",
      "quote": "When you refer someone to open a Purple Account, you earn $45 and the person you refer receives $35.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5312,7 +5584,9 @@
      "doc": "doc_checking_accounts_purple_account_011",
      "quote": "The referred person must deposit at least $1,000 within 60 days of account opening.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5329,7 +5603,9 @@
      "doc": "doc_checking_accounts_purple_account_011",
      "quote": "The referred person must deposit at least $1,000 within 60 days of account opening.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "checking_accounts",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5351,7 +5627,9 @@
      "doc": "doc_credit_cards_credit_cards_(general)_002",
      "quote": "You can receive at most 2 referral bonuses in any rolling 7-day window.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "credit_cards",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -5373,7 +5651,9 @@
      "doc": "doc_credit_cards_credit_cards_(general)_002",
      "quote": "You can receive at most 2 referral bonuses in any rolling 7-day window.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "credit_cards",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -5395,7 +5675,9 @@
      "doc": "doc_credit_cards_credit_cards_(general)_009",
      "quote": "Customers can receive at most 2 referral bonuses in any rolling 7-day window; the third and subsequent referrals in that window are automatically denied.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "credit_cards",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -5417,7 +5699,9 @@
      "doc": "doc_credit_cards_credit_cards_(general)_020",
      "quote": "You can earn referral bonuses for up to 2 successful referrals per week. This is calculated on a rolling 7-day basis, so if you've already had 2 referrals complete in the past week, any additional referrals during that time won't qualify for a bonus.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "credit_cards",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -5439,7 +5723,9 @@
      "doc": "doc_credit_cards_credit_cards_(general)_020",
      "quote": "This is calculated on a rolling 7-day basis, so if you've already had 2 referrals complete in the past week, any additional referrals during that time won't qualify for a bonus.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "credit_cards",
+    "scope": "general"
    },
    {
     "applies_to": {
@@ -5456,7 +5742,9 @@
      "doc": "doc_credit_cards_ecocard_011",
      "quote": "The referred person must be approved and spend at least $500 within 60 days of account opening",
      "quote_match": "exact"
-    }
+    },
+    "kind": "credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5473,7 +5761,9 @@
      "doc": "doc_credit_cards_platinum_rewards_card_008",
      "quote": "you earn a referral bonus of $100.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5490,7 +5780,9 @@
      "doc": "doc_credit_cards_platinum_rewards_card_008",
      "quote": "The referred friend must spend at least $1,500 within 90 days of account opening to qualify you for the bonus.",
      "quote_match": "exact"
-    }
+    },
+    "kind": "credit_cards",
+    "scope": "product"
    },
    {
     "applies_to": {
@@ -5507,7 +5799,9 @@
      "doc": "doc_credit_cards_silver_rewards_card_011",
      "quote": "The referred person must be approved and spend at least $750 within 60 days of account opening",
      "quote_match": "exact"
-    }
+    },
+    "kind": "credit_cards",
+    "scope": "product"
    }
   ],
   "targeted_contains": "refer "

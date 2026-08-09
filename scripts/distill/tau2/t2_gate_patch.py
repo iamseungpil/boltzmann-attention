@@ -2578,8 +2578,34 @@ def _limit_reduce_text(agent, a2, messages):
                 except Exception as _fe3:
                     print("[T2_LIMIT_REDUCE] 대화-피연산자 형식화 건너뜀: %r" % (_fe3,),
                           file=sys.stderr, flush=True)
-            _elig = _LG2.eligible_text(_e2.get("days"), _tal2, _axm3, _sp2, _stated)
-            _erows = _LG2.eligible_text(_e2.get("days"), _tal2, _axm3, _sp2, _stated,
+            # ★종류 필터 (2026-08-10·C389·x201). 통과 표에는 개인 체킹·사업자 카드·카드가
+            #   함께 실린다. 손님은 친구가 **계좌를 여는** 이야기를 하는데 모델은 카드의 단일
+            #   최대 수를 집었다(`A_iso` 0/8 = `Business Platinum Rewards Card`). **전달 팔을
+            #   먼저 쟀고**(`E_hint` = 한 줄로 무엇을 묻는지 말해 주기) 그것도 **0/8** 이라
+            #   필터가 정당해졌다(⛔0 ②). 거른 표 8/8 · LLM 이 종류를 고르는 2단 구성도 8/8.
+            #   ⚠종류를 고르는 것은 **LLM** 이고 엔진은 그 답이 A3 종류 집합의 원소인지만 본다.
+            #     못 고르면 아무것도 안 거른다(종전 거동). 종류를 모르는 주어도 남는다([[25]]).
+            _axm4, _kf2 = _axm3, _cfg2.get("kind_field")
+            if _kf2:
+                _kbs2 = _LG2.subject_kinds(_po2.get("rows") or (), _kf2)
+                # 후보는 **표에 실릴 주어들의 종류**로 한정한다 — 원장 전체에서 뽑으면 이 자리에
+                # 없는 종류까지 보기가 되어 x201 이 잰 것과 다른 구성이 된다(계기 정합).
+                _subs2 = set(s for _m4 in _axm3.values() for s in (_m4 or {}))
+                _cand2 = sorted(set(_kbs2[s] for s in _subs2 if s in _kbs2))
+                try:
+                    import tau2.agent.llm_agent as _la4
+                    from tau2.data_model.message import UserMessage as _UM4
+                    _kind2 = _LG2.formalize_kind(agent, _la4, _UM4, _cfg2, _tx, _cand2)
+                except Exception as _ke2:
+                    _kind2 = None
+                    print("[T2_KIND] 건너뜀: %r" % (_ke2,), file=sys.stderr, flush=True)
+                _axm4, _drop2 = _LG2.restrict_to_kind(_axm3, _kbs2, _kind2)
+                if _drop2:
+                    print("[T2_KIND] %s 아닌 주어 %d 제외: %s"
+                          % (_kind2, len(_drop2), ", ".join(_drop2)[:120]),
+                          file=sys.stderr, flush=True)
+            _elig = _LG2.eligible_text(_e2.get("days"), _tal2, _axm4, _sp2, _stated)
+            _erows = _LG2.eligible_text(_e2.get("days"), _tal2, _axm4, _sp2, _stated,
                                         as_rows=True) or []
             # ★표를 메인에 싣지 않는다 (2026-08-09·사용자 결정·C367·C370). x187 전 셀 대조에서
             #   `L3`(대화 없음)가 `L0`(대화 포함)를 **2모델×20셀 전부 파레토 지배**했고, x190 에서
