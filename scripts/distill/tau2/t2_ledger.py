@@ -443,6 +443,105 @@ def formalize_objective_axis(agent, la, UserMessage, spec, texts, axes):
     return out
 
 
+def formalize_objective_axes(agent, la, UserMessage, spec, texts, axes):
+    """손님이 **여러 축의 합**을 원할 때 그 축들을 받는다 — `formalize_objective_axis` 의 형제.
+
+    ## 왜 기존 함수를 고치지 않고 새로 만드는가 (사용자 지적 2026-08-09)
+
+    단일 축 프롬프트는 **지금 099/100 을 3/3 으로 세우고 있는 구성**이다(런 t·`raw=
+    'referrer_bonus_usd'` 6/6). 그 문구에 *"여럿이면 여럿을 대라"* 를 섞으면 이기고 있는
+    경로가 함께 흔들린다. 그래서 **선언도 함수도 따로** 두고, 기존 경로는 바이트 불변으로
+    남긴다. 이 함수는 단일 축 경로가 **답을 못 낸 자리에서만** 불린다 — 순증이다.
+
+    ## 왜 필요한가 (task_098)
+
+    손님 축자: *"the best **combined** referral bonus - like, the total of what I get plus
+    what she gets"*. 목적이 **두 축의 합**이라 축 하나로는 표현할 수단이 없다. A2
+    `_note_objective` 가 이 구멍을 이름까지 대며 예견해 두었다.
+
+    닫힘 보존([[22]]): 축 집합이 닫혀 있으면 부분집합도 닫혀 있다. 엔진은 **원소 검사**만 하고
+    무엇을 합할지는 손님의 말에서 LLM 이 읽는다([[52]]).
+    ⚠못 고르면 **빈 목록**. 모르는 것을 기준으로 순위를 매기지 않는다.
+    반환: A3 축 이름의 리스트(0개 이상).
+    """
+    tpl = (spec or {}).get("objective_axes_prompt")
+    if not (tpl and agent is not None and la is not None and texts and axes):
+        return []
+    memo = getattr(agent, "_t2_obj_axes", None)
+    if memo is not None:
+        return list(memo)
+    names = list(axes)
+    listing = "\n".join("  %s — %s" % (k, axes[k]) for k in names)
+    hay = "\n---\n".join(_excerpt(texts))
+    out, called = [], False
+    try:
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+              if "tool" not in k}
+        try:
+            um = UserMessage(role="user", content=tpl.format(axes=listing, text=hay))
+        except TypeError:
+            um = UserMessage(content=tpl.format(axes=listing, text=hay))
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="objective_axes_formalize", **kw)
+        called = True
+        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+        # 집합 검사만 — 긴 이름부터 보고, 이미 집힌 이름에 먹힌 부분 문자열은 세지 않는다.
+        seen = ""
+        for a in sorted((a for a in names if a), key=len, reverse=True):
+            if a.lower() in raw.lower() and a.lower() not in seen:
+                out.append(a)
+                seen += a.lower() + " "
+    except Exception as e:
+        print("[T2_OBJ_AXES] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        out, called = [], False
+    print("[T2_OBJ_AXES] raw=%r → %s" % (raw[:80] if called else "", out or "축 집합 밖 = 침묵"),
+          file=sys.stderr, flush=True)
+    if called:
+        try:
+            agent._t2_obj_axes = list(out)
+        except Exception:
+            pass
+    return out
+
+
+def combine_axes(axis_maps, axes):
+    """여러 축을 **합**으로 하나의 축처럼 다룬다 — 손님이 *"둘을 합쳐 가장 큰 것"* 을 원할 때.
+
+    ## 왜 (2026-08-09·C377·task_098)
+
+    같은 추천 계열 안에서도 목적이 갈린다. 099/100 은 *"**내가** 받는 보너스 최대"* 이지만
+    098 은 축자로 *"the best **combined** referral bonus - like, the total of what I get plus
+    what she gets"* 다. 축 하나만 받는 형식화로는 이 목적을 **표현할 수단이 없어서** 서브가
+    `NONE` 을 내고 결정 블록이 아예 만들어지지 않았다(런 s 실측: 098 두 sim 다 `raw='NONE'`).
+    A2 `_note_objective` 는 이 구멍을 **이름까지 대며 예견해 두었다**.
+
+    닫힘은 보존된다([[22]]): 축 집합이 닫혀 있으면 그 **부분집합도 닫혀 있다**. 엔진은 여전히
+    원소 검사와 덧셈만 하고, *무엇을 합할지* 는 손님의 말에서 LLM 이 읽는다.
+
+    ⚠**모든 축의 값을 가진 주어만 남긴다.** 한 축이 비면 부분합은 *작은 수* 가 아니라 **틀린 수**다
+      — 모르는 것을 0 으로 바꾸는 순간 순위가 조용히 뒤집힌다([[25]]).
+    반환: `(라벨, {주어: (합, 인용)})`. 축이 하나면 그 축의 지도를 **그대로** 돌려준다(거동 불변).
+    """
+    axes = [a for a in (axes or ()) if a]
+    if not axes:
+        return None, {}
+    if len(axes) == 1:
+        return axes[0], ((axis_maps or {}).get(axes[0]) or {})
+    maps = [((axis_maps or {}).get(a) or {}) for a in axes]
+    subjects = set(maps[0])
+    for m in maps[1:]:
+        subjects &= set(m)
+    out = {}
+    for s in subjects:
+        try:
+            out[s] = (sum(_num(m[s]) for m in maps),
+                      " · ".join(str(m[s][1]) for m in maps
+                                 if isinstance(m[s], (list, tuple)) and len(m[s]) > 1))
+        except Exception:                     # 수로 못 읽는 축이 하나라도 있으면 그 주어는 뺀다
+            continue
+    return " + ".join(axes), out
+
+
 def _rank_by(rows, axis_map, exclude=()):
     """통과 집합(**구조체**)을 그 축의 값으로 내림차순 — `[(주어, 값)]`. 값이 없는 주어는 뺀다.
 

@@ -2610,15 +2610,45 @@ def _limit_reduce_text(agent, a2, messages):
                         #   이름을 말한 상한과 같다. 이름을 돌려주면 그것이 우리 지목이 되어
                         #   [[05]] Q2 를 넘는다 — 그래서 `mismatch_value` 는 이름을 반환하지 않는다.
                         #   축은 **손님 말에서 형식화**한다(정적 선언 = [[23]] 위반). 못 구하면 안 한다.
-                        _oax = None
+                        _axall = (((a2 or {}).get("policy_ontology") or {}).get("axes") or {})
+                        # ★C377 합-목적 (2026-08-09·사용자 지시 "새 함수로") — 서브가 **하나로
+                        #   못 좁힌** 자리에서만 돈다. 098 축자: *"the best **combined** referral
+                        #   bonus - the total of what I get plus what she gets"* ⇒ 목적이 두 축의
+                        #   합이라 축 하나로는 표현할 수단이 없고, 실측상 그 sim 들은 지목 단계에서
+                        #   `raw='NONE'` 로 끊겨 결정 블록이 아예 안 만들어졌다.
+                        #   ⚠**지목을 두 번 해서 더하는 것이 아니다**: argmax(A)·argmax(B) 를 알아도
+                        #     argmax(A+B) 는 알 수 없다. 덧셈이 정당한 곳은 **값 층위**뿐이라
+                        #     엔진은 A3 값을 합해 순위만 만들고, 고르는 것은 끝까지 모델이다
+                        #     ([[05]] Q2·[[52]]). 되돌리는 것도 **값**이지 이름이 아니다.
+                        #   ⚠기존 단일-축 경로는 **건드리지 않는다** — 그 구성이 099/100 을 3/3 으로
+                        #     세우고 있다(런 t·`raw='referrer_bonus_usd'` 6/6). 여기는 순증이다.
+                        _oax, _olab, _omap = None, None, {}
+                        if not _pick and _sp2.get("objective_hint_text") and _axall:
+                            try:
+                                _oaxes = _LG2.formalize_objective_axes(agent, _la3, _UM3, _sp2,
+                                                                       _tx, _axall)
+                                _olab, _omap = _LG2.combine_axes(_axm3, _oaxes)
+                                _rk7 = _LG2._rank_by(_erows, _omap)
+                                if _rk7:
+                                    _hint = _sp2["objective_hint_text"].format(
+                                        axis=_olab, best=_LG2._num(_rk7[0][1]))
+                                    _p3 = _LG2.rederive_choice(
+                                        agent, _la3, _UM3, _sp2, _elig.strip(),
+                                        _ops5 + "\n" + _hint, _obj, _rows5)
+                                    print("[T2_OBJ_SUM] axes=%s best=%s → 재질의 NONE→%s"
+                                          % (_olab, _rk7[0][1], _p3 or "무응답"),
+                                          file=sys.stderr, flush=True)
+                                    _pick = _p3 or _pick
+                            except Exception as _s7:
+                                print("[T2_OBJ_SUM] 건너뜀(무발화): %r" % (_s7,),
+                                      file=sys.stderr, flush=True)
                         try:
-                            _axall = (((a2 or {}).get("policy_ontology") or {}).get("axes") or {})
-                            if _pick and _sp2.get("reask_prompt") and _axall:
+                            if _pick and _sp2.get("reask_prompt") and _axall and not _omap:
                                 _oax = _LG2.formalize_objective_axis(agent, _la3, _UM3, _sp2,
                                                                      _tx, _axall)
+                                _olab, _omap = _oax, ((_axm3 or {}).get(_oax) or {})
                             if _oax:
-                                _mm = _LG2.mismatch_value(_erows, (_axm3 or {}).get(_oax) or {},
-                                                          _pick)
+                                _mm = _LG2.mismatch_value(_erows, _omap, _pick)
                                 if _mm:
                                     _rq = _sp2["reask_prompt"].format(
                                         axis=_oax, chosen=_LG2._num(_mm[0]),
@@ -2635,8 +2665,10 @@ def _limit_reduce_text(agent, a2, messages):
                                   file=sys.stderr, flush=True)
                         if _pick:
                             if _sp2.get("decided_text"):
-                                _add += _LG2.decided_text(_sp2, _pick, _erows, _ops5, _oax,
-                                                          (_axm3 or {}).get(_oax) or {})
+                                # 순위 라벨·지도는 **어느 경로로 얻었든 같은 자리**를 쓴다 —
+                                # 단일 축이면 그 축, 합-목적이면 합산 축(`A + B`).
+                                _add += _LG2.decided_text(_sp2, _pick, _erows, _ops5,
+                                                          _olab, _omap)
                                 _decided = True
                             else:
                                 _add += _sp2.get("rederived_text", "").format(choice=_pick)
