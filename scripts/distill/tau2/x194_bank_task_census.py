@@ -143,6 +143,21 @@ def main():
     for b, n in collections.Counter("+".join(r["basis"]) or "?" for r in rows).most_common():
         print("  %-16s %d" % (b, n))
 
+    print("\n§6 관문 계열 41개의 하위 계열 — gold 도구 서명별 (099/100 과 같은 모양은 어느 것인가)")
+    #   관문은 checking 계좌 ID 를 주는 유일한 도구라 사슬의 **입구**일 뿐, 그 뒤 무엇을 하라는지는
+    #   태스크마다 다르다. 서명 = 관문 3종(unlock/call/log_verification)을 뺀 **나머지 gold 도구**.
+    ENTRY = {"unlock_discoverable_agent_tool", "call_discoverable_agent_tool", "log_verification"}
+    sig = collections.defaultdict(list)
+    for r in rows:
+        if not r["gate"]:
+            continue
+        rest = tuple(sorted({t for t in r["tools"] if t and t not in ENTRY}))
+        sig[rest].append(r["id"].replace("task_", ""))
+    for k, v in sorted(sig.items(), key=lambda kv: -len(kv[1])):
+        mark = " ←099/100 과 동일" if ("099" in v and "100" in v) else ""
+        print("  %-2d  %-46s %s%s"
+              % (len(v), ("+".join(k) or "(관문 3종뿐)")[:46], ", ".join(v), mark))
+
     out = os.path.join(SIMDIR, "..", "bank_task_census.json")
     json.dump(rows, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print("\n표 저장: %s" % os.path.normpath(out))
