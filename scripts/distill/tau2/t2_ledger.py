@@ -246,12 +246,29 @@ def formalize_case_facts(agent, la, UserMessage, texts, spec, wanted):
     """
     if not wanted:
         return {}
-    extra = ("\n\nReport only these, using exactly these names as the keys:\n- "
-             + "\n- ".join("%s: %s" % (k, v) for k, v in wanted))
-    return _formalize_pairs(agent, la, UserMessage, texts, spec,
-                            key="case_facts_prompt", field="value",
-                            memo_attr="_t2_case_facts",
-                            call_name="case_facts_formalize", extra=extra)
+    # ★키를 **골격으로** 준다 (2026-08-09 라이브 실측·자기정정): 항목 목록을 발췌 **뒤**에
+    #   붙이기만 했더니 모델이 목록을 무시하고 자기 키를 지어냈다 —
+    #   `current_holdings_in_Cobalt_Blue_Account=15000` · `bonus_value_for_..._card=75` 처럼
+    #   **묻지도 않은 값**을 냈고, 요청한 축 이름은 그 런에서 **0회** 나왔다. 즉 추출은
+    #   발화하는데 결과가 필터에 닿지 않는 **조용한 사망**이었다(단위검정은 순수함수만 봤다).
+    #   ⇒ ⒜ 목록을 발췌 **앞**에 놓고(A2 `{items}`) ⒝ 채울 골격을 그대로 보여 주고
+    #     ⒞ 엔진이 **요청한 키만 받는다**(집합 원소 검사·의미 판단 0·[[22]]).
+    names = [k for k, _v in wanted]
+    items = ("\n".join("  %s  — %s" % (k, v) for k, v in wanted)
+             + "\n\nFill in this exact skeleton, dropping any item the conversation does not "
+               "state:\n{"
+             + ", ".join('"%s": {"value": <integer>, "quote": "<exact sentence>"}' % k
+                         for k in names)
+             + "}\nDo not invent other keys. Do not report anything that is not in this list.")
+    out = _formalize_pairs(agent, la, UserMessage, texts, spec,
+                           key="case_facts_prompt", field="value",
+                           memo_attr="_t2_case_facts",
+                           call_name="case_facts_formalize", extra=items)
+    keep = {k: v for k, v in (out or {}).items() if k in set(names)}
+    if out and not keep:
+        print("[T2_LEDGER] case_facts: 요청 밖 키만 왔다 %s — 전부 버린다"
+              % sorted(out)[:4], file=sys.stderr, flush=True)
+    return keep
 
 
 def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr, call_name,
@@ -279,7 +296,13 @@ def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr,
         _sel.append(s)
         _used += len(s)
     _sel.reverse()                        # 다시 시간 순서로(읽는 쪽이 대화 순서를 본다)
-    prompt = tpl.format(text="\n---\n".join(_sel))
+    # ★자리는 **A2가 정한다**: 템플릿에 `{items}` 가 있으면 거기 넣는다(발췌 앞에 둘 수 있다).
+    #   없으면 구판대로 뒤에 잇는다 — 기존 선언 3종의 거동은 그대로다.
+    _body = "\n---\n".join(_sel)
+    try:
+        prompt = tpl.format(text=_body, items=extra)
+    except (KeyError, IndexError):
+        prompt = tpl.format(text=_body) + (extra or "")
     try:
         kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
               if "tool" not in k}
