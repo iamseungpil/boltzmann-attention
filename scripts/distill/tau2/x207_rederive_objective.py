@@ -57,17 +57,26 @@ from gate_interpreter import load_domain_a2                      # noqa: E402
 URL = os.environ.get("T2_PROBE_URL", "http://localhost:8141/v1/chat/completions")
 MODEL = os.environ.get("T2_PROBE_MODEL", "Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
 
-# 라이브 실측에서 그대로 가져온 케이스 (trace 축자: `value: … qualifying_deposit_usd=…` ·
-# `[T2_KIND] raw=…`). `days` 는 트레이스에 안 찍히므로 **문턱을 모두 통과하는 값**으로 고정하고
-# 그 가정을 여기에 적어 둔다 — 이 세 태스크를 가르는 축은 예치이지 재직기간이 아니다.
+# 케이스는 **`tasks.json` 의 시나리오 축자**에서 가져온다(gold 는 진단 전용·[[23]] — 표적
+# 선정에만 쓴다). 예치액과 종류는 라이브 trace 와도 일치한다(`value: …` · `[T2_KIND] raw=…`).
+#
+# ⚠**자기적발 (1차 실행)**: 처음에 `days=400`(모든 문턱 통과)으로 고정하고 *"이 세 태스크를
+#   가르는 축은 예치이지 재직기간이 아니다"* 라고 적었다. **100 에 대해 정확히 틀렸다** —
+#   task_100 은 재직기간 함정이다(축자: *"Customer opened their first checking account only 65
+#   days ago … World Blue requires 90 days … Hunter Green only requires 60 days"*). 그 가정
+#   때문에 World Blue 가 표에 남아 세 팔이 전부 오답으로 보였다. 통제가 틀리면 다른 결론을
+#   못 낸다([[08]]).
 CASE = {
-    "task_098": dict(days=400, stated={"qualifying_deposit_usd": 600},
+    # 체킹 문턱은 전부 ≤ 45일이라 재직기간이 가르지 않는다(쟁점은 예치·9일 창).
+    "task_098": dict(days=400, tally={}, stated={"qualifying_deposit_usd": 600},
                      kind="checking_accounts", gold="Blue",
                      obj="the best combined referral bonus - the total of what I get plus what she gets"),
-    "task_099": dict(days=400, stated={"qualifying_deposit_usd": 30000},
+    # 099 는 재직기간이 쟁점이 아니고, Hunter Green 연간 9/10 사용이 **미끼**다(상한 10이라 여유 1).
+    "task_099": dict(days=400, tally={"Hunter Green": 9}, stated={"qualifying_deposit_usd": 30000},
                      kind="business_checking_accounts", gold="World Blue",
                      obj="the biggest referral bonus for me"),
-    "task_100": dict(days=400, stated={"qualifying_deposit_usd": 31000},
+    # ★100 = 재직 65일. World Blue(90) 탈락 · Hunter Green(60) 통과 — A3 에 이미 있는 값이다.
+    "task_100": dict(days=65, tally={}, stated={"qualifying_deposit_usd": 31000},
                      kind="business_checking_accounts", gold="Hunter Green",
                      obj="the biggest referral bonus for me"),
 }
@@ -94,7 +103,7 @@ def main():
     out = {}
     for task, c in CASE.items():
         maps, _d = LG.restrict_to_kind(maps0, kb, c["kind"])
-        tbl = (LG.eligible_text(c["days"], {}, maps, sp, c["stated"]) or "").strip()
+        tbl = (LG.eligible_text(c["days"], c.get("tally") or {}, maps, sp, c["stated"]) or "").strip()
         names = [l.strip().split(":")[0].strip() for l in tbl.splitlines()
                  if l.startswith("  ") and ":" in l]
         facts = "\n".join(["days since the earliest account was opened = %d" % c["days"]]
