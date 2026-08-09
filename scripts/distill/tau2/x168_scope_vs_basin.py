@@ -101,10 +101,29 @@ def main():
         return ("Here is a customer-service conversation so far.\n\n"
                 + Y.render(ms) + "\n\n" + base)
 
+    # ★통제: 같은 16행이되 **카드를 남기고 최저-보너스 9행을 지운** 표.
+    #   arm3 가 gold 로 풀린 것이 "행 수(저장 부하)" 때문인지 "그 카드 행들" 때문인지 가른다.
+    #   부하 효과면 여기서도 풀려야 하고, 카드-특정이면 여기선 여전히 Lime Green 이 나와야 한다.
+    def bonus(ln):
+        for part in ln.split(","):
+            if "referrer_bonus_usd" in part:
+                try:
+                    return int(part.split("=")[1])
+                except Exception:
+                    return -1
+        return -1
+    ranked = sorted(body.splitlines(), key=bonus)
+    lowdrop = set(ranked[:len(dropped)])
+    low16 = head + "\n" + "\n".join(l for l in body.splitlines() if l not in lowdrop)
+
     arms = [("1 full  + Card정박", full, CARD),
             ("2 scope + Card정박 ★", scope, CARD),
             ("3 scope + Green정박", scope, NAMED),
-            ("4 scope + 정박없음", scope, None)]
+            ("4 scope + 정박없음", scope, None),
+            ("5 low16 + Green정박 ☆", low16, NAMED),
+            ("6 low16 + Card정박", low16, CARD)]
+    print("low16 %d행 (제거=%s)"
+          % (len(names(low16)), [l.strip().split(":")[0] for l in ranked[:len(dropped)]]))
 
     print("\n%-22s %-34s %s" % ("arm", "자유생성 ×3", "판정"))
     for label, table, anchor in arms:
