@@ -120,12 +120,14 @@ def main():
         with torch.no_grad():
             out = model(**enc, output_hidden_states=True)
         hs = out.hidden_states                      # (L+1) × [1, seq, hidden]
-        ndev = next(norm.parameters()).device       # 오프로드 시 norm/head 가 CPU 에 있을 수 있다
         print("\n=== j=%d · 토큰 %d ===" % (j, enc["input_ids"].shape[1]))
         print("%-6s %10s %9s %6s  %s" % ("층", "p(gold)", "H(nats)", "버킷", "argmax"))
         lstar, prev_ok = None, False
         for li in range(1, len(hs)):
-            h = hs[li][0, -1, :].to(ndev)
+            # ⚠오프로드 시 `norm`/`lm_head` 의 파라미터는 **meta** 에 있다. 거기로 h 를 미리 옮기면
+            #   `Cannot copy out of meta tensor` 로 죽는다(2026-08-09 실측) — accelerate 훅이
+            #   호출 시점에 실행 디바이스로 옮겨 주므로 **그대로 넘긴다**.
+            h = hs[li][0, -1, :]
             with torch.no_grad():
                 logits = head(norm(h)).float().cpu()
             sub = logits[ids]
