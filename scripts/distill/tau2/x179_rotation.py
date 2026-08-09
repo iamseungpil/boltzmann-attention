@@ -83,7 +83,11 @@ def main():
 
     print("model=%s · %d행 · 순수 회전(상대 순서 보존)" % (model, N))
     print("\n%-5s %-10s %-16s %-32s %s" % ("k", "정답자리", "마지막 행", "분포", "gold"))
-    for k in range(0, min(kmax, N)):
+    # ⚠1차 실행의 설계 구멍(2026-08-09): k=0..7 은 정답을 25→18 로만 옮겨 **표 아래 3분의 1**
+    #   안에서만 움직였다. 두 모델에서 확실히 통하는 것은 **내림차순**이고 거기서는 정답이 1~2
+    #   번째다 — 즉 확인해야 할 구간을 안 봤다. step 을 두어 **전 구간**을 쓴다.
+    step = int(os.environ.get("T2_ROT_STEP", "1"))
+    for k in range(0, min(kmax, N), step):
         order = asc[k:] + asc[:k]
         nm = [name(l) for l in order]
         c = collections.Counter(
