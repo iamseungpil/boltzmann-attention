@@ -105,10 +105,14 @@ def main():
 
     print("model=%s  url=%s" % (MODEL, URL))
     print("%-22s %10s %10s %10s" % ("조건", "logP(gold)", "logP(anchor)", "log-odds"))
+    def with_traj(j, tail=""):
+        pre = ("Here is a customer-service conversation so far.\n\n"
+               + Y.render(MSGS[:j]) + "\n\n") if j else ""
+        return pre + base + (("\n\n" + tail) if tail else "")
+
     xs, ys = [], []
-    for k in range(0, kmax + 1):
-        pre = ("\n".join([line] * k) + "\n\n") if k else ""
-        d = first_token_dist(pre + base, CHOICES)
+    for k in sorted({0} | {round(len(MSGS) * i / kmax) for i in range(1, kmax + 1)}):
+        d = first_token_dist(with_traj(k), CHOICES)
         g, a = lp_of(d, GOLD_HEAD), lp_of(d, ANCHOR)
         xs.append(k)
         ys.append(a - g)
@@ -120,10 +124,9 @@ def main():
     slope = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / den if den else float("nan")
     print("\n  P1 누적 기울기 λ̂ = %.3f  (언급 1회당 log-odds, 앵커 쪽이 +)" % slope)
 
-    print("\n  P3 포화 — 같은 k 에 되꽂기를 얹으면")
-    for k in (0, kmax // 2, kmax):
-        pre = ("\n".join([line] * k) + "\n\n") if k else ""
-        d = first_token_dist(pre + base + "\n\n" + hand)
+    print("\n  P3 포화 — 같은 j 에 되꽂기를 얹으면")
+    for k in (0, len(MSGS) // 2, len(MSGS)):
+        d = first_token_dist(with_traj(k, hand), CHOICES)
         g, a = lp_of(d, GOLD_HEAD), lp_of(d, ANCHOR)
         print("    j=%-3d logP(gold)=%7.3f  logP(anchor)=%7.3f  log-odds=%7.3f"
               % (k, g, a, a - g))
