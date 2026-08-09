@@ -105,6 +105,24 @@ def main():
         got = [guided_full(pre + base, ch, 0.0 if i == 0 else 0.7) for i in range(n)]
         return collections.Counter(got)
 
+    # ★leave-one-in (2026-08-09·C353⒠): 오름 k=8 은 카드가 `Business Platinum` **하나만 남은**
+    #   상태에서 오답 10/10 인데, x169 에서 그 카드 **하나만 제거**하는 것은 무효였다.
+    #   ⇒ 단독 **충분성**과 단독 **필요성**이 갈린다. 카드를 정확히 하나만 남기고 재면
+    #     *어느 장이 혼자서 효과를 지탱하는가* 가 나온다. leave-one-out 의 정확한 짝이다.
+    if os.environ.get("T2_LEAVE_ONE_IN") == "1":
+        print("\n%-34s %-8s %s" % ("남긴 카드 1장", "행수", "분포 (n=%d)" % n))
+        for keep_card in cards:
+            drop = [c for c in cards if c != keep_card]
+            c = run(drop)
+            gold = c.get("World Blue", 0)
+            print("%-34s %-8d %-42s gold=%d/%d %s"
+                  % ("%s (%s)" % (keep_card, bon.get(keep_card)), len(ix) - len(drop),
+                     c.most_common(3), gold, n, "★정답" if gold > n // 2 else "**오답 유지**"))
+        c = run(cards)
+        print("%-34s %-8d %-42s gold=%d/%d" % ("(카드 0장·통제)", len(ix) - len(cards),
+                                               c.most_common(3), c.get("World Blue", 0), n))
+        return 0
+
     sets = [("cards_asc", cards), ("cards_desc", cards[::-1]), ("ctrl_asc", ctrl)]
     print("\n%-12s %-4s %-8s %s" % ("집합", "k", "행수", "분포 (n=%d)" % n))
     for label, pool in sets:
