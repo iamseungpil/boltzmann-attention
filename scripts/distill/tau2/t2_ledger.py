@@ -981,6 +981,51 @@ def window_and_tally(rows, spec, now=None):
     return max(0, int(spec["window_max"]) - inwin), inwin, tally
 
 
+def window_history(rows, spec):
+    """각 기록을 **그 앞의 기록들**과 맞대어 센다 — 만들어질 당시 이미 창 한도였던 것을 말한다.
+
+    ## 왜 (2026-08-09·C379·task_010)
+
+    기존 `window_text` 는 *"지금부터 몇 건 더 가능한가"* 만 말한다 — **앞을 보는 문장**이다.
+    그런데 010 의 손님이 묻는 것은 뒤다: *"you're not actually telling me **why** either one
+    didn't pay out."* 실측 궤적에서 에이전트는 상태(REJECTED/IN_PROGRESS)까지는 우리 문장으로
+    알았는데 **이유를 못 찾아 이관으로 끝냈다**(두 trial 다 제출 0).
+
+    이유는 산수로 나온다. 원장 축자: `10/20` · `10/22` · **`10/25`(REJECTED)** · `11/05`
+    (IN_PROGRESS), A2 선언 `window_days=9` · `window_max=2`.
+      · `10/25` 앞 9일 안에 `10/20`·`10/22` **둘** ⇒ 만들어질 당시 이미 한도였다.
+      · `11/05` 앞 9일 안에 **0건** ⇒ 한도가 아니었다.
+    두 기록의 상태가 **둘 다 이 산수와 맞는다.**
+
+    ⚠**인과는 말하지 않는다.** 엔진이 하는 말은 *"만들어질 당시 앞 9일에 N건이 있었다"* 까지고,
+      *"그래서 거절됐다"* 는 모델이 문서와 맞대어 판단할 몫이다([[25]]·[[22]]). 우리가 인과를
+      단정하면 그것이 곧 날조 통로다.
+    반환: 창 한도에 이미 닿아 있던 기록이 없으면 **빈 문자열**(말할 것이 없으면 말하지 않는다).
+    """
+    tpl = (spec or {}).get("window_history_text")
+    df, gf = (spec or {}).get("date_field"), (spec or {}).get("group_field")
+    days, mx = (spec or {}).get("window_days"), (spec or {}).get("window_max")
+    fmts = (spec or {}).get("date_formats") or ["%m/%d/%Y"]
+    if not (tpl and df and rows and days and mx is not None):
+        return ""
+    dated = []
+    for r in rows:
+        d = _date(r.get(df), fmts)
+        if d is not None:
+            dated.append((d, str(r.get(gf) or "").strip()))
+    if len(dated) < 2:
+        return ""
+    dated.sort()
+    hit = []
+    for i, (d, name) in enumerate(dated):
+        prior = sum(1 for d0, _n0 in dated[:i] if 0 <= (d - d0).days <= int(days))
+        if prior >= int(mx):
+            hit.append("%s (%s): %d before it within %d days" % (name, d, prior, int(days)))
+    if not hit:
+        return ""
+    return tpl.format(crowded="; ".join(hit), days=int(days), max=int(mx))
+
+
 def status_breakdown(rows, spec):
     """원장 행을 **선언된 상태 필드로** 묶어 센다 — 세기만 하고 뜻은 말하지 않는다.
 

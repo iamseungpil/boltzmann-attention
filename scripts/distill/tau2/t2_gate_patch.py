@@ -2537,6 +2537,10 @@ def _limit_reduce_text(agent, a2, messages):
         #   ⚠상한 조회와 무관하므로 `_lims3` 밖에 둔다 — A3 가 비어도 이 사실은 말할 수 있다.
         if _e2.get("rows"):
             _add += _LG2.status_breakdown(_e2["rows"], _sp2)
+            # ★C379 — 상태만 말하면 손님의 *"왜"* 에 답이 안 된다(v010 실측: 상태는 알았는데
+            #   이유를 못 찾아 이관으로 끝났다). 이유는 이미 선언된 창 상수와 날짜의 산수로
+            #   나온다. 엔진은 **산수까지만** 말하고 인과는 모델·문서 몫이다([[25]]).
+            _add += _LG2.window_history(_e2["rows"], _sp2)
         if _e2.get("days") is not None and _mins3:
             _add += _LG2.ineligible_text(_e2["days"], _mins3, _sp2)
         # ★통과 집합 (2026-08-08·C337). 못 되는 것을 말하는 것만으로는 안 닫혔다 —

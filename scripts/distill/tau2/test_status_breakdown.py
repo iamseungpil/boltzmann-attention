@@ -93,8 +93,8 @@ ok(spec.get("status_field") in (spec.get("row_keys") or []),
    spec.get("row_keys"))
 ok("{total}" in spec.get("status_text", "") and "{breakdown}" in spec.get("status_text", ""),
    "자리표시자가 있다")
-ok("why" in spec.get("status_text", "").lower(),
-   "문구가 **이유는 문서에 있다**고 말한다 (엔진이 이유를 지어내지 않는다)")
+ok("do not state why" in spec.get("status_text", "").lower(),
+   "문구가 **기록은 이유를 말하지 않는다**고 밝힌다 (엔진이 이유를 지어내지 않는다)")
 
 print("\n§6 라이브 형태로 한 번 (010 원장 축자 구조)")
 live_rows = [{"referred_account_type": "Bronze Rewards Card", "referral_status": "COMPLETE"},
@@ -105,6 +105,37 @@ got = LG.status_breakdown(live_rows, spec)
 ok("REJECTED 1 — Platinum Rewards Card" in got,
    "거절된 행의 상품이 이름으로 나온다 (= 이 태스크의 재제출 표적)")
 ok("COMPLETE 2" in got, "이미 지급된 둘이 구별된다 (실패 궤적은 이 중 하나를 재제출했다)")
+
+print("\n§7 창 산수 — 각 기록을 그 앞의 기록들과 맞댄다 (C379·손님의 *왜* 에 답하는 자리)")
+WSPEC = dict(SPEC, date_field="d", window_days=9, window_max=2,
+             date_formats=["%m/%d/%Y"],
+             window_history_text="crowded: {crowded} (max {max} in {days}d)")
+LIVE = [{"g": "Bronze", "d": "10/20/2025", "st": "COMPLETE"},
+        {"g": "Gold", "d": "10/22/2025", "st": "COMPLETE"},
+        {"g": "Platinum", "d": "10/25/2025", "st": "REJECTED"},
+        {"g": "Silver", "d": "11/05/2025", "st": "IN_PROGRESS"}]
+w = LG.window_history(LIVE, WSPEC)
+ok("Platinum" in w, "창 한도에 닿아 있던 기록을 짚는다 (10/25 앞 9일에 2건)", w)
+ok("Silver" not in w, "닿지 않은 기록은 안 짚는다 (11/05 앞 9일에 0건)")
+ok("Bronze" not in w and "Gold" not in w, "앞이 비어 있던 기록도 안 짚는다")
+# ★인과 금지: 엔진은 산수만 말한다
+ok("because" not in w.lower() and "rejected" not in w.lower(),
+   "★문장이 인과를 말하지 않는다 (상태 낱말도 안 쓴다·[[25]])", w)
+ok(LG.window_history(LIVE, dict(WSPEC, window_max=3)) == "",
+   "한도가 더 크면 닿는 기록이 없어 침묵한다")
+ok(LG.window_history(LIVE[:1], WSPEC) == "", "기록이 하나면 맞댈 것이 없다")
+ok(LG.window_history(LIVE, dict(WSPEC, window_history_text=None)) == "",
+   "선언이 없으면 침묵")
+ok(LG.window_history([{"g": "A"}, {"g": "B"}], WSPEC) == "", "날짜가 없으면 침묵")
+live_spec = spec
+ok(bool(live_spec.get("window_history_text")), "라이브 spec 이 선언을 들고 있다")
+ok(live_spec.get("date_field") in (live_spec.get("row_keys") or []),
+   "★date_field 가 row_keys 에 있다 (없으면 모델이 전사 안 해 조용히 죽는다)")
+ok("retrieve the document" not in (live_spec.get("status_text") or "").lower(),
+   "★상태 문구에서 **검색 지시**를 뺐다 — v010 에서 에이전트가 그 지시대로 상태 낱말"
+   "(`referral status IN_PROGRESS REJECTED`)로 검색해 이유를 못 찾았다. 이유를 나르는 "
+   "것은 이제 창 산수 문장이다.",
+   (live_spec.get("status_text") or "")[-40:])
 
 print("\n" + ("FAIL %d: %s" % (len(FAIL), FAIL) if FAIL else "PASS  (0 실패)"))
 sys.exit(1 if FAIL else 0)
