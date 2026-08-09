@@ -82,6 +82,15 @@ def main():
         arms["A_imper  현행(명령형)"] = "System: " + fb("feedback_pending")
     if fb("feedback_ownership"):
         arms["B_owner  신규(표면화)"] = "System: " + fb("feedback_ownership")
+    # ★길이 교란 통제 (2026-08-09·1차 실행이 A 0.586 vs B 0.943 을 냈는데 662자 대 213자였다).
+    #   **같은 원문을 길이만 맞춰 쪼갠다** — 새 문장을 지어내지 않으므로 어휘 교란 0.
+    #     A_head = 앞부분(사실 진술·명령 없음) · A_tail = 뒷부분(명령문)
+    #   길이가 원인이면 둘이 같이 떨어지고, 명령이 원인이면 tail 만 떨어진다.
+    _ap = fb("feedback_pending")
+    _bn = len(fb("feedback_ownership") or "") or 213
+    if _ap and len(_ap) > _bn:
+        arms["A_head   앞부분(사실·짧게)"] = "System: " + _ap[:_bn]
+        arms["A_tail   뒷부분(명령·짧게)"] = "System: " + _ap[-_bn:]
     arms["D_named  #26원문(양성통제)"] = "Assistant: " + last_txt
 
     print("model=%s · 궤적 %d(사용 %d) · 후보 %d · gold=%s"
