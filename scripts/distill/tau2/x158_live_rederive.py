@@ -37,6 +37,16 @@ CASE = {"task_099": (730, 30000), "task_100": (65, 31000)}
 # 실제 프롬프트를 그대로 태워 본다(아래 main 참조).
 
 
+def _ask_long(prompt, max_tokens=200):
+    """x149.ask 와 같되 토큰 상한만 넉넉히 — JSON 응답이 잘리지 않게."""
+    import json as _j, urllib.request as _u
+    body = _j.dumps({"model": X.MODEL, "temperature": 0.0, "max_tokens": max_tokens,
+                     "messages": [{"role": "user", "content": prompt}]}).encode()
+    req = _u.Request(X.URL, data=body, headers={"Content-Type": "application/json"})
+    with _u.urlopen(req, timeout=180) as r:
+        return _j.load(r)["choices"][0]["message"]["content"].strip()
+
+
 def main():
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 5
     a2 = load_domain_a2("banking_knowledge")
@@ -59,7 +69,10 @@ def main():
         _tx = [" ".join(str(m.get("content") or "").split()) for m in _ms
                if m.get("role") in ("user", "tool")]
         _sep = "\n---\n"
-        _raw = X.ask(spec["objective_prompt"].format(text=_sep.join(_tx)[:60000]), 0.0)
+        # ⚠`X.ask` 는 max_tokens=40 이라 JSON 이 **닫히기 전에 잘린다**(1차 실행에서 목적이
+        #   빈 문자열로 나온 진짜 원인 — 모델은 제대로 답하고 있었다). 여기서는 넉넉히 준다.
+        #   라이브 경로(`formalize_objective`)는 agent.llm_args 를 쓰므로 이 상한이 없다.
+        _raw = _ask_long(spec["objective_prompt"].format(text=_sep.join(_tx)[:60000]))
         import json as _j, re as _re
         _m = _re.search(r"\{.*\}", _raw, _re.S)
         obj = ""
