@@ -5527,6 +5527,23 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
+    "subject": "Gold Years",
+    "axis": "qualifying_deposit_usd",
+    "value": 1000,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_gold_years_account_010",
+     "quote": "They must deposit $1,000 within 90 days of account opening",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
     "subject": "Green",
     "axis": "referrer_bonus_usd",
     "value": 20,
@@ -5714,6 +5731,23 @@
      "consumers": [],
      "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
     },
+    "subject": "Light Blue",
+    "axis": "qualifying_deposit_usd",
+    "value": 500,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_blue_account_007",
+     "quote": "They deposit at least $500 within 60 days",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
     "subject": "Light Green",
     "axis": "referrer_bonus_usd",
     "value": 15,
@@ -5788,6 +5822,40 @@
     "source": {
      "doc": "doc_checking_accounts_light_green_account_002",
      "quote": "- You must remain within the 13–24 age range to maintain the account.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Light Green",
+    "axis": "qualifying_deposit_usd",
+    "value": 100,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_green_account_002",
+     "quote": "The person you refer must deposit at least $100 within 90 days of opening their account.",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 권고를 만들 때 쓰는 피연산자다. 억지로 도구에 붙이면 없는 게이트를 지어내는 것이라 비워 둔다(엔진은 표면화만 한다)."
+    },
+    "subject": "Light Green",
+    "axis": "deposit_window_days",
+    "value": 90,
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_checking_accounts_light_green_account_002",
+     "quote": "The person you refer must deposit at least $100 within 90 days of opening their account.",
      "quote_match": "exact"
     }
    },
