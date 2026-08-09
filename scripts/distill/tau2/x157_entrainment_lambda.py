@@ -92,7 +92,12 @@ def main():
     # 후보 집합 = **엔진이 만든 표의 이름들**. 프로브가 목록을 짓지 않는다.
     CHOICES = [l.strip().split(":")[0].strip() for l in table.splitlines() if l.startswith("  ")]
 
-    # 앵커 한 줄 — 구조 동일, k 번만 반복한다.
+    # ★앵커는 **실제 궤적**이다 (2026-08-09 자기정정·2차 실행). 합성 한 줄을 6번 넣는 것으로는
+    #   꿈쩍도 안 했다(gold 확률 ≈ 1.0 고정) — 자유 생성에서 0/5 를 만드는 실제 문맥은 27 메시지
+    #   짜리이고, 내 자극이 그것보다 훨씬 약했다. 자극을 지어내지 말고 **있는 것을 잘라 쓴다**:
+    #   궤적 앞에서부터 j 개를 넣고 j 를 늘린다. k 대신 j 가 누적 축이다.
+    import x150_choice_ablation as Y
+    MSGS = Y.msgs_of(os.environ.get("T2_PROBE_TAG", "bank_elig_20260809i"), TASK)
     line = ("Assistant: Looking at what you already have with us, the %s Blue Account "
             "stands out." % ANCHOR)
     hand = ("A separate analysis, working only from the policy constants on record and this "
@@ -107,7 +112,7 @@ def main():
         g, a = lp_of(d, GOLD_HEAD), lp_of(d, ANCHOR)
         xs.append(k)
         ys.append(a - g)
-        print("  k=%-19d %10.3f %10.3f %10.3f" % (k, g, a, a - g))
+        print("  궤적 %-17s %10.3f %10.3f %10.3f" % ("j=%d/%d" % (k, len(MSGS)), g, a, a - g))
     # 최소제곱 기울기 = λ 의 대리값(언급 1회당 log-odds 이동)
     n = len(xs)
     mx, my = sum(xs) / n, sum(ys) / n
@@ -120,7 +125,7 @@ def main():
         pre = ("\n".join([line] * k) + "\n\n") if k else ""
         d = first_token_dist(pre + base + "\n\n" + hand)
         g, a = lp_of(d, GOLD_HEAD), lp_of(d, ANCHOR)
-        print("    k=%-3d logP(gold)=%7.3f  logP(anchor)=%7.3f  log-odds=%7.3f"
+        print("    j=%-3d logP(gold)=%7.3f  logP(anchor)=%7.3f  log-odds=%7.3f"
               % (k, g, a, a - g))
     return 0
 
