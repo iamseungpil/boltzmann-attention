@@ -89,6 +89,8 @@ def main():
     maps = {ax: FD._a3_map(rows, {"axis": ax}) for ax in spec["eligible"]["show_axes"]}
     table = LG.eligible_text(730, {}, maps, spec, {"qualifying_deposit_usd": 30000}).strip()
     base = table + "\n\n" + X.FACTS[TASK] + "\n\n" + X.QUESTION
+    # 후보 집합 = **엔진이 만든 표의 이름들**. 프로브가 목록을 짓지 않는다.
+    CHOICES = [l.strip().split(":")[0].strip() for l in table.splitlines() if l.startswith("  ")]
 
     # 앵커 한 줄 — 구조 동일, k 번만 반복한다.
     line = ("Assistant: Looking at what you already have with us, the %s Blue Account "
