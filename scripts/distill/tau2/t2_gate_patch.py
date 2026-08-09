@@ -2544,7 +2544,15 @@ def _limit_reduce_text(agent, a2, messages):
                     print("[T2_LIMIT_REDUCE] 대화-피연산자 형식화 건너뜀: %r" % (_fe3,),
                           file=sys.stderr, flush=True)
             _elig = _LG2.eligible_text(_e2.get("days"), _tal2, _axm3, _sp2, _stated)
-            _add += _elig
+            _erows = _LG2.eligible_text(_e2.get("days"), _tal2, _axm3, _sp2, _stated,
+                                        as_rows=True) or []
+            # ★표를 메인에 싣지 않는다 (2026-08-09·사용자 결정·C367·C370). x187 전 셀 대조에서
+            #   `L3`(대화 없음)가 `L0`(대화 포함)를 **2모델×20셀 전부 파레토 지배**했고, x190 에서
+            #   `with_table` 은 어느 정렬로도 두 태스크를 함께 잡지 못했다(asc 0/8·0/8 · desc 8/8·0/8).
+            #   표가 있어도 근거 숫자를 5/5 틀리게 댄다. ⇒ 메인이 표에서 얻는 것이 없다.
+            #   `decided_text` 가 선언돼 있으면 **결정 블록만** 내보내고, 없으면 종전대로 표를 싣는다.
+            if not _sp2.get("decided_text"):
+                _add += _elig
             # ★2단 재도출 (2026-08-09·C344·x154/x155). 표를 궤적에 실어도 안 움직인다(0/5·라이브
             #   099 0/12). 움직인 유일한 것은 **판단 자리를 깨끗한 문맥으로 옮기고 그 답을
             #   되돌려 넣는 것**(0/5 → 5/5·두 태스크). 고르는 것은 두 번 다 모델이고 엔진은
@@ -2567,12 +2575,45 @@ def _limit_reduce_text(agent, a2, messages):
                         if _e2.get("days") is not None:
                             _fl.insert(0, "days since the earliest account was opened = %d"
                                        % int(_e2["days"]))
-                        _rows5 = [l.strip().split(":")[0].strip()
-                                  for l in _elig.splitlines() if l.startswith("  ")]
+                        _rows5 = [_s5 for _s5, _b5 in _erows]
+                        _ops5 = "\n".join(_fl)
                         _pick = _LG2.rederive_choice(agent, _la3, _UM3, _sp2, _elig.strip(),
-                                                     "\n".join(_fl), _obj, _rows5)
+                                                     _ops5, _obj, _rows5)
+                        # ★D1c — 엔진이 재계산해 **불일치만** 잡고, 답이 아니라 **값**을 되돌려
+                        #   다시 묻는다 (2026-08-09·x192·규격서 §5). 부정 통제 통과: 무내용
+                        #   재시도는 실패 3셀을 하나도 못 고쳤고(0/8), 값만 되돌리면 8/8 이며
+                        #   이름을 말한 상한과 같다. 이름을 돌려주면 그것이 우리 지목이 되어
+                        #   [[05]] Q2 를 넘는다 — 그래서 `mismatch_value` 는 이름을 반환하지 않는다.
+                        #   축은 **손님 말에서 형식화**한다(정적 선언 = [[23]] 위반). 못 구하면 안 한다.
+                        _oax = None
+                        try:
+                            _axall = (((a2 or {}).get("policy_ontology") or {}).get("axes") or {})
+                            if _pick and _sp2.get("reask_prompt") and _axall:
+                                _oax = _LG2.formalize_objective_axis(agent, _la3, _UM3, _sp2,
+                                                                     _tx, _axall)
+                            if _oax:
+                                _mm = _LG2.mismatch_value(_erows, (_axm3 or {}).get(_oax) or {},
+                                                          _pick)
+                                if _mm:
+                                    _rq = _sp2["reask_prompt"].format(
+                                        axis=_oax, chosen=_LG2._num(_mm[0]),
+                                        best=_LG2._num(_mm[1]))
+                                    _p2 = _LG2.rederive_choice(
+                                        agent, _la3, _UM3, _sp2, _elig.strip(),
+                                        _ops5 + "\n" + _rq, _obj, _rows5)
+                                    print("[T2_D1C] mismatch %s=%s<%s → 재질의 %s→%s"
+                                          % (_oax, _mm[0], _mm[1], _pick, _p2 or "무응답"),
+                                          file=sys.stderr, flush=True)
+                                    _pick = _p2 or _pick
+                        except Exception as _d1e:
+                            print("[T2_D1C] 건너뜀(무발화): %r" % (_d1e,),
+                                  file=sys.stderr, flush=True)
                         if _pick:
-                            _add += _sp2.get("rederived_text", "").format(choice=_pick)
+                            if _sp2.get("decided_text"):
+                                _add += _LG2.decided_text(_sp2, _pick, _erows, _ops5, _oax,
+                                                          (_axm3 or {}).get(_oax) or {})
+                            else:
+                                _add += _sp2.get("rederived_text", "").format(choice=_pick)
                 except Exception as _re5:
                     print("[T2_REDERIVE] 건너뜀: %r" % (_re5,), file=sys.stderr, flush=True)
     return _add.strip()

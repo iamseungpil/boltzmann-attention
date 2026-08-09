@@ -389,6 +389,129 @@ def rederive_choice(agent, la, UserMessage, spec, table, facts, asked, allowed):
     return out
 
 
+def formalize_objective_axis(agent, la, UserMessage, spec, texts, axes):
+    """손님이 **무엇을 최대화해 달라는지**를 A2 **축 이름 하나**로 — 닫힌 집합이라 엔진이 검증한다.
+
+    왜 형식화인가 ([[23]]): 순위 축을 A2 에 **정적으로 선언하면** 그 태스크의 목적을 우리가
+    구워 넣는 것이고, 출처가 정책도 환경도 아니게 된다. 목적은 **손님의 말**에 있으므로
+    해석은 LLM 이 하고([[52]]), 엔진은 결과가 **A2 축 집합의 원소인지**만 본다([[22]] 닫힌 술어).
+
+    ★필요성 (x187 실측): 축을 이름으로 지목해 주면 14B/task_100 이 `Q2` **8/8** 인데, 스스로
+      해석하게 두면 `Q3` **0/8** 이다(32B 는 둘이 같다). ⇒ **축 해석은 스케일이 사는 결손**이고
+      이 형식화가 그 자리를 메운다.
+    ⚠이 값은 **재도출 문맥에 싣지 않는다** — 목적 구절을 실으면 해로웠다(x158: 099 10/10 → 0/10).
+      쓰이는 곳은 엔진의 **재계산 축**뿐이다(`mismatch_value`).
+    ⚠못 고르면 **None** — 그러면 D1c 를 하지 않는다. 모르는 것을 기준으로 재질의하지 않는다.
+    """
+    tpl = (spec or {}).get("objective_axis_prompt")
+    if not (tpl and agent is not None and la is not None and texts and axes):
+        return None
+    memo = getattr(agent, "_t2_obj_axis", None)
+    if memo is not None:
+        return memo or None
+    names = list(axes)
+    listing = "\n".join("  %s — %s" % (k, axes[k]) for k in names)
+    hay = " ".join("\n".join(str(t) for t in texts).split())[-6000:]
+    try:
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+              if "tool" not in k}
+        try:
+            um = UserMessage(role="user", content=tpl.format(axes=listing, text=hay))
+        except TypeError:
+            um = UserMessage(content=tpl.format(axes=listing, text=hay))
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="objective_axis_formalize", **kw)
+        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+    except Exception as e:
+        print("[T2_OBJ_AXIS] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return None
+    hit = sorted((a for a in names if a and a.lower() in raw.lower()), key=len, reverse=True)
+    out = hit[0] if hit else None
+    print("[T2_OBJ_AXIS] raw=%r → %s" % (raw[:60], out or "축 집합 밖 = 침묵"),
+          file=sys.stderr, flush=True)
+    try:
+        agent._t2_obj_axis = out or ""
+    except Exception:
+        pass
+    return out
+
+
+def _rank_by(rows, axis_map, exclude=()):
+    """통과 집합(**구조체**)을 그 축의 값으로 내림차순 — `[(주어, 값)]`. 값이 없는 주어는 뺀다.
+
+    ⚠입력은 `eligible_text(..., as_rows=True)` 가 준 `[(주어, bits)]` 다. **문자열을 되파싱하지
+      않는다** — 표를 만든 것도 우리이므로 애초에 구조체로 들고 다닌다([[59]] 규율의 정신).
+    """
+    out = []
+    for s, _bits in (rows or ()):
+        if s in exclude:
+            continue
+        v = (axis_map or {}).get(s)
+        if v is None:                        # 그 축 값이 없는 주어는 순위에서 뺀다
+            continue
+        try:
+            n = _num(v[0] if isinstance(v, (list, tuple)) else v)
+        except Exception:                    # 수로 못 읽는 값도 순위에서 뺀다(모름≠0)
+            continue
+        if n is not None:
+            out.append((s, n))
+    return sorted(out, key=lambda kv: (-kv[1], kv[0]))
+
+
+def decided_text(spec, choice, rows, operands, axis, axis_map, runners_n=3):
+    """★결정 블록 = **지목 + 근거 + 순위** (규격서 `ANCHOR_SLOT_SPEC_2026_08_09` §5b·`B_rank`).
+
+    ★왜 이 모양인가 (x190·x191 실측·2모델×2태스크·n=8): 같은 답인데 **근거를 붙여야 채택된다**.
+      · `B_min`  지목 한 줄(제3자 보고체)                      → **전 셀 0/8**
+      · `B_ops`  + 피연산자 + 선택된 행의 상수                 → 32B 8/8 · 14B/100 3/8
+      · `B_rank` + **상위 N위 순위**                            → **2모델×2태스크 4/4셀 8/8**·날조 0
+      그리고 후속 질문(*"두 번째로 좋은 것은"*)도 순위를 실어야 닫힌다(0/8 → 8/8).
+
+    ⚠**근거는 신뢰를 사지 검증을 사지 않는다**: 근거를 붙이면 채택률이 오르지만 읽는 쪽이
+      검산해서 채택하는 것이 아니다 — x185 에서 **틀린** 지목에 올바른 숫자를 붙이자 14B 가
+      4/8 → 0/8 로 **더 확실히** 틀렸다. 그러므로 이 블록을 쓰는 배치는 **엔진 재계산
+      검증**(`reask_pick`)을 함께 켜야 한다. 블록만 세게 만드는 것은 위험을 키운다.
+
+    분담: 고르는 것은 여전히 모델(`rederive_choice`)이고, 여기서 엔진이 하는 일은 **조립뿐**이다
+    ([[05]] Q2). 표는 우리가 만든 것이라 줄을 꺼내는 것은 자기 형식 파싱이다([[59]] 무관).
+    ⚠축이 없으면 순위 없이 나간다 — 모르는 것을 지어내지 않는다.
+    """
+    tpl = (spec or {}).get("decided_text")
+    if not (tpl and choice):
+        return ""
+    row = next((_row_line(s, b).strip() for s, b in (rows or ()) if s == choice), "")
+    runners = ""
+    if axis and axis_map:
+        rest = _rank_by(rows, axis_map, exclude=(choice,))[:max(0, int(runners_n))]
+        if rest:
+            runners = "; ".join("%s (%s=%s)" % (s, axis, _num(v)) for s, v in rest)
+    return tpl.format(choice=choice, operands=(operands or "").strip(),
+                      row=row, runners=runners)
+
+
+def mismatch_value(rows, axis_map, choice):
+    """★D1c — 엔진이 **재계산해 불일치만 탐지**한다. 답은 돌려주지 않는다.
+
+    반환: `None`(일치·판정 불가) 또는 `(고른 값, 최댓값)`. **이름은 반환하지 않는다** —
+    이름을 돌려주면 그것이 지목이 되어 [[05]] Q2 *"고르는 것은 모델"* 을 넘는다([[52]]:
+    집행 규칙이 아니라 **질문 트리거**).
+
+    ★근거 (x192·2모델×2태스크×2정렬·n=8): 격리 서브가 틀리던 **3셀 전부 `no_reask` 0/8**.
+      **무내용 재시도는 3셀 전부 0/8**([[57]] 부정 통제) — 효과는 재시도가 아니라 **정보**다.
+      **값만 되돌리면 8/8**이고 이름을 말한 상한(`reask_name`)과 **동일**하다.
+    ⚠정직한 단서: 값이 유일하면 사실상 지목과 같다. **형식상 보존이지 실질 보존인지는
+      동점 사례로 갈라야 한다**(미측정·규격서 §6).
+    """
+    rank = _rank_by(rows, axis_map)
+    if not rank or not choice:
+        return None
+    got = dict(rank).get(choice)
+    if got is None:
+        return None
+    best = rank[0][1]
+    return None if got >= best else (got, best)
+
+
 def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr, call_name,
                      extra=""):
     """`{그룹: (정수, 인용문)}` 형태를 모델에게 받는 공용 절차 — 인용 실재만 엔진이 확인한다."""
@@ -490,7 +613,12 @@ def _num(v):
     return int(v[0] if isinstance(v, (tuple, list)) else v)
 
 
-def eligible_text(days, tally, axis_maps, spec, stated=None):
+def _row_line(subject, bits):
+    """통과 집합 한 줄의 **유일한** 생성 지점 — 읽는 쪽은 이 문자열을 되파싱하지 않는다."""
+    return "  %s: %s" % (subject, ", ".join(bits))
+
+
+def eligible_text(days, tally, axis_maps, spec, stated=None, as_rows=False):
     """자격을 **엔진이 걸러** 통과한 후보만, 그 상품에 기록된 정책 상수와 함께 말한다. 산수뿐이다.
 
     ★근거 (2026-08-08·C337·x150 절제 실측): 모델은 argmax 를 완벽히 하고 **자격 필터를 못 한다**.
@@ -573,10 +701,12 @@ def eligible_text(days, tally, axis_maps, spec, stated=None):
         bits = ["%s=%s" % (a, _num((axis_maps or {}).get(a, {})[s]))
                 for a in show if s in ((axis_maps or {}).get(a) or {})]
         if bits:
-            ok.append("  %s: %s" % (s, ", ".join(bits)))
+            ok.append((s, bits))
     if not ok:
         return ""
-    return tpl.format(eligible="\n".join(ok))
+    if as_rows:                               # 통과 집합을 **구조체로** 돌려준다(파싱 금지)
+        return ok
+    return tpl.format(eligible="\n".join(_row_line(s, bits) for s, bits in ok))
 
 
 def unmatched_text(tally, limits, spec):

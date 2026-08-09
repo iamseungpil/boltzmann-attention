@@ -154,9 +154,29 @@ def main():
     live = G._limit_reduce_text(_Agent(ops), a2, [])
     live_rows = {l.strip().split(":")[0].strip()
                  for l in live.splitlines() if l.startswith("  ")}
-    chk(bool(live_rows & set(low)),
-        "라이브 호출부(`_limit_reduce_text`)에서 실제로 발화한다")
-    chk(not (live_rows & set(high)), "라이브 문장에도 미달 주어가 없다")
+    # ★계약 변경 (2026-08-09·사용자 결정·C367/C370): **표는 메인으로 안 나간다.**
+    #   구판은 *"라이브에서 통과 집합 행이 발화한다"* 를 못박았는데, x187 전 셀 대조에서
+    #   `L3`(대화 없음)가 `L0`(표+대화)를 **2모델×20셀 전부 파레토 지배**했고 x190 에서
+    #   `with_table` 은 어느 정렬로도 두 태스크를 함께 잡지 못했다. 표는 이제 **서브에만**
+    #   실리고 메인에는 결정 블록(`decided_text`)만 간다. 그래서 이 자리의 계약을 뒤집는다.
+    if spec.get("decided_text"):
+        chk(not live_rows,
+            "decided_text 선언 시 라이브 출력에 **통과 집합 행이 없다**  ← 표는 서브에만")
+        chk(bool(LG.eligible_text(days, {}, maps, spec)),
+            "그래도 표 자체는 만들어진다(서브가 쓴다)")
+        _fb = dict(spec)
+        _fb.pop("decided_text", None)
+        _ops2 = dict(ops)
+        _ops2[spec.get("trigger_tool")] = {"spec": _fb, "tally": {}, "days": days}
+        _lv2 = G._limit_reduce_text(_Agent(_ops2), a2, [])
+        _rw2 = {l.strip().split(":")[0].strip()
+                for l in _lv2.splitlines() if l.startswith("  ")}
+        chk(bool(_rw2 & set(low)), "선언이 없으면 **종전대로** 표가 실린다(폴백 보존)")
+        chk(not (_rw2 & set(high)), "폴백 경로에도 미달 주어가 없다")
+    else:
+        chk(bool(live_rows & set(low)),
+            "라이브 호출부(`_limit_reduce_text`)에서 실제로 발화한다")
+        chk(not (live_rows & set(high)), "라이브 문장에도 미달 주어가 없다")
 
     # ★문구 형태를 못박는다 (x151 3라운드 실측·유료 0). 행이 같아도 **꼬리말**이 붙으면
     #   레버가 뒤집힌다 — 100 은 5/5 → 2/5, 099 는 raw 4~5/5 를 0~1/5 로 떨어뜨렸다.
