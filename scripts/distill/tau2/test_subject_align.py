@@ -116,7 +116,44 @@ la4 = _LA(json.dumps({"Alpha Unit": "Alpha"}))
 LG.formalize_subject_align(ag4, la4, _UM, SPEC, list(TALLY), list(LIMITS))
 la4.seen = None
 LG.formalize_subject_align(ag4, la4, _UM, SPEC, list(TALLY), list(LIMITS))
-ok(la4.seen is None, "한 번 물으면 그 sim 내내 재사용한다 (호출 예산)")
+ok(la4.seen is None, "재료가 그대로면 다시 묻지 않는다 (호출 예산)")
+
+print("\n§4b 자기감사로 잡은 결함 2건 — 둘 다 '조용한 사망' 형태다")
+# ⒜ 결정점은 원장이 자라는 동안 여러 턴 호출된다. 이른 턴의 불완전한 답이 굳으면
+#    뒤에 들어온 그룹은 영영 정렬되지 않는다.
+ag5 = _Agent()
+la5 = _LA(json.dumps({"Alpha Unit": "Alpha"}))
+first = LG.formalize_subject_align(ag5, la5, _UM, SPEC, ["Alpha Unit"], list(LIMITS))
+ok(first == {"Alpha Unit": "Alpha"}, "이른 턴: 그룹 하나만 보인다", first)
+la5.content = json.dumps({"Alpha Unit": "Alpha", "Bravo Unit": "Bravo"})
+la5.seen = None
+grown = LG.formalize_subject_align(ag5, la5, _UM, SPEC, ["Alpha Unit", "Bravo Unit"],
+                                   list(LIMITS))
+ok(la5.seen is not None, "원장이 자라면 **다시 묻는다** (기억이 내용에 묶여 있다)")
+ok(grown == {"Alpha Unit": "Alpha", "Bravo Unit": "Bravo"},
+   "새 그룹도 정렬된다 (구판은 여기서 영영 놓쳤다)", grown)
+
+
+class _LAErr(object):
+    def generate(self, **kw):
+        raise RuntimeError("transient")
+
+
+# ⒝ 예외로 죽은 호출을 캐시하면 일시적 실패 하나가 그 sim 전체의 영구 침묵이 된다.
+ag6 = _Agent()
+ok(LG.formalize_subject_align(ag6, _LAErr(), _UM, SPEC, list(TALLY), list(LIMITS)) == {},
+   "호출이 죽으면 빈 정합")
+la6 = _LA(json.dumps({"Alpha Unit": "Alpha"}))
+again = LG.formalize_subject_align(ag6, la6, _UM, SPEC, list(TALLY), list(LIMITS))
+ok(la6.seen is not None, "**실패는 기억하지 않는다** — 다음 턴에 다시 묻는다")
+ok(again == {"Alpha Unit": "Alpha"}, "회복된다", again)
+# 반대쪽: 모델이 정직하게 '못 고르겠다'고 답한 것은 **답이므로** 기억한다
+ag7 = _Agent()
+la7 = _LA("{}")
+LG.formalize_subject_align(ag7, la7, _UM, SPEC, list(TALLY), list(LIMITS))
+la7.seen = None
+LG.formalize_subject_align(ag7, la7, _UM, SPEC, list(TALLY), list(LIMITS))
+ok(la7.seen is None, "모델이 낸 빈 답은 기억한다 (실패와 구별한다)")
 
 print("\n§5 A2 정본·gate 두 층이 같은 선언을 갖는다 ([[24]])")
 

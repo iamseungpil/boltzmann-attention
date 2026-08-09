@@ -639,14 +639,19 @@ def formalize_subject_align(agent, la, UserMessage, spec, groups, subjects):
     tpl = (spec or {}).get("subject_align_prompt")
     if not (tpl and agent is not None and la is not None and groups and subjects):
         return {}
-    memo = getattr(agent, "_t2_subj_align", None)
-    if memo is not None:
-        return memo
     subs = sorted(str(s) for s in subjects if s)
     gs = sorted(str(g) for g in groups if g)
+    # ★기억은 **내용에 묶는다** (2026-08-09 자기감사·`rederive_choice` 와 같은 규율). 결정점은
+    #   원장이 자라는 동안 여러 턴 호출된다 — 그룹 하나만 보이던 이른 턴의 답을 sim 내내
+    #   재사용하면 **뒤에 들어온 그룹은 영영 정렬되지 않는다**(조용한 사망·[[24]] 계보).
+    #   재료가 그대로면 다시 묻지 않고, 자라면 다시 묻는다.
+    memo = dict(getattr(agent, "_t2_subj_align", None) or {})
+    key = hashlib.sha1(("\n".join(subs + ["\x00"] + gs)).encode("utf-8")).hexdigest()[:16]
+    if key in memo:
+        return memo[key]
     prompt = tpl.format(subjects="\n".join("  " + s for s in subs),
                         groups="\n".join("  " + g for g in gs))
-    out = {}
+    out, called = {}, False
     try:
         kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
               if "tool" not in k}
@@ -656,6 +661,7 @@ def formalize_subject_align(agent, la, UserMessage, spec, groups, subjects):
             um = UserMessage(content=prompt)
         sub = la.generate(model=agent.llm, tools=None, messages=[um],
                           call_name="subject_align_formalize", **kw)
+        called = True
         raw = str(getattr(sub, "content", None) or "")
         m = re.search(r"\{.*\}", raw, re.S)
         got = json.loads(m.group(0)) if m else {}
@@ -666,13 +672,17 @@ def formalize_subject_align(agent, la, UserMessage, spec, groups, subjects):
                 out[g] = s
     except Exception as e:
         print("[T2_SUBJ_ALIGN] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
-        out = {}
+        out, called = {}, False
     print("[T2_SUBJ_ALIGN] %d/%d 그룹 정렬 %s"
           % (len(out), len(gs), sorted(out.items())[:4]), file=sys.stderr, flush=True)
-    try:
-        agent._t2_subj_align = out
-    except Exception:
-        pass
+    # ★**실패는 기억하지 않는다**: 예외로 죽은 호출을 캐시하면 일시적 실패 하나가 그 sim 전체의
+    #   영구 침묵이 된다. 모델이 정직하게 `{}` 를 낸 것(=called)은 답이므로 기억한다.
+    if called:
+        memo[key] = out
+        try:
+            agent._t2_subj_align = memo
+        except Exception:
+            pass
     return out
 
 
