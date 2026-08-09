@@ -83,9 +83,14 @@ def main():
     MS = Y.msgs_of(os.environ.get("T2_PROBE_TAG", "bank_elig_20260809i"), TASK)
     pre = "Here is a customer-service conversation so far.\n\n" + Y.render(MS) + "\n\n"
 
-    def run(order):
+    FIXED = [name(l) for l in body]        # 알파벳순 후보 목록(원본 순서)
+
+    def run(order, fixed_choices=False):
+        """⚠표 순서를 바꾸면 `guided_choice` **후보 목록 순서도 같이** 바뀐다 — 효과가 표가
+        아니라 목록에서 올 수 있다. `fixed_choices=True` 면 목록을 **알파벳순으로 고정**하고
+        표만 재배열한다 ⇒ 두 축이 갈린다(2026-08-09 통제)."""
         tbl = "\n".join(head[:1] + order + head[1:]).strip() if head else "\n".join(order)
-        ch = [name(l) for l in order]
+        ch = FIXED if fixed_choices else [name(l) for l in order]
         base = tbl + "\n\n" + X.FACTS[TASK] + "\n\n" + X.QUESTION
         return collections.Counter(guided_full(pre + base, ch, 0.0 if i == 0 else 0.7)
                                    for i in range(n))
@@ -116,8 +121,15 @@ def main():
               % (label, "%d/%d" % (nm.index(GOLD) + 1, len(nm)),
                  "%d/%d" % (nm.index(WRONG) + 1, len(nm)),
                  c.most_common(2), g, n, "★정답" if g > n // 2 else ""))
-    print("\n  내용 변화 0 인데 어떤 재배열이 정답을 되살리면 → 앞선 카드·가족·개수 서술은")
-    print("  **자리 효과의 그림자**일 수 있다. 전부 오답이면 x171 B/C 차이는 다른 데서 온 것이다.")
+    # ── 통제: 후보 목록은 **알파벳순 고정**, 표만 재배열 ────────────────────
+    print("\n=== 통제: guided_choice 목록을 알파벳순으로 고정하고 표만 재배열 ===")
+    print("%-24s %-34s %s" % ("arm", "분포", "gold"))
+    for label, order in arms:
+        c = run(order, fixed_choices=True)
+        g = c.get(GOLD, 0)
+        print("%-24s %-34s %d/%d %s" % (label, c.most_common(2), g, n,
+                                        "★정답" if g > n // 2 else ""))
+    print("\n  위 표와 같은 패턴이면 원인은 **표 순서** · 패턴이 사라지면 원인은 **후보 목록 순서**다.")
     return 0
 
 
