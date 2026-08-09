@@ -91,17 +91,27 @@ NEW_WINDOW_TAIL = (" The rolling-window allowance on record is {max} in {days} d
                    "the document that defines the statuses - retrieve it and say which applies.")
 
 
-def sentences(new_tail):
+def sentences(mode):
+    """mode: 'live' = 지금 A2 그대로 · 'oldwin' = 창 문장을 **옛 꼬리말로 되돌린 것** ·
+    'bothnew' = 상태 문구까지 바꾼 것(기록용 — 회귀가 금지한다).
+
+    ⚠2026-08-10: `test_status_breakdown` 이 *"상태 문구에 검색 지시를 넣지 말 것"* 을 못박고
+      있다(v010 실측: 그 지시대로 **상태 낱말로 검색**해 이유를 못 찾았다). 그래서 실제 적용은
+      **창 산수 문장 하나**뿐이고, 이 프로브는 그 좁힌 변경만으로 효과가 나는지 가른다.
+    """
     a2 = load_domain_a2("banking_knowledge")
     sp = a2["ledger_metrics"][0]
     st = LG.status_breakdown(ROWS, sp)
     wh = LG.window_history(ROWS, sp)
-    if not new_tail:
+    if mode == "live":
         return (st + wh).strip()
+    if mode == "oldwin":
+        wh0 = (wh.split(" This is arithmetic on the dates")[0]
+               + " This says how many records already fell inside the window when each of these "
+                 "was made - it does not say why any record carries the status it carries.")
+        return (st + "\n" + wh0).strip()
     st2 = st.split(" This is a count of what the records say")[0] + NEW_STATUS_TAIL
-    wh2 = wh.split(" The rolling-window allowance on record is")[0] + NEW_WINDOW_TAIL.format(
-        max=sp.get("window_max"), days=sp.get("window_days"))
-    return (st2 + "\n" + wh2).strip()
+    return (st2 + "\n" + wh).strip()
 
 
 def ask(prompt, n_tokens=220, temp=0.0):
@@ -127,16 +137,18 @@ def main():
         if a.isdigit():
             n = int(a)
     arms = [
-        ("OLD", sentences(False), False),
-        ("NEW", sentences(True), False),
-        ("OLDDOC", sentences(False), True),
-        ("NEWDOC", sentences(True), True),
+        ("OLD", sentences("oldwin"), False),          # 되돌린 옛 꼬리말
+        ("WINONLY", sentences("live"), False),        # ★실제 적용된 변경 — 창 문장 하나
+        ("BOTHNEW", sentences("bothnew"), False),     # 상태 문구까지 (회귀가 금지·참고용)
+        ("OLDDOC", sentences("oldwin"), True),
+        ("WINDOC", sentences("live"), True),
         ("D_null", "", False),
     ]
     print("=" * 100)
     print("task_010 꼬리말 A/B  (n=%d · %s)" % (n, MODEL))
     print("=" * 100)
-    print("\n[현행 문장]\n%s\n\n[후보 문장]\n%s\n" % (sentences(False), sentences(True)))
+    print("\n[OLD = 되돌린 옛 꼬리말]\n%s\n\n[WINONLY = 적용본]\n%s\n"
+          % (sentences("oldwin"), sentences("live")))
     out = {}
     for label, block, with_doc in arms:
         c = collections.Counter()
