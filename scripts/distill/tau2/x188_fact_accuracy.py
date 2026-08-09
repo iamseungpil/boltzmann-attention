@@ -73,9 +73,13 @@ def main():
     spec = next(s for s in a2["ledger_metrics"] if s.get("case_facts_prompt"))
     tpl = spec["case_facts_prompt"]
     crit = (spec.get("eligible") or {}).get("criteria") or []
-    axd = ((a2.get("policy_ontology") or {}).get("axes") or {})
-    wanted = [(c["axis"], axd[c["axis"]]) for c in crit
-              if c.get("operand") == "stated" and axd.get(c.get("axis"))]
+    po = a2.get("policy_ontology") or {}
+    axd, axs = (po.get("axes") or {}), (po.get("axes_stated") or {})
+    # R0 이후 라이브와 같은 규칙 — `axes_stated` 우선, 없으면 `axes` 로 떨어진다.
+    wanted = [(c["axis"], axs.get(c["axis"]) or axd[c["axis"]]) for c in crit
+              if c.get("operand") == "stated" and (axs.get(c.get("axis")) or axd.get(c.get("axis")))]
+    print("묻는 문장 출처: %s"
+          % {k: ("axes_stated" if k in axs else "axes") for k, _ in wanted})
     if not wanted:
         print("요청 항목 0 — A2 에 stated 기준이나 축 설명이 없다. 중단.")
         return 1

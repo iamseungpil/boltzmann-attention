@@ -2523,10 +2523,18 @@ def _limit_reduce_text(agent, a2, messages):
             #   (099 실측: `Beige` 500 은 예치 100000 을 요구하고 손님은 30000).
             #   묻는 항목은 **A3 축 설명 그대로** 싣는다 — 엔진에 도메인 어휘 0.
             _want, _stated = [], {}
-            _axd = (((a2 or {}).get("policy_ontology") or {}).get("axes") or {})
+            _po2 = ((a2 or {}).get("policy_ontology") or {})
+            _axd = (_po2.get("axes") or {})
+            # ★R0 (2026-08-09·x188 실측): 묻는 문장은 **용도별로** 다르다. `axes` 는 문서에서
+            #   문턱을 읽을 때의 정의라("최소 요구액"), 그대로 발화 추출 질문으로 쓰면 모델이
+            #   옳게 기권한다 — 손님은 요구액이 아니라 **낼 금액**을 말한다. 6조건 전부 `{}`
+            #   였다. 그래서 `axes_stated` 가 있으면 그것을 쓰고, 없으면 종전대로 떨어진다.
+            _axs = (_po2.get("axes_stated") or {})
             for _c2 in (_cfg2.get("criteria") or ()):
-                if _c2.get("operand") == "stated" and _axd.get(_c2.get("axis")):
-                    _want.append((_c2["axis"], _axd[_c2["axis"]]))
+                _ax2 = _c2.get("axis")
+                _desc2 = _axs.get(_ax2) or _axd.get(_ax2)
+                if _c2.get("operand") == "stated" and _desc2:
+                    _want.append((_ax2, _desc2))
             if _want:
                 try:
                     import tau2.agent.llm_agent as _la2

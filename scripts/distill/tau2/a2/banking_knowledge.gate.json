@@ -3246,6 +3246,11 @@
    "holder_max_age_years": "the maximum age in years a person may be and still hold this account (only where the policy states an upper bound)",
    "referred_no_prior_accounts_months": "how many months back the REFERRED party must have had no Rho-Bank accounts to count as a new customer"
   },
+  "_note_axes_stated": "★2026-08-09 R0 수리(x188 실측). `axes` 는 A3 정책 상수의 **문턴 정의**라, 그것을 그대로 손님 발화 추출 질문으로 쓰면 모델이 옷게 기권한다 — 손님은 '최소 요구액'을 말한 적이 없고 '낼 금액'을 말한다. 6조건(2태스크×3문맥) 전부 {} 였다. 그래서 용도별로 문장을 나눈다: `axes`=문서에서 문턴을 읽을 때 · `axes_stated`=대화에서 손님이 말한 값을 뽑을 때. 출처는 정책 축 정의의 기계적 역상이고 gold 를 보지 않았다([[23]]). `operand: stated` 인 기준의 축만 넣는다.",
+  "axes_stated": {
+   "qualifying_deposit_usd": "the dollar amount the REFERRED party is going to deposit, as the customer states it in this conversation - the actual planned amount, not a requirement",
+   "company_max_age_years": "how old the REFERRED company is, in whole years counted from when it was formed, as the customer states it in this conversation - a company formed within the past year is 0"
+  },
   "rows": [
    {
     "applies_to": {
