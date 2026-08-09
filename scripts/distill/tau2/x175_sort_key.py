@@ -51,8 +51,9 @@ from gate_interpreter import load_domain_a2                     # noqa: E402
 
 URL = os.environ.get("T2_PROBE_URL", "http://localhost:8140/v1/chat/completions")
 MODEL = os.environ.get("T2_PROBE_MODEL", "Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
-TASK = "task_099"
-GOLD, WRONG = "World Blue", "Lime Green"
+TASK = os.environ.get("T2_TASK", "task_099")
+GOLD = getattr(X, "GOLD", {}).get(TASK, "World Blue")
+WRONG = "Lime Green"
 
 
 def guided_full(prompt, choices, temp):
@@ -71,8 +72,11 @@ def main():
     rows = a2["policy_ontology"]["rows"]
     axes = spec["eligible"]["show_axes"]
     maps = {ax: FD._a3_map(rows, {"axis": ax}) for ax in axes}
-    lines = LG.eligible_text(730, {}, maps, spec,
-                             {"qualifying_deposit_usd": 30000}).strip().splitlines()
+    # 손님 값은 태스크마다 다르다(x155 CASE 실측) — 표 자체가 달라지므로 함께 매개변수화한다.
+    CASE = {"task_099": {"days": 730, "deposit": 30000},
+            "task_100": {"days": 65, "deposit": 31000}}[TASK]
+    lines = LG.eligible_text(CASE["days"], {}, maps, spec,
+                             {"qualifying_deposit_usd": CASE["deposit"]}).strip().splitlines()
     head = [l for l in lines if not (l.startswith("  ") and ":" in l)]
     body = [l for l in lines if l.startswith("  ") and ":" in l]
     name = lambda l: l.strip().split(":")[0].strip()          # noqa: E731
@@ -115,16 +119,15 @@ def main():
         random.Random(s).shuffle(sh)
         arms.append(("shuffle_%d  무작위" % s, sh))
 
-    print("model=%s · 본문 %d행 · 정렬 규칙만 바꾼다 · n=%d" % (MODEL, len(body), n))
-    print("\n%-24s %-8s %-8s %-32s %s" % ("정렬 규칙", "정답위치", "오답위치", "분포", "gold"))
+    print("model=%s · task=%s · gold=%r · 본문 %d행 · n=%d" % (MODEL, TASK, GOLD, len(body), n))
+    print("\n%-24s %-8s %-32s %s" % ("정렬 규칙", "정답위치", "분포", "gold"))
     for label, order in arms:
         nm = [name(l) for l in order]
         c = run(order)
         g = c.get(GOLD, 0)
-        print("%-24s %-8s %-8s %-32s %d/%d %s"
-              % (label, "%d/%d" % (nm.index(GOLD) + 1, len(nm)),
-                 "%d/%d" % (nm.index(WRONG) + 1, len(nm)), c.most_common(2), g, n,
-                 "★정답" if g > n // 2 else ""))
+        pos = ("%d/%d" % (nm.index(GOLD) + 1, len(nm))) if GOLD in nm else "표에없음"
+        print("%-24s %-8s %-32s %d/%d %s"
+              % (label, pos, c.most_common(2), g, n, "★정답" if g > n // 2 else ""))
     print("\n  규칙마다 갈리면 '정렬은 자유 파라미터'가 강한 형태로 선다.")
     print("  무작위만 정답이면 '결정론적 정렬 자체가 위험' · bonus_desc 가 정답이면 처방 즉시 도출.")
     return 0
