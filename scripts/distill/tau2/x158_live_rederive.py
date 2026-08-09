@@ -51,9 +51,25 @@ def main():
         facts = ("days since the earliest account was opened = %d\n"
                  "qualifying_deposit_usd = %d" % (days, dep))
         # 목적: 형식화가 낼 법한 형태를 **손님 말에서** 그대로 옮긴 것(프롬프트 실측은 라이브에서).
-        obj = ("the customer wants the biggest possible referral bonus for themselves"
-               if task != "task_098" else
-               "the customer wants the biggest combined bonus for both of them")
+        # ★목적을 손으로 쓰지 않는다 (2026-08-09 자기정정): 1차 실행에서 내가 쓴 구절에
+        #   **계열 범위**(business checking)가 빠져 100 이 0/5 로 카드를 골랐다. 라이브는
+        #   이것을 형식화하므로, 여기서도 **실제 프롬프트를 태워** 나온 것을 쓴다.
+        import x150_choice_ablation as Y
+        _ms = Y.msgs_of("bank_elig_20260809i", task)
+        _tx = [" ".join(str(m.get("content") or "").split()) for m in _ms
+               if m.get("role") in ("user", "tool")]
+        _raw = X.ask(spec["objective_prompt"].format(text="
+---
+".join(_tx)[:60000]), 0.0)
+        import json as _j, re as _re
+        _m = _re.search(r"\{.*\}", _raw, _re.S)
+        obj = ""
+        if _m:
+            try:
+                obj = " ".join(str((_j.loads(_m.group(0)) or {}).get("objective") or "").split())
+            except Exception:
+                obj = ""
+        print("  형식화된 목적: %r" % obj)
         tpl = spec["rederive_prompt"]
         arms = collections.OrderedDict()
         arms["L1 live-compose"] = tpl.format(table=table, facts=facts, asked=obj)
