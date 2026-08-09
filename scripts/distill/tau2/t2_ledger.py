@@ -411,7 +411,14 @@ def formalize_objective_axis(agent, la, UserMessage, spec, texts, axes):
         return memo or None
     names = list(axes)
     listing = "\n".join("  %s — %s" % (k, axes[k]) for k in names)
-    hay = " ".join("\n".join(str(t) for t in texts).split())[-6000:]
+    # ★2026-08-09 라이브 부검(런 r·C374): 구판은 전체를 이어 붙인 뒤 **꼬리 6000자**만 봤다.
+    #   그 창에는 KB 문서만 들어온다 — 목적을 말하는 문장은 손님의 **첫 발화**에 있고, 결정점은
+    #   턴 24~26 이다. 실측: 두 sim 다 손님의 목적 문장이 창 밖(099 총 28,523자·100 총 15,044자)
+    #   이라 서브가 `NONE` 을 냈고, 그 결과 **순위(`runners`)가 빈 채로 나가고 D1c 가 아예 안 돌았다**
+    #   (=x191 의 `B_rank`·x192 의 재질의가 라이브에서 죽어 있었다). 같은 형태의 실패를 이미 두 번
+    #   고쳤다 — `now_prompt`(머리+꼬리·2026-08-07) · `_formalize_pairs`(항목별 절단+총예산·2026-08-08).
+    #   ⇒ 세 번째로 같은 것을 고치지 않도록 **선택기를 한 자리로 합친다**([[55]] 배관 먼저).
+    hay = "\n---\n".join(_excerpt(texts))
     try:
         kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
               if "tool" not in k}
@@ -512,6 +519,30 @@ def mismatch_value(rows, axis_map, choice):
     return None if got >= best else (got, best)
 
 
+def _excerpt(texts, per=3000, budget=90000):
+    """형식화에 줄 발췌를 **위치로만** 고른다 — 모든 형식화가 공유하는 한 자리.
+
+    ★발췌는 **꼬리가 아니다** (2026-08-08·lim_n 위치 실측). 상한을 말하는 텍스트가 인덱스
+      2·15·17·19처럼 흩어져 있는데 구판은 `texts[-12:]`만 봤다 — 결정점으로 옮겨도 꼬리이면
+      앞쪽(2번)을 잃고, 대화가 길어지면 뒤쪽도 같은 방식으로 밀려난다.
+    ★같은 형태의 실패를 **세 번** 겪었다: `now_prompt`(오늘 날짜가 대화 머리에 있었다·2026-08-07)
+      · `_formalize_pairs`(2026-08-08) · `formalize_objective_axis`(라이브 런 r·C374 — 목적을
+      말하는 손님 첫 발화가 꼬리 6000자 밖이라 서브가 `NONE` 을 냈고 순위·D1c 가 통째로 죽었다).
+      ⇒ 선택기를 **함수 하나**로 합친다. 다음 형식화는 이 자리를 쓰면 같은 실패를 안 겪는다.
+    ⚠고르는 기준은 **위치·길이뿐**이다. 어느 텍스트가 무엇을 담았는지 판정하는 것은 모델 몫이고,
+      엔진이 내용으로 고르면 [[59]] 위반이다.
+    """
+    sel, used = [], 0
+    for t in reversed(list(texts or ())):  # 최신부터 담고, 예산이 남으면 앞쪽도 들어온다
+        s = str(t)[:per]
+        if used + len(s) > budget:
+            break                          # 잘려 나가는 쪽은 **가장 오래된 것**이어야 한다
+        sel.append(s)
+        used += len(s)
+    sel.reverse()                          # 다시 시간 순서로(읽는 쪽이 대화 순서를 본다)
+    return sel
+
+
 def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr, call_name,
                      extra=""):
     """`{그룹: (정수, 인용문)}` 형태를 모델에게 받는 공용 절차 — 인용 실재만 엔진이 확인한다."""
@@ -521,25 +552,9 @@ def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr,
     memo = getattr(agent, memo_attr, None)
     if memo is not None:
         return memo
-    # ★발췌는 **꼬리가 아니다** (2026-08-08·lim_n 위치 실측). 상한을 말하는 텍스트가 인덱스
-    #   2·15·17·19처럼 흩어져 있는데 구판은 `texts[-12:]`만 봤다 — 결정점으로 옮겨도 꼬리이면
-    #   앞쪽(2번)을 잃고, 대화가 길어지면 뒤쪽도 같은 방식으로 밀려난다. 오늘 아침 `now_prompt`가
-    #   정확히 같은 형태로 실패했다(오늘 날짜가 대화 머리에 있었다).
-    #   ⇒ **위치로만** 고른다: 전부 주되 각각 절단하고 총량에 상한을 둔다. 어느 텍스트가 상한을
-    #      담았는지 판정하는 것은 모델 몫이고, 엔진이 내용으로 고르면 [[59]] 위반이다.
-    _per = 3000
-    _budget = 90000
-    _sel, _used = [], 0
-    for t in reversed(list(texts)):       # 최신부터 담고, 예산이 남으면 앞쪽도 들어온다
-        s = str(t)[:_per]
-        if _used + len(s) > _budget:
-            break                         # 잘려 나가는 쪽은 **가장 오래된 것**이어야 한다
-        _sel.append(s)
-        _used += len(s)
-    _sel.reverse()                        # 다시 시간 순서로(읽는 쪽이 대화 순서를 본다)
     # ★자리는 **A2가 정한다**: 템플릿에 `{items}` 가 있으면 거기 넣는다(발췌 앞에 둘 수 있다).
     #   없으면 구판대로 뒤에 잇는다 — 기존 선언 3종의 거동은 그대로다.
-    _body = "\n---\n".join(_sel)
+    _body = "\n---\n".join(_excerpt(texts))
     try:
         prompt = tpl.format(text=_body, items=extra)
     except (KeyError, IndexError):

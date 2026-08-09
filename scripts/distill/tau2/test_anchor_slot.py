@@ -134,5 +134,24 @@ if tally_spec is not None:
     ok(getattr(ag, "_t2_decided", None) is False, "지목이 없으면 _t2_decided=False")
     ok(unm.strip() in out, "블록이 없는 턴에는 조사 지시가 종전대로 나간다(폴백 보존)")
 
+print("\n§10 발췌 창 — 목적을 말하는 첫 발화가 도구 출력에 밀려나지 않는다 (C374 부검)")
+# 라이브 실측 형태를 합성으로 재현한다: 손님의 첫 발화 한 줄 + 그 뒤로 KB 문서 같은 큰 도구 출력.
+# 실측(런 r): tool+user 총 28,523자(099)·15,044자(100) 중 목적 문장은 **머리**에 있었고,
+# 구판의 꼬리 6000자에는 문서만 들어와 서브가 `NONE` 을 냈다.
+OPENING = "the customer wants the largest possible payout for themselves"
+CONV = [OPENING] + ["D" * 4000 for _ in range(12)]
+sel = LG._excerpt(CONV)
+ok(OPENING in "\n".join(sel), "첫 발화가 발췌에 살아남는다")
+ok(sel[0].startswith(OPENING), "발췌는 시간 순서로 나간다(머리가 먼저)")
+ok(all(len(s) <= 3000 for s in sel), "각 텍스트는 절단된다(항목별 상한)")
+ok(sum(len(s) for s in sel) <= 90000, "총량이 예산 안이다")
+# 부정 통제 — 구판(꼬리 6000자)은 같은 입력에서 첫 발화를 **잃는다**. 이 줄이 실패하면
+# 합성 고정물이 결함을 재현하지 못하는 것이므로 위 세 줄도 무의미하다.
+ok(OPENING not in " ".join("\n".join(CONV).split())[-6000:],
+   "부정 통제: 구판 꼬리-6000 창은 같은 입력에서 첫 발화를 잃는다")
+# 예산을 넘기면 **가장 오래된 것**이 잘린다(최신은 남는다)
+sel2 = LG._excerpt(CONV, per=3000, budget=6000)
+ok(len(sel2) == 2 and sel2[-1].startswith("D"), "예산 초과 시 오래된 쪽부터 잘린다", len(sel2))
+
 print("\n" + ("FAIL %d: %s" % (len(FAIL), FAIL) if FAIL else "PASS  (0 실패)"))
 sys.exit(1 if FAIL else 0)
