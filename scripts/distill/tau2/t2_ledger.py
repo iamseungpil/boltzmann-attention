@@ -28,6 +28,7 @@
 """
 
 import datetime
+import hashlib
 import json
 import re
 import sys
@@ -350,7 +351,12 @@ def rederive_choice(agent, la, UserMessage, spec, table, facts, asked, allowed):
     ⚠이 문장은 *"우리가 골랐다"* 가 아니라 *"별도 분석이 이것을 고른다"* 로 나간다 — 실제로 그렇다.
     """
     tpl = (spec or {}).get("rederive_prompt")
-    if not (tpl and agent is not None and la is not None and table and asked and allowed):
+    # ⚠`asked`(목적 구절)가 **비어 있는 것이 측정된 구성**이다 — x158 n=10: 099 는 목적을 실으면
+    #   0/10(전부 카드), 빼면 10/10. 가드가 `asked` 를 요구하면 그 구성이 라이브에서 **조용히
+    #   조기 반환**된다. 실제로 유료 런 `bank_rederive_20260809k`(6 sim)이 발화 0 으로 돌았다
+    #   (2026-08-09·로그 `[T2_REDERIVE]` 0회). 필수 재료는 표와 목록뿐이다.
+    asked = asked or ""
+    if not (tpl and agent is not None and la is not None and table and allowed):
         return None
     memo = dict(getattr(agent, "_t2_rederive", None) or {})
     key = hashlib.sha1(("\n".join((table, facts or "", asked))).encode("utf-8")).hexdigest()[:16]
