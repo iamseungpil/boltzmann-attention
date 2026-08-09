@@ -138,14 +138,34 @@ def main():
                       for s0 in names if s0 in m1 and s0 in m2)
     facts = "The customer says the deposit will be about %d." % cs["stated"]["qualifying_deposit_usd"]
     Q = "\n\nThe customer asked:\n%s\n\nAnswer with one name copied exactly from the list above, and nothing else." % q98
+    # ★필터 축 (사용자 지적·C337/x150): 099/100 은 **격리 단독으로는 안 됐고** 미달 행을 뺀
+    #   표라야 됐다. 098 도 같은 자리인지 가른다. 1차 측정에서 최댓값을 만든 `Gold Years` 는
+    #   예치 문턱이 A3 에 없어 우리 필터가 못 걸렀다.
+    crit_axes = ["qualifying_deposit_usd", "referrer_tenure_days"]
+    ver = set(names)
+    for _a in crit_axes:
+        ver &= set(maps.get(_a) or {})
+    tbl_ver = (chr(10)).join([l for l in tbl.splitlines()
+                              if not (l.startswith("  ") and ":" in l)
+                              or l.strip().split(":")[0].strip() in ver])
+    raw_names = sorted({s0 for a in axes for s0 in (maps.get(a) or {})})
+    raw = "Policy constants on record:" + chr(10) + (chr(10)).join(
+        LG._row_line(s0, ["%s=%s" % (a, LG._num((maps.get(a) or {})[s0]))
+                          for a in axes if s0 in (maps.get(a) or {})])
+        for s0 in raw_names)
+    print("  [표] raw %d행 · 통과 %d행 · 기준실재 %d행 (뺀 것: %s)"
+          % (len(raw_names), len(names), len(ver),
+             ", ".join(sorted(set(names) - ver))[:90]))
     res["098"] = run("task_098", [
+        ("A_raw", raw + "\n\n" + facts + Q, "choice"),
+        ("A_ver", tbl_ver + "\n\n" + facts + Q, "choice"),
         ("A_iso", tbl + "\n\n" + facts + Q, "choice"),
         ("B_sum", tbl + "\n\nAdding the two bonus figures for each option:\n" + combo
          + "\n\n" + facts + Q, "choice"),
         ("C_calc", tbl + "\n\nFor each option above, add referrer_bonus_usd and "
          "referred_bonus_usd. Reply with 'name = total' one per line, nothing else.", "free"),
         ("D_null", facts + Q, "choice"),
-    ], names, n)
+    ], sorted(set(names) | set(raw_names)), n)
 
     # ── task_010 ────────────────────────────────────────────────────────────
     q10, led = live("task_010")
