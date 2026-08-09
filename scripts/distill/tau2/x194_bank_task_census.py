@@ -176,8 +176,13 @@ def main():
     for r in rows:
         if r["gate"]:
             ln[len([t for t in r["tools"] if t and t not in ENTRY])] += 1
+    who = collections.defaultdict(list)
+    for r in rows:
+        if r["gate"]:
+            who[len([t for t in r["tools"] if t and t not in ENTRY])].append(
+                r["id"].replace("task_", ""))
     for k in sorted(ln):
-        print("  %d종 요구: %d 태스크" % (k, ln[k]))
+        print("  %2d종 요구: %2d 태스크   %s" % (k, ln[k], ", ".join(who[k])))
 
     out = os.path.join(SIMDIR, "..", "bank_task_census.json")
     json.dump(rows, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
