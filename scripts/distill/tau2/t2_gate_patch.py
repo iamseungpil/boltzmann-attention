@@ -2514,8 +2514,14 @@ def _limit_reduce_text(agent, a2, messages):
                 try:
                     import tau2.agent.llm_agent as _la3
                     from tau2.data_model.message import UserMessage as _UM3
-                    _obj = _LG2.formalize_objective(agent, _la3, _UM3, _tx, _sp2)
-                    if _obj:
+                    # ★목적 구절은 **싣지 않는다** (2026-08-09·x158 n=10 실측). 범위를 담게
+                    #   프롬프트를 고쳐도 해로웠다 — 099 는 목적을 넣으면 **0/10**(전부 카드),
+                    #   빼면 **10/10**. 100 도 5/10 → 7/10. 문장을 하나 더 얹는 순간 그 방향으로
+                    #   에너지가 쏠린다(초안 §6.0: 추가는 포화할 때만 듣는다).
+                    #   ⇒ 형식화 자체는 남겨 두되(다른 태스크·계열엔 필요할 수 있다) 재도출
+                    #     문맥에는 **빈 문자열**을 넘긴다 = 측정된 조건과 축자 동일.
+                    _obj = ""
+                    if True:
                         _fl = ["%s = %s" % (k, _LG2._num(v)) for k, v in sorted((_stated or {}).items())]
                         if _e2.get("days") is not None:
                             _fl.insert(0, "days since the earliest account was opened = %d"
