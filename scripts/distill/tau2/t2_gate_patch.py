@@ -2365,6 +2365,39 @@ def _claim_unbacked(claims, emap, evs, messages, a2=None):
     return out
 
 
+def _split_claims_by_owner(claims, agent_names, user_names):
+    """★주장이 지목한 도구의 **소유자**로 가른다 (순수함수·단위검정 공유·[[03b]]).
+
+    왜 (2026-08-09·C348⒢ 실측): 결정 턴의 미이행-약속 문구가 `give: guide customer to use
+    <tool>` 를 지목했는데, 그 `<tool>` 은 **에이전트 자신의 도구**였다. 두 방향으로 어긋난다 —
+      · 도구가 **손님 소유**면 *안내하는 것이 곧 이행*이다. 그런데 우리는 *"실행되지 않았다"*
+        고 말한다 ⇒ **한 일을 안 했다고 말하는 것**이고, 모델이 고칠 수 없는 오류다(C341 동형).
+      · 도구가 **에이전트 소유**면 진짜 결함은 약속 위반이 아니라 **자기 도구를 손님에게
+        떠넘긴 것**이다. 옳은 지적은 *"약속을 안 지켰다"* 가 아니라 **소유권 사실**이다.
+
+    소유권은 레지스트리에서 기계적으로 나온다 — 의미 판단 0·도메인 리터럴 0([[22]] 닫힌 술어:
+    도구 소유는 발화 변이에 불변이다). 양쪽에 다 있으면 **에이전트 우선**(부를 수 있으면 자기 것).
+    모르면 `unknown` 으로 두고 **구판 거동을 보존**한다.
+
+    반환: (own, theirs, unknown) — `theirs` 는 호출부가 **침묵**시킬 몫이다.
+    """
+    def _n(x):
+        return re.sub(r"_\d+$", "", str(x or "").strip())
+
+    a = {_n(x) for x in (agent_names or ()) if str(x or "").strip()}
+    u = {_n(x) for x in (user_names or ()) if str(x or "").strip()}
+    own, theirs, unknown = [], [], []
+    for c in (claims or []):
+        t = _n((c or {}).get("tool"))
+        if t and t in a:
+            own.append(c)
+        elif t and t in u:
+            theirs.append(c)
+        else:
+            unknown.append(c)
+    return own, theirs, unknown
+
+
 def _known_tool_names(self_tools, env, msgs):
     """★C207/C2-a 대조 집합 (순수함수·리뷰 필수3): 에이전트가 **실제로 쓸 수 있는** 도구 이름 전체.
     `self.tools`만 보면 discoverable 도구(잠금 상태·목록 밖·`_NNNN` 접미사)를 **미보유로 오탐**한다
@@ -8383,8 +8416,35 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _parts = []
                     if _unbacked:
                         _parts.append(_cpv["feedback"].replace("{claims}", _desc3(_unbacked)))
-                    if _unb_p:
-                        _parts.append(_cpv["feedback_pending"].replace("{claims}", _desc3(_unb_p)))
+                    # ★C348⒢(2026-08-09): 미이행-약속을 **도구 소유자**로 가른다.
+                    #   · 손님 소유 → 안내가 곧 이행이므로 **침묵**(한 일을 안 했다고 말하지 않는다)
+                    #   · 에이전트 소유 → 진짜 결함은 약속 위반이 아니라 **자기 도구를 떠넘긴 것**
+                    #     ⇒ 소유권 **사실만** 표면화한다(C216 §2-3b: claim 축은 표면화만·8398행 주석의
+                    #       쓰기-강제 철회 이력을 반복하지 않는다).
+                    #   · 모름 → 구판 문구 그대로(거동 보존). A2 미선언이면 전체가 구판이다.
+                    _pend_rest = _unb_p
+                    if _unb_p and _cpv.get("feedback_ownership"):
+                        try:
+                            _own_p, _their_p, _unk_p = _split_claims_by_owner(
+                                _unb_p,
+                                [getattr(t, "name", None) for t in (getattr(self, "tools", None) or [])],
+                                _user_discoverable(getattr(getattr(self, "_t2_orch", None),
+                                                           "environment", None)))
+                            print("[T2_CLAIMPROV] owner split: agent=%d user=%d unknown=%d"
+                                  % (len(_own_p), len(_their_p), len(_unk_p)),
+                                  file=_sys.stderr, flush=True)
+                            if _own_p:
+                                _parts.append(_cpv["feedback_ownership"].replace(
+                                    "{claims}", "; ".join(
+                                        "%s (tool: %s)" % (str(c.get("what"))[:50], c.get("tool"))
+                                        for c in _own_p[:3])))
+                            _pend_rest = _unk_p          # theirs = 침묵 · own = 위에서 다룸
+                        except Exception as _oe:
+                            print("[T2_CLAIMPROV] owner split skipped (no-op): %r" % (_oe,),
+                                  file=_sys.stderr, flush=True)
+                            _pend_rest = _unb_p
+                    if _pend_rest:
+                        _parts.append(_cpv["feedback_pending"].replace("{claims}", _desc3(_pend_rest)))
                     if _unavail:                       # C207/C2-a
                         _parts.append(_cpv["feedback_unavailable"].replace(
                             "{claims}", "; ".join("%s (tool: %s)" % (str(p.get("what"))[:50], p.get("tool"))

@@ -2249,7 +2249,8 @@
    "transfer",
    "write"
   ],
-  "feedback_unavailable": "Error: [UNAVAILABLE-CAPABILITY] you told the customer you would do the following, but the tool it requires does not exist among the tools available to you: {claims}. Do not offer or promise capabilities you do not have — it strands the customer waiting for something that will never happen. Say plainly that you cannot do it, and either use a capability you actually have or follow the escalation path in your policy."
+  "feedback_unavailable": "Error: [UNAVAILABLE-CAPABILITY] you told the customer you would do the following, but the tool it requires does not exist among the tools available to you: {claims}. Do not offer or promise capabilities you do not have — it strands the customer waiting for something that will never happen. Say plainly that you cannot do it, and either use a capability you actually have or follow the escalation path in your policy.",
+  "feedback_ownership": "Note: [CLAIM-PROVENANCE] tool ownership — the following are in YOUR OWN tool list, not the customer's: {claims}. The customer cannot run them on your behalf, and describing the steps to them does not execute them."
  },
  "completion_guard": {
   "user_execution_tool": "call_discoverable_user_tool",

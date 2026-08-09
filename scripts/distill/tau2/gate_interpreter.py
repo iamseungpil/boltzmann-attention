@@ -179,15 +179,24 @@ def _compose_claim_audit(merged):
     ca, cb = merged.get("claim_audit"), merged.get("claim_bindings")
     if not (isinstance(ca, dict) and isinstance(cb, dict)):
         return                      # 미선언 도메인 = 레버 skip(U2′ 안전측·retail/airline 현행)
-    merged.setdefault("claim_prov", {
-        "question": (ca["question"].replace("{kinds}", cb["kinds"])
-                     .replace("{kind_guidance}", cb.get("kind_guidance", ""))),
-        "feedback_pending": ca["feedback_pending"],
-        "event_map": cb["event_map"],
-        "feedback": ca["feedback"],
-        "reserve_kinds": cb["reserve_kinds"],
-        "feedback_unavailable": ca["feedback_unavailable"],
-    })
+    # ⚠구판은 `merged.setdefault("claim_prov", {...})` 였다. 그런데 도메인 split 파일이 구 형태
+    #   `claim_prov` 블록을 **그대로 들고 있어서** 합성이 통째로 no-op 이었고, base(L1)에 새 키를
+    #   넣어도 병합에 **영영 안 실렸다**(2026-08-09 실측: `feedback_ownership` 이 3도메인 모두 NO).
+    #   [[24]] 가 경고한 死코드 형태다. ⇒ **키 단위**로 채운다 — 이미 있는 키는 도메인 값이 이기므로
+    #   구 형태와의 바이트 동일(등가 게이트 `test_claim_promotion`)은 보존되고, **새 base 키만 흐른다.**
+    _cp = merged.setdefault("claim_prov", {})
+    for _k, _v in (
+        ("question", (ca["question"].replace("{kinds}", cb["kinds"])
+                      .replace("{kind_guidance}", cb.get("kind_guidance", "")))),
+        ("feedback_pending", ca["feedback_pending"]),
+        ("event_map", cb["event_map"]),
+        ("feedback", ca["feedback"]),
+        ("reserve_kinds", cb["reserve_kinds"]),
+        ("feedback_unavailable", ca["feedback_unavailable"]),
+        ("feedback_ownership", ca.get("feedback_ownership")),
+    ):
+        if _v is not None:
+            _cp.setdefault(_k, _v)
     merged.setdefault("completion_guard", {
         "user_execution_tool": cb["user_execution_tool"],
         "claim_question": ca["completion_question"],
