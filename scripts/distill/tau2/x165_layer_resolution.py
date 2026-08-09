@@ -90,9 +90,14 @@ def main():
     #   transformers 4.51→5.14 로 공유 env 를 갈아엎고, `gptqmodel<3` 은 빌드 실패). 그래서 bf16 을
     #   GPU+CPU 오프로드로 올린다(`T2_LENS_DEVMAP=auto`). **동등하다고 가정하지 않는다** —
     #   Int8 랜드마크(j=26 gold · j=27 붕괴)를 최종 층이 재현하는지로 교란을 **잰다**.
+    dm = os.environ.get("T2_LENS_DEVMAP", "cuda:0")
+    kw = {}
+    if dm == "auto":
+        # ⚠상한을 안 주면 accelerate 가 GPU 를 45.6/47.4GiB 까지 채우고, 그 뒤 `lm_head` 가중치를
+        #   올릴 1.45GiB 가 없어 OOM 으로 죽는다(2026-08-09 실측). 활성화 + 가중치 스왑 자리를 남긴다.
+        kw["max_memory"] = {0: os.environ.get("T2_LENS_GPU_MEM", "36GiB"), "cpu": "300GiB"}
     model = AutoModelForCausalLM.from_pretrained(
-        path, torch_dtype=torch.bfloat16,
-        device_map=os.environ.get("T2_LENS_DEVMAP", "cuda:0"))
+        path, torch_dtype=torch.bfloat16, device_map=dm, **kw)
     model.eval()
     L = model.config.num_hidden_layers
     print("model=%s  layers=%d  hidden=%d" % (path, L, model.config.hidden_size))
@@ -118,10 +123,15 @@ def main():
                                        tokenize=False, add_generation_prompt=True)
         enc = tok(text, return_tensors="pt").to("cuda:0")
         with torch.no_grad():
-            out = model(**enc, output_hidden_states=True)
+            # 모델 자신의 logits 는 안 쓴다(렌즈를 우리가 돌린다). 전 위치 logits 는 3348×152k
+            # ≈ 2GB 낭비이므로 마지막 한 자리만 계산시킨다.
+            try:
+                out = model(**enc, output_hidden_states=True, logits_to_keep=1)
+            except TypeError:
+                out = model(**enc, output_hidden_states=True)
         hs = out.hidden_states                      # (L+1) × [1, seq, hidden]
         print("\n=== j=%d · 토큰 %d ===" % (j, enc["input_ids"].shape[1]))
-        print("%-6s %10s %9s %6s  %s" % ("층", "p(gold)", "H(nats)", "버킷", "argmax"))
+        print("%-6s %10s %9s %9s  %s" % ("층", "p(gold)", "H(nats)", "후보질량", "argmax"))
         lstar, prev_ok = None, False
         for li in range(1, len(hs)):
             # ⚠오프로드 시 `norm`/`lm_head` 의 파라미터는 **meta** 에 있다. 거기로 h 를 미리 옮기면
@@ -132,6 +142,10 @@ def main():
                 logits = head(norm(h)).float().cpu()
             sub = logits[ids]
             p = torch.softmax(sub, dim=-1)
+            # ★계기 검정: 후보 집합이 **어휘 전체 질량 중 몇 %**를 갖는가. 이 값이 작으면
+            #   "후보들 사이의 혼합"은 우리 재정규화가 만든 그림이고, 중간 층은 그저 아직
+            #   출력 기저로 읽히지 않는 것이다(logit lens 의 알려진 한계). 숨기지 않고 낸다.
+            cmass = float(torch.softmax(logits, dim=-1)[ids].sum())
             top = int(torch.argmax(p))
             pg = float(p[ids.index(gold_id)]) if gold_id in ids else float("nan")
             ok = (ids[top] == gold_id)
@@ -142,8 +156,8 @@ def main():
                 lstar = None
             prev_ok = ok
             if li % max(1, L // 12) == 0 or li >= L - 3 or li <= 2:
-                print("%-6d %10.4f %9.3f %6d  %s%s"
-                      % (li, pg, entropy([float(x) for x in p]), len(ids),
+                print("%-6d %10.4f %9.3f %9.4f  %s%s"
+                      % (li, pg, entropy([float(x) for x in p]), cmass,
                          first[ids[top]][0], "  ✓" if ok else ""))
         print("  ⇒ ℓ* = %s / L=%d   (%s)"
               % (lstar if lstar else "없음(끝까지 gold 아님)", L,
