@@ -2502,7 +2502,32 @@ def _limit_reduce_text(agent, a2, messages):
                 except Exception as _fe3:
                     print("[T2_LIMIT_REDUCE] 대화-피연산자 형식화 건너뜀: %r" % (_fe3,),
                           file=sys.stderr, flush=True)
-            _add += _LG2.eligible_text(_e2.get("days"), _tal2, _axm3, _sp2, _stated)
+            _elig = _LG2.eligible_text(_e2.get("days"), _tal2, _axm3, _sp2, _stated)
+            _add += _elig
+            # ★2단 재도출 (2026-08-09·C344·x154/x155). 표를 궤적에 실어도 안 움직인다(0/5·라이브
+            #   099 0/12). 움직인 유일한 것은 **판단 자리를 깨끗한 문맥으로 옮기고 그 답을
+            #   되돌려 넣는 것**(0/5 → 5/5·두 태스크). 고르는 것은 두 번 다 모델이고 엔진은
+            #   문맥 조립 + 집합 검사만 한다([[05]] Q2).
+            #   ⚠구성은 **측정된 것 그대로**여야 한다 — 손님 발화를 그대로 실은 구성은 0/5 였다
+            #     (x156 `only user`). 그래서 사실은 우리가 정제하고 목적 한 구절만 형식화한다.
+            if _elig and _sp2.get("rederive_prompt"):
+                try:
+                    import tau2.agent.llm_agent as _la3
+                    from tau2.data_model.message import UserMessage as _UM3
+                    _obj = _LG2.formalize_objective(agent, _la3, _UM3, _tx, _sp2)
+                    if _obj:
+                        _fl = ["%s = %s" % (k, _LG2._num(v)) for k, v in sorted((_stated or {}).items())]
+                        if _e2.get("days") is not None:
+                            _fl.insert(0, "days since the earliest account was opened = %d"
+                                       % int(_e2["days"]))
+                        _rows5 = [l.strip().split(":")[0].strip()
+                                  for l in _elig.splitlines() if l.startswith("  ")]
+                        _pick = _LG2.rederive_choice(agent, _la3, _UM3, _sp2, _elig.strip(),
+                                                     "\n".join(_fl), _obj, _rows5)
+                        if _pick:
+                            _add += _sp2.get("rederived_text", "").format(choice=_pick)
+                except Exception as _re5:
+                    print("[T2_REDERIVE] 건너뜀: %r" % (_re5,), file=sys.stderr, flush=True)
     return _add.strip()
 
 

@@ -271,6 +271,64 @@ def formalize_case_facts(agent, la, UserMessage, texts, spec, wanted):
     return keep
 
 
+def formalize_objective(agent, la, UserMessage, texts, spec):
+    """손님이 **무엇을 최대화해 달라는지** 한 구절로 — 인용과 함께.
+
+    왜 이것만 형식화하나 (x156 실측): 5/5 를 낸 깨끗한 문맥은 *표 + 정제된 사실 + 고정 질문* 이고,
+    **손님 발화를 그대로 실은 구성은 0/5** 였다(`only user`). 그러니 대화를 통째로 나르면 안 된다.
+    그렇다고 목적을 우리가 정할 수도 없다 — 같은 계열 안에서도 갈린다(`내가 받는 보너스 최대` vs
+    `둘이 받는 합산 최대`). ⇒ **목적 한 구절만** LLM 이 뽑고 엔진은 인용 실재만 본다([[22]]).
+
+    ⚠못 뽑으면 침묵한다 — 목적을 모르면 재도출 질문 자체가 성립하지 않는다.
+    """
+    tpl = (spec or {}).get("objective_prompt")
+    if not (tpl and agent is not None and la is not None and texts):
+        return None
+    memo = getattr(agent, "_t2_objective", None)
+    if memo is not None:
+        return memo
+    hay = " ".join("\n".join(str(t) for t in texts).split())
+    sel, used = [], 0
+    for t in reversed(list(texts)):
+        s = str(t)[:3000]
+        if used + len(s) > 90000:
+            break
+        sel.append(s)
+        used += len(s)
+    sel.reverse()
+    try:
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+              if "tool" not in k}
+        try:
+            um = UserMessage(role="user", content=tpl.format(text="\n---\n".join(sel)))
+        except TypeError:
+            um = UserMessage(content=tpl.format(text="\n---\n".join(sel)))
+        raw = getattr(la.generate(model=agent.llm, tools=None, messages=[um],
+                                  call_name="objective_formalize", **kw), "content", None) or ""
+    except Exception as e:
+        print("[T2_LEDGER] objective 실패: %r" % (e,), file=sys.stderr, flush=True)
+        return None
+    m = re.search(r"\{.*\}", str(raw), re.S)
+    if not m:
+        return None
+    try:
+        got = json.loads(m.group(0))
+    except Exception:
+        return None
+    obj = " ".join(str(got.get("objective") or "").split())
+    quote = " ".join(str(got.get("quote") or "").split())
+    ok = bool(obj) and len(quote) >= 12 and quote in hay
+    print("[T2_LEDGER] objective=%r 인용실재=%s" % (obj[:70], ok),
+          file=sys.stderr, flush=True)
+    if not ok:
+        return None
+    try:
+        agent._t2_objective = obj
+    except Exception:
+        pass
+    return obj
+
+
 def rederive_choice(agent, la, UserMessage, spec, table, facts, asked, allowed):
     """**같은 모델에게 깨끗한 문맥으로 다시 묻는다** — 그리고 그 답만 돌려준다.
 
