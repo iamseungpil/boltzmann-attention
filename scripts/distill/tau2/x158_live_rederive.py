@@ -58,9 +58,8 @@ def main():
         _ms = Y.msgs_of("bank_elig_20260809i", task)
         _tx = [" ".join(str(m.get("content") or "").split()) for m in _ms
                if m.get("role") in ("user", "tool")]
-        _raw = X.ask(spec["objective_prompt"].format(text="
----
-".join(_tx)[:60000]), 0.0)
+        _sep = "\n---\n"
+        _raw = X.ask(spec["objective_prompt"].format(text=_sep.join(_tx)[:60000]), 0.0)
         import json as _j, re as _re
         _m = _re.search(r"\{.*\}", _raw, _re.S)
         obj = ""
