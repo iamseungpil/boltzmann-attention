@@ -12,6 +12,9 @@
     존재 증명엔 1회면 충분하다). 이후는 무음 카운트.
   · print 전용 — 거동 변화 0. 신규 레버는 앞으로 태그 대신 이 헬퍼를 쓴다(표준화).
 """
+import json
+import os
+import re
 import sys
 import threading
 
@@ -41,14 +44,58 @@ def set_sim_from(obj):
     그것에 닿는다 — 둘 중 어느 쪽으로 불려도 찾는다. 실패하면 종전대로 무기명.
 
     한 sim = 한 워커 스레드이므로 여기서 심은 값은 그 sim의 모든 호출에서 그대로 보인다.
+
+    ★시행까지 단다 (2026-08-09·사용자 지시 *"어느 기구가 켜졌는지 확인할 수 있게 하라"*):
+    구판은 `task.id` 만 달아서 **`nt=2` 면 두 시행이 같은 태그**였다 — 한 시행에서만 발화한
+    기구를 다른 시행의 것으로 읽을 수 있고, 실제로 이 세션에서 시행별 귀속을 못 해 사이드카
+    해시로 우회했다. 시행 번호를 찾을 수 있으면 `task_010#t1` 로 단다(못 찾으면 종전 그대로).
     """
     try:
         for cand in (obj, getattr(obj, "_t2_orch", None)):
             task = getattr(cand, "task", None)
             tid = getattr(task, "id", None)
             if tid:
-                _LOCAL.sim = str(tid)
+                trial = None
+                for holder in (cand, obj):
+                    for attr in ("trial", "trial_id", "trial_index", "seed_index"):
+                        v = getattr(holder, attr, None)
+                        if isinstance(v, int):
+                            trial = v
+                            break
+                    if trial is not None:
+                        break
+                _LOCAL.sim = "%s#t%d" % (tid, trial) if trial is not None else str(tid)
                 return
+    except Exception:
+        pass
+
+
+_MARK = re.compile(r"\[(T2_[A-Z0-9_]+)\]")
+
+
+def _trace(sim, lines):
+    """`[T2_*]` 마크가 붙은 줄을 **구조화해서** 남긴다 — 어느 기구가 어느 sim 에서 켜졌는가.
+
+    ★사용자 지시 2026-08-09: *"앞으로 새로운 런할 때는 … 어느 기구가 켜졌는지 확인할 수 있게
+      하라."* 지금까지 그 확인은 런마다 다른 grep 이었고, 이 세션에서만 **두 번 틀렸다**
+      (로그에서 셌는데 그 문구는 사이드카 채널로 나가는 것이었다·C369 의 재발).
+    ★왜 여기인가: 이 클래스는 **모든 stderr 줄**을 이미 지나간다 — 호출부 수정 0 으로 전 기구를
+      덮는 유일한 자리다([[07]] hard-constraint·사이드카를 `t2_launch` 기본값으로 둔 것과 동형).
+    ★관측 전용: 파일에만 쓴다. 모델에 안 보이고 거동은 그대로다. 실패해도 무해(런을 안 깬다).
+    """
+    path = os.environ.get("T2_TRACE")
+    if not path:
+        return
+    try:
+        rows = []
+        for ln in lines:
+            m = _MARK.search(ln)
+            if m:
+                rows.append(json.dumps({"sim": sim, "mark": m.group(1), "line": ln[:400]},
+                                       ensure_ascii=False))
+        if rows:
+            with open(path, "a", encoding="utf-8") as fh:
+                fh.write("\n".join(rows) + "\n")
     except Exception:
         pass
 
@@ -84,6 +131,7 @@ class _TaggingStderr(object):
             sim = current_sim()
             pre = ("[sim=%s] " % sim) if sim else ""
             self._inner.write("".join((pre + ln + "\n") if ln else "\n" for ln in lines))
+            _trace(sim, lines)
             return len(s)
         except Exception:
             try:

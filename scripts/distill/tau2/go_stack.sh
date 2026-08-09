@@ -191,6 +191,14 @@ t2_launch() {
   : "${T2_FB_SIDECAR:=/home/woori/scratch/logs/fb_${TAG}.jsonl}"
   : "${T2_FB_SIDECAR_TEXT:=1}"
   export T2_FB_SIDECAR T2_FB_SIDECAR_TEXT
+  # ★기구 발화 추적 기본 ON (2026-08-09·사용자 지시 *"어느 기구가 켜졌는지 확인할 수 있게
+  #   하라"*). 사이드카는 **우리가 보낸 문장**을 남기고, 이것은 **어느 기구가 말했는가**를
+  #   남긴다 — 둘은 다르다. 지금까지 후자는 런마다 다른 grep 이었고 이 세션에서만 두 번
+  #   틀렸다(로그에서 셌는데 그 문구는 사이드카 채널이었다·C369 재발). 비커밋 관측이라
+  #   거동 변화 0 이고, 드라이버 기억에 맡기면 또 빠지므로 **모든 라이브 런이 지나는 이
+  #   한 자리**에 둔다([[07]]·사이드카와 같은 이유). 읽기 = `x196_run_trace.py <tag>`.
+  : "${T2_TRACE:=/home/woori/scratch/logs/trace_${TAG}.jsonl}"
+  export T2_TRACE
   t2_require_key || return 1
   cd "$GO_TAU2" || return 1
   /home/woori/venvs/seka_env/bin/python -u "$GO_REPO/scripts/distill/tau2/t2_run_gated.py" \
