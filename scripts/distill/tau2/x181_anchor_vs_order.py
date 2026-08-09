@@ -106,12 +106,20 @@ def drop_accounts_read(ms):
 
 
 def anchor_of(text, choices):
-    """문맥에서만 정하는 정박 이름 = 후보 중 접두 대화에 **가장 늦게** 등장한 것 (gold 안 봄)."""
-    best, pos = None, -1
+    """문맥에서만 정하는 정박 이름 = 후보 중 접두 대화에 **가장 늦게** 등장한 것 (gold 안 봄).
+
+    ⚠계기 결함 수리(2026-08-09·첫 판): 후보에 `Green`·`Blue` 처럼 **다른 후보의 부분
+      문자열**인 이름이 있어서 `rfind` 가 `Hunter Green` 안의 `Green` 을 잡았고, 정박 열이
+      전부 0/8 로 무의미해졌다. 같은 자리에서는 **가장 긴 후보**가 이기게 한다.
+    """
+    best, pos, ln = None, -1, -1
     for c in choices:
         p = text.rfind(c)
-        if p > pos:
-            best, pos = c, p
+        if p < 0:
+            continue
+        end = p + len(c)
+        if end > pos or (end == pos and len(c) > ln):
+            best, pos, ln = c, end, len(c)
     return best
 
 
