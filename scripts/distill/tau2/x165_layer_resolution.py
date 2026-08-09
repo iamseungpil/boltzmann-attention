@@ -86,8 +86,13 @@ def main():
     js = [int(x) for x in (sys.argv[2] if len(sys.argv) > 2 else "0,13,26,27").split(",")]
 
     tok = AutoTokenizer.from_pretrained(path)
-    model = AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.bfloat16,
-                                                 device_map="cuda:0")
+    # ⚠32B 는 **GPTQ-Int8 을 HF 로 못 읽는다**(gptqmodel/optimum 미설치 · 설치하면 torch 2.7→2.13,
+    #   transformers 4.51→5.14 로 공유 env 를 갈아엎고, `gptqmodel<3` 은 빌드 실패). 그래서 bf16 을
+    #   GPU+CPU 오프로드로 올린다(`T2_LENS_DEVMAP=auto`). **동등하다고 가정하지 않는다** —
+    #   Int8 랜드마크(j=26 gold · j=27 붕괴)를 최종 층이 재현하는지로 교란을 **잰다**.
+    model = AutoModelForCausalLM.from_pretrained(
+        path, torch_dtype=torch.bfloat16,
+        device_map=os.environ.get("T2_LENS_DEVMAP", "cuda:0"))
     model.eval()
     L = model.config.num_hidden_layers
     print("model=%s  layers=%d  hidden=%d" % (path, L, model.config.hidden_size))
@@ -115,13 +120,14 @@ def main():
         with torch.no_grad():
             out = model(**enc, output_hidden_states=True)
         hs = out.hidden_states                      # (L+1) × [1, seq, hidden]
+        ndev = next(norm.parameters()).device       # 오프로드 시 norm/head 가 CPU 에 있을 수 있다
         print("\n=== j=%d · 토큰 %d ===" % (j, enc["input_ids"].shape[1]))
         print("%-6s %10s %9s %6s  %s" % ("층", "p(gold)", "H(nats)", "버킷", "argmax"))
         lstar, prev_ok = None, False
         for li in range(1, len(hs)):
-            h = hs[li][0, -1, :]
+            h = hs[li][0, -1, :].to(ndev)
             with torch.no_grad():
-                logits = head(norm(h)).float()
+                logits = head(norm(h)).float().cpu()
             sub = logits[ids]
             p = torch.softmax(sub, dim=-1)
             top = int(torch.argmax(p))
