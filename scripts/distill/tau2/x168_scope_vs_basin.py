@@ -116,12 +116,25 @@ def main():
     lowdrop = set(ranked[:len(dropped)])
     low16 = head + "\n" + "\n".join(l for l in body.splitlines() if l not in lowdrop)
 
+    # ★★동점 가설(2026-08-09): arm3(카드 제거) 이 정박을 푼 이유가 **최상위 동점 소거**인가?
+    #   full·low16 에는 World Blue $300 ↔ Business Platinum $300 동점이 있고, scope 에는 없다.
+    #   그래서 **동점 상대 한 행만** 빼고(다른 카드는 전부 유지) 같은 정박을 건다.
+    #   풀리면 지배 변수 = 최상위 동점 · 안 풀리면 = 범주/희석 축.
+    #   ※제거만 한다 — 정책 상수를 지어내 동점을 *만드는* 설계는 금지([[23]]).
+    TIE = "Business Platinum Rewards Card"
+    notie = head + "\n" + "\n".join(l for l in body.splitlines()
+                                    if l.strip().split(":")[0].strip() != TIE)
+
     arms = [("1 full  + Card정박", full, CARD),
             ("2 scope + Card정박 ★", scope, CARD),
             ("3 scope + Green정박", scope, NAMED),
             ("4 scope + 정박없음", scope, None),
             ("5 low16 + Green정박 ☆", low16, NAMED),
-            ("6 low16 + Card정박", low16, CARD)]
+            ("6 low16 + Card정박", low16, CARD),
+            ("7 notie + Green정박 ★★", notie, NAMED),
+            ("8 notie + Card정박", notie, CARD),
+            ("9 notie + 정박없음", notie, None)]
+    print("notie %d행 (동점 상대 %r 만 제거·나머지 카드 유지)" % (len(names(notie)), TIE))
     print("low16 %d행 (제거=%s)"
           % (len(names(low16)), [l.strip().split(":")[0] for l in ranked[:len(dropped)]]))
 
