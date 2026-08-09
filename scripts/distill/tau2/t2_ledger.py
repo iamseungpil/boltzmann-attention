@@ -443,6 +443,58 @@ def formalize_objective_axis(agent, la, UserMessage, spec, texts, axes):
     return out
 
 
+def rederive_by_axis(agent, la, UserMessage, spec, table, facts, axis, best, allowed):
+    """**표에서 그 값을 가진 이름**을 서브가 찾는다 — 손님의 말에 기대지 않는 재질의.
+
+    ## 왜 따로 문구가 필요한가 (2026-08-09·C382·라이브 부검)
+
+    합-가지는 `rederive_prompt` 를 재사용했는데 그 문구의 마지막 줄이 축자로
+    *"**If the customer's words do not single out one, reply NONE.**"* 이다. 그런데 `asked`
+    (손님의 말)는 **의도적으로 빈 문자열**이다(x158: 목적 구절을 실으면 099 가 10/10 → 0/10).
+    ⇒ 서브 입장에서 `NONE` 이 **논리적으로 옳은 답**이고, 우리가 사실(`best=65`)을 덧붙여도
+    **답을 지배하는 지시가 그대로**라 바뀌지 않는다. 런 y098 실측: 값은 `best=65`(gold)로 맞게
+    나갔는데 세 번 다 `재질의 NONE→무응답`. 없는 손잡이를 잡고 있었다.
+
+    ⇒ 이 자리는 **자기 문구**를 쓴다: 엔진이 재계산한 값을 말하고, **그 값을 가진 행을 표에서
+      찾는 일**을 서브에게 맡긴다. 고르는 것은 여전히 모델이고([[05]] Q2) 엔진은 답이 목록의
+      원소인지만 본다([[22]]).
+    ⚠**정직한 단서**(C372 ⒠ 와 같은 것): 값이 유일하면 사실상 지목과 같다. 형식상 보존이지
+      실질 보존인지는 **동점 사례**로 갈라야 한다 — 미측정이다.
+    """
+    tpl = (spec or {}).get("rederive_by_axis_prompt")
+    if not (tpl and agent is not None and la is not None and table and allowed and axis):
+        return None
+    memo = dict(getattr(agent, "_t2_rederive_axis", None) or {})
+    key = hashlib.sha1(("\n".join((table, facts or "", str(axis), str(best))))
+                       .encode("utf-8")).hexdigest()[:16]
+    if key in memo:
+        return memo[key]
+    prompt = tpl.format(table=table, facts=facts or "", axis=axis, best=_num(best))
+    try:
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+              if "tool" not in k}
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="rederive_by_axis", **kw)
+        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+    except Exception as e:
+        print("[T2_REDERIVE_AXIS] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return None
+    hit = sorted((a for a in allowed if a and a.lower() in raw.lower()), key=len, reverse=True)
+    out = hit[0] if hit else None
+    print("[T2_REDERIVE_AXIS] raw=%r → %s" % (raw[:80], out or "목록 밖 = 침묵"),
+          file=sys.stderr, flush=True)
+    memo[key] = out
+    try:
+        agent._t2_rederive_axis = memo
+    except Exception:
+        pass
+    return out
+
+
 def formalize_objective_axes(agent, la, UserMessage, spec, texts, axes):
     """손님이 **여러 축의 합**을 원할 때 그 축들을 받는다 — `formalize_objective_axis` 의 형제.
 

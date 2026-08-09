@@ -2633,7 +2633,7 @@ def _limit_reduce_text(agent, a2, messages):
                         #   ⚠기존 단일-축 경로는 **건드리지 않는다** — 그 구성이 099/100 을 3/3 으로
                         #     세우고 있다(런 t·`raw='referrer_bonus_usd'` 6/6). 여기는 순증이다.
                         _oax, _olab, _omap = None, None, {}
-                        if not _pick and _sp2.get("objective_hint_text") and _axall:
+                        if not _pick and _sp2.get("rederive_by_axis_prompt") and _axall:
                             try:
                                 # ★후보 축은 **A2 가 정한다** (2026-08-09·사용자 지적·C377b).
                                 #   구판은 13축을 통째로 보여 줬는데 **조회 가능 ≠ 목적이 될 수
@@ -2672,11 +2672,14 @@ def _limit_reduce_text(agent, a2, messages):
                                           file=sys.stderr, flush=True)
                                 _rk7 = _LG2._rank_by(_rows7, _omap)
                                 if _rk7:
-                                    _hint = _sp2["objective_hint_text"].format(
-                                        axis=_olab, best=_LG2._num(_rk7[0][1]))
-                                    _p3 = _LG2.rederive_choice(
+                                    # ★C382 — `rederive_prompt` 재사용 금지. 그 문구는 *"손님의
+                                    #   말이 하나를 짚지 못하면 NONE"* 인데 `asked` 는 의도적으로
+                                    #   비어 있어(x158) 서브에겐 `NONE` 이 옳은 답이 된다. 실측
+                                    #   y098: 값은 `best=65`(gold)로 맞았는데 세 번 다 무응답.
+                                    #   ⇒ 손님 말에 기대지 않는 **자기 문구**로 묻는다.
+                                    _p3 = _LG2.rederive_by_axis(
                                         agent, _la3, _UM3, _sp2, _elig.strip(),
-                                        _ops5 + "\n" + _hint, _obj, _rows5)
+                                        _ops5, _olab, _rk7[0][1], _rows5)
                                     print("[T2_OBJ_SUM] axes=%s best=%s → 재질의 NONE→%s"
                                           % (_olab, _rk7[0][1], _p3 or "무응답"),
                                           file=sys.stderr, flush=True)

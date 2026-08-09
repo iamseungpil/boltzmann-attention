@@ -137,7 +137,7 @@ def grab(fn, k):
     return None
 
 
-for k in ("objective_axes_prompt", "objective_hint_text"):
+for k in ("objective_axes_prompt", "rederive_by_axis_prompt", "_note_objective_axes"):
     s = grab("banking_knowledge.settings.json", k)
     g = grab("banking_knowledge.gate.json", k)
     ok(bool(s), "정본에 %s 가 있다" % k)
@@ -149,11 +149,16 @@ for x in (load_domain_a2("banking_knowledge") or {}).get("ledger_metrics", []):
 ok(bool(spec and spec.get("objective_axes_prompt")), "병합된 라이브 spec 이 들고 있다")
 ok(all(("{%s}" % k) in (spec or {}).get("objective_axes_prompt", "")
        for k in ("axes", "text")), "axes/text 자리표시자가 있다")
-ok(all(("{%s}" % k) in (spec or {}).get("objective_hint_text", "")
-       for k in ("axis", "best")), "axis/best 자리표시자가 있다")
-ok("{choice}" not in (spec or {}).get("objective_hint_text", "")
-   and "name" not in (spec or {}).get("objective_hint_text", "").lower(),
-   "★되돌리는 것은 **값**이지 이름이 아니다 ([[05]] Q2 보존)")
+# ★C382: 되묻는 문구는 `rederive_prompt` 가 아니라 **자기 문구**다. 그 문구는 *"손님의 말이
+#   하나를 짚지 못하면 NONE"* 인데 `asked` 가 의도적으로 비어 있어(x158) NONE 이 옳은 답이 된다
+#   — 실측 y098: 값은 `best=65`(gold)로 맞았는데 세 번 다 무응답.
+byax = (spec or {}).get("rederive_by_axis_prompt", "")
+ok(bool(byax), "되묻는 자기 문구가 선언돼 있다")
+ok(all(("{%s}" % k) in byax for k in ("table", "facts", "axis", "best")),
+   "table/facts/axis/best 자리표시자가 있다")
+ok("customer's words" not in byax,
+   "★손님의 말에 기대지 않는다 (그 지시가 빈 `asked` 에서 NONE 을 강제했다)")
+ok("{choice}" not in byax, "우리가 이름을 넣어 주지 않는다 — 표에서 찾는 것은 서브다([[05]] Q2)")
 
 print("\n§5 기존 단일-축 경로는 건드리지 않았다 (099/100 3/3 을 세운 구성)")
 ok("ONE of the names" in (spec or {}).get("objective_axis_prompt", ""),
