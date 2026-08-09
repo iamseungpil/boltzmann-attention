@@ -609,6 +609,91 @@ def ineligible_text(days, thresholds, spec):
     return tpl.format(days=int(days), blocked="; ".join(blocked), ok="; ".join(ok) or "(none)")
 
 
+def formalize_subject_align(agent, la, UserMessage, spec, groups, subjects):
+    """원장 그룹 이름이 **A3 주어 중 어느 것을 가리키는가** — 해석은 LLM, 검사는 엔진.
+
+    ## 왜 이것이 필요한가 (2026-08-09·C376·전수 실측)
+
+    원장(도구 출력)은 `Navy Blue Account` 로 말하고 A3 주어는 `Navy Blue` 다. 두 소비자가
+    **정확 일치**로 맞대므로 그 접미사 하나가 둘 다 무력화한다 — 라이브 전수 계량:
+
+      · `unmatched_text`  발화 **77회 · A3 주어와 정확일치 0개**. 지목된 7 그룹 중 **5개는
+        접미사만 떼면 A3 에 있고**, 나머지 2개도 접두사(`Business `) 차이다. 즉 *"허용치가
+        원장에 없다"* 는 함의는 **관측 77회 전부에서 거짓**이었고, 매번 조사 지시를 동반했다.
+      · `exhausted_text` 발화 **0회**. `tally.get(g, 0)` 이 언제나 0 이라 `used >= lim` 이
+        성립할 수 없다 ⇒ **엔진이 한도 소진을 말한 적이 한 번도 없다.** 099 는 바로 그
+        판정(`Hunter Green` 사용 9회 대 연간 한도)에 걸려 있는데 우리는 자료를 쥐고 침묵했다.
+
+    ⇒ [[25]]: 우리 출력이 유일한 근거원인데 오도했다. 고쳐야 한다.
+
+    ## 왜 정규화가 아니라 형식화인가 ([[59]]·[[22]]·C316)
+
+    엔진이 `" Account"` 를 떼면 그것이 곧 도메인 텍스트 패턴매칭이다 — 금지선이다. 그리고
+    두 표기가 같은 것을 가리키는지는 **열린 술어**라 엔진이 판정할 자격이 없다. 그래서 분담은
+    다른 형식화와 같다: **해석 = LLM**(어느 주어인가), **검사 = 엔진**(그 답이 A3 주어 집합의
+    원소인가). 답이 원소가 아니면 그 그룹은 **정렬되지 않은 채로 남는다** — 그러면 종전대로
+    `unmatched_text` 가 그것만 말한다. 모르는 것을 맞다고 바꾸지 않는다.
+
+    반환: `{원장 그룹 이름: A3 주어}` (정렬된 것만). 못 고른 그룹은 **키가 없다**.
+    """
+    tpl = (spec or {}).get("subject_align_prompt")
+    if not (tpl and agent is not None and la is not None and groups and subjects):
+        return {}
+    memo = getattr(agent, "_t2_subj_align", None)
+    if memo is not None:
+        return memo
+    subs = sorted(str(s) for s in subjects if s)
+    gs = sorted(str(g) for g in groups if g)
+    prompt = tpl.format(subjects="\n".join("  " + s for s in subs),
+                        groups="\n".join("  " + g for g in gs))
+    out = {}
+    try:
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+              if "tool" not in k}
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="subject_align_formalize", **kw)
+        raw = str(getattr(sub, "content", None) or "")
+        m = re.search(r"\{.*\}", raw, re.S)
+        got = json.loads(m.group(0)) if m else {}
+        # ★엔진의 몫은 여기까지다 — **양쪽 다 집합 원소인지**만 본다(의미 판단 0).
+        subset, gset = set(subs), set(gs)
+        for g, s in (got.items() if isinstance(got, dict) else ()):
+            if g in gset and isinstance(s, str) and s in subset:
+                out[g] = s
+    except Exception as e:
+        print("[T2_SUBJ_ALIGN] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        out = {}
+    print("[T2_SUBJ_ALIGN] %d/%d 그룹 정렬 %s"
+          % (len(out), len(gs), sorted(out.items())[:4]), file=sys.stderr, flush=True)
+    try:
+        agent._t2_subj_align = out
+    except Exception:
+        pass
+    return out
+
+
+def align_tally(tally, align):
+    """정렬된 그룹은 **A3 주어 이름으로** 옮겨 담고, 못 고른 그룹은 원래 이름으로 남긴다.
+
+    엔진은 이름을 만들지 않는다 — `align` 의 값은 이미 A3 주어 집합의 원소로 검사된 것뿐이다.
+    같은 주어로 두 그룹이 정렬되면 **합산**한다(원장 표기가 갈렸을 뿐 같은 상품이므로).
+    """
+    if not tally:
+        return {}, {}
+    aligned, left = {}, {}
+    for g, n in tally.items():
+        s = (align or {}).get(g)
+        if s:
+            aligned[s] = aligned.get(s, 0) + int(n)
+        else:
+            left[g] = n
+    return aligned, left
+
+
 def exhausted_text(tally, limits, spec):
     """누계와 상한을 맞대어 **남은 자리가 없는 그룹**만 말한다. 산수뿐이고 추천은 하지 않는다."""
     tpl = (spec or {}).get("exhausted_text")

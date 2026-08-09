@@ -2509,11 +2509,25 @@ def _limit_reduce_text(agent, a2, messages):
     for _e2 in ops.values():
         _sp2 = _e2.get("spec") or {}
         if _e2.get("tally") and _lims3:
-            _add += _LG2.exhausted_text(_e2["tally"], _lims3, _sp2)
+            # ★C376 주어 정합 — 원장은 `Navy Blue Account`, A3 주어는 `Navy Blue` 다. 두 소비자가
+            #   정확 일치로 맞대므로 그 접미사 하나가 둘 다 무력화했다(전수 실측: `unmatched` 발화
+            #   77회 중 A3 주어와 일치 **0**·`exhausted` 발화 **0회**). 정합은 **LLM 이 하고**
+            #   엔진은 A3 주어 집합의 원소인지만 본다([[22]]·[[59]] — 엔진이 접미사를 떼면 그것이
+            #   도메인 패턴매칭이다). 못 고른 그룹은 정렬되지 않은 채 남아 종전대로 이름이 불린다.
+            _al8 = {}
+            try:
+                import tau2.agent.llm_agent as _la8
+                from tau2.data_model.message import UserMessage as _UM8
+                _al8 = _LG2.formalize_subject_align(agent, _la8, _UM8, _sp2,
+                                                    list(_e2["tally"]), list(_lims3))
+            except Exception as _se8:
+                print("[T2_SUBJ_ALIGN] 건너뜀: %r" % (_se8,), file=sys.stderr, flush=True)
+            _tal8, _left8 = _LG2.align_tally(_e2["tally"], _al8)
+            _add += _LG2.exhausted_text(_tal8, _lims3, _sp2)
             # ★판정하지 못한 그룹은 **이름을 말한다**(C327). 조용히 빼면 모델 쪽에서 침묵이
             #   *검사 통과*와 구별되지 않는다. 엔진은 집합 뺄셈만 하고, 이름이 같은 것을
-            #   가리키는지는 여전히 모델 몫이다([[22]]).
-            _u8 = _LG2.unmatched_text(_e2["tally"], _lims3, _sp2)
+            #   가리키는지는 여전히 모델 몫이다([[22]]). 이제 그 몫은 위에서 **실제로 물어본다**.
+            _u8 = _LG2.unmatched_text(_left8, _lims3, _sp2)
             if _u8:
                 _unm_parts.append(_u8)
             _add += _u8
