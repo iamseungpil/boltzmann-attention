@@ -58,7 +58,13 @@ MODEL = os.environ.get("T2_PROBE_MODEL", "Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
 TASK = "task_099"
 TRIGGER = 26                     # 절벽을 지는 메시지 index (C348·다른 세션 x161 과 동일)
 NAMED = "Hunter Green"
-ANCHORS = ["Hunter Green", "Dark Green", "Gold Years", "EcoCard"]
+# ★2차(2026-08-09): 1차가 **가족 설명을 깼다** — `Gold Years`(공유 낱말 0)가 Lime Green 9/10.
+#   지금 데이터를 전부 설명하는 더 단순한 경쟁 가설: **정박은 기본 승자(World Blue)를 밀어내고
+#   모델은 그다음 계좌를 고른다**(계좌 보너스순: World Blue 300 > **Lime Green 200** > Hunter 175).
+#   Lime Green 은 *Green 가족 최대*이자 *2위 계좌*라 두 설명이 처음부터 **교락**이었다.
+#   ⇒ 가르는 지목 = **Blue 가족 계좌**. 가족 가설은 Blue 최대(=World Blue=baseline)를,
+#     밀어내기 가설은 **Lime Green** 을 예측한다.
+ANCHORS = ["Hunter Green", "Navy Blue", "Cobalt Blue", "Purple", "Lime Green"]
 
 
 def guided_full(prompt, choices, temp):
@@ -122,6 +128,14 @@ def main():
         ms = [dict(m) for m in MS]
         ms[TRIGGER]["content"] = str(ms[TRIGGER].get("content") or "").replace(NAMED, name)
         return ms
+
+    # ⚠치환이 실제로 일어났는지·문장이 비문이 되지 않는지 **눈으로** 본다([[55]] 배관 먼저).
+    #   1차에서 `EcoCard` 가 baseline 을 낸 것은 *"the EcoCard Account"* 비문 때문일 수 있다.
+    print("\n=== 치환된 방아쇠 문장(축자·앞 130자) ===")
+    for a in ANCHORS:
+        s = " ".join(str(swap(a)[TRIGGER].get("content") or "").split())
+        hit = a in s
+        print("  %-16s 치환%s | %s" % (a, "✓" if hit else "**실패**", s[:130]))
 
     print("\n%-16s %-26s %-16s %s" % ("지목", "관측(자유생성)", "표면예측", "의미예측"))
     for a in ANCHORS:
