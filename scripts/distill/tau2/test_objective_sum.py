@@ -159,5 +159,39 @@ print("\n§5 기존 단일-축 경로는 건드리지 않았다 (099/100 3/3 을
 ok("ONE of the names" in (spec or {}).get("objective_axis_prompt", ""),
    "단일 축 문구가 그대로다", (spec or {}).get("objective_axis_prompt", "")[:60])
 
+print("\n§6 라이브 부검이 잡은 결함 — 물어본 축을 엔진이 풀 수 있어야 한다 (C377b)")
+# 첫 라이브 런에서 098 은 정답 쌍을 냈는데 `referred_bonus_usd` 에 `a3_map` 노드가 없어
+# 지도가 비었고, 순위가 0 이 되어 재질의가 **아무 흔적 없이** 안 나갔다. 010 은 아예 상한
+# 축을 답했다 — 13축을 다 보여 주면서 5축만 풀 수 있었기 때문이다.
+A2 = load_domain_a2("banking_knowledge") or {}
+resolvable = {(n.get("params") or {}).get("axis")
+              for n in (A2.get("derived") or ()) if n.get("op") == "a3_map"}
+elig = next((x.get("eligible") or {}) for x in A2.get("ledger_metrics", [])
+            if x.get("eligible_text"))
+shown = list(elig.get("show_axes") or [])
+missing = [a for a in shown if a not in resolvable]
+ok(not missing, "★표에 보여 주는 축은 전부 조회 가능해야 한다 (순위를 못 매기면 죽는다)",
+   missing or sorted(resolvable))
+ok("referred_bonus_usd" in resolvable,
+   "098 이 필요로 한 축에 a3_map 노드가 있다 (첫 런에서 없어서 침묵했다)")
+
+# ★A2 가 후보 축을 선언한다 (사용자 지적: "왜 13축을 다 묻나"). 목록이 둘로 갈리면 이번
+#   결함이 그대로 재발하므로, 선언과 조회 가능성의 **일치**를 여기서 강제한다.
+sp2 = next(x for x in A2.get("ledger_metrics", []) if x.get("objective_axis_prompt"))
+cand = sp2.get("objective_axes")
+ok(bool(cand), "A2 가 목적 후보 축을 선언한다", cand)
+ok(not [a for a in (cand or []) if a not in resolvable],
+   "★선언된 후보 축은 전부 조회 가능하다 (두 목록이 갈리면 조용히 죽는다)",
+   [a for a in (cand or []) if a not in resolvable])
+axes_all = set((A2.get("policy_ontology") or {}).get("axes") or {})
+ok(not [a for a in (cand or []) if a not in axes_all],
+   "선언된 후보 축은 전부 A3 축 집합의 원소다 ([[22]])")
+ok(len(cand or []) < len(axes_all),
+   "후보가 전체보다 좁다 — 제약 축은 목적이 될 수 없다 (010 이 한도 축을 답했다)",
+   "%d / %d" % (len(cand or []), len(axes_all)))
+# 한 축이라도 못 풀면 합은 성립하지 않는다 — 조용히가 아니라 **빈 지도**로 드러난다
+_, gone = LG.combine_axes({"mine": MINE}, ["mine", "theirs"])
+ok(gone == {}, "지도 없는 축이 섞이면 합은 빈다 (부분합을 만들지 않는다)", gone)
+
 print("\n" + ("FAIL %d: %s" % (len(FAIL), FAIL) if FAIL else "PASS  (0 실패)"))
 sys.exit(1 if FAIL else 0)

@@ -525,6 +525,13 @@ def combine_axes(axis_maps, axes):
     axes = [a for a in (axes or ()) if a]
     if not axes:
         return None, {}
+    # ★조회할 수 없는 축은 **소리 내어** 떨어뜨린다 (2026-08-09 라이브 부검). 첫 런에서 098 은
+    #   정답 쌍을 냈는데 `referred_bonus_usd` 에 `a3_map` 노드가 없어 지도가 비었고, 그래서
+    #   순위가 0 이 되어 재질의가 **아무 흔적 없이** 안 나갔다. 침묵은 진단을 불가능하게 한다.
+    _miss = [a for a in axes if not ((axis_maps or {}).get(a) or {})]
+    if _miss:
+        print("[T2_COMBINE_AXES] 조회 지도 없는 축 %s — 이 축은 순위에 쓸 수 없다" % (_miss,),
+              file=sys.stderr, flush=True)
     if len(axes) == 1:
         return axes[0], ((axis_maps or {}).get(axes[0]) or {})
     maps = [((axis_maps or {}).get(a) or {}) for a in axes]

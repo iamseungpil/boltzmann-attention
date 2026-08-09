@@ -2631,8 +2631,26 @@ def _limit_reduce_text(agent, a2, messages):
                         _oax, _olab, _omap = None, None, {}
                         if not _pick and _sp2.get("objective_hint_text") and _axall:
                             try:
+                                # ★후보 축은 **A2 가 정한다** (2026-08-09·사용자 지적·C377b).
+                                #   구판은 13축을 통째로 보여 줬는데 **조회 가능 ≠ 목적이 될 수
+                                #   있음**이다 — 라이브 첫 런에서 010 은 한도 축
+                                #   (`rolling_window_referrals`)을 목적이라 답했고, 098 은
+                                #   정답 쌍을 냈지만 `referred_bonus_usd` 지도가 없어 순위가
+                                #   비면서 재질의가 **흔적 없이** 안 나갔다.
+                                #   ⇒ ⒜ 무엇이 목적이 될 수 있는지는 A2 선언(`objective_axes`)
+                                #     ⒝ 엔진은 그 위에 **조회 가능**을 한 번 더 거른다(두 목록이
+                                #        갈리면 이번 결함이 재발하므로 회귀가 둘의 일치를 본다).
+                                #   ⚠단일-축 경로는 그대로 둔다 — 13축을 보여 주는 그 구성이
+                                #     099/100 을 3/3 으로 세우고 있어 **측정 뒤에** 옮긴다.
+                                _cand = _sp2.get("objective_axes") or list(_axall)
+                                _axres = {_k: _v for _k, _v in _axall.items()
+                                          if _k in _cand and _k in (_axm3 or {})}
+                                _gone = [_k for _k in _cand if _k not in (_axm3 or {})]
+                                if _gone:
+                                    print("[T2_OBJ_AXES] 선언된 후보 축인데 조회 지도가 없다 %s"
+                                          % (_gone,), file=sys.stderr, flush=True)
                                 _oaxes = _LG2.formalize_objective_axes(agent, _la3, _UM3, _sp2,
-                                                                       _tx, _axall)
+                                                                       _tx, _axres)
                                 _olab, _omap = _LG2.combine_axes(_axm3, _oaxes)
                                 _rk7 = _LG2._rank_by(_erows, _omap)
                                 if _rk7:
