@@ -193,5 +193,25 @@ ok(len(cand or []) < len(axes_all),
 _, gone = LG.combine_axes({"mine": MINE}, ["mine", "theirs"])
 ok(gone == {}, "지도 없는 축이 섞이면 합은 빈다 (부분합을 만들지 않는다)", gone)
 
+print("\n§7 최댓값은 **자격이 대조된** 주어에서만 (C381·라이브 부검)")
+# 라이브 실측: x098 `best=125` · x010 `best=850` 이 나왔고 서브는 무응답이었다. 그 값을 만든
+# 주어는 그 기준 값이 A3 에 없어 **걸러지지 않았을 뿐** 자격이 확인된 적이 없다.
+VSPEC = {"eligible": {"criteria": [{"axis": "floor", "operand": "stated", "compare": "ge"}],
+                      "show_axes": ["mine", "theirs", "floor"]},
+         "eligible_text": "x{eligible}"}
+VMAPS = {"mine": {"Alpha": (10, "d"), "Ghost": (900, "d")},
+         "theirs": {"Alpha": (10, "d"), "Ghost": (900, "d")},
+         "floor": {"Alpha": (5, "d")}}          # Ghost 는 기준 값이 **없다**
+ver = LG.verified_subjects(None, None, VMAPS, VSPEC, {"floor": 100})
+ok(ver == {"Alpha"}, "기준 값이 없는 주어는 **대조된 것이 아니다**", sorted(ver))
+ok("Ghost" not in ver, "★거르지 않은 것과 확인한 것은 다르다 (Ghost 는 표엔 남지만 최댓값을 못 만든다)")
+rows_v = [("Alpha", ["mine=10"]), ("Ghost", ["mine=900"])]
+_l, cmb = LG.combine_axes(VMAPS, ["mine", "theirs"])
+ok(LG._rank_by(rows_v, cmb)[0][0] == "Ghost", "구판 최댓값은 미대조 주어가 만든다 (=결함 재현)")
+ok(LG._rank_by([r for r in rows_v if r[0] in ver], cmb)[0][0] == "Alpha",
+   "신판 최댓값은 대조된 주어에서 나온다")
+ok(LG.verified_subjects(None, None, VMAPS, {"eligible": {}}, {}) == set(),
+   "걸 수 있는 기준이 하나도 없으면 **빈 집합** (통과 도장을 찍지 않는다)")
+
 print("\n" + ("FAIL %d: %s" % (len(FAIL), FAIL) if FAIL else "PASS  (0 실패)"))
 sys.exit(1 if FAIL else 0)

@@ -834,6 +834,60 @@ def _row_line(subject, bits):
     return "  %s: %s" % (subject, ", ".join(bits))
 
 
+def _live_criteria(crit, days, tally, axis_maps, stated):
+    """지금 **실제로 걸 수 있는** 기준만 추린다 — 피연산자가 있는 축만.
+
+    `eligible_text` 에서 **축자 그대로 추출**한 것이다(거동 불변). `verified_subjects` 가 같은
+    판정을 두 번 쓰지 않게 하려고 함수로 뺐다 — 복제하면 둘이 갈리고, 갈린 목록이 오늘
+    C377 결함의 형태였다.
+    """
+    live = []
+    for c in crit or ():
+        ax, src, rel = c.get("axis"), c.get("operand"), c.get("compare")
+        m = (axis_maps or {}).get(ax) or {}
+        if not (ax and rel and m):
+            continue
+        if src == "tally":
+            # ⚠원장을 **안 읽었으면** 거르지 않는다. 빈 dict 를 0 으로 세면 *"올해 아무것도
+            #   안 썼다"* 는 주장이 되는데 그건 우리가 확인한 사실이 아니다([[25]]).
+            if tally is not None:
+                live.append((m, rel, "tally", None))
+        elif src == "days":
+            if days is not None:
+                live.append((m, rel, "scalar", int(days)))
+        elif src == "stated":
+            v = (stated or {}).get(ax)
+            if v is not None:
+                live.append((m, rel, "scalar", _num(v)))
+    return live
+
+
+def verified_subjects(days, tally, axis_maps, spec, stated=None):
+    """**모든 살아 있는 기준이 실제로 대조된** 주어의 집합 — 통과 집합의 진부분집합일 수 있다.
+
+    ## 왜 (2026-08-09·C381·라이브 부검)
+
+    `eligible_text` 는 그 상품에 그 기준 값이 문서에 **없으면 거르지 않는다**(축자: *"모름 ≠
+    탈락"*). 그것은 옳다 — 모르는 것을 탈락으로 바꾸면 없는 근거로 배제하는 것이다.
+
+    그러나 **거르지 않은 것과 확인한 것은 다르다.** 런 x098 실측: 손님 예치액 600 을 제대로
+    잡았는데 합-목적의 `best` 가 **125** 로 나왔다. 그 값을 만든 주어는 예치 기준 값이 A3 에
+    없어 걸러지지 않았을 뿐, 자격이 확인된 적이 없다. 그 최댓값을 권위 있게 되돌리자 서브는
+    **무응답**이었다(표의 답과 우리가 말한 수가 안 맞는다). 010 도 같은 형태로 `best=850`.
+
+    ⇒ 두 규율을 다 지킨다: **표에는 남기고**(배제 안 함) **최댓값은 확인된 것에서만 뽑는다**
+      (없는 근거로 단정 안 함·[[25]]).
+    """
+    cfg = (spec or {}).get("eligible") or {}
+    live = _live_criteria(list(cfg.get("criteria") or ()), days, tally, axis_maps, stated)
+    if not live:
+        return set()
+    subs = set()
+    for a in (cfg.get("show_axes") or ()):
+        subs |= set((axis_maps or {}).get(a) or {})
+    return {s for s in subs if all(m.get(s) is not None for m, _r, _k, _v in live)}
+
+
 def eligible_text(days, tally, axis_maps, spec, stated=None, as_rows=False):
     """자격을 **엔진이 걸러** 통과한 후보만, 그 상품에 기록된 정책 상수와 함께 말한다. 산수뿐이다.
 
@@ -875,24 +929,7 @@ def eligible_text(days, tally, axis_maps, spec, stated=None, as_rows=False):
         return ""
     # 피연산자: 원장에서 온 것(경과일·누계)과 대화에서 온 것(`stated`)을 한 자리에서 받는다.
     # 축마다 피연산자가 **있을 때만** 거른다 — 없는 축은 거르지 않는다(모름 ≠ 탈락).
-    live = []
-    for c in crit:
-        ax, src, rel = c.get("axis"), c.get("operand"), c.get("compare")
-        m = (axis_maps or {}).get(ax) or {}
-        if not (ax and rel and m):
-            continue
-        if src == "tally":
-            # ⚠원장을 **안 읽었으면** 거르지 않는다. 빈 dict 를 0 으로 세면 *"올해 아무것도
-            #   안 썼다"* 는 주장이 되는데 그건 우리가 확인한 사실이 아니다([[25]]).
-            if tally is not None:
-                live.append((m, rel, "tally", None))
-        elif src == "days":
-            if days is not None:
-                live.append((m, rel, "scalar", int(days)))
-        elif src == "stated":
-            v = (stated or {}).get(ax)
-            if v is not None:
-                live.append((m, rel, "scalar", _num(v)))
+    live = _live_criteria(crit, days, tally, axis_maps, stated)
     # ★거를 수 있는 기준이 하나도 없으면 침묵한다 — 통과 도장을 찍는 것이 되기 때문이다.
     if not live:
         return ""

@@ -2656,7 +2656,21 @@ def _limit_reduce_text(agent, a2, messages):
                                 _oaxes = _LG2.formalize_objective_axes(agent, _la3, _UM3, _sp2,
                                                                        _tx, _axres)
                                 _olab, _omap = _LG2.combine_axes(_axm3, _oaxes)
-                                _rk7 = _LG2._rank_by(_erows, _omap)
+                                # ★최댓값은 **자격이 실제로 대조된** 주어에서만 뽑는다
+                                #   (2026-08-09 라이브 부검·C381). 통과 집합에는 *"그 기준 값이
+                                #   문서에 없어서 거르지 못한"* 주어가 섞여 있다 — 거르지 않는
+                                #   것은 옳지만(모름≠탈락), 그 주어가 만든 최댓값을 권위 있게
+                                #   되돌리는 것은 없는 근거로 단정하는 것이다([[25]]). 실측:
+                                #   x098 `best=125`·x010 `best=850` 이 나왔고 서브는 **무응답**
+                                #   이었다(표의 답과 우리가 말한 수가 안 맞는다).
+                                _ver7 = _LG2.verified_subjects(_e2.get("days"), _tal2, _axm3,
+                                                               _sp2, _stated)
+                                _rows7 = [(_s7, _b7) for _s7, _b7 in _erows if _s7 in _ver7]
+                                if len(_rows7) != len(_erows):
+                                    print("[T2_OBJ_SUM] 순위 대상 %d/%d (자격 미대조 주어 제외)"
+                                          % (len(_rows7), len(_erows)),
+                                          file=sys.stderr, flush=True)
+                                _rk7 = _LG2._rank_by(_rows7, _omap)
                                 if _rk7:
                                     _hint = _sp2["objective_hint_text"].format(
                                         axis=_olab, best=_LG2._num(_rk7[0][1]))
