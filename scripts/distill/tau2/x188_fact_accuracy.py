@@ -100,18 +100,26 @@ def main():
         for label, sub in ladders:
             text = Y.render(sub)
             hay = norm(text)
-            prompt = tpl.replace("{items}", items).replace("{text}", text)
-            key_ok = quote_ok = val_ok = 0
-            got, extra = [], set()
+            # ⚠[[55]] 배관 수리(첫 판 버그): `.replace` 로 끼우면 템플릿의 이스케이프 `{{}}`
+            #   가 그대로 남아 모델에게 *"{{}} 로 답하라"* 를 시키고 전부 PARSE_FAIL 이 났다.
+            #   라이브 경로는 `.format` 을 쓴다 — 같게 맞춘다.
+            prompt = tpl.format(items=items, text=text)
+            key_ok = quote_ok = val_ok = filled = 0
+            got, extra, raws = [], set(), []
             for i in range(n):
+                raw = ""
                 try:
-                    obj = parse_obj(ask(prompt, 0.0 if i == 0 else 0.7))
+                    raw = ask(prompt, 0.0 if i == 0 else 0.7)
+                    obj = parse_obj(raw)
                 except Exception as e:
                     obj = None
                     print("   ERR %r" % (e,))
+                raws.append(" ".join(str(raw).split())[:160])
                 if obj is None:
                     got.append("PARSE_FAIL")
                     continue
+                if obj:
+                    filled += 1
                 bad = [k for k in obj if k not in names]
                 extra |= set(bad)
                 key_ok += 1 if not bad else 0
