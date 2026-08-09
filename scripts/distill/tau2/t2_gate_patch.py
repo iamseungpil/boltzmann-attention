@@ -2497,6 +2497,14 @@ def _limit_reduce_text(agent, a2, messages):
         if _ax3 and _v3:
             _axm3[_ax3] = _v3
     _add = ""
+    # ★R8 (2026-08-09·C373 부검): **결정 블록이 나가는 메시지에는 다른 행동 지시를 섞지 않는다.**
+    #   스모크 실측 — 통과한 100 은 블록이 혼자 나갔고, 실패한 099 는 같은 메시지에
+    #   `[SOURCE]`(*"Search the knowledge base…"*) 2회 + `unmatched`(*"determine which before
+    #   advising"*) 3회가 함께 나갔다(100 은 각 0회). 블록 위치는 둘 다 끝에서 ~450자로 같았고,
+    #   에이전트는 KB 를 다시 뒤진 뒤 블록의 답을 버렸다. ⇒ 레버는 최근성이 아니라 **지시 충돌**.
+    #   억제가 정당한 이유: 블록은 이미 **인용 있는 정책 상수**를 근거와 함께 싣는다 —
+    #   *"문서를 찾아라"* 요구는 그 턴에 이미 충족돼 있다. 블록이 없는 턴에는 종전대로 나간다.
+    _unm_parts, _decided = [], False
     # 선언마다 **그 선언이 말하는 축만** 계산한다 — 상한은 상한을 선언한 쪽, 문턱은 문턱 쪽.
     for _e2 in ops.values():
         _sp2 = _e2.get("spec") or {}
@@ -2505,7 +2513,10 @@ def _limit_reduce_text(agent, a2, messages):
             # ★판정하지 못한 그룹은 **이름을 말한다**(C327). 조용히 빼면 모델 쪽에서 침묵이
             #   *검사 통과*와 구별되지 않는다. 엔진은 집합 뺄셈만 하고, 이름이 같은 것을
             #   가리키는지는 여전히 모델 몫이다([[22]]).
-            _add += _LG2.unmatched_text(_e2["tally"], _lims3, _sp2)
+            _u8 = _LG2.unmatched_text(_e2["tally"], _lims3, _sp2)
+            if _u8:
+                _unm_parts.append(_u8)
+            _add += _u8
         if _e2.get("days") is not None and _mins3:
             _add += _LG2.ineligible_text(_e2["days"], _mins3, _sp2)
         # ★통과 집합 (2026-08-08·C337). 못 되는 것을 말하는 것만으로는 안 닫혔다 —
@@ -2612,10 +2623,22 @@ def _limit_reduce_text(agent, a2, messages):
                             if _sp2.get("decided_text"):
                                 _add += _LG2.decided_text(_sp2, _pick, _erows, _ops5, _oax,
                                                           (_axm3 or {}).get(_oax) or {})
+                                _decided = True
                             else:
                                 _add += _sp2.get("rederived_text", "").format(choice=_pick)
                 except Exception as _re5:
                     print("[T2_REDERIVE] 건너뜀: %r" % (_re5,), file=sys.stderr, flush=True)
+    # ★R8 집행 — 블록이 나가면 같은 메시지의 **조사 지시**를 뺀다(위 주석의 근거).
+    #   지우는 것은 **우리가 방금 만든 그 문자열**이라 도메인 텍스트 파싱이 아니다([[59]]).
+    if _decided and _unm_parts:
+        for _u8 in _unm_parts:
+            _add = _add.replace(_u8, "")
+        print("[T2_R8] 결정 블록과 함께 나갈 조사 지시 %d건 억제(unmatched)" % len(_unm_parts),
+              file=sys.stderr, flush=True)
+    try:                       # 호출부가 `[SOURCE]` 도 같은 규칙으로 뺄 수 있게 알린다
+        agent._t2_decided = bool(_decided)
+    except Exception:
+        pass
     return _add.strip()
 
 
@@ -5961,6 +5984,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     #   세 번째 형태이고, 이번엔 **껍데기 쪽이 죽는다**(방향이 반대).
                                     #   초기화 한 줄로 닫는다 — ARBITRATE가 켜져 있으면 거동 불변.
                                     _reqs = []
+                                    _srctext = ""      # R8 억제 대상 문자열(이 턴에 [SOURCE]가 나가면 채워진다)
                                     if os.environ.get("T2_ARBITRATE") == "1":
                                         # ★C3 합병(2026-08-07): 하나를 고르지 않고 **덮는 요건을 전부**
                                         #   모아 한 번에 말한다. 구판은 첫 미충족 게이트만 돌려줬고,
@@ -6098,8 +6122,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                             #  그 턴에 산수가 못 나가서 한 sim이 통째로 침묵했다.
                                             #  아래 `_limit_reduce_text` 호출부가 정본이다.)
                                             if _bad:
-                                                _ufb = ((_ufb + "\n") if _ufb else "") + \
-                                                    _SRC.unsourced_text(a2, _bad)
+                                                # ★R8 대상으로 **문자열을 기억해 둔다** — 이 턴에
+                                                #   결정 블록이 나가면 아래에서 그대로 뺀다.
+                                                _srctext = _SRC.unsourced_text(a2, _bad)
+                                                _ufb = ((_ufb + "\n") if _ufb else "") + _srctext
                                             print("[T2_ARBITRATE] push dominated target=%s reqs=%s "
                                                   "unsourced=%d"
                                                   % (_utgt, ",".join(r["id"] for r in _reqs),
@@ -6191,6 +6217,17 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                         print("[T2_LIMIT_REDUCE] skipped (no-op): %r" % (_lre,),
                                               file=_sys.stderr, flush=True)
                                     if _add:
+                                        # ★R8 — 결정 블록이 나가는 턴에는 `[SOURCE]` 재검색 명령을
+                                        #   함께 보내지 않는다(C373: 실패한 099 에만 2회 동반·
+                                        #   통과한 100 은 0회). 블록이 이미 인용 있는 정책 상수를
+                                        #   싣고 있어 *"문서를 찾아라"* 는 그 턴에 충족돼 있다.
+                                        if getattr(self, "_t2_decided", False) and _srctext:
+                                            _n8 = _ufb.count(_srctext)
+                                            if _n8:
+                                                _ufb = _ufb.replace(_srctext, "").strip()
+                                                print("[T2_R8] 결정 블록과 동반할 [SOURCE] "
+                                                      "재검색 명령 %d건 억제" % _n8,
+                                                      file=_sys.stderr, flush=True)
                                         _ufb = ((_ufb + "\n") if _ufb else "") + _add
                                         print("[T2_LIMIT_REDUCE] emitted at decision point",
                                               file=_sys.stderr, flush=True)

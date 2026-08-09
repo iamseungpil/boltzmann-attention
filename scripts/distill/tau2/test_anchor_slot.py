@@ -108,5 +108,31 @@ ok("{choice}" in spec["decided_text"] and "{runners}" in spec["decided_text"],
 ok(all(("{%s}" % k) in spec["reask_prompt"] for k in ("axis", "chosen", "best")),
    "reask_prompt 에 필요한 자리표시자가 있다")
 
+print("\n§9 R8 — 결정 블록이 나가면 조사 지시를 뺀다 (C373 부검)")
+import t2_gate_patch as G                                        # noqa: E402
+
+
+class _Agent(object):
+    def __init__(self, ops):
+        self._t2_ledger_ops = ops
+        self.llm = None
+        self.llm_args = {}
+
+
+tally_spec = next((s for s in a2["ledger_metrics"] if s.get("unmatched_text")), None)
+ok(tally_spec is not None, "unmatched_text 를 선언한 spec 이 있다")
+if tally_spec is not None:
+    # 상한 행이 없는 그룹을 하나 만들어 `unmatched_text` 를 강제 발화시킨다(도메인 무관·합성)
+    fake = {"__no_allowance_group__": 3}
+    unm = LG.unmatched_text(fake, {"other": 1}, tally_spec)
+    ok(bool(unm), "합성 누계로 unmatched_text 가 만들어진다")
+    ops = {tally_spec.get("trigger_tool"): {"spec": tally_spec, "tally": fake, "days": None},
+           spec.get("trigger_tool"): {"spec": spec, "tally": {}, "days": 730}}
+    ag = _Agent(ops)
+    out = G._limit_reduce_text(ag, a2, [])
+    # 오프라인에는 LLM 이 없어 지목이 안 나온다 ⇒ 블록 없음 ⇒ 조사 지시는 **남아야** 한다
+    ok(getattr(ag, "_t2_decided", None) is False, "지목이 없으면 _t2_decided=False")
+    ok(unm.strip() in out, "블록이 없는 턴에는 조사 지시가 종전대로 나간다(폴백 보존)")
+
 print("\n" + ("FAIL %d: %s" % (len(FAIL), FAIL) if FAIL else "PASS  (0 실패)"))
 sys.exit(1 if FAIL else 0)
