@@ -1,0 +1,2186 @@
+[
+ {
+  "id": "task_001",
+  "n": 2,
+  "pass": 2,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "apply_for_credit_card"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_002",
+  "n": 2,
+  "pass": 2,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "apply_for_credit_card"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_003",
+  "n": 2,
+  "pass": 1,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "apply_for_credit_card"
+  ],
+  "causes": [
+   "권한 월권",
+   "사슬 역행 실패",
+   "집계 미발화"
+  ]
+ },
+ {
+  "id": "task_004",
+  "n": 2,
+  "pass": 2,
+  "gate": false,
+  "basis": [
+   "ACTION"
+  ],
+  "tools": [
+   "transfer_to_human_agents"
+  ],
+  "causes": [
+   "미검증 단정·정박 치환",
+   "발화-행동 등가 오인"
+  ]
+ },
+ {
+  "id": "task_005",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "transfer_to_human_agents",
+   "log_verification",
+   "change_user_email"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_006",
+  "n": 2,
+  "pass": 2,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "apply_for_credit_card"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_007",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "apply_for_credit_card"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_008",
+  "n": 2,
+  "pass": 2,
+  "gate": false,
+  "basis": [
+   "ACTION"
+  ],
+  "tools": [
+   "transfer_to_human_agents"
+  ],
+  "causes": [
+   "발화-행동 등가 오인"
+  ]
+ },
+ {
+  "id": "task_010",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "submit_referral"
+  ],
+  "causes": [
+   "미검증 단정·정박 치환"
+  ]
+ },
+ {
+  "id": "task_012",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "ACTION"
+  ],
+  "tools": [
+   "transfer_to_human_agents"
+  ],
+  "causes": [
+   "미검증 단정·정박 치환",
+   "부재 미종결",
+   "유도 실패"
+  ]
+ },
+ {
+  "id": "task_014",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "ACTION"
+  ],
+  "tools": [
+   "transfer_to_human_agents"
+  ],
+  "causes": [
+   "미검증 단정·정박 치환"
+  ]
+ },
+ {
+  "id": "task_015",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_016",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "submit_transaction"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_017",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_018",
+  "n": 2,
+  "pass": 1,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "causes": [
+   "미검증 단정·정박 치환",
+   "유도 실패",
+   "전사 발산"
+  ]
+ },
+ {
+  "id": "task_019",
+  "n": 2,
+  "pass": 1,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "causes": [
+   "완료 무검증",
+   "유도 실패"
+  ]
+ },
+ {
+  "id": "task_020",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "causes": [
+   "완료 무검증"
+  ]
+ },
+ {
+  "id": "task_021",
+  "n": 2,
+  "pass": 2,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "causes": [
+   "유도 실패"
+  ]
+ },
+ {
+  "id": "task_022",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "causes": [
+   "미검증 단정·정박 치환",
+   "조건 재소환 실패",
+   "집계 미발화"
+  ]
+ },
+ {
+  "id": "task_023",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "apply_for_credit_card"
+  ],
+  "causes": [
+   "권한 월권",
+   "부재 미종결"
+  ]
+ },
+ {
+  "id": "task_024",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "apply_for_credit_card"
+  ],
+  "causes": [
+   "의미 소속 판정 불가"
+  ]
+ },
+ {
+  "id": "task_025",
+  "n": 2,
+  "pass": 1,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "apply_for_credit_card"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_026",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "update_transaction_rewards_3847",
+   "update_transaction_rewards_3847",
+   "update_transaction_rewards_3847",
+   "update_transaction_rewards_3847",
+   "update_transaction_rewards_3847"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_027",
+  "n": 3,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_028",
+  "n": 2,
+  "pass": 1,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "update_transaction_rewards_3847",
+   "update_transaction_rewards_3847",
+   "update_transaction_rewards_3847",
+   "update_transaction_rewards_3847",
+   "update_transaction_rewards_3847",
+   "update_transaction_rewards_3847",
+   "update_transaction_rewards_3847"
+  ],
+  "causes": [
+   "미검증 단정·정박 치환"
+  ]
+ },
+ {
+  "id": "task_029",
+  "n": 3,
+  "pass": 1,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_031",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_032",
+  "n": 3,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "ACTION"
+  ],
+  "tools": [
+   "initial_transfer_to_human_agent_0218",
+   "initial_transfer_to_human_agent_0218",
+   "initial_transfer_to_human_agent_0218",
+   "initial_transfer_to_human_agent_0218",
+   "transfer_to_human_agents"
+  ],
+  "causes": [
+   "사슬 역행 실패"
+  ]
+ },
+ {
+  "id": "task_033",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "ACTION"
+  ],
+  "tools": [
+   "initial_transfer_to_human_agent_1822",
+   "initial_transfer_to_human_agent_1822",
+   "initial_transfer_to_human_agent_0218",
+   "initial_transfer_to_human_agent_0218",
+   "transfer_to_human_agents"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_034",
+  "n": 3,
+  "pass": 3,
+  "gate": false,
+  "basis": [
+   "ACTION"
+  ],
+  "tools": [
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "transfer_to_human_agents"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_035",
+  "n": 3,
+  "pass": 1,
+  "gate": false,
+  "basis": [
+   "ACTION"
+  ],
+  "tools": [
+   "emergency_credit_bureau_incident_transfer_1114",
+   "emergency_credit_bureau_incident_transfer_1114",
+   "transfer_to_human_agents"
+  ],
+  "causes": [
+   "미검증 단정·정박 치환"
+  ]
+ },
+ {
+  "id": "task_036",
+  "n": 3,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "order_replacement_credit_card_7291",
+   "order_replacement_credit_card_7291"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_037",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "order_replacement_credit_card_7291",
+   "order_replacement_credit_card_7291",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_038",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "order_replacement_credit_card_7291",
+   "order_replacement_credit_card_7291",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829"
+  ],
+  "causes": [
+   "집계 미발화"
+  ]
+ },
+ {
+  "id": "task_039",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "order_replacement_credit_card_7291",
+   "order_replacement_credit_card_7291"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_040",
+  "n": 3,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829"
+  ],
+  "causes": [
+   "유도 실패"
+  ]
+ },
+ {
+  "id": "task_041",
+  "n": 3,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829"
+  ],
+  "causes": [
+   "발화-행동 등가 오인"
+  ]
+ },
+ {
+  "id": "task_043",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "pay_credit_card_from_checking_9182",
+   "pay_credit_card_from_checking_9182",
+   "get_closure_reason_history_8293",
+   "get_closure_reason_history_8293",
+   "log_credit_card_closure_reason_4521",
+   "log_credit_card_closure_reason_4521",
+   "apply_credit_card_account_flag_6147",
+   "apply_credit_card_account_flag_6147"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_044",
+  "n": 3,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_closure_reason_history_8293",
+   "get_closure_reason_history_8293",
+   "log_credit_card_closure_reason_4521",
+   "log_credit_card_closure_reason_4521",
+   "apply_for_credit_card"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_045",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "pay_credit_card_from_checking_9182",
+   "pay_credit_card_from_checking_9182",
+   "get_closure_reason_history_8293",
+   "get_closure_reason_history_8293",
+   "log_credit_card_closure_reason_4521",
+   "log_credit_card_closure_reason_4521",
+   "apply_statement_credit_8472",
+   "apply_statement_credit_8472"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_046",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291"
+  ],
+  "causes": [
+   "미검증 단정·정박 치환"
+  ]
+ },
+ {
+  "id": "task_047",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_closure_reason_history_8293",
+   "get_closure_reason_history_8293",
+   "log_credit_card_closure_reason_4521",
+   "log_credit_card_closure_reason_4521",
+   "apply_for_credit_card",
+   "get_pending_replacement_orders_5765",
+   "get_closure_reason_history_8293",
+   "log_credit_card_closure_reason_4521",
+   "apply_statement_credit_8472",
+   "apply_statement_credit_8472"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_048",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_closure_reason_history_8293",
+   "get_closure_reason_history_8293",
+   "close_credit_card_account_7834",
+   "close_credit_card_account_7834",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "pay_credit_card_from_checking_9182",
+   "pay_credit_card_from_checking_9182",
+   "get_closure_reason_history_8293",
+   "log_credit_card_closure_reason_4521",
+   "log_credit_card_closure_reason_4521",
+   "apply_for_credit_card",
+   "get_pending_replacement_orders_5765",
+   "get_closure_reason_history_8293",
+   "log_credit_card_closure_reason_4521",
+   "apply_statement_credit_8472",
+   "apply_statement_credit_8472"
+  ],
+  "causes": [
+   "부재 미종결",
+   "사슬 역행 실패"
+  ]
+ },
+ {
+  "id": "task_049",
+  "n": 3,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_closure_reason_history_8293",
+   "get_closure_reason_history_8293",
+   "close_credit_card_account_7834",
+   "close_credit_card_account_7834",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_closure_reason_history_8293",
+   "log_credit_card_closure_reason_4521",
+   "log_credit_card_closure_reason_4521",
+   "apply_statement_credit_8472",
+   "apply_statement_credit_8472",
+   "request_human_agent_transfer",
+   "transfer_to_human_agents"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_050",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "submit_credit_limit_increase_request_7392",
+   "submit_credit_limit_increase_request_7392",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_credit_limit_increase_history_4829",
+   "get_credit_limit_increase_history_4829",
+   "get_payment_history_6183",
+   "get_payment_history_6183",
+   "approve_credit_limit_increase_5847",
+   "approve_credit_limit_increase_5847"
+  ],
+  "causes": [
+   "미검증 단정·정박 치환",
+   "완료 무검증"
+  ]
+ },
+ {
+  "id": "task_051",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "submit_credit_limit_increase_request_7392",
+   "submit_credit_limit_increase_request_7392",
+   "get_credit_limit_increase_history_4829",
+   "get_credit_limit_increase_history_4829",
+   "get_payment_history_6183",
+   "get_payment_history_6183",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "deny_credit_limit_increase_5848",
+   "deny_credit_limit_increase_5848",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "pay_credit_card_from_checking_9182",
+   "pay_credit_card_from_checking_9182",
+   "submit_credit_limit_increase_request_7392",
+   "approve_credit_limit_increase_5847",
+   "approve_credit_limit_increase_5847"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_052",
+  "n": 2,
+  "pass": 1,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "submit_credit_limit_increase_request_7392",
+   "submit_credit_limit_increase_request_7392",
+   "get_credit_limit_increase_history_4829",
+   "get_credit_limit_increase_history_4829",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_payment_history_6183",
+   "get_payment_history_6183",
+   "deny_credit_limit_increase_5848",
+   "deny_credit_limit_increase_5848"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_053",
+  "n": 3,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_credit_limit_increase_history_4829",
+   "get_credit_limit_increase_history_4829",
+   "get_payment_history_6183",
+   "get_payment_history_6183",
+   "submit_credit_limit_increase_request_7392",
+   "submit_credit_limit_increase_request_7392",
+   "approve_credit_limit_increase_5847",
+   "approve_credit_limit_increase_5847",
+   "give_discoverable_user_tool",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829"
+  ],
+  "causes": [
+   "사슬 역행 실패"
+  ]
+ },
+ {
+  "id": "task_054",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "submit_credit_limit_increase_request_7392",
+   "submit_credit_limit_increase_request_7392",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "get_pending_replacement_orders_5765",
+   "get_pending_replacement_orders_5765",
+   "get_credit_limit_increase_history_4829",
+   "get_credit_limit_increase_history_4829",
+   "get_payment_history_6183",
+   "get_payment_history_6183",
+   "approve_credit_limit_increase_5847",
+   "approve_credit_limit_increase_5847",
+   "order_replacement_credit_card_7291",
+   "order_replacement_credit_card_7291",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_055",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_056",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "transfer_funds_between_bank_accounts_7291",
+   "transfer_funds_between_bank_accounts_7291"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_057",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_058",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "apply_for_credit_card",
+   "open_bank_account_4821",
+   "open_bank_account_4821"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_059",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "apply_for_credit_card",
+   "open_bank_account_4821",
+   "open_bank_account_4821"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_060",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "close_bank_account_7392",
+   "close_bank_account_7392"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_061",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "close_bank_account_7392",
+   "close_bank_account_7392"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_062",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "transfer_funds_between_bank_accounts_7291",
+   "transfer_funds_between_bank_accounts_7291",
+   "close_bank_account_7392",
+   "close_bank_account_7392",
+   "transfer_funds_between_bank_accounts_7291",
+   "transfer_funds_between_bank_accounts_7291",
+   "close_bank_account_7392"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_063",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "apply_for_credit_card",
+   "open_bank_account_4821",
+   "open_bank_account_4821"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_064",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "apply_for_credit_card",
+   "open_bank_account_4821",
+   "open_bank_account_4821"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_065",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "close_bank_account_7392",
+   "close_bank_account_7392"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_066",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "apply_for_credit_card",
+   "close_bank_account_7392",
+   "close_bank_account_7392"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_067",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "apply_for_credit_card",
+   "close_bank_account_7392",
+   "close_bank_account_7392"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_068",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "apply_for_credit_card",
+   "close_bank_account_7392",
+   "close_bank_account_7392"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_069",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "apply_for_credit_card",
+   "close_bank_account_7392",
+   "close_bank_account_7392"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_070",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "open_bank_account_4821",
+   "open_bank_account_4821"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_071",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "open_bank_account_4821",
+   "open_bank_account_4821",
+   "open_bank_account_4821"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_072",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "apply_checking_account_credit_5829",
+   "apply_checking_account_credit_5829",
+   "apply_checking_account_credit_5829"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_073",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "apply_checking_account_credit_5829",
+   "apply_checking_account_credit_5829",
+   "apply_checking_account_credit_5829",
+   "apply_checking_account_credit_5829"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_074",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "apply_checking_account_credit_5829",
+   "apply_checking_account_credit_5829",
+   "apply_checking_account_credit_5829",
+   "apply_checking_account_credit_5829",
+   "apply_checking_account_credit_5829"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_075",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "open_bank_account_4821",
+   "open_bank_account_4821"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_076",
+  "n": 2,
+  "pass": 1,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "open_bank_account_4821",
+   "open_bank_account_4821"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_077",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "get_credit_card_accounts_by_user",
+   "order_replacement_credit_card_7291",
+   "order_replacement_credit_card_7291",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "unfreeze_debit_card_3893",
+   "unfreeze_debit_card_3893",
+   "unfreeze_debit_card_3893",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "order_debit_card_5739",
+   "order_debit_card_5739",
+   "activate_debit_card_8292",
+   "activate_debit_card_8292"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_078",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "get_credit_card_accounts_by_user",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "unfreeze_debit_card_3893",
+   "unfreeze_debit_card_3893",
+   "unfreeze_debit_card_3893",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "order_debit_card_5739",
+   "order_debit_card_5739"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_079",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "get_credit_card_accounts_by_user",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "unfreeze_debit_card_3893",
+   "unfreeze_debit_card_3893",
+   "unfreeze_debit_card_3893",
+   "unfreeze_debit_card_3893",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "order_debit_card_5739",
+   "order_debit_card_5739",
+   "order_debit_card_5739"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_080",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "unfreeze_debit_card_3893",
+   "unfreeze_debit_card_3893",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "unfreeze_debit_card_3893",
+   "unfreeze_debit_card_3893",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "order_debit_card_5739",
+   "order_debit_card_5739",
+   "order_replacement_credit_card_7291",
+   "order_replacement_credit_card_7291",
+   "order_replacement_credit_card_7291",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "activate_debit_card_8292",
+   "activate_debit_card_8292"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_081",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "freeze_debit_card_3892",
+   "unfreeze_debit_card_3893",
+   "unfreeze_debit_card_3893",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "unfreeze_debit_card_3893",
+   "unfreeze_debit_card_3893",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "order_debit_card_5739",
+   "order_debit_card_5739",
+   "order_replacement_credit_card_7291",
+   "order_replacement_credit_card_7291",
+   "order_replacement_credit_card_7291",
+   "get_user_dispute_history_7291",
+   "get_user_dispute_history_7291",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "file_credit_card_transaction_dispute_4829",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "transfer_to_human_agents"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_082",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_debit_dispute_status_7483",
+   "get_debit_dispute_status_7483",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "order_debit_card_5739",
+   "order_debit_card_5739"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_083",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "ACTION"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "get_debit_dispute_status_7483",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_084",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_debit_dispute_status_7483",
+   "get_debit_dispute_status_7483",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "close_debit_card_4721",
+   "close_debit_card_4721"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_085",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "get_bank_account_transactions_9173",
+   "file_debit_card_transaction_dispute_6281"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_086",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_debit_dispute_status_7483",
+   "get_debit_dispute_status_7483",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "get_bank_account_transactions_9173",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "order_debit_card_5739",
+   "order_debit_card_5739"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_087",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "unfreeze_debit_card_3893",
+   "unfreeze_debit_card_3893",
+   "clear_debit_card_fraud_alert_4892",
+   "clear_debit_card_fraud_alert_4892",
+   "get_debit_cards_by_account_id_7823",
+   "unfreeze_debit_card_3893",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "order_debit_card_5739",
+   "order_debit_card_5739"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_088",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "order_debit_card_5739",
+   "order_debit_card_5739",
+   "get_debit_cards_by_account_id_7823",
+   "transfer_to_human_agents"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_089",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "request_temporary_debit_card_limit_increase_8374",
+   "request_temporary_debit_card_limit_increase_8374",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_090",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "order_debit_card_5739",
+   "order_debit_card_5739",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "reset_debit_card_pin_6284",
+   "reset_debit_card_pin_6284",
+   "get_debit_cards_by_account_id_7823"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_091",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "reset_debit_card_pin_6284",
+   "reset_debit_card_pin_6284",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "order_debit_card_5739",
+   "order_debit_card_5739",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "file_debit_card_transaction_dispute_6281",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "reset_debit_card_pin_6284",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "close_debit_card_4721",
+   "order_debit_card_5739"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_092",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "close_debit_card_4721",
+   "close_debit_card_4721",
+   "order_debit_card_5739",
+   "order_debit_card_5739",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "close_debit_card_4721",
+   "order_debit_card_5739",
+   "get_debit_cards_by_account_id_7823",
+   "get_bank_account_transactions_9173",
+   "reset_debit_card_pin_6284",
+   "reset_debit_card_pin_6284",
+   "get_debit_cards_by_account_id_7823",
+   "transfer_to_human_agents"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_093",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "apply_savings_account_credit_6831",
+   "apply_savings_account_credit_6831",
+   "submit_interest_discrepancy_report_7294",
+   "submit_interest_discrepancy_report_7294"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_094",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "apply_savings_account_credit_6831",
+   "apply_savings_account_credit_6831",
+   "submit_interest_discrepancy_report_7294",
+   "submit_interest_discrepancy_report_7294"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_095",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "apply_savings_account_credit_6831",
+   "apply_savings_account_credit_6831",
+   "submit_interest_discrepancy_report_7294",
+   "submit_interest_discrepancy_report_7294"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_096",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "apply_savings_account_credit_6831",
+   "apply_savings_account_credit_6831",
+   "apply_savings_account_credit_6831",
+   "submit_interest_discrepancy_report_7294",
+   "submit_interest_discrepancy_report_7294",
+   "submit_interest_discrepancy_report_7294"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_097",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "get_bank_account_transactions_9173",
+   "apply_savings_account_credit_6831",
+   "apply_savings_account_credit_6831",
+   "apply_savings_account_credit_6831",
+   "apply_savings_account_credit_6831",
+   "apply_savings_account_credit_6831",
+   "submit_interest_discrepancy_report_7294",
+   "submit_interest_discrepancy_report_7294",
+   "submit_interest_discrepancy_report_7294",
+   "submit_interest_discrepancy_report_7294",
+   "submit_interest_discrepancy_report_7294"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_098",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_referrals_by_user",
+   "submit_referral"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_099",
+  "n": 3,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_referrals_by_user",
+   "submit_referral"
+  ],
+  "causes": []
+ },
+ {
+  "id": "task_100",
+  "n": 2,
+  "pass": 0,
+  "gate": true,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_all_user_accounts_by_user_id_3847",
+   "get_all_user_accounts_by_user_id_3847",
+   "submit_referral"
+  ],
+  "causes": [
+   "부재 미종결",
+   "집계 미발화"
+  ]
+ },
+ {
+  "id": "task_101",
+  "n": 2,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_referrals_by_user",
+   "submit_referral",
+   "submit_referral"
+  ],
+  "causes": [
+   "사슬 역행 실패",
+   "집계 미발화"
+  ]
+ },
+ {
+  "id": "task_102",
+  "n": 3,
+  "pass": 0,
+  "gate": false,
+  "basis": [
+   "DB"
+  ],
+  "tools": [
+   "log_verification",
+   "get_referrals_by_user",
+   "submit_referral"
+  ],
+  "causes": []
+ }
+]
