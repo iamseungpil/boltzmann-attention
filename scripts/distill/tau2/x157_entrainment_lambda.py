@@ -49,9 +49,16 @@ GOLD_HEAD = "World"          # gold(`World Blue`)의 첫 낱말 — 채점용일
 ANCHOR = "Navy"              # 앵커로 쓸 오답의 첫 낱말(손님 보유 계좌 = 라이브 실패형)
 
 
-def first_token_dist(prompt, top=20):
+def first_token_dist(prompt, choices, top=20):
+    """★답을 **후보 집합에 강제**하고 첫 토큰 분포를 읽는다.
+
+    자유 생성으로 재려 했더니 무효였다(1차 실행): 첫 토큰이 이름이 아니라 앞말이라
+    두 후보 다 top-20 밖으로 나가 logP ≈ −18/−27 바닥이었다. `guided_choice` 로 출력 공간을
+    후보로 좁히면 첫 토큰이 곧 후보의 첫 낱말이라 분포가 **후보 분포 그 자체**가 된다.
+    """
     body = json.dumps({"model": MODEL, "temperature": 0.0, "max_tokens": 1,
                        "logprobs": True, "top_logprobs": top,
+                       "guided_choice": list(choices),
                        "messages": [{"role": "user", "content": prompt}]}).encode()
     req = urllib.request.Request(URL, data=body, headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=180) as r:
@@ -61,8 +68,16 @@ def first_token_dist(prompt, top=20):
 
 
 def lp_of(dist, head):
-    """첫 낱말이 그 이름으로 시작하는 토큰들의 확률합 → logprob."""
-    p = sum(math.exp(v) for k, v in dist.items() if k and head.lower().startswith(k.lower()[:4]))
+    """그 이름의 첫 낱말에 해당하는 토큰들의 확률합 → logprob.
+
+    ⚠1차 실행 버그: 접두 비교가 **1글자 토큰까지** 잡아(`W` → `World`) 없는 확률을 만들었다.
+      토큰이 2자 이상이고 이름의 접두일 때만 센다.
+    """
+    p = 0.0
+    for k, v in dist.items():
+        kk = k.lower()
+        if len(kk) >= 2 and head.lower().startswith(kk):
+            p += math.exp(v)
     return math.log(max(p, 1e-12))
 
 
@@ -86,7 +101,7 @@ def main():
     xs, ys = [], []
     for k in range(0, kmax + 1):
         pre = ("\n".join([line] * k) + "\n\n") if k else ""
-        d = first_token_dist(pre + base)
+        d = first_token_dist(pre + base, CHOICES)
         g, a = lp_of(d, GOLD_HEAD), lp_of(d, ANCHOR)
         xs.append(k)
         ys.append(a - g)
