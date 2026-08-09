@@ -271,6 +271,60 @@ def formalize_case_facts(agent, la, UserMessage, texts, spec, wanted):
     return keep
 
 
+def rederive_choice(agent, la, UserMessage, spec, table, facts, asked, allowed):
+    """**같은 모델에게 깨끗한 문맥으로 다시 묻는다** — 그리고 그 답만 돌려준다.
+
+    ★근거 (2026-08-09·x154·유료 0·로컬 32B·gold 무참조): task_099 는 라이브 **12 sim 전수 실패**
+      이고 제출물 **10/12 가 손님이 이미 보유한 계좌**였다. 절제가 길을 하나씩 닫았다 —
+        · 같은 표를 궤적 안에 더 실어도                     **0/5**  (현행 라이브)
+        · *"보유한 것이 정답이라는 뜻은 아니다"* 반증 문구    **0/5**  (앵커는 떼지만 argmax 를 틀린다)
+        · **깨끗한 문맥**(표 + 손님 사실 + 질문)만 주면        **5/5**
+        · 그 답을 **궤적 안으로 되돌려 넣으면**               **5/5**  ← 표가 있든 없든 같다
+      ⇒ 결손은 정보가 아니라 **부하**다([[45]]). 처방은 더 보여주는 것이 아니라 **판단하는 자리를
+        바꾸는 것**이다.
+
+    분담 ([[52]]·[[10]]·[[05]] Q2): **고르는 것은 두 번 다 모델**이다. 엔진이 하는 일은 셋뿐 —
+      ⒜ 검증된 재료로 문맥을 조립하고(정책 상수 = A3 인용 · 손님 사실 = 인용 실재 확인된 형식화)
+      ⒝ 손님의 질문은 **그의 말 그대로** 싣고(우리가 해석하지 않는다)
+      ⒞ 돌아온 답이 **목록의 원소인지**만 본다(집합 검사·의미 판단 0·[[22]]).
+    ⚠원소가 아니면 **침묵**한다. 목록 밖의 이름을 우리가 권위 있게 옮기면 그것이 날조 통로가 된다
+      (C107 실물: 날조 인자를 막는 게이트가 날조 *도구명*을 제조했다 — 게이트도 부작용이 있다).
+    ⚠이 문장은 *"우리가 골랐다"* 가 아니라 *"별도 분석이 이것을 고른다"* 로 나간다 — 실제로 그렇다.
+    """
+    tpl = (spec or {}).get("rederive_prompt")
+    if not (tpl and agent is not None and la is not None and table and asked and allowed):
+        return None
+    memo = dict(getattr(agent, "_t2_rederive", None) or {})
+    key = hashlib.sha1(("\n".join((table, facts or "", asked))).encode("utf-8")).hexdigest()[:16]
+    if key in memo:                       # 같은 재료면 다시 묻지 않는다(턴마다 호출되는 자리다)
+        return memo[key]
+    prompt = tpl.format(table=table, facts=facts or "", asked=asked)
+    try:
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+              if "tool" not in k}
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="rederive_choice", **kw)
+        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+    except Exception as e:
+        print("[T2_REDERIVE] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return None
+    # 집합 검사만 한다 — 가장 긴 일치를 고른다(부분 문자열이 다른 이름에 먹히지 않게).
+    hit = sorted((a for a in allowed if a and a.lower() in raw.lower()), key=len, reverse=True)
+    out = hit[0] if hit else None
+    print("[T2_REDERIVE] raw=%r → %s" % (raw[:80], out or "목록 밖 = 침묵"),
+          file=sys.stderr, flush=True)
+    memo[key] = out
+    try:
+        agent._t2_rederive = memo
+    except Exception:
+        pass
+    return out
+
+
 def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr, call_name,
                      extra=""):
     """`{그룹: (정수, 인용문)}` 형태를 모델에게 받는 공용 절차 — 인용 실재만 엔진이 확인한다."""
