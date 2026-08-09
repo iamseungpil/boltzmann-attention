@@ -109,6 +109,15 @@ def main():
     for k in sorted(rw):
         print("  %-18s reward=%-4s %s" % (k, rw[k], term.get(k)))
 
+    # ⚠시행 태그가 안 붙는 경우가 있다 (2026-08-09 실측: orchestrator 가 `trial` 을 그 이름으로
+    #   들고 있지 않으면 `task_010` 까지만 달린다). 그러면 **한 태스크의 두 시행이 한 줄로
+    #   합쳐진다** — 표에 그 사실을 적는다. 없는 분해를 있는 척하지 않는다([[25]]).
+    tagged = [s for s in fired if s and "#t" in s]
+    if fired and not tagged:
+        print("\n⚠ 마크에 시행 번호가 없다 — 아래 §2 는 **태스크 단위 합계**이고 시행별 분해가"
+              " 아니다(같은 태스크의 %d 시행이 한 줄로 합쳐져 있다)."
+              % max([sum(1 for k in rw if k.startswith(s)) for s in fired if s] or [1]))
+
     print("\n§2 기구 발화 (stderr 마크 · sim 별)")
     allmarks = sorted({m for c in fired.values() for m in c})
     if allmarks:
