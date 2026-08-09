@@ -19,7 +19,11 @@
      *언급*(mention)인지 *선택 선언*(authoritative selection)인지. x151/x154 가 이미
      "정보 추가 = 0"을 보였으므로, 남은 축은 같은 이름을 [bare mention / 선언] 두 형태로 얹는 것.
 
-실행: py -3 x159_seven_b_audit.py [KMAX=6]
+실행: py -3 x159_seven_b_audit.py [KMAX=6]        — 전체 감사
+      py -3 x159_seven_b_audit.py raw             — ⑹ raw 덤프만: 붕괴 행(32B j=27·뒤5 단독)의
+        top-20 토큰을 원문으로 인쇄. 1차 실행에서 붕괴 행의 head-귀속 argmax p 가 0.006~0.012 로
+        작은데 top-20 질량은 1.000 이었다 ⇒ 질량 대부분이 head 미귀속 토큰(모호 접두·1글자?)에
+        앉아 있다는 뜻이고, 그러면 붕괴 행의 **절대 p 는 신뢰 불가**(순위·argmax 만 유효)다. 확인.
   서버 고정: 8140=32B(GPTQ-Int8) · 8141=7B — 모델명은 /v1/models 로 자가 확인(하드코딩 금지).
 """
 import json
@@ -94,7 +98,8 @@ def render_msgs(ms):
 
 
 def main():
-    kmax = int(sys.argv[1]) if len(sys.argv) > 1 else 6
+    raw_only = len(sys.argv) > 1 and sys.argv[1] == "raw"
+    kmax = 6 if raw_only else (int(sys.argv[1]) if len(sys.argv) > 1 else 6)
     a2 = load_domain_a2("banking_knowledge")
     spec = next(s for s in a2["ledger_metrics"] if s.get("eligible_text"))
     rows = a2["policy_ontology"]["rows"]
@@ -141,6 +146,18 @@ def main():
                  rank[0], ps[rank[0]], covered,
                  "  ⚠검열" if covered < 0.98 else ""))
         return ps, covered
+
+    # ── ⑹ raw 덤프 (붕괴 행 절대 p 신뢰성 판정) ─────────────────────────────
+    if raw_only:
+        last5 = MSGS[-5:]
+        for label, msgs in (("32B j=27", MSGS), ("32B 뒤5 단독", last5),
+                            ("32B j=0 (대조)", [])):
+            d = first_token_dist(URL_32B, m32, with_traj(msgs), CHOICES)
+            ps, _ = head_probs(d, heads)
+            print("\n[⑹ %s] head-귀속 질량합=%.3f" % (label, sum(ps.values())))
+            for k, v in sorted(d.items(), key=lambda e: -e[1]):
+                print("   %-12r lnP=%8.3f p=%.4f" % (k, v, math.exp(v)))
+        return 0
 
     # ── ⑴⑵ 7B j-사다리: argmax·gold 순위·검열 표기 ──────────────────────────
     print("\n[⑴⑵ 7B 사다리 · 8141] (lnP=−27.631 은 바닥값)")
