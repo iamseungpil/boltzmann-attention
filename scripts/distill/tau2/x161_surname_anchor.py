@@ -117,8 +117,11 @@ def main():
     arms += [("C_%s" % a, swap(a)) for a in alts]
 
     print("\n%-26s %8s | %s" % ("arm", "p(gold)", "가족별 질량 상위"))
+    rendered = []
     for label, ms in arms:
-        d = dist(model, render(ms), CH)
+        pr = render(ms)
+        rendered.append((label, pr))
+        d = dist(model, pr, CH)
         fm, amb = family_mass(d, fams)
         gold_p = sum(math.exp(lp) for t, lp in d.items()
                      if len(t) >= 2 and "world blue".startswith(t.lower()))
@@ -126,8 +129,22 @@ def main():
         print("%-26s %8.4f | %s%s" % (label, gold_p,
               "  ".join("%s=%.3f" % (k, v) for k, v in top if v > 1e-4),
               ("  [모호 %.3f]" % amb if amb > 1e-3 else "")))
-    print("\n판정: C arm 의 질량이 치환한 성으로 따라가면 **성-단위 정박** · "
-          "Green/L-계에 남으면 반증(이름 무관한 위치 효과)")
+
+    # ★첫 토큰으로는 형제를 못 가른다(`Business` 4종·`L` 3종). 전체 이름은 자유생성으로 읽는다.
+    print("\n[자유생성 ×3] — 지목한 **그 이름**인가 같은 가족의 **다른 이름**인가")
+    for label, pr in rendered:
+        outs = []
+        for i in range(3):
+            body = json.dumps({"model": model, "temperature": 0.0 if i == 0 else 0.7,
+                               "max_tokens": 24,
+                               "messages": [{"role": "user", "content": pr}]}).encode()
+            req = urllib.request.Request(URL + "/chat/completions", data=body,
+                                         headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=300) as r:
+                outs.append(" ".join(json.load(r)["choices"][0]["message"]["content"].split())[:28])
+        print("  %-26s %s" % (label, outs))
+    print("\n판정: 지목한 이름과 **다른** 이름이 같은 가족에서 나오면 **성-단위 정박** · "
+          "지목한 이름 그대로면 축자 복사")
     return 0
 
 
