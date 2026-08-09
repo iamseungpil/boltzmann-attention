@@ -1,0 +1,45 @@
+{
+ "violation_sims": {
+  "g1": 0,
+  "g1w": 0,
+  "g2": 0,
+  "g3": 6,
+  "g4": 0,
+  "no_reward": 0,
+  "GB2_NOTICE_BEFORE_TRANSFER": 0
+ },
+ "n_sims": 6,
+ "bench": {
+  "pass^1": 1.0,
+  "pass^2": 1.0,
+  "pass^3": 1.0,
+  "pass^4": 0.0
+ },
+ "write": {
+  "pass^1": 1.0,
+  "pass^2": 1.0,
+  "pass^3": 1.0,
+  "pass^4": 0.0
+ },
+ "strict": {
+  "pass^1": 1.0,
+  "pass^2": 1.0,
+  "pass^3": 1.0,
+  "pass^4": 0.0
+ },
+ "full": {
+  "pass^1": 0.0,
+  "pass^2": 0.0,
+  "pass^3": 0.0,
+  "pass^4": 0.0
+ },
+ "_domain": "banking_knowledge",
+ "_constants_nonempty": {
+  "AUTH_TOOLS": 1,
+  "AUTH_GATES": 1,
+  "WRITE_TOOLS": 0,
+  "USER_SCOPED": 6,
+  "TRANSFER_MSG": 67,
+  "NOTICE_GATES": 1
+ }
+}
