@@ -87,8 +87,17 @@ def main():
         gold = X.GOLD[task]
         table = LG.eligible_text(tf["days"], {}, maps, spec, tf["case"]).strip()
         base = table + "\n\n" + X.FACTS[task] + "\n\n" + X.QUESTION
+        msgs = Y.msgs_of(TAG, task)
+        # ★T2_DROP_MSG=<idx> — C348 이 지목한 **우리 문장**(#26)을 뺀 baseline(B′) 을 재기 위한
+        #   스위치. 기본은 원본. 결함 있는 baseline 으로 crossover 를 주장하면 안 된다(§6.2a).
+        drop = os.environ.get("T2_DROP_MSG")
+        if drop not in (None, ""):
+            d = int(drop)
+            if 0 <= d < len(msgs):
+                msgs = msgs[:d] + msgs[d + 1:]
+                print("  (msg #%d 제거됨 — B′ 모드)" % d)
         traj = ("Here is a customer-service conversation so far.\n\n"
-                + Y.render(Y.msgs_of(TAG, task)) + "\n\n")
+                + Y.render(msgs) + "\n\n")
 
         # ⒝ 14B 선택 (깨끗) — 되꽂을 답 = greedy 산출물
         sel5 = five(URL_SM, msm, base)
