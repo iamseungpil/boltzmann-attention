@@ -91,6 +91,17 @@ def main():
     if _ap and len(_ap) > _bn:
         arms["A_head   앞부분(사실·짧게)"] = "System: " + _ap[:_bn]
         arms["A_tail   뒷부분(명령·짧게)"] = "System: " + _ap[-_bn:]
+    # ★완결-문장 통제 (2026-08-09 2차): 위 두 arm 은 662자를 글자수로 자른 것이라 **문장이
+    #   중간에서 끊긴다** — 미완성 문장 자체가 교란일 수 있다. 여기서는 **문장 경계로만** 자른다.
+    #     E_nofault = 첫 문장에서 **비난 절만 제거**(약속 사실은 남긴다)
+    #     F_faultonly = 첫 문장 **그대로**(비난 포함·완결)
+    #   E 와 F 의 차이는 *"but the ledger shows it was never executed"* 한 절뿐이다.
+    if _ap:
+        _first = _ap.split(". ")[0] + "."
+        _cut = _first.find(", but the conversation ledger shows")
+        if _cut > 0:
+            arms["F_fault   비난 문장(완결)"] = "System: " + _first
+            arms["E_nofault 같은 문장−비난절"] = "System: " + _first[:_cut] + ": " + CLAIMS + "."
     arms["D_named  #26원문(양성통제)"] = "Assistant: " + last_txt
 
     print("model=%s · 궤적 %d(사용 %d) · 후보 %d · gold=%s"
