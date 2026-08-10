@@ -159,7 +159,8 @@ def main():
     # ── §2 블록 성장 (사용자 지시) — 뒤에서부터 블록을 **하나씩 얹으며** 어디서 죽는가 ──
     #    성분 절제가 *무엇이* 방해하는지를 묻는다면, 이쪽은 *얼마나 얹으면* 죽는지를 묻는다.
     #    두 답이 만나는 지점이 우리가 격리 서브에 담아도 되는 문맥의 경계다.
-    print("\n§2 블록 성장 — 마지막 블록부터 위로 얹는다 (요구·도구는 고정)")
+    print("\n§2 블록 성장 — **깨끗한 격리에서 시작해** 궤적 블록을 하나씩 얹는다 (요구·도구 고정)")
+    print("   (사용자 지시: *'깨끗한 격리부터 여러 추가 블록까지 세밀하게 엄격하게 — 읽기 거부의 기전 확보'*)")
     blocks = []
     for m in msgs:
         role = m.get("role")
@@ -172,9 +173,25 @@ def main():
             piece.append("[%s] %s" % (role, c))
         if piece:
             blocks.append("\n".join(piece))
-    print("  블록 %d개" % len(blocks))
-    for k in range(1, len(blocks) + 1):
-        body = "\n".join(blocks[-k:])
+    def kind_of(b):
+        """그 블록이 **무엇인가** — 꺾이는 자리에서 범인의 이름이 된다."""
+        if any(s in b for s in OURS):
+            return "우리주입"
+        if "Score:" in b:
+            return "KB결과"
+        if b.startswith("[tool]"):
+            return "도구출력"
+        if b.startswith("[assistant"):
+            return "어시스턴트"
+        if b.startswith("[user"):
+            return "손님"
+        return "기타"
+
+    print("  블록 %d개 · 기저 = 깨끗한 격리(손님의 말)" % len(blocks))
+    base = SAID["task_099"]
+    prev = None
+    for k in range(0, len(blocks) + 1):
+        body = base if k == 0 else ("\n".join(blocks[-k:]) + "\n\n" + base)
         c = collections.Counter()
         for i in range(n):
             p = body + "\n\n" + DEMAND + "\n\nWhat do you do next?"
@@ -186,11 +203,15 @@ def main():
             c["호출O" if called_target(m2) else "호출X"] += 1
             for tc in (m2.get("tool_calls") or []):
                 c["도구:" + str((tc.get("function") or {}).get("name"))] += 1
-        out["block-%02d" % k] = [c["호출O"], n]
-        head = blocks[-k].split("]")[0] + "]"
-        print("  뒤에서 %2d블록 (%6d자) 읽기 %d/%d  맨위=%s  %s"
-              % (k, len(body), c["호출O"], n, head[:26],
-                 [x for x in c.most_common(3) if str(x[0]).startswith("도구")]))
+        out["grow-%02d" % k] = [c["호출O"], n]
+        added = ("(깨끗)" if k == 0 else "%s: %s" % (kind_of(blocks[-k]),
+                                                    blocks[-k].split("]")[0][:22] + "]"))
+        drop = ("  ← **여기서 꺾인다**"
+                if prev is not None and c["호출O"] <= prev - max(2, n // 3) else "")
+        prev = c["호출O"]
+        print("  +%2d블록 (%6d자) 읽기 %2d/%d  방금 얹은 것 = %-34s%s  %s"
+              % (k, len(body), c["호출O"], n, added[:34], drop,
+                 [x for x in c.most_common(2) if str(x[0]).startswith("도구")]))
     json.dump(out, open(os.environ.get("T2_X217_OUT", "x217_out.json"), "w"), indent=1)
     print("\n※ ISO 높고 T_FULL 낮은데 ISO_LONG 이 높으면 **길이가 아니다**."
           "\n  어느 성분을 뺐을 때 회복되는가 = 범인. §2 에서 읽기가 꺾이는 블록이 그 범인을 지목한다.")

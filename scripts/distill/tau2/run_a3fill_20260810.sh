@@ -54,8 +54,9 @@ dep = FD._a3_map(rows, {"axis": "qualifying_deposit_usd"})
 for s, v in (("Gold Years", 1000), ("Light Blue", 500), ("Light Green", 100)):
     if s not in dep or LG._num(dep[s]) != v:
         bad.append("A3 %s=%s (기대 %s)" % (s, dep.get(s), v))
-if "This is arithmetic on the dates" not in (sp0.get("window_history_text") or ""):
-    bad.append("창-산수 꼬리말이 옛 것이다")
+# ★C393 이후 목표 상태는 **꼬리말 없음**이다(측정상 세 형태가 구별되지 않았고 규칙 E 도 어긴다).
+if "retrieve it and say which" in (sp0.get("window_history_text") or ""):
+    bad.append("창-산수 꼬리말이 아직 붙어 있다")
 if "do not state why" not in (sp0.get("status_text") or "").lower():
     bad.append("상태 문구가 계약을 벗어났다")
 sp0 = a2["ledger_metrics"][0]
@@ -73,6 +74,15 @@ if len(_sm) < 6:
     bad.append("A3 상태 정의가 %d행뿐이다" % len(_sm))
 if "REJECTED" not in LG.status_meanings_text([{"referral_status": "REJECTED"}], sp0, rows):
     bad.append("상태 정의 전달이 침묵한다")
+if not sp0.get("diagnose_prompt") or not sp0.get("diagnosed_text"):
+    bad.append("격리 진단 선언이 없다")
+_lr = [{"date": "10/20/2025", "referred_account_type": "A", "referral_status": "COMPLETE"},
+       {"date": "10/22/2025", "referred_account_type": "B", "referral_status": "COMPLETE"},
+       {"date": "10/25/2025", "referred_account_type": "C", "referral_status": "REJECTED"}]
+_blk = LG.onto_context(_lr, sp0, rows)
+for _need in ("grouped by the status", "Date arithmetic", "policy document that defines"):
+    if _need not in _blk:
+        bad.append("온톨로지 문맥에 '%s' 조각이 없다" % _need)
 cfg = sp1["eligible"]
 if cfg.get("kind_field") != "kind" or "{kinds}" not in (cfg.get("kind_prompt") or ""):
     bad.append("종류 선택 선언이 없다")

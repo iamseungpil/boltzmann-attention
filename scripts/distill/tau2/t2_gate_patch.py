@@ -2542,8 +2542,24 @@ def _limit_reduce_text(agent, a2, messages):
             #   있다가 없다가 한다. 뜻은 대화마다 달라지는 값이 아니라 **고정된 정책 상수**이므로
             #   불확정 채널(BM25·임베딩·grep)로 가져올 이유가 없다. 엔진은 그 값이 무엇을
             #   뜻하는지 모른 채 **A3 주어 집합의 원소인 것만** 꺼낸다([[22]]).
-            _add += _LG2.status_meanings_text(
-                _e2["rows"], _sp2, ((a2 or {}).get("policy_ontology") or {}).get("rows") or ())
+            _a3r = ((a2 or {}).get("policy_ontology") or {}).get("rows") or ()
+            _add += _LG2.status_meanings_text(_e2["rows"], _sp2, _a3r)
+            # ★C397 (2026-08-10·사용자 지시) — **결정점을 온톨로지로 지은 격리 문맥에서** 짓는다.
+            #   격리 측정(`x213` `G_ONTO`·24셀): 실제 궤적 4% · 궤적 청소 29% · 이 문맥 **100%**
+            #   (부정 통제 0/24). 099/100 의 재도출과 같은 2단 형태이고, 고르는 것은 서브다.
+            #   문맥에는 대화가 한 글자도 안 들어간다 — 그것이 혼잡의 출처다.
+            if _sp2.get("diagnose_prompt"):
+                _blk = _LG2.onto_context(_e2["rows"], _sp2, _a3r)
+                if _blk:
+                    try:
+                        import tau2.agent.llm_agent as _la9
+                        from tau2.data_model.message import UserMessage as _UM9
+                        _dg = _LG2.diagnose_choice(agent, _la9, _UM9, _sp2, _blk, _e2["rows"])
+                    except Exception as _de9:
+                        _dg = None
+                        print("[T2_DIAG] 건너뜀: %r" % (_de9,), file=sys.stderr, flush=True)
+                    if _dg and _sp2.get("diagnosed_text"):
+                        _add += _sp2["diagnosed_text"].format(answer=_dg[1])
             # ★C379 — 상태만 말하면 손님의 *"왜"* 에 답이 안 된다(v010 실측: 상태는 알았는데
             #   이유를 못 찾아 이관으로 끝났다). 이유는 이미 선언된 창 상수와 날짜의 산수로
             #   나온다. 엔진은 **산수까지만** 말하고 인과는 모델·문서 몫이다([[25]]).

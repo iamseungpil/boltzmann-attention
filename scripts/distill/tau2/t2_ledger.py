@@ -1098,6 +1098,73 @@ def status_meanings_text(rows, spec, a3_rows):
     return tpl.format(meanings=lines, n=len(seen))
 
 
+def onto_context(rows, spec, a3_rows):
+    """결정점에 실을 **온톨로지 문맥** — 원장 + 상태별 세기 + 창 산수 + 상태 정의. KB 0.
+
+    조각은 전부 이미 있는 것이다; 여기서는 **한 자리에 모으기만** 한다.
+    """
+    parts = [status_breakdown(rows, spec), window_history(rows, spec),
+             status_meanings_text(rows, spec, a3_rows)]
+    return "\n".join(p.strip() for p in parts if p and p.strip())
+
+
+def diagnose_choice(agent, la, UserMessage, spec, block, rows):
+    """미지급 행을 **깨끗한 문맥에서** 묻고, 답이 원장에 있는 이름인지만 검사한다.
+
+    ## 왜 (격리 프로브 `x213_congestion_ablation.py` 의 `G_ONTO` · 4사례×6=24셀)
+
+    같은 정보인데 문맥이 다르면 결과가 갈린다 — 실제 궤적 **4%** · 궤적을 청소해도 **29%** ·
+    **온톨로지로 지은 격리 문맥(1,664자) 100%**(24/24 · 부정 통제 0/24). 그 문맥의 마지막
+    21pp 는 **창 산수**가 만든다(원장+정의만이면 79%).
+
+    사용자 지시 축자: *"결정점에서의 정책 값들은 A2 A3 로 격리해서 서브에이전트에서 정하게
+    하라 · retrieval 사용하지 말라"* · *"격리는 모순을 걷어내고 깨끗한 문맥으로 결론 짓는 것"*.
+
+    ## 경계
+
+    - **고르는 것은 서브(모델)** 다. 엔진은 답이 **원장 행의 그룹 이름 집합의 원소인지**만
+      본다([[22]] 닫힌 술어) — 값을 비교하거나 정렬해 이름을 집는 일을 하지 않는다.
+    - 문맥에는 **대화가 한 글자도 안 들어간다**(그것이 혼잡의 출처다).
+    - 못 고르면 **None** → 침묵. 모르는 것을 우리가 메우지 않는다([[25]]).
+    """
+    tpl = (spec or {}).get("diagnose_prompt")
+    if not (tpl and agent is not None and la is not None and block and rows):
+        return None
+    memo = getattr(agent, "_t2_diag", None)
+    if memo is not None:
+        return memo or None
+    gf = (spec or {}).get("group_field")
+    names = []
+    for r in rows:
+        g = str(r.get(gf) or "").strip()
+        if g and g not in names:
+            names.append(g)
+    if not names:
+        return None
+    try:
+        kw = dict((k, v) for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+                  if "tool" not in k)
+        try:
+            um = UserMessage(role="user", content=tpl.format(block=block))
+        except TypeError:
+            um = UserMessage(content=tpl.format(block=block))
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="diagnose_formalize", **kw)
+        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+    except Exception as e:
+        print("[T2_DIAG] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return None
+    hit = sorted((g for g in names if g and g.lower() in raw.lower()), key=len, reverse=True)
+    out = (hit[0], raw) if hit else None
+    print("[T2_DIAG] raw=%r → %s" % (raw[:80], (out[0] if out else "원장 밖 = 침묵")),
+          file=sys.stderr, flush=True)
+    try:
+        agent._t2_diag = out or ""
+    except Exception:
+        pass
+    return out
+
+
 def earliest_age(rows, spec, now=None):
     """(가장 이른 날짜, 오늘까지 경과일). 관계 기간(tenure) 같은 값이 여기서 나온다.
 
