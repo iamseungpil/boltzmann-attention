@@ -6512,7 +6512,966 @@
     }
    }
   ],
-  "targeted_contains": "refer "
+  "targeted_contains": "refer ",
+  "doc_index": {
+   "bank_accounts_bank_accounts": {
+    "_general_": [
+     "doc_bank_accounts_bank_accounts_(general)_001",
+     "doc_bank_accounts_bank_accounts_(general)_002",
+     "doc_bank_accounts_bank_accounts_(general)_003",
+     "doc_bank_accounts_bank_accounts_(general)_004",
+     "doc_bank_accounts_bank_accounts_(general)_005",
+     "doc_bank_accounts_bank_accounts_(general)_006",
+     "doc_bank_accounts_bank_accounts_(general)_007",
+     "doc_bank_accounts_bank_accounts_(general)_008",
+     "doc_bank_accounts_bank_accounts_(general)_009",
+     "doc_bank_accounts_bank_accounts_(general)_010",
+     "doc_bank_accounts_bank_accounts_(general)_011",
+     "doc_bank_accounts_bank_accounts_(general)_012",
+     "doc_bank_accounts_bank_accounts_(general)_013",
+     "doc_bank_accounts_bank_accounts_(general)_014",
+     "doc_bank_accounts_bank_accounts_(general)_015",
+     "doc_bank_accounts_bank_accounts_(general)_016",
+     "doc_bank_accounts_bank_accounts_(general)_017",
+     "doc_bank_accounts_bank_accounts_(general)_018",
+     "doc_bank_accounts_bank_accounts_(general)_019",
+     "doc_bank_accounts_bank_accounts_(general)_020",
+     "doc_bank_accounts_bank_accounts_(general)_021",
+     "doc_bank_accounts_bank_accounts_(general)_022",
+     "doc_bank_accounts_bank_accounts_(general)_023",
+     "doc_bank_accounts_bank_accounts_(general)_024",
+     "doc_bank_accounts_bank_accounts_(general)_025",
+     "doc_bank_accounts_bank_accounts_(general)_026",
+     "doc_bank_accounts_bank_accounts_(general)_027",
+     "doc_bank_accounts_bank_accounts_(general)_028",
+     "doc_bank_accounts_bank_accounts_(general)_029",
+     "doc_bank_accounts_bank_accounts_(general)_030",
+     "doc_bank_accounts_bank_accounts_(general)_031",
+     "doc_bank_accounts_bank_accounts_(general)_032",
+     "doc_bank_accounts_bank_accounts_(general)_033",
+     "doc_bank_accounts_bank_accounts_(general)_034",
+     "doc_bank_accounts_bank_accounts_(general)_035",
+     "doc_bank_accounts_bank_accounts_(general)_036",
+     "doc_bank_accounts_bank_accounts_(general)_037",
+     "doc_bank_accounts_bank_accounts_(general)_039",
+     "doc_bank_accounts_bank_accounts_(general)_040",
+     "doc_bank_accounts_bank_accounts_(general)_041",
+     "doc_bank_accounts_bank_accounts_(general)_042",
+     "doc_bank_accounts_bank_accounts_(general)_043",
+     "doc_bank_accounts_bank_accounts_(general)_044",
+     "doc_bank_accounts_bank_accounts_(general)_045",
+     "doc_bank_accounts_bank_accounts_(general)_046",
+     "doc_bank_accounts_bank_accounts_(general)_047",
+     "doc_bank_accounts_bank_accounts_(general)_048"
+    ]
+   },
+   "business_checking_accounts": {
+    "beige": [
+     "doc_business_checking_accounts_beige_001",
+     "doc_business_checking_accounts_beige_002",
+     "doc_business_checking_accounts_beige_003",
+     "doc_business_checking_accounts_beige_004",
+     "doc_business_checking_accounts_beige_005",
+     "doc_business_checking_accounts_beige_006",
+     "doc_business_checking_accounts_beige_007",
+     "doc_business_checking_accounts_beige_008",
+     "doc_business_checking_accounts_beige_009",
+     "doc_business_checking_accounts_beige_010",
+     "doc_business_checking_accounts_beige_011",
+     "doc_business_checking_accounts_beige_012"
+    ],
+    "cobalt_blue": [
+     "doc_business_checking_accounts_cobalt_blue_001",
+     "doc_business_checking_accounts_cobalt_blue_002",
+     "doc_business_checking_accounts_cobalt_blue_003",
+     "doc_business_checking_accounts_cobalt_blue_004",
+     "doc_business_checking_accounts_cobalt_blue_005",
+     "doc_business_checking_accounts_cobalt_blue_006",
+     "doc_business_checking_accounts_cobalt_blue_007",
+     "doc_business_checking_accounts_cobalt_blue_008",
+     "doc_business_checking_accounts_cobalt_blue_009",
+     "doc_business_checking_accounts_cobalt_blue_010"
+    ],
+    "hunter_green": [
+     "doc_business_checking_accounts_hunter_green_001",
+     "doc_business_checking_accounts_hunter_green_002",
+     "doc_business_checking_accounts_hunter_green_003",
+     "doc_business_checking_accounts_hunter_green_004",
+     "doc_business_checking_accounts_hunter_green_005",
+     "doc_business_checking_accounts_hunter_green_006",
+     "doc_business_checking_accounts_hunter_green_007",
+     "doc_business_checking_accounts_hunter_green_008",
+     "doc_business_checking_accounts_hunter_green_009",
+     "doc_business_checking_accounts_hunter_green_010"
+    ],
+    "lime_green": [
+     "doc_business_checking_accounts_lime_green_001",
+     "doc_business_checking_accounts_lime_green_002",
+     "doc_business_checking_accounts_lime_green_003",
+     "doc_business_checking_accounts_lime_green_004",
+     "doc_business_checking_accounts_lime_green_005",
+     "doc_business_checking_accounts_lime_green_006",
+     "doc_business_checking_accounts_lime_green_007",
+     "doc_business_checking_accounts_lime_green_008"
+    ],
+    "navy_blue": [
+     "doc_business_checking_accounts_navy_blue_001",
+     "doc_business_checking_accounts_navy_blue_002",
+     "doc_business_checking_accounts_navy_blue_003",
+     "doc_business_checking_accounts_navy_blue_004",
+     "doc_business_checking_accounts_navy_blue_005",
+     "doc_business_checking_accounts_navy_blue_006",
+     "doc_business_checking_accounts_navy_blue_007",
+     "doc_business_checking_accounts_navy_blue_008",
+     "doc_business_checking_accounts_navy_blue_009"
+    ],
+    "sky_blue": [
+     "doc_business_checking_accounts_sky_blue_001",
+     "doc_business_checking_accounts_sky_blue_002",
+     "doc_business_checking_accounts_sky_blue_003",
+     "doc_business_checking_accounts_sky_blue_004",
+     "doc_business_checking_accounts_sky_blue_005",
+     "doc_business_checking_accounts_sky_blue_006",
+     "doc_business_checking_accounts_sky_blue_007",
+     "doc_business_checking_accounts_sky_blue_008",
+     "doc_business_checking_accounts_sky_blue_009",
+     "doc_business_checking_accounts_sky_blue_010"
+    ],
+    "true_blue": [
+     "doc_business_checking_accounts_true_blue_001",
+     "doc_business_checking_accounts_true_blue_002",
+     "doc_business_checking_accounts_true_blue_003",
+     "doc_business_checking_accounts_true_blue_004",
+     "doc_business_checking_accounts_true_blue_005",
+     "doc_business_checking_accounts_true_blue_006",
+     "doc_business_checking_accounts_true_blue_007",
+     "doc_business_checking_accounts_true_blue_008",
+     "doc_business_checking_accounts_true_blue_009",
+     "doc_business_checking_accounts_true_blue_010",
+     "doc_business_checking_accounts_true_blue_011"
+    ],
+    "world_blue": [
+     "doc_business_checking_accounts_world_blue_001",
+     "doc_business_checking_accounts_world_blue_002",
+     "doc_business_checking_accounts_world_blue_003",
+     "doc_business_checking_accounts_world_blue_004",
+     "doc_business_checking_accounts_world_blue_005",
+     "doc_business_checking_accounts_world_blue_006",
+     "doc_business_checking_accounts_world_blue_007",
+     "doc_business_checking_accounts_world_blue_008",
+     "doc_business_checking_accounts_world_blue_009"
+    ]
+   },
+   "business_credit_cards": {
+    "business_bronze_rewards_card": [
+     "doc_business_credit_cards_business_bronze_rewards_card_001",
+     "doc_business_credit_cards_business_bronze_rewards_card_002",
+     "doc_business_credit_cards_business_bronze_rewards_card_003",
+     "doc_business_credit_cards_business_bronze_rewards_card_004",
+     "doc_business_credit_cards_business_bronze_rewards_card_005",
+     "doc_business_credit_cards_business_bronze_rewards_card_006",
+     "doc_business_credit_cards_business_bronze_rewards_card_007",
+     "doc_business_credit_cards_business_bronze_rewards_card_008",
+     "doc_business_credit_cards_business_bronze_rewards_card_009",
+     "doc_business_credit_cards_business_bronze_rewards_card_010",
+     "doc_business_credit_cards_business_bronze_rewards_card_011"
+    ],
+    "business_gold_rewards_card": [
+     "doc_business_credit_cards_business_gold_rewards_card_001",
+     "doc_business_credit_cards_business_gold_rewards_card_002",
+     "doc_business_credit_cards_business_gold_rewards_card_003",
+     "doc_business_credit_cards_business_gold_rewards_card_004",
+     "doc_business_credit_cards_business_gold_rewards_card_005",
+     "doc_business_credit_cards_business_gold_rewards_card_006",
+     "doc_business_credit_cards_business_gold_rewards_card_007",
+     "doc_business_credit_cards_business_gold_rewards_card_008",
+     "doc_business_credit_cards_business_gold_rewards_card_009",
+     "doc_business_credit_cards_business_gold_rewards_card_010"
+    ],
+    "business_platinum_rewards_card": [
+     "doc_business_credit_cards_business_platinum_rewards_card_001",
+     "doc_business_credit_cards_business_platinum_rewards_card_002",
+     "doc_business_credit_cards_business_platinum_rewards_card_003",
+     "doc_business_credit_cards_business_platinum_rewards_card_004",
+     "doc_business_credit_cards_business_platinum_rewards_card_005",
+     "doc_business_credit_cards_business_platinum_rewards_card_006",
+     "doc_business_credit_cards_business_platinum_rewards_card_007",
+     "doc_business_credit_cards_business_platinum_rewards_card_008",
+     "doc_business_credit_cards_business_platinum_rewards_card_009",
+     "doc_business_credit_cards_business_platinum_rewards_card_010",
+     "doc_business_credit_cards_business_platinum_rewards_card_011",
+     "doc_business_credit_cards_business_platinum_rewards_card_012"
+    ],
+    "business_silver_rewards_card": [
+     "doc_business_credit_cards_business_silver_rewards_card_001",
+     "doc_business_credit_cards_business_silver_rewards_card_002",
+     "doc_business_credit_cards_business_silver_rewards_card_003",
+     "doc_business_credit_cards_business_silver_rewards_card_004",
+     "doc_business_credit_cards_business_silver_rewards_card_005",
+     "doc_business_credit_cards_business_silver_rewards_card_006",
+     "doc_business_credit_cards_business_silver_rewards_card_007",
+     "doc_business_credit_cards_business_silver_rewards_card_008",
+     "doc_business_credit_cards_business_silver_rewards_card_009",
+     "doc_business_credit_cards_business_silver_rewards_card_010",
+     "doc_business_credit_cards_business_silver_rewards_card_011",
+     "doc_business_credit_cards_business_silver_rewards_card_012",
+     "doc_business_credit_cards_business_silver_rewards_card_013"
+    ],
+    "green_rewards_card": [
+     "doc_business_credit_cards_green_rewards_card_001",
+     "doc_business_credit_cards_green_rewards_card_002",
+     "doc_business_credit_cards_green_rewards_card_003",
+     "doc_business_credit_cards_green_rewards_card_004",
+     "doc_business_credit_cards_green_rewards_card_005",
+     "doc_business_credit_cards_green_rewards_card_006",
+     "doc_business_credit_cards_green_rewards_card_007",
+     "doc_business_credit_cards_green_rewards_card_008",
+     "doc_business_credit_cards_green_rewards_card_009",
+     "doc_business_credit_cards_green_rewards_card_010"
+    ],
+    "silver_zoom_card": [
+     "doc_business_credit_cards_silver_zoom_card_001",
+     "doc_business_credit_cards_silver_zoom_card_002",
+     "doc_business_credit_cards_silver_zoom_card_003",
+     "doc_business_credit_cards_silver_zoom_card_004",
+     "doc_business_credit_cards_silver_zoom_card_005",
+     "doc_business_credit_cards_silver_zoom_card_006",
+     "doc_business_credit_cards_silver_zoom_card_007",
+     "doc_business_credit_cards_silver_zoom_card_008",
+     "doc_business_credit_cards_silver_zoom_card_009",
+     "doc_business_credit_cards_silver_zoom_card_010",
+     "doc_business_credit_cards_silver_zoom_card_011",
+     "doc_business_credit_cards_silver_zoom_card_012",
+     "doc_business_credit_cards_silver_zoom_card_013"
+    ],
+    "virtual_card_management": [
+     "doc_business_credit_cards_virtual_card_management_001",
+     "doc_business_credit_cards_virtual_card_management_002",
+     "doc_business_credit_cards_virtual_card_management_003",
+     "doc_business_credit_cards_virtual_card_management_004",
+     "doc_business_credit_cards_virtual_card_management_005",
+     "doc_business_credit_cards_virtual_card_management_006",
+     "doc_business_credit_cards_virtual_card_management_007",
+     "doc_business_credit_cards_virtual_card_management_008",
+     "doc_business_credit_cards_virtual_card_management_009",
+     "doc_business_credit_cards_virtual_card_management_010"
+    ]
+   },
+   "business_savings_accounts": {
+    "automatic_sweep_program": [
+     "doc_business_savings_accounts_automatic_sweep_program_001",
+     "doc_business_savings_accounts_automatic_sweep_program_002",
+     "doc_business_savings_accounts_automatic_sweep_program_003",
+     "doc_business_savings_accounts_automatic_sweep_program_004",
+     "doc_business_savings_accounts_automatic_sweep_program_005",
+     "doc_business_savings_accounts_automatic_sweep_program_006",
+     "doc_business_savings_accounts_automatic_sweep_program_007",
+     "doc_business_savings_accounts_automatic_sweep_program_008"
+    ],
+    "bronze_saver_account": [
+     "doc_business_savings_accounts_bronze_saver_account_001",
+     "doc_business_savings_accounts_bronze_saver_account_002",
+     "doc_business_savings_accounts_bronze_saver_account_003",
+     "doc_business_savings_accounts_bronze_saver_account_004",
+     "doc_business_savings_accounts_bronze_saver_account_005",
+     "doc_business_savings_accounts_bronze_saver_account_006",
+     "doc_business_savings_accounts_bronze_saver_account_007",
+     "doc_business_savings_accounts_bronze_saver_account_008"
+    ],
+    "diamond_vault": [
+     "doc_business_savings_accounts_diamond_vault_001",
+     "doc_business_savings_accounts_diamond_vault_002",
+     "doc_business_savings_accounts_diamond_vault_003",
+     "doc_business_savings_accounts_diamond_vault_004",
+     "doc_business_savings_accounts_diamond_vault_005",
+     "doc_business_savings_accounts_diamond_vault_006",
+     "doc_business_savings_accounts_diamond_vault_007",
+     "doc_business_savings_accounts_diamond_vault_008"
+    ],
+    "emerald_saver": [
+     "doc_business_savings_accounts_emerald_saver_001",
+     "doc_business_savings_accounts_emerald_saver_002",
+     "doc_business_savings_accounts_emerald_saver_003",
+     "doc_business_savings_accounts_emerald_saver_004",
+     "doc_business_savings_accounts_emerald_saver_005",
+     "doc_business_savings_accounts_emerald_saver_006",
+     "doc_business_savings_accounts_emerald_saver_007",
+     "doc_business_savings_accounts_emerald_saver_008"
+    ],
+    "gold_plus_saver": [
+     "doc_business_savings_accounts_gold_plus_saver_001",
+     "doc_business_savings_accounts_gold_plus_saver_002",
+     "doc_business_savings_accounts_gold_plus_saver_003",
+     "doc_business_savings_accounts_gold_plus_saver_004",
+     "doc_business_savings_accounts_gold_plus_saver_005",
+     "doc_business_savings_accounts_gold_plus_saver_006",
+     "doc_business_savings_accounts_gold_plus_saver_007"
+    ],
+    "gold_saver_account": [
+     "doc_business_savings_accounts_gold_saver_account_001",
+     "doc_business_savings_accounts_gold_saver_account_002",
+     "doc_business_savings_accounts_gold_saver_account_003",
+     "doc_business_savings_accounts_gold_saver_account_004",
+     "doc_business_savings_accounts_gold_saver_account_005",
+     "doc_business_savings_accounts_gold_saver_account_006",
+     "doc_business_savings_accounts_gold_saver_account_007",
+     "doc_business_savings_accounts_gold_saver_account_008",
+     "doc_business_savings_accounts_gold_saver_account_009"
+    ],
+    "joint_business_holders_+_user_roles": [
+     "doc_business_savings_accounts_joint_business_holders_+_user_roles_001",
+     "doc_business_savings_accounts_joint_business_holders_+_user_roles_002",
+     "doc_business_savings_accounts_joint_business_holders_+_user_roles_003",
+     "doc_business_savings_accounts_joint_business_holders_+_user_roles_004",
+     "doc_business_savings_accounts_joint_business_holders_+_user_roles_005",
+     "doc_business_savings_accounts_joint_business_holders_+_user_roles_006",
+     "doc_business_savings_accounts_joint_business_holders_+_user_roles_007",
+     "doc_business_savings_accounts_joint_business_holders_+_user_roles_008",
+     "doc_business_savings_accounts_joint_business_holders_+_user_roles_009"
+    ],
+    "platinum_reserve_account": [
+     "doc_business_savings_accounts_platinum_reserve_account_001",
+     "doc_business_savings_accounts_platinum_reserve_account_002",
+     "doc_business_savings_accounts_platinum_reserve_account_003",
+     "doc_business_savings_accounts_platinum_reserve_account_004",
+     "doc_business_savings_accounts_platinum_reserve_account_005",
+     "doc_business_savings_accounts_platinum_reserve_account_006",
+     "doc_business_savings_accounts_platinum_reserve_account_007",
+     "doc_business_savings_accounts_platinum_reserve_account_008",
+     "doc_business_savings_accounts_platinum_reserve_account_009",
+     "doc_business_savings_accounts_platinum_reserve_account_010"
+    ],
+    "silver_plus_saver": [
+     "doc_business_savings_accounts_silver_plus_saver_001",
+     "doc_business_savings_accounts_silver_plus_saver_002",
+     "doc_business_savings_accounts_silver_plus_saver_003",
+     "doc_business_savings_accounts_silver_plus_saver_004",
+     "doc_business_savings_accounts_silver_plus_saver_005",
+     "doc_business_savings_accounts_silver_plus_saver_006",
+     "doc_business_savings_accounts_silver_plus_saver_007"
+    ],
+    "silver_saver_account": [
+     "doc_business_savings_accounts_silver_saver_account_001",
+     "doc_business_savings_accounts_silver_saver_account_002",
+     "doc_business_savings_accounts_silver_saver_account_003",
+     "doc_business_savings_accounts_silver_saver_account_004",
+     "doc_business_savings_accounts_silver_saver_account_005",
+     "doc_business_savings_accounts_silver_saver_account_006",
+     "doc_business_savings_accounts_silver_saver_account_007",
+     "doc_business_savings_accounts_silver_saver_account_008"
+    ]
+   },
+   "buy_now_pay_later_bnpl": {
+    "bronze": [
+     "doc_buy_now_pay_later_bnpl_bronze_001",
+     "doc_buy_now_pay_later_bnpl_bronze_002",
+     "doc_buy_now_pay_later_bnpl_bronze_003",
+     "doc_buy_now_pay_later_bnpl_bronze_004",
+     "doc_buy_now_pay_later_bnpl_bronze_005",
+     "doc_buy_now_pay_later_bnpl_bronze_006",
+     "doc_buy_now_pay_later_bnpl_bronze_007",
+     "doc_buy_now_pay_later_bnpl_bronze_008"
+    ],
+    "diamond": [
+     "doc_buy_now_pay_later_bnpl_diamond_001",
+     "doc_buy_now_pay_later_bnpl_diamond_002",
+     "doc_buy_now_pay_later_bnpl_diamond_003",
+     "doc_buy_now_pay_later_bnpl_diamond_004",
+     "doc_buy_now_pay_later_bnpl_diamond_005",
+     "doc_buy_now_pay_later_bnpl_diamond_006",
+     "doc_buy_now_pay_later_bnpl_diamond_007",
+     "doc_buy_now_pay_later_bnpl_diamond_008"
+    ],
+    "gold": [
+     "doc_buy_now_pay_later_bnpl_gold_001",
+     "doc_buy_now_pay_later_bnpl_gold_002",
+     "doc_buy_now_pay_later_bnpl_gold_003",
+     "doc_buy_now_pay_later_bnpl_gold_004",
+     "doc_buy_now_pay_later_bnpl_gold_005",
+     "doc_buy_now_pay_later_bnpl_gold_006",
+     "doc_buy_now_pay_later_bnpl_gold_007",
+     "doc_buy_now_pay_later_bnpl_gold_008"
+    ],
+    "management_dashboard": [
+     "doc_buy_now_pay_later_bnpl_management_dashboard_001",
+     "doc_buy_now_pay_later_bnpl_management_dashboard_002",
+     "doc_buy_now_pay_later_bnpl_management_dashboard_003",
+     "doc_buy_now_pay_later_bnpl_management_dashboard_004",
+     "doc_buy_now_pay_later_bnpl_management_dashboard_005",
+     "doc_buy_now_pay_later_bnpl_management_dashboard_006",
+     "doc_buy_now_pay_later_bnpl_management_dashboard_007",
+     "doc_buy_now_pay_later_bnpl_management_dashboard_008"
+    ],
+    "platinum": [
+     "doc_buy_now_pay_later_bnpl_platinum_001",
+     "doc_buy_now_pay_later_bnpl_platinum_002",
+     "doc_buy_now_pay_later_bnpl_platinum_003",
+     "doc_buy_now_pay_later_bnpl_platinum_004",
+     "doc_buy_now_pay_later_bnpl_platinum_005",
+     "doc_buy_now_pay_later_bnpl_platinum_006",
+     "doc_buy_now_pay_later_bnpl_platinum_007",
+     "doc_buy_now_pay_later_bnpl_platinum_008"
+    ],
+    "silver": [
+     "doc_buy_now_pay_later_bnpl_silver_001",
+     "doc_buy_now_pay_later_bnpl_silver_002",
+     "doc_buy_now_pay_later_bnpl_silver_003",
+     "doc_buy_now_pay_later_bnpl_silver_004",
+     "doc_buy_now_pay_later_bnpl_silver_005",
+     "doc_buy_now_pay_later_bnpl_silver_006",
+     "doc_buy_now_pay_later_bnpl_silver_007",
+     "doc_buy_now_pay_later_bnpl_silver_008"
+    ]
+   },
+   "checking_accounts": {
+    "blue_account": [
+     "doc_checking_accounts_blue_account_001",
+     "doc_checking_accounts_blue_account_002",
+     "doc_checking_accounts_blue_account_003",
+     "doc_checking_accounts_blue_account_004",
+     "doc_checking_accounts_blue_account_005",
+     "doc_checking_accounts_blue_account_006",
+     "doc_checking_accounts_blue_account_007",
+     "doc_checking_accounts_blue_account_008",
+     "doc_checking_accounts_blue_account_009",
+     "doc_checking_accounts_blue_account_010",
+     "doc_checking_accounts_blue_account_011",
+     "doc_checking_accounts_blue_account_012"
+    ],
+    "bluest_account": [
+     "doc_checking_accounts_bluest_account_001",
+     "doc_checking_accounts_bluest_account_002",
+     "doc_checking_accounts_bluest_account_003",
+     "doc_checking_accounts_bluest_account_004",
+     "doc_checking_accounts_bluest_account_005",
+     "doc_checking_accounts_bluest_account_006",
+     "doc_checking_accounts_bluest_account_007",
+     "doc_checking_accounts_bluest_account_008",
+     "doc_checking_accounts_bluest_account_009",
+     "doc_checking_accounts_bluest_account_010"
+    ],
+    "_general_": [
+     "doc_checking_accounts_checking_accounts_(general)_001",
+     "doc_checking_accounts_checking_accounts_(general)_002",
+     "doc_checking_accounts_checking_accounts_(general)_003",
+     "doc_checking_accounts_checking_accounts_(general)_004",
+     "doc_checking_accounts_checking_accounts_(general)_005",
+     "doc_checking_accounts_checking_accounts_(general)_006",
+     "doc_checking_accounts_checking_accounts_(general)_007",
+     "doc_checking_accounts_checking_accounts_(general)_008",
+     "doc_checking_accounts_checking_accounts_(general)_009"
+    ],
+    "dark_green_account": [
+     "doc_checking_accounts_dark_green_account_001",
+     "doc_checking_accounts_dark_green_account_002",
+     "doc_checking_accounts_dark_green_account_003",
+     "doc_checking_accounts_dark_green_account_004",
+     "doc_checking_accounts_dark_green_account_005",
+     "doc_checking_accounts_dark_green_account_006",
+     "doc_checking_accounts_dark_green_account_007",
+     "doc_checking_accounts_dark_green_account_008",
+     "doc_checking_accounts_dark_green_account_009",
+     "doc_checking_accounts_dark_green_account_010"
+    ],
+    "evergreen_account": [
+     "doc_checking_accounts_evergreen_account_001",
+     "doc_checking_accounts_evergreen_account_002",
+     "doc_checking_accounts_evergreen_account_003",
+     "doc_checking_accounts_evergreen_account_004",
+     "doc_checking_accounts_evergreen_account_005",
+     "doc_checking_accounts_evergreen_account_006",
+     "doc_checking_accounts_evergreen_account_007",
+     "doc_checking_accounts_evergreen_account_008"
+    ],
+    "gold_years_account": [
+     "doc_checking_accounts_gold_years_account_001",
+     "doc_checking_accounts_gold_years_account_002",
+     "doc_checking_accounts_gold_years_account_003",
+     "doc_checking_accounts_gold_years_account_004",
+     "doc_checking_accounts_gold_years_account_005",
+     "doc_checking_accounts_gold_years_account_006",
+     "doc_checking_accounts_gold_years_account_007",
+     "doc_checking_accounts_gold_years_account_008",
+     "doc_checking_accounts_gold_years_account_009",
+     "doc_checking_accounts_gold_years_account_010"
+    ],
+    "green_account_(checking)": [
+     "doc_checking_accounts_green_account_(checking)_001",
+     "doc_checking_accounts_green_account_(checking)_002",
+     "doc_checking_accounts_green_account_(checking)_003",
+     "doc_checking_accounts_green_account_(checking)_004",
+     "doc_checking_accounts_green_account_(checking)_005",
+     "doc_checking_accounts_green_account_(checking)_006",
+     "doc_checking_accounts_green_account_(checking)_007",
+     "doc_checking_accounts_green_account_(checking)_008",
+     "doc_checking_accounts_green_account_(checking)_009",
+     "doc_checking_accounts_green_account_(checking)_010",
+     "doc_checking_accounts_green_account_(checking)_011",
+     "doc_checking_accounts_green_account_(checking)_012"
+    ],
+    "green_fee-free_account": [
+     "doc_checking_accounts_green_fee-free_account_001",
+     "doc_checking_accounts_green_fee-free_account_002",
+     "doc_checking_accounts_green_fee-free_account_003",
+     "doc_checking_accounts_green_fee-free_account_004",
+     "doc_checking_accounts_green_fee-free_account_005",
+     "doc_checking_accounts_green_fee-free_account_006",
+     "doc_checking_accounts_green_fee-free_account_007"
+    ],
+    "light_blue_account": [
+     "doc_checking_accounts_light_blue_account_001",
+     "doc_checking_accounts_light_blue_account_002",
+     "doc_checking_accounts_light_blue_account_003",
+     "doc_checking_accounts_light_blue_account_004",
+     "doc_checking_accounts_light_blue_account_005",
+     "doc_checking_accounts_light_blue_account_006",
+     "doc_checking_accounts_light_blue_account_007"
+    ],
+    "light_green_account": [
+     "doc_checking_accounts_light_green_account_001",
+     "doc_checking_accounts_light_green_account_002",
+     "doc_checking_accounts_light_green_account_003",
+     "doc_checking_accounts_light_green_account_004",
+     "doc_checking_accounts_light_green_account_005",
+     "doc_checking_accounts_light_green_account_006",
+     "doc_checking_accounts_light_green_account_007",
+     "doc_checking_accounts_light_green_account_008",
+     "doc_checking_accounts_light_green_account_009",
+     "doc_checking_accounts_light_green_account_010",
+     "doc_checking_accounts_light_green_account_011",
+     "doc_checking_accounts_light_green_account_012",
+     "doc_checking_accounts_light_green_account_013"
+    ],
+    "purple_account": [
+     "doc_checking_accounts_purple_account_001",
+     "doc_checking_accounts_purple_account_002",
+     "doc_checking_accounts_purple_account_003",
+     "doc_checking_accounts_purple_account_004",
+     "doc_checking_accounts_purple_account_005",
+     "doc_checking_accounts_purple_account_006",
+     "doc_checking_accounts_purple_account_007",
+     "doc_checking_accounts_purple_account_008",
+     "doc_checking_accounts_purple_account_009",
+     "doc_checking_accounts_purple_account_010",
+     "doc_checking_accounts_purple_account_011",
+     "doc_checking_accounts_purple_account_012"
+    ]
+   },
+   "credit_cards": {
+    "bronze_rewards_card": [
+     "doc_credit_cards_bronze_rewards_card_001",
+     "doc_credit_cards_bronze_rewards_card_002",
+     "doc_credit_cards_bronze_rewards_card_003",
+     "doc_credit_cards_bronze_rewards_card_004",
+     "doc_credit_cards_bronze_rewards_card_005",
+     "doc_credit_cards_bronze_rewards_card_006",
+     "doc_credit_cards_bronze_rewards_card_007",
+     "doc_credit_cards_bronze_rewards_card_008"
+    ],
+    "credit_card_account_logistics": [
+     "doc_credit_cards_credit_card_account_logistics_001",
+     "doc_credit_cards_credit_card_account_logistics_002",
+     "doc_credit_cards_credit_card_account_logistics_003",
+     "doc_credit_cards_credit_card_account_logistics_004",
+     "doc_credit_cards_credit_card_account_logistics_005",
+     "doc_credit_cards_credit_card_account_logistics_006",
+     "doc_credit_cards_credit_card_account_logistics_007",
+     "doc_credit_cards_credit_card_account_logistics_008",
+     "doc_credit_cards_credit_card_account_logistics_009"
+    ],
+    "credit_card_replacements": [
+     "doc_credit_cards_credit_card_replacements_001",
+     "doc_credit_cards_credit_card_replacements_002",
+     "doc_credit_cards_credit_card_replacements_003",
+     "doc_credit_cards_credit_card_replacements_004",
+     "doc_credit_cards_credit_card_replacements_005"
+    ],
+    "_general_": [
+     "doc_credit_cards_credit_cards_(general)_001",
+     "doc_credit_cards_credit_cards_(general)_002",
+     "doc_credit_cards_credit_cards_(general)_003",
+     "doc_credit_cards_credit_cards_(general)_004",
+     "doc_credit_cards_credit_cards_(general)_005",
+     "doc_credit_cards_credit_cards_(general)_006",
+     "doc_credit_cards_credit_cards_(general)_007",
+     "doc_credit_cards_credit_cards_(general)_008",
+     "doc_credit_cards_credit_cards_(general)_009",
+     "doc_credit_cards_credit_cards_(general)_010",
+     "doc_credit_cards_credit_cards_(general)_011",
+     "doc_credit_cards_credit_cards_(general)_012",
+     "doc_credit_cards_credit_cards_(general)_013",
+     "doc_credit_cards_credit_cards_(general)_014",
+     "doc_credit_cards_credit_cards_(general)_015",
+     "doc_credit_cards_credit_cards_(general)_016",
+     "doc_credit_cards_credit_cards_(general)_017",
+     "doc_credit_cards_credit_cards_(general)_018",
+     "doc_credit_cards_credit_cards_(general)_019",
+     "doc_credit_cards_credit_cards_(general)_020",
+     "doc_credit_cards_credit_cards_(general)_021",
+     "doc_credit_cards_credit_cards_(general)_022",
+     "doc_credit_cards_credit_cards_(general)_023",
+     "doc_credit_cards_credit_cards_(general)_024",
+     "doc_credit_cards_credit_cards_(general)_025"
+    ],
+    "crypto-cash_back": [
+     "doc_credit_cards_crypto-cash_back_001",
+     "doc_credit_cards_crypto-cash_back_002",
+     "doc_credit_cards_crypto-cash_back_003",
+     "doc_credit_cards_crypto-cash_back_004",
+     "doc_credit_cards_crypto-cash_back_005",
+     "doc_credit_cards_crypto-cash_back_006",
+     "doc_credit_cards_crypto-cash_back_007",
+     "doc_credit_cards_crypto-cash_back_008",
+     "doc_credit_cards_crypto-cash_back_009"
+    ],
+    "diamond_elite_card": [
+     "doc_credit_cards_diamond_elite_card_001",
+     "doc_credit_cards_diamond_elite_card_002",
+     "doc_credit_cards_diamond_elite_card_003",
+     "doc_credit_cards_diamond_elite_card_004",
+     "doc_credit_cards_diamond_elite_card_005",
+     "doc_credit_cards_diamond_elite_card_006",
+     "doc_credit_cards_diamond_elite_card_007",
+     "doc_credit_cards_diamond_elite_card_008",
+     "doc_credit_cards_diamond_elite_card_009"
+    ],
+    "ecocard": [
+     "doc_credit_cards_ecocard_001",
+     "doc_credit_cards_ecocard_002",
+     "doc_credit_cards_ecocard_003",
+     "doc_credit_cards_ecocard_004",
+     "doc_credit_cards_ecocard_005",
+     "doc_credit_cards_ecocard_006",
+     "doc_credit_cards_ecocard_007",
+     "doc_credit_cards_ecocard_008",
+     "doc_credit_cards_ecocard_009",
+     "doc_credit_cards_ecocard_010",
+     "doc_credit_cards_ecocard_011"
+    ],
+    "gold_rewards_card": [
+     "doc_credit_cards_gold_rewards_card_001",
+     "doc_credit_cards_gold_rewards_card_002",
+     "doc_credit_cards_gold_rewards_card_003",
+     "doc_credit_cards_gold_rewards_card_004",
+     "doc_credit_cards_gold_rewards_card_005"
+    ],
+    "platinum_rewards_card": [
+     "doc_credit_cards_platinum_rewards_card_001",
+     "doc_credit_cards_platinum_rewards_card_002",
+     "doc_credit_cards_platinum_rewards_card_003",
+     "doc_credit_cards_platinum_rewards_card_004",
+     "doc_credit_cards_platinum_rewards_card_005",
+     "doc_credit_cards_platinum_rewards_card_006",
+     "doc_credit_cards_platinum_rewards_card_007",
+     "doc_credit_cards_platinum_rewards_card_008",
+     "doc_credit_cards_platinum_rewards_card_009",
+     "doc_credit_cards_platinum_rewards_card_010"
+    ],
+    "silver_rewards_card": [
+     "doc_credit_cards_silver_rewards_card_001",
+     "doc_credit_cards_silver_rewards_card_002",
+     "doc_credit_cards_silver_rewards_card_003",
+     "doc_credit_cards_silver_rewards_card_004",
+     "doc_credit_cards_silver_rewards_card_005",
+     "doc_credit_cards_silver_rewards_card_006",
+     "doc_credit_cards_silver_rewards_card_007",
+     "doc_credit_cards_silver_rewards_card_008",
+     "doc_credit_cards_silver_rewards_card_009",
+     "doc_credit_cards_silver_rewards_card_010",
+     "doc_credit_cards_silver_rewards_card_011"
+    ],
+    "virtual_card_management": [
+     "doc_credit_cards_virtual_card_management_001",
+     "doc_credit_cards_virtual_card_management_002",
+     "doc_credit_cards_virtual_card_management_003",
+     "doc_credit_cards_virtual_card_management_004",
+     "doc_credit_cards_virtual_card_management_005",
+     "doc_credit_cards_virtual_card_management_006",
+     "doc_credit_cards_virtual_card_management_007",
+     "doc_credit_cards_virtual_card_management_008"
+    ]
+   },
+   "everyone_pay": {
+    "everyone_pay": [
+     "doc_everyone_pay_everyone_pay_001",
+     "doc_everyone_pay_everyone_pay_002",
+     "doc_everyone_pay_everyone_pay_003",
+     "doc_everyone_pay_everyone_pay_004",
+     "doc_everyone_pay_everyone_pay_005",
+     "doc_everyone_pay_everyone_pay_006",
+     "doc_everyone_pay_everyone_pay_007",
+     "doc_everyone_pay_everyone_pay_008",
+     "doc_everyone_pay_everyone_pay_009",
+     "doc_everyone_pay_everyone_pay_010",
+     "doc_everyone_pay_everyone_pay_011",
+     "doc_everyone_pay_everyone_pay_012",
+     "doc_everyone_pay_everyone_pay_013",
+     "doc_everyone_pay_everyone_pay_014",
+     "doc_everyone_pay_everyone_pay_015"
+    ],
+    "qr_transfers": [
+     "doc_everyone_pay_qr_transfers_001",
+     "doc_everyone_pay_qr_transfers_002",
+     "doc_everyone_pay_qr_transfers_003",
+     "doc_everyone_pay_qr_transfers_004",
+     "doc_everyone_pay_qr_transfers_005",
+     "doc_everyone_pay_qr_transfers_006",
+     "doc_everyone_pay_qr_transfers_007"
+    ],
+    "scheduled_payments": [
+     "doc_everyone_pay_scheduled_payments_001",
+     "doc_everyone_pay_scheduled_payments_002",
+     "doc_everyone_pay_scheduled_payments_003",
+     "doc_everyone_pay_scheduled_payments_004",
+     "doc_everyone_pay_scheduled_payments_005",
+     "doc_everyone_pay_scheduled_payments_006",
+     "doc_everyone_pay_scheduled_payments_007",
+     "doc_everyone_pay_scheduled_payments_008"
+    ],
+    "sending_limits": [
+     "doc_everyone_pay_sending_limits_001",
+     "doc_everyone_pay_sending_limits_002",
+     "doc_everyone_pay_sending_limits_003",
+     "doc_everyone_pay_sending_limits_004",
+     "doc_everyone_pay_sending_limits_005",
+     "doc_everyone_pay_sending_limits_006",
+     "doc_everyone_pay_sending_limits_007"
+    ],
+    "split-the-bill": [
+     "doc_everyone_pay_split-the-bill_001",
+     "doc_everyone_pay_split-the-bill_002",
+     "doc_everyone_pay_split-the-bill_003",
+     "doc_everyone_pay_split-the-bill_004",
+     "doc_everyone_pay_split-the-bill_005",
+     "doc_everyone_pay_split-the-bill_006",
+     "doc_everyone_pay_split-the-bill_007",
+     "doc_everyone_pay_split-the-bill_008"
+    ],
+    "user_blocking": [
+     "doc_everyone_pay_user_blocking_001",
+     "doc_everyone_pay_user_blocking_002",
+     "doc_everyone_pay_user_blocking_003",
+     "doc_everyone_pay_user_blocking_004",
+     "doc_everyone_pay_user_blocking_005",
+     "doc_everyone_pay_user_blocking_006"
+    ]
+   },
+   "savings_accounts": {
+    "bronze_account": [
+     "doc_savings_accounts_bronze_account_001",
+     "doc_savings_accounts_bronze_account_002",
+     "doc_savings_accounts_bronze_account_003",
+     "doc_savings_accounts_bronze_account_004",
+     "doc_savings_accounts_bronze_account_005",
+     "doc_savings_accounts_bronze_account_006",
+     "doc_savings_accounts_bronze_account_007",
+     "doc_savings_accounts_bronze_account_008",
+     "doc_savings_accounts_bronze_account_009"
+    ],
+    "diamond_elite_account": [
+     "doc_savings_accounts_diamond_elite_account_001",
+     "doc_savings_accounts_diamond_elite_account_002",
+     "doc_savings_accounts_diamond_elite_account_003",
+     "doc_savings_accounts_diamond_elite_account_004",
+     "doc_savings_accounts_diamond_elite_account_005",
+     "doc_savings_accounts_diamond_elite_account_006",
+     "doc_savings_accounts_diamond_elite_account_007",
+     "doc_savings_accounts_diamond_elite_account_008",
+     "doc_savings_accounts_diamond_elite_account_009",
+     "doc_savings_accounts_diamond_elite_account_010",
+     "doc_savings_accounts_diamond_elite_account_011"
+    ],
+    "gold_account": [
+     "doc_savings_accounts_gold_account_001",
+     "doc_savings_accounts_gold_account_002",
+     "doc_savings_accounts_gold_account_003",
+     "doc_savings_accounts_gold_account_004",
+     "doc_savings_accounts_gold_account_005",
+     "doc_savings_accounts_gold_account_006",
+     "doc_savings_accounts_gold_account_007",
+     "doc_savings_accounts_gold_account_008",
+     "doc_savings_accounts_gold_account_009",
+     "doc_savings_accounts_gold_account_010",
+     "doc_savings_accounts_gold_account_011",
+     "doc_savings_accounts_gold_account_012",
+     "doc_savings_accounts_gold_account_013",
+     "doc_savings_accounts_gold_account_014"
+    ],
+    "gold_plus_account": [
+     "doc_savings_accounts_gold_plus_account_001",
+     "doc_savings_accounts_gold_plus_account_002",
+     "doc_savings_accounts_gold_plus_account_003",
+     "doc_savings_accounts_gold_plus_account_004",
+     "doc_savings_accounts_gold_plus_account_005",
+     "doc_savings_accounts_gold_plus_account_006",
+     "doc_savings_accounts_gold_plus_account_007",
+     "doc_savings_accounts_gold_plus_account_008",
+     "doc_savings_accounts_gold_plus_account_009"
+    ],
+    "green_account_(savings)": [
+     "doc_savings_accounts_green_account_(savings)_001",
+     "doc_savings_accounts_green_account_(savings)_002",
+     "doc_savings_accounts_green_account_(savings)_003",
+     "doc_savings_accounts_green_account_(savings)_004",
+     "doc_savings_accounts_green_account_(savings)_005",
+     "doc_savings_accounts_green_account_(savings)_006",
+     "doc_savings_accounts_green_account_(savings)_007",
+     "doc_savings_accounts_green_account_(savings)_008",
+     "doc_savings_accounts_green_account_(savings)_009"
+    ],
+    "platinum_account": [
+     "doc_savings_accounts_platinum_account_001",
+     "doc_savings_accounts_platinum_account_002",
+     "doc_savings_accounts_platinum_account_003",
+     "doc_savings_accounts_platinum_account_004",
+     "doc_savings_accounts_platinum_account_005",
+     "doc_savings_accounts_platinum_account_006",
+     "doc_savings_accounts_platinum_account_007",
+     "doc_savings_accounts_platinum_account_008",
+     "doc_savings_accounts_platinum_account_009",
+     "doc_savings_accounts_platinum_account_010"
+    ],
+    "platinum_plus_account": [
+     "doc_savings_accounts_platinum_plus_account_001",
+     "doc_savings_accounts_platinum_plus_account_002",
+     "doc_savings_accounts_platinum_plus_account_003",
+     "doc_savings_accounts_platinum_plus_account_004",
+     "doc_savings_accounts_platinum_plus_account_005",
+     "doc_savings_accounts_platinum_plus_account_006",
+     "doc_savings_accounts_platinum_plus_account_007",
+     "doc_savings_accounts_platinum_plus_account_008",
+     "doc_savings_accounts_platinum_plus_account_009"
+    ],
+    "silver_account": [
+     "doc_savings_accounts_silver_account_001",
+     "doc_savings_accounts_silver_account_002",
+     "doc_savings_accounts_silver_account_003",
+     "doc_savings_accounts_silver_account_004",
+     "doc_savings_accounts_silver_account_005",
+     "doc_savings_accounts_silver_account_006",
+     "doc_savings_accounts_silver_account_007",
+     "doc_savings_accounts_silver_account_008",
+     "doc_savings_accounts_silver_account_009"
+    ],
+    "silver_plus_account": [
+     "doc_savings_accounts_silver_plus_account_001",
+     "doc_savings_accounts_silver_plus_account_002",
+     "doc_savings_accounts_silver_plus_account_003",
+     "doc_savings_accounts_silver_plus_account_004",
+     "doc_savings_accounts_silver_plus_account_005",
+     "doc_savings_accounts_silver_plus_account_006",
+     "doc_savings_accounts_silver_plus_account_007",
+     "doc_savings_accounts_silver_plus_account_008",
+     "doc_savings_accounts_silver_plus_account_009"
+    ]
+   }
+  },
+  "_note_doc_index": "★출처 = env 파일명뿐(`doc_<군>_<주어>_NNN.json`·빌드 시점 유도·x244·저작 0). x203 이 종류를 유도할 때 쓴 같은 규칙이다. **id 만** 적고 값·축은 적지 않는다 — x243 실측이 축 선별 없이 닫힘을 보였다(S2/S3 8/8 · 축별 문장 S1 8/8 과 동률 · 프로모션 빼면 S4 0/8). 엔진은 런타임에 파일명을 뜯지 않고 여기 적힌 것을 읽기만 한다([[59]]). 시야 = 이 색인의 크기다([[50]] ADB).",
+  "doc_windows": [
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_013",
+    "from": "2025-11-01",
+    "to": "2025-11-30",
+    "quote": "ACTIVE FROM 11/01/2025 TO 11/30/2025"
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_014",
+    "from": "2025-10-12",
+    "to": "2025-11-12",
+    "quote": "ACTIVE FROM 10/12/2025 TO 11/12/2025"
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_015",
+    "from": "2025-11-01",
+    "to": "2025-11-30",
+    "quote": "ACTIVE FROM 11/01/2025 TO 11/30/2025"
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_016",
+    "from": "2025-10-12",
+    "to": "2025-11-12",
+    "quote": "ACTIVE FROM 10/12/2025 TO 11/12/2025"
+   },
+   {
+    "doc": "doc_business_credit_cards_business_bronze_rewards_card_010",
+    "from": "2025-10-01",
+    "to": "2026-03-31",
+    "quote": "This offer is available from 2025-10-01 through 2026-03-31."
+   },
+   {
+    "doc": "doc_business_credit_cards_business_platinum_rewards_card_011",
+    "from": "2025-11-01",
+    "to": "2026-02-28",
+    "quote": "Offer start date: 2025-11-01 - Offer end date: 2026-02-28"
+   },
+   {
+    "doc": "doc_business_credit_cards_business_silver_rewards_card_012",
+    "from": "2024-11-14",
+    "to": "2025-11-14",
+    "quote": "- Start date: 2024-11-14 - End date: 2025-11-14"
+   },
+   {
+    "doc": "doc_business_credit_cards_silver_zoom_card_010",
+    "from": "2025-09-15",
+    "to": "2025-12-31",
+    "quote": "Accounts opened within 2025-09-15 through 2025-12-31 are eligible, subject to approval and program rules"
+   },
+   {
+    "doc": "doc_business_credit_cards_silver_zoom_card_012",
+    "from": "2024-01-01",
+    "to": "2025-12-31",
+    "quote": "You must claim the promotion within the window starting 2024-01-01 and ending 2025-12-31"
+   },
+   {
+    "doc": "doc_business_credit_cards_silver_zoom_card_013",
+    "from": "2024-01-01",
+    "to": "2025-12-31",
+    "quote": "Confirm that you are within the eligible claim dates of 2024-01-01 through 2025-12-31"
+   },
+   {
+    "doc": "doc_credit_cards_bronze_rewards_card_008",
+    "from": "2025-09-01",
+    "to": "2026-02-28",
+    "quote": "Promotional window: 2025-09-01 through 2026-02-28."
+   },
+   {
+    "doc": "doc_credit_cards_credit_cards_(general)_012",
+    "from": "2025-11-14",
+    "to": "2025-11-18",
+    "quote": "This protocol is active from 11/14/2025 through 11/18/2025, 11:59 PM EST."
+   },
+   {
+    "doc": "doc_credit_cards_diamond_elite_card_009",
+    "from": "2025-11-01",
+    "to": "2026-01-31",
+    "quote": "Campaign window: 2025-11-01 to 2026-01-31."
+   },
+   {
+    "doc": "doc_credit_cards_ecocard_009",
+    "from": "2025-08-01",
+    "to": "2025-12-15",
+    "quote": "This promotion runs from 2025-08-01 through 2025-12-15."
+   },
+   {
+    "doc": "doc_credit_cards_ecocard_010",
+    "from": "2024-10-01",
+    "to": "2025-03-31",
+    "quote": "Accounts opened during 2024-10-01 through 2025-03-31 are eligible."
+   },
+   {
+    "doc": "doc_credit_cards_silver_rewards_card_009",
+    "from": "2025-10-15",
+    "to": "2025-12-31",
+    "quote": "2025-10-15 to 2025-12-31"
+   },
+   {
+    "doc": "doc_credit_cards_silver_rewards_card_010",
+    "from": "2025-01-01",
+    "to": "2025-06-30",
+    "quote": "Accounts must be opened within: 2025-01-01 to 2025-06-30"
+   }
+  ],
+  "_note_doc_windows": "★출처 = 정책 문서 축자(빌드 시점 LLM 형식화·x242). 규칙은 코퍼스 전체에 하나 — '이 문서가 스스로 유효 구간을 말하는가'. 태스크도 상품도 보지 않는다([[23]]·[[62]]). 엔진은 축자 실재와 날짜 형식만 검산하고, 런타임에는 현재 시각과 비교해 **효력 없는 문서를 뺄 뿐**이다(t2_search.drop_expired). 못 정한 문서는 안 적고, 안 적힌 문서는 런타임에 남는다(모름 ≠ 만료·[[25]]). 근거: x235 R3 8/8 ↔ R4_EXPIRED 0/8."
  },
  "_note_policy_ontology": "★2026-08-08 A3 정책 온톨로지가 런타임 층으로 들어왔다(정본 = A3_POLICY_ONTOLOGY_DESIGN_2026_08_08). 행 = (주어, 축, 값, 인용, applies_to). 생성 `x140`(문서 전수 1회·축별 질의·축 적합성) · 결속 `x145`(§1c) · 독립 누락 검사 `x141`. **정책 상수의 유일한 런타임 출처**다 — 엔진은 여기서 조회하고 사실은 DB에서 읽어 대조만 한다(사용자 지시 2026-08-08). ⚠표적 빌드라(`targeted_contains`) §0a 완결성 주장은 이 산출물로 하지 않는다. ⚠주어 정규화 금지(§9-4) — 표기마다 행이고 각자 인용을 진다. 맞추는 것은 LLM 몫([[22]]·C316).",
  "_note_name_rules": "2026-08-08 (C333·사용자 지시 *\"유사어 관련 규칙을 따로 뽑아 보강하라\"*). ★**표가 아니라 규칙이다.** 유사어 표는 상품 수 N에 비례해 자라지만([[50]] ADB) 형태어 규칙은 **형태어 수**(여기 4개)에만 비례하고 상품이 늘어도 안 자란다. ★출처([[23]]) = **코퍼스 실측**(gold 무참조): 698문서 census 결과 꼬리말이 상품마다 갈린다 — `Navy Blue Account`×9 · `True Blue Account`×10 · `Lime Green Account`×8 인데 `Cobalt Blue Account`×1 · `Hunter Green Account`×1 · **`World Blue Account`×0**(문서는 `World Blue International Checking`). DB `accounts.level` 자체도 `Cobalt Blue`·`Navy Blue`(꼬리말 없음)와 `Blue Account`·`Green Account`가 섞여 있다 ⇒ **원천 자체가 이름을 하나로 정하지 않았다**(정책 완결성 결함). ★그래서 규칙은 두 방향으로 대칭이다: 꼬리 형태어는 **동일성에 무관**하고, 머리 어구는 **축자 일치**여야 한다. 후자가 C316(`Light Green`↔`Light Blue` 오배정)의 재발 방지선이고, 유사어 표를 안 만드는 이유이기도 하다 — 표는 그 오배정을 조용히 박제한다. ★판단은 여전히 모델 몫이고 엔진은 실재 여부만 본다([[22]]). ★빈 답을 **정답으로 명시**한다: 기권을 벌하면 추측이 생긴다([[43]]). 문헌 근거 = 같은 모델이 유한 inventory 강제 매핑 82.3% vs 자유 서술 98%(`PRIOR_MAPPING_BOUNDARY_SCALE_2026_08_01` §4·원장 C277) — 접기를 요구하는 자리 자체가 병목이므로, 접되 **못 접을 자유**를 남긴다. 실측 표적: 099에서 손님의 business checking 3종(`Cobalt Blue Account`·`Hunter Green Account`·`Navy Blue Account`)이 전부 판정 불가로 떨어져 상한 산수가 무력화됐다.",
