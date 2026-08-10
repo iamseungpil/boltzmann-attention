@@ -213,11 +213,18 @@ def run_case(tag, trial, msgs, n):
 def main():
     n, ncase = 8, 3
     argv = sys.argv[1:]
+    # ⚠`--cases 3` 의 값까지 n 으로 읽던 결함(1차 실행이 n=3 으로 돌았다) — 값 자리를 건너뛴다.
+    skip = set()
     for i, a in enumerate(argv):
-        if a.isdigit():
-            n = int(a)
         if a.startswith("--cases"):
-            ncase = int(a.split("=", 1)[-1] if "=" in a else argv[i + 1])
+            if "=" in a:
+                ncase = int(a.split("=", 1)[1])
+            elif i + 1 < len(argv):
+                ncase = int(argv[i + 1])
+                skip.add(i + 1)
+    for i, a in enumerate(argv):
+        if i not in skip and a.isdigit():
+            n = int(a)
     cands = pick_cases()
     if not cands:
         print("⚠혼잡이 실재하는 거부 사례를 못 찾았다.")
