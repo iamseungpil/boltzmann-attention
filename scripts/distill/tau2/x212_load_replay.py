@@ -51,7 +51,7 @@ SIG = "too many referral processes"
 BUDGET = int(os.environ.get("T2_X212_BUDGET", "60000"))   # 문자 예산(문맥 길이 통제)
 
 
-def load_cases(limit=3):
+def load_cases(limit=16):
     """**실패했고 정의가 문맥에 있던** 010 sim 을 고른다."""
     out, seen = [], set()
     for pat in SIMS:
@@ -130,11 +130,21 @@ def ask(prompt, temp):
 
 def main():
     n = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 6
+    # `--slice i/k` — 사례 목록을 k 조각으로 나눠 i 번째만 돈다(두 GPU 에 나눠 싣기 위함).
+    part, parts = 0, 1
+    for a in sys.argv[1:]:
+        if a.startswith("--slice"):
+            v = a.split("=", 1)[-1] if "=" in a else sys.argv[sys.argv.index(a) + 1]
+            part, parts = (int(x) for x in v.split("/"))
     cases = load_cases()
+    if parts > 1:
+        cases = [c for i, c in enumerate(cases) if i % parts == part]
+    print("사례 %d개 (slice %d/%d · n=%d)" % (len(cases), part, parts, n))
     if not cases:
         print("⚠조건에 맞는 sim 이 없다 (실패 + 정의 문맥 도달)")
         return 1
     out = {}
+    agg = collections.Counter()
     for tag, trial, msgs in cases:
         i = last_probe_point(msgs)
         ctx = render(msgs, i)
@@ -167,9 +177,21 @@ def main():
                 c["이유O" if any(x in lo for x in CAUSE) else "이유X"] += 1
                 c["이관O" if any(x in lo for x in ESCAPE) else "이관X"] += 1
             out["%s/%s/%s" % (tag, trial, arm)] = [c["이유O"], n]
+            agg[arm + "/hit"] += c["이유O"]
+            agg[arm + "/n"] += n
+            agg[arm + "/esc"] += c["이관O"]
             print("  %-8s 이유 %d/%d · 이관 %d/%d" % (arm, c["이유O"], n, c["이관O"], n))
             print("      | " + (first or "")[:220])
-    json.dump(out, open(os.environ.get("T2_X212_OUT", "x212_out.json"), "w"), indent=1)
+    print("\n" + "=" * 92)
+    print("합계 (판정 지표 = **이유 진술**. 이관은 관측일 뿐 — gold 는 손님이 제출하는 것이고")
+    print("      그 조건은 *구체적 사유*이지 이관 여부가 아니다.)")
+    for arm in ("RAW", "COMPACT", "STRIP"):
+        if agg[arm + "/n"]:
+            print("  %-8s 이유 %3d/%-3d (%.0f%%) · 이관 %d"
+                  % (arm, agg[arm + "/hit"], agg[arm + "/n"],
+                     100.0 * agg[arm + "/hit"] / agg[arm + "/n"], agg[arm + "/esc"]))
+    json.dump(dict(out, _agg=dict(agg)),
+              open(os.environ.get("T2_X212_OUT", "x212_out.json"), "w"), indent=1)
     print("\n※ RAW 가 낮고 COMPACT 가 높으면 → **부하 확정**이고 레버는 그 한 줄이다."
           "\n  RAW ≈ COMPACT 면 → 한 줄로는 부하가 안 줄고 다른 형태를 찾아야 한다."
           "\n  STRIP 이 RAW 와 같으면 → 정의는 애초에 안 읽히고 있었다(도달≠사용).")
