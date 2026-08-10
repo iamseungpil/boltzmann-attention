@@ -2505,6 +2505,18 @@ def _limit_reduce_text(agent, a2, messages):
     #   억제가 정당한 이유: 블록은 이미 **인용 있는 정책 상수**를 근거와 함께 싣는다 —
     #   *"문서를 찾아라"* 요구는 그 턴에 이미 충족돼 있다. 블록이 없는 턴에는 종전대로 나간다.
     _unm_parts, _decided = [], False
+    # ★R8b — 결정 블록이 나가는 메시지에는 **다른 상품 이름의 목록**도 싣지 않는다
+    #   (2026-08-10·`T2_DECISION_ISOLATE`·설계서 `DECISION_ACTION_SPLIT_DESIGN_2026_08_10`).
+    #   근거(x231 leave-one-in·n=8): 깨끗한 바닥에서는 **어떤 문장을 얹어도 8/8** 인데, 실제
+    #   문맥 위에서 `ineligible_text` 가 만든 두 문장(*"not reachable yet - Beige …"* ·
+    #   *"Reachable on this criterion - Blue 30; Bluest 60; …"* = 이름 15개)을 **각각 하나만**
+    #   얹으면 task_100 이 **0/8** 로 무너진다(정답 `Hunter Green` → `Hunter Green Business
+    #   Checking`). x230 표식 실험도 같은 자리를 가리킨다 — 앞문구가 있으면 대화에 없는 표식
+    #   조차 4/8 로 밀린다. ⇒ 그 목록은 **결정 서브가 이미 소비한 재료**이고, 블록이 나간 뒤
+    #   메인에 다시 실으면 경쟁 표기만 늘린다.
+    #   ⚠빼는 것은 **우리가 방금 만든 그 문자열**이다 — 도메인 텍스트 파싱이 아니다([[59]]).
+    #   ⚠블록이 없는 턴에는 종전대로 나간다(그 턴엔 이 목록이 유일한 근거일 수 있다).
+    _name_lists = []
     # 선언마다 **그 선언이 말하는 축만** 계산한다 — 상한은 상한을 선언한 쪽, 문턱은 문턱 쪽.
     for _e2 in ops.values():
         _sp2 = _e2.get("spec") or {}
@@ -2565,7 +2577,10 @@ def _limit_reduce_text(agent, a2, messages):
             #   나온다. 엔진은 **산수까지만** 말하고 인과는 모델·문서 몫이다([[25]]).
             _add += _LG2.window_history(_e2["rows"], _sp2)
         if _e2.get("days") is not None and _mins3:
-            _add += _LG2.ineligible_text(_e2["days"], _mins3, _sp2)
+            _il2 = _LG2.ineligible_text(_e2["days"], _mins3, _sp2)
+            if _il2:
+                _name_lists.append(_il2)          # R8b: 블록이 나가면 이 목록은 뺀다
+            _add += _il2
         # ★통과 집합 (2026-08-08·C337). 못 되는 것을 말하는 것만으로는 안 닫혔다 —
         #   x150 절제: 같은 표 0/5 vs **미달 행을 뺀 표 5/5**. 그래서 거르는 일 자체를
         #   엔진이 하고 남은 것만 준다. 누계는 **A2가 지목한 선언**의 것을 쓴다(계좌 선언의
@@ -2726,6 +2741,13 @@ def _limit_reduce_text(agent, a2, messages):
         for _u8 in _unm_parts:
             _add = _add.replace(_u8, "")
         print("[T2_R8] 결정 블록과 함께 나갈 조사 지시 %d건 억제(unmatched)" % len(_unm_parts),
+              file=sys.stderr, flush=True)
+    # ★R8b 집행 (기본 OFF — 켠 런과 안 켠 런을 같은 코드로 비교할 수 있게 둔다)
+    if _decided and _name_lists and os.environ.get("T2_DECISION_ISOLATE") == "1":
+        for _n8 in _name_lists:
+            _add = _add.replace(_n8, "")
+        print("[T2_R8B] 결정 블록과 함께 나갈 이름 목록 %d건 억제(%d자)"
+              % (len(_name_lists), sum(len(x) for x in _name_lists)),
               file=sys.stderr, flush=True)
     try:                       # 호출부가 `[SOURCE]` 도 같은 규칙으로 뺄 수 있게 알린다
         agent._t2_decided = bool(_decided)
