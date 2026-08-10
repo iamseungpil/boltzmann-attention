@@ -62,7 +62,17 @@ PAD = ("The bank's lobby hours are unchanged this quarter. Parking validation is
 
 
 def pick_case():
-    """계좌를 **안 읽은** 099 실패 sim 을 고른다 (그 실패를 그대로 재현하려는 것이므로)."""
+    """**실제 거부 사례**를 고른다 — 계좌를 안 읽었고 **혼잡이 실재**하는 궤적.
+
+    ⚠**자기적발 (1차 실행)**: 조건을 *"안 읽은 099 실패 sim"* 으로만 걸었더니 KB 덤프도 우리
+      주입도 **0** 인 14메시지짜리 짧은 궤적이 뽑혔고, 거기에 요구를 붙이니 `T_FULL` 이 **10/10**
+      이었다. 방해 steer 가 없는 문맥에서는 성분을 빼도 가릴 것이 없다 — **재는 대상이 없는
+      사례를 고른 것**이다.
+
+    ⇒ 이제 **혼잡 실재**를 조건으로 넣고(KB 결과 또는 우리 주입이 있어야 한다), 후보 중
+      **가장 혼잡한 것**을 고른다. 후보 목록도 인쇄해 감사 가능하게 둔다.
+    """
+    cands = []
     for pat in PATS:
         for p in sorted(glob.glob(pat)):
             try:
@@ -73,21 +83,32 @@ def pick_case():
             if not isinstance(d, dict):
                 continue
             for s in d.get("simulations") or []:
-                if not isinstance(s, dict) or s.get("task_id") != "task_099":
+                if not isinstance(s, dict) or s.get("task_id") not in ("task_099", "task_100"):
                     continue
                 if (s.get("reward_info") or {}).get("reward") == 1:
                     continue
                 msgs = s.get("messages") or []
-                names = [str((tc.get("function") or tc).get("name") or "")
-                         for m in msgs for tc in (m.get("tool_calls") or [])]
-                args = " ".join(str((tc.get("function") or tc).get("arguments") or "")
-                                for m in msgs for tc in (m.get("tool_calls") or []))
-                if "get_all_user_accounts" in (" ".join(names) + args):
+                blob = "\n".join(str(m.get("content") or "") for m in msgs)
+                calls = " ".join(str((tc.get("function") or tc).get("name") or "")
+                                 + str((tc.get("function") or tc).get("arguments") or "")
+                                 for m in msgs for tc in (m.get("tool_calls") or []))
+                if "get_all_user_accounts" in calls:
                     continue                       # 읽은 sim 은 재현 대상이 아니다
-                if len(msgs) < 8:
-                    continue
-                return os.path.basename(os.path.dirname(p)), s.get("trial"), msgs
-    return None, None, None
+                kb = blob.count("Score:")
+                ours = sum(blob.count(sig) for sig in OURS)
+                if len(msgs) < 8 or (kb == 0 and ours == 0):
+                    continue                       # 혼잡이 없으면 잴 것이 없다
+                cands.append((kb + ours, kb, ours, len(msgs), len(blob),
+                              os.path.basename(os.path.dirname(p)), s.get("trial"), msgs))
+    if not cands:
+        return None, None, None
+    cands.sort(key=lambda x: -x[0])
+    print("후보 %d개 (혼잡 순):" % len(cands))
+    for c in cands[:6]:
+        print("   KB %-3d 우리 %-3d 메시지 %-3d %7d자  %s trial=%s"
+              % (c[1], c[2], c[3], c[4], c[5], c[6]))
+    top = cands[0]
+    return top[5], top[6], top[7]
 
 
 def render(msgs, drop=()):
