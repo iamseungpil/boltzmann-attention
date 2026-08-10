@@ -1056,6 +1056,48 @@ def status_breakdown(rows, spec):
     return tpl.format(total=len(rows), breakdown="; ".join(parts))
 
 
+def status_meanings_text(rows, spec, a3_rows):
+    """원장에 **실제로 나온** 상태값의 뜻을 A3 에서 꺼내 값으로 싣는다 (검색 0 · 지시 0).
+
+    ## 왜 (사용자 지시 2026-08-10 · C394)
+
+    > *"BM25 나 embedding 이나 grep 이나 모두 불완전하다. 결정점에서의 정책 값들은 A2 A3 로
+    >  격리해서 서브에이전트에서 정하게 하라. **retrieval 사용하지 말라**."*
+
+    x211 실측: 답을 든 문서를 **에이전트 질의 24개 중 12개만** 냈다 — 같은 정보가 대화마다
+    있다가 없다가 한다. 그런데 상태값의 뜻은 대화마다 달라지는 값이 아니라 **고정된 정책
+    상수**다(`x214` 가 A3 에 축자로 넣었다·EXACT 6/6). 고정 상수를 불확정 채널로 가져올 이유가
+    없다.
+
+    ## 경계
+
+    - 엔진은 상태값이 **무엇을 뜻하는지 모른다.** 모델이 전사해 온 값을 A3 주어 집합과
+      맞대 **원소인 것만** 꺼낸다([[22]] 닫힌 술어·[[59]] 파싱 아님).
+    - **나온 상태만** 싣는다 — 원장에 없는 상태의 정의는 그 대화와 무관하고, 실으면 혼잡이다.
+    - 문구는 **값과 출처만**이고 지시가 없다(메인 채널 = 값만).
+    - 모르는 상태값은 **조용히 빠진다** — 지어내지 않는다([[25]]).
+    """
+    tpl = (spec or {}).get("status_meaning_text")
+    sf = (spec or {}).get("status_field")
+    ax = (spec or {}).get("status_meaning_axis")
+    if not (tpl and sf and ax and rows and a3_rows):
+        return ""
+    # A3 는 **선언된 축의 행**만 본다 — 값이 수치가 아니므로 `_a3_map`(정수 캐스팅)은 못 쓴다.
+    decl = {}
+    for r in a3_rows:
+        if r.get("axis") == ax and r.get("subject"):
+            decl.setdefault(str(r["subject"]).strip(), str(r.get("value") or ""))
+    seen = []
+    for r in rows:
+        st = str(r.get(sf) or "").strip()
+        if st and st in decl and st not in seen:
+            seen.append(st)
+    if not seen:
+        return ""
+    lines = "\n".join("  %s" % decl[s] for s in seen)
+    return tpl.format(meanings=lines, n=len(seen))
+
+
 def earliest_age(rows, spec, now=None):
     """(가장 이른 날짜, 오늘까지 경과일). 관계 기간(tenure) 같은 값이 여기서 나온다.
 

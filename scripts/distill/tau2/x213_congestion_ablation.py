@@ -130,6 +130,17 @@ def render(msgs, upto, mode):
     return (txt[-BUDGET:] if len(txt) > BUDGET else txt), dropped_docs, dropped_x
 
 
+def _a3_line():
+    """우리 층이 **A3 에서** 만드는 문장 — 검색 결과가 아니라 선언된 상수다(C395)."""
+    import t2_ledger as _LG
+    from gate_interpreter import load_domain_a2 as _L
+    a2 = _L("banking_knowledge") or {}
+    sp = (a2.get("ledger_metrics") or [{}])[0]
+    rows = [{"referral_status": x} for x in ("COMPLETE", "IN_PROGRESS", "REJECTED")]
+    return _LG.status_meanings_text(rows, sp,
+                                    (a2.get("policy_ontology") or {}).get("rows") or ()).strip()
+
+
 def probe_point(msgs):
     for i, m in enumerate(msgs):
         if m.get("role") != "user":
@@ -182,12 +193,17 @@ def main():
                  + "\n\nFrom a document already retrieved: \"REJECTED - the user has too many "
                    "referral processes going on\".")
         built["E_CLEAN"] = (clean, 0, 0)
+        # ★F_A3 (C395) — 실제 문맥은 **그대로 두고** 우리 층이 A3 에서 만든 문장만 얹는다.
+        #   E_CLEAN 은 문맥을 갈아 끼운 천장이라 라이브에서 할 수 없는 일이지만, F_A3 는
+        #   라이브에서 **그대로 할 수 있는 일**이다. 인용 출처가 KB 검색이 아니라 **선언**이라
+        #   대화마다 있다가 없다가 하지 않는다(x211: 질의 24개 중 12개만 그 문서를 냈다).
+        built["F_A3"] = (built["A_FULL"][0] + "\n" + _a3_line(), 0, 0)
         strip = re.sub(r"[^\n]*too many referral processes[^\n]*", "[removed]", built["A_FULL"][0])
         built["STRIP"] = (strip, 0, 0)
         print("\n" + "=" * 92)
         print("%s trial=%s · 문맥 %d자 · 제거: 경쟁문서 %d · 이관문장 %d"
               % (tag, trial, len(built["A_FULL"][0]), built["B_ONEDOC"][1], built["C_NOXFER"][2]))
-        for name in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "E_CLEAN", "STRIP"):
+        for name in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "F_A3", "E_CLEAN", "STRIP"):
             body = built[name][0]
             c = collections.Counter()
             for k in range(n):
@@ -207,7 +223,7 @@ def main():
                   % (name, c["이유O"], n, c["이관O"], n, len(body)))
     print("\n" + "=" * 92)
     print("합계 — 판정 지표 = 이유 진술")
-    for name in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "E_CLEAN", "STRIP"):
+    for name in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "F_A3", "E_CLEAN", "STRIP"):
         if agg[name + "/n"]:
             print("  %-9s %3d/%-3d (%.0f%%)" % (name, agg[name + "/h"], agg[name + "/n"],
                                                 100.0 * agg[name + "/h"] / agg[name + "/n"]))

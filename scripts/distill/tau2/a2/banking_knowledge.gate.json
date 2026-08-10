@@ -2988,6 +2988,9 @@
    "window_history_text": "\nDate arithmetic on the records above, each one against the ones before it: {crowded}. The rolling-window allowance on record is {max} in {days} days.",
    "_note_window_history": "2026-08-09 (C379). ★왜: 기존 `window_text` 는 *\"지금부터 몇 건 더 가능한가\"* 만 말하는 **앞을 보는 문장**인데, task_010 의 손님이 묻는 것은 뒤다 — 축자 *\"you're not actually telling me **why** either one didn't pay out\"*. 실측(런 v010 두 trial): 우리 상태 문장 덕에 에이전트는 `REJECTED (Platinum)`·`IN_PROGRESS (Silver)` 까지 알았고 그 낱말로 KB 를 뒤졌으나 **이유를 못 찾아 이관으로 끝냈다**(제출 0). ★이유는 산수로 나온다: 원장 축자 `10/20`·`10/22`·**`10/25`(REJECTED)**·`11/05`(IN_PROGRESS) 에 창 9일·최대 2 를 대면 10/25 는 앞 9일에 둘, 11/05 는 0 — **두 상태가 둘 다 이 산수와 맞는다**. ★상수 출처([[23]]): 새 도메인 내용 0 — `window_days`/`window_max` 는 이미 이 선언에 있고 그 `_note_` 가 정책 축자(`doc_bank_accounts_bank_accounts_(general)_048`)를 인용한다. 이 문장은 **그 상수의 두 번째 소비자**일 뿐이다. ⚠**인과 금지**: 엔진은 *'만들어질 당시 앞 9일에 N건'* 까지만 말하고 *'그래서 거절됐다'* 는 말하지 않는다 — 그 판단은 문서와 맞대는 모델 몫이다([[25]]·[[22]]). ⚠닿은 기록이 없으면 침묵한다.",
    "status_field": "referral_status",
+   "status_meaning_axis": "status_meaning",
+   "status_meaning_text": "\nThe policy document that defines these status values states, for the {n} status value(s) present above:\n{meanings}",
+   "_note_status_meaning": "x211: 답을 든 문서를 에이전트 질의 24개 중 12개만 냈다 — 같은 정보가 대화마다 있다가 없다가 한다. 상태값의 뜻은 대화마다 달라지는 값이 아니라 고정된 정책 상수라 A3 가 든다(x214·EXACT 6/6). 결정점에서 retrieval 의존 0. 나온 상태만 싣고, 모르는 값은 조용히 빠진다.",
    "status_text": "\nOf the {total} record(s) above, grouped by the status each record carries: {breakdown}. This is a count of what the records say, not a judgement: the records state the status, they do not state why it is that status.",
    "_note_status": "2026-08-09 (C378). ★왜: `row_keys` 가 날짜와 그룹 필드 둘만 선언해서 **엔진이 상태를 아예 읽지 않았다**. 누계는 그룹 축으로 뭉갠 수뿐이라 *어느 행이 완료되지 않았는지* 를 되살릴 수 없다. task_010 이 그 자리다 — 손님 축자 *\"I got four friends to sign up, but I only received bonuses for two\"*. 원장 4행 중 둘은 완료·하나는 진행 중·하나는 거절이고 gold 는 **그 거절된 행의 상품을 다시 제출**하는 것이다. 실패 궤적(런 s·t1)은 **이미 완료된 행의 상품**을 제출했고, 통과 궤적(2026-08-04·전 런 47궤적 중 4통과)은 정확히 이 구분을 말로 한 뒤 통과했다. ★엔진은 상태 값을 **모른다**: 어떤 값이 있는지도 무엇을 뜻하는지도 열거하지 않고, 모델이 전사해 온 값으로 묶어 세기만 한다(도메인 어휘 0). *왜 그 상태인가* 는 원장이 아니라 문서에 있고 문구가 그것을 명시해 모델을 문서로 보낸다([[22]]·[[25]]). ★출처([[23]]): `referral_status` 는 **env 도구 출력 스키마**에서 온다 = 기계도출·opex 0. gold 무참조. ⚠상태가 한 종류뿐이면 침묵한다 — 나눌 것이 없으면 말할 것도 없다(Δspurious).",
    "date_formats": [
@@ -3271,7 +3274,8 @@
    "qualifying_spend_usd": "the minimum dollar amount the REFERRED party must SPEND (purchases, not a deposit) to trigger the referral bonus",
    "holder_min_age_years": "the minimum age in years a person must be to hold or open this account",
    "holder_max_age_years": "the maximum age in years a person may be and still hold this account (only where the policy states an upper bound)",
-   "referred_no_prior_accounts_months": "how many months back the REFERRED party must have had no Rho-Bank accounts to count as a new customer"
+   "referred_no_prior_accounts_months": "how many months back the REFERRED party must have had no Rho-Bank accounts to count as a new customer",
+   "status_meaning": "what a referral record's status value means, stated verbatim by the policy document that defines the statuses (a fixed policy constant, not a per-conversation value)"
   },
   "_note_axes_stated": "★2026-08-09 R0 수리(x188 실측). `axes` 는 A3 정책 상수의 **문턴 정의**라, 그것을 그대로 손님 발화 추출 질문으로 쓰면 모델이 옷게 기권한다 — 손님은 '최소 요구액'을 말한 적이 없고 '낼 금액'을 말한다. 6조건(2태스크×3문맥) 전부 {} 였다. 그래서 용도별로 문장을 나눈다: `axes`=문서에서 문턴을 읽을 때 · `axes_stated`=대화에서 손님이 말한 값을 뽑을 때. 출처는 정책 축 정의의 기계적 역상이고 gold 를 보지 않았다([[23]]). `operand: stated` 인 기준의 축만 넣는다.",
   "axes_stated": {
@@ -6401,6 +6405,108 @@
     },
     "kind": "credit_cards",
     "scope": "product"
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 원장 행의 상태값을 읽을 때 쓰는 고정 상수다. 값은 정책 문서가 정의로 못박은 것이라 대화마다 달라지지 않는다."
+    },
+    "subject": "COMPLETE",
+    "axis": "status_meaning",
+    "value": "COMPLETE — the referred person has successfully opened a new account and met the criteria to get the referral bonus",
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_credit_cards_(general)_001",
+     "quote": "COMPLETE — the referred person has successfully opened a new account and met the criteria to get the referral bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 원장 행의 상태값을 읽을 때 쓰는 고정 상수다. 값은 정책 문서가 정의로 못박은 것이라 대화마다 달라지지 않는다."
+    },
+    "subject": "IN_PROGRESS",
+    "axis": "status_meaning",
+    "value": "IN_PROGRESS — the referred person has successfully opened a new account and is in progress to meet the criteria for the referral bonus",
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_credit_cards_(general)_001",
+     "quote": "IN_PROGRESS — the referred person has successfully opened a new account and is in progress to meet the criteria for the referral bonus",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 원장 행의 상태값을 읽을 때 쓰는 고정 상수다. 값은 정책 문서가 정의로 못박은 것이라 대화마다 달라지지 않는다."
+    },
+    "subject": "NO_PROGRESS",
+    "axis": "status_meaning",
+    "value": "NO_PROGRESS — the referred person has not applied yet, no progress has been made",
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_credit_cards_(general)_001",
+     "quote": "NO_PROGRESS — the referred person has not applied yet, no progress has been made",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 원장 행의 상태값을 읽을 때 쓰는 고정 상수다. 값은 정책 문서가 정의로 못박은 것이라 대화마다 달라지지 않는다."
+    },
+    "subject": "APPLIED",
+    "axis": "status_meaning",
+    "value": "APPLIED — the referred person has sent in the application and is waiting for a decision",
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_credit_cards_(general)_001",
+     "quote": "APPLIED — the referred person has sent in the application and is waiting for a decision",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 원장 행의 상태값을 읽을 때 쓰는 고정 상수다. 값은 정책 문서가 정의로 못박은 것이라 대화마다 달라지지 않는다."
+    },
+    "subject": "REJECTED",
+    "axis": "status_meaning",
+    "value": "REJECTED — the user has too many referral processes going on",
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_credit_cards_(general)_001",
+     "quote": "REJECTED — the user has too many referral processes going on",
+     "quote_match": "exact"
+    }
+   },
+   {
+    "applies_to": {
+     "consumers": [],
+     "basis": "**도구 경계에서 판정되지 않는다** — 원장 행의 상태값을 읽을 때 쓰는 고정 상수다. 값은 정책 문서가 정의로 못박은 것이라 대화마다 달라지지 않는다."
+    },
+    "subject": "ERROR",
+    "axis": "status_meaning",
+    "value": "ERROR — an error has occurred throughout the process",
+    "against": null,
+    "compare": null,
+    "when": [],
+    "source": {
+     "doc": "doc_credit_cards_credit_cards_(general)_001",
+     "quote": "ERROR — an error has occurred throughout the process",
+     "quote_match": "exact"
+    }
    }
   ],
   "targeted_contains": "refer "
