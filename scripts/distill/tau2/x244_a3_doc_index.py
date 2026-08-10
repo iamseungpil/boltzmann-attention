@@ -74,11 +74,22 @@ def corpus_groups():
         parts = s.split("_")
         for k in range(1, len(parts)):                   # 가능한 모든 분할점
             subs["_".join(parts[:k])].add("_".join(parts[k:]))
-    cand = sorted((g for g, v in subs.items() if len(v) >= 2), key=len, reverse=True)
-    out = []
+    # ★첫 판은 **가장 긴** 접두사를 골랐고, 그래서 `business_savings_accounts` 가
+    #   `…_gold`·`…_silver` 로 쪼개졌다(주어가 `plus_saver` 가 되어 제품 이름이 사라졌다).
+    #   군은 *많이 묶는 것*이지 *긴 것*이 아니다 ⇒ **덮는 문서 수** 우선의 탐욕 피복으로 고른다.
+    files = collections.defaultdict(set)                 # 접두사 → 그 접두사로 시작하는 파일 stem
+    for s in stems:
+        parts = s.split("_")
+        for k in range(1, len(parts)):
+            files["_".join(parts[:k])].add(s)
+    cand = sorted((g for g, v in subs.items() if len(v) >= 2),
+                  key=lambda g: (-len(files[g]), len(g)))
+    taken, out = set(), []
     for g in cand:
-        if any(o.startswith(g + "_") for o in out):      # 더 긴 군이 이미 잡았으면 건너뛴다
+        mine = {s for s in files[g] if s not in taken}
+        if len(mine) < 2 or len({s[len(g) + 1:] for s in mine}) < 2:
             continue
+        taken |= mine
         out.append(g)
     return sorted(set(out) | set(_KIND_GROUPS), key=len, reverse=True)
 
