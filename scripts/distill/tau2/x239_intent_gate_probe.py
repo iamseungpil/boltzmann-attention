@@ -103,7 +103,7 @@ def main():
             if m.get("role") != "assistant":
                 continue
             # 손님 발화가 늘지 않았으면 답도 같다(같은 6개를 본다) — 호출을 아낀다
-            k = tuple(x.content[:40] for x in msgs[:i] if x.role == "user")[-6:]
+            k = tuple(str(x.content or "")[:40] for x in msgs[:i] if x.role == "user")[-6:]
             if k in seen:
                 continue
             seen.add(k)
