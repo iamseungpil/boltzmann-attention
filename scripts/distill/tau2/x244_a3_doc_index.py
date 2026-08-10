@@ -49,8 +49,41 @@ except Exception:
 HERE = os.path.dirname(os.path.abspath(__file__))
 LAYERS = ["a2/banking_knowledge.specific.json", "a2/banking_knowledge.gate.json"]
 DOCS = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/documents"
-# 문서군은 x203 이 이미 선언해 둔 것과 **같은 목록**이다(두 벌이 되면 갈린다).
-from x203_tag_a3_kind import GROUPS                                # noqa: E402
+# 문서군 — x203 의 목록에서 출발하되 **코퍼스가 실제로 가진 것**으로 채운다.
+#
+# ★첫 판이 184 문서를 놓쳤고, 하필 그 안에 **071 의 문서군(`business_savings_accounts` 82건)**
+#   이 있었다. x203 의 목록은 *종류 태깅*이 필요했던 군만 담고 있었을 뿐 코퍼스 전체가 아니다 —
+#   그 목록을 색인에 그대로 쓴 것이 [[50]] ADB 가 경고한 **시야 결손**을 그대로 만든 것이다.
+#   ⇒ 목록을 손으로 늘리는 대신 **코퍼스에서 유도**한다: 파일명은 `doc_<군>_<주어>_NNN` 이고
+#     같은 군은 여러 주어를 가지므로, *두 개 이상의 서로 다른 주어를 거느린 최장 접두사* 가 군이다.
+#   ⚠빌드 시점 규칙이다. 엔진은 이 유도를 하지 않고 적힌 색인을 읽기만 한다([[59]]).
+from x203_tag_a3_kind import GROUPS as _KIND_GROUPS                # noqa: E402
+
+_NUM = re.compile(r"^(.*)_(\d+)$")
+
+
+def corpus_groups():
+    """군 어휘를 코퍼스에서 유도한다 — 주어를 둘 이상 거느린 접두사 중 **가장 긴 것**."""
+    stems = []
+    for p in sorted(glob.glob(os.path.join(DOCS, "doc_*.json"))):
+        m = _NUM.match(os.path.basename(p)[:-5])
+        if m:
+            stems.append(m.group(1)[4:])                 # `doc_` 를 뗀 `<군>_<주어>`
+    subs = collections.defaultdict(set)
+    for s in stems:
+        parts = s.split("_")
+        for k in range(1, len(parts)):                   # 가능한 모든 분할점
+            subs["_".join(parts[:k])].add("_".join(parts[k:]))
+    cand = sorted((g for g, v in subs.items() if len(v) >= 2), key=len, reverse=True)
+    out = []
+    for g in cand:
+        if any(o.startswith(g + "_") for o in out):      # 더 긴 군이 이미 잡았으면 건너뛴다
+            continue
+        out.append(g)
+    return sorted(set(out) | set(_KIND_GROUPS), key=len, reverse=True)
+
+
+GROUPS = corpus_groups()
 
 
 def index():
