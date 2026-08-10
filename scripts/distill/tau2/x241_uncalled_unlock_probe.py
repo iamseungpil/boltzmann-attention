@@ -121,6 +121,58 @@ def iso_context(sim, upto):
     return "\n".join(users + [""] + unlocked)
 
 
+def state_facts(sim, upto):
+    """선행 단계가 **끝났다**는 사실 — 그 단계 도구의 출력 축자만 싣는다(우리 문장 0).
+
+    무엇이 선행인지는 궤적이 말한다: 성공을 보고한 도구 결과(`VERIFIED`·`logged`·`Found …`)를
+    그대로 인용한다. 엔진이 뜻을 해석하지 않는다 — 자르기만 한다([[59]]).
+    """
+    out = ["Results already obtained earlier in this conversation:"]
+    for m in sim["messages"][:upto]:
+        if m.get("role") != "tool":
+            continue
+        c = " ".join(str(m.get("content") or "").split())
+        if c.startswith(("VERIFIED", "Verification logged", "Found ", "The current time")):
+            out.append("  " + c[:320])
+    return "\n".join(out)
+
+
+def ctx_with_ours(sim, upto, tag):
+    """라이브 재현 — 궤적에 **우리 층이 실제로 넣은 문장**(사이드카 축자)을 턴 자리에 되돌린다.
+
+    결과 파일에는 우리 발화가 없다(비커밋). 그래서 궤적만으로 만든 문맥은 **모델이 본 것이
+    아니다** — 그 차이를 모른 채 첫 판은 부정 통제 8/8 을 결손 부재로 읽을 뻔했다([[08]]).
+    """
+    import t2_fbsidecar as FB
+
+    class _M(object):
+        def __init__(s, r, c):
+            s.role, s.content = r, c
+
+    keyed = FB._sim_key([_M(m.get("role"), m.get("content")) for m in sim["messages"]])
+    ours = collections.defaultdict(list)
+    p = "/home/woori/scratch/logs/fb_%s.jsonl" % tag
+    try:
+        for ln in open(p, encoding="utf-8", errors="replace"):
+            o = json.loads(ln)
+            if o.get("sim") == keyed and (o.get("text") or "").strip():
+                ours[o.get("turn")].append(" ".join(o["text"].split()))
+    except Exception as e:
+        print("[x241] 사이드카 없음(%r) — H 팔은 A 와 같아진다" % (e,))
+    out = []
+    for i, m in enumerate(sim["messages"][:upto]):
+        r, c = m.get("role"), " ".join(str(m.get("content") or "").split())
+        tcs = [(tc.get("function") or {}).get("name") or tc.get("name")
+               for tc in (m.get("tool_calls") or [])]
+        if tcs:
+            out.append("[%s calls] %s" % (r, ", ".join(tcs)))
+        if c:
+            out.append("[%s] %s" % (r, c[:700]))
+        for t in ours.get(i, ()):
+            out.append("[system] %s" % t[:700])
+    return "\n".join(out)
+
+
 def scored(msg):
     for tc in (msg.get("tool_calls") or []):
         f = tc.get("function") or {}
@@ -152,7 +204,20 @@ def main():
     #   부정 통제가 **8/8** 로 만점이 나왔다 = 결손이 재현되지 않았다는 뜻이다(handoff §10 ·
     #   [[08]]). 라이브에는 그런 지시가 없다 — 모델은 매 턴 **부를지 말할지부터** 고른다.
     #   그래서 `ask=""` 팔을 정본으로 두고, 강제 팔은 대조로만 남긴다.
+    # ★사용자 지적 2026-08-10: *"격리 자체는 되는데 사전 상태 때문에 안 되는 건가? 문맥을
+    #   action 에만 집중하게 잘라 넣으면 안 되나?"* — `E_ISO` 의 오답이 그 지적을 지지한다
+    #   (8회 중 7회가 `verify_identity` 로 **되돌아간다**). 격리 재료에서 *선행 단계가 끝났다*
+    #   는 사실까지 잘라 냈기 때문이다. x228 에서 이긴 구성도 순수 격리가 아니라 **손님 발화 +
+    #   값 + 표기**였다. ⇒ 격리에 **사전 상태 사실**만 되돌린 팔을 잰다(G). 사실의 출처는
+    #   궤적의 도구 출력 축자다 — 우리가 짓지 않는다([[25]]).
+    # ★그리고 진짜 라이브 재현(H): 결과 파일에는 **우리 층의 발화가 없다**(비커밋). 사이드카에
+    #   축자가 남아 있으므로 그것을 문맥에 되돌려야 라이브와 같은 입력이 된다.
+    iso_state = iso + "\n\n" + state_facts(sim, cut)
+    live_true = ctx_with_ours(sim, cut, tag=TAG)
+    print("격리+사전상태 %d자 · 라이브재현 %d자\n" % (len(iso_state), len(live_true)))
     arms = [("A_FREE", ctx, (), ""),
+            ("G_ISO_STATE", iso_state, (), ""),
+            ("H_LIVE_TRUE", live_true, (), ""),
             ("B_TELL", ctx + "\n\n" + tell, (), ""),
             ("C_MINUS", ctx, SEARCH, ""),
             ("D_BOTH", ctx + "\n\n" + tell, SEARCH, ""),
