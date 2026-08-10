@@ -149,7 +149,10 @@ def main():
             #   새 기전으로 정당화된다. ⚠태스크마다 A3 를 채우는 것은 떠먹이기다([[50]] ADB·
             #   사용자 지시) — 공통 기전으로 닫히는지를 먼저 본다.
             ("R5_FILTER_ONLY", "\n\n".join([req, keep, table])),
-            ("R6_FILTER_PROMO", "\n\n".join([req, keep, table, pr_act]))]
+            ("R6_FILTER_PROMO", "\n\n".join([req, keep, table, pr_act])),
+            # ★A3 빌드(M1)가 필요한가를 가르는 칸 — **문서 원문 + 활성 프로모션**만 준다.
+            #   높으면 값 정리는 불필요하고 남는 기전은 **유효창 하나**다(떠먹이기 회피).
+            ("R7_DOCS_PROMO", "\n\n".join([req, names, doc_block, pr_act]))]
     for name, body in arms:
         print("   %-11s %6d자" % (name, len(body)))
     for name, body in arms:
