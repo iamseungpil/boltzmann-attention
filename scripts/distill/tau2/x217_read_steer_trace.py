@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-r"""x217 — **무엇이 읽기를 방해하는가**: 문맥 성분을 하나씩 빼며 추적 (유료 0 · 엔진 0).
+r"""x217 — **무엇이 읽기를 방해하는가**: 여러 거부 사례에서 격리→블록 성장 (유료 0 · 엔진 0).
 
 ## 가설 (사용자 2026-08-10)
 
 > *"이전 프롬프트에서 읽기를 방해하는 steer 가 있을 것 같다. 지시나 이런 걸 격리하면 읽기도 될
 >  것 같다. 어떤 게 방해하는 원인인지 추적해 보라."*
+> *"실제로 안 읽은 경우가 많지 않나? 그 경우 몇 개를 더 해서 확실히. 격리에서 늘려가면서."*
 
 ## 이미 나온 것 (x216·C398)
 
@@ -14,25 +15,27 @@ r"""x217 — **무엇이 읽기를 방해하는가**: 문맥 성분을 하나씩
 
 ⇒ prior 는 실재하되 **깨끗한 문맥에서는 요구가 그것을 뒤집는다**. 궤적에서 뒤집기가 죽는다.
 
-## 설계 — 요구·도구 스키마는 **완전히 고정**하고 문맥 성분만 뺀다
+## 설계 — 요구·도구 스키마는 **완전히 고정**하고 문맥만 바꾼다
 
-  T_FULL       실제 실패 궤적 + 요구            ← 궤적 기준선
-  T_noKB       − KB 검색 결과 메시지
-  T_noOURS     − **우리가 주입한 문장**(`[T2_`·통과표·상태별세기·창산수·출처요구 서명)
-  T_noASSIST   − 이전 **어시스턴트 발화**(자기-정박)
-  T_noUSER     − 손님의 **이관 요청·거절** 발화
-  T_TAILONLY   마지막 2턴만 (혼잡 거의 0 · 정보도 거의 0 — 상한 아님·참고)
-  ISO          깨끗 + 요구                      ← 천장
-  ISO_LONG     깨끗 + **무관한 텍스트로 T_FULL 과 같은 길이까지 패딩** + 요구  ← **길이 통제**
-  ISO_NO       깨끗 + 요구 없음                 ← prior 기본값(부정 통제)
+§1 성분 절제 (무엇이 방해하나)
 
-판정 — `ISO` 높고 `T_FULL` 낮은데 **`ISO_LONG` 이 높으면 길이가 아니다**. 그다음 어느 성분을
-뺐을 때 회복되는가가 **범인의 이름**이다. 아무것도 회복 못 시키면 성분 하나가 아니라 누적이다.
+  T_FULL      실제 거부 궤적 + 요구
+  T_noKB      − KB 검색 결과 메시지
+  T_noOURS    − **우리가 주입한 문장**
+  T_noASSIST  − 이전 어시스턴트 발화(자기-정박)
+  T_noUSER    − 손님의 이관 요청·거절 발화
+  ISO         깨끗 + 요구                 ← 천장
+  ISO_LONG    깨끗 + 무관한 텍스트 패딩(같은 길이) + 요구   ← **길이 통제**
+  ISO_NO      깨끗 + 요구 없음            ← prior 기본값(부정 통제)
 
-⚠팔마다 **무엇이 남았는지 인쇄**하고 재는 것이 이 파일의 규율이다(오늘 프로브 구성 실수 3회의
-  공통 원인이 그것을 안 한 것).
+§2 블록 성장 (얼마나 얹으면 죽나) — **깨끗한 격리에서 시작해** 궤적 블록을 뒤에서부터 얹는다.
 
-실행: python x217_read_steer_trace.py [N]
+⚠**자기적발 두 번**: ⒜ 팔이 무엇을 담았는지 인쇄하지 않고 재면 안 된다(오늘 프로브 결함 3회의
+  공통 원인). ⒝ 1차에서 *"안 읽은 sim"* 만 조건으로 걸었더니 KB 0·우리 주입 0 인 짧은 궤적이
+  뽑혀 `T_FULL` 이 10/10 이었다 — **방해가 없는 문맥에는 잴 것이 없다**. 이제 혼잡 실재를 조건에
+  넣고 **여러 사례**를 돈다.
+
+실행: python x217_read_steer_trace.py [N] [--cases K]
 """
 import collections
 import glob
@@ -41,7 +44,6 @@ import json
 import os
 import re
 import sys
-import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 try:
@@ -49,7 +51,7 @@ try:
 except Exception:
     pass
 
-from x216_read_and_offset import TOOLS, TARGET, DEMAND, SAID, chat, called_target  # noqa: E402
+from x216_read_and_offset import TOOLS, DEMAND, SAID, chat, called_target   # noqa: E402
 
 PATS = ["/home/woori/scratch/tau2-bench/data/simulations/*/results.json",
         "/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/"
@@ -61,22 +63,14 @@ PAD = ("The bank's lobby hours are unchanged this quarter. Parking validation is
        "garage next door. The quarterly newsletter is mailed to registered addresses. ")
 
 
-def pick_case():
-    """**실제 거부 사례**를 고른다 — 계좌를 안 읽었고 **혼잡이 실재**하는 궤적.
-
-    ⚠**자기적발 (1차 실행)**: 조건을 *"안 읽은 099 실패 sim"* 으로만 걸었더니 KB 덤프도 우리
-      주입도 **0** 인 14메시지짜리 짧은 궤적이 뽑혔고, 거기에 요구를 붙이니 `T_FULL` 이 **10/10**
-      이었다. 방해 steer 가 없는 문맥에서는 성분을 빼도 가릴 것이 없다 — **재는 대상이 없는
-      사례를 고른 것**이다.
-
-    ⇒ 이제 **혼잡 실재**를 조건으로 넣고(KB 결과 또는 우리 주입이 있어야 한다), 후보 중
-      **가장 혼잡한 것**을 고른다. 후보 목록도 인쇄해 감사 가능하게 둔다.
-    """
+def pick_cases():
+    """**실제 거부 사례**들 — 계좌를 안 읽었고 **혼잡이 실재**하는 궤적, 혼잡 순."""
     cands = []
     for pat in PATS:
         for p in sorted(glob.glob(pat)):
             try:
-                f = gzip.open(p, "rt", encoding="utf-8") if p.endswith(".gz") else open(p, encoding="utf-8")
+                f = gzip.open(p, "rt", encoding="utf-8") if p.endswith(".gz") \
+                    else open(p, encoding="utf-8")
                 d = json.load(f)
             except Exception:
                 continue
@@ -93,22 +87,19 @@ def pick_case():
                                  + str((tc.get("function") or tc).get("arguments") or "")
                                  for m in msgs for tc in (m.get("tool_calls") or []))
                 if "get_all_user_accounts" in calls:
-                    continue                       # 읽은 sim 은 재현 대상이 아니다
+                    continue                    # 읽은 sim 은 재현 대상이 아니다
                 kb = blob.count("Score:")
                 ours = sum(blob.count(sig) for sig in OURS)
                 if len(msgs) < 8 or (kb == 0 and ours == 0):
-                    continue                       # 혼잡이 없으면 잴 것이 없다
+                    continue                    # 혼잡이 없으면 잴 것이 없다
                 cands.append((kb + ours, kb, ours, len(msgs), len(blob),
                               os.path.basename(os.path.dirname(p)), s.get("trial"), msgs))
-    if not cands:
-        return None, None, None
     cands.sort(key=lambda x: -x[0])
-    print("후보 %d개 (혼잡 순):" % len(cands))
-    for c in cands[:6]:
+    print("거부 사례 후보 %d개 (혼잡 순):" % len(cands))
+    for c in cands[:8]:
         print("   KB %-3d 우리 %-3d 메시지 %-3d %7d자  %s trial=%s"
               % (c[1], c[2], c[3], c[4], c[5], c[6]))
-    top = cands[0]
-    return top[5], top[6], top[7]
+    return cands
 
 
 def render(msgs, drop=()):
@@ -134,108 +125,109 @@ def render(msgs, drop=()):
     return "\n".join(parts)
 
 
-def main():
-    n = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 8
-    tag, trial, msgs = pick_case()
-    if not msgs:
-        print("⚠계좌를 안 읽은 099 실패 sim 을 못 찾았다.")
-        return 1
+def kind_of(b):
+    if any(x in b for x in OURS):
+        return "우리주입"
+    if "Score:" in b:
+        return "KB결과"
+    if b.startswith("[tool]"):
+        return "도구출력"
+    if b.startswith("[assistant"):
+        return "어시스턴트"
+    if b.startswith("[user"):
+        return "손님"
+    return "기타"
+
+
+def measure(body, n, with_demand=True):
+    c = collections.Counter()
+    for i in range(n):
+        p = body + (("\n\n" + DEMAND) if with_demand else "") + "\n\nWhat do you do next?"
+        try:
+            m = chat(p, TOOLS, 0.0 if i == 0 else 0.7)
+        except Exception:
+            c["ERR"] += 1
+            continue
+        c["호출O" if called_target(m) else "호출X"] += 1
+        for tc in (m.get("tool_calls") or []):
+            c["도구:" + str((tc.get("function") or {}).get("name"))] += 1
+    return c
+
+
+def run_case(tag, trial, msgs, n):
     full = render(msgs)
-    arms = [
-        ("T_FULL", full),
-        ("T_noKB", render(msgs, ("kb",))),
-        ("T_noOURS", render(msgs, ("ours",))),
-        ("T_noASSIST", render(msgs, ("assist",))),
-        ("T_noUSER", render(msgs, ("user",))),
-        ("T_TAILONLY", "\n".join(full.split("\n")[-4:])),
-        ("ISO", SAID["task_099"]),
-        ("ISO_LONG", SAID["task_099"] + "\n\n" + PAD * max(1, len(full) // len(PAD))),
-        ("ISO_NO", SAID["task_099"]),          # 요구를 안 붙인다 (아래에서 분기)
-    ]
-    print("사례 %s trial=%s · 메시지 %d · 궤적 %d자 · n=%d" % (tag, trial, len(msgs), len(full), n))
-    print("%-11s %8s %6s %6s %6s %6s" % ("팔", "자수", "KB", "우리", "어시", "손님"))
-    for name, body in arms:
-        print("%-11s %8d %6d %6d %6d %6d"
-              % (name, len(body), body.count("Score:"),
-                 sum(body.count(s) for s in OURS),
-                 body.count("[assistant]"), body.count("[user]")))
-    print()
     out = {}
-    for name, body in arms:
-        p = body + ("" if name == "ISO_NO" else "\n\n" + DEMAND) + "\n\nWhat do you do next?"
-        c = collections.Counter()
-        for i in range(n):
-            try:
-                m = chat(p, TOOLS, 0.0 if i == 0 else 0.7)
-            except Exception:
-                c["ERR"] += 1
-                continue
-            c["호출O" if called_target(m) else "호출X"] += 1
-            for tc in (m.get("tool_calls") or []):
-                c["도구:" + str((tc.get("function") or {}).get("name"))] += 1
-        out[name] = [c["호출O"], n]
-        print("  %-11s 읽기 %d/%d   %s"
+    arms = [("T_FULL", full, True),
+            ("T_noKB", render(msgs, ("kb",)), True),
+            ("T_noOURS", render(msgs, ("ours",)), True),
+            ("T_noASSIST", render(msgs, ("assist",)), True),
+            ("T_noUSER", render(msgs, ("user",)), True),
+            ("ISO", SAID["task_099"], True),
+            ("ISO_LONG", SAID["task_099"] + "\n\n" + PAD * max(1, len(full) // len(PAD)), True),
+            ("ISO_NO", SAID["task_099"], False)]
+    print("\n" + "=" * 96)
+    print("%s trial=%s · 메시지 %d · %d자 · n=%d" % (tag, trial, len(msgs), len(full), n))
+    print("  %-11s %8s %6s %6s %6s %6s" % ("팔", "자수", "KB", "우리", "어시", "손님"))
+    for name, body, _wd in arms:
+        print("  %-11s %8d %6d %6d %6d %6d"
+              % (name, len(body), body.count("Score:"), sum(body.count(x) for x in OURS),
+                 body.count("[assistant]"), body.count("[user]")))
+    print("\n§1 성분 절제")
+    for name, body, wd in arms:
+        c = measure(body, n, wd)
+        out["%s/%s/%s" % (tag, trial, name)] = [c["호출O"], n]
+        print("  %-11s 읽기 %2d/%d   %s"
               % (name, c["호출O"], n,
-                 [x for x in c.most_common(5) if str(x[0]).startswith("도구")]))
-    # ── §2 블록 성장 (사용자 지시) — 뒤에서부터 블록을 **하나씩 얹으며** 어디서 죽는가 ──
-    #    성분 절제가 *무엇이* 방해하는지를 묻는다면, 이쪽은 *얼마나 얹으면* 죽는지를 묻는다.
-    #    두 답이 만나는 지점이 우리가 격리 서브에 담아도 되는 문맥의 경계다.
-    print("\n§2 블록 성장 — **깨끗한 격리에서 시작해** 궤적 블록을 하나씩 얹는다 (요구·도구 고정)")
-    print("   (사용자 지시: *'깨끗한 격리부터 여러 추가 블록까지 세밀하게 엄격하게 — 읽기 거부의 기전 확보'*)")
+                 [x for x in c.most_common(3) if str(x[0]).startswith("도구")]))
+
+    print("\n§2 깨끗한 격리에서 블록 늘리기")
     blocks = []
     for m in msgs:
         role = m.get("role")
-        c = " ".join(str(m.get("content") or "").split())
+        c0 = " ".join(str(m.get("content") or "").split())
         piece = []
         for tc in (m.get("tool_calls") or []):
             fn = tc.get("function") or tc
             piece.append("[%s calls %s]" % (role, fn.get("name")))
-        if c:
-            piece.append("[%s] %s" % (role, c))
+        if c0:
+            piece.append("[%s] %s" % (role, c0))
         if piece:
             blocks.append("\n".join(piece))
-    def kind_of(b):
-        """그 블록이 **무엇인가** — 꺾이는 자리에서 범인의 이름이 된다."""
-        if any(s in b for s in OURS):
-            return "우리주입"
-        if "Score:" in b:
-            return "KB결과"
-        if b.startswith("[tool]"):
-            return "도구출력"
-        if b.startswith("[assistant"):
-            return "어시스턴트"
-        if b.startswith("[user"):
-            return "손님"
-        return "기타"
-
-    print("  블록 %d개 · 기저 = 깨끗한 격리(손님의 말)" % len(blocks))
     base = SAID["task_099"]
+    depths = [d for d in sorted(set([0, 1, 2, 3, 4, 6, 8, 12, 16, 24, len(blocks)]))
+              if d <= len(blocks)]
     prev = None
-    for k in range(0, len(blocks) + 1):
+    for k in depths:
         body = base if k == 0 else ("\n".join(blocks[-k:]) + "\n\n" + base)
-        c = collections.Counter()
-        for i in range(n):
-            p = body + "\n\n" + DEMAND + "\n\nWhat do you do next?"
-            try:
-                m2 = chat(p, TOOLS, 0.0 if i == 0 else 0.7)
-            except Exception:
-                c["ERR"] += 1
-                continue
-            c["호출O" if called_target(m2) else "호출X"] += 1
-            for tc in (m2.get("tool_calls") or []):
-                c["도구:" + str((tc.get("function") or {}).get("name"))] += 1
-        out["grow-%02d" % k] = [c["호출O"], n]
-        added = ("(깨끗)" if k == 0 else "%s: %s" % (kind_of(blocks[-k]),
-                                                    blocks[-k].split("]")[0][:22] + "]"))
-        drop = ("  ← **여기서 꺾인다**"
-                if prev is not None and c["호출O"] <= prev - max(2, n // 3) else "")
+        c = measure(body, n, True)
+        out["%s/%s/grow-%02d" % (tag, trial, k)] = [c["호출O"], n]
+        top = "(깨끗)" if k == 0 else "%s: %s" % (kind_of(blocks[-k]),
+                                                 blocks[-k].split("]")[0][:20] + "]")
+        mark = "  ← **꺾임**" if prev is not None and c["호출O"] <= prev - max(2, n // 3) else ""
         prev = c["호출O"]
-        print("  +%2d블록 (%6d자) 읽기 %2d/%d  방금 얹은 것 = %-34s%s  %s"
-              % (k, len(body), c["호출O"], n, added[:34], drop,
-                 [x for x in c.most_common(2) if str(x[0]).startswith("도구")]))
-    json.dump(out, open(os.environ.get("T2_X217_OUT", "x217_out.json"), "w"), indent=1)
-    print("\n※ ISO 높고 T_FULL 낮은데 ISO_LONG 이 높으면 **길이가 아니다**."
-          "\n  어느 성분을 뺐을 때 회복되는가 = 범인. §2 에서 읽기가 꺾이는 블록이 그 범인을 지목한다.")
+        print("  +%2d블록 %7d자 읽기 %2d/%d  맨위=%-30s%s" % (k, len(body), c["호출O"], n,
+                                                              top[:30], mark))
+    return out
+
+
+def main():
+    n, ncase = 8, 3
+    argv = sys.argv[1:]
+    for i, a in enumerate(argv):
+        if a.isdigit():
+            n = int(a)
+        if a.startswith("--cases"):
+            ncase = int(a.split("=", 1)[-1] if "=" in a else argv[i + 1])
+    cands = pick_cases()
+    if not cands:
+        print("⚠혼잡이 실재하는 거부 사례를 못 찾았다.")
+        return 1
+    allout = {}
+    for c in cands[:ncase]:
+        allout.update(run_case(c[5], c[6], c[7], n))
+    json.dump(allout, open(os.environ.get("T2_X217_OUT", "x217_out.json"), "w"), indent=1)
+    print("\n※ ISO 높고 T_FULL 낮은데 ISO_LONG 이 높으면 길이가 아니다.")
+    print("  여러 사례에서 **같은 종류의 블록**에서 꺾이면 그것이 기전이다.")
     return 0
 
 
