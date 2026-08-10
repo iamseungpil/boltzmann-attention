@@ -101,17 +101,22 @@ def render(msgs, upto=None):
 
 
 def last_probe_point(msgs):
-    """손님이 *'그건 왜를 답하지 않는다'* 며 되묻는 지점 — 없으면 마지막 user 턴."""
-    idx = None
+    """손님이 *'그건 왜를 답하지 않는다'* 며 **처음 되묻는** 지점.
+
+    ⚠**자기적발 (1차 실행)**: 구판은 조건에 맞는 **마지막** user 턴을 골랐는데, 그건 이미
+      *"네, 상담원으로 연결해 주세요"* 라고 **이관을 요청한 뒤**였다. 그 지점에서는 이관이
+      옳은 행동이라 세 팔이 전부 6/6 이관으로 같아졌다 — 부하를 잰 것이 아니라 **재는 자리를
+      틀린 것**이다. 결정이 갈리는 자리는 **이관 요청 전 첫 되묻기**다.
+    """
     for i, m in enumerate(msgs):
         if m.get("role") != "user":
             continue
         c = str(m.get("content") or "").lower()
-        if "why" in c and ("reject" in c or "didn" in c or "reason" in c):
-            idx = i
-    if idx is None:
-        idx = max((i for i, m in enumerate(msgs) if m.get("role") == "user"), default=len(msgs) - 1)
-    return idx
+        if "transfer" in c or "human agent" in c or "###" in c:
+            continue                      # 이관을 요청한 턴은 결정 지점이 아니다
+        if ("why" in c or "reason" in c or "specific" in c) and i > 2:
+            return i
+    return max((i for i, m in enumerate(msgs) if m.get("role") == "user"), default=len(msgs) - 1)
 
 
 def ask(prompt, temp):
