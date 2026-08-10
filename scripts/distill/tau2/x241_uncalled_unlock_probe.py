@@ -137,7 +137,8 @@ def main():
     cut = None
     for i, m in enumerate(sim["messages"]):
         for tc in (m.get("tool_calls") or []):
-            if (tc.get("function") or {}).get("name") == "unlock_discoverable_agent_tool":
+            nm = (tc.get("function") or {}).get("name") or tc.get("name")
+            if nm == "unlock_discoverable_agent_tool":
                 cut = i + 2
     ctx = context(sim, cut)
     tell = tell_text()
