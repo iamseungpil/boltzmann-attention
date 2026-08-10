@@ -136,6 +136,43 @@ def render(msgs, upto, mode):
     return (txt[-BUDGET:] if len(txt) > BUDGET else txt), dropped_docs, dropped_x
 
 
+def _onto_block(led_rows):
+    """**격리 서브에 실제로 실을 문맥** — 전부 A2/A3·엔진 산물이고 KB 는 0 이다.
+
+    사용자 지시(2026-08-10): *"결정점에서의 정책 값들은 A2 A3 로 격리해서 서브에이전트에서
+    정하게 하라. retrieval 사용하지 말라."* `E_CLEAN`(원장+정의)은 그 설계를 대표하지 못한다 —
+    *"너무 많다"* 를 수로 뒷받침하는 **창 산수**가 빠져 있다(x210 에서 8/8 이 나온 팔에는 있었다).
+    여기서는 그 셋을 다 싣는다: **상태별 세기 + 창 산수 + 상태 정의**.
+    """
+    import t2_ledger as _LG
+    from gate_interpreter import load_domain_a2 as _L
+    a2 = _L("banking_knowledge") or {}
+    sp = (a2.get("ledger_metrics") or [{}])[0]
+    a3 = (a2.get("policy_ontology") or {}).get("rows") or ()
+    parts = [_LG.status_breakdown(led_rows, sp), _LG.window_history(led_rows, sp),
+             _LG.status_meanings_text(led_rows, sp, a3)]
+    return "\n".join(p.strip() for p in parts if p and p.strip())
+
+
+def _parse_led(text):
+    """궤적의 원장 출력에서 **행을 복원**한다 (프로브 전용 — 엔진이 아니다).
+
+    라이브에서는 이 전사를 **모델이** 한다(A2 `row_keys`·[[59]]). 여기서는 이미 지나간 궤적을
+    재현할 뿐이라 프로브가 읽는다.
+    """
+    rows = []
+    for chunk in re.split(r"(?=Record ID:)", text):
+        st = re.search(r"referral_status: ([A-Z_]+)", chunk)
+        if not st:
+            continue
+        ty = re.search(r"referred_account_type: (.+?) referral_status", chunk)
+        dt = re.search(r"date: (\d{1,2}/\d{1,2}/\d{4})", chunk)
+        rows.append({"referred_account_type": (ty.group(1).strip() if ty else ""),
+                     "referral_status": st.group(1),
+                     "date": (dt.group(1) if dt else "")})
+    return rows
+
+
 def _a3_line():
     """우리 층이 **A3 에서** 만드는 문장 — 검색 결과가 아니라 선언된 상수다(C395)."""
     import t2_ledger as _LG
@@ -226,6 +263,11 @@ def main():
             print("\n%s trial=%s — 절단/절제로 정의가 사라졌다. 건너뛴다(통제 오염)." % (tag, trial))
             continue
         clean = "[tool] " + led0 + "\n" + _a3_line()
+        # ★G_ONTO — 격리 서브에 **실제로 실을** 문맥(원장 + 상태별세기 + 창 산수 + 정의).
+        #   전부 A2/A3·엔진 산물이고 KB 0. `E_CLEAN` 은 창 산수가 빠져 이 설계를 대표하지 못한다.
+        _lr = _parse_led(led0)
+        _ob = _onto_block(_lr) if _lr else ""
+        built["G_ONTO"] = (("[tool] " + led0 + "\n" + _ob) if _ob else clean, 0, 0)
         built["E_CLEAN"] = (clean, 0, 0)
         # ★F_A3 (C395) — 실제 문맥은 **그대로 두고** 우리 층이 A3 에서 만든 문장만 얹는다.
         #   E_CLEAN 은 문맥을 갈아 끼운 천장이라 라이브에서 할 수 없는 일이지만, F_A3 는
@@ -241,7 +283,7 @@ def main():
         # ★팔 자기점검 (x215 교훈) — **팔이 무엇을 담았는지 인쇄하지 않고는 재지 않는다.**
         #   1차 x213 은 `E_CLEAN` 이 users 조회를 담고 있었는데 그것을 천장이라 불렀다.
         bad = []
-        for _nm in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "F_A3", "E_CLEAN", "STRIP"):
+        for _nm in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "F_A3", "G_ONTO", "E_CLEAN", "STRIP"):
             _b = built[_nm][0]
             _nl, _nd = len(re.findall(r"referral_status", _b)), _b.count(SIG)
             print("   %-9s 원장행 %d · 정의 %d회 · %d자" % (_nm, _nl, _nd, len(_b)))
@@ -254,7 +296,7 @@ def main():
         if bad:
             print("  ⚠팔 %s 이 정보를 잃었다 — 이 사례는 재지 않는다(절제가 정보 절제가 됐다)." % bad)
             continue
-        for name in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "F_A3", "E_CLEAN", "STRIP"):
+        for name in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "F_A3", "G_ONTO", "E_CLEAN", "STRIP"):
             body = built[name][0]
             c = collections.Counter()
             for k in range(n):
@@ -279,7 +321,7 @@ def main():
                   % (name, c["이유O"], n, c["이관O"], n, len(body)))
     print("\n" + "=" * 92)
     print("합계 — 판정 지표 = 이유 진술")
-    for name in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "F_A3", "E_CLEAN", "STRIP"):
+    for name in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "F_A3", "G_ONTO", "E_CLEAN", "STRIP"):
         if agg[name + "/n"]:
             print("  %-9s %3d/%-3d (%.0f%%)" % (name, agg[name + "/h"], agg[name + "/n"],
                                                 100.0 * agg[name + "/h"] / agg[name + "/n"]))
