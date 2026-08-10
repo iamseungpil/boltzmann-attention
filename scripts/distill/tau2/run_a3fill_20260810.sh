@@ -58,6 +58,21 @@ if "This is arithmetic on the dates" not in (sp0.get("window_history_text") or "
     bad.append("창-산수 꼬리말이 옛 것이다")
 if "do not state why" not in (sp0.get("status_text") or "").lower():
     bad.append("상태 문구가 계약을 벗어났다")
+sp0 = a2["ledger_metrics"][0]
+# ★오늘 변경분까지 검사한다 (발사 전 VERIFY 는 **이 런이 의존하는 것 전부**를 봐야 한다)
+if "reply NONE" in (sp1.get("rederive_prompt") or ""):
+    bad.append("rederive 의 NONE 조항이 아직 있다")
+if "The customer says" in (sp1.get("rederive_prompt") or ""):
+    bad.append("rederive 에 빈 손님-말 블록이 아직 있다")
+if "retrieve it and say which applies" in (sp0.get("window_history_text") or ""):
+    bad.append("창-산수 꼬리말이 아직 있다")
+if not sp0.get("status_meaning_text") or sp0.get("status_meaning_axis") != "status_meaning":
+    bad.append("상태 정의 선언이 없다")
+_sm = [r for r in rows if r.get("axis") == "status_meaning"]
+if len(_sm) < 6:
+    bad.append("A3 상태 정의가 %d행뿐이다" % len(_sm))
+if "REJECTED" not in LG.status_meanings_text([{"referral_status": "REJECTED"}], sp0, rows):
+    bad.append("상태 정의 전달이 침묵한다")
 cfg = sp1["eligible"]
 if cfg.get("kind_field") != "kind" or "{kinds}" not in (cfg.get("kind_prompt") or ""):
     bad.append("종류 선택 선언이 없다")
