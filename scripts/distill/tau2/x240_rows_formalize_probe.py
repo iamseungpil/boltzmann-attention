@@ -38,7 +38,22 @@ except Exception:
 import t2_ledger as LG                                            # noqa: E402
 import x238_action_forensic as X                                  # noqa: E402
 from x216_read_and_offset import chat                             # noqa: E402
-from x239_intent_gate_probe import _Agent, _LA, _UM               # noqa: E402
+from x239_intent_gate_probe import _Agent, _Msg, _UM              # noqa: E402
+
+
+class _LA(object):
+    """`llm_agent` 자리. ⚠x239 의 것을 그대로 쓰면 **40 토큰에서 잘린다**(그 프로브는 도구 이름
+    하나만 받으면 됐다). 행 전사는 수백 토큰이라 전부 `[]` 가 되고, 그러면 **통과한 시행까지
+    실패로 읽힌다** — 실제로 첫 판이 그렇게 나왔다. 계기의 상한이 신호를 만든 사례다([[55]])."""
+
+    @staticmethod
+    def generate(model=None, tools=None, messages=(), call_name=None, **kw):
+        p = "".join(str(getattr(m, "content", "") or "") for m in messages)
+        try:
+            out = chat(p, None, 0.0, 1400).get("content", "")
+        except Exception as e:
+            out = "ERR %s" % type(e).__name__
+        return _Msg("assistant", out)
 
 
 def specs():
