@@ -59,7 +59,7 @@ PATS = ["/home/woori/scratch/tau2-bench/data/simulations/*/results.json",
 BUDGET = int(os.environ.get("T2_X213_BUDGET", "120000"))
 
 
-def cases(limit=12):
+def cases(limit=40):
     out, seen = [], set()
     for pat in PATS:
         for p in sorted(glob.glob(pat)):
@@ -111,12 +111,18 @@ def render(msgs, upto, mode):
         role = m.get("role")
         c = " ".join(str(m.get("content") or "").split())
         raw = str(m.get("content") or "")
-        if mode in ("B", "D") and role == "tool" and "ID:" in raw:
-            before = len(re.findall(r"ID:", raw))
+        # ★검색 결과에만 적용한다 (x215 2차 자기점검). 구판은 `ID:` 만 보고 잘랐는데 **원장 출력도
+        #   `1. Record ID:` 형태**라 원장 4행이 경쟁 항목으로 삭제됐다 — `B_ONEDOC` 이 늘 0 이던
+        #   이유이고, *"정보는 빼지 않는다"* 는 이 설계의 전제를 스스로 어긴 것이다.
+        #   검색 결과의 서명은 `Score:` 다.
+        if mode in ("B", "D") and role == "tool" and "Score:" in raw and "ID:" in raw:
+            before = len(re.findall(r"ID: doc_", raw))
             raw2 = keep_only_target_doc(raw)
-            dropped_docs += before - len(re.findall(r"ID:", raw2))
+            dropped_docs += before - len(re.findall(r"ID: doc_", raw2))
             c = " ".join(raw2.split())
-        if mode in ("C", "D") and re.search(r"transfer|human agent", c, re.I):
+        # ★정의나 원장을 든 메시지는 **지우지 않는다** — 지우면 정보 절제가 되어 통제가 깨진다.
+        if (mode in ("C", "D") and re.search(r"transfer|human agent", c, re.I)
+                and SIG not in c and "referral_status" not in c):
             dropped_x += 1
             continue
         for t in (m.get("tool_calls") or []):
@@ -234,10 +240,20 @@ def main():
         print("  손님: %s" % askmsg[:120])
         # ★팔 자기점검 (x215 교훈) — **팔이 무엇을 담았는지 인쇄하지 않고는 재지 않는다.**
         #   1차 x213 은 `E_CLEAN` 이 users 조회를 담고 있었는데 그것을 천장이라 불렀다.
+        bad = []
         for _nm in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "F_A3", "E_CLEAN", "STRIP"):
             _b = built[_nm][0]
-            print("   %-9s 원장행 %d · 정의 %d회 · %d자"
-                  % (_nm, len(re.findall(r"referral_status", _b)), _b.count(SIG), len(_b)))
+            _nl, _nd = len(re.findall(r"referral_status", _b)), _b.count(SIG)
+            print("   %-9s 원장행 %d · 정의 %d회 · %d자" % (_nm, _nl, _nd, len(_b)))
+            # STRIP 만 정의가 없어야 하고, 나머지는 원장과 정의를 **둘 다** 들고 있어야 한다.
+            if _nm == "STRIP":
+                if _nl == 0 or _nd != 0:
+                    bad.append(_nm)
+            elif _nl == 0 or _nd == 0:
+                bad.append(_nm)
+        if bad:
+            print("  ⚠팔 %s 이 정보를 잃었다 — 이 사례는 재지 않는다(절제가 정보 절제가 됐다)." % bad)
+            continue
         for name in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "F_A3", "E_CLEAN", "STRIP"):
             body = built[name][0]
             c = collections.Counter()
