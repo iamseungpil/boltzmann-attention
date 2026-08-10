@@ -62,9 +62,11 @@ def tell_text():
     src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "t2_gate_patch.py"),
                encoding="utf-8").read()
     i = src.find("Error: [UNLOCKED-NOT-CALLED]")
-    chunk = src[i:i + 700]
-    parts = re.findall(r'"([^"]*)"', chunk)
-    body = "".join(parts[:4])
+    # ⚠`i` 는 리터럴 **안쪽**을 가리킨다 — 거기서 따옴표를 찾으면 첫 매치가 *닫는* 따옴표라
+    #   리터럴 사이의 공백만 잡힌다(첫 판이 그렇게 빈 문구를 만들었다). 여는 따옴표부터 읽는다.
+    j = src.rfind('"', 0, i)
+    parts = re.findall(r'"([^"]*)"', src[j:j + 700])
+    body = "".join(p for p in parts[:5] if p.strip())
     return body.replace("%s", LOCKED)
 
 
@@ -146,22 +148,28 @@ def main():
     print("문구 축자: %s\n" % tell[:200])
     iso = iso_context(sim, cut)
     print("격리 문맥 %d자\n" % len(iso))
-    arms = [("A_LIVE", ctx, ()),
-            ("B_TELL", ctx + "\n\n" + tell, ()),
-            ("C_MINUS", ctx, SEARCH),
-            ("D_BOTH", ctx + "\n\n" + tell, SEARCH),
-            ("E_ISO", iso, ()),
-            ("F_ISO_MINUS", iso, SEARCH)]
-    for name, body, drop in arms:
+    # ★계기 정합 (2026-08-10·첫 판 무효화): 첫 판은 *"도구 호출을 정확히 하나 하라"* 를 붙였고
+    #   부정 통제가 **8/8** 로 만점이 나왔다 = 결손이 재현되지 않았다는 뜻이다(handoff §10 ·
+    #   [[08]]). 라이브에는 그런 지시가 없다 — 모델은 매 턴 **부를지 말할지부터** 고른다.
+    #   그래서 `ask=""` 팔을 정본으로 두고, 강제 팔은 대조로만 남긴다.
+    arms = [("A_FREE", ctx, (), ""),
+            ("B_TELL", ctx + "\n\n" + tell, (), ""),
+            ("C_MINUS", ctx, SEARCH, ""),
+            ("D_BOTH", ctx + "\n\n" + tell, SEARCH, ""),
+            ("E_ISO", iso, (), ""),
+            ("F_ISO_MINUS", iso, SEARCH, ""),
+            ("Z_FORCED", ctx, (), ASK)]
+    for name, body, drop, ask in arms:
         tools = tools_of(sim, drop)
         c = collections.Counter()
         for i in range(n):
             try:
-                r = chat(body + "\n\n" + ASK, tools, 0.0 if i == 0 else 0.7, 200)
+                r = chat(body + (("\n\n" + ask) if ask else ""), tools,
+                         0.0 if i == 0 else 0.7, 200)
             except Exception as e:
                 r = {"content": "ERR %s" % type(e).__name__}
             c[scored(r)] += 1
-        print("  %-9s 도구 %d개 · HIT %d/%d   %s"
+        print("  %-11s 도구 %d개 · HIT %d/%d   %s"
               % (name, len(tools), c["HIT"], n, c.most_common(3)))
     print("\n※ 읽는 법 — B 가 낮고 C/D 가 높으면 **말이 아니라 뺄셈**이다(C404 의 일곱 번째 사례)."
           "\n  B 가 이미 높으면 라이브 실패는 문구가 아니라 **발화 자리**의 문제다(1회 캡·resign 조건).")
