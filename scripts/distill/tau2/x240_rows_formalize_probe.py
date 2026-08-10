@@ -46,7 +46,9 @@ def specs():
     p = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                      "a2", "banking_knowledge.gate.json")
     a2 = json.load(open(p, encoding="utf-8"))
-    return LG.specs_for(a2)
+    # 원장 선언은 **도구 이름**으로 붙는다 — 이 계열의 원장 도구는 `get_referrals_by_user` 다.
+    return {(s.get("trigger_tool") or "?"): s
+            for s in LG.specs_for(a2, "get_referrals_by_user")}
 
 
 def ledger_texts(tag, task):
