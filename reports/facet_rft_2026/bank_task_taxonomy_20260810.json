@@ -1,0 +1,2776 @@
+[
+ {
+  "id": "task_001",
+  "acts": [
+   "apply_for_credit_card"
+  ],
+  "n_acts": 1,
+  "kb": true,
+  "n_docs": 4,
+  "traps": [
+   "은폐",
+   "조건부",
+   "이탈"
+  ],
+  "n": 79,
+  "pass": 34,
+  "rate": 0.43037974683544306,
+  "fail_wrote": 36,
+  "end": {
+   "user_stop": 76,
+   "infrastructure_error": 2,
+   "context_window_exceeded": 1
+  }
+ },
+ {
+  "id": "task_002",
+  "acts": [
+   "apply_for_credit_card"
+  ],
+  "n_acts": 1,
+  "kb": true,
+  "n_docs": 6,
+  "traps": [
+   "조건부",
+   "이탈"
+  ],
+  "n": 76,
+  "pass": 38,
+  "rate": 0.5,
+  "fail_wrote": 30,
+  "end": {
+   "user_stop": 75,
+   "infrastructure_error": 1
+  }
+ },
+ {
+  "id": "task_003",
+  "acts": [
+   "apply_for_credit_card"
+  ],
+  "n_acts": 1,
+  "kb": true,
+  "n_docs": 5,
+  "traps": [
+   "이탈"
+  ],
+  "n": 82,
+  "pass": 26,
+  "rate": 0.3170731707317073,
+  "fail_wrote": 45,
+  "end": {
+   "user_stop": 82
+  }
+ },
+ {
+  "id": "task_004",
+  "acts": [
+   "transfer_to_human_agents"
+  ],
+  "n_acts": 1,
+  "kb": true,
+  "n_docs": 1,
+  "traps": [
+   "은폐",
+   "이탈"
+  ],
+  "n": 70,
+  "pass": 9,
+  "rate": 0.12857142857142856,
+  "fail_wrote": 0,
+  "end": {
+   "user_stop": 70
+  }
+ },
+ {
+  "id": "task_005",
+  "acts": [
+   "transfer_to_human_agents",
+   "log_verification",
+   "change_user_email"
+  ],
+  "n_acts": 3,
+  "kb": true,
+  "n_docs": 1,
+  "traps": [
+   "은폐",
+   "주장",
+   "이탈"
+  ],
+  "n": 69,
+  "pass": 1,
+  "rate": 0.014492753623188406,
+  "fail_wrote": 1,
+  "end": {
+   "user_stop": 69
+  }
+ },
+ {
+  "id": "task_006",
+  "acts": [
+   "apply_for_credit_card"
+  ],
+  "n_acts": 1,
+  "kb": true,
+  "n_docs": 6,
+  "traps": [
+   "이탈"
+  ],
+  "n": 64,
+  "pass": 39,
+  "rate": 0.609375,
+  "fail_wrote": 10,
+  "end": {
+   "user_stop": 62,
+   "infrastructure_error": 1,
+   "context_window_exceeded": 1
+  }
+ },
+ {
+  "id": "task_007",
+  "acts": [
+   "apply_for_credit_card"
+  ],
+  "n_acts": 1,
+  "kb": true,
+  "n_docs": 4,
+  "traps": [
+   "은폐",
+   "이탈"
+  ],
+  "n": 68,
+  "pass": 19,
+  "rate": 0.27941176470588236,
+  "fail_wrote": 20,
+  "end": {
+   "user_stop": 65,
+   "infrastructure_error": 3
+  }
+ },
+ {
+  "id": "task_008",
+  "acts": [
+   "transfer_to_human_agents"
+  ],
+  "n_acts": 1,
+  "kb": true,
+  "n_docs": 6,
+  "traps": [
+   "이탈"
+  ],
+  "n": 59,
+  "pass": 21,
+  "rate": 0.3559322033898305,
+  "fail_wrote": 2,
+  "end": {
+   "user_stop": 55,
+   "infrastructure_error": 3,
+   "context_window_exceeded": 1
+  }
+ },
+ {
+  "id": "task_010",
+  "acts": [
+   "log_verification",
+   "submit_referral"
+  ],
+  "n_acts": 2,
+  "kb": true,
+  "n_docs": 2,
+  "traps": [
+   "은폐",
+   "조건부"
+  ],
+  "n": 90,
+  "pass": 7,
+  "rate": 0.07777777777777778,
+  "fail_wrote": 8,
+  "end": {
+   "user_stop": 82,
+   "too_many_errors": 4,
+   "context_window_exceeded": 1,
+   "infrastructure_error": 3
+  }
+ },
+ {
+  "id": "task_012",
+  "acts": [
+   "transfer_to_human_agents"
+  ],
+  "n_acts": 1,
+  "kb": true,
+  "n_docs": 1,
+  "traps": [
+   "조건부",
+   "이탈"
+  ],
+  "n": 73,
+  "pass": 7,
+  "rate": 0.0958904109589041,
+  "fail_wrote": 0,
+  "end": {
+   "user_stop": 73
+  }
+ },
+ {
+  "id": "task_014",
+  "acts": [
+   "transfer_to_human_agents"
+  ],
+  "n_acts": 1,
+  "kb": true,
+  "n_docs": 5,
+  "traps": [
+   "주장",
+   "조건부"
+  ],
+  "n": 59,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 46,
+  "end": {
+   "user_stop": 58,
+   "context_window_exceeded": 1
+  }
+ },
+ {
+  "id": "task_015",
+  "acts": [
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "n_acts": 2,
+  "kb": true,
+  "n_docs": 5,
+  "traps": [
+   "조건부"
+  ],
+  "n": 62,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 52,
+  "end": {
+   "user_stop": 62
+  }
+ },
+ {
+  "id": "task_016",
+  "acts": [
+   "log_verification",
+   "submit_transaction"
+  ],
+  "n_acts": 2,
+  "kb": true,
+  "n_docs": 3,
+  "traps": [
+   "은폐",
+   "조건부"
+  ],
+  "n": 63,
+  "pass": 6,
+  "rate": 0.09523809523809523,
+  "fail_wrote": 3,
+  "end": {
+   "user_stop": 63
+  }
+ },
+ {
+  "id": "task_017",
+  "acts": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "n_acts": 4,
+  "kb": true,
+  "n_docs": 4,
+  "traps": [],
+  "n": 69,
+  "pass": 29,
+  "rate": 0.42028985507246375,
+  "fail_wrote": 12,
+  "end": {
+   "user_stop": 69
+  }
+ },
+ {
+  "id": "task_018",
+  "acts": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "n_acts": 8,
+  "kb": true,
+  "n_docs": 10,
+  "traps": [],
+  "n": 60,
+  "pass": 21,
+  "rate": 0.35,
+  "fail_wrote": 12,
+  "end": {
+   "user_stop": 56,
+   "context_window_exceeded": 3,
+   "too_many_errors": 1
+  }
+ },
+ {
+  "id": "task_019",
+  "acts": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "n_acts": 6,
+  "kb": true,
+  "n_docs": 6,
+  "traps": [],
+  "n": 175,
+  "pass": 43,
+  "rate": 0.24571428571428572,
+  "fail_wrote": 40,
+  "end": {
+   "user_stop": 171,
+   "infrastructure_error": 4
+  }
+ },
+ {
+  "id": "task_020",
+  "acts": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "n_acts": 6,
+  "kb": true,
+  "n_docs": 8,
+  "traps": [],
+  "n": 63,
+  "pass": 14,
+  "rate": 0.2222222222222222,
+  "fail_wrote": 26,
+  "end": {
+   "user_stop": 61,
+   "context_window_exceeded": 1,
+   "max_steps": 1
+  }
+ },
+ {
+  "id": "task_021",
+  "acts": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "n_acts": 4,
+  "kb": true,
+  "n_docs": 8,
+  "traps": [],
+  "n": 59,
+  "pass": 23,
+  "rate": 0.3898305084745763,
+  "fail_wrote": 13,
+  "end": {
+   "user_stop": 58,
+   "infrastructure_error": 1
+  }
+ },
+ {
+  "id": "task_022",
+  "acts": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "n_acts": 12,
+  "kb": true,
+  "n_docs": 13,
+  "traps": [],
+  "n": 68,
+  "pass": 11,
+  "rate": 0.16176470588235295,
+  "fail_wrote": 17,
+  "end": {
+   "user_stop": 53,
+   "context_window_exceeded": 8,
+   "infrastructure_error": 7
+  }
+ },
+ {
+  "id": "task_023",
+  "acts": [
+   "log_verification",
+   "apply_for_credit_card"
+  ],
+  "n_acts": 2,
+  "kb": true,
+  "n_docs": 5,
+  "traps": [
+   "조건부"
+  ],
+  "n": 80,
+  "pass": 14,
+  "rate": 0.175,
+  "fail_wrote": 35,
+  "end": {
+   "infrastructure_error": 9,
+   "user_stop": 69,
+   "context_window_exceeded": 1,
+   "too_many_errors": 1
+  }
+ },
+ {
+  "id": "task_024",
+  "acts": [
+   "apply_for_credit_card"
+  ],
+  "n_acts": 1,
+  "kb": true,
+  "n_docs": 6,
+  "traps": [
+   "은폐"
+  ],
+  "n": 55,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 44,
+  "end": {
+   "user_stop": 51,
+   "infrastructure_error": 4
+  }
+ },
+ {
+  "id": "task_025",
+  "acts": [
+   "apply_for_credit_card"
+  ],
+  "n_acts": 1,
+  "kb": true,
+  "n_docs": 10,
+  "traps": [
+   "은폐"
+  ],
+  "n": 53,
+  "pass": 18,
+  "rate": 0.33962264150943394,
+  "fail_wrote": 21,
+  "end": {
+   "user_stop": 46,
+   "infrastructure_error": 2,
+   "context_window_exceeded": 5
+  }
+ },
+ {
+  "id": "task_026",
+  "acts": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 11,
+  "kb": true,
+  "n_docs": 8,
+  "traps": [
+   "이탈"
+  ],
+  "n": 53,
+  "pass": 1,
+  "rate": 0.018867924528301886,
+  "fail_wrote": 28,
+  "end": {
+   "user_stop": 50,
+   "context_window_exceeded": 1,
+   "max_steps": 1,
+   "infrastructure_error": 1
+  }
+ },
+ {
+  "id": "task_027",
+  "acts": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "n_acts": 6,
+  "kb": true,
+  "n_docs": 6,
+  "traps": [],
+  "n": 56,
+  "pass": 8,
+  "rate": 0.14285714285714285,
+  "fail_wrote": 26,
+  "end": {
+   "user_stop": 48,
+   "context_window_exceeded": 2,
+   "too_many_errors": 2,
+   "max_steps": 3,
+   "infrastructure_error": 1
+  }
+ },
+ {
+  "id": "task_028",
+  "acts": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 15,
+  "kb": true,
+  "n_docs": 11,
+  "traps": [
+   "이탈"
+  ],
+  "n": 71,
+  "pass": 10,
+  "rate": 0.14084507042253522,
+  "fail_wrote": 30,
+  "end": {
+   "user_stop": 62,
+   "context_window_exceeded": 2,
+   "infrastructure_error": 5,
+   "max_steps": 2
+  }
+ },
+ {
+  "id": "task_029",
+  "acts": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "n_acts": 8,
+  "kb": true,
+  "n_docs": 10,
+  "traps": [],
+  "n": 53,
+  "pass": 12,
+  "rate": 0.22641509433962265,
+  "fail_wrote": 16,
+  "end": {
+   "infrastructure_error": 2,
+   "user_stop": 47,
+   "context_window_exceeded": 1,
+   "max_steps": 3
+  }
+ },
+ {
+  "id": "task_031",
+  "acts": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 5,
+  "kb": true,
+  "n_docs": 3,
+  "traps": [
+   "이탈"
+  ],
+  "n": 58,
+  "pass": 3,
+  "rate": 0.05172413793103448,
+  "fail_wrote": 20,
+  "end": {
+   "infrastructure_error": 5,
+   "user_stop": 53
+  }
+ },
+ {
+  "id": "task_032",
+  "acts": [
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "transfer_to_human_agents"
+  ],
+  "n_acts": 5,
+  "kb": true,
+  "n_docs": 1,
+  "traps": [
+   "이탈"
+  ],
+  "n": 62,
+  "pass": 4,
+  "rate": 0.06451612903225806,
+  "fail_wrote": 2,
+  "end": {
+   "user_stop": 61,
+   "too_many_errors": 1
+  }
+ },
+ {
+  "id": "task_033",
+  "acts": [
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "transfer_to_human_agents"
+  ],
+  "n_acts": 5,
+  "kb": true,
+  "n_docs": 1,
+  "traps": [
+   "이탈"
+  ],
+  "n": 49,
+  "pass": 8,
+  "rate": 0.16326530612244897,
+  "fail_wrote": 3,
+  "end": {
+   "user_stop": 49
+  }
+ },
+ {
+  "id": "task_034",
+  "acts": [
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "transfer_to_human_agents"
+  ],
+  "n_acts": 9,
+  "kb": true,
+  "n_docs": 2,
+  "traps": [
+   "이탈"
+  ],
+  "n": 52,
+  "pass": 47,
+  "rate": 0.9038461538461539,
+  "fail_wrote": 5,
+  "end": {
+   "user_stop": 52
+  }
+ },
+ {
+  "id": "task_035",
+  "acts": [
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "transfer_to_human_agents"
+  ],
+  "n_acts": 3,
+  "kb": true,
+  "n_docs": 1,
+  "traps": [],
+  "n": 61,
+  "pass": 11,
+  "rate": 0.18032786885245902,
+  "fail_wrote": 0,
+  "end": {
+   "user_stop": 61
+  }
+ },
+ {
+  "id": "task_036",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 3,
+  "kb": true,
+  "n_docs": 1,
+  "traps": [
+   "이탈"
+  ],
+  "n": 28,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 4,
+  "end": {
+   "user_stop": 23,
+   "infrastructure_error": 3,
+   "max_steps": 1,
+   "too_many_errors": 1
+  }
+ },
+ {
+  "id": "task_037",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 8,
+  "kb": true,
+  "n_docs": 4,
+  "traps": [
+   "이탈"
+  ],
+  "n": 28,
+  "pass": 1,
+  "rate": 0.03571428571428571,
+  "fail_wrote": 1,
+  "end": {
+   "infrastructure_error": 4,
+   "user_stop": 23,
+   "context_window_exceeded": 1
+  }
+ },
+ {
+  "id": "task_038",
+  "acts": [
+   "log_verification",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 9,
+  "kb": true,
+  "n_docs": 4,
+  "traps": [
+   "이탈"
+  ],
+  "n": 50,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 9,
+  "end": {
+   "infrastructure_error": 4,
+   "user_stop": 46
+  }
+ },
+ {
+  "id": "task_039",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 16,
+  "kb": true,
+  "n_docs": 5,
+  "traps": [
+   "은폐",
+   "이탈"
+  ],
+  "n": 37,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 14,
+  "end": {
+   "infrastructure_error": 3,
+   "user_stop": 34
+  }
+ },
+ {
+  "id": "task_040",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 15,
+  "kb": true,
+  "n_docs": 4,
+  "traps": [
+   "이탈"
+  ],
+  "n": 51,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 23,
+  "end": {
+   "infrastructure_error": 1,
+   "user_stop": 48,
+   "context_window_exceeded": 2
+  }
+ },
+ {
+  "id": "task_041",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 25,
+  "kb": true,
+  "n_docs": 4,
+  "traps": [
+   "이탈"
+  ],
+  "n": 48,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 21,
+  "end": {
+   "infrastructure_error": 1,
+   "user_stop": 44,
+   "max_steps": 1,
+   "context_window_exceeded": 2
+  }
+ },
+ {
+  "id": "task_043",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 15,
+  "kb": true,
+  "n_docs": 7,
+  "traps": [
+   "이탈"
+  ],
+  "n": 71,
+  "pass": 1,
+  "rate": 0.014084507042253521,
+  "fail_wrote": 16,
+  "end": {
+   "infrastructure_error": 2,
+   "user_stop": 66,
+   "context_window_exceeded": 2,
+   "max_steps": 1
+  }
+ },
+ {
+  "id": "task_044",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "apply_for_credit_card"
+  ],
+  "n_acts": 10,
+  "kb": true,
+  "n_docs": 6,
+  "traps": [
+   "이탈"
+  ],
+  "n": 29,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 5,
+  "end": {
+   "user_stop": 28,
+   "max_steps": 1
+  }
+ },
+ {
+  "id": "task_045",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 15,
+  "kb": true,
+  "n_docs": 11,
+  "traps": [
+   "이탈"
+  ],
+  "n": 26,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 2,
+  "end": {
+   "user_stop": 18,
+   "context_window_exceeded": 3,
+   "max_steps": 5
+  }
+ },
+ {
+  "id": "task_046",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 3,
+  "kb": true,
+  "n_docs": 2,
+  "traps": [
+   "이탈"
+  ],
+  "n": 28,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 5,
+  "end": {
+   "user_stop": 23,
+   "context_window_exceeded": 3,
+   "max_steps": 2
+  }
+ },
+ {
+  "id": "task_047",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "apply_for_credit_card",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 15,
+  "kb": true,
+  "n_docs": 12,
+  "traps": [
+   "이탈"
+  ],
+  "n": 23,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 8,
+  "end": {
+   "user_stop": 22,
+   "infrastructure_error": 1
+  }
+ },
+ {
+  "id": "task_048",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "apply_for_credit_card",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 24,
+  "kb": true,
+  "n_docs": 9,
+  "traps": [
+   "조건부",
+   "이탈"
+  ],
+  "n": 34,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 9,
+  "end": {
+   "user_stop": 27,
+   "context_window_exceeded": 2,
+   "infrastructure_error": 5
+  }
+ },
+ {
+  "id": "task_049",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "request_human_agent_transfer",
+   "transfer_to_human_agents"
+  ],
+  "n_acts": 19,
+  "kb": true,
+  "n_docs": 8,
+  "traps": [
+   "주장",
+   "이탈"
+  ],
+  "n": 27,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 10,
+  "end": {
+   "user_stop": 22,
+   "context_window_exceeded": 2,
+   "infrastructure_error": 3
+  }
+ },
+ {
+  "id": "task_050",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 13,
+  "kb": true,
+  "n_docs": 6,
+  "traps": [
+   "이탈"
+  ],
+  "n": 74,
+  "pass": 3,
+  "rate": 0.04054054054054054,
+  "fail_wrote": 0,
+  "end": {
+   "infrastructure_error": 3,
+   "user_stop": 71
+  }
+ },
+ {
+  "id": "task_051",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 20,
+  "kb": true,
+  "n_docs": 7,
+  "traps": [
+   "이탈"
+  ],
+  "n": 39,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "user_stop": 39
+  }
+ },
+ {
+  "id": "task_052",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 13,
+  "kb": true,
+  "n_docs": 7,
+  "traps": [
+   "주장",
+   "이탈"
+  ],
+  "n": 61,
+  "pass": 2,
+  "rate": 0.03278688524590164,
+  "fail_wrote": 0,
+  "end": {
+   "user_stop": 58,
+   "infrastructure_error": 2,
+   "context_window_exceeded": 1
+  }
+ },
+ {
+  "id": "task_053",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 16,
+  "kb": true,
+  "n_docs": 9,
+  "traps": [],
+  "n": 32,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 12,
+  "end": {
+   "user_stop": 32
+  }
+ },
+ {
+  "id": "task_054",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 17,
+  "kb": true,
+  "n_docs": 9,
+  "traps": [
+   "주장"
+  ],
+  "n": 72,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "infrastructure_error": 10,
+   "user_stop": 60,
+   "too_many_errors": 1,
+   "context_window_exceeded": 1
+  }
+ },
+ {
+  "id": "task_055",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "n_acts": 8,
+  "kb": true,
+  "n_docs": 8,
+  "traps": [
+   "주장"
+  ],
+  "n": 23,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 16,
+  "end": {
+   "user_stop": 20,
+   "infrastructure_error": 3
+  }
+ },
+ {
+  "id": "task_056",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 8,
+  "kb": true,
+  "n_docs": 9,
+  "traps": [
+   "주장"
+  ],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "user_stop": 21,
+   "infrastructure_error": 1
+  }
+ },
+ {
+  "id": "task_057",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool"
+  ],
+  "n_acts": 7,
+  "kb": true,
+  "n_docs": 5,
+  "traps": [
+   "주장"
+  ],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 15,
+  "end": {
+   "infrastructure_error": 3,
+   "user_stop": 19
+  }
+ },
+ {
+  "id": "task_058",
+  "acts": [
+   "log_verification",
+   "apply_for_credit_card",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 4,
+  "kb": true,
+  "n_docs": 5,
+  "traps": [
+   "주장"
+  ],
+  "n": 22,
+  "pass": 1,
+  "rate": 0.045454545454545456,
+  "fail_wrote": 21,
+  "end": {
+   "user_stop": 22
+  }
+ },
+ {
+  "id": "task_059",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "apply_for_credit_card",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 6,
+  "kb": true,
+  "n_docs": 5,
+  "traps": [
+   "주장"
+  ],
+  "n": 23,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 20,
+  "end": {
+   "user_stop": 23
+  }
+ },
+ {
+  "id": "task_060",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 7,
+  "kb": true,
+  "n_docs": 10,
+  "traps": [
+   "주장",
+   "이탈"
+  ],
+  "n": 21,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "user_stop": 21
+  }
+ },
+ {
+  "id": "task_061",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "give_discoverable_user_tool",
+   "call_discoverable_user_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 9,
+  "kb": true,
+  "n_docs": 12,
+  "traps": [
+   "주장",
+   "이탈"
+  ],
+  "n": 27,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 3,
+  "end": {
+   "user_stop": 24,
+   "context_window_exceeded": 1,
+   "max_steps": 1,
+   "too_many_errors": 1
+  }
+ },
+ {
+  "id": "task_062",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 13,
+  "kb": true,
+  "n_docs": 16,
+  "traps": [
+   "주장",
+   "조건부"
+  ],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "user_stop": 20,
+   "context_window_exceeded": 1,
+   "too_many_errors": 1
+  }
+ },
+ {
+  "id": "task_063",
+  "acts": [
+   "log_verification",
+   "apply_for_credit_card",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 4,
+  "kb": true,
+  "n_docs": 13,
+  "traps": [
+   "주장"
+  ],
+  "n": 24,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 24,
+  "end": {
+   "user_stop": 24
+  }
+ },
+ {
+  "id": "task_064",
+  "acts": [
+   "log_verification",
+   "apply_for_credit_card",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 4,
+  "kb": true,
+  "n_docs": 16,
+  "traps": [
+   "주장"
+  ],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 19,
+  "end": {
+   "infrastructure_error": 1,
+   "user_stop": 21
+  }
+ },
+ {
+  "id": "task_065",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 6,
+  "kb": true,
+  "n_docs": 23,
+  "traps": [
+   "주장",
+   "조건부"
+  ],
+  "n": 24,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "infrastructure_error": 2,
+   "user_stop": 22
+  }
+ },
+ {
+  "id": "task_066",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "apply_for_credit_card",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 9,
+  "kb": true,
+  "n_docs": 15,
+  "traps": [
+   "주장"
+  ],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 12,
+  "end": {
+   "user_stop": 20,
+   "infrastructure_error": 2
+  }
+ },
+ {
+  "id": "task_067",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "apply_for_credit_card",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 9,
+  "kb": true,
+  "n_docs": 17,
+  "traps": [
+   "주장"
+  ],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 11,
+  "end": {
+   "infrastructure_error": 4,
+   "user_stop": 18
+  }
+ },
+ {
+  "id": "task_068",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "apply_for_credit_card",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 7,
+  "kb": true,
+  "n_docs": 16,
+  "traps": [
+   "주장"
+  ],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 13,
+  "end": {
+   "infrastructure_error": 4,
+   "user_stop": 16,
+   "context_window_exceeded": 1,
+   "max_steps": 1
+  }
+ },
+ {
+  "id": "task_069",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "apply_for_credit_card",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 7,
+  "kb": true,
+  "n_docs": 19,
+  "traps": [
+   "주장"
+  ],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 13,
+  "end": {
+   "infrastructure_error": 2,
+   "user_stop": 19,
+   "context_window_exceeded": 1
+  }
+ },
+ {
+  "id": "task_070",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 5,
+  "kb": true,
+  "n_docs": 16,
+  "traps": [
+   "주장"
+  ],
+  "n": 24,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 6,
+  "end": {
+   "user_stop": 24
+  }
+ },
+ {
+  "id": "task_071",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 6,
+  "kb": true,
+  "n_docs": 30,
+  "traps": [
+   "주장"
+  ],
+  "n": 23,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 2,
+  "end": {
+   "user_stop": 21,
+   "context_window_exceeded": 1,
+   "infrastructure_error": 1
+  }
+ },
+ {
+  "id": "task_072",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 9,
+  "kb": true,
+  "n_docs": 9,
+  "traps": [],
+  "n": 23,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "user_stop": 21,
+   "max_steps": 2
+  }
+ },
+ {
+  "id": "task_073",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 11,
+  "kb": true,
+  "n_docs": 10,
+  "traps": [],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "infrastructure_error": 4,
+   "user_stop": 18
+  }
+ },
+ {
+  "id": "task_074",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 13,
+  "kb": true,
+  "n_docs": 13,
+  "traps": [],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "infrastructure_error": 5,
+   "user_stop": 16,
+   "too_many_errors": 1
+  }
+ },
+ {
+  "id": "task_075",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 3,
+  "kb": true,
+  "n_docs": 25,
+  "traps": [],
+  "n": 23,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "user_stop": 23
+  }
+ },
+ {
+  "id": "task_076",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 3,
+  "kb": true,
+  "n_docs": 24,
+  "traps": [],
+  "n": 22,
+  "pass": 3,
+  "rate": 0.13636363636363635,
+  "fail_wrote": 0,
+  "end": {
+   "user_stop": 22
+  }
+ },
+ {
+  "id": "task_077",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "get_credit_card_accounts_by_user",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 25,
+  "kb": true,
+  "n_docs": 12,
+  "traps": [
+   "은폐",
+   "조건부"
+  ],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "max_steps": 1,
+   "user_stop": 21
+  }
+ },
+ {
+  "id": "task_078",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "get_credit_card_accounts_by_user",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 22,
+  "kb": true,
+  "n_docs": 11,
+  "traps": [
+   "조건부"
+  ],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "user_stop": 20,
+   "infrastructure_error": 1,
+   "max_steps": 1
+  }
+ },
+ {
+  "id": "task_079",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "get_credit_card_accounts_by_user",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 25,
+  "kb": true,
+  "n_docs": 11,
+  "traps": [
+   "조건부"
+  ],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 0,
+  "end": {
+   "infrastructure_error": 2,
+   "user_stop": 19,
+   "max_steps": 1
+  }
+ },
+ {
+  "id": "task_080",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 34,
+  "kb": true,
+  "n_docs": 19,
+  "traps": [],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 1,
+  "end": {
+   "user_stop": 14,
+   "context_window_exceeded": 1,
+   "infrastructure_error": 2,
+   "max_steps": 5
+  }
+ },
+ {
+  "id": "task_081",
+  "acts": [
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "request_human_agent_transfer",
+   "request_human_agent_transfer",
+   "transfer_to_human_agents"
+  ],
+  "n_acts": 37,
+  "kb": true,
+  "n_docs": 12,
+  "traps": [
+   "주장"
+  ],
+  "n": 21,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 21,
+  "end": {
+   "user_stop": 21
+  }
+ },
+ {
+  "id": "task_082",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 20,
+  "kb": true,
+  "n_docs": 12,
+  "traps": [],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 7,
+  "end": {
+   "infrastructure_error": 1,
+   "user_stop": 21
+  }
+ },
+ {
+  "id": "task_083",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 10,
+  "kb": true,
+  "n_docs": 6,
+  "traps": [],
+  "n": 24,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 8,
+  "end": {
+   "infrastructure_error": 1,
+   "user_stop": 22,
+   "context_window_exceeded": 1
+  }
+ },
+ {
+  "id": "task_084",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 17,
+  "kb": true,
+  "n_docs": 10,
+  "traps": [
+   "조건부"
+  ],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 6,
+  "end": {
+   "user_stop": 18,
+   "max_steps": 1,
+   "infrastructure_error": 3
+  }
+ },
+ {
+  "id": "task_085",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 13,
+  "kb": true,
+  "n_docs": 7,
+  "traps": [],
+  "n": 21,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 10,
+  "end": {
+   "user_stop": 19,
+   "infrastructure_error": 2
+  }
+ },
+ {
+  "id": "task_086",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 21,
+  "kb": true,
+  "n_docs": 14,
+  "traps": [],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 8,
+  "end": {
+   "user_stop": 22
+  }
+ },
+ {
+  "id": "task_087",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 20,
+  "kb": true,
+  "n_docs": 10,
+  "traps": [],
+  "n": 24,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 9,
+  "end": {
+   "user_stop": 22,
+   "too_many_errors": 2
+  }
+ },
+ {
+  "id": "task_088",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "transfer_to_human_agents"
+  ],
+  "n_acts": 17,
+  "kb": true,
+  "n_docs": 13,
+  "traps": [],
+  "n": 21,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 7,
+  "end": {
+   "user_stop": 20,
+   "max_steps": 1
+  }
+ },
+ {
+  "id": "task_089",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 13,
+  "kb": true,
+  "n_docs": 10,
+  "traps": [],
+  "n": 22,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 5,
+  "end": {
+   "infrastructure_error": 1,
+   "user_stop": 20,
+   "context_window_exceeded": 1
+  }
+ },
+ {
+  "id": "task_090",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 16,
+  "kb": true,
+  "n_docs": 12,
+  "traps": [],
+  "n": 23,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 3,
+  "end": {
+   "user_stop": 23
+  }
+ },
+ {
+  "id": "task_091",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 25,
+  "kb": true,
+  "n_docs": 13,
+  "traps": [
+   "조건부"
+  ],
+  "n": 20,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 7,
+  "end": {
+   "user_stop": 19,
+   "max_steps": 1
+  }
+ },
+ {
+  "id": "task_092",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "transfer_to_human_agents"
+  ],
+  "n_acts": 21,
+  "kb": true,
+  "n_docs": 12,
+  "traps": [],
+  "n": 24,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 6,
+  "end": {
+   "user_stop": 24
+  }
+ },
+ {
+  "id": "task_093",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 9,
+  "kb": true,
+  "n_docs": 11,
+  "traps": [],
+  "n": 23,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 6,
+  "end": {
+   "infrastructure_error": 2,
+   "user_stop": 20,
+   "too_many_errors": 1
+  }
+ },
+ {
+  "id": "task_094",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 9,
+  "kb": true,
+  "n_docs": 13,
+  "traps": [],
+  "n": 23,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 6,
+  "end": {
+   "user_stop": 23
+  }
+ },
+ {
+  "id": "task_095",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 9,
+  "kb": true,
+  "n_docs": 15,
+  "traps": [],
+  "n": 58,
+  "pass": 1,
+  "rate": 0.017241379310344827,
+  "fail_wrote": 19,
+  "end": {
+   "user_stop": 45,
+   "infrastructure_error": 12,
+   "too_many_errors": 1
+  }
+ },
+ {
+  "id": "task_096",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 12,
+  "kb": true,
+  "n_docs": 23,
+  "traps": [],
+  "n": 25,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 7,
+  "end": {
+   "user_stop": 21,
+   "infrastructure_error": 3,
+   "max_steps": 1
+  }
+ },
+ {
+  "id": "task_097",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "n_acts": 18,
+  "kb": true,
+  "n_docs": 25,
+  "traps": [],
+  "n": 39,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 12,
+  "end": {
+   "infrastructure_error": 7,
+   "user_stop": 30,
+   "context_window_exceeded": 2
+  }
+ },
+ {
+  "id": "task_098",
+  "acts": [
+   "log_verification",
+   "get_referrals_by_user",
+   "submit_referral"
+  ],
+  "n_acts": 3,
+  "kb": true,
+  "n_docs": 19,
+  "traps": [],
+  "n": 52,
+  "pass": 7,
+  "rate": 0.1346153846153846,
+  "fail_wrote": 45,
+  "end": {
+   "user_stop": 52
+  }
+ },
+ {
+  "id": "task_099",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "get_referrals_by_user",
+   "submit_referral"
+  ],
+  "n_acts": 5,
+  "kb": true,
+  "n_docs": 12,
+  "traps": [],
+  "n": 73,
+  "pass": 19,
+  "rate": 0.2602739726027397,
+  "fail_wrote": 50,
+  "end": {
+   "user_stop": 69,
+   "infrastructure_error": 4
+  }
+ },
+ {
+  "id": "task_100",
+  "acts": [
+   "log_verification",
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool",
+   "submit_referral"
+  ],
+  "n_acts": 4,
+  "kb": true,
+  "n_docs": 12,
+  "traps": [],
+  "n": 94,
+  "pass": 31,
+  "rate": 0.32978723404255317,
+  "fail_wrote": 63,
+  "end": {
+   "user_stop": 94
+  }
+ },
+ {
+  "id": "task_101",
+  "acts": [
+   "log_verification",
+   "get_referrals_by_user",
+   "submit_referral",
+   "submit_referral"
+  ],
+  "n_acts": 4,
+  "kb": true,
+  "n_docs": 21,
+  "traps": [],
+  "n": 70,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 70,
+  "end": {
+   "user_stop": 70
+  }
+ },
+ {
+  "id": "task_102",
+  "acts": [
+   "log_verification",
+   "get_referrals_by_user",
+   "submit_referral"
+  ],
+  "n_acts": 3,
+  "kb": true,
+  "n_docs": 21,
+  "traps": [],
+  "n": 50,
+  "pass": 0,
+  "rate": 0.0,
+  "fail_wrote": 49,
+  "end": {
+   "user_stop": 50
+  }
+ }
+]
