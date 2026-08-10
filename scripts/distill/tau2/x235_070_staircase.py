@@ -143,7 +143,13 @@ def main():
             ("R2_TABLE", "\n\n".join([req, names, table])),
             ("R3_PROMO", "\n\n".join([req, names, table, pr_act])),
             ("R4_EXPIRED", "\n\n".join([req, names, table, pr_act, pr_exp])),
-            ("R5_FILTER", "\n\n".join([req, keep, table, pr_act]))]
+            # ★핵심 대조 (사용자 지시 2026-08-10): 추천 계열에서 필요했던 것은 **필터 하나**였다.
+            #   070 이 그와 같은지 가른다 — `R5` 는 **필터만**(프로모션 없음), `R6` 은 필터+유효창.
+            #   R5 가 높으면 **새 레버는 필요 없다**. R5 가 낮고 R6 만 높을 때에만 유효창이
+            #   새 기전으로 정당화된다. ⚠태스크마다 A3 를 채우는 것은 떠먹이기다([[50]] ADB·
+            #   사용자 지시) — 공통 기전으로 닫히는지를 먼저 본다.
+            ("R5_FILTER_ONLY", "\n\n".join([req, keep, table])),
+            ("R6_FILTER_PROMO", "\n\n".join([req, keep, table, pr_act]))]
     for name, body in arms:
         print("   %-11s %6d자" % (name, len(body)))
     for name, body in arms:
