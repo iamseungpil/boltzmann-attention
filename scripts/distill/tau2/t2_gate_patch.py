@@ -4829,9 +4829,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
 
     def unified(self, message, state):
         # 발화 로그에 sim을 붙인다 — 귀속(C294)이 판정의 1차 지표인데 로그가 무기명이면 못 한다.
+        # 턴도 함께 심는다(C407) — 사이드카는 턴을 지니는데 stderr 마크는 순서뿐이라 두 채널을
+        # 맞댈 수 없었다. 관측 전용·거동 불변.
         try:
-            from t2_lever_beat import set_sim_from as _ssf
+            from t2_lever_beat import set_sim_from as _ssf, set_turn as _stn
             _ssf(self)
+            _stn(state)
         except Exception:
             pass
         if not hasattr(self, "_t2_static_bl"):
@@ -5971,6 +5974,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   해소 루프는 여전히 `T2_RESOLVE` 전용이므로 **전부 켠 스택의 거동은 불변**이다.
             _contract_on = any(os.environ.get(_k) == "1" for _k in
                                ("T2_RESOLVE", "T2_FORCE_ACTION", "T2_ARBITRATE", "T2_SOURCE"))
+            # ★계기 (2026-08-10·C407·사용자 지시 *"포렌식 원인 규명해서 12 pass 만들라"*):
+            #   결정 재료(`_limit_reduce_text`)는 이 사슬을 **다섯 칸** 통과해야 나간다. 실패 sim
+            #   에서 재료가 0회였는데 **어느 칸이 닫혔는지 로그에 없었다** — x239 가 넷째 칸(의도
+            #   형식화)을 후보로 재현했지만 실패 sim 에서도 열려 있었다(가설 기각). 짐작을 한 번 더
+            #   하는 대신 **칸마다 멈춘 이유**를 남긴다. 인쇄 전용이고 모델에 안 보인다([[55]]).
+            _mgate = None
+            if not _contract_on or a2 is None:
+                _mgate = "contract_off"
+            elif not (not do_gate and not do_prov and ep_fb is None and cons_fb is None
+                      and ra_fb is None and te_fb is None and wev_fb is None):
+                _mgate = "other_lever(%s)" % ",".join(
+                    n for n, v in (("gate", do_gate), ("prov", do_prov), ("eplan", ep_fb),
+                                   ("cons", cons_fb), ("ra", ra_fb), ("te", te_fb),
+                                   ("wev", wev_fb)) if v)
+            elif not _resolve_cap_ok(self, state.messages, a2):
+                _mgate = "resolve_cap(정체 %s회)" % getattr(self, "_t2_resolve_deny", "?")
+            if _mgate:
+                print("[T2_MATERIAL_GATE] stop=%s turn=%d" % (_mgate, len(state.messages)),
+                      file=_sys.stderr, flush=True)
             if (_contract_on and a2 is not None
                     and not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None

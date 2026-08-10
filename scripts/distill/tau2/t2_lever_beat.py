@@ -49,6 +49,14 @@ def set_sim_from(obj):
     구판은 `task.id` 만 달아서 **`nt=2` 면 두 시행이 같은 태그**였다 — 한 시행에서만 발화한
     기구를 다른 시행의 것으로 읽을 수 있고, 실제로 이 세션에서 시행별 귀속을 못 해 사이드카
     해시로 우회했다. 시행 번호를 찾을 수 있으면 `task_010#t1` 로 단다(못 찾으면 종전 그대로).
+
+    ★시행 태그가 왜 비어 있었나 (2026-08-10·C407·사용자 지적 *"sim 이름과 turn 넘버 넣으면
+    되는 거 아닌가"*): 위 이름들(`trial`·`trial_index`…)은 **오케스트레이터에 없다** — 시행 번호는
+    러너(`runner/batch.py`)가 들고 있고 오케스트레이터에는 **시행마다 다른 `seed`** 만 내려온다
+    (`orchestrator.py:123 self.seed = seed`). 그래서 nt=3 이면 세 시행이 전부 `task_010` 이었고,
+    실패 시행의 발화를 통과 시행의 것과 가를 수 없었다(x238 포렌식에서 실제로 막혔다).
+    ⇒ `seed` 를 시행 지문으로 쓴다. 결과 json 의 각 sim 이 `seed` 를 그대로 지니므로 **조인이
+      정확**하다(추정 0). 옛 이름들도 그대로 둔다 — 있으면 그쪽이 더 읽기 좋다.
     """
     try:
         for cand in (obj, getattr(obj, "_t2_orch", None)):
@@ -64,8 +72,29 @@ def set_sim_from(obj):
                             break
                     if trial is not None:
                         break
-                _LOCAL.sim = "%s#t%d" % (tid, trial) if trial is not None else str(tid)
+                if trial is not None:
+                    _LOCAL.sim = "%s#t%d" % (tid, trial)
+                    return
+                seed = None
+                for holder in (cand, obj):
+                    v = getattr(holder, "seed", None)
+                    if isinstance(v, int):
+                        seed = v
+                        break
+                _LOCAL.sim = "%s#s%d" % (tid, seed) if seed is not None else str(tid)
                 return
+    except Exception:
+        pass
+
+
+def set_turn(state):
+    """이 스레드가 지금 몇 번째 메시지를 짓고 있는지 — 마크를 **턴에 붙이기 위해서**.
+
+    x238 에서 *"재료가 언제 나갔나"* 를 사이드카(턴 보유)로만 물을 수 있었고, stderr 마크는
+    순서만 있었다. 두 채널을 같은 턴 번호로 맞추면 포렌식이 한 번에 끝난다. 관측 전용.
+    """
+    try:
+        _LOCAL.turn = len(getattr(state, "messages", None) or ())
     except Exception:
         pass
 
@@ -91,7 +120,9 @@ def _trace(sim, lines):
         for ln in lines:
             m = _MARK.search(ln)
             if m:
-                rows.append(json.dumps({"sim": sim, "mark": m.group(1), "line": ln[:400]},
+                # 턴을 함께 남긴다 — 사이드카(턴 보유)와 **같은 축**으로 조인하기 위해서다(C407).
+                rows.append(json.dumps({"sim": sim, "turn": getattr(_LOCAL, "turn", None),
+                                        "mark": m.group(1), "line": ln[:400]},
                                        ensure_ascii=False))
         if rows:
             with open(path, "a", encoding="utf-8") as fh:
