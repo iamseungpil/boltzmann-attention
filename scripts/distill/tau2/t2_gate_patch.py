@@ -4767,6 +4767,49 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 import types as _types
                 return _types.SimpleNamespace(role="assistant", content=_txt, tool_calls=None)
 
+    def _gen_action_sub(self, state, asub, call_name="agent_response_action_sub"):
+        """★액션 서브 (2026-08-10·`T2_ACTION_SUB`·설계서 §2·근거 x228).
+
+        손님에게 넘길 **그 턴의 발화만** 깨끗한 문맥에서 짓는다. 문맥은 셋뿐이다 —
+          ⒜ 손님 발화 **축자 전부**(요약하지 않는다: 의미 참조가 거기 있다)
+          ⒝ 결정 값(격리 서브가 이미 낸 블록·우리가 새로 짓지 않는다)
+          ⒞ 도구 **소유자 표기**(지시문이 아니라 사실 — `{tool}({args})`, 도메인 어휘 0)
+
+        x228 실측(3태스크×n=6): 같은 지시를 **메인**에 두면 소유권 발화 098 0/6·100 1/6,
+        **격리**에서 지으면 6/6·5/6 이고 `external` 위반이 6/6 → **0/6**. 지시 없는 격리는
+        0/6 이라 공로는 표기 쪽이다(부정 통제 통과).
+
+        ⚠도구를 주지 않는다 — 이 턴은 **발화**이지 호출이 아니다. 호출이 필요한 턴에는
+          호출부가 이 경로를 타지 않는다.
+        ⚠실패하면 `None` 을 돌려 **종전 경로**로 떨어진다(조용한 거동 변경 금지).
+        """
+        try:
+            from tau2.data_model.message import UserMessage as _UMx
+            _us = [_content_str(_m) for _m in (state.messages or [])
+                   if getattr(_m, "role", None) == "user" and _content_str(_m).strip()]
+            if not _us or not (asub or {}).get("value"):
+                return None
+            _own = ""
+            if asub.get("tool"):
+                _own = ("Tool ownership on record - the CUSTOMER runs this one in this chat: "
+                        "%s(%s)" % (asub["tool"], ", ".join(asub.get("args") or [])))
+            _work = [_UMx(role="user", content=t) for t in _us]
+            _work.append(_UMx(role="user", content=str(asub["value"]).strip()))
+            if _own:
+                _work.append(_UMx(role="user", content=_own))
+            kw = dict(self.llm_args)
+            kw.pop("tool_choice", None)
+            _r = la.generate(model=self.llm, tools=None, messages=_work,
+                             call_name=call_name, **kw)
+            print("[T2_ACTION_SUB] 발화를 격리에서 지음 (손님 발화 %d건 · 값 %d자 · 표기 %s)"
+                  % (len(_us), len(str(asub["value"])), "O" if _own else "X"),
+                  file=_sys.stderr, flush=True)
+            return _r
+        except Exception as _ae:
+            print("[T2_ACTION_SUB] 건너뜀(종전 경로): %r" % (_ae,),
+                  file=_sys.stderr, flush=True)
+            return None
+
     def unified(self, message, state):
         # 발화 로그에 sim을 붙인다 — 귀속(C294)이 판정의 1차 지표인데 로그가 무기명이면 못 한다.
         try:
@@ -6346,6 +6389,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                 print("[T2_R8] 결정 블록과 동반할 [SOURCE] "
                                                       "재검색 명령 %d건 억제" % _n8,
                                                       file=_sys.stderr, flush=True)
+                                        # ★액션 서브 (2026-08-10·`T2_ACTION_SUB`·설계서 §2).
+                                        #   여기서 지시(`_ufb`)와 값(`_add`)이 **한 메시지로 합쳐진다**
+                                        #   — x224 가 잰 그 배치다. x228 실측: 같은 지시라도 메인
+                                        #   문맥에 두면 소유권 발화가 098 0/6·100 1/6 인데, **격리
+                                        #   문맥**(손님 발화 + 값 + 소유자 표기)에서 지으면 6/6·5/6
+                                        #   이고 `external` 위반이 6/6 → 0/6 으로 사라진다.
+                                        #   ⇒ 발화를 지을 자리만 옮긴다. 고르는 것은 여전히 LLM 이고
+                                        #     엔진은 문맥 조립만 한다(⛔0 ②·새 결정론 0).
+                                        #   재료는 호출부(재생성 루프)가 쓴다 — 여기서는 넘겨만 준다.
+                                        try:
+                                            self._t2_asub = {"value": _add, "tool": str(_utgt),
+                                                             "args": list(_pn or [])}
+                                        except Exception:
+                                            self._t2_asub = None
                                         _ufb = ((_ufb + "\n") if _ufb else "") + _add
                                         print("[T2_LIMIT_REDUCE] emitted at decision point",
                                               file=_sys.stderr, flush=True)
@@ -7271,8 +7328,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _pin_r = _PRm.pin_for(self, am, a2, state.messages)
                 except Exception:
                     _pin_r = None
-            am = _gen(self, work, bw(), "agent_response_unified_regen",
-                      tool_choice="required" if force_required else None, pin=_pin_r)
+            # ★액션 서브 (2026-08-10·`T2_ACTION_SUB`·기본 OFF). 이 재생성이 **손님에게
+            #   도구를 넘기는 발화**를 짓는 자리이고(rw_fb = 그 ACTION 되먹임), x228 은 그
+            #   발화를 격리에서 지으면 소유권이 0/6 → 6/6 이고 `external` 위반이 6/6 → 0/6
+            #   임을 쟀다. 여기서는 **자리만 옮긴다** — 값도 선택도 모델이 낸다.
+            #   ⚠도구 호출이 필요한 턴에는 타지 않는다(`_pin_r`·`force_required` 가 걸린 턴 제외).
+            _am_sub = None
+            if (os.environ.get("T2_ACTION_SUB") == "1" and rw_fb
+                    and not force_required and not _pin_r
+                    and getattr(self, "_t2_asub", None)):
+                _am_sub = _gen_action_sub(self, state, self._t2_asub)
+            am = _am_sub or _gen(self, work, bw(), "agent_response_unified_regen",
+                                 tool_choice="required" if force_required else None, pin=_pin_r)
 
         # ★W-B~W-D(arm③·검출 전용): 턴의 **최종 응답**에 대해 2패스 형식화 + §1d 검증.
         #   · 도구 **미제공** + guided_json (문법과 도구를 같이 걸면 tool_calls가 0이 된다·rev3 §3-2b)
