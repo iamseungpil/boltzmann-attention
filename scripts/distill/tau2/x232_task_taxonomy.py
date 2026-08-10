@@ -35,7 +35,12 @@ try:
 except Exception:
     pass
 
-TASKS = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/tasks.json"
+DOM = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge"
+# ★권위본은 **`tasks/task_XXX.json`** 이다 — `tasks.json` 과 내용이 다르다(101/102 포렌식 §0b:
+#   같은 id 인데 `reward_basis` 가 `['DB']` ↔ `['DB','NL_ASSERTION']`). 먼저 찾은 쪽을 읽으면
+#   **런이 쓰지도 않은 gold** 로 분류하게 된다. 두 판을 다 읽고 **불일치 수를 인쇄**한다.
+TASKS = DOM + "/tasks.json"
+TASKDIR = DOM + "/tasks"
 SIMDIRS = ["/home/woori/scratch/tau2-bench/data/simulations/*/results.json",
            os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "../../../reports/facet_rft_2026/sim_results/*.json.gz")]
@@ -44,11 +49,39 @@ TRAP = [("은폐", re.compile(r"only mention .{0,40}if (you are )?asked|do not (
                             r"|don't (reveal|mention|volunteer)", re.I)),
         ("주장", re.compile(r"\binsist\b|\bclaim\b|\bargue\b|push back|refuse to accept", re.I)),
         ("조건부", re.compile(r"\bonly if\b|\bunless\b|if and only if", re.I)),
-        ("이탈", re.compile(r"take your business elsewhere|end the conversation|hang up", re.I))]
+        ("이탈", re.compile(r"take your business elsewhere|end the conversation|hang up", re.I)),
+        # ★오도 라벨 (2026-08-10 사용자 지적): 098 *"you call her your 'roommate' **but she
+        #   actually** lives across town"* · 099 *"you sometimes call him your 'business partner'
+        #   **but he actually** runs his own separate firm"*. 손님이 **틀린 이름표**를 달고 말한다.
+        #   1차 분류가 이걸 놓쳐 098/099/100 을 *"함정 없음"* 으로 찍었다.
+        ("오도라벨", re.compile(r"you (?:call|refer to|sometimes call)[^.]{0,80}"
+                             r"(?:but|although)[^.]{0,80}actually", re.I | re.S)),
+        ("불일치사실", re.compile(r"but (?:she|he|they|it) actually", re.I))]
 
 
 def load_tasks():
-    return json.load(open(TASKS, encoding="utf-8"))
+    """권위본(`tasks/task_*.json`)을 쓰고, 비권위본과의 **불일치를 세어 인쇄**한다."""
+    auth, alt = {}, {}
+    for p in sorted(glob.glob(os.path.join(TASKDIR, "task_*.json"))):
+        try:
+            o = json.load(open(p, encoding="utf-8"))
+        except Exception:
+            continue
+        o = o[0] if isinstance(o, list) and o else o
+        if isinstance(o, dict) and o.get("id"):
+            auth[o["id"]] = o
+    try:
+        for o in json.load(open(TASKS, encoding="utf-8")):
+            alt[o["id"]] = o
+    except Exception:
+        pass
+    diff = [k for k in auth if k in alt
+            and (json.dumps(auth[k].get("evaluation_criteria"), sort_keys=True)
+                 != json.dumps(alt[k].get("evaluation_criteria"), sort_keys=True))]
+    print("권위본 %d개 · 비권위본 %d개 · **채점기준 불일치 %d개**%s"
+          % (len(auth), len(alt), len(diff),
+             (" → " + ", ".join(sorted(diff)[:12])) if diff else ""))
+    return [auth[k] for k in sorted(auth)] or list(alt.values())
 
 
 def gold_actions(t):
@@ -104,10 +137,11 @@ def main():
         instr = ((t.get("user_scenario") or {}).get("instructions") or "")
         traps = [name for name, rx in TRAP if rx.search(instr)]
         docs = t.get("required_documents") or []
+        basis = sorted((t.get("evaluation_criteria") or {}).get("reward_basis") or [])
         acts = gold_actions(t)
         h = hist.get(tid) or {"n": 0, "pass": 0, "end": collections.Counter(),
                               "wrote": 0, "fail_wrote": 0}
-        rows.append({"id": tid, "acts": acts, "n_acts": len(acts),
+        rows.append({"id": tid, "acts": acts, "n_acts": len(acts), "basis": basis,
                      "kb": bool(docs), "n_docs": len(docs), "traps": traps,
                      "n": h["n"], "pass": h["pass"],
                      "rate": (h["pass"] / h["n"]) if h["n"] else None,
