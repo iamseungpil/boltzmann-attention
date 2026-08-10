@@ -4789,10 +4789,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                    if getattr(_m, "role", None) == "user" and _content_str(_m).strip()]
             if not _us or not (asub or {}).get("value"):
                 return None
+            # ★소유자 표기는 **x228 이 잰 그 형태**여야 한다(2026-08-10 스모크 교정).
+            #   1차 구현은 한 줄로 줄였는데(`the CUSTOMER runs this one in this chat: …`),
+            #   라이브 098 에서 *"1. Go to the Rho-Bank customer portal or app…"* 가 나왔다.
+            #   x228 의 `F_SUB_TOOLTAB`(external 0/6)은 **두 칸 대조표**였다 — 에이전트가
+            #   부르는 도구와 손님이 이 대화에서 실행하는 도구를 **나란히** 놓아 채널 자체를
+            #   사실로 세운다. 지시가 아니라 사실이고, 이름은 **실제 도구 목록**에서 온다
+            #   (엔진이 짓지 않는다·도메인 어휘 0).
             _own = ""
             if asub.get("tool"):
-                _own = ("Tool ownership on record - the CUSTOMER runs this one in this chat: "
-                        "%s(%s)" % (asub["tool"], ", ".join(asub.get("args") or [])))
+                _mine = []
+                for _t in (self.tools or []):
+                    _n = (getattr(_t, "name", None)
+                          or (isinstance(_t, dict) and ((_t.get("function") or {}).get("name")
+                                                        or _t.get("name"))))
+                    if _n and _n != asub["tool"]:
+                        _mine.append(str(_n))
+                _own = ("Tool ownership on record:\n"
+                        "  Tools you call: %s\n"
+                        "  Tools the CUSTOMER runs in this chat: %s(%s)"
+                        % (" · ".join(_mine) or "(none on record)",
+                           asub["tool"], ", ".join(asub.get("args") or [])))
             _work = [_UMx(role="user", content=t) for t in _us]
             _work.append(_UMx(role="user", content=str(asub["value"]).strip()))
             if _own:
