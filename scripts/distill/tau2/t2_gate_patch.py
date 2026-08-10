@@ -6633,6 +6633,31 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     except Exception as _e11:
                                         print("[T2_DISCOVERY_NAMES] error (no-op): %r" % (_e11,),
                                               file=_sys.stderr, flush=True)
+                                # ★M3 — 결정점을 **행위자 무관**으로 넓힌다 (`T2_DECIDE_ANY`·기본 OFF·
+                                #   설계서 `TASK_070_071_DESIGN_2026_08_09` §3-M3).
+                                #   지금 결정 블록은 *"손님이 실행할 도구"* 분기 안에서만 만들어진다.
+                                #   070/071 의 gold(`open_bank_account_4821`)는 **에이전트가** 부르므로
+                                #   그 분기가 영원히 거짓이고, 블록·재도출·D1c 가 **한 번도 발화하지
+                                #   않는다**(설계서 §2⒞ [S]). ⇒ A2 가 `action_tools` 로 선언한 도구를
+                                #   **누구든** 밀고 있으면 같은 재료를 만든다. 엔진이 보는 것은
+                                #   **멤버십뿐**이고, 무엇이 결정 시점인지 의미로 판정하지 않는다([[22]]).
+                                #   ⚠부작용 계측 의무: 발화 자리가 늘면 Δspurious 가 생긴다. 099/100 은
+                                #     같은 조건에서 **거동 불변**이어야 한다(플래그 OFF = 바이트 동일).
+                                #   ⚠C404 유보: 이 자리는 지시(`_fb_ar`)와 값이 **한 메시지로 합쳐지는**
+                                #     배치다 — x231 이 해롭다고 잰 그 모양이다. 먼저 **닿게** 한 뒤
+                                #     자리는 따로 잰다(전달 없이는 잴 것도 없다).
+                                if os.environ.get("T2_DECIDE_ANY") == "1":
+                                    try:
+                                        _m3 = _limit_reduce_text(self, a2, state.messages)
+                                    except Exception as _m3e:
+                                        _m3 = ""
+                                        print("[T2_DECIDE_ANY] 건너뜀(무발화): %r" % (_m3e,),
+                                              file=_sys.stderr, flush=True)
+                                    if _m3:
+                                        _fb_ar = _fb_ar + "\n" + _m3
+                                        print("[T2_DECIDE_ANY] 에이전트-실행 결정점에 재료 동반 "
+                                              "(target=%s · %d자)" % (_tgt, len(_m3)),
+                                              file=_sys.stderr, flush=True)
                                 rw_fb = ((am.tool_calls or [None])[0], _fb_ar)
                                 self._t2_action_deny = getattr(self, "_t2_action_deny", 0) + 1
                                 # ★진행-감응 환급용 target 스냅샷 (2026-07-22 §2bt·rall10 097 실측:
