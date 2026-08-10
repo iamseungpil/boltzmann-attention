@@ -91,24 +91,16 @@ def corpus_groups():
             continue
         taken |= mine
         out.append(g)
-    # ★이름을 다시 붙인다 (2026-08-11·사용자 지적 *"군 이름이 뭔가"*): 탐욕은 **가장 많이 덮는**
-    #   접두사를 고르므로 이름이 실제보다 짧게 나온다 — `business` 로 뽑힌 군의 파일 82개는
-    #   전부 `business_savings_accounts_` 로 시작했다. 이름이 내부 키로만 쓰이면 무해하지만
-    #   **닫힌 집합으로 모델에게 보여 줄 이름**이기도 하다. `business` 를 주고 *"사업자 세이빙"*
-    #   을 고르라 하면 못 고른다(C376 주어 불일치와 같은 자리). ⇒ 배정이 끝난 뒤 **그 군에 실제로
-    #   들어온 파일들의 최장 공통 접두사**로 이름을 고쳐 단다. 재배정은 하지 않는다.
-    named = []
-    for g in out:
-        mine = sorted(s for s in files[g] if s in taken and s.startswith(g))
-        mine = [s for s in mine if not any(s.startswith(o + "_") for o in named if len(o) > len(g))]
-        if not mine:
-            continue
-        parts = [s.split("_") for s in mine]
-        k = 0
-        while all(len(p) > k + 1 and p[k] == parts[0][k] for p in parts):
-            k += 1
-        named.append("_".join(parts[0][:k]) if k else g)
-    return sorted(set(named) | set(_KIND_GROUPS), key=len, reverse=True)
+    return sorted(set(out) | set(_KIND_GROUPS), key=len, reverse=True)
+
+
+def _common_prefix(stems):
+    """그 군에 **실제로 들어온** 파일들의 최장 공통 접두사 (주어가 최소 한 토막은 남게)."""
+    parts = [s.split("_") for s in stems]
+    k = 0
+    while all(len(p) > k + 1 and p[k] == parts[0][k] for p in parts):
+        k += 1
+    return "_".join(parts[0][:k]) if k else None
 
 
 GROUPS = corpus_groups()
@@ -131,7 +123,26 @@ def index():
         subj = m.group(1)
         key = "_general_" if "(general)" in subj or subj == g else subj
         out[g][key].append(b)
-    return out, other
+    # ★배정이 끝난 뒤 이름을 고쳐 단다 (2026-08-11·사용자 지적 *"군 이름이 뭔가"*).
+    #   군 후보는 **가장 많이 덮는** 접두사로 뽑히므로 이름이 실제보다 짧게 나온다 — 사업자
+    #   세이빙 82문서가 `business` 라는 이름을 달았다. 이름이 내부 키로만 쓰이면 무해하지만
+    #   이것은 **닫힌 집합으로 모델에게 보여 줄 이름**이기도 하다: `business` 를 주고 *"사업자
+    #   세이빙 계좌"* 를 고르라 하면 못 고른다(C376 주어 불일치와 같은 자리).
+    #   ⇒ 그 군에 **실제로 들어온 파일들의 최장 공통 접두사**로 다시 부른다. 재배정은 없다.
+    renamed = {}
+    for g, subs in out.items():
+        stems = [b[4:] for v in subs.values() for b in v]
+        pre = _common_prefix(stems) if stems else None
+        if not pre or pre == g:
+            renamed[g] = subs
+            continue
+        fixed = collections.defaultdict(list)
+        for v in subs.values():
+            for b in v:
+                s = b[4:][len(pre) + 1:]
+                fixed["_general_" if "(general)" in s or not s else s].append(b)
+        renamed[pre] = fixed
+    return renamed, other
 
 
 def main():
