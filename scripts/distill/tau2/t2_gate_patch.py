@@ -7821,6 +7821,37 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 print("[T2_GATE_REGEN] refused empty feedback tag=%s" % tag,
                       file=_sys.stderr, flush=True)
                 return None
+            # ★R8c — **잠금만 하고 안 부른 도구가 있는 동안 우리 층은 조용히 한다**
+            #   (2026-08-11·C408·`T2_UNLOCK_QUIET`·기본 OFF·근거 x241·n=8).
+            #   측정: 같은 턴 문맥으로 다음 한 수를 재면 **궤적만 주면 8/8** 이 그 도구를 부른다
+            #   (`A_FREE`). 그런데 **우리가 실제로 넣었던 문장들을 되돌리면 1/8**(`H_LIVE_TRUE`) 이고,
+            #   우리 문장 **하나만** 얹어도 4/8 이다(`B_TELL`). 오답은 "안 부른다"가 아니라 **부르는
+            #   형태가 틀어진다**(잠긴 이름을 디스패처 없이 직접 호출 7/8). 즉 이 상태에서 우리
+            #   조언은 도움이 아니라 **경쟁 지시**다 — C403 이 본 자해와 같은 계열이고, C404 가
+            #   예측한 *"말해 주는 것으로는 안 된다"* 의 여덟 번째 사례다.
+            #   ⚠격리 서브로 옮기는 길은 **먼저 재고 접었다**: 격리 문맥 `E_ISO` **2/8**(오답이
+            #     `verify_identity` 로 되돌아감), 사전 상태 사실을 되돌린 `G_ISO_STATE` 는 6/8 로
+            #     회복하지만 `A_FREE` 8/8 을 못 넘는다. 이 자리에 필요한 것은 *주어진 사실로 고르기*
+            #     가 아니라 *대화가 어디까지 왔는지 아는 것*이라 격리가 잘하는 종류가 아니다.
+            #   ⚠새 결정론 0 — 우리가 **말을 얹지 않을 뿐**이고, 무엇을 부를지는 끝까지 모델이 고른다.
+            #   ⚠자기-제한적 상태다: 그 도구를 부르는 순간 조건이 사라지고 전 레버가 되돌아온다.
+            #     ⇒ [[60]] 의 "끄지 마라"에 걸리지 않는다(끄는 것이 아니라 **한 상태에서 미루는 것**).
+            #   ⚠Δspurious 계측 의무(§1.3): 침묵이 게이트 거부까지 미루므로 위반이 늘 수 있다.
+            #     런에서 거부 수·over-action 을 함께 센다.
+            if os.environ.get("T2_UNLOCK_QUIET") == "1":
+                try:
+                    _unlq = _unlocked_names(state.messages, a2)
+                    _calq = {_exact_tool_name(_t) for _m in state.messages
+                             for _t in (getattr(_m, "tool_calls", None) or [])
+                             if str(getattr(_t, "name", "") or "").startswith("call_")}
+                    _idleq = sorted(_unlq - _calq)
+                    if _idleq:
+                        print("[T2_UNLOCK_QUIET] 억제 tag=%s (미호출 잠금 %s)"
+                              % (tag, ",".join(_idleq[:3])), file=_sys.stderr, flush=True)
+                        return None
+                except Exception as _uq:
+                    print("[T2_UNLOCK_QUIET] error (no-op): %r" % (_uq,),
+                          file=_sys.stderr, flush=True)
             _beat("T2_GATE_REGEN", tag)
             # ★단일 진입점 배선 — 관찰자 단계(2026-08-07·`t2_stack.observe`).
             #   생성면의 발화는 **전부 이 한 자리를 지난다**(호출 26곳). 그래서 55개 호출부를
