@@ -29,7 +29,8 @@ import json
 import os
 import re
 
-__all__ = ["linked_docs", "read_docs", "drop_expired", "coverage", "as_material"]
+__all__ = ["linked_docs", "read_docs", "drop_expired", "coverage", "as_material",
+           "docs_for", "declared_windows", "index_coverage"]
 
 _DATE = re.compile(r"^\s*(\d{4})-(\d{2})-(\d{2})")
 
@@ -50,6 +51,58 @@ def linked_docs(a2, subjects=None, axes=None):
         if d and d not in out:
             out.append(d)
     return out
+
+
+def _ontology(a2):
+    return ((a2 or {}).get("policy_ontology") or {})
+
+
+def docs_for(a2, group, subjects=None, general=True):
+    """A3 **문서 색인**(`doc_index`)에서 그 문서군의 문서 id — 주어로 좁힐 수 있다.
+
+    색인은 빌드 시점에 파일명에서 유도해 적어 둔 것이다(x244). 엔진은 **적힌 것을 읽기만**
+    하고 이름을 뜯지 않는다([[59]]). 주어를 안 주면 그 군 전체이고, `general` 이면 주어 없는
+    공통 문서(`_general_`)를 함께 준다 — 070/071 의 프로모션 고지가 거기 산다.
+
+    ⚠고르는 것은 여전히 모델이다. 이 함수는 **어느 파일을 읽을지**만 정한다(⛔0 ③).
+    """
+    idx = (_ontology(a2).get("doc_index") or {}).get(group) or {}
+    out = []
+    for s in (sorted(idx) if subjects is None else list(subjects)):
+        if s == "_general_":
+            continue
+        for d in (idx.get(s) or ()):
+            if d not in out:
+                out.append(d)
+    if general:
+        for d in (idx.get("_general_") or ()):
+            if d not in out:
+                out.append(d)
+    return out
+
+
+def declared_windows(a2, doc_ids=None):
+    """A3 가 선언한 **유효 구간** — `{문서: (시작, 끝)}`. 적히지 않은 문서는 안 들어온다.
+
+    구간은 빌드 시점에 **LLM 이 문서 축자에서** 형식화하고 엔진이 인용 실재를 검산해 적은
+    것이다(x242). 여기서는 조회만 한다 — 모르면 없고, 없으면 `drop_expired` 가 **안 뺀다**([[25]]).
+    """
+    want = set(doc_ids) if doc_ids else None
+    out = {}
+    for r in (_ontology(a2).get("doc_windows") or ()):
+        d = r.get("doc")
+        if not d or (want is not None and d not in want):
+            continue
+        out[d] = (r.get("from"), r.get("to"))
+    return out
+
+
+def index_coverage(a2, doc_dir):
+    """색인 커버리지 = 이 에이전트의 시야([[50]] ADB). (색인 수, 코퍼스 수, 비율)."""
+    idx = _ontology(a2).get("doc_index") or {}
+    n = len({d for subs in idx.values() for v in subs.values() for d in v})
+    total = len(glob.glob(os.path.join(doc_dir, "doc_*.json")))
+    return n, total, (n / total if total else 0.0)
 
 
 def coverage(a2, doc_dir):

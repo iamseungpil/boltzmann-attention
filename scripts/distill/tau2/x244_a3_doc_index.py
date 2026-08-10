@@ -1,0 +1,117 @@
+# -*- coding: utf-8 -*-
+r"""x244 — A3 에 **문서 색인**을 선언한다: `(문서군, 주어) → 문서 id` (빌드 시점 · 유료 0 · LLM 0).
+
+## 왜 (사용자 지시 2026-08-11 *"070 1번부터"* · C405⒟)
+
+070 의 결손은 검색이다 — 프로모션 문서 4개를 **전부 미회수**했고 질의에 고유명이 0이었다.
+처방은 정해져 있다: **shell + A3 로 문서를 결정한다**(BM25·임베딩 금지). 그런데 결정론이
+따라갈 **링크가 없었다** — A3 의 41개 링크는 전부 추천-축 문서고 사업자 체킹 79문서는 밖이다
+([[50]] ADB: 링크 커버리지가 곧 시야).
+
+## 왜 이 모양인가 (x243 이 결정론을 한 층 줄였다)
+
+축으로 문서를 골라 줄 필요가 **없다**:
+
+    S1 축별 문장 + 활성 프로모션   8/8
+    S2 제품 문서 **전문** + 프로모션 8/8      ← 축 선별 없이도 닫힌다
+    S3 문서 **앞 400자** + 프로모션  8/8      ← 예산도 작다
+    S4 문서만(프로모션 없음)        0/8      ← 유효창이 본체로 남는다
+
+⇒ 색인은 `(주어 → 문서 id)` 로 **끝난다**. 축 어휘도, 축 형식화 슬롯도 짓지 않는다(⛔0 ③).
+
+## 어디서 오는가 ([[23]])
+
+**파일명뿐**이다 — `doc_<문서군>_<주어>_NNN.json`. env 에서 기계로 나오므로 저작 비용 0 이고,
+x203 이 종류(`kind`)를 유도할 때 쓴 **바로 그 규칙**이다. 값도 축도 적지 않는다: **id 만**.
+
+⚠엔진이 런타임에 파일명을 뜯으면 [[59]] 위반이다. 그래서 **여기(빌드 시점)**에서 유도해 적고,
+  엔진은 적힌 것을 읽기만 한다(`t2_search.docs_for`).
+⚠`(general)` 은 주어가 아니라 **범위**다 — 주어 없는 문서군 공통 문서로 따로 적는다.
+⚠두 층에 바이트 동일로 쓴다([[24]]).
+
+실행: py -3 x244_a3_doc_index.py [--apply]
+"""
+import argparse
+import collections
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+LAYERS = ["a2/banking_knowledge.specific.json", "a2/banking_knowledge.gate.json"]
+DOCS = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/documents"
+# 문서군은 x203 이 이미 선언해 둔 것과 **같은 목록**이다(두 벌이 되면 갈린다).
+from x203_tag_a3_kind import GROUPS                                # noqa: E402
+
+
+def index():
+    """`{문서군: {주어: [문서 id]}}` · 주어 없는 것은 `_general_` 아래."""
+    out = collections.defaultdict(lambda: collections.defaultdict(list))
+    other = []
+    for p in sorted(glob.glob(os.path.join(DOCS, "doc_*.json"))):
+        b = os.path.basename(p)[:-5]
+        g = next((g for g in GROUPS if b.startswith("doc_" + g + "_")), None)
+        if not g:
+            other.append(b)
+            continue
+        m = re.match(r"doc_%s_(.+)_(\d+)$" % re.escape(g), b)
+        if not m:
+            other.append(b)
+            continue
+        subj = m.group(1)
+        key = "_general_" if "(general)" in subj or subj == g else subj
+        out[g][key].append(b)
+    return out, other
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--apply", action="store_true")
+    a = ap.parse_args()
+    idx, other = index()
+    total = sum(len(v) for g in idx.values() for v in g.values())
+    print("문서군 %d · 색인된 문서 %d · 규칙 밖 %d" % (len(idx), total, len(other)))
+    for g in sorted(idx):
+        subs = idx[g]
+        n = sum(len(v) for v in subs.values())
+        print("  %-28s 주어 %2d · 문서 %3d   %s"
+              % (g, len([k for k in subs if k != "_general_"]), n,
+                 ", ".join(sorted(k for k in subs if k != "_general_")[:6])))
+    if other:
+        print("  ⚠규칙 밖(색인 안 함·시야 밖으로 계수한다): %d 건 예: %s" % (len(other), other[:3]))
+    if not a.apply:
+        print("\n(--apply 없이는 쓰지 않는다)")
+        return 0
+    rows = {g: {s: sorted(v) for s, v in subs.items()} for g, subs in idx.items()}
+    for rel in LAYERS:
+        p = os.path.join(HERE, rel)
+        txt = io.open(p, encoding="utf-8").read()
+        doc = json.loads(txt)
+        if json.dumps(doc, ensure_ascii=False, indent=1) + ("\n" if txt.endswith("\n") else "") \
+                != txt:
+            print("  중단: %s 재직렬화가 바이트 동일하지 않다" % rel)
+            return 1
+        doc["policy_ontology"]["doc_index"] = rows
+        doc["policy_ontology"]["_note_doc_index"] = (
+            "★출처 = env 파일명뿐(`doc_<군>_<주어>_NNN.json`·빌드 시점 유도·x244·저작 0). "
+            "x203 이 종류를 유도할 때 쓴 같은 규칙이다. **id 만** 적고 값·축은 적지 않는다 — "
+            "x243 실측이 축 선별 없이 닫힘을 보였다(S2/S3 8/8 · 축별 문장 S1 8/8 과 동률 · "
+            "프로모션 빼면 S4 0/8). 엔진은 런타임에 파일명을 뜯지 않고 여기 적힌 것을 읽기만 "
+            "한다([[59]]). 시야 = 이 색인의 크기다([[50]] ADB).")
+        out = json.dumps(doc, ensure_ascii=False, indent=1) + ("\n" if txt.endswith("\n") else "")
+        io.open(p, "w", encoding="utf-8", newline="").write(out)
+        print("  기록: %-40s 문서군 %d · 문서 %d" % (rel, len(rows), total))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

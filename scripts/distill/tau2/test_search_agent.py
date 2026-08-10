@@ -78,5 +78,41 @@ print("\n§5 시야 — 링크 커버리지를 셀 수 있다")
 n_linked, n_total, ratio = S.coverage(A2, d)
 chk(n_linked == 3 and n_total == 2, "링크 %d · 코퍼스 %d" % (n_linked, n_total))
 
-print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 13 - len(FAILED), 13))
+print("\n§6 색인 — 빌드가 적어 둔 것을 **읽기만** 한다 (파일명 해석 0)")
+A2X = {"policy_ontology": {
+    "doc_index": {"business_checking_accounts": {
+        "sky_blue": ["doc_business_checking_accounts_sky_blue_001",
+                     "doc_business_checking_accounts_sky_blue_002"],
+        "lime_green": ["doc_business_checking_accounts_lime_green_001"],
+        "_general_": []},
+        "bank_accounts": {"_general_": ["doc_bank_accounts_bank_accounts_(general)_013"]}},
+    "doc_windows": [
+        {"doc": "doc_bank_accounts_bank_accounts_(general)_013", "from": "2025-11-01",
+         "to": "2025-11-30", "quote": "ACTIVE FROM 11/01/2025 TO 11/30/2025"},
+        {"doc": "doc_bank_accounts_bank_accounts_(general)_014", "from": "2025-10-12",
+         "to": "2025-11-12", "quote": "ACTIVE FROM 10/12/2025 TO 11/12/2025"}]}}
+allb = S.docs_for(A2X, "business_checking_accounts")
+chk(len(allb) == 3, "문서군 전체 3건 (%d)" % len(allb))
+chk(S.docs_for(A2X, "business_checking_accounts", {"lime_green"}) ==
+    ["doc_business_checking_accounts_lime_green_001"], "주어로 좁힌다")
+chk(S.docs_for(A2X, "bank_accounts") ==
+    ["doc_bank_accounts_bank_accounts_(general)_013"], "주어 없는 공통 문서가 딸려 온다")
+chk(S.docs_for(A2X, "bank_accounts", general=False) == [], "공통을 끄면 안 딸려 온다")
+chk(S.docs_for(A2X, "없는_문서군") == [], "모르는 문서군은 빈 목록(예외 아님)")
+
+print("\n§7 선언된 유효 구간 — 조회만 하고, 없는 문서는 안 들어온다")
+w = S.declared_windows(A2X)
+chk(len(w) == 2 and w["doc_bank_accounts_bank_accounts_(general)_013"] ==
+    ("2025-11-01", "2025-11-30"), "두 구간을 그대로 읽는다 (%s)" % len(w))
+chk(list(S.declared_windows(A2X, {"doc_bank_accounts_bank_accounts_(general)_013"})) ==
+    ["doc_bank_accounts_bank_accounts_(general)_013"], "문서로 좁힌다")
+chk(S.declared_windows({"policy_ontology": {}}) == {}, "선언이 없으면 빈 dict")
+# 색인 + 구간 + 제거가 **한 줄로 이어지는가** (071 이 요구하는 그 사슬)
+docs2 = {"doc_bank_accounts_bank_accounts_(general)_013": "active promo",
+         "doc_bank_accounts_bank_accounts_(general)_014": "expired promo"}
+keep4, drop4 = S.drop_expired(docs2, S.declared_windows(A2X, docs2), "2025-11-14")
+chk(list(keep4) == ["doc_bank_accounts_bank_accounts_(general)_013"] and len(drop4) == 1,
+    "선언→비교→제거가 이어진다 (남음 %s · 뺀 것 %s)" % (list(keep4), [d for d, _f, _t in drop4]))
+
+print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 22 - len(FAILED), 22))
 sys.exit(1 if FAILED else 0)
