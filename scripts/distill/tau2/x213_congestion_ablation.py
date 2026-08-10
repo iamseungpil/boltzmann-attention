@@ -1,0 +1,222 @@
+# -*- coding: utf-8 -*-
+r"""x213 — 부하 = **혼잡**이다: 정보를 고정한 채 경쟁하는 방향만 걷어낸다 (유료 0 · 엔진 0).
+
+## 관점 (사용자 지시 2026-08-10)
+
+> *"부하는 단순히 길이 문제가 아니다. **모순·혼잡**의 문제다. 지시나 데이터가 정박하면서 다른
+>  방향으로 steer 하는 거다. 격리는 이런 모순을 걷어내고 깨끗한 문맥으로 결론 짓는 거다.
+>  그래서 관점은 **얼마나 일관된 깨끗한 데이터를 격리에 담는가** 이다."*
+
+x212 는 길이를 부하의 대리변수로 놓아 틀렸다(85k 에서 0/6→3/6, 12k 에서 0/6→0/6 — 길이로는
+일관되지 않는다). 오늘 실측은 전부 **경쟁하는 방향**을 가리킨다: 창 꼬리말이 자기 계산을 부정해
+0/8(C393) · `NONE` 조항이 빈 `asked` 와 모순돼 침묵(C391) · x151 의 꼬리말 한 줄 · R8 의
+*"결정 블록과 다른 지시를 섞지 말라"*.
+
+## 혼잡의 실체 (가장 큰 실패 사례 실측)
+
+  42 메시지 · 152,703자 · **KB 결과 8건에 문서 항목 80개**(답을 든 것은 **1개**) ·
+  **이관 쪽으로 미는 메시지 12건** · 에이전트 자기-부정 0회.
+
+## 팔 — **정보는 빼지 않고 혼잡만 뺀다**
+
+  A_FULL     그 지점의 실제 문맥 그대로                          ← $p_{traj}$
+  B_ONEDOC   KB 덤프에서 **답을 든 문서 항목만 남긴다**(79개 제거·정보 보존)
+  C_NOXFER   이관 쪽으로 미는 문장을 지운다(정보 보존)
+  D_BOTH     둘 다
+  E_CLEAN    원장 + 정의만 (혼잡 0 = 천장)                       ← $p_{iso}$
+  STRIP      정의를 지운 것 (부정 통제 · 0 이어야 한다)
+
+⚠**정보 보존이 이 설계의 전부다.** B 는 답을 든 문서를 **남긴다**; 지우는 것은 경쟁 문서뿐이다.
+  그래서 A→B 의 차이는 정보량이 아니라 **혼잡**이다([[18]] 정보-맞춘 격리).
+⚠어느 팔에서도 이유를 말해 주지 않는다. 판정 지표는 **이유 진술**이고 이관은 관측이다.
+
+실행: python x213_congestion_ablation.py [N] [--slice i/k]
+"""
+import collections
+import glob
+import gzip
+import json
+import os
+import re
+import sys
+import urllib.request
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
+from x200_disclaimer_ab import CAUSE, ESCAPE                      # noqa: E402
+
+URL = os.environ.get("T2_PROBE_URL", "http://localhost:8140/v1/chat/completions")
+MODEL = os.environ.get("T2_PROBE_MODEL", "Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
+SIG = "too many referral processes"
+TARGET_DOC = "doc_credit_cards_credit_cards_(general)_001"
+PATS = ["/home/woori/scratch/tau2-bench/data/simulations/*/results.json",
+        "/home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/"
+        "sim_results/*.json.gz"]
+BUDGET = int(os.environ.get("T2_X213_BUDGET", "120000"))
+
+
+def cases(limit=12):
+    out, seen = [], set()
+    for pat in PATS:
+        for p in sorted(glob.glob(pat)):
+            try:
+                f = gzip.open(p, "rt", encoding="utf-8") if p.endswith(".gz") else open(p, encoding="utf-8")
+                d = json.load(f)
+            except Exception:
+                continue
+            if not isinstance(d, dict):
+                continue
+            for s in d.get("simulations") or []:
+                if not isinstance(s, dict) or s.get("task_id") != "task_010":
+                    continue
+                if (s.get("reward_info") or {}).get("reward") == 1:
+                    continue
+                msgs = s.get("messages") or []
+                blob = "\n".join(str(m.get("content") or "") for m in msgs)
+                if SIG not in blob:
+                    continue
+                key = blob[:300]
+                if key in seen:
+                    continue
+                seen.add(key)
+                out.append((os.path.basename(os.path.dirname(p)) or os.path.basename(p),
+                            s.get("trial"), msgs))
+                if len(out) >= limit:
+                    return out
+    return out
+
+
+def keep_only_target_doc(text):
+    """KB 결과에서 **답을 든 문서 항목만** 남긴다 — 경쟁 문서만 지우고 정보는 보존한다.
+
+    검색 결과는 `N. 제목 / ID: doc_… / Score: … / Content: …` 가 반복되는 형태다. 항목 경계로
+    쪼개서 대상 ID 를 가진 덩어리만 남긴다. **엔진이 아니라 프로브가** 하는 절제이므로 [[59]] 와
+    무관하다(측정용 절제이지 런타임 파싱이 아니다).
+    """
+    if "ID:" not in text:
+        return text
+    chunks = re.split(r"(?m)^(?=\s*\d+\.\s)", text)
+    keep = [c for c in chunks if ("ID:" not in c) or (TARGET_DOC in c)]
+    dropped = len(chunks) - len(keep)
+    return ("\n".join(keep), dropped) if False else "\n".join(keep)
+
+
+def render(msgs, upto, mode):
+    parts, dropped_docs, dropped_x = [], 0, 0
+    for m in msgs[:upto]:
+        role = m.get("role")
+        c = " ".join(str(m.get("content") or "").split())
+        raw = str(m.get("content") or "")
+        if mode in ("B", "D") and role == "tool" and "ID:" in raw:
+            before = len(re.findall(r"ID:", raw))
+            raw2 = keep_only_target_doc(raw)
+            dropped_docs += before - len(re.findall(r"ID:", raw2))
+            c = " ".join(raw2.split())
+        if mode in ("C", "D") and re.search(r"transfer|human agent", c, re.I):
+            dropped_x += 1
+            continue
+        for t in (m.get("tool_calls") or []):
+            fn = t.get("function") or t
+            a = fn.get("arguments")
+            a = a if isinstance(a, str) else json.dumps(a, ensure_ascii=False)
+            parts.append("[%s calls %s(%s)]" % (role, fn.get("name"), a[:200]))
+        if c:
+            parts.append("[%s] %s" % (role, c))
+    txt = "\n".join(parts)
+    return (txt[-BUDGET:] if len(txt) > BUDGET else txt), dropped_docs, dropped_x
+
+
+def probe_point(msgs):
+    for i, m in enumerate(msgs):
+        if m.get("role") != "user":
+            continue
+        c = str(m.get("content") or "").lower()
+        if "transfer" in c or "human agent" in c or "###" in c:
+            continue
+        if ("why" in c or "reason" in c or "specific" in c) and i > 2:
+            return i
+    return max((i for i, m in enumerate(msgs) if m.get("role") == "user"), default=len(msgs) - 1)
+
+
+def ask(prompt, temp):
+    body = {"model": MODEL, "temperature": temp, "max_tokens": 220,
+            "messages": [{"role": "user", "content": prompt}]}
+    req = urllib.request.Request(URL, data=json.dumps(body).encode(),
+                                 headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=600) as r:
+        return " ".join((json.load(r)["choices"][0]["message"]["content"] or "").split())
+
+
+def main():
+    n = 6
+    part, parts = 0, 1
+    for i, a in enumerate(sys.argv[1:]):
+        if a.isdigit():
+            n = int(a)
+        if a.startswith("--slice"):
+            v = a.split("=", 1)[-1] if "=" in a else sys.argv[i + 2]
+            part, parts = (int(x) for x in v.split("/"))
+    cs = cases()
+    if parts > 1:
+        cs = [c for i, c in enumerate(cs) if i % parts == part]
+    print("사례 %d개 · n=%d · slice %d/%d" % (len(cs), n, part, parts))
+    agg = collections.Counter()
+    out = {}
+    for tag, trial, msgs in cs:
+        i = probe_point(msgs)
+        askmsg = " ".join(str(msgs[i].get("content") or "").split())
+        built = {}
+        for mode, name in (("A", "A_FULL"), ("B", "B_ONEDOC"), ("C", "C_NOXFER"), ("D", "D_BOTH")):
+            t, dd, dx = render(msgs, i, mode)
+            built[name] = (t, dd, dx)
+        if SIG not in built["A_FULL"][0] or SIG not in built["B_ONEDOC"][0]:
+            print("\n%s trial=%s — 절단/절제로 정의가 사라졌다. 건너뛴다(통제 오염)." % (tag, trial))
+            continue
+        clean = ("[tool] " + next((" ".join(str(m.get("content") or "").split())
+                                   for m in msgs if m.get("role") == "tool"
+                                   and "Record ID" in str(m.get("content") or "")), "")
+                 + "\n\nFrom a document already retrieved: \"REJECTED - the user has too many "
+                   "referral processes going on\".")
+        built["E_CLEAN"] = (clean, 0, 0)
+        strip = re.sub(r"[^\n]*too many referral processes[^\n]*", "[removed]", built["A_FULL"][0])
+        built["STRIP"] = (strip, 0, 0)
+        print("\n" + "=" * 92)
+        print("%s trial=%s · 문맥 %d자 · 제거: 경쟁문서 %d · 이관문장 %d"
+              % (tag, trial, len(built["A_FULL"][0]), built["B_ONEDOC"][1], built["C_NOXFER"][2]))
+        for name in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "E_CLEAN", "STRIP"):
+            body = built[name][0]
+            c = collections.Counter()
+            for k in range(n):
+                p = (body + "\n\nThe customer now asks:\n" + askmsg
+                     + "\n\nAnswer the customer in two or three sentences.")
+                try:
+                    t = ask(p, 0.0 if k == 0 else 0.7)
+                except Exception as e:
+                    t = "ERR %s" % type(e).__name__
+                lo = t.lower()
+                c["이유O" if any(x in lo for x in CAUSE) else "이유X"] += 1
+                c["이관O" if any(x in lo for x in ESCAPE) else "이관X"] += 1
+            out["%s/%s/%s" % (tag, trial, name)] = [c["이유O"], n]
+            agg[name + "/h"] += c["이유O"]
+            agg[name + "/n"] += n
+            print("  %-9s 이유 %d/%d · 이관 %d/%d  (%d자)"
+                  % (name, c["이유O"], n, c["이관O"], n, len(body)))
+    print("\n" + "=" * 92)
+    print("합계 — 판정 지표 = 이유 진술")
+    for name in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "E_CLEAN", "STRIP"):
+        if agg[name + "/n"]:
+            print("  %-9s %3d/%-3d (%.0f%%)" % (name, agg[name + "/h"], agg[name + "/n"],
+                                                100.0 * agg[name + "/h"] / agg[name + "/n"]))
+    json.dump(dict(out, _agg=dict(agg)),
+              open(os.environ.get("T2_X213_OUT", "x213_out.json"), "w"), indent=1)
+    print("\n※ B 나 C 가 A 를 크게 올리면 → 부하는 **혼잡**이고, 무엇을 빼야 하는지까지 말해 준다."
+          "\n  A≈B≈C≈E 면 → 혼잡이 아니고 다른 것이다. STRIP 이 A 와 같으면 정의는 안 읽히고 있었다.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
