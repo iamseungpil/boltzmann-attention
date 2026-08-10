@@ -141,16 +141,40 @@ def _a3_line():
                                     (a2.get("policy_ontology") or {}).get("rows") or ()).strip()
 
 
+def referral_ledger(msgs):
+    """**추천 원장**을 집는다 — 상태 필드가 있는 도구 출력만.
+
+    ⚠**자기적발 (x215)**: 구판은 *"`Record ID` 가 들어간 첫 tool 메시지"* 를 집었는데, 이 도메인은
+      사용자 조회도 `Found 1 record(s) in 'users': … Record ID:` 형태다. 전 사례에서 집힌 것이
+      **users 조회**였고 `referral_status` 는 하나도 없었다 — 즉 `E_CLEAN` 은 판정에 필요한 4행을
+      **한 번도 담지 않았다**. 그 팔을 천장이라 부른 것이 x213 1차의 근본 결함이다.
+    """
+    for m in msgs:
+        c = str(m.get("content") or "")
+        if m.get("role") == "tool" and "referral_status" in c and "Record ID" in c:
+            return " ".join(c.split())
+    return ""
+
+
 def probe_point(msgs):
+    """손님이 **이유를 되묻는** 지점. 없으면 **None** — 그 사례는 건너뛴다.
+
+    ⚠**자기적발 (x215)**: 구판은 조건에 맞는 발화가 없으면 *마지막 user 턴*으로 떨어졌고, 그것이
+      `###STOP###`·`###TRANSFER###` 같은 **제어 토큰**인 사례가 3/7 이었다. 제어 토큰을 질문으로
+      쓴 셀은 아무것도 재지 않는다. 못 찾으면 **재지 않는 것**이 옳다.
+    """
     for i, m in enumerate(msgs):
         if m.get("role") != "user":
             continue
-        c = str(m.get("content") or "").lower()
-        if "transfer" in c or "human agent" in c or "###" in c:
+        c = str(m.get("content") or "")
+        if "###" in c or len(c.split()) < 6:
             continue
-        if ("why" in c or "reason" in c or "specific" in c) and i > 2:
+        lo = c.lower()
+        if "transfer" in lo or "human agent" in lo:
+            continue
+        if ("why" in lo or "reason" in lo or "didn" in lo) and i > 2:
             return i
-    return max((i for i, m in enumerate(msgs) if m.get("role") == "user"), default=len(msgs) - 1)
+    return None
 
 
 def ask(prompt, temp):
@@ -179,6 +203,14 @@ def main():
     out = {}
     for tag, trial, msgs in cs:
         i = probe_point(msgs)
+        if i is None:
+            print("\n%s trial=%s — 이유를 되묻는 발화가 없다. 건너뛴다(제어 토큰을 질문으로 쓰지 않는다)."
+                  % (tag, trial))
+            continue
+        led0 = referral_ledger(msgs)
+        if not led0:
+            print("\n%s trial=%s — 추천 원장(상태 필드 보유)을 못 찾았다. 건너뛴다." % (tag, trial))
+            continue
         askmsg = " ".join(str(msgs[i].get("content") or "").split())
         built = {}
         for mode, name in (("A", "A_FULL"), ("B", "B_ONEDOC"), ("C", "C_NOXFER"), ("D", "D_BOTH")):
@@ -187,11 +219,7 @@ def main():
         if SIG not in built["A_FULL"][0] or SIG not in built["B_ONEDOC"][0]:
             print("\n%s trial=%s — 절단/절제로 정의가 사라졌다. 건너뛴다(통제 오염)." % (tag, trial))
             continue
-        clean = ("[tool] " + next((" ".join(str(m.get("content") or "").split())
-                                   for m in msgs if m.get("role") == "tool"
-                                   and "Record ID" in str(m.get("content") or "")), "")
-                 + "\n\nFrom a document already retrieved: \"REJECTED - the user has too many "
-                   "referral processes going on\".")
+        clean = "[tool] " + led0 + "\n" + _a3_line()
         built["E_CLEAN"] = (clean, 0, 0)
         # ★F_A3 (C395) — 실제 문맥은 **그대로 두고** 우리 층이 A3 에서 만든 문장만 얹는다.
         #   E_CLEAN 은 문맥을 갈아 끼운 천장이라 라이브에서 할 수 없는 일이지만, F_A3 는
@@ -203,6 +231,13 @@ def main():
         print("\n" + "=" * 92)
         print("%s trial=%s · 문맥 %d자 · 제거: 경쟁문서 %d · 이관문장 %d"
               % (tag, trial, len(built["A_FULL"][0]), built["B_ONEDOC"][1], built["C_NOXFER"][2]))
+        print("  손님: %s" % askmsg[:120])
+        # ★팔 자기점검 (x215 교훈) — **팔이 무엇을 담았는지 인쇄하지 않고는 재지 않는다.**
+        #   1차 x213 은 `E_CLEAN` 이 users 조회를 담고 있었는데 그것을 천장이라 불렀다.
+        for _nm in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "F_A3", "E_CLEAN", "STRIP"):
+            _b = built[_nm][0]
+            print("   %-9s 원장행 %d · 정의 %d회 · %d자"
+                  % (_nm, len(re.findall(r"referral_status", _b)), _b.count(SIG), len(_b)))
         for name in ("A_FULL", "B_ONEDOC", "C_NOXFER", "D_BOTH", "F_A3", "E_CLEAN", "STRIP"):
             body = built[name][0]
             c = collections.Counter()
@@ -214,7 +249,12 @@ def main():
                 except Exception as e:
                     t = "ERR %s" % type(e).__name__
                 lo = t.lower()
-                c["이유O" if any(x in lo for x in CAUSE) else "이유X"] += 1
+                # ★채점 (x215 교훈) — **되읊기를 정답으로 세지 않는다.** 1차는 낱말만 봤는데
+                #   `E_CLEAN` 에 우리가 넣은 정의 문장이 그 낱말을 담고 있어, 모델이 그것을
+                #   그대로 옮기기만 해도 정답이 됐다. 이제 **거절된 상품을 짚고** 사유를 함께
+                #   말할 때만 인정한다 — 정의 문장에는 상품명이 없으므로 메아리는 못 통과한다.
+                ok = ("platinum" in lo) and any(x in lo for x in CAUSE)
+                c["이유O" if ok else "이유X"] += 1
                 c["이관O" if any(x in lo for x in ESCAPE) else "이관X"] += 1
             out["%s/%s/%s" % (tag, trial, name)] = [c["이유O"], n]
             agg[name + "/h"] += c["이유O"]
