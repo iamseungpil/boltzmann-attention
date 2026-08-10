@@ -131,7 +131,10 @@ def index():
     #   ⇒ 그 군에 **실제로 들어온 파일들의 최장 공통 접두사**로 다시 부른다. 재배정은 없다.
     renamed = {}
     for g, subs in out.items():
-        stems = [b[4:] for v in subs.values() for b in v]
+        # ⚠`_NNN` 을 먼저 뗀다 — 안 떼면 주어가 `automatic_sweep_program_001` 이 되어
+        #   제품 하나가 문서 수만큼 쪼개진다(첫 판이 그랬다).
+        stems = [(_NUM.match(b[4:]).group(1) if _NUM.match(b[4:]) else b[4:])
+                 for v in subs.values() for b in v]
         pre = _common_prefix(stems) if stems else None
         if not pre or pre == g:
             renamed[g] = subs
@@ -139,7 +142,8 @@ def index():
         fixed = collections.defaultdict(list)
         for v in subs.values():
             for b in v:
-                s = b[4:][len(pre) + 1:]
+                st = _NUM.match(b[4:]).group(1) if _NUM.match(b[4:]) else b[4:]
+                s = st[len(pre) + 1:]
                 fixed["_general_" if "(general)" in s or not s else s].append(b)
         renamed[pre] = fixed
     return renamed, other
