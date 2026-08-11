@@ -104,6 +104,9 @@ def score(msg, gold):
             a = json.loads(f.get("arguments") or "{}")
         except Exception:
             return "BADJSON"
+        # ⚠모델이 최상위 인자를 **문자열 하나**로 낼 때가 있다(첫 판이 여기서 죽었다).
+        if not isinstance(a, dict):
+            return "BADTOP"
         if TOOL not in str(a.get("agent_tool_name") or ""):
             return "OTHER_TOOL"
         inner = a.get("arguments")
