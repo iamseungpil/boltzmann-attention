@@ -28,7 +28,13 @@ LOG=/home/woori/scratch/logs
 mkdir -p "$LOG"
 
 SHA=$(cd "$REPO" && git rev-parse --short HEAD)
-DIRTY=$(cd "$REPO" && git status --porcelain -- scripts/distill/tau2 | wc -l)
+# dirty = **동결 경로의 추적 변경**만 센다. 미추적 프로브 산출물(x*_out.json)은 재현성과
+# 무관하다 — C423⒞ 의 표적은 "이 런을 어느 SHA 로도 재현할 수 없다"이지 잡동사니가 아니다.
+DIRTY=$(cd "$REPO" && git status --porcelain -- \
+  scripts/distill/tau2/t2_gate_patch.py scripts/distill/tau2/t2_eplan_patch.py \
+  scripts/distill/tau2/t2_dominance.py scripts/distill/tau2/t2_search.py \
+  scripts/distill/tau2/t2_precedence.py scripts/distill/tau2/t2_source.py \
+  scripts/distill/tau2/a2/ scripts/distill/tau2/go_stack.sh | grep -cv '^??' || true)
 # 동결의 뜻 = **엔진 8경로 불변**(freeze.py DEFAULT_PATHS)이지 HEAD 고정이 아니다 —
 # 런처·프로브·원장 커밋은 허용(handoff: "거는 것은 런처다"). 그래서 HEAD 동등이 아니라
 # 동결 SHA 이후 엔진 diff 0 을 검사한다.
