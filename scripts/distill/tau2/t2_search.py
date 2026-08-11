@@ -151,6 +151,48 @@ def drop_expired(docs, spans, now):
     return keep, dropped
 
 
+def material_for(a2, group, doc_dir, now, per_doc=400, windowed="all"):
+    """검색 에이전트의 결정론부 **전체 체인**: 색인 → 읽기 → 만료 제거 → 축자 재료.
+
+    ## 왜 이 모양인가 (x243·n=8 — 재고 결정론을 **줄인** 결과)
+
+        S1 축별 문장 + 활성 프로모션    8/8
+        S2 제품 문서 **전문** + 프로모션 8/8   ← 축 선별이 필요 없다
+        S3 문서 **앞 400자** + 프로모션  8/8   ← 그래서 기본 `per_doc=400`
+        S4 문서만(프로모션 없음)        0/8   ← 유효창이 본체다
+
+    ⇒ 축 링크도 축 형식화도 짓지 않는다(⛔0 ③). 엔진이 하는 일은 **읽고·비교하고·자르기**뿐이고,
+      고르는 것은 끝까지 모델이다.
+
+    ## 무엇을 싣나
+
+      · 그 문서군의 문서(A3 `doc_index` 가 적어 둔 id)
+      · **효력 있는** 유효창 문서(A3 `doc_windows`) — 프로모션 고지는 제품군이 아니라
+        `_general_` 쪽에 살기 때문에 군만 읽으면 놓친다(070/071 실측).
+      · 뺀 것은 **이유와 함께** 남긴다(C327 — 조용히 빼지 않는다).
+
+    `windowed`: `"all"` = 코퍼스의 효력 있는 유효창 문서 전부 · `"general"` = `_general_` 풀만 ·
+    `"none"` = 안 싣는다(부정 통제).
+
+    ⚠엔진은 문서 내용을 해석하지 않는다([[59]]). ⚠구간을 모르는 문서는 **남긴다**([[25]]).
+    """
+    ids = list(docs_for(a2, group))
+    if windowed != "none":
+        pool = set(declared_windows(a2))
+        if windowed == "general":
+            idx = _ontology(a2).get("doc_index") or {}
+            gen = {d for subs in idx.values() for d in (subs.get("_general_") or ())}
+            pool &= gen
+        for d in sorted(pool):
+            if d not in ids:
+                ids.append(d)
+    read, missing = read_docs(ids, doc_dir)
+    keep, dropped = drop_expired(read, declared_windows(a2, read), now)
+    return as_material(keep, dropped, per_doc=per_doc), {
+        "linked": len(ids), "read": len(read), "missing": missing,
+        "kept": len(keep), "dropped": [d for d, _f, _t in dropped]}
+
+
 def as_material(docs, dropped=(), per_doc=1200):
     """결정점에 실을 재료 — 문서 **축자**와, 뺀 것의 **이유**(C327: 조용히 빼지 않는다)."""
     parts = []

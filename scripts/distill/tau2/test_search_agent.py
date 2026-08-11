@@ -114,5 +114,34 @@ keep4, drop4 = S.drop_expired(docs2, S.declared_windows(A2X, docs2), "2025-11-14
 chk(list(keep4) == ["doc_bank_accounts_bank_accounts_(general)_013"] and len(drop4) == 1,
     "선언→비교→제거가 이어진다 (남음 %s · 뺀 것 %s)" % (list(keep4), [d for d, _f, _t in drop4]))
 
-print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 22 - len(FAILED), 22))
+print("\n§8 체인 — 색인 → 읽기 → 만료 제거 → 재료 (한 함수·x243 이 정한 모양)")
+d2 = tempfile.mkdtemp()
+for name, body in (("doc_g_sky_001", "Sky Blue: APY 1.25%."),
+                   ("doc_g_lime_001", "Lime Green: APY 1.5%."),
+                   ("doc_bank_accounts_bank_accounts_(general)_013",
+                    "PROMOTION ACTIVE: prefer Sky Blue."),
+                   ("doc_bank_accounts_bank_accounts_(general)_014",
+                    "PROMOTION: prefer Lime Green.")):
+    json.dump({"id": name, "content": body},
+              open(os.path.join(d2, name + ".json"), "w", encoding="utf-8"))
+A2C = {"policy_ontology": {
+    "doc_index": {"g": {"sky": ["doc_g_sky_001"], "lime": ["doc_g_lime_001"], "_general_": []},
+                  "bank_accounts_bank_accounts": {"_general_": [
+                      "doc_bank_accounts_bank_accounts_(general)_013",
+                      "doc_bank_accounts_bank_accounts_(general)_014"]}},
+    "doc_windows": [
+        {"doc": "doc_bank_accounts_bank_accounts_(general)_013",
+         "from": "2025-11-01", "to": "2025-11-30"},
+        {"doc": "doc_bank_accounts_bank_accounts_(general)_014",
+         "from": "2025-10-12", "to": "2025-11-12"}]}}
+mat, info = S.material_for(A2C, "g", d2, "2025-11-14")
+chk(info["kept"] == 3 and info["dropped"] == ["doc_bank_accounts_bank_accounts_(general)_014"],
+    "제품 2 + 효력 있는 고지 1 이 남고 만료 1 이 빠진다 (%s)" % info)
+chk("prefer Sky Blue" in mat and "prefer Lime Green" not in mat, "만료 고지의 본문은 재료에 없다")
+chk("Excluded as out of date" in mat, "뺀 것은 이유와 함께 남는다")
+mat0, info0 = S.material_for(A2C, "g", d2, "2025-11-14", windowed="none")
+chk(info0["kept"] == 2 and "PROMOTION" not in mat0, "부정 통제 — 유효창을 안 실으면 고지가 없다")
+chk(S.material_for(A2C, "g", d2, None)[1]["kept"] == 4, "현재 시각을 모르면 아무것도 안 뺀다")
+
+print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 27 - len(FAILED), 27))
 sys.exit(1 if FAILED else 0)
