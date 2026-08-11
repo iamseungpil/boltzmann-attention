@@ -53,8 +53,15 @@ ASK = "Now write your reply to the customer."
 SIG = "grouped by the status each record carries"
 
 
-def breakdown_text(tag):
-    """사이드카에서 상태 분해 문장 축자 하나를 꺼낸다(재작성 0·[[03b]])."""
+def breakdown_text(tag, clean=True):
+    """사이드카에서 상태 분해 축자를 꺼낸다(재작성 0·[[03b]]).
+
+    ★`clean=True` 인 이유 (2026-08-11 재측정·C411⒢ 의 [M] 해소): 첫 판은 사이드카 레코드를
+      **통째로** 실었는데 그 1,773자에는 상태 분해 말고 `[ORDER]`(*"아직 못 한다"*) 문장이 함께
+      들어 있었다. 그러면 t0 의 7/8 이 **어느 문장 덕인지** 말할 수 없다. 우리 층 문구는 전부
+      `Error: ` / `Note: ` / `[대문자]` 로 시작하므로 그 경계에서 자른다 — **문서가 아니라 우리가
+      만든 문자열을 자르는 것**이라 [[59]] 와 무관하다.
+    """
     p = "/home/woori/scratch/logs/fb_%s.jsonl" % tag
     for ln in open(p, encoding="utf-8", errors="replace"):
         try:
@@ -62,8 +69,18 @@ def breakdown_text(tag):
         except Exception:
             continue
         t = " ".join((o.get("text") or "").split())
-        if SIG in t and GOLD in t:
+        if SIG not in t or GOLD not in t:
+            continue
+        if not clean:
             return t
+        i = t.rfind("Of the", 0, t.find(SIG))
+        if i < 0:
+            i = max(0, t.find(SIG) - 40)
+        rest = t[i:]
+        cuts = [c for c in (rest.find("Error: "), rest.find("Note: "),
+                            rest.find("[PROTOCOL]"), rest.find("[DISCOVERY"),
+                            rest.find("[PROCEDURE]")) if c > 0]
+        return rest[:min(cuts)].strip() if cuts else rest[:600].strip()
     return ""
 
 
@@ -86,11 +103,13 @@ def main():
     n = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 8
     sims = [s for s in X.load(TAG) if s["task_id"] == TASK
             and (s.get("reward_info") or {}).get("reward") != 1]
-    bd = breakdown_text(TAG)
+    bd = breakdown_text(TAG, clean=True)
+    raw = breakdown_text(TAG, clean=False)
     if not bd:
         print("상태 분해 축자를 못 찾았다 — 중단(지어내지 않는다)")
         return 1
-    print("상태 분해 축자 %d자: %s\n" % (len(bd), bd[:190]))
+    print("정화 축자 %d자: %s" % (len(bd), bd[:230]))
+    print("원본(오염) %d자 — 앞머리: %s\n" % (len(raw), raw[:120]))
     for sim in sims:
         # 손님이 **구체를 요구한 직후**의 답변 자리 — 그 턴이 t1 에서 통과를 만든 자리다
         cut = None
@@ -107,7 +126,8 @@ def main():
         plain = context(sim, cut)
         iso = users(sim, cut) + "\n\n" + ledger_out(sim, cut)
         arms = [("A_LIVE", live),
-                ("B_BREAKDOWN", live + "\n\n[system] " + bd),
+                ("B_CLEAN", live + "\n\n[system] " + bd),        # 상태 분해 **단독**
+                ("B_RAW", live + "\n\n[system] " + raw),         # 첫 판(오염) — 대조로 남긴다
                 ("C_ISO", iso + "\n\n" + bd),
                 ("D_ISO_BARE", iso)]
         print("=" * 96)
