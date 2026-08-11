@@ -1,0 +1,18 @@
+{
+ "active": false,
+ "sha": "f4c32c6b",
+ "tag": "smoke",
+ "reason": "훅 집행 시험",
+ "at": "2026-08-11T16:56:07+09:00",
+ "paths": [
+  "/scripts/distill/tau2/t2_gate_patch.py",
+  "/scripts/distill/tau2/t2_eplan_patch.py",
+  "/scripts/distill/tau2/t2_dominance.py",
+  "/scripts/distill/tau2/t2_search.py",
+  "/scripts/distill/tau2/t2_precedence.py",
+  "/scripts/distill/tau2/t2_source.py",
+  "/scripts/distill/tau2/a2/",
+  "/scripts/distill/tau2/go_stack.sh"
+ ],
+ "released_sha": "f4c32c6b"
+}

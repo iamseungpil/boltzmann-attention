@@ -7557,12 +7557,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             _fbtag = {}
             # ★단계 1 게이트⒝ 계기: **현행 체인이 실제로 말한 표적**을 모은다(설계서 §7e).
             #   `audit()`에 넘겨 `route()` 판정과 갈리는 자리를 세기 위한 것이고, 거동은 안 바꾼다.
+            # ★출처 순서를 **한 벌로** 둔다 (2026-08-11·설계 §5). 아래 배타 체인의 순서와
+            #   같아야 하고, 두 벌이 되면 갈린다([[03b]]). rank = 이 튜플의 색인 + 2
+            #   (1 = do_gate·main_prov 자리).
+            _SRC8 = (("eplan", ep_fb), ("discovery", dd_fb), ("cons", cons_fb),
+                     ("resolve_action", ra_fb), ("toolerr", te_fb), ("wev", wev_fb),
+                     ("transcribe", tr_fb), ("proc", proc_fb), ("resolve_write", rw_fb),
+                     ("toollist", tl_fb), ("signature", sig_fb), ("unlockname", un_fb),
+                     ("prekb", pc_fb), ("dispatch_role", dr_fb), ("prov", pr_fb))
             _chose8 = []
-            for _n8, _v8 in (("eplan", ep_fb), ("discovery", dd_fb), ("cons", cons_fb),
-                             ("resolve_action", ra_fb), ("toolerr", te_fb), ("wev", wev_fb),
-                             ("transcribe", tr_fb), ("proc", proc_fb), ("resolve_write", rw_fb),
-                             ("toollist", tl_fb), ("signature", sig_fb), ("unlockname", un_fb),
-                             ("prekb", pc_fb), ("dispatch_role", dr_fb), ("prov", pr_fb)):
+            for _n8, _v8 in _SRC8:
                 if _v8 is not None and _v8[0] is not None:
                     _fbtag.setdefault(id(_v8[0]), _n8)
             fb = [am]
@@ -7643,6 +7647,39 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _chose8.append((_fbtag.get(id(c), "fb"), _eff_tool_name(c)))
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                       error=True, content=content))
+                # ★배달 계측 (2026-08-11·설계 §5·§7-1·원장 C427) — **거동 불변**.
+                #   문자열도 순서도 안 바꾼다. 세는 것은 하나: *이 호출을 두고 몇 전문가가
+                #   말하려 했고, 누가 이겼고, 누가 밀렸나.*
+                #   왜: 위 `elif` 는 같은 tool_call 에 대해 **하나만** 내보낸다. 그래서 오프라인
+                #   32/32 인 문장이 라이브에서 3/6 만 닿았고(C419⒠), 원인의 절반이 이 배타성인
+                #   것을 오늘에야 코드 추적으로 알았다 — **계수가 없어서 몰랐다.**
+                #   `_chose8`(이긴 쪽)은 이미 있었지만 **밀린 쪽은 아무도 세지 않았다.**
+                if os.environ.get("T2_ROUTE_TRACE", "1") == "1":
+                    try:
+                        _win = _fbtag.get(id(c))
+                        # rank = 체인 위치. `_SRC8` 앞에 **두 분기**가 더 있다
+                        #   (1 `do_gate` · 2 `main_prov`) ⇒ 색인 + 3.
+                        #   ⚠초판은 +2 였고 `test_route_trace.py` 가 잡았다 — 계측이 거짓 rank 를
+                        #   보고하면 C427 을 늦게 발견한 것과 같은 종류의 사고가 된다.
+                        _cands = [(_i9 + 3, _n9) for _i9, (_n9, _v9) in enumerate(_SRC8)
+                                  if _v9 is not None and _v9[0] is c]
+                        if _cands:
+                            import t2_fbsidecar as _fbr
+                            for _rk9, _n9 in _cands:
+                                _fbr.record("route", None, state.messages,
+                                            agent=_n9, rank=_rk9,
+                                            target=_eff_tool_name(c),
+                                            arrived=bool(_win == _n9),
+                                            lost_to=(None if _win == _n9 else _win),
+                                            folded=bool(content == _FB_GENERIC))
+                            if len(_cands) > 1:
+                                print("[T2_ROUTE] %s 경합 %d → %s 승 · 밀림 %s"
+                                      % (_eff_tool_name(c), len(_cands), _win,
+                                         ",".join(n for _r, n in _cands if n != _win)),
+                                      file=_sys.stderr, flush=True)
+                    except Exception as _e9:
+                        print("[T2_ROUTE] 계측 실패(무시): %r" % (_e9,),
+                              file=_sys.stderr, flush=True)
             # ★순서 검사 (거동 변경 0). 층-1 레버들이 `beat(orch=…)`로 등록해 둔 후보를 비우고,
             #   `route()`가 골랐을 층·표적만 남긴다. `speak()`를 실제 출구로 쓰는 것은 순서를
             #   뒤집는 일이라 **먼저 두 판정이 어디서 갈리는지**가 있어야 한다 — 갈리는 자리가
