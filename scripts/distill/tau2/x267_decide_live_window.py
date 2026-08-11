@@ -52,12 +52,22 @@ NOW = "2025-11-14"          # 라이브 로그가 찍은 값 — 프로브가 �
 MARK = "A separate check was run on the policy documents"
 
 
+# ★창 복원 — 라이브 로그의 `대화텍스트 N` 이 곧 발화 시점이다.
+#   그 수는 `_tx`(role in user|tool)의 길이이고 엔진이 그 자리에서 인쇄한다. 결정 문장 자체는
+#   **비커밋 리마인더**로 나가 궤적에 안 남으므로(사이드카 kind=`reminder-user`) 문자열로는
+#   못 찾는다 — 초판이 그래서 0건이었다. 수는 로그가 준다: 프로브가 지어내는 값이 0.
+LIVE = {"task_070": [21], "task_071": [28, 29]}       # bank_all6b_20260811.log:496·878·909
+
+
 def firing_points(sim):
-    """엔진이 결정 문장을 **실제로 내보낸** 메시지 색인들 (문자열로 찾는다)."""
-    out = []
+    """`대화텍스트 N` → 메시지 색인. user|tool 누계가 N 이 되는 첫 자리."""
+    want = LIVE.get(sim.get("task_id")) or []
+    out, seen = [], 0
     for i, m in enumerate(sim.get("messages") or []):
-        if MARK in str(m.get("content") or ""):
-            out.append(i)
+        if m.get("role") in ("user", "tool"):
+            seen += 1
+            if seen in want:
+                out.append(i + 1)
     return out
 
 
