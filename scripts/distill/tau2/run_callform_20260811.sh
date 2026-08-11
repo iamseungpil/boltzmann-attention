@@ -44,8 +44,17 @@ TAG="${3:-bank_cf_20260811}"
 LOG=/home/woori/scratch/logs
 mkdir -p "$LOG"
 
+# ★가드는 **같은 포트**일 때만 거부한다 (2026-08-11·사용자 지시 *"8140 GPU0 에서만 실행하라"*).
+#   구판은 t2_run_gated 가 하나라도 있으면 거부했는데, 이 서버는 GPU 두 장에 vLLM 두 개(8140·8141)
+#   라 **다른 GPU 의 런까지 막았다**. 겹치면 안 되는 것은 프로세스가 아니라 **모델 서버**다.
+#   ⚠유료 예산은 user-sim 쪽에서 공유된다([[09]]) — 병렬은 사용자 승인이 있을 때만.
+PORT=8140
+if ps -eo cmd | grep -v grep | grep "t2_run_gated.py" | grep -q "localhost:${PORT}/"; then
+  echo "[run] REFUSING: 포트 ${PORT} 에서 t2_run_gated 가 이미 돌고 있다." >&2; exit 1
+fi
 if ps -eo cmd | grep -v grep | grep -q "t2_run_gated.py"; then
-  echo "[run] REFUSING: t2_run_gated 가 이미 돌고 있다." >&2; exit 1
+  echo "[run] NOTE: 다른 포트에서 유료 런이 돌고 있다(승인된 병렬):" >&2
+  ps -eo cmd | grep -v grep | grep "t2_run_gated.py" | grep -o "save_to [a-z0-9_]*" >&2
 fi
 if [ -e "$LOG/${TAG}.log" ]; then
   echo "[run] REFUSING: $LOG/${TAG}.log 가 이미 있다. 다른 TAG 를 쓰라." >&2; exit 1
