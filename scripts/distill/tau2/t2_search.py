@@ -30,7 +30,8 @@ import os
 import re
 
 __all__ = ["linked_docs", "read_docs", "drop_expired", "coverage", "as_material",
-           "docs_for", "declared_windows", "index_coverage"]
+           "docs_for", "declared_windows", "index_coverage", "material_for",
+           "corpus_from_env"]
 
 _DATE = re.compile(r"^\s*(\d{4})-(\d{2})-(\d{2})")
 
@@ -112,11 +113,43 @@ def coverage(a2, doc_dir):
     return len(linked), total, (len(linked) / total if total else 0.0)
 
 
-def read_docs(doc_ids, doc_dir):
-    """문서 id → {id: 본문}. 없는 id 는 **조용히 건너뛰지 않고** 표시한다."""
+def corpus_from_env(env):
+    """환경이 **이미 메모리에 들고 있는** 문서 → `{id: 본문}` (없으면 빈 dict).
+
+    ★왜 이 경로인가 ([[05]]): 코퍼스 경로를 엔진에 박으면 그 순간 도메인-특화가 순증한다.
+      하네스는 `KnowledgeBase.documents` 를 만들어 도구에 넘겨 두므로(`environment.py`
+      `build_tools(variant, db, knowledge_base, …)`) **같은 것을 그대로 읽으면** 된다 —
+      새 I/O 도 새 상수도 없다. 찾지 못하면 빈 dict 이고, 그러면 검색 에이전트는 침묵한다.
+    ⚠속성 이름은 하네스 사정이라 몇 가지를 시도한다. 못 찾는 것은 **조용한 성공보다 낫다**.
+    """
+    seen = []
+    for holder in (env, getattr(env, "tools", None), getattr(env, "user_tools", None)):
+        if holder is None:
+            continue
+        for attr in ("knowledge_base", "kb", "_knowledge_base", "_kb"):
+            kb = getattr(holder, attr, None)
+            docs = getattr(kb, "documents", None)
+            if isinstance(docs, dict) and docs:
+                for k, v in docs.items():
+                    seen.append((str(k), str(getattr(v, "content", v) or "")))
+                return dict(seen)
+    return {}
+
+
+def read_docs(doc_ids, doc_dir=None, corpus=None):
+    """문서 id → {id: 본문}. 없는 id 는 **조용히 건너뛰지 않고** 표시한다.
+
+    `corpus` 를 주면 그것(=환경이 든 문서)에서 읽고, 없으면 `doc_dir` 에서 읽는다.
+    """
     out, missing = {}, []
     for d in doc_ids:
-        p = os.path.join(doc_dir, "%s.json" % d)
+        if corpus is not None:
+            if d in corpus:
+                out[d] = str(corpus[d] or "")
+            else:
+                missing.append(d)
+            continue
+        p = os.path.join(doc_dir or "", "%s.json" % d)
         if not os.path.exists(p):
             missing.append(d)
             continue
@@ -151,7 +184,8 @@ def drop_expired(docs, spans, now):
     return keep, dropped
 
 
-def material_for(a2, group, doc_dir, now, per_doc=400, windowed="all"):
+def material_for(a2, group, doc_dir=None, now=None, per_doc=400, windowed="general",
+                 corpus=None):
     """검색 에이전트의 결정론부 **전체 체인**: 색인 → 읽기 → 만료 제거 → 축자 재료.
 
     ## 왜 이 모양인가 (x243·n=8 — 재고 결정론을 **줄인** 결과)
@@ -171,8 +205,13 @@ def material_for(a2, group, doc_dir, now, per_doc=400, windowed="all"):
         `_general_` 쪽에 살기 때문에 군만 읽으면 놓친다(070/071 실측).
       · 뺀 것은 **이유와 함께** 남긴다(C327 — 조용히 빼지 않는다).
 
-    `windowed`: `"all"` = 코퍼스의 효력 있는 유효창 문서 전부 · `"general"` = `_general_` 풀만 ·
+    `windowed`: **기본 `"general"`** = `_general_` 풀의 효력 있는 문서만 · `"all"` = 전부 ·
     `"none"` = 안 싣는다(부정 통제).
+
+    ★기본이 `"general"` 인 이유 (x248·071 실물·n=8): 두 축 모두 **8/8** 인데 `"all"`(다른 상품군의
+      효력 있는 고지까지)은 **7/8·4/8 로 떨어진다** — 답이 섞인다(`Sky Blue Gold Saver Account`).
+      *더하기는 해롭다*(C404)의 또 한 사례이므로 **좁힌 판을 기본**으로 둔다.
+    `corpus` 를 주면 디스크 대신 **환경이 든 문서**에서 읽는다(`corpus_from_env`).
 
     ⚠엔진은 문서 내용을 해석하지 않는다([[59]]). ⚠구간을 모르는 문서는 **남긴다**([[25]]).
     """
@@ -186,7 +225,7 @@ def material_for(a2, group, doc_dir, now, per_doc=400, windowed="all"):
         for d in sorted(pool):
             if d not in ids:
                 ids.append(d)
-    read, missing = read_docs(ids, doc_dir)
+    read, missing = read_docs(ids, doc_dir, corpus)
     keep, dropped = drop_expired(read, declared_windows(a2, read), now)
     return as_material(keep, dropped, per_doc=per_doc), {
         "linked": len(ids), "read": len(read), "missing": missing,

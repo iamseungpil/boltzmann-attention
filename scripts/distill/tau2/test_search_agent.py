@@ -143,5 +143,40 @@ mat0, info0 = S.material_for(A2C, "g", d2, "2025-11-14", windowed="none")
 chk(info0["kept"] == 2 and "PROMOTION" not in mat0, "부정 통제 — 유효창을 안 실으면 고지가 없다")
 chk(S.material_for(A2C, "g", d2, None)[1]["kept"] == 4, "현재 시각을 모르면 아무것도 안 뺀다")
 
-print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 27 - len(FAILED), 27))
+print("\n§9 환경 어댑터 — 경로를 박지 않고 **환경이 든 문서**를 읽는다 ([[05]])")
+
+
+class _Doc(object):
+    def __init__(self, c):
+        self.content = c
+
+
+class _KB(object):
+    documents = {"doc_g_sky_001": _Doc("Sky Blue: APY 1.25%.")}
+
+
+class _Tools(object):
+    knowledge_base = _KB()
+
+
+class _Env(object):
+    tools = _Tools()
+
+
+cor = S.corpus_from_env(_Env())
+chk(cor == {"doc_g_sky_001": "Sky Blue: APY 1.25%."},
+    "도구가 든 KB 에서 문서를 꺼낸다 (%s)" % list(cor))
+chk(S.corpus_from_env(object()) == {}, "못 찾으면 빈 dict — 조용한 성공보다 낫다")
+got9, miss9 = S.read_docs(["doc_g_sky_001", "doc_none"], corpus=cor)
+chk(list(got9) == ["doc_g_sky_001"] and miss9 == ["doc_none"],
+    "corpus 경로도 없는 id 를 표시한다")
+mat9, info9 = S.material_for(A2C, "g", corpus={
+    "doc_g_sky_001": "Sky Blue.", "doc_g_lime_001": "Lime Green.",
+    "doc_bank_accounts_bank_accounts_(general)_013": "PROMOTION ACTIVE: prefer Sky Blue.",
+    "doc_bank_accounts_bank_accounts_(general)_014": "PROMOTION: prefer Lime Green."},
+    now="2025-11-14")
+chk(info9["kept"] == 3 and "prefer Lime Green" not in mat9,
+    "체인이 corpus 로도 그대로 돈다 (%s)" % info9)
+
+print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 31 - len(FAILED), 31))
 sys.exit(1 if FAILED else 0)
