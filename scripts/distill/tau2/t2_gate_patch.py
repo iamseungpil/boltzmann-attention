@@ -2479,9 +2479,28 @@ def _search_material(agent, a2, messages):
     _now_raw = _lg.formalize_now(agent, _la, _UM, _tx, _nspec) if _nspec else None
     _now = _ts.to_iso(_now_raw, tuple((_nspec or {}).get("date_formats")
                                       or ("%m/%d/%Y", "%Y-%m-%d")))
+    # ★`now` 를 모르면 **내보내지 않는다** (2026-08-11·라이브 4회째 교정).
+    #   이유는 규율이 아니라 **측정**이다: 만료를 안 뺀 재료는 x248 의 `W_EXPIRED` 팔과 같은
+    #   구성이고 그 팔은 savings 축에서 **0/8** 이었다(checking 은 8/8 — 한 축만 봤으면 못 봤다).
+    #   즉 *엔진이 제 일을 못 하는 상태의 재료는 이득이 아니라 해악*이다.
+    #   ⇒ 침묵하고 **잠그지도 않는다**: 호출부는 `_m3` 가 비면 `_t2_searchagent_fired` 를 안 세우므로
+    #     에이전트가 `get_current_time` 을 부른 **다음 결정점에서 다시 시도**한다. 첫 판은 이 구분이
+    #     없어 `now` 미확정인 첫 자리에서 내보내고 그대로 잠겼다(라이브 `뺀 것 0`).
+    #   ⚠[[25]] 와도 같은 방향이다 — 모르면 빼지 않고, 뺄 수 없으면 말하지 않는다.
+    if not _now:
+        print("[T2_SEARCH_AGENT] now 미확정 — 침묵(잠그지 않음·다음 결정점에서 재시도) "
+              "(스펙 %s · 원값 %r · 대화텍스트 %d)"
+              % ("있음" if _nspec else "**없음**", _now_raw, len(_tx)),
+              file=sys.stderr, flush=True)
+        return ""
     _mat, _info = _ts.material_for(a2, _g, now=_now, corpus=_corpus)
-    print("[T2_SEARCH_AGENT] group=%s · 문서 %d(뺀 것 %d: %s) · now=%s"
-          % (_g, _info["kept"], len(_info["dropped"]), ",".join(_info["dropped"])[:80], _now),
+    # ★`now` 가 없으면 **엔진의 유일한 일이 죽는다** — 그런데 `formalize_now` 는 실패를 인쇄하지
+    #   않아서 `뺀 것 0` 한 글자가 유일한 단서였다(2026-08-11 라이브에서 두 판을 이걸로 태웠다).
+    #   [[64]] 를 우리 로그에도 적용한다: **무엇이 없어서 못 했는지**를 말한다.
+    print("[T2_SEARCH_AGENT] group=%s · 문서 %d(뺀 것 %d: %s) · now=%s "
+          "(스펙 %s · 원값 %r · 대화텍스트 %d)"
+          % (_g, _info["kept"], len(_info["dropped"]), ",".join(_info["dropped"])[:80], _now,
+             "있음" if _nspec else "**없음**", _now_raw, len(_tx)),
           file=sys.stderr, flush=True)
     if not _mat:
         return ""

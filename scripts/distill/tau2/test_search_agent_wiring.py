@@ -74,6 +74,18 @@ _seg = SRC[SRC.find("def _search_material("):][:2600]
 chk("_sys." not in _seg,
     "모듈 수준 헬퍼가 함수-지역 별칭(`_sys`)을 쓰지 않는다 — 그게 死배선의 원인이었다")
 
+print("\n§2d now 를 모르면 침묵하고 **잠그지 않는다** (2026-08-11 라이브 4회째)")
+# 근거는 규율이 아니라 측정이다: 만료를 안 뺀 재료 = x248 `W_EXPIRED` 팔 = savings **0/8**.
+# 그런 재료는 이득이 아니라 해악이므로, 뺄 수 없으면 아무것도 안 보낸다.
+_seg3 = SRC[SRC.find("def _search_material("):][:4600]
+chk(re.search(r"if not _now:\s*\n\s*print\(", _seg3) is not None,
+    "`now` 가 없으면 재료를 만들기 **전에** 반환한다")
+chk("잠그지 않음" in _seg3, "마크가 '잠그지 않는다'를 명시한다 (다음 결정점 재시도)")
+chk(re.search(r"_m3 = _search_material\(self, a2, state\.messages\)\s*\n\s*if _m3:\s*\n\s*"
+              r"self\._t2_searchagent_fired = 1", SRC) is not None,
+    "호출부는 **재료가 나왔을 때만** 1회 가드를 세운다")
+chk("스펙 %s · 원값 %r" in _seg3, "`now` 실패 사유를 인쇄한다 ([[64]] 를 우리 로그에도)")
+
 print("\n§3 A2 선언 — 두 층에 같은 문구가 있다 ([[24]])")
 keys = ("group_prompt", "doc_decide_prompt", "decided_by_docs_text")
 layers = []
@@ -100,5 +112,5 @@ chk("decide_from_docs" in seg and "formalize_group" in seg, "고르는 일은 �
 chk(not re.search(r"\bsorted\(.*reverse=True\)\[0\]|\bmax\(", seg),
     "엔진이 최댓값·순위로 답을 집지 않는다 (⛔0 ④)")
 
-print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 21 - len(FAILED), 21))
+print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 25 - len(FAILED), 25))
 sys.exit(1 if FAILED else 0)
