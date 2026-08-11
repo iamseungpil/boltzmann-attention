@@ -88,7 +88,9 @@ def main():
     cut = 16
     live = ctx(sim, cut)
 
-    mat, info = S.material_for(a2, GROUP, DOCS, NOW)
+    # ⚠`a2` 는 **함수**다(x248 축자) — 첫 판이 dict 로 넘겨 죽었다.
+    A = a2()
+    mat, info = S.material_for(A, GROUP, DOCS, NOW)
     has = GOLD in (mat or "")
     print("재료 %d자 · info=%s · **gold 포함 %s**"
           % (len(mat or ""), json.dumps(info, ensure_ascii=False)[:160], has))
