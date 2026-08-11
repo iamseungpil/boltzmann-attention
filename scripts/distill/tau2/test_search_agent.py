@@ -166,6 +166,42 @@ class _Env(object):
 cor = S.corpus_from_env(_Env())
 chk(cor == {"doc_g_sky_001": "Sky Blue: APY 1.25%."},
     "도구가 든 KB 에서 문서를 꺼낸다 (%s)" % list(cor))
+
+
+# ★라이브가 실제로 쓰는 모양 (2026-08-11 두 번째 死배선): 툴킷은 KB 가 아니라 **파이프라인**을
+#   들고 있고 문서는 `state["doc_content_map"]` / `state["documents"]` 에 산다
+#   (`tau2/knowledge/pipeline.py`). 이름으로 찍던 첫 판은 라이브에서 8회 *"못 찾음"* 으로 죽었다.
+#   ⇒ **그 경로 그대로**를 검정에 박는다(깊이 4).
+class _Pipe(object):
+    state = {"doc_content_map": {"doc_x_1": "AAA", "doc_x_2": "BBB"}}
+
+
+class _RealTools(object):
+    _kb_pipeline = _Pipe()
+
+
+class _RealEnv(object):
+    tools = _RealTools()
+
+
+chk(S.corpus_from_env(_RealEnv()) == {"doc_x_1": "AAA", "doc_x_2": "BBB"},
+    "**라이브 경로**(tools→_kb_pipeline→state→doc_content_map·4단)를 찾는다")
+
+
+class _Pipe2(object):
+    state = {"documents": [{"id": "doc_x_1", "text": "AAA"}, {"id": "doc_x_2", "text": "BBB"}]}
+
+
+class _RealTools2(object):
+    _kb_pipeline = _Pipe2()
+
+
+class _RealEnv2(object):
+    tools = _RealTools2()
+
+
+chk(S.corpus_from_env(_RealEnv2()) == {"doc_x_1": "AAA", "doc_x_2": "BBB"},
+    "리스트형(`state['documents']`)도 찾는다")
 chk(S.corpus_from_env(object()) == {}, "못 찾으면 빈 dict — 조용한 성공보다 낫다")
 got9, miss9 = S.read_docs(["doc_g_sky_001", "doc_none"], corpus=cor)
 chk(list(got9) == ["doc_g_sky_001"] and miss9 == ["doc_none"],
@@ -178,5 +214,5 @@ mat9, info9 = S.material_for(A2C, "g", corpus={
 chk(info9["kept"] == 3 and "prefer Lime Green" not in mat9,
     "체인이 corpus 로도 그대로 돈다 (%s)" % info9)
 
-print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 31 - len(FAILED), 31))
+print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 33 - len(FAILED), 33))
 sys.exit(1 if FAILED else 0)

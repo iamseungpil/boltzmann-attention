@@ -121,19 +121,55 @@ def corpus_from_env(env):
       하네스는 `KnowledgeBase.documents` 를 만들어 도구에 넘겨 두므로(`environment.py`
       `build_tools(variant, db, knowledge_base, …)`) **같은 것을 그대로 읽으면** 된다 —
       새 I/O 도 새 상수도 없다. 찾지 못하면 빈 dict 이고, 그러면 검색 에이전트는 침묵한다.
-    ⚠속성 이름은 하네스 사정이라 몇 가지를 시도한다. 못 찾는 것은 **조용한 성공보다 낫다**.
+    ★**이름 추측 → 구조 탐색**으로 바꿨다 (2026-08-11·라이브 실패 2회째): 첫 판은
+      `knowledge_base`·`kb` 같은 속성 이름을 찍었는데 **툴킷은 KB 를 안 들고 있다** — 들고 있는
+      것은 파이프라인이고(`_kb_pipeline`), 문서는 그 안의 `state["documents"]` /
+      `state["doc_content_map"]` 에 산다(`tau2/knowledge/pipeline.py`). 라이브에서
+      *"환경에서 문서를 못 찾음"* 8회로 죽었다. 하네스 내부 이름에 매이지 않도록 **모양으로**
+      찾는다: 얕은 깊이에서 `{id: 본문}` 또는 `[{id,text}]` 를 지닌 것을 집는다.
+    ⚠깊이 5·폭 60 으로 묶는다(순환·거대 객체 방어). 실제 경로는 `tools → _kb_pipeline →
+      state → doc_content_map` 로 **4단**이라 3단 제한은 못 닿았다(첫 판의 두 번째 실패).
+    ⚠못 찾으면 빈 dict — 침묵이 조용한 성공보다 낫다.
     """
-    seen = []
-    for holder in (env, getattr(env, "tools", None), getattr(env, "user_tools", None)):
-        if holder is None:
+    def _as_map(v):
+        if isinstance(v, dict) and v:
+            ks = list(v)[:3]
+            if all(isinstance(k, str) and str(k).startswith("doc_") for k in ks):
+                first = v[ks[0]]
+                if isinstance(first, str):
+                    return {str(k): str(x or "") for k, x in v.items()}
+                if hasattr(first, "content"):
+                    return {str(k): str(getattr(x, "content", "") or "") for k, x in v.items()}
+        if isinstance(v, list) and v and isinstance(v[0], dict):
+            f = v[0]
+            key = "text" if "text" in f else ("content" if "content" in f else None)
+            if key and "id" in f:
+                return {str(d.get("id")): str(d.get(key) or "") for d in v if d.get("id")}
+        return None
+
+    seen, queue, depth = set(), [(env, 0)], 0
+    while queue:
+        obj, d = queue.pop(0)
+        if obj is None or d > 5 or id(obj) in seen:
             continue
-        for attr in ("knowledge_base", "kb", "_knowledge_base", "_kb"):
-            kb = getattr(holder, attr, None)
-            docs = getattr(kb, "documents", None)
-            if isinstance(docs, dict) and docs:
-                for k, v in docs.items():
-                    seen.append((str(k), str(getattr(v, "content", v) or "")))
-                return dict(seen)
+        seen.add(id(obj))
+        got = _as_map(obj)
+        if got:
+            return got
+        holders = []
+        if isinstance(obj, dict):
+            holders = list(obj.values())[:40]
+        else:
+            for attr in dir(obj) if d else ("tools", "user_tools", "environment", "db"):
+                if attr.startswith("__"):
+                    continue
+                try:
+                    holders.append(getattr(obj, attr))
+                except Exception:
+                    continue
+        for h in holders[:60]:
+            if isinstance(h, (dict, list)) or hasattr(h, "__dict__"):
+                queue.append((h, d + 1))
     return {}
 
 
