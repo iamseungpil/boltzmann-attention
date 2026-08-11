@@ -2295,6 +2295,53 @@ def _sibling_wait(tag, flagged, what):
             % (tag, name, what))
 
 
+def _search_material(agent, a2, messages):
+    """검색 에이전트의 **한 줄 진입점** — 재료가 원장이 아니라 **문서** 쪽에 있는 계열용.
+
+    ① LLM 이 문서군을 고른다(닫힌 집합 = A3 `doc_index` 키) → ② 엔진이 색인대로 읽고 **효력
+    없는 문서를 뺀다** → ③ LLM 이 남은 것 중 고른다 → 그 답을 A2 문구에 실어 돌려준다.
+
+    측정 (`x248`·`x250`·071 실물·n=8·프로덕션 경로): 두 축 **8/8**. 부정 통제 — 문서만 주면
+    checking **0/8**, 만료를 안 빼면 savings **0/8**. ⇒ 엔진의 유일한 일이 값을 산다.
+
+    ⚠엔진은 고르지 않는다([[10]]·⛔0 ③). ⚠재료를 못 만들면 **빈 문자열**(침묵).
+    ⚠코퍼스는 환경이 든 것을 읽는다 — 경로 하드코딩 0([[05]]).
+    """
+    if not a2:
+        return ""
+    import t2_search as _ts
+    _po = (a2.get("policy_ontology") or {})
+    _groups = list(_po.get("doc_index") or {})
+    if not (_groups and _po.get("group_prompt") and _po.get("doc_decide_prompt")
+            and _po.get("decided_by_docs_text")):
+        return ""
+    _env = getattr(getattr(agent, "_t2_orch", None), "environment", None)
+    _corpus = _ts.corpus_from_env(_env)
+    if not _corpus:
+        print("[T2_SEARCH_AGENT] 환경에서 문서를 못 찾음 — 침묵", file=_sys.stderr, flush=True)
+        return ""
+    _tx = [_content_str(_m) for _m in (messages or [])
+           if getattr(_m, "role", None) in ("user", "tool")]
+    _ask = " --- ".join(_tx[-3:])[-6000:]
+    import tau2.agent.llm_agent as _la
+    from tau2.data_model.message import UserMessage as _UM
+    _g = _ts.formalize_group(agent, _la, _UM, _po, [_ask], _groups)
+    if not _g:
+        return ""
+    import t2_ledger as _lg
+    _now = _lg.formalize_now(agent, _la, _UM, _tx, _po) or None
+    _mat, _info = _ts.material_for(a2, _g, now=_now, corpus=_corpus)
+    print("[T2_SEARCH_AGENT] group=%s · 문서 %d(뺀 것 %d: %s) · now=%s"
+          % (_g, _info["kept"], len(_info["dropped"]), ",".join(_info["dropped"])[:80], _now),
+          file=_sys.stderr, flush=True)
+    if not _mat:
+        return ""
+    _choice = _ts.decide_from_docs(agent, _la, _UM, _po, _mat, _ask)
+    if not _choice:
+        return ""
+    return _po["decided_by_docs_text"].format(choice=_choice)
+
+
 def _unlocked_names(messages, a2=None):
     """Discoverable names this conversation has asked to unlock (순수함수·리터럴 0).
 
@@ -6695,6 +6742,31 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                         _m3 = ""
                                         print("[T2_DECIDE_ANY] 건너뜀(무발화): %r" % (_m3e,),
                                               file=_sys.stderr, flush=True)
+                                    # ★검색 에이전트 — **두 번째 재료 소스**(2026-08-11·C418·
+                                    #   `T2_SEARCH_AGENT`·기본 OFF·설계서 §3-3 그대로).
+                                    #   `_limit_reduce_text` 는 **원장**이 있어야 말한다. 070/071 은
+                                    #   그 원장이 없어 무발화였다(handoff §7 의 M3 무발화). 재료가
+                                    #   문서 쪽에 있는 계열은 여기서 채운다.
+                                    #   측정(`x248`·`x250`·071 실물·n=8·**프로덕션 경로**): 두 축 8/8 —
+                                    #   checking `Sky Blue` · savings `Gold Saver Account`. 만료로
+                                    #   빠지는 것이 정확히 두 태스크를 오답으로 끌던 고지 둘이다.
+                                    #   부정 통제: 문서만(고지 없이) checking **0/8** · 만료를 안 빼면
+                                    #   savings **0/8** ⇒ **엔진의 유일한 일(만료 제거)이 값을 산다.**
+                                    #   ⚠분담: 군을 고르는 것도 답을 고르는 것도 **LLM** 이다.
+                                    #     엔진은 **읽고·비교하고·자르기**만 한다(⛔0 ③) — 순위도
+                                    #     최댓값도 내지 않고, 지목 문장도 만들지 않는다.
+                                    #   ⚠코퍼스는 **환경이 든 것**을 읽는다 — 경로 하드코딩 0([[05]]).
+                                    #   ⚠한 sim 에 **한 번**만(재료는 대화와 무관한 정책 상수라 반복
+                                    #     발화가 이득이 아니다·[[57]]).
+                                    if (not _m3 and os.environ.get("T2_SEARCH_AGENT") == "1"
+                                            and not getattr(self, "_t2_searchagent_fired", 0)):
+                                        try:
+                                            _m3 = _search_material(self, a2, state.messages)
+                                            if _m3:
+                                                self._t2_searchagent_fired = 1
+                                        except Exception as _sae:
+                                            print("[T2_SEARCH_AGENT] 건너뜀(무발화): %r" % (_sae,),
+                                                  file=_sys.stderr, flush=True)
                                     if _m3:
                                         _fb_ar = _fb_ar + "\n" + _m3
                                         print("[T2_DECIDE_ANY] 에이전트-실행 결정점에 재료 동반 "

@@ -6,8 +6,9 @@ r"""x249 — 검색 에이전트의 **문구 두 개**를 A2 에 선언한다 (�
 엔진은 문구를 짓지 않는다. `t2_search.formalize_group` / `decide_from_docs` 는 A2 가 준 템플릿을
 포맷할 뿐이고, 없으면 **침묵한다**. 그래서 두 키를 선언한다:
 
-    group_prompt        손님의 말 → 문서군 하나 (닫힌 집합 = A3 `doc_index` 키)
-    doc_decide_prompt   요청 + 재료(격리) → 이름 하나
+    group_prompt          손님의 말 → 문서군 하나 (닫힌 집합 = A3 `doc_index` 키)
+    doc_decide_prompt     요청 + 재료(격리) → 이름 하나
+    decided_by_docs_text  그 답을 메인에 싣는 문장 (099/100 의 `decided_text` 와 같은 규약)
 
 ## 문구가 왜 이 모양인가 (측정된 구성 그대로 · x248·n=8·두 축 8/8)
 
@@ -48,6 +49,12 @@ GROUP_PROMPT = (
     "Reply with the group name only, or 'none' if none of them covers it."
 )
 
+DECIDED_TEXT = (
+    "\nA separate check was run on the policy documents on record, with this request and nothing "
+    "else from this conversation in front of it. Documents whose stated period does not include "
+    "today were excluded before it answered. It answers: {choice}."
+)
+
 DECIDE_PROMPT = (
     "{ask}\n\n"
     "Policy documents on record (verbatim; anything excluded is listed with the reason):\n"
@@ -70,7 +77,8 @@ def main():
     ap.add_argument("--apply", action="store_true")
     a = ap.parse_args()
     print("group_prompt %d자 · doc_decide_prompt %d자" % (len(GROUP_PROMPT), len(DECIDE_PROMPT)))
-    for name, t in (("group_prompt", GROUP_PROMPT), ("doc_decide_prompt", DECIDE_PROMPT)):
+    for name, t in (("group_prompt", GROUP_PROMPT), ("doc_decide_prompt", DECIDE_PROMPT),
+                    ("decided_by_docs_text", DECIDED_TEXT)):
         print("\n--- %s\n%s" % (name, t))
     if not a.apply:
         print("\n(--apply 없이는 쓰지 않는다)")
@@ -86,6 +94,7 @@ def main():
         po = doc["policy_ontology"]
         po["group_prompt"] = GROUP_PROMPT
         po["doc_decide_prompt"] = DECIDE_PROMPT
+        po["decided_by_docs_text"] = DECIDED_TEXT
         po["_note_search_prompts"] = NOTE
         out = json.dumps(doc, ensure_ascii=False, indent=1) + ("\n" if txt.endswith("\n") else "")
         io.open(p, "w", encoding="utf-8", newline="").write(out)
