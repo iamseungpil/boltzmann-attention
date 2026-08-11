@@ -1181,6 +1181,74 @@ def _write_arg_ground_deny(messages, tc, specs):
     return None
 
 
+# ─── ★T2_ARG_EMPTY (2026-08-11 C419·010 t2·[[64]] 의 짝 문제) ───
+# 010 t2 는 `log_verification(..., date_of_birth="", ...)` 한 칸으로 죽었다. 값은 대화에 있다
+#   (turn 9 레코드 축자 `date_of_birth: 04/17/1979`) — 직전에 손님이 *"생일은 채팅으로 주기
+#   싫다"* 고 말했고 에이전트가 그것을 **"우리도 그 값이 없다"** 로 옮겼다.
+# **아무도 안 막았다**: `_write_arg_ground_deny` 는 *"값 없음 = skip"*(:1149) 이라 빈 값이 구조적으로
+#   통과하고, `grounded_args` 는 `time_verified` 하나뿐이다. 즉 *근거 없는 값*을 보는 규칙은 있는데
+#   **필수 인자가 비었다**를 보는 규칙이 없었다(C416⒜ 가 남긴 질문).
+# 격리 인과(x250·n=8·010 t2 궤적): `A_LIVE` EMPTY **8/8**(결손 완전 재현) · **`B_NAME`(빈 인자를
+#   이름으로 짚는 거부) HIT 8/8** · `C_GENERIC`(이름 없는 거부) 0/8 · `D_FREE`(우리 문장 0) 0/8.
+#   ⇒ 뺄셈도 문맥 축소도 아니고 **거부가 이름을 대는 것** 하나가 산다([[64]]·[[57]] 부정통제 포함).
+# [[05]] 3질문: (1)도메인-특화 순증? No — 필수 인자 목록은 **env 도구 스키마**(`parameters.required`)
+#   에서 기계 도출한다(A2 리터럴 0·ABox-swap 불변). 문구는 A2 `arg_empty.feedback`(슬롯만).
+#   (2)유동판단 동결? No — 엔진은 *비었다*만 말하고 **값은 주지 않는다**; 무엇을 채울지(또는 아예
+#   기록하지 않을지)는 모델이 고른다. (3)스캐폴드가 write 수행? No — 거부뿐이고 재발화는 모델.
+# ⚠보수적으로 좁힌다: **키가 있고 값이 빈 문자열**일 때만. 키 부재·0·False 는 건드리지 않는다
+#   (false-block 회피). 중첩 디스패처 인자도 WAG 와 같은 방식으로 unwrap 한다.
+ARG_EMPTY_FEEDBACK = ("Error: [ARG-EMPTY] the call to {tool} left the required argument(s) {args} "
+                      "as an empty string. An empty string is not a value. Re-issue the call with "
+                      "{args} filled in, or do not file the record at all.")
+
+
+def _schema_required(agent, name):
+    """이 도구가 **필수**라고 선언한 인자 이름들 — 근거는 env 스키마뿐(도메인 리터럴 0)."""
+    cache = getattr(agent, "_t2_schema_req", None)
+    if cache is None:
+        cache = {}
+        for t in (getattr(agent, "tools", None) or []):
+            try:
+                sc = t.openai_schema
+                fn = sc.get("function") if isinstance(sc.get("function"), dict) else sc
+                nm = fn.get("name")
+                rq = ((fn.get("parameters") or {}).get("required")) or []
+                if nm:
+                    cache[nm] = [str(x) for x in rq]
+            except Exception:
+                pass
+        agent._t2_schema_req = cache
+    return cache.get(name) or []
+
+
+def _arg_empty_deny(agent, tc, a2=None, applies_to=None):
+    """선언된 write 의 **필수 인자가 빈 문자열**이면 그 이름을 대고 거부한다(값 0·지시 0)."""
+    name = _eff_tool_name(tc)
+    if applies_to and name not in applies_to:
+        return None
+    req = _schema_required(agent, name)
+    if not req:
+        return None
+    args = _args_dict(tc)
+    inner = {}
+    for vv in args.values():                     # 중첩 JSON-문자열 인자(디스패처형 도구·WAG 동형)
+        if isinstance(vv, str) and vv.strip().startswith("{"):
+            try:
+                j = json.loads(vv)
+                if isinstance(j, dict):
+                    inner.update(j)
+            except Exception:
+                pass
+    for k2, v2 in args.items():
+        if not isinstance(v2, (dict, list)):
+            inner.setdefault(k2, v2)
+    bad = [k for k in req if isinstance(inner.get(k), str) and not inner[k].strip()]
+    if not bad:
+        return None
+    tpl = str((((a2 or {}).get("arg_empty") or {}).get("feedback")) or ARG_EMPTY_FEEDBACK)
+    return tpl.replace("{tool}", str(name)).replace("{args}", ", ".join("'%s'" % b for b in bad))
+
+
 # ─── ★T2_HAVE_VALUE (2026-07-23 C115·"have-value → act" 일반레버) ───
 # 통합 통찰(시각054·CLI052·last-4 039·flail050 = 한 가족): 에이전트가 write W의 필수 인자 A를
 #   *이미 대화에 갖고 있는데도* 재요청·재확인을 반복하고 W를 재시도 안 함(temp0 고착). 개별 fix
@@ -2181,6 +2249,70 @@ def _agent_discoverable(env):
         return set(tk.get_discoverable_tools()) if tk is not None else set()
     except Exception:
         return set()
+
+
+# ─── ★T2_CALL_FORM (2026-08-11 C418·099·[[64]]) ───
+# 우리 `[ORDER]` 는 선행 요건을 **부를 수 없는 이름**으로 말한다: `(do it with:
+#   get_all_user_accounts_by_user_id)` · `... has not been called` · 프런티어 목록. 이 env 의
+#   발견형 도구는 도구 목록에 서지 않고 **디스패처로만** 불린다. C300 이 프런티어 이름을
+#   접미사형으로 고쳤지만 **호출 형식**은 아직 아무 데서도 말하지 않는다 ⇒ 모델이 할 수 있는
+#   최선이 `unlock_...` 이고, 그러고 나면 같은 요구가 글자 그대로 또 온다(C414 의 자기재생산).
+# 격리 인과(x249·n=8·099 실패 궤적 2개): `A_LIVE` 5/8·3/8 → **`B_CALLFORM` 8/8·8/8** ·
+#   `C_DROP`(그 문장을 뺌) 5/8·3/8(=A) · `D_FREE` 2/8·8/8. **오답의 모양이 진단 그대로다** —
+#   실패는 전부 접미사 이름을 **직접 호출**하려는 시도다(도구 목록에 없어 죽는다).
+#   ⇒ 이번 처방은 뺄셈([[63]])이 아니라 **이름 대기**([[64]])다.
+# [[05]] 3질문: (1)도메인-특화 순증? No — 디스패처·잠금 도구 이름도, 발견형 집합도, 접미사 실명도
+#   전부 **env 스키마/레지스트리에서 기계 도출**한다(A2 리터럴 0·ABox-swap 불변). 문구만 A2.
+#   (2)유동판단 동결? No — *무엇을* 부를지·인자는 그대로 모델 몫이고, 바뀌는 것은 *어느 도구를
+#   거쳐* 부르는가 하나(env 규약). (3)스캐폴드가 수행? No — 문자열 치환뿐.
+
+
+def _dispatch_tools(agent):
+    """(잠금 도구, 호출 도구) 이름 — **스키마 구조로만** 찾는다(도메인 리터럴 0).
+
+    발견형 디스패처는 `agent_tool_name` 파라미터를 갖고, 그중 실행하는 쪽만 `arguments` 를
+    함께 갖는다. 그 차이가 둘을 가른다.
+    """
+    unlock = call = None
+    for t in (getattr(agent, "tools", None) or []):
+        try:
+            sc = t.openai_schema
+            fn = sc.get("function") if isinstance(sc.get("function"), dict) else sc
+            props = set(((fn.get("parameters") or {}).get("properties")) or {})
+            if "agent_tool_name" not in props:
+                continue
+            if "arguments" in props:
+                call = fn.get("name")
+            else:
+                unlock = fn.get("name")
+        except Exception:
+            pass
+    return unlock, call
+
+
+def _call_form_map(agent, env, names, a2=None):
+    """이름 → **부를 수 있는 형식** 사전. 발견형이 아닌 이름은 넣지 않는다(치환 0)."""
+    reg = _agent_discoverable(env)
+    if not reg or not names:
+        return {}
+    unlock, call = _dispatch_tools(agent)
+    if not call:
+        return {}
+    tpl = str((((a2 or {}).get("call_form") or {}).get("agent_discoverable"))
+              or '{call}(agent_tool_name="{tool}")')
+    import t2_precedence as _PCm
+    out = {}
+    for n in names:
+        if n in reg:
+            real = n
+        else:
+            hit = sorted(x for x in reg if _PCm._fam(x) == _PCm._fam(n))
+            if len(hit) != 1:
+                continue
+            real = hit[0]
+        out[n] = tpl.replace("{call}", call).replace("{unlock}", unlock or "").replace(
+            "{tool}", real)
+    return out
 
 
 def _is_read_tool(env, name):
@@ -4978,6 +5110,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         # ★T2_WRITE_ARG_GROUND (§2bs): WEV 블록에 합류(동일 라운드·cap·적용 배관 공유 — 문서화됨)
         wag_specs = (a2.get("write_arg_grounding") or []) \
             if (a2 is not None and os.environ.get("T2_WRITE_ARG_GROUND") == "1") else []
+        # ★T2_ARG_EMPTY (C419·x250): 필수 인자 빈 문자열 → 이름을 대고 거부. 필수 목록은 env
+        #   스키마에서 도출하므로 A2 는 **문구와(선택적) 적용 범위**만 갖는다. 범위 미선언 =
+        #   스키마가 required 를 선언한 모든 도구(빈 필수 인자는 어느 도구에서도 값이 아니다).
+        ae_on = (a2 is not None and os.environ.get("T2_ARG_EMPTY") == "1")
+        ae_tools = set(((a2 or {}).get("arg_empty") or {}).get("applies_to") or ()) or None
         # ★T2_REF_VERIFY (C128/C129): 결정론 참조-검증기 spec(도구/필드/문구=A2)·WEV 블록 합류
         rv_specs = (a2.get("ref_verify") or []) \
             if (a2 is not None and os.environ.get("T2_REF_VERIFY") == "1") else []
@@ -5849,7 +5986,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                           file=_sys.stderr, flush=True)
 
             wev_fb = None
-            if ((wev_specs or wag_specs or rv_specs) and not do_gate and not do_prov and ep_fb is None
+            if ((wev_specs or wag_specs or rv_specs or ae_on)
+                    and not do_gate and not do_prov and ep_fb is None
                     and cons_fb is None and ra_fb is None and te_fb is None and proc_fb is None
                     and wev_rounds < int(os.environ.get("T2_WEV_ROUNDS", "1"))
                     and getattr(self, "_t2_wev_deny", 0) < _wev_cap):
@@ -5879,6 +6017,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             # ★값-grounding(§2bs·031): WEV(선행-read)와 별개 구멍=값-전사.
                             wd = _write_arg_ground_deny(_wev_msgs, c, wag_specs)
                             _wtag = "T2_WRITE_ARG_GROUND"
+                        if not wd and ae_on:
+                            # ★T2_ARG_EMPTY(C419·x250 8/8): 필수 인자가 빈 문자열이면 이름을 댄다.
+                            #   WAG 가 구조적으로 못 보는 자리다(:1149 *"값 없음 = skip"*).
+                            wd = _arg_empty_deny(self, c, a2, ae_tools)
+                            if wd:
+                                _wtag = "T2_ARG_EMPTY"
                         if not wd and rv_specs:
                             # ★결정론 참조-검증기(C128/C129): 레코드 판별속성(merchant)이 손님
                             #   발화에 없으면 deny — 전사-슬립 8/8 검출·false-block 0·LLM 0.
@@ -6381,6 +6525,29 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                     _ufb += _tpl2.format(
                                                         why="; ".join(_why) or "(no record)",
                                                         options=", ".join(_front) or "(none available)")
+                                                # ★T2_CALL_FORM(C418·x249 16/16): 여기까지 만든
+                                                #   `_ufb` 안의 **발견형 이름**을 부를 수 있는 형식으로
+                                                #   바꾼다. 한 자리에서 하면 `do it with:`·`why`·
+                                                #   프런티어 세 곳이 한꺼번에 정합해진다.
+                                                if os.environ.get("T2_CALL_FORM") == "1":
+                                                    try:
+                                                        _cf = _call_form_map(
+                                                            self,
+                                                            getattr(getattr(self, "_t2_orch", None),
+                                                                    "environment", None),
+                                                            list(dict.fromkeys(
+                                                                list(_steps) + list(_front))), a2)
+                                                        for _k12, _v12 in sorted(
+                                                                _cf.items(), key=lambda kv: -len(kv[0])):
+                                                            if _k12 in _ufb and _v12 not in _ufb:
+                                                                _ufb = _ufb.replace(_k12, _v12)
+                                                        if _cf:
+                                                            print("[T2_CALL_FORM] named %d step(s) in "
+                                                                  "callable form" % len(_cf),
+                                                                  file=_sys.stderr, flush=True)
+                                                    except Exception as _e12c:
+                                                        print("[T2_CALL_FORM] skipped: %r" % (_e12c,),
+                                                              file=_sys.stderr, flush=True)
                                             except Exception as _e14:
                                                 print("[T2_ARBITRATE] why/options skipped: %r" % (_e14,),
                                                       file=_sys.stderr, flush=True)
