@@ -2298,8 +2298,12 @@ def _call_form_map(agent, env, names, a2=None):
     unlock, call = _dispatch_tools(agent)
     if not call:
         return {}
+    # ⚠기본 문구는 **프로브가 이긴 것과 같은 말**이어야 한다([[03b]]: 두 벌이 되면 갈린다).
+    #   치환은 세 자리(`do it with:` · `has not been called` · 프런티어 목록)에 한 번에 들어가므로
+    #   어느 위치에 놓여도 읽히는 **동격 삽입** 형태로 쓴다. x249 B_ENGINE 이 이 문자열을 쟀다.
     tpl = str((((a2 or {}).get("call_form") or {}).get("agent_discoverable"))
-              or '{call}(agent_tool_name="{tool}")')
+              or '{tool} (not in your tool list - it is a discoverable tool; the way to run it is '
+                 '{call}(agent_tool_name="{tool}"))')
     import t2_precedence as _PCm
     out = {}
     for n in names:

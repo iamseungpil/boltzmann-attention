@@ -30,6 +30,7 @@ C300 이 프런티어 이름을 접미사형(`..._3847`)으로 고쳤지만 **�
   B_CALLFORM  우리 문장에서 **호출 형식만** 이름을 바꾼다     ← [[64]] 처방 팔
   C_DROP      unlock 이후의 우리 `[ORDER]` 문장을 **뺀다**    ← 뺄셈 팔([[63]])
   D_FREE      궤적만(우리 문장 0)                            ← 양성 통제(x241 A_FREE 재현)
+  B_ENGINE    **엔진이 실제로 낼 문자열**로 치환(출시본과 동일·[[03b]])
 
 ★B 는 **인자를 주지 않는다** — 무엇을 넣을지는 끝까지 모델이 고른다(파라미터는 이미 unlock 출력이
   말했다). 바꾸는 것은 *어느 도구로 부르는가* 하나이고 그것은 env 규약(기계 도출·[[23]] opex 0)이다.
@@ -78,6 +79,33 @@ def callform(text):
     return out
 
 
+def engine_form():
+    """**엔진이 실제로 낼 문자열**을 엔진에서 가져온다(두 벌 금지·[[03b]]).
+
+    스텁은 이 env 의 구조만 재현한다 — 디스패처 두 개(스키마로 갈린다)와 발견형 레지스트리.
+    문구도 치환 규칙도 우리가 다시 쓰지 않는다.
+    """
+    import t2_gate_patch as G
+
+    class _T(object):
+        def __init__(s, name, props):
+            s.openai_schema = {"function": {"name": name, "parameters": {
+                "type": "object", "properties": {p: {"type": "string"} for p in props}}}}
+
+    class _A(object):
+        tools = [_T("unlock_discoverable_agent_tool", ["agent_tool_name"]),
+                 _T("call_discoverable_agent_tool", ["agent_tool_name", "arguments"])]
+
+    class _K(object):
+        def get_discoverable_tools(s):
+            return {LOCKED}
+
+    class _E(object):
+        tools = _K()
+
+    return G._call_form_map(_A(), _E(), [BARE, LOCKED])
+
+
 def build(sim, cut, mode):
     """라이브 재현 문맥 — `mode` 로 **우리 문장만** 갈아 끼우거나 뺀다."""
     import t2_fbsidecar as FB
@@ -110,12 +138,24 @@ def build(sim, cut, mode):
         for t in ours.get(i, ()):
             if mode == "drop" and i >= unlock_at and "[ORDER]" in t:
                 continue
-            out.append("[system] %s" % (callform(t) if mode == "callform" else t)[:900])
+            if mode == "callform":
+                t = callform(t)
+            elif mode == "engine":
+                for _k, _v in sorted(_ENGINE.items(), key=lambda kv: -len(kv[0])):
+                    if _k in t and _v not in t:
+                        t = t.replace(_k, _v)
+            out.append("[system] %s" % t[:1100])
             kept += 1
     return "\n".join(out), kept, unlock_at
 
 
+_ENGINE = {}
+
+
 def main():
+    global _ENGINE
+    _ENGINE = engine_form()
+    print("엔진 문구 축자: %s\n" % _ENGINE.get(BARE, "(없음)"))
     n = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 8
     sims = [s for s in X.load(TAG)
             if s["task_id"] == TASK and (s.get("reward_info") or {}).get("reward") != 1]
@@ -135,7 +175,7 @@ def main():
         tools = U.tools_of(sim)
         print("== trial %s · 요구 턴 %d · 도구 %d개" % (sim.get("trial"), cut, len(tools)))
         for mode, label in (("live", "A_LIVE"), ("callform", "B_CALLFORM"),
-                            ("drop", "C_DROP"), ("free", "D_FREE")):
+                            ("engine", "B_ENGINE"), ("drop", "C_DROP"), ("free", "D_FREE")):
             body, kept, ua = build(sim, cut, mode)
             c = collections.Counter()
             for i in range(n):

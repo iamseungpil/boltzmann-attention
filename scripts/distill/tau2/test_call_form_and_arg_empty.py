@@ -75,9 +75,11 @@ chk("디스패처를 스키마 구조로 가른다", (u, c) == ("unlock_discover
                                                   "call_discoverable_agent_tool"), (u, c))
 
 m = G._call_form_map(AGENT, ENV, ["get_all_user_accounts_by_user_id", "get_referrals_by_user"])
-chk("발견형 bare 이름 → 접미사 실명의 호출 형식",
+chk("발견형 bare 이름 → 접미사 실명 + 호출 형식",
     m.get("get_all_user_accounts_by_user_id")
-    == 'call_discoverable_agent_tool(agent_tool_name="get_all_user_accounts_by_user_id_3847")', m)
+    == 'get_all_user_accounts_by_user_id_3847 (not in your tool list - it is a discoverable tool; '
+       'the way to run it is call_discoverable_agent_tool'
+       '(agent_tool_name="get_all_user_accounts_by_user_id_3847"))', m)
 chk("발견형이 아닌 도구는 손대지 않는다", "get_referrals_by_user" not in m, m)
 
 m2 = G._call_form_map(AGENT, ENV, ["get_all_user_accounts_by_user_id_3847"])
