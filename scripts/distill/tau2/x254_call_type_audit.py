@@ -45,6 +45,11 @@ except Exception:
 
 LOGDIR = "/home/woori/scratch/logs"
 
+# **다음 한 수를 요구하는** 문장만 감사한다(우리 요구 채널의 축자 표지). 거부 사유·이력 인용은
+# 이름을 대는 자리가 아니다 — 거기까지 세면 신호가 죽는다(첫 판 3031/3869).
+DEMAND = re.compile(r"\[ORDER\]|do it with|Steps that are possible right now|"
+                    r"next step has not been taken|Do this now|has to hold first")
+
 
 def env_types():
     """네 집합을 env 에서 그대로 가져온다(우리가 목록을 적지 않는다)."""
@@ -99,6 +104,12 @@ def main():
                 continue
             txt = o.get("text") or ""
             if not txt.strip():
+                continue
+            # ★첫 판 무효(2026-08-11 자기교정): **모든 언급**을 셌더니 T2 3031/3869 가 나왔고
+            #   대부분이 *요구*가 아니라 거부 사유·이력 인용이었다(그 자리는 호출 형식을 댈 자리가
+            #   아니다). [[64]] 가 겨누는 것은 **다음 한 수를 요구하는 문장**뿐이다. x247 ⒟ 가 두 번
+            #   밟은 함정과 같다 — 계기가 신호를 만든다. 요구 채널만 남긴다.
+            if not DEMAND.search(txt):
                 continue
             for base, (k, real) in fam.items():
                 if k == "T1" or base not in txt:
