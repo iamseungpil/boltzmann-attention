@@ -98,8 +98,15 @@ def main():
     A = a2()
     groups = list((A.get("policy_ontology") or {}).get("doc_index") or {})
     req = requirements()
-    asks = {"business_checking": req + "\n\nThe customer is asking about a BUSINESS CHECKING account.",
-            "business_savings": req + "\n\nThe customer is asking about a BUSINESS SAVINGS account."}
+    # ★첫 판의 결함 (C417⒠): 두 축 모두에 **시나리오 전문을 통째로** 줬고, 그 안에는 체킹
+    #   이야기가 훨씬 많다. 그래서 savings 요청에도 형식화가 `business_checking_accounts` 를
+    #   골랐다(그런데 재료가 겹쳐 답은 맞았다 = **틀린 형식화가 우연히 통과**). 결정점은 **요청
+    #   하나**에 하나이므로 지금 무엇을 묻는지가 **앞**에 와야 한다 — 라이브에서도 그 턴의 요청이
+    #   문맥의 끝이다. 축 문장을 머리에 두고 다시 잰다(문구 신설 0·순서만 바꾼다).
+    asks = {"business_checking":
+            "The customer is asking which BUSINESS CHECKING account to open.\n\n" + req,
+            "business_savings":
+            "The customer is asking which BUSINESS SAVINGS account to open.\n\n" + req}
     print("A3 문서군 %d · 유효창 %d행 · 코퍼스 %s"
           % (len(groups), len((A["policy_ontology"].get("doc_windows") or [])), DOCS))
     n_idx, n_tot, ratio = S.index_coverage(A, DOCS)
