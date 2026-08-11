@@ -53,5 +53,26 @@ chk("_stk8.admit(self, _fbtag.get(id(c), \"fb\"), content)" in SRC, "`admit()` �
 chk("window folded fb tag=" in SRC and "kept (R9)" in SRC,
     "마크가 남고, 켠 상태를 구별해 인쇄한다")
 
-print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 8 - len(FAILED), 8))
+print("\n§5 형제 대기 문구도 이름을 댄다 (C416 · x247 감사가 찾은 네 자리)")
+import t2_gate_patch as GP                                        # noqa: E402
+
+
+class _C(object):
+    def __init__(self, name):
+        self.name = name
+
+
+os.environ.pop("T2_KEEP_DENY_BODY", None)
+off = GP._sibling_wait("POLICY GATE", _C("submit_referral"), "the policy gate")
+chk("resolve the flagged call first" in off, "OFF 면 종전 문구 그대로")
+os.environ["T2_KEEP_DENY_BODY"] = "1"
+on = GP._sibling_wait("POLICY GATE", _C("submit_referral"), "the policy gate")
+chk("submit_referral" in on, "ON 이면 **문제된 호출 이름**을 댄다")
+chk("re-issue this call" in on, "ON 이면 **다음 한 수**를 준다")
+chk("resolve the flagged call first" in GP._sibling_wait("POLICY GATE", None, "x"),
+    "이름을 모르면 종전 문구로 떨어진다(지어내지 않는다)")
+os.environ.pop("T2_KEEP_DENY_BODY", None)
+chk(SRC.count("_sibling_wait(") >= 5, "네 자리 + 정의가 한 헬퍼를 쓴다(두 벌 금지)")
+
+print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 13 - len(FAILED), 13))
 sys.exit(1 if FAILED else 0)

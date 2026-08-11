@@ -2276,6 +2276,25 @@ def _docs_seen(messages):
     return chr(10).join(txt)
 
 
+def _sibling_wait(tag, flagged, what):
+    """한 턴의 **다른 호출**에게 보내는 대기 문구 — [[64]]: 무엇이 틀렸나 + 무엇을 하면 풀리나.
+
+    ★왜 고쳤나 (2026-08-11·C416·x247 감사·`T2_KEEP_DENY_BODY` 와 같은 레버로 묶는다):
+      구판은 네 자리에서 *"resolve the flagged call first; do not call this yet"* 류를 보냈는데,
+      **어느 호출이 문제인지 말하지 않는다**. C413/C414 가 잰 그 병이다 — 같은 계열 문구가
+      한 sim 에 3회 이상 나온 6건은 6/6 실패했고, 격리에서 그 문구는 정체 3/8 ↔ 이름을 댄
+      본문 0/8 이었다. 여기서는 **문제된 호출의 이름**을 대고 다음 한 수를 준다.
+    ⚠거동은 fail-closed 그대로다 — 이 호출은 여전히 실행되지 않는다. 문구만 정보를 얻는다.
+    ⚠플래그 OFF 면 종전 문구 그대로(되돌리기 경로 유지).
+    """
+    name = getattr(flagged, "name", None) if flagged is not None else None
+    if os.environ.get("T2_KEEP_DENY_BODY") != "1" or not name:
+        return ("Error: [%s] resolve the flagged call first; do not call this one yet." % tag)
+    return ("Error: [%s] this call was not run because another call in the same turn was blocked: "
+            "'%s' (see its own error for %s). Fix that one first, then re-issue this call."
+            % (tag, name, what))
+
+
 def _unlocked_names(messages, a2=None):
     """Discoverable names this conversation has asked to unlock (순수함수·리터럴 0).
 
@@ -3592,7 +3611,7 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                     main_reason = tmpl.format(k=k, s=s)
             for c in (am.tool_calls or []):
                 reason = main_reason if c is tc else \
-                    "Error: [PROVENANCE] resolve the invented value first; do not call this yet."
+                    _sibling_wait("PROVENANCE", tc, "the invented value")
                 work.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                         error=True, content=reason))
             am = _gen(self, work, bw(), "agent_response_regen")
@@ -3646,7 +3665,7 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                                "arguments — remove everything else."
                                % (_tc.name, ", ".join(repr(x) for x in _extra),
                                   ", ".join(sorted(_allowed)))) if _c is _tc else \
-                        "Error: [ARG-SCHEMA] fix the flagged call first; do not call this yet."
+                        _sibling_wait("ARG-SCHEMA", _tc, "its argument schema")
                     work.append(ToolMessage(id=_c.id, role="tool", requestor="assistant",
                                             error=True, content=_reason))
                 am = _gen(self, work, bw(), "agent_response_schema_regen")
@@ -3697,7 +3716,7 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                                             cands=", ".join(repr(c) for c in cands[:8]))
                 for c in (am.tool_calls or []):
                     reason = fb if c is tc else \
-                        "Error: [DISAMBIGUATE] re-check pending; re-emit this call after resolving."
+                        _sibling_wait("DISAMBIGUATE", tc, "the ambiguous value")
                     dwork.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                              error=True, content=reason))
                 am2 = _gen(self, dwork, bw(), "agent_response_disamb")
@@ -4422,7 +4441,8 @@ def apply_gate_regen(max_regen=1):
                     gid, why = dids[id(c)]
                     content = f"Error: [POLICY GATE {gid}] {why}"
                 else:
-                    content = "Error: [POLICY GATE] resolve the blocked action first; do not call this tool yet."
+                    _flagged = next((t for t in (am.tool_calls or []) if id(t) in dids), None)
+                    content = _sibling_wait("POLICY GATE", _flagged, "the policy gate")
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                       error=True, content=content))
             am = la.generate(model=self.llm, tools=self.tools, messages=base + fb,
