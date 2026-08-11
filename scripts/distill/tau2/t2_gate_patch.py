@@ -4959,6 +4959,26 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             state.messages.append(message)
 
     def _gen(self, work, bad_words, call_name, tool_choice=None, pin=None):
+        # ★`arrived` 실측 (설계 v1.5 §5 리뷰 N3 — **호출부에서 세지 않는다**).
+        #   `_emit` 이 불렸는가가 아니라 *그 문자열이 이 턴 모델 입력에 실제로 있었는가*로 센다.
+        #   `proc_fb` 死배선(:7404)이 정확히 이 실수였고 deny 11회를 인쇄로 만들었다([[55]]).
+        #   여기가 모델 입력의 유일한 깔때기이므로 배달 판정은 구조적으로 위조될 수 없다.
+        #   ⚠거동 불변: 읽기만 하고 `work` 도 `kw` 도 건드리지 않는다.
+        try:
+            _pend = getattr(self, "_t2_route_pending", None)
+            if _pend:
+                self._t2_route_pending = []
+                _hay = "\n".join(str(getattr(_m, "content", "") or "")
+                                 for _m in (self._system_messages + work))
+                import t2_fbsidecar as _fbr0
+                for _rec in _pend:
+                    _txt = _rec.pop("_text", "") or ""
+                    _rec["arrived"] = bool(_txt and _txt in _hay)
+                    _rec["call_name"] = call_name
+                    _fbr0.record("route", None, work, **_rec)
+        except Exception as _ea:
+            print("[T2_ROUTE] arrived 계측 실패(무시): %r" % (_ea,),
+                  file=_sys.stderr, flush=True)
         kw = dict(self.llm_args)
         _tools = self.tools
         if use_badwords and bad_words:
@@ -6800,6 +6820,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                         print("[T2_ARBITRATE] identical demand suppressed "
                                               "(nothing changed since it was last said)",
                                               file=_sys.stderr, flush=True)
+                                        # ★삼분 계측 (설계 v1.5 §5.1 — 판정 조건). 억제되면
+                                        #   `_ufb=""` → `rw_fb=None` 이고, 배타 체인 계측은
+                                        #   `None` 을 **미생성과 구별하지 못한다**(:_cands 는
+                                        #   `_v9[0] is c` 를 요구한다). 그래서 억제는 여기서만
+                                        #   기록할 수 있다 — 여기서 안 세면 다음 런의 `lost_to`
+                                        #   판정이 성립하지 않는다(억제↔체인↔미생성 삼분 불능).
+                                        #   ⚠거동 불변: 목록에 담기만 한다.
+                                        try:
+                                            _sl = list(getattr(self, "_t2_silenced", None) or [])
+                                            _sl.append({"agent": "resolve_write",
+                                                        "target": str(_utgt),
+                                                        "text": _add})
+                                            self._t2_silenced = _sl
+                                        except Exception:
+                                            pass
                                         _ufb = ""
                                     elif _sig is not None:
                                         self._t2_arb_sig = _sig
@@ -7664,14 +7699,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _cands = [(_i9 + 3, _n9) for _i9, (_n9, _v9) in enumerate(_SRC8)
                                   if _v9 is not None and _v9[0] is c]
                         if _cands:
-                            import t2_fbsidecar as _fbr
+                            # ★삼분 (설계 v1.5 §5.1). `outcome` 이 **억제·체인·미생성**을 가른다:
+                            #     won   이 호출의 출구를 이겼다
+                            #     lost  말하려 했는데 배타 체인에서 밀렸다 (`lost_to`)
+                            #     suppressed  지문 억제로 아예 생성되지 않았다 (아래 별도 루프)
+                            #   `arrived` 는 여기서 **안 정한다** — `_gen` 이 모델 입력을 보고
+                            #   채운다(리뷰 N3). 여기서 채우면 `_emit` 호출을 배달로 위조한다.
+                            _q9 = list(getattr(self, "_t2_route_pending", None) or [])
                             for _rk9, _n9 in _cands:
-                                _fbr.record("route", None, state.messages,
-                                            agent=_n9, rank=_rk9,
-                                            target=_eff_tool_name(c),
-                                            arrived=bool(_win == _n9),
-                                            lost_to=(None if _win == _n9 else _win),
-                                            folded=bool(content == _FB_GENERIC))
+                                _q9.append(dict(
+                                    agent=_n9, rank=_rk9,
+                                    target=_eff_tool_name(c),
+                                    outcome=("won" if _win == _n9 else "lost"),
+                                    lost_to=(None if _win == _n9 else _win),
+                                    folded=bool(content == _FB_GENERIC),
+                                    _text=(content if _win == _n9 else
+                                           str((dict(_SRC8).get(_n9) or (None, ""))[1] or ""))))
+                            self._t2_route_pending = _q9
                             if len(_cands) > 1:
                                 print("[T2_ROUTE] %s 경합 %d → %s 승 · 밀림 %s"
                                       % (_eff_tool_name(c), len(_cands), _win,
@@ -7680,6 +7724,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     except Exception as _e9:
                         print("[T2_ROUTE] 계측 실패(무시): %r" % (_e9,),
                               file=_sys.stderr, flush=True)
+            # ★억제분을 같은 스트림에 넣는다 (설계 v1.5 §5.1 삼분의 셋째 칸).
+            #   호출 루프 **밖**이다 — 억제된 레버에는 짝지을 `tool_call` 이 없다.
+            #   이것이 없으면 억제와 미생성이 사이드카에서 똑같이 '레코드 없음'으로 보인다.
+            try:
+                _sl9 = getattr(self, "_t2_silenced", None)
+                if _sl9:
+                    self._t2_silenced = []
+                    _q8 = list(getattr(self, "_t2_route_pending", None) or [])
+                    for _s9 in _sl9:
+                        _q8.append(dict(agent=_s9.get("agent"), rank=None,
+                                        target=_s9.get("target"),
+                                        outcome="suppressed", lost_to=None, folded=False,
+                                        _text=str(_s9.get("text") or "")))
+                    self._t2_route_pending = _q8
+            except Exception as _e8:
+                print("[T2_ROUTE] 억제 계측 실패(무시): %r" % (_e8,),
+                      file=_sys.stderr, flush=True)
             # ★순서 검사 (거동 변경 0). 층-1 레버들이 `beat(orch=…)`로 등록해 둔 후보를 비우고,
             #   `route()`가 골랐을 층·표적만 남긴다. `speak()`를 실제 출구로 쓰는 것은 순서를
             #   뒤집는 일이라 **먼저 두 판정이 어디서 갈리는지**가 있어야 한다 — 갈리는 자리가

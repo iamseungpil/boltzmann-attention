@@ -61,7 +61,27 @@ chk("작업버퍼(work) 변경 0", "work" not in body)
 
 # ⑷ 실패가 런을 깨지 않는다 ---------------------------------------------------
 chk("try/except 로 감쌌다", "except Exception as _e9" in SRC)
-chk("사이드카는 text 를 안 싣는다(None)", "_fbr.record(\"route\", None," in SRC)
+_recs = re.findall(r"\b_fbr\d*\.record\(\"route\",\s*([^,]+),", SRC)
+chk("route 레코드가 있다", len(_recs) >= 1, _recs)
+chk("사이드카는 text 를 안 싣는다(전 호출 None)",
+    bool(_recs) and all(a.strip() == "None" for a in _recs), _recs)
+
+# ⑸ 삼분 (설계 v1.5 §5.1) — 억제↔체인↔미생성이 갈리는가 -----------------------
+#   이것이 없으면 다음 런의 `lost_to` 판정이 성립하지 않는다: 억제와 미생성이
+#   둘 다 `None` 이라 `_cands`(`_v9[0] is c`)에서 똑같이 사라진다.
+for _o in ("won", "lost", "suppressed"):
+    chk("outcome=%s 를 기록한다" % _o, '"%s"' % _o in SRC)
+chk("억제 지점이 등록한다(_t2_silenced)", "_t2_silenced" in SRC)
+chk("억제 등록이 배타 체인 **밖**이다",
+    "_t2_silenced" in SRC.split("_SRC8 = (")[0] or 'outcome="suppressed"' in SRC)
+
+# ⑹ `arrived` 를 호출부에서 세지 않는다 (설계 §5 리뷰 N3 · `proc_fb` 死배선 교훈) --
+_arr = [l for l in body.split("\n")
+        if re.search(r"(?<![=!<>])\barrived\s*=(?!=)", l) and not l.lstrip().startswith("#")]
+chk("계측 블록이 arrived 를 **대입**하지 않는다 (주석 언급은 허용)", not _arr, _arr)
+chk("arrived 는 모델 입력에서 잰다(_gen 안)",
+    bool(re.search(r"def _gen\(.*?_rec\[\"arrived\"\] = bool\(_txt and _txt in _hay\)",
+                   SRC, re.S)))
 chk("기본 ON (계측은 무해)", 'os.environ.get("T2_ROUTE_TRACE", "1")' in SRC)
 
 # ⑸ 문법 -----------------------------------------------------------------------
