@@ -124,6 +124,41 @@ def score(msg, gold):
     return "(발화만)"
 
 
+def sub_value():
+    """★`B_SUB` 의 값 — **검색 서브가 스스로 낸 것**(gold 아님·설계 §1 N1).
+
+    C417/x248 의 체인을 그대로 쓴다: ①LLM 이 문서군을 고른다(닫힌 집합=A3 키) → ②엔진이
+    색인대로 읽고 **만료 문서를 뺀다** → ③LLM 이 남은 것 중 고른다. 엔진은 여기서도
+    **고르지 않는다** — 뺄셈과 운반뿐이다([[62]] ③④).
+
+    ⚠**축자 그대로 돌려준다.** 접미사(`… Account`)를 떼지 않는다 — 그 정규화는 도메인
+      패턴매칭이고([[59]]), 정확히 그 한 접미사가 C376 에서 두 소비자를 동시에 무력화했다.
+      서브가 그 형태로 말한다면 CP2 가 나를 것도 그 형태다. 그것이 측정 대상이다.
+    """
+    try:
+        import x248_search_agent_e2e as X
+        import t2_search as S
+    except Exception as e:
+        return None, "체인 import 실패: %r" % (e,)
+    try:
+        A = X.a2()
+        groups = list((A.get("policy_ontology") or {}).get("doc_index") or {})
+        ask = ("The customer is asking which BUSINESS CHECKING account to open.\n\n"
+               + X.requirements())
+        g, raw = X.formalize_group(ask, groups)
+        if not g:
+            return None, "군을 못 골랐다(raw=%r) — 엔진은 아무것도 안 한다" % raw[:40]
+        mat, info = S.material_for(A, g, X.DOCS, X.NOW, windowed="all")
+        q = ("%s\n\n%s\n\nWhich ONE account should the agent recommend? "
+             "Answer with the account name only." % (ask, mat))
+        t = " ".join(str(chat(q, None, 0.0, 24).get("content", "") or "").split())
+        t = t.strip().strip("*").strip().rstrip(".")
+        return (t or None), ("군=%s · 재료 %d자 · 문서 %d(뺀 것 %d)"
+                             % (g, len(mat), info["kept"], len(info["dropped"])))
+    except Exception as e:
+        return None, "체인 실패: %r" % (e,)
+
+
 def main():
     n = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 8
     d = json.load(open(RES, encoding="utf-8"))
@@ -147,12 +182,28 @@ def main():
                 "run it is %s(agent_tool_name=\"%s\", arguments=\"{…}\") where the inner string is "
                 "JSON holding that tool's own parameters." % (TOOL, DISPATCH, TOOL))
 
+    # ★N1 교정 (설계 v1.5 §1 · §7 스텝 4). `B_VALUE` 의 값은 **gold** 다(`value_txt` 가
+    #   `gold.get("account_class")` 를 쓴다) ⇒ 6/8 은 **상한**이지 라이브 가용 성능이 아니다.
+    #   그래서 값을 **검색 서브가 스스로 낸 것**으로 갈아 끼운 팔을 둔다. 이것이 CP2 의 전제를
+    #   검정한다 — `B_SUB` 가 낮으면 배달을 지어도 나를 것이 없다.
+    #   ⚠C417 의 8/8 은 **격리 문맥**이다. 여기서 재는 것은 *이 턴 문맥에서도* 서는가이다.
+    sub_val, sub_note = sub_value()
+    #   [[57]] 부정 통제 — 같은 자리·같은 모양·**값 없음**. 이것이 사면 프로브가 무효다
+    #   (x258 이 부정 통제 만점으로 죽었다).
+    null_txt = ("[DECIDED] The account class the retrieved documents support for this request "
+                "has been determined from the policy documents.")
+
     live = build(sim, cut, True)
     free = build(sim, cut, False)
-    arms = [("A_LIVE", live), ("B_VALUE", live + "\n[system] " + value_txt),
-            ("C_FORM", live + "\n[system] " + form_txt),
-            ("D_BOTH", live + "\n[system] " + value_txt + "\n[system] " + form_txt),
-            ("E_FREE", free)]
+    arms = [("A_LIVE", live), ("B_VALUE", live + "\n[system] " + value_txt)]
+    if sub_val:
+        arms.append(("B_SUB", live + "\n[system] "
+                     + value_txt.replace(str(gold.get("account_class")), sub_val)))
+    arms += [("B_NULL", live + "\n[system] " + null_txt),
+             ("C_FORM", live + "\n[system] " + form_txt),
+             ("D_BOTH", live + "\n[system] " + value_txt + "\n[system] " + form_txt),
+             ("E_FREE", free)]
+    print("서브가 낸 값: %r  (%s)\n" % (sub_val, sub_note))
     for label, body in arms:
         c = collections.Counter()
         for i in range(n):
