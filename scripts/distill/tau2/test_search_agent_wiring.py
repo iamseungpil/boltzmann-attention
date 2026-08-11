@@ -48,6 +48,32 @@ chk(GP._search_material(None, None, []) == "", "A2 가 없으면 빈 문자열")
 chk(GP._search_material(None, {"policy_ontology": {"doc_index": {"g": {}}}}, []) == "",
     "문구 선언이 없으면 빈 문자열(엔진이 문장을 짓지 않는다)")
 
+print("\n§2b 진입점이 **실제로 실행된다** — 인쇄 경로까지 간다 (2026-08-11 死배선 사고)")
+# ★왜 이 검정이 생겼나: 첫 판은 `_search_material(None, None, [])` 만 불렀고 그건 A2 검사에서
+#   **인쇄 전에** 반환한다. 그래서 본문의 `_sys.stderr`(함수 안에서만 정의되는 별칭)가 통과했고,
+#   라이브에서 훅이 **14회 발화하고 매번 NameError 로 죽었다** — 유료 3 sim 을 태웠다.
+#   ⇒ 선언은 갖추고 **환경만 비운** 입력으로 불러 인쇄 경로를 실제로 지나가게 한다.
+_declared = {"policy_ontology": {"doc_index": {"g": {"s": ["d1"]}}, "doc_windows": [],
+                                 "group_prompt": "{groups}{text}",
+                                 "doc_decide_prompt": "{ask}{material}",
+                                 "decided_by_docs_text": "{choice}"}}
+
+
+class _NoEnvAgent(object):
+    llm = None
+    llm_args = {}
+    _t2_orch = None
+
+
+try:
+    _out = GP._search_material(_NoEnvAgent(), _declared, [])
+    chk(_out == "", "환경에 문서가 없으면 빈 문자열 — **예외 없이**")
+except Exception as _e:
+    chk(False, "인쇄 경로에서 예외가 났다: %r" % (_e,))
+_seg = SRC[SRC.find("def _search_material("):][:2600]
+chk("_sys." not in _seg,
+    "모듈 수준 헬퍼가 함수-지역 별칭(`_sys`)을 쓰지 않는다 — 그게 死배선의 원인이었다")
+
 print("\n§3 A2 선언 — 두 층에 같은 문구가 있다 ([[24]])")
 keys = ("group_prompt", "doc_decide_prompt", "decided_by_docs_text")
 layers = []
@@ -74,5 +100,5 @@ chk("decide_from_docs" in seg and "formalize_group" in seg, "고르는 일은 �
 chk(not re.search(r"\bsorted\(.*reverse=True\)\[0\]|\bmax\(", seg),
     "엔진이 최댓값·순위로 답을 집지 않는다 (⛔0 ④)")
 
-print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 16 - len(FAILED), 16))
+print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 18 - len(FAILED), 18))
 sys.exit(1 if FAILED else 0)

@@ -2454,7 +2454,7 @@ def _search_material(agent, a2, messages):
     _env = getattr(getattr(agent, "_t2_orch", None), "environment", None)
     _corpus = _ts.corpus_from_env(_env)
     if not _corpus:
-        print("[T2_SEARCH_AGENT] 환경에서 문서를 못 찾음 — 침묵", file=_sys.stderr, flush=True)
+        print("[T2_SEARCH_AGENT] 환경에서 문서를 못 찾음 — 침묵", file=sys.stderr, flush=True)
         return ""
     _tx = [_content_str(_m) for _m in (messages or [])
            if getattr(_m, "role", None) in ("user", "tool")]
@@ -2469,7 +2469,7 @@ def _search_material(agent, a2, messages):
     _mat, _info = _ts.material_for(a2, _g, now=_now, corpus=_corpus)
     print("[T2_SEARCH_AGENT] group=%s · 문서 %d(뺀 것 %d: %s) · now=%s"
           % (_g, _info["kept"], len(_info["dropped"]), ",".join(_info["dropped"])[:80], _now),
-          file=_sys.stderr, flush=True)
+          file=sys.stderr, flush=True)
     if not _mat:
         return ""
     _choice = _ts.decide_from_docs(agent, _la, _UM, _po, _mat, _ask)
