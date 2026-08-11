@@ -7254,9 +7254,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         import t2_stack as _stk8
                         _ok8, _why8 = _stk8.admit(self, _fbtag.get(id(c), "fb"), content)
                         if not _ok8:
-                            print("[T2_STACK] window folded fb tag=%s (%s) — deny stays, body generic"
-                                  % (_fbtag.get(id(c), "fb"), _why8), file=_sys.stderr, flush=True)
-                            content = _FB_GENERIC
+                            # ★R9 — **접힘이 본문을 지우지 않는다** (2026-08-11·C414·`T2_KEEP_DENY_BODY`
+                            #   ·기본 OFF·근거 x246·n=8). 구판은 접힐 때 본문을 `_FB_GENERIC` 으로
+                            #   갈아 끼웠는데, 그 문구는 **무엇을 고칠지를 말하지 않는다**. 에이전트는
+                            #   해소할 대상을 모른 채 같은 호출을 반복하고, 같은 deny 가 또 접히고…
+                            #   ⇒ **접힘이 자기 원인을 재생산한다**. 실측(3 런·30 sim): 그 문구가 한
+                            #   sim 에 3회 이상 나온 6건은 **6/6 전부 실패**(uq 010 t2 는 11회·마지막
+                            #   22턴을 되뇜으로 태웠다). 격리(x246·같은 문맥·다음 한 수): 일반 문구
+                            #   3회 = 정체 **3/8** · 1회 = 2/8 · **원본 본문 = 0/8** · 아무것도 안 냄 =
+                            #   **0/8**. ⇒ 문제는 반복 횟수가 아니라 **문구 자체**다.
+                            #   ⚠deny 는 fail-closed 이므로 *안 내보내기*(동률 8/8)가 아니라 **원본
+                            #     본문을 남기는 쪽**을 택한다 — 도구는 여전히 막히고 이유만 살아난다.
+                            #   ⚠[[57]] 과 충돌하지 않는다: 인자-변화 기준은 **조언 채널**의 것이고,
+                            #     도구-결과 채널의 deny 는 접어도 *무엇을 고칠지*가 남아야 한다.
+                            #   ⚠새 결정론 0 — 우리가 **덜 지울 뿐**이다.
+                            _keep9 = os.environ.get("T2_KEEP_DENY_BODY") == "1"
+                            print("[T2_STACK] window folded fb tag=%s (%s) — deny stays, body %s"
+                                  % (_fbtag.get(id(c), "fb"), _why8,
+                                     "kept (R9)" if _keep9 else "generic"),
+                                  file=_sys.stderr, flush=True)
+                            if not _keep9:
+                                content = _FB_GENERIC
                     except Exception:
                         pass
                     if content != _FB_GENERIC:      # 접히지 않고 실제로 나간 것만 센다
