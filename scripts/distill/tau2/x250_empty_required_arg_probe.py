@@ -170,7 +170,28 @@ def main():
     attempt = ("\n[assistant calls] %s\n[assistant] arguments: %s"
                % (WRITE, json.dumps(bad, ensure_ascii=False)))
 
+    # ★출시본과 같은 문자열로도 잰다([[03b]]: 두 벌이 되면 갈린다) — 문구를 다시 쓰지 않고
+    #   **엔진에서 가져온다**. 스텁은 이 도구의 스키마(필수 인자)만 재현한다.
+    import t2_gate_patch as G
+
+    class _T(object):
+        def __init__(s, name, props, req):
+            s.openai_schema = {"function": {"name": name, "parameters": {
+                "type": "object", "properties": {p: {"type": "string"} for p in props},
+                "required": list(req)}}}
+
+    class _A(object):
+        tools = [_T(WRITE, list(bad or {}), list(bad or {}))]
+
+    class _TC(object):
+        def __init__(s, name, args):
+            s.name, s.arguments = name, args
+
+    engine_deny = G._arg_empty_deny(_A(), _TC(WRITE, dict(bad or {}))) or DENY_NAME
+    print("엔진 문구 축자: %s\n" % engine_deny)
+
     for mode, label, extra in (("live", "A_LIVE", None), ("live", "B_NAME", DENY_NAME),
+                               ("live", "B_ENGINE", engine_deny),
                                ("live", "C_GENERIC", DENY_GENERIC), ("free", "D_FREE", None)):
         body = build(sim, cut, mode)
         if extra:
