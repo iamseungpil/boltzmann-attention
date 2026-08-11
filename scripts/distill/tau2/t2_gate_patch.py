@@ -2517,7 +2517,31 @@ def _search_material(agent, a2, messages):
           file=sys.stderr, flush=True)
     if not _mat:
         return ""
-    _choice = _ts.decide_from_docs(agent, _la, _UM, _po, _mat, _ask)
+    # ★결정 ask = **후보 줄만** (2026-08-12·x269·사용자 지시: *"격리 서브에이전트에 A3 를
+    #   통해서 정책을 리마인드하게 하라"*). 두 가지를 동시에 고친다:
+    #   ⑴ **격리 계약 복원** — `decide_from_docs` 독스트링 축자 *"대화 잔여물은 한 글자도
+    #     없다"* 인데 여기서 손님 발화 4개를 통째로 넣고 있었다. x269 실측: 대화를 실으면
+    #     checking 0/8(손님이 수락한 오답 `True Blue` 를 복창)·빼면 8/8 — 기여 0·해악만.
+    #   ⑵ **명명 정책 리마인드** — 정책 (general)_003 축자 *"account_class options include
+    #     Navy Blue, Cobalt Blue, True Blue, etc."* = 맨이름. 서브는 37K자 속 그 한 줄을
+    #     놓치고 상품 문서 제목형(`Sky Blue Account`)으로 답했고 그 형태는 인자까지 살아남아
+    #     채점 칸을 죽인다(x268 `S_SUFF` 0/8 ↔ `S_BARE` 7/8). 후보 = A3 `doc_index[군]` 키의
+    #     기계 전개(출처 = env 파일명뿐·x244·gold 무관) — **엔진은 선별하지 않고 전부 싣는다**
+    #     ([[59]]·비-계좌 주어 포함). 문구 = A2 `decide_candidates_text`(측정한 그 문자열).
+    #   실측(x269·n=8): checking 8/8 · savings 8/8 (후보만) / 후보 없이 대화만 = 두 축 0/8.
+    #   ⚠축 선택(`_g`)은 종전대로 손님 발화에서 LLM 이 한다 — 바뀌는 것은 결정 ask 뿐이다.
+    _ctpl = _po.get("decide_candidates_text")
+    _dask = _ask
+    if _ctpl:
+        try:
+            _cands = ", ".join(" ".join(w.capitalize() for w in str(k).split("_"))
+                               for k in sorted((_po.get("doc_index") or {}).get(_g) or ()))
+            if _cands:
+                _dask = _ctpl.format(candidates=_cands)
+        except Exception as _ce:
+            print("[T2_SEARCH_AGENT] 후보 줄 실패(종전 ask 로): %r" % (_ce,),
+                  file=sys.stderr, flush=True)
+    _choice = _ts.decide_from_docs(agent, _la, _UM, _po, _mat, _dask)
     if not _choice:
         return ""
     # 이 축은 처리했다 — 다음 결정점은 **남은 축**을 본다(sim 1회 잠금이 아니라 축별 1회).
