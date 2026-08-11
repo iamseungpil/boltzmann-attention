@@ -28,10 +28,11 @@ import glob
 import json
 import os
 import re
+import sys
 
 __all__ = ["linked_docs", "read_docs", "drop_expired", "coverage", "as_material",
            "docs_for", "declared_windows", "index_coverage", "material_for",
-           "corpus_from_env"]
+           "corpus_from_env", "formalize_group", "decide_from_docs"]
 
 _DATE = re.compile(r"^\s*(\d{4})-(\d{2})-(\d{2})")
 
@@ -230,6 +231,70 @@ def material_for(a2, group, doc_dir=None, now=None, per_doc=400, windowed="gener
     return as_material(keep, dropped, per_doc=per_doc), {
         "linked": len(ids), "read": len(read), "missing": missing,
         "kept": len(keep), "dropped": [d for d, _f, _t in dropped]}
+
+
+def formalize_group(agent, la, UserMessage, spec, texts, groups):
+    """① 손님의 말 → **문서군 하나**. 닫힌 집합(A3 `doc_index` 키)이라 엔진이 검증한다([[22]]).
+
+    ★필요성 (x248·071 실물): 군을 잘못 고르면 재료가 통째로 어긋난다. 첫 판은 요청을 문맥
+      **뒤**에 놓아 savings 요청에도 checking 군을 골랐고, 재료가 겹친 덕에 답만 우연히 맞았다
+      (= 조용한 오류). 요청을 **머리**에 두니 두 축 다 맞았다 — 그래서 여기서도 요청이 앞이다.
+    ⚠못 고르면 **None** → 검색 에이전트는 침묵한다(모르면 안 뺀다·[[25]]).
+    ⚠엔진은 답이 키 집합의 원소인지만 본다. 군 이름의 뜻은 모른다([[59]]).
+    """
+    tpl = (spec or {}).get("group_prompt")
+    if not (tpl and agent is not None and la is not None and texts and groups):
+        return None
+    names = sorted(groups)
+    listing = "\n".join("  %s" % g for g in names)
+    ask = "\n---\n".join(str(t) for t in texts)[-6000:]
+    try:
+        kw = dict((k, v) for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+                  if "tool" not in k)
+        try:
+            um = UserMessage(role="user", content=tpl.format(groups=listing, text=ask))
+        except TypeError:
+            um = UserMessage(content=tpl.format(groups=listing, text=ask))
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="doc_group_formalize", **kw)
+        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+    except Exception as e:
+        print("[T2_DOCGROUP] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return None
+    hit = sorted((g for g in names if g and g.lower() in raw.lower()), key=len, reverse=True)
+    out = hit[0] if hit else None
+    print("[T2_DOCGROUP] raw=%r → %s" % (raw[:60], out or "군 집합 밖 = 침묵"),
+          file=sys.stderr, flush=True)
+    return out
+
+
+def decide_from_docs(agent, la, UserMessage, spec, material, ask):
+    """③ 남은 것 중 **고르기** — 격리 문맥(요청 + 재료)뿐. 대화 잔여물은 한 글자도 없다.
+
+    ★구성은 측정된 그대로다(x248·n=8·두 축 8/8): 요청이 머리, 재료가 몸, 질문이 꼬리.
+    ⚠엔진은 답을 **고르지 않고 나르기만** 한다 — argmax 도 최댓값도 없다(⛔0 ④).
+    ⚠빈 답이면 None → 아무 말도 덧붙이지 않는다.
+    """
+    tpl = (spec or {}).get("doc_decide_prompt")
+    if not (tpl and agent is not None and la is not None and material):
+        return None
+    try:
+        kw = dict((k, v) for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+                  if "tool" not in k)
+        body = tpl.format(ask=str(ask)[:3000], material=material)
+        try:
+            um = UserMessage(role="user", content=body)
+        except TypeError:
+            um = UserMessage(content=body)
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="doc_decide", **kw)
+        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+    except Exception as e:
+        print("[T2_DOCDECIDE] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return None
+    out = raw.strip().strip("*.").strip() or None
+    print("[T2_DOCDECIDE] → %r" % (out,), file=sys.stderr, flush=True)
+    return out
 
 
 def as_material(docs, dropped=(), per_doc=1200):
