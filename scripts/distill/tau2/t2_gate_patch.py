@@ -7072,6 +7072,49 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                         except Exception as _sae:
                                             print("[T2_SEARCH_AGENT] 건너뜀(무발화): %r" % (_sae,),
                                                   file=_sys.stderr, flush=True)
+                                    # ★CP2 DECISION-CARRY (설계 v1.5 §4·`T2_DECISION_CARRY`·
+                                    #   기본 OFF). 전문가의 결론이 지금 `_fb_ar` 를 타는데,
+                                    #   그것은 `rw_fb` = **배타 체인 rank 11**이다(C429). 앞의
+                                    #   `wev`(rank 8)가 같은 호출에 걸리면 통째로 버려지고,
+                                    #   지문 억제는 그 전에 `_ufb` 를 비운다. 그것이 §3 표의
+                                    #   *"검색/결정 8/8 → 경로 없음 → 라이브 0/6"* 의 정체다.
+                                    #   ⇒ 값에 **체인 밖 채널**을 준다: 비커밋 생성-뷰
+                                    #   (`_t2_view_fb`·C298 — 커밋하면 replay 가 깨진다).
+                                    #   ⚠**엔진은 고르지 않는다.** 나르는 것은 서브가 이미 낸
+                                    #     문자열 그대로다 — 순위·최댓값·지목 문장 0([[62]] ③④).
+                                    #   ⚠[[57]] 재발화는 **횟수가 아니라 인자 변화**로: 같은
+                                    #     문자열이면 안 넣는다. 값이 바뀌면 다시 넣는다.
+                                    #   ⚠비교도 **문자열 동등성**이다 — 값을 뽑아내려고 도메인
+                                    #     텍스트를 파싱하면 그것이 [[59]] 위반이다.
+                                    #   근거 = C435: 서브가 스스로 낸 값이 gold 주입과 구분 불가
+                                    #     (`B_SUB` 7/8 ↔ `B_VALUE` 6/8·p=1.000) · 부정통제
+                                    #     `B_NULL` 0/8(p=0.0014) ⇒ 나를 값이 실재한다.
+                                    if _m3 and os.environ.get("T2_DECISION_CARRY") == "1":
+                                        try:
+                                            if _m3 != getattr(self, "_t2_cp2_said", None):
+                                                _q2 = list(getattr(self, "_t2_view_fb", None) or [])
+                                                _q2.append([_m3, int(os.environ.get(
+                                                    "T2_DECISION_CARRY_KEEP", "2"))])
+                                                self._t2_view_fb = _q2
+                                                self._t2_cp2_said = _m3
+                                                print("[T2_DECISION_CARRY] 결정 값을 체인 밖 "
+                                                      "뷰 채널로 (target=%s · %d자)"
+                                                      % (_tgt, len(_m3)),
+                                                      file=_sys.stderr, flush=True)
+                                                _lbeat("T2_DECISION_CARRY", orch=self,
+                                                       target=_tgt,
+                                                       fact="the decision a sub-agent already "
+                                                            "reached, carried to this turn")
+                                            else:
+                                                print("[T2_DECISION_CARRY] 같은 값 — 재발화 0 "
+                                                      "([[57]] 인자 변화 기준)",
+                                                      file=_sys.stderr, flush=True)
+                                            # 체인에는 싣지 않는다 — 16번째 경쟁자가 되면
+                                            # 오늘의 0/6 이 그대로 재생된다(설계 §3.1).
+                                            _m3 = ""
+                                        except Exception as _cp2e:
+                                            print("[T2_DECISION_CARRY] 건너뜀(무발화): %r"
+                                                  % (_cp2e,), file=_sys.stderr, flush=True)
                                     if _m3:
                                         _fb_ar = _fb_ar + "\n" + _m3
                                         print("[T2_DECIDE_ANY] 에이전트-실행 결정점에 재료 동반 "
