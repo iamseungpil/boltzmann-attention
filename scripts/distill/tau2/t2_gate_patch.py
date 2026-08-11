@@ -2753,6 +2753,29 @@ def _limit_reduce_text(agent, a2, messages):
         if _ax3 and _v3:
             _axm3[_ax3] = _v3
     _add = ""
+    # ★[[65]] 메인은 **답만** 싣는다 (2026-08-11·C420·`T2_MAIN_ANSWERS_ONLY`·기본 OFF·사용자 지시
+    #   *"메인 컨텍스트는 서브에이전트 호출과 결과만"*). 지금 메인으로 나가는 8조각 중 **답은
+    #   하나**(`diagnosed_text`)뿐이고 나머지 일곱은 과정·재료다(표·상태 분해·창 산수·소진/미달/
+    #   미판정 이름 목록). 그리고 그 중 하나는 **해롭다고 이미 측정됐다** — `ineligible_text` 가
+    #   만드는 이름 목록은 x231 에서 *실제 문맥 위에 한 줄만 얹어도 task_100 8/8 → 0/8* 였다.
+    #   같은 방향의 실측이 넷 더 있다: x187(대화 없는 격리가 전 셀 파레토 지배) · x190(표를 실으면
+    #   어느 정렬로도 두 태스크를 못 잡고 근거 숫자를 5/5 틀리게 댄다) · C397(궤적 4% ↔ 격리 100%)
+    #   · x248 `W_ALL` 4/8(다른 축 재료까지 얹으면 답이 섞인다).
+    #   ⇒ 재료는 **서브의 격리 문맥**으로 보내고 메인에는 결정문만 남긴다. 새 결정론 0 —
+    #     우리가 **덜 올릴 뿐**이고, 고르는 일은 그대로 모델이다.
+    #   ⚠끄면 종전 그대로(되돌리기 경로 유지). ⚠서브가 안 도는 자리에서 재료를 통째로 잃지
+    #     않도록, 옮긴 조각은 진단 서브 문맥(`onto_context`)에 **이어 붙인다**.
+    _answers_only = os.environ.get("T2_MAIN_ANSWERS_ONLY") == "1"
+    _subonly = []
+
+    def _emit(text, is_answer=False):
+        """답이면 메인으로, 과정이면 (플래그가 켜졌을 때) 서브 문맥으로."""
+        if not text:
+            return ""
+        if is_answer or not _answers_only:
+            return text
+        _subonly.append(text)
+        return ""
     # ★R8 (2026-08-09·C373 부검): **결정 블록이 나가는 메시지에는 다른 행동 지시를 섞지 않는다.**
     #   스모크 실측 — 통과한 100 은 블록이 혼자 나갔고, 실패한 099 는 같은 메시지에
     #   `[SOURCE]`(*"Search the knowledge base…"*) 2회 + `unmatched`(*"determine which before
@@ -2791,33 +2814,39 @@ def _limit_reduce_text(agent, a2, messages):
             except Exception as _se8:
                 print("[T2_SUBJ_ALIGN] 건너뜀: %r" % (_se8,), file=sys.stderr, flush=True)
             _tal8, _left8 = _LG2.align_tally(_e2["tally"], _al8)
-            _add += _LG2.exhausted_text(_tal8, _lims3, _sp2)
+            _add += _emit(_LG2.exhausted_text(_tal8, _lims3, _sp2))
             # ★판정하지 못한 그룹은 **이름을 말한다**(C327). 조용히 빼면 모델 쪽에서 침묵이
             #   *검사 통과*와 구별되지 않는다. 엔진은 집합 뺄셈만 하고, 이름이 같은 것을
             #   가리키는지는 여전히 모델 몫이다([[22]]). 이제 그 몫은 위에서 **실제로 물어본다**.
             _u8 = _LG2.unmatched_text(_left8, _lims3, _sp2)
             if _u8:
                 _unm_parts.append(_u8)
-            _add += _u8
+            _add += _emit(_u8)
         # ★C378 상태별 세기 — 누계는 그룹 축으로 뭉개서 *어느 행이 완료되지 않았는지* 를 잃는다.
         #   010 이 그 자리다(손님: *"넷을 소개했는데 둘만 보너스를 받았다"*). 엔진은 **세기만**
         #   하고 상태 값이 무엇을 뜻하는지·왜 그 상태인지는 모델과 문서 몫이다([[22]]·[[25]]).
         #   ⚠상한 조회와 무관하므로 `_lims3` 밖에 둔다 — A3 가 비어도 이 사실은 말할 수 있다.
         if _e2.get("rows"):
-            _add += _LG2.status_breakdown(_e2["rows"], _sp2)
+            _add += _emit(_LG2.status_breakdown(_e2["rows"], _sp2))
             # ★C395 (2026-08-10·사용자 지시) — 상태값의 **뜻**을 A3 에서 싣는다. 검색 0.
             #   x211: 답을 든 문서를 에이전트 질의 24개 중 **12개만** 냈다 — 같은 정보가 대화마다
             #   있다가 없다가 한다. 뜻은 대화마다 달라지는 값이 아니라 **고정된 정책 상수**이므로
             #   불확정 채널(BM25·임베딩·grep)로 가져올 이유가 없다. 엔진은 그 값이 무엇을
             #   뜻하는지 모른 채 **A3 주어 집합의 원소인 것만** 꺼낸다([[22]]).
             _a3r = ((a2 or {}).get("policy_ontology") or {}).get("rows") or ()
-            _add += _LG2.status_meanings_text(_e2["rows"], _sp2, _a3r)
+            _add += _emit(_LG2.status_meanings_text(_e2["rows"], _sp2, _a3r))
             # ★C397 (2026-08-10·사용자 지시) — **결정점을 온톨로지로 지은 격리 문맥에서** 짓는다.
             #   격리 측정(`x213` `G_ONTO`·24셀): 실제 궤적 4% · 궤적 청소 29% · 이 문맥 **100%**
             #   (부정 통제 0/24). 099/100 의 재도출과 같은 2단 형태이고, 고르는 것은 서브다.
             #   문맥에는 대화가 한 글자도 안 들어간다 — 그것이 혼잡의 출처다.
             if _sp2.get("diagnose_prompt"):
                 _blk = _LG2.onto_context(_e2["rows"], _sp2, _a3r)
+                # ★메인에서 뺀 재료를 **서브의 격리 문맥**에 이어 붙인다([[65]]).
+                #   빼기만 하고 안 옮기면 그 사실이 어디에도 없게 된다 — 그건 억제가 아니라
+                #   손실이다(C403 이 본 자해와 같은 형태). 서브 문맥은 대화가 한 글자도 없는
+                #   자리라 여기 얹는 것은 x231 이 잰 *메인 위에 얹기*와 다른 조작이다.
+                if _blk and _subonly:
+                    _blk = "\n".join([_blk] + _subonly)
                 if _blk:
                     try:
                         import tau2.agent.llm_agent as _la9
@@ -2827,16 +2856,16 @@ def _limit_reduce_text(agent, a2, messages):
                         _dg = None
                         print("[T2_DIAG] 건너뜀: %r" % (_de9,), file=sys.stderr, flush=True)
                     if _dg and _sp2.get("diagnosed_text"):
-                        _add += _sp2["diagnosed_text"].format(answer=_dg[1])
+                        _add += _emit(_sp2["diagnosed_text"].format(answer=_dg[1]), is_answer=True)
             # ★C379 — 상태만 말하면 손님의 *"왜"* 에 답이 안 된다(v010 실측: 상태는 알았는데
             #   이유를 못 찾아 이관으로 끝났다). 이유는 이미 선언된 창 상수와 날짜의 산수로
             #   나온다. 엔진은 **산수까지만** 말하고 인과는 모델·문서 몫이다([[25]]).
-            _add += _LG2.window_history(_e2["rows"], _sp2)
+            _add += _emit(_LG2.window_history(_e2["rows"], _sp2))
         if _e2.get("days") is not None and _mins3:
             _il2 = _LG2.ineligible_text(_e2["days"], _mins3, _sp2)
             if _il2:
                 _name_lists.append(_il2)          # R8b: 블록이 나가면 이 목록은 뺀다
-            _add += _il2
+            _add += _emit(_il2)
         # ★통과 집합 (2026-08-08·C337). 못 되는 것을 말하는 것만으로는 안 닫혔다 —
         #   x150 절제: 같은 표 0/5 vs **미달 행을 뺀 표 5/5**. 그래서 거르는 일 자체를
         #   엔진이 하고 남은 것만 준다. 누계는 **A2가 지목한 선언**의 것을 쓴다(계좌 선언의
@@ -2907,7 +2936,7 @@ def _limit_reduce_text(agent, a2, messages):
             #   표가 있어도 근거 숫자를 5/5 틀리게 댄다. ⇒ 메인이 표에서 얻는 것이 없다.
             #   `decided_text` 가 선언돼 있으면 **결정 블록만** 내보내고, 없으면 종전대로 표를 싣는다.
             if not _sp2.get("decided_text"):
-                _add += _elig
+                _add += _emit(_elig)
             # ★2단 재도출 (2026-08-09·C344·x154/x155). 표를 궤적에 실어도 안 움직인다(0/5·라이브
             #   099 0/12). 움직인 유일한 것은 **판단 자리를 깨끗한 문맥으로 옮기고 그 답을
             #   되돌려 넣는 것**(0/5 → 5/5·두 태스크). 고르는 것은 두 번 다 모델이고 엔진은
@@ -2932,7 +2961,17 @@ def _limit_reduce_text(agent, a2, messages):
                                        % int(_e2["days"]))
                         _rows5 = [_s5 for _s5, _b5 in _erows]
                         _ops5 = "\n".join(_fl)
-                        _pick = _LG2.rederive_choice(agent, _la3, _UM3, _sp2, _elig.strip(),
+                        # ★[[65]] 메인에서 뺀 재료 중 **진단 서브가 안 가져간 것**을 여기 붙인다.
+                        #   빼기만 하고 안 옮기면 그 사실이 어디에도 없게 된다 = 억제가 아니라
+                        #   손실이다(C403 이 본 자해와 같은 형태). 재도출 문맥은 대화가 한 글자도
+                        #   없는 자리이므로, 여기 얹는 것은 x231 이 잰 *메인 위에 얹기*와 다르다.
+                        #   ⚠구성이 바뀌므로 플래그가 켜졌을 때만 그렇게 한다(측정된 조건 보존).
+                        _tbl5 = _elig.strip()
+                        if _answers_only and _subonly:
+                            _tbl5 = "\n".join([_tbl5] + _subonly)
+                            del _subonly[:]      # 재대입이 아니라 **비우기** — `_emit` 가 같은
+                                                 # 리스트 객체를 계속 쓴다(클로저 공유).
+                        _pick = _LG2.rederive_choice(agent, _la3, _UM3, _sp2, _tbl5,
                                                      _ops5, _obj, _rows5)
                         # ★D1c — 엔진이 재계산해 **불일치만** 잡고, 답이 아니라 **값**을 되돌려
                         #   다시 묻는다 (2026-08-09·x192·규격서 §5). 부정 통제 통과: 무내용
@@ -3009,6 +3048,11 @@ def _limit_reduce_text(agent, a2, messages):
         agent._t2_decided = bool(_decided)
     except Exception:
         pass
+    if _answers_only and _subonly:
+        # 어느 서브에도 못 실린 재료 — **조용히 사라지면 안 된다**([[64]] 의 정신).
+        print("[T2_MAIN_ANSWERS_ONLY] 미소비 재료 %d조각 (%d자) — 서브 문맥이 없는 자리다"
+              % (len(_subonly), sum(len(x) for x in _subonly)),
+              file=sys.stderr, flush=True)
     return _add.strip()
 
 
