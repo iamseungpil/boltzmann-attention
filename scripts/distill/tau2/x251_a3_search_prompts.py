@@ -43,10 +43,11 @@ LAYERS = ["a2/banking_knowledge.specific.json", "a2/banking_knowledge.gate.json"
 
 GROUP_PROMPT = (
     "A customer service agent needs to look up policy documents for the request below.\n"
-    "Which ONE of these document groups covers what the customer is asking about?\n"
+    "Which of these document groups does the customer ask about? The customer may be asking "
+    "about more than one — list every group that one of their requests is about, and no others.\n"
     "Groups:\n{groups}\n\n"
     "Request and conversation:\n{text}\n\n"
-    "Reply with the group name only, or 'none' if none of them covers it."
+    "Reply with the group names only, one per line, or 'none' if none of them applies."
 )
 
 DECIDED_TEXT = (

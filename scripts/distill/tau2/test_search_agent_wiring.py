@@ -38,8 +38,10 @@ chk(os.environ.get("T2_SEARCH_AGENT") != "1", "환경에 기본 ON 이 박혀 �
 chk('os.environ.get("T2_SEARCH_AGENT") == "1"' in SRC, "플래그 뒤에 있다")
 chk(re.search(r"if \(not _m3 and os\.environ\.get\(\"T2_SEARCH_AGENT\"\)", SRC) is not None,
     "`_limit_reduce_text` 가 **침묵할 때만**(`not _m3`) 붙는다 — 원장 계열을 가로채지 않는다")
-chk("_t2_searchagent_fired" in SRC and SRC.count("_t2_searchagent_fired") >= 2,
-    "한 sim 1회 가드가 있다")
+chk("_t2_searchagent_fired" in SRC and "< 3" in SRC, "한 sim 발화 상한이 있다(무한 발화 방지)")
+chk("_t2_search_done" in SRC and SRC.count("_t2_search_done") >= 2,
+    "**축별** 처리 완료 집합이 있다 (C419: 071 은 요청이 둘이다)")
+chk("formalize_groups(" in SRC, "군 형식화가 **복수**를 받는다")
 
 print("\n§2 진입점 — 선언이 없으면 침묵한다")
 import t2_gate_patch as GP                                        # noqa: E402
@@ -82,8 +84,8 @@ chk(re.search(r"if not _now:\s*\n\s*print\(", _seg3) is not None,
     "`now` 가 없으면 재료를 만들기 **전에** 반환한다")
 chk("잠그지 않음" in _seg3, "마크가 '잠그지 않는다'를 명시한다 (다음 결정점 재시도)")
 chk(re.search(r"_m3 = _search_material\(self, a2, state\.messages\)\s*\n\s*if _m3:\s*\n\s*"
-              r"self\._t2_searchagent_fired = 1", SRC) is not None,
-    "호출부는 **재료가 나왔을 때만** 1회 가드를 세운다")
+              r"self\._t2_searchagent_fired = getattr", SRC) is not None,
+    "호출부는 **재료가 나왔을 때만** 발화 수를 센다 (C419 이후 축별 관리)")
 chk("스펙 %s · 원값 %r" in _seg3, "`now` 실패 사유를 인쇄한다 ([[64]] 를 우리 로그에도)")
 
 print("\n§3 A2 선언 — 두 층에 같은 문구가 있다 ([[24]])")
@@ -105,12 +107,12 @@ chk("{groups}" in layers[0]["group_prompt"] and "{material}" in layers[0]["doc_d
 
 print("\n§5 경로 하드코딩 0 — 코퍼스는 환경에서 온다 ([[05]])")
 i = SRC.find("def _search_material(")
-seg = SRC[i:i + 4200]   # 함수가 길어지면 창도 넓힌다(첫 판이 창 밖을 못 봤다)
+seg = SRC[i:i + 5200]   # 함수가 길어지면 창도 넓힌다(첫 판이 창 밖을 못 봤다)
 chk("corpus_from_env" in seg, "환경 어댑터를 쓴다")
 chk("domains/" not in seg and "/home/" not in seg, "진입점에 파일 경로 상수가 없다")
-chk("decide_from_docs" in seg and "formalize_group" in seg, "고르는 일은 두 번 다 LLM 이다")
+chk("decide_from_docs" in seg and "formalize_groups" in seg, "고르는 일은 두 번 다 LLM 이다")
 chk(not re.search(r"\bsorted\(.*reverse=True\)\[0\]|\bmax\(", seg),
     "엔진이 최댓값·순위로 답을 집지 않는다 (⛔0 ④)")
 
-print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 25 - len(FAILED), 25))
+print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 27 - len(FAILED), 27))
 sys.exit(1 if FAILED else 0)

@@ -32,7 +32,7 @@ import sys
 
 __all__ = ["linked_docs", "read_docs", "drop_expired", "coverage", "as_material",
            "docs_for", "declared_windows", "index_coverage", "material_for",
-           "corpus_from_env", "formalize_group", "decide_from_docs", "to_iso"]
+           "corpus_from_env", "formalize_groups", "decide_from_docs", "to_iso"]
 
 _DATE = re.compile(r"^\s*(\d{4})-(\d{2})-(\d{2})")
 
@@ -290,8 +290,8 @@ def material_for(a2, group, doc_dir=None, now=None, per_doc=400, windowed="gener
         "kept": len(keep), "dropped": [d for d, _f, _t in dropped]}
 
 
-def formalize_group(agent, la, UserMessage, spec, texts, groups):
-    """① 손님의 말 → **문서군 하나**. 닫힌 집합(A3 `doc_index` 키)이라 엔진이 검증한다([[22]]).
+def formalize_groups(agent, la, UserMessage, spec, texts, groups):
+    """① 손님의 말 → **문서군 목록**(요청 하나당 하나). 닫힌 집합(A3 `doc_index` 키)이라 엔진이 검증한다([[22]]).
 
     ★필요성 (x248·071 실물): 군을 잘못 고르면 재료가 통째로 어긋난다. 첫 판은 요청을 문맥
       **뒤**에 놓아 savings 요청에도 checking 군을 골랐고, 재료가 겹친 덕에 답만 우연히 맞았다
@@ -301,7 +301,7 @@ def formalize_group(agent, la, UserMessage, spec, texts, groups):
     """
     tpl = (spec or {}).get("group_prompt")
     if not (tpl and agent is not None and la is not None and texts and groups):
-        return None
+        return []
     names = sorted(groups)
     listing = "\n".join("  %s" % g for g in names)
     ask = "\n---\n".join(str(t) for t in texts)[-6000:]
@@ -317,10 +317,18 @@ def formalize_group(agent, la, UserMessage, spec, texts, groups):
         raw = " ".join(str(getattr(sub, "content", None) or "").split())
     except Exception as e:
         print("[T2_DOCGROUP] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
-        return None
-    hit = sorted((g for g in names if g and g.lower() in raw.lower()), key=len, reverse=True)
-    out = hit[0] if hit else None
-    print("[T2_DOCGROUP] raw=%r → %s" % (raw[:60], out or "군 집합 밖 = 침묵"),
+        return []
+    # ★**복수로 받는다** (2026-08-11·사용자 지시 *"축별로 분리해서 결정점을 나누게 하라"*):
+    #   071 은 요청이 둘이다(사업자 체킹 하나 + 사업자 세이빙 하나). 하나만 고르게 하면 나머지
+    #   축은 영영 못 다루고, 실제로 라이브에서 개인 체킹을 골라 손님이 **이미 가진** 계좌를
+    #   추천했다. x252 는 축을 하나씩 물었을 때 두 축 다 8/8 이었다 — 라이브를 그 형태로 되돌린다.
+    #   ⚠고르는 것은 여전히 LLM 이다. 엔진은 **답에 등장한 순서대로** 담기만 한다(순위 계산 0).
+    lower = raw.lower()
+    out = sorted((g for g in names if g and g.lower() in lower), key=lambda g: lower.find(g.lower()))
+    # 더 긴 이름이 짧은 이름을 품으면(`business_checking_accounts` ⊃ `checking_accounts`)
+    # 짧은 쪽은 **그 자리에서 나온 것이 아니다** — 문자열 포함일 뿐이라 뺀다.
+    out = [g for g in out if not any(o != g and g.lower() in o.lower() for o in out)]
+    print("[T2_DOCGROUP] raw=%r → %s" % (raw[:80], ", ".join(out) or "군 집합 밖 = 침묵"),
           file=sys.stderr, flush=True)
     return out
 

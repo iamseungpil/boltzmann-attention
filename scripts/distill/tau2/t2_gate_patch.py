@@ -2467,8 +2467,21 @@ def _search_material(agent, a2, messages):
     _ask = " --- ".join(_users[-4:] or _tx[-3:])[-6000:]
     import tau2.agent.llm_agent as _la
     from tau2.data_model.message import UserMessage as _UM
-    _g = _ts.formalize_group(agent, _la, _UM, _po, [_ask], _groups)
+    # ★**축별 결정점** (2026-08-11·C419·사용자 지시 *"축별로 분리해서 결정점을 나누게 하라"*).
+    #   071 은 요청이 둘이다(사업자 체킹 + 사업자 세이빙). 구판은 군을 하나만 고르고 **sim 당 1회**
+    #   잠갔다 — 라이브에서 개인 체킹을 골라 손님이 **이미 가진** 계좌를 추천하고 그대로 끝났다.
+    #   ⇒ LLM 이 **요청마다 하나씩** 군을 대고, 엔진은 아직 안 다룬 것을 **한 결정점에 하나씩**
+    #     처리한다. 재료가 축마다 37K자라 한 턴에 다 싣는 것은 불가능하기도 하다.
+    #   ⚠엔진은 고르지 않는다 — LLM 이 **답한 순서**대로 담고, 그 순서대로 꺼내 쓸 뿐이다.
+    _gs = _ts.formalize_groups(agent, _la, _UM, _po, [_ask], _groups)
+    _done = getattr(agent, "_t2_search_done", None)
+    if _done is None:
+        _done = set()
+    _g = next((g for g in _gs if g not in _done), None)
     if not _g:
+        if _gs:
+            print("[T2_SEARCH_AGENT] 요청 축 %s 모두 처리됨 — 침묵" % ",".join(_gs),
+                  file=sys.stderr, flush=True)
         return ""
     import t2_ledger as _lg
     # ★`now_prompt` 는 `policy_ontology` 가 아니라 **`ledger_metrics`** 에 선언돼 있다.
@@ -2507,6 +2520,15 @@ def _search_material(agent, a2, messages):
     _choice = _ts.decide_from_docs(agent, _la, _UM, _po, _mat, _ask)
     if not _choice:
         return ""
+    # 이 축은 처리했다 — 다음 결정점은 **남은 축**을 본다(sim 1회 잠금이 아니라 축별 1회).
+    try:
+        _done.add(_g)
+        agent._t2_search_done = _done
+    except Exception:
+        pass
+    print("[T2_SEARCH_AGENT] 축 처리 완료: %s (남은 축 %s)"
+          % (_g, ",".join(g for g in _gs if g not in _done) or "없음"),
+          file=sys.stderr, flush=True)
     return _po["decided_by_docs_text"].format(choice=_choice)
 
 
@@ -6962,11 +6984,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     #   ⚠한 sim 에 **한 번**만(재료는 대화와 무관한 정책 상수라 반복
                                     #     발화가 이득이 아니다·[[57]]).
                                     if (not _m3 and os.environ.get("T2_SEARCH_AGENT") == "1"
-                                            and not getattr(self, "_t2_searchagent_fired", 0)):
+                                            and getattr(self, "_t2_searchagent_fired", 0) < 3):
                                         try:
                                             _m3 = _search_material(self, a2, state.messages)
                                             if _m3:
-                                                self._t2_searchagent_fired = 1
+                                                self._t2_searchagent_fired = getattr(
+                                                    self, "_t2_searchagent_fired", 0) + 1
                                         except Exception as _sae:
                                             print("[T2_SEARCH_AGENT] 건너뜀(무발화): %r" % (_sae,),
                                                   file=_sys.stderr, flush=True)
