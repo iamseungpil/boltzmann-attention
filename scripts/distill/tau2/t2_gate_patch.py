@@ -2458,14 +2458,27 @@ def _search_material(agent, a2, messages):
         return ""
     _tx = [_content_str(_m) for _m in (messages or [])
            if getattr(_m, "role", None) in ("user", "tool")]
-    _ask = " --- ".join(_tx[-3:])[-6000:]
+    # ★군 형식화에는 **손님의 말**을 준다 (2026-08-11 라이브 교정): 첫 판은 `user+tool` 의 마지막
+    #   셋을 줬는데 그 셋이 대개 **도구 출력**이라 요청이 안 보였다 — 070 이 개인 체킹
+    #   (`checking_accounts`)을 골랐다(gold 는 `business_checking_accounts`). x252 가 이미
+    #   *요청이 머리에 와야 한다*를 쟀는데(C417⒠) 라이브 입력에서 그 규약을 어겼다.
+    _users = [_content_str(_m) for _m in (messages or [])
+              if getattr(_m, "role", None) == "user"]
+    _ask = " --- ".join(_users[-4:] or _tx[-3:])[-6000:]
     import tau2.agent.llm_agent as _la
     from tau2.data_model.message import UserMessage as _UM
     _g = _ts.formalize_group(agent, _la, _UM, _po, [_ask], _groups)
     if not _g:
         return ""
     import t2_ledger as _lg
-    _now = _lg.formalize_now(agent, _la, _UM, _tx, _po) or None
+    # ★`now_prompt` 는 `policy_ontology` 가 아니라 **`ledger_metrics`** 에 선언돼 있다.
+    #   첫 판은 `_po` 를 넘겨 tpl 이 없어 **항상 None** 이었고, 그러면 `drop_expired` 가
+    #   아무것도 안 뺀다 — 로그에는 `뺀 것 0` 으로만 남아 **성공처럼 보인다**(라이브 실패 3회째).
+    #   그리고 그 값은 선언 형식(`%m/%d/%Y`)이라 ISO 비교 전에 **정규화**해야 한다.
+    _nspec = next((s for s in (a2.get("ledger_metrics") or ()) if s.get("now_prompt")), None)
+    _now_raw = _lg.formalize_now(agent, _la, _UM, _tx, _nspec) if _nspec else None
+    _now = _ts.to_iso(_now_raw, tuple((_nspec or {}).get("date_formats")
+                                      or ("%m/%d/%Y", "%Y-%m-%d")))
     _mat, _info = _ts.material_for(a2, _g, now=_now, corpus=_corpus)
     print("[T2_SEARCH_AGENT] group=%s · 문서 %d(뺀 것 %d: %s) · now=%s"
           % (_g, _info["kept"], len(_info["dropped"]), ",".join(_info["dropped"])[:80], _now),

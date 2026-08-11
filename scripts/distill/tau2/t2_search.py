@@ -32,7 +32,7 @@ import sys
 
 __all__ = ["linked_docs", "read_docs", "drop_expired", "coverage", "as_material",
            "docs_for", "declared_windows", "index_coverage", "material_for",
-           "corpus_from_env", "formalize_group", "decide_from_docs"]
+           "corpus_from_env", "formalize_group", "decide_from_docs", "to_iso"]
 
 _DATE = re.compile(r"^\s*(\d{4})-(\d{2})-(\d{2})")
 
@@ -171,6 +171,27 @@ def corpus_from_env(env):
             if isinstance(h, (dict, list)) or hasattr(h, "__dict__"):
                 queue.append((h, d + 1))
     return {}
+
+
+def to_iso(value, fmts=("%m/%d/%Y", "%Y-%m-%d")):
+    """선언된 형식의 날짜 문자열 → `YYYY-MM-DD` (못 읽으면 None).
+
+    ★왜 필요한가 (2026-08-11 라이브·세 번째 死배선): `formalize_now` 는 A2 가 선언한 형식
+      (`%m/%d/%Y`)으로 돌려주는데 `drop_expired` 는 ISO 문자열 순서로 비교한다. 그대로 넘기면
+      `_DATE` 정규식이 안 맞아 `now_s=None` → **아무것도 안 빠진다**. 즉 성공한 것처럼 보이면서
+      엔진의 유일한 일이 죽는다 — 로그에는 `뺀 것 0` 으로만 남는다.
+    ⚠날짜 산수뿐이고 도메인 해석은 없다([[59]]). 못 읽으면 None → 그러면 안 뺀다([[25]]).
+    """
+    import datetime as _dt
+    s = str(value or "").strip()
+    if not s:
+        return None
+    for f in fmts:
+        try:
+            return _dt.datetime.strptime(s, f).strftime("%Y-%m-%d")
+        except Exception:
+            continue
+    return None
 
 
 def read_docs(doc_ids, doc_dir=None, corpus=None):

@@ -93,12 +93,12 @@ chk("{groups}" in layers[0]["group_prompt"] and "{material}" in layers[0]["doc_d
 
 print("\n§5 경로 하드코딩 0 — 코퍼스는 환경에서 온다 ([[05]])")
 i = SRC.find("def _search_material(")
-seg = SRC[i:i + 2600]
+seg = SRC[i:i + 4200]   # 함수가 길어지면 창도 넓힌다(첫 판이 창 밖을 못 봤다)
 chk("corpus_from_env" in seg, "환경 어댑터를 쓴다")
 chk("domains/" not in seg and "/home/" not in seg, "진입점에 파일 경로 상수가 없다")
 chk("decide_from_docs" in seg and "formalize_group" in seg, "고르는 일은 두 번 다 LLM 이다")
 chk(not re.search(r"\bsorted\(.*reverse=True\)\[0\]|\bmax\(", seg),
     "엔진이 최댓값·순위로 답을 집지 않는다 (⛔0 ④)")
 
-print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 18 - len(FAILED), 18))
+print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 21 - len(FAILED), 21))
 sys.exit(1 if FAILED else 0)
