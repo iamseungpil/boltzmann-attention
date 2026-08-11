@@ -7631,6 +7631,55 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ⚠**deny는 fail-closed**(버스 불변): 접힐 때도 오류는 그대로 나가고 **본문만** 이미
             #   아래에 있는 일반 문구로 내려간다. 문구를 새로 만들지 않는다. 지침(UserMessage)은
             #   반대로 무부착 — 막는 말이 아니므로 접으면 그냥 안 붙인다.
+            # ★결정-선행 write (T2_DECIDE_BEFORE_WRITE·기본 OFF·2026-08-12·사용자 지시:
+            #   *"순서를 지켜야 하는 부분들은 e-plan 이나 절차 엔진을 통해서 강제해도 된다"* ·
+            #   *"read 에 의한 결정점이 나와야 발화하는게 맞다"*).
+            #   당연한 순서 read → 결정 → write 가 코드에 없었다: 결정점은 조언 턴
+            #   (`_agent_ending`)에만 열려 070 에서 서브의 정답('Sky Blue Account')이
+            #   **쓰기 두 메시지 뒤에** 도착했다(bank_all6b msg36 write · 발화 대화텍스트 21).
+            #   규칙 한 줄: **이 대화에 결정 재료가 없으면 write 를 1턴 미루고, 그 자리서
+            #   같은 서브를 돌려 재료를 담아 돌려준다**([[64]] — 무엇이 없었고 무엇이 답인지).
+            #   ⚠write 강제 아님 — 지연 1턴뿐. 서브가 침묵하면(재료·now 없음) **그냥 통과**
+            #     (막다른 골목 금지). 값 선택은 전부 LLM(서브+메인) 몫([[62]] ③④).
+            #   ⚠술어 전부 닫힘([[22]]): write 집합=A2 도출 · "재료 있었나"=`_t2_search_done`
+            #     공집합 판정 · 도메인 낱말 0.
+            #   ⚠sim 당 1회(cap) — 두 번 미루면 지연이 손실이 된다(Δspurious 계측 동반·§8 P4).
+            dw_fb = None
+            if (os.environ.get("T2_DECIDE_BEFORE_WRITE") == "1" and not do_gate
+                    and main_prov is None and ep_fb is None and dd_fb is None
+                    and cons_fb is None and ra_fb is None and te_fb is None
+                    and wev_fb is None and tr_fb is None and proc_fb is None
+                    and rw_fb is None and tl_fb is None and sig_fb is None
+                    and un_fb is None and pc_fb is None and dr_fb is None and pr_fb is None
+                    and not getattr(self, "_t2_search_done", None)
+                    and not getattr(self, "_t2_dwrite_deny", 0)):
+                try:
+                    _wrset = _confirm_write_tools(a2) | set(
+                        ((a2 or {}).get("eplan") or {}).get("write_tools") or [])
+                    _wc = next((c for c in (am.tool_calls or [])
+                                if _eff_tool_name(c) in _wrset
+                                or getattr(c, "name", "") in _wrset), None)
+                    if _wc is not None:
+                        _dmat = _search_material(self, a2, state.messages)
+                        if _dmat:
+                            self._t2_dwrite_deny = 1
+                            dw_fb = (_wc,
+                                     "Error: [DECIDE-FIRST] this write was held for one turn "
+                                     "because the decision it encodes had not been made in this "
+                                     "conversation yet. It has now been made:\n" + _dmat +
+                                     "\nIf that answers the choice this call encodes, make the "
+                                     "call again with that value. Otherwise make it again as it "
+                                     "was.")
+                            print("[T2_DECIDE_BEFORE_WRITE] write 1턴 유예 tool=%s (재료 %d자)"
+                                  % (_eff_tool_name(_wc), len(_dmat)),
+                                  file=_sys.stderr, flush=True)
+                            _lbeat("T2_DECIDE_BEFORE_WRITE", orch=self,
+                                   target=_eff_tool_name(_wc),
+                                   fact="the decision this write encodes, made before it runs")
+                except Exception as _dwe:
+                    dw_fb = None
+                    print("[T2_DECIDE_BEFORE_WRITE] 건너뜀(무발화): %r" % (_dwe,),
+                          file=_sys.stderr, flush=True)
             _FB_GENERIC = "Error: resolve the flagged call(s) first; do not call this tool yet."
             _fbtag = {}
             # ★단계 1 게이트⒝ 계기: **현행 체인이 실제로 말한 표적**을 모은다(설계서 §7e).
@@ -7642,7 +7691,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                      ("resolve_action", ra_fb), ("toolerr", te_fb), ("wev", wev_fb),
                      ("transcribe", tr_fb), ("proc", proc_fb), ("resolve_write", rw_fb),
                      ("toollist", tl_fb), ("signature", sig_fb), ("unlockname", un_fb),
-                     ("prekb", pc_fb), ("dispatch_role", dr_fb), ("prov", pr_fb))
+                     ("prekb", pc_fb), ("dispatch_role", dr_fb), ("prov", pr_fb),
+                     ("decide_write", dw_fb))
             _chose8 = []
             for _n8, _v8 in _SRC8:
                 if _v8 is not None and _v8[0] is not None:
@@ -7691,6 +7741,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 elif pr_fb is not None and c is pr_fb[0]:
                     content = pr_fb[1] if str(pr_fb[1]).lstrip().startswith("Error:") \
                         else "Error: " + pr_fb[1]
+                elif dw_fb is not None and c is dw_fb[0]:
+                    content = dw_fb[1] if str(dw_fb[1]).lstrip().startswith("Error:") \
+                        else "Error: " + dw_fb[1]
                 else:
                     content = _FB_GENERIC
                 if content != _FB_GENERIC:
