@@ -24,7 +24,7 @@ r"""x249 — 검색 에이전트의 **문구 두 개**를 A2 에 선언한다 (�
 
 ⚠두 층에 바이트 동일로 쓴다([[24]]).
 
-실행: py -3 x249_a3_search_prompts.py [--apply]
+실행: py -3 x251_a3_search_prompts.py [--apply]
 """
 import argparse
 import io

@@ -16,7 +16,7 @@ x248 은 프로브가 **자기 문구**로 돌렸다. 배선하면 도는 것은
 ⚠**8141 전용**([[30]]·사용자 지시 2026-08-11). 8140 은 유료 런 자리다.
 ⚠gold 는 채점에만.
 
-실행: T2_PROBE_URL=http://localhost:8141/v1/chat/completions python x250_search_agent_production.py [N]
+실행: T2_PROBE_URL=http://localhost:8141/v1/chat/completions python x252_search_agent_production.py [N]
 """
 import collections
 import json
