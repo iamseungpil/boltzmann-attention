@@ -7152,6 +7152,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                     "T2_DECISION_CARRY_KEEP", "2"))])
                                                 self._t2_view_fb = _q2
                                                 self._t2_cp2_said = _m3
+                                                # ★배달을 **모델 입력에서** 잰다 (C441⒡).
+                                                #   사이드카는 뷰 채널을 안 남긴다 — 그래서
+                                                #   CP2 는 발화만 보이고 도달이 안 보였다.
+                                                #   `_gen` 의 `arrived` 훅에 같은 형식으로
+                                                #   등재하면 다른 경로와 한 표에서 비교된다.
+                                                _qr = list(getattr(
+                                                    self, "_t2_route_pending", None) or [])
+                                                _qr.append(dict(
+                                                    agent="decision_carry", rank=None,
+                                                    target=_tgt, outcome="view",
+                                                    lost_to=None, folded=False, _text=_m3))
+                                                self._t2_route_pending = _qr
                                                 print("[T2_DECISION_CARRY] 결정 값을 체인 밖 "
                                                       "뷰 채널로 (target=%s · %d자)"
                                                       % (_tgt, len(_m3)),
