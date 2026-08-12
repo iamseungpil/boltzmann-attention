@@ -6735,6 +6735,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                             if _bad:
                                                 # ★R8 대상으로 **문자열을 기억해 둔다** — 이 턴에
                                                 #   결정 블록이 나가면 아래에서 그대로 뺀다.
+                                                # (재임포트: `_bad`≠[] 이면 6602 가 성공했으므로
+                                                #  동적으론 안전하지만, 그 불변식에 기대지 않는다 —
+                                                #  `_rz` 사고와 같은 부류의 구조를 남기지 않는다.)
+                                                import t2_source as _SRC
                                                 _srctext = _SRC.unsourced_text(a2, _bad)
                                                 _ufb = ((_ufb + "\n") if _ufb else "") + _srctext
                                             print("[T2_ARBITRATE] push dominated target=%s reqs=%s "
@@ -7612,6 +7616,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 #   것이다(오늘 `main_prov`·break-가드와 같은 종류).
                                 import tau2.agent.llm_agent as _la_ax
                                 from tau2.data_model.message import UserMessage as _UM_ax
+                                # ⚠`_rz` 재임포트 필수 (h런 실측 UnboundLocalError ×2): 6389 의
+                                #   `import t2_resolve as _rz` 는 resolve-계약 분기 **안**이라
+                                #   그 분기가 안 돈 턴엔 지역 `_rz` 가 미대입이다. 이 블록은
+                                #   자기 발로 서야 한다 — 죽은-레버 4호를 만들지 마라.
+                                import t2_resolve as _rz
                                 _want = _rz.formalize_arg_axis(
                                     self, _la_ax, _UM_ax, state.messages,
                                     _sp.get("group_arg"), list(_sp.get("group_map") or {}),

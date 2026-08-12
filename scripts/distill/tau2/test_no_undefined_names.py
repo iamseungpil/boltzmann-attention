@@ -60,6 +60,59 @@ def undefined_module_names(src):
     return out
 
 
+def conditional_import_escapes(src):
+    """죽은-레버 4호 부류: 함수 안에서 `import X as Y` 가 **If 분기 안에만** 있는데
+    Y 를 그 분기 subtree **밖**에서 쓰면 UnboundLocalError (h런 실측: `_rz` —
+    resolve-계약 분기 안 임포트를 AXIS 분기가 참조). → {(함수, 이름): 사용 행}."""
+    tree = ast.parse(src)
+    out = {}
+    for fn in ast.walk(tree):
+        if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        # 이 함수의 **직속** 본문만 본다(중첩 함수는 자기 차례에 별도로 처리).
+        nodes = []
+        stack = list(fn.body)
+        while stack:
+            n = stack.pop()
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            nodes.append(n)
+            stack.extend(ast.iter_child_nodes(n))
+        # 이름별: 임포트 바인딩(및 그것을 감싸는 If subtree 행범위)·일반 대입·사용
+        imports = {}      # name -> [(lineno, if_range or None)]
+        stores = {}       # name -> [If 밖 무조건 대입 존재?]
+        ifs = [n for n in nodes if isinstance(n, ast.If)]
+
+        def if_range_of(node):
+            best = None
+            for i in ifs:
+                s, e = i.lineno, getattr(i, "end_lineno", i.lineno)
+                if s <= node.lineno <= e and (best is None or s > best[0]):
+                    best = (s, e)
+            return best
+
+        for n in nodes:
+            if isinstance(n, (ast.Import, ast.ImportFrom)):
+                for a in n.names:
+                    nm = a.asname or a.name.split(".")[0]
+                    imports.setdefault(nm, []).append((n.lineno, if_range_of(n)))
+            elif isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store):
+                if if_range_of(n) is None:
+                    stores[n.id] = True
+        for n in nodes:
+            if not (isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load)):
+                continue
+            nm = n.id
+            if nm not in imports or stores.get(nm):
+                continue
+            covered = any(
+                ln < n.lineno and (rng is None or rng[0] <= n.lineno <= rng[1])
+                for ln, rng in imports[nm])
+            if not covered:
+                out.setdefault((fn.name, nm), n.lineno)
+    return out
+
+
 def main():
     ok = True
 
@@ -80,6 +133,43 @@ def main():
         print("  음성 대조: 정상 코드에 오탐                          FAIL")
         ok = False
 
+    # ── 양성 대조 2 (죽은-레버 4호 부류): If 분기 안 임포트를 딴 분기가 쓰는가 ──
+    planted2 = (
+        "def f(a, b):\n"
+        "    if a:\n"
+        "        import json as _rz\n"
+        "        _rz.dumps({})\n"          # 같은 subtree — OK
+        "    if b:\n"
+        "        _rz.loads('{}')\n"        # 딴 분기 — UnboundLocalError 부류
+        "    return 0\n")
+    got2 = conditional_import_escapes(planted2)
+    if ("f", "_rz") in got2:
+        print("  양성 대조2: 분기-탈출 임포트 사용을 잡는다           PASS")
+    else:
+        print("  양성 대조2: 분기-탈출 임포트 사용을 못 잡는다        FAIL")
+        ok = False
+    # 음성 대조 2: 각 사용 분기가 자기 임포트를 가지면 무발화 + 선행 무조건 대입도 면제
+    clean2 = (
+        "def g(a, b):\n"
+        "    _x = None\n"
+        "    if a:\n"
+        "        import json as _x\n"
+        "    if _x:\n"
+        "        _x.loads('{}')\n"
+        "def h(a, b):\n"
+        "    if a:\n"
+        "        import json as _y\n"
+        "        _y.dumps({})\n"
+        "    if b:\n"
+        "        import json as _y\n"
+        "        _y.loads('{}')\n")
+    if not conditional_import_escapes(clean2):
+        print("  음성 대조2: 안전 패턴에 무발화                       PASS")
+    else:
+        print("  음성 대조2: 안전 패턴에 오탐 %s                    FAIL"
+              % conditional_import_escapes(clean2))
+        ok = False
+
     # ── 본검사: 전수 스캔 ──
     for path in TARGETS:
         base = os.path.basename(path)
@@ -88,6 +178,7 @@ def main():
         src = io.open(path, encoding="utf-8").read()
         try:
             bad = undefined_module_names(src)
+            bad2 = conditional_import_escapes(src)
         except SyntaxError as e:
             print("  %-38s 구문 오류: %s                FAIL" % (base, e))
             ok = False
@@ -95,6 +186,11 @@ def main():
         if bad:
             for nm, ln in sorted(bad.items(), key=lambda kv: kv[1]):
                 print("  %-38s :%d 미정의 모듈명 %r        FAIL" % (base, ln, nm))
+            ok = False
+        if bad2:
+            for (fname, nm), ln in sorted(bad2.items(), key=lambda kv: kv[1]):
+                print("  %-38s :%d %s() 분기-탈출 임포트 %r  FAIL"
+                      % (base, ln, fname, nm))
             ok = False
     if ok:
         print("  엔진 경로 %d개 모듈: 미정의 모듈명 0                 PASS"
