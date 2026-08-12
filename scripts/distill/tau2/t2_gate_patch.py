@@ -2580,8 +2580,17 @@ def _search_material(agent, a2, messages):
     _out = _po["decided_by_docs_text"].format(choice=_choice)
     # ★서브가 낸 답을 보관한다 — 축이 처리된 뒤(침묵) write 자리에서 **그대로 다시** 내기
     #   위해서다(C439⒝·새 판단 0·C301 `_t2_deferred` 와 같은 형태의 재제시).
+    # ★★축별 보관 (2026-08-13·재판정런 071 t1 부검): 구판은 **단일 슬롯**이라 두 축을 쓰는
+    #   태스크에서 나중 축(savings)의 결정이 앞선 축(checking)의 결정을 **덮어썼다**. 실측:
+    #   turn 30 `DOCDECIDE → 'Sky Blue'`(checking) → turn 32 `→ 'Gold Saver Account'`(savings)
+    #   → 같은 turn 32 의 checking write 인자는 `True Blue`(오답)로 나갔고 `Sky Blue` 는
+    #   재제시되지 않았다(`_t2_search_done` 잠금은 전역·영구라 서브도 다시 안 돈다).
+    #   축은 A3 `doc_index` 키(닫힌 집합)이므로 dict 키로 쓰는 것에 해석이 없다([[22]]).
     try:
         agent._t2_last_decision = _out
+        _ad = dict(getattr(agent, "_t2_axis_decision", None) or {})
+        _ad[_g] = _out
+        agent._t2_axis_decision = _ad
     except Exception:
         pass
     return _out
@@ -2671,6 +2680,18 @@ def _claim_unbacked(claims, emap, evs, messages, a2=None):
                 out.append(c)
             continue
         pats = spec if isinstance(spec, list) else [spec]
+        # ★센티널을 **목록 안에서도** 받는다 (2026-08-13·재판정런 070 t3 실측).
+        #   모델이 계좌 개설을 `kind='record_update'` 로 라벨했는데 A2 의 그 kind 는
+        #   `update_`·`apply_statement_credit` 계열만 가리켜 **실제로 실행한 개설**을
+        #   *"the ledger shows NO such event"* 라고 단정했고, 모델은 그 말을 따라 같은 개설을
+        #   **다시 호출했다**(turn 34 중복 write·`may already exist`). 우리 출력은 이 대화의
+        #   유일한 근거원이라 거짓은 그 자체로 오염이다([[25]]).
+        #   ⇒ 구제는 **A2 쪽**에서 한다(그 kind 가 실효 write 로도 충족되게). 엔진은 목록
+        #     원소로 온 센티널을 해석할 수 있어야 하고, 그것이 이 두 줄이다. 무지목 날조
+        #     탐지(kind 계열 실행이 아예 0인 경우)는 그대로 살아 있다 — 검정이 그걸 지킨다.
+        if "__effective_write__" in pats and _any_effective_write(messages, a2):
+            continue
+        pats = [p for p in pats if p != "__effective_write__"]
         if not any(any(str(e).startswith(p) for e in evs) for p in pats):
             out.append(c)
     return out
@@ -2741,12 +2762,27 @@ def _unavailable_promises(pending, known, discoverable=None):
     """
     def _n(x):
         return re.sub(r"_\d+$", "", str(x or "").strip())
-    disc = {_n(x) for x in (discoverable or set())}
+    # ★센티널·다중값 처리 (2026-08-13·재판정런 071 t0·010 t3 실측 — 둘 다 [[25]] 위반 거짓 발화).
+    #   ⒜ A2 질문이 *"...or **omit** if none"* 이라 모델이 문자열 `"omit"` 을 답하는데, 구판은
+    #      그것을 **실재 도구명**으로 받아 "그 도구는 존재하지 않는다"를 쐈다. 071 t0 은 그
+    #      문장 직후 turn 30 부터 **26턴을 존재하지 않는 포털 절차**로 날조했다(로그 축자:
+    #      `[T2_UNAVAIL] ... ['omit','omit','omit'] · locked: []`).
+    #   ⒝ 모델이 도구를 **쉼표로 여러 개** 답하면(`'KB_search_dense, KB_search_bm25'`) 통째
+    #      한 이름으로 대조돼 **보유한 도구**를 "없다"고 단정했다(010 t3 실측).
+    #   ⇒ 센티널은 판정 제외(침묵·모르면 말하지 않는다), 다중값은 쪼개서 **하나라도 보유하면**
+    #      약속은 이행 가능하므로 침묵한다. 판정은 전부 집합 대조뿐이다([[22]]).
+    _SENT = {"", "omit", "none", "null", "n/a", "na", "-", "unknown"}
     out, locked = [], []
     for p in (pending or []):
-        t = (p or {}).get("tool")
-        if t and _n(t) not in known:
-            (locked if _n(t) in disc else out).append(p)
+        raw = str((p or {}).get("tool") or "")
+        parts = [x.strip() for x in re.split(r"[,;/]| or ", raw) if x.strip()]
+        parts = [x for x in parts if x.lower().strip("'\"` ") not in _SENT]
+        if not parts:
+            continue                      # 지목 없음 = 판정 대상 아님(구판 하위호환 취지 동일)
+        norm = [_n(x) for x in parts]
+        if any(x in known for x in norm):
+            continue                      # 하나라도 보유 = 약속은 이행 가능
+        (locked if any(x in disc for x in norm) else out).append(p)
     return out, locked
 
 
@@ -6636,7 +6672,22 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                             except Exception:
                                                 _bad = []
                                         if _reqs or _bad:
-                                            _ufb = _DOMm.merged_text(a2, _reqs, _utgt) if _reqs else ""
+                                            # ★덮어쓰기 → 병합 (2026-08-13·재판정런 010 전수 부검).
+                                            #   `_ufb` 에는 이 시점까지 만들어 둔 **[ACTION] 소유권
+                                            #   문장**이 들어 있다(*"...do not transfer for this ...
+                                            #   tell the customer to run {tool} themselves"*). 구판은
+                                            #   그것을 조건 없이 덮었고, `_reqs` 가 비고 `_bad` 만
+                                            #   남는 턴(=선행 요건이 **다 충족된** 바로 그 결정 순간)엔
+                                            #   빈 문자열이 되어 지시가 통째로 사라졌다.
+                                            #   실측: 010 결정 턴 3/3 에서 소멸(`[T2_ARBITRATE] push
+                                            #   dominated ... reqs= unsourced=1`), 유일한 통과 sim 은
+                                            #   그 턴에 우리 층이 **거의 침묵**한 시행이었다.
+                                            #   소유권(누가 실행하는가)과 요건/근거는 직교하므로
+                                            #   둘 다 남긴다 — [[64]]: 무엇이 틀렸나와 무엇을 하면
+                                            #   풀리나가 함께 있어야 한다.
+                                            _mrg = _DOMm.merged_text(a2, _reqs, _utgt) if _reqs else ""
+                                            _ufb = ((_ufb + "\n") if _ufb else "") + _mrg if _mrg \
+                                                else _ufb
                                             # ★"아무 말 없이 deny 하니까 안 하는 거다"(사용자 지시
                                             #   2026-08-07). 실측이 그 진단을 지지한다: 상한을 풀었더니
                                             #   같은 단계 이름을 **106회** 반복했는데 모델은 그 도구를
@@ -7671,6 +7722,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             en_fb = (c, str(_sp.get("feedback") or "").format(
                                 val=_val, arg=_sp.get("arg"), group=_grp,
                                 candidates=", ".join(_names)))
+                            # ★이 축의 결정이 이미 있으면 **함께** 싣는다 (2026-08-13·071 t1).
+                            #   구판은 후보 8~10개만 줬다 = 메뉴. 실측에서 그 메뉴는 오답을
+                            #   매끄럽게 확정시켰다(`True Blue Business Checking` → `True Blue`).
+                            #   서브가 이 축에서 이미 낸 답(`Sky Blue`)이 저장돼 있는데 그 자리에
+                            #   없었던 것이 유일한 교정 기회의 낭비였다. 새 판단 0 — 저장된
+                            #   **LLM 자신의 출력**을 그대로 재제시할 뿐이고, 무엇을 쓸지는
+                            #   여전히 모델이 정한다([[62]] ③④·[[64]] 무엇을 하면 풀리나).
+                            _dsav = (getattr(self, "_t2_axis_decision", None) or {}).get(_grp)
+                            if _dsav:
+                                en_fb = (en_fb[0], en_fb[1] + "\n" + str(_dsav))
+                                print("[T2_WRITE_ARG_ENUM] 저장된 축 결정 동봉 group=%s (%d자)"
+                                      % (_grp, len(str(_dsav))), file=_sys.stderr, flush=True)
                             print("[T2_WRITE_ARG_ENUM] deny val=%r group=%s (후보 %d)"
                                   % (_val, _grp, len(_names)), file=_sys.stderr, flush=True)
                             _lbeat("T2_WRITE_ARG_ENUM", orch=self, target=_eff_tool_name(c),
@@ -7713,8 +7776,26 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 if _eff_tool_name(c) in _wrset
                                 or getattr(c, "name", "") in _wrset), None)
                     if _wc is not None:
+                        # ★축-정합 재제시 (2026-08-13·071 t1 부검): 저장이 단일 슬롯일 때는
+                        #   savings 결정이 checking 결정을 덮어 **틀린 축의 답**을 되돌려
+                        #   줄 수 있었다. 이 write 의 축은 A2 `write_arg_enum.group_map` 이
+                        #   이미 선언한다(집합 대조뿐·엔진 해석 0). 축을 못 정하면 종전대로.
+                        _dax = None
+                        try:
+                            _ia = _args_dict(_wc).get("arguments")
+                            _ia = json.loads(_ia) if isinstance(_ia, str) else (_ia or {})
+                            for _sp in ((a2 or {}).get("write_arg_enum") or []):
+                                _gm = _sp.get("group_map") or {}
+                                _gv = str((_ia or {}).get(_sp.get("group_arg")) or "")
+                                if _gv in _gm:
+                                    _dax = _gm[_gv]
+                                    break
+                        except Exception:
+                            _dax = None
+                        _saved = (getattr(self, "_t2_axis_decision", None) or {}).get(_dax) \
+                            if _dax else None
                         _dmat = _search_material(self, a2, state.messages) \
-                            or getattr(self, "_t2_last_decision", "")
+                            or _saved or getattr(self, "_t2_last_decision", "")
                         if _dmat:
                             self._t2_dwrite_deny = 1
                             dw_fb = (_wc,

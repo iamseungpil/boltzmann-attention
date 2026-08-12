@@ -46,6 +46,15 @@ DELTA = {
         "`log_verification` 이 양쪽 sim 에서 실행됐는데 kind=record_update 로 선언돼 "
         "'ledger shows NO such event' 를 결정 턴마다 내보냈다([[25]]). 권위는 실행 원장이고 "
         "kind 는 해석이다([[52]]). ⚠라이브 효과 미측정.",
+    ("claim_prov", "event_map"):
+        "`record_update` 에 실효-write 센티널(`__effective_write__`)을 더했다. 재판정런 070 t3 "
+        "실측: 모델이 디스패처로 **실제 실행한** 계좌 개설을 kind='record_update' 로 라벨했는데 "
+        "이 목록은 `update_`·`apply_statement_credit` 계열만 가리켜 *'the ledger shows NO such "
+        "event'* 를 단정했고, 모델이 그 말을 따라 **같은 개설을 다시 호출했다**(중복 write·"
+        "`may already exist`). 우리 출력은 이 대화의 유일한 근거원이라 거짓은 그 자체로 "
+        "오염이다([[25]]). 판정은 엔진의 닫힌 술어(`_any_effective_write`)이고 새 어휘 0. "
+        "⚠무지목 날조 탐지(해당 kind 계열 실행이 0인 경우)는 그대로 살아 있다 — "
+        "`test_claim_pending` 의 search/give 회귀가 그것을 지킨다.",
 }
 
 print("[①] 합성 결과 == 승격 전 (의도된 델타 제외 바이트 동일)")

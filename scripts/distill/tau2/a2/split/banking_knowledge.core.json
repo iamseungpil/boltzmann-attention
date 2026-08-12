@@ -35,6 +35,7 @@
     "request_human"
    ],
    "record_update": [
+    "__effective_write__",
     "update_transaction_rewards",
     "update_",
     "apply_statement_credit",
