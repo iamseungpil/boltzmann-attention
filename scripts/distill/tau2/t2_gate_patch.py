@@ -7510,6 +7510,127 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             print("[T2_UNKNOWN_NAME_BL] deny env-rejected name tool=%s val=%s"
                                   % (getattr(c, "name", None), _uv3), file=_sys.stderr, flush=True)
                             break
+            # ★가드 **앞**으로 옮겼다 (2026-08-12·`test_regen_break_guard.py` 가 잡았다).
+            #   아래 break 가드는 세우는 fb 가 전부 None 이면 루프를 끊는다. 두 레버를
+            #   가드 뒤에 두었더니 **그 턴의 유일한 발화일 때 계산조차 되지 않았다** —
+            #   2026-08-05 `proc_fb` 사고와 **같은 실수**이고, 그때 만든 그 검정이
+            #   이번에도 잡았다(내가 안 돌렸을 뿐이다). 라이브 실측: `Sky Blue Business
+            #   Checking`(집합 外)이 나갔는데 ENUM deny **0회**.
+            # ★공식 명칭 소속 (T2_WRITE_ARG_ENUM·기본 OFF·2026-08-12·C439⒠④).
+            #   실측: 070/071 이 제출한 `account_class` **24건 중 19건이 존재하지 않는 이름**이다
+            #   (`Lime Green Account`×5 · `Gold Saver`×4[on file `Gold Saver Account`] ·
+            #    `Light Blue Business Checking Account`×2 · `Business Bronze Saver`×3 …).
+            #   모델은 `Account` 를 **붙이기도 떼기도** 한다 — 규칙이 아니라 그때그때 고쳐 쓴다.
+            #   ⚠술어는 **닫혀 있다**([[22]]): 후보 집합 **소속 판정**뿐이다. 엔진은 고르지
+            #     않는다 — 8~10개가 그대로 남고 어느 것인지는 모델이 정한다([[62]] ③④).
+            #   ⚠후보 출처는 **env 뿐**: `doc_index` 주어 슬러그의 기계 전개(파일명 유도·x244).
+            #     엔진이 도메인 텍스트를 뜯지 않는다([[59]]) — A3 에 적힌 것을 읽기만 한다.
+            #   ⚠**fail-open**: 축을 못 정하거나 후보가 비면 아무 말도 하지 않는다(모르면 막지
+            #     않는다·[[25]]). 상한 = sim 당 `T2_WRITE_ARG_ENUM_CAP`(기본 3) — 살아 있는
+            #     이름을 계속 거절하는 livelock 을 만들지 않기 위해서다.
+            #   ⚠[[64]]: 무엇이 틀렸는지(집합 밖)와 **무엇을 하면 풀리는지**(후보 명단)를 함께.
+            en_fb = None
+            _ens = (a2 or {}).get("write_arg_enum") or []
+            if (os.environ.get("T2_WRITE_ARG_ENUM") == "1" and _ens
+                    and getattr(self, "_t2_enum_deny", 0)
+                    < int(os.environ.get("T2_WRITE_ARG_ENUM_CAP", "3"))):
+                try:
+                    _di = ((a2 or {}).get("policy_ontology") or {}).get("doc_index") or {}
+                    for c in (am.tool_calls or []):
+                        if en_fb is not None:
+                            break
+                        _ad = _args_dict(c)
+                        for _sp in _ens:
+                            if str(getattr(c, "name", "")) != str(_sp.get("applies_to")):
+                                continue
+                            _aw = _sp.get("applies_when") or {}
+                            if _aw and not str(_ad.get(_aw.get("arg")) or "").startswith(
+                                    str(_aw.get("prefix") or "\0")):
+                                continue
+                            _ia = _ad.get("arguments")
+                            try:
+                                _ia = json.loads(_ia) if isinstance(_ia, str) else (_ia or {})
+                            except Exception:
+                                _ia = {}
+                            if not isinstance(_ia, dict):
+                                continue
+                            _val = str(_ia.get(_sp.get("arg")) or "").strip()
+                            _grp = (_sp.get("group_map") or {}).get(
+                                str(_ia.get(_sp.get("group_arg")) or ""))
+                            _subs = _di.get(_grp) or {}
+                            if not (_val and _grp and _subs):
+                                continue          # fail-open: 모르면 막지 않는다
+                            _names = sorted(" ".join(w.capitalize() for w in str(k).split("_"))
+                                            for k in _subs)
+                            if _val in _names:
+                                continue          # 집합 內 — 선택이 옳은지는 우리가 판정하지 않는다
+                            self._t2_enum_deny = getattr(self, "_t2_enum_deny", 0) + 1
+                            en_fb = (c, str(_sp.get("feedback") or "").format(
+                                val=_val, arg=_sp.get("arg"), group=_grp,
+                                candidates=", ".join(_names)))
+                            print("[T2_WRITE_ARG_ENUM] deny val=%r group=%s (후보 %d)"
+                                  % (_val, _grp, len(_names)), file=_sys.stderr, flush=True)
+                            _lbeat("T2_WRITE_ARG_ENUM", orch=self, target=_eff_tool_name(c),
+                                   fact="the official names on file for this product group")
+                            break
+                except Exception as _ene:
+                    en_fb = None
+                    print("[T2_WRITE_ARG_ENUM] 건너뜀(무발화): %r" % (_ene,),
+                          file=_sys.stderr, flush=True)
+            # ★결정-선행 write (T2_DECIDE_BEFORE_WRITE·기본 OFF·2026-08-12·사용자 지시:
+            #   *"순서를 지켜야 하는 부분들은 e-plan 이나 절차 엔진을 통해서 강제해도 된다"* ·
+            #   *"read 에 의한 결정점이 나와야 발화하는게 맞다"*).
+            #   당연한 순서 read → 결정 → write 가 코드에 없었다: 결정점은 조언 턴
+            #   (`_agent_ending`)에만 열려 070 에서 서브의 정답('Sky Blue Account')이
+            #   **쓰기 두 메시지 뒤에** 도착했다(bank_all6b msg36 write · 발화 대화텍스트 21).
+            #   규칙 한 줄: **이 대화에 결정 재료가 없으면 write 를 1턴 미루고, 그 자리서
+            #   같은 서브를 돌려 재료를 담아 돌려준다**([[64]] — 무엇이 없었고 무엇이 답인지).
+            #   ⚠write 강제 아님 — 지연 1턴뿐. 서브가 침묵하면(재료·now 없음) **그냥 통과**
+            #     (막다른 골목 금지). 값 선택은 전부 LLM(서브+메인) 몫([[62]] ③④).
+            #   ⚠술어 전부 닫힘([[22]]): write 집합=A2 도출 · "재료 있었나"=`_t2_search_done`
+            #     공집합 판정 · 도메인 낱말 0.
+            #   ⚠sim 당 1회(cap) — 두 번 미루면 지연이 손실이 된다(Δspurious 계측 동반·§8 P4).
+            dw_fb = None
+            if (os.environ.get("T2_DECIDE_BEFORE_WRITE") == "1" and not do_gate
+                    and main_prov is None and ep_fb is None and dd_fb is None
+                    and cons_fb is None and ra_fb is None and te_fb is None
+                    and wev_fb is None and tr_fb is None and proc_fb is None
+                    and rw_fb is None and tl_fb is None and sig_fb is None
+                    and un_fb is None and pc_fb is None and dr_fb is None and pr_fb is None
+                    and not getattr(self, "_t2_dwrite_deny", 0)):
+                # ★C439⒝ 교정: 초판 가드가 `not _t2_search_done`(=결정이 **아직 없으면** 유예)
+                #   이었는데, 실측된 실패는 *결정이 **있는데 쓰이지 않는** 것*이라 **정반대
+                #   조건**을 보고 있었다 — 그래서 8 sim 에서 0회 발화(P0 실패). 이제 조건을
+                #   빼고, 이미 축이 처리돼 서브가 침묵하면 **그때 낸 답을 그대로 다시 낸다**
+                #   (새 판단 0 · 저장해 둔 LLM 출력의 재제시 = C301 `_t2_deferred` 와 같은 형태).
+                try:
+                    _wrset = _confirm_write_tools(a2) | set(
+                        ((a2 or {}).get("eplan") or {}).get("write_tools") or [])
+                    _wc = next((c for c in (am.tool_calls or [])
+                                if _eff_tool_name(c) in _wrset
+                                or getattr(c, "name", "") in _wrset), None)
+                    if _wc is not None:
+                        _dmat = _search_material(self, a2, state.messages) \
+                            or getattr(self, "_t2_last_decision", "")
+                        if _dmat:
+                            self._t2_dwrite_deny = 1
+                            dw_fb = (_wc,
+                                     "Error: [DECIDE-FIRST] this write was held for one turn "
+                                     "because the decision it encodes had not been made in this "
+                                     "conversation yet. It has now been made:\n" + _dmat +
+                                     "\nIf that answers the choice this call encodes, make the "
+                                     "call again with that value. Otherwise make it again as it "
+                                     "was.")
+                            print("[T2_DECIDE_BEFORE_WRITE] write 1턴 유예 tool=%s (재료 %d자)"
+                                  % (_eff_tool_name(_wc), len(_dmat)),
+                                  file=_sys.stderr, flush=True)
+                            _lbeat("T2_DECIDE_BEFORE_WRITE", orch=self,
+                                   target=_eff_tool_name(_wc),
+                                   fact="the decision this write encodes, made before it runs")
+                except Exception as _dwe:
+                    dw_fb = None
+                    print("[T2_DECIDE_BEFORE_WRITE] 건너뜀(무발화): %r" % (_dwe,),
+                          file=_sys.stderr, flush=True)
             # ★`proc_fb` 누락 교정 (2026-08-05·스모크 g 포렌식·`ABSENCE_DRIVEN_PROCEDURE_DESIGN` §1.5):
             #   이 가드는 루프에서 세우는 fb 15종 중 **`proc_fb` 하나만 빠뜨리고 있었다**(AST 전수 확인).
             #   결과: 절차 레버가 그 턴의 **유일한** 발화면 여기서 루프가 끊겨 (a) 피드백 조립(§5336)에
@@ -7522,7 +7643,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None
                     and pr_fb is None and hv_fb is None and dd_fb is None and sig_fb is None
                     and proc_fb is None and abs_fb is None and tr_fb is None and wd_fb is None
-                    and fs_fb is None):
+                    and fs_fb is None
+                    and dw_fb is None and en_fb is None):
                 break
             main_prov = None
             if do_prov and fab is None:
@@ -7662,121 +7784,6 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ⚠**deny는 fail-closed**(버스 불변): 접힐 때도 오류는 그대로 나가고 **본문만** 이미
             #   아래에 있는 일반 문구로 내려간다. 문구를 새로 만들지 않는다. 지침(UserMessage)은
             #   반대로 무부착 — 막는 말이 아니므로 접으면 그냥 안 붙인다.
-            # ★공식 명칭 소속 (T2_WRITE_ARG_ENUM·기본 OFF·2026-08-12·C439⒠④).
-            #   실측: 070/071 이 제출한 `account_class` **24건 중 19건이 존재하지 않는 이름**이다
-            #   (`Lime Green Account`×5 · `Gold Saver`×4[on file `Gold Saver Account`] ·
-            #    `Light Blue Business Checking Account`×2 · `Business Bronze Saver`×3 …).
-            #   모델은 `Account` 를 **붙이기도 떼기도** 한다 — 규칙이 아니라 그때그때 고쳐 쓴다.
-            #   ⚠술어는 **닫혀 있다**([[22]]): 후보 집합 **소속 판정**뿐이다. 엔진은 고르지
-            #     않는다 — 8~10개가 그대로 남고 어느 것인지는 모델이 정한다([[62]] ③④).
-            #   ⚠후보 출처는 **env 뿐**: `doc_index` 주어 슬러그의 기계 전개(파일명 유도·x244).
-            #     엔진이 도메인 텍스트를 뜯지 않는다([[59]]) — A3 에 적힌 것을 읽기만 한다.
-            #   ⚠**fail-open**: 축을 못 정하거나 후보가 비면 아무 말도 하지 않는다(모르면 막지
-            #     않는다·[[25]]). 상한 = sim 당 `T2_WRITE_ARG_ENUM_CAP`(기본 3) — 살아 있는
-            #     이름을 계속 거절하는 livelock 을 만들지 않기 위해서다.
-            #   ⚠[[64]]: 무엇이 틀렸는지(집합 밖)와 **무엇을 하면 풀리는지**(후보 명단)를 함께.
-            en_fb = None
-            _ens = (a2 or {}).get("write_arg_enum") or []
-            if (os.environ.get("T2_WRITE_ARG_ENUM") == "1" and _ens
-                    and getattr(self, "_t2_enum_deny", 0)
-                    < int(os.environ.get("T2_WRITE_ARG_ENUM_CAP", "3"))):
-                try:
-                    _di = ((a2 or {}).get("policy_ontology") or {}).get("doc_index") or {}
-                    for c in (am.tool_calls or []):
-                        if en_fb is not None:
-                            break
-                        _ad = _args_dict(c)
-                        for _sp in _ens:
-                            if str(getattr(c, "name", "")) != str(_sp.get("applies_to")):
-                                continue
-                            _aw = _sp.get("applies_when") or {}
-                            if _aw and not str(_ad.get(_aw.get("arg")) or "").startswith(
-                                    str(_aw.get("prefix") or "\0")):
-                                continue
-                            _ia = _ad.get("arguments")
-                            try:
-                                _ia = json.loads(_ia) if isinstance(_ia, str) else (_ia or {})
-                            except Exception:
-                                _ia = {}
-                            if not isinstance(_ia, dict):
-                                continue
-                            _val = str(_ia.get(_sp.get("arg")) or "").strip()
-                            _grp = (_sp.get("group_map") or {}).get(
-                                str(_ia.get(_sp.get("group_arg")) or ""))
-                            _subs = _di.get(_grp) or {}
-                            if not (_val and _grp and _subs):
-                                continue          # fail-open: 모르면 막지 않는다
-                            _names = sorted(" ".join(w.capitalize() for w in str(k).split("_"))
-                                            for k in _subs)
-                            if _val in _names:
-                                continue          # 집합 內 — 선택이 옳은지는 우리가 판정하지 않는다
-                            self._t2_enum_deny = getattr(self, "_t2_enum_deny", 0) + 1
-                            en_fb = (c, str(_sp.get("feedback") or "").format(
-                                val=_val, arg=_sp.get("arg"), group=_grp,
-                                candidates=", ".join(_names)))
-                            print("[T2_WRITE_ARG_ENUM] deny val=%r group=%s (후보 %d)"
-                                  % (_val, _grp, len(_names)), file=_sys.stderr, flush=True)
-                            _lbeat("T2_WRITE_ARG_ENUM", orch=self, target=_eff_tool_name(c),
-                                   fact="the official names on file for this product group")
-                            break
-                except Exception as _ene:
-                    en_fb = None
-                    print("[T2_WRITE_ARG_ENUM] 건너뜀(무발화): %r" % (_ene,),
-                          file=_sys.stderr, flush=True)
-            # ★결정-선행 write (T2_DECIDE_BEFORE_WRITE·기본 OFF·2026-08-12·사용자 지시:
-            #   *"순서를 지켜야 하는 부분들은 e-plan 이나 절차 엔진을 통해서 강제해도 된다"* ·
-            #   *"read 에 의한 결정점이 나와야 발화하는게 맞다"*).
-            #   당연한 순서 read → 결정 → write 가 코드에 없었다: 결정점은 조언 턴
-            #   (`_agent_ending`)에만 열려 070 에서 서브의 정답('Sky Blue Account')이
-            #   **쓰기 두 메시지 뒤에** 도착했다(bank_all6b msg36 write · 발화 대화텍스트 21).
-            #   규칙 한 줄: **이 대화에 결정 재료가 없으면 write 를 1턴 미루고, 그 자리서
-            #   같은 서브를 돌려 재료를 담아 돌려준다**([[64]] — 무엇이 없었고 무엇이 답인지).
-            #   ⚠write 강제 아님 — 지연 1턴뿐. 서브가 침묵하면(재료·now 없음) **그냥 통과**
-            #     (막다른 골목 금지). 값 선택은 전부 LLM(서브+메인) 몫([[62]] ③④).
-            #   ⚠술어 전부 닫힘([[22]]): write 집합=A2 도출 · "재료 있었나"=`_t2_search_done`
-            #     공집합 판정 · 도메인 낱말 0.
-            #   ⚠sim 당 1회(cap) — 두 번 미루면 지연이 손실이 된다(Δspurious 계측 동반·§8 P4).
-            dw_fb = None
-            if (os.environ.get("T2_DECIDE_BEFORE_WRITE") == "1" and not do_gate
-                    and main_prov is None and ep_fb is None and dd_fb is None
-                    and cons_fb is None and ra_fb is None and te_fb is None
-                    and wev_fb is None and tr_fb is None and proc_fb is None
-                    and rw_fb is None and tl_fb is None and sig_fb is None
-                    and un_fb is None and pc_fb is None and dr_fb is None and pr_fb is None
-                    and not getattr(self, "_t2_dwrite_deny", 0)):
-                # ★C439⒝ 교정: 초판 가드가 `not _t2_search_done`(=결정이 **아직 없으면** 유예)
-                #   이었는데, 실측된 실패는 *결정이 **있는데 쓰이지 않는** 것*이라 **정반대
-                #   조건**을 보고 있었다 — 그래서 8 sim 에서 0회 발화(P0 실패). 이제 조건을
-                #   빼고, 이미 축이 처리돼 서브가 침묵하면 **그때 낸 답을 그대로 다시 낸다**
-                #   (새 판단 0 · 저장해 둔 LLM 출력의 재제시 = C301 `_t2_deferred` 와 같은 형태).
-                try:
-                    _wrset = _confirm_write_tools(a2) | set(
-                        ((a2 or {}).get("eplan") or {}).get("write_tools") or [])
-                    _wc = next((c for c in (am.tool_calls or [])
-                                if _eff_tool_name(c) in _wrset
-                                or getattr(c, "name", "") in _wrset), None)
-                    if _wc is not None:
-                        _dmat = _search_material(self, a2, state.messages) \
-                            or getattr(self, "_t2_last_decision", "")
-                        if _dmat:
-                            self._t2_dwrite_deny = 1
-                            dw_fb = (_wc,
-                                     "Error: [DECIDE-FIRST] this write was held for one turn "
-                                     "because the decision it encodes had not been made in this "
-                                     "conversation yet. It has now been made:\n" + _dmat +
-                                     "\nIf that answers the choice this call encodes, make the "
-                                     "call again with that value. Otherwise make it again as it "
-                                     "was.")
-                            print("[T2_DECIDE_BEFORE_WRITE] write 1턴 유예 tool=%s (재료 %d자)"
-                                  % (_eff_tool_name(_wc), len(_dmat)),
-                                  file=_sys.stderr, flush=True)
-                            _lbeat("T2_DECIDE_BEFORE_WRITE", orch=self,
-                                   target=_eff_tool_name(_wc),
-                                   fact="the decision this write encodes, made before it runs")
-                except Exception as _dwe:
-                    dw_fb = None
-                    print("[T2_DECIDE_BEFORE_WRITE] 건너뜀(무발화): %r" % (_dwe,),
-                          file=_sys.stderr, flush=True)
             _FB_GENERIC = "Error: resolve the flagged call(s) first; do not call this tool yet."
             _fbtag = {}
             # ★단계 1 게이트⒝ 계기: **현행 체인이 실제로 말한 표적**을 모은다(설계서 §7e).

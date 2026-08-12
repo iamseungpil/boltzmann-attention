@@ -38,7 +38,8 @@ fi
 import os, subprocess, sys
 d = "/home/woori/workspace_common/boltzmann-attention-pi/scripts/distill/tau2"
 bad = []
-for t in ("test_write_arg_enum.py", "test_decide_before_write.py", "test_route_trace.py",
+for t in ("test_regen_break_guard.py",   # ★2026-08-12: 이걸 안 돌려 두 레버가 죽어 있었다
+          "test_write_arg_enum.py", "test_decide_before_write.py", "test_route_trace.py",
           "test_a2_three_layer.py", "test_decision_carry.py"):
     if not os.path.exists(os.path.join(d, t)):
         continue
