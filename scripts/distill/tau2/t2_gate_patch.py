@@ -7592,7 +7592,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ⚠sim 당 1회(cap) — 두 번 미루면 지연이 손실이 된다(Δspurious 계측 동반·§8 P4).
             dw_fb = None
             if (os.environ.get("T2_DECIDE_BEFORE_WRITE") == "1" and not do_gate
-                    and main_prov is None and ep_fb is None and dd_fb is None
+                    and ep_fb is None and dd_fb is None
                     and cons_fb is None and ra_fb is None and te_fb is None
                     and wev_fb is None and tr_fb is None and proc_fb is None
                     and rw_fb is None and tl_fb is None and sig_fb is None

@@ -81,5 +81,31 @@ for loop in loops(tree):
           "첫 카운터 @%s" % (min(after) if after else "없음"))
     break
 
+print("\n③ 가드 **앞** 코드가 가드 **뒤**에서야 대입되는 이름을 쓰지 않는다")
+# 왜: ①을 통과시키려고 블록을 가드 앞으로 옮기면, 그 블록이 참조하던 뒤쪽 지역변수가
+#   **UnboundLocalError** 가 된다. 2026-08-12 라이브에서 `main_prov` 로 실제로 터졌고
+#   (infra error 2건·런 무효), 문자열 검정으로는 안 잡혔다 — 런타임 사고이기 때문이다.
+for loop in loops(tree):
+    g = guard_of(loop)
+    if not g:
+        continue
+    gl = g[0].lineno
+    pre_names, post_first = set(), {}
+    for n in ast.walk(loop):
+        if isinstance(n, ast.Name):
+            if isinstance(n.ctx, ast.Store):
+                if n.lineno > gl:
+                    post_first.setdefault(n.id, n.lineno)
+            elif n.lineno < gl:
+                pre_names.add(n.id)
+    # 루프 밖(앞)에서 이미 대입된 이름은 안전하다 — 파일 전체를 기준으로 본다.
+    pre_assigned = {n.id for n in ast.walk(tree)
+                    if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store)
+                    and n.lineno < gl}
+    bad = sorted(x for x in (pre_names & set(post_first)) if x not in pre_assigned)
+    check("가드 앞이 뒤쪽 지역변수를 참조하지 않는다", not bad,
+          "위험=%s" % bad if bad else "")
+    break
+
 print("\nRESULT: %s" % ("ALL PASS" if not fail else "FAIL %s" % fail))
 sys.exit(1 if fail else 0)
