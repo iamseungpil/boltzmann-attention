@@ -7151,10 +7151,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     if _m3 and os.environ.get("T2_DECISION_CARRY") == "1":
                                         try:
                                             if _m3 != getattr(self, "_t2_cp2_said", None):
-                                                _q2 = list(getattr(self, "_t2_view_fb", None) or [])
-                                                _q2.append([_m3, int(os.environ.get(
-                                                    "T2_DECISION_CARRY_KEEP", "2"))])
-                                                self._t2_view_fb = _q2
+                                                # ★C443: 뷰 큐(`_t2_view_fb`)는 **다음 턴**에
+                                                #   소비된다 — 결정점도 write 도 이 턴이라
+                                                #   한 턴 늦었다(`arrived=False` 실측). 이 턴의
+                                                #   재생성 버퍼로 보낸다(§`work = work + fb` 뒤).
+                                                self._t2_cp2_pending = _m3
                                                 self._t2_cp2_said = _m3
                                                 # ★배달을 **모델 입력에서** 잰다 (C441⒡).
                                                 #   사이드카는 뷰 채널을 안 남긴다 — 그래서
@@ -8084,6 +8085,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception:
                     pass
             work = work + fb
+            # ★CP2 를 **이 턴의 재생성 버퍼**에 붙인다 (2026-08-12·C443 교정).
+            #   초판은 비커밋 뷰 큐(`_t2_view_fb`)에 넣었는데 그 큐는 **다음 턴** `unified()`
+            #   시작에서 소비된다 — 결정점도 write 도 **이 턴**이라 한 턴 늦었다. 계측이
+            #   그것을 그대로 찍었다: `agent=decision_carry · arrived=False`(070·071 둘 다),
+            #   그리고 행동도 같은 말을 했다 — 서브가 `Sky Blue` 를 냈는데 제출은 `Hunter
+            #   Green`(값 없이 후보 명단만 받으면 메뉴가 된다·C440 동형).
+            #   ⚠여전히 **비커밋**이다: `work` 는 생성-시점 버퍼이고 `state.messages` 가 아니다
+            #     (C298 replay 불변식 유지).
+            #   ⚠배타 체인 밖은 그대로다 — `fb` 뒤에 **따로** 붙지, 어느 tool_call 도 차지하지
+            #     않는다(억제·경쟁 무관).
+            _cp2 = getattr(self, "_t2_cp2_pending", None)
+            if _cp2:
+                self._t2_cp2_pending = None
+                try:
+                    work = work + [UserMessage(role="user", content=_cp2)]
+                except TypeError:
+                    work = work + [UserMessage(content=_cp2)]
+                print("[T2_DECISION_CARRY] 이 턴 재생성 버퍼에 부착 (%d자)" % len(_cp2),
+                      file=_sys.stderr, flush=True)
             # ★P1: A2 `require_tool_before`가 선언한 선행 read가 미실행이면 이 재생성 1회를
             #   그 read로 고정한다. deny 스텁이 아니라 **생성-측 제약**이라 replay가 비교할
             #   tool 출력을 만들지 않는다 — require_tool_before를 권고로 강등시킨 C210 사유가
