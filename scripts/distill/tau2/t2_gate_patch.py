@@ -6498,6 +6498,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                                     state.messages,
                                                                     set(_upending) | _acts)
                                 _utgt = _tgt_pre
+                                # ★침묵-사유 계측 (2026-08-12·batch4 010 trial0 [24] 부검: 창은
+                                #   열렸는데 [ACTION]이 침묵한 턴의 원인을 로그로 특정할 수 없었다
+                                #   — §4 "계기의 사각이 음성 관측으로 보인다". 발화는 아래에서
+                                #   따로 로그되므로, 여기선 판정 재료만 남긴다. 행동 불변·print 1줄.)
+                                print("[T2_ACTIONREQ] window=open pending_user=%s "
+                                      "pending_agent=%s formalized_target=%s"
+                                      % (_upending, sorted(_acts - _called), _tgt_pre),
+                                      file=_sys.stderr, flush=True)
                                 if _utgt in _upending:
                                     # ★문구 축소 (2026-08-08·C334·라이브 부검). 구판은 두 가지를
                                     #   한 문장에 묶었는데 하나가 **과잉 일반화**였다: *"실행 절차를
