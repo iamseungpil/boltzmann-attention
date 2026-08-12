@@ -157,14 +157,19 @@ def _is_write(tc):
 
 
 def find_cut(msgs):
-    """절단 규칙(공통·기계·설계 명세 축자): cut = 첫 open_bank_account 디스패치
-    (assistant tool_call **arguments** 에 'open_bank_account' 포함)가 있는 메시지
-    인덱스. 못 찾으면 None(호출부가 SKIP print·[[64]])."""
+    """절단 규칙(공통·기계): cut = 첫 open_bank_account **디스패치**가 있는 메시지 인덱스.
+
+    ★앵커 교정 (2026-08-12·v2 실측): 구판은 args 에 'open_bank_account' 포함이면
+    잡았는데 그건 **unlock**(준비)도 매치한다 — ctx_P 에서 unlock 시점엔 손님 동의가
+    아직 없어(에이전트 선제 준비) 양성 통제가 SAYS_NONE 8/8 로 무너졌다. 레버의 실제
+    표적 = 실행 디스패치(도구명이 unlock 계열이 아닌 호출). 설계 §5d 원 좌표(ctx_A
+    msg 17)와도 이 규칙이 일치한다."""
     for i, m in enumerate(msgs):
         if m.get("role") != "assistant":
             continue
         for tc in (m.get("tool_calls") or []):
-            if WRITE_MARK in _tc_args(tc):
+            if (WRITE_MARK in _tc_args(tc)
+                    and not str(_tc_name(tc) or "").startswith("unlock")):
                 return i
     return None
 
