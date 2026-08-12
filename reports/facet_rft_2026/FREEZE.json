@@ -1,5 +1,5 @@
 {
- "active": true,
+ "active": false,
  "sha": "c5ace835",
  "tag": "bank_dbw_20260812",
  "reason": "T2_DECIDE_BEFORE_WRITE ON/OFF 판정 (C436·C437 사전등록)",
@@ -13,5 +13,6 @@
   "/scripts/distill/tau2/t2_source.py",
   "/scripts/distill/tau2/a2/",
   "/scripts/distill/tau2/go_stack.sh"
- ]
+ ],
+ "released_sha": "1891bacf"
 }

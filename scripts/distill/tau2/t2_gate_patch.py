@@ -2553,7 +2553,14 @@ def _search_material(agent, a2, messages):
     print("[T2_SEARCH_AGENT] 축 처리 완료: %s (남은 축 %s)"
           % (_g, ",".join(g for g in _gs if g not in _done) or "없음"),
           file=sys.stderr, flush=True)
-    return _po["decided_by_docs_text"].format(choice=_choice)
+    _out = _po["decided_by_docs_text"].format(choice=_choice)
+    # ★서브가 낸 답을 보관한다 — 축이 처리된 뒤(침묵) write 자리에서 **그대로 다시** 내기
+    #   위해서다(C439⒝·새 판단 0·C301 `_t2_deferred` 와 같은 형태의 재제시).
+    try:
+        agent._t2_last_decision = _out
+    except Exception:
+        pass
+    return _out
 
 
 def _unlocked_names(messages, a2=None):
@@ -7655,6 +7662,67 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ⚠**deny는 fail-closed**(버스 불변): 접힐 때도 오류는 그대로 나가고 **본문만** 이미
             #   아래에 있는 일반 문구로 내려간다. 문구를 새로 만들지 않는다. 지침(UserMessage)은
             #   반대로 무부착 — 막는 말이 아니므로 접으면 그냥 안 붙인다.
+            # ★공식 명칭 소속 (T2_WRITE_ARG_ENUM·기본 OFF·2026-08-12·C439⒠④).
+            #   실측: 070/071 이 제출한 `account_class` **24건 중 19건이 존재하지 않는 이름**이다
+            #   (`Lime Green Account`×5 · `Gold Saver`×4[on file `Gold Saver Account`] ·
+            #    `Light Blue Business Checking Account`×2 · `Business Bronze Saver`×3 …).
+            #   모델은 `Account` 를 **붙이기도 떼기도** 한다 — 규칙이 아니라 그때그때 고쳐 쓴다.
+            #   ⚠술어는 **닫혀 있다**([[22]]): 후보 집합 **소속 판정**뿐이다. 엔진은 고르지
+            #     않는다 — 8~10개가 그대로 남고 어느 것인지는 모델이 정한다([[62]] ③④).
+            #   ⚠후보 출처는 **env 뿐**: `doc_index` 주어 슬러그의 기계 전개(파일명 유도·x244).
+            #     엔진이 도메인 텍스트를 뜯지 않는다([[59]]) — A3 에 적힌 것을 읽기만 한다.
+            #   ⚠**fail-open**: 축을 못 정하거나 후보가 비면 아무 말도 하지 않는다(모르면 막지
+            #     않는다·[[25]]). 상한 = sim 당 `T2_WRITE_ARG_ENUM_CAP`(기본 3) — 살아 있는
+            #     이름을 계속 거절하는 livelock 을 만들지 않기 위해서다.
+            #   ⚠[[64]]: 무엇이 틀렸는지(집합 밖)와 **무엇을 하면 풀리는지**(후보 명단)를 함께.
+            en_fb = None
+            _ens = (a2 or {}).get("write_arg_enum") or []
+            if (os.environ.get("T2_WRITE_ARG_ENUM") == "1" and _ens
+                    and getattr(self, "_t2_enum_deny", 0)
+                    < int(os.environ.get("T2_WRITE_ARG_ENUM_CAP", "3"))):
+                try:
+                    _di = ((a2 or {}).get("policy_ontology") or {}).get("doc_index") or {}
+                    for c in (am.tool_calls or []):
+                        if en_fb is not None:
+                            break
+                        _ad = _args_dict(c)
+                        for _sp in _ens:
+                            if str(getattr(c, "name", "")) != str(_sp.get("applies_to")):
+                                continue
+                            _aw = _sp.get("applies_when") or {}
+                            if _aw and not str(_ad.get(_aw.get("arg")) or "").startswith(
+                                    str(_aw.get("prefix") or "\0")):
+                                continue
+                            _ia = _ad.get("arguments")
+                            try:
+                                _ia = json.loads(_ia) if isinstance(_ia, str) else (_ia or {})
+                            except Exception:
+                                _ia = {}
+                            if not isinstance(_ia, dict):
+                                continue
+                            _val = str(_ia.get(_sp.get("arg")) or "").strip()
+                            _grp = (_sp.get("group_map") or {}).get(
+                                str(_ia.get(_sp.get("group_arg")) or ""))
+                            _subs = _di.get(_grp) or {}
+                            if not (_val and _grp and _subs):
+                                continue          # fail-open: 모르면 막지 않는다
+                            _names = sorted(" ".join(w.capitalize() for w in str(k).split("_"))
+                                            for k in _subs)
+                            if _val in _names:
+                                continue          # 집합 內 — 선택이 옳은지는 우리가 판정하지 않는다
+                            self._t2_enum_deny = getattr(self, "_t2_enum_deny", 0) + 1
+                            en_fb = (c, str(_sp.get("feedback") or "").format(
+                                val=_val, arg=_sp.get("arg"), group=_grp,
+                                candidates=", ".join(_names)))
+                            print("[T2_WRITE_ARG_ENUM] deny val=%r group=%s (후보 %d)"
+                                  % (_val, _grp, len(_names)), file=_sys.stderr, flush=True)
+                            _lbeat("T2_WRITE_ARG_ENUM", orch=self, target=_eff_tool_name(c),
+                                   fact="the official names on file for this product group")
+                            break
+                except Exception as _ene:
+                    en_fb = None
+                    print("[T2_WRITE_ARG_ENUM] 건너뜀(무발화): %r" % (_ene,),
+                          file=_sys.stderr, flush=True)
             # ★결정-선행 write (T2_DECIDE_BEFORE_WRITE·기본 OFF·2026-08-12·사용자 지시:
             #   *"순서를 지켜야 하는 부분들은 e-plan 이나 절차 엔진을 통해서 강제해도 된다"* ·
             #   *"read 에 의한 결정점이 나와야 발화하는게 맞다"*).
@@ -7675,8 +7743,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and wev_fb is None and tr_fb is None and proc_fb is None
                     and rw_fb is None and tl_fb is None and sig_fb is None
                     and un_fb is None and pc_fb is None and dr_fb is None and pr_fb is None
-                    and not getattr(self, "_t2_search_done", None)
                     and not getattr(self, "_t2_dwrite_deny", 0)):
+                # ★C439⒝ 교정: 초판 가드가 `not _t2_search_done`(=결정이 **아직 없으면** 유예)
+                #   이었는데, 실측된 실패는 *결정이 **있는데 쓰이지 않는** 것*이라 **정반대
+                #   조건**을 보고 있었다 — 그래서 8 sim 에서 0회 발화(P0 실패). 이제 조건을
+                #   빼고, 이미 축이 처리돼 서브가 침묵하면 **그때 낸 답을 그대로 다시 낸다**
+                #   (새 판단 0 · 저장해 둔 LLM 출력의 재제시 = C301 `_t2_deferred` 와 같은 형태).
                 try:
                     _wrset = _confirm_write_tools(a2) | set(
                         ((a2 or {}).get("eplan") or {}).get("write_tools") or [])
@@ -7684,7 +7756,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 if _eff_tool_name(c) in _wrset
                                 or getattr(c, "name", "") in _wrset), None)
                     if _wc is not None:
-                        _dmat = _search_material(self, a2, state.messages)
+                        _dmat = _search_material(self, a2, state.messages) \
+                            or getattr(self, "_t2_last_decision", "")
                         if _dmat:
                             self._t2_dwrite_deny = 1
                             dw_fb = (_wc,
@@ -7716,7 +7789,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                      ("transcribe", tr_fb), ("proc", proc_fb), ("resolve_write", rw_fb),
                      ("toollist", tl_fb), ("signature", sig_fb), ("unlockname", un_fb),
                      ("prekb", pc_fb), ("dispatch_role", dr_fb), ("prov", pr_fb),
-                     ("decide_write", dw_fb))
+                     ("decide_write", dw_fb), ("write_enum", en_fb))
             _chose8 = []
             for _n8, _v8 in _SRC8:
                 if _v8 is not None and _v8[0] is not None:
@@ -7768,6 +7841,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 elif dw_fb is not None and c is dw_fb[0]:
                     content = dw_fb[1] if str(dw_fb[1]).lstrip().startswith("Error:") \
                         else "Error: " + dw_fb[1]
+                elif en_fb is not None and c is en_fb[0]:
+                    content = en_fb[1] if str(en_fb[1]).lstrip().startswith("Error:") \
+                        else "Error: " + en_fb[1]
                 else:
                     content = _FB_GENERIC
                 if content != _FB_GENERIC:
