@@ -114,7 +114,24 @@ def main():
              % (ask, str(doc)[:2500], txt)),
             ("C_HITS_ONLY", "%s\n\nKnowledge base results:\n%s" % (ask, hits_txt)),
             ("D_NAMEONLY", "%s\n\nKnowledge base results:\nThe tool to use is "
-                           "open_bank_account_4821.\n\n[system] %s" % (ask, txt)))
+                           "open_bank_account_4821.\n\n[system] %s" % (ask, txt)),
+            # ★E — **진행 상태를 반영한 문구**. A~D 가 보인 것: 출시 문구는 볼 때마다
+            #   *"(1) 검색"* 을 말해서 이름을 이미 알아도 또 검색한다(`KB_AGAIN` 8/8×3팔).
+            #   이름이 회수된 뒤에는 **(2)단계를 이름과 함께** 말해야 한다. 이 문자열이 이기면
+            #   그대로 A2 슬롯이 된다([[03b]] 측정한 문구 = 출시할 문구).
+            #   ⚠이름은 **회수된 텍스트에 실재**한다(위에서 확인: 라이브 결과에 포함 True) —
+            #     우리가 지어내는 것이 아니다.
+            ("E_STEP2", "%s\n\nKnowledge base results:\n%s\n\n[system] [DISCOVERY-STEP2] "
+                        "the knowledge base you already searched names the tool for this "
+                        "action: open_bank_account_4821. It is not in your tool list, so it "
+                        "must be unlocked before it can be used. Call "
+                        "unlock_discoverable_agent_tool with that name now. Do not search "
+                        "again - the name is already known." % (ask, hits_txt)),
+            ("F_STEP2_NOCTX", "%s\n\n[system] [DISCOVERY-STEP2] the knowledge base you already "
+                              "searched names the tool for this action: open_bank_account_4821. "
+                              "It is not in your tool list, so it must be unlocked before it can "
+                              "be used. Call unlock_discoverable_agent_tool with that name now. "
+                              "Do not search again - the name is already known." % ask))
     for label, body in arms:
         c = collections.Counter()
         for i in range(n):
