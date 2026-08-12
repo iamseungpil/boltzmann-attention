@@ -2730,17 +2730,24 @@ def _known_tool_names(self_tools, env, msgs):
     return {x for x in out if x}
 
 
-def _unavailable_promises(pending, known):
+def _unavailable_promises(pending, known, discoverable=None):
     """약속(pending)에 실린 도구명이 `known`에 없으면 = **모델이 없는 기능을 약속**. 집합 대조만.
-    `tool` 미선언 항목은 판정하지 않는다(구판 A2 하위호환·거동 보존)."""
+    `tool` 미선언 항목은 판정하지 않는다(구판 A2 하위호환·거동 보존).
+
+    ★분할 반환 (2026-08-12·j런 070t0 t72): 그 도구가 agent-측 discoverable 레지스트리에
+      **실재(잠금 상태)** 하면 "존재하지 않는다"는 거짓이다 — 우리 STEP2 가 5회 말한
+      transfer_7291 을 이 문구가 "없다"고 단정해 개설-성공 공지 삭제·계획 반전의 방아쇠가
+      됐다([[25]]). (없음, 잠김) 두 목록을 돌려주고 문면은 호출부가 A2 키로 가른다.
+    """
     def _n(x):
         return re.sub(r"_\d+$", "", str(x or "").strip())
-    out = []
+    disc = {_n(x) for x in (discoverable or set())}
+    out, locked = [], []
     for p in (pending or []):
         t = (p or {}).get("tool")
         if t and _n(t) not in known:
-            out.append(p)
-    return out
+            (locked if _n(t) in disc else out).append(p)
+    return out, locked
 
 
 def _fu_window(cap_used, cap, reserve_declared, reserve_used, genuine_resign):
@@ -7065,7 +7072,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 # ★C442 진행-감응: 이름 집합은 **프레임워크 레지스트리**에서만
                                 #   온다(`registry_names` — 이미 있는 함수·도메인 리터럴 0).
                                 #   우리가 이름을 짓지 않는다는 것이 이 인자의 요점이다.
-                                known_names=_rz.registry_names(self))
+                                known_names=_rz.registry_names(self),
+                                # ★후보-정합 formalize 재료 (2026-08-12·j런 070t0 5라운드
+                                #   줄다리기 수리): 어느 회수-이름이 요청을 성취하는지 LLM 이
+                                #   고른다 — 미주입이면 STEP2 는 이름 단정 없이 일반문 강등.
+                                agent=self, la=la, UserMessage=UserMessage)
                                 if _tgt else {"status": "ok"})
                             if _ar.get("status") == "deny":
                                 _fb_ar = _ar["feedback"]
@@ -7501,7 +7512,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         #   판정돼 "접미사가 없다" 갈래로 떨어졌다. 양쪽을 같은 정규화로 맞춘다.
                         _known = re.sub(r"_\d+$", "", _uval) in _known_tool_names(
                             getattr(self, "tools", None), _env2, state.messages)
-                        _tpl = ((_unspec.get("feedback_not_discoverable") if _known else None)
+                        # ★잘못-접미사 갈래 (2026-08-12·j런 071t1 이 실제로 밟은 소비처):
+                        #   base 가 같은 discoverable 이 레지스트리에 실재하면 "there is none" 은
+                        #   거짓 — 그 금지문이 유일 복구 경로(KB 검색→정본 이름)를 차단했다.
+                        _base_u = re.sub(r"_\d+$", "", _uval)
+                        _same_u = any(re.sub(r"_\d+$", "", str(r)) == _base_u for r in (_reg2 or ()))
+                        _tpl = ((_unspec.get("feedback_wrong_suffix") if _same_u else None)
+                                or (_unspec.get("feedback_not_discoverable") if _known else None)
                                 or _unspec.get("feedback")
                                 or "Error: '{name}' is not a discoverable tool in this domain.")
                         un_fb = (c, str(_tpl).replace("{name}", _uval))
@@ -7776,8 +7793,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             getattr(getattr(self, "_t2_orch", None), "environment", None))
                     except Exception:
                         _reg8 = None
-                    _fb8 = (_dnc.get("feedback_not_discoverable")
-                            if (_reg8 and s not in _reg8) else _dnc.get("feedback"))
+                    # ★잘못-접미사 분기 (2026-08-12·j런 071t1: close_..._4822 시도에
+                    #   `not_discoverable` 이 "suffixed version ... there is none" 을 말했는데
+                    #   레지스트리에 같은 base 의 close_..._7392 가 **실재** — 그 거짓 금지문이
+                    #   유일 복구 경로(KB 검색)를 차단해 무단 개설 오염을 영구화했다([[64]]).
+                    #   base 대조 = `_[0-9]+$` strip 문자열 판정뿐(닫힌 술어·선례 7538행).
+                    _fb8 = None
+                    if _reg8 and s not in _reg8:
+                        _base8 = re.sub(r"_[0-9]+$", "", str(s))
+                        _same8 = any(re.sub(r"_[0-9]+$", "", str(r)) == _base8 for r in _reg8)
+                        _fb8 = ((_dnc.get("feedback_wrong_suffix") or
+                                 _dnc.get("feedback_not_discoverable"))
+                                if _same8 else _dnc.get("feedback_not_discoverable"))
+                    else:
+                        _fb8 = _dnc.get("feedback")
                     if _fb8:
                         print("[T2_PROV] name-arg → registry message tool=%s val=%s"
                               % (getattr(ptc, "name", "?"), s), file=_sys.stderr, flush=True)
@@ -9522,6 +9551,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 #   약속이다(004·035 실측: 없는 OTP를 여러 턴 반복 약속하며 창 소진). 엔진=집합 대조만·
                 #   discoverable(잠금·접미사)까지 포함해 오탐 0(리뷰 필수3).
                 _unavail = []
+                _unavail_locked = []      # try 실패 시 미대입 방지(오늘 `_rz` 사고 부류)
                 if os.environ.get("T2_UNAVAIL_PROMISE") == "1" and _cpv.get("feedback_unavailable"):
                     try:
                         # ★P7(C208⑥·DAY5_PRESCRIPTIONS §P7): 구판 `getattr(orch, ...)`는 이 스코프에
@@ -9531,12 +9561,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                    getattr(getattr(self, "_t2_orch", None),
                                                            "environment", None),
                                                    state.messages)
-                        _unavail = _unavailable_promises(_pd, _known)
+                        _unavail, _unavail_locked = _unavailable_promises(
+                            _pd, _known,
+                            discoverable=_agent_discoverable(
+                                getattr(getattr(self, "_t2_orch", None), "environment", None)))
                         _lever_health("unavail", "ok")
-                        if _unavail:
+                        if _unavail or _unavail_locked:
                             _lever_health("unavail", "fired")
-                            print("[T2_UNAVAIL] promised tools not available: %s"
-                                  % [p.get("tool") for p in _unavail][:3],
+                            print("[T2_UNAVAIL] promised tools not available: %s · locked: %s"
+                                  % ([p.get("tool") for p in _unavail][:3],
+                                     [p.get("tool") for p in _unavail_locked][:3]),
                                   file=_sys.stderr, flush=True)
                     except Exception as _ue:
                         _lever_health("unavail", "skipped")
@@ -9601,6 +9635,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _parts.append(_cpv["feedback_unavailable"].replace(
                             "{claims}", "; ".join("%s (tool: %s)" % (str(p.get("what"))[:50], p.get("tool"))
                                                   for p in _unavail[:3])))
+                    # ★잠김-분기 (2026-08-12·070t0 t72): 레지스트리에 실재하는 도구를
+                    #   "존재하지 않는다"고 말하던 자리 — 새 키 없으면 **침묵**한다(거짓 문구로
+                    #   강등하지 않는다·[[25]] 유일 근거원 오염 방지).
+                    if _unavail_locked and _cpv.get("feedback_unavailable_locked"):
+                        _parts.append(_cpv["feedback_unavailable_locked"].replace(
+                            "{claims}", "; ".join("%s (tool: %s)" % (str(p.get("what"))[:50], p.get("tool"))
+                                                  for p in _unavail_locked[:3])))
                     # ☠2026-08-05: 이 자리에 `tool_choice="required"`(탐지→행동 전환 강제)를 붙였다가
                     #   **철회**했다. 등대가 이미 세 번 금지한 것이다 — ①C216 §2-3b: claim 축은
                     #   **표면화만**으로 강등(코어 6층 동결) ②C216 금지선: *"열린 술어 ∨ 열린 처방 ∨

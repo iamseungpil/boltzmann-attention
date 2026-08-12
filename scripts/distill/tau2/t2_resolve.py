@@ -97,7 +97,7 @@ OPERATOR_FIND_FB = (
 
 
 def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=None,
-                     declared_required=None):
+                     declared_required=None, a2=None):
     """operator(도구명) operand 해소. 반환 {status: ok|deny, reason, feedback}.
     ★리뷰 U3: operator=operand는 discoverable 아키텍처서만 성립(§8b agent_tool_name=명시인자).
       direct-dispatch(retail/airline)는 도구선택이 인자 아님 → operator-해소 없음(GATE/L7 관할).
@@ -138,6 +138,12 @@ def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=N
             and len(cands) >= 2 and str(chosen) in cands):
         want = formalize_intent_tool(agent, la, UserMessage, msgs, cands)
         if want and str(want) != str(chosen):
+            # ★완료-검사 (2026-08-12·j런 070t0 t48: want=open_4821 이 **이미 실행 성공**한
+            #   상태에서 '그것을 호출하라'고 재지시 → 중복 open 2회). 그 행동이 디스패처로
+            #   이미 성공 커밋됐으면 재지시는 항상 틀렸다 — 호출 이력 = 닫힌 술어([[22]]).
+            #   침묵(ok)한다: 모델의 현재 호출(chosen)은 그대로 진행되고, 새 문구는 없다.
+            if str(want) in _executed_dispatch_names(msgs, a2, arg):
+                return {"status": "ok"}
             return {"status": "deny", "reason": "operator-find",
                     "feedback": OPERATOR_FIND_FB.format(chosen=chosen, want=want)}
     return {"status": "ok"}
@@ -191,14 +197,17 @@ DISCOVERY_STEP2_FB = (
 )
 
 
-def _retrieved_unlockable(messages, known_names, unlock_tool):
-    """회수 텍스트에 **실재하고** 아직 unlock 되지 않은 이름 (닫힌 술어·[[22]]).
+def _retrieved_unlockables(messages, known_names, unlock_tool):
+    """회수 텍스트에 **실재하고** 아직 unlock 되지 않은 이름 **전부** (닫힌 술어·[[22]]).
 
     둘 다 문자열/호출-이력 판정이다 — 도메인 산문을 해석하지 않는다([[59]]).
     이름 집합은 **환경 레지스트리**에서 오고(호출부가 넘긴다) 우리가 짓지 않는다.
+    ★복수 반환 (2026-08-12·j런 070t0 부검): 구판은 '아무 첫 이름'을 돌려줬고, 그 이름이
+      요청과 무관한 도구(transfer_7291)일 때 STEP2 가 5라운드 줄다리기·이관-후 좀비 unlock 을
+      만들었다. **어느 이름이 요청을 성취하는지는 LLM 몫**이다 — 호출부가 formalize 로 고른다.
     """
     if not known_names:
-        return None
+        return []
     tried = set()
     seen = []
     for m in (messages or []):
@@ -211,10 +220,14 @@ def _retrieved_unlockable(messages, known_names, unlock_tool):
             if c:
                 seen.append(str(c))
     hay = "\n".join(seen)
-    for nm in sorted(known_names, key=len, reverse=True):
-        if nm and nm not in tried and nm in hay:
-            return nm
-    return None
+    return [nm for nm in sorted(known_names, key=len, reverse=True)
+            if nm and nm not in tried and nm in hay]
+
+
+def _retrieved_unlockable(messages, known_names, unlock_tool):
+    """(하위호환 단수형) 첫 후보만 — 신규 경로는 복수형 + formalize 선택을 쓴다."""
+    out = _retrieved_unlockables(messages, known_names, unlock_tool)
+    return out[0] if out else None
 
 
 def _discoverable_dispatchers(a2):
@@ -238,12 +251,13 @@ def _agent_ending(am, transfer_tools):
 
 
 def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_tools=None,
-                            known_names=None):
+                            known_names=None, agent=None, la=None, UserMessage=None):
     """★operator 해소 GET→FIND→(execute|ASK) — 행동-vs-조언(사용자 2026-07-13).
     action_tools = A2 선언(요청 성취 도구). target_tool = formalize(의도)→도구(learn·호출측 주입).
       - target ∈ available ∧ 에이전트가 미호출(조언/transfer 회피) → deny(실행 강제·action-required)
       - target 미해소(None) ∧ 회피 → ASK(조언/날조 대신 개방질문)
-      - 이미 action_tool 호출 중 → ok."""
+      - 이미 action_tool 호출 중 → ok.
+    agent/la/UserMessage = STEP2 후보-선택 formalize 용(선택은 LLM 몫·[[62]]·미주입=구판 거동)."""
     action_tools = set(opspec.get("action_tools") or (a2 or {}).get("action_tools") or [])
     if not action_tools:
         return {"status": "ok"}
@@ -252,6 +266,13 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
         return {"status": "ok"}           # 이미 행동 중
     if not _agent_ending(am, transfer_tools or set()):
         return {"status": "ok"}           # 다른 도구(조회 등) 호출 중 = 진행중
+    # ★이관-후 침묵 (2026-08-12·j런 070t0 t102: 인간 이관 성공 뒤에도 STEP2 가 unlock 을
+    #   재촉해 좀비 unlock 을 만들었다). transfer 가 **실행**됐으면 대화는 종결 국면이다.
+    #   ⚠시도가 아니라 실행이다 — 시도만 세면 GB2 에 거부된 transfer 한 번으로 이 레버가
+    #     sim 끝까지 침묵한다(과침묵). 실행 판정 = 호출 직후 tool 결과가 우리 deny 채널
+    #     (error=True)도 아니고 "Error:" 로 시작하지도 않는 것 — 구조 판정뿐·산문 해석 0.
+    if transfer_tools and _transfer_executed(msgs, set(transfer_tools)):
+        return {"status": "ok"}
     # 회피(조언/transfer) 확정 → FIND 결과로 분기
     if target_tool and target_tool in action_tools:
         # ★Lever 2: target이 discoverable dispatcher면 발견체인 안내(getter→unlock→call).
@@ -267,12 +288,25 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
             # ★진행-감응 분기 (C442·기본 OFF). 이름이 **이미 회수됐고 아직 unlock 안 됐으면**
             #   (1)단계를 다시 시키지 않고 (2)단계를 이름과 함께 말한다. 그 외에는 종전 그대로.
             if os.environ.get("T2_DISCOVERY_STEP2") == "1":
-                _nm2 = _retrieved_unlockable(msgs, known_names, _u3)
+                _cands2 = _retrieved_unlockables(msgs, known_names, _u3)
+                _nm2 = None
+                if _cands2:
+                    # ★후보-정합 (2026-08-12·j런 070t0: '아무 첫 이름'이 요청과 무관한
+                    #   transfer_7291 을 5라운드 지목 — OPERATOR-SELECT 와 줄다리기).
+                    #   어느 이름이 요청을 성취하는지는 **LLM 이 고른다**(formalize·none 허용).
+                    #   후보 1개여도 묻는다 — 070t0 의 오발이 정확히 단일-후보였다.
+                    #   formalize 불가(미주입/실패/none)면 침묵이 아니라 **구판 일반문**으로
+                    #   내려간다(아래 DISCOVERY_REQUIRED) — 이름 단정만 안 할 뿐이다.
+                    _nm2 = formalize_intent_tool(agent, la, UserMessage, msgs, set(_cands2))
+                    if _nm2 is None and agent is not None:
+                        print("[T2_DISCOVERY_STEP2] 후보 %d개 중 요청-정합 없음(none) — "
+                              "이름 단정 없이 일반문으로" % len(_cands2),
+                              file=sys.stderr, flush=True)
                 if _nm2:
                     # ★로그에 남긴다 (2026-08-12). 초판은 인쇄가 없어 `.log` 를 grep 한 내가
                     #   *"발화 0"* 으로 네 번째 계기 오독을 했다 — 문구는 사이드카로만 나간다.
                     #   [[55]] *로그 마크 ≠ 전달* 의 거울상이라, 두 출처가 **둘 다** 있어야 한다.
-                    print("[T2_DISCOVERY_STEP2] deny name=%s (이미 회수·미unlock)" % _nm2,
+                    print("[T2_DISCOVERY_STEP2] deny name=%s (이미 회수·미unlock·formalize 정합)" % _nm2,
                           file=sys.stderr, flush=True)
                     return {"status": "deny", "reason": "discovery-step2",
                             "feedback": DISCOVERY_STEP2_FB.format(name=_nm2, unlock=_u3)}
@@ -296,6 +330,66 @@ VERIFY_PERSIST_FB = (
 def _tool_names(msgs):
     return {getattr(tc, "name", None) for m in msgs
             for tc in (getattr(m, "tool_calls", None) or [])}
+
+
+def _paired_results(msgs):
+    """(assistant 호출, 그 호출의 tool 결과) 순차 짝. 구조 판정 전용 — 산문 해석 0([[59]]).
+
+    tau2 대화는 assistant(tool_calls=[c1..cn]) 뒤에 tool-role 결과가 순서대로 따른다.
+    개수가 안 맞으면 그 블록은 짝 없음으로 버린다(fail-open).
+    """
+    ms = list(msgs or [])
+    out = []
+    for i, m in enumerate(ms):
+        tcs = getattr(m, "tool_calls", None) or []
+        if getattr(m, "role", None) != "assistant" or not tcs:
+            continue
+        res = []
+        j = i + 1
+        while j < len(ms) and getattr(ms[j], "role", None) == "tool":
+            res.append(ms[j])
+            j += 1
+        if len(res) < len(tcs):
+            continue
+        for k, tc in enumerate(tcs):
+            out.append((tc, res[k]))
+    return out
+
+
+def _result_ok(rm):
+    """tool 결과가 '실행됨'인가 — 우리 deny 채널(error=True)도, "Error:" 시작도 아님."""
+    if getattr(rm, "error", False):
+        return False
+    return not str(getattr(rm, "content", "") or "").lstrip().startswith("Error")
+
+
+def _transfer_executed(msgs, transfer_tools):
+    """transfer 도구가 실제로 실행(결과 OK)됐는가 — 시도·거부는 세지 않는다."""
+    for tc, rm in _paired_results(msgs):
+        if getattr(tc, "name", None) in transfer_tools and _result_ok(rm):
+            return True
+    return False
+
+
+def _executed_dispatch_names(msgs, a2, arg="agent_tool_name"):
+    """디스패처로 **실행 성공한** 발견형 도구 이름 집합 (닫힌 술어·[[22]]).
+
+    2026-08-12 j런 070t0: OPERATOR-SELECT 가 이미 완료된 open 을 '지금 호출하라'고 재지시해
+    중복 open 2회를 만들었다 — 완료 여부는 호출 이력이 이미 안다. 이름 = A2 eplan 의
+    dispatch_tool 호출 인자(기본 agent_tool_name)·성공 = `_result_ok`.
+    """
+    d = ((a2 or {}).get("eplan") or {}).get("dispatch_tool")
+    if not d:
+        return set()
+    out = set()
+    for tc, rm in _paired_results(msgs):
+        if getattr(tc, "name", None) != d or not _result_ok(rm):
+            continue
+        ar = getattr(tc, "arguments", None) or {}
+        v = ar.get(arg) if isinstance(ar, dict) else None
+        if v:
+            out.add(str(v))
+    return out
 
 
 def resolve_verify_persistence(am, msgs, a2, transfer_tools=None):
@@ -344,8 +438,12 @@ def formalize_arg_axis(agent, la, UserMessage, msgs, arg, choices, prompt_tpl):
     """
     if not (choices and agent is not None and la is not None and prompt_tpl):
         return None
-    users = [str(getattr(m, "content", "") or "") for m in msgs
-             if getattr(m, "role", None) == "user"][-6:]
+    _allu = [str(getattr(m, "content", "") or "") for m in msgs
+             if getattr(m, "role", None) == "user"]
+    # ★첫 발화 포함 (2026-08-12·j런 071t0 t38 오탐): 과제 진술(두 축 요청)은 첫 발화에
+    #   있는데 창이 [-6:] 뿐이라 종반 턴에선 그것이 빠져 한 축만 형식화 → 정답 인자를
+    #   오판 지적했다(모델이 무시해 무해했으나 over-block 시도·[[25]]). 첫 발화 + 최근 5.
+    users = (_allu[:1] + _allu[-5:]) if len(_allu) > 6 else _allu
     if not users:
         return None
     body = prompt_tpl.format(arg=arg, choices=", ".join(sorted(choices)),
@@ -379,9 +477,15 @@ def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools):
         return None
     users = [str(getattr(m, "content", "") or "") for m in msgs
              if getattr(m, "role", None) == "user"][-6:]
+    # ★NONE 확장 (2026-08-12·j런 포렌식 071t1: 발화-전용/동의-대기 국면에서 write 의도를
+    #   단정해 무단 개설 2건 — ladder_stop=our-wording 유일 사례). 판단은 LLM 몫 그대로다:
+    #   엔진은 어느 국면인지 해석하지 않고, formalize 에게 '아직 아니다'를 답할 자리를 준다.
     prompt = ("The user is talking to a customer-service agent. Based ONLY on what the user asked, "
               "which ONE of these tools must the agent CALL to fulfill the request? "
-              "Reply with the exact tool name, or 'none' if none applies.\n"
+              "Reply with the exact tool name, or 'none' if none applies - including when the "
+              "user has not yet clearly asked the agent to perform that action now (for example "
+              "the user is still asking questions, comparing options, or has not finished "
+              "providing or agreeing to what the action needs).\n"
               "Tools: " + ", ".join(sorted(action_tools)) + "\n"
               "User said:\n- " + "\n- ".join(u[:300] for u in users) +
               '\nReply JSON only: {"tool": "<name or none>"}')
@@ -762,7 +866,7 @@ def resolve_operand(opspec, tool, arg, args_dict, msgs, a2,
                 _t = _nd.get("tool") or _nd.get("tools")
                 _req |= set(_t if isinstance(_t, list) else ([_t] if _t else []))
         return resolve_operator(opspec, args_dict, msgs, agent, la, UserMessage,
-                                declared_required=_req)
+                                declared_required=_req, a2=a2)
     if kind == "membership":
         import t2_gate_patch as _g
         spec = {"entity_key": opspec["entity_key"], "items_key": opspec["items_key"],

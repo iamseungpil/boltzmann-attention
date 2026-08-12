@@ -86,5 +86,46 @@ chk("이미 호출했으면 무개입", AX.terminal_turn_note(
 chk("토큰 없으면 무개입", AX.terminal_turn_note(
     "thanks, bye", TPL["transfer_tokens"], False, TPL) is None)
 
+print("§formalize_arg_axis 창 (2026-08-12·j런 071t0 t38 오탐 회귀)")
+# 과제 진술(두 축 요청)은 **첫 발화**에 있는데 구판 창은 [-6:] 뿐이라 종반 턴에서 그것이
+# 빠져 한 축만 형식화 → 정답 인자를 오판 지적했다. 첫 발화가 창에 포함되는지를 검정한다.
+import t2_resolve as RZ
+
+
+class _CapSub:
+    content = "alpha_kind and beta_kind"
+
+
+class _CapLA:
+    last_prompt = None
+
+    @staticmethod
+    def generate(model=None, tools=None, messages=None, call_name=None, **kw):
+        _CapLA.last_prompt = getattr(messages[0], "content", None) or messages[0].content
+        return _CapSub()
+
+
+class _CapUM:
+    def __init__(self, role=None, content=None):
+        self.role, self.content = role or "user", content
+
+
+class _CapAgent:
+    llm = "stub"
+    llm_args = {}
+
+
+class _UMsg:
+    def __init__(self, c):
+        self.role, self.content = "user", c
+
+
+msgs_w = [_UMsg("FIRST: I want one alpha_kind and one beta_kind please")] + \
+         [_UMsg("later turn %d about alpha only" % i) for i in range(9)]
+got = RZ.formalize_arg_axis(_CapAgent(), _CapLA, _CapUM, msgs_w,
+                            "kind", ["alpha_kind", "beta_kind"], "arg={arg} choices={choices} text={text}")
+chk("첫 발화가 창에 포함된다", _CapLA.last_prompt is not None and "FIRST:" in _CapLA.last_prompt)
+chk("두 축 모두 형식화된다: %r" % (got,), got == {"alpha_kind", "beta_kind"})
+
 print("\n%d PASS · %d FAIL" % (ok, fail))
 sys.exit(1 if fail else 0)

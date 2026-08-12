@@ -83,5 +83,28 @@ r = R.resolve_operator({"kind": "operator", "arg": "x", "operator_resolution": "
                         "find_intent": True}, {"x": "a"}, ctx(*TWO), FakeAgent(), FakeLA("b"), FakeUM)
 ck("direct_dispatch_noop", r["status"] == "ok", r)
 
+# 9) ★완료-검사 회귀 (2026-08-12 j런 070t0 t48: want 가 이미 디스패처로 실행 성공했는데
+#    '그것을 호출하라' 재지시 → 중복 open 2회). want 실행 이력이 있으면 침묵(ok).
+class TCall:
+    def __init__(self, name, args): self.name, self.arguments = name, args
+class TMsgC(TMsg):
+    def __init__(self, role, content, calls=None, error=False):
+        TMsg.__init__(self, role, content, error); self.tool_calls = calls or []
+A2X = {"eplan": {"dispatch_tool": "call_disp"}}
+ctx_done = [TMsgC("user", "I need help with a credit bureau incident."),
+            TMsgC("tool", "discovered tools: " + ", ".join(TWO)),
+            TMsgC("assistant", "", calls=[TCall("call_disp",
+                  {"agent_tool_name": TWO[0], "arguments": "{}"})]),
+            TMsgC("tool", "Executed successfully.")]
+r = R.resolve_operator(SPEC, {"agent_tool_name": "reset_pin_tool_2020"}, ctx_done,
+                       FakeAgent(), FakeLA(TWO[0]), FakeUM, a2=A2X)
+ck("executed_want_silent", r["status"] == "ok", r)
+
+# 9-역) 실행이 **실패**(결과가 Error:)였으면 종전대로 deny — 완료로 치지 않는다
+ctx_err = list(ctx_done[:-1]) + [TMsgC("tool", "Error: eligibility not met")]
+r = R.resolve_operator(SPEC, {"agent_tool_name": "reset_pin_tool_2020"}, ctx_err,
+                       FakeAgent(), FakeLA(TWO[0]), FakeUM, a2=A2X)
+ck("failed_want_still_denies", r["status"] == "deny", r)
+
 print("\n%d FAIL" % len(FAILS) if FAILS else "\nALL PASS (Lever 1 operator FIND)")
 sys.exit(1 if FAILS else 0)

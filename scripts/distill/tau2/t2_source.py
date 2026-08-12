@@ -316,10 +316,20 @@ def unsourced_claims(claims, corpus):
         # 통과해 버린다(검정이 잡았다) — 그러면 틀린 한도를 놓친다.
         need = min(2, len(anch)) if anch else 0
         hit = False
-        for ln in lines:
+        # ★블록 대조 (2026-08-12·j런 010t0 t16 오탐): 레코드형 tool 출력은 필드가 **행마다**
+        #   갈라진다("referred_account_type: Bronze..." ↵ "date: 10/20/2025") — 한 행 대조는
+        #   기록을 그대로 읽은 문장을 무근거로 오탐해 올바른 초안을 regen 으로 소각했다.
+        #   수치 행의 앞뒤 ±4행(레코드 한 블록 폭)을 **2차**로 본다. 단 블록 매치는 앵커
+        #   **무조건 2개 이상(하드)** — 단서 1개짜리 주장("annual max is 8"류)은 창 특권이
+        #   없다. 자기검정이 박아 둔 102-표적 트레이드오프(아래 420행)가 그 요구로 유지된다.
+        for i, ln in enumerate(lines):
             if not (figs & _figures(ln)):
                 continue
             if len(anch & _anchors(ln)) >= need:
+                hit = True
+                break
+            blk = " ".join(lines[max(0, i - 4):i + 5])
+            if len(anch & _anchors(blk)) >= 2:
                 hit = True
                 break
         if not hit:
@@ -413,6 +423,21 @@ if __name__ == "__main__":                                   # 자기검정 (오
     # 기본(플래그 OFF) = 수치 없는 자격 문장은 **판정하지 않는다**(라이브 회귀로 되돌린 갈래).
     assert bad == ["Sky Blue allows up to 7 referral bonuses per year",
                    "annual max is 8"], bad
+    # ★다중행 레코드 회귀 (2026-08-12·j런 010t0 t16): 필드가 행마다 갈라진 레코드를 그대로
+    #   읽은 문장은 무근거가 아니다 — 블록(±4행·하드 2앵커) 대조가 구제한다. (픽스처는
+    #   도메인-중립 어휘 — 기전 검증에 어휘는 무관하고 가드가 도메인어를 막는 것이 옳다.)
+    cpr = build_corpus(
+        [_M("tool", "Found 1 record(s):\n"
+                    "1. Record ID: abc\n"
+                    "   item_kind: Alpha Widget Plan\n"
+                    "   item_status: COMPLETE\n"
+                    "   date: 10/20/2025")],
+        env=_ENV(), a2=A2)
+    bad_r = unsourced_claims(
+        [{"claim": "One entry for an Alpha Widget Plan completed on 10/20/2025", "doc": ""}],
+        cpr)
+    assert bad_r == [], bad_r
+
     os.environ["T2_SOURCE_QUALIFY"] = "1"
     bad_q = unsourced_claims(claims, cpk)
     assert bad_q[-2:] == ["both companies qualify for Sky Blue",
