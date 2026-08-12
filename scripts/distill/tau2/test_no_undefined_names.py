@@ -60,6 +60,102 @@ def undefined_module_names(src):
     return out
 
 
+def undefined_local_names(src):
+    """★죽은-레버 5호 부류 (2026-08-13): **평범한 지역명**이 미정의인 채 읽히는 것.
+
+    실물: `_unavailable_promises` 를 다시 쓰면서 `disc = {...}` 정의를 지우고 사용만 남겼다.
+    호출부가 `except Exception` 으로 감싸고 있어 **NameError 가 삼켜져 레버가 통째로 죽었고**
+    (밤샘 런 `[T2_UNAVAIL] skipped (no-op): NameError` ×7) 로그를 세기 전엔 조용했다.
+    `undefined_module_names` 는 `X.attr` 꼴만 봐서 이 부류를 못 잡는다.
+
+    함수 **단위**로 본다: 그 함수(중첩 함수 제외)에서 Load 되는 이름이 모듈 전역·빌트인·
+    그 함수의 어떤 Store/arg/import 에도 없으면 보고. 클래스 본문·컴프리헨션 스코프는
+    보수적으로 전부 정의로 친다(오탐 방지). → {(함수, 이름): 행}
+    """
+    tree = ast.parse(src)
+    # 모듈 전역(함수 밖에서 정의되는 것) + 빌트인 + 모듈 던더(런타임 제공)
+    glob = set(dir(builtins)) | {"__file__", "__name__", "__doc__", "__package__",
+                                 "__spec__", "__loader__", "__builtins__"}
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Import):
+            glob |= {(a.asname or a.name.split(".")[0]) for a in n.names}
+        elif isinstance(n, ast.ImportFrom):
+            glob |= {(a.asname or a.name) for a in n.names}
+        elif isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            glob.add(n.name)
+    for n in tree.body:                       # 모듈 최상위 대입만 전역으로
+        for t in ast.walk(n):
+            if isinstance(t, ast.Name) and isinstance(t.ctx, ast.Store):
+                glob.add(t.id)
+
+    def _args_of(fn):
+        a = fn.args
+        d = {x.arg for x in (list(getattr(a, "posonlyargs", []) or []) + list(a.args)
+                             + list(a.kwonlyargs))}
+        for extra in (a.vararg, a.kwarg):
+            if extra:
+                d.add(extra.arg)
+        return d
+
+    def _direct(fn):
+        """이 함수 본문에서 **중첩 함수/클래스 안으로 들어가지 않고** 모은 (정의, 사용, 중첩)."""
+        defined, loads, nested = _args_of(fn), [], []
+        stack = list(fn.body)
+        while stack:
+            n = stack.pop()
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                defined.add(n.name)
+                nested.append(n)
+                continue                      # 안쪽은 그 함수 차례에 본다(스코프 체인)
+            if isinstance(n, (ast.ClassDef, ast.Lambda)):
+                defined.add(getattr(n, "name", "")) if isinstance(n, ast.ClassDef) else None
+                for t in ast.walk(n):         # 보수적으로 정의만 흡수(오탐 방지)
+                    if isinstance(t, ast.Name) and isinstance(t.ctx, ast.Store):
+                        defined.add(t.id)
+                    elif isinstance(t, ast.arg):
+                        defined.add(t.arg)
+                continue
+            if isinstance(n, ast.Name):
+                (defined.add(n.id) if isinstance(n.ctx, (ast.Store, ast.Del))
+                 else loads.append(n))
+            elif isinstance(n, ast.arg):
+                defined.add(n.arg)
+            elif isinstance(n, (ast.Import, ast.ImportFrom)):
+                for a in n.names:
+                    defined.add(a.asname or a.name.split(".")[0])
+            elif isinstance(n, (ast.Global, ast.Nonlocal)):
+                defined |= set(n.names)
+            elif isinstance(n, ast.ExceptHandler) and n.name:
+                defined.add(n.name)
+            stack.extend(ast.iter_child_nodes(n))
+        return defined, loads, nested
+
+    out = {}
+
+    def visit(fn, enclosing):
+        """enclosing = 바깥 스코프에서 보이는 이름 전부(클로저 포함)."""
+        defined, loads, nested = _direct(fn)
+        avail = enclosing | defined
+        for n in loads:
+            if n.id not in avail and (fn.name, n.id) not in out:
+                out[(fn.name, n.id)] = n.lineno
+        for sub in nested:
+            visit(sub, avail)
+
+    # 모듈·클래스 최상위 함수부터 스코프 체인을 세워 내려간다.
+    stack = list(tree.body)
+    while stack:
+        n = stack.pop()
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            visit(n, glob)
+            continue
+        if isinstance(n, ast.ClassDef):
+            stack.extend(n.body)
+            continue
+        stack.extend(ast.iter_child_nodes(n))
+    return out
+
+
 def conditional_import_escapes(src):
     """죽은-레버 4호 부류: 함수 안에서 `import X as Y` 가 **If 분기 안에만** 있는데
     Y 를 그 분기 subtree **밖**에서 쓰면 UnboundLocalError (h런 실측: `_rz` —
@@ -170,6 +266,37 @@ def main():
               % conditional_import_escapes(clean2))
         ok = False
 
+    # ── 양성 대조 3 (죽은-레버 5호): 미정의 지역명을 잡는가 ──
+    planted3 = ("def f(xs):\n"
+                "    out = []\n"
+                "    for x in xs:\n"
+                "        if x in disc:\n"          # disc 정의 없음 = 사고 그 자체
+                "            out.append(x)\n"
+                "    return out\n")
+    if ("f", "disc") in undefined_local_names(planted3):
+        print("  양성 대조3: 미정의 지역명(disc)을 잡는다            PASS")
+    else:
+        print("  양성 대조3: 미정의 지역명을 못 잡는다               FAIL")
+        ok = False
+    clean3 = ("import re\n"
+              "G = 1\n"
+              "def g(xs, k=2):\n"
+              "    disc = {re.sub('a','b',x) for x in xs}\n"
+              "    try:\n"
+              "        import json as J\n"
+              "        y = J.dumps(sorted(disc))\n"
+              "    except Exception as e:\n"
+              "        y = str(e)\n"
+              "    with open('f') as fh:\n"
+              "        z = fh.read()\n"
+              "    return [w for w in (y, z, G, k)]\n")
+    if not undefined_local_names(clean3):
+        print("  음성 대조3: 정상 지역 스코프에 무발화                PASS")
+    else:
+        print("  음성 대조3: 오탐 %s                                FAIL"
+              % undefined_local_names(clean3))
+        ok = False
+
     # ── 본검사: 전수 스캔 ──
     for path in TARGETS:
         base = os.path.basename(path)
@@ -179,6 +306,7 @@ def main():
         try:
             bad = undefined_module_names(src)
             bad2 = conditional_import_escapes(src)
+            bad3 = undefined_local_names(src)
         except SyntaxError as e:
             print("  %-38s 구문 오류: %s                FAIL" % (base, e))
             ok = False
@@ -190,6 +318,11 @@ def main():
         if bad2:
             for (fname, nm), ln in sorted(bad2.items(), key=lambda kv: kv[1]):
                 print("  %-38s :%d %s() 분기-탈출 임포트 %r  FAIL"
+                      % (base, ln, fname, nm))
+            ok = False
+        if bad3:
+            for (fname, nm), ln in sorted(bad3.items(), key=lambda kv: kv[1]):
+                print("  %-38s :%d %s() 미정의 지역명 %r        FAIL"
                       % (base, ln, fname, nm))
             ok = False
     if ok:

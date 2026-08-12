@@ -2771,6 +2771,11 @@ def _unavailable_promises(pending, known, discoverable=None):
     #      한 이름으로 대조돼 **보유한 도구**를 "없다"고 단정했다(010 t3 실측).
     #   ⇒ 센티널은 판정 제외(침묵·모르면 말하지 않는다), 다중값은 쪼개서 **하나라도 보유하면**
     #      약속은 이행 가능하므로 침묵한다. 판정은 전부 집합 대조뿐이다([[22]]).
+    # ⚠2026-08-13 사고: 블록을 다시 쓰면서 이 `disc` 정의를 지우고 사용만 남겨 **NameError 로
+    #   레버가 통째 죽었다**(밤샘 런 `[T2_UNAVAIL] skipped (no-op): NameError` ×7 — try/except 가
+    #   삼켜 조용했다). 죽은-레버 5호. `test_no_undefined_names` 는 `X.attr` 꼴만 봐서 못 잡았고,
+    #   그래서 그 검정을 **모든 미정의 지역명**까지 보도록 확장했다(같은 커밋).
+    disc = {_n(x) for x in (discoverable or set())}
     _SENT = {"", "omit", "none", "null", "n/a", "na", "-", "unknown"}
     out, locked = [], []
     for p in (pending or []):
