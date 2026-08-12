@@ -477,15 +477,17 @@ def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools):
         return None
     users = [str(getattr(m, "content", "") or "") for m in msgs
              if getattr(m, "role", None) == "user"][-6:]
-    # ★NONE 확장 (2026-08-12·j런 포렌식 071t1: 발화-전용/동의-대기 국면에서 write 의도를
-    #   단정해 무단 개설 2건 — ladder_stop=our-wording 유일 사례). 판단은 LLM 몫 그대로다:
-    #   엔진은 어느 국면인지 해석하지 않고, formalize 에게 '아직 아니다'를 답할 자리를 준다.
+    # ⛔의도 분류는 **어디에도 입법하지 않는다** (사용자 지시 2026-08-12: "우리 엔진이나
+    #   A2/A3 모두 의도 분류를 하지 않는다"). 이 프롬프트는 순수 질문형으로 남긴다 — 판단은
+    #   온전히 격리 LLM 몫이고, 엔진은 답의 집합 소속만 본다([[52]]·[[59]]).
+    #   ★사고 기록 (judge6 24 sim 전수 포렌식·-6 중 -6): 여기 "still asking questions,
+    #   comparing options ... 이면 none 이라 답하라"는 **케이스 규칙**을 넣었다가(af8c1e21)
+    #   의도+질문 복합 발화("I want to refer ... which one?")가 일괄 none 이 되어 [ORDER]/
+    #   [ACTION] 푸시가 전면 침묵 — 098 4/4→0/4·099 3/4→1/4. 규칙은 프롬프트에 넣어도
+    #   입법이다. 원래 막으려던 무단 개설(071t3)은 이 절로 안 닫혔음도 실측(모델 자발 호출).
     prompt = ("The user is talking to a customer-service agent. Based ONLY on what the user asked, "
               "which ONE of these tools must the agent CALL to fulfill the request? "
-              "Reply with the exact tool name, or 'none' if none applies - including when the "
-              "user has not yet clearly asked the agent to perform that action now (for example "
-              "the user is still asking questions, comparing options, or has not finished "
-              "providing or agreeing to what the action needs).\n"
+              "Reply with the exact tool name, or 'none' if none applies.\n"
               "Tools: " + ", ".join(sorted(action_tools)) + "\n"
               "User said:\n- " + "\n- ".join(u[:300] for u in users) +
               '\nReply JSON only: {"tool": "<name or none>"}')
