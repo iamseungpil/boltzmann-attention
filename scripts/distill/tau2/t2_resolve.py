@@ -16,6 +16,11 @@
 import os
 import re
 import json
+# ★2026-08-12 사고: sys 미임포트인 채 print(file=sys.stderr) 3곳 — T2_ARG_AXIS formalize
+#   성공 경로(365행)가 NameError 를 던져 **바깥 ENUM try 까지 통째로 죽였다**(070/071 g런
+#   실측: '건너뜀(무발화): NameError sys' · 집합外 'Cobalt Blue Business Checking Account'
+#   무검사 통과). 인쇄를 넣으라는 교정(§4-5)이 인쇄 자체의 배선을 안 검사해 생긴 거울상.
+import sys
 
 # ── operator(도구명) 해소 — banking이 드러낸 일반화(§8b) ──
 # operand에 operator(도구명)가 포함. GET=discovery/KB 출력의 후보 도구명, PROV=선택 도구명이

@@ -1,0 +1,111 @@
+# -*- coding: utf-8 -*-
+r"""미임포트 모듈명 검정 (2026-08-12 신설 · 죽은-레버 3호 사고).
+
+사고: `t2_resolve.py` 가 `sys.stderr` 인쇄 3곳을 쓰면서 `import sys` 가 없었다.
+`formalize_arg_axis` 의 **성공 경로** print 가 NameError 를 던져 바깥
+`T2_WRITE_ARG_ENUM` try 까지 통째로 죽였고(070/071 g런: 집합外
+'Cobalt Blue Business Checking Account' 무검사 통과), 로그엔
+"건너뜀(무발화): NameError" 로만 남아 **계기의 사각이 음성 관측으로 보였다**.
+`test_regen_break_guard` 도 기존 레버 검정도 이 부류를 안 본다 — 그래서 상설.
+
+검사: 엔진 경로 모듈 전수에서 `X.attr` 로 쓰인 이름 X 가 모듈 내 어디서도
+정의(임포트·대입·def·인자·global)되지 않으면 FAIL. 휴리스틱이지만 이 사고
+부류(모듈을 임포트 없이 attribute 접근)는 정확히 잡는다.
+
+⚠제외: `t2_a2_scale_census.py` — HEAD 부터 구문 오류(별건·standalone·임포트 0곳).
+"""
+import ast
+import builtins
+import glob
+import io
+import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+# 라이브 엔진 경로 + 포렌식 도구. census 는 HEAD 부터 깨진 standalone(별건).
+TARGETS = sorted(set(glob.glob(os.path.join(HERE, "t2_*.py"))
+                     + glob.glob(os.path.join(HERE, "x27*.py"))))
+EXCLUDE = {"t2_a2_scale_census.py"}
+
+
+def undefined_module_names(src):
+    """X.attr 의 X 중 모듈 내 미정의 이름 → {이름: 첫 행}."""
+    tree = ast.parse(src)
+    defined = set(dir(builtins))
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Import):
+            defined |= {(a.asname or a.name.split(".")[0]) for a in n.names}
+        elif isinstance(n, ast.ImportFrom):
+            defined |= {(a.asname or a.name) for a in n.names}
+        elif isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            defined.add(n.name)
+        elif isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store):
+            defined.add(n.id)
+        elif isinstance(n, ast.arg):
+            defined.add(n.arg)
+        elif isinstance(n, ast.Global):
+            defined |= set(n.names)
+        elif isinstance(n, ast.ExceptHandler) and n.name:
+            defined.add(n.name)
+        elif isinstance(n, (ast.With, ast.AsyncWith)):
+            for it in n.items:
+                if isinstance(it.optional_vars, ast.Name):
+                    defined.add(it.optional_vars.id)
+    out = {}
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name):
+            nm = n.value.id
+            if nm not in defined and nm not in out:
+                out[nm] = n.lineno
+    return out
+
+
+def main():
+    ok = True
+
+    # ── 양성 대조: 스캐너가 사고 그 자체(임포트 없는 sys.stderr)를 잡는가 ──
+    planted = "import os\ndef f():\n    print('x', file=sys.stderr)\n"
+    got = undefined_module_names(planted)
+    if "sys" in got:
+        print("  양성 대조: 심은 미임포트 sys 를 잡는다                PASS")
+    else:
+        print("  양성 대조: 심은 버그를 못 잡는다                     FAIL")
+        ok = False
+
+    # ── 음성 대조: 정의된 이름은 울지 않는가 ──
+    clean = "import sys\nimport os as o\nx = object()\nprint(o.sep, x.__class__, file=sys.stderr)\n"
+    if not undefined_module_names(clean):
+        print("  음성 대조: 정상 코드에 무발화                        PASS")
+    else:
+        print("  음성 대조: 정상 코드에 오탐                          FAIL")
+        ok = False
+
+    # ── 본검사: 전수 스캔 ──
+    for path in TARGETS:
+        base = os.path.basename(path)
+        if base in EXCLUDE:
+            continue
+        src = io.open(path, encoding="utf-8").read()
+        try:
+            bad = undefined_module_names(src)
+        except SyntaxError as e:
+            print("  %-38s 구문 오류: %s                FAIL" % (base, e))
+            ok = False
+            continue
+        if bad:
+            for nm, ln in sorted(bad.items(), key=lambda kv: kv[1]):
+                print("  %-38s :%d 미정의 모듈명 %r        FAIL" % (base, ln, nm))
+            ok = False
+    if ok:
+        print("  엔진 경로 %d개 모듈: 미정의 모듈명 0                 PASS"
+              % len([p for p in TARGETS if os.path.basename(p) not in EXCLUDE]))
+    print("\nRESULT: %s" % ("ALL PASS" if ok else "FAIL"))
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+    sys.exit(main())
