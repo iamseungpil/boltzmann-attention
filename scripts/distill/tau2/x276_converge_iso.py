@@ -106,9 +106,11 @@ N_NEG_FB = (
 )
 
 TRANSFER = re.compile(r"\btransfer\b", re.I)
-# v2 절단·오염 검증용 토큰(설계서 §5b 결함 B 축자): 'transfer' 낱말(대소문자 무시) 또는
-# '###TRANSFER###'. 채점용 TRANSFER 와 구분해 둔다(절단 규칙은 사전등록 문면 그대로).
-TRANSFER_TOK = re.compile(r"\btransfer\b|###TRANSFER###", re.I)
+# ★v3 결함 C (설계서 §5b v3 개정): v2 의 `\btransfer\b` 는 **정당한 상품 사양**
+#   ("wire transfer"·"same-day ACH transfer")을 오염으로 판정해 trial0 전 문맥을
+#   SKIP 시켰다. 이관-신호만 남긴다 — 전부 env·user-sim 프로토콜의 닫힌 문자열이고
+#   도메인 산문 해석 0(자금 이체는 이 집합에 없다).
+TRANSFER_TOK = re.compile(r"###TRANSFER###|transfer_to_human|human agent|transfer me", re.I)
 # [[57]] 계기: 적합-판정에 정박된 구문만 NOFIT — 일상 부정어("no monthly fee")가 단독
 # 매치되면 무효 게이트(N NOFIT ≤5/8)가 발화 불능이 된다(감사 지적 2). v2 B_ONE_FB 가 직접
 # 가르치는 탈출 문형 "No single (business checking) account satisfies ..." 도 잡도록 개재
@@ -296,15 +298,26 @@ def find_cut(sim, trial):
     """
     if trial == 0:
         return 35            # user[34] = 마지막 요구 발화 직후(설계서 §1 "마지막 요구 발화 직후")
-    rec_idx = None
-    # §5b 등록 규칙에 하한 없음 — 인덱스 0부터 스캔(transfer 스캔과 대칭). 구판의 i<=6
-    # 하한은 미등록 이탈이었다(감사 지적: 조기 공식명 발화가 있으면 등록 규칙보다 늦게 절단).
+    # ★v3 결함 D (설계서 §5b v3 개정): 추천 후보는 **첫 KB 검색 tool 출력 이후**만.
+    #   v2 는 손님이 말한 자기 기존 계좌를 모델이 되뇐 msg[3] 을 추천으로 잡아 cut=3 →
+    #   문맥에 검색 결과 0 → SKIP 이었다. 회수 전 언급은 추천이 아니다(기계 규칙 —
+    #   임의 상수 하한으로 되돌리는 것이 아니다).
+    kb_idx = None
     for i, m in enumerate(sim["messages"]):
-        if m.get("role") != "assistant":
+        if m.get("role") == "tool" and "KB_search" in json.dumps(m, ensure_ascii=False):
+            kb_idx = i
+            break
+        c = str(m.get("content") or "")
+        if m.get("role") == "tool" and re.search(r"\bID:\s*doc_", c):
+            kb_idx = i       # 검색 결과 형식(문서 id 열거)도 회수로 인정
+            break
+    rec_idx = None
+    for i, m in enumerate(sim["messages"]):
+        if m.get("role") != "assistant" or (kb_idx is None or i <= kb_idx):
             continue
         f = name_hits(str(m.get("content") or ""))
         if f["checking"] or f["savings"]:
-            rec_idx = i      # 첫 추천 발화 — 문맥은 그 직전까지
+            rec_idx = i      # 첫 추천 발화(회수 이후) — 문맥은 그 직전까지
             break
     tr_idx = None
     for i, m in enumerate(sim["messages"]):
