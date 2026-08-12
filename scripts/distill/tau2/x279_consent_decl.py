@@ -371,6 +371,79 @@ FORM_FB = (
 NONE_WORD = re.compile(r"^\s*[`\"']?none[`\"'.]?\s*$", re.I)
 
 
+REQ_FB = (
+    "\n[system] Task: from the transcript above, output exactly one line - the JSON "
+    "{\"choice\": {\"account_class\": \"<the account you would open now>\", "
+    "\"requirements\": [{\"message_index\": <index of a customer message stating a "
+    "requirement>, \"quote\": \"<verbatim sentence from that message>\"}], "
+    "\"evidence\": [{\"message_index\": <index of a retrieved-document message>, "
+    "\"quote\": \"<verbatim sentence from that message showing the account meets it>\"}]}}. "
+    "If no customer message has stated a requirement yet, reply with exactly the single "
+    "word: none"
+)
+REQ_START = re.compile(r"\{\s*[\"']choice[\"']")
+
+
+def _verify_items(items, msgs, cut, want_role):
+    """항목 배열의 **유효 인용 수** (§5d 3차 개정 · 검증 ①~⑤ 를 역할만 바꿔 재사용).
+
+    엔진은 *요구가 실제로 충족되는가* 를 판정하지 않는다 — 인용 실재만(닫힌 술어).
+    """
+    k = 0
+    for it in (items or []):
+        if not isinstance(it, dict):
+            continue
+        idx, quote = it.get("message_index"), it.get("quote")
+        if (not isinstance(idx, int) or isinstance(idx, bool)
+                or not isinstance(quote, str)):
+            continue
+        if not (0 <= idx < cut):
+            continue
+        if msgs[idx].get("role") != want_role:
+            continue
+        if _norm(quote) not in _norm(msgs[idx].get("content") or ""):
+            continue
+        if len(_norm(quote)) < 15:
+            continue
+        k += 1
+    return k
+
+
+def make_req_scorer(msgs, cut):
+    """D_REQ 채점기 (§5d 3차 개정) — 선택의 **근거**를 가리키게 한다(동의 축 아님·C454⒠).
+    버킷: REQ_NONE / REQ_GROUNDED(kR≥1 ∧ kE≥1) / REQ_PARTIAL(한쪽만) /
+          REQ_FABRICATED(항목은 냈는데 유효 0) / PLAIN."""
+    def scorer(r):
+        text = str((r or {}).get("content") or "")
+        tail = text.strip().splitlines()[-1] if text.strip() else ""
+        if NONE_WORD.match(tail) or NONE_WORD.match(text):
+            return "REQ_NONE"
+        obj = None
+        for m in REQ_START.finditer(text):
+            try:
+                obj, _ = json.JSONDecoder().raw_decode(text[m.start():])
+                break
+            except ValueError:
+                continue
+        if obj is None:
+            return "REQ_NONE" if (re.search(r"\bnone\b", text, re.I)
+                                  and len(text) < 80) else "PLAIN"
+        ch = obj.get("choice") if isinstance(obj, dict) else None
+        if not isinstance(ch, dict):
+            return "PLAIN"
+        reqs, evs = ch.get("requirements"), ch.get("evidence")
+        if not (reqs or evs):
+            return "REQ_NONE"
+        kr = _verify_items(reqs, msgs, cut, "user")
+        ke = _verify_items(evs, msgs, cut, "tool")
+        if kr >= 1 and ke >= 1:
+            return "REQ_GROUNDED(r%d,e%d)" % (kr, ke)
+        if kr >= 1 or ke >= 1:
+            return "REQ_PARTIAL(r%d,e%d)" % (kr, ke)
+        return "REQ_FABRICATED"
+    return scorer
+
+
 def make_form_scorer(msgs, cut):
     """C_FORM 전용 채점기 (§5d 2차 개정) — 선언-격리 문답: 대화 재개 없음.
     분류: DECL_VALID / DECL_INVALID(번호) / SAYS_NONE / PLAIN. 검증 ①~⑤ 재사용."""
@@ -426,11 +499,16 @@ def run_ctx(name, tag, task, trial_label, sim, n, note, expect_cut=None):
     print("  직전 msg[%d] %s: %s"
           % (cut - 1, msgs[cut - 1].get("role"),
              _norm(msgs[cut - 1].get("content") or "")[:130]))
-    if os.environ.get("X279_ONLY_FORM") != "1":
+    only = os.environ.get("X279_ONLY", "")
+    if not only:
         run_arm("A_LIVE", live, tools, n, scorer, ctx=name)
         run_arm("B_DECL", live + DECL_FB, tools, n, scorer, ctx=name)
-    # C_FORM (§5d 2차 개정): 선언-격리 문답 — 도구 미주입(산출물은 JSON 한 줄 또는 none).
-    run_arm("C_FORM", live + FORM_FB, None, n, make_form_scorer(msgs, cut), ctx=name)
+    if only in ("", "FORM"):
+        # C_FORM (§5d 2차 개정): 선언-격리 문답 — 도구 미주입(JSON 한 줄 또는 none).
+        run_arm("C_FORM", live + FORM_FB, None, n, make_form_scorer(msgs, cut), ctx=name)
+    if only in ("", "REQ"):
+        # D_REQ (§5d 3차 개정): 동의가 아니라 **선택의 근거**를 가리키게 한다(C454⒠).
+        run_arm("D_REQ", live + REQ_FB, None, n, make_req_scorer(msgs, cut), ctx=name)
     print("")
 
 
