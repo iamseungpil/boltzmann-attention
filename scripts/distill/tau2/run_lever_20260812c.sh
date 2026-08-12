@@ -24,6 +24,7 @@ cd "$REPO/scripts/distill/tau2"
 
 NT=2
 LOG=/home/woori/scratch/logs
+SIMS=/home/woori/scratch/tau2-bench/data/simulations
 mkdir -p "$LOG"
 
 SHA=$(cd "$REPO" && git rev-parse --short HEAD)
@@ -56,6 +57,12 @@ launch () {
   TAG="bank_lever_${TASK##task_}_20260812c"
   if [ -e "$LOG/${TAG}.log" ]; then
     echo "[lever] SKIP: $LOG/${TAG}.log 가 이미 있다." >&2; return 0
+  fi
+  # ★결과 디렉토리도 본다 (2026-08-12): 로그만 지우고 재실행했더니 tau2 가 덮어쓸지 **물었고**,
+  #   stdin 이 /dev/null 이라 `EOFError: EOF when reading a line` 으로 두 런이 즉사했다.
+  #   대화형 프롬프트는 이 환경에서 곧 죽음이므로 **먼저 거부**한다.
+  if [ -e "$SIMS/${TAG}" ]; then
+    echo "[lever] REFUSING: $SIMS/${TAG} 가 이미 있다 — 지우고 다시 걸어라." >&2; return 1
   fi
   if ps -eo cmd | grep -v grep | grep "t2_run_gated.py" | grep -q "localhost:${PORT}/"; then
     echo "[lever] REFUSING: 포트 ${PORT} 사용 중." >&2; return 1
