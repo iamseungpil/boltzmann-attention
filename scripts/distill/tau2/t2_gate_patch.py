@@ -5078,7 +5078,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _txt = _rec.pop("_text", "") or ""
                     _rec["arrived"] = bool(_txt and _txt in _hay)
                     _rec["call_name"] = call_name
-                    _fbr0.record("route", None, work, **_rec)
+                    # ★본문을 record 에 그대로 넘긴다 (2026-08-13 p런 포렌식). 구판은 `_text` 를
+                    #   pop 해서 `arrived` 판정에만 쓰고 `text=None` 으로 기록했다 — route 행이
+                    #   전부 len=0 이 되어 071 결정-전달(CP2) 검증이 **원천 불가능**했다(handoff
+                    #   §6.4 실물). TEXT=1 일 때만 본문 저장되는 규약은 record() 가 이미 지킨다.
+                    _fbr0.record("route", _txt, work, **_rec)
         except Exception as _ea:
             print("[T2_ROUTE] arrived 계측 실패(무시): %r" % (_ea,),
                   file=_sys.stderr, flush=True)

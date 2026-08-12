@@ -68,6 +68,19 @@ def record(kind, text, messages=None, **meta):
             "len": len(s),
             "sha": hashlib.sha1(s.encode("utf-8")).hexdigest()[:12],
         }
+        # ★simtag (2026-08-13 p런 포렌식): `sim` 지문은 **첫 user 발화 해시**라 user-sim temp 0.0
+        #   에서는 같은 태스크의 nt 시행이 전부 **한 키로 병합**된다(098 4시행→키 1개 실측 —
+        #   "071 t1이 t3에 복제"로 보였던 조인 버그의 정체). 시행 지문은 이미 있다:
+        #   `t2_lever_beat.current_sim()` = thread-local `task_XXX#s<seed>` (C407: 결과 json 의
+        #   각 sim 이 seed 를 그대로 지니므로 조인이 **정확**하다·한 sim=한 워커 스레드).
+        #   기존 `sim` 필드는 그대로 두고(호환) 필드 하나를 **추가**만 한다 — 거동 변화 0.
+        try:
+            from t2_lever_beat import current_sim as _cs
+            _st = _cs()
+            if _st:
+                row["simtag"] = _st
+        except Exception:
+            pass
         for k, v in meta.items():
             if isinstance(v, (str, int, float, bool)) or v is None:
                 row[k] = v
@@ -134,6 +147,24 @@ if __name__ == "__main__":
     rows = [json.loads(l) for l in open(p, encoding="utf-8")]
     assert rows[-1].get("text") == "with text"
     print("3) TEXT=1 시 본문 저장: OK")
+
+    # simtag: thread-local sim 태그가 있으면 동봉·없으면 필드 자체가 없다 (양성+음성 대조)
+    rows = [json.loads(l) for l in open(p, encoding="utf-8")]
+    assert all("simtag" not in r for r in rows), "미설정 상태에선 simtag 없어야 함"
+    import t2_lever_beat as _LB
+
+    class _Task:
+        id = "task_X"
+
+    class _Orch:
+        task = _Task()
+
+    _LB.set_sim_from(_Orch())
+    record("z", "tagged row", msgs)
+    rows = [json.loads(l) for l in open(p, encoding="utf-8")]
+    assert rows[-1].get("simtag") == "task_X", rows[-1]
+    _LB._LOCAL.sim = None                                       # 뒷정리(다른 검사 오염 방지)
+    print("5) simtag 동봉(설정 시)·부재(미설정 시): OK")
 
     os.environ["T2_FB_SIDECAR"] = "/nonexistent_dir_xyz/fb.jsonl"
     record("y", "should not raise", msgs)                      # 예외 없이 무음 경고

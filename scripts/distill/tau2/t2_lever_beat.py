@@ -117,12 +117,18 @@ def _trace(sim, lines):
         return
     try:
         rows = []
+        # ★캡을 400→기본 2000자·env 조절로 (2026-08-13 p런 포렌식·handoff §6.4). 400자는 push
+        #   전문(1700자대 실측)을 중간 절단해 trace 만으로는 문면 대조가 안 됐다. 관측 전용.
+        try:
+            cap = int(os.environ.get("T2_TRACE_LINECAP", "2000") or 2000)
+        except Exception:
+            cap = 2000
         for ln in lines:
             m = _MARK.search(ln)
             if m:
                 # 턴을 함께 남긴다 — 사이드카(턴 보유)와 **같은 축**으로 조인하기 위해서다(C407).
                 rows.append(json.dumps({"sim": sim, "turn": getattr(_LOCAL, "turn", None),
-                                        "mark": m.group(1), "line": ln[:400]},
+                                        "mark": m.group(1), "line": ln[:cap]},
                                        ensure_ascii=False))
         if rows:
             with open(path, "a", encoding="utf-8") as fh:
