@@ -247,6 +247,23 @@ def build(sim, cut, tag, with_ours=True):
     return "\n".join(out)
 
 
+def build_compact(sim, cut):
+    """E_COMPACT (§5d 4차 개정): user + tool 메시지만 · **원본 인덱스 접두 보존**.
+
+    ⚠인덱스를 다시 매기면 검증 ②③이 계통 오류가 된다 — 좌표는 원본 그대로 둔다.
+    assistant 산문·사이드카를 뺀 것이 유일한 델타([[65]] 부하 축소 형태).
+    """
+    out = []
+    for i, m in enumerate(sim["messages"][:cut]):
+        r = m.get("role")
+        if r not in ("user", "tool"):
+            continue
+        c = " ".join(str(m.get("content") or "").split())
+        if c:
+            out.append("[%d] [%s] %s" % (i, r, c[:700]))
+    return "\n".join(out)
+
+
 def extract_and_verify(text, msgs, cut):
     """선언 추출+검증 (§5d 개정 블록 축자 · 전부 닫힌 술어 · 의미 해석 0).
     반환 (status, why): status ∈ {"NONE","VALID","INVALID"} · why = 실패 검증 번호.
@@ -509,6 +526,12 @@ def run_ctx(name, tag, task, trial_label, sim, n, note, expect_cut=None):
     if only in ("", "REQ"):
         # D_REQ (§5d 3차 개정): 동의가 아니라 **선택의 근거**를 가리키게 한다(C454⒠).
         run_arm("D_REQ", live + REQ_FB, None, n, make_req_scorer(msgs, cut), ctx=name)
+    if only in ("", "REQ", "COMPACT"):
+        # E_COMPACT (§5d 4차 개정): 같은 계약·같은 절단, 문맥만 user+tool 로 압축
+        #   (원본 인덱스 보존). D_REQ 가 길이 순으로 ✓/✓/✗ 를 낸 것의 검정.
+        comp = build_compact(sim, cut)
+        print("    (E_COMPACT 문맥 %d자 ← %d자)" % (len(comp), len(live)))
+        run_arm("E_COMPACT", comp + REQ_FB, None, n, make_req_scorer(msgs, cut), ctx=name)
     print("")
 
 
