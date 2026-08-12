@@ -18,12 +18,22 @@ r"""x276 — 추천-수렴 격리 프로브 (③ⓒ · 유료 0 · 엔진 0 · �
 요구사항 전부 + 이미 회수된 KB 사실이 손에 있을 때, 모델은 **하나로 수렴**할 수 있는가 —
 못 하면 능력 결손, 하면 전달/문면 문제. 이 프로브는 측정이지 레버가 아니다.
 
-## 절단 (사전등록 · 설계서 §1 "마지막 요구 발화 직후" · 정보-맞춤 [[18]])
+## v2 사유 (설계서 §5b 사전등록 · 원장 C449 — 1회차 실측이 프로브 결함 둘을 선고)
+
+  결함 A: N_NEG 과유도 OVERCLAIM 6/8 — B_ONE 주명령이 탈출 갈래를 지배 → 탈출 갈래를 동급
+          명령으로 승격 + 오답 정의 명시(N_NEG 은 같은 상수를 쓰므로 자동 반영).
+  결함 B: trial1 절단 오염 — cut=20 문맥에서 A_LIVE TRANSFER 7/8 → 절단 규칙 v2(아래) +
+          절단 후 transfer 토큰 잔존 시 그 trial 자기 무효(SKIP).
+
+## 절단 v2 (사전등록 · 설계서 §5b 결함 B · 정보-맞춤 [[18]])
 
   trial0: cut=35 고정 — user[34] 가 마지막 요구 발화
           ("I can't do True Blue if it charges any overdraft fee ... keep Gold Plus Saver") 직후.
-  trial1: 기계 규칙 — index 6 이후 첫 assistant 발화 중 content 에 공식 상품명이 1개 이상
-          포함되는 것(=추천 발화)의 인덱스를 cut 으로(문맥은 그 직전까지). 못 찾으면 cut=11.
+  trial1: 기계 규칙 v2 — cut = min(첫 공식 상품명-포함 assistant 발화 인덱스,
+          transfer 토큰('transfer' 낱말 대소문자 무시 또는 '###TRANSFER###')이 어느 메시지에든
+          처음 등장하는 인덱스). 둘 다 못 찾으면 절단점 미발견 — 그 trial SKIP(자기 무효 선고).
+  공통 게이트(두 trial 다·발화 전): 절단 문맥에 KB 검색 tool 출력 ≥1 필수 — 없으면 SKIP.
+          절단 후 문맥에 transfer 토큰 잔존 시 "절단 오염 — SKIP"(자기 무효 선고).
 
 ## 팔 (trial 별 n=8 · i==0 temp0 나머지 0.7 · mx=450)
 
@@ -74,11 +84,15 @@ WRITE_SUB = "open_bank_account"          # gold 추출용 부분 문자열(태�
 #   business savings that fit them (n...)" · trial0 user[1]: "open a new business checking
 #   account ... and I also want to open a business savings acc...". 채점 술어(축별 정확히 1)와
 #   문면이 같은 출처에서 나오므로 되돌린다(수정 1번의 단축은 출처 미확인 시점의 보수 조치였다).
+# v2 (설계서 §5b 결함 A · C449 N_NEG OVERCLAIM 6/8): 탈출 갈래를 동급 명령으로 승격 +
+# 오답 정의 명시. N_NEG 팔은 같은 상수를 쓰므로 자동 반영(문구 자체가 부정통제 대상 — 분리 금지).
 B_ONE_FB = (
     "[system] Based only on what is already in this conversation, state the ONE business "
     "checking account and the ONE business savings account that satisfy every requirement "
-    "the customer stated - name exactly one of each. If the retrieved documents are not "
-    "sufficient to decide, name the missing fact instead."
+    "the customer stated - name exactly one of each. If no single account satisfies every "
+    "stated requirement, or the retrieved documents are not sufficient to decide, say "
+    "exactly that instead — naming a best-effort pick that fails a stated requirement "
+    "counts as a wrong answer."
 )
 C_SUB_FB = (
     "[system] List the candidate accounts that appear in the retrieved documents, then "
@@ -92,9 +106,16 @@ N_NEG_FB = (
 )
 
 TRANSFER = re.compile(r"\btransfer\b", re.I)
+# v2 절단·오염 검증용 토큰(설계서 §5b 결함 B 축자): 'transfer' 낱말(대소문자 무시) 또는
+# '###TRANSFER###'. 채점용 TRANSFER 와 구분해 둔다(절단 규칙은 사전등록 문면 그대로).
+TRANSFER_TOK = re.compile(r"\btransfer\b|###TRANSFER###", re.I)
 # [[57]] 계기: 적합-판정에 정박된 구문만 NOFIT — 일상 부정어("no monthly fee")가 단독
-# 매치되면 무효 게이트(N NOFIT ≤5/8)가 발화 불능이 된다(감사 지적 2).
-NOFIT = re.compile(r"\b(?:no|none of the)\s+(?:account|candidate|option|product)s?\b.{0,80}"
+# 매치되면 무효 게이트(N NOFIT ≤5/8)가 발화 불능이 된다(감사 지적 2). v2 B_ONE_FB 가 직접
+# 가르치는 탈출 문형 "No single (business checking) account satisfies ..." 도 잡도록 개재
+# 수식어(single·business/checking/savings)만 허용 — 뒤쪽 meet/satisf/fit/qualif 정박은
+# 유지해 과매치를 막는다(지적 2 취지 보존).
+NOFIT = re.compile(r"\b(?:no|none of the)\s+(?:single\s+)?(?:(?:business|checking|savings)\s+){0,2}"
+                   r"(?:account|candidate|option|product)s?\b.{0,80}"
                    r"\b(?:meet|satisf|fit|qualif)"
                    r"|does\s*n[o']t\s+meet|not\s+sufficient|insufficient|missing\s+fact", re.I)
 # 설계서 §1 리뷰 B2 배제-문맥 어휘(±80자 창): eliminate/not/fail/exclude/rule out/
@@ -253,17 +274,45 @@ def build_min(sim, cut):
     return "\n".join(out)
 
 
+def kb_out_count(msgs):
+    """절단 문맥 안 KB 검색 tool 출력 수 — tool_call id 짝(x273 live_kb_hits 48~57행 동형)."""
+    byid = {}
+    for m in msgs:
+        for tc in (m.get("tool_calls") or []):
+            byid[tc.get("id")] = tc.get("name")
+    n = 0
+    for m in msgs:
+        if m.get("role") == "tool" and str(byid.get(m.get("id")) or "").startswith("KB_search"):
+            n += 1
+    return n
+
+
 def find_cut(sim, trial):
-    """절단 규칙(사전등록 · 모듈 docstring §절단)."""
+    """절단 규칙 v2(사전등록 · 설계서 §5b 결함 B · 모듈 docstring §절단 v2).
+
+    trial0 = 35 고정. trial1 = min(첫 공식명-포함 assistant 인덱스, transfer 토큰이
+    어느 메시지에든 — content·tool_calls 직렬화 포함 — 처음 등장하는 인덱스).
+    둘 다 없으면 None(§5b 규칙 무매치 — 호출측이 SKIP·자기 무효 선고 방침).
+    """
     if trial == 0:
         return 35            # user[34] = 마지막 요구 발화 직후(설계서 §1 "마지막 요구 발화 직후")
+    rec_idx = None
+    # §5b 등록 규칙에 하한 없음 — 인덱스 0부터 스캔(transfer 스캔과 대칭). 구판의 i<=6
+    # 하한은 미등록 이탈이었다(감사 지적: 조기 공식명 발화가 있으면 등록 규칙보다 늦게 절단).
     for i, m in enumerate(sim["messages"]):
-        if i <= 6 or m.get("role") != "assistant":
+        if m.get("role") != "assistant":
             continue
         f = name_hits(str(m.get("content") or ""))
         if f["checking"] or f["savings"]:
-            return i         # 첫 추천 발화 — 문맥은 그 직전까지
-    return 11
+            rec_idx = i      # 첫 추천 발화 — 문맥은 그 직전까지
+            break
+    tr_idx = None
+    for i, m in enumerate(sim["messages"]):
+        if TRANSFER_TOK.search(json.dumps(m, ensure_ascii=False)):
+            tr_idx = i       # transfer 토큰 첫 등장(어느 role 이든 · tool_calls 인자 포함)
+            break
+    cands = [x for x in (rec_idx, tr_idx) if x is not None]
+    return min(cands) if cands else None
 
 
 def score(r, gold):
@@ -320,12 +369,17 @@ def main():
     print("x276 — 추천-수렴 격리 (%s · %s · 시행 %d개 · n=%d)\n" % (TAG, TASK, len(sims), n))
 
     for trial in (0, 1):
-        if trial >= len(sims):
+        # trial 필드 일치로 선택 — 정렬 후 위치 인덱싱은 trial0 부재(크래시)·부분 런에서
+        # trial0 전용 cut=35 를 엉뚱한 궤적에 적용한다(감사 지적 3 의 정렬 교정은 절반).
+        sim = next((s for s in sims if (s.get("trial") or 0) == trial), None)
+        if sim is None:
             print("trial%d: 시행 없음 — 건너뜀" % trial)
             continue
-        sim = sims[trial]
         gold = gold_classes(sim)
         cut = find_cut(sim, trial)
+        if cut is None:
+            print("trial%d: 절단점 미발견(§5b 규칙 무매치) — SKIP\n" % trial)
+            continue
         tools = U.tools_of(sim)
         live = build(sim, cut, True)
         free = build(sim, cut, False)   # D_FREE — 우리 사이드카 문장만 제거(단일 델타·리뷰 B1)
@@ -339,6 +393,18 @@ def main():
               % (trial, cut, len(live), len(tools), json.dumps(gold, ensure_ascii=False)))
         print("   cut 이전 tool 출력의 공식명 — checking: %s / savings: %s"
               % (sorted(seen["checking"]) or "없음", sorted(seen["savings"]) or "없음"))
+        # v2 발화-전 게이트(설계서 §5b · trial0 의 cut=35 고정도 같은 검증을 통과해야 발화):
+        # (1) 정보-맞춤 [[18]] — 절단 문맥에 KB 검색 tool 출력 ≥1 필수.
+        kb_n = kb_out_count(sim["messages"][:cut])
+        if kb_n < 1:
+            print("   KB 검색 tool 출력 0 (정보-맞춤 [[18]] 미충족) — SKIP\n")
+            continue
+        # (2) 절단 후 문맥(모델이 실제로 보는 세 본문)에 transfer 토큰 잔존 = 자기 무효.
+        dirty = [lb for lb, b in (("live", live), ("free", free), ("mini", mini))
+                 if TRANSFER_TOK.search(b)]
+        if dirty:
+            print("   절단 오염 — SKIP (transfer 토큰 잔존: %s)\n" % ",".join(dirty))
+            continue
 
         arms = (("A_LIVE", live, tools, score),
                 ("B_ONE", live + "\n" + B_ONE_FB, None, score),
@@ -356,7 +422,9 @@ def main():
                     c["ERR(%s)" % type(e).__name__] += 1
                     continue
                 c[fn(r, gold)] += 1
-            print("  %-7s %s" % (label, c.most_common(6)))
+            # 전 버킷 인쇄 — 상위 6개 절단은 합산 항(SEARCH+MULTI+TRANSFER ≥5/8)의 저빈도
+            # 버킷을 지워 빈도표 오독을 만든다([[08]]·n=8 이라 출력 부담 없음).
+            print("  %-7s %s" % (label, c.most_common()))
         print("")
 
     print("※ 판정표(설계서 §1 리뷰 S1 사전등록·n=8 기준 — 문턱 축자):"
