@@ -317,6 +317,56 @@ def resolve_verify_persistence(am, msgs, a2, transfer_tools=None):
     return {"status": "ok"}
 
 
+# ★축(계열) 표면화 (2026-08-12·C444·`T2_ARG_AXIS`). 실측: 모델은 축을 **정확히 말할 수 있는데**
+#   (라이브 11K자 문맥서 8/8 · `business` 낱말을 다 지워도 8/8 · 개인 요청엔 개인으로 0/8 대조)
+#   인자를 지을 때 그것을 쓰지 않았다(`account_type="checking"` 로 개인 계좌를 열었다).
+#   ⇒ 능력도 부하도 아니라 **적용**이다. 그래서 엔진이 하는 일은 하나 — **LLM 출력 둘을 맞대고
+#     다르면 그 사실만 알린다.** 무엇이 옳은지 고르지 않는다([[62]] ③④·[[22]] 닫힌 술어).
+#   ⚠선례 `resolve_operator` FIND 와 같은 형태이고 **C10 사고를 상속한다**(정당한 다중을 오차단).
+#     그래서 형식화는 **여러 값**을 낼 수 있고, 호출 인자가 그 집합의 **원소이면 통과**한다.
+ARG_AXIS_FB = (
+    "[ARG-AXIS] you set {arg}='{got}', but this customer's request is for {want}. "
+    "Re-check which one this call is for, and call the tool again with the value that "
+    "matches the request."
+)
+
+
+def formalize_arg_axis(agent, la, UserMessage, msgs, arg, choices, prompt_tpl):
+    """격리 LLM: 손님 발화 → 닫힌 집합(도구 독스트링 enum)의 원소들. 실패=None(안전).
+
+    ⚠집합은 **호출부가 준다**(env 도구 선언 유래) — 엔진이 짓지 않는다.
+    ⚠**여러 개**를 허용한다: 요청이 둘인 태스크에서 하나만 받으면 정당한 쪽을 오차단한다(C10).
+    """
+    if not (choices and agent is not None and la is not None and prompt_tpl):
+        return None
+    users = [str(getattr(m, "content", "") or "") for m in msgs
+             if getattr(m, "role", None) == "user"][-6:]
+    if not users:
+        return None
+    body = prompt_tpl.format(arg=arg, choices=", ".join(sorted(choices)),
+                             text="\n- ".join(u[:400] for u in users))
+    try:
+        um = UserMessage(role="user", content=body)
+    except TypeError:
+        um = UserMessage(content=body)
+    try:
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+              if "tool" not in k}
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="arg_axis_formalize", **kw)
+        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+    except Exception as e:
+        print("[T2_ARG_AXIS] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return None
+    # 엔진은 **집합 소속만** 본다 — 답에서 원소를 찾는 것뿐이고 도메인 해석 0([[59]]).
+    got = {c for c in choices if c and c.lower() in raw.lower()}
+    # 긴 이름이 짧은 이름을 포함하면(`business_checking` ⊃ `checking`) 짧은 쪽은 버린다.
+    out = {c for c in got if not any(c != o and c in o for o in got)}
+    print("[T2_ARG_AXIS] formalize → %s (raw=%r)" % (sorted(out), raw[:60]),
+          file=sys.stderr, flush=True)
+    return out or None
+
+
 def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools):
     """★FIND(의도→operator): 격리 LLM 서브콜 — 사용자 요청이 요구하는 action_tool 1개(or none).
     도메인-일반(intent→operator = 값 formalize의 operator판·learn 정의역). 실패=None(안전)."""

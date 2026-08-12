@@ -7596,8 +7596,36 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             if not isinstance(_ia, dict):
                                 continue
                             _val = str(_ia.get(_sp.get("arg")) or "").strip()
-                            _grp = (_sp.get("group_map") or {}).get(
-                                str(_ia.get(_sp.get("group_arg")) or ""))
+                            _gval = str(_ia.get(_sp.get("group_arg")) or "")
+                            # ★축 표면화 (T2_ARG_AXIS·기본 OFF·C444). 모델은 축을 **말할 수
+                            #   있는데**(라이브 문맥 8/8·부정통제 0/8) 인자에 안 썼다 —
+                            #   `account_type="checking"` 로 개인 계좌를 열었다(gold=business).
+                            #   엔진은 **LLM 출력 둘을 맞대기만** 한다: 격리 형식화 집합에
+                            #   실제 인자가 **속하면 통과**(다중 요청 오차단 방지·C10).
+                            #   ⚠고르지 않는다 — 어느 축이 옳은지 판정하지 않고, 다르다는
+                            #     사실만 알린다([[62]] ③④).
+                            if (en_fb is None and os.environ.get("T2_ARG_AXIS") == "1"
+                                    and _sp.get("axis_prompt") and _gval
+                                    and not getattr(self, "_t2_axis_deny", 0)):
+                                # ⚠지역 임포트 — 초판은 존재하지 않는 이름을 썼고, 이 블록이
+                                #   try 안이라 NameError 가 삼켜져 **레버가 조용히 죽었을**
+                                #   것이다(오늘 `main_prov`·break-가드와 같은 종류).
+                                import tau2.agent.llm_agent as _la_ax
+                                from tau2.data_model.message import UserMessage as _UM_ax
+                                _want = _rz.formalize_arg_axis(
+                                    self, _la_ax, _UM_ax, state.messages,
+                                    _sp.get("group_arg"), list(_sp.get("group_map") or {}),
+                                    _sp.get("axis_prompt"))
+                                if _want and _gval not in _want:
+                                    self._t2_axis_deny = 1
+                                    en_fb = (c, _rz.ARG_AXIS_FB.format(
+                                        arg=_sp.get("group_arg"), got=_gval,
+                                        want=" and ".join(sorted(_want))))
+                                    print("[T2_ARG_AXIS] deny got=%s want=%s"
+                                          % (_gval, sorted(_want)),
+                                          file=_sys.stderr, flush=True)
+                                    break
+                            _grp = (_sp.get("group_map") or {}).get(_gval)
                             _subs = _di.get(_grp) or {}
                             if not (_val and _grp and _subs):
                                 continue          # fail-open: 모르면 막지 않는다

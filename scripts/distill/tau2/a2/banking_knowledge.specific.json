@@ -1779,6 +1779,8 @@
         "checking": "checking_accounts",
         "savings": "savings_accounts"
       },
+      "_note_axis": "★2026-08-12 C444. x275 가 **이긴 문장 축자**(측정한 문구 = 출시할 문구·[[03b]]): 라이브 11K자 문맥 8/8 · 첫 발화 한 줄 8/8 · `business` 낱말 전부 제거해도 8/8 · 부정통제(개인 계좌 요청) 0/8. 닫힌 집합은 `group_map` 키 = 도구 독스트링 enum 축자라 **새 값 0**. 엔진은 이 답과 실제 인자를 **맞대기만** 한다 — 무엇이 옳은지 고르지 않는다. ⚠여러 값을 허용해야 한다(C10: 요청이 둘인 태스크서 하나만 받으면 정당한 쪽을 오차단).",
+      "axis_prompt": "A customer service agent must choose the {arg} argument for opening an account.\nThe tool declares it must be one of: 'checking' (personal checking), 'savings' (personal savings), 'business_checking', 'business_savings'.\n\nCustomer:\n- {text}\n\nWhich {arg} values does this customer's request call for? Reply with the value(s) only, one per line.",
       "feedback": "Error: [OFFICIAL-NAME] '{val}' is not one of the official {arg} names on file. The names on file for {group} are: {candidates}. Choose the one you meant, verbatim, and call the tool again. Do not add or drop words such as 'Account' - the name on file is the whole name.",
       "_note": "2026-08-12 C439(e)(4) 실측: 070/071 제출 account_class 24건 중 19건이 공식 명칭 집합 밖이었다(Lime Green Account x5 / Gold Saver x4[on file: Gold Saver Account] / Light Blue Business Checking Account x2 / Business Bronze Saver x3 ...). 모델이 'Account' 를 붙이기도 떼기도 한다. 술어는 **닫힘**([[22]]): 후보 집합 소속 판정뿐이고 엔진은 고르지 않는다(8~10개가 그대로 남는다). 출처 = env 뿐: 후보는 doc_index 주어 슬러그의 기계 전개(파일명 유도·x244·_note_doc_index), account_type enum 은 도구 독스트링 축자(\"Must be one of: 'checking','savings','business_checking','business_savings'\"·tools.py:2384). gold 무관([[23]]). 문구 근거 = x269(후보 줄이 두 축 8/8) + _note_official_names."
     }
