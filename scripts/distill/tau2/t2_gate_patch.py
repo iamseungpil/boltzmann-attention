@@ -2489,7 +2489,31 @@ def _search_material(agent, a2, messages):
     #   아무것도 안 뺀다 — 로그에는 `뺀 것 0` 으로만 남아 **성공처럼 보인다**(라이브 실패 3회째).
     #   그리고 그 값은 선언 형식(`%m/%d/%Y`)이라 ISO 비교 전에 **정규화**해야 한다.
     _nspec = next((s for s in (a2.get("ledger_metrics") or ()) if s.get("now_prompt")), None)
-    _now_raw = _lg.formalize_now(agent, _la, _UM, _tx, _nspec) if _nspec else None
+    # ★시계 출력을 **맨 앞에** 놓는다 (2026-08-12·C441). `formalize_now` 는 발췌를 **위치**로
+    #   한다(head 3 + tail 8). 071 실측: `get_current_time` 을 msg 13 에 불렀는데 대화텍스트가
+    #   24~28 이라 그 출력이 head 에도 tail 에도 못 들어가 **원값 None ×8** → 검색 서브가 통째로
+    #   침묵했다(070 은 대화텍스트 10 이라 전체가 덮여 성공). 모델 능력이 아니라 **우리가 그
+    #   문장을 안 보여 준 것**이다 — C437 과 같은 병(격리 계약 위반)이다.
+    #   ⚠고르는 기준은 **도구 이름**(A2 `now_tool`·env 도출)이지 내용이 아니다([[59]] — 어느
+    #     문장이 날짜인지 판정하는 것은 여전히 모델 몫이고, 엔진은 자리만 바꾼다).
+    #   ⚠못 찾으면 종전대로(빈 목록) — 거동 회귀 0.
+    _ntool = (_nspec or {}).get("now_tool")
+    _nowtx = []
+    if _ntool:
+        try:
+            _byid = {}
+            for _m0 in (messages or []):
+                for _tc0 in (getattr(_m0, "tool_calls", None) or []):
+                    _byid[getattr(_tc0, "id", None)] = getattr(_tc0, "name", None)
+            for _m0 in (messages or []):
+                if getattr(_m0, "role", None) == "tool" \
+                        and _byid.get(getattr(_m0, "id", None)) == _ntool:
+                    _nowtx.append(_content_str(_m0))
+        except Exception as _nte:
+            _nowtx = []
+            print("[T2_SEARCH_AGENT] now_tool 선별 실패(종전대로): %r" % (_nte,),
+                  file=sys.stderr, flush=True)
+    _now_raw = _lg.formalize_now(agent, _la, _UM, _nowtx + _tx, _nspec) if _nspec else None
     _now = _ts.to_iso(_now_raw, tuple((_nspec or {}).get("date_formats")
                                       or ("%m/%d/%Y", "%Y-%m-%d")))
     # ★`now` 를 모르면 **내보내지 않는다** (2026-08-11·라이브 4회째 교정).
