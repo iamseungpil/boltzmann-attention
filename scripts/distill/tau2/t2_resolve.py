@@ -264,6 +264,11 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
             if os.environ.get("T2_DISCOVERY_STEP2") == "1":
                 _nm2 = _retrieved_unlockable(msgs, known_names, _u3)
                 if _nm2:
+                    # ★로그에 남긴다 (2026-08-12). 초판은 인쇄가 없어 `.log` 를 grep 한 내가
+                    #   *"발화 0"* 으로 네 번째 계기 오독을 했다 — 문구는 사이드카로만 나간다.
+                    #   [[55]] *로그 마크 ≠ 전달* 의 거울상이라, 두 출처가 **둘 다** 있어야 한다.
+                    print("[T2_DISCOVERY_STEP2] deny name=%s (이미 회수·미unlock)" % _nm2,
+                          file=sys.stderr, flush=True)
                     return {"status": "deny", "reason": "discovery-step2",
                             "feedback": DISCOVERY_STEP2_FB.format(name=_nm2, unlock=_u3)}
             return {"status": "deny", "reason": "discovery-required",
