@@ -97,8 +97,22 @@ def main():
     noask = "\n---\n".join(u for u in users[1:] if u.strip())
 
     print("cut=%d · 손님 발화 %d개 · live %d자\n" % (cut, len(users), len(live)))
+    # ★부정 통제 재설계 (2026-08-12·초판 실패). 초판 `D_NOASK` 는 첫 발화만 뺐는데 남은
+    #   발화들이 여전히 "business checking"·"True Blue Business Checking" 을 말해 **신호가
+    #   제거되지 않았고** 8/8 이 나왔다 — 내 읽기 규칙대로 그 판은 무효다([[57]]).
+    #   제대로 된 부정 통제는 **답이 달라져야 하는 입력**이다: 같은 질문에 *개인* 계좌를
+    #   요청하는 손님 텍스트를 넣고 `business_*` 가 **안 나오는지** 본다. 여기서도 gold 가
+    #   나오면 그 질문은 텍스트를 읽는 게 아니라 무언가를 되풀이하는 것이다.
+    #   ⚠이 텍스트는 프로브 전용 합성이고 A2·엔진에 들어가지 않는다.
+    personal = ("Hi, I'd like to open a personal checking account for my own day-to-day "
+                "spending, and a personal savings account for my emergency fund. This is "
+                "just for me, not for any business.")
+    # 그리고 계열 낱말을 지운 판 — 원문에서 'business' 만 제거한다(다른 정보는 그대로).
+    stripped = re.sub(r"(?i)\bbusiness\b", "", ask)
     arms = (("A_LIVE", live), ("B_ISO", Q.format(text=ask)),
-            ("C_FIRST", Q.format(text=first)), ("D_NOASK", Q.format(text=noask)))
+            ("C_FIRST", Q.format(text=first)),
+            ("N1_PERSONAL", Q.format(text=personal)),
+            ("N2_STRIPPED", Q.format(text=stripped)))
     for label, body in arms:
         if label == "A_LIVE":
             body = live + "\n\n" + Q.format(text="(see the conversation above)")
