@@ -63,7 +63,9 @@ def main():
         d = json.load(op(p, "rt", encoding="utf-8"))
         for s in d.get("simulations", ()):
             key = "%s#t%s" % (s["task_id"], s.get("trial"))
-            rw[key] = s["reward_info"]["reward"]
+            # ★진행 중 런에서도 읽는다 (2026-08-12): 미완 sim 은 `reward_info` 가 **None** 이라
+            #   그대로 첨자하면 터진다 — 실시간 추적이 이 도구의 용도인데 라이브에서 못 쓰였다.
+            rw[key] = ((s.get("reward_info") or {}).get("reward"))
             term[key] = s.get("termination_reason")
         break
 
