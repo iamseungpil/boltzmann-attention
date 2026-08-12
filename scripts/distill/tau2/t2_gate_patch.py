@@ -7049,7 +7049,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             #   (banking 잔여=⋈/reach이지 deflect-vs-ask 아님·BANK_ACTIONREQ_PROBE_FORENSIC).
                             _ar = (_rz.resolve_action_operator(
                                 {"action_tools": list(_acts)}, am, state.messages, a2,
-                                target_tool=_tgt, transfer_tools=_transfer_tools(a2))
+                                target_tool=_tgt, transfer_tools=_transfer_tools(a2),
+                                # ★C442 진행-감응: 이름 집합은 **프레임워크 레지스트리**에서만
+                                #   온다(`registry_names` — 이미 있는 함수·도메인 리터럴 0).
+                                #   우리가 이름을 짓지 않는다는 것이 이 인자의 요점이다.
+                                known_names=_rz.registry_names(self))
                                 if _tgt else {"status": "ok"})
                             if _ar.get("status") == "deny":
                                 _fb_ar = _ar["feedback"]

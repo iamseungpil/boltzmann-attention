@@ -169,6 +169,49 @@ DISCOVERY_REQUIRED_FB = (
 )
 
 
+# ★진행-감응 (2026-08-12·C442·`T2_DISCOVERY_STEP2`). 위 문구는 볼 때마다 *"(1) 검색"* 을
+#   말한다 — 그래서 이름을 이미 알아도 또 검색한다. x273 실측(n=8·정보-맞춘 격리):
+#     출시 문구 + 라이브 검색결과(이름 실재)  UNLOCK **0/8** (전부 재검색)
+#     출시 문구 + 이름 문서 통째              UNLOCK **0/8**
+#     출시 문구 + 이름 한 줄                  UNLOCK **0/8**
+#     ↓ 아래 문구로 바꾸면
+#     같은 검색결과 + 이 문구                 UNLOCK **8/8**   · 문맥 없이도 **8/8**
+#   라이브의 `KB_search 7회 · unlock 0회` 가 이것으로 설명된다. 진행-무감각한 요구는 자기가
+#   만든 상태를 자기가 되감는다([[64]] 정밀화).
+#   ⚠**측정한 문구 = 출시할 문구**([[03b]]) — 아래는 x273 `E_STEP2` 축자다({unlock} 만 A2 주입).
+DISCOVERY_STEP2_FB = (
+    "[DISCOVERY-STEP2] the knowledge base you already searched names the tool for this "
+    "action: {name}. It is not in your tool list, so it must be unlocked before it can be "
+    "used. Call {unlock} with that name now. Do not search again - the name is already known."
+)
+
+
+def _retrieved_unlockable(messages, known_names, unlock_tool):
+    """회수 텍스트에 **실재하고** 아직 unlock 되지 않은 이름 (닫힌 술어·[[22]]).
+
+    둘 다 문자열/호출-이력 판정이다 — 도메인 산문을 해석하지 않는다([[59]]).
+    이름 집합은 **환경 레지스트리**에서 오고(호출부가 넘긴다) 우리가 짓지 않는다.
+    """
+    if not known_names:
+        return None
+    tried = set()
+    seen = []
+    for m in (messages or []):
+        for tc in (getattr(m, "tool_calls", None) or []):
+            if getattr(tc, "name", None) == unlock_tool:
+                for v in (getattr(tc, "arguments", None) or {}).values():
+                    tried.add(str(v))
+        if getattr(m, "role", None) in ("tool", "user"):
+            c = getattr(m, "content", None)
+            if c:
+                seen.append(str(c))
+    hay = "\n".join(seen)
+    for nm in sorted(known_names, key=len, reverse=True):
+        if nm and nm not in tried and nm in hay:
+            return nm
+    return None
+
+
 def _discoverable_dispatchers(a2):
     """A2 operands서 operator_resolution=discoverable 인 도구명 → getter 맵 (Lever 2)."""
     out = {}
@@ -189,7 +232,8 @@ def _agent_ending(am, transfer_tools):
     return False
 
 
-def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_tools=None):
+def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_tools=None,
+                            known_names=None):
     """★operator 해소 GET→FIND→(execute|ASK) — 행동-vs-조언(사용자 2026-07-13).
     action_tools = A2 선언(요청 성취 도구). target_tool = formalize(의도)→도구(learn·호출측 주입).
       - target ∈ available ∧ 에이전트가 미호출(조언/transfer 회피) → deny(실행 강제·action-required)
@@ -215,6 +259,13 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
                              _ep3.get("list_tool"))
             if not (_u3 and _c3 and _l3):
                 return {"status": "ok"}
+            # ★진행-감응 분기 (C442·기본 OFF). 이름이 **이미 회수됐고 아직 unlock 안 됐으면**
+            #   (1)단계를 다시 시키지 않고 (2)단계를 이름과 함께 말한다. 그 외에는 종전 그대로.
+            if os.environ.get("T2_DISCOVERY_STEP2") == "1":
+                _nm2 = _retrieved_unlockable(msgs, known_names, _u3)
+                if _nm2:
+                    return {"status": "deny", "reason": "discovery-step2",
+                            "feedback": DISCOVERY_STEP2_FB.format(name=_nm2, unlock=_u3)}
             return {"status": "deny", "reason": "discovery-required",
                     "feedback": DISCOVERY_REQUIRED_FB.format(
                         target=target_tool, getter=_disc[target_tool],
