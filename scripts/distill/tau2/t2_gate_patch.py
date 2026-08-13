@@ -146,6 +146,14 @@ def _tok_overlap(name, registry):
     return sorted(n for c, n in scored if c == mx)
 
 
+def _tok_hits(text, name):
+    """이름 토큰 중 text 토큰집합에 든 개수 (FIX-8 문턱용·순수 문자열 연산·판단 0)."""
+    import re as _re
+    ts = {t for t in _re.split(r"[_\W]+", str(text or "").lower()) if t}
+    base = _re.sub(r"_\d+$", "", str(name or "")).lower().split("_")
+    return sum(1 for t in base if t and t in ts)
+
+
 def _slug_disp(k):
     """슬러그 → 표시명 기계 전개 (FIX-6·t7276 075 실측·[[55]] 우리층 수리).
 
@@ -2732,7 +2740,7 @@ def _claim_unbacked(claims, emap, evs, messages, a2=None):
     return out
 
 
-def _split_claims_by_owner(claims, agent_names, user_names):
+def _split_claims_by_owner(claims, agent_names, user_names, registry=None, min_tok=2):
     """★주장이 지목한 도구의 **소유자**로 가른다 (순수함수·단위검정 공유·[[03b]]).
 
     왜 (2026-08-09·C348⒢ 실측): 결정 턴의 미이행-약속 문구가 `give: guide customer to use
@@ -2761,7 +2769,22 @@ def _split_claims_by_owner(claims, agent_names, user_names):
         elif t and t in u:
             theirs.append(c)
         else:
-            unknown.append(c)
+            # ★FIX-8 (2026-08-13·격리 `x300_early_note_probe.py` 3셀 n=8: **B_NOTE 8/8** ·
+            #   A_NONE 0/8 · **D_GEN 0/8**). 라이브(t7278 075 turn30)의 미이행 약속은 도구가
+            #   안 붙어 unknown 으로 떨어졌고, 그래서 나간 문구가 도구-이름 없는 일반 촉구
+            #   (=D_GEN 동형)였다 — 그 문면은 격리에서 **0/8**이고, 소유권 사실(도구명)을 담은
+            #   문면은 **8/8**이다. 즉 인자는 촉구가 아니라 **사실**이다([[64]]).
+            #   여기서 하는 일: 도구 미지 주장의 what 토큰이 **에이전트 레지스트리** 항목과
+            #   `min_tok` 개 이상 겹치고 최댓값이 **유일**하면 그 사실을 회수한다(기계 문자열
+            #   연산·의미 판단 0·[[59]]). 동률·부족이면 unknown 유지 = 구판 문구(fail-open).
+            #   엔진은 무엇을 부를지 고르지 않는다 — 소유자 사실만 말한다([[62]] ③④).
+            _m = _tok_overlap((c or {}).get("what"), registry or ()) if registry else []
+            if len(_m) == 1 and _tok_hits((c or {}).get("what"), _m[0]) >= min_tok:
+                c = dict(c or {})
+                c["tool"] = _m[0]
+                own.append(c)
+            else:
+                unknown.append(c)
     return own, theirs, unknown
 
 
@@ -9774,7 +9797,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 _unb_p,
                                 [getattr(t, "name", None) for t in (getattr(self, "tools", None) or [])],
                                 _user_discoverable(getattr(getattr(self, "_t2_orch", None),
-                                                           "environment", None)))
+                                                           "environment", None)),
+                                # ★FIX-8: 도구 미지 주장의 소유권 회수용 후보 = **에이전트
+                                #   discoverable 레지스트리**(env 기계 사실). 격리 x300.
+                                registry=_agent_discoverable(
+                                    getattr(getattr(self, "_t2_orch", None), "environment", None)))
                             print("[T2_CLAIMPROV] owner split: agent=%d user=%d unknown=%d"
                                   % (len(_own_p), len(_their_p), len(_unk_p)),
                                   file=_sys.stderr, flush=True)
