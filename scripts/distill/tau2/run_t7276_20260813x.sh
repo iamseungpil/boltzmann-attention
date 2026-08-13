@@ -4,8 +4,9 @@
 #
 # 탑재(전 레버 상시 + 이번 신규): 기존 스택 + STEP2 3종 + FIX-1/2/3
 #   + FIX-5(fee 도구 delta·net correction 표면화 — t7274w 073 금액 오답·중복 크레딧 실측)
-#   + (B2) get_checking_atm_fee_totals(x291 C_CALC 8/8·x291b 전이 확인 후 발사)
-#   + FIX-4(BYREF deny 오유도 제거 — x292 문턱 통과 시에만 포함·미통과면 이 주석 갱신).
+#   + (B2) get_checking_atm_fee_totals(x291 C_CALC 8/8 → x291b 형식개정판 strict 12/16 통과·확정)
+#   — FIX-4 는 **제외**(x292 n=8+16: A_CUR 합산 7/24 = 오유도 가설 게이트 미달·deny 무죄 보류
+#     판정·X291_CHECKING_FIT_DESIGN §7). BYREF 오표적 재발률은 이 런에서 관측만.
 # 관측 포인트: ⓐ(B2) 발화×결과 짝(075 추천 턴) ⓑfee 도구 delta 라인이 credit 금액으로
 #   이어지는가(073 gold $9.50/$9.00/$1.50·중복 크레딧 재발 여부) ⓒ072/074 BYREF 오표적
 #   재발/해소 ⓓ074 4계좌 coverage ⓔ075 write 경로(open_bank_account_4821 도달 여부 —
