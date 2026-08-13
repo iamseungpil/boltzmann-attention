@@ -13,17 +13,13 @@
 사용(사이드카 있는 리모트): py bank_dup_exec_audit.py [tag ...]
 """
 import collections
-import io
 import json
 import os
 import sys
 
-try:
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-except Exception:
-    pass
-
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# ⚠stdout 래핑은 **하지 않는다** — 아래 모듈이 이미 감싼다. 두 번 감싸면 앞 래퍼가 회수되며
+#   버퍼를 닫아 `I/O operation on closed file` 로 죽는다(2026-08-14 실측).
 from bank_fail_forensic_all import (jload, fb_for, label, nameof, argsof, norm)  # noqa: E402
 
 MARKS = ("[DISCOVERY-REQUIRED]", "[DISCOVERY-STEP2]", "[ACTION-REQUIRED]")
