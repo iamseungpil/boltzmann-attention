@@ -27,11 +27,30 @@ ALL = ["bank_t7285_a_20260814g", "bank_t7285_b_20260814g",
        "bank_t7286_a_20260814h", "bank_t7286_b_20260814h"]
 
 
+def write_names(d):
+    """이 런의 gold 채점표가 **write** 로 표시한 도구 이름 집합(벤치 메타데이터·분석 전용).
+
+    읽기 중복은 DB 를 안 깨지만 write 중복은 최종 상태를 깨서 태스크를 떨어뜨린다 — 둘을
+    같은 칸에 세면 신호가 희석된다(2026-08-14: 전체 151건 중 자발 71% 인데, 이 분리 없이는
+    write 중복의 귀속을 못 본다).
+    """
+    out = set()
+    for s in d.get("simulations", []):
+        for ck in ((s.get("reward_info") or {}).get("action_checks") or []):
+            if ck.get("tool_type") != "write":
+                continue
+            a = ck.get("action") or {}
+            out.add(label(a.get("name"), a.get("arguments") or {}))
+            out.add(a.get("name"))
+    return {n for n in out if n}
+
+
 def main(tags):
     tot = collections.Counter()
     for tag in tags:
         d = jload(tag)
         fb = fb_for(tag)
+        wnames = write_names(d)
         for s in d.get("simulations", []):
             msgs = s.get("messages") or []
             res = {m.get("id"): m for m in msgs if m.get("role") == "tool"}
@@ -53,23 +72,31 @@ def main(tags):
                     if seen[key]:
                         prev = seen[key][-1]
                         near = [t for t in lever_turns if prev < t <= i]
-                        rows.append((key[0], prev, i, bool(near)))
+                        isw = key[0] in wnames or nameof(tc) in wnames
+                        rows.append((key[0], prev, i, bool(near), isw))
                     seen[key].append(i)
             dup = len(rows)
             lever = sum(1 for r in rows if r[3])
+            wrows = [r for r in rows if r[4]]
             if dup:
-                print("%-28s %-12s dup=%-3d 우리문구-사이=%-3d 자발=%-3d" % (
+                print("%-28s %-12s dup=%-3d 우리문구-사이=%-3d 자발=%-3d ★write중복=%d(우리 %d)" % (
                     simtag, "reward=%s" % (s.get("reward_info") or {}).get("reward"),
-                    dup, lever, dup - lever))
-                for nm, a, b, near in rows[:6]:
-                    print("    %-46s %d→%d %s" % (nm[:46], a, b, "★우리문구" if near else "자발"))
+                    dup, lever, dup - lever, len(wrows), sum(1 for r in wrows if r[3])))
+                for nm, a, b, near, isw in (wrows or rows)[:6]:
+                    print("    %-3s %-42s %d→%d %s" % ("W" if isw else "r", nm[:42], a, b,
+                                                       "★우리문구" if near else "자발"))
             tot["dup"] += dup
             tot["lever"] += lever
+            tot["wdup"] += len(wrows)
+            tot["wlever"] += sum(1 for r in wrows if r[3])
             tot["sims"] += 1
     print("-" * 84)
     print("합계: sim %d · 중복 성공 실행 %d · 그중 직전에 우리 문구 %d (%.0f%%) · 자발 %d" % (
         tot["sims"], tot["dup"], tot["lever"],
         100.0 * tot["lever"] / tot["dup"] if tot["dup"] else 0, tot["dup"] - tot["lever"]))
+    print("★write 중복만: %d · 그중 우리 문구 직전 %d (%.0f%%) · 자발 %d" % (
+        tot["wdup"], tot["wlever"],
+        100.0 * tot["wlever"] / tot["wdup"] if tot["wdup"] else 0, tot["wdup"] - tot["wlever"]))
 
 
 if __name__ == "__main__":
