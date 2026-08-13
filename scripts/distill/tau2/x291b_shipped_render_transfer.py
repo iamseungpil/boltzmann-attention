@@ -33,6 +33,24 @@ from t2_compute import apply_op                                   # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
+# strict 판정(리뷰 ④a·사용자 지시 2026-08-13): FINAL 줄이 유일 클래스명일 때만 hit —
+# "Green Fee-Free 또는 Bluest" 류 양다리 배제. 토큰은 정규화(소문자·영숫자만) 부분열.
+OTHER_CLASSES = ("bluestaccount", "purple", "goldyears", "lightgreen", "lightblue",
+                 "evergreen", "darkgreen", "blueaccount", "greenaccountchecking")
+
+
+def strict_pick(text):
+    import re as _re
+    t = str(text or "")
+    line = None
+    for ln in reversed(t.splitlines()):
+        if "FINAL" in ln.upper():
+            line = ln
+            break
+    s = _re.sub(r"[^a-z]", "", (line if line is not None else t[-300:]).lower())
+    hit = ("feefree" in s) and not any(c in s for c in OTHER_CLASSES)
+    return hit, (line or "(FINAL 줄 부재)")
+
 
 def shipped_text():
     """A2 정본에서 op 로드 → 075 사용 패턴 실행 → return_template 렌더 축자."""
@@ -62,22 +80,27 @@ def main():
     print("075 t%s cut=%d · 렌더 %d자 · n=%d · URL=%s\n" % (
         sim.get("trial"), cut, len(calc), n,
         os.environ.get("T2_PROBE_URL", "localhost:8140")))
-    hits = purples = nofmt = 0
+    hits = strict = purples = nofmt = 0
     for i in range(n):
         try:
             r = chat(body, tools, 0.0 if i == 0 else 0.7, 700)
         except Exception as e:
             r = {"content": "ERR %s" % type(e).__name__}
         h, pu, fmt = B.final_pick(r.get("content"))
+        sh, fline = strict_pick(r.get("content"))
         hits += h
+        strict += sh
         purples += pu
         nofmt += (not fmt)
-        if i < 2 or not h:                     # [[08]] 정독용: 초반 2건+미스 전건 스니펫
+        # [[08]] 전건 FINAL 줄 로그(리뷰 ③/④a) + 미스는 본문 스니펫
+        print("  [%02d]%s %s" % (i, " HIT " if sh else " MISS", " ".join(fline.split())[:140]))
+        if not sh:
             t = " ".join(str(r.get("content") or "(no content)").split())
-            print("  [%d]%s %s" % (i, "" if h else " MISS", t[-260:]))
-    print("C_SHIP  문맥 %6d자 · feefree %d/%d · purple %d · FINAL줄부재 %d" % (
-        len(body), hits, n, purples, nofmt))
-    print("\n※ 사전등록: ≥6/8 → (B2) 출시 확정 · ≤2/8 → 보류·표 형식 포렌식 · 3~5 → n=16 1회.")
+            print("        … %s" % t[-220:])
+    print("\nC_SHIP  문맥 %6d자 · strict %d/%d · loose %d · purple %d · FINAL줄부재 %d" % (
+        len(body), strict, n, hits, purples, nofmt))
+    print("\n※ 판정 = strict 기준(사전등록 §6: n=16 은 ≥12/16 ↔ ≥6/8 동율 · ≤4/16 보류 ·"
+          " 그 외 보류·형식 포렌식).")
 
 
 if __name__ == "__main__":
