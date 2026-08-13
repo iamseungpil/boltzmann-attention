@@ -145,6 +145,81 @@ r4 = R.resolve_action_operator({"action_tools": ["call_x"]}, am, msgs_den, A2,
                                agent=_Agent(), la=_LA, UserMessage=_UM)
 chk("회귀ⓒ-역: 거부된 이관은 안 센다", r4.get("status") == "deny")
 
+# ── 2026-08-13 수리 회귀 2건 (p런 포렌식 + x283) ──
+class _TK:
+    def __init__(self, names):
+        self._n = set(names)
+
+    def get_discoverable_tools(self):
+        return set(self._n)
+
+
+class _Env:
+    def __init__(self, names):
+        self.tools = _TK(names)
+
+
+class _Orch:
+    def __init__(self, names):
+        self.environment = _Env(names)
+
+
+class _AgentReg(_Agent):
+    def __init__(self, names):
+        self._t2_orch = _Orch(names)
+
+
+# (ⓔ) 필터: 회수 텍스트에 디스패처·직접도구 이름이 있어도 unlock 후보가 못 된다
+#     (p런 실측: "unlock call_discoverable_agent_tool"·"unlock log_verification" 넌센스 푸시)
+class _SubBad:
+    content = '{"tool": "call_x"}'
+
+
+class _LABad:
+    @staticmethod
+    def generate(**kw):
+        return _SubBad()
+
+
+msgs_bad = [_M("user", "please do the thing"),
+            _M("tool", "docs mention call_x and log_v and open_thing_1111")]
+r5 = R.resolve_action_operator({"action_tools": ["call_x"]}, am, msgs_bad, A2,
+                               target_tool="call_x", transfer_tools={"transfer_h"},
+                               known_names={"call_x", "log_v", "open_thing_1111"},
+                               agent=_AgentReg({"open_thing_1111"}), la=_LA, UserMessage=_UM)
+chk("회귀ⓔ: 비-발견형 이름은 STEP2 후보에서 배제", r5.get("reason") == "discovery-step2"
+    and "open_thing_1111" in str(r5.get("feedback"))
+    and "call_x" not in str(r5.get("feedback")).split("registry")[0].split("names the tool for this action: ")[-1][:30])
+
+# (ⓕ) 폴백: 회수 텍스트에 이름이 없어도 target 가족 일치 레지스트리 이름을 후보로 공급 —
+#     문면은 REG 판(진실 출처절), 선택은 여전히 formalize
+class _SubFam:
+    content = '{"tool": "call_x_9999"}'
+
+
+class _LAFam:
+    @staticmethod
+    def generate(**kw):
+        return _SubFam()
+
+
+msgs_none = [_M("user", "please do the thing"),
+             _M("tool", "no names here at all")]
+r6 = R.resolve_action_operator({"action_tools": ["call_x"]}, am, msgs_none, A2,
+                               target_tool="call_x", transfer_tools={"transfer_h"},
+                               known_names={"call_x_9999"},
+                               agent=_AgentReg({"call_x_9999"}), la=_LAFam, UserMessage=_UM)
+chk("회귀ⓕ: 회수-실패 시 레지스트리 가족 폴백 + REG 문면", r6.get("reason") == "discovery-step2"
+    and "call_x_9999" in str(r6.get("feedback"))
+    and "tool registry lists" in str(r6.get("feedback")))
+
+# (ⓕ-역) 레지스트리가 비면(오프라인) 폴백·필터 둘 다 미작동 = 종전 거동(일반문 강등)
+r7 = R.resolve_action_operator({"action_tools": ["call_x"]}, am, msgs_none, A2,
+                               target_tool="call_x", transfer_tools={"transfer_h"},
+                               known_names={"call_x_9999"},
+                               agent=_Agent(), la=_LAFam, UserMessage=_UM)
+chk("회귀ⓕ-역: 레지스트리 부재면 종전 일반문", r7.get("reason") == "discovery-required")
+
 try:
     import ast
     ast.parse(SRC)

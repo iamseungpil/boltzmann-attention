@@ -196,6 +196,33 @@ DISCOVERY_STEP2_FB = (
     "used. Call {unlock} with that name now. Do not search again - the name is already known."
 )
 
+# ★레지스트리-폴백 문면 (2026-08-13·x283). 회수 텍스트에 이름이 **없을 때** 위 문구를 쓰면
+#   "the knowledge base you already searched names the tool" 이 거짓이 된다([[25]] 우리 층
+#   100% 정답 의무). 출처 절만 진실(레지스트리)로 바꾼 변형이고, x283 §E_REG 가 이 축자를
+#   쟀다([[03b]] 측정문면=출시문면).
+DISCOVERY_STEP2_REG_FB = (
+    "[DISCOVERY-STEP2] the tool registry lists the tool for this action: {name}. It is not "
+    "in your tool list, so it must be unlocked before it can be used. Call {unlock} with "
+    "that name now. Do not search for the name - it is already known."
+)
+
+
+def agent_discoverable_names(agent):
+    """env 의 **agent-side discoverable** 이름 집합 (기계 도출·도메인 리터럴 0).
+
+    ★왜 필요한가 (2026-08-13 p런 포렌식): STEP2 후보 필터가 `registry_names`(전 도구 합집합)
+    라서 **디스패처 자신**(`call_discoverable_agent_tool`)과 **직접 도구**(`log_verification`)를
+    unlock 후보로 공급했다 — 실측 축자: 071 t1 turn60 · t2 turn27/37 의 넌센스 푸시.
+    unlock 이 가능한 것은 이 집합의 원소뿐이다.
+    """
+    try:
+        env = getattr(getattr(agent, "_t2_orch", None), "environment", None)
+        tk = getattr(env, "tools", None)
+        g = getattr(tk, "get_discoverable_tools", None)
+        return set(g() or {}) if callable(g) else set()
+    except Exception:
+        return set()
+
 
 def _retrieved_unlockables(messages, known_names, unlock_tool):
     """회수 텍스트에 **실재하고** 아직 unlock 되지 않은 이름 **전부** (닫힌 술어·[[22]]).
@@ -289,6 +316,22 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
             #   (1)단계를 다시 시키지 않고 (2)단계를 이름과 함께 말한다. 그 외에는 종전 그대로.
             if os.environ.get("T2_DISCOVERY_STEP2") == "1":
                 _cands2 = _retrieved_unlockables(msgs, known_names, _u3)
+                # ★후보 = unlock 가능한 것만 (2026-08-13 p런 실측: 디스패처 자신·직접 도구가
+                #   후보로 새어 "unlock call_discoverable_agent_tool"·"unlock log_verification"
+                #   넌센스 푸시 발화 — 071 t1 turn60·t2 turn27/37 축자). 레지스트리 조회가
+                #   비면(오프라인 테스트 등) 필터를 걸지 않는다 — 종전 거동 보존.
+                _reg2 = agent_discoverable_names(agent)
+                if _reg2:
+                    _cands2 = [n for n in _cands2 if n in _reg2]
+                # ★회수-실패 시 레지스트리 실명 폴백 (x283 C_STEP2: 071 t1/t3 8/8 — 이름이
+                #   닿기만 하면 체인이 열린다·070 은 이름을 줘도 0~1/8 = 이 폴백의 한계도
+                #   같은 프로브가 쟀다). 후보는 target 가족과 `_fam` 일치하는 레지스트리
+                #   원소뿐(기계 도출·[[25]] 레지스트리=권위). 선택은 아래 formalize 그대로.
+                _regfb2 = False
+                if not _cands2 and _reg2:
+                    from t2_precedence import _fam as _fam2
+                    _cands2 = sorted(n for n in _reg2 if _fam2(n) == _fam2(target_tool))
+                    _regfb2 = bool(_cands2)
                 _nm2 = None
                 if _cands2:
                     # ★후보-정합 (2026-08-12·j런 070t0: '아무 첫 이름'이 요청과 무관한
@@ -306,10 +349,14 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
                     # ★로그에 남긴다 (2026-08-12). 초판은 인쇄가 없어 `.log` 를 grep 한 내가
                     #   *"발화 0"* 으로 네 번째 계기 오독을 했다 — 문구는 사이드카로만 나간다.
                     #   [[55]] *로그 마크 ≠ 전달* 의 거울상이라, 두 출처가 **둘 다** 있어야 한다.
-                    print("[T2_DISCOVERY_STEP2] deny name=%s (이미 회수·미unlock·formalize 정합)" % _nm2,
+                    print("[T2_DISCOVERY_STEP2] deny name=%s (%s·미unlock·formalize 정합)"
+                          % (_nm2, "레지스트리 폴백" if _regfb2 else "이미 회수"),
                           file=sys.stderr, flush=True)
+                    # 폴백 이름은 회수 텍스트에 없다 — "KB 가 이름을 댔다" 문면은 거짓이 되므로
+                    #   출처 절만 레지스트리로 말하는 변형을 쓴다(둘 다 축자 측정본·[[03b]]).
+                    _fb2 = DISCOVERY_STEP2_REG_FB if _regfb2 else DISCOVERY_STEP2_FB
                     return {"status": "deny", "reason": "discovery-step2",
-                            "feedback": DISCOVERY_STEP2_FB.format(name=_nm2, unlock=_u3)}
+                            "feedback": _fb2.format(name=_nm2, unlock=_u3)}
             return {"status": "deny", "reason": "discovery-required",
                     "feedback": DISCOVERY_REQUIRED_FB.format(
                         target=target_tool, getter=_disc[target_tool],
