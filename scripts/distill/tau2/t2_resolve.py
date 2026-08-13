@@ -300,6 +300,12 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
     #     (error=True)도 아니고 "Error:" 로 시작하지도 않는 것 — 구조 판정뿐·산문 해석 0.
     if transfer_tools and _transfer_executed(msgs, set(transfer_tools)):
         return {"status": "ok"}
+    # ★U1 (2026-08-14·FORENSIC_SYNTHESIS §2-A): 이번 손님 발화 이후 발견형 디스패치가 **성공**
+    #   했으면, 결과를 보고하는 순수-텍스트 턴은 회피가 아니다 — 여기서 "처음부터 발견하라"를
+    #   내면 완료된 write 를 되감아 중복 실행시킨다(073 t0 잔액 5200→5228.50·write 중복 36건 중
+    #   15건이 우리 문구 직후). `_transfer_executed` 와 같은 이력-감응·구조 판정.
+    if _dispatch_since_last_user(msgs, a2):
+        return {"status": "ok"}
     # 회피(조언/transfer) 확정 → FIND 결과로 분기
     if target_tool and target_tool in action_tools:
         # ★Lever 2: target이 discoverable dispatcher면 발견체인 안내(getter→unlock→call).
@@ -477,6 +483,36 @@ def _executed_dispatch_names(msgs, a2, arg="agent_tool_name"):
         if v:
             out.add(str(v))
     return out
+
+
+def _dispatch_since_last_user(msgs, a2):
+    """이번 손님 발화 **이후**에 발견형 도구를 성공 디스패치했는가 (닫힌 술어·구조 판정).
+
+    ★2026-08-14 실측(073 t0 `bank_t7285_b`): msg57 에서 gold credit 3건이 전부 성공했는데,
+    그 다음 순수-텍스트 턴(손님에게 결과 보고)이 `_agent_ending` 에 **회피로 판정**돼
+    `[DISCOVERY-REQUIRED] (1) 검색 (2) unlock (3) call` 이 나갔고, 모델은 시킨 대로 체인을
+    다시 돌아 **같은 3건을 msg61·67·73 에 재실행**했다(잔액 5200→5228.50). 발견 체인을
+    방금 완주한 자리에서 *"처음부터 발견하라"* 는 우리 문구는 **사실이 아니다**([[25]]).
+    전수 감사(`bank_dup_exec_audit.py`·28 sim): write 중복 36건 중 **15건(42%)** 이 우리
+    문구 직후였다(자발 21건 = 부정통제).
+
+    ⚠커버리지(남은 계좌 등)는 이 레버 몫이 아니라 covfollowup 몫이라 침묵해도 안 잃는다.
+    이름을 댈 수 있는 경우(STEP2)는 위에서 **이미 실행된 이름만** 후보에서 빼므로 여기 안 온다.
+    """
+    ms = list(msgs or [])
+    last_user = -1
+    for i, m in enumerate(ms):
+        if getattr(m, "role", None) == "user":
+            last_user = i
+    if last_user < 0:
+        return False
+    d = ((a2 or {}).get("eplan") or {}).get("dispatch_tool")
+    if not d:
+        return False
+    for tc, rm in _paired_results(ms[last_user:]):
+        if getattr(tc, "name", None) == d and _result_ok(rm):
+            return True
+    return False
 
 
 def resolve_verify_persistence(am, msgs, a2, transfer_tools=None):
