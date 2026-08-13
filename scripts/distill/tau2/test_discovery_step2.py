@@ -84,7 +84,7 @@ class _LA:
 
 class _UM:
     def __init__(self, **kw):
-        pass
+        self.content = kw.get("content", "")
 
 
 class _Agent:
@@ -219,6 +219,52 @@ r7 = R.resolve_action_operator({"action_tools": ["call_x"]}, am, msgs_none, A2,
                                known_names={"call_x_9999"},
                                agent=_Agent(), la=_LAFam, UserMessage=_UM)
 chk("회귀ⓕ-역: 레지스트리 부재면 종전 일반문", r7.get("reason") == "discovery-required")
+
+
+# (ⓖ) none→레지스트리 재질의: 회수 후보(무관)에 none 이어도 레지스트리 잔여에서 정합을 찾는다
+#     (t7273 073t1 turn35/37/45 실측 — 무관 read 3개에 none → credit 도구가 후보에 든 적 없음)
+class _LATwoStage:
+    calls = []
+
+    @staticmethod
+    def generate(**kw):
+        _LATwoStage.calls.append(kw)
+        body = " ".join(str(getattr(m, "content", "") or (m.get("content") if isinstance(m, dict) else ""))
+                        for m in (kw.get("messages") or []))
+        if "apply_z_5555" in body:
+            class _S:
+                content = '{"tool": "apply_z_5555"}'
+            return _S()
+
+        class _S2:
+            content = '{"tool": "none"}'
+        return _S2()
+
+
+msgs_irrel = [_M("user", "please fix the wrong fees"),
+              _M("tool", "docs mention read_a_1111 and read_b_2222")]
+r8 = R.resolve_action_operator({"action_tools": ["call_x"]}, am, msgs_irrel, A2,
+                               target_tool="call_x", transfer_tools={"transfer_h"},
+                               known_names={"read_a_1111", "read_b_2222", "apply_z_5555"},
+                               agent=_AgentReg({"read_a_1111", "read_b_2222", "apply_z_5555"}),
+                               la=_LATwoStage, UserMessage=_UM)
+chk("회귀ⓖ: 회수-후보 none → 레지스트리 재질의로 정합", r8.get("reason") == "discovery-step2"
+    and "apply_z_5555" in str(r8.get("feedback"))
+    and "tool registry lists" in str(r8.get("feedback")))
+
+# (ⓗ) 같은-이름 재푸시 억제: 같은 agent 로 3회째 요구하면 2회까지만 이름 지목([[57]])
+_agent_d = _AgentReg({"call_x_9999"})
+msgs_d1 = [_M("user", "please do the thing"), _M("tool", "no names")]
+msgs_d2 = msgs_d1 + [_M("assistant", "advice"), _M("user", "again")]
+msgs_d3 = msgs_d2 + [_M("assistant", "advice"), _M("user", "again2")]
+outs = []
+for mm in (msgs_d1, msgs_d2, msgs_d3):
+    rr = R.resolve_action_operator({"action_tools": ["call_x"]}, am, mm, A2,
+                                   target_tool="call_x", transfer_tools={"transfer_h"},
+                                   known_names={"call_x_9999"},
+                                   agent=_agent_d, la=_LAFam, UserMessage=_UM)
+    outs.append("call_x_9999" in str(rr.get("feedback")))
+chk("회귀ⓗ: 이름 지목은 sim당 2회까지(3회째 일반문)", outs == [True, True, False], outs)
 
 try:
     import ast

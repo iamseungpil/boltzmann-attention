@@ -331,13 +331,13 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
                 #   target 가족 대조는 항상 공집합 = 死코드가 된다(2026-08-13 A2 실측).
                 #   어느 이름이 요청을 성취하는지는 아래 formalize(LLM·none 허용)가 고른다.
                 _regfb2 = False
+                _tried2 = set()
+                for _m2 in (msgs or []):
+                    for _tc2 in (getattr(_m2, "tool_calls", None) or []):
+                        if getattr(_tc2, "name", None) == _u3:
+                            for _v2 in (getattr(_tc2, "arguments", None) or {}).values():
+                                _tried2.add(str(_v2))
                 if not _cands2 and _reg2:
-                    _tried2 = set()
-                    for _m2 in (msgs or []):
-                        for _tc2 in (getattr(_m2, "tool_calls", None) or []):
-                            if getattr(_tc2, "name", None) == _u3:
-                                for _v2 in (getattr(_tc2, "arguments", None) or {}).values():
-                                    _tried2.add(str(_v2))
                     _cands2 = sorted(_reg2 - _tried2)
                     _regfb2 = bool(_cands2)
                 _nm2 = None
@@ -349,10 +349,42 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
                     #   formalize 불가(미주입/실패/none)면 침묵이 아니라 **구판 일반문**으로
                     #   내려간다(아래 DISCOVERY_REQUIRED) — 이름 단정만 안 할 뿐이다.
                     _nm2 = formalize_intent_tool(agent, la, UserMessage, msgs, set(_cands2))
+                    # ★none → 레지스트리 재질의 1회 (2026-08-13 t7273 073t1 turn35/37/45 실측:
+                    #   회수 후보 3개가 전부 무관 read 라 formalize 가 **정당하게** none —
+                    #   그런데 후보가 비어있지 않아 폴백이 안 돌아 credit 도구가 후보에 든
+                    #   적이 없었다. 회수-집합에 정합이 없으면 레지스트리 잔여로 한 번 더
+                    #   묻는다 — 같은 formalize·none 허용·신규 판단 0.)
+                    if _nm2 is None and not _regfb2 and _reg2:
+                        _rest2 = sorted(_reg2 - _tried2 - set(_cands2))
+                        if _rest2:
+                            _nm2 = formalize_intent_tool(agent, la, UserMessage, msgs,
+                                                         set(_rest2))
+                            _regfb2 = _nm2 is not None
                     if _nm2 is None and agent is not None:
                         print("[T2_DISCOVERY_STEP2] 후보 %d개 중 요청-정합 없음(none) — "
                               "이름 단정 없이 일반문으로" % len(_cands2),
                               file=sys.stderr, flush=True)
+                # ★같은-이름 재푸시 억제 (2026-08-13 t7273 실측: `get_payment_history_6183`
+                #   9회 — 인자 변화 없는 반복은 재시도가 아니다[[57]]). sim당 이름별 2회까지,
+                #   같은 턴(regen 라운드) 중복은 0회. 상태는 agent 에 두고 대화가 새로 시작되면
+                #   (메시지 수 감소) 리셋 — 판정·문면 불변·횟수만 제한.
+                if _nm2 and agent is not None:
+                    try:
+                        _st2 = getattr(agent, "_t2_step2_pushed", None)
+                        _now2 = len(msgs or [])
+                        if _st2 is None or _st2.get("_hwm", 0) > _now2:
+                            _st2 = {"_hwm": 0}
+                            agent._t2_step2_pushed = _st2
+                        _st2["_hwm"] = _now2
+                        _cnt2, _last2 = _st2.get(_nm2, (0, -1))
+                        if _last2 == _now2 or _cnt2 >= 2:
+                            print("[T2_DISCOVERY_STEP2] 재푸시 억제 name=%s (count=%d)"
+                                  % (_nm2, _cnt2), file=sys.stderr, flush=True)
+                            _nm2 = None
+                        else:
+                            _st2[_nm2] = (_cnt2 + 1, _now2)
+                    except Exception:
+                        pass
                 if _nm2:
                     # ★로그에 남긴다 (2026-08-12). 초판은 인쇄가 없어 `.log` 를 grep 한 내가
                     #   *"발화 0"* 으로 네 번째 계기 오독을 했다 — 문구는 사이드카로만 나간다.

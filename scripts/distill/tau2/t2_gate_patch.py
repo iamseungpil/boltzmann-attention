@@ -7581,6 +7581,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 or (_unspec.get("feedback_not_discoverable") if _known else None)
                                 or _unspec.get("feedback")
                                 or "Error: '{name}' is not a discoverable tool in this domain.")
+                        # ★레지스트리 목록 동봉 — 소비처 #2(name-arg 분기)와 같은 근거·같은
+                        #   키(2026-08-13·[[64]]). base 실재(_same_u)면 wrong_suffix 가 이미
+                        #   경로를 말하므로 미동봉. 키 없으면 침묵=종전 거동.
+                        if not _same_u:
+                            _lstu = _unspec.get("feedback_registry_listing")
+                            if _lstu and _reg2:
+                                _tpl = str(_tpl) + str(_lstu).replace(
+                                    "{names}", ", ".join(sorted(_reg2)))
                         un_fb = (c, str(_tpl).replace("{name}", _uval))
                         force_required = True     # ★사용자 제안: 재생성은 반드시 도구 호출(KB 검색 유도)
                         print("[T2_UNLOCK_NAME] deny bare name tool=%s val=%s"
@@ -7895,6 +7903,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _fb8 = ((_dnc.get("feedback_wrong_suffix") or
                                  _dnc.get("feedback_not_discoverable"))
                                 if _same8 else _dnc.get("feedback_not_discoverable"))
+                        # ★레지스트리 목록 동봉 (2026-08-13 t7273 073t1 [61] 실측: base 자체가
+                        #   미등록인 날조 이름에 "there is none" 만 나가자 모델이 "수동으로
+                        #   조정하겠다" 날조로 접힘 — [[64]] 거부는 해법을 담아야 한다. 목록은
+                        #   레지스트리 기계 나열뿐·선택은 모델. 키 없으면 침묵=종전 거동.)
+                        if _fb8 and not _same8:
+                            _lst8 = _dnc.get("feedback_registry_listing")
+                            if _lst8 and _reg8:
+                                _fb8 = str(_fb8) + str(_lst8).replace(
+                                    "{names}", ", ".join(sorted(_reg8)))
                     else:
                         _fb8 = _dnc.get("feedback")
                     if _fb8:
