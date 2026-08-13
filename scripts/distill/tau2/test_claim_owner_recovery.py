@@ -39,6 +39,14 @@ own, theirs, unk = _split_claims_by_owner(c1, AGENT, USER, registry=REG)
 chk("도구 미지 주장 회수", len(own) == 1 and own[0]["tool"] == "open_bank_account_4821"
     and not unk, (own, unk))
 
+# ⑴b FIX-8b 굴절 관용 — t7279 075 turn14 실물("...through opening Green Fee-Free Account")
+c1b = [{"kind": "write", "what": "guide customer through opening Green Fee-Free Account"}]
+own1b, _, unk1b = _split_claims_by_owner(c1b, AGENT, USER, registry=REG)
+chk("굴절형(opening) 회수", len(own1b) == 1
+    and own1b[0]["tool"] == "open_bank_account_4821", (own1b, unk1b))
+chk("복수형(accounts) 회수", _tok_hits("close the accounts now", "close_bank_account_7392") >= 2)
+chk("짧은 토큰 접두 금지", _tok_hits("ope acc", "open_bank_account_4821") == 0)
+
 # ⑵ 문턱 미달(겹침 1) → unknown 유지
 own2, _, unk2 = _split_claims_by_owner(
     [{"kind": "write", "what": "review the account terms"}], AGENT, USER, registry=REG)

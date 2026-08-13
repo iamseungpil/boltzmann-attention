@@ -124,12 +124,16 @@ def _domain_a2(domain):
     return a2
 
 
-def _tok_overlap(name, registry):
+def _tok_overlap(name, registry, stem=False):
     """이름 토큰이 겹치는 레지스트리 항목 (FIX-7·x298_ownership_deny_probe.py 판정 B_OWN 6/8).
 
     순수 문자열 연산이다 — 도메인 어휘 0·판단 0([[59]]). 접미 숫자를 뗀 뒤 언더스코어 토큰
     집합으로 비교하고, **겹침 수가 최대인 항목들만** 남긴다(동률은 전부 남긴다 — 엔진은
-    고르지 않는다·[[62]] ③④). 겹침이 없으면 빈 목록 = 이 레버는 침묵한다(fail-open)."""
+    고르지 않는다·[[62]] ③④). 겹침이 없으면 빈 목록 = 이 레버는 침묵한다(fail-open).
+
+    `stem=True`(FIX-8b·claim 회수 경로 전용)면 굴절을 흡수한다(`_tok_match`) — 자유 문장인
+    claim `what` 에는 'opening/accounts' 같은 굴절형이 실제로 나온다(t7279 075 turn14 실물).
+    **기본 False = FIX-7 경로는 x298 로 측정한 그 판정 그대로**(미측정 변경 금지·[[03b]])."""
     import re as _re
     toks = [t for t in _re.split(r"[_\W]+", str(name).lower()) if t]
     if not toks:
@@ -137,7 +141,7 @@ def _tok_overlap(name, registry):
     scored = []
     for n in (registry or ()):
         base = _re.sub(r"_\d+$", "", str(n)).lower().split("_")
-        c = sum(1 for t in toks if t in base)
+        c = sum(1 for t in toks if (_tok_match(t, set(base)) if stem else t in base))
         if c:
             scored.append((c, str(n)))
     if not scored:
@@ -146,12 +150,26 @@ def _tok_overlap(name, registry):
     return sorted(n for c, n in scored if c == mx)
 
 
+def _tok_match(tok, toks):
+    """토큰 일치 — 정확 일치 ∨ **어간 접두**(길이 4+·굴절 관용·2026-08-13 FIX-8b).
+
+    왜: t7279 075 turn14(첫 접힘) 실물에서 약속 문구가 *"...through **opening** Green
+    Fee-Free Account"* 였고 정확-토큰 매치가 빗나가 소유권 회수가 실패했다 — 그 자리에 나간
+    문구는 x300 에서 **0/8** 인 일반 촉구(D_GEN)였고, 두 턴 뒤 turn16 에 매치가 붙었을 땐
+    이미 접힘이 누적돼(x299: 누적 후 0/8) 늦었다. 굴절만 흡수한다(판단·의미 0)."""
+    if tok in toks:
+        return True
+    if len(tok) < 4:
+        return False
+    return any(t.startswith(tok) or tok.startswith(t) for t in toks if len(t) >= 4)
+
+
 def _tok_hits(text, name):
     """이름 토큰 중 text 토큰집합에 든 개수 (FIX-8 문턱용·순수 문자열 연산·판단 0)."""
     import re as _re
     ts = {t for t in _re.split(r"[_\W]+", str(text or "").lower()) if t}
     base = _re.sub(r"_\d+$", "", str(name or "")).lower().split("_")
-    return sum(1 for t in base if t and t in ts)
+    return sum(1 for t in base if t and _tok_match(t, ts))
 
 
 def _slug_disp(k):
@@ -2778,7 +2796,8 @@ def _split_claims_by_owner(claims, agent_names, user_names, registry=None, min_t
             #   `min_tok` 개 이상 겹치고 최댓값이 **유일**하면 그 사실을 회수한다(기계 문자열
             #   연산·의미 판단 0·[[59]]). 동률·부족이면 unknown 유지 = 구판 문구(fail-open).
             #   엔진은 무엇을 부를지 고르지 않는다 — 소유자 사실만 말한다([[62]] ③④).
-            _m = _tok_overlap((c or {}).get("what"), registry or ()) if registry else []
+            _m = (_tok_overlap((c or {}).get("what"), registry or (), stem=True)
+                  if registry else [])
             if len(_m) == 1 and _tok_hits((c or {}).get("what"), _m[0]) >= min_tok:
                 c = dict(c or {})
                 c["tool"] = _m[0]
