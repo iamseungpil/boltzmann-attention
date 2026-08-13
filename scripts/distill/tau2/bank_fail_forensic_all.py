@@ -125,6 +125,50 @@ def arg_hit(gold_args, got_args):
     return True
 
 
+def steps(tags, only_fail=True):
+    """per-step 정독 (사용자 지시 2026-08-14). 한 줄 = 한 메시지.
+
+    우리 **비커밋 채널**(사이드카)은 궤적에 없다(C298) — 같은 turn 자리에 `>>` 로 끼워 넣어야
+    *"우리가 그 자리에 무엇을 말했나"* 가 보인다. 이 병합 없이 읽으면 원인을 모델에 오귀속한다.
+    """
+    for tag in tags:
+        d = jload(tag)
+        fb = fb_for(tag)
+        for s in d.get("simulations", []):
+            ri = s.get("reward_info") or {}
+            if only_fail and ri.get("reward"):
+                continue
+            tid = s.get("task_id")
+            simtag = "%s#s%s" % (tid, s.get("seed"))
+            byturn = collections.defaultdict(list)
+            for r in (fb.get(simtag) or []):
+                byturn[r.get("turn")].append(r)
+            print("=" * 100)
+            print("%s trial=%s reward=%s term=%s msgs=%d  [사이드카 %s]" % (
+                tid, s.get("trial"), ri.get("reward"), s.get("termination_reason"),
+                len(s.get("messages") or []), simtag if fb.get(simtag) else "매칭 없음"))
+            res = {m.get("id"): m for m in (s.get("messages") or []) if m.get("role") == "tool"}
+            for i, m in enumerate(s.get("messages") or []):
+                role, c = m.get("role"), m.get("content")
+                for tc in (m.get("tool_calls") or []):
+                    r = res.get(tc.get("id")) or {}
+                    bad = r.get("error") or str(r.get("content") or "").lstrip().startswith("Error:")
+                    print("[%3d] %-9s CALL %-46s %s %s" % (
+                        i, role, label(nameof(tc), argsof(tc))[:46],
+                        "✗" if bad else "·",
+                        json.dumps(argsof(tc), ensure_ascii=False)[:150]))
+                if role == "tool":
+                    bad = m.get("error") or str(c or "").lstrip().startswith("Error:")
+                    print("[%3d] %-9s %s %s" % (i, role, "‼DENY" if bad else "res  ",
+                                                " ".join(str(c or "").split())[:170]))
+                elif c and isinstance(c, str) and c.strip():
+                    print("[%3d] %-9s %s" % (i, role, " ".join(c.split())[:170]))
+                for r in byturn.get(i, []):
+                    print("      >> [우리·%s/%s] %s" % (
+                        r.get("kind"), r.get("channel"),
+                        " ".join((r.get("text") or "").split())[:210]))
+
+
 def run(tags):
     tot = collections.Counter()
     xtab = collections.Counter()
@@ -265,5 +309,7 @@ def run(tags):
 
 
 if __name__ == "__main__":
-    run(sys.argv[1:] or ["bank_t7285_a_20260814g", "bank_t7285_b_20260814g",
-                         "bank_t7286_a_20260814h", "bank_t7286_b_20260814h"])
+    ALL = ["bank_t7285_a_20260814g", "bank_t7285_b_20260814g",
+           "bank_t7286_a_20260814h", "bank_t7286_b_20260814h"]
+    a = [x for x in sys.argv[1:] if x != "--steps"]
+    (steps if "--steps" in sys.argv[1:] else run)(a or ALL)
