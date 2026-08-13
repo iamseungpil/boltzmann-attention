@@ -3314,6 +3314,26 @@ def _resolve_cap_ok(self, messages=None, a2=None):
                 self._t2_resolve_deny = 0                        # 진행 있음 → 정체 카운터 리셋
         except Exception:
             pass
+        # ★2026-08-14 (x303/x304/x305·087 실측): **새 이름 회수도 진행이다**.
+        #   087 은 이름 노출 전 구간에서 캡 3회를 다 쓰고(그때 formalize 는 정직하게 `none`
+        #   8/8 — x305 PRE), 옳은 이름이 KB 로 도착한 turn30~32 에는 `resolve_cap` 으로
+        #   **침묵**했다. 그런데 그 이름이 후보에 들면 formalize 는 **8/8 로 그것을 고르고**
+        #   (x305 POST), 그 이름을 담은 출시 문면은 그 컷을 **6/8 로 연다**(x304 B_STEP2).
+        #   즉 남은 잔여는 모델이 아니라 우리 침묵이었다. [[57]] 대로 **횟수가 아니라 인자
+        #   변화**로 되돌린다 — 회수 후보 집합이 **커졌을 때만** 리셋이라 반복 푸시의 상한은
+        #   그대로다(캡의 목적 보존·반대편 계측).
+        try:
+            _u = ((a2 or {}).get("eplan") or {}).get("unlock_tool")
+            if _u:
+                import t2_resolve as _rz_cap
+                _reg = _rz_cap.agent_discoverable_names(self)
+                if _reg:
+                    cur = set(_rz_cap._retrieved_unlockables(messages, _reg, _u))
+                    pvn = getattr(self, "_t2_resolve_names", None)
+                    if pvn is not None and (cur - pvn):
+                        self._t2_resolve_deny = 0
+        except Exception:
+            pass
         # ⚠스냅샷은 여기서 갱신하지 않는다. 이 함수는 한 턴에 여러 번 불리므로 검사마다 갱신하면
         #   `prev`가 항상 직전 검사 시점이 되어 **발화 사이의 진행을 못 본다**. 갱신은 발화 시점에서.
     return getattr(self, "_t2_resolve_deny", 0) < cap
@@ -8063,6 +8083,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 #   되돌린다(`_resolve_cap_ok`). 검사 시점에 갱신하면 발화 사이의 진행을 못 본다.
                 try:
                     self._t2_resolve_done = _executed_tool_names(state.messages, a2)
+                except Exception:
+                    pass
+                # ★같은 기준점의 두 번째 축 = **회수된 unlock 후보 집합**(2026-08-14·x305).
+                #   다음 진입에서 새 이름이 늘었으면 그것도 진행이다(`_resolve_cap_ok`).
+                try:
+                    _u2 = ((a2 or {}).get("eplan") or {}).get("unlock_tool")
+                    if _u2:
+                        import t2_resolve as _rz_cap2
+                        _rg2 = _rz_cap2.agent_discoverable_names(self)
+                        if _rg2:
+                            self._t2_resolve_names = set(
+                                _rz_cap2._retrieved_unlockables(state.messages, _rg2, _u2))
                 except Exception:
                     pass
             if tl_fb is not None:
