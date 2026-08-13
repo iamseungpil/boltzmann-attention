@@ -786,6 +786,44 @@ def apply_op(spec, ctx):
             _collect_refs(steps)
             _collect_refs(espec if isinstance(espec, dict) else {})
             _missing = {}
+            # ★중복 그룹 (2026-08-14·t7283 073 계좌2 실물): 서브가 중복 쌍의 **양쪽 모두**에
+            #   duplicate_of 를 달았고 구판은 둘 다 기대 0 → $12 (정답 $9: 쌍에서 **하나는
+            #   정상 부과**다). 순수 집합 로직으로 고친다 — 링크로 묶고 그룹마다 **입력 순서
+            #   첫 행을 원본으로 남긴다**. 도메인 어휘 0·내용 판단 0([[59]])·모델이 선언한
+            #   링크만 쓴다. 그룹이 없으면 거동 변화 0.
+            _dupf0 = spec.get("dup_field")
+            _dup_zero = set()
+            if _dupf0:
+                # 기본 = **선언한 행은 중복**(모델이 "이쪽이 두 번째"라고 말한 것) · 예외 =
+                # 그룹이 배열 안에서 서로를 가리키면 입력 순서 첫 행만 원본으로 되돌린다.
+                _dup_zero = {str(_r.get(idf)) for _r in recs
+                             if isinstance(_r, dict) and _r.get(_dupf0)
+                             and _r.get(idf) not in (None, "")}
+                _pos, _grp = {}, {}
+                for _i, _r in enumerate(recs):
+                    if isinstance(_r, dict) and _r.get(idf) is not None:
+                        _pos.setdefault(str(_r.get(idf)), _i)
+
+                def _root(x):
+                    while _grp.get(x, x) != x:
+                        x = _grp[x]
+                    return x
+                for _r in recs:
+                    if not isinstance(_r, dict) or not _r.get(_dupf0):
+                        continue
+                    _a, _b = str(_r.get(idf)), str(_r.get(_dupf0))
+                    if _a in _pos and _b in _pos:
+                        _ra, _rb = _root(_a), _root(_b)
+                        if _ra != _rb:
+                            _grp[_ra] = _rb
+                _by = {}
+                for _k in _pos:
+                    _by.setdefault(_root(_k), []).append(_k)
+                for _members in _by.values():
+                    if len(_members) < 2:
+                        continue
+                    _members.sort(key=lambda k: _pos[k])
+                    _dup_zero.discard(_members[0])     # 그룹 첫 행 = 원본(정상 부과)
             for r in recs:
                 if not isinstance(r, dict):
                     continue
@@ -808,8 +846,7 @@ def apply_op(spec, ctx):
                 #   텍스트를 읽지 않는다([[59]]·필드명 = A2 선언·사실 판정 = LLM·[[10]]).
                 #   모델은 중복의 **산술 귀결**은 못 낸다(A_CUR/B_WARN dup 0/8 = x288 산술
                 #   계열)는 실측이 이 한 칸의 이관 근거([[62]] ③).
-                _dupf = spec.get("dup_field")
-                if _dupf and r.get(_dupf):
+                if _dupf0 and str(r.get(idf)) in _dup_zero:
                     exp = 0
                 act = _num(r.get(af))                          # clean operand 전제(LLM formalize)
                 en = _num(exp)

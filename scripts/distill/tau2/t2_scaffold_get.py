@@ -637,6 +637,18 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
                       % (d.get("name"), _k, len(_v), _src_rows,
                          "  ⚠MISMATCH" if _src_rows and len(_v) != _src_rows else ""),
                       file=_sys.stderr, flush=True)
+        # ★날조 안전판 (2026-08-14·t7283 072 실물·[[25]] 우리 도구는 100% 정답 의무):
+        #   서브의 getter 가 **레코드를 한 건도 못 읽었는데**(source=0) 배열 operand 가 나오면
+        #   그 행들은 읽은 것이 아니라 **지어낸 것**이다 — 072 실측: `txn_123456`·`txn_789012`
+        #   같은 자리표시자 id 3행이 산출돼 엔진이 그 위에서 금액을 계산하고 손님에게 갔다.
+        #   판정은 닫혀 있다(읽은 레코드 수 = 0 ∧ 배열 비어있지 않음·내용 판단 0). 폐기하면
+        #   메인 인자 폴백 = 종전 거동(안전측). 격리 측정 불요 — 데이터 무결성 수리다.
+        if _src_rows == 0 and any(isinstance(_v, list) and _v for _v in (got or {}).values()):
+            print("[T2_SG_ISOLATE] %s: source=0 rows 인데 배열 operand 산출 — **폐기**(날조 방지·"
+                  "메인 인자 폴백)" % d.get("name"), file=_sys.stderr, flush=True)
+            _isolate_trace(iso, d, {"mode": "fetch", "round": rnd + 1, "getter": getter,
+                                    "discarded": "src0_fabrication_guard", "operands": got})
+            return None
         print("[T2_SG_ISOLATE] fetch %s: %d라운드·getter %d회·operand keys=%s"
               % (d.get("name"), rnd + 1, getter, list(got or {})), file=_sys.stderr, flush=True)
         _isolate_trace(iso, d, {"mode": "fetch", "round": rnd + 1, "getter": getter,

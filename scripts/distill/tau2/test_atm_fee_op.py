@@ -99,6 +99,17 @@ chk("dup 선언=기대 0", ids == ["t1", "t2", "t3"], ids)
 _net = round(sum(d2["delta"] for d2 in det), 2)
 chk("073 계좌2 net=9.00 재현", _net == 9.00, _net)
 
+# ⑹b 중복 그룹(2026-08-14 t7283 073 계좌2 실물: 서브가 **양쪽 모두** duplicate_of 부착 →
+#     구판은 둘 다 기대 0 = $12(정답 $9). 그룹에서 첫 행은 원본으로 남긴다.)
+ids2, st2, det2 = run("Green Account", [
+    fee(1, 15.00, 400, "foreign"),                          # WOORI 초과 → delta 3
+    fee(2, 3.00, 300, "rho"),                               # RHO 라인 → delta 3
+    dict(fee(3, 3.00, 250, "non_rho"), duplicate_of="t4"),  # 상호 참조 쌍(앞) = 원본
+    dict(fee(4, 3.00, 250, "non_rho"), duplicate_of="t3")]) # 상호 참조 쌍(뒤) = 중복 → delta 3
+chk("상호 dup: 하나만 중복", ids2 == ["t1", "t2", "t4"], ids2)
+chk("상호 dup net=9.00", round(sum(d2["delta"] for d2 in det2), 2) == 9.00,
+    round(sum(d2["delta"] for d2 in det2), 2))
+
 # ⑺ param 문면 = x301 C_DUP 축자([[03b]] 측정한 문구 = 출시 문구)
 chk("param C_DUP 축자", "duplicate_of" in (E or {}).get("params", {}).get("transactions", "")
     and "paired withdrawal's description" in (E or {}).get("params", {}).get("transactions", ""))
