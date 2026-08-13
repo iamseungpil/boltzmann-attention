@@ -801,6 +801,16 @@ def apply_op(spec, ctx):
                 for nm, sp in steps.items():                 # 역참조 DAG: 순서대로·steps에 저장
                     rctx["steps"][nm] = apply_op(sp, rctx)
                 exp = _get(rctx, exp_ref) if exp_ref else (apply_op(espec, rctx) if isinstance(espec, dict) else None)
+                # ★dup_field (2026-08-14·격리 x301_fee_formalize_probe.py 4셀 n=8): 중복 fee
+                #   라인은 금액이 공식값과 일치해 금액-대조로는 안 잡힌다(존재 자체가 오류).
+                #   **모델이 형식화한 중복 선언**(C_DUP 팔 8/8: duplicate_of 표기)을 소비만
+                #   한다 — 선언된 행의 기대값 = 0(그 라인 전액이 잘못 부과). 엔진은 도메인
+                #   텍스트를 읽지 않는다([[59]]·필드명 = A2 선언·사실 판정 = LLM·[[10]]).
+                #   모델은 중복의 **산술 귀결**은 못 낸다(A_CUR/B_WARN dup 0/8 = x288 산술
+                #   계열)는 실측이 이 한 칸의 이관 근거([[62]] ③).
+                _dupf = spec.get("dup_field")
+                if _dupf and r.get(_dupf):
+                    exp = 0
                 act = _num(r.get(af))                          # clean operand 전제(LLM formalize)
                 en = _num(exp)
                 if en is None or act is None:

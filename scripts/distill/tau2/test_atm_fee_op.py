@@ -88,6 +88,22 @@ chk("light_green oon: 보류(skipped)", ids == [] and st.get("skipped") == 1, (i
 ids, st, _ = run("Gold Years Account", [fee(1, 2.00, 50, "non_rho")])
 chk("미선언 클래스: 보류", ids == [] and st.get("skipped") == 1, (ids, st))
 
+# ⑹ dup_field(2026-08-14 x301 C_DUP 8/8): 모델이 선언한 duplicate_of → 기대 0(전액 환불)
+#    + 073 계좌2 실물 재현: WOORI 초과($3)+RHO 라인($3)+중복($3) = net $9.00 (gold)
+ids, st, det = run("Green Account", [
+    fee(1, 15.00, 400, "foreign"),                      # WOORI: 기대 max(12,5)=12 → delta 3
+    fee(2, 3.00, 300, "rho"),                           # RHO-BANK 인출 위 fee: 기대 0 → delta 3
+    dict(fee(3, 3.00, 250, "non_rho"), duplicate_of="tX"),  # 중복: 금액은 공식값이나 기대 0
+    fee(4, 3.00, 250, "non_rho")])                      # 원본 라인: 정상
+chk("dup 선언=기대 0", ids == ["t1", "t2", "t3"], ids)
+_net = round(sum(d2["delta"] for d2 in det), 2)
+chk("073 계좌2 net=9.00 재현", _net == 9.00, _net)
+
+# ⑺ param 문면 = x301 C_DUP 축자([[03b]] 측정한 문구 = 출시 문구)
+chk("param C_DUP 축자", "duplicate_of" in (E or {}).get("params", {}).get("transactions", "")
+    and "paired withdrawal's description" in (E or {}).get("params", {}).get("transactions", ""))
+chk("op dup_field 선언", (E or {}).get("op", {}).get("dup_field") == "duplicate_of")
+
 # ⑸ FIX-5(2026-08-13 t7274w 073 실측): delta 키 + 템플릿 렌더(net correction 표면화)
 ids, st, det = run("Blue Account", [fee(1, 3.50, 100, "non_rho"),   # 기대 1.00 → delta 2.50
                                     fee(2, 5.00, 120, "foreign")])  # 기대 5.00 정상
