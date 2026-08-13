@@ -91,14 +91,16 @@ def classify(r):
     if TARGET in blob:
         return "target"
     if WRONGBIND in blob:
-        m = re.search(r'"account_id"\s*:\s*"([^"]+)"', blob)
-        return "wrongbind:%s" % (m.group(1)[:24] if m else "?")
+        m = re.search(r'account_id[\\\"\s:]+([A-Za-z0-9_ ]{2,24})', blob)
+        return "wrongbind:%s" % (m.group(1) if m else "?")
     for t in (r.get("tool_calls") or []):
-        n = str(t.get("name") or "")
+        # ⚠API 응답은 OpenAI 형식 — 이름은 t["function"]["name"] 이다. 1차 발사는 t["name"] 만
+        #   봐서 비-target 호출 전부를 '(empty)' 로 오분류했다(계기 결함 2호·[[08]]).
+        n = str((t.get("function") or {}).get("name") or t.get("name") or "")
         if n.startswith("KB_search"):
             return "research"
         if n:
-            return n[:32]
+            return n[:36]
     return "(text)" if r.get("content") else "(empty)"
 
 
