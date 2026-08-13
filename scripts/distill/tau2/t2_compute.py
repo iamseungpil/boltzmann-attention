@@ -731,6 +731,23 @@ def apply_op(spec, ctx):
                     if row.get("source"):
                         ent["source"] = row.get("source")
                     out.append(ent)
+            # ★x291b 형식 포렌식(strict 11/16·미스 = repr 소음이 문서-재계산 장황을 유발):
+            #   A2 가 row_template 를 선언하면 행을 그 문면으로 치환-렌더(C_CALC 8/8 의 컴팩트
+            #   형식 동형). 엔진=치환만·문구=A2([[05]])·미선언이면 기존 dict 반환(거동 0).
+            rt = spec.get("row_template")
+            if rt:
+                try:
+                    lines = [rt.format(**e) for e in out]
+                except Exception:
+                    lines = None
+                if lines is not None:
+                    txt = "\n".join(lines) if lines else "(none computable)"
+                    if unver:
+                        txt += "\n" + str(spec.get(
+                            "not_computable_note",
+                            "not computable from the documented schedule: {names}")
+                        ).replace("{names}", ", ".join(str(u) for u in unver))
+                    return txt
             return {"rows": out, "not_computable": unver}
         if op == "select_discrepant":
             # ★도메인일반 op-DAG 실행기(역참조). 레코드마다: steps(이름있는 중간op)을 순서대로 계산해

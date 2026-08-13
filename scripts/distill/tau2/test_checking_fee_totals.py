@@ -41,9 +41,16 @@ chk("A2 항목 존재", E is not None)
 OP = (E or {}).get("op") or {}
 
 
-def run(months, wpm, amt):
+import copy
+import re
+
+OP_DICT = copy.deepcopy(OP)
+OP_DICT.pop("row_template", None)          # dict-모드(row_template 미선언) 경로 검정용
+
+
+def run(months, wpm, amt, op=None):
     ctx = {"months": months, "withdrawals_per_month": wpm, "withdrawal_amount": amt}
-    res = apply_op(OP, ctx)
+    res = apply_op(op if op is not None else OP_DICT, ctx)
     rows = {r["account_class"]: (r["out_of_network_total_usd"], r["foreign_atm_total_usd"])
             for r in (res or {}).get("rows", [])}
     return res, rows
@@ -77,10 +84,18 @@ res5, rows5 = run(None, 6, 350)
 chk("결측=전원 보류", rows5 == {} and len(res5.get("not_computable") or []) == 10,
     (len(rows5), len(res5.get("not_computable") or [])))
 
-# ⑷ 반환 템플릿 렌더({result} 삽입·프로즈 무결)
-_txt = (E or {}).get("return_template", "").format(result=json.dumps(res, ensure_ascii=False))
+# ⑷ row_template 컴팩트 렌더(x291b 형식 포렌식판·출시 문면) — 값·행 수·보류 표기
+res6 = apply_op(OP, {"months": 3, "withdrawals_per_month": 6, "withdrawal_amount": 350})
+chk("row_template=str", isinstance(res6, str) and res6.count("\n") == 9, type(res6).__name__)
+_pairs = dict(re.findall(r"- (.+?): out-of-network ATM total \$([\d.]+)", res6))
+chk("컴팩트 렌더 값", _pairs.get("Green Fee-Free Account") == "0.00"
+    and _pairs.get("Purple Account") == "45.00" and len(_pairs) == 10, _pairs)
+res7 = apply_op(OP, {"months": None, "withdrawals_per_month": 6, "withdrawal_amount": 350})
+chk("결측 렌더=보류 표기", isinstance(res7, str) and "not computable" in res7
+    and "(none computable)" in res7, res7[:80])
+_txt = (E or {}).get("return_template", "").format(result=res6)
 chk("템플릿 렌더", "SEPARATE columns" in _txt and "Green Fee-Free Account" in _txt
-    and "does not pick" in _txt, _txt[:120])
+    and "does not pick" in _txt and "OUTSIDE these totals" in _txt, _txt[:120])
 
 # ⑸ 3사본 동일
 E2 = load_entry("a2/banking_knowledge.gate.json")
