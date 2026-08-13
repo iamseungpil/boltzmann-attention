@@ -53,12 +53,17 @@ def main():
             and s.get("reward_info") is not None]
     sim = sims[0]
     msgs = sim["messages"]
-    # 컷 = 첫 BYREF 오표적 호출 어시스턴트 턴 직후(그 턴 포함)
+    # 컷 = 첫 BYREF 오표적 호출 어시스턴트 턴 직후(그 턴 포함).
+    #   인자 저장 형태 2종(function.arguments / tc.arguments·dict 포함) 모두 검사 — 1차
+    #   실행 "컷 없음"의 원인이 이 형태 차이였다.
     cut = None
     for i, m in enumerate(msgs):
-        if m.get("role") == "assistant" and any(
-                WRONG in str((tc.get("function") or {}).get("arguments") or "")
-                for tc in (m.get("tool_calls") or [])):
+        if m.get("role") != "assistant":
+            continue
+        blob = "".join(str((tc.get("function") or {}).get("arguments") or "")
+                       + str(tc.get("arguments") or "") + str(tc)
+                       for tc in (m.get("tool_calls") or []))
+        if WRONG in blob:
             cut = i + 1
             break
     if cut is None:
