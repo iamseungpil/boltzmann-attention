@@ -94,17 +94,18 @@ def main():
     if cut is None:
         print("컷 지점 없음")
         return
-    # 레지스트리 = env 부재(오프라인)라 x283 상수가 아니라 **런 로그의 실측 목록**을 쓸 수 없어
-    # 이름 나열은 unlock 결과들에서 아는 실명 + gold 도구로 재현 불가 — 대신 t7273 런에서
-    # 폴백이 실제 나열했던 레지스트리 원소는 로그에 있다. 여기서는 A2 출시 규약과 동일하게
-    # {names} 를 대화에 등장한 레지스트리 실명 집합으로 치운다(전부 _NNNN 접미사형).
-    names = sorted({w.strip(".,()'\"") for m in sim["messages"]
-                    for w in str(m.get("content") or "").split()
-                    if w.strip(".,()'\"").rsplit("_", 1)[-1].isdigit()
-                    and len(w.strip(".,()'\"")) > 8})
-    names = [x for x in names if x != FAB]
-    if TARGET_FAM + "_5829" not in names:
-        names.append(TARGET_FAM + "_5829")
+    # ★1차 실행 계기 결함(2026-08-13): 정규식 수집이 doc-id류까지 주워 {names}=31개 오염 —
+    #   출시본은 **레지스트리만** 나열하므로 문면 불일치([[03b]]). 실측 레지스트리(발견형
+    #   에이전트 도구·t7273/071v 런 로그의 unlock·폴백 발화에서 확인된 실명)로 교정한다.
+    #   이 교정은 문면-재론이 아니라 계기 수리(x283b 의 unlock=None 과 동류).
+    names = ["apply_checking_account_credit_5829",
+             "get_all_user_accounts_by_user_id_3847",
+             "get_atm_deposit_images_8473",
+             "get_bank_account_transactions_9173",
+             "get_debit_cards_by_account_id_7823",
+             "get_payment_history_6183",
+             "open_bank_account_4821",
+             "transfer_funds_between_bank_accounts_7291"]
     listing = lst.replace("{names}", ", ".join(sorted(names)))
     a_txt = nd.replace("{name}", FAB)
     tools = U.tools_of(sim)
