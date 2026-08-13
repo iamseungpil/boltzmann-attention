@@ -124,6 +124,19 @@ def _domain_a2(domain):
     return a2
 
 
+def _slug_disp(k):
+    """슬러그 → 표시명 기계 전개 (FIX-6·t7276 075 실측·[[55]] 우리층 수리).
+
+    구판 두 사이트의 `w.capitalize()` 는 하이픈 구간을 대문자화하지 않아
+    'green_fee-free_account' → **'Green Fee-free Account'(오표기)** 를 만들었다 —
+    그 결과 WRITE_ARG_ENUM 소속 검사가 모델의 오표기 제출("Fee-free")과 **일치해
+    조용히 통과**(deny 미발화·gold "Fee-Free" 와 불일치·reward 0). env 문서 title
+    ('Green Fee-Free Account: …') 이 하이픈 대문자화가 정본임을 기계 검증한다.
+    판단 0·출처 = env 파일명뿐(종전과 동일)."""
+    return " ".join("-".join(s[:1].upper() + s[1:] for s in str(w).split("-"))
+                    for w in str(k).split("_"))
+
+
 def _flatten(v):
     """인자값의 leaf 스칼라들. ★JSON-문자열도 풀어서 leaf까지 간다(2026-07-16 버그픽스):
     구조화 인자(예: {"date_of_birth": ..., "phone_number": ...})가 **문자열**로 오면 예전엔
@@ -2558,7 +2571,7 @@ def _search_material(agent, a2, messages):
     _dask = _ask
     if _ctpl:
         try:
-            _cands = ", ".join(" ".join(w.capitalize() for w in str(k).split("_"))
+            _cands = ", ".join(_slug_disp(k)
                                for k in sorted((_po.get("doc_index") or {}).get(_g) or ()))
             if _cands:
                 _dask = _ctpl.format(candidates=_cands)
@@ -7731,8 +7744,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             _subs = _di.get(_grp) or {}
                             if not (_val and _grp and _subs):
                                 continue          # fail-open: 모르면 막지 않는다
-                            _names = sorted(" ".join(w.capitalize() for w in str(k).split("_"))
-                                            for k in _subs)
+                            _names = sorted(_slug_disp(k) for k in _subs)
                             if _val in _names:
                                 continue          # 집합 內 — 선택이 옳은지는 우리가 판정하지 않는다
                             self._t2_enum_deny = getattr(self, "_t2_enum_deny", 0) + 1
