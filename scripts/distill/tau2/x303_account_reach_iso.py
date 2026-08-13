@@ -123,7 +123,10 @@ def main():
         cnt = collections.Counter()
         for i in range(n):
             try:
-                r = chat(body, tools, 0.0 if i == 0 else 0.7, 500)
+                # ⚠mx=500 은 계기 결함이었다(2026-08-14 1차 발사): 이 모델의 도구호출 JSON
+                #   (중첩 이스케이프 인자)이 500 토큰을 넘겨 절단 → tool_calls·content 둘 다
+                #   빈 응답 = '(empty)' 7/8. finish_reason=tool_calls 가 나오도록 1500.
+                r = chat(body, tools, 0.0 if i == 0 else 0.7, 1500)
             except Exception as e:
                 r = {"content": "ERR %s" % type(e).__name__}
             k = classify(r)
