@@ -1775,8 +1775,13 @@ def apply():
                     if (os.environ.get("T2_RETURN_EMPTY") == "1" and not _dets
                             and d.get("return_template_empty")):
                         _tpl_key = "return_template_empty"
+                    # ★{delta_total}(2026-08-13 t7274w 073: id만으론 모델이 차액 아닌 값을 크레딧 —
+                    #   x288 A_DOCS 0/8 이 잰 산술 결손 범위 내). 엔진이 이미 남긴 delta 들의 합만
+                    #   노출한다 — 표시 여부/문구는 A2 템플릿 몫(안 쓰면 거동 0·여분 kwarg 무해).
+                    _dtot = round(sum((it.get("delta") or 0) for it in _dets), 2) if _dets else 0.0
                     _txt = d.get(_tpl_key, "{ids}").format(
-                        ids=", ".join(_res) if _res else "(none)", details=_details)
+                        ids=", ".join(_res) if _res else "(none)", details=_details,
+                        delta_total=_dtot)
                     _n = len(_res)
                     # ★C195: 판정 커버리지 병기(op가 _sg_stats를 남긴 경우만·거동보존).
                     #   "(none)"의 침묵-신뢰 차단: 몇 행을 판정했고 몇 행이 판정불가였는지 +

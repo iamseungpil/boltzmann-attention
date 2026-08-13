@@ -88,6 +88,19 @@ chk("light_green oon: 보류(skipped)", ids == [] and st.get("skipped") == 1, (i
 ids, st, _ = run("Gold Years Account", [fee(1, 2.00, 50, "non_rho")])
 chk("미선언 클래스: 보류", ids == [] and st.get("skipped") == 1, (ids, st))
 
+# ⑸ FIX-5(2026-08-13 t7274w 073 실측): delta 키 + 템플릿 렌더(net correction 표면화)
+ids, st, det = run("Blue Account", [fee(1, 3.50, 100, "non_rho"),   # 기대 1.00 → delta 2.50
+                                    fee(2, 5.00, 120, "foreign")])  # 기대 5.00 정상
+chk("delta 키", len(det) == 1 and det[0].get("delta") == 2.50, det)
+_item = (E or {}).get("detail_item_template", "").format(**(det[0] if det else {}))
+chk("detail 렌더", "charged $3.50" in _item and "documented fee $1.00" in _item
+    and "difference $2.50" in _item, _item)
+_dtot = round(sum(d2["delta"] for d2 in det), 2)
+_txt = (E or {}).get("return_template", "").format(
+    ids=", ".join(ids), delta_total=_dtot,
+    details="; ".join((E or {}).get("detail_item_template", "").format(**d2) for d2 in det))
+chk("net 렌더", "= $2.50" in _txt and "net correction" in _txt, _txt[:160])
+
 # ⑷ 3사본 동일
 E2 = load_entry("a2/banking_knowledge.gate.json")
 E3 = load_entry("a2/split/banking_knowledge.core.json")

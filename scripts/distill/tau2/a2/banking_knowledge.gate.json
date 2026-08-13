@@ -1789,7 +1789,7 @@
     "account_class": "The account's level exactly as shown in the account record (e.g. 'Blue Account', 'Light Green Account').",
     "transactions": "A JSON array with ONE element per atm_fee line of THIS account. Each element MUST have ONLY these fields, copied from the records: transaction_id (string - the fee line's id), fee_amount (number - the fee line's amount as a POSITIVE number, no $), withdrawal_amount (number, POSITIVE - the cash dispensed by the atm_withdrawal this fee belongs to: the adjacent withdrawal record with the same account and date), network (string, exactly one of 'rho' | 'non_rho' | 'foreign', read from that withdrawal's description: a RHO-BANK machine is 'rho'; a machine outside the U.S. or dispensing foreign currency is 'foreign'; any other bank's machine is 'non_rho'). Do NOT compute anything - just copy the raw values; this tool computes the expected fee and finds discrepancies itself."
    },
-   "return_template": "ATM fee lines whose charged amount does NOT match the documented fee schedule for this account level (these require a fee_refund credit): {ids}",
+   "return_template": "ATM fee lines whose charged amount does NOT match the documented fee schedule for this account level: {details}. If any lines are listed, the credit policy requires ONE fee_refund credit for the net correction across all identified fee discrepancies of THIS account = ${delta_total:.2f} (do not credit the same lines twice).",
    "op": {
     "op": "select_discrepant",
     "over": "transactions",
@@ -1928,7 +1928,249 @@
     },
     "expected_ref": "steps.expected"
    },
-   "_note_": "2026-08-13 x288 판정(A_DOCS 0/8)에 따른 F2b 결정론기 — 요율 출처는 전부 정책 문서 축자(ATM_FEE_SCHEDULE_VERBATIM_2026_08_13.md·gold 미접촉): blue oon 1% max$3 (blue_001)·blue forx max(3%,$5) USD환산(blue_012)·bluest oon $2/forx $0(bluest_010/_003)·green oon $3(green_010)/forx max(3%,$5)(green_012)·light_green forx tier 2.00/3.50/5.00 경계=하위(lg_013)·purple oon $2.50(purple_012)/forx $0(purple_001)·dark_green oon max(1%,$1.50)(dg_001)/forx min(2.5%,$6)(dg_002)·evergreen oon min(1%,$2.50)(eg_008)/forx max(2%,$3)(eg_001). rho=수수료 조항 부재→기대 0 은 NON-RHO 라벨 fee 가 RHO 인출에 붙는 모순 검출용(env _err 실물 동형). light_green/light_blue oon·light_blue forx = 월 무료횟수 규정이 문서에 불완전(모호점 8·10)→기대 null=판정 보류(과차단 방지·skipped 로 표면화). 리베이트 축은 별도 fee_rebate 라인이라 이 도구 범위 밖(모호점 6·11). 페어링·network 분류는 LLM formalize 몫([[22]]·인접 레코드 복사)·엔진은 산술만([[10]])."
+   "_note_": "2026-08-13 x288 판정(A_DOCS 0/8)에 따른 F2b 결정론기 — 요율 출처는 전부 정책 문서 축자(ATM_FEE_SCHEDULE_VERBATIM_2026_08_13.md·gold 미접촉): blue oon 1% max$3 (blue_001)·blue forx max(3%,$5) USD환산(blue_012)·bluest oon $2/forx $0(bluest_010/_003)·green oon $3(green_010)/forx max(3%,$5)(green_012)·light_green forx tier 2.00/3.50/5.00 경계=하위(lg_013)·purple oon $2.50(purple_012)/forx $0(purple_001)·dark_green oon max(1%,$1.50)(dg_001)/forx min(2.5%,$6)(dg_002)·evergreen oon min(1%,$2.50)(eg_008)/forx max(2%,$3)(eg_001). rho=수수료 조항 부재→기대 0 은 NON-RHO 라벨 fee 가 RHO 인출에 붙는 모순 검출용(env _err 실물 동형). light_green/light_blue oon·light_blue forx = 월 무료횟수 규정이 문서에 불완전(모호점 8·10)→기대 null=판정 보류(과차단 방지·skipped 로 표면화). 리베이트 축은 별도 fee_rebate 라인이라 이 도구 범위 밖(모호점 6·11). 페어링·network 분류는 LLM formalize 몫([[22]]·인접 레코드 복사)·엔진은 산술만([[10]]). | 2026-08-13 FIX-5(t7274w 073 실측: id-만 반환하니 모델이 차액 아닌 값을 크레딧 $24.50/$15/$5 + chk_3 중복 크레딧): {details}(라인별 charged/documented/difference)와 {delta_total}(net 합)을 표면화 — x288 A_DOCS 0/8 이 잰 산술 결손 범위 내·엔진이 이미 계산한 값의 뺄셈·합만([[62]] 최소). 문구 출처 = doc_bank_accounts_bank_accounts_(general)_017 §2 Fee mischarges 'apply a credit for the net correction across all identified fee discrepancies' 축자. 픽·페어링·network 분류·credit 실행은 모델 몫 불변.",
+   "detail_item_template": "{id} (charged ${actual:.2f}, documented fee ${expected:.2f}, difference ${delta:.2f})"
+  },
+  {
+   "name": "get_checking_atm_fee_totals",
+   "description": "MANDATORY before recommending which personal checking account class to open (or keep) when the customer's stated criterion involves ATM fees: formalize the customer's stated usage pattern and call this ONCE. It computes, from the documented per-class fee schedules, each class's out-of-network ATM fee total and foreign ATM fee total for that usage (documented monthly free allowances deducted). It does NOT rank or pick a class - compare the returned totals yourself against what the customer asked to minimize, check the candidate class's other documented terms (eligibility, minimum deposits, monthly fees) in its source docs, and confirm the choice with the customer. Do the fee math with this tool - do not eyeball it yourself.",
+   "params": {
+    "months": "number - how many months the customer's usage pattern covers (their stated trip/usage duration).",
+    "withdrawals_per_month": "number - the customer's stated ATM withdrawals per month.",
+    "withdrawal_amount": "number - the customer's stated typical amount per withdrawal in USD (no $)."
+   },
+   "return_template": "Documented ATM fee totals per personal checking account class for the stated usage (monthly free allowances deducted; out-of-network and foreign totals are shown as SEPARATE columns - how the two fee types combine for one withdrawal abroad is not documented, so weigh both columns for foreign out-of-network usage): {result}. This tool does not pick a class: compare the totals yourself, verify the remaining candidate's eligibility and non-ATM terms in its cited source docs, and confirm with the customer. If 'rows' is empty, a numeric parameter was missing or unreadable - call again with months, withdrawals_per_month and withdrawal_amount as plain numbers.",
+   "op": {
+    "op": "catalog_compute",
+    "label_field": "account_class",
+    "table": [
+     {
+      "account_class": "Blue Account",
+      "oon_fee": {
+       "op": "min",
+       "of": [
+        {
+         "op": "multiply",
+         "a": "withdrawal_amount",
+         "b": 0.01
+        },
+        3.0
+       ]
+      },
+      "oon_free_per_month": 0,
+      "forx_fee": {
+       "op": "max",
+       "of": [
+        {
+         "op": "multiply",
+         "a": "withdrawal_amount",
+         "b": 0.03
+        },
+        5.0
+       ]
+      },
+      "forx_free_per_month": 0,
+      "source": "doc blue_account_001/_012"
+     },
+     {
+      "account_class": "Bluest Account",
+      "oon_fee": 2.0,
+      "oon_free_per_month": 0,
+      "forx_fee": 0.0,
+      "forx_free_per_month": 0,
+      "source": "doc bluest_account_010/_003"
+     },
+     {
+      "account_class": "Green Account (checking)",
+      "oon_fee": 3.0,
+      "oon_free_per_month": 0,
+      "forx_fee": {
+       "op": "max",
+       "of": [
+        {
+         "op": "multiply",
+         "a": "withdrawal_amount",
+         "b": 0.03
+        },
+        5.0
+       ]
+      },
+      "forx_free_per_month": 0,
+      "source": "doc green_account_(checking)_010/_012"
+     },
+     {
+      "account_class": "Green Fee-Free Account",
+      "oon_fee": 0.0,
+      "oon_free_per_month": 0,
+      "forx_fee": 0.0,
+      "forx_free_per_month": 0,
+      "source": "doc green_fee-free_account_005/_002/_003"
+     },
+     {
+      "account_class": "Gold Years Account",
+      "oon_fee": 0.0,
+      "oon_free_per_month": 0,
+      "forx_fee": 3.5,
+      "forx_free_per_month": 0,
+      "source": "doc gold_years_account_001/_002"
+     },
+     {
+      "account_class": "Light Green Account",
+      "oon_fee": 1.5,
+      "oon_free_per_month": 4,
+      "forx_fee": {
+       "op": "lookup_table",
+       "key": "withdrawal_amount",
+       "table": [
+        {
+         "cmp": "<=",
+         "thr": 100,
+         "result": 2.0
+        },
+        {
+         "cmp": "<=",
+         "thr": 300,
+         "result": 3.5
+        },
+        {
+         "cmp": ">",
+         "thr": 300,
+         "result": 5.0
+        }
+       ]
+      },
+      "forx_free_per_month": 0,
+      "source": "doc light_green_account_001/_013"
+     },
+     {
+      "account_class": "Light Blue Account",
+      "oon_fee": 2.5,
+      "oon_free_per_month": 2,
+      "forx_fee": 4.0,
+      "forx_free_per_month": 2,
+      "source": "doc light_blue_account_004/_006"
+     },
+     {
+      "account_class": "Purple Account",
+      "oon_fee": 2.5,
+      "oon_free_per_month": 0,
+      "forx_fee": 0.0,
+      "forx_free_per_month": 0,
+      "source": "doc purple_account_012/_001"
+     },
+     {
+      "account_class": "Dark Green Account",
+      "oon_fee": {
+       "op": "max",
+       "of": [
+        {
+         "op": "multiply",
+         "a": "withdrawal_amount",
+         "b": 0.01
+        },
+        1.5
+       ]
+      },
+      "oon_free_per_month": 0,
+      "forx_fee": {
+       "op": "min",
+       "of": [
+        {
+         "op": "multiply",
+         "a": "withdrawal_amount",
+         "b": 0.025
+        },
+        6.0
+       ]
+      },
+      "forx_free_per_month": 0,
+      "source": "doc dark_green_account_001/_002"
+     },
+     {
+      "account_class": "Evergreen Account",
+      "oon_fee": {
+       "op": "min",
+       "of": [
+        {
+         "op": "multiply",
+         "a": "withdrawal_amount",
+         "b": 0.01
+        },
+        2.5
+       ]
+      },
+      "oon_free_per_month": 0,
+      "forx_fee": {
+       "op": "max",
+       "of": [
+        {
+         "op": "multiply",
+         "a": "withdrawal_amount",
+         "b": 0.02
+        },
+        3.0
+       ]
+      },
+      "forx_free_per_month": 0,
+      "source": "doc evergreen_account_008/_001"
+     }
+    ],
+    "steps": {
+     "oon_unit": {
+      "op": "ref_op",
+      "path": "r.oon_fee"
+     },
+     "oon_paid_raw": {
+      "op": "diff",
+      "a": "withdrawals_per_month",
+      "b": "r.oon_free_per_month"
+     },
+     "oon_paid": {
+      "op": "clamp",
+      "value": "steps.oon_paid_raw",
+      "min": 0
+     },
+     "oon_cnt": {
+      "op": "multiply",
+      "a": "steps.oon_paid",
+      "b": "months"
+     },
+     "oon_total": {
+      "op": "multiply",
+      "a": "steps.oon_unit",
+      "b": "steps.oon_cnt"
+     },
+     "forx_unit": {
+      "op": "ref_op",
+      "path": "r.forx_fee"
+     },
+     "forx_paid_raw": {
+      "op": "diff",
+      "a": "withdrawals_per_month",
+      "b": "r.forx_free_per_month"
+     },
+     "forx_paid": {
+      "op": "clamp",
+      "value": "steps.forx_paid_raw",
+      "min": 0
+     },
+     "forx_cnt": {
+      "op": "multiply",
+      "a": "steps.forx_paid",
+      "b": "months"
+     },
+     "forx_total": {
+      "op": "multiply",
+      "a": "steps.forx_unit",
+      "b": "steps.forx_cnt"
+     }
+    },
+    "value_cols": {
+     "out_of_network_total_usd": "steps.oon_total",
+     "foreign_atm_total_usd": "steps.forx_total"
+    }
+   },
+   "_note_": "2026-08-13 x291 판정(A_LIVE 0/8·B_DOCS 0/8·C_CALC 8/8·D_NEG 0/8·E_FRESH 1/8 — X291_CHECKING_FIT_DESIGN §2 사전등록)에 따른 F2b 결정론기. 요율 출처 전부 정책 문서 축자(ATM_FEE_SCHEDULE_VERBATIM_2026_08_13.md + green_fee-free_005('Out-of-network ATM withdrawal fee $0.00'·'Foreign ATM withdrawal fee $0.00') + gold_years_002('Out-of-network ATM withdrawal fee: $0.00'·'Foreign ATM withdrawal fee: $3.50')·gold 미접촉). 무료횟수는 축별 조항 축자(lb_004 oon 2회/월·lb_006 forx 2회/월·lg_001 oon 4회/월) — 풀 공유 여부는 미규정(모호점 8·10)이라 축별 독립 차감(문면 그대로). OON+foreign 스태킹은 personal 문서 미규정(business navy_blue_008 은 either/or 시사) ⇒ 합산하지 않고 축별 2열 반환·결합 판단은 모델 몫. 클래스명은 general_001 공식 표기(full official name ending with 'Account'). 픽·자격 확인·write 는 모델 몫 불변([[62]] 최소 결정론)."
   }
  ],
  "_note_scaffold_get_tools": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || BANK_IMPL_REDESIGN §GET-offload(2026-07-16): LLM이 계산 직접 안 하고 이 GET 도구 호출→scaffold가 t2_compute.apply_op(op)로 결정론 계산·반환. 공식(카드별 rate·EcoCard 규칙)=여기(A2·도메인 데이터)·엔진=도메인일반 op(multiply/str_eq/select_discrepant). cash_back_rate 기본 2.5(Gold)·타 카드 rate 필요시 lookup_table로 확장. [[05]]/[[10]] 준수.",

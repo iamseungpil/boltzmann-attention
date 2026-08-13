@@ -86,6 +86,47 @@ evergreen $171 · dark_green $171 · blue $243 · green(checking) $243. 전부 �
 리모트 8141(유료 런 종료 후) · `T2_PROBE_URL=http://localhost:8141/v1/chat/completions
 python x291_checking_pick_iso.py [N]` · 결과는 본 문서에 추기.
 
-## §5 결과 (추기)
+## §5 결과 (추기 2026-08-13 · 완주 n=8×5셀 · 8141)
 
-(대기)
+| 팔 | feefree | purple | FINAL줄부재 | 문맥 |
+|---|---|---|---|---|
+| A_LIVE | **0/8** | 7 | 0 | 8,601자 |
+| B_DOCS | **0/8** | 3 | 2 | 32,966자 |
+| C_CALC | **8/8** | 0 | 0 | 33,786자 |
+| D_NEG | 0/8 | 0 | 3 | 28,153자 |
+| E_FRESH | **1/8** | 2 | 0 | 25,610자 |
+
+**판정(§2 매트릭스 그대로)**: A_LIVE ≤2 ∧ D_NEG ≤2 = 프로브 유효 · B_DOCS ≤2 ∧ C_CALC ≥6 →
+**(B) checking-fit op 출시**. E_FRESH 1/8 = 정박 제거+전 문서로도 실패 — 결손은 자기-정박이
+아니라 **스케줄 산술(F2b)** 로 확정(x288 동형·fee-가족 2호).
+
+## §6 출시 기록 (2026-08-13)
+
+- **엔진**: `catalog_compute`(+`ref_op`·min/max 중첩-스펙 정합화) — select_discrepant steps DAG
+  재사용·행별 값 열만 반환(정렬·순위·추천 0). `t2_compute.py`.
+- **A2**: `get_checking_atm_fee_totals` 3사본 프로그램 삽입(`_ins_checking_fee_totals.py`) —
+  10클래스 축자 요율(각 행 source 병기)·params={months, withdrawals_per_month, withdrawal_amount}.
+- **[[23]] 재확인**: 스태킹(OON+foreign 동시 부과)은 personal 문서 미규정·business navy_blue_008
+  은 either/or 시사 — 태스크 설명의 "BOTH apply"는 gold 유래라 **넣지 않았다**. 축별 2열 분리
+  반환·결합 판단은 모델 몫. gold 픽은 green_fee-free 가 두 축 모두 $0 로 지배라 스태킹 단정
+  불요(§1 C_CALC 표와 유일한 의미 차이).
+- **검정**: `test_checking_fee_totals.py` 18/18(075 패턴 10클래스 수계산 대조·무료차감·tier
+  경계=하위·결측=전원 보류·렌더·3사본 등가) + 기존 배터리 회귀 0.
+- **x291b 사전등록**(문면 리터럴=출시본 축자·x287b 교훈): C_SHIP = B_DOCS 문서 + **A2 정본 op
+  실행+return_template 렌더 축자** 주입. ≥6/8 출시 확정 · ≤2/8 보류(2열 분리/repr 렌더가 효과를
+  죽였는지 포렌식) · 3~5 → n=16 1회. `x291b_shipped_render_transfer.py`.
+
+## §7 동세션 병행 — fee-가족 나머지 (t7274w 판정 후속·4태스크 통합 런 준비)
+
+- **FIX-5(출시·유닛 12/12)**: t7274w 073 실측 — (B) 도구가 id 를 내도 모델이 차액 아닌 값을
+  크레딧($24.50/$15/$5 vs gold $9.50/$9.00/$1.50)+chk_3 중복 크레딧. x288 A_DOCS 0/8 이 잰 산술
+  결손 범위 내에서 `_sg_details.delta`·`{delta_total}` 표면화 + 템플릿에 정책 축자
+  (general_017 §2 "apply a credit for the net correction across all identified fee
+  discrepancies") ONE-credit 문구.
+- **FIX-4(x292 문면 격리 대기)**: 072/073/074 전부 msg02 에서 fee 도구를
+  `@last:get_credit_card_transactions_by_user`(틀린 출처)로 호출 — 현행 BYREF deny "call that
+  tool first" 가 틀린 도구 호출을 지시([[64]] 위반형)·074 는 그대로 credit-card 경로 표류.
+  신 문면(참조 가능 출력 열거+오지시 제거) = `x292_byref_deny_probe.py` 사전등록: A_CUR ≥6/8
+  ∧ B_NEW ≤2/8 → 출시.
+- 통합 재판정: FIX-4/5 + (B2) 전부 탑재·**4태스크(072/073/074/075) nt=1 한 런**([[19]]
+  합성-우선) → 전수 포렌식 → 이기는 태스크만 nt=4 확정런.

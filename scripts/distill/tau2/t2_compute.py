@@ -124,7 +124,10 @@ def apply_op(spec, ctx):
         if op == "ref":
             return _get(ctx, spec.get("path"))
         if op in ("min", "max"):
-            vals = [_num(_get(ctx, r)) for r in (spec.get("of") or [])]
+            # of = ref 경로 or 중첩 op-스펙(sum/diff/multiply 동형·2026-08-13 x291_checking_pick_iso.py
+            #   (B2) 행-공식이 중첩 multiply 를 쓰면서 정합화 — 구판은 dict 를 _get 리터럴로 흘려 None).
+            vals = [_num(apply_op(r, ctx)) if isinstance(r, dict) and r.get("op")
+                    else _num(_get(ctx, r)) for r in (spec.get("of") or [])]
             vals = [v for v in vals if v is not None]
             return (min if op == "min" else max)(vals) if vals else None
         if op == "sum":
@@ -687,6 +690,48 @@ def apply_op(spec, ctx):
                     return apply_op(v, ctx) if isinstance(v, dict) and v.get("op") else v
             d = spec.get("default")
             return apply_op(d, ctx) if isinstance(d, dict) and d.get("op") else d
+        if op == "ref_op":
+            # ★x291_checking_pick_iso.py(2026-08-13): 경로가 가리키는 값이 op-스펙이면 평가·수치면
+            #   그대로 — 카탈로그 행이 자기 공식(A2)을 들고 다니게 한다(도메인-일반·행 상수=A2).
+            sub = _get(ctx, spec.get("path"))
+            if isinstance(sub, dict) and sub.get("op"):
+                return apply_op(sub, ctx)
+            return _num(sub)
+        if op == "catalog_compute":
+            # ★격리 근거 = x291_checking_pick_iso.py(사전등록 X291_CHECKING_FIT_DESIGN §2):
+            #   A_LIVE 0/8·B_DOCS 0/8·E_FRESH 1/8 (모델은 문서를 줘도 스케줄 산술을 못 한다) ·
+            #   C_CALC 8/8 (값 표만 주면 선택·비교는 모델이 해낸다). 그 실측 경계 그대로 —
+            #   A2-선언 카탈로그 행마다 같은 steps DAG(select_discrepant 기전 재사용)를 평가해
+            #   **값 열만** 낸다. 행 상수·공식=A2(정책 축자)·사용 패턴=ctx(LLM formalize)·엔진=
+            #   산술 실행만([[10]]). 정렬·순위 지목·추천·행간 비교는 하지 않는다 — 선택은 모델
+            #   몫([[62]] 최소 결정론). 열 값이 미확정(None)이면 그 행은 not_computable 로 정직
+            #   표기(C185(a) unverified 동형·과단정 방지).
+            rows = spec.get("table") or []
+            steps = spec.get("steps") or {}
+            cols = spec.get("value_cols") or {}
+            lbl = spec.get("label_field") or "label"
+            out, unver = [], []
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                rctx = dict(ctx)
+                rctx["r"] = row
+                rctx["steps"] = {}
+                for nm, sp in steps.items():
+                    rctx["steps"][nm] = apply_op(sp, rctx)
+                vals = {}
+                for cn, ref in cols.items():
+                    v = _num(_get(rctx, ref))
+                    vals[cn] = None if v is None else round(v, 2)
+                if any(v is None for v in vals.values()):
+                    unver.append(row.get(lbl))
+                else:
+                    ent = {str(lbl): row.get(lbl)}
+                    ent.update(vals)
+                    if row.get("source"):
+                        ent["source"] = row.get("source")
+                    out.append(ent)
+            return {"rows": out, "not_computable": unver}
         if op == "select_discrepant":
             # ★도메인일반 op-DAG 실행기(역참조). 레코드마다: steps(이름있는 중간op)을 순서대로 계산해
             #   rctx["steps"][name]에 저장(뒤 step이 ref:steps.name으로 역참조) → expected_ref로 최종 기대값.
@@ -764,8 +809,11 @@ def apply_op(spec, ctx):
                     #   근거: gold 전수 census 10/10 적합(9 floor·1499.9→1500만 올림·§2i(6)).
                     thr = spec.get("display_round_up_frac")
                     disp = int(en) + (1 if thr is not None and (en - int(en)) >= float(thr) else 0)
+                    # ★delta(2026-08-13 t7274w 073 실측: id만 반환하니 모델이 차액이 아닌 값(전액 등)을
+                    #   크레딧 — $24.50/$15/$5 vs 차액합 gold. 차액=act−en 은 엔진이 이미 가진 두 수의
+                    #   뺄셈(도메인-일반)이고 x288 이 잰 F2b 결손 범위 내. 표시 여부는 A2 템플릿 몫.
                     ctx.setdefault("_sg_details", []).append(
-                        {"id": r.get(idf), "actual": act, "expected": en,
+                        {"id": r.get(idf), "actual": act, "expected": en, "delta": round(act - en, 2),
                          "actual_int": int(act), "expected_floor": int(en), "expected_disp": disp})
             if skipped:
                 print("[T2_COMPUTE] select_discrepant: %d/%d행 판정불가(operand가 숫자 아님) — "
