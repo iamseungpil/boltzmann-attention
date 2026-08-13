@@ -1439,6 +1439,154 @@
     "_note": "C203/D4'(2026-07-26): 구 D4(scalar_fields=값-존재 검사) **폐기** — 006/023(손님이 말한 다른 값=소득 95000이 실재해 발명 제약 통과)·003(정성 표현 'no foreign transaction fees'를 0으로 수치화하자 정당 제약 드롭)·자기-그라운딩(도구 출력이 코퍼스에 들어가 2번째 호출부터 무력)로 순효용 0·오탐 실재. 대체=intent_fields: **값이 아니라 주제어의 실재**를 손님 발화(corpus=user·도구 출력 제외)에서 본다. 불성립=드롭(제약 소멸=후보 확대=안전 방향). 수치화는 모델 몫([[10]])·엔진은 부분문자열 대조만·어휘는 A2."
    },
    "_note_d6": "C204/D6(2026-07-27·`D6_CATEGORY_RATE_DESIGN` rev2): category_rates/base_cashback=KB 원문 축자 재구조화(11행·2026-07-27 전수 대조: Platinum=all 10% 확정[본문 축자·C187 문구 오류]·Business Gold(operations 2.5/1.0)·Business Platinum(travel/software/media 4.0/1.5)은 표에 없던 문서화 사실 추가). 엔진=조회·주석만(선택·순위·값생성 0)·미제공=거동 변화 0·미등재 토큰=행별 주석 생략+정직 안내(rev2 결함1)."
+  },
+  {
+   "name": "get_atm_fee_discrepancies",
+   "description": "ALWAYS use this whenever a customer questions or disputes ATM fees on their checking account(s) and you need to find which specific fee lines were charged incorrectly. First retrieve the account's transactions, then call this ONCE PER ACCOUNT, passing the account's level (class) and one element per atm_fee line paired with its withdrawal. It derives the correct fee under the documented fee schedule for that account level and does the arithmetic for you. Do the fee math with this tool - do not eyeball it yourself.",
+   "params": {
+    "account_class": "The account's level exactly as shown in the account record (e.g. 'Blue Account', 'Light Green Account').",
+    "transactions": "A JSON array with ONE element per atm_fee line of THIS account. Each element MUST have ONLY these fields, copied from the records: transaction_id (string - the fee line's id), fee_amount (number - the fee line's amount as a POSITIVE number, no $), withdrawal_amount (number, POSITIVE - the cash dispensed by the atm_withdrawal this fee belongs to: the adjacent withdrawal record with the same account and date), network (string, exactly one of 'rho' | 'non_rho' | 'foreign', read from that withdrawal's description: a RHO-BANK machine is 'rho'; a machine outside the U.S. or dispensing foreign currency is 'foreign'; any other bank's machine is 'non_rho'). Do NOT compute anything - just copy the raw values; this tool computes the expected fee and finds discrepancies itself."
+   },
+   "return_template": "ATM fee lines whose charged amount does NOT match the documented fee schedule for this account level (these require a fee_refund credit): {ids}",
+   "op": {
+    "op": "select_discrepant",
+    "over": "transactions",
+    "id_field": "transaction_id",
+    "actual_field": "fee_amount",
+    "tolerance": 0.01,
+    "steps": {
+     "pct1": {
+      "op": "multiply",
+      "a": "r.withdrawal_amount",
+      "b": 0.01
+     },
+     "pct2": {
+      "op": "multiply",
+      "a": "r.withdrawal_amount",
+      "b": 0.02
+     },
+     "pct25": {
+      "op": "multiply",
+      "a": "r.withdrawal_amount",
+      "b": 0.025
+     },
+     "pct3": {
+      "op": "multiply",
+      "a": "r.withdrawal_amount",
+      "b": 0.03
+     },
+     "oon": {
+      "op": "case",
+      "key": "account_class",
+      "cases": {
+       "Blue Account": {
+        "op": "min",
+        "of": [
+         "steps.pct1",
+         3.0
+        ]
+       },
+       "Bluest Account": 2.0,
+       "Green Account": 3.0,
+       "Purple Account": 2.5,
+       "Dark Green Account": {
+        "op": "max",
+        "of": [
+         "steps.pct1",
+         1.5
+        ]
+       },
+       "Evergreen Account": {
+        "op": "min",
+        "of": [
+         "steps.pct1",
+         2.5
+        ]
+       },
+       "Light Green Account": null,
+       "Light Blue Account": null
+      },
+      "default": null
+     },
+     "forx": {
+      "op": "case",
+      "key": "account_class",
+      "cases": {
+       "Blue Account": {
+        "op": "max",
+        "of": [
+         "steps.pct3",
+         5.0
+        ]
+       },
+       "Bluest Account": 0,
+       "Green Account": {
+        "op": "max",
+        "of": [
+         "steps.pct3",
+         5.0
+        ]
+       },
+       "Light Green Account": {
+        "op": "lookup_table",
+        "key": "r.withdrawal_amount",
+        "table": [
+         {
+          "cmp": "<=",
+          "thr": 100,
+          "result": 2.0
+         },
+         {
+          "cmp": "<=",
+          "thr": 300,
+          "result": 3.5
+         },
+         {
+          "cmp": ">",
+          "thr": 300,
+          "result": 5.0
+         }
+        ]
+       },
+       "Purple Account": 0,
+       "Dark Green Account": {
+        "op": "min",
+        "of": [
+         "steps.pct25",
+         6.0
+        ]
+       },
+       "Evergreen Account": {
+        "op": "max",
+        "of": [
+         "steps.pct2",
+         3.0
+        ]
+       },
+       "Light Blue Account": null
+      },
+      "default": null
+     },
+     "expected": {
+      "op": "case",
+      "key": "r.network",
+      "cases": {
+       "rho": 0,
+       "non_rho": {
+        "op": "ref",
+        "path": "steps.oon"
+       },
+       "foreign": {
+        "op": "ref",
+        "path": "steps.forx"
+       }
+      },
+      "default": null
+     }
+    },
+    "expected_ref": "steps.expected"
+   },
+   "_note_": "2026-08-13 x288 판정(A_DOCS 0/8)에 따른 F2b 결정론기 — 요율 출처는 전부 정책 문서 축자(ATM_FEE_SCHEDULE_VERBATIM_2026_08_13.md·gold 미접촉): blue oon 1% max$3 (blue_001)·blue forx max(3%,$5) USD환산(blue_012)·bluest oon $2/forx $0(bluest_010/_003)·green oon $3(green_010)/forx max(3%,$5)(green_012)·light_green forx tier 2.00/3.50/5.00 경계=하위(lg_013)·purple oon $2.50(purple_012)/forx $0(purple_001)·dark_green oon max(1%,$1.50)(dg_001)/forx min(2.5%,$6)(dg_002)·evergreen oon min(1%,$2.50)(eg_008)/forx max(2%,$3)(eg_001). rho=수수료 조항 부재→기대 0 은 NON-RHO 라벨 fee 가 RHO 인출에 붙는 모순 검출용(env _err 실물 동형). light_green/light_blue oon·light_blue forx = 월 무료횟수 규정이 문서에 불완전(모호점 8·10)→기대 null=판정 보류(과차단 방지·skipped 로 표면화). 리베이트 축은 별도 fee_rebate 라인이라 이 도구 범위 밖(모호점 6·11). 페어링·network 분류는 LLM formalize 몫([[22]]·인접 레코드 복사)·엔진은 산술만([[10]])."
   }
  ],
  "unavailable_tools": {
