@@ -86,15 +86,35 @@ def label(name, args):
     return "%s:%s" % (pre, t) if pre else name
 
 
-def norm(v):
-    """중첩 dict/list 는 키 정렬로, 수치는 float 로 — 표기 차이를 인자 불일치로 오판하지 않게."""
-    if isinstance(v, (dict, list)):
-        return json.dumps(v, ensure_ascii=False, sort_keys=True).lower()
-    s = " ".join(str(v).strip().lower().split())
+def canon(v):
+    """표기 차이를 인자 불일치로 오판하지 않게 — 중첩 JSON **문자열**까지 풀고 수치는 float.
+
+    ⚠이 정규화가 없으면 gold `amount: 9.50` 과 실호출 `9.5` 가 다른 값으로 잡힌다(초판 결함:
+    073 의 **성공 실행**을 인자 불일치로 오분류했다).
+    """
+    if isinstance(v, dict):
+        return {str(k): canon(x) for k, x in v.items()}
+    if isinstance(v, list):
+        return [canon(x) for x in v]
+    if isinstance(v, bool) or v is None:
+        return v
+    if isinstance(v, (int, float)):
+        return round(float(v), 6)
+    s = " ".join(str(v).strip().split())
+    t = s.strip()
+    if t[:1] in "{[" :
+        try:
+            return canon(json.loads(t))
+        except Exception:
+            pass
     try:
-        return "%.6g" % float(s.replace("$", "").replace(",", ""))
+        return round(float(t.replace("$", "").replace(",", "")), 6)
     except (TypeError, ValueError):
-        return s
+        return s.lower()
+
+
+def norm(v):
+    return json.dumps(canon(v), ensure_ascii=False, sort_keys=True)
 
 
 def arg_hit(gold_args, got_args):
@@ -120,6 +140,8 @@ def run(tags):
             rw = (s.get("reward_info") or {}).get("reward")
             term = s.get("termination_reason")
             msgs = s.get("messages") or []
+            # 도구 결과를 id 로 이어 붙인다 — **시도**와 **실행**은 다르다(073 실측)
+            res = {m.get("id"): m for m in msgs if m.get("role") == "tool"}
             # 에이전트 실호출 수집
             calls, called = [], collections.defaultdict(list)
             last_txt = ""
@@ -129,11 +151,14 @@ def run(tags):
                 for tc in (m.get("tool_calls") or []):
                     nm, ar = nameof(tc), argsof(tc)
                     lb = label(nm, ar)
-                    calls.append((i, lb))
+                    r = res.get(tc.get("id")) or {}
+                    okx = not r.get("error") and not str(r.get("content") or "").lstrip(
+                        ).startswith("Error:")
+                    calls.append((i, lb, okx))
                     # 래퍼는 **대상 도구별로** 색인한다(래퍼 이름만 보면 전부 같아 보인다)
-                    called[lb].append((i, ar))
+                    called[lb].append((i, ar, okx))
                     if nm in (UNLOCK, GIVE):
-                        called["<unlocked>" + inner_name(ar)].append((i, ar))
+                        called["<unlocked>" + inner_name(ar)].append((i, ar, okx))
                 c = m.get("content")
                 if isinstance(c, str) and c.strip():
                     last_txt = c.strip()
@@ -147,6 +172,9 @@ def run(tags):
                 ok = bool(ck.get("action_match"))
                 lab = label(nm, ar)
                 tgt = inner_name(ar) or nm
+                hits = [(gi, ga, gok) for gi, ga, gok in called.get(lab, [])
+                        if arg_hit(ar, ga)]
+                done = [h for h in hits if h[2]]
                 if ok:
                     kind = "OK"
                 elif who != "assistant":
@@ -154,29 +182,43 @@ def run(tags):
                 elif lab not in called:
                     kind = ("MISS-UNLOCKONLY" if called.get("<unlocked>" + tgt)
                             else "MISS-NOTCALLED")
-                elif not any(arg_hit(ar, g) for _, g in called[lab]):
+                elif done:
+                    # gold 인자 그대로 **성공 실행**했는데 채점은 불일치 = 우리가 설명해야 할 칸
+                    kind = "MISS-EXECUTED%s" % ("-DUP" if len(done) > 1 else "")
+                elif hits:
+                    kind = "MISS-DENIED"       # 인자는 맞았는데 실행이 거부/실패
+                elif not any(arg_hit(ar, g) for _, g, _ in called[lab]):
                     kind = "MISS-ARGDIFF"
                 else:
-                    kind = "MISS-JUDGE"        # 인자는 맞는데 채점 불일치(순서·중복 등)
+                    kind = "MISS-JUDGE"
                 kinds[kind] += 1
                 if kind.startswith("MISS") and first is None and who == "assistant":
                     first = lab
                 got = ""
-                if kind == "MISS-ARGDIFF":
+                if kind.startswith("MISS-EXECUTED"):
+                    got = "  ← **성공 실행** msg=%s (동일 인자 %d회)" % (
+                        [h[0] for h in done], len(done))
+                elif kind == "MISS-DENIED":
+                    got = "  ← 시도 msg=%s 전부 실패/거부" % [h[0] for h in hits]
+                elif kind == "MISS-ARGDIFF":
                     # gold 와 **가장 가까운** 실호출을 보여준다(첫 호출이 아니라)
                     cand = sorted(called[lab], key=lambda g: -sum(
                         1 for k in ar if norm(g[1].get(k)) == norm(ar.get(k))))
-                    gi, ga = cand[0]
+                    gi, ga = cand[0][0], cand[0][1]
                     diff = {k: {"gold": ar.get(k), "got": ga.get(k)} for k in ar
                             if norm(ga.get(k)) != norm(ar.get(k))}
                     got = "  ← 실호출[%d](%d회 중) diff=%s" % (
                         gi, len(called[lab]), json.dumps(diff, ensure_ascii=False)[:300])
                 lines.append("    %-2d %-4s %-52s%s" % (ci, "OK" if ok else "✗", lab[:52], got))
             key = "%s#t%s" % (tid, tr)
-            fbrows = []
-            for k, v in fb.items():
-                if k.startswith(tid):
-                    fbrows.extend(v)
+            # ⚠sim 단위로 매칭한다(태스크 접두로 모으면 시행이 서로 오염된다 — 초판 결함)
+            simtag = "%s#s%s" % (tid, s.get("seed"))
+            fbrows = list(fb.get(simtag) or [])
+            if not fbrows:
+                for k, v in fb.items():
+                    if k.startswith(tid):
+                        fbrows.extend(v)
+                simtag += "(태스크합계·seed 매칭 실패)"
             ch = collections.Counter(r.get("channel") or r.get("kind") for r in fbrows)
             nl = [a for a in (ri.get("nl_assertions") or []) if not a.get("met", True)]
             fabr = (kinds.get("MISS-NOTCALLED", 0) + kinds.get("MISS-UNLOCKONLY", 0) > 0
@@ -186,12 +228,19 @@ def run(tags):
                 key, rw, term, len(msgs), len(calls), len(checks), kinds.get("OK", 0)))
             print("  종류: %s" % dict(kinds))
             print("  첫 이탈: %s" % (first or "-"))
+            dup = {"%s %s" % (lb, json.dumps(a, ensure_ascii=False)[:80]): len(g)
+                   for lb, v in called.items() if not lb.startswith("<")
+                   for a, g in [(v[0][1], [x for x in v if x[2]
+                                           and norm(x[1]) == norm(v[0][1])])]
+                   if len(g) > 1}
+            if dup:
+                print("  ⚠중복 성공 실행: %s" % json.dumps(dup, ensure_ascii=False)[:300])
             for ln in lines:
                 print(ln)
             if nl:
                 print("  NL 실패: %s" % json.dumps(nl, ensure_ascii=False)[:300])
             if ch:
-                print("  채널: %s" % dict(ch.most_common(8)))
+                print("  채널(%s): %s" % (simtag, dict(ch.most_common(8))))
             print("  종료 직전 본문%s: %s" % (" ⚠완료날조 후보" if fabr else "",
                                           " ".join(last_txt.split())[:200]))
             tot[term] += 1
@@ -202,7 +251,8 @@ def run(tags):
                 firstmiss[first] += 1
     print("#" * 92)
     print("# 교차표 1 — 태스크 × 판정")
-    ks = ["OK", "MISS-NOTCALLED", "MISS-UNLOCKONLY", "MISS-ARGDIFF", "MISS-JUDGE", "MISS-USER"]
+    ks = ["OK", "MISS-NOTCALLED", "MISS-UNLOCKONLY", "MISS-ARGDIFF", "MISS-EXECUTED",
+          "MISS-EXECUTED-DUP", "MISS-DENIED", "MISS-JUDGE", "MISS-USER"]
     print("  %-10s %s" % ("task", " ".join("%-16s" % k for k in ks)))
     for t in sorted({k[0] for k in xtab}):
         print("  %-10s %s" % (t, " ".join("%-16d" % xtab.get((t, k), 0) for k in ks)))
