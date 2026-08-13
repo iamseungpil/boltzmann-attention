@@ -63,8 +63,12 @@ chk("작업버퍼(work) 변경 0", "work" not in body)
 chk("try/except 로 감쌌다", "except Exception as _e9" in SRC)
 _recs = re.findall(r"\b_fbr\d*\.record\(\"route\",\s*([^,]+),", SRC)
 chk("route 레코드가 있다", len(_recs) >= 1, _recs)
-chk("사이드카는 text 를 안 싣는다(전 호출 None)",
-    bool(_recs) and all(a.strip() == "None" for a in _recs), _recs)
+# ★계약 변경 (2026-08-13 p런 포렌식·handoff §6.4): 구판은 text=None 을 요구했는데 그 결과
+#   route 행이 전부 len=0 이 되어 CP2(결정-전달) 검증이 원천 불가능했다. 새 계약 = 배달된
+#   본문(_txt)을 record 에 넘긴다 — len/sha 는 항상 남고, **본문 저장은 record() 가
+#   T2_FB_SIDECAR_TEXT=1 일 때만** 한다(t2_fbsidecar 셀프테스트가 그 계약을 검정).
+chk("사이드카에 배달 본문(_txt)을 넘긴다(len/sha 실측용)",
+    bool(_recs) and all(a.strip() == "_txt" for a in _recs), _recs)
 
 # ⑸ 삼분 (설계 v1.5 §5.1) — 억제↔체인↔미생성이 갈리는가 -----------------------
 #   이것이 없으면 다음 런의 `lost_to` 판정이 성립하지 않는다: 억제와 미생성이
