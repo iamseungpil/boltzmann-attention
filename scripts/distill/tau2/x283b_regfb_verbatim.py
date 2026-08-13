@@ -33,7 +33,16 @@ from x266_decide_ask_axis import a2 as _a2                        # noqa: E402
 def main():
     n = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 8
     a2 = _a2()
+    # ★1차 실행 계기 결함(2026-08-13): x266.a2() 는 specific 층만 읽고 eplan 은 settings 층에
+    #   있어 unlock=None → 문면이 "Call None with that name" 오염. 라이브 병합과 같은 값을
+    #   settings 층에서 직접 읽는다([[24]] 층위 인지). 이 수리는 문면-재론이 아니라 계기 수리.
     unlock = (a2.get("eplan") or {}).get("unlock_tool")
+    if not unlock:
+        import io as _io
+        _st = json.load(_io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                              "a2", "banking_knowledge.settings.json"),
+                                 encoding="utf-8"))
+        unlock = (_st.get("eplan") or {}).get("unlock_tool")
     e_reg = R.DISCOVERY_STEP2_REG_FB.format(name=P.LOCKED, unlock=unlock)
     sims = [s for s in X.load(P.TAG)
             if s["task_id"] == "task_071" and (s.get("reward_info") or {}).get("reward") != 1]

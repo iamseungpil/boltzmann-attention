@@ -325,12 +325,20 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
                     _cands2 = [n for n in _cands2 if n in _reg2]
                 # ★회수-실패 시 레지스트리 실명 폴백 (x283 C_STEP2: 071 t1/t3 8/8 — 이름이
                 #   닿기만 하면 체인이 열린다·070 은 이름을 줘도 0~1/8 = 이 폴백의 한계도
-                #   같은 프로브가 쟀다). 후보는 target 가족과 `_fam` 일치하는 레지스트리
-                #   원소뿐(기계 도출·[[25]] 레지스트리=권위). 선택은 아래 formalize 그대로.
+                #   같은 프로브가 쟀다). 후보 = **레지스트리 전체 − unlock 기시도**(기계 도출·
+                #   [[25]] 레지스트리=권위). ⚠가족-일치로 좁히지 않는다 — 라이브 A2 의
+                #   discoverable 선언은 **디스패처 자신**에 걸려 있어(`call_discoverable_...`)
+                #   target 가족 대조는 항상 공집합 = 死코드가 된다(2026-08-13 A2 실측).
+                #   어느 이름이 요청을 성취하는지는 아래 formalize(LLM·none 허용)가 고른다.
                 _regfb2 = False
                 if not _cands2 and _reg2:
-                    from t2_precedence import _fam as _fam2
-                    _cands2 = sorted(n for n in _reg2 if _fam2(n) == _fam2(target_tool))
+                    _tried2 = set()
+                    for _m2 in (msgs or []):
+                        for _tc2 in (getattr(_m2, "tool_calls", None) or []):
+                            if getattr(_tc2, "name", None) == _u3:
+                                for _v2 in (getattr(_tc2, "arguments", None) or {}).values():
+                                    _tried2.add(str(_v2))
+                    _cands2 = sorted(_reg2 - _tried2)
                     _regfb2 = bool(_cands2)
                 _nm2 = None
                 if _cands2:
