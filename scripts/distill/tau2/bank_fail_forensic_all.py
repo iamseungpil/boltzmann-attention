@@ -31,6 +31,8 @@ BASE = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026", "sim_re
 FBDIR = "/home/woori/scratch/logs"
 UNLOCK = "unlock_discoverable_agent_tool"
 GIVE = "give_discoverable_user_tool"
+CALLA = "call_discoverable_agent_tool"
+CALLU = "call_discoverable_user_tool"
 DONE_HINT = ("has been applied", "have been applied", "processed successfully", "successfully "
              "opened", "has been opened", "credited back", "been completed", "is now complete",
              "have been credited", "has been submitted", "been updated")
@@ -70,16 +72,29 @@ def nameof(tc):
     return (tc.get("function") or {}).get("name") or tc.get("name") or ""
 
 
+def inner_name(args):
+    return (args.get("agent_tool_name") or args.get("user_tool_name")
+            or args.get("tool_name") or "")
+
+
 def label(name, args):
-    """unlock/give 는 대상 도구까지 붙여야 의미가 있다."""
-    if name in (UNLOCK, GIVE):
-        t = args.get("agent_tool_name") or args.get("user_tool_name") or args.get("tool_name")
-        return "%s:%s" % ("unlock" if name == UNLOCK else "give", t)
-    return name
+    """unlock/give/call 은 **대상 도구까지** 붙여야 의미가 있다(래퍼 이름만으론 무정보)."""
+    t = inner_name(args)
+    if not t:
+        return name
+    pre = {UNLOCK: "unlock", GIVE: "give", CALLA: "call", CALLU: "callu"}.get(name)
+    return "%s:%s" % (pre, t) if pre else name
 
 
 def norm(v):
-    return " ".join(str(v).strip().lower().split())
+    """중첩 dict/list 는 키 정렬로, 수치는 float 로 — 표기 차이를 인자 불일치로 오판하지 않게."""
+    if isinstance(v, (dict, list)):
+        return json.dumps(v, ensure_ascii=False, sort_keys=True).lower()
+    s = " ".join(str(v).strip().lower().split())
+    try:
+        return "%.6g" % float(s.replace("$", "").replace(",", ""))
+    except (TypeError, ValueError):
+        return s
 
 
 def arg_hit(gold_args, got_args):
@@ -113,11 +128,12 @@ def run(tags):
                     continue
                 for tc in (m.get("tool_calls") or []):
                     nm, ar = nameof(tc), argsof(tc)
-                    calls.append((i, label(nm, ar)))
-                    called[nm].append((i, ar))
+                    lb = label(nm, ar)
+                    calls.append((i, lb))
+                    # 래퍼는 **대상 도구별로** 색인한다(래퍼 이름만 보면 전부 같아 보인다)
+                    called[lb].append((i, ar))
                     if nm in (UNLOCK, GIVE):
-                        t = ar.get("agent_tool_name") or ar.get("user_tool_name") or ""
-                        called["<unlocked>" + str(t)].append((i, ar))
+                        called["<unlocked>" + inner_name(ar)].append((i, ar))
                 c = m.get("content")
                 if isinstance(c, str) and c.strip():
                     last_txt = c.strip()
@@ -130,28 +146,31 @@ def run(tags):
                 who = a.get("requestor")
                 ok = bool(ck.get("action_match"))
                 lab = label(nm, ar)
+                tgt = inner_name(ar) or nm
                 if ok:
                     kind = "OK"
                 elif who != "assistant":
                     kind = "MISS-USER"          # 손님 몫(user-sim 이 해야 하는 액션)
-                elif nm not in called:
-                    kind = "MISS-NOTCALLED"
-                elif not any(arg_hit(ar, g) for _, g in called[nm]):
+                elif lab not in called:
+                    kind = ("MISS-UNLOCKONLY" if called.get("<unlocked>" + tgt)
+                            else "MISS-NOTCALLED")
+                elif not any(arg_hit(ar, g) for _, g in called[lab]):
                     kind = "MISS-ARGDIFF"
                 else:
                     kind = "MISS-JUDGE"        # 인자는 맞는데 채점 불일치(순서·중복 등)
-                if kind == "MISS-NOTCALLED" and nm not in (UNLOCK, GIVE) \
-                        and called.get("<unlocked>" + str(nm)):
-                    kind = "MISS-UNLOCKONLY"
                 kinds[kind] += 1
                 if kind.startswith("MISS") and first is None and who == "assistant":
                     first = lab
                 got = ""
                 if kind == "MISS-ARGDIFF":
-                    gi, ga = called[nm][0]
-                    diff = {k: (ar.get(k), ga.get(k)) for k in ar
+                    # gold 와 **가장 가까운** 실호출을 보여준다(첫 호출이 아니라)
+                    cand = sorted(called[lab], key=lambda g: -sum(
+                        1 for k in ar if norm(g[1].get(k)) == norm(ar.get(k))))
+                    gi, ga = cand[0]
+                    diff = {k: {"gold": ar.get(k), "got": ga.get(k)} for k in ar
                             if norm(ga.get(k)) != norm(ar.get(k))}
-                    got = "  ← 실호출[%d] diff=%s" % (gi, json.dumps(diff, ensure_ascii=False)[:220])
+                    got = "  ← 실호출[%d](%d회 중) diff=%s" % (
+                        gi, len(called[lab]), json.dumps(diff, ensure_ascii=False)[:300])
                 lines.append("    %-2d %-4s %-52s%s" % (ci, "OK" if ok else "✗", lab[:52], got))
             key = "%s#t%s" % (tid, tr)
             fbrows = []
