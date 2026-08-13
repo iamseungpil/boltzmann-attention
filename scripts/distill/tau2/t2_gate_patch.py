@@ -124,6 +124,28 @@ def _domain_a2(domain):
     return a2
 
 
+def _tok_overlap(name, registry):
+    """이름 토큰이 겹치는 레지스트리 항목 (FIX-7·x298_ownership_deny_probe.py 판정 B_OWN 6/8).
+
+    순수 문자열 연산이다 — 도메인 어휘 0·판단 0([[59]]). 접미 숫자를 뗀 뒤 언더스코어 토큰
+    집합으로 비교하고, **겹침 수가 최대인 항목들만** 남긴다(동률은 전부 남긴다 — 엔진은
+    고르지 않는다·[[62]] ③④). 겹침이 없으면 빈 목록 = 이 레버는 침묵한다(fail-open)."""
+    import re as _re
+    toks = [t for t in _re.split(r"[_\W]+", str(name).lower()) if t]
+    if not toks:
+        return []
+    scored = []
+    for n in (registry or ()):
+        base = _re.sub(r"_\d+$", "", str(n)).lower().split("_")
+        c = sum(1 for t in toks if t in base)
+        if c:
+            scored.append((c, str(n)))
+    if not scored:
+        return []
+    mx = max(c for c, _ in scored)
+    return sorted(n for c, n in scored if c == mx)
+
+
 def _slug_disp(k):
     """슬러그 → 표시명 기계 전개 (FIX-6·t7276 075 실측·[[55]] 우리층 수리).
 
@@ -7919,7 +7941,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         #   미등록인 날조 이름에 "there is none" 만 나가자 모델이 "수동으로
                         #   조정하겠다" 날조로 접힘 — [[64]] 거부는 해법을 담아야 한다. 목록은
                         #   레지스트리 기계 나열뿐·선택은 모델. 키 없으면 침묵=종전 거동.)
-                        if _fb8 and not _same8:
+                        # ★FIX-7 소유권 정정 (2026-08-13·격리 `x298_ownership_deny_probe.py`
+                        #   3셀 n=8: A_LIVE 1/8 · **B_OWN 6/8** · D_BARE 0/8·사전등록 문턱).
+                        #   실물(t7277 075 엔진로그 118행): 모델의 착수 시도는 **손님에게 도구를
+                        #   넘기는 채널**(give_discoverable_user_tool·val='open_account')이었는데
+                        #   우리 문구는 *"unlock_ 은 적용 안 된다"* + 45개 목록 = 채널이 어긋났고
+                        #   **그 이름이 사실 에이전트 자신의 도구**라는 말이 없었다 → 수동 안내로
+                        #   접힘. 술어는 닫혀 있다([[22]]): ⓐ이 인자가 손님-측 채널 키인가(A2
+                        #   `user_tool_channel_args` 선언) ⓑ이름 토큰이 **에이전트** 레지스트리와
+                        #   겹치는가(`_tok_overlap`·기계·판단 0). 겹치면 그 사실만 말한다 — 무엇을
+                        #   호출할지·인자는 여전히 모델이 정한다([[62]] ③④·[[64]]).
+                        _own8 = (_tok_overlap(s, _reg8 or ())
+                                 if (k in set(_dnc.get("user_tool_channel_args") or ())
+                                     and _dnc.get("feedback_user_tool_is_agents")) else None)
+                        if _own8:
+                            _fb8 = str(_dnc["feedback_user_tool_is_agents"]).replace(
+                                "{matches}", ", ".join(_own8))
+                            print("[T2_OWNERSHIP_FIX] give-name=%s → agent tool(s) %s"
+                                  % (s, _own8), file=_sys.stderr, flush=True)
+                        elif _fb8 and not _same8:
                             _lst8 = _dnc.get("feedback_registry_listing")
                             if _lst8 and _reg8:
                                 _fb8 = str(_fb8) + str(_lst8).replace(
