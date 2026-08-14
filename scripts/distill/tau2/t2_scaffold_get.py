@@ -713,16 +713,13 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
             schema = json.dumps({i: iso.get("operand_schema", {}) for i in ids}, ensure_ascii=False)
             prompt = iso["inject_instructions"].format(group=gval, docs=docstr, schema=schema,
                                                        items=json.dumps(raw, ensure_ascii=False, indent=1))
-            try:
-                um = UserMessage(role="user", content=prompt)
-            except TypeError:
-                um = UserMessage(content=prompt)
-            try:
-                resp = la.generate(model=ag.llm, tools=None, messages=[um], call_name="sg_inject", **kw)
-            except Exception as e:
-                print("[T2_SG_ISOLATE] inject generate 실패(%s): %r" % (gval, e), file=_sys.stderr, flush=True)
+            import t2_subcall as _SC
+            _raw = _SC.sub_generate(ag, la, UserMessage, prompt, "sg_inject",
+                                    temperature=iso.get("temperature"))
+            if not _raw:
+                print("[T2_SG_ISOLATE] inject generate 실패(%s)" % gval, file=_sys.stderr, flush=True)
                 continue
-            got = _merge_json(getattr(resp, "content", None) or "", set(ids))
+            got = _merge_json(_raw, set(ids))
             rate_f = iso.get("rate_field", "base_rate")
             # ★범위 가드+재질의 (A2 `rate_range` 선언 시만·§2i 프로브 EcoCard-Green 0/6→6/6).
             #   범위=A2 선언·재질의 문구=A2·값은 여전히 서브가 산출(엔진 리터럴 0·[[07]] enforced).
@@ -738,18 +735,11 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
                 bad_ids = [i for i in ids if _rv(i) is not None and not (lo_r <= _rv(i) <= hi_r)]
                 if bad_ids and iso.get("range_retry_prompt"):
                     extra = iso["range_retry_prompt"].format(ids=", ".join(bad_ids), lo=rr[0], hi=rr[1])
-                    try:
-                        um2 = UserMessage(role="user", content=prompt + extra)
-                    except TypeError:
-                        um2 = UserMessage(content=prompt + extra)
-                    try:
-                        resp2 = la.generate(model=ag.llm, tools=None, messages=[um2],
-                                            call_name="sg_inject_retry", **kw)
-                        got2 = _merge_json(getattr(resp2, "content", None) or "", set(bad_ids))
-                    except Exception as e:
-                        print("[T2_SG_ISOLATE] range-retry 실패(%s): %r" % (gval, e),
-                              file=_sys.stderr, flush=True)
-                        got2 = {}
+                    import t2_subcall as _SC2
+                    got2 = _merge_json(_SC2.sub_generate(ag, la, UserMessage, prompt + extra,
+                                                         "sg_inject_retry",
+                                                         temperature=iso.get("temperature")),
+                                       set(bad_ids))
                     for i in bad_ids:
                         v2 = got2.get(i)
                         try:
@@ -790,18 +780,11 @@ def _sub_inject(orch, d, iso, ctx, la, UserMessage):
                         for t0 in _bad)
                     extra2 = "\n\n\u2605FEEDBACK on item(s) %s:\n%s\n%s" % (
                         ", ".join(_bad), _fb, _rp)
-                    try:
-                        um3 = UserMessage(role="user", content=prompt + extra2)
-                    except TypeError:
-                        um3 = UserMessage(content=prompt + extra2)
-                    try:
-                        resp3 = la.generate(model=ag.llm, tools=None, messages=[um3],
-                                            call_name="sg_inject_retry", **kw)
-                        got3 = _merge_json(getattr(resp3, "content", None) or "", set(_bad))
-                    except Exception as e:
-                        print("[T2_SG_ISOLATE] quote-pin retry 실패(%s): %r" % (gval, e),
-                              file=_sys.stderr, flush=True)
-                        got3 = {}
+                    import t2_subcall as _SC3
+                    got3 = _merge_json(_SC3.sub_generate(ag, la, UserMessage, prompt + extra2,
+                                                         "sg_inject_retry",
+                                                         temperature=iso.get("temperature")),
+                                       set(_bad))
                     for t0 in _bad:
                         if got3.get(t0):
                             got[t0] = got3[t0]

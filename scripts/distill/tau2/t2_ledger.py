@@ -33,6 +33,8 @@ import json
 import re
 import sys
 
+import t2_subcall as SC   # 단발-격리 서브 정본(2026-08-14 리팩토링)
+
 __all__ = ["specs_for", "formalize_rows", "formalize_now", "formalize_limits",
            "formalize_thresholds", "window_and_tally", "earliest_age",
            "exhausted_text", "ineligible_text", "facts_text",
@@ -128,15 +130,7 @@ def formalize_rows(agent, la, UserMessage, text, spec):
         return []
     prompt = tpl.format(keys=", ".join(keys), text=str(text)[:12000])
     try:
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
-              if "tool" not in k}
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="ledger_rows_formalize", **kw)
-        raw = getattr(sub, "content", None) or ""
+        raw = SC.sub_generate(agent, la, UserMessage, prompt, "ledger_rows_formalize")
     except Exception:
         return []
     return parse_rows(raw, keys)
@@ -170,14 +164,7 @@ def formalize_now(agent, la, UserMessage, texts, spec):
             sel.append(t)
     prompt = tpl.format(text="\n---\n".join(str(t)[:1500] for t in sel))
     try:
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
-              if "tool" not in k}
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="ledger_now_formalize", **kw)
+        sub = SC.sub_generate(agent, la, UserMessage, prompt, "ledger_now_formalize")
         raw = (getattr(sub, "content", None) or "").strip()
     except Exception:
         return None
@@ -297,17 +284,9 @@ def formalize_objective(agent, la, UserMessage, texts, spec):
         sel.append(s)
         used += len(s)
     sel.reverse()
-    try:
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
-              if "tool" not in k}
-        try:
-            um = UserMessage(role="user", content=tpl.format(text="\n---\n".join(sel)))
-        except TypeError:
-            um = UserMessage(content=tpl.format(text="\n---\n".join(sel)))
-        raw = getattr(la.generate(model=agent.llm, tools=None, messages=[um],
-                                  call_name="objective_formalize", **kw), "content", None) or ""
-    except Exception as e:
-        print("[T2_LEDGER] objective 실패: %r" % (e,), file=sys.stderr, flush=True)
+    raw = SC.sub_generate(agent, la, UserMessage, tpl.format(text="\n---\n".join(sel)),
+                          "objective_formalize")
+    if not raw:
         return None
     m = re.search(r"\{.*\}", str(raw), re.S)
     if not m:
@@ -366,12 +345,7 @@ def rederive_choice(agent, la, UserMessage, spec, table, facts, asked, allowed):
     try:
         kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
               if "tool" not in k}
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="rederive_choice", **kw)
+        sub = SC.sub_generate(agent, la, UserMessage, prompt, "rederive_choice")
         raw = " ".join(str(getattr(sub, "content", None) or "").split())
     except Exception as e:
         print("[T2_REDERIVE] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
@@ -419,18 +393,10 @@ def formalize_objective_axis(agent, la, UserMessage, spec, texts, axes):
     #   고쳤다 — `now_prompt`(머리+꼬리·2026-08-07) · `_formalize_pairs`(항목별 절단+총예산·2026-08-08).
     #   ⇒ 세 번째로 같은 것을 고치지 않도록 **선택기를 한 자리로 합친다**([[55]] 배관 먼저).
     hay = "\n---\n".join(_excerpt(texts))
-    try:
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
-              if "tool" not in k}
-        try:
-            um = UserMessage(role="user", content=tpl.format(axes=listing, text=hay))
-        except TypeError:
-            um = UserMessage(content=tpl.format(axes=listing, text=hay))
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="objective_axis_formalize", **kw)
-        raw = " ".join(str(getattr(sub, "content", None) or "").split())
-    except Exception as e:
-        print("[T2_OBJ_AXIS] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+    raw = " ".join(SC.sub_generate(agent, la, UserMessage,
+                                   tpl.format(axes=listing, text=hay),
+                                   "objective_axis_formalize").split())
+    if not raw:
         return None
     hit = sorted((a for a in names if a and a.lower() in raw.lower()), key=len, reverse=True)
     out = hit[0] if hit else None
@@ -497,15 +463,7 @@ def formalize_kind(agent, la, UserMessage, spec, texts, kinds):
     listing = "\n".join("  %s" % k for k in names)
     hay = "\n---\n".join(_excerpt(texts))
     try:
-        kw = dict((k, v) for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
-                  if "tool" not in k)
-        try:
-            um = UserMessage(role="user", content=tpl.format(kinds=listing, text=hay))
-        except TypeError:
-            um = UserMessage(content=tpl.format(kinds=listing, text=hay))
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="kind_formalize", **kw)
-        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+        raw = " ".join(SC.sub_generate(agent, la, UserMessage, tpl.format(kinds=listing, text=hay), "kind_formalize").split())
     except Exception as e:
         print("[T2_KIND] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
         return None
@@ -648,17 +606,8 @@ def _formalize_pairs(agent, la, UserMessage, texts, spec, key, field, memo_attr,
         prompt = tpl.format(text=_body, items=extra)
     except (KeyError, IndexError):
         prompt = tpl.format(text=_body) + (extra or "")
-    try:
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
-              if "tool" not in k}
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name=call_name, **kw)
-        raw = getattr(sub, "content", None) or ""
-    except Exception:
+    raw = SC.sub_generate(agent, la, UserMessage, prompt, call_name)
+    if not raw:
         return {}
     hay = " ".join("\n".join(str(t) for t in texts).split())
     # ⚠거동 델타 **한 건**(의도·값 아님): 구판은 응답에 `{...}`가 아예 없으면 **인쇄 없이** 돌아갔다.
@@ -744,12 +693,7 @@ def formalize_subject_align(agent, la, UserMessage, spec, groups, subjects):
     try:
         kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
               if "tool" not in k}
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="subject_align_formalize", **kw)
+        sub = SC.sub_generate(agent, la, UserMessage, prompt, "subject_align_formalize")
         called = True
         raw = str(getattr(sub, "content", None) or "")
         m = re.search(r"\{.*\}", raw, re.S)
@@ -1142,15 +1086,7 @@ def diagnose_choice(agent, la, UserMessage, spec, block, rows):
     if not names:
         return None
     try:
-        kw = dict((k, v) for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
-                  if "tool" not in k)
-        try:
-            um = UserMessage(role="user", content=tpl.format(block=block))
-        except TypeError:
-            um = UserMessage(content=tpl.format(block=block))
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="diagnose_formalize", **kw)
-        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+        raw = " ".join(SC.sub_generate(agent, la, UserMessage, tpl.format(block=block), "diagnose_formalize").split())
     except Exception as e:
         print("[T2_DIAG] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
         return None

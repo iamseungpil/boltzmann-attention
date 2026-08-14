@@ -23,6 +23,8 @@ import os
 import re
 import sys
 
+import t2_subcall as SC   # 단발-격리 서브 정본(2026-08-14 리팩토링)
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # 헬퍼 재사용(중복 구현 금지): 후보 도출·record 탐색·전사 필터(N5/N11)는 t2_gate_patch 정본.
 from t2_gate_patch import (  # noqa: E402
@@ -326,12 +328,7 @@ def fexec_filter_decide(agent, la, UserMessage, state_msgs, arg_key, cur_value, 
     kw = {kk: vv for kk, vv in dict(getattr(agent, "llm_args", None) or {}).items()
           if "tool" not in kk}
     for attempt in range(max_formalize):
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="filter_formalize_subcall", **kw)
+        sub = SC.sub_generate(agent, la, UserMessage, prompt, "filter_formalize_subcall")
         agent._t2_fsub_formalized = getattr(agent, "_t2_fsub_formalized", 0) + 1
         spec = parse_formalize(getattr(sub, "content", None) or "")
         if spec is None or spec["op"] in ("none", "unresolvable"):
@@ -363,14 +360,7 @@ def fexec_for_disamb(agent, la, UserMessage, state_msgs, arg_key, cur_value):
     if sum(1 for _, r in records if isinstance(r, dict)) < 2:
         return None
     prompt = build_formalize_prompt(state_msgs, arg_key, cur_value, records)
-    try:
-        um = UserMessage(role="user", content=prompt)
-    except TypeError:
-        um = UserMessage(content=prompt)
-    kw = {kk: vv for kk, vv in dict(getattr(agent, "llm_args", None) or {}).items()
-          if "tool" not in kk}
-    sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                      call_name="formalize_subcall", **kw)
+    sub = SC.sub_generate(agent, la, UserMessage, prompt, "formalize_subcall")
     agent._t2_fexec_fired = getattr(agent, "_t2_fexec_fired", 0) + 1
     spec = parse_formalize(getattr(sub, "content", None) or "")
     if spec is None:
@@ -612,12 +602,7 @@ def fexec_variant_decide(agent, la, UserMessage, msgs, arg_key, cur_value, a2_sp
     prompt = build_formalize_prompt(msgs, arg_key, cur_value, records)
     kw = {kk: vv for kk, vv in dict(getattr(agent, "llm_args", None) or {}).items() if "tool" not in kk}
     for attempt in range(max_formalize):
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="l4_variant_formalize", **kw)
+        sub = SC.sub_generate(agent, la, UserMessage, prompt, "l4_variant_formalize")
         fspec = parse_formalize(getattr(sub, "content", None) or "")
         if fspec is None or fspec["op"] in ("none", "unresolvable"):
             return {"status": "fallback", "ids": [], "why": "form:" + (fspec["op"] if fspec else "unsure")}

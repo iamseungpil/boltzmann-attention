@@ -94,6 +94,14 @@ chk("T4_empty_calls_blocked", run(json.dumps({"calls": []})) is None)
 no_basis = [M("user", "please fix the ATM fees")]
 chk("T5_no_basis_no_sub", run(good, msgs=no_basis) is None)
 
+# T7: ★형식-불문 수치 매칭 — 근거가 "$9.50" 인데 제안이 9.5 여도 통과해야 한다.
+#     (1차 구현의 실결함: 자체 substring 검산이라 이 짝을 기각했다 — `_val_grounded` 위임 후 통과)
+fmt = json.dumps({"calls": [{"tool": "apply_checking_account_credit_5829",
+                             "account_id": "chk_kj93a7b2e1_1", "amount": 9.5,
+                             "credit_type": "fee_refund"}]})
+r7 = run(fmt)
+chk("T7_numeric_format_invariant", bool(r7) and "9.5" in r7, (r7 or "None")[:50])
+
 # T6: 플래그 없으면 호출부가 종전 경로(문면)로 간다
 os.environ.pop("T2_WRITE_SUB", None)
 OPS = {"action_tools": ["call_x", "unlock_x"]}

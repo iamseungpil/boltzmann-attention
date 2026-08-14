@@ -22,6 +22,8 @@ import json
 #   무검사 통과). 인쇄를 넣으라는 교정(§4-5)이 인쇄 자체의 배선을 안 검사해 생긴 거울상.
 import sys
 
+import t2_subcall as SC   # 단발-격리 서브 관용구 정본(2026-08-14 리팩토링)
+
 # ── operator(도구명) 해소 — banking이 드러낸 일반화(§8b) ──
 # operand에 operator(도구명)가 포함. GET=discovery/KB 출력의 후보 도구명, PROV=선택 도구명이
 # 그 후보에 grounded(발명 금지·banking 35.9% 도구명 날조). 로직 일반·패턴은 A2.
@@ -503,51 +505,6 @@ def _executed_dispatch_names(msgs, a2, arg="agent_tool_name"):
     return out
 
 
-def _recent_tool_text(msgs, cap):
-    """이번 손님 발화 이후의 **성공한 도구 결과** 축자 (근거·구조 판정·도메인 해석 0)."""
-    ms = list(msgs or [])
-    last_user = max([i for i, m in enumerate(ms)
-                     if getattr(m, "role", None) == "user"] or [-1])
-    out = []
-    for m in ms[last_user + 1:]:
-        if getattr(m, "role", None) != "tool" or not _result_ok(m):
-            continue
-        c = str(getattr(m, "content", "") or "").strip()
-        if c:
-            out.append(c)
-    txt = "\n".join(out)
-    return txt[-int(cap):] if cap and len(txt) > int(cap) else txt
-
-
-def _grounded_calls(calls, basis, names):
-    """서브 제안을 **엔진이 검산**한다 — 판단 0, 닫힌 술어 둘뿐([[22]]·quote_grounding 동형).
-
-      ① 도구명이 이 대화의 **실재 이름 집합**의 원소인가 (엔진이 이름을 짓지 않는다)
-      ② 제안이 담은 **모든 값**이 근거 텍스트에 substring 으로 실재하는가 (날조 차단)
-
-    ★왜 메인이 아니라 엔진이 검산하나 (2026-08-14 x309): 메인은 전달된 제안을 **검증 없이
-      권위로 받는다**(무관 도구 제안에도 5/8 순응). 그러면 성적이 우리 서브 정확도로 대체되고,
-      실제로 이번 주 서브 주변 배관이 두 번 틀렸다(FIX-11 날조·FIX-12 중복 그룹). 그렇다고
-      메인에 재판단을 시킬 수는 없다 — 그 자리에서 판단이 안 되는 것이 애초 관측이다(0/8).
-      ⇒ 판단은 LLM(서브)에 그대로 두고, **근거 실재만** 엔진이 본다([[25]] 집행 장치).
-    실패 = 빈 리스트 → 호출부는 종전 경로로 폴백한다(조용한 거동 변경 금지).
-    """
-    from t2_scaffold_get import _norm_ground                      # noqa: E402 (지연 임포트)
-    nb = _norm_ground(basis)
-    ok = []
-    for c in (calls or []):
-        if not isinstance(c, dict):
-            continue
-        tool = str(c.get("tool") or c.get("name") or "")
-        if tool not in (names or set()):
-            continue
-        vals = [v for k, v in c.items() if k not in ("tool", "name") and v not in (None, "")]
-        if not vals or not all(_norm_ground(v) and _norm_ground(v) in nb for v in vals):
-            continue
-        ok.append(c)
-    return ok
-
-
 def sub_write_proposal(agent, la, UserMessage, msgs, a2, names):
     """★write-착수 격리 서브 (2026-08-14·`T2_WRITE_SUB`·기본 OFF).
 
@@ -557,15 +514,19 @@ def sub_write_proposal(agent, la, UserMessage, msgs, a2, names):
       x309  그 산출을 메인에 전달하면 **8/8 실행**(한 건만 전달해도 8/8)
       x310  근거 동봉해도 정답 팔 **8/8**(역효과 0)
     [[62]] ②: 격리에서 되는데 궤적서 못 하면 레버는 **전달뿐**이다 — 계산·선택은 전부 LLM 몫이고
-    엔진은 근거 실재만 본다(`_grounded_calls`). [[05]] Q3: 엔진은 **실행하지 않는다** — 제안을
-    리마인더로 올릴 뿐이고 호출은 메인이 한다.
+    엔진은 근거 실재만 본다(`t2_subcall.grounded_calls`). [[05]] Q3: 엔진은 **실행하지 않는다** —
+    제안을 리마인더로 올릴 뿐이고 호출은 메인이 한다.
+
+    ★관용구는 전부 `t2_subcall` 정본이다(2026-08-14 리팩토링·사용자 지시 "중복을 없애라") —
+      1차 구현은 자체 substring 검산이라 `9.50↔9.5` 를 기각했다(정본 `_val_grounded` 는
+      형식-불문 수치 매칭). 재구현 금지.
 
     반환: 전달 문구(str) · 조건 미충족/검산 탈락 = None(종전 경로 폴백).
     """
     spec = (a2 or {}).get("write_initiation") or {}
     if not spec or agent is None or la is None or UserMessage is None:
         return None
-    basis = _recent_tool_text(msgs, spec.get("basis_max_chars") or 4000)
+    basis = SC.recent_tool_text(msgs, spec.get("basis_max_chars") or 4000)
     if not basis:
         return None
     users = [str(getattr(m, "content", "") or "") for m in (msgs or [])
@@ -573,24 +534,11 @@ def sub_write_proposal(agent, la, UserMessage, msgs, a2, names):
     prompt = "%s\n\n%s\n\n%s\n\n%s" % (spec.get("instructions", ""),
                                        "\n".join(users), basis,
                                        spec.get("answer_format", ""))
-    try:
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
-              if "tool" not in k}
-        if spec.get("temperature") is not None:
-            kw["temperature"] = spec["temperature"]
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="write_initiation_formalize", **kw)
-        txt = str(getattr(sub, "content", None) or "")
-        m = re.search(r'\{.*"calls".*\}', txt, re.S)
-        calls = json.loads(m.group(0)).get("calls") if m else None
-    except Exception as e:
-        print("[T2_WRITE_SUB] 생략(종전 경로): %r" % (e,), file=sys.stderr, flush=True)
-        return None
-    good = _grounded_calls(calls, basis, names)
+    txt = SC.sub_generate(agent, la, UserMessage, prompt, "write_initiation_formalize",
+                          temperature=spec.get("temperature"))
+    obj = SC.parse_contract(txt, key="calls")
+    calls = obj.get("calls") if obj else None
+    good = SC.grounded_calls(calls, [basis], names)
     print("[T2_WRITE_SUB] 제안 %d건 → 근거검산 통과 %d건"
           % (len(calls or []), len(good)), file=sys.stderr, flush=True)
     if not good:
@@ -686,18 +634,9 @@ def formalize_arg_axis(agent, la, UserMessage, msgs, arg, choices, prompt_tpl):
         return None
     body = prompt_tpl.format(arg=arg, choices=", ".join(sorted(choices)),
                              text="\n- ".join(u[:400] for u in users))
-    try:
-        um = UserMessage(role="user", content=body)
-    except TypeError:
-        um = UserMessage(content=body)
-    try:
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
-              if "tool" not in k}
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="arg_axis_formalize", **kw)
-        raw = " ".join(str(getattr(sub, "content", None) or "").split())
-    except Exception as e:
-        print("[T2_ARG_AXIS] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+    raw = " ".join(SC.sub_generate(agent, la, UserMessage, body,
+                                    "arg_axis_formalize").split())
+    if not raw:
         return None
     # 엔진은 **집합 소속만** 본다 — 답에서 원소를 찾는 것뿐이고 도메인 해석 0([[59]]).
     got = {c for c in choices if c and c.lower() in raw.lower()}
@@ -730,14 +669,7 @@ def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools):
               "User said:\n- " + "\n- ".join(u[:300] for u in users) +
               '\nReply JSON only: {"tool": "<name or none>"}')
     try:
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items() if "tool" not in k}
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="intent_operator_formalize", **kw)
-        txt = getattr(sub, "content", None) or ""
+        txt = SC.sub_generate(agent, la, UserMessage, prompt, "intent_operator_formalize")
         m = re.search(r'"tool"\s*:\s*"([^"]+)"', txt)
         cand = m.group(1).strip() if m else None
         return cand if cand in action_tools else None
@@ -792,14 +724,7 @@ def _formalize_correct_operand(agent, la, UserMessage, msgs, action, operand, ch
               % (action, operand, "\n- ".join(u[:400] for u in users[-8:]),
                  "\n".join(c[:600] for c in ctx[-8:]), operand))
     try:
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items() if "tool" not in k}
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="recommend_operand_verify", **kw)
-        txt = getattr(sub, "content", None) or ""
+        txt = SC.sub_generate(agent, la, UserMessage, prompt, "recommend_operand_verify")
         m = re.search(r'"%s"\s*:\s*"([^"]+)"' % re.escape(operand), txt)
         cand = m.group(1).strip() if m else None
         if not cand or cand.lower() == "none":
@@ -827,14 +752,7 @@ def _formalize_recommendation(agent, la, UserMessage, msgs, action, operand):
               % (action, operand, "\n- ".join(u[:400] for u in users[-8:]),
                  "\n".join(c[:600] for c in ctx[-8:]), operand))
     try:
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items() if "tool" not in k}
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="recommend_formalize", **kw)
-        txt = getattr(sub, "content", None) or ""
+        txt = SC.sub_generate(agent, la, UserMessage, prompt, "recommend_formalize")
         applies = bool(re.search(r'"applies"\s*:\s*true', txt, re.I))
         m = re.search(r'"%s"\s*:\s*"([^"]+)"' % re.escape(operand), txt)
         cand = m.group(1).strip() if m else None
@@ -962,14 +880,7 @@ def formalize_reference_criteria(agent, la, UserMessage, msgs, fields):
               "identifying criteria as JSON with keys %s (use null if not stated). Dates as MM/DD/YYYY.\n"
               "User said:\n- %s\nReply JSON only." % (fields, "\n- ".join(u[:400] for u in users[-8:])))
     try:
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items() if "tool" not in k}
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="reference_criteria_formalize", **kw)
-        txt = getattr(sub, "content", None) or ""
+        txt = SC.sub_generate(agent, la, UserMessage, prompt, "reference_criteria_formalize")
         mm = re.search(r"\{.*\}", txt, re.S)
         d = json.loads(mm.group(0)) if mm else {}
         return {k: v for k, v in d.items() if v not in (None, "null", "")}

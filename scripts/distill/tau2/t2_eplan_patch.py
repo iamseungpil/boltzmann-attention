@@ -26,6 +26,8 @@ import os
 import re
 import sys
 
+import t2_subcall as SC   # 단발-격리 서브 정본(2026-08-14 리팩토링)
+
 _A2_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "a2")
 _EPLAN_CACHE = {}
 
@@ -722,14 +724,7 @@ def _cp5_replan_subcall(orch, led, msgs, spec):
     ag = orch.agent
     ekey = spec.get("entity_key") or "entity"
     prompt = structured_replan_prompt(led, transcript_text(msgs), ekey)
-    try:
-        um = UserMessage(role="user", content=prompt)
-    except TypeError:
-        um = UserMessage(content=prompt)
-    kw = {k: v for k, v in dict(getattr(ag, "llm_args", None) or {}).items()
-          if "tool" not in k}
-    sub = la.generate(model=ag.llm, tools=None, messages=[um],
-                      call_name="eplan_replan_subcall", **kw)
+    sub = SC.sub_generate(ag, la, UserMessage, prompt, "eplan_replan_subcall")
     _mark("replan subcall fired (structured ledger prompt)")
     return parse_obligations(getattr(sub, "content", None) or "", ekey)
 

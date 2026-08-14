@@ -39,6 +39,8 @@ declared dispatcher argument names.
 import os
 import re
 
+import t2_subcall as SC   # 단발-격리 서브 정본(2026-08-14 리팩토링)
+
 __all__ = ["build_corpus", "has_source", "uncalled_in_corpus", "SOURCE_KINDS"]
 
 # 유형 → 재검증 가능한가. 재검증이 없는 유형은 '우리 층'을 출처로 인정하지 않는다.
@@ -242,15 +244,7 @@ def formalize_claims(agent, la, UserMessage, messages, cap_attr="_t2_source_call
     setattr(agent, cap_attr, getattr(agent, cap_attr, 0) + 1)
     try:
         p = CLAIM_PROMPT.replace("{text}", last[:2500])
-        try:
-            um = UserMessage(role="user", content=p)
-        except TypeError:
-            um = UserMessage(content=p)
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
-              if "tool" not in k}
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="source_claim_formalize", **kw)
-        txt = getattr(sub, "content", None) or ""
+        txt = SC.sub_generate(agent, la, UserMessage, p, "source_claim_formalize")
         out = []
         for m2 in re.finditer(r'\{[^{}]*"claim"\s*:\s*"([^"]{1,200})"[^{}]*\}', txt):
             blob = m2.group(0)

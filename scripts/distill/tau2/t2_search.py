@@ -30,6 +30,8 @@ import os
 import re
 import sys
 
+import t2_subcall as SC   # 단발-격리 서브 정본(2026-08-14 리팩토링)
+
 __all__ = ["linked_docs", "read_docs", "drop_expired", "coverage", "as_material",
            "docs_for", "declared_windows", "index_coverage", "material_for",
            "corpus_from_env", "formalize_groups", "decide_from_docs", "to_iso"]
@@ -306,15 +308,7 @@ def formalize_groups(agent, la, UserMessage, spec, texts, groups):
     listing = "\n".join("  %s" % g for g in names)
     ask = "\n---\n".join(str(t) for t in texts)[-6000:]
     try:
-        kw = dict((k, v) for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
-                  if "tool" not in k)
-        try:
-            um = UserMessage(role="user", content=tpl.format(groups=listing, text=ask))
-        except TypeError:
-            um = UserMessage(content=tpl.format(groups=listing, text=ask))
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="doc_group_formalize", **kw)
-        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+        raw = " ".join(SC.sub_generate(agent, la, UserMessage, tpl.format(groups=listing, text=ask), "doc_group_formalize").split())
     except Exception as e:
         print("[T2_DOCGROUP] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
         return []
@@ -347,12 +341,7 @@ def decide_from_docs(agent, la, UserMessage, spec, material, ask):
         kw = dict((k, v) for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
                   if "tool" not in k)
         body = tpl.format(ask=str(ask)[:3000], material=material)
-        try:
-            um = UserMessage(role="user", content=body)
-        except TypeError:
-            um = UserMessage(content=body)
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="doc_decide", **kw)
+        sub = SC.sub_generate(agent, la, UserMessage, body, "doc_decide")
         raw = " ".join(str(getattr(sub, "content", None) or "").split())
     except Exception as e:
         print("[T2_DOCDECIDE] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)

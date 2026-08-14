@@ -1836,18 +1836,9 @@ def _cov_formalize_M(agent, la, UserMessage, msgs, ep_spec, a2):
         '\nReply with JSON only: {"ids": ["..."]} — include a record ONLY if the request clearly '
         "covers it; if the request targets a single record, list just that one."
     )
-    try:
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
-              if "tool" not in k}
-        sub = la.generate(model=agent.llm, tools=None, messages=[um],
-                          call_name="cov_formalize", **kw)
-        return _cov_parse_ids(getattr(sub, "content", None) or "", seen)
-    except Exception:
-        return []
+    import t2_subcall as _SC
+    return _cov_parse_ids(_SC.sub_generate(agent, la, UserMessage, prompt,
+                                           "cov_formalize"), seen)
 
 
 COV_REMINDER = (
@@ -3867,15 +3858,8 @@ def _ref_iso_repair(self, la, UserMessage, msgs, am, specs):
                       + ((" (" + str(sp.get("match_hint")) + ")") if sp.get("match_hint") else "")
                       + ", then answer for THIS action only. Answer with EXACTLY "
                         "one value copied from the listing, or UNSURE.")
-            try:
-                um = UserMessage(role="user", content=prompt)
-            except TypeError:
-                um = UserMessage(content=prompt)
-            kw = {kk: vv for kk, vv in dict(getattr(self, "llm_args", None) or {}).items()
-                  if "tool" not in kk}
-            sub = la.generate(model=self.llm, tools=None, messages=[um],
-                              call_name="ref_iso_subcall", **kw)
-            stxt = str(getattr(sub, "content", "") or "")
+            import t2_subcall as _SC
+            stxt = _SC.sub_generate(self, la, UserMessage, prompt, "ref_iso_subcall")
             pat = sp.get("id_pattern") or r"[A-Za-z0-9_]{6,}"
             hits = [h for h in _re.findall(pat, stxt) if h in listing]
             self._t2_refiso = getattr(self, "_t2_refiso", 0) + 1
@@ -3932,17 +3916,10 @@ def _t5c_disamb_subcall(self, la, UserMessage, state_msgs, tc, k, s, sub_args):
                   + (("\n\n" + fx_note) if fx_note else "")
                   + "\n\nThe agent currently chose '" + s + "'. Which single candidate does "
                     "the user intend? Answer with EXACTLY one candidate value, or UNSURE.")
-        try:
-            um = UserMessage(role="user", content=prompt)
-        except TypeError:
-            um = UserMessage(content=prompt)
-        kw = {kk: vv for kk, vv in dict(getattr(self, "llm_args", None) or {}).items()
-              if "tool" not in kk}
-        sub = la.generate(model=self.llm, tools=None, messages=[um],
-                          call_name="disamb_subcall", **kw)
+        import t2_subcall as _SC
+        _stxt = _SC.sub_generate(self, la, UserMessage, prompt, "disamb_subcall")
         self._t2_subcall_fired = getattr(self, "_t2_subcall_fired", 0) + 1
-        ans = _parse_subcall_answer(getattr(sub, "content", None) or "",
-                                    [c for c, _ in records])
+        ans = _parse_subcall_answer(_stxt, [c for c, _ in records])
         if ans is None:
             self._t2_subcall_unsure = getattr(self, "_t2_subcall_unsure", 0) + 1
             return "unsure"
