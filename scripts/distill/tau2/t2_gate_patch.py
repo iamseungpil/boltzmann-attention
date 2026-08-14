@@ -5604,7 +5604,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         #   ⚠폐기된 autofetch(C34)와 다르다: 새 정보를 **조회해 주입하지 않는다**. 근거는 이미
         #     에이전트가 받은 도구 결과이고, 판단은 격리 서브(LLM)가 한다 — 바뀌는 것은 **자리**뿐
         #     ([[62]] ②·x307 knows 7/8 ↔ acts 0/8 · x308 배치 7/8 · x309 전달 8/8 · x310 근거동봉 안전).
-        if os.environ.get("T2_WRITE_SUB") == "2" and a2 is not None:
+        if os.environ.get("T2_WRITE_SUB") in ("2", "3") and a2 is not None:
             try:
                 import t2_subcall as _SCw
                 import t2_resolve as _RZw
@@ -5612,7 +5612,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                ((a2.get("write_initiation") or {})
                                                 .get("basis_max_chars") or 4000))
                 _sig = hash(_basis)
-                if _basis and _sig != getattr(self, "_t2_write_basis", None):
+                # ★③ 결정점 좁히기 (2026-08-14 사용자 지시 *"결정점 근처에서 부르면 되지 않나"*).
+                #   `=2`(근거 변화마다)는 t7289 에서 **서브 77회** — 사전등록 문턱(≤15) 위반.
+                #   결정점 = **그 행동의 선행 조건이 이제 충족됐는데(게이트 통과) 아직 미실행**.
+                #   게이트는 매 턴 재구성돼 있으므로(`_rebuild_gate_state`) 새 판단 0·리터럴 0.
+                _open = True
+                if os.environ.get("T2_WRITE_SUB") == "3":
+                    try:
+                        _act = set((a2.get("action_tools") or []))
+                        _dispatch = ((a2.get("eplan") or {}).get("dispatch_tool") or "")
+                        _cands3 = [t for t in _act if t and t != _dispatch]
+                        _open = any(gate.check(t, {}, last_user, transfer_sent)[0]
+                                    for t in (_cands3 or [_dispatch]) if t)
+                    except Exception:
+                        _open = True          # 게이트 조회 실패 = 종전 거동(과침묵 금지)
+                if _open and _basis and _sig != getattr(self, "_t2_write_basis", None):
                     self._t2_write_basis = _sig          # 같은 근거로 두 번 말하지 않는다([[57]])
                     _done = _RZw._executed_dispatch_names(state.messages, a2)
                     _fbw = _RZw.sub_write_proposal(self, la, UserMessage, state.messages, a2,
