@@ -311,6 +311,19 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
         print("[T2_ACTION_HISTORY] 침묵: 이번 손님 발화 이후 디스패치 성공 — 재-발견 요구 안 함",
               file=sys.stderr, flush=True)
         return {"status": "ok"}
+    # ★write-착수 전달 (2026-08-14·`T2_WRITE_SUB`·기본 OFF·x307~x310).
+    #   여기까지 왔다는 것은 **회피가 확정**된 자리다. 종전에는 문면(발견 체인/실행 촉구)을 냈고,
+    #   그 문면은 이 사이트에서 전 팔 0/8 이었다(x302b). 격리 서브는 같은 사실로 7/8~8/8 을 내고,
+    #   그 산출을 전달하면 메인이 8/8 로 실행한다(x309). 실패·검산 탈락이면 아래 종전 경로 그대로.
+    if os.environ.get("T2_WRITE_SUB") == "1":
+        try:
+            _names = registry_names(agent) if agent is not None else set()
+            _fb = sub_write_proposal(agent, la, UserMessage, msgs, a2, _names)
+        except Exception as _we:
+            print("[T2_WRITE_SUB] 생략(종전 경로): %r" % (_we,), file=sys.stderr, flush=True)
+            _fb = None
+        if _fb:
+            return {"status": "deny", "reason": "write-initiation-sub", "feedback": _fb}
     # 회피(조언/transfer) 확정 → FIND 결과로 분기
     if target_tool and target_tool in action_tools:
         # ★Lever 2: target이 discoverable dispatcher면 발견체인 안내(getter→unlock→call).
@@ -488,6 +501,103 @@ def _executed_dispatch_names(msgs, a2, arg="agent_tool_name"):
         if v:
             out.add(str(v))
     return out
+
+
+def _recent_tool_text(msgs, cap):
+    """이번 손님 발화 이후의 **성공한 도구 결과** 축자 (근거·구조 판정·도메인 해석 0)."""
+    ms = list(msgs or [])
+    last_user = max([i for i, m in enumerate(ms)
+                     if getattr(m, "role", None) == "user"] or [-1])
+    out = []
+    for m in ms[last_user + 1:]:
+        if getattr(m, "role", None) != "tool" or not _result_ok(m):
+            continue
+        c = str(getattr(m, "content", "") or "").strip()
+        if c:
+            out.append(c)
+    txt = "\n".join(out)
+    return txt[-int(cap):] if cap and len(txt) > int(cap) else txt
+
+
+def _grounded_calls(calls, basis, names):
+    """서브 제안을 **엔진이 검산**한다 — 판단 0, 닫힌 술어 둘뿐([[22]]·quote_grounding 동형).
+
+      ① 도구명이 이 대화의 **실재 이름 집합**의 원소인가 (엔진이 이름을 짓지 않는다)
+      ② 제안이 담은 **모든 값**이 근거 텍스트에 substring 으로 실재하는가 (날조 차단)
+
+    ★왜 메인이 아니라 엔진이 검산하나 (2026-08-14 x309): 메인은 전달된 제안을 **검증 없이
+      권위로 받는다**(무관 도구 제안에도 5/8 순응). 그러면 성적이 우리 서브 정확도로 대체되고,
+      실제로 이번 주 서브 주변 배관이 두 번 틀렸다(FIX-11 날조·FIX-12 중복 그룹). 그렇다고
+      메인에 재판단을 시킬 수는 없다 — 그 자리에서 판단이 안 되는 것이 애초 관측이다(0/8).
+      ⇒ 판단은 LLM(서브)에 그대로 두고, **근거 실재만** 엔진이 본다([[25]] 집행 장치).
+    실패 = 빈 리스트 → 호출부는 종전 경로로 폴백한다(조용한 거동 변경 금지).
+    """
+    from t2_scaffold_get import _norm_ground                      # noqa: E402 (지연 임포트)
+    nb = _norm_ground(basis)
+    ok = []
+    for c in (calls or []):
+        if not isinstance(c, dict):
+            continue
+        tool = str(c.get("tool") or c.get("name") or "")
+        if tool not in (names or set()):
+            continue
+        vals = [v for k, v in c.items() if k not in ("tool", "name") and v not in (None, "")]
+        if not vals or not all(_norm_ground(v) and _norm_ground(v) in nb for v in vals):
+            continue
+        ok.append(c)
+    return ok
+
+
+def sub_write_proposal(agent, la, UserMessage, msgs, a2, names):
+    """★write-착수 격리 서브 (2026-08-14·`T2_WRITE_SUB`·기본 OFF).
+
+    측정 사슬(전부 사전등록·n=8·같은 사이트):
+      x307  메인서 실행 **0/8** ↔ 텍스트로 물으면 **knows 7/8**  → knowing-doing
+      x308  자리를 옮기면 **7/8**(JSON 요구 시 8/8) · 근거 제거 시 **0/8**(날조 안 함)
+      x309  그 산출을 메인에 전달하면 **8/8 실행**(한 건만 전달해도 8/8)
+      x310  근거 동봉해도 정답 팔 **8/8**(역효과 0)
+    [[62]] ②: 격리에서 되는데 궤적서 못 하면 레버는 **전달뿐**이다 — 계산·선택은 전부 LLM 몫이고
+    엔진은 근거 실재만 본다(`_grounded_calls`). [[05]] Q3: 엔진은 **실행하지 않는다** — 제안을
+    리마인더로 올릴 뿐이고 호출은 메인이 한다.
+
+    반환: 전달 문구(str) · 조건 미충족/검산 탈락 = None(종전 경로 폴백).
+    """
+    spec = (a2 or {}).get("write_initiation") or {}
+    if not spec or agent is None or la is None or UserMessage is None:
+        return None
+    basis = _recent_tool_text(msgs, spec.get("basis_max_chars") or 4000)
+    if not basis:
+        return None
+    users = [str(getattr(m, "content", "") or "") for m in (msgs or [])
+             if getattr(m, "role", None) == "user"][-3:]
+    prompt = "%s\n\n%s\n\n%s\n\n%s" % (spec.get("instructions", ""),
+                                       "\n".join(users), basis,
+                                       spec.get("answer_format", ""))
+    try:
+        try:
+            um = UserMessage(role="user", content=prompt)
+        except TypeError:
+            um = UserMessage(content=prompt)
+        kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
+              if "tool" not in k}
+        if spec.get("temperature") is not None:
+            kw["temperature"] = spec["temperature"]
+        sub = la.generate(model=agent.llm, tools=None, messages=[um],
+                          call_name="write_initiation_formalize", **kw)
+        txt = str(getattr(sub, "content", None) or "")
+        m = re.search(r'\{.*"calls".*\}', txt, re.S)
+        calls = json.loads(m.group(0)).get("calls") if m else None
+    except Exception as e:
+        print("[T2_WRITE_SUB] 생략(종전 경로): %r" % (e,), file=sys.stderr, flush=True)
+        return None
+    good = _grounded_calls(calls, basis, names)
+    print("[T2_WRITE_SUB] 제안 %d건 → 근거검산 통과 %d건"
+          % (len(calls or []), len(good)), file=sys.stderr, flush=True)
+    if not good:
+        return None
+    return spec.get("delivery_template", "{calls}\n{basis}").format(
+        calls="\n".join("  - " + json.dumps(c, ensure_ascii=False) for c in good),
+        basis=basis)
 
 
 def _dispatch_since_last_user(msgs, a2):
