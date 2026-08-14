@@ -29,6 +29,7 @@
 import collections
 import glob
 import io
+import json
 import os
 import re
 import sys
@@ -36,6 +37,7 @@ import sys
 # 우리 로그가 침묵을 알릴 때 쓰는 말들(엔진이 스스로 찍는 문면·도메인 어휘 0)
 SILENT_MARKS = ("침묵", "건너뜀", "무발화", "미발화", "미확정", "실패", "폐기", "못 찾",
                 "no-op", "skip")
+FBDIR = "/home/woori/scratch/logs"   # 사이드카 위치(리모트 전용·없으면 도달 축 생략)
 TAG = re.compile(r"\[(T2_[A-Z0-9_]+)\]")
 
 # ★설계된 침묵 (2026-08-14·이 감사의 첫 오탐 교정).
@@ -108,6 +110,53 @@ def report(res, min_silent_ratio=0.5):
     print("\n※ DELIVERED 는 '전달했다'이지 '옳았다'가 아니다. 이 표는 **배선 생존**만 본다 — "
           "효과 판정은 격리 프로브와 라이브 대조가 한다([[57]]).")
     return dead
+
+
+def delivery(tags):
+    """**도달 축** — 사이드카(`fb_<tag>.jsonl`)의 `arrived` 로 *모델 입력에 들어갔는가*를 본다.
+
+    ★왜 따로 필요한가 (2026-08-14 하루에 **두 번** 오판했다):
+      ⑴ 아침: 도구 반환문을 **stderr 로그**에서 grep 해 "미발화"로 읽었다 — 실제 7회 발화(C475).
+      ⑵ 저녁: ACTION_INDEX 43줄이 **궤적(results.json)에 없다**고 "한 글자도 안 갔다"로 읽었다 —
+         사이드카는 `decision_carry arrived 11/11` 이었다. 우리 채널 일부는 **재생성 버퍼**로
+         주입되고 메시지로 영속되지 않는다(C443 설계). **궤적 부재는 도달 부재가 아니다.**
+    ⇒ 세 축을 **각자 사는 자리에서** 읽는다: 로그=발화 · 사이드카=도달 · 궤적=손님-가시.
+
+    반환: {채널: {"fired": n, "arrived": n}} · 사이드카가 없으면 빈 dict(로컬)."""
+    out = collections.defaultdict(lambda: {"fired": 0, "arrived": 0})
+    for tag in tags:
+        p = os.path.join(FBDIR, "fb_%s.jsonl" % tag)
+        if not os.path.exists(p):
+            continue
+        for ln in io.open(p, encoding="utf-8", errors="replace"):
+            try:
+                o = json.loads(ln)
+            except Exception:
+                continue
+            k = str(o.get("agent") or o.get("mark") or "?")
+            out[k]["fired"] += 1
+            if o.get("arrived") is True:
+                out[k]["arrived"] += 1
+    return dict(out)
+
+
+def report_delivery(dl):
+    if not dl:
+        print("\n(사이드카 없음 — 도달 축 생략. 리모트에서 돌리면 채워진다)")
+        return []
+    print("\n%-24s %7s %8s  %s" % ("채널", "발화", "arrived", "판정"))
+    print("-" * 72)
+    bad = []
+    for k, v in sorted(dl.items(), key=lambda kv: -kv[1]["fired"]):
+        if k == "?":
+            continue
+        r = v["arrived"] / float(v["fired"]) if v["fired"] else 0.0
+        verdict = "⚠도달 0" if v["arrived"] == 0 else ("⚠일부만" if r < 0.8 else "ok")
+        if verdict != "ok":
+            bad.append(k)
+        print("%-24s %7d %8d  %s" % (k, v["fired"], v["arrived"], verdict))
+    print("※ 발화 ≠ 도달. 로그에 찍혔다고 모델이 봤다는 뜻이 아니다 — 이 표가 그 사각이다.")
+    return bad
 
 
 def main(argv):
