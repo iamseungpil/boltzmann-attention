@@ -18,7 +18,7 @@
 ⇒ 규칙: **결손을 모델에게 귀속하기 전에 이 감사를 돌린다.** [[55]](우리 배관 먼저)의 실행 형태다.
 
 판정은 문면이 아니라 **우리 자신의 로그 프로토콜**로 한다(도메인 판단 0·[[59]]):
-    DELIVERED  그 태그의 줄이 있고 침묵-표지가 없다
+    DELIVERED  그 태그의 줄이 있고 침묵-표지가 없다 (또는 **설계된 침묵**=`BENIGN`)
     SILENCED   침묵·건너뜀·무발화·미확정·실패 표지가 붙어 있다  ← **여기가 위험 구간**
     ABSENT     그 태그의 줄이 아예 없다(켜졌는데 도달조차 못 함 or 안 켬)
 
@@ -37,6 +37,22 @@ import sys
 SILENT_MARKS = ("침묵", "건너뜀", "무발화", "미발화", "미확정", "실패", "폐기", "못 찾",
                 "no-op", "skip")
 TAG = re.compile(r"\[(T2_[A-Z0-9_]+)\]")
+
+# ★설계된 침묵 (2026-08-14·이 감사의 첫 오탐 교정).
+#   침묵에는 두 종류가 있다: **못 해서** 조용한 것과 **할 필요가 없어서** 조용한 것.
+#   초판은 둘을 못 갈라 `T2_ACTION_HISTORY` 를 DEAD 로 찍었는데, 그 침묵은 U1
+#   (`_dispatch_since_last_user`·완료된 write 되감기 방지)이 **제 일을 한** 표시였다.
+#   ⇒ 사유 문면으로 선언한다. 여기 없는 침묵은 전부 **확인 대상**으로 남긴다(안전측:
+#   모르면 위험으로 센다). 새 항목을 넣을 때는 **그 침묵이 옳다는 근거**를 함께 적어라.
+BENIGN = {
+    # U1 출시분(2026-08-13 야간·write 중복 36건 중 15건이 우리 문구 직후였다):
+    #   디스패치가 이미 성공했으면 재-발견을 요구하지 않는 것이 정상 동작이다.
+    "T2_ACTION_HISTORY": ("디스패치 성공",),
+}
+
+
+def _benign(tag, body):
+    return any(w in body for w in BENIGN.get(tag, ()))
 SIM = re.compile(r"\[sim=(task_\d+)")
 
 
@@ -44,7 +60,7 @@ def audit(paths):
     """로그들 → {태그: {"delivered": n, "silenced": n, "reasons": Counter, "sims": set}}"""
     out = collections.defaultdict(
         lambda: {"delivered": 0, "silenced": 0,
-                 "reasons": collections.Counter(), "sims": set()})
+                 "by_design": 0, "reasons": collections.Counter(), "sims": set()})
     for p in paths:
         for ln in io.open(p, encoding="utf-8", errors="replace"):
             m = TAG.search(ln)
@@ -57,7 +73,10 @@ def audit(paths):
                 rec["sims"].add(s.group(1))
             body = ln[m.end():]
             hit = next((w for w in SILENT_MARKS if w in body), None)
-            if hit:
+            if hit and _benign(tag, body):
+                rec["by_design"] = rec.get("by_design", 0) + 1
+                rec["delivered"] += 1        # 제 일을 한 침묵은 생존으로 센다
+            elif hit:
                 rec["silenced"] += 1
                 # 사유는 그 줄에서 **엔진이 적은 문구**를 그대로 짧게 남긴다(해석 0)
                 rec["reasons"][" ".join(body.split())[:70]] += 1
