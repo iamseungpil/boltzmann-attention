@@ -305,6 +305,11 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
     #   내면 완료된 write 를 되감아 중복 실행시킨다(073 t0 잔액 5200→5228.50·write 중복 36건 중
     #   15건이 우리 문구 직후). `_transfer_executed` 와 같은 이력-감응·구조 판정.
     if _dispatch_since_last_user(msgs, a2):
+        # 관측 의무(C442·[[55]] 로그 마크 ≠ 전달의 거울상): 침묵도 인쇄가 있어야 라이브에서
+        # 발화를 셀 수 있다. 2026-08-14 t7287 모니터링서 이 자리가 **보이지 않아** 가드 작동을
+        # 실시간으로 확인할 수 없었다.
+        print("[T2_ACTION_HISTORY] 침묵: 이번 손님 발화 이후 디스패치 성공 — 재-발견 요구 안 함",
+              file=sys.stderr, flush=True)
         return {"status": "ok"}
     # 회피(조언/transfer) 확정 → FIND 결과로 분기
     if target_tool and target_tool in action_tools:

@@ -3332,6 +3332,9 @@ def _resolve_cap_ok(self, messages=None, a2=None):
                     pvn = getattr(self, "_t2_resolve_names", None)
                     if pvn is not None and (cur - pvn):
                         self._t2_resolve_deny = 0
+                        # 관측 의무(C442) — 어떤 이름이 리셋을 유발했는지까지 남긴다.
+                        print("[T2_RESOLVE_CAP] 리셋: 새 이름 회수 %s"
+                              % sorted(cur - pvn)[:3], file=_sys.stderr, flush=True)
         except Exception:
             pass
         # ⚠스냅샷은 여기서 갱신하지 않는다. 이 함수는 한 턴에 여러 번 불리므로 검사마다 갱신하면
