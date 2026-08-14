@@ -79,6 +79,21 @@ def main():
     t2 = round(sum(d.get("delta") or 0 for d in (ctx2.get("_sg_details") or [])), 2)
     chk(abs(t2 - 14.00) > 1e-6, "rebate_field 없으면 값이 다르다(=차감이 선언 의존·%.2f)" % t2)
 
+    print("[안전판 — 환급 필드가 아예 없으면 **기권**]")
+    #   Bluest 의 non_rho 기대값을 0 으로 내렸으므로, 서브가 `rebated_amount` 를 못 뽑으면
+    #   모든 수수료가 전액 불일치로 잡혀 **과다 환불**($24.00)이 된다 — 지금보다 나쁘다.
+    #   ⇒ 필드가 없는 행은 판정하지 않는다([[25]] 모르면 단언하지 않는다·coverage 가 표면화).
+    ctx3 = {"transactions": [{k: v for k, v in r.items() if k != "rebated_amount"}
+                             for r in ROWS], "account_class": "Bluest Account"}
+    C.apply_op(SPEC, ctx3)
+    d3 = ctx3.get("_sg_details") or []
+    st3 = ctx3.get("_sg_stats") or {}
+    chk(not d3, "환급 필드 없는 행은 discrepant 로 안 잡힌다(과다 환불 방지)")
+    chk(st3.get("skipped") == len(ROWS),
+        "전부 판정불가로 계상(%s/%s)" % (st3.get("skipped"), len(ROWS)))
+    chk("rebated_amount" in (st3.get("missing_fields") or {}),
+        "결핍 필드로 지목돼 재요청이 가능하다([[64]])")
+
     print("\n%s (%d fail)" % ("FAIL" if FAIL else "PASS", len(FAIL)))
     return 1 if FAIL else 0
 

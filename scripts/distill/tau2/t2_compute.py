@@ -862,8 +862,19 @@ def apply_op(spec, ctx):
                 #     엔진은 뺄셈만 한다 — 정답을 고르지 않는다([[62]] ④).
                 #   ⚠한계(의도적·미구현): 정책의 **월 상한**($50)은 반영하지 않는다. 상한을 넘는
                 #     달에는 과대 환급으로 볼 수 있다 — 상한 판정은 별도 측정 후에 붙인다.
+                #   ⚠**안전판 (발사 전 자기검토·2026-08-15)**: 이 선언과 함께 Bluest 의 non_rho
+                #     기대값을 0 으로 내렸다(순비용 0). 그러면 서브가 `rebated_amount` 를 **못 뽑은**
+                #     경우 모든 수수료가 전액 불일치로 잡혀 **과다 환불**($24.00)이 된다 — 지금보다
+                #     나쁘다. 필드가 아예 없는 행은 **판정하지 않고 기권**한다(coverage 가 표면화·
+                #     [[25]] 모르면 단언하지 않는다). 0.0 은 "환급 없음"이라는 **정보**이므로 판정한다.
                 _rebf = spec.get("rebate_field")
                 if _rebf and act is not None:
+                    if _rebf not in r:
+                        skipped += 1
+                        if idf and r.get(idf):
+                            _unv_ids.append(str(r.get(idf)))
+                        _missing[_rebf] = _missing.get(_rebf, 0) + 1
+                        continue
                     _reb = _num(r.get(_rebf))
                     if _reb:
                         act = round(act - _reb, 2)
