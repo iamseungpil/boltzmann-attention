@@ -28,6 +28,14 @@ except Exception:
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import t2_resolve as R                                             # noqa: E402
 
+
+class _Tool:
+    """범위 표면화가 읽을 도구 설명(프레임워크 레지스트리 대역)."""
+
+    def __init__(self, name, description):
+        self.name = name
+        self.description = description
+
 FAIL = []
 CHOSEN = "apply_checking_account_credit_5829"
 WANT = "apply_statement_credit_8472"
@@ -75,8 +83,11 @@ def run(executed, want):
     orig = R.formalize_intent_tool
     R.formalize_intent_tool = lambda *a, **k: want
     try:
+        class _Ag:
+            tools = [_Tool(CHOSEN, "Apply a credit to a customer's checking account."),
+                     _Tool(WANT, "Apply a statement credit to a customer's credit card account.")]
         return R.resolve_operator(OPSPEC, {"agent_tool_name": CHOSEN}, convo(executed),
-                                  agent=object(), la=object(), UserMessage=object(), a2=A2)
+                                  agent=_Ag(), la=object(), UserMessage=object(), a2=A2)
     finally:
         R.formalize_intent_tool = orig
 
@@ -87,11 +98,23 @@ def main():
     chk(r.get("status") == "ok",
         "chosen 이 이미 성공 실행 → 침묵(%s) ← 073 중복 적립의 자리" % r.get("status"))
 
-    print("[거동 보존 — 아직 안 한 것은 종전대로 지적]")
+    print("[지목 → 범위 표면화 (x322·기본 경로)]")
     r2 = run(executed=False, want=WANT)
-    chk(r2.get("status") == "deny" and r2.get("reason") == "operator-find",
-        "미실행이면 종전대로 deny(%s)" % r2.get("status"))
-    chk(WANT in str(r2.get("feedback") or ""), "deny 문구에 want 가 담긴다")
+    chk(r2.get("reason") == "operator-scope",
+        "미실행이면 **범위 표면화**로 나간다(reason=%s)" % r2.get("reason"))
+    fb = str(r2.get("feedback") or "")
+    chk("OPERATOR-SCOPE" in fb, "문구가 범위 표면화 태그를 쓴다")
+    chk("call that one" not in fb and "maps to" not in fb,
+        "**지목 문구가 없다** — x322: 지목은 24/24 → 0/24 로 파괴한다")
+    chk(CHOSEN in fb and WANT in fb, "두 후보의 범위가 나란히 제시된다(선택은 LLM)")
+
+    print("[되돌릴 길 — 명시적으로 켤 때만 지목]")
+    os.environ["T2_OPERATOR_PINPOINT"] = "1"
+    try:
+        r3 = run(executed=False, want=WANT)
+        chk(r3.get("reason") == "operator-find", "플래그를 켜면 종전 지목(%s)" % r3.get("reason"))
+    finally:
+        os.environ.pop("T2_OPERATOR_PINPOINT", None)
 
     print("[기존 가드 회귀 없음]")
     chk(run(executed=True, want=CHOSEN).get("status") == "ok", "want==chosen 이면 침묵")

@@ -97,6 +97,47 @@ OPERATOR_FIND_FB = (
     "request and call that one."
 )
 
+# ★★지목 → **범위 표면화** (2026-08-15·x322·n=24·블록 8·8·8·잡음 바닥 ±4 밖):
+#     A_REF(개입 없음)          **24/24**  ← 모델은 원래 정답 도구를 고른다
+#     B_PINPOINT(위 문구 그대로)  **0/24**  ← 우리 개입이 **완전히 파괴**한다
+#     C_SCOPES(선언된 범위 표시) **24/24**  ← 유지된다
+#     D_MISMATCH(닫힌 판정 병기) **24/24**
+#     E_NEG(가짜 도구 한 줄 추가)  **0/24**  ← 어떤 이름 지목에도 극도로 순응
+#   라이브 실물(C485·073): 정답 도구가 **성공한 뒤**에도 5회+ 지목이 갔고, 모델이 재시도해
+#   같은 계좌에 두 번 적립 → `db_match=False`. 가드는 *이미 실행한 경우*만 막았는데,
+#   x322 는 **지목 자체가 파괴적**이라고 말한다.
+#   ⇒ 엔진은 **고르지 않는다**: 후보들의 **선언된 범위**(도구 자기 설명의 첫 문장·기계 추출·
+#     저작 0)만 인쇄하고 선택은 LLM 이 한다([[62]] ④ 위반 제거·[[64]] 무엇을 보고 고를지 제공).
+OPERATOR_SCOPE_FB = (
+    "[OPERATOR-SCOPE] you called '{chosen}'. The declared scope of the candidate tools is: "
+    "{scopes}. Check which one is declared for the object this request acts on."
+)
+
+
+def _tool_scope(agent, name, cap=160):
+    """도구 **자기 설명의 첫 문장** — 프레임워크 레지스트리에서 그대로 읽는다(저작 0·판단 0).
+
+    엔진은 이 문자열을 **해석하지 않는다**([[59]]) — 인쇄만 하고, 어느 것이 맞는지는 LLM 이 본다.
+    못 찾으면 빈 문자열(그 후보는 목록에서 빠진다·거동 안전측).
+    """
+    for holder in (getattr(agent, "tools", None) or []):
+        if getattr(holder, "name", None) == name:
+            d = getattr(holder, "description", None) or ""
+            return " ".join(str(d).split())[:cap]
+    env = getattr(getattr(agent, "_t2_orch", None), "environment", None)
+    for h in ("tools", "user_tools", "agent_tools"):
+        tk = getattr(env, h, None)
+        if tk is None:
+            continue
+        try:
+            f = (getattr(tk, "tools", {}) or {}).get(name)
+            d = getattr(f, "__doc__", None) or getattr(f, "description", None) or ""
+            if d:
+                return " ".join(str(d).split())[:cap]
+        except Exception:
+            continue
+    return ""
+
 
 def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=None,
                      declared_required=None, a2=None):
@@ -162,6 +203,20 @@ def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=N
                 print("[T2_RESOLVE] operator-find 침묵: chosen=%s 는 이미 성공 실행 — "
                       "재지시는 중복 write 를 만든다" % chosen, file=sys.stderr, flush=True)
                 return {"status": "ok"}
+            # ★지목 대신 **범위 표면화**(기본·x322 실측). 지목 문구를 쓰려면 명시적으로
+            #   `T2_OPERATOR_PINPOINT=1` 을 켜야 한다 — 되돌릴 길은 남기되 기본은 아니다([[60]]
+            #   끄기가 아니라 조정: 발화는 계속 하고 **무엇을 말하는지만** 바꾼다).
+            if os.environ.get("T2_OPERATOR_PINPOINT") != "1":
+                _sc = [(n, _tool_scope(agent, n)) for n in (str(chosen), str(want))]
+                _sc = [(n, d) for n, d in _sc if d]
+                if not _sc:
+                    return {"status": "ok"}          # 근거를 못 대면 말하지 않는다([[64]])
+                print("[T2_RESOLVE] operator-scope: 지목 대신 범위 표면화 (%s)"
+                      % ", ".join(n for n, _ in _sc), file=sys.stderr, flush=True)
+                return {"status": "deny", "reason": "operator-scope",
+                        "feedback": OPERATOR_SCOPE_FB.format(
+                            chosen=chosen,
+                            scopes="; ".join("'%s' = %s" % (n, d) for n, d in _sc))}
             return {"status": "deny", "reason": "operator-find",
                     "feedback": OPERATOR_FIND_FB.format(chosen=chosen, want=want)}
     return {"status": "ok"}
