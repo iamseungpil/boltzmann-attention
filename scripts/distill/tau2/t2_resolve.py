@@ -146,6 +146,22 @@ def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=N
             #   침묵(ok)한다: 모델의 현재 호출(chosen)은 그대로 진행되고, 새 문구는 없다.
             if str(want) in _executed_dispatch_names(msgs, a2, arg):
                 return {"status": "ok"}
+            # ★대칭 가드 (2026-08-14 야간·073 실물·이 레버의 **세 번째** 같은 부류 결함):
+            #   위 검사는 `want` 만 본다. `chosen` 이 **이미 성공 커밋**된 경우가 빠져 있었고,
+            #   그 자리에서 "그건 틀린 도구다"라고 말하면 모델이 할 수 있는 일은 **재시도뿐**이다.
+            #   t7292 073 t0 실측: msg45 에서 `apply_checking_account_credit_5829` 가 성공
+            #   (잔액 5200.00→5209.50)했는데 우리가 5회 이상 *"요청은 apply_statement_credit_8472
+            #   에 매핑된다"* 고 말했고(그건 **신용카드용**이다·체킹 태스크에서 오답),
+            #   모델이 재-unlock→재호출해 **같은 계좌에 9.50 을 두 번**(→5219.00) 넣었다.
+            #   gold 액션은 8/11 로 통과 때와 같은데 `db_match=False` 가 되어 reward 0.
+            #   ⇒ **이미 한 일을 틀렸다고 말하지 않는다**: 되돌릴 수 없는 write 에서 그 문구는
+            #     교정이 아니라 **중복 실행 지시**다([[25]] 우리 도구는 100% 정답 의무·
+            #     [[64]] 거부는 고칠 방법을 담아야 하는데 여기엔 고칠 방법이 없다).
+            #   술어는 닫혀 있다(호출 이력·도메인 판단 0) — 위 `want` 검사와 완전 대칭이다.
+            if str(chosen) in _executed_dispatch_names(msgs, a2, arg):
+                print("[T2_RESOLVE] operator-find 침묵: chosen=%s 는 이미 성공 실행 — "
+                      "재지시는 중복 write 를 만든다" % chosen, file=sys.stderr, flush=True)
+                return {"status": "ok"}
             return {"status": "deny", "reason": "operator-find",
                     "feedback": OPERATOR_FIND_FB.format(chosen=chosen, want=want)}
     return {"status": "ok"}

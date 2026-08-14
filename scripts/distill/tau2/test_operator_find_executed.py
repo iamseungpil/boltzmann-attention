@@ -1,0 +1,105 @@
+# -*- coding: utf-8 -*-
+"""OPERATOR-SELECT 대칭 가드 — **이미 한 일을 틀렸다고 말하지 않는다**.
+
+사건(2026-08-14 야간·t7292 073 t0·이 레버의 **세 번째** 같은 부류 결함):
+  msg45  `apply_checking_account_credit_5829` **성공**(잔액 $5200.00 → $5209.50)
+  그 뒤   우리 `[OPERATOR-SELECT]` 가 **5회 이상**(사이드카 arrived) —
+         *"요청은 `apply_statement_credit_8472` 에 매핑된다"* ← **신용카드용 도구**·체킹 태스크서 오답
+  msg49  모델이 재-unlock → 재호출 → **같은 계좌에 $9.50 두 번**(→ $5219.00)
+  결과   gold 액션 8/11 로 **통과 때와 동일**한데 `db_match=False` → reward 0
+
+되돌릴 수 없는 write 를 이미 한 자리에서 *"그건 틀린 도구다"* 라고 말하면, 모델이 할 수 있는 일은
+**재시도뿐**이다 — 그 문구는 교정이 아니라 **중복 실행 지시**다.
+
+기존 가드는 `want`(우리가 대신 지목하는 도구)만 봤다. 이 검정은 **`chosen`(모델이 이미 성공시킨
+도구)** 쪽 대칭을 고정한다. 술어는 닫혀 있다(호출 이력·도메인 판단 0).
+
+선례: C10(051 — 선언된 요구 집합 원소면 침묵) · 2026-08-12 070t0(`want` 완료면 침묵) · 이번(`chosen` 완료면 침묵).
+"""
+import io
+import os
+import sys
+
+try:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import t2_resolve as R                                             # noqa: E402
+
+FAIL = []
+CHOSEN = "apply_checking_account_credit_5829"
+WANT = "apply_statement_credit_8472"
+DISP = "call_discoverable_agent_tool"
+A2 = {"eplan": {"dispatch_tool": DISP}}
+OPSPEC = {"operator_resolution": "discoverable", "arg": "agent_tool_name",
+          "name_pattern": r"[a-z_]+_\d{4}", "find_intent": True, "getter": "KB_search_bm25"}
+
+
+def chk(c, m):
+    if not c:
+        FAIL.append(m)
+    print("  %s %s" % ("ok  " if c else "FAIL", m))
+
+
+class TC:
+    def __init__(self, name, args, tid="c1"):
+        self.name = name
+        self.arguments = args
+        self.id = tid
+
+
+class M:
+    def __init__(self, role, content=None, calls=None, mid=None, error=False):
+        self.role = role
+        self.content = content
+        self.tool_calls = calls
+        self.id = mid
+        self.error = error
+
+
+def convo(executed):
+    """발견 결과 + (선택) 그 도구의 **성공 실행** 이력."""
+    # 발견은 **성공한** tool-result 에서만 모인다(`discovered_names` 계약) — error=True 로 두면
+    # 후보가 비어 `find_intent` 분기 자체에 못 들어간다(초판 픽스처의 실수).
+    ms = [M("tool", "docs mention %s and %s" % (CHOSEN, WANT))]
+    if executed:
+        ms += [M("assistant", None, [TC(DISP, {"agent_tool_name": CHOSEN}, "x1")]),
+               M("tool", "Credit applied successfully! Amount: $9.50", mid="x1")]
+    return ms
+
+
+def run(executed, want):
+    """`formalize_intent_tool` 을 우리가 원하는 답으로 고정해 판정부만 시험한다."""
+    orig = R.formalize_intent_tool
+    R.formalize_intent_tool = lambda *a, **k: want
+    try:
+        return R.resolve_operator(OPSPEC, {"agent_tool_name": CHOSEN}, convo(executed),
+                                  agent=object(), la=object(), UserMessage=object(), a2=A2)
+    finally:
+        R.formalize_intent_tool = orig
+
+
+def main():
+    print("[핵심 — 이미 성공한 chosen 을 부정하지 않는다]")
+    r = run(executed=True, want=WANT)
+    chk(r.get("status") == "ok",
+        "chosen 이 이미 성공 실행 → 침묵(%s) ← 073 중복 적립의 자리" % r.get("status"))
+
+    print("[거동 보존 — 아직 안 한 것은 종전대로 지적]")
+    r2 = run(executed=False, want=WANT)
+    chk(r2.get("status") == "deny" and r2.get("reason") == "operator-find",
+        "미실행이면 종전대로 deny(%s)" % r2.get("status"))
+    chk(WANT in str(r2.get("feedback") or ""), "deny 문구에 want 가 담긴다")
+
+    print("[기존 가드 회귀 없음]")
+    chk(run(executed=True, want=CHOSEN).get("status") == "ok", "want==chosen 이면 침묵")
+    chk(run(executed=False, want=None).get("status") == "ok", "formalize 실패면 침묵")
+
+    print("\n%s (%d fail)" % ("FAIL" if FAIL else "PASS", len(FAIL)))
+    return 1 if FAIL else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
