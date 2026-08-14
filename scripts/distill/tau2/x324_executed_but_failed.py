@@ -68,6 +68,10 @@ def run(tags):
                 print("%s  도구=%s" % (key, tgt))
                 print("  gold  : %s" % json.dumps(gn, ensure_ascii=False, sort_keys=True)[:400])
                 print("  일치호출: %s" % [i for i, _g in hits])
+                # ★원문 그대로 — 정규화가 지워버릴 수 있는 차이(표기·타입)를 보이기 위해.
+                print("  gold원문: %r" % (gold_inner,))
+                for i, g in hits:
+                    print("  got[%d] : %r" % (i, g))
                 print("  체크원문: %s" % json.dumps(
                     {k: v for k, v in ck.items() if k != "action"}, ensure_ascii=False)[:600])
 
