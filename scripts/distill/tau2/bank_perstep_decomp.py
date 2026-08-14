@@ -54,8 +54,14 @@ def _nd(x):
 _fam = lambda n: re.sub(r"_\d+$", "", str(n))
 _READ_PREFIX = re.compile(r"^(get|search|list|lookup|find|retrieve|read|view|check)_", re.I)
 # 절차/메타 도구(비-DB-write) — over-action 오탐 방지([[08]] 감사·2026-07-16).
+# ★2026-08-15 수리: `verify_identity` 가 OVER-ACTION 86건 중 **51건(59%)** 을 만들고 있었다.
+#   그것은 도메인 도구가 아니라 **우리 scaffold 자신의 도구**다(env `tools.py` 에 없다·
+#   `T2_SCAFFOLD_GET` 이 낸다) — 우리 층의 호출을 모델의 과행동으로 세고 있었던 것이다.
+#   ⚠이 버킷은 여전히 **휴리스틱 근사**다. 과행동의 정본은 `dbdiff_task.py` 의 `ONLY-PRED`
+#     (실제 DB 에 남은 레코드)이고, 두 수가 어긋나면 그쪽이 이긴다.
 _PROCEDURAL = re.compile(
-    r"(^log_|_verification$|^kb_search|^kb_|^search_|^shell$|discoverable|transfer_to_human|give_)", re.I)
+    r"(^log_|^verify_|_verification$|^kb_search|^kb_|^search_|^shell$|discoverable"
+    r"|transfer_to_human|give_)", re.I)
 
 
 def is_read(tool_family):
