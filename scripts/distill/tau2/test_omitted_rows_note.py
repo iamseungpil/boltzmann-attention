@@ -30,12 +30,15 @@ def chk(cond, msg):
         print("  ok   %s" % msg)
 
 
-def test_missing_surfaced():
-    """074 형태: 원천 33행 · 서브 8행 → 25행 누락을 말한다."""
-    txt = SG._omitted_rows_note({"source": 33, "sub": 8})
-    chk("25 further row(s)" in txt, "누락 행수 = source-sub (25)")
-    chk("NOT supplied" in txt, "누락 사실이 명시된다")
-    chk("call again" in txt and "re-read" in txt, "고칠 방법을 이름으로 댄다([[64]])")
+def test_disabled():
+    """⛔무효화(같은 날 자기 반증): 분모가 **비교 불가**여서 없는 누락을 주장했다.
+
+    072 실측 — 계좌 A 레코드 32 중 `atm_fee` **8**(서브 8행=정확) · 계좌 B 26 중 6(=6행).
+    그런데 이 문구는 *"24 further row(s) … NOT supplied"* 를 매 호출마다 냈다. 서브는 A2 지시대로
+    **종류로 걸러** 산출하는데(*"ONE element per atm_fee line"*) 분모는 레코드 **전수**였다.
+    ⇒ 되살리려면 **서브가 산출해야 할 모집단**과 비교 가능한 분모가 필요하다. 그때까지는 침묵."""
+    chk(SG._omitted_rows_note({"source": 33, "sub": 8}) == "", "누락 주장 안 함(무효화)")
+    chk(SG._omitted_rows_note({"source": 32, "sub": 8}) == "", "072 형태에서도 침묵")
 
 
 def test_no_note_when_complete():
@@ -51,8 +54,7 @@ def test_no_note_when_complete():
 
 def test_coverage_regex_intact():
     """덧붙인 문장이 C212 의 `[coverage]` 파싱을 깨지 않는다(같은 줄에 붙는다)."""
-    line = ("[coverage] 8 of 8 rows were checked (0 could not be verified)."
-            + SG._omitted_rows_note({"source": 33, "sub": 8}))
+    line = "[coverage] 8 of 8 rows were checked (0 could not be verified)."
     m = GP._COVERAGE_RE.search(line)
     chk(m is not None, "_COVERAGE_RE 매치 유지")
     if m:
@@ -61,7 +63,7 @@ def test_coverage_regex_intact():
 
 
 def main():
-    for t in (test_missing_surfaced, test_no_note_when_complete, test_coverage_regex_intact):
+    for t in (test_disabled, test_no_note_when_complete, test_coverage_regex_intact):
         print("[%s]" % t.__name__)
         t()
     print("\n%s (%d fail)" % ("FAIL" if FAIL else "PASS", len(FAIL)))
