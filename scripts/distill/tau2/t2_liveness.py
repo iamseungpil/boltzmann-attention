@@ -120,7 +120,10 @@ def main(argv):
         return 1
     print("감사 대상 %d 파일\n" % len(paths))
     dead = report(audit(paths))
-    print("\n결과: 레버 %d종 · 위험(전달 0 or 침묵 과반) %d종" % (len(audit(paths)), len(dead)))
+    tags = [os.path.basename(p).replace(".log", "") for p in paths]
+    baddel = report_delivery(delivery(tags))
+    print("\n결과: 레버 %d종 · 침묵 위험 %d종 · 도달 위험 %d종"
+          % (len(audit(paths)), len(dead), len(baddel)))
     return 0
 
 
