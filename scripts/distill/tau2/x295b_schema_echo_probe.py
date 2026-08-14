@@ -133,7 +133,11 @@ def main():
         cnt = collections.Counter()
         for i in range(n):
             try:
-                r = chat(body, tools, 0.0 if i == 0 else 0.7, 500)
+                # ⚠mx 는 1500 이상이어야 한다 (2026-08-14 실측): 이 모델은 content 를
+                #   먼저 뱉고 tool_call 을 잇는데, 500 이면 `finish_reason=length` 로
+                #   **호출 직전에 잘려** 전건이 '(text)' 로 기록된다. 같은 본문이 1500 에선
+                #   도구를 부른다 — 산문이 긴 팔일수록 더 잘리므로 **처치와 상관된 인공물**이다.
+                r = chat(body, tools, 0.0 if i == 0 else 0.7, 1500)
             except Exception as e:
                 r = {"content": "ERR %s" % type(e).__name__}
             lb = label(r)
