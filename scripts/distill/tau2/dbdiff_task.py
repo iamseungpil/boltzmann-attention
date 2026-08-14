@@ -25,8 +25,12 @@ import re
 import sys
 from pathlib import Path
 
+from loguru import logger
+
 from tau2.registry import registry
 from tau2.data_model.simulation import Results
+
+logger.remove()                      # 환경 리플레이가 도구 응답 전문을 DEBUG 로 쏟는다(신호 아님)
 
 try:
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -93,10 +97,22 @@ def run_sim(task, sim):
             print("  gold ERR %s: %r" % (a.name, e))
 
     pred = env_ctor(retrieval_variant="no_knowledge")
-    pred.set_state(istate.initialization_data, istate.initialization_actions,
-                   list(sim.messages))
+    # strict=True 면 궤적의 tool_call id 가 어긋날 때 예외로 죽는다(우리 재생성 채널이 만드는
+    # 경우가 있다). 하네스도 소급 재채점 경로에선 strict=False 를 쓴다 — 같은 규격으로 맞추되
+    # strict 실패 사실은 버려지지 않게 되돌린다.
+    strict_ok = True
+    try:
+        pred.set_state(istate.initialization_data, istate.initialization_actions,
+                       list(sim.messages))
+    except ValueError:
+        strict_ok = False
+        pred = env_ctor(retrieval_variant="no_knowledge")
+        pred.set_state(istate.initialization_data, istate.initialization_actions,
+                       list(sim.messages), strict=False)
 
     lines = []
+    if not strict_ok:
+        lines.append("STRICT-REPLAY-FAIL .tool_call_id = 'id 불일치'")
     diff(gold.tools.db.model_dump(), pred.tools.db.model_dump(), "", lines)
     ulines = []
     if gold.user_tools:
