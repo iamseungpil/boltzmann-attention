@@ -29,7 +29,20 @@ class FakeSub:
 class FakeLA:
     def __init__(self, tool): self._t = tool
     def generate(self, **kw): return FakeSub(self._t)
+class _T:
+    def __init__(self, n, d): self.name, self.description = n, d
+
+
 class FakeAgent:
+    """★2026-08-15: 도구 **설명**을 들려 준다 — 범위 표면화(x322)가 읽을 자리다.
+    설명이 없으면 엔진은 **침묵**한다(아래 `no_scope_silent` 참조)."""
+    llm = "m"; llm_args = {}
+    tools = [_T("reset_pin_tool_2020", "Reset the PIN on a debit card."),
+             _T("emergency_credit_bureau_incident_transfer_1114",
+                "Escalate a credit-bureau incident to the emergency queue.")]
+
+
+class BareAgent:
     llm = "m"; llm_args = {}; tools = []
 class FakeUM:
     def __init__(self, role=None, content=None): self.role, self.content = role or "user", content
@@ -46,8 +59,14 @@ TWO = ["emergency_credit_bureau_incident_transfer_1114", "reset_pin_tool_2020"]
 # 1) FIND: 후보 2개·틀린 선택(reset_pin) → formalize=emergency → deny operator-find
 r = R.resolve_operator(SPEC, {"agent_tool_name": "reset_pin_tool_2020"}, ctx(*TWO),
                        FakeAgent(), FakeLA(TWO[0]), FakeUM)
-ck("find_wrong_deny", r["status"] == "deny" and r["reason"] == "operator-find", r)
-ck("find_names_want", "emergency_credit_bureau_incident_transfer_1114" in r.get("feedback", ""), r)
+# ★2026-08-15 (x322·n=24·블록 8·8·8): 발화는 유지하되 **지목을 범위 표면화로** 바꿨다.
+#   A_REF(개입 없음) **24/24** ↔ B_PINPOINT(옛 지목 문구) **0/24** ↔ C_SCOPES(범위) **24/24** —
+#   우리 지목이 모델이 맞히던 것을 파괴했고, 073 의 중복 적립(C485)이 그 라이브 착지였다.
+#   ⇒ 엔진은 **고르지 않는다**: 두 후보의 **선언된 범위**만 인쇄하고 선택은 LLM.
+ck("find_wrong_deny", r["status"] == "deny" and r["reason"] == "operator-scope", r)
+ck("find_shows_both_scopes",
+   all(n in r.get("feedback", "") for n in TWO)
+   and "call that one" not in r.get("feedback", ""), r)
 
 # 2) 정답 선택 → ok (formalize=chosen)
 r = R.resolve_operator(SPEC, {"agent_tool_name": TWO[0]}, ctx(*TWO),
@@ -105,6 +124,16 @@ ctx_err = list(ctx_done[:-1]) + [TMsgC("tool", "Error: eligibility not met")]
 r = R.resolve_operator(SPEC, {"agent_tool_name": "reset_pin_tool_2020"}, ctx_err,
                        FakeAgent(), FakeLA(TWO[0]), FakeUM, a2=A2X)
 ck("failed_want_still_denies", r["status"] == "deny", r)
+ck("failed_want_uses_scope", r.get("reason") == "operator-scope", r)
+
+# 9-다) ★범위를 못 대면 **침묵**한다 (2026-08-15·x322·n=24·블록 8·8·8)
+#   A_REF(개입 없음) **24/24** ↔ B_PINPOINT(지목 문구) **0/24** ↔ C_SCOPES(범위 표시) **24/24**.
+#   측정으로 안전이 확인된 개입은 **범위 표면화 하나뿐**이고, 지목은 모델이 맞히던 것을 파괴한다.
+#   ⇒ 설명을 읽을 수 없는 환경에서는 **안전한 문구가 없으므로 말하지 않는다**([[64]] 근거 없는
+#     거부 금지). 종전 지목이 필요하면 `T2_OPERATOR_PINPOINT=1` 로 명시적으로 켠다.
+r = R.resolve_operator(SPEC, {"agent_tool_name": "reset_pin_tool_2020"}, ctx_err,
+                       BareAgent(), FakeLA(TWO[0]), FakeUM, a2=A2X)
+ck("no_scope_silent", r["status"] == "ok", r)
 
 print("\n%d FAIL" % len(FAILS) if FAILS else "\nALL PASS (Lever 1 operator FIND)")
 sys.exit(1 if FAILS else 0)
