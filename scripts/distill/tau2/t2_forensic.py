@@ -140,6 +140,19 @@ def targets(sim):
     return out
 
 
+def transfer_msg_index(sim):
+    """어시스턴트가 이관을 처음 부른 **메시지 색인**(호출 순번이 아니다).
+
+    ⚠두 색인 공간을 섞지 말 것 — 2026-08-14 야간 실물: 호출 순번(예: 23)을 메시지 색인으로 써서
+    궤적을 앞에서 잘라 버렸고, 그 결과 "손님이 이관을 요구했다"가 전부 '아니오'로 집계됐다."""
+    for i, m in enumerate(sim.get("messages") or []):
+        for tc in (m.get("tool_calls") or []):
+            nm = label(nameof(tc), argsof(tc)).split(":")[-1]
+            if nm in TRANSFER or "transfer_to_human" in nm or "human_agent_transfer" in nm:
+                return i
+    return None
+
+
 def assistant_text(sim, last=True):
     """손님-가시 본문(어시스턴트 content). last=True 면 마지막 하나."""
     txts = [str(m.get("content") or "") for m in (sim.get("messages") or [])

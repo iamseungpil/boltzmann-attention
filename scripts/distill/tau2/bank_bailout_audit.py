@@ -19,6 +19,7 @@
 사용: py bank_bailout_audit.py <tag> [<tag>...]
 """
 import collections
+import re
 import sys
 
 import t2_forensic as F
@@ -33,6 +34,34 @@ def gold_names(sim):
 
 def gold_hits(sim):
     return sum(1 for a in F.gold_actions(sim) if a.get("action_match"))
+
+
+# ★2026-08-14 야간 정정(이 감사의 초판 결함): gold 요구 여부만 갈랐고 **손님 요구 여부를 안 갈랐다**.
+#   그 뭉갬이 오독을 낳았다 — 048/072/074 는 이관 직전 손님이 **명시적으로 이관을 요구**했고
+#   (074 는 user-sim 종료 토큰 `###TRANSFER###` 까지 붙어 있다) 에이전트는 그 지시를 따른 것이다.
+#   ⇒ "일을 버리고 도망쳤다"가 아니라 **순응**이며, 결손은 손님이 그 말을 하게 만든 **상류**에 있다
+#   ([[21]] — user-sim 반응을 면책으로 쓰지 말고 agent-측으로 환원하라: 072 손님은 이유까지 댔다
+#   *"환불이 언급됐는데 실제로 처리되지 않았다"*).
+REQ_HUMAN = re.compile(r"(?i)\b(human|real person|live agent|representative|supervisor|manager)\b")
+REQ_VERB = re.compile(r"(?i)\b(transfer|speak|talk|connect|escalate|hand (me )?off|put me)\b")
+REQ_TOKEN = "###TRANSFER###"
+
+
+def user_asked_transfer(sim, before):
+    """손님이 `before` 이전에 **이관을 요구**했는가 — (있었나, 직전 발화였나).
+
+    술어는 닫혀 있다: 사람 지칭 ∧ 요청 동사 (또는 user-sim 종료 토큰). 느슨한 부분문자열
+    하나로 판정하지 않는다 — 초판이 'agent' 한 낱말로 세다가 상담원 언급 전부를 요구로 읽었다."""
+    hits, last_user_is = [], False
+    for i, m in enumerate((sim.get("messages") or [])[:before]):
+        if m.get("role") != "user":
+            continue
+        c = str(m.get("content") or "")
+        ask = bool(REQ_TOKEN in c or (REQ_HUMAN.search(c) and REQ_VERB.search(c)))
+        if ask:
+            hits.append(i)
+        last_user_is = ask
+    return bool(hits), last_user_is
 
 
 def transfer_index(sim):
@@ -52,7 +81,13 @@ def run(tags):
             n_gold = len(gn)
             hit = gold_hits(s)
             ti = transfer_index(s)
+            # ⚠ti 는 **호출 순번**이다 — 손님 발화 검사는 **메시지 색인**으로 잘라야 한다
+            #   (초판이 이 둘을 섞어 (a)를 전부 0으로 셌다·정본=`t2_forensic.transfer_msg_index`).
+            mi = F.transfer_msg_index(s)
+            asked, asked_last = user_asked_transfer(
+                s, mi if mi is not None else len(s.get("messages") or []))
             rows.append({
+                "asked": asked, "asked_last": asked_last,
                 "tag": tag, "sim": F.sim_key(s), "task": F.task_id(s),
                 "reward": (s.get("reward_info") or {}).get("reward"),
                 "term": F.term_reason(s),
@@ -64,22 +99,34 @@ def run(tags):
             })
 
     print("=" * 104)
-    print("%-12s %-6s %5s %5s %5s  %-9s %-9s %s" % (
-        "sim", "reward", "gold", "OK", "남은", "gold이관", "실이관", "종료 직전 본문"))
+    print("%-12s %-6s %5s %5s %5s  %-8s %-8s %-8s %s" % (
+        "sim", "reward", "gold", "OK", "남은", "gold이관", "실이관", "손님요구", "종료 직전 본문"))
     print("-" * 104)
     for r in sorted(rows, key=lambda x: (-int(x["transferred"] and not x["gold_transfer"]),
                                          x["task"])):
-        print("%-12s %-6s %5d %5d %5d  %-9s %-9s %s" % (
+        print("%-12s %-6s %5d %5d %5d  %-8s %-8s %-8s %s" % (
             r["sim"], r["reward"], r["gold"], r["ok"], r["left"],
             "예" if r["gold_transfer"] else "아니오",
-            ("예(#%s)" % r["at"]) if r["transferred"] else "아니오", r["tail"]))
+            ("예(#%s)" % r["at"]) if r["transferred"] else "아니오",
+            ("예*" if r["asked_last"] else "예") if r["asked"] else "아니오", r["tail"]))
 
     bail = [r for r in rows if r["transferred"] and not r["gold_transfer"]]
     legit = [r for r in rows if r["transferred"] and r["gold_transfer"]]
     none = [r for r in rows if not r["transferred"]]
+    # ★핵심 분리(정정): gold 미요구 이관을 **손님 요구 여부**로 다시 가른다.
+    #   (a) 손님이 요구함  → 순응이며 그 자체는 결손 아님 · 결손은 상류
+    #   (b) 손님 요구 없음 → **자발 이탈** = 이 축의 진짜 후보
+    a_comply = [r for r in bail if r["asked"]]
+    b_self = [r for r in bail if not r["asked"]]
     print("\n# 요약 (sim %d)" % len(rows))
     print("  gold 가 이관을 요구한 sim        : %d" % len(legit))
-    print("  gold 에 없는데 이관한 sim(이탈)  : %d" % len(bail))
+    print("  gold 에 없는데 이관한 sim        : %d" % len(bail))
+    print("    ⤷ (a) 손님이 이관을 요구함     : %d  (직전 발화가 요구인 것 %d)"
+          % (len(a_comply), sum(1 for r in a_comply if r["asked_last"])))
+    print("    ⤷ (b) 손님 요구 없음=자발 이탈 : %d" % len(b_self))
+    if b_self:
+        print("       (b) 태스크 · 버린 gold: %s"
+              % ", ".join("%s(%d)" % (r["task"], r["left"]) for r in b_self))
     print("  이관 없음                        : %d" % len(none))
     if bail:
         left = [r["left"] for r in bail]
