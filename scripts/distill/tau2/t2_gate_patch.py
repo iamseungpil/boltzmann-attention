@@ -2565,6 +2565,47 @@ def _search_material(agent, a2, messages):
             _nowtx = []
             print("[T2_SEARCH_AGENT] now_tool 선별 실패(종전대로): %r" % (_nte,),
                   file=sys.stderr, flush=True)
+    # ★시계가 **아직 안 불린** 자리에서는 엔진이 직접 부른다 (2026-08-15·`T2_NOW_SELFCALL`).
+    #   왜 필요한가(t7295 실측·071): 검색 에이전트의 창은 A2 `action_tools` 푸시 **결정점에서만**
+    #   열리는데, 071 세 sim 통틀어 그 줄은 **단 1개**였고 그 한 번이 시계보다 **앞**이었다
+    #   (로그 2282 침묵 ↔ 시계 2424). 나머지 두 sim 은 창이 **아예 안 열렸다**. 코드가 약속한
+    #   *"다음 결정점에서 재시도"* 는 두 번째 결정점이 없어 **공약**이 됐고, 그래서 만료 제거
+    #   기계가 한 번도 재료를 못 냈다 — `now 미확정` 은 arm b 침묵 80회 중 **1위 사유**다.
+    #   ⚠분담: 엔진은 A2 가 **이름으로 선언한** 도구를 부를 뿐이다 — 어느 문장이 날짜인지는
+    #     여전히 `formalize_now`(LLM) 가 정한다([[59]] 유지·엔진은 문자열을 해석하지 않는다).
+    #   ⚠부작용: `get_current_time` 은 상수를 돌려주는 **순수 읽기**(tools.py:387·DB 무접촉)라
+    #     궤적·DB 해시를 건드리지 않는다. 그래도 실패하면 **종전대로**(빈 목록) 간다.
+    #   ⚠기본 OFF — 켜지 않으면 바이트 동일(098·100 불변 의무·[[57]]).
+    #
+    #   ⛔0 [[62]] 자기점검 (4문):
+    #     ①격리로 쟀나 — 쟀다. `x248`·`x250`(n=8·프로덕션 경로) 두 축 **8/8**. 부정통제:
+    #       고지 없이 checking **0/8** · 만료 미제거 savings **0/8**. 오늘 추가: t7295 3축
+    #       미도달(궤적 0·사이드카 0·질의 0) · `t2_liveness` 34전달/80침묵 · `x325` 영향반경.
+    #     ②격리에서 성공하나 — **성공한다(8/8)**. ⇒ 살 것은 **전달뿐**이고 이 편집이 정확히
+    #       그것이다. 계산도 판단도 대신하지 않는다.
+    #     ③모델이 하던 판단 중 사라지는 것 — **없다**. 모델은 `get_current_time` 을 여전히
+    #       스스로 부른다(071 에서 3/3). 이 호출은 **검색 서브에게 줄 재료**를 만드는 내부
+    #       경로일 뿐 모델의 선택지를 줄이지 않는다.
+    #     ④엔진이 순위·최댓값·지목 문장을 내나 — **안 낸다**. 이름으로 도구 하나를 부르고
+    #       돌아온 문자열을 그대로 넘길 뿐이다.
+    #
+    #   [[05]] 3문: ⑴도메인-특화 순증 **0**(`now_tool` 은 C441 이 이미 넣은 키·새 키 0·코드에
+    #     도메인 어휘 0) · ⑵유동 판단 동결 **없음**(날짜 형식화·문서군·최종 선택 전부 LLM) ·
+    #     ⑶scaffold 가 도메인 행동 수행? — 가장 날카로운 질문이다. 이 도구는 **상수 반환·DB
+    #     무접촉·READ** 이고 *대화와 무관한 고정 상수*라 `t2_search` §경계가 이미 선언한
+    #     "정책 문서 읽기 = 우리 층 가능" 과 같은 부류다. **고객 DB 읽기는 손대지 않는다**
+    #     (대화마다 달라지는 도메인 행동 = 모델 몫·경계 불변).
+    if (not _nowtx and _ntool and os.environ.get("T2_NOW_SELFCALL") == "1"):
+        try:
+            _envc = getattr(getattr(agent, "_t2_orch", None), "environment", None)
+            _res = _envc.make_tool_call(tool_name=_ntool, requestor="assistant")
+            if _res:
+                _nowtx.append(str(_res))
+                print("[T2_NOW_SELFCALL] %s 직접 호출 — 시계 확보" % (_ntool,),
+                      file=sys.stderr, flush=True)
+        except Exception as _sce:
+            print("[T2_NOW_SELFCALL] 실패(종전대로): %r" % (_sce,),
+                  file=sys.stderr, flush=True)
     _now_raw = _lg.formalize_now(agent, _la, _UM, _nowtx + _tx, _nspec) if _nspec else None
     _now = _ts.to_iso(_now_raw, tuple((_nspec or {}).get("date_formats")
                                       or ("%m/%d/%Y", "%Y-%m-%d")))
