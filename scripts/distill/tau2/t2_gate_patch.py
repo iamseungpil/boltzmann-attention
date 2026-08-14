@@ -5594,6 +5594,41 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             except Exception as _te:
                 terr = None
                 print("[T2_TOOLERR] error (no-op): %r" % (_te,), file=_sys.stderr, flush=True)
+        # ★write-착수 **사전(pre-draft) sync 서브** (2026-08-14·`T2_WRITE_SUB=2`·기본 OFF).
+        #   여기는 **도구 결과가 막 들어왔고 메인 초안은 아직 없는** 자리다. 종전 배선은 초안을
+        #   본 뒤에만 말할 수 있어(=`_ap_regen` 재생성) 옳은 시점을 못 잡았다:
+        #     · 옳은 시점(근거 도착 ∧ 행동 미실행) 중 회피 턴은 **27%뿐**(감사 21 sim·t7288 32%)
+        #     · 나머지 73%에 끼어들면 그 턴의 호출을 버리는데, 그중 **23%가 write**
+        #       (대부분 `log_verification`)·10%가 새 read = **버리면 안 되는 것 33%**
+        #   ⇒ 사전 자리에서 **동기로** 서브를 돌리고 답만 얹으면 버릴 초안이 없다(사용자 지시).
+        #   ⚠폐기된 autofetch(C34)와 다르다: 새 정보를 **조회해 주입하지 않는다**. 근거는 이미
+        #     에이전트가 받은 도구 결과이고, 판단은 격리 서브(LLM)가 한다 — 바뀌는 것은 **자리**뿐
+        #     ([[62]] ②·x307 knows 7/8 ↔ acts 0/8 · x308 배치 7/8 · x309 전달 8/8 · x310 근거동봉 안전).
+        if os.environ.get("T2_WRITE_SUB") == "2" and a2 is not None:
+            try:
+                import t2_subcall as _SCw
+                import t2_resolve as _RZw
+                _basis = _SCw.recent_tool_text(state.messages,
+                                               ((a2.get("write_initiation") or {})
+                                                .get("basis_max_chars") or 4000))
+                _sig = hash(_basis)
+                if _basis and _sig != getattr(self, "_t2_write_basis", None):
+                    self._t2_write_basis = _sig          # 같은 근거로 두 번 말하지 않는다([[57]])
+                    _done = _RZw._executed_dispatch_names(state.messages, a2)
+                    _fbw = _RZw.sub_write_proposal(self, la, UserMessage, state.messages, a2,
+                                                   _RZw.registry_names(self) - set(_done))
+                    if _fbw:
+                        try:
+                            work = work + [UserMessage(role="user", content=_fbw)]
+                        except TypeError:
+                            work = work + [UserMessage(content=_fbw)]
+                        import t2_fbsidecar as _fbw0
+                        _fbw0.record("reminder-user", _fbw, work, channel="writesub")
+                        print("[T2_WRITE_SUB] pre-draft 전달(근거 %d자·미실행 필터 %d종)"
+                              % (len(_basis), len(_done)), file=_sys.stderr, flush=True)
+            except Exception as _we2:
+                print("[T2_WRITE_SUB] pre-draft 생략(종전 경로): %r" % (_we2,),
+                      file=_sys.stderr, flush=True)
         # ★P3(C208③·DAY5_PRESCRIPTIONS §P3): 터미널-턴 유예의 그 1턴만 tool_choice=required —
         #   재-notice 산문 봉쇄(기존 FORCE_ACTION 기제 재사용·도구/인자 미지정=write 강제 아님).
         if getattr(self, "_t2_term_force", False):
