@@ -138,6 +138,12 @@ def main():
             match, lines, ulines = run_sim(task, sim)
             for ln in lines + ulines:
                 cross[tid][bucket(ln)] += 1
+            # sim 한 줄 요약 — 버킷 **집합**이 곧 원인 조합이다. 이걸로 "읽기 부족만으로 실패"
+            # 같은 단일-원인 sim 을 셀 수 있다(교차표는 합산이라 그게 안 보인다).
+            bset = sorted({bucket(ln).split("(")[0].split(":")[0] if
+                           bucket(ln).startswith("READ-COVERAGE") else bucket(ln)
+                           for ln in lines + ulines})
+            print("SIMDIFF %s#%d match=%s buckets=%s" % (tid, n, match, ";".join(bset) or "-"))
             if SUMMARY_ONLY:
                 continue
             print("=" * 92)
