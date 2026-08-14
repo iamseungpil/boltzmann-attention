@@ -117,6 +117,36 @@ def recent_tool_text(msgs, cap=4000, scope="recent"):
     return txt[-int(cap):] if cap and len(txt) > int(cap) else txt
 
 
+def _leaf_values(call):
+    """제안 호출에서 **잎 값**만 모은다 — 중첩 `arguments` 를 푼다.
+
+    ★2026-08-14 실측 결함: x311 이 계약을 `{"tool", "arguments": {...}}` 로 일반화했는데
+    검산부는 평면 구조만 알아서 `c.items()` 가 **dict 하나**를 값으로 내놨다. dict 의 문자열
+    형태는 코퍼스에 있을 리 없으므로 **우리 형식을 지킨 제안은 100% 기각**됐다(072 실물:
+    `제안 N건 → 통과 0건` ×8·t7290/t7291 양쪽). 073 이 통과한 자리는 모델이 우리 형식을
+    **어기고** 평면으로 답한 경우였다 — 계약과 검산기가 서로 다른 모양을 보고 있었다.
+    푸는 것뿐이고 판단은 0이다."""
+    out = []
+
+    def walk(v):
+        if isinstance(v, dict):
+            for k2, v2 in v.items():
+                if k2 in ("tool", "name"):
+                    continue
+                walk(v2)
+        elif isinstance(v, (list, tuple)):
+            for v2 in v:
+                walk(v2)
+        elif v not in (None, ""):
+            out.append(v)
+
+    for k, v in (call or {}).items():
+        if k in ("tool", "name"):
+            continue
+        walk(v)
+    return out
+
+
 def grounded_calls(calls, corpus_texts, names):
     """제안 호출 목록의 닫힌-술어 검산 (FIX-13 검산부의 정본).
 
@@ -142,8 +172,7 @@ def grounded_calls(calls, corpus_texts, names):
         tool = str(c.get("tool") or c.get("name") or "")
         if tool not in (names or set()):
             continue
-        vals = [v for k, v in c.items()
-                if k not in ("tool", "name") and v not in (None, "")]
+        vals = _leaf_values(c)
         if not vals or not all(val_grounded(v, corpus_texts) for v in vals):
             continue
         ok.append(c)
