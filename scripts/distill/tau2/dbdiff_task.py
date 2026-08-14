@@ -100,19 +100,15 @@ def run_sim(task, sim):
     # strict=True 면 궤적의 tool_call id 가 어긋날 때 예외로 죽는다(우리 재생성 채널이 만드는
     # 경우가 있다). 하네스도 소급 재채점 경로에선 strict=False 를 쓴다 — 같은 규격으로 맞추되
     # strict 실패 사실은 버려지지 않게 되돌린다.
-    strict_ok = True
+    # ⚠`strict` 는 이 예외를 우회하지 못한다 — id 짝맞춤은 `get_actions_from_messages` 안의
+    # 하드 검사다. 리플레이 불능 자체가 결과이므로 삼키지 말고 그대로 올린다.
     try:
         pred.set_state(istate.initialization_data, istate.initialization_actions,
                        list(sim.messages))
-    except ValueError:
-        strict_ok = False
-        pred = env_ctor(retrieval_variant="no_knowledge")
-        pred.set_state(istate.initialization_data, istate.initialization_actions,
-                       list(sim.messages), strict=False)
+    except ValueError as e:
+        return None, ["REPLAY-FAIL .messages = %r" % (str(e)[:120],)], []
 
     lines = []
-    if not strict_ok:
-        lines.append("STRICT-REPLAY-FAIL .tool_call_id = 'id 불일치'")
     diff(gold.tools.db.model_dump(), pred.tools.db.model_dump(), "", lines)
     ulines = []
     if gold.user_tools:
