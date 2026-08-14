@@ -7340,6 +7340,30 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                         except Exception as _sae:
                                             print("[T2_SEARCH_AGENT] 건너뜀(무발화): %r" % (_sae,),
                                                   file=_sys.stderr, flush=True)
+                                    # ★ACTION-INDEX 1회 표면화 (2026-08-14·`T2_ACTION_INDEX`·기본 OFF·
+                                    #   사용자 지시 *"도구 설명 표면화하라 · 비용이 최소가 되게"*).
+                                    #   A3 `action_index` = **행동을 기술하는 문서 43줄**(제목 + 그 문서가
+                                    #   대는 도구명). 빌드 시점 기계 도출(`t2_index_build`)·저작 0·gold 무접촉.
+                                    #   측정(x319·n=24·블록 8·8·8·잡음 바닥 ±4 밖):
+                                    #     도움 없음 **10/24** → 이 43줄 **24/24** · 도구 설명 91종 23/24 ·
+                                    #     이름만 91종 16/24 ⇒ 표면화가 열고, **의미를 담은 것이 이름보다 낫다**.
+                                    #   왜 여기인가: 위 검색 재료가 **없을 때**의 폴백이다 — 재료가 오면
+                                    #   그쪽이 더 구체적이라 굳이 목록을 얹지 않는다(더하기는 해롭다·C404).
+                                    #   ⚠엔진은 고르지 않는다 — 43줄을 인쇄만 하고 선택은 LLM([[62]] ④).
+                                    #   ⚠sim 당 **1회**(정책 상수라 반복이 이득이 아니다·[[57]]).
+                                    if (not _m3 and os.environ.get("T2_ACTION_INDEX") == "1"
+                                            and not getattr(self, "_t2_actionidx_fired", False)):
+                                        try:
+                                            import t2_search as _ts2
+                                            _m3 = _ts2.action_index_note(a2)
+                                            if _m3:
+                                                self._t2_actionidx_fired = True
+                                                print("[T2_ACTION_INDEX] 1회 표면화 %d자"
+                                                      % len(_m3), file=_sys.stderr, flush=True)
+                                        except Exception as _aie:
+                                            _m3 = ""
+                                            print("[T2_ACTION_INDEX] 건너뜀(무발화): %r" % (_aie,),
+                                                  file=_sys.stderr, flush=True)
                                     # ★CP2 DECISION-CARRY (설계 v1.5 §4·`T2_DECISION_CARRY`·
                                     #   기본 OFF). 전문가의 결론이 지금 `_fb_ar` 를 타는데,
                                     #   그것은 `rw_fb` = **배타 체인 rank 11**이다(C429). 앞의

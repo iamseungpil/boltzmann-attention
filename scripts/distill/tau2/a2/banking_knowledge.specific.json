@@ -7315,7 +7315,333 @@
   "decide_candidates_text": "The full official names on file for this group are: {candidates}. Answer with exactly one name from that list, verbatim, and nothing else.",
   "doc_decide_prompt": "{ask}\n\nPolicy documents on record (verbatim; anything excluded is listed with the reason):\n{material}\n\nWhich ONE option should the agent recommend? Answer with the name only.",
   "_note_search_prompts": "★출처 = 이 문구들은 **도메인 어휘가 0** 이다(은행 단어 없음). 군 이름·상품 이름은 A3 색인과 문서 축자에서 런타임에 들어오므로 도메인이 바뀌어도 그대로다([[05]] 고정/가변). 구성은 **측정된 그대로**다(x248·071 실물·n=8·두 축 8/8): 요청이 **머리**에 오고(뒤에 두면 형식화가 축을 잘못 골랐다·C417⒠), 재료는 축자이며 뺀 것은 이유와 함께 재료 안에 있고(C327), 답은 **이름 하나**다(엔진이 고르지 않는다·⛔0 ④). 소비자 = `t2_search.formalize_group` / `decide_from_docs` — 키가 없으면 두 함수는 **침묵한다**.",
-  "decided_by_docs_text": "\nA separate check was run on the policy documents on record, with this request and nothing else from this conversation in front of it. Documents whose stated period does not include today were excluded before it answered. It answers: {choice}."
+  "decided_by_docs_text": "\nA separate check was run on the policy documents on record, with this request and nothing else from this conversation in front of it. Documents whose stated period does not include today were excluded before it answered. It answers: {choice}.",
+  "action_index": [
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_001",
+    "title": "Internal: Opening Personal Checking Accounts",
+    "tools": [
+     "open_bank_account_4821"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_002",
+    "title": "Internal: Opening Personal Savings Accounts",
+    "tools": [
+     "open_bank_account_4821",
+     "transfer_funds_between_bank_accounts_7291"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_003",
+    "title": "Internal: Opening Business Checking Accounts",
+    "tools": [
+     "open_bank_account_4821"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_004",
+    "title": "Internal: Opening Business Savings Accounts",
+    "tools": [
+     "open_bank_account_4821",
+     "transfer_funds_between_bank_accounts_7291"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_005",
+    "title": "Internal: Closing Personal Checking Accounts",
+    "tools": [
+     "close_bank_account_7392"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_006",
+    "title": "Internal: Closing Personal Savings Accounts",
+    "tools": [
+     "close_bank_account_7392"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_007",
+    "title": "Internal: Closing Business Checking Accounts",
+    "tools": [
+     "close_bank_account_7392"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_008",
+    "title": "Internal: Closing Business Savings Accounts",
+    "tools": [
+     "close_bank_account_7392"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_009",
+    "title": "Internal: Retrieving Customer Account Information",
+    "tools": [
+     "get_all_user_accounts_by_user_id_3847"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_010",
+    "title": "Internal: Transferring Funds Between Bank Accounts",
+    "tools": [
+     "transfer_funds_between_bank_accounts_7291"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_011",
+    "title": "Depositing a Check Into Your Account",
+    "tools": [
+     "deposit_check_3847"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_017",
+    "title": "Internal: Applying Credits and Rebates to Checking Accounts",
+    "tools": [
+     "apply_checking_account_credit_5829"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_018",
+    "title": "Internal: Retrieving Bank Account Transaction History",
+    "tools": [
+     "get_bank_account_transactions_9173"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_023",
+    "title": "Internal: Ordering a Debit Card for a Bank Account",
+    "tools": [
+     "order_debit_card_5739"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_024",
+    "title": "Internal: Activating a Debit Card",
+    "tools": [
+     "activate_debit_card_8291",
+     "activate_debit_card_8292",
+     "activate_debit_card_8293"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_025",
+    "title": "Internal: Closing/Cancelling a Debit Card",
+    "tools": [
+     "close_debit_card_4721"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_026",
+    "title": "Internal: Freezing and Unfreezing a Debit Card",
+    "tools": [
+     "freeze_debit_card_3892",
+     "unfreeze_debit_card_3893"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_027",
+    "title": "Internal: Resetting or Changing a Debit Card PIN",
+    "tools": [
+     "change_debit_card_pin_6285",
+     "reset_debit_card_pin_6284"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_028",
+    "title": "Internal: Retrieving Debit Card Information",
+    "tools": [
+     "get_debit_cards_by_account_id_7823"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_029",
+    "title": "Internal: Debit Card Replacement Options by Account Tier",
+    "tools": [
+     "order_debit_card_5739"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_031",
+    "title": "Internal: Filing a Debit Card Transaction Dispute",
+    "tools": [
+     "file_debit_card_transaction_dispute_6281",
+     "freeze_debit_card_3892",
+     "get_bank_account_transactions_9173"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_033",
+    "title": "Internal: ATM Dispute Special Procedures",
+    "tools": [
+     "get_atm_deposit_images_8473"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_034",
+    "title": "Internal: Recurring Payment Disputes vs. Stop Future Payments",
+    "tools": [
+     "set_debit_card_recurring_block_7382"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_035",
+    "title": "Internal: Checking Debit Card Dispute Status",
+    "tools": [
+     "get_debit_dispute_status_7483"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_039",
+    "title": "Internal: Managing Debit Card Security Alerts and Blocks",
+    "tools": [
+     "clear_debit_card_fraud_alert_4892"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_040",
+    "title": "Internal: Requesting Temporary Debit Card Limit Increase",
+    "tools": [
+     "request_temporary_debit_card_limit_increase_8374"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_043",
+    "title": "Internal: Applying Credits to Savings Accounts",
+    "tools": [
+     "apply_savings_account_credit_6831",
+     "get_all_user_accounts_by_user_id_3847",
+     "get_bank_account_transactions_9173",
+     "submit_interest_discrepancy_report_7294"
+    ]
+   },
+   {
+    "doc": "doc_bank_accounts_bank_accounts_(general)_044",
+    "title": "Internal: Submitting Interest Discrepancy Reports",
+    "tools": [
+     "apply_savings_account_credit_6831",
+     "get_all_user_accounts_by_user_id_3847",
+     "get_bank_account_transactions_9173",
+     "submit_interest_discrepancy_report_7294"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_card_account_logistics_002",
+    "title": "Internal: Processing Credit Card Account Closures",
+    "tools": [
+     "close_credit_card_account_7834"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_card_account_logistics_003",
+    "title": "Internal: Credit Card Retention Protocol",
+    "tools": [
+     "apply_credit_card_account_flag_6147",
+     "get_closure_reason_history_8293",
+     "log_credit_card_closure_reason_4521"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_card_account_logistics_006",
+    "title": "Internal: CLI Payment History and Approval Criteria",
+    "tools": [
+     "get_payment_history_6183"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_card_account_logistics_007",
+    "title": "Internal: Processing CLI Approvals and Denials",
+    "tools": [
+     "approve_credit_limit_increase_5847",
+     "deny_credit_limit_increase_5848",
+     "get_credit_limit_increase_history_4829",
+     "submit_credit_limit_increase_request_7392"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_card_account_logistics_009",
+    "title": "Paying Off Credit Card Balance from Checking Account (Internal)",
+    "tools": [
+     "pay_credit_card_from_checking_9182"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_card_replacements_001",
+    "title": "How to Order a Replacement Credit Card (Internal)",
+    "tools": [
+     "order_replacement_credit_card_7291"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_card_replacements_005",
+    "title": "Checking Pending Replacement Card Orders (Internal)",
+    "tools": [
+     "get_pending_replacement_orders_5765"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_cards_(general)_003",
+    "title": "Submitting a Cash Back Dispute (Internal)",
+    "tools": [
+     "submit_cash_back_dispute_0589"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_cards_(general)_004",
+    "title": "Applying Resolved Cash Back Dispute Corrections (Internal)",
+    "tools": [
+     "update_transaction_rewards_3847"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_cards_(general)_010",
+    "title": "Internal: Credit Card Purchase Decline Diagnostic Procedure",
+    "tools": [
+     "initial_transfer_to_human_agent_0218"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_cards_(general)_011",
+    "title": "Internal: Backend Incident 11/13",
+    "tools": [
+     "initial_transfer_to_human_agent_0218",
+     "initial_transfer_to_human_agent_1822"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_cards_(general)_012",
+    "title": "Internal: Backend Incident 11/14 - Erroneous Credit Bureau Reporting",
+    "tools": [
+     "emergency_credit_bureau_incident_transfer_1114"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_cards_(general)_014",
+    "title": "Filing a Credit Card Transaction Dispute (Internal)",
+    "tools": [
+     "file_credit_card_transaction_dispute_4829",
+     "order_replacement_credit_card_7291"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_cards_(general)_016",
+    "title": "Checking User Dispute History (Internal)",
+    "tools": [
+     "get_user_dispute_history_7291"
+    ]
+   },
+   {
+    "doc": "doc_credit_cards_credit_cards_(general)_017",
+    "title": "(Internal) Applying a Credit Card Statement Credit",
+    "tools": [
+     "apply_statement_credit_8472"
+    ]
+   }
+  ],
+  "_note_action_index": "★출처 = 환경 파일뿐(문서 `title` 필드 + 본문이 대는 레지스트리 도구명 정규식·`t2_index_build`). 저작 0·gold 무접촉·판정 0 — 엔진은 이 목록을 **그대로 인쇄만** 하고 무엇을 부를지는 LLM 이 정한다([[62]] ④). 왜 이 축인가(x319·n=24·블록 8·8·8): 도움 없음 10/24 → **action 문서 제목 43줄 24/24** · 도구 설명 91종 23/24 · 이름만 91종 16/24. **가장 싼 것이 가장 좋다** — 698 문서도 91 설명도 아니라 43줄이다. `kind=action` 판정은 어휘가 아니라 **구조**(도구 이름을 대는가)로 한다 — 도메인·언어 불변.",
+  "action_index_text": "The following policy documents describe actions an agent can perform, and name the tool each action uses. Consult the relevant one before concluding that a capability does not exist."
  },
  "_note_policy_ontology": "★2026-08-08 A3 정책 온톨로지가 런타임 층으로 들어왔다(정본 = A3_POLICY_ONTOLOGY_DESIGN_2026_08_08). 행 = (주어, 축, 값, 인용, applies_to). 생성 `x140`(문서 전수 1회·축별 질의·축 적합성) · 결속 `x145`(§1c) · 독립 누락 검사 `x141`. **정책 상수의 유일한 런타임 출처**다 — 엔진은 여기서 조회하고 사실은 DB에서 읽어 대조만 한다(사용자 지시 2026-08-08). ⚠표적 빌드라(`targeted_contains`) §0a 완결성 주장은 이 산출물로 하지 않는다. ⚠주어 정규화 금지(§9-4) — 표기마다 행이고 각자 인용을 진다. 맞추는 것은 LLM 몫([[22]]·C316).",
  "write_initiation": {

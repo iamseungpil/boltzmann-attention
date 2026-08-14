@@ -34,7 +34,7 @@ import t2_subcall as SC   # 단발-격리 서브 정본(2026-08-14 리팩토링)
 
 __all__ = ["linked_docs", "read_docs", "drop_expired", "coverage", "as_material",
            "docs_for", "declared_windows", "index_coverage", "material_for",
-           "corpus_from_env", "formalize_groups", "decide_from_docs", "to_iso"]
+           "corpus_from_env", "action_index_note", "formalize_groups", "decide_from_docs", "to_iso"]
 
 _DATE = re.compile(r"^\s*(\d{4})-(\d{2})-(\d{2})")
 
@@ -114,6 +114,31 @@ def coverage(a2, doc_dir):
     linked = set(linked_docs(a2))
     total = len(glob.glob(os.path.join(doc_dir, "doc_*.json")))
     return len(linked), total, (len(linked) / total if total else 0.0)
+
+
+def action_index_note(a2):
+    """A3 `action_index` 를 **한 번** 인쇄할 문구로 — 엔진은 고르지 않는다(나열만·[[62]] ④).
+
+    무엇을 넣나: 행동을 기술하는 문서의 **제목**과 그 문서가 대는 **도구 이름**. 43줄이다.
+    왜 이 크기인가(x319·n=24·블록별 8·8·8 — 잡음 바닥 ±4 밖):
+        도움 없음 **10/24** → **action 문서 제목 43줄 24/24**
+        도구 설명 91종 23/24 · **이름만 91종 16/24**
+    ⇒ 표면화는 듣고, **의미를 담은 것이 이름보다 낫다**. 그리고 가장 싼 것(43줄)이 가장 좋다 —
+      698 문서를 읽을 필요도, 91 설명을 실을 필요도 없다(사용자 지시 *"비용이 최소가 되게"*).
+
+    선언이 없으면 **빈 문자열**(거동 변화 0). 문면은 A3 `action_index_text`(엔진 리터럴 0·[[05]]).
+    """
+    po = _ontology(a2)
+    rows = po.get("action_index") or []
+    head = po.get("action_index_text")
+    if not rows or not head:
+        return ""
+    out = [head]
+    for r in rows:
+        t = " ".join(str(r.get("title") or "").split())
+        tools = ", ".join(r.get("tools") or [])
+        out.append("- %s%s" % (t, (" [%s]" % tools) if tools else ""))
+    return "\n".join(out)
 
 
 def corpus_from_env(env):
