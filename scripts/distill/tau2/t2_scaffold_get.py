@@ -265,6 +265,32 @@ def _window_coverage_note(d, ctx, res):
     return txt
 
 
+def _omitted_rows_note(sr):
+    """★FIX-14/15 (2026-08-14 야간·074 실물): 격리 서브가 **원천에서 읽은 행 수**와 **넘긴 행 수**의
+    차이를 반환문에 표면화한다(순수함수=단위테스트 공유·`_window_coverage_note` 선례).
+
+    074 는 원장 33행 중 8행만 형식화됐는데 반환문은 `8 of 8 rows were checked (0 could not be
+    verified)` 였다 — 분모가 **넘어온 것**이라 자기 자신을 재고, 25행의 손실은 stderr 로그
+    (`⚠MISMATCH sub=8 · source=33`)에만 있었다. 여기서 하는 일은 뺄셈 하나와 그 사실의 전달뿐이다.
+
+    ⚠하드 비율 가드는 두지 않는다: 073 은 원천의 **진짜 부분집합**을 넘기는 것이 정상이라
+    비율로 막으면 통과를 죽인다(FIX-11 이 `source=0` 만 잡는 것과 같은 계보). 누락이 정당한지는
+    모델이 판단한다 — 엔진은 어떤 행도 고르지 않고 두 수의 차만 말한다. 문구는 도메인-일반
+    (리터럴 0·[[05]])이고 거부가 아니므로 **무엇을 하면 되는지**까지 담는다([[64]]).
+    해당 없으면 빈 문자열(거동보존)."""
+    if not isinstance(sr, dict):
+        return ""
+    try:
+        miss = int(sr.get("source") or 0) - int(sr.get("sub") or 0)
+    except (TypeError, ValueError):
+        return ""
+    if miss <= 0:
+        return ""
+    return (" %d further row(s) were present in the source records but were NOT supplied to this "
+            "call, so they are not part of the count above. If those rows belong in this request, "
+            "re-read them and call again with every row's values included." % miss)
+
+
 def _ground_operands(orch, d, ctx):
     """★operand grounding (관문1·`ACCOUNT_APY_OFFLOAD §2a` 리뷰③·2026-07-20 배선). A2 `ground` 선언 시
     op 실행 前 각 grounded operand가 **KB/원장에 실재하는지 검증** — 미검증=드롭+플래그(→abstain).
@@ -631,12 +657,26 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
         _src_rows = 0
         for _t in _ok_outs:
             _src_rows += _t.count("Record ID:")
+        _sub_rows = 0
         for _k, _v in (got or {}).items():
             if isinstance(_v, list):
+                _sub_rows = max(_sub_rows, len(_v))
                 print("[T2_SG_ISOLATE] operand-size %s.%s: sub=%d rows · source=%d rows%s"
                       % (d.get("name"), _k, len(_v), _src_rows,
                          "  ⚠MISMATCH" if _src_rows and len(_v) != _src_rows else ""),
                       file=_sys.stderr, flush=True)
+        # ★FIX-14/15 (2026-08-14 야간 074 실물·핸드오프 §5): 위 두 수는 **stderr 에만** 있었다.
+        #   074 는 원장 33행 중 서브가 8행만 형식화했는데 도구 반환문은 `8 of 8 (0 unverified)` 라
+        #   손실이 어디에도 보이지 않았다 — 분모가 **서브가 넘긴 것**이라 자기 자신을 잰다.
+        #   여기서는 판정하지 않고 두 수를 반환 경로가 읽을 수 있는 자리에 남기기만 한다
+        #   (표면화는 렌더가·거동 변화는 문구뿐·도메인 리터럴 0).
+        try:
+            _sr = getattr(orch, "_t2_sub_srcrows", None)
+            if _sr is None:
+                _sr = orch._t2_sub_srcrows = {}
+            _sr[d.get("name")] = {"source": _src_rows, "sub": _sub_rows}
+        except Exception:
+            pass
         # ★날조 안전판 (2026-08-14·t7283 072 실물·[[25]] 우리 도구는 100% 정답 의무):
         #   서브의 getter 가 **레코드를 한 건도 못 읽었는데**(source=0) 배열 operand 가 나오면
         #   그 행들은 읽은 것이 아니라 **지어낸 것**이다 — 072 실측: `txn_123456`·`txn_789012`
@@ -1786,6 +1826,14 @@ def apply():
                         _txt += ("\n[coverage] %d of %d rows were checked (%d could not be "
                                  "verified)." % (_st.get("judged", 0), _st.get("total", 0),
                                                  _st.get("skipped", 0)))
+                        # ★FIX-14/15 (2026-08-14 야간·074): 위 분모는 **이 호출에 넘어온 행 수**라
+                        #   자기 자신을 잰다. 격리 서브가 원천에서 읽은 행 수를 알고 있으므로,
+                        #   넘어오지 않은 행이 있으면 그 수를 병기하고(FIX-14) 재공급 경로를
+                        #   이름으로 댄다(FIX-15·[[64]] 거부는 고칠 방법까지). ⚠하드 비율 가드는
+                        #   두지 않는다 — 073 은 원천의 **진짜 부분집합**을 넘기는 것이 정상이고
+                        #   비율로 막으면 통과를 죽인다. 판정은 모델 몫(엔진=두 수의 뺄셈뿐).
+                        _txt += _omitted_rows_note(
+                            (getattr(self, "_t2_sub_srcrows", None) or {}).get(d.get("name")))
                         # ★P4(C208④·DAY5_PRESCRIPTIONS §P4·T2_ABSTAIN_FIELDS=1): abstain의
                         #   actionable화 — 어느 입력 필드가 결핍이라 판정불가였는지 지목+공급 지시.
                         #   day5 020/026 [S]: account_open 누락→14행 전멸인데 결핍 필드 미지목이라
