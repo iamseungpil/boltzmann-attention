@@ -79,20 +79,13 @@ ids, st, _ = run("Light Green Account", [fee(1, 2.00, 100, "foreign"),   # 경�
                                          fee(4, 5.00, 301, "foreign")])  # >300 → 5.00 정상
 chk("light_green: tier 경계=하위", ids == ["t2"], ids)
 
-# ⑵ rho 모순 + **환급 차감**(2026-08-15·C487 원장 검산으로 이론 교체)
-#   옛 이론: Bluest 의 non_rho 기대값 = $2.00(부과 스케줄) ⇒ 2.00 부과는 정상.
-#   반증(072 원장·gold 무접촉): 정책 축자 *"third-party ATM fees … rebated up to $50 per monthly
-#   statement cycle"* · *"Foreign ATM withdrawal fee: $0.00"* ⇒ Bluest 는 ATM 수수료 **순비용 0**.
-#   부과 24.00 − 환급 10.00 = **14.00** = gold 정확 일치(옛 이론은 12.00 이었다).
-#   ⇒ non_rho 기대값을 0 으로 두고, **환급된 만큼만** 상계한다(`rebate_field`).
-ids, st, _ = run("Bluest Account", [fee(1, 2.00, 200, "rho"),                  # 기대 0 → discrepant
-                                    fee(2, 2.00, 200, "non_rho", 2.00),        # 전액 환급 → 정상
-                                    fee(3, 4.00, 200, "foreign"),              # 기대 0 → discrepant
-                                    fee(4, 2.00, 200, "non_rho", 0.0),         # 미환급 → discrepant
-                                    fee(5, 2.50, 200, "non_rho", 2.00)])       # 부분 환급 0.50 → discrepant
-chk("bluest: 환급 차감 후 미환급만", ids == ["t1", "t3", "t4", "t5"], ids)
-
-# ⑶ 판정-보류(문서 미규정 축) = discrepant 0 + skipped 계상
+# ⑵ rho 모순(NON-RHO fee 가 RHO 인출에)
+#   ⚠환급 차감(C487·x323)은 **보류**다 — Bluest 기대값 0 + 미추출이 과다 환불을 만든다.
+#     기구와 검정(`test_rebate_netting`)은 남기고 A2 선언만 뺐다. 여기선 종전 규칙을 고정한다.
+ids, st, _ = run("Bluest Account", [fee(1, 2.00, 200, "rho"),        # 기대 0 → discrepant
+                                    fee(2, 2.00, 200, "non_rho"),    # 플랫 2.00 정상
+                                    fee(3, 4.00, 200, "foreign")])   # 기대 0 → discrepant
+chk("bluest: rho/foreign 기대 0", ids == ["t1", "t3"], ids)
 ids, st, _ = run("Light Green Account", [fee(1, 1.50, 50, "non_rho")])
 chk("light_green oon: 보류(skipped)", ids == [] and st.get("skipped") == 1, (ids, st))
 ids, st, _ = run("Gold Years Account", [fee(1, 2.00, 50, "non_rho")])
