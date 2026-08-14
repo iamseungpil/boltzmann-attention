@@ -87,17 +87,25 @@ def val_grounded(val, corpus_texts, kind=None):
     return _val_grounded(val, corpus_texts, kind=kind)
 
 
-def recent_tool_text(msgs, cap=4000):
-    """이번 손님 발화 이후의 성공 도구결과 축자(근거 코퍼스·msgs 기반).
+def recent_tool_text(msgs, cap=4000, scope="recent"):
+    """성공 도구결과 축자(근거 코퍼스·msgs 기반). scope="recent"=직전 손님 발화 이후 · "all"=전체.
 
     orch 가 있는 자리는 `t2_scaffold_get._corpus_texts(orch, ["ledger"])` 를 쓰라 — 그쪽이
-    전체-원장 코퍼스의 정본이다. 이 함수는 msgs 만 있는 resolve-계열 전용(직전-턴 국소 근거).
+    전체-원장 코퍼스의 정본이다. 이 함수는 msgs 만 있는 resolve-계열 전용.
+
+    ★scope 가 인자다 (2026-08-14·x311 사전등록): 075 착수는 근거를 **직전 턴으로 자르면 0/8**,
+      **대화 전체로 넓히면 8/8** 이다(C_GEN75 ↔ D_GEN75F). 075 의 `user_id` 는 훨씬 앞 턴의
+      도구 결과에서 나왔고 그 뒤 손님 발화가 여러 번 있어 'recent' 창 밖이었다.
+      073(직전 턴에 감사 결과가 있는 형)은 어느 쪽이든 8/8 이라 넓혀도 잃는 게 없다.
     """
     ms = list(msgs or [])
-    last_user = max([i for i, m in enumerate(ms)
-                     if getattr(m, "role", None) == "user"] or [-1])
+    start = 0
+    if scope != "all":
+        last_user = max([i for i, m in enumerate(ms)
+                         if getattr(m, "role", None) == "user"] or [-1])
+        start = last_user + 1
     out = []
-    for m in ms[last_user + 1:]:
+    for m in ms[start:]:
         if getattr(m, "role", None) != "tool":
             continue
         if getattr(m, "error", False):

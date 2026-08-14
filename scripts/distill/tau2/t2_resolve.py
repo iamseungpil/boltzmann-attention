@@ -526,7 +526,8 @@ def sub_write_proposal(agent, la, UserMessage, msgs, a2, names):
     spec = (a2 or {}).get("write_initiation") or {}
     if not spec or agent is None or la is None or UserMessage is None:
         return None
-    basis = SC.recent_tool_text(msgs, spec.get("basis_max_chars") or 4000)
+    basis = SC.recent_tool_text(msgs, spec.get("basis_max_chars") or 4000,
+                                scope=spec.get("basis_scope") or "recent")
     if not basis:
         return None
     users = [str(getattr(m, "content", "") or "") for m in (msgs or [])
