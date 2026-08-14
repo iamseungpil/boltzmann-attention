@@ -93,7 +93,11 @@ def main():
         cnt = collections.Counter()
         for i in range(n):
             try:
-                r = chat(body, tools, 0.0 if i == 0 else 0.7, 400)
+                # ⚠mx=400 재검 (2026-08-14): 이 모델은 content 를 먼저 뱉고 tool_call 을
+                #   잇는다. 400 이면 산문이 긴 팔에서 **호출 직전 절단**(finish=length)돼
+                #   '(text)' 로 기록된다 — x295b 에서 0/8→7/8 로 뒤집힌 그 결함이다.
+                #   음성 팔일수록 산문이 길어 **처치와 상관된 인공물**이 되므로 전 팔 재측정.
+                r = chat(body, tools, 0.0 if i == 0 else 0.7, 1500)
             except Exception as e:
                 r = {"content": "ERR %s" % type(e).__name__}
             blob = " ".join(str(tc) for tc in (r.get("tool_calls") or []))
