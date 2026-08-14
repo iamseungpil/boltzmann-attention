@@ -26,64 +26,40 @@ try:
 except Exception:
     pass
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-BASE = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026", "sim_results")
-FBDIR = "/home/woori/scratch/logs"
-UNLOCK = "unlock_discoverable_agent_tool"
-GIVE = "give_discoverable_user_tool"
-CALLA = "call_discoverable_agent_tool"
-CALLU = "call_discoverable_user_tool"
+import t2_forensic as F                                            # noqa: E402
+
+# 로딩·래퍼 해제는 정본 라이브러리에 있다(사본 금지·`t2_subcall` 과 같은 규율).
+HERE, BASE, FBDIR = F.HERE, F.BASE, F.FBDIR
+UNLOCK, GIVE, CALLA, CALLU = F.UNLOCK, F.GIVE, F.CALLA, F.CALLU
 DONE_HINT = ("has been applied", "have been applied", "processed successfully", "successfully "
              "opened", "has been opened", "credited back", "been completed", "is now complete",
              "have been credited", "has been submitted", "been updated")
 
 
 def jload(tag):
-    with gzip.open(os.path.join(BASE, tag + "_results.json.gz"), "rt", encoding="utf-8") as f:
-        return json.load(f)
+    return F.load(tag)
 
 
 def fb_for(tag):
-    """사이드카를 sim-key 별로 모은다(없으면 빈 dict)."""
-    p = os.path.join(FBDIR, "fb_%s.jsonl" % tag)
-    out = collections.defaultdict(list)
-    if not os.path.exists(p):
-        return out
-    for ln in io.open(p, encoding="utf-8", errors="replace"):
-        try:
-            o = json.loads(ln)
-        except Exception:
-            continue
-        out[o.get("simtag") or "?"].append(o)
-    return out
+    """사이드카를 sim-key 별로(정본=`t2_forensic.sidecar`)."""
+    return F.sidecar(tag)
 
 
 def argsof(tc):
-    a = (tc.get("function") or {}).get("arguments", tc.get("arguments"))
-    if isinstance(a, str):
-        try:
-            a = json.loads(a)
-        except Exception:
-            a = {"_raw": a}
-    return a if isinstance(a, dict) else {}
+    return F.argsof(tc)
 
 
 def nameof(tc):
-    return (tc.get("function") or {}).get("name") or tc.get("name") or ""
+    return F.nameof(tc)
 
 
 def inner_name(args):
-    return (args.get("agent_tool_name") or args.get("user_tool_name")
-            or args.get("tool_name") or "")
+    return F.inner_name(args)
 
 
 def label(name, args):
-    """unlock/give/call 은 **대상 도구까지** 붙여야 의미가 있다(래퍼 이름만으론 무정보)."""
-    t = inner_name(args)
-    if not t:
-        return name
-    pre = {UNLOCK: "unlock", GIVE: "give", CALLA: "call", CALLU: "callu"}.get(name)
-    return "%s:%s" % (pre, t) if pre else name
+    """unlock/give/call 은 대상 도구까지(정본=`t2_forensic.label`)."""
+    return F.label(name, args)
 
 
 def canon(v):

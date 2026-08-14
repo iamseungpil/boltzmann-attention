@@ -24,6 +24,8 @@ try:
 except Exception:
     pass
 
+import t2_forensic as F                                            # noqa: E402
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 BASE = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026", "sim_results")
 SIMS = "/home/woori/scratch/tau2-bench/data/simulations"
@@ -32,42 +34,22 @@ META_PREFIX = ("unlock_", "list_", "KB_search", "give_", "get_current_time", "sh
 
 
 def load(tag):
-    p = os.path.join(SIMS, tag, "results.json")
-    if os.path.exists(p):
-        return json.load(io.open(p, encoding="utf-8"))
-    with gzip.open(os.path.join(BASE, tag + "_results.json.gz"), "rt", encoding="utf-8") as f:
-        return json.load(f)
+    """정본 = `t2_forensic.load`(리모트 라이브 결과 우선·gz 자동)."""
+    return F.load(tag)
 
 
 def write_tools(d):
-    out = set()
-    for s in d.get("simulations", []):
-        for ck in ((s.get("reward_info") or {}).get("action_checks") or []):
-            if ck.get("tool_type") != "write":
-                continue
-            a = ck.get("action") or {}
-            ar = a.get("arguments") or {}
-            out.add(str(a.get("name")))
-            for k in ("agent_tool_name", "user_tool_name"):
-                if ar.get(k):
-                    out.add(str(ar[k]))
-    return {n for n in out if n and n != "None"}
+    """정본 = `t2_forensic.write_tools`(사본 둘이 갈라져 있던 자리)."""
+    return F.write_tools(d)
 
 
 def calls(m):
+    """(이름, 대상도구, 인자JSON, id) — 해제는 정본 `t2_forensic` 위임(사본 금지)."""
     out = []
     for tc in (m.get("tool_calls") or []):
-        f = tc.get("function") or {}
-        nm = str(f.get("name") or tc.get("name") or "")
-        ar = tc.get("arguments", f.get("arguments"))
-        if isinstance(ar, str):
-            try:
-                ar = json.loads(ar)
-            except Exception:
-                ar = {}
-        ar = ar if isinstance(ar, dict) else {}
-        inner = str(ar.get("agent_tool_name") or ar.get("user_tool_name") or "")
-        out.append((nm, inner, json.dumps(ar, ensure_ascii=False, sort_keys=True), tc.get("id")))
+        ar = F.argsof(tc)
+        out.append((str(F.nameof(tc)), str(F.inner_name(ar)),
+                    json.dumps(ar, ensure_ascii=False, sort_keys=True), tc.get("id")))
     return out
 
 
