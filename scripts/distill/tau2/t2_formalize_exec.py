@@ -330,7 +330,7 @@ def fexec_filter_decide(agent, la, UserMessage, state_msgs, arg_key, cur_value, 
     for attempt in range(max_formalize):
         sub = SC.sub_generate(agent, la, UserMessage, prompt, "filter_formalize_subcall")
         agent._t2_fsub_formalized = getattr(agent, "_t2_fsub_formalized", 0) + 1
-        spec = parse_formalize(getattr(sub, "content", None) or "")
+        spec = parse_formalize(sub)
         if spec is None or spec["op"] in ("none", "unresolvable"):
             _mark("filter fallback: formalize %s" % ("UNSURE" if spec is None else spec["op"]))
             return {"status": "fallback", "ids": [], "why": "formalize"}
@@ -362,7 +362,7 @@ def fexec_for_disamb(agent, la, UserMessage, state_msgs, arg_key, cur_value):
     prompt = build_formalize_prompt(state_msgs, arg_key, cur_value, records)
     sub = SC.sub_generate(agent, la, UserMessage, prompt, "formalize_subcall")
     agent._t2_fexec_fired = getattr(agent, "_t2_fexec_fired", 0) + 1
-    spec = parse_formalize(getattr(sub, "content", None) or "")
+    spec = parse_formalize(sub)
     if spec is None:
         agent._t2_fexec_unsure = getattr(agent, "_t2_fexec_unsure", 0) + 1
         _mark("formalize UNSURE (parse/format) — DISAMB fallback")
@@ -603,7 +603,7 @@ def fexec_variant_decide(agent, la, UserMessage, msgs, arg_key, cur_value, a2_sp
     kw = {kk: vv for kk, vv in dict(getattr(agent, "llm_args", None) or {}).items() if "tool" not in kk}
     for attempt in range(max_formalize):
         sub = SC.sub_generate(agent, la, UserMessage, prompt, "l4_variant_formalize")
-        fspec = parse_formalize(getattr(sub, "content", None) or "")
+        fspec = parse_formalize(sub)
         if fspec is None or fspec["op"] in ("none", "unresolvable"):
             return {"status": "fallback", "ids": [], "why": "form:" + (fspec["op"] if fspec else "unsure")}
         result = execute_formalized(fspec, records)

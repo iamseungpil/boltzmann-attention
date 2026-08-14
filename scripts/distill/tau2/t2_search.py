@@ -342,7 +342,7 @@ def decide_from_docs(agent, la, UserMessage, spec, material, ask):
                   if "tool" not in k)
         body = tpl.format(ask=str(ask)[:3000], material=material)
         sub = SC.sub_generate(agent, la, UserMessage, body, "doc_decide")
-        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+        raw = " ".join(str(sub or "").split())
     except Exception as e:
         print("[T2_DOCDECIDE] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
         return None

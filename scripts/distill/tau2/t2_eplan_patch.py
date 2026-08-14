@@ -726,7 +726,7 @@ def _cp5_replan_subcall(orch, led, msgs, spec):
     prompt = structured_replan_prompt(led, transcript_text(msgs), ekey)
     sub = SC.sub_generate(ag, la, UserMessage, prompt, "eplan_replan_subcall")
     _mark("replan subcall fired (structured ledger prompt)")
-    return parse_obligations(getattr(sub, "content", None) or "", ekey)
+    return parse_obligations(sub, ekey)
 
 
 def _dispatch_ledger_check(orch):

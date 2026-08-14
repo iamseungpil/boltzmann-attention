@@ -165,7 +165,7 @@ def formalize_now(agent, la, UserMessage, texts, spec):
     prompt = tpl.format(text="\n---\n".join(str(t)[:1500] for t in sel))
     try:
         sub = SC.sub_generate(agent, la, UserMessage, prompt, "ledger_now_formalize")
-        raw = (getattr(sub, "content", None) or "").strip()
+        raw = str(sub or "").strip()
     except Exception:
         return None
     cand = parse_scalar(raw, spec.get("date_formats") or ["%m/%d/%Y"])
@@ -346,7 +346,7 @@ def rederive_choice(agent, la, UserMessage, spec, table, facts, asked, allowed):
         kw = {k: v for k, v in dict(getattr(agent, "llm_args", None) or {}).items()
               if "tool" not in k}
         sub = SC.sub_generate(agent, la, UserMessage, prompt, "rederive_choice")
-        raw = " ".join(str(getattr(sub, "content", None) or "").split())
+        raw = " ".join(str(sub or "").split())
     except Exception as e:
         print("[T2_REDERIVE] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
         return None
@@ -695,7 +695,7 @@ def formalize_subject_align(agent, la, UserMessage, spec, groups, subjects):
               if "tool" not in k}
         sub = SC.sub_generate(agent, la, UserMessage, prompt, "subject_align_formalize")
         called = True
-        raw = str(getattr(sub, "content", None) or "")
+        raw = str(sub or "")
         m = re.search(r"\{.*\}", raw, re.S)
         got = json.loads(m.group(0)) if m else {}
         # ★엔진의 몫은 여기까지다 — **양쪽 다 집합 원소인지**만 본다(의미 판단 0).
