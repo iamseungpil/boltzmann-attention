@@ -85,8 +85,15 @@ def bucket(line):
     return "%s:%s%s" % (kind, top, ("." + sub) if sub else "")
 
 
+class _NoInitial(object):
+    """`initial_state` 가 없는 태스크(예: 조회만 하는 것)도 리플레이는 된다 — 빈 초기상태."""
+    initialization_data = None
+    initialization_actions = None
+    message_history = None
+
+
 def run_sim(task, sim):
-    istate = task.initial_state
+    istate = task.initial_state or _NoInitial
     gold = env_ctor(retrieval_variant="no_knowledge")
     gold.set_state(istate.initialization_data, istate.initialization_actions,
                    list(istate.message_history or []))
