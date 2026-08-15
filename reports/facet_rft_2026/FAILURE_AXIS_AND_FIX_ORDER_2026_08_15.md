@@ -218,3 +218,42 @@ should help with requests 1-3 and only transfer on the 4th request."*
   격리(요청 횟수만 제시하고 이관 가부를 묻기)에서 모델이 맞히면 레버는 **표면화**뿐이고,
   틀리면 그때 게이트를 논한다. **먼저 재지 않고 게이트를 짓지 않는다.**
 - 범위는 작다(**080·081 두 태스크**). 우선순위는 그에 맞춘다.
+
+---
+
+## §8 081 계수 규칙 — **우리 A2 가 정책과 충돌한다** (무료 준비 완료·프로브 대기)
+
+### ⒜ 위반은 균일하다
+영속된 081 전 sim(3, t7286·t7295)에서 **요청 1~2회 시점에 이관 실행 = 3/3 위반**.
+정책 임계값은 **4**다. (080 은 영속 sim 이 없다.)
+
+| tag | msgs | 총 요청 | 이관 실행(msg, 그 시점 요청수) |
+|---|---|---|---|
+| t7286_a | 28 | 2 | (22, **2**) · (24, **2**) |
+| t7295_b | 18 | 2 | (12, **2**) · (14, **2**) |
+| t7295_b | 14 | 1 | (10, **1**) |
+
+### ⒝ ★우리 A2 가 이관을 **지시**하고 있다
+`a2/banking_knowledge.settings.json` 의 `ask` 축자:
+> *"…after it is on the record, **CALL `transfer_to_human_agents`** as a tool call with an
+>   appropriate summary - do not repeat the notice and **do not ask anything further**."*
+> *"…**even if the customer already asked for or agreed to the transfer** (their agreement
+>   stays valid; this notice is a required disclosure, not asking again)."*
+
+그리고 **요청 횟수를 세는 것이 우리 층에 하나도 없다** — 코드(`t2_gate_patch`·`t2_resolve`·
+`t2_levers`)와 A2 전수 감사 결과 `request_human_agent_transfer` 참조 **0건**, "4회" 규칙 **0건**.
+⇒ 우리 지시가 **정책 임계값을 모른 채** 이관을 민다. [[23]] 관점에서 A2 정합성 결함이다.
+
+### ⒞ 반경은 좁다 (과대 주장 금지)
+gold 가 요구하지 않았는데 이관한 sim = **6/75**(010·048·061·069·085·087), 그리고 **전부
+대화의 87~95% 지점**에서 나온다(늦은 이탈). ⇒ 이 A2 문구가 **광범위한 조기 이탈을 만들지는
+않는다**. 치명적인 것은 **손님이 앞에서 요청하는 계열**(080·081)뿐이다.
+> §7 의 `TRANSFER NOTICE` 일반 가설 기각과 같은 결론이다 — 표지이지 원인이 아니다.
+
+### ⒟ 다음 = `x327_transfer_count_iso.py` (작성 완료·실행 대기)
+컷 = 081 msg 8(요청 **2**회·이관 기계 직전). 4셀:
+`A_REF`(개입 없음) · `B_OURTEXT`(현행 A2 문구) · `C_COUNT`(중립 계수 한 줄) ·
+**`D_NEG4`(계수를 4로 = 이관이 옳은 자리·부정통제)**.
+판정 사전 고정: `B > A+5` → 우리 문구가 만든다 · `C≤6 ∧ D≥18` → 계수 표면화로 닫힘 ·
+`C≈D` → 계수 미사용(표면화 무효).
+⚠**유료 런(t7296)이 8140·8141 을 다 쓰는 동안 실행 금지**([[30]] 포트 분리). 종료 후 착수.
