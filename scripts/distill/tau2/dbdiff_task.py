@@ -115,7 +115,19 @@ def run_sim(task, sim):
     except ValueError as e:
         return None, ["REPLAY-FAIL .messages = %r" % (str(e)[:120],)], []
 
+    # ★"우리가 DB 를 건드리기는 했나" — 초기상태 대비 pred (2026-08-15).
+    #   왜 필요한가: 하네스의 `tool_type` 은 **read 를 write 로 라벨**한다(x324 실물:
+    #   `get_user_dispute_history_7291` 이 `tool_type: write`). 그 라벨로 *"완료를 주장했는데
+    #   write 는 0"* 을 세면 수가 무효다(2026-08-15 실측 실패 1건). **DB 가 변했는가**만이
+    #   신뢰할 수 있는 술어다 — `TOUCHED-NOTHING` 은 "아무것도 안 했다"의 정본 표지다.
+    base = env_ctor(retrieval_variant="no_knowledge")
+    base.set_state(istate.initialization_data, istate.initialization_actions,
+                   list(istate.message_history or []))
+    touched = (base.tools.get_db_hash() != pred.tools.get_db_hash())
+
     lines = []
+    if not touched:
+        lines.append("TOUCHED-NOTHING .db = '초기상태와 동일'")
     diff(gold.tools.db.model_dump(), pred.tools.db.model_dump(), "", lines)
     ulines = []
     if gold.user_tools:
