@@ -446,9 +446,18 @@ def _prov_scan_args(tc):
       ⇒ 이 수리 자체의 즉시 거동 변화는 **0**이다. 켜는 것은 별건이고 **Δspurious 재측정 의무**가
       붙는다 — C45 의 over-block 0 은 *중첩을 안 보던 시절* 수치다.
     """
+    # ★래퍼의 **도구 선택자**는 operand 가 아니다 (2026-08-15·x334 오프라인 재생).
+    #   `agent_tool_name` 은 `_hint_hit` 에서 토큰 `name` 때문에 식별자로 잡히는데, 그것은
+    #   *데이터 값*이 아니라 *어느 도구를 부를지*다. 재생 실측: over-block 28건이 **거의 전부**
+    #   이 키였다(예: `agent_tool_name='apply_checking_account_credit_5829'` 를 "날조"로 차단).
+    #   도구 이름의 근거 검사는 **별도 레버**(`T2_UNLOCK_PROV`)의 일이다 — 여기서 겹쳐 막으면
+    #   정상 호출을 죽인다([[57]] 상쇄: 이 레버가 파는 것이 정확히 그것이었다).
+    SELECTOR = ("agent_tool_name", "user_tool_name", "tool_name", "discoverable_tool_name")
     out = []
     args = _args_dict(tc)
     for k, v in (args or {}).items():
+        if k in SELECTOR:
+            continue
         if k == "arguments" and isinstance(v, str):
             try:
                 inner = json.loads(v)
