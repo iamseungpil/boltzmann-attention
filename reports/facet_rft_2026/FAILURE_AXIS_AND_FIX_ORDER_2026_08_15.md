@@ -257,3 +257,50 @@ gold 가 요구하지 않았는데 이관한 sim = **6/75**(010·048·061·069·
 판정 사전 고정: `B > A+5` → 우리 문구가 만든다 · `C≤6 ∧ D≥18` → 계수 표면화로 닫힘 ·
 `C≈D` → 계수 미사용(표면화 무효).
 ⚠**유료 런(t7296)이 8140·8141 을 다 쓰는 동안 실행 금지**([[30]] 포트 분리). 종료 후 착수.
+
+---
+
+## §9 축 통합 — **"레코드는 맞고 상품 이름만 틀린"** 19건 (x328)
+
+A 군집과 D 군집을 따로 세고 있었는데 **같은 축**이었다. 기계적 census(gold 레코드와 우리
+레코드가 **정확히 한 칸만** 다른 짝·자동생성 id 제외):
+
+**실패 59 sim · 한 칸만 다른 짝 26 = WRONG-PRODUCT 19 + WRONG-ENUM 7**
+
+| 태스크 | gold ↔ 우리 |
+|---|---|
+| 003 ×3 | `Silver Rewards Card` ↔ `Gold`/`Platinum Rewards Card` |
+| 069 ×4 | `Blue`↔`Bluest`/`Evergreen` · `Silver Plus`↔`Gold` · `Silver Rewards`↔`Business Platinum` |
+| 071 ×5 | `Sky Blue`↔`Lime Green`/`Hunter Green` · `Gold Saver`↔`Bronze Saver` |
+| 055 ×2 | `Purple`↔`Bluest` · `Silver Plus`↔`Diamond Elite` |
+| 070 ×1 | `Sky Blue` ↔ `Hunter Green Business Checking` |
+| 099 ×1 | `World Blue Account` ↔ `Navy Blue Account` |
+
+**6 태스크·19건.** 도달·형식·집행은 전부 성공하고 **고른 이름 하나**로 0 이 된다.
+경향은 대체로 **상향**(Silver→Gold/Platinum · Blue→Bluest · Silver Plus→Diamond Elite)이지만
+반례가 있다(071 `Gold Saver`→`Bronze Saver` · 099 `World Blue`→`Navy Blue`) ⇒
+*"항상 비싼 걸 고른다"* 로 단정하지 않는다.
+
+> ⚠계기 공개: WRONG-ENUM 7 중 **4건**(049·061·087 의 `agent_discoverable_tools.tool_name`)은
+> 짝짓기 아티팩트다 — 실제로는 *"다른 도구를 썼다"* 이지 한 칸 오기가 아니다. 진짜 enum 오류는
+> **3건**(049 `closure_reason` ×2 · 055 `account_id` ×1)뿐이다.
+
+### ★그런데 전달만으로는 안 산다 (069·070 이 반례)
+
+x325 영향반경과 겹쳐 보면 이 19건은 **두 부류**로 갈린다:
+
+| 태스크 | 재료 전달 | 읽기 |
+|---|---|---|
+| 071 · 003 | **0회**(BLOCKED) | (a) 전달 복구가 닿는 자리 |
+| 055 | 부분(2) | 부분적으로 닿음 |
+| **069** | **9회 전달됨** | ⚠전달됐는데 **여전히 틀렸다** |
+| **070** | **2회 전달됨** | ⚠같음 |
+
+069 의 전달 내역: `checking_accounts` 113문서 ×4 · `savings_accounts` 92문서 ×4 ·
+`business_credit_cards` 82문서 ×1(각각 만료 2건 제외). 그런데 gold 카드는 **개인** 카드
+(`Silver Rewards Card`)인데 가져온 군은 **`business_credit_cards`** 다 —
+⇒ 상품 선택 위가 아니라 **문서군 선택**(개인↔비즈니스)에서 이미 갈렸다. 군을 고르는 것은 LLM 이다.
+
+**결론(중요·기대치 조정)**: (a) 전달 복구는 이 19건 중 **071·003 계열에만** 닿는다.
+069·070 은 **전달 후에도 틀리는** 별개 결손이고, 그 자리는 ⑴문서군 선택 ⑵100문서 규모 재료 자체의
+부하 두 가설이 남는다. ⇒ t7296 의 기대 효과를 이 축 전체로 확대 해석하지 말 것.
