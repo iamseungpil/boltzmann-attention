@@ -63,10 +63,15 @@ def final_is_text_only(item):
         return None
     if not isinstance(inter, list) or not inter:
         return None
+    # ⚠SOPBench 는 `role` 이 아니라 **`sender`** 를 쓴다(2026-08-15 수리 — 첫 판이 이걸 놓쳐
+    #   88.6% 를 '못 읽음' 으로 버렸다). 도구 반환 메시지는 `tool_call_id` 로 구분된다.
     for m in reversed(inter):
         if not isinstance(m, dict):
             continue
-        if m.get("role") != "assistant":
+        if m.get("tool_call_id") is not None:      # 도구 반환 — 발화자가 아니다
+            continue
+        who = str(m.get("sender") or m.get("role") or "").lower()
+        if who and who not in ("assistant", "agent", "ai"):
             continue
         has_tc = bool(m.get("tool_calls")) or bool(m.get("function_call"))
         has_txt = bool(str(m.get("content") or "").strip())
