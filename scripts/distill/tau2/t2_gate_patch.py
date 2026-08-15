@@ -7363,6 +7363,33 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             #     고르는 것은 끝까지 모델이다([[62]] ③④: 순위·최댓값·지목 0).
                             #   ⚠[[57]] 재발화는 횟수가 아니라 **인자 변화**로: 같은 문자열이면
                             #     안 넣는다(`_t2_cp2_said` 비교는 아래 CP2 와 같은 규약).
+                            # ★행동 촉구 (2026-08-15·`T2_ACT_DEMAND`·기본 OFF).
+                            #   격리 3런 재현(x330 11/24 · x331 13/24 · x332 16/24 ↔ 기준선
+                            #   2/0/6 · 부정통제 `D_EARLY` 세 런 모두 **0/24**): 같은 문맥·같은
+                            #   도구에서 **한 줄 요구**가 실행률을 올린다. 반대로 *"세고 체크하고
+                            #   처리하라"* 는 **0/24 로 해로웠다**(x332 B_SELFLIST) — 묘사를
+                            #   시키면 묘사가 는다. ⇒ **열거 없는 행동 명령만** 쓴다.
+                            #   발화 자리 = 격리 컷과 **구조적으로 동일**하다: 이 블록의 조건이
+                            #   곧 *"행동 도구를 안 부른 채 턴을 끝내려 하고, 구체 대상이 형식화됐다"*
+                            #   이다 — 의도 판정이 아니라 **닫힌 구조 조건**이다([[66]] 위반 아님).
+                            #   ⚠[[62]] ①격리 실측 위 3런 ②부분 성공(16/24)이라 라이브 이관이
+                            #     다음 단계 ③**사라지는 판단 없음** — 무엇을 할지는 여전히 모델이
+                            #     정하고 우리는 도구를 **지목하지 않는다**(x322: 지목은 24/24→0/24)
+                            #     ④순위·최댓값·정답 문장 0.
+                            #   ⚠[[05]] ⑴도메인 어휘 0(문장에 은행 용어 없음) ⑵유동 판단 동결 없음
+                            #     ⑶엔진이 도메인 행동을 수행하지 않는다 — 요구만 한다.
+                            #   ⚠[[57]] 부작용 계측 의무: over-action(gold 없는 write)이 늘면 손해다.
+                            if (os.environ.get("T2_ACT_DEMAND") == "1"
+                                    and os.environ.get("T2_DECISION_CARRY") == "1"):
+                                _dm = "Carry out the next step of this request now."
+                                if _dm != getattr(self, "_t2_cp2_said", None):
+                                    self._t2_cp2_pending = _dm
+                                    self._t2_cp2_said = _dm
+                                    print("[T2_ACT_DEMAND] 행동 촉구 1줄 배달(도구 지목 0)",
+                                          file=_sys.stderr, flush=True)
+                                else:
+                                    print("[T2_ACT_DEMAND] 같은 문자열 — 재배달 안 함",
+                                          file=_sys.stderr, flush=True)
                             if (_ar.get("status") != "deny"
                                     and os.environ.get("T2_SEARCH_ON_PROCEED") == "1"
                                     and os.environ.get("T2_SEARCH_AGENT") == "1"
