@@ -66,13 +66,26 @@ def rows_of(db):
     return out
 
 
+MAX_PRED_ONLY = 2   # 이보다 많으면 짝짓기가 뜻을 잃는다(아래 참조)
+
+
 def pair(gold_rows, pred_rows):
-    """공통 키 중 **정확히 한 칸**만 다른 (G,P) 짝 → [(테이블, 필드, gold값, pred값)]."""
-    hits = []
+    """공통 키 중 **정확히 한 칸**만 다른 (G,P) 짝 → [(테이블, 필드, gold값, pred값)].
+
+    ⚠**모호한 짝은 버린다** (2026-08-15 수리·실물 069): 우리 쪽에만 있는 레코드가 한 테이블에
+    **19개** 쌓인 sim 이 있었다(같은 도구를 등급만 바꿔 19번 부른 *난사*). 거기서 "한 칸만 다른
+    짝"을 뽑으면 gold 하나와 그 19개 중 아무거나가 짝지어져 **'상품을 잘못 골랐다'로 보인다** —
+    실제 실패는 **과행동**이다. ⇒ pred-only 가 %d 개를 넘는 테이블은 세지 않고, 그 사실을
+    `AMBIGUOUS` 로 되돌린다(조용히 버리지 않는다·C327 규율).
+    """ % MAX_PRED_ONLY
+    hits, ambiguous = [], []
     for t, g in gold_rows.items():
         p = pred_rows.get(t) or {}
         gonly = {k: v for k, v in g.items() if k not in p}
         ponly = {k: v for k, v in p.items() if k not in g}
+        if len(ponly) > MAX_PRED_ONLY:
+            ambiguous.append((t, len(gonly), len(ponly)))
+            continue
         for _gk, gv in gonly.items():
             if not isinstance(gv, dict):
                 continue
@@ -83,7 +96,7 @@ def pair(gold_rows, pred_rows):
                 diff = [k for k in keys if gv.get(k) != pv.get(k)]
                 if len(diff) == 1:
                     hits.append((t, diff[0], gv.get(diff[0]), pv.get(diff[0])))
-    return hits
+    return hits, ambiguous
 
 
 def main(tags):
@@ -119,11 +132,16 @@ def main(tags):
                 pred = build(list(sim.messages))
             except Exception:
                 continue
-            hits = pair(rows_of(gold.tools.db.model_dump()), rows_of(pred.tools.db.model_dump()))
+            hits, amb = pair(rows_of(gold.tools.db.model_dump()),
+                             rows_of(pred.tools.db.model_dump()))
             for t, f, gv, pv in hits:
                 k = "WRONG-PRODUCT" if is_product(f) else "WRONG-ENUM"
                 kind[k] += 1
                 detail.append((sim.task_id, k, t, f, gv, pv))
+            for t, ng, np_ in amb:
+                kind["AMBIGUOUS(난사)"] += 1
+                detail.append((sim.task_id, "AMBIGUOUS(난사)", t,
+                               "pred-only %d개" % np_, "gold-only %d" % ng, "짝짓기 불가"))
     print("실패 sim %d · 한 칸만 다른 짝 %d" % (nfail, sum(kind.values())))
     for k, v in kind.most_common():
         print("   %-14s %d" % (k, v))
