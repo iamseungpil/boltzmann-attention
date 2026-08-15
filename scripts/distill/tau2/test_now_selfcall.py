@@ -56,6 +56,16 @@ def main():
     check('os.environ.get("T2_NOW_SELFCALL") == "1"' in src, "자가호출은 플래그로 가려져 있다")
     check(src.count("[T2_NOW_SELFCALL]") >= 2, "성공·실패 둘 다 로그를 남긴다([[64]])")
 
+    # ⒞ 두 번째 결함(창 자체가 안 열림) — 재료 배달이 `deny` 밖에서도 가능해야 한다.
+    check('os.environ.get("T2_SEARCH_ON_PROCEED") == "1"' in src,
+          "deny-밖 배달도 플래그로 가려져 있다")
+    i_new = src.find('_ar.get("status") != "deny"')
+    i_deny = src.find('if _ar.get("status") == "deny":\n                                _fb_ar')
+    check(i_new != -1 and i_deny != -1 and i_new < i_deny,
+          "deny-밖 배달은 deny 분기 **앞**에 있다 (분기 안이면 열리지 않는다)")
+    check(src.count("[T2_SEARCH_ON_PROCEED]") >= 3,
+          "배달·미배달·실패 셋 다 로그를 남긴다([[64]])")
+
     print("\n%s" % ("PASS" if not FAIL else "FAIL: " + " · ".join(FAIL)))
     return 1 if FAIL else 0
 

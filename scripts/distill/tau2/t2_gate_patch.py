@@ -7305,6 +7305,40 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 #   고른다 — 미주입이면 STEP2 는 이름 단정 없이 일반문 강등.
                                 agent=self, la=la, UserMessage=UserMessage)
                                 if _tgt else {"status": "ok"})
+                            # ★재료는 **모델이 먼저 틀려야** 나가고 있었다 (2026-08-15·
+                            #   `T2_SEARCH_ON_PROCEED`·기본 OFF). 아래 `deny` 분기 **안에서만**
+                            #   `_search_material` 이 불린다 — 매끄럽게 진행하는 sim 은 정책
+                            #   문서를 영영 못 본다. 071 실측: deny 가 난 1 sim 만 창이 열렸고
+                            #   (그나마 시계보다 앞서 침묵) 나머지 **2 sim 은 창이 안 열렸다**.
+                            #   `T2_NOW_SELFCALL` 만으로는 그 둘이 안 열린다 — 두 결함은 독립이다.
+                            #   ⚠배달 채널은 원래 deny 와 무관하다(`_t2_cp2_pending` = 재생성
+                            #     버퍼·`T2_DECISION_CARRY`). 막던 것은 **코드 위치**뿐이었다.
+                            #   ⚠나르는 것은 **재료**(만료 제외된 문서 발췌)이지 지시가 아니다 —
+                            #     고르는 것은 끝까지 모델이다([[62]] ③④: 순위·최댓값·지목 0).
+                            #   ⚠[[57]] 재발화는 횟수가 아니라 **인자 변화**로: 같은 문자열이면
+                            #     안 넣는다(`_t2_cp2_said` 비교는 아래 CP2 와 같은 규약).
+                            if (_ar.get("status") != "deny"
+                                    and os.environ.get("T2_SEARCH_ON_PROCEED") == "1"
+                                    and os.environ.get("T2_SEARCH_AGENT") == "1"
+                                    and os.environ.get("T2_DECISION_CARRY") == "1"
+                                    and getattr(self, "_t2_searchagent_fired", 0) < 3):
+                                try:
+                                    _mp = _search_material(self, a2, state.messages)
+                                except Exception as _mpe:
+                                    _mp = ""
+                                    print("[T2_SEARCH_ON_PROCEED] 건너뜀(무발화): %r" % (_mpe,),
+                                          file=_sys.stderr, flush=True)
+                                if _mp:
+                                    self._t2_searchagent_fired = getattr(
+                                        self, "_t2_searchagent_fired", 0) + 1
+                                    if _mp != getattr(self, "_t2_cp2_said", None):
+                                        self._t2_cp2_pending = _mp
+                                        self._t2_cp2_said = _mp
+                                        print("[T2_SEARCH_ON_PROCEED] deny 아님 · 재료 %d자 배달"
+                                              % len(_mp), file=_sys.stderr, flush=True)
+                                    else:
+                                        print("[T2_SEARCH_ON_PROCEED] 같은 문자열 — 재배달 안 함",
+                                              file=_sys.stderr, flush=True)
                             if _ar.get("status") == "deny":
                                 _fb_ar = _ar["feedback"]
                                 # ★C11b(2026-08-06·032 실측): 발견을 시키는 그 문장에, **이 대화가 이미

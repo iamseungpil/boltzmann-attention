@@ -15,7 +15,12 @@
 #   만료를 안 빼면 savings **0/8**. ⇒ 격리에선 모델이 이긴다 ⇒ 살 것은 **전달뿐**이다.
 #
 # 편성: 2 태스크 × nt=8 = **16 sim/arm** · 두 팔 동시(ctl=8140 · treat=8141).
-#   두 팔의 차이는 **환경변수 하나**뿐이다(`T2_NOW_SELFCALL`). 그 외 전부 t7295 와 동일.
+#   treat = **전달 복구 두 항**(둘 다 기본 OFF). 그 외 전부 t7295 와 동일.
+#     ⑴ `T2_NOW_SELFCALL`     엔진이 A2 선언 시계를 직접 부른다 → `now 미확정` 침묵 제거
+#     ⑵ `T2_SEARCH_ON_PROCEED` **deny 가 아닐 때도** 결정점에서 재료를 배달
+#   ⚠두 항은 **독립 결함**이다(t7295 071): deny 가 난 1 sim 은 창이 열렸으나 시계가 없어
+#     침묵했고(⑴이 고친다), 나머지 **2 sim 은 창 자체가 안 열렸다**(⑵가 고친다). 하나만
+#     켜면 절반만 열린다. 귀속은 로그로 갈린다(`[T2_NOW_SELFCALL]` vs `[T2_SEARCH_ON_PROCEED]`).
 #
 # 판정(사전 고정·이 순서로):
 #   ⓐ배선  treat 에서 `[T2_NOW_SELFCALL]` 발화 > 0 ∧ `T2_SEARCH_AGENT ... group=` 전달 > 0
@@ -71,7 +76,7 @@ launch () {
            T2_SEARCH_AGENT=1 T2_DECIDE_ANY=1 \
            T2_WRITE_ARG_ENUM=1 T2_DECIDE_BEFORE_WRITE=1 T2_DECISION_CARRY=1 \
            T2_DISCOVERY_STEP2=1 T2_ARG_AXIS=1 T2_WRITE_SUB=3 T2_ACTION_INDEX=1 && \
-    export T2_NOW_SELFCALL=$SELFCALL && \
+    export T2_NOW_SELFCALL=$SELFCALL T2_SEARCH_ON_PROCEED=$SELFCALL && \
     t2_launch $TAG $PORT '$TASKS' $NT" </dev/null >"$LOG/${TAG}.log" 2>&1 &
   echo "[t7296] $NAME(selfcall=$SELFCALL) → PID=$! port=$PORT"
 }
