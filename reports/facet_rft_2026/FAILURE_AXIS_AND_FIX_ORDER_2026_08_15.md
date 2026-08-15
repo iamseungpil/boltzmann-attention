@@ -469,3 +469,45 @@ gold `Sky Blue` ↔ 우리 **`Hunter Green Business Checking`** — 하필 **만
 **남는 것**: §12 의 *"지워야 할 때 안 지운다"*(069·055·070·071)는 **태스크 설계 축자 + 궤적
 축자**로 확증돼 있고 여기서 흔들리지 않는다. 흔들린 것은 **003 을 같은 축으로 묶은 것**뿐이다.
 003 은 **원인 미상**으로 되돌린다.
+
+---
+
+## §15 085 — **operand 날조**, 그리고 검증된 레버가 **꺼져 있다**
+
+`task_085` 설계 축자: *"**MISTAKEN USER TEST** … Agent **MUST verify all claims against**
+`get_bank_account_transactions_9173` **before filing** … Agent should NOT blindly trust user claims."*
+
+우리 실패(3 sim):
+- `#0` 분쟁 **0건** 제출(gold 3건 전부 미이행)
+- `#1`·`#3` 제출은 했는데 인자가 **날조**다 —
+  `transaction_id: 'tx123456'` / `'tx111111'` · `card_id: 'card123456'` ·
+  **`account_id` 자리에 `user_id`**(`f7d3a82c91`) · `transaction_date: '11/05/**2023**'`
+- 그리고 write **이전** 도구 출력에 **실제 `btxn_` id 가 하나도 없다** — 거래를 조회하지도 않고 냈다.
+
+등대 §1.4 의 **정박 치환**(C43) 그대로이고, 처방도 이미 **측정돼 있다**
+(C45: 출처 선언 + provenance 검증 → 32B 날조 **67→0%** · over-block 0 · Δspurious 0).
+
+### ★그런데 그 게이트가 **돌지 않는다** (우리 층 결함 2건)
+
+1. **아예 꺼져 있다.** `prov_on = os.environ.get("T2_PROVENANCE") == "1"` 인데
+   `go_stack.sh` 에도 `run_t7295`/`run_t7296` 에도 **그 변수가 없다**.
+   실측: t7295·t7296 로그의 `PROVENANCE_R1B` = **0건**.
+2. **켜도 banking 은 못 본다.** `_provenance_deny` 는 `_args_dict(tc)` 의 **최상위 키**만 훑는다.
+   discoverable 래퍼의 인자는 `{agent_tool_name, arguments:"<JSON 문자열>"}` 이라
+   `arguments` 키는 힌트에 안 걸리고 **안쪽 `transaction_id`·`card_id` 는 검사되지 않는다**.
+   (`agent_tool_name` 만 `name` 힌트에 걸리는데 그 값은 unlock 출력에 있으므로 항상 통과.)
+   ⇒ 오늘 아침 고친 *"중첩 `arguments` 계약↔검산기 불일치"* 와 **같은 사각**이다.
+
+### 반경 (과대 주장 금지)
+중첩 인자를 편 뒤 *"write 인자값이 그 이전 도구출력·손님발화 어디에도 없다"* 를 세면
+**7 sim / 4 태스크**(087 3 · 073 2 · 074 1 · 085 1). 검사한 중첩-인자 호출 363 중.
+값 예: `tx111111` · `card123456` · `blue_account_id` · `blue_account_card`(플레이스홀더형).
+⚠이 7 sim 도 **다층 실패**(85%)라 게이트를 켠다고 7 통과가 되지는 않는다.
+
+> ⚠부수 발견: 날조 목록에 **`@last:get_user_information_by_name`** 이 있다 —
+> **우리 층의 참조 문법이 인자값으로 새어 나간** 것이다(모델 날조가 아님). 별도 확인 대상.
+
+### 다음 (⚠[[62]] 순서)
+게이트를 켜기 전에 **⑵ 사각부터** 고쳐야 의미가 있다(안 그러면 켜도 0건 그대로).
+그리고 켜는 것은 **부작용 계측과 함께**다 — C45 는 over-block 0 을 쟀지만 그것은
+**중첩을 안 보던 시절**의 수치다. 안쪽까지 보면 차단 범위가 달라진다 ⇒ Δspurious 재측정 의무.
