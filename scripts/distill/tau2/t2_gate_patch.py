@@ -415,12 +415,58 @@ def _ctx_has(s, ctx):
     return t != s and len(t) >= 4 and t.lower() in ctx
 
 
+def _prov_scan_args(tc):
+    """검사 대상 인자 (키, 값) — **discoverable 래퍼 안쪽까지 편다**.
+
+    ★왜 (2026-08-15·085 실측): banking 의 write 는 거의 전부
+    `call_discoverable_agent_tool({"agent_tool_name": …, "arguments": "<JSON 문자열>"})` 형태다.
+    최상위 키만 훑으면 `arguments` 는 힌트에 안 걸리고 `agent_tool_name` 만 걸리는데 그 값은
+    unlock 출력에 늘 있으므로 **항상 통과**한다 ⇒ 안쪽 `transaction_id`·`card_id` 가
+    **한 번도 검사되지 않았다**. 085 가 그 자리다 — `transaction_id='tx111111'` ·
+    `card_id='card123456'` · `account_id` 자리에 `user_id` 를 넣고도 통과했고, write **이전**
+    도구 출력에는 실제 `btxn_` id 가 **하나도 없었다**.
+    오늘 아침 고친 *"중첩 `arguments` 계약↔검산기 불일치"* 와 **같은 사각**이다.
+
+    ⚠엔진은 값을 해석하지 않는다 — **키 이름이 식별자류인가**(도메인-일반 힌트)와
+      **그 값이 이전 문맥에 있는가**(부분문자열)만 본다([[59]]).
+
+    ⛔0 [[62]] 자기점검:
+      ①쟀나 — C45(32B 날조 **67→0%** · over-block 0 · Δspurious 0)가 이 검사의 실측이고,
+        오늘 t7295 포렌식이 라이브 자리를 짚었다(085 날조 인자가 write **이전** 문맥에 부재 ·
+        반경 **7 sim/4 태스크**/중첩-인자 호출 363 중).
+      ②격리에서 성공하나 — 이 레버는 **검증**이지 대체가 아니다. 값을 만드는 것도 고르는 것도
+        여전히 모델이고, 엔진은 *어디에도 없는 값*만 거절한다.
+      ③사라지는 판단 — **없다**. 문맥에 있는 값은 전부 통과한다(닫힌 술어·부분문자열 존재).
+      ④순위·최댓값·지목 — **없다**. 거절문은 무엇이 틀렸고 무엇을 하면 되는지만 말한다([[64]]).
+    [[05]] 3문: ⑴도메인-특화 순증 **0**(힌트는 도메인-일반·새 A2 키 0) · ⑵유동 판단 동결 **없음** ·
+      ⑶도메인 행동 수행 **안 함**(거절만·getter 자동호출은 별도 플래그 `T2_AUTOFETCH`).
+
+    ⚠거동 변화 범위: 이 함수는 `T2_PROVENANCE=1` 일 때만 불린다. 그 변수는 `go_stack.sh` 에도
+      런처에도 **없어서** 현재 런에서는 **한 번도 실행되지 않는다**(t7295·t7296 `PROVENANCE_R1B` 0건).
+      ⇒ 이 수리 자체의 즉시 거동 변화는 **0**이다. 켜는 것은 별건이고 **Δspurious 재측정 의무**가
+      붙는다 — C45 의 over-block 0 은 *중첩을 안 보던 시절* 수치다.
+    """
+    out = []
+    args = _args_dict(tc)
+    for k, v in (args or {}).items():
+        if k == "arguments" and isinstance(v, str):
+            try:
+                inner = json.loads(v)
+            except Exception:
+                inner = None
+            if isinstance(inner, dict):
+                out.extend(inner.items())
+                continue
+        out.append((k, v))
+    return out
+
+
 def _provenance_deny(tc, ctx, hints=DEFAULT_ARG_HINTS):
     """identifying 인자값이 컨텍스트에 없으면 fabricated → (gate, reason) 반환, 아니면 None."""
-    args = _args_dict(tc)
+    args = _prov_scan_args(tc)
     if not args:
         return None
-    for k, v in args.items():
+    for k, v in args:
         if not _hint_hit(k, hints):
             continue
         for val in _flatten(v):
