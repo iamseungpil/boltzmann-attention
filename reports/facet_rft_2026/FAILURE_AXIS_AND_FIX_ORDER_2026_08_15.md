@@ -373,3 +373,38 @@ gold `Sky Blue` ↔ 우리 **`Hunter Green Business Checking`** — 하필 **만
 ### 방법 규율로 승격
 **로그(simtag=`s<seed>`) ↔ 결과(`trial`) 를 짝지을 때는 반드시 `seed` 로 조인한다.**
 `t2_forensic.sim_key` 는 `trial` 우선이라 **그대로 쓰면 안 된다**. 오늘 이 함정에 두 번 걸렸다.
+
+---
+
+## §12 ★종합 — WRONG-PRODUCT 19건은 **하나의 기전**이다 ([[63]] 빼기)
+
+§9 의 19건이 왜 생기는지 태스크 설계 축자로 확인했다. **전부 "닫힌 술어로 후보를 제거"** 하는
+문제이고, 우리는 **제거를 못 하고 최댓값을 고른다**.
+
+| 태스크 | 제거해야 할 기준 | notes 축자 |
+|---|---|---|
+| **070·071** | **유효창** | *"EXPIRED promotion (10/12–11/12) … ACTIVE (11/01–11/30) … must determine which is active"* |
+| **069** | **자격(필수 기능)** | *"**THE TRAP**: Agent might see Gold Account (5.5%) is accessible at $10k and recommend it **without verifying ATM rebates**. Gold Account has NO ATM rebates."* |
+| **055** | **자격(다중 AND)** | *"only Purple Account fits **ALL** criteria (5개) … **Only** Silver Plus Account satisfies …"* |
+| **099** | **범위 + distractor** | *"…9 past referrals for Hunter Green (max 10) … this is a **DISTRACTOR** … compare across ALL business accounts"* |
+| 003 | (notes 에 함정 서술 없음 — 별개 가능) | — |
+
+### 궤적이 기전을 확증한다 (069)
+에이전트는 요구를 **스스로 복창하고도** 어긴다:
+> *"Based on your requirements: … 3. **Savings m[ust have ATM rebates]** …"*
+→ 같은 궤적에서 **`Gold Savings Account`** 를 연다(ATM 리베이트 없음·gold=`Silver Plus`).
+
+[[63]] 축자와 정확히 일치한다 — *"더하기·지시는 안 듣고 **제거만** 닫는다(0/8 ↔ 8/8)"*.
+**말할 수는 있고 그것으로 후보를 지우지는 못한다.**
+
+### 우리가 이미 절반을 갖고 있다
+- **유효창 제거 = 구현돼 있다**(`t2_search.drop_expired`) · 격리 **8/8**(x243·x248) ·
+  §3 의 전달 결함 때문에 라이브에 도달을 못 했을 뿐이다 ⇒ **(a) 수리가 이 절반을 연다.**
+- **자격 제거 = 없다.** 069·055 가 그 자리다.
+
+### 다음 레버 후보 (⚠아직 짓지 않는다)
+`drop_expired` 와 **같은 형태**의 `drop_ineligible`: 손님 요구를 **LLM 이 형식화**하고, 문서가
+**선언한** 기능 목록과 엔진이 **비교만** 한다. 고르는 것은 끝까지 모델이다.
+⚠[[62]] 순서 유지: [[63]] 에 일반 기전 실측 6건이 있지만 **이 태스크들에서는 안 쟀다**.
+격리(요구 + 후보 선언 기능 → 고르기)를 먼저 재고, 격리에서 되면 레버는 **제거**뿐이다.
+⚠[[66]]: 요구 추출은 LLM 몫이다. 엔진이 "무엇이 필요한지" 판정하면 위반이다.
