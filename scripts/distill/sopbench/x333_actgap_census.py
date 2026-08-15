@@ -70,8 +70,10 @@ def final_is_text_only(item):
             continue
         if m.get("tool_call_id") is not None:      # 도구 반환 — 발화자가 아니다
             continue
+        # ⚠`sender` 는 도메인 접두가 붙는다(`"bank assistant"`) — 정확 일치로 거르면 전부 버린다
+        #   (2026-08-15 수리 2회차: 첫 판은 `role`, 둘째 판은 정확 일치가 문제였다).
         who = str(m.get("sender") or m.get("role") or "").lower()
-        if who and who not in ("assistant", "agent", "ai"):
+        if who and not any(w in who for w in ("assistant", "agent", "ai")):
             continue
         has_tc = bool(m.get("tool_calls")) or bool(m.get("function_call"))
         has_txt = bool(str(m.get("content") or "").strip())
