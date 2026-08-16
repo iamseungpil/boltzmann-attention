@@ -1,0 +1,57 @@
+{
+ "ctl": [
+  {
+   "sim": "task_024#s626729",
+   "task": "task_024",
+   "deliver": [],
+   "first_idx": null,
+   "first_name": null,
+   "arrived": false,
+   "reward": 1.0,
+   "dur": 353.4,
+   "term": "user_stop",
+   "writes": 1,
+   "groups": [
+    "business_credit_cards"
+   ],
+   "ncalls": 3
+  },
+  {
+   "sim": "task_098#s626729",
+   "task": "task_098",
+   "deliver": [],
+   "first_idx": null,
+   "first_name": null,
+   "arrived": false,
+   "reward": 1.0,
+   "dur": 699.3,
+   "term": "user_stop",
+   "writes": 2,
+   "groups": [
+    "business_checking_accounts",
+    "business_savings_accounts",
+    "checking_accounts"
+   ],
+   "ncalls": 14
+  }
+ ],
+ "treat": [
+  {
+   "sim": "task_098#s626729",
+   "task": "task_098",
+   "deliver": [],
+   "first_idx": null,
+   "first_name": null,
+   "arrived": false,
+   "reward": 1.0,
+   "dur": 489.6,
+   "term": "user_stop",
+   "writes": 2,
+   "groups": [
+    "business_checking_accounts",
+    "business_savings_accounts"
+   ],
+   "ncalls": 12
+  }
+ ]
+}
