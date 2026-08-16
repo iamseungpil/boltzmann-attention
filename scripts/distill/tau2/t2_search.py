@@ -352,6 +352,37 @@ def formalize_groups(agent, la, UserMessage, spec, texts, groups):
     return out
 
 
+def sub_requirements(agent, la, UserMessage, spec, user_text):
+    """손님 발화 → **요구 인용 목록**(LLM formalize). 엔진은 뽑지 않는다([[59]]).
+
+    ★왜 (x343·n=24=8×3·블록 편차 0): 이 다음 단계(`decide_from_docs`)가 문서+후보줄만 받으면
+      `Gold Account` **24/24 오답**이고, 손님 요구를 축자로 받으면 **24/24 정답**이며, 무관한
+      요구를 주면 **0/24**(부정통제 통과). 요구는 재료가 아니라 **판별자**다.
+
+    계약: 모델이 **인용을 낸다**(문면 = A2 `requirement_prompt`·도메인 어휘 0) · 엔진은
+      그 인용의 **원문 존재만** 확인한다(호출부 `in` 연산·C45 동형). 파싱·정규식 0 —
+      JSON 경계는 `find`/`rfind` 문자열 연산으로만 잡는다.
+    ⚠못 만들면 **빈 목록**(침묵) — 종전 거동으로 떨어진다.
+    """
+    tpl = (spec or {}).get("requirement_prompt")
+    if not (tpl and agent is not None and la is not None and user_text):
+        return []
+    try:
+        body = tpl.format(messages=str(user_text)[:8000])
+        raw = str(SC.sub_generate(agent, la, UserMessage, body, "sub_requirement") or "")
+    except Exception as e:
+        print("[T2_SUB_REQUIREMENT] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return []
+    i, j = raw.find("["), raw.rfind("]")
+    if i < 0 or j <= i:
+        return []
+    try:
+        out = json.loads(raw[i:j + 1])
+    except Exception:
+        return []
+    return [x for x in out if isinstance(x, str)] if isinstance(out, list) else []
+
+
 def decide_from_docs(agent, la, UserMessage, spec, material, ask):
     """③ 남은 것 중 **고르기** — 격리 문맥(요청 + 재료)뿐. 대화 잔여물은 한 글자도 없다.
 

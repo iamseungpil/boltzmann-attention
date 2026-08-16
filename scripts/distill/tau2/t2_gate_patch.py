@@ -2716,6 +2716,33 @@ def _search_material(agent, a2, messages, decide=True):
     #     ([[59]]·비-계좌 주어 포함). 문구 = A2 `decide_candidates_text`(측정한 그 문자열).
     #   실측(x269·n=8): checking 8/8 · savings 8/8 (후보만) / 후보 없이 대화만 = 두 축 0/8.
     #   ⚠축 선택(`_g`)은 종전대로 손님 발화에서 LLM 이 한다 — 바뀌는 것은 결정 ask 뿐이다.
+    # ★T2_SUB_REQUIREMENT (2026-08-17·기본 OFF·x343 실측) — 서브에게 **손님 요구**를 준다.
+    #
+    #   x343(n=24=8×3·블록 편차 0): 이 서브가 문서+후보줄만 받으면 `Gold Account` **24/24 오답**,
+    #   손님 요구 메시지를 축자로 받으면 `Silver Plus` **24/24 정답**, 무관한 요구를 주면 **0/24**
+    #   (부정통제 통과). ⇒ 라이브 0/8 의 원인은 재료가 아니라 **요구가 서브에 없다**는 것이다.
+    #   요구가 사라진 경위: 아래 `_dask` 치환이 x269(*"대화 잔여물이 해롭다"*)에서 왔는데
+    #   **잔여물과 요구를 함께** 버렸다.
+    #
+    #   ⛔[[59]] 준수: 엔진은 손님 발화에서 아무것도 **뽑지 않는다**. LLM 이 인용을 내고
+    #     (A2 `requirement_prompt`·도메인 어휘 0), 엔진은 그 인용이 손님 발화에 **실재하는지만**
+    #     확인한다(`in` 연산·C45 동형·정규식 0). 검증을 통과한 인용만 싣는다.
+    #   ⚠[[62]]: 이 자리는 격리로 **된다**(x343) ⇒ 새 결정론 0 — 엔진은 운반과 존재확인뿐이고
+    #     고르는 일은 끝까지 서브(LLM)다.
+    _reqs = []
+    if os.environ.get("T2_SUB_REQUIREMENT") == "1" and _po.get("requirement_prompt"):
+        try:
+            _utxt = "\n\n".join(_users)
+            _rraw = _ts.sub_requirements(agent, _la, _UM, _po, _utxt)
+            for _q in (_rraw or []):
+                _qs = str(_q).strip()
+                if _qs and _qs in _utxt:              # ★존재확인만 (추출 0)
+                    _reqs.append(_qs)
+            print("[T2_SUB_REQUIREMENT] 인용 %d개 중 원문 검증 통과 %d개"
+                  % (len(_rraw or []), len(_reqs)), file=sys.stderr, flush=True)
+        except Exception as _re2:
+            print("[T2_SUB_REQUIREMENT] 건너뜀(무발화): %r" % (_re2,),
+                  file=sys.stderr, flush=True)
     _ctpl = _po.get("decide_candidates_text")
     _dask = _ask
     if _ctpl:
@@ -2727,6 +2754,11 @@ def _search_material(agent, a2, messages, decide=True):
         except Exception as _ce:
             print("[T2_SEARCH_AGENT] 후보 줄 실패(종전 ask 로): %r" % (_ce,),
                   file=sys.stderr, flush=True)
+    # ★검증 통과한 요구 인용을 **후보줄 앞에** 붙인다(x343 구성: 요구가 머리·후보가 꼬리).
+    #   인용이 하나도 검증되지 않으면 아무것도 안 붙이고 종전 거동으로 남는다(fail-safe).
+    if _reqs:
+        _dask = "Customer's stated request:\n" + "\n".join("- " + q for q in _reqs) \
+                + ("\n\n" + _dask if _dask else "")
     # ★`decide=False` = **문서 자체를 돌려준다**(2026-08-16 발견·핸드오프 §0).
     #   기본 경로는 서브에이전트의 **결정**(243~263자)을 나른다. 그런데 격리에서 24/24 를 만든
     #   객체는 **문서 본문 51k자**였다 — 둘은 다른 것이고, 나는 하루 종일 같은 것으로 말했다.
