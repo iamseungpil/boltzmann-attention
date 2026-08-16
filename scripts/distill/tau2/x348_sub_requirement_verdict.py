@@ -103,12 +103,22 @@ def pair_axis(dec_hits, grp_hits):
     return out
 
 
+def log_tag(tag):
+    """로그를 어느 태그에서 읽나. **aux 팔은 자기 로그 파일이 없다**(2026-08-17 실측) —
+    런처가 `t2_launch <본팔> && t2_launch <aux>` 를 한 setsid 셸에서 돌려 stdout 이 본팔
+    로그로 간다. 그대로 두면 aux 발화가 **0 으로 보인다**(죽은 계기·[[55]] 부류)."""
+    if F.log_text(tag) or "aux" not in tag:
+        return tag
+    return tag.replace("aux_", "_")
+
+
 def arm(name, tags):
     """한 팔 = 태그 여럿(055 + aux). sim 별 행 목록."""
     rows = []
     print("=" * 100)
-    for tag in tags:
-        sims = F.sims(tag)
+    for tag0 in tags:
+        sims = F.sims(tag0)
+        tag = log_tag(tag0)                       # 결과는 tag0, 로그는 tag(aux 는 부모)
         log = F.log_text(tag)
         req = F.by_sim(tag, REQ, sims)
         req_x = F.by_sim(tag, REQ_SKIP, sims)
@@ -116,8 +126,10 @@ def arm(name, tags):
         rec_x = F.by_sim(tag, RECS_SKIP, sims)
         dec = F.by_sim(tag, DECIDE, sims)
         grp = F.by_sim(tag, GROUP, sims)
-        print("[%s] %s · n=%d · CWE %d · 로그 %d줄" % (name, tag, len(sims), log.count(CWE),
-                                                       len(log.split("\n")) if log else 0))
+        print("[%s] %s · n=%d · CWE %d · 로그 %s %d줄"
+              % (name, tag0, len(sims), log.count(CWE),
+                 ("(부모 %s)" % tag) if tag != tag0 else "",
+                 len(log.split("\n")) if log else 0))
         for s in sorted(sims, key=lambda x: (F.task_id(x), str(x.get("seed")))):
             key = F.simtag(s)
             tid = F.task_id(s)
@@ -131,7 +143,7 @@ def arm(name, tags):
             has = [(ax, v) for _ln, ax, v in axes_dec
                    if X.norm(v) not in gnorm and any(g and g in X.norm(v) for g in gnorm)]
             rows.append({
-                "sim": key, "task": tid, "tag": tag,
+                "sim": key, "task": tid, "tag": tag0, "log_tag": tag,
                 "req_calls": len(qs), "req_quotes": sum(q[0] for q in qs if q),
                 "req_pass": sum(q[1] for q in qs if len(q) > 1),
                 "req_silent": len(req_x.get(key) or []),
