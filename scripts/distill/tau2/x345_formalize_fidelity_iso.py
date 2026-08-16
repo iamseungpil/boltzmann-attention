@@ -26,6 +26,7 @@ r"""x345 — **정규식 → formalize 이설의 전제**: 격리 서브가 레�
     D_NEG 날조 ≥18                  → 서브가 없는 값을 지어낸다 ⇒ 이설하면 **조용히 틀린다**
 
 ⛔정규식 0: 채점은 **부분문자열 존재**(`t2_probe._count` 의 `in`)로만 한다. 이 파일에 `re` 없음.
+⚠`max_tokens=240` — 1차 실행이 기본 60 이라 **JSON 이 잘려** 채점값이 사라졌다(내 계기 결함).
 ⚠재료는 t7295 `task_050` 의 실제 도구 출력(레코드)을 **메시지 인덱스로 골라 통째로** 쓴다.
 
 실행(리모트·8141):
@@ -91,12 +92,14 @@ def main():
     P.run("x345", site, [("A_REF", ""), ("B_KEYS", "")], MARKS,
           "A 또는 B ≥18 ∧ D_NEG 날조 ≤6 → **이설 가능**(입력을 서브로) · 둘 다 낮음 → 이설 불가 · "
           "D_NEG 날조 ≥18 → 서브가 지어낸다 ⇒ 이설하면 조용히 틀린다",
-          BASE_ASK, None, k, nb)
+          BASE_ASK, None, k, nb, maxtok=240, det=True)
     print("\n── B_KEYS(키 명시) ──")
-    P.run("x345-keys", site, [("A_REF", "")], MARKS, "(위와 같은 판정)", KEYS_ASK, None, k, nb)
+    P.run("x345-keys", site, [("A_REF", "")], MARKS, "(위와 같은 판정)", KEYS_ASK, None, k, nb,
+          maxtok=240)
     print("\n── D_NEG(없는 필드 요구·날조 검사) ──")
     P.run("x345-neg", site, [("A_REF", "")], NEG_MARKS,
-          "FABRICATED 가 높으면 서브가 없는 필드를 지어낸 것 = 이설 불가", NEG_ASK, None, k, nb)
+          "FABRICATED 가 높으면 서브가 없는 필드를 지어낸 것 = 이설 불가", NEG_ASK, None, k, nb,
+          maxtok=240)
     return 0
 
 

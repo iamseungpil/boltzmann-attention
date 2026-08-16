@@ -89,14 +89,28 @@ def emitted(msg):
 
 
 def run(name, site, arms, marks, verdict, ask, control=None, k=8, nb=3, maxtok=MAXTOK,
-        tools=None):
+        tools=None, det=False):
     """4셀류 격리 프로브 한 번. `arms` = [(label, 덧붙일 재료(문자열))] · `ask` = 지시문.
 
     `control=(팔, 참조팔, 지표)` — 그 팔에서 지표가 참조팔과 **갈려야** 한다(부정통제).
     반환: {label: {지표: (합, [블록…])}} · 통제가 무너지면 `verdict` 를 인쇄하지 않는다.
+
+    ★`det=True` — **온도 0 결정론 모드**(사용자 지시 2026-08-17: *"온도 0 이면 n=1 로 확정할 수
+      있으면 그렇게 하라"*). 온도 0 에서 답이 고정이면 24 회 표집은 **같은 계산의 반복**이다.
+      구현: 팔마다 **2 회**만 뽑되 둘 다 온도 0 — 두 답이 같으면 `n=1(결정론 확인)` 로 보고하고,
+      다르면 결정론이 깨졌다고 인쇄하고 표집 모드로 판단을 미룬다(서버 배칭 등 비결정 요인).
+      ⚠[[55]] 한계 병기: 온도 0 은 **최빈답**이고 적중이 표집 꼬리에서 오는 자리가 실제로 있었다
+        (2026-08-14: 온도 0 이 8/8 오답·표집 40 회 최빈값도 그 오답·적중은 꼬리). 그러니 det 는
+        *같은 입력이 같은 답을 준다*는 확인이지 *그 답이 옳다*는 보증이 아니다.
     """
-    print("%s · %s/%s · cut=%d · n=%d(%d×%d) · max_tokens=%d · 잡음바닥 ±%d"
-          % (name, site["tag"], site["task"], site["cut"], k * nb, k, nb, maxtok, NOISE))
+    if det:
+        k, nb = 2, 1
+    if det:
+        print("%s · %s/%s · cut=%d · **결정론 모드**(온도 0 ×2·같으면 n=1) · max_tokens=%d"
+              % (name, site["tag"], site["task"], site["cut"], maxtok))
+    else:
+        print("%s · %s/%s · cut=%d · n=%d(%d×%d) · max_tokens=%d · 잡음바닥 ±%d"
+              % (name, site["tag"], site["task"], site["cut"], k * nb, k, nb, maxtok, NOISE))
     print("판정(사전 고정·결과보다 먼저 인쇄): %s\n" % verdict)
     if not any(a[0] == "A_REF" for a in arms):
         print("⚠A_REF(개입 없음) 팔이 없다 — 기준선 없이는 귀속 못 한다. 중단.")
@@ -110,7 +124,7 @@ def run(name, site, arms, marks, verdict, ask, control=None, k=8, nb=3, maxtok=M
             acc = {m: 0 for m in marks}
             for i in range(k):
                 try:
-                    r = chat(body, tools, 0.0 if i == 0 else 0.7, maxtok)
+                    r = chat(body, tools, 0.0 if (det or i == 0) else 0.7, maxtok)
                 except Exception as e:
                     r = {"content": "ERR %s" % type(e).__name__}
                 out = " ".join(str(r.get("content") or "").split())
@@ -124,6 +138,14 @@ def run(name, site, arms, marks, verdict, ask, control=None, k=8, nb=3, maxtok=M
             for m in marks:
                 blocks[m].append(acc[m])
         res[label] = {m: (sum(blocks[m]), blocks[m]) for m in marks}
+        if det:
+            # 두 답이 같은지 = 결정론 확인. 지표 적중이 {0,2} 면 두 답이 일치한 것이다.
+            _split = [m for m in marks if res[label][m][0] == 1]
+            if _split:
+                print("    ⚠결정론 깨짐(온도 0 두 답이 갈림·지표 %s) — n=1 확정 불가"
+                      % ",".join(_split))
+            else:
+                print("    ✓결정론 확인(온도 0 ×2 동일) ⇒ **n=1**")
         print("%-11s %s\n" % (label, " · ".join("%s %d/%d %s" % (m, res[label][m][0], k * nb,
                                                                 res[label][m][1]) for m in marks)))
 

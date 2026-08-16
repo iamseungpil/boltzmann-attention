@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-r"""x343 — 격리 서브에 **요구를 넣으면 스스로 배제하는가**. 엔진 최소화의 게이트 실험.
+r"""x344v2 — 격리 서브에 **요구를 넣으면 스스로 배제하는가**. 엔진 최소화의 게이트 실험.
 
 설계서 = `ENGINE_MINIMIZATION_2026_08_16.md`(§1b 결정 규칙·§2 이 실험).
 
@@ -34,7 +34,7 @@ r"""x343 — 격리 서브에 **요구를 넣으면 스스로 배제하는가**.
 
 실행(리모트·8141):
   T2_PROBE_URL=http://localhost:8141/v1/chat/completions \
-  /home/woori/venvs/seka_env/bin/python x343_sub_requirement_iso.py [k] [nb]
+  /home/woori/venvs/seka_env/bin/python x344_sub_requirement_checking.py [k] [nb]
 """
 import io
 import json
@@ -55,14 +55,16 @@ import t2_search as TS                                             # noqa: E402
 TAG = "bank_t7304_treat_20260816j"
 AUX = "bank_t7304_treataux_20260816j"
 TASK, SEED = "task_055", "554706"
-REQ_MSG = 48                     # 손님이 savings 요구를 진술한 메시지(포렌식 확정)
-NEG_TASK, NEG_SEED, NEG_MSG = "task_024", "1567", 1   # 다른 태스크의 요구(부정통제)
-GROUP = "savings_accounts"
+REQ_MSG = 3                      # 손님이 checking 요구(해외 ATM·수수료)를 진술한 메시지(포렌식 8/8)
+NEG_ALT = ("I never travel abroad and I do not use ATMs outside the branch. "
+           "What matters to me is paying no monthly maintenance fee at all, "
+           "and I keep only a small balance.")   # 같은 축의 **다른 그럴듯한 요구**(부정통제 v2)
+GROUP = "checking_accounts"
 NOW = "2025-11-14"          # 이 런의 시계(로그 축자) — 만료 제거의 기준
 DOCS = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/documents"
 A2DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "a2")
 
-MARKS = {"SILVERPLUS": "Silver Plus", "GREEN": "Green Account", "GOLD": "Gold Account"}
+MARKS = {"PURPLE": "Purple Account", "BLUE": "Blue Account", "GREENFF": "Green Fee-Free"}
 ASK = ("\n\nWhich ONE option should the agent recommend? Answer with the name only.")
 
 
@@ -122,13 +124,13 @@ def main():
                     "The full official names on file are: {candidates}."
                     ).format(candidates=cands)
     req = msg_text(TAG, TASK, SEED, REQ_MSG)
-    neg = msg_text(AUX, NEG_TASK, NEG_SEED, NEG_MSG)
+    neg = NEG_ALT
     if not req or not neg:
         print("요구/부정통제 메시지를 못 찾음 — 중단(계기 결함) req=%d neg=%d"
               % (len(req), len(neg)))
         return 1
 
-    print("x343 · %s/%s(seed %s) · group=%s · 재료 %d자(문서 %d·뺀 것 %d)"
+    print("x344v2 · %s/%s(seed %s) · group=%s · 재료 %d자(문서 %d·뺀 것 %d)"
           % (TAG, TASK, SEED, GROUP, len(material), info.get("kept", 0),
              len(info.get("dropped") or ())))
     print("후보줄: %s" % cand_line[:150])
@@ -138,7 +140,7 @@ def main():
     site = {"tag": TAG, "task": TASK, "cut": REQ_MSG, "sim": None,
             "base": "Policy documents on record (verbatim):\n" + material}
 
-    P.run("x343", site, [
+    P.run("x344v2", site, [
         ("A_REF", cand_line),
         ("B_REQ", "Customer's stated request:\n" + req + "\n\n" + cand_line),
         ("C_NOCAND", "Customer's stated request:\n" + req),

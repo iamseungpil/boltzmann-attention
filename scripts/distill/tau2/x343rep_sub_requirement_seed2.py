@@ -54,8 +54,8 @@ import t2_search as TS                                             # noqa: E402
 
 TAG = "bank_t7304_treat_20260816j"
 AUX = "bank_t7304_treataux_20260816j"
-TASK, SEED = "task_055", "554706"
-REQ_MSG = 48                     # 손님이 savings 요구를 진술한 메시지(포렌식 확정)
+TASK, SEED = "task_055", "626729"
+REQ_MSG = 87                     # 손님이 savings 요구를 진술한 메시지(포렌식 확정)
 NEG_TASK, NEG_SEED, NEG_MSG = "task_024", "1567", 1   # 다른 태스크의 요구(부정통제)
 GROUP = "savings_accounts"
 NOW = "2025-11-14"          # 이 런의 시계(로그 축자) — 만료 제거의 기준
@@ -128,7 +128,7 @@ def main():
               % (len(req), len(neg)))
         return 1
 
-    print("x343 · %s/%s(seed %s) · group=%s · 재료 %d자(문서 %d·뺀 것 %d)"
+    print("x343rep · %s/%s(seed %s) · group=%s · 재료 %d자(문서 %d·뺀 것 %d)"
           % (TAG, TASK, SEED, GROUP, len(material), info.get("kept", 0),
              len(info.get("dropped") or ())))
     print("후보줄: %s" % cand_line[:150])
@@ -138,7 +138,7 @@ def main():
     site = {"tag": TAG, "task": TASK, "cut": REQ_MSG, "sim": None,
             "base": "Policy documents on record (verbatim):\n" + material}
 
-    P.run("x343", site, [
+    P.run("x343rep", site, [
         ("A_REF", cand_line),
         ("B_REQ", "Customer's stated request:\n" + req + "\n\n" + cand_line),
         ("C_NOCAND", "Customer's stated request:\n" + req),
