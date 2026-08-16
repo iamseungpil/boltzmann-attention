@@ -5465,6 +5465,39 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         except Exception:
             pass
         _append(state, message)
+        # ★T2_DELIVER_PRECOMMIT (2026-08-16·기본 OFF) — **배달 시점만** 앞으로 옮긴다.
+        #
+        # 왜. 지금 배달은 **결정 자리**에서만 난다(t7299 실측: 결정자리 22 · 일반자리 0). 그런데
+        # 모델은 그보다 **먼저 이름을 확정**한다 — 055 첫 지목 msg 7~15 · 024 msg **4**(gold 문서가
+        # msg 7 에 검색 1위로 왔는데도 안 바꿈) · 그리고 재료는 **한 턴만 산다**(재생성 버퍼·C498).
+        # ⇒ 확정 뒤에 도착한 재료는 안 먹는다. 선행도 같은 방향을 본다(2606.22936 premature
+        #   commitment · 2605.28721 증거 사용률 1/3 미만) — 다만 **주입 시점을 제어**하지는 않는다.
+        #
+        # 무엇을 하나. sim 당 **한 번**, 문서군이 형식화되는 **가장 이른 턴**에 재료를 배달한다.
+        # 새 판단 기구 0 — 문서군을 고르는 것도(LLM), 무엇을 고를지도(모델) 그대로다. 옮긴 것은
+        # **시점 하나**뿐이고 예산(총 3)도 그대로다.
+        #
+        # ⚠[[62]]: 이 결손은 격리로 쟀다(x335b 0/24→24/24 · x338 24/24 ↔ 라이브 0). 격리에서
+        #   되므로 레버는 **전달뿐**이고, 계산·선택을 대신하지 않는다.
+        # ⚠[[57]]: 이르게 주면 **손님이 요구를 다 말하기 전**일 수 있다(=군 오선택 위험). 그것이
+        #   이 실험이 재려는 상쇄다. 1차 종점은 성적이 아니라 **첫 지목 이전 도달 sim 비율**.
+        if (os.environ.get("T2_DELIVER_PRECOMMIT") == "1"
+                and os.environ.get("T2_SEARCH_AGENT") == "1"
+                and a2 is not None
+                and not getattr(self, "_t2_precommit_done", False)):
+            try:
+                _pc = _search_material(self, a2, state.messages)
+            except Exception as _pce:
+                _pc = ""
+                print("[T2_DELIVER_PRECOMMIT] 건너뜀(무발화): %r" % (_pce,),
+                      file=_sys.stderr, flush=True)
+            if _pc:
+                self._t2_precommit_done = True
+                self._t2_searchagent_fired = getattr(self, "_t2_searchagent_fired", 0) + 1
+                self._t2_cp2_pending = _pc
+                self._t2_cp2_said = _pc
+                print("[T2_DELIVER_PRECOMMIT] 선-배달 turn=%d · 재료 %d자"
+                      % (len(state.messages), len(_pc)), file=_sys.stderr, flush=True)
         # ★T2_PAIRFIX (§2bi): 같은 id 집합·순서-스왑 블록을 호출 순서로 교정(내용 불변·크래시 계열 종결).
         if os.environ.get("T2_PAIRFIX") == "1":
             try:
