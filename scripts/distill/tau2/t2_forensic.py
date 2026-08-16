@@ -224,13 +224,23 @@ def simtag(sim):
 
 
 def log_text(tag):
-    """런 로그 전문(gz). 없으면 빈 문자열(침묵) — 예외로 분석을 죽이지 않는다."""
+    """런 로그 전문. 없으면 빈 문자열(침묵) — 예외로 분석을 죽이지 않는다.
+
+    ⚠**`path_for` 를 쓰지 않는다**(2026-08-16 자기 결함): 그 함수는 *라이브 시뮬 디렉터리*를 먼저
+      보는데 거기 있는 것은 `results.json`(평문)이라, `.log.gz` 를 달라고 하면 **평문 JSON 을
+      gzip 으로 열려다 죽는다**(`BadGzipFile: b'{\\n'`). 로그는 두 자리만 본다 —
+      영속본(`sim_results/<tag>.log.gz`) → 리모트 원본(`/home/woori/scratch/logs/<tag>.log`).
+    """
     import gzip as _gz
-    p = path_for(tag, ".log.gz")
-    if not p or not os.path.exists(p):
-        return ""
-    with _gz.open(p, "rt", encoding="utf-8", errors="replace") as f:
-        return f.read()
+    gzp = os.path.join(BASE, tag + ".log.gz")
+    if os.path.exists(gzp):
+        with _gz.open(gzp, "rt", encoding="utf-8", errors="replace") as f:
+            return f.read()
+    raw = os.path.join("/home/woori/scratch/logs", tag + ".log")
+    if os.path.exists(raw):
+        with io.open(raw, encoding="utf-8", errors="replace") as f:
+            return f.read()
+    return ""
 
 
 def first_named(sim, names):
