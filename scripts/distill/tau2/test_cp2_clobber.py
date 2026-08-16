@@ -47,8 +47,10 @@ def chk(cond, msg):
 
 print("[①] 모든 대입이 헬퍼를 지난다")
 raw = re.findall(r"^\s*self\._t2_cp2_pending = (.+)$", SRC, re.M)
-chk(sorted(x.strip() for x in raw) == ["None", "text"],
-    "원시 대입은 헬퍼(text)와 소비 지점(None) 둘뿐 — 실제: %s" % sorted(x.strip() for x in raw))
+# ★2026-08-16 t7304: 소비 지점 직전 **컨텍스트 가드**가 초과 배달물을 비우는 `None` 대입 하나가
+#   추가됐다(부착 안 하고 기록). 여전히 배달물을 **넣는** 자는 헬퍼뿐이다.
+chk(sorted(x.strip() for x in raw) in (["None", "text"], ["None", "None", "text"]),
+    "원시 대입은 헬퍼(text)와 소비 지점(None·가드 None)뿐 — 실제: %s" % sorted(x.strip() for x in raw))
 chk(SRC.count("_cp2_assign(self, ") >= 5,
     "배달 자리 5곳(PRECOMMIT·MATERIAL_BYPASS·ACT_DEMAND·SEARCH_ON_PROCEED·VIEW_FB)이 헬퍼 경유")
 for tag in ("PRECOMMIT", "MATERIAL_BYPASS", "ACT_DEMAND", "SEARCH_ON_PROCEED", "VIEW_FB"):
@@ -63,10 +65,12 @@ chk("_prev and _prev != text" in body, "같은 값 재배달은 경보하지 않
 chk("len(_prev)" in body, "**버린 자수**를 남긴다 — 사고 당시 이 수가 없어 50421자 소실을 못 봤다")
 
 print("[③] 거동 불변")
+# ★2026-08-16 t7304: 대용량(≥10k) 미소비 배달물은 **이어붙임**(anti-clobber·test_proceed_docbody ④),
+#   소형은 종전대로 덮어쓴다. 어느 쪽이든 마지막 줄은 단일 슬롯 대입이다(큐 아님).
 chk(body.strip().endswith("self._t2_cp2_pending = text"),
-    "여전히 덮어쓴다(큐 아님) — 이 검정은 가시성만 보장한다")
-consume = re.search(r"_cp2 = getattr\(self, \"_t2_cp2_pending\", None\).{0,400}?"
-                    r"이 턴 재생성 버퍼에 부착", SRC, re.S)
+    "슬롯은 하나(큐 아님) — 대용량은 이어붙임·소형은 덮어씀·둘 다 기록")
+consume = re.search(r"_cp2 = getattr\(self, \"_t2_cp2_pending\", None\).{0,1500}?"
+                    r"이 턴 재생성 버퍼에 부착", SRC, re.S)   # 창 확대: 사이에 컨텍스트 가드가 있다
 chk(bool(consume), "소비 지점은 여전히 하나(재생성 버퍼 부착)")
 
 print("\n%s" % ("PASS" if OK else "FAIL"))

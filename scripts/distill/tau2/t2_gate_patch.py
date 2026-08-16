@@ -2552,6 +2552,14 @@ def _search_material(agent, a2, messages, decide=True):
     """
     if not a2:
         return ""
+    # ★T2_PROCEED_DOCBODY 중앙 스위치 (2026-08-16·t7304·심사 3인 일치 지적): 플래그가 켜지면
+    #   **모든 호출 자리**에서 문서 본문을 돌려준다. 한 자리만 decide=False 로 플립하면 다른
+    #   자리(MATERIAL_BYPASS·VIEW_FB·DECIDE-FIRST)가 그 축을 **먼저 소비**해(`_t2_search_done`
+    #   전역·영구 잠금) 문서가 그 축에 영영 못 오는 누수가 생긴다 — 유료 런으로 배관 사실을
+    #   사게 되는 형태(t7303 동형). 스위치를 함수 안에 두면 호출 자리 5곳이 자동으로 덮인다.
+    #   플래그 OFF 면 인자 그대로(바이트 불변).
+    if os.environ.get("T2_PROCEED_DOCBODY") == "1":
+        decide = False
     import t2_search as _ts
     _po = (a2.get("policy_ontology") or {})
     _groups = list(_po.get("doc_index") or {})
@@ -3576,7 +3584,15 @@ def _cp2_assign(self, text, tag):
     프롬프트가 44,672 한도를 넘는다(같은 런에서 `ContextWindowExceededError` 5건·전부 treat).
     """
     _prev = getattr(self, "_t2_cp2_pending", None)
-    if _prev and _prev != text:
+    # ★대용량 anti-clobber (2026-08-16·t7304·심사 3인 일치): 미소비 배달물이 **대용량**(≥10k자·
+    #   문서 본문 급)이고 새 배달물이 다른 값이면 버리지 않고 **뒤에 이어붙인다**. t7303 의
+    #   055 0/4 소멸이 정확히 이 자리였다. 소형↔소형(ctl 의 247자 결정문끼리)은 종전대로
+    #   덮어써서 ctl 경로 바이트 불변. 이어붙임도 로그로 남긴다(계기 [[55]]).
+    if _prev and _prev != text and len(_prev) >= 10000 and text:
+        print("[T2_CP2_APPEND] %s: 미소비 대용량 %d자 뒤에 %d자 이어붙임"
+              % (tag, len(_prev), len(text)), file=_sys.stderr, flush=True)
+        text = _prev + "\n\n" + text
+    elif _prev and _prev != text:
         print("[T2_CP2_CLOBBER] %s 가 미소비 배달물 %d자를 버리고 %d자로 덮어씀"
               % (tag, len(_prev), len(text or "")), file=_sys.stderr, flush=True)
     self._t2_cp2_pending = text
@@ -7541,34 +7557,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     and os.environ.get("T2_DECISION_CARRY") == "1"
                                     and getattr(self, "_t2_searchagent_fired", 0) < 3):
                                 # ★T2_PROCEED_DOCBODY (2026-08-16·기본 OFF·t7304=S1 재설계) —
-                                #   이 자리의 배달 **객체**만 바꾼다: 서브 결정문(243~263자)
-                                #   → **유효 문서 본문**(decide=False·37k~50k자).
-                                #   왜. t7303 로그 직독: 이 자리에 배달되던 서브 결정 자체가
-                                #   오답이었다(055 양팔 `DOCDECIDE → 'Blue Account'`·gold Purple).
-                                #   격리 24/24 를 만든 객체는 문서 본문이다(x335b) — 자리·예산·
-                                #   슬롯·축 소비 전부 불변, 객체 하나만 격리와 일치시킨다.
+                                #   배달 **객체**를 서브 결정문(243~263자) → **유효 문서 본문**
+                                #   (37k~50k자)으로 바꾼다. 왜. t7303 로그 직독: 이 자리에 배달되던
+                                #   서브 결정 자체가 오답이었다(055 양팔 `DOCDECIDE → 'Blue
+                                #   Account'`·gold Purple). 격리 24/24 를 만든 객체는 문서 본문이다
+                                #   (x335b) — 자리·예산·슬롯·축 소비 전부 불변, 객체만 격리와 일치.
+                                #   ⚠스위치는 `_search_material` **안**에 있다(심사 3인 일치: 한
+                                #   자리만 플립하면 다른 자리가 축을 먼저 소비해 문서가 영영 못 온다).
+                                #   컨텍스트 가드는 **소비 지점**(부착 직전) 하나에 있다.
                                 #   [[62]]③: 오히려 엔진-측 결정문을 **제거**하는 방향이다.
-                                _docb = os.environ.get("T2_PROCEED_DOCBODY") == "1"
                                 try:
-                                    _mp = _search_material(self, a2, state.messages,
-                                                           decide=(not _docb))
+                                    _mp = _search_material(self, a2, state.messages)
                                 except Exception as _mpe:
                                     _mp = ""
                                     print("[T2_SEARCH_ON_PROCEED] 건너뜀(무발화): %r" % (_mpe,),
                                           file=_sys.stderr, flush=True)
-                                # ★컨텍스트 가드(결정론·내용 무관·도메인 무관): 문서 본문은
-                                #   9~12k tok 라 후반 턴에 얹으면 44,672 를 넘는다(t7303 실측
-                                #   CWE 5건). 보수 추정(자수/3)으로 넘칠 배달만 **건너뛰고
-                                #   기록**한다 — 엔진이 줄이거나 고르면 [[62]]③ 이므로 축약은
-                                #   하지 않는다. 건너뜀 수는 ⓔ 부작용 표에 계상된다.
-                                if _mp and _docb and len(_mp) > 5000:
-                                    _hist = sum(len(_content_str(_m) or "")
-                                                for _m in (state.messages or []))
-                                    if (_hist + len(_mp)) / 3 > (44672 - 8192 - 1024):
-                                        print("[T2_DOC_DELIVERY] skipped: est %d+%d chars > cap"
-                                              % (_hist, len(_mp)),
-                                              file=_sys.stderr, flush=True)
-                                        _mp = ""
                                 if _mp:
                                     self._t2_searchagent_fired = getattr(
                                         self, "_t2_searchagent_fired", 0) + 1
@@ -8792,6 +8795,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ⚠배타 체인 밖은 그대로다 — `fb` 뒤에 **따로** 붙지, 어느 tool_call 도 차지하지
             #     않는다(억제·경쟁 무관).
             _cp2 = getattr(self, "_t2_cp2_pending", None)
+            # ★컨텍스트 가드 — **소비 지점 하나**에 둔다(2026-08-16·t7304·심사 권고: 대입 자리
+            #   5곳을 한 가드로 덮으려면 여기여야 한다). 대용량(≥5k자)만 검사·보수 추정(자수/3)·
+            #   초과면 **건너뛰고 기록**(축약·선별 0 — 엔진이 줄이면 [[62]]③). 소형 배달물은
+            #   종전 그대로(ctl 바이트 불변). skip 수는 ⓔ 부작용 표에 계상된다.
+            if _cp2 and len(_cp2) >= 5000:
+                try:
+                    _hist = sum(len(_content_str(_m) or "") for _m in (work or []))
+                except Exception:
+                    _hist = 0
+                if (_hist + len(_cp2)) / 3 > (44672 - 8192 - 1024):
+                    print("[T2_DOC_DELIVERY] skipped: est %d+%d chars > cap"
+                          % (_hist, len(_cp2)), file=_sys.stderr, flush=True)
+                    self._t2_cp2_pending = None
+                    _cp2 = None
             if _cp2:
                 self._t2_cp2_pending = None
                 try:

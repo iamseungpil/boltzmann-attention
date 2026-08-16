@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
-"""T2_PROCEED_DOCBODY 회귀 — **배달 객체만 바꿨는가**(2026-08-16·t7304=S1 재설계).
+"""T2_PROCEED_DOCBODY 회귀 — **배달 객체만 바꿨는가**(2026-08-16·t7304=S1 재설계·심사 반영판).
 
-설계서 = `S1_REDESIGN_T7304_2026_08_16.md` §2·§8.
+설계서 = `S1_REDESIGN_T7304_2026_08_16.md` §2·§8. 심사 3인 일치 수정 3건을 봉인한다.
 
 불변식:
-  ① 기본 OFF — 플래그 없으면 `decide=True`(종전 서브-결정 경로) 그대로.
-  ② 플래그 시 그 자리만 `decide=False`(문서 본문) — **다른 배달 자리(PRECOMMIT 등)는 불변**.
-  ③ 컨텍스트 가드 존재 — 보수 추정(자수/3)·초과 시 **건너뛰고 기록**(축약·선별 금지 [[62]]③).
-  ④ 예산·슬롯·축 소비 불변 — 같은 카운터(`_t2_searchagent_fired < 3`)·같은 `_cp2_assign` 경유.
-  ⑤ 엔진 선택 문장 0 — 이 블록에 argmax/정답 지목이 없다.
+  ① 기본 OFF — 플래그 없으면 `decide` 인자 그대로(종전 경로·바이트 불변).
+  ② **중앙 스위치** — 플래그 시 `_search_material` **함수 안**에서 `decide=False` 강제
+     ⇒ 호출 자리 5곳(PRECOMMIT·MATERIAL_BYPASS·SEARCH_ON_PROCEED·VIEW_FB·DECIDE-FIRST) 자동 커버.
+     한 자리만 플립하면 다른 자리가 축을 먼저 소비해(`_t2_search_done` 전역·영구) 문서가 그 축에
+     영영 못 오는 누수가 생긴다 — 심사 3인 일치 지적.
+  ③ 컨텍스트 가드는 **소비 지점 하나**(부착 직전) — 대용량(≥5k)만·보수 추정(자수/3)·초과 시
+     **건너뛰고 기록**(축약·선별 금지 [[62]]③). 자리별 가드 잔존 0.
+  ④ 대용량 anti-clobber — 미소비 ≥10k 배달물은 버리지 않고 **이어붙임**(`[T2_CP2_APPEND]`).
+     소형끼리는 종전대로 덮어씀(ctl 바이트 불변).
+  ⑤ 예산·슬롯·축 소비 불변 — 같은 카운터(`< 3`)·같은 `_cp2_assign`·decide=False 경로도 축 소비 **영속**.
+  ⑥ 엔진 선택 문장 0.
 """
 import io
 import os
@@ -30,45 +36,50 @@ def chk(cond, msg):
     print("  %s %s" % ("✓" if cond else "✗", msg))
 
 
-# SEARCH_ON_PROCEED 블록(플래그 정의부터 배달 로그까지)을 잡는다.
-m = re.search(r'_docb = os\.environ\.get\("T2_PROCEED_DOCBODY"\) == "1".{0,2400}?'
-              r'deny 아님 · 재료 %d자 배달', SRC, re.S)
-body = m.group(0) if m else ""
+fn = re.search(r"def _search_material\(agent, a2, messages, decide=True\):.{0,3000}?"
+               r"import t2_search as _ts", SRC, re.S)
+head = fn.group(0) if fn else ""
 
-print("[①] 기본 OFF")
-chk(bool(m), "T2_PROCEED_DOCBODY 블록이 존재한다")
-chk("decide=(not _docb)" in body, "플래그가 꺼져 있으면 decide=True(종전 경로)")
-
-print("[②] 다른 배달 자리는 불변")
-pre = re.search(r'if \(os\.environ\.get\("T2_DELIVER_PRECOMMIT"\).{0,1200}?재료 %d자"',
-                SRC, re.S)
-chk(bool(pre) and "decide=False" in pre.group(0) and "T2_PROCEED_DOCBODY" not in pre.group(0),
-    "PRECOMMIT 자리는 이 플래그와 무관(종전 그대로)")
+print("[①②] 기본 OFF · 중앙 스위치")
+chk(bool(fn), "_search_material(…, decide=True) 시그니처 불변")
+chk('if os.environ.get("T2_PROCEED_DOCBODY") == "1":' in head and
+    re.search(r'T2_PROCEED_DOCBODY"\) == "1":\s*\n\s*decide = False', head) is not None,
+    "플래그 시 함수 안에서 decide=False 강제(호출 자리 무관)")
 chk(SRC.count('os.environ.get("T2_PROCEED_DOCBODY")') == 1,
-    "플래그 참조는 SEARCH_ON_PROCEED 자리 하나뿐")
+    "플래그 참조는 함수 안 한 곳뿐(자리별 플립 잔존 0)")
+calls = re.findall(r"_search_material\(self, a2, state\.messages[^)]*\)", SRC)
+chk(len(calls) >= 5, "호출 자리 ≥5 (전부 스위치가 덮는다) — 실제 %d" % len(calls))
+chk(not any("_docb" in c for c in calls), "호출 자리에 자리별 decide 플립 없음")
 
-print("[③] 컨텍스트 가드")
-chk("_docb and len(_mp) > 5000" in body, "가드는 문서-본문 배달에만 건다(소형 재료는 종전대로)")
-chk("(_hist + len(_mp)) / 3 > (44672 - 8192 - 1024)" in body,
-    "보수 추정: (히스토리+배달물)/3 자 > 한도−출력상한−여유")
-chk("[T2_DOC_DELIVERY] skipped" in body, "초과 시 건너뛰고 **기록**한다(부작용 표 계상)")
-chk(not re.search(r"_mp\s*=\s*_mp\[", body), "축약하지 않는다 — 자르는 코드가 없다([[62]]③)")
+print("[③] 컨텍스트 가드 — 소비 지점 하나")
+cons = re.search(r'_cp2 = getattr\(self, "_t2_cp2_pending", None\).{0,1500}?'
+                 r"이 턴 재생성 버퍼에 부착", SRC, re.S)
+cbody = cons.group(0) if cons else ""
+chk(bool(cons), "소비 지점이 존재한다")
+chk("len(_cp2) >= 5000" in cbody, "대용량(≥5k)만 검사")
+chk("(_hist + len(_cp2)) / 3 > (44672 - 8192 - 1024)" in cbody, "보수 추정·한도−출력상한−여유")
+chk("[T2_DOC_DELIVERY] skipped" in cbody, "초과 시 건너뛰고 기록")
+chk(SRC.count("[T2_DOC_DELIVERY] skipped") == 1, "가드는 한 곳뿐(자리별 가드 잔존 0)")
+chk(not re.search(r"_cp2\s*=\s*_cp2\[", cbody), "축약하지 않는다([[62]]③)")
 
-print("[④] 예산·슬롯·축 소비 불변")
-chk('_t2_searchagent_fired", 0) < 3' in SRC.split("_docb = ")[0][-2000:] or
-    re.search(r'_t2_searchagent_fired", 0\) < 3\).{0,600}?_docb = ', SRC, re.S) is not None,
-    "예산 3 게이트가 이 블록 앞에 그대로 있다")
-chk('_cp2_assign(self, _mp, "SEARCH_ON_PROCEED")' in body, "슬롯은 같은 헬퍼(_cp2_assign) 경유")
-sm = re.search(r"def _search_material\(agent, a2, messages, decide=True\):.{0,12000}"
-               r"if not decide:.{0,900}?_done\.add\(_g\).{0,900}?"
-               r"agent\._t2_search_done = _done", SRC, re.S)
-chk(bool(sm), "decide=False 경로가 축 소비를 **영속**한다(add + agent._t2_search_done) — "
-              "tag h 실측: 영속 없이는 같은 축 재처리·둘째 축 미배달")
+print("[④] 대용량 anti-clobber")
+asg = re.search(r"def _cp2_assign\(self, text, tag\):.*?self\._t2_cp2_pending = text", SRC, re.S)
+abody = asg.group(0) if asg else ""
+chk("len(_prev) >= 10000" in abody and "[T2_CP2_APPEND]" in abody,
+    "미소비 ≥10k 는 이어붙임(+로그)")
+chk('text = _prev + "\\n\\n" + text' in abody, "이어붙임 = 구분자 결합(내용 무판단)")
+chk("[T2_CP2_CLOBBER]" in abody, "소형은 종전대로 덮어쓰고 기록(ctl 바이트 불변)")
 
-print("[⑤] 엔진 선택 문장 0")
-for pat, why in ((r"\bargmax\b", "argmax"), (r"정답은", "'정답은 X'"),
-                 (r"\bbest\b", "best 지목"), (r"\brecommend", "recommend 지목")):
-    chk(not re.search(pat, body), "블록에 %s 없음" % why)
+print("[⑤] 예산·슬롯·축 소비")
+chk(SRC.count('_t2_searchagent_fired", 0) < 3') >= 2, "예산 3 게이트 그대로")
+chk('_cp2_assign(self, _mp, "SEARCH_ON_PROCEED")' in SRC, "슬롯은 같은 헬퍼 경유")
+sm = re.search(r"if not decide:.{0,900}?_done\.add\(_g\).{0,900}?agent\._t2_search_done = _done",
+               SRC, re.S)
+chk(bool(sm), "decide=False 경로가 축 소비를 영속한다")
+
+print("[⑥] 엔진 선택 문장 0")
+for pat, why in ((r"\bargmax\b", "argmax"), (r"정답은", "'정답은 X'")):
+    chk(not re.search(pat, head + cbody + abody), "%s 없음" % why)
 
 print("\n%s" % ("PASS" if OK else "FAIL"))
 sys.exit(0 if OK else 1)
