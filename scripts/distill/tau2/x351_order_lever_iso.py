@@ -142,7 +142,14 @@ def quotes(tpl, text, label="", **kw):
         print("   ⚠[%s] JSON 파싱 실패(%s·응답 %d자) — 빈 목록으로 세지 않는다"
               % (label, type(e).__name__, len(raw)))
         return None
-    return [q for q in rows if isinstance(q, str) and q and q in text]
+    kept = [q for q in rows if isinstance(q, str) and q and q in text]
+    # ★제안 vs 검산통과를 **갈라 인쇄한다**(라이브 마커와 같은 규약). "0 통과"의 뜻이
+    #   *모델이 없다고 했다* 인지 *우리 검산이 다 떨어뜨렸다* 인지 이걸로만 갈린다.
+    if len(kept) != len(rows):
+        print("   ⚠[%s] 제안 %d개 중 원문 검증 통과 %d개 (떨어진 예: %s)"
+              % (label, len(rows), len(kept),
+                 str([q for q in rows if q not in kept][:1])[:160]))
+    return kept
 
 
 def block(qs):
