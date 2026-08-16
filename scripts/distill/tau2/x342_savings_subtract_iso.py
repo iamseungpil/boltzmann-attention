@@ -72,7 +72,16 @@ ASK = ("\n[instruction] Recommend exactly ONE savings account class for this cus
 
 
 def facts():
-    """env 문서에서 savings 클래스별 (최소잔액·월 무료인출·APY) 파싱 — 하드코딩 0."""
+    """env 문서에서 savings 클래스별 (최소잔액·월 무료인출·APY) 파싱 — 하드코딩 0.
+
+    ★2026-08-16 1차 실행에서 **내 계기가 틀렸다**: 산문 전체를 훑고 `max()`/`min()` 으로 뭉갠
+      탓에 `Green Account (savings)` 의 무료인출이 **8 대신 20** 으로 들어갔다(판별 필드 바로
+      그 칸). 오답을 지지하는 표를 처치로 주고 *"안 열린다"* 고 말할 뻔했다([[25]]·[[55]]).
+      ⇒ 값은 **클래스 자신의 파이프 표 행**(`| Ongoing minimum balance | $2,500 |`)에서만 읽고,
+      산문의 조건부 값(*"reduced to $5,000 for … holders"*)은 `cond` 로 **따로** 담는다.
+    ⚠이건 분석 프로브라 정규식을 쓴다. **레버로 옮길 때는 금지**([[59]]) — 값은 A2 카탈로그에
+      정책 축자 출처와 함께 선언되어야 한다(기존 `catalog_filter` 패턴).
+    """
     out = {}
     for fn in sorted(os.listdir(DOCS)):
         if not fn.startswith("doc_savings_accounts_"):
@@ -80,17 +89,19 @@ def facts():
         k = re.sub(r"_\d+$", "", re.sub(r"^doc_savings_accounts_", "",
                                         re.sub(r"\.json$", "", fn)))
         c = (json.load(io.open(os.path.join(DOCS, fn), encoding="utf-8")).get("content") or "")
-        e = out.setdefault(k, {"wd": set(), "mb": set(), "apy": set()})
-        for m in re.finditer(r"free withdrawals per month[^0-9]{0,25}(\d+)", c, re.I):
+        e = out.setdefault(k, {"wd": set(), "mb": set(), "apy": set(), "cond": set()})
+        for m in re.finditer(r"\|\s*(?:Maximum |Monthly )?[Ff]ree withdrawals per month\s*\|\s*(\d+)", c):
             e["wd"].add(int(m.group(1)))
-        for m in re.finditer(r"withdrawals? (?:per month|each month)[^0-9]{0,25}(\d+)", c, re.I):
+        for m in re.finditer(r"\|\s*Monthly withdrawal limit\s*\|\s*(\d+)", c):
             e["wd"].add(int(m.group(1)))
-        for m in re.finditer(r"[Mm]inimum balance[^$\n]{0,40}\$([\d,]+)", c):
+        for m in re.finditer(r"\|\s*(?:Ongoing m|M)inimum balance[^|]*\|\s*\$([\d,]+)", c):
             e["mb"].add(int(m.group(1).replace(",", "")))
-        for m in re.finditer(r"balance of at least \$([\d,]+)", c):
-            e["mb"].add(int(m.group(1).replace(",", "")))
-        for m in re.finditer(r"APY[^0-9%]{0,25}([\d.]+)%", c):
+        for m in re.finditer(r"\|\s*APY\s*\|\s*([\d.]+)%", c):
             e["apy"].add(float(m.group(1)))
+        for m in re.finditer(r"(?:Tier \d(?: APY)?|You earn|earns an APY of)[^0-9%]{0,12}([\d.]+)%", c):
+            e["apy"].add(float(m.group(1)))
+        for m in re.finditer(r"reduced (?:from \$[\d,]+ )?to \$([\d,]+)[^.]{0,80}", c):
+            e["cond"].add("min balance $%s only for %s" % (m.group(1), m.group(0)[-60:].strip()))
     return out
 
 
