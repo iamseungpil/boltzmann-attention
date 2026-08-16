@@ -122,18 +122,26 @@ def user_text(sim, upto_turn=None, upto_idx=None):
     return "\n\n".join(out)
 
 
-def quotes(tpl, text, **kw):
-    """LLM formalize → 원문 존재 검산(`in`)만. 정규식 0·엔진 추출 0."""
+def quotes(tpl, text, label="", **kw):
+    """LLM formalize → 원문 존재 검산(`in`)만. 정규식 0·엔진 추출 0.
+
+    ⚠**빈 목록의 두 뜻을 갈라 인쇄한다**(2026-08-17 1차 실행에서 걸린 계기 결함): `max_tokens`
+      가 작으면 긴 대화에서 JSON 이 **잘려** 파싱이 깨지고, 그것이 조용히 `[]` 가 되어
+      *"모델이 요구가 없다고 답했다"* 로 오독된다(어제 x345 절단 사고와 같은 부류).
+      ⇒ 한도를 올리고, 파싱 실패는 **`FAIL`** 로 인쇄해 판별 집계에서 뺀다."""
     if not (tpl and text):
-        return []
-    raw = str((chat(tpl.format(messages=text[:8000], **kw), None, 0.0, 500) or {}).get("content") or "")
+        return None
+    raw = str((chat(tpl.format(messages=text[:8000], **kw), None, 0.0, 2000) or {}).get("content") or "")
     i, j = raw.find("["), raw.rfind("]")
     if i < 0 or j <= i:
-        return []
+        print("   ⚠[%s] JSON 경계 없음(절단 의심·응답 %d자) — 빈 목록으로 세지 않는다" % (label, len(raw)))
+        return None
     try:
         rows = json.loads(raw[i:j + 1])
-    except Exception:
-        return []
+    except Exception as e:
+        print("   ⚠[%s] JSON 파싱 실패(%s·응답 %d자) — 빈 목록으로 세지 않는다"
+              % (label, type(e).__name__, len(raw)))
+        return None
     return [q for q in rows if isinstance(q, str) and q and q in text]
 
 
@@ -178,16 +186,19 @@ def main():
             continue
         t_now = user_text(sim, upto_turn=turn)
         t_arr = user_text(sim, upto_idx=arr_idx)
-        q_now, q_arr = quotes(rq, t_now), quotes(rq, t_arr)
+        print("── seed %s · 결정 turn=%d · 요구 도착 msg=%d (발화 now %d자 / arrived %d자)"
+              % (seed, turn, arr_idx, len(t_now), len(t_arr)))
+        q_now = quotes(rq, t_now, "q_now/%s" % seed)
+        q_arr = quotes(rq, t_arr, "q_arr/%s" % seed)
         # ② 판별 — 축을 명시한 인용 요구(빈 목록이 정답인 쪽 / 아닌 쪽)
-        d_now = quotes(SCOPED, t_now, group=disp(GROUP))
-        d_arr = quotes(SCOPED, t_arr, group=disp(GROUP))
-        res["discrim"][seed] = {"now_n": len(d_now), "arrived_n": len(d_arr),
-                                "now": d_now[:3], "arrived": d_arr[:3]}
-        print("── seed %s · 결정 turn=%d · 요구 도착 msg=%d" % (seed, turn, arr_idx))
-        print("   인용(now %d개 / arrived %d개) · **판별**(축 명시: now %d개 / arrived %d개)"
-              % (len(q_now), len(q_arr), len(d_now), len(d_arr)))
-        for q in d_arr[:2]:
+        d_now = quotes(SCOPED, t_now, "d_now/%s" % seed, group=disp(GROUP))
+        d_arr = quotes(SCOPED, t_arr, "d_arr/%s" % seed, group=disp(GROUP))
+        cnt = lambda x: ("FAIL" if x is None else len(x))            # noqa: E731
+        res["discrim"][seed] = {"now_n": cnt(d_now), "arrived_n": cnt(d_arr),
+                                "now": (d_now or [])[:3], "arrived": (d_arr or [])[:3]}
+        print("   인용(now %s개 / arrived %s개) · **판별**(축 명시: now %s개 / arrived %s개)"
+              % (cnt(q_now), cnt(q_arr), cnt(d_now), cnt(d_arr)))
+        for q in (d_arr or [])[:2]:
             print("      arrived 인용 예: %s" % q[:140])
         arms = [("A_REF", live(block(q_now) + "\n\n" + cand_line))]
         if q_arr:
@@ -214,10 +225,14 @@ def main():
     print("   → %s" % ("순서 레버가 살 것이 **있다**" if (b_gold >= 6 and a_gold <= 2)
                        else "미결/폐기 — 위 사전 문구로 판정하라"))
     print("② 판별 — 축 명시 인용")
-    now_empty = sum(1 for v in res["discrim"].values() if v["now_n"] == 0)
-    arr_full = sum(1 for v in res["discrim"].values() if v["arrived_n"] > 0)
-    print("   NOW 빈 목록 %d/%d · ARRIVED 비지-않음 %d/%d" % (now_empty, len(res["discrim"]),
-                                                             arr_full, len(res["discrim"])))
+    now_ok = [v for v in res["discrim"].values() if v["now_n"] != "FAIL"]
+    arr_ok = [v for v in res["discrim"].values() if v["arrived_n"] != "FAIL"]
+    now_empty = sum(1 for v in now_ok if v["now_n"] == 0)
+    arr_full = sum(1 for v in arr_ok if v["arrived_n"] > 0)
+    nfail = sum(1 for v in res["discrim"].values()
+                if "FAIL" in (str(v["now_n"]), str(v["arrived_n"])))
+    print("   NOW 빈 목록 %d/%d · ARRIVED 비지-않음 %d/%d · 계기 FAIL %d sim(집계 제외)"
+          % (now_empty, len(now_ok), arr_full, len(arr_ok), nfail))
     print("   → %s" % ("LLM 이 판별한다 ⇒ 엔진은 검산만" if (now_empty >= 6 and arr_full >= 6)
                        else "판별 불가 ⇒ 순서 레버는 ASK 로만(엔진 판단 금지)"))
 
