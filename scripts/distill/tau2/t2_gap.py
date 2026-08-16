@@ -97,7 +97,12 @@ def schemas():
     return out
 
 
-def ladder(tag, task, cut, group, marks, ask, k=8, nb=3, early=6):
+def ladder(tag, task, cut, group, marks, ask, k=8, nb=3, early=6, tools=None):
+    """`tools` 를 주면 **모든 단**을 도구 바인딩으로 잰다(지표가 *말* 이 아니라 **방출** 인 축용).
+
+    2026-08-16 019 가 그 경우다: 격리에서 `give_discoverable_user_tool` **24/24 방출**인데 라이브 0
+    (C500) ⇒ 재는 대상이 방출이므로 사다리도 방출로 재야 한다. 안 주면 종전대로 텍스트 축.
+    """
     sim = next(s for s in F.scored(tag) if F.task_id(s) == task)
     st = P.site(tag, task, cut)
     a2 = json.load(io.open(A2P, encoding="utf-8"))
@@ -116,13 +121,13 @@ def ladder(tag, task, cut, group, marks, ask, k=8, nb=3, early=6):
     print("── I0_CORE / I1_CTX / I2_EARLY (재료 위치·문맥 축) ──")
     r0 = P.run("gap:I0", core_site, [("A_REF", ""), ("I0_CORE", material)], marks,
                "I0 대비 I1 낙차 = 부하 · I1 대비 I2 낙차 = 타이밍(부호 반대면 미리 주는 것이 낫다)",
-               ask, None, k, nb)
+               ask, None, k, nb, tools=tools)
     early_site = dict(st)
     early_site["base"] = early_base
     r1 = P.run("gap:I1", st, [("A_REF", ""), ("I1_CTX", material)], marks,
-               "(위와 같은 사다리)", ask, None, k, nb)
+               "(위와 같은 사다리)", ask, None, k, nb, tools=tools)
     r2 = P.run("gap:I2", early_site, [("A_REF", ""), ("I2_EARLY", "")], marks,
-               "(위와 같은 사다리)", ask, None, k, nb)
+               "(위와 같은 사다리)", ask, None, k, nb, tools=tools)
 
     r3 = None
     if rival:
@@ -144,7 +149,7 @@ def ladder(tag, task, cut, group, marks, ask, k=8, nb=3, early=6):
     r5 = None
 
     r4 = None
-    tools = schemas()
+    tools = tools or schemas()          # 호출부가 준 것이 있으면 그것을 쓴다(재로딩 금지)
     if tools:
         print("── I4_TOOL (끝맺음 축·도구 %d개 바인딩·지목 0) ──" % len(tools))
         r4 = P.run("gap:I4", st, [("A_REF", ""), ("I4_TOOL", material)], marks,
@@ -169,16 +174,32 @@ def ladder(tag, task, cut, group, marks, ask, k=8, nb=3, early=6):
 
 
 def main():
+    """t2_gap.py <tag> <task> <cut> <group> [k] [nb] [marks=A=sub,B=sub] [ask=...] [--tools]
+
+    `marks`/`ask` 를 안 주면 **계좌-선택 축 기본값**을 쓴다(종전 거동). `--tools` 는 환경 스키마
+    전체를 묶어 **방출**로 잰다(019 처럼 지표가 도구 호출인 축).
+    """
     if len(sys.argv) < 5:
-        print(__doc__.strip().split("## 쓰는 법")[-1].strip())
+        print(main.__doc__.strip())
         return 1
     tag, task, cut, group = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4]
-    k = int(sys.argv[5]) if len(sys.argv) > 5 else 8
-    nb = int(sys.argv[6]) if len(sys.argv) > 6 else 3
+    rest = sys.argv[5:]
+    nums = [a for a in rest if a.isdigit()]
+    k = int(nums[0]) if nums else 8
+    nb = int(nums[1]) if len(nums) > 1 else 3
     marks = {"SKY": "SKY BLUE", "LIME": "LIME GREEN", "PURPLE": "PURPLE", "BLUEST": "BLUEST"}
     ask = ("\n[instruction] Do NOT call any tool. Reply with ONE line only: the full official name "
            "of the ONE account class you would open for this customer, nothing else.")
-    ladder(tag, task, cut, group, marks, ask, k, nb)
+    for a in rest:
+        if a.startswith("marks="):
+            marks = dict(x.split("=", 1) for x in a[len("marks="):].split(",") if "=" in x)
+        elif a.startswith("ask="):
+            ask = "\n[instruction] " + a[len("ask="):]
+    tools = schemas() if "--tools" in rest else None
+    if "--tools" in rest and not tools:
+        print("도구 스키마 실패 — 중단")
+        return 1
+    ladder(tag, task, cut, group, marks, ask, k, nb, tools=tools)
 
 
 if __name__ == "__main__":
