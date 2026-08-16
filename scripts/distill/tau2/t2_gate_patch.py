@@ -6642,19 +6642,66 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   형식화)을 후보로 재현했지만 실패 sim 에서도 열려 있었다(가설 기각). 짐작을 한 번 더
             #   하는 대신 **칸마다 멈춘 이유**를 남긴다. 인쇄 전용이고 모델에 안 보인다([[55]]).
             _mgate = None
+            _mgate_kind = None          # 라벨 문자열을 되파싱하지 않는다(구조로 남긴다)
             if not _contract_on or a2 is None:
                 _mgate = "contract_off"
+                _mgate_kind = "contract_off"
             elif not (not do_gate and not do_prov and ep_fb is None and cons_fb is None
                       and ra_fb is None and te_fb is None and wev_fb is None):
                 _mgate = "other_lever(%s)" % ",".join(
                     n for n, v in (("gate", do_gate), ("prov", do_prov), ("eplan", ep_fb),
                                    ("cons", cons_fb), ("ra", ra_fb), ("te", te_fb),
                                    ("wev", wev_fb)) if v)
+                _mgate_kind = "other_lever"
             elif not _resolve_cap_ok(self, state.messages, a2):
                 _mgate = "resolve_cap(정체 %s회)" % getattr(self, "_t2_resolve_deny", "?")
+                _mgate_kind = "resolve_cap"
             if _mgate:
                 print("[T2_MATERIAL_GATE] stop=%s turn=%d" % (_mgate, len(state.messages)),
                       file=_sys.stderr, flush=True)
+            # ★T2_MATERIAL_BYPASS (2026-08-16·`x335b`/C494 후속·기본 OFF) — **배달을 요구와 분리**.
+            #
+            # 무엇을 고치나. `_resolve_cap_ok` 는 *제자리걸음* 을 억제하려고 만든 상한인데(정체 3회),
+            # 검색 에이전트의 **재료 배달**이 같은 관문 안에 갇혀 있어 함께 멎는다(두 배달 지점이
+            # 모두 아래 블록 안이다). 실측: t7295 의 055 세 sim 에서 **결정점 전에 재료가 도착한
+            # sim 0/3** 이고, 막은 자는 `now 미확정` 침묵 **하나가 아니라** 이 관문이었다
+            # (t7297 수리 후에도 `resolve_cap` **97회** · `other_lever` 59회로 생존).
+            #
+            # 왜 분리가 옳은가. 둘은 성질이 다르다 — *요구*("이걸 하라")를 되풀이하면 소음이지만
+            # (무제한으로 열었더니 같은 요건 100회·전진 0), *재료*는 아직 안 읽은 것이면 새 정보다.
+            # 그리고 재료가 값을 산다는 것은 **격리로 쟀다**([[62]] ①): 055 checking 0/24 → **24/24**,
+            # 재료가 없으면 24/24 전부 카탈로그 밖 상품명 **날조**(C494).
+            #
+            # 반복은 무엇이 막나(무제한 아님·[[57]]). ⑴`_t2_searchagent_fired < 3` 상한 그대로 ·
+            # ⑵`t2_search` 자신의 축 중복 억제(*"요청 축 모두 처리됨 — 침묵"*) · ⑶같은 문자열이면
+            # 재배달 안 함. 즉 **내용 기준**으로 세는 기존 논리를 재사용할 뿐 새 결정론은 0이다.
+            #
+            # ⚠범위: `resolve_cap` 으로 멎은 자리만 연다. `other_lever`(gate/prov)는 **여기서 열지
+            #   않는다** — 그쪽은 양보가 아니라 **거부 본문에 재료를 합류**시키는 것이 옳고([[64]]),
+            #   그건 별도 변경이라 따로 잰다.
+            # ⚠[[62]] ③: 배달일 뿐이다. 무엇을 고를지 말하지 않고 도구를 지목하지 않는다.
+            # ⚠[[57]] 부작용: 재료는 회당 ~10k 토큰이라 **지연을 판다**(t7296 실측 1.8×). 판정은
+            #   ⓐ배선 → ⓑ결정점-전 도달률 → ⓒ성적 → **ⓓ지연·과행동** 순서로 상쇄를 같이 잰다.
+            if (_mgate_kind == "resolve_cap"
+                    and os.environ.get("T2_MATERIAL_BYPASS") == "1"
+                    and os.environ.get("T2_SEARCH_AGENT") == "1"
+                    and a2 is not None
+                    and getattr(self, "_t2_searchagent_fired", 0) < 3):
+                try:
+                    _bp = _search_material(self, a2, state.messages)
+                except Exception as _bpe:
+                    _bp = ""
+                    print("[T2_MATERIAL_BYPASS] 건너뜀(무발화): %r" % (_bpe,),
+                          file=_sys.stderr, flush=True)
+                if _bp and _bp != getattr(self, "_t2_cp2_said", None):
+                    self._t2_searchagent_fired = getattr(self, "_t2_searchagent_fired", 0) + 1
+                    self._t2_cp2_pending = _bp
+                    self._t2_cp2_said = _bp
+                    print("[T2_MATERIAL_BYPASS] resolve_cap 우회 · 재료 %d자 배달" % len(_bp),
+                          file=_sys.stderr, flush=True)
+                elif _bp:
+                    print("[T2_MATERIAL_BYPASS] 같은 재료 — 재배달 안 함",
+                          file=_sys.stderr, flush=True)
             if (_contract_on and a2 is not None
                     and not do_gate and not do_prov and ep_fb is None and cons_fb is None
                     and ra_fb is None and te_fb is None and wev_fb is None
