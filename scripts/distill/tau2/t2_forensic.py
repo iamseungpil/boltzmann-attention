@@ -233,6 +233,44 @@ def log_text(tag):
         return f.read()
 
 
+def first_named(sim, names):
+    """**첫 지목** — 어시스턴트가 후보 이름을 처음 입에 올린 메시지 index (없으면 None).
+
+    왜 필요한가(2026-08-16·055·024 공통 기전): 지목이 박히면 **그 뒤에 온 재료는 안 먹는다**.
+      · 055 — 첫 지목 msg 7~15 · 그 뒤 배달 3회 · 이름 안 바뀜 · open 은 msg 31~46
+      · 024 — 첫 지목 msg 4 · msg 7 에 gold 문서가 **검색 1위**로 들어왔는데도 안 바꿈
+    그래서 P1 의 1차 종점은 배달 **횟수**가 아니라 *"첫 지목 이전에 도달했는가"* 다.
+    `names` = 후보 이름 목록(도메인 어휘는 **호출부**가 준다 — 엔진은 판단하지 않는다·[[59]]).
+    """
+    import re as _re
+    rx = _re.compile("|".join(_re.escape(n) for n in names), _re.I) if names else None
+    if rx is None:
+        return None
+    for i, m in enumerate(sim.get("messages") or []):
+        if m.get("role") != "assistant":
+            continue
+        if rx.search(str(m.get("content") or "")):
+            return i
+    return None
+
+
+def turns_of(tag, pattern, sims_=None):
+    """로그 매치의 **턴 번호**(`turn=N`)를 sim 별로. 턴을 안 찍는 줄은 None 으로 남긴다.
+
+    ⚠턴을 안 찍는 로그 줄이 있다(예: 검색 재료 배달). 그때는 **모른다고 남기지**, 순서로
+      추정하지 않는다([[25]] *모르면 안 뺀다* 의 계기판).
+    """
+    import re as _re
+    out = {}
+    for k, hits in by_sim(tag, pattern, sims_).items():
+        vals = []
+        for _i, s in hits:
+            m = _re.search(r"turn=(\d+)", s if isinstance(s, str) else "")
+            vals.append(int(m.group(1)) if m else None)
+        out[k] = vals
+    return out
+
+
 def by_sim(tag, pattern, sims_=None):
     """로그를 **sim 별로** 훑어 `pattern` 매치를 모은다 → {simtag: [(줄번호, 매치), …]}.
 
