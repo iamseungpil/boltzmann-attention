@@ -5457,7 +5457,17 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   비교성도 깨진다. ⇒ `T2_DECLFIRST_GUIDE=0`이면 **관찰자만** 돈다.
             #   기본은 1(=종전 동작 보존·arm③ 아키텍처).
             _guide_on = os.environ.get("T2_DECLFIRST_GUIDE", "1") == "1"
-            _g = _df.guide_text(a2) if (os.environ.get("T2_DECLFIRST") == "1" and _guide_on) else ""
+            # ⛔**이 자리는 죽어 있었다**(2026-08-16 발견·`test_no_unbound_a2` 로 봉인).
+            #   `a2` 는 이 함수 **아래쪽**(`a2 = getattr(self, "_t2_a2", None)`)에서 바인딩되므로
+            #   여기서 읽으면 매 턴 `UnboundLocalError` 이고 바로 아래 `except Exception: pass` 가
+            #   그것을 **조용히 삼켰다** ⇒ `unified` 경로에서 declfirst 가이드는 **한 번도 주입된 적이
+            #   없다**(같은 코드의 `patched` 경로 사본은 살아 있다 — 그래서 더 안 보였다).
+            #   ⚠조용히 살리지 않는다: 살리면 **모든 과거 런과 베이스라인이 달라진다**.
+            #   `T2_DECLFIRST_GUIDE_FIX=1` 일 때만 살리고 효과는 **별도 A/B** 로 잰다([[57]]).
+            _a2g = (getattr(self, "_t2_a2", None)
+                    if os.environ.get("T2_DECLFIRST_GUIDE_FIX") == "1" else None)
+            _g = _df.guide_text(_a2g) if (os.environ.get("T2_DECLFIRST") == "1"
+                                          and _guide_on and _a2g is not None) else ""
             if _g and self._system_messages and not getattr(self, "_t2_df_guided", False):
                 _sm = self._system_messages[-1]
                 _sm.content = (getattr(_sm, "content", "") or "") + _g
@@ -5465,6 +5475,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         except Exception:
             pass
         _append(state, message)
+        # ★T2_PAIRFIX (§2bi): 같은 id 집합·순서-스왑 블록을 호출 순서로 교정(내용 불변·크래시 계열 종결).
+        if os.environ.get("T2_PAIRFIX") == "1":
+            try:
+                _nfx = _pairfix(state.messages)
+            except Exception:
+                _nfx = 0
+            if _nfx:
+                print("[T2_PAIRFIX] reordered %d swapped result block(s)" % _nfx,
+                      file=_sys.stderr, flush=True)
+        # ★T2_PAIRCHECK (§2bd·로그 전용): 커밋 히스토리 call↔result 쌍 불변식 라이브 검사 —
+        #   rall4 id-mismatch(평가-시점 크래시·덤프 부재)의 부패 지점을 다음 발생 시 특정.
+        if os.environ.get("T2_PAIRCHECK") == "1" and not getattr(self, "_t2_paircheck_hit", False):
+            try:
+                _pc = _paircheck(state.messages)
+            except Exception:
+                _pc = None
+            if _pc:
+                self._t2_paircheck_hit = True
+                print("[T2_PAIRCHECK] pairing broken: %s" % _pc, file=_sys.stderr, flush=True)
+        gate = getattr(self, "_t2_gate", None)
+        a2 = getattr(self, "_t2_a2", None)
         # ★T2_DELIVER_PRECOMMIT (2026-08-16·기본 OFF) — **배달 시점만** 앞으로 옮긴다.
         #
         # 왜. 지금 배달은 **결정 자리**에서만 난다(t7299 실측: 결정자리 22 · 일반자리 0). 그런데
@@ -5498,27 +5529,6 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_cp2_said = _pc
                 print("[T2_DELIVER_PRECOMMIT] 선-배달 turn=%d · 재료 %d자"
                       % (len(state.messages), len(_pc)), file=_sys.stderr, flush=True)
-        # ★T2_PAIRFIX (§2bi): 같은 id 집합·순서-스왑 블록을 호출 순서로 교정(내용 불변·크래시 계열 종결).
-        if os.environ.get("T2_PAIRFIX") == "1":
-            try:
-                _nfx = _pairfix(state.messages)
-            except Exception:
-                _nfx = 0
-            if _nfx:
-                print("[T2_PAIRFIX] reordered %d swapped result block(s)" % _nfx,
-                      file=_sys.stderr, flush=True)
-        # ★T2_PAIRCHECK (§2bd·로그 전용): 커밋 히스토리 call↔result 쌍 불변식 라이브 검사 —
-        #   rall4 id-mismatch(평가-시점 크래시·덤프 부재)의 부패 지점을 다음 발생 시 특정.
-        if os.environ.get("T2_PAIRCHECK") == "1" and not getattr(self, "_t2_paircheck_hit", False):
-            try:
-                _pc = _paircheck(state.messages)
-            except Exception:
-                _pc = None
-            if _pc:
-                self._t2_paircheck_hit = True
-                print("[T2_PAIRCHECK] pairing broken: %s" % _pc, file=_sys.stderr, flush=True)
-        gate = getattr(self, "_t2_gate", None)
-        a2 = getattr(self, "_t2_a2", None)
         last_user = transfer_sent = None
         if gate is not None:
             _rebuild_gate_state(gate, a2, state.messages)

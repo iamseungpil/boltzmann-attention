@@ -40,7 +40,7 @@ if [ "$DIRTY" != "0" ]; then
   echo "[t7303] REFUSING: 엔진 경로 커밋 안 된 변경 $DIRTY 개." >&2; exit 1
 fi
 
-for t in test_deliver_precommit.py test_material_reserve.py test_material_bypass.py \
+for t in test_no_unbound_a2.py test_deliver_precommit.py test_material_reserve.py test_material_bypass.py \
          test_probe_canonical.py test_log_join.py test_now_selfcall.py \
          test_no_undefined_names.py test_decision_carry.py test_subcall_return_type.py \
          test_a2_three_layer.py test_operator_find.py test_route_trace.py; do
@@ -55,7 +55,7 @@ fi
 
 launch () {
   NAME="$1"; PORT="$2"; PRE="$3"
-  TAG="bank_t7303_${NAME}_20260816f"
+  TAG="bank_t7303_${NAME}_20260816g"
   if [ -e "$LOG/${TAG}.log" ]; then echo "[t7303] SKIP: ${TAG}.log 존재" >&2; return 0; fi
   if [ -e "$SIMS/${TAG}" ]; then echo "[t7303] REFUSING: $SIMS/${TAG} 잔존" >&2; return 1; fi
   if ps -eo cmd | grep -v grep | grep "t2_run_gated.py" | grep -q "localhost:${PORT}/"; then
