@@ -132,8 +132,12 @@ def ladder(tag, task, cut, group, marks, ask, k=8, nb=3, early=6, tools=None):
     r3 = None
     if rival:
         print("── I3_RIVAL (경합 축) ──")
+        # ⚠2026-08-16 자기 결함: 이 단만 `tools` 를 안 넘겨 **다른 계기로 쟀다**(방출 축 런에서
+        #   I3 만 텍스트로 측정 → GIVE 0/24 가 나왔고 하마터면 *"경합이 죽인다"* 로 읽을 뻔했다).
+        #   단 간 비교는 **같은 계기**여야 한다 — 계기가 다르면 낙차는 효과가 아니라 아티팩트다.
         r3 = P.run("gap:I3", st, [("A_REF", ""), ("I3_RIVAL", material + "\n\n[tool] " + rival)],
-                   marks, "I2/I1 대비 낙차 = 경합(같은 자리를 다투는 우리 문구)", ask, None, k, nb)
+                   marks, "I2/I1 대비 낙차 = 경합(같은 자리를 다투는 우리 문구)", ask, None, k, nb,
+                   tools=tools)
 
     # ── 비영속(ephemeral) 축은 **새 단이 필요 없다 — `A_REF` 가 그 단이다** ──
     #
