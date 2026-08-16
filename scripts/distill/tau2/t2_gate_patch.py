@@ -3555,6 +3555,27 @@ _COVERAGE_RE = re.compile(
     r"\[coverage\] (\d+) of (\d+) rows were checked \((\d+) could not be verified\)")
 
 
+def _cp2_assign(self, text, tag):
+    """`_t2_cp2_pending` **단일 슬롯**에 배달물을 넣는다 — 단 *조용한 덮어쓰기를 금지*한다.
+
+    ★2026-08-16 t7303 tag h 실측(우리 층 결함·검증 워크플로가 잡음): 슬롯이 하나뿐이라
+      같은 턴 안에서 `T2_SEARCH_ON_PROCEED`(247자 결정문)가 `T2_DELIVER_PRECOMMIT`(문서 본문
+      50,421자)를 **덮어썼고**, 소비 지점(`[T2_DECISION_CARRY] … 부착`)이 하나뿐이라 그 문서는
+      영영 사라졌다. 로그에는 *"선-배달 turn=2 · 재료 50421자"* 가 찍혀 있어서 **배달된 것처럼
+      보였다** — task_055 4/4 sim 이 그렇게 위장됐고, 그 위에서 "전달했는데 선택이 안 바뀐다"는
+      결론이 날 뻔했다([[55]] 우리 배관 먼저 · [[25]] 우리 계기는 100% 정답 의무).
+
+    거동은 **바꾸지 않는다**(여전히 덮어쓴다) — 이 함수는 계기다. 무엇을 버렸는지 로그에 남겨야
+    다음 설계(큐로 바꿀지·부착 시점을 옮길지)가 측정 위에서 결정된다. 부피를 그냥 얹으면
+    프롬프트가 44,672 한도를 넘는다(같은 런에서 `ContextWindowExceededError` 5건·전부 treat).
+    """
+    _prev = getattr(self, "_t2_cp2_pending", None)
+    if _prev and _prev != text:
+        print("[T2_CP2_CLOBBER] %s 가 미소비 배달물 %d자를 버리고 %d자로 덮어씀"
+              % (tag, len(_prev), len(text or "")), file=_sys.stderr, flush=True)
+    self._t2_cp2_pending = text
+
+
 def _coverage_pending(msgs):
     """★C212/B1 (day7 019/022/027 [S]): 엔진 자기-생성 `[coverage]` 라인의 미판정(skipped>0)
     잔존 검출 — 이후 같은 도구의 skipped==0 결과가 나오면 해소. 엔진↔엔진 프로토콜 파싱만
@@ -5539,7 +5560,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if _pc:
                 self._t2_precommit_done = True
                 self._t2_searchagent_fired = getattr(self, "_t2_searchagent_fired", 0) + 1
-                self._t2_cp2_pending = _pc
+                _cp2_assign(self, _pc, "PRECOMMIT")
                 self._t2_cp2_said = _pc
                 print("[T2_DELIVER_PRECOMMIT] 선-배달 turn=%d · 재료 %d자"
                       % (len(state.messages), len(_pc)), file=_sys.stderr, flush=True)
@@ -6757,7 +6778,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                           file=_sys.stderr, flush=True)
                 if _bp and _bp != getattr(self, "_t2_cp2_said", None):
                     self._t2_searchagent_fired = getattr(self, "_t2_searchagent_fired", 0) + 1
-                    self._t2_cp2_pending = _bp
+                    _cp2_assign(self, _bp, "MATERIAL_BYPASS")
                     self._t2_cp2_said = _bp
                     print("[T2_MATERIAL_BYPASS] resolve_cap 우회 · 재료 %d자 배달" % len(_bp),
                           file=_sys.stderr, flush=True)
@@ -7501,7 +7522,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     and os.environ.get("T2_DECISION_CARRY") == "1"):
                                 _dm = "Carry out the next step of this request now."
                                 if _dm != getattr(self, "_t2_cp2_said", None):
-                                    self._t2_cp2_pending = _dm
+                                    _cp2_assign(self, _dm, "ACT_DEMAND")
                                     self._t2_cp2_said = _dm
                                     print("[T2_ACT_DEMAND] 행동 촉구 1줄 배달(도구 지목 0)",
                                           file=_sys.stderr, flush=True)
@@ -7523,7 +7544,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     self._t2_searchagent_fired = getattr(
                                         self, "_t2_searchagent_fired", 0) + 1
                                     if _mp != getattr(self, "_t2_cp2_said", None):
-                                        self._t2_cp2_pending = _mp
+                                        _cp2_assign(self, _mp, "SEARCH_ON_PROCEED")
                                         self._t2_cp2_said = _mp
                                         print("[T2_SEARCH_ON_PROCEED] deny 아님 · 재료 %d자 배달"
                                               % len(_mp), file=_sys.stderr, flush=True)
@@ -7674,7 +7695,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                 #   소비된다 — 결정점도 write 도 이 턴이라
                                                 #   한 턴 늦었다(`arrived=False` 실측). 이 턴의
                                                 #   재생성 버퍼로 보낸다(§`work = work + fb` 뒤).
-                                                self._t2_cp2_pending = _m3
+                                                _cp2_assign(self, _m3, "VIEW_FB")
                                                 self._t2_cp2_said = _m3
                                                 # ★배달을 **모델 입력에서** 잰다 (C441⒡).
                                                 #   사이드카는 뷰 채널을 안 남긴다 — 그래서
