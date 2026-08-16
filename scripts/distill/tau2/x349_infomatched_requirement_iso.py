@@ -18,11 +18,13 @@ r"""x349 — **정보-맞춘** 요구 격리(C506 재검정). t7305 가 왜 격�
 ## 셀 (서브 입력만 바꾼다 · 문서·후보줄·now 는 전 셀 동일)
 
     A_REF       문서 + 후보줄                                  ← 라이브 재현 기준선
-    B_LIVEQ     + **그 시점 발화(msg 1·3)로 뽑은 인용 전부**      ← ★정보-맞춤(라이브가 실제로 실은 것)
+    B_LIVEQ     + **그 turn 에 실재한 발화로 뽑은 인용 전부**      ← ★정보-맞춤(라이브가 실제로 실은 것)
     C_FUTUREQ   + **msg 16 축자**(결정 뒤에 나온 savings 요구)     ← C506 재현(미래 정보)
     D_NEG       + 다른 태스크의 요구                              ← 부정통제
-    E_MINUSECO  (checking 축만) B_LIVEQ 에서 손님이 쓴 단어 `green` 이 든 인용을 뺀 것
+    E_MINUSECO  B_LIVEQ 에서 손님이 쓴 단어 `green` 이 든 인용을 뺀 것(그런 인용이 있을 때만)
                 ← **진단 전용**(미끼 귀속). 레버 후보 아님 — 무엇을 뺄지는 사람이 정했다.
+
+본문 구성은 **라이브 축자**(A2 `doc_decide_prompt`): 요청이 머리 · 재료가 몸 · 질문이 꼬리.
 
 인용은 라이브와 **같은 절차**로 만든다: A2 `requirement_prompt` 로 LLM 이 내고, 각 인용의
 **원문 존재만** `in` 으로 확인한다(엔진 추출 0·[[59]]·C45 동형). ⚠라이브는 인용 축자를
@@ -66,11 +68,14 @@ DOCS = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/docum
 A2DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "a2")
 ASK = "\n\nWhich ONE option should the agent recommend? Answer with the name only."
 
-# 축별 (그룹, 결정 turn, 그 시점까지의 손님 발화 index, 미래 요구 msg, 지표)
+# 축별 (그룹, 결정 turn, **그 turn 에 실재한** 손님 발화 index, 미래 요구 msg, 지표)
+#   ⚠1차 실행에서 checking 에 `[1, 3]` 을 줬다 = **컷 오류**(계기 결함·자가 검출).
+#     라이브 로그 축자: checking 결정은 `turn=2`(인용 3개) — 그 시점 손님 발화는 **msg 1 뿐**이고
+#     msg 3(여행·수수료·미끼)은 아직 안 나왔다. savings 는 `turn=4`(인용 6개) = msg 1·3.
 AXES = [
     ("savings_accounts", 4, [1, 3], 16,
      {"SILVERPLUS": "Silver Plus", "GREEN": "Green Account", "GOLD": "Gold Account"}),
-    ("checking_accounts", 2, [1, 3], 16,
+    ("checking_accounts", 2, [1], 16,
      {"PURPLE": "Purple", "EVERGREEN": "Evergreen", "BLUE": "Blue Account",
       "GREENFEE": "Green Fee-Free"}),
 ]
@@ -167,25 +172,33 @@ def main():
             print("   - %s" % q[:180])
         print("## 미래 요구(msg %d·결정 뒤에 나온 말): %s" % (fut_idx, fut[:200]))
 
-        arms = [
-            ("A_REF", cand_line),
-            ("B_LIVEQ", block(qs) + "\n\n" + cand_line),
-            ("C_FUTUREQ", block([fut]) + "\n\n" + cand_line),
-            ("D_NEG", block([neg]) + "\n\n" + cand_line),
-        ]
-        if group == "checking_accounts":
-            # 진단 전용: 손님이 쓴 단어 `green` 이 든 인용을 뺀다(사람이 정한 뺄셈·레버 아님)
-            keep = [q for q in qs if "green" not in q.lower()]
-            if keep and len(keep) < len(qs):
-                arms.append(("E_MINUSECO", block(keep) + "\n\n" + cand_line))
+        # ★구성은 **라이브 축자**로(1차 실행의 두 번째 계기 결함): 라이브는 A2
+        #   `doc_decide_prompt` = `{ask}` **머리** → `{material}` 몸 → 질문 꼬리 순인데,
+        #   1차 프로브는 재료를 머리에 놓았다. 순서는 답을 바꾼다(C417⒠ *요청이 머리에*).
+        tpl = str(po.get("doc_decide_prompt") or "")
+        if "{ask}" not in tpl or "{material}" not in tpl:
+            print("[%s] doc_decide_prompt 없음 — 중단(계기 결함)" % group)
+            return 1
+        live = lambda ask: tpl.format(ask=ask, material=material)      # noqa: E731
 
-        site = {"tag": TAG, "task": TASK, "cut": turn, "sim": SEED,
-                "base": "Policy documents on record (verbatim):\n" + material}
+        arms = [
+            ("A_REF", live(cand_line)),
+            ("B_LIVEQ", live(block(qs) + "\n\n" + cand_line)),
+            ("C_FUTUREQ", live(block([fut]) + "\n\n" + cand_line)),
+            ("D_NEG", live(block([neg]) + "\n\n" + cand_line)),
+        ]
+        # 진단 전용: 손님이 쓴 단어 `green` 이 든 인용을 뺀다(사람이 정한 뺄셈·레버 아님)
+        keep = [q for q in qs if "green" not in q.lower()]
+        if keep and len(keep) < len(qs):
+            arms.append(("E_MINUSECO", live(block(keep) + "\n\n" + cand_line)))
+
+        # base·ask 를 비운다 — 본문 전체가 팔마다 라이브 템플릿으로 완성돼 있다.
+        site = {"tag": TAG, "task": TASK, "cut": turn, "sim": SEED, "base": ""}
         P.run("x349-" + group, site, arms, marks,
               "B≈A(둘 다 오답) ∧ C≥18 → C506 은 **미래 정보** ⇒ 결손 이름은 '요구 미전달'이 아니라 "
               "**결정이 요구보다 먼저**(순서) · B≥18 → 정보는 충분했다(전달 형식 문제) · "
               "D≥18 → 계기 무효 · E≥B+5 → 미끼가 원인([[63]] 빼기)",
-              ASK, None, 8, 3, det=True)
+              "", None, 8, 3, det=True)   # ask 는 템플릿 안에 이미 있다
     return 0
 
 
