@@ -42,8 +42,9 @@ head = fn.group(0) if fn else ""
 
 print("[①②] 기본 OFF · 중앙 스위치")
 chk(bool(fn), "_search_material(…, decide=True) 시그니처 불변")
-chk('if os.environ.get("T2_PROCEED_DOCBODY") == "1":' in head and
-    re.search(r'T2_PROCEED_DOCBODY"\) == "1":\s*\n\s*decide = False', head) is not None,
+# ★2026-08-16 t7304: 스위치가 두 플래그(T2_PROCEED_DOCBODY · T2_DOCS_AT_WRITE) OR 로 확장됐다.
+#   불변식은 같다 — **함수 안 한 곳**에서 decide 를 강제한다.
+chk('os.environ.get("T2_PROCEED_DOCBODY") == "1"' in head and "decide = False" in head,
     "플래그 시 함수 안에서 decide=False 강제(호출 자리 무관)")
 chk(SRC.count('os.environ.get("T2_PROCEED_DOCBODY")') == 1,
     "플래그 참조는 함수 안 한 곳뿐(자리별 플립 잔존 0)")
@@ -52,12 +53,13 @@ chk(len(calls) >= 5, "호출 자리 ≥5 (전부 스위치가 덮는다) — 실
 chk(not any("_docb" in c for c in calls), "호출 자리에 자리별 decide 플립 없음")
 
 print("[③] 컨텍스트 가드 — 소비 지점 하나")
-cons = re.search(r'_cp2 = getattr\(self, "_t2_cp2_pending", None\).{0,1500}?'
-                 r"이 턴 재생성 버퍼에 부착", SRC, re.S)
+cons = re.search(r'_cp2 = getattr\(self, "_t2_cp2_pending", None\).{0,3000}?'
+                 r"이 턴 재생성 버퍼에 부착", SRC, re.S)   # 창 확대: 가드 주석이 길어졌다
 cbody = cons.group(0) if cons else ""
 chk(bool(cons), "소비 지점이 존재한다")
 chk("len(_cp2) >= 5000" in cbody, "대용량(≥5k)만 검사")
-chk("(_hist + len(_cp2)) / 3 > (44672 - 8192 - 1024)" in cbody, "보수 추정·한도−출력상한−여유")
+chk("(_hist + len(_cp2)) / 3.5 > (44672 - 8192 - 1024 - 11000)" in cbody,
+    "보수 추정(실측 보정 k=3.5·오버헤드 11,000)")
 chk("[T2_DOC_DELIVERY] skipped" in cbody, "초과 시 건너뛰고 기록")
 chk(SRC.count("[T2_DOC_DELIVERY] skipped") == 1, "가드는 한 곳뿐(자리별 가드 잔존 0)")
 chk(not re.search(r"_cp2\s*=\s*_cp2\[", cbody), "축약하지 않는다([[62]]③)")

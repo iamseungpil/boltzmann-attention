@@ -2558,7 +2558,8 @@ def _search_material(agent, a2, messages, decide=True):
     #   전역·영구 잠금) 문서가 그 축에 영영 못 오는 누수가 생긴다 — 유료 런으로 배관 사실을
     #   사게 되는 형태(t7303 동형). 스위치를 함수 안에 두면 호출 자리 5곳이 자동으로 덮인다.
     #   플래그 OFF 면 인자 그대로(바이트 불변).
-    if os.environ.get("T2_PROCEED_DOCBODY") == "1":
+    if (os.environ.get("T2_PROCEED_DOCBODY") == "1"
+            or os.environ.get("T2_DOCS_AT_WRITE") == "1"):
         decide = False
     import t2_search as _ts
     _po = (a2.get("policy_ontology") or {})
@@ -7566,8 +7567,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 #   자리만 플립하면 다른 자리가 축을 먼저 소비해 문서가 영영 못 온다).
                                 #   컨텍스트 가드는 **소비 지점**(부착 직전) 하나에 있다.
                                 #   [[62]]③: 오히려 엔진-측 결정문을 **제거**하는 방향이다.
+                                # ★T2_DOCS_AT_WRITE 이면 이 자리(이른 proceed)는 **비운다** —
+                                #   예산을 늘리는 게 아니라 **옮긴다**. 여기서 축을 소비하면
+                                #   write 자리에서 서브가 침묵해(모두 처리됨) 재료가 안 온다.
+                                #   t7303 전수: 이 자리의 배달은 요구 진술보다 먼저 끝난다.
                                 try:
-                                    _mp = _search_material(self, a2, state.messages)
+                                    _mp = ("" if os.environ.get("T2_DOCS_AT_WRITE") == "1"
+                                           else _search_material(self, a2, state.messages))
                                 except Exception as _mpe:
                                     _mp = ""
                                     print("[T2_SEARCH_ON_PROCEED] 건너뜀(무발화): %r" % (_mpe,),
@@ -8277,6 +8283,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 try:
                     _wrset = _confirm_write_tools(a2) | set(
                         ((a2 or {}).get("eplan") or {}).get("write_tools") or [])
+                    # ★T2_DOCS_AT_WRITE (2026-08-16·기본 OFF·t7304 재설계) — **선택을 담은 write**
+                    #   자리를 write 집합에 넣는다. 왜: `eplan.write_tools` 가 이 태스크군의 write
+                    #   도구를 담고 있지 않아 이 자리가 **구조적으로 발화 0** 이었다(t7303 실측·
+                    #   팔당 0회). 그런데 t7303 전수는 배달이 turn 2·6 에 끝나고 손님이 요구를
+                    #   진술하는 것은 그 **뒤**임을 보였다(8/8·간격 중앙 29.5 메시지). 재료는 한 턴만
+                    #   살므로 결정 순간엔 없다. 반면 이 자리는 모델이 **직접 값을 쓰겠다고 나선
+                    #   순간**이라 요구가 이미 진술돼 있다.
+                    #   집합 출처 = **A2 가 이미 선언한 선택-인코딩 write**(새 키 0):
+                    #     `choice_grounding[].tool` · `recommendation_verify.action_tool`.
+                    #   ⇒ 선언이 없는 write(인증·조회·그 밖)는 안 걸린다 — 부정통제 태스크가
+                    #     그 부류라 통제가 보존된다. sim 당 1회(`_t2_dwrite_deny`).
+                    if os.environ.get("T2_DOCS_AT_WRITE") == "1":
+                        _wrset |= {c.get("tool") for c in ((a2 or {}).get("choice_grounding") or [])
+                                   if c.get("tool")}
+                        _rv = (a2 or {}).get("recommendation_verify") or {}
+                        if _rv.get("action_tool"):
+                            _wrset.add(_rv["action_tool"])
                     _wc = next((c for c in (am.tool_calls or [])
                                 if _eff_tool_name(c) in _wrset
                                 or getattr(c, "name", "") in _wrset), None)
@@ -8804,7 +8827,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _hist = sum(len(_content_str(_m) or "") for _m in (work or []))
                 except Exception:
                     _hist = 0
-                if (_hist + len(_cp2)) / 3 > (44672 - 8192 - 1024):
+                # ★제수·오버헤드는 **실측 보정**이다(2026-08-16·t7303 커밋 생성호출 472건의
+                #   `usage.prompt_tokens` 회귀). 자수/토큰 k: p10 3.554·p50 3.986. 그런데 프롬프트에는
+                #   히스토리 밖 **상수 오버헤드**(system+도구 스키마+chat template) O 가 있다:
+                #   p50 10,157·p90 11,069 tok. 초판(`/3`·오버헤드 0)은 실측 콜 463/463 에서
+                #   토큰을 **과소추정**했다(발화점이 5,518자 늦다). 그래서 k=3.5 로 두고 캡에서
+                #   O=11,000 을 뺀다 — 보수 가정에서도 캡을 안 넘는 발화점(C≈85.6k자).
+                if (_hist + len(_cp2)) / 3.5 > (44672 - 8192 - 1024 - 11000):
                     print("[T2_DOC_DELIVERY] skipped: est %d+%d chars > cap"
                           % (_hist, len(_cp2)), file=_sys.stderr, flush=True)
                     self._t2_cp2_pending = None

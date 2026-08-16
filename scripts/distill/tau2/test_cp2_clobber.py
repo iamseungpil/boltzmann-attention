@@ -69,7 +69,7 @@ print("[③] 거동 불변")
 #   소형은 종전대로 덮어쓴다. 어느 쪽이든 마지막 줄은 단일 슬롯 대입이다(큐 아님).
 chk(body.strip().endswith("self._t2_cp2_pending = text"),
     "슬롯은 하나(큐 아님) — 대용량은 이어붙임·소형은 덮어씀·둘 다 기록")
-consume = re.search(r"_cp2 = getattr\(self, \"_t2_cp2_pending\", None\).{0,1500}?"
+consume = re.search(r"_cp2 = getattr\(self, \"_t2_cp2_pending\", None\).{0,3000}?"
                     r"이 턴 재생성 버퍼에 부착", SRC, re.S)   # 창 확대: 사이에 컨텍스트 가드가 있다
 chk(bool(consume), "소비 지점은 여전히 하나(재생성 버퍼 부착)")
 
