@@ -352,6 +352,57 @@ def formalize_groups(agent, la, UserMessage, spec, texts, groups):
     return out
 
 
+def sub_records(agent, la, UserMessage, text, keys):
+    """도구 출력 **한 덩이 → 레코드 JSON**(LLM formalize). 엔진은 뽑지 않는다([[59]] 강화판).
+
+    ★왜 (2026-08-17·사용자 지시 *"절대 결정론기에서 … 어떠한 정규식도 쓰면 안된다"*):
+      `t2_resolve.parse_records`(정규식 줄 파서)와 `_ref_verify_deny` 의 `field:` 추출이
+      살아 있는 마지막 두 자리였다. 판정(상한 비교·상점 대조)은 엔진에 남지만 **입력은
+      서브가 만든다**.
+    ★전제는 측정됐다(x345·det n=1·표집 24/24): 격리 서브가 레코드 값을 **축자로 복원**한다.
+
+    계약: 모델이 JSON 을 낸다 · 엔진은 **각 값이 원문에 실재하는지만** 확인하고(`in`),
+      통과 못 한 값은 **버린다**(조용한 오답 금지). 못 만들면 **빈 목록** → 호출부는 종전처럼
+      아무 판정도 하지 않는다(fail-open).
+    ⚠정규식 0 — JSON 경계는 `find`/`rfind`.
+    """
+    if not (agent is not None and la is not None and text and keys):
+        return []
+    body = ("Below is one tool output.\n\n" + str(text)[:6000]
+            + "\n\nReturn the records it contains as a JSON array of objects with exactly "
+              "these keys: " + ", ".join(keys)
+            + ". Copy every value VERBATIM from the text - do not compute, convert, or infer. "
+              "If a key is absent for a record, set it to null. Reply with JSON only.")
+    try:
+        raw = str(SC.sub_generate(agent, la, UserMessage, body, "sub_records") or "")
+    except Exception as e:
+        print("[T2_SUB_RECORDS] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return []
+    i, j = raw.find("["), raw.rfind("]")
+    if i < 0 or j <= i:
+        return []
+    try:
+        rows = json.loads(raw[i:j + 1])
+    except Exception:
+        return []
+    out = []
+    for r in rows if isinstance(rows, list) else []:
+        if not isinstance(r, dict):
+            continue
+        keep = {}
+        for k in keys:
+            v = r.get(k)
+            if v is None:
+                continue
+            if str(v) in text:                 # ★존재확인만 (추출 0·C45 동형)
+                keep[k] = v
+        if keep:
+            out.append(keep)
+    print("[T2_SUB_RECORDS] %d행 중 원문 검증 통과 %d행" % (len(rows or []), len(out)),
+          file=sys.stderr, flush=True)
+    return out
+
+
 def sub_requirements(agent, la, UserMessage, spec, user_text):
     """손님 발화 → **요구 인용 목록**(LLM formalize). 엔진은 뽑지 않는다([[59]]).
 

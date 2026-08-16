@@ -980,13 +980,19 @@ def _write_evidence_deny(orch, tc, specs):
     return _wev_deny_msgs(msgs, tc, specs)
 
 
-def _param_cap_deny(messages, tc, specs):
+def _param_cap_deny(agent, la, UserMessage, messages, tc, specs):
     """★정책-캡 게이트 (T2_PARAM_CAP=1·2026-07-22 §2br·rall9 054 실측). A2 `param_cap_check`:
     선언된 write의 수치 param이 [레코드 필드 × 티어별 비율(A2 맵)] 캡을 초과하면 deny+안내
     (consent 보존 — silent-repair 금지·정책 원문이 '최대치 안내 후 진행 여부 문의').
-    엔진=파싱·산술·비교만(정책 수치·필드·맵 전부 A2·[[03b]]). 맵 미기재 카드=무개입."""
-    import re as _re
-    import t2_resolve as _rz
+    엔진=산술·비교만(정책 수치·필드·맵 전부 A2·[[03b]]). 맵 미기재 카드=무개입.
+
+    ★2026-08-17 이설: 레코드 입력을 **정규식 파서(`parse_records`) → 격리 서브 formalize**
+      로 바꿨다(사용자 지시 *"절대 결정론기에서 … 어떠한 정규식도 쓰면 안된다"*).
+      전제는 x345 가 쟀다(서브가 레코드 값을 축자 복원·det n=1). 서브가 못 만들면 **빈 목록**
+      이고 그러면 종전처럼 아무 판정도 하지 않는다(fail-open — 조용한 오답보다 무판정).
+      ⚠판정(상한 비교)은 그대로 엔진이다 — x347 에서 격리가 **등급 축에서 부분 성공**에
+      그쳤기 때문이다(대상 등급 정답·최저 등급 오답)."""
+    import t2_search as _ts2
     name = getattr(tc, "name", None)
     args = _args_dict(tc)
     for sp in (specs or []):
@@ -1008,13 +1014,13 @@ def _param_cap_deny(messages, tc, specs):
             val = float(str(d.get(pn)).replace(",", "").replace("$", ""))
         except Exception:
             continue
+        _keys = [sp.get("record_key_field", "account_id")] + list(sp.get("record_require") or ())
         recs = []
         for m in messages:
             if getattr(m, "role", None) == "tool" and not getattr(m, "error", False):
                 c = getattr(m, "content", None)
-                if isinstance(c, str):
-                    recs += _rz.parse_records(c, sp.get("record_key_field", "account_id"),
-                                              tuple(sp.get("record_require") or ()))
+                if isinstance(c, str) and all(k in c for k in _keys):
+                    recs += _ts2.sub_records(agent, la, UserMessage, c, _keys)
         if not recs:
             continue
         rec = recs[-1]
@@ -1023,7 +1029,10 @@ def _param_cap_deny(messages, tc, specs):
         if pct is None:
             continue
         try:
-            lim = float(_re.sub(r"[^0-9.]", "", str(rec.get(sp.get("limit_field", "credit_limit")))))
+            # ★정규식 제거(2026-08-17): 숫자·소수점만 남기는 것은 문자 필터로 충분하다.
+            #   `re.sub(r"[^0-9.]", …)` 이 마지막 잔재였다([[59]] 강화판 — 엔진에 정규식 0).
+            _raw = str(rec.get(sp.get("limit_field", "credit_limit")))
+            lim = float("".join(ch for ch in _raw if ch.isdigit() or ch == "."))
         except Exception:
             continue
         cap = pct * lim
@@ -1148,7 +1157,7 @@ def _wev_fill(fb, idtxt, messages, any_tokens):
     return fb.replace("{id}", idtxt)
 
 
-def _ref_verify_deny(messages, tc, specs):
+def _ref_verify_deny(agent, la, UserMessage, messages, tc, specs):
     """★T2_REF_VERIFY (2026-07-24 C128/C129·결정론 참조-검증기): 선언된 write가 가리키는 레코드의
     **판별 속성**(예: merchant_name)이 손님 발화에 없으면 deny+처방(손님이 실제 말한 속성값 나열).
     근거: rall19-22 wrong-pick 8/8이 전부 손님 미언급 상점(cross-merchant 인접-행 전사 슬립)·검증기
@@ -1182,20 +1191,27 @@ def _ref_verify_deny(messages, tc, specs):
             continue
         field = sp.get("record_field", "merchant_name")
         # 1) 도구 출력(producer)서 idv 레코드 블록의 field 값 추출
+        # ★2026-08-17 이설: 값 추출을 **정규식 → 격리 서브 formalize** 로 바꿨다(사용자 지시
+        #   *"절대 결정론기에서 … 어떠한 정규식도 쓰면 안된다"*). 전제는 x345 가 쟀다(서브가
+        #   레코드 값을 축자 복원·det n=1). 판정(손님 발화 대조)은 그대로 엔진이다 — C129 가
+        #   *LLM 재선택*은 해롭다고 이미 닫았고, *검증*은 격리 시험용 궤적이 영속본에 없어
+        #   미측정이므로 함부로 옮기지 않는다. 서브가 못 만들면 rec_val=None → **skip**(fail-open).
+        import t2_search as _ts3
         rec_val, all_vals = None, set()
         for m in messages:
             if getattr(m, "role", None) != "tool" or getattr(m, "error", False):
                 continue
             c = getattr(m, "content", None)
             c = c if isinstance(c, str) else str(c or "")
-            for mm in re.finditer(re.escape(field) + r":\s*([^\n]+)", c):
-                all_vals.add(mm.group(1).strip())
-            k = c.find(idv)
-            if k >= 0 and rec_val is None:
-                win = c[k:k + 400]
-                fm = re.search(re.escape(field) + r":\s*([^\n]+)", win)
-                if fm:
-                    rec_val = fm.group(1).strip()
+            if field not in c:
+                continue
+            for row in _ts3.sub_records(agent, la, UserMessage, c, [idk, field]):
+                _v = str(row.get(field) or "").strip()
+                if not _v:
+                    continue
+                all_vals.add(_v)
+                if rec_val is None and str(row.get(idk) or "").strip() == idv:
+                    rec_val = _v
         if not rec_val:                                     # id의 레코드/필드 못 읽음 → skip
             continue
         # 2) 손님 발화(user)에 그 field 값이 있나. ★정확-문자열은 취약(레코드 "Marriott Hotels" vs
@@ -6615,7 +6631,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         if not wd and rv_specs:
                             # ★결정론 참조-검증기(C128/C129): 레코드 판별속성(merchant)이 손님
                             #   발화에 없으면 deny — 전사-슬립 8/8 검출·false-block 0·LLM 0.
-                            wd = _ref_verify_deny(state.messages, c, rv_specs)
+                            wd = _ref_verify_deny(self, la, UserMessage, state.messages, c, rv_specs)
                             _wtag = "T2_REF_VERIFY"
                         if not wd:
                             # ★N2b `T2_ASK_UNKNOWN_BOOL`(설계서 §2·기본 OFF): 닫힌 자료형(불리언·enum)
@@ -6752,7 +6768,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     < int(os.environ.get("T2_PARAM_CAP_CAP", "4"))):
                 try:
                     for c in (am.tool_calls or []):
-                        _pd = _param_cap_deny(state.messages, c, _pcs)
+                        _pd = _param_cap_deny(self, la, UserMessage, state.messages, c, _pcs)
                         if _pd:
                             pc_fb = (c, _pd)
                             self._t2_paramcap_deny = getattr(self, "_t2_paramcap_deny", 0) + 1
