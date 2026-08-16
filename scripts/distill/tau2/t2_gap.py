@@ -129,6 +129,19 @@ def ladder(tag, task, cut, group, marks, ask, k=8, nb=3, early=6):
         r3 = P.run("gap:I3", st, [("A_REF", ""), ("I3_RIVAL", material + "\n\n[tool] " + rival)],
                    marks, "I2/I1 대비 낙차 = 경합(같은 자리를 다투는 우리 문구)", ask, None, k, nb)
 
+    # ── I5_EPHEMERAL (2026-08-16·C498 로 알게 된 **다섯째 요인**) ──
+    # 라이브의 배달은 `state.messages` 가 아니라 **그 턴의 재생성 버퍼**에만 붙는다(비커밋·C298).
+    # 즉 재료는 한 턴만 살아 있고, 예산 3회를 대화 초반에 쓰면 **결정점에는 없다**(t7298 055 실측:
+    # 배달 `대화텍스트 1` 부터 3회 소진 · 궤적 재료 표지 0건 · 선택 0/4 ↔ 격리 24/24).
+    # 이 단은 그 상태를 격리로 재현한다 — 재료를 **앞 구간에만** 두고 결정점에서는 뺀다.
+    print("── I5_EPHEMERAL (비영속 축·재료를 앞에만 두고 결정점에서 뺀다) ──")
+    head_only = "\n".join([X.HEAD, "", material, "", X.transcript(sim, max(1, cut - early))])
+    eph_site = dict(st)
+    eph_site["base"] = head_only + "\n" + X.transcript(sim, cut)[-1200:]
+    r5 = P.run("gap:I5", eph_site, [("A_REF", ""), ("I5_EPHEMERAL", "")], marks,
+               "I2_EARLY(재료가 결정 프롬프트에 있음) 대비 낙차 = **비영속**(있었는데 사라짐)",
+               ask, None, k, nb)
+
     r4 = None
     tools = schemas()
     if tools:
@@ -142,7 +155,7 @@ def ladder(tag, task, cut, group, marks, ask, k=8, nb=3, early=6):
     for m in marks:
         row = []
         for lab, r in (("I0_CORE", r0), ("I1_CTX", r1), ("I2_EARLY", r2),
-                       ("I3_RIVAL", r3), ("I4_TOOL", r4)):
+                       ("I5_EPHEMERAL", r5), ("I3_RIVAL", r3), ("I4_TOOL", r4)):
             if r and lab in r:
                 row.append((lab, r[lab][m][0]))
         print("  %-8s %s" % (m, " → ".join("%s %d" % (a, b) for a, b in row)))

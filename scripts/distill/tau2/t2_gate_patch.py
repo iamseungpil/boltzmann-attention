@@ -7534,13 +7534,33 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     #   ⚠코퍼스는 **환경이 든 것**을 읽는다 — 경로 하드코딩 0([[05]]).
                                     #   ⚠한 sim 에 **한 번**만(재료는 대화와 무관한 정책 상수라 반복
                                     #     발화가 이득이 아니다·[[57]]).
+                                    # ★T2_MATERIAL_RESERVE (2026-08-16·C498·기본 OFF) — **예산을 결정점에
+                                    #   남긴다**. 배달은 `state.messages` 가 아니라 **그 턴의 재생성 버퍼**
+                                    #   에만 붙는다(위 `_t2_cp2_pending` · 비커밋 · C298 replay 불변식).
+                                    #   즉 재료는 **한 턴만 살아 있다**. 그런데 t7298 의 055 네 sim 은
+                                    #   sim 당 예산 3회를 **`대화텍스트 1`(손님이 요구를 말하기도 전)** 부터
+                                    #   전부 써 버렸고(DELIVER 3·3·2·3), 정작 상품을 고르는 turn 14+ 에는
+                                    #   재료가 문맥에 **없었다** — 궤적 전수 검색에서 재료 표지 0건(4 중 3).
+                                    #   격리 24/24 ↔ 라이브 0/4 의 기전이 이것이다([[62]] 규칙4·C497).
+                                    #   ⇒ 여기(일반 자리)의 배달을 **1회로 묶고** 나머지 예산을 결정 자리
+                                    #     (`T2_SEARCH_ON_PROCEED`)에 남긴다. **총량은 그대로 3**이고 새 판단
+                                    #     기구도 없다 — 같은 예산의 **사용처만** 옮긴다([[63]] 형태).
+                                    #   ⚠1차 종점은 성적이 아니라 **결정 직전 생성에 재료가 있었는가**다.
                                     if (not _m3 and os.environ.get("T2_SEARCH_AGENT") == "1"
-                                            and getattr(self, "_t2_searchagent_fired", 0) < 3):
+                                            and getattr(self, "_t2_searchagent_fired", 0) < 3
+                                            and (os.environ.get("T2_MATERIAL_RESERVE") != "1"
+                                                 or getattr(self, "_t2_sa_early", 0) < 1)):
                                         try:
                                             _m3 = _search_material(self, a2, state.messages)
                                             if _m3:
                                                 self._t2_searchagent_fired = getattr(
                                                     self, "_t2_searchagent_fired", 0) + 1
+                                                self._t2_sa_early = getattr(
+                                                    self, "_t2_sa_early", 0) + 1
+                                                print("[T2_SEARCH_AGENT] 일반 자리 배달 %d회째(예약 %s)"
+                                                      % (self._t2_sa_early,
+                                                         os.environ.get("T2_MATERIAL_RESERVE") or "off"),
+                                                      file=_sys.stderr, flush=True)
                                         except Exception as _sae:
                                             print("[T2_SEARCH_AGENT] 건너뜀(무발화): %r" % (_sae,),
                                                   file=_sys.stderr, flush=True)

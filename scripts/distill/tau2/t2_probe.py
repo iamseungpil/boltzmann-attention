@@ -66,9 +66,26 @@ def site(tag, task, cut, head=None):
     return {"tag": tag, "task": task, "cut": cut, "sim": sim, "base": body}
 
 
-def _count(text, marks):
-    t = (text or "").upper()
+def _count(msg_or_text, marks):
+    """지표 적중. ★도구를 묶은 팔에서는 **방출된 tool_calls 까지** 본다.
+
+    2026-08-16 자기 결함: `t2_gap` 의 `I4_TOOL` 단이 도구를 묶어 놓고 **본문의 이름만** 셌다.
+    끝맺음(C489)은 *말했나* 가 아니라 *불렀나* 이므로 그 단은 무효였다. 여기서 닫는다.
+    """
+    if isinstance(msg_or_text, dict):
+        blob = str(msg_or_text.get("content") or "")
+        for tc in (msg_or_text.get("tool_calls") or []):
+            f = tc.get("function") or {}
+            blob += " " + str(f.get("name") or "") + " " + str(f.get("arguments") or "")
+    else:
+        blob = msg_or_text or ""
+    t = blob.upper()
     return {k: (1 if v.upper() in t else 0) for k, v in marks.items()}
+
+
+def emitted(msg):
+    """도구 호출을 **실제로 방출했는가**(끝맺음 축의 지표)."""
+    return 1 if (isinstance(msg, dict) and (msg.get("tool_calls") or [])) else 0
 
 
 def run(name, site, arms, marks, verdict, ask, control=None, k=8, nb=3, maxtok=MAXTOK,
@@ -97,11 +114,12 @@ def run(name, site, arms, marks, verdict, ask, control=None, k=8, nb=3, maxtok=M
                 except Exception as e:
                     r = {"content": "ERR %s" % type(e).__name__}
                 out = " ".join(str(r.get("content") or "").split())
-                hit = _count(out, marks)
+                hit = _count(r, marks)          # 본문 + 방출된 tool_calls 둘 다 본다
                 for m in marks:
                     acc[m] += hit[m]
-                print("    [%s b%d %02d] %s %s"
-                      % (label, b + 1, i, ",".join(m for m in marks if hit[m]) or "-", out[:60]),
+                print("    [%s b%d %02d] %s%s %s"
+                      % (label, b + 1, i, ",".join(m for m in marks if hit[m]) or "-",
+                         "|CALL" if emitted(r) else "", out[:60]),
                       flush=True)
             for m in marks:
                 blocks[m].append(acc[m])
