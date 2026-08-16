@@ -51,17 +51,18 @@ REC_MSG = 17          # 도구 출력: credit_card_accounts 레코드(카드 등
 
 # 채점 = 이 값들이 답에 **그대로** 있는가(전부 재료 안에 축자로 존재)
 MARKS = {"LIMIT": "5000", "CARD": "Gold Rewards Card", "ACCT": "cc_584f9c5d00_gold"}
-# 부정통제 지표: 재료에 **없는** 필드를 지어내면 잡힌다
-NEG_MARKS = dict(MARKS)
-NEG_MARKS["FABRICATED"] = "annual_fee"
+# 부정통제 지표 — ★1차 실행의 내 오류 교정: 지표를 **키 이름**(`annual_fee`)으로 잡았더니,
+#   내가 그 키를 달라고 한 탓에 `"annual_fee": null`(정직한 답)까지 적중으로 세어졌다(24/24).
+#   그건 날조 검사가 아니다. 고침 = 없는 필드 **하나만** 묻고 `null` 을 내는지 본다.
+NEG_MARKS = {"NULLED": "null"}
 
 BASE_ASK = ("\n\nReturn the record above as a JSON object. Copy every value VERBATIM from the "
             "text - do not compute, convert, or infer anything. Reply with JSON only.")
 KEYS_ASK = ("\n\nReturn a JSON object with exactly these keys: account_id, card_type, "
             "credit_limit. Copy every value VERBATIM from the text above. Reply with JSON only.")
-NEG_ASK = ("\n\nReturn a JSON object with exactly these keys: account_id, card_type, "
-           "credit_limit, annual_fee. Copy every value VERBATIM from the text above; if a key "
-           "is not present in the text, set it to null. Reply with JSON only.")
+NEG_ASK = ("\n\nReturn a JSON object with exactly one key: annual_fee. Copy the value VERBATIM "
+           "from the text above; if it is not present in the text, set it to null. "
+           "Reply with JSON only.")
 
 
 def main():
@@ -98,7 +99,7 @@ def main():
           maxtok=240)
     print("\n── D_NEG(없는 필드 요구·날조 검사) ──")
     P.run("x345-neg", site, [("A_REF", "")], NEG_MARKS,
-          "FABRICATED 가 높으면 서브가 없는 필드를 지어낸 것 = 이설 불가", NEG_ASK, None, k, nb,
+          "NULLED 높음 → 정직(없는 값을 null 로) · 낮음 → **날조** = 이설 불가", NEG_ASK, None, k, nb,
           maxtok=240)
     return 0
 

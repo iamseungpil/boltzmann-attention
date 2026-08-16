@@ -19,7 +19,7 @@ r"""x344v2 — 격리 서브에 **요구를 넣으면 스스로 배제하는가*
     A_REF      문서 + 후보줄                      ← 라이브 재현(기대 오답)
     B_REQ      문서 + 후보줄 + **요구 메시지 축자**  ← H_iso 검정
     C_NOCAND   문서 + 요구(후보줄 없이)             ← 후보줄 기여 분리
-    D_NEG      문서 + 후보줄 + **다른 태스크의 요구** ← ★부정통제(오르면 무효)
+    D_NEG      문서 + 후보줄 + **같은 축의 다른 그럴듯한 요구** ← ★부정통제 v2
 
 ## 판정 (사전 고정 · 잡음 ±4 ⇒ 차 ≥5 만 인용)
 
@@ -135,7 +135,7 @@ def main():
              len(info.get("dropped") or ())))
     print("후보줄: %s" % cand_line[:150])
     print("요구(msg %d·축자 통째): %s" % (REQ_MSG, " ".join(req.split())[:260]))
-    print("부정통제(%s msg %d): %s\n" % (NEG_TASK, NEG_MSG, " ".join(neg.split())[:160]))
+    print("부정통제(같은 축·다른 요구): %s\n" % " ".join(neg.split())[:160])
 
     site = {"tag": TAG, "task": TASK, "cut": REQ_MSG, "sim": None,
             "base": "Policy documents on record (verbatim):\n" + material}
