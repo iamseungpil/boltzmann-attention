@@ -7,6 +7,9 @@
 #   (재생성 버퍼·비커밋·C498). 선행은 조기 확정을 **탐지**만 하고(2606.22936) 주입 시점을 제어하지 않는다.
 #
 # 처치 = `T2_DELIVER_PRECOMMIT=1` 하나. sim 당 1회, 문서군이 형식화되는 **가장 이른 턴**에 배달.
+#   ★2026-08-16 수리: 선-배달은 **문서 본문**(`decide=False`)을 나른다. 그 전 판(tag g)은 서브의
+#   **결정**(243~263자)을 날랐는데, 격리에서 24/24 를 만든 객체는 문서 51k자였다 — 다른 것이다.
+#   결정을 나르면 [[62]]③(엔진이 답을 주면 측정 대상이 사라진다) 자리에 선다.
 #   예산 총량(3)·군 선택(LLM)·최종 선택(모델) **전부 불변** — 옮긴 것은 **시점 하나**.
 #
 # ★판정(사전 고정·이 순서로·[[62]] 규칙4)
@@ -55,7 +58,7 @@ fi
 
 launch () {
   NAME="$1"; PORT="$2"; PRE="$3"
-  TAG="bank_t7303_${NAME}_20260816g"
+  TAG="bank_t7303_${NAME}_20260816h"
   if [ -e "$LOG/${TAG}.log" ]; then echo "[t7303] SKIP: ${TAG}.log 존재" >&2; return 0; fi
   if [ -e "$SIMS/${TAG}" ]; then echo "[t7303] REFUSING: $SIMS/${TAG} 잔존" >&2; return 1; fi
   if ps -eo cmd | grep -v grep | grep "t2_run_gated.py" | grep -q "localhost:${PORT}/"; then

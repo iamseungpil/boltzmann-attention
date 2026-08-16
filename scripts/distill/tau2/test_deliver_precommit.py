@@ -45,7 +45,8 @@ chk('_t2_searchagent_fired' in body, "같은 예산 카운터를 증가시킨다
 chk(SRC.count('_t2_searchagent_fired", 0) < 3') >= 2, "총 상한 3 이 다른 자리에 그대로 있다")
 
 print("[④] 정본 진입점")
-chk('_search_material(self, a2, state.messages)' in body, "정본 함수를 쓴다(사본 0)")
+chk('_search_material(self, a2, state.messages, decide=False)' in body,
+    "정본 함수를 **문서-only**(decide=False)로 쓴다 — 결정을 나르면 [[62]]③ 자리에 선다")
 chk('argmax' not in body and '정답' not in body, "선택·순위 문장 없음([[62]] ④)")
 
 print("[⑤] 계기")

@@ -2538,7 +2538,7 @@ def _sibling_wait(tag, flagged, what):
             % (tag, name, what))
 
 
-def _search_material(agent, a2, messages):
+def _search_material(agent, a2, messages, decide=True):
     """검색 에이전트의 **한 줄 진입점** — 재료가 원장이 아니라 **문서** 쪽에 있는 계열용.
 
     ① LLM 이 문서군을 고른다(닫힌 집합 = A3 `doc_index` 키) → ② 엔진이 색인대로 읽고 **효력
@@ -2718,6 +2718,20 @@ def _search_material(agent, a2, messages):
         except Exception as _ce:
             print("[T2_SEARCH_AGENT] 후보 줄 실패(종전 ask 로): %r" % (_ce,),
                   file=sys.stderr, flush=True)
+    # ★`decide=False` = **문서 자체를 돌려준다**(2026-08-16 발견·핸드오프 §0).
+    #   기본 경로는 서브에이전트의 **결정**(243~263자)을 나른다. 그런데 격리에서 24/24 를 만든
+    #   객체는 **문서 본문 51k자**였다 — 둘은 다른 것이고, 나는 하루 종일 같은 것으로 말했다.
+    #   ⇒ *커밋-이전 전달* 실험은 **격리와 같은 객체**(문서)를 날라야 비교가 성립한다.
+    #   ⚠[[62]] ③: 결정을 나르면 *"엔진이 답을 준" 것*에 가까워져 측정 대상이 흐려진다.
+    #     문서만 나르면 고르는 일은 끝까지 모델 몫으로 남는다.
+    if not decide:
+        try:
+            _done.add(_g)
+        except Exception:
+            pass
+        print("[T2_SEARCH_AGENT] 문서-only 반환 group=%s · %d자" % (_g, len(_mat)),
+              file=sys.stderr, flush=True)
+        return _mat
     _choice = _ts.decide_from_docs(agent, _la, _UM, _po, _mat, _dask)
     if not _choice:
         return ""
@@ -5517,7 +5531,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 and a2 is not None
                 and not getattr(self, "_t2_precommit_done", False)):
             try:
-                _pc = _search_material(self, a2, state.messages)
+                _pc = _search_material(self, a2, state.messages, decide=False)
             except Exception as _pce:
                 _pc = ""
                 print("[T2_DELIVER_PRECOMMIT] 건너뜀(무발화): %r" % (_pce,),
