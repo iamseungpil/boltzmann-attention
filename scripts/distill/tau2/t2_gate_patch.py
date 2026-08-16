@@ -2682,9 +2682,14 @@ def _search_material(agent, a2, messages):
     # ★`now` 가 없으면 **엔진의 유일한 일이 죽는다** — 그런데 `formalize_now` 는 실패를 인쇄하지
     #   않아서 `뺀 것 0` 한 글자가 유일한 단서였다(2026-08-11 라이브에서 두 판을 이걸로 태웠다).
     #   [[64]] 를 우리 로그에도 적용한다: **무엇이 없어서 못 했는지**를 말한다.
-    print("[T2_SEARCH_AGENT] group=%s · 문서 %d(뺀 것 %d: %s) · now=%s "
+    # ★`turn=` 추가(2026-08-16·인쇄 전용·거동 0): P1 의 1차 종점이 배달 **횟수**가 아니라
+    #   *"**첫 지목 이전**에 도달했는가"* 로 바뀌었기 때문이다(055·024 공통 기전 — 지목이 박히면
+    #   그 뒤 재료는 안 먹는다). 턴을 안 찍으면 그 지표를 기계가 셀 수 없어서 **순서로 추정**하게
+    #   되는데, 그것이 오늘 두 번 오진을 낳은 형태다([[08]]·[[55]]). `MATERIAL_GATE` 는 이미 찍는다.
+    print("[T2_SEARCH_AGENT] group=%s · 문서 %d(뺀 것 %d: %s) · now=%s turn=%d "
           "(스펙 %s · 원값 %r · 대화텍스트 %d)"
           % (_g, _info["kept"], len(_info["dropped"]), ",".join(_info["dropped"])[:80], _now,
+             len(messages or []),
              "있음" if _nspec else "**없음**", _now_raw, len(_tx)),
           file=sys.stderr, flush=True)
     if not _mat:
