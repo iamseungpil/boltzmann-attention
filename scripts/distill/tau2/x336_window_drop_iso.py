@@ -60,7 +60,16 @@ import t2_forensic as F                                           # noqa: E402
 import t2_search as S                                             # noqa: E402
 import x313_bailout_iso as B                                      # noqa: E402
 
-TAG, TASK, CUT = "bank_t7295_a_20260815n", "task_070", 22
+# 사이트 = (tag, task, cut) — **사본 금지**([[67]]), argv[3] 로 고른다.
+# 070: 컷 22 = 손님이 "ONE 을 골라라" 한 직후. ⚠x336 1차 실측(2026-08-16)에서 **070 은 이 축의
+#   시험대가 아님이 드러났다** — `Lime Green` 은 수수료 면제 잔고 $15,000(문서 축자)이라 손님의
+#   *"$10,000+ 는 못 지킨다"* 로 이미 탈락한다. 즉 날짜를 맞바꿔도 정답이 안 뒤집힌다(D_FLIP 무효).
+# 071: 컷 5 = 검색 결과를 받고 아직 상품을 대지 않은 자리. 라이브에서 실제로 `Lime Green` 을
+#   열었고 그것이 **만료된 10월 고지의 1순위**다 ⇒ 여기서만 유효창이 판별자다.
+SITES = {"task_070": ("bank_t7295_a_20260815n", 22),
+         "task_071": ("bank_t7295_b_20260815n", 5)}
+TASK = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3].startswith("task_") else "task_071"
+TAG, CUT = SITES[TASK]
 GROUP = "business_checking_accounts"
 DOCS = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/documents"
 A2 = os.path.join(os.path.dirname(os.path.abspath(__file__)),
