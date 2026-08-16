@@ -52,12 +52,20 @@ NOW = "2025-11-14"
 A2DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "a2")
 DOCS = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/documents"
 
-MARKS = {"CAP2500": "2500", "CAP_2_500": "2,500"}          # 정답(둘 중 어느 표기든)
-NEG_MARKS = {"WRONG2500": "2500", "WRONG_2_500": "2,500"}  # 부정통제선 이게 나오면 안 된다
+# ★1차 실행의 내 지표 결함: 오답 `$32,500` 이 `"2,500"` 을 **부분문자열로 포함**해 적중으로
+#   세어졌다. 부분문자열 채점에는 자릿수 경계가 없다. 고침 = **충돌 탐지 마크를 함께 싣고**
+#   판정을 "정답 적중 ∧ 충돌 미적중" 으로 읽는다(정규식 0·[[59]]).
+MARKS = {"C2500": "2500", "C2_500": "2,500",          # 정답 = 2,500
+         "X32500": "32500", "X32_500": "32,500",      # ← 이게 켜지면 위 적중은 무효
+         "LIM5000": "5000"}                           # 한도 복창 탐지
+NEG_MARKS = {"B1250": "1250", "B1_250": "1,250",      # 부정통제 정답 = 1,250(25%)
+             "C2500": "2500", "C2_500": "2,500",      # 이게 켜지면 통제 실패
+             "X32500": "32500", "X32_500": "32,500"}
 ASK = ("\n\nWhat is the maximum increase amount the agent may submit for THIS card, "
-       "per the tier cap? Answer with the amount only.")
+       "per the tier cap? Answer with digits only - no currency symbol, no words.")
 NEG_ASK = ("\n\nSuppose this same customer instead held the lowest tier card. What is the "
-           "maximum increase amount then? Answer with the amount only.")
+           "maximum increase amount then? Answer with digits only - no currency symbol, "
+           "no words.")
 
 
 def a2_load():
@@ -100,8 +108,9 @@ def main():
     P.run("x347", site,
           [("A_REF", ""), ("B_POLICY", "Policy documents on record (verbatim):\n" + material)],
           MARKS,
-          "B 정답 ∧ D_NEG 오답 → **격리로 된다** ⇒ param_cap_check 삭제 · 둘 다 오답 → 검증기 유지 + "
-          "입력만 formalize 이설 · D_NEG 도 2500 → 통제 무효",
+          "정답 = (C2500|C2_500) 적중 ∧ (X32500|X32_500) 미적중. 그 정답이 A 또는 B 에서 나오고 "
+          "D_NEG 가 1250 을 내면 → **격리로 된다** ⇒ param_cap_check 삭제 · 정답이 어디서도 "
+          "안 나오면 → 검증기 유지 + 입력만 formalize 이설 · D_NEG 가 2500 이면 통제 무효",
           ASK, None, 8, 3, det=True)
     print("\n── D_NEG(최저 등급을 물음·2500 이 나오면 통제 무효) ──")
     P.run("x347-neg", site,
