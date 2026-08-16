@@ -34,6 +34,8 @@ import t2_forensic as F                                            # noqa: E402
 
 DOM = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge"
 ATTACH = r"T2_DECISION_CARRY\] 이 턴 재생성 버퍼에 부착 \((\d+)자\)"
+HOLD = r"T2_DECIDE_BEFORE_WRITE\] write 1턴 유예"
+GROUP = r"T2_SEARCH_AGENT\] group=(\S+)"
 CLOBBER = r"T2_CP2_CLOBBER\] \S+ 가 미소비 배달물 (\d+)자"
 SKIPPED = r"T2_DOC_DELIVERY\] skipped"
 CWE = "ContextWindowExceededError"
@@ -109,10 +111,26 @@ def axis_match(task_id, sim, golds):
     return out
 
 
+def attach_then(sim, sizes):
+    """★ⓒ 기전 분류(리뷰 ②): 대용량 부착이 있었다면, 그 **직후 어시스턴트 생성**이
+    `tool_call`-only 였는지 텍스트였는지. 부착 턴을 로그에서 정확히 못 짚으므로 보수적으로
+    **모든 어시스턴트 메시지의 유형 분포**를 요약한다(텍스트가 하나도 없으면 tool-only 우세).
+    ⚠이것은 분류이지 판정이 아니다 — 최종 귀속은 사람이 궤적을 직독해서 한다([[08]])."""
+    if not any(x >= BIG for x in sizes):
+        return "-"
+    txt = sum(1 for m in (sim.get("messages") or [])
+              if m.get("role") == "assistant" and str(m.get("content") or "").strip())
+    tc = sum(1 for m in (sim.get("messages") or [])
+             if m.get("role") == "assistant" and (m.get("tool_calls") or []))
+    return "txt%d/tc%d" % (txt, tc)
+
+
 def arm_report(name, tag):
     sims = F.sims(tag)
     log = F.log_text(tag)
     att = F.by_sim(tag, ATTACH, sims)
+    hold = F.by_sim(tag, HOLD, sims)
+    grp = F.by_sim(tag, GROUP, sims)
     clb = F.by_sim(tag, CLOBBER, sims)
     skp = F.by_sim(tag, SKIPPED + ".*", sims)
     rows = []
@@ -130,13 +148,17 @@ def arm_report(name, tag):
             "clobber_big": clob_big, "skipped": len(skp.get(key) or []),
             "axes": {ax: {"final": v, "gold": g, "match": mt} for ax, (v, g, mt) in am.items()},
             "n_match": sum(1 for v in am.values() if v[2]), "n_axes": len(am),
+            "hold": len(hold.get(key) or []),
+            "groups": [g for _i, g in (grp.get(key) or [])],
+            "attach_then": attach_then(s, sizes),
             "reward": (s.get("reward_info") or {}).get("reward"),
             "dur": round(s.get("duration") or 0, 1), "term": F.term_reason(s),
             "ncalls": len(list(F.calls(s))),
         })
         r = rows[-1]
-        print("  %-22s big부착 %d skip %d clob %d · 축 %d/%d %s · R=%s dur=%s"
-              % (key, nbig, r["skipped"], clob_big, r["n_match"], r["n_axes"],
+        print("  %-22s big부착 %d hold %d skip %d clob %d · 후속=%s · 축 %d/%d %s · R=%s dur=%s"
+              % (key, nbig, r["hold"], r["skipped"], clob_big, r["attach_then"],
+                 r["n_match"], r["n_axes"],
                  {ax: (v[0] or "-")[:22] + ("=G" if v[2] else "≠" + (v[1] or "")[:14])
                   for ax, v in am.items()}, r["reward"], r["dur"]))
     return rows
@@ -147,9 +169,13 @@ def main():
         tags = [("ctl", "bank_t7303_ctl_20260816h"), ("treat", "bank_t7303_treat_20260816h")]
         print("★양성 통제(t7303): 기대 = ctl big부착 0 · 055 축일치 ctl checking 1/4 · savings 0/4")
     else:
-        a = sys.argv[1:] or ["bank_t7304_ctl_20260816i", "bank_t7304_treat_20260816i"]
+        a = sys.argv[1:] or ["bank_t7304_ctl_20260816j", "bank_t7304_treat_20260816j"]
         tags = [("ctl", a[0]), ("treat", a[1])]
-    R = {n: arm_report(n, t) for n, t in tags}
+    R = {}
+    for n, t in tags:
+        R.setdefault(n, [])
+        for one in t.split(","):          # 055 는 nt=8 로 따로 도므로 태그가 둘일 수 있다
+            R[n] += arm_report(n, one)
 
     print("\n" + "=" * 96)
     print("ⓐ 배선 (부착 기준·양팔 동일 계기)")
@@ -157,9 +183,10 @@ def main():
         rs = R[n]
         tgt = [r for r in rs if r["task"] in ("task_055", "task_024")]
         infra = sum(1 for r in rs if r["term"] not in ("user_stop", "agent_stop", "max_steps"))
-        print("   %-5s big부착 sim %d/%d(표적 %d/%d) · 대용량 clobber %d · skip %d · infra %d"
+        print("   %-5s big부착 sim %d/%d(표적 %d/%d) · **hold %d** · clobber %d · skip %d · infra %d"
               % (n, sum(1 for r in rs if r["n_big"]), len(rs),
                  sum(1 for r in tgt if r["n_big"]), len(tgt),
+                 sum(r["hold"] for r in rs),
                  sum(r["clobber_big"] for r in rs), sum(r["skipped"] for r in rs), infra))
     print("ⓑ 1차 종점 — 축별 최종 제출 gold 일치 (055 합산 0~8 · 024 0~4)")
     for n in ("ctl", "treat"):
@@ -174,6 +201,14 @@ def main():
             by[r["task"]].append(r["reward"])
         print("   %-5s %s" % (n, {k: "%d/%d" % (sum(1 for x in v if x == 1.0), len(v))
                                   for k, v in sorted(by.items())}))
+    print("ⓒ 기전 분류 (대용량 부착 sim 의 어시스턴트 텍스트/툴콜 수)")
+    for n in ("ctl", "treat"):
+        print("   %-5s %s" % (n, [r["attach_then"] for r in R[n] if r["attach_then"] != "-"] or "없음"))
+    print("ⓔ 오군 부착 (요구축 밖 문서군 발화 수)")
+    WANT = {"checking_accounts", "savings_accounts", "business_credit_cards"}
+    for n in ("ctl", "treat"):
+        bad = collections.Counter(g for r in R[n] for g in r["groups"] if g not in WANT)
+        print("   %-5s %s" % (n, dict(bad.most_common(6)) or "없음"))
     print("ⓔ 부작용 (중앙값)")
     for n in ("ctl", "treat"):
         by = collections.defaultdict(list)
