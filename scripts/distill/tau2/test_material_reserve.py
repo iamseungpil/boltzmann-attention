@@ -49,7 +49,9 @@ chk('os.environ.get("T2_MATERIAL_RESERVE") != "1"' in body,
     "플래그가 없으면 종전 거동(무제한 일반 배달, 총 3)")
 
 print("[④] 결정 자리는 안 묶인다")
-proc = re.search(r"T2_SEARCH_ON_PROCEED\"\) == \"1\".{0,600}?_search_material", SRC, re.S)
+# ★창 600→2000자 (2026-08-16): T2_PROCEED_DOCBODY 주석+가드가 조건과 호출 사이에 들어와
+#   경로 자체는 불변인데 창이 짧아 미검출됐다. 거동 검사 대상은 그대로다.
+proc = re.search(r"T2_SEARCH_ON_PROCEED\"\) == \"1\".{0,2000}?_search_material", SRC, re.S)
 chk(bool(proc), "결정 자리 경로가 있다")
 chk('_t2_sa_early' not in (proc.group(0) if proc else "x_t2_sa_early"),
     "결정 자리는 일반-자리 상한(_t2_sa_early)에 걸리지 않는다")
