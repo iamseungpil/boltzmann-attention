@@ -58,6 +58,7 @@ TASK, SEED = "task_055", "554706"
 REQ_MSG = 48                     # 손님이 savings 요구를 진술한 메시지(포렌식 확정)
 NEG_TASK, NEG_SEED, NEG_MSG = "task_024", "1567", 1   # 다른 태스크의 요구(부정통제)
 GROUP = "savings_accounts"
+NOW = "2025-11-14"          # 이 런의 시계(로그 축자) — 만료 제거의 기준
 DOCS = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/documents"
 A2DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "a2")
 
@@ -104,9 +105,16 @@ def main():
     for fn in sorted(os.listdir(DOCS)):
         d = json.load(io.open(os.path.join(DOCS, fn), encoding="utf-8"))
         corpus[str(d.get("id") or fn)] = str(d.get("content") or "")
-    material, info = TS.material_for(a2, GROUP, corpus=corpus)
+    # ★`now` 필수(1차 실행에서 내가 빠뜨렸다·즉시 중단): 안 넘기면 만료 제거가 안 걸려
+    #   `뺀 것 0` 이 되고, 그 조건은 x248 이 이미 **savings 0/8** 로 측정한 자리다. 그러면 B 가
+    #   실패해도 *"요구가 무효"* 인지 *"만료 문서가 오염"* 인지 못 가른다([[55]] 계기 먼저).
+    #   값은 이 런의 시계(로그 축자 `now=2025-11-14`)이고 도메인 판단이 아니다.
+    material, info = TS.material_for(a2, GROUP, now=NOW, corpus=corpus)
     if not material:
         print("재료 생성 실패 — 중단(계기 결함)")
+        return 1
+    if not (info.get("dropped") or ()):
+        print("⚠만료 제거 0건 — now=%s 가 안 먹었다. 중단(x248: 만료 미제거 시 savings 0/8)" % NOW)
         return 1
 
     cands = ", ".join(disp(x) for x in sorted((po.get("doc_index") or {}).get(GROUP) or ()))
