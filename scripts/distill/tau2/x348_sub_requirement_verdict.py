@@ -52,11 +52,17 @@ DEF_CTL = "bank_t7305_ctl_20260817a,bank_t7305_ctlaux_20260817a"
 DEF_TREAT = "bank_t7305_treat_20260817a,bank_t7305_treataux_20260817a"
 
 
-def nums(line):
-    """줄에서 정수만 순서대로(정규식 0). `인용 3개 중 … 통과 2개` → [3, 2]."""
+def nums(line, after="인용 "):
+    """줄에서 정수만 순서대로(정규식 0). `인용 3개 중 … 통과 2개` → [3, 2].
+
+    ⚠`after` 뒤부터 읽는다 — 마커 자체에 숫자가 있다(`T2_SUB_REQUIREMENT` 의 **2**).
+      2026-08-17 자기검정이 이 오독([2,3,2])을 잡았다(핸드오프 §4 계기결함 부류)."""
+    s = str(line or "")
+    i = s.find(after) if after else -1
+    s = s[i + len(after):] if i >= 0 else ("" if after else s)
     out = []
     tok = ""
-    for ch in str(line or ""):
+    for ch in s:
         if ch.isdigit():
             tok += ch
         else:
