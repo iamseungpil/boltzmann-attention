@@ -2727,6 +2727,12 @@ def _search_material(agent, a2, messages, decide=True):
     if not decide:
         try:
             _done.add(_g)
+            # ★영속 필수(2026-08-16·t7304 사전 점검에서 발견): `_done` 이 이 호출에서 갓
+            #   만들어진 지역 set 이면 add 만으로는 **소비가 유실**된다 — tag h 실측: DOCONLY
+            #   가 checking 을 배달한 뒤 ONPROCEED 가 **같은 축을 재처리**했다. 유실되면
+            #   2축 태스크(055)에서 같은 문서를 예산 3 이 다할 때까지 재배달하고 둘째 축은
+            #   영영 안 온다. decide=True 경로와 동일한 한 줄이다.
+            agent._t2_search_done = _done
         except Exception:
             pass
         print("[T2_SEARCH_AGENT] 문서-only 반환 group=%s · %d자" % (_g, len(_mat)),

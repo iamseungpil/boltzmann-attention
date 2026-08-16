@@ -60,8 +60,10 @@ chk('_t2_searchagent_fired", 0) < 3' in SRC.split("_docb = ")[0][-2000:] or
     "예산 3 게이트가 이 블록 앞에 그대로 있다")
 chk('_cp2_assign(self, _mp, "SEARCH_ON_PROCEED")' in body, "슬롯은 같은 헬퍼(_cp2_assign) 경유")
 sm = re.search(r"def _search_material\(agent, a2, messages, decide=True\):.{0,12000}"
-               r"if not decide:.{0,600}?_done\.add\(_g\)", SRC, re.S)
-chk(bool(sm), "_search_material 의 decide=False 경로도 축을 소비한다(_done.add)")
+               r"if not decide:.{0,900}?_done\.add\(_g\).{0,900}?"
+               r"agent\._t2_search_done = _done", SRC, re.S)
+chk(bool(sm), "decide=False 경로가 축 소비를 **영속**한다(add + agent._t2_search_done) — "
+              "tag h 실측: 영속 없이는 같은 축 재처리·둘째 축 미배달")
 
 print("[⑤] 엔진 선택 문장 0")
 for pat, why in ((r"\bargmax\b", "argmax"), (r"정답은", "'정답은 X'"),
