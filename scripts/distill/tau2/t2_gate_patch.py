@@ -7534,12 +7534,35 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     and os.environ.get("T2_SEARCH_AGENT") == "1"
                                     and os.environ.get("T2_DECISION_CARRY") == "1"
                                     and getattr(self, "_t2_searchagent_fired", 0) < 3):
+                                # ★T2_PROCEED_DOCBODY (2026-08-16·기본 OFF·t7304=S1 재설계) —
+                                #   이 자리의 배달 **객체**만 바꾼다: 서브 결정문(243~263자)
+                                #   → **유효 문서 본문**(decide=False·37k~50k자).
+                                #   왜. t7303 로그 직독: 이 자리에 배달되던 서브 결정 자체가
+                                #   오답이었다(055 양팔 `DOCDECIDE → 'Blue Account'`·gold Purple).
+                                #   격리 24/24 를 만든 객체는 문서 본문이다(x335b) — 자리·예산·
+                                #   슬롯·축 소비 전부 불변, 객체 하나만 격리와 일치시킨다.
+                                #   [[62]]③: 오히려 엔진-측 결정문을 **제거**하는 방향이다.
+                                _docb = os.environ.get("T2_PROCEED_DOCBODY") == "1"
                                 try:
-                                    _mp = _search_material(self, a2, state.messages)
+                                    _mp = _search_material(self, a2, state.messages,
+                                                           decide=(not _docb))
                                 except Exception as _mpe:
                                     _mp = ""
                                     print("[T2_SEARCH_ON_PROCEED] 건너뜀(무발화): %r" % (_mpe,),
                                           file=_sys.stderr, flush=True)
+                                # ★컨텍스트 가드(결정론·내용 무관·도메인 무관): 문서 본문은
+                                #   9~12k tok 라 후반 턴에 얹으면 44,672 를 넘는다(t7303 실측
+                                #   CWE 5건). 보수 추정(자수/3)으로 넘칠 배달만 **건너뛰고
+                                #   기록**한다 — 엔진이 줄이거나 고르면 [[62]]③ 이므로 축약은
+                                #   하지 않는다. 건너뜀 수는 ⓔ 부작용 표에 계상된다.
+                                if _mp and _docb and len(_mp) > 5000:
+                                    _hist = sum(len(_content_str(_m) or "")
+                                                for _m in (state.messages or []))
+                                    if (_hist + len(_mp)) / 3 > (44672 - 8192 - 1024):
+                                        print("[T2_DOC_DELIVERY] skipped: est %d+%d chars > cap"
+                                              % (_hist, len(_mp)),
+                                              file=_sys.stderr, flush=True)
+                                        _mp = ""
                                 if _mp:
                                     self._t2_searchagent_fired = getattr(
                                         self, "_t2_searchagent_fired", 0) + 1
