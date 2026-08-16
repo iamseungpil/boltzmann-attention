@@ -202,8 +202,55 @@ def task_id(sim):
 
 
 def sim_key(sim):
-    """태스크+시행 식별(시행 인덱스 이름이 런마다 달라 세 후보를 순서대로 본다)."""
+    """태스크+시행 식별(시행 인덱스 이름이 런마다 달라 세 후보를 순서대로 본다).
+
+    ⚠**로그 조인에 쓰지 마라** — 로그의 `[sim=...]` 태그는 `s<seed>` 이고 이것은 `trial` 우선이다.
+      조인은 `simtag()`/`by_sim()` 을 쓴다(C491⒠·2026-08-16 같은 함정에 두 번 걸린 뒤 정본화).
+    """
     for k in ("trial", "trial_id", "seed"):
         if sim.get(k) is not None:
             return "%s#%s" % (task_id(sim), sim.get(k))
     return task_id(sim)
+
+
+def simtag(sim):
+    """**로그 조인 키** — 로그가 찍는 `[sim=task_055#s626729]` 와 바이트 동일하게 만든다.
+
+    실물 사고: `sim_key`(trial 우선)로 로그를 찾으면 **전부 미스**한다(빈 결과를 *"발화 없음"* 으로
+    오독하게 된다). 2026-08-15 C491⒠ 에서 한 번, 2026-08-16 배달↔선택 정합에서 또 한 번 걸렸다.
+    """
+    s = sim.get("seed")
+    return "%s#s%s" % (task_id(sim), s) if s is not None else sim_key(sim)
+
+
+def log_text(tag):
+    """런 로그 전문(gz). 없으면 빈 문자열(침묵) — 예외로 분석을 죽이지 않는다."""
+    import gzip as _gz
+    p = path_for(tag, ".log.gz")
+    if not p or not os.path.exists(p):
+        return ""
+    with _gz.open(p, "rt", encoding="utf-8", errors="replace") as f:
+        return f.read()
+
+
+def by_sim(tag, pattern, sims_=None):
+    """로그를 **sim 별로** 훑어 `pattern` 매치를 모은다 → {simtag: [(줄번호, 매치), …]}.
+
+    프로브마다 로그를 다시 grep 하던 것을 여기로 모은다([[67]]). `sims_` 를 주면 그 sim 들의
+    `simtag` 만 남긴다(태스크 필터). 매치는 `re.search` 의 group(1) 이 있으면 그것, 없으면 줄 전체.
+    """
+    import re as _re
+    rx = _re.compile(pattern)
+    want = {simtag(s) for s in sims_} if sims_ else None
+    out = {}
+    for i, line in enumerate(log_text(tag).split("\n")):
+        m0 = _re.search(r"\[sim=(task_\d+#\w+)\]", line)
+        if not m0:
+            continue
+        key = m0.group(1)
+        if want is not None and key not in want:
+            continue
+        m = rx.search(line)
+        if m:
+            out.setdefault(key, []).append((i, m.group(1) if m.groups() else line.strip()))
+    return out
