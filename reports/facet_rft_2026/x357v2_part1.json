@@ -1,0 +1,1228 @@
+{
+ "res": [
+  {
+   "task": "task_002",
+   "axis": "card",
+   "gold": "Platinum Rewards Card",
+   "gold_class": "platinum_rewards_card",
+   "how": "exact",
+   "rate": 0.5,
+   "n_live_quotes": 2,
+   "stats": {
+    "script": {
+     "OK": 2,
+     "CONFLICTS": 8,
+     "UNCLEAR": 0,
+     "cited": 6
+    },
+    "live": {
+     "OK": 8,
+     "CONFLICTS": 2,
+     "UNCLEAR": 0,
+     "cited": 2
+    },
+    "neg": {
+     "OK": 7,
+     "CONFLICTS": 3,
+     "UNCLEAR": 0,
+     "cited": 3
+    }
+   },
+   "lines": {
+    "script": [
+     "- Bronze Rewards Card: CONFLICTS — Minimum starting credit limit upon approval: $3,000",
+     "- Credit Card Account Logistics: CONFLICTS — Eligibility Requirements for Account Closure To close your Rho-Bank credit card account, you must meet all of the following: 1. Zero balance required: Your account must have an outstanding balance of ",
+     "- Credit Card Replacements: CONFLICTS — ## Before you order - Verify the customer's identity using standard verification procedures. - Look up the customer's credit card account. - Confirm the shipping address with the customer (primary or ",
+     "- Crypto-cash Back: CONFLICTS — Purchase protection on this card is No.",
+     "- Diamond Elite Card: OK",
+     "- Ecocard: CONFLICTS — Initial credit lines are determined at approval and typically range from $5,000 to $50,000.",
+     "- Gold Rewards Card: CONFLICTS — Rho‑Bank+ premium subscription required: Yes",
+     "- Platinum Rewards Card: OK",
+     "- Silver Rewards Card: CONFLICTS",
+     "- Virtual Card Management: CONFLICTS"
+    ],
+    "live": [
+     "- Bronze Rewards Card: OK",
+     "- Credit Card Account Logistics: OK",
+     "- Credit Card Replacements: OK",
+     "- Crypto-cash Back: OK",
+     "- Diamond Elite Card: CONFLICTS — Annual fee: $495.00 (billed to your first statement unless waived by an applicable promo).",
+     "- Ecocard: OK",
+     "- Gold Rewards Card: OK",
+     "- Platinum Rewards Card: CONFLICTS — Annual fee: $200.00.",
+     "- Silver Rewards Card: OK",
+     "- Virtual Card Management: OK"
+    ],
+    "neg": [
+     "- Bronze Rewards Card: CONFLICTS — Minimum starting credit limit upon approval: $3,000",
+     "- Credit Card Account Logistics: OK",
+     "- Credit Card Replacements: OK",
+     "- Crypto-cash Back: CONFLICTS — Purchase protection on this card is No. Factor this into your decision-making when redeeming and spending.",
+     "- Diamond Elite Card: OK",
+     "- Ecocard: CONFLICTS — Initial credit lines are determined at approval and typically range from $5,000 to $50,000.",
+     "- Gold Rewards Card: OK",
+     "- Platinum Rewards Card: OK",
+     "- Silver Rewards Card: OK",
+     "- Virtual Card Management: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "A_LIVEREF": 2,
+    "B_LIVEREQ": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_006",
+   "axis": "card",
+   "gold": "EcoCard",
+   "gold_class": "ecocard",
+   "how": "exact",
+   "rate": 0.609375,
+   "n_live_quotes": 3,
+   "stats": {
+    "script": {
+     "OK": 1,
+     "CONFLICTS": 9,
+     "UNCLEAR": 0,
+     "cited": 7
+    },
+    "live": {
+     "OK": 1,
+     "CONFLICTS": 9,
+     "UNCLEAR": 0,
+     "cited": 6
+    },
+    "neg": {
+     "OK": 7,
+     "CONFLICTS": 3,
+     "UNCLEAR": 0,
+     "cited": 3
+    }
+   },
+   "lines": {
+    "script": [
+     "- Bronze Rewards Card: CONFLICTS — Minimum credit score: $640",
+     "- Credit Card Account Logistics: CONFLICTS",
+     "- Credit Card Replacements: CONFLICTS — Your current card is cancelled for security and cannot be used for new purchases.",
+     "- Crypto-cash Back: CONFLICTS — Purchase protection on this card is No. Factor this into your decision-making when redeeming and spending.",
+     "- Diamond Elite Card: CONFLICTS — - You should maintain a credit score of at least $780 to be considered.",
+     "- Ecocard: OK",
+     "- Gold Rewards Card: CONFLICTS — Minimum credit score required: $720",
+     "- Platinum Rewards Card: CONFLICTS — Minimum credit score required: $750.",
+     "- Silver Rewards Card: CONFLICTS",
+     "- Virtual Card Management: CONFLICTS — The annual fee for virtual card management is $25.00."
+    ],
+    "live": [
+     "- Bronze Rewards Card: CONFLICTS",
+     "- Credit Card Account Logistics: CONFLICTS — Your account must have an outstanding balance of $0.00 dollars.",
+     "- Credit Card Replacements: CONFLICTS",
+     "- Crypto-cash Back: CONFLICTS — Purchase protection on this card is No.",
+     "- Diamond Elite Card: CONFLICTS — Minimum payment: 3.0% of your statement balance each cycle (or the statement minimum, if higher).",
+     "- Ecocard: OK",
+     "- Gold Rewards Card: CONFLICTS — Minimum payment due each cycle: 2.0% of your outstanding balance (or your full balance if lower than that threshold), plus any past‑due amounts.",
+     "- Platinum Rewards Card: CONFLICTS — The minimum monthly payment is 2.5% of your outstanding balance.",
+     "- Silver Rewards Card: CONFLICTS",
+     "- Virtual Card Management: CONFLICTS — The annual fee for virtual card management is $25.00."
+    ],
+    "neg": [
+     "- Bronze Rewards Card: CONFLICTS — Minimum starting credit limit upon approval: $3,000",
+     "- Credit Card Account Logistics: OK",
+     "- Credit Card Replacements: OK",
+     "- Crypto-cash Back: CONFLICTS — Purchase protection on this card is No. Factor this into your decision-making when redeeming and spending.",
+     "- Diamond Elite Card: OK",
+     "- Ecocard: CONFLICTS — Initial credit lines are determined at approval and typically range from $5,000 to $50,000.",
+     "- Gold Rewards Card: OK",
+     "- Platinum Rewards Card: OK",
+     "- Silver Rewards Card: OK",
+     "- Virtual Card Management: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 2,
+    "A_LIVEREF": 0,
+    "B_LIVEREQ": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_024",
+   "axis": "card",
+   "gold": "Business Bronze Rewards Card",
+   "gold_class": "business_bronze_rewards_card",
+   "how": "exact",
+   "rate": 0.0,
+   "n_live_quotes": 0,
+   "stats": {
+    "script": {
+     "OK": 6,
+     "CONFLICTS": 1,
+     "UNCLEAR": 0,
+     "cited": 1
+    },
+    "live": {
+     "OK": 0,
+     "CONFLICTS": 0,
+     "UNCLEAR": 0,
+     "cited": 0
+    },
+    "neg": {
+     "OK": 6,
+     "CONFLICTS": 1,
+     "UNCLEAR": 0,
+     "cited": 1
+    }
+   },
+   "lines": {
+    "script": [
+     "- Business Bronze Rewards Card: OK",
+     "- Business Gold Rewards Card: OK",
+     "- Business Platinum Rewards Card: OK",
+     "- Business Silver Rewards Card: CONFLICTS — Earn 10.0% cash back on eligible travel and software purchases",
+     "- Green Rewards Card: OK",
+     "- Silver Zoom Card: OK",
+     "- Virtual Card Management: OK"
+    ],
+    "live": [],
+    "neg": [
+     "- Business Bronze Rewards Card: OK",
+     "- Business Gold Rewards Card: OK",
+     "- Business Platinum Rewards Card: OK",
+     "- Business Silver Rewards Card: CONFLICTS — Earn 10.0% cash back on eligible travel and software purchases",
+     "- Green Rewards Card: OK",
+     "- Silver Zoom Card: OK",
+     "- Virtual Card Management: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_044",
+   "axis": "card",
+   "gold": "Platinum Rewards Card",
+   "gold_class": "platinum_rewards_card",
+   "how": "exact",
+   "rate": 0.0,
+   "n_live_quotes": 3,
+   "stats": {
+    "script": {
+     "OK": 2,
+     "CONFLICTS": 8,
+     "UNCLEAR": 0,
+     "cited": 7
+    },
+    "live": {
+     "OK": 0,
+     "CONFLICTS": 10,
+     "UNCLEAR": 0,
+     "cited": 9
+    },
+    "neg": {
+     "OK": 7,
+     "CONFLICTS": 3,
+     "UNCLEAR": 0,
+     "cited": 3
+    }
+   },
+   "lines": {
+    "script": [
+     "- Bronze Rewards Card: CONFLICTS",
+     "- Credit Card Account Logistics: OK",
+     "- Credit Card Replacements: CONFLICTS — ## Before you order - Verify the customer's identity using standard verification procedures. - Look up the customer's credit card account. - Confirm the shipping address with the customer (primary or ",
+     "- Crypto-cash Back: CONFLICTS — You earn rewards at 2.0% on those transactions.",
+     "- Diamond Elite Card: CONFLICTS — Annual fee: $495.00 (billed to your first statement unless waived by an applicable promo).",
+     "- Ecocard: CONFLICTS — Foreign transaction fee (international purchases): 1.0%.",
+     "- Gold Rewards Card: CONFLICTS — Rho‑Bank+ premium subscription required: Yes",
+     "- Platinum Rewards Card: OK",
+     "- Silver Rewards Card: CONFLICTS — Foreign transaction fee without a premium subscription: 2.75%",
+     "- Virtual Card Management: CONFLICTS — ## Quick setup checklist - Confirm instant issuance availability: Yes - Expected issuance time: 5 seconds - Maximum active virtual cards per account: 60 - Support for recurring-use cards: Yes - Annual"
+    ],
+    "live": [
+     "- Bronze Rewards Card: CONFLICTS — - You earn 1.0% cash back on eligible purchases.",
+     "- Credit Card Account Logistics: CONFLICTS — Eligibility Requirements for Account Closure To close your Rho-Bank credit card account, you must meet all of the following: 1. Zero balance required: Your account must have an outstanding balance of ",
+     "- Credit Card Replacements: CONFLICTS",
+     "- Crypto-cash Back: CONFLICTS — You earn rewards at 2.0% on eligible purchases.",
+     "- Diamond Elite Card: CONFLICTS — You earn 5.0% cash back on all eligible purchases posted to your account.",
+     "- Ecocard: CONFLICTS — - Annual fee: $50.00.",
+     "- Gold Rewards Card: CONFLICTS — Cash back on all purchases: 2.5%",
+     "- Platinum Rewards Card: CONFLICTS — Annual fee: $200.00.",
+     "- Silver Rewards Card: CONFLICTS — Purchases outside top categories earn 1.0% back",
+     "- Virtual Card Management: CONFLICTS — The annual fee for virtual card management is $25.00."
+    ],
+    "neg": [
+     "- Bronze Rewards Card: CONFLICTS — Minimum starting credit limit upon approval: $3,000",
+     "- Credit Card Account Logistics: OK",
+     "- Credit Card Replacements: OK",
+     "- Crypto-cash Back: CONFLICTS — Purchase protection on this card is No. Factor this into your decision-making when redeeming and spending.",
+     "- Diamond Elite Card: OK",
+     "- Ecocard: CONFLICTS — Initial credit lines are determined at approval and typically range from $5,000 to $50,000.",
+     "- Gold Rewards Card: OK",
+     "- Platinum Rewards Card: OK",
+     "- Silver Rewards Card: OK",
+     "- Virtual Card Management: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "A_LIVEREF": 2,
+    "B_LIVEREQ": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_055",
+   "axis": "savings",
+   "gold": "Silver Plus Account",
+   "gold_class": "silver_plus_account",
+   "how": "exact",
+   "rate": 0.0,
+   "n_live_quotes": 13,
+   "stats": {
+    "script": {
+     "OK": 3,
+     "CONFLICTS": 6,
+     "UNCLEAR": 0,
+     "cited": 6
+    },
+    "live": {
+     "OK": 0,
+     "CONFLICTS": 9,
+     "UNCLEAR": 0,
+     "cited": 9
+    },
+    "neg": {
+     "OK": 4,
+     "CONFLICTS": 5,
+     "UNCLEAR": 0,
+     "cited": 5
+    }
+   },
+   "lines": {
+    "script": [
+     "- Bronze Account: CONFLICTS — Daily mobile check deposit limit: $1,000.",
+     "- Diamond Elite Account: CONFLICTS — Minimum balance to maintain the account: $250,000.",
+     "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+     "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+     "- Green Account (savings): OK",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — - Initial deposit to open: $50,000",
+     "- Silver Account: OK",
+     "- Silver Plus Account: OK"
+    ],
+    "live": [
+     "- Bronze Account: CONFLICTS — Interest is credited monthly. You will see a single interest credit entry for each crediting period.",
+     "- Diamond Elite Account: CONFLICTS — Minimum balance to maintain the account: $250,000.",
+     "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+     "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+     "- Green Account (savings): CONFLICTS — The daily limit for mobile check deposits into your Green Account (savings) is $3,000.",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — ## Opening requirements - Initial deposit to open: $50,000",
+     "- Silver Account: CONFLICTS — If you exceed the monthly withdrawal limit for your account, an excess withdrawal fee of $2.00 applies to each additional withdrawal.",
+     "- Silver Plus Account: CONFLICTS — Once your monthly rebate total reaches 25, additional ATM fees will not be rebated for that month."
+    ],
+    "neg": [
+     "- Bronze Account: CONFLICTS — Interest compounds daily, so each day's interest is based on your current balance plus any previously accrued interest.",
+     "- Diamond Elite Account: CONFLICTS — Minimum initial deposit: $100,000.",
+     "- Gold Account: OK",
+     "- Gold Plus Account: OK",
+     "- Green Account (savings): OK",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — - Initial deposit to open: $50,000",
+     "- Silver Account: CONFLICTS — Fund at least $500 when you open the account.",
+     "- Silver Plus Account: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "A_LIVEREF": 0,
+    "B_LIVEREQ": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_057",
+   "axis": "checking",
+   "gold": "Blue Account",
+   "gold_class": "blue_account",
+   "how": "exact",
+   "rate": 0.0,
+   "n_live_quotes": 4,
+   "stats": {
+    "script": {
+     "OK": 2,
+     "CONFLICTS": 8,
+     "UNCLEAR": 0,
+     "cited": 6
+    },
+    "live": {
+     "OK": 1,
+     "CONFLICTS": 9,
+     "UNCLEAR": 0,
+     "cited": 8
+    },
+    "neg": {
+     "OK": 3,
+     "CONFLICTS": 7,
+     "UNCLEAR": 0,
+     "cited": 6
+    }
+   },
+   "lines": {
+    "script": [
+     "- Blue Account: OK",
+     "- Bluest Account: CONFLICTS — Deposit at least $75,000 to open your account.",
+     "- Dark Green Account: CONFLICTS — Eligibility - Minimum primary holder age: 17 - Maximum primary holder age: 26",
+     "- Evergreen Account: OK",
+     "- Gold Years Account: CONFLICTS — Eligibility - You must be at least 62 years old to qualify.",
+     "- Green Account (checking): CONFLICTS",
+     "- Green Fee-free Account: CONFLICTS — Early direct deposit | 0 day(s) before payday",
+     "- Light Blue Account: CONFLICTS — Early direct deposit: 0 day(s) before payday",
+     "- Light Green Account: CONFLICTS",
+     "- Purple Account: CONFLICTS — Monthly maintenance fee: $15.00"
+    ],
+    "live": [
+     "- Blue Account: OK",
+     "- Bluest Account: CONFLICTS — Deposit at least $75,000 to open your account.",
+     "- Dark Green Account: CONFLICTS — Monthly maintenance fee: $10.00",
+     "- Evergreen Account: CONFLICTS — - The monthly maintenance fee is waived when your minimum daily balance is at least $500",
+     "- Gold Years Account: CONFLICTS — ## Eligibility - You must be at least 62 years old to qualify.",
+     "- Green Account (checking): CONFLICTS",
+     "- Green Fee-free Account: CONFLICTS — This account offers 0 day(s) early access to direct deposits.",
+     "- Light Blue Account: CONFLICTS — ## Quick facts - APY on your balance: 0% - Daily mobile check deposit limit: $2,000 - Early direct deposit: 0 day(s) before payday",
+     "- Light Green Account: CONFLICTS — Direct deposits arrive 0 day(s) before your scheduled payday.",
+     "- Purple Account: CONFLICTS — Minimum daily balance to waive the monthly maintenance fee: $3,750"
+    ],
+    "neg": [
+     "- Blue Account: OK",
+     "- Bluest Account: CONFLICTS — - Deposit at least $75,000 to open your account.",
+     "- Dark Green Account: CONFLICTS — - The primary account holder must be at least 17. - You can maintain the account through 26.",
+     "- Evergreen Account: CONFLICTS — Only eligible purchase transactions accrue offsets - EveryonePay transfers do not accrue offsets; this applies regardless of the $3,000",
+     "- Gold Years Account: CONFLICTS — Eligibility - You must be at least 62 years old to qualify.",
+     "- Green Account (checking): CONFLICTS",
+     "- Green Fee-free Account: OK",
+     "- Light Blue Account: CONFLICTS — This account offers 0 day(s) early access to direct deposits.",
+     "- Light Green Account: CONFLICTS — The primary account holder must be at least 13 to open the account. - The account is designed for individuals up to 24.",
+     "- Purple Account: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 0,
+    "A_LIVEREF": 0,
+    "B_LIVEREQ": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_059",
+   "axis": "savings",
+   "gold": "Green Account",
+   "gold_class": "green_account_(savings)",
+   "how": "unique-substr",
+   "rate": 0.0,
+   "n_live_quotes": 4,
+   "stats": {
+    "script": {
+     "OK": 3,
+     "CONFLICTS": 6,
+     "UNCLEAR": 0,
+     "cited": 6
+    },
+    "live": {
+     "OK": 1,
+     "CONFLICTS": 8,
+     "UNCLEAR": 0,
+     "cited": 7
+    },
+    "neg": {
+     "OK": 4,
+     "CONFLICTS": 5,
+     "UNCLEAR": 0,
+     "cited": 5
+    }
+   },
+   "lines": {
+    "script": [
+     "- Bronze Account: OK",
+     "- Diamond Elite Account: CONFLICTS — Minimum initial deposit: $100,000.",
+     "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+     "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+     "- Green Account (savings): OK",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — ## Opening requirements - Initial deposit to open: $50,000",
+     "- Silver Account: OK",
+     "- Silver Plus Account: CONFLICTS — You should maintain a balance of at least $2,500."
+    ],
+    "live": [
+     "- Bronze Account: OK",
+     "- Diamond Elite Account: CONFLICTS — Minimum balance to maintain the account: $250,000.",
+     "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+     "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+     "- Green Account (savings): CONFLICTS",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — ## Opening requirements - Initial deposit to open: $50,000",
+     "- Silver Account: CONFLICTS — Ongoing minimum balance | $1,000",
+     "- Silver Plus Account: CONFLICTS — Ongoing minimum balance | $2,500"
+    ],
+    "neg": [
+     "- Bronze Account: CONFLICTS — Interest compounds daily, so each day's interest is based on your current balance plus any previously accrued interest.",
+     "- Diamond Elite Account: CONFLICTS — Minimum initial deposit: $100,000.",
+     "- Gold Account: OK",
+     "- Gold Plus Account: OK",
+     "- Green Account (savings): OK",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — - Initial deposit to open: $50,000",
+     "- Silver Account: CONFLICTS — Fund at least $500 when you open the account.",
+     "- Silver Plus Account: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 2,
+    "A_LIVEREF": 0,
+    "B_LIVEREQ": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_061",
+   "axis": "savings",
+   "gold": "Silver Plus Account",
+   "gold_class": "silver_plus_account",
+   "how": "exact",
+   "rate": 0.0,
+   "n_live_quotes": 6,
+   "stats": {
+    "script": {
+     "OK": 1,
+     "CONFLICTS": 8,
+     "UNCLEAR": 0,
+     "cited": 8
+    },
+    "live": {
+     "OK": 1,
+     "CONFLICTS": 8,
+     "UNCLEAR": 0,
+     "cited": 8
+    },
+    "neg": {
+     "OK": 4,
+     "CONFLICTS": 5,
+     "UNCLEAR": 0,
+     "cited": 5
+    }
+   },
+   "lines": {
+    "script": [
+     "- Bronze Account: CONFLICTS — Free withdrawals per month: 6",
+     "- Diamond Elite Account: CONFLICTS — Minimum balance to maintain the account: $250,000.",
+     "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+     "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+     "- Green Account (savings): CONFLICTS — Maximum free withdrawals per month | 8",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — ## Opening requirements - Initial deposit to open: $50,000",
+     "- Silver Account: CONFLICTS — Free withdrawals per statement cycle | 10",
+     "- Silver Plus Account: OK"
+    ],
+    "live": [
+     "- Bronze Account: CONFLICTS — Withdrawals beyond 6 in a statement cycle may incur fees (see the fee schedule specific to this account).",
+     "- Diamond Elite Account: CONFLICTS — Minimum balance to maintain the account: $250,000.",
+     "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+     "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+     "- Green Account (savings): CONFLICTS — Maximum free withdrawals per month | 8",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — - The required minimum balance is $100,000.",
+     "- Silver Account: CONFLICTS — Track your withdrawal activity; transactions beyond 10 in a cycle may incur an excess withdrawal fee as described in your account disclosures.",
+     "- Silver Plus Account: OK"
+    ],
+    "neg": [
+     "- Bronze Account: CONFLICTS — Interest compounds daily, so each day's interest is based on your current balance plus any previously accrued interest.",
+     "- Diamond Elite Account: CONFLICTS — Minimum initial deposit: $100,000.",
+     "- Gold Account: OK",
+     "- Gold Plus Account: OK",
+     "- Green Account (savings): OK",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — - Initial deposit to open: $50,000",
+     "- Silver Account: CONFLICTS — Fund at least $500 when you open the account.",
+     "- Silver Plus Account: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "A_LIVEREF": 2,
+    "B_LIVEREQ": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_063",
+   "axis": "savings",
+   "gold": "Silver Plus Account",
+   "gold_class": "silver_plus_account",
+   "how": "exact",
+   "rate": 0.0,
+   "n_live_quotes": 1,
+   "stats": {
+    "script": {
+     "OK": 2,
+     "CONFLICTS": 7,
+     "UNCLEAR": 0,
+     "cited": 7
+    },
+    "live": {
+     "OK": 5,
+     "CONFLICTS": 4,
+     "UNCLEAR": 0,
+     "cited": 3
+    },
+    "neg": {
+     "OK": 4,
+     "CONFLICTS": 5,
+     "UNCLEAR": 0,
+     "cited": 5
+    }
+   },
+   "lines": {
+    "script": [
+     "- Bronze Account: CONFLICTS — Paper statement delivery: If you are enrolled in paper statements, a paper statement fee of $2.00 may apply each month you receive a paper statement.",
+     "- Diamond Elite Account: CONFLICTS — Minimum initial deposit: $100,000.",
+     "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+     "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+     "- Green Account (savings): CONFLICTS — Paperless statements are required for this account: Yes.",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — ## Opening requirements - Initial deposit to open: $50,000",
+     "- Silver Account: OK",
+     "- Silver Plus Account: OK"
+    ],
+    "live": [
+     "- Bronze Account: CONFLICTS — Paper statement delivery: If you are enrolled in paper statements, a paper statement fee of $2.00 may apply each month you receive a paper statement.",
+     "- Diamond Elite Account: CONFLICTS",
+     "- Gold Account: OK",
+     "- Gold Plus Account: OK",
+     "- Green Account (savings): CONFLICTS — Paperless statements are required for this account: Yes.",
+     "- Platinum Account: OK",
+     "- Platinum Plus Account: OK",
+     "- Silver Account: CONFLICTS — Interest is compounded daily.",
+     "- Silver Plus Account: OK"
+    ],
+    "neg": [
+     "- Bronze Account: CONFLICTS — Interest compounds daily, so each day's interest is based on your current balance plus any previously accrued interest.",
+     "- Diamond Elite Account: CONFLICTS — Minimum initial deposit: $100,000.",
+     "- Gold Account: OK",
+     "- Gold Plus Account: OK",
+     "- Green Account (savings): OK",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — - Initial deposit to open: $50,000",
+     "- Silver Account: CONFLICTS — Fund at least $500 when you open the account.",
+     "- Silver Plus Account: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 0,
+    "A_LIVEREF": 2,
+    "B_LIVEREQ": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_064",
+   "axis": "savings",
+   "gold": "Gold Plus Account",
+   "gold_class": "gold_plus_account",
+   "how": "exact",
+   "rate": 0.0,
+   "n_live_quotes": 5,
+   "stats": {
+    "script": {
+     "OK": 3,
+     "CONFLICTS": 6,
+     "UNCLEAR": 0,
+     "cited": 6
+    },
+    "live": {
+     "OK": 3,
+     "CONFLICTS": 6,
+     "UNCLEAR": 0,
+     "cited": 6
+    },
+    "neg": {
+     "OK": 4,
+     "CONFLICTS": 5,
+     "UNCLEAR": 0,
+     "cited": 5
+    }
+   },
+   "lines": {
+    "script": [
+     "- Bronze Account: CONFLICTS — Withdrawals beyond 6 in a statement cycle may incur fees (see the fee schedule specific to this account).",
+     "- Diamond Elite Account: CONFLICTS — Minimum balance to maintain the account: $250,000.",
+     "- Gold Account: OK",
+     "- Gold Plus Account: CONFLICTS — Cryptocurrency trading access: Yes",
+     "- Green Account (savings): CONFLICTS — Maximum free withdrawals per month | 8",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — ## Opening requirements - Initial deposit to open: $50,000",
+     "- Silver Account: OK",
+     "- Silver Plus Account: OK"
+    ],
+    "live": [
+     "- Bronze Account: CONFLICTS — Withdrawals beyond 6 in a statement cycle may incur fees (see the fee schedule specific to this account).",
+     "- Diamond Elite Account: CONFLICTS — Minimum balance to maintain the account: $250,000.",
+     "- Gold Account: OK",
+     "- Gold Plus Account: OK",
+     "- Green Account (savings): CONFLICTS — Maximum free withdrawals per month | 8",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — The required minimum balance is $100,000.",
+     "- Silver Account: CONFLICTS — Track your withdrawal activity; transactions beyond 10 in a cycle may incur an excess withdrawal fee as described in your account disclosures.",
+     "- Silver Plus Account: OK"
+    ],
+    "neg": [
+     "- Bronze Account: CONFLICTS — Interest compounds daily, so each day's interest is based on your current balance plus any previously accrued interest.",
+     "- Diamond Elite Account: CONFLICTS — Minimum initial deposit: $100,000.",
+     "- Gold Account: OK",
+     "- Gold Plus Account: OK",
+     "- Green Account (savings): OK",
+     "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+     "- Platinum Plus Account: CONFLICTS — - Initial deposit to open: $50,000",
+     "- Silver Account: CONFLICTS — Fund at least $500 when you open the account.",
+     "- Silver Plus Account: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 0,
+    "A_LIVEREF": 0,
+    "B_LIVEREQ": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_065",
+   "axis": "checking",
+   "gold": "Evergreen Account",
+   "gold_class": "evergreen_account",
+   "how": "exact",
+   "rate": 0.0,
+   "n_live_quotes": 3,
+   "stats": {
+    "script": {
+     "OK": 4,
+     "CONFLICTS": 6,
+     "UNCLEAR": 0,
+     "cited": 5
+    },
+    "live": {
+     "OK": 6,
+     "CONFLICTS": 4,
+     "UNCLEAR": 0,
+     "cited": 4
+    },
+    "neg": {
+     "OK": 3,
+     "CONFLICTS": 7,
+     "UNCLEAR": 0,
+     "cited": 6
+    }
+   },
+   "lines": {
+    "script": [
+     "- Blue Account: CONFLICTS — Monthly maintenance fee: $20.00 - Waiver requirement: maintain a minimum daily balance of $625",
+     "- Bluest Account: CONFLICTS — Minimum opening deposit | $75,000 |",
+     "- Dark Green Account: CONFLICTS — The primary account holder must be at least 17. - You can maintain the account through 26.",
+     "- Evergreen Account: OK",
+     "- Gold Years Account: CONFLICTS — Eligibility - You must be at least 62 years old to qualify.",
+     "- Green Account (checking): OK",
+     "- Green Fee-free Account: CONFLICTS — APY on balances | 0% |",
+     "- Light Blue Account: OK",
+     "- Light Green Account: CONFLICTS",
+     "- Purple Account: OK"
+    ],
+    "live": [
+     "- Blue Account: CONFLICTS — - Monthly maintenance fee: $20.00",
+     "- Bluest Account: CONFLICTS — - Deposit at least $75,000 to open your account.",
+     "- Dark Green Account: CONFLICTS — Monthly maintenance fee: $10.00",
+     "- Evergreen Account: OK",
+     "- Gold Years Account: OK",
+     "- Green Account (checking): OK",
+     "- Green Fee-free Account: OK",
+     "- Light Blue Account: OK",
+     "- Light Green Account: CONFLICTS — The primary account holder must be at least 13 to open the account. - The account is designed for individuals up to 24.",
+     "- Purple Account: OK"
+    ],
+    "neg": [
+     "- Blue Account: OK",
+     "- Bluest Account: CONFLICTS — - Deposit at least $75,000 to open your account.",
+     "- Dark Green Account: CONFLICTS — - The primary account holder must be at least 17. - You can maintain the account through 26.",
+     "- Evergreen Account: CONFLICTS — Only eligible purchase transactions accrue offsets - EveryonePay transfers do not accrue offsets; this applies regardless of the $3,000",
+     "- Gold Years Account: CONFLICTS — Eligibility - You must be at least 62 years old to qualify.",
+     "- Green Account (checking): CONFLICTS",
+     "- Green Fee-free Account: OK",
+     "- Light Blue Account: CONFLICTS — This account offers 0 day(s) early access to direct deposits.",
+     "- Light Green Account: CONFLICTS — The primary account holder must be at least 13 to open the account. - The account is designed for individuals up to 24.",
+     "- Purple Account: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 2,
+    "A_LIVEREF": 0,
+    "B_LIVEREQ": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_066",
+   "axis": "checking",
+   "gold": "Evergreen Account",
+   "gold_class": "evergreen_account",
+   "how": "exact",
+   "rate": 0.0,
+   "n_live_quotes": 4,
+   "stats": {
+    "script": {
+     "OK": 5,
+     "CONFLICTS": 5,
+     "UNCLEAR": 0,
+     "cited": 4
+    },
+    "live": {
+     "OK": 6,
+     "CONFLICTS": 4,
+     "UNCLEAR": 0,
+     "cited": 4
+    },
+    "neg": {
+     "OK": 3,
+     "CONFLICTS": 7,
+     "UNCLEAR": 0,
+     "cited": 6
+    }
+   },
+   "lines": {
+    "script": [
+     "- Blue Account: CONFLICTS — Monthly maintenance fee: $20.00 - Waiver requirement: maintain a minimum daily balance of $625",
+     "- Bluest Account: CONFLICTS — - Deposit at least $75,000 to open your account.",
+     "- Dark Green Account: CONFLICTS — The primary account holder must be at least 17. - You can maintain the account through 26.",
+     "- Evergreen Account: OK",
+     "- Gold Years Account: CONFLICTS — Eligibility - You must be at least 62 years old to qualify.",
+     "- Green Account (checking): OK",
+     "- Green Fee-free Account: OK",
+     "- Light Blue Account: OK",
+     "- Light Green Account: CONFLICTS",
+     "- Purple Account: OK"
+    ],
+    "live": [
+     "- Blue Account: CONFLICTS — - Monthly maintenance fee: $20.00",
+     "- Bluest Account: CONFLICTS — - Deposit at least $75,000 to open your account.",
+     "- Dark Green Account: CONFLICTS — Monthly maintenance fee: $10.00",
+     "- Evergreen Account: OK",
+     "- Gold Years Account: OK",
+     "- Green Account (checking): OK",
+     "- Green Fee-free Account: OK",
+     "- Light Blue Account: OK",
+     "- Light Green Account: CONFLICTS — The primary account holder must be at least 13 to open the account. - The account is designed for individuals up to 24.",
+     "- Purple Account: OK"
+    ],
+    "neg": [
+     "- Blue Account: OK",
+     "- Bluest Account: CONFLICTS — - Deposit at least $75,000 to open your account.",
+     "- Dark Green Account: CONFLICTS — - The primary account holder must be at least 17. - You can maintain the account through 26.",
+     "- Evergreen Account: CONFLICTS — Only eligible purchase transactions accrue offsets - EveryonePay transfers do not accrue offsets; this applies regardless of the $3,000",
+     "- Gold Years Account: CONFLICTS — Eligibility - You must be at least 62 years old to qualify.",
+     "- Green Account (checking): CONFLICTS",
+     "- Green Fee-free Account: OK",
+     "- Light Blue Account: CONFLICTS — This account offers 0 day(s) early access to direct deposits.",
+     "- Light Green Account: CONFLICTS — The primary account holder must be at least 13 to open the account. - The account is designed for individuals up to 24.",
+     "- Purple Account: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 2,
+    "A_LIVEREF": 0,
+    "B_LIVEREQ": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_067",
+   "axis": "checking",
+   "gold": "Purple Account",
+   "gold_class": "purple_account",
+   "how": "exact",
+   "rate": 0.0,
+   "n_live_quotes": 7,
+   "stats": {
+    "script": {
+     "OK": 6,
+     "CONFLICTS": 4,
+     "UNCLEAR": 0,
+     "cited": 3
+    },
+    "live": {
+     "OK": 2,
+     "CONFLICTS": 8,
+     "UNCLEAR": 0,
+     "cited": 7
+    },
+    "neg": {
+     "OK": 3,
+     "CONFLICTS": 7,
+     "UNCLEAR": 0,
+     "cited": 6
+    }
+   },
+   "lines": {
+    "script": [
+     "- Blue Account: CONFLICTS — Monthly maintenance fee: $20.00",
+     "- Bluest Account: OK",
+     "- Dark Green Account: CONFLICTS — The primary account holder must be at least 17. - You can maintain the account through 26.",
+     "- Evergreen Account: OK",
+     "- Gold Years Account: CONFLICTS — Eligibility - You must be at least 62 years old to qualify.",
+     "- Green Account (checking): OK",
+     "- Green Fee-free Account: OK",
+     "- Light Blue Account: OK",
+     "- Light Green Account: CONFLICTS",
+     "- Purple Account: OK"
+    ],
+    "live": [
+     "- Blue Account: CONFLICTS — Annual Percentage Yield on balances: 0.01%",
+     "- Bluest Account: CONFLICTS — - Maintain a daily balance of $112,500 to keep all account benefits active.",
+     "- Dark Green Account: CONFLICTS — - Minimum primary holder age: 17 - Maximum primary holder age: 26",
+     "- Evergreen Account: OK",
+     "- Gold Years Account: CONFLICTS — Eligibility - You must be at least 62 years old to qualify.",
+     "- Green Account (checking): CONFLICTS — You are charged $22.50 each month unless you maintain a daily balance of at least $1,350.",
+     "- Green Fee-free Account: CONFLICTS — APY on balances | 0% |",
+     "- Light Blue Account: CONFLICTS — ## Quick facts - APY on your balance: 0%",
+     "- Light Green Account: CONFLICTS",
+     "- Purple Account: OK"
+    ],
+    "neg": [
+     "- Blue Account: OK",
+     "- Bluest Account: CONFLICTS — - Deposit at least $75,000 to open your account.",
+     "- Dark Green Account: CONFLICTS — - The primary account holder must be at least 17. - You can maintain the account through 26.",
+     "- Evergreen Account: CONFLICTS — Only eligible purchase transactions accrue offsets - EveryonePay transfers do not accrue offsets; this applies regardless of the $3,000",
+     "- Gold Years Account: CONFLICTS — Eligibility - You must be at least 62 years old to qualify.",
+     "- Green Account (checking): CONFLICTS",
+     "- Green Fee-free Account: OK",
+     "- Light Blue Account: CONFLICTS — This account offers 0 day(s) early access to direct deposits.",
+     "- Light Green Account: CONFLICTS — The primary account holder must be at least 13 to open the account. - The account is designed for individuals up to 24.",
+     "- Purple Account: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 0,
+    "A_LIVEREF": 0,
+    "B_LIVEREQ": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_070",
+   "axis": "business_checking",
+   "gold": "Sky Blue",
+   "gold_class": "sky_blue",
+   "how": "exact",
+   "rate": 0.0,
+   "n_live_quotes": 0,
+   "stats": {
+    "script": {
+     "OK": 3,
+     "CONFLICTS": 5,
+     "UNCLEAR": 0,
+     "cited": 5
+    },
+    "live": {
+     "OK": 0,
+     "CONFLICTS": 0,
+     "UNCLEAR": 0,
+     "cited": 0
+    },
+    "neg": {
+     "OK": 8,
+     "CONFLICTS": 0,
+     "UNCLEAR": 0,
+     "cited": 0
+    }
+   },
+   "lines": {
+    "script": [
+     "- Beige: CONFLICTS — Maintain at least $250,000 to keep your enterprise-level treasury account in good standing.",
+     "- Cobalt Blue: CONFLICTS — Start earning interest - Your balance earns an APY of 0.5% - Interest begins accruing once your initial deposit is received and available",
+     "- Hunter Green: OK",
+     "- Lime Green: OK",
+     "- Navy Blue: CONFLICTS — Monthly maintenance fee: $0.00",
+     "- Sky Blue: OK",
+     "- True Blue: CONFLICTS — Maintain at least $25,000 to keep the account in good standing and access premium features.",
+     "- World Blue: CONFLICTS — Confirm you can maintain at least $10,000 across currencies to keep the account in good standing"
+    ],
+    "live": [],
+    "neg": [
+     "- Beige: OK",
+     "- Cobalt Blue: OK",
+     "- Hunter Green: OK",
+     "- Lime Green: OK",
+     "- Navy Blue: OK",
+     "- Sky Blue: OK",
+     "- True Blue: OK",
+     "- World Blue: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_071",
+   "axis": "business_savings",
+   "gold": "Gold Saver Account",
+   "gold_class": "gold_saver_account",
+   "how": "exact",
+   "rate": 0.0,
+   "n_live_quotes": 7,
+   "stats": {
+    "script": {
+     "OK": 4,
+     "CONFLICTS": 6,
+     "UNCLEAR": 0,
+     "cited": 5
+    },
+    "live": {
+     "OK": 0,
+     "CONFLICTS": 10,
+     "UNCLEAR": 0,
+     "cited": 10
+    },
+    "neg": {
+     "OK": 7,
+     "CONFLICTS": 3,
+     "UNCLEAR": 0,
+     "cited": 3
+    }
+   },
+   "lines": {
+    "script": [
+     "- Automatic Sweep Program: OK",
+     "- Bronze Saver Account: CONFLICTS — Standard ACH transfers to external banks typically take 3 business days to complete. - Same-day ACH availability: No.",
+     "- Diamond Vault: CONFLICTS — Maintain at least $500,000 in the account to align with the tier’s requirements.",
+     "- Emerald Saver: OK",
+     "- Gold Plus Saver: CONFLICTS",
+     "- Gold Saver Account: OK",
+     "- Joint Business Holders + User Roles: OK",
+     "- Platinum Reserve Account: CONFLICTS — Minimum to open and maintain the account: $100,000",
+     "- Silver Plus Saver: CONFLICTS — You can deposit up to $7,500 per day using mobile check deposit.",
+     "- Silver Saver Account: CONFLICTS — Daily mobile deposit cap: $5,000."
+    ],
+    "live": [
+     "- Automatic Sweep Program: CONFLICTS — Sweep deposits are supported for Bronze only.",
+     "- Bronze Saver Account: CONFLICTS — You can deposit checks via mobile banking up to a daily total of $2,500.",
+     "- Diamond Vault: CONFLICTS — Maintain at least $500,000 in the account to align with the tier’s requirements.",
+     "- Emerald Saver: CONFLICTS — You can deposit up to $7,500 per day using mobile check deposit.",
+     "- Gold Plus Saver: CONFLICTS — - Minimum balance to maintain the account: $25,000",
+     "- Gold Saver Account: CONFLICTS — Monthly maintenance fee: $10.00.",
+     "- Joint Business Holders + User Roles: CONFLICTS — You may designate up to 4 joint business account holders.",
+     "- Platinum Reserve Account: CONFLICTS — Minimum to open and maintain the account: $100,000",
+     "- Silver Plus Saver: CONFLICTS — You can deposit up to $7,500 per day using mobile check deposit.",
+     "- Silver Saver Account: CONFLICTS — Daily mobile deposit cap: $5,000."
+    ],
+    "neg": [
+     "- Automatic Sweep Program: OK",
+     "- Bronze Saver Account: OK",
+     "- Diamond Vault: CONFLICTS — Maintain at least $500,000 in the account to align with the tier’s requirements.",
+     "- Emerald Saver: CONFLICTS — Emerald Saver requires paperless statements: Yes.",
+     "- Gold Plus Saver: OK",
+     "- Gold Saver Account: OK",
+     "- Joint Business Holders + User Roles: OK",
+     "- Platinum Reserve Account: CONFLICTS — Minimum to open and maintain the account: $100,000",
+     "- Silver Plus Saver: OK",
+     "- Silver Saver Account: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 2,
+    "A_LIVEREF": 2,
+    "B_LIVEREQ": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_076",
+   "axis": "checking",
+   "gold": "Purple Account",
+   "gold_class": "purple_account",
+   "how": "exact",
+   "rate": 0.13636363636363635,
+   "n_live_quotes": 6,
+   "stats": {
+    "script": {
+     "OK": 1,
+     "CONFLICTS": 9,
+     "UNCLEAR": 0,
+     "cited": 7
+    },
+    "live": {
+     "OK": 1,
+     "CONFLICTS": 9,
+     "UNCLEAR": 0,
+     "cited": 7
+    },
+    "neg": {
+     "OK": 3,
+     "CONFLICTS": 7,
+     "UNCLEAR": 0,
+     "cited": 6
+    }
+   },
+   "lines": {
+    "script": [
+     "- Blue Account: CONFLICTS — Early direct deposit: 1 day(s) before payday",
+     "- Bluest Account: CONFLICTS — Deposit at least $75,000 to open your account.",
+     "- Dark Green Account: CONFLICTS — Early direct deposit: 1 day(s) before payday",
+     "- Evergreen Account: CONFLICTS — Foreign ATM withdrawal fee: 2% of the withdrawal amount, with a minimum of $3.00 per transaction.",
+     "- Gold Years Account: CONFLICTS — Eligibility - You must be at least 62 years old to qualify.",
+     "- Green Account (checking): CONFLICTS",
+     "- Green Fee-free Account: CONFLICTS — Early direct deposit | 0 day(s) before payday",
+     "- Light Blue Account: CONFLICTS — Early direct deposit: 0 day(s) before payday",
+     "- Light Green Account: CONFLICTS",
+     "- Purple Account: OK"
+    ],
+    "live": [
+     "- Blue Account: CONFLICTS",
+     "- Bluest Account: CONFLICTS — Deposit at least $75,000 to open your account.",
+     "- Dark Green Account: CONFLICTS — Early direct deposit: 1 day(s) before payday",
+     "- Evergreen Account: CONFLICTS — Foreign ATM withdrawal fee: 2% of the withdrawal amount, with a minimum of $3.00 per transaction.",
+     "- Gold Years Account: CONFLICTS — The standard fee for withdrawing cash from ATMs abroad is $3.50 per transaction.",
+     "- Green Account (checking): CONFLICTS",
+     "- Green Fee-free Account: CONFLICTS — Early direct deposit | 0 day(s) before payday",
+     "- Light Blue Account: CONFLICTS — After you use all 2 free foreign ATM withdrawals in a month, each additional foreign ATM withdrawal is charged a fee of $4.00.",
+     "- Light Green Account: CONFLICTS — Direct deposits arrive 0 day(s) before your scheduled payday.",
+     "- Purple Account: OK"
+    ],
+    "neg": [
+     "- Blue Account: OK",
+     "- Bluest Account: CONFLICTS — - Deposit at least $75,000 to open your account.",
+     "- Dark Green Account: CONFLICTS — - The primary account holder must be at least 17. - You can maintain the account through 26.",
+     "- Evergreen Account: CONFLICTS — Only eligible purchase transactions accrue offsets - EveryonePay transfers do not accrue offsets; this applies regardless of the $3,000",
+     "- Gold Years Account: CONFLICTS — Eligibility - You must be at least 62 years old to qualify.",
+     "- Green Account (checking): CONFLICTS",
+     "- Green Fee-free Account: OK",
+     "- Light Blue Account: CONFLICTS — This account offers 0 day(s) early access to direct deposits.",
+     "- Light Green Account: CONFLICTS — The primary account holder must be at least 13 to open the account. - The account is designed for individuals up to 24.",
+     "- Purple Account: OK"
+    ]
+   },
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "A_LIVEREF": 2,
+    "B_LIVEREQ": 2,
+    "D_NEG": 0
+   }
+  }
+ ],
+ "skipped": {
+  "leak": [
+   [
+    "task_023",
+    "card",
+    "Diamond Elite Card"
+   ],
+   [
+    "task_047",
+    "card",
+    "Business Platinum Rewards Card"
+   ],
+   [
+    "task_048",
+    "card",
+    "Silver Rewards Card"
+   ],
+   [
+    "task_058",
+    "card",
+    "EcoCard"
+   ],
+   [
+    "task_058",
+    "savings",
+    "Silver Account"
+   ],
+   [
+    "task_062",
+    "business_checking",
+    "Navy Blue"
+   ],
+   [
+    "task_062",
+    "savings",
+    "Silver Plus Account"
+   ],
+   [
+    "task_066",
+    "card",
+    "Silver Rewards Card"
+   ],
+   [
+    "task_067",
+    "card",
+    "Platinum Rewards Card"
+   ],
+   [
+    "task_068",
+    "card",
+    "Silver Rewards Card"
+   ]
+  ],
+  "nogroup": [
+   [
+    "task_010",
+    "referral"
+   ],
+   [
+    "task_098",
+    "referral"
+   ],
+   [
+    "task_099",
+    "referral"
+   ],
+   [
+    "task_100",
+    "referral"
+   ],
+   [
+    "task_101",
+    "referral"
+   ]
+  ],
+  "nodocs": [],
+  "ambiguous": [
+   [
+    "task_056",
+    "business_savings",
+    "Silver Plus Saver Account",
+    "ambiguous:0"
+   ],
+   [
+    "task_068",
+    "checking",
+    "Green Account",
+    "ambiguous:3"
+   ]
+  ]
+ }
+}
