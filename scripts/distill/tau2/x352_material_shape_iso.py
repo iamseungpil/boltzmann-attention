@@ -131,9 +131,11 @@ def main():
         has_gold = any(GOLD_DOC_HINT in c for c in chosen)
         print("   고른 문서 %d개: %s   · gold 문서 포함? **%s**(진단 전용)"
               % (len(chosen), [c[-42:] for c in chosen], "예" if has_gold else "아니오"))
-        docs = TS.read_docs(chosen, corpus=corpus)
-        m400 = TS.as_material({k: v for k, v in docs.items()}, (), per_doc=400)
-        m2000 = TS.as_material({k: v for k, v in docs.items()}, (), per_doc=2000)
+        docs, missing = TS.read_docs(chosen, corpus=corpus)   # ★(문서, 없는 id) 튜플이다
+        if missing:
+            print("   ⚠읽기 실패 id %s — 재료에서 빠졌다(조용히 넘기지 않는다)" % missing[:3])
+        m400 = TS.as_material(docs, (), per_doc=400)
+        m2000 = TS.as_material(docs, (), per_doc=2000)
         ask_arr = X.block(q_arr) + "\n\n" + cand_line
         ask_now = (X.block(q_now) + "\n\n" + cand_line) if q_now else cand_line
         arms = [("A_REF", live(ask_arr, dump)),                     # A_DUMP = 라이브 재현
