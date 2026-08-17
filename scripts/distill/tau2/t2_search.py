@@ -352,6 +352,33 @@ def formalize_groups(agent, la, UserMessage, spec, texts, groups):
     return out
 
 
+_EMPH = ("**", "__", "~~", "*", "_", "`")
+
+
+def quote_in(q, text):
+    """인용이 원문에 **실재하는가** — 강조 표기만 지우고 **같은 변환을 양쪽에** 건다.
+
+    ★왜 (2026-08-17·C510 실측): τ² 손님은 `- I tap into my savings **3–4 times a week**` 처럼
+      마크다운 강조를 쓰고 모델은 별표 없이 인용한다 ⇒ 순수 `in` 은 **참인 인용을 전량 탈락**
+      시킨다(seed 1567: 제안 7개 → 통과 0개). 그 탈락이 조용해서 *"모델이 요구가 없다고 했다"*
+      로 오독됐다(C509⒝ 무효화).
+    ⚠판단이 아니라 **표기 정규화**다: 고정 문자 목록을 `str.replace` 로 지우고 공백을 합칠 뿐
+      (정규식 0·[[59]]), 양쪽에 같은 변환을 걸어 뜻을 바꾸지 않는다. 없는 인용은 여전히 떨어진다.
+    """
+    q, text = str(q or ""), str(text or "")
+    if not q or not text:
+        return False
+    if q in text:
+        return True
+
+    def _flat(x):
+        for m in _EMPH:
+            x = x.replace(m, "")
+        return " ".join(x.split())
+
+    return _flat(q) in _flat(text)
+
+
 def sub_records(agent, la, UserMessage, text, keys):
     """도구 출력 **한 덩이 → 레코드 JSON**(LLM formalize). 엔진은 뽑지 않는다([[59]] 강화판).
 
@@ -394,7 +421,7 @@ def sub_records(agent, la, UserMessage, text, keys):
             v = r.get(k)
             if v is None:
                 continue
-            if str(v) in text:                 # ★존재확인만 (추출 0·C45 동형)
+            if quote_in(v, text):              # ★존재확인만 (추출 0·C45 동형·강조 무시)
                 keep[k] = v
         if keep:
             out.append(keep)

@@ -2752,7 +2752,7 @@ def _search_material(agent, a2, messages, decide=True):
             _rraw = _ts.sub_requirements(agent, _la, _UM, _po, _utxt)
             for _q in (_rraw or []):
                 _qs = str(_q).strip()
-                if _qs and _qs in _utxt:              # ★존재확인만 (추출 0)
+                if _qs and _ts.quote_in(_qs, _utxt):  # ★존재확인만 (추출 0·강조 무시·C510)
                     _reqs.append(_qs)
             print("[T2_SUB_REQUIREMENT] 인용 %d개 중 원문 검증 통과 %d개"
                   % (len(_rraw or []), len(_reqs)), file=sys.stderr, flush=True)
