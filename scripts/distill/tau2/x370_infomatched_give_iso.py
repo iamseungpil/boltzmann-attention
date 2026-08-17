@@ -133,10 +133,17 @@ def det(body, tools=None, maxtok=220):
     #   모델 몫이고 그것이 측정 대상이다.
     a = _call(body, tools, maxtok)
     b = _call(body, tools, maxtok)
-    same = (json.dumps(a.get("tool_calls"), sort_keys=True, default=str)
-            == json.dumps(b.get("tool_calls"), sort_keys=True, default=str)
-            and str(a.get("content") or "").strip() == str(b.get("content") or "").strip())
-    return a, same
+
+    def _sig(m):
+        """비교는 **이름+인자**로만 — `tool_calls[].id` 는 호출마다 새로 발급되는 난수라
+        그것까지 비교하면 온도 0 에서도 **항상 다르다**. v6 1차에서 전 팔이 '비결정' 으로
+        찍힌 것이 그 오경보였다(계기 결함 ⑦·자기검출)."""
+        return (json.dumps([[(tc.get("function") or tc).get("name"),
+                             (tc.get("function") or tc).get("arguments")]
+                            for tc in (m.get("tool_calls") or ())], sort_keys=True, default=str),
+                " ".join(str(m.get("content") or "").split()))
+
+    return a, (_sig(a) == _sig(b))
 
 
 def registries():
