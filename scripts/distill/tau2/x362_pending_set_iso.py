@@ -24,7 +24,12 @@ C500: 019 가족은 격리 24/24 ↔ 라이브 **0**. `t2_gap` 사다리 5칸이
 
     A_REF     현행 집합(A2 `action_tools` 7개)                    ← 라이브 재현(기대: CALL)
     B_DISC    + **env 가 이 대화에서 표면화한 discoverable 도구**  ← 지목이 옮겨가는가
-    D_EARLY   조사 **전** 컷(msg 20)에서 B 구성                    ← 부정통제(여기서 내면 무효)
+    D_EARLY   조사 **전** 컷(msg 20)에서 B 구성                    ← (1차 통제·아래 ⚠)
+    D_OTHER   **다른 태스크의 손님 발화**(024 카드 요청) + B 집합     ← ★진짜 부정통제
+
+⚠1차 실행에서 `D_EARLY` 가 B 와 같은 답(DISPUTE)을 냈다. 진단: 손님은 **이른 컷 이전에 이미**
+  분쟁을 말한다 ⇒ 그 컷은 *뒤집힐 수 없는 통제*였다(x335·x336 부류). 의도 지목은 **준비 상태와
+  무관**하므로 통제는 *의도 자체가 없는 발화*로 세워야 한다 — 그것이 `D_OTHER` 다.
 
 ⚠[[66]]: 무엇을 지목할지는 **LLM** 이 정한다. 이 프로브도 구현안도 엔진이 규칙을 넣지 않는다 —
   바뀌는 것은 **후보 집합의 출처**(정적 선언 → env 가 표면화한 닫힌 집합)뿐이다.
@@ -94,9 +99,12 @@ def main():
     sim = sims[0]
     u_cut = users_upto(sim, CUT)
     u_early = users_upto(sim, EARLY)
-    if not u_cut or not u_early:
+    if not u_cut or not u_early or not u_other:
         print("손님 발화를 못 찾음 — 중단(계기 결함)")
         return 1
+    # ★진짜 부정통제용: 다른 태스크(024·카드 신청)의 손님 발화 — 분쟁 의도가 **없다**
+    o_sims = [s2 for s2 in F.sims("bank_t7305_treataux_20260817a") if F.task_id(s2) == "task_024"]
+    u_other = users_upto(o_sims[0], 12) if o_sims else []
     body = lambda tools, users: PROMPT.format(tools=", ".join(tools),      # noqa: E731
                                               users="\n- ".join(users))
     print("x362 · %s/%s · cut=%d · 현행 후보 %d개 · discovered=%r"
@@ -107,7 +115,8 @@ def main():
     P.run("x362", site,
           [("A_REF", body(acts, u_cut)),
            ("B_DISC", body(sorted(set(acts) | {DISC}), u_cut)),
-           ("D_EARLY", body(sorted(set(acts) | {DISC}), u_early))],
+           ("D_EARLY", body(sorted(set(acts) | {DISC}), u_early)),
+           ("D_OTHER", body(sorted(set(acts) | {DISC}), u_other))],
           MARKS,
           "B 에서 DISPUTE|GIVE ≥6/8 ∧ D_EARLY ≤2 → 수리 · B≈A → 다른 자리 · D_EARLY ≥3 → 무효",
           "", None, k, nb, det=True, names=sorted(set(acts) | {DISC, "none"}))
