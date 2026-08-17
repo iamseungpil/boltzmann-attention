@@ -108,8 +108,23 @@ def det(body, maxtok=220):
     return a, (a.strip() == b.strip())
 
 
+def registries():
+    """env 런타임 레지스트리 — **손님-측** discoverable 만이 give 의 정당한 대상이다."""
+    from tau2.domains.banking_knowledge import tools as T
+    attr = getattr(T, "DISCOVERABLE_ATTR", "__discoverable__")
+    cls = getattr(T, "KnowledgeUserTools", None)
+    return set(n for n in dir(cls or ()) if not n.startswith("_")
+               and callable(getattr(cls, n, None))
+               and getattr(getattr(cls, n), attr, False))
+
+
 def main():
-    # ── give 가 gold 인 sim 중, **give 직전 컷**을 라이브에서 뽑는다(정보-맞춤의 정의)
+    # ── give 가 **실재 손님-측 도구**를 향한 컷만 고른다.
+    #   ★1차 실행 자기무효(2026-08-18): 이 필터가 없어 `apply_for_credit_card`·
+    #     `send_verification_code` 같은 **레지스트리 밖 이름**을 향한 실패한 give 까지 컷으로 잡았고,
+    #     태스크도 알파벳 앞 8개(001~008 = A 버킷)가 뽑혀 **표적 가족을 하나도 안 쟀다**.
+    #     그 실행은 A=B=D=0(전 팔 무신호)이라 판별력이 없었다 — 결과 인용 금지.
+    udisc = registries()
     cuts = []
     for run, s in all_sims():
         tid = str(s.get("task_id") or (s.get("task") or {}).get("id") or "")
@@ -118,7 +133,7 @@ def main():
             for tc in (m.get("tool_calls") or ()):
                 if F.nameof(tc) == GIVE:
                     nm = str(F.argsof(tc).get("discoverable_tool_name") or "")
-                    if nm:
+                    if nm in udisc:            # ★레지스트리 실재만
                         cuts.append({"run": run, "task": tid, "cut": i, "name": nm,
                                      "sim": s, "seed": str(s.get("seed"))})
                     break
@@ -129,8 +144,8 @@ def main():
         seen.add(c["task"])
         jobs.append(c)
     jobs = jobs[:8]
-    print("x370 · give 컷을 가진 태스크 %d개(태스크당 1컷·앞 8개) · 전체 give 컷 %d"
-          % (len(jobs), len(cuts)))
+    print("x370 v2 · 손님-측 레지스트리 %d종 · 그 이름을 향한 give 컷 %d · 태스크 %d개"
+          % (len(udisc), len(cuts), len(jobs)))
     print("판정(사전 고정): A 높고 B 급락 → env 가 답을 흘렸다(격리 무효) · A≈B 높음 → 전달뿐 · "
           "A≈B 낮음 → 그 단계에만 결정론 검토 · D_NEG≈A → 계기 무효\n")
     if not jobs:
@@ -141,32 +156,40 @@ def main():
     res = []
     for j in jobs:
         base = convo(j["sim"], j["cut"])
-        arms = {"A_LIVE": base, "B_NOLEAK": strip_leak(base, j["name"]),
+        # ★P_HINT = **양성통제**(1차 실행에서 빠져 있던 것). 답을 대놓고 알려 줬는데도 못 내면
+        #   그것은 모델이 아니라 **계기**(질문 문면·채점)가 고장난 것이다.
+        #   *"지표를 만들면 그 지표가 아는 정답을 먼저 맞히는지 한 번 돌려라"*(오늘 교훈 반복).
+        arms = {"P_HINT": base + "\n\nsystem: The customer must run %s themselves." % j["name"],
+                "A_LIVE": base, "B_NOLEAK": strip_leak(base, j["name"]),
                 "D_NEG": neg if j is not jobs[-1] else convo(jobs[0]["sim"], jobs[0]["cut"])}
         row = {"task": j["task"], "run": j["run"], "cut": j["cut"], "name": j["name"],
                "n_lines": len(base.split("\n")),
                "n_stripped": len(base.split("\n")) - len(arms["B_NOLEAK"].split("\n")),
                "arms": {}}
-        for k in ("A_LIVE", "B_NOLEAK", "D_NEG"):
+        for k in ("P_HINT", "A_LIVE", "B_NOLEAK", "D_NEG"):
             ans, d = det(arms[k][-9000:] + "\n\n" + ASK)
             row["arms"][k] = {"hit": int(emitted_give(ans, j["name"])), "det": d,
                               "out": " ".join(ans.split())[:200]}
         res.append(row)
-        print("── %s/%s cut=%d 이름=%s · 누설 줄 %d 제거 · A %d · B %d · D %d"
+        print("── %s/%s cut=%d 이름=%s · 누설 %d줄 제거 · P %d · A %d · B %d · D %d"
               % (j["task"], j["run"][:26], j["cut"], j["name"], row["n_stripped"],
-                 row["arms"]["A_LIVE"]["hit"], row["arms"]["B_NOLEAK"]["hit"],
-                 row["arms"]["D_NEG"]["hit"]))
+                 row["arms"]["P_HINT"]["hit"], row["arms"]["A_LIVE"]["hit"],
+                 row["arms"]["B_NOLEAK"]["hit"], row["arms"]["D_NEG"]["hit"]))
         for k in ("A_LIVE", "B_NOLEAK"):
             print("     %-9s %s" % (k, row["arms"][k]["out"][:120]))
 
     n = len(res)
+    pz = sum(r["arms"]["P_HINT"]["hit"] for r in res)
     a = sum(r["arms"]["A_LIVE"]["hit"] for r in res)
     b = sum(r["arms"]["B_NOLEAK"]["hit"] for r in res)
     d = sum(r["arms"]["D_NEG"]["hit"] for r in res)
     print("\n" + "=" * 96)
-    print("n=%d · A_LIVE %d · **B_NOLEAK %d** · D_NEG %d · 누설 줄이 있던 컷 %d"
-          % (n, a, b, d, sum(1 for r in res if r["n_stripped"])))
-    if d >= a and a:
+    print("n=%d · **P_HINT %d**(양성통제) · A_LIVE %d · **B_NOLEAK %d** · D_NEG %d · "
+          "누설 줄이 있던 컷 %d" % (n, pz, a, b, d, sum(1 for r in res if r["n_stripped"])))
+    if pz < max(1, int(0.5 * n)):
+        print("   → ⛔**계기 무효**: 답을 알려 줘도 못 낸다 ⇒ 질문 문면·채점을 고치기 전엔 "
+              "다른 팔의 0 을 결손으로 읽지 마라(1차 실행이 정확히 이 함정에 빠졌다)")
+    elif d >= a and a:
         print("   → ⛔계기 무효(부정통제가 같이 맞는다)")
     elif a and not b:
         print("   → **x338 재현**: 그 성적은 env 가 흘린 답이었다 ⇒ 격리 24/24 무효 확정")
