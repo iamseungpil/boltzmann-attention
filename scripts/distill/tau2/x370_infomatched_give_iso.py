@@ -235,7 +235,15 @@ def main():
         print("⚠give 컷이 하나도 없다 — 이 프로브는 성립하지 않는다(그 자체가 결과다)")
         return 1
 
-    neg = convo(jobs[-1]["sim"], jobs[-1]["cut"]) if len(jobs) > 1 else ""
+    # ★v6 수리(C524): 부정통제는 **표적 이름이 다른** 대화에서 뽑는다.
+    #   v5 는 *"다른 태스크"* 이기만 하면 됐는데 5행 중 4행의 표적이 같은
+    #   `submit_cash_back_dispute_0589` 라서 *"다른 대화"* 가 **같은 답을 부르는 대화**였다
+    #   ⇒ `D_NEG` 4 ↔ `A_LIVE` 2 로 통제가 무너졌다(사전 고정 규칙이 잡음).
+    #   짝이 없으면 그 행은 **부정통제 없음**으로 표시하고 D 집계에서 뺀다(추정 금지·[[25]]).
+    def neg_for(j):
+        alt = next((x for x in jobs if x["name"] != j["name"]), None)
+        return (convo(alt["sim"], alt["cut"]), alt["name"]) if alt else ("", "")
+
     res = []
     for j in jobs:
         base = convo(j["sim"], j["cut"])
@@ -248,12 +256,12 @@ def main():
         #     확인은 *substring 존재*가 아니라 **바뀐 코드를 직접 읽어서** 한다.
         hint = base + "\n\nsystem: The customer must run %s themselves." % j["name"]
         only = [t for t in TOOLS if (t.get("function") or {}).get("name") == GIVE]
+        negtxt, negname = neg_for(j)
         arms = {"P_ONLY": (hint, only), "P_HINT": (hint, TOOLS), "A_LIVE": (base, TOOLS),
                 "B_NOLEAK": (strip_leak(base, j["name"]), TOOLS),
-                "D_NEG": ((neg if j is not jobs[-1] else convo(jobs[0]["sim"], jobs[0]["cut"])),
-                          TOOLS)}
+                "D_NEG": (negtxt, TOOLS)}
         row = {"task": j["task"], "run": j["run"], "cut": j["cut"], "name": j["name"],
-               "n_lines": len(base.split("\n")),
+               "neg_name": negname, "n_lines": len(base.split("\n")),
                "n_stripped": len(base.split("\n")) - len(arms["B_NOLEAK"][0].split("\n")),
                "arms": {}}
         for k in ("P_ONLY", "P_HINT", "A_LIVE", "B_NOLEAK", "D_NEG"):
@@ -268,11 +276,16 @@ def main():
                         + json.dumps(ans.get("tool_calls"), default=str)[:300]
                         + " | TEXT " + " ".join(str(ans.get("content") or "").split())[:200])}
         res.append(row)
-        print("── %s/%s cut=%d 이름=%s · 누설 %d줄 · Ponly %d · Phint %d · A %d · B %d · D %d"
-              % (j["task"], j["run"][:24], j["cut"], j["name"], row["n_stripped"],
+        _bad = [k for k, v in row["arms"].items() if v.get("err")]
+        _nd = [k for k, v in row["arms"].items() if not v.get("det")]
+        print("── %s cut=%d 표적=%s · 부정통제표적=%s · 누설 %d줄 · Ponly %d · Phint %d · A %d · "
+              "B %d · D %d%s%s"
+              % (j["task"], j["cut"], j["name"], row["neg_name"] or "**없음**", row["n_stripped"],
                  row["arms"]["P_ONLY"]["hit"], row["arms"]["P_HINT"]["hit"],
                  row["arms"]["A_LIVE"]["hit"], row["arms"]["B_NOLEAK"]["hit"],
-                 row["arms"]["D_NEG"]["hit"]))
+                 row["arms"]["D_NEG"]["hit"],
+                 (" ⚠오류:" + ",".join(_bad)) if _bad else "",
+                 (" ⚠비결정:" + ",".join(_nd)) if _nd else ""))
         for k in ("P_ONLY", "P_HINT", "A_LIVE", "B_NOLEAK"):
             print("     %-9s 부른 도구=%s" % (k, row["arms"][k]["called"]))
 
