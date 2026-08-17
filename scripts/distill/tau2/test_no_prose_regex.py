@@ -73,11 +73,10 @@ chk("if quote_in(v, text):" in sb, "각 값의 **원문 존재**만 확인한다
 #   때문에 참인 인용이 전량 탈락하던 자리다(제안 7 → 통과 0). 규칙은 느슨해지지 않는다:
 #   ⑴ 정규식 0 ⑵ 고정 문자 목록을 `str.replace` 로 지울 뿐(추출 0) ⑶ 판정은 여전히 부분문자열
 #   ⑷ 양쪽에 **같은** 변환. 없는 인용이 통과하지 않는지는 `test_quote_in` 이 부정통제로 본다.
-qi = re.search(r"def quote_in\(.*?
-
-
-def ", SEA, re.S)
-qb = qi.group(0) if qi else ""
+_i = SEA.find("def quote_in(")
+_j = SEA.find("def sub_records(", _i + 1) if _i >= 0 else -1
+qb = SEA[_i:_j] if (_i >= 0 and _j > _i) else ""
+qi = bool(qb)
 chk(bool(qi), "정본 `t2_search.quote_in` 이 있다")
 chk(not re.search(r"re\.(finditer|search|findall|sub|compile|match)", qb),
     "quote_in 에 정규식 0")
