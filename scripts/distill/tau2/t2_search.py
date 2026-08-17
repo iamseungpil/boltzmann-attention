@@ -461,6 +461,85 @@ def sub_requirements(agent, la, UserMessage, spec, user_text):
     return [x for x in out if isinstance(x, str)] if isinstance(out, list) else []
 
 
+# ★L-V 상수 정본화(리뷰 ⑧): 프로브(x352·x355·x357)가 이 값으로 쟀다. 라이브가 다른 값을 쓰면
+#   그것은 다른 실험이다 — 바꾸려면 프로브와 **같이** 바꾸고 기록에 남겨라([[67]]).
+VERDICT_PER_DOC = 1800
+VERDICT_DOC_CLIP = 6000
+
+
+def verdict_lines(agent, la, UserMessage, spec, req_block, group, corpus=None, doc_dir=None):
+    """**판정 이월**(L-V) — 후보마다 *위반 여부 + 문서 근거 인용*을 받아 **줄 목록**으로 만든다.
+
+    ## 왜 (x353·x355·x356b·x357 v2)
+      · 같은 2지선다에서 `Green` 옆 2/8 ↔ `Gold Account` 옆 6/8 — 어휘 인력이 답을 뒤집는다(C511)
+      · 낱개 판정은 맞다(gold OK 6/8·`Green` 위반 6/8·C513)
+      · **문서 대신 판정 줄만** 올리면 055 3/8 → 6/8(부정통제 0/8·x356b)
+      · 다태스크 확증: 표적 25축 **8 → 15**(라이브-정합 요구원·D_NEG 2·McNemar p=.092·x357 v2)
+
+    ## 계약
+      · 판정도 인용도 **LLM** 이 낸다. 엔진은 ⑴첫 낱말이 `VIOLATES`/`OK` 인지 읽고 ⑵인용이 그
+        후보 문서에 **실재하는지** `quote_in` 으로 검산할 뿐이다(정규식 0·[[66]]·[[22]]).
+      · **후보를 제거하지 않는다**(리뷰 ⑤) — 전 후보를 판정과 함께 싣는다. 제거형은 별개 레버다.
+      · 판정 불가·근거 미검산은 `UNCLEAR`/근거 없이 **남긴다**([[25]] 모르면 안 뺀다).
+      · 후보 수가 `verdict_max_candidates` 를 넘으면 **레버를 발화하지 않는다**(조용한 절단 금지).
+
+    반환: `(lines, stats)` — 실패·미발화면 `([], stats)` 이고 호출부는 종전 재료로 떨어진다.
+    """
+    stats = {"n": 0, "OK": 0, "VIOLATES": 0, "UNCLEAR": 0, "cited": 0, "skip": ""}
+    tpl = (spec or {}).get("verdict_prompt")
+    if not (tpl and agent is not None and la is not None and req_block and group):
+        stats["skip"] = "no-template-or-req"
+        return [], stats
+    idx = ((spec or {}).get("doc_index") or {}).get(group) or {}
+    classes = [c for c in sorted(idx) if c != "_general_"]
+    cap = int((spec or {}).get("verdict_max_candidates") or 12)
+    if not classes:
+        stats["skip"] = "no-candidates"
+        return [], stats
+    if len(classes) > cap:
+        print("[T2_VERDICT] 후보 %d > 상한 %d — 미발화(절단 안 한다)" % (len(classes), cap),
+              file=sys.stderr, flush=True)
+        stats["skip"] = "over-cap"
+        return [], stats
+    line_tpl = str((spec or {}).get("verdict_line_template") or "- {name}: {verdict}{why}")
+    out = []
+    for c in classes:
+        docs, _missing = read_docs(list(idx.get(c) or ()), doc_dir=doc_dir, corpus=corpus)
+        mat = as_material(docs, (), per_doc=VERDICT_PER_DOC)
+        if not mat:
+            continue
+        try:
+            raw = str(SC.sub_generate(agent, la, UserMessage,
+                                      tpl.format(req=req_block, doc=mat[:VERDICT_DOC_CLIP]),
+                                      "verdict") or "")
+        except Exception as e:
+            print("[T2_VERDICT] 호출 실패(그 후보 UNCLEAR): %r" % (e,), file=sys.stderr, flush=True)
+            raw = ""
+        head = " ".join(str(raw).split()).upper()
+        vd = "VIOLATES" if head.startswith("VIOLATES") else ("OK" if head.startswith("OK")
+                                                             else "UNCLEAR")
+        why = ""
+        for l in [x.strip().strip('"').strip() for x in str(raw).splitlines() if x.strip()][1:]:
+            if quote_in(l, mat):
+                why = l
+                break
+        stats["n"] += 1
+        stats[vd] += 1
+        stats["cited"] += 1 if why else 0
+        out.append(line_tpl.format(name=_disp_name(c), verdict=vd,
+                                   why=(" - " + why[:200]) if why else ""))
+    print("[T2_VERDICT] 후보 %d · OK %d · VIOLATES %d · UNCLEAR %d · 근거검산 통과 %d"
+          % (stats["n"], stats["OK"], stats["VIOLATES"], stats["UNCLEAR"], stats["cited"]),
+          file=sys.stderr, flush=True)
+    return out, stats
+
+
+def _disp_name(slug):
+    """슬러그 → 표시명. 문자열 치환만(정규식 0·`x351.disp` 와 같은 규약)."""
+    return " ".join(w.capitalize() if w[:1].islower() else w
+                    for w in str(slug).replace("_", " ").split())
+
+
 def decide_from_docs(agent, la, UserMessage, spec, material, ask):
     """③ 남은 것 중 **고르기** — 격리 문맥(요청 + 재료)뿐. 대화 잔여물은 한 글자도 없다.
 

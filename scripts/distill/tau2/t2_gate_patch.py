@@ -2746,7 +2746,8 @@ def _search_material(agent, a2, messages, decide=True):
     #   ⚠[[62]]: 이 자리는 격리로 **된다**(x343) ⇒ 새 결정론 0 — 엔진은 운반과 존재확인뿐이고
     #     고르는 일은 끝까지 서브(LLM)다.
     _reqs = []
-    if os.environ.get("T2_SUB_REQUIREMENT") == "1" and _po.get("requirement_prompt"):
+    if (os.environ.get("T2_SUB_REQUIREMENT") == "1"
+            or os.environ.get("T2_VERDICT_CARRY") == "1") and _po.get("requirement_prompt"):
         try:
             _utxt = "\n\n".join(_users)
             _rraw = _ts.sub_requirements(agent, _la, _UM, _po, _utxt)
@@ -2795,7 +2796,28 @@ def _search_material(agent, a2, messages, decide=True):
         print("[T2_SEARCH_AGENT] 문서-only 반환 group=%s · %d자" % (_g, len(_mat)),
               file=sys.stderr, flush=True)
         return _mat
-    _choice = _ts.decide_from_docs(agent, _la, _UM, _po, _mat, _dask)
+    # ★L-V **판정 이월** (`T2_VERDICT_CARRY`·기본 OFF·x356b/x357 v2 확증: 표적 25축 8→15·
+    #   D_NEG 2·McNemar p=.092). 문서 전문 대신 **후보별 판정 줄**을 싣는다 — 고르는 일은 여전히
+    #   모델이고 엔진은 운반·검산뿐이다([[65]] "결정점엔 답만"·[[66]] 판단 0).
+    #   ⚠후보를 **제거하지 않는다**(리뷰 ⑤). 줄이 0개면 종전 재료로 떨어진다(fail-safe).
+    _vmat = _mat
+    if os.environ.get("T2_VERDICT_CARRY") == "1" and _reqs:
+        try:
+            _vblock = "Customer's stated request:" + chr(10) + chr(10).join(
+                "- " + q for q in _reqs)
+            _vlines, _vstats = _ts.verdict_lines(agent, _la, _UM, _po, _vblock, _g,
+                                                 corpus=_corpus)
+            if _vlines:
+                _vmat = chr(10).join(_vlines)
+                try:                      # ★감사(C508⒥): 실린 줄을 **축자로** 남긴다
+                    import t2_fbsidecar as _fbv
+                    _fbv.record("verdict-lines", _vmat, messages, channel="verdict",
+                                group=_g, stats=_vstats)
+                except Exception:
+                    pass
+        except Exception as _ve:
+            print("[T2_VERDICT] 실패(종전 재료로): %r" % (_ve,), file=sys.stderr, flush=True)
+    _choice = _ts.decide_from_docs(agent, _la, _UM, _po, _vmat, _dask)
     if not _choice:
         return ""
     # 이 축은 처리했다 — 다음 결정점은 **남은 축**을 본다(sim 1회 잠금이 아니라 축별 1회).
