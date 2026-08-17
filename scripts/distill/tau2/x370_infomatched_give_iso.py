@@ -111,8 +111,10 @@ def emitted_give(msg, name):
 
 
 def det(body, tools=None, maxtok=220):
-    a = chat(body, tools, 0.0, maxtok) or {}
-    b = chat(body, tools, 0.0, maxtok) or {}
+    # ★v4: `tool_choice="required"` — *무언가를 부르라*고만 한다. **무엇을** 부를지는 여전히
+    #   모델 몫이고 그것이 측정 대상이다(v3 는 모델이 산문으로 답해 전 팔 0 이었다).
+    a = chat(body, tools, 0.0, maxtok, None, "required") or {}
+    b = chat(body, tools, 0.0, maxtok, None, "required") or {}
     same = (json.dumps(a.get("tool_calls"), sort_keys=True, default=str)
             == json.dumps(b.get("tool_calls"), sort_keys=True, default=str)
             and str(a.get("content") or "").strip() == str(b.get("content") or "").strip())
@@ -207,7 +209,7 @@ def main():
     print("   gold 가 give 를 요구하는 태스크 %d개 · 그중 라이브 give 컷이 있는 것 %d개"
           % (len(want), sum(1 for j in jobs if j["task"] in want)))
     jobs = jobs[:8]
-    print("x370 v3 · 손님-측 레지스트리 %d종 · env 도구 스키마 %d종(정보-맞춤) · give 컷 %d"
+    print("x370 v4 · 손님-측 레지스트리 %d종 · env 도구 스키마 %d종(정보-맞춤) · give 컷 %d"
           % (len(udisc), len(TOOLS), len(cuts)))
     print("판정(사전 고정): A 높고 B 급락 → env 가 답을 흘렸다(격리 무효) · A≈B 높음 → 전달뿐 · "
           "A≈B 낮음 → 그 단계에만 결정론 검토 · D_NEG≈A → 계기 무효\n")

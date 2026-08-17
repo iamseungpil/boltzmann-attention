@@ -84,12 +84,20 @@ TOOLS = [
 ]
 
 
-def chat(prompt, tools=None, temp=0.0, mx=200, choices=None):
+def chat(prompt, tools=None, temp=0.0, mx=200, choices=None, tool_choice=None):
+    """★2026-08-18: `tool_choice` 를 연다(기본 None = 종전 "auto" 그대로·기존 호출자 바이트 불변).
+
+    왜 필요한가(x370 v3 실측): 도구 스키마를 실어도 모델이 **산문으로** 답해 버려
+    `tool_calls` 가 0 이었다(양성통제 P_HINT 0/3). 라이브 에이전트는 도구-호출 루프 안에서 돌지만
+    이 프로브는 대화를 한 개의 user 턴으로 납작하게 넣는다 ⇒ **형태가 안 맞는다**.
+    `"required"` 는 *무언가를 부르라*고만 하고 **무엇을 부를지는 말하지 않는다** — 측정 대상
+    (어느 도구·어느 인자)은 그대로 남는다([[62]]④ 엔진이 답을 내지 않는다).
+    """
     body = {"model": MODEL, "temperature": temp, "max_tokens": mx,
             "messages": [{"role": "user", "content": prompt}]}
     if tools:
         body["tools"] = tools
-        body["tool_choice"] = "auto"
+        body["tool_choice"] = tool_choice or "auto"
     if choices:
         body["guided_choice"] = list(choices)
     req = urllib.request.Request(URL, data=json.dumps(body).encode(),
