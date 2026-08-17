@@ -56,9 +56,8 @@ import x364_eligibility_axis_iso as E                             # noqa: E402
 
 SIMROOT = "/home/woori/scratch/tau2-bench/data/simulations"
 GIVE = "give_discoverable_user_tool"
-ASK = ("You are the bank's support agent. Continue this conversation. If the customer must run "
-       "something themselves, hand them the tool. Reply with the tool call you make now, as "
-       "NAME(arguments), and nothing else.")
+ASK = ("You are the bank's support agent. Continue this conversation. If the customer must "
+       "run something themselves, hand them the tool. Make the tool call you would make now.")
 
 
 def all_sims():
@@ -96,16 +95,28 @@ def strip_leak(text, name):
     return "\n".join(l for l in text.split("\n") if name not in l)
 
 
-def emitted_give(ans, name):
-    """접미사까지 정확한 이름으로 give 를 냈는가(요건 2)."""
-    s = " ".join(str(ans or "").split())
-    return (GIVE in s) and (name in s)
+def emitted_give(msg, name):
+    """**방출된 tool_call** 로 채점한다 — 라이브와 같은 채널(v3 수리).
+
+    v1/v2 는 본문 문자열에서 이름을 찾았는데, 도구 스키마를 주면 모델은 본문이 아니라
+    `tool_calls` 로 답한다 ⇒ 문자열 채점은 그 자체로 전량 탈락이었다(양성통제 1/8 의 절반 몫).
+    ⚠접미사까지 정확히 본다(요건 2): 인자 안의 대상 이름이 **정확히 그것**이어야 한다.
+    """
+    blob = ""
+    for tc in ((msg or {}).get("tool_calls") or ()):
+        f = tc.get("function") or tc
+        if str(f.get("name") or "") == GIVE:
+            blob += str(f.get("arguments") or "")
+    return bool(blob) and (name in blob)
 
 
-def det(body, maxtok=220):
-    a = str((chat(body, None, 0.0, maxtok) or {}).get("content") or "")
-    b = str((chat(body, None, 0.0, maxtok) or {}).get("content") or "")
-    return a, (a.strip() == b.strip())
+def det(body, tools=None, maxtok=220):
+    a = chat(body, tools, 0.0, maxtok) or {}
+    b = chat(body, tools, 0.0, maxtok) or {}
+    same = (json.dumps(a.get("tool_calls"), sort_keys=True, default=str)
+            == json.dumps(b.get("tool_calls"), sort_keys=True, default=str)
+            and str(a.get("content") or "").strip() == str(b.get("content") or "").strip())
+    return a, same
 
 
 def registries():
@@ -118,6 +129,45 @@ def registries():
                and getattr(getattr(cls, n), attr, False))
 
 
+def agent_tool_specs():
+    """라이브 에이전트가 **실제로 갖는 도구 목록**을 env 에서 만들어 준다(정보-맞춤의 핵심).
+
+    ★v2 자기무효(2026-08-18): v1·v2 는 대화를 **평문으로만** 주고 *"도구 호출을 적어라"* 라고
+      물었다. 라이브 에이전트는 `give_discoverable_user_tool` 의 **스키마를 갖고 있다** — 그것을
+      빼면 정보-맞춤이 아니라 **다른 방향의 정보-결핍**이다. 양성통제 `P_HINT` 가 **1/8** 로
+      떨어져 그 사실을 인쇄했다(가드가 잡았다). ⇒ env 의 공개 메서드에서 스키마를 만들어 싣는다.
+    ⚠도구 이름·설명·인자는 **env 에서 읽는다**(하드코딩 0·도메인 어휘 0·[[05]]).
+    ⚠discoverable 은 잠겨 있으므로 **뺀다** — 라이브도 unlock 전에는 안 보인다.
+    """
+    import inspect
+    from tau2.domains.banking_knowledge import tools as T
+    attr = getattr(T, "DISCOVERABLE_ATTR", "__discoverable__")
+    cls = getattr(T, "KnowledgeTools", None)
+    specs = []
+    for n in sorted(dir(cls or ())):
+        if n.startswith("_"):
+            continue
+        m = getattr(cls, n, None)
+        if not callable(m) or getattr(m, attr, False):
+            continue
+        try:
+            sig = inspect.signature(m)
+        except Exception:
+            continue
+        props, req = {}, []
+        for pn, p in sig.parameters.items():
+            if pn == "self":
+                continue
+            props[pn] = {"type": "string"}
+            if p.default is inspect.Parameter.empty:
+                req.append(pn)
+        doc = " ".join(str(m.__doc__ or "").split())[:300]
+        specs.append({"type": "function", "function": {
+            "name": n, "description": doc,
+            "parameters": {"type": "object", "properties": props, "required": req}}})
+    return specs
+
+
 def main():
     # ── give 가 **실재 손님-측 도구**를 향한 컷만 고른다.
     #   ★1차 실행 자기무효(2026-08-18): 이 필터가 없어 `apply_for_credit_card`·
@@ -125,6 +175,7 @@ def main():
     #     태스크도 알파벳 앞 8개(001~008 = A 버킷)가 뽑혀 **표적 가족을 하나도 안 쟀다**.
     #     그 실행은 A=B=D=0(전 팔 무신호)이라 판별력이 없었다 — 결과 인용 금지.
     udisc = registries()
+    TOOLS = agent_tool_specs()
     cuts = []
     for run, s in all_sims():
         tid = str(s.get("task_id") or (s.get("task") or {}).get("id") or "")
@@ -137,15 +188,27 @@ def main():
                         cuts.append({"run": run, "task": tid, "cut": i, "name": nm,
                                      "sim": s, "seed": str(s.get("seed"))})
                     break
+    # gold 가 give 를 요구하는 태스크를 **우선**한다(분석 전용 — 레버는 이 목록을 안 쓴다).
+    #   ★v2 결함: `jobs[:8]` 이 번호순 앞 8개(001~014)를 집어 표적 가족(019~022)을 하나도 못 쟀다.
+    want = set()
+    for fn in sorted(os.listdir(E.M.TASKS_DIR)):
+        if not fn.endswith(".json"):
+            continue
+        t = json.load(io.open(os.path.join(E.M.TASKS_DIR, fn), encoding="utf-8"))
+        if any(str(a.get("name") or "") == GIVE
+               for a in ((t.get("evaluation_criteria") or {}).get("actions") or ())):
+            want.add(fn[:-5])
     seen, jobs = set(), []
-    for c in sorted(cuts, key=lambda x: (x["task"], x["run"])):
+    for c in sorted(cuts, key=lambda x: (0 if x["task"] in want else 1, x["task"], x["run"])):
         if c["task"] in seen:
             continue
         seen.add(c["task"])
         jobs.append(c)
+    print("   gold 가 give 를 요구하는 태스크 %d개 · 그중 라이브 give 컷이 있는 것 %d개"
+          % (len(want), sum(1 for j in jobs if j["task"] in want)))
     jobs = jobs[:8]
-    print("x370 v2 · 손님-측 레지스트리 %d종 · 그 이름을 향한 give 컷 %d · 태스크 %d개"
-          % (len(udisc), len(cuts), len(jobs)))
+    print("x370 v3 · 손님-측 레지스트리 %d종 · env 도구 스키마 %d종(정보-맞춤) · give 컷 %d"
+          % (len(udisc), len(TOOLS), len(cuts)))
     print("판정(사전 고정): A 높고 B 급락 → env 가 답을 흘렸다(격리 무효) · A≈B 높음 → 전달뿐 · "
           "A≈B 낮음 → 그 단계에만 결정론 검토 · D_NEG≈A → 계기 무효\n")
     if not jobs:
@@ -168,8 +231,10 @@ def main():
                "arms": {}}
         for k in ("P_HINT", "A_LIVE", "B_NOLEAK", "D_NEG"):
             ans, d = det(arms[k][-9000:] + "\n\n" + ASK)
-            row["arms"][k] = {"hit": int(emitted_give(ans, j["name"])), "det": d,
-                              "out": " ".join(ans.split())[:200]}
+            row["arms"][k] = {
+                "hit": int(emitted_give(ans, j["name"])), "det": d,
+                "out": (" ".join(str(ans.get("content") or "").split())[:120]
+                        + " |CALLS " + json.dumps(ans.get("tool_calls"), default=str)[:200])}
         res.append(row)
         print("── %s/%s cut=%d 이름=%s · 누설 %d줄 제거 · P %d · A %d · B %d · D %d"
               % (j["task"], j["run"][:26], j["cut"], j["name"], row["n_stripped"],
