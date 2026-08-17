@@ -66,41 +66,48 @@ LEVERS = ("T2_USER_TOOL_NOTE", "T2_GIVE_EXEC_NUDGE", "T2_GIVE_RELEVANCE_NUDGE",
           "T2_UNINSTRUCTABLE", "T2_DUP_REPRESENT", "T2_UNCALLED_UNLOCK", "T2_PROCEDURE")
 
 
-def user_tool_names():
-    """**환경 레지스트리**에서 손님 도구 이름을 읽는다(닫힌 집합·도메인 저작 0)."""
-    names = set()
-    for fn in sorted(os.listdir(E.M.TASKS_DIR)):
-        if not fn.endswith(".json"):
-            continue
-        t = json.load(io.open(os.path.join(E.M.TASKS_DIR, fn), encoding="utf-8"))
-        for u in (t.get("user_tools") or ()):
-            names.add(str(u))
-        # 태스크가 손님에게 넘길 discoverable 도구 이름도 레지스트리에 있다(gold 액션이 아니라
-        # 도구 인자 자리) — 이름 집합만 쓰고 **어느 태스크에 무엇이 gold 인지는 안 본다**.
-    return names
+def registries():
+    """**환경의 런타임 레지스트리**에서 두 집합을 읽는다 — 이것이 일반화의 출처다.
 
+    ★2026-08-18 수리(1차 계수 무효): 첫 판은 문서에서 `*_1234` 꼴 토큰을 긁어 46종을 만들고
+      **손님-측/에이전트-측을 안 갈랐다** — 에이전트 도구 이름을 발화하고 `give` 를 안 한 것까지
+      위반으로 세어 168 sim 이 나왔다(과대). 환경이 두 집합을 **직접 선언**한다:
 
-def disc_names_from_env():
-    """discoverable 도구 이름 = 문서·도구 스키마가 부르는 이름들. env 파일에서만 모은다."""
-    out = set()
-    src = os.path.join(os.path.dirname(E.M.TASKS_DIR), "documents")
-    for fn in sorted(os.listdir(src)):
-        d = json.load(io.open(os.path.join(src, fn), encoding="utf-8"))
-        for tok in str(d.get("content") or "").replace("(", " ").replace(")", " ").split():
-            t = tok.strip(".,`*:;'\"")
-            if "_" in t and t.rsplit("_", 1)[-1].isdigit() and len(t.rsplit("_", 1)[-1]) == 4:
-                out.add(t)
-    return out
+          KnowledgeUserTools  의 `__discoverable__` 메서드 = **손님이 부른다** → `give` 선행 필수
+          KnowledgeTools      의 `__discoverable__` 메서드 = 에이전트가 부른다 → `unlock` 선행 필수
+
+      데코레이터 속성 이름조차 `tools.DISCOVERABLE_ATTR` 에서 읽는다 ⇒ 우리가 쓴 도메인 어휘 0 ·
+      gold 0 · 태스크별 분기 0([[05]]·[[22]] 닫힌 술어). 다른 도메인은 같은 규약이면 자동, 아니면
+      **빈 집합 = 침묵**([[25]] 모르면 안 뺀다).
+    """
+    from tau2.domains.banking_knowledge import tools as T          # noqa: E402
+    attr = getattr(T, "DISCOVERABLE_ATTR", "__discoverable__")
+
+    def marked(cls):
+        out = set()
+        for n in dir(cls or ()):
+            if n.startswith("_"):
+                continue
+            m = getattr(cls, n, None)
+            if callable(m) and getattr(m, attr, False):
+                out.add(n)
+        return out
+
+    return (marked(getattr(T, "KnowledgeUserTools", None)),
+            marked(getattr(T, "KnowledgeTools", None)))
 
 
 def main():
     if not os.path.isdir(SIMDIR):
         print("sim_results 없음 — 중단")
         return 1
-    utools = user_tool_names()
-    disc = disc_names_from_env()
-    print("x368 · 손님 도구 이름 %d종 · discoverable 이름 %d종(env 유래·gold 0)"
-          % (len(utools), len(disc)))
+    disc, agent_disc = registries()
+    if not disc:
+        print("환경이 손님-측 discoverable 레지스트리를 안 준다 — 침묵(이 술어는 이 도메인에 없다)")
+        return 1
+    print("x368 · **손님-측 discoverable %d종**(give 선행 필수) · 에이전트-측 %d종(unlock 선행 필수)"
+          " — 전부 env 런타임 레지스트리 유래 · gold 0" % (len(disc), len(agent_disc)))
+    print("   손님-측: %s" % ", ".join(sorted(disc)))
     print("판정(사전 고정): G2_viol ≥8 sim → 일반 규칙만으로 축이 선다 · 위반 큰데 레버 발화 0 → "
           "배선 · 발화>0 → 문구·형태(치환형으로) · G2_viol≈0 → 축 폐기\n")
 
