@@ -209,7 +209,7 @@ t2_launch() {
     --user_llm openrouter/openai/gpt-5.2 --user_temp 0.0 \
     --user_reasoning_effort "${GO_USER_EFFORT:-low}" \
     --task_ids "$TASKS" --num_trials "$NT" --max_concurrency "${GO_CONCURRENCY:-4}" \
-    --max_steps 200 \
+    --max_steps "${GO_MAX_STEPS:-200}" \
     --save_to "$TAG" "$@"
 }
 # ── ★C213/day9 처방(DAY9_PRESCRIPTIONS_DESIGN_2026_07_29·경계정본 §4) ─────────
