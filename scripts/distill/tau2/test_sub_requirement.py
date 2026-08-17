@@ -44,7 +44,8 @@ chk('os.environ.get("T2_SUB_REQUIREMENT") == "1"' in body, "플래그로만 켜�
 chk('_po.get("requirement_prompt")' in body, "A2 프롬프트가 없으면 발화하지 않는다")
 
 print("[②] 엔진은 뽑지 않는다 — 존재확인만")
-chk("_qs in _utxt" in body, "인용의 **원문 존재**만 확인한다(in 연산)")
+chk("_ts.quote_in(_qs, _utxt)" in body,
+    "인용의 **원문 존재**만 확인한다(정본 `quote_in`·2026-08-17 C510 로 이설)")
 for pat, why in ((r"re\.(search|findall|match|finditer|compile|sub|split)", "정규식"),
                  (r"\.split\(\s*[\"']", "구분자 split")):
     chk(not re.search(pat, body), "주입 경로에 %s 없음" % why)
