@@ -2605,6 +2605,21 @@ def _search_material(agent, a2, messages, decide=True):
     #   ⇒ LLM 이 **요청마다 하나씩** 군을 대고, 엔진은 아직 안 다룬 것을 **한 결정점에 하나씩**
     #     처리한다. 재료가 축마다 37K자라 한 턴에 다 싣는 것은 불가능하기도 하다.
     #   ⚠엔진은 고르지 않는다 — LLM 이 **답한 순서**대로 담고, 그 순서대로 꺼내 쓸 뿐이다.
+    # ★T2_ELIG_LINE (2026-08-18·자격축 **상류 전용**·기본 OFF): 손님의 자격(개인/사업자) 한 줄을
+    #   **요청 앞**에 싣는다. 판정은 LLM, 엔진은 닫힌 값 + 인용 실재만 본다(`t2_search.eligibility_line`).
+    #   근거: `x364b`(n=27·짝지음) 요청 밖 군 11→6 · `business_*` 3→0 · 적중 27/27 불변 ·
+    #         부정통제(자격 뒤집기) 오선택 3→**26**·적중 5 손실 ⇒ 내용이 원인.
+    #         `x364c` 문면 수리로 라벨 22/29 → **29/29**.
+    #   ⚠하류(클래스 결정)에는 **안 싣는다** — 31축 중 답이 바뀐 축 0(`x364`). 군 안 후보는 이미 그
+    #     자격 것뿐이라 가를 수가 없다. 여기 한 자리에만 붙인다.
+    #   ⚠못 만들면(값 미확정·인용 미검산) 빈 문자열 → 종전 경로와 **바이트 동일**(fail-safe·[[25]]).
+    if os.environ.get("T2_ELIG_LINE") == "1":
+        try:
+            _el = _ts.eligibility_line(agent, _la, _UM, _po, _ask)
+            if _el:
+                _ask = _el + "\n\n" + _ask
+        except Exception as _ele:
+            print("[T2_ELIG] 실패(종전대로): %r" % (_ele,), file=sys.stderr, flush=True)
     _gs = _ts.formalize_groups(agent, _la, _UM, _po, [_ask], _groups)
     _done = getattr(agent, "_t2_search_done", None)
     if _done is None:
@@ -10608,6 +10623,45 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             am = _new5
             except Exception as _e5:
                 print("[T2_USER_TOOL_NOTE] skipped: %r" % (_e5,), file=_sys.stderr, flush=True)
+
+        # ─── ★G2 인계 술어 `T2_HANDOFF_PREDICATE` (2026-08-18·기본 OFF) ───
+        #   술어: **손님-측 discoverable 도구 이름을 발화했는데 아직 `give` 를 안 했다**.
+        #   출처는 gold 가 아니라 **환경의 도구 계약**이다 — env 가 `KnowledgeUserTools` 의
+        #   `__discoverable__` 집합을 런타임에 선언하고("에이전트가 건네야 손님이 부른다"),
+        #   도구 독스트링도 축자로 같은 말을 한다([[23]]·사용자 지적 2026-08-18).
+        #   실측(`x368`·최근 439 sim): 손님-측 이름을 발화한 sim **82** 중 give 0 이 **51**(62%)이고
+        #   그 sim 들의 pass 는 **2/51 = 4%**(전체 base ≈25%).
+        #   ★왜 여기인가: 같은 일을 하는 기존 레버(`T2_GIVE_EXEC_NUDGE`·`T2_UNCALLED_UNLOCK`)는
+        #     `_resign` 창에서만 발화한다 = **에이전트가 포기하려 할 때**. 위반은 훨씬 이른
+        #     *이름을 말한 턴*에 생긴다 ⇒ 이 레버는 **타이밍만** 옮긴다(부하 축소·⛔0 허용 형태).
+        #   ⚠엔진은 **이름 집합 대조**만 한다 — 어느 도구가 옳은지·언제 건네야 하는지는 판단하지
+        #     않고, 도구를 **대신 부르지도 않는다**(등대 §1.5 write 강제 금지·[[06]] 게이트 금지 축).
+        #   ⚠[[64]]: 무엇이 빠졌는지와 **무엇을 하면 풀리는지**를 같이 말한다.
+        #   ⚠집합이 비면(다른 도메인) 침묵 · sim 당 상한으로 잔소리 루프를 막는다.
+        if (os.environ.get("T2_HANDOFF_PREDICATE") == "1" and a2 is not None
+                and getattr(self, "_t2_hop_n", 0) < int(os.environ.get("T2_HANDOFF_CAP") or 2)):
+            try:
+                _tplh = ((a2 or {}).get("axis_notes") or {}).get("handoff_missing")
+                _envh = getattr(getattr(self, "_t2_orch", None), "environment", None)
+                _nowgive = any(str(getattr(t, "name", "")) == "give_discoverable_user_tool"
+                               for t in (getattr(am, "tool_calls", None) or []))
+                import t2_search as _tsh
+                _missh = ([] if (_nowgive or not _tplh) else
+                          _tsh.handoff_missing(_envh, state.messages, _content_str(am),
+                                               _content_str, _args_dict))
+                if _missh:
+                    self._t2_hop_n = getattr(self, "_t2_hop_n", 0) + 1
+                    from t2_lever_beat import beat as _beath
+                    _beath("T2_HANDOFF_PREDICATE", "handoff_missing")
+                    print("[T2_HANDOFF] named-but-not-given: %s" % ",".join(_missh),
+                          file=_sys.stderr, flush=True)
+                    # ⚠엔진은 **고르지 않는다**: 모델이 방금 발화한 이름을 그대로 되읽어 주고,
+                    #   여럿이면 **전부** 적는다(하나를 고르면 그 순간 엔진이 판단한 것이 된다).
+                    _newh = _ap_regen(_tplh.format(tool=", ".join(_missh)), "handoffpred")
+                    if _newh is not None:
+                        am = _newh
+            except Exception as _eh:
+                print("[T2_HANDOFF] skipped: %r" % (_eh,), file=_sys.stderr, flush=True)
 
         # ─── ★P2/P10 (2026-08-03·AX32 설계서 §P2·§P10 — alltools 재설계판) ───
         #   r7의 전제("alltools 전환으로 bm25 신호 무효")는 **실측으로 기각**: alltools는

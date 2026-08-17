@@ -317,6 +317,75 @@ def material_for(a2, group, doc_dir=None, now=None, per_doc=400, windowed="gener
         "kept": len(keep), "dropped": [d for d, _f, _t in dropped]}
 
 
+def eligibility_line(agent, la, UserMessage, spec, text):
+    """손님의 **자격**(개인/사업자) 한 줄. 판정은 LLM · 엔진은 **닫힌 값 + 인용 실재**만 본다.
+
+    ★왜 (2026-08-18 실측): 라이브 군 결정 중 요청 밖 군이 나오는 자리에서, 자격 한 줄을 **요청 앞**에
+      실으면 요청 밖 군이 **11 → 6**, `business_*` 오선택이 **3 → 0** 으로 줄고 요청 군 적중은
+      27/27 그대로다(`x364b`·n=27·det). 부정통제(자격을 뒤집은 줄)는 오선택을 **3 → 26** 으로
+      키우고 적중도 5개 잃는다 ⇒ **그 줄이 읽히고 내용이 원인**이다.
+    ★문면 (`x364c`): 첫 문면(*"이 손님은 개인인가 사업자인가"*)은 라벨 **22/29** 였고 오류 7건이
+      전부 *사업자 태스크를 개인이라 답한 것*이었다 — 사람은 개인이면서 사업 자격으로 물을 수
+      있으니 **질문이 틀렸다**([[55]] 2단계). *"어느 자격으로 묻는가"* 로 바꾸니 **29/29**.
+    ⚠**하류(클래스 선택)에는 싣지 않는다** — 31축 중 답이 바뀐 축이 **0**이었다(`x364`). 군 안의
+      후보는 이미 그 자격 것뿐이라 가를 수가 없다. 이 함수는 **군 선택 상류 전용**이다.
+    ⚠엔진 몫: ⓐ첫 낱말이 A2 가 선언한 **두 값 중 하나**인가(닫힌 술어·[[22]]) ⓑ근거 인용이 원문에
+      실재하는가(`quote_in`·C45 동형). 둘 중 하나라도 아니면 **빈 문자열 = 침묵**(fail-safe·[[25]]).
+      뜻은 해석하지 않는다([[59]] 정규식 0·[[66]] 분류는 LLM).
+    """
+    tpl = (spec or {}).get("eligibility_prompt")
+    vals = tuple((spec or {}).get("eligibility_values") or ())
+    line_tpl = (spec or {}).get("eligibility_line_template")
+    if not (tpl and vals and line_tpl and agent is not None and la is not None and text):
+        return ""
+    try:
+        raw = SC.sub_generate(agent, la, UserMessage, tpl.format(record=str(text)[-6000:]),
+                              "eligibility_formalize")
+    except Exception as e:
+        print("[T2_ELIG] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return ""
+    lines = [x.strip().strip('"').strip() for x in str(raw or "").split("\n") if x.strip()]
+    if not lines:
+        return ""
+    head = lines[0].upper().replace("*", "").strip()
+    v = next((x for x in vals if head.startswith(str(x).upper())), None)
+    q = next((l for l in lines[1:] if quote_in(l, text)), "")
+    if not (v and q):
+        print("[T2_ELIG] 미확정(값=%r·인용검산=%s) — 침묵" % (v, bool(q)),
+              file=sys.stderr, flush=True)
+        return ""
+    print("[T2_ELIG] %s — %r" % (v, q[:80]), file=sys.stderr, flush=True)
+    return line_tpl.format(v=v, q=q[:200])
+
+
+def handoff_missing(env, messages, text, content_of, args_of):
+    """**G2 술어** — 손님-측 도구 이름을 말했는데 아직 안 건넸다(닫힌 술어·gold 0·도메인 어휘 0).
+
+    ★출처 (2026-08-18): 환경이 두 레지스트리를 스스로 선언한다 —
+      `KnowledgeUserTools` 의 `__discoverable__` = **손님이 부른다**(에이전트는 못 부른다·`give` 선행) ·
+      `KnowledgeTools` 의 것 = 에이전트가 `unlock` 뒤 부른다. 도구 계약 축자도 같은 말을 한다:
+      *"Call a tool that **was given to you by the agent**"*. ⇒ 규칙이 **태스크가 아니라 도구 계약**에
+      귀속되므로 gold 참조가 아니다([[23]]·사용자 지적 2026-08-18).
+    ★실측 (`x368`·최근 439 sim): 어시스턴트가 손님-측 이름을 발화한 sim **82** 중 `give` 0 이
+      **51**(62%)이고 그 sim 들의 pass 는 **2/51 = 4%**(전체 base ≈25%).
+    ⚠엔진은 **이름 집합 대조**만 한다 — 어느 도구가 옳은지, 언제 건네야 하는지는 판단하지 않는다.
+      집합이 비면(다른 도메인·규약 없음) **빈 목록 = 침묵**([[25]]).
+    """
+    try:
+        names = set(env.user_tools.get_discoverable_tools()) if env is not None else set()
+    except Exception:
+        names = set()
+    if not names:
+        return []
+    given = set()
+    for m in (messages or ()):
+        for tc in (getattr(m, "tool_calls", None) or ()):
+            if str(getattr(tc, "name", "")) == "give_discoverable_user_tool":
+                given.add(str((args_of(tc) or {}).get("discoverable_tool_name") or "").strip())
+    body = str(text or "")
+    return sorted(n for n in names if n and n in body and n not in given)
+
+
 def _outside(low_, g_, longer_):
     """짧은 이름 `g_` 가 긴 이름들 **밖에서도** 등장하는가(위치로 본다·정규식 0).
 
