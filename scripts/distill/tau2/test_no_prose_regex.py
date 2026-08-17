@@ -67,7 +67,22 @@ print("[④] sub_records 는 존재확인만")
 sr = re.search(r"def sub_records\(.*?return out", SEA, re.S)
 sb = sr.group(0) if sr else ""
 chk(bool(sr), "정본 진입점 t2_search.sub_records 가 있다")
-chk("if str(v) in text:" in sb, "각 값의 **원문 존재**만 확인한다(C45 동형)")
+chk("if quote_in(v, text):" in sb, "각 값의 **원문 존재**만 확인한다(C45 동형·정본 `quote_in`)")
+
+# ★2026-08-17(C510): 존재확인을 **정본 `quote_in`** 으로 옮겼다 — 손님이 쓰는 마크다운 강조
+#   때문에 참인 인용이 전량 탈락하던 자리다(제안 7 → 통과 0). 규칙은 느슨해지지 않는다:
+#   ⑴ 정규식 0 ⑵ 고정 문자 목록을 `str.replace` 로 지울 뿐(추출 0) ⑶ 판정은 여전히 부분문자열
+#   ⑷ 양쪽에 **같은** 변환. 없는 인용이 통과하지 않는지는 `test_quote_in` 이 부정통제로 본다.
+qi = re.search(r"def quote_in\(.*?
+
+
+def ", SEA, re.S)
+qb = qi.group(0) if qi else ""
+chk(bool(qi), "정본 `t2_search.quote_in` 이 있다")
+chk(not re.search(r"re\.(finditer|search|findall|sub|compile|match)", qb),
+    "quote_in 에 정규식 0")
+chk(".replace(" in qb and "_EMPH" in qb, "표기 정규화는 고정 목록 `str.replace` 뿐(추출 0)")
+chk("_flat(q) in _flat(text)" in qb, "판정은 여전히 **부분문자열**(양쪽 같은 변환)")
 chk(not re.search(r"re\.(finditer|search|findall|sub|compile|match)", sb),
     "sub_records 에 정규식 0 — JSON 경계는 find/rfind")
 chk('raw.find("[")' in sb and 'raw.rfind("]")' in sb, "문자열 연산으로만 JSON 을 자른다")
