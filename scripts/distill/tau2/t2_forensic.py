@@ -118,6 +118,40 @@ def label(name, args):
     return "%s:%s" % (pre, t) if pre else name
 
 
+def norm_args(a):
+    """인자를 **의미 단위로** 정규화한다 — 중첩 JSON 문자열을 풀고 스칼라를 문자열화.
+
+    ★왜 (2026-08-17·워크플로 실측): 벤치 채점기 `tasks.py:195` 가 `tool_args == action_args` 로
+      **중첩 JSON을 문자열째** 비교한다. `call_discoverable_*` 의 `arguments` 는 JSON 문자열이라
+      **공백·키 순서만 달라도** 같은 실행이 `action_match=false` 로 찍힌다. 6런 gold_nested
+      **1,222건 중 121건(SEMANTIC_ONLY)** 이 그 형태였다.
+    ⚠**reward 에는 영향이 없다**(`reward_basis=['DB']` 태스크는 DB 해시로 채점되고, 손님 호출은
+      dict 로 로깅된다) — 오염되는 것은 **우리 포렌식·센서스의 주장**이다. 그래서 이 함수는
+      *벤치를 고치는 것이 아니라 우리 계기를 고친다*. pass 는 여전히 `reward` 로만 읽는다(C486).
+    ⚠판단 0: 값의 뜻을 해석하지 않고 **표기만** 맞춘다(정규식 0·[[59]]).
+    """
+    if isinstance(a, str):
+        try:
+            a = json.loads(a)
+        except Exception:
+            return " ".join(a.split())
+    if isinstance(a, dict):
+        return dict((str(k), norm_args(v)) for k, v in a.items())
+    if isinstance(a, (list, tuple)):
+        return [norm_args(x) for x in a]
+    if isinstance(a, bool) or a is None:
+        return a
+    if isinstance(a, (int, float)):
+        # 채점기가 "750" 과 750 을 가르는 자리가 있어 **문자열로 접는다**(양쪽 같은 변환).
+        return ("%g" % a) if isinstance(a, float) else str(a)
+    return " ".join(str(a).split())
+
+
+def args_equal(x, y):
+    """두 인자 묶음이 **같은 실행**인가. `norm_args` 를 양쪽에 같이 걸고 비교한다."""
+    return norm_args(x) == norm_args(y)
+
+
 def calls(sim):
     """(message, tool_call) 쌍을 순서대로. 어시스턴트 턴의 호출만."""
     for m in sim.get("messages") or []:
