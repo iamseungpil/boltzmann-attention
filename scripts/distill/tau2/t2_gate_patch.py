@@ -6960,6 +6960,32 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         #   피드백. tool_choice 강제 없음(정답 행동=안내 텍스트)·cap=action_deny 공유.
                         _uacts = {t for t in ((a2 or {}).get("action_tools") or [])
                                   if _exec_side(t) == "user"}
+                        # ★019 가족 수리 (`T2_PENDING_DISCOVERED`·기본 OFF·x362 확증):
+                        #   gold 도구가 **런타임에 건네지는 discoverable** 이면 위 정적 목록에
+                        #   영원히 없다 ⇒ 손님-실행 안내(`_utgt in _upending`)가 발화할 수 없고,
+                        #   형식화기는 `call_discoverable_agent_tool` 을 지목한다(라이브 축자).
+                        #   x362(det): 현행 집합 → `CALL` · **discovered 를 넣으면 → 분쟁 도구**
+                        #   · 다른 태스크 발화로 세운 부정통제는 **아무것도 안 냄**(통제 유효).
+                        #   ⚠집합의 출처는 **env 레지스트리 ∩ 이미 받은 도구 출력 텍스트**뿐이다
+                        #   (닫힌 집합·정규식 0·도메인 어휘 0·[[22]]·[[59]]). 고르는 일은 LLM.
+                        if os.environ.get("T2_PENDING_DISCOVERED") == "1":
+                            try:
+                                _envd9 = getattr(getattr(self, "_t2_orch", None),
+                                                 "environment", None)
+                                _regu9 = _user_discoverable(_envd9) or set()
+                                _txtu9 = chr(10).join(
+                                    str(getattr(_m9, "content", "") or "")
+                                    for _m9 in state.messages
+                                    if getattr(_m9, "role", None) == "tool")
+                                _add9 = sorted(n for n in _regu9 if n and n in _txtu9)
+                                if _add9:
+                                    _uacts |= set(_add9)
+                                    print("[T2_PENDING_DISC] 대기집합 +%d: %s"
+                                          % (len(_add9), ", ".join(_add9[:3])),
+                                          file=_sys.stderr, flush=True)
+                            except Exception as _e9:
+                                print("[T2_PENDING_DISC] error (no-op): %r" % (_e9,),
+                                      file=_sys.stderr, flush=True)
                         _called = {getattr(c, "name", None) for c in (am.tool_calls or [])}
                         _tgt_pre = None      # ★공유 formalize(합집합 1회) — 아래 원 블록이 재사용(이중 서브콜 방지)
                         # ★C6 창 배선(2026-08-07·사용자 지시). `_agent_ending`은 **사임 턴만** 연다
