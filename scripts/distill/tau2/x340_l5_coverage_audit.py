@@ -1,4 +1,14 @@
 # -*- coding: utf-8 -*-
+r"""⚠**핵심 주장 기각 (2026-08-18·원장 C521ⓢ)** — 이 감사가 낸 *"`T2_COVERAGE_FOLLOWUP` 死배선"* 은 틀렸다.
+
+이유: 인쇄 마커가 `[T2_COVERAGE_FU]` 인데 `[T2_COVERAGE_FOLLOWUP]` 으로 찾았다(**이름 불일치**).
+실측: 라이브 발화 **141회**(sim_results 402 로그) — 다만 표적이 `get_reward_discrepancies`·
+`get_atm_fee_discrepancies` **2 도구뿐**이라 C 버킷 대부분에서 **표적 밖**일 뿐 고장이 아니다.
+⇒ 교훈: **자기-마커 부재를 사망으로 읽지 말 것**(`T2_GUIDED`·`T2_SURFACE_BUS` 도 `[T2_LEVER]`
+버스로 3,335·1,690회 발화한다). 마커 이름은 **코드에서 읽어** 확인하라.
+
+아래는 원문 그대로 남긴다.
+"""
 r"""x340 — **L5(coverage-followup) 배선 감사**. 핸드오프 §4 #5 의 전제를 실측으로 검정한다.
 
 ## 왜 (전제 재검)
