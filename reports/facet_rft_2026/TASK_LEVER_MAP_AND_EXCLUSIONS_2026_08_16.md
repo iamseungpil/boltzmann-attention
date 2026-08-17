@@ -40,6 +40,15 @@
 |---|---|---|
 | **task_069** | 태스크 notes 는 *"Gold Account has **NO** ATM rebates"* 인데 문서 `doc_savings_accounts_gold_account_003` 축자는 *"**ATM fee rebate cap per month: $30**"*. 부정하는 문서 **0건**(전수 grep). CHANGELOG 미언급 | 통과가 **불가능하지는 않다**(모델이 gold 를 고를 수 있다). 다만 이것을 표적으로 `drop_ineligible` 류를 지으면 근거가 **gold 뿐**이라 [[23]] 정면 위반 |
 
+### ⚠ 2-B2. **검증된 gold 결함 — 분류 보류**(2026-08-18 신설·직접 검증)
+
+| 태스크 | 근거(직접 재현·원본 축자) | 왜 "원리상 불가"가 **아닌가** | 상태 |
+|---|---|---|---|
+| **task_083** | 도구 `file_debit_card_transaction_dispute_6281` 의 **필수 인자 17개**(기본값 없는 파라미터·`inspect.signature` 로 열거)인데 gold 의 `arguments` 는 **16키**로 **`customer_max_liability_amount` 가 없다**. 5개 dispute 액션 전부 `compare_args=None` 이고, 채점기(`data_model/tasks.py`)는 `compare_args is None` 이면 **에이전트 호출의 키 집합**으로 양쪽을 걸러 비교한다(`tool_args == action_args`). `reward_basis=['ACTION']` | **정상 호출(17인자)이면 키 수가 달라 영구 불일치**지만, 에이전트가 그 인자를 **빼고 부르면 16↔16 으로 일치**한다 — 다만 그 호출은 필수 인자 누락이라 **도구가 에러를 낸다**. `reward_basis` 가 DB 가 아니라 ACTION 이라 **에러 호출로도 점수가 날 수 있다** ⇒ 정확한 규정은 *"통과가 불가능하다"* 가 아니라 **"통과하려면 무효한 호출을 해야 한다"** | **[S] 결함 확정 · 제외 여부는 보류** — 005·102 와 성격이 다르다(그 둘은 어떤 행동으로도 불가). 라이브에서 실제로 어느 쪽이 나오는지 본 뒤 분류한다 |
+
+> ⚠**워크플로 보고(2026-08-17)의 *"구조적 pass 0"* 은 이 검증으로 정정된다.** 권위 문서 기입 전
+> 직접 재현하는 절차([[08]]·§1 규칙 3)가 잡아낸 두 번째 사례다.
+
 ### ✅ 2-C. 제외 **아님** (오해 정정)
 
 | 태스크 | 오해 | 사실 |
