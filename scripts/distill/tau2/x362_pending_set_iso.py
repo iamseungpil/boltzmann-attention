@@ -99,12 +99,12 @@ def main():
     sim = sims[0]
     u_cut = users_upto(sim, CUT)
     u_early = users_upto(sim, EARLY)
-    if not u_cut or not u_early or not u_other:
-        print("손님 발화를 못 찾음 — 중단(계기 결함)")
-        return 1
     # ★진짜 부정통제용: 다른 태스크(024·카드 신청)의 손님 발화 — 분쟁 의도가 **없다**
     o_sims = [s2 for s2 in F.sims("bank_t7305_treataux_20260817a") if F.task_id(s2) == "task_024"]
     u_other = users_upto(o_sims[0], 12) if o_sims else []
+    if not u_cut or not u_early or not u_other:
+        print("손님 발화를 못 찾음 — 중단(계기 결함)")
+        return 1
     body = lambda tools, users: PROMPT.format(tools=", ".join(tools),      # noqa: E731
                                               users="\n- ".join(users))
     print("x362 · %s/%s · cut=%d · 현행 후보 %d개 · discovered=%r"
