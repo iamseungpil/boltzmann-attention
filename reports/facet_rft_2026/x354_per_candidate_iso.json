@@ -1,0 +1,259 @@
+{
+ "1567": {
+  "verdicts": {
+   "bronze_account": false,
+   "diamond_elite_account": false,
+   "gold_account": false,
+   "gold_plus_account": false,
+   "green_account_(savings)": false,
+   "platinum_account": false,
+   "platinum_plus_account": false,
+   "silver_account": false,
+   "silver_plus_account": false
+  },
+  "yes": [],
+  "ungrounded": [],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ },
+ "361454": {
+  "verdicts": {
+   "bronze_account": false,
+   "diamond_elite_account": false,
+   "gold_account": false,
+   "gold_plus_account": false,
+   "green_account_(savings)": true,
+   "platinum_account": false,
+   "platinum_plus_account": false,
+   "silver_account": false,
+   "silver_plus_account": false
+  },
+  "yes": [
+   "green_account_(savings)"
+  ],
+  "ungrounded": [
+   "green_account_(savings)"
+  ],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_FILTERED": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ },
+ "363271": {
+  "verdicts": {
+   "bronze_account": false,
+   "diamond_elite_account": false,
+   "gold_account": false,
+   "gold_plus_account": false,
+   "green_account_(savings)": true,
+   "platinum_account": false,
+   "platinum_plus_account": false,
+   "silver_account": false,
+   "silver_plus_account": true
+  },
+  "yes": [
+   "green_account_(savings)",
+   "silver_plus_account"
+  ],
+  "ungrounded": [
+   "silver_plus_account"
+  ],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_FILTERED": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ },
+ "373753": {
+  "verdicts": {
+   "bronze_account": false,
+   "diamond_elite_account": false,
+   "gold_account": false,
+   "gold_plus_account": false,
+   "green_account_(savings)": false,
+   "platinum_account": false,
+   "platinum_plus_account": false,
+   "silver_account": false,
+   "silver_plus_account": true
+  },
+  "yes": [
+   "silver_plus_account"
+  ],
+  "ungrounded": [],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_FILTERED": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ },
+ "514337": {
+  "verdicts": {
+   "bronze_account": false,
+   "diamond_elite_account": false,
+   "gold_account": false,
+   "gold_plus_account": false,
+   "green_account_(savings)": false,
+   "platinum_account": false,
+   "platinum_plus_account": false,
+   "silver_account": false,
+   "silver_plus_account": true
+  },
+  "yes": [
+   "silver_plus_account"
+  ],
+  "ungrounded": [
+   "silver_plus_account"
+  ],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "B_FILTERED": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ },
+ "554706": {
+  "verdicts": {
+   "bronze_account": false,
+   "diamond_elite_account": false,
+   "gold_account": false,
+   "gold_plus_account": false,
+   "green_account_(savings)": false,
+   "platinum_account": false,
+   "platinum_plus_account": false,
+   "silver_account": false,
+   "silver_plus_account": false
+  },
+  "yes": [],
+  "ungrounded": [],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   }
+  }
+ },
+ "626729": {
+  "verdicts": {
+   "bronze_account": false,
+   "diamond_elite_account": false,
+   "gold_account": false,
+   "gold_plus_account": false,
+   "green_account_(savings)": false,
+   "platinum_account": false,
+   "platinum_plus_account": false,
+   "silver_account": false,
+   "silver_plus_account": true
+  },
+  "yes": [
+   "silver_plus_account"
+  ],
+  "ungrounded": [],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_FILTERED": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ },
+ "863145": {
+  "verdicts": {
+   "bronze_account": false,
+   "diamond_elite_account": false,
+   "gold_account": false,
+   "gold_plus_account": false,
+   "green_account_(savings)": false,
+   "platinum_account": false,
+   "platinum_plus_account": false,
+   "silver_account": false,
+   "silver_plus_account": true
+  },
+  "yes": [
+   "silver_plus_account"
+  ],
+  "ungrounded": [
+   "silver_plus_account"
+  ],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "B_FILTERED": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ }
+}

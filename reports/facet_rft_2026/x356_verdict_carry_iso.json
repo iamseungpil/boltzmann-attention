@@ -1,0 +1,280 @@
+{
+ "1567": {
+  "lines": [
+   "- Bronze Account: CONFLICTS — Withdrawals beyond 6 in a statement cycle may incur fees (see the fee schedule specific to this account).",
+   "- Diamond Elite Account: CONFLICTS — Minimum balance to maintain the account: $250,000.",
+   "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+   "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+   "- Green Account (savings): CONFLICTS — Maximum free withdrawals per month | 8",
+   "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+   "- Platinum Plus Account: CONFLICTS — The required minimum balance is $100,000.",
+   "- Silver Account: CONFLICTS — To qualify for the higher APY tier, keep your balance at or above $10,000.",
+   "- Silver Plus Account: CONFLICTS — Tier 2 APY: 4.5% for balances at or above the Tier 2 threshold."
+  ],
+  "ok": 0,
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "B_VERDICT": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 2
+   }
+  }
+ },
+ "361454": {
+  "lines": [
+   "- Bronze Account: CONFLICTS — Withdrawals beyond 6 in a statement cycle may incur fees (see the fee schedule specific to this account).",
+   "- Diamond Elite Account: CONFLICTS — Maintain at least $250,000 to align with account expectations.",
+   "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+   "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+   "- Green Account (savings): CONFLICTS — Maximum free withdrawals per month | 8",
+   "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+   "- Platinum Plus Account: CONFLICTS — The required minimum balance is $100,000.",
+   "- Silver Account: CONFLICTS — If you exceed the monthly withdrawal limit for your account, an excess withdrawal fee of $2.00 applies to each additional withdrawal.",
+   "- Silver Plus Account: CONFLICTS — You should maintain a balance of at least $2,500."
+  ],
+  "ok": 0,
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_VERDICT": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 2
+   }
+  }
+ },
+ "363271": {
+  "lines": [
+   "- Bronze Account: CONFLICTS — Withdrawals beyond 6 in a statement cycle may incur fees (see the fee schedule specific to this account).",
+   "- Diamond Elite Account: CONFLICTS — Minimum balance to maintain the account: $250,000.",
+   "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+   "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+   "- Green Account (savings): OK",
+   "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+   "- Platinum Plus Account: CONFLICTS — The required minimum balance is $100,000.",
+   "- Silver Account: CONFLICTS — If you exceed the monthly withdrawal limit for your account, an excess withdrawal fee of $2.00 applies to each additional withdrawal.",
+   "- Silver Plus Account: OK"
+  ],
+  "ok": 2,
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_VERDICT": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "C_OKONLY": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 2
+   }
+  }
+ },
+ "373753": {
+  "lines": [
+   "- Bronze Account: CONFLICTS — Withdrawals beyond 6 in a statement cycle may incur fees (see the fee schedule specific to this account).",
+   "- Diamond Elite Account: CONFLICTS — Minimum balance to maintain the account: $250,000.",
+   "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+   "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+   "- Green Account (savings): CONFLICTS — Maximum free withdrawals per month | 8",
+   "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+   "- Platinum Plus Account: CONFLICTS — The required minimum balance is $100,000.",
+   "- Silver Account: CONFLICTS — Free withdrawals per statement cycle | 10",
+   "- Silver Plus Account: OK"
+  ],
+  "ok": 1,
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_VERDICT": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "C_OKONLY": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 2
+   }
+  }
+ },
+ "514337": {
+  "lines": [
+   "- Bronze Account: CONFLICTS — Withdrawals beyond 6 in a statement cycle may incur fees (see the fee schedule specific to this account).",
+   "- Diamond Elite Account: CONFLICTS — Maintain at least $250,000 to align with account expectations.",
+   "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+   "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+   "- Green Account (savings): CONFLICTS — Maximum free withdrawals per month | 8",
+   "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+   "- Platinum Plus Account: CONFLICTS — The required minimum balance is $100,000.",
+   "- Silver Account: CONFLICTS — Track your withdrawal activity; transactions beyond 10 in a cycle may incur an excess withdrawal fee as described in your account disclosures.",
+   "- Silver Plus Account: OK"
+  ],
+  "ok": 1,
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "B_VERDICT": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "C_OKONLY": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 2
+   }
+  }
+ },
+ "554706": {
+  "lines": [
+   "- Bronze Account: CONFLICTS",
+   "- Diamond Elite Account: CONFLICTS — Minimum balance to maintain the account: $250,000.",
+   "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+   "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+   "- Green Account (savings): OK",
+   "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+   "- Platinum Plus Account: CONFLICTS — - The required minimum balance is $100,000.",
+   "- Silver Account: CONFLICTS — To qualify for the higher APY tier, keep your balance at or above $10,000.",
+   "- Silver Plus Account: OK"
+  ],
+  "ok": 2,
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_VERDICT": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "C_OKONLY": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 2
+   }
+  }
+ },
+ "626729": {
+  "lines": [
+   "- Bronze Account: CONFLICTS — Withdrawals beyond 6 in a statement cycle may incur fees (see the fee schedule specific to this account).",
+   "- Diamond Elite Account: CONFLICTS — Maintain at least $250,000 to align with account expectations.",
+   "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+   "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+   "- Green Account (savings): CONFLICTS — Maximum free withdrawals per month | 8",
+   "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+   "- Platinum Plus Account: CONFLICTS — The required minimum balance is $100,000.",
+   "- Silver Account: CONFLICTS — Track your withdrawal activity; transactions beyond 10 in a cycle may incur an excess withdrawal fee as described in your account disclosures.",
+   "- Silver Plus Account: OK"
+  ],
+  "ok": 1,
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_VERDICT": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "C_OKONLY": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 2
+   }
+  }
+ },
+ "863145": {
+  "lines": [
+   "- Bronze Account: CONFLICTS — Withdrawals beyond 6 in a statement cycle may incur fees (see the fee schedule specific to this account).",
+   "- Diamond Elite Account: CONFLICTS — Maintain at least $250,000 to align with account expectations.",
+   "- Gold Account: CONFLICTS — Maintain at least $10,000 to keep your account in good standing.",
+   "- Gold Plus Account: CONFLICTS — Fund the account with at least $10,000 at opening.",
+   "- Green Account (savings): CONFLICTS — Maximum free withdrawals per month | 8",
+   "- Platinum Account: CONFLICTS — Maintain at least $50,000 to preserve Platinum benefits.",
+   "- Platinum Plus Account: CONFLICTS — The required minimum balance is $100,000.",
+   "- Silver Account: CONFLICTS — Track your withdrawal activity; transactions beyond 10 in a cycle may incur an excess withdrawal fee as described in your account disclosures.",
+   "- Silver Plus Account: OK"
+  ],
+  "ok": 1,
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "B_VERDICT": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "C_OKONLY": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 2
+   }
+  }
+ }
+}

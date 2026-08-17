@@ -1,0 +1,298 @@
+{
+ "1567": {
+  "gold_in_pick": true,
+  "chosen": [
+   "doc_savings_accounts_bronze_account_001",
+   "doc_savings_accounts_gold_account_001",
+   "doc_savings_accounts_platinum_account_001",
+   "doc_savings_accounts_silver_account_001",
+   "doc_savings_accounts_silver_plus_account_001"
+  ],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "B_GOLDIN": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "C_PAIR": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "E_MINUS": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ },
+ "361454": {
+  "gold_in_pick": false,
+  "chosen": [
+   "doc_savings_accounts_gold_plus_account_001",
+   "doc_savings_accounts_platinum_account_001",
+   "doc_savings_accounts_platinum_plus_account_001",
+   "doc_savings_accounts_green_account_(savings)_001",
+   "doc_savings_accounts_diamond_elite_account_001"
+  ],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_GOLDIN": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "C_PAIR": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "E_MINUS": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ },
+ "363271": {
+  "gold_in_pick": false,
+  "chosen": [
+   "doc_savings_accounts_gold_account_001",
+   "doc_savings_accounts_gold_plus_account_001",
+   "doc_savings_accounts_green_account_(savings)_001",
+   "doc_savings_accounts_platinum_account_001",
+   "doc_savings_accounts_platinum_plus_account_001"
+  ],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_GOLDIN": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "C_PAIR": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "E_MINUS": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   }
+  }
+ },
+ "373753": {
+  "gold_in_pick": false,
+  "chosen": [
+   "doc_savings_accounts_gold_plus_account_001",
+   "doc_savings_accounts_platinum_account_001",
+   "doc_savings_accounts_platinum_plus_account_001",
+   "doc_savings_accounts_green_account_(savings)_001",
+   "doc_savings_accounts_diamond_elite_account_001"
+  ],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "B_GOLDIN": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "C_PAIR": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "E_MINUS": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ },
+ "514337": {
+  "gold_in_pick": true,
+  "chosen": [
+   "doc_savings_accounts_bronze_account_001",
+   "doc_savings_accounts_gold_account_001",
+   "doc_savings_accounts_platinum_account_001",
+   "doc_savings_accounts_silver_account_001",
+   "doc_savings_accounts_silver_plus_account_001"
+  ],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "B_GOLDIN": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "C_PAIR": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "E_MINUS": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ },
+ "554706": {
+  "gold_in_pick": true,
+  "chosen": [
+   "doc_savings_accounts_green_account_(savings)_001",
+   "doc_savings_accounts_gold_account_001",
+   "doc_savings_accounts_platinum_account_001",
+   "doc_savings_accounts_diamond_elite_account_001",
+   "doc_savings_accounts_silver_plus_account_001"
+  ],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_GOLDIN": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "C_PAIR": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "E_MINUS": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   }
+  }
+ },
+ "626729": {
+  "gold_in_pick": false,
+  "chosen": [
+   "doc_savings_accounts_gold_account_001",
+   "doc_savings_accounts_gold_plus_account_001",
+   "doc_savings_accounts_green_account_(savings)_001",
+   "doc_savings_accounts_platinum_account_001",
+   "doc_savings_accounts_platinum_plus_account_001"
+  ],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_GOLDIN": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "C_PAIR": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "E_MINUS": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ },
+ "863145": {
+  "gold_in_pick": true,
+  "chosen": [
+   "doc_savings_accounts_bronze_account_001",
+   "doc_savings_accounts_gold_account_001",
+   "doc_savings_accounts_platinum_account_001",
+   "doc_savings_accounts_silver_account_001",
+   "doc_savings_accounts_silver_plus_account_001"
+  ],
+  "arms": {
+   "A_REF": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "B_GOLDIN": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "C_PAIR": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   },
+   "E_MINUS": {
+    "SILVERPLUS": 2,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  }
+ }
+}

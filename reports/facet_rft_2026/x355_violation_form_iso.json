@@ -1,0 +1,337 @@
+{
+ "n": 8,
+ "ok_gold": 6,
+ "vio_green": 6,
+ "both": 4,
+ "wipe": 2,
+ "cite": {
+  "doc": 63,
+  "req": 0,
+  "none": 1
+ },
+ "sims": {
+  "1567": {
+   "verdicts": {
+    "bronze_account": true,
+    "diamond_elite_account": true,
+    "gold_account": true,
+    "gold_plus_account": true,
+    "green_account_(savings)": true,
+    "platinum_account": true,
+    "platinum_plus_account": true,
+    "silver_account": true,
+    "silver_plus_account": true
+   },
+   "cites": {
+    "bronze_account": "doc",
+    "diamond_elite_account": "doc",
+    "gold_account": "doc",
+    "gold_plus_account": "doc",
+    "green_account_(savings)": "doc",
+    "platinum_account": "doc",
+    "platinum_plus_account": "doc",
+    "silver_account": "doc",
+    "silver_plus_account": "doc"
+   },
+   "kept": [],
+   "arms": {
+    "A_REF": {
+     "SILVERPLUS": 2,
+     "GREEN": 0,
+     "GOLD": 0
+    }
+   }
+  },
+  "361454": {
+   "verdicts": {
+    "bronze_account": true,
+    "diamond_elite_account": true,
+    "gold_account": true,
+    "gold_plus_account": true,
+    "green_account_(savings)": true,
+    "platinum_account": true,
+    "platinum_plus_account": true,
+    "silver_account": true,
+    "silver_plus_account": true
+   },
+   "cites": {
+    "bronze_account": "doc",
+    "diamond_elite_account": "doc",
+    "gold_account": "doc",
+    "gold_plus_account": "doc",
+    "green_account_(savings)": "doc",
+    "platinum_account": "doc",
+    "platinum_plus_account": "doc",
+    "silver_account": "doc",
+    "silver_plus_account": "doc"
+   },
+   "kept": [],
+   "arms": {
+    "A_REF": {
+     "SILVERPLUS": 0,
+     "GREEN": 2,
+     "GOLD": 0
+    }
+   }
+  },
+  "363271": {
+   "verdicts": {
+    "bronze_account": true,
+    "diamond_elite_account": true,
+    "gold_account": true,
+    "gold_plus_account": true,
+    "green_account_(savings)": false,
+    "platinum_account": true,
+    "platinum_plus_account": true,
+    "silver_account": true,
+    "silver_plus_account": false
+   },
+   "cites": {
+    "bronze_account": "doc",
+    "diamond_elite_account": "doc",
+    "gold_account": "doc",
+    "gold_plus_account": "doc",
+    "platinum_account": "doc",
+    "platinum_plus_account": "doc",
+    "silver_account": "doc"
+   },
+   "kept": [
+    "green_account_(savings)",
+    "silver_plus_account"
+   ],
+   "arms": {
+    "A_REF": {
+     "SILVERPLUS": 0,
+     "GREEN": 2,
+     "GOLD": 0
+    },
+    "B_KEPT": {
+     "SILVERPLUS": 0,
+     "GREEN": 2,
+     "GOLD": 0
+    },
+    "D_NEG": {
+     "SILVERPLUS": 0,
+     "GREEN": 0,
+     "GOLD": 0
+    }
+   }
+  },
+  "373753": {
+   "verdicts": {
+    "bronze_account": true,
+    "diamond_elite_account": true,
+    "gold_account": true,
+    "gold_plus_account": true,
+    "green_account_(savings)": true,
+    "platinum_account": true,
+    "platinum_plus_account": true,
+    "silver_account": true,
+    "silver_plus_account": false
+   },
+   "cites": {
+    "bronze_account": "doc",
+    "diamond_elite_account": "doc",
+    "gold_account": "doc",
+    "gold_plus_account": "doc",
+    "green_account_(savings)": "doc",
+    "platinum_account": "doc",
+    "platinum_plus_account": "doc",
+    "silver_account": "doc"
+   },
+   "kept": [
+    "silver_plus_account"
+   ],
+   "arms": {
+    "A_REF": {
+     "SILVERPLUS": 0,
+     "GREEN": 2,
+     "GOLD": 0
+    },
+    "B_KEPT": {
+     "SILVERPLUS": 2,
+     "GREEN": 0,
+     "GOLD": 0
+    },
+    "D_NEG": {
+     "SILVERPLUS": 0,
+     "GREEN": 0,
+     "GOLD": 0
+    }
+   }
+  },
+  "514337": {
+   "verdicts": {
+    "bronze_account": true,
+    "diamond_elite_account": true,
+    "gold_account": true,
+    "gold_plus_account": true,
+    "green_account_(savings)": true,
+    "platinum_account": true,
+    "platinum_plus_account": true,
+    "silver_account": true,
+    "silver_plus_account": false
+   },
+   "cites": {
+    "bronze_account": "doc",
+    "diamond_elite_account": "doc",
+    "gold_account": "doc",
+    "gold_plus_account": "doc",
+    "green_account_(savings)": "doc",
+    "platinum_account": "doc",
+    "platinum_plus_account": "doc",
+    "silver_account": "doc"
+   },
+   "kept": [
+    "silver_plus_account"
+   ],
+   "arms": {
+    "A_REF": {
+     "SILVERPLUS": 2,
+     "GREEN": 0,
+     "GOLD": 0
+    },
+    "B_KEPT": {
+     "SILVERPLUS": 2,
+     "GREEN": 0,
+     "GOLD": 0
+    },
+    "D_NEG": {
+     "SILVERPLUS": 0,
+     "GREEN": 0,
+     "GOLD": 0
+    }
+   }
+  },
+  "554706": {
+   "verdicts": {
+    "bronze_account": true,
+    "diamond_elite_account": true,
+    "gold_account": true,
+    "gold_plus_account": true,
+    "green_account_(savings)": false,
+    "platinum_account": true,
+    "platinum_plus_account": true,
+    "silver_account": true,
+    "silver_plus_account": false
+   },
+   "cites": {
+    "bronze_account": "none",
+    "diamond_elite_account": "doc",
+    "gold_account": "doc",
+    "gold_plus_account": "doc",
+    "platinum_account": "doc",
+    "platinum_plus_account": "doc",
+    "silver_account": "doc"
+   },
+   "kept": [
+    "bronze_account",
+    "green_account_(savings)",
+    "silver_plus_account"
+   ],
+   "arms": {
+    "A_REF": {
+     "SILVERPLUS": 0,
+     "GREEN": 2,
+     "GOLD": 0
+    },
+    "B_KEPT": {
+     "SILVERPLUS": 0,
+     "GREEN": 2,
+     "GOLD": 0
+    },
+    "D_NEG": {
+     "SILVERPLUS": 0,
+     "GREEN": 0,
+     "GOLD": 0
+    }
+   }
+  },
+  "626729": {
+   "verdicts": {
+    "bronze_account": true,
+    "diamond_elite_account": true,
+    "gold_account": true,
+    "gold_plus_account": true,
+    "green_account_(savings)": true,
+    "platinum_account": true,
+    "platinum_plus_account": true,
+    "silver_account": true,
+    "silver_plus_account": false
+   },
+   "cites": {
+    "bronze_account": "doc",
+    "diamond_elite_account": "doc",
+    "gold_account": "doc",
+    "gold_plus_account": "doc",
+    "green_account_(savings)": "doc",
+    "platinum_account": "doc",
+    "platinum_plus_account": "doc",
+    "silver_account": "doc"
+   },
+   "kept": [
+    "silver_plus_account"
+   ],
+   "arms": {
+    "A_REF": {
+     "SILVERPLUS": 0,
+     "GREEN": 2,
+     "GOLD": 0
+    },
+    "B_KEPT": {
+     "SILVERPLUS": 2,
+     "GREEN": 0,
+     "GOLD": 0
+    },
+    "D_NEG": {
+     "SILVERPLUS": 0,
+     "GREEN": 0,
+     "GOLD": 0
+    }
+   }
+  },
+  "863145": {
+   "verdicts": {
+    "bronze_account": true,
+    "diamond_elite_account": true,
+    "gold_account": true,
+    "gold_plus_account": true,
+    "green_account_(savings)": true,
+    "platinum_account": true,
+    "platinum_plus_account": true,
+    "silver_account": true,
+    "silver_plus_account": false
+   },
+   "cites": {
+    "bronze_account": "doc",
+    "diamond_elite_account": "doc",
+    "gold_account": "doc",
+    "gold_plus_account": "doc",
+    "green_account_(savings)": "doc",
+    "platinum_account": "doc",
+    "platinum_plus_account": "doc",
+    "silver_account": "doc"
+   },
+   "kept": [
+    "silver_plus_account"
+   ],
+   "arms": {
+    "A_REF": {
+     "SILVERPLUS": 2,
+     "GREEN": 0,
+     "GOLD": 0
+    },
+    "B_KEPT": {
+     "SILVERPLUS": 2,
+     "GREEN": 0,
+     "GOLD": 0
+    },
+    "D_NEG": {
+     "SILVERPLUS": 0,
+     "GREEN": 0,
+     "GOLD": 0
+    }
+   }
+  }
+ }
+}

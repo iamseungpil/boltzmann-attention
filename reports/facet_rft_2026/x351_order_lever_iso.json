@@ -1,0 +1,150 @@
+{
+ "payoff": {
+  "1567": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 0
+   }
+  },
+  "361454": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_ARRIVED": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   }
+  },
+  "363271": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   }
+  },
+  "373753": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_ARRIVED": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   }
+  },
+  "514337": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   }
+  },
+  "554706": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_ARRIVED": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   }
+  },
+  "626729": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   },
+   "B_ARRIVED": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 2
+   }
+  },
+  "863145": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 2,
+    "GOLD": 0
+   }
+  },
+  "DNEG": {
+   "A_REF": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 2
+   },
+   "D_NEG": {
+    "SILVERPLUS": 0,
+    "GREEN": 0,
+    "GOLD": 2
+   }
+  }
+ },
+ "discrim": {
+  "1567": {
+   "now_n": 0,
+   "arrived_n": 0,
+   "now": [],
+   "arrived": []
+  },
+  "361454": {
+   "now_n": 0,
+   "arrived_n": 8,
+   "now": [],
+   "arrived": [
+    "I tap into my savings 3–4 times a week, sometimes more. I don’t want fees for that.",
+    "Since I already have checking with you, is there a bonus rate for multiple accounts?",
+    "I can keep about five to six grand, maybe seven max. I can’t commit to more than that."
+   ]
+  },
+  "363271": {
+   "now_n": 0,
+   "arrived_n": 0,
+   "now": [],
+   "arrived": []
+  },
+  "373753": {
+   "now_n": 0,
+   "arrived_n": 1,
+   "now": [],
+   "arrived": [
+    "And… any “green” options?"
+   ]
+  },
+  "514337": {
+   "now_n": 0,
+   "arrived_n": 0,
+   "now": [],
+   "arrived": []
+  },
+  "554706": {
+   "now_n": 0,
+   "arrived_n": 0,
+   "now": [],
+   "arrived": []
+  },
+  "626729": {
+   "now_n": 0,
+   "arrived_n": 1,
+   "now": [],
+   "arrived": [
+    "Also… is this the “premium” option, or is there something like Gold/Green tiers?"
+   ]
+  },
+  "863145": {
+   "now_n": 0,
+   "arrived_n": 0,
+   "now": [],
+   "arrived": []
+  }
+ }
+}

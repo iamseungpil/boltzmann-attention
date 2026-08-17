@@ -1,0 +1,268 @@
+{
+ "res": [
+  {
+   "task": "task_002",
+   "axis": "card",
+   "gold": "Platinum Rewards Card",
+   "rate": 0.5,
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_006",
+   "axis": "card",
+   "gold": "EcoCard",
+   "rate": 0.609375,
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_024",
+   "axis": "card",
+   "gold": "Business Bronze Rewards Card",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_044",
+   "axis": "card",
+   "gold": "Platinum Rewards Card",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_055",
+   "axis": "savings",
+   "gold": "Silver Plus Account",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_056",
+   "axis": "business_savings",
+   "gold": "Silver Plus Saver Account",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_059",
+   "axis": "card",
+   "gold": "Silver Rewards Card",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_060",
+   "axis": "savings",
+   "gold": "Silver Plus Account",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_063",
+   "axis": "card",
+   "gold": "Silver Rewards Card",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_064",
+   "axis": "card",
+   "gold": "Gold Rewards Card",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_065",
+   "axis": "savings",
+   "gold": "Green Account",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_066",
+   "axis": "savings",
+   "gold": "Green Account",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_067",
+   "axis": "savings",
+   "gold": "Platinum Plus Account",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_068",
+   "axis": "savings",
+   "gold": "Gold Account",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 0,
+    "D_NEG": 2
+   }
+  },
+  {
+   "task": "task_070",
+   "axis": "business_checking",
+   "gold": "Sky Blue",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 0,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_071",
+   "axis": "business_savings",
+   "gold": "Gold Saver Account",
+   "rate": 0.0,
+   "arms": {
+    "A_REF": 0,
+    "B_VERDICT": 2,
+    "D_NEG": 0
+   }
+  },
+  {
+   "task": "task_076",
+   "axis": "checking",
+   "gold": "Purple Account",
+   "rate": 0.13636363636363635,
+   "arms": {
+    "A_REF": 2,
+    "B_VERDICT": 2,
+    "D_NEG": 0
+   }
+  }
+ ],
+ "skipped": {
+  "leak": [
+   [
+    "task_023",
+    "card",
+    "Diamond Elite Card"
+   ],
+   [
+    "task_047",
+    "card",
+    "Business Platinum Rewards Card"
+   ],
+   [
+    "task_048",
+    "card",
+    "Silver Rewards Card"
+   ],
+   [
+    "task_058",
+    "card",
+    "EcoCard"
+   ],
+   [
+    "task_058",
+    "savings",
+    "Silver Account"
+   ],
+   [
+    "task_062",
+    "business_checking",
+    "Navy Blue"
+   ],
+   [
+    "task_062",
+    "savings",
+    "Silver Plus Account"
+   ],
+   [
+    "task_066",
+    "card",
+    "Silver Rewards Card"
+   ],
+   [
+    "task_067",
+    "card",
+    "Platinum Rewards Card"
+   ],
+   [
+    "task_068",
+    "card",
+    "Silver Rewards Card"
+   ]
+  ],
+  "nogroup": [
+   [
+    "task_010",
+    "referral"
+   ],
+   [
+    "task_098",
+    "referral"
+   ],
+   [
+    "task_099",
+    "referral"
+   ],
+   [
+    "task_100",
+    "referral"
+   ],
+   [
+    "task_101",
+    "referral"
+   ]
+  ],
+  "nodocs": []
+ }
+}
