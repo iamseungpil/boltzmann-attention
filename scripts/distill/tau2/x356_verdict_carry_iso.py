@@ -114,7 +114,21 @@ def main():
                 ("B_VERDICT", live(ask, "\n".join(lines)))]
         if ok_lines:
             arms.append(("C_OKONLY", live(ask, "\n".join(ok_lines))))
-        arms.append(("D_NEG", live(X.block([neg]) + "\n\n" + cand_line, "\n".join(lines))))
+        # ★부정통제 수리(1차 실행 D_NEG 8/8 붕괴 = 내 설계 결함): 무관 요구를 **ask 에만** 바꾸고
+        #   판정 줄은 진짜 요구로 만든 것을 그대로 뒀다 ⇒ 그 줄이 이미 답을 흘린다.
+        #   통제는 **판정 줄 자체를** 무관 요구로 다시 만들어야 뜻이 있다.
+        neg_lines = []
+        for c in classes:
+            m = mat_of([c])
+            an = str((chat(V.VIO.format(req=X.block([neg]), doc=m[:6000]), None, 0.0, 500)
+                      or {}).get("content") or "")
+            vn = V.verdict(an)
+            wn = cite_line(an, m)
+            neg_lines.append("- %s: %s%s"
+                             % (X.disp(c),
+                                "CONFLICTS" if vn is True else ("OK" if vn is False else "UNCLEAR"),
+                                (" — " + wn[:200]) if wn else ""))
+        arms.append(("D_NEG", live(X.block([neg]) + "\n\n" + cand_line, "\n".join(neg_lines))))
         r = P.run("x356-%s" % seed, {"tag": X.TAG, "task": X.TASK, "cut": turn,
                                      "sim": seed, "base": ""},
                   arms, MARKS, "(판정은 전 sim 합산 후·위 문구 그대로)", "", None, 8, 3, det=True)
