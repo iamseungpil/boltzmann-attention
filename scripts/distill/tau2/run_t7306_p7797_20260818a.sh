@@ -63,7 +63,7 @@ for t in test_no_prose_regex.py test_sub_requirement.py test_docs_at_write.py \
          test_no_undefined_names.py test_decision_carry.py test_subcall_return_type.py \
          test_a2_three_layer.py test_operator_find.py test_route_trace.py \
          test_group_parse.py test_verdict_carry.py test_pending_discovered.py \
-         test_probe_scoring.py test_quote_in.py; do
+         test_probe_scoring.py test_quote_in.py test_elig_handoff.py; do
   [ -f "$t" ] || continue
   PYTHONPATH=/home/woori/scratch/tau2-bench/src /home/woori/venvs/seka_env/bin/python "$t" \
     >/dev/null 2>&1 || { echo "[t7306] REFUSING: $t FAIL" >&2; exit 1; }
