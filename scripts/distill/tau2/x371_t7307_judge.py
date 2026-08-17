@@ -34,11 +34,17 @@ SUFFIX = ".results.json.gz"
 
 
 def discoverable_names():
-    """손님-측 discoverable 도구 이름 — **env 레지스트리에서만**(gold·도메인 어휘 0)."""
+    """손님-측 discoverable 도구 이름 — **env 레지스트리에서만**(gold·도메인 어휘 0).
+
+    ⚠`get_environment()` 는 dense 임베딩을 만들며 OpenAI 키를 요구한다(판정에 불필요·비용).
+      런타임 `get_discoverable_tools()` 가 보는 것과 **같은 표식**(`__discoverable__`)을
+      클래스에서 직접 읽는다 — 같은 출처, 부작용 0.
+    """
     try:
-        from tau2.domains.banking_knowledge.environment import get_environment
-        env = get_environment()
-        return sorted(env.user_tools.get_discoverable_tools())
+        from tau2.environment.toolkit import DISCOVERABLE_ATTR
+        from tau2.domains.banking_knowledge.tools import KnowledgeUserTools as K
+        return sorted(n for n in dir(K)
+                      if getattr(getattr(K, n, None), DISCOVERABLE_ATTR, False))
     except Exception as e:  # 못 얻으면 **추정하지 않는다** — 빈 집합 = 침묵([[25]])
         print("  ⚠env 레지스트리 획득 실패 → ⓐ 판정 불가: %r" % (e,))
         return []
@@ -50,8 +56,12 @@ def uttered(sim, names):
 
 
 def gave(sim):
-    """`give_discoverable_user_tool` 를 실제로 호출한 sim 인가."""
-    return any(F.nameof(tc) == "give_discoverable_user_tool" for tc in F.calls(sim))
+    """`give_discoverable_user_tool` 를 실제로 호출한 sim 인가.
+
+    ⚠`F.calls` 는 **(message, tool_call) 쌍**을 낸다 — 튜플을 객체로 읽는 계기 결함이
+      [[67]] 에 이미 박제돼 있다(`retrieve()` 사례).
+    """
+    return any(F.nameof(tc) == "give_discoverable_user_tool" for _m, tc in F.calls(sim))
 
 
 def user_side_calls(sim):
