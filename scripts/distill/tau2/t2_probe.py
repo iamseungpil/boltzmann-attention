@@ -66,11 +66,42 @@ def site(tag, task, cut, head=None):
     return {"tag": tag, "task": task, "cut": cut, "sim": sim, "base": body}
 
 
-def _count(msg_or_text, marks):
+def _word_in(hay, needle):
+    """부분문자열이되 **낱말 경계**를 지킨다(정규식 0 — `find` 루프 + 영숫자 검사).
+
+    2026-08-17 C515: `EVERGREEN ACCOUNT` 가 `GREEN ACCOUNT` 를 포함해 **오답을 적중으로** 셌다.
+    """
+    h, n = str(hay or "").upper(), str(needle or "").upper()
+    if not n:
+        return False
+    i = h.find(n)
+    while i >= 0:
+        before = h[i - 1] if i > 0 else " "
+        after = h[i + len(n)] if i + len(n) < len(h) else " "
+        if not (before.isalnum() or after.isalnum()):
+            return True
+        i = h.find(n, i + 1)
+    return False
+
+
+def _norm(x):
+    """비교용 정규화(분석 전용): 영숫자만 소문자로."""
+    return "".join(c for c in str(x or "").lower() if c.isalnum())
+
+
+def _count(msg_or_text, marks, names=None):
     """지표 적중. ★도구를 묶은 팔에서는 **방출된 tool_calls 까지** 본다.
 
     2026-08-16 자기 결함: `t2_gap` 의 `I4_TOOL` 단이 도구를 묶어 놓고 **본문의 이름만** 셌다.
     끝맺음(C489)은 *말했나* 가 아니라 *불렀나* 이므로 그 단은 무효였다. 여기서 닫는다.
+
+    ★2026-08-17 두 번째 수리(리뷰 지적·C515): 단순 포함 검사는 **형제 후보가 gold 를 부분문자열로
+      품을 때 오답을 적중으로 센다**(`Evergreen Account` ⊃ `Green Account` · `Light Blue Account`
+      ⊃ `Blue Account`). x357 34축 중 **5축**이 그 형태였다. 수리 두 겹:
+        ⑴ 낱말 경계 검사(`_word_in`) — `Evergreen` 류를 끊는다.
+        ⑵ `names`(후보 **전체 집합**)를 주면 **가장 긴 매칭 후보 하나**를 답으로 확정하고,
+           지표는 그 답과 **정규화 완전일치**일 때만 적중 — `Light Blue` 류를 끊는다.
+      `names` 를 안 주면 종전 거동(경계 검사만 추가)이라 기존 프로브는 그대로 돈다.
     """
     if isinstance(msg_or_text, dict):
         blob = str(msg_or_text.get("content") or "")
@@ -79,8 +110,11 @@ def _count(msg_or_text, marks):
             blob += " " + str(f.get("name") or "") + " " + str(f.get("arguments") or "")
     else:
         blob = msg_or_text or ""
-    t = blob.upper()
-    return {k: (1 if v.upper() in t else 0) for k, v in marks.items()}
+    if names:
+        present = [n for n in names if _word_in(blob, n)]
+        best = max(present, key=len) if present else ""
+        return {k: (1 if best and _norm(best) == _norm(v) else 0) for k, v in marks.items()}
+    return {k: (1 if _word_in(blob, v) else 0) for k, v in marks.items()}
 
 
 def emitted(msg):
@@ -89,7 +123,7 @@ def emitted(msg):
 
 
 def run(name, site, arms, marks, verdict, ask, control=None, k=8, nb=3, maxtok=MAXTOK,
-        tools=None, det=False):
+        tools=None, det=False, names=None):
     """4셀류 격리 프로브 한 번. `arms` = [(label, 덧붙일 재료(문자열))] · `ask` = 지시문.
 
     `control=(팔, 참조팔, 지표)` — 그 팔에서 지표가 참조팔과 **갈려야** 한다(부정통제).
@@ -128,7 +162,7 @@ def run(name, site, arms, marks, verdict, ask, control=None, k=8, nb=3, maxtok=M
                 except Exception as e:
                     r = {"content": "ERR %s" % type(e).__name__}
                 out = " ".join(str(r.get("content") or "").split())
-                hit = _count(r, marks)          # 본문 + 방출된 tool_calls 둘 다 본다
+                hit = _count(r, marks, names)   # 본문 + 방출된 tool_calls · names 주면 최장매칭
                 for m in marks:
                     acc[m] += hit[m]
                 print("    [%s b%d %02d] %s%s %s"

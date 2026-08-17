@@ -15,9 +15,19 @@ n=8 에선 +3 이 잡음과 안 갈린다(Fisher p≈.31) ⇒ **n 을 키운다*
 
 ## 셀 (태스크마다 · det n=1 · 라이브 본문 구성)
 
-    A_REF      후보 전원의 문서 전문                          ← 현행
-    B_VERDICT  **후보별 판정 줄만**(OK/CONFLICTS + 근거 인용)  ← 레버
+    A_REF      후보 전원의 문서 전문 (요구 = 대본 전문)         ← 현행
+    B_VERDICT  **판정 줄만** (요구 = 대본 전문)                 ← 레버
+    A_LIVEREF  문서 전문 (요구 = **① 파이프라인 산출**)         ← 라이브-맞춘 기준선 ★v2
+    B_LIVEREQ  판정 줄만 (요구 = **① 파이프라인 산출**)         ← ★v2 진짜 천장(리뷰 ③)
     D_NEG      **무관 요구로 다시 만든** 판정 줄               ← 부정통제(x356 1차 붕괴 수리판)
+
+★v2 수리(리뷰 2026-08-17):
+  ① **채점 오염 수리** — `t2_probe._count` 가 단순 포함이라 형제 후보가 gold 를 품으면 오답을
+     적중으로 셌다(34축 중 5축). 낱말 경계 + **후보 최장매칭 완전일치**로 바꾸고(`names=`),
+     gold 는 **후보 클래스 하나로 확정**한 뒤 채점한다(확정 애매하면 그 축 제외).
+  ③ **요구원 정합** — 확증에 쓴 요구가 라이브보다 부유하면 안 된다(등대 §1.4) ⇒ `A_LIVEREF`/
+     `B_LIVEREQ` 추가.
+  ④ **감사** — 판정 줄 축자와 OK/CONFLICTS/UNCLEAR·근거검산 통과 수를 결과 JSON 에 영속.
 
 요구 텍스트는 **태스크 정의의 손님 대본 축자**(`user_scenario.instructions`)를 쓴다 — gold 가 아니라
 손님이 말하는 내용이고, 태스크마다 같은 규칙으로 뽑힌다.
@@ -76,6 +86,22 @@ def rates():
     return dict((x["id"], x.get("rate", 0.0)) for x in d)
 
 
+def gold_class_of(gold, classes):
+    """gold 값 → **후보 목록 안의 클래스 하나**로 확정(분석 전용·[[23]] 레버 무관).
+
+    ★리뷰 지적(C515): 채점을 문자열 포함으로 하면 형제가 gold 를 품어 오답을 적중으로 센다
+      (`Evergreen` ⊃ `Green` · `Light Blue` ⊃ `Blue`). 그래서 gold 를 **후보 하나로 확정**하고,
+      채점은 최장매칭 후보와의 완전일치로 한다. 확정이 애매하면 그 축은 **뺀다**([[25]] 추정 금지)."""
+    ns = [(c, X.disp(c)) for c in classes]
+    exact = [c for c, d in ns if X341.norm(d) == X341.norm(gold)]
+    if len(exact) == 1:
+        return exact[0], "exact"
+    part = [c for c, d in ns if P._word_in(d, gold)]
+    if len(part) == 1:
+        return part[0], "unique-substr"
+    return None, ("ambiguous:%d" % len(part))
+
+
 def group_for(ax, gold):
     if ax == "card":
         return "business_credit_cards" if "business" in X341.norm(gold) else "credit_cards"
@@ -122,8 +148,12 @@ def main():
             if X341.norm(gold) and X341.norm(gold) in X341.norm(req):
                 skipped["leak"].append((tid, ax, gold))     # ★대본이 답을 이미 말한다 → 제외
                 continue
-            jobs.append({"task": tid, "axis": ax, "gold": gold, "group": g,
-                         "classes": classes, "req": req, "rate": rate.get(tid, 0.0)})
+            gc, how = gold_class_of(gold, classes)
+            if not gc:
+                skipped.setdefault("ambiguous", []).append((tid, ax, gold, how))
+                continue
+            jobs.append({"task": tid, "axis": ax, "gold": gold, "gold_class": gc, "how": how,
+                         "group": g, "classes": classes, "req": req, "rate": rate.get(tid, 0.0)})
     jobs = [j for i, j in enumerate(jobs) if i % nparts == part]
     print("x357 · 조각 %d/%d · 표적 %d개(표적군 %d·회귀군 %d) · 누설제외 %d · 그룹없음 %d"
           % (part, nparts, len(jobs), sum(1 for j in jobs if j["rate"] <= 0),
@@ -142,43 +172,62 @@ def main():
 
         cand_line = str(po.get("decide_candidates_text")).format(
             candidates=", ".join(X.disp(c) for c in j["classes"]))
-        marks = {"GOLD": j["gold"]}                    # ★지표 = 그 태스크의 gold 이름(채점 전용)
-        lines, neg_lines = [], []
+        names = [X.disp(c) for c in j["classes"]]      # ★채점: 후보 전체 → 최장매칭(C515)
+        marks = {"GOLD": X.disp(j["gold_class"])}
+        # ★리뷰 ③(등대 §1.4): 확증에 쓴 요구가 라이브보다 부유하면 안 된다.
+        #   R_script = 대본 전문(v1) · **R_live = ① 파이프라인 산출**(A2 프롬프트로 LLM 이 인용을
+        #   내고 엔진이 `quote_in` 으로 검산) · R_neg = 무관 요구.
+        rq_tpl = str(po.get("requirement_prompt") or "")
+        q_live = X.quotes(rq_tpl, j["req"], "q_live/%s" % j["task"]) or []
+        reqs = {"script": X.block([j["req"]]),
+                "live": X.block(q_live) if q_live else "",
+                "neg": X.block([neg])}
+        stats = dict((k, {"OK": 0, "CONFLICTS": 0, "UNCLEAR": 0, "cited": 0})
+                     for k in ("script", "live", "neg"))
+        lines = {"script": [], "live": [], "neg": []}
         for c in j["classes"]:
             m = mat_of([c])
-            for req_text, bucket in ((j["req"], lines), (neg, neg_lines)):
-                ans = str((chat(V.VIO.format(req=X.block([req_text]), doc=m[:6000]),
+            for key in ("script", "live", "neg"):
+                if not reqs[key]:
+                    continue
+                ans = str((chat(V.VIO.format(req=reqs[key], doc=m[:6000]),
                                 None, 0.0, 500) or {}).get("content") or "")
                 vv = V.verdict(ans)
                 why = W.cite_line(ans, m)
-                bucket.append("- %s: %s%s"
-                              % (X.disp(c),
-                                 "CONFLICTS" if vv is True else ("OK" if vv is False else "UNCLEAR"),
-                                 (" — " + why[:200]) if why else ""))
-        ask = X.block([j["req"]]) + "\n\n" + cand_line
-        arms = [("A_REF", live(ask, mat_of(j["classes"]))),
-                ("B_VERDICT", live(ask, "\n".join(lines))),
-                ("D_NEG", live(X.block([neg]) + "\n\n" + cand_line, "\n".join(neg_lines)))]
-        print("── %s/%s · gold=%r · 후보 %d · census rate %.2f"
-              % (j["task"], j["axis"], j["gold"], len(j["classes"]), j["rate"]))
+                tag = "CONFLICTS" if vv is True else ("OK" if vv is False else "UNCLEAR")
+                stats[key][tag] += 1
+                stats[key]["cited"] += 1 if why else 0
+                lines[key].append("- %s: %s%s" % (X.disp(c), tag, (" — " + why[:200]) if why else ""))
+        arms = [("A_REF", live(reqs["script"] + "\n\n" + cand_line, mat_of(j["classes"]))),
+                ("B_VERDICT", live(reqs["script"] + "\n\n" + cand_line, "\n".join(lines["script"])))]
+        if reqs["live"]:
+            arms.append(("A_LIVEREF", live(reqs["live"] + "\n\n" + cand_line, mat_of(j["classes"]))))
+            arms.append(("B_LIVEREQ", live(reqs["live"] + "\n\n" + cand_line,
+                                           "\n".join(lines["live"]))))
+        arms.append(("D_NEG", live(reqs["neg"] + "\n\n" + cand_line, "\n".join(lines["neg"]))))
+        print("── %s/%s · gold=%r(%s) · 후보 %d · census %.2f · 라이브형 인용 %d"
+              % (j["task"], j["axis"], X.disp(j["gold_class"]), j["how"], len(j["classes"]),
+                 j["rate"], len(q_live)))
         r = P.run("x357-%s-%s" % (j["task"], j["axis"]),
                   {"tag": "task-def", "task": j["task"], "cut": 0, "sim": "-", "base": ""},
-                  arms, marks, "(판정은 전 태스크 합산 후·위 문구 그대로)", "", None, 8, 3, det=True)
+                  arms, marks, "(판정은 전 태스크 합산 후·위 문구 그대로)", "", None, 8, 3,
+                  det=True, names=names)
         res.append({"task": j["task"], "axis": j["axis"], "gold": j["gold"],
-                    "rate": j["rate"],
-                    "arms": {k: v["GOLD"][0] for k, v in (r or {}).items()}})
+                    "gold_class": j["gold_class"], "how": j["how"], "rate": j["rate"],
+                    "n_live_quotes": len(q_live), "stats": stats, "lines": lines,
+                    "arms": dict((k, v["GOLD"][0]) for k, v in (r or {}).items())})
 
     print("\n" + "=" * 96)
     for name, rows in (("표적군(census 0%)", [x for x in res if x["rate"] <= 0]),
                        ("회귀군(census >0%)", [x for x in res if x["rate"] > 0])):
         n = len(rows)
-        a = sum(1 for x in rows if x["arms"].get("A_REF", 0) > 0)
-        b = sum(1 for x in rows if x["arms"].get("B_VERDICT", 0) > 0)
-        d = sum(1 for x in rows if x["arms"].get("D_NEG", 0) > 0)
-        print("%s n=%d · A_REF %d · **B_VERDICT %d** · D_NEG %d · Δ(B−A) %+d"
-              % (name, n, a, b, d, b - a))
+        h = lambda k: sum(1 for x in rows if x["arms"].get(k, 0) > 0)      # noqa: E731
+        print("%s n=%d · A_REF %d · **B_VERDICT %d**(Δ%+d) · A_LIVEREF %d · **B_LIVEREQ %d**(Δ%+d)"
+              " · D_NEG %d"
+              % (name, n, h("A_REF"), h("B_VERDICT"), h("B_VERDICT") - h("A_REF"),
+                 h("A_LIVEREF"), h("B_LIVEREQ"), h("B_LIVEREQ") - h("A_LIVEREF"), h("D_NEG")))
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..",
-                       "reports", "facet_rft_2026", "x357_part%d.json" % part)
+                       "reports", "facet_rft_2026", "x357v2_part%d.json" % part)
     with io.open(os.path.normpath(out), "w", encoding="utf-8") as f:
         f.write(json.dumps({"res": res, "skipped": skipped}, ensure_ascii=False, indent=1,
                            default=str))
