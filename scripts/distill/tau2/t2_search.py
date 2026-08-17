@@ -346,7 +346,32 @@ def formalize_groups(agent, la, UserMessage, spec, texts, groups):
     out = sorted((g for g in names if g and g.lower() in lower), key=lambda g: lower.find(g.lower()))
     # 더 긴 이름이 짧은 이름을 품으면(`business_checking_accounts` ⊃ `checking_accounts`)
     # 짧은 쪽은 **그 자리에서 나온 것이 아니다** — 문자열 포함일 뿐이라 뺀다.
-    out = [g for g in out if not any(o != g and g.lower() in o.lower() for o in out)]
+    # ★수리 2026-08-17 (C516·실측): 위 전제 *"짧은 쪽은 문자열 포함일 뿐"* 은 **모델이 둘 다
+    #   따로 나열하면 거짓**이다. 라이브 317줄 중 **134줄(42%)** 이 그렇게 지워졌고, 그 134줄
+    #   **전부** 가 짧은 이름이 긴 이름 **밖에서도** 등장한 경우였다(024 68·098 55·055 11).
+    #   098 은 gold 군이 매번 지워져 후보로 남은 적이 없다. ⇒ 덮임 여부를 **위치로** 본다:
+    #   긴 이름의 등장 구간에 **안 덮인 등장이 하나라도 있으면 남긴다**(정규식 0·find 루프).
+    def _outside(low_, g_, longer_):
+        i = low_.find(g_)
+        while i >= 0:
+            cov = False
+            for o_ in longer_:
+                j = low_.find(o_)
+                while j >= 0:
+                    if j <= i and i + len(g_) <= j + len(o_):
+                        cov = True
+                        break
+                    j = low_.find(o_, j + 1)
+                if cov:
+                    break
+            if not cov:
+                return True
+            i = low_.find(g_, i + 1)
+        return False
+
+    out = [g for g in out
+           if _outside(lower, g.lower(),
+                       [o.lower() for o in out if o != g and g.lower() in o.lower()])]
     print("[T2_DOCGROUP] raw=%r → %s" % (raw[:80], ", ".join(out) or "군 집합 밖 = 침묵"),
           file=sys.stderr, flush=True)
     return out
