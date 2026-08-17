@@ -221,18 +221,26 @@ def main():
     res = []
     for j in jobs:
         base = convo(j["sim"], j["cut"])
-        # ★P_HINT = **양성통제**(1차 실행에서 빠져 있던 것). 답을 대놓고 알려 줬는데도 못 내면
-        #   그것은 모델이 아니라 **계기**(질문 문면·채점)가 고장난 것이다.
-        #   *"지표를 만들면 그 지표가 아는 정답을 먼저 맞히는지 한 번 돌려라"*(오늘 교훈 반복).
-        arms = {"P_HINT": base + "\n\nsystem: The customer must run %s themselves." % j["name"],
-                "A_LIVE": base, "B_NOLEAK": strip_leak(base, j["name"]),
-                "D_NEG": neg if j is not jobs[-1] else convo(jobs[0]["sim"], jobs[0]["cut"])}
+        # 팔 = (본문, 도구목록). 양성통제가 **둘**이다:
+        #   `P_ONLY`  답을 알려 주고 **도구 목록도 give 하나로** 제한 → 하네스·채점이 살아 있는가
+        #   `P_HINT`  답을 알려 주되 도구는 **28종 전부** → 고를 수 있는가
+        #   ★v5 수리(2026-08-18): v3·v4 는 이 자리의 문자열 치환이 **조용히 안 먹어** 도구 목록을
+        #     아예 안 실었다(그래서 전 팔이 산문·전 팔 0). 내 진단 *"납작한 대화 형태 탓"* 도
+        #     그래서 틀렸다 — 원인은 **패치가 적용 안 된 것**이었다. 치환 대신 앵커 편집으로 고치고,
+        #     확인은 *substring 존재*가 아니라 **바뀐 코드를 직접 읽어서** 한다.
+        hint = base + "\n\nsystem: The customer must run %s themselves." % j["name"]
+        only = [t for t in TOOLS if (t.get("function") or {}).get("name") == GIVE]
+        arms = {"P_ONLY": (hint, only), "P_HINT": (hint, TOOLS), "A_LIVE": (base, TOOLS),
+                "B_NOLEAK": (strip_leak(base, j["name"]), TOOLS),
+                "D_NEG": ((neg if j is not jobs[-1] else convo(jobs[0]["sim"], jobs[0]["cut"])),
+                          TOOLS)}
         row = {"task": j["task"], "run": j["run"], "cut": j["cut"], "name": j["name"],
                "n_lines": len(base.split("\n")),
-               "n_stripped": len(base.split("\n")) - len(arms["B_NOLEAK"].split("\n")),
+               "n_stripped": len(base.split("\n")) - len(arms["B_NOLEAK"][0].split("\n")),
                "arms": {}}
-        for k in ("P_HINT", "A_LIVE", "B_NOLEAK", "D_NEG"):
-            ans, d = det(arms[k][-9000:] + "\n\n" + ASK)
+        for k in ("P_ONLY", "P_HINT", "A_LIVE", "B_NOLEAK", "D_NEG"):
+            _body, _tools = arms[k]
+            ans, d = det(_body[-9000:] + "\n\n" + ASK, _tools)
             _names = ",".join(str((tc.get("function") or tc).get("name") or "")
                               for tc in (ans.get("tool_calls") or ())) or "-"
             row["arms"][k] = {
