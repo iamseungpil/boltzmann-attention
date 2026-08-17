@@ -110,11 +110,29 @@ def emitted_give(msg, name):
     return bool(blob) and (name in blob)
 
 
+def _call(body, tools, maxtok):
+    """서버 오류를 **본문까지** 인쇄하고 그 팔만 비운다 — 한 행 때문에 전체를 잃지 않는다.
+
+    ★v5b 실측: 3행째에서 `HTTP 400` 으로 **전체 실행이 죽었다**(도구 목록 자체는 정상 확인).
+      계기가 조용히 죽는 것보다 나쁜 것은 **시끄럽게 죽어 앞선 행까지 버리는 것**이다.
+    """
+    try:
+        return chat(body, tools, 0.0, maxtok, None, "required") or {}
+    except Exception as e:
+        detail = ""
+        try:
+            detail = e.read().decode()[:300]
+        except Exception:
+            pass
+        print("     ⚠호출 실패(이 팔만 비움): %r %s" % (e, detail), file=sys.stderr, flush=True)
+        return {"_err": "%r" % (e,)}
+
+
 def det(body, tools=None, maxtok=220):
     # ★v4: `tool_choice="required"` — *무언가를 부르라*고만 한다. **무엇을** 부를지는 여전히
-    #   모델 몫이고 그것이 측정 대상이다(v3 는 모델이 산문으로 답해 전 팔 0 이었다).
-    a = chat(body, tools, 0.0, maxtok, None, "required") or {}
-    b = chat(body, tools, 0.0, maxtok, None, "required") or {}
+    #   모델 몫이고 그것이 측정 대상이다.
+    a = _call(body, tools, maxtok)
+    b = _call(body, tools, maxtok)
     same = (json.dumps(a.get("tool_calls"), sort_keys=True, default=str)
             == json.dumps(b.get("tool_calls"), sort_keys=True, default=str)
             and str(a.get("content") or "").strip() == str(b.get("content") or "").strip())
@@ -163,7 +181,7 @@ def agent_tool_specs():
             props[pn] = {"type": "string"}
             if p.default is inspect.Parameter.empty:
                 req.append(pn)
-        doc = " ".join(str(m.__doc__ or "").split())[:300]
+        doc = " ".join(str(m.__doc__ or "").split())[:120]   # ★v5b: 요청 크기 축소
         specs.append({"type": "function", "function": {
             "name": n, "description": doc,
             "parameters": {"type": "object", "properties": props, "required": req}}})
@@ -245,6 +263,7 @@ def main():
                               for tc in (ans.get("tool_calls") or ())) or "-"
             row["arms"][k] = {
                 "hit": int(emitted_give(ans, j["name"])), "det": d, "called": _names,
+                "err": ans.get("_err"),
                 "out": ("CALLS=" + _names + " | "                      # ★이름을 **먼저**
                         + json.dumps(ans.get("tool_calls"), default=str)[:300]
                         + " | TEXT " + " ".join(str(ans.get("content") or "").split())[:200])}
