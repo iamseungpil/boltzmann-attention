@@ -2625,6 +2625,17 @@ def _search_material(agent, a2, messages, decide=True):
     if _done is None:
         _done = set()
     _g = next((g for g in _gs if g not in _done), None)
+    # ★관측 전용 계기 (2026-08-18·C517⒟) — **거동 불변**. 군→클래스 이득의 *순서·소모 채널*은
+    #   라이브에서만 잰다(후보집합 채널은 격리에서 0 으로 나왔다: gold 군 적중 27/27).
+    #   기록: ⑴모델이 답한 **첫 군** ⑵이번에 처리하는 군 ⑶지금까지 소모한 결정점 수 ⑷군 개수.
+    #   gold 대조는 **사후 분석**에서 한다 — 엔진은 요청 군이 무엇인지 모르고, 알아서도 안 된다.
+    #   ⚠이 마크가 S3 전에 있어야 그 런에서 이 채널을 잴 수 있다(끝나고 넣으면 못 잰다).
+    try:
+        print("[T2_GROUPORDER] first=%s this=%s consumed=%d n_groups=%d order=%s"
+              % (_gs[0] if _gs else "-", _g or "-", len(_done), len(_gs), ",".join(_gs)),
+              file=sys.stderr, flush=True)
+    except Exception:
+        pass
     if not _g:
         if _gs:
             print("[T2_SEARCH_AGENT] 요청 축 %s 모두 처리됨 — 침묵" % ",".join(_gs),
