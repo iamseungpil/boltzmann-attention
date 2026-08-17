@@ -6977,7 +6977,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     str(getattr(_m9, "content", "") or "")
                                     for _m9 in state.messages
                                     if getattr(_m9, "role", None) == "tool")
-                                _add9 = sorted(n for n in _regu9 if n and n in _txtu9)
+                                # ★고르는 일도 LLM (사용자 지적 2026-08-17): 엔진이 교집합을
+                                #   만들면 그것이 선택이다. LLM 이 대화에서 도구 이름을 **인용**
+                                #   하고, 엔진은 ⑴env 레지스트리(닫힌 집합) 소속 ⑵원문 실재만
+                                #   검산한다(`t2_search.sub_tool_names`·[[66]]·[[22]]·정규식 0).
+                                _add9 = sorted(_ts.sub_tool_names(
+                                    self, la, UserMessage,
+                                    ((a2 or {}).get("policy_ontology") or {}),
+                                    _txtu9, _regu9))
                                 if _add9:
                                     _uacts |= set(_add9)
                                     print("[T2_PENDING_DISC] 대기집합 +%d: %s"

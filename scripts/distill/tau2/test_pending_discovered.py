@@ -34,7 +34,7 @@ def main():
     bad += chk("_user_discoverable(" in BLK, "출처 = env **user-discoverable 레지스트리**")
     bad += chk('getattr(_m9, "role", None) == "tool"' in BLK,
                "이미 받은 **도구 출력 텍스트**와 교집합만 쓴다")
-    bad += chk(" in _txtu9" in BLK, "이름이 대화에 실재할 때만 넣는다(존재확인)")
+    bad += chk("sub_tool_names(" in BLK, "**LLM 이 이름을 형식화**한다(엔진 교집합 아님)")
     bad += chk("_uacts |= set(_add9)" in BLK, "대기 집합에 **추가만** 한다(제거 0)")
     bad += chk("no-op" in BLK and "except Exception" in BLK, "실패는 no-op")
     for pat in ("re.", "regex", "dispute", "cash_back"):

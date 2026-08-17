@@ -467,6 +467,37 @@ VERDICT_PER_DOC = 1800
 VERDICT_DOC_CLIP = 6000
 
 
+def sub_tool_names(agent, la, UserMessage, spec, text, registry):
+    """대화에 **등장한 도구 이름**을 고르는 일도 LLM 이 한다(0번 규칙 강화판·사용자 지적 2026-08-17).
+
+    ★왜: 엔진이 `이름 in 텍스트` 로 교집합을 만들면 *고르는 일*을 엔진이 하는 것이다. 형식화는
+      LLM 이 하고, 엔진은 ⑴답이 **닫힌 집합**(env 레지스트리)의 원소인지 ⑵원문에 **실재**하는지만
+      검산한다(`quote_in`·C45 동형·정규식 0·[[66]]·[[22]]).
+    ⚠못 만들면 **빈 목록**(침묵) — 호출부는 종전 거동으로 떨어진다([[25]]).
+    """
+    tpl = (spec or {}).get("tool_names_prompt")
+    if not (tpl and agent is not None and la is not None and text and registry):
+        return []
+    try:
+        raw = str(SC.sub_generate(agent, la, UserMessage,
+                                  tpl.format(text=str(text)[:6000]), "tool_names") or "")
+    except Exception as e:
+        print("[T2_TOOL_NAMES] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return []
+    i, j = raw.find("["), raw.rfind("]")
+    if i < 0 or j <= i:
+        return []
+    try:
+        rows = json.loads(raw[i:j + 1])
+    except Exception:
+        return []
+    reg = set(registry or ())
+    out = [n for n in rows if isinstance(n, str) and n in reg and quote_in(n, text)]
+    print("[T2_TOOL_NAMES] %d개 중 레지스트리·원문 검증 통과 %d개" % (len(rows or []), len(out)),
+          file=sys.stderr, flush=True)
+    return out
+
+
 def verdict_lines(agent, la, UserMessage, spec, req_block, group, corpus=None, doc_dir=None):
     """**판정 이월**(L-V) — 후보마다 *위반 여부 + 문서 근거 인용*을 받아 **줄 목록**으로 만든다.
 
