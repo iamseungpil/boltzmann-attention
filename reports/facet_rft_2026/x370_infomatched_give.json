@@ -1,0 +1,370 @@
+[
+ {
+  "task": "task_015",
+  "run": "bank_ax32p1_gpu0_20260802",
+  "cut": 4,
+  "name": "get_referral_link",
+  "neg_name": "submit_cash_back_dispute_0589",
+  "n_lines": 4,
+  "n_stripped": 1,
+  "arms": {
+   "P_ONLY": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-0ea207022a9543b3845a484904e0c429\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"get_referral_link\\\", \\\"arguments\\\": \\\"{\\\\\\\"card_name\\\\\\\": \\\\\\\"Crypto-Cash Back Card\\\\\\\"}\\\"}\"}}] | TEXT "
+   },
+   "P_HINT": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-1fd2df3d71bf40818a952559b75f82dc\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"get_referral_link\\\", \\\"arguments\\\": \\\"{\\\\\\\"card_name\\\\\\\": \\\\\\\"Crypto-Cash Back Card\\\\\\\"}\\\"}\"}}] | TEXT "
+   },
+   "A_LIVE": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-4542db0184e14de18469038117e20da0\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"get_referral_link\\\", \\\"arguments\\\": \\\"{\\\\n  \\\\\\\"card_name\\\\\\\": \\\\\\\"Crypto-Cash Back Card\\\\\\\"\\\\n}\\\"}\"}}] | TEXT "
+   },
+   "B_NOLEAK": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-e590b4a3cc944822a41b7f65bde2770f\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"get_referral_link_for_crypto_cash_back_card\\\", \\\"arguments\\\": \\\"{}\\\"}\"}}] | TEXT "
+   },
+   "D_NEG": {
+    "hit": 0,
+    "det": true,
+    "called": "get_user_discoverable_tools_state",
+    "err": null,
+    "out": "CALLS=get_user_discoverable_tools_state | [{\"id\": \"chatcmpl-tool-fdd650acd85c46edb3ef936aa3dc292e\", \"type\": \"function\", \"function\": {\"name\": \"get_user_discoverable_tools_state\", \"arguments\": \"{}\"}}] | TEXT "
+   }
+  }
+ },
+ {
+  "task": "task_017",
+  "run": "bank_all97_nt1_v2_20260718",
+  "cut": 36,
+  "name": "submit_cash_back_dispute_0589",
+  "neg_name": "get_referral_link",
+  "n_lines": 41,
+  "n_stripped": 7,
+  "arms": {
+   "P_ONLY": {
+    "hit": 0,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-66c0670c419f4a13bc95c6016957bbfa\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"get_user_dispute_history_7291\\\", \\\"arguments\\\": \\\"{\\\\\\\"user_id\\\\\\\": \\\\\\\"<user_id>\\\\\\\"}\\\"}\"}}] | TEXT "
+   },
+   "P_HINT": {
+    "hit": 0,
+    "det": true,
+    "called": "get_user_discoverable_tools_state",
+    "err": null,
+    "out": "CALLS=get_user_discoverable_tools_state | [{\"id\": \"chatcmpl-tool-1e0a4afb76564a30bb1917e1a5d8ce8b\", \"type\": \"function\", \"function\": {\"name\": \"get_user_discoverable_tools_state\", \"arguments\": \"{}\"}}] | TEXT "
+   },
+   "A_LIVE": {
+    "hit": 0,
+    "det": true,
+    "called": "get_user_discoverable_tools_state",
+    "err": null,
+    "out": "CALLS=get_user_discoverable_tools_state | [{\"id\": \"chatcmpl-tool-d2f1379e2222468babced659c823e980\", \"type\": \"function\", \"function\": {\"name\": \"get_user_discoverable_tools_state\", \"arguments\": \"{}\"}}] | TEXT "
+   },
+   "B_NOLEAK": {
+    "hit": 0,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-2cbf0cda89b84bea8bc3a02eaea09898\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"submit_reward_dispute\\\", \\\"arguments\\\": \\\"{\\\\\\\"user_id\\\\\\\": \\\\\\\"6680a37184\\\\\\\", \\\\\\\"transaction_ids\\\\\\\": [\\\\\\\"txn_913d14a20dc | TEXT "
+   },
+   "D_NEG": {
+    "hit": 0,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-4a66c0da0ab74931a877e5ddc5c9d5de\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"get_referral_link\\\", \\\"arguments\\\": \\\"{\\\\n  \\\\\\\"card_name\\\\\\\": \\\\\\\"Crypto-Cash Back Card\\\\\\\"\\\\n}\\\"}\"}}] | TEXT "
+   }
+  }
+ },
+ {
+  "task": "task_018",
+  "run": "bank_ax32p1_gpu1_20260802",
+  "cut": 54,
+  "name": "submit_cash_back_dispute_0589",
+  "neg_name": "get_referral_link",
+  "n_lines": 55,
+  "n_stripped": 1,
+  "arms": {
+   "P_ONLY": {
+    "hit": 0,
+    "det": true,
+    "called": "-",
+    "err": "<HTTPError 400: 'Bad Request'>",
+    "out": "CALLS=- | null | TEXT "
+   },
+   "P_HINT": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool,transfer_to_human_agents",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool,transfer_to_human_agents | [{\"id\": \"chatcmpl-tool-878d22b9481a4879a78127c0735f6e8f\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"submit_cash_back_dispute_0589\\\", \\\"arguments\\\": \\\"\\\"}\"}}, {\"id\": \"chatcmpl-tool-f2822c48897c438481f535c59f31880b\", \"type\": \"f | TEXT "
+   },
+   "A_LIVE": {
+    "hit": 0,
+    "det": true,
+    "called": "transfer_to_human_agents",
+    "err": null,
+    "out": "CALLS=transfer_to_human_agents | [{\"id\": \"chatcmpl-tool-b7a98f91218247748f91185fbe0b038d\", \"type\": \"function\", \"function\": {\"name\": \"transfer_to_human_agents\", \"arguments\": \"{\\\"summary\\\": \\\"User requires assistance to file cash back disputes for multiple transactions due to incorrect rewards. Transactions needing correction: txn_e6 | TEXT "
+   },
+   "B_NOLEAK": {
+    "hit": 0,
+    "det": true,
+    "called": "transfer_to_human_agents",
+    "err": null,
+    "out": "CALLS=transfer_to_human_agents | [{\"id\": \"chatcmpl-tool-53e5c27a85f446be9331b85790c25bfb\", \"type\": \"function\", \"function\": {\"name\": \"transfer_to_human_agents\", \"arguments\": \"{\\\"summary\\\": \\\"User requires assistance to update rewards for several transactions due to discrepancies. The user has identified specific transactions that ne | TEXT "
+   },
+   "D_NEG": {
+    "hit": 0,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-2467187a15c94cd8af6807ce8d91e4dd\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"get_referral_link\\\", \\\"arguments\\\": \\\"{\\\\n  \\\\\\\"card_name\\\\\\\": \\\\\\\"Crypto-Cash Back Card\\\\\\\"\\\\n}\\\"}\"}}] | TEXT "
+   }
+  }
+ },
+ {
+  "task": "task_019",
+  "run": "bank_all97_nt1_v2_20260718",
+  "cut": 22,
+  "name": "submit_cash_back_dispute_0589",
+  "neg_name": "get_referral_link",
+  "n_lines": 22,
+  "n_stripped": 0,
+  "arms": {
+   "P_ONLY": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-44808e58056f448ab7af8e9bdfd13d02\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"submit_cash_back_dispute_0589\\\", \\\"arguments\\\": \\\"{\\\\\\\"transaction_ids\\\\\\\": [\\\\\\\"txn_f093f96e2001\\\\\\\", \\\\\\\"txn_580773a8649e\\\\ | TEXT "
+   },
+   "P_HINT": {
+    "hit": 1,
+    "det": true,
+    "called": "get_credit_card_transactions_by_user,give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=get_credit_card_transactions_by_user,give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-2cf6bfc04b52401493f7675cae163997\", \"type\": \"function\", \"function\": {\"name\": \"get_credit_card_transactions_by_user\", \"arguments\": \"{\\\"user_id\\\": \\\"af0581dcbf\\\"}\"}}, {\"id\": \"chatcmpl-tool-31f488cc7bf047609ebfa2b0d4d831d4\", \"type\": \"function\", \"function\": {\"name\": \"give_discovera | TEXT "
+   },
+   "A_LIVE": {
+    "hit": 0,
+    "det": true,
+    "called": "get_credit_card_transactions_by_user",
+    "err": null,
+    "out": "CALLS=get_credit_card_transactions_by_user | [{\"id\": \"chatcmpl-tool-81a58fe230934b4e8a8d0fd06c982bde\", \"type\": \"function\", \"function\": {\"name\": \"get_credit_card_transactions_by_user\", \"arguments\": \"{\\\"user_id\\\": \\\"af0581dcbf\\\"}\"}}] | TEXT "
+   },
+   "B_NOLEAK": {
+    "hit": 0,
+    "det": true,
+    "called": "get_credit_card_transactions_by_user",
+    "err": null,
+    "out": "CALLS=get_credit_card_transactions_by_user | [{\"id\": \"chatcmpl-tool-1543a793abc54f23bfccdd9e9bfdab2b\", \"type\": \"function\", \"function\": {\"name\": \"get_credit_card_transactions_by_user\", \"arguments\": \"{\\\"user_id\\\": \\\"af0581dcbf\\\"}\"}}] | TEXT "
+   },
+   "D_NEG": {
+    "hit": 0,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-0007b651b2c44aadab49b58929c98384\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"get_referral_link\\\", \\\"arguments\\\": \\\"{\\\\n  \\\\\\\"card_name\\\\\\\": \\\\\\\"Crypto-Cash Back Card\\\\\\\"\\\\n}\\\"}\"}}] | TEXT "
+   }
+  }
+ },
+ {
+  "task": "task_020",
+  "run": "bank_all97_nt1_v2_20260718",
+  "cut": 28,
+  "name": "submit_cash_back_dispute_0589",
+  "neg_name": "get_referral_link",
+  "n_lines": 28,
+  "n_stripped": 4,
+  "arms": {
+   "P_ONLY": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-7c5846cc7a9f49f78a6fd6ef3d675d67\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"submit_cash_back_dispute_0589\\\", \\\"arguments\\\": \\\"{\\\\\\\"user_id\\\\\\\":\\\\\\\"755bcb4d5d\\\\\\\",\\\\\\\"transaction_id\\\\\\\":\\\\\\\"txn_b7e2d4c5 | TEXT "
+   },
+   "P_HINT": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-b3bf82d59d4544e4a1f588adfd90cc9a\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"submit_cash_back_dispute_0589\\\", \\\"arguments\\\": \\\"{\\\\\\\"user_id\\\\\\\":\\\\\\\"755bcb4d5d\\\\\\\",\\\\\\\"transaction_id\\\\\\\":\\\\\\\"txn_b7e2d4c5 | TEXT "
+   },
+   "A_LIVE": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-f5f805f096b74935b15cad996fdcfff1\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"submit_cash_back_dispute_0589\\\", \\\"arguments\\\": \\\"{\\\\\\\"user_id\\\\\\\":\\\\\\\"755bcb4d5d\\\\\\\",\\\\\\\"transaction_id\\\\\\\":\\\\\\\"txn_b7e2d4c5 | TEXT "
+   },
+   "B_NOLEAK": {
+    "hit": 0,
+    "det": true,
+    "called": "get_credit_card_transactions_by_user,give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=get_credit_card_transactions_by_user,give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-5f8970ede6b54595ad648fe0e0d7a349\", \"type\": \"function\", \"function\": {\"name\": \"get_credit_card_transactions_by_user\", \"arguments\": \"{\\\"user_id\\\": \\\"755bcb4d5d\\\"}\"}}, {\"id\": \"chatcmpl-tool-b1efdc1af68a4cd38d492b8ddab5f5c2\", \"type\": \"function\", \"function\": {\"name\": \"give_discovera | TEXT "
+   },
+   "D_NEG": {
+    "hit": 0,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-d9f249a75bd64d82a09385e94935ca29\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"get_referral_link\\\", \\\"arguments\\\": \\\"{\\\\n  \\\\\\\"card_name\\\\\\\": \\\\\\\"Crypto-Cash Back Card\\\\\\\"\\\\n}\\\"}\"}}] | TEXT "
+   }
+  }
+ },
+ {
+  "task": "task_021",
+  "run": "bank_all97_nt1_v2_20260718",
+  "cut": 24,
+  "name": "submit_cash_back_dispute_0589",
+  "neg_name": "get_referral_link",
+  "n_lines": 27,
+  "n_stripped": 0,
+  "arms": {
+   "P_ONLY": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-be4118f98bdb404baf8aef466c35bdbd\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"submit_cash_back_dispute_0589\\\", \\\"arguments\\\": \\\"\\\"}\"}}] | TEXT "
+   },
+   "P_HINT": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-424c6598e58e48a2a582a063261dca81\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"submit_cash_back_dispute_0589\\\", \\\"arguments\\\": \\\"\\\"}\"}}] | TEXT "
+   },
+   "A_LIVE": {
+    "hit": 0,
+    "det": true,
+    "called": "transfer_to_human_agents",
+    "err": null,
+    "out": "CALLS=transfer_to_human_agents | [{\"id\": \"chatcmpl-tool-40208c1a307445c1b771803a481f8cbf\", \"type\": \"function\", \"function\": {\"name\": \"transfer_to_human_agents\", \"arguments\": \"{\\\"summary\\\": \\\"User prefers to be transferred to a human agent to handle a cash back dispute for transaction ID txn_5b30a52ac9d6. User wants to ensure the cor | TEXT "
+   },
+   "B_NOLEAK": {
+    "hit": 0,
+    "det": true,
+    "called": "transfer_to_human_agents",
+    "err": null,
+    "out": "CALLS=transfer_to_human_agents | [{\"id\": \"chatcmpl-tool-61281d8e3c524a1da992c09fab3500f6\", \"type\": \"function\", \"function\": {\"name\": \"transfer_to_human_agents\", \"arguments\": \"{\\\"summary\\\": \\\"User prefers to be transferred to a human agent to handle a cash back dispute for transaction ID txn_5b30a52ac9d6. User wants to ensure the cor | TEXT "
+   },
+   "D_NEG": {
+    "hit": 0,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-e5fefae261b94de3883b26f44fdc99eb\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"get_referral_link\\\", \\\"arguments\\\": \\\"{\\\\n  \\\\\\\"card_name\\\\\\\": \\\\\\\"Crypto-Cash Back Card\\\\\\\"\\\\n}\\\"}\"}}] | TEXT "
+   }
+  }
+ },
+ {
+  "task": "task_022",
+  "run": "bank_ax32p1_gpu1_20260802",
+  "cut": 56,
+  "name": "submit_cash_back_dispute_0589",
+  "neg_name": "get_referral_link",
+  "n_lines": 60,
+  "n_stripped": 1,
+  "arms": {
+   "P_ONLY": {
+    "hit": 0,
+    "det": true,
+    "called": "-",
+    "err": "<HTTPError 400: 'Bad Request'>",
+    "out": "CALLS=- | null | TEXT "
+   },
+   "P_HINT": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-0886bc9e92c04a69a79ef602c98ba9f0\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"submit_cash_back_dispute_0589\\\", \\\"arguments\\\": \\\"\\\"}\"}}] | TEXT "
+   },
+   "A_LIVE": {
+    "hit": 0,
+    "det": true,
+    "called": "get_credit_card_transactions_by_user",
+    "err": null,
+    "out": "CALLS=get_credit_card_transactions_by_user | [{\"id\": \"chatcmpl-tool-15d529154af54f1e8be9639abd9a1be9\", \"type\": \"function\", \"function\": {\"name\": \"get_credit_card_transactions_by_user\", \"arguments\": \"{\\\"user_id\\\": \\\"f9bf8de0be\\\"}\"}}] | TEXT "
+   },
+   "B_NOLEAK": {
+    "hit": 0,
+    "det": true,
+    "called": "get_credit_card_transactions_by_user",
+    "err": null,
+    "out": "CALLS=get_credit_card_transactions_by_user | [{\"id\": \"chatcmpl-tool-8e136f68e1cf419197fc7bb5fbca4e8a\", \"type\": \"function\", \"function\": {\"name\": \"get_credit_card_transactions_by_user\", \"arguments\": \"{\\\"user_id\\\": \\\"f9bf8de0be\\\"}\"}}] | TEXT "
+   },
+   "D_NEG": {
+    "hit": 0,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-3c4f6e6e8d714d3eae70c9041edaeb38\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"get_referral_link\\\", \\\"arguments\\\": \\\"{\\\\n  \\\\\\\"card_name\\\\\\\": \\\\\\\"Crypto-Cash Back Card\\\\\\\"\\\\n}\\\"}\"}}] | TEXT "
+   }
+  }
+ },
+ {
+  "task": "task_026",
+  "run": "bank_all97_nt1_v2_20260718",
+  "cut": 26,
+  "name": "submit_cash_back_dispute_0589",
+  "neg_name": "get_referral_link",
+  "n_lines": 27,
+  "n_stripped": 4,
+  "arms": {
+   "P_ONLY": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-c1ba0e0eb0b34ea386d54d5ce86343d4\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"submit_cash_back_dispute_0589\\\", \\\"arguments\\\": \\\"{\\\\\\\"user_id\\\\\\\":\\\\\\\"755bcb4d5d\\\\\\\",\\\\\\\"transaction_id\\\\\\\":\\\\\\\"txn_b7e2d4c5 | TEXT "
+   },
+   "P_HINT": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-64340dbc833d4c2dbcbc981d7bdb9ea8\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"submit_cash_back_dispute_0589\\\", \\\"arguments\\\": \\\"\\\"}\"}}] | TEXT "
+   },
+   "A_LIVE": {
+    "hit": 1,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-30e91b04caec4aa3814546559f86aeaf\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"submit_cash_back_dispute_0589\\\", \\\"arguments\\\": \\\"\\\"}\"}}] | TEXT "
+   },
+   "B_NOLEAK": {
+    "hit": 0,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-9077e5f4f19d4e269799e17c9214c6d3\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"file_cash_back_dispute\\\", \\\"arguments\\\": \\\"{\\\\\\\"transaction_ids\\\\\\\": [\\\\\\\"txn_b7e2d4c5f501\\\\\\\", \\\\\\\"txn_b7e2d4c5f504\\\\\\\", \\\\\\ | TEXT "
+   },
+   "D_NEG": {
+    "hit": 0,
+    "det": true,
+    "called": "give_discoverable_user_tool",
+    "err": null,
+    "out": "CALLS=give_discoverable_user_tool | [{\"id\": \"chatcmpl-tool-63c8deb9a3d44669bdef634fe8e59069\", \"type\": \"function\", \"function\": {\"name\": \"give_discoverable_user_tool\", \"arguments\": \"{\\\"discoverable_tool_name\\\": \\\"get_referral_link\\\", \\\"arguments\\\": \\\"{\\\\n  \\\\\\\"card_name\\\\\\\": \\\\\\\"Crypto-Cash Back Card\\\\\\\"\\\\n}\\\"}\"}}] | TEXT "
+   }
+  }
+ }
+]
