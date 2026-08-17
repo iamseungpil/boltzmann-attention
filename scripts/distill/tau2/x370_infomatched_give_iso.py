@@ -233,27 +233,39 @@ def main():
                "arms": {}}
         for k in ("P_HINT", "A_LIVE", "B_NOLEAK", "D_NEG"):
             ans, d = det(arms[k][-9000:] + "\n\n" + ASK)
+            _names = ",".join(str((tc.get("function") or tc).get("name") or "")
+                              for tc in (ans.get("tool_calls") or ())) or "-"
             row["arms"][k] = {
-                "hit": int(emitted_give(ans, j["name"])), "det": d,
-                "out": (" ".join(str(ans.get("content") or "").split())[:120]
-                        + " |CALLS " + json.dumps(ans.get("tool_calls"), default=str)[:200])}
+                "hit": int(emitted_give(ans, j["name"])), "det": d, "called": _names,
+                "out": ("CALLS=" + _names + " | "                      # ★이름을 **먼저**
+                        + json.dumps(ans.get("tool_calls"), default=str)[:300]
+                        + " | TEXT " + " ".join(str(ans.get("content") or "").split())[:200])}
         res.append(row)
-        print("── %s/%s cut=%d 이름=%s · 누설 %d줄 제거 · P %d · A %d · B %d · D %d"
-              % (j["task"], j["run"][:26], j["cut"], j["name"], row["n_stripped"],
-                 row["arms"]["P_HINT"]["hit"], row["arms"]["A_LIVE"]["hit"],
-                 row["arms"]["B_NOLEAK"]["hit"], row["arms"]["D_NEG"]["hit"]))
-        for k in ("A_LIVE", "B_NOLEAK"):
-            print("     %-9s %s" % (k, row["arms"][k]["out"][:120]))
+        print("── %s/%s cut=%d 이름=%s · 누설 %d줄 · Ponly %d · Phint %d · A %d · B %d · D %d"
+              % (j["task"], j["run"][:24], j["cut"], j["name"], row["n_stripped"],
+                 row["arms"]["P_ONLY"]["hit"], row["arms"]["P_HINT"]["hit"],
+                 row["arms"]["A_LIVE"]["hit"], row["arms"]["B_NOLEAK"]["hit"],
+                 row["arms"]["D_NEG"]["hit"]))
+        for k in ("P_ONLY", "P_HINT", "A_LIVE", "B_NOLEAK"):
+            print("     %-9s 부른 도구=%s" % (k, row["arms"][k]["called"]))
 
     n = len(res)
+    po = sum(r["arms"]["P_ONLY"]["hit"] for r in res)
     pz = sum(r["arms"]["P_HINT"]["hit"] for r in res)
     a = sum(r["arms"]["A_LIVE"]["hit"] for r in res)
     b = sum(r["arms"]["B_NOLEAK"]["hit"] for r in res)
     d = sum(r["arms"]["D_NEG"]["hit"] for r in res)
     print("\n" + "=" * 96)
-    print("n=%d · **P_HINT %d**(양성통제) · A_LIVE %d · **B_NOLEAK %d** · D_NEG %d · "
-          "누설 줄이 있던 컷 %d" % (n, pz, a, b, d, sum(1 for r in res if r["n_stripped"])))
-    if pz < max(1, int(0.5 * n)):
+    print("n=%d · **P_ONLY %d**(도구1개) · P_HINT %d(도구28개) · A_LIVE %d · **B_NOLEAK %d** · "
+          "D_NEG %d · 누설 줄이 있던 컷 %d"
+          % (n, po, pz, a, b, d, sum(1 for r in res if r["n_stripped"])))
+    if po < max(1, int(0.5 * n)):
+        print("   → ⛔**계기 무효**: 도구를 하나만 줘도 못 부른다 ⇒ 하네스·채점을 고치기 전엔 "
+              "어떤 0 도 결손으로 읽지 마라")
+    elif pz < max(1, int(0.5 * n)):
+        print("   → **결손의 이름 = 고르기**: 도구 1개면 부르는데 28개 중에서는 못 고른다 "
+              "(답을 알려 줘도) ⇒ 전달이 아니라 **선택** 축이다(C519 와 같은 방향)")
+    elif False:
         print("   → ⛔**계기 무효**: 답을 알려 줘도 못 낸다 ⇒ 질문 문면·채점을 고치기 전엔 "
               "다른 팔의 0 을 결손으로 읽지 마라(1차 실행이 정확히 이 함정에 빠졌다)")
     elif d >= a and a:
