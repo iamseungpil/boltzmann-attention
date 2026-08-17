@@ -19,33 +19,14 @@ NAMES = ["checking_accounts", "business_checking_accounts", "savings_accounts",
 
 
 def parse(raw):
-    """엔진 축자 규약(수리판) 재현 — t2_search.formalize_groups 의 파싱부와 같은 코드."""
+    """**정본을 그대로 부른다** — 사본 금지([[67]]).
+
+    ★2026-08-17 2차 수리: 이 검정은 원래 정본 파싱부를 **베껴** 갖고 있었다(수리가 정본에만
+      들어가면 검정은 옛 거동을 통과시킨다). `t2_search.groups_in` 으로 뺐으니 그것을 부른다.
+    """
     import t2_search as TS
-    import types
-    low = raw.lower()
-    out = sorted((g for g in NAMES if g and g.lower() in low), key=lambda g: low.find(g.lower()))
-    src = io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "t2_search.py"),
-                  encoding="utf-8").read()
-    assert "_outside(" in src, "수리가 없다"
-    def outside(low_, g_, longer_):
-        i = low_.find(g_)
-        while i >= 0:
-            cov = False
-            for o_ in longer_:
-                j = low_.find(o_)
-                while j >= 0:
-                    if j <= i and i + len(g_) <= j + len(o_):
-                        cov = True; break
-                    j = low_.find(o_, j + 1)
-                if cov: break
-            if not cov: return True
-            i = low_.find(g_, i + 1)
-        return False
-    return [g for g in out
-            if outside(low, g.lower(), [o.lower() for o in out if o != g and g.lower() in o.lower()])]
+    return TS.groups_in(raw, NAMES)
 
-
-import io  # noqa: E402
 
 CASES = [
     ("business_checking_accounts", ["business_checking_accounts"]),          # 포함 artifact 제거

@@ -317,6 +317,50 @@ def material_for(a2, group, doc_dir=None, now=None, per_doc=400, windowed="gener
         "kept": len(keep), "dropped": [d for d, _f, _t in dropped]}
 
 
+def _outside(low_, g_, longer_):
+    """짧은 이름 `g_` 가 긴 이름들 **밖에서도** 등장하는가(위치로 본다·정규식 0).
+
+    ★수리 2026-08-17 (C516·실측): 옛 필터는 `business_checking_accounts` 가 있으면
+      `checking_accounts` 를 **무조건** 지웠다. 그 전제(*"짧은 쪽은 문자열 포함일 뿐"*)는 모델이
+      둘 다 따로 나열하면 거짓이다 — 라이브 317줄 중 **134줄(42%)** 이 그렇게 지워졌고
+      (024 68·098 55·055 11) 098 은 gold 군이 매번 지워져 후보로 남은 적이 없다.
+    """
+    i = low_.find(g_)
+    while i >= 0:
+        cov = False
+        for o_ in longer_:
+            j = low_.find(o_)
+            while j >= 0:
+                if j <= i and i + len(g_) <= j + len(o_):
+                    cov = True
+                    break
+                j = low_.find(o_, j + 1)
+            if cov:
+                break
+        if not cov:
+            return True
+        i = low_.find(g_, i + 1)
+    return False
+
+
+def groups_in(raw, groups):
+    """모델이 답한 문자열 → **군 목록**(닫힌 집합 안에서·등장 순서대로). 정본 파싱부.
+
+    ★왜 함수로 뺐나 (2026-08-17·[[67]]): 같은 규약을 `x361`(프로브)과 `test_group_parse`(검정)가
+      **각자 베껴** 갖고 있었고, C516 수리가 정본에만 들어가 사본 둘이 옛 거동으로 갈렸다.
+      프로브가 옛 필터로 재면 *"모델이 개인 군을 안 골랐다"* 는 **거짓 결손**이 나온다.
+    ⚠엔진은 고르지 않는다 — 답에 **등장한 순서대로** 담기만 한다(순위 계산 0·[[59]] 정규식 0).
+    """
+    names = sorted(groups or ())
+    lower = " ".join(str(raw or "").split()).lower()
+    if not (names and lower):
+        return []
+    out = sorted((g for g in names if g and g.lower() in lower), key=lambda g: lower.find(g.lower()))
+    return [g for g in out
+            if _outside(lower, g.lower(),
+                        [o.lower() for o in out if o != g and g.lower() in o.lower()])]
+
+
 def formalize_groups(agent, la, UserMessage, spec, texts, groups):
     """① 손님의 말 → **문서군 목록**(요청 하나당 하나). 닫힌 집합(A3 `doc_index` 키)이라 엔진이 검증한다([[22]]).
 
@@ -342,36 +386,7 @@ def formalize_groups(agent, la, UserMessage, spec, texts, groups):
     #   축은 영영 못 다루고, 실제로 라이브에서 개인 체킹을 골라 손님이 **이미 가진** 계좌를
     #   추천했다. x252 는 축을 하나씩 물었을 때 두 축 다 8/8 이었다 — 라이브를 그 형태로 되돌린다.
     #   ⚠고르는 것은 여전히 LLM 이다. 엔진은 **답에 등장한 순서대로** 담기만 한다(순위 계산 0).
-    lower = raw.lower()
-    out = sorted((g for g in names if g and g.lower() in lower), key=lambda g: lower.find(g.lower()))
-    # 더 긴 이름이 짧은 이름을 품으면(`business_checking_accounts` ⊃ `checking_accounts`)
-    # 짧은 쪽은 **그 자리에서 나온 것이 아니다** — 문자열 포함일 뿐이라 뺀다.
-    # ★수리 2026-08-17 (C516·실측): 위 전제 *"짧은 쪽은 문자열 포함일 뿐"* 은 **모델이 둘 다
-    #   따로 나열하면 거짓**이다. 라이브 317줄 중 **134줄(42%)** 이 그렇게 지워졌고, 그 134줄
-    #   **전부** 가 짧은 이름이 긴 이름 **밖에서도** 등장한 경우였다(024 68·098 55·055 11).
-    #   098 은 gold 군이 매번 지워져 후보로 남은 적이 없다. ⇒ 덮임 여부를 **위치로** 본다:
-    #   긴 이름의 등장 구간에 **안 덮인 등장이 하나라도 있으면 남긴다**(정규식 0·find 루프).
-    def _outside(low_, g_, longer_):
-        i = low_.find(g_)
-        while i >= 0:
-            cov = False
-            for o_ in longer_:
-                j = low_.find(o_)
-                while j >= 0:
-                    if j <= i and i + len(g_) <= j + len(o_):
-                        cov = True
-                        break
-                    j = low_.find(o_, j + 1)
-                if cov:
-                    break
-            if not cov:
-                return True
-            i = low_.find(g_, i + 1)
-        return False
-
-    out = [g for g in out
-           if _outside(lower, g.lower(),
-                       [o.lower() for o in out if o != g and g.lower() in o.lower()])]
+    out = groups_in(raw, names)
     print("[T2_DOCGROUP] raw=%r → %s" % (raw[:80], ", ".join(out) or "군 집합 밖 = 침묵"),
           file=sys.stderr, flush=True)
     return out
