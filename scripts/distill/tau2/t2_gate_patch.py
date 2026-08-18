@@ -6527,11 +6527,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   구판은 sim 전체에 총 2회였고, 그 2회가 *유일한 ready 가 write* 인 구간에서
             #   소진되면(t7315 050 실측) 정작 두 **조회**가 열린 뒤에는 침묵했다.
             #   막는 것은 **루핑**뿐이다(사용자 지시 2026-08-18 축자: *"반복은 말 그대로 루핑이다.
-            #   다른 시점에서 다시 부르는 걸 반복이라고 하면 안된다"*). 그래서 기억하는 것은
-            #   **직전에 한 말 하나**이고, 그것과 글자 그대로 같을 때만 삼킨다. 문장은 상태
-            #   결정론이므로 *직전과 같다 = 그 사이 절차가 한 걸음도 안 나갔다* 이고, 그것이
-            #   루핑의 정의다. 진척이 있으면 문장이 달라져 다시 말한다 — 예산도 집합도 없다.
-            _abs_prev = getattr(self, "_t2_proc_absent_prev", None)
+            #   다른 시점에서 다시 부르는 걸 반복이라고 하면 안된다"* · *"DAG 로 중요 절차의
+            #   상태를 확인하고 같은 상태로 반복적으로 돌아 오는걸 체크"*).
+            #   ⇒ 술어를 **우리 문면이 아니라 걸음 자체**에 건다([[22]] 닫힌 술어): 상태 =
+            #   그 절차 DAG 에서 **완료된 노드 집합**(`t2_procedure.checklist` 가 관측으로 낸다).
+            #   같은 상태로 다시 오면 그 사이 한 걸음도 안 나간 것이고 그것이 루핑이다.
+            #   한 걸음이라도 나가면 상태가 달라져 다시 말한다. 예산도 총량도 없다.
+            #   ⚠문면 비교가 아니라 상태 비교라, 템플릿을 손봐도 판정이 조용히 바뀌지 않는다.
+            _abs_seen = getattr(self, "_t2_proc_state_seen", None)
+            if _abs_seen is None:
+                _abs_seen = self._t2_proc_state_seen = set()
             if (_procs and abs_fb is None and proc_fb is None and not absent_fired
                     and os.environ.get("T2_PROC_ABSENT") == "1"):
                 try:
@@ -6554,15 +6559,18 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _entry = _p.get("id") not in _ann
                         if not _nt or (not _entry and _quiet_turns(state.messages, _nt) < _K):
                             continue
+                        _dagk = (_p.get("id"),
+                                 frozenset(_nid for _nid, _tls, _dn
+                                           in _PROC.checklist(_p, _done2) if _dn))
+                        if _dagk in _abs_seen:
+                            continue                  # 같은 DAG 상태로 돌아왔다 = 걸음 0 = 루핑
                         _ann.add(_p.get("id"))
                         _msg = _PROC.absent_note(_p, _done2, _unl, _pat)
                         if not _msg:
                             continue
-                        if _msg == _abs_prev:
-                            continue                  # 직전과 똑같다 = 그 사이 진척 0 = 루핑
                         # ⚠증가는 **전달 자리**에서 한다([[55]] 로그 마크 != 전달). 여기서 올리면
                         #   하류에서 접히거나 다른 레버에 밀린 표면화도 예산을 먹는다.
-                        self._t2_proc_absent_last = _msg
+                        self._t2_proc_absent_last = _dagk
                         abs_fb = _msg
                         absent_fired = True
                         # ★C15 read 강제 (2026-08-05·사용자 지시 "read 강제로 바로 가라"): 지목한
@@ -8819,11 +8827,17 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_proc_deny = getattr(self, "_t2_proc_deny", 0) + 1
             if abs_fb is not None:
                 self._t2_proc_absent = getattr(self, "_t2_proc_absent", 0) + 1
-                # ★직전에 한 말만 기억한다 — **전달된 것만**(2026-08-18·[[55]] 로그 마크 != 전달).
+                # ★말한 **DAG 상태**를 기억한다 — 전달된 것만([[55]] 로그 마크 != 전달).
                 _last6 = getattr(self, "_t2_proc_absent_last", None)
                 if _last6:
-                    self._t2_proc_absent_prev = _last6
+                    _seen6 = getattr(self, "_t2_proc_state_seen", None)
+                    if _seen6 is None:
+                        _seen6 = self._t2_proc_state_seen = set()
+                    _seen6.add(_last6)
                     self._t2_proc_absent_last = None
+                    print("[T2_PROC_ABSENT] 상태 %s (완료 %d) — 말한 상태 %d종"
+                          % (_last6[0], len(_last6[1]), len(_seen6)),
+                          file=_sys.stderr, flush=True)
             if tr_fb is not None:
                 self._t2_transcribe_deny = getattr(self, "_t2_transcribe_deny", 0) + 1
             if wev_fb is not None:

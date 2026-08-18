@@ -76,18 +76,18 @@ def main():
     if "if len(_rd15) == 1:" in src:
         print("   FAIL — 구 조건이 남아 있다"); bad += 1
 
-    sig = ("_t2_proc_absent_prev" in src and "if _msg == _abs_prev:" in src
-           and "T2_PROC_ABSENT_CAP" not in src and "_t2_proc_absent_said" not in src)
-    print("⑤ 예산 없음 · **직전과 같을 때만** 차단(루핑): %s" % sig)
+    sig = ("_t2_proc_state_seen" in src and "if _dagk in _abs_seen:" in src
+           and "_PROC.checklist(_p, _done2)" in src
+           and "T2_PROC_ABSENT_CAP" not in src)
+    print("⑤ 예산 없음 · **DAG 상태**로 루핑 판정: %s" % sig)
     if not sig:
-        print("   FAIL — 총량 상한이 남았거나, 집합 기억이라 다른 시점의 재발화까지 막는다")
-        bad += 1
+        print("   FAIL — 총량 상한이 남았거나, 판정이 우리 문면(문자열)에 걸려 있다"); bad += 1
 
     # 증가가 **전달 자리**(abs_fb is not None)에서만 일어나는가
     i = src.find("if abs_fb is not None:")
-    inc_at_delivery = i > 0 and "self._t2_proc_absent_prev = _last6" in src[i:i + 700]
-    j = src.find("self._t2_proc_absent_last = _msg")
-    picks_at_select = j > 0 and "_t2_proc_absent_prev" not in src[j:j + 200]
+    inc_at_delivery = i > 0 and "_seen6.add(_last6)" in src[i:i + 700]
+    j = src.find("self._t2_proc_absent_last = _dagk")
+    picks_at_select = j > 0 and "_seen6.add(" not in src[j:j + 200]
     print("⑥ 기억은 전달 자리에서만: %s / 선택 자리에선 예약만: %s"
           % (inc_at_delivery, picks_at_select))
     if not (inc_at_delivery and picks_at_select):
@@ -104,15 +104,16 @@ def main():
     _e1 = collections.Counter({"submit_credit_limit_increase_request_7392": 1})
     _e2 = collections.Counter({"submit_credit_limit_increase_request_7392": 1,
                                "get_user_dispute_history_7291": 1})
-    _m1a = _P.absent_note(_pr, _e1, (), None)
-    _m1b = _P.absent_note(_pr, _e1, (), None)
-    _m2 = _P.absent_note(_pr, _e2, (), None)
-    print("⑧ 같은 상태 → 같은 문장: %s / 상태가 바뀌면 다른 문장: %s"
-          % (_m1a == _m1b, _m1a != _m2))
-    if not (_m1a and _m1a == _m1b):
-        print("   FAIL — 문장이 상태 결정론이 아니다(반복 차단이 무력해진다)"); bad += 1
-    if _m1a == _m2:
-        print("   FAIL — 상태가 바뀌었는데 같은 문장이다(새 단계를 영영 못 말한다)"); bad += 1
+    _k = lambda ex: frozenset(n for n, _t, d in _P.checklist(_pr, ex) if d)
+    _k1a, _k1b, _k2 = _k(_e1), _k(_e1), _k(_e2)
+    print("⑧ DAG 상태 — 같은 실행이력 → 같은 키: %s / 한 걸음 나가면 다른 키: %s (%s → %s)"
+          % (_k1a == _k1b, _k1a != _k2, sorted(_k1a), sorted(_k2)))
+    if _k1a != _k1b:
+        print("   FAIL — 상태 키가 결정론이 아니다(루핑 판정이 무력해진다)"); bad += 1
+    if _k1a == _k2:
+        print("   FAIL — 걸음이 나갔는데 같은 상태다(새 단계를 영영 못 말한다)"); bad += 1
+    if not (_k1a < _k2):
+        print("   FAIL — 상태가 단조롭지 않다(진동하면 루핑 판정이 성립 안 한다)"); bad += 1
 
     consumer = ("_pv = list(_pv) if isinstance(_pv, (list, tuple, set)) else [_pv]" in src
                 and "any(v in _exec_now for v in _pv)" in src)
