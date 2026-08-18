@@ -67,11 +67,8 @@ def templates():
     """A2 축자 — v1·v2 를 **읽기만** 한다(문면 저작 0·[[23]] gold 무참조)."""
     a2 = X.a2_load()
     spec = None
-    for v in (a2.get("scaffold_get_tools") or {}).values():
-        if isinstance(v, dict) and v.get("no_record_template"):
-            spec = v
-            break
-    if spec is None:                     # 구조가 다르면 전수 탐색(하드코딩 대신 모양으로)
+    if spec is None:                     # ★구조를 가정하지 않는다 — **모양으로** 찾는다.
+        #   1차 실행이 `scaffold_get_tools` 를 dict 로 가정해 죽었다(실제는 **list**).
         def walk(o):
             if isinstance(o, dict):
                 if o.get("no_record_template"):
