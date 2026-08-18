@@ -28,8 +28,10 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import t2_forensic as F  # noqa: E402
 
-CTL = "bank_t7307_ctl_20260818b"
-TREAT = "bank_t7307_treat_20260818b"
+# 태그는 인자로 받는다 — 같은 판정을 재런(t7308)에도 **같은 코드로** 적용하기 위해서다.
+# (사본을 뜨면 조용히 갈라진다 · [[67]])
+CTL = sys.argv[1] if len(sys.argv) > 1 else "bank_t7307_ctl_20260818b"
+TREAT = sys.argv[2] if len(sys.argv) > 2 else "bank_t7307_treat_20260818b"
 SUFFIX = ".results.json.gz"
 
 
