@@ -1,5 +1,5 @@
 #!/bin/bash
-# t7323 — **선언-우선 가이드 A/B** (사용자 지시 2026-08-19: *"A/B 설계 유료런 하라"*).
+# t7324 (구 t7323 재발사) — **선언-우선 가이드 A/B** (사용자 지시 2026-08-19: *"A/B 설계 유료런 하라"*).
 #
 # ## 무엇을 판정하는 런인가
 #
@@ -8,6 +8,12 @@
 # 그 경로에서 가이드는 **한 번도 주입된 적이 없다**(2026-08-16 발견). 주석이 못 박아 둔 조건:
 # *"조용히 살리지 않는다: 살리면 모든 과거 런과 베이스라인이 달라진다. `T2_DECLFIRST_GUIDE_FIX=1`
 # 일 때만 살리고 효과는 **별도 A/B** 로 잰다([[57]])."* 이 런이 그 A/B 다.
+#
+# ★재발사 (t7323 중단·2026-08-19): 첫 sim 에서 **가이드와 읽기 루틴의 간섭**이 드러났다 —
+#   declfirst 팔 050 이 1.0→0.0, 루틴 발화 4→1, `viol=R2_CALL_WITHOUT_ACT,R4_NEXT_ACTION_MISMATCH`.
+#   조정(끄기 아님·[[19]]): 가이드 **rev2** = *"이 턴의 도구가 하나로 제한돼 있으면 그 호출을 먼저
+#   하고 봉투는 다음 메시지에"*. 그래서 이 런은 **rev2 를 재는 것**이고 X13 의 31.8%(rev1)와 직접
+#   비교하지 않는다. 추가로 이관 자리에 E-PLAN 원장 근거가 붙었다(073 표적).
 #
 # ⚠상위 `T2_DECLFIRST` 도 死배선이라 **둘을 함께** 켜야 가이드가 나간다. 문면 실재 확인 완료
 #   (A2 L1 `declaration.guide` **716자** · 축자: *"state a declaration envelope for every turn …
@@ -50,7 +56,7 @@ DIRTY=$(cd "$REPO" && git status --porcelain -- \
   scripts/distill/tau2/t2_resolve.py scripts/distill/tau2/t2_scaffold_get.py \
   scripts/distill/tau2/a2/ | grep -cv '^??' || true)
 if [ "$DIRTY" != "0" ]; then
-  echo "[t7323] REFUSING: 엔진 경로 커밋 안 된 변경 $DIRTY 개." >&2; exit 1
+  echo "[t7324] REFUSING: 엔진 경로 커밋 안 된 변경 $DIRTY 개." >&2; exit 1
 fi
 
 for t in test_a2_three_layer.py test_flag_registry.py test_claim_verify.py \
@@ -63,15 +69,15 @@ for t in test_a2_three_layer.py test_flag_registry.py test_claim_verify.py \
   [ -f "$t" ] || continue
   PYTHONPATH=/home/woori/scratch/tau2-bench/src timeout 90 \
     /home/woori/venvs/seka_env/bin/python "$t" >/dev/null 2>&1 \
-    || { echo "[t7323] REFUSING: $t FAIL" >&2; exit 1; }
+    || { echo "[t7324] REFUSING: $t FAIL" >&2; exit 1; }
 done
-echo "[t7323] VERIFY OK (배터리 22)"
+echo "[t7324] VERIFY OK (배터리 22)"
 
 if pgrep -f "[x]3[0-9][0-9]_.*\.py" >/dev/null; then
-  echo "[t7323] REFUSING: 무료 프로브 실행 중(양 포트 필요)" >&2; exit 1
+  echo "[t7324] REFUSING: 무료 프로브 실행 중(양 포트 필요)" >&2; exit 1
 fi
 if pgrep -f "[t]2_launch" >/dev/null; then
-  echo "[t7323] REFUSING: 다른 라이브 런이 돌고 있다" >&2; exit 1
+  echo "[t7324] REFUSING: 다른 라이브 런이 돌고 있다" >&2; exit 1
 fi
 
 PIN="T2_ACTION_SUB=1 T2_KEEP_DENY_BODY=1 T2_CALL_FORM=1 T2_ARG_EMPTY=1 T2_SEARCH_AGENT=1 \
@@ -85,9 +91,9 @@ NT=2
 
 launch () {
   NAME="$1"; PORT="$2"; DF="$3"
-  TAG="bank_t7323_${NAME}_20260819a"
-  if [ -e "$LOG/${TAG}.log" ]; then echo "[t7323] SKIP: ${TAG}.log 존재" >&2; return 0; fi
-  if [ -e "$SIMS/${TAG}" ]; then echo "[t7323] REFUSING: $SIMS/${TAG} 잔존" >&2; return 1; fi
+  TAG="bank_t7324_${NAME}_20260819b"
+  if [ -e "$LOG/${TAG}.log" ]; then echo "[t7324] SKIP: ${TAG}.log 존재" >&2; return 0; fi
+  if [ -e "$SIMS/${TAG}" ]; then echo "[t7324] REFUSING: $SIMS/${TAG} 잔존" >&2; return 1; fi
   echo "{\"tag\":\"$TAG\",\"scaffold_sha\":\"$SHA\",\"port\":$PORT,\"tasks\":\"$TASKS\",\"nt\":$NT,\"declfirst\":\"$DF\",\"max_steps\":150,\"concurrency\":1,\"pin\":\"$PIN\",\"why\":\"declfirst guide revival A/B; endpoint = envelope rate + delta-spurious, not pass\"}" \
     | tee "$LOG/${TAG}.meta.json"
   setsid bash -c "cd '$REPO/scripts/distill/tau2' && source ./go_stack.sh >/dev/null 2>&1 && \
@@ -95,10 +101,10 @@ launch () {
     export GO_MAX_STEPS=150 GO_CONCURRENCY=1 && \
     t2_launch $TAG $PORT '$TASKS' $NT" \
     </dev/null >"$LOG/${TAG}.log" 2>&1 &
-  echo "[t7323] $NAME(declfirst=$DF) → PID=$! port=$PORT"
+  echo "[t7324] $NAME(declfirst=$DF) → PID=$! port=$PORT"
 }
 
 launch ctl      8140 0
 sleep 2
 launch declfirst 8141 1
-echo "[t7323] 기동 · sha=$SHA · 팔당 8 sim · 1차 종점 = 봉투 산출율 · pass 는 부수"
+echo "[t7324] 기동 · sha=$SHA · 팔당 8 sim · 1차 종점 = 봉투 산출율 · pass 는 부수"
