@@ -21,6 +21,10 @@ SRC = ("Perfect! Now I also need a savings account. Let me tell you what I'm loo
        "- I tap into my savings **3–4 times a week**, sometimes more. I really don't want fees for "
        "that. - Since I already have checking with you, is there a **bonus rate**?")
 
+DQ = chr(34)          # "  — 보통 따옴표
+LQ = chr(0x201C)      # “
+RQ = chr(0x201D)      # ”
+
 CASES = [
     # (인용, 기대)
     ("I tap into my savings **3–4 times a week**, sometimes more.", True),   # 축자 그대로
@@ -29,6 +33,14 @@ CASES = [
     ("I keep fifty thousand dollars in savings.", False),                   # ★없는 말 = 탈락
     ("I want a Silver Plus Account.", False),                               # ★날조 = 탈락
     ("", False),
+    # ★감싸는 따옴표(2026-08-18·x374): 프롬프트가 "Copy VERBATIM" 이라 모델이 인용을
+    #   따옴표로 **감싸서** 낸다. 내용이 축자면 통과해야 한다 — 실측으로 024 인용 2건이
+    #   quote_in(원본)=False ↔ quote_in(벗김)=True 였다(우리 검산이 참인 인용을 떨어뜨림).
+    (DQ + "I tap into my savings 3–4 times a week" + DQ, True),
+    (LQ + "I tap into my savings 3–4 times a week" + RQ, True),
+    # ⚠**벗기는 것은 바깥 구분자뿐** — 감쌀다고 없는 문장이 통과하면 안 된다
+    (DQ + "I want a Silver Plus Account." + DQ, False),
+    (DQ + DQ, False),
 ]
 
 

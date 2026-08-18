@@ -462,6 +462,12 @@ def formalize_groups(agent, la, UserMessage, spec, texts, groups):
 
 
 _EMPH = ("**", "__", "~~", "*", "_", "`")
+# ★감싸는 따옴표(2026-08-18·x374 결정론 실측): 프롬프트가 *"Copy each requirement VERBATIM"* 이라
+#   모델이 인용을 따옴표로 **감싸서** 낸다. 그러면 내용이 축자로 맞아도 검산이 떨어뜨린다 —
+#   실측: `quote_in(원본)=False` ↔ `quote_in(따옴표 벗김)=True`(024 인용 2건).
+#   ⚠**내용을 지우는 것이 아니라 바깥 구분자만 벗긴다**(`strip` = 양끝 전용). `_EMPH` 와 달리
+#     원문에는 걸지 않는데, 원문은 문서 전체라 *감싼다*는 개념이 없기 때문이다. 뜻은 안 바뀜다.
+_WRAPQ = "\"“”«»"
 
 
 def quote_in(q, text):
@@ -475,6 +481,7 @@ def quote_in(q, text):
       (정규식 0·[[59]]), 양쪽에 같은 변환을 걸어 뜻을 바꾸지 않는다. 없는 인용은 여전히 떨어진다.
     """
     q, text = str(q or ""), str(text or "")
+    q = q.strip().strip(_WRAPQ).strip()          # ★감싼 따옴표만 벗긴다(위 주석)
     if not q or not text:
         return False
     if q in text:
