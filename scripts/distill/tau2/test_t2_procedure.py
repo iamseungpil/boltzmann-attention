@@ -117,6 +117,11 @@ print("\n⑦ 선언한 이름이 env에 실재하는가 (패턴이 아니라 레
 try:
     from tau2.domains.banking_knowledge.tools import KnowledgeTools, KnowledgeUserTools
     reg = set(dir(KnowledgeTools)) | set(dir(KnowledgeUserTools))
+    # ★우리가 **주입하는** 도구도 실재한다 (2026-08-19·t7323 게이트가 잡았다). A3
+    #   `scaffold_get_tools` 는 env 클래스에 없지만 런타임에 에이전트 도구 목록에 들어간다 —
+    #   env 만 보면 `check_cli_eligibility` 같은 우리 도구가 *"없는 이름"* 으로 잡힌다.
+    #   검사의 뜻은 *"선언한 이름이 실재하는가"* 이고, 주입분은 실재한다.
+    reg |= {str(t.get("name")) for t in (A2.get("scaffold_get_tools") or []) if t.get("name")}
     named = set()
     for n in proc.get("nodes") or []:
         named |= set(P._tools_of(n))
