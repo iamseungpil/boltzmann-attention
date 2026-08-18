@@ -1,0 +1,800 @@
+[
+ {
+  "task": "task_003",
+  "arm": "ctl",
+  "code": "ARG_MISS",
+  "why": "apply_for_credit_card",
+  "dturn": 13,
+  "gold": 1,
+  "miss": 1,
+  "never": 0,
+  "stops": 3,
+  "steps": 16,
+  "lev": [],
+  "fb": [],
+  "last": "Thank you for your patience, Catherine. Let's confirm the details for "
+ },
+ {
+  "task": "task_016",
+  "arm": "ctl",
+  "code": "WRITE_MISS",
+  "why": "submit_transaction",
+  "dturn": 38,
+  "gold": 2,
+  "miss": 1,
+  "never": 1,
+  "stops": 11,
+  "steps": 42,
+  "lev": [
+   "T2_MATERIAL_GATE",
+   "T2_PREKB",
+   "T2_WRITE_SUB",
+   "T2_CLAIMPROV",
+   "T2_SELFDECL"
+  ],
+  "fb": [],
+  "last": "You have been successfully transferred to a human agent. They will ass"
+ },
+ {
+  "task": "task_017",
+  "arm": "ctl",
+  "code": "WRITE_MISS",
+  "why": "submit_cash_back_dispute_0589",
+  "dturn": 45,
+  "gold": 4,
+  "miss": 2,
+  "never": 2,
+  "stops": 16,
+  "steps": 49,
+  "lev": [],
+  "fb": [],
+  "last": "I appreciate your patience and cooperation. Let's try to determine the"
+ },
+ {
+  "task": "task_033",
+  "arm": "ctl",
+  "code": "READ_MISS",
+  "why": "initial_transfer_to_human_agent_1822",
+  "dturn": 16,
+  "gold": 5,
+  "miss": 4,
+  "never": 4,
+  "stops": 7,
+  "steps": 20,
+  "lev": [
+   "T2_MATERIAL_GATE",
+   "T2_CLAIMPROV",
+   "T2_PREKB",
+   "T2_WRITE_SUB",
+   "T2_WRITEPROV"
+  ],
+  "fb": [
+   [
+    "claimprov",
+    "Note: [CLAIM-PROVENANCE] tool ownership — the following are "
+   ]
+  ],
+  "last": "A human agent will now assist you with your issue. They will have acce"
+ },
+ {
+  "task": "task_040",
+  "arm": "ctl",
+  "code": "READ_MISS",
+  "why": "get_user_dispute_history_7291",
+  "dturn": 34,
+  "gold": 15,
+  "miss": 14,
+  "never": 14,
+  "stops": 18,
+  "steps": 38,
+  "lev": [
+   "T2_MATERIAL_GATE",
+   "T2_WRITE_SUB",
+   "T2_SELFDECL",
+   "T2_EPLAN",
+   "T2_SCAFFOLD_GET"
+  ],
+  "fb": [],
+  "last": "Thank you for your patience, Kwame. I have confirmed today's date as 2"
+ },
+ {
+  "task": "task_050",
+  "arm": "ctl",
+  "code": "READ_MISS",
+  "why": "get_user_dispute_history_7291",
+  "dturn": 31,
+  "gold": 13,
+  "miss": 10,
+  "never": 10,
+  "stops": 8,
+  "steps": 39,
+  "lev": [
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_FOLLOWUP",
+   "T2_UNLOCK_PROV",
+   "T2_CLAIMPROV"
+  ],
+  "fb": [
+   [
+    "followup_chain",
+    "Error: [FOLLOW-UP] the credit limit increase procedure is NO"
+   ]
+  ],
+  "last": "I understand. To help you track the status of your credit limit increa"
+ },
+ {
+  "task": "task_057",
+  "arm": "ctl",
+  "code": "READ_MISS",
+  "why": "get_all_user_accounts_by_user_id_3847",
+  "dturn": 123,
+  "gold": 7,
+  "miss": 4,
+  "never": 4,
+  "stops": 26,
+  "steps": 129,
+  "lev": [
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_SELFDECL"
+  ],
+  "fb": [],
+  "last": "Certainly, Marcus. Here is the standard timeline and process for a mob"
+ },
+ {
+  "task": "task_063",
+  "arm": "ctl",
+  "code": "READ_MISS",
+  "why": "open_bank_account_4821",
+  "dturn": 34,
+  "gold": 4,
+  "miss": 3,
+  "never": 2,
+  "stops": 11,
+  "steps": 44,
+  "lev": [
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_CLAIMPROV",
+   "T2_SELFDECL"
+  ],
+  "fb": [
+   [
+    "writesub",
+    "Note: [ISOLATED-FORMALIZATION] this decision was formalized "
+   ]
+  ],
+  "last": "I have transferred your request to a human agent who will assist you w"
+ },
+ {
+  "task": "task_074",
+  "arm": "ctl",
+  "code": "ARG_MISS",
+  "why": "apply_checking_account_credit_5829",
+  "dturn": 5,
+  "gold": 13,
+  "miss": 4,
+  "never": 0,
+  "stops": 14,
+  "steps": 47,
+  "lev": [
+   "T2_VIEW_COMPACT",
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_STACK",
+   "T2_UNCALLED_UNLOCK"
+  ],
+  "fb": [
+   [
+    "unified_regen",
+    "I can definitely help you with that. To start, I'll need to "
+   ],
+   [
+    "unified_regen",
+    "[DISCOVERY-STEP2] the knowledge base you already searched na"
+   ]
+  ],
+  "last": "You're welcome! I'm glad to hear that everything is sorted out. There'"
+ },
+ {
+  "task": "task_079",
+  "arm": "ctl",
+  "code": "READ_MISS",
+  "why": "get_all_user_accounts_by_user_id_3847",
+  "dturn": 25,
+  "gold": 25,
+  "miss": 22,
+  "never": 18,
+  "stops": 14,
+  "steps": 33,
+  "lev": [
+   "T2_MATERIAL_GATE",
+   "T2_SELFDECL"
+  ],
+  "fb": [],
+  "last": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Gi"
+ },
+ {
+  "task": "task_093",
+  "arm": "ctl",
+  "code": "ARG_MISS",
+  "why": "apply_savings_account_credit_6831",
+  "dturn": 4,
+  "gold": 9,
+  "miss": 2,
+  "never": 0,
+  "stops": 20,
+  "steps": 49,
+  "lev": [
+   "T2_WRITE_SUB",
+   "T2_WINDOW",
+   "T2_ACTIONREQ",
+   "T2_DISCOVERY_STEP2",
+   "T2_DISCOVERY_NAMES"
+  ],
+  "fb": [
+   [
+    null,
+    "A separate check was run on the policy documents on record, "
+   ],
+   [
+    "unified_regen",
+    "<tool_call> {\"name\": \"unlock_discoverable_agent_tool\", \"argu"
+   ]
+  ],
+  "last": "The interest discrepancy report has been submitted successfully to our"
+ },
+ {
+  "task": "task_094",
+  "arm": "ctl",
+  "code": "READ_MISS",
+  "why": "get_bank_account_transactions_9173",
+  "dturn": 56,
+  "gold": 9,
+  "miss": 4,
+  "never": 2,
+  "stops": 17,
+  "steps": 60,
+  "lev": [
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_SELFDECL",
+   "T2_EPLAN",
+   "T2_SCAFFOLD_GET"
+  ],
+  "fb": [
+   [
+    "writesub",
+    "Note: [ISOLATED-FORMALIZATION] this decision was formalized "
+   ]
+  ],
+  "last": "The interest correction of $40.00 has been successfully applied to you"
+ },
+ {
+  "task": "task_098",
+  "arm": "ctl",
+  "code": "READ_MISS",
+  "why": "get_referrals_by_user",
+  "dturn": 25,
+  "gold": 3,
+  "miss": 2,
+  "never": 1,
+  "stops": 9,
+  "steps": 28,
+  "lev": [],
+  "fb": [],
+  "last": "Based on the information from the knowledge base, the referral program"
+ },
+ {
+  "task": "task_100",
+  "arm": "ctl",
+  "code": "READ_MISS",
+  "why": "get_all_user_accounts_by_user_id_3847",
+  "dturn": 27,
+  "gold": 4,
+  "miss": 2,
+  "never": 2,
+  "stops": 8,
+  "steps": 30,
+  "lev": [],
+  "fb": [
+   [
+    "claimprov",
+    "Note: [CLAIM-PROVENANCE] tool ownership — the following are "
+   ]
+  ],
+  "last": "Great, let's proceed with generating the referral link for the Hunter "
+ },
+ {
+  "task": "task_016",
+  "arm": "treat",
+  "code": "WRITE_MISS",
+  "why": "submit_transaction",
+  "dturn": 42,
+  "gold": 2,
+  "miss": 1,
+  "never": 1,
+  "stops": 15,
+  "steps": 46,
+  "lev": [
+   "T2_MATERIAL_GATE",
+   "T2_CLAIMPROV",
+   "T2_STACK",
+   "T2_TRANSFER_TIER",
+   "T2_PREKB"
+  ],
+  "fb": [
+   [
+    "transfertier",
+    "Error: [TRANSFER-REASON] the documented reason list is tiere"
+   ]
+  ],
+  "last": "Thank you for your patience. A human agent will assist you shortly to "
+ },
+ {
+  "task": "task_033",
+  "arm": "treat",
+  "code": "READ_MISS",
+  "why": "initial_transfer_to_human_agent_1822",
+  "dturn": 19,
+  "gold": 5,
+  "miss": 4,
+  "never": 4,
+  "stops": 6,
+  "steps": 23,
+  "lev": [
+   "T2_MATERIAL_GATE",
+   "T2_PREKB",
+   "T2_WRITE_SUB",
+   "T2_CLAIMPROV",
+   "T2_SELFDECL"
+  ],
+  "fb": [],
+  "last": "Thank you for your patience, Zhang Mei. You have been successfully tra"
+ },
+ {
+  "task": "task_040",
+  "arm": "treat",
+  "code": "READ_MISS",
+  "why": "get_user_dispute_history_7291",
+  "dturn": 116,
+  "gold": 15,
+  "miss": 12,
+  "never": 4,
+  "stops": 61,
+  "steps": 120,
+  "lev": [],
+  "fb": [],
+  "last": "Thank you for your patience, Kwame. The dispute for the cancelled subs"
+ },
+ {
+  "task": "task_050",
+  "arm": "treat",
+  "code": "READ_MISS",
+  "why": "get_user_dispute_history_7291",
+  "dturn": 45,
+  "gold": 13,
+  "miss": 10,
+  "never": 10,
+  "stops": 5,
+  "steps": 53,
+  "lev": [
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_FOLLOWUP",
+   "T2_STACK",
+   "T2_CLAIMPROV"
+  ],
+  "fb": [
+   [
+    null,
+    "Error: [SIGNATURE] `give_discoverable_user_tool` takes only "
+   ],
+   [
+    "givexec",
+    "Error: [GIVE-EXEC] you gave the customer 'get_card_last_4_di"
+   ]
+  ],
+  "last": "Great, Sofia. I have confirmed your request for a $2,500 credit limit "
+ },
+ {
+  "task": "task_057",
+  "arm": "treat",
+  "code": "READ_MISS",
+  "why": "deposit_check_3847",
+  "dturn": 76,
+  "gold": 7,
+  "miss": 3,
+  "never": 2,
+  "stops": 21,
+  "steps": 86,
+  "lev": [
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_ARG_AXIS",
+   "T2_SEARCH_EXHAUST",
+   "T2_SELFDECL"
+  ],
+  "fb": [],
+  "last": "Yes, it is normal for mobile deposits to show as pending initially. Th"
+ },
+ {
+  "task": "task_063",
+  "arm": "treat",
+  "code": "READ_MISS",
+  "why": "open_bank_account_4821",
+  "dturn": 58,
+  "gold": 4,
+  "miss": 3,
+  "never": 2,
+  "stops": 27,
+  "steps": 66,
+  "lev": [
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_WRITEPROV",
+   "T2_SELFDECL"
+  ],
+  "fb": [],
+  "last": "I understand that you do not have the `open_savings_account` tool avai"
+ },
+ {
+  "task": "task_073",
+  "arm": "treat",
+  "code": "ARG_MISS",
+  "why": "apply_checking_account_credit_5829",
+  "dturn": 5,
+  "gold": 11,
+  "miss": 3,
+  "never": 0,
+  "stops": 26,
+  "steps": 64,
+  "lev": [
+   "T2_VIEW_COMPACT",
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_UNCALLED_UNLOCK",
+   "T2_UNAVAIL"
+  ],
+  "fb": [
+   [
+    "unified_regen",
+    "I can definitely help you with that. To start, I'll need to "
+   ],
+   [
+    "unified_regen",
+    "[DISCOVERY-STEP2] the knowledge base you already searched na"
+   ]
+  ],
+  "last": "You're welcome! I'm glad to hear that everything is sorted out. There "
+ },
+ {
+  "task": "task_074",
+  "arm": "treat",
+  "code": "ARG_MISS",
+  "why": "apply_checking_account_credit_5829",
+  "dturn": 5,
+  "gold": 13,
+  "miss": 4,
+  "never": 0,
+  "stops": 26,
+  "steps": 61,
+  "lev": [
+   "T2_VIEW_COMPACT",
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_STACK",
+   "T2_UNCALLED_UNLOCK"
+  ],
+  "fb": [
+   [
+    "unified_regen",
+    "I can definitely help you with that. To start, I'll need to "
+   ],
+   [
+    "unified_regen",
+    "[DISCOVERY-STEP2] the knowledge base you already searched na"
+   ]
+  ],
+  "last": "You're welcome! I'm glad everything is sorted out. Here's a quick reca"
+ },
+ {
+  "task": "task_079",
+  "arm": "treat",
+  "code": "READ_MISS",
+  "why": "get_all_user_accounts_by_user_id_3847",
+  "dturn": 94,
+  "gold": 25,
+  "miss": 19,
+  "never": 7,
+  "stops": 46,
+  "steps": 108,
+  "lev": [
+   "T2_MATERIAL_GATE",
+   "T2_WRITE_SUB",
+   "T2_SELFDECL"
+  ],
+  "fb": [],
+  "last": "I understand the urgency, Carlos. Let me connect you to a live agent f"
+ },
+ {
+  "task": "task_093",
+  "arm": "treat",
+  "code": "ARG_MISS",
+  "why": "apply_savings_account_credit_6831",
+  "dturn": 4,
+  "gold": 9,
+  "miss": 2,
+  "never": 0,
+  "stops": 23,
+  "steps": 56,
+  "lev": [
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_PROV",
+   "T2_WINDOW",
+   "T2_ACTIONREQ"
+  ],
+  "fb": [
+   [
+    null,
+    "A separate check was run on the policy documents on record, "
+   ],
+   [
+    "unified_regen",
+    ""
+   ]
+  ],
+  "last": "The interest discrepancy has been resolved. A credit of $3.00 has been"
+ },
+ {
+  "task": "task_094",
+  "arm": "treat",
+  "code": "READ_MISS",
+  "why": "get_all_user_accounts_by_user_id_3847",
+  "dturn": 70,
+  "gold": 9,
+  "miss": 8,
+  "never": 8,
+  "stops": 6,
+  "steps": 78,
+  "lev": [
+   "T2_MATERIAL_GATE",
+   "T2_WRITE_SUB",
+   "T2_FOLLOWUP",
+   "T2_STACK",
+   "T2_SELFDECL"
+  ],
+  "fb": [],
+  "last": "I understand that you are frustrated and would prefer to speak with a "
+ },
+ {
+  "task": "task_098",
+  "arm": "treat",
+  "code": "READ_MISS",
+  "why": "get_referrals_by_user",
+  "dturn": 27,
+  "gold": 3,
+  "miss": 2,
+  "never": 1,
+  "stops": 11,
+  "steps": 30,
+  "lev": [],
+  "fb": [
+   [
+    "searchexhaust",
+    "Error: [SEARCH-EXHAUST] the knowledge base has already rejec"
+   ],
+   [
+    "claimprov",
+    "Note: [CLAIM-PROVENANCE] tool ownership — the following are "
+   ]
+  ],
+  "last": "Based on your request to submit a referral after I recommend the best "
+ },
+ {
+  "task": "task_100",
+  "arm": "treat",
+  "code": "READ_MISS",
+  "why": "get_all_user_accounts_by_user_id_3847",
+  "dturn": 23,
+  "gold": 4,
+  "miss": 3,
+  "never": 2,
+  "stops": 6,
+  "steps": 26,
+  "lev": [],
+  "fb": [
+   [
+    "writesub",
+    "Note: [ISOLATED-FORMALIZATION] this decision was formalized "
+   ]
+  ],
+  "last": "Thank you for your patience, Tomoko. Your identity has been successful"
+ },
+ {
+  "task": "task_024",
+  "arm": "ctl",
+  "code": "ARG_MISS",
+  "why": "apply_for_credit_card",
+  "dturn": 19,
+  "gold": 1,
+  "miss": 1,
+  "never": 0,
+  "stops": 6,
+  "steps": 22,
+  "lev": [],
+  "fb": [],
+  "last": "It seems there was an issue with the initial setup of the transaction "
+ },
+ {
+  "task": "task_055",
+  "arm": "ctl",
+  "code": "READ_MISS",
+  "why": "deposit_check_3847",
+  "dturn": 54,
+  "gold": 8,
+  "miss": 4,
+  "never": 2,
+  "stops": 27,
+  "steps": 60,
+  "lev": [
+   "T2_MATERIAL_GATE",
+   "T2_WRITE_SUB",
+   "T2_SELFDECL"
+  ],
+  "fb": [
+   [
+    null,
+    "Error: 'deposit_check' is not a USER-side discoverable tool "
+   ]
+  ],
+  "last": "Sure, I can help confirm the deposit once you've submitted it through "
+ },
+ {
+  "task": "task_072",
+  "arm": "ctl",
+  "code": "ARG_MISS",
+  "why": "apply_checking_account_credit_5829",
+  "dturn": 5,
+  "gold": 9,
+  "miss": 2,
+  "never": 0,
+  "stops": 18,
+  "steps": 47,
+  "lev": [
+   "T2_VIEW_COMPACT",
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_UNCALLED_UNLOCK",
+   "T2_UNAVAIL"
+  ],
+  "fb": [
+   [
+    "unified_regen",
+    "I'll help you review your ATM fees for both your Bluest Acco"
+   ],
+   [
+    "unified_regen",
+    "[DISCOVERY-STEP2] the knowledge base you already searched na"
+   ]
+  ],
+  "last": "You're welcome! I'm glad to hear that everything is sorted out. There "
+ },
+ {
+  "task": "task_085",
+  "arm": "ctl",
+  "code": "READ_MISS",
+  "why": "get_all_user_accounts_by_user_id_3847",
+  "dturn": 39,
+  "gold": 13,
+  "miss": 12,
+  "never": 12,
+  "stops": 21,
+  "steps": 48,
+  "lev": [
+   "T2_REQUIRE_DOC",
+   "T2_MATERIAL_GATE",
+   "T2_STACK",
+   "T2_SELFDECL"
+  ],
+  "fb": [
+   [
+    "claimprov",
+    "Note: [CLAIM-PROVENANCE] tool ownership — the following are "
+   ],
+   [
+    "unified_regen",
+    ""
+   ]
+  ],
+  "last": "I have initiated the transfer to a human agent who specializes in acco"
+ },
+ {
+  "task": "task_024",
+  "arm": "treat",
+  "code": "ARG_MISS",
+  "why": "apply_for_credit_card",
+  "dturn": 7,
+  "gold": 1,
+  "miss": 1,
+  "never": 0,
+  "stops": 0,
+  "steps": 10,
+  "lev": [],
+  "fb": [
+   [
+    "unified_regen",
+    "To clarify your questions regarding the **Business Platinum "
+   ],
+   [
+    "unified_regen",
+    "Error: [ACTION] 'apply_for_credit_card' is run by the CUSTOM"
+   ]
+  ],
+  "last": "Based on the information from the knowledge base, the **Business Plati"
+ },
+ {
+  "task": "task_055",
+  "arm": "treat",
+  "code": "READ_MISS",
+  "why": "get_all_user_accounts_by_user_id_3847",
+  "dturn": 56,
+  "gold": 8,
+  "miss": 7,
+  "never": 7,
+  "stops": 4,
+  "steps": 60,
+  "lev": [
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_SELFDECL",
+   "T2_EPLAN",
+   "T2_SCAFFOLD_GET"
+  ],
+  "fb": [],
+  "last": "It looks like the transactions retrieved are primarily related to your"
+ },
+ {
+  "task": "task_072",
+  "arm": "treat",
+  "code": "WRITE_MISS",
+  "why": "log_verification",
+  "dturn": 19,
+  "gold": 9,
+  "miss": 6,
+  "never": 1,
+  "stops": 14,
+  "steps": 38,
+  "lev": [
+   "T2_WRITE_SUB",
+   "T2_MATERIAL_GATE",
+   "T2_SCAFFOLD_GET",
+   "T2_STACK",
+   "T2_CLAIMPROV"
+  ],
+  "fb": [
+   [
+    "writesub",
+    "Note: [ISOLATED-FORMALIZATION] this decision was formalized "
+   ]
+  ],
+  "last": "I understand your frustration, and I am transferring you to a human ag"
+ },
+ {
+  "task": "task_085",
+  "arm": "treat",
+  "code": "READ_MISS",
+  "why": "get_all_user_accounts_by_user_id_3847",
+  "dturn": 62,
+  "gold": 13,
+  "miss": 12,
+  "never": 12,
+  "stops": 32,
+  "steps": 66,
+  "lev": [],
+  "fb": [],
+  "last": "A human agent has been notified and will assist you shortly to manuall"
+ }
+]
