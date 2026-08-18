@@ -377,5 +377,25 @@
   "W07": 1,
   "W09": 1,
   "W15": 1
+ },
+ "freeze": {
+  "check": "repo sha 가 아니라 **엔진 경로 트리 해시**로 대조한다.",
+  "why": "meta 의 scaffold_sha 는 문서·런처 커밋만으로도 바뀐다(스모크 022b086c ↔ 1단계 5a21753a 가 그 예이고, 그 사이 diff 는 스모크 산출물 8개 + 런처 1개뿐이었다). sha 로 대조하면 **합산해도 되는 런을 거부**하게 된다 — 규칙이 스스로 틀린 경보를 낸다.",
+  "paths": [
+   "scripts/distill/tau2/t2_gate_patch.py",
+   "scripts/distill/tau2/t2_search.py",
+   "scripts/distill/tau2/t2_resolve.py",
+   "scripts/distill/tau2/t2_scaffold_get.py",
+   "scripts/distill/tau2/t2_subcall.py",
+   "scripts/distill/tau2/go_stack.sh",
+   "scripts/distill/tau2/a2"
+  ],
+  "cmd": "git ls-tree <sha> -- <paths> | sha1sum",
+  "frozen_hash": "b6a64de79158a0ed",
+  "verified": {
+   "t7312_smoke": "022b086c",
+   "t7313_stage1": "5a21753a"
+  },
+  "rule": "네 런(스모크·1·2·3단계) 전부 이 해시라야 합산한다. 다르면 그 지점에서 스택이 바뀐 것이므로 합치지 말고 **1단계부터 다시** 돈다."
  }
 }
