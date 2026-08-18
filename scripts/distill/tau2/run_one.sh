@@ -38,6 +38,7 @@ DIRTY=$(cd "$REPO" && git status --porcelain -- \
 #   때만 판정한다 ⇒ 비-선택 태스크엔 **트리거 자체가 없다**.
 #   ⚠VC 와 VG 를 **같이 켜는 팔은 없다** — 같은 판정을 두 번 사면 귀속이 섞인다.
 #   vgate = VG1 EL0 (VC 자리 대체)   vgate_el = VG1 EL1 (t7314 treat 와 짝)
+CV=0                     # 완료-주장 격리 검증(`cverify` 팔에서만 1)
 case "$ARM" in
   treat)    VC=1; EL=1; VG=0 ;;
   ctl)      VC=0; EL=0; VG=0 ;;
@@ -45,6 +46,7 @@ case "$ARM" in
   elonly)   VC=0; EL=1; VG=0 ;;
   vgate)    VC=0; EL=0; VG=1 ;;
   vgate_el) VC=0; EL=1; VG=1 ;;
+  cverify)  VC=0; EL=0; VG=0; CV=1 ;;   # 완료-주장 격리 검증만
   *) echo "[run_one] REFUSING: arm=$ARM (ctl|treat|vconly|elonly|vgate|vgate_el)" >&2; exit 1 ;;
 esac
 
@@ -54,11 +56,11 @@ T2_DISCOVERY_STEP2=1 T2_ARG_AXIS=1 T2_WRITE_SUB=3 T2_ACTION_INDEX=1 T2_NOW_SELFC
 T2_SEARCH_ON_PROCEED=1 T2_ACT_DEMAND=0 T2_DELIVER_PRECOMMIT=0 T2_PROCEED_DOCBODY=0 \
 T2_DOCS_AT_WRITE=0 T2_SUB_REQUIREMENT=0 T2_HANDOFF_PREDICATE=0 T2_PENDING_DISCOVERED=0"
 
-echo "{\"tag\":\"$TAG\",\"scaffold_sha\":\"$SHA\",\"port\":$PORT,\"tasks\":\"$TASK\",\"arm\":\"$ARM\",\"nt\":1,\"verdict_carry\":\"$VC\",\"elig_line\":\"$EL\",\"verdict_gate\":\"$VG\",\"max_steps\":150,\"concurrency\":1,\"why\":\"single-task attribution run\"}" \
+echo "{\"tag\":\"$TAG\",\"scaffold_sha\":\"$SHA\",\"port\":$PORT,\"tasks\":\"$TASK\",\"arm\":\"$ARM\",\"nt\":1,\"verdict_carry\":\"$VC\",\"elig_line\":\"$EL\",\"verdict_gate\":\"$VG\",\"claim_verify\":\"$CV\",\"max_steps\":150,\"concurrency\":1,\"why\":\"single-task attribution run\"}" \
   | tee "$LOG/${TAG}.meta.json"
 
 setsid bash -c "cd '$REPO/scripts/distill/tau2' && source ./go_stack.sh >/dev/null 2>&1 && \
-  export $PIN && export T2_VERDICT_CARRY=$VC T2_ELIG_LINE=$EL T2_VERDICT_GATE=$VG && \
+  export $PIN && export T2_VERDICT_CARRY=$VC T2_ELIG_LINE=$EL T2_VERDICT_GATE=$VG T2_CLAIM_VERIFY=$CV && \
   export GO_MAX_STEPS=150 GO_CONCURRENCY=1 && \
   t2_launch $TAG $PORT '$TASK' 1" \
   </dev/null >"$LOG/${TAG}.log" 2>&1 &

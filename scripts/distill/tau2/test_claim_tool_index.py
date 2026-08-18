@@ -70,43 +70,9 @@ def main():
     chk(len(G._claim_unbacked(blank, EMAP, LEDGER, [])) == 1,
         "빈 문자열 지목은 미지목으로 본다(구판 경로)")
 
-    # ── ★거짓 구제 차단 (2026-08-18·t7318 task_073 실물) ────────────────────
-    #   실측 로그: `[T2_CLAIMPROV] kind-index rescued: kind='record_update'
-    #   tool='get_atm_fee_discrepancies'` — **조회 도구**로 환급 완료 주장을 구제했고, 그 뒤
-    #   환급은 한 번도 실행되지 않은 채 "처리했다"는 보고가 나갔다(sim 0.0).
-    #   판별자는 **실물 A3 선언**(`claim_bindings.event_map`)으로만 세운다.
-    import io as _io
-    import json as _json
-    _d = os.path.dirname(os.path.abspath(__file__))
-    _a2 = _json.load(_io.open(os.path.join(_d, "a2", "banking_knowledge.specific.json"),
-                              encoding="utf-8"))
-    _s2 = _json.load(_io.open(os.path.join(_d, "a2", "banking_knowledge.settings.json"),
-                              encoding="utf-8"))
-    _a2.update({k: v for k, v in _s2.items() if k not in _a2})
-    _EM = ((_a2.get("claim_bindings") or {}).get("event_map") or {})
-
-    _fake = [{"kind": "record_update", "what": "refunded the ATM fees",
-              "tool": "get_atm_fee_discrepancies"}]
-    chk(len(G._claim_unbacked(_fake, _EM, {"get_atm_fee_discrepancies"}, [], _a2)) == 1,
-        "조회 도구를 대면 완료 주장을 구제하지 않는다 (t7318 073 실물)")
-
-    _real = [{"kind": "record_update", "what": "logged the verification",
-              "tool": "log_verification"}]
-    chk(G._claim_unbacked(_real, _EM, {"log_verification"}, [], _a2) == [],
-        "다른 kind 에 선언된 도구는 그대로 구제한다 (C341 보존)")
-
-    _disp = [{"kind": "record_update", "what": "applied the credit",
-              "tool": "call_discoverable_agent_tool"}]
-    chk(G._claim_unbacked(_disp, _EM, {"call_discoverable_agent_tool"}, [], _a2) == [],
-        "디스패처 지목은 판정하지 않는다 — 모르면 막지 않는다([[25]])")
-
-    _wr = [{"kind": "record_update", "what": "applied the credit",
-            "tool": "apply_checking_account_credit_5829"}]
-    chk(G._claim_unbacked(_wr, _EM, {"apply_checking_account_credit"}, [], _a2) == [],
-        "실효 write 를 대면 구제한다")
-
-    chk(G._claim_unbacked(_fake, {}, {"get_atm_fee_discrepancies"}, [], _a2) == [],
-        "선언(event_map)이 비면 판정하지 않는다(종전 거동)")
+    # ★거짓 구제(조회 도구로 완료 주장을 통과시키는 것)의 판정은 이 순수함수가 아니라
+    #   **격리 검증 서브**가 한다(2026-08-18·사용자 지시) — 검정은 `test_claim_verify.py`.
+    #   여기 이름 대조는 종전 계약 그대로 두고, 그 위에 서브 판정이 얹힌다([[52]]).
 
     print("\n%s  (%d 실패)" % ("PASS" if not FAILED else "FAIL", len(FAILED)))
     return 1 if FAILED else 0

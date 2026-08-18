@@ -141,6 +141,32 @@ def main():
     if pin is not None:
         print("   FAIL — 선언 없이 발화했다"); bad += 1
 
+    # ⑥ 손님이 **방금 말한** 턴은 면제 — 핀은 tool_choice=required 를 함께 걸기 때문에
+    #    여기서 걸면 손님 질문을 통째로 무시한다(073 이 그 자리에서 대화가 닫혔다).
+    ag6 = _Agent()
+    hU = hA + [_M("user", (), content="Can you tell me the total first?")]
+    pin = GP._read_routine_pin(ag6, A2, hU)
+    print("⑥ 손님 발화 직후 → %r" % (pin,))
+    if pin is not None:
+        print("   FAIL — 답해야 할 턴에 도구를 강제했다"); bad += 1
+    if GP._read_routine_pin(ag6, A2, hA) is None:
+        print("   FAIL — 면제가 과했다(도구 턴에서도 안 걸린다)"); bad += 1
+
+    # ⑦ **집합당 1회** — 불응해도 같은 집합으로는 다시 걸지 않는다(매 턴 강제 금지).
+    ag7 = _Agent()
+    first = GP._read_routine_pin(ag7, A2, hA)
+    again = GP._read_routine_pin(ag7, A2, hA)
+    print("⑦ 같은 집합 재요청 → %r" % (again,))
+    if not first or again is not None:
+        print("   FAIL — 같은 집합을 되풀이해 강제한다(창 순환 위험)"); bad += 1
+    # 하나라도 부르면 집합이 줄어 **새 열쇠**가 되므로 다시 걸린다 = 진척이 있을 때만 이어진다
+    moved = GP._read_routine_pin(ag7, A2, hA + _unlock(
+        ["get_user_dispute_history_7291", "get_pending_replacement_orders_5765",
+         "get_credit_limit_increase_history_4829", "get_payment_history_6183"]))
+    print("⑦b 진척 뒤 → %r" % (moved[0] if moved else None,))
+    if moved is None:
+        print("   FAIL — 진척했는데 루틴이 끊겼다"); bad += 1
+
     src = io.open(os.path.join(HERE, "t2_gate_patch.py"), encoding="utf-8").read()
     i = src.find("def _read_routine_pin(")
     body = src[i:i + 2600]

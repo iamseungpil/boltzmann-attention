@@ -2611,6 +2611,14 @@ def _read_routine_pin(agent, a2, messages):
     env = getattr(getattr(agent, "_t2_orch", None), "environment", None)
     if env is None:
         return None
+    # ⑵ 손님이 방금 말한 턴은 **면제**한다 (2026-08-18). 핀은 `tool_choice=required` 를 함께
+    #   걸기 때문에, 답해야 하는 자리에서 걸면 손님 질문을 통째로 무시하게 된다. 073 은 바로
+    #   그 자리에서 손님이 대화를 닫았다 — 부작용을 만들 자리를 아예 비운다.
+    for _m in reversed(messages or []):
+        if getattr(_m, "role", None) in ("user", "assistant", "tool"):
+            if getattr(_m, "role", None) == "user":
+                return None
+            break
     done = _executed_tool_counts(messages)
     unlocked = _unlocked_names(messages, a2)
     for p in _PROC.active_procedures(procs, done):
@@ -2637,6 +2645,16 @@ def _read_routine_pin(agent, a2, messages):
         arg = names.get(tool) if tool else None
         if not (tool and arg):
             return None                   # 선언이 없으면 루틴 없음(미선언 도메인 = 침묵)
+        # ⑶ **한 번 시도하고 놓아준다**: 같은 (도구, 집합)으로는 다시 걸지 않는다. 불응하면
+        #   그대로 두고, 하나라도 부르면 집합이 줄어 **새 열쇠**가 되므로 이어서 걸린다
+        #   ⇒ 진척이 있을 때만 계속된다. 강제를 매 턴 되풀이하지 않는다([[64]]·창 순환 방지).
+        _key = (tool, tuple(picked))
+        _tried = getattr(agent, "_t2_routine_tried", None)
+        if _tried is None:
+            _tried = agent._t2_routine_tried = set()
+        if _key in _tried:
+            return None
+        _tried.add(_key)
         return (tool, arg, picked)
     return None
 
@@ -3104,42 +3122,62 @@ def _quiet_turns(messages, tools):
     return n
 
 
-def _claim_tool_acts(tool, emap, a2=None):
-    """모델이 지목한 그 도구가 **무언가를 하는 도구**인가 (순수함수·[[22]] 닫힌 술어).
+def _claim_verify_false(agent, spec, claims, evs):
+    """구제된 완료-주장 중 **격리 서브가 거짓이라고 답한 것** (2026-08-18·사용자 지시).
 
-    ★왜 필요한가 (2026-08-18·t7318 task_073): 구제는 *"지목한 이름이 원장에 있는가"* 만 봤고,
-      그래서 `record_update`(환급) 주장이 **조회 도구**(`get_atm_fee_discrepancies`)로 구제됐다.
-      그 뒤 환급은 한 번도 실행되지 않았고 에이전트는 *"처리했다"* 고 보고했다.
+    사용자 축자: *"LLM 격리로 env 정책과 실행한 도구, 현재 실행했다고 주장하는 도구를 참 거짓으로
+    판단하게 별도의 검증 에이전트 돌리면 되는거 아닌가? 이건 LLM 이 잘 할 수 있다."*
 
-    ★왜 이 술어인가 (앞서 둘을 버렸다):
-      · *"주장한 kind 의 집합에 속하는가"* 는 **C341 을 되살린다** — `log_verification` 을
-        `record_update` 로 라벨한 그 사례가 다시 거짓 기각된다.
-      · *"실효 write 인가"* 도 같은 이유로 실패한다(`log_verification` 은 procedural).
-      ⇒ **어느 kind 에든 선언돼 있으면 통과**시키고, 그 밖이면 실효 write 인지만 더 본다.
-        kind 라벨은 해석으로 남고([[52]]) 엔진은 집합 소속만 본다 — 의미 판단 0.
+    ## 왜 (t7318 task_073)
+      `record_update`(환급) 주장이 **조회 도구**(`get_atm_fee_discrepancies`)를 지목했는데 그 이름이
+      원장에 있다는 이유로 구제됐고, 환급은 끝내 실행되지 않은 채 *"처리했다"* 는 보고가 나갔다.
+      이름 대조만으로는 *"그 도구가 그 일을 할 수 있는가"* 를 물을 수 없다 — 그것은 **해석**이고
+      해석은 LLM 몫이다([[52]]).
 
-    ⚠모르면 통과(구제 유지)가 기본이다: 선언이 비었으면 종전 거동 그대로다([[25]]).
+    ## 계약
+      서브에 들어가는 것은 **원장 이름 목록과 주장 한 줄뿐**이다([[65]] 대화 잔여물 0). 서브는
+      `{"true": bool, "did": "<원장에 있는 도구 이름>"}` 을 낸다. 엔진은 ⑴`true` 를 읽고
+      ⑵`did` 가 **원장에 실재**하는지만 본다(C45 동형·의미 판단 0).
+      `true` 인데 `did` 가 원장 밖이면 **판정을 버린다**(모르면 막지 않는다·[[25]]).
+
+    ⚠기본 OFF(`T2_CLAIM_VERIFY`) · 템플릿 미선언·호출 실패·파싱 실패 → 빈 목록(종전 거동).
     """
-    t = str(tool or "").strip()
-    if not t:
-        return False
-    if not emap:
-        return True                      # 선언이 없으면 판정하지 않는다(종전 거동)
-    # ★디스패처 지목은 **판정하지 않는다** (2026-08-18·라이브 실측 2건). 모델이
-    #   `call_discoverable_agent_tool` 을 지목하면 그 이름만으로는 안쪽에서 무엇을 했는지
-    #   알 수 없다 — 여기서 기각하면 C341 이 되살아난다(주석 축자: *"계좌 조회
-    #   (call_discoverable_agent_tool 경유)도 같은 식으로 '없다'고 했다"*). 모르면 통과([[25]]).
-    _drc = ((a2 or {}).get("dispatcher_role_check") or {})
-    if t in {str(_drc.get("agent_call") or ""), str(_drc.get("user_call") or "")} - {""}:
-        return True
-    for _spec in (emap or {}).values():
-        for p in (_spec if isinstance(_spec, list) else [_spec]):
-            p = str(p or "")
-            if not p or p == "__effective_write__":
-                continue
-            if t.startswith(p):
-                return True
-    return _is_effective_write(t, a2)
+    if os.environ.get("T2_CLAIM_VERIFY") != "1":
+        return []
+    tpl = (spec or {}).get("verify_question")
+    if not (tpl and claims and agent is not None):
+        return []
+    try:
+        import t2_subcall as _SC
+        import tau2.agent.llm_agent as _la_v
+        from tau2.data_model.message import UserMessage as _UM_v
+    except Exception as _ie:
+        print("[T2_CLAIM_VERIFY] skip=import %r" % (_ie,), file=sys.stderr, flush=True)
+        return []
+    ledger = sorted({str(e) for e in (evs or ()) if str(e or "").strip()})
+    out = []
+    for c in (claims or []):
+        body = tpl.format(ledger="\n".join("- " + n for n in ledger),
+                          claim=str((c or {}).get("what") or "")[:400],
+                          tool=str((c or {}).get("tool") or "")[:120])
+        raw = _SC.sub_generate(agent, _la_v, _UM_v, body, "claim_verify")
+        obj = _SC.parse_contract(raw, "true")
+        if not isinstance(obj, dict):
+            print("[T2_CLAIM_VERIFY] 판정 없음(그대로 둔다): tool=%r"
+                  % ((c or {}).get("tool"),), file=sys.stderr, flush=True)
+            continue
+        verdict = bool(obj.get("true"))
+        did = str(obj.get("did") or "").strip()
+        if verdict and did and did not in set(ledger):
+            print("[T2_CLAIM_VERIFY] 참이라는데 지목이 원장 밖(%r) — 판정 버린다" % (did,),
+                  file=sys.stderr, flush=True)
+            continue
+        if not verdict:
+            out.append(c)
+            print("[T2_CLAIM_VERIFY] 거짓 판정: claim=%r tool=%r"
+                  % (str((c or {}).get("what"))[:60], (c or {}).get("tool")),
+                  file=sys.stderr, flush=True)
+    return out
 
 
 def _claim_unbacked(claims, emap, evs, messages, a2=None):
@@ -3172,13 +3210,6 @@ def _claim_unbacked(claims, emap, evs, messages, a2=None):
         if t:
             if t not in named:
                 out.append(c)
-            elif not _claim_tool_acts(t, emap, a2):
-                # ★거짓 구제 차단(2026-08-18·t7318): 실행되긴 했으나 **아무것도 하지 않는**
-                #   도구를 댔다 = 그 주장은 여전히 미입증이다. 여기서 구제하면 우리 출력이
-                #   거짓 완료를 승인해 준다([[25]] 우리 출력은 유일한 근거원).
-                out.append(c)
-                print("[T2_CLAIMPROV] 구제 기각: kind=%r tool=%r — 선언된 사건도 실효 write 도 아니다"
-                      % ((c or {}).get("kind"), t), file=sys.stderr, flush=True)
             else:
                 print("[T2_CLAIMPROV] kind-index rescued: kind=%r tool=%r 원장에 있다"
                       % ((c or {}).get("kind"), t), file=sys.stderr, flush=True)
@@ -6206,9 +6237,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                       file=_sys.stderr, flush=True)
         # ★P3(C208③·DAY5_PRESCRIPTIONS §P3): 터미널-턴 유예의 그 1턴만 tool_choice=required —
         #   재-notice 산문 봉쇄(기존 FORCE_ACTION 기제 재사용·도구/인자 미지정=write 강제 아님).
+        # ★읽기 루틴은 **최초 생성**에도 물린다 (2026-08-18·t7319 실측: 재생성 턴에서만
+        #   해석돼 0회 발화했다 — 조회가 열린 그 턴들은 아무도 거부하지 않은 평범한 턴이었다).
+        #   면제 둘이 부작용을 막는다: 손님이 방금 말한 턴은 걸지 않고(⑵), 같은 집합은 한 번만
+        #   건다(⑶). 강제 대상은 **읽기뿐**이다(§1.5 Q5).
+        _rt_pin = None
+        if os.environ.get("T2_PIN_READ_STEPS") == "1" and a2 is not None:
+            try:
+                _rt_pin = _read_routine_pin(self, a2, state.messages)
+                if _rt_pin:
+                    print("[T2_READ_ROUTINE] %s(%s in %s)"
+                          % (_rt_pin[0], _rt_pin[1], _rt_pin[2]),
+                          file=_sys.stderr, flush=True)
+            except Exception as _rte:
+                _rt_pin = None
+                print("[T2_READ_ROUTINE] 건너뜀(무발화): %r" % (_rte,),
+                      file=_sys.stderr, flush=True)
         if getattr(self, "_t2_term_force", False):
             self._t2_term_force = False
             am = _gen(self, work, bw(), "agent_response", tool_choice="required")
+        elif _rt_pin:
+            am = _gen(self, work, bw(), "agent_response", pin=_rt_pin)
         else:
             am = _gen(self, work, bw(), "agent_response")
         gate_rounds = prov_rounds = eplan_rounds = cons_rounds = ra_rounds = te_rounds = wev_rounds = 0
@@ -10704,6 +10753,22 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _evs.add(_eff_tool_name(_tc3))
                 _emap = _cpv["event_map"]
                 _unbacked = _claim_unbacked(_cl, _emap, _evs, state.messages, _a2_of(self))
+                # ★격리 검증 (2026-08-18·`T2_CLAIM_VERIFY`·기본 OFF): 이름 대조로 **구제된**
+                #   주장만 서브에게 다시 묻는다 — *"그 도구가 정말 그 일을 했는가"*. 이름이
+                #   원장에 있다는 사실은 t7318 에서 조회 도구를 환급으로 통과시켰다.
+                try:
+                    _resc = [c for c in (_cl or [])
+                             if str((c or {}).get("tool") or "").strip() and c not in _unbacked]
+                    # ⚠문면은 **L1 선언에서 직접** 읽는다 — `claim_prov` 합성에 키를 흘리면
+                    #   레거시 생성물 `<domain>.gate.json` 과 등가가 깨진다([[24]]·3층 검정이 잡았다).
+                    _cvspec = {"verify_question": ((_a2_of(self) or {}).get("claim_audit")
+                                                   or {}).get("verify_question")}
+                    for _cf in _claim_verify_false(self, _cvspec, _resc, _evs):
+                        if _cf not in _unbacked:
+                            _unbacked.append(_cf)
+                except Exception as _cve:
+                    print("[T2_CLAIM_VERIFY] 건너뜀(무발화): %r" % (_cve,),
+                          file=sys.stderr, flush=True)
                 # 미래-약속: 같은 원장대조 — 이 창(사임/transfer)에서 미이행 약속 = 영영 미이행(탈출티켓).
                 #   feedback_pending 미선언(구판 A2)이면 발화 0(거동보존).
                 _unb_p = (_claim_unbacked(_pd, _emap, _evs, state.messages, _a2_of(self))
