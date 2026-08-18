@@ -384,3 +384,13 @@ export T2_VERDICT_GATE_CAP=1      # sim당 거부 상한(livelock 금지·052 �
 #   근거 = t7318 073(조회 도구로 환급 주장이 구제되고 환급은 끝내 미실행·reward 0.0).
 #   ⚠기본 OFF — 판정 효과는 A/B 로 잰다([[57]]).
 export T2_CLAIM_VERIFY=0
+
+# ★출처 집합에 **우리 층**을 포함 (`T2_PROV_OURS`·2026-08-18 선언·정본
+#   `CONFLICT_ARBITRATION_THEORY_2026_08_06` §3-T3·구현은 2026-08-06 부터 있었고 **한 번도 안 켰다**).
+#   근거(t7320 라이브 실측): 읽기 루틴이 `unlock_discoverable_agent_tool` 을 두 조회 이름으로
+#   고정한 그 턴에서, 같은 층의 출처 가드가 그 이름을 **operator-fab(지어낸 이름)** 으로 막았다 —
+#   우리 피드백은 `role=tool, error=True` 로 나가 출처 집합(성공한 tool-result)에서 구조적으로
+#   빠지기 때문이다. 그 턴에 모델이 할 수 있는 행동이 0이 된다.
+#   ⚠날조 통과 위험 0: `stated_names` 가 **레지스트리 교집합**을 걸어 실재하지 않는 이름은
+#     애초에 담기지 않는다(집합 구성으로 보장).
+export T2_PROV_OURS=1
