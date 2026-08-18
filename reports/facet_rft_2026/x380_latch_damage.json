@@ -1,0 +1,1042 @@
+{
+ "rows": [
+  {
+   "tag": "bank_t7308_ctl_20260818c",
+   "arm": "ctl",
+   "task": "task_022",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 44,
+   "stops": 4,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 41,
+   "after_new": 8,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_agent_tool",
+    "get_current_time",
+    "get_user_information_by_name"
+   ]
+  },
+  {
+   "tag": "bank_t7308_ctl_20260818c",
+   "arm": "ctl",
+   "task": "task_019",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 72,
+   "stops": 1,
+   "resets": 0,
+   "first": 21,
+   "after_turns": 51,
+   "after_new": 9,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_ctl_20260818c",
+   "arm": "ctl",
+   "task": "task_028",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 76,
+   "stops": 18,
+   "resets": 0,
+   "first": 7,
+   "after_turns": 69,
+   "after_new": 10,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_ctl_20260818c",
+   "arm": "ctl",
+   "task": "task_029",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 95,
+   "stops": 8,
+   "resets": 0,
+   "first": 7,
+   "after_turns": 88,
+   "after_new": 11,
+   "new_names": [
+    "KB_search_dense",
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_ctl_20260818c",
+   "arm": "ctl",
+   "task": "task_019",
+   "reward": 1.0,
+   "term": "user_stop",
+   "steps": 99,
+   "stops": 20,
+   "resets": 0,
+   "first": 7,
+   "after_turns": 92,
+   "after_new": 11,
+   "new_names": [
+    "KB_search_dense",
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_ctl_20260818c",
+   "arm": "ctl",
+   "task": "task_020",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 101,
+   "stops": 11,
+   "resets": 0,
+   "first": 29,
+   "after_turns": 72,
+   "after_new": 5,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_transactions_by_user",
+    "get_reward_discrepancies"
+   ]
+  },
+  {
+   "tag": "bank_t7308_ctl_20260818c",
+   "arm": "ctl",
+   "task": "task_027",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 123,
+   "stops": 18,
+   "resets": 0,
+   "first": 5,
+   "after_turns": 118,
+   "after_new": 11,
+   "new_names": [
+    "KB_search_bm25",
+    "KB_search_dense",
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool"
+   ]
+  },
+  {
+   "tag": "bank_t7308_ctl_20260818c",
+   "arm": "ctl",
+   "task": "task_020",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 72,
+   "stops": 19,
+   "resets": 0,
+   "first": 11,
+   "after_turns": 61,
+   "after_new": 9,
+   "new_names": [
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user",
+    "get_current_time"
+   ]
+  },
+  {
+   "tag": "bank_t7308_ctl_20260818c",
+   "arm": "ctl",
+   "task": "task_029",
+   "reward": 1.0,
+   "term": "user_stop",
+   "steps": 94,
+   "stops": 17,
+   "resets": 0,
+   "first": 7,
+   "after_turns": 87,
+   "after_new": 10,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_ctl_20260818c",
+   "arm": "ctl",
+   "task": "task_027",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 88,
+   "stops": 28,
+   "resets": 0,
+   "first": 5,
+   "after_turns": 83,
+   "after_new": 10,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_agent_tool",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_ctl_20260818c",
+   "arm": "ctl",
+   "task": "task_028",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 94,
+   "stops": 25,
+   "resets": 0,
+   "first": 5,
+   "after_turns": 89,
+   "after_new": 10,
+   "new_names": [
+    "KB_search_bm25",
+    "KB_search_dense",
+    "call_discoverable_agent_tool",
+    "get_credit_card_accounts_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_ctl_20260818c",
+   "arm": "ctl",
+   "task": "task_022",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 96,
+   "stops": 25,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 93,
+   "after_new": 12,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_treat_20260818c",
+   "arm": "treat",
+   "task": "task_028",
+   "reward": 1.0,
+   "term": "user_stop",
+   "steps": 96,
+   "stops": 30,
+   "resets": 0,
+   "first": 7,
+   "after_turns": 89,
+   "after_new": 10,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_treat_20260818c",
+   "arm": "treat",
+   "task": "task_027",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 85,
+   "stops": 21,
+   "resets": 0,
+   "first": 9,
+   "after_turns": 76,
+   "after_new": 8,
+   "new_names": [
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user",
+    "get_current_time",
+    "get_reward_discrepancies"
+   ]
+  },
+  {
+   "tag": "bank_t7308_treat_20260818c",
+   "arm": "treat",
+   "task": "task_029",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 106,
+   "stops": 17,
+   "resets": 0,
+   "first": 7,
+   "after_turns": 99,
+   "after_new": 11,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_treat_20260818c",
+   "arm": "treat",
+   "task": "task_019",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 102,
+   "stops": 35,
+   "resets": 0,
+   "first": 5,
+   "after_turns": 97,
+   "after_new": 11,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_treat_20260818c",
+   "arm": "treat",
+   "task": "task_020",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 97,
+   "stops": 22,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 94,
+   "after_new": 12,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_treat_20260818c",
+   "arm": "treat",
+   "task": "task_022",
+   "reward": 0.0,
+   "term": "context_window_exceeded",
+   "steps": 113,
+   "stops": 15,
+   "resets": 0,
+   "first": 43,
+   "after_turns": 70,
+   "after_new": 2,
+   "new_names": [
+    "call_discoverable_user_tool",
+    "give_discoverable_user_tool"
+   ]
+  },
+  {
+   "tag": "bank_t7308_treat_20260818c",
+   "arm": "treat",
+   "task": "task_022",
+   "reward": 0.0,
+   "term": "context_window_exceeded",
+   "steps": 85,
+   "stops": 3,
+   "resets": 0,
+   "first": 33,
+   "after_turns": 52,
+   "after_new": 2,
+   "new_names": [
+    "get_credit_card_transactions_by_user",
+    "get_reward_discrepancies"
+   ]
+  },
+  {
+   "tag": "bank_t7308_treat_20260818c",
+   "arm": "treat",
+   "task": "task_019",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 86,
+   "stops": 17,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 83,
+   "after_new": 13,
+   "new_names": [
+    "KB_search_bm25",
+    "KB_search_dense",
+    "call_discoverable_agent_tool",
+    "get_credit_card_accounts_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_treat_20260818c",
+   "arm": "treat",
+   "task": "task_020",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 102,
+   "stops": 29,
+   "resets": 0,
+   "first": 9,
+   "after_turns": 93,
+   "after_new": 10,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_treat_20260818c",
+   "arm": "treat",
+   "task": "task_028",
+   "reward": 1.0,
+   "term": "user_stop",
+   "steps": 78,
+   "stops": 9,
+   "resets": 0,
+   "first": 7,
+   "after_turns": 71,
+   "after_new": 10,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_treat_20260818c",
+   "arm": "treat",
+   "task": "task_027",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 104,
+   "stops": 12,
+   "resets": 0,
+   "first": 7,
+   "after_turns": 97,
+   "after_new": 12,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7308_treat_20260818c",
+   "arm": "treat",
+   "task": "task_029",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 115,
+   "stops": 26,
+   "resets": 0,
+   "first": 7,
+   "after_turns": 108,
+   "after_new": 10,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "arm": "ctl",
+   "task": "task_004",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 33,
+   "stops": 13,
+   "resets": 0,
+   "first": 6,
+   "after_turns": 27,
+   "after_new": 4,
+   "new_names": [
+    "get_user_information_by_email",
+    "get_user_information_by_name",
+    "shell",
+    "transfer_to_human_agents"
+   ]
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "arm": "ctl",
+   "task": "task_016",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 48,
+   "stops": 15,
+   "resets": 0,
+   "first": 17,
+   "after_turns": 31,
+   "after_new": 5,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "get_referrals_by_user",
+    "get_user_information_by_id",
+    "transfer_to_human_agents"
+   ]
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "arm": "ctl",
+   "task": "task_024",
+   "reward": 1.0,
+   "term": "user_stop",
+   "steps": 22,
+   "stops": 5,
+   "resets": 0,
+   "first": 9,
+   "after_turns": 13,
+   "after_new": 2,
+   "new_names": [
+    "KB_search_dense",
+    "apply_for_credit_card"
+   ]
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "arm": "ctl",
+   "task": "task_055",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 64,
+   "stops": 18,
+   "resets": 0,
+   "first": 25,
+   "after_turns": 39,
+   "after_new": 3,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "get_user_information_by_id",
+    "unlock_discoverable_agent_tool"
+   ]
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "arm": "ctl",
+   "task": "task_057",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 94,
+   "stops": 29,
+   "resets": 0,
+   "first": 35,
+   "after_turns": 59,
+   "after_new": 2,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_agent_tool"
+   ]
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "arm": "ctl",
+   "task": "task_063",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 40,
+   "stops": 16,
+   "resets": 0,
+   "first": 9,
+   "after_turns": 31,
+   "after_new": 6,
+   "new_names": [
+    "apply_for_credit_card",
+    "get_current_time",
+    "get_user_information_by_name",
+    "log_verification"
+   ]
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "arm": "ctl",
+   "task": "task_072",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 52,
+   "stops": 21,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 49,
+   "after_new": 8,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_agent_tool",
+    "get_atm_fee_discrepancies",
+    "get_current_time"
+   ]
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "arm": "ctl",
+   "task": "task_073",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 56,
+   "stops": 24,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 53,
+   "after_new": 8,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_agent_tool",
+    "get_atm_fee_discrepancies",
+    "get_current_time"
+   ]
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "arm": "ctl",
+   "task": "task_079",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 38,
+   "stops": 19,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 35,
+   "after_new": 7,
+   "new_names": [
+    "KB_search_bm25",
+    "get_current_time",
+    "get_user_information_by_name",
+    "log_verification"
+   ]
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "arm": "ctl",
+   "task": "task_093",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 49,
+   "stops": 19,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 46,
+   "after_new": 11,
+   "new_names": [
+    "KB_search_bm25",
+    "KB_search_dense",
+    "call_discoverable_agent_tool",
+    "get_correct_savings_apy"
+   ]
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "arm": "ctl",
+   "task": "task_098",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 30,
+   "stops": 6,
+   "resets": 0,
+   "first": 15,
+   "after_turns": 15,
+   "after_new": 3,
+   "new_names": [
+    "get_referrals_by_user",
+    "log_verification",
+    "submit_referral"
+   ]
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "arm": "ctl",
+   "task": "task_100",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 26,
+   "stops": 6,
+   "resets": 0,
+   "first": 11,
+   "after_turns": 15,
+   "after_new": 4,
+   "new_names": [
+    "get_current_time",
+    "log_verification",
+    "submit_referral",
+    "verify_identity"
+   ]
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "arm": "treat",
+   "task": "task_004",
+   "reward": 1.0,
+   "term": "user_stop",
+   "steps": 29,
+   "stops": 11,
+   "resets": 0,
+   "first": 6,
+   "after_turns": 23,
+   "after_new": 4,
+   "new_names": [
+    "get_user_information_by_email",
+    "get_user_information_by_name",
+    "shell",
+    "transfer_to_human_agents"
+   ]
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "arm": "treat",
+   "task": "task_016",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 42,
+   "stops": 13,
+   "resets": 0,
+   "first": 15,
+   "after_turns": 27,
+   "after_new": 3,
+   "new_names": [
+    "get_credit_card_transactions_by_user",
+    "get_referrals_by_user",
+    "log_verification"
+   ]
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "arm": "treat",
+   "task": "task_024",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 12,
+   "stops": 0,
+   "resets": 0,
+   "first": null,
+   "after_turns": null,
+   "after_new": null,
+   "new_names": []
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "arm": "treat",
+   "task": "task_055",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 52,
+   "stops": 0,
+   "resets": 0,
+   "first": null,
+   "after_turns": null,
+   "after_new": null,
+   "new_names": []
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "arm": "treat",
+   "task": "task_057",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 72,
+   "stops": 25,
+   "resets": 0,
+   "first": 23,
+   "after_turns": 49,
+   "after_new": 2,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "get_credit_card_transactions_by_user"
+   ]
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "arm": "treat",
+   "task": "task_063",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 46,
+   "stops": 17,
+   "resets": 0,
+   "first": 11,
+   "after_turns": 35,
+   "after_new": 7,
+   "new_names": [
+    "KB_search_bm25",
+    "apply_for_credit_card",
+    "get_correct_savings_apy",
+    "get_current_time"
+   ]
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "arm": "treat",
+   "task": "task_072",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 47,
+   "stops": 17,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 44,
+   "after_new": 8,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_agent_tool",
+    "get_atm_fee_discrepancies",
+    "get_current_time"
+   ]
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "arm": "treat",
+   "task": "task_073",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 62,
+   "stops": 25,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 59,
+   "after_new": 8,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_agent_tool",
+    "get_atm_fee_discrepancies",
+    "get_current_time"
+   ]
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "arm": "treat",
+   "task": "task_079",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 130,
+   "stops": 47,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 127,
+   "after_new": 9,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_agent_tool",
+    "get_current_time",
+    "get_user_information_by_id"
+   ]
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "arm": "treat",
+   "task": "task_093",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 53,
+   "stops": 22,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 50,
+   "after_new": 10,
+   "new_names": [
+    "KB_search_bm25",
+    "KB_search_dense",
+    "call_discoverable_agent_tool",
+    "get_correct_savings_apy"
+   ]
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "arm": "treat",
+   "task": "task_098",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 26,
+   "stops": 2,
+   "resets": 0,
+   "first": 19,
+   "after_turns": 7,
+   "after_new": 2,
+   "new_names": [
+    "get_referrals_by_user",
+    "submit_referral"
+   ]
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "arm": "treat",
+   "task": "task_100",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 24,
+   "stops": 5,
+   "resets": 0,
+   "first": 11,
+   "after_turns": 13,
+   "after_new": 4,
+   "new_names": [
+    "get_current_time",
+    "log_verification",
+    "submit_referral",
+    "verify_identity"
+   ]
+  },
+  {
+   "tag": "bank_t7312_ctl_20260818g",
+   "arm": "ctl",
+   "task": "task_024",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 22,
+   "stops": 6,
+   "resets": 0,
+   "first": 9,
+   "after_turns": 13,
+   "after_new": 3,
+   "new_names": [
+    "apply_for_credit_card",
+    "get_current_time",
+    "get_reward_discrepancies"
+   ]
+  },
+  {
+   "tag": "bank_t7312_ctl_20260818g",
+   "arm": "ctl",
+   "task": "task_055",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 60,
+   "stops": 27,
+   "resets": 0,
+   "first": 9,
+   "after_turns": 51,
+   "after_new": 8,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_agent_tool",
+    "get_current_time",
+    "get_user_information_by_id"
+   ]
+  },
+  {
+   "tag": "bank_t7312_ctl_20260818g",
+   "arm": "ctl",
+   "task": "task_072",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 47,
+   "stops": 18,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 44,
+   "after_new": 9,
+   "new_names": [
+    "KB_search_bm25",
+    "call_discoverable_agent_tool",
+    "get_atm_fee_discrepancies",
+    "get_current_time"
+   ]
+  },
+  {
+   "tag": "bank_t7312_ctl_20260818g",
+   "arm": "ctl",
+   "task": "task_085",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 48,
+   "stops": 21,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 45,
+   "after_new": 10,
+   "new_names": [
+    "call_discoverable_agent_tool",
+    "get_credit_card_accounts_by_user",
+    "get_current_time",
+    "get_user_information_by_name"
+   ]
+  },
+  {
+   "tag": "bank_t7312_treat_20260818g",
+   "arm": "treat",
+   "task": "task_024",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 10,
+   "stops": 0,
+   "resets": 0,
+   "first": null,
+   "after_turns": null,
+   "after_new": null,
+   "new_names": []
+  },
+  {
+   "tag": "bank_t7312_treat_20260818g",
+   "arm": "treat",
+   "task": "task_055",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 60,
+   "stops": 4,
+   "resets": 0,
+   "first": 49,
+   "after_turns": 11,
+   "after_new": 2,
+   "new_names": [
+    "get_credit_card_transactions_by_user",
+    "unlock_discoverable_agent_tool"
+   ]
+  },
+  {
+   "tag": "bank_t7312_treat_20260818g",
+   "arm": "treat",
+   "task": "task_072",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 38,
+   "stops": 14,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 35,
+   "after_new": 5,
+   "new_names": [
+    "KB_search_bm25",
+    "get_current_time",
+    "get_user_information_by_name",
+    "unlock_discoverable_agent_tool"
+   ]
+  },
+  {
+   "tag": "bank_t7312_treat_20260818g",
+   "arm": "treat",
+   "task": "task_085",
+   "reward": 0.0,
+   "term": "user_stop",
+   "steps": 66,
+   "stops": 32,
+   "resets": 0,
+   "first": 3,
+   "after_turns": 63,
+   "after_new": 10,
+   "new_names": [
+    "KB_search_dense",
+    "get_credit_card_accounts_by_user",
+    "get_credit_card_transactions_by_user",
+    "get_current_time"
+   ]
+  }
+ ],
+ "latched": 53,
+ "zero_after": 0,
+ "recovered": 53,
+ "recovered_pass": 6,
+ "total_stops": 927,
+ "total_resets": 0,
+ "verdict": "**조기 종료는 pass 를 판다** — 래치 뒤 회복이 과반(53/53·pass 6) ⇒ 처방은 종료가 아니라 **리셋 술어 수정**([[57]] 인자 변화 기준)"
+}
