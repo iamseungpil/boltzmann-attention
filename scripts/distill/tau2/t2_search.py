@@ -645,7 +645,12 @@ def verdict_lines(agent, la, UserMessage, spec, req_block, group, corpus=None, d
 
     반환: `(lines, stats)` — 실패·미발화면 `([], stats)` 이고 호출부는 종전 재료로 떨어진다.
     """
-    stats = {"n": 0, "OK": 0, "VIOLATES": 0, "UNCLEAR": 0, "cited": 0, "skip": ""}
+    # ★`by_name` (2026-08-18·C543ⓓ·`T2_VERDICT_GATE`): 후보별 판정을 **구조로** 남긴다.
+    #   호출-트리거 게이트가 제출값의 판정을 읽어야 하는데, 완성된 줄을 다시 뜯으면 그것이
+    #   곧 엔진의 도메인 텍스트 파싱이다([[59]] 위반). 여기서 이미 알고 있는 것을 그대로
+    #   넘긴다 — 줄 목록·인쇄·반환값은 **바이트 불변**이고 키 하나가 늘 뿐이다.
+    stats = {"n": 0, "OK": 0, "VIOLATES": 0, "UNCLEAR": 0, "cited": 0, "skip": "",
+             "by_name": {}}
     tpl = (spec or {}).get("verdict_prompt")
     if not (tpl and agent is not None and la is not None and req_block and group):
         stats["skip"] = "no-template-or-req"
@@ -686,8 +691,15 @@ def verdict_lines(agent, la, UserMessage, spec, req_block, group, corpus=None, d
         stats["n"] += 1
         stats[vd] += 1
         stats["cited"] += 1 if why else 0
-        out.append(line_tpl.format(name=_disp_name(c), verdict=vd,
-                                   why=(" - " + why[:200]) if why else ""))
+        _ln = line_tpl.format(name=_disp_name(c), verdict=vd,
+                              why=(" - " + why[:200]) if why else "")
+        out.append(_ln)
+        # ⚠키는 **슬러그**다 — 표시명으로 걸면 `t2_gate_patch._slug_disp`(하이픈 뒤 대문자)와
+        #   여기 `_disp_name`(대문자화 안 함)이 갈려 'Green Fee-Free' ↔ 'Green Fee-free' 로
+        #   조회가 조용히 빗나간다(FIX-6 이 이미 그 가족에서 났다). 호출부가 자기 규약으로
+        #   슬러그를 만들어 조회한다.
+        stats["by_name"][c] = {"verdict": vd, "line": _ln, "cited": bool(why),
+                               "why": why[:200]}
     print("[T2_VERDICT] 후보 %d · OK %d · VIOLATES %d · UNCLEAR %d · 근거검산 통과 %d"
           % (stats["n"], stats["OK"], stats["VIOLATES"], stats["UNCLEAR"], stats["cited"]),
           file=sys.stderr, flush=True)

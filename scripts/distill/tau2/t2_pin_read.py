@@ -290,7 +290,13 @@ def tools_with_pin(tools, tool_name, arg_name, value):
                      .get("properties") or {})
             if arg_name not in props:
                 return None                    # 인자가 없으면 고정 불가 = 고정하지 않는다
-            props[arg_name] = {"type": "string", "enum": [value]}
+            # ★값이 여럿이면 **다값 enum** (2026-08-18·050 연결). 동렬로 열린 read 가 둘일 때
+            #   구판은 고정 자체를 포기했고(호출부 `len==1`), 그래서 `credit_limit_increase` 처럼
+            #   제출 뒤 두 조회가 함께 열리는 절차에서는 read 강제가 한 번도 걸리지 못했다.
+            #   집합을 주는 것은 고르는 일을 대신하는 것이 아니다 — 어느 쪽을 먼저 부를지는
+            #   모델이 정한다([[62]] ③④). 순서는 결정론(정렬된 그대로)이다.
+            _vals = list(value) if isinstance(value, (list, tuple, set)) else [value]
+            props[arg_name] = {"type": "string", "enum": [str(v) for v in _vals]}
             out.append(_PinnedTool(t, sch))
             hit = True
         return out if hit else None

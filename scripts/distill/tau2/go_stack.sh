@@ -298,7 +298,10 @@ export T2_TRANSFER_LEAVES_STEPS=1 # C16(048): 이관 시도 순간에 미완 절
 export T2_UNCALLED_UNLOCK=1     # C12(053): 해제해 놓고 부르지 않은 도구를 사임 턴에 1회 표면화
 export T2_PROC_ABSENT=1
 export T2_PROC_ABSENT_K=3         # 무호출 연속 assistant 턴 임계(x86 K-sweep 2/3/5 전부 write 0)
-export T2_PROC_ABSENT_CAP=2       # sim당 상한(불응 시 조용히 소진 — 기존 cap 규약)
+# ⚠T2_PROC_ABSENT_CAP 은 2026-08-18 에 **없앴다**: 예산을 배당하지 않고 *같은 말을 두 번
+#   하지 않는다*로 바꿨다(사용자 지시). 총량 상한은 t7315 050 에서 아무것도 강제할 수 없는
+#   구간에 소진돼, 정작 두 조회가 열린 뒤엔 침묵하게 만든 원인이었다. 선언을 남겨 두면
+#   읽는 곳 없는 노브가 되므로 지운다.
 export T2_PROCEDURE_CAP=6         # sim당 deny 상한(불응 무한루프 방지·기존 cap 선례)
 export T2_UNINSTRUCTABLE=1        # 실행 불가 지시 차단(012): 손님에게 도구 실행을 안내했는데 전달 이력 0.
 #                                 #   술어=A2 L1 선언 토큰 포함 ∧ 전달 마커 부재(정규식 추출 0·C279 계보).
@@ -361,3 +364,14 @@ export T2_SOURCE=1                # C1 출처 계약 — 주장을 형식화(LLM
 #   엔진 출력과 호출 이력만 본다. ⚠**F5 위에서만 건전** — 오염 입력으로 나온 확정 행은 제외한다
 #   (x94 1차 gold 반례 2건이 전부 그것이었고, 제외 후 반례 0). 제출 강제 아님·표면화만.
 export T2_WITHDRAWN_ROW=1
+
+# ★VC **호출-트리거** (2026-08-18·C543ⓓ·설계 `VERDICT_CALL_TRIGGER_DESIGN_2026_08_18.md`).
+#   push 형(`T2_VERDICT_CARRY`)은 결정점에 닿기만 하면 발화해 **고를 것이 없는 073 에서 음수**였다
+#   (ctl 1.0 ↔ vconly 0.0). 트리거를 A3 의 호출-관용구(`write_arg_enum`)로 옮겨, 후보를 먹는 호출을
+#   **부를 때만** LLM 자신의 판정 줄로 되돌린다 — 비-선택 태스크엔 트리거 자체가 없다.
+#   ⚠기본 OFF: push 형과 **동시에 켜지 않는다**(같은 판정을 두 번 사면 귀속이 섞인다). 팔 = run_one.sh `vgate`.
+# ⚠아래 두 줄은 **선언**이다(값은 종전 기본과 같은 OFF) — 주석에만 이름이 있으면 래칫이
+#   '선언됐다'고 세는데 실제 스택엔 없다. 스택은 정의되어야 비교가 성립한다.
+export T2_VERDICT_CARRY=0         # push 형(결정점 선적재) — 073 에서 음수(C543ⓐ)
+export T2_VERDICT_GATE=0
+export T2_VERDICT_GATE_CAP=1      # sim당 거부 상한(livelock 금지·052 전례)

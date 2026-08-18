@@ -172,6 +172,127 @@ def _tok_hits(text, name):
     return sum(1 for t in base if t and _tok_match(t, ts))
 
 
+VERDICT_GATE_FB = (
+    "Error: [VERDICT] '{val}' conflicts with what the customer asked for.\n"
+    "{line}\n"
+    "Options on file that do NOT conflict: {ok}.\n"
+    "Pick one of those verbatim - or tell the customer that none of them fits and why - "
+    "then call the tool again.")
+
+
+def _verdict_gate_fb(agent, messages, a2, group, val, subs, spec):
+    """★VC **호출-트리거** (`T2_VERDICT_GATE`·기본 OFF·C543ⓓ).
+
+    설계 = `reports/facet_rft_2026/VERDICT_CALL_TRIGGER_DESIGN_2026_08_18.md`.
+
+    ## 왜 이 자리인가
+      push 형(`T2_VERDICT_CARRY`)은 **결정점에 닿기만 하면** 발화한다 — 고를 것이 없는 073 에서
+      `후보 10·OK 10·VIOLATES 0` 의 무정보 판정을 내고 쓰기를 밀어냈다(ctl 1.0 ↔ vconly 0.0·C543ⓐ).
+      범위를 조건으로 자르려던 세 갈래(LLM 라벨·스키마 술어·pending)는 전부 막혔고(C543ⓒ), 그
+      이유는 구조적이다: A3 의 `applies_to`/`applies_when` 관용구는 **호출-트리거**인데 push 는
+      호출 이전에 밀어넣는 레버라 그 관용구로 조건을 만들 수 없다. ⇒ 레버를 관용구가 사는
+      자리로 옮긴다. **비-선택 태스크에는 트리거 자체가 없다**(073 은 이 호출을 내지 않는다).
+
+    ## 계약 (엔진이 하는 일 전부)
+      ⑴군은 호출부가 준다(`group_arg`→`group_map`·닫힌 사상) ⑵요구 인용 = LLM, 엔진은
+      `quote_in` 존재확인만(C45 동형) ⑶후보별 판정 = LLM(`verdict_lines`) ⑷엔진은 **제출값의
+      판정을 조회**할 뿐이다(슬러그 키·문자열 파싱 0·[[59]]) ⑸거부 문면 = **LLM 이 쓴 줄 축자**
+      + 충돌하지 않는 후보 명단([[64]] 무엇이 틀렸나 + 무엇을 하면 풀리나).
+      ⚠엔진은 고르지 않고 후보를 제거하지도 않는다([[62]] ③④).
+
+    ## fail-safe (모르면 막지 않는다·[[25]])
+      템플릿 미선언 · 코퍼스 부재 · 요구 인용 0 · 판정 없음 · `UNCLEAR` · **근거 미검산** ·
+      대안 0 → 전부 **침묵**(None) = OFF 와 바이트 동일. skip 사유는 stderr 로 남긴다(死배선 탐지).
+
+    반환: 거부 문면 | None
+    """
+    try:
+        import t2_search as _ts
+        import tau2.agent.llm_agent as _la_v
+        from tau2.data_model.message import UserMessage as _UM_v
+    except Exception as _ie:
+        print("[T2_VERDICT_GATE] skip=import %r" % (_ie,), file=sys.stderr, flush=True)
+        return None
+    _po = (a2 or {}).get("policy_ontology") or {}
+    if not (_po.get("verdict_prompt") and group and val and subs):
+        print("[T2_VERDICT_GATE] skip=undeclared group=%s" % (group,),
+              file=sys.stderr, flush=True)
+        return None
+    _env = getattr(getattr(agent, "_t2_orch", None), "environment", None)
+    _corpus = _ts.corpus_from_env(_env)
+    if not _corpus:
+        print("[T2_VERDICT_GATE] skip=no-corpus", file=sys.stderr, flush=True)
+        return None
+    _utxt = "\n\n".join(_content_str(m) for m in (messages or [])
+                        if getattr(m, "role", None) == "user")
+    _reqs = getattr(agent, "_t2_vg_reqs", None)
+    if _reqs is None:
+        _reqs = []
+        for _q in (_ts.sub_requirements(agent, _la_v, _UM_v, _po, _utxt) or []):
+            _qs = str(_q).strip()
+            if _qs and _ts.quote_in(_qs, _utxt):      # ★존재확인만 (추출 0·[[59]])
+                _reqs.append(_qs)
+        try:
+            agent._t2_vg_reqs = _reqs
+        except Exception:
+            pass
+    if not _reqs:
+        print("[T2_VERDICT_GATE] skip=no-requirement", file=sys.stderr, flush=True)
+        return None
+    _cache = dict(getattr(agent, "_t2_vg_by", None) or {})
+    if group in _cache:
+        _by = _cache[group]
+    else:
+        _blk = "Customer's stated request:\n" + "\n".join("- " + q for q in _reqs)
+        _lines, _st = _ts.verdict_lines(agent, _la_v, _UM_v, _po, _blk, group, corpus=_corpus)
+        _by = (_st or {}).get("by_name") or {}
+        _cache[group] = _by
+        try:
+            agent._t2_vg_by = _cache
+        except Exception:
+            pass
+        if _lines:                     # ★감사(C508⒥ 규약): 판정 줄을 축자로 남긴다
+            try:
+                import t2_fbsidecar as _fbv
+                _fbv.record("verdict-gate", "\n".join(_lines), messages,
+                            channel="verdict", group=group, stats=_st)
+            except Exception:
+                pass
+    if not _by:
+        print("[T2_VERDICT_GATE] skip=no-verdict group=%s" % (group,),
+              file=sys.stderr, flush=True)
+        return None
+    _slug = next((k for k in subs if _slug_disp(k) == str(val).strip()), None)
+    _rec = _by.get(_slug) if _slug else None
+    if not _rec:
+        print("[T2_VERDICT_GATE] skip=unjudged val=%r group=%s" % (val, group),
+              file=sys.stderr, flush=True)
+        return None
+    if _rec.get("verdict") != "VIOLATES" or not _rec.get("cited"):
+        print("[T2_VERDICT_GATE] pass val=%r verdict=%s cited=%s"
+              % (val, _rec.get("verdict"), _rec.get("cited")), file=sys.stderr, flush=True)
+        return None
+    _ok = sorted(_slug_disp(k) for k, r in _by.items() if r.get("verdict") == "OK")
+    if not _ok:
+        # 충돌하지 않는 후보가 하나도 없으면 **무엇을 하면 풀리는지 말할 수 없다** ⇒ 침묵.
+        # 이름 없는 거부가 창 순환을 만든다는 것은 C536ⓑ 에서 이미 샀다([[64]]).
+        print("[T2_VERDICT_GATE] skip=no-alternative val=%r" % (val,),
+              file=sys.stderr, flush=True)
+        return None
+    # ★줄은 **정본 표기로 재조립**한다 (2026-08-18 검정에서 잡힘). `verdict_lines` 가 만든
+    #   줄은 `t2_search._disp_name`(하이픈 뒤 소문자) 표기라 'Green Fee-free Account' 인데,
+    #   같은 문면의 제출값·대안 명단은 `_slug_disp` 표기('Green Fee-Free Account') 다 —
+    #   한 메시지 안에 같은 상품의 두 철자가 섞이면 우리 도구가 오표기를 가르치는 셈이고,
+    #   그것이 FIX-6 에서 실제로 채점 칸을 죽인 그 결함이다([[25]] 우리 출력은 100% 정확).
+    #   판정·인용은 **LLM 이 쓴 그대로**이고 바뀌는 것은 이름 표기뿐이다(push 경로 불변).
+    _line = "- %s: %s%s" % (_slug_disp(_slug), _rec.get("verdict"),
+                            (" - " + str(_rec.get("why"))) if _rec.get("why") else "")
+    print("[T2_VERDICT_GATE] deny val=%r group=%s (대안 %d)" % (val, group, len(_ok)),
+          file=sys.stderr, flush=True)
+    return str((spec or {}).get("verdict_gate_feedback") or VERDICT_GATE_FB).format(
+        val=val, line=_line, ok=", ".join(_ok))
+
+
 def _slug_disp(k):
     """슬러그 → 표시명 기계 전개 (FIX-6·t7276 075 실측·[[55]] 우리층 수리).
 
@@ -6402,10 +6523,17 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   x86 전수(194 sim·K=3): 발화 54회/29 sim · ▶유일 98.1% · **gold-밖 지목의 write 0** ·
             #   지목 도구의 **100%가 미-unlock** — 048 livelock에서 모델에게 없던 유일한 정보가 그것이다.
             #   ▶는 `is_mandatory`(=정책이 순서를 명령)일 때만 붙고, 동렬이면 목록만 준다([[10]]).
+            # ★2026-08-18 연결: 예산은 **같은 말 반복**만 막는다(사용자 지적: 단순하게).
+            #   구판은 sim 전체에 총 2회였고, 그 2회가 *유일한 ready 가 write* 인 구간에서
+            #   소진되면(t7315 050 실측) 정작 두 **조회**가 열린 뒤에는 침묵했다.
+            #   상태가 바뀌면 문장이 바뀌므로 새 상태는 말해지고, 상태가 그대로면 문장도
+            #   그대로여서 되풀이가 막힌다. **예산은 배당하지 않는다**(사용자 지시): 셀 것이
+            #   없고, 이미 한 말인지만 본다. 자료구조 = 말한 문장 집합 하나.
+            _abs_said = getattr(self, "_t2_proc_absent_said", None)
+            if _abs_said is None:
+                _abs_said = self._t2_proc_absent_said = set()
             if (_procs and abs_fb is None and proc_fb is None and not absent_fired
-                    and os.environ.get("T2_PROC_ABSENT") == "1"
-                    and getattr(self, "_t2_proc_absent", 0)
-                    < int(os.environ.get("T2_PROC_ABSENT_CAP", "2"))):
+                    and os.environ.get("T2_PROC_ABSENT") == "1"):
                 try:
                     import t2_procedure as _PROC
                     _done2 = _executed_tool_counts(state.messages)
@@ -6430,6 +6558,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _msg = _PROC.absent_note(_p, _done2, _unl, _pat)
                         if not _msg:
                             continue
+                        if _msg in _abs_said:
+                            continue                  # 이미 한 말은 다시 하지 않는다
+                        # ⚠증가는 **전달 자리**에서 한다([[55]] 로그 마크 != 전달). 여기서 올리면
+                        #   하류에서 접히거나 다른 레버에 밀린 표면화도 예산을 먹는다.
+                        self._t2_proc_absent_last = _msg
                         abs_fb = _msg
                         absent_fired = True
                         # ★C15 read 강제 (2026-08-05·사용자 지시 "read 강제로 바로 가라"): 지목한
@@ -6447,14 +6580,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                  "environment", None)
                                 _rd15 = [t for t in _cand15
                                          if t not in _done2 and _is_read_tool(_env15, t)]
-                                if len(_rd15) == 1:
+                                # ★2026-08-18 연결: 구판은 **정확히 하나**일 때만 고정했다. 그런데
+                                #   `credit_limit_increase` 는 제출 뒤 `disputes`·`pending_replacement`
+                                #   **둘이 동렬로** 열린다 — t7315 replay 로 확인했고, 그래서 이 절차에서
+                                #   read 강제는 한 번도 걸린 적이 없다(050 gold 3~6 이 세 팔 전부 MISS).
+                                #   후보가 **전부 read** 면 그 집합을 다값 enum 으로 고정한다. 하나라도
+                                #   write 가 섞이면 종전대로 침묵한다(§1.5 Q5: 쓰기 강제 금지).
+                                if _rd15 and len(_rd15) == len(_cand15):
+                                    _tgt15 = _rd15[0] if len(_rd15) == 1 else sorted(_rd15)
                                     self._t2_proc_pin = ("call_discoverable_agent_tool",
-                                                         "agent_tool_name", _rd15[0])
-                                    print("[T2_PIN_READ_STEPS] pin target=%s" % _rd15[0],
+                                                         "agent_tool_name", _tgt15)
+                                    print("[T2_PIN_READ_STEPS] pin target=%s" % (_tgt15,),
                                           file=_sys.stderr, flush=True)
                                 else:
-                                    print("[T2_PIN_READ_STEPS] no unique read target (%d)"
-                                          % len(_rd15), file=_sys.stderr, flush=True)
+                                    print("[T2_PIN_READ_STEPS] no read-only target "
+                                          "(reads %d of %d ready)"
+                                          % (len(_rd15), len(_cand15)),
+                                          file=_sys.stderr, flush=True)
                             except Exception as _p15:
                                 print("[T2_PIN_READ_STEPS] error (no-op): %r" % (_p15,),
                                       file=_sys.stderr, flush=True)
@@ -8402,6 +8544,26 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 continue          # fail-open: 모르면 막지 않는다
                             _names = sorted(_slug_disp(k) for k in _subs)
                             if _val in _names:
+                                # ★VC 호출-트리거 (T2_VERDICT_GATE·기본 OFF·C543ⓓ). 이름은 있는데
+                                #   **손님 요구와 충돌하는** 값이면 LLM 자신의 판정 줄로 되돌린다.
+                                #   판정·인용 = LLM · 엔진 = 조회 하나 · 상한 = sim 당 CAP(기본 1).
+                                if (os.environ.get("T2_VERDICT_GATE") == "1"
+                                        and getattr(self, "_t2_vgate_deny", 0)
+                                        < int(os.environ.get("T2_VERDICT_GATE_CAP", "1"))):
+                                    try:
+                                        _vfb = _verdict_gate_fb(self, state.messages, a2,
+                                                                _grp, _val, _subs, _sp)
+                                    except Exception as _vge:
+                                        _vfb = None
+                                        print("[T2_VERDICT_GATE] 건너뜀(무발화): %r" % (_vge,),
+                                              file=_sys.stderr, flush=True)
+                                    if _vfb:
+                                        self._t2_vgate_deny = getattr(self, "_t2_vgate_deny", 0) + 1
+                                        en_fb = (c, _vfb)
+                                        _lbeat("T2_VERDICT_GATE", orch=self,
+                                               target=_eff_tool_name(c),
+                                               fact="the customer's stated requirement")
+                                        break
                                 continue          # 집합 內 — 선택이 옳은지는 우리가 판정하지 않는다
                             self._t2_enum_deny = getattr(self, "_t2_enum_deny", 0) + 1
                             en_fb = (c, str(_sp.get("feedback") or "").format(
@@ -8657,6 +8819,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_proc_deny = getattr(self, "_t2_proc_deny", 0) + 1
             if abs_fb is not None:
                 self._t2_proc_absent = getattr(self, "_t2_proc_absent", 0) + 1
+                # ★말한 문장만 기억한다 — **전달된 것만** 센다(2026-08-18·[[55]]).
+                _last6 = getattr(self, "_t2_proc_absent_last", None)
+                if _last6:
+                    _said6 = getattr(self, "_t2_proc_absent_said", None)
+                    if _said6 is None:
+                        _said6 = self._t2_proc_absent_said = set()
+                    _said6.add(_last6)
+                    self._t2_proc_absent_last = None
+                    print("[T2_PROC_ABSENT] 서로 다른 문장 %d종 말함" % len(_said6),
+                          file=_sys.stderr, flush=True)
             if tr_fb is not None:
                 self._t2_transcribe_deny = getattr(self, "_t2_transcribe_deny", 0) + 1
             if wev_fb is not None:
@@ -9056,7 +9228,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 #   다음 행동을 고르는 데 가장 가까운 레버다).
                 _rearm = int(os.environ.get("T2_PROC_PIN_REARM", "0"))
                 _used = getattr(self, "_t2_proc_pin_used", 0)
-                if _pp_pin[2] in _executed_tool_names(state.messages) or _used >= _rearm:
+                _pv = _pp_pin[2]
+                _pv = list(_pv) if isinstance(_pv, (list, tuple, set)) else [_pv]
+                _exec_now = _executed_tool_names(state.messages)
+                if any(v in _exec_now for v in _pv) or _used >= _rearm:
                     self._t2_proc_pin = None          # 표적이 나왔거나 예산 소진 = 해제
                     self._t2_proc_pin_used = 0
                 else:

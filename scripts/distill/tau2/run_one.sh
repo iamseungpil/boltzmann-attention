@@ -30,15 +30,22 @@ DIRTY=$(cd "$REPO" && git status --porcelain -- \
 [ -e "$LOG/${TAG}.log" ] && { echo "[run_one] REFUSING: ${TAG}.log 존재" >&2; exit 1; }
 [ -e "$SIMS/${TAG}" ] && { echo "[run_one] REFUSING: $SIMS/${TAG} 잔존" >&2; exit 1; }
 
-# 팔 = 두 노브의 조합. **귀속을 가르려면 하나씩** 켜야 한다(사용자 지시 2026-08-18).
+# 팔 = 노브의 조합. **귀속을 가르려면 하나씩** 켜야 한다(사용자 지시 2026-08-18).
 #   treat  = VC1 EL1 (합성)   ctl = VC0 EL0 (기준선)
 #   vconly = VC1 EL0          elonly = VC0 EL1
+# ★VG = VC **호출-트리거**(2026-08-18·C543ⓓ·`T2_VERDICT_GATE`). push 형 VC 는 결정점에 닿기만
+#   하면 발화해 073 에서 음수였다(ctl 1.0 ↔ vconly 0.0). VG 는 후보를 먹는 호출이 실제로 나올
+#   때만 판정한다 ⇒ 비-선택 태스크엔 **트리거 자체가 없다**.
+#   ⚠VC 와 VG 를 **같이 켜는 팔은 없다** — 같은 판정을 두 번 사면 귀속이 섞인다.
+#   vgate = VG1 EL0 (VC 자리 대체)   vgate_el = VG1 EL1 (t7314 treat 와 짝)
 case "$ARM" in
-  treat)  VC=1; EL=1 ;;
-  ctl)    VC=0; EL=0 ;;
-  vconly) VC=1; EL=0 ;;
-  elonly) VC=0; EL=1 ;;
-  *) echo "[run_one] REFUSING: arm=$ARM (ctl|treat|vconly|elonly)" >&2; exit 1 ;;
+  treat)    VC=1; EL=1; VG=0 ;;
+  ctl)      VC=0; EL=0; VG=0 ;;
+  vconly)   VC=1; EL=0; VG=0 ;;
+  elonly)   VC=0; EL=1; VG=0 ;;
+  vgate)    VC=0; EL=0; VG=1 ;;
+  vgate_el) VC=0; EL=1; VG=1 ;;
+  *) echo "[run_one] REFUSING: arm=$ARM (ctl|treat|vconly|elonly|vgate|vgate_el)" >&2; exit 1 ;;
 esac
 
 PIN="T2_ACTION_SUB=1 T2_KEEP_DENY_BODY=1 T2_CALL_FORM=1 T2_ARG_EMPTY=1 T2_SEARCH_AGENT=1 \
@@ -47,11 +54,11 @@ T2_DISCOVERY_STEP2=1 T2_ARG_AXIS=1 T2_WRITE_SUB=3 T2_ACTION_INDEX=1 T2_NOW_SELFC
 T2_SEARCH_ON_PROCEED=1 T2_ACT_DEMAND=0 T2_DELIVER_PRECOMMIT=0 T2_PROCEED_DOCBODY=0 \
 T2_DOCS_AT_WRITE=0 T2_SUB_REQUIREMENT=0 T2_HANDOFF_PREDICATE=0 T2_PENDING_DISCOVERED=0"
 
-echo "{\"tag\":\"$TAG\",\"scaffold_sha\":\"$SHA\",\"port\":$PORT,\"tasks\":\"$TASK\",\"arm\":\"$ARM\",\"nt\":1,\"verdict_carry\":\"$VC\",\"elig_line\":\"$EL\",\"max_steps\":150,\"concurrency\":1,\"why\":\"single-task attribution run\"}" \
+echo "{\"tag\":\"$TAG\",\"scaffold_sha\":\"$SHA\",\"port\":$PORT,\"tasks\":\"$TASK\",\"arm\":\"$ARM\",\"nt\":1,\"verdict_carry\":\"$VC\",\"elig_line\":\"$EL\",\"verdict_gate\":\"$VG\",\"max_steps\":150,\"concurrency\":1,\"why\":\"single-task attribution run\"}" \
   | tee "$LOG/${TAG}.meta.json"
 
 setsid bash -c "cd '$REPO/scripts/distill/tau2' && source ./go_stack.sh >/dev/null 2>&1 && \
-  export $PIN && export T2_VERDICT_CARRY=$VC T2_ELIG_LINE=$EL && \
+  export $PIN && export T2_VERDICT_CARRY=$VC T2_ELIG_LINE=$EL T2_VERDICT_GATE=$VG && \
   export GO_MAX_STEPS=150 GO_CONCURRENCY=1 && \
   t2_launch $TAG $PORT '$TASK' 1" \
   </dev/null >"$LOG/${TAG}.log" 2>&1 &
