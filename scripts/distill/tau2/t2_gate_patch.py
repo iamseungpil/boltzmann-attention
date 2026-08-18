@@ -3104,6 +3104,44 @@ def _quiet_turns(messages, tools):
     return n
 
 
+def _claim_tool_acts(tool, emap, a2=None):
+    """모델이 지목한 그 도구가 **무언가를 하는 도구**인가 (순수함수·[[22]] 닫힌 술어).
+
+    ★왜 필요한가 (2026-08-18·t7318 task_073): 구제는 *"지목한 이름이 원장에 있는가"* 만 봤고,
+      그래서 `record_update`(환급) 주장이 **조회 도구**(`get_atm_fee_discrepancies`)로 구제됐다.
+      그 뒤 환급은 한 번도 실행되지 않았고 에이전트는 *"처리했다"* 고 보고했다.
+
+    ★왜 이 술어인가 (앞서 둘을 버렸다):
+      · *"주장한 kind 의 집합에 속하는가"* 는 **C341 을 되살린다** — `log_verification` 을
+        `record_update` 로 라벨한 그 사례가 다시 거짓 기각된다.
+      · *"실효 write 인가"* 도 같은 이유로 실패한다(`log_verification` 은 procedural).
+      ⇒ **어느 kind 에든 선언돼 있으면 통과**시키고, 그 밖이면 실효 write 인지만 더 본다.
+        kind 라벨은 해석으로 남고([[52]]) 엔진은 집합 소속만 본다 — 의미 판단 0.
+
+    ⚠모르면 통과(구제 유지)가 기본이다: 선언이 비었으면 종전 거동 그대로다([[25]]).
+    """
+    t = str(tool or "").strip()
+    if not t:
+        return False
+    if not emap:
+        return True                      # 선언이 없으면 판정하지 않는다(종전 거동)
+    # ★디스패처 지목은 **판정하지 않는다** (2026-08-18·라이브 실측 2건). 모델이
+    #   `call_discoverable_agent_tool` 을 지목하면 그 이름만으로는 안쪽에서 무엇을 했는지
+    #   알 수 없다 — 여기서 기각하면 C341 이 되살아난다(주석 축자: *"계좌 조회
+    #   (call_discoverable_agent_tool 경유)도 같은 식으로 '없다'고 했다"*). 모르면 통과([[25]]).
+    _drc = ((a2 or {}).get("dispatcher_role_check") or {})
+    if t in {str(_drc.get("agent_call") or ""), str(_drc.get("user_call") or "")} - {""}:
+        return True
+    for _spec in (emap or {}).values():
+        for p in (_spec if isinstance(_spec, list) else [_spec]):
+            p = str(p or "")
+            if not p or p == "__effective_write__":
+                continue
+            if t.startswith(p):
+                return True
+    return _is_effective_write(t, a2)
+
+
 def _claim_unbacked(claims, emap, evs, messages, a2=None):
     """★claim_prov 원장대조 코어 (2026-07-20 관문5 추출·순수함수=단위테스트 공유·[[03b]]).
     LLM이 formalize한 주장 목록({kind, what, tool})을 실행 원장과 대조. 반환=미입증 목록.
@@ -3134,6 +3172,13 @@ def _claim_unbacked(claims, emap, evs, messages, a2=None):
         if t:
             if t not in named:
                 out.append(c)
+            elif not _claim_tool_acts(t, emap, a2):
+                # ★거짓 구제 차단(2026-08-18·t7318): 실행되긴 했으나 **아무것도 하지 않는**
+                #   도구를 댔다 = 그 주장은 여전히 미입증이다. 여기서 구제하면 우리 출력이
+                #   거짓 완료를 승인해 준다([[25]] 우리 출력은 유일한 근거원).
+                out.append(c)
+                print("[T2_CLAIMPROV] 구제 기각: kind=%r tool=%r — 선언된 사건도 실효 write 도 아니다"
+                      % ((c or {}).get("kind"), t), file=sys.stderr, flush=True)
             else:
                 print("[T2_CLAIMPROV] kind-index rescued: kind=%r tool=%r 원장에 있다"
                       % ((c or {}).get("kind"), t), file=sys.stderr, flush=True)
