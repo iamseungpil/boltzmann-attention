@@ -125,20 +125,36 @@ def verdict_cuts(tag):
     return out
 
 
-def formalized_targets(tag, task, upto_turn):
-    """그 컷 이전까지 라이브가 찍은 `formalized_target` 들(우리 계기 축자)."""
-    p = os.path.join(LOGS, "%s.log" % tag)
-    out = []
+def pending_at(tag, task, cut_turn):
+    """그 **턴까지** 라이브가 찍은 `[T2_ACTIONREQ]` 의 대기·표적 집합 — trace 기반(turn 99.3%).
+
+    ⚠1차 판은 `upto_turn` 을 받아놓고 **안 썼다**(sim 전체를 긁었다) — 그 수치는 무효였다.
+      그리고 `formalized_target` 하나만 봤는데 그것은 *손님이 실행할 행동* 이라 표적이 아니다.
+      여기서는 `pending_agent`/`pending_user`/`formalized_target` 을 **그 턴까지** 모은다.
+    """
+    p = os.path.join(LOGS, "trace_%s.jsonl" % tag)
+    names = []
     if not os.path.exists(p):
-        return out
-    key = "sim=%s#" % task
+        return names
     for ln in io.open(p, encoding="utf-8", errors="replace"):
-        if key not in ln or "formalized_target=" not in ln:
+        try:
+            d = json.loads(ln)
+        except Exception:
             continue
-        m = re.search(r"formalized_target=([A-Za-z0-9_]+)", ln)
-        if m:
-            out.append(m.group(1))
-    return out
+        if not str(d.get("sim", "")).startswith(task):
+            continue
+        t = d.get("turn")
+        if not isinstance(t, int) or (cut_turn is not None and t > int(cut_turn)):
+            continue
+        line = str(d.get("line") or "")
+        if "[T2_ACTIONREQ]" not in line:
+            continue
+        for m in re.finditer(r"'([a-z][a-z_0-9]+)'", line):
+            names.append(m.group(1))
+        m2 = re.search(r"formalized_target=([A-Za-z0-9_]+)", line)
+        if m2:
+            names.append(m2.group(1))
+    return list(dict.fromkeys(names))
 
 
 def gold_blob(sim):
@@ -186,7 +202,7 @@ def main():
             gb = gold_blob(sim)
             hit = [n for n in c["names"] if n and n.split(" (")[0].lower() in gb]
             want = bool(hit)
-            tg = formalized_targets(tag, c["task"], c["turn"])
+            tg = pending_at(tag, c["task"], c["turn"])
             # 술어: 표적 도구들 중 **후보를 먹는 인자**를 가진 것이 하나라도 있는가
             fires, why = False, ""
             for t in dict.fromkeys(tg):
