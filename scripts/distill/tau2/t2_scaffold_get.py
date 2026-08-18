@@ -1158,10 +1158,29 @@ def _resolve_ref_output(orch, ref):
     key = key.strip()
     if not key:
         raise _ByrefError("empty reference '%s'" % ref)
-    id2name, best = {}, None
+    # ★수리(2026-08-18·C526⒜→C531): 색인이 **래퍼 이름만** 담았다. 이 환경은 discoverable
+    #   도구를 `call_discoverable_agent_tool(agent_tool_name=…)` 로 디스패치하므로, 그렇게 부른
+    #   도구는 `@last:<실제이름>` 이 **영영 안 맞고** "no committed non-error output" 으로
+    #   거짓 deny 된다(전수 census 49건/11 sim·072:33·073:11·074:5).
+    #   언랩 규칙은 엔진 정본 `t2_gate_patch._exact_tool_name` 을 **그대로 쓴다**(사본 금지·[[67]]).
+    #   ⚠**넓히기만 한다** — 래퍼 이름과 안쪽 이름을 **둘 다** 색인하므로 종전에 맞던 참조는
+    #     그대로 맞고, 못 맞던 참조만 맞게 된다(새 실패 모드 0·안전측).
+    try:
+        import t2_gate_patch as _gp_ref
+        _exact = _gp_ref._exact_tool_name
+    except Exception:
+        _exact = None
+    id2names, best = {}, None
     for m in orch.get_messages():
         for tc in (getattr(m, "tool_calls", None) or []):
-            id2name[getattr(tc, "id", None)] = getattr(tc, "name", None)
+            _nm = getattr(tc, "name", None)
+            _names = {_nm}
+            if _exact is not None:
+                try:
+                    _names.add(_exact(tc))
+                except Exception:
+                    pass
+            id2names[getattr(tc, "id", None)] = {n for n in _names if n}
         if getattr(m, "role", None) != "tool" or getattr(m, "error", False):
             continue
         c = getattr(m, "content", None)
@@ -1170,7 +1189,7 @@ def _resolve_ref_output(orch, ref):
         mid = getattr(m, "id", None)
         if kind == "@call" and mid == key:
             return c
-        if kind == "@last" and id2name.get(mid) == key:
+        if kind == "@last" and key in (id2names.get(mid) or ()):
             best = c                                   # 마지막 것 유지
     if best is None:
         raise _ByrefError("no committed non-error output of '%s' found in this conversation "
@@ -1241,7 +1260,26 @@ def _byref_resolve(orch, d, ctx):
                 "By-reference is accepted only for: %s. "
                 "Provide '%s' as a literal value copied from the records."
                 % (k, _allow, k))
-        rows = _parse_record_dump(_resolve_ref_output(orch, v))
+        # ★순서 수리(2026-08-18·C526⒠→C531): 이 블록이 실패하면 호출부가 `continue` 로
+        #   조기 반환해 **아래 `isolate: fetch_formalize` 를 선점**한다. 그런데 그 서브는
+        #   레코드를 **모델에게서 받지 않고 스스로 fetch·formalize** 해 `ctx.update` 로 이 키를
+        #   덮어쓴다 — 즉 참조가 안 풀려도 **그 호출은 성공했을 호출**이다.
+        #   ⇒ 서브가 덮어쓸 키(A2 가 `isolate.operand_keys` 로 **이미 선언**)면 여기서 죽이지
+        #     않고 넘긴다. **A2 어휘 순증 0 · 새 플래그 0 · 실패 경로에서만 동작**(성공 경로 불변).
+        #   ⚠폴백은 살아 있다 — 서브까지 실패하면 `@last:` 문자열이 남고, 아래 over-str 검사가
+        #     재송신을 요구한다(침묵 통과 아님).
+        _iso_ref = _isolate_spec(d) or {}
+        _iso_owns = (_iso_ref.get("mode") == "fetch_formalize"
+                     and k in set(_iso_ref.get("operand_keys") or []))
+        try:
+            rows = _parse_record_dump(_resolve_ref_output(orch, v))
+        except _ByrefError:
+            if not _iso_owns:
+                raise
+            print("[T2_SG_BYREF] %s: '%s' 미해석 — isolate(fetch_formalize)가 '%s' 를 "
+                  "산출하므로 deny 하지 않고 넘긴다" % (d.get("name"), v, k),
+                  file=_sys.stderr, flush=True)
+            continue
         _byref_map_fields(d, rows)                     # A2 선언 컬럼명 대응(§4-1 후속)
         _byref_require_fields(d, k, rows)              # 필요한 컬럼 부재 = 침묵 대신 지목
         ctx[k] = rows
