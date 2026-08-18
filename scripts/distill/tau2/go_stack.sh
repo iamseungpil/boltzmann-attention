@@ -394,3 +394,20 @@ export T2_CLAIM_VERIFY=0
 #   ⚠날조 통과 위험 0: `stated_names` 가 **레지스트리 교집합**을 걸어 실재하지 않는 이름은
 #     애초에 담기지 않는다(집합 구성으로 보장).
 export T2_PROV_OURS=1
+
+# ★no-record 분기 v2 (`T2_NOREC_BRANCH`·2026-08-18 선언·근거 C536ⓒ·x35③).
+#   A2 에 저작된 `no_record_template_v2`(639자)가 **한 번도 안 켜져** 라이브는 v1(253자)을 쓴다.
+#   v1 은 *"…then call this tool again"* 으로 닫혀 **종료 분기가 없다** — 008 실측: 조회가 영구
+#   `No records found` 인데 6-호출 사이클을 30회 돌아 문맥을 초과했다. v2 는 ⑴같은 인자 반복 금지
+#   + 미사용 식별자 우선(x35③: 다른 인자 재조회 성공 **73/138** = 즉시-ASK 가 놓칠 회복 상한 52.9%)
+#   ⑵못 찾으면 손님에게 다른 식별자 요청 ⑶줄 수 없으면 **종결** ⑷검증 전 기록 금지.
+#   ⚠옛 런처(`run_axis32_chain.sh:52`)는 켰다 — go_stack 이 정본이 되며 조용히 빠진 계열이다.
+export T2_NOREC_BRANCH=1
+
+# ★접지 헤더의 모순 문장 제거 (`T2_GROUND_HDR`·2026-08-18 선언·근거 x35②·INSTRUCTION_DEFECT §2d′).
+#   공통 헤더가 **전 필드**에 *"Re-read the exact value(s) from the records"* 를 말하는데,
+#   `intent_fields`(출처=손님 발화)의 개별 주석은 *"손님이 말한 적 없다"* 로 **정반대 출처**를
+#   가리킨다. 실측: ledger 파라미터 회복 **38:20** ↔ user 파라미터 회복 **7:43**.
+#   ⇒ 헤더에서 그 한 문장을 뺀다(각 flag 의 괄호 주석이 이미 클래스별로 정확하다).
+#   엔진 분기 순증 0 · A2 순증 0 · [[55]] *"문구 모순 상존"* 계열의 수리다.
+export T2_GROUND_HDR=1
