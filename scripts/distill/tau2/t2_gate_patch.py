@@ -2781,8 +2781,18 @@ def _search_material(agent, a2, messages, decide=True):
                 _qs = str(_q).strip()
                 if _qs and _ts.quote_in(_qs, _utxt):  # ★존재확인만 (추출 0·강조 무시·C510)
                     _reqs.append(_qs)
-            print("[T2_SUB_REQUIREMENT] 인용 %d개 중 원문 검증 통과 %d개"
-                  % (len(_rraw or []), len(_reqs)), file=sys.stderr, flush=True)
+            # ★관측(2026-08-18·C532⒢): 개수만 찍으면 **기각이 옳은 거부인지 과한 검산인지**
+            #   가릴 수 없다. t7310 에서 098 이 1/1 기각·024 가 3/3 기각이었는데 로그에 인용문이
+            #   없어 원인을 못 봤다 — S3(15시간)를 그 사각지대로 태울 수 없다.
+            #   ⚠거동 불변(인쇄뿐)·기각분만·각 80자·최대 3개(로그 부피 통제).
+            _rej = [str(_q).strip() for _q in (_rraw or [])
+                    if str(_q).strip() and str(_q).strip() not in _reqs]
+            print("[T2_SUB_REQUIREMENT] 인용 %d개 중 원문 검증 통과 %d개%s"
+                  % (len(_rraw or []), len(_reqs),
+                     ("" if not _rej else
+                      " · 기각 %d: %s" % (len(_rej),
+                                         " | ".join(q[:80] for q in _rej[:3])))),
+                  file=sys.stderr, flush=True)
         except Exception as _re2:
             print("[T2_SUB_REQUIREMENT] 건너뜀(무발화): %r" % (_re2,),
                   file=sys.stderr, flush=True)
