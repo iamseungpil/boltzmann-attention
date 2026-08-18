@@ -58,7 +58,12 @@ import x351_order_lever_iso as X                          # noqa: E402
 ANCHOR = "the account record has not been fetched yet"
 ASK = ("You are the bank's support agent. Continue this conversation and make the tool call "
        "you would make now.")
-NEG_TOOL = "get_exchange_rate"          # 무관한 도구(레지스트리에서 실재 확인 후에만 쓴다)
+# D_NEG 가 댈 **무관한 도구** — 레지스트리 실재 확인 후에만 쓴다.
+# ⚠1차 실행 결함: 후보가 하나(`get_exchange_rate`)뿐이라 레지스트리에 없자 `sorted(reg)[0]` =
+#   `call_discoverable_agent_tool` 로 떨어졌다. 그것은 **그 자리에서 그럴듯한 다음 수**라
+#   부정통제가 안 된다(무관해야 '이름을 읽는가'를 잰다). 후보를 두고, 없으면 조회-계열이
+#   아닌 것 중 첫 번째를 쓴다 — 선택 규칙은 고정이고 엔진 판단 0.
+NEG_CANDIDATES = ("transfer_to_human_agents", "send_verification_code", "get_exchange_rate")
 DEFAULT_TAGS = ["bank_t7310_ctl_20260818e", "bank_t7310_treat_20260818e",
                 "bank_t7312_ctl_20260818g", "bank_t7312_treat_20260818g"]
 
@@ -132,6 +137,20 @@ def emitted(msg):
     return "", ""
 
 
+def det2(prompt, tools, first=520, retry=960):
+    """`G.det` + **절단 재시도** — 1차 실행에서 호출의 ~20%가 `HTTP 400` 으로 죽었다.
+
+    ⚠원인은 모델이 아니라 예산이다: `tool_choice="required"` 로 강제된 도구-호출 JSON 이
+      `max_tokens` 에서 잘리면 서버 파서가 *Invalid JSON: EOF while parsing* 로 **400** 을 낸다
+      (x370 v5b 가 같은 부류를 겪었다). 빈 팔은 비교를 **편향**시키므로 조용히 두지 않는다.
+    ⚠재시도는 **예산만** 바꾼다 — 프롬프트·온도·도구 목록 불변(측정 대상 불변).
+    """
+    msg, det = G.det(prompt, tools, first)
+    if isinstance(msg, dict) and msg.get("_err"):
+        msg, det = G.det(prompt, tools, retry)
+    return msg, det
+
+
 def next_action_name(sim, upto_idx):
     """C_NAME 이 댈 **다음 행동 이름** — 그 대화에서 이미 **해금·노출된** 이름 중 미호출인 것.
 
@@ -162,7 +181,9 @@ def main():
         return 1
     tools = G.agent_tool_specs()
     reg = set(t["function"]["name"] for t in tools)
-    neg = NEG_TOOL if NEG_TOOL in reg else sorted(reg)[0]
+    neg = next((n for n in NEG_CANDIDATES if n in reg),
+               next((n for n in sorted(reg)
+                     if not n.startswith(("get_", "call_", "unlock_"))), sorted(reg)[0]))
 
     print("=" * 104)
     print("x379 · 조회 실패 문면 격리 · 태그 %s · 도구 %d개 · D_NEG 도구=%s"
@@ -191,7 +212,7 @@ def main():
             got = {}
             for an, body in arms:
                 prompt = base + "\n\ntool: " + " ".join(body.split()) + "\n\n" + ASK
-                msg, det = G.det(prompt, tools, 260)
+                msg, det = det2(prompt, tools)
                 enm, ear = emitted(msg)
                 same_tool = int(bool(enm) and enm == lf[0])
                 try:

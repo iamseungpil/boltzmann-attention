@@ -115,6 +115,18 @@ def emitted(msg):
     return "", ""
 
 
+def det2(prompt, tools, first=520, retry=960):
+    """`G.det` + **절단 재시도**(x379 와 같은 이유·같은 규약). 예산만 바꾼다.
+
+    `tool_choice="required"` 로 강제된 도구-호출 JSON 이 `max_tokens` 에서 잘리면 서버가
+    `HTTP 400`(Invalid JSON) 을 낸다 — 빈 팔은 비교를 편향시키므로 한 번 더 준다.
+    """
+    msg, det = G.det(prompt, tools, first)
+    if isinstance(msg, dict) and msg.get("_err"):
+        msg, det = G.det(prompt, tools, retry)
+    return msg, det
+
+
 def main():
     tags = [a for a in sys.argv[1:] if not a.startswith("--")] or DEFAULT_TAGS
     po = (X.a2_load().get("policy_ontology") or {})
@@ -153,7 +165,7 @@ def main():
         got = {}
         for an, add in (("A_REF", ""), ("B_INJ", c["text"]), ("D_NEG", neg)):
             prompt = base + (("\n\ntool: " + add) if add else "") + "\n\n" + ASK
-            msg, det = G.det(prompt, tools, 260)
+            msg, det = det2(prompt, tools)
             nm, ar = emitted(msg)
             look = c["other"] if an == "D_NEG" else c["name"]
             got[an] = {"tool": nm, "args": ar, "det": det,
