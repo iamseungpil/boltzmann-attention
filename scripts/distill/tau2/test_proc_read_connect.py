@@ -76,17 +76,18 @@ def main():
     if "if len(_rd15) == 1:" in src:
         print("   FAIL — 구 조건이 남아 있다"); bad += 1
 
-    sig = ("_t2_proc_absent_said" in src and "if _msg in _abs_said:" in src
-           and "T2_PROC_ABSENT_CAP" not in src)
-    print("⑤ 예산 없음 · 반복만 차단: %s" % sig)
+    sig = ("_t2_proc_absent_prev" in src and "if _msg == _abs_prev:" in src
+           and "T2_PROC_ABSENT_CAP" not in src and "_t2_proc_absent_said" not in src)
+    print("⑤ 예산 없음 · **직전과 같을 때만** 차단(루핑): %s" % sig)
     if not sig:
-        print("   FAIL — 예산(총량 상한)이 남아 있거나 반복 차단이 없다"); bad += 1
+        print("   FAIL — 총량 상한이 남았거나, 집합 기억이라 다른 시점의 재발화까지 막는다")
+        bad += 1
 
     # 증가가 **전달 자리**(abs_fb is not None)에서만 일어나는가
     i = src.find("if abs_fb is not None:")
-    inc_at_delivery = i > 0 and "_said6.add(" in src[i:i + 700]
+    inc_at_delivery = i > 0 and "self._t2_proc_absent_prev = _last6" in src[i:i + 700]
     j = src.find("self._t2_proc_absent_last = _msg")
-    picks_at_select = j > 0 and "_said6.add(" not in src[j:j + 200]
+    picks_at_select = j > 0 and "_t2_proc_absent_prev" not in src[j:j + 200]
     print("⑥ 기억은 전달 자리에서만: %s / 선택 자리에선 예약만: %s"
           % (inc_at_delivery, picks_at_select))
     if not (inc_at_delivery and picks_at_select):

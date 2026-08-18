@@ -6526,12 +6526,12 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             # ★2026-08-18 연결: 예산은 **같은 말 반복**만 막는다(사용자 지적: 단순하게).
             #   구판은 sim 전체에 총 2회였고, 그 2회가 *유일한 ready 가 write* 인 구간에서
             #   소진되면(t7315 050 실측) 정작 두 **조회**가 열린 뒤에는 침묵했다.
-            #   상태가 바뀌면 문장이 바뀌므로 새 상태는 말해지고, 상태가 그대로면 문장도
-            #   그대로여서 되풀이가 막힌다. **예산은 배당하지 않는다**(사용자 지시): 셀 것이
-            #   없고, 이미 한 말인지만 본다. 자료구조 = 말한 문장 집합 하나.
-            _abs_said = getattr(self, "_t2_proc_absent_said", None)
-            if _abs_said is None:
-                _abs_said = self._t2_proc_absent_said = set()
+            #   막는 것은 **루핑**뿐이다(사용자 지시 2026-08-18 축자: *"반복은 말 그대로 루핑이다.
+            #   다른 시점에서 다시 부르는 걸 반복이라고 하면 안된다"*). 그래서 기억하는 것은
+            #   **직전에 한 말 하나**이고, 그것과 글자 그대로 같을 때만 삼킨다. 문장은 상태
+            #   결정론이므로 *직전과 같다 = 그 사이 절차가 한 걸음도 안 나갔다* 이고, 그것이
+            #   루핑의 정의다. 진척이 있으면 문장이 달라져 다시 말한다 — 예산도 집합도 없다.
+            _abs_prev = getattr(self, "_t2_proc_absent_prev", None)
             if (_procs and abs_fb is None and proc_fb is None and not absent_fired
                     and os.environ.get("T2_PROC_ABSENT") == "1"):
                 try:
@@ -6558,8 +6558,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _msg = _PROC.absent_note(_p, _done2, _unl, _pat)
                         if not _msg:
                             continue
-                        if _msg in _abs_said:
-                            continue                  # 이미 한 말은 다시 하지 않는다
+                        if _msg == _abs_prev:
+                            continue                  # 직전과 똑같다 = 그 사이 진척 0 = 루핑
                         # ⚠증가는 **전달 자리**에서 한다([[55]] 로그 마크 != 전달). 여기서 올리면
                         #   하류에서 접히거나 다른 레버에 밀린 표면화도 예산을 먹는다.
                         self._t2_proc_absent_last = _msg
@@ -8819,16 +8819,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_proc_deny = getattr(self, "_t2_proc_deny", 0) + 1
             if abs_fb is not None:
                 self._t2_proc_absent = getattr(self, "_t2_proc_absent", 0) + 1
-                # ★말한 문장만 기억한다 — **전달된 것만** 센다(2026-08-18·[[55]]).
+                # ★직전에 한 말만 기억한다 — **전달된 것만**(2026-08-18·[[55]] 로그 마크 != 전달).
                 _last6 = getattr(self, "_t2_proc_absent_last", None)
                 if _last6:
-                    _said6 = getattr(self, "_t2_proc_absent_said", None)
-                    if _said6 is None:
-                        _said6 = self._t2_proc_absent_said = set()
-                    _said6.add(_last6)
+                    self._t2_proc_absent_prev = _last6
                     self._t2_proc_absent_last = None
-                    print("[T2_PROC_ABSENT] 서로 다른 문장 %d종 말함" % len(_said6),
-                          file=_sys.stderr, flush=True)
             if tr_fb is not None:
                 self._t2_transcribe_deny = getattr(self, "_t2_transcribe_deny", 0) + 1
             if wev_fb is not None:
