@@ -2583,6 +2583,64 @@ def _is_read_tool(env, name):
     return False
 
 
+def _read_routine_pin(agent, a2, messages):
+    """남은 **조회**가 전부 read 면 그 집합으로 채널을 좁힌다 (읽기 루틴·2026-08-18).
+
+    사용자 지시 축자: *"남은게 3개면 3개 도구를 루틴으로 연속으로 하면 되지 않나?"*
+
+    ## 왜 이 모양인가
+      t7317(050) 실측: 절차 안내는 남은 셋을 **다 이름으로 댔는데** 핀은 하나만 걸렸고, 제출이
+      끝나 두 조회가 ready 가 된 뒤에는 트리거가 오지 않았다(체크리스트는 *침묵 3턴*을 기다리고
+      손님이 먼저 닫았다). 그래서 트리거를 기다리지 않고, **절차가 살아 있고 남은 것이 전부
+      read 인 동안** 유지한다. 하나 부를 때마다 집합에서 빠지고 비면 저절로 풀린다.
+
+    ## 엔진이 하는 일 전부
+      ⑴ 활성 절차·ready 노드 = A3 선언 + 관측(`t2_procedure`) ⑵ **환경이 read 로 선언한 것만**
+      (하나라도 write 면 None·§1.5 Q5) ⑶ 잠긴 이름이면 `unlock_…`, 풀렸으면 `call_…`
+      (048 은 지목된 도구를 8회 부르고 매번 잠금 오류로 죽었다) ⑷ 인자·순서는 모델이 정한다.
+
+    반환: `(도구, 인자명, [이름…])` | None(=루틴 없음·종전 거동)
+    """
+    try:
+        import t2_procedure as _PROC
+    except Exception:
+        return None
+    procs = (a2 or {}).get("procedures") or []
+    if not procs:
+        return None
+    env = getattr(getattr(agent, "_t2_orch", None), "environment", None)
+    if env is None:
+        return None
+    done = _executed_tool_counts(messages)
+    unlocked = _unlocked_names(messages, a2)
+    for p in _PROC.active_procedures(procs, done):
+        st = _PROC.render_state(p, done, unlocked, None)
+        cand = [t.strip() for t in str(st.get("ready_tools") or "").split(",") if t.strip()]
+        cand = [t for t in cand if t not in done]
+        if not cand:
+            continue
+        if not all(_is_read_tool(env, t) for t in cand):
+            continue                      # write 가 섞이면 루틴 없음 (쓰기 강제 금지)
+        # ⚠도구 이름은 **A3(L3 `<domain>.specific.json`) 선언에서 읽는다** — 엔진에 도메인
+        #   리터럴을 박지 않는다([[05]] 1). 층 정의(`load_domain_a2` 축자): L1 공통 · L2 구조
+        #   공통·값만 도메인 · **L3 = 그 도메인에만 있는 도구·규칙**. `dispatcher_role_check`
+        #   도 `procedures` 도 L3 이다.
+        spec = ((a2 or {}).get("dispatcher_role_check") or {})
+        names = spec.get("name_args") or {}
+        locked = [t for t in cand if t not in unlocked]
+        if locked:                        # 잠긴 것이 있으면 **잠금해제**부터 (048 livelock)
+            tool = spec.get("unlock_tool")
+            picked = sorted(locked)
+        else:
+            tool = spec.get("agent_call")
+            picked = sorted(cand)
+        arg = names.get(tool) if tool else None
+        if not (tool and arg):
+            return None                   # 선언이 없으면 루틴 없음(미선언 도메인 = 침묵)
+        return (tool, arg, picked)
+    return None
+
+
 def _arg_consumers(env, arg):
     """Which tools in this environment actually take an argument by this name.
 
@@ -9252,6 +9310,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _pin_r = _PRm.pin_for(self, am, a2, state.messages)
                 except Exception:
                     _pin_r = None
+                # ★읽기 루틴 (2026-08-18·사용자 지시): 절차가 남긴 조회가 **전부 read** 면 그
+                #   집합으로 채널을 좁히고, 하나씩 빠져 **비면 저절로 풀린다**. 트리거(침묵 3턴)를
+                #   기다리지 않는다 — t7317 에서 그 트리거는 손님이 대화를 닫을 때까지 오지 않았다.
+                #   기존 핀이 이미 있으면 건드리지 않는다(명시 지목 우선).
+                if _pin_r is None and os.environ.get("T2_PIN_READ_STEPS") == "1":
+                    try:
+                        _pin_r = _read_routine_pin(self, a2, state.messages)
+                        if _pin_r:
+                            print("[T2_READ_ROUTINE] %s(%s in %s)"
+                                  % (_pin_r[0], _pin_r[1], _pin_r[2]),
+                                  file=_sys.stderr, flush=True)
+                    except Exception as _rre:
+                        print("[T2_READ_ROUTINE] 건너뜀(무발화): %r" % (_rre,),
+                              file=_sys.stderr, flush=True)
             # ★액션 서브 (2026-08-10·`T2_ACTION_SUB`·기본 OFF). 이 재생성이 **손님에게
             #   도구를 넘기는 발화**를 짓는 자리이고(rw_fb = 그 ACTION 되먹임), x228 은 그
             #   발화를 격리에서 지으면 소유권이 0/6 → 6/6 이고 `external` 위반이 6/6 → 0/6
