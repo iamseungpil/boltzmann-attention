@@ -55,14 +55,21 @@ chk("리셋(실행)" in BODY, "ⓐ 실행-집합 경로가 마커를 찍는다 (
 chk("리셋(회수)" in BODY, "ⓑ 회수-이름 경로가 마커를 찍는다")
 chk(BODY.count("[T2_RESOLVE_CAP]") == 2, "마커는 정확히 두 곳 — 경로마다 하나")
 
-print("[②] 둘 다 실효 리셋일 때만 찍는다")
-guards = re.findall(r'if getattr\(self, "_t2_resolve_deny", 0\):', BODY)
-chk(len(guards) == 2, "두 경로 모두 '카운터가 0 이 아닐 때만' 조건을 갖는다 — 실제 %d" % len(guards))
+print("[②] 둘 다 실효 리셋일 때만 찍고, **기능이 관측보다 앞선다**(2026-08-18·C538)")
+# ★계약이 바뀌었다. 옛 판은 *"마커는 리셋 **전에** 조건을 본다"* 를 요구했고, 그 요구가 `print`
+#   를 대입 앞에 두게 만들었다 — 그리고 그 `print` 가 `_sys` 미정의로 NameError 를 던지자
+#   바깥 `except: pass` 가 **리셋 대입까지 삼켰다**(x381 줄-추적·상한이 영구 래치가 됐다).
+#   ⇒ 조건은 **대입 전 값을 지역에 붙잡아** 유지하고(인쇄되는 숫자는 그대로 0 이 아니다),
+#     대입은 **먼저** 한다. 관측이 죽어도 기능은 산다.
+guards = re.findall(r"if _was\d?:", BODY)
+chk(len(guards) == 2, "두 경로 모두 '되돌린 값이 0 이 아닐 때만' 조건을 갖는다 — 실제 %d"
+    % len(guards))
 for path, needle in (("ⓐ", "리셋(실행)"), ("ⓑ", "리셋(회수)")):
     seg = BODY[:BODY.find(needle)]
-    chk(seg.rfind('if getattr(self, "_t2_resolve_deny", 0):') > seg.rfind("self._t2_resolve_deny = 0")
-        if "self._t2_resolve_deny = 0" in seg else True,
-        "%s 마커는 리셋 **전에** 조건을 본다(0 으로 만든 뒤 찍으면 항상 0 이 인쇄된다)" % path)
+    chk(0 <= seg.rfind("self._t2_resolve_deny = 0") < seg.rfind("print("),
+        "%s **대입이 print 보다 앞**이다(관측이 예외를 던져도 리셋은 이미 끝났다)" % path)
+chk("_sys." not in BODY,
+    "이 함수는 `_sys`(다른 함수의 지역 별칭)를 쓰지 않는다 — 모듈-레벨은 `sys`")
 
 print("[③] 거동 불변")
 chk(BODY.count("self._t2_resolve_deny = 0") == 2, "리셋 대입은 여전히 두 경로 각 1회 — 조건부가 아니다")

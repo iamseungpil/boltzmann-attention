@@ -76,17 +76,31 @@ def undefined_local_names(src):
     # 모듈 전역(함수 밖에서 정의되는 것) + 빌트인 + 모듈 던더(런타임 제공)
     glob = set(dir(builtins)) | {"__file__", "__name__", "__doc__", "__package__",
                                  "__spec__", "__loader__", "__builtins__"}
-    for n in ast.walk(tree):
+    # ★스코프 수리 (2026-08-18·C538): 임포트를 `ast.walk(tree)` 로 모으면 **함수 안의**
+    #   `import sys as _sys` 까지 전역처럼 보인다. 실물: `t2_gate_patch` 는 `_sys` 를
+    #   `:5377` **함수 안에서만** 정의하는데, 모듈-레벨 함수 `_resolve_cap_ok` 가 그것을 써서
+    #   NameError 를 냈고 바깥 `except: pass` 가 **리셋 대입까지 삼켰다**. 이 검정은
+    #   `ALL PASS` 를 찍고 있었다 — 평평하게 모은 것이 사각이었다.
+    #   ⇒ **함수·클래스 본문에 들어가지 않고** 최상위 문장만 훑는다(모듈 레벨의 `try`/`if`
+    #     안 임포트는 그대로 전역이다).
+    _stack = list(tree.body)
+    while _stack:
+        n = _stack.pop()
         if isinstance(n, ast.Import):
             glob |= {(a.asname or a.name.split(".")[0]) for a in n.names}
-        elif isinstance(n, ast.ImportFrom):
+            continue
+        if isinstance(n, ast.ImportFrom):
             glob |= {(a.asname or a.name) for a in n.names}
-        elif isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            continue
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            glob.add(n.name)                  # 이름만 전역 · 본문은 안 들어간다
+            continue
+        if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store):
+            glob.add(n.id)
+        _stack.extend(ast.iter_child_nodes(n))
+    for n in ast.walk(tree):                  # 중첩 def/class 의 **이름**은 스코프 체인이 본다
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             glob.add(n.name)
-    for n in tree.body:                       # 모듈 최상위 대입만 전역으로
-        for t in ast.walk(n):
-            if isinstance(t, ast.Name) and isinstance(t.ctx, ast.Store):
-                glob.add(t.id)
 
     def _args_of(fn):
         a = fn.args

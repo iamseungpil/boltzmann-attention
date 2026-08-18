@@ -3544,11 +3544,18 @@ def _resolve_cap_ok(self, messages=None, a2=None):
                 #   ⚠거동 불변 — 인쇄뿐이다. 그리고 **실효 리셋일 때만** 찍는다(이 함수는 한 턴에
                 #   여러 번 불리고 스냅샷은 발화 시점에만 갱신되므로, 이미 0 인 카운터를 0 으로
                 #   되돌리는 것은 사건이 아니다). ⓑ 도 같은 조건으로 맞춰 두 경로를 비교 가능하게 한다.
-                if getattr(self, "_t2_resolve_deny", 0):
-                    print("[T2_RESOLVE_CAP] 리셋(실행): 새 실행 %s (정체 %d회 → 0)"
-                          % (sorted(done - prev)[:3], self._t2_resolve_deny),
-                          file=_sys.stderr, flush=True)
+                # ⛔**대입이 먼저다**(2026-08-18·C538 복원). 앞서 이 자리는 `print` 가 대입보다
+                #   위에 있었고 그 `print` 가 **`_sys` 미정의로 NameError** 를 던져 바깥
+                #   `except: pass` 가 **리셋 대입까지 삼켰다** — *"마커만 추가·거동 변화 0"* 이라던
+                #   커밋(`a627a18b`)이 상한을 **영구 래치**로 바꿨다(x381 줄-추적으로 확정).
+                #   `_sys` 는 이 모듈의 **함수 안(:5377)** 에서만 정의된다 ⇒ 모듈-레벨 함수는
+                #   `sys` 를 써야 한다. 관측이 기능보다 뒤에 오게 순서를 고정한다.
+                _was = getattr(self, "_t2_resolve_deny", 0)
                 self._t2_resolve_deny = 0                        # 진행 있음 → 정체 카운터 리셋
+                if _was:
+                    print("[T2_RESOLVE_CAP] 리셋(실행): 새 실행 %s (정체 %d회 → 0)"
+                          % (sorted(done - prev)[:3], _was),
+                          file=sys.stderr, flush=True)
         except Exception:
             pass
         # ★2026-08-14 (x303/x304/x305·087 실측): **새 이름 회수도 진행이다**.
@@ -3571,11 +3578,15 @@ def _resolve_cap_ok(self, messages=None, a2=None):
                         # 관측 의무(C442) — 어떤 이름이 리셋을 유발했는지까지 남긴다.
                         # ⚠**실효 리셋일 때만** 찍는다(위 ⓐ 와 같은 조건) — 두 경로의 마커 수를
                         #   그대로 비교할 수 있어야 한다. 옛 판은 무조건 찍어 ⓐ 와 셈이 어긋났다.
-                        if getattr(self, "_t2_resolve_deny", 0):
-                            print("[T2_RESOLVE_CAP] 리셋(회수): 새 이름 %s (정체 %d회 → 0)"
-                                  % (sorted(cur - pvn)[:3], self._t2_resolve_deny),
-                                  file=_sys.stderr, flush=True)
+                        # ⛔대입이 먼저다(C538 복원·위 ⓐ 와 같은 이유). 이 경로는 옛 판이
+                        #   *대입 → print* 순서라 살아 있었는데, `a627a18b` 가 순서를 뒤집어
+                        #   같이 죽였다.
+                        _was2 = getattr(self, "_t2_resolve_deny", 0)
                         self._t2_resolve_deny = 0
+                        if _was2:
+                            print("[T2_RESOLVE_CAP] 리셋(회수): 새 이름 %s (정체 %d회 → 0)"
+                                  % (sorted(cur - pvn)[:3], _was2),
+                                  file=sys.stderr, flush=True)
         except Exception:
             pass
         # ⚠스냅샷은 여기서 갱신하지 않는다. 이 함수는 한 턴에 여러 번 불리므로 검사마다 갱신하면
@@ -3709,13 +3720,17 @@ def _cp2_assign(self, text, tag):
     #   문서 본문 급)이고 새 배달물이 다른 값이면 버리지 않고 **뒤에 이어붙인다**. t7303 의
     #   055 0/4 소멸이 정확히 이 자리였다. 소형↔소형(ctl 의 247자 결정문끼리)은 종전대로
     #   덮어써서 ctl 경로 바이트 불변. 이어붙임도 로그로 남긴다(계기 [[55]]).
+    # ⛔`sys` 다(2026-08-18·C538). 이 함수도 **모듈 레벨**이라 `_sys`(:5377 함수 안 정의)를 쓰면
+    #   NameError 다. 여기는 `try` 밖이라 **크래시**로 터진다 — 아직 안 터진 것은 두 분기 조건
+    #   (미소비 배달물이 남아 있고 값이 다름)이 라이브에서 0회였기 때문이다(t7310·t7312 전수 0).
+    #   즉 잠복이었다. 같은 회귀 가족이므로 같이 고친다.
     if _prev and _prev != text and len(_prev) >= 10000 and text:
         print("[T2_CP2_APPEND] %s: 미소비 대용량 %d자 뒤에 %d자 이어붙임"
-              % (tag, len(_prev), len(text)), file=_sys.stderr, flush=True)
+              % (tag, len(_prev), len(text)), file=sys.stderr, flush=True)
         text = _prev + "\n\n" + text
     elif _prev and _prev != text:
         print("[T2_CP2_CLOBBER] %s 가 미소비 배달물 %d자를 버리고 %d자로 덮어씀"
-              % (tag, len(_prev), len(text or "")), file=_sys.stderr, flush=True)
+              % (tag, len(_prev), len(text or "")), file=sys.stderr, flush=True)
     self._t2_cp2_pending = text
 
 
@@ -7031,7 +7046,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 #   만들면 그것이 선택이다. LLM 이 대화에서 도구 이름을 **인용**
                                 #   하고, 엔진은 ⑴env 레지스트리(닫힌 집합) 소속 ⑵원문 실재만
                                 #   검산한다(`t2_search.sub_tool_names`·[[66]]·[[22]]·정규식 0).
-                                _add9 = sorted(_ts.sub_tool_names(
+                                # ⛔지역 임포트 필수(2026-08-18·C538 가족): `_ts` 는 **다른
+                                #   함수**(`_search_material`:2580)의 지역 별칭이라 여기선
+                                #   NameError 다. 감싼 `except` 가 그것을 *"error (no-op)"* 로
+                                #   찍고 넘어가므로 `T2_PENDING_DISCOVERED` 를 켜는 순간
+                                #   **처음부터 죽은 레버**가 된다(라이브 `[T2_TOOL_NAMES]` 0회).
+                                import t2_search as _ts9
+                                _add9 = sorted(_ts9.sub_tool_names(
                                     self, la, UserMessage,
                                     ((a2 or {}).get("policy_ontology") or {}),
                                     _txtu9, _regu9))
@@ -8799,8 +8820,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         pass
                     if content != _FB_GENERIC:      # 접히지 않고 실제로 나간 것만 센다
                         _chose8.append((_fbtag.get(id(c), "fb"), _eff_tool_name(c)))
+                # ★[[64]] — 마지막 남은 **이름 없는 거부 본문**을 이름 있는 것으로 바꾼다
+                #   (2026-08-18·C536ⓑ). C416 이 만든 `_sibling_wait`(막힌 호출의 **이름** + 다음 한
+                #   수)는 네 자리에만 붙었고 이 fb 조립의 `else` 는 빠져 있었다. t7313 `task_040` 은
+                #   그 문구를 **5회** 받고 turn 104 까지 같은 호출을 되뇌었다. 근거는 이미 격리로
+                #   잼 — 일반 문구 3회 = 정체 **3/8** ↔ 원본 본문 **0/8**(x246·C414·n=8).
+                #   ⚠**계기·회계는 한 글자도 안 건드린다**: 위 `_FB_GENERIC` 센티널 비교(접힘·
+                #     `_chose8` 계수)는 그대로 두고, **내보내는 문자열만** 여기서 바꾼다.
+                #   ⚠OFF(`T2_KEEP_DENY_BODY` != 1)면 **바이트 동일**로 종전 문구가 나간다.
+                #   ⚠fail-closed 불변 — 이 호출은 여전히 실행되지 않는다. 새 결정론 0·도메인 어휘 0.
+                _body8 = content
+                if content == _FB_GENERIC and os.environ.get("T2_KEEP_DENY_BODY") == "1":
+                    _flag8 = next((x for x in (am.tool_calls or [])
+                                   if x is not c
+                                   and ((do_gate and id(x) in denied_by_objid)
+                                        or (main_prov is not None and x is main_prov[0])
+                                        or any(v is not None and v[0] is x
+                                               for _n8b, v in _SRC8))), None)
+                    if _flag8 is not None:
+                        _body8 = _sibling_wait("BLOCKED", _flag8, "what to fix")
                 fb.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
-                                      error=True, content=content))
+                                      error=True, content=_body8))
                 # ★배달 계측 (2026-08-11·설계 §5·§7-1·원장 C427) — **거동 불변**.
                 #   문자열도 순서도 안 바꾼다. 세는 것은 하나: *이 호출을 두고 몇 전문가가
                 #   말하려 했고, 누가 이겼고, 누가 밀렸나.*
