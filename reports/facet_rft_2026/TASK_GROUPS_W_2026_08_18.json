@@ -1,0 +1,455 @@
+{
+ "_why": "C466 의 10그룹은 그 워크플로 안에만 있고 데이터로 재현되지 않는다(대표 3개의 acts 서명이 10/10 그룹 전부 불일치·97 의 서명 종류 68). 그래서 census 표의 그룹 축은 **재현 가능한 것**으로 다시 정의한다: 태스크의 gold write 도구 **집합**(중복 제거). 출처는 env 유래 taxonomy 이고 gold 참조가 아니다(어떤 도구를 쓰는가는 태스크 정의). C466 그룹은 **대표 라벨**로만 병기한다.",
+ "groups": {
+  "W01": {
+   "acts": [
+    "call_discoverable_agent_tool",
+    "log_verification",
+    "unlock_discoverable_agent_tool"
+   ],
+   "tasks": [
+    "task_036",
+    "task_043",
+    "task_045",
+    "task_046",
+    "task_050",
+    "task_051",
+    "task_052",
+    "task_054",
+    "task_056",
+    "task_060",
+    "task_062",
+    "task_065",
+    "task_070",
+    "task_071",
+    "task_072",
+    "task_073",
+    "task_074",
+    "task_075",
+    "task_076",
+    "task_080",
+    "task_082",
+    "task_083",
+    "task_084",
+    "task_085",
+    "task_086",
+    "task_087",
+    "task_089",
+    "task_090",
+    "task_091",
+    "task_093",
+    "task_094",
+    "task_095",
+    "task_096",
+    "task_097"
+   ],
+   "n": 34
+  },
+  "W02": {
+   "acts": [
+    "apply_for_credit_card",
+    "call_discoverable_agent_tool",
+    "log_verification",
+    "unlock_discoverable_agent_tool"
+   ],
+   "tasks": [
+    "task_044",
+    "task_047",
+    "task_048",
+    "task_058",
+    "task_059",
+    "task_063",
+    "task_064",
+    "task_066",
+    "task_067",
+    "task_068",
+    "task_069"
+   ],
+   "n": 11
+  },
+  "W03": {
+   "acts": [
+    "call_discoverable_agent_tool",
+    "call_discoverable_user_tool",
+    "give_discoverable_user_tool",
+    "log_verification",
+    "unlock_discoverable_agent_tool"
+   ],
+   "tasks": [
+    "task_026",
+    "task_028",
+    "task_031",
+    "task_037",
+    "task_038",
+    "task_039",
+    "task_040",
+    "task_041",
+    "task_055",
+    "task_057",
+    "task_061"
+   ],
+   "n": 11
+  },
+  "W04": {
+   "acts": [
+    "call_discoverable_user_tool",
+    "give_discoverable_user_tool",
+    "log_verification"
+   ],
+   "tasks": [
+    "task_017",
+    "task_018",
+    "task_019",
+    "task_020",
+    "task_021",
+    "task_022",
+    "task_027",
+    "task_029"
+   ],
+   "n": 8
+  },
+  "W05": {
+   "acts": [
+    "apply_for_credit_card"
+   ],
+   "tasks": [
+    "task_001",
+    "task_002",
+    "task_003",
+    "task_006",
+    "task_007",
+    "task_024",
+    "task_025"
+   ],
+   "n": 7
+  },
+  "W06": {
+   "acts": [
+    "transfer_to_human_agents"
+   ],
+   "tasks": [
+    "task_004",
+    "task_008",
+    "task_012",
+    "task_014"
+   ],
+   "n": 4
+  },
+  "W07": {
+   "acts": [
+    "call_discoverable_agent_tool",
+    "get_credit_card_accounts_by_user",
+    "log_verification",
+    "unlock_discoverable_agent_tool"
+   ],
+   "tasks": [
+    "task_077",
+    "task_078",
+    "task_079"
+   ],
+   "n": 3
+  },
+  "W08": {
+   "acts": [
+    "call_discoverable_agent_tool",
+    "transfer_to_human_agents",
+    "unlock_discoverable_agent_tool"
+   ],
+   "tasks": [
+    "task_032",
+    "task_033",
+    "task_035"
+   ],
+   "n": 3
+  },
+  "W09": {
+   "acts": [
+    "get_referrals_by_user",
+    "log_verification",
+    "submit_referral"
+   ],
+   "tasks": [
+    "task_098",
+    "task_101",
+    "task_102"
+   ],
+   "n": 3
+  },
+  "W10": {
+   "acts": [
+    "call_discoverable_agent_tool",
+    "log_verification",
+    "request_human_agent_transfer",
+    "transfer_to_human_agents",
+    "unlock_discoverable_agent_tool"
+   ],
+   "tasks": [
+    "task_049",
+    "task_081"
+   ],
+   "n": 2
+  },
+  "W11": {
+   "acts": [
+    "call_discoverable_agent_tool",
+    "log_verification",
+    "transfer_to_human_agents",
+    "unlock_discoverable_agent_tool"
+   ],
+   "tasks": [
+    "task_088",
+    "task_092"
+   ],
+   "n": 2
+  },
+  "W12": {
+   "acts": [
+    "apply_for_credit_card",
+    "log_verification"
+   ],
+   "tasks": [
+    "task_023"
+   ],
+   "n": 1
+  },
+  "W13": {
+   "acts": [
+    "call_discoverable_agent_tool",
+    "get_referrals_by_user",
+    "log_verification",
+    "submit_referral",
+    "unlock_discoverable_agent_tool"
+   ],
+   "tasks": [
+    "task_099"
+   ],
+   "n": 1
+  },
+  "W14": {
+   "acts": [
+    "call_discoverable_agent_tool",
+    "give_discoverable_user_tool",
+    "log_verification",
+    "unlock_discoverable_agent_tool"
+   ],
+   "tasks": [
+    "task_053"
+   ],
+   "n": 1
+  },
+  "W15": {
+   "acts": [
+    "call_discoverable_agent_tool",
+    "log_verification",
+    "submit_referral",
+    "unlock_discoverable_agent_tool"
+   ],
+   "tasks": [
+    "task_100"
+   ],
+   "n": 1
+  },
+  "W16": {
+   "acts": [
+    "call_discoverable_user_tool",
+    "give_discoverable_user_tool"
+   ],
+   "tasks": [
+    "task_015"
+   ],
+   "n": 1
+  },
+  "W17": {
+   "acts": [
+    "change_user_email",
+    "log_verification",
+    "transfer_to_human_agents"
+   ],
+   "tasks": [
+    "task_005"
+   ],
+   "n": 1
+  },
+  "W18": {
+   "acts": [
+    "log_verification",
+    "submit_referral"
+   ],
+   "tasks": [
+    "task_010"
+   ],
+   "n": 1
+  },
+  "W19": {
+   "acts": [
+    "log_verification",
+    "submit_transaction"
+   ],
+   "tasks": [
+    "task_016"
+   ],
+   "n": 1
+  },
+  "W20": {
+   "acts": [
+    "request_human_agent_transfer",
+    "transfer_to_human_agents"
+   ],
+   "tasks": [
+    "task_034"
+   ],
+   "n": 1
+  }
+ },
+ "task_to_group": {
+  "task_036": "W01",
+  "task_043": "W01",
+  "task_045": "W01",
+  "task_046": "W01",
+  "task_050": "W01",
+  "task_051": "W01",
+  "task_052": "W01",
+  "task_054": "W01",
+  "task_056": "W01",
+  "task_060": "W01",
+  "task_062": "W01",
+  "task_065": "W01",
+  "task_070": "W01",
+  "task_071": "W01",
+  "task_072": "W01",
+  "task_073": "W01",
+  "task_074": "W01",
+  "task_075": "W01",
+  "task_076": "W01",
+  "task_080": "W01",
+  "task_082": "W01",
+  "task_083": "W01",
+  "task_084": "W01",
+  "task_085": "W01",
+  "task_086": "W01",
+  "task_087": "W01",
+  "task_089": "W01",
+  "task_090": "W01",
+  "task_091": "W01",
+  "task_093": "W01",
+  "task_094": "W01",
+  "task_095": "W01",
+  "task_096": "W01",
+  "task_097": "W01",
+  "task_044": "W02",
+  "task_047": "W02",
+  "task_048": "W02",
+  "task_058": "W02",
+  "task_059": "W02",
+  "task_063": "W02",
+  "task_064": "W02",
+  "task_066": "W02",
+  "task_067": "W02",
+  "task_068": "W02",
+  "task_069": "W02",
+  "task_026": "W03",
+  "task_028": "W03",
+  "task_031": "W03",
+  "task_037": "W03",
+  "task_038": "W03",
+  "task_039": "W03",
+  "task_040": "W03",
+  "task_041": "W03",
+  "task_055": "W03",
+  "task_057": "W03",
+  "task_061": "W03",
+  "task_017": "W04",
+  "task_018": "W04",
+  "task_019": "W04",
+  "task_020": "W04",
+  "task_021": "W04",
+  "task_022": "W04",
+  "task_027": "W04",
+  "task_029": "W04",
+  "task_001": "W05",
+  "task_002": "W05",
+  "task_003": "W05",
+  "task_006": "W05",
+  "task_007": "W05",
+  "task_024": "W05",
+  "task_025": "W05",
+  "task_004": "W06",
+  "task_008": "W06",
+  "task_012": "W06",
+  "task_014": "W06",
+  "task_077": "W07",
+  "task_078": "W07",
+  "task_079": "W07",
+  "task_032": "W08",
+  "task_033": "W08",
+  "task_035": "W08",
+  "task_098": "W09",
+  "task_101": "W09",
+  "task_102": "W09",
+  "task_049": "W10",
+  "task_081": "W10",
+  "task_088": "W11",
+  "task_092": "W11",
+  "task_023": "W12",
+  "task_099": "W13",
+  "task_053": "W14",
+  "task_100": "W15",
+  "task_015": "W16",
+  "task_005": "W17",
+  "task_010": "W18",
+  "task_016": "W19",
+  "task_034": "W20"
+ },
+ "c466_reps": {
+  "G1": [
+   "085",
+   "081",
+   "087"
+  ],
+  "G2": [
+   "055",
+   "061",
+   "069"
+  ],
+  "G3": [
+   "050",
+   "049",
+   "048"
+  ],
+  "G4": [
+   "040",
+   "037",
+   "031"
+  ],
+  "G5": [
+   "094",
+   "097",
+   "093"
+  ],
+  "G6": [
+   "098",
+   "010",
+   "102"
+  ],
+  "G7": [
+   "017",
+   "027",
+   "015"
+  ],
+  "G8": [
+   "033",
+   "012",
+   "005"
+  ],
+  "G9": [
+   "003",
+   "036",
+   "063"
+  ],
+  "G10": [
+   "072",
+   "073",
+   "075"
+  ]
+ }
+}
