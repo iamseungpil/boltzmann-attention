@@ -30,7 +30,16 @@ DIRTY=$(cd "$REPO" && git status --porcelain -- \
 [ -e "$LOG/${TAG}.log" ] && { echo "[run_one] REFUSING: ${TAG}.log 존재" >&2; exit 1; }
 [ -e "$SIMS/${TAG}" ] && { echo "[run_one] REFUSING: $SIMS/${TAG} 잔존" >&2; exit 1; }
 
-if [ "$ARM" = "treat" ]; then VC=1; EL=1; else VC=0; EL=0; fi
+# 팔 = 두 노브의 조합. **귀속을 가르려면 하나씩** 켜야 한다(사용자 지시 2026-08-18).
+#   treat  = VC1 EL1 (합성)   ctl = VC0 EL0 (기준선)
+#   vconly = VC1 EL0          elonly = VC0 EL1
+case "$ARM" in
+  treat)  VC=1; EL=1 ;;
+  ctl)    VC=0; EL=0 ;;
+  vconly) VC=1; EL=0 ;;
+  elonly) VC=0; EL=1 ;;
+  *) echo "[run_one] REFUSING: arm=$ARM (ctl|treat|vconly|elonly)" >&2; exit 1 ;;
+esac
 
 PIN="T2_ACTION_SUB=1 T2_KEEP_DENY_BODY=1 T2_CALL_FORM=1 T2_ARG_EMPTY=1 T2_SEARCH_AGENT=1 \
 T2_DECIDE_ANY=1 T2_WRITE_ARG_ENUM=1 T2_DECIDE_BEFORE_WRITE=1 T2_DECISION_CARRY=1 \
