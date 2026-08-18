@@ -543,6 +543,62 @@ def audit_declared(live_flags):
     return sorted(out)
 
 
+PARAM_SUFFIX = ("_CAP", "_K", "_MODE", "_TH", "_DIR", "_POS", "_LINECAP", "_MIN", "_MINLEN",
+                "_J", "_KINDS", "_VERBOSE", "_SIDECAR", "_KEEP", "_ORDER", "_BADWORDS",
+                "_SPEC", "_LOG", "_TRACE", "_OBSERVE", "_DEFAULT", "_FULL")
+
+
+def audit_unset(here=None, launchers=()):
+    """**세 번째 방향** — 코드에는 있는데 *셀에도 런처에도* 없는 플래그(2026-08-18 신설).
+
+    ★왜 신설했나. `audit()`은 라이브→셀, `audit_declared()`는 셀→라이브만 본다. 그래서
+      **셀에 없고 런처에도 없는** 플래그는 **어느 쪽 감사에도 안 잡힌다**. 실물:
+      `T2_NOREC_BRANCH`(`t2_compute.py:674`) — A2 에 저작된 `no_record_template_v2`(639자·
+      같은 인자 재조회 금지·종결 분기·순서 지시)를 여는 문인데 `go_stack.sh` 도 런처도 안 켠다.
+      라이브가 쓰는 v1 은 *"…then call this tool again"* 으로 닫혀 **종료 분기가 없고**,
+      x33/x34 가 그것을 D1(지시 결함)으로 기록했다. t7313 `task_040` 이 그 모양으로 turn 104 를
+      태웠다. 두 감사 다 **0건 ✓** 를 인쇄하는 동안이었다.
+
+    반환: [(flag, 참조 파일)] — **판정이 아니라 목록**이다. 대부분은 후계 레버로 대체됐거나
+    의도적 OFF 일 수 있으므로, 각각 원장에서 판정을 찾아 붙이는 것은 사람 몫이다([[60]] 은
+    *"끄지 마라"* 이지 *"전부 켜라"* 가 아니다 — 통합의 근거를 대라는 요구다).
+    ⚠파라미터 접미사(`_CAP`·`_K`·…)는 뺀다: 미설정 = 코드 기본값 사용이고 그것은 정상이다.
+    ⚠코드 기본이 ON 인 것도 뺀다(`environ.get(x, "1")`) — 그것은 조용히 라이브다.
+    """
+    import io as _io
+    import re as _re
+    here = here or os.path.dirname(os.path.abspath(__file__))
+    flags = {}
+    for fn in sorted(os.listdir(here)):
+        if not (fn.startswith("t2_") and fn.endswith(".py")):
+            continue
+        src = _io.open(os.path.join(here, fn), encoding="utf-8", errors="replace").read()
+        for m in _re.finditer(r'environ\.get\(\s*"(T2_[A-Z0-9_]+)"\s*(?:,\s*"([^"]*)")?\s*\)', src):
+            rec = flags.setdefault(m.group(1), {"files": set(), "default": None})
+            rec["files"].add(fn)
+            if m.group(2) is not None:
+                rec["default"] = m.group(2)
+    live = set(DEFAULT_ON)
+    for sh in (["go_stack.sh"] + list(launchers)):
+        p = os.path.join(here, sh)
+        if os.path.exists(p):
+            live |= set(_re.findall(r"\b(T2_[A-Z0-9_]+)\s*=",
+                                    _io.open(p, encoding="utf-8", errors="replace").read()))
+    out = []
+    for name in sorted(flags):
+        rec = flags[name]
+        if name in live or rec["default"] == "1":
+            continue
+        if any(name.endswith(s) for s in PARAM_SUFFIX):
+            continue
+        if name in RETIRED or name in NOT_LAUNCHED or name in ARM_ONLY or cell_of(name):
+            continue
+        if name == "T2_OFF_CELLS":            # 비상구 자신
+            continue
+        out.append((name, ",".join(sorted(rec["files"]))))
+    return out
+
+
 def _fmt_cell(name):
     cause, methods, _phil, flags = CELLS[name]
     grade = CAUSES[cause][0] if cause in CAUSES else "?"
@@ -588,6 +644,18 @@ if __name__ == "__main__":
     print("\n선언됐으나 비-라이브 %d종%s" % (len(dead), ":" if dead else " ✓"))
     for cell, f, tag in dead:
         print("    %-8s %-18s %s" % (tag, cell, f))
+
+    # 런처는 **가장 최근에 고친 것**을 쓴다(이름순은 옛 런처를 집는다 — 초판이 그랬다).
+    # 인자로 주면 그것이 우선한다: `py -3 t2_levers.py run_t7313_stage1_20260818h.sh`
+    launchers = [a for a in sys.argv[1:] if a.endswith(".sh")]
+    if not launchers:
+        cand = [f for f in os.listdir(here) if f.startswith("run_") and f.endswith(".sh")]
+        launchers = sorted(cand, key=lambda f: os.path.getmtime(os.path.join(here, f)))[-1:]
+    unset = audit_unset(here, launchers)
+    print("\n셀에도 런처에도 없는 코드 플래그 %d종%s  (런처 대조 = %s)"
+          % (len(unset), ":" if unset else " ✓", ",".join(launchers) or "없음"))
+    for f, files in unset:
+        print("    %-28s %s" % (f, files))
 
     # ── 코드 체계 ────────────────────────────────────────────────────────
     print("\n" + "=" * 72)
