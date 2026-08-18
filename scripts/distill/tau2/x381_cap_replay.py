@@ -41,6 +41,14 @@ try:
     sys.stdout.reconfigure(encoding="utf-8")
 except Exception:
     pass
+# ★계기 결함 자기검출(2026-08-18 1차 실행): 엔진의 리셋 마커는 **stderr** 로 나가는데 그 문면이
+#   한글이다. ssh 로 붙은 stderr 가 ASCII 면 그 `print` 가 UnicodeEncodeError 를 던지고,
+#   그것을 감싼 `except Exception: pass` 가 **리셋 대입까지 같이 삼킨다** ⇒ 1차 실행의
+#   *"15/15 리셋 안 됨"* 은 엔진 결론이 아니라 **내 파이프 결론**일 수 있다. 먼저 막고 잰다([[55]]).
+try:
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
 import t2_forensic as F                                      # noqa: E402
 
@@ -124,7 +132,14 @@ def main():
             hit, hit_names = None, []
             for i in range(first, len(msgs) + 1):
                 self._t2_resolve_deny = 3                        # 매 검사 전 캡 상태로 되돌린다
+                # ★부정통제(1차 실행 교훈): 엔진 내부의 `except: pass` 가 무엇을 삼키는지
+                #   보이도록 **같은 계산을 밖에서도** 해 둔다. 둘이 갈리면 삼킨 것이다.
+                outside = bool(GP._executed_tool_names(msgs[:i], a2) - snap)
                 ok = GP._resolve_cap_ok(self, msgs[:i], a2)
+                if outside and not ok:
+                    print("       ⛔밖에선 새 이름이 보이는데 함수는 리셋 안 함 (i=%d) — "
+                          "엔진 내부 예외 삼킴 의심" % i)
+                    break
                 if ok:
                     hit = i
                     hit_names = sorted(GP._executed_tool_names(msgs[:i], a2) - snap)[:5]
