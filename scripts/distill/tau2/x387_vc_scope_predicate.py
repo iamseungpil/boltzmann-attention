@@ -64,26 +64,35 @@ def a2_load():
     return out
 
 
-def candidate_params(po):
-    """**후보를 먹는 인자 이름**의 닫힌 집합 — A3 선언에서 기계적으로 모은다(저작 0).
+def candidate_consumers(a2):
+    """**후보를 먹는 행동**을 A3 선언에서 기계적으로 읽는다 — 새 저작 0.
 
-    출처는 둘뿐이다:
-      · `decide_candidates_text` 가 채우는 자리(= 후보 목록을 값으로 받는 인자)
-      · `write_arg_enum`/`operand_keys` 계열이 후보 집합으로 검증하는 인자
-    못 찾으면 **빈 집합**(그러면 술어는 언제나 '끔' → fail-safe 로 종전 거동과 갈린다).
+    ★사용자 지시(2026-08-18): *"레버를 켤지 끌지를 조건에 기계적으로 판단하는 것은 이미
+      이전에 했었다. 모든 경우에 그렇게 하라."* 그 관용구는 이미 A3 에 있다:
+
+        write_arg_enum[0] = {"applies_to": "call_discoverable_agent_tool",
+                             "applies_when": {"arg": "agent_tool_name",
+                                              "prefix": "open_bank_account"},
+                             "arg": "account_class", "group_arg": "account_type", …}
+        recommendation_verify = {"action_tool": "apply_for_credit_card", "operand": "card_type", …}
+
+    ⇒ *어떤 행동이 후보 집합을 인자로 먹는가* 는 **이미 선언돼 있다**. 여기서는 그것을 읽어
+      집합으로 만들 뿐이고, 없으면 빈 집합(=술어 항상 끔·fail-safe).
+    반환: {행동 이름 접두(또는 정확 이름)} — 표적 이름과 접두 일치로 대조한다.
     """
-    keys = set()
-    def walk(o):
-        if isinstance(o, dict):
-            for k, v in o.items():
-                if k in ("candidate_params", "operand_keys", "class_params") and isinstance(v, list):
-                    keys.update(str(x) for x in v)
-                walk(v)
-        elif isinstance(o, list):
-            for x in o:
-                walk(x)
-    walk(po)
-    return keys
+    out = set()
+    for e in (a2.get("write_arg_enum") or []):
+        if not isinstance(e, dict):
+            continue
+        w = e.get("applies_when") or {}
+        if w.get("prefix"):
+            out.add(str(w["prefix"]))
+        elif e.get("applies_to"):
+            out.add(str(e["applies_to"]))
+    rv = a2.get("recommendation_verify") or {}
+    if rv.get("action_tool"):
+        out.add(str(rv["action_tool"]))
+    return out
 
 
 def sims_of(tag):
@@ -158,10 +167,10 @@ def tool_params(name):
 
 
 def main():
-    po = (a2_load().get("policy_ontology") or {})
-    cparams = candidate_params(po)
+    a2 = a2_load()
+    cparams = candidate_consumers(a2)
     print("=" * 104)
-    print("x387 · VC 발화 조건(스키마 술어) 분리력 · 후보-인자 이름 %d종: %s"
+    print("x387 · VC 발화 조건(A3 선언 술어) 분리력 · 후보-소비 행동 %d종: %s"
           % (len(cparams), ", ".join(sorted(cparams)) or "(없음)"))
     print("판정(사전 고정): 일치 ≥90%% → 게이트 설계 · 80~90%% → 어긋난 컷 읽고 최소 선언 보탬 · "
           "<80%% → 스키마 술어 폐기(A3 절차 선언으로)")
@@ -181,10 +190,9 @@ def main():
             # 술어: 표적 도구들 중 **후보를 먹는 인자**를 가진 것이 하나라도 있는가
             fires, why = False, ""
             for t in dict.fromkeys(tg):
-                ps = tool_params(t)
-                inter = [p for p in ps if p in cparams]
-                if inter:
-                    fires, why = True, "%s(%s)" % (t, ",".join(inter))
+                m = next((c for c in cparams if t == c or t.startswith(c)), None)
+                if m:
+                    fires, why = True, "%s ~ 선언 '%s'" % (t, m)
                     break
             ok = int(fires == want)
             agg[("n",)] += 1
