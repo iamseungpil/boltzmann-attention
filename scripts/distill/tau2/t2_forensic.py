@@ -277,6 +277,61 @@ def log_text(tag):
     return ""
 
 
+def trace(tag):
+    """런의 **구조화 계기**(`trace_<tag>.jsonl`) — `{sim, turn, mark, line}` 행 리스트.
+
+    ★왜 이것이 정본인가 (2026-08-18 감사): stderr 로그 줄은 **8%만** `turn=` 을 찍는다
+      (t7310 treat: 2,541 줄 중 215). 그런데 **같은 사건이 이 파일에는 turn 과 함께** 들어 있다
+      (2,558 줄 중 turn 없는 줄 **17** = 모듈 기동 줄뿐 · `T2_RESOLVE` 40/40 · `T2_VERDICT` 12/12 ·
+      `T2_ACTIONREQ` 52/52 · `T2_MATERIAL_GATE` 198/198).
+      즉 **sim·turn 단위 분석은 처음부터 가능했고**, 못 한 것은 `turns_of` 가 로그 *텍스트*에서
+      `turn=` 을 긁었기 때문이다 — 그 탓에 24 sim 전부 `None` 이 나와 손해 측정을 접었다(C530⒟).
+    영속본(`sim_results/<tag>.trace.jsonl.gz`) → 리모트 원본 순으로 본다. 없으면 빈 리스트(침묵).
+    """
+    import gzip as _gz
+    out = []
+    gzp = os.path.join(BASE, tag + ".trace.jsonl.gz")
+    raw = os.path.join(FBDIR, "trace_" + tag + ".jsonl")
+    if os.path.exists(gzp):
+        op = _gz.open(gzp, "rt", encoding="utf-8", errors="replace")
+    elif os.path.exists(raw):
+        op = io.open(raw, encoding="utf-8", errors="replace")
+    else:
+        return out
+    with op as f:
+        for ln in f:
+            try:
+                out.append(json.loads(ln))
+            except Exception:
+                continue
+    return out
+
+
+def sidecar_rows(tag):
+    """우리 층이 **보낸 문장**(`fb_<tag>.jsonl`) — `{sim, turn, channel, text, …}` 행 리스트.
+
+    trace 가 *어느 기구가 말했는가*를 남기면 이쪽은 *무엇을 말했는가*를 남긴다(둘은 다르다).
+    실측(t7310 treat): 266 줄 · sim 12 · 채널 17종 · **turn 없는 줄 0**.
+    """
+    import gzip as _gz
+    out = []
+    gzp = os.path.join(BASE, tag + ".fb.jsonl.gz")
+    raw = os.path.join(FBDIR, "fb_" + tag + ".jsonl")
+    if os.path.exists(gzp):
+        op = _gz.open(gzp, "rt", encoding="utf-8", errors="replace")
+    elif os.path.exists(raw):
+        op = io.open(raw, encoding="utf-8", errors="replace")
+    else:
+        return out
+    with op as f:
+        for ln in f:
+            try:
+                out.append(json.loads(ln))
+            except Exception:
+                continue
+    return out
+
+
 def first_named(sim, names):
     """**첫 지목** — 어시스턴트가 후보 이름을 처음 입에 올린 메시지 index (없으면 None).
 
@@ -305,11 +360,31 @@ def turns_of(tag, pattern, sims_=None):
       추정하지 않는다([[25]] *모르면 안 뺀다* 의 계기판).
     """
     import re as _re
+    rows = trace(tag)
+    if rows:
+        # ★정본 경로(2026-08-18): 구조화 계기에서 **turn 필드**를 읽는다. 로그 텍스트는 8%만
+        #   `turn=` 을 찍지만 이 파일은 관심 마커 전부 turn 을 갖고 있다(`trace` 독스트링).
+        rx = _re.compile(pattern)
+        out = {}
+        for d in rows:
+            k = d.get("sim")
+            if not k:
+                continue                      # 모듈 기동 줄(sim 없음) — 사건이 아니다
+            if sims_ is not None and k not in sims_:
+                continue
+            ln = str(d.get("line") or "")
+            if not rx.search(ln):
+                continue
+            t = d.get("turn")
+            out.setdefault(k, []).append(int(t) if isinstance(t, int) or
+                                         (isinstance(t, str) and t.isdigit()) else None)
+        return out
+    # 폴백: trace 가 없는 옛 런 — 종전대로 로그 텍스트에서 긁고, 없으면 **모른다고 남긴다**
     out = {}
     for k, hits in by_sim(tag, pattern, sims_).items():
         vals = []
-        for _i, s in hits:
-            m = _re.search(r"turn=(\d+)", s if isinstance(s, str) else "")
+        for _i, s2 in hits:
+            m = _re.search(r"turn=(\d+)", s2 if isinstance(s2, str) else "")
             vals.append(int(m.group(1)) if m else None)
         out[k] = vals
     return out
