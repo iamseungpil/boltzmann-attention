@@ -3528,6 +3528,16 @@ def _resolve_cap_ok(self, messages=None, a2=None):
             done = _executed_tool_names(messages, a2)
             prev = getattr(self, "_t2_resolve_done", None)
             if prev is not None and (done - prev):
+                # ★관측 의무(C442)가 아래 ⓑ 경로에만 달려 있었다 — 이 경로는 **조용히** 리셋해서
+                #   t7308 전수(24 sim)에서 ⓑ 마커가 0 인데 deny 가 sim 당 11~23 인 이유를
+                #   **소스를 읽고 프로브를 짜야만** 알 수 있었다(x372). 같은 의무를 여기에도 단다.
+                #   ⚠거동 불변 — 인쇄뿐이다. 그리고 **실효 리셋일 때만** 찍는다(이 함수는 한 턴에
+                #   여러 번 불리고 스냅샷은 발화 시점에만 갱신되므로, 이미 0 인 카운터를 0 으로
+                #   되돌리는 것은 사건이 아니다). ⓑ 도 같은 조건으로 맞춰 두 경로를 비교 가능하게 한다.
+                if getattr(self, "_t2_resolve_deny", 0):
+                    print("[T2_RESOLVE_CAP] 리셋(실행): 새 실행 %s (정체 %d회 → 0)"
+                          % (sorted(done - prev)[:3], self._t2_resolve_deny),
+                          file=_sys.stderr, flush=True)
                 self._t2_resolve_deny = 0                        # 진행 있음 → 정체 카운터 리셋
         except Exception:
             pass
@@ -3548,10 +3558,14 @@ def _resolve_cap_ok(self, messages=None, a2=None):
                     cur = set(_rz_cap._retrieved_unlockables(messages, _reg, _u))
                     pvn = getattr(self, "_t2_resolve_names", None)
                     if pvn is not None and (cur - pvn):
-                        self._t2_resolve_deny = 0
                         # 관측 의무(C442) — 어떤 이름이 리셋을 유발했는지까지 남긴다.
-                        print("[T2_RESOLVE_CAP] 리셋: 새 이름 회수 %s"
-                              % sorted(cur - pvn)[:3], file=_sys.stderr, flush=True)
+                        # ⚠**실효 리셋일 때만** 찍는다(위 ⓐ 와 같은 조건) — 두 경로의 마커 수를
+                        #   그대로 비교할 수 있어야 한다. 옛 판은 무조건 찍어 ⓐ 와 셈이 어긋났다.
+                        if getattr(self, "_t2_resolve_deny", 0):
+                            print("[T2_RESOLVE_CAP] 리셋(회수): 새 이름 %s (정체 %d회 → 0)"
+                                  % (sorted(cur - pvn)[:3], self._t2_resolve_deny),
+                                  file=_sys.stderr, flush=True)
+                        self._t2_resolve_deny = 0
         except Exception:
             pass
         # ⚠스냅샷은 여기서 갱신하지 않는다. 이 함수는 한 턴에 여러 번 불리므로 검사마다 갱신하면
