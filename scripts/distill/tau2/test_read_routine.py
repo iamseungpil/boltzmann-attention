@@ -167,6 +167,16 @@ def main():
     if moved is None:
         print("   FAIL — 진척했는데 루틴이 끊겼다"); bad += 1
 
+    # ⑨ 지목한 이름은 **한 곳에 적힌다** — 두 출처 가드가 그것을 본다(t7324 050: 핀이
+    #    `operator-fab`, 후속 힌트가 `unlock_prov` 에 각각 막혔다). 핀은 말하지 않으므로
+    #    메시지에서 찾는 `stated_names` 로는 안 잡힌다.
+    ag9 = _Agent()
+    GP._read_routine_pin(ag9, A2, hA)
+    own = getattr(ag9, "_t2_our_names", set())
+    print("⑨ 지목 이름 기록: %s" % (sorted(own)[:2],))
+    if "get_user_dispute_history_7291" not in own:
+        print("   FAIL — 지목한 이름이 기록되지 않는다(가드가 우리 핀을 날조로 본다)"); bad += 1
+
     src = io.open(os.path.join(HERE, "t2_gate_patch.py"), encoding="utf-8").read()
     i = src.find("def _read_routine_pin(")
     body = src[i:i + 2600]

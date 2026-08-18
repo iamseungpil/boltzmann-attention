@@ -2648,6 +2648,16 @@ def _read_routine_pin(agent, a2, messages):
         # ⑶ **한 번 시도하고 놓아준다**: 같은 (도구, 집합)으로는 다시 걸지 않는다. 불응하면
         #   그대로 두고, 하나라도 부르면 집합이 줄어 **새 열쇠**가 되므로 이어서 걸린다
         #   ⇒ 진척이 있을 때만 계속된다. 강제를 매 턴 되풀이하지 않는다([[64]]·창 순환 방지).
+        # ★지목한 이름을 **한 곳에 적어 둔다** (2026-08-19·t7324 실측). 핀은 스키마를 좁힐 뿐
+        #   말하지 않으므로, `stated_names`(메시지에서 찾는다)로는 우리 핀이 안 잡힌다 — 그래서
+        #   같은 층의 출처 가드가 우리가 방금 지목한 이름을 `operator-fab` 으로 막았다.
+        #   출처는 A3 선언 + env read 분류이고 모델이 지어낼 수 없다([[25]]).
+        try:
+            _own = set(getattr(agent, "_t2_our_names", None) or set())
+            _own |= {str(x) for x in picked}
+            agent._t2_our_names = _own
+        except Exception:
+            pass
         _key = (tool, tuple(picked))
         _tried = getattr(agent, "_t2_routine_tried", None)
         if _tried is None:
@@ -10008,8 +10018,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _ctx2 = " ".join(
                             str(getattr(_m3, "content", "") or "") for _m3 in state.messages
                             if getattr(_m3, "role", None) in ("tool", "user")).lower()
+                        # ★우리가 지목한 이름은 출처가 있다 (2026-08-19·`T2_PROV_OURS` 확장).
+                        #   후속-체인의 힌트는 **재생성 버퍼**에 있어 `state.messages` 에 없고,
+                        #   핀은 아예 말하지 않는다 — 그 둘을 여기서 인정하지 않으면 우리 지목이
+                        #   우리 가드에 막힌다(t7324 050 실측: `unlock-hint` 직후 이 deny).
+                        _ours2 = (getattr(self, "_t2_our_names", set())
+                                  if os.environ.get("T2_PROV_OURS") == "1" else set())
                         if (_uv in getattr(self, "_t2_unknown_bl", set())
-                                or _uv.lower() not in _ctx2):
+                                or (_uv.lower() not in _ctx2 and _uv not in _ours2)):
                             print("[T2_UNLOCK_PROV] deny unprovenanced name (followup-regen) "
                                   "tool=%s val=%s" % (getattr(_c2, "name", None), _uv),
                                   file=_sys.stderr, flush=True)

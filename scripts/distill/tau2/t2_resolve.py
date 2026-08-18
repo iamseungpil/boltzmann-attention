@@ -161,7 +161,14 @@ def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=N
     #   날조 통과는 구조적으로 불가.
     if agent is not None and os.environ.get("T2_PROV_OURS") == "1":
         try:
-            cands = cands | stated_names(msgs, opspec.get("name_pattern"), registry_names(agent))
+            _reg = registry_names(agent)
+            cands = cands | stated_names(msgs, opspec.get("name_pattern"), _reg)
+            # ★우리가 **지목한** 이름도 출처다 (2026-08-19·t7324 050 실측). 핀은 스키마를 좁힐
+            #   뿐 말하지 않아 `stated_names` 가 못 찾는다 — 그래서 우리 핀이 이 가드에
+            #   `operator-fab` 으로 막혔고, 같은 시드의 다른 런은 문구가 먼저 나간 순서였을 뿐이다.
+            #   레지스트리 교집합은 그대로라 날조 통과는 여전히 구조적으로 불가하다.
+            cands = cands | ({str(n) for n in
+                              (getattr(agent, "_t2_our_names", None) or set())} & set(_reg or ()))
         except Exception:
             pass
     if cands and str(chosen) not in cands:
