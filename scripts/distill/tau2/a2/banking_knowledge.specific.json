@@ -362,6 +362,8 @@
         "transactions": "A JSON array of the customer's credit card transactions that you read from the transaction records. Each element MUST have ONLY these raw fields, copied as-is: transaction_id (string), transaction_amount (number, no $), rewards_earned (number of points recorded, no ' points' text), credit_card_type (string, e.g. 'Gold Rewards Card' or 'EcoCard'), category (string, e.g. 'Green'). Do NOT compute anything — just copy the raw values; this tool computes the expected reward and finds discrepancies itself."
       },
       "return_template": "Transactions whose recorded reward does NOT match the expected reward (these require a cash back dispute): {ids}",
+      "return_template_empty": "This check compared the transactions it was given and found none whose recorded reward differs from the expected reward, so it identifies nothing to dispute. Do NOT open a dispute on the strength of this result, and do not tell the customer that every transaction is correct - this check only speaks for the transactions it compared. If the customer points to a specific transaction, read that record and run this check on it.",
+      "_note_return_template_empty": "★2026-08-18 (`T2_RETURN_EMPTY` 의 문면·D4·INSTRUCTION_DEFECT §2a). 표적 실측: 영속 14런에서 이 도구 **71회 호출 중 10회가 빈 결과**(다른 상세-도구는 0). 빈 목록 옆에서도 기존 한 줄은 *\"these require a cash back dispute\"* 를 단언해 모순이 된다. 출처 = 같은 문장의 대우 + 엔진 규약(*\"empty 문구는 완결을 주장하지 않는다 — coverage 표면화에 위임\"*)뿐이고 새 도메인 사실 0·gold 무관([[23]]). 술어는 `_sg_details` 공집합(닫힘·판단 0).",
       "op": {
         "op": "select_discrepant",
         "over": "transactions",

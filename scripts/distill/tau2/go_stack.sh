@@ -411,3 +411,10 @@ export T2_NOREC_BRANCH=1
 #   ⇒ 헤더에서 그 한 문장을 뺀다(각 flag 의 괄호 주석이 이미 클래스별로 정확하다).
 #   엔진 분기 순증 0 · A2 순증 0 · [[55]] *"문구 모순 상존"* 계열의 수리다.
 export T2_GROUND_HDR=1
+
+# ★빈-결과 문면 (`T2_RETURN_EMPTY`·2026-08-18 선언·D4·INSTRUCTION_DEFECT §2a).
+#   판정 상세가 **공집합**인데 같은 문장이 *"these require a cash back dispute"* 를 단언하던 자리.
+#   표적 실측(오늘·영속 14런): `get_reward_discrepancies` **71회 중 10회가 빈 결과**(14%) ·
+#   다른 상세-도구는 0. 문면은 오늘 저작했고 **완결을 주장하지 않는다**(coverage 표면화에 위임).
+#   술어 = `_sg_details` 공집합(닫힘·판단 0) · 선언 없는 도구는 종전 거동.
+export T2_RETURN_EMPTY=1
