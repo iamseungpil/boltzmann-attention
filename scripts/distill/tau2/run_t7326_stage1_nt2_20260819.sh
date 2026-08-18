@@ -12,6 +12,11 @@
 #   문구가 이름을 먼저 말해 둔 **순서**였을 뿐이다. 지목한 이름을 한 곳에 적어 두 가드가 함께
 #   보게 고쳤다(커밋 `e7ce0258`). 이 런이 그 수리를 태스크 20개에서 확인한다.
 #
+# ## ★050 수리 확인 (2026-08-19·t7327 A/B 두 GPU)
+#    연결 뒤 050 을 양 GPU 에서 각각 돌려 **2/2 통과**(각 reward 1.0·매치 12/13·
+#   읽기 루틴 4회· **0**). 수리 전 같은 시드에서 1.0/1.0/0.0 로 흔들리던 것이
+#   두 샘플 모두 통과로 붙었다. 이 런이 그것을 20 태스크로 넓힌다.
+#
 # ## 왜 nt=2 인가
 #   오늘 같은 시드에서 뒤집힌 것이 둘이다 — 073(1.0 ↔ 0.0·레버 발화 0) · 050(1.0 두 번 뒤 0.0).
 #   nt=1 은 레버와 잡음을 못 가른다. nt=2 는 **태스크별 변동폭**을 처음으로 재게 해 준다.
@@ -80,7 +85,7 @@ NT=2
 
 launch () {
   NAME="$1"; PORT="$2"; TASKS="$3"
-  TAG="bank_t7326_${NAME}_20260819p"
+  TAG="bank_t7326_${NAME}_20260819q"
   if [ -e "$LOG/${TAG}.log" ]; then echo "[t7326] SKIP: ${TAG}.log 존재" >&2; return 0; fi
   if [ -e "$SIMS/${TAG}" ]; then echo "[t7326] REFUSING: $SIMS/${TAG} 잔존" >&2; return 1; fi
   echo "{\"tag\":\"$TAG\",\"scaffold_sha\":\"$SHA\",\"port\":$PORT,\"tasks\":\"$TASKS\",\"nt\":$NT,\"max_steps\":150,\"concurrency\":1,\"pin\":\"$PIN\",\"why\":\"stage-1 20 tasks x nt=2 overnight; single stack, no arm knobs; endpoint = per-task pass distribution + variance\"}" \
