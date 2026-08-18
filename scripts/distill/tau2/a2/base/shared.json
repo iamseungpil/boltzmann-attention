@@ -1,5 +1,6 @@
 {
   "declaration": {
+   "_note_guide_rev2": "★2026-08-19 rev2 (사용자 물음: *\"봉투를 핀 이후로 미루기가 낫나? 핀걸린 턴에서 봉투 면제가 낫나?\"* → 미루기). t7323 첫 sim 실측: declfirst 팔에서 읽기 루틴이 4회 → 1회로 줄고 050 이 1.0 → 0.0 이 됐다(`viol=R2_CALL_WITHOUT_ACT,R4_NEXT_ACTION_MISMATCH`). *\"봉투를 먼저 써라\"* 와 핀의 *\"이 턴엔 반드시 이 도구를 불러라\"* 가 한 턴에서 충돌한 것이다. 면제가 아니라 미루기를 택한 이유: 위반 검사는 검출 전용이라 면제할 집행이 없고, 가이드는 sim 당 1회 주입이라 턴별로 끌 수 없으며, 핀이 걸린 턴의 다음 행동은 모델이 고른 것이 아니다. 사후 봉투는 2패스 관찰자가 이미 만든다. ⚠이후 측정은 rev2 를 재는 것이고 X13 의 31.8% 는 rev1 수치다.",
     "schema": {
       "type": "object",
       "properties": {
@@ -81,7 +82,7 @@
         "prose"
       ]
     },
-    "guide": "\n\n<declaration>\nRULE: state a declaration envelope for every turn as a single JSON object. **Write it FIRST, before any tool call** — text placed after a tool call is discarded by the server and does not count. In done_report, `tool` MUST be the exact name of the tool that performed what you claim; if no tool performed it, use null.\n{\"turn_type\":\"ACT|ASK|CONFIRM|INFORM|DONE\",\"next_action\":\"<tool you are calling now or null>\",\"ask\":{\"slot\":\"<slot>\",\"reason\":\"missing|confirm\"} or null,\"done_report\":[{\"kind\":\"<claim kind>\",\"what\":\"<what you did>\",\"tool\":\"<exact tool name or null>\",\"resolves\":null}],\"prose\":\"<what you tell the customer>\"}\nThe declaration must match what you actually do this turn.\n</declaration>"
+    "guide": "\n\n<declaration>\nRULE: state a declaration envelope for every turn as a single JSON object. **Write it FIRST, before any tool call** — text placed after a tool call is discarded by the server and does not count. In done_report, `tool` MUST be the exact name of the tool that performed what you claim; if no tool performed it, use null.\n{\"turn_type\":\"ACT|ASK|CONFIRM|INFORM|DONE\",\"next_action\":\"<tool you are calling now or null>\",\"ask\":{\"slot\":\"<slot>\",\"reason\":\"missing|confirm\"} or null,\"done_report\":[{\"kind\":\"<claim kind>\",\"what\":\"<what you did>\",\"tool\":\"<exact tool name or null>\",\"resolves\":null}],\"prose\":\"<what you tell the customer>\"}\nThe declaration must match what you actually do this turn. If the tools offered to you this turn are restricted to one choice, make that call first and state the envelope in your next message instead - a turn whose action was chosen for you is not a turn to declare a next action.\n</declaration>"
   },
   "_note": "★도메인-불변 A2(base). 3도메인이 **그대로** 쓰는 내용만 둔다 ⇒ 새 도메인 추가 시 **opex 0**. 로더(`gate_interpreter.load_domain_a2`)가 domain 파일과 병합하며 **도메인 값이 우선**한다. 감사=`x17_a2_layer_audit.py`. 여기 있는 것은 도구명·업종 명사 0이어야 한다(그렇지 않으면 domain 파일로 내려야 함).",
   "_note_declaration": "W-A(2026-07-31·arm③): 선언-우선 봉투. **내용이 도메인-불변**이라 A2 3층의 **CORE**(도메인-불변 기본 스킬 세팅)에 속한다 — 다른 도메인에 그대로 복사되므로 **도메인-특화 opex 0**. 도구명·업종 명사 0. 가이드의 '호출 앞에 쓸 것'은 C248(파서가 호출 뒤 텍스트를 버림) 때문이고, done_report.tool 필수는 R5를 **닫힌 술어**로 만들기 위함이다.",

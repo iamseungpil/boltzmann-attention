@@ -6944,6 +6944,38 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                       str(_st16.get("ready_tools") or "").split(",")
                                       if t.strip() and t.strip() not in _done16]
                         _left = sorted(set(_left))
+                        # ★선언된 절차가 할 말이 없으면 **원장**을 본다 (2026-08-19·t7318 073).
+                        #   그 sim 의 우리 로그엔 `walk gap: qty=9 executed=0` 이 있었는데, 이 자리는
+                        #   절차 선언만 보고 침묵했다 — 073 에는 절차가 선언돼 있지 않고, 정책에
+                        #   순서 문장이 없어 저작할 근거도 없다([[23]]). 원장은 선언 없이도 안다.
+                        #   술어·수치는 walk 가 쓰는 것을 **그대로** 쓴다(사본 0·[[67]]).
+                        _gapn = _gapm = 0
+                        if not _left and ep_led is not None:
+                            try:
+                                import t2_eplan_patch as _EPL16
+                                _unex16 = sorted(getattr(ep_led, "listed", set())
+                                                 - getattr(ep_led, "examined", set()))
+                                _gapn = _EPL16.walk_required_n(ep_led, _unex16)
+                                _gapm = len({e.get("entity") for e in
+                                             getattr(ep_led, "executed", []) if e.get("entity")})
+                                if (_gapn <= 1 or _gapn <= _gapm
+                                        or _EPL16.qty_item_covered(ep_led, _gapn)):
+                                    _gapn = _gapm = 0          # walk 와 같은 억제 조건
+                            except Exception as _le16:
+                                _gapn = _gapm = 0
+                                print("[T2_TRANSFER_LEAVES_STEPS] 원장 조회 건너뜀: %r" % (_le16,),
+                                      file=_sys.stderr, flush=True)
+                        if not _left and _gapn > _gapm:
+                            abs_fb = ("Error: [WORK-INCOMPLETE] you are about to hand this "
+                                      "conversation off, but this conversation's own record shows "
+                                      "%d item(s) the customer asked about and %d you have actually "
+                                      "acted on. A transfer does not perform the rest. Either do "
+                                      "them now, or tell the customer plainly what you are leaving "
+                                      "undone and why." % (_gapn, _gapm))
+                            self._t2_tls_fired = True
+                            print("[T2_TRANSFER_LEAVES_STEPS] surface ledger gap qty=%d executed=%d"
+                                  % (_gapn, _gapm), file=_sys.stderr, flush=True)
+                            break
                         if _left:
                             abs_fb = ("Error: [PROCEDURE-INCOMPLETE] you are about to hand this "
                                       "conversation off, but the procedure you entered still has "
