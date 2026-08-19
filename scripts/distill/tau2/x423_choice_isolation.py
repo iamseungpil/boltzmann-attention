@@ -181,7 +181,32 @@ def build_arms(c):
     return {"C_neg": head + q,
             "A_schema": head + sch + q,
             "B_policy": head + sch + pol + q,
-            "D_live": head + live + q}
+            "D_live": head + live + q,
+            "E_evidence": head + sch + evidence_block(sim, c["msg_i"]) + q}
+
+
+EVID_BUDGET = 26000
+
+
+def evidence_block(sim, upto, budget=EVID_BUDGET):
+    """★진짜 정보-맞춘 격리([[18]]): 그 결정점까지 **에이전트가 받은 도구-결과 전부**를 축자로 주고,
+    어시스턴트 자기 산문과 대화 잡음만 뺀다. 정보는 그대로 두고 **부하만** 던다.
+
+    1차 실행에서 `B_policy` 팔은 40 사례 중 **30 에서 정답 문자열이 팔 안에 아예 없었다** — 그 팔로 잰
+    낮은 적중은 능력이 아니라 우리 프로브의 정보 빈약이다. 이 팔이 그 결함을 고친다.
+    """
+    parts, tot = [], 0
+    for i, m in enumerate(sim.get("messages") or []):
+        if i >= upto or m.get("role") != "tool":
+            continue
+        b = " ".join(str(m.get("content") or "").split())
+        if not b:
+            continue
+        parts.append(b)
+        tot += len(b)
+    while tot > budget and len(parts) > 1:
+        tot -= len(parts.pop(0))            # 오래된 것부터 버린다(최근 증거 우선)
+    return "\n\n".join(["\n# 회수한 증거 전부(축자·도구 응답 %d건)" % len(parts)] + parts) + "\n"
 
 
 def norm(v):
@@ -224,9 +249,10 @@ def main():
     jobs = []
     for c in cs:
         for an, body in build_arms(c).items():
+            adm = norm(c["gold"]) in " ".join(body.split()).lower()
             for k in range(a.n):
                 jobs.append({"c": c, "arm": an, "k": k, "temp": (0.0 if k == 0 else a.temp),
-                             "body": body})
+                             "body": body, "admissible": adm})
     print("작업 %d건" % len(jobs))
 
     lock, out = threading.Lock(), []
@@ -253,7 +279,7 @@ def main():
                    "got": None if v is None else str(v)[:80],
                    "hit": v is not None and norm(v) == norm(c["gold"]),
                    "same_as_live": v is not None and norm(v) == norm(c["live"]),
-                   "parsed": v is not None}
+                   "parsed": v is not None, "admissible": j.get("admissible")}
             with lock:
                 out.append(rec)
                 if len(out) % 40 == 0:
@@ -265,7 +291,7 @@ def main():
 
     print("\n## 팔별 (gold 적중 / 라이브 오답 재현 / 파싱)")
     print("%-10s %6s %10s %12s %8s" % ("arm", "n", "HIT", "LIVE-REPEAT", "PARSED"))
-    for arm in ("C_neg", "A_schema", "B_policy", "D_live"):
+    for arm in ("C_neg", "A_schema", "B_policy", "D_live", "E_evidence"):
         r = [x for x in out if x["arm"] == arm]
         if not r:
             continue

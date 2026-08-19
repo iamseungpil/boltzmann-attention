@@ -158,9 +158,12 @@ def main():
         qa = "\n# 질문\n그 인자에 넣을 수 하나를 내라. JSON: {\"value\": <수>}\n"
         qb = ("\n# 질문\n계산하지 마라. 그 수를 만드는 **산술식**을 내라 — 숫자와 + - * / ( ) 만.\n"
               "JSON: {\"expr\": \"<식>\"}\n")
+        evid = I.evidence_block(c["sim"], c["msg_i"])
         for arm, sysmsg, body in (("A_direct", SYS_A, head + matn + qa),
                                   ("B_formalize", SYS_B, head + matn + qb),
-                                  ("C_neg", SYS_A, head + matx + qa)):
+                                  ("C_neg", SYS_A, head + matx + qa),
+                                  ("E_direct_full", SYS_A, head + evid + qa),
+                                  ("F_formalize_full", SYS_B, head + evid + qb)):
             for k in range(a.n):
                 jobs.append({"c": c, "arm": arm, "k": k, "sys": sysmsg, "body": body,
                              "temp": (0.0 if k == 0 else a.temp)})
@@ -212,7 +215,7 @@ def main():
 
     print("\n## 팔별 (gold 수치 일치 / 파싱)")
     print("%-12s %6s %8s %8s" % ("arm", "n", "HIT", "PARSED"))
-    for arm in ("C_neg", "A_direct", "B_formalize"):
+    for arm in ("C_neg", "A_direct", "B_formalize", "E_direct_full", "F_formalize_full"):
         r = [x for x in out if x["arm"] == arm]
         if not r:
             continue
@@ -222,18 +225,21 @@ def main():
 
     print("\n## 짝 비교 (같은 사례·같은 k 에서 B 대 A)")
     key = lambda x: (x["task"], x["trial"], x["arg"], x["k"])
-    A = {key(x): x for x in out if x["arm"] == "A_direct"}
-    B = {key(x): x for x in out if x["arm"] == "B_formalize"}
-    both = sorted(set(A) & set(B))
-    up = sum(1 for k in both if B[k]["hit"] and not A[k]["hit"])
-    dn = sum(1 for k in both if A[k]["hit"] and not B[k]["hit"])
-    print("   짝 %d · B만 성공 %d · A만 성공 %d · 둘다 %d"
-          % (len(both), up, dn, sum(1 for k in both if A[k]["hit"] and B[k]["hit"])))
+    for an, bn in (("A_direct", "B_formalize"), ("E_direct_full", "F_formalize_full")):
+        A = {key(x): x for x in out if x["arm"] == an}
+        B = {key(x): x for x in out if x["arm"] == bn}
+        both = sorted(set(A) & set(B))
+        if not both:
+            continue
+        up = sum(1 for k in both if B[k]["hit"] and not A[k]["hit"])
+        dn = sum(1 for k in both if A[k]["hit"] and not B[k]["hit"])
+        print("   %-16s vs %-16s 짝 %3d · 형식화만 성공 %d · 직답만 성공 %d · 둘다 %d"
+              % (an, bn, len(both), up, dn, sum(1 for k in both if A[k]["hit"] and B[k]["hit"])))
 
     print("\n## 태스크별 (B_formalize)")
     bt = collections.defaultdict(list)
     for x in out:
-        if x["arm"] == "B_formalize":
+        if x["arm"] == "F_formalize_full":
             bt[(x["task"], x["arg"])].append(x)
     for k in sorted(bt):
         v = bt[k]
