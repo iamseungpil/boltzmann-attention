@@ -234,7 +234,10 @@ for tc in (am.tool_calls or []):
         except Exception: _nested = {}
 check("T7_reffilter_fired", getattr(ag, "_t2_reffilter", 0) == 1, getattr(ag, "_t2_reffilter", 0))
 check("T7_no_silent_repair", _nested.get("transaction_id") != "btxn_atm", _nested)
-_body = " ".join(str(x or "") for x in regen_user_msgs())   # regen_user_msgs()=content 문자열 목록
+# ★배달 채널 확인 2026-08-19: reference 거부는 **도구-결과(Error:) 채널**로 간다 —
+#   user 리마인더 채널이 아니다. 재생성 호출에 실린 **모든** 메시지 본문을 훑는다([[55]] 마크≠전달).
+_body = " ".join(str(getattr(m, "content", "") or "")
+                 for cn, msgs in GENCALLS if cn == "agent_response_unified_regen" for m in msgs)
 check("T7_surfaced_reason", ("[REFERENCE]" in _body) or ("REFERENCE" in _body), _body[:160])
 check("T7_answer_not_leaked", "btxn_atm" not in _body, _body[:160])
 

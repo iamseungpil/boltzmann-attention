@@ -6553,7 +6553,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         #   수 있고, try 안 NameError 는 조용히 no-op 로 삼켜진다. C538 과 같은 함정).
                         if _rtc is not None and te_fb is None:
                             te_fb = (_rtc,
-                                     "Error: [REFERENCE] the %s you named does not appear in any record "
+                                     "[REFERENCE] the %s you named does not appear in any record "
                                      "returned by the tools in this conversation. Re-read the records you "
                                      "already fetched and name a %s that appears in one of them; if none "
                                      "does, fetch the records first."
