@@ -76,35 +76,60 @@ def env_args(tool):
     return (d["banking_knowledge"]["tools"].get(tool) or {}).get("args") or []
 
 
+def env_desc(tool):
+    p = os.path.join(HERE, "a2", "env_surface.json")
+    with io.open(p, encoding="utf-8") as f:
+        d = json.load(f)
+    return (d["banking_knowledge"]["tools"].get(tool) or {}).get("desc") or ""
+
+
 def schema_slice(sim, tool, upto):
-    """그 도구의 **인자 이름이 전부 들어 있는** 도구-결과를 축자로. 없으면 빈 문자열."""
+    """그 도구의 **인자 이름이 전부 들어 있는** 도구-결과를 축자로.
+
+    발견-도구는 `Tool unlocked:` 응답이 파라미터 블록을 싣지만 **네이티브 도구는 안 싣는다**(스키마가
+    도구 목록에 상주하기 때문). 그 경우 `env_surface.json` 의 **환경 선언 축자**(desc + args)로 대신한다 —
+    출처가 환경이므로 [[23]] 안이고, 라이브 에이전트도 같은 것을 갖고 있었다([[18]] 정보-맞춘).
+    """
     args = set(env_args(tool))
-    if not args:
-        return ""
     best = ""
-    for i, m in enumerate(sim.get("messages") or []):
-        if i >= upto or m.get("role") != "tool":
-            continue
-        b = " ".join(str(m.get("content") or "").split())
-        if tool in b and all(a in b for a in args):
-            best = b
+    if args:
+        for i, m in enumerate(sim.get("messages") or []):
+            if i >= upto or m.get("role") != "tool":
+                continue
+            b = " ".join(str(m.get("content") or "").split())
+            if tool in b and all(a in b for a in args):
+                best = b
+    if not best:
+        d = env_desc(tool)
+        if d:
+            best = "Tool: %s\nArguments: %s\n%s" % (tool, ", ".join(sorted(args)), d)
     return best[:PAD]
 
 
-def policy_slices(sim, tool, upto, skip=""):
-    """그 도구 이름이 나오는 **다른** 도구-결과들(문서)을 축자로 이어 붙인다."""
-    out, seen = [], 0
-    for i, m in enumerate(sim.get("messages") or []):
-        if i >= upto or m.get("role") != "tool":
-            continue
-        b = " ".join(str(m.get("content") or "").split())
-        if tool not in b or (skip and b[:200] == skip[:200]):
-            continue
-        out.append(b[:PAD])
-        seen += len(b)
-        if seen > PAD * 2:
-            break
-    return "\n\n".join(out)
+def policy_slices(sim, tool, upto, skip="", arg=""):
+    """그 도구 이름이 나오는 **다른** 도구-결과들(문서)을 축자로 이어 붙인다.
+
+    도구 이름을 문서가 안 부르는 경우가 있다(네이티브 도구). 그때는 **인자 이름**(`account_class` 등)이
+    나오는 문서로 대신한다 — 그 인자의 후보 목록을 정하는 것이 바로 그 문서이기 때문이다.
+    둘 다 없으면 빈 문자열(그 사례는 정책 팔이 스키마 팔과 같아진다 — 표에 그대로 드러난다).
+    """
+    def collect(needle):
+        out, seen = [], 0
+        for i, m in enumerate(sim.get("messages") or []):
+            if i >= upto or m.get("role") != "tool":
+                continue
+            b = " ".join(str(m.get("content") or "").split())
+            if needle not in b or (skip and b[:200] == skip[:200]):
+                continue
+            out.append(b[:PAD])
+            seen += len(b)
+            if seen > PAD * 2:
+                break
+        return out
+    got = collect(tool)
+    if not got and arg:
+        got = collect(arg)
+    return "\n\n".join(got)
 
 
 def cases(maxn):
@@ -136,7 +161,7 @@ def cases(maxn):
                     out.append({"task": F.task_id(sim), "trial": sim.get("trial"), "tag": tag,
                                 "tool": w["name"], "arg": k, "gold": str(gv), "live": str(wv),
                                 "msg_i": w["msg_i"], "sim": sim, "schema": sch,
-                                "policy": policy_slices(sim, w["name"], w["msg_i"], sch)})
+                                "policy": policy_slices(sim, w["name"], w["msg_i"], sch, k)})
                     if len(out) >= maxn:
                         return out
     return out
