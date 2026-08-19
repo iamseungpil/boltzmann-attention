@@ -118,6 +118,30 @@ def ledger_of(sim):
     return uniq, sorted(ents)[:40]
 
 
+WRAPPERS = ("give_discoverable_user_tool", "call_discoverable_agent_tool",
+            "call_discoverable_user_tool", "unlock_discoverable_agent_tool")
+
+
+def accept_names(ck):
+    """그 gold 액션에 대해 **정답으로 인정할 이름들**.
+
+    ⚠2026-08-19 수리(게이트 §1 표적 정의 결함 2건): `get_card_last_4_digits`(040)·
+      `deposit_check_3847`(055) 의 gold 는 `name: give_discoverable_user_tool` 인 **래퍼 호출**이다.
+      내부 이름만 정답으로 치면 모델이 옳게 래퍼를 내도 0 점이 된다.
+    """
+    a = ck.get("action") or {}
+    ar = a.get("arguments") or {}
+    inner = (ar.get("agent_tool_name") or ar.get("user_tool_name")
+             or ar.get("discoverable_tool_name") or "")
+    outer = str(a.get("name") or "")
+    out = {str(inner)} if inner else set()
+    if outer in WRAPPERS:
+        out.add(outer)
+    elif outer and not inner:
+        out.add(outer)
+    return {x for x in out if x}
+
+
 def proc_lines(docs, tool):
     """그 도구를 지시하는 정책 절차 줄(축자)."""
     out = []
@@ -157,9 +181,32 @@ def user_ask(sim):
     return ""
 
 
-def convo(sim, maxmsg=60, cut=400, tail=None):
-    """대화를 텍스트로. `tail=N` 이면 **마지막 N 메시지**만(문맥 용량-반응 실험용)."""
+# ★종료마커 — env 가 대화 종료를 알리는 축자 문자열(게이트 실측: `###STOP###` 7 · `###TRANSFER###` 4 ·
+#   `###OUT-OF-SCOPE###` 1). 꼬리 창은 **12/12 표적에서 이 마커를 물고 있었다** ⇒ 그 창으로 물으면
+#   *"끝났다고 말해 주면 끝났다고 답한다"* 를 재게 된다. 창은 마커 **앞에서** 잘라야 한다.
+CLOSE_MARKS = ("###STOP###", "###TRANSFER###", "###OUT-OF-SCOPE###")
+
+
+def close_index(sim):
+    """종료마커가 처음 등장하는 메시지 색인(없으면 전체 길이)."""
     msgs = sim.get("messages") or []
+    for i, m in enumerate(msgs):
+        c = str(m.get("content") or "")
+        if any(k in c for k in CLOSE_MARKS):
+            return i
+    return len(msgs)
+
+
+def convo(sim, maxmsg=60, cut=400, tail=None, respect_close=True):
+    """대화를 텍스트로. `tail=N` 이면 **결손 시점 직전의 마지막 N 메시지**.
+
+    ⚠2026-08-19 수리: 예전에는 `msgs[-N:]`(대화 맨 끝)이었다. 그 창은 종료마커를 포함해
+      *답이 이미 끝났다는 신호*를 주었고, 그것이 우리 용량-반응 곡선의 정체였다(게이트 G1-a).
+      이제 `msgs[:close][-N:]` 로 자른다.
+    """
+    msgs = sim.get("messages") or []
+    if respect_close:
+        msgs = msgs[:close_index(sim)] or msgs[:1]
     msgs = msgs[-tail:] if tail else msgs[:maxmsg]
     lines = []
     for m in msgs:
@@ -190,35 +237,74 @@ def call(port, msgs, temp, maxtok=400):
 
 
 def plan_names(txt):
-    """계획 배열에서 도구 이름만 순서대로."""
-    t = re.sub(r"^```(?:json)?|```$", "", txt.strip(), flags=re.M).strip()
-    i, j = t.find("{"), t.rfind("}")
-    try:
-        o = json.loads(t[i:j + 1])
-    except Exception:
-        return re.findall(r'"tool"\s*:\s*"([^"]+)"', t)
+    """계획 배열에서 도구 이름만 순서대로.
+
+    ⚠2026-08-19 수리(G0-1): 최상위 배열 `[{"tool":…}]` 과 `{"plan":[{"name":…}]}` 를 놓치고 있었다."""
+    t = _unwrap(txt)
+    obj = None
+    for lo, hi in (("[", "]"), ("{", "}")):
+        i, j = t.find(lo), t.rfind(hi)
+        if i < 0 or j <= i:
+            continue
+        for cand in (t[i:j + 1], t[i:j + 1].replace("'", '"')):
+            try:
+                obj = json.loads(cand)
+                break
+            except Exception:
+                continue
+        if obj is not None:
+            break
+    steps = obj if isinstance(obj, list) else ((obj or {}).get("plan") or [])
     out = []
-    for step in (o.get("plan") or []):
-        if isinstance(step, dict) and step.get("tool"):
-            out.append(str(step["tool"]))
-        elif isinstance(step, str):
+    for step in steps:
+        if isinstance(step, str):
             out.append(step)
-    return out
+        else:
+            nm = _name_of(step)
+            if nm:
+                out.append(nm)
+    if out:
+        return out
+    return re.findall(r"""["']?(?:tool|name)["']?\s*:\s*["']([^"']+)["']""", t)
+
+
+def _unwrap(txt):
+    """펜스·`<tool_call>` 래퍼를 벗긴다(게이트 G0-1 누수 4형태 중 하나)."""
+    t = re.sub(r"^```(?:json)?|```$", "", txt.strip(), flags=re.M).strip()
+    t = re.sub(r"</?tool_call>", "", t).strip()
+    return t
+
+
+def _name_of(o):
+    """객체에서 도구 이름을 뽑는다 — `tool` / `name` / `function.name` 전부 본다."""
+    if not isinstance(o, dict):
+        return None
+    for k in ("tool", "name", "tool_name"):
+        v = o.get(k)
+        if isinstance(v, dict):
+            v = v.get("name")
+        if isinstance(v, str) and v.strip():
+            return v.strip()
+    f = o.get("function")
+    if isinstance(f, dict) and isinstance(f.get("name"), str):
+        return f["name"].strip()
+    return None
 
 
 def parse_tool(txt):
-    t = re.sub(r"^```(?:json)?|```$", "", txt.strip(), flags=re.M).strip()
+    """⚠2026-08-19 수리(G0-1): 홑따옴표 · `name`/`function.name` 키 · `<tool_call>` 래퍼가 새고 있었다.
+    이 자료에서 실효 누수는 0 이었지만(기권 87건은 전부 정상 형식) 프롬프트·모델을 바꾸면 즉시 산다."""
+    t = _unwrap(txt)
     i, j = t.find("{"), t.rfind("}")
     if i >= 0 and j > i:
-        try:
-            o = json.loads(t[i:j + 1])
-            nm = o.get("tool")
-            if isinstance(nm, dict):
-                nm = nm.get("name")
-            return (str(nm) if nm else None), o
-        except Exception:
-            pass
-    m = re.search(r'"tool"\s*:\s*"([^"]+)"', t)
+        blob = t[i:j + 1]
+        for cand in (blob, blob.replace("'", '"')):
+            try:
+                o = json.loads(cand)
+            except Exception:
+                continue
+            return _name_of(o), o
+    m = re.search(r"""["']?(?:tool|name)["']?\s*:\s*["']([^"']+)["']""", t)
     return (m.group(1) if m else None), None
 
 
