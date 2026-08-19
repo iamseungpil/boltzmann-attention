@@ -66,8 +66,11 @@ def test_live_path_does_not_substitute():
     유일한 축자 근거). 문자열 검사인 이유: 그 경로는 라이브 오케스트레이터 없이는 안 돈다.
     """
     src = open(os.path.join(os.path.dirname(__file__), "t2_gate_patch.py"), encoding="utf-8").read()
-    assert "compute silent-repair" not in src.split("# ⛔2026-08-19")[-1], "치환 인쇄가 살아 있다"
+    # ⚠주석은 그 문자열을 **증거로 인용**하므로 문자열 존재 여부로는 못 잰다 — 코드 형태로 잰다.
     assert "resolve_compute_params(am, state.messages, a2)" not in src, "치환 호출이 살아 있다"
+    assert '[T2_RESOLVE] compute silent-repair %s %s->%s' not in src, "치환 인쇄가 살아 있다"
+    assert '_nz[_cp["param"]] = _cp["computed"]' not in src, "인자 덮어쓰기가 살아 있다"
+    assert '_nested[_rf["param"]] = _rf["correct"]' not in src, "참조 치환이 살아 있다"
 
 
 def test_all():
