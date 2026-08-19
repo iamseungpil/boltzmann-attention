@@ -187,7 +187,7 @@ def main():
             except Exception as e:
                 raw = "ERROR " + str(e)[:160]
             c = j["c"]
-            if j["arm"] == "B_formalize":
+            if "formalize" in j["arm"]:
                 expr = parse_obj(raw, "expr")
                 val = calc(expr)
                 got, ok = val, (val is not None and abs(val - c["gold"]) < 1e-6)
