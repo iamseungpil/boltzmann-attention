@@ -62,58 +62,8 @@
       "_note": "2026-07-22 §2bj(031 실측): 유저가 merchant/amount/date 축자 지목에도 인접 Amazon id 기입(C43 정박-치환)·credit 변형 미선언이 원인. debit 스펙(C77)과 동형·필드명=credit 레코드 실측. on_ambiguous=none=다중매치 무개입."
     }
   ],
-  "compute_ops": {
-    "file_debit_card_transaction_dispute": {
-      "customer_max_liability_amount": {
-        "op": "lookup_table",
-        "key": {
-          "op": "days_between",
-          "a": "params.transaction_date",
-          "b": "params.discovery_date"
-        },
-        "table": [
-          {
-            "cmp": "<=",
-            "thr": 30,
-            "result": 50
-          },
-          {
-            "cmp": "<=",
-            "thr": 60,
-            "result": 500
-          },
-          {
-            "result": {
-              "op": "ref",
-              "path": "params.disputed_amount"
-            }
-          }
-        ]
-      }
-    },
-    "submit_interest_discrepancy_report": {
-      "amount_difference": {
-        "op": "round",
-        "ndigits": 2,
-        "value": {
-          "op": "multiply",
-          "a": {
-            "op": "divide",
-            "a": {
-              "op": "subtract",
-              "a": "params.expected_apy",
-              "b": "params.actual_apy"
-            },
-            "b": {
-              "op": "const",
-              "value": 100
-            }
-          },
-          "b": "params.balance"
-        }
-      }
-    }
-  },
+  "compute_ops": {},
+  "_note_compute_ops_removed_2026_08_19": "REMOVED (user decision 2026-08-19, plan A). Two ops were deleted because the engine was producing values that the benchmark scores as gold arguments, which erases the very deficit we measure ([[62]]), and because one constant was fitted to gold ([[23]]). (1) file_debit_card_transaction_dispute.customer_max_liability_amount used thr=30 days while the policy text says 'within 2 business days of statement'; the note below records the threshold was chosen by gold reproduction rate (T1=2 -> 73.6% vs T1=30 -> 89.4%, and bank_rule_fit.py sweeps thresholds against reward_info.action_checks). (2) submit_interest_discrepancy_report.amount_difference computed (expected_apy - actual_apy)/100 * balance, i.e. the engine filled a scored argument outright. Live evidence in run bank_t7326_*_20260819q: '[T2_RESOLVE] compute silent-repair customer_max_liability_amount -1->50' fired 8 times in task_085. The policy tables themselves stay legal as DELIVERED TEXT (surface the doc_036/_031 wording to the model); what is forbidden is the engine writing the value into the call. The historical note is kept below for provenance, not as a licence.",
   "recommendation_verify": {
     "offer_tool": "give_discoverable_user_tool",
     "action_tool": "apply_for_credit_card",

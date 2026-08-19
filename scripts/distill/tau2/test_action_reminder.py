@@ -192,7 +192,7 @@ check("T6_offer_reminder",
       any("[RECOMMEND-OFFER]" in (u or "") and "Silver Rewards Card" in (u or "")
           for u in regen_user_msgs()), regen_user_msgs())
 
-# ── T7 (reference-filter live·silent-repair): 틀린 transaction_id 지목 → formalize→filter→제자리 치환 ──
+# ── T7 (reference-filter live): 틀린 transaction_id 지목 → formalize→filter→**거부·표면화**(치환 없음) ──
 #   ★검증완료 고객(log_verification 이력)이라 auth 게이트(GB1) 만족 → 게이트 재생성 없이 단일 패스로
 #     reference-filter만 격리 검정. reference-filter는 do_gate/do_prov와 독립이나(배선 교정 2026-07-14),
 #     이 케이스는 게이트-무관 단일 패스로 silent-repair 결과를 직접 확인.
@@ -221,14 +221,19 @@ SCRIPT[:] = [
     AM(content='{"date": "11/05/2025", "merchant": "ATM", "transaction_type": "atm_withdrawal"}'),  # formalize
 ]
 am = ag._generate_next_message(UserMessage("please file it"), st)
-# silent-repair: nested transaction_id가 btxn_atm으로 치환됐나
+# ★계약 변경 2026-08-19(사용자 결정·A안): reference-filter 는 **제자리 치환을 하지 않는다**.
+#   엔진이 옳은 엔티티를 골라 써 넣으면 측정 대상이 사라진다([[62]]). 남는 것은 닫힌 술어 하나
+#   (지목한 id 가 읽은 레코드에 있는가)와 **옳은 값을 말하지 않는 거부 문면**뿐이다([[64]]).
 _nested = {}
 for tc in (am.tool_calls or []):
     if tc.name == "call_discoverable_agent_tool":
         try: _nested = json.loads(tc.arguments["arguments"])
         except Exception: _nested = {}
 check("T7_reffilter_fired", getattr(ag, "_t2_reffilter", 0) == 1, getattr(ag, "_t2_reffilter", 0))
-check("T7_silent_repair", _nested.get("transaction_id") == "btxn_atm", _nested)
+check("T7_no_silent_repair", _nested.get("transaction_id") != "btxn_atm", _nested)
+_body = " ".join(str(m.content or "") for m in regen_user_msgs()) if regen_user_msgs() else ""
+check("T7_surfaced_reason", ("[REFERENCE]" in _body) or ("REFERENCE" in _body), _body[:160])
+check("T7_answer_not_leaked", "btxn_atm" not in _body, _body[:160])
 
 print("\n%d FAIL" % len(FAILS) if FAILS else "\nALL PASS (action + verify + recommend + reference-filter live)")
 sys.exit(1 if FAILS else 0)

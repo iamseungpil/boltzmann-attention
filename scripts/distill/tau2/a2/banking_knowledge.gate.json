@@ -254,58 +254,8 @@
     }
   ],
   "_note_reference_filter": "★출처([[23]] 소급 2026-07-31): **구조 선언**(= 이 도메인에 *무엇이 있는지*를 적은 것이지 행동 강제가 아니다. 강제는 이걸 읽는 엔진 레버가 하고, 그 레버의 정책 근거는 레버 쪽 주석에 있다). 출처 = env 레지스트리 + KB 문서(위 감사 프로파일의 env/doc 계수가 근거). 정책 축자는 성격상 불요 — 다만 이 선언이 **행동을 바꾸는 레버를 구동한다면** 그 레버에 정책 근거가 필요하다. || ★Step2-3(keystone·참조축·C77): banking hard-core 지배=참조-⋈(올바른 거래 지목)·frontier조차 82% 필터가능인데 실패. formalize(user발화→date/merchant/type 기준)→결정론 filter(수집 record)→올바른 transaction_id 검증. ⋈를 LLM 아닌 결정론에 offload(수집사실 위·§3 정당·autofetch 아님). 매칭=엔진 filter op·기준/필드=이 A2. on_ambiguous=none(진짜중복 18%=미개입). record 파서=엔진(key_field/require A2선언). retail 미기재=무발동. ⚠C80/C81 교정: ⋈는 지배 아님(4%)·진짜 지배 decidable slice=아래 compute_ops(16.7%·liability 51%오답).",
-  "compute_ops": {
-    "file_debit_card_transaction_dispute": {
-      "customer_max_liability_amount": {
-        "op": "lookup_table",
-        "key": {
-          "op": "days_between",
-          "a": "params.transaction_date",
-          "b": "params.discovery_date"
-        },
-        "table": [
-          {
-            "cmp": "<=",
-            "thr": 30,
-            "result": 50
-          },
-          {
-            "cmp": "<=",
-            "thr": 60,
-            "result": 500
-          },
-          {
-            "result": {
-              "op": "ref",
-              "path": "params.disputed_amount"
-            }
-          }
-        ]
-      }
-    },
-    "submit_interest_discrepancy_report": {
-      "amount_difference": {
-        "op": "round",
-        "ndigits": 2,
-        "value": {
-          "op": "multiply",
-          "a": {
-            "op": "divide",
-            "a": {
-              "op": "subtract",
-              "a": "params.expected_apy",
-              "b": "params.actual_apy"
-            },
-            "b": {
-              "op": "const",
-              "value": 100
-            }
-          },
-          "b": "params.balance"
-        }
-      }
-    }
-  },
+  "compute_ops": {},
+  "_note_compute_ops_removed_2026_08_19": "REMOVED (user decision 2026-08-19, plan A). Two ops were deleted because the engine was producing values that the benchmark scores as gold arguments, which erases the very deficit we measure ([[62]]), and because one constant was fitted to gold ([[23]]). (1) file_debit_card_transaction_dispute.customer_max_liability_amount used thr=30 days while the policy text says 'within 2 business days of statement'; the note below records the threshold was chosen by gold reproduction rate (T1=2 -> 73.6% vs T1=30 -> 89.4%, and bank_rule_fit.py sweeps thresholds against reward_info.action_checks). (2) submit_interest_discrepancy_report.amount_difference computed (expected_apy - actual_apy)/100 * balance, i.e. the engine filled a scored argument outright. Live evidence in run bank_t7326_*_20260819q: '[T2_RESOLVE] compute silent-repair customer_max_liability_amount -1->50' fired 8 times in task_085. The policy tables themselves stay legal as DELIVERED TEXT (surface the doc_036/_031 wording to the model); what is forbidden is the engine writing the value into the call. The historical note is kept below for provenance, not as a licence.",
   "_note_compute_ops": "★출처([[23]] 소급 2026-07-31): **정책+KB 확립.** 정책 Guideline 1 축자: *\"Do not make up policies, information or actions that you can take on behalf of the user. All instructions will be found here or in the knowledge base. If you cannot find relevant information, let the user know.\"* + 기존 주석의 KB PROVENANCE(doc_036/_031 축자 인용) 유지. || ★§8-1 GOLD-BLIND 저작(2026-07-14)+§8-2 재현측정 반영. PROVENANCE: (liability) doc_036/_031 'Reported within 2 business days of statement→$50 / within 60 days→$500 / after→전액'; structure=min(disputed_amount, tier_cap)(doc_032 'Maximum: full transaction amount'). (provisional_debit) doc_032 ALL{timely≤60d, category∈5종, written_statement, account OPEN(생략)}. ★§8-2 재현측정 반영 교정: (a)date기준=transaction_date→discovery_date(정책 'statement date' proxy·statement_date args 부재·issue_noticed 아님=스키마 확인). (b)liability=min(amount,cap)(clamp)·412.88=min(412.88,500)이지 별tier 아님. (c)$50 tier 임계=**proxy 30일**(정책 '2 business days of statement'는 tx기준 임계 미명시→billing-cycle proxy·§8-2: 데이터 [10,40) 전부 동일 89.4%재현·특정 gold값 역산 아님). ★재현율(§8-2 사후·1109 debit-liability): T1=2(정책literal) 73.6% / T1=30(proxy) **89.4%**(잔여 10.6%=tx→disc proxy 미적합). ⚠구 §7 '95%'는 역산(폐기)·이 89.4%가 gold-blind 정직수치. business_days 미구현(calendar 근사). ★§8-3 Δspurious 후 확정=LIABILITY 단독(순+348). provisional(debit net−4·credit=account-age/history/tier가 params밖→미viable) 드롭. §8-2 재현율(gold-blind·1109 liability·1353 debit-provisional): liability 89.4%(proxy T1=30·literal T1=2는 73.6%·잔여10.6%=tx→disc proxy 미적합)·provisional_credit_eligible 86.8%(timely=tx→disc≤60·category∈5종·written). credit provisional(eligible_for_provisional_credit·2552 최대)=credit args가 written_statement_provided 부재라 조건셋 상이→미저작(별도 정책 pass). card_action/partial_refund 미저작. | 2026-07-16 확장(gold-fit 확증·rule_fit.py): liability 94.7% · amount_difference=(exp-act)/100*balance(balance=account GET). provisional_credit_eligible=자격 judgment(날짜식 69%≈base 65%=NOT deterministic·F3). expected_apy=상품 GET-lookup.",
   "recommendation_verify": {
     "offer_tool": "give_discoverable_user_tool",

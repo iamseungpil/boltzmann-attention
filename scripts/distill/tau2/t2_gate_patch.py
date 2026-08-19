@@ -6532,7 +6532,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               file=_sys.stderr, flush=True)
                         break
             # ★reference-filter (keystone·참조축·C77) — do_gate/do_prov와 *독립*.
-            #   결정론 in-place silent-repair(수집 record ⋈)이므로 게이트/prov 피드백과 경합하지 않는다.
+            #   ⚠2026-08-19 이후: **치환을 하지 않는다** — 닫힌 술어 검사 + 거부 문면만(아래 주석).
             #   게이트가 *교정된* nested id를 확인하도록 do_gate 판정을 소비하는 fb-빌드(아래) 前에 실행.
             #   (배선버그 교정 2026-07-14: 前엔 T2_RESOLVE 가드의 not do_gate 안에 있어 dispute류
             #    confirm-게이트가 do_gate=True면 영영 미발화 → 사용자가 *틀린* 거래를 확인.)
@@ -6543,46 +6543,45 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     import t2_resolve as _rz_rf
                     _rf = _rz_rf.resolve_reference_filter(am, state.messages, a2, self, la, UserMessage)
                     if _rf.get("status") == "deny":
-                        _rtc = _rf.get("call"); _nested = _rf.get("nested") or {}
-                        _nested[_rf["param"]] = _rf["correct"]      # 제자리 치환
-                        try:                                        # nested 재직렬화(문자열/딕트)
-                            if isinstance(getattr(_rtc, "arguments", {}).get("arguments"), str):
-                                _rtc.arguments["arguments"] = json.dumps(_nested)
-                            elif isinstance(_rtc.arguments.get("arguments"), dict):
-                                _rtc.arguments["arguments"] = _nested
-                            else:
-                                _rtc.arguments[_rf["param"]] = _rf["correct"]
-                        except Exception:
-                            pass
+                        # ★2026-08-19 (사용자 결정·A안): **제자리 치환 폐기**. 엔진이 옳은 엔티티를 골라
+                        #   인자에 써 넣으면 그 순간 측정 대상(모델이 무엇을 못 고르는가)이 사라진다([[62]]).
+                        #   남기는 것은 **닫힌 술어 하나**뿐이다 — *지목한 id 가 이 대화에서 읽은 레코드에
+                        #   있는가*. 없으면 거부하되 **옳은 값을 말하지 않고** 무엇을 하면 풀리는지만 준다([[64]]).
                         self._t2_reffilter = getattr(self, "_t2_reffilter", 0) + 1
-                        print("[T2_RESOLVE] reference-filter silent-repair %s->%s"
-                              % (_rf["param"], _rf["correct"]), file=_sys.stderr, flush=True)
+                        _rtc = _rf.get("call")
+                        # ⚠피드백 대상은 **그 호출 객체**다(`c` 는 다른 블록의 루프 변수 — 여기선 미정의일
+                        #   수 있고, try 안 NameError 는 조용히 no-op 로 삼켜진다. C538 과 같은 함정).
+                        if _rtc is not None and te_fb is None:
+                            te_fb = (_rtc,
+                                     "Error: [REFERENCE] the %s you named does not appear in any record "
+                                     "returned by the tools in this conversation. Re-read the records you "
+                                     "already fetched and name a %s that appears in one of them; if none "
+                                     "does, fetch the records first."
+                                     % (_rf.get("param"), _rf.get("param")))
+                        print("[T2_RESOLVE] deny reference-unmatched param=%s (치환 폐기·표면화 %s)"
+                              % (_rf.get("param"), "배달" if _rtc is not None else "미배달"),
+                              file=_sys.stderr, flush=True)
                 except Exception as _rfe:
                     print("[T2_RESOLVE] reffilter error (no-op): %r" % (_rfe,),
                           file=_sys.stderr, flush=True)
             # ★compute 키스톤(§8·C81) — do_gate/prov와 독립·결정론 in-place silent-repair(정책-계산 param).
             #   §8-3: liability만(순+348)·provisional 드롭(net−4). 에이전트 제공값만·미확정=미개입.
-            if (os.environ.get("T2_COMPUTE") == "1" and a2 is not None
-                    and (a2 or {}).get("compute_ops")
-                    and getattr(self, "_t2_compute", 0) < 8):
-                try:
-                    import t2_resolve as _rz_cp
-                    for _cp in _rz_cp.resolve_compute_params(am, state.messages, a2):
-                        _nz = _cp.get("nested") or {}
-                        _nz[_cp["param"]] = _cp["computed"]
-                        _rtc = _cp.get("call")
-                        try:
-                            if isinstance(getattr(_rtc, "arguments", {}).get("arguments"), str):
-                                _rtc.arguments["arguments"] = json.dumps(_nz)
-                            elif isinstance(_rtc.arguments.get("arguments"), dict):
-                                _rtc.arguments["arguments"] = _nz
-                        except Exception:
-                            pass
-                        self._t2_compute = getattr(self, "_t2_compute", 0) + 1
-                        print("[T2_RESOLVE] compute silent-repair %s %s->%s"
-                              % (_cp["param"], _cp["old"], _cp["computed"]), file=_sys.stderr, flush=True)
-                except Exception as _cpe:
-                    print("[T2_RESOLVE] compute error (no-op): %r" % (_cpe,), file=_sys.stderr, flush=True)
+            # ⛔2026-08-19 (사용자 결정·A안) — **이 기구는 폐기됐다.**
+            #   엔진이 정책-계산 param 을 계산해 인자에 써 넣던 자리다. 두 가지가 동시에 틀렸다:
+            #   ⑴ 여기서 나오던 값들(`customer_max_liability_amount`·`amount_difference`)은 **채점되는
+            #      gold 인자** 그 자체다 — 엔진이 채우면 그 태스크에서 모델 기여가 0 이 되고
+            #      측정 대상이 사라진다([[62]]).
+            #   ⑵ 그 규칙의 상수가 **gold 로 맞춰졌다** — `bank_rule_fit.py` 가 `reward_info.action_checks`
+            #      를 코퍼스로 임계를 훑었고, A2 주석이 축자로 *"T1=2(정책literal) 73.6% / T1=30(proxy)
+            #      89.4%"* · *"gold-fit 확증"* 이라고 적어 두었다([[23]] 위반).
+            #   실물 발화 근거: `bank_t7326_*_20260819q` 로그에
+            #      `[T2_RESOLVE] compute silent-repair customer_max_liability_amount -1->50` **8회**(task_085).
+            #   ⇒ A2 의 `compute_ops` 는 비웠고, 여기서는 **선언이 남아 있어도 실행하지 않는다.**
+            #      정책의 표(예: 책임한도 구간)는 여전히 **문면으로 배달**하면 된다 — 금지된 것은
+            #      엔진이 값을 *써 넣는* 것이지 정책을 *보여 주는* 것이 아니다.
+            if (a2 or {}).get("compute_ops"):
+                print("[T2_RESOLVE] compute_ops 선언 %d건 무시 — 값 산출 기구 폐기(2026-08-19·[[62]]/[[23]])"
+                      % len((a2 or {}).get("compute_ops") or {}), file=_sys.stderr, flush=True)
             # ★T2_REF_ISO (2026-07-24 C124/C125): 참조-슬립 최소-문맥 격리 재선택 → 제자리 치환.
             #   WEV *앞* 배치(치환된 id 기준으로 증거 검사). cap=T2_REF_ISO_CAP(기본 8)·예외 no-op.
             if (os.environ.get("T2_REF_ISO") == "1" and a2 is not None

@@ -1,4 +1,14 @@
 # -*- coding: utf-8 -*-
+# ==============================================================================
+# STOP (2026-08-19): the output of this script must NEVER become A2/A3 content.
+# It fits thresholds against reward_info.action_checks -- that is gold. Choosing a
+# constant because it reproduces gold better is exactly the violation [[23]] names,
+# and the engine then fills a scored argument, which erases the deficit [[62]] measures.
+# History: the 30-day liability threshold and the amount_difference formula reached
+# a2/banking_knowledge.{gate,specific}.json this way and fired live in run
+# bank_t7326_*_20260819q ("compute silent-repair ... -1->50", 8x). Both were removed.
+# Use this only as a forensic tool: to ASK whether a field is deterministic at all.
+# ==============================================================================
 """compute-like 필드가 결정론 규칙에 실제 적합하나 gold 전수 검증([[08]]).
  - provisional_credit_eligible: 날짜식(≤10일?) 적합률 = deterministic vs judgment 판정.
  - amount_difference: (exp-act)/100 × balance 적합률 (balance 추출).
