@@ -219,6 +219,9 @@ _wrongdisp = AM(tool_calls=[ToolCall("call_discoverable_agent_tool",
 SCRIPT[:] = [
     _wrongdisp,
     AM(content='{"date": "11/05/2025", "merchant": "ATM", "transaction_type": "atm_withdrawal"}'),  # formalize
+    # ★2026-08-19: 치환이 없어졌으므로 거부 → **재생성**이 한 번 더 돈다. 재생성에서도 모델이
+    #   같은(틀린) id 를 고집하게 두어, 엔진이 몰래 고치지 않았음을 최종 인자로 확인한다.
+    _wrongdisp,
 ]
 am = ag._generate_next_message(UserMessage("please file it"), st)
 # ★계약 변경 2026-08-19(사용자 결정·A안): reference-filter 는 **제자리 치환을 하지 않는다**.
