@@ -1,0 +1,1710 @@
+{
+ "doc": "LEVER_CONSOLIDATION_2026_08_19",
+ "generated": "2026-08-19",
+ "authority": "C:/workspace/ba-frft/reports/facet_rft_2026/LEVER_CONSOLIDATION_2026_08_19.md",
+ "basis_run": "t7326 (20 task x nt2 = 40 sim, single stack, pass 7/40)",
+ "rules": [
+  "[[60]] 상태값에 '끈다' 없음 — 폐기확정은 음성 실측 인용을 동반한 별개 범주",
+  "[[48]] 새 실패-분류 이름을 만들지 않음. element 는 설계 원소 코드",
+  "[[62]] 원소는 집합/부분문자열/계수/조인만 — 정답을 고르지 않는다"
+ ],
+ "elements": {
+  "P1_KIND": "행위 종류 — env 자기선언(__tool_type__) 로 write/read/generic 판정",
+  "P2_EVENT": "실행 원장 — tool_call.id 조인·계수·동일호출·실패반복",
+  "P3_NAME": "이름 원장 — 한 이름의 7비트 튜플(실재/회수/해제/전달/호출/반려/우리가말함)",
+  "P4_GROUND": "접지 — 인자 leaf 가 대화 텍스트에 축자 실재하는가",
+  "P5_SETGAP": "집합 차 — listed-examined / targets-submitted / given-ran / 대상별 분화(binding)",
+  "P6_SPEECH": "말 vs 행동 — 언급했으나 미호출·사임 등가·정체 턴수",
+  "P7_CHANNEL": "하네스 — 봉투/절단/토큰/타임아웃/쌍 무결성. 도메인 무주장",
+  "P8_GOV": "발화 거버너 — 병합 출구(명령 하나·사실 합집합) + 인자변화 재무장",
+  "P9_REQUIRE": "요건과 다음 한 수 — t2_dominance.requirements_for / merged_text 재사용",
+  "P10_ASK": "권위 이전 — 후보 카디널리티 != 1 이면 손님에게 묻는다",
+  "D_DECL": "선언면(A2/A3) — 정책 조건·절차 순서·문구·정책산문 enum",
+  "INSTR": "계기(인쇄·거동 불변) — 레버 분모에서 제외(C434)",
+  "ARM": "측정 노브 — 귀속 실험 전용. 레버 아님"
+ },
+ "status_legend": {
+  "유지": "원소 내부 술어로 그대로 산다",
+  "통합": "원소로 접힌다(술어 보존·출구만 하나)",
+  "근거보강필요": "접되 발화는 사전등록 A/B 전까지 관찰 모드",
+  "死배선복구": "구현·측정은 있는데 라이브에서 한 번도 안 돌았다 -> 원소 안에서 자동 점등",
+  "선언이설": "엔진에서 A2/A3 선언으로 내려간다",
+  "계기재분류": "인쇄·거동 불변 -> 레버 분모에서 제외(C434)",
+  "실험노브": "귀속 실험 전용. 레버가 아니다",
+  "폐기확정": "음성 실측 보유. 원장 인용과 함께 재론 금지",
+  "모순확정필요": "registry <-> 런처 <-> 코드가 서로 다른 말을 한다. 문서/코드 중 어느 쪽이 옳은지 먼저 확정"
+ },
+ "counts_by_element": {
+  "D_DECL": 14,
+  "P4_GROUND": 58,
+  "P8_GOV": 57,
+  "P3_NAME": 26,
+  "P6_SPEECH": 10,
+  "P7_CHANNEL": 29,
+  "P10_ASK": 3,
+  "P9_REQUIRE": 18,
+  "P2_EVENT": 16,
+  "P5_SETGAP": 17,
+  "INSTR": 16,
+  "ARM": 8,
+  "P1_KIND": 2
+ },
+ "counts_by_status": {
+  "선언이설": 10,
+  "통합": 103,
+  "유지": 53,
+  "폐기확정": 17,
+  "근거보강필요": 16,
+  "死배선복구": 42,
+  "모순확정필요": 7,
+  "실험노브": 12,
+  "계기재분류": 14
+ },
+ "levers": [
+  {
+   "lever": "T2_A2_VARIANT",
+   "element": "D_DECL",
+   "status": "선언이설",
+   "note": "도구 슬롯 변이=선언면. t7326 발화 1위 1,668회인데 원장에 효과 항목 0 [S]. 효과는 선언 A/B 로만 잰다"
+  },
+  {
+   "lever": "T2_ABSTAIN_FIELDS",
+   "element": "P4_GROUND",
+   "status": "통합",
+   "note": "결핍 필드를 출처별로 갈라 문구화 = 기권도 근거를 댄다"
+  },
+  {
+   "lever": "T2_ACTION_DENY_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "횟수 예산 -> 인자변화 재무장. 101/102 부검: 발화 3회가 turn 4·6·8 소진, 첫 요건 충족 turn 11"
+  },
+  {
+   "lever": "T2_ACTION_INDEX",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "행동 색인 43줄 표면화. t7326 26발화/26 sim. 엔진은 고르지 않음"
+  },
+  {
+   "lever": "T2_ACTION_PROGRESS_REFUND",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "환급 개념은 재무장 술어로 흡수(집합 교집합 -> 인자변화)"
+  },
+  {
+   "lever": "T2_ACTION_SUB",
+   "element": "P6_SPEECH",
+   "status": "유지",
+   "note": "트리거=P6, 서브콜=엔진 잔류. C406 24sim ON 9/12 <-> OFF 7/12 [S]·팔 오염검사 준-NC"
+  },
+  {
+   "lever": "T2_ACT_DEMAND",
+   "element": "P6_SPEECH",
+   "status": "폐기확정",
+   "note": "C492 [M] 배선 통과·성적 null·부작용 확정(촉구 231<->0·9/20<->12/20=잡음). 술어는 P6 에 남기고 발화는 안 함"
+  },
+  {
+   "lever": "T2_AGENT_MAX_TOKENS",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "agent(vLLM) 전용 디코드 예산"
+  },
+  {
+   "lever": "T2_ARBITRATE",
+   "element": "P8_GOV",
+   "status": "유지",
+   "note": "C3 합병기 = P8 의 숙주. _SRC8 17칸을 전부 받아 한 번에 낸다"
+  },
+  {
+   "lever": "T2_ARG_AXIS",
+   "element": "P4_GROUND",
+   "status": "통합",
+   "note": "'다르다'만 알림·어느 축이 옳은지 판정 안 함 = P4 계약의 모범. sim당 1회 하드캡은 P8 로"
+  },
+  {
+   "lever": "T2_ARG_EMPTY",
+   "element": "P4_GROUND",
+   "status": "근거보강필요",
+   "note": "C425 [S] '표적을 사지 않았다'로 철회. 그러나 t7326 ARGDIFF 53 중 None 인자 24건 실재·040 발화 0(선점) [S] => 철회 근거와 실측이 충돌·재판정 필요"
+  },
+  {
+   "lever": "T2_ARG_PRODUCERS",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "인자 값의 출처 도구 매핑 = 이름 원장 조회"
+  },
+  {
+   "lever": "T2_ARG_SCHEMA",
+   "element": "P3_NAME",
+   "status": "死배선복구",
+   "note": "주석 축자 '이 블록은 patched() 안이고 라이브 러너는 unified() 를 설치 = 現 死코드(P11 이설 대상)'. go_stack=1 인데 t7326 0발화 [S]"
+  },
+  {
+   "lever": "T2_ASK_UNKNOWN_BOOL",
+   "element": "P10_ASK",
+   "status": "死배선복구",
+   "note": "194 sim 실측: 불리언 136건 중 106 false/None·35건은 대화에 주제조차 없음 [S]. 어느 런처에도 없음"
+  },
+  {
+   "lever": "T2_AUTOFETCH",
+   "element": "P4_GROUND",
+   "status": "폐기확정",
+   "note": "C34 [M] '엔진이 주문마다 대신 호출해 주입' = 규칙 0 위반. 재론 금지"
+  },
+  {
+   "lever": "T2_AXIS_NOTE_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "원 근거가 P8 정당화 자체: '서사가 반복되면 안내도 매번 붙어 026 에서 55회 = 레버가 팽창을 만든다'"
+  },
+  {
+   "lever": "T2_BRANCH_REGROUND",
+   "element": "P9_REQUIRE",
+   "status": "死배선복구",
+   "note": "노브 ON 인데 t7326 0발화(C군 11종). pre-close 후 재접지 = 요건 재제시"
+  },
+  {
+   "lever": "T2_CALC",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "A2 calc_specs 구동. banking_knowledge 에 표적 0 => 전이 시 부활 대상(C261)"
+  },
+  {
+   "lever": "T2_CALLABLE_HINT",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "base 이름 -> _NNNN 실명 = env 레지스트리 조회"
+  },
+  {
+   "lever": "T2_CALL_FORM",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "호출 가능 형식 변환. C419 격리 [S] 16/16 / 라이브 [?]. 배타 체인 11위(C427) -> P3 단일 출구"
+  },
+  {
+   "lever": "T2_CHOICE_GROUND",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "노브 ON·0발화. gold 도 3건 미접지라 deny 면 오차단 => 넛지 강도 유지"
+  },
+  {
+   "lever": "T2_CLAIMPROV_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "완료주장 발화 예산 -> 재무장 술어"
+  },
+  {
+   "lever": "T2_CLAIM_BLOCK",
+   "element": "P2_EVENT",
+   "status": "死배선복구",
+   "note": "194 sim 술어 4종 재측정·최종안 과차단 0·pass 0 [S]. 어느 런처에도 없음 = [[60]] 진짜 표적"
+  },
+  {
+   "lever": "T2_CLAIM_PROV",
+   "element": "P2_EVENT",
+   "status": "근거보강필요",
+   "note": "마크 1,124회(발화 2위)인데 사이드카 도달 134 (8.4:1) [S]·원장 등급 축자 '효과 [?]'(C341)"
+  },
+  {
+   "lever": "T2_CLAIM_VERIFY",
+   "element": "P2_EVENT",
+   "status": "통합",
+   "note": "격리 완료주장 검증. spec 미설정이면 return [] = 선언 종속(옳은 형태)"
+  },
+  {
+   "lever": "T2_COMPUTE",
+   "element": "P4_GROUND",
+   "status": "통합",
+   "note": "A2 compute_ops 결정론 수리. catalog_filter 42리터럴 A2 이설이 선결(FATAL-2)"
+  },
+  {
+   "lever": "T2_CONSISTENCY",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "A2 일관성 deny. 런처 0"
+  },
+  {
+   "lever": "T2_CONS_NOOP",
+   "element": "P2_EVENT",
+   "status": "통합",
+   "note": "noop_write 감지. 코드 기본 ON 인데 go_stack 미선언 = DEFAULT_ON 미등재 사각 [S]"
+  },
+  {
+   "lever": "T2_COV",
+   "element": "P5_SETGAP",
+   "status": "통합",
+   "note": "COV_MIDDRIVE 구판. t7326 0발화 [S]"
+  },
+  {
+   "lever": "T2_COVERAGE_FOLLOWUP",
+   "element": "P5_SETGAP",
+   "status": "근거보강필요",
+   "note": "엔진 자기생성 라인 재인용(판단 0). t7326 2발화 [S] — 다중요구가 결말의 52%인데 이 축 전체가 4발화"
+  },
+  {
+   "lever": "T2_COV_MIDDRIVE",
+   "element": "P5_SETGAP",
+   "status": "근거보강필요",
+   "note": "t7326 0발화 [S]. C118 한계 실측 '보류 1회 후 통과 -> 막지 못했다'"
+  },
+  {
+   "lever": "T2_COV_MIDDRIVE_K",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "무진행 중단 임계 -> 재무장 술어"
+  },
+  {
+   "lever": "T2_DD_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "discovery-dispatch deny 예산"
+  },
+  {
+   "lever": "T2_DD_FB",
+   "element": "INSTR",
+   "status": "모순확정필요",
+   "note": "t2_levers.py:489 RETIRED 등재인데 코드·런처 어디서도 안 읽음 = 존재 확정 필요"
+  },
+  {
+   "lever": "T2_DECIDE_ANY",
+   "element": "P6_SPEECH",
+   "status": "통합",
+   "note": "action_tools 를 누구든 밀고 있으면 결정 재료 생성. 엔진이 보는 것은 멤버십뿐"
+  },
+  {
+   "lever": "T2_DECIDE_BEFORE_WRITE",
+   "element": "P9_REQUIRE",
+   "status": "근거보강필요",
+   "note": "앞 14종이 전부 None 일 때만 평가 -> t7326 3발화. C439 축자 'ON/OFF 는 이 레버에 무효' [S] = 배타 체인 병의 순수 표본"
+  },
+  {
+   "lever": "T2_DECISION_CARRY",
+   "element": "P6_SPEECH",
+   "status": "통합",
+   "note": "결정 이후 이월. t7326 192발화/37 sim"
+  },
+  {
+   "lever": "T2_DECISION_ISOLATE",
+   "element": "P6_SPEECH",
+   "status": "폐기확정",
+   "note": "C403 [S] 24sim '이득 없음, 그리고 배제 근거까지 빼는 것으로 보인다'"
+  },
+  {
+   "lever": "T2_DECLFIRST",
+   "element": "D_DECL",
+   "status": "실험노브",
+   "note": "선언-우선 2패스 = 계약 통지층. 집행은 P9/P4 가 하므로 통지 전용으로 고정"
+  },
+  {
+   "lever": "T2_DECLFIRST_ENFORCE",
+   "element": "INSTR",
+   "status": "계기재분류",
+   "note": "1차 마일스톤이 검출 전용(=0)·deny 안 함 = 계기"
+  },
+  {
+   "lever": "T2_DECLFIRST_GUIDE",
+   "element": "D_DECL",
+   "status": "실험노브",
+   "note": "코드 기본 ON 인데 go_stack 미선언 = DEFAULT_ON 미등재 사각 [S]"
+  },
+  {
+   "lever": "T2_DECLFIRST_GUIDE_FIX",
+   "element": "D_DECL",
+   "status": "실험노브",
+   "note": "가이드 문면 수리판. PIN=0"
+  },
+  {
+   "lever": "T2_DEFERRED_VIEW_KEEP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "뷰 유지 턴수 -> 재무장 파라미터"
+  },
+  {
+   "lever": "T2_DELIVER_PRECOMMIT",
+   "element": "P4_GROUND",
+   "status": "폐기확정",
+   "note": "C502 [S] '전달의 3분의 1이 우리 슬롯에서 소리 없이 사라졌고 1차 종점은 순환'·지연 1.38x => 특허 실시예 기록 금지"
+  },
+  {
+   "lever": "T2_DISAMB",
+   "element": "P10_ASK",
+   "status": "死배선복구",
+   "note": "C60 [M] 456/456 p2 +1.5·p3 +2.6·p4 +1.8pp = 원장에 남은 유일한 pass^k 개선 실측인데 어느 런처에도 없다 [S]"
+  },
+  {
+   "lever": "T2_DISAMB_MODE",
+   "element": "P10_ASK",
+   "status": "통합",
+   "note": "dialog|subcall 되묻기 배치. _MODE 접미사라 audit_unset 필터에 지워짐"
+  },
+  {
+   "lever": "T2_DISAMB_ORDER",
+   "element": "D_DECL",
+   "status": "선언이설",
+   "note": "엔진에 order/order_id 리터럴(:4524) = 도메인 리터럴. A2 disamb_args 로"
+  },
+  {
+   "lever": "T2_DISCOVERY_DISPATCH",
+   "element": "P9_REQUIRE",
+   "status": "死배선복구",
+   "note": "ep_spec.dispatch_tool 기반 발견 사슬. 런처 0"
+  },
+  {
+   "lever": "T2_DISCOVERY_NAMES",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "회수 문서가 이름을 말한 미호출 도구. t7326 162발화. C303 '그 가지에 애초에 들어가지 않는다'(사정거리)"
+  },
+  {
+   "lever": "T2_DISCOVERY_REQUIRED",
+   "element": "P5_SETGAP",
+   "status": "모순확정필요",
+   "note": "t2_levers NOT_LAUNCHED 등재·런처 0. analysis_producers 미호출 = 집합 차"
+  },
+  {
+   "lever": "T2_DISCOVERY_STEP2",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "**자기차단의 원천**: formalize_intent_tool 을 후보집합만 바꿔 두 번 부른다(t2_resolve.py:189 회수집합 <-> :455 레지스트리 폴백) [S]. P3 는 튜플만 내고 formalize 1회"
+  },
+  {
+   "lever": "T2_DISPATCH_LEDGER",
+   "element": "P5_SETGAP",
+   "status": "근거보강필요",
+   "note": "다건-write 대상 집합 등재(판단 0). t7326 2발화 [S]"
+  },
+  {
+   "lever": "T2_DISPATCH_ROLE",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "실행 주체를 레지스트리에서 도출. t7326 6발화/6 deny·미회복 11 중 1건(063 t35)"
+  },
+  {
+   "lever": "T2_DISPATCH_ROLE_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "deny 상한"
+  },
+  {
+   "lever": "T2_DISPATCH_ROLE_ENVSET",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "_user_discoverable 대조 = 튜플 (d)비트"
+  },
+  {
+   "lever": "T2_DOCS_AT_WRITE",
+   "element": "P4_GROUND",
+   "status": "폐기확정",
+   "note": "C505 [S] '축별 배달은 반증됐다 — 굶은 축이 맞히고 먹은 축이 틀렸다'"
+  },
+  {
+   "lever": "T2_DUP_REPRESENT",
+   "element": "P2_EVENT",
+   "status": "통합",
+   "note": "축약이 지운 재료 복원 = 원장 정규화의 역방향"
+  },
+  {
+   "lever": "T2_DYN_MT",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "vLLM 에러 원문 파싱(추정 0). day5 ctxover 7건 전부 36.5~40.2k 사망"
+  },
+  {
+   "lever": "T2_DYN_MT_MARGIN",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "하네스 파라미터"
+  },
+  {
+   "lever": "T2_ELIG_LINE",
+   "element": "P4_GROUND",
+   "status": "근거보강필요",
+   "note": "C517 [M] 사전 고정 바 통과·부정통제 유효(자격 뒤집기 오선택 3->26) [S] 인데 t7326 PIN=0 = [[60]] 위반 실물"
+  },
+  {
+   "lever": "T2_ENVELOPE_CAP",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "봉투 regen 상한"
+  },
+  {
+   "lever": "T2_ENVELOPE_GUARD",
+   "element": "P7_CHANNEL",
+   "status": "계기재분류",
+   "note": "셀 '조건 게이트' -> 하네스로 이관. 봉투는 우리가 요구한 출력 형식 = 채널 사실"
+  },
+  {
+   "lever": "T2_ENVELOPE_TAG",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "서빙 포맷 상수"
+  },
+  {
+   "lever": "T2_ENVELOPE_TRUNC",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "regen 프롬프트 content 절단"
+  },
+  {
+   "lever": "T2_EPLAN",
+   "element": "P9_REQUIRE",
+   "status": "유지",
+   "note": "원장의 원형. requirements_for 와 같은 선언(gates/require_tool_before/requires_reads)에서 읽는다"
+  },
+  {
+   "lever": "T2_EPLAN_DENY_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "C173-corr: pre-close deny 와 공유 예산을 나눠 써 044 소진 => 예산 공유가 병"
+  },
+  {
+   "lever": "T2_EPLAN_DRIVE_K",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "progress-guard 가 곧 재무장 술어의 원형"
+  },
+  {
+   "lever": "T2_EPLAN_EXAMINED_SAFE",
+   "element": "P5_SETGAP",
+   "status": "통합",
+   "note": "오차단 완화 조건 = 집합 술어"
+  },
+  {
+   "lever": "T2_EPLAN_READS_ONLY",
+   "element": "P9_REQUIRE",
+   "status": "통합",
+   "note": "A1-v2 실패분석: 무조건 행동금지가 coverage 누락 8건 유발 => in-scope sibling 허용을 계약에"
+  },
+  {
+   "lever": "T2_EPLAN_REPLAN",
+   "element": "P5_SETGAP",
+   "status": "死배선복구",
+   "note": "coverage_gap replan 격리 서브콜. 런처 0"
+  },
+  {
+   "lever": "T2_EPLAN_WALK",
+   "element": "P9_REQUIRE",
+   "status": "유지",
+   "note": "사슬 역행. 터미널 훅 진입 조건"
+  },
+  {
+   "lever": "T2_EPLAN_WALK_HOLD",
+   "element": "ARM",
+   "status": "실험노브",
+   "note": "001 [S] 로 기본 OFF 강등·go_stack:217 주석 처리 = ARM_ONLY 명시"
+  },
+  {
+   "lever": "T2_FAB_STRIP",
+   "element": "P1_KIND",
+   "status": "통합",
+   "note": "_PROCEDURAL_RE 5접두사(FATAL-4) 폐기 -> __tool_type__==WRITE. t7326 8발화/4 sim"
+  },
+  {
+   "lever": "T2_FAILED_DIR",
+   "element": "INSTR",
+   "status": "계기재분류",
+   "note": "궤적 덤프 경로"
+  },
+  {
+   "lever": "T2_FAILED_PERSIST",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "stdout 출력이라 trace 마크 감사에 원리상 안 잡힘 [S] — 계측 채널 통일 대상"
+  },
+  {
+   "lever": "T2_FB_SIDECAR",
+   "element": "INSTR",
+   "status": "死배선복구",
+   "note": "**인벤토리 오류 확정**: '어느 런처에도 없음' 이었으나 t7326 라이브 2,153행·24채널 실재 [S]. 도달을 재는 유일한 계기 — 삭제 금지"
+  },
+  {
+   "lever": "T2_FB_SIDECAR_TEXT",
+   "element": "INSTR",
+   "status": "死배선복구",
+   "note": "본문 기록. 위와 동일"
+  },
+  {
+   "lever": "T2_FB_VIEW_K",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "피드백 뷰 유지 턴수"
+  },
+  {
+   "lever": "T2_FEXEC",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "형식화-실행 모듈 진입. 런처 0"
+  },
+  {
+   "lever": "T2_FIT_DIFF",
+   "element": "P4_GROUND",
+   "status": "폐기확정",
+   "note": "t2_axis_levers.py:136-143 이 도구 출력 산문을 정규식으로 뜯는다 = [[59]] 정면 위반. 켜기 전 폐기·구조화 dict 경로로 대체"
+  },
+  {
+   "lever": "T2_FN_ISOLATE",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "함수 단위 격리 wrap. 런처 0"
+  },
+  {
+   "lever": "T2_FOLLOWUP_CAP",
+   "element": "P8_GOV",
+   "status": "모순확정필요",
+   "note": "registry PARAMS·go_stack·주석 세 곳에 있는데 environ.get 자리를 코드에서 찾지 못했다 [S]"
+  },
+  {
+   "lever": "T2_FOLLOWUP_FORCE",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "tool_choice=required = 채널 옵션"
+  },
+  {
+   "lever": "T2_FOLLOWUP_PROGRESS_REFUND",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "cap3 < 사슬 6단계의 땜질 => 재무장 술어로 대체"
+  },
+  {
+   "lever": "T2_FOLLOWUP_READLOOP",
+   "element": "P6_SPEECH",
+   "status": "통합",
+   "note": "post-submit read-루프를 사임 등가로 계상(rall7 050: 사임 이벤트 0)"
+  },
+  {
+   "lever": "T2_FOLLOWUP_REQUIRED",
+   "element": "P5_SETGAP",
+   "status": "통합",
+   "note": "사임 창 10종 중 하나. 억제 실측 8건이 지문창에 먹힘 [S]"
+  },
+  {
+   "lever": "T2_FOLLOWUP_RESIGN_TH",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "사임 몇 회째부터. 오프라인 replay: 2회째가 실패 4/4 커버"
+  },
+  {
+   "lever": "T2_FORCE_ACTION",
+   "element": "P6_SPEECH",
+   "status": "근거보강필요",
+   "note": "t7326 214발화인데 C330 '말로는 따르고 호출은 0'·효과 [?]. 어느 도구인지는 모델 몫(디코딩 제약만)"
+  },
+  {
+   "lever": "T2_FORCE_MIN_TOKENS",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "강제 tool-call JSON 절단 방지(vLLM #19051/#36794)"
+  },
+  {
+   "lever": "T2_GATE_KINDS",
+   "element": "ARM",
+   "status": "실험노브",
+   "note": "gate kind 화이트리스트 = 측정-격리"
+  },
+  {
+   "lever": "T2_GATE_REGEN",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "replay-safe 게이트 설치·unified 경로 라우팅"
+  },
+  {
+   "lever": "T2_GATE_REGEN_K",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "구 C173 의 K=2 는 unified 경로서 no-op 판명·철회"
+  },
+  {
+   "lever": "T2_GIVE_EXEC_NUDGE",
+   "element": "P5_SETGAP",
+   "status": "통합",
+   "note": "GIVEN\\RAN. C214/E2 019: 포털 불가라던 손님에게 실행 가능을 끝내 안 알림"
+  },
+  {
+   "lever": "T2_GIVE_QUOTE",
+   "element": "P4_GROUND",
+   "status": "통합",
+   "note": "give 직전 손님 말 축자 실재(fail-open). 인용을 인자에 얹는 것은 금지(여분 키=evaluator 파괴)"
+  },
+  {
+   "lever": "T2_GIVE_RELEVANCE_NUDGE",
+   "element": "P4_GROUND",
+   "status": "통합",
+   "note": "give 대상이 원장에 미등장 => 넛지(강제 금지·'무관하다'는 열린 술어)"
+  },
+  {
+   "lever": "T2_GROUND",
+   "element": "P4_GROUND",
+   "status": "유지",
+   "note": "P-A GROUND(T5-C rev3)"
+  },
+  {
+   "lever": "T2_GROUNDING_SPEC",
+   "element": "D_DECL",
+   "status": "선언이설",
+   "note": "접지 spec 경로. _SPEC 접미사라 audit_unset 필터에 지워짐"
+  },
+  {
+   "lever": "T2_GROUND_DROP_NAVKEYS",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "네비 키 접지 제외 = 오차단 완화. 런처 0"
+  },
+  {
+   "lever": "T2_GROUND_HDR",
+   "element": "D_DECL",
+   "status": "선언이설",
+   "note": "D3 헤더-상세 모순(x35② ledger 38:20 <-> user 7:43). 2026-08-18 신규 선언"
+  },
+  {
+   "lever": "T2_GROUND_LOG",
+   "element": "INSTR",
+   "status": "계기재분류",
+   "note": "접지 판정 로그"
+  },
+  {
+   "lever": "T2_GUIDED",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "반드시 gate **이전** 적용(C166: 나중이면 regen 이 문법 우회·032 관통)"
+  },
+  {
+   "lever": "T2_GUIDED_VERBOSE",
+   "element": "INSTR",
+   "status": "계기재분류",
+   "note": "guided decoding 로그"
+  },
+  {
+   "lever": "T2_HANDOFF_ARG_GROUND",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "N1 실측: give 80회 중 75회가 도구명만 싣고 값은 본문에 — 손님 실행 인자값 157 중 142(90%)가 산문에 축자 [S]. 런처 0"
+  },
+  {
+   "lever": "T2_HANDOFF_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "잔소리 루프 억제"
+  },
+  {
+   "lever": "T2_HANDOFF_PREDICATE",
+   "element": "P3_NAME",
+   "status": "폐기확정",
+   "note": "C529 [S] '표적이 거의 없고 pass 는 null 이며 부호까지 뒤집혔다 => 폐기'. 술어((d)비트)만 P3 에 남긴다"
+  },
+  {
+   "lever": "T2_HAVE_VALUE",
+   "element": "P6_SPEECH",
+   "status": "통합",
+   "note": "값을 쥐고도 행동 안 함 = 접지된 값 ∧ 미호출"
+  },
+  {
+   "lever": "T2_HAVE_VALUE_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "재질의 상한"
+  },
+  {
+   "lever": "T2_HAVE_VALUE_FORCE",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "코드 기본 ON·go_stack 도 1. DEFAULT_ON 미등재 사각"
+  },
+  {
+   "lever": "T2_KB_DOCS_DIR",
+   "element": "D_DECL",
+   "status": "선언이설",
+   "note": "런처 값이 도메인 고정(banking_knowledge/documents). 전이 시 이 한 줄만 간다 = 옳은 모양"
+  },
+  {
+   "lever": "T2_KB_NOHIT_K",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "연속 전-0점 임계"
+  },
+  {
+   "lever": "T2_KB_NOHIT_SURFACE",
+   "element": "P7_CHANNEL",
+   "status": "死배선복구",
+   "note": "노브 ON·t7326 0발화. Score: 정규식은 env 고정 포맷 전사 = 채널. startswith('KB_search') 는 A2 search_tools 로"
+  },
+  {
+   "lever": "T2_KEEP_DENY_BODY",
+   "element": "P8_GOV",
+   "status": "유지",
+   "note": "[[64]] 불변식. 이름 없는 '먼저 해소하라' 가 3회↑ 나온 6 sim = 6/6 실패 [S]"
+  },
+  {
+   "lever": "T2_L4",
+   "element": "P4_GROUND",
+   "status": "폐기확정",
+   "note": "치환 성적 2/2 오답(t58 정답파괴·t20 제약절단). A2 선언 없으면 실행 불가(INFER=none 규율)"
+  },
+  {
+   "lever": "T2_L4_MODE",
+   "element": "ARM",
+   "status": "실험노브",
+   "note": "keep<->substitute. _MODE 접미사라 감사에서 지워짐 — 술어 기준으로 갈라야 함"
+  },
+  {
+   "lever": "T2_LEDGER",
+   "element": "P2_EVENT",
+   "status": "유지",
+   "note": "원장 등재. 뷰 큐잉은 P8 로 분리(뷰 예산이 사실을 지우면 안 된다)"
+  },
+  {
+   "lever": "T2_LEDGER_VIEW_KEEP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "원장 행 뷰 유지 턴수"
+  },
+  {
+   "lever": "T2_LLM_RETRIES",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "num_retries 주입"
+  },
+  {
+   "lever": "T2_LLM_TIMEOUT",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "미설정=litellm 기본 ~40분 조용한 stall(097 실측)"
+  },
+  {
+   "lever": "T2_MAIN_ANSWERS_ONLY",
+   "element": "P8_GOV",
+   "status": "死배선복구",
+   "note": "[[65]] 정본 원리의 유일한 코드 구현체(x231 8/8->0/8 계보) 인데 어느 런처에도 없다 [S]. P8 의 기본 거동으로 승격"
+  },
+  {
+   "lever": "T2_MATCH_COUNT",
+   "element": "P7_CHANNEL",
+   "status": "근거보강필요",
+   "note": "회수 경계 표면화. t7326 마크표에 없다 — 0발화인지 마크 미배선인지 못 갈랐다 [?]"
+  },
+  {
+   "lever": "T2_MATERIAL_BYPASS",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "재료 배달을 판정 예산에서 떼는 유일한 기존 구현. t7326 배달 정지 393회(resolve_cap 225·other_lever 168) [S]"
+  },
+  {
+   "lever": "T2_MATERIAL_RESERVE",
+   "element": "P4_GROUND",
+   "status": "폐기확정",
+   "note": "C499 [S] '무동작이었고, 그 진단의 전제였던 내 로그 독해가 틀렸다'"
+  },
+  {
+   "lever": "T2_MAXPROMPT",
+   "element": "ARM",
+   "status": "실험노브",
+   "note": "[[42]] prompt-ceiling 실험 전용"
+  },
+  {
+   "lever": "T2_MAXPROMPT_POS",
+   "element": "ARM",
+   "status": "실험노브",
+   "note": "프롬프트 위치 실험"
+  },
+  {
+   "lever": "T2_MT_FLOOR",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "플로어 미만=진짜 창 소진 -> graceful-stop"
+  },
+  {
+   "lever": "T2_NLNUM_PROV",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "최종 발화 금액 provenance. 런처 0"
+  },
+  {
+   "lever": "T2_NOREC_BRANCH",
+   "element": "P4_GROUND",
+   "status": "근거보강필요",
+   "note": "040형(영구 No records -> 6-호출 사이클 x30 -> ctx 초과) 표적. t7326 이 첫 라이브·C536 [D] 라이브 인과 미측정"
+  },
+  {
+   "lever": "T2_NOTICE_REPEAT",
+   "element": "D_DECL",
+   "status": "선언이설",
+   "note": "코드 기본 ON 인데 go_stack 미선언 = 조용히 라이브. notice 문구는 A2"
+  },
+  {
+   "lever": "T2_NOW_SELFCALL",
+   "element": "P2_EVENT",
+   "status": "유지",
+   "note": "상수 반환 self-call(DB 무접촉·READ·순위/지목 문장 0) = P2 계약의 교과서. C488 '성적이 0 만큼 움직였다'·C494 부정통제 24<->24"
+  },
+  {
+   "lever": "T2_NO_DIGEST_REEXEC",
+   "element": "P2_EVENT",
+   "status": "통합",
+   "note": "digest 캐시 pop = 원장 조인. 런처 0"
+  },
+  {
+   "lever": "T2_OFF_CELLS",
+   "element": "ARM",
+   "status": "실험노브",
+   "note": "[[60]] 비상구. t7326 미설정=전 셀 ON. 쓰면 태그 기록 의무"
+  },
+  {
+   "lever": "T2_OPERATOR_PINPOINT",
+   "element": "P3_NAME",
+   "status": "폐기확정",
+   "note": "x322 지목 24/24 -> 0/24 [S]. 기본(=범위 표면화)이 P3 계약 그 자체 — 지목 모드는 재론 금지"
+  },
+  {
+   "lever": "T2_OVERFLOW_GUARD",
+   "element": "INSTR",
+   "status": "모순확정필요",
+   "note": "go_stack.sh:21 export 인데 코드 전체에 environ.get 자리 0 [S] = 순수 노이즈. read 자리 신설 or export 삭제"
+  },
+  {
+   "lever": "T2_PAIRCHECK",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "call<->result 불변식 라이브 검사(로그 전용)"
+  },
+  {
+   "lever": "T2_PAIRFIX",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "순서-스왑 교정(의미론 no-op)"
+  },
+  {
+   "lever": "T2_PARAM_CAP",
+   "element": "D_DECL",
+   "status": "선언이설",
+   "note": "엔진에 account_id/card_type/credit_limit 폴백 리터럴(:1141/1149/1155) — 폴백 제거·미선언=침묵"
+  },
+  {
+   "lever": "T2_PARAM_CAP_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "deny 상한"
+  },
+  {
+   "lever": "T2_PENDING_DISCOVERED",
+   "element": "P3_NAME",
+   "status": "死배선복구",
+   "note": "C539 [S] '_ts 는 다른 함수의 지역 별칭이라 처음부터 죽은 레버'. 런타임 discoverable = 레지스트리 갱신"
+  },
+  {
+   "lever": "T2_PHASE_OWNER",
+   "element": "P9_REQUIRE",
+   "status": "死배선복구",
+   "note": "노브 ON·t7326 0발화 = 이중 무근거(원장 근거 0 + 발화 0)"
+  },
+  {
+   "lever": "T2_PIN_READ",
+   "element": "P9_REQUIRE",
+   "status": "통합",
+   "note": "require_tool_before 가 강제 못 하던 자리(C210 3건·gold 관문 요구 79 sim 중 53 미호출). 효과 [?]"
+  },
+  {
+   "lever": "T2_PIN_READ_STEPS",
+   "element": "P9_REQUIRE",
+   "status": "통합",
+   "note": "절차 단계별 읽기 핀. t7326 9발화 — 실패 60%가 READ_MISS 인데 sim당 0.7회"
+  },
+  {
+   "lever": "T2_PRECLOSE_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "C173-corr 로 분리했던 예비 예산 => 재무장 술어로 통합"
+  },
+  {
+   "lever": "T2_PREKB",
+   "element": "P9_REQUIRE",
+   "status": "통합",
+   "note": "C165: 문제-기반 쿼리는 절차 문서를 못 찾고 행동-기반 쿼리는 1~2위. 문서를 찾게만 하고 답은 안 준다"
+  },
+  {
+   "lever": "T2_PRESCRIPTION",
+   "element": "P9_REQUIRE",
+   "status": "통합",
+   "note": "A2 처방 표면화(다른 피드백 전부 없을 때만) = 배타 체인 종속"
+  },
+  {
+   "lever": "T2_PRESCRIPTION_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "발화 상한"
+  },
+  {
+   "lever": "T2_PRESENT_NESTED",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "nested list/dict 를 명시 choice-set 으로. 런처 0"
+  },
+  {
+   "lever": "T2_PRESENT_READS",
+   "element": "P4_GROUND",
+   "status": "폐기확정",
+   "note": "C34 [M] '엔진이 대신 호출해 주입' 계보로 폐기"
+  },
+  {
+   "lever": "T2_PRINCIPLE_DEFAULT",
+   "element": "D_DECL",
+   "status": "폐기확정",
+   "note": "LOCK anti-drift 4 'default 개념 금지 — 정책-강제(gate) or ASK 로만'. _DEFAULT 접미사라 감사에서 영구 비가시"
+  },
+  {
+   "lever": "T2_PROCEDURE",
+   "element": "P9_REQUIRE",
+   "status": "통합",
+   "note": "A2 절차 선언 구동. t7326 4 deny/017 전량"
+  },
+  {
+   "lever": "T2_PROCEDURE_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "절차 deny 상한"
+  },
+  {
+   "lever": "T2_PROCEED_DOCBODY",
+   "element": "P4_GROUND",
+   "status": "폐기확정",
+   "note": "t7304 심사 3인 일치 '유료 런으로 배관 사실을 사는 형태'(t7303 동형)"
+  },
+  {
+   "lever": "T2_PROC_ABSENT",
+   "element": "P5_SETGAP",
+   "status": "통합",
+   "note": "절차 진입 턴 체크리스트 1회. 아무도 안 부른 도구의 첫 지목 위치 중앙값이 대화의 0.63"
+  },
+  {
+   "lever": "T2_PROC_ABSENT_CAP",
+   "element": "P8_GOV",
+   "status": "모순확정필요",
+   "note": "registry PARAMS 에만 있고 코드 read 자리 0 [S]"
+  },
+  {
+   "lever": "T2_PROC_ABSENT_K",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "발화 임계"
+  },
+  {
+   "lever": "T2_PROC_PIN_REARM",
+   "element": "P8_GOV",
+   "status": "근거보강필요",
+   "note": "원 근거('deny 해도 이행 안 한다')가 F19 로 소멸 — 그 deny 는 모델에게 간 적이 없었다. 재무장 정책 재측정 대상"
+  },
+  {
+   "lever": "T2_PROD_BIND",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "노브 ON·t7326 0발화(C군)"
+  },
+  {
+   "lever": "T2_PROVENANCE",
+   "element": "P4_GROUND",
+   "status": "통합",
+   "note": "구세대 PROV 축. 후계=PROV_REGEN"
+  },
+  {
+   "lever": "T2_PROV_ADDR_FULL",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "t43/96 주소 날조 통과가 표적. _FULL 접미사라 audit_unset 에 지워져 감사에서 안 보임"
+  },
+  {
+   "lever": "T2_PROV_BADWORDS",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "placeholder 금칙어 축. 런처 0"
+  },
+  {
+   "lever": "T2_PROV_GROUND",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "provenance 접지 축. 런처 0"
+  },
+  {
+   "lever": "T2_PROV_MODE",
+   "element": "P4_GROUND",
+   "status": "유지",
+   "note": "full|rescue. rescue 스킵은 env-검증 id 만"
+  },
+  {
+   "lever": "T2_PROV_ORIGIN",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "최초 출처 날조 탐지. 런처 0"
+  },
+  {
+   "lever": "T2_PROV_OURS",
+   "element": "P3_NAME",
+   "status": "유지",
+   "note": "**자기차단 수리의 핵심**: _t2_our_names 등재점이 읽기루틴 한 곳뿐(:2656) => P3 가 (g)비트를 단일 관리"
+  },
+  {
+   "lever": "T2_PROV_REGEN",
+   "element": "P4_GROUND",
+   "status": "유지",
+   "note": "라이브 pass 이동 실측 4종 중 하나. C53 [S] 456 sim·reward 0.580>floor 0.547(+3.3pp)·t17 4/4 db_fail->db_pass·over-block 0"
+  },
+  {
+   "lever": "T2_PROV_REGEN_K",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "PROV 예산"
+  },
+  {
+   "lever": "T2_QUOTE_HINT",
+   "element": "P4_GROUND",
+   "status": "유지",
+   "note": "모델이 제시한 값이 원장에 실재할 때만 지목(무조건이면 C226 spoonfeed)"
+  },
+  {
+   "lever": "T2_QUOTE_PIN",
+   "element": "P4_GROUND",
+   "status": "유지",
+   "note": "[[66]] 이 의도분류 대체물로 지정한 인용-근거 축. C282 [S] 사슬 / [D] pass(n=1)"
+  },
+  {
+   "lever": "T2_READALL",
+   "element": "P5_SETGAP",
+   "status": "死배선복구",
+   "note": "readall_unread(listed, examined) = P5 술어의 원형. t7326 0발화"
+  },
+  {
+   "lever": "T2_READALL_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "deny 상한"
+  },
+  {
+   "lever": "T2_READ_DEDUP",
+   "element": "P2_EVENT",
+   "status": "유지",
+   "note": "라이브 pass 이동 실측 4종 중 하나. C114 [S] rall17 050 t1=13/13 첫 완전 PASS"
+  },
+  {
+   "lever": "T2_READ_DEDUP_LOOP_K",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "루프 판정 임계"
+  },
+  {
+   "lever": "T2_READ_DEDUP_MIN",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "dedup 대상 최소 출력 길이"
+  },
+  {
+   "lever": "T2_READ_NEARDUP",
+   "element": "P2_EVENT",
+   "status": "死배선복구",
+   "note": "Jaccard 근사 중복 read. 런처 0"
+  },
+  {
+   "lever": "T2_READ_NEARDUP_J",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "임계"
+  },
+  {
+   "lever": "T2_REF_ISO",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "C124/C125 참조 슬립(039 wrong-pick=전사 슬립+자기 정박 부하). 런처 0"
+  },
+  {
+   "lever": "T2_REF_ISO_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "서브콜 예산"
+  },
+  {
+   "lever": "T2_REF_VERIFY",
+   "element": "P4_GROUND",
+   "status": "통합",
+   "note": "결정론 참조-검증기(도구/필드/문구=A2). WEV 블록 합류 = wd 폴스루 6종 중 하나"
+  },
+  {
+   "lever": "T2_REGEN_BUDGET",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "over-action 사고(023 ctx 초과)를 막는 유일한 전역 층"
+  },
+  {
+   "lever": "T2_REPEAT_CAP",
+   "element": "P8_GOV",
+   "status": "모순확정필요",
+   "note": "t2_levers.py:489 RETIRED([[57]] 위반 폐기) <-> go_stack.sh:248 export=8 [S]. 정반대"
+  },
+  {
+   "lever": "T2_REPEAT_GOV",
+   "element": "P8_GOV",
+   "status": "死배선복구",
+   "note": "반복 채널 거버너 = P8 의 기존 구현. 런처 0(레거시 경로 사용 중)"
+  },
+  {
+   "lever": "T2_REQUIRE_DOC",
+   "element": "P9_REQUIRE",
+   "status": "통합",
+   "note": "문서 미열람 종결 행동에 1회. t7326 10발화/10 sim"
+  },
+  {
+   "lever": "T2_RESOLVE",
+   "element": "P3_NAME",
+   "status": "근거보강필요",
+   "note": "최대 판정기(519발화·92 deny·gold 오차단 24) 인데 원장 등급 축자 '효과는 [?]'(C324)"
+  },
+  {
+   "lever": "T2_RESOLVE_CAP",
+   "element": "P8_GOV",
+   "status": "폐기확정",
+   "note": "C540 [S] 'stop=resolve_cap 098 2->6·100 0->6·073 12->25 … 계약 경로가 3~7배로 죽고 그 자리에 캡 정지가 들어찼다' + C537 래치 뒤 3,082 메시지. 횟수 캡 -> 인자변화 술어로 교체"
+  },
+  {
+   "lever": "T2_RETRY_CONTROLLER",
+   "element": "P2_EVENT",
+   "status": "死배선복구",
+   "note": "C261 'gated 는 이 스택에서 설치되지 않는다 => 켜도 발화 불가·켜면 무음 실패'"
+  },
+  {
+   "lever": "T2_RETRY_K",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "연속 실패 K회 가드"
+  },
+  {
+   "lever": "T2_RETURN_EMPTY",
+   "element": "D_DECL",
+   "status": "선언이설",
+   "note": "D4 빈-결과 문면. 2026-08-18 신규 선언"
+  },
+  {
+   "lever": "T2_ROUTE_TRACE",
+   "element": "INSTR",
+   "status": "계기재분류",
+   "note": "코드 기본 ON·go_stack 미선언. 배타성 계수를 만든 계기 — 유지하되 분모에서 제외"
+  },
+  {
+   "lever": "T2_RULES_PROMPT",
+   "element": "ARM",
+   "status": "실험노브",
+   "note": "규칙 프롬프트 파일 경로"
+  },
+  {
+   "lever": "T2_SALVAGE",
+   "element": "P7_CHANNEL",
+   "status": "死배선복구",
+   "note": "오프라인 42건 중 복제형 38/38=100% 회수 [S]. C248 형이 실패 census 를 오염시킨다. 런처 0"
+  },
+  {
+   "lever": "T2_SCAFFOLD_GET",
+   "element": "P9_REQUIRE",
+   "status": "유지",
+   "note": "A2 scaffold_get_tools 주입 전체 스위치"
+  },
+  {
+   "lever": "T2_SCALAR_ARRAY",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "스칼라/배열 불일치 노트. 런처 0"
+  },
+  {
+   "lever": "T2_SEARCH_AGENT",
+   "element": "P4_GROUND",
+   "status": "유지",
+   "note": "[[67]] 검색은 t2_search 하나로 고정. C418/C432 [S] 프로덕션 2축xn=8 / [?] 라이브"
+  },
+  {
+   "lever": "T2_SEARCH_EXHAUST_NUDGE",
+   "element": "P2_EVENT",
+   "status": "통합",
+   "note": "엔진 자기 스텁 계수(닫힘). C214/E3 012=8회 전패 후 앱 절차 날조"
+  },
+  {
+   "lever": "T2_SEARCH_EXHAUST_TH",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "임계"
+  },
+  {
+   "lever": "T2_SEARCH_ON_PROCEED",
+   "element": "P4_GROUND",
+   "status": "통합",
+   "note": "P(SEARCH_AGENT|SEARCH_ON_PROCEED)=1.00 (52/52) [S] = 독립 레버가 아니라 하위 분기"
+  },
+  {
+   "lever": "T2_SELF_DECLARATION",
+   "element": "P4_GROUND",
+   "status": "모순확정필요",
+   "note": "t2_levers NOT_LAUNCHED <-> go_stack.sh:341 export=1 [S]. 정반대"
+  },
+  {
+   "lever": "T2_SG_BYREF",
+   "element": "P4_GROUND",
+   "status": "유지",
+   "note": "수리판. C531 [S] 수리 / '[D] pass 이동을 기대할 근거는 없다'. 구판은 거짓 deny 49건/11 sim(C526)"
+  },
+  {
+   "lever": "T2_SG_DEDUP",
+   "element": "P2_EVENT",
+   "status": "통합",
+   "note": "서브 도구 출력 dedup"
+  },
+  {
+   "lever": "T2_SG_EXCLUDE",
+   "element": "ARM",
+   "status": "실험노브",
+   "note": "단일 변수 대조(대안 도구 유/무)"
+  },
+  {
+   "lever": "T2_SG_GROUND",
+   "element": "P4_GROUND",
+   "status": "통합",
+   "note": "A2 ground 선언으로 서브 산출 operand 접지"
+  },
+  {
+   "lever": "T2_SG_ISOFB",
+   "element": "P4_GROUND",
+   "status": "유지",
+   "note": "r095g: 서브가 실패를 모른 채 종료 — checking 값-없는 인용 4-trial 반복"
+  },
+  {
+   "lever": "T2_SG_ISOLATE",
+   "element": "P4_GROUND",
+   "status": "유지",
+   "note": "실패=None -> 메인 폴백(거동 변화 0) = 옳은 배치 계약"
+  },
+  {
+   "lever": "T2_SG_ISOLATE_TRACE",
+   "element": "INSTR",
+   "status": "계기재분류",
+   "note": "격리 디스패치 trace"
+  },
+  {
+   "lever": "T2_SG_REQREADS",
+   "element": "P9_REQUIRE",
+   "status": "근거보강필요",
+   "note": "t7326 1발화 [S]. 실패의 60%가 READ_MISS 인데 이 배선이 sim당 0.025회"
+  },
+  {
+   "lever": "T2_SG_SUB_TOOLCAP",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "rall11 097: 서브 52854 tok > 48640 max -> CWE -> 메인 오추측 95000"
+  },
+  {
+   "lever": "T2_SG_TRACE",
+   "element": "INSTR",
+   "status": "계기재분류",
+   "note": "침묵-스킵 불가능하게 하는 계기(r095e)"
+  },
+  {
+   "lever": "T2_SG_TRUTH",
+   "element": "P3_NAME",
+   "status": "死배선복구",
+   "note": "노브 ON·t7326 0발화(C군). 인터페이스-사실 정정"
+  },
+  {
+   "lever": "T2_SG_WINDOW_ABSTAIN",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "노브 ON·t7326 0발화(C군). 유효창 밖 기권"
+  },
+  {
+   "lever": "T2_SOURCE",
+   "element": "P4_GROUND",
+   "status": "유지",
+   "note": "행동을 좌우하는 사실 주장은 출처를 대야 한다(C1). t7326 62발화/13 sim"
+  },
+  {
+   "lever": "T2_SOURCE_QUALIFY",
+   "element": "P4_GROUND",
+   "status": "폐기확정",
+   "note": "켠 arm 라이브 회귀 실측(102 db_match 2/2 -> 0/2·제출 1·1 -> 5·3). 근거가 코드 주석에만 있어 원장 이관 필요"
+  },
+  {
+   "lever": "T2_SPEAK_PROHIBIT",
+   "element": "P9_REQUIRE",
+   "status": "통합",
+   "note": "금지 도구를 추천하는 것까지 막음. 022 가 같은 턴에 추천과 금지를 3회 동시 수신 = P8 병합 부재의 증상"
+  },
+  {
+   "lever": "T2_STACK_OBSERVE",
+   "element": "INSTR",
+   "status": "계기재분류",
+   "note": "[[48]] 7층 관측. 코드 기본 ON·go_stack 미선언"
+  },
+  {
+   "lever": "T2_STACK_WINDOW",
+   "element": "INSTR",
+   "status": "계기재분류",
+   "note": "관측 창"
+  },
+  {
+   "lever": "T2_STALE_STRIP",
+   "element": "P1_KIND",
+   "status": "통합",
+   "note": "committed 성공 write 재호출 strip. _PROCEDURAL_RE 간접 의존 -> __tool_type__ 로"
+  },
+  {
+   "lever": "T2_SUB_REQUIREMENT",
+   "element": "P9_REQUIRE",
+   "status": "폐기확정",
+   "note": "C508 [M] '기전은 반증됐고 서브 정확도는 오히려 떨어졌다(gold 4->0)'·지연 2.4x => 스택 승격 금지"
+  },
+  {
+   "lever": "T2_SUPPRESS_AUTH",
+   "element": "P8_GOV",
+   "status": "유지",
+   "note": "억제하려는 레버가 근거를 대야 한다(C13: 반복-억제가 gold 를 만들던 반복을 침묵시킴)"
+  },
+  {
+   "lever": "T2_SURFACE_BUS",
+   "element": "P8_GOV",
+   "status": "유지",
+   "note": "부착의 단일 출구·불변식 4종. 주석 축자 'OFF 가 더 위험했다'"
+  },
+  {
+   "lever": "T2_TERMINAL_TURN",
+   "element": "D_DECL",
+   "status": "선언이설",
+   "note": "엔진에 'transfer' 부분문자열 판정 -> A2 transfer_tokens"
+  },
+  {
+   "lever": "T2_TERM_GRANT",
+   "element": "P5_SETGAP",
+   "status": "유지",
+   "note": "종료 허가 = 남은 절차 단계 유무(피로·횟수 아님)"
+  },
+  {
+   "lever": "T2_TERM_GRANT_USERDEMAND",
+   "element": "P5_SETGAP",
+   "status": "유지",
+   "note": "C212/A4 day7 008 회귀: 공식 notice 없이 ###TRANSFER### -> grant 0 -> 미호출 종료"
+  },
+  {
+   "lever": "T2_TOOLERR",
+   "element": "P2_EVENT",
+   "status": "死배선복구",
+   "note": "도구 에러 분류. 런처 0"
+  },
+  {
+   "lever": "T2_TOOLGATE",
+   "element": "P3_NAME",
+   "status": "유지",
+   "note": "_t2_known_tools = 튜플 (a)비트"
+  },
+  {
+   "lever": "T2_TOOLLIST",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "보이는 도구 목록 표면화(다른 피드백 전부 없을 때만) = 배타 체인 종속"
+  },
+  {
+   "lever": "T2_TOOLLIST_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "발화 예산"
+  },
+  {
+   "lever": "T2_TOOL_CHANNEL",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "t2_axis_levers.py:99/104/106 이 give/call/unlock 3리터럴을 판정 술어에 박음(FATAL-1) -> P3 튜플로 소멸"
+  },
+  {
+   "lever": "T2_TOOL_SIGNATURE",
+   "element": "P3_NAME",
+   "status": "근거보강필요",
+   "note": "**원장이 명시적으로 OFF 를 권고한 유일 레버**. C267 [S] 'V7이 금지하는 형태가 DB를 맞춘 경로다 … 승격 금지·다음 런에서 OFF 권고 … DB 축의 대가는 한 번도 재지 않았다' <-> go_stack:132 ON·t7326 44발화/18 deny/도달 5"
+  },
+  {
+   "lever": "T2_TOOL_SIGNATURE_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "발화 예산"
+  },
+  {
+   "lever": "T2_TOOL_SIGNATURE_OBSERVE",
+   "element": "INSTR",
+   "status": "계기재분류",
+   "note": "OFF 여도 술어 평가·로그만 = 상쇄-arm 모집단 실측용"
+  },
+  {
+   "lever": "T2_TRACE",
+   "element": "INSTR",
+   "status": "계기재분류",
+   "note": "레버 비트 trace"
+  },
+  {
+   "lever": "T2_TRACE_LINECAP",
+   "element": "INSTR",
+   "status": "계기재분류",
+   "note": "trace 줄 길이 상한"
+  },
+  {
+   "lever": "T2_TRANSCRIBE",
+   "element": "P4_GROUND",
+   "status": "유지",
+   "note": "엔진은 고치지 않고 어긋난 사실만 말한다(inject 자기일관 0.969@32B)"
+  },
+  {
+   "lever": "T2_TRANSCRIBE_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "발화 예산"
+  },
+  {
+   "lever": "T2_TRANSFER_LEAVES_STEPS",
+   "element": "P5_SETGAP",
+   "status": "통합",
+   "note": "이관이 남기는 미완 단계 1회 표면화"
+  },
+  {
+   "lever": "T2_TRANSFER_PREREQ",
+   "element": "P9_REQUIRE",
+   "status": "死배선복구",
+   "note": "194 sim 중 이관 전 KB_search 0회 = 9건/9 sim [S]. 런처 0"
+  },
+  {
+   "lever": "T2_TRANSFER_TIER",
+   "element": "D_DECL",
+   "status": "선언이설",
+   "note": "엔진 판정은 닫힌 둘(마커 실재·티어 정수 비교)·티어 표는 A2. C520 '도달 != 효과'"
+  },
+  {
+   "lever": "T2_TRUNC_GUARD",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "finish_reason=='length' 는 채널 사실이지 도메인 판정이 아니다"
+  },
+  {
+   "lever": "T2_UNAVAIL_PROMISE",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "C207 3종 중 유일하게 도메인 판정. 레지스트리 차집합"
+  },
+  {
+   "lever": "T2_UNCALLED_UNLOCK",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "(c)∧¬(e). C12 053: gold 16개 중 15 맞추고 남은 하나가 unlock 만 하고 호출 없음"
+  },
+  {
+   "lever": "T2_UNINSTRUCTABLE",
+   "element": "P6_SPEECH",
+   "status": "통합",
+   "note": "012: 실행 불가능한 지시 위에 존재하지 않는 도구명·앱 경로 날조(코퍼스 grep 0건)"
+  },
+  {
+   "lever": "T2_UNKNOWN_NAME_BL",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "채널 수정판 C264 [S] 'gold 차단 sim 2 -> 0'·회귀 8/8. 구판은 task_017 gold give 18회 차단"
+  },
+  {
+   "lever": "T2_UNKNOWN_NAME_BL_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "발화 예산"
+  },
+  {
+   "lever": "T2_UNKNOWN_REPEAT_GUARD",
+   "element": "P8_GOV",
+   "status": "유지",
+   "note": "'무엇이 바뀌었는가'를 보지 '몇 번 했는가'를 보지 않음 = P8 재무장 술어의 기존 구현"
+  },
+  {
+   "lever": "T2_UNKNOWN_UNVERIFIED",
+   "element": "P4_GROUND",
+   "status": "死배선복구",
+   "note": "미검증 항목 unknown 표기(N2 fixture). 런처 0"
+  },
+  {
+   "lever": "T2_UNLOCK_NAME",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "구판은 '이름에 _숫자 없음' 철자 규칙으로 x99 7발 7오발화 => 트리거 교체됨"
+  },
+  {
+   "lever": "T2_UNLOCK_NAME_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "발화 예산"
+  },
+  {
+   "lever": "T2_UNLOCK_PROV",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "미회복 11 중 1건(063 t19). _uv not in _ctx2 and _uv not in _ours2 가 우리 핀을 막던 자리 -> (b)∨(g) 를 같은 튜플에서"
+  },
+  {
+   "lever": "T2_UNLOCK_QUIET",
+   "element": "P3_NAME",
+   "status": "폐기확정",
+   "note": "격리 E_ISO 2/8 · G_ISO_STATE 6/8 < A_FREE 8/8 => 격리가 잘하는 종류가 아니다. 근거가 코드 주석에만 있어 원장 이관 필요"
+  },
+  {
+   "lever": "T2_UNVERIFIED_FOLLOWUP",
+   "element": "P5_SETGAP",
+   "status": "통합",
+   "note": "C214/E1 day8 003: Silver fx_fee 가 premium 조건부라 unverified 인데 재실행 0"
+  },
+  {
+   "lever": "T2_USER_TOOL_NOTE",
+   "element": "P3_NAME",
+   "status": "통합",
+   "note": "018/040: 대화-내 user-tool 실행을 'portal/app 제출'로 오설명 -> 2회 거부 -> 이관 -> gold write 0. FATAL-1 리터럴 1곳"
+  },
+  {
+   "lever": "T2_VALUE_ACQUIRE",
+   "element": "P6_SPEECH",
+   "status": "통합",
+   "note": "C119 [M] n=8 give 커밋 -> 유저 도구 실행 -> 5320 획득"
+  },
+  {
+   "lever": "T2_VALUE_ACQUIRE_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "발화 예산"
+  },
+  {
+   "lever": "T2_VERDICT_CARRY",
+   "element": "P4_GROUND",
+   "status": "근거보강필요",
+   "note": "C515 [M] n=25 A 8 -> B 15(Δ+7)·McNemar p=.092·D_NEG 2 => 사전 고정 바 통과인데 t7326 PIN=0 = [[60]] 위반 실물"
+  },
+  {
+   "lever": "T2_VERDICT_GATE",
+   "element": "P4_GROUND",
+   "status": "실험노브",
+   "note": "VC 의 호출-트리거 판. run_one.sh 주석 'VC 와 VG 를 같이 켜는 팔은 없다 — 같은 판정을 두 번 사면 귀속이 섞인다'"
+  },
+  {
+   "lever": "T2_VERDICT_GATE_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "sim당 상한"
+  },
+  {
+   "lever": "T2_VERDICT_SURFACE",
+   "element": "P5_SETGAP",
+   "status": "통합",
+   "note": "우리 판정이 실재 ∧ 결정 도구 미호출. 051 은 approve/deny 중 하나를 골라야 했고 둘 다 안 불렀다"
+  },
+  {
+   "lever": "T2_VERIFY_DENY_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "검증 지속 예산"
+  },
+  {
+   "lever": "T2_VIEW_ANNOTATE",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "생성-뷰에만 부가(비커밋)"
+  },
+  {
+   "lever": "T2_VIEW_COMPACT",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "생성-뷰만 압축·커밋 히스토리 원문 유지 = replay-safe"
+  },
+  {
+   "lever": "T2_VIEW_COMPACT_KEEP",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "하네스 파라미터"
+  },
+  {
+   "lever": "T2_VIEW_COMPACT_MINLEN",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "하네스 파라미터"
+  },
+  {
+   "lever": "T2_VIEW_COMPACT_MINTOTAL",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "구 120,000 은 사망선 위라 day5 에서 6/32 만 발동"
+  },
+  {
+   "lever": "T2_VIEW_MSG_CAP",
+   "element": "P7_CHANNEL",
+   "status": "유지",
+   "note": "per-메시지 상한"
+  },
+  {
+   "lever": "T2_WEV_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "write-evidence deny 상한 = wd 폴스루 6종의 공유 예산"
+  },
+  {
+   "lever": "T2_WEV_ROUNDS",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "라운드 예산"
+  },
+  {
+   "lever": "T2_WINDOW",
+   "element": "P8_GOV",
+   "status": "계기재분류",
+   "note": "C434 축자 '인쇄이지 레버가 아니다 => 감사 대상 46 -> 8'. 창 판정은 P8 로, 인쇄는 분모에서 제외"
+  },
+  {
+   "lever": "T2_WITHDRAWN_ROW",
+   "element": "P5_SETGAP",
+   "status": "死배선복구",
+   "note": "노브 ON·t7326 0발화(C군). 철회된 행 표면화"
+  },
+  {
+   "lever": "T2_WRITE_ARG_ENUM",
+   "element": "P4_GROUND",
+   "status": "통합",
+   "note": "**ARGDIFF 직격**: en_fb 는 rank 19(최후미)·wev_fb 는 rank 8 로 12칸 격차 [S]. 063 t44 '경합 2 -> resolve_write 승 · 밀림 write_enum' -> 결말 account_type: savings≠checking"
+  },
+  {
+   "lever": "T2_WRITE_ARG_ENUM_CAP",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "발화 예산"
+  },
+  {
+   "lever": "T2_WRITE_ARG_GROUND",
+   "element": "P4_GROUND",
+   "status": "통합",
+   "note": "040 실측: ARG_SCHEMA 는 최상위 키만 봐서 못 잡는 자리. wd 폴스루 2번째"
+  },
+  {
+   "lever": "T2_WRITE_CAP",
+   "element": "P2_EVENT",
+   "status": "死배선복구",
+   "note": "C261 'gated 미설치 => 켜도 발화 불가'. t102형 19x 성공-write 재emit 이 표적"
+  },
+  {
+   "lever": "T2_WRITE_CAP_K",
+   "element": "P8_GOV",
+   "status": "통합",
+   "note": "동일-write 허용 성공 횟수"
+  },
+  {
+   "lever": "T2_WRITE_EVIDENCE",
+   "element": "P4_GROUND",
+   "status": "근거보강필요",
+   "note": "**gold 오차단 최대 기여자 22/56 [S]**·미회복 11 중 5건(040 x4·094 x1). wd 한 변수를 6종이 폴스루로 공유(:7049-7105)"
+  },
+  {
+   "lever": "T2_WRITE_PROV",
+   "element": "P2_EVENT",
+   "status": "통합",
+   "note": "사임 시 write 주장 provenance"
+  },
+  {
+   "lever": "T2_WRITE_SUB",
+   "element": "P4_GROUND",
+   "status": "유지",
+   "note": "라이브 pass 이동 실측 4종 중 하나. C472/C475 [M] 격리 8/8 <-> 근거 제거 0/8·부정통제 2종·비용 89->23. t7326 863발화/도달 172"
+  }
+ ],
+ "total_levers": 274
+}

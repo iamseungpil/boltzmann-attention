@@ -52,6 +52,54 @@ def path_for(tag, suffix="_results.json.gz"):
     return p if os.path.exists(p) else os.path.join(BASE, tag)
 
 
+def all_result_files():
+    """★영속된 결과 파일 **전량**. 명명이 두 가지다 — `.results.json.gz` 와 `_results.json.gz`(밑줄).
+
+    2026-08-19 사고: 임시 스크립트들이 `glob("*.results.json.gz")` 만 써서 **t7273~t7299 전 구간을
+    통째로 놓쳤다**(파일 250 ↔ 실제 419). 그 위에서 낸 이력 수치가 전부 틀렸다
+    (task_073 `1/18` → 실제 `8/58` · task_050 `4/64` → `5/79`).
+    ⇒ 이력·코퍼스 조사는 **반드시 이 함수**를 쓴다. glob 을 직접 쓰지 마라([[67]]).
+    """
+    import glob as _g
+    out = set(_g.glob(os.path.join(BASE, "*results.json.gz")))
+    out |= set(_g.glob(os.path.join(BASE, "*results.json")))
+    return sorted(out, key=lambda p: os.path.getmtime(p))
+
+
+def tag_of_file(path):
+    """결과 파일 경로 → 런 태그(두 명명 모두)."""
+    b = os.path.basename(path)
+    for suf in (".results.json.gz", "_results.json.gz", ".results.json", "_results.json"):
+        if b.endswith(suf):
+            return b[: -len(suf)]
+    return b
+
+
+def iter_all_sims(want_tasks=None):
+    """전 코퍼스 순회 — (tag, sim) 를 yield. `want_tasks` 가 있으면 그 태스크만."""
+    for p in all_result_files():
+        try:
+            raw = (gzip.open(p, "rb").read().decode("utf-8", "replace")
+                   if p.endswith(".gz") else io.open(p, encoding="utf-8").read())
+        except Exception:
+            continue
+        if want_tasks and not any(t in raw for t in want_tasks):
+            continue
+        try:
+            d = json.loads(raw)
+        except Exception:
+            continue
+        if isinstance(d, dict):
+            d = d.get("simulations") or d.get("results") or []
+        if not isinstance(d, list):
+            continue
+        tg = tag_of_file(p)
+        for s in d:
+            if want_tasks and str(s.get("task_id")) not in want_tasks:
+                continue
+            yield tg, s
+
+
 def load(tag, suffix="_results.json.gz"):
     """결과 JSON 을 통째로 반환(gz/평문 자동)."""
     p = path_for(tag, suffix)
@@ -104,9 +152,13 @@ def argsof(tc):
 
 
 def inner_name(args):
-    """래퍼가 감싼 **대상 도구** 이름."""
+    """래퍼가 감싼 **대상 도구** 이름.
+
+    ⚠2026-08-20 계기 수리: `discoverable_tool_name` 이 빠져 있었다. `give_/call_discoverable_user_tool`
+      은 그 키로만 대상을 싣기 때문에 **손님-측 실행의 대상이 통째로 안 보였고**, 그 탓에 017 t1 은
+      `reward=1.0` 인데도 우리 대조가 gold 3건을 MISSING 으로, 같은 실행 5건을 EXTRA 로 셌다."""
     return (args.get("agent_tool_name") or args.get("user_tool_name")
-            or args.get("tool_name") or "")
+            or args.get("discoverable_tool_name") or args.get("tool_name") or "")
 
 
 def label(name, args):
@@ -411,3 +463,157 @@ def by_sim(tag, pattern, sims_=None):
         if m:
             out.setdefault(key, []).append((i, m.group(1) if m.groups() else line.strip()))
     return out
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 채점 단위 = **변이 집합** ([[69]] · C545)
+# ─────────────────────────────────────────────────────────────────────────────
+# DB 채점 태스크의 점수를 만드는 것은 최종 DB 상태뿐이고, 그것을 만드는 것은 **성공한 변이
+# 호출의 집합**이다. read 는 아무리 놓쳐도 해시에 안 남는다. `x416_db_diff.py` 가 이 판정을
+# 스크립트 안에 갖고 있어 import 가 안 됐다 — 사본이 갈라지기 전에 정본으로 올린다([[67]]).
+#
+# 변이 여부는 `a2/env_surface.json` 의 `mutates` 플래그(환경 선언·축자)로만 본다([[59]]).
+# 실패한 호출을 성공으로 세지 않기 위해 도구-결과 본문의 거절 표지를 본다. 그 표지가
+# **우리 것인지 환경 것인지**를 함께 돌려준다 — 우리 게이트가 막은 변이는 모델 결손이 아니다([[55]]).
+
+# 거절 판정은 **누가 그 문장을 썼는가**로 가른다(축자 확인 2026-08-20):
+#   · 환경 = 도구-결과가 `Error:` 로 **시작**한다(tau2 규약). 본문 중간의 "Error:" 는 KB 문서 인용이다
+#     (실측 16건 전부 검색 결과). "Invalid"·"cannot be" 는 성공 응답 본문에도 흔하다(217·79건) —
+#     substring 으로 세면 성공한 write 를 막힌 것으로 오분류한다.
+#   · 우리 = `[READ-FIRST]`(t2_scaffold_get requires_reads) · `NOT_VERIFIED`(신원 게이트). 둘 다 env
+#     소스에 없음을 확인했다(`tau2-bench/src` grep 0). "has not been given to you by the agent" 는
+#     반대로 **환경 것**이다(`domains/banking_knowledge/tools.py`) — 우리 것으로 세면 안 된다.
+OURS_DENY = ("[READ-FIRST]", "NOT_VERIFIED")
+
+# 래퍼 4종의 역할 분리: 부여(grant)는 DB 를 안 바꾸고, 실행(call)만 바꾼다.
+GRANTS = (UNLOCK, GIVE)
+EXECS = (CALLA, CALLU)
+
+
+def mutating_tools(domain="banking_knowledge"):
+    """`mutates=True` 로 **환경이 선언한** 도구 이름 집합."""
+    p = os.path.join(HERE, "a2", "env_surface.json")
+    with io.open(p, encoding="utf-8") as f:
+        d = json.load(f)
+    return {k for k, v in (d[domain]["tools"]).items() if v.get("mutates")}
+
+
+def flat_args(a):
+    """래퍼 중첩(`arguments` 안의 `arguments`·JSON 문자열)을 풀어 **대상 도구의 인자**만 남긴다."""
+    a = norm_args(a)
+    if isinstance(a, dict) and isinstance(a.get("arguments"), dict):
+        a = a["arguments"]
+    if isinstance(a, dict) and isinstance(a.get("arguments"), str):
+        try:
+            a = json.loads(a["arguments"])
+        except Exception:
+            pass
+    return a if isinstance(a, dict) else {}
+
+
+def mut_key(name, args):
+    """변이 하나의 동일성 = 이름 + 인자(문자열 접기)."""
+    return name + "|" + json.dumps({k: str(v) for k, v in sorted(args.items())}, ensure_ascii=False)
+
+
+def deny_kind(body):
+    """도구-결과 본문이 거절인가 · 누가 거절했나 → ('', None) | ('ours'|'env', 표지)."""
+    b = body.lstrip()
+    for p in OURS_DENY:
+        if p in b:
+            return "ours", p
+    if b.startswith("Error:"):
+        return "env", b[:60]
+    return "", None
+
+
+def gold_mutations(sim, mut=None):
+    """gold 채점표가 요구하는 **변이** 행만(read gold 는 점수와 무관하므로 뺀다)."""
+    mut = mutating_tools() if mut is None else mut
+    out, seen = [], set()
+    for ck in ((sim.get("reward_info") or {}).get("action_checks") or []):
+        a = ck.get("action") or {}
+        ar = a.get("arguments") or {}
+        outer = str(a.get("name") or "")
+        if outer in GRANTS:
+            continue                      # 부여는 DB 를 안 바꾼다 — 변이로 세면 gold 가 부풀고
+        nm = str(inner_name(ar) or outer or "?")   #   같은 실행이 MISSING+EXTRA 로 두 번 찍힌다
+        if nm not in mut:
+            continue
+        inner = ar.get("arguments", None)
+        args = flat_args(ar if inner is None else inner)
+        if not args:
+            continue
+        k = mut_key(nm, args)
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append({"name": nm, "args": args, "match": bool(ck.get("action_match")),
+                    "aid": str(a.get("action_id") or ""), "key": k})
+    return out
+
+
+def attempted_mutations(sim, mut=None):
+    """궤적이 **시도한** 변이 호출 전부 — 거절된 것까지 포함해 돌려준다.
+
+    `ok=True` 만이 DB 를 바꾼 것이고, `ok=False` 는 *시도했으나 막힘*이다. 그 구분이 없으면
+    "안 했다(MISSING)" 와 "막혔다" 가 한 칸에 뭉쳐 원인이 사라진다.
+    """
+    mut = mutating_tools() if mut is None else mut
+    res = {m["id"]: " ".join(str(m.get("content") or "").split())
+           for m in (sim.get("messages") or []) if m.get("role") == "tool" and m.get("id")}
+    msgs = sim.get("messages") or []
+    idx = {id(m): i for i, m in enumerate(msgs)}
+    out = []
+    for m, tc in calls(sim):
+        a = argsof(tc)
+        nm = str(inner_name(a) or nameof(tc))
+        if nm not in mut:
+            continue
+        if str(nameof(tc)) in GRANTS:
+            continue                      # unlock·give 는 부여일 뿐 DB 를 안 바꾼다
+        args = flat_args(a)
+        if not args:
+            continue
+        body = res.get(tc.get("id"), "")
+        kind, marker = deny_kind(body)
+        out.append({"name": nm, "args": args, "key": mut_key(nm, args),
+                    "msg_i": idx.get(id(m)), "ok": not kind, "deny": kind,
+                    "marker": marker, "result": body[:300]})
+    return out
+
+
+def mutation_diff(sim, mut=None):
+    """gold 변이 집합 ↔ 성공한 변이 집합 → MISSING · WRONGARG · EXTRA · MATCHED · BLOCKED.
+
+    · MISSING  gold 변이인데 **성공한 같은 호출이 없다**
+    · WRONGARG 같은 도구를 성공시켰는데 인자가 gold 와 다르다
+    · EXTRA    gold 에 없는 도구를 성공시켰다 (050 의 승인 중복이 이 칸이다)
+    · BLOCKED  시도했으나 거절당한 변이 (누가 거절했는지 `deny` 에 남는다)
+    """
+    mut = mutating_tools() if mut is None else mut
+    gold = gold_mutations(sim, mut)
+    tried = attempted_mutations(sim, mut)
+    done = [t for t in tried if t["ok"]]
+    blocked = [t for t in tried if not t["ok"]]
+    gkeys = {g["key"] for g in gold}
+    dkeys = {d["key"] for d in done}
+    gnames = {g["name"] for g in gold}
+    missing = [g for g in gold if g["key"] not in dkeys]
+    wrong = [d for d in done if d["key"] not in gkeys and d["name"] in gnames]
+    extra = [d for d in done if d["key"] not in gkeys and d["name"] not in gnames]
+    matched = [d for d in done if d["key"] in gkeys]
+    # ★중복(DUP) — 집합으로 세면 사라지는 실패다. 050 은 `approve_credit_limit_increase` 를
+    #   **두 번** 성공시켜 DB 가 어긋났는데, 두 번째 호출의 key 는 gold 안에 있으므로 EXTRA 도
+    #   WRONGARG 도 아니다. 배수를 세지 않으면 그 sim 은 "변이 집합 일치"로 보인다(실측 3 sim).
+    gcnt = collections.Counter(g["key"] for g in gold)
+    dup = []
+    seen = collections.Counter()
+    for d in done:
+        seen[d["key"]] += 1
+        if seen[d["key"]] > gcnt.get(d["key"], 0):
+            dup.append(d)
+    dup = [d for d in dup if d["key"] in gkeys]
+    return {"gold": gold, "done": done, "blocked": blocked, "missing": missing,
+            "wrongarg": wrong, "extra": extra, "matched": matched, "dup": dup,
+            "clean": not (missing or wrong or extra or dup)}

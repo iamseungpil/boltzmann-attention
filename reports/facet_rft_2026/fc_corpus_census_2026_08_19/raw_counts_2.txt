@@ -1,0 +1,43 @@
+========================================================================
+glaive-function-calling-v2  n= 600
+  user-turn Q    (숫자/따옴표/대문자코드 포함=Q): tool_call 0.458 | text 0.542 | n=277
+  user-turn noQ  (숫자/따옴표/대문자코드 포함=Q): tool_call 0.254 | text 0.746 | n=323
+  first-assistant TEXT breakdown (n=391): direct_answer 0.540 | refusal 0.251 | contains_question 0.210
+     fmt a (n=113): refusal 0.018 | clarify_question 0.000 | contains_question 0.035 | direct_answer 0.947
+     fmt b (n=31): refusal 0.000 | clarify_question 0.000 | contains_question 0.065 | direct_answer 0.935
+     fmt c (n=247): refusal 0.389 | clarify_question 0.000 | contains_question 0.308 | direct_answer 0.304
+========================================================================
+hermes :: glaive_func_calling  n= 500
+  user-turn Q    (숫자/따옴표/대문자코드 포함=Q): tool_call 0.814 | text 0.186 | n=215
+  user-turn noQ  (숫자/따옴표/대문자코드 포함=Q): tool_call 0.733 | text 0.267 | n=285
+  first-assistant TEXT breakdown (n=116): direct_answer 0.509 | clarify_question 0.414 | contains_question 0.043 | refusal 0.034
+     fmt a (n=40): refusal 0.025 | clarify_question 0.000 | contains_question 0.050 | direct_answer 0.925
+     fmt b (n=8): refusal 0.125 | clarify_question 0.000 | contains_question 0.125 | direct_answer 0.750
+     fmt c (n=68): refusal 0.029 | clarify_question 0.706 | contains_question 0.029 | direct_answer 0.235
+========================================================================
+hermes :: func_calling  n= 500
+  user-turn Q    (숫자/따옴표/대문자코드 포함=Q): tool_call 0.998 | text 0.002 | n=496
+  user-turn noQ  (숫자/따옴표/대문자코드 포함=Q): tool_call 1.000 | text 0.000 | n=4
+  first-assistant TEXT breakdown (n=1): direct_answer 1.000
+     fmt b (n=1): refusal 0.000 | clarify_question 0.000 | contains_question 0.000 | direct_answer 1.000
+
+
+########## GLAIVE fmt=a (>25w prose) -> TEXT examples ##########
+---- USER: Hi, I need to calculate my monthly loan payment. I have a loan of $50000 with an annual interest rate of 5% and a loan term of 10 years. Can you help me with that?
+---- ASSISTANT: Of course, I can help you with that. Let me calculate it for you. <|endoftext|>
+---- USER: You are given a sequence of numbers: 2, 4, 6, 8, 10. Each number represents a moment in time, just like the waves in the ocean. As you continue the sequence, you notice that the difference between each number remains the same. Just like how the winds and currents shape the waves in the ocean, something is shaping the sequence of numbers. What is the next number in the sequence and what does it represent in relation to time?
+---- ASSISTANT: Based on the pattern described, the next number in the sequence would be 12. This represents a moment in time that is two units of time after the previous moment represented by the number 10. The pattern suggests that each subsequent number in the sequence will be two units of time after the previous number. So, the next number after 12 would be 14, then 16, and so on. This pattern is known as an 
+---- USER: What could be the potential cause of a loud knocking sound and engine slowdown in a 2010 Toyota Camry with a 4-cylinder engine, given the following diagnostic trouble codes retrieved by the OBD-II scanner: P0325, P0300, P0301, P0302, P0303, P0304? Can you provide a step-by-step solution that involves inspecting and replacing any worn or damaged spark plugs, faulty ignition coils, clogged or malfunctioning fuel injectors, and checking and replacing the knock sensor if necessary, utilizing Scala code with necessary libraries and defined variables? / Here is a sample Scala code that diagnoses and fixes the issue: / import scala.io.StdIn.readLine / object EngineDiagnosis { /  def main(args: Array[String
+---- ASSISTANT: Based on the diagnostic trouble codes retrieved by the OBD-II scanner, the potential cause of the loud knocking sound and engine slowdown in the 2010 Toyota Camry could be related to a faulty knock sensor or worn/damaged spark plugs and ignition coils. Here is a step-by-step solution that involves inspecting and replacing any worn or damaged spark plugs, faulty ignition coils, clogged or malfuncti
+---- USER: What are some practical tips and guidance we can provide in an excel table format to motivate individuals to make healthy food choices and empower them to cook nutritious meals from scratch? The table should include information about the benefits of fresh ingredients, herbs, and spices, as well as emphasize the role of planning and preparation in achieving a healthy diet. Additionally, what code can we use to create the excel table? Let's strive for a program that not only teaches cooking skills but also inspires individuals to take control of their health and lead a healthier lifestyle.
+---- ASSISTANT: Sure, I can help you with that. Here's an excel table that includes practical tips and guidance to motivate individuals to make healthy food choices and empower them to cook nutritious meals from scratch: / | Tips and Guidance | Benefits | / | --- | --- | / | Choose fresh ingredients | Fresh ingredients are packed with nutrients and have a better taste | / | Use herbs and spices | Herbs and spices add fla
+
+########## GLAIVE fmt=a -> TOOL_CALL examples ##########
+---- USER: I saw a jacket I liked in a store. It was priced at $100 but there's a 20% discount. Can you tell me how much it will cost after the discount?
+---- ASSISTANT: <functioncall> {"name": "calculate_discount", "arguments": '{"original_price": 100, "discount_percentage": 20}'} <|endoftext|>
+---- USER: I saw a dress in a shop for $200 and they are offering a 20% discount. Can you tell me how much I will have to pay after the discount?
+---- ASSISTANT: <functioncall> {"name": "calculate_discount", "arguments": '{"original_price": 200, "discount_percentage": 20}'} <|endoftext|>
+---- USER: Hi, I need to calculate the fuel consumption for my car. I have traveled 500 kilometers and my car's fuel efficiency is 20 kilometers per liter. Can you help me with that?
+---- ASSISTANT: <functioncall> {"name": "calculate_fuel_consumption", "arguments": '{"distance": 500, "fuel_efficiency": 20}'} <|endoftext|>
+
+hermes func_calling ids=500, singleturn ids=500, overlap=200

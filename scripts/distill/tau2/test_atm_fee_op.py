@@ -129,7 +129,14 @@ _dtot = round(sum(d2["delta"] for d2 in det), 2)
 _txt = (E or {}).get("return_template", "").format(
     ids=", ".join(ids), delta_total=_dtot,
     details="; ".join((E or {}).get("detail_item_template", "").format(**d2) for d2 in det))
-chk("net 렌더", "= $2.50" in _txt and "net correction" in _txt, _txt[:160])
+# ★2026-08-19 회귀 검정으로 반전 — 엔진이 **채점되는 값**(계좌별 net = gold `amount`)을
+#   문면으로 건네면 formalize→calc 아키텍처가 아니라 그 위조판을 재게 된다([[62]]·[[03b]]).
+#   남겨야 하는 것: 정책 축자 문구(net correction)와 라인별 중간 사실({details}).
+#   없어야 하는 것: 합계 수치 자체.
+chk("REG: 정책 문구 유지", "net correction" in _txt, _txt[:160])
+chk("REG: 라인별 사실 유지", "difference $2.50" in _txt, _txt[:200])
+chk("REG: 엔진이 net 수치를 안 건넨다", "= $2.50" not in _txt and "delta_total" not in
+    (E or {}).get("return_template", ""), _txt[:200])
 
 # ⑷ 3사본 동일
 E2 = load_entry("a2/banking_knowledge.gate.json")

@@ -1,0 +1,21 @@
+========================================================================
+glaive-function-calling-v2  n_conv= 600
+  tools offered per sample: median=1 p90=2 max=4
+  tool_call turns: n=441 ; turn-index median=2 p90=5 ; at index0 (=first reply) 0.000
+  text turns:      n=1406 ; turn-index median=3 p90=9
+  context words BEFORE turn:  tool_call median=111 p90=176 | text median=140 p90=459
+  # of prior PROSE assistant turns before a tool_call: 0:0.474 | 1:0.506 | 2:0.016 | >=3:0.005
+========================================================================
+hermes :: glaive_func_calling  n_conv= 500
+  tools offered per sample: median=0 p90=0 max=0
+  tool_call turns: n=745 ; turn-index median=1 p90=5 ; at index0 (=first reply) 0.000
+  text turns:      n=1199 ; turn-index median=5 p90=9
+  context words BEFORE turn:  tool_call median=202 p90=267 | text median=239 p90=360
+  # of prior PROSE assistant turns before a tool_call: 0:0.515 | 1:0.464 | 2:0.020
+========================================================================
+hermes :: func_calling  n_conv= 500
+  tools offered per sample: median=0 p90=0 max=0
+  tool_call turns: n=499 ; turn-index median=1 p90=1 ; at index0 (=first reply) 0.000
+  text turns:      n=264 ; turn-index median=3 p90=3
+  context words BEFORE turn:  tool_call median=486 p90=2398 | text median=536 p90=712
+  # of prior PROSE assistant turns before a tool_call: 0:1.000

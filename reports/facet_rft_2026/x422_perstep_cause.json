@@ -1,0 +1,4639 @@
+{
+ "t7326|task_003|t0": {
+  "run": "t7326",
+  "task": "task_003",
+  "trial": 0,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_003#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 8,
+  "gold_n": 1,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "apply_for_credit_card",
+    "onset": 4,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "card_type": "Silver Rewards Card",
+     "customer_name": "Catherine Wells",
+     "annual_income": "180000",
+     "rho_bank_subscription": true
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_for_credit_card",
+    "onset": 5,
+    "detail": "card_type: gold=Silver Rewards Card ours=Platinum Rewards Card [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 55,
+  "fb_n": 4
+ },
+ "t7326|task_004|t0": {
+  "run": "t7326",
+  "task": "task_004",
+  "trial": 0,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_004#s626729",
+  "reward": 0.0,
+  "basis": [
+   "ACTION"
+  ],
+  "term": "user_stop",
+  "n_msgs": 29,
+  "gold_n": 0,
+  "done_n": 0,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 170,
+  "fb_n": 21
+ },
+ "t7326|task_017|t0": {
+  "run": "t7326",
+  "task": "task_017",
+  "trial": 0,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_017#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 85,
+  "gold_n": 3,
+  "done_n": 3,
+  "blocked_n": 11,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "submit_cash_back_dispute_0589",
+    "onset": 43,
+    "detail": "Error: Missing required parameter: user_id",
+    "gold_args": {
+     "user_id": "6680a37184",
+     "transaction_id": "txn_cfabb609133d"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "submit_cash_back_dispute_0589",
+    "onset": 43,
+    "detail": "Error: Missing required parameter: user_id",
+    "gold_args": {
+     "user_id": "6680a37184",
+     "transaction_id": "txn_913d14a20dc5"
+    }
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "update_transaction_rewards_3847",
+    "onset": 70,
+    "detail": "{\"transaction_id\": \"txn_913d14a20dc5\", \"new_rewards_earned\": \"156 points\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "update_transaction_rewards_3847",
+    "onset": 70,
+    "detail": "{\"transaction_id\": \"txn_cfabb609133d\", \"new_rewards_earned\": \"87 points\"}",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 548,
+  "fb_n": 118
+ },
+ "t7326|task_024|t0": {
+  "run": "t7326",
+  "task": "task_024",
+  "trial": 0,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_024#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 20,
+  "gold_n": 1,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "apply_for_credit_card",
+    "onset": 4,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "card_type": "Business Bronze Rewards Card",
+     "customer_name": "Marcus Chen",
+     "annual_income": "120000",
+     "rho_bank_subscription": false
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_for_credit_card",
+    "onset": 17,
+    "detail": "card_type: gold=Business Bronze Rewards Card ours=Business Platinum Rewards Card [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 171,
+  "fb_n": 20
+ },
+ "t7326|task_055|t0": {
+  "run": "t7326",
+  "task": "task_055",
+  "trial": 0,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_055#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 60,
+  "gold_n": 4,
+  "done_n": 6,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "open_bank_account_4821",
+    "onset": 30,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "user_id": "224959b99e",
+     "account_type": "checking",
+     "account_class": "Purple Account"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "open_bank_account_4821",
+    "onset": 30,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "user_id": "224959b99e",
+     "account_type": "savings",
+     "account_class": "Silver Plus Account"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "deposit_check_3847",
+    "onset": 58,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "7e48bf3b0589cfad",
+     "check_amount": "1500"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 30,
+    "detail": "account_class: gold=Purple Account ours=Green Fee-Free Account [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 42,
+    "detail": "account_class: gold=Purple Account ours=Gold Account [tool-result] · account_type: gold=checking ours=savings [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 46,
+    "detail": "account_class: gold=Purple Account ours=Green Fee-Free Account [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 46,
+    "detail": "account_class: gold=Purple Account ours=Gold Account [tool-result] · account_type: gold=checking ours=savings [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 46,
+    "detail": "{\"name\": \"Yuki Nakamura\", \"user_id\": \"224959b99e\", \"address\": \"3421 Sakura Avenue, Portland, OR 97205\", \"email",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 366,
+  "fb_n": 40
+ },
+ "t7326|task_072|t0": {
+  "run": "t7326",
+  "task": "task_072",
+  "trial": 0,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_072#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 45,
+  "gold_n": 3,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 43,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_lj82d4f1a9",
+     "amount": "14",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 43,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_538bfb9cba",
+     "amount": "3.5",
+     "credit_type": "fee_refund"
+    }
+   }
+  ],
+  "trace_n": 305,
+  "fb_n": 64
+ },
+ "t7326|task_073|t0": {
+  "run": "t7326",
+  "task": "task_073",
+  "trial": 0,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_073#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 60,
+  "gold_n": 4,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 58,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_kj93a7b2e1_1",
+     "amount": "9.5",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 58,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_kj93a7b2e1_2",
+     "amount": "9",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 58,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_kj93a7b2e1_3",
+     "amount": "1.5",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 28,
+    "detail": "{\"name\": \"Kim Junho\", \"user_id\": \"kj93a7b2e1\", \"address\": \"5847 Wilshire Boulevard, Los Angeles, CA 90036\", \"e",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 446,
+  "fb_n": 91
+ },
+ "t7326|task_093|t0": {
+  "run": "t7326",
+  "task": "task_093",
+  "trial": 0,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_093#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 75,
+  "gold_n": 3,
+  "done_n": 4,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 67,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "account_id": "sav_sp93k4m7n2_silver",
+     "amount": "33",
+     "credit_type": "interest_correction"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 39,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "account_id": "sav_sp93k4m7n2_silver",
+     "user_id": "sp93k4m7n2",
+     "expected_apy": "4.275",
+     "actual_apy": "4",
+     "amount_difference": "33"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 39,
+    "detail": "actual_apy: gold=4 ours=3.33 [NOWHERE] · amount_difference: gold=33 ours=-126 [NOWHERE] · expected_apy: gold=4.275 ours=2.95 [self-said]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 55,
+    "detail": "actual_apy: gold=4 ours=3.33 [tool-result] · amount_difference: gold=33 ours=-45.6 [self-said] · expected_apy: gold=4.275 ours=2.95 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 71,
+    "detail": "amount: gold=33 ours=45.6 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 459,
+  "fb_n": 108
+ },
+ "t7326|task_094|t0": {
+  "run": "t7326",
+  "task": "task_094",
+  "trial": 0,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_094#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 68,
+  "gold_n": 3,
+  "done_n": 3,
+  "blocked_n": 1,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 66,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "sav_wl94k7m3p8_gold",
+     "amount": "140",
+     "credit_type": "interest_correction"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 28,
+    "detail": "Error: Account 'wl94k7m3p8' not found.",
+    "gold_args": {
+     "account_id": "sav_wl94k7m3p8_gold",
+     "user_id": "wl94k7m3p8",
+     "expected_apy": "6.85",
+     "actual_apy": "5.1",
+     "amount_difference": "140"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 57,
+    "detail": "actual_apy: gold=5.1 ours=5 [tool-result] · amount_difference: gold=140 ours=120 [tool-result] · expected_apy: gold=6.85 ours=6.5 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 63,
+    "detail": "amount: gold=140 ours=120 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 416,
+  "fb_n": 56
+ },
+ "t7326|task_100|t0": {
+  "run": "t7326",
+  "task": "task_100",
+  "trial": 0,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_100#s626729",
+  "reward": 1.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 36,
+  "gold_n": 2,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 272,
+  "fb_n": 27
+ },
+ "t7326|task_003|t1": {
+  "run": "t7326",
+  "task": "task_003",
+  "trial": 1,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_003#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 34,
+  "gold_n": 1,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "apply_for_credit_card",
+    "onset": 4,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "card_type": "Silver Rewards Card",
+     "customer_name": "Catherine Wells",
+     "annual_income": "180000",
+     "rho_bank_subscription": true
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_for_credit_card",
+    "onset": 31,
+    "detail": "card_type: gold=Silver Rewards Card ours=Platinum Rewards Card [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 200,
+  "fb_n": 32
+ },
+ "t7326|task_004|t1": {
+  "run": "t7326",
+  "task": "task_004",
+  "trial": 1,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_004#s373753",
+  "reward": 0.0,
+  "basis": [
+   "ACTION"
+  ],
+  "term": "user_stop",
+  "n_msgs": 26,
+  "gold_n": 0,
+  "done_n": 0,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 160,
+  "fb_n": 20
+ },
+ "t7326|task_017|t1": {
+  "run": "t7326",
+  "task": "task_017",
+  "trial": 1,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_017#s373753",
+  "reward": 1.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 62,
+  "gold_n": 3,
+  "done_n": 3,
+  "blocked_n": 4,
+  "rows": [],
+  "trace_n": 377,
+  "fb_n": 91
+ },
+ "t7326|task_024|t1": {
+  "run": "t7326",
+  "task": "task_024",
+  "trial": 1,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_024#s373753",
+  "reward": 1.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 14,
+  "gold_n": 1,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 116,
+  "fb_n": 9
+ },
+ "t7326|task_055|t1": {
+  "run": "t7326",
+  "task": "task_055",
+  "trial": 1,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_055#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 66,
+  "gold_n": 4,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "open_bank_account_4821",
+    "onset": 64,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "user_id": "224959b99e",
+     "account_type": "checking",
+     "account_class": "Purple Account"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "open_bank_account_4821",
+    "onset": 64,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "user_id": "224959b99e",
+     "account_type": "savings",
+     "account_class": "Silver Plus Account"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "deposit_check_3847",
+    "onset": 64,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "7e48bf3b0589cfad",
+     "check_amount": "1500"
+    }
+   }
+  ],
+  "trace_n": 334,
+  "fb_n": 68
+ },
+ "t7326|task_072|t1": {
+  "run": "t7326",
+  "task": "task_072",
+  "trial": 1,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_072#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 42,
+  "gold_n": 3,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 40,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_lj82d4f1a9",
+     "amount": "14",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 40,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_538bfb9cba",
+     "amount": "3.5",
+     "credit_type": "fee_refund"
+    }
+   }
+  ],
+  "trace_n": 279,
+  "fb_n": 59
+ },
+ "t7326|task_073|t1": {
+  "run": "t7326",
+  "task": "task_073",
+  "trial": 1,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_073#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 58,
+  "gold_n": 4,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 56,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_kj93a7b2e1_1",
+     "amount": "9.5",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 56,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_kj93a7b2e1_2",
+     "amount": "9",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 56,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_kj93a7b2e1_3",
+     "amount": "1.5",
+     "credit_type": "fee_refund"
+    }
+   }
+  ],
+  "trace_n": 407,
+  "fb_n": 91
+ },
+ "t7326|task_093|t1": {
+  "run": "t7326",
+  "task": "task_093",
+  "trial": 1,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_093#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 102,
+  "gold_n": 3,
+  "done_n": 3,
+  "blocked_n": 4,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 100,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "sav_sp93k4m7n2_silver",
+     "amount": "33",
+     "credit_type": "interest_correction"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 70,
+    "detail": "Error: Invalid arguments: KnowledgeTools.submit_interest_dis",
+    "gold_args": {
+     "account_id": "sav_sp93k4m7n2_silver",
+     "user_id": "sp93k4m7n2",
+     "expected_apy": "4.275",
+     "actual_apy": "4",
+     "amount_difference": "33"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 92,
+    "detail": "actual_apy: gold=4 ours=2.5 [tool-result] · amount_difference: gold=33 ours=30 [tool-result] · expected_apy: gold=4.275 ours=2.75 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 98,
+    "detail": "amount: gold=33 ours=30 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 543,
+  "fb_n": 74
+ },
+ "t7326|task_094|t1": {
+  "run": "t7326",
+  "task": "task_094",
+  "trial": 1,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_094#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 78,
+  "gold_n": 3,
+  "done_n": 3,
+  "blocked_n": 5,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 44,
+    "detail": "Error: Account 'wl94k7m3p8' not found.",
+    "gold_args": {
+     "account_id": "sav_wl94k7m3p8_gold",
+     "amount": "140",
+     "credit_type": "interest_correction"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 46,
+    "detail": "Error: Account 'wl94k7m3p8' not found.",
+    "gold_args": {
+     "account_id": "sav_wl94k7m3p8_gold",
+     "user_id": "wl94k7m3p8",
+     "expected_apy": "6.85",
+     "actual_apy": "5.1",
+     "amount_difference": "140"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 68,
+    "detail": "amount_difference: gold=140 ours=92 [tool-result] · expected_apy: gold=6.85 ours=6.25 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 74,
+    "detail": "amount: gold=140 ours=112 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 376,
+  "fb_n": 59
+ },
+ "t7326|task_100|t1": {
+  "run": "t7326",
+  "task": "task_100",
+  "trial": 1,
+  "tag": "bank_t7326_halfA_20260819q",
+  "simtag": "task_100#s373753",
+  "reward": 1.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 30,
+  "gold_n": 2,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 225,
+  "fb_n": 26
+ },
+ "t7326|task_016|t0": {
+  "run": "t7326",
+  "task": "task_016",
+  "trial": 0,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_016#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 52,
+  "gold_n": 2,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "submit_transaction",
+    "onset": 50,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "user_id": "friend_user_5839",
+     "credit_card_type": "Silver Rewards Card",
+     "merchant_name": "Best Buy",
+     "amount": "750",
+     "category": "Shopping"
+    }
+   }
+  ],
+  "trace_n": 396,
+  "fb_n": 49
+ },
+ "t7326|task_033|t0": {
+  "run": "t7326",
+  "task": "task_033",
+  "trial": 0,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_033#s626729",
+  "reward": 0.0,
+  "basis": [
+   "ACTION"
+  ],
+  "term": "user_stop",
+  "n_msgs": 20,
+  "gold_n": 0,
+  "done_n": 0,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 121,
+  "fb_n": 28
+ },
+ "t7326|task_040|t0": {
+  "run": "t7326",
+  "task": "task_040",
+  "trial": 0,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_040#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 52,
+  "gold_n": 9,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 22,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "transaction_id": "txn_25e23705f61f",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/26/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "duplicate_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": true
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 22,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "transaction_id": "txn_fd4c3871654e",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": false,
+     "purchase_date": "10/19/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "unauthorized_fraudulent_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": true
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 22,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e503",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": false,
+     "purchase_date": "10/10/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "unauthorized_fraudulent_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 22,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e510",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/28/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "duplicate_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 22,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e508",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/22/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "incorrect_amount",
+     "resolution_requested": "partial_refund",
+     "partial_refund_amount": "24.56",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 22,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e513",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "11/05/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "canceled_subscription_still_charging",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 22,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "transaction_id": "txn_bc21d98cc4e4",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/20/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "goods_services_not_as_described",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 22,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "transaction_id": "txn_3ef1a3e9bf56",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/30/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "refund_never_processed",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   }
+  ],
+  "trace_n": 365,
+  "fb_n": 83
+ },
+ "t7326|task_050|t0": {
+  "run": "t7326",
+  "task": "task_050",
+  "trial": 0,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_050#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 60,
+  "gold_n": 3,
+  "done_n": 4,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "approve_credit_limit_increase_5847",
+    "onset": 56,
+    "detail": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\", \"user_id\": \"584f9c5d00\", \"new_credit_limit\": \"7500\"}",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 265,
+  "fb_n": 22
+ },
+ "t7326|task_057|t0": {
+  "run": "t7326",
+  "task": "task_057",
+  "trial": 0,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_057#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 142,
+  "gold_n": 3,
+  "done_n": 2,
+  "blocked_n": 21,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "deposit_check_3847",
+    "onset": 140,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "ac554054181e71ad",
+     "check_amount": "2000"
+    }
+   }
+  ],
+  "trace_n": 473,
+  "fb_n": 57
+ },
+ "t7326|task_063|t0": {
+  "run": "t7326",
+  "task": "task_063",
+  "trial": 0,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_063#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 70,
+  "gold_n": 3,
+  "done_n": 3,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_for_credit_card",
+    "onset": 68,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "card_type": "Silver Rewards Card",
+     "customer_name": "Taylor Brooks",
+     "annual_income": "85000",
+     "rho_bank_subscription": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "open_bank_account_4821",
+    "onset": 48,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "user_id": "tb58a3c9d2",
+     "account_type": "savings",
+     "account_class": "Silver Plus Account"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_for_credit_card",
+    "onset": 11,
+    "detail": "card_type: gold=Silver Rewards Card ours=Bronze Rewards Card [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 48,
+    "detail": "account_class: gold=Silver Plus Account ours=Gold Account [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 435,
+  "fb_n": 85
+ },
+ "t7326|task_074|t0": {
+  "run": "t7326",
+  "task": "task_074",
+  "trial": 0,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_074#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 75,
+  "gold_n": 5,
+  "done_n": 5,
+  "blocked_n": 4,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 49,
+    "detail": "Error: Account 'Purple Account' not found.",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_1",
+     "amount": "27",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 49,
+    "detail": "Error: Account 'Purple Account' not found.",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_2",
+     "amount": "14.5",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 49,
+    "detail": "Error: Account 'Purple Account' not found.",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_3",
+     "amount": "4.75",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 49,
+    "detail": "Error: Account 'Purple Account' not found.",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_4",
+     "amount": "3.7",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 68,
+    "detail": "amount: gold=27 ours=1 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 68,
+    "detail": "account_id: gold=chk_ar72c5d8e3_1 ours=chk_ar72c5d8e3_2 [tool-result] · amount: gold=27 ours=2.5 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 68,
+    "detail": "account_id: gold=chk_ar72c5d8e3_1 ours=chk_ar72c5d8e3_3 [tool-result] · amount: gold=27 ours=1.25 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 68,
+    "detail": "account_id: gold=chk_ar72c5d8e3_1 ours=chk_ar72c5d8e3_4 [tool-result] · amount: gold=27 ours=1.5 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 353,
+  "fb_n": 49
+ },
+ "t7326|task_079|t0": {
+  "run": "t7326",
+  "task": "task_079",
+  "trial": 0,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_079#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 124,
+  "gold_n": 12,
+  "done_n": 14,
+  "blocked_n": 9,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "order_debit_card_5739",
+    "onset": 96,
+    "detail": "Error: There is already a pending debit card order for accou",
+    "gold_args": {
+     "account_id": "chk_cr89a2b3c4_1",
+     "user_id": "cr89a2b3c4",
+     "delivery_option": "RUSH",
+     "delivery_fee": "35",
+     "card_design": "PREMIUM",
+     "design_fee": "0",
+     "shipping_address": "4521 West 6th Street, Austin, TX 78703"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "order_debit_card_5739",
+    "onset": 82,
+    "detail": "card_design: gold=PREMIUM ours=CLASSIC [tool-result] · delivery_fee: gold=35 ours=0 [tool-result] · delivery_option: gold=RUSH ours=STANDARD [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "order_debit_card_5739",
+    "onset": 82,
+    "detail": "account_id: gold=chk_cr89a2b3c4_1 ours=chk_cr89a2b3c4_2 [tool-result] · card_design: gold=PREMIUM ours=CLASSIC [tool-result] · delivery_fee: gold=35 ours=0 [tool-result] · delivery_option: gold=RUSH ours=STANDARD [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "close_debit_card_4721",
+    "onset": 102,
+    "detail": "card_id: gold=dbc_cr89a2b3c4_ev ours=dbc_ccd754fff558 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 474,
+  "fb_n": 98
+ },
+ "t7326|task_085|t0": {
+  "run": "t7326",
+  "task": "task_085",
+  "trial": 0,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_085#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 70,
+  "gold_n": 4,
+  "done_n": 4,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 68,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "transaction_id": "btxn_a1b2c3d4e501",
+     "account_id": "chk_b4d92f7c28",
+     "card_id": "dbc_c4a72d9f66",
+     "user_id": "f7d3a82c91",
+     "dispute_category": "atm_cash_discrepancy",
+     "transaction_date": "11/05/2025",
+     "discovery_date": "11/05/2025",
+     "disputed_amount": "100",
+     "transaction_type": "atm_withdrawal",
+     "card_in_possession": true,
+     "pin_compromised": "no",
+     "contacted_merchant": false,
+     "police_report_filed": false,
+     "written_statement_provided": true,
+     "provisional_credit_eligible": true,
+     "card_action": "keep_active",
+     "customer_max_liability_amount": "50"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 68,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "transaction_id": "btxn_b2c3d4e5f602",
+     "account_id": "chk_b4d92f7c28",
+     "card_id": "dbc_c4a72d9f66",
+     "user_id": "f7d3a82c91",
+     "dispute_category": "duplicate_charge",
+     "transaction_date": "11/06/2025",
+     "discovery_date": "11/08/2025",
+     "disputed_amount": "89.99",
+     "transaction_type": "recurring_payment",
+     "card_in_possession": true,
+     "pin_compromised": "no",
+     "contacted_merchant": false,
+     "police_report_filed": false,
+     "written_statement_provided": true,
+     "provisional_credit_eligible": true,
+     "card_action": "keep_active",
+     "customer_max_liability_amount": "50"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 68,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "transaction_id": "btxn_f6g7h8i9j006",
+     "account_id": "chk_e8a31c9d47",
+     "card_id": "dbc_92b5d2a7g4",
+     "user_id": "f7d3a82c91",
+     "dispute_category": "recurring_charge_after_cancellation",
+     "transaction_date": "11/09/2025",
+     "discovery_date": "11/14/2025",
+     "disputed_amount": "14.99",
+     "transaction_type": "recurring_payment",
+     "card_in_possession": true,
+     "pin_compromised": "no",
+     "contacted_merchant": false,
+     "police_report_filed": false,
+     "written_statement_provided": true,
+     "provisional_credit_eligible": false,
+     "card_action": "keep_active",
+     "customer_max_liability_amount": "50"
+    }
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 28,
+    "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 30,
+    "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 32,
+    "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 393,
+  "fb_n": 56
+ },
+ "t7326|task_098|t0": {
+  "run": "t7326",
+  "task": "task_098",
+  "trial": 0,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_098#s626729",
+  "reward": 1.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 32,
+  "gold_n": 2,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 272,
+  "fb_n": 27
+ },
+ "t7326|task_016|t1": {
+  "run": "t7326",
+  "task": "task_016",
+  "trial": 1,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_016#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 34,
+  "gold_n": 2,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "submit_transaction",
+    "onset": 32,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "user_id": "friend_user_5839",
+     "credit_card_type": "Silver Rewards Card",
+     "merchant_name": "Best Buy",
+     "amount": "750",
+     "category": "Shopping"
+    }
+   }
+  ],
+  "trace_n": 237,
+  "fb_n": 32
+ },
+ "t7326|task_033|t1": {
+  "run": "t7326",
+  "task": "task_033",
+  "trial": 1,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_033#s373753",
+  "reward": 0.0,
+  "basis": [
+   "ACTION"
+  ],
+  "term": "user_stop",
+  "n_msgs": 24,
+  "gold_n": 0,
+  "done_n": 0,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 149,
+  "fb_n": 19
+ },
+ "t7326|task_040|t1": {
+  "run": "t7326",
+  "task": "task_040",
+  "trial": 1,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_040#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 41,
+  "gold_n": 9,
+  "done_n": 1,
+  "blocked_n": 2,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 31,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_25e23705f61f",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/26/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "duplicate_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": true
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 31,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_fd4c3871654e",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": false,
+     "purchase_date": "10/19/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "unauthorized_fraudulent_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": true
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 31,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e503",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": false,
+     "purchase_date": "10/10/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "unauthorized_fraudulent_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 31,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e510",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/28/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "duplicate_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 31,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e508",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/22/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "incorrect_amount",
+     "resolution_requested": "partial_refund",
+     "partial_refund_amount": "24.56",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 31,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e513",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "11/05/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "canceled_subscription_still_charging",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 31,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_bc21d98cc4e4",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/20/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "goods_services_not_as_described",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 31,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_3ef1a3e9bf56",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/30/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "refund_never_processed",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   }
+  ],
+  "trace_n": 270,
+  "fb_n": 51
+ },
+ "t7326|task_050|t1": {
+  "run": "t7326",
+  "task": "task_050",
+  "trial": 1,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_050#s373753",
+  "reward": 1.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 67,
+  "gold_n": 3,
+  "done_n": 3,
+  "blocked_n": 1,
+  "rows": [],
+  "trace_n": 315,
+  "fb_n": 46
+ },
+ "t7326|task_057|t1": {
+  "run": "t7326",
+  "task": "task_057",
+  "trial": 1,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_057#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 70,
+  "gold_n": 3,
+  "done_n": 2,
+  "blocked_n": 5,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "open_bank_account_4821",
+    "onset": 42,
+    "detail": "Error: Account eligibility requirements not met.",
+    "gold_args": {
+     "user_id": "a8c4e2f7b3",
+     "account_type": "checking",
+     "account_class": "Blue Account"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "deposit_check_3847",
+    "onset": 68,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "ac554054181e71ad",
+     "check_amount": "2000"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 22,
+    "detail": "account_class: gold=Blue Account ours=Light Blue Account [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 288,
+  "fb_n": 27
+ },
+ "t7326|task_063|t1": {
+  "run": "t7326",
+  "task": "task_063",
+  "trial": 1,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_063#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 42,
+  "gold_n": 3,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "open_bank_account_4821",
+    "onset": 24,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "user_id": "tb58a3c9d2",
+     "account_type": "savings",
+     "account_class": "Silver Plus Account"
+    }
+   }
+  ],
+  "trace_n": 299,
+  "fb_n": 46
+ },
+ "t7326|task_074|t1": {
+  "run": "t7326",
+  "task": "task_074",
+  "trial": 1,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_074#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 76,
+  "gold_n": 5,
+  "done_n": 1,
+  "blocked_n": 16,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 31,
+    "detail": "Error: Account 'Purple Account' not found.",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_1",
+     "amount": "27",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 31,
+    "detail": "Error: Account 'Purple Account' not found.",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_2",
+     "amount": "14.5",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 31,
+    "detail": "Error: Account 'Purple Account' not found.",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_3",
+     "amount": "4.75",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 31,
+    "detail": "Error: Account 'Purple Account' not found.",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_4",
+     "amount": "3.7",
+     "credit_type": "fee_refund"
+    }
+   }
+  ],
+  "trace_n": 361,
+  "fb_n": 63
+ },
+ "t7326|task_079|t1": {
+  "run": "t7326",
+  "task": "task_079",
+  "trial": 1,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_079#s373753",
+  "reward": 0.0,
+  "basis": null,
+  "term": "context_window_exceeded",
+  "n_msgs": 150,
+  "gold_n": 0,
+  "done_n": 13,
+  "blocked_n": 5,
+  "rows": [
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "log_verification",
+    "onset": 23,
+    "detail": "{\"name\": \"Carlos Rodriguez\", \"user_id\": \"cr89a2b3c4\", \"address\": \"4521 West 6th Street, Austin, TX 78703\", \"em",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "freeze_debit_card_3892",
+    "onset": 55,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_ev\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "freeze_debit_card_3892",
+    "onset": 59,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_lb\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "freeze_debit_card_3892",
+    "onset": 63,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_green\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "unfreeze_debit_card_3893",
+    "onset": 79,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_ev\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "close_debit_card_4721",
+    "onset": 81,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_ev\", \"reason\": \"stolen\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "unfreeze_debit_card_3893",
+    "onset": 83,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_lb\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "close_debit_card_4721",
+    "onset": 85,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_lb\", \"reason\": \"stolen\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "unfreeze_debit_card_3893",
+    "onset": 87,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_green\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "close_debit_card_4721",
+    "onset": 89,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_green\", \"reason\": \"stolen\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "order_debit_card_5739",
+    "onset": 115,
+    "detail": "{\"account_id\": \"chk_cr89a2b3c4_1\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"STANDARD\", \"delivery_fee\": \"0\"",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "order_debit_card_5739",
+    "onset": 117,
+    "detail": "{\"account_id\": \"chk_cr89a2b3c4_2\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"STANDARD\", \"delivery_fee\": \"0\"",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "order_debit_card_5739",
+    "onset": 119,
+    "detail": "{\"account_id\": \"chk_cr89a2b3c4_3\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"STANDARD\", \"delivery_fee\": \"0\"",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 654,
+  "fb_n": 117
+ },
+ "t7326|task_085|t1": {
+  "run": "t7326",
+  "task": "task_085",
+  "trial": 1,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_085#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 118,
+  "gold_n": 4,
+  "done_n": 5,
+  "blocked_n": 1,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 90,
+    "detail": "Error: Dispute may have already been filed for this transact",
+    "gold_args": {
+     "transaction_id": "btxn_a1b2c3d4e501",
+     "account_id": "chk_b4d92f7c28",
+     "card_id": "dbc_c4a72d9f66",
+     "user_id": "f7d3a82c91",
+     "dispute_category": "atm_cash_discrepancy",
+     "transaction_date": "11/05/2025",
+     "discovery_date": "11/05/2025",
+     "disputed_amount": "100",
+     "transaction_type": "atm_withdrawal",
+     "card_in_possession": true,
+     "pin_compromised": "no",
+     "contacted_merchant": false,
+     "police_report_filed": false,
+     "written_statement_provided": true,
+     "provisional_credit_eligible": true,
+     "card_action": "keep_active",
+     "customer_max_liability_amount": "50"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 90,
+    "detail": "Error: Dispute may have already been filed for this transact",
+    "gold_args": {
+     "transaction_id": "btxn_b2c3d4e5f602",
+     "account_id": "chk_b4d92f7c28",
+     "card_id": "dbc_c4a72d9f66",
+     "user_id": "f7d3a82c91",
+     "dispute_category": "duplicate_charge",
+     "transaction_date": "11/06/2025",
+     "discovery_date": "11/08/2025",
+     "disputed_amount": "89.99",
+     "transaction_type": "recurring_payment",
+     "card_in_possession": true,
+     "pin_compromised": "no",
+     "contacted_merchant": false,
+     "police_report_filed": false,
+     "written_statement_provided": true,
+     "provisional_credit_eligible": true,
+     "card_action": "keep_active",
+     "customer_max_liability_amount": "50"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 90,
+    "detail": "Error: Dispute may have already been filed for this transact",
+    "gold_args": {
+     "transaction_id": "btxn_f6g7h8i9j006",
+     "account_id": "chk_e8a31c9d47",
+     "card_id": "dbc_92b5d2a7g4",
+     "user_id": "f7d3a82c91",
+     "dispute_category": "recurring_charge_after_cancellation",
+     "transaction_date": "11/09/2025",
+     "discovery_date": "11/14/2025",
+     "disputed_amount": "14.99",
+     "transaction_type": "recurring_payment",
+     "card_in_possession": true,
+     "pin_compromised": "no",
+     "contacted_merchant": false,
+     "police_report_filed": false,
+     "written_statement_provided": true,
+     "provisional_credit_eligible": false,
+     "card_action": "keep_active",
+     "customer_max_liability_amount": "50"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 56,
+    "detail": "account_id: gold=chk_b4d92f7c28 ours=f7d3a82c91 [tool-result] · card_id: gold=dbc_c4a72d9f66 ours=unknown [tool-result] · discovery_date: gold=11/05/2025 ours=11/14/2025 [NOWHERE] · provisional_credit_eligible: gold=True ours=False [-] · transaction_id: gold=btxn_a1b2c3d4e501 ours=tx123456 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 28,
+    "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 30,
+    "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 32,
+    "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 560,
+  "fb_n": 95
+ },
+ "t7326|task_098|t1": {
+  "run": "t7326",
+  "task": "task_098",
+  "trial": 1,
+  "tag": "bank_t7326_halfB_20260819q",
+  "simtag": "task_098#s373753",
+  "reward": 1.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 32,
+  "gold_n": 2,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 256,
+  "fb_n": 25
+ },
+ "t7328|task_003|t0": {
+  "run": "t7328",
+  "task": "task_003",
+  "trial": 0,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_003#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 10,
+  "gold_n": 1,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "apply_for_credit_card",
+    "onset": 6,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "card_type": "Silver Rewards Card",
+     "customer_name": "Catherine Wells",
+     "annual_income": "180000",
+     "rho_bank_subscription": true
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_for_credit_card",
+    "onset": 7,
+    "detail": "card_type: gold=Silver Rewards Card ours=Gold Rewards Card [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 93,
+  "fb_n": 10
+ },
+ "t7328|task_004|t0": {
+  "run": "t7328",
+  "task": "task_004",
+  "trial": 0,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_004#s626729",
+  "reward": 0.0,
+  "basis": [
+   "ACTION"
+  ],
+  "term": "user_stop",
+  "n_msgs": 29,
+  "gold_n": 0,
+  "done_n": 0,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 162,
+  "fb_n": 14
+ },
+ "t7328|task_017|t0": {
+  "run": "t7328",
+  "task": "task_017",
+  "trial": 0,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_017#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 54,
+  "gold_n": 3,
+  "done_n": 1,
+  "blocked_n": 5,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "submit_cash_back_dispute_0589",
+    "onset": 39,
+    "detail": "Error: Missing required parameter: user_id",
+    "gold_args": {
+     "user_id": "6680a37184",
+     "transaction_id": "txn_cfabb609133d"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "submit_cash_back_dispute_0589",
+    "onset": 39,
+    "detail": "Error: Missing required parameter: user_id",
+    "gold_args": {
+     "user_id": "6680a37184",
+     "transaction_id": "txn_913d14a20dc5"
+    }
+   }
+  ],
+  "trace_n": 302,
+  "fb_n": 63
+ },
+ "t7328|task_024|t0": {
+  "run": "t7328",
+  "task": "task_024",
+  "trial": 0,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_024#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 16,
+  "gold_n": 1,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "apply_for_credit_card",
+    "onset": 4,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "card_type": "Business Bronze Rewards Card",
+     "customer_name": "Marcus Chen",
+     "annual_income": "120000",
+     "rho_bank_subscription": false
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_for_credit_card",
+    "onset": 13,
+    "detail": "card_type: gold=Business Bronze Rewards Card ours=Business Platinum Rewards Card [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 123,
+  "fb_n": 11
+ },
+ "t7328|task_055|t0": {
+  "run": "t7328",
+  "task": "task_055",
+  "trial": 0,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_055#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 72,
+  "gold_n": 4,
+  "done_n": 3,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "open_bank_account_4821",
+    "onset": 28,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "user_id": "224959b99e",
+     "account_type": "checking",
+     "account_class": "Purple Account"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "open_bank_account_4821",
+    "onset": 28,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "user_id": "224959b99e",
+     "account_type": "savings",
+     "account_class": "Silver Plus Account"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "deposit_check_3847",
+    "onset": 70,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "7e48bf3b0589cfad",
+     "check_amount": "1500"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 30,
+    "detail": "account_class: gold=Purple Account ours=Blue Account [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 38,
+    "detail": "account_class: gold=Purple Account ours=Gold Account [tool-result] · account_type: gold=checking ours=savings [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 447,
+  "fb_n": 74
+ },
+ "t7328|task_072|t0": {
+  "run": "t7328",
+  "task": "task_072",
+  "trial": 0,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_072#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 55,
+  "gold_n": 3,
+  "done_n": 3,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 45,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "account_id": "chk_lj82d4f1a9",
+     "amount": "14",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 47,
+    "detail": "amount: gold=14 ours=12 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 304,
+  "fb_n": 59
+ },
+ "t7328|task_073|t0": {
+  "run": "t7328",
+  "task": "task_073",
+  "trial": 0,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_073#s626729",
+  "reward": 1.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 74,
+  "gold_n": 4,
+  "done_n": 4,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 440,
+  "fb_n": 80
+ },
+ "t7328|task_093|t0": {
+  "run": "t7328",
+  "task": "task_093",
+  "trial": 0,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_093#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 57,
+  "gold_n": 3,
+  "done_n": 3,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 51,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "account_id": "sav_sp93k4m7n2_silver",
+     "amount": "33",
+     "credit_type": "interest_correction"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 41,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "account_id": "sav_sp93k4m7n2_silver",
+     "user_id": "sp93k4m7n2",
+     "expected_apy": "4.275",
+     "actual_apy": "4",
+     "amount_difference": "33"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 41,
+    "detail": "actual_apy: gold=4 ours=2.5 [tool-result] · amount_difference: gold=33 ours=210 [tool-result] · expected_apy: gold=4.275 ours=4.25 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 53,
+    "detail": "amount: gold=33 ours=210 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 347,
+  "fb_n": 58
+ },
+ "t7328|task_094|t0": {
+  "run": "t7328",
+  "task": "task_094",
+  "trial": 0,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_094#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 58,
+  "gold_n": 3,
+  "done_n": 4,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 56,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "sav_wl94k7m3p8_gold",
+     "amount": "140",
+     "credit_type": "interest_correction"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 56,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "sav_wl94k7m3p8_gold",
+     "user_id": "wl94k7m3p8",
+     "expected_apy": "6.85",
+     "actual_apy": "5.1",
+     "amount_difference": "140"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 42,
+    "detail": "actual_apy: gold=5.1 ours=4.25 [tool-result] · amount_difference: gold=140 ours=180 [tool-result] · expected_apy: gold=6.85 ours=6.5 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 48,
+    "detail": "actual_apy: gold=5.1 ours=4.25 [tool-result] · amount_difference: gold=140 ours=180 [tool-result] · expected_apy: gold=6.85 ours=6.525 [NOWHERE]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 54,
+    "detail": "amount: gold=140 ours=180 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 301,
+  "fb_n": 28
+ },
+ "t7328|task_100|t0": {
+  "run": "t7328",
+  "task": "task_100",
+  "trial": 0,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_100#s626729",
+  "reward": 1.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 40,
+  "gold_n": 2,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 317,
+  "fb_n": 31
+ },
+ "t7328|task_003|t1": {
+  "run": "t7328",
+  "task": "task_003",
+  "trial": 1,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_003#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 8,
+  "gold_n": 1,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "apply_for_credit_card",
+    "onset": 4,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "card_type": "Silver Rewards Card",
+     "customer_name": "Catherine Wells",
+     "annual_income": "180000",
+     "rho_bank_subscription": true
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_for_credit_card",
+    "onset": 5,
+    "detail": "card_type: gold=Silver Rewards Card ours=Platinum Rewards Card [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 56,
+  "fb_n": 4
+ },
+ "t7328|task_004|t1": {
+  "run": "t7328",
+  "task": "task_004",
+  "trial": 1,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_004#s373753",
+  "reward": 1.0,
+  "basis": [
+   "ACTION"
+  ],
+  "term": "user_stop",
+  "n_msgs": 29,
+  "gold_n": 0,
+  "done_n": 0,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 165,
+  "fb_n": 21
+ },
+ "t7328|task_017|t1": {
+  "run": "t7328",
+  "task": "task_017",
+  "trial": 1,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_017#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 64,
+  "gold_n": 3,
+  "done_n": 3,
+  "blocked_n": 3,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "submit_cash_back_dispute_0589",
+    "onset": 51,
+    "detail": "Error: Missing required parameter: user_id",
+    "gold_args": {
+     "user_id": "6680a37184",
+     "transaction_id": "txn_913d14a20dc5"
+    }
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "update_transaction_rewards_3847",
+    "onset": 48,
+    "detail": "{\"transaction_id\": \"txn_913d14a20dc5\", \"new_rewards_earned\": \"156 points\"}",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 441,
+  "fb_n": 115
+ },
+ "t7328|task_024|t1": {
+  "run": "t7328",
+  "task": "task_024",
+  "trial": 1,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_024#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 22,
+  "gold_n": 1,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "apply_for_credit_card",
+    "onset": 4,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "card_type": "Business Bronze Rewards Card",
+     "customer_name": "Marcus Chen",
+     "annual_income": "120000",
+     "rho_bank_subscription": false
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "apply_for_credit_card",
+    "onset": 19,
+    "detail": "card_type: gold=Business Bronze Rewards Card ours=Business Platinum Rewards Card [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 164,
+  "fb_n": 17
+ },
+ "t7328|task_055|t1": {
+  "run": "t7328",
+  "task": "task_055",
+  "trial": 1,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_055#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 74,
+  "gold_n": 4,
+  "done_n": 4,
+  "blocked_n": 2,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "open_bank_account_4821",
+    "onset": 72,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "user_id": "224959b99e",
+     "account_type": "checking",
+     "account_class": "Purple Account"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "open_bank_account_4821",
+    "onset": 72,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "user_id": "224959b99e",
+     "account_type": "savings",
+     "account_class": "Silver Plus Account"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "deposit_check_3847",
+    "onset": 61,
+    "detail": "Error: Missing required parameter: check_amount",
+    "gold_args": {
+     "account_id": "7e48bf3b0589cfad",
+     "check_amount": "1500"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 40,
+    "detail": "account_class: gold=Purple Account ours=Green Fee-Free Account [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 40,
+    "detail": "account_class: gold=Purple Account ours=Gold Plus Account [tool-result] · account_type: gold=checking ours=savings [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "deposit_check_3847",
+    "onset": 69,
+    "detail": "account_id: gold=7e48bf3b0589cfad ours=c6afc3b34369dc06 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 409,
+  "fb_n": 49
+ },
+ "t7328|task_072|t1": {
+  "run": "t7328",
+  "task": "task_072",
+  "trial": 1,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_072#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 55,
+  "gold_n": 3,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 53,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_lj82d4f1a9",
+     "amount": "14",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 53,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_538bfb9cba",
+     "amount": "3.5",
+     "credit_type": "fee_refund"
+    }
+   }
+  ],
+  "trace_n": 322,
+  "fb_n": 62
+ },
+ "t7328|task_073|t1": {
+  "run": "t7328",
+  "task": "task_073",
+  "trial": 1,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_073#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 60,
+  "gold_n": 4,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 36,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "account_id": "chk_kj93a7b2e1_1",
+     "amount": "9.5",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 36,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "account_id": "chk_kj93a7b2e1_2",
+     "amount": "9",
+     "credit_type": "fee_refund"
+    }
+   }
+  ],
+  "trace_n": 508,
+  "fb_n": 103
+ },
+ "t7328|task_093|t1": {
+  "run": "t7328",
+  "task": "task_093",
+  "trial": 1,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_093#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 58,
+  "gold_n": 3,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 56,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "sav_sp93k4m7n2_silver",
+     "amount": "33",
+     "credit_type": "interest_correction"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 56,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "sav_sp93k4m7n2_silver",
+     "user_id": "sp93k4m7n2",
+     "expected_apy": "4.275",
+     "actual_apy": "4",
+     "amount_difference": "33"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 46,
+    "detail": "amount_difference: gold=33 ours=0 [tool-result] · expected_apy: gold=4.275 ours=4 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 351,
+  "fb_n": 64
+ },
+ "t7328|task_094|t1": {
+  "run": "t7328",
+  "task": "task_094",
+  "trial": 1,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_094#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 64,
+  "gold_n": 3,
+  "done_n": 3,
+  "blocked_n": 3,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_savings_account_credit_6831",
+    "onset": 62,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "sav_wl94k7m3p8_gold",
+     "amount": "140",
+     "credit_type": "interest_correction"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 32,
+    "detail": "Error: Account 'wl94k7m3p8' not found.",
+    "gold_args": {
+     "account_id": "sav_wl94k7m3p8_gold",
+     "user_id": "wl94k7m3p8",
+     "expected_apy": "6.85",
+     "actual_apy": "5.1",
+     "amount_difference": "140"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 50,
+    "detail": "actual_apy: gold=5.1 ours=5 [tool-result] · amount_difference: gold=140 ours=120 [tool-result] · expected_apy: gold=6.85 ours=6.5 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "submit_interest_discrepancy_report_7294",
+    "onset": 60,
+    "detail": "actual_apy: gold=5.1 ours=5 [tool-result] · amount_difference: gold=140 ours=120 [tool-result] · expected_apy: gold=6.85 ours=6.5 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 289,
+  "fb_n": 41
+ },
+ "t7328|task_100|t1": {
+  "run": "t7328",
+  "task": "task_100",
+  "trial": 1,
+  "tag": "bank_t7328_halfA_20260819r",
+  "simtag": "task_100#s373753",
+  "reward": 1.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 44,
+  "gold_n": 2,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 357,
+  "fb_n": 42
+ },
+ "t7328|task_016|t0": {
+  "run": "t7328",
+  "task": "task_016",
+  "trial": 0,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_016#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 58,
+  "gold_n": 2,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "submit_transaction",
+    "onset": 56,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "user_id": "friend_user_5839",
+     "credit_card_type": "Silver Rewards Card",
+     "merchant_name": "Best Buy",
+     "amount": "750",
+     "category": "Shopping"
+    }
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 40,
+    "detail": "{\"name\": \"Oluwaseun Adeyemi\", \"user_id\": \"86e92f639e\", \"address\": \"2201 Peachtree Road NE, Atlanta, GA 30309\",",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 374,
+  "fb_n": 49
+ },
+ "t7328|task_033|t0": {
+  "run": "t7328",
+  "task": "task_033",
+  "trial": 0,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_033#s626729",
+  "reward": 0.0,
+  "basis": [
+   "ACTION"
+  ],
+  "term": "user_stop",
+  "n_msgs": 14,
+  "gold_n": 0,
+  "done_n": 0,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 104,
+  "fb_n": 21
+ },
+ "t7328|task_040|t0": {
+  "run": "t7328",
+  "task": "task_040",
+  "trial": 0,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_040#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 126,
+  "gold_n": 9,
+  "done_n": 13,
+  "blocked_n": 11,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 51,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_25e23705f61f",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/26/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "duplicate_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": true
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 51,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_fd4c3871654e",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": false,
+     "purchase_date": "10/19/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "unauthorized_fraudulent_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": true
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 51,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e503",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": false,
+     "purchase_date": "10/10/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "unauthorized_fraudulent_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 51,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e510",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/28/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "duplicate_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 51,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e508",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/22/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "incorrect_amount",
+     "resolution_requested": "partial_refund",
+     "partial_refund_amount": "24.56",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 51,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e513",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "11/05/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "canceled_subscription_still_charging",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 51,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_bc21d98cc4e4",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/20/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "goods_services_not_as_described",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 51,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
+    "gold_args": {
+     "transaction_id": "txn_3ef1a3e9bf56",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/30/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "refund_never_processed",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 78,
+    "detail": "card_action: gold=keep_active ours=cancel_and_reissue [tool-result] · card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=No [tool-result] · dispute_reason: gold=duplicate_charge ours=unauthorized_fraudulent_charge [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=10/10/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e503 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 82,
+    "detail": "card_action: gold=keep_active ours=cancel_and_reissue [tool-result] · card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=No [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=10/28/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e510 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 84,
+    "detail": "card_action: gold=keep_active ours=cancel_and_reissue [tool-result] · card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=Yes [user-said] · dispute_reason: gold=duplicate_charge ours=incorrect_amount [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=10/22/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e508 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 86,
+    "detail": "card_action: gold=keep_active ours=cancel_and_reissue [tool-result] · card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=No [tool-result] · dispute_reason: gold=duplicate_charge ours=canceled_subscription_still_charging [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=11/05/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e513 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 114,
+    "detail": "contacted_merchant: gold=True ours=No [tool-result] · dispute_reason: gold=duplicate_charge ours=unauthorized_fraudulent_charge [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=10/19/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_fd4c3871654e [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 120,
+    "detail": "contacted_merchant: gold=True ours=No [tool-result] · dispute_reason: gold=duplicate_charge ours=goods_services_not_as_described [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=10/20/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_bc21d98cc4e4 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 122,
+    "detail": "contacted_merchant: gold=True ours=Yes [user-said] · dispute_reason: gold=duplicate_charge ours=refund_never_processed [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=10/30/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_3ef1a3e9bf56 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 23,
+    "detail": "{\"name\": \"Kwame Asante\", \"user_id\": \"01f21c9970\", \"address\": \"4532 Magnolia Lane, Philadelphia, PA 19103\", \"em",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 27,
+    "detail": "{\"name\": \"Kwame Asante\", \"user_id\": \"01f21c9970\", \"address\": \"4532 Magnolia Lane, Philadelphia, PA 19103\", \"em",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 33,
+    "detail": "{\"name\": \"Kwame Asante\", \"user_id\": \"01f21c9970\", \"address\": \"4532 Magnolia Lane, Philadelphia, PA 19103\", \"em",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 37,
+    "detail": "{\"name\": \"Kwame Asante\", \"user_id\": \"01f21c9970\", \"address\": \"4532 Magnolia Lane, Philadelphia, PA 19103\", \"em",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 41,
+    "detail": "{\"name\": \"Kwame Asante\", \"user_id\": \"01f21c9970\", \"address\": \"4532 Magnolia Lane, Philadelphia, PA 19103\", \"em",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 688,
+  "fb_n": 88
+ },
+ "t7328|task_050|t0": {
+  "run": "t7328",
+  "task": "task_050",
+  "trial": 0,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_050#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 60,
+  "gold_n": 3,
+  "done_n": 4,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "approve_credit_limit_increase_5847",
+    "onset": 56,
+    "detail": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\", \"user_id\": \"584f9c5d00\", \"new_credit_limit\": \"7500\"}",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 265,
+  "fb_n": 22
+ },
+ "t7328|task_057|t0": {
+  "run": "t7328",
+  "task": "task_057",
+  "trial": 0,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_057#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 128,
+  "gold_n": 3,
+  "done_n": 2,
+  "blocked_n": 18,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "open_bank_account_4821",
+    "onset": 38,
+    "detail": "Error: Account eligibility requirements not met.",
+    "gold_args": {
+     "user_id": "a8c4e2f7b3",
+     "account_type": "checking",
+     "account_class": "Blue Account"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "deposit_check_3847",
+    "onset": 126,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "ac554054181e71ad",
+     "check_amount": "2000"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 18,
+    "detail": "account_class: gold=Blue Account ours=Dark Green Account [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 411,
+  "fb_n": 39
+ },
+ "t7328|task_063|t0": {
+  "run": "t7328",
+  "task": "task_063",
+  "trial": 0,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_063#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 44,
+  "gold_n": 3,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "open_bank_account_4821",
+    "onset": 42,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "user_id": "tb58a3c9d2",
+     "account_type": "savings",
+     "account_class": "Silver Plus Account"
+    }
+   }
+  ],
+  "trace_n": 286,
+  "fb_n": 40
+ },
+ "t7328|task_074|t0": {
+  "run": "t7328",
+  "task": "task_074",
+  "trial": 0,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_074#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 43,
+  "gold_n": 5,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 41,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_1",
+     "amount": "27",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 41,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_2",
+     "amount": "14.5",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 41,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_3",
+     "amount": "4.75",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 41,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_4",
+     "amount": "3.7",
+     "credit_type": "fee_refund"
+    }
+   }
+  ],
+  "trace_n": 274,
+  "fb_n": 35
+ },
+ "t7328|task_079|t0": {
+  "run": "t7328",
+  "task": "task_079",
+  "trial": 0,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_079#s626729",
+  "reward": 0.0,
+  "basis": null,
+  "term": "max_steps",
+  "n_msgs": 152,
+  "gold_n": 0,
+  "done_n": 13,
+  "blocked_n": 3,
+  "rows": [
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "log_verification",
+    "onset": 24,
+    "detail": "{\"name\": \"Carlos Rodriguez\", \"user_id\": \"cr89a2b3c4\", \"address\": \"4521 West 6th Street, Austin, TX 78703\", \"em",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "freeze_debit_card_3892",
+    "onset": 66,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_ev\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "freeze_debit_card_3892",
+    "onset": 70,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_lb\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "freeze_debit_card_3892",
+    "onset": 74,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_green\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "unfreeze_debit_card_3893",
+    "onset": 88,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_ev\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "close_debit_card_4721",
+    "onset": 90,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_ev\", \"reason\": \"stolen\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "unfreeze_debit_card_3893",
+    "onset": 92,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_lb\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "close_debit_card_4721",
+    "onset": 94,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_lb\", \"reason\": \"stolen\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "unfreeze_debit_card_3893",
+    "onset": 96,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_green\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "close_debit_card_4721",
+    "onset": 98,
+    "detail": "{\"card_id\": \"dbc_cr89a2b3c4_green\", \"reason\": \"stolen\"}",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "order_debit_card_5739",
+    "onset": 108,
+    "detail": "{\"account_id\": \"chk_cr89a2b3c4_1\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"RUSH\", \"delivery_fee\": \"35\", \"",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "order_debit_card_5739",
+    "onset": 114,
+    "detail": "{\"account_id\": \"chk_cr89a2b3c4_2\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"STANDARD\", \"delivery_fee\": \"0\"",
+    "gold_args": null
+   },
+   {
+    "kind": "EXTRA",
+    "sub": "NOT-IN-GOLD",
+    "tool": "order_debit_card_5739",
+    "onset": 116,
+    "detail": "{\"account_id\": \"chk_cr89a2b3c4_3\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"STANDARD\", \"delivery_fee\": \"0\"",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 639,
+  "fb_n": 129
+ },
+ "t7328|task_085|t0": {
+  "run": "t7328",
+  "task": "task_085",
+  "trial": 0,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_085#s626729",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 132,
+  "gold_n": 4,
+  "done_n": 6,
+  "blocked_n": 10,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 88,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_debit_card_tra",
+    "gold_args": {
+     "transaction_id": "btxn_a1b2c3d4e501",
+     "account_id": "chk_b4d92f7c28",
+     "card_id": "dbc_c4a72d9f66",
+     "user_id": "f7d3a82c91",
+     "dispute_category": "atm_cash_discrepancy",
+     "transaction_date": "11/05/2025",
+     "discovery_date": "11/05/2025",
+     "disputed_amount": "100",
+     "transaction_type": "atm_withdrawal",
+     "card_in_possession": true,
+     "pin_compromised": "no",
+     "contacted_merchant": false,
+     "police_report_filed": false,
+     "written_statement_provided": true,
+     "provisional_credit_eligible": true,
+     "card_action": "keep_active",
+     "customer_max_liability_amount": "50"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 88,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_debit_card_tra",
+    "gold_args": {
+     "transaction_id": "btxn_b2c3d4e5f602",
+     "account_id": "chk_b4d92f7c28",
+     "card_id": "dbc_c4a72d9f66",
+     "user_id": "f7d3a82c91",
+     "dispute_category": "duplicate_charge",
+     "transaction_date": "11/06/2025",
+     "discovery_date": "11/08/2025",
+     "disputed_amount": "89.99",
+     "transaction_type": "recurring_payment",
+     "card_in_possession": true,
+     "pin_compromised": "no",
+     "contacted_merchant": false,
+     "police_report_filed": false,
+     "written_statement_provided": true,
+     "provisional_credit_eligible": true,
+     "card_action": "keep_active",
+     "customer_max_liability_amount": "50"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 88,
+    "detail": "Error: Invalid arguments: KnowledgeTools.file_debit_card_tra",
+    "gold_args": {
+     "transaction_id": "btxn_f6g7h8i9j006",
+     "account_id": "chk_e8a31c9d47",
+     "card_id": "dbc_92b5d2a7g4",
+     "user_id": "f7d3a82c91",
+     "dispute_category": "recurring_charge_after_cancellation",
+     "transaction_date": "11/09/2025",
+     "discovery_date": "11/14/2025",
+     "disputed_amount": "14.99",
+     "transaction_type": "recurring_payment",
+     "card_in_possession": true,
+     "pin_compromised": "no",
+     "contacted_merchant": false,
+     "police_report_filed": false,
+     "written_statement_provided": true,
+     "provisional_credit_eligible": false,
+     "card_action": "keep_active",
+     "customer_max_liability_amount": "50"
+    }
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 28,
+    "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 33,
+    "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 38,
+    "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 49,
+    "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
+    "gold_args": null
+   },
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "log_verification",
+    "onset": 112,
+    "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 613,
+  "fb_n": 99
+ },
+ "t7328|task_098|t0": {
+  "run": "t7328",
+  "task": "task_098",
+  "trial": 0,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_098#s626729",
+  "reward": 1.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 34,
+  "gold_n": 2,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 274,
+  "fb_n": 27
+ },
+ "t7328|task_016|t1": {
+  "run": "t7328",
+  "task": "task_016",
+  "trial": 1,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_016#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 70,
+  "gold_n": 2,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "submit_transaction",
+    "onset": 68,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "user_id": "friend_user_5839",
+     "credit_card_type": "Silver Rewards Card",
+     "merchant_name": "Best Buy",
+     "amount": "750",
+     "category": "Shopping"
+    }
+   }
+  ],
+  "trace_n": 472,
+  "fb_n": 88
+ },
+ "t7328|task_033|t1": {
+  "run": "t7328",
+  "task": "task_033",
+  "trial": 1,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_033#s373753",
+  "reward": 0.0,
+  "basis": [
+   "ACTION"
+  ],
+  "term": "user_stop",
+  "n_msgs": 22,
+  "gold_n": 0,
+  "done_n": 0,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 141,
+  "fb_n": 21
+ },
+ "t7328|task_040|t1": {
+  "run": "t7328",
+  "task": "task_040",
+  "trial": 1,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_040#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 117,
+  "gold_n": 9,
+  "done_n": 8,
+  "blocked_n": 19,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 64,
+    "detail": "Error: Unknown discoverable tool 'file_credit_card_transacti",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e503",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": false,
+     "purchase_date": "10/10/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "unauthorized_fraudulent_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 64,
+    "detail": "Error: Unknown discoverable tool 'file_credit_card_transacti",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e510",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/28/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "duplicate_charge",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 64,
+    "detail": "Error: Unknown discoverable tool 'file_credit_card_transacti",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e508",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/22/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "incorrect_amount",
+     "resolution_requested": "partial_refund",
+     "partial_refund_amount": "24.56",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 64,
+    "detail": "Error: Unknown discoverable tool 'file_credit_card_transacti",
+    "gold_args": {
+     "transaction_id": "txn_a1b2c3d4e513",
+     "card_action": "keep_active",
+     "card_last_4_digits": "1652",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "11/05/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "canceled_subscription_still_charging",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 64,
+    "detail": "Error: Unknown discoverable tool 'file_credit_card_transacti",
+    "gold_args": {
+     "transaction_id": "txn_bc21d98cc4e4",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/20/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "goods_services_not_as_described",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 64,
+    "detail": "Error: Unknown discoverable tool 'file_credit_card_transacti",
+    "gold_args": {
+     "transaction_id": "txn_3ef1a3e9bf56",
+     "card_action": "keep_active",
+     "card_last_4_digits": "0581",
+     "full_name": "Kwame Asante",
+     "user_id": "01f21c9970",
+     "phone": "215-555-0267",
+     "email": "midnight_runner_42@gmail.com",
+     "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+     "contacted_merchant": true,
+     "purchase_date": "10/30/2025",
+     "issue_noticed_date": "11/14/2025",
+     "dispute_reason": "refund_never_processed",
+     "resolution_requested": "full_refund",
+     "eligible_for_provisional_credit": false
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 55,
+    "detail": "card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=False [-] · dispute_reason: gold=duplicate_charge ours=unauthorized_fraudulent_charge [tool-result] · purchase_date: gold=10/26/2025 ours=10/10/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e503 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 99,
+    "detail": "card_last_4_digits: gold=0581 ours=1652 [tool-result] · purchase_date: gold=10/26/2025 ours=10/28/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e510 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 105,
+    "detail": "card_last_4_digits: gold=0581 ours=1652 [tool-result] · dispute_reason: gold=duplicate_charge ours=canceled_subscription_still_charging [tool-result] · purchase_date: gold=10/26/2025 ours=11/05/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e513 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 109,
+    "detail": "dispute_reason: gold=duplicate_charge ours=goods_services_not_as_described [tool-result] · purchase_date: gold=10/26/2025 ours=10/20/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_bc21d98cc4e4 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_credit_card_transaction_dispute_4829",
+    "onset": 113,
+    "detail": "dispute_reason: gold=duplicate_charge ours=refund_never_processed [tool-result] · purchase_date: gold=10/26/2025 ours=10/30/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_3ef1a3e9bf56 [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 549,
+  "fb_n": 82
+ },
+ "t7328|task_050|t1": {
+  "run": "t7328",
+  "task": "task_050",
+  "trial": 1,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_050#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 60,
+  "gold_n": 3,
+  "done_n": 4,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "DUP",
+    "sub": "REPEATED-GOLD-CALL",
+    "tool": "approve_credit_limit_increase_5847",
+    "onset": 56,
+    "detail": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\", \"user_id\": \"584f9c5d00\", \"new_credit_limit\": \"7500\"}",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 265,
+  "fb_n": 22
+ },
+ "t7328|task_057|t1": {
+  "run": "t7328",
+  "task": "task_057",
+  "trial": 1,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_057#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 136,
+  "gold_n": 3,
+  "done_n": 2,
+  "blocked_n": 23,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "open_bank_account_4821",
+    "onset": 46,
+    "detail": "Error: Account eligibility requirements not met.",
+    "gold_args": {
+     "user_id": "a8c4e2f7b3",
+     "account_type": "checking",
+     "account_class": "Blue Account"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "deposit_check_3847",
+    "onset": 134,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "ac554054181e71ad",
+     "check_amount": "2000"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 30,
+    "detail": "account_class: gold=Blue Account ours=Green Fee-Free Account [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 467,
+  "fb_n": 45
+ },
+ "t7328|task_063|t1": {
+  "run": "t7328",
+  "task": "task_063",
+  "trial": 1,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_063#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 62,
+  "gold_n": 3,
+  "done_n": 3,
+  "blocked_n": 1,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NAMED-NOT-CALLED",
+    "tool": "open_bank_account_4821",
+    "onset": 49,
+    "detail": "이름은 산문에 있었다",
+    "gold_args": {
+     "user_id": "tb58a3c9d2",
+     "account_type": "savings",
+     "account_class": "Silver Plus Account"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "open_bank_account_4821",
+    "onset": 49,
+    "detail": "account_class: gold=Silver Plus Account ours=Silver Account [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 342,
+  "fb_n": 59
+ },
+ "t7328|task_074|t1": {
+  "run": "t7328",
+  "task": "task_074",
+  "trial": 1,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_074#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 43,
+  "gold_n": 5,
+  "done_n": 1,
+  "blocked_n": 0,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 41,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_1",
+     "amount": "27",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 41,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_2",
+     "amount": "14.5",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 41,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_3",
+     "amount": "4.75",
+     "credit_type": "fee_refund"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "NEVER-NAMED",
+    "tool": "apply_checking_account_credit_5829",
+    "onset": 41,
+    "detail": "이름이 궤적에 없다",
+    "gold_args": {
+     "account_id": "chk_ar72c5d8e3_4",
+     "amount": "3.7",
+     "credit_type": "fee_refund"
+    }
+   }
+  ],
+  "trace_n": 274,
+  "fb_n": 35
+ },
+ "t7328|task_079|t1": {
+  "run": "t7328",
+  "task": "task_079",
+  "trial": 1,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_079#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 93,
+  "gold_n": 12,
+  "done_n": 13,
+  "blocked_n": 4,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "order_debit_card_5739",
+    "onset": 85,
+    "detail": "Error: There is already a pending debit card order for accou",
+    "gold_args": {
+     "account_id": "chk_cr89a2b3c4_1",
+     "user_id": "cr89a2b3c4",
+     "delivery_option": "RUSH",
+     "delivery_fee": "35",
+     "card_design": "PREMIUM",
+     "design_fee": "0",
+     "shipping_address": "4521 West 6th Street, Austin, TX 78703"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "order_debit_card_5739",
+    "onset": 85,
+    "detail": "Error: There is already a pending debit card order for accou",
+    "gold_args": {
+     "account_id": "chk_cr89a2b3c4_3",
+     "user_id": "cr89a2b3c4",
+     "delivery_option": "STANDARD",
+     "delivery_fee": "0",
+     "card_design": "CLASSIC",
+     "design_fee": "0",
+     "shipping_address": "4521 West 6th Street, Austin, TX 78703"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "order_debit_card_5739",
+    "onset": 79,
+    "detail": "delivery_fee: gold=35 ours=0 [tool-result] · delivery_option: gold=RUSH ours=EXPEDITED [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "order_debit_card_5739",
+    "onset": 81,
+    "detail": "account_id: gold=chk_cr89a2b3c4_1 ours=chk_cr89a2b3c4_2 [tool-result] · delivery_fee: gold=35 ours=0 [tool-result] · delivery_option: gold=RUSH ours=STANDARD [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "order_debit_card_5739",
+    "onset": 83,
+    "detail": "account_id: gold=chk_cr89a2b3c4_1 ours=chk_cr89a2b3c4_3 [tool-result] · delivery_fee: gold=35 ours=0 [tool-result] · delivery_option: gold=RUSH ours=STANDARD [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 415,
+  "fb_n": 66
+ },
+ "t7328|task_085|t1": {
+  "run": "t7328",
+  "task": "task_085",
+  "trial": 1,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_085#s373753",
+  "reward": 0.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 102,
+  "gold_n": 4,
+  "done_n": 5,
+  "blocked_n": 3,
+  "rows": [
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 80,
+    "detail": "Error: Invalid transaction_type. Must be one of: ['pin_purch",
+    "gold_args": {
+     "transaction_id": "btxn_a1b2c3d4e501",
+     "account_id": "chk_b4d92f7c28",
+     "card_id": "dbc_c4a72d9f66",
+     "user_id": "f7d3a82c91",
+     "dispute_category": "atm_cash_discrepancy",
+     "transaction_date": "11/05/2025",
+     "discovery_date": "11/05/2025",
+     "disputed_amount": "100",
+     "transaction_type": "atm_withdrawal",
+     "card_in_possession": true,
+     "pin_compromised": "no",
+     "contacted_merchant": false,
+     "police_report_filed": false,
+     "written_statement_provided": true,
+     "provisional_credit_eligible": true,
+     "card_action": "keep_active",
+     "customer_max_liability_amount": "50"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 80,
+    "detail": "Error: Invalid transaction_type. Must be one of: ['pin_purch",
+    "gold_args": {
+     "transaction_id": "btxn_b2c3d4e5f602",
+     "account_id": "chk_b4d92f7c28",
+     "card_id": "dbc_c4a72d9f66",
+     "user_id": "f7d3a82c91",
+     "dispute_category": "duplicate_charge",
+     "transaction_date": "11/06/2025",
+     "discovery_date": "11/08/2025",
+     "disputed_amount": "89.99",
+     "transaction_type": "recurring_payment",
+     "card_in_possession": true,
+     "pin_compromised": "no",
+     "contacted_merchant": false,
+     "police_report_filed": false,
+     "written_statement_provided": true,
+     "provisional_credit_eligible": true,
+     "card_action": "keep_active",
+     "customer_max_liability_amount": "50"
+    }
+   },
+   {
+    "kind": "MISSING",
+    "sub": "BLOCKED-other-args-env",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 80,
+    "detail": "Error: Invalid transaction_type. Must be one of: ['pin_purch",
+    "gold_args": {
+     "transaction_id": "btxn_f6g7h8i9j006",
+     "account_id": "chk_e8a31c9d47",
+     "card_id": "dbc_92b5d2a7g4",
+     "user_id": "f7d3a82c91",
+     "dispute_category": "recurring_charge_after_cancellation",
+     "transaction_date": "11/09/2025",
+     "discovery_date": "11/14/2025",
+     "disputed_amount": "14.99",
+     "transaction_type": "recurring_payment",
+     "card_in_possession": true,
+     "pin_compromised": "no",
+     "contacted_merchant": false,
+     "police_report_filed": false,
+     "written_statement_provided": true,
+     "provisional_credit_eligible": false,
+     "card_action": "keep_active",
+     "customer_max_liability_amount": "50"
+    }
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 76,
+    "detail": "customer_max_liability_amount: gold=50 ours=-1 [tool-result] · discovery_date: gold=11/05/2025 ours=11/14/2025 [NOWHERE]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 82,
+    "detail": "customer_max_liability_amount: gold=50 ours=-1 [tool-result] · discovery_date: gold=11/05/2025 ours=11/14/2025 [self-said] · dispute_category: gold=atm_cash_discrepancy ours=duplicate_charge [tool-result] · disputed_amount: gold=100 ours=89.99 [tool-result] · transaction_date: gold=11/05/2025 ours=11/06/2025 [tool-result] · transaction_id: gold=btxn_a1b2c3d4e501 ours=btxn_c3d4e5f6g703 [tool-result] · transaction_type: gold=atm_withdrawal ours=signature_purchase [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 90,
+    "detail": "account_id: gold=chk_b4d92f7c28 ours=chk_e8a31c9d47 [tool-result] · card_id: gold=dbc_c4a72d9f66 ours=dbc_92b5d2a7g4 [tool-result] · customer_max_liability_amount: gold=50 ours=-1 [tool-result] · discovery_date: gold=11/05/2025 ours=11/14/2025 [self-said] · disputed_amount: gold=100 ours=200 [tool-result] · transaction_date: gold=11/05/2025 ours=11/08/2025 [tool-result] · transaction_id: gold=btxn_a1b2c3d4e501 ours=btxn_e5f6g7h8i905 [tool-result]",
+    "gold_args": null
+   },
+   {
+    "kind": "WRONGARG",
+    "sub": "ARG-MISMATCH",
+    "tool": "file_debit_card_transaction_dispute_6281",
+    "onset": 98,
+    "detail": "account_id: gold=chk_b4d92f7c28 ours=chk_e8a31c9d47 [tool-result] · card_id: gold=dbc_c4a72d9f66 ours=dbc_92b5d2a7g4 [tool-result] · customer_max_liability_amount: gold=50 ours=-1 [tool-result] · discovery_date: gold=11/05/2025 ours=11/14/2025 [self-said] · dispute_category: gold=atm_cash_discrepancy ours=unauthorized_transaction [tool-result] · disputed_amount: gold=100 ours=49.99 [user-said] · transaction_date: gold=11/05/2025 ours=11/09/2025 [tool-result] · transaction_id: gold=btxn_a1b2c3d4e501 ours=btxn_f6g7h8i9j006 [tool-result] · transaction_type: gold=atm_withdrawal ours=signature_purchase [tool-result]",
+    "gold_args": null
+   }
+  ],
+  "trace_n": 525,
+  "fb_n": 118
+ },
+ "t7328|task_098|t1": {
+  "run": "t7328",
+  "task": "task_098",
+  "trial": 1,
+  "tag": "bank_t7328_halfB_20260819r2",
+  "simtag": "task_098#s373753",
+  "reward": 1.0,
+  "basis": [
+   "DB"
+  ],
+  "term": "user_stop",
+  "n_msgs": 34,
+  "gold_n": 2,
+  "done_n": 2,
+  "blocked_n": 0,
+  "rows": [],
+  "trace_n": 261,
+  "fb_n": 27
+ }
+}

@@ -1,0 +1,218 @@
+[
+ {
+  "task": "task_017",
+  "trial": 0,
+  "code": "SUPPORTED2",
+  "verb": "rewards",
+  "ev": "update_transaction_rewards_3847",
+  "s": "The rewards for the following transactions have been updated: 1."
+ },
+ {
+  "task": "task_055",
+  "trial": 0,
+  "code": "SUPPORTED2",
+  "verb": "account has been",
+  "ev": "open_bank_account_4821",
+  "s": "Your Gold Savings Account has been successfully opened!"
+ },
+ {
+  "task": "task_055",
+  "trial": 0,
+  "code": "UNSUPPORTED2",
+  "verb": "deposit",
+  "ev": "그 족 성공호출 0",
+  "s": "After completing these steps, you can check the account balance within the app to see if the deposit is pending or has b"
+ },
+ {
+  "task": "task_073",
+  "trial": 0,
+  "code": "UNSUPPORTED2",
+  "verb": "correction",
+  "ev": "그 족 성공호출 0",
+  "s": "These corrections have been applied to your accounts."
+ },
+ {
+  "task": "task_093",
+  "trial": 0,
+  "code": "SUPPORTED2",
+  "verb": "discrepancy report",
+  "ev": "submit_interest_discrepancy_report_7294",
+  "s": "The interest discrepancy report has been submitted successfully to our backend team for review."
+ },
+ {
+  "task": "task_093",
+  "trial": 0,
+  "code": "SUPPORTED2",
+  "verb": "discrepancy report",
+  "ev": "submit_interest_discrepancy_report_7294",
+  "s": "The interest discrepancy report has been submitted successfully to our backend team for review."
+ },
+ {
+  "task": "task_093",
+  "trial": 0,
+  "code": "SUPPORTED2",
+  "verb": "correction",
+  "ev": "apply_savings_account_credit_6831",
+  "s": "The interest correction of $45.60 has been successfully applied to your savings account."
+ },
+ {
+  "task": "task_094",
+  "trial": 0,
+  "code": "SUPPORTED2",
+  "verb": "discrepancy report",
+  "ev": "submit_interest_discrepancy_report_7294",
+  "s": "The interest discrepancy report has been submitted successfully."
+ },
+ {
+  "task": "task_094",
+  "trial": 0,
+  "code": "SUPPORTED2",
+  "verb": "credit",
+  "ev": "apply_savings_account_credit_6831",
+  "s": "The credit of $120 has been applied successfully to your Gold Savings Account."
+ },
+ {
+  "task": "task_093",
+  "trial": 1,
+  "code": "SUPPORTED2",
+  "verb": "discrepancy report",
+  "ev": "submit_interest_discrepancy_report_7294",
+  "s": "The interest discrepancy report has been submitted successfully to the backend team for investigation."
+ },
+ {
+  "task": "task_093",
+  "trial": 1,
+  "code": "SUPPORTED2",
+  "verb": "discrepancy report",
+  "ev": "submit_interest_discrepancy_report_7294",
+  "s": "The interest discrepancy report has been submitted successfully, and the backend team will investigate the issue."
+ },
+ {
+  "task": "task_093",
+  "trial": 1,
+  "code": "SUPPORTED2",
+  "verb": "credit",
+  "ev": "apply_savings_account_credit_6831",
+  "s": "The credit of $30.00 has been successfully applied to your Silver Savings Account for the interest correction."
+ },
+ {
+  "task": "task_094",
+  "trial": 1,
+  "code": "SUPPORTED2",
+  "verb": "discrepancy report",
+  "ev": "submit_interest_discrepancy_report_7294",
+  "s": "The interest discrepancy report has been submitted successfully to the backend team for review."
+ },
+ {
+  "task": "task_094",
+  "trial": 1,
+  "code": "SUPPORTED2",
+  "verb": "correction",
+  "ev": "apply_savings_account_credit_6831",
+  "s": "The interest correction amount of $112.00 has been successfully applied to your Gold Savings Account."
+ },
+ {
+  "task": "task_016",
+  "trial": 0,
+  "code": "UNMAPPED",
+  "verb": "-",
+  "ev": "",
+  "s": "Since the automated checks have been completed, I recommend transferring this case to a human agent for a more detailed "
+ },
+ {
+  "task": "task_050",
+  "trial": 0,
+  "code": "SUPPORTED2",
+  "verb": "credit limit increase",
+  "ev": "submit_credit_limit_increase_request_7392",
+  "s": "We submitted a request for a credit limit increase of $2,500."
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "code": "SUPPORTED2",
+  "verb": "opened",
+  "ev": "open_bank_account_4821",
+  "s": "Your **Blue Account** has been successfully opened."
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "code": "SUPPORTED2",
+  "verb": "account is now",
+  "ev": "open_bank_account_4821",
+  "s": "Here are the details of your new account: - **Account ID**: ac554054181e71ad - **User ID**: a8c4e2f7b3 - **Account Type*"
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "code": "UNSUPPORTED2",
+  "verb": "credit",
+  "ev": "그 족 성공호출 0",
+  "s": "**Check the account balance** to ensure the $2,000 deposit has been credited."
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "code": "UNSUPPORTED2",
+  "verb": "credit",
+  "ev": "그 족 성공호출 0",
+  "s": "**Review the \"Available Balance\" and \"Current Balance\"** to see if the funds have been credited."
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "code": "UNSUPPORTED2",
+  "verb": "deposit",
+  "ev": "그 족 성공호출 0",
+  "s": "If it has been processed, it will be reflected in the \"Available Balance\" or \"Current Balance.\" Let me know if you need "
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "code": "SUPPORTED2",
+  "verb": "account has been",
+  "ev": "open_bank_account_4821",
+  "s": "### Step 1: Open the Gold Account The Gold Account has been successfully opened with the following details: - **Account "
+ },
+ {
+  "task": "task_074",
+  "trial": 0,
+  "code": "SUPPORTED2",
+  "verb": "credit",
+  "ev": "apply_checking_account_credit_5829",
+  "s": "The credits have been successfully applied to your accounts."
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "code": "UNSUPPORTED2",
+  "verb": "dispute",
+  "ev": "그 족 성공호출 0",
+  "s": "Once you have submitted the dispute, you should receive confirmation and updates regarding the status of your case."
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "code": "UNSUPPORTED2",
+  "verb": "dispute",
+  "ev": "그 족 성공호출 0",
+  "s": "Once you have submitted the dispute, you should receive confirmation and updates regarding the status of your case."
+ },
+ {
+  "task": "task_085",
+  "trial": 1,
+  "code": "SUPPORTED2",
+  "verb": "dispute",
+  "ev": "file_debit_card_transaction_dispute_6281",
+  "s": "The dispute for the missing $100 from the ATM withdrawal on your Blue Account on November 5th has been filed successfull"
+ },
+ {
+  "task": "task_085",
+  "trial": 1,
+  "code": "SUPPORTED2",
+  "verb": "dispute",
+  "ev": "file_debit_card_transaction_dispute_6281",
+  "s": "Let me check the dispute history again to confirm if the dispute has been filed and provide you with the dispute/case ID"
+ }
+]

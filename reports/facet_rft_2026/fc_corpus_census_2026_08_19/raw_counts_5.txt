@@ -1,0 +1,3 @@
+glaive-v2  n=600 | 도구호출 0건 대화 0.450 (n=270, 첫 user 턴 단어수 median=29) | 도구호출 있음 0.550 (median=15)
+hermes/glaive_func_calling  n=500 | 도구호출 0건 대화 0.120 (n=60, 첫 user 턴 단어수 median=65) | 도구호출 있음 0.880 (median=11)
+hermes/func_calling  n=500 | 도구호출 0건 대화 0.002 (n=1, 첫 user 턴 단어수 median=374) | 도구호출 있음 0.998 (median=228)

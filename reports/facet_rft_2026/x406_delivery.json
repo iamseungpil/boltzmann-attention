@@ -1,0 +1,587 @@
+[
+ {
+  "task": "task_055",
+  "trial": 0,
+  "name": "deposit_check_3847",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 58
+ },
+ {
+  "task": "task_055",
+  "trial": 0,
+  "name": "deposit_check_3847",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 58
+ },
+ {
+  "task": "task_072",
+  "trial": 0,
+  "name": "apply_checking_account_credit_5829",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 43
+ },
+ {
+  "task": "task_073",
+  "trial": 0,
+  "name": "apply_checking_account_credit_5829",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 5,
+  "last_a": 58
+ },
+ {
+  "task": "task_094",
+  "trial": 0,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 20,
+  "last_a": 66
+ },
+ {
+  "task": "task_055",
+  "trial": 1,
+  "name": "get_all_user_accounts_by_user_id_3847",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 53,
+  "last_a": 64
+ },
+ {
+  "task": "task_055",
+  "trial": 1,
+  "name": "get_all_user_accounts_by_user_id_3847",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 53,
+  "last_a": 64
+ },
+ {
+  "task": "task_055",
+  "trial": 1,
+  "name": "open_bank_account_4821",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 53,
+  "last_a": 64
+ },
+ {
+  "task": "task_055",
+  "trial": 1,
+  "name": "open_bank_account_4821",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 53,
+  "last_a": 64
+ },
+ {
+  "task": "task_055",
+  "trial": 1,
+  "name": "open_bank_account_4821",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 53,
+  "last_a": 64
+ },
+ {
+  "task": "task_055",
+  "trial": 1,
+  "name": "deposit_check_3847",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 53,
+  "last_a": 64
+ },
+ {
+  "task": "task_055",
+  "trial": 1,
+  "name": "deposit_check_3847",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 53,
+  "last_a": 64
+ },
+ {
+  "task": "task_072",
+  "trial": 1,
+  "name": "apply_checking_account_credit_5829",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 40
+ },
+ {
+  "task": "task_072",
+  "trial": 1,
+  "name": "apply_checking_account_credit_5829",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 40
+ },
+ {
+  "task": "task_093",
+  "trial": 1,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 100
+ },
+ {
+  "task": "task_094",
+  "trial": 1,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 37,
+  "last_a": 76
+ },
+ {
+  "task": "task_016",
+  "trial": 0,
+  "name": "submit_transaction",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 50
+ },
+ {
+  "task": "task_033",
+  "trial": 0,
+  "name": "initial_transfer_to_human_agent_1822",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 18
+ },
+ {
+  "task": "task_033",
+  "trial": 0,
+  "name": "initial_transfer_to_human_agent_1822",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 18
+ },
+ {
+  "task": "task_033",
+  "trial": 0,
+  "name": "initial_transfer_to_human_agent_0218",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 18
+ },
+ {
+  "task": "task_033",
+  "trial": 0,
+  "name": "initial_transfer_to_human_agent_0218",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 18
+ },
+ {
+  "task": "task_033",
+  "trial": 0,
+  "name": "transfer_to_human_agents",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 18
+ },
+ {
+  "task": "task_040",
+  "trial": 0,
+  "name": "get_user_dispute_history_7291",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 50
+ },
+ {
+  "task": "task_040",
+  "trial": 0,
+  "name": "get_user_dispute_history_7291",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 50
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "name": "deposit_check_3847",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 140
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "name": "deposit_check_3847",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 140
+ },
+ {
+  "task": "task_074",
+  "trial": 0,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 73
+ },
+ {
+  "task": "task_079",
+  "trial": 0,
+  "name": "get_credit_card_accounts_by_user",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 122
+ },
+ {
+  "task": "task_079",
+  "trial": 0,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 122
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "name": "get_all_user_accounts_by_user_id_3847",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 7,
+  "last_a": 68
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "name": "get_all_user_accounts_by_user_id_3847",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 7,
+  "last_a": 68
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "name": "get_debit_cards_by_account_id_7823",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 7,
+  "last_a": 68
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "name": "get_debit_cards_by_account_id_7823",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 7,
+  "last_a": 68
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "name": "get_debit_cards_by_account_id_7823",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 7,
+  "last_a": 68
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 9,
+  "last_a": 68
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 9,
+  "last_a": 68
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "name": "file_debit_card_transaction_dispute_6281",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 9,
+  "last_a": 68
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "name": "file_debit_card_transaction_dispute_6281",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 9,
+  "last_a": 68
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "name": "file_debit_card_transaction_dispute_6281",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 9,
+  "last_a": 68
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 9,
+  "last_a": 68
+ },
+ {
+  "task": "task_085",
+  "trial": 0,
+  "name": "file_debit_card_transaction_dispute_6281",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 9,
+  "last_a": 68
+ },
+ {
+  "task": "task_016",
+  "trial": 1,
+  "name": "submit_transaction",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 32
+ },
+ {
+  "task": "task_033",
+  "trial": 1,
+  "name": "initial_transfer_to_human_agent_1822",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 22
+ },
+ {
+  "task": "task_033",
+  "trial": 1,
+  "name": "initial_transfer_to_human_agent_1822",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 22
+ },
+ {
+  "task": "task_033",
+  "trial": 1,
+  "name": "initial_transfer_to_human_agent_0218",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 22
+ },
+ {
+  "task": "task_033",
+  "trial": 1,
+  "name": "initial_transfer_to_human_agent_0218",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 22
+ },
+ {
+  "task": "task_040",
+  "trial": 1,
+  "name": "get_user_dispute_history_7291",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 6,
+  "last_a": 39
+ },
+ {
+  "task": "task_040",
+  "trial": 1,
+  "name": "get_user_dispute_history_7291",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 6,
+  "last_a": 39
+ },
+ {
+  "task": "task_057",
+  "trial": 1,
+  "name": "deposit_check_3847",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 68
+ },
+ {
+  "task": "task_057",
+  "trial": 1,
+  "name": "deposit_check_3847",
+  "in_tool": false,
+  "in_user": false,
+  "first_at": null,
+  "last_a": 68
+ },
+ {
+  "task": "task_074",
+  "trial": 1,
+  "name": "get_all_user_accounts_by_user_id_3847",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 74
+ },
+ {
+  "task": "task_074",
+  "trial": 1,
+  "name": "get_all_user_accounts_by_user_id_3847",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 74
+ },
+ {
+  "task": "task_074",
+  "trial": 1,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 74
+ },
+ {
+  "task": "task_074",
+  "trial": 1,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 74
+ },
+ {
+  "task": "task_074",
+  "trial": 1,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 74
+ },
+ {
+  "task": "task_074",
+  "trial": 1,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 74
+ },
+ {
+  "task": "task_074",
+  "trial": 1,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 3,
+  "last_a": 74
+ },
+ {
+  "task": "task_085",
+  "trial": 1,
+  "name": "get_all_user_accounts_by_user_id_3847",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 7,
+  "last_a": 116
+ },
+ {
+  "task": "task_085",
+  "trial": 1,
+  "name": "get_all_user_accounts_by_user_id_3847",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 7,
+  "last_a": 116
+ },
+ {
+  "task": "task_085",
+  "trial": 1,
+  "name": "get_debit_cards_by_account_id_7823",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 7,
+  "last_a": 116
+ },
+ {
+  "task": "task_085",
+  "trial": 1,
+  "name": "get_debit_cards_by_account_id_7823",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 7,
+  "last_a": 116
+ },
+ {
+  "task": "task_085",
+  "trial": 1,
+  "name": "get_debit_cards_by_account_id_7823",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 7,
+  "last_a": 116
+ },
+ {
+  "task": "task_085",
+  "trial": 1,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 9,
+  "last_a": 116
+ },
+ {
+  "task": "task_085",
+  "trial": 1,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 9,
+  "last_a": 116
+ },
+ {
+  "task": "task_085",
+  "trial": 1,
+  "name": "get_bank_account_transactions_9173",
+  "in_tool": true,
+  "in_user": false,
+  "first_at": 9,
+  "last_a": 116
+ }
+]

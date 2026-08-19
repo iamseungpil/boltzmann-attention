@@ -1,0 +1,4 @@
+glaive-v2 tool_call turn-index hist (top): [(1, 0.474), (5, 0.245), (3, 0.177), (2, 0.091), (7, 0.011), (9, 0.002)]
+  first-assistant index x channel: {(1, 'text'): 391, (1, 'tool_call'): 209}
+hermes/glaive_func_calling tools/sample: median=2 p90=2 max=2 mean=1.76 n=500
+hermes/func_calling tools/sample: median=1 p90=4 max=5 mean=1.86 n=500

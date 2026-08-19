@@ -1,0 +1,86 @@
+========================================================================
+glaiveai/glaive-function-calling-v2 (default)   n_samples = 600
+  first-user-turn word count: median=15 mean=32 p10=8 p90=82
+  [FIRST assistant turn] total=600
+    fmt | tool_call |  mixed  |  text   |  n
+     a  |   0.163   |  0.000  |  0.837  | 135
+     b  |   0.000   |  0.000  |  1.000  | 31
+     c  |   0.431   |  0.000  |  0.569  | 434
+  [ALL user->assistant transitions] total=1364
+    fmt | tool_call |  mixed  |  text   |  n
+     a  |   0.160   |  0.000  |  0.840  | 181
+     b  |   0.000   |  0.000  |  1.000  | 32
+     c  |   0.321   |  0.000  |  0.679  | 1151
+  multiturn: 503/600 = 0.838
+  prev-assistant = TEXT(prose)  -> next assistant : tool_call 0.287 | mixed 0.000 | text 0.713  (n=808)
+  prev-assistant = TOOL_CALL    -> next assistant : tool_call 0.000 | mixed 0.000 | text 1.000  (n=439)
+  samples with >=1 tool result: 332 ; last assistant turn = text: 0.994 ; = tool_call: 0.006
+  arg-literal coverage: scalar-level 0.893 (624/699) ; all-args-verbatim 0.838 (263/314)
+========================================================================
+hermes-function-calling-v1 :: func_calling   n_samples = 500
+  first-user-turn word count: median=228 mean=962 p10=119 p90=2282
+  [FIRST assistant turn] total=500
+    fmt | tool_call |  mixed  |  text   |  n
+     a  |   1.000   |  0.000  |  0.000  | 300
+     b  |   0.995   |  0.000  |  0.005  | 200
+  [ALL user->assistant transitions] total=499
+    fmt | tool_call |  mixed  |  text   |  n
+     a  |   1.000   |  0.000  |  0.000  | 300
+     b  |   1.000   |  0.000  |  0.000  | 199
+  multiturn: 263/500 = 0.526
+  prev-assistant = TOOL_CALL    -> next assistant : tool_call 0.000 | mixed 0.000 | text 1.000  (n=263)
+  samples with >=1 tool result: 300 ; last assistant turn = text: 0.880 ; = tool_call: 0.120
+  arg-literal coverage: scalar-level 0.856 (1889/2208) ; all-args-verbatim 0.629 (188/299)
+========================================================================
+hermes-function-calling-v1 :: func_calling_singleturn   n_samples = 500
+  first-user-turn word count: median=228 mean=962 p10=119 p90=2282
+  [FIRST assistant turn] total=500
+    fmt | tool_call |  mixed  |  text   |  n
+     a  |   1.000   |  0.000  |  0.000  | 300
+     b  |   0.995   |  0.000  |  0.005  | 200
+  [ALL user->assistant transitions] total=500
+    fmt | tool_call |  mixed  |  text   |  n
+     a  |   1.000   |  0.000  |  0.000  | 300
+     b  |   0.995   |  0.000  |  0.005  | 200
+  multiturn: 0/500 = 0.000
+  arg-literal coverage: scalar-level 0.856 (1889/2208) ; all-args-verbatim 0.629 (188/299)
+========================================================================
+hermes-function-calling-v1 :: glaive_func_calling   n_samples = 500
+  first-user-turn word count: median=12 mean=20 p10=8 p90=26
+  [FIRST assistant turn] total=500
+    fmt | tool_call |  mixed  |  text   |  n
+     a  |   0.070   |  0.000  |  0.930  | 43
+     b  |   0.000   |  0.000  |  1.000  | 8
+     c  |   0.849   |  0.000  |  0.151  | 449
+  [ALL user->assistant transitions] total=1199
+    fmt | tool_call |  mixed  |  text   |  n
+     a  |   0.068   |  0.000  |  0.932  | 59
+     b  |   0.000   |  0.000  |  1.000  | 8
+     c  |   0.655   |  0.000  |  0.345  | 1132
+  multiturn: 500/500 = 1.000
+  prev-assistant = TEXT(prose)  -> next assistant : tool_call 0.516 | mixed 0.000 | text 0.484  (n=699)
+  prev-assistant = TOOL_CALL    -> next assistant : tool_call 0.000 | mixed 0.000 | text 1.000  (n=745)
+  samples with >=1 tool result: 440 ; last assistant turn = text: 1.000 ; = tool_call: 0.000
+  arg-literal coverage: scalar-level 0.936 (687/734) ; all-args-verbatim 0.891 (359/403)
+========================================================================
+hermes-function-calling-v1 :: json_mode_agentic   n_samples = 100
+  first-user-turn word count: median=205 mean=213 p10=121 p90=304
+  [FIRST assistant turn] total=100
+    fmt | tool_call |  mixed  |  text   |  n
+     a  |   0.000   |  0.000  |  1.000  | 92
+     b  |   0.000   |  0.000  |  1.000  | 8
+  [ALL user->assistant transitions] total=100
+    fmt | tool_call |  mixed  |  text   |  n
+     a  |   0.000   |  0.000  |  1.000  | 92
+     b  |   0.000   |  0.000  |  1.000  | 8
+  multiturn: 0/100 = 0.000
+========================================================================
+hermes-function-calling-v1 :: json_mode_singleturn   n_samples = 100
+  first-user-turn word count: median=95 mean=102 p10=64 p90=151
+  [FIRST assistant turn] total=100
+    fmt | tool_call |  mixed  |  text   |  n
+     a  |   0.000   |  0.000  |  1.000  | 100
+  [ALL user->assistant transitions] total=100
+    fmt | tool_call |  mixed  |  text   |  n
+     a  |   0.000   |  0.000  |  1.000  | 100
+  multiturn: 0/100 = 0.000
