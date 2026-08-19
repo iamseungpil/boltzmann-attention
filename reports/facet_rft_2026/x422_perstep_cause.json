@@ -11,6 +11,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 8,
+  "transfer": false,
   "gold_n": 1,
   "done_n": 1,
   "blocked_n": 0,
@@ -19,22 +20,57 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "apply_for_credit_card",
-    "onset": 4,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 4,
+    "turn": 4,
+    "detail": "도착 msg=None · 지목 msg=4",
     "gold_args": {
      "card_type": "Silver Rewards Card",
      "customer_name": "Catherine Wells",
      "annual_income": "180000",
      "rho_bank_subscription": true
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ARBITRATE",
+     "T2_CLAIMPROV",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEDGER",
+     "T2_LEVER",
+     "T2_NOW_SELFCALL",
+     "T2_RESOLVE",
+     "T2_SCAFFOLD_GET",
+     "T2_SEARCH_AGENT",
+     "T2_SEARCH_ON_PROCEED",
+     "T2_SELFDECL",
+     "T2_SOURCE",
+     "T2_STACK",
+     "T2_USER_TOOL_NOTE",
+     "T2_WINDOW",
+     "T2_WRITEPROV",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "unified_regen",
+     "usertoolnote"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_for_credit_card",
-    "onset": 5,
-    "detail": "card_type: gold=Silver Rewards Card ours=Platinum Rewards Card [tool-result]",
-    "gold_args": null
+    "msg_i": 5,
+    "turn": 5,
+    "detail": "card_type: gold=Silver Rewards Card(도착msg3) ours=Platinum Rewards Card [tool-result]",
+    "ours_marks": [],
+    "ours_says": [
+     "claimprov",
+     "unified_regen",
+     "usertoolnote"
+    ]
    }
   ],
   "trace_n": 55,
@@ -52,6 +88,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 29,
+  "transfer": true,
   "gold_n": 0,
   "done_n": 0,
   "blocked_n": 0,
@@ -71,47 +108,104 @@
   ],
   "term": "user_stop",
   "n_msgs": 85,
+  "transfer": true,
   "gold_n": 3,
   "done_n": 3,
   "blocked_n": 11,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "submit_cash_back_dispute_0589",
-    "onset": 43,
+    "msg_i": 43,
+    "turn": 43,
     "detail": "Error: Missing required parameter: user_id",
     "gold_args": {
      "user_id": "6680a37184",
      "transaction_id": "txn_cfabb609133d"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_DECIDE_BEFORE_WRITE",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_TOOL_CHANNEL"
+    ],
+    "ours_says": [
+     "followup",
+     "usertoolnote"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "submit_cash_back_dispute_0589",
-    "onset": 43,
+    "msg_i": 43,
+    "turn": 43,
     "detail": "Error: Missing required parameter: user_id",
     "gold_args": {
      "user_id": "6680a37184",
      "transaction_id": "txn_913d14a20dc5"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_DECIDE_BEFORE_WRITE",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_TOOL_CHANNEL"
+    ],
+    "ours_says": [
+     "followup",
+     "usertoolnote"
+    ]
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "update_transaction_rewards_3847",
-    "onset": 70,
+    "msg_i": 70,
+    "turn": 70,
     "detail": "{\"transaction_id\": \"txn_913d14a20dc5\", \"new_rewards_earned\": \"156 points\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_CLAIMPROV",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_STACK",
+     "T2_TRANSFER_TIER"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "update_transaction_rewards_3847",
-    "onset": 70,
+    "msg_i": 70,
+    "turn": 70,
     "detail": "{\"transaction_id\": \"txn_cfabb609133d\", \"new_rewards_earned\": \"87 points\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_CLAIMPROV",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_STACK",
+     "T2_TRANSFER_TIER"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 548,
@@ -129,6 +223,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 20,
+  "transfer": false,
   "gold_n": 1,
   "done_n": 1,
   "blocked_n": 0,
@@ -137,22 +232,50 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "apply_for_credit_card",
-    "onset": 4,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 4,
+    "turn": 4,
+    "detail": "도착 msg=13 · 지목 msg=4",
     "gold_args": {
      "card_type": "Business Bronze Rewards Card",
      "customer_name": "Marcus Chen",
      "annual_income": "120000",
      "rho_bank_subscription": false
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_ARBITRATE",
+     "T2_CLAIMPROV",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_NOW_SELFCALL",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_SEARCH_ON_PROCEED",
+     "T2_SELFDECL",
+     "T2_SOURCE",
+     "T2_STACK",
+     "T2_USER_TOOL_NOTE",
+     "T2_WINDOW",
+     "T2_WRITEPROV",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "unified_regen",
+     "usertoolnote"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_for_credit_card",
-    "onset": 17,
-    "detail": "card_type: gold=Business Bronze Rewards Card ours=Business Platinum Rewards Card [tool-result]",
-    "gold_args": null
+    "msg_i": 17,
+    "turn": 17,
+    "detail": "card_type: gold=Business Bronze Rewards Card(도착msg3) ours=Business Platinum Rewards Card [tool-result]",
+    "ours_marks": [],
+    "ours_says": []
    }
   ],
   "trace_n": 171,
@@ -170,6 +293,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 60,
+  "transfer": false,
   "gold_n": 4,
   "done_n": 6,
   "blocked_n": 0,
@@ -178,76 +302,192 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "open_bank_account_4821",
-    "onset": 30,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 30,
+    "turn": 30,
+    "detail": "도착 msg=13 · 지목 msg=30",
     "gold_args": {
      "user_id": "224959b99e",
      "account_type": "checking",
      "account_class": "Purple Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ARG_AXIS",
+     "T2_LEVER",
+     "T2_PREKB",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "open_bank_account_4821",
-    "onset": 30,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 30,
+    "turn": 30,
+    "detail": "도착 msg=13 · 지목 msg=30",
     "gold_args": {
      "user_id": "224959b99e",
      "account_type": "savings",
      "account_class": "Silver Plus Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ARG_AXIS",
+     "T2_LEVER",
+     "T2_PREKB",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "DELIVERY-MISS",
     "tool": "deposit_check_3847",
-    "onset": 58,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 58,
+    "turn": 58,
+    "detail": "이름이 궤적에 한 번도 안 왔다",
     "gold_args": {
      "account_id": "7e48bf3b0589cfad",
      "check_amount": "1500"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_EPLAN",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_PAIRFIX",
+     "T2_SCAFFOLD_GET",
+     "T2_SELFDECL"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 30,
-    "detail": "account_class: gold=Purple Account ours=Green Fee-Free Account [tool-result]",
-    "gold_args": null
+    "msg_i": 30,
+    "turn": 30,
+    "detail": "account_class: gold=Purple Account(도착msg11) ours=Green Fee-Free Account [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ARG_AXIS",
+     "T2_LEVER",
+     "T2_PREKB",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 42,
-    "detail": "account_class: gold=Purple Account ours=Gold Account [tool-result] · account_type: gold=checking ours=savings [tool-result]",
-    "gold_args": null
+    "msg_i": 42,
+    "turn": 42,
+    "detail": "account_class: gold=Purple Account(도착msg11) ours=Gold Account [tool-result] · account_type: gold=checking(도착msg11) ours=savings [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ARG_AXIS",
+     "T2_FB_VIEW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 46,
-    "detail": "account_class: gold=Purple Account ours=Green Fee-Free Account [tool-result]",
-    "gold_args": null
+    "msg_i": 46,
+    "turn": 46,
+    "detail": "account_class: gold=Purple Account(도착msg11) ours=Green Fee-Free Account [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ARG_AXIS",
+     "T2_DECISION_CARRY",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_FORCE_ACTION",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_LEVER",
+     "T2_OBJ_AXIS",
+     "T2_REDERIVE",
+     "T2_RESOLVE",
+     "T2_SCAFFOLD_GET",
+     "T2_SG_TRACE",
+     "T2_STACK",
+     "T2_WINDOW"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 46,
-    "detail": "account_class: gold=Purple Account ours=Gold Account [tool-result] · account_type: gold=checking ours=savings [tool-result]",
-    "gold_args": null
+    "msg_i": 46,
+    "turn": 46,
+    "detail": "account_class: gold=Purple Account(도착msg11) ours=Gold Account [tool-result] · account_type: gold=checking(도착msg11) ours=savings [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ARG_AXIS",
+     "T2_DECISION_CARRY",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_FORCE_ACTION",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_LEVER",
+     "T2_OBJ_AXIS",
+     "T2_REDERIVE",
+     "T2_RESOLVE",
+     "T2_SCAFFOLD_GET",
+     "T2_SG_TRACE",
+     "T2_STACK",
+     "T2_WINDOW"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 46,
+    "msg_i": 46,
+    "turn": 46,
     "detail": "{\"name\": \"Yuki Nakamura\", \"user_id\": \"224959b99e\", \"address\": \"3421 Sakura Avenue, Portland, OR 97205\", \"email",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ARG_AXIS",
+     "T2_DECISION_CARRY",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_FORCE_ACTION",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_LEVER",
+     "T2_OBJ_AXIS",
+     "T2_REDERIVE",
+     "T2_RESOLVE",
+     "T2_SCAFFOLD_GET",
+     "T2_SG_TRACE",
+     "T2_STACK",
+     "T2_WINDOW"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 366,
@@ -265,33 +505,72 @@
   ],
   "term": "user_stop",
   "n_msgs": 45,
+  "transfer": true,
   "gold_n": 3,
   "done_n": 1,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 43,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_lj82d4f1a9",
      "amount": "14",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 43,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_538bfb9cba",
      "amount": "3.5",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 305,
@@ -309,53 +588,126 @@
   ],
   "term": "user_stop",
   "n_msgs": 60,
+  "transfer": false,
   "gold_n": 4,
   "done_n": 2,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 58,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 5,
+    "turn": 5,
+    "detail": "도착 msg=5 · 지목 없음",
     "gold_args": {
      "account_id": "chk_kj93a7b2e1_1",
      "amount": "9.5",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_AXIS",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 58,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 5,
+    "turn": 5,
+    "detail": "도착 msg=5 · 지목 없음",
     "gold_args": {
      "account_id": "chk_kj93a7b2e1_2",
      "amount": "9",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_AXIS",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 58,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 5,
+    "turn": 5,
+    "detail": "도착 msg=5 · 지목 없음",
     "gold_args": {
      "account_id": "chk_kj93a7b2e1_3",
      "amount": "1.5",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_AXIS",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 28,
+    "msg_i": 28,
+    "turn": 28,
     "detail": "{\"name\": \"Kim Junho\", \"user_id\": \"kj93a7b2e1\", \"address\": \"5847 Wilshire Boulevard, Los Angeles, CA 90036\", \"e",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE_CAP",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 446,
@@ -373,6 +725,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 75,
+  "transfer": true,
   "gold_n": 3,
   "done_n": 4,
   "blocked_n": 0,
@@ -381,51 +734,120 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 67,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 67,
+    "turn": 67,
+    "detail": "도착 msg=3 · 지목 msg=67",
     "gold_args": {
      "account_id": "sav_sp93k4m7n2_silver",
      "amount": "33",
      "credit_type": "interest_correction"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_RESOLVE_CAP",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 39,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 39,
+    "turn": 39,
+    "detail": "도착 msg=3 · 지목 msg=39",
     "gold_args": {
      "account_id": "sav_sp93k4m7n2_silver",
      "user_id": "sp93k4m7n2",
      "expected_apy": "4.275",
      "actual_apy": "4",
      "amount_difference": "33"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ACTION_HISTORY",
+     "T2_CLAIMPROV",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_FB_VIEW",
+     "T2_GROUPORDER",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_SEARCH_ON_PROCEED",
+     "T2_SELFDECL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 39,
-    "detail": "actual_apy: gold=4 ours=3.33 [NOWHERE] · amount_difference: gold=33 ours=-126 [NOWHERE] · expected_apy: gold=4.275 ours=2.95 [self-said]",
-    "gold_args": null
+    "msg_i": 39,
+    "turn": 39,
+    "detail": "actual_apy: gold=4 ours=3.33 [NOWHERE] · amount_difference: gold=33(도착msg3) ours=-126 [NOWHERE] · expected_apy: gold=4.275 ours=2.95 [self-said]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ACTION_HISTORY",
+     "T2_CLAIMPROV",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_FB_VIEW",
+     "T2_GROUPORDER",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_SEARCH_ON_PROCEED",
+     "T2_SELFDECL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 55,
-    "detail": "actual_apy: gold=4 ours=3.33 [tool-result] · amount_difference: gold=33 ours=-45.6 [self-said] · expected_apy: gold=4.275 ours=2.95 [tool-result]",
-    "gold_args": null
+    "msg_i": 55,
+    "turn": 55,
+    "detail": "actual_apy: gold=4 ours=3.33 [tool-result] · amount_difference: gold=33(도착msg3) ours=-45.6 [self-said] · expected_apy: gold=4.275 ours=2.95 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ACTION_HISTORY",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_SEARCH_AGENT",
+     "T2_TRUNCGUARD",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "truncguard"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 71,
-    "detail": "amount: gold=33 ours=45.6 [tool-result]",
-    "gold_args": null
+    "msg_i": 71,
+    "turn": 71,
+    "detail": "amount: gold=33(도착msg3) ours=45.6 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 459,
@@ -443,27 +865,42 @@
   ],
   "term": "user_stop",
   "n_msgs": 68,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 3,
   "blocked_n": 1,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 66,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 20,
+    "turn": 20,
+    "detail": "도착 msg=20 · 지목 없음",
     "gold_args": {
      "account_id": "sav_wl94k7m3p8_gold",
      "amount": "140",
      "credit_type": "interest_correction"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE_CAP",
+     "T2_SCAFFOLD_GET",
+     "T2_SG_GROUND",
+     "T2_SG_ISOLATE",
+     "T2_SG_TRACE",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 28,
+    "msg_i": 28,
+    "turn": 28,
     "detail": "Error: Account 'wl94k7m3p8' not found.",
     "gold_args": {
      "account_id": "sav_wl94k7m3p8_gold",
@@ -471,23 +908,53 @@
      "expected_apy": "6.85",
      "actual_apy": "5.1",
      "amount_difference": "140"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 57,
+    "msg_i": 57,
+    "turn": 57,
     "detail": "actual_apy: gold=5.1 ours=5 [tool-result] · amount_difference: gold=140 ours=120 [tool-result] · expected_apy: gold=6.85 ours=6.5 [tool-result]",
-    "gold_args": null
+    "ours_marks": [],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 63,
+    "msg_i": 63,
+    "turn": 63,
     "detail": "amount: gold=140 ours=120 [tool-result]",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_LEVER",
+     "T2_TOOL_CHANNEL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "channel"
+    ]
    }
   ],
   "trace_n": 416,
@@ -505,6 +972,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 36,
+  "transfer": false,
   "gold_n": 2,
   "done_n": 2,
   "blocked_n": 0,
@@ -524,6 +992,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 34,
+  "transfer": false,
   "gold_n": 1,
   "done_n": 1,
   "blocked_n": 0,
@@ -532,22 +1001,52 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "apply_for_credit_card",
-    "onset": 4,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 4,
+    "turn": 4,
+    "detail": "도착 msg=None · 지목 msg=4",
     "gold_args": {
      "card_type": "Silver Rewards Card",
      "customer_name": "Catherine Wells",
      "annual_income": "180000",
      "rho_bank_subscription": true
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_ARBITRATE",
+     "T2_CLAIMPROV",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_NOW_SELFCALL",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_SEARCH_ON_PROCEED",
+     "T2_SELFDECL",
+     "T2_SOURCE",
+     "T2_STACK",
+     "T2_USER_TOOL_NOTE",
+     "T2_WINDOW",
+     "T2_WRITEPROV",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "unified_regen",
+     "usertoolnote"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_for_credit_card",
-    "onset": 31,
-    "detail": "card_type: gold=Silver Rewards Card ours=Platinum Rewards Card [tool-result]",
-    "gold_args": null
+    "msg_i": 31,
+    "turn": 31,
+    "detail": "card_type: gold=Silver Rewards Card(도착msg3) ours=Platinum Rewards Card [tool-result]",
+    "ours_marks": [],
+    "ours_says": [
+     "searchexhaust"
+    ]
    }
   ],
   "trace_n": 200,
@@ -565,6 +1064,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 26,
+  "transfer": true,
   "gold_n": 0,
   "done_n": 0,
   "blocked_n": 0,
@@ -584,6 +1084,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 62,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 3,
   "blocked_n": 4,
@@ -603,6 +1104,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 14,
+  "transfer": false,
   "gold_n": 1,
   "done_n": 1,
   "blocked_n": 0,
@@ -622,44 +1124,96 @@
   ],
   "term": "user_stop",
   "n_msgs": 66,
+  "transfer": true,
   "gold_n": 4,
   "done_n": 1,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "open_bank_account_4821",
-    "onset": 64,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 53,
+    "turn": 53,
+    "detail": "도착 msg=53 · 지목 없음",
     "gold_args": {
      "user_id": "224959b99e",
      "account_type": "checking",
      "account_class": "Purple Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_AXIS",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_READ_DEDUP",
+     "T2_RESOLVE",
+     "T2_STACK",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "open_bank_account_4821",
-    "onset": 64,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 53,
+    "turn": 53,
+    "detail": "도착 msg=53 · 지목 없음",
     "gold_args": {
      "user_id": "224959b99e",
      "account_type": "savings",
      "account_class": "Silver Plus Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_AXIS",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_READ_DEDUP",
+     "T2_RESOLVE",
+     "T2_STACK",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "deposit_check_3847",
-    "onset": 64,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 53,
+    "turn": 53,
+    "detail": "도착 msg=53 · 지목 없음",
     "gold_args": {
      "account_id": "7e48bf3b0589cfad",
      "check_amount": "1500"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_AXIS",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_READ_DEDUP",
+     "T2_RESOLVE",
+     "T2_STACK",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 334,
@@ -677,33 +1231,72 @@
   ],
   "term": "user_stop",
   "n_msgs": 42,
+  "transfer": true,
   "gold_n": 3,
   "done_n": 1,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 40,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_lj82d4f1a9",
      "amount": "14",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 40,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_538bfb9cba",
      "amount": "3.5",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 279,
@@ -721,45 +1314,112 @@
   ],
   "term": "user_stop",
   "n_msgs": 58,
+  "transfer": true,
   "gold_n": 4,
   "done_n": 1,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 56,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 5,
+    "turn": 5,
+    "detail": "도착 msg=5 · 지목 없음",
     "gold_args": {
      "account_id": "chk_kj93a7b2e1_1",
      "amount": "9.5",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_AXIS",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 56,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 5,
+    "turn": 5,
+    "detail": "도착 msg=5 · 지목 없음",
     "gold_args": {
      "account_id": "chk_kj93a7b2e1_2",
      "amount": "9",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_AXIS",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 56,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 5,
+    "turn": 5,
+    "detail": "도착 msg=5 · 지목 없음",
     "gold_args": {
      "account_id": "chk_kj93a7b2e1_3",
      "amount": "1.5",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_AXIS",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 407,
@@ -777,27 +1437,53 @@
   ],
   "term": "user_stop",
   "n_msgs": 102,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 3,
   "blocked_n": 4,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 100,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "sav_sp93k4m7n2_silver",
      "amount": "33",
      "credit_type": "interest_correction"
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_CLAIMPROV",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_SELFDECL",
+     "T2_STACK",
+     "T2_UNAVAIL",
+     "T2_UNCALLED_UNLOCK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 70,
+    "msg_i": 70,
+    "turn": 70,
     "detail": "Error: Invalid arguments: KnowledgeTools.submit_interest_dis",
     "gold_args": {
      "account_id": "sav_sp93k4m7n2_silver",
@@ -805,23 +1491,39 @@
      "expected_apy": "4.275",
      "actual_apy": "4",
      "amount_difference": "33"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_FB_VIEW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 92,
-    "detail": "actual_apy: gold=4 ours=2.5 [tool-result] · amount_difference: gold=33 ours=30 [tool-result] · expected_apy: gold=4.275 ours=2.75 [tool-result]",
-    "gold_args": null
+    "msg_i": 92,
+    "turn": 92,
+    "detail": "actual_apy: gold=4 ours=2.5 [tool-result] · amount_difference: gold=33(도착msg3) ours=30 [tool-result] · expected_apy: gold=4.275 ours=2.75 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 98,
-    "detail": "amount: gold=33 ours=30 [tool-result]",
-    "gold_args": null
+    "msg_i": 98,
+    "turn": 98,
+    "detail": "amount: gold=33(도착msg3) ours=30 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 543,
@@ -839,27 +1541,36 @@
   ],
   "term": "user_stop",
   "n_msgs": 78,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 3,
   "blocked_n": 5,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 44,
+    "msg_i": 44,
+    "turn": 44,
     "detail": "Error: Account 'wl94k7m3p8' not found.",
     "gold_args": {
      "account_id": "sav_wl94k7m3p8_gold",
      "amount": "140",
      "credit_type": "interest_correction"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_MATERIAL_GATE",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 46,
+    "msg_i": 46,
+    "turn": 46,
     "detail": "Error: Account 'wl94k7m3p8' not found.",
     "gold_args": {
      "account_id": "sav_wl94k7m3p8_gold",
@@ -867,23 +1578,44 @@
      "expected_apy": "6.85",
      "actual_apy": "5.1",
      "amount_difference": "140"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_MATERIAL_GATE",
+     "T2_UNCALLED_UNLOCK"
+    ],
+    "ours_says": [
+     "uncalled_unlock",
+     "writesub"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 68,
+    "msg_i": 68,
+    "turn": 68,
     "detail": "amount_difference: gold=140 ours=92 [tool-result] · expected_apy: gold=6.85 ours=6.25 [tool-result]",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_FB_VIEW",
+     "T2_RESOLVE_CAP",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 74,
+    "msg_i": 74,
+    "turn": 74,
     "detail": "amount: gold=140 ours=112 [tool-result]",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 376,
@@ -901,6 +1633,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 30,
+  "transfer": false,
   "gold_n": 2,
   "done_n": 2,
   "blocked_n": 0,
@@ -920,23 +1653,47 @@
   ],
   "term": "user_stop",
   "n_msgs": 52,
+  "transfer": false,
   "gold_n": 2,
   "done_n": 1,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "DELIVERY-MISS",
     "tool": "submit_transaction",
-    "onset": 50,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 50,
+    "turn": 50,
+    "detail": "이름이 궤적에 한 번도 안 왔다",
     "gold_args": {
      "user_id": "friend_user_5839",
      "credit_card_type": "Silver Rewards Card",
      "merchant_name": "Best Buy",
      "amount": "750",
      "category": "Shopping"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ACTION_SUB",
+     "T2_CLAIMPROV",
+     "T2_DECISION_CARRY",
+     "T2_DISCOVERY_STEP2",
+     "T2_FORCE_ACTION",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_REQUIRE_DOC",
+     "T2_RESOLVE",
+     "T2_SCAFFOLD_GET",
+     "T2_SELFDECL",
+     "T2_STACK",
+     "T2_UNAVAIL",
+     "T2_WINDOW"
+    ],
+    "ours_says": [
+     "claimprov",
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 396,
@@ -954,6 +1711,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 20,
+  "transfer": false,
   "gold_n": 0,
   "done_n": 0,
   "blocked_n": 0,
@@ -973,6 +1731,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 52,
+  "transfer": false,
   "gold_n": 9,
   "done_n": 1,
   "blocked_n": 0,
@@ -981,8 +1740,9 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 22,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 22,
+    "turn": 22,
+    "detail": "도착 msg=7 · 지목 msg=22",
     "gold_args": {
      "transaction_id": "txn_25e23705f61f",
      "card_action": "keep_active",
@@ -998,14 +1758,30 @@
      "dispute_reason": "duplicate_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": true
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_CLAIMPROV",
+     "T2_LEVER",
+     "T2_PHASE_PRECEDE",
+     "T2_RESOLVE_CAP",
+     "T2_SELFDECL",
+     "T2_UNAVAIL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "writesub"
+    ]
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 22,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 22,
+    "turn": 22,
+    "detail": "도착 msg=7 · 지목 msg=22",
     "gold_args": {
      "transaction_id": "txn_fd4c3871654e",
      "card_action": "keep_active",
@@ -1021,14 +1797,30 @@
      "dispute_reason": "unauthorized_fraudulent_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": true
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_CLAIMPROV",
+     "T2_LEVER",
+     "T2_PHASE_PRECEDE",
+     "T2_RESOLVE_CAP",
+     "T2_SELFDECL",
+     "T2_UNAVAIL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "writesub"
+    ]
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 22,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 22,
+    "turn": 22,
+    "detail": "도착 msg=7 · 지목 msg=22",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e503",
      "card_action": "keep_active",
@@ -1044,14 +1836,30 @@
      "dispute_reason": "unauthorized_fraudulent_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_CLAIMPROV",
+     "T2_LEVER",
+     "T2_PHASE_PRECEDE",
+     "T2_RESOLVE_CAP",
+     "T2_SELFDECL",
+     "T2_UNAVAIL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "writesub"
+    ]
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 22,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 22,
+    "turn": 22,
+    "detail": "도착 msg=7 · 지목 msg=22",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e510",
      "card_action": "keep_active",
@@ -1067,14 +1875,30 @@
      "dispute_reason": "duplicate_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_CLAIMPROV",
+     "T2_LEVER",
+     "T2_PHASE_PRECEDE",
+     "T2_RESOLVE_CAP",
+     "T2_SELFDECL",
+     "T2_UNAVAIL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "writesub"
+    ]
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 22,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 22,
+    "turn": 22,
+    "detail": "도착 msg=7 · 지목 msg=22",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e508",
      "card_action": "keep_active",
@@ -1091,14 +1915,30 @@
      "resolution_requested": "partial_refund",
      "partial_refund_amount": "24.56",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_CLAIMPROV",
+     "T2_LEVER",
+     "T2_PHASE_PRECEDE",
+     "T2_RESOLVE_CAP",
+     "T2_SELFDECL",
+     "T2_UNAVAIL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "writesub"
+    ]
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 22,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 22,
+    "turn": 22,
+    "detail": "도착 msg=7 · 지목 msg=22",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e513",
      "card_action": "keep_active",
@@ -1114,14 +1954,30 @@
      "dispute_reason": "canceled_subscription_still_charging",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_CLAIMPROV",
+     "T2_LEVER",
+     "T2_PHASE_PRECEDE",
+     "T2_RESOLVE_CAP",
+     "T2_SELFDECL",
+     "T2_UNAVAIL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "writesub"
+    ]
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 22,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 22,
+    "turn": 22,
+    "detail": "도착 msg=7 · 지목 msg=22",
     "gold_args": {
      "transaction_id": "txn_bc21d98cc4e4",
      "card_action": "keep_active",
@@ -1137,14 +1993,30 @@
      "dispute_reason": "goods_services_not_as_described",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_CLAIMPROV",
+     "T2_LEVER",
+     "T2_PHASE_PRECEDE",
+     "T2_RESOLVE_CAP",
+     "T2_SELFDECL",
+     "T2_UNAVAIL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "writesub"
+    ]
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 22,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 22,
+    "turn": 22,
+    "detail": "도착 msg=7 · 지목 msg=22",
     "gold_args": {
      "transaction_id": "txn_3ef1a3e9bf56",
      "card_action": "keep_active",
@@ -1160,7 +2032,22 @@
      "dispute_reason": "refund_never_processed",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_CLAIMPROV",
+     "T2_LEVER",
+     "T2_PHASE_PRECEDE",
+     "T2_RESOLVE_CAP",
+     "T2_SELFDECL",
+     "T2_UNAVAIL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "writesub"
+    ]
    }
   ],
   "trace_n": 365,
@@ -1178,6 +2065,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 60,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 4,
   "blocked_n": 0,
@@ -1186,9 +2074,14 @@
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "approve_credit_limit_increase_5847",
-    "onset": 56,
+    "msg_i": 56,
+    "turn": 56,
     "detail": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\", \"user_id\": \"584f9c5d00\", \"new_credit_limit\": \"7500\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 265,
@@ -1206,20 +2099,24 @@
   ],
   "term": "user_stop",
   "n_msgs": 142,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 2,
   "blocked_n": 21,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "DELIVERY-MISS",
     "tool": "deposit_check_3847",
-    "onset": 140,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 140,
+    "turn": 140,
+    "detail": "이름이 궤적에 한 번도 안 왔다",
     "gold_args": {
      "account_id": "ac554054181e71ad",
      "check_amount": "2000"
-    }
+    },
+    "ours_marks": [],
+    "ours_says": []
    }
   ],
   "trace_n": 473,
@@ -1237,50 +2134,87 @@
   ],
   "term": "user_stop",
   "n_msgs": 70,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 3,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "DELIVERY-MISS",
     "tool": "apply_for_credit_card",
-    "onset": 68,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 68,
+    "turn": 68,
+    "detail": "이름이 궤적에 한 번도 안 왔다",
     "gold_args": {
      "card_type": "Silver Rewards Card",
      "customer_name": "Taylor Brooks",
      "annual_income": "85000",
      "rho_bank_subscription": false
-    }
+    },
+    "ours_marks": [],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "open_bank_account_4821",
-    "onset": 48,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 48,
+    "turn": 48,
+    "detail": "도착 msg=24 · 지목 msg=48",
     "gold_args": {
      "user_id": "tb58a3c9d2",
      "account_type": "savings",
      "account_class": "Silver Plus Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_AXIS",
+     "T2_FB_VIEW",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_STACK",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_for_credit_card",
-    "onset": 11,
-    "detail": "card_type: gold=Silver Rewards Card ours=Bronze Rewards Card [tool-result]",
-    "gold_args": null
+    "msg_i": 11,
+    "turn": 11,
+    "detail": "card_type: gold=Silver Rewards Card(도착msg3) ours=Bronze Rewards Card [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_AXIS",
+     "T2_LEVER"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 48,
-    "detail": "account_class: gold=Silver Plus Account ours=Gold Account [tool-result]",
-    "gold_args": null
+    "msg_i": 48,
+    "turn": 48,
+    "detail": "account_class: gold=Silver Plus Account(도착msg3) ours=Gold Account [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_AXIS",
+     "T2_FB_VIEW",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_STACK",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 435,
@@ -1298,89 +2232,146 @@
   ],
   "term": "user_stop",
   "n_msgs": 75,
+  "transfer": false,
   "gold_n": 5,
   "done_n": 5,
   "blocked_n": 4,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 49,
+    "msg_i": 49,
+    "turn": 49,
     "detail": "Error: Account 'Purple Account' not found.",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_1",
      "amount": "27",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_LEVER",
+     "T2_TOOL_CHANNEL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "channel"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 49,
+    "msg_i": 49,
+    "turn": 49,
     "detail": "Error: Account 'Purple Account' not found.",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_2",
      "amount": "14.5",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_LEVER",
+     "T2_TOOL_CHANNEL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "channel"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 49,
+    "msg_i": 49,
+    "turn": 49,
     "detail": "Error: Account 'Purple Account' not found.",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_3",
      "amount": "4.75",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_LEVER",
+     "T2_TOOL_CHANNEL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "channel"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 49,
+    "msg_i": 49,
+    "turn": 49,
     "detail": "Error: Account 'Purple Account' not found.",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_4",
      "amount": "3.7",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_LEVER",
+     "T2_TOOL_CHANNEL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "channel"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 68,
-    "detail": "amount: gold=27 ours=1 [tool-result]",
-    "gold_args": null
+    "msg_i": 68,
+    "turn": 68,
+    "detail": "amount: gold=27(도착msg10) ours=1 [tool-result]",
+    "ours_marks": [],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 68,
-    "detail": "account_id: gold=chk_ar72c5d8e3_1 ours=chk_ar72c5d8e3_2 [tool-result] · amount: gold=27 ours=2.5 [tool-result]",
-    "gold_args": null
+    "msg_i": 68,
+    "turn": 68,
+    "detail": "account_id: gold=chk_ar72c5d8e3_1(도착msg67) ours=chk_ar72c5d8e3_2 [tool-result] · amount: gold=27(도착msg10) ours=2.5 [tool-result]",
+    "ours_marks": [],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 68,
-    "detail": "account_id: gold=chk_ar72c5d8e3_1 ours=chk_ar72c5d8e3_3 [tool-result] · amount: gold=27 ours=1.25 [tool-result]",
-    "gold_args": null
+    "msg_i": 68,
+    "turn": 68,
+    "detail": "account_id: gold=chk_ar72c5d8e3_1(도착msg67) ours=chk_ar72c5d8e3_3 [tool-result] · amount: gold=27(도착msg10) ours=1.25 [tool-result]",
+    "ours_marks": [],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 68,
-    "detail": "account_id: gold=chk_ar72c5d8e3_1 ours=chk_ar72c5d8e3_4 [tool-result] · amount: gold=27 ours=1.5 [tool-result]",
-    "gold_args": null
+    "msg_i": 68,
+    "turn": 68,
+    "detail": "account_id: gold=chk_ar72c5d8e3_1(도착msg67) ours=chk_ar72c5d8e3_4 [tool-result] · amount: gold=27(도착msg10) ours=1.5 [tool-result]",
+    "ours_marks": [],
+    "ours_says": []
    }
   ],
   "trace_n": 353,
@@ -1398,15 +2389,17 @@
   ],
   "term": "user_stop",
   "n_msgs": 124,
+  "transfer": false,
   "gold_n": 12,
   "done_n": 14,
   "blocked_n": 9,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "order_debit_card_5739",
-    "onset": 96,
+    "msg_i": 96,
+    "turn": 96,
     "detail": "Error: There is already a pending debit card order for accou",
     "gold_args": {
      "account_id": "chk_cr89a2b3c4_1",
@@ -1416,31 +2409,51 @@
      "card_design": "PREMIUM",
      "design_fee": "0",
      "shipping_address": "4521 West 6th Street, Austin, TX 78703"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "order_debit_card_5739",
-    "onset": 82,
-    "detail": "card_design: gold=PREMIUM ours=CLASSIC [tool-result] · delivery_fee: gold=35 ours=0 [tool-result] · delivery_option: gold=RUSH ours=STANDARD [tool-result]",
-    "gold_args": null
+    "msg_i": 82,
+    "turn": 82,
+    "detail": "card_design: gold=PREMIUM(도착msg3) ours=CLASSIC [tool-result] · delivery_fee: gold=35(도착msg3) ours=0 [tool-result] · delivery_option: gold=RUSH(도착msg3) ours=STANDARD [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "order_debit_card_5739",
-    "onset": 82,
-    "detail": "account_id: gold=chk_cr89a2b3c4_1 ours=chk_cr89a2b3c4_2 [tool-result] · card_design: gold=PREMIUM ours=CLASSIC [tool-result] · delivery_fee: gold=35 ours=0 [tool-result] · delivery_option: gold=RUSH ours=STANDARD [tool-result]",
-    "gold_args": null
+    "msg_i": 82,
+    "turn": 82,
+    "detail": "account_id: gold=chk_cr89a2b3c4_1(도착msg49) ours=chk_cr89a2b3c4_2 [tool-result] · card_design: gold=PREMIUM(도착msg3) ours=CLASSIC [tool-result] · delivery_fee: gold=35(도착msg3) ours=0 [tool-result] · delivery_option: gold=RUSH(도착msg3) ours=STANDARD [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "close_debit_card_4721",
-    "onset": 102,
-    "detail": "card_id: gold=dbc_cr89a2b3c4_ev ours=dbc_ccd754fff558 [tool-result]",
-    "gold_args": null
+    "msg_i": 102,
+    "turn": 102,
+    "detail": "card_id: gold=dbc_cr89a2b3c4_ev(도착msg51) ours=dbc_ccd754fff558 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 474,
@@ -1458,16 +2471,18 @@
   ],
   "term": "user_stop",
   "n_msgs": 70,
+  "transfer": false,
   "gold_n": 4,
   "done_n": 4,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 68,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 9,
+    "turn": 9,
+    "detail": "도착 msg=9 · 지목 없음",
     "gold_args": {
      "transaction_id": "btxn_a1b2c3d4e501",
      "account_id": "chk_b4d92f7c28",
@@ -1486,14 +2501,34 @@
      "provisional_credit_eligible": true,
      "card_action": "keep_active",
      "customer_max_liability_amount": "50"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_VIEW_COMPACT",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 68,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 9,
+    "turn": 9,
+    "detail": "도착 msg=9 · 지목 없음",
     "gold_args": {
      "transaction_id": "btxn_b2c3d4e5f602",
      "account_id": "chk_b4d92f7c28",
@@ -1512,14 +2547,34 @@
      "provisional_credit_eligible": true,
      "card_action": "keep_active",
      "customer_max_liability_amount": "50"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_VIEW_COMPACT",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 68,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 9,
+    "turn": 9,
+    "detail": "도착 msg=9 · 지목 없음",
     "gold_args": {
      "transaction_id": "btxn_f6g7h8i9j006",
      "account_id": "chk_e8a31c9d47",
@@ -1538,31 +2593,103 @@
      "provisional_credit_eligible": false,
      "card_action": "keep_active",
      "customer_max_liability_amount": "50"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_VIEW_COMPACT",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 28,
+    "msg_i": 28,
+    "turn": 28,
     "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen",
+     "writesub"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 30,
+    "msg_i": 30,
+    "turn": 30,
     "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 32,
+    "msg_i": 32,
+    "turn": 32,
     "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 393,
@@ -1580,6 +2707,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 32,
+  "transfer": false,
   "gold_n": 2,
   "done_n": 2,
   "blocked_n": 0,
@@ -1599,23 +2727,38 @@
   ],
   "term": "user_stop",
   "n_msgs": 34,
+  "transfer": false,
   "gold_n": 2,
   "done_n": 1,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "DELIVERY-MISS",
     "tool": "submit_transaction",
-    "onset": 32,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 32,
+    "turn": 32,
+    "detail": "이름이 궤적에 한 번도 안 왔다",
     "gold_args": {
      "user_id": "friend_user_5839",
      "credit_card_type": "Silver Rewards Card",
      "merchant_name": "Best Buy",
      "amount": "750",
      "category": "Shopping"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_EPLAN",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_REQUIRE_DOC",
+     "T2_SCAFFOLD_GET",
+     "T2_SELFDECL",
+     "T2_STACK"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 237,
@@ -1633,6 +2776,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 24,
+  "transfer": true,
   "gold_n": 0,
   "done_n": 0,
   "blocked_n": 0,
@@ -1652,15 +2796,17 @@
   ],
   "term": "user_stop",
   "n_msgs": 41,
+  "transfer": false,
   "gold_n": 9,
   "done_n": 1,
   "blocked_n": 2,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 31,
+    "msg_i": 31,
+    "turn": 31,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_25e23705f61f",
@@ -1677,13 +2823,28 @@
      "dispute_reason": "duplicate_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": true
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_DECIDE_BEFORE_WRITE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_SUB_RECORDS",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 31,
+    "msg_i": 31,
+    "turn": 31,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_fd4c3871654e",
@@ -1700,13 +2861,28 @@
      "dispute_reason": "unauthorized_fraudulent_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": true
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_DECIDE_BEFORE_WRITE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_SUB_RECORDS",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 31,
+    "msg_i": 31,
+    "turn": 31,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e503",
@@ -1723,13 +2899,28 @@
      "dispute_reason": "unauthorized_fraudulent_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_DECIDE_BEFORE_WRITE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_SUB_RECORDS",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 31,
+    "msg_i": 31,
+    "turn": 31,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e510",
@@ -1746,13 +2937,28 @@
      "dispute_reason": "duplicate_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_DECIDE_BEFORE_WRITE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_SUB_RECORDS",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 31,
+    "msg_i": 31,
+    "turn": 31,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e508",
@@ -1770,13 +2976,28 @@
      "resolution_requested": "partial_refund",
      "partial_refund_amount": "24.56",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_DECIDE_BEFORE_WRITE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_SUB_RECORDS",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 31,
+    "msg_i": 31,
+    "turn": 31,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e513",
@@ -1793,13 +3014,28 @@
      "dispute_reason": "canceled_subscription_still_charging",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_DECIDE_BEFORE_WRITE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_SUB_RECORDS",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 31,
+    "msg_i": 31,
+    "turn": 31,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_bc21d98cc4e4",
@@ -1816,13 +3052,28 @@
      "dispute_reason": "goods_services_not_as_described",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_DECIDE_BEFORE_WRITE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_SUB_RECORDS",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 31,
+    "msg_i": 31,
+    "turn": 31,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_3ef1a3e9bf56",
@@ -1839,7 +3090,21 @@
      "dispute_reason": "refund_never_processed",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_DECIDE_BEFORE_WRITE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_SUB_RECORDS",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 270,
@@ -1857,6 +3122,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 67,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 3,
   "blocked_n": 1,
@@ -1876,40 +3142,78 @@
   ],
   "term": "user_stop",
   "n_msgs": 70,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 2,
   "blocked_n": 5,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "open_bank_account_4821",
-    "onset": 42,
+    "msg_i": 42,
+    "turn": 42,
     "detail": "Error: Account eligibility requirements not met.",
     "gold_args": {
      "user_id": "a8c4e2f7b3",
      "account_type": "checking",
      "account_class": "Blue Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_LEVER",
+     "T2_STACK",
+     "T2_WRITE_ARG_ENUM",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "DELIVERY-MISS",
     "tool": "deposit_check_3847",
-    "onset": 68,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 68,
+    "turn": 68,
+    "detail": "이름이 궤적에 한 번도 안 왔다",
     "gold_args": {
      "account_id": "ac554054181e71ad",
      "check_amount": "2000"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_CLAIMPROV",
+     "T2_DOCGROUP",
+     "T2_EPLAN",
+     "T2_FB_VIEW",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_SCAFFOLD_GET",
+     "T2_SEARCH_AGENT",
+     "T2_SELFDECL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 22,
-    "detail": "account_class: gold=Blue Account ours=Light Blue Account [tool-result]",
-    "gold_args": null
+    "msg_i": 22,
+    "turn": 22,
+    "detail": "account_class: gold=Blue Account(도착msg5) ours=Light Blue Account [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_LEVER",
+     "T2_PREKB",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    }
   ],
   "trace_n": 288,
@@ -1927,6 +3231,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 42,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 2,
   "blocked_n": 0,
@@ -1935,13 +3240,20 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "open_bank_account_4821",
-    "onset": 24,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 24,
+    "turn": 24,
+    "detail": "도착 msg=23 · 지목 msg=24",
     "gold_args": {
      "user_id": "tb58a3c9d2",
      "account_type": "savings",
      "account_class": "Silver Plus Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_SCAFFOLD_GET",
+     "T2_SG_TRACE"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 299,
@@ -1959,57 +3271,106 @@
   ],
   "term": "user_stop",
   "n_msgs": 76,
+  "transfer": false,
   "gold_n": 5,
   "done_n": 1,
   "blocked_n": 16,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 31,
+    "msg_i": 31,
+    "turn": 31,
     "detail": "Error: Account 'Purple Account' not found.",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_1",
      "amount": "27",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_LEVER",
+     "T2_TOOL_CHANNEL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "channel"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 31,
+    "msg_i": 31,
+    "turn": 31,
     "detail": "Error: Account 'Purple Account' not found.",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_2",
      "amount": "14.5",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_LEVER",
+     "T2_TOOL_CHANNEL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "channel"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 31,
+    "msg_i": 31,
+    "turn": 31,
     "detail": "Error: Account 'Purple Account' not found.",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_3",
      "amount": "4.75",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_LEVER",
+     "T2_TOOL_CHANNEL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "channel"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 31,
+    "msg_i": 31,
+    "turn": 31,
     "detail": "Error: Account 'Purple Account' not found.",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_4",
      "amount": "3.7",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_LEVER",
+     "T2_TOOL_CHANNEL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "channel"
+    ]
    }
   ],
   "trace_n": 361,
@@ -2025,6 +3386,7 @@
   "basis": null,
   "term": "context_window_exceeded",
   "n_msgs": 150,
+  "transfer": true,
   "gold_n": 0,
   "done_n": 13,
   "blocked_n": 5,
@@ -2033,105 +3395,178 @@
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "log_verification",
-    "onset": 23,
+    "msg_i": 23,
+    "turn": 23,
     "detail": "{\"name\": \"Carlos Rodriguez\", \"user_id\": \"cr89a2b3c4\", \"address\": \"4521 West 6th Street, Austin, TX 78703\", \"em",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_PHASE_PRECEDE",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "freeze_debit_card_3892",
-    "onset": 55,
+    "msg_i": 55,
+    "turn": 55,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_ev\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE_CAP",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "freeze_debit_card_3892",
-    "onset": 59,
+    "msg_i": 59,
+    "turn": 59,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_lb\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "freeze_debit_card_3892",
-    "onset": 63,
+    "msg_i": 63,
+    "turn": 63,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_green\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "unfreeze_debit_card_3893",
-    "onset": 79,
+    "msg_i": 79,
+    "turn": 79,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_ev\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "close_debit_card_4721",
-    "onset": 81,
+    "msg_i": 81,
+    "turn": 81,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_ev\", \"reason\": \"stolen\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "unfreeze_debit_card_3893",
-    "onset": 83,
+    "msg_i": 83,
+    "turn": 83,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_lb\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "close_debit_card_4721",
-    "onset": 85,
+    "msg_i": 85,
+    "turn": 85,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_lb\", \"reason\": \"stolen\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "unfreeze_debit_card_3893",
-    "onset": 87,
+    "msg_i": 87,
+    "turn": 87,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_green\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "close_debit_card_4721",
-    "onset": 89,
+    "msg_i": 89,
+    "turn": 89,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_green\", \"reason\": \"stolen\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "order_debit_card_5739",
-    "onset": 115,
+    "msg_i": 115,
+    "turn": 115,
     "detail": "{\"account_id\": \"chk_cr89a2b3c4_1\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"STANDARD\", \"delivery_fee\": \"0\"",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "order_debit_card_5739",
-    "onset": 117,
+    "msg_i": 117,
+    "turn": 117,
     "detail": "{\"account_id\": \"chk_cr89a2b3c4_2\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"STANDARD\", \"delivery_fee\": \"0\"",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "order_debit_card_5739",
-    "onset": 119,
+    "msg_i": 119,
+    "turn": 119,
     "detail": "{\"account_id\": \"chk_cr89a2b3c4_3\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"STANDARD\", \"delivery_fee\": \"0\"",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 654,
@@ -2149,15 +3584,17 @@
   ],
   "term": "user_stop",
   "n_msgs": 118,
+  "transfer": true,
   "gold_n": 4,
   "done_n": 5,
   "blocked_n": 1,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 90,
+    "msg_i": 90,
+    "turn": 90,
     "detail": "Error: Dispute may have already been filed for this transact",
     "gold_args": {
      "transaction_id": "btxn_a1b2c3d4e501",
@@ -2177,13 +3614,19 @@
      "provisional_credit_eligible": true,
      "card_action": "keep_active",
      "customer_max_liability_amount": "50"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 90,
+    "msg_i": 90,
+    "turn": 90,
     "detail": "Error: Dispute may have already been filed for this transact",
     "gold_args": {
      "transaction_id": "btxn_b2c3d4e5f602",
@@ -2203,13 +3646,19 @@
      "provisional_credit_eligible": true,
      "card_action": "keep_active",
      "customer_max_liability_amount": "50"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 90,
+    "msg_i": 90,
+    "turn": 90,
     "detail": "Error: Dispute may have already been filed for this transact",
     "gold_args": {
      "transaction_id": "btxn_f6g7h8i9j006",
@@ -2229,39 +3678,113 @@
      "provisional_credit_eligible": false,
      "card_action": "keep_active",
      "customer_max_liability_amount": "50"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 56,
+    "msg_i": 56,
+    "turn": 56,
     "detail": "account_id: gold=chk_b4d92f7c28 ours=f7d3a82c91 [tool-result] · card_id: gold=dbc_c4a72d9f66 ours=unknown [tool-result] · discovery_date: gold=11/05/2025 ours=11/14/2025 [NOWHERE] · provisional_credit_eligible: gold=True ours=False [-] · transaction_id: gold=btxn_a1b2c3d4e501 ours=tx123456 [tool-result]",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_DECIDE_BEFORE_WRITE",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 28,
+    "msg_i": 28,
+    "turn": 28,
     "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen",
+     "writesub"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 30,
+    "msg_i": 30,
+    "turn": 30,
     "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen",
+     "writesub"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 32,
+    "msg_i": 32,
+    "turn": 32,
     "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 560,
@@ -2279,6 +3802,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 32,
+  "transfer": false,
   "gold_n": 2,
   "done_n": 2,
   "blocked_n": 0,
@@ -2298,6 +3822,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 10,
+  "transfer": false,
   "gold_n": 1,
   "done_n": 1,
   "blocked_n": 0,
@@ -2306,22 +3831,58 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "apply_for_credit_card",
-    "onset": 6,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 6,
+    "turn": 6,
+    "detail": "도착 msg=None · 지목 msg=6",
     "gold_args": {
      "card_type": "Silver Rewards Card",
      "customer_name": "Catherine Wells",
      "annual_income": "180000",
      "rho_bank_subscription": true
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ARBITRATE",
+     "T2_CLAIMPROV",
+     "T2_DECISION_CARRY",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_NOW_SELFCALL",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SCAFFOLD_GET",
+     "T2_SEARCH_AGENT",
+     "T2_SEARCH_ON_PROCEED",
+     "T2_SELFDECL",
+     "T2_SOURCE",
+     "T2_STACK",
+     "T2_USER_TOOL_NOTE",
+     "T2_WINDOW",
+     "T2_WRITEPROV",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "unified_regen",
+     "usertoolnote"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_for_credit_card",
-    "onset": 7,
-    "detail": "card_type: gold=Silver Rewards Card ours=Gold Rewards Card [tool-result]",
-    "gold_args": null
+    "msg_i": 7,
+    "turn": 7,
+    "detail": "card_type: gold=Silver Rewards Card(도착msg3) ours=Gold Rewards Card [tool-result]",
+    "ours_marks": [],
+    "ours_says": [
+     "claimprov",
+     "unified_regen",
+     "usertoolnote"
+    ]
    }
   ],
   "trace_n": 93,
@@ -2339,6 +3900,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 29,
+  "transfer": false,
   "gold_n": 0,
   "done_n": 0,
   "blocked_n": 0,
@@ -2358,31 +3920,58 @@
   ],
   "term": "user_stop",
   "n_msgs": 54,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 1,
   "blocked_n": 5,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "submit_cash_back_dispute_0589",
-    "onset": 39,
+    "msg_i": 39,
+    "turn": 39,
     "detail": "Error: Missing required parameter: user_id",
     "gold_args": {
      "user_id": "6680a37184",
      "transaction_id": "txn_cfabb609133d"
-    }
+    },
+    "ours_marks": [
+     "T2_CLAIMPROV",
+     "T2_FOLLOWUP",
+     "T2_GATE_REGEN",
+     "T2_MATERIAL_GATE",
+     "T2_SELFDECL",
+     "T2_STACK"
+    ],
+    "ours_says": [
+     "followup",
+     "usertoolnote"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "submit_cash_back_dispute_0589",
-    "onset": 39,
+    "msg_i": 39,
+    "turn": 39,
     "detail": "Error: Missing required parameter: user_id",
     "gold_args": {
      "user_id": "6680a37184",
      "transaction_id": "txn_913d14a20dc5"
-    }
+    },
+    "ours_marks": [
+     "T2_CLAIMPROV",
+     "T2_FOLLOWUP",
+     "T2_GATE_REGEN",
+     "T2_MATERIAL_GATE",
+     "T2_SELFDECL",
+     "T2_STACK"
+    ],
+    "ours_says": [
+     "followup",
+     "usertoolnote"
+    ]
    }
   ],
   "trace_n": 302,
@@ -2400,6 +3989,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 16,
+  "transfer": false,
   "gold_n": 1,
   "done_n": 1,
   "blocked_n": 0,
@@ -2408,22 +3998,52 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "apply_for_credit_card",
-    "onset": 4,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 4,
+    "turn": 4,
+    "detail": "도착 msg=None · 지목 msg=4",
     "gold_args": {
      "card_type": "Business Bronze Rewards Card",
      "customer_name": "Marcus Chen",
      "annual_income": "120000",
      "rho_bank_subscription": false
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_ARBITRATE",
+     "T2_CLAIMPROV",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_NOW_SELFCALL",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_SEARCH_ON_PROCEED",
+     "T2_SELFDECL",
+     "T2_SOURCE",
+     "T2_STACK",
+     "T2_USER_TOOL_NOTE",
+     "T2_WINDOW",
+     "T2_WRITEPROV",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "unified_regen",
+     "usertoolnote"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_for_credit_card",
-    "onset": 13,
-    "detail": "card_type: gold=Business Bronze Rewards Card ours=Business Platinum Rewards Card [tool-result]",
-    "gold_args": null
+    "msg_i": 13,
+    "turn": 13,
+    "detail": "card_type: gold=Business Bronze Rewards Card(도착msg3) ours=Business Platinum Rewards Card [tool-result]",
+    "ours_marks": [],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 123,
@@ -2441,6 +4061,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 72,
+  "transfer": true,
   "gold_n": 4,
   "done_n": 3,
   "blocked_n": 0,
@@ -2449,52 +4070,120 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "open_bank_account_4821",
-    "onset": 28,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 28,
+    "turn": 28,
+    "detail": "도착 msg=21 · 지목 msg=28",
     "gold_args": {
      "user_id": "224959b99e",
      "account_type": "checking",
      "account_class": "Purple Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "open_bank_account_4821",
-    "onset": 28,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 28,
+    "turn": 28,
+    "detail": "도착 msg=21 · 지목 msg=28",
     "gold_args": {
      "user_id": "224959b99e",
      "account_type": "savings",
      "account_class": "Silver Plus Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "deposit_check_3847",
-    "onset": 70,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 21,
+    "turn": 21,
+    "detail": "도착 msg=21 · 지목 없음",
     "gold_args": {
      "account_id": "7e48bf3b0589cfad",
      "check_amount": "1500"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_AXIS",
+     "T2_LEVER",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 30,
-    "detail": "account_class: gold=Purple Account ours=Blue Account [tool-result]",
-    "gold_args": null
+    "msg_i": 30,
+    "turn": 30,
+    "detail": "account_class: gold=Purple Account(도착msg19) ours=Blue Account [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ARG_AXIS",
+     "T2_LEVER",
+     "T2_PREKB",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 38,
-    "detail": "account_class: gold=Purple Account ours=Gold Account [tool-result] · account_type: gold=checking ours=savings [tool-result]",
-    "gold_args": null
+    "msg_i": 38,
+    "turn": 38,
+    "detail": "account_class: gold=Purple Account(도착msg19) ours=Gold Account [tool-result] · account_type: gold=checking(도착msg19) ours=savings [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ARG_AXIS",
+     "T2_FB_VIEW",
+     "T2_LEVER",
+     "T2_STACK",
+     "T2_WRITE_ARG_ENUM",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 447,
@@ -2512,6 +4201,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 55,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 3,
   "blocked_n": 0,
@@ -2520,21 +4210,46 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 45,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 45,
+    "turn": 45,
+    "detail": "도착 msg=3 · 지목 msg=45",
     "gold_args": {
      "account_id": "chk_lj82d4f1a9",
      "amount": "14",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DECISION_CARRY",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_FORCE_ACTION",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_LEVER",
+     "T2_OBJ_AXIS",
+     "T2_REDERIVE",
+     "T2_RESOLVE",
+     "T2_STACK",
+     "T2_WINDOW"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 47,
-    "detail": "amount: gold=14 ours=12 [tool-result]",
-    "gold_args": null
+    "msg_i": 47,
+    "turn": 47,
+    "detail": "amount: gold=14(도착msg3) ours=12 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 304,
@@ -2552,6 +4267,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 74,
+  "transfer": false,
   "gold_n": 4,
   "done_n": 4,
   "blocked_n": 0,
@@ -2571,6 +4287,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 57,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 3,
   "blocked_n": 0,
@@ -2579,43 +4296,98 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 51,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 51,
+    "turn": 51,
+    "detail": "도착 msg=3 · 지목 msg=51",
     "gold_args": {
      "account_id": "sav_sp93k4m7n2_silver",
      "amount": "33",
      "credit_type": "interest_correction"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_RESOLVE_CAP",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 41,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 41,
+    "turn": 41,
+    "detail": "도착 msg=3 · 지목 msg=41",
     "gold_args": {
      "account_id": "sav_sp93k4m7n2_silver",
      "user_id": "sp93k4m7n2",
      "expected_apy": "4.275",
      "actual_apy": "4",
      "amount_difference": "33"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DECISION_CARRY",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_FORCE_ACTION",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_LEVER",
+     "T2_OBJ_AXIS",
+     "T2_REDERIVE",
+     "T2_RESOLVE",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 41,
-    "detail": "actual_apy: gold=4 ours=2.5 [tool-result] · amount_difference: gold=33 ours=210 [tool-result] · expected_apy: gold=4.275 ours=4.25 [tool-result]",
-    "gold_args": null
+    "msg_i": 41,
+    "turn": 41,
+    "detail": "actual_apy: gold=4 ours=2.5 [tool-result] · amount_difference: gold=33(도착msg3) ours=210 [tool-result] · expected_apy: gold=4.275 ours=4.25 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DECISION_CARRY",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_FORCE_ACTION",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_LEVER",
+     "T2_OBJ_AXIS",
+     "T2_REDERIVE",
+     "T2_RESOLVE",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 53,
-    "detail": "amount: gold=33 ours=210 [tool-result]",
-    "gold_args": null
+    "msg_i": 53,
+    "turn": 53,
+    "detail": "amount: gold=33(도착msg3) ours=210 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 347,
@@ -2633,59 +4405,115 @@
   ],
   "term": "user_stop",
   "n_msgs": 58,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 4,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 56,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 20,
+    "turn": 20,
+    "detail": "도착 msg=20 · 지목 없음",
     "gold_args": {
      "account_id": "sav_wl94k7m3p8_gold",
      "amount": "140",
      "credit_type": "interest_correction"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE_CAP",
+     "T2_SCAFFOLD_GET",
+     "T2_SG_GROUND",
+     "T2_SG_ISOLATE",
+     "T2_SG_TRACE",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 56,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 18,
+    "turn": 18,
+    "detail": "도착 msg=18 · 지목 없음",
     "gold_args": {
      "account_id": "sav_wl94k7m3p8_gold",
      "user_id": "wl94k7m3p8",
      "expected_apy": "6.85",
      "actual_apy": "5.1",
      "amount_difference": "140"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ACTION_INDEX",
+     "T2_AXIS",
+     "T2_DECISION_CARRY",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 42,
+    "msg_i": 42,
+    "turn": 42,
     "detail": "actual_apy: gold=5.1 ours=4.25 [tool-result] · amount_difference: gold=140 ours=180 [tool-result] · expected_apy: gold=6.85 ours=6.5 [tool-result]",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_FB_VIEW",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_STACK",
+     "T2_WRITE_EVIDENCE",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 48,
+    "msg_i": 48,
+    "turn": 48,
     "detail": "actual_apy: gold=5.1 ours=4.25 [tool-result] · amount_difference: gold=140 ours=180 [tool-result] · expected_apy: gold=6.85 ours=6.525 [NOWHERE]",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 54,
+    "msg_i": 54,
+    "turn": 54,
     "detail": "amount: gold=140 ours=180 [tool-result]",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 301,
@@ -2703,6 +4531,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 40,
+  "transfer": false,
   "gold_n": 2,
   "done_n": 2,
   "blocked_n": 0,
@@ -2722,6 +4551,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 8,
+  "transfer": false,
   "gold_n": 1,
   "done_n": 1,
   "blocked_n": 0,
@@ -2730,22 +4560,56 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "apply_for_credit_card",
-    "onset": 4,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 4,
+    "turn": 4,
+    "detail": "도착 msg=None · 지목 msg=4",
     "gold_args": {
      "card_type": "Silver Rewards Card",
      "customer_name": "Catherine Wells",
      "annual_income": "180000",
      "rho_bank_subscription": true
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ARBITRATE",
+     "T2_CLAIMPROV",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_NOW_SELFCALL",
+     "T2_RESOLVE",
+     "T2_SCAFFOLD_GET",
+     "T2_SEARCH_AGENT",
+     "T2_SEARCH_ON_PROCEED",
+     "T2_SELFDECL",
+     "T2_SOURCE",
+     "T2_STACK",
+     "T2_USER_TOOL_NOTE",
+     "T2_WINDOW",
+     "T2_WRITEPROV",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "unified_regen",
+     "usertoolnote"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_for_credit_card",
-    "onset": 5,
-    "detail": "card_type: gold=Silver Rewards Card ours=Platinum Rewards Card [tool-result]",
-    "gold_args": null
+    "msg_i": 5,
+    "turn": 5,
+    "detail": "card_type: gold=Silver Rewards Card(도착msg3) ours=Platinum Rewards Card [tool-result]",
+    "ours_marks": [],
+    "ours_says": [
+     "claimprov",
+     "unified_regen",
+     "usertoolnote"
+    ]
    }
   ],
   "trace_n": 56,
@@ -2763,6 +4627,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 29,
+  "transfer": true,
   "gold_n": 0,
   "done_n": 0,
   "blocked_n": 0,
@@ -2782,28 +4647,64 @@
   ],
   "term": "user_stop",
   "n_msgs": 64,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 3,
   "blocked_n": 3,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "submit_cash_back_dispute_0589",
-    "onset": 51,
+    "msg_i": 51,
+    "turn": 51,
     "detail": "Error: Missing required parameter: user_id",
     "gold_args": {
      "user_id": "6680a37184",
      "transaction_id": "txn_913d14a20dc5"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DECISION_CARRY",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_SELFDECL",
+     "T2_STACK",
+     "T2_TOOL_SIGNATURE",
+     "T2_WINDOW"
+    ],
+    "ours_says": [
+     "searchexhaust",
+     "unified_regen"
+    ]
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "update_transaction_rewards_3847",
-    "onset": 48,
+    "msg_i": 48,
+    "turn": 48,
     "detail": "{\"transaction_id\": \"txn_913d14a20dc5\", \"new_rewards_earned\": \"156 points\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_CLAIMPROV",
+     "T2_MATERIAL_GATE",
+     "T2_SELFDECL",
+     "T2_UNAVAIL",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov"
+    ]
    }
   ],
   "trace_n": 441,
@@ -2821,6 +4722,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 22,
+  "transfer": false,
   "gold_n": 1,
   "done_n": 1,
   "blocked_n": 0,
@@ -2829,22 +4731,50 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "apply_for_credit_card",
-    "onset": 4,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 4,
+    "turn": 4,
+    "detail": "도착 msg=13 · 지목 msg=4",
     "gold_args": {
      "card_type": "Business Bronze Rewards Card",
      "customer_name": "Marcus Chen",
      "annual_income": "120000",
      "rho_bank_subscription": false
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_ARBITRATE",
+     "T2_CLAIMPROV",
+     "T2_DOCDECIDE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_NOW_SELFCALL",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_SEARCH_ON_PROCEED",
+     "T2_SELFDECL",
+     "T2_SOURCE",
+     "T2_STACK",
+     "T2_USER_TOOL_NOTE",
+     "T2_WINDOW",
+     "T2_WRITEPROV",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "unified_regen",
+     "usertoolnote"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "apply_for_credit_card",
-    "onset": 19,
-    "detail": "card_type: gold=Business Bronze Rewards Card ours=Business Platinum Rewards Card [tool-result]",
-    "gold_args": null
+    "msg_i": 19,
+    "turn": 19,
+    "detail": "card_type: gold=Business Bronze Rewards Card(도착msg3) ours=Business Platinum Rewards Card [tool-result]",
+    "ours_marks": [],
+    "ours_says": []
    }
   ],
   "trace_n": 164,
@@ -2862,68 +4792,165 @@
   ],
   "term": "user_stop",
   "n_msgs": 74,
+  "transfer": false,
   "gold_n": 4,
   "done_n": 4,
   "blocked_n": 2,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "open_bank_account_4821",
-    "onset": 72,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 9,
+    "turn": 9,
+    "detail": "도착 msg=9 · 지목 없음",
     "gold_args": {
      "user_id": "224959b99e",
      "account_type": "checking",
      "account_class": "Purple Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ACTION_INDEX",
+     "T2_AXIS",
+     "T2_DECISION_CARRY",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "open_bank_account_4821",
-    "onset": 72,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 9,
+    "turn": 9,
+    "detail": "도착 msg=9 · 지목 없음",
     "gold_args": {
      "user_id": "224959b99e",
      "account_type": "savings",
      "account_class": "Silver Plus Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ACTION_INDEX",
+     "T2_AXIS",
+     "T2_DECISION_CARRY",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "deposit_check_3847",
-    "onset": 61,
+    "msg_i": 61,
+    "turn": 61,
     "detail": "Error: Missing required parameter: check_amount",
     "gold_args": {
      "account_id": "7e48bf3b0589cfad",
      "check_amount": "1500"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_STACK",
+     "T2_TOOL_SIGNATURE",
+     "T2_USER_TOOL_NOTE"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 40,
-    "detail": "account_class: gold=Purple Account ours=Green Fee-Free Account [tool-result]",
-    "gold_args": null
+    "msg_i": 40,
+    "turn": 40,
+    "detail": "account_class: gold=Purple Account(도착msg5) ours=Green Fee-Free Account [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ARG_AXIS",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_PREKB",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen",
+     "writesub"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 40,
-    "detail": "account_class: gold=Purple Account ours=Gold Plus Account [tool-result] · account_type: gold=checking ours=savings [tool-result]",
-    "gold_args": null
+    "msg_i": 40,
+    "turn": 40,
+    "detail": "account_class: gold=Purple Account(도착msg5) ours=Gold Plus Account [tool-result] · account_type: gold=checking(도착msg5) ours=savings [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ARG_AXIS",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_PREKB",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen",
+     "writesub"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "deposit_check_3847",
-    "onset": 69,
+    "msg_i": 69,
+    "turn": 69,
     "detail": "account_id: gold=7e48bf3b0589cfad ours=c6afc3b34369dc06 [tool-result]",
-    "gold_args": null
+    "ours_marks": [],
+    "ours_says": []
    }
   ],
   "trace_n": 409,
@@ -2941,33 +4968,72 @@
   ],
   "term": "user_stop",
   "n_msgs": 55,
+  "transfer": true,
   "gold_n": 3,
   "done_n": 1,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 53,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_lj82d4f1a9",
      "amount": "14",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 53,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_538bfb9cba",
      "amount": "3.5",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 322,
@@ -2985,6 +5051,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 60,
+  "transfer": false,
   "gold_n": 4,
   "done_n": 2,
   "blocked_n": 0,
@@ -2993,25 +5060,73 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 36,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 36,
+    "turn": 36,
+    "detail": "도착 msg=5 · 지목 msg=36",
     "gold_args": {
      "account_id": "chk_kj93a7b2e1_1",
      "amount": "9.5",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_ACTION_SUB",
+     "T2_CLAIMPROV",
+     "T2_DYN_MT",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_LEVER",
+     "T2_LIMIT_REDUCE",
+     "T2_LLM_DIAG",
+     "T2_MATERIAL_GATE",
+     "T2_PROV",
+     "T2_RESOLVE",
+     "T2_SELFDECL",
+     "T2_STACK",
+     "T2_UNINSTRUCTABLE",
+     "T2_WINDOW"
+    ],
+    "ours_says": [
+     "claimprov",
+     "unified_regen",
+     "uninstructable"
+    ]
    },
    {
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 36,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 36,
+    "turn": 36,
+    "detail": "도착 msg=5 · 지목 msg=36",
     "gold_args": {
      "account_id": "chk_kj93a7b2e1_2",
      "amount": "9",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_ACTION_SUB",
+     "T2_CLAIMPROV",
+     "T2_DYN_MT",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_LEVER",
+     "T2_LIMIT_REDUCE",
+     "T2_LLM_DIAG",
+     "T2_MATERIAL_GATE",
+     "T2_PROV",
+     "T2_RESOLVE",
+     "T2_SELFDECL",
+     "T2_STACK",
+     "T2_UNINSTRUCTABLE",
+     "T2_WINDOW"
+    ],
+    "ours_says": [
+     "claimprov",
+     "unified_regen",
+     "uninstructable"
+    ]
    }
   ],
   "trace_n": 508,
@@ -3029,43 +5144,103 @@
   ],
   "term": "user_stop",
   "n_msgs": 58,
+  "transfer": true,
   "gold_n": 3,
   "done_n": 2,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 56,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "sav_sp93k4m7n2_silver",
      "amount": "33",
      "credit_type": "interest_correction"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 56,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "sav_sp93k4m7n2_silver",
      "user_id": "sp93k4m7n2",
      "expected_apy": "4.275",
      "actual_apy": "4",
      "amount_difference": "33"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 46,
-    "detail": "amount_difference: gold=33 ours=0 [tool-result] · expected_apy: gold=4.275 ours=4 [tool-result]",
-    "gold_args": null
+    "msg_i": 46,
+    "turn": 46,
+    "detail": "amount_difference: gold=33(도착msg3) ours=0 [tool-result] · expected_apy: gold=4.275 ours=4 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ACTION_HISTORY",
+     "T2_CLAIMPROV",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_SEARCH_AGENT",
+     "T2_SEARCH_EXHAUST",
+     "T2_SELFDECL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov",
+     "searchexhaust"
+    ]
    }
   ],
   "trace_n": 351,
@@ -3083,27 +5258,46 @@
   ],
   "term": "user_stop",
   "n_msgs": 64,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 3,
   "blocked_n": 3,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "DELIVERY-MISS",
     "tool": "apply_savings_account_credit_6831",
-    "onset": 62,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 62,
+    "turn": 62,
+    "detail": "이름이 궤적에 한 번도 안 왔다",
     "gold_args": {
      "account_id": "sav_wl94k7m3p8_gold",
      "amount": "140",
      "credit_type": "interest_correction"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ACTION_HISTORY",
+     "T2_CLAIMPROV",
+     "T2_DOCGROUP",
+     "T2_EPLAN",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_SCAFFOLD_GET",
+     "T2_SEARCH_AGENT",
+     "T2_SELFDECL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 32,
+    "msg_i": 32,
+    "turn": 32,
     "detail": "Error: Account 'wl94k7m3p8' not found.",
     "gold_args": {
      "account_id": "sav_wl94k7m3p8_gold",
@@ -3111,23 +5305,38 @@
      "expected_apy": "6.85",
      "actual_apy": "5.1",
      "amount_difference": "140"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 50,
+    "msg_i": 50,
+    "turn": 50,
     "detail": "actual_apy: gold=5.1 ours=5 [tool-result] · amount_difference: gold=140 ours=120 [tool-result] · expected_apy: gold=6.85 ours=6.5 [tool-result]",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_FB_VIEW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "submit_interest_discrepancy_report_7294",
-    "onset": 60,
+    "msg_i": 60,
+    "turn": 60,
     "detail": "actual_apy: gold=5.1 ours=5 [tool-result] · amount_difference: gold=140 ours=120 [tool-result] · expected_apy: gold=6.85 ours=6.5 [tool-result]",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 289,
@@ -3145,6 +5354,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 44,
+  "transfer": false,
   "gold_n": 2,
   "done_n": 2,
   "blocked_n": 0,
@@ -3164,31 +5374,52 @@
   ],
   "term": "user_stop",
   "n_msgs": 58,
+  "transfer": true,
   "gold_n": 2,
   "done_n": 2,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "DELIVERY-MISS",
     "tool": "submit_transaction",
-    "onset": 56,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 56,
+    "turn": 56,
+    "detail": "이름이 궤적에 한 번도 안 왔다",
     "gold_args": {
      "user_id": "friend_user_5839",
      "credit_card_type": "Silver Rewards Card",
      "merchant_name": "Best Buy",
      "amount": "750",
      "category": "Shopping"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_CLAIMPROV",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_RESOLVE_CAP",
+     "T2_SCAFFOLD_GET",
+     "T2_SELFDECL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 40,
+    "msg_i": 40,
+    "turn": 40,
     "detail": "{\"name\": \"Oluwaseun Adeyemi\", \"user_id\": \"86e92f639e\", \"address\": \"2201 Peachtree Road NE, Atlanta, GA 30309\",",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_MATERIAL_GATE",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 374,
@@ -3206,6 +5437,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 14,
+  "transfer": false,
   "gold_n": 0,
   "done_n": 0,
   "blocked_n": 0,
@@ -3225,15 +5457,17 @@
   ],
   "term": "user_stop",
   "n_msgs": 126,
+  "transfer": false,
   "gold_n": 9,
   "done_n": 13,
   "blocked_n": 11,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 51,
+    "msg_i": 51,
+    "turn": 51,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_25e23705f61f",
@@ -3250,13 +5484,20 @@
      "dispute_reason": "duplicate_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": true
-    }
+    },
+    "ours_marks": [
+     "T2_CLAIMPROV",
+     "T2_MATERIAL_GATE",
+     "T2_SELFDECL"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 51,
+    "msg_i": 51,
+    "turn": 51,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_fd4c3871654e",
@@ -3273,13 +5514,20 @@
      "dispute_reason": "unauthorized_fraudulent_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": true
-    }
+    },
+    "ours_marks": [
+     "T2_CLAIMPROV",
+     "T2_MATERIAL_GATE",
+     "T2_SELFDECL"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 51,
+    "msg_i": 51,
+    "turn": 51,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e503",
@@ -3296,13 +5544,20 @@
      "dispute_reason": "unauthorized_fraudulent_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_CLAIMPROV",
+     "T2_MATERIAL_GATE",
+     "T2_SELFDECL"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 51,
+    "msg_i": 51,
+    "turn": 51,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e510",
@@ -3319,13 +5574,20 @@
      "dispute_reason": "duplicate_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_CLAIMPROV",
+     "T2_MATERIAL_GATE",
+     "T2_SELFDECL"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 51,
+    "msg_i": 51,
+    "turn": 51,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e508",
@@ -3343,13 +5605,20 @@
      "resolution_requested": "partial_refund",
      "partial_refund_amount": "24.56",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_CLAIMPROV",
+     "T2_MATERIAL_GATE",
+     "T2_SELFDECL"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 51,
+    "msg_i": 51,
+    "turn": 51,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e513",
@@ -3366,13 +5635,20 @@
      "dispute_reason": "canceled_subscription_still_charging",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_CLAIMPROV",
+     "T2_MATERIAL_GATE",
+     "T2_SELFDECL"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 51,
+    "msg_i": 51,
+    "turn": 51,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_bc21d98cc4e4",
@@ -3389,13 +5665,20 @@
      "dispute_reason": "goods_services_not_as_described",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_CLAIMPROV",
+     "T2_MATERIAL_GATE",
+     "T2_SELFDECL"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 51,
+    "msg_i": 51,
+    "turn": 51,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_credit_card_tr",
     "gold_args": {
      "transaction_id": "txn_3ef1a3e9bf56",
@@ -3412,103 +5695,228 @@
      "dispute_reason": "refund_never_processed",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_CLAIMPROV",
+     "T2_MATERIAL_GATE",
+     "T2_SELFDECL"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 78,
-    "detail": "card_action: gold=keep_active ours=cancel_and_reissue [tool-result] · card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=No [tool-result] · dispute_reason: gold=duplicate_charge ours=unauthorized_fraudulent_charge [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=10/10/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e503 [tool-result]",
-    "gold_args": null
+    "msg_i": 78,
+    "turn": 78,
+    "detail": "card_action: gold=keep_active(도착msg3) ours=cancel_and_reissue [tool-result] · card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=No [tool-result] · dispute_reason: gold=duplicate_charge(도착msg3) ours=unauthorized_fraudulent_charge [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025(도착msg32) ours=10/10/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f(도착msg32) ours=txn_a1b2c3d4e503 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE",
+     "T2_SUB_RECORDS",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 82,
-    "detail": "card_action: gold=keep_active ours=cancel_and_reissue [tool-result] · card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=No [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=10/28/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e510 [tool-result]",
-    "gold_args": null
+    "msg_i": 82,
+    "turn": 82,
+    "detail": "card_action: gold=keep_active(도착msg3) ours=cancel_and_reissue [tool-result] · card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=No [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025(도착msg32) ours=10/28/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f(도착msg32) ours=txn_a1b2c3d4e510 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ARBITRATE",
+     "T2_CLAIMPROV",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_SELFDECL",
+     "T2_SOURCE",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 84,
-    "detail": "card_action: gold=keep_active ours=cancel_and_reissue [tool-result] · card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=Yes [user-said] · dispute_reason: gold=duplicate_charge ours=incorrect_amount [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=10/22/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e508 [tool-result]",
-    "gold_args": null
+    "msg_i": 84,
+    "turn": 84,
+    "detail": "card_action: gold=keep_active(도착msg3) ours=cancel_and_reissue [tool-result] · card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=Yes [user-said] · dispute_reason: gold=duplicate_charge(도착msg3) ours=incorrect_amount [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025(도착msg32) ours=10/22/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f(도착msg32) ours=txn_a1b2c3d4e508 [tool-result]",
+    "ours_marks": [
+     "T2_LEVER",
+     "T2_RESOLVE",
+     "T2_SELFDECL",
+     "T2_STALE_STRIP",
+     "T2_SUB_RECORDS"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 86,
-    "detail": "card_action: gold=keep_active ours=cancel_and_reissue [tool-result] · card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=No [tool-result] · dispute_reason: gold=duplicate_charge ours=canceled_subscription_still_charging [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=11/05/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e513 [tool-result]",
-    "gold_args": null
+    "msg_i": 86,
+    "turn": 86,
+    "detail": "card_action: gold=keep_active(도착msg3) ours=cancel_and_reissue [tool-result] · card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=No [tool-result] · dispute_reason: gold=duplicate_charge(도착msg3) ours=canceled_subscription_still_charging [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025(도착msg32) ours=11/05/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f(도착msg32) ours=txn_a1b2c3d4e513 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE",
+     "T2_SUB_RECORDS"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 114,
-    "detail": "contacted_merchant: gold=True ours=No [tool-result] · dispute_reason: gold=duplicate_charge ours=unauthorized_fraudulent_charge [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=10/19/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_fd4c3871654e [tool-result]",
-    "gold_args": null
+    "msg_i": 114,
+    "turn": 114,
+    "detail": "contacted_merchant: gold=True ours=No [tool-result] · dispute_reason: gold=duplicate_charge(도착msg3) ours=unauthorized_fraudulent_charge [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025(도착msg32) ours=10/19/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f(도착msg32) ours=txn_fd4c3871654e [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_MATERIAL_GATE",
+     "T2_SUB_RECORDS",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 120,
-    "detail": "contacted_merchant: gold=True ours=No [tool-result] · dispute_reason: gold=duplicate_charge ours=goods_services_not_as_described [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=10/20/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_bc21d98cc4e4 [tool-result]",
-    "gold_args": null
+    "msg_i": 120,
+    "turn": 120,
+    "detail": "contacted_merchant: gold=True ours=No [tool-result] · dispute_reason: gold=duplicate_charge(도착msg3) ours=goods_services_not_as_described [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025(도착msg32) ours=10/20/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f(도착msg32) ours=txn_bc21d98cc4e4 [tool-result]",
+    "ours_marks": [],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 122,
-    "detail": "contacted_merchant: gold=True ours=Yes [user-said] · dispute_reason: gold=duplicate_charge ours=refund_never_processed [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025 ours=10/30/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_3ef1a3e9bf56 [tool-result]",
-    "gold_args": null
+    "msg_i": 122,
+    "turn": 122,
+    "detail": "contacted_merchant: gold=True ours=Yes [user-said] · dispute_reason: gold=duplicate_charge(도착msg3) ours=refund_never_processed [tool-result] · eligible_for_provisional_credit: gold=True ours=Yes [user-said] · purchase_date: gold=10/26/2025(도착msg32) ours=10/30/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f(도착msg32) ours=txn_3ef1a3e9bf56 [tool-result]",
+    "ours_marks": [],
+    "ours_says": []
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 23,
+    "msg_i": 23,
+    "turn": 23,
     "detail": "{\"name\": \"Kwame Asante\", \"user_id\": \"01f21c9970\", \"address\": \"4532 Magnolia Lane, Philadelphia, PA 19103\", \"em",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 27,
+    "msg_i": 27,
+    "turn": 27,
     "detail": "{\"name\": \"Kwame Asante\", \"user_id\": \"01f21c9970\", \"address\": \"4532 Magnolia Lane, Philadelphia, PA 19103\", \"em",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_EPLAN",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 33,
+    "msg_i": 33,
+    "turn": 33,
     "detail": "{\"name\": \"Kwame Asante\", \"user_id\": \"01f21c9970\", \"address\": \"4532 Magnolia Lane, Philadelphia, PA 19103\", \"em",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_READ_DEDUP",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 37,
+    "msg_i": 37,
+    "turn": 37,
     "detail": "{\"name\": \"Kwame Asante\", \"user_id\": \"01f21c9970\", \"address\": \"4532 Magnolia Lane, Philadelphia, PA 19103\", \"em",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_MATERIAL_GATE",
+     "T2_READ_DEDUP",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 41,
+    "msg_i": 41,
+    "turn": 41,
     "detail": "{\"name\": \"Kwame Asante\", \"user_id\": \"01f21c9970\", \"address\": \"4532 Magnolia Lane, Philadelphia, PA 19103\", \"em",
-    "gold_args": null
+    "ours_marks": [
+     "T2_CLAIMPROV",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_SEARCH_EXHAUST",
+     "T2_SELFDECL",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 688,
@@ -3526,6 +5934,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 60,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 4,
   "blocked_n": 0,
@@ -3534,9 +5943,14 @@
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "approve_credit_limit_increase_5847",
-    "onset": 56,
+    "msg_i": 56,
+    "turn": 56,
     "detail": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\", \"user_id\": \"584f9c5d00\", \"new_credit_limit\": \"7500\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 265,
@@ -3554,40 +5968,74 @@
   ],
   "term": "user_stop",
   "n_msgs": 128,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 2,
   "blocked_n": 18,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "open_bank_account_4821",
-    "onset": 38,
+    "msg_i": 38,
+    "turn": 38,
     "detail": "Error: Account eligibility requirements not met.",
     "gold_args": {
      "user_id": "a8c4e2f7b3",
      "account_type": "checking",
      "account_class": "Blue Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ARG_AXIS",
+     "T2_LEVER",
+     "T2_STACK",
+     "T2_WRITE_ARG_ENUM",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "DELIVERY-MISS",
     "tool": "deposit_check_3847",
-    "onset": 126,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 126,
+    "turn": 126,
+    "detail": "이름이 궤적에 한 번도 안 왔다",
     "gold_args": {
      "account_id": "ac554054181e71ad",
      "check_amount": "2000"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_EPLAN",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_SCAFFOLD_GET",
+     "T2_SELFDECL",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 18,
-    "detail": "account_class: gold=Blue Account ours=Dark Green Account [tool-result]",
-    "gold_args": null
+    "msg_i": 18,
+    "turn": 18,
+    "detail": "account_class: gold=Blue Account(도착msg5) ours=Dark Green Account [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ARG_AXIS",
+     "T2_LEVER",
+     "T2_PREKB",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    }
   ],
   "trace_n": 411,
@@ -3605,21 +6053,25 @@
   ],
   "term": "user_stop",
   "n_msgs": 44,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 2,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "DELIVERY-MISS",
     "tool": "open_bank_account_4821",
-    "onset": 42,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 42,
+    "turn": 42,
+    "detail": "이름이 궤적에 한 번도 안 왔다",
     "gold_args": {
      "user_id": "tb58a3c9d2",
      "account_type": "savings",
      "account_class": "Silver Plus Account"
-    }
+    },
+    "ours_marks": [],
+    "ours_says": []
    }
   ],
   "trace_n": 286,
@@ -3637,57 +6089,102 @@
   ],
   "term": "user_stop",
   "n_msgs": 43,
+  "transfer": false,
   "gold_n": 5,
   "done_n": 1,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 41,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_1",
      "amount": "27",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE_CAP",
+     "T2_SG_ARGS",
+     "T2_SG_BYREF",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 41,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_2",
      "amount": "14.5",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE_CAP",
+     "T2_SG_ARGS",
+     "T2_SG_BYREF",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 41,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_3",
      "amount": "4.75",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE_CAP",
+     "T2_SG_ARGS",
+     "T2_SG_BYREF",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 41,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_4",
      "amount": "3.7",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE_CAP",
+     "T2_SG_ARGS",
+     "T2_SG_BYREF",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 274,
@@ -3703,6 +6200,7 @@
   "basis": null,
   "term": "max_steps",
   "n_msgs": 152,
+  "transfer": false,
   "gold_n": 0,
   "done_n": 13,
   "blocked_n": 3,
@@ -3711,105 +6209,179 @@
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "log_verification",
-    "onset": 24,
+    "msg_i": 24,
+    "turn": 24,
     "detail": "{\"name\": \"Carlos Rodriguez\", \"user_id\": \"cr89a2b3c4\", \"address\": \"4521 West 6th Street, Austin, TX 78703\", \"em",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_PHASE_PRECEDE",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "freeze_debit_card_3892",
-    "onset": 66,
+    "msg_i": 66,
+    "turn": 66,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_ev\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_FB_VIEW",
+     "T2_RESOLVE_CAP",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "freeze_debit_card_3892",
-    "onset": 70,
+    "msg_i": 70,
+    "turn": 70,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_lb\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "freeze_debit_card_3892",
-    "onset": 74,
+    "msg_i": 74,
+    "turn": 74,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_green\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "unfreeze_debit_card_3893",
-    "onset": 88,
+    "msg_i": 88,
+    "turn": 88,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_ev\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "close_debit_card_4721",
-    "onset": 90,
+    "msg_i": 90,
+    "turn": 90,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_ev\", \"reason\": \"stolen\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "unfreeze_debit_card_3893",
-    "onset": 92,
+    "msg_i": 92,
+    "turn": 92,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_lb\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "close_debit_card_4721",
-    "onset": 94,
+    "msg_i": 94,
+    "turn": 94,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_lb\", \"reason\": \"stolen\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "unfreeze_debit_card_3893",
-    "onset": 96,
+    "msg_i": 96,
+    "turn": 96,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_green\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "writesub"
+    ]
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "close_debit_card_4721",
-    "onset": 98,
+    "msg_i": 98,
+    "turn": 98,
     "detail": "{\"card_id\": \"dbc_cr89a2b3c4_green\", \"reason\": \"stolen\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "order_debit_card_5739",
-    "onset": 108,
+    "msg_i": 108,
+    "turn": 108,
     "detail": "{\"account_id\": \"chk_cr89a2b3c4_1\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"RUSH\", \"delivery_fee\": \"35\", \"",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "order_debit_card_5739",
-    "onset": 114,
+    "msg_i": 114,
+    "turn": 114,
     "detail": "{\"account_id\": \"chk_cr89a2b3c4_2\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"STANDARD\", \"delivery_fee\": \"0\"",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "EXTRA",
     "sub": "NOT-IN-GOLD",
     "tool": "order_debit_card_5739",
-    "onset": 116,
+    "msg_i": 116,
+    "turn": 116,
     "detail": "{\"account_id\": \"chk_cr89a2b3c4_3\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"STANDARD\", \"delivery_fee\": \"0\"",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 639,
@@ -3827,15 +6399,17 @@
   ],
   "term": "user_stop",
   "n_msgs": 132,
+  "transfer": false,
   "gold_n": 4,
   "done_n": 6,
   "blocked_n": 10,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 88,
+    "msg_i": 88,
+    "turn": 88,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_debit_card_tra",
     "gold_args": {
      "transaction_id": "btxn_a1b2c3d4e501",
@@ -3855,13 +6429,18 @@
      "provisional_credit_eligible": true,
      "card_action": "keep_active",
      "customer_max_liability_amount": "50"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 88,
+    "msg_i": 88,
+    "turn": 88,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_debit_card_tra",
     "gold_args": {
      "transaction_id": "btxn_b2c3d4e5f602",
@@ -3881,13 +6460,18 @@
      "provisional_credit_eligible": true,
      "card_action": "keep_active",
      "customer_max_liability_amount": "50"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 88,
+    "msg_i": 88,
+    "turn": 88,
     "detail": "Error: Invalid arguments: KnowledgeTools.file_debit_card_tra",
     "gold_args": {
      "transaction_id": "btxn_f6g7h8i9j006",
@@ -3907,47 +6491,111 @@
      "provisional_credit_eligible": false,
      "card_action": "keep_active",
      "customer_max_liability_amount": "50"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT"
+    ],
+    "ours_says": []
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 28,
+    "msg_i": 28,
+    "turn": 28,
     "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_RESOLVE",
+     "T2_SCAFFOLD_GET",
+     "T2_SEARCH_AGENT",
+     "T2_SG_TRACE",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen",
+     "writesub"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 33,
+    "msg_i": 33,
+    "turn": 33,
     "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
-    "gold_args": null
+    "ours_marks": [],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 38,
+    "msg_i": 38,
+    "turn": 38,
     "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
-    "gold_args": null
+    "ours_marks": [],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 49,
+    "msg_i": 49,
+    "turn": 49,
     "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ARG_EMPTY",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_READ_DEDUP",
+     "T2_RESOLVE",
+     "T2_RESOLVE_CAP",
+     "T2_SCAFFOLD_GET",
+     "T2_SEARCH_AGENT",
+     "T2_SG_TRACE",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "log_verification",
-    "onset": 112,
+    "msg_i": 112,
+    "turn": 112,
     "detail": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"e",
-    "gold_args": null
+    "ours_marks": [
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_SELFDECL",
+     "T2_STALE_STRIP",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 613,
@@ -3965,6 +6613,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 34,
+  "transfer": false,
   "gold_n": 2,
   "done_n": 2,
   "blocked_n": 0,
@@ -3984,23 +6633,40 @@
   ],
   "term": "user_stop",
   "n_msgs": 70,
+  "transfer": true,
   "gold_n": 2,
   "done_n": 1,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "DELIVERY-MISS",
     "tool": "submit_transaction",
-    "onset": 68,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 68,
+    "turn": 68,
+    "detail": "이름이 궤적에 한 번도 안 왔다",
     "gold_args": {
      "user_id": "friend_user_5839",
      "credit_card_type": "Silver Rewards Card",
      "merchant_name": "Best Buy",
      "amount": "750",
      "category": "Shopping"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DOCGROUP",
+     "T2_EPLAN",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_RESOLVE_CAP",
+     "T2_SCAFFOLD_GET",
+     "T2_SEARCH_AGENT",
+     "T2_SELFDECL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 472,
@@ -4018,6 +6684,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 22,
+  "transfer": true,
   "gold_n": 0,
   "done_n": 0,
   "blocked_n": 0,
@@ -4037,15 +6704,17 @@
   ],
   "term": "user_stop",
   "n_msgs": 117,
+  "transfer": false,
   "gold_n": 9,
   "done_n": 8,
   "blocked_n": 19,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 64,
+    "msg_i": 64,
+    "turn": 64,
     "detail": "Error: Unknown discoverable tool 'file_credit_card_transacti",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e503",
@@ -4062,13 +6731,34 @@
      "dispute_reason": "unauthorized_fraudulent_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FB_VIEW",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 64,
+    "msg_i": 64,
+    "turn": 64,
     "detail": "Error: Unknown discoverable tool 'file_credit_card_transacti",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e510",
@@ -4085,13 +6775,34 @@
      "dispute_reason": "duplicate_charge",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FB_VIEW",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 64,
+    "msg_i": 64,
+    "turn": 64,
     "detail": "Error: Unknown discoverable tool 'file_credit_card_transacti",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e508",
@@ -4109,13 +6820,34 @@
      "resolution_requested": "partial_refund",
      "partial_refund_amount": "24.56",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FB_VIEW",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 64,
+    "msg_i": 64,
+    "turn": 64,
     "detail": "Error: Unknown discoverable tool 'file_credit_card_transacti",
     "gold_args": {
      "transaction_id": "txn_a1b2c3d4e513",
@@ -4132,13 +6864,34 @@
      "dispute_reason": "canceled_subscription_still_charging",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FB_VIEW",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 64,
+    "msg_i": 64,
+    "turn": 64,
     "detail": "Error: Unknown discoverable tool 'file_credit_card_transacti",
     "gold_args": {
      "transaction_id": "txn_bc21d98cc4e4",
@@ -4155,13 +6908,34 @@
      "dispute_reason": "goods_services_not_as_described",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FB_VIEW",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 64,
+    "msg_i": 64,
+    "turn": 64,
     "detail": "Error: Unknown discoverable tool 'file_credit_card_transacti",
     "gold_args": {
      "transaction_id": "txn_3ef1a3e9bf56",
@@ -4178,47 +6952,87 @@
      "dispute_reason": "refund_never_processed",
      "resolution_requested": "full_refund",
      "eligible_for_provisional_credit": false
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_DISCOVERY_NAMES",
+     "T2_DISCOVERY_STEP2",
+     "T2_DOCGROUP",
+     "T2_FB_VIEW",
+     "T2_FORCE_ACTION",
+     "T2_GROUPORDER",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_RESOLVE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 55,
-    "detail": "card_last_4_digits: gold=0581 ours=1652 [tool-result] · contacted_merchant: gold=True ours=False [-] · dispute_reason: gold=duplicate_charge ours=unauthorized_fraudulent_charge [tool-result] · purchase_date: gold=10/26/2025 ours=10/10/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e503 [tool-result]",
-    "gold_args": null
+    "msg_i": 55,
+    "turn": 55,
+    "detail": "card_last_4_digits: gold=0581(도착msg43) ours=1652 [tool-result] · contacted_merchant: gold=True(도착msg48) ours=False [-] · dispute_reason: gold=duplicate_charge(도착msg3) ours=unauthorized_fraudulent_charge [tool-result] · purchase_date: gold=10/26/2025(도착msg54) ours=10/10/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f(도착msg54) ours=txn_a1b2c3d4e503 [tool-result]",
+    "ours_marks": [
+     "T2_ACTIONREQ",
+     "T2_LEVER",
+     "T2_SELFDECL",
+     "T2_STALE_STRIP",
+     "T2_SUB_RECORDS",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 99,
-    "detail": "card_last_4_digits: gold=0581 ours=1652 [tool-result] · purchase_date: gold=10/26/2025 ours=10/28/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e510 [tool-result]",
-    "gold_args": null
+    "msg_i": 99,
+    "turn": 99,
+    "detail": "card_last_4_digits: gold=0581(도착msg43) ours=1652 [tool-result] · purchase_date: gold=10/26/2025(도착msg54) ours=10/28/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f(도착msg54) ours=txn_a1b2c3d4e510 [tool-result]",
+    "ours_marks": [],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 105,
-    "detail": "card_last_4_digits: gold=0581 ours=1652 [tool-result] · dispute_reason: gold=duplicate_charge ours=canceled_subscription_still_charging [tool-result] · purchase_date: gold=10/26/2025 ours=11/05/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_a1b2c3d4e513 [tool-result]",
-    "gold_args": null
+    "msg_i": 105,
+    "turn": 105,
+    "detail": "card_last_4_digits: gold=0581(도착msg43) ours=1652 [tool-result] · dispute_reason: gold=duplicate_charge(도착msg3) ours=canceled_subscription_still_charging [tool-result] · purchase_date: gold=10/26/2025(도착msg54) ours=11/05/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f(도착msg54) ours=txn_a1b2c3d4e513 [tool-result]",
+    "ours_marks": [],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 109,
-    "detail": "dispute_reason: gold=duplicate_charge ours=goods_services_not_as_described [tool-result] · purchase_date: gold=10/26/2025 ours=10/20/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_bc21d98cc4e4 [tool-result]",
-    "gold_args": null
+    "msg_i": 109,
+    "turn": 109,
+    "detail": "dispute_reason: gold=duplicate_charge(도착msg3) ours=goods_services_not_as_described [tool-result] · purchase_date: gold=10/26/2025(도착msg54) ours=10/20/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f(도착msg54) ours=txn_bc21d98cc4e4 [tool-result]",
+    "ours_marks": [],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_credit_card_transaction_dispute_4829",
-    "onset": 113,
-    "detail": "dispute_reason: gold=duplicate_charge ours=refund_never_processed [tool-result] · purchase_date: gold=10/26/2025 ours=10/30/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f ours=txn_3ef1a3e9bf56 [tool-result]",
-    "gold_args": null
+    "msg_i": 113,
+    "turn": 113,
+    "detail": "dispute_reason: gold=duplicate_charge(도착msg3) ours=refund_never_processed [tool-result] · purchase_date: gold=10/26/2025(도착msg54) ours=10/30/2025 [tool-result] · transaction_id: gold=txn_25e23705f61f(도착msg54) ours=txn_3ef1a3e9bf56 [tool-result]",
+    "ours_marks": [],
+    "ours_says": []
    }
   ],
   "trace_n": 549,
@@ -4236,6 +7050,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 60,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 4,
   "blocked_n": 0,
@@ -4244,9 +7059,14 @@
     "kind": "DUP",
     "sub": "REPEATED-GOLD-CALL",
     "tool": "approve_credit_limit_increase_5847",
-    "onset": 56,
+    "msg_i": 56,
+    "turn": 56,
     "detail": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\", \"user_id\": \"584f9c5d00\", \"new_credit_limit\": \"7500\"}",
-    "gold_args": null
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 265,
@@ -4264,40 +7084,77 @@
   ],
   "term": "user_stop",
   "n_msgs": 136,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 2,
   "blocked_n": 23,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "open_bank_account_4821",
-    "onset": 46,
+    "msg_i": 46,
+    "turn": 46,
     "detail": "Error: Account eligibility requirements not met.",
     "gold_args": {
      "user_id": "a8c4e2f7b3",
      "account_type": "checking",
      "account_class": "Blue Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ARG_AXIS",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "DELIVERY-MISS",
     "tool": "deposit_check_3847",
-    "onset": 134,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 134,
+    "turn": 134,
+    "detail": "이름이 궤적에 한 번도 안 왔다",
     "gold_args": {
      "account_id": "ac554054181e71ad",
      "check_amount": "2000"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ACTION_SUB",
+     "T2_EPLAN",
+     "T2_FB_VIEW",
+     "T2_KIND",
+     "T2_LEDGER",
+     "T2_LEVER",
+     "T2_LIMIT_REDUCE",
+     "T2_MATERIAL_GATE",
+     "T2_RESOLVE",
+     "T2_SCAFFOLD_GET",
+     "T2_SELFDECL",
+     "T2_STACK",
+     "T2_WINDOW"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 30,
-    "detail": "account_class: gold=Blue Account ours=Green Fee-Free Account [tool-result]",
-    "gold_args": null
+    "msg_i": 30,
+    "turn": 30,
+    "detail": "account_class: gold=Blue Account(도착msg5) ours=Green Fee-Free Account [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ARG_AXIS",
+     "T2_LEVER",
+     "T2_PREKB",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 467,
@@ -4315,6 +7172,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 62,
+  "transfer": false,
   "gold_n": 3,
   "done_n": 3,
   "blocked_n": 1,
@@ -4323,21 +7181,42 @@
     "kind": "MISSING",
     "sub": "NAMED-NOT-CALLED",
     "tool": "open_bank_account_4821",
-    "onset": 49,
-    "detail": "이름은 산문에 있었다",
+    "msg_i": 49,
+    "turn": 49,
+    "detail": "도착 msg=47 · 지목 msg=49",
     "gold_args": {
      "user_id": "tb58a3c9d2",
      "account_type": "savings",
      "account_class": "Silver Plus Account"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_AXIS",
+     "T2_FB_VIEW",
+     "T2_RESOLVE",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "open_bank_account_4821",
-    "onset": 49,
-    "detail": "account_class: gold=Silver Plus Account ours=Silver Account [tool-result]",
-    "gold_args": null
+    "msg_i": 49,
+    "turn": 49,
+    "detail": "account_class: gold=Silver Plus Account(도착msg3) ours=Silver Account [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_AXIS",
+     "T2_FB_VIEW",
+     "T2_RESOLVE",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 342,
@@ -4355,57 +7234,102 @@
   ],
   "term": "user_stop",
   "n_msgs": 43,
+  "transfer": false,
   "gold_n": 5,
   "done_n": 1,
   "blocked_n": 0,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 41,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_1",
      "amount": "27",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE_CAP",
+     "T2_SG_ARGS",
+     "T2_SG_BYREF",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 41,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_2",
      "amount": "14.5",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE_CAP",
+     "T2_SG_ARGS",
+     "T2_SG_BYREF",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 41,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_3",
      "amount": "4.75",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE_CAP",
+     "T2_SG_ARGS",
+     "T2_SG_BYREF",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "NEVER-NAMED",
+    "sub": "ARRIVED-NOT-NAMED",
     "tool": "apply_checking_account_credit_5829",
-    "onset": 41,
-    "detail": "이름이 궤적에 없다",
+    "msg_i": 3,
+    "turn": 3,
+    "detail": "도착 msg=3 · 지목 없음",
     "gold_args": {
      "account_id": "chk_ar72c5d8e3_4",
      "amount": "3.7",
      "credit_type": "fee_refund"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_RESOLVE_CAP",
+     "T2_SG_ARGS",
+     "T2_SG_BYREF",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    }
   ],
   "trace_n": 274,
@@ -4423,15 +7347,17 @@
   ],
   "term": "user_stop",
   "n_msgs": 93,
+  "transfer": false,
   "gold_n": 12,
   "done_n": 13,
   "blocked_n": 4,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "order_debit_card_5739",
-    "onset": 85,
+    "msg_i": 85,
+    "turn": 85,
     "detail": "Error: There is already a pending debit card order for accou",
     "gold_args": {
      "account_id": "chk_cr89a2b3c4_1",
@@ -4441,13 +7367,26 @@
      "card_design": "PREMIUM",
      "design_fee": "0",
      "shipping_address": "4521 West 6th Street, Austin, TX 78703"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ACTION_HISTORY",
+     "T2_CLAIMPROV",
+     "T2_SELFDECL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov"
+    ]
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "order_debit_card_5739",
-    "onset": 85,
+    "msg_i": 85,
+    "turn": 85,
     "detail": "Error: There is already a pending debit card order for accou",
     "gold_args": {
      "account_id": "chk_cr89a2b3c4_3",
@@ -4457,31 +7396,58 @@
      "card_design": "CLASSIC",
      "design_fee": "0",
      "shipping_address": "4521 West 6th Street, Austin, TX 78703"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_ACTIONREQ",
+     "T2_ACTION_HISTORY",
+     "T2_CLAIMPROV",
+     "T2_SELFDECL",
+     "T2_WINDOW",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": [
+     "claimprov"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "order_debit_card_5739",
-    "onset": 79,
-    "detail": "delivery_fee: gold=35 ours=0 [tool-result] · delivery_option: gold=RUSH ours=EXPEDITED [tool-result]",
-    "gold_args": null
+    "msg_i": 79,
+    "turn": 79,
+    "detail": "delivery_fee: gold=35(도착msg3) ours=0 [tool-result] · delivery_option: gold=RUSH(도착msg3) ours=EXPEDITED [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "order_debit_card_5739",
-    "onset": 81,
-    "detail": "account_id: gold=chk_cr89a2b3c4_1 ours=chk_cr89a2b3c4_2 [tool-result] · delivery_fee: gold=35 ours=0 [tool-result] · delivery_option: gold=RUSH ours=STANDARD [tool-result]",
-    "gold_args": null
+    "msg_i": 81,
+    "turn": 81,
+    "detail": "account_id: gold=chk_cr89a2b3c4_1(도착msg34) ours=chk_cr89a2b3c4_2 [tool-result] · delivery_fee: gold=35(도착msg3) ours=0 [tool-result] · delivery_option: gold=RUSH(도착msg3) ours=STANDARD [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "order_debit_card_5739",
-    "onset": 83,
-    "detail": "account_id: gold=chk_cr89a2b3c4_1 ours=chk_cr89a2b3c4_3 [tool-result] · delivery_fee: gold=35 ours=0 [tool-result] · delivery_option: gold=RUSH ours=STANDARD [tool-result]",
-    "gold_args": null
+    "msg_i": 83,
+    "turn": 83,
+    "detail": "account_id: gold=chk_cr89a2b3c4_1(도착msg34) ours=chk_cr89a2b3c4_3 [tool-result] · delivery_fee: gold=35(도착msg3) ours=0 [tool-result] · delivery_option: gold=RUSH(도착msg3) ours=STANDARD [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 415,
@@ -4499,15 +7465,17 @@
   ],
   "term": "user_stop",
   "n_msgs": 102,
+  "transfer": false,
   "gold_n": 4,
   "done_n": 5,
   "blocked_n": 3,
   "rows": [
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 80,
+    "msg_i": 80,
+    "turn": 80,
     "detail": "Error: Invalid transaction_type. Must be one of: ['pin_purch",
     "gold_args": {
      "transaction_id": "btxn_a1b2c3d4e501",
@@ -4527,13 +7495,18 @@
      "provisional_credit_eligible": true,
      "card_action": "keep_active",
      "customer_max_liability_amount": "50"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 80,
+    "msg_i": 80,
+    "turn": 80,
     "detail": "Error: Invalid transaction_type. Must be one of: ['pin_purch",
     "gold_args": {
      "transaction_id": "btxn_b2c3d4e5f602",
@@ -4553,13 +7526,18 @@
      "provisional_credit_eligible": true,
      "card_action": "keep_active",
      "customer_max_liability_amount": "50"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT"
+    ],
+    "ours_says": []
    },
    {
     "kind": "MISSING",
-    "sub": "BLOCKED-other-args-env",
+    "sub": "TRIED-OTHER-ARGS-BLOCKED-env",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 80,
+    "msg_i": 80,
+    "turn": 80,
     "detail": "Error: Invalid transaction_type. Must be one of: ['pin_purch",
     "gold_args": {
      "transaction_id": "btxn_f6g7h8i9j006",
@@ -4579,39 +7557,69 @@
      "provisional_credit_eligible": false,
      "card_action": "keep_active",
      "customer_max_liability_amount": "50"
-    }
+    },
+    "ours_marks": [
+     "T2_A2_VARIANT"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 76,
-    "detail": "customer_max_liability_amount: gold=50 ours=-1 [tool-result] · discovery_date: gold=11/05/2025 ours=11/14/2025 [NOWHERE]",
-    "gold_args": null
+    "msg_i": 76,
+    "turn": 76,
+    "detail": "customer_max_liability_amount: gold=50(도착msg7) ours=-1 [tool-result] · discovery_date: gold=11/05/2025(도착msg55) ours=11/14/2025 [NOWHERE]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_DECIDE_BEFORE_WRITE",
+     "T2_DOCGROUP",
+     "T2_GROUPORDER",
+     "T2_LEVER",
+     "T2_MATERIAL_GATE",
+     "T2_SEARCH_AGENT",
+     "T2_STACK"
+    ],
+    "ours_says": [
+     "unified_regen"
+    ]
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 82,
-    "detail": "customer_max_liability_amount: gold=50 ours=-1 [tool-result] · discovery_date: gold=11/05/2025 ours=11/14/2025 [self-said] · dispute_category: gold=atm_cash_discrepancy ours=duplicate_charge [tool-result] · disputed_amount: gold=100 ours=89.99 [tool-result] · transaction_date: gold=11/05/2025 ours=11/06/2025 [tool-result] · transaction_id: gold=btxn_a1b2c3d4e501 ours=btxn_c3d4e5f6g703 [tool-result] · transaction_type: gold=atm_withdrawal ours=signature_purchase [tool-result]",
-    "gold_args": null
+    "msg_i": 82,
+    "turn": 82,
+    "detail": "customer_max_liability_amount: gold=50(도착msg7) ours=-1 [tool-result] · discovery_date: gold=11/05/2025(도착msg55) ours=11/14/2025 [self-said] · dispute_category: gold=atm_cash_discrepancy(도착msg9) ours=duplicate_charge [tool-result] · disputed_amount: gold=100(도착msg9) ours=89.99 [tool-result] · transaction_date: gold=11/05/2025(도착msg55) ours=11/06/2025 [tool-result] · transaction_id: gold=btxn_a1b2c3d4e501(도착msg55) ours=btxn_c3d4e5f6g703 [tool-result] · transaction_type: gold=atm_withdrawal(도착msg9) ours=signature_purchase [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 90,
-    "detail": "account_id: gold=chk_b4d92f7c28 ours=chk_e8a31c9d47 [tool-result] · card_id: gold=dbc_c4a72d9f66 ours=dbc_92b5d2a7g4 [tool-result] · customer_max_liability_amount: gold=50 ours=-1 [tool-result] · discovery_date: gold=11/05/2025 ours=11/14/2025 [self-said] · disputed_amount: gold=100 ours=200 [tool-result] · transaction_date: gold=11/05/2025 ours=11/08/2025 [tool-result] · transaction_id: gold=btxn_a1b2c3d4e501 ours=btxn_e5f6g7h8i905 [tool-result]",
-    "gold_args": null
+    "msg_i": 90,
+    "turn": 90,
+    "detail": "account_id: gold=chk_b4d92f7c28(도착msg47) ours=chk_e8a31c9d47 [tool-result] · card_id: gold=dbc_c4a72d9f66(도착msg51) ours=dbc_92b5d2a7g4 [tool-result] · customer_max_liability_amount: gold=50(도착msg7) ours=-1 [tool-result] · discovery_date: gold=11/05/2025(도착msg55) ours=11/14/2025 [self-said] · disputed_amount: gold=100(도착msg9) ours=200 [tool-result] · transaction_date: gold=11/05/2025(도착msg55) ours=11/08/2025 [tool-result] · transaction_id: gold=btxn_a1b2c3d4e501(도착msg55) ours=btxn_e5f6g7h8i905 [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT",
+     "T2_WRITE_SUB"
+    ],
+    "ours_says": []
    },
    {
     "kind": "WRONGARG",
     "sub": "ARG-MISMATCH",
     "tool": "file_debit_card_transaction_dispute_6281",
-    "onset": 98,
-    "detail": "account_id: gold=chk_b4d92f7c28 ours=chk_e8a31c9d47 [tool-result] · card_id: gold=dbc_c4a72d9f66 ours=dbc_92b5d2a7g4 [tool-result] · customer_max_liability_amount: gold=50 ours=-1 [tool-result] · discovery_date: gold=11/05/2025 ours=11/14/2025 [self-said] · dispute_category: gold=atm_cash_discrepancy ours=unauthorized_transaction [tool-result] · disputed_amount: gold=100 ours=49.99 [user-said] · transaction_date: gold=11/05/2025 ours=11/09/2025 [tool-result] · transaction_id: gold=btxn_a1b2c3d4e501 ours=btxn_f6g7h8i9j006 [tool-result] · transaction_type: gold=atm_withdrawal ours=signature_purchase [tool-result]",
-    "gold_args": null
+    "msg_i": 98,
+    "turn": 98,
+    "detail": "account_id: gold=chk_b4d92f7c28(도착msg47) ours=chk_e8a31c9d47 [tool-result] · card_id: gold=dbc_c4a72d9f66(도착msg51) ours=dbc_92b5d2a7g4 [tool-result] · customer_max_liability_amount: gold=50(도착msg7) ours=-1 [tool-result] · discovery_date: gold=11/05/2025(도착msg55) ours=11/14/2025 [self-said] · dispute_category: gold=atm_cash_discrepancy(도착msg9) ours=unauthorized_transaction [tool-result] · disputed_amount: gold=100(도착msg9) ours=49.99 [user-said] · transaction_date: gold=11/05/2025(도착msg55) ours=11/09/2025 [tool-result] · transaction_id: gold=btxn_a1b2c3d4e501(도착msg55) ours=btxn_f6g7h8i9j006 [tool-result] · transaction_type: gold=atm_withdrawal(도착msg9) ours=signature_purchase [tool-result]",
+    "ours_marks": [
+     "T2_A2_VARIANT"
+    ],
+    "ours_says": []
    }
   ],
   "trace_n": 525,
@@ -4629,6 +7637,7 @@
   ],
   "term": "user_stop",
   "n_msgs": 34,
+  "transfer": false,
   "gold_n": 2,
   "done_n": 2,
   "blocked_n": 0,

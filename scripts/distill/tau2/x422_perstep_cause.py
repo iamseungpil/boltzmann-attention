@@ -40,6 +40,27 @@ RUNS = [("t7326", ["bank_t7326_halfA_20260819q", "bank_t7326_halfB_20260819q"]),
 SUF = ".results.json.gz"
 
 
+def turn_of(sim, msg_i):
+    """메시지 index → 벤치가 찍은 `turn_idx`(우리 계기 로그의 `turn` 과 같은 축)."""
+    ms = sim.get("messages") or []
+    if msg_i is None or msg_i >= len(ms):
+        return None
+    return ms[msg_i].get("turn_idx")
+
+
+def arrival(sim, name):
+    """도구 이름이 **도구-결과로 도착한** 첫 메시지 index (KB 문서·unlock 목록 등). 없으면 None.
+
+    이것이 knowing-doing 판정의 분모다 — 도착하지 않은 이름을 안 불렀다고 모델 결손이라 부르면
+    우리 전달층의 결함을 모델에 떠넘기게 된다([[55]] 우리 배관 먼저)."""
+    for i, m in enumerate(sim.get("messages") or []):
+        if m.get("role") != "tool":
+            continue
+        if name in str(m.get("content") or ""):
+            return i
+    return None
+
+
 def prose_first_mention(sim, name):
     """도구 이름을 **산문에** 처음 올린 어시스턴트 메시지 index (호출은 세지 않는다)."""
     for i, m in enumerate(sim.get("messages") or []):
@@ -56,6 +77,24 @@ def last_assistant(sim):
         if m.get("role") == "assistant":
             idx = i
     return idx
+
+
+def value_arrived(sim, value, upto=None):
+    """gold 값이 **도구-결과로 도착했는가** · 첫 도착 메시지 index. 없으면 None.
+
+    WRONGARG 를 능력 결손으로 부르려면 먼저 이것을 봐야 한다 — 옳은 값이 궤적에 온 적이 없으면
+    그것은 선택 결손이 아니라 **전달 결손**이다([[55]])."""
+    v = str(value)
+    if not v or len(v) < 2:
+        return None
+    for i, m in enumerate(sim.get("messages") or []):
+        if upto is not None and i >= upto:
+            break
+        if m.get("role") != "tool":
+            continue
+        if v in str(m.get("content") or ""):
+            return i
+    return None
 
 
 def value_source(sim, upto, value):
@@ -82,57 +121,74 @@ def value_source(sim, upto, value):
 
 
 def onset_rows(sim):
-    """결손 변이 하나마다 온셋 행을 만든다."""
+    """결손 변이 하나마다 **사다리**로 원인을 가른다 — 전달→지목→호출→인자.
+
+    ladder(도달했나 → 이름을 말했나 → 불렀나 → 막혔나 → 인자가 맞나)는 각 칸이 궤적에서
+    기계적으로 판정되고, 칸마다 처방 축이 다르다:
+        DELIVERY-MISS      이름이 궤적에 **도착조차 안 했다**            → 검색·전달(우리 층)
+        ARRIVED-NOT-NAMED  도착했는데 산문에도 안 올렸다                 → 선택
+        NAMED-NOT-CALLED   이름을 말해 놓고 안 불렀다                    → 이행(knowing-doing)
+        BLOCKED-ours/env   불렀는데 거절당했다                           → 게이트(우리)·환경
+        WRONGARG           불렀는데 값이 다르다                          → operand
+        DUP/EXTRA          gold 밖 변이·중복                             → 범위·중복
+    """
     d = F.mutation_diff(sim)
     rows = []
-    bykey = {}
+    blk_by = {}
     for b in d["blocked"]:
-        bykey.setdefault(b["name"], []).append(b)
+        blk_by.setdefault(b["name"], []).append(b)
+
+    def row(kind, sub, tool, msg_i, detail, extra=None):
+        r = {"kind": kind, "sub": sub, "tool": tool, "msg_i": msg_i,
+             "turn": turn_of(sim, msg_i), "detail": detail}
+        if extra:
+            r.update(extra)
+        return r
+
     for g in d["missing"]:
-        blk = bykey.get(g["name"]) or []
+        nm = g["name"]
+        blk = blk_by.get(nm) or []
         same = [b for b in blk if b["key"] == g["key"]]
+        arr = arrival(sim, nm)
+        said = prose_first_mention(sim, nm)
         if same:
             b = same[0]
-            rows.append({"kind": "MISSING", "sub": "BLOCKED-" + (b["deny"] or "?"),
-                         "tool": g["name"], "onset": b["msg_i"], "detail": b["marker"],
-                         "gold_args": g["args"]})
+            rows.append(row("MISSING", "BLOCKED-" + (b["deny"] or "?"), nm, b["msg_i"],
+                            (b["marker"] or "")[:90], {"gold_args": g["args"]}))
         elif blk:
             b = blk[0]
-            rows.append({"kind": "MISSING", "sub": "BLOCKED-other-args-" + (b["deny"] or "?"),
-                         "tool": g["name"], "onset": b["msg_i"], "detail": b["marker"],
-                         "gold_args": g["args"]})
+            rows.append(row("MISSING", "TRIED-OTHER-ARGS-BLOCKED-" + (b["deny"] or "?"), nm,
+                            b["msg_i"], (b["marker"] or "")[:90], {"gold_args": g["args"]}))
+        elif said is not None:
+            rows.append(row("MISSING", "NAMED-NOT-CALLED", nm, said,
+                            "도착 msg=%s · 지목 msg=%s" % (arr, said), {"gold_args": g["args"]}))
+        elif arr is not None:
+            rows.append(row("MISSING", "ARRIVED-NOT-NAMED", nm, arr,
+                            "도착 msg=%s · 지목 없음" % arr, {"gold_args": g["args"]}))
         else:
-            said = prose_first_mention(sim, g["name"])
-            if said is not None:
-                rows.append({"kind": "MISSING", "sub": "NAMED-NOT-CALLED", "tool": g["name"],
-                             "onset": said, "detail": "이름은 산문에 있었다", "gold_args": g["args"]})
-            else:
-                rows.append({"kind": "MISSING", "sub": "NEVER-NAMED", "tool": g["name"],
-                             "onset": last_assistant(sim), "detail": "이름이 궤적에 없다",
-                             "gold_args": g["args"]})
+            rows.append(row("MISSING", "DELIVERY-MISS", nm, last_assistant(sim),
+                            "이름이 궤적에 한 번도 안 왔다", {"gold_args": g["args"]}))
+
     gold_by_name = {}
     for g in d["gold"]:
         gold_by_name.setdefault(g["name"], []).append(g)
     for w in d["wrongarg"]:
-        gs = gold_by_name.get(w["name"]) or []
         diffs = []
-        for g in gs[:1]:
-            keys = set(g["args"]) | set(w["args"])
-            for k in sorted(keys):
+        for g in (gold_by_name.get(w["name"]) or [])[:1]:
+            for k in sorted(set(g["args"]) | set(w["args"])):
                 gv, wv = g["args"].get(k), w["args"].get(k)
                 if str(gv) != str(wv):
-                    diffs.append("%s: gold=%s ours=%s [%s]"
-                                 % (k, gv, wv, value_source(sim, w["msg_i"], wv)))
-        rows.append({"kind": "WRONGARG", "sub": "ARG-MISMATCH", "tool": w["name"],
-                     "onset": w["msg_i"], "detail": " · ".join(diffs) or "?", "gold_args": None})
+                    ga = value_arrived(sim, gv, w["msg_i"])
+                    diffs.append("%s: gold=%s%s ours=%s [%s]"
+                                 % (k, str(gv)[:40], "" if ga is None else "(도착msg%d)" % ga,
+                                    str(wv)[:40], value_source(sim, w["msg_i"], wv)))
+        rows.append(row("WRONGARG", "ARG-MISMATCH", w["name"], w["msg_i"], " · ".join(diffs) or "?"))
     for u in d.get("dup") or []:
-        rows.append({"kind": "DUP", "sub": "REPEATED-GOLD-CALL", "tool": u["name"],
-                     "onset": u["msg_i"], "detail": json.dumps(u["args"], ensure_ascii=False)[:110],
-                     "gold_args": None})
+        rows.append(row("DUP", "REPEATED-GOLD-CALL", u["name"], u["msg_i"],
+                        json.dumps(u["args"], ensure_ascii=False)[:110]))
     for e in d["extra"]:
-        rows.append({"kind": "EXTRA", "sub": "NOT-IN-GOLD", "tool": e["name"],
-                     "onset": e["msg_i"], "detail": json.dumps(e["args"], ensure_ascii=False)[:110],
-                     "gold_args": None})
+        rows.append(row("EXTRA", "NOT-IN-GOLD", e["name"], e["msg_i"],
+                        json.dumps(e["args"], ensure_ascii=False)[:110]))
     return d, rows
 
 
@@ -162,12 +218,24 @@ def main():
                             "simtag": F.simtag(sim), "reward": rw,
                             "basis": ri.get("reward_basis"), "term": F.term_reason(sim),
                             "n_msgs": len(sim.get("messages") or []),
+                            "transfer": F.transfer_msg_index(sim) is not None,
                             "gold_n": len(d["gold"]), "done_n": len(d["done"]),
                             "blocked_n": len(d["blocked"]), "rows": rows,
                             "trace_n": len(trace_by.get(F.simtag(sim)) or []),
                             "fb_n": len(fb_by.get(F.simtag(sim)) or [])}
+                st = F.simtag(sim)
+                trs = trace_by.get(st) or []
+                fbs = fb_by.get(st) or []
                 for r in rows:
                     tally[(r["kind"], r["sub"])] += 1
+                    t = r.get("turn")
+                    if t is None:
+                        r["ours_marks"], r["ours_says"] = [], []
+                        continue
+                    r["ours_marks"] = sorted({x.get("mark") for x in trs
+                                              if x.get("turn") in (t, t - 1) and x.get("mark")})
+                    r["ours_says"] = sorted({x.get("channel") for x in fbs
+                                             if x.get("turn") in (t, t - 1) and x.get("channel")})
     p = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026", "x422_perstep_cause.json")
     with io.open(os.path.abspath(p), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
@@ -180,8 +248,8 @@ def main():
     for key in sorted(out):
         r = out[key]
         b = ",".join(r["basis"] or [])
-        lab = "·".join("%s/%s" % (x["kind"][:4], x["sub"]) for x in r["rows"]) or "clean"
-        print("%-6s %-9s %-3s %-6s %-7s %s" % (r["run"], r["task"], r["trial"], r["reward"], b, lab[:70]))
+        lab = "·".join("%s/%s@t%s" % (x["kind"][:4], x["sub"], x.get("turn")) for x in r["rows"]) or "clean"
+        print("%-6s %-9s %-3s %-6s %-7s %s" % (r["run"], r["task"], r["trial"], r["reward"], b, lab[:88]))
     print("\n→ %s" % os.path.abspath(p))
     return 0
 
