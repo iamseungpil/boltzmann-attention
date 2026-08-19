@@ -238,8 +238,13 @@ check("T7_no_silent_repair", _nested.get("transaction_id") != "btxn_atm", _neste
 #   user 리마인더 채널이 아니다. 재생성 호출에 실린 **모든** 메시지 본문을 훑는다([[55]] 마크≠전달).
 _body = " ".join(str(getattr(m, "content", "") or "")
                  for cn, msgs in GENCALLS if cn == "agent_response_unified_regen" for m in msgs)
-check("T7_surfaced_reason", ("[REFERENCE]" in _body) or ("REFERENCE" in _body), _body[:160])
-check("T7_answer_not_leaked", "btxn_atm" not in _body, _body[:160])
+_ref_msgs = [str(getattr(m, "content", "") or "")
+             for cn, msgs in GENCALLS if cn == "agent_response_unified_regen"
+             for m in msgs if "[REFERENCE]" in str(getattr(m, "content", "") or "")]
+check("T7_surfaced_reason", bool(_ref_msgs), _body[:160])
+# ⚠누출 검사는 **우리가 넣은 문면만** 본다 — 대화 본문에는 레코드가 있으니 전체를 훑으면
+#   우리 잘못이 아닌 것을 잡는다(2026-08-19 자기 계기 오류 교정).
+check("T7_answer_not_leaked", all("btxn_atm" not in m for m in _ref_msgs), _ref_msgs[:1])
 
 print("\n%d FAIL" % len(FAILS) if FAILS else "\nALL PASS (action + verify + recommend + reference-filter live)")
 sys.exit(1 if FAILS else 0)
