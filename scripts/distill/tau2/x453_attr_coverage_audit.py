@@ -45,12 +45,20 @@ import x452_conditional_facts as C      # noqa: E402  선언 읽기·검산(사�
 
 REP = os.path.abspath(os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026"))
 
-SYS = ("Answer ONLY from the document. List EVERY attribute of the account that this document states "
-       "a concrete value for. Reply with ONE JSON object: "
-       "{\"attributes\": [{\"name\": \"<short snake_case name for the attribute>\", "
-       "\"value\": \"<verbatim>\", \"quote\": \"<the verbatim sentence or table row containing it>\"}]}. "
-       "Use the document's own wording for the name where possible. Never paraphrase the value: it must "
-       "appear inside its quote. If the document states no concrete values, reply {\"attributes\": []}.")
+# ★선택 기준은 **빈도가 아니라 정책이 요구하는 것**이다(사용자 정정 축자: *"gold 보고 고른다가
+#   아니라. 정책에서 필요한 것을 고른다 이다."*). 그래서 문서에 두 가지를 함께 묻는다 —
+#   ⑴어떤 속성에 값을 명시하나 ⑵그중 **계좌를 열거나 유지하는 요건·자격**으로 말하는 것은 무엇인가.
+#   판단은 LLM 이 하고 엔진은 인용 실재만 본다([[59]]). 빈도는 **보고용**이지 채택 기준이 아니다.
+SYS = ("Answer ONLY from the document. Reply with ONE JSON object with two lists:\n"
+       "{\"attributes\": [{\"name\": \"<short snake_case name>\", \"value\": \"<verbatim>\", "
+       "\"quote\": \"<verbatim sentence or table row containing it>\"}],\n"
+       " \"requirements\": [{\"name\": \"<short snake_case name of the attribute it constrains>\", "
+       "\"requirement\": \"<verbatim>\", \"quote\": \"<verbatim sentence stating it>\"}]}\n"
+       "`attributes` = every attribute of the account this document states a concrete value for. "
+       "`requirements` = only those the document states as a condition for opening the account, "
+       "keeping it, or qualifying for its benefits. Use the document's own wording for names. "
+       "Never paraphrase: each value and requirement must appear inside its own quote. "
+       "Use empty lists if the document states none.")
 
 
 def slug(name):
@@ -74,8 +82,10 @@ def main():
           % (len(fams), len(byc), len(have), a.minclasses))
     print("=" * 96)
 
-    seen_classes = collections.defaultdict(set)     # attr -> {class}
+    seen_classes = collections.defaultdict(set)     # attr -> {class}  (값을 명시)
+    req_classes = collections.defaultdict(set)      # attr -> {class}  ★정책이 **요건**이라 말함
     example = {}                                    # attr -> (class, value, quote)
+    req_example = {}                                # attr -> (class, requirement, quote)
     rejected = ndocs = 0
     for cls in sorted(byc):
         docs = byc[cls]
@@ -96,16 +106,38 @@ def main():
                     continue
                 seen_classes[nm].add(cls)
                 example.setdefault(nm, (cls, v, " ".join(q.split())[:180]))
+            for it in (got.get("requirements") or []):
+                if not isinstance(it, dict):
+                    continue
+                nm = slug(it.get("name"))
+                rq = str(it.get("requirement") or "")
+                q = str(it.get("quote") or "")
+                if not (nm and rq and q):
+                    continue
+                if not (C.contained(q, body) and C.contained(rq, q)):
+                    rejected += 1
+                    continue
+                req_classes[nm].add(cls)
+                req_example.setdefault(nm, (cls, rq, " ".join(q.split())[:180]))
         print("  %-30s 누적 속성 %d종" % (cls[:30], len(seen_classes)))
 
+    # ★채택 = **정책이 요건이라고 말한 속성**(빈도 무관) ∪ 값이 널리 명시된 속성(보조).
+    #   기준을 결과 보기 **전에** 못 박았다 — gold·태스크·실패 사례는 보지 않는다([[23]]).
+    #   사용자 축자: *"gold 를 정책이나 KB 에서 골라낼 수 있으면, 한번의 설정으로 비용을 줄일 수 있다."*
     ranked = sorted(seen_classes.items(), key=lambda kv: -len(kv[1]))
-    adopt = [(n, s) for n, s in ranked if len(s) >= a.minclasses]
+    req_ranked = sorted(req_classes.items(), key=lambda kv: -len(kv[1]))
+    names = {n for n, _s in req_ranked} | {n for n, s in ranked if len(s) >= a.minclasses}
+    adopt = [(n, seen_classes.get(n) or req_classes.get(n) or set()) for n in sorted(names)]
     new = [(n, s) for n, s in adopt if n not in have]
     missing_now = [n for n in sorted(have) if n not in seen_classes]
 
     print("\n" + "=" * 96)
     print("문서 %d편 · 검산 탈락 %d · 관측된 속성 %d종 · 채택(≥%d 클래스) %d종 · **현행에 없는 것 %d종**"
           % (ndocs, rejected, len(seen_classes), a.minclasses, len(adopt), len(new)))
+    print("\n★[정책이 **요건**이라고 말한 속성] — 채택의 1차 기준")
+    for n, s in req_ranked[:20]:
+        c, rq, q = req_example[n]
+        print("  %-32s %2d 클래스  %-14s %s" % (n[:32], len(s), str(rq)[:14], q[:58]))
     print("\n[채택되었는데 현행 선언에 없는 속성] — 이것이 목록의 결손이다")
     for n, s in new[:30]:
         c, v, q = example[n]
@@ -119,6 +151,9 @@ def main():
                    "observed": {n: sorted(s) for n, s in seen_classes.items()},
                    "example": {n: {"class": c, "value": v, "quote": q}
                                for n, (c, v, q) in example.items()},
+                   "requirements": {n: sorted(s) for n, s in req_classes.items()},
+                   "req_example": {n: {"class": c, "requirement": r, "quote": q}
+                                   for n, (c, r, q) in req_example.items()},
                    "adopt": [n for n, _s in adopt], "new_vs_declared": [n for n, _s in new],
                    "declared_never_seen": missing_now}, f, ensure_ascii=False, indent=1)
     print("\n→ %s" % p)
