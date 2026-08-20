@@ -80,10 +80,24 @@ def account_table():
 
 
 def spec_from(port, sysmsg, said, menu, allow):
-    """한 덩어리의 말에서 제약을 뽑는다 — x431 과 **같은 프롬프트·같은 검산**."""
-    body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n" % (said[:6000], menu))
+    """한 덩어리의 말에서 제약을 뽑는다 — x431 과 **같은 프롬프트·같은 검산·같은 재질의**.
+
+    ★재질의(G6)를 빼면 안 된다(2026-08-20 밤 실측): 뺀 판에서 003 t0 의 `purchase_protection` 이
+      거절된 채 사라져 A_full 이 제약 2·생존 6 이 됐다 — 라이브(x431)는 재질의 후 제약 3·생존 5 다.
+      팔 사이 차이는 **전달**이어야 하는데 파이프가 달라지면 그 차이가 오염된다.
+    """
+    body = ("# Customer's own words" + chr(10) + "%s" + chr(10) + chr(10)
+            + "# Attribute names you may use" + chr(10) + "%s" + chr(10)) % (said[:6000], menu)
     spec = X.ask(port, sysmsg, body)
-    cons, bad, dropped, dropped_full = X.check_spec(spec, said, allow)
+    cons, bad, dropped, _full = X.check_spec(spec, said, allow)
+    if bad:
+        note = (chr(10) + "# Your previous answer was rejected" + chr(10)
+                + chr(10).join("- %s" % b for b in bad[:6])
+                + chr(10) + "Use ONLY the attribute names listed above, an op from "
+                + "==,<=,>=,exists,absent, and a number (or null for exists/absent)." + chr(10))
+        cons2, _b2, dropped2, _f2 = X.check_spec(X.ask(port, sysmsg, body + note), said, allow)
+        if len(cons2) >= len(cons):
+            cons, dropped = cons2, dropped2
     return cons, dropped, bad
 
 
