@@ -1,0 +1,630 @@
+[
+ {
+  "task": "task_003",
+  "trial": 0,
+  "gold": "Silver Rewards Card",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 3,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 6,
+  "surv": [
+   "Platinum Rewards Card",
+   "Gold Rewards Card",
+   "Crypto-Cash Back",
+   "Diamond Elite Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card"
+  ],
+  "undecidable": false,
+  "reask": true,
+  "n_rejected_first": 1,
+  "declared_non_requirement": [],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "fx_fee",
+    "op": "==",
+    "value": 0,
+    "because": "No foreign transaction fees",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "purchase_protection",
+    "op": "==",
+    "value": 1,
+    "because": "Purchase protection",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "limit_max",
+    "op": ">=",
+    "value": 100000,
+    "because": "A credit limit that could be at least $100,000",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "task": "task_024",
+  "trial": 0,
+  "gold": "Business Bronze Rewards Card",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 0,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 13,
+  "surv": [
+   "Platinum Rewards Card",
+   "Gold Rewards Card",
+   "Silver Rewards Card",
+   "Bronze Rewards Card",
+   "EcoCard",
+   "Crypto-Cash Back",
+   "Diamond Elite Card",
+   "Business Bronze Rewards Card",
+   "Business Silver Rewards Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card",
+   "Green Rewards Card",
+   "Silver Zoom Card"
+  ],
+  "undecidable": true,
+  "reask": true,
+  "n_rejected_first": 1,
+  "declared_non_requirement": [
+   [
+    "business",
+    "background",
+    "I’m looking to buy a work truck for my landscaping business"
+   ],
+   [
+    "base_cashback",
+    "question",
+    "Will that purchase earn the 1.5% base cash back (i.e., $600 "
+   ],
+   [
+    "base_cashback",
+    "question",
+    "would it qualify for the 4% category"
+   ],
+   [
+    "cashback_scope",
+    "question",
+    "For a $40,000 vehicle purchase at a dealership"
+   ],
+   [
+    "cashback_scope",
+    "question",
+    "Is there any welcome bonus / promo (e.g., spend $X get $Y) t"
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": []
+ },
+ {
+  "task": "task_055",
+  "trial": 0,
+  "gold": "Purple Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 0,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 38,
+  "surv": [
+   "blue_account",
+   "bluest_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account",
+   "bronze_account",
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "green_account_(savings)",
+   "platinum_account",
+   "platinum_plus_account",
+   "silver_account",
+   "silver_plus_account",
+   "beige",
+   "cobalt_blue",
+   "hunter_green",
+   "lime_green",
+   "navy_blue",
+   "sky_blue",
+   "true_blue",
+   "world_blue",
+   "automatic_sweep_program",
+   "bronze_saver_account",
+   "diamond_vault",
+   "emerald_saver",
+   "gold_plus_saver",
+   "gold_saver_account",
+   "joint_business_holders_+_user_roles",
+   "platinum_reserve_account",
+   "silver_plus_saver",
+   "silver_saver_account"
+  ],
+  "undecidable": true,
+  "reask": false,
+  "n_rejected_first": 0,
+  "declared_non_requirement": [
+   [
+    "oon_atm_reimbursement",
+    "question",
+    "Is there any option where you reimburse out-of-network / int"
+   ],
+   [
+    "foreign_transaction_fee",
+    "question",
+    "Also I really hate foreign transaction fees when I buy thing"
+   ],
+   [
+    "foreign_currency_holding",
+    "question",
+    "Oh—and sometimes I get paid in yen or euros. It would be nic"
+   ],
+   [
+    "min_age",
+    "background",
+    "I’m 33, so not student/senior."
+   ],
+   [
+    "max_age",
+    "background",
+    "I’m 33, so not student/senior."
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 38,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": []
+ },
+ {
+  "task": "task_003",
+  "trial": 1,
+  "gold": "Silver Rewards Card",
+  "objective": {
+   "mode": "argmin",
+   "terms": [
+    {
+     "attribute": "annual_fee",
+     "times": 1,
+     "of_amount": null,
+     "sign": 1
+    }
+   ]
+  },
+  "scores": {
+   "Platinum Rewards Card": 200.0,
+   "Gold Rewards Card": 0.0,
+   "Crypto-Cash Back": 75.0,
+   "Diamond Elite Card": 495.0,
+   "Business Gold Rewards Card": 200.0,
+   "Business Platinum Rewards Card": 450.0
+  },
+  "n_constraints": 3,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 6,
+  "surv": [
+   "Platinum Rewards Card",
+   "Gold Rewards Card",
+   "Crypto-Cash Back",
+   "Diamond Elite Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card"
+  ],
+  "undecidable": false,
+  "reask": true,
+  "n_rejected_first": 1,
+  "declared_non_requirement": [
+   [
+    "annual_fee",
+    "question",
+    "What cards do you have that meet those requirements, and wha"
+   ],
+   [
+    "cashback",
+    "question",
+    "What cards do you have that meet those requirements, and wha"
+   ],
+   [
+    "annual_fee",
+    "question",
+    "What are the annual fee and cash back, especially on travel?"
+   ],
+   [
+    "cashback",
+    "question",
+    "What are the annual fee and cash back, especially on travel?"
+   ]
+  ],
+  "winner": [
+   "Gold Rewards Card"
+  ],
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "fx_fee",
+    "op": "==",
+    "value": 0,
+    "because": "No foreign transaction fees",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "purchase_protection",
+    "op": "==",
+    "value": 1,
+    "because": "Purchase protection",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "limit_max",
+    "op": ">=",
+    "value": 100000,
+    "because": "A path to at least a $100,000 credit limit (or the possibility of that limit)",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "gold": "Silver Rewards Card",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 5,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 0,
+  "surv": [],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "declared_non_requirement": [
+   [
+    "cashback_scope",
+    "background",
+    "Spending categories: mostly groceries and gas"
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "min_score",
+    "op": ">=",
+    "value": 700,
+    "because": "I’m not interested in any “no credit check” type cards.",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "annual_fee",
+    "op": "==",
+    "value": 0,
+    "because": "Max annual fee: $0 preferred",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "fx_fee",
+    "op": "<=",
+    "value": 0,
+    "because": "Max foreign transaction fee: 0%",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "purchase_protection",
+    "op": "absent",
+    "value": null,
+    "because": "Premium subscription: false",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "virtual_card",
+    "op": "absent",
+    "value": null,
+    "because": "absolutely need paper statements mailed to me",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "task": "task_057",
+  "trial": 1,
+  "gold": "Blue Account",
+  "objective": {
+   "mode": "argmin",
+   "terms": [
+    {
+     "attribute": "oon_atm_fee",
+     "times": 2,
+     "of_amount": 60,
+     "sign": 1
+    },
+    {
+     "attribute": "oon_atm_fee",
+     "times": 1,
+     "of_amount": 100,
+     "sign": 1
+    }
+   ]
+  },
+  "scores": {
+   "blue_account": 2.2,
+   "bluest_account": 6.0,
+   "dark_green_account": 2.2,
+   "evergreen_account": 2.2,
+   "gold_years_account": 0.0,
+   "green_account_(checking)": 9.0,
+   "green_fee-free_account": 0.0,
+   "light_green_account": 4.5,
+   "purple_account": 7.5,
+   "beige": 0.0,
+   "cobalt_blue": 6.0,
+   "lime_green": 3.0
+  },
+  "n_constraints": 1,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 36,
+  "surv": [
+   "blue_account",
+   "bluest_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account",
+   "bronze_account",
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "green_account_(savings)",
+   "platinum_account",
+   "platinum_plus_account",
+   "silver_account",
+   "silver_plus_account",
+   "beige",
+   "cobalt_blue",
+   "hunter_green",
+   "lime_green",
+   "navy_blue",
+   "sky_blue",
+   "automatic_sweep_program",
+   "bronze_saver_account",
+   "diamond_vault",
+   "emerald_saver",
+   "gold_plus_saver",
+   "gold_saver_account",
+   "joint_business_holders_+_user_roles",
+   "platinum_reserve_account",
+   "silver_plus_saver",
+   "silver_saver_account"
+  ],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "declared_non_requirement": [
+   [
+    "waiver_min_daily_balance",
+    "question",
+    "I can usually keep like $500–$700 in the account—would that "
+   ],
+   [
+    "min_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ],
+   [
+    "max_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ]
+  ],
+  "winner": [
+   "gold_years_account",
+   "green_fee-free_account",
+   "beige"
+  ],
+  "winner_is_gold": false,
+  "pref_best": [
+   "blue_account",
+   "evergreen_account",
+   "green_fee-free_account",
+   "bronze_account",
+   "green_account_(savings)"
+  ],
+  "pref_held": 16,
+  "pref_is_gold": true,
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "overdraft_fee",
+    "op": "==",
+    "value": 0,
+    "because": "Absolutely no overdraft fees (non-negotiable)",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "gold": "Blue Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 1,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 36,
+  "surv": [
+   "blue_account",
+   "bluest_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account",
+   "bronze_account",
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "green_account_(savings)",
+   "platinum_account",
+   "platinum_plus_account",
+   "silver_account",
+   "silver_plus_account",
+   "beige",
+   "cobalt_blue",
+   "hunter_green",
+   "lime_green",
+   "navy_blue",
+   "sky_blue",
+   "automatic_sweep_program",
+   "bronze_saver_account",
+   "diamond_vault",
+   "emerald_saver",
+   "gold_plus_saver",
+   "gold_saver_account",
+   "joint_business_holders_+_user_roles",
+   "platinum_reserve_account",
+   "silver_plus_saver",
+   "silver_saver_account"
+  ],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "declared_non_requirement": [
+   [
+    "waiver_min_daily_balance",
+    "question",
+    "I can usually keep around $500–$700 in the account. Would th"
+   ],
+   [
+    "monthly_maintenance_fee",
+    "question",
+    "I can usually keep around $500–$700 in the account. Would th"
+   ],
+   [
+    "min_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ],
+   [
+    "max_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": [
+   "bronze_account",
+   "green_account_(savings)"
+  ],
+  "pref_held": 16,
+  "pref_is_gold": false,
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "overdraft_fee",
+    "op": "==",
+    "value": 0,
+    "because": "I need an account with absolutely no overdraft fees. That’s non-negotiable.",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "gold": "Silver Plus Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 3,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 0,
+  "surv": [],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "declared_non_requirement": [],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "apy",
+    "op": "exists",
+    "value": null,
+    "because": "My goal is to maximize the interest I'll earn over one year—even a small difference of $10–15 matters to me.",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "paper_statement_fee",
+    "op": "==",
+    "value": 0,
+    "because": "absolutely need paper statements mailed to me",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "foreign_transaction_fee",
+    "op": "absent",
+    "value": null,
+    "because": "real credit card that actually checks creditworthiness—not one of those \"no credit check\" cards",
+    "stated_as": "requirement"
+   }
+  ]
+ }
+]
