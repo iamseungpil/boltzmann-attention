@@ -1844,7 +1844,49 @@ def apply():
                               file=_sys.stderr, flush=True)
                         _ctx = dict(_ctx)
                         _ctx.pop(_ap0, None)
+                # ★⒡ 범주 인용 게이트(2026-08-20 밤·`T2_CATEGORY_CITE=1`·기본 OFF).
+                #   측정이 말한 것: 범주는 **문서 없이** 정해진다(C570: fit 호출의 77%가 KB 검색 0회)
+                #   그리고 근거 없는 범주 위에서 곱하면 **~55%가 부풀린 값을 따라간다**(C566).
+                #   A2 색인을 문서로 **읽어 주면** 격리에서 4/4 로 갈렸지만(C571), 그렇게 하면
+                #   **에이전트가 안 가져온 DB 내용**을 엔진이 대신 쓰는 것이라 **규칙 0** 이다
+                #   (`SCAFFOLD_AUDIT_RULE0_2026_07_08` 판정 기준 축자). ⇒ 여기서는 규칙 0 을 지킨다:
+                #     · 엔진은 **문서 id 만 가리킨다**(내용 주입 0) — 무엇을 가져올지 말할 뿐이다
+                #     · 인용은 **에이전트 자신이 가져온 도구 출력**에서만 검산한다(C45 동형·[[59]]ⓐ)
+                #     · 못 대면 범주를 **떨구고**(=기본 요율만) 거절문이 **고칠 것을 이름 댄다**([[64]])
+                if (os.environ.get("T2_CATEGORY_CITE") == "1"
+                        and str(_ctx.get("spend_category") or "").strip()):
+                    _cidx = ((d.get("catalog_arg_docs") or {}).get("spend_category") or {})
+                    if not _cidx:
+                        try:
+                            _cidx = (((getattr(self, "_t2_sg_a2", None) or {}).get("catalog_arg_docs")
+                                      or {}).get("spend_category") or {})
+                        except Exception:
+                            _cidx = {}
+                    _cat = str(_ctx.get("spend_category")).strip().lower()
+                    _own = " ".join((_evidence_ctx(self).get("__tool_outputs") or {}).values())
+                    _q = str(_ctx.get("spend_category_quote") or "")
+                    _ok = False
+                    if _q:
+                        try:
+                            import t2_search as _ts
+                            _ok = bool(_ts.quote_in(_q, _own))
+                        except Exception:
+                            _ok = _q.lower() in _own.lower()
+                    if not _ok:
+                        _ids = [x for x in (_cidx.get(_cat) or []) if isinstance(x, str)]
+                        _ctx = dict(_ctx)
+                        _ctx.pop("spend_category", None)
+                        _hint = ("[T2_CATEGORY_CITE] spend_category=%r dropped: no quote from a document "
+                                 "you retrieved supports it." % _cat)
+                        if _ids:
+                            _hint += (" The documents that define this category are: %s. Retrieve one and "
+                                      "call again with spend_category_quote set to a sentence from it."
+                                      % ", ".join(_ids[:4]))
+                        print(_hint, file=_sys.stderr, flush=True)
+                        _ctx["__cat_cite_note"] = _hint
                 _res = _c.apply_op(d.get("op"), _ctx)
+                if isinstance(_res, dict) and _ctx.get("__cat_cite_note"):
+                    _res["note"] = (str(_res.get("note") or "") + " " + _ctx["__cat_cite_note"]).strip()
                 if isinstance(_res, list):                    # 목록형(discrepancy ids)
                     _res = [str(i) for i in _res if i]
                     # ★이 호출이 무엇을 냈는지 호출 id로 등재한다 (2026-08-05·패턴 제거).
