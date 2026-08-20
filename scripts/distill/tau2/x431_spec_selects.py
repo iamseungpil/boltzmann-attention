@@ -60,6 +60,37 @@ def ask(port, sysmsg, body, maxtok=700):
         return {}
 
 
+OPS = ("==", "<=", ">=", "exists", "absent")
+
+
+def check_spec(spec):
+    """★G6 — 스펙 스키마 **강제**. 통과한 제약과 **거절 사유 문장**을 함께 돌려준다.
+
+    x431 1차 실물: 063 이 `"because"` 를 속성명으로 쓰고 `apy == None` 을 냈다. 그런 스펙으로 거른
+    결과(생존 0·생존 11)는 모델 평가가 아니라 **우리 파이프의 붕괴**다. 강제 전에는 A/B 가 무효다.
+    """
+    ok, bad = [], []
+    for con in (spec.get("constraints") or []):
+        if not isinstance(con, dict):
+            bad.append("constraint is not an object")
+            continue
+        at, op, val = con.get("attribute"), con.get("op"), con.get("value")
+        if at not in ATTRS:
+            bad.append("unknown attribute %r (not in the allowed list)" % at)
+            continue
+        if op not in OPS:
+            bad.append("attribute %s has op %r (allowed: %s)" % (at, op, ",".join(OPS)))
+            continue
+        if op in ("==", "<=", ">="):
+            try:
+                float(val)
+            except Exception:
+                bad.append("attribute %s with op %s needs a number, got %r" % (at, op, val))
+                continue
+        ok.append(con)
+    return ok, bad
+
+
 def num(v):
     """'$0.00' · 'None' · '1% of withdrawal' → 수. 못 읽으면 None(=비교 불가로 남긴다)."""
     s = str(v).strip().lower()
@@ -145,9 +176,19 @@ def main():
     rows = []
     for c in cs:
         said = G.customer_said(c["sim"], c["msg_i"])
-        spec = ask(a.port, sysmsg, "# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
-                   % (said[:6000], ", ".join(ATTRS)))
-        cons = [x for x in (spec.get("constraints") or []) if isinstance(x, dict)]
+        body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
+                % (said[:6000], ", ".join(ATTRS)))
+        spec = ask(a.port, sysmsg, body)
+        cons, bad = check_spec(spec)
+        if bad:                       # ★G6: 위반을 **이름 대고** 되묻는다([[64]] 거부는 고칠 것을 말해야)
+            spec2 = ask(a.port, sysmsg, body + "\n# Your previous answer was rejected\n"
+                        + "\n".join("- %s" % b for b in bad[:6])
+                        + "\nUse ONLY the attribute names listed above, an op from "
+                          "==,<=,>=,exists,absent, and a number (or null for exists/absent).\n")
+            cons2, bad2 = check_spec(spec2)
+            if len(cons2) >= len(cons):
+                cons, bad = cons2, bad2
+        rejected[(c["task"], c["trial"])] = bad
         surv, why = [], []
         for cls, row in table.items():
             ok = True
@@ -160,7 +201,8 @@ def main():
                     ok = ok and bool(vals)
                     continue
                 if op == "absent":
-                    ok = ok and not vals
+                    # ★문서가 **없다고 말한 것**만 absent 로 센다 — 우리가 못 뽑은 칸(빈칸)은 거르지 않는다.
+                    ok = ok and bool((row.get(at) or {}).get("absent"))
                     continue
                 if not vals:
                     continue                      # 미기재는 **거르지 않는다**(과차단 방지·C462)
@@ -177,11 +219,14 @@ def main():
                == c["gold"].lower().replace("account", "account").strip()
                or s.startswith(c["gold"].lower().split()[0])]
         rows.append({"task": c["task"], "trial": c["trial"], "gold": c["gold"],
-                     "n_constraints": len(cons), "n_surv": len(surv), "surv": surv,
+                     "n_constraints": len(cons), "n_rejected": len(rejected.get((c["task"], c["trial"])) or []),
+                     "rejected": rejected.get((c["task"], c["trial"])) or [],
+                     "n_surv": len(surv), "surv": surv,
                      "gold_in": bool(hit), "unique": len(surv) == 1 and bool(hit),
                      "spec": cons})
-        print("  %-9s t%s gold=%-22s 제약 %d개 → 생존 %2d %s%s"
-              % (c["task"], c["trial"], c["gold"][:22], len(cons), len(surv),
+        print("  %-9s t%s gold=%-22s 제약 %d개(거절 %d) → 생존 %2d %s%s"
+              % (c["task"], c["trial"], c["gold"][:22], len(cons),
+                 len(rejected.get((c["task"], c["trial"])) or []), len(surv),
                  "· gold 포함" if hit else "· ⛔gold 탈락",
                  " ✅유일" if (len(surv) == 1 and hit) else ""))
         for con in cons[:4]:

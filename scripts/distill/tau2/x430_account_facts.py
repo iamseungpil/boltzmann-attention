@@ -44,6 +44,15 @@ ATTRS = [
     ("min_age", ["minimum primary holder age"]),
     ("max_age", ["maximum primary holder age"]),
     ("monthly_deposit_limit", ["direct deposits up to", "mobile check deposit daily limit"]),
+    # ★G7(2026-08-20) — 표 결손 보강. **손님이 실제로 물은 속성만** 더한다(출처=손님 발화·[[23]]).
+    #   055 스펙이 `foreign_transaction_fee`·`currency_holding` 을 요구했는데 표에 없어 gold 가 탈락했다
+    #   — 모델이 아니라 우리 표의 결손이었다([[55]]). 063 은 종이명세서를 물었다.
+    ("foreign_transaction_fee", ["foreign transaction fee", "international transaction fee"]),
+    ("oon_atm_reimbursement", ["atm fee reimbursement", "reimburse", "rebate"]),
+    ("foreign_currency_holding", ["foreign currency", "multi-currency", "hold currency"]),
+    ("paper_statement_fee", ["paper statement"]),
+    ("overdraft_coverage", ["overdraft coverage", "overdraft protection"]),
+    ("wire_transfer_fee", ["wire transfer fee", "outgoing wire"]),
 ]
 RE_VAL = re.compile(r"(\$\s?\d[\d,]*(?:\.\d+)?|\d+(?:\.\d+)?\s?%|\bnone\b|\bno\b|\bunlimited\b|\b\d+\b)", re.I)
 
