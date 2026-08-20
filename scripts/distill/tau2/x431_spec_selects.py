@@ -243,7 +243,9 @@ def check_spec(spec, said="", allow=None):
                            % (at, why[:60]))
                 continue
         if act != "requirement":
-            dropped.append((at, act, why[:60]))      # 요구가 아니라고 **모델이 선언한 것**은 안 건다
+            # ★축자를 자르지 않는다(2026-08-20 밤): 60자 절단본이라 저장된 span 으로 표면형을 세면
+            #   *"물음표가 없다"* 가 모델의 성질인지 **우리 절단**인지 구분이 안 됐다(19건 중 8건이 정확히 60자).
+            dropped.append((at, act, why))           # 요구가 아니라고 **모델이 선언한 것**은 안 건다
             dropped_cons.append(con)                 #   버리지 않고 **선호 채널**로 넘긴다
             continue
         ok.append(con)
