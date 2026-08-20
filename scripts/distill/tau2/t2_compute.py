@@ -442,13 +442,18 @@ def apply_op(spec, ctx):
                 #   ⛔정렬하지 않고 지목하지 않는다(엔진이 "정답은 X"를 내면 측정 대상이 사라진다·[[62]]).
                 #   ⛔금액을 손님이 말하지 않았으면 **아무것도 붙이지 않는다**(추측 금지).
                 #   식과 피연산자를 문자열에 같이 실어 **검산 가능**하게 둔다([[64]] 근거 동반).
-                _vf = spec.get("value_formula") or {}
+                # ★A/B 플래그(2026-08-20 밤·유료 런 준비): 기본은 **OFF** 라 지금까지의 스택은
+                #   거동이 그대로다(ctl 팔 = 아무것도 안 함). `base` = ⒟안(범주 분기 없음·C567
+                #   격자 0.73·증폭 위험 구조적 0) · `full` = ⒜안(범주 분기 포함·격자 0.98·오매핑 시
+                #   ~55% 추종·C566). 어느 쪽도 **라이브 reward 로 검증된 적이 없다**([[69]]).
+                _vmode = str(os.environ.get("T2_VALUE_FORMULA") or "").strip().lower()
+                _vf = (spec.get("value_formula") or {}) if _vmode in ("base", "full") else {}
                 _amt = _num(ctx.get(_vf.get("amount_param"))) if _vf else None
                 if _vf and _amt is not None:
                     _rf = _vf.get("rate_from") or {}
                     _crv = row.get(_rf.get("category_field")) or {}
                     _crvl = {str(k).lower(): v for k, v in _crv.items()} if isinstance(_crv, dict) else {}
-                    _rt = _crvl.get(_spc) if (_spc and _spc in _crvl) else None
+                    _rt = (_crvl.get(_spc) if (_spc and _spc in _crvl and _vmode == "full") else None)
                     _basis = "category rate"
                     if _rt is None:
                         _rt = row.get(_rf.get("default_field"))

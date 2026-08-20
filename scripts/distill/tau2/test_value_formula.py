@@ -20,6 +20,10 @@ try:
 except Exception:
     pass
 
+# ★플래그 기본값은 **OFF** 다(2026-08-20 밤·A/B 준비) — 검정은 켠 상태의 계약을 고정한다.
+#   `base` = ⒟안(범주 분기 없음). `full`(⒜안)은 별도 항목에서 본다.
+os.environ.setdefault("T2_VALUE_FORMULA", "base")
+
 import t2_compute as C  # noqa: E402
 
 LABEL = "documented_return_for_stated_spend"
@@ -50,11 +54,11 @@ def num(s):
 def main():
     ok = True
 
-    # ⒜ 결정론 참조와 일치 — personal · $8,000 · travel
+    # ⒜ 결정론 참조와 일치 — personal · $8,000 · travel (기본 요율만·⒟안)
     got, _ = values({"business": False, "spend_amount": 8000, "spend_category": "travel"})
     want = {"Platinum Rewards Card": 600.0,      # 10.0% × 8000 − 200
             "Gold Rewards Card": 200.0,          # 2.5% × 8000
-            "Silver Rewards Card": 320.0,        # 4.0%(category) × 8000
+            "Silver Rewards Card": 80.0,         # ⒟: 기본 1.0% × 8000 (범주 4% 를 안 쓴다)
             "Bronze Rewards Card": 80.0,         # 1.0% × 8000
             "Crypto-Cash Back": 85.0}            # 2.0% × 8000 − 75
     for k, v in want.items():
