@@ -62,6 +62,13 @@ def ask(port, sysmsg, body, maxtok=700):
 
 OPS = ("==", "<=", ">=", "exists", "absent")
 
+# ★서법을 **LLM 이 인자로 선언**한다(사용자 설계 2026-08-20 · [[22]] 따름정리·선언-우선).
+#   엔진이 `?`·`would` 를 세는 것은 [[59]] 위반이었고 실제로 gold 를 죽였다. 그렇다고 서법을 아예
+#   안 보면 057 t0 처럼 *"Would that be enough to avoid any monthly fee?"* 가 하드 제약이 된다.
+#   해법은 **판단의 주체를 옮기는 것**이지 판단을 없애는 게 아니다 — LLM 이 `stated_as` 를 선언하고
+#   엔진은 그 **선언된 라벨만** 읽는다(낱말은 안 본다·판단 0).
+ACTS = ("requirement", "question", "background")
+
 # ★인용 검산 전 **표기 정규화**(2026-08-20·x432 로 확정). 손님 발화에는 user-sim 이 넣은 마크다운
 #   강조가 섞여 있다 — *"I need an account with absolutely **no overdraft fees**."* 모델은 별표 없이
 #   인용하므로 순수 substring 검산이 **전부 튕겼다**(거절 8건 전부 이것). 유니코드 대시·따옴표도 같다.
@@ -97,7 +104,7 @@ def check_spec(spec, said=""):
       서법 판단은 **LLM 이 한다**(프롬프트). 엔진은 그 판단이 **가리킨 근거의 실재**만 본다.
     """
     norm = cite_norm(said)
-    ok, bad = [], []
+    ok, bad, dropped = [], [], []
     for con in (spec.get("constraints") or []):
         if not isinstance(con, dict):
             bad.append("constraint is not an object")
@@ -117,6 +124,10 @@ def check_spec(spec, said=""):
             except Exception:
                 bad.append("attribute %s with op %s needs a number, got %r" % (at, op, val))
                 continue
+        act = con.get("stated_as")
+        if act not in ACTS:
+            bad.append("attribute %s has stated_as %r (allowed: %s)" % (at, act, ",".join(ACTS)))
+            continue
         why = " ".join(str(con.get("because") or "").split())
         whyn = cite_norm(why)
         if norm:
@@ -127,8 +138,11 @@ def check_spec(spec, said=""):
                 bad.append("the 'because' for %s is not a verbatim span of what the customer said: %r"
                            % (at, why[:60]))
                 continue
+        if act != "requirement":
+            dropped.append((at, act, why[:60]))      # 요구가 아니라고 **모델이 선언한 것**은 안 건다
+            continue
         ok.append(con)
-    return ok, bad
+    return ok, bad, dropped
 
 
 def term_cost(row_attr, times, of_amount):
@@ -245,7 +259,8 @@ def sysmsg_spec():
     return ("You turn a customer's stated requirements into a machine-checkable spec. "
               "Reply with ONE JSON object only: {\"constraints\": [{\"attribute\": \"<one of the given "
               "names>\", \"op\": \"==|<=|>=|exists|absent\", \"value\": <number or null>, "
-              "\"because\": \"<the customer's own words>\"}], "
+              "\"because\": \"<the customer's own words>\", "
+              "\"stated_as\": \"requirement|question|background\"}], "
               "\"objective\": {\"mode\": \"argmin|argmax\", \"terms\": [{\"attribute\": \"<name>\", "
               "\"times\": <how many times per month the customer said they do this>, "
               "\"of_amount\": <the dollar amount each time, or null>, \"sign\": 1 or -1}]}}. "
@@ -253,9 +268,10 @@ def sysmsg_spec():
               "mention. Add 'objective' ONLY if the customer asked for the best/cheapest option or "
               "gave a usage pattern; otherwise omit it. "
               "'because' MUST be copied character-for-character from the customer's words. "
-              "Include a requirement ONLY if the customer stated it as something they need. "
-              "If they merely ASKED about something (a question, or checking whether something "
-              "would be enough), that is not a requirement - leave it out. "
+              "For every constraint you MUST label 'stated_as': 'requirement' if the customer said "
+              "they need or must have it; 'question' if they only asked about it or asked whether "
+              "something would be enough; 'background' if it is a fact about themselves rather than "
+              "something they demand. Label honestly - do not relabel a question as a requirement. "
               "For an eligibility range give BOTH bounds (min_age <= their age AND max_age >= their age).")
 
 
@@ -292,7 +308,7 @@ def main():
         body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
                 % (said[:6000], ", ".join(ATTRS)))
         spec = ask(a.port, sysmsg, body)
-        cons, bad = check_spec(spec, said)
+        cons, bad, dropped = check_spec(spec, said)
         n0, reask = len(bad), False
         if bad:
             reask = True                       # ★G6: 위반을 **이름 대고** 되묻는다([[64]] 거부는 고칠 것을 말해야)
@@ -300,9 +316,9 @@ def main():
                         + "\n".join("- %s" % b for b in bad[:6])
                         + "\nUse ONLY the attribute names listed above, an op from "
                           "==,<=,>=,exists,absent, and a number (or null for exists/absent).\n")
-            cons2, bad2 = check_spec(spec2, said)
+            cons2, bad2, dropped2 = check_spec(spec2, said)
             if len(cons2) >= len(cons):
-                cons, bad, spec = cons2, bad2, spec2
+                cons, bad, spec, dropped = cons2, bad2, spec2, dropped2
         rejected[(c["task"], c["trial"])] = bad
         surv, why = [], []
         for cls, row in table.items():
@@ -351,10 +367,14 @@ def main():
                      "rejected": rejected.get((c["task"], c["trial"])) or [],
                      "n_surv": len(surv_filter), "surv": surv_filter,
                      "undecidable": undecidable, "reask": reask, "n_rejected_first": n0,
+                     "declared_non_requirement": dropped,
                      "winner": winners, "winner_is_gold": win_hit,
                      "gold_in": (not undecidable) and bool(hit),
                      "unique": (not undecidable) and (len(surv_filter) == 1 and bool(hit)),
                      "spec": cons})
+        if dropped:
+            print("        선언-기각(모델이 요구가 아니라 함): %s"
+                  % ", ".join("%s=%s" % (x[0], x[1]) for x in dropped[:4]))
         print("  %-9s t%s gold=%-22s 제약 %d개(거절 %d) → 생존 %2d %s%s"
               % (c["task"], c["trial"], c["gold"][:22], len(cons),
                  len(rejected.get((c["task"], c["trial"])) or []), len(surv),
