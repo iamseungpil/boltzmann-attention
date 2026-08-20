@@ -72,9 +72,18 @@ def main():
     ap.add_argument("--minclasses", type=int, default=5)
     ap.add_argument("--maxdocs", type=int, default=0, help="0=전부 (연습용 제한)")
     ap.add_argument("--out", default="x453_attr_coverage.json")
+    ap.add_argument("--only", default="", help="선언 계열 중 이번 감사에서 볼 것(범위 제한·재정의 아님)")
     a = ap.parse_args()
 
+    # ★계열은 A2 선언에서 온다. `--only` 는 **이번 런의 범위**만 좁힌다 — 선언을 바꾸지 않는다.
+    #   G1 판정에 필요한 계열만 먼저 보고, 갈리면 그때 전수로 넓힌다(안 갈리면 전수 감사는 낭비다).
     fams = C.declared_families()
+    if a.only:
+        want = {x.strip() for x in a.only.split(",") if x.strip()}
+        unknown = want - set(fams)
+        if unknown:
+            raise SystemExit("선언에 없는 계열: %r" % sorted(unknown))
+        fams = [f for f in fams if f in want]
     byc = C.docs_by_class(fams)
     have = {n for n, _al in FT.ATTRS}
     print("=" * 96)
