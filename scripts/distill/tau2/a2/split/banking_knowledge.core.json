@@ -2135,5 +2135,70 @@
   ],
   "note": "Error: [TRANSFER-REASON] the documented reason list is tiered and says to always select from the HIGHEST tier that applies. You chose '{chosen}' (tier {chosen_tier}), but this conversation contains {evidence!r}, which the documents place under '{code}' (tier {code_tier}: {why}). Re-issue the transfer with the highest applicable reason code, or state why that one does not apply.",
   "_note": "2026-08-03 P15(task_004 실측). 출처=KB doc_bank_accounts_bank_accounts_(general)_042 축자 티어표 + \"always select from the highest tier that applies\". 004: 손님 식별자 조회가 레코드 0(신원 확인 실패)인데 TIER3로 이관 → gold=TIER1 account_ownership_dispute. db_check는 통과였고 이 사유 하나로 0점. 엔진=티어 정수 비교+마커 부분문자열만([[22]] 닫힘)."
+ },
+ "catalog_arg_docs": {
+  "spend_category": {
+   "_note_": "범주 자격을 **정의하는** KB 문서의 색인(2026-08-20 밤·사용자 지시 *\"선택에 필요한 문서들을 A2 A3 등에 인덱스로 명확하게 기술해야 한다\"*). 출처=KB 문서 **제목**(*Which … Qualify* · *What Qualifies* · *Exceptions and Exclusions* · *Rewards Categories*)뿐이고 gold 는 보지 않았다([[23]]). 근거: 전수 326 sim 에서 fit 호출의 77%가 **KB 검색 0회** 상태에서 났다(C570) — 범주를 고르는 시점에 문서가 문맥에 없다. 이 색인은 **무엇을 배달해야 하는지**를 선언할 뿐, 어느 범주가 맞는지는 말하지 않는다.",
+   "travel": [
+    "doc_business_credit_cards_business_silver_rewards_card_003",
+    "doc_credit_cards_credit_cards_(general)_005",
+    "doc_credit_cards_credit_cards_(general)_019",
+    "doc_credit_cards_silver_rewards_card_003"
+   ],
+   "_titles_travel": [
+    "Business Silver Rewards Card: Which Travel Purchases Qualify for 10% Cash Back?",
+    "Credit Card Rewards Categories",
+    "Understanding Your Credit Card Rewards Categories",
+    "Silver Rewards Card: Which Travel Purchases Qualify for 4% Cash Back?"
+   ],
+   "software": [
+    "doc_business_credit_cards_business_platinum_rewards_card_007",
+    "doc_business_credit_cards_business_silver_rewards_card_004",
+    "doc_credit_cards_credit_cards_(general)_005",
+    "doc_credit_cards_credit_cards_(general)_019",
+    "doc_credit_cards_silver_rewards_card_004"
+   ],
+   "_titles_software": [
+    "Business Platinum Rewards Card: Software and Cloud Services - Qualifying Purchases",
+    "Business Silver Rewards Card: Software and SaaS Spending - Qualifying Categories",
+    "Credit Card Rewards Categories",
+    "Understanding Your Credit Card Rewards Categories",
+    "Silver Rewards Card: Software and SaaS Spending - Qualifying Categories"
+   ],
+   "operations": [
+    "doc_business_credit_cards_business_gold_rewards_card_003",
+    "doc_credit_cards_credit_cards_(general)_005",
+    "doc_credit_cards_credit_cards_(general)_019"
+   ],
+   "_titles_operations": [
+    "Business Gold Rewards Card: What Qualifies as Operations Spend?",
+    "Credit Card Rewards Categories",
+    "Understanding Your Credit Card Rewards Categories"
+   ],
+   "media_advertising": [
+    "doc_business_credit_cards_business_platinum_rewards_card_003",
+    "doc_credit_cards_credit_cards_(general)_005",
+    "doc_credit_cards_credit_cards_(general)_019"
+   ],
+   "_titles_media_advertising": [
+    "Business Platinum Rewards Card: Which Media and Advertising Expenses Qualify?",
+    "Credit Card Rewards Categories",
+    "Understanding Your Credit Card Rewards Categories"
+   ],
+   "green": [
+    "doc_business_credit_cards_green_rewards_card_005",
+    "doc_credit_cards_credit_cards_(general)_005",
+    "doc_credit_cards_credit_cards_(general)_019",
+    "doc_credit_cards_ecocard_003",
+    "doc_credit_cards_ecocard_004"
+   ],
+   "_titles_green": [
+    "Green Rewards Card: Which Merchants Are Considered Sustainable?",
+    "Credit Card Rewards Categories",
+    "Understanding Your Credit Card Rewards Categories",
+    "EcoCard: Which Merchants and Purchases Qualify as Green?",
+    "EcoCard: Exceptions and Exclusions"
+   ]
+  }
  }
 }

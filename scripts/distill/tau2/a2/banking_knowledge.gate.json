@@ -8531,5 +8531,70 @@
    "business_credit_cards"
   ]
  },
- "_note_catalog_arg_families": "★출처([[23]]·2026-08-20): **구조 선언** — 어떤 인자의 후보가 어느 문서 계열에서 오는지를 적은 것이지 행동 강제가 아니다(`_note_identifying_arg_types` 규칙 동일 적용). 출처 = KB 문서 디렉터리의 계열 접두사(`doc_<family>_<class>_*`) — 환경 사실이다. || 왜 필요한가: 표가 6계열 60여 클래스로 넓어지면 `account_class` 후보에 신용카드가 섞인다. 계열을 안 가르면 후보 수만 부풀고 순위가 오염된다. || 소비자: 측정 파이프(`x431`)뿐 — 라이브 엔진 경로에 안 물려 있다."
+ "_note_catalog_arg_families": "★출처([[23]]·2026-08-20): **구조 선언** — 어떤 인자의 후보가 어느 문서 계열에서 오는지를 적은 것이지 행동 강제가 아니다(`_note_identifying_arg_types` 규칙 동일 적용). 출처 = KB 문서 디렉터리의 계열 접두사(`doc_<family>_<class>_*`) — 환경 사실이다. || 왜 필요한가: 표가 6계열 60여 클래스로 넓어지면 `account_class` 후보에 신용카드가 섞인다. 계열을 안 가르면 후보 수만 부풀고 순위가 오염된다. || 소비자: 측정 파이프(`x431`)뿐 — 라이브 엔진 경로에 안 물려 있다.",
+ "catalog_arg_docs": {
+  "spend_category": {
+   "_note_": "범주 자격을 **정의하는** KB 문서의 색인(2026-08-20 밤·사용자 지시 *\"선택에 필요한 문서들을 A2 A3 등에 인덱스로 명확하게 기술해야 한다\"*). 출처=KB 문서 **제목**(*Which … Qualify* · *What Qualifies* · *Exceptions and Exclusions* · *Rewards Categories*)뿐이고 gold 는 보지 않았다([[23]]). 근거: 전수 326 sim 에서 fit 호출의 77%가 **KB 검색 0회** 상태에서 났다(C570) — 범주를 고르는 시점에 문서가 문맥에 없다. 이 색인은 **무엇을 배달해야 하는지**를 선언할 뿐, 어느 범주가 맞는지는 말하지 않는다.",
+   "travel": [
+    "doc_business_credit_cards_business_silver_rewards_card_003",
+    "doc_credit_cards_credit_cards_(general)_005",
+    "doc_credit_cards_credit_cards_(general)_019",
+    "doc_credit_cards_silver_rewards_card_003"
+   ],
+   "_titles_travel": [
+    "Business Silver Rewards Card: Which Travel Purchases Qualify for 10% Cash Back?",
+    "Credit Card Rewards Categories",
+    "Understanding Your Credit Card Rewards Categories",
+    "Silver Rewards Card: Which Travel Purchases Qualify for 4% Cash Back?"
+   ],
+   "software": [
+    "doc_business_credit_cards_business_platinum_rewards_card_007",
+    "doc_business_credit_cards_business_silver_rewards_card_004",
+    "doc_credit_cards_credit_cards_(general)_005",
+    "doc_credit_cards_credit_cards_(general)_019",
+    "doc_credit_cards_silver_rewards_card_004"
+   ],
+   "_titles_software": [
+    "Business Platinum Rewards Card: Software and Cloud Services - Qualifying Purchases",
+    "Business Silver Rewards Card: Software and SaaS Spending - Qualifying Categories",
+    "Credit Card Rewards Categories",
+    "Understanding Your Credit Card Rewards Categories",
+    "Silver Rewards Card: Software and SaaS Spending - Qualifying Categories"
+   ],
+   "operations": [
+    "doc_business_credit_cards_business_gold_rewards_card_003",
+    "doc_credit_cards_credit_cards_(general)_005",
+    "doc_credit_cards_credit_cards_(general)_019"
+   ],
+   "_titles_operations": [
+    "Business Gold Rewards Card: What Qualifies as Operations Spend?",
+    "Credit Card Rewards Categories",
+    "Understanding Your Credit Card Rewards Categories"
+   ],
+   "media_advertising": [
+    "doc_business_credit_cards_business_platinum_rewards_card_003",
+    "doc_credit_cards_credit_cards_(general)_005",
+    "doc_credit_cards_credit_cards_(general)_019"
+   ],
+   "_titles_media_advertising": [
+    "Business Platinum Rewards Card: Which Media and Advertising Expenses Qualify?",
+    "Credit Card Rewards Categories",
+    "Understanding Your Credit Card Rewards Categories"
+   ],
+   "green": [
+    "doc_business_credit_cards_green_rewards_card_005",
+    "doc_credit_cards_credit_cards_(general)_005",
+    "doc_credit_cards_credit_cards_(general)_019",
+    "doc_credit_cards_ecocard_003",
+    "doc_credit_cards_ecocard_004"
+   ],
+   "_titles_green": [
+    "Green Rewards Card: Which Merchants Are Considered Sustainable?",
+    "Credit Card Rewards Categories",
+    "Understanding Your Credit Card Rewards Categories",
+    "EcoCard: Which Merchants and Purchases Qualify as Green?",
+    "EcoCard: Exceptions and Exclusions"
+   ]
+  }
+ }
 }
