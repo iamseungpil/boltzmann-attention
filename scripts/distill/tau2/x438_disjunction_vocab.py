@@ -85,11 +85,38 @@ def run_case(port, c, table):
     return row
 
 
+def debug_one(port, c, table, kw, label):
+    """한 사례·한 어휘로 **원문 출력과 거절 사유**를 그대로 인쇄한다.
+
+    집계는 *"제약이 0개"* 라고만 말한다 — 모델이 아무것도 안 낸 것인지, 냈는데 검산이 **전부 튕긴**
+    것인지 구분이 안 된다. 003 t0 이 이접 어휘에서 제약 3 → 0 이 된 자리를 여기서 본다([[08]]).
+    """
+    tbl = X.card_table()[0] if c["arg"] == "card_type" else table
+    fams = X.arg_families(c["arg"])
+    allow = {k: sorted(v) for k, v in X.table_caps(tbl, fams).items()}
+    menu = X.attr_menu_for(c["arg"], tbl)
+    said = " ".join(P.turns(c))
+    sysmsg = X.sysmsg_spec(**kw)
+    body = ("# Customer's own words" + chr(10) + said[:6000] + chr(10) + chr(10)
+            + "# Attribute names you may use" + chr(10) + menu + chr(10))
+    raw = X.ask(port, sysmsg, body)
+    cons, bad, dropped, _f = X.check_spec(raw, said, allow)
+    print("=== %s · %s t%s" % (label, c["task"], c["trial"]))
+    print("  원문: %s" % json.dumps(raw, ensure_ascii=False)[:1200])
+    print("  통과 %d · 거절 %d · 선언-기각 %d" % (len(cons), len(bad), len(dropped)))
+    for b in bad:
+        print("    거절: %s" % b[:160])
+    for d in dropped:
+        print("    기각(%s): %s" % (d[1], str(d[2])[:80]))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8141)
     ap.add_argument("--tag", default="or1")
     ap.add_argument("--only", default="")
+    ap.add_argument("--debug", action="store_true",
+                    help="--only 로 고른 사례를 세 어휘로 한 번씩 돌려 원문·거절을 인쇄")
     a = ap.parse_args()
 
     table = P.account_table()
@@ -105,6 +132,11 @@ def main():
         seen.add(k)
         cs.append(c)
 
+    if a.debug:
+        for c in cs:
+            for kw, label in (({}, "현행"), ({"with_or": True}, "이접"), ({"filler": True}, "무능력")):
+                debug_one(a.port, c, table, kw, label)
+        return 0
     print("=" * 104)
     print("x438 · 이접 어휘 격리 · 사례 %d · 팔 %s" % (len(cs), " / ".join(t for t, _d, _k in ARMS)))
     print("판정(사전 고정): 이접 사용 0 = 축 닫힘 · T_or > T_noise 여야 능력 · T_or ≈ T_noise = 판정 불가")
