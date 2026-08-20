@@ -35,7 +35,8 @@ DOCDIR = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/doc
 #   `business_savings_accounts_silver_plus_saver_*` 다. checking 만 담은 표로는 **후보에 없어서**
 #   판정 자체가 불가능했다 — 모델 실패로 읽으면 오진이다([[55]]).
 FAMILIES = ["checking_accounts", "savings_accounts",
-            "business_checking_accounts", "business_savings_accounts"]
+            "business_checking_accounts", "business_savings_accounts",
+            "credit_cards", "business_credit_cards"]
 
 # 속성 = (이름, 그 속성을 부르는 축자 표현들). 값은 문장 안의 첫 통화·퍼센트·정수.
 ATTRS = [
