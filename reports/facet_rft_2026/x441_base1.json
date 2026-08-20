@@ -1,0 +1,722 @@
+[
+ {
+  "family": "personal",
+  "cat": "travel",
+  "amt": 500,
+  "answer": "Silver Rewards Card",
+  "best": 20.0,
+  "second": "Gold Rewards Card",
+  "second_val": 12.5,
+  "G_base": {
+   "winner": "Gold Rewards Card",
+   "ok": false,
+   "amount_back": 12.5,
+   "why": "It offers the highest estimated return among the cards listed."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "travel",
+  "amt": 2000,
+  "answer": "Silver Rewards Card",
+  "best": 80.0,
+  "second": "Gold Rewards Card",
+  "second_val": 50.0,
+  "G_base": {
+   "winner": "Gold Rewards Card",
+   "ok": false,
+   "amount_back": 50,
+   "why": "It offers the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "travel",
+  "amt": 8000,
+  "answer": "Platinum Rewards Card",
+  "best": 600.0,
+  "second": "Silver Rewards Card",
+  "second_val": 320.0,
+  "G_base": {
+   "winner": "Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 600.0,
+   "why": "It offers the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "travel",
+  "amt": 40000,
+  "answer": "Platinum Rewards Card",
+  "best": 3800.0,
+  "second": "Silver Rewards Card",
+  "second_val": 1600.0,
+  "G_base": {
+   "winner": "Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 3800.0,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "software",
+  "amt": 500,
+  "answer": "Silver Rewards Card",
+  "best": 20.0,
+  "second": "Gold Rewards Card",
+  "second_val": 12.5,
+  "G_base": {
+   "winner": "Gold Rewards Card",
+   "ok": false,
+   "amount_back": 12.5,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "software",
+  "amt": 2000,
+  "answer": "Silver Rewards Card",
+  "best": 80.0,
+  "second": "Gold Rewards Card",
+  "second_val": 50.0,
+  "G_base": {
+   "winner": "Gold Rewards Card",
+   "ok": false,
+   "amount_back": 50,
+   "why": "It offers the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "software",
+  "amt": 8000,
+  "answer": "Platinum Rewards Card",
+  "best": 600.0,
+  "second": "Silver Rewards Card",
+  "second_val": 320.0,
+  "G_base": {
+   "winner": "Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 600.0,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "software",
+  "amt": 40000,
+  "answer": "Platinum Rewards Card",
+  "best": 3800.0,
+  "second": "Silver Rewards Card",
+  "second_val": 1600.0,
+  "G_base": {
+   "winner": "Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 3800.0,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "operations",
+  "amt": 500,
+  "answer": "Gold Rewards Card",
+  "best": 12.5,
+  "second": "Silver Rewards Card",
+  "second_val": 5.0,
+  "G_base": {
+   "winner": "Gold Rewards Card",
+   "ok": true,
+   "amount_back": 12.5,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "operations",
+  "amt": 2000,
+  "answer": "Gold Rewards Card",
+  "best": 50.0,
+  "second": "Silver Rewards Card",
+  "second_val": 20.0,
+  "G_base": {
+   "winner": "Gold Rewards Card",
+   "ok": true,
+   "amount_back": 50,
+   "why": "It provides the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "operations",
+  "amt": 8000,
+  "answer": "Platinum Rewards Card",
+  "best": 600.0,
+  "second": "Gold Rewards Card",
+  "second_val": 200.0,
+  "G_base": {
+   "winner": "Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 600.0,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "operations",
+  "amt": 40000,
+  "answer": "Platinum Rewards Card",
+  "best": 3800.0,
+  "second": "Diamond Elite Card",
+  "second_val": 1505.0,
+  "G_base": {
+   "winner": "Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 3800.0,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "green",
+  "amt": 500,
+  "answer": "Gold Rewards Card",
+  "best": 12.5,
+  "second": "Silver Rewards Card",
+  "second_val": 5.0,
+  "G_base": {
+   "winner": "Gold Rewards Card",
+   "ok": true,
+   "amount_back": 12.5,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "green",
+  "amt": 2000,
+  "answer": "Gold Rewards Card",
+  "best": 50.0,
+  "second": "Silver Rewards Card",
+  "second_val": 20.0,
+  "G_base": {
+   "winner": "Gold Rewards Card",
+   "ok": true,
+   "amount_back": 50,
+   "why": "It offers the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "green",
+  "amt": 8000,
+  "answer": "Platinum Rewards Card",
+  "best": 600.0,
+  "second": "Gold Rewards Card",
+  "second_val": 200.0,
+  "G_base": {
+   "winner": "Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 600.0,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "green",
+  "amt": 40000,
+  "answer": "Platinum Rewards Card",
+  "best": 3800.0,
+  "second": "Diamond Elite Card",
+  "second_val": 1505.0,
+  "G_base": {
+   "winner": "Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 3800.0,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "media_advertising",
+  "amt": 500,
+  "answer": "Gold Rewards Card",
+  "best": 12.5,
+  "second": "Silver Rewards Card",
+  "second_val": 5.0,
+  "G_base": {
+   "winner": "Bronze Rewards Card",
+   "ok": false,
+   "amount_back": 5.0,
+   "why": "It offers the highest estimated return among the cards with no annual fee and applicable scope."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "media_advertising",
+  "amt": 2000,
+  "answer": "Gold Rewards Card",
+  "best": 50.0,
+  "second": "Silver Rewards Card",
+  "second_val": 20.0,
+  "G_base": {
+   "winner": "Gold Rewards Card",
+   "ok": true,
+   "amount_back": 50,
+   "why": "It offers the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "media_advertising",
+  "amt": 8000,
+  "answer": "Platinum Rewards Card",
+  "best": 600.0,
+  "second": "Gold Rewards Card",
+  "second_val": 200.0,
+  "G_base": {
+   "winner": "Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 600.0,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "media_advertising",
+  "amt": 40000,
+  "answer": "Platinum Rewards Card",
+  "best": 3800.0,
+  "second": "Diamond Elite Card",
+  "second_val": 1505.0,
+  "G_base": {
+   "winner": "Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 3800.0,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "other",
+  "amt": 500,
+  "answer": "Gold Rewards Card",
+  "best": 12.5,
+  "second": "Silver Rewards Card",
+  "second_val": 5.0,
+  "G_base": {
+   "winner": "Gold Rewards Card",
+   "ok": true,
+   "amount_back": 12.5,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "other",
+  "amt": 2000,
+  "answer": "Gold Rewards Card",
+  "best": 50.0,
+  "second": "Silver Rewards Card",
+  "second_val": 20.0,
+  "G_base": {
+   "winner": "Gold Rewards Card",
+   "ok": true,
+   "amount_back": 50,
+   "why": "It provides the highest estimated return for this customer's spending pattern."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "other",
+  "amt": 8000,
+  "answer": "Platinum Rewards Card",
+  "best": 600.0,
+  "second": "Gold Rewards Card",
+  "second_val": 200.0,
+  "G_base": {
+   "winner": "Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 600,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "other",
+  "amt": 40000,
+  "answer": "Platinum Rewards Card",
+  "best": 3800.0,
+  "second": "Diamond Elite Card",
+  "second_val": 1505.0,
+  "G_base": {
+   "winner": "Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 3800.0,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "travel",
+  "amt": 500,
+  "answer": "Business Bronze Rewards Card",
+  "best": 5.0,
+  "second": "Business Silver Rewards Card",
+  "second_val": -72.5,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 5,
+   "why": "It provides the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "travel",
+  "amt": 2000,
+  "answer": "Business Silver Rewards Card",
+  "best": 77.5,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 20.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": false,
+   "amount_back": 20.0,
+   "why": "It provides the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "travel",
+  "amt": 8000,
+  "answer": "Business Silver Rewards Card",
+  "best": 677.5,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 80.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": false,
+   "amount_back": 80.0,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "travel",
+  "amt": 40000,
+  "answer": "Business Silver Rewards Card",
+  "best": 3877.5,
+  "second": "Business Platinum Rewards Card",
+  "second_val": 1150.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": false,
+   "amount_back": 400.0,
+   "why": "It offers the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "software",
+  "amt": 500,
+  "answer": "Business Bronze Rewards Card",
+  "best": 5.0,
+  "second": "Business Silver Rewards Card",
+  "second_val": -72.5,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 5,
+   "why": "It provides the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "software",
+  "amt": 2000,
+  "answer": "Business Silver Rewards Card",
+  "best": 77.5,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 20.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": false,
+   "amount_back": 20.0,
+   "why": "It provides the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "software",
+  "amt": 8000,
+  "answer": "Business Silver Rewards Card",
+  "best": 677.5,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 80.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": false,
+   "amount_back": 80.0,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "software",
+  "amt": 40000,
+  "answer": "Business Silver Rewards Card",
+  "best": 3877.5,
+  "second": "Business Platinum Rewards Card",
+  "second_val": 1150.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": false,
+   "amount_back": 400.0,
+   "why": "It offers the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "operations",
+  "amt": 500,
+  "answer": "Business Bronze Rewards Card",
+  "best": 5.0,
+  "second": "Green Rewards Card",
+  "second_val": -95.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 5,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "operations",
+  "amt": 2000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 20.0,
+  "second": "Green Rewards Card",
+  "second_val": -80.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 20.0,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "operations",
+  "amt": 8000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 80.0,
+  "second": "Business Gold Rewards Card",
+  "second_val": 0.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 80.0,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "operations",
+  "amt": 40000,
+  "answer": "Business Gold Rewards Card",
+  "best": 800.0,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 400.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": false,
+   "amount_back": 400.0,
+   "why": "It offers the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "green",
+  "amt": 500,
+  "answer": "Business Bronze Rewards Card",
+  "best": 5.0,
+  "second": "Green Rewards Card",
+  "second_val": -85.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 5,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "green",
+  "amt": 2000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 20.0,
+  "second": "Green Rewards Card",
+  "second_val": -40.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 20.0,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "green",
+  "amt": 8000,
+  "answer": "Green Rewards Card",
+  "best": 140.0,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 80.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": false,
+   "amount_back": 80.0,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "green",
+  "amt": 40000,
+  "answer": "Green Rewards Card",
+  "best": 1100.0,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 400.0,
+  "G_base": {
+   "winner": "Green Rewards Card",
+   "ok": true,
+   "amount_back": 300.0,
+   "why": "It offers the highest estimated return for spending on green categories."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "media_advertising",
+  "amt": 500,
+  "answer": "Business Bronze Rewards Card",
+  "best": 5.0,
+  "second": "Green Rewards Card",
+  "second_val": -95.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 5,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "media_advertising",
+  "amt": 2000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 20.0,
+  "second": "Green Rewards Card",
+  "second_val": -80.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 20.0,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "media_advertising",
+  "amt": 8000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 80.0,
+  "second": "Green Rewards Card",
+  "second_val": -20.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 80.0,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "media_advertising",
+  "amt": 40000,
+  "answer": "Business Platinum Rewards Card",
+  "best": 1150.0,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 400.0,
+  "G_base": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 150.0,
+   "why": "It provides the highest estimated return for the customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "other",
+  "amt": 500,
+  "answer": "Business Bronze Rewards Card",
+  "best": 5.0,
+  "second": "Green Rewards Card",
+  "second_val": -95.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 5,
+   "why": "It has the highest estimated return for this customer."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "other",
+  "amt": 2000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 20.0,
+  "second": "Green Rewards Card",
+  "second_val": -80.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 20.0,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "other",
+  "amt": 8000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 80.0,
+  "second": "Green Rewards Card",
+  "second_val": -20.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 80.0,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "other",
+  "amt": 40000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 400.0,
+  "second": "Green Rewards Card",
+  "second_val": 300.0,
+  "G_base": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 400.0,
+   "why": "It offers the highest estimated return for this customer's spending habits."
+  }
+ }
+]

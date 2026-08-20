@@ -1,0 +1,56 @@
+========================================================================================================
+x441 · 목적함수 설정 격리 · 문항 48 (유일 argmax) · **상수 답 상한 0.29** (최빈 정답 Business Bronze Rewards Card)
+판정: A≈C 면 패턴 미사용 · D≫A 면 목적함수 설정 결손 · 둘 다 낮으면 경계 · 차 8/48 이상만 읽음
+========================================================================================================
+  personal travel             $500    정답 Silver Rewards Card            | G=X
+  personal travel             $2000   정답 Silver Rewards Card            | G=X
+  personal travel             $8000   정답 Platinum Rewards Card          | G=O
+  personal travel             $40000  정답 Platinum Rewards Card          | G=O
+  personal software           $500    정답 Silver Rewards Card            | G=X
+  personal software           $2000   정답 Silver Rewards Card            | G=X
+  personal software           $8000   정답 Platinum Rewards Card          | G=O
+  personal software           $40000  정답 Platinum Rewards Card          | G=O
+  personal operations         $500    정답 Gold Rewards Card              | G=O
+  personal operations         $2000   정답 Gold Rewards Card              | G=O
+  personal operations         $8000   정답 Platinum Rewards Card          | G=O
+  personal operations         $40000  정답 Platinum Rewards Card          | G=O
+  personal green              $500    정답 Gold Rewards Card              | G=O
+  personal green              $2000   정답 Gold Rewards Card              | G=O
+  personal green              $8000   정답 Platinum Rewards Card          | G=O
+  personal green              $40000  정답 Platinum Rewards Card          | G=O
+  personal media_advertising  $500    정답 Gold Rewards Card              | G=X
+  personal media_advertising  $2000   정답 Gold Rewards Card              | G=O
+  personal media_advertising  $8000   정답 Platinum Rewards Card          | G=O
+  personal media_advertising  $40000  정답 Platinum Rewards Card          | G=O
+  personal other              $500    정답 Gold Rewards Card              | G=O
+  personal other              $2000   정답 Gold Rewards Card              | G=O
+  personal other              $8000   정답 Platinum Rewards Card          | G=O
+  personal other              $40000  정답 Platinum Rewards Card          | G=O
+  business travel             $500    정답 Business Bronze Rewards Card   | G=O
+  business travel             $2000   정답 Business Silver Rewards Card   | G=X
+  business travel             $8000   정답 Business Silver Rewards Card   | G=X
+  business travel             $40000  정답 Business Silver Rewards Card   | G=X
+  business software           $500    정답 Business Bronze Rewards Card   | G=O
+  business software           $2000   정답 Business Silver Rewards Card   | G=X
+  business software           $8000   정답 Business Silver Rewards Card   | G=X
+  business software           $40000  정답 Business Silver Rewards Card   | G=X
+  business operations         $500    정답 Business Bronze Rewards Card   | G=O
+  business operations         $2000   정답 Business Bronze Rewards Card   | G=O
+  business operations         $8000   정답 Business Bronze Rewards Card   | G=O
+  business operations         $40000  정답 Business Gold Rewards Card     | G=X
+  business green              $500    정답 Business Bronze Rewards Card   | G=O
+  business green              $2000   정답 Business Bronze Rewards Card   | G=O
+  business green              $8000   정답 Green Rewards Card             | G=X
+  business green              $40000  정답 Green Rewards Card             | G=O
+  business media_advertising  $500    정답 Business Bronze Rewards Card   | G=O
+  business media_advertising  $2000   정답 Business Bronze Rewards Card   | G=O
+  business media_advertising  $8000   정답 Business Bronze Rewards Card   | G=O
+  business media_advertising  $40000  정답 Business Platinum Rewards Card | G=O
+  business other              $500    정답 Business Bronze Rewards Card   | G=O
+  business other              $2000   정답 Business Bronze Rewards Card   | G=O
+  business other              $8000   정답 Business Bronze Rewards Card   | G=O
+  business other              $40000  정답 Business Bronze Rewards Card   | G=O
+
+  ★정답률  G_base 35/48 (0.73)
+     G_base   최빈 답 Business Bronze Rewards Card   22/48 (0.46) — 상수성
+→ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x441_base1.json
