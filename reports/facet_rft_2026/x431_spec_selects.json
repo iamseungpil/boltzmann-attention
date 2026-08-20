@@ -50,8 +50,8 @@
    "silver_saver_account"
   ],
   "undecidable": true,
-  "reask": true,
-  "n_rejected_first": 3,
+  "reask": false,
+  "n_rejected_first": 0,
   "declared_non_requirement": [
    [
     "oon_atm_reimbursement",
@@ -104,11 +104,15 @@
    ]
   },
   "scores": {
+   "blue_account": 0.8,
    "bluest_account": 180.0,
    "dark_green_account": 120.0,
+   "evergreen_account": 4.0,
    "gold_years_account": 80.0,
+   "green_account_(checking)": 8.8,
    "green_fee-free_account": 0.0,
    "light_green_account": 4.0,
+   "bronze_account": 160.0,
    "diamond_elite_account": 600.0,
    "gold_account": 440.0,
    "gold_plus_account": 480.0,
@@ -121,6 +125,7 @@
    "lime_green": 120.0,
    "true_blue": 160.0,
    "world_blue": 80.0,
+   "bronze_saver_account": 160.0,
    "diamond_vault": 520.0,
    "emerald_saver": 280.0,
    "gold_plus_saver": 400.0,
@@ -128,19 +133,23 @@
    "platinum_reserve_account": 400.0,
    "silver_saver_account": 200.0
   },
-  "n_constraints": 2,
+  "n_constraints": 1,
   "n_rejected": 0,
   "rejected": [],
-  "n_surv": 30,
+  "n_surv": 35,
   "surv": [
+   "blue_account",
    "bluest_account",
    "checking_accounts_(general)",
    "dark_green_account",
+   "evergreen_account",
    "gold_years_account",
+   "green_account_(checking)",
    "green_fee-free_account",
    "light_blue_account",
    "light_green_account",
    "purple_account",
+   "bronze_account",
    "diamond_elite_account",
    "gold_account",
    "gold_plus_account",
@@ -155,6 +164,7 @@
    "true_blue",
    "world_blue",
    "automatic_sweep_program",
+   "bronze_saver_account",
    "diamond_vault",
    "emerald_saver",
    "gold_plus_saver",
@@ -165,9 +175,14 @@
    "silver_saver_account"
   ],
   "undecidable": false,
-  "reask": false,
-  "n_rejected_first": 0,
+  "reask": true,
+  "n_rejected_first": 4,
   "declared_non_requirement": [
+   [
+    "paper_statement_fee",
+    "question",
+    "is there any fee for that?"
+   ],
    [
     "apy",
     "question",
@@ -176,7 +191,7 @@
    [
     "paper_statement_fee",
     "question",
-    "Is it truly paper statements mailed monthly (or at least reg"
+    "Are paper statements mailed available, and is there any fee?"
    ]
   ],
   "winner": [
@@ -196,14 +211,7 @@
     "attribute": "foreign_transaction_fee",
     "op": "==",
     "value": 0,
-    "because": "I don’t travel a ton, but I’d rather avoid it",
-    "stated_as": "requirement"
-   },
-   {
-    "attribute": "paper_statement_fee",
-    "op": "==",
-    "value": 0,
-    "because": "Absolutely need paper statements mailed to me",
+    "because": "Max foreign transaction fee: 0%",
     "stated_as": "requirement"
    }
   ]
@@ -223,25 +231,25 @@
     },
     {
      "attribute": "oon_atm_fee",
-     "times": 2,
+     "times": 1,
      "of_amount": 100,
      "sign": 1
     }
    ]
   },
   "scores": {
-   "blue_account": 3.2,
-   "bluest_account": 8.0,
-   "dark_green_account": 3.2,
-   "evergreen_account": 3.2,
+   "blue_account": 2.2,
+   "bluest_account": 6.0,
+   "dark_green_account": 2.2,
+   "evergreen_account": 2.2,
    "gold_years_account": 0.0,
-   "green_account_(checking)": 12.0,
+   "green_account_(checking)": 9.0,
    "green_fee-free_account": 0.0,
-   "light_green_account": 6.0,
-   "purple_account": 10.0,
+   "light_green_account": 4.5,
+   "purple_account": 7.5,
    "beige": 0.0,
-   "cobalt_blue": 8.0,
-   "lime_green": 4.0
+   "cobalt_blue": 6.0,
+   "lime_green": 3.0
   },
   "n_constraints": 1,
   "n_rejected": 0,
@@ -295,11 +303,6 @@
     "I can usually keep like $500–$700 in the account—would that "
    ],
    [
-    "waiver_min_daily_balance",
-    "question",
-    "I can usually keep like $500–$700 in the account—would that "
-   ],
-   [
     "min_age",
     "background",
     "Date of birth: 06/15/1994"
@@ -319,6 +322,8 @@
   "pref_best": [
    "blue_account",
    "evergreen_account",
+   "green_fee-free_account",
+   "bronze_account",
    "green_account_(savings)"
   ],
   "pref_held": 16,
@@ -393,11 +398,6 @@
     "I can usually keep around $500–$700 in the account. Would th"
    ],
    [
-    "waiver_min_daily_balance",
-    "question",
-    "I can usually keep around $500–$700 in the account. Would th"
-   ],
-   [
     "monthly_maintenance_fee",
     "question",
     "I can usually keep around $500–$700 in the account. Would th"
@@ -416,6 +416,7 @@
   "winner": null,
   "winner_is_gold": false,
   "pref_best": [
+   "bronze_account",
    "green_account_(savings)"
   ],
   "pref_held": 16,
@@ -438,7 +439,7 @@
   "gold": "Silver Plus Account",
   "objective": null,
   "scores": {},
-  "n_constraints": 4,
+  "n_constraints": 3,
   "n_rejected": 0,
   "rejected": [],
   "n_surv": 0,
@@ -459,21 +460,7 @@
     "attribute": "apy",
     "op": "exists",
     "value": null,
-    "because": "I’m trying to avoid comparing multiple accounts—just want the one that yields the absolute highest return.",
-    "stated_as": "requirement"
-   },
-   {
-    "attribute": "paper_statement_fee",
-    "op": "exists",
-    "value": null,
-    "because": "absolutely need paper statements mailed to me",
-    "stated_as": "requirement"
-   },
-   {
-    "attribute": "foreign_transaction_fee",
-    "op": "absent",
-    "value": null,
-    "because": "real credit card that actually checks creditworthiness—not one of those “no credit check” cards",
+    "because": "My goal is to maximize the interest I'll earn over one year—even a small difference of $10–15 matters to me.",
     "stated_as": "requirement"
    },
    {
@@ -481,6 +468,13 @@
     "op": "==",
     "value": 0,
     "because": "absolutely need paper statements mailed to me",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "foreign_transaction_fee",
+    "op": "absent",
+    "value": null,
+    "because": "real credit card that actually checks creditworthiness—not one of those \"no credit check\" cards",
     "stated_as": "requirement"
    }
   ]
