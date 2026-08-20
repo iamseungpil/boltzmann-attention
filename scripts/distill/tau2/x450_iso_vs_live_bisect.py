@@ -21,7 +21,10 @@ r"""x450 — **격리에서 되던 것이 라이브에서 안 되는 이유**를
     B_live       라이브 그대로 (제목 X · 소문자 · 단일 user · 라이브 문구)
     C_title      B + **제목만** 복원
     D_case       B + **대소문자만** 복원
-    E_sys        B + **system+user 분리와 격리 문구만** 복원
+    E_sys        B + **system+user 분리와 격리 문구를 함께** 복원
+    F_word       B + **격리 문구만**(구조는 라이브 = 단일 user 메시지)
+    G_split      B + **구조만** 분리(문구는 라이브 그대로)
+    H_front      B + **위치만** 앞으로(단일 user·라이브 문구 그대로)
   ⇒ B 가 A 와 갈리고 C/D/E 중 하나가 A 로 돌아오면 그것이 원인이다.
 
 ## 채점 (닫힌 술어만)
@@ -96,7 +99,7 @@ def main():
     ap.add_argument("--port", type=int, default=8141)
     ap.add_argument("--tag", default="bis1")
     ap.add_argument("--task", default="task_024")
-    ap.add_argument("--arms", default="A_iso,B_live,C_title,D_case,E_sys")
+    ap.add_argument("--arms", default="A_iso,B_live,C_title,D_case,E_sys,F_word,G_split,H_front")
     a = ap.parse_args()
     arms = [x.strip() for x in a.arms.split(",") if x.strip()]
 
@@ -135,11 +138,31 @@ def main():
             elif arm == "D_case":
                 mat, said = mat_plain, said_raw
                 msgs = [{"role": "user", "content": live_prompt(mat, said, "spend_category", vals)}]
-            else:  # E_sys
+            elif arm == "E_sys":
                 mat, said = mat_plain, said_low
                 msgs = [{"role": "system", "content": ISO_SYS},
                         {"role": "user", "content": "# Documents\n%s\n\n# What the customer said\n%s\n"
                          % (mat, said)}]
+            elif arm == "F_word":
+                # 격리 **문구만** 쓰고 구조는 라이브 그대로(단일 user 메시지)
+                mat, said = mat_plain, said_low
+                msgs = [{"role": "user", "content": "%s\n\n# Documents\n%s\n\n"
+                                                    "# What the customer said\n%s\n"
+                         % (ISO_SYS, mat, said)}]
+            elif arm == "G_split":
+                # **구조만** 분리하고 문구는 라이브 그대로
+                mat, said = mat_plain, said_low
+                _lp = live_prompt(mat, said, "spend_category", vals)
+                _cut = _lp.index("Decide ONE thing:")
+                msgs = [{"role": "system", "content": _lp[_cut:]},
+                        {"role": "user", "content": _lp[:_cut]}]
+            else:  # H_front — **위치만** 앞으로(단일 user·라이브 문구 그대로)
+                #   F/G 는 문구와 위치를 함께 옮긴다. 라이브 지시는 문서 15,000자 **뒤**에 있다 —
+                #   그 자체가 원인일 수 있어 위치만 떼어 본다.
+                mat, said = mat_plain, said_low
+                _lp = live_prompt(mat, said, "spend_category", vals)
+                _cut = _lp.index("Decide ONE thing:")
+                msgs = [{"role": "user", "content": _lp[_cut:] + "\n\n" + _lp[:_cut]}]
             ans = parse(chat(a.port, msgs))
             cat = V.as_cat(ans.get("spend_category"))
             q = V.form_norm(ans.get("quote"))
