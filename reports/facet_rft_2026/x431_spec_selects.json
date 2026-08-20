@@ -1,0 +1,199 @@
+[
+ {
+  "task": "task_055",
+  "trial": 0,
+  "gold": "Purple Account",
+  "n_constraints": 3,
+  "n_surv": 3,
+  "surv": [
+   "checking_accounts_(general)",
+   "gold_years_account",
+   "green_fee-free_account"
+  ],
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "oon_atm_fee",
+    "op": "==",
+    "value": 0,
+    "because": "Is there any option where you reimburse out-of-network / international ATM fees?"
+   },
+   {
+    "attribute": "foreign_transaction_fee",
+    "op": "==",
+    "value": 0,
+    "because": "Also I really hate foreign transaction fees when I buy things abroad. Is there something without those?"
+   },
+   {
+    "attribute": "currency_holding",
+    "op": "exists",
+    "value": null,
+    "because": "Oh—and sometimes I get paid in yen or euros. It would be nice if I could hold those currencies instead of converting immediately, if that’s a thing."
+   }
+  ]
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "gold": "Silver Plus Account",
+  "n_constraints": 3,
+  "n_surv": 11,
+  "surv": [
+   "blue_account",
+   "bluest_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account"
+  ],
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "apy",
+    "op": "==",
+    "value": null,
+    "because": "I need to confirm again: can the savings account send paper statements by mail? Yes, I can proceed, but I want to be really clear on two things before I do it: 1) Can you confirm the Gold Account has the highest APY you offer for a savings account (given I’ll park $8,000 for one year with no withdrawals)?"
+   },
+   {
+    "attribute": "because",
+    "op": "exists",
+    "value": "I absolutely need paper statements mailed to me for both the card and savings account—my accountant requires physical copies and I don’t trust purely digital records.",
+    "because": "I absolutely need paper statements mailed to me for both the card and savings account—my accountant requires physical copies and I don’t trust purely digital records."
+   },
+   {
+    "attribute": "because",
+    "op": "exists",
+    "value": "Once I have that confirmation, I’ll complete the steps in the portal immediately.",
+    "because": "Are paper statements mailed available, and is there any fee?"
+   }
+  ]
+ },
+ {
+  "task": "task_057",
+  "trial": 1,
+  "gold": "Blue Account",
+  "n_constraints": 2,
+  "n_surv": 8,
+  "surv": [
+   "blue_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account"
+  ],
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "overdraft_fee",
+    "op": "==",
+    "value": 0,
+    "because": "Absolutely no overdraft fees (non-negotiable)"
+   },
+   {
+    "attribute": "waiver_min_daily_balance",
+    "op": "<=",
+    "value": 700,
+    "because": "I can usually keep like $500–$700 in the account—would that avoid monthly fees?"
+   }
+  ]
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "gold": "Blue Account",
+  "n_constraints": 3,
+  "n_surv": 3,
+  "surv": [
+   "blue_account",
+   "dark_green_account",
+   "light_blue_account"
+  ],
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "overdraft_fee",
+    "op": "==",
+    "value": 0,
+    "because": "I need an account with absolutely no overdraft fees."
+   },
+   {
+    "attribute": "waiver_min_daily_balance",
+    "op": "<=",
+    "value": 700,
+    "because": "I can usually keep around $500–$700 in the account. Would that be enough to avoid any monthly fee?"
+   },
+   {
+    "attribute": "overdraft_protection_transfer_fee",
+    "op": "exists",
+    "value": null,
+    "because": "But I still want a safety net—if I accidentally spend more than I have, I want to be able to link a savings account to cover it automatically."
+   }
+  ]
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "gold": "Silver Plus Account",
+  "n_constraints": 7,
+  "n_surv": 0,
+  "surv": [],
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "apy",
+    "op": "exists",
+    "value": null,
+    "because": "I’m planning to leave it untouched for a full year, and I want whichever savings option will give me the highest return over that time."
+   },
+   {
+    "attribute": "waiver_min_daily_balance",
+    "op": "absent",
+    "value": null,
+    "because": "I don’t have a Rho-Bank premium/Rho-Bank+ subscription."
+   },
+   {
+    "attribute": "monthly_maintenance_fee",
+    "op": "absent",
+    "value": null,
+    "because": "I don’t have a Rho-Bank premium/Rho-Bank+ subscription."
+   },
+   {
+    "attribute": "oon_atm_fee",
+    "op": "absent",
+    "value": null,
+    "because": "I don’t have a Rho-Bank premium/Rho-Bank+ subscription."
+   },
+   {
+    "attribute": "free_oon_atm_per_month",
+    "op": "absent",
+    "value": null,
+    "because": "I don’t have a Rho-Bank premium/Rho-Bank+ subscription."
+   },
+   {
+    "attribute": "overdraft_fee",
+    "op": "exists",
+    "value": null,
+    "because": "real credit card that actually checks creditworthiness"
+   },
+   {
+    "attribute": "overdraft_protection_transfer_fee",
+    "op": "exists",
+    "value": null,
+    "because": "real credit card that actually checks creditworthiness"
+   }
+  ]
+ }
+]

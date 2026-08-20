@@ -1,0 +1,1184 @@
+{
+ "blue_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$20.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$20.00",
+     "doc": "blue_account",
+     "quote": "- Monthly maintenance fee: $20.00"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$625"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$625",
+     "doc": "blue_account",
+     "quote": "- Waiver requirement: maintain a minimum daily balance of $625"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "blue_account",
+     "quote": "- The overdraft fee on this account is $0.00."
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [
+    "$12.50"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$12.50",
+     "doc": "blue_account",
+     "quote": "Each such transfer incurs a fee of $12.50."
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "1% of withdrawal amount (max $3.00)"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "1% of withdrawal amount (max $3.00)",
+     "doc": "blue_account",
+     "quote": "- Out-of-network ATM withdrawal: 1% of withdrawal amount (max $3.00)"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "0.01%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "0.01%",
+     "doc": "blue_account",
+     "quote": "- Annual Percentage Yield on balances: 0.01%"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$500",
+     "doc": "blue_account",
+     "quote": "Your Blue Account debit card has a daily ATM withdrawal limit of $500."
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  }
+ },
+ "bluest_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$75.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$75.00",
+     "doc": "bluest_account",
+     "quote": "- If your daily balance drops below $112,500, a monthly maintenance fee of $75.00 will be assessed."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$112,500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$112,500",
+     "doc": "bluest_account",
+     "quote": "- Maintain a daily balance of $112,500 to keep all account benefits active."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "2.25%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "2.25%",
+     "doc": "bluest_account",
+     "quote": "- You earn 2.25% APY on your balance, providing a yield advantage relative to standard transactional accounts that often pay a lower rate."
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$1,500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$1,500",
+     "doc": "bluest_account",
+     "quote": "- Your Bluest Account debit card has a daily ATM withdrawal limit of $1,500. This applies to all ATM withdrawals within a 24-hour period."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$2.00 per withdrawal"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$2.00 per withdrawal",
+     "doc": "bluest_account",
+     "quote": "Cash withdrawal at an out-of-network ATM | $2.00 per withdrawal"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  }
+ },
+ "checking_accounts_(general)": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  }
+ },
+ "dark_green_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$10.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$10.00",
+     "doc": "dark_green_account",
+     "quote": "Monthly maintenance fee: $10.00"
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [
+    "0"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "0",
+     "doc": "dark_green_account",
+     "quote": "Overdraft protection transfer fee: 0"
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "1% (min $1.50)"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "1% (min $1.50)",
+     "doc": "dark_green_account",
+     "quote": "Out-of-network ATM withdrawal fee: 1% (min $1.50)"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "1.5%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "1.5%",
+     "doc": "dark_green_account",
+     "quote": "Annual percentage yield (APY): 1.5%"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$300"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$300",
+     "doc": "dark_green_account",
+     "quote": "Daily ATM withdrawal limit: $300"
+    }
+   ]
+  },
+  "min_age": {
+   "values": [
+    "17"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "17",
+     "doc": "dark_green_account",
+     "quote": "Minimum primary holder age: 17"
+    }
+   ]
+  },
+  "max_age": {
+   "values": [
+    "26"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "26",
+     "doc": "dark_green_account",
+     "quote": "Maximum primary holder age: 26"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "overdraft_fee": {
+   "values": [
+    "0"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "0",
+     "doc": "dark_green_account",
+     "quote": "Overdraft protection transfer fee: 0"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  }
+ },
+ "evergreen_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$6.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$6.00",
+     "doc": "evergreen_account",
+     "quote": "Monthly maintenance fee: $6.00"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$500",
+     "doc": "evergreen_account",
+     "quote": "The monthly maintenance fee is waived when your minimum daily balance is at least $500"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "0.05%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "0.05%",
+     "doc": "evergreen_account",
+     "quote": "Annual Percentage Yield on your Evergreen Account balance: 0.05%"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$750"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$750",
+     "doc": "evergreen_account",
+     "quote": "Daily ATM withdrawal limit: $750"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$2.50"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$2.50",
+     "doc": "evergreen_account",
+     "quote": "- Maximum per withdrawal: $2.50"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  }
+ },
+ "gold_years_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "gold_years_account",
+     "quote": "- Monthly maintenance fee: $0.00 dollars"
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "gold_years_account",
+     "quote": "- Out-of-network ATM withdrawal fee: $0.00"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "1.0%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "1.0%",
+     "doc": "gold_years_account",
+     "quote": "- Earn 1.0% APY on your checking balance"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$600"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$600",
+     "doc": "gold_years_account",
+     "quote": "- Daily ATM withdrawal limit: $600 dollars"
+    }
+   ]
+  },
+  "min_age": {
+   "values": [
+    "62"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "62",
+     "doc": "gold_years_account",
+     "quote": "- You must be at least 62 years old to qualify."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  }
+ },
+ "green_account_(checking)": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$22.50"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$22.50",
+     "doc": "green_account_(checking)",
+     "quote": "You are charged $22.50 each month unless you maintain a daily balance of at least $1,350."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$1,350"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$1,350",
+     "doc": "green_account_(checking)",
+     "quote": "To avoid the monthly maintenance fee, maintain a minimum daily balance of $1,350 each statement cycle"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "green_account_(checking)",
+     "quote": "There are no overdraft transfers from linked accounts; the overdraft protection transfer fee is $0.00."
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "green_account_(checking)",
+     "quote": "There are no automatic overdraft transfers; the overdraft protection transfer fee is $0.00."
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$3.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$3.00",
+     "doc": "green_account_(checking)",
+     "quote": "Out-of-network ATM withdrawal fee | $3.00"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "0.11%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "0.11%",
+     "doc": "green_account_(checking)",
+     "quote": "Earn 0.11% APY on your checking balance"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$600"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$600",
+     "doc": "green_account_(checking)",
+     "quote": "Your Green Account (checking) debit card has a daily ATM withdrawal limit of $600. This limit applies to all ATM withdrawals combined (domestic and foreign) within a 24-hour period."
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  }
+ },
+ "green_fee-free_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$22.50"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$22.50",
+     "doc": "green_fee-free_account",
+     "quote": "A monthly maintenance fee of $22.50 applies."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$150"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$150",
+     "doc": "green_fee-free_account",
+     "quote": "Maintain a daily balance of at least $150 to have the monthly maintenance fee waived."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "green_fee-free_account",
+     "quote": "You are not charged an overdraft fee. The overdraft fee for this account is $0.00."
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "green_fee-free_account",
+     "quote": "Rho does not charge a fee for using out-of-network ATMs: $0.00 per withdrawal."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "0%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "0%",
+     "doc": "green_fee-free_account",
+     "quote": "The APY on balances is 0%."
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$500",
+     "doc": "green_fee-free_account",
+     "quote": "Your daily ATM withdrawal limit is $500. This limit applies to all ATM withdrawals within a 24-hour period."
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  }
+ },
+ "light_blue_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "light_blue_account",
+     "quote": "Monthly maintenance fee: $0.00"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "light_blue_account",
+     "quote": "Overdraft fee: $0.00"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "light_blue_account",
+     "quote": "Overdraft protection transfer fee | $0.00"
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$2.50"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$2.50",
+     "doc": "light_blue_account",
+     "quote": "After using your free allowance, each additional withdrawal costs $2.50."
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [
+    "2"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "2",
+     "doc": "light_blue_account",
+     "quote": "You receive 2 free out-of-network ATM withdrawals each month."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "0%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "0%",
+     "doc": "light_blue_account",
+     "quote": "APY on your balance: 0%"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$400"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$400",
+     "doc": "light_blue_account",
+     "quote": "Daily ATM withdrawal limit - Your daily ATM withdrawal limit is $400. This limit applies to all ATM withdrawals within a 24-hour period."
+    }
+   ]
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  }
+ },
+ "light_green_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "light_green_account",
+     "quote": "Monthly maintenance fee | $0.00"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "None"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "None",
+     "doc": "light_green_account",
+     "quote": "Overdraft fees: None (no overdraft fee is charged on this account)"
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$1.50"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$1.50",
+     "doc": "light_green_account",
+     "quote": "Out-of-network ATM withdrawal fee (after free) | $1.50"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [
+    "4"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "4",
+     "doc": "light_green_account",
+     "quote": "Free out-of-network ATM withdrawals per month | 4"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "0.05%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "0.05%",
+     "doc": "light_green_account",
+     "quote": "APY on balances | 0.05%"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$150"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$150",
+     "doc": "light_green_account",
+     "quote": "Daily ATM withdrawal limit | $150"
+    }
+   ]
+  },
+  "min_age": {
+   "values": [
+    "13"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "13",
+     "doc": "light_green_account",
+     "quote": "The primary account holder must be at least 13 to open the account."
+    }
+   ]
+  },
+  "max_age": {
+   "values": [
+    "24"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "24",
+     "doc": "light_green_account",
+     "quote": "You must remain within the 13–24 age range to maintain the account."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  }
+ },
+ "purple_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$15.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$15.00",
+     "doc": "purple_account",
+     "quote": "The monthly maintenance fee is $15.00."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$3,750"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$3,750",
+     "doc": "purple_account",
+     "quote": "Maintain a minimum daily balance of $3,750 to waive the fee."
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$2.50"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$2.50",
+     "doc": "purple_account",
+     "quote": "You are charged $2.50 per cash withdrawal made at an out-of-network ATM."
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$1,000"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$1,000",
+     "doc": "purple_account",
+     "quote": "Your Purple Account debit card has a daily ATM withdrawal limit of $1,000. This limit applies to all ATM withdrawals worldwide within a 24-hour period."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  }
+ }
+}
