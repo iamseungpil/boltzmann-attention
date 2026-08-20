@@ -53,6 +53,27 @@ def cell(row, at):
 passes = X.passes          # ★술어는 정본 하나뿐이다([[67]]) — 여기서 사본을 짓지 않는다
 
 
+
+def relaxed(row, con):
+    """★반사실 측정 전용 — *"수수료 없음"* 을 **값 0 ∨ 문서-미기재**의 이접으로 읽었을 때.
+
+    ⚠이것은 레버가 아니라 **자**다. 우리 op 어휘에는 **이접(OR)이 없어서** 모델이 둘 중 하나를 고르게
+      강제된다: 055 의 *"no foreign transaction fees"* 가 격리 팔에서 `absent` 로 나왔는데 gold 계좌는
+      그 칸에 **값 0%** 를 적어 놓았다 ⇒ 정확히 gold 만 탈락했다. 어휘가 만든 탈락인지 재려고 두 판을
+      나란히 낸다([[70]] 양방향). ★이 완화를 라이브에 얹으려면 [[62]] 순서를 다시 밟아야 한다.
+    """
+    at, op = con.get("attribute"), con.get("op")
+    if not at:
+        return True
+    c = (row.get(at) or {})
+    v = X.cellval(c)
+    if op == "absent":
+        return bool(c.get("absent")) or (v == 0.0)
+    if op == "==" and (con.get("value") in (0, 0.0)):
+        return bool(c.get("absent")) or (v == 0.0) or (v is None)
+    return X.passes(row, con)
+
+
 def candidates(tbl, fams):
     out = {}
     for cls, row in tbl.items():
@@ -131,14 +152,62 @@ def declared_share(cases):
           % (tot_req, tot_drop, 100.0 * tot_drop / max(1, tot_req + tot_drop)))
 
 
+def from_probe(path, arm):
+    """x437(격리 프로브) 산출을 x436 이 읽는 꼴로 — 팔 하나를 골라 사례 목록으로 만든다."""
+    with io.open(os.path.abspath(os.path.join(REP, path)), encoding="utf-8") as f:
+        rows = json.load(f)
+    out = []
+    for r in rows:
+        x = r.get(arm) or {}
+        out.append({"task": r["task"], "trial": r["trial"], "gold": r["gold"],
+                    "n_constraints": x.get("n_con", 0), "n_surv": x.get("n_surv", 0),
+                    "gold_in": x.get("gold_in", False), "spec": x.get("cons") or [],
+                    "declared_non_requirement": []})
+    return out
+
+
+def strict_vs_relaxed(cases, card, acc):
+    """같은 스펙을 **엄격 / 이접-완화** 두 판으로 걸어 태스크별 부호를 낸다([[70]] 의무)."""
+    print(chr(10) + chr(10) + "=== 엄격 대 이접-완화 (수수료 0 ∨ 미기재) ===")
+    tot = {"strict": [0, 0], "relax": [0, 0]}
+    for c in cases:
+        arg = "card_type" if gold_row(candidates(card, X.arg_families("card_type")), c["gold"])[0] else "account_class"
+        tbl = card if arg == "card_type" else acc
+        fams = X.arg_families(arg)
+        cands = candidates(tbl, fams)
+        gcls, _grow = gold_row(cands, c["gold"])
+        cons = c["spec"] if isinstance(c["spec"], list) else []
+        s1 = {k for k, r in cands.items() if all(X.passes(r, x) for x in cons)}
+        s2 = {k for k, r in cands.items() if all(relaxed(r, x) for x in cons)}
+        g1, g2 = bool(gcls and gcls in s1), bool(gcls and gcls in s2)
+        tot["strict"][0] += g1
+        tot["relax"][0] += g2
+        tot["strict"][1] += (len(s1) == 1 and g1)
+        tot["relax"][1] += (len(s2) == 1 and g2)
+        mark = "" if (len(s1), g1) == (len(s2), g2) else "   ← 갈린다"
+        print("  %-9s t%s 제약 %d | 엄격 생존 %3d %s | 완화 생존 %3d %s%s"
+              % (c["task"], c["trial"], len(cons), len(s1), "gold O" if g1 else "gold X",
+                 len(s2), "gold O" if g2 else "gold X", mark))
+    print("  ⇒ gold_in 엄격 %d/%d · 완화 %d/%d   |   유일 엄격 %d · 완화 %d"
+          % (tot["strict"][0], len(cases), tot["relax"][0], len(cases),
+             tot["strict"][1], tot["relax"][1]))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--wide", default="x431_wide1.json")
+    ap.add_argument("--from-probe", default="", help="x437 산출 파일 — 팔 하나를 사례로 읽는다")
+    ap.add_argument("--arm", default="B_turn")
     a = ap.parse_args()
-    with io.open(os.path.abspath(os.path.join(REP, a.wide)), encoding="utf-8") as f:
-        cases = json.load(f)
     card, _ = X.card_table()
     acc_asrun, acc_filled = account_table("asrun"), account_table("filled")
+    if a.from_probe:
+        cases = from_probe(a.from_probe, a.arm)
+        print("=== %s · 팔 %s (사례 %d) ===" % (a.from_probe, a.arm, len(cases)))
+        strict_vs_relaxed(cases, card, acc_filled)
+        return
+    with io.open(os.path.abspath(os.path.join(REP, a.wide)), encoding="utf-8") as f:
+        cases = json.load(f)
     for c in cases:
         arg = "card_type" if gold_row(candidates(card, X.arg_families("card_type")), c["gold"])[0] else "account_class"
         print("\n=== %s t%s · gold=%s · arg=%s · (x431 기록: 제약 %d · 생존 %d · gold_in %s)"
