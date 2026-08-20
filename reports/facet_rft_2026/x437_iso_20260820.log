@@ -1,0 +1,38 @@
+====================================================================================================
+x437 · 요구/질문 선언 격리 · 사례 8 · 팔 A_full / B_turn / C_chunk(부정통제)
+====================================================================================================
+  task_003  t0 (턴 1) gold=Silver Rewards Card
+      A_full  제약  3 · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+      B_turn  제약  3 · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+      C_chunk 제약  3 · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+  task_024  t0 (턴 4) gold=Business Bronze Rewards Ca
+      A_full  제약  0 · 생존  13 · gold O  
+      B_turn  제약  2 · 생존   9 · gold O  business,cashback
+      C_chunk 제약  1 · 생존  13 · gold O  business
+  task_055  t0 (턴 4) gold=Purple Account
+      A_full  제약  0 · 생존  38 · gold O  
+      B_turn  제약  3 · 생존   0 · gold X  foreign_currency_holding,foreign_transaction_fee,oon_atm_reimbursement
+      C_chunk 제약  4 · 생존   1 · gold X  daily_atm_withdrawal_limit,foreign_currency_holding,foreign_transactio
+  task_003  t1 (턴 3) gold=Silver Rewards Card
+      A_full  제약  3 · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+      B_turn  제약  3 · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+      C_chunk 제약  3 · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+  task_063  t0 (턴 2) gold=Silver Rewards Card
+      A_full  제약  3 · 생존   1 · gold X  annual_fee,fx_fee,min_score
+      B_turn  제약  3 · 생존   1 · gold X  annual_fee,fx_fee,min_score
+      C_chunk 제약  4 · 생존   0 · gold X  annual_fee,fx_fee,min_score,purchase_protection
+  task_057  t1 (턴 4) gold=Blue Account
+      A_full  제약  1 · 생존  36 · gold O  overdraft_fee
+      B_turn  제약  1 · 생존  36 · gold O  overdraft_fee
+      C_chunk 제약  2 · 생존  34 · gold O  free_oon_atm_per_month,overdraft_fee
+  task_057  t0 (턴 3) gold=Blue Account
+      A_full  제약  1 · 생존  36 · gold O  overdraft_fee
+      B_turn  제약  1 · 생존  36 · gold O  overdraft_fee
+      C_chunk 제약  2 · 생존  13 · gold O  daily_atm_withdrawal_limit,overdraft_fee
+  task_063  t1 (턴 8) gold=Silver Plus Account
+      A_full  제약  2 · 생존  21 · gold X  apy,paper_statement_fee
+      B_turn  제약  3 · 생존  21 · gold X  apy,paper_statement_fee
+      C_chunk 제약  2 · 생존  21 · gold X  apy,paper_statement_fee
+
+  ★[1회차] {"A_full": {"gold_in": 4, "unique": 0, "n_con": 13, "wipe": 0}, "B_turn": {"gold_in": 3, "unique": 0, "n_con": 19, "wipe": 1}, "C_chunk": {"gold_in": 3, "unique": 0, "n_con": 21, "wipe": 1}}
+→ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x437_iso1.json
