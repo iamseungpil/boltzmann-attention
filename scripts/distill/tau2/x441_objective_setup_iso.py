@@ -88,7 +88,13 @@ def block(cards, it=None):
         if r.get("cashback_scope"):
             bits.append("scope %s" % r["cashback_scope"])
         if it is not None:
-            bits.append("estimated return for this customer: $%.2f" % net(r, it["cat"], it["amt"]))
+            # ★`base_only` = ⒟안(2026-08-20 밤·C566 후속): **범주 분기를 아예 안 쓴다**.
+            #   ⒝안(두 값 병기)이 판정선 미달로 탈락했고(C566), 오매핑 증폭은 **범주 요율로 곱하는
+            #   순간** 생긴다. 기본 요율로만 계산하면 그 위험은 **구조적으로 못 생긴다** — 대신 범주가
+            #   결정하는 사례의 이득을 얼마나 잃는지가 미측정이었다. 이 팔이 그것을 잰다.
+            #   ⚠범주 요율 자체는 행 텍스트에 **그대로 남는다**(모델이 스스로 쓸 수 있다).
+            _cat = "__none__" if it.get("base_only") else it["cat"]
+            bits.append("estimated return for this customer: $%.2f" % net(r, _cat, it["amt"]))
         out.append("- %s: %s" % (r["card"], " · ".join(bits)))
     return "\n".join(out)
 
@@ -113,7 +119,11 @@ def items():
 
 def ask(port, it, arm):
     cat = "purchases that are not in any bonus category" if it["cat"] == "other" else it["cat"]
-    body = "# Cards" + chr(10) + block(it["cards"], it if arm == "E_values" else None) + chr(10)
+    _show = None
+    if arm in ("E_values", "G_base"):
+        _show = dict(it)
+        _show["base_only"] = (arm == "G_base")
+    body = "# Cards" + chr(10) + block(it["cards"], _show) + chr(10)
     if arm != "C_nopat":
         body += ("\n# This customer\nOver the next year they will spend $%d on %s, and little else.\n"
                  % (it["amt"], cat))
