@@ -94,6 +94,20 @@ def main():
           % ("✓" if not banned else "✗", "" if not banned else " — " + ",".join(banned)))
     ok = ok and not banned
 
+    # ⒠ 플래그가 없으면 **아무것도 안 붙는다**(ctl 팔의 거동 = 종전과 동일)
+    _keep = os.environ.pop("T2_VALUE_FORMULA", None)
+    for _m in list(sys.modules):
+        if _m.startswith("t2_compute"):
+            del sys.modules[_m]
+    import t2_compute as C2
+    _out = C2.apply_op(spec(), {"business": True, "spend_amount": 40000})
+    _n = sum(1 for g in ("eligible", "unverified", "excluded")
+             for it in (_out.get(g) or []) if LABEL in (it.get("facts") or {}))
+    print("  %s (e) 플래그 없으면 주석 0 (붙은 행 %d)" % ("OK" if _n == 0 else "X", _n))
+    ok = ok and _n == 0
+    if _keep:
+        os.environ["T2_VALUE_FORMULA"] = _keep
+
     print("\nRESULT: %s" % ("ALL PASS" if ok else "FAIL"))
     return 0 if ok else 1
 
