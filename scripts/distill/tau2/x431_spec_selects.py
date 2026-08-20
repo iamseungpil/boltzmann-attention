@@ -431,7 +431,12 @@ def main():
         undecidable = not cons
         winners, score = (None, {}) if undecidable else objective_pick(obj, table, surv)
         # ★선호 채널 — 선언-기각된 것을 **순위**로 되쓴다(버리지 않는다).
-        prefs = [x for x in (dropped_full or []) if x.get("attribute") in ATTRS]
+        # ★`background` 는 순위 항이 아니다(2026-08-20 수리). 그것은 **손님에 대한 사실**이지 선호가 아니다.
+        #   실물: 055 는 *"I'm 33, so not student/senior"* 가 `min_age` background 로 실렸고, purple 은
+        #   `min_age` 가 미기재라 **순위 보류**로 빠졌다 — 표에 gold 의 근거 셋(해외수수료 0% · ATM 리베이트
+        #   $30 · 30통화 보유)이 축자로 다 있었는데도. 선호는 손님이 **묻거나 바란 것**(question)만이다.
+        prefs = [x for x in (dropped_full or [])
+                 if x.get("attribute") in ATTRS and x.get("stated_as") == "question"]
         pbest, pscore, pheld = preference_rank(prefs, table, surv)
         # ★목적함수는 **필터 뒤 순위**일 뿐 생존 집합을 대체하지 않는다 — 둘을 따로 보고한다.
         surv_filter = list(surv)
