@@ -129,6 +129,8 @@ def main():
     ap.add_argument("--port", type=int, default=8141)
     ap.add_argument("--tag", default="obj1")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--arms", default="A_task,C_nopat,D_hint",
+                    help="돌릴 팔 — 이미 잰 팔을 다시 돌리지 않는다(산출 덮어쓰기 방지)")
     a = ap.parse_args()
     its = items()
     if a.limit:
@@ -144,7 +146,7 @@ def main():
     said = collections.defaultdict(collections.Counter)
     for it in its:
         r = {k: it[k] for k in ("family", "cat", "amt", "answer", "best", "second", "second_val")}
-        for arm in ("A_task", "C_nopat", "D_hint"):
+        for arm in [x for x in a.arms.split(",") if x]:
             ans = ask(a.port, it, arm) or {}
             win = str(ans.get("winner") or "")
             ok = PR._word_in(win, it["answer"]) and PR._word_in(it["answer"], win)
@@ -156,11 +158,12 @@ def main():
         print("  %-8s %-18s $%-6d 정답 %-30s | %s"
               % (it["family"], it["cat"], it["amt"], it["answer"],
                  " ".join("%s=%s" % (k[0], "O" if r[k]["ok"] else "X")
-                          for k in ("A_task", "C_nopat", "D_hint"))))
+                          for k in [x for x in a.arms.split(",") if x])))
     n = len(rows)
+    arms = [x for x in a.arms.split(",") if x]
     print(chr(10) + "  ★정답률  " + " · ".join("%s %d/%d (%.2f)" % (k, hit[k], n, hit[k] / float(n))
-                                              for k in ("A_task", "C_nopat", "D_hint")))
-    for k in ("A_task", "C_nopat", "D_hint"):
+                                              for k in arms))
+    for k in arms:
         top, cnt = said[k].most_common(1)[0]
         print("     %-8s 최빈 답 %-30s %d/%d (%.2f) — 상수성" % (k, top, cnt, n, cnt / float(n)))
     p = os.path.abspath(os.path.join(REP, "x441_%s.json" % a.tag))
