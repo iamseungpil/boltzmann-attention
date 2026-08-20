@@ -108,6 +108,7 @@
    "dark_green_account": 120.0,
    "gold_years_account": 80.0,
    "green_fee-free_account": 0.0,
+   "light_blue_account": 0.0,
    "light_green_account": 4.0,
    "diamond_elite_account": 600.0,
    "gold_account": 440.0,
@@ -117,8 +118,6 @@
    "platinum_plus_account": 560.0,
    "silver_account": 200.0,
    "cobalt_blue": 40.0,
-   "hunter_green": 80.0,
-   "lime_green": 120.0,
    "true_blue": 160.0,
    "world_blue": 80.0,
    "diamond_vault": 520.0,
@@ -131,7 +130,7 @@
   "n_constraints": 2,
   "n_rejected": 0,
   "rejected": [],
-  "n_surv": 30,
+  "n_surv": 28,
   "surv": [
    "bluest_account",
    "checking_accounts_(general)",
@@ -150,8 +149,6 @@
    "silver_account",
    "silver_plus_account",
    "cobalt_blue",
-   "hunter_green",
-   "lime_green",
    "true_blue",
    "world_blue",
    "automatic_sweep_program",
@@ -184,10 +181,12 @@
   ],
   "winner_is_gold": false,
   "pref_best": [
+   "gold_years_account",
    "green_fee-free_account",
+   "light_blue_account",
    "silver_account"
   ],
-  "pref_held": 27,
+  "pref_held": 23,
   "pref_is_gold": false,
   "gold_in": true,
   "unique": false,
@@ -237,6 +236,7 @@
    "gold_years_account": 0.0,
    "green_account_(checking)": 12.0,
    "green_fee-free_account": 0.0,
+   "light_blue_account": 10.0,
    "light_green_account": 6.0,
    "purple_account": 10.0,
    "beige": 0.0,
@@ -340,11 +340,12 @@
   "n_constraints": 2,
   "n_rejected": 0,
   "rejected": [],
-  "n_surv": 4,
+  "n_surv": 5,
   "surv": [
    "blue_account",
    "dark_green_account",
    "green_account_(checking)",
+   "light_blue_account",
    "navy_blue"
   ],
   "undecidable": false,
@@ -372,7 +373,7 @@
   "pref_best": [
    "blue_account"
   ],
-  "pref_held": 2,
+  "pref_held": 3,
   "pref_is_gold": true,
   "gold_in": true,
   "unique": false,
@@ -409,36 +410,26 @@
    ]
   },
   "scores": {
-   "blue_account": 0.8,
-   "evergreen_account": 4.0,
-   "green_account_(checking)": 8.8,
+   "gold_years_account": 80.0,
    "green_fee-free_account": 0.0,
-   "bronze_account": 160.0,
+   "light_blue_account": 0.0,
    "green_account_(savings)": 320.0,
-   "silver_account": 200.0,
-   "bronze_saver_account": 160.0
+   "silver_account": 200.0
   },
-  "n_constraints": 2,
-  "n_rejected": 3,
-  "rejected": [
-   "unknown attribute 'credit_score' (not in the allowed list)",
-   "unknown attribute 'annual_income' (not in the allowed list)",
-   "unknown attribute 'premium_subscription' (not in the allowed list)"
-  ],
-  "n_surv": 8,
+  "n_constraints": 4,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 5,
   "surv": [
-   "blue_account",
-   "evergreen_account",
-   "green_account_(checking)",
+   "gold_years_account",
    "green_fee-free_account",
-   "bronze_account",
+   "light_blue_account",
    "green_account_(savings)",
-   "silver_account",
-   "bronze_saver_account"
+   "silver_account"
   ],
   "undecidable": false,
-  "reask": true,
-  "n_rejected_first": 3,
+  "reask": false,
+  "n_rejected_first": 0,
   "declared_non_requirement": [],
   "winner": [
    "green_account_(savings)"
@@ -461,6 +452,20 @@
     "attribute": "paper_statement_fee",
     "op": "exists",
     "value": null,
+    "because": "absolutely need paper statements mailed to me",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "foreign_transaction_fee",
+    "op": "absent",
+    "value": null,
+    "because": "real credit card that actually checks creditworthiness—not one of those “no credit check” cards",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "paper_statement_fee",
+    "op": "==",
+    "value": 0,
     "because": "absolutely need paper statements mailed to me",
     "stated_as": "requirement"
    }

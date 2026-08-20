@@ -1,0 +1,39 @@
+빈칸 처리 — 채움 13 · 문서 미기재 확정 94 · 검산 탈락(미해결) 0
+빈칸 처리 — 채움 1 · 문서 미기재 확정 110 · 검산 탈락(미해결) 1
+빈칸 처리 — 채움 11 · 문서 미기재 확정 52 · 검산 탈락(미해결) 6
+빈칸 처리 — 채움 3 · 문서 미기재 확정 128 · 검산 탈락(미해결) 1
+
+=== ②③④ 스펙 → 필터 → 판정 (사례 5) ===
+        선언-기각(모델이 요구가 아니라 함): oon_atm_reimbursement=question, foreign_transaction_fee=question, foreign_currency_holding=question, min_age=background
+  task_055  t0 gold=Purple Account         제약 0개(거절 0) → 생존 38 · gold 포함
+        ⓘ순위 보류(항이 미기재) 6 후보: checking_accounts_(general), purple_account, silver_plus_account, automatic_sweep_program
+        선호 순위 → gold_years_account, green_fee-free_account, light_blue_account  (보류 23 · 상위: gold_years_account=0.00, green_fee-free_account=0.00, light_blue_account=0.00, silver_account=0.00)
+        선언-기각(모델이 요구가 아니라 함): apy=question, paper_statement_fee=question
+  task_063  t0 gold=Silver Plus Account    제약 2개(거절 0) → 생존 28 · gold 포함
+        objective argmax → green_fee-free_account=0.00, light_blue_account=0.00, light_green_account=4.00, cobalt_blue=40.00
+           term apy                            ×1    of 8000 sign 1
+        foreign_transaction_fee            ==     0        ← I don’t travel a ton, but I’d rather avoid it
+        paper_statement_fee                ==     0        ← Absolutely need paper statements mailed to me
+        ⓘ순위 보류(항이 미기재) 23 후보: checking_accounts_(general), bronze_account, diamond_elite_account, gold_account
+        선언-기각(모델이 요구가 아니라 함): waiver_min_daily_balance=question, waiver_min_daily_balance=question, min_age=background, max_age=background
+  task_057  t1 gold=Blue Account           제약 1개(거절 0) → 생존 36 · gold 포함
+        objective argmin → gold_years_account=0.00, green_fee-free_account=0.00, beige=0.00, blue_account=3.20
+           term oon_atm_fee                    ×2    of 60 sign 1
+           term oon_atm_fee                    ×2    of 100 sign 1
+        overdraft_fee                      ==     0        ← Absolutely no overdraft fees (non-negotiable)
+        선호 순위 → blue_account  (보류 3 · 상위: blue_account=20.00, green_account_(checking)=672.50)
+        선언-기각(모델이 요구가 아니라 함): waiver_min_daily_balance=question, waiver_min_daily_balance=question, monthly_maintenance_fee=question
+  task_057  t0 gold=Blue Account           제약 2개(거절 0) → 생존  5 · gold 포함
+        overdraft_fee                      ==     0        ← I need an account with absolutely no overdraft fees. That’s 
+        overdraft_protection_transfer_fee  exists None     ← But I still want a safety net—if I accidentally spend more t
+  task_063  t1 gold=Silver Plus Account    제약 4개(거절 0) → 생존  5 · ⛔gold 탈락
+        objective argmax → green_fee-free_account=0.00, light_blue_account=0.00, gold_years_account=80.00, silver_account=200.00
+           term apy                            ×1    of 8000 sign 1
+        apy                                exists None     ← I’m trying to avoid comparing multiple accounts—just want th
+        paper_statement_fee                exists None     ← absolutely need paper statements mailed to me
+        foreign_transaction_fee            absent None     ← real credit card that actually checks creditworthiness—not o
+        paper_statement_fee                ==     0        ← absolutely need paper statements mailed to me
+
+  ★스펙이 gold 를 남긴 사례 **3/5** · 유일하게 고른 사례 **0/5**
+
+→ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x431_spec_selects.json
