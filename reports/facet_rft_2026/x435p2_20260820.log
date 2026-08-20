@@ -1,0 +1,57 @@
+====================================================================================================
+x435 · 코퍼스 전수 채우기 · 클래스 56 · 문서 698
+====================================================================================================
+  ★횡단 회수 checking_accounts_(gener min_age                      ← doc_bank_accounts_bank_accounts_(general)_001
+  ★횡단 회수 checking_accounts_(gener max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  checking_accounts_(general)    물어본문서  56(자기  9·횡단 47) · 빈칸 16 → 채움  2
+  ★횡단 회수 gold_years_account       max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  gold_years_account             물어본문서  66(자기 10·횡단 56) · 빈칸 10 → 채움  3
+  ★횡단 회수 light_blue_account       min_age                      ← doc_bank_accounts_bank_accounts_(general)_001
+  ★횡단 회수 light_blue_account       max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  light_blue_account             물어본문서  63(자기  7·횡단 56) · 빈칸 14 → 채움  9
+  ★횡단 회수 bronze_account           min_age                      ← doc_bank_accounts_bank_accounts_(general)_001
+  ★횡단 회수 bronze_account           max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  bronze_account                 물어본문서  56(자기  9·횡단 47) · 빈칸 12 → 채움  2
+  ★횡단 회수 gold_plus_account        min_age                      ← doc_bank_accounts_bank_accounts_(general)_001
+  ★횡단 회수 gold_plus_account        max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  gold_plus_account              물어본문서  56(자기  9·횡단 47) · 빈칸 13 → 채움  3
+  ★횡단 회수 platinum_plus_account    min_age                      ← doc_bank_accounts_bank_accounts_(general)_001
+  ★횡단 회수 platinum_plus_account    max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  platinum_plus_account          물어본문서  56(자기  9·횡단 47) · 빈칸 13 → 채움  2
+  ★횡단 회수 beige                    min_age                      ← doc_bank_accounts_bank_accounts_(general)_001
+  ★횡단 회수 beige                    max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  beige                          물어본문서  59(자기 12·횡단 47) · 빈칸  7 → 채움  2
+  ★횡단 회수 lime_green               min_age                      ← doc_bank_accounts_bank_accounts_(general)_001
+  ★횡단 회수 lime_green               max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  lime_green                     물어본문서  55(자기  8·횡단 47) · 빈칸 10 → 채움  4
+  ★횡단 회수 true_blue                max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  true_blue                      물어본문서  58(자기 11·횡단 47) · 빈칸 11 → 채움  5
+  ★횡단 회수 bronze_saver_account     min_age                      ← doc_bank_accounts_bank_accounts_(general)_001
+  ★횡단 회수 bronze_saver_account     max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  bronze_saver_account           물어본문서  55(자기  8·횡단 47) · 빈칸 12 → 채움  2
+  ★횡단 회수 gold_plus_saver          min_age                      ← doc_bank_accounts_bank_accounts_(general)_001
+  ★횡단 회수 gold_plus_saver          max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  gold_plus_saver                물어본문서  54(자기  7·횡단 47) · 빈칸 12 → 채움  2
+  ★횡단 회수 platinum_reserve_account min_age                      ← doc_bank_accounts_bank_accounts_(general)_001
+  ★횡단 회수 platinum_reserve_account max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  platinum_reserve_account       물어본문서  57(자기 10·횡단 47) · 빈칸 13 → 채움  3
+  ★횡단 회수 bronze_rewards_card      min_age                      ← doc_credit_cards_credit_cards_(general)_015
+  ★횡단 회수 bronze_rewards_card      max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  bronze_rewards_card            물어본문서  80(자기  8·횡단 72) · 빈칸 15 → 채움  3
+  ★횡단 회수 credit_cards_(general)   max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  credit_cards_(general)         물어본문서  72(자기 25·횡단 47) · 빈칸 16 → 채움  2
+  ★횡단 회수 ecocard                  min_age                      ← doc_credit_cards_credit_cards_(general)_015
+  ★횡단 회수 ecocard                  max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  ecocard                        물어본문서  83(자기 11·횡단 72) · 빈칸 16 → 채움  3
+  ★횡단 회수 silver_rewards_card      min_age                      ← doc_credit_cards_credit_cards_(general)_015
+  ★횡단 회수 silver_rewards_card      max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  silver_rewards_card            물어본문서  83(자기 11·횡단 72) · 빈칸 15 → 채움  2
+  ★횡단 회수 business_gold_rewards_ca min_age                      ← doc_bank_accounts_bank_accounts_(general)_001
+  ★횡단 회수 business_gold_rewards_ca max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  business_gold_rewards_card     물어본문서  57(자기 10·횡단 47) · 빈칸 16 → 채움  3
+  ★횡단 회수 green_rewards_card       min_age                      ← doc_bank_accounts_bank_accounts_(general)_001
+  ★횡단 회수 green_rewards_card       max_age                      ← doc_bank_accounts_bank_accounts_(general)_031
+  green_rewards_card             물어본문서  57(자기 10·횡단 47) · 빈칸 15 → 채움  2
+
+채움 54 · 미기재 확정 182 · {'횡단 문서 있는 클래스': 18, '횡단 문서에서 회수': 33}
+→ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x430_account_facts_llm_corpuswide_s2.json
