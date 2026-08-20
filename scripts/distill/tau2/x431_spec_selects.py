@@ -63,12 +63,24 @@ def ask(port, sysmsg, body, maxtok=700):
 OPS = ("==", "<=", ">=", "exists", "absent")
 
 
-def check_spec(spec):
-    """★G6 — 스펙 스키마 **강제**. 통과한 제약과 **거절 사유 문장**을 함께 돌려준다.
+ASKY = ("would ", "could ", "is there", "are there", "do you", "can i", "can you",
+        "any chance", "what's your", "what is your", "how much", "any fee")
 
-    x431 1차 실물: 063 이 `"because"` 를 속성명으로 쓰고 `apy == None` 을 냈다. 그런 스펙으로 거른
-    결과(생존 0·생존 11)는 모델 평가가 아니라 **우리 파이프의 붕괴**다. 강제 전에는 A/B 가 무효다.
+
+def check_spec(spec, said=""):
+    """★G6 — 스펙 스키마 **강제** + **근거 검산**. 통과한 제약과 **거절 사유 문장**을 함께 돌려준다.
+
+    x431 1차: 063 이 `"because"` 를 속성명으로 쓰고 `apy == None` 을 냈다(스키마 붕괴).
+    x431 2차: 서법·근거가 틀렸다 — 057 t0 은 *"**Would** that be enough to avoid any monthly fee?"*
+    (질문)을 `monthly_maintenance_fee == 0` 하드 제약으로 만들어 gold 를 죽였고, 063 은 `apy exists`
+    의 근거로 **종이명세서 문장**을 달았다.
+
+    그래서 [[66]] 이 확정한 형태를 그대로 쓴다 — **가리키기 + substring 검산**:
+        ⒜ `because` 는 손님 발화의 **부분문자열**이어야 한다(근거 불일치 차단)
+        ⒝ 그 조각이 **물음**이면 요구가 아니다(서법 차단) — 물음표로 끝나거나 의문·조건 어두
+    둘 다 **닫힌 술어**이고 엔진은 뜻을 해석하지 않는다([[10]]·[[22]]).
     """
+    norm = " ".join((said or "").split()).lower()
     ok, bad = [], []
     for con in (spec.get("constraints") or []):
         if not isinstance(con, dict):
@@ -86,6 +98,20 @@ def check_spec(spec):
                 float(val)
             except Exception:
                 bad.append("attribute %s with op %s needs a number, got %r" % (at, op, val))
+                continue
+        why = " ".join(str(con.get("because") or "").split())
+        if norm:
+            if not why:
+                bad.append("attribute %s has no 'because' span" % at)
+                continue
+            if why.lower() not in norm:
+                bad.append("the 'because' for %s is not a verbatim span of what the customer said: %r"
+                           % (at, why[:60]))
+                continue
+            low = why.lower().strip()
+            if low.endswith("?") or any(low.startswith(x) for x in ASKY):
+                bad.append("the 'because' for %s is a question, not a stated requirement: %r"
+                           % (at, why[:60]))
                 continue
         ok.append(con)
     return ok, bad
@@ -228,7 +254,10 @@ def main():
               "\"of_amount\": <the dollar amount each time, or null>, \"sign\": 1 or -1}]}}. "
               "Use ONLY requirements the customer actually stated. Omit attributes they did not "
               "mention. Add 'objective' ONLY if the customer asked for the best/cheapest option or "
-              "gave a usage pattern; otherwise omit it.")
+              "gave a usage pattern; otherwise omit it. "
+              "'because' MUST be copied character-for-character from the customer's words, and it "
+              "must be something they REQUIRED - never a question they asked. "
+              "For an eligibility range give BOTH bounds (min_age <= their age AND max_age >= their age).")
     print("\n=== ②③④ 스펙 → 필터 → 판정 (사례 %d) ===" % len(cs))
     rows, rejected = [], {}
     for c in cs:
@@ -236,13 +265,13 @@ def main():
         body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
                 % (said[:6000], ", ".join(ATTRS)))
         spec = ask(a.port, sysmsg, body)
-        cons, bad = check_spec(spec)
+        cons, bad = check_spec(spec, said)
         if bad:                       # ★G6: 위반을 **이름 대고** 되묻는다([[64]] 거부는 고칠 것을 말해야)
             spec2 = ask(a.port, sysmsg, body + "\n# Your previous answer was rejected\n"
                         + "\n".join("- %s" % b for b in bad[:6])
                         + "\nUse ONLY the attribute names listed above, an op from "
                           "==,<=,>=,exists,absent, and a number (or null for exists/absent).\n")
-            cons2, bad2 = check_spec(spec2)
+            cons2, bad2 = check_spec(spec2, said)
             if len(cons2) >= len(cons):
                 cons, bad = cons2, bad2
         rejected[(c["task"], c["trial"])] = bad
@@ -293,6 +322,12 @@ def main():
                  len(rejected.get((c["task"], c["trial"])) or []), len(surv),
                  "· gold 포함" if hit else "· ⛔gold 탈락",
                  " ✅유일" if (len(surv) == 1 and hit) else ""))
+        if winners:
+            print("        objective %s → %s" % ((obj or {}).get("mode"),
+                  ", ".join("%s=%.2f" % (k, v) for k, v in sorted(score.items(), key=lambda x: x[1])[:4])))
+            for t in ((obj or {}).get("terms") or [])[:3]:
+                print("           term %-30s ×%-4s of %s sign %s"
+                      % (t.get("attribute"), t.get("times"), t.get("of_amount"), t.get("sign")))
         for con in cons[:4]:
             print("        %-34s %-6s %-8s ← %s" % (con.get("attribute"), con.get("op"),
                                                     con.get("value"), str(con.get("because"))[:60]))
