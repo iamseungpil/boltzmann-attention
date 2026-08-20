@@ -50,7 +50,9 @@ def main():
 
     # ⒜ 엔진 코드가 플래그 뒤에 있고, 문서를 읽는 코드가 없다
     src = io.open(os.path.join(HERE, "t2_scaffold_get.py"), encoding="utf-8").read()
-    i = src.find("T2_CATEGORY_CITE")
+    # ★앵커 정정(2026-08-21): `T2_CATEGORY_CITE` 는 배달 배선의 **상호배제 조건**에도 나온다
+    #   — 첫 등장을 잡으면 엉뚱한 블록을 검사한다. 게이트 자신의 주석 표지에 건다.
+    i = src.find("★⒡ 범주 인용 게이트")
     seg = src[i:i + 2600] if i > 0 else ""
     flagged = i > 0
     reads_docs = ("DOCDIR" in seg) or ("open(" in seg) or ("glob" in seg)

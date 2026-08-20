@@ -1844,6 +1844,94 @@ def apply():
                               file=_sys.stderr, flush=True)
                         _ctx = dict(_ctx)
                         _ctx.pop(_ap0, None)
+                # ★배달 배선 — A2 선언 문서를 **격리 서브 하나**에 넘긴다
+                #   (`T2_ARG_DOC_SUB=1`·기본 OFF·2026-08-21·사용자 정의 [[71]] 축자:
+                #   *"모든 격리 서브에이전트는 필요한 내용만 받고 격리된 상태에서 필요한 기능만
+                #   한다"* · *"A2 A3 에서 하는 것은 어떤 서브에이전트에서 어떤 결정을 위해 필요한
+                #   문서가 뭔지 정확하게 기술하는 것만"*).
+                #
+                #   분담: A2 가 **무엇을 읽을지** 선언 · 엔진이 **읽어 넘기기만** · 서브(=같은 모델,
+                #   격리)가 **값을 낸다** · 엔진은 인용이 **넘긴 재료 안에 실재하는지**만 검산한다
+                #   (닫힌 술어 둘: 값의 선언-집합 소속 · 인용의 실재·[[59]]·[[22]]).
+                #   ⚠엔진은 고르지 않는다 — 순위·최댓값 집기·"정답은 X" 가 없다([[62]]).
+                #
+                #   왜 전달인가([[62]] 사다리·측정 선행): 격리 n=71 에서 **문서를 안 주면 44/71**,
+                #   **선언 문서를 주면 71/71**(C576·`x448_index_vs_all_iso.py` wide1) ⇒ 격리에서
+                #   되므로 레버는 **전달뿐**이다. 왜 검색이 아닌가: bm25·dense 는 선언 12편 중
+                #   **11편을 한 번도 안 돌려준다**(C577·`x449_dense_vs_declared_overlap.py`·71 전수)
+                #   — 이 자리의 판정 문서에 **검색으로는 닿지 않는다**.
+                #   정책 문서 읽기가 우리 층 몫인 것은 확정된 경계다(`t2_search` §경계·C405ⓔ);
+                #   규칙 0 은 **DB 도구 출력**에 대한 것이다(`SCAFFOLD_AUDIT_RULE0_2026_07_08`).
+                #   ⚠**이미 모델이 그 인자를 낸 호출에서만** 돈다 — 없는 인자를 새로 만들지 않는다
+                #     (최악이 기본 요율 ⒟ 이 되도록·⒡ ⊃ ⒟).
+                if (os.environ.get("T2_ARG_DOC_SUB") == "1"
+                        and os.environ.get("T2_CATEGORY_CITE") != "1"):
+                    _cad = (d.get("catalog_arg_docs")
+                            or ((getattr(self, "_t2_sg_a2", None) or {}).get("catalog_arg_docs"))
+                            or {})
+                    for _ag2, _dcl in _cad.items():        # 선언 순서 그대로(우리가 정렬하지 않는다)
+                        if _ag2[:1] == "_" or not isinstance(_dcl, dict):
+                            continue
+                        if not str(_ctx.get(_ag2) or "").strip():
+                            continue                      # 모델이 안 낸 인자는 건드리지 않는다
+                        _vals = [k for k in _dcl if k[:1] != "_"]   # A2 가 적은 순서 그대로
+                        _dids = []
+                        for _k2 in _vals:
+                            for _x2 in (_dcl.get(_k2) or []):
+                                if isinstance(_x2, str) and _x2 not in _dids:
+                                    _dids.append(_x2)
+                        _mat, _docs = "", {}
+                        try:
+                            import t2_search as _ts4
+                            import t2_subcall as _SC4
+                            import tau2.agent.llm_agent as _la4
+                            from tau2.data_model.message import UserMessage as _UM4
+                            _cps = _ts4.corpus_from_env(getattr(self, "environment", None))
+                            _docs, _miss = _ts4.read_docs(_dids, corpus=_cps)
+                            if _miss:
+                                print("[T2_ARG_DOC_SUB] 선언됐는데 코퍼스에 없는 문서: %r"
+                                      % (_miss,), file=_sys.stderr, flush=True)
+                            _mat = "\n\n".join("### %s\n%s" % (i, _docs[i]) for i in _docs)
+                        except Exception as _e4:
+                            print("[T2_ARG_DOC_SUB] skip=import/corpus %r" % (_e4,),
+                                  file=_sys.stderr, flush=True)
+                            _mat = ""
+                        if not _mat:
+                            print("[T2_ARG_DOC_SUB] skip=no-material arg=%s" % (_ag2,),
+                                  file=_sys.stderr, flush=True)
+                            continue
+                        _utx = (_evidence_ctx(self).get("__user_text") or "")[:5000]
+                        _pr4 = ("# Documents\n%s\n\n# What the customer said\n%s\n\n"
+                                "Decide ONE thing: the value of `%s`. Reply with ONE JSON object "
+                                "only: {\"%s\": <one of: %s> or null, \"quote\": \"<one sentence "
+                                "copied word for word from the '# Documents' section that shows "
+                                "this>\"}. The quote MUST come from the documents, never from the "
+                                "customer. If no document sentence supports a value, set it to null."
+                                % (_mat, _utx, _ag2, _ag2, ", ".join(_vals)))
+                        _raw4 = _SC4.sub_generate(getattr(self, "agent", None), _la4, _UM4,
+                                                  _pr4, "sg_arg_docs")
+                        _ans4 = _SC4.parse_contract(_raw4) or {}
+                        _v4 = str(_ans4.get(_ag2) or "").strip().lower()
+                        _q4 = str(_ans4.get("quote") or "")
+                        _real4 = bool(_q4) and _ts4.quote_in(_q4, _mat)
+                        _ctx = dict(_ctx)
+                        if bool(_v4) and _v4 in _vals and _real4:
+                            if _v4 != str(_ctx.get(_ag2) or "").strip().lower():
+                                print("[T2_ARG_DOC_SUB] %s: %r -> %r (격리 서브·선언 %d편·인용 실재)"
+                                      % (_ag2, _ctx.get(_ag2), _v4, len(_docs)),
+                                      file=_sys.stderr, flush=True)
+                            _ctx[_ag2] = _v4
+                        else:
+                            print("[T2_ARG_DOC_SUB] %s=%r 철회 — 넘긴 문서 %d편에 근거가 없다"
+                                  " (서브값=%r 인용실재=%s)"
+                                  % (_ag2, _ctx.get(_ag2), len(_docs), _v4, _real4),
+                                  file=_sys.stderr, flush=True)
+                            _ctx.pop(_ag2, None)
+                            _ctx["__cat_cite_note"] = (
+                                "[T2_ARG_DOC_SUB] %s was not used: the base rate was applied "
+                                "instead, because the documents that define it (%s) contain no "
+                                "sentence supporting it." % (_ag2, ", ".join(_dids[:2])))
+
                 # ★⒡ 범주 인용 게이트(2026-08-20 밤·`T2_CATEGORY_CITE=1`·기본 OFF).
                 #   측정이 말한 것: 범주는 **문서 없이** 정해진다(C570: fit 호출의 77%가 KB 검색 0회)
                 #   그리고 근거 없는 범주 위에서 곱하면 **~55%가 부풀린 값을 따라간다**(C566).
