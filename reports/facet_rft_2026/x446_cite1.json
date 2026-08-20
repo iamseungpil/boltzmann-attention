@@ -1,0 +1,42 @@
+[
+ {
+  "task": "task_003",
+  "trial": 0,
+  "family": "credit_cards",
+  "A_now": "travel",
+  "B_cite": "travel",
+  "quote": "Hi—I'm Catherine Wells. I’m looking for a credit card for everyday purchases, and my main spending category is travel (everything else is relatively low).",
+  "quote_real": false,
+  "n_docs": 110
+ },
+ {
+  "task": "task_024",
+  "trial": 0,
+  "family": "business_credit_cards",
+  "A_now": "operations",
+  "B_cite": null,
+  "quote": "",
+  "quote_real": false,
+  "n_docs": 79
+ },
+ {
+  "task": "task_003",
+  "trial": 1,
+  "family": "credit_cards",
+  "A_now": "travel",
+  "B_cite": "travel",
+  "quote": "most of my spend is travel.",
+  "quote_real": false,
+  "n_docs": 110
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "family": "credit_cards",
+  "A_now": "operations",
+  "B_cite": "operations",
+  "quote": "3) Spending categories: mostly groceries and gas, about $500–$1,000/month total; nothing exotic",
+  "quote_real": false,
+  "n_docs": 110
+ }
+]
