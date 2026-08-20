@@ -104,7 +104,7 @@ def check_spec(spec, said=""):
       서법 판단은 **LLM 이 한다**(프롬프트). 엔진은 그 판단이 **가리킨 근거의 실재**만 본다.
     """
     norm = cite_norm(said)
-    ok, bad, dropped = [], [], []
+    ok, bad, dropped, dropped_cons = [], [], [], []
     for con in (spec.get("constraints") or []):
         if not isinstance(con, dict):
             bad.append("constraint is not an object")
@@ -140,9 +140,10 @@ def check_spec(spec, said=""):
                 continue
         if act != "requirement":
             dropped.append((at, act, why[:60]))      # 요구가 아니라고 **모델이 선언한 것**은 안 건다
+            dropped_cons.append(con)                 #   버리지 않고 **선호 채널**로 넘긴다
             continue
         ok.append(con)
-    return ok, bad, dropped
+    return ok, bad, dropped, dropped_cons
 
 
 def term_cost(row_attr, times, of_amount):
@@ -202,6 +203,57 @@ def objective_pick(obj, table, survivors):
         return None, {}
     best = (min if mode == "argmin" else max)(score.values())
     return [c for c, v in score.items() if abs(v - best) < 1e-9], score
+
+
+def pref_penalty(row_attr, op, val):
+    """선호 하나에 대한 **벌점**(0 = 완전 만족). 모르면 None — 0 이 아니다."""
+    vals = (row_attr or {}).get("values") or []
+    if op in ("exists", "absent"):
+        has = bool(vals)
+        return 0.0 if (has if op == "exists" else not has) else 1.0
+    if not vals:
+        return None
+    x = num(vals[0])
+    if x is None or val is None:
+        return None
+    v = float(val)
+    if op == "==":
+        return abs(x - v)
+    if op == "<=":
+        return max(0.0, x - v)
+    if op == ">=":
+        return max(0.0, v - x)
+    return None
+
+
+def preference_rank(prefs, table, survivors):
+    """★선호 채널(2026-08-20·사용자 설계): 요구가 아니라고 **모델이 선언한 것**을 버리지 않고 **순위**로 쓴다.
+
+    x433 실측이 이 자리를 가리켰다 — 생존을 가르는 속성 17 중 4가 *"손님이 말했는데 우리가 버린 것"*
+    이었고, 그 넷은 전부 `question`·`background` 로 선언-기각한 항목이었다. 하드 제약으로 쓰면 gold 가
+    죽고(생존 0) 버리면 안 좁혀진다(생존 36) — **필터가 아니라 랭킹**이면 둘 다 피한다([[70]] 되사기).
+    우리 카드 도구 명세도 같은 말을 한다: *"the customer's **soft preferences** before the final pick"*.
+
+    ⚠null 규율은 그대로 — 항이 하나라도 모르면 그 후보는 **순위 보류**(0 으로 섞지 않는다).
+    """
+    terms = [x for x in (prefs or []) if x.get("attribute") in ATTRS]
+    if not terms:
+        return None, {}, []
+    score, held = {}, []
+    for cls in survivors:
+        row = table.get(cls) or {}
+        tot, miss = 0.0, False
+        for t in terms:
+            pen = pref_penalty(row.get(t["attribute"]), t.get("op"), t.get("value"))
+            if pen is None:
+                miss = True
+                break
+            tot += pen
+        (held.append(cls) if miss else score.setdefault(cls, tot))
+    if not score:
+        return None, {}, held
+    best = min(score.values())
+    return [c for c, v in score.items() if abs(v - best) < 1e-9], score, held
 
 
 def clsname(x):
@@ -322,7 +374,7 @@ def main():
         body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
                 % (said[:6000], ", ".join(ATTRS)))
         spec = ask(a.port, sysmsg, body)
-        cons, bad, dropped = check_spec(spec, said)
+        cons, bad, dropped, dropped_full = check_spec(spec, said)
         n0, reask = len(bad), False
         if bad:
             reask = True                       # ★G6: 위반을 **이름 대고** 되묻는다([[64]] 거부는 고칠 것을 말해야)
@@ -330,9 +382,9 @@ def main():
                         + "\n".join("- %s" % b for b in bad[:6])
                         + "\nUse ONLY the attribute names listed above, an op from "
                           "==,<=,>=,exists,absent, and a number (or null for exists/absent).\n")
-            cons2, bad2, dropped2 = check_spec(spec2, said)
+            cons2, bad2, dropped2, dropped_full2 = check_spec(spec2, said)
             if len(cons2) >= len(cons):
-                cons, bad, spec, dropped = cons2, bad2, spec2, dropped2
+                cons, bad, spec, dropped, dropped_full = cons2, bad2, spec2, dropped2, dropped_full2
         rejected[(c["task"], c["trial"])] = bad
         surv, why = [], []
         for cls, row in table.items():
@@ -367,6 +419,9 @@ def main():
         obj = spec.get("objective") if isinstance(spec, dict) else None
         undecidable = not cons
         winners, score = (None, {}) if undecidable else objective_pick(obj, table, surv)
+        # ★선호 채널 — 선언-기각된 것을 **순위**로 되쓴다(버리지 않는다).
+        prefs = [x for x in (dropped_full or []) if x.get("attribute") in ATTRS]
+        pbest, pscore, pheld = preference_rank(prefs, table, surv)
         # ★목적함수는 **필터 뒤 순위**일 뿐 생존 집합을 대체하지 않는다 — 둘을 따로 보고한다.
         surv_filter = list(surv)
         # ★채점은 **정확 일치**여야 한다(2026-08-20 수리): 표가 45 클래스로 넓어지면서 `silver_account`·
@@ -383,9 +438,15 @@ def main():
                      "undecidable": undecidable, "reask": reask, "n_rejected_first": n0,
                      "declared_non_requirement": dropped,
                      "winner": winners, "winner_is_gold": win_hit,
+                     "pref_best": pbest, "pref_held": len(pheld),
+                     "pref_is_gold": bool(pbest) and any(clsname(x) == clsname(c["gold"]) for x in pbest),
                      "gold_in": (not undecidable) and bool(hit),
                      "unique": (not undecidable) and (len(surv_filter) == 1 and bool(hit)),
                      "spec": cons})
+        if pbest:
+            print("        선호 순위 → %s  (보류 %d · 상위: %s)"
+                  % (", ".join(pbest[:3]), len(pheld),
+                     ", ".join("%s=%.2f" % (k, v) for k, v in sorted(pscore.items(), key=lambda x: x[1])[:4])))
         if dropped:
             print("        선언-기각(모델이 요구가 아니라 함): %s"
                   % ", ".join("%s=%s" % (x[0], x[1]) for x in dropped[:4]))
