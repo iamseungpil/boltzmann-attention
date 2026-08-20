@@ -1,0 +1,376 @@
+{
+ "gate_a": [
+  {
+   "task": "task_074",
+   "trial": 0,
+   "arg": "account_id",
+   "gold": "chk_ar72c5d8e3_1",
+   "n_cand": 4,
+   "n_cust_tok": 17,
+   "n_pred_tok": 2,
+   "n_surv": 3,
+   "unique_gold": false
+  },
+  {
+   "task": "task_074",
+   "trial": 0,
+   "arg": "account_id",
+   "gold": "chk_ar72c5d8e3_1",
+   "n_cand": 4,
+   "n_cust_tok": 17,
+   "n_pred_tok": 2,
+   "n_surv": 3,
+   "unique_gold": false
+  },
+  {
+   "task": "task_079",
+   "trial": 0,
+   "arg": "account_id",
+   "gold": "chk_cr89a2b3c4_1",
+   "n_cand": 3,
+   "n_cust_tok": 13,
+   "n_pred_tok": 3,
+   "n_surv": 3,
+   "unique_gold": false
+  },
+  {
+   "task": "task_079",
+   "trial": 0,
+   "arg": "card_id",
+   "gold": "dbc_cr89a2b3c4_ev",
+   "n_cand": 8,
+   "n_cust_tok": 14,
+   "n_pred_tok": 0,
+   "n_surv": 8,
+   "unique_gold": false
+  },
+  {
+   "task": "task_085",
+   "trial": 1,
+   "arg": "account_id",
+   "gold": "chk_b4d92f7c28",
+   "n_cand": 1,
+   "n_cust_tok": 13,
+   "n_pred_tok": 0,
+   "n_surv": 1,
+   "unique_gold": true
+  },
+  {
+   "task": "task_085",
+   "trial": 1,
+   "arg": "card_id",
+   "gold": "dbc_c4a72d9f66",
+   "n_cand": 1,
+   "n_cust_tok": 13,
+   "n_pred_tok": 0,
+   "n_surv": 1,
+   "unique_gold": true
+  },
+  {
+   "task": "task_085",
+   "trial": 1,
+   "arg": "transaction_id",
+   "gold": "btxn_a1b2c3d4e501",
+   "n_cand": 1,
+   "n_cust_tok": 13,
+   "n_pred_tok": 0,
+   "n_surv": 1,
+   "unique_gold": true
+  },
+  {
+   "task": "task_055",
+   "trial": 1,
+   "arg": "account_id",
+   "gold": "7e48bf3b0589cfad",
+   "n_cand": 1,
+   "n_cust_tok": 29,
+   "n_pred_tok": 0,
+   "n_surv": 1,
+   "unique_gold": true
+  },
+  {
+   "task": "task_040",
+   "trial": 0,
+   "arg": "transaction_id",
+   "gold": "txn_25e23705f61f",
+   "n_cand": 57,
+   "n_cust_tok": 29,
+   "n_pred_tok": 5,
+   "n_surv": 2,
+   "unique_gold": false
+  },
+  {
+   "task": "task_040",
+   "trial": 0,
+   "arg": "transaction_id",
+   "gold": "txn_25e23705f61f",
+   "n_cand": 57,
+   "n_cust_tok": 29,
+   "n_pred_tok": 5,
+   "n_surv": 2,
+   "unique_gold": false
+  },
+  {
+   "task": "task_079",
+   "trial": 1,
+   "arg": "account_id",
+   "gold": "chk_cr89a2b3c4_1",
+   "n_cand": 3,
+   "n_cust_tok": 11,
+   "n_pred_tok": 4,
+   "n_surv": 1,
+   "unique_gold": true
+  },
+  {
+   "task": "task_085",
+   "trial": 1,
+   "arg": "transaction_id",
+   "gold": "btxn_a1b2c3d4e501",
+   "n_cand": 5,
+   "n_cust_tok": 18,
+   "n_pred_tok": 5,
+   "n_surv": 1,
+   "unique_gold": true
+  },
+  {
+   "task": "task_085",
+   "trial": 1,
+   "arg": "account_id",
+   "gold": "chk_b4d92f7c28",
+   "n_cand": 2,
+   "n_cust_tok": 23,
+   "n_pred_tok": 8,
+   "n_surv": 1,
+   "unique_gold": true
+  },
+  {
+   "task": "task_085",
+   "trial": 1,
+   "arg": "card_id",
+   "gold": "dbc_c4a72d9f66",
+   "n_cand": 2,
+   "n_cust_tok": 23,
+   "n_pred_tok": 0,
+   "n_surv": 2,
+   "unique_gold": false
+  }
+ ],
+ "gate_b": [
+  {
+   "task": "task_093",
+   "trial": 0,
+   "arg": "actual_apy",
+   "gold": 4.0,
+   "n_pool": 70,
+   "depth": 1
+  },
+  {
+   "task": "task_093",
+   "trial": 0,
+   "arg": "amount_difference",
+   "gold": 33.0,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_093",
+   "trial": 0,
+   "arg": "expected_apy",
+   "gold": 4.275,
+   "n_pool": 70,
+   "depth": 3
+  },
+  {
+   "task": "task_093",
+   "trial": 0,
+   "arg": "actual_apy",
+   "gold": 4.0,
+   "n_pool": 70,
+   "depth": 1
+  },
+  {
+   "task": "task_093",
+   "trial": 0,
+   "arg": "amount_difference",
+   "gold": 33.0,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_093",
+   "trial": 0,
+   "arg": "expected_apy",
+   "gold": 4.275,
+   "n_pool": 70,
+   "depth": 3
+  },
+  {
+   "task": "task_093",
+   "trial": 0,
+   "arg": "amount",
+   "gold": 33.0,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_094",
+   "trial": 0,
+   "arg": "actual_apy",
+   "gold": 5.1,
+   "n_pool": 70,
+   "depth": 3
+  },
+  {
+   "task": "task_094",
+   "trial": 0,
+   "arg": "amount_difference",
+   "gold": 140.0,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_094",
+   "trial": 0,
+   "arg": "expected_apy",
+   "gold": 6.85,
+   "n_pool": 70,
+   "depth": null
+  },
+  {
+   "task": "task_094",
+   "trial": 0,
+   "arg": "amount",
+   "gold": 140.0,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_093",
+   "trial": 1,
+   "arg": "amount",
+   "gold": 33.0,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_094",
+   "trial": 1,
+   "arg": "amount_difference",
+   "gold": 140.0,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_094",
+   "trial": 1,
+   "arg": "expected_apy",
+   "gold": 6.85,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_094",
+   "trial": 1,
+   "arg": "amount",
+   "gold": 140.0,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_074",
+   "trial": 0,
+   "arg": "amount",
+   "gold": 27.0,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_074",
+   "trial": 0,
+   "arg": "amount",
+   "gold": 27.0,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_079",
+   "trial": 0,
+   "arg": "delivery_fee",
+   "gold": 35.0,
+   "n_pool": 70,
+   "depth": 1
+  },
+  {
+   "task": "task_079",
+   "trial": 0,
+   "arg": "delivery_fee",
+   "gold": 35.0,
+   "n_pool": 70,
+   "depth": 1
+  },
+  {
+   "task": "task_072",
+   "trial": 0,
+   "arg": "amount",
+   "gold": 14.0,
+   "n_pool": 70,
+   "depth": 1
+  },
+  {
+   "task": "task_094",
+   "trial": 0,
+   "arg": "actual_apy",
+   "gold": 5.1,
+   "n_pool": 70,
+   "depth": 3
+  },
+  {
+   "task": "task_040",
+   "trial": 0,
+   "arg": "card_last_4_digits",
+   "gold": 581.0,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_040",
+   "trial": 0,
+   "arg": "card_last_4_digits",
+   "gold": 581.0,
+   "n_pool": 70,
+   "depth": 2
+  },
+  {
+   "task": "task_085",
+   "trial": 1,
+   "arg": "customer_max_liability_amount",
+   "gold": 50.0,
+   "n_pool": 70,
+   "depth": 1
+  },
+  {
+   "task": "task_085",
+   "trial": 1,
+   "arg": "customer_max_liability_amount",
+   "gold": 50.0,
+   "n_pool": 70,
+   "depth": 1
+  },
+  {
+   "task": "task_085",
+   "trial": 1,
+   "arg": "disputed_amount",
+   "gold": 100.0,
+   "n_pool": 70,
+   "depth": 1
+  },
+  {
+   "task": "task_085",
+   "trial": 1,
+   "arg": "disputed_amount",
+   "gold": 100.0,
+   "n_pool": 70,
+   "depth": 1
+  }
+ ]
+}
