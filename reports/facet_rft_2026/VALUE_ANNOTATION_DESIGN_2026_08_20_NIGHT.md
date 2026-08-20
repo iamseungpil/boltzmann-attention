@@ -307,3 +307,54 @@ fit 호출이 일어난 메시지 index = **2 가 242 sim** ⇒ 손님 첫 발�
    (요구 자체가 **검색을 유발**하는지는 별개이고 **미측정**이다.)
 2. ⒜(범주 분기)는 **근거 없이 고른 범주** 위에서 곱셈을 한다 ⇒ C566 의 ~55% 추종이 그 결과다.
 3. ⒟(기본 요율만)는 **범주를 안 쓰므로** 이 문제를 통째로 우회한다 — 오늘 A/B 의 treat 팔이 ⒟인 이유다.
+
+
+---
+
+# §12 ⒡안 — **A2 색인이 가리키는 문서만** 주면 4/4 로 옳게 갈린다 (`x447`)
+
+> 사용자 지시 *"우리는 선택에 필요한 문서들을 A2 A3 등에 인덱스로 명확하게 기술해야 한다"* → 선언 완료 →
+> [[62]] 순서대로 **배선 전에 격리 측정**.
+
+## 12-1. 선언한 색인 (A2 `catalog_arg_docs.spend_category` · 3부 동기화)
+
+```
+travel             business_silver_rewards_card_003 · silver_rewards_card_003 · (general)_005 · _019
+software           business_platinum_..._007 · business_silver_..._004 · silver_rewards_card_004 · (general) 2편
+operations         business_gold_rewards_card_003 · (general) 2편
+media_advertising  business_platinum_..._003 · (general) 2편
+green              green_rewards_card_005 · ecocard_003 · ecocard_004 · (general) 2편
+                                                     → 합집합 **12편**(약 2만 자)
+```
+출처는 **문서 제목**뿐(*Which … Qualify* · *What Qualifies* · *Exceptions and Exclusions* · *Rewards
+Categories*)이고 gold 는 보지 않았다([[23]]). 색인은 **무엇을 배달할지**만 말하고 어느 범주가 맞는지는
+말하지 않는다.
+
+## 12-2. 결과 (4 사례 = 카드축 전수)
+
+```
+003 t0   문서 없음 travel      →  색인 travel   · 인용 실재 **True**
+         인용 축자: "Airlines and air carriers - Hotels, motels, and other lodging providers - Car rental agencies …"
+003 t1   문서 없음 travel      →  색인 travel   · 인용 실재 **True**
+         인용 축자: "You earn 4.0% back when the transaction is categorized as travel. Examples include:"
+024      문서 없음 operations  →  색인 **None**  ← 트럭 주장 **철회**
+063      문서 없음 operations  →  색인 **None**  ← groceries/gas = 문서화된 범주 없음 ⇒ **철회**
+```
+**옳은 주장은 살아남아 KB 인용을 얻었고, 틀린 주장 둘은 철회됐다 — 4/4.**
+
+⚠대조: 문서를 **110편 통째로** 줬을 때(C569·`x446`)는 024 만 철회되고 003·063 은 **손님 발화를 인용**해
+검산에 걸려 **살아남는 주장이 0/4** 였다. ⇒ **색인이 한 일**은 배달량을 줄인 것이 아니라 **무엇을 읽을지**를
+가리킨 것이다.
+
+## 12-3. 그래서 ⒡가 ⒜의 조건을 만족시킨다
+
+```
+⒜ 범주 분기의 위험 = **근거 없이 고른 범주** 위에서 곱셈한다(C566 ~55% 추종 · C570 77% 가 문서 0편)
+⒡ = 범주를 **A2 색인 문서로 결정**하고 **인용을 검산**한 뒤에만 범주 요율로 곱한다
+     · 인용 못 대면 **기본 요율(⒟)로 강등** ⇒ ⒡ ⊃ ⒟ (최악이 ⒟)
+     · 격자에서 범주 판정 **4/4** · 인용 실재 2/2(주장이 남은 사례 전부)
+```
+⇒ 유료 A/B 의 treat 팔은 **⒟ 대신 ⒡** 가 맞다. 남은 것은 **배달 배선**(격리 서브콜·[[65]])뿐이고,
+   그 배선은 이 문서 §3 의 값 주석과 **같은 자리**에 붙는다.
+
+⛔n=4 다(카드축 전수이지만 표본은 4). 라이브 `reward` 는 여전히 미측정이다([[69]]).
