@@ -190,3 +190,67 @@ G_base 는 **35/48** — 즉 모델은 사실상 **값을 읽을 뿐**이고, �
 ⇒ 남는 물음은 하나다: **잃는 12/48 이 라이브에서 얼마인가.** 그것은 격자가 아니라 `reward` 짝 A/B 만
    답한다([[69]]). 그리고 그 A/B 는 ⒜와 ⒟ 중 **하나를 고른 뒤** 도는 것이 아니라 **두 팔로** 도는 것이
    가장 싸다(같은 런에서 부호표를 얻는다).
+
+
+---
+
+# §9 ⛔정정 — *"범주는 닫을 수 없는 열린 술어"* 는 **틀렸다** (사용자 지적 2026-08-20 밤)
+
+사용자 지적 축자: *"트럭 구매가 operation 인지 아닌지는 정책이나 KB 에 분명히 명시되어 있을거다.
+그렇지 않으면 gold 가 어떻게 나오나? 그건 트릭이다. 전체 KB 정책 뒤져서 operation 여부 확인하라."*
+
+KB 698편을 뒤졌다. **명시돼 있다.**
+
+```
+doc_business_credit_cards_business_gold_rewards_card_003
+  title: "Business Gold Rewards Card: What Qualifies as Operations Spend?"
+  ## Qualifying Categories  (2.5% 대상)
+    - Business utilities and telecommunications
+    - Cloud services and software subscriptions used for day-to-day operations
+    - Shipping, postage, and logistics providers
+    - Office supplies and routine maintenance services for business premises
+    - Professional services … bookkeeping or payroll administration
+  ## How Classification Works
+    - "Your rate depends on **how the merchant is coded**, not the product or service description alone."
+  ## Non-Qualifying Examples
+    - Cash-like transactions · P2P transfers · Debt repayments · entertainment/personal/non-business
+
+doc_business_credit_cards_business_gold_rewards_card_002
+  - "Purchases that do not qualify as operations spend earn cash back at 1.0%."
+  - "Use merchants that are consistently categorized for operations needs, such as vendors for
+     software, utilities, logistics, or business services."
+
+(같은 계열의 다른 카드도 같은 꼴로 적어 둔다)
+doc_business_credit_cards_business_platinum_rewards_card_001
+  - "If a purchase does not fall under those categories, it earns 1.5%."
+  - "## Common Exclusions — Hardware, peripherals, or on-premise **equipment billed as physical goods**."
+doc_credit_cards_silver_rewards_card_004
+  - "## Purchases That May Not Qualify — Hardware devices, peripherals, or **equipment** sold by tech retailers"
+```
+
+**$40,000 짜리 트럭을 auto dealership 에서 사는 것**은 위 자격 목록 어디에도 없고(유틸리티·클라우드/소프트웨어·
+물류·사무용품/시설 유지·전문 서비스), 분류 기준은 **머천트 코드**이며, 같은 계열 문서들은 *"물리적 재화로
+청구되는 장비"* 를 **명시적 제외**로 적는다. ⇒ **KB 가 답을 담고 있다.**
+
+## 9-1. 그래서 무엇이 틀렸나
+
+§6-2·§7 은 이 자리를 *"열린 술어라 닫을 수 없다"* 로 적었다. **틀렸다.** 그것은 **KB 를 안 뒤지고**
+내린 판정이었다. 정확한 진술은 이렇다:
+
+```
+범주 소속은 **KB 산문에 근거가 있는 판정**이다 — 열린 술어가 아니라 **근거를 안 읽은 것**이다.
+024 의 실패는 "판단 불가"가 아니라 **`spend_category=operations` 를 근거 없이 낸 것**이다.
+```
+그리고 [[23]] 은 **정책·KB 산문에서 나온 것을 금지하지 않는다** — 금지되는 것은 **gold 를 보고 쓰는 것**이다.
+
+## 9-2. ⒠안 — 근거 없는 범주는 곱하지 않는다 (신규·미측정)
+
+이 프로젝트에 **이미 있는 모양**을 그대로 쓴다(C45 동형·[[22]] 근거-우선 formalize·[[59]]ⓐ):
+
+```
+모델이 `spend_category` 를 낼 때 **그 근거 인용**(KB 축자 한 줄)을 같이 낸다
+엔진은 그 인용이 **원문에 실재하는지만** 확인한다 — 뜻은 해석하지 않는다
+실재하면 범주 요율로 곱하고, 못 대면 **기본 요율로만** 계산한다(⒟로 자동 강등)
+```
+⇒ 범주가 진짜일 때의 이득(⒜ 0.98)을 지키면서 오매핑 증폭(C566 ~55%)의 **경로를 막는다**.
+⚠**아직 아무것도 측정되지 않았다.** ⒠는 지금 **설계뿐**이고, ⒜/⒟처럼 격자에서 먼저 재야 한다([[62]]).
