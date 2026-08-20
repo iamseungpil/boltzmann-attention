@@ -1461,7 +1461,8 @@
     "min_credit_limit": "number, optional — the minimum credit limit the customer needs to be possible",
     "needs_purchase_protection": "boolean, optional — true if the customer requires purchase protection",
     "premium_subscriber": "boolean, optional — true if the customer has the bank's premium subscription (some fees are waived for subscribers); omit if unknown",
-    "spend_category": "optional string — ONLY if the customer stated a clear spending emphasis, the ONE documented category keyword it maps to. Documented keywords: travel, software, operations, media_advertising, green (=sustainable/eco). Normalize synonyms to these exact keywords (flights/hotels/airfare -> travel; SaaS/cloud -> software; eco/sustainable -> green). Omit entirely if the customer stated no category emphasis — do NOT guess one. When provided, each eligible card is annotated with its documented rate for that category so you can compare them honestly (a category-limited bonus is not comparable to an all-purchases rate)."
+    "spend_category": "optional string — ONLY if the customer stated a clear spending emphasis, the ONE documented category keyword it maps to. Documented keywords: travel, software, operations, media_advertising, green (=sustainable/eco). Normalize synonyms to these exact keywords (flights/hotels/airfare -> travel; SaaS/cloud -> software; eco/sustainable -> green). Omit entirely if the customer stated no category emphasis — do NOT guess one. When provided, each eligible card is annotated with its documented rate for that category so you can compare them honestly (a category-limited bonus is not comparable to an all-purchases rate).",
+    "spend_amount": "optional number — ONLY if the customer stated how much they will spend (a dollar amount they gave verbatim); the amount that spending applies to. Omit entirely if they stated no amount — do NOT estimate one. When both this and spend_category are given, each candidate is annotated with the return its own documented rates produce for that spending, with the arithmetic shown."
    },
    "op": {
     "op": "catalog_filter",
@@ -1645,7 +1646,20 @@
      }
     },
     "_note_v2": "★C187(b)(c)(d)·2026-07-25: KB 축자 사실 보강. min_score 전 카드(EcoCard=0=요건없음·Crypto 660·Diamond 780) · limit_max(최대 승인 한도) · purchase_protection(Crypto=No 명시) · virtual_card(Silver=No·Bronze=No 명시) · Silver fx 조건부(무구독 2.75/premium 0)=conditional_fields. cashback은 **최상위 카테고리 요율**(Platinum 10%=travel/software·Silver 4%=travel/software·기타 1%) — '가장 높은 cash back' 질의의 비교 기준. 미문서 필드는 넣지 않는다(EcoCard/Green cashback=포인트제·biz_bronze/green min_score 미문서) → 제약 걸리면 unverified로 정직하게 반환. ★C189(2026-07-25·024 실측): `cashback`은 카드마다 **적용 범위가 다르다** — Platinum 10%/Gold 2.5%/Diamond 5%는 전 구매, **Silver 4%·Business Silver 10%·Green 3%는 카테고리 한정(그 외 base_cashback 1.0%)**. 평면 비교하면 오도한다(024: 모델이 Business Silver 10%를 최고로 보고 선택했으나 $40k 트럭은 비해당 카테고리라 1%이고, gold=Business Bronze는 1%+**프로모 $500 statement credit**로 실질 우위). ⇒ `cashback_scope`/`base_cashback`을 표에 실어 **모델이 평면 비교를 하지 않게** 한다. 가입 보너스·프로모는 표에 넣지 않는다(원문 소관·note가 확인을 지시).",
-    "_note_limit": "⚠**이 표의 한계**: 하드 제약 판정에는 충분하지만 '최대 수익' 류 질의의 결정축(가입 보너스·카테고리 적격·기간 프로모)은 표에 없다. 그런 질의에서는 eligible 목록을 **후보 축소**로만 쓰고 최종 비교는 원문 확인으로 해야 한다."
+    "_note_limit": "⚠**이 표의 한계**: 하드 제약 판정에는 충분하지만 '최대 수익' 류 질의의 결정축(가입 보너스·카테고리 적격·기간 프로모)은 표에 없다. 그런 질의에서는 eligible 목록을 **후보 축소**로만 쓰고 최종 비교는 원문 확인으로 해야 한다.",
+    "value_formula": {
+     "amount_param": "spend_amount",
+     "category_param": "spend_category",
+     "rate_from": {
+      "category_field": "category_rates",
+      "default_field": "base_cashback"
+     },
+     "minus_fields": [
+      "annual_fee"
+     ],
+     "label": "documented_return_for_stated_spend",
+     "_note_": "출처=이 표의 칸(base_cashback·category_rates·annual_fee)뿐. 새 도메인 사실 0·gold 미참조([[23]]). 엔진은 곱셈·뺄셈만 하고 정렬·지목은 하지 않는다([[62]]). 근거=x441 실측(값 없이 0.38 → 값 주면 0.98·C562)."
+    }
    },
    "_note": "★C181(2026-07-25·C179 처방): 클러스터① 카드 오선택(002/003/006/024/063·W2+W4 이중증거=문서-유입 불충분) → 결정론 자격필터. 표=KB 문서 사실의 선언적 추출(각 행 source 명시·조건부 조항은 note로 재확인 지시=오염 방지). 최종 선택·선호 매칭=모델 몫. 002 텍스트-행동 divergence는 description의 MUST 절이 표적.",
    "ground": {

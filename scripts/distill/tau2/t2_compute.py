@@ -435,6 +435,37 @@ def apply_op(spec, ctx):
                     else:
                         _rate = "unverified — no documented rate for this category"
                     facts["rate_for('%s')" % _spc] = _rate
+                # ★C562 자리 — 후보별 **값**(2026-08-20 밤·`x441` 실측 0.38 → 0.98).
+                #   측정이 특정한 결손은 산술이 아니라 **곱셈·뺄셈을 안 하는 것**이었다:
+                #   같은 48 문항에서 패턴만 주면 0.38 · 목적식을 말해줘도 0.42 · **값을 주면 0.98**.
+                #   그래서 엔진이 하는 일은 딱 그 한 칸이다 — **주어진 수의 곱셈·뺄셈**.
+                #   ⛔정렬하지 않고 지목하지 않는다(엔진이 "정답은 X"를 내면 측정 대상이 사라진다·[[62]]).
+                #   ⛔금액을 손님이 말하지 않았으면 **아무것도 붙이지 않는다**(추측 금지).
+                #   식과 피연산자를 문자열에 같이 실어 **검산 가능**하게 둔다([[64]] 근거 동반).
+                _vf = spec.get("value_formula") or {}
+                _amt = _num(ctx.get(_vf.get("amount_param"))) if _vf else None
+                if _vf and _amt is not None:
+                    _rf = _vf.get("rate_from") or {}
+                    _crv = row.get(_rf.get("category_field")) or {}
+                    _crvl = {str(k).lower(): v for k, v in _crv.items()} if isinstance(_crv, dict) else {}
+                    _rt = _crvl.get(_spc) if (_spc and _spc in _crvl) else None
+                    _basis = "category rate"
+                    if _rt is None:
+                        _rt = row.get(_rf.get("default_field"))
+                        _basis = "base rate"
+                    _rtn = _num(_rt)
+                    if _rtn is None:
+                        facts[_vf.get("label") or "value"] = (
+                            "unverified — this card documents no rate that applies to that spending")
+                    else:
+                        _val = _amt * _rtn / 100.0
+                        _terms = ["%s%% (%s) x %s" % (_rtn, _basis, _amt)]
+                        for _mf in (_vf.get("minus_fields") or []):
+                            _mv = _num(row.get(_mf))
+                            if _mv:
+                                _val -= _mv
+                                _terms.append("minus %s %s" % (_mf, _mv))
+                        facts[_vf.get("label") or "value"] = "%.2f = %s" % (_val, " ".join(_terms))
                 if why:
                     excl.append({"card": name, "reason": why})
                 elif missing:
