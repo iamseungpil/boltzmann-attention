@@ -1,0 +1,97 @@
+
+=== task_003 t0 · gold=Silver Rewards Card · arg=card_type · (x431 기록: 제약 3 · 생존 6 · gold_in False)
+  [A2 카드표] 후보 13 · gold Silver Rewards Card
+    c0 fx_fee                   ==     0          단독생존   6 · 누적   6 · gold ⛔탈락 (fx_fee =2.75)
+        근거: No foreign transaction fees
+    c1 purchase_protection      ==     1          단독생존  12 · 누적   5 · gold 생존 (purchase_protection =True(1))
+        근거: Purchase protection
+    c2 limit_max                >=     100000     단독생존  11 · 누적   5 · gold 생존 (limit_max =100000)
+        근거: A credit limit that could be at least $100,000
+    ⇒ 최종 생존 5 · gold_in False
+
+=== task_024 t0 · gold=Business Bronze Rewards Card · arg=card_type · (x431 기록: 제약 0 · 생존 13 · gold_in False)
+  [A2 카드표] 후보 13 · gold Business Bronze Rewards Card
+    ⇒ 최종 생존 13 · gold_in True
+
+=== task_055 t0 · gold=Purple Account · arg=account_class · (x431 기록: 제약 0 · 생존 38 · gold_in False)
+  [확대표본이 쓴 표 192값] 후보 38 · gold purple_account
+    ⇒ 최종 생존 38 · gold_in True
+  [전수 표 346값·absent 550] 후보 38 · gold purple_account
+    ⇒ 최종 생존 38 · gold_in True
+
+=== task_003 t1 · gold=Silver Rewards Card · arg=card_type · (x431 기록: 제약 3 · 생존 6 · gold_in False)
+  [A2 카드표] 후보 13 · gold Silver Rewards Card
+    c0 fx_fee                   ==     0          단독생존   6 · 누적   6 · gold ⛔탈락 (fx_fee =2.75)
+        근거: No foreign transaction fees
+    c1 purchase_protection      ==     1          단독생존  12 · 누적   5 · gold 생존 (purchase_protection =True(1))
+        근거: Purchase protection
+    c2 limit_max                >=     100000     단독생존  11 · 누적   5 · gold 생존 (limit_max =100000)
+        근거: A path to at least a $100,000 credit limit (or the possibility of that limit)
+    ⇒ 최종 생존 5 · gold_in False
+
+=== task_063 t0 · gold=Silver Rewards Card · arg=card_type · (x431 기록: 제약 5 · 생존 0 · gold_in False)
+  [A2 카드표] 후보 13 · gold Silver Rewards Card
+    c0 min_score                >=     700        단독생존   8 · 누적   8 · gold ⛔탈락 (min_score =680)
+        근거: I’m not interested in any “no credit check” type cards.
+    c1 annual_fee               ==     0          단독생존   5 · 누적   2 · gold 생존 (annual_fee =0.0)
+        근거: Max annual fee: $0 preferred
+    c2 fx_fee                   <=     0          단독생존   6 · 누적   1 · gold ⛔탈락 (fx_fee =2.75)
+        근거: Max foreign transaction fee: 0%
+    c3 purchase_protection      absent None       단독생존   0 · 누적   0 · gold ⛔탈락 (purchase_protection =True(1))  ⚠표 미지지
+        근거: Premium subscription: false
+    c4 virtual_card             absent None       단독생존   0 · 누적   0 · gold ⛔탈락 (virtual_card =False(0))  ⚠표 미지지
+        근거: absolutely need paper statements mailed to me
+    ⇒ 최종 생존 0 · gold_in False
+    ⇒ 능력 검산 후(미지지 2건 제외): 생존 1 · gold_in False
+
+=== task_057 t1 · gold=Blue Account · arg=account_class · (x431 기록: 제약 1 · 생존 36 · gold_in True)
+  [확대표본이 쓴 표 192값] 후보 38 · gold blue_account
+    c0 overdraft_fee            ==     0          단독생존  36 · 누적  36 · gold 생존 (overdraft_fee =0.00)
+        근거: Absolutely no overdraft fees (non-negotiable)
+    ⇒ 최종 생존 36 · gold_in True
+  [전수 표 346값·absent 550] 후보 38 · gold blue_account
+    c0 overdraft_fee            ==     0          단독생존  36 · 누적  36 · gold 생존 (overdraft_fee =0.00)
+        근거: Absolutely no overdraft fees (non-negotiable)
+    ⇒ 최종 생존 36 · gold_in True
+
+=== task_057 t0 · gold=Blue Account · arg=account_class · (x431 기록: 제약 1 · 생존 36 · gold_in True)
+  [확대표본이 쓴 표 192값] 후보 38 · gold blue_account
+    c0 overdraft_fee            ==     0          단독생존  36 · 누적  36 · gold 생존 (overdraft_fee =0.00)
+        근거: I need an account with absolutely no overdraft fees. That’s non-negotiable.
+    ⇒ 최종 생존 36 · gold_in True
+  [전수 표 346값·absent 550] 후보 38 · gold blue_account
+    c0 overdraft_fee            ==     0          단독생존  36 · 누적  36 · gold 생존 (overdraft_fee =0.00)
+        근거: I need an account with absolutely no overdraft fees. That’s non-negotiable.
+    ⇒ 최종 생존 36 · gold_in True
+
+=== task_063 t1 · gold=Silver Plus Account · arg=account_class · (x431 기록: 제약 3 · 생존 0 · gold_in False)
+  [확대표본이 쓴 표 192값] 후보 38 · gold silver_plus_account
+    c0 apy                      exists None       단독생존  29 · 누적  29 · gold ⛔탈락 (apy 미해결(안 뽑힘))
+        근거: My goal is to maximize the interest I'll earn over one year—even a small difference of $10–15 matters to me.
+    c1 paper_statement_fee      ==     0          단독생존  33 · 누적  24 · gold 생존 (paper_statement_fee =0.00)
+        근거: absolutely need paper statements mailed to me
+    c2 foreign_transaction_fee  absent None       단독생존   0 · 누적   0 · gold ⛔탈락 (foreign_transaction_fee 미해결(안 뽑힘))  ⚠표 미지지
+        근거: real credit card that actually checks creditworthiness—not one of those "no credit check" cards
+    ⇒ 최종 생존 0 · gold_in False
+    ⇒ 능력 검산 후(미지지 1건 제외): 생존 24 · gold_in False
+  [전수 표 346값·absent 550] 후보 38 · gold silver_plus_account
+    c0 apy                      exists None       단독생존  32 · 누적  32 · gold ⛔탈락 (apy absent(문서가 없다고 말함))
+        근거: My goal is to maximize the interest I'll earn over one year—even a small difference of $10–15 matters to me.
+    c1 paper_statement_fee      ==     0          단독생존  33 · 누적  27 · gold 생존 (paper_statement_fee =0.00)
+        근거: absolutely need paper statements mailed to me
+    c2 foreign_transaction_fee  absent None       단독생존  23 · 누적  16 · gold 생존 (foreign_transaction_fee absent(문서가 없다고 말함))
+        근거: real credit card that actually checks creditworthiness—not one of those "no credit check" cards
+    ⇒ 최종 생존 16 · gold_in False
+    ⚠표에 따라 갈린다: 0/False → 16/False
+
+
+=== ② 선언 분포 (요구 vs question/background) ===
+  task_003 t0  요구 3 · 버림 0 {}  
+  task_024 t0  요구 0 · 버림 5 {'background': 1, 'question': 4}  base_cashback, business, cashback_scope
+  task_055 t0  요구 0 · 버림 5 {'question': 3, 'background': 2}  foreign_currency_holding, foreign_transaction_fee, max_age, min_age, oon_atm_rei
+  task_003 t1  요구 3 · 버림 4 {'question': 4}  annual_fee, cashback
+  task_063 t0  요구 5 · 버림 1 {'background': 1}  cashback_scope
+  task_057 t1  요구 1 · 버림 3 {'question': 1, 'background': 2}  max_age, min_age, waiver_min_daily_balance
+  task_057 t0  요구 1 · 버림 4 {'question': 2, 'background': 2}  max_age, min_age, monthly_maintenance_fee, waiver_min_daily_balance
+  task_063 t1  요구 3 · 버림 0 {}  
+  ⇒ 합계 요구 16 · 버림 22 (버림 비율 58%)
