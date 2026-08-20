@@ -31,6 +31,12 @@ except Exception:
 
 DOCDIR = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/documents"
 
+# ★계좌 태스크는 계열을 넘나든다(2026-08-20 실측): 063 의 gold `Silver Plus Account` 는
+#   `business_savings_accounts_silver_plus_saver_*` 다. checking 만 담은 표로는 **후보에 없어서**
+#   판정 자체가 불가능했다 — 모델 실패로 읽으면 오진이다([[55]]).
+FAMILIES = ["checking_accounts", "savings_accounts",
+            "business_checking_accounts", "business_savings_accounts"]
+
 # 속성 = (이름, 그 속성을 부르는 축자 표현들). 값은 문장 안의 첫 통화·퍼센트·정수.
 ATTRS = [
     ("monthly_maintenance_fee", ["monthly maintenance fee", "monthly maintenance"]),
@@ -47,11 +53,13 @@ ATTRS = [
     # ★G7(2026-08-20) — 표 결손 보강. **손님이 실제로 물은 속성만** 더한다(출처=손님 발화·[[23]]).
     #   055 스펙이 `foreign_transaction_fee`·`currency_holding` 을 요구했는데 표에 없어 gold 가 탈락했다
     #   — 모델이 아니라 우리 표의 결손이었다([[55]]). 063 은 종이명세서를 물었다.
+    # ⚠`overdraft_coverage` 는 뺐다(2026-08-20): `overdraft_protection_transfer_fee` 와 같은 개념인데
+    #   전자는 문서가 **값을 주지 않아** 늘 비어 있었고, 형식화가 그 빈 칸을 고르면 `exists` 가 오작동해
+    #   057 t1 에서 gold(blue·이체료 $12.50 기재)가 죽었다. 한 개념은 **값이 있는 칸 하나**로만 둔다.
     ("foreign_transaction_fee", ["foreign transaction fee", "international transaction fee"]),
     ("oon_atm_reimbursement", ["atm fee reimbursement", "reimburse", "rebate"]),
     ("foreign_currency_holding", ["foreign currency", "multi-currency", "hold currency"]),
     ("paper_statement_fee", ["paper statement"]),
-    ("overdraft_coverage", ["overdraft coverage", "overdraft protection"]),
     ("wire_transfer_fee", ["wire transfer fee", "outgoing wire"]),
 ]
 RE_VAL = re.compile(r"(\$\s?\d[\d,]*(?:\.\d+)?|\d+(?:\.\d+)?\s?%|\bnone\b|\bno\b|\bunlimited\b|\b\d+\b)", re.I)
@@ -152,10 +160,18 @@ def main():
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     a = ap.parse_args()
     if a.llm:
-        pre = "doc_%s_" % a.family
-        files = sorted(f for f in os.listdir(a.docdir) if f.startswith(pre) and f.endswith(".json"))
-        print("x430(LLM) · %s · 문서 %d — 인용 검산 통과분만 싣는다" % (a.family, len(files)))
-        out = llm_table(files, a.docdir, a.family, a.port, a.model)
+        fams = FAMILIES if a.family == "all" else [a.family]
+        out, nfiles = {}, 0
+        for fam in fams:
+            pre = "doc_%s_" % fam
+            files = sorted(f for f in os.listdir(a.docdir) if f.startswith(pre) and f.endswith(".json"))
+            nfiles += len(files)
+            print("x430(LLM) · %s · 문서 %d" % (fam, len(files)))
+            part = llm_table(files, a.docdir, fam, a.port, a.model)
+            for k, v in part.items():
+                v["_family"] = fam
+                out[k if k not in out else "%s@%s" % (k, fam)] = v
+        print("— 인용 검산 통과분만 · 클래스 %d · 문서 %d" % (len(out), nfiles))
         attrs = [x[0] for x in ATTRS]
         print("\n%-26s %s" % ("class", " ".join("%-13s" % x[:13] for x in attrs[:6])))
         for cls in sorted(out):

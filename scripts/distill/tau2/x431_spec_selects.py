@@ -91,6 +91,8 @@ def check_spec(spec, said=""):
             continue
         if op in ("==", "<=", ">="):
             try:
+                if isinstance(val, bool):     # ⚠`float(False)` 는 0.0 으로 **통과한다** — 055 가 그 구멍으로
+                    raise TypeError           #   `foreign_transaction_fee == False` 를 냈다(형태 결함)
                 float(val)
             except Exception:
                 bad.append("attribute %s with op %s needs a number, got %r" % (at, op, val))
@@ -270,6 +272,8 @@ def main():
         rejected[(c["task"], c["trial"])] = bad
         surv, why = [], []
         for cls, row in table.items():
+            if not isinstance(row, dict):
+                continue
             ok = True
             for con in cons:
                 at, op = con.get("attribute"), con.get("op")
