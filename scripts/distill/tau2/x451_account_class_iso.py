@@ -91,10 +91,10 @@ def docs_of(family, klass=None, pad=1200):
     return out
 
 
-def facts_block(classes):
+def facts_block(classes, path=None):
     """사실표 → 클래스별 **문서가 명시한 값 + 축자 인용**. 없는 칸은 비운다(추정 0)."""
     try:
-        tab = json.load(io.open(FACTS, encoding="utf-8"))
+        tab = json.load(io.open(path or FACTS, encoding="utf-8"))
     except Exception:
         return ""
     lines = []
@@ -109,8 +109,19 @@ def facts_block(classes):
             vals = (v or {}).get("values") or []
             if not vals:
                 continue
+            # ★조건부 값은 **조건과 함께** 보인다(x452 수리분). 엔진은 담기만 하고 고르지 않는다 —
+            #   어느 구간이 이 손님에게 맞는지는 모델이 판단한다([[22]] 열린 술어).
+            cond = (v or {}).get("conditional")
+            if isinstance(cond, list) and cond:
+                for it in cond[:4]:
+                    bits.append("    %-30s %-10s %-30s “%s”"
+                                % (attr, str(it.get("value"))[:10],
+                                   ("when " + str(it.get("condition"))[:25]) if it.get("condition")
+                                   else "(always)", str(it.get("quote") or "")[:70]))
+                continue
             ev = ((v or {}).get("evidence") or [{}])[0]
-            bits.append("    %-32s %-10s  “%s”" % (attr, vals[0], str(ev.get("quote") or "")[:90]))
+            bits.append("    %-30s %-10s %-30s “%s”"
+                        % (attr, str(vals[0])[:10], "(always)", str(ev.get("quote") or "")[:70]))
         if bits:
             lines.append("  %s\n%s" % (c, "\n".join(bits)))
     return "\n".join(lines)
@@ -153,6 +164,7 @@ def main():
     ap.add_argument("--tag", default="g1a")
     ap.add_argument("--arms", default="E_enum,F_facts,D_docs,N_sham")
     ap.add_argument("--maxchars", type=int, default=60000)
+    ap.add_argument("--facts", default="", help="사실표 경로(비우면 원본)")
     a = ap.parse_args()
     arms = [x.strip() for x in a.arms.split(",") if x.strip()]
     gm = group_map()
@@ -178,7 +190,7 @@ def main():
             if arm == "E_enum":
                 mat = ""
             elif arm == "F_facts":
-                mat = "DOCUMENTED FACTS (value — verbatim quote):\n" + facts_block(klasses)
+                mat = "DOCUMENTED FACTS (value — verbatim quote):\n" + facts_block(klasses, a.facts or None)
             elif arm == "D_docs":
                 mat = "DOCUMENTS:\n" + "\n\n".join(
                     "### %s — %s\n%s" % (i, t, b) for i, t, b in docs_of(fam))
