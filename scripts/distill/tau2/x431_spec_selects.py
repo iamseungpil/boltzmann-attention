@@ -91,6 +91,58 @@ def check_spec(spec):
     return ok, bad
 
 
+def term_cost(row_attr, times, of_amount):
+    """속성 하나를 **사용량으로 환산해 USD** 로 만든다. 엔진의 몫은 여기까지 — 산술뿐이다([[10]]).
+
+    `1% of withdrawal amount (max $3.00)`(unit=percent·cap=3.0) 와 `$2.50`(unit=USD) 은 환산 없이는
+    비교할 수 없다. 어느 속성을 · 몇 번 · 얼마에 대해 볼지는 **스펙이** 정하고(=LLM 형식화),
+    엔진은 곱셈·상한·합만 한다.
+    """
+    vals = (row_attr or {}).get("values") or []
+    if not vals:
+        return None
+    v = num(vals[0])
+    if v is None:
+        return None
+    unit = (row_attr or {}).get("unit") or ""
+    cap = (row_attr or {}).get("cap")
+    per = (v / 100.0 * float(of_amount)) if (unit == "percent" and of_amount) else v
+    if cap is not None:
+        per = min(per, float(cap))
+    return per * float(times or 1)
+
+
+def objective_pick(obj, table, survivors):
+    """스펙의 목적함수로 생존 후보를 **순위**짓는다 → (승자 목록, 점수표).
+
+    ★이 자리가 우리 카드 도구가 명세로 **거부**한 자리다(*"the customer's soft preferences before the
+      final pick"*). 057·024·003 이 전부 여기서 갈린다(argmin 사용량×수수료 / argmax 요율×금액−연회비).
+    """
+    mode = (obj or {}).get("mode")
+    terms = [t for t in ((obj or {}).get("terms") or []) if isinstance(t, dict)]
+    if mode not in ("argmin", "argmax") or not terms:
+        return None, {}
+    score = {}
+    for cls in survivors:
+        row = table.get(cls) or {}
+        tot, ok = 0.0, False
+        for t in terms:
+            at = t.get("attribute")
+            if at not in ATTRS:
+                continue
+            c = term_cost(row.get(at), t.get("times", 1), t.get("of_amount"))
+            if c is None:
+                continue
+            tot += c * float(t.get("sign", 1))
+            ok = True
+        if ok:
+            score[cls] = tot
+    if not score:
+        return None, {}
+    best = (min if mode == "argmin" else max)(score.values())
+    return [c for c, v in score.items() if abs(v - best) < 1e-9], score
+
+
 def num(v):
     """'$0.00' · 'None' · '1% of withdrawal' → 수. 못 읽으면 None(=비교 불가로 남긴다)."""
     s = str(v).strip().lower()
@@ -170,8 +222,13 @@ def main():
     sysmsg = ("You turn a customer's stated requirements into a machine-checkable spec. "
               "Reply with ONE JSON object only: {\"constraints\": [{\"attribute\": \"<one of the given "
               "names>\", \"op\": \"==|<=|>=|exists|absent\", \"value\": <number or null>, "
-              "\"because\": \"<the customer's own words>\"}]}. Use ONLY requirements the customer "
-              "actually stated. If they stated none for an attribute, omit it.")
+              "\"because\": \"<the customer's own words>\"}], "
+              "\"objective\": {\"mode\": \"argmin|argmax\", \"terms\": [{\"attribute\": \"<name>\", "
+              "\"times\": <how many times per month the customer said they do this>, "
+              "\"of_amount\": <the dollar amount each time, or null>, \"sign\": 1 or -1}]}}. "
+              "Use ONLY requirements the customer actually stated. Omit attributes they did not "
+              "mention. Add 'objective' ONLY if the customer asked for the best/cheapest option or "
+              "gave a usage pattern; otherwise omit it.")
     print("\n=== ②③④ 스펙 → 필터 → 판정 (사례 %d) ===" % len(cs))
     rows = []
     for c in cs:
@@ -214,11 +271,18 @@ def main():
                              (v >= t) if op == ">=" else True)
             if ok:
                 surv.append(cls)
+        obj = spec.get("objective") if isinstance(spec, dict) else None
+        winners, score = objective_pick(obj, table, surv)
+        if winners:
+            surv_before = list(surv)
+            surv = winners
         gold_key = c["gold"].lower().replace(" ", "_").replace("-", "-")
         hit = [s for s in surv if s.replace("_", " ").replace("(checking)", "").strip()
                == c["gold"].lower().replace("account", "account").strip()
                or s.startswith(c["gold"].lower().split()[0])]
         rows.append({"task": c["task"], "trial": c["trial"], "gold": c["gold"],
+                     "objective": obj if winners else None,
+                     "scores": {k: round(v, 4) for k, v in (score or {}).items()},
                      "n_constraints": len(cons), "n_rejected": len(rejected.get((c["task"], c["trial"])) or []),
                      "rejected": rejected.get((c["task"], c["trial"])) or [],
                      "n_surv": len(surv), "surv": surv,

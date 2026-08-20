@@ -85,10 +85,14 @@ def llm_table(files, docdir, family, port, model):
             d = json.load(fh)
         byc[cls].append((f.replace(".json", ""), (d.get("title") or "") + ". " + (d.get("content") or "")))
     names = [x[0] for x in ATTRS]
+    # ★단위를 함께 싣는다(2026-08-20): `1% of withdrawal amount (max $3.00)` 와 `$2.50` 은 **비교 불가**다.
+    #   엔진이 사용량으로 환산하려면 unit·cap 이 있어야 한다 — 그 둘도 문서가 말한 것만 받는다.
     sysmsg = ("You extract documented facts. Reply with ONE JSON object only: "
-              "{\"<attribute>\": {\"value\": \"<verbatim value>\", \"quote\": \"<verbatim sentence "
-              "from the documents containing that value>\"}}. Omit any attribute the documents do "
-              "not state. Never paraphrase; the quote must appear character-for-character.")
+              "{\"<attribute>\": {\"value\": \"<verbatim value>\", \"unit\": \"USD|percent|count|text\", "
+              "\"cap\": <number or null>, \"quote\": \"<verbatim sentence from the documents "
+              "containing that value>\"}}. 'cap' is a documented maximum for that fee, else null. "
+              "Omit any attribute the documents do not state. Never paraphrase; the quote must "
+              "appear character-for-character.")
     out = {}
     for cls in sorted(byc):
         blob = "\n\n".join("### %s\n%s" % (i, t) for i, t in byc[cls])[:40000]
@@ -120,7 +124,15 @@ def llm_table(files, docdir, family, port, model):
             if not val or not q or q not in docs_join or val.replace(" ", "") not in q.replace(" ", ""):
                 dropped += 1
                 continue
+            unit = str(v.get("unit") or "").strip()
+            cap = v.get("cap")
+            try:
+                cap = float(cap) if cap is not None else None
+            except Exception:
+                cap = None
             row[k] = {"values": [val], "conflict": False,
+                      "unit": unit if unit in ("USD", "percent", "count", "text") else "",
+                      "cap": cap,
                       "evidence": [{"value": val, "doc": cls, "quote": q[:220]}]}
             kept += 1
         for k in names:
