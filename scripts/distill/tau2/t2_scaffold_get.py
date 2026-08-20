@@ -1862,8 +1862,14 @@ def apply():
                 #   — 이 자리의 판정 문서에 **검색으로는 닿지 않는다**.
                 #   정책 문서 읽기가 우리 층 몫인 것은 확정된 경계다(`t2_search` §경계·C405ⓔ);
                 #   규칙 0 은 **DB 도구 출력**에 대한 것이다(`SCAFFOLD_AUDIT_RULE0_2026_07_08`).
-                #   ⚠**이미 모델이 그 인자를 낸 호출에서만** 돈다 — 없는 인자를 새로 만들지 않는다
-                #     (최악이 기본 요율 ⒟ 이 되도록·⒡ ⊃ ⒟).
+                #   ★게이팅 정정 (2026-08-21·스모크 2판 실측): 처음엔 *"모델이 이미 그 인자를 낸
+                #     호출에서만"* 으로 묶었는데, 라이브에서 모델은 fit 을 **인자 없이** 부른다
+                #     (스모크 2/2 · 전수 326 sim 중 그 인자를 낸 것은 131 = 40%가 상한) ⇒ 레버가
+                #     **거의 죽어 있었다**. 그리고 격리가 잰 것은 *"손님 발화 + 선언 문서로 범주를
+                #     정하는 일"*(x448)이지 *"이미 낸 값을 고치는 일"* 이 아니다 — 즉 **없는 경우가
+                #     오히려 측정된 조건**이다. ⇒ 그 도구가 불리면 **결정이 살아 있다**고 보고 서브가
+                #     판단한다. 서브가 null 을 내면 인자는 그대로 없다(=기본 요율·⒡ ⊃ ⒟ 유지).
+                #   ⚠같은 (인자·손님 발화)에는 **한 번만** 묻는다(호출마다 서브를 새로 띄우지 않는다).
                 if (os.environ.get("T2_ARG_DOC_SUB") == "1"
                         and os.environ.get("T2_CATEGORY_CITE") != "1"):
                     _cad = (d.get("catalog_arg_docs")
@@ -1872,8 +1878,6 @@ def apply():
                     for _ag2, _dcl in _cad.items():        # 선언 순서 그대로(우리가 정렬하지 않는다)
                         if _ag2[:1] == "_" or not isinstance(_dcl, dict):
                             continue
-                        if not str(_ctx.get(_ag2) or "").strip():
-                            continue                      # 모델이 안 낸 인자는 건드리지 않는다
                         _vals = [k for k in _dcl if k[:1] != "_"]   # A2 가 적은 순서 그대로
                         _dids = []
                         for _k2 in _vals:
@@ -1901,6 +1905,23 @@ def apply():
                                   file=_sys.stderr, flush=True)
                             continue
                         _utx = (_evidence_ctx(self).get("__user_text") or "")[:5000]
+                        # ★같은 (인자·손님 발화)면 다시 묻지 않는다 — fit 은 한 sim 에서 여러 번
+                        #   불리고, 같은 입력에 같은 답을 받으려고 서브를 또 띄우는 것은 비용일 뿐이다.
+                        #   ⚠발화 대신 **메모 적중**을 세지 않도록 로그는 두 경우 모두 남긴다(死배선 탐지).
+                        _memo = getattr(self, "_t2_argdoc_memo", None)
+                        if _memo is None:
+                            _memo = self._t2_argdoc_memo = {}
+                        _mk = (_ag2, hash(_utx))
+                        if _mk in _memo:
+                            _hit = _memo[_mk]
+                            _ctx = dict(_ctx)
+                            if _hit:
+                                _ctx[_ag2] = _hit
+                            else:
+                                _ctx.pop(_ag2, None)
+                            print("[T2_ARG_DOC_SUB] %s=%r (메모 재사용)" % (_ag2, _hit),
+                                  file=_sys.stderr, flush=True)
+                            continue
                         _pr4 = ("# Documents\n%s\n\n# What the customer said\n%s\n\n"
                                 "Decide ONE thing: the value of `%s`. Reply with ONE JSON object "
                                 "only: {\"%s\": <one of: %s> or null, \"quote\": \"<one sentence "
@@ -1916,17 +1937,18 @@ def apply():
                         _real4 = bool(_q4) and _ts4.quote_in(_q4, _mat)
                         _ctx = dict(_ctx)
                         if bool(_v4) and _v4 in _vals and _real4:
-                            if _v4 != str(_ctx.get(_ag2) or "").strip().lower():
-                                print("[T2_ARG_DOC_SUB] %s: %r -> %r (격리 서브·선언 %d편·인용 실재)"
-                                      % (_ag2, _ctx.get(_ag2), _v4, len(_docs)),
-                                      file=_sys.stderr, flush=True)
+                            print("[T2_ARG_DOC_SUB] %s: %r -> %r (격리 서브·선언 %d편·인용 실재)"
+                                  % (_ag2, _ctx.get(_ag2), _v4, len(_docs)),
+                                  file=_sys.stderr, flush=True)
                             _ctx[_ag2] = _v4
+                            _memo[_mk] = _v4
                         else:
-                            print("[T2_ARG_DOC_SUB] %s=%r 철회 — 넘긴 문서 %d편에 근거가 없다"
-                                  " (서브값=%r 인용실재=%s)"
+                            print("[T2_ARG_DOC_SUB] %s=%r 없음 — 넘긴 문서 %d편에 근거가 없다"
+                                  " (서브값=%r 인용실재=%s) ⇒ 기본 요율"
                                   % (_ag2, _ctx.get(_ag2), len(_docs), _v4, _real4),
                                   file=_sys.stderr, flush=True)
                             _ctx.pop(_ag2, None)
+                            _memo[_mk] = None
                             _ctx["__cat_cite_note"] = (
                                 "[T2_ARG_DOC_SUB] %s was not used: the base rate was applied "
                                 "instead, because the documents that define it (%s) contain no "
