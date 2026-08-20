@@ -230,7 +230,7 @@ def main():
               "mention. Add 'objective' ONLY if the customer asked for the best/cheapest option or "
               "gave a usage pattern; otherwise omit it.")
     print("\n=== ②③④ 스펙 → 필터 → 판정 (사례 %d) ===" % len(cs))
-    rows = []
+    rows, rejected = [], {}
     for c in cs:
         said = G.customer_said(c["sim"], c["msg_i"])
         body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
