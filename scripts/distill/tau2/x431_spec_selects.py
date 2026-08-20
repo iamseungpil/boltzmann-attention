@@ -72,9 +72,14 @@ def check_spec(spec, said=""):
     의 근거로 **종이명세서 문장**을 달았다.
 
     그래서 [[66]] 이 확정한 형태를 그대로 쓴다 — **가리키기 + substring 검산**:
-        ⒜ `because` 는 손님 발화의 **부분문자열**이어야 한다(근거 불일치 차단)
-        ⒝ 그 조각이 **물음**이면 요구가 아니다(서법 차단) — 물음표로 끝나거나 의문·조건 어두
-    둘 다 **닫힌 술어**이고 엔진은 뜻을 해석하지 않는다([[10]]·[[22]]).
+        ⒜ 스키마(속성 enum · op enum · 값 수치 — `bool` 은 `float()` 를 통과하므로 따로 막는다)
+        ⒝ `because` 가 손님 발화의 **부분문자열**인가(근거 불일치 차단)
+    둘 다 **형태**이고 엔진은 뜻을 해석하지 않는다([[10]]·[[22]]).
+
+    ⛔**서법 검산은 뺐다(2026-08-20·사용자 지적).** `?`·`would`·`is there` 목록으로 *"요구인가 질문인가"*
+      를 가르는 것은 **화행 판단 = 의미론**이고, 어휘 목록으로 그것을 대체하는 것이 [[59]] 가 금지한
+      자리다. 실측도 같은 말을 했다 — 켠 판에서 **제약이 0개로 남은 사례가 둘**, gold 생존 1/5 → 0/5.
+      서법 판단은 **LLM 이 한다**(프롬프트). 엔진은 그 판단이 **가리킨 근거의 실재**만 본다.
     """
     norm = " ".join((said or "").split()).lower()
     ok, bad = [], []
@@ -267,14 +272,16 @@ def main():
                 % (said[:6000], ", ".join(ATTRS)))
         spec = ask(a.port, sysmsg, body)
         cons, bad = check_spec(spec, said)
-        if bad:                       # ★G6: 위반을 **이름 대고** 되묻는다([[64]] 거부는 고칠 것을 말해야)
+        n0, reask = len(bad), False
+        if bad:
+            reask = True                       # ★G6: 위반을 **이름 대고** 되묻는다([[64]] 거부는 고칠 것을 말해야)
             spec2 = ask(a.port, sysmsg, body + "\n# Your previous answer was rejected\n"
                         + "\n".join("- %s" % b for b in bad[:6])
                         + "\nUse ONLY the attribute names listed above, an op from "
                           "==,<=,>=,exists,absent, and a number (or null for exists/absent).\n")
             cons2, bad2 = check_spec(spec2, said)
             if len(cons2) >= len(cons):
-                cons, bad = cons2, bad2
+                cons, bad, spec = cons2, bad2, spec2
         rejected[(c["task"], c["trial"])] = bad
         surv, why = [], []
         for cls, row in table.items():
@@ -303,22 +310,29 @@ def main():
                              (v >= t) if op == ">=" else True)
             if ok:
                 surv.append(cls)
+        # ★제약이 하나도 안 남았으면 **목적함수를 돌리지 않는다**(2026-08-20 수리).
+        #   직전 판에서 제약 0 인 사례 2건을 목적함수가 혼자 결정했고(`argmax waiver × −1` → `beige`),
+        #   그것은 엔진이 나쁜 스펙 위에서 **최종 판단을 해 버리는** 자리다([[62]] 금지).
         obj = spec.get("objective") if isinstance(spec, dict) else None
-        winners, score = objective_pick(obj, table, surv)
-        if winners:
-            surv_before = list(surv)
-            surv = winners
+        undecidable = not cons
+        winners, score = (None, {}) if undecidable else objective_pick(obj, table, surv)
+        # ★목적함수는 **필터 뒤 순위**일 뿐 생존 집합을 대체하지 않는다 — 둘을 따로 보고한다.
+        surv_filter = list(surv)
         # ★채점은 **정확 일치**여야 한다(2026-08-20 수리): 표가 45 클래스로 넓어지면서 `silver_account`·
         #   `silver_plus_account`·`silver_saver_account` 가 공존한다. 옛 `startswith(첫 낱말)` 규칙은
         #   그 셋을 전부 `Silver Plus Account` 의 적중으로 셌다 — 채점기가 후해지면 결론이 무효다([[25]]).
-        hit = [x for x in surv if clsname(x) == clsname(c["gold"])]
+        hit = [x for x in surv_filter if clsname(x) == clsname(c["gold"])]
+        win_hit = bool(winners) and any(clsname(x) == clsname(c["gold"]) for x in winners)
         rows.append({"task": c["task"], "trial": c["trial"], "gold": c["gold"],
                      "objective": obj if winners else None,
                      "scores": {k: round(v, 4) for k, v in (score or {}).items()},
                      "n_constraints": len(cons), "n_rejected": len(rejected.get((c["task"], c["trial"])) or []),
                      "rejected": rejected.get((c["task"], c["trial"])) or [],
-                     "n_surv": len(surv), "surv": surv,
-                     "gold_in": bool(hit), "unique": len(surv) == 1 and bool(hit),
+                     "n_surv": len(surv_filter), "surv": surv_filter,
+                     "undecidable": undecidable, "reask": reask, "n_rejected_first": n0,
+                     "winner": winners, "winner_is_gold": win_hit,
+                     "gold_in": (not undecidable) and bool(hit),
+                     "unique": (not undecidable) and (len(surv_filter) == 1 and bool(hit)),
                      "spec": cons})
         print("  %-9s t%s gold=%-22s 제약 %d개(거절 %d) → 생존 %2d %s%s"
               % (c["task"], c["trial"], c["gold"][:22], len(cons),
