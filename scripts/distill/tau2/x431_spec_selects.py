@@ -76,6 +76,19 @@ def card_table():
             if k not in attrs:
                 attrs.append(k)
         table[name] = cell
+    # ★조건부 선언을 **A2 에서 그대로 실어 온다**(2026-08-20 밤·계기 충실도 수리).
+    #   라이브 정본(`t2_compute.py:353-379`)은 `op.conditional_fields` 를 읽어 *조건 참=대체값 ·
+    #   거짓=기본값 · **미지이고 판정이 갈리면 unverified(배제 금지)*** 로 처리한다. 이 프로브만 그 선언을
+    #   안 읽어서 003 의 gold(`Silver`: fx 2.75 / **fx_fee_with_premium 0.0**)가 여기서만 죽었다 —
+    #   같은 태스크의 라이브 궤적에서는 Silver 가 `eligible` 에 **들어간다**(t7326 실측). 계기가 라이브보다
+    #   가혹하면 그 프로브가 만든 결손은 **우리 것**이다([[55]]·[[67]]).
+    cond = ((tools[0].get("op") or {}).get("conditional_fields")) or {}
+    for _name, cell in table.items():
+        for base, spec in cond.items():
+            alt = (spec or {}).get("alt")
+            if isinstance(cell.get(base), dict) and alt in cell:
+                cell[base]["cond_alt"] = alt
+                cell[base]["cond_when"] = (spec or {}).get("when")
     return table, attrs
 
 
@@ -455,6 +468,15 @@ def table_caps(tbl, fams):
     return caps
 
 
+def _cmp(cell, op, target):
+    """한 칸을 한 수와 비교한다 — 값이 없거나 기준이 없으면 **거르지 않는다**(과차단 방지)."""
+    v = cellval(cell)
+    if v is None or target is None:
+        return True
+    t = float(target)
+    return (v == t) if op == "==" else (v <= t) if op == "<=" else (v >= t) if op == ">=" else True
+
+
 def passes(row, con):
     """제약 하나를 후보 하나에 건다 — **비교뿐**이다([[10]]). 미기재 칸은 거르지 않는다(과차단 방지·C462).
 
@@ -471,6 +493,13 @@ def passes(row, con):
         return any(passes(row, dict(alt, attribute=at)) for alt in alts if isinstance(alt, dict))
     op = con.get("op")
     c = (row.get(at) or {})
+    alt = c.get("cond_alt")
+    if alt and op in ("==", "<=", ">="):
+        # 조건부 칸 — **조건의 참·거짓을 우리가 모르므로**, 두 값의 판정이 갈리면 배제하지 않는다
+        # (라이브 `t2_compute` 의 unverified 와 같은 자리·이 프로브에는 조건을 채울 인자가 없다).
+        base_ok = _cmp(c, op, con.get("value"))
+        alt_ok = _cmp(row.get(alt) or {}, op, con.get("value"))
+        return True if base_ok != alt_ok else base_ok
     if op == "exists":
         return bool(c.get("values"))
     if op == "absent":
