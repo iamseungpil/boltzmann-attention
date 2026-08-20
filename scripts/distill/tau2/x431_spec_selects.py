@@ -43,6 +43,42 @@ TBL = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026", "x430_ac
 ATTRS = [x[0] for x in FT.ATTRS]
 
 
+def card_table():
+    """★카드 사실표는 **A2 에 이미 있다** — `check_card_application_fit.op.table`([[67]] 사본 금지).
+
+    2026-08-20 실측: 우리 추출 속성 16개는 **계좌 어휘**라 카드 계열에서 값이 4/284 밖에 안 붙었다.
+    그런데 우리 fit 도구가 카드별 사실(annual_fee·fx_fee·cashback·limit_max·min_score·
+    purchase_protection·virtual_card)을 **문서 출처와 함께** 이미 들고 있다. 그것을 그대로 쓴다.
+    타입은 그 표의 값 꼴에서 유도한다(불리언·수치) — 우리가 새로 정하지 않는다.
+    """
+    with io.open(os.path.join(HERE, "a2", "banking_knowledge.gate.json"), encoding="utf-8") as f:
+        d = json.load(f)
+    tools = [x for x in (d.get("scaffold_get_tools") or [])
+             if x.get("name") == "check_card_application_fit"]
+    if not tools:
+        return {}, []
+    rows = ((tools[0].get("op") or {}).get("table")) or []
+    PCT = {"fx_fee", "cashback", "min_payment_pct", "base_cashback"}
+    table, attrs = {}, []
+    for r in rows:
+        name = r.get("card")
+        if not name:
+            continue
+        cell = {"_family": "credit_cards"}
+        for k, v in r.items():
+            if k in ("card", "source") or isinstance(v, (dict, list)):
+                continue
+            unit = ("percent" if k in PCT else
+                    ("boolean" if isinstance(v, bool) else
+                     ("count" if k == "min_score" else "USD")))
+            cell[k] = {"values": [str(v)], "unit": unit, "cap": None,
+                       "evidence": [{"value": str(v), "doc": r.get("source", ""), "quote": ""}]}
+            if k not in attrs:
+                attrs.append(k)
+        table[name] = cell
+    return table, attrs
+
+
 def arg_families(arg):
     """그 인자의 후보가 올 **문서 계열**(A2 구조 선언). 없으면 None = 제한 없음."""
     try:
@@ -426,6 +462,8 @@ def main():
                 cons, bad, spec, dropped, dropped_full = cons2, bad2, spec2, dropped2, dropped_full2
         rejected[(c["task"], c["trial"])] = bad
         surv, why = [], []
+        if c["arg"] == "card_type":
+            table, _ca = card_table()          # 카드는 A2 fit 표를 쓴다
         fams = arg_families(c["arg"])
         for cls, row in table.items():
             if not isinstance(row, dict):
