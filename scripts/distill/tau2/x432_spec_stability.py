@@ -58,6 +58,27 @@ def closest_span(why, said):
     return best, score
 
 
+def _tbl(c):
+    """★안정성 측정은 **x431 과 같은 표·같은 메뉴**를 봐야 한다(2026-08-20 밤 수리).
+
+    docstring 은 *"x432 가 같은 것을 쓴다"* 라고 적어 놨지만 실제로는 `", ".join(S.ATTRS)` —
+    타입도 op 도 없는 **계좌 속성 목록**을 카드 사례에도 주고 있었다. 프롬프트가 갈리면 여기서 잰
+    안정성은 x431 의 안정성이 아니다. (덤으로 `check_spec` 이 4값을 돌려주게 바뀐 뒤로 이 파일은
+    **실행되면 바로 터졌다** — 인용된 Jaccard 1.00 은 그 이전 판의 값이다.)
+    """
+    if c["arg"] == "card_type":
+        return S.card_table()[0]
+    p = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026",
+                     "x430_account_facts_llm_filled.json")
+    with io.open(os.path.abspath(p), encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _allow(c):
+    return {k: sorted(v) for k, v in S.table_caps(_tbl(c), S.arg_families(c["arg"])).items()}
+
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n", type=int, default=5)
@@ -82,11 +103,11 @@ def main():
     for c in cs:
         said = G.customer_said(c["sim"], c["msg_i"])
         body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
-                % (said[:6000], ", ".join(S.ATTRS)))
+                % (said[:6000], S.attr_menu_for(c["arg"], _tbl(c))))
         runs, badspans = [], []
         for _k in range(a.n):
             spec = S.ask(a.port, S.sysmsg_spec(), body)
-            cons, bad = S.check_spec(spec, said)
+            cons, bad, _drop, _dropf = S.check_spec(spec, said, _allow(c))
             runs.append([key_of(x) for x in cons])
             for x in (spec.get("constraints") or []):
                 why = " ".join(str(x.get("because") or "").split())
