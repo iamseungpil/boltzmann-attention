@@ -59,11 +59,17 @@ def main():
                 if k.startswith("_") or not isinstance(v, dict):
                     row.setdefault(k, v)
                     continue
+                # ★우선순위 = 값 > absent > 미해결 (2026-08-20 수리).
+                #   전에는 먼저 온 **미해결 빈 칸**이 자리를 잡으면 다른 슬라이스의 `absent` 가
+                #   버려졌다 — 그래서 병합 후 미해결이 376 으로 부풀었다(안 물어본 칸과 문서가
+                #   값을 안 준 칸이 뭉쳤다). 슬라이스는 클래스를 나눠 가지므로 한 칸의 참값은
+                #   그 클래스를 맡은 슬라이스에만 있다.
                 cur = row.get(k)
-                if (v.get("values") or []) and not ((cur or {}).get("values") or []):
+                rank = lambda c: 2 if (c or {}).get("values") else (1 if (c or {}).get("absent") else 0)
+                if rank(v) > rank(cur):
                     row[k] = v
-                    tal["채움"] += 1
-                elif (v.get("values") or []) and (cur or {}).get("values"):
+                    tal["채움" if rank(v) == 2 else "미기재확정"] += 1
+                elif rank(v) == 2 and rank(cur) == 2:
                     if v["values"][0] != cur["values"][0]:
                         cur.setdefault("conflict_values", []).append(v["values"][0])
                         cur["conflict"] = True
