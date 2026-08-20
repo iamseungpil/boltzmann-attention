@@ -1,0 +1,336 @@
+[
+ {
+  "cls": "blue_account",
+  "attr": "free_oon_atm_per_month",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "blue_account",
+  "attr": "min_age",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "blue_account",
+  "attr": "max_age",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "blue_account",
+  "attr": "monthly_deposit_limit",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "blue_account",
+  "attr": "foreign_transaction_fee",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "blue_account",
+  "attr": "oon_atm_reimbursement",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "blue_account",
+  "attr": "foreign_currency_holding",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "bluest_account",
+  "attr": "overdraft_fee",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": {
+   "value": "$75.00",
+   "quote": "st $112,500 to avoid the $75.00 going forward."
+  }
+ },
+ {
+  "cls": "bluest_account",
+  "attr": "overdraft_protection_transfer_fee",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "bluest_account",
+  "attr": "free_oon_atm_per_month",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "bluest_account",
+  "attr": "min_age",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "bluest_account",
+  "attr": "max_age",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "bluest_account",
+  "attr": "monthly_deposit_limit",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "bluest_account",
+  "attr": "foreign_transaction_fee",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "bluest_account",
+  "attr": "foreign_currency_holding",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "bluest_account",
+  "attr": "paper_statement_fee",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "checking_accounts_(general)",
+  "attr": "monthly_maintenance_fee",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "checking_accounts_(general)",
+  "attr": "waiver_min_daily_balance",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "checking_accounts_(general)",
+  "attr": "overdraft_fee",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "checking_accounts_(general)",
+  "attr": "overdraft_protection_transfer_fee",
+  "kind": "absent",
+  "A": null,
+  "B": null,
+  "C": null
+ },
+ {
+  "cls": "evergreen_account",
+  "attr": "wire_transfer_fee",
+  "kind": "control",
+  "truth": "12.50",
+  "A": {
+   "value": "$12.50",
+   "quote": "Incoming domestic wire transfer fee: $12.50"
+  },
+  "B": {
+   "value": "$12.50",
+   "quote": "Incoming domestic wire transfer fee: $12.50"
+  },
+  "C": {
+   "value": "$12.50",
+   "quote": "Incoming domestic wire transfer fee: $12.50"
+  }
+ },
+ {
+  "cls": "light_green_account",
+  "attr": "apy",
+  "kind": "control",
+  "truth": "0.05%",
+  "A": {
+   "value": "0.05%",
+   "quote": "Keep funds growing with an APY of 0.05%."
+  },
+  "B": {
+   "value": "0.05%",
+   "quote": "APY on balances | 0.05%"
+  },
+  "C": {
+   "value": "0.05%",
+   "quote": "APY on balances | 0.05%"
+  }
+ },
+ {
+  "cls": "light_blue_account",
+  "attr": "free_oon_atm_per_month",
+  "kind": "control",
+  "truth": "2",
+  "A": {
+   "value": "2",
+   "quote": "You receive 2 free out-of-network ATM withdrawals each month."
+  },
+  "B": {
+   "value": "2",
+   "quote": "Free out-of-network ATM withdrawals per month | 2"
+  },
+  "C": {
+   "value": "2",
+   "quote": "Free out-of-network ATM withdrawals per month | 2"
+  }
+ },
+ {
+  "cls": "bluest_account",
+  "attr": "waiver_min_daily_balance",
+  "kind": "control",
+  "truth": "112,500",
+  "A": null,
+  "B": null,
+  "C": {
+   "value": "$112,500",
+   "quote": "Keep your daily balance at or above $112,500 to avoid the monthly maintenance fee of $75.00."
+  }
+ },
+ {
+  "cls": "green_fee-free_account",
+  "attr": "overdraft_fee",
+  "kind": "control",
+  "truth": "0.00",
+  "A": {
+   "value": "$0.00",
+   "quote": "- You are not charged an overdraft fee. The overdraft fee for this account is $0.00."
+  },
+  "B": {
+   "value": "$0.00",
+   "quote": "- Overdrafts: $0.00"
+  },
+  "C": {
+   "value": "$0.00",
+   "quote": "- Overdrafts: $0.00"
+  }
+ },
+ {
+  "cls": "dark_green_account",
+  "attr": "max_age",
+  "kind": "control",
+  "truth": "26",
+  "A": {
+   "value": "26",
+   "quote": "- Maximum primary holder age: 26"
+  },
+  "B": {
+   "value": "26",
+   "quote": "- Maximum primary holder age: 26"
+  },
+  "C": {
+   "value": "26",
+   "quote": "Maximum primary holder age: 26"
+  }
+ },
+ {
+  "cls": "dark_green_account",
+  "attr": "daily_atm_withdrawal_limit",
+  "kind": "control",
+  "truth": "300",
+  "A": {
+   "value": "$300",
+   "quote": "- Daily ATM withdrawal limit: $300"
+  },
+  "B": {
+   "value": "$300",
+   "quote": "Daily ATM withdrawal limit: $300"
+  },
+  "C": {
+   "value": "$300",
+   "quote": "- Daily ATM withdrawal limit: $300"
+  }
+ },
+ {
+  "cls": "purple_account",
+  "attr": "monthly_maintenance_fee",
+  "kind": "control",
+  "truth": "$15.00",
+  "A": {
+   "value": "$15.00",
+   "quote": "The monthly maintenance fee is $15.00."
+  },
+  "B": {
+   "value": "$15.00",
+   "quote": "- Monthly maintenance fee: $15.00"
+  },
+  "C": {
+   "value": "$15.00",
+   "quote": "- Monthly maintenance fee: $15.00"
+  }
+ },
+ {
+  "cls": "purple_account",
+  "attr": "foreign_currency_holding",
+  "kind": "control",
+  "truth": "30",
+  "A": null,
+  "B": {
+   "value": "30",
+   "quote": "Supported foreign currencies that can be held in the wallet: 30"
+  },
+  "C": {
+   "value": "up to 30 supported foreign currencies",
+   "quote": "lti-currency wallet: Yes with up to 30 supported foreign currencies"
+  }
+ },
+ {
+  "cls": "blue_account",
+  "attr": "overdraft_fee",
+  "kind": "control",
+  "truth": "0.00",
+  "A": {
+   "value": "$0.00",
+   "quote": "- The overdraft fee on this account is $0.00."
+  },
+  "B": {
+   "value": "No overdraft fees are charged by the account itself",
+   "quote": "- No overdraft fees are charged by the account itself"
+  },
+  "C": {
+   "value": "No overdraft fees are charged by the account itself",
+   "quote": "No overdraft fees are charged by the account itself"
+  }
+ }
+]
