@@ -70,7 +70,14 @@ def net(r, cat, amt):
     return amt * float(rate) / 100.0 - float(r.get("annual_fee") or 0.0)
 
 
-def block(cards):
+def block(cards, it=None):
+    """★`it` 이 주어지면 각 행 끝에 **그 손님에 대한 값**을 붙인다(팔 `E_values`).
+
+    이것이 곧 *"최소 결정론 단계"* 의 모사다 — 엔진은 **주어진 수의 곱셈·뺄셈**만 하고 산출은
+    **후보별 값의 표**다(정렬도 안 한다·엔진이 *"정답은 X"* 를 내면 측정 대상이 사라진다·[[62]]).
+    라이브 도구는 지금 **요율 조회까지만** 한다(`t2_compute.py:415-436` 축자 *"조회만 한다
+    (값 생성·선택·순위 0)"*) — 그 경계를 한 칸 옮기면 무엇이 달라지는지를 여기서 먼저 잰다.
+    """
     out = []
     for r in cards:
         bits = ["annual fee $%s" % (r.get("annual_fee") or 0.0),
@@ -80,6 +87,8 @@ def block(cards):
             bits.append("category rates: " + ", ".join("%s %s%%" % (k, v) for k, v in sorted(cr.items())))
         if r.get("cashback_scope"):
             bits.append("scope %s" % r["cashback_scope"])
+        if it is not None:
+            bits.append("estimated return for this customer: $%.2f" % net(r, it["cat"], it["amt"]))
         out.append("- %s: %s" % (r["card"], " · ".join(bits)))
     return "\n".join(out)
 
@@ -104,7 +113,7 @@ def items():
 
 def ask(port, it, arm):
     cat = "purchases that are not in any bonus category" if it["cat"] == "other" else it["cat"]
-    body = "# Cards\n%s\n" % block(it["cards"])
+    body = "# Cards" + chr(10) + block(it["cards"], it if arm == "E_values" else None) + chr(10)
     if arm != "C_nopat":
         body += ("\n# This customer\nOver the next year they will spend $%d on %s, and little else.\n"
                  % (it["amt"], cat))
