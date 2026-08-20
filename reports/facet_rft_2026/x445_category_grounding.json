@@ -1,0 +1,1050 @@
+[
+ {
+  "cat": "green",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_002",
+  "reward": 1.0,
+  "tag": "bank_ax32p1_gpu1_20260802"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_ax32p1_gpu1_20260802"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_001",
+  "reward": 0.0,
+  "tag": "bank_ax32p1_gpu1_20260802"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_ax32p1_gpu1_20260802"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 0.0,
+  "tag": "bank_ax32p1_gpu1_20260802"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_ax32p2_gpu1_20260802"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_ax32p2_gpu1_20260802"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_ax32p2_gpu1_20260802"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_001",
+  "reward": 0.0,
+  "tag": "bank_ax33n_gpu0_20260803c"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_001",
+  "reward": 0.0,
+  "tag": "bank_ax33n_gpu0_20260803c_partial"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_001",
+  "reward": 0.0,
+  "tag": "bank_ax33n_gpu0_20260803f"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_001",
+  "reward": 0.0,
+  "tag": "bank_ax33n_gpu0_20260803f_partial"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_001",
+  "reward": 1.0,
+  "tag": "bank_ax33n_gpu0_20260803g"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_ax33n_gpu0_20260803g"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_ax33n_gpu0_20260803g"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_ax33n_gpu1_20260803"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_ax33n_gpu1_20260803_partial"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_ax33n_gpu1_20260803b"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_ax33n_gpu1_20260803b_partial"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_ax33n_gpu1_20260803c"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_ax33n_gpu1_20260803c_partial"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_ax33n_gpu1_20260803d"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_ax33n_gpu1_20260803d_partial"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_ax33n_gpu1_20260803e"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_ax33n_gpu1_20260803f"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_ax33n_gpu1_20260803f_partial"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_ax33n_gpu1_20260803g"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_ax33n_gpu1_20260803g"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_ax33n_gpu1_20260803g"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_ax33n_gpu1_20260803g"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_b4_gpu0_20260803h"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_b4_gpu0_20260803h"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_b4_gpu1_20260803h"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_b4_gpu1_20260803h"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_b4_gpu1_20260803h"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_b4_gpu1_20260803h"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_day4bfrontB_20260727"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_day5frontB_20260728"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_day5frontB_20260728"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_day6frontA_20260728"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_day6frontB_20260728"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_day6frontB_20260728"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_day7frontA_20260728"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_day7frontB_20260728"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 0.0,
+  "tag": "bank_day7frontB_20260728"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_day8frontA_20260729"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_day8frontB_20260729"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 0.0,
+  "tag": "bank_day8frontB_20260729"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_day9cfrontA_20260729"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_day9cfrontB_20260729"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 0.0,
+  "tag": "bank_day9cfrontB_20260729"
+ },
+ {
+  "cat": "travel",
+  "grounded": true,
+  "n_prior_tool_msgs": 16,
+  "task": "task_068",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_batch_03_20260804"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 7,
+  "task": "task_044",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_070",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_001",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": "travel",
+  "grounded": true,
+  "n_prior_tool_msgs": 26,
+  "task": "task_049",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_070",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_070",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": "null",
+  "grounded": false,
+  "n_prior_tool_msgs": 2,
+  "task": "task_071",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_070",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_070",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_070",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260806b"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_070",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu0_main_20260806b"
+ },
+ {
+  "cat": "regular",
+  "grounded": false,
+  "n_prior_tool_msgs": 2,
+  "task": "task_064",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_batch_02_20260804"
+ },
+ {
+  "cat": "green",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_057",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_batch_02_20260804"
+ },
+ {
+  "cat": "regular",
+  "grounded": false,
+  "n_prior_tool_msgs": 2,
+  "task": "task_064",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_batch_02_20260805"
+ },
+ {
+  "cat": "travel",
+  "grounded": true,
+  "n_prior_tool_msgs": 15,
+  "task": "task_069",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_batch_04_20260804"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": "green",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_055",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": "travel,media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 7,
+  "task": "task_047",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": "travel",
+  "grounded": true,
+  "n_prior_tool_msgs": 20,
+  "task": "task_046",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 2,
+  "task": "task_055",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 7,
+  "task": "task_047",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 2,
+  "task": "task_055",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": "travel,media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 16,
+  "task": "task_047",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 1,
+  "task": "task_055",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": "travel",
+  "grounded": true,
+  "n_prior_tool_msgs": 13,
+  "task": "task_069",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_main_20260806b"
+ },
+ {
+  "cat": "travel",
+  "grounded": true,
+  "n_prior_tool_msgs": 18,
+  "task": "task_068",
+  "reward": 0.0,
+  "tag": "bank_n97_gpu1_main_20260806b"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_qp32p1_gpu1_20260802"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_qp32p1_gpu1_20260802"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_qp32p1_gpu1_20260802"
+ },
+ {
+  "cat": "business",
+  "grounded": true,
+  "n_prior_tool_msgs": 17,
+  "task": "task_023",
+  "reward": 0.0,
+  "tag": "bank_qp32p2_gpu0_20260802"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_qp32p2_gpu1_20260802"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_qp32p2_gpu1_20260802"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 0.0,
+  "tag": "bank_qp32p2_gpu1_20260802"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 1,
+  "task": "task_063",
+  "reward": 0.0,
+  "tag": "bank_t7310_ctl_20260818e"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_t7313_ctl_20260818h"
+ },
+ {
+  "cat": "none",
+  "grounded": false,
+  "n_prior_tool_msgs": 1,
+  "task": "task_063",
+  "reward": 0.0,
+  "tag": "bank_t7313_ctl_20260818h"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_t7313_treat_20260818h"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_t7326_halfA_20260819q"
+ },
+ {
+  "cat": "green",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_055",
+  "reward": 0.0,
+  "tag": "bank_t7326_halfA_20260819q"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_t7326_halfA_20260819q"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 1,
+  "task": "task_063",
+  "reward": 0.0,
+  "tag": "bank_t7326_halfB_20260819q"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_t7328_halfA_20260819r"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_t7328_halfA_20260819r"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_y2b_gpu0_20260731"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_y2b_gpu0_20260731"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_y2b_gpu1_20260731"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 0.0,
+  "tag": "bank_y2b_gpu1_20260731"
+ },
+ {
+  "cat": "software",
+  "grounded": false,
+  "n_prior_tool_msgs": 16,
+  "task": "task_023",
+  "reward": 0.0,
+  "tag": "bank_y2c2_gpu0b_20260731"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 0.0,
+  "tag": "bank_y2c2_gpu1_20260731"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_y2c2_gpu1_20260731"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_y2c2_gpu1_20260731"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_y2cp2_gpu1_20260801"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_y2cp2_gpu1_20260801"
+ },
+ {
+  "cat": "travel",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_003",
+  "reward": 1.0,
+  "tag": "bank_y2cp3_gpu1_20260801"
+ },
+ {
+  "cat": "operations",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_024",
+  "reward": 0.0,
+  "tag": "bank_y2cp3_gpu1_20260801"
+ },
+ {
+  "cat": "media_advertising",
+  "grounded": false,
+  "n_prior_tool_msgs": 0,
+  "task": "task_025",
+  "reward": 1.0,
+  "tag": "bank_y2cp3_gpu1_20260801"
+ }
+]
