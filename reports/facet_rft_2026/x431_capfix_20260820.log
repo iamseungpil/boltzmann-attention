@@ -1,0 +1,146 @@
+표 = x430_account_facts_llm_filled.json
+
+=== ②③④ 스펙 → 필터 → 판정 (사례 8) ===
+  task_003  t0 gold=Silver Rewards Card    제약 3개(거절 0) → 생존  5 · ⛔gold 탈락
+        fx_fee                             ==     0        ← No foreign transaction fees
+        purchase_protection                ==     1        ← Purchase protection
+        limit_max                          >=     100000   ← A credit limit that could be at least $100,000
+        선언-기각(모델이 요구가 아니라 함): business=background, base_cashback=question, base_cashback=question, cashback_scope=question
+  task_024  t0 gold=Business Bronze Reward 제약 0개(거절 0) → 생존 13 · gold 포함
+        선호 순위 → bluest_account, gold_account, green_account_(savings)  (보류 0 · 상위: bluest_account=1.00, gold_account=1.00, green_account_(savings)=1.00, purple_account=1.00)
+        선언-기각(모델이 요구가 아니라 함): oon_atm_reimbursement=question, foreign_transaction_fee=question, foreign_currency_holding=question, min_age=background
+  task_055  t0 gold=Purple Account         제약 0개(거절 0) → 생존 38 · gold 포함
+        선언-기각(모델이 요구가 아니라 함): annual_fee=question, cashback=question
+  task_003  t1 gold=Silver Rewards Card    제약 3개(거절 0) → 생존  5 · ⛔gold 탈락
+        objective argmin → Gold Rewards Card=0.00, Platinum Rewards Card=200.00, Business Gold Rewards Card=200.00, Business Platinum Rewards Card=450.00
+           term annual_fee                     ×1    of None sign 1
+        fx_fee                             ==     0        ← No foreign transaction fees
+        purchase_protection                ==     1        ← Purchase protection
+        limit_max                          >=     100000   ← A path to at least a $100,000 credit limit (or the possibili
+        선언-기각(모델이 요구가 아니라 함): base_cashback=question
+  task_063  t0 gold=Silver Rewards Card    제약 3개(거절 5) → 생존  1 · ⛔gold 탈락
+        objective argmax → Gold Rewards Card=525.00
+           term base_cashback                  ×12   of 750 sign 1
+           term base_cashback                  ×12   of 1000 sign 1
+        min_score                          >=     700      ← I’m not interested in any “no credit check” type cards.
+        annual_fee                         ==     0        ← Max annual fee: $0 preferred (I’m open to a fee only if the 
+        fx_fee                             ==     0        ← Max foreign transaction fee: 0%
+        ⓘ순위 보류(항이 미기재) 21 후보: automatic_sweep_program, bronze_account, bronze_saver_account, checking_accounts_(general)
+        선호 순위 → blue_account, bronze_account, evergreen_account  (보류 15 · 상위: blue_account=0.00, bronze_account=0.00, evergreen_account=0.00, green_account_(savings)=0.00)
+        선언-기각(모델이 요구가 아니라 함): waiver_min_daily_balance=question, min_age=background, max_age=background
+  task_057  t1 gold=Blue Account           제약 1개(거절 0) → 생존 36 · gold 포함
+        objective argmin → beige=0.00, gold_years_account=0.00, green_fee-free_account=0.00, blue_account=3.20
+           term oon_atm_fee                    ×2    of 100 sign 1
+           term oon_atm_fee                    ×2    of 60 sign 1
+        overdraft_fee                      ==     0        ← Absolutely no overdraft fees (non-negotiable)
+        ⓘ순위 보류(항이 미기재) 15 후보: automatic_sweep_program, bronze_saver_account, checking_accounts_(general), dark_green_account
+        선호 순위 → blue_account, bronze_account, evergreen_account  (보류 15 · 상위: blue_account=1.00, bronze_account=1.00, evergreen_account=1.00, green_account_(savings)=1.00)
+        선언-기각(모델이 요구가 아니라 함): waiver_min_daily_balance=question, monthly_maintenance_fee=question, min_age=background, max_age=background
+  task_057  t0 gold=Blue Account           제약 1개(거절 0) → 생존 36 · gold 포함
+        objective argmax → beige=-500000.00, platinum_reserve_account=-250000.00, bluest_account=-112500.00, gold_plus_account=-25000.00
+           term waiver_min_daily_balance       ×1    of 600 sign -1
+        overdraft_fee                      ==     0        ← I need an account with absolutely no overdraft fees. That’s 
+  task_063  t1 gold=Silver Plus Account    제약 2개(거절 0) → 생존 21 · ⛔gold 탈락
+        objective argmax → light_green_account=4.00, cobalt_blue=40.00, hunter_green=80.00, world_blue=80.00
+           term apy                            ×1    of 8000 sign 1
+        apy                                exists None     ← I’m looking to open both a credit card and a savings account
+        paper_statement_fee                absent None     ← absolutely need paper statements mailed to me (my accountant
+
+  ★[1회차] 스펙이 gold 를 남긴 사례 **2/8** · 유일하게 고른 사례 **0/8**
+  task_003  t0 gold=Silver Rewards Card    제약 3개(거절 0) → 생존  5 · ⛔gold 탈락
+        fx_fee                             ==     0        ← No foreign transaction fees
+        purchase_protection                ==     1        ← Purchase protection
+        limit_max                          >=     100000   ← A credit limit that could be at least $100,000
+        선언-기각(모델이 요구가 아니라 함): business=background, base_cashback=question, base_cashback=question, cashback_scope=question
+  task_024  t0 gold=Business Bronze Reward 제약 0개(거절 0) → 생존 13 · gold 포함
+        선호 순위 → bluest_account, gold_account, green_account_(savings)  (보류 0 · 상위: bluest_account=1.00, gold_account=1.00, green_account_(savings)=1.00, purple_account=1.00)
+        선언-기각(모델이 요구가 아니라 함): oon_atm_reimbursement=question, foreign_transaction_fee=question, foreign_currency_holding=question, min_age=background
+  task_055  t0 gold=Purple Account         제약 0개(거절 0) → 생존 38 · gold 포함
+        선언-기각(모델이 요구가 아니라 함): annual_fee=question, cashback=question
+  task_003  t1 gold=Silver Rewards Card    제약 3개(거절 0) → 생존  5 · ⛔gold 탈락
+        objective argmin → Gold Rewards Card=0.00, Platinum Rewards Card=200.00, Business Gold Rewards Card=200.00, Business Platinum Rewards Card=450.00
+           term annual_fee                     ×1    of None sign 1
+        fx_fee                             ==     0        ← No foreign transaction fees
+        purchase_protection                ==     1        ← Purchase protection
+        limit_max                          >=     100000   ← A path to at least a $100,000 credit limit (or the possibili
+        선언-기각(모델이 요구가 아니라 함): base_cashback=question
+  task_063  t0 gold=Silver Rewards Card    제약 3개(거절 5) → 생존  1 · ⛔gold 탈락
+        objective argmax → Gold Rewards Card=525.00
+           term base_cashback                  ×12   of 750 sign 1
+           term base_cashback                  ×12   of 1000 sign 1
+        min_score                          >=     700      ← I’m not interested in any “no credit check” type cards.
+        annual_fee                         ==     0        ← Max annual fee: $0 preferred (I’m open to a fee only if the 
+        fx_fee                             ==     0        ← Max foreign transaction fee: 0%
+        ⓘ순위 보류(항이 미기재) 21 후보: automatic_sweep_program, bronze_account, bronze_saver_account, checking_accounts_(general)
+        선호 순위 → blue_account, bronze_account, evergreen_account  (보류 15 · 상위: blue_account=0.00, bronze_account=0.00, evergreen_account=0.00, green_account_(savings)=0.00)
+        선언-기각(모델이 요구가 아니라 함): waiver_min_daily_balance=question, min_age=background, max_age=background
+  task_057  t1 gold=Blue Account           제약 1개(거절 0) → 생존 36 · gold 포함
+        objective argmin → beige=0.00, gold_years_account=0.00, green_fee-free_account=0.00, blue_account=3.20
+           term oon_atm_fee                    ×2    of 100 sign 1
+           term oon_atm_fee                    ×2    of 60 sign 1
+        overdraft_fee                      ==     0        ← Absolutely no overdraft fees (non-negotiable)
+        ⓘ순위 보류(항이 미기재) 15 후보: automatic_sweep_program, bronze_saver_account, checking_accounts_(general), dark_green_account
+        선호 순위 → blue_account, bronze_account, evergreen_account  (보류 15 · 상위: blue_account=1.00, bronze_account=1.00, evergreen_account=1.00, green_account_(savings)=1.00)
+        선언-기각(모델이 요구가 아니라 함): waiver_min_daily_balance=question, monthly_maintenance_fee=question, min_age=background, max_age=background
+  task_057  t0 gold=Blue Account           제약 1개(거절 0) → 생존 36 · gold 포함
+        objective argmax → beige=-500000.00, platinum_reserve_account=-250000.00, bluest_account=-112500.00, gold_plus_account=-25000.00
+           term waiver_min_daily_balance       ×1    of 600 sign -1
+        overdraft_fee                      ==     0        ← I need an account with absolutely no overdraft fees. That’s 
+  task_063  t1 gold=Silver Plus Account    제약 2개(거절 0) → 생존 21 · ⛔gold 탈락
+        objective argmax → light_green_account=4.00, cobalt_blue=40.00, hunter_green=80.00, world_blue=80.00
+           term apy                            ×1    of 8000 sign 1
+        apy                                exists None     ← I’m looking to open both a credit card and a savings account
+        paper_statement_fee                absent None     ← absolutely need paper statements mailed to me (my accountant
+
+  ★[2회차] 스펙이 gold 를 남긴 사례 **2/8** · 유일하게 고른 사례 **0/8**
+  task_003  t0 gold=Silver Rewards Card    제약 3개(거절 0) → 생존  5 · ⛔gold 탈락
+        fx_fee                             ==     0        ← No foreign transaction fees
+        purchase_protection                ==     1        ← Purchase protection
+        limit_max                          >=     100000   ← A credit limit that could be at least $100,000
+        선언-기각(모델이 요구가 아니라 함): business=background, base_cashback=question, base_cashback=question, cashback_scope=question
+  task_024  t0 gold=Business Bronze Reward 제약 0개(거절 0) → 생존 13 · gold 포함
+        선호 순위 → bluest_account, gold_account, green_account_(savings)  (보류 0 · 상위: bluest_account=1.00, gold_account=1.00, green_account_(savings)=1.00, purple_account=1.00)
+        선언-기각(모델이 요구가 아니라 함): oon_atm_reimbursement=question, foreign_transaction_fee=question, foreign_currency_holding=question, min_age=background
+  task_055  t0 gold=Purple Account         제약 0개(거절 0) → 생존 38 · gold 포함
+        선언-기각(모델이 요구가 아니라 함): annual_fee=question, cashback=question
+  task_003  t1 gold=Silver Rewards Card    제약 3개(거절 0) → 생존  5 · ⛔gold 탈락
+        objective argmin → Gold Rewards Card=0.00, Platinum Rewards Card=200.00, Business Gold Rewards Card=200.00, Business Platinum Rewards Card=450.00
+           term annual_fee                     ×1    of None sign 1
+        fx_fee                             ==     0        ← No foreign transaction fees
+        purchase_protection                ==     1        ← Purchase protection
+        limit_max                          >=     100000   ← A path to at least a $100,000 credit limit (or the possibili
+        선언-기각(모델이 요구가 아니라 함): base_cashback=question
+  task_063  t0 gold=Silver Rewards Card    제약 3개(거절 5) → 생존  1 · ⛔gold 탈락
+        objective argmax → Gold Rewards Card=525.00
+           term base_cashback                  ×12   of 750 sign 1
+           term base_cashback                  ×12   of 1000 sign 1
+        min_score                          >=     700      ← I’m not interested in any “no credit check” type cards.
+        annual_fee                         ==     0        ← Max annual fee: $0 preferred (I’m open to a fee only if the 
+        fx_fee                             ==     0        ← Max foreign transaction fee: 0%
+        ⓘ순위 보류(항이 미기재) 21 후보: automatic_sweep_program, bronze_account, bronze_saver_account, checking_accounts_(general)
+        선호 순위 → blue_account, bronze_account, evergreen_account  (보류 15 · 상위: blue_account=0.00, bronze_account=0.00, evergreen_account=0.00, green_account_(savings)=0.00)
+        선언-기각(모델이 요구가 아니라 함): waiver_min_daily_balance=question, min_age=background, max_age=background
+  task_057  t1 gold=Blue Account           제약 1개(거절 0) → 생존 36 · gold 포함
+        objective argmin → beige=0.00, gold_years_account=0.00, green_fee-free_account=0.00, blue_account=3.20
+           term oon_atm_fee                    ×2    of 100 sign 1
+           term oon_atm_fee                    ×2    of 60 sign 1
+        overdraft_fee                      ==     0        ← Absolutely no overdraft fees (non-negotiable)
+        ⓘ순위 보류(항이 미기재) 15 후보: automatic_sweep_program, bronze_saver_account, checking_accounts_(general), dark_green_account
+        선호 순위 → blue_account, bronze_account, evergreen_account  (보류 15 · 상위: blue_account=1.00, bronze_account=1.00, evergreen_account=1.00, green_account_(savings)=1.00)
+        선언-기각(모델이 요구가 아니라 함): waiver_min_daily_balance=question, monthly_maintenance_fee=question, min_age=background, max_age=background
+  task_057  t0 gold=Blue Account           제약 1개(거절 0) → 생존 36 · gold 포함
+        objective argmax → beige=-500000.00, platinum_reserve_account=-250000.00, bluest_account=-112500.00, gold_plus_account=-25000.00
+           term waiver_min_daily_balance       ×1    of 600 sign -1
+        overdraft_fee                      ==     0        ← I need an account with absolutely no overdraft fees. That’s 
+  task_063  t1 gold=Silver Plus Account    제약 2개(거절 0) → 생존 21 · ⛔gold 탈락
+        objective argmax → light_green_account=4.00, cobalt_blue=40.00, hunter_green=80.00, world_blue=80.00
+           term apy                            ×1    of 8000 sign 1
+        apy                                exists None     ← I’m looking to open both a credit card and a savings account
+        paper_statement_fee                absent None     ← absolutely need paper statements mailed to me (my accountant
+
+  ★[3회차] 스펙이 gold 를 남긴 사례 **2/8** · 유일하게 고른 사례 **0/8**
+
+  ★판정선: gold_in [2, 2, 2] · unique [0, 0, 0] (폭 0/0)
+→ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x431_capfix1.json
+→ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x431_capfix2.json
+→ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x431_capfix3.json
