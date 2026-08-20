@@ -1,0 +1,125 @@
+### x423 선택 격리
+====================================================================================================
+x423 · 선택 격리 · 사례 40 (고유 task/arg 24) · 팔 4 · n=3 · 포트 8141
+스키마 슬라이스 있음 40 / 정책 슬라이스 있음 33
+====================================================================================================
+작업 480건
+  ... 40/478
+  ... 80/478
+  ... 120/478
+  ... 160/478
+  ... 200/478
+  ... 240/478
+  ... 280/478
+  ... 320/478
+  ... 360/478
+  ... 400/478
+  ... 440/478
+  ... 480/480
+
+## 팔별 (gold 적중 / 라이브 오답 재현 / 파싱)
+arm             n        HIT  LIVE-REPEAT   PARSED
+C_neg         120      0.117        0.008    1.000
+A_schema      120      0.075        0.100    1.000
+B_policy      120      0.158        0.075    1.000
+D_live        120      0.150        0.300    1.000
+
+## 인자별 B_policy 적중
+   task_003  card_type                      0/6
+   task_024  card_type                      0/6
+   task_040  card_action                    6/6
+   task_040  contacted_merchant             0/6
+   task_040  dispute_reason                 0/6
+   task_040  eligible_for_provisional_credi 3/6
+   task_040  purchase_date                  0/6
+   task_040  transaction_id                 0/6
+   task_055  account_class                  0/6
+   task_055  account_id                     0/3
+   task_055  account_type                   6/6
+   task_057  account_class                  0/6
+   task_063  account_class                  0/6
+   task_063  card_type                      0/3
+   task_074  account_id                     0/6
+   task_079  account_id                     0/6
+   task_079  card_design                    0/6
+   task_079  card_id                        0/3
+   task_079  delivery_option                1/6
+   task_085  account_id                     0/3
+   task_085  card_id                        0/3
+   task_085  discovery_date                 0/3
+   task_085  provisional_credit_eligible    3/3
+   task_085  transaction_id                 0/3
+
+→ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x423_choice_isolation.json
+### x424 formalize->calc
+====================================================================================================
+x424 · formalize→calc · 사례 24 (고유 task/arg 13) · 팔 3 · n=3 · 포트 8141
+====================================================================================================
+작업 216건
+  ... 30/214
+  ... 60/214
+  ... 90/214
+  ... 120/214
+  ... 150/214
+  ... 180/214
+  ... 210/214
+
+## 팔별 (gold 수치 일치 / 파싱)
+arm               n      HIT   PARSED
+C_neg            72    0.042    1.000
+A_direct         72    0.042    1.000
+B_formalize      72    0.000    0.986
+
+## 짝 비교 (같은 사례·같은 k 에서 B 대 A)
+   짝 51 · B만 성공 0 · A만 성공 3 · 둘다 0
+
+## 태스크별 (B_formalize)
+   task_040  card_last_4_digits     0/6   식 예: 4567
+   task_072  amount                 0/3   식 예: 2.5 + 2.0 + 2.0 + 2.0 + 3.5
+   task_074  amount                 0/6   식 예: 200.00
+   task_079  delivery_fee           0/6   식 예: 5+3
+   task_085  customer_max_liability 0/3   식 예: 89.99 + 89.99 + 300.0 + 156.78
+   task_093  actual_apy             0/6   식 예: 4.0 + 0.5
+   task_093  amount                 0/6   식 예: 144000*(2.95-3.33)/100/12
+   task_093  amount_difference      0/6   식 예: 144000.00 * (4.0 / 100) - 144000.00 * ((4.0 + 0.5) / 100)
+   task_093  expected_apy           0/6   식 예: 4.0 + 0.5
+   task_094  actual_apy             0/6   식 예: 5.0
+   task_094  amount                 0/6   식 예: 96000 * (6.0 / 100 / 12) - 408
+   task_094  amount_difference      0/6   식 예: 96000 * (6.5 - 5.0) / 100 / 12
+   task_094  expected_apy           0/6   식 예: 6.5
+
+→ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x424_formalize_calc.json
+### x425 에너지 간격
+========================================================================================================
+x425 · 에너지 간격 · 사례 40 · 팔 A_schema,B_policy,D_live · 포트 8141
+후보 집합 = 두 런에서 관측된 값의 합집합(gold 포함)
+========================================================================================================
+  ... 5/40 사례
+  ... 10/40 사례
+  ... 15/40 사례
+  ... 20/40 사례
+  ... 25/40 사례
+  ... 30/40 사례
+  ... 35/40 사례
+  ... 40/40 사례
+
+## 팔별 — 에너지 top1 이 gold 인가 (생성 없이, 채점만)
+arm            n TOP1=GOLD TOP1=LIVE   p_gold    k_eff    H_min
+A_schema      40     0.300     0.400    0.277     1.53     0.25
+B_policy      40     0.375     0.300    0.362     1.39     0.19
+D_live        40     0.275     0.500    0.256     1.18     0.09
+
+## 사전 예측력 — 에너지 신호가 x423 실측 적중을 맞히나 (사례 120)
+   p_gold                   AUROC 0.883
+   gold_margin              AUROC 0.878
+   H_min(낮을수록 확신)           AUROC 0.475
+   어휘 최근접(모델 0)             AUROC 0.659
+
+   p_gold 구간          사례     실측적중
+   [0.0,0.1)          78     0.01
+   [0.1,0.3)           1     0.50
+   [0.3,0.6)           6     0.06
+   [0.6,1.0)          35     0.40
+
+→ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x425_hopfield_margin.json
+### DONE
