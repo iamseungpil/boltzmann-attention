@@ -43,7 +43,6 @@ import x431_spec_selects as X           # noqa: E402  ask 정본(사본 금지·
 
 REP = os.path.abspath(os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026"))
 SRC = os.path.join(REP, "x430_account_facts_llm_filled.json")
-_N = re.compile(r"[^0-9a-z%$.]+")
 _PRE = "doc" + "_"                      # 파일명 규약(계열은 선언에서 온다)
 
 SYS = ("Answer ONLY from the documents. Some values depend on a condition (a balance tier, a "
@@ -62,13 +61,16 @@ def declared_families():
     return [str(x) for x in fams]
 
 
-def norm(t):
-    return _N.sub(" ", str(t or "").lower()).strip()
-
-
 def contained(small, big):
-    s, b = norm(small), norm(big)
-    return bool(s) and s in b
+    """실재 검산은 **정본 하나**로 한다 — `t2_search.quote_in`([[67]]).
+
+    ⚠2026-08-21: 처음엔 여기에 정규화기를 새로 짰다(`[^0-9a-z%$.]+`). 같은 검산이 이미 세 벌
+      있었고(`t2_search.quote_in` 정본 · `x448.form_norm` · `x431.fill_blanks` 의 인라인) 내가
+      네 번째를 만든 것이다 — 사용자 지적으로 철회했다. 사본은 조용히 갈라진다([[67]] 실물 전례:
+      `9.50↔9.5`). 살릴 문자 집합을 내가 고르는 것 자체가 갈라짐의 씨앗이다.
+    """
+    import t2_search as _ts
+    return bool(str(small or "").strip()) and _ts.quote_in(small, big)
 
 
 def docs_by_class(families):
