@@ -56,7 +56,7 @@
     {
      "value": "12.50",
      "doc": "blue_account",
-     "quote": "each transfer from a linked account to cover a negative balance incurs a $12.50 fee"
+     "quote": "Each transfer triggered by this service incurs a fee of $12.50."
     }
    ]
   },
@@ -177,19 +177,7 @@
    "evidence": [],
    "absent": true
   },
-  "overdraft_coverage": {
-   "values": [
-    "$0.00"
-   ],
-   "conflict": false,
-   "evidence": [
-    {
-     "value": "$0.00",
-     "doc": "blue_account",
-     "quote": "- The overdraft fee on this account is $0.00."
-    }
-   ]
-  }
+  "_family": "checking_accounts"
  },
  "bluest_account": {
   "monthly_maintenance_fee": {
@@ -336,12 +324,6 @@
    "evidence": [],
    "absent": true
   },
-  "overdraft_coverage": {
-   "values": [],
-   "conflict": false,
-   "evidence": [],
-   "absent": true
-  },
   "wire_transfer_fee": {
    "values": [
     "$12.50"
@@ -354,7 +336,8 @@
      "quote": "Outbound international wire transfers are assessed a fee of $12.50 per transfer."
     }
    ]
-  }
+  },
+  "_family": "checking_accounts"
  },
  "checking_accounts_(general)": {
   "monthly_maintenance_fee": {
@@ -447,18 +430,13 @@
    "evidence": [],
    "absent": true
   },
-  "overdraft_coverage": {
-   "values": [],
-   "conflict": false,
-   "evidence": [],
-   "absent": true
-  },
   "wire_transfer_fee": {
    "values": [],
    "conflict": false,
    "evidence": [],
    "absent": true
-  }
+  },
+  "_family": "checking_accounts"
  },
  "dark_green_account": {
   "monthly_maintenance_fee": {
@@ -503,6 +481,21 @@
      "value": "1%",
      "doc": "dark_green_account",
      "quote": "Out-of-network ATM withdrawal fee: 1% (min $1.50)"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "1.5%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "1.5%",
+     "doc": "dark_green_account",
+     "quote": "Annual percentage yield (APY): 1.5%"
     }
    ]
   },
@@ -551,21 +544,6 @@
     }
    ]
   },
-  "foreign_transaction_fee": {
-   "values": [
-    "2.5%"
-   ],
-   "conflict": false,
-   "unit": "percent",
-   "cap": 6.0,
-   "evidence": [
-    {
-     "value": "2.5%",
-     "doc": "dark_green_account",
-     "quote": "When you withdraw cash from an ATM abroad, a fee of 2.5% of the withdrawal amount is charged."
-    }
-   ]
-  },
   "wire_transfer_fee": {
    "values": [
     "7.50"
@@ -577,7 +555,7 @@
     {
      "value": "7.50",
      "doc": "dark_green_account",
-     "quote": "Do you charge to receive domestic wire transfers? Yes. Incoming domestic wires are assessed a fee of $7.50."
+     "quote": "Incoming domestic wires are assessed a fee of $7.50."
     }
    ]
   },
@@ -606,20 +584,13 @@
    "evidence": [],
    "absent": true
   },
-  "apy": {
-   "values": [
-    "1.5%"
-   ],
-   "conflict": false,
-   "evidence": [
-    {
-     "value": "1.5%",
-     "doc": "dark_green_account",
-     "quote": "APY | 1.5%"
-    }
-   ]
-  },
   "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": [],
+   "absent": true
+  },
+  "foreign_transaction_fee": {
    "values": [],
    "conflict": false,
    "evidence": [],
@@ -643,19 +614,7 @@
    "evidence": [],
    "absent": true
   },
-  "overdraft_coverage": {
-   "values": [
-    "0"
-   ],
-   "conflict": false,
-   "evidence": [
-    {
-     "value": "0",
-     "doc": "dark_green_account",
-     "quote": "Overdraft protection transfer fee: 0"
-    }
-   ]
-  }
+  "_family": "checking_accounts"
  },
  "evergreen_account": {
   "monthly_maintenance_fee": {
@@ -669,7 +628,7 @@
     {
      "value": "6.00",
      "doc": "evergreen_account",
-     "quote": "The monthly maintenance fee of $6.00 is waived when your minimum daily balance is at least $500"
+     "quote": "Monthly maintenance fee: $6.00"
     }
    ]
   },
@@ -684,7 +643,7 @@
     {
      "value": "500",
      "doc": "evergreen_account",
-     "quote": "The monthly maintenance fee of $6.00 is waived when your minimum daily balance is at least $500"
+     "quote": "Maintain a minimum daily balance of $500 to avoid the monthly maintenance fee of $6.00"
     }
    ]
   },
@@ -817,12 +776,7 @@
    "evidence": [],
    "absent": true
   },
-  "overdraft_coverage": {
-   "values": [],
-   "conflict": false,
-   "evidence": [],
-   "absent": true
-  }
+  "_family": "checking_accounts"
  },
  "gold_years_account": {
   "monthly_maintenance_fee": {
@@ -982,12 +936,7 @@
     }
    ]
   },
-  "overdraft_coverage": {
-   "values": [],
-   "conflict": false,
-   "evidence": [],
-   "absent": true
-  }
+  "_family": "checking_accounts"
  },
  "green_account_(checking)": {
   "monthly_maintenance_fee": {
@@ -1031,7 +980,7 @@
     {
      "value": "0.00",
      "doc": "green_account_(checking)",
-     "quote": "the overdraft protection transfer fee is $0.00."
+     "quote": "$0.00"
     }
    ]
   },
@@ -1046,7 +995,7 @@
     {
      "value": "0.00",
      "doc": "green_account_(checking)",
-     "quote": "the overdraft protection transfer fee is $0.00."
+     "quote": "$0.00"
     }
    ]
   },
@@ -1061,22 +1010,22 @@
     {
      "value": "3.00",
      "doc": "green_account_(checking)",
-     "quote": "$3.00 per transaction."
+     "quote": "$3.00"
     }
    ]
   },
   "apy": {
    "values": [
-    "0.11%"
+    "0.11"
    ],
    "conflict": false,
    "unit": "percent",
    "cap": null,
    "evidence": [
     {
-     "value": "0.11%",
+     "value": "0.11",
      "doc": "green_account_(checking)",
-     "quote": "0.11% APY"
+     "quote": "0.11%"
     }
    ]
   },
@@ -1091,7 +1040,7 @@
     {
      "value": "600",
      "doc": "green_account_(checking)",
-     "quote": "a daily ATM withdrawal limit of $600"
+     "quote": "$600"
     }
    ]
   },
@@ -1106,7 +1055,7 @@
     {
      "value": "2.50",
      "doc": "green_account_(checking)",
-     "quote": "cost $2.50 per month."
+     "quote": "$2.50"
     }
    ]
   },
@@ -1121,7 +1070,7 @@
     {
      "value": "15.00",
      "doc": "green_account_(checking)",
-     "quote": "cost $15.00."
+     "quote": "$15.00"
     }
    ]
   },
@@ -1167,12 +1116,7 @@
    "evidence": [],
    "absent": true
   },
-  "overdraft_coverage": {
-   "values": [],
-   "conflict": false,
-   "evidence": [],
-   "unresolved": true
-  }
+  "_family": "checking_accounts"
  },
  "green_fee-free_account": {
   "monthly_maintenance_fee": {
@@ -1343,19 +1287,7 @@
    "evidence": [],
    "absent": true
   },
-  "overdraft_coverage": {
-   "values": [
-    "$0.00"
-   ],
-   "conflict": false,
-   "evidence": [
-    {
-     "value": "$0.00",
-     "doc": "green_fee-free_account",
-     "quote": "- You are not charged an overdraft fee. The overdraft fee for this account is $0.00."
-    }
-   ]
-  }
+  "_family": "checking_accounts"
  },
  "light_blue_account": {
   "monthly_maintenance_fee": {
@@ -1508,19 +1440,6 @@
     }
    ]
   },
-  "overdraft_coverage": {
-   "values": [
-    "$0.00"
-   ],
-   "conflict": false,
-   "evidence": [
-    {
-     "value": "$0.00",
-     "doc": "light_blue_account",
-     "quote": "The overdraft fee is $0.00."
-    }
-   ]
-  },
   "wire_transfer_fee": {
    "values": [
     "$0.00"
@@ -1533,7 +1452,8 @@
      "quote": "The fee to receive a domestic wire is $0.00."
     }
    ]
-  }
+  },
+  "_family": "checking_accounts"
  },
  "light_green_account": {
   "monthly_maintenance_fee": {
@@ -1711,19 +1631,7 @@
    "evidence": [],
    "absent": true
   },
-  "overdraft_coverage": {
-   "values": [
-    "None"
-   ],
-   "conflict": false,
-   "evidence": [
-    {
-     "value": "None",
-     "doc": "light_green_account",
-     "quote": "Overdraft fees: None (no overdraft fee is charged on this account)"
-    }
-   ]
-  }
+  "_family": "checking_accounts"
  },
  "purple_account": {
   "monthly_maintenance_fee": {
@@ -1771,18 +1679,18 @@
     }
    ]
   },
-  "daily_atm_withdrawal_limit": {
+  "oon_atm_reimbursement": {
    "values": [
-    "$1,000"
+    "$30"
    ],
    "conflict": false,
    "unit": "USD",
-   "cap": null,
+   "cap": 30.0,
    "evidence": [
     {
-     "value": "$1,000",
+     "value": "$30",
      "doc": "purple_account",
-     "quote": "Your Purple Account debit card has a daily ATM withdrawal limit of $1,000. This limit applies to all ATM withdrawals worldwide within a 24-hour period."
+     "quote": "Global ATM fee rebates: up to $30 monthly worldwide"
     }
    ]
   },
@@ -1801,18 +1709,18 @@
     }
    ]
   },
-  "oon_atm_reimbursement": {
+  "daily_atm_withdrawal_limit": {
    "values": [
-    "$30"
+    "$1,000"
    ],
    "conflict": false,
    "unit": "USD",
-   "cap": 30.0,
+   "cap": null,
    "evidence": [
     {
-     "value": "$30",
+     "value": "$1,000",
      "doc": "purple_account",
-     "quote": "You are eligible for refunds of ATM operator fees up to a monthly cap of $30."
+     "quote": "Your Purple Account debit card has a daily ATM withdrawal limit of $1,000. This limit applies to all ATM withdrawals worldwide within a 24-hour period."
     }
    ]
   },
@@ -1877,12 +1785,6 @@
    "evidence": [],
    "absent": true
   },
-  "overdraft_coverage": {
-   "values": [],
-   "conflict": false,
-   "evidence": [],
-   "absent": true
-  },
   "wire_transfer_fee": {
    "values": [
     "$0.00"
@@ -1895,6 +1797,3438 @@
      "quote": "Incoming domestic wire transfer fee: $0.00"
     }
    ]
-  }
+  },
+  "_family": "checking_accounts"
+ },
+ "bronze_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "bronze_account",
+     "quote": "The monthly maintenance fee is $0.00."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "0"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0",
+     "doc": "bronze_account",
+     "quote": "If this value is $0, no monthly maintenance fee will be charged."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "2.0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "2.0%",
+     "doc": "bronze_account",
+     "quote": "Annual Percentage Yield (APY) | 2.0%"
+    }
+   ]
+  },
+  "paper_statement_fee": {
+   "values": [
+    "2.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "2.00",
+     "doc": "bronze_account",
+     "quote": "If you are enrolled in paper statements, a paper statement fee of $2.00 may apply each month you receive a paper statement."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "savings_accounts"
+ },
+ "diamond_elite_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "diamond_elite_account",
+     "quote": "Monthly maintenance fee: $0.00."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "7.5%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "7.5%",
+     "doc": "diamond_elite_account",
+     "quote": "Your account earns 7.5%."
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "Yes"
+   ],
+   "conflict": false,
+   "unit": "text",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "Yes",
+     "doc": "diamond_elite_account",
+     "quote": "All wire transfer fees are waived: Yes."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "savings_accounts"
+ },
+ "gold_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "10.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "10.00",
+     "doc": "gold_account",
+     "quote": "- Monthly maintenance: $10.00 (charged only if your balance drops below $10,000 during the statement period)."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "10,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "10,000",
+     "doc": "gold_account",
+     "quote": "- Maintain at least $10,000 to keep your account in good standing."
+    }
+   ]
+  },
+  "oon_atm_reimbursement": {
+   "values": [
+    "30"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": 30.0,
+   "evidence": [
+    {
+     "value": "30",
+     "doc": "gold_account",
+     "quote": "- ATM fee rebate cap per month: $30"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "5.5%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "5.5%",
+     "doc": "gold_account",
+     "quote": "- Your account earns an APY of 5.5% on the balance you maintain."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "savings_accounts"
+ },
+ "gold_plus_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "15.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "15.00",
+     "doc": "gold_plus_account",
+     "quote": "If your balance falls below this amount, a monthly maintenance fee of $15.00 may apply."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "25,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "25,000",
+     "doc": "gold_plus_account",
+     "quote": "Maintain a balance of at least $25,000 to keep account benefits active."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "6.0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "6.0%",
+     "doc": "gold_plus_account",
+     "quote": "You earn 6.0% percent APY on eligible balances in this account."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "savings_accounts"
+ },
+ "green_account_(savings)": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "green_account_(savings)",
+     "quote": "$0.00"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "500"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "500",
+     "doc": "green_account_(savings)",
+     "quote": "The minimum balance requirement is $500."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "4.0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "4.0%",
+     "doc": "green_account_(savings)",
+     "quote": "4.0%"
+    }
+   ]
+  },
+  "oon_atm_reimbursement": {
+   "values": [
+    "20"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": 20.0,
+   "evidence": [
+    {
+     "value": "20",
+     "doc": "green_account_(savings)",
+     "quote": "up to $20 in rebates each month"
+    }
+   ]
+  },
+  "paper_statement_fee": {
+   "values": [
+    "Yes"
+   ],
+   "conflict": false,
+   "unit": "text",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "Yes",
+     "doc": "green_account_(savings)",
+     "quote": "Paperless statements are required for this account: Yes."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "savings_accounts"
+ },
+ "platinum_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "25.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "25.00",
+     "doc": "platinum_account",
+     "quote": "If your balance dips below $50,000, a monthly maintenance fee of $25.00 may apply until you restore the required balance."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "6.5%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "6.5%",
+     "doc": "platinum_account",
+     "quote": "Your account earns 6.5% APY on the balance you maintain."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "savings_accounts"
+ },
+ "platinum_plus_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "50.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "50.00",
+     "doc": "platinum_plus_account",
+     "quote": "The monthly maintenance fee is $50.00."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "7.0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "7.0%",
+     "doc": "platinum_plus_account",
+     "quote": "You earn 7.0% APY."
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "Yes"
+   ],
+   "conflict": false,
+   "unit": "text",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "Yes",
+     "doc": "platinum_plus_account",
+     "quote": "Wire transfer fees are waived: Yes."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "savings_accounts"
+ },
+ "silver_account": {
+  "waiver_min_daily_balance": {
+   "values": [
+    "1,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "1,000",
+     "doc": "silver_account",
+     "quote": "Maintain at least $1,000 each statement cycle to meet account requirements and avoid monthly fees."
+    }
+   ]
+  },
+  "monthly_maintenance_fee": {
+   "values": [
+    "5.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "5.00",
+     "doc": "silver_account",
+     "quote": "If you do not meet this requirement for a statement cycle, a monthly maintenance fee of $5.00 applies."
+    }
+   ]
+  },
+  "paper_statement_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "silver_account",
+     "quote": "There is no monthly fee for paper statements; the amount is $0.00."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "2.5%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "2.5%",
+     "doc": "silver_account",
+     "quote": "The lower tier pays 2.5%, and the higher tier pays 4.0%."
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [
+    "15"
+   ],
+   "conflict": false,
+   "unit": "count",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "15",
+     "doc": "silver_account",
+     "quote": "You can receive ATM fee rebates up to 15 each month."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "savings_accounts"
+ },
+ "silver_plus_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "8.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "8.00",
+     "doc": "silver_plus_account",
+     "quote": "A monthly maintenance fee of $8.00 may be charged if your balance is below $2,500."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "2,500"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "2,500",
+     "doc": "silver_plus_account",
+     "quote": "A monthly maintenance fee of $8.00 may be charged if your balance is below $2,500."
+    }
+   ]
+  },
+  "paper_statement_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "silver_plus_account",
+     "quote": "There is no monthly fee for paper statements; the amount is $0.00."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "savings_accounts"
+ },
+ "beige": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$200.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$200.00",
+     "doc": "beige",
+     "quote": "The monthly maintenance fee is $200.00."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$500,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$500,000",
+     "doc": "beige",
+     "quote": "This fee is waived when your average balance meets or exceeds $500,000."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "beige",
+     "quote": "Overdrafts incur a fee of $0.00."
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "beige",
+     "quote": "No Rho out-of-network ATM fee: You pay $0.00 per out-of-network ATM transaction."
+    }
+   ]
+  },
+  "oon_atm_reimbursement": {
+   "values": [
+    "$50"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": 50.0,
+   "evidence": [
+    {
+     "value": "$50",
+     "doc": "beige",
+     "quote": "Receive up to $50 in rebates each month for fees charged by out-of-network ATM operators."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "3.0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "3.0%",
+     "doc": "beige",
+     "quote": "Your enterprise balances earn an Annual Percentage Yield of 3.0%."
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$100,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$100,000",
+     "doc": "beige",
+     "quote": "The daily mobile check deposit limit is $100,000. Plan deposit batches accordingly and consider earlier submission to allow for review."
+    }
+   ]
+  },
+  "foreign_transaction_fee": {
+   "values": [
+    "1%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "1%",
+     "doc": "beige",
+     "quote": "International ATM withdrawals: A Rho fee of 1% of the withdrawal amount applies at foreign ATMs, with a minimum charge of $2.00 per withdrawal."
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "beige",
+     "quote": "The domestic wire transfer fee is $0.00. Confirm fee applicability before scheduling large volumes."
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_checking_accounts"
+ },
+ "cobalt_blue": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$20.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$20.00",
+     "doc": "cobalt_blue",
+     "quote": "- Monthly maintenance fee: $20.00"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$2,500"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$2,500",
+     "doc": "cobalt_blue",
+     "quote": "- How to waive it: maintain a daily balance at or above $2,500"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "cobalt_blue",
+     "quote": "- Overdraft fee: $0.00"
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$2.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$2.00",
+     "doc": "cobalt_blue",
+     "quote": "- Domestic out-of-network ATM withdrawal: $2.00 per transaction"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [
+    "15"
+   ],
+   "conflict": false,
+   "unit": "count",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "15",
+     "doc": "cobalt_blue",
+     "quote": "- You receive up to 15 per month in rebates for fees charged by out-of-network ATMs"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "0.5%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.5%",
+     "doc": "cobalt_blue",
+     "quote": "- Your balance earns an APY of 0.5%"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$10,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$10,000",
+     "doc": "cobalt_blue",
+     "quote": "- Daily mobile deposit limit: $10,000"
+    }
+   ]
+  },
+  "oon_atm_reimbursement": {
+   "values": [
+    "$15"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$15",
+     "doc": "cobalt_blue",
+     "quote": "- Monthly ATM fee rebates: Up to $15 in out-of-network ATM fee rebates per month"
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "$20.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$20.00",
+     "doc": "cobalt_blue",
+     "quote": "- Outgoing domestic wire transfer fee: $20.00"
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_checking_accounts"
+ },
+ "hunter_green": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "25.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "25.00",
+     "doc": "hunter_green",
+     "quote": "the monthly maintenance fee is $25.00."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "5,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "5,000",
+     "doc": "hunter_green",
+     "quote": "Review pricing: the monthly maintenance fee is $25.00. You can avoid this charge by maintaining at least $5,000 in your account."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "hunter_green",
+     "quote": "the overdraft fee is $0.00."
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [
+    "20"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": 20.0,
+   "evidence": [
+    {
+     "value": "20",
+     "doc": "hunter_green",
+     "quote": "Monthly ATM fee rebates for out-of-network usage: Up to $20 per month"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "1.0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "1.0%",
+     "doc": "hunter_green",
+     "quote": "your account earns 1.0% APY on your balance."
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "10,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "10,000",
+     "doc": "hunter_green",
+     "quote": "You can deposit up to $10,000 per day using mobile check deposit."
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "15.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "15.00",
+     "doc": "hunter_green",
+     "quote": "Outgoing domestic wires carry a fee of $15.00."
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_checking_accounts"
+ },
+ "lime_green": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$25.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$25.00",
+     "doc": "lime_green",
+     "quote": "The monthly maintenance fee is $25.00."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$15,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$15,000",
+     "doc": "lime_green",
+     "quote": "The fee is waived when your balance meets or exceeds $15,000 as defined for this account."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "lime_green",
+     "quote": "The overdraft fee is $0.00."
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$1.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$1.00",
+     "doc": "lime_green",
+     "quote": "Out-of-network ATM transaction fee (domestic) | $1.00 per transaction"
+    }
+   ]
+  },
+  "oon_atm_reimbursement": {
+   "values": [
+    "$25"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": 25.0,
+   "evidence": [
+    {
+     "value": "$25",
+     "doc": "lime_green",
+     "quote": "Monthly ATM fee rebate cap (out-of-network usage) | Up to $25 per month"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "1.5%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "1.5%",
+     "doc": "lime_green",
+     "quote": "Your account earns an Annual Percentage Yield of 1.5%."
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_checking_accounts"
+ },
+ "navy_blue": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "navy_blue",
+     "quote": "Monthly maintenance fee: $0.00"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "No minimum balance requirement"
+   ],
+   "conflict": false,
+   "unit": "text",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "No minimum balance requirement",
+     "doc": "navy_blue",
+     "quote": "No minimum balance requirement, so you can use the account flexibly."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "navy_blue",
+     "quote": "- Overdraft fee per occurrence: $0.00"
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "navy_blue",
+     "quote": "- Transfer fee for overdraft protection: $0.00"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [
+    "10"
+   ],
+   "conflict": false,
+   "unit": "count",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "10",
+     "doc": "navy_blue",
+     "quote": "Monthly cap on ATM fee rebates for out-of-network usage: 10"
+    }
+   ]
+  },
+  "min_age": {
+   "values": [
+    "60"
+   ],
+   "conflict": false,
+   "unit": "",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "60",
+     "doc": "navy_blue",
+     "quote": "Your account age requirement | 60 days"
+    }
+   ]
+  },
+  "foreign_transaction_fee": {
+   "values": [
+    "3%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "3%",
+     "doc": "navy_blue",
+     "quote": "International usage: ATM cash withdrawals at foreign (international) ATMs are assessed a fee of 3% of the withdrawal amount, with a minimum of $5.00."
+    }
+   ]
+  },
+  "oon_atm_reimbursement": {
+   "values": [
+    "10"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "10",
+     "doc": "navy_blue",
+     "quote": "Monthly cap on ATM fee rebates for out-of-network usage: 10"
+    }
+   ]
+  },
+  "paper_statement_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "navy_blue",
+     "quote": "Monthly paper statement fee: $0.00"
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "15.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "15.00",
+     "doc": "navy_blue",
+     "quote": "- Fee per outgoing domestic wire: $15.00"
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_checking_accounts"
+ },
+ "sky_blue": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "25.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "25.00",
+     "doc": "sky_blue",
+     "quote": "When the free period ends, the monthly maintenance fee becomes $25.00."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "sky_blue",
+     "quote": "If your balance goes negative, the overdraft fee is $0.00."
+    }
+   ]
+  },
+  "min_age": {
+   "values": [
+    "0"
+   ],
+   "conflict": false,
+   "unit": "count",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0",
+     "doc": "sky_blue",
+     "quote": "Check whether you meet the funding requirement: 0."
+    }
+   ]
+  },
+  "max_age": {
+   "values": [
+    "4"
+   ],
+   "conflict": false,
+   "unit": "count",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "4",
+     "doc": "sky_blue",
+     "quote": "Confirm your company is within 4 years of formation."
+    }
+   ]
+  },
+  "foreign_transaction_fee": {
+   "values": [
+    "2"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "2",
+     "doc": "sky_blue",
+     "quote": "For cash withdrawals at foreign (international) ATMs, you are charged 2% of the withdrawal amount, with a minimum fee of $3.00 per withdrawal."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_checking_accounts"
+ },
+ "true_blue": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "75.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "75.00",
+     "doc": "true_blue",
+     "quote": "$75.00 each month unless you meet the waiver threshold."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "50,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "50,000",
+     "doc": "true_blue",
+     "quote": "The monthly maintenance fee is waived when your balance is at least $50,000 during the statement period."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "25.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "25.00",
+     "doc": "true_blue",
+     "quote": "a per-occurrence overdraft fee of $25.00 may apply."
+    }
+   ]
+  },
+  "oon_atm_reimbursement": {
+   "values": [
+    "30"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": 30.0,
+   "evidence": [
+    {
+     "value": "30",
+     "doc": "true_blue",
+     "quote": "Maximum ATM fee rebates per month for out-of-network usage: $30"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "2.0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "2.0%",
+     "doc": "true_blue",
+     "quote": "The account earns an Annual Percentage Yield (APY) of 2.0% on eligible balances."
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_checking_accounts"
+ },
+ "world_blue": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$50.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$50.00",
+     "doc": "world_blue",
+     "quote": "The monthly maintenance fee is $50.00"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$25,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$25,000",
+     "doc": "world_blue",
+     "quote": "You can avoid the fee by maintaining an eligible balance at or above $25,000"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "$30.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$30.00",
+     "doc": "world_blue",
+     "quote": "an overdraft triggers a fee of $30.00 when the account goes negative"
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0%",
+     "doc": "world_blue",
+     "quote": "Rho foreign ATM withdrawal fee: 0% (minimum $0.00)"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "1.0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "1.0%",
+     "doc": "world_blue",
+     "quote": "Your USD balance earns an Annual Percentage Yield of 1.0%"
+    }
+   ]
+  },
+  "foreign_currency_holding": {
+   "values": [
+    "35"
+   ],
+   "conflict": false,
+   "unit": "count",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "35",
+     "doc": "world_blue",
+     "quote": "Decide which of the up to 35 supported currencies you plan to hold and transact in"
+    }
+   ]
+  },
+  "oon_atm_reimbursement": {
+   "values": [
+    "$100"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": 100.0,
+   "evidence": [
+    {
+     "value": "$100",
+     "doc": "world_blue",
+     "quote": "Foreign ATM fee rebates: Up to $100 per calendar month for fees charged by foreign ATM operators on cash withdrawals"
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "$15.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "$15.00",
+     "doc": "world_blue",
+     "quote": "Outgoing SWIFT wires are $15.00 each, with 3 free outgoing SWIFT wires included per month"
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_checking_accounts"
+ },
+ "automatic_sweep_program": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "automatic_sweep_program",
+     "quote": "Review and accept the ongoing monthly service fee: $0.00."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_savings_accounts"
+ },
+ "bronze_saver_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "bronze_saver_account",
+     "quote": "The monthly maintenance fee is $0.00."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "2.0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "2.0%",
+     "doc": "bronze_saver_account",
+     "quote": "Your savings earn an APY of 2.0% when funds are held in the account."
+    }
+   ]
+  },
+  "paper_statement_fee": {
+   "values": [
+    "3.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "3.00",
+     "doc": "bronze_saver_account",
+     "quote": "If you elect paper statements, a paper statement fee of $3.00 may appear on your statement for that cycle."
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "25"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "25",
+     "doc": "bronze_saver_account",
+     "quote": "Outgoing domestic wires from this account incur a fee of $25."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_savings_accounts"
+ },
+ "diamond_vault": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "0.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0.00",
+     "doc": "diamond_vault",
+     "quote": "The monthly maintenance fee is $0.00."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "6.5%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "6.5%",
+     "doc": "diamond_vault",
+     "quote": "Your balance earns an APY of 6.5%."
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "waived"
+   ],
+   "conflict": false,
+   "unit": "text",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "waived",
+     "doc": "diamond_vault",
+     "quote": "All wire transfer fees waived: Yes."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_savings_accounts"
+ },
+ "emerald_saver": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "5.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "5.00",
+     "doc": "emerald_saver",
+     "quote": "$5.00"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "1,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "1,000",
+     "doc": "emerald_saver",
+     "quote": "$1,000"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "3.5%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "3.5%",
+     "doc": "emerald_saver",
+     "quote": "3.5%"
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "20"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "20",
+     "doc": "emerald_saver",
+     "quote": "20"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_savings_accounts"
+ },
+ "gold_plus_saver": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "15.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "15.00",
+     "doc": "gold_plus_saver",
+     "quote": "Monthly maintenance fee if the minimum balance is not met: $15.00"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "25,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "25,000",
+     "doc": "gold_plus_saver",
+     "quote": "Minimum balance to maintain the account: $25,000"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "5.0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "5.0%",
+     "doc": "gold_plus_saver",
+     "quote": "Base APY on your balance: 5.0%"
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "10"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "10",
+     "doc": "gold_plus_saver",
+     "quote": "Outgoing domestic wires from this savings account incur a fee of $10 per transfer."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_savings_accounts"
+ },
+ "gold_saver_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "10.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "10.00",
+     "doc": "gold_saver_account",
+     "quote": "- Monthly maintenance fee: $10.00."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "up to 3.25%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "up to 3.25%",
+     "doc": "gold_saver_account",
+     "quote": "Gold Saver Account: Understanding Tiered Interest Rates up to 3.25%."
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "15"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "15",
+     "doc": "gold_saver_account",
+     "quote": "- Outgoing domestic wire fee: 15."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_savings_accounts"
+ },
+ "joint_business_holders_+_user_roles": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_savings_accounts"
+ },
+ "platinum_reserve_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "50.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "50.00",
+     "doc": "platinum_reserve_account",
+     "quote": "The monthly maintenance fee of $50.00 reduces the available balance when assessed, which can modestly lower subsequent daily accruals until offset by additional interest or deposits"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "250,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "250,000",
+     "doc": "platinum_reserve_account",
+     "quote": "Minimum daily balance to waive the monthly maintenance fee: $250,000"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "5.0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "5.0%",
+     "doc": "platinum_reserve_account",
+     "quote": "Annual Percentage Yield: 5.0% with daily compounding"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_savings_accounts"
+ },
+ "silver_plus_saver": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "10.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "10.00",
+     "doc": "silver_plus_saver",
+     "quote": "If you do not meet the minimum balance requirement, a monthly maintenance fee of $10.00 is assessed according to your account terms."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "5,000"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "5,000",
+     "doc": "silver_plus_saver",
+     "quote": "You must maintain a minimum balance of $5,000 to keep the Silver Plus Saver account in good standing."
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "15"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "15",
+     "doc": "silver_plus_saver",
+     "quote": "An outgoing domestic wire carries a fee of 15."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_savings_accounts"
+ },
+ "silver_saver_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "5.00"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "5.00",
+     "doc": "silver_saver_account",
+     "quote": "A monthly maintenance fee of $5.00 applies."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "2.5%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "2.5%",
+     "doc": "silver_saver_account",
+     "quote": "Balances under $25,000: 2.5% APY"
+    }
+   ]
+  },
+  "wire_transfer_fee": {
+   "values": [
+    "20"
+   ],
+   "conflict": false,
+   "unit": "USD",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "20",
+     "doc": "silver_saver_account",
+     "quote": "Outgoing domestic wire transfers incur a fee of 20."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_savings_accounts"
  }
 }
