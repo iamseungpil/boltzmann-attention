@@ -88,6 +88,30 @@ def arg_families(arg):
         return None
 
 
+CARD_PCT = {"fx_fee", "cashback", "min_payment_pct", "base_cashback", "fx_fee_with_premium"}
+
+
+def attr_menu_for(arg):
+    """★인자에 맞는 **속성 메뉴**를 준다(2026-08-20 수리).
+
+    `card_type` 사례에 계좌 속성 목록을 주고 있었다 — 모델이 *"credit limit at least $100,000"* 을
+    `monthly_deposit_limit`(계좌 칸)로 옮기고 `foreign_currency_holding exists` 를 걸어, 카드 표에
+    없는 칸이라 **후보가 전멸**했다(003 생존 0). 카드는 A2 fit 표의 속성으로 묻는다.
+    """
+    if arg == "card_type":
+        _t, attrs = card_table()
+        def _ty(k):
+            if k in CARD_PCT:
+                return "percent"
+            if k in ("purchase_protection", "virtual_card", "invite_only", "business"):
+                return "boolean"
+            if k == "min_score":
+                return "count"
+            return "USD"
+        return ", ".join("%s (%s)" % (k, _ty(k)) for k in attrs)
+    return attr_menu()
+
+
 def attr_menu():
     """형식화에 **타입까지** 준다 — 어느 op 가 맞는지는 타입이 정한다([[10]] LLM 이 쓰고 엔진은 비교만).
 
@@ -146,7 +170,7 @@ def cite_norm(t):
     return " ".join(t.split()).lower()
 
 
-def check_spec(spec, said=""):
+def check_spec(spec, said="", allow=None):
     """★G6 — 스펙 스키마 **강제** + **근거 검산**. 통과한 제약과 **거절 사유 문장**을 함께 돌려준다.
 
     x431 1차: 063 이 `"because"` 를 속성명으로 쓰고 `apy == None` 을 냈다(스키마 붕괴).
@@ -171,7 +195,7 @@ def check_spec(spec, said=""):
             bad.append("constraint is not an object")
             continue
         at, op, val = con.get("attribute"), con.get("op"), con.get("value")
-        if at not in ATTRS:
+        if at not in (allow or ATTRS):
             bad.append("unknown attribute %r (not in the allowed list)" % at)
             continue
         if op not in OPS:
@@ -247,7 +271,7 @@ def objective_pick(obj, table, survivors):
         tot, miss = 0.0, False
         for t in terms:
             at = t.get("attribute")
-            if at not in ATTRS:
+            if not at:
                 continue
             c = term_cost(row.get(at), t.get("times", 1), t.get("of_amount"))
             if c is None:
@@ -297,7 +321,7 @@ def preference_rank(prefs, table, survivors):
 
     ⚠null 규율은 그대로 — 항이 하나라도 모르면 그 후보는 **순위 보류**(0 으로 섞지 않는다).
     """
-    terms = [x for x in (prefs or []) if x.get("attribute") in ATTRS]
+    terms = [x for x in (prefs or []) if x.get("attribute")]
     if not terms:
         return None, {}, []
     score, held = {}, []
@@ -447,9 +471,10 @@ def main():
     for c in cs:
         said = G.customer_said(c["sim"], c["msg_i"])
         body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
-                % (said[:6000], attr_menu()))
+                % (said[:6000], attr_menu_for(c["arg"])))
         spec = ask(a.port, sysmsg, body)
-        cons, bad, dropped, dropped_full = check_spec(spec, said)
+        allow = [x.split(" (")[0] for x in attr_menu_for(c["arg"]).split(", ")]
+        cons, bad, dropped, dropped_full = check_spec(spec, said, allow)
         n0, reask = len(bad), False
         if bad:
             reask = True                       # ★G6: 위반을 **이름 대고** 되묻는다([[64]] 거부는 고칠 것을 말해야)
@@ -457,7 +482,7 @@ def main():
                         + "\n".join("- %s" % b for b in bad[:6])
                         + "\nUse ONLY the attribute names listed above, an op from "
                           "==,<=,>=,exists,absent, and a number (or null for exists/absent).\n")
-            cons2, bad2, dropped2, dropped_full2 = check_spec(spec2, said)
+            cons2, bad2, dropped2, dropped_full2 = check_spec(spec2, said, allow)
             if len(cons2) >= len(cons):
                 cons, bad, spec, dropped, dropped_full = cons2, bad2, spec2, dropped2, dropped_full2
         rejected[(c["task"], c["trial"])] = bad
@@ -474,7 +499,7 @@ def main():
             ok = True
             for con in cons:
                 at, op = con.get("attribute"), con.get("op")
-                if at not in ATTRS:
+                if not at:
                     continue
                 vals = (row.get(at) or {}).get("values") or []
                 if op == "exists":
