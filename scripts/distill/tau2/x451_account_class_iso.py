@@ -100,10 +100,12 @@ def facts_block(classes):
     lines = []
     for c in classes:
         row = tab.get(c)
-        if not row:
+        if not isinstance(row, dict):
             continue
         bits = []
         for attr, v in sorted(row.items()):
+            if not isinstance(v, dict):      # `_note_*` 등 메타 키는 건너뛴다(1차 실측 크래시)
+                continue
             vals = (v or {}).get("values") or []
             if not vals:
                 continue
@@ -163,7 +165,12 @@ def main():
     for c in cs:
         fam = gm.get(c["account_type"]) or ""
         klasses = classes_of(fam)
-        enum = "CANDIDATES (%s):\n%s\n" % (c["account_type"], "\n".join("  - %s" % k for k in klasses))
+        # ★후보는 **라이브와 같은 표기**로 준다 — `t2_search._disp_name` 정본(슬러그 ↔ 표시명이
+        #   갈리면 조용히 빗나간다·FIX-6 전례). 우리가 이름을 짓지 않는다([[67]]).
+        import t2_search as _ts
+        disp = {_ts._disp_name(k): k for k in klasses}
+        enum = "CANDIDATES (%s):\n%s\n" % (c["account_type"],
+                                           "\n".join("  - %s" % d for d in disp))
         others = [f for f in set(gm.values()) if f != fam]
         print("\n%s · type=%s · gold=%s · 후보 %d"
               % (c["task"], c["account_type"], c["gold"], len(klasses)))
