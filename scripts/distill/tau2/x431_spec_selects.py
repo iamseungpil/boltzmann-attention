@@ -176,21 +176,28 @@ def objective_pick(obj, table, survivors):
     terms = [t for t in ((obj or {}).get("terms") or []) if isinstance(t, dict)]
     if mode not in ("argmin", "argmax") or not terms:
         return None, {}
-    score = {}
+    # ★항이 **하나라도 모름이면 그 후보는 순위에서 뺀다**(2026-08-20 수리·사용자 지적).
+    #   전에는 풀린 항만 더해 **부분합**으로 겨루게 했다 — 값이 없는 후보가 0.00 으로 1위에 서고
+    #   문서가 값을 준 후보(blue 3.20)가 4위로 밀렸다. 모름은 0 이 아니라 **판정 보류**다.
+    score, held = {}, []
     for cls in survivors:
         row = table.get(cls) or {}
-        tot, ok = 0.0, False
+        tot, miss = 0.0, False
         for t in terms:
             at = t.get("attribute")
             if at not in ATTRS:
                 continue
             c = term_cost(row.get(at), t.get("times", 1), t.get("of_amount"))
             if c is None:
-                continue
+                miss = True
+                break
             tot += c * float(t.get("sign", 1))
-            ok = True
-        if ok:
+        if miss:
+            held.append(cls)
+        else:
             score[cls] = tot
+    if held:
+        print("        ⓘ순위 보류(항이 미기재) %d 후보: %s" % (len(held), ", ".join(held[:4])))
     if not score:
         return None, {}
     best = (min if mode == "argmin" else max)(score.values())
@@ -204,10 +211,17 @@ def clsname(x):
 
 
 def num(v):
-    """'$0.00' · 'None' · '1% of withdrawal' → 수. 못 읽으면 None(=비교 불가로 남긴다)."""
+    """'$0.00' · 'None' · '1% of withdrawal' → 수. **비어 있음은 0 이 아니라 None** 이다.
+
+    ★수리(2026-08-20·사용자 지적): `"-"`·`""`·`"n/a"` 를 0.0 으로 접고 있었다. 문서가 *"None"* 이라고
+      **말한 것**은 수수료 $0 이 맞지만, 우리가 **값을 못 가진 칸**은 0 이 아니라 **모름**이다.
+      그 둘을 섞으면 미기재 후보가 공짜 후보와 동률이 되어 순위를 오염시킨다.
+    """
     s = str(v).strip().lower()
-    if s in ("none", "no", "n/a", "-", ""):
-        return 0.0
+    if s in ("", "-", "n/a", "unknown", "not stated"):
+        return None                     # 모름 — 비교에서 빠진다
+    if s in ("none", "no"):
+        return 0.0                      # 문서가 "없다"고 **말한** 것 = $0
     m = RE_MONEY.search(s.replace(",", ""))
     return float(m.group(0)) if m else None
 
