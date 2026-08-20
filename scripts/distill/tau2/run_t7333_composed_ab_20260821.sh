@@ -59,6 +59,11 @@ M_VAL='documented_return_for_stated_spend'
 for f in "$LOG/bank_t7333_"*.log "$LOG/bank_t7333_chain.log"; do
   [ -e "$f" ] && { echo "[t7333] REFUSING: $f 존재" >&2; exit 1; }
 done
+# ★중단된 런이 남긴 결과 디렉터리가 있으면 tau2 가 **대화형으로 resume 을 묻고** EOF 로 죽는다
+#   (2026-08-21 실측). 지우지 않고 **거부**한다 — 과거에 rm 이 완주 런을 날린 적이 있다([[30]]).
+for d in "$SIMS/bank_t7333_"*; do
+  [ -d "$d" ] && { echo "[t7333] REFUSING: $d 존재 — 영속화하고 새 태그를 써라" >&2; exit 1; }
+done
 
 echo "{\"tag\":\"t7333\",\"sha\":\"$SHA\",\"arms\":[\"ctl(both unset)\",\"treat(T2_ARG_DOC_SUB=1 + T2_VALUE_FORMULA=full)\"],\"ports\":{\"ctl\":8140,\"treat\":8141},\"hot\":\"$HOT x $HOT_NT\",\"rest\":\"$REST x $REST_NT\",\"n_per_arm\":20,\"endpoint\":\"reward only\",\"bar\":\"|d| < 2 = null (C483 ±4/40)\",\"also\":[\"reads\",\"fabs\",\"over-action\",\"per-task sign table\",\"delivery fire rate\"],\"why_composed\":\"delivery alone rejected by census: 024 category-correct sims reward 2/20, 8/20 still apply for Gold\",\"iso_caveat\":\"sham 70/71; value grid never validated on live reward\"}" \
   | tee "$LOG/bank_t7333.meta.json"
@@ -71,9 +76,9 @@ setsid bash -c "
 
   # ── 0단계 스모크(2 sim·treat): 두 기구가 **라이브에서 발화**하는지([[30]]·死배선에 돈 금지)
   export T2_ARG_DOC_SUB=1 T2_VALUE_FORMULA=full
-  SMK=bank_t7333_smoke_20260821
+  SMK=bank_t7333_smoke_20260821b
   echo '[t7333] === 스모크(2 sim · task_024 · treat · 8141) ==='
-  t2_launch \$SMK 8141 $HOT 2
+  t2_launch \$SMK 8141 $HOT 2 2>&1 | tee $LOG/\$SMK.log
   ND=\$(grep -c '$M_DOC' $LOG/\$SMK.log 2>/dev/null || echo 0)
   NV=\$(grep -c '$M_VAL' $LOG/\$SMK.log 2>/dev/null || echo 0)
   echo \"[t7333] 스모크 발화 — 배달=\$ND · 값주석=\$NV\"
@@ -109,9 +114,9 @@ setsid bash -c "
     env | grep -E '^T2_(ARG_DOC_SUB|VALUE_FORMULA)' | sort > $LOG/env_t7333_\${ARM}.txt || true
     echo \"[t7333] === \$ARM · port=\$PORT · doc='\${T2_ARG_DOC_SUB:-(unset)}' val='\${T2_VALUE_FORMULA:-(unset)}' ===\"
     for PART in hot rest; do
-      TAG=bank_t7333_\${ARM}_\${PART}_20260821
+      TAG=bank_t7333_\${ARM}_\${PART}_20260821b
       if [ \"\$PART\" = hot ]; then TL='$HOT'; NT=$HOT_NT; else TL='$REST'; NT=$REST_NT; fi
-      t2_launch \$TAG \$PORT \"\$TL\" \$NT
+      t2_launch \$TAG \$PORT \"\$TL\" \$NT 2>&1 | tee $LOG/\$TAG.log
       echo \"[t7333] \$ARM/\$PART 완료 · 배달=\$(grep -c '$M_DOC' $LOG/\$TAG.log 2>/dev/null || echo 0) · 값=\$(grep -c '$M_VAL' $LOG/\$TAG.log 2>/dev/null || echo 0)\"
       cd '$REPO' && mkdir -p reports/facet_rft_2026/sim_results
       gzip -c '$SIMS/'\$TAG'/results.json' > reports/facet_rft_2026/sim_results/\$TAG.results.json.gz
@@ -131,7 +136,7 @@ setsid bash -c "
   git -c user.name=ghlee -c user.email=beingrelative@gmail.com commit -q -m 't7333 arms' || true
   git push -q origin facet-rft-2026 || true
   for A in ctl treat; do for P in hot rest; do
-    G=reports/facet_rft_2026/sim_results/bank_t7333_\${A}_\${P}_20260821.results.json.gz
+    G=reports/facet_rft_2026/sim_results/bank_t7333_\${A}_\${P}_20260821b.results.json.gz
     git ls-files --error-unmatch \$G >/dev/null 2>&1 \\
       && echo \"[t7333] \$A/\$P 영속 확인 tracked\" || echo \"[t7333] ⚠\$A/\$P 영속 실패 — 리모트 디스크가 유일본\"
   done; done
