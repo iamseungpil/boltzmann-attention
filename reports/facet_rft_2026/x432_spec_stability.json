@@ -1,0 +1,160 @@
+[
+ {
+  "task": "task_055",
+  "trial": 0,
+  "gold": "Purple Account",
+  "sizes": [
+   2,
+   2,
+   2,
+   2,
+   2
+  ],
+  "jaccard": 1.0,
+  "freq": {
+   "max_age": 5,
+   "min_age": 5
+  },
+  "bad_spans": []
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "gold": "Silver Plus Account",
+  "sizes": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "jaccard": 1.0,
+  "freq": {},
+  "bad_spans": [
+   [
+    "foreign_transaction_fee",
+    "Max foreign transaction fee: 0%"
+   ],
+   [
+    "apy",
+    "I need to confirm again: can the savings account send paper statements by mail?"
+   ],
+   [
+    "paper_statement_fee",
+    "is there any fee for that?"
+   ],
+   [
+    "foreign_transaction_fee",
+    "Max foreign transaction fee: 0%"
+   ],
+   [
+    "apy",
+    "Is the Gold Account the highest-APY savings option for parking $8,000 for 12 months?"
+   ],
+   [
+    "foreign_transaction_fee",
+    "Max foreign transaction fee: 0%"
+   ]
+  ]
+ },
+ {
+  "task": "task_057",
+  "trial": 1,
+  "gold": "Blue Account",
+  "sizes": [
+   2,
+   2,
+   2,
+   2,
+   2
+  ],
+  "jaccard": 1.0,
+  "freq": {
+   "overdraft_fee": 5,
+   "waiver_min_daily_balance": 5
+  },
+  "bad_spans": []
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "gold": "Blue Account",
+  "sizes": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "jaccard": 1.0,
+  "freq": {},
+  "bad_spans": [
+   [
+    "overdraft_fee",
+    "I need an account with absolutely no overdraft fees."
+   ],
+   [
+    "waiver_min_daily_balance",
+    "I can usually keep around $500–$700 in the account. Would that be enough to avoid any monthly fee?"
+   ],
+   [
+    "monthly_maintenance_fee",
+    "I can usually keep around $500–$700 in the account. Would that be enough to avoid any monthly fee?"
+   ],
+   [
+    "overdraft_fee",
+    "I need an account with absolutely no overdraft fees."
+   ],
+   [
+    "waiver_min_daily_balance",
+    "I can usually keep around $500–$700 in the account. Would that be enough to avoid any monthly fee?"
+   ],
+   [
+    "monthly_maintenance_fee",
+    "I can usually keep around $500–$700 in the account. Would that be enough to avoid any monthly fee?"
+   ]
+  ]
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "gold": "Silver Plus Account",
+  "sizes": [
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "jaccard": 1.0,
+  "freq": {
+   "apy": 5
+  },
+  "bad_spans": [
+   [
+    "paper_statement_fee",
+    "I absolutely need paper statements mailed to me"
+   ],
+   [
+    "foreign_transaction_fee",
+    "real credit card that actually checks creditworthiness—not one of those “no credit check” cards."
+   ],
+   [
+    "paper_statement_fee",
+    "I absolutely need paper statements mailed to me"
+   ],
+   [
+    "foreign_transaction_fee",
+    "real credit card that actually checks creditworthiness—not one of those “no credit check” cards."
+   ],
+   [
+    "paper_statement_fee",
+    "I absolutely need paper statements mailed to me"
+   ],
+   [
+    "foreign_transaction_fee",
+    "real credit card that actually checks creditworthiness—not one of those “no credit check” cards."
+   ]
+  ]
+ }
+]
