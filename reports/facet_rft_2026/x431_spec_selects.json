@@ -11,6 +11,12 @@
      "times": 12,
      "of_amount": null,
      "sign": 1
+    },
+    {
+     "attribute": "foreign_transaction_fee",
+     "times": 12,
+     "of_amount": null,
+     "sign": 1
     }
    ]
   },
@@ -31,22 +37,22 @@
   "unique": false,
   "spec": [
    {
-    "attribute": "foreign_transaction_fee",
-    "op": "==",
-    "value": 0,
-    "because": "I really hate foreign transaction fees when I buy things abroad."
-   },
-   {
     "attribute": "oon_atm_reimbursement",
     "op": "==",
     "value": true,
     "because": "Is there any option where you reimburse out-of-network / international ATM fees?"
    },
    {
+    "attribute": "foreign_transaction_fee",
+    "op": "==",
+    "value": false,
+    "because": "Also I really hate foreign transaction fees when I buy things abroad."
+   },
+   {
     "attribute": "foreign_currency_holding",
     "op": "==",
     "value": true,
-    "because": "It would be nice if I could hold those currencies instead of converting immediately"
+    "because": "Oh—and sometimes I get paid in yen or euros. It would be nice if I could hold those currencies instead of converting immediately, if that’s a thing."
    },
    {
     "attribute": "min_age",
@@ -78,14 +84,22 @@
    ]
   },
   "scores": {
+   "blue_account": 0.8,
    "bluest_account": 180.0,
+   "evergreen_account": 4.0,
    "gold_years_account": 80.0,
+   "green_account_(checking)": 8.8,
    "green_fee-free_account": 0.0,
    "light_green_account": 4.0
   },
-  "n_constraints": 3,
-  "n_rejected": 0,
-  "rejected": [],
+  "n_constraints": 1,
+  "n_rejected": 4,
+  "rejected": [
+   "the 'because' for foreign_transaction_fee is not a verbatim span of what the customer said: 'Max foreign transaction fee: 0%'",
+   "the 'because' for paper_statement_fee is not a verbatim span of what the customer said: 'is there any fee for that?'",
+   "the 'because' for waiver_min_daily_balance is not a verbatim span of what the customer said: 'Max annual fee: $0 preferred'",
+   "the 'because' for monthly_maintenance_fee is not a verbatim span of what the customer said: 'Max annual fee: $0 preferred'"
+  ],
   "n_surv": 1,
   "surv": [
    "bluest_account"
@@ -94,22 +108,10 @@
   "unique": false,
   "spec": [
    {
-    "attribute": "foreign_transaction_fee",
-    "op": "==",
-    "value": 0,
-    "because": "Max foreign transaction fee: 0%"
-   },
-   {
     "attribute": "apy",
     "op": "exists",
     "value": null,
-    "because": "I need to confirm again: can the savings account send paper statements by mail?"
-   },
-   {
-    "attribute": "paper_statement_fee",
-    "op": "==",
-    "value": 0,
-    "because": "is there any fee for that?"
+    "because": "I’m trying to maximize the return—even a $10–15 difference matters."
    }
   ]
  },
@@ -117,69 +119,9 @@
   "task": "task_057",
   "trial": 1,
   "gold": "Blue Account",
-  "objective": {
-   "mode": "argmin",
-   "terms": [
-    {
-     "attribute": "oon_atm_fee",
-     "times": 2,
-     "of_amount": 60,
-     "sign": 1
-    },
-    {
-     "attribute": "oon_atm_fee",
-     "times": 1,
-     "of_amount": 100,
-     "sign": 1
-    }
-   ]
-  },
-  "scores": {
-   "blue_account": 2.2
-  },
-  "n_constraints": 4,
-  "n_rejected": 0,
-  "rejected": [],
-  "n_surv": 1,
-  "surv": [
-   "blue_account"
-  ],
-  "gold_in": true,
-  "unique": true,
-  "spec": [
-   {
-    "attribute": "overdraft_fee",
-    "op": "==",
-    "value": 0,
-    "because": "Absolutely no overdraft fees (non-negotiable)"
-   },
-   {
-    "attribute": "overdraft_protection_transfer_fee",
-    "op": "exists",
-    "value": null,
-    "because": "I want a safety net: can I link a savings account for automatic overdraft protection transfers?"
-   },
-   {
-    "attribute": "waiver_min_daily_balance",
-    "op": "<=",
-    "value": 700,
-    "because": "I can usually keep like $500–$700 in the account—would that avoid monthly fees?"
-   },
-   {
-    "attribute": "apy",
-    "op": "exists",
-    "value": null,
-    "because": "Do you have any eco/green options, and what’s your best “premium” checking (not super basic)?"
-   }
-  ]
- },
- {
-  "task": "task_057",
-  "trial": 0,
-  "gold": "Blue Account",
   "objective": null,
   "scores": {},
-  "n_constraints": 4,
+  "n_constraints": 3,
   "n_rejected": 0,
   "rejected": [],
   "n_surv": 0,
@@ -191,27 +133,52 @@
     "attribute": "overdraft_fee",
     "op": "==",
     "value": 0,
-    "because": "I need an account with absolutely no overdraft fees."
-   },
-   {
-    "attribute": "overdraft_coverage",
-    "op": "exists",
-    "value": null,
-    "because": "I want to be able to link a savings account to cover it automatically."
+    "because": "Absolutely no overdraft fees (non-negotiable)"
    },
    {
     "attribute": "waiver_min_daily_balance",
     "op": "<=",
     "value": 700,
-    "because": "Would that be enough to avoid any monthly fee?"
+    "because": "I can usually keep like $500–$700 in the account—would that avoid monthly fees?"
    },
    {
-    "attribute": "monthly_maintenance_fee",
-    "op": "==",
-    "value": 0,
-    "because": "Would that be enough to avoid any monthly fee?"
+    "attribute": "overdraft_coverage",
+    "op": "exists",
+    "value": null,
+    "because": "I want a safety net: can I link a savings account for automatic overdraft protection transfers?"
    }
   ]
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "gold": "Blue Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 0,
+  "n_rejected": 3,
+  "rejected": [
+   "the 'because' for overdraft_fee is not a verbatim span of what the customer said: 'I need an account with absolutely no overdraft fees.'",
+   "the 'because' for waiver_min_daily_balance is not a verbatim span of what the customer said: 'I can usually keep around $500–$700 in the account. Would th'",
+   "the 'because' for overdraft_coverage is not a verbatim span of what the customer said: 'But I still want a safety net—if I accidentally spend more t'"
+  ],
+  "n_surv": 11,
+  "surv": [
+   "blue_account",
+   "bluest_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account"
+  ],
+  "gold_in": true,
+  "unique": false,
+  "spec": []
  },
  {
   "task": "task_063",
@@ -219,9 +186,12 @@
   "gold": "Silver Plus Account",
   "objective": null,
   "scores": {},
-  "n_constraints": 3,
-  "n_rejected": 0,
-  "rejected": [],
+  "n_constraints": 2,
+  "n_rejected": 2,
+  "rejected": [
+   "the 'because' for paper_statement_fee is not a verbatim span of what the customer said: 'I absolutely need paper statements mailed to me'",
+   "the 'because' for foreign_transaction_fee is not a verbatim span of what the customer said: 'real credit card that actually checks creditworthiness—not o'"
+  ],
   "n_surv": 0,
   "surv": [],
   "gold_in": false,
@@ -234,16 +204,10 @@
     "because": "I’m trying to avoid comparing multiple accounts—just want the one that yields the absolute highest return."
    },
    {
-    "attribute": "paper_statement_fee",
+    "attribute": "waiver_min_daily_balance",
     "op": "absent",
     "value": null,
-    "because": "Absolutely need paper statements mailed to me"
-   },
-   {
-    "attribute": "foreign_transaction_fee",
-    "op": "absent",
-    "value": null,
-    "because": "Real credit card that actually checks creditworthiness—not one of those “no credit check” cards."
+    "because": "I don’t have a Rho-Bank premium/Rho-Bank+ subscription"
    }
   ]
  }
