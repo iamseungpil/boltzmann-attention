@@ -1,0 +1,1298 @@
+[
+ {
+  "family": "personal",
+  "cat": "travel",
+  "amt": 500,
+  "answer": "Silver Rewards Card",
+  "best": 20.0,
+  "second": "Gold Rewards Card",
+  "second_val": 12.5,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers a lower percentage rate on travel spending compared to other cards with similar scopes."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for common high-cost categories like travel and software."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": true,
+   "amount_back": 1900.0,
+   "why": "It offers the highest effective rate for travel spending."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "travel",
+  "amt": 2000,
+  "answer": "Silver Rewards Card",
+  "best": 80.0,
+  "second": "Gold Rewards Card",
+  "second_val": 50.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers a lower rate on travel spending compared to other cards with similar scopes."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": true,
+   "amount_back": 80,
+   "why": "It offers the highest effective rate for travel spending."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "travel",
+  "amt": 8000,
+  "answer": "Platinum Rewards Card",
+  "best": 600.0,
+  "second": "Silver Rewards Card",
+  "second_val": 320.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers a lower percentage rate on travel spending compared to other cards with similar scopes."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": 320,
+   "why": "It offers the highest effective rate for travel spending among all cards."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "travel",
+  "amt": 40000,
+  "answer": "Platinum Rewards Card",
+  "best": 3800.0,
+  "second": "Silver Rewards Card",
+  "second_val": 1600.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers a lower base rate specifically for travel spending."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": 1600,
+   "why": "It offers the highest category rate for travel spending with no annual fee."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "software",
+  "amt": 500,
+  "answer": "Silver Rewards Card",
+  "best": 20.0,
+  "second": "Gold Rewards Card",
+  "second_val": 12.5,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers a specific lower rate for software category spending."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": true,
+   "amount_back": 150,
+   "why": "It offers the highest effective rate for software spending within the given scope."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "software",
+  "amt": 2000,
+  "answer": "Silver Rewards Card",
+  "best": 80.0,
+  "second": "Gold Rewards Card",
+  "second_val": 50.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers a specialized lower rate for software spending."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": true,
+   "amount_back": 80,
+   "why": "It offers the highest return for software spending."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "software",
+  "amt": 8000,
+  "answer": "Platinum Rewards Card",
+  "best": 600.0,
+  "second": "Silver Rewards Card",
+  "second_val": 320.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers a specialized lower rate for software spending."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": 320,
+   "why": "It offers the highest return due to its specific category rate for software spending."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "software",
+  "amt": 40000,
+  "answer": "Platinum Rewards Card",
+  "best": 3800.0,
+  "second": "Silver Rewards Card",
+  "second_val": 1600.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers a specialized lower rate for software spending."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": 1600,
+   "why": "It offers the highest category rate for software spending with no annual fee."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "operations",
+  "amt": 500,
+  "answer": "Gold Rewards Card",
+  "best": 12.5,
+  "second": "Silver Rewards Card",
+  "second_val": 5.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has a lower base rate applicable to its spending category"
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": 20,
+   "why": "It offers the highest effective rate for software spending within its scoped categories."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "operations",
+  "amt": 2000,
+  "answer": "Gold Rewards Card",
+  "best": 50.0,
+  "second": "Silver Rewards Card",
+  "second_val": 20.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers a higher category rate for software which covers operations spending."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": 80,
+   "why": "It offers the highest effective rate for software spending within its scoped categories."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "operations",
+  "amt": 8000,
+  "answer": "Platinum Rewards Card",
+  "best": 600.0,
+  "second": "Gold Rewards Card",
+  "second_val": 200.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specific category rates that could apply to the customer's spending if it falls under travel or software."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": 320,
+   "why": "It offers the highest return due to its lower base rate and specific category rates for travel/software."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "operations",
+  "amt": 40000,
+  "answer": "Platinum Rewards Card",
+  "best": 3800.0,
+  "second": "Diamond Elite Card",
+  "second_val": 1505.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specific higher rates for travel and software categories which could cover the majority of the spending if applicable."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": 1600,
+   "why": "It offers the highest return due to lower base rate and specific category rates for high spending areas."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "green",
+  "amt": 500,
+  "answer": "Gold Rewards Card",
+  "best": 12.5,
+  "second": "Silver Rewards Card",
+  "second_val": 5.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has a lower base rate applicable to its spending category"
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has the lowest base rate applicable to the spending category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "green",
+  "amt": 2000,
+  "answer": "Gold Rewards Card",
+  "best": 50.0,
+  "second": "Silver Rewards Card",
+  "second_val": 20.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has a lower base rate for specific categories which includes the customer's spending."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": 80,
+   "why": "It offers the highest return due to its lower base rate and specific category rate for non-covered spending"
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "green",
+  "amt": 8000,
+  "answer": "Platinum Rewards Card",
+  "best": 600.0,
+  "second": "Gold Rewards Card",
+  "second_val": 200.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers a higher category rate for specific spending"
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": 320,
+   "why": "It offers the highest effective return with its lower base rate and specific category rate for travel/software, which aligns with the customer's spending habits"
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "green",
+  "amt": 40000,
+  "answer": "Platinum Rewards Card",
+  "best": 3800.0,
+  "second": "Diamond Elite Card",
+  "second_val": 1505.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers a higher category rate for specific spending"
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": 1600,
+   "why": "It offers the highest effective return due to its lower base rate and specific category rate for travel/software, which aligns with the customer's spending habi"
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "media_advertising",
+  "amt": 500,
+  "answer": "Gold Rewards Card",
+  "best": 12.5,
+  "second": "Silver Rewards Card",
+  "second_val": 5.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has a lower base rate for its scope compared to other cards with non-zero annual fees or higher rates."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has the lowest base rate applicable to the spending category among cards with no annual fee."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "media_advertising",
+  "amt": 2000,
+  "answer": "Gold Rewards Card",
+  "best": 50.0,
+  "second": "Silver Rewards Card",
+  "second_val": 20.0,
+  "A_task": {
+   "winner": "Bronze Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has the lowest base rate among the cards with no annual fee and applies to all spending categories."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has the lowest base rate applicable to the spending category among cards with no annual fee."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "media_advertising",
+  "amt": 8000,
+  "answer": "Platinum Rewards Card",
+  "best": 600.0,
+  "second": "Gold Rewards Card",
+  "second_val": 200.0,
+  "A_task": {
+   "winner": "Bronze Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has the lowest base rate among the cards with no annual fee and applies to all spending categories."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has the lowest base rate applicable to the spending category within the scope"
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "media_advertising",
+  "amt": 40000,
+  "answer": "Platinum Rewards Card",
+  "best": 3800.0,
+  "second": "Diamond Elite Card",
+  "second_val": 1505.0,
+  "A_task": {
+   "winner": "Bronze Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has the lowest base rate among the cards with no annual fee and applies to all spending categories."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "The Silver Rewards Card has the lowest base rate applicable to the customer's spending category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "other",
+  "amt": 500,
+  "answer": "Gold Rewards Card",
+  "best": 12.5,
+  "second": "Silver Rewards Card",
+  "second_val": 5.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has a lower base rate for specific categories which aligns with the customer's spending habits."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has the lowest base rate among cards with no annual fee and applies to all spending."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "other",
+  "amt": 2000,
+  "answer": "Gold Rewards Card",
+  "best": 50.0,
+  "second": "Silver Rewards Card",
+  "second_val": 20.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has a lower base rate for specific categories which aligns better than others despite not covering non-bonus categories."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has the lowest base rate among cards with no annual fee and applies to all spending."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "other",
+  "amt": 8000,
+  "answer": "Platinum Rewards Card",
+  "best": 600.0,
+  "second": "Gold Rewards Card",
+  "second_val": 200.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has a lower base rate compared to other non-free cards within its spending scope."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has the lowest base rate among cards with no annual fee and applies to all spending."
+  }
+ },
+ {
+  "family": "personal",
+  "cat": "other",
+  "amt": 40000,
+  "answer": "Platinum Rewards Card",
+  "best": 3800.0,
+  "second": "Diamond Elite Card",
+  "second_val": 1505.0,
+  "A_task": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has a lower base rate compared to other non-free cards within its spending scope."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers specialized lower rates for travel and software categories."
+  },
+  "D_hint": {
+   "winner": "Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It has the lowest base rate among cards with no annual fee and applies to all spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "travel",
+  "amt": 500,
+  "answer": "Business Bronze Rewards Card",
+  "best": 5.0,
+  "second": "Business Silver Rewards Card",
+  "second_val": -72.5,
+  "A_task": {
+   "winner": "Business Silver Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rate for travel spending among the listed cards."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Silver Rewards Card",
+   "ok": false,
+   "amount_back": 377.5,
+   "why": "It offers the highest return for travel spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "travel",
+  "amt": 2000,
+  "answer": "Business Silver Rewards Card",
+  "best": 77.5,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 20.0,
+  "A_task": {
+   "winner": "Business Silver Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers the highest category rate for travel spending among the listed cards."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Silver Rewards Card",
+   "ok": true,
+   "amount_back": 187.5,
+   "why": "It offers the highest return for travel spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "travel",
+  "amt": 8000,
+  "answer": "Business Silver Rewards Card",
+  "best": 677.5,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 80.0,
+  "A_task": {
+   "winner": "Business Silver Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers the highest category rate for travel spending among the listed cards."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Silver Rewards Card",
+   "ok": true,
+   "amount_back": 787.5,
+   "why": "It offers the highest return for travel spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "travel",
+  "amt": 40000,
+  "answer": "Business Silver Rewards Card",
+  "best": 3877.5,
+  "second": "Business Platinum Rewards Card",
+  "second_val": 1150.0,
+  "A_task": {
+   "winner": "Business Silver Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers the highest category rate for travel spending among the listed cards."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Silver Rewards Card",
+   "ok": true,
+   "amount_back": 3877.5,
+   "why": "It offers the highest return for travel spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "software",
+  "amt": 500,
+  "answer": "Business Bronze Rewards Card",
+  "best": 5.0,
+  "second": "Business Silver Rewards Card",
+  "second_val": -72.5,
+  "A_task": {
+   "winner": "Business Silver Rewards Card",
+   "ok": false,
+   "amount_back": 10.0,
+   "why": "It offers the highest percentage back on software spending among the cards listed."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Silver Rewards Card",
+   "ok": false,
+   "amount_back": 377.5,
+   "why": "It offers the highest return for software spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "software",
+  "amt": 2000,
+  "answer": "Business Silver Rewards Card",
+  "best": 77.5,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 20.0,
+  "A_task": {
+   "winner": "Business Silver Rewards Card",
+   "ok": true,
+   "amount_back": 200,
+   "why": "It offers the highest percentage back on software spending among the cards listed."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Silver Rewards Card",
+   "ok": true,
+   "amount_back": 187.5,
+   "why": "It offers the highest return for software spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "software",
+  "amt": 8000,
+  "answer": "Business Silver Rewards Card",
+  "best": 677.5,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 80.0,
+  "A_task": {
+   "winner": "Business Silver Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers the highest category rate for software spending among the listed cards."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Silver Rewards Card",
+   "ok": true,
+   "amount_back": 787.5,
+   "why": "It offers the highest return for software spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "software",
+  "amt": 40000,
+  "answer": "Business Silver Rewards Card",
+  "best": 3877.5,
+  "second": "Business Platinum Rewards Card",
+  "second_val": 1150.0,
+  "A_task": {
+   "winner": "Business Silver Rewards Card",
+   "ok": true,
+   "amount_back": 4000,
+   "why": "It offers the highest category rate for software spending among the listed cards."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Silver Rewards Card",
+   "ok": true,
+   "amount_back": 3877.5,
+   "why": "It offers the highest return for software spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "operations",
+  "amt": 500,
+  "answer": "Business Bronze Rewards Card",
+  "best": 5.0,
+  "second": "Green Rewards Card",
+  "second_val": -95.0,
+  "A_task": {
+   "winner": "Business Gold Rewards Card",
+   "ok": false,
+   "amount_back": 7.5,
+   "why": "It offers the highest category rate for operations spending."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 5.0,
+   "why": "It has no annual fee and the same base rate as other cards without additional benefits for the customer's spending category."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "operations",
+  "amt": 2000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 20.0,
+  "second": "Green Rewards Card",
+  "second_val": -80.0,
+  "A_task": {
+   "winner": "Business Gold Rewards Card",
+   "ok": false,
+   "amount_back": 25.0,
+   "why": "It offers the highest category rate for operations spending."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 20,
+   "why": "It has no annual fee and the same base rate as other cards without additional benefits for the customer's spending category."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "operations",
+  "amt": 8000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 80.0,
+  "second": "Business Gold Rewards Card",
+  "second_val": 0.0,
+  "A_task": {
+   "winner": "Business Gold Rewards Card",
+   "ok": false,
+   "amount_back": 200.0,
+   "why": "It offers the highest category rate for operations spending."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Gold Rewards Card",
+   "ok": false,
+   "amount_back": 60.0,
+   "why": "It offers the highest return for spending on operations."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "operations",
+  "amt": 40000,
+  "answer": "Business Gold Rewards Card",
+  "best": 800.0,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 400.0,
+  "A_task": {
+   "winner": "Business Gold Rewards Card",
+   "ok": true,
+   "amount_back": 1000.0,
+   "why": "It offers the highest category rate for operations spending."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Gold Rewards Card",
+   "ok": true,
+   "amount_back": 250.0,
+   "why": "It offers the highest return for spending on operations."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "green",
+  "amt": 500,
+  "answer": "Business Bronze Rewards Card",
+  "best": 5.0,
+  "second": "Green Rewards Card",
+  "second_val": -85.0,
+  "A_task": {
+   "winner": "Green Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rate for green spending."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Green Rewards Card",
+   "ok": false,
+   "amount_back": 50,
+   "why": "It offers the highest return for spending on green categories."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "green",
+  "amt": 2000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 20.0,
+  "second": "Green Rewards Card",
+  "second_val": -40.0,
+  "A_task": {
+   "winner": "Green Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rate for green spending."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Green Rewards Card",
+   "ok": false,
+   "amount_back": 500,
+   "why": "It offers the highest return due to high category rates on green spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "green",
+  "amt": 8000,
+  "answer": "Green Rewards Card",
+  "best": 140.0,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 80.0,
+  "A_task": {
+   "winner": "Green Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers the highest category rate for green spending."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Green Rewards Card",
+   "ok": true,
+   "amount_back": 2200,
+   "why": "It offers the highest return due to high category rates on green spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "green",
+  "amt": 40000,
+  "answer": "Green Rewards Card",
+  "best": 1100.0,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 400.0,
+  "A_task": {
+   "winner": "Green Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers the highest category rate for green spending."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Green Rewards Card",
+   "ok": true,
+   "amount_back": 1100.0,
+   "why": "It offers the highest return for spending on green categories."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "media_advertising",
+  "amt": 500,
+  "answer": "Business Bronze Rewards Card",
+  "best": 5.0,
+  "second": "Green Rewards Card",
+  "second_val": -95.0,
+  "A_task": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rate for media_advertising."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": 150,
+   "why": "It offers the highest category rate for media_advertising spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "media_advertising",
+  "amt": 2000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 20.0,
+  "second": "Green Rewards Card",
+  "second_val": -80.0,
+  "A_task": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rate for media_advertising"
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": 350.0,
+   "why": "It offers the highest category rate for media_advertising spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "media_advertising",
+  "amt": 8000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 80.0,
+  "second": "Green Rewards Card",
+  "second_val": -20.0,
+  "A_task": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rate for media_advertising"
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": 2850.0,
+   "why": "It offers the highest rate for media_advertising spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "media_advertising",
+  "amt": 40000,
+  "answer": "Business Platinum Rewards Card",
+  "best": 1150.0,
+  "second": "Business Bronze Rewards Card",
+  "second_val": 400.0,
+  "A_task": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers the highest category rate for media_advertising"
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": true,
+   "amount_back": 13650,
+   "why": "It offers the highest category rate for media_advertising spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "other",
+  "amt": 500,
+  "answer": "Business Bronze Rewards Card",
+  "best": 5.0,
+  "second": "Green Rewards Card",
+  "second_val": -95.0,
+  "A_task": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It has no annual fee and the same base rate as other cards without additional expenses or benefits for the customer's spending habits."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": -0.0,
+   "why": "It has no annual fee and the same base rate as other cards without additional category benefits relevant to the customer's spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "other",
+  "amt": 2000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 20.0,
+  "second": "Green Rewards Card",
+  "second_val": -80.0,
+  "A_task": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It has no annual fee and the same base rate as other cards without additional expenses or benefits for this customer's spending pattern."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": -0.0,
+   "why": "It has no annual fee and the same base rate as other cards without additional category benefits relevant to the customer's spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "other",
+  "amt": 8000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 80.0,
+  "second": "Green Rewards Card",
+  "second_val": -20.0,
+  "A_task": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It has no annual fee and the same base rate as other cards without additional category benefits relevant to the customer's spending."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": -0.0,
+   "why": "It has no annual fee and the same base rate as other cards without additional category benefits relevant to the customer's spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat": "other",
+  "amt": 40000,
+  "answer": "Business Bronze Rewards Card",
+  "best": 400.0,
+  "second": "Green Rewards Card",
+  "second_val": 300.0,
+  "A_task": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": null,
+   "why": "It has no annual fee and the same base rate as other cards without additional category benefits relevant to the customer's spending."
+  },
+  "C_nopat": {
+   "winner": "Business Platinum Rewards Card",
+   "ok": false,
+   "amount_back": null,
+   "why": "It offers the highest category rates despite the higher annual fee and base rate."
+  },
+  "D_hint": {
+   "winner": "Business Bronze Rewards Card",
+   "ok": true,
+   "amount_back": 400,
+   "why": "It has no annual fee and the same base rate as other cards without additional category benefits relevant to the customer's spending."
+  }
+ }
+]
