@@ -1922,13 +1922,21 @@ def apply():
                             print("[T2_ARG_DOC_SUB] %s=%r (메모 재사용)" % (_ag2, _hit),
                                   file=_sys.stderr, flush=True)
                             continue
-                        _pr4 = ("# Documents\n%s\n\n# What the customer said\n%s\n\n"
-                                "Decide ONE thing: the value of `%s`. Reply with ONE JSON object "
+                        # ★지시는 **재료보다 앞**에 둔다 (2026-08-21·`x450` 로 원인 확정).
+                        #   첫 판은 `# Documents … # What the customer said … Decide ONE thing:` 순서라
+                        #   지시가 **문서 15,000자 뒤**에 묻혔고, 그것만으로 판정이 뒤집혔다:
+                        #   task_024 전수 26 사례에서 **격리 26/26 ↔ 라이브 형태 0/26**(C578).
+                        #   제목 손실도 소문자화도 무죄였고(둘 다 0/26 그대로), **위치만** 앞으로 옮긴
+                        #   팔(`H_front`)이 격리로 되돌렸다 ⇒ 고칠 것은 순서 하나다.
+                        #   ⚠성적을 위해 문구를 튜닝한 것이 아니다 — 격리가 잰 조건(지시가 맨 앞)을
+                        #     라이브가 그대로 받게 맞춘 것이다.
+                        _pr4 = ("Decide ONE thing: the value of `%s`. Reply with ONE JSON object "
                                 "only: {\"%s\": <one of: %s> or null, \"quote\": \"<one sentence "
                                 "copied word for word from the '# Documents' section that shows "
                                 "this>\"}. The quote MUST come from the documents, never from the "
                                 "customer. If no document sentence supports a value, set it to null."
-                                % (_mat, _utx, _ag2, _ag2, ", ".join(_vals)))
+                                "\n\n# Documents\n%s\n\n# What the customer said\n%s\n"
+                                % (_ag2, _ag2, ", ".join(_vals), _mat, _utx))
                         _raw4 = _SC4.sub_generate(getattr(self, "agent", None), _la4, _UM4,
                                                   _pr4, "sg_arg_docs")
                         _ans4 = _SC4.parse_contract(_raw4) or {}
