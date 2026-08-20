@@ -458,14 +458,32 @@ def apply_op(spec, ctx):
                         facts[_vf.get("label") or "value"] = (
                             "unverified — this card documents no rate that applies to that spending")
                     else:
-                        _val = _amt * _rtn / 100.0
-                        _terms = ["%s%% (%s) x %s" % (_rtn, _basis, _amt)]
-                        for _mf in (_vf.get("minus_fields") or []):
-                            _mv = _num(row.get(_mf))
-                            if _mv:
-                                _val -= _mv
-                                _terms.append("minus %s %s" % (_mf, _mv))
-                        facts[_vf.get("label") or "value"] = "%.2f = %s" % (_val, " ".join(_terms))
+                        def _value_of(_r):
+                            _v0 = _amt * _r / 100.0
+                            _t0 = []
+                            for _mf in (_vf.get("minus_fields") or []):
+                                _mv = _num(row.get(_mf))
+                                if _mv:
+                                    _v0 -= _mv
+                                    _t0.append("minus %s %s" % (_mf, _mv))
+                            return _v0, " ".join(_t0)
+                        _val, _sub = _value_of(_rtn)
+                        _txt = "%.2f = %s%% (%s) x %s%s" % (_val, _rtn, _basis, _amt,
+                                                            (" " + _sub) if _sub else "")
+                        # ★두 값 병기(2026-08-20 밤·C565 ⒝): 범주 요율로 계산했는데 **기본 요율과 값이
+                        #   다르면** 두 값을 **같이** 보인다. 스모크가 잡은 위험이 그 자리다 — 024 는
+                        #   트럭 구매를 `operations` 로 매핑했고, 한 값만 보이면 우리가 **틀린 범주 위에서
+                        #   자신 있게 곱셈**을 해 준다(Business Gold 800 > gold Bronze 400).
+                        #   범주 소속은 **열린 술어**라 엔진이 판정할 수 없다([[22]]·[[66]]·[[23]]) ⇒
+                        #   판단은 모델에 남기고 **산술만 둘 다** 한다(C187(c) 조건부 3-값과 같은 모양).
+                        if _basis == "category rate":
+                            _bt = _num(row.get(_rf.get("default_field")))
+                            if _bt is not None and abs(_bt - _rtn) > 1e-9:
+                                _bval, _bsub = _value_of(_bt)
+                                _txt += ("  |  if that spending is NOT in this card's bonus category: "
+                                         "%.2f = %s%% (base rate) x %s%s"
+                                         % (_bval, _bt, _amt, (" " + _bsub) if _bsub else ""))
+                        facts[_vf.get("label") or "value"] = _txt
                 if why:
                     excl.append({"card": name, "reason": why})
                 elif missing:
