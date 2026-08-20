@@ -7,8 +7,10 @@ r"""x435 — **정책·KB 전 문서에서 표를 채운다** (사용자 지시 
 그래서 후보 문서를 **KB 698편 전체**로 넓힌다.
 
 ## 문서 후보를 고르는 규칙 (판단 0)
-그 클래스의 **이름 문자열이 등장하는 문서** 전부 + 파일명에 그 클래스 키가 든 문서 전부.
-★고유명사 포함 검사이지 의미 판단이 아니다([[59]] 는 엔진이 **뜻을 뜯는 것**을 금지한다).
+**A3 문서 색인**(`t2_search.docs_for`)을 쓴다 — C410 이 이미 지어 둔 정본이다([[67]] 사본 금지).
+초판은 내가 이름-포함 스캔을 새로 짰는데 그것이 바로 사본이었다(사용자 지적 2026-08-20).
+색인은 `군 → 주어 → 문서 id` 이고 군마다 `_general_`(주어 없는 공통 문서)이 따로 있다.
+후보 = 그 주어의 문서 + 그 군의 `_general_` + **`bank_accounts_bank_accounts` 군 공통 47편**.
 ★속성어로 문서를 추리지 않는다 — 그건 어휘가 어긋나면 값을 통째로 놓친다(실측: `foreign_transaction_fee`
   ↔ 문서는 *"ATM withdrawals in a foreign currency"*).
 
@@ -33,6 +35,7 @@ try:
 except Exception:
     pass
 
+import t2_search as TS  # noqa: E402
 import x430_account_facts as FT  # noqa: E402
 import x431_spec_selects as S  # noqa: E402
 
@@ -47,6 +50,28 @@ def display_name(cls):
     """표 키 → 문서가 쓰는 이름( `green_account_(checking)` → `Green Account` )."""
     x = re.sub(r"\(.*?\)", "", str(cls).split("@")[0]).replace("_", " ").strip()
     return " ".join(w.capitalize() if w.islower() else w for w in x.split())
+
+
+GROUP_OF = {"checking_accounts": "checking_accounts", "savings_accounts": "savings_accounts",
+            "business_checking_accounts": "business_checking_accounts",
+            "business_savings_accounts": "business_savings_accounts",
+            "credit_cards": "credit_cards", "business_credit_cards": "business_credit_cards"}
+CROSS = "bank_accounts_bank_accounts"
+
+
+def index_candidates(a2, cls, family):
+    """A3 색인이 주는 문서 id — 그 주어 + 군 공통 + 은행계좌 횡단 공통."""
+    g = GROUP_OF.get(family)
+    out = []
+    if g:
+        out += TS.docs_for(a2, g, subjects=[str(cls).split("@")[0]], general=True)
+    out += TS.docs_for(a2, CROSS, subjects=None, general=True)
+    seen, uniq = set(), []
+    for d in out:
+        if d not in seen:
+            seen.add(d)
+            uniq.append(d)
+    return uniq
 
 
 def load_corpus(docdir):
@@ -71,6 +96,8 @@ def main():
     with io.open(os.path.abspath(S.TBL), encoding="utf-8") as f:
         table = json.load(f)
     corpus = load_corpus(a.docdir)
+    with io.open(os.path.join(HERE, "a2", "banking_knowledge.gate.json"), encoding="utf-8") as f:
+        a2 = json.load(f)
     print("=" * 100)
     print("x435 · 코퍼스 전수 채우기 · 클래스 %d · 문서 %d" % (len(table), len(corpus)))
     print("=" * 100)
@@ -80,9 +107,9 @@ def main():
     for cls, row in table.items():
         if not isinstance(row, dict):
             continue
-        nm = display_name(cls)
         key = str(cls).split("@")[0]
-        cands = [(i, t) for i, t in corpus if key in i or (nm and nm.lower() in t.lower())]
+        bytext = dict(corpus)
+        cands = [(i, bytext[i]) for i in index_candidates(a2, cls, row.get("_family")) if i in bytext]
         own = [x for x in cands if key in x[0]]
         extra = [x for x in cands if key not in x[0]]
         cands = (own + extra)[:a.max_docs]
