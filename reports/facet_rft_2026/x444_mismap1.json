@@ -1,0 +1,962 @@
+[
+ {
+  "family": "personal",
+  "cat_true": "operations",
+  "cat_wrong": "software",
+  "amt": 500,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return for the customer's spending category."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return in the software category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "operations",
+  "cat_wrong": "software",
+  "amt": 2000,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return based on the spending category."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return in the software category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "operations",
+  "cat_wrong": "travel",
+  "amt": 500,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return for the customer's spending category."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return in the travel bonus category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "operations",
+  "cat_wrong": "travel",
+  "amt": 2000,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return based on travel category rate."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return in the travel category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "green",
+  "cat_wrong": "software",
+  "amt": 500,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return for the customer's spending category."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for spending in its bonus category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "green",
+  "cat_wrong": "software",
+  "amt": 2000,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for spending in specific categories."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return when spending is in its bonus category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "green",
+  "cat_wrong": "travel",
+  "amt": 500,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return for the customer's spending category."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return in the travel category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "green",
+  "cat_wrong": "travel",
+  "amt": 2000,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for travel spending."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return when spending is in its bonus category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "media_advertising",
+  "cat_wrong": "software",
+  "amt": 500,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Gold Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It has the highest estimated return for the given spending category among the provided cards."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return when spending is not in its bonus category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "media_advertising",
+  "cat_wrong": "software",
+  "amt": 2000,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Gold Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It provides the highest return based on the customer's spending category."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return when spending is not in its bonus category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "media_advertising",
+  "cat_wrong": "travel",
+  "amt": 500,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Gold Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It has the highest estimated return for the given spending category among the provided cards."
+  },
+  "F_two": {
+   "winner": "Gold Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It has the highest estimated return for non-category specific spending."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "media_advertising",
+  "cat_wrong": "travel",
+  "amt": 2000,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Gold Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It has the highest estimated return for the given spending category among the options."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return when spending is not in its bonus category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "other",
+  "cat_wrong": "software",
+  "amt": 500,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for this customer's spending pattern."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return when spending is not in its bonus category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "other",
+  "cat_wrong": "software",
+  "amt": 2000,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return based on category rates."
+  },
+  "F_two": {
+   "winner": "Gold Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It provides the highest return based on non-bonus category spending."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "other",
+  "cat_wrong": "travel",
+  "amt": 500,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for this customer's spending pattern."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return when spending is not in its bonus category."
+  }
+ },
+ {
+  "family": "personal",
+  "cat_true": "other",
+  "cat_wrong": "travel",
+  "amt": 2000,
+  "true": "Gold Rewards Card",
+  "wrong": "Silver Rewards Card",
+  "E_one": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return based on category rates."
+  },
+  "F_two": {
+   "winner": "Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return for non-bonus category spending among the options."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "travel",
+  "cat_wrong": "green",
+  "amt": 2000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Bronze Rewards Card",
+  "E_one": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return without any significant spending in categorized rates that offer higher percentages."
+  },
+  "F_two": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return for travel spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "travel",
+  "cat_wrong": "green",
+  "amt": 8000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Green Rewards Card",
+  "E_one": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It has the highest base rate and category rates for travel, but the high annual fee results in a negative return."
+  },
+  "F_two": {
+   "winner": "Business Silver Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It offers the highest return for travel spending among the options."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "travel",
+  "cat_wrong": "green",
+  "amt": 40000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Green Rewards Card",
+  "E_one": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It offers the highest estimated return for travel spending."
+  },
+  "F_two": {
+   "winner": "Business Silver Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It offers the highest return for travel spending among the options."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "travel",
+  "cat_wrong": "media_advertising",
+  "amt": 2000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Bronze Rewards Card",
+  "E_one": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return without negative impact from annual fees."
+  },
+  "F_two": {
+   "winner": "Business Silver Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It offers the highest return for travel spending after deducting the annual fee."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "travel",
+  "cat_wrong": "media_advertising",
+  "amt": 8000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Bronze Rewards Card",
+  "E_one": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It has the highest category rate for travel among the cards listed."
+  },
+  "F_two": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It has the highest category rate for travel spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "travel",
+  "cat_wrong": "media_advertising",
+  "amt": 40000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Platinum Rewards Card",
+  "E_one": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for travel spending."
+  },
+  "F_two": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for travel spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "travel",
+  "cat_wrong": "operations",
+  "amt": 2000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Bronze Rewards Card",
+  "E_one": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return without negative impact from annual fees."
+  },
+  "F_two": {
+   "winner": "Business Silver Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It has the highest estimated return for travel spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "travel",
+  "cat_wrong": "operations",
+  "amt": 8000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Bronze Rewards Card",
+  "E_one": {
+   "winner": "Business Silver Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It has the highest estimated return among the cards for travel spending."
+  },
+  "F_two": {
+   "winner": "Business Silver Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It has the highest estimated return for travel spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "travel",
+  "cat_wrong": "operations",
+  "amt": 40000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Gold Rewards Card",
+  "E_one": {
+   "winner": "Business Silver Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It offers the highest estimated return for travel spending."
+  },
+  "F_two": {
+   "winner": "Business Silver Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It offers the highest return for travel spending among the options."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "travel",
+  "cat_wrong": "sustainable",
+  "amt": 2000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Bronze Rewards Card",
+  "E_one": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return without any significant spending in categorized rates that benefit other cards."
+  },
+  "F_two": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return for travel spending without additional fees."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "travel",
+  "cat_wrong": "sustainable",
+  "amt": 8000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Green Rewards Card",
+  "E_one": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It has the highest base rate and category rates for travel, but the high annual fee results in a negative return."
+  },
+  "F_two": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It has the highest base rate and category rates for travel, but the high annual fee results in a negative return."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "travel",
+  "cat_wrong": "sustainable",
+  "amt": 40000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Green Rewards Card",
+  "E_one": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It offers the highest estimated return for travel spending."
+  },
+  "F_two": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return outside its bonus categories."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "software",
+  "cat_wrong": "green",
+  "amt": 2000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Bronze Rewards Card",
+  "E_one": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It offers the highest category rate for software spending among the given options."
+  },
+  "F_two": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It offers the highest category rate for software spending among the given options."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "software",
+  "cat_wrong": "green",
+  "amt": 8000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Green Rewards Card",
+  "E_one": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It has the highest base rate and category rates for software, but the high annual fee results in a negative return."
+  },
+  "F_two": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return due to the high category rate for software spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "software",
+  "cat_wrong": "green",
+  "amt": 40000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Green Rewards Card",
+  "E_one": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for spending in the software category."
+  },
+  "F_two": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return due to its high category rate for software spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "software",
+  "cat_wrong": "media_advertising",
+  "amt": 2000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Bronze Rewards Card",
+  "E_one": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It has the highest category rate for software spending."
+  },
+  "F_two": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It has the highest category rate for software spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "software",
+  "cat_wrong": "media_advertising",
+  "amt": 8000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Bronze Rewards Card",
+  "E_one": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return without significant spending in categorized rates that offer higher percentages."
+  },
+  "F_two": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It has the highest category rate for software spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "software",
+  "cat_wrong": "media_advertising",
+  "amt": 40000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Platinum Rewards Card",
+  "E_one": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for software spending."
+  },
+  "F_two": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for spending in the software category."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "software",
+  "cat_wrong": "operations",
+  "amt": 2000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Bronze Rewards Card",
+  "E_one": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It offers the highest category rate for software spending among the given options."
+  },
+  "F_two": {
+   "winner": "Business Silver Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It offers the highest return for software spending after fee deduction."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "software",
+  "cat_wrong": "operations",
+  "amt": 8000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Bronze Rewards Card",
+  "E_one": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return without negative impact from annual fees or incorrect category rates."
+  },
+  "F_two": {
+   "winner": "Business Silver Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It has the highest estimated return among the cards for software spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "software",
+  "cat_wrong": "operations",
+  "amt": 40000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Gold Rewards Card",
+  "E_one": {
+   "winner": "Business Silver Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It provides the highest estimated return for software spending."
+  },
+  "F_two": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It offers the highest category rate for software spending among the options."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "software",
+  "cat_wrong": "sustainable",
+  "amt": 2000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Business Bronze Rewards Card",
+  "E_one": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return without any significant spending in categorized rates that benefit the customer's spending habits."
+  },
+  "F_two": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It offers the highest category rate for software spending among the given options."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "software",
+  "cat_wrong": "sustainable",
+  "amt": 8000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Green Rewards Card",
+  "E_one": {
+   "winner": "Business Platinum Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It has the highest base rate and category rates for software, but the high annual fee results in a negative return."
+  },
+  "F_two": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return due to the high category rate for software spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "software",
+  "cat_wrong": "sustainable",
+  "amt": 40000,
+  "true": "Business Silver Rewards Card",
+  "wrong": "Green Rewards Card",
+  "E_one": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for spending on software."
+  },
+  "F_two": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return due to its high category rate for software spending."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "operations",
+  "cat_wrong": "green",
+  "amt": 8000,
+  "true": "Business Bronze Rewards Card",
+  "wrong": "Green Rewards Card",
+  "E_one": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  },
+  "F_two": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It has the highest estimated return for spending on operations."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "operations",
+  "cat_wrong": "green",
+  "amt": 40000,
+  "true": "Business Gold Rewards Card",
+  "wrong": "Green Rewards Card",
+  "E_one": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for spending in the operations category, despite the note mentioning a computation error."
+  },
+  "F_two": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return outside its bonus categories."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "operations",
+  "cat_wrong": "media_advertising",
+  "amt": 40000,
+  "true": "Business Gold Rewards Card",
+  "wrong": "Business Platinum Rewards Card",
+  "E_one": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It has the highest estimated return for operations spending without an annual fee."
+  },
+  "F_two": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It has the highest estimated return for spending on operations."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "operations",
+  "cat_wrong": "software",
+  "amt": 2000,
+  "true": "Business Bronze Rewards Card",
+  "wrong": "Business Silver Rewards Card",
+  "E_one": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It has the highest estimated return for spending on operations."
+  },
+  "F_two": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It has the highest estimated return for spending on operations."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "operations",
+  "cat_wrong": "software",
+  "amt": 8000,
+  "true": "Business Bronze Rewards Card",
+  "wrong": "Business Silver Rewards Card",
+  "E_one": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It has the highest estimated return for spending on operations."
+  },
+  "F_two": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": true,
+   "followed": false,
+   "why": "It provides the highest estimated return for spending on operations."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "operations",
+  "cat_wrong": "software",
+  "amt": 40000,
+  "true": "Business Gold Rewards Card",
+  "wrong": "Business Silver Rewards Card",
+  "E_one": {
+   "winner": "Business Silver Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return for the customer's spending category."
+  },
+  "F_two": {
+   "winner": "Business Bronze Rewards Card",
+   "ok_true": false,
+   "followed": false,
+   "why": "It offers the highest estimated return for spending on operations."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "operations",
+  "cat_wrong": "sustainable",
+  "amt": 8000,
+  "true": "Business Bronze Rewards Card",
+  "wrong": "Green Rewards Card",
+  "E_one": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It has the highest estimated return for this customer's spending habits."
+  },
+  "F_two": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return in the sustainable category."
+  }
+ },
+ {
+  "family": "business",
+  "cat_true": "operations",
+  "cat_wrong": "sustainable",
+  "amt": 40000,
+  "true": "Business Gold Rewards Card",
+  "wrong": "Green Rewards Card",
+  "E_one": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest estimated return for spending in the operations category, though computed for sustainable, it still yields the best re"
+  },
+  "F_two": {
+   "winner": "Green Rewards Card",
+   "ok_true": false,
+   "followed": true,
+   "why": "It offers the highest return outside its bonus categories."
+  }
+ }
+]
