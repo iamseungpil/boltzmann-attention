@@ -108,7 +108,6 @@
    "dark_green_account": 120.0,
    "gold_years_account": 80.0,
    "green_fee-free_account": 0.0,
-   "light_blue_account": 0.0,
    "light_green_account": 4.0,
    "diamond_elite_account": 600.0,
    "gold_account": 440.0,
@@ -118,6 +117,8 @@
    "platinum_plus_account": 560.0,
    "silver_account": 200.0,
    "cobalt_blue": 40.0,
+   "hunter_green": 80.0,
+   "lime_green": 120.0,
    "true_blue": 160.0,
    "world_blue": 80.0,
    "diamond_vault": 520.0,
@@ -130,7 +131,7 @@
   "n_constraints": 2,
   "n_rejected": 0,
   "rejected": [],
-  "n_surv": 28,
+  "n_surv": 30,
   "surv": [
    "bluest_account",
    "checking_accounts_(general)",
@@ -149,6 +150,8 @@
    "silver_account",
    "silver_plus_account",
    "cobalt_blue",
+   "hunter_green",
+   "lime_green",
    "true_blue",
    "world_blue",
    "automatic_sweep_program",
@@ -181,12 +184,10 @@
   ],
   "winner_is_gold": false,
   "pref_best": [
-   "gold_years_account",
    "green_fee-free_account",
-   "light_blue_account",
    "silver_account"
   ],
-  "pref_held": 23,
+  "pref_held": 27,
   "pref_is_gold": false,
   "gold_in": true,
   "unique": false,
@@ -236,7 +237,6 @@
    "gold_years_account": 0.0,
    "green_account_(checking)": 12.0,
    "green_fee-free_account": 0.0,
-   "light_blue_account": 10.0,
    "light_green_account": 6.0,
    "purple_account": 10.0,
    "beige": 0.0,
@@ -316,9 +316,13 @@
    "beige"
   ],
   "winner_is_gold": false,
-  "pref_best": null,
-  "pref_held": 36,
-  "pref_is_gold": false,
+  "pref_best": [
+   "blue_account",
+   "evergreen_account",
+   "green_account_(savings)"
+  ],
+  "pref_held": 16,
+  "pref_is_gold": true,
   "gold_in": true,
   "unique": false,
   "spec": [
@@ -337,16 +341,47 @@
   "gold": "Blue Account",
   "objective": null,
   "scores": {},
-  "n_constraints": 2,
+  "n_constraints": 1,
   "n_rejected": 0,
   "rejected": [],
-  "n_surv": 5,
+  "n_surv": 36,
   "surv": [
    "blue_account",
+   "bluest_account",
+   "checking_accounts_(general)",
    "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
    "green_account_(checking)",
+   "green_fee-free_account",
    "light_blue_account",
-   "navy_blue"
+   "light_green_account",
+   "purple_account",
+   "bronze_account",
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "green_account_(savings)",
+   "platinum_account",
+   "platinum_plus_account",
+   "silver_account",
+   "silver_plus_account",
+   "beige",
+   "cobalt_blue",
+   "hunter_green",
+   "lime_green",
+   "navy_blue",
+   "sky_blue",
+   "automatic_sweep_program",
+   "bronze_saver_account",
+   "diamond_vault",
+   "emerald_saver",
+   "gold_plus_saver",
+   "gold_saver_account",
+   "joint_business_holders_+_user_roles",
+   "platinum_reserve_account",
+   "silver_plus_saver",
+   "silver_saver_account"
   ],
   "undecidable": false,
   "reask": false,
@@ -366,15 +401,25 @@
     "monthly_maintenance_fee",
     "question",
     "I can usually keep around $500–$700 in the account. Would th"
+   ],
+   [
+    "min_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ],
+   [
+    "max_age",
+    "background",
+    "Date of birth: 06/15/1994"
    ]
   ],
   "winner": null,
   "winner_is_gold": false,
   "pref_best": [
-   "blue_account"
+   "green_account_(savings)"
   ],
-  "pref_held": 3,
-  "pref_is_gold": true,
+  "pref_held": 16,
+  "pref_is_gold": false,
   "gold_in": true,
   "unique": false,
   "spec": [
@@ -384,13 +429,6 @@
     "value": 0,
     "because": "I need an account with absolutely no overdraft fees. That’s non-negotiable.",
     "stated_as": "requirement"
-   },
-   {
-    "attribute": "overdraft_protection_transfer_fee",
-    "op": "exists",
-    "value": null,
-    "because": "But I still want a safety net—if I accidentally spend more than I have, I want to be able to link a savings account to cover it automatically.",
-    "stated_as": "requirement"
    }
   ]
  },
@@ -398,42 +436,18 @@
   "task": "task_063",
   "trial": 1,
   "gold": "Silver Plus Account",
-  "objective": {
-   "mode": "argmax",
-   "terms": [
-    {
-     "attribute": "apy",
-     "times": 1,
-     "of_amount": 8000,
-     "sign": 1
-    }
-   ]
-  },
-  "scores": {
-   "gold_years_account": 80.0,
-   "green_fee-free_account": 0.0,
-   "light_blue_account": 0.0,
-   "green_account_(savings)": 320.0,
-   "silver_account": 200.0
-  },
+  "objective": null,
+  "scores": {},
   "n_constraints": 4,
   "n_rejected": 0,
   "rejected": [],
-  "n_surv": 5,
-  "surv": [
-   "gold_years_account",
-   "green_fee-free_account",
-   "light_blue_account",
-   "green_account_(savings)",
-   "silver_account"
-  ],
+  "n_surv": 0,
+  "surv": [],
   "undecidable": false,
   "reask": false,
   "n_rejected_first": 0,
   "declared_non_requirement": [],
-  "winner": [
-   "green_account_(savings)"
-  ],
+  "winner": null,
   "winner_is_gold": false,
   "pref_best": null,
   "pref_held": 0,
