@@ -59,12 +59,93 @@ def norm_val(v):
     return v.replace(" ", "")
 
 
+def llm_table(files, docdir, family, port, model):
+    """★C410 전범: **LLM 이 형식화하고 엔진은 인용 실재만 검산한다**([[10]]).
+
+    정규식 판본은 `No overdraft fees` 처럼 **부정이 속성어 앞에 오는** 형태를 계통적으로 놓쳤다
+    (하필 057 의 결정 속성이다). 엔진이 도메인 문장을 더 뜯는 것은 [[59]] 위반 방향이므로,
+    형식화는 LLM 에게 넘기고 엔진은 **① 인용이 문서에 축자로 있나 ② 값이 그 인용 안에 있나**만 본다.
+    검산에 걸리면 그 칸은 **버린다**(지어낸 값이 표에 남는 것이 최악이다·[[25]]).
+    """
+    import urllib.request
+    prefix = "doc_%s_" % family
+    byc = collections.defaultdict(list)
+    for f in files:
+        cls = re.sub(r"_\d+\.json$", "", f[len(prefix):])
+        with io.open(os.path.join(docdir, f), encoding="utf-8") as fh:
+            d = json.load(fh)
+        byc[cls].append((f.replace(".json", ""), (d.get("title") or "") + ". " + (d.get("content") or "")))
+    names = [x[0] for x in ATTRS]
+    sysmsg = ("You extract documented facts. Reply with ONE JSON object only: "
+              "{\"<attribute>\": {\"value\": \"<verbatim value>\", \"quote\": \"<verbatim sentence "
+              "from the documents containing that value>\"}}. Omit any attribute the documents do "
+              "not state. Never paraphrase; the quote must appear character-for-character.")
+    out = {}
+    for cls in sorted(byc):
+        blob = "\n\n".join("### %s\n%s" % (i, t) for i, t in byc[cls])[:40000]
+        body = ("# Documents for the %s\n%s\n\n# Attributes to extract\n%s\n"
+                % (cls, blob, ", ".join(names)))
+        req = urllib.request.Request(
+            "http://127.0.0.1:%d/v1/chat/completions" % port,
+            data=json.dumps({"model": model, "temperature": 0.0, "max_tokens": 1200,
+                             "messages": [{"role": "system", "content": sysmsg},
+                                          {"role": "user", "content": body}]}).encode("utf-8"),
+            headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=600) as r:
+                raw = json.loads(r.read().decode("utf-8"))["choices"][0]["message"]["content"]
+        except Exception as e:
+            print("  ERROR %s: %r" % (cls, e))
+            continue
+        i, j = raw.find("{"), raw.rfind("}")
+        try:
+            got = json.loads(raw[i:j + 1]) if i >= 0 and j > i else {}
+        except Exception:
+            got = {}
+        docs_join = " ".join(" ".join(t.split()) for _i, t in byc[cls])
+        row, kept, dropped = {}, 0, 0
+        for k, v in (got.items() if isinstance(got, dict) else []):
+            if k not in names or not isinstance(v, dict):
+                continue
+            val, q = str(v.get("value", "")).strip(), " ".join(str(v.get("quote", "")).split())
+            if not val or not q or q not in docs_join or val.replace(" ", "") not in q.replace(" ", ""):
+                dropped += 1
+                continue
+            row[k] = {"values": [val], "conflict": False,
+                      "evidence": [{"value": val, "doc": cls, "quote": q[:220]}]}
+            kept += 1
+        for k in names:
+            row.setdefault(k, {"values": [], "conflict": False, "evidence": []})
+        out[cls] = row
+        print("  %-26s 채택 %2d · 검산탈락 %2d" % (cls[:26], kept, dropped))
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--docdir", default=DOCDIR)
     ap.add_argument("--family", default="checking_accounts")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--llm", action="store_true", help="C410 전범: LLM 형식화 + 엔진 인용 검산")
+    ap.add_argument("--port", type=int, default=8141)
+    ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     a = ap.parse_args()
+    if a.llm:
+        pre = "doc_%s_" % a.family
+        files = sorted(f for f in os.listdir(a.docdir) if f.startswith(pre) and f.endswith(".json"))
+        print("x430(LLM) · %s · 문서 %d — 인용 검산 통과분만 싣는다" % (a.family, len(files)))
+        out = llm_table(files, a.docdir, a.family, a.port, a.model)
+        attrs = [x[0] for x in ATTRS]
+        print("\n%-26s %s" % ("class", " ".join("%-13s" % x[:13] for x in attrs[:6])))
+        for cls in sorted(out):
+            print("%-26s %s" % (cls[:26], " ".join("%-13s" % ("|".join(out[cls][k]["values"])[:13] or "-")
+                                                   for k in attrs[:6])))
+        p = a.out or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..",
+                                  "reports", "facet_rft_2026", "x430_account_facts_llm.json")
+        with io.open(os.path.abspath(p), "w", encoding="utf-8") as f:
+            json.dump(out, f, ensure_ascii=False, indent=1)
+        print("\n→ %s" % os.path.abspath(p))
+        return 0
 
     pre = "doc_%s_" % a.family
     files = sorted(f for f in os.listdir(a.docdir) if f.startswith(pre) and f.endswith(".json"))
