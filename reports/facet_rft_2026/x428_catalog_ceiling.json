@@ -1,0 +1,172 @@
+[
+ {
+  "task": "task_003",
+  "trial": 0,
+  "arg": "card_type",
+  "gold": "Silver Rewards Card",
+  "n_cand": 5,
+  "with_names": [
+   7,
+   3,
+   false
+  ],
+  "no_names": [
+   7,
+   3,
+   false
+  ]
+ },
+ {
+  "task": "task_024",
+  "trial": 0,
+  "arg": "card_type",
+  "gold": "Business Bronze Rewards Card",
+  "n_cand": 12,
+  "with_names": [
+   8,
+   2,
+   false
+  ],
+  "no_names": [
+   6,
+   2,
+   false
+  ]
+ },
+ {
+  "task": "task_055",
+  "trial": 0,
+  "arg": "account_class",
+  "gold": "Purple Account",
+  "n_cand": 22,
+  "with_names": [
+   10,
+   5,
+   false
+  ],
+  "no_names": [
+   8,
+   5,
+   false
+  ]
+ },
+ {
+  "task": "task_055",
+  "trial": 0,
+  "arg": "account_type",
+  "gold": "checking",
+  "n_cand": 46,
+  "with_names": [
+   9,
+   1,
+   true
+  ],
+  "no_names": [
+   6,
+   1,
+   true
+  ]
+ },
+ {
+  "task": "task_003",
+  "trial": 1,
+  "arg": "card_type",
+  "gold": "Silver Rewards Card",
+  "n_cand": 23,
+  "with_names": [
+   10,
+   2,
+   false
+  ],
+  "no_names": [
+   8,
+   2,
+   false
+  ]
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "arg": "card_type",
+  "gold": "Silver Rewards Card",
+  "n_cand": 13,
+  "with_names": [
+   6,
+   8,
+   false
+  ],
+  "no_names": [
+   5,
+   8,
+   false
+  ]
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "arg": "account_class",
+  "gold": "Silver Plus Account",
+  "n_cand": 36,
+  "with_names": [
+   8,
+   17,
+   false
+  ],
+  "no_names": [
+   2,
+   17,
+   false
+  ]
+ },
+ {
+  "task": "task_057",
+  "trial": 1,
+  "arg": "account_class",
+  "gold": "Blue Account",
+  "n_cand": 12,
+  "with_names": [
+   2,
+   10,
+   false
+  ],
+  "no_names": [
+   1,
+   12,
+   false
+  ]
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "arg": "account_class",
+  "gold": "Blue Account",
+  "n_cand": 7,
+  "with_names": [
+   11,
+   1,
+   true
+  ],
+  "no_names": [
+   11,
+   1,
+   true
+  ]
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "arg": "account_class",
+  "gold": "Silver Plus Account",
+  "n_cand": 23,
+  "with_names": [
+   7,
+   17,
+   false
+  ],
+  "no_names": [
+   3,
+   17,
+   false
+  ]
+ }
+]
