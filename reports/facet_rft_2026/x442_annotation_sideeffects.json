@@ -12,7 +12,7 @@
   "cat": false,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_023",
   "tag": "bank_ax32p1_gpu0_20260802"
@@ -39,7 +39,7 @@
   "cat": true,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_001",
   "tag": "bank_ax32p1_gpu1_20260802"
@@ -84,7 +84,7 @@
   "cat": false,
   "reads": 1,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_001",
   "tag": "bank_ax32p2_gpu1_20260802"
@@ -93,7 +93,7 @@
   "cat": true,
   "reads": 4,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_003",
   "tag": "bank_ax32p2_gpu1_20260802"
@@ -111,7 +111,7 @@
   "cat": true,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_024",
   "tag": "bank_ax32p2_gpu1_20260802"
@@ -300,7 +300,7 @@
   "cat": false,
   "reads": 1,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_002",
   "tag": "bank_ax33n_gpu0_20260803g"
@@ -354,7 +354,7 @@
   "cat": false,
   "reads": 1,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_002",
   "tag": "bank_ax33n_gpu0_20260803g"
@@ -534,7 +534,7 @@
   "cat": true,
   "reads": 1,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_003",
   "tag": "bank_ax33n_gpu1_20260803g"
@@ -588,7 +588,7 @@
   "cat": false,
   "reads": 7,
   "writes": 0,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_008",
   "tag": "bank_b4_gpu0_20260803h"
@@ -705,7 +705,7 @@
   "cat": true,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_024",
   "tag": "bank_b4_gpu1_20260803h"
@@ -732,7 +732,7 @@
   "cat": false,
   "reads": 2,
   "writes": 2,
-  "fabs": 2,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_023",
   "tag": "bank_day2frontB_20260726"
@@ -876,7 +876,7 @@
   "cat": true,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_024",
   "tag": "bank_day6frontA_20260728"
@@ -885,7 +885,7 @@
   "cat": false,
   "reads": 1,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_001",
   "tag": "bank_day6frontB_20260728"
@@ -912,7 +912,7 @@
   "cat": false,
   "reads": 8,
   "writes": 3,
-  "fabs": 2,
+  "fabs": 1,
   "reward": 1.0,
   "task": "task_023",
   "tag": "bank_day6frontB_20260728"
@@ -948,7 +948,7 @@
   "cat": false,
   "reads": 3,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_001",
   "tag": "bank_day7frontB_20260728"
@@ -1020,7 +1020,7 @@
   "cat": false,
   "reads": 1,
   "writes": 2,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_001",
   "tag": "bank_day8frontB_20260729"
@@ -1056,7 +1056,7 @@
   "cat": false,
   "reads": 3,
   "writes": 1,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_023",
   "tag": "bank_day8frontB_20260729"
@@ -1065,7 +1065,7 @@
   "cat": true,
   "reads": 2,
   "writes": 2,
-  "fabs": 6,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_025",
   "tag": "bank_day8frontB_20260729"
@@ -1128,7 +1128,7 @@
   "cat": false,
   "reads": 4,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_007",
   "tag": "bank_day9cfrontB_20260729"
@@ -1155,7 +1155,7 @@
   "cat": false,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_001",
   "tag": "bank_day9smoke_20260729"
@@ -1245,7 +1245,7 @@
   "cat": false,
   "reads": 9,
   "writes": 3,
-  "fabs": 5,
+  "fabs": 3,
   "reward": 0.0,
   "task": "task_059",
   "tag": "bank_n97_gpu0_main_20260804"
@@ -1254,7 +1254,7 @@
   "cat": true,
   "reads": 19,
   "writes": 4,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_070",
   "tag": "bank_n97_gpu0_main_20260804"
@@ -1272,7 +1272,7 @@
   "cat": true,
   "reads": 1,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_001",
   "tag": "bank_n97_gpu0_main_20260804"
@@ -1326,7 +1326,7 @@
   "cat": true,
   "reads": 22,
   "writes": 7,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_070",
   "tag": "bank_n97_gpu0_main_20260804"
@@ -1380,7 +1380,7 @@
   "cat": true,
   "reads": 19,
   "writes": 2,
-  "fabs": 2,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_070",
   "tag": "bank_n97_gpu0_main_20260805"
@@ -1398,7 +1398,7 @@
   "cat": true,
   "reads": 16,
   "writes": 8,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_071",
   "tag": "bank_n97_gpu0_main_20260805"
@@ -1443,7 +1443,7 @@
   "cat": true,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_024",
   "tag": "bank_n97_gpu0_main_20260805"
@@ -1461,7 +1461,7 @@
   "cat": false,
   "reads": 9,
   "writes": 4,
-  "fabs": 4,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_059",
   "tag": "bank_n97_gpu0_main_20260805"
@@ -1470,7 +1470,7 @@
   "cat": true,
   "reads": 18,
   "writes": 1,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_070",
   "tag": "bank_n97_gpu0_main_20260805"
@@ -1479,7 +1479,7 @@
   "cat": false,
   "reads": 16,
   "writes": 7,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_071",
   "tag": "bank_n97_gpu0_main_20260805"
@@ -1533,7 +1533,7 @@
   "cat": false,
   "reads": 7,
   "writes": 3,
-  "fabs": 2,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_059",
   "tag": "bank_n97_gpu0_main_20260806"
@@ -1542,7 +1542,7 @@
   "cat": true,
   "reads": 12,
   "writes": 1,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_070",
   "tag": "bank_n97_gpu0_main_20260806"
@@ -1614,7 +1614,7 @@
   "cat": false,
   "reads": 7,
   "writes": 1,
-  "fabs": 2,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_059",
   "tag": "bank_n97_gpu0_main_20260806b"
@@ -1623,7 +1623,7 @@
   "cat": true,
   "reads": 11,
   "writes": 3,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_070",
   "tag": "bank_n97_gpu0_main_20260806b"
@@ -1632,7 +1632,7 @@
   "cat": false,
   "reads": 5,
   "writes": 1,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_059",
   "tag": "bank_n97_gpu0_main_20260806b"
@@ -1650,7 +1650,7 @@
   "cat": true,
   "reads": 20,
   "writes": 7,
-  "fabs": 3,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_070",
   "tag": "bank_n97_gpu0_main_20260806b"
@@ -1659,7 +1659,7 @@
   "cat": true,
   "reads": 17,
   "writes": 3,
-  "fabs": 5,
+  "fabs": 4,
   "reward": 0.0,
   "task": "task_064",
   "tag": "bank_n97_gpu1_batch_02_20260804"
@@ -1668,7 +1668,7 @@
   "cat": true,
   "reads": 15,
   "writes": 5,
-  "fabs": 6,
+  "fabs": 3,
   "reward": 0.0,
   "task": "task_057",
   "tag": "bank_n97_gpu1_batch_02_20260804"
@@ -1677,7 +1677,7 @@
   "cat": false,
   "reads": 5,
   "writes": 1,
-  "fabs": 4,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_064",
   "tag": "bank_n97_gpu1_batch_02_20260804"
@@ -1695,7 +1695,7 @@
   "cat": true,
   "reads": 6,
   "writes": 3,
-  "fabs": 4,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_064",
   "tag": "bank_n97_gpu1_batch_02_20260805"
@@ -1722,7 +1722,7 @@
   "cat": true,
   "reads": 1,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_069",
   "tag": "bank_n97_gpu1_batch_04_20260804"
@@ -1749,7 +1749,7 @@
   "cat": true,
   "reads": 3,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_025",
   "tag": "bank_n97_gpu1_main_20260804"
@@ -1767,7 +1767,7 @@
   "cat": true,
   "reads": 19,
   "writes": 3,
-  "fabs": 10,
+  "fabs": 9,
   "reward": 0.0,
   "task": "task_055",
   "tag": "bank_n97_gpu1_main_20260804"
@@ -1776,7 +1776,7 @@
   "cat": false,
   "reads": 10,
   "writes": 1,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_056",
   "tag": "bank_n97_gpu1_main_20260804"
@@ -1821,7 +1821,7 @@
   "cat": false,
   "reads": 15,
   "writes": 3,
-  "fabs": 6,
+  "fabs": 5,
   "reward": 0.0,
   "task": "task_055",
   "tag": "bank_n97_gpu1_main_20260804"
@@ -1830,7 +1830,7 @@
   "cat": false,
   "reads": 16,
   "writes": 5,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_056",
   "tag": "bank_n97_gpu1_main_20260804"
@@ -1893,7 +1893,7 @@
   "cat": false,
   "reads": 12,
   "writes": 1,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_056",
   "tag": "bank_n97_gpu1_main_20260805"
@@ -1902,7 +1902,7 @@
   "cat": true,
   "reads": 17,
   "writes": 4,
-  "fabs": 4,
+  "fabs": 3,
   "reward": 0.0,
   "task": "task_055",
   "tag": "bank_n97_gpu1_main_20260805"
@@ -1920,7 +1920,7 @@
   "cat": false,
   "reads": 9,
   "writes": 3,
-  "fabs": 4,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_063",
   "tag": "bank_n97_gpu1_main_20260805"
@@ -1956,7 +1956,7 @@
   "cat": false,
   "reads": 10,
   "writes": 5,
-  "fabs": 3,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_056",
   "tag": "bank_n97_gpu1_main_20260805"
@@ -1965,7 +1965,7 @@
   "cat": true,
   "reads": 14,
   "writes": 8,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_055",
   "tag": "bank_n97_gpu1_main_20260805"
@@ -1974,7 +1974,7 @@
   "cat": false,
   "reads": 10,
   "writes": 3,
-  "fabs": 3,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_058",
   "tag": "bank_n97_gpu1_main_20260805"
@@ -1983,7 +1983,7 @@
   "cat": false,
   "reads": 11,
   "writes": 4,
-  "fabs": 4,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_063",
   "tag": "bank_n97_gpu1_main_20260805"
@@ -2028,7 +2028,7 @@
   "cat": true,
   "reads": 9,
   "writes": 1,
-  "fabs": 2,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_055",
   "tag": "bank_n97_gpu1_main_20260806"
@@ -2037,7 +2037,7 @@
   "cat": false,
   "reads": 5,
   "writes": 2,
-  "fabs": 5,
+  "fabs": 3,
   "reward": 0.0,
   "task": "task_058",
   "tag": "bank_n97_gpu1_main_20260806"
@@ -2046,7 +2046,7 @@
   "cat": false,
   "reads": 17,
   "writes": 8,
-  "fabs": 5,
+  "fabs": 3,
   "reward": 0.0,
   "task": "task_056",
   "tag": "bank_n97_gpu1_main_20260806"
@@ -2055,7 +2055,7 @@
   "cat": false,
   "reads": 9,
   "writes": 1,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_063",
   "tag": "bank_n97_gpu1_main_20260806"
@@ -2082,7 +2082,7 @@
   "cat": false,
   "reads": 6,
   "writes": 1,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_056",
   "tag": "bank_n97_gpu1_main_20260806"
@@ -2172,7 +2172,7 @@
   "cat": false,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_007",
   "tag": "bank_qp32p1_gpu0_20260802"
@@ -2199,7 +2199,7 @@
   "cat": false,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_001",
   "tag": "bank_qp32p1_gpu1_20260802"
@@ -2208,7 +2208,7 @@
   "cat": true,
   "reads": 3,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_003",
   "tag": "bank_qp32p1_gpu1_20260802"
@@ -2217,7 +2217,7 @@
   "cat": false,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_002",
   "tag": "bank_qp32p1_gpu1_20260802"
@@ -2226,7 +2226,7 @@
   "cat": true,
   "reads": 1,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_024",
   "tag": "bank_qp32p1_gpu1_20260802"
@@ -2235,7 +2235,7 @@
   "cat": true,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_025",
   "tag": "bank_qp32p1_gpu1_20260802"
@@ -2262,7 +2262,7 @@
   "cat": true,
   "reads": 22,
   "writes": 3,
-  "fabs": 2,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_023",
   "tag": "bank_qp32p2_gpu0_20260802"
@@ -2316,7 +2316,7 @@
   "cat": false,
   "reads": 4,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_024",
   "tag": "bank_t7310_ctl_20260818e"
@@ -2325,7 +2325,7 @@
   "cat": true,
   "reads": 7,
   "writes": 2,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_063",
   "tag": "bank_t7310_ctl_20260818e"
@@ -2343,7 +2343,7 @@
   "cat": false,
   "reads": 9,
   "writes": 2,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_063",
   "tag": "bank_t7310_treat_20260818e"
@@ -2370,7 +2370,7 @@
   "cat": true,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_003",
   "tag": "bank_t7313_ctl_20260818h"
@@ -2379,7 +2379,7 @@
   "cat": true,
   "reads": 10,
   "writes": 2,
-  "fabs": 3,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_063",
   "tag": "bank_t7313_ctl_20260818h"
@@ -2397,7 +2397,7 @@
   "cat": false,
   "reads": 20,
   "writes": 2,
-  "fabs": 3,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_063",
   "tag": "bank_t7313_treat_20260818h"
@@ -2415,7 +2415,7 @@
   "cat": false,
   "reads": 3,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_024",
   "tag": "bank_t7326_halfA_20260819q"
@@ -2424,7 +2424,7 @@
   "cat": true,
   "reads": 14,
   "writes": 7,
-  "fabs": 5,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_055",
   "tag": "bank_t7326_halfA_20260819q"
@@ -2451,7 +2451,7 @@
   "cat": true,
   "reads": 24,
   "writes": 4,
-  "fabs": 5,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_063",
   "tag": "bank_t7326_halfB_20260819q"
@@ -2460,7 +2460,7 @@
   "cat": false,
   "reads": 9,
   "writes": 2,
-  "fabs": 2,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_063",
   "tag": "bank_t7326_halfB_20260819q"
@@ -2496,7 +2496,7 @@
   "cat": false,
   "reads": 4,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_024",
   "tag": "bank_t7328_halfA_20260819r"
@@ -2505,7 +2505,7 @@
   "cat": false,
   "reads": 11,
   "writes": 2,
-  "fabs": 3,
+  "fabs": 1,
   "reward": 0.0,
   "task": "task_063",
   "tag": "bank_t7328_halfB_20260819r2"
@@ -2514,7 +2514,7 @@
   "cat": false,
   "reads": 15,
   "writes": 5,
-  "fabs": 5,
+  "fabs": 2,
   "reward": 0.0,
   "task": "task_063",
   "tag": "bank_t7328_halfB_20260819r2"
@@ -2568,7 +2568,7 @@
   "cat": false,
   "reads": 8,
   "writes": 1,
-  "fabs": 3,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_023",
   "tag": "bank_y1var_20260730"
@@ -2658,7 +2658,7 @@
   "cat": true,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_003",
   "tag": "bank_y2b_gpu0_20260731"
@@ -2694,7 +2694,7 @@
   "cat": false,
   "reads": 1,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_001",
   "tag": "bank_y2b_gpu1_20260731"
@@ -2784,7 +2784,7 @@
   "cat": true,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_025",
   "tag": "bank_y2c2_gpu1_20260731"
@@ -2811,7 +2811,7 @@
   "cat": false,
   "reads": 153,
   "writes": 30,
-  "fabs": 41,
+  "fabs": 60,
   "reward": 0.0,
   "task": "task_008",
   "tag": "bank_y2cp2_gpu0_20260801"
@@ -2856,7 +2856,7 @@
   "cat": true,
   "reads": 1,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 0.0,
   "task": "task_024",
   "tag": "bank_y2cp2_gpu1_20260801"
@@ -2910,7 +2910,7 @@
   "cat": true,
   "reads": 3,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_003",
   "tag": "bank_y2cp3_gpu1_20260801"
@@ -2928,7 +2928,7 @@
   "cat": true,
   "reads": 2,
   "writes": 1,
-  "fabs": 1,
+  "fabs": 0,
   "reward": 1.0,
   "task": "task_025",
   "tag": "bank_y2cp3_gpu1_20260801"

@@ -39,7 +39,7 @@ except Exception:
     pass
 
 import t2_forensic as F  # noqa: E402
-from t2_gate_patch import _first_fab_call, DEFAULT_ARG_HINTS  # noqa: E402
+from t2_gate_patch import _provenance_deny, DEFAULT_ARG_HINTS  # noqa: E402
 
 REP = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026")
 FIT = "check_card_application_fit"
@@ -67,15 +67,18 @@ class _Msg(object):
 
 
 def fab_count(tcs, ctx):
-    """그 메시지의 날조 인자 수 — 엔진 함수를 exclude 누적으로 반복 호출(정본 방식·새 술어 0)."""
-    n, excl = 0, set()
-    while n <= 40:
-        hit = _first_fab_call(_Msg(tcs), ctx, DEFAULT_ARG_HINTS, exclude=frozenset(excl))
-        if hit is None:
-            break
-        tc, k, s = hit
-        n += 1
-        excl.add((id(tc), k, s))
+    """그 메시지의 날조 **호출** 수 — 엔진 `_provenance_deny` 그대로(새 술어 0).
+
+    ★수리(2026-08-20 밤·정찰 지적): 처음엔 `_first_fab_call` 을 썼는데 그것은 `_args_dict` 의
+      **최상위 키만** 본다. banking 의 write 는 거의 전부
+      `call_discoverable_agent_tool({"agent_tool_name": …, "arguments": "<JSON 문자열>"})` 라
+      **안쪽 `transaction_id`·`card_id` 가 한 번도 검사되지 않는다**(085 실물: `tx111111` 통과).
+      `_provenance_deny` 는 `_prov_scan_args` 로 래퍼를 펴고 선택자 키를 제외한다(x334 와 같은 정본).
+    """
+    n = 0
+    for tc in tcs:
+        if _provenance_deny(tc, ctx, DEFAULT_ARG_HINTS):
+            n += 1
     return n
 
 
