@@ -209,18 +209,44 @@ def check_spec(spec, said="", allow=None):
         if at not in (allow or ATTRS):
             bad.append("unknown attribute %r (not in the allowed list)" % at)
             continue
+        alts = con.get("any_of")
+        if alts is not None:
+            # ★이접 — 대안 하나하나를 **같은 규칙**으로 검산한다(형태만·뜻은 안 본다).
+            okops = set(allow[at]) if isinstance(allow, dict) else set(OPS)
+            if not isinstance(alts, list) or len(alts) < 2:
+                bad.append("attribute %s has 'any_of' that is not a list of at least two alternatives" % at)
+                continue
+            worst = None
+            for alt in alts:
+                if not isinstance(alt, dict) or alt.get("op") not in okops:
+                    worst = ("attribute %s has an 'any_of' alternative with op %r (allowed here: %s)"
+                             % (at, (alt or {}).get("op") if isinstance(alt, dict) else alt,
+                                ",".join(sorted(okops)) or "none"))
+                    break
+                if alt.get("op") in ("==", "<=", ">="):
+                    try:
+                        if isinstance(alt.get("value"), bool):
+                            raise TypeError
+                        float(alt.get("value"))
+                    except Exception:
+                        worst = ("attribute %s has an 'any_of' alternative with op %s but value %r"
+                                 % (at, alt.get("op"), alt.get("value")))
+                        break
+            if worst:
+                bad.append(worst)
+                continue
         # ★`allow` 가 **속성→op 집합** 이면 표의 능력까지 검산한다(2026-08-20 밤).
         #   거절은 **고칠 것을 이름 대고** 말한다([[64]]) — 무엇이 없는지 + 무엇이 되는지.
         okops = set(allow[at]) if isinstance(allow, dict) else set(OPS)
-        if op not in OPS:
+        if alts is None and op not in OPS:
             bad.append("attribute %s has op %r (allowed: %s)" % (at, op, ",".join(OPS)))
             continue
-        if op not in okops:
+        if alts is None and op not in okops:
             bad.append("attribute %s does not support op %r in this catalogue "
                        "(no row records that; use one of: %s)"
                        % (at, op, ",".join(sorted(okops)) or "none"))
             continue
-        if op in ("==", "<=", ">="):
+        if alts is None and op in ("==", "<=", ">="):
             try:
                 if isinstance(val, bool):     # ⚠`float(False)` 는 0.0 으로 **통과한다** — 055 가 그 구멍으로
                     raise TypeError           #   `foreign_transaction_fee == False` 를 냈다(형태 결함)
@@ -430,10 +456,20 @@ def table_caps(tbl, fams):
 
 
 def passes(row, con):
-    """제약 하나를 후보 하나에 건다 — **비교뿐**이다([[10]]). 미기재 칸은 거르지 않는다(과차단 방지·C462)."""
-    at, op = con.get("attribute"), con.get("op")
+    """제약 하나를 후보 하나에 건다 — **비교뿐**이다([[10]]). 미기재 칸은 거르지 않는다(과차단 방지·C462).
+
+    ★`any_of` = **이접**(2026-08-20 밤 추가·C555 후속). 한 마디가 표에 **두 꼴로 적힐 수 있을 때**
+      — *"no foreign transaction fee"* 가 어떤 계좌엔 값 `0%`, 어떤 계좌엔 *"해당 없음"* 으로 —
+      우리 op 은 둘 중 하나를 고르게 강제했고 그래서 gold 만 떨어졌다(055 생존 0). 이접은 **언어 확장**
+      이지 뜻의 입법이 아니다: 대안 목록은 **LLM 이 짜고** 엔진은 여전히 **비교와 OR** 만 한다.
+    """
+    at = con.get("attribute")
     if not at:
         return True
+    alts = con.get("any_of")
+    if isinstance(alts, list) and alts:
+        return any(passes(row, dict(alt, attribute=at)) for alt in alts if isinstance(alt, dict))
+    op = con.get("op")
     c = (row.get(at) or {})
     if op == "exists":
         return bool(c.get("values"))
@@ -497,9 +533,24 @@ def fill_blanks(table, docdir, family, port):
     return table
 
 
-def sysmsg_spec():
-    """제약 형식화 프롬프트 — **x432 가 같은 것을 쓴다**(프롬프트가 갈리면 안정성 측정이 무효)."""
-    return ("You turn a customer's stated requirements into a machine-checkable spec. "
+def sysmsg_spec(with_or=False, filler=False):
+    """제약 형식화 프롬프트 — **x432 가 같은 것을 쓴다**(프롬프트가 갈리면 안정성 측정이 무효).
+
+    ★`with_or` = 이접 어휘를 **스키마로만** 알린다(2026-08-20 밤·C555 후속). *언제* 쓰라는 규칙은
+      한 줄도 넣지 않는다 — 케이스를 열거하면 그 열거가 독립 트리거가 되어 복합 발화를 밀어버린다
+      ([[66]]·C453 은 formalize 프롬프트에 케이스 한 줄을 넣어 judge6 **−6** 을 냈다). 여기서 재는 것은
+      *"어휘를 주면 모델이 스스로 쓰는가"* 이지 *"쓰라고 시키면 쓰는가"* 가 아니다.
+    ★`filler` = 부정통제([[57]]): **길이만 같고 능력은 0** 인 문장을 대신 붙인다. 프롬프트가 길어져서
+      제약이 늘어난 것인지, 이접이라는 **능력** 때문인지를 가른다.
+    """
+    orline = ("A constraint may instead list alternatives: {\"attribute\": \"<name>\", \"any_of\": "
+              "[{\"op\": \"<op>\", \"value\": <number or null>}, ...], \"because\": \"...\", "
+              "\"stated_as\": \"...\"}. It holds when any one alternative holds. ") if with_or else ""
+    if filler:
+        orline = ("A constraint is written as one JSON object and every field name is lower case; the "
+                  "attribute name must be copied exactly as given, character for character, and the "
+                  "value must be written as a bare number without a currency symbol or a percent sign. ")
+    return (orline +"You turn a customer's stated requirements into a machine-checkable spec. "
               "Reply with ONE JSON object only: {\"constraints\": [{\"attribute\": \"<one of the given "
               "names>\", \"op\": \"==|<=|>=|exists|absent\", \"value\": <number or null>, "
               "\"because\": \"<the customer's own words>\", "
