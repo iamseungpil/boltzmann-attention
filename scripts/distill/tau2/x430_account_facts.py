@@ -79,9 +79,16 @@ def main():
             for attr, keys in ATTRS:
                 if not any(k in low for k in keys):
                     continue
-                # 속성어 뒤쪽에서 첫 값
-                pos = min(low.find(k) for k in keys if k in low)
-                m = RE_VAL.search(s, pos)
+                # ★값은 속성어 **바로 뒤**에서만 읽는다(2026-08-20 수리): 창을 문장 전체로 두면
+                #   *"a maximum of 3 overdraft fees can be charged"* 의 3 이 overdraft_fee 로 들어오고
+                #   *"waived when your minimum daily balance is $1,350"* 의 1,350 이 월 수수료로 들어온다.
+                #   허용 형태 = `속성: 값` · `| 속성 | 값 |` · `속성 is/of 값` 뿐이고 창은 40자다.
+                k0 = min((k for k in keys if k in low), key=lambda k: low.find(k))
+                pos = low.find(k0) + len(k0)
+                seg = s[pos:pos + 40]
+                if not re.match(r"\s*(?:[:|=]|\bis\b|\bof\b|\bper\b|\bat\b|\s)+", seg):
+                    continue
+                m = RE_VAL.search(seg)
                 if not m:
                     continue
                 table[cls][attr].append({"value": norm_val(m.group(1)),
