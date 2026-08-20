@@ -224,6 +224,25 @@ def fill_blanks(table, docdir, family, port):
     return table
 
 
+def sysmsg_spec():
+    """제약 형식화 프롬프트 — **x432 가 같은 것을 쓴다**(프롬프트가 갈리면 안정성 측정이 무효)."""
+    return ("You turn a customer's stated requirements into a machine-checkable spec. "
+              "Reply with ONE JSON object only: {\"constraints\": [{\"attribute\": \"<one of the given "
+              "names>\", \"op\": \"==|<=|>=|exists|absent\", \"value\": <number or null>, "
+              "\"because\": \"<the customer's own words>\"}], "
+              "\"objective\": {\"mode\": \"argmin|argmax\", \"terms\": [{\"attribute\": \"<name>\", "
+              "\"times\": <how many times per month the customer said they do this>, "
+              "\"of_amount\": <the dollar amount each time, or null>, \"sign\": 1 or -1}]}}. "
+              "Use ONLY requirements the customer actually stated. Omit attributes they did not "
+              "mention. Add 'objective' ONLY if the customer asked for the best/cheapest option or "
+              "gave a usage pattern; otherwise omit it. "
+              "'because' MUST be copied character-for-character from the customer's words. "
+              "Include a requirement ONLY if the customer stated it as something they need. "
+              "If they merely ASKED about something (a question, or checking whether something "
+              "would be enough), that is not a requirement - leave it out. "
+              "For an eligibility range give BOTH bounds (min_age <= their age AND max_age >= their age).")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8141)
@@ -249,21 +268,7 @@ def main():
             continue
         seen.add(k)
         cs.append(c)
-    sysmsg = ("You turn a customer's stated requirements into a machine-checkable spec. "
-              "Reply with ONE JSON object only: {\"constraints\": [{\"attribute\": \"<one of the given "
-              "names>\", \"op\": \"==|<=|>=|exists|absent\", \"value\": <number or null>, "
-              "\"because\": \"<the customer's own words>\"}], "
-              "\"objective\": {\"mode\": \"argmin|argmax\", \"terms\": [{\"attribute\": \"<name>\", "
-              "\"times\": <how many times per month the customer said they do this>, "
-              "\"of_amount\": <the dollar amount each time, or null>, \"sign\": 1 or -1}]}}. "
-              "Use ONLY requirements the customer actually stated. Omit attributes they did not "
-              "mention. Add 'objective' ONLY if the customer asked for the best/cheapest option or "
-              "gave a usage pattern; otherwise omit it. "
-              "'because' MUST be copied character-for-character from the customer's words. "
-              "Include a requirement ONLY if the customer stated it as something they need. "
-              "If they merely ASKED about something (a question, or checking whether something "
-              "would be enough), that is not a requirement - leave it out. "
-              "For an eligibility range give BOTH bounds (min_age <= their age AND max_age >= their age).")
+    sysmsg = sysmsg_spec()
     print("\n=== ②③④ 스펙 → 필터 → 판정 (사례 %d) ===" % len(cs))
     rows, rejected = [], {}
     for c in cs:
