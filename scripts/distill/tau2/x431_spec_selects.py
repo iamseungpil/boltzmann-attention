@@ -41,6 +41,22 @@ import x430_account_facts as FT  # noqa: E402
 MODEL = "Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8"
 TBL = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026", "x430_account_facts_llm.json")
 ATTRS = [x[0] for x in FT.ATTRS]
+
+
+def attr_menu():
+    """형식화에 **타입까지** 준다 — 어느 op 가 맞는지는 타입이 정한다([[10]] LLM 이 쓰고 엔진은 비교만).
+
+    실물(2026-08-20): `foreign_currency_holding == 1` 은 *존재*를 뜻했는데 값은 **30**(지원 통화 수)이라
+    벌점 |30-1| = 29 가 붙어 **가장 잘 만족하는 계좌가 가장 크게 깎였다**. 타입을 안 주면 모델은
+    개수 칸에 존재 술어를 쓴다. 타입 선언의 자리는 A2 `catalog_attrs` 다([[24]] 구조 선언).
+    """
+    try:
+        p = os.path.join(HERE, "a2", "banking_knowledge.specific.json")
+        with io.open(p, encoding="utf-8") as f:
+            d = json.load(f).get("catalog_attrs") or {}
+        return ", ".join("%s (%s)" % (k, (v.get("type") or "unknown")) for k, v in d.items())
+    except Exception:
+        return ", ".join(ATTRS)
 RE_MONEY = re.compile(r"-?\d[\d,]*(?:\.\d+)?")
 
 
@@ -383,7 +399,7 @@ def main():
     for c in cs:
         said = G.customer_said(c["sim"], c["msg_i"])
         body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
-                % (said[:6000], ", ".join(ATTRS)))
+                % (said[:6000], attr_menu()))
         spec = ask(a.port, sysmsg, body)
         cons, bad, dropped, dropped_full = check_spec(spec, said)
         n0, reask = len(bad), False

@@ -62,6 +62,23 @@ ATTRS = [
     ("paper_statement_fee", ["paper statement"]),
     ("wire_transfer_fee", ["wire transfer fee", "outgoing wire"]),
 ]
+def _attrs_from_a2():
+    """★속성 목록은 **A2 구조 선언**(`catalog_attrs`)에서 읽는다(2026-08-20·사용자 지적·[[24]]).
+
+    전에는 이 파일 안에 내가 지은 16개가 박혀 있었다 — 정본 층이 아니라 스크립트에 든 도메인 지식은
+    전이도 안 되고 갈라진다([[05]]·[[67]]). A2 가 없으면 아래 내장 목록으로 폴백한다(오프라인 실행용).
+    """
+    try:
+        p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "a2",
+                         "banking_knowledge.specific.json")
+        with io.open(p, encoding="utf-8") as f:
+            d = json.load(f).get("catalog_attrs") or {}
+        got = [(k, v.get("aliases") or []) for k, v in d.items() if v.get("aliases")]
+        return got or None
+    except Exception:
+        return None
+
+
 RE_VAL = re.compile(r"(\$\s?\d[\d,]*(?:\.\d+)?|\d+(?:\.\d+)?\s?%|\bnone\b|\bno\b|\bunlimited\b|\b\d+\b)", re.I)
 
 
