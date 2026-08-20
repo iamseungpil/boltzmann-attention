@@ -91,7 +91,13 @@ def arg_families(arg):
 CARD_PCT = {"fx_fee", "cashback", "min_payment_pct", "base_cashback", "fx_fee_with_premium"}
 
 
-def attr_menu_for(arg):
+def ops_suffix(at, caps):
+    """속성 옆에 **그 표가 지지하는 op** 를 붙인다 — 모델이 만족 불가능한 술어를 고르지 못하게."""
+    o = sorted(caps.get(at) or (), key=lambda x: ("==", "<=", ">=", "exists", "absent").index(x))
+    return ("; ops %s" % ",".join(o)) if o else "; ops none"
+
+
+def attr_menu_for(arg, tbl=None):
     """★인자에 맞는 **속성 메뉴**를 준다(2026-08-20 수리).
 
     `card_type` 사례에 계좌 속성 목록을 주고 있었다 — 모델이 *"credit limit at least $100,000"* 을
@@ -108,11 +114,13 @@ def attr_menu_for(arg):
             if k == "min_score":
                 return "count"
             return "USD"
-        return ", ".join("%s (%s)" % (k, _ty(k)) for k in attrs)
-    return attr_menu()
+        caps = table_caps(_t, arg_families(arg)) if tbl is None else table_caps(tbl, arg_families(arg))
+        return ", ".join("%s (%s%s)" % (k, _ty(k), ops_suffix(k, caps))
+                         for k in attrs if caps.get(k))
+    return attr_menu(tbl)
 
 
-def attr_menu():
+def attr_menu(tbl=None):
     """형식화에 **타입까지** 준다 — 어느 op 가 맞는지는 타입이 정한다([[10]] LLM 이 쓰고 엔진은 비교만).
 
     실물(2026-08-20): `foreign_currency_holding == 1` 은 *존재*를 뜻했는데 값은 **30**(지원 통화 수)이라
@@ -123,7 +131,10 @@ def attr_menu():
         p = os.path.join(HERE, "a2", "banking_knowledge.specific.json")
         with io.open(p, encoding="utf-8") as f:
             d = json.load(f).get("catalog_attrs") or {}
-        return ", ".join("%s (%s)" % (k, (v.get("type") or "unknown")) for k, v in d.items())
+        caps = table_caps(tbl, arg_families("account_class")) if tbl else {}
+        return ", ".join("%s (%s%s)" % (k, (v.get("type") or "unknown"),
+                                        ops_suffix(k, caps) if tbl else "")
+                         for k, v in d.items() if (not tbl) or caps.get(k))
     except Exception:
         return ", ".join(ATTRS)
 RE_MONEY = re.compile(r"-?\d[\d,]*(?:\.\d+)?")
@@ -198,8 +209,16 @@ def check_spec(spec, said="", allow=None):
         if at not in (allow or ATTRS):
             bad.append("unknown attribute %r (not in the allowed list)" % at)
             continue
+        # ★`allow` 가 **속성→op 집합** 이면 표의 능력까지 검산한다(2026-08-20 밤).
+        #   거절은 **고칠 것을 이름 대고** 말한다([[64]]) — 무엇이 없는지 + 무엇이 되는지.
+        okops = set(allow[at]) if isinstance(allow, dict) else set(OPS)
         if op not in OPS:
             bad.append("attribute %s has op %r (allowed: %s)" % (at, op, ",".join(OPS)))
+            continue
+        if op not in okops:
+            bad.append("attribute %s does not support op %r in this catalogue "
+                       "(no row records that; use one of: %s)"
+                       % (at, op, ",".join(sorted(okops)) or "none"))
             continue
         if op in ("==", "<=", ">="):
             try:
@@ -363,6 +382,68 @@ def num(v):
     return float(m.group(0)) if m else None
 
 
+def cellval(cell):
+    """셀 하나를 **비교 가능한 수**로 — 단위는 표가 선언한 것을 엔진이 읽을 뿐이다([[10]] 비교만).
+
+    ★수리(2026-08-20 밤·C553 후속): 불리언 칸은 값이 `"True"`/`"False"` 라 `num()` 이 **None** 을 내고,
+      그 자리에서 비교가 통째로 **건너뛰어졌다**. 실측: 003 의 `purchase_protection == 1` 이 후보 13 을
+      **전부** 통과시켰다 — 거르는 척하는 제약이다. `absent` 가 아무도 못 통과시킨 것의 **거울상**이고,
+      둘 다 우리 층이 만든 조용한 왜곡이다([[55]]).
+    """
+    vals = (cell or {}).get("values") or []
+    if not vals:
+        return None
+    if (cell or {}).get("unit") == "boolean":
+        t = str(vals[0]).strip().lower()
+        return 1.0 if t in ("true", "yes") else 0.0 if t in ("false", "no") else None
+    return num(vals[0])
+
+
+def table_caps(tbl, fams):
+    """그 표가 **실제로 만족시킬 수 있는 술어**만 유도한다 — 도메인 지식 0·표의 형태만 본다.
+
+    ★결함 확정(2026-08-20 밤·C553): 카드표에는 `absent` 표시가 **한 칸도 없다**(`card_table()` 이 값 셀만
+      짓는다). 그런데 속성 메뉴는 `absent` 를 제시했고, 그 술어가 하나만 들어오면 후보는 **반드시 0** 이
+      됐다 — 063 t0 의 전멸이 그 자리다. 만족 불가능한 술어를 권해 놓고 전멸을 모델의 과잉 필터로 읽는 것은
+      우리 층의 결함이다([[55]]). 능력은 **표에서 유도**하고, 없으면 **메뉴에 올리지 않는다**.
+    """
+    caps = {}
+    for _cls, row in (tbl or {}).items():
+        if not isinstance(row, dict):
+            continue
+        if fams and (row.get("_family") not in fams):
+            continue
+        for at, c in row.items():
+            if not isinstance(c, dict):
+                continue
+            s = caps.setdefault(at, set())
+            if c.get("values"):
+                s.add("exists")
+                if cellval(c) is not None:
+                    # 불리언 칸에 순서 비교는 뜻이 없다 — 타입이 op 를 정한다([[10]]).
+                    s.update(("==",) if c.get("unit") == "boolean" else ("==", "<=", ">="))
+            if c.get("absent"):
+                s.add("absent")
+    return caps
+
+
+def passes(row, con):
+    """제약 하나를 후보 하나에 건다 — **비교뿐**이다([[10]]). 미기재 칸은 거르지 않는다(과차단 방지·C462)."""
+    at, op = con.get("attribute"), con.get("op")
+    if not at:
+        return True
+    c = (row.get(at) or {})
+    if op == "exists":
+        return bool(c.get("values"))
+    if op == "absent":
+        return bool(c.get("absent"))          # 문서가 **없다고 말한 것**만 absent 다
+    v, t = cellval(c), con.get("value")
+    if v is None or t is None:
+        return True
+    t = float(t)
+    return (v == t) if op == "==" else (v <= t) if op == "<=" else (v >= t) if op == ">=" else True
+
+
 def fill_blanks(table, docdir, family, port):
     """빈칸마다 **표적 질의** — 문서가 값을 주나. 안 주면 `absent` 로 확정한다.
 
@@ -441,13 +522,23 @@ def main():
     ap.add_argument("--docdir", default=FT.DOCDIR)
     ap.add_argument("--family", default="checking_accounts")
     ap.add_argument("--fill-blanks", action="store_true")
+    ap.add_argument("--table", default="auto",
+                    help="auto = 전수 표(_filled)가 있으면 그것 · raw = 채우기 전 표")
     ap.add_argument("--repeat", type=int, default=1,
                     help="같은 코드로 N회 반복 — **판정선**(무처치 변동폭)을 잰다")
     ap.add_argument("--args-filter", default="account_class")
     a = ap.parse_args()
 
-    with io.open(os.path.abspath(TBL), encoding="utf-8") as f:
+    # ★기본 표 정정(2026-08-20 밤): 오후에 코퍼스 전수로 완성한 표는 `_filled` 에 쓰이는데 여기는
+    #   **채우기 전 표**를 읽고 있었다 — 확대 표본(2/8)이 값 192·미해결 704 짜리 표에 대고 걸린 이유다.
+    #   미해결 칸은 `absent` 를 만족시키지 못하므로 그 차이는 **전멸로 나타난다**(063 t1: 0 ↔ 16).
+    tbl_path = os.path.abspath(TBL)
+    filled = tbl_path.replace(".json", "_filled.json")
+    if a.table == "auto" and os.path.exists(filled) and not a.fill_blanks:
+        tbl_path = filled
+    with io.open(tbl_path, encoding="utf-8") as f:
         table = json.load(f)
+    print("표 = %s" % os.path.basename(tbl_path))
     if a.fill_blanks:
         fams = FT.FAMILIES if a.family == "all" else [a.family]
         for fam in fams:
@@ -470,10 +561,14 @@ def main():
     rows, rejected = [], {}
     for c in cs:
         said = G.customer_said(c["sim"], c["msg_i"])
+        # ★표는 사례마다 고른다(카드/계좌) — 능력·메뉴·검산이 **같은 표**를 봐야 한다.
+        tbl = card_table()[0] if c["arg"] == "card_type" else table
+        fams = arg_families(c["arg"])
+        caps = table_caps(tbl, fams)
         body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
-                % (said[:6000], attr_menu_for(c["arg"])))
+                % (said[:6000], attr_menu_for(c["arg"], tbl)))
         spec = ask(a.port, sysmsg, body)
-        allow = [x.split(" (")[0] for x in attr_menu_for(c["arg"]).split(", ")]
+        allow = {k: sorted(v) for k, v in caps.items()}   # ★속성만이 아니라 **op 능력**까지 검산한다
         cons, bad, dropped, dropped_full = check_spec(spec, said, allow)
         n0, reask = len(bad), False
         if bad:
@@ -487,36 +582,21 @@ def main():
                 cons, bad, spec, dropped, dropped_full = cons2, bad2, spec2, dropped2, dropped_full2
         rejected[(c["task"], c["trial"])] = bad
         surv, why = [], []
-        # ⚠사례마다 **지역 변수**로 고른다(2026-08-20 수리): 전에는 `table` 자체를 덮어써서
-        #   카드 사례 뒤에 오는 계좌 사례가 전부 카드 표에 대고 걸러졌다(생존 0·확대 표본 1차 무효).
-        tbl = card_table()[0] if c["arg"] == "card_type" else table
-        fams = arg_families(c["arg"])
+        # ★표가 지지 못하는 술어는 **거르지 않고 판정에서 뺀다**(2026-08-20 밤·C553 수리).
+        #   검산(G6)이 이미 막지만, 메뉴·검산·엔진이 갈리면 그 어긋남은 **조용한 전멸**로 나온다 —
+        #   063 t0 이 그 모양이었다(카드표에 `absent` 표시가 0 인데 `absent` 제약 2건 → 후보 0).
+        unsupported = [x for x in cons if x.get("op") not in (caps.get(x.get("attribute")) or ())]
+        if unsupported:
+            cons = [x for x in cons if x not in unsupported]
+            print("        ⚠표가 지지 못하는 술어 %d건(판정 제외): %s"
+                  % (len(unsupported), ", ".join("%s %s" % (u.get("attribute"), u.get("op"))
+                                                 for u in unsupported[:4])))
         for cls, row in tbl.items():
             if not isinstance(row, dict):
                 continue
             if fams and (row.get("_family") not in fams):
                 continue                      # 계열 밖 후보는 애초에 안 센다(A2 선언)
-            ok = True
-            for con in cons:
-                at, op = con.get("attribute"), con.get("op")
-                if not at:
-                    continue
-                vals = (row.get(at) or {}).get("values") or []
-                if op == "exists":
-                    ok = ok and bool(vals)
-                    continue
-                if op == "absent":
-                    # ★문서가 **없다고 말한 것**만 absent 로 센다 — 우리가 못 뽑은 칸(빈칸)은 거르지 않는다.
-                    ok = ok and bool((row.get(at) or {}).get("absent"))
-                    continue
-                if not vals:
-                    continue                      # 미기재는 **거르지 않는다**(과차단 방지·C462)
-                v, t = num(vals[0]), con.get("value")
-                if v is None or t is None:
-                    continue
-                t = float(t)
-                ok = ok and ((v == t) if op == "==" else (v <= t) if op == "<=" else
-                             (v >= t) if op == ">=" else True)
+            ok = all(passes(row, con) for con in cons)   # ★정본 술어 하나로([[67]] 사본 금지)
             if ok:
                 surv.append(cls)
         # ★제약이 하나도 안 남았으면 **목적함수를 돌리지 않는다**(2026-08-20 수리).
@@ -547,6 +627,7 @@ def main():
                      "rejected": rejected.get((c["task"], c["trial"])) or [],
                      "n_surv": len(surv_filter), "surv": surv_filter,
                      "undecidable": undecidable, "reask": reask, "n_rejected_first": n0,
+                     "unsupported": unsupported,
                      "declared_non_requirement": dropped,
                      "winner": winners, "winner_is_gold": win_hit,
                      "pref_best": pbest, "pref_held": len(pheld),

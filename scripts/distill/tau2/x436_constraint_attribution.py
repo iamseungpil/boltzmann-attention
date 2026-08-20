@@ -43,30 +43,14 @@ def cell(row, at):
     """그 칸의 상태를 사람이 읽는 꼴로 — 값 / 미기재확정(absent) / 미해결(빈칸)."""
     c = (row or {}).get(at) or {}
     if c.get("values"):
-        return "=%s" % c["values"][0]
+        v = X.cellval(c)
+        return "=%s%s" % (c["values"][0], "" if v is None else "" if c.get("unit") != "boolean" else "(%.0f)" % v)
     if c.get("absent"):
         return "absent(문서가 없다고 말함)"
     return "미해결(안 뽑힘)"
 
 
-def passes(row, con):
-    """x431 의 필터 규칙 **그대로** — 미해결 칸은 거르지 않는다(과차단 방지)."""
-    at, op = con.get("attribute"), con.get("op")
-    if not at:
-        return True
-    c = (row.get(at) or {})
-    vals = c.get("values") or []
-    if op == "exists":
-        return bool(vals)
-    if op == "absent":
-        return bool(c.get("absent"))
-    if not vals:
-        return True
-    v, t = X.num(vals[0]), con.get("value")
-    if v is None or t is None:
-        return True
-    t = float(t)
-    return (v == t) if op == "==" else (v <= t) if op == "<=" else (v >= t) if op == ">=" else True
+passes = X.passes          # ★술어는 정본 하나뿐이다([[67]]) — 여기서 사본을 짓지 않는다
 
 
 def candidates(tbl, fams):
@@ -95,6 +79,7 @@ def report(case, arg, tbl, label):
     cons = case["spec"] if isinstance(case["spec"], list) else []
     fams = X.arg_families(arg)
     cands = candidates(tbl, fams)
+    caps = X.table_caps(tbl, fams)             # ★그 표가 지지하는 술어(x431 정본과 같은 유도)
     gcls, grow = gold_row(cands, case["gold"])
     print("  [%s] 후보 %d · gold %s" % (label, len(cands), gcls or "⛔표에 없음"))
     surv = set(cands)
@@ -106,12 +91,19 @@ def report(case, arg, tbl, label):
             ok = passes(grow, con)
             mark = "gold %s (%s %s)" % ("생존" if ok else "⛔탈락",
                                         con.get("attribute"), cell(grow, con.get("attribute")))
-        print("    c%d %-24s %-6s %-10s 단독생존 %3d · 누적 %3d · %s"
+        sup = con.get("op") in (caps.get(con.get("attribute")) or ())
+        print("    c%d %-24s %-6s %-10s 단독생존 %3d · 누적 %3d · %s%s"
               % (i, con.get("attribute"), con.get("op"), con.get("value"),
-                 len(alone), len(surv), mark))
+                 len(alone), len(surv), mark, "" if sup else "  ⚠표 미지지"))
         if con.get("because"):
             print("        근거: %s" % str(con["because"])[:110])
     print("    ⇒ 최종 생존 %d · gold_in %s" % (len(surv), bool(gcls and gcls in surv)))
+    # ★능력 검산 후 — 표가 지지 못하는 술어를 **판정에서 뺐을 때**(x431 이 이제 하는 것).
+    keep = [x for x in cons if x.get("op") in (caps.get(x.get("attribute")) or ())]
+    if len(keep) != len(cons):
+        s2 = {c for c, r in cands.items() if all(passes(r, x) for x in keep)}
+        print("    ⇒ 능력 검산 후(미지지 %d건 제외): 생존 %d · gold_in %s"
+              % (len(cons) - len(keep), len(s2), bool(gcls and gcls in s2)))
     return len(surv), bool(gcls and gcls in surv)
 
 
