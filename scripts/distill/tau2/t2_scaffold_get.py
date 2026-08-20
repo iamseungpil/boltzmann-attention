@@ -1873,15 +1873,29 @@ def apply():
                         except Exception:
                             _ok = _q.lower() in _own.lower()
                     if not _ok:
+                        # ★지시는 **실행 가능한 꼴**이어야 한다(2026-08-20 밤·사용자 지적
+                        #   *"문서를 읽게 인덱스하고 선택시 문서를 실제로 읽어서 판단하게 해야 한다"*).
+                        # ⛔**정정 2026-08-21 (C572)**: 앞 판은 `KB_search` 로 **제목을 검색**하라고
+                        #   했는데 그 도구는 **우리 설정에 없다** — 우리 런은 `alltools` 이고
+                        #   `KB_search_bm25`·`KB_search_dense`·`shell` 뿐이다(go_stack.sh:205·궤적 실측).
+                        #   샌드박스는 문서를 `<doc_id>.md` 로 내보내고 라이브 프롬프트에 축자로
+                        #   *"File names are based on document IDs"* 가 있다 ⇒ **선언한 id 가 곧 파일명**
+                        #   이라 `shell: cat <id>.md` 로 **정확히** 집힌다. 검색으로 우회할 필요가 없다.
+                        # ★그리고 검색은 이 자리에서 **되지도 않는다**(C577): 선언 12편 중 **11편이**
+                        #   bm25·dense 71 사례에서 **0회**이고, 이 범주를 정하는 문서(gold_003)도 0회다.
                         _ids = [x for x in (_cidx.get(_cat) or []) if isinstance(x, str)]
+                        _titles = [x for x in (_cidx.get("_titles_%s" % _cat) or []) if isinstance(x, str)]
                         _ctx = dict(_ctx)
                         _ctx.pop("spend_category", None)
-                        _hint = ("[T2_CATEGORY_CITE] spend_category=%r dropped: no quote from a document "
-                                 "you retrieved supports it." % _cat)
+                        _hint = ("[T2_CATEGORY_CITE] spend_category=%r was not used: the base rate was "
+                                 "applied instead, because no sentence from a document you retrieved "
+                                 "supports that category." % _cat)
                         if _ids:
-                            _hint += (" The documents that define this category are: %s. Retrieve one and "
-                                      "call again with spend_category_quote set to a sentence from it."
-                                      % ", ".join(_ids[:4]))
+                            _hint += (" The document that defines it is %s.md — read it with the shell "
+                                      "tool (`cat %s.md`)%s, then call this tool again with "
+                                      "spend_category_quote set to a sentence from what you get back."
+                                      % (_ids[0], _ids[0],
+                                         (" — its title is \"%s\"" % _titles[0]) if _titles else ""))
                         print(_hint, file=_sys.stderr, flush=True)
                         _ctx["__cat_cite_note"] = _hint
                 _res = _c.apply_op(d.get("op"), _ctx)
