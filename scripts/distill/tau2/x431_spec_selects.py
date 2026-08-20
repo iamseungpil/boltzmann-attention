@@ -366,14 +366,6 @@ def sysmsg_spec():
               "For an eligibility range give BOTH bounds (min_age <= their age AND max_age >= their age).")
 
 
-def summarize(rows):
-    return {"gold_in": sum(r["gold_in"] for r in rows),
-            "unique": sum(r["unique"] for r in rows),
-            "pref_gold": sum(bool(r.get("pref_is_gold")) for r in rows),
-            "n_surv": [r["n_surv"] for r in rows],
-            "n_cons": [r["n_constraints"] for r in rows]}
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8141)
@@ -382,8 +374,7 @@ def main():
     ap.add_argument("--fill-blanks", action="store_true")
     ap.add_argument("--repeat", type=int, default=1,
                     help="같은 코드로 N회 반복 — **판정선**(무처치 변동폭)을 잰다")
-    ap.add_argument("--args-filter", default="account_class",
-                    help="표본. 쉼표로 여러 인자(account_class,card_type,account_type)")
+    ap.add_argument("--args-filter", default="account_class")
     a = ap.parse_args()
 
     with io.open(os.path.abspath(TBL), encoding="utf-8") as f:
@@ -407,128 +398,111 @@ def main():
         cs.append(c)
     sysmsg = sysmsg_spec()
     print("\n=== ②③④ 스펙 → 필터 → 판정 (사례 %d) ===" % len(cs))
-    reps = []
-    for _rep in range(max(1, a.repeat)):
-        rows, rejected = [], {}
-        for c in cs:
-            said = G.customer_said(c["sim"], c["msg_i"])
-            body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
-                    % (said[:6000], attr_menu()))
-            spec = ask(a.port, sysmsg, body)
-            cons, bad, dropped, dropped_full = check_spec(spec, said)
-            n0, reask = len(bad), False
-            if bad:
-                reask = True                       # ★G6: 위반을 **이름 대고** 되묻는다([[64]] 거부는 고칠 것을 말해야)
-                spec2 = ask(a.port, sysmsg, body + "\n# Your previous answer was rejected\n"
-                            + "\n".join("- %s" % b for b in bad[:6])
-                            + "\nUse ONLY the attribute names listed above, an op from "
-                              "==,<=,>=,exists,absent, and a number (or null for exists/absent).\n")
-                cons2, bad2, dropped2, dropped_full2 = check_spec(spec2, said)
-                if len(cons2) >= len(cons):
-                    cons, bad, spec, dropped, dropped_full = cons2, bad2, spec2, dropped2, dropped_full2
-            rejected[(c["task"], c["trial"])] = bad
-            surv, why = [], []
-            for cls, row in table.items():
-                if not isinstance(row, dict):
+    rows, rejected = [], {}
+    for c in cs:
+        said = G.customer_said(c["sim"], c["msg_i"])
+        body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
+                % (said[:6000], attr_menu()))
+        spec = ask(a.port, sysmsg, body)
+        cons, bad, dropped, dropped_full = check_spec(spec, said)
+        n0, reask = len(bad), False
+        if bad:
+            reask = True                       # ★G6: 위반을 **이름 대고** 되묻는다([[64]] 거부는 고칠 것을 말해야)
+            spec2 = ask(a.port, sysmsg, body + "\n# Your previous answer was rejected\n"
+                        + "\n".join("- %s" % b for b in bad[:6])
+                        + "\nUse ONLY the attribute names listed above, an op from "
+                          "==,<=,>=,exists,absent, and a number (or null for exists/absent).\n")
+            cons2, bad2, dropped2, dropped_full2 = check_spec(spec2, said)
+            if len(cons2) >= len(cons):
+                cons, bad, spec, dropped, dropped_full = cons2, bad2, spec2, dropped2, dropped_full2
+        rejected[(c["task"], c["trial"])] = bad
+        surv, why = [], []
+        for cls, row in table.items():
+            if not isinstance(row, dict):
+                continue
+            ok = True
+            for con in cons:
+                at, op = con.get("attribute"), con.get("op")
+                if at not in ATTRS:
                     continue
-                ok = True
-                for con in cons:
-                    at, op = con.get("attribute"), con.get("op")
-                    if at not in ATTRS:
-                        continue
-                    vals = (row.get(at) or {}).get("values") or []
-                    if op == "exists":
-                        ok = ok and bool(vals)
-                        continue
-                    if op == "absent":
-                        # ★문서가 **없다고 말한 것**만 absent 로 센다 — 우리가 못 뽑은 칸(빈칸)은 거르지 않는다.
-                        ok = ok and bool((row.get(at) or {}).get("absent"))
-                        continue
-                    if not vals:
-                        continue                      # 미기재는 **거르지 않는다**(과차단 방지·C462)
-                    v, t = num(vals[0]), con.get("value")
-                    if v is None or t is None:
-                        continue
-                    t = float(t)
-                    ok = ok and ((v == t) if op == "==" else (v <= t) if op == "<=" else
-                                 (v >= t) if op == ">=" else True)
-                if ok:
-                    surv.append(cls)
-            # ★제약이 하나도 안 남았으면 **목적함수를 돌리지 않는다**(2026-08-20 수리).
-            #   직전 판에서 제약 0 인 사례 2건을 목적함수가 혼자 결정했고(`argmax waiver × −1` → `beige`),
-            #   그것은 엔진이 나쁜 스펙 위에서 **최종 판단을 해 버리는** 자리다([[62]] 금지).
-            obj = spec.get("objective") if isinstance(spec, dict) else None
-            undecidable = not cons
-            winners, score = (None, {}) if undecidable else objective_pick(obj, table, surv)
-            # ★선호 채널 — 선언-기각된 것을 **순위**로 되쓴다(버리지 않는다).
-            # ★`background` 는 순위 항이 아니다(2026-08-20 수리). 그것은 **손님에 대한 사실**이지 선호가 아니다.
-            #   실물: 055 는 *"I'm 33, so not student/senior"* 가 `min_age` background 로 실렸고, purple 은
-            #   `min_age` 가 미기재라 **순위 보류**로 빠졌다 — 표에 gold 의 근거 셋(해외수수료 0% · ATM 리베이트
-            #   $30 · 30통화 보유)이 축자로 다 있었는데도. 선호는 손님이 **묻거나 바란 것**(question)만이다.
-            prefs = [x for x in (dropped_full or [])
-                     if x.get("attribute") in ATTRS and x.get("stated_as") == "question"]
-            pbest, pscore, pheld = preference_rank(prefs, table, surv)
-            # ★목적함수는 **필터 뒤 순위**일 뿐 생존 집합을 대체하지 않는다 — 둘을 따로 보고한다.
-            surv_filter = list(surv)
-            # ★채점은 **정확 일치**여야 한다(2026-08-20 수리): 표가 45 클래스로 넓어지면서 `silver_account`·
-            #   `silver_plus_account`·`silver_saver_account` 가 공존한다. 옛 `startswith(첫 낱말)` 규칙은
-            #   그 셋을 전부 `Silver Plus Account` 의 적중으로 셌다 — 채점기가 후해지면 결론이 무효다([[25]]).
-            hit = [x for x in surv_filter if clsname(x) == clsname(c["gold"])]
-            win_hit = bool(winners) and any(clsname(x) == clsname(c["gold"]) for x in winners)
-            rows.append({"task": c["task"], "trial": c["trial"], "gold": c["gold"],
-                         "objective": obj if winners else None,
-                         "scores": {k: round(v, 4) for k, v in (score or {}).items()},
-                         "n_constraints": len(cons), "n_rejected": len(rejected.get((c["task"], c["trial"])) or []),
-                         "rejected": rejected.get((c["task"], c["trial"])) or [],
-                         "n_surv": len(surv_filter), "surv": surv_filter,
-                         "undecidable": undecidable, "reask": reask, "n_rejected_first": n0,
-                         "declared_non_requirement": dropped,
-                         "winner": winners, "winner_is_gold": win_hit,
-                         "pref_best": pbest, "pref_held": len(pheld),
-                         "pref_is_gold": bool(pbest) and any(clsname(x) == clsname(c["gold"]) for x in pbest),
-                         "gold_in": (not undecidable) and bool(hit),
-                         "unique": (not undecidable) and (len(surv_filter) == 1 and bool(hit)),
-                         "spec": cons})
-            if pbest:
-                print("        선호 순위 → %s  (보류 %d · 상위: %s)"
-                      % (", ".join(pbest[:3]), len(pheld),
-                         ", ".join("%s=%.2f" % (k, v) for k, v in sorted(pscore.items(), key=lambda x: x[1])[:4])))
-            if dropped:
-                print("        선언-기각(모델이 요구가 아니라 함): %s"
-                      % ", ".join("%s=%s" % (x[0], x[1]) for x in dropped[:4]))
-            print("  %-9s t%s gold=%-22s 제약 %d개(거절 %d) → 생존 %2d %s%s"
-                  % (c["task"], c["trial"], c["gold"][:22], len(cons),
-                     len(rejected.get((c["task"], c["trial"])) or []), len(surv),
-                     "· gold 포함" if hit else "· ⛔gold 탈락",
-                     " ✅유일" if (len(surv) == 1 and hit) else ""))
-            if winners:
-                print("        objective %s → %s" % ((obj or {}).get("mode"),
-                      ", ".join("%s=%.2f" % (k, v) for k, v in sorted(score.items(), key=lambda x: x[1])[:4])))
-                for t in ((obj or {}).get("terms") or [])[:3]:
-                    print("           term %-30s ×%-4s of %s sign %s"
-                          % (t.get("attribute"), t.get("times"), t.get("of_amount"), t.get("sign")))
-            for con in cons[:4]:
-                print("        %-34s %-6s %-8s ← %s" % (con.get("attribute"), con.get("op"),
-                                                        con.get("value"), str(con.get("because"))[:60]))
-        n = len(rows)
-        if n:
-            print("\n  ★스펙이 gold 를 남긴 사례 **%d/%d** · 유일하게 고른 사례 **%d/%d**"
-                  % (sum(x["gold_in"] for x in rows), n, sum(x["unique"] for x in rows), n))
-        reps.append(summarize(rows))
-        if a.repeat > 1:
-            print("  [반복 %d] gold생존 %d · 유일 %d · 선호1위gold %d · 생존수 %s"
-                  % (_rep + 1, reps[-1]["gold_in"], reps[-1]["unique"],
-                     reps[-1]["pref_gold"], reps[-1]["n_surv"]))
-    if a.repeat > 1:
-        print("
-## ★판정선 — **같은 코드 무처치 반복 %d회**의 변동폭" % a.repeat)
-        for k in ("gold_in", "unique", "pref_gold"):
-            v = [x[k] for x in reps]
-            print("   %-12s %s  → 폭 %d" % (k, v, max(v) - min(v)))
-        import statistics as st
-        flat = [sum(x["n_surv"]) for x in reps]
-        print("   생존수 합    %s  → 폭 %d" % (flat, max(flat) - min(flat)))
-        print("   ⇒ **이 폭보다 작은 차이는 읽지 않는다**(E-MFIX 동형 규율)")
+                vals = (row.get(at) or {}).get("values") or []
+                if op == "exists":
+                    ok = ok and bool(vals)
+                    continue
+                if op == "absent":
+                    # ★문서가 **없다고 말한 것**만 absent 로 센다 — 우리가 못 뽑은 칸(빈칸)은 거르지 않는다.
+                    ok = ok and bool((row.get(at) or {}).get("absent"))
+                    continue
+                if not vals:
+                    continue                      # 미기재는 **거르지 않는다**(과차단 방지·C462)
+                v, t = num(vals[0]), con.get("value")
+                if v is None or t is None:
+                    continue
+                t = float(t)
+                ok = ok and ((v == t) if op == "==" else (v <= t) if op == "<=" else
+                             (v >= t) if op == ">=" else True)
+            if ok:
+                surv.append(cls)
+        # ★제약이 하나도 안 남았으면 **목적함수를 돌리지 않는다**(2026-08-20 수리).
+        #   직전 판에서 제약 0 인 사례 2건을 목적함수가 혼자 결정했고(`argmax waiver × −1` → `beige`),
+        #   그것은 엔진이 나쁜 스펙 위에서 **최종 판단을 해 버리는** 자리다([[62]] 금지).
+        obj = spec.get("objective") if isinstance(spec, dict) else None
+        undecidable = not cons
+        winners, score = (None, {}) if undecidable else objective_pick(obj, table, surv)
+        # ★선호 채널 — 선언-기각된 것을 **순위**로 되쓴다(버리지 않는다).
+        # ★`background` 는 순위 항이 아니다(2026-08-20 수리). 그것은 **손님에 대한 사실**이지 선호가 아니다.
+        #   실물: 055 는 *"I'm 33, so not student/senior"* 가 `min_age` background 로 실렸고, purple 은
+        #   `min_age` 가 미기재라 **순위 보류**로 빠졌다 — 표에 gold 의 근거 셋(해외수수료 0% · ATM 리베이트
+        #   $30 · 30통화 보유)이 축자로 다 있었는데도. 선호는 손님이 **묻거나 바란 것**(question)만이다.
+        prefs = [x for x in (dropped_full or [])
+                 if x.get("attribute") in ATTRS and x.get("stated_as") == "question"]
+        pbest, pscore, pheld = preference_rank(prefs, table, surv)
+        # ★목적함수는 **필터 뒤 순위**일 뿐 생존 집합을 대체하지 않는다 — 둘을 따로 보고한다.
+        surv_filter = list(surv)
+        # ★채점은 **정확 일치**여야 한다(2026-08-20 수리): 표가 45 클래스로 넓어지면서 `silver_account`·
+        #   `silver_plus_account`·`silver_saver_account` 가 공존한다. 옛 `startswith(첫 낱말)` 규칙은
+        #   그 셋을 전부 `Silver Plus Account` 의 적중으로 셌다 — 채점기가 후해지면 결론이 무효다([[25]]).
+        hit = [x for x in surv_filter if clsname(x) == clsname(c["gold"])]
+        win_hit = bool(winners) and any(clsname(x) == clsname(c["gold"]) for x in winners)
+        rows.append({"task": c["task"], "trial": c["trial"], "gold": c["gold"],
+                     "objective": obj if winners else None,
+                     "scores": {k: round(v, 4) for k, v in (score or {}).items()},
+                     "n_constraints": len(cons), "n_rejected": len(rejected.get((c["task"], c["trial"])) or []),
+                     "rejected": rejected.get((c["task"], c["trial"])) or [],
+                     "n_surv": len(surv_filter), "surv": surv_filter,
+                     "undecidable": undecidable, "reask": reask, "n_rejected_first": n0,
+                     "declared_non_requirement": dropped,
+                     "winner": winners, "winner_is_gold": win_hit,
+                     "pref_best": pbest, "pref_held": len(pheld),
+                     "pref_is_gold": bool(pbest) and any(clsname(x) == clsname(c["gold"]) for x in pbest),
+                     "gold_in": (not undecidable) and bool(hit),
+                     "unique": (not undecidable) and (len(surv_filter) == 1 and bool(hit)),
+                     "spec": cons})
+        if pbest:
+            print("        선호 순위 → %s  (보류 %d · 상위: %s)"
+                  % (", ".join(pbest[:3]), len(pheld),
+                     ", ".join("%s=%.2f" % (k, v) for k, v in sorted(pscore.items(), key=lambda x: x[1])[:4])))
+        if dropped:
+            print("        선언-기각(모델이 요구가 아니라 함): %s"
+                  % ", ".join("%s=%s" % (x[0], x[1]) for x in dropped[:4]))
+        print("  %-9s t%s gold=%-22s 제약 %d개(거절 %d) → 생존 %2d %s%s"
+              % (c["task"], c["trial"], c["gold"][:22], len(cons),
+                 len(rejected.get((c["task"], c["trial"])) or []), len(surv),
+                 "· gold 포함" if hit else "· ⛔gold 탈락",
+                 " ✅유일" if (len(surv) == 1 and hit) else ""))
+        if winners:
+            print("        objective %s → %s" % ((obj or {}).get("mode"),
+                  ", ".join("%s=%.2f" % (k, v) for k, v in sorted(score.items(), key=lambda x: x[1])[:4])))
+            for t in ((obj or {}).get("terms") or [])[:3]:
+                print("           term %-30s ×%-4s of %s sign %s"
+                      % (t.get("attribute"), t.get("times"), t.get("of_amount"), t.get("sign")))
+        for con in cons[:4]:
+            print("        %-34s %-6s %-8s ← %s" % (con.get("attribute"), con.get("op"),
+                                                    con.get("value"), str(con.get("because"))[:60]))
+    n = len(rows)
+    if n:
+        print("\n  ★스펙이 gold 를 남긴 사례 **%d/%d** · 유일하게 고른 사례 **%d/%d**"
+              % (sum(x["gold_in"] for x in rows), n, sum(x["unique"] for x in rows), n))
     p = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026", "x431_spec_selects.json")
     with io.open(os.path.abspath(p), "w", encoding="utf-8") as f:
         json.dump(rows, f, ensure_ascii=False, indent=1)
