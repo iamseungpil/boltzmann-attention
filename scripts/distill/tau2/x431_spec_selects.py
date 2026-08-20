@@ -62,6 +62,21 @@ def ask(port, sysmsg, body, maxtok=700):
 
 OPS = ("==", "<=", ">=", "exists", "absent")
 
+# ★인용 검산 전 **표기 정규화**(2026-08-20·x432 로 확정). 손님 발화에는 user-sim 이 넣은 마크다운
+#   강조가 섞여 있다 — *"I need an account with absolutely **no overdraft fees**."* 모델은 별표 없이
+#   인용하므로 순수 substring 검산이 **전부 튕겼다**(거절 8건 전부 이것). 유니코드 대시·따옴표도 같다.
+#   ⚠이건 **형태** 정규화다. 뜻은 건드리지 않는다([[59]]).
+_PUNCT = {"‘": "'", "’": "'", "“": '"', "”": '"',
+          "–": "-", "—": "-", "−": "-", " ": " "}
+
+
+def cite_norm(t):
+    t = str(t or "")
+    for k, v in _PUNCT.items():
+        t = t.replace(k, v)
+    t = t.replace("*", "").replace("_", "")
+    return " ".join(t.split()).lower()
+
 
 def check_spec(spec, said=""):
     """★G6 — 스펙 스키마 **강제** + **근거 검산**. 통과한 제약과 **거절 사유 문장**을 함께 돌려준다.
@@ -81,7 +96,7 @@ def check_spec(spec, said=""):
       자리다. 실측도 같은 말을 했다 — 켠 판에서 **제약이 0개로 남은 사례가 둘**, gold 생존 1/5 → 0/5.
       서법 판단은 **LLM 이 한다**(프롬프트). 엔진은 그 판단이 **가리킨 근거의 실재**만 본다.
     """
-    norm = " ".join((said or "").split()).lower()
+    norm = cite_norm(said)
     ok, bad = [], []
     for con in (spec.get("constraints") or []):
         if not isinstance(con, dict):
@@ -103,11 +118,12 @@ def check_spec(spec, said=""):
                 bad.append("attribute %s with op %s needs a number, got %r" % (at, op, val))
                 continue
         why = " ".join(str(con.get("because") or "").split())
+        whyn = cite_norm(why)
         if norm:
             if not why:
                 bad.append("attribute %s has no 'because' span" % at)
                 continue
-            if why.lower() not in norm:
+            if whyn not in norm:
                 bad.append("the 'because' for %s is not a verbatim span of what the customer said: %r"
                            % (at, why[:60]))
                 continue
