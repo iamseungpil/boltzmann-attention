@@ -88,11 +88,11 @@
    "mark": "T2_RESOLVE",
    "kind": "JOIN",
    "reason": "operator-fab",
-   "val": "",
+   "val": "submit_cash_back_dispute_0589",
    "argval": "",
-   "src": "-",
+   "src": "join",
    "wrapper": "call_discoverable_user_tool",
-   "gold": false,
+   "gold": true,
    "later_ok": false,
    "reward": 0.0
   },
@@ -104,11 +104,11 @@
    "mark": "T2_RESOLVE",
    "kind": "JOIN",
    "reason": "operator-fab",
-   "val": "",
+   "val": "submit_cash_back_dispute_0589",
    "argval": "",
-   "src": "-",
+   "src": "join",
    "wrapper": "call_discoverable_user_tool",
-   "gold": false,
+   "gold": true,
    "later_ok": false,
    "reward": 0.0
   },
@@ -120,11 +120,11 @@
    "mark": "T2_PROCEDURE",
    "kind": "JOIN",
    "reason": "?",
-   "val": "",
+   "val": "submit_cash_back_dispute_0589",
    "argval": "",
-   "src": "-",
+   "src": "join",
    "wrapper": "call_discoverable_user_tool",
-   "gold": false,
+   "gold": true,
    "later_ok": false,
    "reward": 0.0
   },
@@ -136,11 +136,11 @@
    "mark": "T2_TOOL_SIGNATURE",
    "kind": "JOIN",
    "reason": "?",
-   "val": "",
+   "val": "submit_cash_back_dispute_0589",
    "argval": "",
-   "src": "-",
+   "src": "join",
    "wrapper": "call_discoverable_user_tool",
-   "gold": false,
+   "gold": true,
    "later_ok": false,
    "reward": 0.0
   },
@@ -152,11 +152,11 @@
    "mark": "T2_RESOLVE",
    "kind": "JOIN",
    "reason": "operator-scope",
-   "val": "",
+   "val": "submit_cash_back_dispute_0589",
    "argval": "",
-   "src": "-",
+   "src": "join",
    "wrapper": "call_discoverable_user_tool",
-   "gold": false,
+   "gold": true,
    "later_ok": false,
    "reward": 0.0
   },
@@ -904,12 +904,12 @@
    "mark": "T2_TOOL_SIGNATURE",
    "kind": "JOIN",
    "reason": "?",
-   "val": "",
+   "val": "submit_cash_back_dispute_0589",
    "argval": "",
-   "src": "-",
+   "src": "join",
    "wrapper": "call_discoverable_user_tool",
-   "gold": false,
-   "later_ok": false,
+   "gold": true,
+   "later_ok": true,
    "reward": 1.0
   },
   {
@@ -952,12 +952,12 @@
    "mark": "T2_TOOL_SIGNATURE",
    "kind": "JOIN",
    "reason": "?",
-   "val": "",
+   "val": "submit_cash_back_dispute_0589",
    "argval": "",
-   "src": "-",
+   "src": "join",
    "wrapper": "give_discoverable_user_tool",
-   "gold": false,
-   "later_ok": false,
+   "gold": true,
+   "later_ok": true,
    "reward": 1.0
   },
   {
@@ -1671,9 +1671,9 @@
    "mark": "T2_RESOLVE",
    "kind": "JOIN",
    "reason": "operator-fab",
-   "val": "",
+   "val": "navigate_to_section",
    "argval": "",
-   "src": "-",
+   "src": "join",
    "wrapper": "call_discoverable_user_tool",
    "gold": false,
    "later_ok": false,
@@ -3825,10 +3825,10 @@
    "reward": 0.0,
    "name": "submit_cash_back_dispute_0589",
    "type": "generic",
-   "code": "ENV_REJECT",
-   "why": "Error: Unknown agent tool 'submit_cash_back_di",
-   "blocked": 0,
-   "attempts": 1
+   "code": "OURS",
+   "why": "turn=51,53",
+   "blocked": 2,
+   "attempts": 6
   },
   {
    "tag": "bank_t7326_halfA_20260819q",
@@ -3837,10 +3837,10 @@
    "reward": 0.0,
    "name": "submit_cash_back_dispute_0589",
    "type": "write",
-   "code": "ENV_REJECT",
-   "why": "Error: Unknown agent tool 'submit_cash_back_di",
-   "blocked": 0,
-   "attempts": 1
+   "code": "OURS",
+   "why": "turn=51,53",
+   "blocked": 2,
+   "attempts": 6
   },
   {
    "tag": "bank_t7326_halfA_20260819q",
@@ -3849,10 +3849,10 @@
    "reward": 0.0,
    "name": "submit_cash_back_dispute_0589",
    "type": "write",
-   "code": "ENV_REJECT",
-   "why": "Error: Unknown agent tool 'submit_cash_back_di",
-   "blocked": 0,
-   "attempts": 1
+   "code": "OURS",
+   "why": "turn=51,53",
+   "blocked": 2,
+   "attempts": 6
   },
   {
    "tag": "bank_t7326_halfA_20260819q",
@@ -3864,7 +3864,7 @@
    "code": "ARGDIFF",
    "why": "card_type: Business Platinum Rewa≠Business Bronze Reward",
    "blocked": 0,
-   "attempts": 1
+   "attempts": 2
   },
   {
    "tag": "bank_t7326_halfA_20260819q",
@@ -4511,8 +4511,8 @@
    "type": "generic",
    "code": "MATCH",
    "why": "",
-   "blocked": 0,
-   "attempts": 0
+   "blocked": 2,
+   "attempts": 6
   },
   {
    "tag": "bank_t7326_halfA_20260819q",
@@ -4521,10 +4521,10 @@
    "reward": 1.0,
    "name": "submit_cash_back_dispute_0589",
    "type": "write",
-   "code": "NEVER",
+   "code": "NOTATION",
    "why": "",
-   "blocked": 0,
-   "attempts": 0
+   "blocked": 2,
+   "attempts": 6
   },
   {
    "tag": "bank_t7326_halfA_20260819q",
@@ -4533,10 +4533,10 @@
    "reward": 1.0,
    "name": "submit_cash_back_dispute_0589",
    "type": "write",
-   "code": "NEVER",
+   "code": "NOTATION",
    "why": "",
-   "blocked": 0,
-   "attempts": 0
+   "blocked": 2,
+   "attempts": 6
   },
   {
    "tag": "bank_t7326_halfA_20260819q",
@@ -7248,7 +7248,7 @@
    "code": "MATCH",
    "why": "",
    "blocked": 0,
-   "attempts": 1
+   "attempts": 2
   }
  ]
 }
