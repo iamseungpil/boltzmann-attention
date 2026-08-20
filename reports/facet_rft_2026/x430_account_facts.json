@@ -1,0 +1,1450 @@
+{
+ "blue_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$20.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$20.00",
+     "doc": "doc_checking_accounts_blue_account_001",
+     "quote": "- Monthly maintenance fee: $20.00"
+    },
+    {
+     "value": "$20.00",
+     "doc": "doc_checking_accounts_blue_account_003",
+     "quote": "- Waivable monthly maintenance fee: $20.00; waived when your minimum daily balance is at least $625"
+    },
+    {
+     "value": "$20.00",
+     "doc": "doc_checking_accounts_blue_account_003",
+     "quote": "| Monthly maintenance fee | $20.00 | Charged monthly; waived with a minimum daily balance of $625 |"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$6",
+    "$625"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "$6",
+     "doc": "doc_checking_accounts_blue_account_001",
+     "quote": "- Waiver requirement: maintain a minimum daily balance of $625"
+    },
+    {
+     "value": "$625",
+     "doc": "doc_checking_accounts_blue_account_002",
+     "quote": "- Maintain a minimum daily balance of $625 to waive the monthly maintenance fee."
+    },
+    {
+     "value": "$625",
+     "doc": "doc_checking_accounts_blue_account_003",
+     "quote": "- Waivable monthly maintenance fee: $20.00; waived when your minimum daily balance is at least $625"
+    },
+    {
+     "value": "$625",
+     "doc": "doc_checking_accounts_blue_account_003",
+     "quote": "| Monthly maintenance fee | $20.00 | Charged monthly; waived with a minimum daily balance of $625 |"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_blue_account_005",
+     "quote": "- Overdraft fee per item: $0.00"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_blue_account_005",
+     "quote": "- Because the overdraft fee is $0.00, you will not see an overdraft fee amount deducted when your balance goes negative."
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_blue_account_005",
+     "quote": "- You may still notice changes in available balance due to transaction authorizations and settlements, but an overdraft fee amount of $0.00 applies."
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_blue_account_008",
+     "quote": "- The overdraft fee on this account is $0.00."
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [
+    "1%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "1%",
+     "doc": "doc_checking_accounts_blue_account_001",
+     "quote": "- Out-of-network ATM withdrawal: 1% of withdrawal amount (max $3.00)"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$500",
+     "doc": "doc_checking_accounts_blue_account_012",
+     "quote": "Your Blue Account debit card has a daily ATM withdrawal limit of $500."
+    }
+   ]
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [
+    "$2,500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$2,500",
+     "doc": "doc_checking_accounts_blue_account_001",
+     "quote": "- Mobile check deposit daily limit: $2,500"
+    }
+   ]
+  }
+ },
+ "bluest_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$7",
+    "$75.00"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "$7",
+     "doc": "doc_checking_accounts_bluest_account_002",
+     "quote": "- Monthly maintenance fee if below the required daily balance: $75.00."
+    },
+    {
+     "value": "$75.00",
+     "doc": "doc_checking_accounts_bluest_account_002",
+     "quote": "- Keep your daily balance at or above $112,500 to avoid the monthly maintenance fee of $75.00."
+    },
+    {
+     "value": "$75.00",
+     "doc": "doc_checking_accounts_bluest_account_006",
+     "quote": "- If your daily balance drops below $112,500, a monthly maintenance fee of $75.00 will be assessed."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$112,500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$112,500",
+     "doc": "doc_checking_accounts_bluest_account_001",
+     "quote": "| Minimum daily balance to maintain benefits | $112,500 |"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$0.00",
+    "$2.00"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_bluest_account_003",
+     "quote": "- No foreign ATM withdrawal fees: $0.00"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_bluest_account_003",
+     "quote": "| Foreign ATM withdrawal fee | $0.00 |"
+    },
+    {
+     "value": "$2.00",
+     "doc": "doc_checking_accounts_bluest_account_010",
+     "quote": "| Cash withdrawal at an out-of-network ATM | $2.00 per withdrawal |"
+    },
+    {
+     "value": "$2.00",
+     "doc": "doc_checking_accounts_bluest_account_010",
+     "quote": "- Single withdrawal: Withdrawing cash once from an out-of-network ATM will incur a fee of $2.00, plus any ATM operator surcharge."
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [
+    "0.45%",
+    "0.7%",
+    "2.25%"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "0.45%",
+     "doc": "doc_checking_accounts_bluest_account_003",
+     "quote": "- Silver Savings APY boost: 0.45%"
+    },
+    {
+     "value": "0.7%",
+     "doc": "doc_checking_accounts_bluest_account_003",
+     "quote": "- Bronze Savings APY boost: 0.7%"
+    },
+    {
+     "value": "2.25%",
+     "doc": "doc_checking_accounts_bluest_account_003",
+     "quote": "| Checking APY | 2.25% |"
+    },
+    {
+     "value": "0.45%",
+     "doc": "doc_checking_accounts_bluest_account_003",
+     "quote": "| Silver Savings APY boost | 0.45% |"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$1,500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$1,500",
+     "doc": "doc_checking_accounts_bluest_account_007",
+     "quote": "- Your Bluest Account debit card has a daily ATM withdrawal limit of $1,500."
+    }
+   ]
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  }
+ },
+ "dark_green_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$10.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$10.00",
+     "doc": "doc_checking_accounts_dark_green_account_001",
+     "quote": "- Monthly maintenance fee: $10.00"
+    },
+    {
+     "value": "$10.00",
+     "doc": "doc_checking_accounts_dark_green_account_001",
+     "quote": "| Monthly maintenance fee | $10.00 |"
+    },
+    {
+     "value": "$10.00",
+     "doc": "doc_checking_accounts_dark_green_account_002",
+     "quote": "| Monthly maintenance | $10.00 |"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [
+    "0"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "0",
+     "doc": "doc_checking_accounts_dark_green_account_001",
+     "quote": "- Overdraft protection transfer fee: 0"
+    },
+    {
+     "value": "0",
+     "doc": "doc_checking_accounts_dark_green_account_001",
+     "quote": "| Overdraft protection transfer fee | 0 |"
+    },
+    {
+     "value": "0",
+     "doc": "doc_checking_accounts_dark_green_account_002",
+     "quote": "| Overdraft protection transfer | 0 |"
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "1%",
+    "2.5%"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "1%",
+     "doc": "doc_checking_accounts_dark_green_account_001",
+     "quote": "- Out-of-network ATM withdrawal fee: 1% (min $1.50)"
+    },
+    {
+     "value": "1%",
+     "doc": "doc_checking_accounts_dark_green_account_001",
+     "quote": "| Out-of-network ATM withdrawal fee | 1% (min $1.50) |"
+    },
+    {
+     "value": "2.5%",
+     "doc": "doc_checking_accounts_dark_green_account_002",
+     "quote": "| Foreign ATM withdrawal | 2.5% of amount (max $6.00) |"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [
+    "1.5%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "1.5%",
+     "doc": "doc_checking_accounts_dark_green_account_001",
+     "quote": "| APY | 1.5% |"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$300"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$300",
+     "doc": "doc_checking_accounts_dark_green_account_002",
+     "quote": "- Daily ATM withdrawal limit: $300"
+    }
+   ]
+  },
+  "min_age": {
+   "values": [
+    "17"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "17",
+     "doc": "doc_checking_accounts_dark_green_account_001",
+     "quote": "- Minimum primary holder age: 17"
+    }
+   ]
+  },
+  "max_age": {
+   "values": [
+    "26"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "26",
+     "doc": "doc_checking_accounts_dark_green_account_001",
+     "quote": "- Maximum primary holder age: 26"
+    }
+   ]
+  },
+  "monthly_deposit_limit": {
+   "values": [
+    "$1,500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$1,500",
+     "doc": "doc_checking_accounts_dark_green_account_001",
+     "quote": "- Mobile check deposit daily limit: $1,500"
+    }
+   ]
+  }
+ },
+ "evergreen_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$6.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$6.00",
+     "doc": "doc_checking_accounts_evergreen_account_002",
+     "quote": "- Monthly maintenance fee: $6.00"
+    },
+    {
+     "value": "$6.00",
+     "doc": "doc_checking_accounts_evergreen_account_002",
+     "quote": "- Maintain a minimum daily balance of $500 to avoid the monthly maintenance fee of $6.00"
+    },
+    {
+     "value": "$6.00",
+     "doc": "doc_checking_accounts_evergreen_account_006",
+     "quote": "- The monthly maintenance fee of $6.00 is waived when your minimum daily balance is at least $500"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$500",
+     "doc": "doc_checking_accounts_evergreen_account_002",
+     "quote": "- The monthly maintenance fee is waived when your minimum daily balance is at least $500"
+    },
+    {
+     "value": "$500",
+     "doc": "doc_checking_accounts_evergreen_account_002",
+     "quote": "- Maintain a minimum daily balance of $500 to avoid the monthly maintenance fee of $6.00"
+    },
+    {
+     "value": "$500",
+     "doc": "doc_checking_accounts_evergreen_account_006",
+     "quote": "- The monthly maintenance fee of $6.00 is waived when your minimum daily balance is at least $500"
+    },
+    {
+     "value": "$500",
+     "doc": "doc_checking_accounts_evergreen_account_006",
+     "quote": "- Maintain the required minimum daily balance of $500 to waive $6.00"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [
+    "2%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "2%",
+     "doc": "doc_checking_accounts_evergreen_account_001",
+     "quote": "- Foreign ATM withdrawal fee: 2% of the withdrawal amount, with a minimum of $3.00 per transaction."
+    },
+    {
+     "value": "2%",
+     "doc": "doc_checking_accounts_evergreen_account_001",
+     "quote": "| Foreign ATM withdrawal fee | 2% (min $3.00) |"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [
+    "0.05%",
+    "0.15%",
+    "0.55%"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "0.05%",
+     "doc": "doc_checking_accounts_evergreen_account_001",
+     "quote": "| Checking APY | 0.05% |"
+    },
+    {
+     "value": "0.55%",
+     "doc": "doc_checking_accounts_evergreen_account_001",
+     "quote": "| Green Savings APY boost | +0.55% |"
+    },
+    {
+     "value": "0.15%",
+     "doc": "doc_checking_accounts_evergreen_account_001",
+     "quote": "| Diamond Elite Savings APY boost | +0.15% |"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$750"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$750",
+     "doc": "doc_checking_accounts_evergreen_account_002",
+     "quote": "- Daily ATM withdrawal limit: $750"
+    }
+   ]
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [
+    "$3,500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$3,500",
+     "doc": "doc_checking_accounts_evergreen_account_001",
+     "quote": "- Mobile check deposit daily limit: $3,500"
+    }
+   ]
+  }
+ },
+ "gold_years_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_gold_years_account_001",
+     "quote": "| Monthly maintenance fee | $0.00 |"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_gold_years_account_002",
+     "quote": "- Monthly maintenance fee: $0.00 dollars"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$0.00",
+    "$3.50"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_gold_years_account_001",
+     "quote": "- Out-of-network ATM withdrawal fee: $0.00"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_gold_years_account_001",
+     "quote": "| Out-of-network ATM withdrawal fee | $0.00 |"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_gold_years_account_002",
+     "quote": "- Out-of-network ATM withdrawal fee: $0.00 dollars"
+    },
+    {
+     "value": "$3.50",
+     "doc": "doc_checking_accounts_gold_years_account_002",
+     "quote": "- Foreign ATM withdrawal fee: $3.50 dollars"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [
+    "0",
+    "0.5%",
+    "1.0%"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "0",
+     "doc": "doc_checking_accounts_gold_years_account_001",
+     "quote": "- APY boosts on linked savings: Gold Plus +0.5%, Silver +0.6%"
+    },
+    {
+     "value": "1.0%",
+     "doc": "doc_checking_accounts_gold_years_account_001",
+     "quote": "| APY on checking | 1.0% |"
+    },
+    {
+     "value": "0.5%",
+     "doc": "doc_checking_accounts_gold_years_account_001",
+     "quote": "| Linked savings APY boosts | Gold Plus: +0.5%; Silver: +0.6% |"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$600"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$600",
+     "doc": "doc_checking_accounts_gold_years_account_002",
+     "quote": "- Daily ATM withdrawal limit: $600 dollars"
+    }
+   ]
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  }
+ },
+ "green_account_(checking)": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$22.50"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$22.50",
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "| Monthly maintenance fee | $22.50 |"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$1,350"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$1,350",
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "| Minimum daily balance to waive fee | $1,350 |"
+    },
+    {
+     "value": "$1,350",
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "- To avoid the monthly maintenance fee, maintain a minimum daily balance of $1,350 each statement cycle"
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_green_account_(checking)_003",
+     "quote": "- There are no overdraft transfers from linked accounts; the overdraft protection transfer fee is $0.00."
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_green_account_(checking)_004",
+     "quote": "- There are no automatic overdraft transfers; the overdraft protection transfer fee is $0.00."
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$3.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$3.00",
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "| Out-of-network ATM withdrawal fee | $3.00 |"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [
+    "0.11%",
+    "0.75%"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "0.75%",
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "- Boost a linked savings account's APY: Gold +0.75% or Silver +0.25%"
+    },
+    {
+     "value": "0.11%",
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "| APY on balance | 0.11% |"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$600"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$600",
+     "doc": "doc_checking_accounts_green_account_(checking)_012",
+     "quote": "Your Green Account (checking) debit card has a daily ATM withdrawal limit of $600."
+    }
+   ]
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [
+    "1"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "1",
+     "doc": "doc_checking_accounts_green_account_(checking)_001",
+     "quote": "- Get direct deposits up to 1 day early"
+    }
+   ]
+  }
+ },
+ "green_fee-free_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$22.50"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$22.50",
+     "doc": "doc_checking_accounts_green_fee-free_account_002",
+     "quote": "- Monthly maintenance fee: $22.50 (waiver options available; see specifications for details)"
+    },
+    {
+     "value": "$22.50",
+     "doc": "doc_checking_accounts_green_fee-free_account_002",
+     "quote": "- You may avoid the monthly maintenance fee of $22.50 if you meet the waiver criteria."
+    },
+    {
+     "value": "$22.50",
+     "doc": "doc_checking_accounts_green_fee-free_account_004",
+     "quote": "| Maintenance | Monthly maintenance fee | $22.50 |"
+    },
+    {
+     "value": "$22.50",
+     "doc": "doc_checking_accounts_green_fee-free_account_004",
+     "quote": "- A monthly maintenance fee of $22.50 applies."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$150"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$150",
+     "doc": "doc_checking_accounts_green_fee-free_account_004",
+     "quote": "| Waiver | Minimum daily balance to waive maintenance fee | $150 |"
+    },
+    {
+     "value": "$150",
+     "doc": "doc_checking_accounts_green_fee-free_account_005",
+     "quote": "| Minimum balance to waive monthly fee | $150 (minimum daily balance) |"
+    },
+    {
+     "value": "$150",
+     "doc": "doc_checking_accounts_green_fee-free_account_005",
+     "quote": "- It is waived when you maintain a minimum daily balance of $150 during the statement cycle."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_green_fee-free_account_002",
+     "quote": "- Overdrafts: $0.00"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_green_fee-free_account_002",
+     "quote": "- You won’t be charged an overdraft fee: $0.00."
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_green_fee-free_account_003",
+     "quote": "| Overdraft fee | $0.00 |"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_green_fee-free_account_003",
+     "quote": "- You won't incur an overdraft fee: $0.00."
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_green_fee-free_account_002",
+     "quote": "- Out-of-network ATM usage (Rho Bank fee): $0.00"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_green_fee-free_account_003",
+     "quote": "| Out-of-network ATM fee (Rho Bank) | $0.00 |"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_green_fee-free_account_005",
+     "quote": "| Out-of-network ATM withdrawal fee | $0.00 |"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_green_fee-free_account_005",
+     "quote": "| Foreign ATM withdrawal fee | $0.00 |"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [
+    "0",
+    "0%",
+    "0.4%"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "0%",
+     "doc": "doc_checking_accounts_green_fee-free_account_003",
+     "quote": "| APY on balances | 0% |"
+    },
+    {
+     "value": "0%",
+     "doc": "doc_checking_accounts_green_fee-free_account_004",
+     "quote": "| Earnings | APY on balances | 0% |"
+    },
+    {
+     "value": "0.4%",
+     "doc": "doc_checking_accounts_green_fee-free_account_005",
+     "quote": "| APY boost with linked Bronze Savings | 0.4% |"
+    },
+    {
+     "value": "0",
+     "doc": "doc_checking_accounts_green_fee-free_account_005",
+     "quote": "| APY boost with linked Gold Plus Savings | 0.35% |"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$500",
+     "doc": "doc_checking_accounts_green_fee-free_account_005",
+     "quote": "| Daily ATM withdrawal limit | $500 |"
+    },
+    {
+     "value": "$500",
+     "doc": "doc_checking_accounts_green_fee-free_account_005",
+     "quote": "- Your daily ATM withdrawal limit is $500."
+    }
+   ]
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [
+    "$2,500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$2,500",
+     "doc": "doc_checking_accounts_green_fee-free_account_003",
+     "quote": "| Mobile check deposit daily limit | $2,500 |"
+    }
+   ]
+  }
+ },
+ "light_blue_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_light_blue_account_001",
+     "quote": "- Monthly maintenance fee: $0.00"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_light_blue_account_004",
+     "quote": "| Monthly maintenance fee | $0.00 |"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_light_blue_account_005",
+     "quote": "The monthly maintenance fee is $0.00."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_light_blue_account_001",
+     "quote": "- Overdraft fee: $0.00"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_light_blue_account_001",
+     "quote": "- Use electronic statements and alerts to help you avoid going negative, even though the overdraft fee is $0.00."
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_light_blue_account_004",
+     "quote": "| Overdraft fee | $0.00 |"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_light_blue_account_005",
+     "quote": "The overdraft fee is $0.00."
+    }
+   ]
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_light_blue_account_004",
+     "quote": "| Overdraft protection transfer fee | $0.00 |"
+    }
+   ]
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$2.50",
+    "0",
+    "2"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "2",
+     "doc": "doc_checking_accounts_light_blue_account_004",
+     "quote": "| Free out-of-network ATM withdrawals per month | 2 |"
+    },
+    {
+     "value": "$2.50",
+     "doc": "doc_checking_accounts_light_blue_account_004",
+     "quote": "| Out-of-network ATM withdrawal fee (after free) | $2.50 |"
+    },
+    {
+     "value": "0",
+     "doc": "doc_checking_accounts_light_blue_account_006",
+     "quote": "- 1 foreign ATM withdrawal in a month: no fee."
+    },
+    {
+     "value": "0",
+     "doc": "doc_checking_accounts_light_blue_account_006",
+     "quote": "- 2 foreign ATM withdrawals in a month: no fee."
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [
+    "2"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "2",
+     "doc": "doc_checking_accounts_light_blue_account_004",
+     "quote": "| Free out-of-network ATM withdrawals per month | 2 |"
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "0%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "0%",
+     "doc": "doc_checking_accounts_light_blue_account_002",
+     "quote": "- APY on your balance: 0%"
+    },
+    {
+     "value": "0%",
+     "doc": "doc_checking_accounts_light_blue_account_004",
+     "quote": "| APY on balances | 0% |"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$400"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$400",
+     "doc": "doc_checking_accounts_light_blue_account_004",
+     "quote": "| Daily ATM withdrawal limit | $400 |"
+    },
+    {
+     "value": "$400",
+     "doc": "doc_checking_accounts_light_blue_account_004",
+     "quote": "- Your daily ATM withdrawal limit is $400."
+    }
+   ]
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  }
+ },
+ "light_green_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "| Monthly maintenance fee | $0.00 |"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_light_green_account_002",
+     "quote": "| Monthly maintenance fee | $0.00 |"
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$1.50",
+    "4"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "4",
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "| Free out-of-network ATM withdrawals per month | 4 |"
+    },
+    {
+     "value": "$1.50",
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "| Out-of-network ATM withdrawal fee (after free) | $1.50 |"
+    },
+    {
+     "value": "$1.50",
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "You get 4 free out-of-network ATM withdrawals per month before the $1.50 fee applies."
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [
+    "$1.50",
+    "4"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "4",
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "| Free out-of-network ATM withdrawals per month | 4 |"
+    },
+    {
+     "value": "$1.50",
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "You get 4 free out-of-network ATM withdrawals per month before the $1.50 fee applies."
+    }
+   ]
+  },
+  "apy": {
+   "values": [
+    "0.05%"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "0.05%",
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "| APY on balances | 0.05% |"
+    },
+    {
+     "value": "0.05%",
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "- Keep funds growing with an APY of 0.05%."
+    },
+    {
+     "value": "0.05%",
+     "doc": "doc_checking_accounts_light_green_account_006",
+     "quote": "- Show how balances can grow over time with an APY of 0.05%."
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$150"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$150",
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "| Daily ATM withdrawal limit | $150 |"
+    }
+   ]
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [
+    "$500"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$500",
+     "doc": "doc_checking_accounts_light_green_account_001",
+     "quote": "| Mobile check deposit daily limit | $500 |"
+    }
+   ]
+  }
+ },
+ "purple_account": {
+  "monthly_maintenance_fee": {
+   "values": [
+    "$15.00",
+    "$3,750"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "$15.00",
+     "doc": "doc_checking_accounts_purple_account_002",
+     "quote": "- Monthly maintenance fee: $15.00"
+    },
+    {
+     "value": "$3,750",
+     "doc": "doc_checking_accounts_purple_account_002",
+     "quote": "- Minimum daily balance to waive the monthly maintenance fee: $3,750"
+    },
+    {
+     "value": "$15.00",
+     "doc": "doc_checking_accounts_purple_account_011",
+     "quote": "A: The monthly maintenance fee is $15.00."
+    }
+   ]
+  },
+  "waiver_min_daily_balance": {
+   "values": [
+    "$3,750"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$3,750",
+     "doc": "doc_checking_accounts_purple_account_011",
+     "quote": "A: Maintain a minimum daily balance of $3,750 to waive the fee."
+    }
+   ]
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [
+    "$0.00"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_purple_account_001",
+     "quote": "| Foreign ATM withdrawal fee | $0.00 |"
+    },
+    {
+     "value": "$0.00",
+     "doc": "doc_checking_accounts_purple_account_001",
+     "quote": "- No foreign ATM withdrawal fees: $0.00 per withdrawal (third-party ATM operator fees may still apply)"
+    }
+   ]
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [
+    "0",
+    "0.1%"
+   ],
+   "conflict": true,
+   "evidence": [
+    {
+     "value": "0",
+     "doc": "doc_checking_accounts_purple_account_001",
+     "quote": "| APY boost with Platinum Plus Savings | +0.3% |"
+    },
+    {
+     "value": "0.1%",
+     "doc": "doc_checking_accounts_purple_account_001",
+     "quote": "| APY boost with Gold Savings | +0.1% |"
+    }
+   ]
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [
+    "$1,000"
+   ],
+   "conflict": false,
+   "evidence": [
+    {
+     "value": "$1,000",
+     "doc": "doc_checking_accounts_purple_account_004",
+     "quote": "- Your Purple Account debit card has a daily ATM withdrawal limit of $1,000."
+    }
+   ]
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  }
+ }
+}
