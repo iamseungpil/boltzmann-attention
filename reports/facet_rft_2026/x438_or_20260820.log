@@ -1,0 +1,55 @@
+========================================================================================================
+x438 · 이접 어휘 격리 · 사례 8 · 팔 F_now / F_or / T_now / T_or / T_noise
+판정(사전 고정): 이접 사용 0 = 축 닫힘 · T_or > T_noise 여야 능력 · T_or ≈ T_noise = 판정 불가
+========================================================================================================
+  task_003  t0 (턴 1) gold=Silver Rewards Card
+      F_now    제약  3 (이접 0) · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+      F_or     제약  0 (이접 0) · 생존  13 · gold O  
+      T_now    제약  3 (이접 0) · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+      T_or     제약  0 (이접 0) · 생존  13 · gold O  
+      T_noise  제약  3 (이접 0) · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+  task_024  t0 (턴 4) gold=Business Bronze Rewards Ca
+      F_now    제약  0 (이접 0) · 생존  13 · gold O  
+      F_or     제약  0 (이접 0) · 생존  13 · gold O  
+      T_now    제약  2 (이접 0) · 생존   9 · gold O  business,cashback
+      T_or     제약  2 (이접 0) · 생존   9 · gold O  business,cashback
+      T_noise  제약  2 (이접 0) · 생존   9 · gold O  business,cashback
+  task_055  t0 (턴 4) gold=Purple Account
+      F_now    제약  0 (이접 0) · 생존  38 · gold O  
+      F_or     제약  0 (이접 0) · 생존  38 · gold O  
+      T_now    제약  3 (이접 0) · 생존   0 · gold X  foreign_currency_holding,foreign_transaction_fee,oon_atm_rei
+      T_or     제약  3 (이접 0) · 생존   0 · gold X  foreign_currency_holding,foreign_transaction_fee,oon_atm_rei
+      T_noise  제약  3 (이접 0) · 생존   0 · gold X  foreign_currency_holding,foreign_transaction_fee,oon_atm_rei
+  task_003  t1 (턴 3) gold=Silver Rewards Card
+      F_now    제약  3 (이접 0) · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+      F_or     제약  3 (이접 0) · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+      T_now    제약  3 (이접 0) · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+      T_or     제약  3 (이접 0) · 생존   5 · gold X  fx_fee,limit_max,purchase_protection
+      T_noise  제약  6 (이접 0) · 생존   3 · gold X  annual_fee,cashback,fx_fee,limit_max,purchase_protection
+  task_063  t0 (턴 2) gold=Silver Rewards Card
+      F_now    제약  3 (이접 0) · 생존   1 · gold X  annual_fee,fx_fee,min_score
+      F_or     제약  3 (이접 0) · 생존   1 · gold X  annual_fee,fx_fee,min_score
+      T_now    제약  3 (이접 0) · 생존   1 · gold X  annual_fee,fx_fee,min_score
+      T_or     제약  3 (이접 0) · 생존   1 · gold X  annual_fee,fx_fee,min_score
+      T_noise  제약  2 (이접 0) · 생존   1 · gold X  annual_fee,fx_fee
+  task_057  t1 (턴 4) gold=Blue Account
+      F_now    제약  1 (이접 0) · 생존  36 · gold O  overdraft_fee
+      F_or     제약  2 (이접 0) · 생존   5 · gold O  overdraft_fee,overdraft_protection_transfer_fee
+      T_now    제약  1 (이접 0) · 생존  36 · gold O  overdraft_fee
+      T_or     제약  2 (이접 0) · 생존  24 · gold X  overdraft_fee
+      T_noise  제약  1 (이접 0) · 생존  36 · gold O  overdraft_fee
+  task_057  t0 (턴 3) gold=Blue Account
+      F_now    제약  1 (이접 0) · 생존  36 · gold O  overdraft_fee
+      F_or     제약  1 (이접 0) · 생존  36 · gold O  overdraft_fee
+      T_now    제약  1 (이접 0) · 생존  36 · gold O  overdraft_fee
+      T_or     제약  3 (이접 0) · 생존   0 · gold X  monthly_maintenance_fee,overdraft_fee,overdraft_protection_t
+      T_noise  제약  1 (이접 0) · 생존  36 · gold O  overdraft_fee
+  task_063  t1 (턴 8) gold=Silver Plus Account
+      F_now    제약  2 (이접 0) · 생존  21 · gold X  apy,paper_statement_fee
+      F_or     제약  3 (이접 0) · 생존  21 · gold X  apy,paper_statement_fee
+      T_now    제약  3 (이접 0) · 생존  21 · gold X  apy,paper_statement_fee
+      T_or     제약  2 (이접 0) · 생존  21 · gold X  apy,paper_statement_fee
+      T_noise  제약  3 (이접 0) · 생존  18 · gold X  apy,paper_statement_fee,waiver_min_daily_balance
+
+  ★집계 {"F_now": {"gold_in": 4, "unique": 0, "n_con": 13, "n_or": 0, "wipe": 0}, "F_or": {"gold_in": 5, "unique": 0, "n_con": 12, "n_or": 0, "wipe": 0}, "T_now": {"gold_in": 3, "unique": 0, "n_con": 19, "n_or": 0, "wipe": 1}, "T_or": {"gold_in": 2, "unique": 0, "n_con": 18, "n_or": 0, "wipe": 2}, "T_noise": {"gold_in": 3, "unique": 0, "n_con": 21, "n_or": 0, "wipe": 1}}
+→ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x438_or1.json

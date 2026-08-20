@@ -1,0 +1,132 @@
+[
+ {
+  "task": "task_055",
+  "trial": 0,
+  "gold": "Purple Account",
+  "arg": "account_class",
+  "n_turns": 4,
+  "F_now": {
+   "n_con": 0,
+   "n_or": 0,
+   "n_surv": 38,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [],
+   "cons": []
+  },
+  "F_or": {
+   "n_con": 0,
+   "n_or": 0,
+   "n_surv": 38,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [],
+   "cons": []
+  },
+  "T_now": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 0,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "foreign_currency_holding",
+    "foreign_transaction_fee",
+    "oon_atm_reimbursement"
+   ],
+   "cons": [
+    {
+     "attribute": "foreign_transaction_fee",
+     "op": "absent",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "oon_atm_reimbursement",
+     "op": "exists",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "foreign_currency_holding",
+     "op": "exists",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_or": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 0,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "foreign_currency_holding",
+    "foreign_transaction_fee",
+    "oon_atm_reimbursement"
+   ],
+   "cons": [
+    {
+     "attribute": "foreign_transaction_fee",
+     "op": "absent",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "oon_atm_reimbursement",
+     "op": "exists",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "foreign_currency_holding",
+     "op": "exists",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_noise": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 0,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "foreign_currency_holding",
+    "foreign_transaction_fee",
+    "oon_atm_reimbursement"
+   ],
+   "cons": [
+    {
+     "attribute": "foreign_transaction_fee",
+     "op": "absent",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "oon_atm_reimbursement",
+     "op": "exists",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "foreign_currency_holding",
+     "op": "exists",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    }
+   ]
+  }
+ }
+]

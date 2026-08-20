@@ -1,0 +1,1145 @@
+[
+ {
+  "task": "task_003",
+  "trial": 0,
+  "gold": "Silver Rewards Card",
+  "arg": "card_type",
+  "n_turns": 1,
+  "F_now": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 5,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "fx_fee",
+    "limit_max",
+    "purchase_protection"
+   ],
+   "cons": [
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "No foreign transaction fees",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "purchase_protection",
+     "op": "==",
+     "value": 1,
+     "because": "Purchase protection",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "limit_max",
+     "op": ">=",
+     "value": 100000,
+     "because": "A credit limit that could be at least $100,000",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "F_or": {
+   "n_con": 0,
+   "n_or": 0,
+   "n_surv": 13,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [],
+   "cons": []
+  },
+  "T_now": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 5,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "fx_fee",
+    "limit_max",
+    "purchase_protection"
+   ],
+   "cons": [
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "No foreign transaction fees",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "purchase_protection",
+     "op": "==",
+     "value": 1,
+     "because": "Purchase protection",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "limit_max",
+     "op": ">=",
+     "value": 100000,
+     "because": "A credit limit that could be at least $100,000",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_or": {
+   "n_con": 0,
+   "n_or": 0,
+   "n_surv": 13,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [],
+   "cons": []
+  },
+  "T_noise": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 5,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "fx_fee",
+    "limit_max",
+    "purchase_protection"
+   ],
+   "cons": [
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "No foreign transaction fees",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "purchase_protection",
+     "op": "==",
+     "value": 1,
+     "because": "Purchase protection",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "limit_max",
+     "op": ">=",
+     "value": 100000,
+     "because": "A credit limit that could be at least $100,000",
+     "stated_as": "requirement"
+    }
+   ]
+  }
+ },
+ {
+  "task": "task_024",
+  "trial": 0,
+  "gold": "Business Bronze Rewards Card",
+  "arg": "card_type",
+  "n_turns": 4,
+  "F_now": {
+   "n_con": 0,
+   "n_or": 0,
+   "n_surv": 13,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [],
+   "cons": []
+  },
+  "F_or": {
+   "n_con": 0,
+   "n_or": 0,
+   "n_surv": 13,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [],
+   "cons": []
+  },
+  "T_now": {
+   "n_con": 2,
+   "n_or": 0,
+   "n_surv": 9,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [
+    "business",
+    "cashback"
+   ],
+   "cons": [
+    {
+     "attribute": "business",
+     "op": "==",
+     "value": 1,
+     "because": "I want to open a new business credit card",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "cashback",
+     "op": "exists",
+     "value": null,
+     "because": "that will give me the best return on this purchase",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_or": {
+   "n_con": 2,
+   "n_or": 0,
+   "n_surv": 9,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [
+    "business",
+    "cashback"
+   ],
+   "cons": [
+    {
+     "attribute": "business",
+     "op": "==",
+     "value": 1,
+     "because": "I want to open a new business credit card",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "cashback",
+     "op": "exists",
+     "because": "that will give me the best return on this purchase",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_noise": {
+   "n_con": 2,
+   "n_or": 0,
+   "n_surv": 9,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [
+    "business",
+    "cashback"
+   ],
+   "cons": [
+    {
+     "attribute": "business",
+     "op": "==",
+     "value": 1,
+     "because": "I want to open a new business credit card",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "cashback",
+     "op": "exists",
+     "value": null,
+     "because": "that will give me the best return on this purchase",
+     "stated_as": "requirement"
+    }
+   ]
+  }
+ },
+ {
+  "task": "task_055",
+  "trial": 0,
+  "gold": "Purple Account",
+  "arg": "account_class",
+  "n_turns": 4,
+  "F_now": {
+   "n_con": 0,
+   "n_or": 0,
+   "n_surv": 38,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [],
+   "cons": []
+  },
+  "F_or": {
+   "n_con": 0,
+   "n_or": 0,
+   "n_surv": 38,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [],
+   "cons": []
+  },
+  "T_now": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 0,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "foreign_currency_holding",
+    "foreign_transaction_fee",
+    "oon_atm_reimbursement"
+   ],
+   "cons": [
+    {
+     "attribute": "foreign_transaction_fee",
+     "op": "absent",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "oon_atm_reimbursement",
+     "op": "exists",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "foreign_currency_holding",
+     "op": "exists",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_or": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 0,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "foreign_currency_holding",
+    "foreign_transaction_fee",
+    "oon_atm_reimbursement"
+   ],
+   "cons": [
+    {
+     "attribute": "foreign_transaction_fee",
+     "op": "absent",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "oon_atm_reimbursement",
+     "op": "exists",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "foreign_currency_holding",
+     "op": "exists",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_noise": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 0,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "foreign_currency_holding",
+    "foreign_transaction_fee",
+    "oon_atm_reimbursement"
+   ],
+   "cons": [
+    {
+     "attribute": "foreign_transaction_fee",
+     "op": "absent",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "oon_atm_reimbursement",
+     "op": "exists",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "foreign_currency_holding",
+     "op": "exists",
+     "value": null,
+     "because": "I really don’t want to compare a bunch of options. Can you just tell me which ONE checking account is the best fit for what I said (international ATM fee rebates, no foreign transaction fees, and ideally the ability to hold yen/euros)",
+     "stated_as": "requirement"
+    }
+   ]
+  }
+ },
+ {
+  "task": "task_003",
+  "trial": 1,
+  "gold": "Silver Rewards Card",
+  "arg": "card_type",
+  "n_turns": 3,
+  "F_now": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 5,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "fx_fee",
+    "limit_max",
+    "purchase_protection"
+   ],
+   "cons": [
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "No foreign transaction fees",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "purchase_protection",
+     "op": "==",
+     "value": 1,
+     "because": "Purchase protection",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "limit_max",
+     "op": ">=",
+     "value": 100000,
+     "because": "A path to at least a $100,000 credit limit (or the possibility of that limit)",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "F_or": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 5,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "fx_fee",
+    "limit_max",
+    "purchase_protection"
+   ],
+   "cons": [
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "No foreign transaction fees",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "purchase_protection",
+     "op": "==",
+     "value": 1,
+     "because": "Purchase protection",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "limit_max",
+     "op": ">=",
+     "value": 100000,
+     "because": "A path to at least a $100,000 credit limit (or the possibility of that limit)",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_now": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 5,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "fx_fee",
+    "limit_max",
+    "purchase_protection"
+   ],
+   "cons": [
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "No foreign transaction fees",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "purchase_protection",
+     "op": "exists",
+     "value": null,
+     "because": "Purchase protection",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "limit_max",
+     "op": ">=",
+     "value": 100000,
+     "because": "A path to at least a $100,000 credit limit (or the possibility of that limit)",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_or": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 5,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "fx_fee",
+    "limit_max",
+    "purchase_protection"
+   ],
+   "cons": [
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "No foreign transaction fees",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "purchase_protection",
+     "op": "exists",
+     "value": null,
+     "because": "Purchase protection",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "limit_max",
+     "op": ">=",
+     "value": 100000,
+     "because": "A path to at least a $100,000 credit limit (or the possibility of that limit)",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_noise": {
+   "n_con": 6,
+   "n_or": 0,
+   "n_surv": 3,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "annual_fee",
+    "cashback",
+    "fx_fee",
+    "limit_max",
+    "purchase_protection"
+   ],
+   "cons": [
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "No foreign transaction fees",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "purchase_protection",
+     "op": "==",
+     "value": 1,
+     "because": "Purchase protection",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "limit_max",
+     "op": ">=",
+     "value": 100000,
+     "because": "A path to at least a $100,000 credit limit (or the possibility of that limit)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "purchase_protection",
+     "op": "exists",
+     "value": null,
+     "because": "2) Purchase protection included (and any key limits/duration)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "annual_fee",
+     "op": "exists",
+     "value": null,
+     "because": "4) The annual fee and cash back structure (especially on travel)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "cashback",
+     "op": "exists",
+     "value": null,
+     "because": "4) The annual fee and cash back structure (especially on travel)",
+     "stated_as": "requirement"
+    }
+   ]
+  }
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "gold": "Silver Rewards Card",
+  "arg": "card_type",
+  "n_turns": 2,
+  "F_now": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 1,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "annual_fee",
+    "fx_fee",
+    "min_score"
+   ],
+   "cons": [
+    {
+     "attribute": "min_score",
+     "op": ">=",
+     "value": 700,
+     "because": "I’m not interested in any “no credit check” type cards.",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "annual_fee",
+     "op": "==",
+     "value": 0,
+     "because": "Max annual fee: $0 preferred (I’m open to a fee only if the math clearly beats a no-fee card for my spend)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "Max foreign transaction fee: 0%",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "F_or": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 1,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "annual_fee",
+    "fx_fee",
+    "min_score"
+   ],
+   "cons": [
+    {
+     "attribute": "min_score",
+     "op": ">=",
+     "value": 700,
+     "because": "I’m not interested in any “no credit check” type cards.",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "annual_fee",
+     "op": "==",
+     "value": 0,
+     "because": "Max annual fee: $0 preferred",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "Max foreign transaction fee: 0%",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_now": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 1,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "annual_fee",
+    "fx_fee",
+    "min_score"
+   ],
+   "cons": [
+    {
+     "attribute": "min_score",
+     "op": "exists",
+     "value": null,
+     "because": "I only want a “real” card that actually checks credit—I’m not interested in any “no credit check” type cards.",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "annual_fee",
+     "op": "==",
+     "value": 0,
+     "because": "Max annual fee: $0 preferred (I’m open to a fee only if the math clearly beats a no-fee card for my spend)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "Max foreign transaction fee: 0% (I don’t travel a ton, but I’d rather avoid it)",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_or": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 1,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "annual_fee",
+    "fx_fee",
+    "min_score"
+   ],
+   "cons": [
+    {
+     "attribute": "min_score",
+     "op": "exists",
+     "value": null,
+     "because": "I only want a “real” card that actually checks credit",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "annual_fee",
+     "op": "==",
+     "value": 0,
+     "because": "Max annual fee: $0 preferred",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "Max foreign transaction fee: 0%",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_noise": {
+   "n_con": 2,
+   "n_or": 0,
+   "n_surv": 1,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "annual_fee",
+    "fx_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "annual_fee",
+     "op": "==",
+     "value": 0,
+     "because": "Max annual fee: $0 preferred (I’m open to a fee only if the math clearly beats a no-fee card for my spend)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "fx_fee",
+     "op": "==",
+     "value": 0,
+     "because": "Max foreign transaction fee: 0%",
+     "stated_as": "requirement"
+    }
+   ]
+  }
+ },
+ {
+  "task": "task_057",
+  "trial": 1,
+  "gold": "Blue Account",
+  "arg": "account_class",
+  "n_turns": 4,
+  "F_now": {
+   "n_con": 1,
+   "n_or": 0,
+   "n_surv": 36,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [
+    "overdraft_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "overdraft_fee",
+     "op": "==",
+     "value": 0,
+     "because": "Absolutely no overdraft fees (non-negotiable)",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "F_or": {
+   "n_con": 2,
+   "n_or": 0,
+   "n_surv": 5,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [
+    "overdraft_fee",
+    "overdraft_protection_transfer_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "overdraft_fee",
+     "op": "==",
+     "value": 0,
+     "because": "Absolutely no overdraft fees (non-negotiable)",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "overdraft_protection_transfer_fee",
+     "op": "exists",
+     "value": null,
+     "because": "I’d rather pay a small transfer fee than have a payment bounce.",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_now": {
+   "n_con": 1,
+   "n_or": 0,
+   "n_surv": 36,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [
+    "overdraft_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "overdraft_fee",
+     "op": "==",
+     "value": 0,
+     "because": "I need an account with absolutely no overdraft fees. Non-negotiable.",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_or": {
+   "n_con": 2,
+   "n_or": 0,
+   "n_surv": 24,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "overdraft_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "overdraft_fee",
+     "op": "==",
+     "value": 0,
+     "because": "I need an account with absolutely no overdraft fees. Non-negotiable.",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "overdraft_fee",
+     "op": "absent",
+     "value": null,
+     "because": "Absolutely no overdraft fees (non-negotiable)",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_noise": {
+   "n_con": 1,
+   "n_or": 0,
+   "n_surv": 36,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [
+    "overdraft_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "overdraft_fee",
+     "op": "==",
+     "value": 0,
+     "because": "I need an account with absolutely no overdraft fees. Non-negotiable.",
+     "stated_as": "requirement"
+    }
+   ]
+  }
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "gold": "Blue Account",
+  "arg": "account_class",
+  "n_turns": 3,
+  "F_now": {
+   "n_con": 1,
+   "n_or": 0,
+   "n_surv": 36,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [
+    "overdraft_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "overdraft_fee",
+     "op": "==",
+     "value": 0,
+     "because": "I need an account with absolutely no overdraft fees. That’s non-negotiable.",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "F_or": {
+   "n_con": 1,
+   "n_or": 0,
+   "n_surv": 36,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [
+    "overdraft_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "overdraft_fee",
+     "op": "==",
+     "value": 0,
+     "because": "I need an account with absolutely no overdraft fees.",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_now": {
+   "n_con": 1,
+   "n_or": 0,
+   "n_surv": 36,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [
+    "overdraft_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "overdraft_fee",
+     "op": "==",
+     "value": 0,
+     "because": "I need an account with absolutely no overdraft fees.",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_or": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 0,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "monthly_maintenance_fee",
+    "overdraft_fee",
+    "overdraft_protection_transfer_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "monthly_maintenance_fee",
+     "op": "absent",
+     "value": null,
+     "because": "I want something that fits a few specific needs",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "overdraft_fee",
+     "op": "==",
+     "value": 0,
+     "because": "I need an account with absolutely no overdraft fees.",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "overdraft_protection_transfer_fee",
+     "op": "exists",
+     "value": null,
+     "because": "I still want a safety net—if I accidentally spend more than I have, I want to be able to link a savings account to cover it automatically.",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_noise": {
+   "n_con": 1,
+   "n_or": 0,
+   "n_surv": 36,
+   "gold_in": true,
+   "unique": false,
+   "attrs": [
+    "overdraft_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "overdraft_fee",
+     "op": "==",
+     "value": 0,
+     "because": "I need an account with absolutely no overdraft fees.",
+     "stated_as": "requirement"
+    }
+   ]
+  }
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "gold": "Silver Plus Account",
+  "arg": "account_class",
+  "n_turns": 8,
+  "F_now": {
+   "n_con": 2,
+   "n_or": 0,
+   "n_surv": 21,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "apy",
+    "paper_statement_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "apy",
+     "op": "exists",
+     "value": null,
+     "because": "I’m looking to open both a credit card and a savings account. My goal is to maximize the interest I’ll earn over one year—even a small difference of $10–15 matters to me.",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "paper_statement_fee",
+     "op": "absent",
+     "value": null,
+     "because": "absolutely need paper statements mailed to me (my accountant requires physical copies for tax filing)",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "F_or": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 21,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "apy",
+    "paper_statement_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "apy",
+     "op": "exists",
+     "value": null,
+     "because": "My goal is to maximize the interest I'll earn over one year—even a small difference of $10–15 matters to me.",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "apy",
+     "op": "exists",
+     "value": null,
+     "because": "I’m trying to avoid comparing multiple accounts—just want the one that yields the absolute highest return.",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "paper_statement_fee",
+     "op": "absent",
+     "value": null,
+     "because": "I absolutely need paper statements mailed to me (my accountant requires physical copies for tax filing).",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_now": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 21,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "apy",
+    "paper_statement_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "paper_statement_fee",
+     "op": "absent",
+     "value": null,
+     "because": "I absolutely need paper statements mailed to me (my accountant requires physical copies for tax filing).",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "apy",
+     "op": "exists",
+     "value": null,
+     "because": "I want whichever savings option will give me the highest return over that time",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "paper_statement_fee",
+     "op": "==",
+     "value": 0,
+     "because": "paper statements mailed to me are a must",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_or": {
+   "n_con": 2,
+   "n_or": 0,
+   "n_surv": 21,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "apy",
+    "paper_statement_fee"
+   ],
+   "cons": [
+    {
+     "attribute": "apy",
+     "op": "exists",
+     "value": null,
+     "because": "My goal is to maximize the interest I'll earn over one year—even a small difference of $10–15 matters to me.",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "paper_statement_fee",
+     "op": "absent",
+     "value": null,
+     "because": "I absolutely need paper statements mailed to me",
+     "stated_as": "requirement"
+    }
+   ]
+  },
+  "T_noise": {
+   "n_con": 3,
+   "n_or": 0,
+   "n_surv": 18,
+   "gold_in": false,
+   "unique": false,
+   "attrs": [
+    "apy",
+    "paper_statement_fee",
+    "waiver_min_daily_balance"
+   ],
+   "cons": [
+    {
+     "attribute": "paper_statement_fee",
+     "op": "absent",
+     "value": null,
+     "because": "I absolutely need paper statements mailed to me (my accountant requires physical copies for tax filing).",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "apy",
+     "op": "exists",
+     "value": null,
+     "because": "I want whichever savings option will give me the highest return over that time",
+     "stated_as": "requirement"
+    },
+    {
+     "attribute": "waiver_min_daily_balance",
+     "op": ">=",
+     "value": 8000,
+     "because": "given I already have a Light Blue checking account and I’m leaving $8,000 untouched for one year",
+     "stated_as": "requirement"
+    }
+   ]
+  }
+ }
+]
