@@ -14,7 +14,8 @@ C569(110편 전달·`x446`) ↔ C571(색인 12편 전달·`x447`)의 0/4 ↔ 4/4
 쓰고 **재료만** 다르다. 재료 바이트는 전부 **샌드박스 실물**(라이브와 같은 도구·같은 형식)에서 뽑는다.
 
 ## 팔 (전부 전달 관용구 — 서브에이전트는 판단만 한다)
-    Z_none    문서 없음                                    현행 재현(C570: 결정 시점에 KB 가 없다)
+    Z_cite    문서 없음 · **공유 프롬프트**                  ⚠인용 요구가 null 을 강제한다(계기 artifact)
+    Z_free    문서 없음 · x447 무문서 문구                   현행 거동의 정직한 재현
     R_bm25    `KB_search_bm25(손님 발화, k=선언편수)`         벤치의 검색 — **예산 일치**
     R_dense   `KB_search_dense(손님 발화, k=선언편수)`        벤치의 검색 — **예산 일치**
     B_shell   **A2 선언 id → `shell: cat <id>.md`**          ★우리 방식(정확 전달)
@@ -70,7 +71,12 @@ SYS = ("You are the module that decides ONE thing for a Rho-Bank support agent: 
        "that shows this spending qualifies>\"}. The quote MUST come from the documents, never from "
        "the customer. If no document sentence supports a category, set spend_category to null.")
 
+SYS_FREE = ("Reply with ONE JSON object only: {\"spend_category\": \"<one of: travel, software, "
+            "operations, media_advertising, green>\" or null}. Use null unless the customer's "
+            "spending clearly belongs to one of those documented categories.")
+
 _ALNUM = re.compile(r"[^0-9a-z]+")
+_FNKEY = re.compile(r"[^0-9A-Za-z]+")
 
 
 def form_norm(t):
@@ -97,12 +103,14 @@ class Sandbox(object):
         self.files = [x for x in str(self.env.use_tool("shell", command="ls")).split() if x]
 
     def file_for(self, doc_id):
-        """선언된 id → 샌드박스 파일명. **우리가 이름을 짓지 않는다** — 실제 목록에서 찾는다."""
+        """선언된 id → 샌드박스 파일명. **우리가 이름을 짓지 않는다** — 실제 목록에서 찾는다.
+
+        ⚠샌드박스가 파일명을 정제한다(`(general)` → `_general_`). 1차 실측에서 선언 12편 중
+        **2편이 조용히 안 배달됐다** — 형태만 정규화해 맞춘다(뜻 해석 0).
+        """
+        key = _FNKEY.sub("_", doc_id).strip("_")
         for f in self.files:
-            if f.rsplit(".", 1)[0] == doc_id:
-                return f
-        for f in self.files:
-            if doc_id in f:
+            if _FNKEY.sub("_", f.rsplit(".", 1)[0]).strip("_") == key:
                 return f
         return None
 
@@ -145,7 +153,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8141)
     ap.add_argument("--tag", default="iva2")
-    ap.add_argument("--arms", default="Z_none,R_bm25,R_dense,B_shell,N_sham,W_all")
+    ap.add_argument("--arms", default="Z_cite,Z_free,R_bm25,R_dense,B_shell,N_sham,W_all")
     ap.add_argument("--maxchars", type=int, default=90000)
     a = ap.parse_args()
     arms = [x.strip() for x in a.arms.split(",") if x.strip()]
@@ -182,7 +190,7 @@ def main():
         ref = REF.get(str(c["task"]).split("_")[-1], "?")
         print("\n%s t%s   참조=%s" % (c["task"], c["trial"], ref))
         for arm in arms:
-            if arm == "Z_none":
+            if arm in ("Z_cite", "Z_free"):
                 body = ""
             elif arm == "R_bm25":
                 body = sb.search("KB_search_bm25", said, K)
