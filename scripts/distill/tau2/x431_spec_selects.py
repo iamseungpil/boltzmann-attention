@@ -279,7 +279,16 @@ def num(v):
 
 
 def fill_blanks(table, docdir, family, port):
-    """빈칸마다 **표적 질의** — 문서가 값을 주나. 안 주면 `absent` 로 확정한다."""
+    """빈칸마다 **표적 질의** — 문서가 값을 주나. 안 주면 `absent` 로 확정한다.
+
+    ⚠**계열을 다 돌아야 한다**(2026-08-20 수리·사용자 지적): 표가 4계열 38 클래스로 넓어졌는데 이 함수는
+      `--family` 하나만 받아 나머지 계열의 문서를 못 찾고 **조용히 건너뛰었다**(`if not docs: continue`).
+      그 결과 608 칸 중 **313(51%)이 질의된 적조차 없는데** 우리는 그것을 *"문서 미기재"* 로 읽고
+      순위 보류를 문서 탓으로 돌렸다. 빈칸의 사유를 모르면 **모른다고 적어야** 한다([[25]]).
+
+    ★그리고 질의는 **문서 단위**로 한다 — x434 민감도 통제: 한 덩어리 80% ↔ 문서별 **90%** ↔ 3등분 100%
+      (단 3등분은 오추출을 산다 — 월 수수료를 당좌차월료로 붙였다). 그래서 **문서별이 최적점**이다.
+    """
     prefix = "doc_%s_" % family
     byc = collections.defaultdict(list)
     for f in sorted(os.listdir(docdir)):
@@ -352,7 +361,9 @@ def main():
     with io.open(os.path.abspath(TBL), encoding="utf-8") as f:
         table = json.load(f)
     if a.fill_blanks:
-        table = fill_blanks(table, a.docdir, a.family, a.port)
+        fams = FT.FAMILIES if a.family == "all" else [a.family]
+        for fam in fams:
+            table = fill_blanks(table, a.docdir, fam, a.port)
         with io.open(os.path.abspath(TBL).replace(".json", "_filled.json"), "w", encoding="utf-8") as f:
             json.dump(table, f, ensure_ascii=False, indent=1)
 
