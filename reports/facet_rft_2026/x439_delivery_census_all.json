@@ -1,0 +1,2710 @@
+[
+ {
+  "tag": "bank_b4_gpu0_20260803h",
+  "task": "task_002",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu0_20260803h",
+  "task": "task_001",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu0_20260803h",
+  "task": "task_007",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_b4_gpu0_20260803h",
+  "task": "task_008",
+  "trial": 0,
+  "msg": 9,
+  "next": 10,
+  "n_delivered": 7,
+  "n_named": 6,
+  "named": [
+   "Bronze Rewards Card",
+   "Crypto-Cash Back",
+   "EcoCard",
+   "Gold Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "give_discoverable_user_tool"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_b4_gpu0_20260803h",
+  "task": "task_025",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu0_20260803h",
+  "task": "task_001",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu0_20260803h",
+  "task": "task_001",
+  "trial": 1,
+  "msg": 7,
+  "next": 8,
+  "n_delivered": 7,
+  "n_named": 2,
+  "named": [
+   "Gold Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu0_20260803h",
+  "task": "task_002",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu0_20260803h",
+  "task": "task_007",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_b4_gpu0_20260803h",
+  "task": "task_008",
+  "trial": 1,
+  "msg": 23,
+  "next": 24,
+  "n_delivered": 7,
+  "n_named": 4,
+  "named": [
+   "Crypto-Cash Back",
+   "Gold Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu0_20260803h",
+  "task": "task_008",
+  "trial": 1,
+  "msg": 29,
+  "next": 30,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Bronze Rewards Card",
+   "Gold Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu0_20260803h",
+  "task": "task_025",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu1_20260803h",
+  "task": "task_003",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu1_20260803h",
+  "task": "task_003",
+  "trial": 0,
+  "msg": 9,
+  "next": 10,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu1_20260803h",
+  "task": "task_003",
+  "trial": 0,
+  "msg": 11,
+  "next": 12,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Gold Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu1_20260803h",
+  "task": "task_006",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu1_20260803h",
+  "task": "task_023",
+  "trial": 0,
+  "msg": 51,
+  "next": 52,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_b4_gpu1_20260803h",
+  "task": "task_023",
+  "trial": 0,
+  "msg": 53,
+  "next": 54,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_b4_gpu1_20260803h",
+  "task": "task_024",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Gold Rewards Card",
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_b4_gpu1_20260803h",
+  "task": "task_006",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "EcoCard"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_b4_gpu1_20260803h",
+  "task": "task_003",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_b4_gpu1_20260803h",
+  "task": "task_024",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Gold Rewards Card",
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_batch_03_20260804",
+  "task": "task_067",
+  "trial": 1,
+  "msg": 45,
+  "next": 46,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Diamond Elite Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_batch_03_20260804",
+  "task": "task_068",
+  "trial": 0,
+  "msg": 40,
+  "next": 41,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_batch_03_20260804",
+  "task": "task_068",
+  "trial": 1,
+  "msg": 41,
+  "next": 42,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_003",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_002",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_001",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_001",
+  "trial": 0,
+  "msg": 7,
+  "next": 8,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_006",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "EcoCard"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_024",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Gold Rewards Card",
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_044",
+  "trial": 0,
+  "msg": 27,
+  "next": 28,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "KB_search_bm25",
+   "KB_search_bm25",
+   "KB_search_bm25",
+   "KB_search_bm25"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_059",
+  "trial": 0,
+  "msg": 9,
+  "next": 10,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Diamond Elite Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_070",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "shell"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_002",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_001",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_003",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_006",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "EcoCard"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_024",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Gold Rewards Card",
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_066",
+  "trial": 1,
+  "msg": 41,
+  "next": 42,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "KB_search_bm25"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_070",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_070",
+  "trial": 1,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260804",
+  "task": "task_070",
+  "trial": 1,
+  "msg": 7,
+  "next": 8,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_003",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_002",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_006",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "EcoCard"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_001",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_001",
+  "trial": 0,
+  "msg": 9,
+  "next": 10,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "shell"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_024",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Gold Rewards Card",
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_070",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_070",
+  "trial": 0,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "shell"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_070",
+  "trial": 0,
+  "msg": 23,
+  "next": 24,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "shell"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_066",
+  "trial": 0,
+  "msg": 51,
+  "next": 52,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "unlock_discoverable_agent_tool",
+   "call_discoverable_agent_tool"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_071",
+  "trial": 0,
+  "msg": 8,
+  "next": 10,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_002",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_001",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_001",
+  "trial": 1,
+  "msg": 7,
+  "next": 8,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_006",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "EcoCard"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_003",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_024",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Gold Rewards Card",
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_044",
+  "trial": 1,
+  "msg": 25,
+  "next": 26,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "KB_search_bm25",
+   "KB_search_bm25",
+   "KB_search_bm25",
+   "KB_search_bm25"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_059",
+  "trial": 1,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "KB_search_bm25"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_070",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_070",
+  "trial": 1,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "shell"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260805",
+  "task": "task_071",
+  "trial": 1,
+  "msg": 8,
+  "next": 11,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense",
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_002",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_001",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_001",
+  "trial": 0,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Bronze Rewards Card",
+   "Gold Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_006",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "EcoCard"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_003",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Gold Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_024",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Gold Rewards Card",
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_059",
+  "trial": 0,
+  "msg": 9,
+  "next": 10,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_070",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "shell"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_066",
+  "trial": 0,
+  "msg": 73,
+  "next": 74,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_002",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_001",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Bronze Rewards Card",
+   "Gold Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_003",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_008",
+  "trial": 1,
+  "msg": 17,
+  "next": 18,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_024",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Gold Rewards Card",
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806",
+  "task": "task_006",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "EcoCard"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806b",
+  "task": "task_059",
+  "trial": 0,
+  "msg": 11,
+  "next": 12,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806b",
+  "task": "task_070",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806b",
+  "task": "task_070",
+  "trial": 0,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806b",
+  "task": "task_070",
+  "trial": 0,
+  "msg": 7,
+  "next": 8,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806b",
+  "task": "task_059",
+  "trial": 1,
+  "msg": 9,
+  "next": 10,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Diamond Elite Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806b",
+  "task": "task_066",
+  "trial": 1,
+  "msg": 30,
+  "next": 31,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806b",
+  "task": "task_070",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806b",
+  "task": "task_070",
+  "trial": 1,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu0_main_20260806b",
+  "task": "task_070",
+  "trial": 1,
+  "msg": 7,
+  "next": 8,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_batch_02_20260804",
+  "task": "task_064",
+  "trial": 0,
+  "msg": 11,
+  "next": 12,
+  "n_delivered": 7,
+  "n_named": 5,
+  "named": [
+   "Bronze Rewards Card",
+   "Crypto-Cash Back",
+   "EcoCard",
+   "Gold Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_batch_02_20260804",
+  "task": "task_057",
+  "trial": 0,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "shell"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_batch_02_20260804",
+  "task": "task_064",
+  "trial": 1,
+  "msg": 13,
+  "next": 14,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_batch_02_20260805",
+  "task": "task_064",
+  "trial": 0,
+  "msg": 17,
+  "next": 18,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_batch_02_20260805",
+  "task": "task_064",
+  "trial": 1,
+  "msg": 13,
+  "next": 14,
+  "n_delivered": 7,
+  "n_named": 4,
+  "named": [
+   "Bronze Rewards Card",
+   "EcoCard",
+   "Gold Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_batch_03_20260805",
+  "task": "task_067",
+  "trial": 1,
+  "msg": 55,
+  "next": 56,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Diamond Elite Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_batch_03_20260805",
+  "task": "task_068",
+  "trial": 1,
+  "msg": 39,
+  "next": 40,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_batch_04_20260804",
+  "task": "task_069",
+  "trial": 0,
+  "msg": 41,
+  "next": 42,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Bronze Rewards Card",
+   "Gold Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_batch_04_20260805",
+  "task": "task_069",
+  "trial": 0,
+  "msg": 49,
+  "next": 50,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Bronze Rewards Card",
+   "Gold Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_007",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Bronze Rewards Card",
+   "Gold Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_025",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_047",
+  "trial": 0,
+  "msg": 40,
+  "next": 41,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_055",
+  "trial": 0,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_056",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 9,
+  "named": [
+   "Bronze Rewards Card",
+   "Business Bronze Rewards Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card",
+   "Business Silver Rewards Card",
+   "Gold Rewards Card",
+   "Green Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_058",
+  "trial": 0,
+  "msg": 63,
+  "next": 64,
+  "n_delivered": 7,
+  "n_named": 7,
+  "named": [
+   "Bronze Rewards Card",
+   "Crypto-Cash Back",
+   "Diamond Elite Card",
+   "EcoCard",
+   "Gold Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_007",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_025",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_047",
+  "trial": 1,
+  "msg": 25,
+  "next": 26,
+  "n_delivered": 10,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "KB_search_bm25",
+   "KB_search_bm25",
+   "KB_search_bm25",
+   "KB_search_bm25",
+   "KB_search_bm25",
+   "KB_search_bm25"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_055",
+  "trial": 1,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Crypto-Cash Back",
+   "Gold Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_056",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 9,
+  "named": [
+   "Bronze Rewards Card",
+   "Business Bronze Rewards Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card",
+   "Business Silver Rewards Card",
+   "Gold Rewards Card",
+   "Green Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_058",
+  "trial": 1,
+  "msg": 15,
+  "next": 16,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_058",
+  "trial": 1,
+  "msg": 23,
+  "next": 24,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260804",
+  "task": "task_063",
+  "trial": 1,
+  "msg": 9,
+  "next": 10,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_007",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_023",
+  "trial": 0,
+  "msg": 57,
+  "next": 58,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_025",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_056",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 9,
+  "named": [
+   "Bronze Rewards Card",
+   "Business Bronze Rewards Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card",
+   "Business Silver Rewards Card",
+   "Gold Rewards Card",
+   "Green Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_055",
+  "trial": 0,
+  "msg": 8,
+  "next": 9,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Gold Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_058",
+  "trial": 0,
+  "msg": 43,
+  "next": 44,
+  "n_delivered": 7,
+  "n_named": 4,
+  "named": [
+   "Bronze Rewards Card",
+   "EcoCard",
+   "Gold Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_063",
+  "trial": 0,
+  "msg": 11,
+  "next": 12,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "EcoCard"
+  ],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_007",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_025",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_047",
+  "trial": 1,
+  "msg": 23,
+  "next": 24,
+  "n_delivered": 10,
+  "n_named": 5,
+  "named": [
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card",
+   "Gold Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Zoom Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_056",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 9,
+  "named": [
+   "Bronze Rewards Card",
+   "Business Bronze Rewards Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card",
+   "Business Silver Rewards Card",
+   "Gold Rewards Card",
+   "Green Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_055",
+  "trial": 1,
+  "msg": 8,
+  "next": 9,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_058",
+  "trial": 1,
+  "msg": 35,
+  "next": 36,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "EcoCard"
+  ],
+  "wrote": [],
+  "calls": [
+   "check_card_application_fit"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_058",
+  "trial": 1,
+  "msg": 37,
+  "next": 38,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260805",
+  "task": "task_063",
+  "trial": 1,
+  "msg": 11,
+  "next": 12,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "EcoCard"
+  ],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806",
+  "task": "task_007",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806",
+  "task": "task_023",
+  "trial": 0,
+  "msg": 69,
+  "next": 70,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806",
+  "task": "task_025",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806",
+  "task": "task_047",
+  "trial": 0,
+  "msg": 41,
+  "next": 42,
+  "n_delivered": 10,
+  "n_named": 3,
+  "named": [
+   "Business Gold Rewards Card",
+   "Gold Rewards Card",
+   "Silver Zoom Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806",
+  "task": "task_055",
+  "trial": 0,
+  "msg": 9,
+  "next": 10,
+  "n_delivered": 10,
+  "n_named": 4,
+  "named": [
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card",
+   "Gold Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806",
+  "task": "task_058",
+  "trial": 0,
+  "msg": 25,
+  "next": 26,
+  "n_delivered": 7,
+  "n_named": 2,
+  "named": [
+   "Bronze Rewards Card",
+   "EcoCard"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806",
+  "task": "task_056",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 9,
+  "named": [
+   "Bronze Rewards Card",
+   "Business Bronze Rewards Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card",
+   "Business Silver Rewards Card",
+   "Gold Rewards Card",
+   "Green Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806",
+  "task": "task_063",
+  "trial": 0,
+  "msg": 11,
+  "next": 12,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Bronze Rewards Card",
+   "Diamond Elite Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806",
+  "task": "task_007",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806",
+  "task": "task_025",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806",
+  "task": "task_056",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 9,
+  "named": [
+   "Bronze Rewards Card",
+   "Business Bronze Rewards Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card",
+   "Business Silver Rewards Card",
+   "Gold Rewards Card",
+   "Green Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806",
+  "task": "task_058",
+  "trial": 1,
+  "msg": 37,
+  "next": 38,
+  "n_delivered": 7,
+  "n_named": 2,
+  "named": [
+   "EcoCard",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806b",
+  "task": "task_064",
+  "trial": 0,
+  "msg": 9,
+  "next": 10,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806b",
+  "task": "task_068",
+  "trial": 0,
+  "msg": 55,
+  "next": 56,
+  "n_delivered": 10,
+  "n_named": 4,
+  "named": [
+   "Bronze Rewards Card",
+   "Business Bronze Rewards Card",
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806b",
+  "task": "task_069",
+  "trial": 0,
+  "msg": 25,
+  "next": 26,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806b",
+  "task": "task_069",
+  "trial": 0,
+  "msg": 40,
+  "next": 41,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806b",
+  "task": "task_064",
+  "trial": 1,
+  "msg": 13,
+  "next": 14,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_n97_gpu1_main_20260806b",
+  "task": "task_068",
+  "trial": 1,
+  "msg": 42,
+  "next": 43,
+  "n_delivered": 7,
+  "n_named": 2,
+  "named": [
+   "Bronze Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7310_ctl_20260818e",
+  "task": "task_024",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 10,
+  "named": [
+   "Bronze Rewards Card",
+   "Business Bronze Rewards Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card",
+   "Business Silver Rewards Card",
+   "Gold Rewards Card",
+   "Green Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card",
+   "Silver Zoom Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "shell"
+  ],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_t7310_ctl_20260818e",
+  "task": "task_063",
+  "trial": 0,
+  "msg": 7,
+  "next": 8,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7310_treat_20260818e",
+  "task": "task_024",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7310_treat_20260818e",
+  "task": "task_063",
+  "trial": 0,
+  "msg": 7,
+  "next": 8,
+  "n_delivered": 7,
+  "n_named": 2,
+  "named": [
+   "Bronze Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7312_ctl_20260818g",
+  "task": "task_024",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 10,
+  "named": [
+   "Bronze Rewards Card",
+   "Business Bronze Rewards Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card",
+   "Business Silver Rewards Card",
+   "Gold Rewards Card",
+   "Green Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card",
+   "Silver Zoom Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "shell"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7312_treat_20260818g",
+  "task": "task_024",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7313_ctl_20260818h",
+  "task": "task_003",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Gold Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7313_ctl_20260818h",
+  "task": "task_063",
+  "trial": 0,
+  "msg": 7,
+  "next": 8,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Bronze Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "give_discoverable_user_tool"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7313_treat_20260818h",
+  "task": "task_003",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Gold Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_t7313_treat_20260818h",
+  "task": "task_063",
+  "trial": 0,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7326_halfA_20260819q",
+  "task": "task_003",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7326_halfA_20260819q",
+  "task": "task_024",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7326_halfA_20260819q",
+  "task": "task_055",
+  "trial": 0,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Crypto-Cash Back",
+   "Gold Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7326_halfA_20260819q",
+  "task": "task_003",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7326_halfA_20260819q",
+  "task": "task_024",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 1.0
+ },
+ {
+  "tag": "bank_t7326_halfB_20260819q",
+  "task": "task_063",
+  "trial": 0,
+  "msg": 7,
+  "next": 8,
+  "n_delivered": 7,
+  "n_named": 2,
+  "named": [
+   "Gold Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7326_halfB_20260819q",
+  "task": "task_063",
+  "trial": 1,
+  "msg": 7,
+  "next": 8,
+  "n_delivered": 7,
+  "n_named": 0,
+  "named": [],
+  "wrote": [],
+  "calls": [
+   "get_correct_savings_apy"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7328_halfA_20260819r",
+  "task": "task_003",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 3,
+  "named": [
+   "Gold Rewards Card",
+   "Platinum Rewards Card",
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "KB_search_dense"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7328_halfA_20260819r",
+  "task": "task_024",
+  "trial": 0,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7328_halfA_20260819r",
+  "task": "task_003",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7328_halfA_20260819r",
+  "task": "task_024",
+  "trial": 1,
+  "msg": 3,
+  "next": 4,
+  "n_delivered": 10,
+  "n_named": 2,
+  "named": [
+   "Business Platinum Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7328_halfB_20260819r2",
+  "task": "task_063",
+  "trial": 0,
+  "msg": 5,
+  "next": 6,
+  "n_delivered": 7,
+  "n_named": 2,
+  "named": [
+   "Gold Rewards Card",
+   "Platinum Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [
+   "give_discoverable_user_tool"
+  ],
+  "reward": 0.0
+ },
+ {
+  "tag": "bank_t7328_halfB_20260819r2",
+  "task": "task_063",
+  "trial": 1,
+  "msg": 7,
+  "next": 8,
+  "n_delivered": 7,
+  "n_named": 1,
+  "named": [
+   "Silver Rewards Card"
+  ],
+  "wrote": [],
+  "calls": [],
+  "reward": 0.0
+ }
+]

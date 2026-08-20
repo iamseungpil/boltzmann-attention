@@ -55,10 +55,19 @@ def hits(text, ns):
     return [n for n in ns if PR._word_in(text, n)]
 
 
+def all_tags():
+    """로컬에 있는 결과 파일 전부 — 표본을 11 자리에서 수백 sim 으로 넓힌다([[09]] 무료)."""
+    import glob
+    base = os.path.abspath(os.path.join(REP, "sim_results"))
+    return sorted({os.path.basename(p).replace(".results.json.gz", "")
+                   for p in glob.glob(os.path.join(base, "*.results.json.gz"))})
+
+
 def main():
     ns = names()
     rows = []
-    for tag in TAGS:
+    tags = all_tags() if "--all" in sys.argv else TAGS
+    for tag in tags:
         try:
             sims = F.sims(tag, ".results.json.gz")
         except Exception:
@@ -95,6 +104,34 @@ def main():
                              "n_delivered": len(hits(c, ns)), "n_named": len(named),
                              "named": named, "wrote": [x for x in calls if x in WRITES],
                              "calls": calls, "reward": reward})
+    if "--all" in sys.argv:
+        # ★교차표 — 전달 유형이 성적을 예측하나(태스크별·[[08]] 집계 직행 금지)
+        import collections
+        ct = collections.Counter()
+        for r in rows:
+            k = "넘기기" if r["n_named"] >= 2 else "밀기" if r["n_named"] == 1 else "무언급"
+            ct[(r["task"], k, r["reward"] == 1.0)] += 1
+        print("=" * 100)
+        print("x439 --all · 자리 %d · 태그 %d" % (len(rows), len(tags)))
+        print("%-10s %-8s %6s %6s %8s" % ("task", "전달", "pass", "fail", "pass율"))
+        for task in sorted({r["task"] for r in rows}):
+            for k in ("넘기기", "밀기", "무언급"):
+                p_, f_ = ct[(task, k, True)], ct[(task, k, False)]
+                if p_ + f_:
+                    print("%-10s %-8s %6d %6d %8.2f" % (task, k, p_, f_, p_ / float(p_ + f_)))
+        tot = collections.Counter()
+        for (task, k, ok), v in ct.items():
+            tot[(k, ok)] += v
+        print("%-10s %-8s %6s %6s %8s" % ("─" * 8, "─" * 6, "─" * 5, "─" * 5, "─" * 6))
+        for k in ("넘기기", "밀기", "무언급"):
+            p_, f_ = tot[(k, True)], tot[(k, False)]
+            if p_ + f_:
+                print("%-10s %-8s %6d %6d %8.2f" % ("전체", k, p_, f_, p_ / float(p_ + f_)))
+        q = os.path.abspath(os.path.join(REP, "x439_delivery_census_all.json"))
+        with io.open(q, "w", encoding="utf-8") as f:
+            json.dump(rows, f, ensure_ascii=False, indent=1)
+        print("→ %s" % q)
+        return 0
     print("=" * 100)
     print("x439 · 적격 집합 전달 전수 · 자리 %d" % len(rows))
     print("=" * 100)
