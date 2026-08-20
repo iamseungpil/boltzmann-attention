@@ -43,6 +43,15 @@ TBL = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026", "x430_ac
 ATTRS = [x[0] for x in FT.ATTRS]
 
 
+def arg_families(arg):
+    """그 인자의 후보가 올 **문서 계열**(A2 구조 선언). 없으면 None = 제한 없음."""
+    try:
+        with io.open(os.path.join(HERE, "a2", "banking_knowledge.specific.json"), encoding="utf-8") as f:
+            return (json.load(f).get("catalog_arg_families") or {}).get(arg)
+    except Exception:
+        return None
+
+
 def attr_menu():
     """형식화에 **타입까지** 준다 — 어느 op 가 맞는지는 타입이 정한다([[10]] LLM 이 쓰고 엔진은 비교만).
 
@@ -417,9 +426,12 @@ def main():
                 cons, bad, spec, dropped, dropped_full = cons2, bad2, spec2, dropped2, dropped_full2
         rejected[(c["task"], c["trial"])] = bad
         surv, why = [], []
+        fams = arg_families(c["arg"])
         for cls, row in table.items():
             if not isinstance(row, dict):
                 continue
+            if fams and (row.get("_family") not in fams):
+                continue                      # 계열 밖 후보는 애초에 안 센다(A2 선언)
             ok = True
             for con in cons:
                 at, op = con.get("attribute"), con.get("op")
