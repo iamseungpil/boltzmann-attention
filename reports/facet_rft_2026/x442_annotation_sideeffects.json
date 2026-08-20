@@ -1,0 +1,2936 @@
+[
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_ax32p1_gpu0_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_ax32p1_gpu0_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_ax32p1_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_ax32p1_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_ax32p1_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_ax32p1_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_025",
+  "tag": "bank_ax32p1_gpu1_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_ax32p2_gpu0_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_007",
+  "tag": "bank_ax32p2_gpu0_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_ax32p2_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 4,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_ax32p2_gpu1_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_ax32p2_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_ax32p2_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_ax32p2_gpu1_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_ax33n_gpu0_20260803b"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_ax33n_gpu0_20260803b"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_ax33n_gpu0_20260803b_partial"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_ax33n_gpu0_20260803b_partial"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_ax33n_gpu0_20260803c"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_ax33n_gpu0_20260803c_partial"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_ax33n_gpu0_20260803d"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_ax33n_gpu0_20260803d"
+ },
+ {
+  "cat": false,
+  "reads": 8,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_ax33n_gpu0_20260803d"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_ax33n_gpu0_20260803d_partial"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_ax33n_gpu0_20260803d_partial"
+ },
+ {
+  "cat": false,
+  "reads": 8,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_ax33n_gpu0_20260803d_partial"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_ax33n_gpu0_20260803f"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_ax33n_gpu0_20260803f"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_ax33n_gpu0_20260803f"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_ax33n_gpu0_20260803f_partial"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_ax33n_gpu0_20260803f_partial"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_ax33n_gpu0_20260803f_partial"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_ax33n_gpu0_20260803g"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_ax33n_gpu0_20260803g"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_ax33n_gpu0_20260803g"
+ },
+ {
+  "cat": true,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_ax33n_gpu0_20260803g"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 2,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_ax33n_gpu0_20260803g"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 2,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_ax33n_gpu0_20260803g"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_008",
+  "tag": "bank_ax33n_gpu0_20260803g"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_ax33n_gpu0_20260803g"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_ax33n_gpu0_20260803g"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_ax33n_gpu1_20260803"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_ax33n_gpu1_20260803"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_ax33n_gpu1_20260803_partial"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_ax33n_gpu1_20260803_partial"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803_partial"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803b"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803b_partial"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803c"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803c_partial"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803d"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803d_partial"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803e"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803f"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803f_partial"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803g"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_ax33n_gpu1_20260803g"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_ax33n_gpu1_20260803g"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_ax33n_gpu1_20260803g"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_ax33n_gpu1_20260803g"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_ax33n_gpu1_20260803g"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_b4_gpu0_20260803h"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_b4_gpu0_20260803h"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_b4_gpu0_20260803h"
+ },
+ {
+  "cat": false,
+  "reads": 7,
+  "writes": 0,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_008",
+  "tag": "bank_b4_gpu0_20260803h"
+ },
+ {
+  "cat": true,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_b4_gpu0_20260803h"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_b4_gpu0_20260803h"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_b4_gpu0_20260803h"
+ },
+ {
+  "cat": false,
+  "reads": 9,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_b4_gpu0_20260803h"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_008",
+  "tag": "bank_b4_gpu0_20260803h"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_b4_gpu0_20260803h"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_b4_gpu1_20260803h"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_b4_gpu1_20260803h"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 0,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_b4_gpu1_20260803h"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_b4_gpu1_20260803h"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_b4_gpu1_20260803h"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_b4_gpu1_20260803h"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_b4_gpu1_20260803h"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_day2frontB_20260726"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_day2frontB_20260726"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 2,
+  "fabs": 2,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_day2frontB_20260726"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_006",
+  "tag": "bank_day3frontA_20260726"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_day3frontB_20260726"
+ },
+ {
+  "cat": false,
+  "reads": 4,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_day3frontB_20260726"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 2,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_day3frontB_20260726"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_006",
+  "tag": "bank_day4bfrontA_20260727"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_day4bfrontB_20260727"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_day4bfrontB_20260727"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_day4bfrontB_20260727"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_day5frontA_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_day5frontB_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_day5frontB_20260728"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_day5frontB_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 6,
+  "writes": 2,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_day5frontB_20260728"
+ },
+ {
+  "cat": true,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_day5frontB_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_day6frontA_20260728"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_day6frontA_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_day6frontB_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_day6frontB_20260728"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_day6frontB_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 8,
+  "writes": 3,
+  "fabs": 2,
+  "reward": 1.0,
+  "task": "task_023",
+  "tag": "bank_day6frontB_20260728"
+ },
+ {
+  "cat": true,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_day6frontB_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_day7frontA_20260728"
+ },
+ {
+  "cat": true,
+  "reads": 6,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_day7frontA_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_day7frontB_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_day7frontB_20260728"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_day7frontB_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_day7frontB_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_023",
+  "tag": "bank_day7frontB_20260728"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_025",
+  "tag": "bank_day7frontB_20260728"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_day8frontA_20260729"
+ },
+ {
+  "cat": true,
+  "reads": 5,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_day8frontA_20260729"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 2,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_day8frontB_20260729"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_day8frontB_20260729"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_day8frontB_20260729"
+ },
+ {
+  "cat": false,
+  "reads": 4,
+  "writes": 0,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_day8frontB_20260729"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_day8frontB_20260729"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 2,
+  "fabs": 6,
+  "reward": 0.0,
+  "task": "task_025",
+  "tag": "bank_day8frontB_20260729"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_006",
+  "tag": "bank_day9cfrontA_20260729"
+ },
+ {
+  "cat": false,
+  "reads": 8,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_008",
+  "tag": "bank_day9cfrontA_20260729"
+ },
+ {
+  "cat": true,
+  "reads": 5,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_day9cfrontA_20260729"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_day9cfrontB_20260729"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_002",
+  "tag": "bank_day9cfrontB_20260729"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_day9cfrontB_20260729"
+ },
+ {
+  "cat": false,
+  "reads": 4,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_day9cfrontB_20260729"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_day9cfrontB_20260729"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_025",
+  "tag": "bank_day9cfrontB_20260729"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_day9smoke_20260729"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_067",
+  "tag": "bank_n97_gpu0_batch_03_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_068",
+  "tag": "bank_n97_gpu0_batch_03_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 20,
+  "writes": 8,
+  "fabs": 2,
+  "reward": 0.0,
+  "task": "task_068",
+  "tag": "bank_n97_gpu0_batch_03_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 16,
+  "writes": 0,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_044",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 9,
+  "writes": 3,
+  "fabs": 5,
+  "reward": 0.0,
+  "task": "task_059",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 19,
+  "writes": 4,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_070",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 17,
+  "writes": 9,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_049",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_066",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 22,
+  "writes": 7,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_070",
+  "tag": "bank_n97_gpu0_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 19,
+  "writes": 2,
+  "fabs": 2,
+  "reward": 0.0,
+  "task": "task_070",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 5,
+  "writes": 7,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_066",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 16,
+  "writes": 8,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_071",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 20,
+  "writes": 6,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_044",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 9,
+  "writes": 4,
+  "fabs": 4,
+  "reward": 0.0,
+  "task": "task_059",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 18,
+  "writes": 1,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_070",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 16,
+  "writes": 7,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_071",
+  "tag": "bank_n97_gpu0_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": true,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 7,
+  "writes": 3,
+  "fabs": 2,
+  "reward": 0.0,
+  "task": "task_059",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": true,
+  "reads": 12,
+  "writes": 1,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_070",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_066",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 4,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 4,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_008",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_n97_gpu0_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 7,
+  "writes": 1,
+  "fabs": 2,
+  "reward": 0.0,
+  "task": "task_059",
+  "tag": "bank_n97_gpu0_main_20260806b"
+ },
+ {
+  "cat": true,
+  "reads": 11,
+  "writes": 3,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_070",
+  "tag": "bank_n97_gpu0_main_20260806b"
+ },
+ {
+  "cat": false,
+  "reads": 5,
+  "writes": 1,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_059",
+  "tag": "bank_n97_gpu0_main_20260806b"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_066",
+  "tag": "bank_n97_gpu0_main_20260806b"
+ },
+ {
+  "cat": true,
+  "reads": 20,
+  "writes": 7,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_070",
+  "tag": "bank_n97_gpu0_main_20260806b"
+ },
+ {
+  "cat": true,
+  "reads": 17,
+  "writes": 3,
+  "fabs": 5,
+  "reward": 0.0,
+  "task": "task_064",
+  "tag": "bank_n97_gpu1_batch_02_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 15,
+  "writes": 5,
+  "fabs": 6,
+  "reward": 0.0,
+  "task": "task_057",
+  "tag": "bank_n97_gpu1_batch_02_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 5,
+  "writes": 1,
+  "fabs": 4,
+  "reward": 0.0,
+  "task": "task_064",
+  "tag": "bank_n97_gpu1_batch_02_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_064",
+  "tag": "bank_n97_gpu1_batch_02_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 6,
+  "writes": 3,
+  "fabs": 4,
+  "reward": 0.0,
+  "task": "task_064",
+  "tag": "bank_n97_gpu1_batch_02_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 12,
+  "writes": 10,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_067",
+  "tag": "bank_n97_gpu1_batch_03_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 24,
+  "writes": 8,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_068",
+  "tag": "bank_n97_gpu1_batch_03_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_069",
+  "tag": "bank_n97_gpu1_batch_04_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 6,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_069",
+  "tag": "bank_n97_gpu1_batch_04_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 17,
+  "writes": 7,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_047",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 19,
+  "writes": 3,
+  "fabs": 10,
+  "reward": 0.0,
+  "task": "task_055",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 10,
+  "writes": 1,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_056",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_058",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": true,
+  "reads": 20,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_047",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 15,
+  "writes": 3,
+  "fabs": 6,
+  "reward": 0.0,
+  "task": "task_055",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 16,
+  "writes": 5,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_056",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 8,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_058",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 14,
+  "writes": 0,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_063",
+  "tag": "bank_n97_gpu1_main_20260804"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_046",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 12,
+  "writes": 1,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_056",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 17,
+  "writes": 4,
+  "fabs": 4,
+  "reward": 0.0,
+  "task": "task_055",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 4,
+  "writes": 2,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_058",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 9,
+  "writes": 3,
+  "fabs": 4,
+  "reward": 0.0,
+  "task": "task_063",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_025",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 13,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_047",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 10,
+  "writes": 5,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_056",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": true,
+  "reads": 14,
+  "writes": 8,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_055",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 10,
+  "writes": 3,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_058",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 11,
+  "writes": 4,
+  "fabs": 4,
+  "reward": 0.0,
+  "task": "task_063",
+  "tag": "bank_n97_gpu1_main_20260805"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_047",
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": true,
+  "reads": 9,
+  "writes": 1,
+  "fabs": 2,
+  "reward": 0.0,
+  "task": "task_055",
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 5,
+  "writes": 2,
+  "fabs": 5,
+  "reward": 0.0,
+  "task": "task_058",
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 17,
+  "writes": 8,
+  "fabs": 5,
+  "reward": 0.0,
+  "task": "task_056",
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 9,
+  "writes": 1,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_063",
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_025",
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 6,
+  "writes": 1,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_056",
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_058",
+  "tag": "bank_n97_gpu1_main_20260806"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_064",
+  "tag": "bank_n97_gpu1_main_20260806b"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_068",
+  "tag": "bank_n97_gpu1_main_20260806b"
+ },
+ {
+  "cat": false,
+  "reads": 6,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_069",
+  "tag": "bank_n97_gpu1_main_20260806b"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_064",
+  "tag": "bank_n97_gpu1_main_20260806b"
+ },
+ {
+  "cat": true,
+  "reads": 10,
+  "writes": 4,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_068",
+  "tag": "bank_n97_gpu1_main_20260806b"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_nightA_20260725"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_nightA_20260725"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_002",
+  "tag": "bank_nightB_20260725"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_qp32p1_gpu0_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_qp32p1_gpu0_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 10,
+  "writes": 0,
+  "fabs": 2,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_qp32p1_gpu0_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_qp32p1_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_qp32p1_gpu1_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_qp32p1_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_qp32p1_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_qp32p1_gpu1_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_qp32p2_gpu0_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_qp32p2_gpu0_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 22,
+  "writes": 3,
+  "fabs": 2,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_qp32p2_gpu0_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_qp32p2_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_qp32p2_gpu1_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_qp32p2_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_qp32p2_gpu1_20260802"
+ },
+ {
+  "cat": true,
+  "reads": 3,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_025",
+  "tag": "bank_qp32p2_gpu1_20260802"
+ },
+ {
+  "cat": false,
+  "reads": 4,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_024",
+  "tag": "bank_t7310_ctl_20260818e"
+ },
+ {
+  "cat": true,
+  "reads": 7,
+  "writes": 2,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_063",
+  "tag": "bank_t7310_ctl_20260818e"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_t7310_treat_20260818e"
+ },
+ {
+  "cat": false,
+  "reads": 9,
+  "writes": 2,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_063",
+  "tag": "bank_t7310_treat_20260818e"
+ },
+ {
+  "cat": false,
+  "reads": 5,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_t7312_ctl_20260818g"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_t7312_treat_20260818g"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_t7313_ctl_20260818h"
+ },
+ {
+  "cat": true,
+  "reads": 10,
+  "writes": 2,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_063",
+  "tag": "bank_t7313_ctl_20260818h"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_t7313_treat_20260818h"
+ },
+ {
+  "cat": false,
+  "reads": 20,
+  "writes": 2,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_063",
+  "tag": "bank_t7313_treat_20260818h"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_t7326_halfA_20260819q"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_t7326_halfA_20260819q"
+ },
+ {
+  "cat": true,
+  "reads": 14,
+  "writes": 7,
+  "fabs": 5,
+  "reward": 0.0,
+  "task": "task_055",
+  "tag": "bank_t7326_halfA_20260819q"
+ },
+ {
+  "cat": true,
+  "reads": 16,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_t7326_halfA_20260819q"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_024",
+  "tag": "bank_t7326_halfA_20260819q"
+ },
+ {
+  "cat": true,
+  "reads": 24,
+  "writes": 4,
+  "fabs": 5,
+  "reward": 0.0,
+  "task": "task_063",
+  "tag": "bank_t7326_halfB_20260819q"
+ },
+ {
+  "cat": false,
+  "reads": 9,
+  "writes": 2,
+  "fabs": 2,
+  "reward": 0.0,
+  "task": "task_063",
+  "tag": "bank_t7326_halfB_20260819q"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_t7328_halfA_20260819r"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_t7328_halfA_20260819r"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_t7328_halfA_20260819r"
+ },
+ {
+  "cat": false,
+  "reads": 4,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_t7328_halfA_20260819r"
+ },
+ {
+  "cat": false,
+  "reads": 11,
+  "writes": 2,
+  "fabs": 3,
+  "reward": 0.0,
+  "task": "task_063",
+  "tag": "bank_t7328_halfB_20260819r2"
+ },
+ {
+  "cat": false,
+  "reads": 15,
+  "writes": 5,
+  "fabs": 5,
+  "reward": 0.0,
+  "task": "task_063",
+  "tag": "bank_t7328_halfB_20260819r2"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": false,
+  "reads": 8,
+  "writes": 1,
+  "fabs": 3,
+  "reward": 1.0,
+  "task": "task_023",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": true,
+  "reads": 6,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 2,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": false,
+  "reads": 5,
+  "writes": 2,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": true,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_y1var_20260730"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_y2b_gpu0_20260731"
+ },
+ {
+  "cat": false,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_y2b_gpu0_20260731"
+ },
+ {
+  "cat": false,
+  "reads": 4,
+  "writes": 2,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_y2b_gpu0_20260731"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_y2b_gpu0_20260731"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_y2b_gpu1_20260731"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_y2b_gpu1_20260731"
+ },
+ {
+  "cat": true,
+  "reads": 5,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_y2b_gpu1_20260731"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_025",
+  "tag": "bank_y2b_gpu1_20260731"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_y2c2_gpu0b_20260731"
+ },
+ {
+  "cat": true,
+  "reads": 15,
+  "writes": 2,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_y2c2_gpu0b_20260731"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_y2c2_gpu1_20260731"
+ },
+ {
+  "cat": true,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_003",
+  "tag": "bank_y2c2_gpu1_20260731"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_y2c2_gpu1_20260731"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_y2c2_gpu1_20260731"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_y2c2_gpu1_20260731"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_y2cp2_gpu0_20260801"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_y2cp2_gpu0_20260801"
+ },
+ {
+  "cat": false,
+  "reads": 153,
+  "writes": 30,
+  "fabs": 41,
+  "reward": 0.0,
+  "task": "task_008",
+  "tag": "bank_y2cp2_gpu0_20260801"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_y2cp2_gpu0_20260801"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_001",
+  "tag": "bank_y2cp2_gpu1_20260801"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_002",
+  "tag": "bank_y2cp2_gpu1_20260801"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_y2cp2_gpu1_20260801"
+ },
+ {
+  "cat": true,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_y2cp2_gpu1_20260801"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_007",
+  "tag": "bank_y2cp3_gpu0_20260801"
+ },
+ {
+  "cat": false,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_006",
+  "tag": "bank_y2cp3_gpu0_20260801"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_023",
+  "tag": "bank_y2cp3_gpu0_20260801"
+ },
+ {
+  "cat": false,
+  "reads": 1,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_001",
+  "tag": "bank_y2cp3_gpu1_20260801"
+ },
+ {
+  "cat": false,
+  "reads": 0,
+  "writes": 1,
+  "fabs": 0,
+  "reward": 1.0,
+  "task": "task_002",
+  "tag": "bank_y2cp3_gpu1_20260801"
+ },
+ {
+  "cat": true,
+  "reads": 3,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_003",
+  "tag": "bank_y2cp3_gpu1_20260801"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 0,
+  "fabs": 0,
+  "reward": 0.0,
+  "task": "task_024",
+  "tag": "bank_y2cp3_gpu1_20260801"
+ },
+ {
+  "cat": true,
+  "reads": 2,
+  "writes": 1,
+  "fabs": 1,
+  "reward": 1.0,
+  "task": "task_025",
+  "tag": "bank_y2cp3_gpu1_20260801"
+ }
+]
