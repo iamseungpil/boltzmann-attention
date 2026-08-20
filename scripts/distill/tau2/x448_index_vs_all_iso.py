@@ -205,7 +205,11 @@ def main():
             cut = len(body) > a.maxchars
             body = body[:a.maxchars]
             head = ("# Documents\n%s\n\n" % body) if body else ""
-            ans = X.ask(a.port, SYS, head + "# What the customer said\n%s\n" % said, maxtok=400) or {}
+            # ★`Z_free` 만 다른 프롬프트를 쓴다. 공유 프롬프트는 *"문서에 근거 없으면 null"* 이라
+            #   **문서가 없는 팔에서 null 을 강제**한다 — 그 팔은 능력이 아니라 계약을 잰다.
+            #   x447 의 무문서 문구를 축자로 써서 **현행 거동**을 정직하게 재현한다(A_none 2/4·3판 재현).
+            ans = X.ask(a.port, SYS_FREE if arm == "Z_free" else SYS,
+                        head + "# What the customer said\n%s\n" % said, maxtok=400) or {}
             cat = as_cat(ans.get("spend_category"))
             q = form_norm(ans.get("quote"))
             real = bool(q) and q in form_norm(body)
