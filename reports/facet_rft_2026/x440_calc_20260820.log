@@ -1,0 +1,23 @@
+====================================================================================================
+x440 · 선택 근거의 계산 격리 · 사례 4 · 팔 A_min / B_full / C_nopat(부정통제)
+판정(사전 고정): A 가 되고 B 가 안 되면 **부하** · A 도 안 되면 **경계** · C 가 같으면 **prior**
+====================================================================================================
+  task_003  t0 gold=Silver Rewards Card
+      A_min    → Platinum Rewards Card        빗나감 · 표의 수 3개 사용
+      B_full   → Platinum Rewards Card        빗나감 · 표의 수 3개 사용
+      C_nopat  → Silver Rewards Card          적중 · 표의 수 7개 사용
+  task_024  t0 gold=Business Bronze Rewards Card
+      A_min    → Business Platinum Rewards Ca 빗나감 · 표의 수 3개 사용
+      B_full   → Business Platinum Rewards Ca 빗나감 · 표의 수 3개 사용
+      C_nopat  → Silver Rewards Card          빗나감 · 표의 수 7개 사용
+  task_003  t1 gold=Silver Rewards Card
+      A_min    → Platinum Rewards Card        빗나감 · 표의 수 4개 사용
+      B_full   → Platinum Rewards Card        빗나감 · 표의 수 6개 사용
+      C_nopat  → Silver Rewards Card          적중 · 표의 수 7개 사용
+  task_063  t0 gold=Silver Rewards Card
+      A_min    → Bronze Rewards Card          빗나감 · 표의 수 5개 사용
+      B_full   → Silver Rewards Card          적중 · 표의 수 4개 사용
+      C_nopat  → Silver Rewards Card          적중 · 표의 수 7개 사용
+
+  ★집계 {"A_min": {"hit": 0, "n": 4, "used": 15}, "B_full": {"hit": 1, "n": 4, "used": 16}, "C_nopat": {"hit": 3, "n": 4, "used": 28}}
+→ /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x440_calc1.json

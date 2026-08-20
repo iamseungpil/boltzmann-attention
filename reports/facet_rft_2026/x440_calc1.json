@@ -1,0 +1,94 @@
+[
+ {
+  "task": "task_003",
+  "trial": 0,
+  "gold": "Silver Rewards Card",
+  "A_min": {
+   "winner": "Platinum Rewards Card",
+   "hit": false,
+   "n_used": 3,
+   "why": "It meets all the customer's requirements including no foreign transaction fees, purchase protection, and a credit limit of at least $100,000."
+  },
+  "B_full": {
+   "winner": "Platinum Rewards Card",
+   "hit": false,
+   "n_used": 3,
+   "why": "It meets all the customer's requirements with no foreign transaction fees, purchase protection, and a credit limit of at least $100,000."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "hit": true,
+   "n_used": 7,
+   "why": "It offers high cashback on top categories without an annual fee."
+  }
+ },
+ {
+  "task": "task_024",
+  "trial": 0,
+  "gold": "Business Bronze Rewards Card",
+  "A_min": {
+   "winner": "Business Platinum Rewards Card",
+   "hit": false,
+   "n_used": 3,
+   "why": "It offers the highest base cashback percentage among business cards and includes purchase protection."
+  },
+  "B_full": {
+   "winner": "Business Platinum Rewards Card",
+   "hit": false,
+   "n_used": 3,
+   "why": "It offers the highest base cashback rate of 1.5% and purchase protection, suitable for a large business expense like a work truck."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "hit": false,
+   "n_used": 7,
+   "why": "It offers high cashback on top categories without an annual fee."
+  }
+ },
+ {
+  "task": "task_003",
+  "trial": 1,
+  "gold": "Silver Rewards Card",
+  "A_min": {
+   "winner": "Platinum Rewards Card",
+   "hit": false,
+   "n_used": 4,
+   "why": "It meets all the customer's non-negotiable requirements including no foreign transaction fees, purchase protection, and a potential $100,000 credit limit."
+  },
+  "B_full": {
+   "winner": "Platinum Rewards Card",
+   "hit": false,
+   "n_used": 6,
+   "why": "It meets all the customer's requirements including no foreign transaction fees, purchase protection, and a potential credit limit of $100,000+"
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "hit": true,
+   "n_used": 7,
+   "why": "It offers high cashback on top categories without an annual fee."
+  }
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "gold": "Silver Rewards Card",
+  "A_min": {
+   "winner": "Bronze Rewards Card",
+   "hit": false,
+   "n_used": 5,
+   "why": "It has no annual fee, zero foreign transaction fees for the customer's minimal international spending, and meets the requirement for paper statements."
+  },
+  "B_full": {
+   "winner": "Silver Rewards Card",
+   "hit": true,
+   "n_used": 4,
+   "why": "It has no annual fee, checks credit, offers cashback on top categories like groceries and gas, and allows for paper statements."
+  },
+  "C_nopat": {
+   "winner": "Silver Rewards Card",
+   "hit": true,
+   "n_used": 7,
+   "why": "It offers high cashback on top categories without an annual fee."
+  }
+ }
+]
