@@ -1,0 +1,112 @@
+[
+ {
+  "task": "task_003",
+  "trial": 0,
+  "arg": "card_type",
+  "gold": "Silver Rewards Card",
+  "n_cand": 5,
+  "word": false,
+  "num": true,
+  "num_strict": false,
+  "unseparated": []
+ },
+ {
+  "task": "task_024",
+  "trial": 0,
+  "arg": "card_type",
+  "gold": "Business Bronze Rewards Card",
+  "n_cand": 12,
+  "word": false,
+  "num": true,
+  "num_strict": true,
+  "unseparated": []
+ },
+ {
+  "task": "task_055",
+  "trial": 0,
+  "arg": "account_class",
+  "gold": "Purple Account",
+  "n_cand": 22,
+  "word": false,
+  "num": true,
+  "num_strict": false,
+  "unseparated": []
+ },
+ {
+  "task": "task_055",
+  "trial": 0,
+  "arg": "account_type",
+  "gold": "checking",
+  "n_cand": 46,
+  "word": true,
+  "num": true,
+  "num_strict": true,
+  "unseparated": []
+ },
+ {
+  "task": "task_003",
+  "trial": 1,
+  "arg": "card_type",
+  "gold": "Silver Rewards Card",
+  "n_cand": 23,
+  "word": true,
+  "num": true,
+  "num_strict": true,
+  "unseparated": []
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "arg": "card_type",
+  "gold": "Silver Rewards Card",
+  "n_cand": 13,
+  "word": false,
+  "num": true,
+  "num_strict": true,
+  "unseparated": []
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "arg": "account_class",
+  "gold": "Silver Plus Account",
+  "n_cand": 36,
+  "word": true,
+  "num": true,
+  "num_strict": true,
+  "unseparated": []
+ },
+ {
+  "task": "task_057",
+  "trial": 1,
+  "arg": "account_class",
+  "gold": "Blue Account",
+  "n_cand": 12,
+  "word": true,
+  "num": true,
+  "num_strict": true,
+  "unseparated": []
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "arg": "account_class",
+  "gold": "Blue Account",
+  "n_cand": 7,
+  "word": true,
+  "num": true,
+  "num_strict": true,
+  "unseparated": []
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "arg": "account_class",
+  "gold": "Silver Plus Account",
+  "n_cand": 23,
+  "word": false,
+  "num": true,
+  "num_strict": true,
+  "unseparated": []
+ }
+]
