@@ -462,10 +462,11 @@ def main():
                 cons, bad, spec, dropped, dropped_full = cons2, bad2, spec2, dropped2, dropped_full2
         rejected[(c["task"], c["trial"])] = bad
         surv, why = [], []
-        if c["arg"] == "card_type":
-            table, _ca = card_table()          # 카드는 A2 fit 표를 쓴다
+        # ⚠사례마다 **지역 변수**로 고른다(2026-08-20 수리): 전에는 `table` 자체를 덮어써서
+        #   카드 사례 뒤에 오는 계좌 사례가 전부 카드 표에 대고 걸러졌다(생존 0·확대 표본 1차 무효).
+        tbl = card_table()[0] if c["arg"] == "card_type" else table
         fams = arg_families(c["arg"])
-        for cls, row in table.items():
+        for cls, row in tbl.items():
             if not isinstance(row, dict):
                 continue
             if fams and (row.get("_family") not in fams):
@@ -498,7 +499,7 @@ def main():
         #   그것은 엔진이 나쁜 스펙 위에서 **최종 판단을 해 버리는** 자리다([[62]] 금지).
         obj = spec.get("objective") if isinstance(spec, dict) else None
         undecidable = not cons
-        winners, score = (None, {}) if undecidable else objective_pick(obj, table, surv)
+        winners, score = (None, {}) if undecidable else objective_pick(obj, tbl, surv)
         # ★선호 채널 — 선언-기각된 것을 **순위**로 되쓴다(버리지 않는다).
         # ★`background` 는 순위 항이 아니다(2026-08-20 수리). 그것은 **손님에 대한 사실**이지 선호가 아니다.
         #   실물: 055 는 *"I'm 33, so not student/senior"* 가 `min_age` background 로 실렸고, purple 은
@@ -506,7 +507,7 @@ def main():
         #   $30 · 30통화 보유)이 축자로 다 있었는데도. 선호는 손님이 **묻거나 바란 것**(question)만이다.
         prefs = [x for x in (dropped_full or [])
                  if x.get("attribute") in ATTRS and x.get("stated_as") == "question"]
-        pbest, pscore, pheld = preference_rank(prefs, table, surv)
+        pbest, pscore, pheld = preference_rank(prefs, tbl, surv)
         # ★목적함수는 **필터 뒤 순위**일 뿐 생존 집합을 대체하지 않는다 — 둘을 따로 보고한다.
         surv_filter = list(surv)
         # ★채점은 **정확 일치**여야 한다(2026-08-20 수리): 표가 45 클래스로 넓어지면서 `silver_account`·
