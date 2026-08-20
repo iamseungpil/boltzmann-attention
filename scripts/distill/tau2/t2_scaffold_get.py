@@ -1820,6 +1820,30 @@ def apply():
                         print("[T2_PROD_BIND] %s: ungrounded field value(s) demoted to "
                               "missing: %s" % (d.get("name"), _dem),
                               file=_sys.stderr, flush=True)
+                # ★C564 후속(2026-08-20 밤·x443 스모크가 잡은 자리): 값 주석의 **금액 피연산자**가
+                #   손님 발화에 실재하는지 확인하고, 없으면 그 인자를 **떨군다**(주석이 안 붙는다).
+                #   스모크 실물 — 063 은 손님이 말한 적 없는 `spend_amount=6000` 을 냈다(발화에는
+                #   $8,000 저축과 $10–15 차이만 있다). 그대로 두면 **날조된 수 위에서 우리가 곱셈을
+                #   해 주고**, 그 값이 근거처럼 보인다. 검사는 C45 동형 — 모델이 낸 값의 **원문 실재
+                #   확인**만 하고 엔진은 값을 만들지도 고르지도 않는다([[59]] ⓐ 허용 범주).
+                _vf0 = ((d.get("op") or {}).get("value_formula") or {})
+                _ap0 = _vf0.get("amount_param")
+                if _ap0 and _ctx.get(_ap0) not in (None, ""):
+                    _ut = (_evidence_ctx(self).get("__user_text") or "")
+                    _raw = str(_ctx.get(_ap0))
+                    _digits = "".join(ch for ch in _raw if ch.isdigit())
+                    _forms = {_raw.lower(), _digits}
+                    if _digits:
+                        try:
+                            _forms.add("{:,}".format(int(_digits)))
+                        except Exception:
+                            pass
+                    if not any(f and f in _ut for f in _forms):
+                        print("[T2_VALUE_FORMULA] %s: %s=%r is not in what the customer said — "
+                              "dropped (no value annotation)" % (d.get("name"), _ap0, _raw),
+                              file=_sys.stderr, flush=True)
+                        _ctx = dict(_ctx)
+                        _ctx.pop(_ap0, None)
                 _res = _c.apply_op(d.get("op"), _ctx)
                 if isinstance(_res, list):                    # 목록형(discrepancy ids)
                     _res = [str(i) for i in _res if i]
