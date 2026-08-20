@@ -162,6 +162,12 @@ def objective_pick(obj, table, survivors):
     return [c for c, v in score.items() if abs(v - best) < 1e-9], score
 
 
+def clsname(x):
+    """표 키·gold 이름을 같은 꼴로 — 소문자·밑줄→공백·계열꼬리·괄호 제거."""
+    x = str(x).split("@")[0].lower().replace("_", " ").replace("(checking)", "")
+    return " ".join(x.split())
+
+
 def num(v):
     """'$0.00' · 'None' · '1% of withdrawal' → 수. 못 읽으면 None(=비교 불가로 남긴다)."""
     s = str(v).strip().lower()
@@ -302,10 +308,10 @@ def main():
         if winners:
             surv_before = list(surv)
             surv = winners
-        gold_key = c["gold"].lower().replace(" ", "_").replace("-", "-")
-        hit = [s for s in surv if s.replace("_", " ").replace("(checking)", "").strip()
-               == c["gold"].lower().replace("account", "account").strip()
-               or s.startswith(c["gold"].lower().split()[0])]
+        # ★채점은 **정확 일치**여야 한다(2026-08-20 수리): 표가 45 클래스로 넓어지면서 `silver_account`·
+        #   `silver_plus_account`·`silver_saver_account` 가 공존한다. 옛 `startswith(첫 낱말)` 규칙은
+        #   그 셋을 전부 `Silver Plus Account` 의 적중으로 셌다 — 채점기가 후해지면 결론이 무효다([[25]]).
+        hit = [x for x in surv if clsname(x) == clsname(c["gold"])]
         rows.append({"task": c["task"], "trial": c["trial"], "gold": c["gold"],
                      "objective": obj if winners else None,
                      "scores": {k: round(v, 4) for k, v in (score or {}).items()},
