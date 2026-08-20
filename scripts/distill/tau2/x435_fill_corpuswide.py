@@ -22,6 +22,7 @@ r"""x435 — **정책·KB 전 문서에서 표를 채운다** (사용자 지시 
 """
 import argparse
 import collections
+import threading
 import io
 import json
 import os
@@ -94,6 +95,9 @@ def main():
     #   조용한 절단은 [[08]] 이 금지한다 — 실제로 물어본 문서 수를 클래스마다 찍는다.
     ap.add_argument("--max-docs", type=int, default=0, help="클래스당 문서 상한(0=무제한)")
     ap.add_argument("--out", default=None)
+    # ★클래스 단위 병렬(2026-08-20): 상한을 없애자 클래스당 문서가 66편이 되어 단일 스레드로 6.5시간이
+    #   걸린다. 클래스마다 독립이고 표의 서로 다른 키에만 쓰므로 스레드로 갈라도 경합이 없다.
+    ap.add_argument("--workers", type=int, default=3)
     a = ap.parse_args()
 
     with io.open(os.path.abspath(S.TBL), encoding="utf-8") as f:
@@ -107,49 +111,61 @@ def main():
 
     filled = absent = skipped = 0
     tal = collections.Counter()
-    for cls, row in table.items():
-        if not isinstance(row, dict):
-            continue
-        key = str(cls).split("@")[0]
-        bytext = dict(corpus)
-        cands = [(i, bytext[i]) for i in index_candidates(a2, cls, row.get("_family")) if i in bytext]
-        own = [x for x in cands if key in x[0]]
-        extra = [x for x in cands if key not in x[0]]
-        cands = (own + extra)[:a.max_docs] if a.max_docs else (own + extra)
-        if not cands:
-            continue
-        blanks = [at for at in ATTRS if not (row.get(at) or {}).get("values")]
-        tal["횡단 문서 있는 클래스"] += 1 if extra else 0
-        for at in blanks:
-            got = None
-            for did, txt in cands:
-                r = S.ask(a.port, SYS, "# Text\n%s\n\n# Question\nWhat is the %s?\n"
-                          % (txt[:38000], at.replace("_", " ")), maxtok=300)
-                if r.get("absent"):
+    lock = threading.Lock()
+    queue = [(c, r) for c, r in table.items() if isinstance(r, dict)]
+
+    def work(_i):
+        while True:
+            with lock:
+                if not queue:
+                    return
+                cls, row = queue.pop(0)
+                key = str(cls).split("@")[0]
+                bytext = dict(corpus)
+                cands = [(i, bytext[i]) for i in index_candidates(a2, cls, row.get("_family")) if i in bytext]
+                own = [x for x in cands if key in x[0]]
+                extra = [x for x in cands if key not in x[0]]
+                cands = (own + extra)[:a.max_docs] if a.max_docs else (own + extra)
+                if not cands:
                     continue
-                val = str(r.get("value", "")).strip()
-                q = " ".join(str(r.get("quote") or "").split())
-                if val and q and S.cite_norm(q) in S.cite_norm(txt) and \
-                        S.cite_norm(val).replace(" ", "") in S.cite_norm(q).replace(" ", ""):
-                    got = {"values": [val], "conflict": False,
-                           "unit": (r.get("unit") if r.get("unit") in
-                                    ("USD", "percent", "count", "boolean", "text") else ""),
-                           "cap": None,
-                           "evidence": [{"value": val, "doc": did, "quote": q[:220]}]}
-                    if key not in did:
-                        tal["횡단 문서에서 회수"] += 1
-                        print("  ★횡단 회수 %-24s %-28s ← %s" % (cls[:24], at, did[:56]))
-                    break
-            if got:
-                row[at] = got
-                filled += 1
-            else:
-                row[at] = {"values": [], "conflict": False, "evidence": [], "absent": True,
-                           "searched_docs": [d for d, _t in cands]}
-                absent += 1
-        print("  %-30s 물어본문서 %3d(자기 %2d·횡단 %2d) · 빈칸 %2d → 채움 %2d"
-              % (cls[:30], len(cands), len(own), len(extra), len(blanks),
-                 sum(1 for at in blanks if (row.get(at) or {}).get("values"))))
+                blanks = [at for at in ATTRS if not (row.get(at) or {}).get("values")]
+                tal["횡단 문서 있는 클래스"] += 1 if extra else 0
+                for at in blanks:
+                    got = None
+                    for did, txt in cands:
+                        r = S.ask(a.port, SYS, "# Text\n%s\n\n# Question\nWhat is the %s?\n"
+                                  % (txt[:38000], at.replace("_", " ")), maxtok=300)
+                        if r.get("absent"):
+                            continue
+                        val = str(r.get("value", "")).strip()
+                        q = " ".join(str(r.get("quote") or "").split())
+                        if val and q and S.cite_norm(q) in S.cite_norm(txt) and \
+                                S.cite_norm(val).replace(" ", "") in S.cite_norm(q).replace(" ", ""):
+                            got = {"values": [val], "conflict": False,
+                                   "unit": (r.get("unit") if r.get("unit") in
+                                            ("USD", "percent", "count", "boolean", "text") else ""),
+                                   "cap": None,
+                                   "evidence": [{"value": val, "doc": did, "quote": q[:220]}]}
+                            if key not in did:
+                                tal["횡단 문서에서 회수"] += 1
+                                print("  ★횡단 회수 %-24s %-28s ← %s" % (cls[:24], at, did[:56]))
+                            break
+                    if got:
+                        row[at] = got
+                        with lock:
+                    filled += 1
+                    else:
+                        row[at] = {"values": [], "conflict": False, "evidence": [], "absent": True,
+                                   "searched_docs": [d for d, _t in cands]}
+                        with lock:
+                    absent += 1
+                print("  %-30s 물어본문서 %3d(자기 %2d·횡단 %2d) · 빈칸 %2d → 채움 %2d"
+                      % (cls[:30], len(cands), len(own), len(extra), len(blanks),
+                         sum(1 for at in blanks if (row.get(at) or {}).get("values"))))
+    ths = [threading.Thread(target=work, args=(k,)) for k in range(max(1, a.workers))]
+    [t.start() for t in ths]
+    [t.join() for t in ths]
+
     print("\n채움 %d · 미기재 확정 %d · %s" % (filled, absent, dict(tal)))
     p = a.out or os.path.abspath(S.TBL).replace(".json", "_corpuswide.json")
     with io.open(p, "w", encoding="utf-8") as f:
