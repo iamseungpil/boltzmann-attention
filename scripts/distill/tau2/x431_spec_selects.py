@@ -63,10 +63,6 @@ def ask(port, sysmsg, body, maxtok=700):
 OPS = ("==", "<=", ">=", "exists", "absent")
 
 
-ASKY = ("would ", "could ", "is there", "are there", "do you", "can i", "can you",
-        "any chance", "what's your", "what is your", "how much", "any fee")
-
-
 def check_spec(spec, said=""):
     """★G6 — 스펙 스키마 **강제** + **근거 검산**. 통과한 제약과 **거절 사유 문장**을 함께 돌려준다.
 
@@ -106,11 +102,6 @@ def check_spec(spec, said=""):
                 continue
             if why.lower() not in norm:
                 bad.append("the 'because' for %s is not a verbatim span of what the customer said: %r"
-                           % (at, why[:60]))
-                continue
-            low = why.lower().strip()
-            if low.endswith("?") or any(low.startswith(x) for x in ASKY):
-                bad.append("the 'because' for %s is a question, not a stated requirement: %r"
                            % (at, why[:60]))
                 continue
         ok.append(con)
@@ -255,8 +246,10 @@ def main():
               "Use ONLY requirements the customer actually stated. Omit attributes they did not "
               "mention. Add 'objective' ONLY if the customer asked for the best/cheapest option or "
               "gave a usage pattern; otherwise omit it. "
-              "'because' MUST be copied character-for-character from the customer's words, and it "
-              "must be something they REQUIRED - never a question they asked. "
+              "'because' MUST be copied character-for-character from the customer's words. "
+              "Include a requirement ONLY if the customer stated it as something they need. "
+              "If they merely ASKED about something (a question, or checking whether something "
+              "would be enough), that is not a requirement - leave it out. "
               "For an eligibility range give BOTH bounds (min_age <= their age AND max_age >= their age).")
     print("\n=== ②③④ 스펙 → 필터 → 판정 (사례 %d) ===" % len(cs))
     rows, rejected = [], {}
