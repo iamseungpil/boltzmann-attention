@@ -89,7 +89,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8141)
     ap.add_argument("--docdir", default=FT.DOCDIR)
-    ap.add_argument("--max-docs", type=int, default=14, help="클래스당 물어볼 문서 상한(비용 경계)")
+    # ★상한 기본값 = 0(무제한). 14 로 두었던 것은 **원칙이 아니라 내가 건 비용 경계**였고,
+    #   문서당 1회 질의로 바꾸면서 비용이 `문서 × 속성` → `문서` 로 줄어 필요가 없어졌다.
+    #   조용한 절단은 [[08]] 이 금지한다 — 실제로 물어본 문서 수를 클래스마다 찍는다.
+    ap.add_argument("--max-docs", type=int, default=0, help="클래스당 문서 상한(0=무제한)")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
 
@@ -112,7 +115,7 @@ def main():
         cands = [(i, bytext[i]) for i in index_candidates(a2, cls, row.get("_family")) if i in bytext]
         own = [x for x in cands if key in x[0]]
         extra = [x for x in cands if key not in x[0]]
-        cands = (own + extra)[:a.max_docs]
+        cands = (own + extra)[:a.max_docs] if a.max_docs else (own + extra)
         if not cands:
             continue
         blanks = [at for at in ATTRS if not (row.get(at) or {}).get("values")]
@@ -144,7 +147,7 @@ def main():
                 row[at] = {"values": [], "conflict": False, "evidence": [], "absent": True,
                            "searched_docs": [d for d, _t in cands]}
                 absent += 1
-        print("  %-30s 후보문서 %2d(자기 %2d·횡단 %2d) · 빈칸 %2d → 채움 %2d"
+        print("  %-30s 물어본문서 %3d(자기 %2d·횡단 %2d) · 빈칸 %2d → 채움 %2d"
               % (cls[:30], len(cands), len(own), len(extra), len(blanks),
                  sum(1 for at in blanks if (row.get(at) or {}).get("values"))))
     print("\n채움 %d · 미기재 확정 %d · %s" % (filled, absent, dict(tal)))
