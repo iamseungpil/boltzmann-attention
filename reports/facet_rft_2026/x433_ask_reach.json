@@ -1,0 +1,255 @@
+[
+ {
+  "task": "task_057",
+  "trial": 0,
+  "attr": "monthly_maintenance_fee",
+  "kind": "⒜말했다(스펙이 놓침)",
+  "quote": "Monthly fees: I can usually keep around $500–$700 in the account. Would that be enough to avoid any monthly fee?",
+  "values": {
+   "blue_account": "20.00",
+   "dark_green_account": "10.00",
+   "green_account_(checking)": "22.50",
+   "navy_blue": "0.00"
+  }
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "attr": "waiver_min_daily_balance",
+  "kind": "⒜말했다(스펙이 놓침)",
+  "quote": "I can usually keep around $500–$700 in the account. Would that be enough to avoid any monthly fee?",
+  "values": {
+   "blue_account": "625",
+   "dark_green_account": null,
+   "green_account_(checking)": "1,350",
+   "navy_blue": "No minimum balance requirement"
+  }
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "attr": "overdraft_protection_transfer_fee",
+  "kind": "⒜말했다(스펙이 놓침)",
+  "quote": "But I still want a safety net—if I accidentally spend more than I have, I want to be able to link a savings account to c",
+  "values": {
+   "blue_account": "12.50",
+   "dark_green_account": "0",
+   "green_account_(checking)": "0.00",
+   "navy_blue": "0.00"
+  }
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "attr": "oon_atm_fee",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": "1%",
+   "dark_green_account": "1%",
+   "green_account_(checking)": "3.00",
+   "navy_blue": null
+  }
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "attr": "apy",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": "0.01",
+   "dark_green_account": "1.5%",
+   "green_account_(checking)": "0.11",
+   "navy_blue": null
+  }
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "attr": "daily_atm_withdrawal_limit",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": "500",
+   "dark_green_account": "300",
+   "green_account_(checking)": "600",
+   "navy_blue": null
+  }
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "attr": "min_age",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": null,
+   "dark_green_account": "17",
+   "green_account_(checking)": null,
+   "navy_blue": "60"
+  }
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "attr": "paper_statement_fee",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": "2.50",
+   "dark_green_account": null,
+   "green_account_(checking)": "2.50",
+   "navy_blue": "0.00"
+  }
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "attr": "wire_transfer_fee",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": "12.50",
+   "dark_green_account": "7.50",
+   "green_account_(checking)": "15.00",
+   "navy_blue": "15.00"
+  }
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "attr": "monthly_maintenance_fee",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": "20.00",
+   "evergreen_account": "6.00",
+   "green_account_(checking)": "22.50",
+   "green_fee-free_account": "22.50",
+   "bronze_account": "0.00",
+   "green_account_(savings)": "0.00",
+   "silver_account": "5.00",
+   "bronze_saver_account": "0.00"
+  }
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "attr": "waiver_min_daily_balance",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": "625",
+   "evergreen_account": "500",
+   "green_account_(checking)": "1,350",
+   "green_fee-free_account": "150",
+   "bronze_account": "0",
+   "green_account_(savings)": "500",
+   "silver_account": "1,000",
+   "bronze_saver_account": null
+  }
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "attr": "overdraft_protection_transfer_fee",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": "12.50",
+   "evergreen_account": null,
+   "green_account_(checking)": "0.00",
+   "green_fee-free_account": null,
+   "bronze_account": null,
+   "green_account_(savings)": null,
+   "silver_account": null,
+   "bronze_saver_account": null
+  }
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "attr": "oon_atm_fee",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": "1%",
+   "evergreen_account": "1%",
+   "green_account_(checking)": "3.00",
+   "green_fee-free_account": "0.00",
+   "bronze_account": null,
+   "green_account_(savings)": null,
+   "silver_account": null,
+   "bronze_saver_account": null
+  }
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "attr": "apy",
+  "kind": "⒜말했다(스펙이 놓침)",
+  "quote": "I’m planning to leave it untouched for a full year, and I want whichever savings option will give me the highest return ",
+  "values": {
+   "blue_account": "0.01",
+   "evergreen_account": "0.05%",
+   "green_account_(checking)": "0.11",
+   "green_fee-free_account": "0",
+   "bronze_account": "2.0%",
+   "green_account_(savings)": "4.0%",
+   "silver_account": "2.5%",
+   "bronze_saver_account": "2.0%"
+  }
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "attr": "daily_atm_withdrawal_limit",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": "500",
+   "evergreen_account": "750",
+   "green_account_(checking)": "600",
+   "green_fee-free_account": "500",
+   "bronze_account": null,
+   "green_account_(savings)": null,
+   "silver_account": null,
+   "bronze_saver_account": null
+  }
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "attr": "paper_statement_fee",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": "2.50",
+   "evergreen_account": "7.50",
+   "green_account_(checking)": "2.50",
+   "green_fee-free_account": "0.00",
+   "bronze_account": "2.00",
+   "green_account_(savings)": "Yes",
+   "silver_account": "0.00",
+   "bronze_saver_account": "3.00"
+  }
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "attr": "wire_transfer_fee",
+  "kind": "⒝안 말했다 → ASK",
+  "quote": "",
+  "values": {
+   "blue_account": "12.50",
+   "evergreen_account": "12.50",
+   "green_account_(checking)": "15.00",
+   "green_fee-free_account": "12.50",
+   "bronze_account": null,
+   "green_account_(savings)": null,
+   "silver_account": null,
+   "bronze_saver_account": "25"
+  }
+ }
+]
