@@ -142,6 +142,50 @@ def sham_ids(declared_ids, n):
     return out
 
 
+def wide_cases():
+    """넓힌 사례 — `spend_category` 를 **실제로 낸** sim 전수 중 **참조 라벨이 있는 태스크**만.
+
+    카드축 WRONGARG 사례는 4개뿐이라 무엇도 판정선을 못 넘는다(C571 이 이미 ⛔n=4 로 달아 뒀다).
+    여기서는 같은 태스크의 **다른 대화**(user-sim 이 매번 다르게 말한다)를 사례로 삼는다 —
+    라이브와 같은 시점(그 호출 **이전** 손님 턴)까지만 준다.
+    ⚠같은 태스크가 반복되므로 **독립 표본이 아니다**. 총계와 함께 **태스크별로** 보고할 것.
+    """
+    import t2_forensic as F
+    fit = "check_card_application_fit"
+    base = os.path.abspath(os.path.join(REP, "sim_results"))
+    tags = sorted({os.path.basename(p).replace(".results.json.gz", "")
+                   for p in glob.glob(os.path.join(base, "*.results.json.gz"))})
+    out, seen = [], set()
+    for tag in tags:
+        try:
+            ss = F.sims(tag, ".results.json.gz")
+        except Exception:
+            continue
+        for sim in ss:
+            tid = F.task_id(sim)
+            if str(tid).split("_")[-1] not in REF:
+                continue
+            key = (tag, tid, sim.get("trial"))
+            if key in seen:
+                continue
+            msgs = sim.get("messages") or []
+            for i, m in enumerate(msgs):
+                got = False
+                for tc in (m.get("tool_calls") or []):
+                    if F.nameof(tc) == fit and (F.argsof(tc) or {}).get("spend_category"):
+                        got = True
+                if not got:
+                    continue
+                said = " \n".join(" ".join(str(x.get("content") or "").split())
+                                  for x in msgs[:i]
+                                  if (x.get("role") == "user") and x.get("content"))
+                if said.strip():
+                    seen.add(key)
+                    out.append({"task": tid, "trial": sim.get("trial"), "said": said[:5000]})
+                break
+    return out
+
+
 def all_blob():
     ds = []
     for fam in FAMS:
@@ -155,6 +199,8 @@ def main():
     ap.add_argument("--tag", default="iva2")
     ap.add_argument("--arms", default="Z_cite,Z_free,R_bm25,R_dense,B_shell,N_sham,W_all")
     ap.add_argument("--maxchars", type=int, default=90000)
+    ap.add_argument("--wide", action="store_true",
+                    help="fit 를 실제로 낸 sim 전수(참조 라벨 있는 태스크만·n≈71)")
     a = ap.parse_args()
     arms = [x.strip() for x in a.arms.split(",") if x.strip()]
 
@@ -174,19 +220,24 @@ def main():
     print("   W_all    %3d편 %7d자%s" % (w_n, len(w_blob), "  ⚠절단됨" if len(w_blob) > a.maxchars else ""))
     print("=" * 100)
 
-    seen, cs = set(), []
-    for c in I.cases(60):
-        if c["arg"] != "card_type":
-            continue
-        k = (c["task"], c["trial"])
-        if k in seen:
-            continue
-        seen.add(k)
-        cs.append(c)
+    if a.wide:
+        cs = wide_cases()
+    else:
+        seen, cs = set(), []
+        for c in I.cases(60):
+            if c["arg"] != "card_type":
+                continue
+            k = (c["task"], c["trial"])
+            if k in seen:
+                continue
+            seen.add(k)
+            cs.append({"task": c["task"], "trial": c["trial"],
+                       "said": " \n".join(P.turns(c))[:5000]})
+    print("사례 %d (%s)" % (len(cs), "wide=fit 발화 전수" if a.wide else "카드축 WRONGARG"))
 
     rows = []
     for c in cs:
-        said = " \n".join(P.turns(c))[:5000]
+        said = c["said"]
         ref = REF.get(str(c["task"]).split("_")[-1], "?")
         print("\n%s t%s   참조=%s" % (c["task"], c["trial"], ref))
         for arm in arms:
@@ -241,6 +292,17 @@ def main():
                  "%d/%d" % (sum(1 for r in rs if r["quote_from_customer"]), len(rs)),
                  "%d/%d" % (sum(1 for r in rs if r["cat"]), len(rs)),
                  sum(r["chars"] for r in rs) / len(rs)))
+    tasks = sorted({r["task"] for r in rows})
+    if len(tasks) > 1:
+        print(chr(10) + "[태스크별 참조일치] (같은 태스크 반복 = 독립 표본 아님)")
+        print("%-8s %s" % ("팔", " ".join("%-14s" % t for t in tasks)))
+        for arm in arms:
+            cells = []
+            for tk in tasks:
+                rs = [r for r in rows if r["arm"] == arm and r["task"] == tk]
+                cells.append("%-14s" % ("%d/%d" % (sum(1 for r in rs if r["correct"]), len(rs))
+                                        if rs else "-"))
+            print("%-8s %s" % (arm, " ".join(cells)))
     print("→ %s" % p)
     return 0
 
