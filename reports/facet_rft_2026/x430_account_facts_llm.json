@@ -5032,5 +5032,1539 @@
    "evidence": []
   },
   "_family": "business_savings_accounts"
+ },
+ "bronze_rewards_card": {
+  "foreign_transaction_fee": {
+   "values": [
+    "2.75%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "2.75%",
+     "doc": "bronze_rewards_card",
+     "quote": "Foreign transaction fee on international purchases: 2.75%"
+    }
+   ]
+  },
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "credit_cards"
+ },
+ "credit_card_account_logistics": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "credit_cards"
+ },
+ "credit_card_replacements": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "credit_cards"
+ },
+ "credit_cards_(general)": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "credit_cards"
+ },
+ "crypto-cash_back": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "credit_cards"
+ },
+ "diamond_elite_card": {
+  "foreign_transaction_fee": {
+   "values": [
+    "0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "0%",
+     "doc": "diamond_elite_card",
+     "quote": "Foreign transaction fee: 0%. Your international purchases are not subject to additional bank conversion fees."
+    }
+   ]
+  },
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "credit_cards"
+ },
+ "ecocard": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "credit_cards"
+ },
+ "gold_rewards_card": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "credit_cards"
+ },
+ "platinum_rewards_card": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "credit_cards"
+ },
+ "silver_rewards_card": {
+  "foreign_transaction_fee": {
+   "values": [
+    "2.75"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "2.75",
+     "doc": "silver_rewards_card",
+     "quote": "Foreign transaction fee without a premium subscription: 2.75%"
+    }
+   ]
+  },
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "credit_cards"
+ },
+ "virtual_card_management": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "credit_cards"
+ },
+ "business_bronze_rewards_card": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_credit_cards"
+ },
+ "business_gold_rewards_card": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_credit_cards"
+ },
+ "business_platinum_rewards_card": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_credit_cards"
+ },
+ "business_silver_rewards_card": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_credit_cards"
+ },
+ "green_rewards_card": {
+  "foreign_transaction_fee": {
+   "values": [
+    "1.0%"
+   ],
+   "conflict": false,
+   "unit": "percent",
+   "cap": null,
+   "evidence": [
+    {
+     "value": "1.0%",
+     "doc": "green_rewards_card",
+     "quote": "Foreign transaction fee | 1.0%"
+    }
+   ]
+  },
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_credit_cards"
+ },
+ "silver_zoom_card": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_credit_cards"
+ },
+ "virtual_card_management@business_credit_cards": {
+  "monthly_maintenance_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "waiver_min_daily_balance": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "overdraft_protection_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "free_oon_atm_per_month": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "apy": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "daily_atm_withdrawal_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "min_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "max_age": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "monthly_deposit_limit": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_transaction_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "oon_atm_reimbursement": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "foreign_currency_holding": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "paper_statement_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "wire_transfer_fee": {
+   "values": [],
+   "conflict": false,
+   "evidence": []
+  },
+  "_family": "business_credit_cards"
  }
 }
