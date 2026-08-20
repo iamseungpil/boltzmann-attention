@@ -81,6 +81,9 @@
   ],
   "winner": null,
   "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 38,
+  "pref_is_gold": false,
   "gold_in": false,
   "unique": false,
   "spec": []
@@ -180,6 +183,12 @@
    "diamond_elite_account"
   ],
   "winner_is_gold": false,
+  "pref_best": [
+   "green_fee-free_account",
+   "silver_account"
+  ],
+  "pref_held": 27,
+  "pref_is_gold": false,
   "gold_in": true,
   "unique": false,
   "spec": [
@@ -307,6 +316,9 @@
    "beige"
   ],
   "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 36,
+  "pref_is_gold": false,
   "gold_in": true,
   "unique": false,
   "spec": [
@@ -357,6 +369,11 @@
   ],
   "winner": null,
   "winner_is_gold": false,
+  "pref_best": [
+   "blue_account"
+  ],
+  "pref_held": 2,
+  "pref_is_gold": true,
   "gold_in": true,
   "unique": false,
   "spec": [
@@ -427,6 +444,9 @@
    "green_account_(savings)"
   ],
   "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
   "gold_in": false,
   "unique": false,
   "spec": [
