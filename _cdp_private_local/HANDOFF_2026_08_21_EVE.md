@@ -25,20 +25,34 @@ GPU 0/1  유휴 · vLLM 8140/8141 상주
 ```
 2 엔진 전달 교체        ✅ 완료(커밋 a4120fa5 · de52d31d) — 아래 §2
 3 x456 재측정           ✅ 완료 — A 45% ↔ C_docs(v2) 87.5% (C585·한계 셋 필독)
-4 read gold 축 감사     ✅ 완료(x461·C586) — 원인 = 선언 위상. ★저작은 안 했다
+4 read gold 축 감사     ✅ 완료(x461·C586) — 원인 = 선언 위상
+4b requires_reads 저작  ✅ 완료(커밋 a0b8ddea·C587) — 4 write·행마다 정책 축자·아래 §5
 5 감사 표-행 계약       ⏳ 미착수(사실표용·배달과 무관)
-6 24 태스크 A/B         ⏳ 유료·승인 필요. 이제 격리 근거(C585)가 생겼다
+6 24 태스크 A/B         ⏳ 유료·승인 필요. 격리 근거(C585) + 선언 보강(C587) 둘 다 실렸다
 ```
 
-### 다음 세션 첫 후보 = **④의 후속 저작** 또는 **⑥ 승인 요청**
+### 다음 세션 첫 후보 = **⑥ 승인 요청** (또는 ⑤)
 
-- **④ 후속**: `apply_checking_account_credit` 등 read-미수행 태스크의 write 에
-  `requires_reads` 를 **정책 축자 출처와 함께** 저작([[23]]·[[72]] 1회 완결). C586ⓒ 가
-  지목한 정확한 구멍: `get_bank_account_transactions` 피의존 1 · `get_payment_history` 피의존 1
-  — 그 write 들에는 read 요구가 한 줄도 없다. ⛔출처를 못 대면 넣지 마라([[23]] — 실패 사례
-  보고 고칠 때가 가장 위험).
 - **⑥**: `T2_SG_DOCS=1` 를 라이브 스택에 넣은 24 태스크(1단계 20+4) A/B — go_stack 에 플래그
   추가부터(아직 안 넣었다·격리 갈림 확인 전 라이브 배선 금지 원칙 지킴). 판정선 Δ ≥ 4/40(E-MFIX).
+  C587 의 새 선언은 라이브 코드가 그대로 읽으므로(요건 큐→핀) 별도 플래그 불요 — A/B 는
+  T2_SG_DOCS 하나로 가르되, **requires_reads 는 양팔 공통**(선언 저작은 처방이지 실험 변수가 아님).
+
+### §5 (4b) requires_reads 저작 — C587
+
+```
+행 4 (relations.declarations + edges + by_tool 동기·두 층 동일)
+  apply_checking_account_credit        ← get_bank_account_transactions
+  apply_savings_account_credit         ← get_all_user_accounts + get_bank_account_transactions
+  submit_interest_discrepancy_report   ← get_all_user_accounts + get_bank_account_transactions
+  file_debit_card_transaction_dispute  ← get_bank_account_transactions
+출처(행마다 note 에 축자): doc_017 · doc_043 · doc_044 · doc_031 (KB documents 직독·
+  ⛔tasks/gold 미개봉 — 도구명이 tasks 에서만 잡혔을 때 documents/db 로 우회)
+검산: 검정 5종 + 핀 자기검정 10/10 ALL PASS · 피의존 1→5 ·
+  4 write 전부 first_step/frontier = get_bank_account_transactions 유일 해소
+한계: 오프라인까지. 라이브에서 큐가 이 write 를 표적 삼는 턴이 오는지는 ⑥이 판정.
+050 은 대상 아님(이미 선언돼 있고 실패 원인이 선언 부재가 아님).
+```
 
 ---
 
