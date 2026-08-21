@@ -3150,7 +3150,7 @@
     "account_class": "The account's level exactly as shown in the account record (e.g. 'Blue Account', 'Light Green Account').",
     "transactions": "A JSON array with ONE element per atm_fee line of THIS account. Each element MUST have ONLY these fields, copied from the records: transaction_id (string - the fee line's id), fee_amount (number - the fee line's amount as a POSITIVE number, no $), withdrawal_amount (number, POSITIVE - the cash dispensed by the atm_withdrawal this fee belongs to: the adjacent withdrawal record with the same account and date), network (string, exactly one of 'rho' | 'non_rho' | 'foreign', read from that withdrawal's description: a RHO-BANK machine is 'rho'; a machine outside the U.S. or dispensing foreign currency is 'foreign'; any other bank's machine is 'non_rho'). Do NOT compute anything - just copy the raw values; this tool computes the expected fee and finds discrepancies itself. IMPORTANT: the fee line's own description (e.g. 'NON-RHO ATM FEE') is exactly what you are auditing - it may be wrong. Determine 'network' ONLY from the paired withdrawal's description: a RHO-BANK machine is 'rho' (a fee on a RHO-BANK withdrawal is itself the error you are looking for), a machine outside the U.S. is 'foreign', any other bank's machine is 'non_rho'. Also: if TWO fee lines belong to the SAME withdrawal, include both, and add \"duplicate_of\": \"<the other fee line's transaction_id>\" on the second one."
    },
-   "return_template": "ATM fee lines whose charged amount does NOT match the documented fee schedule for this account level: {details}. If any lines are listed, the credit policy requires ONE fee_refund credit for the net correction across all identified fee discrepancies of THIS account (do not credit the same lines twice).",
+   "return_template": "ATM fee lines whose charged amount does NOT match the documented fee schedule for this account level: {details}. SCOPE OF THIS CHECK - fee-line amounts only: each atm_fee line you passed in was compared against the documented fee schedule. This tool did NOT check whether any rebate is missing - i.e. whether the account's documented rebate policy promises a fee_rebate line that the transaction history does not show; check the account's rebate policy against the fee_rebate lines yourself before crediting. If corrections are owed, the credit policy requires ONE fee_refund credit for the net correction of THIS account (do not credit the same lines twice).",
    "op": {
     "op": "select_discrepant",
     "over": "transactions",
@@ -3292,7 +3292,7 @@
     "_note_rebate_field": "2026-08-15 **보류**: 환급 차감은 근거(x323 n=24·072 원장 검산 14.00=gold)가 충분하나, 함께 필요한 Bluest non_rho 기대값 0 이 `rebated_amount` 미추출 시 **과다 환불**($24.00)을 만든다. 기권 안전판을 넣었더니 이번엔 환급과 무관한 모든 fee 계산이 판정불가가 됐다(test_atm_fee_op 가 잡음). ⇒ 선언을 빼서 **비활성**으로 두고, 서브 추출률을 먼저 측정한 뒤 되살린다. 코드(`rebate_field`)와 검정(`test_rebate_netting`)은 그대로 남는다."
    },
    "_note_delta_total_removed_2026_08_19": "REMOVED (2026-08-19 · 커밋 b220745d 와 같은 사유). `= ${delta_total:.2f}` 를 return_template 에서 제거했다. 요율 출처는 정책 축자라 [[23]] 는 통과하지만 delta_total 은 **채점되는 인자 그 자체**다(task_073 gold amount 9.50/9.00/1.50 = 계좌별 net). 엔진이 채점되는 값을 만들어 건네면 formalize->calc 아키텍처가 아니라 그 위조판을 재게 된다([[62]]·[[03b]]). 남긴 것 = {details}(라인별 중간 사실) + 정책 축자 문구. 엔진 코드 불변(kwarg 미사용=거동 0). ⚠효과는 **미측정**이다.",
-   "_note_": "2026-08-13 x288 판정(A_DOCS 0/8)에 따른 F2b 결정론기 — 요율 출처는 전부 정책 문서 축자(ATM_FEE_SCHEDULE_VERBATIM_2026_08_13.md·gold 미접촉): blue oon 1% max$3 (blue_001)·blue forx max(3%,$5) USD환산(blue_012)·bluest oon $2/forx $0(bluest_010/_003)·green oon $3(green_010)/forx max(3%,$5)(green_012)·light_green forx tier 2.00/3.50/5.00 경계=하위(lg_013)·purple oon $2.50(purple_012)/forx $0(purple_001)·dark_green oon max(1%,$1.50)(dg_001)/forx min(2.5%,$6)(dg_002)·evergreen oon min(1%,$2.50)(eg_008)/forx max(2%,$3)(eg_001). rho=수수료 조항 부재→기대 0 은 NON-RHO 라벨 fee 가 RHO 인출에 붙는 모순 검출용(env _err 실물 동형). light_green/light_blue oon·light_blue forx = 월 무료횟수 규정이 문서에 불완전(모호점 8·10)→기대 null=판정 보류(과차단 방지·skipped 로 표면화). 리베이트 축은 별도 fee_rebate 라인이라 이 도구 범위 밖(모호점 6·11). 페어링·network 분류는 LLM formalize 몫([[22]]·인접 레코드 복사)·엔진은 산술만([[10]]). | 2026-08-13 FIX-5(t7274w 073 실측: id-만 반환하니 모델이 차액 아닌 값을 크레딧 $24.50/$15/$5 + chk_3 중복 크레딧): {details}(라인별 charged/documented/difference)와 {delta_total}(net 합)을 표면화 — x288 A_DOCS 0/8 이 잰 산술 결손 범위 내·엔진이 이미 계산한 값의 뺄셈·합만([[62]] 최소). 문구 출처 = doc_bank_accounts_bank_accounts_(general)_017 §2 Fee mischarges 'apply a credit for the net correction across all identified fee discrepancies' 축자. 픽·페어링·network 분류·credit 실행은 모델 몫 불변. | 2026-08-14 x301 판정(4셀 n=8): A_CUR rho 0/8(자기-참조 함정: fee 라벨을 network 근거로 오용 — 8/8 결정론 재현·073 이 4시행 내내 8/11 에 멈춘 원인)·B_WARN 0/8(추상 경고는 역효과: 정답까지 파괴 — [[63]] 더하기-지시 무효의 재실증)·**C_DUP rho 8/8·dup 8/8**(구체 페어링 작업 지시가 주의를 인출 행으로 끌어 network 부수 정답) → 이 param 문면 = C_DUP 축자. op dup_field='duplicate_of' = 모델 선언의 산술 귀결(기대 0)만 엔진이 소비([[59]] 무결·x288 산술 계열·[[62]] ③).",
+   "_note_": "2026-08-13 x288 판정(A_DOCS 0/8)에 따른 F2b 결정론기 — 요율 출처는 전부 정책 문서 축자(ATM_FEE_SCHEDULE_VERBATIM_2026_08_13.md·gold 미접촉): blue oon 1% max$3 (blue_001)·blue forx max(3%,$5) USD환산(blue_012)·bluest oon $2/forx $0(bluest_010/_003)·green oon $3(green_010)/forx max(3%,$5)(green_012)·light_green forx tier 2.00/3.50/5.00 경계=하위(lg_013)·purple oon $2.50(purple_012)/forx $0(purple_001)·dark_green oon max(1%,$1.50)(dg_001)/forx min(2.5%,$6)(dg_002)·evergreen oon min(1%,$2.50)(eg_008)/forx max(2%,$3)(eg_001). rho=수수료 조항 부재→기대 0 은 NON-RHO 라벨 fee 가 RHO 인출에 붙는 모순 검출용(env _err 실물 동형). light_green/light_blue oon·light_blue forx = 월 무료횟수 규정이 문서에 불완전(모호점 8·10)→기대 null=판정 보류(과차단 방지·skipped 로 표면화). 리베이트 축은 별도 fee_rebate 라인이라 이 도구 범위 밖(모호점 6·11). 페어링·network 분류는 LLM formalize 몫([[22]]·인접 레코드 복사)·엔진은 산술만([[10]]). | 2026-08-13 FIX-5(t7274w 073 실측: id-만 반환하니 모델이 차액 아닌 값을 크레딧 $24.50/$15/$5 + chk_3 중복 크레딧): {details}(라인별 charged/documented/difference)와 {delta_total}(net 합)을 표면화 — x288 A_DOCS 0/8 이 잰 산술 결손 범위 내·엔진이 이미 계산한 값의 뺄셈·합만([[62]] 최소). 문구 출처 = doc_bank_accounts_bank_accounts_(general)_017 §2 Fee mischarges 'apply a credit for the net correction across all identified fee discrepancies' 축자. 픽·페어링·network 분류·credit 실행은 모델 몫 불변. | 2026-08-14 x301 판정(4셀 n=8): A_CUR rho 0/8(자기-참조 함정: fee 라벨을 network 근거로 오용 — 8/8 결정론 재현·073 이 4시행 내내 8/11 에 멈춘 원인)·B_WARN 0/8(추상 경고는 역효과: 정답까지 파괴 — [[63]] 더하기-지시 무효의 재실증)·**C_DUP rho 8/8·dup 8/8**(구체 페어링 작업 지시가 주의를 인출 행으로 끌어 network 부수 정답) → 이 param 문면 = C_DUP 축자. op dup_field='duplicate_of' = 모델 선언의 산술 귀결(기대 0)만 엔진이 소비([[59]] 무결·x288 산술 계열·[[62]] ③). | 2026-08-21 P5(t7335 halfA 072 실측: 완결-인상 반환문이 모델의 보완 rebate 검사를 억제 — [27] 문맥에 rebate 5/6 패턴 실재·[38] $12.00 write·차액 $2.00=11/14 누락 rebate): ①'across all identified fee discrepancies' 완결 문구 제거 ②검사한 축을 문면 명시(도구 선언 도출: transactions 'ONE element per atm_fee line' + select_discrepant actual_field=fee_amount = 전달된 fee 라인의 금액만) ③검사 안 한 축(fee_rebate 부재)을 문면 명시 — 기존 선언 축자('리베이트 축은 별도 fee_rebate 라인이라 이 도구 범위 밖(모호점 6·11)'·_note_rebate_field 보류)의 문면 승격 + [[64]] fix-naming(072 처방 축자 'check the account's rebate policy against the fee_rebate lines yourself'). 검사 로직 신설 0([[62]]·op/isolate 불변)·'net correction' 정책 축자(general_017 §2)·delta_total 미표기 유지. 효과는 미측정.",
    "detail_item_template": "{id} (charged ${actual:.2f}, documented fee ${expected:.2f}, difference ${delta:.2f})",
    "isolate": {
     "mode": "fetch_formalize",
@@ -9636,5 +9636,61 @@
     "EcoCard: Exceptions and Exclusions"
    ]
   }
+ },
+ "arg_source_reads": {
+  "_note": "2026-08-21 P4([[64]]·t7335 halfB 079 [26]/[32] 접힘): FAB_STRIP 차단 노트의 해소-read 지목용 인자명→원천-read 맵. 1회 저작([[72]])·출처는 전부 env 레지스트리 desc 축자(a2/env_surface.json)와 로컬 궤적의 env 출력 관측([[23]]·tasks/gold 무참조). 소비자 = t2_gate_patch._fab_fix_note 하나(나열만·선택 0). 목록 순서 = 해소 순서. FAB_STRIP 이 잡는 값은 정의상 ctx 부재(손님 발화도 ctx 포함)이므로 '손님이 준 값' 케이스는 여기 도달하지 않는다 — 해소가 read 인 것이 맞다. name/customer_name/full_name 계열은 넣지 않는다: 이름은 레코드-파생이 아니라 손님-제공 값이라 해소가 read 가 아니고(PROV/regen 관할·074/079 'John Doe' 차단이 그 경로), 잘못 지목하면 [[25]] 위반이 된다.",
+  "account_id": [
+   "get_all_user_accounts_by_user_id_3847"
+  ],
+  "_note_account_id": "env desc 축자: get_all_user_accounts_by_user_id_3847 'Retrieve all accounts (checking, savings, credit cards) for a customer.' — 계좌 id 는 이 목록 레코드에서 복사. checking/source/destination 변형도 같은 목록이 원천.",
+  "checking_account_id": [
+   "get_all_user_accounts_by_user_id_3847"
+  ],
+  "source_account_id": [
+   "get_all_user_accounts_by_user_id_3847"
+  ],
+  "destination_account_id": [
+   "get_all_user_accounts_by_user_id_3847"
+  ],
+  "card_id": [
+   "get_all_user_accounts_by_user_id_3847",
+   "get_debit_cards_by_account_id_7823"
+  ],
+  "_note_card_id": "env desc 축자: get_debit_cards_by_account_id_7823 'Retrieve all debit cards associated with a checking account. Returns card details including status, issue reason, and expiration date.' · 'account_id (string): The checking account ID' — checking id 가 선행 입력이므로 계좌 목록 read 를 앞에 둔다. 079 실패 경로가 정확히 이 두 read 부재였다(오테이블 ×3·클래스명-as-ID ×2).",
+  "credit_card_account_id": [
+   "get_credit_card_accounts_by_user"
+  ],
+  "_note_credit_card_account_id": "env desc 축자: get_credit_card_accounts_by_user 'Get all credit card accounts for a user.'",
+  "transaction_id": [
+   "get_bank_account_transactions_9173",
+   "get_credit_card_transactions_by_user"
+  ],
+  "_note_transaction_id": "env desc 축자: get_bank_account_transactions_9173 'Retrieve the transaction history for a bank account.' · get_credit_card_transactions_by_user 'Get all credit card transactions for a user.' — 은행/카드 거래 양쪽이 transaction_id 원천이라 둘 다 나열([[70]] 절충 공개: 어느 쪽인지는 write 종류에 달렸고 그 선택은 모델 몫·read 는 비변이라 과다 나열 무해).",
+  "user_id": [
+   "get_user_information_by_name",
+   "get_user_information_by_email"
+  ],
+  "_note_user_id": "env desc 축자: get_user_information_by_name 'Get the information ... for a user by their name.' — 로컬 궤적 관측(bank_hve2e9_base_20260723)으로 출력 레코드에 user_id 필드 실재 확인('user_id: 224959b99e'). by_id 는 user_id 를 이미 요구하므로 원천이 될 수 없어 제외(기계 도출: args 에 user_id 없는 users 조회).",
+  "email": [
+   "get_user_information_by_name",
+   "get_user_information_by_id"
+  ],
+  "address": [
+   "get_user_information_by_name",
+   "get_user_information_by_id"
+  ],
+  "phone": [
+   "get_user_information_by_name",
+   "get_user_information_by_id"
+  ],
+  "phone_number": [
+   "get_user_information_by_name",
+   "get_user_information_by_id"
+  ],
+  "shipping_address": [
+   "get_user_information_by_name",
+   "get_user_information_by_id"
+  ],
+  "_note_contact_fields": "env desc 축자: get_user_information_by_* 'Get the information (date of birth, email, phone number, address) for a user ...' — 연락처류 인자의 레코드 원천은 users 레코드. 손님이 다른 값을 새로 주는 경우는 ctx 에 실재하므로 FAB_STRIP 에 잡히지 않는다(위 _note 참조)."
  }
 }

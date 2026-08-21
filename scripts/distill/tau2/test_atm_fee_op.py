@@ -138,6 +138,22 @@ chk("REG: 라인별 사실 유지", "difference $2.50" in _txt, _txt[:200])
 chk("REG: 엔진이 net 수치를 안 건넨다", "= $2.50" not in _txt and "delta_total" not in
     (E or {}).get("return_template", ""), _txt[:200])
 
+# ⑻ P5(2026-08-21·t7335 halfA 072): 반환문 완결-인상 제거 + 검사/미검사 축 문면 명시.
+#    구 문구 "across all identified fee discrepancies" 가 완결 인상을 줘 모델의 보완
+#    rebate 검사를 억제([38] $12.00 write·차액 $2.00=11/14 누락 rebate). 수리는 문면만
+#    ([[62]] — 누락-rebate 검사 로직 신설 0·op 불변).
+_rt = (E or {}).get("return_template", "")
+chk("P5: 완결 인상 제거", "across all identified" not in _rt, _rt[:120])
+chk("P5: 검사한 축 명시(전달 라인의 금액만)",
+    "fee-line amounts only" in _rt and "you passed in" in _rt, _rt[:250])
+chk("P5: 미검사 축 명시(fee_rebate 부재)",
+    "did NOT check" in _rt and "fee_rebate" in _rt, _rt[:400])
+chk("P5: [[64]] fix-naming(무엇을 하면 풀리나)",
+    "check the account's rebate policy against the fee_rebate lines yourself" in _rt)
+chk("P5: 렌더에 {details} 유지·다른 자리표시자 없음",
+    "{details}" in _rt and "difference $2.50" in _txt
+    and not [m for m in __import__("re").findall(r"\{(\w+)", _rt) if m != "details"], _rt[-120:])
+
 # ⑷ 3사본 동일
 E2 = load_entry("a2/banking_knowledge.gate.json")
 E3 = load_entry("a2/split/banking_knowledge.core.json")

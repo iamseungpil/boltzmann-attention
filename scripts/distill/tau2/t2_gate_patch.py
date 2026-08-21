@@ -1821,6 +1821,41 @@ ORIGIN_FEEDBACK = (
 )
 
 
+# ─── ★FAB_STRIP 해소-지목 (2026-08-21 P4·[[64]]·t7335 halfB 079) ───
+# 구판 차단 노트("items whose supporting records could not be verified were not processed")는
+# **무엇이 미근거인지·무엇을 읽으면 풀리는지 무지목**이라 대화가 접혔다(079 [26]/[32] — user가
+# "Did the freeze actually go through?"로 혼란·[[64]] 동형: 이름 없는 거부가 자기 원인을 재생산).
+# 여기서 [[64]]의 두 칸을 채운다: ⑴어느 호출의 어느 인자·값이 미근거였나 ⑵어느 read 가 그 값을
+# 내나. 도구명 출처는 **선언뿐** — ① a2["arg_source_reads"](인자명→원천-read 목록·env 레지스트리
+# desc 축자에서 1회 저작·[[72]]·목록 순서=해소 순서) ② 폴백 a2["relations"]["by_tool"][eff]
+# ["requires"](C586 requires_reads 선언). 엔진은 선언 조회·나열만(도메인 리터럴 0·선택 0·[[10]]).
+# 판정(strip 집합)은 불변 — 문면만 보강이라 플래그 없이 상시([[64]] 의무·본문 억제 경로 아님).
+
+def _fab_fix_note(stripped, a2):
+    """stripped = [(eff명, [(인자, 값), ...]), ...] → 노트 꼬리 문장(영어=C125). 빈 입력 = ""."""
+    amap = (a2 or {}).get("arg_source_reads") or {}
+    rel = ((a2 or {}).get("relations") or {}).get("by_tool") or {}
+    parts = []
+    for eff, kvs in (stripped or []):
+        wrongs, reads = [], []
+        for k, v in (kvs or []):
+            wrongs.append("%s='%s'" % (k, str(v)[:40]))
+            for r in (amap.get(str(k)) or []):
+                if not str(r).startswith("_") and r not in reads:
+                    reads.append(r)
+        if not wrongs:
+            continue
+        if not reads:   # 인자 선언이 없으면 write-도구 선언(requires_reads)으로 폴백
+            reads = list((rel.get(eff) or {}).get("requires") or [])
+        msg = ("%s was NOT executed: %s does not appear in any record read in this conversation"
+               % (eff, " / ".join(wrongs)))
+        if reads:
+            msg += ("; to fix this, first read the real value with %s, then re-issue the call "
+                    "with a value copied from that tool's output" % ", then ".join(reads))
+        parts.append(msg)
+    return (" " + "; ".join(parts) + ".") if parts else ""
+
+
 # ─── ★v3.2 CONSISTENCY 가드 (T2_CONSISTENCY=1·L10 멤버십 t35형 + G-noop t71형) ───
 # 검사 재료 = 에이전트 자신이 fetch한 tool 출력(grounded·규칙0)·키/도구명 = 전부 A2(eplan spec+
 # confirm gates)·엔진 도메인 리터럴 0. 성격=예방(정직·PROBE_FORENSIC: t35/t71 실궤적은 문제
@@ -9534,9 +9569,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 eff = re.sub(r"_\d+$", "", str(inner or nm))
                 if inner and re.match(r"^(give|call)_", str(nm), re.I):
                     if _RDP.match(eff) or _PRC.search(eff):
-                        return False  # inner가 read/procedural일 때만 무해
+                        return eff, []  # inner가 read/procedural일 때만 무해
                 elif not eff or _RDP.match(eff) or _PRC.search(eff):
-                    return False  # read/procedural = 무해
+                    return eff, []  # read/procedural = 무해
                 sub = ar.get("arguments")
                 if isinstance(sub, str):
                     try:
@@ -9544,21 +9579,31 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     except Exception:
                         sub = {}
                 d = sub if isinstance(sub, dict) else ar
-                for k, v in (d or {}).items():
+                bad = []   # ★P4(2026-08-21·[[64]]): 미근거 (인자,값) 수집 — strip 판정은 구판과
+                for k, v in (d or {}).items():   # 동일(bad 비면 무해·인자당 첫 값 하나)
                     if not _hint_hit(k, hints):
                         continue  # id-like 인자만
                     for val in _flatten(v):
                         s = str(val).strip()
                         if len(s) >= 4 and s.lower() not in ctx:
-                            return True  # 근거없는 id-operand 있는 write
-                return False
-            _fab_ids = {id(tc) for tc in (am.tool_calls or []) if _fab_write_ungrounded(tc)}
+                            bad.append((k, s))  # 근거없는 id-operand 있는 write
+                            break
+                return eff, bad
+            _fab_ids, _fab_bad = set(), []
+            for tc in (am.tool_calls or []):
+                _feff, _fbad = _fab_write_ungrounded(tc)
+                if _fbad:
+                    _fab_ids.add(id(tc))
+                    _fab_bad.append((_feff, _fbad))
             if _fab_ids:
                 _kept = [tc for tc in (am.tool_calls or []) if id(tc) not in _fab_ids]
                 am.tool_calls = _kept or None
                 # C125: 유저-대면 문자열은 영어(한글 산문 노출이 rall20 043.0 [24] 유저 혼란 실측)
+                # ★P4(2026-08-21·[[64]]·t7335 halfB 079): 무지목 노트가 접힘을 재생산 — 미근거
+                #   인자·값과 해소-read(A2/relations 선언 기계 도출·_fab_fix_note)를 문면에 싣는다.
                 am.content = ((am.content or "")
-                              + " [Note: items whose supporting records could not be verified were not processed.]")
+                              + " [Note: items whose supporting records could not be verified were"
+                              + " not processed." + _fab_fix_note(_fab_bad, a2) + "]")
                 self._t2_fab_strips = getattr(self, "_t2_fab_strips", 0) + len(_fab_ids)
                 print("[T2_FAB_STRIP] dropped %d ungrounded write call(s) (exhaustion->abstain)"
                       % len(_fab_ids), file=_sys.stderr, flush=True)
