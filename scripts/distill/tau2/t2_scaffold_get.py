@@ -185,6 +185,38 @@ def _dates_in(text):
     return out
 
 
+_OWN_WARN_TAG = "[grounding warning]"      # 우리 층이 찍는 태그(빌드부 `:2382`)·닫힌 술어
+
+
+def _strip_own_feedback(text):
+    """★C203 기지 결함 수리 (2026-08-21·t7335 094 실측·P2). `[GROUNDING WARNING] …` 경고문이
+    도구 출력으로 원장에 에코되어, 1차에 **드롭된 바로 그 값**(094: actual_apy=5.25·period_start)이
+    경고 문자열 안에 '실재'하게 되고 같은 값의 2차 재전송이 존재 검사를 통과했다(에코-그라운딩 —
+    1차 저지의 자기-무력화). ⇒ grounding 대조 코퍼스에 한해 **우리 층이 찍은 경고 문면**을 지운다.
+    - 식별 = 닫힌 술어: 우리가 찍는 태그부터 그 줄 끝까지(드롭 플래그 목록 `param=value; …`·
+      `_hdr_tail`·quote_hint 전부 이 한 줄에 실린다 — 개행 없음·빌드부 축자). 도메인 텍스트에서
+      아무것도 **뽑지 않는다** — 우리 포맷의 제자리 삭제뿐([[59]] 무관·`Record ID:` membership 동형).
+    - 두 안(경고문에 값 비축자 vs 코퍼스서 문면 제외) 중 **후자**를 고른 근거: 경고 문면은 라이브
+      회복 채널의 실측(x35② ledger 파라미터 회복 38:20)이 걸린 모델-거동 채널이라 문면 변경은
+      재측정 없이 회귀 위험이 있고, 코퍼스 제외는 모델이 보는 문면 불변 + 검사 우주만 정화 =
+      1차 발화 시점과 동일 거동의 복원이다. 경고 뒷줄의 도구 산출 본문은 그대로 남는다(회귀 0).
+    - 재현 단위검정: `test_ground_warning_echo.py`."""
+    s = str(text or "")
+    low = s.lower()
+    out, i = [], 0
+    while True:
+        j = low.find(_OWN_WARN_TAG, i)
+        if j < 0:
+            out.append(s[i:])
+            break
+        out.append(s[i:j])
+        k = low.find("\n", j)                # 태그~줄끝 제거(개행 자체는 보존)
+        if k < 0:
+            break
+        i = k
+    return "".join(out)
+
+
 def _corpus_texts(orch, which):
     """grounding 대조 코퍼스 (A2 선언 `corpus`: 'kb'|'ledger'). 도메인 리터럴 0·기존 소스 재사용.
     kb=도메인 KB 문서 전량 · ledger=지금까지 원장(에이전트 도구 출력)+사용자 발화. 엔진은 텍스트만 본다."""
@@ -194,7 +226,8 @@ def _corpus_texts(orch, which):
         texts += [d0.get("content") or "" for d0 in (_load_domain_docs(domain) if domain else [])]
     if "ledger" in which:
         ev = _evidence_ctx(orch)
-        texts += list((ev.get("__tool_outputs") or {}).values())
+        # ★P2(2026-08-21): 우리 경고 문면을 지운 뒤 대조(`_strip_own_feedback` 주석·C203 수리).
+        texts += [_strip_own_feedback(t) for t in (ev.get("__tool_outputs") or {}).values()]
         texts.append(ev.get("__user_text") or "")
     if "user" in which:
         # ★C203: **손님 발화만**(도구 출력 제외). 'ledger'는 도구 출력을 포함해 **자기-그라운딩**이

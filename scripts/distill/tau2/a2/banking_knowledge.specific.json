@@ -3309,8 +3309,28 @@
     "max_rounds": 3,
     "instructions": "You are a records-extraction sub-task. For the checking account in REFERENCE: (1) call call_discoverable_agent_tool with agent_tool_name='get_bank_account_transactions_9173' and that account_id to read the account's transaction records. (2) Build the transactions array with ONE element per atm_fee line of THIS account. Each element MUST have ONLY these fields, copied from the records: transaction_id (string - the fee line's id), fee_amount (number - the fee line's amount as a POSITIVE number, no $), withdrawal_amount (number, POSITIVE - the cash dispensed by the atm_withdrawal this fee belongs to: the adjacent withdrawal record with the same account and date), network (string, exactly one of 'rho' | 'non_rho' | 'foreign'). IMPORTANT: the fee line's own description (e.g. 'NON-RHO ATM FEE') is exactly what you are auditing - it may be wrong. Determine 'network' ONLY from the paired withdrawal's description: a RHO-BANK machine is 'rho' (a fee on a RHO-BANK withdrawal is itself the error you are looking for), a machine outside the U.S. is 'foreign', any other bank's machine is 'non_rho'. Also: if TWO fee lines belong to the SAME withdrawal, include both, and add \"duplicate_of\": \"<the other fee line's transaction_id>\" on the second one. Do NOT compute fees - just copy raw values.",
     "answer_format": "Reply with exactly one JSON object and nothing else: {\"transactions\": [ {\"transaction_id\": \"...\", \"fee_amount\": 0.0, \"withdrawal_amount\": 0.0, \"network\": \"...\"} ]}",
-    "_note": "2026-08-14 FIX-10. x301 4셀 n=8: A_CUR 0/8·B_WARN 0/8(역효과)·C_DUP rho 8/8·dup 8/8·D_NEG 0/8 — 지시문 핵심 블록 = C_DUP 측정 축자([[03b]]). t7282 라이브: 같은 문면이 스키마에만 있으면 도달 0회(인라인 형식화 = A_CUR 동형 오답·'paired withdrawal' 문맥 등장 0). x301b(재생성-경계) 계기 실패 → 배치 채널 확정. 기전 = 기존 fetch_formalize(§2b 105/105·get_interest_correction 선례)·판단 = LLM 서브·엔진 운반만·실패 시 메인 인자 폴백."
-   }
+    "_note": "2026-08-14 FIX-10. x301 4셀 n=8: A_CUR 0/8·B_WARN 0/8(역효과)·C_DUP rho 8/8·dup 8/8·D_NEG 0/8 — 지시문 핵심 블록 = C_DUP 측정 축자([[03b]]). t7282 라이브: 같은 문면이 스키마에만 있으면 도달 0회(인라인 형식화 = A_CUR 동형 오답·'paired withdrawal' 문맥 등장 0). x301b(재생성-경계) 계기 실패 → 배치 채널 확정. 기전 = 기존 fetch_formalize(§2b 105/105·get_interest_correction 선례)·판단 = LLM 서브·엔진 운반만·실패 시 메인 인자 폴백.",
+    "row_fields": [
+     "transaction_id",
+     "fee_amount",
+     "withdrawal_amount",
+     "network"
+    ],
+    "_note_row_fields": "2026-08-21 P3: row_fields 는 fetch_formalize 모드가 소비하지 않는다(_sub_formalize/_sub_inject 전용) — 여기 선언하는 유일 효과는 _split_missing_fields 의 출처 분류: transaction_id 등 레코드-유래 필드가 결핍(P4b 강등 포함)일 때 abstain 문구가 '레코드에서 읽어 재호출하라'(이행 가능 지시)로 나가게 한다(C275 ⑤ 모순-지시 방지·C278 §2c)."
+   },
+   "requires_reads": [
+    "get_bank_account_transactions"
+   ],
+   "requires_reads_feedback": "Error: [READ-FIRST] this audit only judges fee lines that were READ in this conversation, and the required transaction read is missing: {missing}. get_bank_account_transactions is a DISCOVERABLE tool whose REAL name carries a numeric suffix - find its full suffixed name in the knowledge base (search the base name), unlock it, and call it with the checking account's id copied from the accounts listing (an account's display class name like 'Purple Account' is NOT an account id). Only rows copied from that read's output can be judged - rows typed from memory or with invented ids are dropped as unverified. Then call this tool again.",
+   "_note_requires_reads": "2026-08-21 P3 (t7335 074 실측). 이 comparator 는 check_cli_eligibility 와 달리 requires_reads 가 없어, 거래 read 0회인 채 @last 참조 날조([4]×4)·행 통짜 날조([42])로 진행해도 READ-FIRST 가 한 번도 안 걸렸다(死배선 4호 동형·A2 선언 공백 = 커버리지 구멍). 값의 출처 = 이 도구 자신의 description 축자('First retrieve the account's transactions, then call this ONCE PER ACCOUNT')와 params.transactions 계약('copied from the records') — gold 무참조([[23]]). 이름은 접미사 없이 쓴다(_eff_tool_name 이 _NNNN 을 지우고 대조). 엔진 게이트 = 기존 T2_SG_REQREADS(신설 0).",
+   "grounded_params": {
+    "transaction_id": {
+     "producer_contains": [
+      "record id:"
+     ]
+    }
+   },
+   "_note_grounded_params": "2026-08-21 P3 (t7335 074 실측·HALFB §task_074): 날조 거래행이 출처 검산 없이 판정을 받아 discrepancy 로 에코되고 고객 보고까지 세탁됐다. 신설 아님 — 자매 comparator get_reward_discrepancies(ratefix)의 C211/F6a grounded_params.transaction_id 동형 선언을 이 도구에 채운다(발명-행 = 결핍 강등 → 판정 제외·비-에코·P4 지목 경로 합류). selector 를 테이블명이 아니라 'record id:'(env DB 레코드 덤프의 기계 포맷 — _byref_records/src0 안전판이 이미 쓰는 닫힌 술어)로 두는 근거: 이 도구의 read 는 디스패처 경유라 __tool_outputs blob 이 테이블 혼합이고, 우리 comparator 반환문에는 'Record ID:' 라인이 없어 자기 출력 에코(txn54321 (charged ...))로는 재접지가 성립하지 않는다(부정통제 = test_comparator_read_first). ±([[70]] 공개): 사는 것 = 날조 행의 판정·에코 차단. 파는 것 = main 이 그 계좌 거래를 안 읽고 서브 fetch 에만 의존하는 호출은 행 전체 unverified 기권 → read 후 재호출 1왕복 추가(description 이 이미 main 선독을 계약으로 명시하므로 계약 밖 경로만 비싸진다). 효과 주장은 A/B 전 금지 — 본 선언은 단측 관찰 기반."
   },
   {
    "name": "get_checking_atm_fee_totals",
