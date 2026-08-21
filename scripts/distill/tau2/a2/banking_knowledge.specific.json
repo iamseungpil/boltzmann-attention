@@ -1,4 +1,6 @@
 {
+ "policy_facts_file": "banking_knowledge.policy_facts.json",
+ "_note_policy_facts_file": "2026-08-21 C588: 사실표 정본은 그 파일 하나(행 2,226·conflict 796). 소비자는 이 포인터로 읽는다 — 아직 런타임 소비자 0(x451 격리·material 레버가 후보). 층 판정 = A3(도메인 고유 정책 내용·A3_CONDITIONAL_FACT_ROW §1).",
  "reference_filter": [
   {
    "dispatch_tool": "call_discoverable_agent_tool",
