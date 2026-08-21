@@ -1,5 +1,33 @@
 # HANDOFF — 2026-08-21 저녁 · 다음 세션이 이어받을 것
 
+> **★§0b 최신 갱신(저녁 2차·C588~C589)**: ⑤·⑥ 진행됨. **t7335 유료 런이 돌고 있다** —
+> 아래 §0b 를 §0 보다 먼저 읽어라.
+
+---
+
+## §0b 저녁 2차 — t7335 발사 + 사실표 저작 (C588~C589)
+
+```
+⑥ t7335   ★돌고 있다(유료). 전-레버 합성 단일 스택(사용자 지시: A/B 접고 다 켜서 pass 측정)
+          = go_stack 정본 + T2_ARG_DOC_SUB=1 + T2_VALUE_FORMULA=full + T2_SG_DOCS=1
+          + requires_reads(A3 상주). sha ec8f9d37 · 1단계 20 × nt2 = 40 sim ·
+          halfA 8140 · halfB 8141 · GO_MAX_STEPS=150 · 동시성 1 · 예상 ~8h.
+          스모크 게이트(093+024×nt1) 통과 후 동결 걸고 자동 체인. 러너가 gz 영속+push 까지 함.
+          로그: /home/woori/scratch/logs/bank_t7335_chain.log
+          판정: reward 뿐 · 참고 대조 t7328 6/40(sha 달라 엄밀 A/B 아님) · Δ≥4/40 ·
+          의무 3종([[70]]) + 레버 발화율([[08]] 포렌식 전 결론 금지)
+⛔리모트 pull 금지(런 종료까지) — C588 A3 커밋(8ff52497)이 런중 엔진에 섞이면 안 된다.
+          런 종료 확인 후: git pull → 동결 해제 확인 → 포렌식.
+⑤ 사실표  ✅저작 완료(C588·8ff52497): x462 접기-안전 판정(53군 기각·충돌 959→796)
+          → x457 v2 → a2/banking_knowledge.policy_facts.json 한 파일(행 2,226)+두 층 포인터.
+          ⏳남은 것: ⑴조건 형식화 패스(conflict 796·GPU 필요) ⑵x451 격리 재측정(§6 게이트 —
+          이거 전에는 성적 주장 금지) ⑶런타임 소비자 배선(material 레버 후보)
+★레지스트리 래칫이 발사 1회 거부 — 신규 4 플래그를 go_stack 에 등재하고 통과. 래칫 살아있다.
+★PM 산출물 5종(x455·x457~x460)이 리모트 untracked 였다 — 영속함. "전부 tracked" 오기였다.
+★핸드오프 정본 위치 = C:\workspace\_cdp_private_local\ (repo 밖·[[32]]). repo 안 동명 폴더에
+  쓰지 말 것(이 세션이 EVE 를 거기 잘못 썼다가 정본 위치로 복사함).
+```
+
 > 등대 = `ba-frft/reports/facet_rft_2026/RESEARCH_MASTER.md`
 > 앞 문서 = `HANDOFF_2026_08_21_PM.md` → 이 문서. 원장 = **C585~C586**(2건)
 > 이 세션은 **전부 무료**(로컬 vLLM 8141·user-sim 0·유료 런 0).
