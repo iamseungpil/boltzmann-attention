@@ -76,7 +76,7 @@ setsid bash -c "
 
   # ── 0단계 스모크(2 sim·treat): 두 기구가 **라이브에서 발화**하는지([[30]]·死배선에 돈 금지)
   export T2_ARG_DOC_SUB=1 T2_VALUE_FORMULA=full
-  SMK=bank_t7333_smoke_20260821b
+  SMK=bank_t7333_smoke_20260821c
   echo '[t7333] === 스모크(2 sim · task_024 · treat · 8141) ==='
   t2_launch \$SMK 8141 $HOT 2 2>&1 | tee $LOG/\$SMK.log
   ND=\$(grep -c '$M_DOC' $LOG/\$SMK.log 2>/dev/null || echo 0)
@@ -114,7 +114,7 @@ setsid bash -c "
     env | grep -E '^T2_(ARG_DOC_SUB|VALUE_FORMULA)' | sort > $LOG/env_t7333_\${ARM}.txt || true
     echo \"[t7333] === \$ARM · port=\$PORT · doc='\${T2_ARG_DOC_SUB:-(unset)}' val='\${T2_VALUE_FORMULA:-(unset)}' ===\"
     for PART in hot rest; do
-      TAG=bank_t7333_\${ARM}_\${PART}_20260821b
+      TAG=bank_t7333_\${ARM}_\${PART}_20260821c
       if [ \"\$PART\" = hot ]; then TL='$HOT'; NT=$HOT_NT; else TL='$REST'; NT=$REST_NT; fi
       t2_launch \$TAG \$PORT \"\$TL\" \$NT 2>&1 | tee $LOG/\$TAG.log
       echo \"[t7333] \$ARM/\$PART 완료 · 배달=\$(grep -c '$M_DOC' $LOG/\$TAG.log 2>/dev/null || echo 0) · 값=\$(grep -c '$M_VAL' $LOG/\$TAG.log 2>/dev/null || echo 0)\"
@@ -136,7 +136,7 @@ setsid bash -c "
   git -c user.name=ghlee -c user.email=beingrelative@gmail.com commit -q -m 't7333 arms' || true
   git push -q origin facet-rft-2026 || true
   for A in ctl treat; do for P in hot rest; do
-    G=reports/facet_rft_2026/sim_results/bank_t7333_\${A}_\${P}_20260821b.results.json.gz
+    G=reports/facet_rft_2026/sim_results/bank_t7333_\${A}_\${P}_20260821c.results.json.gz
     git ls-files --error-unmatch \$G >/dev/null 2>&1 \\
       && echo \"[t7333] \$A/\$P 영속 확인 tracked\" || echo \"[t7333] ⚠\$A/\$P 영속 실패 — 리모트 디스크가 유일본\"
   done; done

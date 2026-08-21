@@ -1,5 +1,122 @@
 [
  {
+  "task": "task_003",
+  "trial": 0,
+  "gold": "Silver Rewards Card",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 3,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 6,
+  "surv": [
+   "Platinum Rewards Card",
+   "Gold Rewards Card",
+   "Crypto-Cash Back",
+   "Diamond Elite Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card"
+  ],
+  "undecidable": false,
+  "reask": true,
+  "n_rejected_first": 1,
+  "declared_non_requirement": [],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "fx_fee",
+    "op": "==",
+    "value": 0,
+    "because": "No foreign transaction fees",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "purchase_protection",
+    "op": "==",
+    "value": 1,
+    "because": "Purchase protection",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "limit_max",
+    "op": ">=",
+    "value": 100000,
+    "because": "A credit limit that could be at least $100,000",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "task": "task_024",
+  "trial": 0,
+  "gold": "Business Bronze Rewards Card",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 0,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 13,
+  "surv": [
+   "Platinum Rewards Card",
+   "Gold Rewards Card",
+   "Silver Rewards Card",
+   "Bronze Rewards Card",
+   "EcoCard",
+   "Crypto-Cash Back",
+   "Diamond Elite Card",
+   "Business Bronze Rewards Card",
+   "Business Silver Rewards Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card",
+   "Green Rewards Card",
+   "Silver Zoom Card"
+  ],
+  "undecidable": true,
+  "reask": true,
+  "n_rejected_first": 1,
+  "declared_non_requirement": [
+   [
+    "business",
+    "background",
+    "I’m looking to buy a work truck for my landscaping business"
+   ],
+   [
+    "base_cashback",
+    "question",
+    "Will that purchase earn the 1.5% base cash back (i.e., $600 "
+   ],
+   [
+    "base_cashback",
+    "question",
+    "would it qualify for the 4% category"
+   ],
+   [
+    "cashback_scope",
+    "question",
+    "For a $40,000 vehicle purchase at a dealership"
+   ],
+   [
+    "cashback_scope",
+    "question",
+    "Is there any welcome bonus / promo (e.g., spend $X get $Y) t"
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": []
+ },
+ {
   "task": "task_055",
   "trial": 0,
   "gold": "Purple Account",
@@ -89,129 +206,160 @@
   "spec": []
  },
  {
-  "task": "task_063",
-  "trial": 0,
-  "gold": "Silver Plus Account",
+  "task": "task_003",
+  "trial": 1,
+  "gold": "Silver Rewards Card",
   "objective": {
-   "mode": "argmax",
+   "mode": "argmin",
    "terms": [
     {
-     "attribute": "apy",
+     "attribute": "annual_fee",
      "times": 1,
-     "of_amount": 8000,
+     "of_amount": null,
      "sign": 1
     }
    ]
   },
   "scores": {
-   "blue_account": 0.8,
-   "bluest_account": 180.0,
-   "dark_green_account": 120.0,
-   "evergreen_account": 4.0,
-   "gold_years_account": 80.0,
-   "green_account_(checking)": 8.8,
-   "green_fee-free_account": 0.0,
-   "light_green_account": 4.0,
-   "bronze_account": 160.0,
-   "diamond_elite_account": 600.0,
-   "gold_account": 440.0,
-   "gold_plus_account": 480.0,
-   "green_account_(savings)": 320.0,
-   "platinum_account": 520.0,
-   "platinum_plus_account": 560.0,
-   "silver_account": 200.0,
-   "cobalt_blue": 40.0,
-   "hunter_green": 80.0,
-   "lime_green": 120.0,
-   "true_blue": 160.0,
-   "world_blue": 80.0,
-   "bronze_saver_account": 160.0,
-   "diamond_vault": 520.0,
-   "emerald_saver": 280.0,
-   "gold_plus_saver": 400.0,
-   "gold_saver_account": 260.0,
-   "platinum_reserve_account": 400.0,
-   "silver_saver_account": 200.0
+   "Platinum Rewards Card": 200.0,
+   "Gold Rewards Card": 0.0,
+   "Crypto-Cash Back": 75.0,
+   "Diamond Elite Card": 495.0,
+   "Business Gold Rewards Card": 200.0,
+   "Business Platinum Rewards Card": 450.0
   },
-  "n_constraints": 1,
+  "n_constraints": 3,
   "n_rejected": 0,
   "rejected": [],
-  "n_surv": 35,
+  "n_surv": 6,
   "surv": [
-   "blue_account",
-   "bluest_account",
-   "checking_accounts_(general)",
-   "dark_green_account",
-   "evergreen_account",
-   "gold_years_account",
-   "green_account_(checking)",
-   "green_fee-free_account",
-   "light_blue_account",
-   "light_green_account",
-   "purple_account",
-   "bronze_account",
-   "diamond_elite_account",
-   "gold_account",
-   "gold_plus_account",
-   "green_account_(savings)",
-   "platinum_account",
-   "platinum_plus_account",
-   "silver_account",
-   "silver_plus_account",
-   "cobalt_blue",
-   "hunter_green",
-   "lime_green",
-   "true_blue",
-   "world_blue",
-   "automatic_sweep_program",
-   "bronze_saver_account",
-   "diamond_vault",
-   "emerald_saver",
-   "gold_plus_saver",
-   "gold_saver_account",
-   "joint_business_holders_+_user_roles",
-   "platinum_reserve_account",
-   "silver_plus_saver",
-   "silver_saver_account"
+   "Platinum Rewards Card",
+   "Gold Rewards Card",
+   "Crypto-Cash Back",
+   "Diamond Elite Card",
+   "Business Gold Rewards Card",
+   "Business Platinum Rewards Card"
   ],
   "undecidable": false,
   "reask": true,
-  "n_rejected_first": 4,
+  "n_rejected_first": 1,
   "declared_non_requirement": [
    [
-    "paper_statement_fee",
+    "annual_fee",
     "question",
-    "is there any fee for that?"
+    "What cards do you have that meet those requirements, and wha"
    ],
    [
-    "apy",
+    "cashback",
     "question",
-    "Can you confirm the Gold Account has the highest APY you off"
+    "What cards do you have that meet those requirements, and wha"
    ],
    [
-    "paper_statement_fee",
+    "annual_fee",
     "question",
-    "Are paper statements mailed available, and is there any fee?"
+    "What are the annual fee and cash back, especially on travel?"
+   ],
+   [
+    "cashback",
+    "question",
+    "What are the annual fee and cash back, especially on travel?"
    ]
   ],
   "winner": [
-   "diamond_elite_account"
+   "Gold Rewards Card"
   ],
   "winner_is_gold": false,
-  "pref_best": [
-   "green_fee-free_account",
-   "silver_account"
-  ],
-  "pref_held": 27,
+  "pref_best": null,
+  "pref_held": 0,
   "pref_is_gold": false,
-  "gold_in": true,
+  "gold_in": false,
   "unique": false,
   "spec": [
    {
-    "attribute": "foreign_transaction_fee",
+    "attribute": "fx_fee",
     "op": "==",
     "value": 0,
+    "because": "No foreign transaction fees",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "purchase_protection",
+    "op": "==",
+    "value": 1,
+    "because": "Purchase protection",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "limit_max",
+    "op": ">=",
+    "value": 100000,
+    "because": "A path to at least a $100,000 credit limit (or the possibility of that limit)",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "gold": "Silver Rewards Card",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 5,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 0,
+  "surv": [],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "declared_non_requirement": [
+   [
+    "cashback_scope",
+    "background",
+    "Spending categories: mostly groceries and gas"
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "min_score",
+    "op": ">=",
+    "value": 700,
+    "because": "I’m not interested in any “no credit check” type cards.",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "annual_fee",
+    "op": "==",
+    "value": 0,
+    "because": "Max annual fee: $0 preferred",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "fx_fee",
+    "op": "<=",
+    "value": 0,
     "because": "Max foreign transaction fee: 0%",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "purchase_protection",
+    "op": "absent",
+    "value": null,
+    "because": "Premium subscription: false",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "virtual_card",
+    "op": "absent",
+    "value": null,
+    "because": "absolutely need paper statements mailed to me",
     "stated_as": "requirement"
    }
   ]
