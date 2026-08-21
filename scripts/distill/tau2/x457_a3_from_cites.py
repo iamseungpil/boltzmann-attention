@@ -143,13 +143,44 @@ def sub_docs_block(cites, axes, always, fold):
     #   에도 안 들어간다**(093·094 가 둘 다 필요로 하는 값이다). 문서 중앙 길이가 989자라
     #   문서 단위가 절보다 크게 비싸지도 않다(093 9편 12,510자 · 094 11편 12,387자).
     #   오프셋은 **근거 앵커로 남긴다** — 어느 줄이 그 축을 말했는지 감사할 수 있어야 한다.
-    docs = {k: sorted({x["doc"] for x in v}) for k, v in spans.items()}
+    # ★멀티 범위 (2026-08-21·사용자 지적 *"절이 여러개 필요하면 여러개 지정하면 안되나? 멀티
+    #   지정이다"* — 맞다. 문제는 범위의 표현력이 아니라 **내 축 목록이 좁았던 것**이다).
+    #   문서를 **고르는** 근거는 선언축이지만, 일단 고른 문서 안에서는 **감사가 검산한 모든 절**을
+    #   준다 — 선언축만 주면 실측 31~34% 밖에 안 덮고(093 `silver_account_009` 는 0%),
+    #   전축이면 64~69% 다. 문서 전량 대비 **1.5배 절약**하면서 구멍이 훨씬 줄어든다.
+    #   ⚠남는 구멍은 **감사가 형식화 못 한 줄**이다(표 행·한 줄 두 값). 그 수치를 `coverage` 로
+    #   함께 실어 **보이게** 둔다 — 안 세면 "전수"는 말뿐이다.
+    all_spans = collections.defaultdict(set)          # doc -> {(off,len)}  전축
+    for _raw, lst in cites.items():
+        for c in lst:
+            if c.get("span_ok") is True and c.get("section_off") is not None:
+                all_spans[c.get("doc")].add((c["section_off"], c["section_len"]))
+
+    def _merge(sp):
+        out = []
+        for o, l in sorted(sp):
+            e = o + (l or 0)
+            if out and o <= out[-1][1]:
+                out[-1][1] = max(out[-1][1], e)
+            else:
+                out.append([o, e])
+        return [[a, b - a] for a, b in out]
+
+    docs = {}
+    for cls, v in spans.items():
+        ent = []
+        for did in sorted({x["doc"] for x in v}):
+            rg = _merge(all_spans.get(did) or set())
+            ent.append({"doc": did, "ranges": rg,
+                        "chars": sum(r[1] for r in rg)})
+        docs[cls] = ent
     return {"_note_": ("전달 단위는 **문서**다 — 엔진은 선언된 id 를 읽어 넘기기만 하고 검색하지 "
                        "않는다. `spans` 는 그 문서 안 어디가 그 축을 말했는지의 **근거 앵커**이고 "
                        "자르는 데 쓰지 않는다(절로 자르면 축으로 안 잡힌 줄이 사라진다·실측). "
                        "축 목록의 출처 = op.reducers 범주 + doc_045/046 의 범주 정의."),
             "axes": sorted(want), "always": list(always),
             "by_class": {k: v for k, v in sorted(docs.items())},
+            "delivery": "ranges",
             "spans": {k: v for k, v in sorted(spans.items())}}
 
 
@@ -293,11 +324,17 @@ def main():
         blk = sub_docs_block(cites, _axes, _always, fold)
         payload["sub_docs_block"] = blk
         _nd = sum(len(v) for v in blk["by_class"].values())
+        _ch = sum(e["chars"] for v in blk["by_class"].values() for e in v)
+        _rg = sum(len(e["ranges"]) for v in blk["by_class"].values() for e in v)
+        print(NLC + "[전달] 멀티 범위 — 문서 %d · 범위 %d · %d자" % (_nd, _rg, _ch))
         _n = sum(len(v) for v in blk["spans"].values())
         print(NLC + "[서브 읽기 명세] 축 %d · 공용 %d편 · 클래스 %d · 문서 %d · 앵커 span %d"
               % (len(blk["axes"]), len(blk["always"]), len(blk["by_class"]), _nd, _n))
         for cls in sorted(blk["by_class"])[:10]:
-            print("    %-34s %2d편" % (cls[:34], len(blk["by_class"][cls])))
+            v = blk["by_class"][cls]
+            print("    %-30s %2d편 %2d범위 %6d자"
+                  % (cls[:30], len(v), sum(len(e["ranges"]) for e in v),
+                     sum(e["chars"] for e in v)))
 
     p = os.path.join(REP, a.out)
     with io.open(p, "w", encoding="utf-8") as f:
