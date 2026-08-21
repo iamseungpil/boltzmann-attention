@@ -555,9 +555,16 @@ def _docs_delivery(orch, d, iso, ref, ag, la, UserMessage):
     # ① 클래스 선택 — **별도 서브 하나**·닫힌 목록([[22]] 열린 술어=LLM·엔진은 소속만 검산).
     #   지시가 재료보다 앞이다(C578: 위치 하나가 26/26 ↔ 0/26 을 갈랐다).
     classes = sorted(bc)
-    pick = ("You are a closed-list selection sub-task. From CLASSES below, select EVERY class "
-            "name that corresponds to the account or to the customer's products named in "
-            "REFERENCE. Copy the names VERBATIM from CLASSES; do not invent or edit names. "
+    # ★v2 (2026-08-21 x456 C팔 1차 실측·`x456_kb_sub_liveness_cdocs.json`): v1 문구는 픽커가
+    #   REFERENCE 의 **첫 항목(계좌 자신)의 클래스를 빠뜨리는** 누락을 낳았다(관문1 문면
+    #   `base=0.0 source not found` 로 확인·gold 무관). 이름이 모호한 항목도 한쪽만 골랐다.
+    #   항목 전수 + 모호=전부 포함으로 고침 — 과포함 비용은 바이트뿐(전달량 로그로 가시)이고
+    #   누락 비용은 필수 성분 전멸이라 비대칭이다.
+    pick = ("You are a closed-list selection sub-task. REFERENCE names an account and the "
+            "customer's products. From CLASSES below, select EVERY class that corresponds to "
+            "ANY item in REFERENCE - the account itself AND each product. If more than one "
+            "class name plausibly matches an item, include ALL plausible classes rather than "
+            "choosing one. Copy the names VERBATIM from CLASSES; do not invent or edit names. "
             "Reply with exactly one JSON array of strings and nothing else.\n\n"
             "=== REFERENCE ===\n%s\n\n=== CLASSES ===\n%s"
             % (json.dumps(ref, ensure_ascii=False, indent=1),

@@ -141,6 +141,8 @@ def main():
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8",
                     help="served name — litellm 문자열은 라이브와 같게 openai/<name> 으로 만든다")
     ap.add_argument("--n", type=int, default=8, help="궤적에서 모을 ref 조합 수")
+    ap.add_argument("--arms", default="A_repaired,B_prerepair,C_docs",
+                    help="돌릴 팔(쉼표) — 픽커 문구 반복 시 C_docs 만 재는 용도")
     ap.add_argument("--out", default="x456_kb_sub_liveness.json")
     a = ap.parse_args()
 
@@ -194,9 +196,12 @@ def main():
     #   생존이 안 오르면 선언은 샀지만 아무것도 못 산 것이고 **그대로 적는다**.
     #   `docs_mat` = 발화 계측([[55]] 죽은 배선 방지): None 이면 docs 전달이 안 발화한 것이라
     #   그 행은 A 와 같은 경로를 잰 것이 된다 — 집계에서 분리한다.
+    _want_arms = set(x.strip() for x in a.arms.split(",") if x.strip())
     for arm, ground_on, docs_on in (("A_repaired", True, False),
                                     ("B_prerepair", False, False),
                                     ("C_docs", True, True)):
+        if arm not in _want_arms:
+            continue
         if ground_on:
             os.environ["T2_SG_GROUND"] = "1"
         else:
