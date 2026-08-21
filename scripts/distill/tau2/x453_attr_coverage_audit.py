@@ -44,6 +44,7 @@ import x431_spec_selects as X           # noqa: E402  ask 정본
 import x452_conditional_facts as C      # noqa: E402  선언 읽기·검산(사본 금지·[[67]])
 
 REP = os.path.abspath(os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026"))
+NL = chr(10)
 
 # ★선택 기준은 **빈도가 아니라 정책이 요구하는 것**이다(사용자 정정 축자: *"gold 보고 고른다가
 #   아니라. 정책에서 필요한 것을 고른다 이다."*). 그래서 문서에 두 가지를 함께 묻는다 —
@@ -108,12 +109,67 @@ def locate(q, lines, maxwin=8):
     return None, None
 
 
+def char_span(lines, i, k):
+    """줄 인덱스 → **(문자 오프셋, 길이)**. 문서 원문 기준(줄바꿈 1자 포함).
+
+    사용자 지시(2026-08-21): *"문서 id, 오프셋과 읽을 길이를 지정해주면 되지 않을까?"* — 절
+    이름보다 이쪽이 그대로 **읽기 명세**가 된다. 선언이 `(doc, offset, length)` 를 주면 엔진은
+    자를 뿐 해석하지 않는다([[59]]).
+    """
+    off = sum(len(l) + 1 for l in lines[:i])
+    return off, len(NL.join(lines[i:i + k]))
+
+
+def section_span(lines, i):
+    """그 줄을 감싸는 **절**의 (오프셋, 길이) — 가장 가까운 앞선 헤딩부터 같은/상위 레벨 직전까지.
+
+    인용 한 줄만 넘기면 문맥이 없다(`Tier 1 APY: 3.0%` 만으로는 계층인지 모른다). 절은 문서가
+    스스로 그은 경계라 우리가 자르는 것이 아니다. 헤딩이 없으면 문서 전체.
+    """
+    head = None
+    for j in range(min(i, len(lines) - 1), -1, -1):
+        m = re.match(r"\s*(#{1,6})\s+\S", lines[j] or "")
+        if m:
+            head = (j, len(m.group(1)))
+            break
+    if head is None:
+        return 0, len(NL.join(lines))
+    start, lvl = head
+    end = len(lines)
+    for j in range(start + 1, len(lines)):
+        m = re.match(r"\s*(#{1,6})\s+\S", lines[j] or "")
+        if m and len(m.group(1)) <= lvl:
+            end = j
+            break
+    return char_span(lines, start, end - start)
+
+
 def section_of(lines, i):
     r"""그 줄을 감싸는 소제목 — 마크다운 헤딩 한 줄(형태만·`^#{1,6}\s`)."""
     for j in range(min(i, len(lines) - 1), -1, -1):
         if re.match(r"\s*#{1,6}\s+\S", lines[j] or ""):
             return " ".join((lines[j] or "").split())
     return ""
+
+
+def cite_row(did, cls, axis, value, q, lines, text, li, lk):
+    """한 인용의 **읽기 명세** — 문서 id · 인용 범위 · 감싸는 절 범위 · 검산 결과.
+
+    `read = (doc, section_off, section_len)` 하나면 격리 서브에 넘길 재료가 확정된다.
+    엔진은 자른 범위가 그 인용을 **실제로 담는지** 다시 본다(닫힌 술어·정본 `quote_in`).
+    """
+    row = {"doc": did, "class": cls, "axis": axis, "value": str(value)[:80],
+           "line": li, "span": lk, "quote": " ".join(q.split())[:300],
+           "quote_off": None, "quote_len": None,
+           "section": "", "section_off": None, "section_len": None, "span_ok": None}
+    if li is None:
+        return row
+    qo, ql = char_span(lines, li, lk)
+    so, sl = section_span(lines, li)
+    row.update({"quote_off": qo, "quote_len": ql,
+                "section": section_of(lines, li), "section_off": so, "section_len": sl,
+                "span_ok": bool(C.contained(q, (text or "")[so:so + sl]))})
+    return row
 
 
 def slug(name):
@@ -213,10 +269,7 @@ def main():
                 seen_classes[nm].add(cls)
                 doc_yield[did] = doc_yield.get(did, 0) + 1
                 _li, _lk = locate(q, raw_lines)
-                cites[nm].append({"doc": did, "class": cls, "axis": "value", "value": v,
-                                  "line": _li, "span": _lk,
-                                  "section": section_of(raw_lines, _li) if _li is not None else "",
-                                  "quote": " ".join(q.split())[:300]})
+                cites[nm].append(cite_row(did, cls, "value", v, q, raw_lines, text, _li, _lk))
                 attr_docs[nm].add(did)
                 example.setdefault(nm, (cls, v, " ".join(q.split())[:180]))
             for it in (got.get("requirements") or []):
@@ -237,10 +290,7 @@ def main():
                 req_classes[nm].add(cls)
                 doc_yield[did] = doc_yield.get(did, 0) + 1
                 _li, _lk = locate(q, raw_lines)
-                cites[nm].append({"doc": did, "class": cls, "axis": "requirement", "value": rq,
-                                  "line": _li, "span": _lk,
-                                  "section": section_of(raw_lines, _li) if _li is not None else "",
-                                  "quote": " ".join(q.split())[:300]})
+                cites[nm].append(cite_row(did, cls, "requirement", rq, q, raw_lines, text, _li, _lk))
                 attr_docs[nm].add(did)
                 req_example.setdefault(nm, (cls, rq, " ".join(q.split())[:180]))
         print("  %-30s 누적 속성 %d종" % (cls[:30], len(seen_classes)))
@@ -273,6 +323,8 @@ def main():
                "rejected_detail": rejected_detail,
                "n_cites": sum(len(v) for v in cites.values()),
                "n_cites_unlocated": sum(1 for v in cites.values() for c in v if c["line"] is None),
+               "n_cites_span_bad": sum(1 for v in cites.values() for c in v
+                                       if c.get("span_ok") is False),
                "class_docs": {c: sorted(v) for c, v in class_docs.items()},
                "adopt": [n for n, _s in adopt], "new_vs_declared": [n for n, _s in new],
                "declared_never_seen": missing_now}
@@ -300,6 +352,12 @@ def main():
     print("  " + (", ".join(_zero[:12]) if _zero else "(없음)"))
     print("[검산 탈락 상세] %d건 (문서·축·사유를 산출물에 전수 기록)" % len(rejected_detail))
     print("[빈 답 재질의] %d건 · 두 번 물어도 빈 답 %d편" % (retried, len(empty_after_retry)))
+    _nc = sum(len(v) for v in cites.values())
+    _nl = sum(1 for v in cites.values() for c in v if c["line"] is None)
+    _nb = sum(1 for v in cites.values() for c in v if c.get("span_ok") is False)
+    _sl = [c["section_len"] for v in cites.values() for c in v if c.get("section_len")]
+    print("[읽기 명세] 인용 %d건 · 위치 못 잡음 %d · 절 범위 검산 실패 %d · 절 길이 중앙 %d자"
+          % (_nc, _nl, _nb, (sorted(_sl)[len(_sl) // 2] if _sl else 0)))
     print("\n[현행 선언에 있는데 한 번도 관측 안 된 속성]")
     print("  " + (", ".join(missing_now) if missing_now else "(없음)"))
 
