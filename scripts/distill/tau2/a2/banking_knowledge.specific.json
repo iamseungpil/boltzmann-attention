@@ -911,10 +911,12 @@
         "ranges": [
          [
           0,
-          707
+          666,
+          "## Rate and compounding - Your enterpris"
          ]
         ],
-        "chars": 707
+        "basis": "content",
+        "chars": 666
        }
       ],
       "blue_account": [
@@ -923,51 +925,63 @@
         "ranges": [
          [
           0,
-          532
+          486,
+          "## Balance and earnings - Annual Percent"
          ]
         ],
-        "chars": 532
+        "basis": "content",
+        "chars": 486
        },
        {
         "doc": "doc_checking_accounts_blue_account_010",
         "ranges": [
          [
-          50,
-          90
+          31,
+          90,
+          "### What does a paper statement cost? Pa"
          ],
          [
-          141,
-          85
+          122,
+          85,
+          "### What APY do I earn on my balance? Yo"
          ],
          [
-          227,
-          156
+          208,
+          156,
+          "### Can I set low-balance alerts? Yes. Y"
          ],
          [
-          384,
-          111
+          365,
+          111,
+          "### How long do external bank transfers"
          ],
          [
-          496,
-          154
+          477,
+          154,
+          "### What happens if a deposited check is"
          ],
          [
-          651,
-          115
+          632,
+          115,
+          "### Is there a fee to receive a domestic"
          ],
          [
-          767,
-          200
+          748,
+          200,
+          "### Does the Blue Account have a referra"
          ],
          [
-          968,
-          285
+          949,
+          285,
+          "### What are the requirements for the re"
          ],
          [
-          1254,
-          123
+          1235,
+          123,
+          "### Is there a limit to how many referra"
          ]
         ],
+        "basis": "content",
         "chars": 1319
        }
       ],
@@ -977,20 +991,24 @@
         "ranges": [
          [
           0,
-          1012
+          984,
+          "## Key figures | Item | Value | |---|--"
          ]
         ],
-        "chars": 1012
+        "basis": "content",
+        "chars": 984
        },
        {
         "doc": "doc_checking_accounts_bluest_account_008",
         "ranges": [
          [
           0,
-          500
+          464,
+          "## How the APY compares - You earn 2.25%"
          ]
         ],
-        "chars": 500
+        "basis": "content",
+        "chars": 464
        }
       ],
       "bronze_account": [
@@ -999,39 +1017,47 @@
         "ranges": [
          [
           0,
-          751
+          711,
+          "## Key rates and fees | Item | Value |"
          ]
         ],
-        "chars": 751
+        "basis": "content",
+        "chars": 711
        },
        {
         "doc": "doc_savings_accounts_bronze_account_002",
         "ranges": [
          [
           0,
-          322
+          296,
+          "## At-a-glance - APY: 2.0% - Monthly mai"
          ]
         ],
-        "chars": 322
+        "basis": "content",
+        "chars": 296
        },
        {
         "doc": "doc_savings_accounts_bronze_account_003",
         "ranges": [
          [
           0,
-          467
+          419,
+          "## Balance and opening requirements - Mi"
          ]
         ],
-        "chars": 467
+        "basis": "content",
+        "chars": 419
        },
        {
         "doc": "doc_savings_accounts_bronze_account_006",
         "ranges": [
          [
-          590,
-          192
+          540,
+          192,
+          "## How to confirm your current APY - Che"
          ]
         ],
+        "basis": "content",
         "chars": 192
        },
        {
@@ -1039,10 +1065,12 @@
         "ranges": [
          [
           0,
-          1193
+          1150,
+          "## How your interest accrues - Interest"
          ]
         ],
-        "chars": 1193
+        "basis": "content",
+        "chars": 1150
        }
       ],
       "bronze_saver_account": [
@@ -1051,33 +1079,40 @@
         "ranges": [
          [
           0,
-          3250
+          3211,
+          "## Account Snapshot - APY: 2.0% - Month"
          ]
         ],
-        "chars": 3250
+        "basis": "content",
+        "chars": 3211
        },
        {
         "doc": "doc_business_savings_accounts_bronze_saver_account_002",
         "ranges": [
          [
           0,
-          491
+          437,
+          "## Specifications | Item | Details | | -"
          ]
         ],
-        "chars": 491
+        "basis": "content",
+        "chars": 437
        },
        {
         "doc": "doc_business_savings_accounts_bronze_saver_account_004",
         "ranges": [
          [
-          288,
-          83
+          231,
+          83,
+          "## Your APY - Your savings earn an APY o"
          ],
          [
-          372,
-          207
+          315,
+          207,
+          "## Practical tips - Keep funds in the ac"
          ]
         ],
+        "basis": "content",
         "chars": 290
        }
       ],
@@ -1087,10 +1122,12 @@
         "ranges": [
          [
           0,
-          1033
+          960,
+          "## Interest on Carried Balances - If you"
          ]
         ],
-        "chars": 1033
+        "basis": "content",
+        "chars": 960
        }
       ],
       "business_credit_cards_silver_zoom_card": [
@@ -1099,20 +1136,24 @@
         "ranges": [
          [
           0,
-          841
+          772,
+          "## Credit profile requirements - Persona"
          ]
         ],
-        "chars": 841
+        "basis": "content",
+        "chars": 772
        },
        {
         "doc": "doc_business_credit_cards_silver_zoom_card_010",
         "ranges": [
          [
           0,
-          830
+          765,
+          "## What the promotion offers - An introd"
          ]
         ],
-        "chars": 830
+        "basis": "content",
+        "chars": 765
        }
       ],
       "cobalt_blue": [
@@ -1120,22 +1161,27 @@
         "doc": "doc_business_checking_accounts_cobalt_blue_001",
         "ranges": [
          [
-          504,
-          232
+          452,
+          232,
+          "## Know your core costs and how to avoid"
          ],
          [
-          737,
-          141
+          685,
+          141,
+          "## Start earning interest - Your balance"
          ],
          [
-          879,
-          195
+          827,
+          195,
+          "## Manage your monthly activity - You ge"
          ],
          [
-          1075,
-          223
+          1023,
+          223,
+          "## Grow your network with referrals Once"
          ]
         ],
+        "basis": "content",
         "chars": 791
        },
        {
@@ -1143,10 +1189,12 @@
         "ranges": [
          [
           0,
-          744
+          694,
+          "## Your rate and compounding - Your acco"
          ]
         ],
-        "chars": 744
+        "basis": "content",
+        "chars": 694
        }
       ],
       "credit_cards_diamond_elite_card": [
@@ -1155,10 +1203,12 @@
         "ranges": [
          [
           0,
-          1179
+          1109,
+          "## Annual fee - Your standard annual fee"
          ]
         ],
-        "chars": 1179
+        "basis": "content",
+        "chars": 1109
        }
       ],
       "credit_cards_ecocard": [
@@ -1167,10 +1217,12 @@
         "ranges": [
          [
           0,
-          904
+          847,
+          "## Promo Period - Accounts opened during"
          ]
         ],
-        "chars": 904
+        "basis": "content",
+        "chars": 847
        }
       ],
       "dark_green_account": [
@@ -1178,22 +1230,27 @@
         "doc": "doc_checking_accounts_dark_green_account_001",
         "ranges": [
          [
-          103,
-          82
+          71,
+          82,
+          "### Eligibility - Minimum primary holder"
          ],
          [
-          186,
-          182
+          154,
+          182,
+          "### Fees and rates - Monthly maintenance"
          ],
          [
-          369,
-          185
+          337,
+          185,
+          "### Rewards and perks - Student loan pay"
          ],
          [
-          555,
-          54
+          523,
+          54,
+          "### Limits - Mobile check deposit daily"
          ]
         ],
+        "basis": "content",
         "chars": 503
        }
       ],
@@ -1202,48 +1259,59 @@
         "doc": "doc_savings_accounts_diamond_elite_account_001",
         "ranges": [
          [
-          739,
-          410
+          692,
+          410,
+          "## Quick reference | Category | Detail |"
          ]
         ],
+        "basis": "content",
         "chars": 410
        },
        {
         "doc": "doc_savings_accounts_diamond_elite_account_009",
         "ranges": [
          [
-          59,
-          53
+          31,
+          53,
+          "### What APY will I earn? - Your account"
          ],
          [
-          113,
-          90
+          85,
+          90,
+          "### Is there a minimum balance requireme"
          ],
          [
-          204,
-          80
+          176,
+          80,
+          "### Is there a monthly maintenance fee?"
          ],
          [
-          285,
-          53
+          257,
+          53,
+          "### Do I get a dedicated private banker?"
          ],
          [
-          339,
-          90
+          311,
+          90,
+          "### Are investment advisory services inc"
          ],
          [
-          430,
-          97
+          402,
+          97,
+          "### Will I receive invitations to exclus"
          ],
          [
-          528,
-          77
+          500,
+          77,
+          "### Are wire transfer fees waived? - All"
          ],
          [
-          606,
-          106
+          578,
+          106,
+          "### Do I receive a discount on estate pl"
          ]
         ],
+        "basis": "content",
         "chars": 646
        },
        {
@@ -1251,10 +1319,12 @@
         "ranges": [
          [
           0,
-          416
+          344,
+          "## How interest is calculated - Interest"
          ]
         ],
-        "chars": 416
+        "basis": "content",
+        "chars": 344
        }
       ],
       "diamond_vault": [
@@ -1263,20 +1333,24 @@
         "ranges": [
          [
           0,
-          1079
+          1040,
+          "## Key rates and requirements | Item |"
          ]
         ],
-        "chars": 1079
+        "basis": "content",
+        "chars": 1040
        },
        {
         "doc": "doc_business_savings_accounts_diamond_vault_008",
         "ranges": [
          [
           0,
-          1980
+          1923,
+          "## Available APY Bonuses by Card Tier T"
          ]
         ],
-        "chars": 1980
+        "basis": "content",
+        "chars": 1923
        }
       ],
       "emerald_saver": [
@@ -1285,30 +1359,36 @@
         "ranges": [
          [
           0,
-          1257
+          1218,
+          "## Key rates and requirements | Item |"
          ]
         ],
-        "chars": 1257
+        "basis": "content",
+        "chars": 1218
        },
        {
         "doc": "doc_business_savings_accounts_emerald_saver_004",
         "ranges": [
          [
           0,
-          1172
+          1104,
+          "## How the APY bonus works - When you ma"
          ]
         ],
-        "chars": 1172
+        "basis": "content",
+        "chars": 1104
        },
        {
         "doc": "doc_business_savings_accounts_emerald_saver_008",
         "ranges": [
          [
           0,
-          2795
+          2738,
+          "## Available APY Bonuses by Eligible Bus"
          ]
         ],
-        "chars": 2795
+        "basis": "content",
+        "chars": 2738
        }
       ],
       "evergreen_account": [
@@ -1316,10 +1396,12 @@
         "doc": "doc_checking_accounts_evergreen_account_001",
         "ranges": [
          [
-          1103,
-          519
+          1072,
+          519,
+          "## Quick reference | Feature | Amount |"
          ]
         ],
+        "basis": "content",
         "chars": 519
        },
        {
@@ -1327,10 +1409,12 @@
         "ranges": [
          [
           0,
-          853
+          802,
+          "## Fees and waivers - Monthly maintenanc"
          ]
         ],
-        "chars": 853
+        "basis": "content",
+        "chars": 802
        }
       ],
       "gold_account": [
@@ -1339,73 +1423,88 @@
         "ranges": [
          [
           0,
-          1129
+          1091,
+          "## Eligibility and balance requirements"
          ]
         ],
-        "chars": 1129
+        "basis": "content",
+        "chars": 1091
        },
        {
         "doc": "doc_savings_accounts_gold_account_002",
         "ranges": [
          [
           0,
-          320
+          294,
+          "## Snapshot - APY: 5.5% - Minimum balanc"
          ]
         ],
-        "chars": 320
+        "basis": "content",
+        "chars": 294
        },
        {
         "doc": "doc_savings_accounts_gold_account_003",
         "ranges": [
          [
           0,
-          634
+          588,
+          "## Account requirements - Opening deposi"
          ]
         ],
-        "chars": 634
+        "basis": "content",
+        "chars": 588
        },
        {
         "doc": "doc_savings_accounts_gold_account_004",
         "ranges": [
          [
           0,
-          584
+          540,
+          "## How your yield works - Your Gold Acco"
          ]
         ],
-        "chars": 584
+        "basis": "content",
+        "chars": 540
        },
        {
         "doc": "doc_savings_accounts_gold_account_009",
         "ranges": [
          [
           0,
-          726
+          674,
+          "## Qualification checkpoints - Ensure yo"
          ]
         ],
-        "chars": 726
+        "basis": "content",
+        "chars": 674
        },
        {
         "doc": "doc_savings_accounts_gold_account_010",
         "ranges": [
          [
           0,
-          571
+          508,
+          "## How interest is calculated - Your APY"
          ]
         ],
-        "chars": 571
+        "basis": "content",
+        "chars": 508
        },
        {
         "doc": "doc_savings_accounts_gold_account_013",
         "ranges": [
          [
-          788,
-          240
+          739,
+          240,
+          "### Quick reference | Benefit | Gold Re"
          ],
          [
-          1029,
-          456
+          980,
+          456,
+          "## Reduced minimum balance - If you hol"
          ]
         ],
+        "basis": "content",
         "chars": 696
        },
        {
@@ -1413,10 +1512,12 @@
         "ranges": [
          [
           0,
-          1003
+          964,
+          "## Credit card APY bonuses for Gold Acco"
          ]
         ],
-        "chars": 1003
+        "basis": "content",
+        "chars": 964
        }
       ],
       "gold_plus_account": [
@@ -1425,40 +1526,48 @@
         "ranges": [
          [
           0,
-          801
+          750,
+          "## Key specifications | Item | Value |"
          ]
         ],
-        "chars": 801
+        "basis": "content",
+        "chars": 750
        },
        {
         "doc": "doc_savings_accounts_gold_plus_account_002",
         "ranges": [
          [
           0,
-          645
+          603,
+          "## What is different from Gold - APY: 6"
          ]
         ],
-        "chars": 645
+        "basis": "content",
+        "chars": 603
        },
        {
         "doc": "doc_savings_accounts_gold_plus_account_005",
         "ranges": [
          [
           0,
-          664
+          640,
+          "### What APY do I earn on my balance? Y"
          ]
         ],
-        "chars": 664
+        "basis": "content",
+        "chars": 640
        },
        {
         "doc": "doc_savings_accounts_gold_plus_account_006",
         "ranges": [
          [
           0,
-          440
+          372,
+          "## Interest calculation method - Your A"
          ]
         ],
-        "chars": 440
+        "basis": "content",
+        "chars": 372
        }
       ],
       "gold_plus_saver": [
@@ -1467,20 +1576,24 @@
         "ranges": [
          [
           0,
-          4693
+          4652,
+          "## What you earn on Gold Plus Saver - B"
          ]
         ],
-        "chars": 4693
+        "basis": "content",
+        "chars": 4652
        },
        {
         "doc": "doc_business_savings_accounts_gold_plus_saver_002",
         "ranges": [
          [
           0,
-          1260
+          1205,
+          "## Availability and status - Automatic i"
          ]
         ],
-        "chars": 1260
+        "basis": "content",
+        "chars": 1205
        }
       ],
       "gold_saver_account": [
@@ -1489,10 +1602,12 @@
         "ranges": [
          [
           0,
-          1679
+          1625,
+          "## APY bonus amounts by eligible busines"
          ]
         ],
-        "chars": 1679
+        "basis": "content",
+        "chars": 1625
        }
       ],
       "gold_years_account": [
@@ -1501,10 +1616,12 @@
         "ranges": [
          [
           0,
-          963
+          911,
+          "## Eligibility - You must be at least 62"
          ]
         ],
-        "chars": 963
+        "basis": "content",
+        "chars": 911
        }
       ],
       "green_account_(checking)": [
@@ -1512,18 +1629,22 @@
         "doc": "doc_checking_accounts_green_account_(checking)_001",
         "ranges": [
          [
-          357,
-          418
+          319,
+          418,
+          "## Fees and limits | Item | Amount | |--"
          ],
          [
-          776,
-          327
+          738,
+          327,
+          "## Referral program Refer friends and fa"
          ],
          [
-          1104,
-          614
+          1066,
+          614,
+          "## Important details - To avoid the mont"
          ]
         ],
+        "basis": "content",
         "chars": 1359
        },
        {
@@ -1531,39 +1652,48 @@
         "ranges": [
          [
           0,
-          937
+          879,
+          "## Ongoing maintenance and balance requi"
          ]
         ],
-        "chars": 937
+        "basis": "content",
+        "chars": 879
        },
        {
         "doc": "doc_checking_accounts_green_account_(checking)_010",
         "ranges": [
          [
-          62,
-          99
+          31,
+          99,
+          "### Do I pay for paper statements? - Yes"
          ],
          [
-          162,
-          74
+          131,
+          74,
+          "### Does this account earn interest? - Y"
          ],
          [
-          237,
-          115
+          206,
+          115,
+          "### What is the fee for using a non-netw"
          ],
          [
-          353,
-          117
+          322,
+          117,
+          "### How long do transfers to another ban"
          ],
          [
-          471,
-          103
+          440,
+          103,
+          "### What happens if a check I deposit is"
          ],
          [
-          575,
-          91
+          544,
+          91,
+          "### Is there a fee to receive a domestic"
          ]
         ],
+        "basis": "content",
         "chars": 599
        }
       ],
@@ -1573,49 +1703,60 @@
         "ranges": [
          [
           0,
-          722
+          665,
+          "## Key specifications | Item | Value |"
          ]
         ],
-        "chars": 722
+        "basis": "content",
+        "chars": 665
        },
        {
         "doc": "doc_savings_accounts_green_account_(savings)_003",
         "ranges": [
          [
-          99,
-          234
+          38,
+          234,
+          "### How the bonus works - Your Green Acc"
          ],
          [
-          334,
-          157
+          273,
+          157,
+          "### Extra rewards at eco-certified merch"
          ],
          [
-          821,
-          234
+          760,
+          234,
+          "### Maintaining eligibility - Keep your"
          ]
         ],
+        "basis": "content",
         "chars": 625
        },
        {
         "doc": "doc_savings_accounts_green_account_(savings)_005",
         "ranges": [
          [
-          61,
-          59
+          31,
+          59,
+          "### What APY does the Green Account (sav"
          ],
          [
-          121,
-          93
+          91,
+          93,
+          "### Do I need to maintain a minimum bala"
          ],
          [
-          215,
-          85
+          185,
+          85,
+          "### Is there a monthly maintenance fee i"
          ],
          [
-          415,
-          102
+          385,
+          102,
+          "### Does Rho-Bank match donations to par"
          ]
         ],
+        "basis": "content",
         "chars": 339
        },
        {
@@ -1623,20 +1764,24 @@
         "ranges": [
          [
           0,
-          606
+          532,
+          "## Interest calculation - Interest accru"
          ]
         ],
-        "chars": 606
+        "basis": "content",
+        "chars": 532
        },
        {
         "doc": "doc_savings_accounts_green_account_(savings)_009",
         "ranges": [
          [
           0,
-          1728
+          1668,
+          "## EcoCard holder benefits overview Gre"
          ]
         ],
-        "chars": 1728
+        "basis": "content",
+        "chars": 1668
        }
       ],
       "green_fee-free_account": [
@@ -1644,10 +1789,12 @@
         "doc": "doc_checking_accounts_green_fee-free_account_003",
         "ranges": [
          [
-          272,
-          317
+          236,
+          317,
+          "## Notes - Rho Bank does not charge for"
          ]
         ],
+        "basis": "content",
         "chars": 317
        },
        {
@@ -1655,35 +1802,43 @@
         "ranges": [
          [
           0,
-          1078
+          1022,
+          "## Core Specifications | Category | Deta"
          ]
         ],
-        "chars": 1078
+        "basis": "content",
+        "chars": 1022
        },
        {
         "doc": "doc_checking_accounts_green_fee-free_account_006",
         "ranges": [
          [
-          60,
-          135
+          31,
+          135,
+          "### How can I avoid the monthly maintena"
          ],
          [
-          196,
-          88
+          167,
+          88,
+          "### What do paper statements cost? Paper"
          ],
          [
-          285,
-          68
+          256,
+          68,
+          "### Does this account earn interest? No."
          ],
          [
-          354,
-          224
+          325,
+          224,
+          "### What happens if a check I deposited"
          ],
          [
-          579,
-          138
+          550,
+          138,
+          "### Is there a fee to receive a domestic"
          ]
         ],
+        "basis": "content",
         "chars": 653
        }
       ],
@@ -1693,20 +1848,24 @@
         "ranges": [
          [
           0,
-          1799
+          1746,
+          "## Quick start checklist - Confirm your"
          ]
         ],
-        "chars": 1799
+        "basis": "content",
+        "chars": 1746
        },
        {
         "doc": "doc_business_checking_accounts_hunter_green_006",
         "ranges": [
          [
           0,
-          645
+          603,
+          "## Your APY - Your account earns 1.0% AP"
          ]
         ],
-        "chars": 645
+        "basis": "content",
+        "chars": 603
        }
       ],
       "light_blue_account": [
@@ -1715,30 +1874,36 @@
         "ranges": [
          [
           0,
-          345
+          313,
+          "## Quick facts - APY on your balance: 0%"
          ]
         ],
-        "chars": 345
+        "basis": "content",
+        "chars": 313
        },
        {
         "doc": "doc_checking_accounts_light_blue_account_003",
         "ranges": [
          [
           0,
-          596
+          544,
+          "## Account specifications - Annual Perce"
          ]
         ],
-        "chars": 596
+        "basis": "content",
+        "chars": 544
        },
        {
         "doc": "doc_checking_accounts_light_blue_account_004",
         "ranges": [
          [
           0,
-          1185
+          1147,
+          "## Fees and features | Item | Amount | |"
          ]
         ],
-        "chars": 1185
+        "basis": "content",
+        "chars": 1147
        }
       ],
       "light_green_account": [
@@ -1747,20 +1912,24 @@
         "ranges": [
          [
           0,
-          1050
+          1017,
+          "## Key details | Item | Detail | |---|-"
          ]
         ],
-        "chars": 1050
+        "basis": "content",
+        "chars": 1017
        },
        {
         "doc": "doc_checking_accounts_light_green_account_006",
         "ranges": [
          [
           0,
-          537
+          494,
+          "## Use interest to reinforce saving habi"
          ]
         ],
-        "chars": 537
+        "basis": "content",
+        "chars": 494
        }
       ],
       "lime_green": [
@@ -1769,20 +1938,24 @@
         "ranges": [
          [
           0,
-          1408
+          1362,
+          "## Key account values | Item | Value |"
          ]
         ],
-        "chars": 1408
+        "basis": "content",
+        "chars": 1362
        },
        {
         "doc": "doc_business_checking_accounts_lime_green_005",
         "ranges": [
          [
           0,
-          672
+          624,
+          "## Your APY - Your account earns an Annu"
          ]
         ],
-        "chars": 672
+        "basis": "content",
+        "chars": 624
        }
       ],
       "navy_blue": [
@@ -1791,20 +1964,24 @@
         "ranges": [
          [
           0,
-          1528
+          1483,
+          "## Key Account Costs and Limits - Month"
          ]
         ],
-        "chars": 1528
+        "basis": "content",
+        "chars": 1483
        },
        {
         "doc": "doc_business_checking_accounts_navy_blue_004",
         "ranges": [
          [
           0,
-          721
+          682,
+          "## Your interest rate - APY on your bala"
          ]
         ],
-        "chars": 721
+        "basis": "content",
+        "chars": 682
        }
       ],
       "platinum_account": [
@@ -1813,40 +1990,48 @@
         "ranges": [
          [
           0,
-          1251
+          1209,
+          "## Balance requirements - Maintain at le"
          ]
         ],
-        "chars": 1251
+        "basis": "content",
+        "chars": 1209
        },
        {
         "doc": "doc_savings_accounts_platinum_account_002",
         "ranges": [
          [
           0,
-          361
+          331,
+          "## Key figures - APY: 6.5% - Minimum bal"
          ]
         ],
-        "chars": 361
+        "basis": "content",
+        "chars": 331
        },
        {
         "doc": "doc_savings_accounts_platinum_account_003",
         "ranges": [
          [
           0,
-          656
+          606,
+          "## Required balances - Opening deposit m"
          ]
         ],
-        "chars": 656
+        "basis": "content",
+        "chars": 606
        },
        {
         "doc": "doc_savings_accounts_platinum_account_007",
         "ranges": [
          [
           0,
-          749
+          682,
+          "## How your interest is calculated - APY"
          ]
         ],
-        "chars": 749
+        "basis": "content",
+        "chars": 682
        }
       ],
       "platinum_plus_account": [
@@ -1855,30 +2040,36 @@
         "ranges": [
          [
           0,
-          495
+          467,
+          "## Frequently asked questions - What APY"
          ]
         ],
-        "chars": 495
+        "basis": "content",
+        "chars": 467
        },
        {
         "doc": "doc_savings_accounts_platinum_plus_account_006",
         "ranges": [
          [
           0,
-          578
+          506,
+          "## How interest is calculated - Your acc"
          ]
         ],
-        "chars": 578
+        "basis": "content",
+        "chars": 506
        },
        {
         "doc": "doc_savings_accounts_platinum_plus_account_009",
         "ranges": [
          [
           0,
-          873
+          825,
+          "## Credit card APY bonuses for Platinum"
          ]
         ],
-        "chars": 873
+        "basis": "content",
+        "chars": 825
        }
       ],
       "platinum_reserve_account": [
@@ -1887,30 +2078,36 @@
         "ranges": [
          [
           0,
-          959
+          895,
+          "## What you earn - Annual Percentage Yie"
          ]
         ],
-        "chars": 959
+        "basis": "content",
+        "chars": 895
        },
        {
         "doc": "doc_business_savings_accounts_platinum_reserve_account_002",
         "ranges": [
          [
           0,
-          1240
+          1176,
+          "## How daily compounding works - Interes"
          ]
         ],
-        "chars": 1240
+        "basis": "content",
+        "chars": 1176
        },
        {
         "doc": "doc_business_savings_accounts_platinum_reserve_account_010",
         "ranges": [
          [
           0,
-          2643
+          2583,
+          "## Eligible Business Credit Cards and AP"
          ]
         ],
-        "chars": 2643
+        "basis": "content",
+        "chars": 2583
        }
       ],
       "silver_account": [
@@ -1919,55 +2116,67 @@
         "ranges": [
          [
           0,
-          948
+          900,
+          "## Key specifications | Specification |"
          ]
         ],
-        "chars": 948
+        "basis": "content",
+        "chars": 900
        },
        {
         "doc": "doc_savings_accounts_silver_account_002",
         "ranges": [
          [
           0,
-          875
+          823,
+          "## What linking does - When you link you"
          ]
         ],
-        "chars": 875
+        "basis": "content",
+        "chars": 823
        },
        {
         "doc": "doc_savings_accounts_silver_account_003",
         "ranges": [
          [
-          221,
-          297
+          190,
+          297,
+          "## How your rate is determined - Each da"
          ]
         ],
+        "basis": "content",
         "chars": 297
        },
        {
         "doc": "doc_savings_accounts_silver_account_005",
         "ranges": [
          [
-          52,
-          140
+          31,
+          140,
+          "### What APY does the Silver Account pay"
          ],
          [
+          172,
+          260,
+          "### What minimum balance should I keep,"
+         ],
+         [
+          433,
           193,
-          260
+          "### Is there a cost if I make too many w"
          ],
          [
-          454,
-          193
+          627,
+          159,
+          "### Do I get a bonus for having multiple"
          ],
          [
-          648,
-          159
-         ],
-         [
-          808,
-          87
+          787,
+          87,
+          "### Do you rebate ATM fees? - Yes. You c"
          ]
         ],
+        "basis": "content",
         "chars": 839
        },
        {
@@ -1975,27 +2184,33 @@
         "ranges": [
          [
           0,
-          904
+          839,
+          "## How interest is calculated - Your app"
          ]
         ],
-        "chars": 904
+        "basis": "content",
+        "chars": 839
        },
        {
         "doc": "doc_savings_accounts_silver_account_009",
         "ranges": [
          [
-          650,
-          338
+          595,
+          338,
+          "## What you receive as a Platinum Reward"
          ],
          [
-          989,
-          677
+          934,
+          677,
+          "## Activation and eligibility - The enh"
          ],
          [
-          2529,
-          274
+          2474,
+          274,
+          "## Relationship bonus APY - When your S"
          ]
         ],
+        "basis": "content",
         "chars": 1289
        }
       ],
@@ -2005,31 +2220,38 @@
         "ranges": [
          [
           0,
-          810
+          757,
+          "## Account parameters | Item | Detail |"
          ]
         ],
-        "chars": 810
+        "basis": "content",
+        "chars": 757
        },
        {
         "doc": "doc_savings_accounts_silver_plus_account_002",
         "ranges": [
          [
-          80,
-          194
+          34,
+          194,
+          "### Tiered APY - Silver Plus offers tier"
          ],
          [
-          275,
-          88
+          229,
+          88,
+          "### Withdrawal flexibility - Increased a"
          ],
          [
-          364,
-          67
+          318,
+          67,
+          "### ATM fee support - Receive ATM fee re"
          ],
          [
-          432,
-          307
+          386,
+          307,
+          "### Statement delivery - Paper statement"
          ]
         ],
+        "basis": "content",
         "chars": 656
        },
        {
@@ -2037,41 +2259,50 @@
         "ranges": [
          [
           0,
-          836
+          793,
+          "## Included perks | Feature | Availabil"
          ]
         ],
-        "chars": 836
+        "basis": "content",
+        "chars": 793
        },
        {
         "doc": "doc_savings_accounts_silver_plus_account_005",
         "ranges": [
          [
-          57,
-          92
+          31,
+          92,
+          "### What APY can I earn? - The account o"
          ],
          [
-          150,
-          101
+          124,
+          101,
+          "### Is there a minimum balance requireme"
          ],
          [
-          392,
-          111
+          366,
+          111,
+          "### Does this account include savings go"
          ]
         ],
+        "basis": "content",
         "chars": 304
        },
        {
         "doc": "doc_savings_accounts_silver_plus_account_006",
         "ranges": [
          [
-          234,
-          97
+          164,
+          97,
+          "### APY tiers - Your APY depends on your"
          ],
          [
-          332,
-          173
+          262,
+          173,
+          "### Direct deposit bonus - If you set up"
          ]
         ],
+        "basis": "content",
         "chars": 270
        }
       ],
@@ -2081,30 +2312,36 @@
         "ranges": [
          [
           0,
-          2475
+          2432,
+          "## Eligibility and Minimum Balance - You"
          ]
         ],
-        "chars": 2475
+        "basis": "content",
+        "chars": 2432
        },
        {
         "doc": "doc_business_savings_accounts_silver_plus_saver_003",
         "ranges": [
          [
           0,
-          1171
+          1112,
+          "## How the relationship bonus works - Wh"
          ]
         ],
-        "chars": 1171
+        "basis": "content",
+        "chars": 1112
        },
        {
         "doc": "doc_business_savings_accounts_silver_plus_saver_006",
         "ranges": [
          [
           0,
-          796
+          730,
+          "## Same-day ACH availability - Same-day"
          ]
         ],
-        "chars": 796
+        "basis": "content",
+        "chars": 730
        }
       ],
       "silver_saver_account": [
@@ -2113,20 +2350,24 @@
         "ranges": [
          [
           0,
-          1945
+          1880,
+          "## How the higher APY tiers work You ea"
          ]
         ],
-        "chars": 1945
+        "basis": "content",
+        "chars": 1880
        },
        {
         "doc": "doc_business_savings_accounts_silver_saver_account_002",
         "ranges": [
          [
           0,
-          1034
+          970,
+          "## How the balance threshold affects you"
          ]
         ],
-        "chars": 1034
+        "basis": "content",
+        "chars": 970
        }
       ],
       "sky_blue": [
@@ -2135,20 +2376,24 @@
         "ranges": [
          [
           0,
-          698
+          657,
+          "## Mobile Check Deposits - Your daily mo"
          ]
         ],
-        "chars": 698
+        "basis": "content",
+        "chars": 657
        },
        {
         "doc": "doc_business_checking_accounts_sky_blue_008",
         "ranges": [
          [
           0,
-          641
+          589,
+          "## What Changes - The monthly maintenanc"
          ]
         ],
-        "chars": 641
+        "basis": "content",
+        "chars": 589
        }
       ],
       "true_blue": [
@@ -2157,20 +2402,24 @@
         "ranges": [
          [
           0,
-          700
+          655,
+          "## What you pay - Monthly maintenance fe"
          ]
         ],
-        "chars": 700
+        "basis": "content",
+        "chars": 655
        },
        {
         "doc": "doc_business_checking_accounts_true_blue_008",
         "ranges": [
          [
           0,
-          625
+          578,
+          "## Your APY - The account earns an Annua"
          ]
         ],
-        "chars": 625
+        "basis": "content",
+        "chars": 578
        }
       ],
       "world_blue": [
@@ -2179,20 +2428,24 @@
         "ranges": [
          [
           0,
-          1310
+          1265,
+          "## Rate and compounding - Your USD balan"
          ]
         ],
-        "chars": 1310
+        "basis": "content",
+        "chars": 1265
        },
        {
         "doc": "doc_business_checking_accounts_world_blue_008",
         "ranges": [
          [
           0,
-          2264
+          2214,
+          "## Check what was charged - Confirm the"
          ]
         ],
-        "chars": 2264
+        "basis": "content",
+        "chars": 2214
        }
       ]
      }
