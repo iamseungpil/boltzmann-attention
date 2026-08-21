@@ -121,16 +121,25 @@ def token_batches(names, size):
         for t in set(str(n).split("_")):
             if t:
                 idx[t].append(n)
-    used, out = set(), []
+    # 토큰 군을 만들고(같은 토큰 = 붙어 있음), **작은 군은 한 배치에 채워 넣는다**.
+    # ⚠군마다 배치를 하나씩 내면 1,392 이름이 153 배치가 된다(평균 9개) — 호출만 많고 일이 적다.
+    used, cells = set(), []
     for _t, grp in sorted(idx.items(), key=lambda kv: (-len(kv[1]), kv[0])):
         pend = [n for n in grp if n not in used]
         while len(pend) >= 2:
-            chunk, pend = pend[:size], pend[size:]
-            out.append(chunk)
-            used.update(chunk)
+            cell, pend = pend[:size], pend[size:]
+            cells.append(cell)
+            used.update(cell)
     rest = [n for n in names if n not in used]
-    for i in range(0, len(rest), size):
-        out.append(rest[i:i + size])
+    cells += [rest[i:i + size] for i in range(0, len(rest), size)]
+    out, cur = [], []
+    for cell in cells:
+        if cur and len(cur) + len(cell) > size:
+            out.append(cur)
+            cur = []
+        cur += cell
+    if cur:
+        out.append(cur)
     assert sum(len(c) for c in out) == len(names)
     return out
 
