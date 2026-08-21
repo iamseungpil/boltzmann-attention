@@ -51,18 +51,24 @@
    ]
   },
   "get_all_user_accounts_by_user_id": {
-   "n": 4,
+   "n": 6,
    "deps": [
     "open_bank_account",
     "submit_referral",
     "pay_credit_card_from_checking",
-    "get_interest_correction"
+    "get_interest_correction",
+    "apply_savings_account_credit",
+    "submit_interest_discrepancy_report"
    ]
   },
   "get_bank_account_transactions": {
-   "n": 1,
+   "n": 5,
    "deps": [
-    "get_interest_correction"
+    "get_interest_correction",
+    "apply_checking_account_credit",
+    "apply_savings_account_credit",
+    "submit_interest_discrepancy_report",
+    "file_debit_card_transaction_dispute"
    ]
   },
   "get_credit_card_accounts_by_user": {

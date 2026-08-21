@@ -4536,6 +4536,40 @@
      "get_credit_limit_increase_history",
      "get_payment_history"
     ]
+   },
+   {
+    "source": "requires_reads",
+    "dep": "apply_checking_account_credit",
+    "reads": [
+     "get_bank_account_transactions"
+    ],
+    "note": "2026-08-21 C586. 출처 축자 doc_bank_accounts_bank_accounts_(general)_017: \"Confirm the rebate has not already been applied by checking the account's transaction history\" · \"Check the transaction history to confirm each fee discrepancy\". 거래 이력 read 는 env 레지스트리상 get_bank_account_transactions_9173 하나(기계도출·접미사 없이 적음)."
+   },
+   {
+    "source": "requires_reads",
+    "dep": "apply_savings_account_credit",
+    "reads": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ],
+    "note": "2026-08-21 C586. 출처 축자 doc_bank_accounts_bank_accounts_(general)_043: \"Before applying: Verify the customer's account details and APY components using get_all_user_accounts_by_user_id_3847, review transaction history using get_bank_account_transactions_9173 to confirm the interest amount credited\"."
+   },
+   {
+    "source": "requires_reads",
+    "dep": "submit_interest_discrepancy_report",
+    "reads": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ],
+    "note": "2026-08-21 C586. 출처 축자 doc_bank_accounts_bank_accounts_(general)_044 Procedure: \"2) Look up the customer's accounts using get_all_user_accounts_by_user_id_3847 3) Check transaction history using get_bank_account_transactions_9173 to find the interest credit\"."
+   },
+   {
+    "source": "requires_reads",
+    "dep": "file_debit_card_transaction_dispute",
+    "reads": [
+     "get_bank_account_transactions"
+    ],
+    "note": "2026-08-21 C586. 출처 축자 doc_bank_accounts_bank_accounts_(general)_031 (Tool Arguments): \"transaction_id (string) - ID of the transaction being disputed. Use get_bank_account_transactions_9173 to find it.\""
    }
   ],
   "edges": {
@@ -4563,12 +4597,39 @@
     "get_credit_card_accounts_by_user",
     "get_credit_limit_increase_history",
     "get_payment_history"
+   ],
+   "apply_checking_account_credit": [
+    "get_bank_account_transactions"
+   ],
+   "apply_savings_account_credit": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "submit_interest_discrepancy_report": [
+    "get_all_user_accounts_by_user_id",
+    "get_bank_account_transactions"
+   ],
+   "file_debit_card_transaction_dispute": [
+    "get_bank_account_transactions"
    ]
   },
   "by_tool": {
+   "apply_checking_account_credit": {
+    "requires": [
+     "get_bank_account_transactions"
+    ],
+    "gate_satisfiers": []
+   },
    "apply_for_credit_card": {
     "requires": [
      "check_card_application_fit"
+    ],
+    "gate_satisfiers": []
+   },
+   "apply_savings_account_credit": {
+    "requires": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
     ],
     "gate_satisfiers": []
    },
@@ -4589,6 +4650,12 @@
      "get_credit_card_accounts_by_user",
      "get_credit_limit_increase_history",
      "get_payment_history"
+    ],
+    "gate_satisfiers": []
+   },
+   "file_debit_card_transaction_dispute": {
+    "requires": [
+     "get_bank_account_transactions"
     ],
     "gate_satisfiers": []
    },
@@ -4636,6 +4703,13 @@
     ],
     "gate_satisfiers": []
    },
+   "submit_interest_discrepancy_report": {
+    "requires": [
+     "get_all_user_accounts_by_user_id",
+     "get_bank_account_transactions"
+    ],
+    "gate_satisfiers": []
+   },
    "submit_referral": {
     "requires": [
      "get_all_user_accounts_by_user_id"
@@ -4649,7 +4723,8 @@
     "requires": [],
     "gate_satisfiers": []
    }
-  }
+  },
+  "_note_requires_reads_2026_08_21": "2026-08-21 저작(C586 처방·x461): read-gold 미수행 22건의 원인 = 이 write 들에 read 요구 선언이 0줄이라 요건 큐가 수요를 못 냄(T2_DEMANDED_STEP ABSENT 6/6). 위 4행은 전부 KB 정책 축자 출처를 note 에 지참([[23]]·tasks/gold 미참조). 레버 신설 0 — 기존 큐→핀 경로가 이 선언을 읽는다. edges/by_tool 도 같은 커밋에서 동기([[24]] 양방향)."
  },
  "_note_relations": "★2026-08-08 4단계 — 선행 관계의 **유일한 원천**(정본 설계 `A3_POLICY_ONTOLOGY_DESIGN_2026_08_08` §1d.1). 여기 들어오면서 `require_tool_before`(L3)·`scaffold_get_tools[].requires_reads`(L3)·`gates[].satisfier_requires`(L2)를 **같은 커밋에서 삭제**했다 — 두 원천이 공존하는 창을 만들지 않기 위해서다([[24]] 2026-08-03: 정본만 고치고 소비자·사본을 안 맞추면 옛 값이 쓰인다). 키 수는 **순감**(3선언 → 1키)이고 도메인 리터럴 순증 0. 생성기 = `x144_build_relation_index.py`, 소비자 입구 = `t2_precedence.declarations` 하나(t2_pin_read·t2_prekb_patch·t2_dominance·t2_precedence). ★`declarations`는 **출처·순서·다중성**을 그대로 진다 — 간선으로 합치면 `t2_pin_read._refcount`가 세는 *선언 개수*가 2→1이 되어 조준이 바뀐다. ★재생성: `x144 --domain <d> --out -`로 다시 만들되, **삭제 전 기준선**(`a2/frozen/banking_knowledge.prereq_baseline.json`)과 `--check-snapshot`으로 맞대야 한다. 삭제 후에는 원천이 없어 *'원천 vs 인덱스'* 대조가 공허하게 참이 되기 때문이다.",
  "policy_ontology": {
