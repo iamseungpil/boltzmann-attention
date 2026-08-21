@@ -1,0 +1,87 @@
+{
+ "logs": [
+  "bank_t7328_halfA_20260819r.log.gz",
+  "bank_t7328_halfB_20260819r2.log.gz"
+ ],
+ "per_task": {
+  "task_016": {
+   "T2_DEMANDED_STEP": 10,
+   "T2_PIN_READ": 7,
+   "T2_PIN_READ_STEPS": 2,
+   "T2_READ_ROUTINE": 1
+  },
+  "task_050": {
+   "T2_PIN_READ_STEPS": 2,
+   "T2_READ_ROUTINE": 8,
+   "T2_PIN_READ": 8
+  },
+  "task_055": {
+   "T2_PIN_READ_STEPS": 2,
+   "T2_READ_ROUTINE": 1,
+   "T2_PIN_READ": 2
+  },
+  "task_063": {
+   "T2_DEMANDED_STEP": 3
+  },
+  "task_072": {
+   "T2_READ_ROUTINE": 3,
+   "T2_PIN_READ": 5,
+   "T2_PIN_READ_STEPS": 1
+  },
+  "task_098": {
+   "T2_DEMANDED_STEP": 12,
+   "T2_PIN_READ": 4
+  },
+  "task_100": {
+   "T2_DEMANDED_STEP": 18,
+   "T2_PIN_READ": 4
+  }
+ },
+ "demanded_targets": {
+  "verify_identity": 22,
+  "get_referrals_by_user": 6,
+  "get_all_user_accounts_by_user_id": 12,
+  "check_card_application_fit": 3
+ },
+ "read_refcount": {
+  "check_card_application_fit": {
+   "n": 1,
+   "deps": [
+    "apply_for_credit_card"
+   ]
+  },
+  "get_all_user_accounts_by_user_id": {
+   "n": 4,
+   "deps": [
+    "open_bank_account",
+    "submit_referral",
+    "pay_credit_card_from_checking",
+    "get_interest_correction"
+   ]
+  },
+  "get_bank_account_transactions": {
+   "n": 1,
+   "deps": [
+    "get_interest_correction"
+   ]
+  },
+  "get_credit_card_accounts_by_user": {
+   "n": 1,
+   "deps": [
+    "check_cli_eligibility"
+   ]
+  },
+  "get_credit_limit_increase_history": {
+   "n": 1,
+   "deps": [
+    "check_cli_eligibility"
+   ]
+  },
+  "get_payment_history": {
+   "n": 1,
+   "deps": [
+    "check_cli_eligibility"
+   ]
+  }
+ }
+}
