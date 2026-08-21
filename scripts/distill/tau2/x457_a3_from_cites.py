@@ -110,11 +110,47 @@ def load_groups(path):
     return fold, alias
 
 
+def sub_docs_block(cites, axes, always, fold):
+    """한 서브가 쓸 **읽기 명세 선언**을 만든다 — `{always:[id], spans:{class:[{doc,off,len}]}}`.
+
+    사용자 축자(2026-08-21): *"shell 로 해야 한다. bm25 는 approximate 이다. 정확한 100% 문서
+    링크를 shell 로 읽어와서 격리해야 한다."* 이 블록이 그 링크다 — 엔진은 선언된 범위를
+    **자르기만** 하고 검색하지 않는다.
+
+    `axes` 는 **A3 가 선언**하는 축 목록이고(이 서브가 무엇을 알아야 하는가), 출처는 그 도구의
+    `op.reducers` 범주(base·checking·card·relationship·tier)와 `doc_045`/`doc_046` 이 정의한
+    범주다 — gold 가 아니다([[23]]). 엔진은 그 목록을 **문자열로 대조**만 한다([[59]]).
+    `always` 는 범주 **정의**를 담은 공용 정책 문서다: `_045` 가 *"Relationship bonuses for
+    holding multiple Rho-Bank products"* 로 relationship 을 정의하고, `_046` 이 checking max1 을,
+    `_012` 가 어느 페어링이 자격인지를 말한다. 그 셋이 없으면 `kind` 분류가 불가능하다.
+    """
+    want = {str(x) for x in (axes or [])}
+    spans = collections.defaultdict(list)
+    for raw, lst in cites.items():
+        ax = fold.get(raw, raw)
+        if raw not in want and ax not in want:
+            continue
+        for c in lst:
+            if c.get("span_ok") is not True or c.get("section_off") is None:
+                continue
+            spec = {"doc": c.get("doc"), "off": c.get("section_off"), "len": c.get("section_len")}
+            if spec not in spans[c.get("class")]:
+                spans[c.get("class")].append(spec)
+    return {"_note_": ("엔진은 선언된 (문서, 오프셋, 길이)를 자르기만 한다 — 검색 0. "
+                       "축 목록의 출처 = op.reducers 범주 + doc_045/046 의 범주 정의."),
+            "axes": sorted(want), "always": list(always),
+            "spans": {k: v for k, v in sorted(spans.items())}}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--audit", default="x453_attr_coverage_all.json")
     ap.add_argument("--groups", default="x455_axis_groups.json")
     ap.add_argument("--out", default="x457_a3_blocks.json")
+    ap.add_argument("--sub-axes", default="",
+                    help="이 서브가 알아야 할 축(A3 선언·쉼표)")
+    ap.add_argument("--sub-always", default="",
+                    help="범주 정의를 담은 공용 정책 문서 id(쉼표)")
     a = ap.parse_args()
 
     with io.open(os.path.join(REP, a.audit), encoding="utf-8") as f:
@@ -239,6 +275,21 @@ def main():
                           "declared_now": sorted(have),
                           "declared_covered": sorted(n for n in have if n in cat),
                           "delivery_volume": vol}}
+    # ── 서브별 읽기 명세 선언 ────────────────────────────────────────────────
+    if a.sub_axes:
+        _axes = [x.strip() for x in a.sub_axes.split(",") if x.strip()]
+        _always = [x.strip() for x in a.sub_always.split(",") if x.strip()]
+        blk = sub_docs_block(cites, _axes, _always, fold)
+        payload["sub_docs_block"] = blk
+        _n = sum(len(v) for v in blk["spans"].values())
+        _c = sum(int(x["len"] or 0) for v in blk["spans"].values() for x in v)
+        print(NLC + "[서브 읽기 명세] 축 %d · 공용 %d편 · 클래스 %d · span %d · %d자"
+              % (len(blk["axes"]), len(blk["always"]), len(blk["spans"]), _n, _c))
+        for cls in sorted(blk["spans"])[:8]:
+            v = blk["spans"][cls]
+            print("    %-30s %2d span %6d자" % (cls[:30], len(v),
+                                                sum(int(x["len"] or 0) for x in v)))
+
     p = os.path.join(REP, a.out)
     with io.open(p, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=1)
