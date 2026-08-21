@@ -98,6 +98,45 @@ def render(msgs, strip_ours=False, state_done=False, append=None):
     return NLC.join(out)
 
 
+def replay(msgs, tools, model, base, strip_ours=False, state_done=False):
+    """★**라이브와 같은 인터페이스로** 재생한다 (2026-08-21 정정).
+
+    1차 판은 대본을 **텍스트로 렌더**해 *"다음 도구 이름을 말하라"* 고 물었다. 라이브는 실제
+    도구 스키마를 쥐고 tool-call 을 내므로 **더 약한 인터페이스**였고, 결과가 3/18 로 라이브
+    DUP 11건을 재현하지 못했다 — [[62]] §1.4 *"정보-맞춘 격리"* 위반이라 그 수치는 쓸 수 없다.
+
+    여기서는 영속 메시지를 **실제 메시지 객체로 복원**(58/58 성공 확인)하고 env 의 **실물 도구**를
+    노출한 뒤 `la.generate` 를 그대로 부른다. 팔의 차이는 **우리 문구 한 줄**뿐이다.
+    """
+    import tau2.agent.llm_agent as la
+    from tau2.data_model.message import UserMessage, AssistantMessage, ToolMessage, SystemMessage
+    CLS = {"user": UserMessage, "assistant": AssistantMessage,
+           "tool": ToolMessage, "system": SystemMessage}
+    out = []
+    for m in msgs:
+        C = CLS.get(str(m.get("role") or ""))
+        if C is None:
+            continue
+        d = dict(m)
+        if d.get("role") == "tool":
+            c = str(d.get("content") or "")
+            if " ".join(c.split()).startswith(OURS_HEAD):
+                if strip_ours:
+                    d["content"] = NEUTRAL
+                elif state_done:
+                    d["content"] = c + (" NOTE: this verification has already been logged; "
+                                        "it does not need logging again.")
+        try:
+            out.append(C(**d))
+        except Exception:
+            pass
+    resp = la.generate(model=base and ("openai/%s" % model) or model, tools=tools, messages=out,
+                       call_name="x459_replay",
+                       **({"api_base": base, "api_key": "dummy", "temperature": 0.0}
+                          if base else {"temperature": 0.0}))
+    return [F.nameof(t) for t in (getattr(resp, "tool_calls", None) or [])]
+
+
 def dup_cases(sims):
     """두 번째 `log_verification` 직전까지를 자른다 — 그 자리가 재발화의 결정점이다."""
     cases = []
@@ -146,6 +185,7 @@ def main():
     ap.add_argument("--claim-tasks", default="072,073,074",
                     help="빈 문자열이면 1단계 전수")
     ap.add_argument("--max-claim", type=int, default=12)
+    ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--out", default="x459_dup_claim_iso.json")
     a = ap.parse_args()
 
@@ -167,14 +207,22 @@ def main():
     dc = dup_cases(sims)
     print(NLC + "⒜ DUP 결정점 %d개 (우리 문구가 문맥에 있는 재호출만)" % len(dc))
     agg = collections.Counter()
+    import x448_index_vs_all_iso as IVA
+    _sb = IVA.Sandbox()
+    _tools = list(_sb.env.get_tools() or [])
+    _base = "http://localhost:%d/v1" % a.port
+    print("   재생 인터페이스: env 실물 도구 %d종 · %s (라이브와 동일)" % (len(_tools), a.model))
     for c in dc:
         for arm, kw in (("A_asis", {}), ("B_strip", {"strip_ours": True}),
                         ("C_state", {"state_done": True})):
-            body = render(c["pre"], **kw) + NLC + NLC + "What is the ONE next step?"
             calls = 0
             for _ in range(a.n):
-                got = X.ask(a.port, SYS_NEXT, body, maxtok=200) or {}
-                if str(got.get("tool") or "") == DUP_TOOL:
+                try:
+                    named = replay(c["pre"], _tools, a.model, _base, **kw)
+                except Exception as e:
+                    print("      replay 실패: %r" % (e,))
+                    named = []
+                if DUP_TOOL in named:
                     calls += 1
             agg[(arm, "again")] += calls
             agg[(arm, "n")] += a.n
