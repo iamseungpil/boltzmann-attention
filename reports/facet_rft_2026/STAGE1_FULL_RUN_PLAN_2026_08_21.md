@@ -76,6 +76,40 @@ t7333(합성 A/B)이 쓴 8 태스크는 `003 024 025 001 070 055 047 063` 이고
 
 ---
 
+## §2b ⛔§2 정정 — 궤적 전수 포렌식 결과 (2026-08-21 오후 · C583 · `x458`)
+
+§2 의 census 는 **호출 이름을 그대로** 셌고, 이 도구들은 발견 래퍼를 탄다. 정본
+`t2_forensic.mutation_diff`(래퍼 해제·GRANTS 제외·DUP 계수)로 다시 세니 세 군데가 틀렸다.
+
+| §2 가 적은 것 | 실제 (40 sim 전수) |
+|---|---|
+| dispute 26 = `transaction_id`·`purchase_date`·`card_last_4_digits` **참조 축**, 우리 층이 안 닿음 | ⛔**그 셋은 불일치 0** — 맞히고 있다. 실제 실패는 `eligible_for_provisional_credit` **12** · `contacted_merchant` **7** · `card_action` **4** = **정책 판정**이고 KB 에 문서가 있다(`Provisional Credit Guidelines`·`Regulation E`) ⇒ **A3 문서 축** |
+| `apply_checking_account_credit` **MISSING 13** (072·073·074) | ⛔**대부분 불렀다**(래퍼 경유·072 wrapper 3 · 073 wrapper 4·2). 진짜 미호출은 **074 두 sim**뿐이고 끝말이 *"The corrections have been applied"* = **완료 사칭**(knowing-doing) |
+| `log_verification` **DUP 11** = 기전 미확정 | ⛔**우리 층이 만든다** — 085 반복 4건 중 3건이 우리 문구(`… you may now call log_verification`) 직후, 040 은 `[DUPLICATE-READ]` stub 을 실패로 읽고 재시도 |
+
+### ★§2 가 세지 않은 블록 — `BLOCKED 105`
+
+시도했으나 거절당한 변이가 **105건**이고 **거절자는 전부 `env`**(우리 층 0).
+
+```
+057=41  040=30  085=13  017=8  079=7  094=3  055=2  063=1
+open_bank_account_4821                    env 41   "Error: Account eligibility requirements not met."
+file_credit_card_transaction_dispute_4829 env 30   그중 "Unknown discoverable tool" 16 · "already been filed" 7
+file_debit_card_transaction_dispute_6281  env 13   "Invalid arguments" 6
+```
+
+**057 의 41 건이 전부 자격 미달이다.** 그것이 같은 날 감사(`x453`)가 클래스별 값·문서 id·오프셋까지
+확보한 축(`minimum_opening_deposit`·`ongoing_minimum_balance`·`minimum_balance_requirement`)이다
+⇒ **057 은 A3 자격 축의 정면 표적**이고, §5 가 057 을 *"다른 MISSING 도 함께 안고 있다"* 로만
+적어 둔 것은 과소평가였다.
+
+### 이 정정이 §4 계획에 미치는 것
+
+* **P1 의 기대 효과가 커진다** — A3 자격 문턱이 057(41 BLOCKED)·055·063 을 겨눈다.
+* **P2 로 미룬 dispute 26 은 P1 과 같은 축**(문서)일 수 있다 — 참조 격리가 아니라 정책 문서 전달.
+* **DUP 은 레버가 아니라 우리 문구 수리**다 — 유료 런 없이 고칠 수 있다.
+* 074 의 완료 사칭은 **처방이 없는 축**([[46]] 라이브 A/B null) — 계획에서 기대치를 빼야 한다.
+
 ## §3 §[[05]] 세 질문 (설계서 상설·[[17]])
 
 1. **도메인-특화를 순증시키나?** 엔진은 그대로다 — `catalog_arg_docs` 에 `account_class` 선언을
