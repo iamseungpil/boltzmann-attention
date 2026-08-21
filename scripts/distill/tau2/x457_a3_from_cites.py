@@ -166,14 +166,42 @@ def sub_docs_block(cites, axes, always, fold):
                 out.append([o, e])
         return [[a, b - a] for a, b in out]
 
-    docs = {}
+    # ★★기준 정렬 (2026-08-21·실측으로 잡음): 감사는 `title + ". " + content` 위에서 오프셋을
+    #   쟀는데(`x452.docs_by_class` 관례) **엔진이 읽는 것은 `content` 뿐**이다
+    #   (`t2_search.read_docs` 는 `o["content"]`, env 코퍼스도 content 와 바이트 동일 — 확인함).
+    #   차이는 정확히 `len(title) + 2` 다. 그대로 실었으면 **값 중간부터 잘린 조각**을 배달한다:
+    #     audit [234:331] = "### APY tiers … Tier 1 APY: 3.0% … Tier 2 APY: 4.5%"
+    #     env   [234:331] = " 3.0% …  ### Direct deposit bonus …"
+    #   ⇒ **쓰는 시점에 content 기준으로 변환**하고, **읽는 시점에 검산할 앵커**를 함께 싣는다.
+    #   엔진은 자른 뒤 앵커 일치만 보면 되고(닫힌 술어), 어긋나면 그 문서는 전량으로 폴백한다.
+    def _doc_text(did):
+        fp = os.path.join(FT.DOCDIR, did + ".json")
+        with io.open(fp, encoding="utf-8") as fh:
+            o = json.load(fh)
+        return str(o.get("title") or ""), str(o.get("content") or "")
+
+    docs, shifted, bad = {}, 0, 0
     for cls, v in spans.items():
         ent = []
         for did in sorted({x["doc"] for x in v}):
-            rg = _merge(all_spans.get(did) or set())
-            ent.append({"doc": did, "ranges": rg,
+            try:
+                _t, _c = _doc_text(did)
+            except Exception:
+                continue
+            off = len(_t) + 2                      # "title" + ". "
+            rg = []
+            for o, l in _merge(all_spans.get(did) or set()):
+                o2 = max(0, o - off)
+                l2 = max(0, min(l, len(_c) - o2))
+                if l2 <= 0:
+                    bad += 1
+                    continue
+                rg.append([o2, l2, " ".join(_c[o2:o2 + 40].split())])
+                shifted += 1
+            ent.append({"doc": did, "ranges": rg, "basis": "content",
                         "chars": sum(r[1] for r in rg)})
         docs[cls] = ent
+    print("  기준 변환: 범위 %d개를 content 기준으로 이동 · 버린 것 %d" % (shifted, bad))
     return {"_note_": ("전달 단위는 **문서**다 — 엔진은 선언된 id 를 읽어 넘기기만 하고 검색하지 "
                        "않는다. `spans` 는 그 문서 안 어디가 그 축을 말했는지의 **근거 앵커**이고 "
                        "자르는 데 쓰지 않는다(절로 자르면 축으로 안 잡힌 줄이 사라진다·실측). "
