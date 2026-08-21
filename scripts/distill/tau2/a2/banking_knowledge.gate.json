@@ -1100,181 +1100,1294 @@
      ],
      "by_class": {
       "beige": [
-       "doc_business_checking_accounts_beige_007"
+       {
+        "doc": "doc_business_checking_accounts_beige_007",
+        "ranges": [
+         [
+          0,
+          707
+         ]
+        ],
+        "chars": 707
+       }
       ],
       "blue_account": [
-       "doc_checking_accounts_blue_account_002",
-       "doc_checking_accounts_blue_account_010"
+       {
+        "doc": "doc_checking_accounts_blue_account_002",
+        "ranges": [
+         [
+          0,
+          532
+         ]
+        ],
+        "chars": 532
+       },
+       {
+        "doc": "doc_checking_accounts_blue_account_010",
+        "ranges": [
+         [
+          50,
+          90
+         ],
+         [
+          141,
+          85
+         ],
+         [
+          227,
+          156
+         ],
+         [
+          384,
+          111
+         ],
+         [
+          496,
+          154
+         ],
+         [
+          651,
+          115
+         ],
+         [
+          767,
+          200
+         ],
+         [
+          968,
+          285
+         ],
+         [
+          1254,
+          123
+         ]
+        ],
+        "chars": 1319
+       }
       ],
       "bluest_account": [
-       "doc_checking_accounts_bluest_account_001",
-       "doc_checking_accounts_bluest_account_008"
+       {
+        "doc": "doc_checking_accounts_bluest_account_001",
+        "ranges": [
+         [
+          0,
+          1012
+         ]
+        ],
+        "chars": 1012
+       },
+       {
+        "doc": "doc_checking_accounts_bluest_account_008",
+        "ranges": [
+         [
+          0,
+          500
+         ]
+        ],
+        "chars": 500
+       }
       ],
       "bronze_account": [
-       "doc_savings_accounts_bronze_account_001",
-       "doc_savings_accounts_bronze_account_002",
-       "doc_savings_accounts_bronze_account_003",
-       "doc_savings_accounts_bronze_account_006",
-       "doc_savings_accounts_bronze_account_007"
+       {
+        "doc": "doc_savings_accounts_bronze_account_001",
+        "ranges": [
+         [
+          0,
+          751
+         ]
+        ],
+        "chars": 751
+       },
+       {
+        "doc": "doc_savings_accounts_bronze_account_002",
+        "ranges": [
+         [
+          0,
+          322
+         ]
+        ],
+        "chars": 322
+       },
+       {
+        "doc": "doc_savings_accounts_bronze_account_003",
+        "ranges": [
+         [
+          0,
+          467
+         ]
+        ],
+        "chars": 467
+       },
+       {
+        "doc": "doc_savings_accounts_bronze_account_006",
+        "ranges": [
+         [
+          590,
+          192
+         ]
+        ],
+        "chars": 192
+       },
+       {
+        "doc": "doc_savings_accounts_bronze_account_007",
+        "ranges": [
+         [
+          0,
+          1193
+         ]
+        ],
+        "chars": 1193
+       }
       ],
       "bronze_saver_account": [
-       "doc_business_savings_accounts_bronze_saver_account_001",
-       "doc_business_savings_accounts_bronze_saver_account_002",
-       "doc_business_savings_accounts_bronze_saver_account_004"
+       {
+        "doc": "doc_business_savings_accounts_bronze_saver_account_001",
+        "ranges": [
+         [
+          0,
+          3250
+         ]
+        ],
+        "chars": 3250
+       },
+       {
+        "doc": "doc_business_savings_accounts_bronze_saver_account_002",
+        "ranges": [
+         [
+          0,
+          491
+         ]
+        ],
+        "chars": 491
+       },
+       {
+        "doc": "doc_business_savings_accounts_bronze_saver_account_004",
+        "ranges": [
+         [
+          288,
+          83
+         ],
+         [
+          372,
+          207
+         ]
+        ],
+        "chars": 290
+       }
       ],
       "business_credit_cards_business_bronze_rewards_card": [
-       "doc_business_credit_cards_business_bronze_rewards_card_007"
+       {
+        "doc": "doc_business_credit_cards_business_bronze_rewards_card_007",
+        "ranges": [
+         [
+          0,
+          1033
+         ]
+        ],
+        "chars": 1033
+       }
       ],
       "business_credit_cards_silver_zoom_card": [
-       "doc_business_credit_cards_silver_zoom_card_008",
-       "doc_business_credit_cards_silver_zoom_card_010"
+       {
+        "doc": "doc_business_credit_cards_silver_zoom_card_008",
+        "ranges": [
+         [
+          0,
+          841
+         ]
+        ],
+        "chars": 841
+       },
+       {
+        "doc": "doc_business_credit_cards_silver_zoom_card_010",
+        "ranges": [
+         [
+          0,
+          830
+         ]
+        ],
+        "chars": 830
+       }
       ],
       "cobalt_blue": [
-       "doc_business_checking_accounts_cobalt_blue_001",
-       "doc_business_checking_accounts_cobalt_blue_008"
+       {
+        "doc": "doc_business_checking_accounts_cobalt_blue_001",
+        "ranges": [
+         [
+          504,
+          232
+         ],
+         [
+          737,
+          141
+         ],
+         [
+          879,
+          195
+         ],
+         [
+          1075,
+          223
+         ]
+        ],
+        "chars": 791
+       },
+       {
+        "doc": "doc_business_checking_accounts_cobalt_blue_008",
+        "ranges": [
+         [
+          0,
+          744
+         ]
+        ],
+        "chars": 744
+       }
       ],
       "credit_cards_diamond_elite_card": [
-       "doc_credit_cards_diamond_elite_card_006"
+       {
+        "doc": "doc_credit_cards_diamond_elite_card_006",
+        "ranges": [
+         [
+          0,
+          1179
+         ]
+        ],
+        "chars": 1179
+       }
       ],
       "credit_cards_ecocard": [
-       "doc_credit_cards_ecocard_010"
+       {
+        "doc": "doc_credit_cards_ecocard_010",
+        "ranges": [
+         [
+          0,
+          904
+         ]
+        ],
+        "chars": 904
+       }
       ],
       "dark_green_account": [
-       "doc_checking_accounts_dark_green_account_001"
+       {
+        "doc": "doc_checking_accounts_dark_green_account_001",
+        "ranges": [
+         [
+          103,
+          82
+         ],
+         [
+          186,
+          182
+         ],
+         [
+          369,
+          185
+         ],
+         [
+          555,
+          54
+         ]
+        ],
+        "chars": 503
+       }
       ],
       "diamond_elite_account": [
-       "doc_savings_accounts_diamond_elite_account_001",
-       "doc_savings_accounts_diamond_elite_account_009",
-       "doc_savings_accounts_diamond_elite_account_010"
+       {
+        "doc": "doc_savings_accounts_diamond_elite_account_001",
+        "ranges": [
+         [
+          739,
+          410
+         ]
+        ],
+        "chars": 410
+       },
+       {
+        "doc": "doc_savings_accounts_diamond_elite_account_009",
+        "ranges": [
+         [
+          59,
+          53
+         ],
+         [
+          113,
+          90
+         ],
+         [
+          204,
+          80
+         ],
+         [
+          285,
+          53
+         ],
+         [
+          339,
+          90
+         ],
+         [
+          430,
+          97
+         ],
+         [
+          528,
+          77
+         ],
+         [
+          606,
+          106
+         ]
+        ],
+        "chars": 646
+       },
+       {
+        "doc": "doc_savings_accounts_diamond_elite_account_010",
+        "ranges": [
+         [
+          0,
+          416
+         ]
+        ],
+        "chars": 416
+       }
       ],
       "diamond_vault": [
-       "doc_business_savings_accounts_diamond_vault_001",
-       "doc_business_savings_accounts_diamond_vault_008"
+       {
+        "doc": "doc_business_savings_accounts_diamond_vault_001",
+        "ranges": [
+         [
+          0,
+          1079
+         ]
+        ],
+        "chars": 1079
+       },
+       {
+        "doc": "doc_business_savings_accounts_diamond_vault_008",
+        "ranges": [
+         [
+          0,
+          1980
+         ]
+        ],
+        "chars": 1980
+       }
       ],
       "emerald_saver": [
-       "doc_business_savings_accounts_emerald_saver_001",
-       "doc_business_savings_accounts_emerald_saver_004",
-       "doc_business_savings_accounts_emerald_saver_008"
+       {
+        "doc": "doc_business_savings_accounts_emerald_saver_001",
+        "ranges": [
+         [
+          0,
+          1257
+         ]
+        ],
+        "chars": 1257
+       },
+       {
+        "doc": "doc_business_savings_accounts_emerald_saver_004",
+        "ranges": [
+         [
+          0,
+          1172
+         ]
+        ],
+        "chars": 1172
+       },
+       {
+        "doc": "doc_business_savings_accounts_emerald_saver_008",
+        "ranges": [
+         [
+          0,
+          2795
+         ]
+        ],
+        "chars": 2795
+       }
       ],
       "evergreen_account": [
-       "doc_checking_accounts_evergreen_account_001",
-       "doc_checking_accounts_evergreen_account_002"
+       {
+        "doc": "doc_checking_accounts_evergreen_account_001",
+        "ranges": [
+         [
+          1103,
+          519
+         ]
+        ],
+        "chars": 519
+       },
+       {
+        "doc": "doc_checking_accounts_evergreen_account_002",
+        "ranges": [
+         [
+          0,
+          853
+         ]
+        ],
+        "chars": 853
+       }
       ],
       "gold_account": [
-       "doc_savings_accounts_gold_account_001",
-       "doc_savings_accounts_gold_account_002",
-       "doc_savings_accounts_gold_account_003",
-       "doc_savings_accounts_gold_account_004",
-       "doc_savings_accounts_gold_account_009",
-       "doc_savings_accounts_gold_account_010",
-       "doc_savings_accounts_gold_account_013",
-       "doc_savings_accounts_gold_account_014"
+       {
+        "doc": "doc_savings_accounts_gold_account_001",
+        "ranges": [
+         [
+          0,
+          1129
+         ]
+        ],
+        "chars": 1129
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_002",
+        "ranges": [
+         [
+          0,
+          320
+         ]
+        ],
+        "chars": 320
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_003",
+        "ranges": [
+         [
+          0,
+          634
+         ]
+        ],
+        "chars": 634
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_004",
+        "ranges": [
+         [
+          0,
+          584
+         ]
+        ],
+        "chars": 584
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_009",
+        "ranges": [
+         [
+          0,
+          726
+         ]
+        ],
+        "chars": 726
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_010",
+        "ranges": [
+         [
+          0,
+          571
+         ]
+        ],
+        "chars": 571
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_013",
+        "ranges": [
+         [
+          788,
+          240
+         ],
+         [
+          1029,
+          456
+         ]
+        ],
+        "chars": 696
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_014",
+        "ranges": [
+         [
+          0,
+          1003
+         ]
+        ],
+        "chars": 1003
+       }
       ],
       "gold_plus_account": [
-       "doc_savings_accounts_gold_plus_account_001",
-       "doc_savings_accounts_gold_plus_account_002",
-       "doc_savings_accounts_gold_plus_account_005",
-       "doc_savings_accounts_gold_plus_account_006"
+       {
+        "doc": "doc_savings_accounts_gold_plus_account_001",
+        "ranges": [
+         [
+          0,
+          801
+         ]
+        ],
+        "chars": 801
+       },
+       {
+        "doc": "doc_savings_accounts_gold_plus_account_002",
+        "ranges": [
+         [
+          0,
+          645
+         ]
+        ],
+        "chars": 645
+       },
+       {
+        "doc": "doc_savings_accounts_gold_plus_account_005",
+        "ranges": [
+         [
+          0,
+          664
+         ]
+        ],
+        "chars": 664
+       },
+       {
+        "doc": "doc_savings_accounts_gold_plus_account_006",
+        "ranges": [
+         [
+          0,
+          440
+         ]
+        ],
+        "chars": 440
+       }
       ],
       "gold_plus_saver": [
-       "doc_business_savings_accounts_gold_plus_saver_001",
-       "doc_business_savings_accounts_gold_plus_saver_002"
+       {
+        "doc": "doc_business_savings_accounts_gold_plus_saver_001",
+        "ranges": [
+         [
+          0,
+          4693
+         ]
+        ],
+        "chars": 4693
+       },
+       {
+        "doc": "doc_business_savings_accounts_gold_plus_saver_002",
+        "ranges": [
+         [
+          0,
+          1260
+         ]
+        ],
+        "chars": 1260
+       }
       ],
       "gold_saver_account": [
-       "doc_business_savings_accounts_gold_saver_account_009"
+       {
+        "doc": "doc_business_savings_accounts_gold_saver_account_009",
+        "ranges": [
+         [
+          0,
+          1679
+         ]
+        ],
+        "chars": 1679
+       }
       ],
       "gold_years_account": [
-       "doc_checking_accounts_gold_years_account_002"
+       {
+        "doc": "doc_checking_accounts_gold_years_account_002",
+        "ranges": [
+         [
+          0,
+          963
+         ]
+        ],
+        "chars": 963
+       }
       ],
       "green_account_(checking)": [
-       "doc_checking_accounts_green_account_(checking)_001",
-       "doc_checking_accounts_green_account_(checking)_002",
-       "doc_checking_accounts_green_account_(checking)_010"
+       {
+        "doc": "doc_checking_accounts_green_account_(checking)_001",
+        "ranges": [
+         [
+          357,
+          418
+         ],
+         [
+          776,
+          327
+         ],
+         [
+          1104,
+          614
+         ]
+        ],
+        "chars": 1359
+       },
+       {
+        "doc": "doc_checking_accounts_green_account_(checking)_002",
+        "ranges": [
+         [
+          0,
+          937
+         ]
+        ],
+        "chars": 937
+       },
+       {
+        "doc": "doc_checking_accounts_green_account_(checking)_010",
+        "ranges": [
+         [
+          62,
+          99
+         ],
+         [
+          162,
+          74
+         ],
+         [
+          237,
+          115
+         ],
+         [
+          353,
+          117
+         ],
+         [
+          471,
+          103
+         ],
+         [
+          575,
+          91
+         ]
+        ],
+        "chars": 599
+       }
       ],
       "green_account_(savings)": [
-       "doc_savings_accounts_green_account_(savings)_001",
-       "doc_savings_accounts_green_account_(savings)_003",
-       "doc_savings_accounts_green_account_(savings)_005",
-       "doc_savings_accounts_green_account_(savings)_006",
-       "doc_savings_accounts_green_account_(savings)_009"
+       {
+        "doc": "doc_savings_accounts_green_account_(savings)_001",
+        "ranges": [
+         [
+          0,
+          722
+         ]
+        ],
+        "chars": 722
+       },
+       {
+        "doc": "doc_savings_accounts_green_account_(savings)_003",
+        "ranges": [
+         [
+          99,
+          234
+         ],
+         [
+          334,
+          157
+         ],
+         [
+          821,
+          234
+         ]
+        ],
+        "chars": 625
+       },
+       {
+        "doc": "doc_savings_accounts_green_account_(savings)_005",
+        "ranges": [
+         [
+          61,
+          59
+         ],
+         [
+          121,
+          93
+         ],
+         [
+          215,
+          85
+         ],
+         [
+          415,
+          102
+         ]
+        ],
+        "chars": 339
+       },
+       {
+        "doc": "doc_savings_accounts_green_account_(savings)_006",
+        "ranges": [
+         [
+          0,
+          606
+         ]
+        ],
+        "chars": 606
+       },
+       {
+        "doc": "doc_savings_accounts_green_account_(savings)_009",
+        "ranges": [
+         [
+          0,
+          1728
+         ]
+        ],
+        "chars": 1728
+       }
       ],
       "green_fee-free_account": [
-       "doc_checking_accounts_green_fee-free_account_003",
-       "doc_checking_accounts_green_fee-free_account_004",
-       "doc_checking_accounts_green_fee-free_account_006"
+       {
+        "doc": "doc_checking_accounts_green_fee-free_account_003",
+        "ranges": [
+         [
+          272,
+          317
+         ]
+        ],
+        "chars": 317
+       },
+       {
+        "doc": "doc_checking_accounts_green_fee-free_account_004",
+        "ranges": [
+         [
+          0,
+          1078
+         ]
+        ],
+        "chars": 1078
+       },
+       {
+        "doc": "doc_checking_accounts_green_fee-free_account_006",
+        "ranges": [
+         [
+          60,
+          135
+         ],
+         [
+          196,
+          88
+         ],
+         [
+          285,
+          68
+         ],
+         [
+          354,
+          224
+         ],
+         [
+          579,
+          138
+         ]
+        ],
+        "chars": 653
+       }
       ],
       "hunter_green": [
-       "doc_business_checking_accounts_hunter_green_001",
-       "doc_business_checking_accounts_hunter_green_006"
+       {
+        "doc": "doc_business_checking_accounts_hunter_green_001",
+        "ranges": [
+         [
+          0,
+          1799
+         ]
+        ],
+        "chars": 1799
+       },
+       {
+        "doc": "doc_business_checking_accounts_hunter_green_006",
+        "ranges": [
+         [
+          0,
+          645
+         ]
+        ],
+        "chars": 645
+       }
       ],
       "light_blue_account": [
-       "doc_checking_accounts_light_blue_account_002",
-       "doc_checking_accounts_light_blue_account_003",
-       "doc_checking_accounts_light_blue_account_004"
+       {
+        "doc": "doc_checking_accounts_light_blue_account_002",
+        "ranges": [
+         [
+          0,
+          345
+         ]
+        ],
+        "chars": 345
+       },
+       {
+        "doc": "doc_checking_accounts_light_blue_account_003",
+        "ranges": [
+         [
+          0,
+          596
+         ]
+        ],
+        "chars": 596
+       },
+       {
+        "doc": "doc_checking_accounts_light_blue_account_004",
+        "ranges": [
+         [
+          0,
+          1185
+         ]
+        ],
+        "chars": 1185
+       }
       ],
       "light_green_account": [
-       "doc_checking_accounts_light_green_account_001",
-       "doc_checking_accounts_light_green_account_006"
+       {
+        "doc": "doc_checking_accounts_light_green_account_001",
+        "ranges": [
+         [
+          0,
+          1050
+         ]
+        ],
+        "chars": 1050
+       },
+       {
+        "doc": "doc_checking_accounts_light_green_account_006",
+        "ranges": [
+         [
+          0,
+          537
+         ]
+        ],
+        "chars": 537
+       }
       ],
       "lime_green": [
-       "doc_business_checking_accounts_lime_green_001",
-       "doc_business_checking_accounts_lime_green_005"
+       {
+        "doc": "doc_business_checking_accounts_lime_green_001",
+        "ranges": [
+         [
+          0,
+          1408
+         ]
+        ],
+        "chars": 1408
+       },
+       {
+        "doc": "doc_business_checking_accounts_lime_green_005",
+        "ranges": [
+         [
+          0,
+          672
+         ]
+        ],
+        "chars": 672
+       }
       ],
       "navy_blue": [
-       "doc_business_checking_accounts_navy_blue_001",
-       "doc_business_checking_accounts_navy_blue_004"
+       {
+        "doc": "doc_business_checking_accounts_navy_blue_001",
+        "ranges": [
+         [
+          0,
+          1528
+         ]
+        ],
+        "chars": 1528
+       },
+       {
+        "doc": "doc_business_checking_accounts_navy_blue_004",
+        "ranges": [
+         [
+          0,
+          721
+         ]
+        ],
+        "chars": 721
+       }
       ],
       "platinum_account": [
-       "doc_savings_accounts_platinum_account_001",
-       "doc_savings_accounts_platinum_account_002",
-       "doc_savings_accounts_platinum_account_003",
-       "doc_savings_accounts_platinum_account_007"
+       {
+        "doc": "doc_savings_accounts_platinum_account_001",
+        "ranges": [
+         [
+          0,
+          1251
+         ]
+        ],
+        "chars": 1251
+       },
+       {
+        "doc": "doc_savings_accounts_platinum_account_002",
+        "ranges": [
+         [
+          0,
+          361
+         ]
+        ],
+        "chars": 361
+       },
+       {
+        "doc": "doc_savings_accounts_platinum_account_003",
+        "ranges": [
+         [
+          0,
+          656
+         ]
+        ],
+        "chars": 656
+       },
+       {
+        "doc": "doc_savings_accounts_platinum_account_007",
+        "ranges": [
+         [
+          0,
+          749
+         ]
+        ],
+        "chars": 749
+       }
       ],
       "platinum_plus_account": [
-       "doc_savings_accounts_platinum_plus_account_005",
-       "doc_savings_accounts_platinum_plus_account_006",
-       "doc_savings_accounts_platinum_plus_account_009"
+       {
+        "doc": "doc_savings_accounts_platinum_plus_account_005",
+        "ranges": [
+         [
+          0,
+          495
+         ]
+        ],
+        "chars": 495
+       },
+       {
+        "doc": "doc_savings_accounts_platinum_plus_account_006",
+        "ranges": [
+         [
+          0,
+          578
+         ]
+        ],
+        "chars": 578
+       },
+       {
+        "doc": "doc_savings_accounts_platinum_plus_account_009",
+        "ranges": [
+         [
+          0,
+          873
+         ]
+        ],
+        "chars": 873
+       }
       ],
       "platinum_reserve_account": [
-       "doc_business_savings_accounts_platinum_reserve_account_001",
-       "doc_business_savings_accounts_platinum_reserve_account_002",
-       "doc_business_savings_accounts_platinum_reserve_account_010"
+       {
+        "doc": "doc_business_savings_accounts_platinum_reserve_account_001",
+        "ranges": [
+         [
+          0,
+          959
+         ]
+        ],
+        "chars": 959
+       },
+       {
+        "doc": "doc_business_savings_accounts_platinum_reserve_account_002",
+        "ranges": [
+         [
+          0,
+          1240
+         ]
+        ],
+        "chars": 1240
+       },
+       {
+        "doc": "doc_business_savings_accounts_platinum_reserve_account_010",
+        "ranges": [
+         [
+          0,
+          2643
+         ]
+        ],
+        "chars": 2643
+       }
       ],
       "silver_account": [
-       "doc_savings_accounts_silver_account_001",
-       "doc_savings_accounts_silver_account_002",
-       "doc_savings_accounts_silver_account_003",
-       "doc_savings_accounts_silver_account_005",
-       "doc_savings_accounts_silver_account_006",
-       "doc_savings_accounts_silver_account_009"
+       {
+        "doc": "doc_savings_accounts_silver_account_001",
+        "ranges": [
+         [
+          0,
+          948
+         ]
+        ],
+        "chars": 948
+       },
+       {
+        "doc": "doc_savings_accounts_silver_account_002",
+        "ranges": [
+         [
+          0,
+          875
+         ]
+        ],
+        "chars": 875
+       },
+       {
+        "doc": "doc_savings_accounts_silver_account_003",
+        "ranges": [
+         [
+          221,
+          297
+         ]
+        ],
+        "chars": 297
+       },
+       {
+        "doc": "doc_savings_accounts_silver_account_005",
+        "ranges": [
+         [
+          52,
+          140
+         ],
+         [
+          193,
+          260
+         ],
+         [
+          454,
+          193
+         ],
+         [
+          648,
+          159
+         ],
+         [
+          808,
+          87
+         ]
+        ],
+        "chars": 839
+       },
+       {
+        "doc": "doc_savings_accounts_silver_account_006",
+        "ranges": [
+         [
+          0,
+          904
+         ]
+        ],
+        "chars": 904
+       },
+       {
+        "doc": "doc_savings_accounts_silver_account_009",
+        "ranges": [
+         [
+          650,
+          338
+         ],
+         [
+          989,
+          677
+         ],
+         [
+          2529,
+          274
+         ]
+        ],
+        "chars": 1289
+       }
       ],
       "silver_plus_account": [
-       "doc_savings_accounts_silver_plus_account_001",
-       "doc_savings_accounts_silver_plus_account_002",
-       "doc_savings_accounts_silver_plus_account_004",
-       "doc_savings_accounts_silver_plus_account_005",
-       "doc_savings_accounts_silver_plus_account_006"
+       {
+        "doc": "doc_savings_accounts_silver_plus_account_001",
+        "ranges": [
+         [
+          0,
+          810
+         ]
+        ],
+        "chars": 810
+       },
+       {
+        "doc": "doc_savings_accounts_silver_plus_account_002",
+        "ranges": [
+         [
+          80,
+          194
+         ],
+         [
+          275,
+          88
+         ],
+         [
+          364,
+          67
+         ],
+         [
+          432,
+          307
+         ]
+        ],
+        "chars": 656
+       },
+       {
+        "doc": "doc_savings_accounts_silver_plus_account_004",
+        "ranges": [
+         [
+          0,
+          836
+         ]
+        ],
+        "chars": 836
+       },
+       {
+        "doc": "doc_savings_accounts_silver_plus_account_005",
+        "ranges": [
+         [
+          57,
+          92
+         ],
+         [
+          150,
+          101
+         ],
+         [
+          392,
+          111
+         ]
+        ],
+        "chars": 304
+       },
+       {
+        "doc": "doc_savings_accounts_silver_plus_account_006",
+        "ranges": [
+         [
+          234,
+          97
+         ],
+         [
+          332,
+          173
+         ]
+        ],
+        "chars": 270
+       }
       ],
       "silver_plus_saver": [
-       "doc_business_savings_accounts_silver_plus_saver_001",
-       "doc_business_savings_accounts_silver_plus_saver_003",
-       "doc_business_savings_accounts_silver_plus_saver_006"
+       {
+        "doc": "doc_business_savings_accounts_silver_plus_saver_001",
+        "ranges": [
+         [
+          0,
+          2475
+         ]
+        ],
+        "chars": 2475
+       },
+       {
+        "doc": "doc_business_savings_accounts_silver_plus_saver_003",
+        "ranges": [
+         [
+          0,
+          1171
+         ]
+        ],
+        "chars": 1171
+       },
+       {
+        "doc": "doc_business_savings_accounts_silver_plus_saver_006",
+        "ranges": [
+         [
+          0,
+          796
+         ]
+        ],
+        "chars": 796
+       }
       ],
       "silver_saver_account": [
-       "doc_business_savings_accounts_silver_saver_account_001",
-       "doc_business_savings_accounts_silver_saver_account_002"
+       {
+        "doc": "doc_business_savings_accounts_silver_saver_account_001",
+        "ranges": [
+         [
+          0,
+          1945
+         ]
+        ],
+        "chars": 1945
+       },
+       {
+        "doc": "doc_business_savings_accounts_silver_saver_account_002",
+        "ranges": [
+         [
+          0,
+          1034
+         ]
+        ],
+        "chars": 1034
+       }
       ],
       "sky_blue": [
-       "doc_business_checking_accounts_sky_blue_007",
-       "doc_business_checking_accounts_sky_blue_008"
+       {
+        "doc": "doc_business_checking_accounts_sky_blue_007",
+        "ranges": [
+         [
+          0,
+          698
+         ]
+        ],
+        "chars": 698
+       },
+       {
+        "doc": "doc_business_checking_accounts_sky_blue_008",
+        "ranges": [
+         [
+          0,
+          641
+         ]
+        ],
+        "chars": 641
+       }
       ],
       "true_blue": [
-       "doc_business_checking_accounts_true_blue_001",
-       "doc_business_checking_accounts_true_blue_008"
+       {
+        "doc": "doc_business_checking_accounts_true_blue_001",
+        "ranges": [
+         [
+          0,
+          700
+         ]
+        ],
+        "chars": 700
+       },
+       {
+        "doc": "doc_business_checking_accounts_true_blue_008",
+        "ranges": [
+         [
+          0,
+          625
+         ]
+        ],
+        "chars": 625
+       }
       ],
       "world_blue": [
-       "doc_business_checking_accounts_world_blue_007",
-       "doc_business_checking_accounts_world_blue_008"
+       {
+        "doc": "doc_business_checking_accounts_world_blue_007",
+        "ranges": [
+         [
+          0,
+          1310
+         ]
+        ],
+        "chars": 1310
+       },
+       {
+        "doc": "doc_business_checking_accounts_world_blue_008",
+        "ranges": [
+         [
+          0,
+          2264
+         ]
+        ],
+        "chars": 2264
+       }
       ]
      }
     }
