@@ -61,6 +61,35 @@ SYS = ("Answer ONLY from the document. Reply with ONE JSON object with two lists
        "Use empty lists if the document states none.")
 
 
+def all_docs_by_class(fams):
+    """코퍼스 **전수**를 (클래스 키 → [(doc_id, text)]) 로 나눈다 (2026-08-21).
+
+    사용자 지시: *"문서 전체적으로 깨끗하게 읽고"*. 종전 스캔은 선언된 계열
+    (`catalog_arg_families.account_class`)만 읽어서 **선언 밖 149편을 통째로 건너뛰었다** —
+    그런데 이 축에 정작 필요한 **공용 APY 정책**이 거기 있다:
+        doc_bank_accounts_bank_accounts_(general)_012  Linked Checking Account APY Boosts …
+        doc_bank_accounts_bank_accounts_(general)_045  Credit Card APY Bonuses: Stacking Policy
+        doc_bank_accounts_bank_accounts_(general)_046  Linked Checking Account APY Boost: Selection Policy
+    즉 색인을 저작하면서 **스태킹 규칙 문서를 안 보고** 있었다. 카드 계열도 마찬가지로 빠져 있었다.
+
+    선언된 계열은 **종전 키 그대로**(계열 내 클래스) 두어 기존 산출물과 비교 가능하게 하고,
+    나머지는 파일명 규약으로 키를 만든다(`doc_<key>_<NNN>.json` → `<key>`·형태만·[[59]]).
+    """
+    byc = C.docs_by_class(fams)
+    taken = {did for cl in byc for did, _t in byc[cl]}
+    for f in sorted(os.listdir(FT.DOCDIR)):
+        if not f.endswith(".json"):
+            continue
+        did = f[:-5]
+        if did in taken:
+            continue
+        key = re.sub(r"_\d+$", "", did[4:] if did.startswith("doc_") else did)
+        with io.open(os.path.join(FT.DOCDIR, f), encoding="utf-8") as fh:
+            d = json.load(fh)
+        byc[key].append((did, (d.get("title") or "") + ". " + (d.get("content") or "")))
+    return byc
+
+
 def locate(q, lines, maxwin=8):
     """검산이 끝난 인용이 문서 **어디**인지 — (시작 줄, 창 크기). 못 찾으면 (None, None).
 
@@ -99,6 +128,10 @@ def main():
     ap.add_argument("--maxdocs", type=int, default=0, help="0=전부 (연습용 제한)")
     ap.add_argument("--out", default="x453_attr_coverage.json")
     ap.add_argument("--only", default="", help="선언 계열 중 이번 감사에서 볼 것(범위 제한·재정의 아님)")
+    ap.add_argument("--all-docs", action="store_true", default=True,
+                    help="코퍼스 전수(선언 밖 문서 포함·기본 ON) — 공용 정책이 선언 밖에 있다")
+    ap.add_argument("--declared-only", dest="all_docs", action="store_false",
+                    help="선언된 계열만(종전 거동)")
     a = ap.parse_args()
 
     # ★계열은 A2 선언에서 온다. `--only` 는 **이번 런의 범위**만 좁힌다 — 선언을 바꾸지 않는다.
@@ -110,11 +143,13 @@ def main():
         if unknown:
             raise SystemExit("선언에 없는 계열: %r" % sorted(unknown))
         fams = [f for f in fams if f in want]
-    byc = C.docs_by_class(fams)
+    byc = all_docs_by_class(fams) if (a.all_docs and not a.only) else C.docs_by_class(fams)
     have = {n for n, _al in FT.ATTRS}
     print("=" * 96)
-    print("x453 · 선언 계열 %d · 클래스 %d · 현행 선언 속성 %d종 · 채택선 = 클래스 %d 이상"
-          % (len(fams), len(byc), len(have), a.minclasses))
+    print("x453 · 선언 계열 %d · 클래스 %d · 문서 %d편%s · 현행 선언 속성 %d종 · 채택선 = 클래스 %d 이상"
+          % (len(fams), len(byc), sum(len(v) for v in byc.values()),
+             " (전수)" if (a.all_docs and not a.only) else " (선언 계열만)",
+             len(have), a.minclasses))
     print("=" * 96)
 
     seen_classes = collections.defaultdict(set)     # attr -> {class}  (값을 명시)
@@ -127,11 +162,17 @@ def main():
     #   14편 중 제목에 interest/APY 가 있는 것은 3편인데, 값은 `specifications and requirements`
     #   처럼 제목이 축을 안 말하는 문서에도 있다. 인용이 검산된 문서만 담는다.
     cites = collections.defaultdict(list)           # attr -> [{doc,class,line,span,section,quote}]
+    # ★"기능별로 문서 빠지지 않게"(사용자 지시 2026-08-21)를 **검증 가능하게** 만드는 두 계기:
+    #   ⑴ 읽었는데 아무 축도 못 건진 문서 ⑵ 검산에서 떨어진 (문서·축) 짝.
+    #   이 둘이 없으면 색인의 구멍이 조용히 남는다 — 빠진 것을 세지 않으면 "전수"는 말뿐이다.
+    doc_yield = {}                                  # doc_id -> 채택된 (값+요건) 수
+    rejected_detail = []                            # [{doc,name,why,quote}]  검산 탈락 전수
     attr_docs = collections.defaultdict(set)        # attr -> {doc_id}  ★인용이 검산된 문서만
     class_docs = collections.defaultdict(set)       # class -> {doc_id} (스캔 분모)
     example = {}                                    # attr -> (class, value, quote)
     req_example = {}                                # attr -> (class, requirement, quote)
-    rejected = ndocs = 0
+    rejected = ndocs = retried = 0
+    empty_after_retry = []                          # 두 번 물어도 빈 답 — 진짜 구멍 후보
     for cls in sorted(byc):
         docs = byc[cls]
         if a.maxdocs:
@@ -139,11 +180,23 @@ def main():
         for did, text in docs:
             ndocs += 1
             class_docs[cls].add(did)
+            doc_yield[did] = 0
             body = " ".join(text.split())[:12000]
             # ★위치 기록용 **원문 줄** (검산은 종전 `body` 그대로 — 거동 보존).
             #   실측: 문서 최대 7,878자라 12,000 절단에 걸리는 문서는 **0편**이다.
             raw_lines = (text or "").split("\n")
-            got = X.ask(a.port, SYS, "# Document %s\n%s\n" % (did, body), maxtok=900) or {}
+            # ★잘림은 **빈 답과 구분이 안 된다** (2026-08-21·사용자 지시 *"어차피 런타임에 모든
+            #   문서 읽을려면 비용이 많이 든다. 이번 한번에 빠짐 없이 기록하라"*): `ask` 는 JSON
+            #   파싱 실패에도 `{}` 를 돌려주므로, 속성이 촘촘한 문서에서 900 토큰에 잘리면
+            #   *"이 문서엔 아무것도 없다"* 로 조용히 기록된다. 한도를 올리고, **그래도 빈 답이면
+            #   한 번 더 크게** 물어 본다 — 재질의 수를 세어 구멍을 수치로 남긴다.
+            _q = "# Document %s\n%s\n" % (did, body)
+            got = X.ask(a.port, SYS, _q, maxtok=2400) or {}
+            if not got:
+                retried += 1
+                got = X.ask(a.port, SYS, _q, maxtok=4000) or {}
+                if not got:
+                    empty_after_retry.append(did)
             for it in (got.get("attributes") or []):
                 if not isinstance(it, dict):
                     continue
@@ -152,8 +205,13 @@ def main():
                     continue
                 if not (C.contained(q, body) and C.contained(v, q)):
                     rejected += 1
+                    rejected_detail.append({"doc": did, "name": nm, "axis": "value",
+                                            "why": ("quote not in doc" if not C.contained(q, body)
+                                                    else "value not in quote"),
+                                            "value": v[:60], "quote": " ".join(q.split())[:160]})
                     continue
                 seen_classes[nm].add(cls)
+                doc_yield[did] = doc_yield.get(did, 0) + 1
                 _li, _lk = locate(q, raw_lines)
                 cites[nm].append({"doc": did, "class": cls, "axis": "value", "value": v,
                                   "line": _li, "span": _lk,
@@ -171,8 +229,13 @@ def main():
                     continue
                 if not (C.contained(q, body) and C.contained(rq, q)):
                     rejected += 1
+                    rejected_detail.append({"doc": did, "name": nm, "axis": "requirement",
+                                            "why": ("quote not in doc" if not C.contained(q, body)
+                                                    else "requirement not in quote"),
+                                            "value": rq[:60], "quote": " ".join(q.split())[:160]})
                     continue
                 req_classes[nm].add(cls)
+                doc_yield[did] = doc_yield.get(did, 0) + 1
                 _li, _lk = locate(q, raw_lines)
                 cites[nm].append({"doc": did, "class": cls, "axis": "requirement", "value": rq,
                                   "line": _li, "span": _lk,
@@ -204,6 +267,10 @@ def main():
                                for n, (c, r, q) in req_example.items()},
                "attr_docs": {n: sorted(v) for n, v in attr_docs.items()},
                "cites": {n: v for n, v in cites.items()},
+               "doc_yield": doc_yield, "n_retried": retried,
+               "empty_after_retry": empty_after_retry,
+               "docs_with_no_attrs": sorted(k for k, v in doc_yield.items() if not v),
+               "rejected_detail": rejected_detail,
                "n_cites": sum(len(v) for v in cites.values()),
                "n_cites_unlocated": sum(1 for v in cites.values() for c in v if c["line"] is None),
                "class_docs": {c: sorted(v) for c, v in class_docs.items()},
@@ -227,6 +294,12 @@ def main():
         #   **JSON 산출물을 통째로 잃었다**(2026-08-21). 두 사전 중 있는 쪽을 쓴다.
         c, v, q = example.get(n) or req_example.get(n) or ("?", "?", "")
         print("  %-34s %2d 클래스  예: %s=%s  “%s”" % (n[:34], len(s), c[:14], str(v)[:14], q[:60]))
+    _zero = sorted(k for k, v in doc_yield.items() if not v)
+    print("\n[읽었는데 아무 축도 못 건진 문서] %d / %d편 — 여기가 색인의 구멍 후보다"
+          % (len(_zero), len(doc_yield)))
+    print("  " + (", ".join(_zero[:12]) if _zero else "(없음)"))
+    print("[검산 탈락 상세] %d건 (문서·축·사유를 산출물에 전수 기록)" % len(rejected_detail))
+    print("[빈 답 재질의] %d건 · 두 번 물어도 빈 답 %d편" % (retried, len(empty_after_retry)))
     print("\n[현행 선언에 있는데 한 번도 관측 안 된 속성]")
     print("  " + (", ".join(missing_now) if missing_now else "(없음)"))
 
