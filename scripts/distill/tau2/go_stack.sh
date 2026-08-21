@@ -62,6 +62,14 @@ export T2_SG_GROUND=1
 #  ⚠**런타임**: SG_ISOLATE/FORCE 계열은 서브콜·토큰을 늘린다(20~60분/태스크 관측).
 export T2_COMPUTE=1 T2_RESOLVE=1 T2_ARG_SCHEMA=1 T2_TOOLGATE=1
 export T2_SG_TRUTH=1 T2_SG_ISOLATE=1 T2_SG_ISOFB=1 T2_SG_REQREADS=1 T2_SG_TRACE=1
+# ★2026-08-21 등재(t7335·레지스트리 래칫): 승자 합성 + 신규 전달 레버를 정본에 선언한다.
+#   · T2_SG_DOCS=1       A3 `isolate.docs` 읽기-명세를 엔진이 잘라 서브에 전달(검색 0·[[71]]).
+#     격리 실측 C585: 관문1 생존 bm25 45% → 87.5%(x456 v2·n=8). 실패=종전 검색 폴백(거동보존).
+#   · T2_ARG_DOC_SUB=1   선언 문서 → 격리 서브 → 값+인용·엔진은 인용 실재만 검산(C576 71/71).
+#   · T2_VALUE_FORMULA=full  범주 요율 × 손님 발화 금액 − 연회비(C562 값 0.98·C580 합성 8/8).
+#   · T2_CATEGORY_CITE=  기본 OFF(2026-08-20 측정: 라이브 거동 0) — 켜려면 재측정 후([[60]] 통합).
+export T2_SG_DOCS=1 T2_ARG_DOC_SUB=1 T2_VALUE_FORMULA=full
+export T2_CATEGORY_CITE=
 export T2_FAB_STRIP=1 T2_UNKNOWN_NAME_BL=1 T2_UNLOCK_NAME=1 T2_UNLOCK_PROV=1
 export T2_DISPATCH_ROLE=1 T2_TOOLLIST=1 T2_PRESCRIPTION=1
 # ★T2_DISPATCH_ROLE_ENVSET (2026-08-05 등재·구현은 C257·`ABSENCE_DRIVEN_PROCEDURE_DESIGN` §4):
