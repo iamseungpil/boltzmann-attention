@@ -111,7 +111,7 @@ class _Orch(object):
     물려준다([[25]] 같은 환경·[[05]] 리터럴 0).
     """
 
-    def __init__(self, tool_names, model, env):
+    def __init__(self, tool_names, model, base, env):
         import types
         # ★도구는 **env 의 실물 객체**여야 한다(2026-08-21 1차 실행이 여기서 죽었다):
         #   `la.generate` 가 `tool.openai_schema` 를 읽으므로 이름만 가진 대역은 0라운드에서
@@ -121,15 +121,22 @@ class _Orch(object):
         missing = want - {getattr(t, "name", None) for t in tools}
         if missing:
             raise SystemExit("선언 getter 가 env 에 없다: %r" % sorted(missing))
+        # ★모델 문자열·인자도 **라이브와 같아야** 한다(2026-08-21 2차 실행이 여기서 죽었다):
+        #   `t2_run_gated.py:317-318` 축자 — `llm = f"openai/{agent_model}"` ·
+        #   `llm_args = {"api_base": agent_base, "api_key": "dummy", "temperature": 0.0}`.
+        #   접두사 없이 넘기면 litellm 이 provider 를 못 찾아 0라운드에서 전부 실패하고,
+        #   그것이 *"서브가 답을 못 낸다"* 로 오독된다([[55]] 계기부터).
         self.agent = types.SimpleNamespace(
-            tools=tools, llm=model, llm_args={"temperature": 0.0})
+            tools=tools, llm="openai/%s" % model,
+            llm_args={"api_base": base, "api_key": "dummy", "temperature": 0.0})
         self.environment = env
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8141)
-    ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
+    ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8",
+                    help="served name — litellm 문자열은 라이브와 같게 openai/<name> 으로 만든다")
     ap.add_argument("--n", type=int, default=8, help="궤적에서 모을 ref 조합 수")
     ap.add_argument("--out", default="x456_kb_sub_liveness.json")
     a = ap.parse_args()
@@ -148,7 +155,8 @@ def main():
     print("=" * 96)
 
     sb = IVA.Sandbox()
-    orch = _Orch(iso.get("getter_tools") or [], a.model, sb.env)
+    orch = _Orch(iso.get("getter_tools") or [], a.model,
+                 "http://localhost:%d/v1" % a.port, sb.env)
     # 관문1 의 KB 코퍼스가 실제로 잡히는지 **먼저** 확인한다 — 비어 있으면 모든 인용이
     # "source not found" 로 떨어져 측정이 무효가 된다([[55]] 계기부터).
     _kb = SG._corpus_texts(orch, ["kb"])
