@@ -114,12 +114,17 @@ def dup_cases(sims):
 
 
 def claim_cases(sims):
-    """도구를 한 번도 성공시키지 못한 채 끝난 sim — 마지막 발화 직전까지."""
+    """**gold 가 요구한 변이가 남아 있는 채** 말로 끝낸 sim — 마지막 발화 직전까지.
+
+    ⚠1차 판은 *"성공 변이가 하나도 없는 sim"* 으로 걸렀는데 074 는 **다른 도구는 성공시켰고**
+      `apply_checking_account_credit` 만 안 했다 ⇒ 결정점 **0개**로 프로브가 아예 안 돌았다.
+      술어를 *"MISSING 이 남아 있다"* 로 바꾼다 — 그것이 *"할 일이 남았는데 말로 끝냈나"* 다.
+    """
     cases = []
     for s in sims:
         d = F.mutation_diff(s)
-        if d["done"]:
-            continue                            # 무언가 실행했으면 이 가설의 대상이 아니다
+        if not d["missing"]:
+            continue                            # 남은 gold 변이가 없으면 사칭할 것도 없다
         msgs = s.get("messages") or []
         last = None
         for i, m in enumerate(msgs):
@@ -128,7 +133,8 @@ def claim_cases(sims):
         if last is None:
             continue
         cases.append({"task": F.task_id(s), "sim": F.sim_key(s), "at": last,
-                      "pre": msgs[:last], "said": _content(msgs[last])[:200]})
+                      "pre": msgs[:last], "said": _content(msgs[last])[:200],
+                      "missing": sorted({m["name"] for m in d["missing"]})[:4]})
     return cases
 
 
@@ -137,6 +143,9 @@ def main():
     ap.add_argument("--port", type=int, default=8141)
     ap.add_argument("--tags", default="")
     ap.add_argument("--n", type=int, default=3, help="같은 문맥을 몇 번 물을지(greedy 라 변동은 작다)")
+    ap.add_argument("--claim-tasks", default="072,073,074",
+                    help="빈 문자열이면 1단계 전수")
+    ap.add_argument("--max-claim", type=int, default=12)
     ap.add_argument("--out", default="x459_dup_claim_iso.json")
     a = ap.parse_args()
 
@@ -176,11 +185,16 @@ def main():
                                   for arm in ("A_asis", "B_strip", "C_state")))
 
     # ── ⒝ 완료 사칭 ──────────────────────────────────────────────────────────
-    cc = [c for c in claim_cases(sims) if c["task"] in CLAIM_TASKS]
+    cc = claim_cases(sims)
+    if a.claim_tasks:
+        want = {"task_" + x.strip() for x in a.claim_tasks.split(",") if x.strip()}
+        cc = [c for c in cc if c["task"] in want]
+    cc = cc[:a.max_claim]
     print(NLC + "⒝ 완료-사칭 결정점 %d개 (성공 변이 0 인 sim 의 마지막 발화 직전)" % len(cc))
     agg2 = collections.Counter()
     for c in cc:
-        print("   %-9s 실제 끝말: %s" % (c["task"], c["said"][:110].replace(NLC, " ")))
+        print("   %-9s 남은 gold: %s" % (c["task"], ", ".join(c["missing"])[:70]))
+        print("      실제 끝말: %s" % c["said"][:110].replace(NLC, " "))
         for arm, ap_ in (("A_asis", None), ("N_neg", "CUSTOMER: Please continue."),
                          ("D_name", "SYSTEM: If you are about to say something is done, you must "
                                     "first name the tool call that did it. If no such call was "
