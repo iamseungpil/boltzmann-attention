@@ -1,0 +1,305 @@
+{
+ "declaration": "get_correct_savings_apy",
+ "getter_tools": [
+  "KB_search_bm25"
+ ],
+ "n_refs": 8,
+ "rows": [
+  {
+   "arm": "C_docs",
+   "task": "task_063",
+   "ref": {
+    "savings_account_type": "Bronze Account",
+    "customer_products": "Light Blue checking account"
+   },
+   "returned": true,
+   "n_components": 2,
+   "gate1_kept": 2,
+   "gate1_flags": [],
+   "docs_mat": {
+    "picked": [
+     "bronze_account",
+     "light_blue_account"
+    ],
+    "alien": [],
+    "n_docs": 11,
+    "chars": 10412,
+    "anchor_fallback": 0,
+    "missing": []
+   },
+   "components": [
+    {
+     "kind": "base",
+     "value": 2.0,
+     "source": "Annual Percentage Yield (APY) | 2.0%"
+    },
+    {
+     "kind": "checking",
+     "value": 0.0,
+     "source": "APY on balances | 0%"
+    }
+   ]
+  },
+  {
+   "arm": "C_docs",
+   "task": "task_093",
+   "ref": {
+    "savings_account_type": "Silver Account",
+    "customer_products": "Green Checking Account"
+   },
+   "returned": true,
+   "n_components": 3,
+   "gate1_kept": 2,
+   "gate1_flags": [
+    "relationship=0.025 (source not found in the knowledge base)"
+   ],
+   "docs_mat": {
+    "picked": [
+     "silver_account",
+     "green_account_(checking)"
+    ],
+    "alien": [],
+    "n_docs": 12,
+    "chars": 13619,
+    "anchor_fallback": 0,
+    "missing": []
+   },
+   "components": [
+    {
+     "kind": "base",
+     "value": 2.5,
+     "source": "- Your APY depends on your balance tier. The lower tier pays 2.5%, and the higher tier pays 4.0%."
+    },
+    {
+     "kind": "checking",
+     "value": 0.25,
+     "source": "Savings APY boosts apply when you link an eligible Gold or Silver Savings Account: +0.75% or +0.25% respectively"
+    },
+    {
+     "kind": "relationship",
+     "value": 0.025,
+     "source": "- Do you get a bonus for having multiple Rho-Bank products?\n- Yes. Eligible customers receive a relationship APY bonus of 0.025% added to the base Silver APY."
+    }
+   ]
+  },
+  {
+   "arm": "C_docs",
+   "task": "task_094",
+   "ref": {
+    "savings_account_type": "Gold Savings Account",
+    "customer_products": "Has a checking account that provides a 1.0% APY boost for linked Gold Savings Account"
+   },
+   "returned": true,
+   "n_components": 2,
+   "gate1_kept": 1,
+   "gate1_flags": [
+    "checking=1.0 (source not found in the knowledge base)"
+   ],
+   "docs_mat": {
+    "picked": [
+     "gold_account",
+     "gold_saver_account"
+    ],
+    "alien": [],
+    "n_docs": 12,
+    "chars": 12655,
+    "anchor_fallback": 0,
+    "missing": []
+   },
+   "components": [
+    {
+     "kind": "base",
+     "value": 5.5,
+     "source": "Your account earns an APY of 5.5% on the balance you maintain."
+    },
+    {
+     "kind": "checking",
+     "value": 1.0,
+     "source": "Has a checking account that provides a 1.0% APY boost for linked Gold Savings Account"
+    }
+   ]
+  },
+  {
+   "arm": "C_docs",
+   "task": "task_094",
+   "ref": {
+    "savings_account_type": "Gold Account",
+    "customer_products": "Checking account type: Basic Checking, Credit card type: None, Tenure/Tier: 1 year, Premium Subscriber: False"
+   },
+   "returned": true,
+   "n_components": 2,
+   "gate1_kept": 2,
+   "gate1_flags": [],
+   "docs_mat": {
+    "picked": [
+     "gold_account",
+     "green_account_(checking)"
+    ],
+    "alien": [],
+    "n_docs": 14,
+    "chars": 14028,
+    "anchor_fallback": 0,
+    "missing": []
+   },
+   "components": [
+    {
+     "kind": "base",
+     "value": 5.5,
+     "source": "Your account earns an APY of 5.5% on the balance you maintain."
+    },
+    {
+     "kind": "checking",
+     "value": 0.75,
+     "source": "Green Account (checking): +0.75% APY boost"
+    }
+   ]
+  },
+  {
+   "arm": "C_docs",
+   "task": "task_063",
+   "ref": {
+    "savings_account_type": "Platinum Account",
+    "customer_products": "Light Blue checking account, Bronze Rewards Card"
+   },
+   "returned": true,
+   "n_components": 2,
+   "gate1_kept": 2,
+   "gate1_flags": [],
+   "docs_mat": {
+    "picked": [
+     "light_blue_account",
+     "bronze_account",
+     "business_credit_cards_business_bronze_rewards_card",
+     "platinum_account"
+    ],
+    "alien": [],
+    "n_docs": 16,
+    "chars": 14457,
+    "anchor_fallback": 0,
+    "missing": []
+   },
+   "components": [
+    {
+     "kind": "base",
+     "value": 6.5,
+     "source": "- APY: 6.5%"
+    },
+    {
+     "kind": "card",
+     "value": 0.1,
+     "source": "Bronze Rewards Card: +0.1%"
+    }
+   ]
+  },
+  {
+   "arm": "C_docs",
+   "task": "task_063",
+   "ref": {
+    "savings_account_type": "Light Blue Savings Account",
+    "customer_products": "Light Blue Checking Account"
+   },
+   "returned": true,
+   "n_components": 1,
+   "gate1_kept": 1,
+   "gate1_flags": [],
+   "docs_mat": {
+    "picked": [
+     "light_blue_account",
+     "green_account_(checking)"
+    ],
+    "alien": [],
+    "n_docs": 9,
+    "chars": 10471,
+    "anchor_fallback": 0,
+    "missing": []
+   },
+   "components": [
+    {
+     "kind": "base",
+     "value": 0.0,
+     "source": "- APY on balances | 0%"
+    }
+   ]
+  },
+  {
+   "arm": "C_docs",
+   "task": "task_094",
+   "ref": {
+    "savings_account_type": "Gold Savings Account",
+    "customer_products": "Gold Savings Account, Platinum Checking Account"
+   },
+   "returned": true,
+   "n_components": 2,
+   "gate1_kept": 2,
+   "gate1_flags": [],
+   "docs_mat": {
+    "picked": [
+     "gold_account",
+     "gold_saver_account",
+     "platinum_account"
+    ],
+    "alien": [],
+    "n_docs": 16,
+    "chars": 15675,
+    "anchor_fallback": 0,
+    "missing": []
+   },
+   "components": [
+    {
+     "kind": "base",
+     "value": 5.5,
+     "source": "Your account earns an APY of 5.5% on the balance you maintain."
+    },
+    {
+     "kind": "checking",
+     "value": 0.75,
+     "source": "Green Account (checking): +0.75% APY boost"
+    }
+   ]
+  },
+  {
+   "arm": "C_docs",
+   "task": "task_063",
+   "ref": {
+    "savings_account_type": "Platinum Account",
+    "customer_products": "Light Blue checking account, Platinum Rewards Card"
+   },
+   "returned": true,
+   "n_components": 2,
+   "gate1_kept": 2,
+   "gate1_flags": [],
+   "docs_mat": {
+    "picked": [
+     "light_blue_account",
+     "platinum_account"
+    ],
+    "alien": [],
+    "n_docs": 10,
+    "chars": 10434,
+    "anchor_fallback": 0,
+    "missing": []
+   },
+   "components": [
+    {
+     "kind": "base",
+     "value": 6.5,
+     "source": "- APY: 6.5%"
+    },
+    {
+     "kind": "card",
+     "value": 0.15,
+     "source": "- Platinum Rewards Card: +0.15% APY bonus"
+    }
+   ]
+  }
+ ],
+ "summary": {
+  "C_docs": {
+   "n": 8,
+   "returned": 8,
+   "comps": 16,
+   "kept": 14,
+   "docs_fired": 8
+  }
+ }
+}
