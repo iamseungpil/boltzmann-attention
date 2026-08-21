@@ -13,7 +13,10 @@ C581: 날조 안전판의 술어가 `Record ID:` 계수(**DB 레코드 덤프 �
 ## 팔 (한 변수만 다르다)
     A_repaired   현행 코드 · `T2_SG_GROUND=1`   → 계수기 미적용 · 관문1 이 심사
     B_prerepair  현행 코드 · `T2_SG_GROUND` 미설정 → **수리 전과 같은 경로**(계수기가 폐기)
+    C_docs       `T2_SG_GROUND=1` + `T2_SG_DOCS=1` → 엔진이 A3 `isolate.docs` 범위를 잘라
+                 전달·서브는 형식화만(검색 0·[[71]]·2026-08-21 추가). A 와의 차이 = 전달 방식 하나.
 ⇒ B 는 **부정통제**([[57]]): 같은 코드·같은 재료인데 B 만 전부 None 이면 갈린 원인은 계수기다.
+⇒ C 의 판정선 = A 의 관문1 생존(기준 4/17). 생존이 안 오르면 선언은 샀지만 아무것도 못 산 것.
 
 ## 재료의 출처
 `ref_params`(= `savings_account_type` · `customer_products`)는 **실제 궤적에서 에이전트 자신이 낸
@@ -21,13 +24,13 @@ C581: 날조 안전판의 술어가 `Record ID:` 계수(**DB 레코드 덤프 �
 않는다. gold 는 읽지 않는다([[23]]) — 이 스크립트는 `reward_info` 를 열지 않는다.
 도구는 라이브와 **같은 환경**을 쓴다(`x448.Sandbox` 재사용·사본 금지 [[67]]).
 
-## ⚠별건 기록 — 이 선언의 getter 는 `KB_search_bm25` 다
+## ⚠별건 기록 — 이 선언의 getter 는 `KB_search_bm25` 다 (→ 2026-08-21 해소)
 [[71]] 은 *"전달은 선언된 id → `shell cat`, bm25·embedding 은 **baseline** 이지 우리 방식이 아니다"*
-로 확정됐는데, `get_correct_savings_apy.isolate.getter_tools` 는 **`["KB_search_bm25"]`** 다. 즉 이
-축은 아직 우리 방식으로 배선돼 있지 않다. 이 프로브는 **라이브를 있는 그대로 재는 것**이 목적이라
-그 선언을 그대로 쓴다([[62]] 정보-맞춘 격리). 선언된 문서 id → `shell cat` 팔은 그 색인
-(`catalog_arg_docs` 의 계좌 축 대응물)이 저작된 **뒤에** 붙인다 — x448 의 `B_shell` ↔ `R_bm25`
-대조와 같은 모양이 된다.
+로 확정됐는데, `get_correct_savings_apy.isolate.getter_tools` 는 **`["KB_search_bm25"]`** 다.
+A/B 팔은 **라이브를 있는 그대로 재는 것**이 목적이라 그 선언을 그대로 쓴다([[62]] 정보-맞춘 격리).
+★그 색인이 저작·검산됐다(커밋 58c26b84 `isolate.docs`·클래스 38·문서 101·범위 152·앵커 152/152)
+— C_docs 팔이 바로 그 *"선언된 id 정확 집기"* 팔이다(x448 의 `B_shell` ↔ `R_bm25` 대조 동형).
+bm25(A) 는 이제 이 표에서 **baseline 자리**다.
 
 ## 채점 (닫힌 술어만)
     returned      서브가 dict 를 돌려줬나 (수리 전 = 항상 None)
@@ -186,13 +189,24 @@ def main():
         raise SystemExit("ref 조합 0 — 궤적에 이 도구 호출이 없다")
 
     rows = []
-    for arm, ground_on in (("A_repaired", True), ("B_prerepair", False)):
+    # ★C_docs (2026-08-21 추가·핸드오프 §1-3): 엔진이 A3 `isolate.docs` 범위를 잘라 전달하고
+    #   서브는 형식화만 한다(검색 0·[[71]]). 판정선 = A_repaired 의 관문1 생존 4/17 —
+    #   생존이 안 오르면 선언은 샀지만 아무것도 못 산 것이고 **그대로 적는다**.
+    #   `docs_mat` = 발화 계측([[55]] 죽은 배선 방지): None 이면 docs 전달이 안 발화한 것이라
+    #   그 행은 A 와 같은 경로를 잰 것이 된다 — 집계에서 분리한다.
+    for arm, ground_on, docs_on in (("A_repaired", True, False),
+                                    ("B_prerepair", False, False),
+                                    ("C_docs", True, True)):
         if ground_on:
             os.environ["T2_SG_GROUND"] = "1"
         else:
             os.environ.pop("T2_SG_GROUND", None)
-        print("\n── %s (T2_SG_GROUND=%s) ─────────────────────────────"
-              % (arm, "1" if ground_on else "unset"))
+        if docs_on:
+            os.environ["T2_SG_DOCS"] = "1"
+        else:
+            os.environ.pop("T2_SG_DOCS", None)
+        print("\n── %s (T2_SG_GROUND=%s · T2_SG_DOCS=%s) ─────────────────────────────"
+              % (arm, "1" if ground_on else "unset", "1" if docs_on else "unset"))
         for r in refs:
             ctx = dict(r["ref"])
             try:
@@ -210,21 +224,26 @@ def main():
                 except Exception as e:
                     flags = ["EXC %r" % (e,)]
                 kept = len(merged.get("components") or [])
+            mat = getattr(orch, "_t2_docs_mat", None) if docs_on else None
             rows.append({"arm": arm, "task": r["task"], "ref": r["ref"],
                          "returned": bool(got), "n_components": len(comps),
                          "gate1_kept": kept, "gate1_flags": flags,
-                         "components": comps})
-            print("  %-10s returned=%-5s comps=%-2d gate1_kept=%-4s %s"
+                         "docs_mat": mat, "components": comps})
+            print("  %-10s returned=%-5s comps=%-2d gate1_kept=%-4s%s %s"
                   % (r["task"], bool(got), len(comps), kept,
+                     (" docs=%s(%s자)" % (bool(mat), (mat or {}).get("chars", 0))
+                      if docs_on else ""),
                      ("; ".join(str(x) for x in flags))[:70]))
 
-    agg = collections.defaultdict(lambda: {"n": 0, "returned": 0, "comps": 0, "kept": 0})
+    agg = collections.defaultdict(lambda: {"n": 0, "returned": 0, "comps": 0, "kept": 0,
+                                           "docs_fired": 0})
     for x in rows:
         s = agg[x["arm"]]
         s["n"] += 1
         s["returned"] += 1 if x["returned"] else 0
         s["comps"] += x["n_components"]
         s["kept"] += (x["gate1_kept"] or 0)
+        s["docs_fired"] += 1 if x.get("docs_mat") else 0
 
     payload = {"declaration": DECL, "getter_tools": iso.get("getter_tools"),
                "n_refs": len(refs), "rows": rows,

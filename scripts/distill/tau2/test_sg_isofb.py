@@ -107,6 +107,12 @@ def main():
     trace = []
     SG._isolate_trace, _orig_tr = (lambda iso, d, rec: trace.append(rec)), SG._isolate_trace
 
+    # ★C581 정렬 (2026-08-21): 이 검정의 getter 는 KB 검색이라 출력에 `Record ID:` 가 원리상
+    #   0건이다. 수리된 안전판은 **배열 근거 계약이 집행 중일 때만**(T2_SG_GROUND=1) 계수기를
+    #   물리므로, 라이브 경로와 같은 조건으로 켠다 — 안 켜면 모든 답이 폐기돼 이 검정의
+    #   피측정 대상(ISOFB 되먹임 채택)이 그 전에 죽는다(2026-08-14 이후 상시 빨간색이던 원인).
+    os.environ["T2_SG_GROUND"] = "1"
+
     print("① ON: ungrounded 답 → 피드백 → 재답 채택:")
     os.environ["T2_SG_ISOFB"] = "1"
     CALLS.clear(); SCRIPT.clear(); trace.clear()

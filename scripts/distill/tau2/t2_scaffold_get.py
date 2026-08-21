@@ -35,6 +35,29 @@ def _merge_json(text, keys):
     return out
 
 
+def _json_array(text):
+    """텍스트 안에서 **문자열 JSON 배열** 하나를 집는다(펜스·산문 혼재 대응·`_merge_json` 동형).
+    클래스-선택 서브(`_docs_delivery`)의 답 파싱 전용 — 값 해석은 없다(소속 검산은 호출부·[[59]])."""
+    text = text or ""
+    i = 0
+    while i < len(text):
+        if text[i] != "[":
+            i += 1
+            continue
+        for j in range(len(text), i, -1):
+            try:
+                v = json.loads(text[i:j])
+            except Exception:
+                continue
+            if isinstance(v, list):
+                return [str(x) for x in v if isinstance(x, str)]
+            i = j
+            break
+        else:
+            i += 1
+    return []
+
+
 def _isolate_spec(d):
     """A2가 선언한 격리-formalize 스펙(미선언이면 None=거동 변화 0)."""
     return (d.get("isolate") or None) if isinstance(d, dict) else None
@@ -492,6 +515,132 @@ def _sub_formalize(orch, d, iso, ctx, run_env_calls):
     return None
 
 
+def _docs_delivery(orch, d, iso, ref, ag, la, UserMessage):
+    """★A3 읽기-명세 전달 (T2_SG_DOCS=1 · `isolate.docs` 선언 시만 · 2026-08-21 C582 처방).
+
+    서브에게 검색을 시키지 않는다: A3 `isolate.docs` 가 선언한 (문서 id, content-기준 범위,
+    앵커 40자)를 엔진이 env 코퍼스에서 **잘라** 재료로 싣는다([[71]] — bm25 는 baseline).
+
+    [[71]] 계약 4문 답:
+      ①기능 하나 — 여기서 도는 서브는 **클래스 선택 하나**뿐(닫힌 목록에서 고르기). 형식화는
+        호출부 서브가 한다 — 결정 하나당 서브 하나([[65]]).
+      ②재료는 선언에서 — id·범위·앵커 전부 A3(감사 `x453` 검산본). 이 코드에 도메인 리터럴 0([[05]]).
+      ③전달 = 선언된 id 정확 집기 — 정책 문서 읽기는 우리 층 몫(C405ⓔ·`t2_search` §경계).
+      ④엔진 해석 0 — 소속 검산(집합)·자르기(산수)·앵커 일치(문자열 비교)만([[59]]·[[62]]).
+
+    [[62]] 답: 결손은 격리로 쟀다 — `x456`(C582: 반환 6/6 ↔ 관문1 생존 4/17·실패 문면
+      `base=0.0 source:""` = 남은 결손은 **재료 도달**) · `x448`(C578: 재료 도달 시 26/26).
+      ⇒ 이 레버는 **전달(부하 축소)뿐**이다. 값·kind·적용성 판단은 전부 LLM 에 남는다.
+
+    앵커 불일치 = 그 문서 **전량 폴백 + 로그** — 밀린 바이트를 배달하고 모델 탓을 하는 사고
+    (핸드오프 §3⑵)의 재발 방지·침묵 금지([[55]]). 전체 실패 = None → 종전 검색 경로(거동보존).
+    """
+    import t2_search as TS
+    try:
+        orch._t2_docs_mat = None          # ★계측: 이 호출에서 docs 전달이 실제 발화했나([[55]] 죽은 배선 방지)
+    except Exception:
+        pass
+    dd = iso.get("docs") or {}
+    bc = dd.get("by_class") or {}
+    if not bc:
+        print("[T2_SG_DOCS] docs.by_class 미선언 → 검색 폴백", file=_sys.stderr, flush=True)
+        return None
+    corpus = TS.corpus_from_env(getattr(orch, "environment", None))
+    if not corpus:
+        print("[T2_SG_DOCS] env 코퍼스 0편 → 검색 폴백", file=_sys.stderr, flush=True)
+        return None
+    kw = {k: v for k, v in dict(getattr(ag, "llm_args", None) or {}).items() if "tool" not in k}
+    if iso.get("temperature") is not None:
+        kw["temperature"] = iso["temperature"]
+    # ① 클래스 선택 — **별도 서브 하나**·닫힌 목록([[22]] 열린 술어=LLM·엔진은 소속만 검산).
+    #   지시가 재료보다 앞이다(C578: 위치 하나가 26/26 ↔ 0/26 을 갈랐다).
+    classes = sorted(bc)
+    pick = ("You are a closed-list selection sub-task. From CLASSES below, select EVERY class "
+            "name that corresponds to the account or to the customer's products named in "
+            "REFERENCE. Copy the names VERBATIM from CLASSES; do not invent or edit names. "
+            "Reply with exactly one JSON array of strings and nothing else.\n\n"
+            "=== REFERENCE ===\n%s\n\n=== CLASSES ===\n%s"
+            % (json.dumps(ref, ensure_ascii=False, indent=1),
+               json.dumps(classes, ensure_ascii=False, indent=1)))
+    try:
+        um = UserMessage(role="user", content=pick)
+    except TypeError:
+        um = UserMessage(content=pick)
+    try:
+        resp = la.generate(model=ag.llm, tools=None, messages=[um],
+                           call_name="sg_docs_class", **kw)
+    except Exception as e:
+        print("[T2_SG_DOCS] 클래스-선택 서브 실패: %r → 검색 폴백" % (e,), file=_sys.stderr, flush=True)
+        return None
+    raw = _json_array(getattr(resp, "content", None) or "")
+    picked = [c for c in raw if c in bc]
+    alien = [c for c in raw if c not in bc]
+    if alien:
+        print("[T2_SG_DOCS] 목록 밖 이름 %s → 버림(소속 검산)" % (alien,), file=_sys.stderr, flush=True)
+    if not picked:
+        print("[T2_SG_DOCS] 선택 클래스 0 → 검색 폴백", file=_sys.stderr, flush=True)
+        _isolate_trace(iso, d, {"mode": "docs", "picked": [], "alien": alien})
+        return None
+    # ② always(전량) + by_class[선택](선언 범위) 를 코퍼스에서 잘라 붙인다. 같은 문서 중복 전달 금지.
+    parts, texts, missing, anchor_fb, seen = [], [], [], 0, set()
+
+    def _add(did, body):
+        seen.add(did)
+        parts.append("### %s\n%s" % (did, body))
+        texts.append(body)
+
+    for did in (dd.get("always") or []):
+        t = corpus.get(did)
+        if t is None:
+            missing.append(did)
+            continue
+        _add(did, t)
+    for c in picked:
+        for e in (bc.get(c) or []):
+            did = e.get("doc")
+            if did in seen:
+                continue
+            t = corpus.get(did)
+            if t is None:
+                missing.append(did)
+                continue
+            segs, ok = [], True
+            for rg in (e.get("ranges") or []):
+                o, ln = int(rg[0]), int(rg[1])
+                if len(rg) > 2 and " ".join(t[o:o + 40].split()) != rg[2]:
+                    ok = False                     # 선언 앵커 ≠ 자른 자리 → 밀린 조각을 배달하지 않는다
+                    break
+                segs.append(t[o:o + ln])
+            if ok and segs:
+                _add(did, "\n[...]\n".join(segs))
+            else:
+                anchor_fb += 1
+                print("[T2_SG_DOCS] %s: 앵커 불일치/범위 0 → 문서 전량 폴백" % did,
+                      file=_sys.stderr, flush=True)
+                _add(did, t)
+    if missing:
+        print("[T2_SG_DOCS] 선언 id 가 코퍼스에 없음 %d건: %s" % (len(missing), missing[:5]),
+              file=_sys.stderr, flush=True)
+    if not texts:
+        print("[T2_SG_DOCS] 전달 재료 0 → 검색 폴백", file=_sys.stderr, flush=True)
+        return None
+    mat = "\n\n".join(parts)
+    print("[T2_SG_DOCS] %s: 클래스 %s · 문서 %d편 · %d자 전달(검색 0)"
+          % (d.get("name"), picked, len(parts), len(mat)), file=_sys.stderr, flush=True)
+    out = {"text": mat, "texts": texts, "picked": picked, "alien": alien,
+           "n_docs": len(parts), "chars": len(mat), "anchor_fallback": anchor_fb,
+           "missing": missing}
+    try:
+        orch._t2_docs_mat = {k: out[k] for k in ("picked", "alien", "n_docs", "chars",
+                                                 "anchor_fallback", "missing")}
+    except Exception:
+        pass
+    _isolate_trace(iso, d, {"mode": "docs", "picked": picked, "alien": alien,
+                            "n_docs": len(parts), "chars": len(mat),
+                            "anchor_fallback": anchor_fb, "missing": missing})
+    return out
+
+
 def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
     """★fetch-first 격리 서브 (2026-07-20·023 컨텍스트 초과·isolate-승격·§2ah·사용자 지시).
     문제: 계산도구(check_rebate 등)가 `transactions`(전체 리스트) 등을 **인자로** 받으면 에이전트가
@@ -511,17 +660,31 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
     if not ref:
         print("[T2_SG_ISOLATE] fetch: ref_params 부재 → 격리 생략", file=_sys.stderr, flush=True)
         return None
-    tools = [t for t in (getattr(ag, "tools", None) or [])
-             if getattr(t, "name", None) in set(iso.get("getter_tools") or [])]
-    if not tools:
-        print("[T2_SG_ISOLATE] fetch: getter_tools 부재 → 격리 생략", file=_sys.stderr, flush=True)
-        return None
     keys = set(iso.get("operand_keys") or [])
     if not keys:
         print("[T2_SG_ISOLATE] fetch: operand_keys 미선언 → 격리 생략", file=_sys.stderr, flush=True)
         return None
-    prompt = "%s\n\n=== REFERENCE ===\n%s\n\n%s" % (
-        iso["instructions"], json.dumps(ref, ensure_ascii=False, indent=1), iso["answer_format"])
+    # ★A3 읽기-명세 전달 (T2_SG_DOCS=1·C582 처방·[[71]]): 엔진이 선언된 범위를 잘라 재료로
+    #   싣고 getter 는 **노출하지 않는다**(서브=형식화만·검색 0). 실패 = 종전 검색 경로(로그 위에서).
+    _mat = None
+    if os.environ.get("T2_SG_DOCS") == "1" and isinstance(iso.get("docs"), dict):
+        _mat = _docs_delivery(orch, d, iso, ref, ag, la, UserMessage)
+    tools = []
+    if _mat is None:
+        tools = [t for t in (getattr(ag, "tools", None) or [])
+                 if getattr(t, "name", None) in set(iso.get("getter_tools") or [])]
+        if not tools:
+            print("[T2_SG_ISOLATE] fetch: getter_tools 부재 → 격리 생략", file=_sys.stderr, flush=True)
+            return None
+    if _mat is not None:
+        # ★지시(형식 포함)가 재료보다 **앞**이다 — C578: 위치 하나가 26/26 ↔ 0/26 을 갈랐다.
+        #   지시문 = A3 `docs.instructions`(검색 문구 없는 판·미선언이면 기존 instructions).
+        prompt = "%s\n\n%s\n\n=== REFERENCE ===\n%s\n\n=== DOCUMENTS ===\n%s" % (
+            (iso["docs"].get("instructions") or iso["instructions"]), iso["answer_format"],
+            json.dumps(ref, ensure_ascii=False, indent=1), _mat["text"])
+    else:
+        prompt = "%s\n\n=== REFERENCE ===\n%s\n\n%s" % (
+            iso["instructions"], json.dumps(ref, ensure_ascii=False, indent=1), iso["answer_format"])
     try:
         um = UserMessage(role="user", content=prompt)
     except TypeError:
@@ -533,15 +696,19 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
     queries = []
     _maxr = int(iso.get("max_rounds", 4))
     _gfb = 0                      # ★서브-내 ground 피드백 발화 수(T2_SG_ISOFB·관측용)
-    _ok_outs, _err_outs = [], []  # ★서브 getter 성공/실패 출력(§2be·0.0-주입 차단+비수렴 원인 관측)
+    # ★서브 getter 성공/실패 출력(§2be·0.0-주입 차단+비수렴 원인 관측). docs 모드에선 **엔진이
+    #   배달한 재료**가 그 자리에 선다 — 안 그러면 "성공 출력 0" 폐기가 채널을 또 죽인다(C581 동형).
+    _ok_outs = list(_mat["texts"]) if _mat else []
+    _err_outs = []
     for rnd in range(_maxr):
         try:
             # ★마감 라운드(2026-07-21 §2ba·r095e/f 실측: 서브가 라운드 내내 getter만 돌고 답을 안 내
             #   소진→폴백): 마지막 라운드는 **도구 없이** 생성 — 구조적으로 tool-call 불가 → JSON 답 강제.
             _last = (rnd == _maxr - 1)
-            resp = la.generate(model=ag.llm, tools=(None if _last else tools), messages=msgs,
+            _tl = None if (_last or not tools) else tools     # docs 모드=도구 0(형식화만·[[71]])
+            resp = la.generate(model=ag.llm, tools=_tl, messages=msgs,
                                call_name="sg_fetch_iso",
-                               **(dict(kw, tool_choice="required") if rnd == 0 else kw))
+                               **(dict(kw, tool_choice="required") if (rnd == 0 and _tl) else kw))
         except Exception as e:
             print("[T2_SG_ISOLATE] fetch generate 실패(%d라운드): %r" % (rnd, e), file=_sys.stderr, flush=True)
             _isolate_trace(iso, d, {"error": str(e)[:200], "round": rnd, "queries": queries})
@@ -651,9 +818,12 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
                 _fbt = ("GROUNDING CHECK FAILED - these items were rejected: %s. An item is only "
                         "accepted when its 'source' is a quote copied VERBATIM from a document or "
                         "record AND that quote itself contains the exact numeric value. Do not "
-                        "guess or infer values. Search again for the line or table that states "
-                        "the exact number, then re-send the complete JSON answer."
-                        % "; ".join(_fl))
+                        "guess or infer values. %s"
+                        % ("; ".join(_fl),
+                           ("Re-read the DOCUMENTS section for the line or table that states "
+                            "the exact number, then re-send the complete JSON answer." if _mat
+                            else "Search again for the line or table that states the exact "
+                            "number, then re-send the complete JSON answer.")))
                 try:
                     msgs.append(UserMessage(role="user", content=_fbt))
                 except TypeError:
@@ -721,13 +891,22 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
                       if isinstance(_v, list) and _v and _k not in _contracted]
         _deferred = [_k for _k, _v in (got or {}).items()
                      if isinstance(_v, list) and _v and _k in _contracted]
-        if _src_rows == 0 and _deferred and not _unguarded:
+        # ★★축 정정 2 (2026-08-21 단위검정이 잡음·C581 동형): docs 전달 모드(_mat)는 **getter 가
+        #   없다** — 근거 원문은 엔진이 앵커 검산으로 배달한 KB 절편이고(비어 있으면 이 지점에
+        #   못 온다), "레코드 0건 읽고 배열 산출 = 날조"라는 이 계수기의 전제가 성립하지 않는다.
+        #   `Record ID:` 는 DB 덤프 전용 축이라 여기서도 원리상 0건 → 세우면 채널이 또 죽는다.
+        #   판정은 닫혀 있다(_mat is not None·내용 판단 0). 날조 방어는 관문1(계약 선언 시)이 맡는다.
+        if _mat is not None and _src_rows == 0 and (_deferred or _unguarded):
+            print("[T2_SG_ISOLATE] %s: docs 전달 모드 — Record ID: 계수기 미적용(근거=엔진 배달분 "
+                  "%d편·날조 방어=관문1)" % (d.get("name"), len(_ok_outs)),
+                  file=_sys.stderr, flush=True)
+        elif _src_rows == 0 and _deferred and not _unguarded:
             # 침묵-스킵 금지([[55]]): 서지 않았다는 사실을 남긴다.
             print("[T2_SG_ISOLATE] %s: source=0 이지만 %s 는 배열 근거 계약이 있어 관문1 이 심사한다"
                   " — 계수기 미적용(축: Record ID: 는 DB 덤프 전용)"
                   % (d.get("name"), ",".join(sorted(_deferred))),
                   file=_sys.stderr, flush=True)
-        if _src_rows == 0 and _unguarded:
+        elif _src_rows == 0 and _unguarded:
             print("[T2_SG_ISOLATE] %s: source=0 rows 인데 배열 operand 산출 — **폐기**(날조 방지·"
                   "메인 인자 폴백)" % d.get("name"), file=_sys.stderr, flush=True)
             _isolate_trace(iso, d, {"mode": "fetch", "round": rnd + 1, "getter": getter,
