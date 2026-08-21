@@ -113,9 +113,16 @@ class _Orch(object):
 
     def __init__(self, tool_names, model, env):
         import types
+        # ★도구는 **env 의 실물 객체**여야 한다(2026-08-21 1차 실행이 여기서 죽었다):
+        #   `la.generate` 가 `tool.openai_schema` 를 읽으므로 이름만 가진 대역은 0라운드에서
+        #   `AttributeError` 로 전부 실패한다 — 그러면 *"서브가 답을 못 낸다"* 로 오독된다([[55]]).
+        want = set(tool_names or [])
+        tools = [t for t in (env.get_tools() or []) if getattr(t, "name", None) in want]
+        missing = want - {getattr(t, "name", None) for t in tools}
+        if missing:
+            raise SystemExit("선언 getter 가 env 에 없다: %r" % sorted(missing))
         self.agent = types.SimpleNamespace(
-            tools=[types.SimpleNamespace(name=n) for n in tool_names],
-            llm=model, llm_args={"temperature": 0.0})
+            tools=tools, llm=model, llm_args={"temperature": 0.0})
         self.environment = env
 
 
