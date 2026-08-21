@@ -136,9 +136,19 @@ def sub_docs_block(cites, axes, always, fold):
             spec = {"doc": c.get("doc"), "off": c.get("section_off"), "len": c.get("section_len")}
             if spec not in spans[c.get("class")]:
                 spans[c.get("class")].append(spec)
-    return {"_note_": ("엔진은 선언된 (문서, 오프셋, 길이)를 자르기만 한다 — 검색 0. "
+    # ★전달 단위 = **문서**(2026-08-21 실측으로 확정). 절 단위로 자르면 감사가 축으로 잡지
+    #   못한 줄이 통째로 사라진다 — `green_account_(checking)_001` 의
+    #   *"Boost a linked savings account's APY: Gold +0.75% or Silver +0.25%"* 가 **어떤 span
+    #   에도 안 들어간다**(093·094 가 둘 다 필요로 하는 값이다). 문서 중앙 길이가 989자라
+    #   문서 단위가 절보다 크게 비싸지도 않다(093 9편 12,510자 · 094 11편 12,387자).
+    #   오프셋은 **근거 앵커로 남긴다** — 어느 줄이 그 축을 말했는지 감사할 수 있어야 한다.
+    docs = {k: sorted({x["doc"] for x in v}) for k, v in spans.items()}
+    return {"_note_": ("전달 단위는 **문서**다 — 엔진은 선언된 id 를 읽어 넘기기만 하고 검색하지 "
+                       "않는다. `spans` 는 그 문서 안 어디가 그 축을 말했는지의 **근거 앵커**이고 "
+                       "자르는 데 쓰지 않는다(절로 자르면 축으로 안 잡힌 줄이 사라진다·실측). "
                        "축 목록의 출처 = op.reducers 범주 + doc_045/046 의 범주 정의."),
             "axes": sorted(want), "always": list(always),
+            "by_class": {k: v for k, v in sorted(docs.items())},
             "spans": {k: v for k, v in sorted(spans.items())}}
 
 
@@ -281,14 +291,12 @@ def main():
         _always = [x.strip() for x in a.sub_always.split(",") if x.strip()]
         blk = sub_docs_block(cites, _axes, _always, fold)
         payload["sub_docs_block"] = blk
+        _nd = sum(len(v) for v in blk["by_class"].values())
         _n = sum(len(v) for v in blk["spans"].values())
-        _c = sum(int(x["len"] or 0) for v in blk["spans"].values() for x in v)
-        print(NLC + "[서브 읽기 명세] 축 %d · 공용 %d편 · 클래스 %d · span %d · %d자"
-              % (len(blk["axes"]), len(blk["always"]), len(blk["spans"]), _n, _c))
-        for cls in sorted(blk["spans"])[:8]:
-            v = blk["spans"][cls]
-            print("    %-30s %2d span %6d자" % (cls[:30], len(v),
-                                                sum(int(x["len"] or 0) for x in v)))
+        print(NLC + "[서브 읽기 명세] 축 %d · 공용 %d편 · 클래스 %d · 문서 %d · 앵커 span %d"
+              % (len(blk["axes"]), len(blk["always"]), len(blk["by_class"]), _nd, _n))
+        for cls in sorted(blk["by_class"])[:10]:
+            print("    %-34s %2d편" % (cls[:34], len(blk["by_class"][cls])))
 
     p = os.path.join(REP, a.out)
     with io.open(p, "w", encoding="utf-8") as f:
