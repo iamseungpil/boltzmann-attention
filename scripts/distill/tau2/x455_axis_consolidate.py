@@ -53,6 +53,7 @@ import x431_spec_selects as X           # noqa: E402  ask 정본(사본 금지·
 import x452_conditional_facts as C      # noqa: E402  선언 읽기·docs_by_class·contained
 
 REP = os.path.abspath(os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026"))
+NLC = chr(10)
 
 SYS = (
     "You group attribute names that were extracted from retail-bank product documents. "
@@ -102,6 +103,36 @@ def _batch_body(aud, names):
         out.append("- %s  (%d classes)  value: %s\n  quote: %s"
                    % (n, ncls, str(e.get("value"))[:60], str(e.get("quote"))[:200]))
     return "# Attribute names to group\n" + "\n".join(out) + "\n"
+
+
+def token_batches(names, size):
+    """배치를 **형태만**으로 묶는다 — 같은 토큰을 가진 이름이 한 배치에 오도록(뜻 0·`slug` 동형).
+
+    ⚠1차 실행 실측(2026-08-21): `sorted(names)` 로 자르니 40개 → 평균 **29군**으로 거의 안
+    접혔다. 동의어가 알파벳순으로 멀어 **같은 배치에서 만날 기회 자체가 없었기** 때문이다
+    (`balance` · `daily_balance` · `minimum_balance` · `ongoing_minimum_balance`).
+
+    배치는 **후보를 같이 보여줄 뿐** 묶는 판단은 LLM 이 한다 — 엔진은 이름의 문자열 토큰만
+    보고 누구를 나란히 놓을지 정할 뿐, 무엇이 같은 축인지는 말하지 않는다([[59]]).
+    분할은 유지된다: 한 이름은 정확히 한 배치에만 들어간다.
+    """
+    idx = collections.defaultdict(list)
+    for n in names:
+        for t in set(str(n).split("_")):
+            if t:
+                idx[t].append(n)
+    used, out = set(), []
+    for _t, grp in sorted(idx.items(), key=lambda kv: (-len(kv[1]), kv[0])):
+        pend = [n for n in grp if n not in used]
+        while len(pend) >= 2:
+            chunk, pend = pend[:size], pend[size:]
+            out.append(chunk)
+            used.update(chunk)
+    rest = [n for n in names if n not in used]
+    for i in range(0, len(rest), size):
+        out.append(rest[i:i + size])
+    assert sum(len(c) for c in out) == len(names)
+    return out
 
 
 def _parse_groups(got, allowed):
@@ -158,16 +189,17 @@ def main():
 
     # ── 1차: 배치별 병합 ──────────────────────────────────────────────────────
     groups, audit_dup, audit_miss = [], [], []
-    for s in range(0, len(names), a.batch):
-        chunk = names[s:s + a.batch]
+    _batches = token_batches(names, a.batch)
+    print("1차 배치 %d개 (토큰 공유로 묶음 — 동의어가 같은 배치에 오게)" % len(_batches))
+    for bi, chunk in enumerate(_batches):
         got = X.ask(a.port, SYS, _batch_body(aud, chunk), maxtok=2400) or {}
         gs = _parse_groups(got, set(chunk))
         gs, dup, miss = _assign_once(gs, chunk)
         groups.extend(gs)
         audit_dup.extend(dup)
         audit_miss.extend(miss)
-        print("  배치 %3d-%3d  이름 %2d → 군 %2d  (중복배정 %d · 미배정 %d)"
-              % (s, s + len(chunk) - 1, len(chunk), len(gs), len(dup), len(miss)))
+        print("  배치 %3d/%3d  이름 %2d → 군 %2d  (중복배정 %d · 미배정 %d)"
+              % (bi + 1, len(_batches), len(chunk), len(gs), len(dup), len(miss)))
 
     # ── 2차: 배치를 넘는 중복 병합 (정본명끼리 다시 묶는다) ──────────────────
     rep = {}
@@ -181,8 +213,8 @@ def main():
     cans = sorted({g["canonical"] for g in groups})
     print("\n1차 군 %d → 2차 병합 입력 %d" % (len(groups), len(cans)))
     merged = []
-    for s in range(0, len(cans), a.batch):
-        chunk = cans[s:s + a.batch]
+    _mb = token_batches(cans, a.batch)
+    for bi, chunk in enumerate(_mb):
         body = "# Attribute names to group\n" + "\n".join(
             "- %s\n  quote: %s" % (n, str((rep.get(n) or {}).get("quote"))[:200]) for n in chunk)
         got = X.ask(a.port, SYS_MERGE, body + "\n", maxtok=2400) or {}
@@ -191,8 +223,8 @@ def main():
         merged.extend(gs)
         audit_dup.extend(dup)
         audit_miss.extend(miss)
-        print("  2차 배치 %3d-%3d  %2d → %2d  (중복 %d · 미배정 %d)"
-              % (s, s + len(chunk) - 1, len(chunk), len(gs), len(dup), len(miss)))
+        print("  2차 배치 %3d/%3d  %2d → %2d  (중복 %d · 미배정 %d)"
+              % (bi + 1, len(_mb), len(chunk), len(gs), len(dup), len(miss)))
 
     # 1차 군을 2차 군으로 접는다 (정본명 → 최종 정본명)
     fold = {}
