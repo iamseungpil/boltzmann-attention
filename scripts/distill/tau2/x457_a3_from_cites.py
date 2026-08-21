@@ -49,6 +49,7 @@ except Exception:
 import x430_account_facts as FT         # noqa: E402  현행 선언(비교용)
 
 REP = os.path.abspath(os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026"))
+NLC = chr(10)
 
 
 def type_form(value):
