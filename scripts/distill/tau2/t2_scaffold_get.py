@@ -695,7 +695,39 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
         #   같은 자리표시자 id 3행이 산출돼 엔진이 그 위에서 금액을 계산하고 손님에게 갔다.
         #   판정은 닫혀 있다(읽은 레코드 수 = 0 ∧ 배열 비어있지 않음·내용 판단 0). 폐기하면
         #   메인 인자 폴백 = 종전 거동(안전측). 격리 측정 불요 — 데이터 무결성 수리다.
-        if _src_rows == 0 and any(isinstance(_v, list) and _v for _v in (got or {}).values()):
+        #
+        # ★★축 정정 (2026-08-21·전수 실측): 위 계수기의 술어 `Record ID:` 는 **DB 레코드 덤프
+        #   포맷 전용**이다. getter 가 KB 검색인 선언은 출력에 그 문자열이 **원리상 0건**이라
+        #   정직하게 읽어도 항상 `source=0` → **항상 폐기**였다. 영속 로그 전수:
+        #     get_correct_savings_apy   (getter=KB_search_bm25)  52/52 = 100% source=0 · 폐기 47
+        #     get_atm_fee_discrepancies (getter=DB 디스패처)      67/348 = 19%       · 폐기 62
+        #   앞의 것은 자기 `ground.array_fields`(인용이 선언 corpus 에 축자 실재 ∧ 값이 그
+        #   인용 안에 실재)로 **축이 맞는 날조 차단을 이미** 걸고 있고 실제로 작동한다(같은
+        #   로그: 서브내 재검색 172회 · 관문1 드롭 64회 `base=0.0 (source not found in the
+        #   knowledge base)` 등). 그런데 서브 답은 그 관문1 심사를 **받아 보기 전에** 이 줄에서
+        #   버려졌다(t7326 halfB task_063: 3679 sub=5·source=0 → 3680 폐기 → 3681 폴백이
+        #   ungrounded → 3682 `-> None`). 즉 KB 축 서브콜 채널이 **구조적으로 죽어 있었다**
+        #   ([[55]] 우리 배관·[[67]] t7290 동형).
+        #   ⇒ 선언이 그 param 에 배열 근거 계약을 걸어 두었고 **그 계약이 실제로 집행될
+        #     때만**(T2_SG_GROUND=1 — 병합 직후 관문1 `_ground_operands` 가 돈다) 이 계수기는
+        #     서지 않는다. 계약이 없거나 집행이 꺼져 있으면 종전 그대로 = fail-closed.
+        #   판정은 여전히 닫혀 있고 **선언을 읽어** 정한다(도메인 리터럴 0·[[59]]).
+        _contracted = set()
+        if os.environ.get("T2_SG_GROUND") == "1":
+            for _af in ((d.get("ground") or {}).get("array_fields") or []):
+                if isinstance(_af, dict) and _af.get("param"):
+                    _contracted.add(_af["param"])
+        _unguarded = [_k for _k, _v in (got or {}).items()
+                      if isinstance(_v, list) and _v and _k not in _contracted]
+        _deferred = [_k for _k, _v in (got or {}).items()
+                     if isinstance(_v, list) and _v and _k in _contracted]
+        if _src_rows == 0 and _deferred and not _unguarded:
+            # 침묵-스킵 금지([[55]]): 서지 않았다는 사실을 남긴다.
+            print("[T2_SG_ISOLATE] %s: source=0 이지만 %s 는 배열 근거 계약이 있어 관문1 이 심사한다"
+                  " — 계수기 미적용(축: Record ID: 는 DB 덤프 전용)"
+                  % (d.get("name"), ",".join(sorted(_deferred))),
+                  file=_sys.stderr, flush=True)
+        if _src_rows == 0 and _unguarded:
             print("[T2_SG_ISOLATE] %s: source=0 rows 인데 배열 operand 산출 — **폐기**(날조 방지·"
                   "메인 인자 폴백)" % d.get("name"), file=_sys.stderr, flush=True)
             _isolate_trace(iso, d, {"mode": "fetch", "round": rnd + 1, "getter": getter,

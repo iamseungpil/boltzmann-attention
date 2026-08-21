@@ -83,7 +83,15 @@ def main():
 
     def run_env(tcs):
         ran.extend(tcs)
-        return [ToolMessage(id=t.id, content='[{"date":"01/15/2024","amount":520.0}]') for t in tcs]
+        # ★서브 getter 출력은 **env 레코드 덤프 포맷**이다(2026-08-21 정정).
+        #   이전 버전은 맨 JSON 문자열을 돌려줘 2026-08-14 날조 안전판(`Record ID:` 0건
+        #   → 배열 operand 폐기)에 걸렸고, ③ 파싱 검정이 그 뒤로 **계속 빨간색**이었다.
+        #   검정 의도는 파싱이므로 실제 포맷으로 돌려준다(안전판 자체 검정=`test_sg_src0_axis.py`).
+        return [ToolMessage(id=t.id, content=(
+            "Found 1 record(s) in 'credit_card_transactions':\n"
+            "1. Record ID: txn_aa\n   date: 01/15/2024\n   amount: 520.0\n"
+            "2. Record ID: txn_bb\n   date: 02/03/2024\n   amount: 610.5\n"
+        )) for t in tcs]
 
     ok = True
 
