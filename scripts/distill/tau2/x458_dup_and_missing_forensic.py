@@ -136,15 +136,15 @@ def apy_forensic(sims, tags):
     rows = []
     for s2 in sims:
         sk = F.sim_key(s2)
-        sent, subcalls = [], []
-        for _m, tc in F.calls(s2):
-            n = F.nameof(tc)
-            if n == "submit_interest_discrepancy_report_7294":
-                sent.append(F.argsof(tc))
-            if n == "get_correct_savings_apy" or F.inner_name(F.argsof(tc)) == "get_correct_savings_apy":
-                subcalls.append(F.argsof(tc))
-        gold = [a for a in (F.gold_actions(s2) or [])
-                if str(a.get("name") or "") == "submit_interest_discrepancy_report_7294"]
+        # ★래퍼 해제는 정본으로 (1차 판이 여기서 submit=0 을 뱉었다 — 이 도구는 발견 래퍼를 탄다)
+        TOOL = "submit_interest_discrepancy_report_7294"
+        dm = F.mutation_diff(s2)
+        sent = [x["args"] for x in dm["done"] if x["name"] == TOOL]
+        sent += [x["args"] for x in dm["blocked"] if x["name"] == TOOL]
+        gold = [{"arguments": g["args"]} for g in dm["gold"] if g["name"] == TOOL]
+        subcalls = [F.argsof(tc) for _m, tc in F.calls(s2)
+                    if F.nameof(tc) == "get_correct_savings_apy"
+                    or F.inner_name(F.argsof(tc)) == "get_correct_savings_apy"]
         # 그 sim 블록의 우리 층 자취
         marks = collections.Counter()
         for t, txt in logs.items():
@@ -186,54 +186,53 @@ def _edit(a, b):
 
 
 def dispute_forensic(sims, tool):
-    """⒟ 040 — `file_credit_card_transaction_dispute_4829` 26건의 정체.
+    """ⓟ 040 — `file_credit_card_transaction_dispute_4829` 26건의 정체.
 
     사용자 지시(2026-08-21): *"040 정밀 포렌식하여 원인 규명하라."* 계획 §2 는 이 블록을
-    *"고객 DB 축이라 우리 층이 안 닿는다"* 로 미뤄 뒀는데, **그것은 처방 이야기이지 원인이
+    *"고객 DB 축이라 우리 층이 안 닿는다"* 로 미뤄 뒀는데 **그것은 처방 이야기이지 원인이
     아니다**. 원인을 가르는 술어는 하나다:
 
         ★ gold 값이 그 호출 **직전까지의 도구 출력 안에 이미 있었나**
-            있었다  → 읽고도 틀린 것 = **정박 치환·전사 슬립**(부하·C43/C124 계보) → 격리가 산다
-            없었다  → 못 읽은 것 = **탐색/발견 실패**(reach) → 다른 축
+            있었다  → 읽고도 틀림 = **정박 치환·전사 슬립**(부하·C43/C124) → 격리가 산다
+            없었다  → 못 읽음 = **탐색/발견 실패**(reach) → 다른 축
 
-    같이 재는 것: 보낸 값이 문맥에 실재하는가(=다른 행에서 집어온 것 ↔ 날조) · gold 와의
-    편집거리(근접 변형인가) · **필요 건수 대비 제출 건수**(coverage).
-    gold 대조는 진단 라벨로만 쓴다([[23]]).
+    ⚠1차 판은 내가 비교기를 **손으로 짰다가** 래퍼 인자를 비교해 `gold 0 · edit=500` 을
+      뱉었다 — C470 이 이미 고친 함정이고 [[67]] 이 경고한 사본 갈라짐이다. 정본
+      `F.mutation_diff`(래퍼 해제·GRANTS 제외·DUP 계수)를 쓴다.
     """
     rows = []
     for s2 in sims:
+        d = F.mutation_diff(s2)
         msgs = s2.get("messages") or []
-        golds = [g for g in (F.gold_actions(s2) or []) if str(g.get("name") or "") == tool]
-        sent_idx = []
-        for i, m in enumerate(msgs):
-            for tc in (m.get("tool_calls") or []):
-                if F.nameof(tc) == tool or F.inner_name(F.argsof(tc)) == tool:
-                    sent_idx.append((i, F.argsof(tc)))
-        # 각 제출을 gold 중 **가장 가까운 것**과 짝짓는다(최소-diff·엔진 판단 0)
-        pairs = []
-        for i, args in sent_idx:
-            ctx = " ".join(_content(b) for b in msgs[:i] if _role(b) in ("tool", "user"))
-            best, bestd = None, 10 ** 9
-            for g in golds:
-                ga = g.get("arguments") or {}
-                d = sum(1 for k in set(ga) | set(args or {})
-                        if str((args or {}).get(k)) != str(ga.get(k)))
-                if d < bestd:
-                    best, bestd = ga, d
-            diffs = []
-            for k in sorted(set(best or {}) | set(args or {})):
-                sv, gv = str((args or {}).get(k, "")), str((best or {}).get(k, ""))
+        gold_t = [g for g in d["gold"] if g["name"] == tool]
+        done_t = [x for x in d["done"] if x["name"] == tool]
+        wrong_t = [x for x in d["wrongarg"] if x["name"] == tool]
+        miss_t = [g for g in d["missing"] if g["name"] == tool]
+        blocked_t = [x for x in d["blocked"] if x["name"] == tool]
+        diffs = []
+        for w in wrong_t:
+            ctx = " ".join(_content(b) for b in msgs[:(w.get("msg_i") or 0)]
+                           if _role(b) in ("tool", "user"))
+            best, bd = None, 10 ** 9
+            for g in gold_t:
+                n = sum(1 for k in set(g["args"]) | set(w["args"])
+                        if str(w["args"].get(k)) != str(g["args"].get(k)))
+                if n < bd:
+                    best, bd = g, n
+            for k in sorted(set((best or {}).get("args", {})) | set(w["args"])):
+                sv = str(w["args"].get(k, ""))
+                gv = str(((best or {}).get("args") or {}).get(k, ""))
                 if sv == gv:
                     continue
-                diffs.append({"arg": k, "sent": sv[:40], "gold": gv[:40],
+                diffs.append({"arg": k, "sent": sv[:44], "gold": gv[:44],
                               "gold_in_context": bool(gv) and gv in ctx,
                               "sent_in_context": bool(sv) and sv in ctx,
                               "edit": _edit(sv, gv)})
-            pairs.append({"msg": i, "n_diff": len(diffs), "diffs": diffs})
         rows.append({"task": F.task_id(s2), "sim": F.sim_key(s2),
-                     "n_gold": len(golds), "n_sent": len(sent_idx),
-                     "coverage_gap": len(golds) - len(sent_idx),
-                     "term": F.term_reason(s2), "pairs": pairs})
+                     "n_gold": len(gold_t), "n_done": len(done_t),
+                     "n_wrongarg": len(wrong_t), "n_missing": len(miss_t),
+                     "n_blocked": len(blocked_t), "term": F.term_reason(s2),
+                     "diffs": diffs})
     return rows
 
 
@@ -317,27 +316,28 @@ def main():
     agg = collections.Counter()
     per_arg = collections.defaultdict(collections.Counter)
     for r in disp:
-        print("  %-9s gold %d · 제출 %d · 미제출 %d · term=%s"
-              % (r["task"], r["n_gold"], r["n_sent"], r["coverage_gap"], str(r["term"])[:18]))
-        agg["gold"] += r["n_gold"]
-        agg["sent"] += r["n_sent"]
-        agg["gap"] += max(0, r["coverage_gap"])
-        for pr in r["pairs"]:
-            for d in pr["diffs"]:
-                agg["diff"] += 1
-                per_arg[d["arg"]]["n"] += 1
-                per_arg[d["arg"]]["gold_in_ctx"] += 1 if d["gold_in_context"] else 0
-                per_arg[d["arg"]]["sent_in_ctx"] += 1 if d["sent_in_context"] else 0
-                per_arg[d["arg"]]["near"] += 1 if 0 < d["edit"] <= 2 else 0
-                print("      %-22s 보냄=%-22s gold=%-22s ctx(g/s)=%s/%s edit=%d"
-                      % (d["arg"][:22], d["sent"][:22], d["gold"][:22],
-                         d["gold_in_context"], d["sent_in_context"], d["edit"]))
-    print(NLC + "  ★인자별 집계 — gold가 문맥에 있었나(있었으면 부하·없었으면 탐색)")
+        print("  %-9s gold %d · 성공 %d · WRONGARG %d · MISSING %d · BLOCKED %d · term=%s"
+              % (r["task"], r["n_gold"], r["n_done"], r["n_wrongarg"], r["n_missing"],
+                 r["n_blocked"], str(r["term"])[:16]))
+        for k in ("n_gold", "n_done", "n_wrongarg", "n_missing", "n_blocked"):
+            agg[k] += r[k]
+        for d in r["diffs"]:
+            agg["diff"] += 1
+            c = per_arg[d["arg"]]
+            c["n"] += 1
+            c["gold_in_ctx"] += 1 if d["gold_in_context"] else 0
+            c["sent_in_ctx"] += 1 if d["sent_in_context"] else 0
+            c["near"] += 1 if 0 < d["edit"] <= 2 else 0
+            print("      %-22s 보냄=%-24s gold=%-24s ctx(g/s)=%s/%s edit=%d"
+                  % (d["arg"][:22], d["sent"][:24], d["gold"][:24],
+                     d["gold_in_context"], d["sent_in_context"], d["edit"]))
+    print(NLC + "  ★인자별 — gold가 문맥에 있었나(있었으면 **부하**·없었으면 **탐색**)")
     for k, c in sorted(per_arg.items(), key=lambda kv: -kv[1]["n"]):
-        print("    %-24s 틀림 %2d · gold∈문맥 %2d · 보낸것∈문맥 %2d · 근접변형(edit≤2) %2d"
-              % (k[:24], c["n"], c["gold_in_ctx"], c["sent_in_ctx"], c["near"]))
-    print("    합계  gold %d · 제출 %d · 미제출 %d · 인자불일치 %d"
-          % (agg["gold"], agg["sent"], agg["gap"], agg["diff"]))
+        print("    %-26s 틀림 %2d · gold∈문맥 %2d · 보낸것∈문맥 %2d · 근접변형 %2d"
+              % (k[:26], c["n"], c["gold_in_ctx"], c["sent_in_ctx"], c["near"]))
+    print("    합계 gold %d · 성공 %d · WRONGARG %d · MISSING %d · BLOCKED %d · 인자불일치 %d"
+          % (agg["n_gold"], agg["n_done"], agg["n_wrongarg"], agg["n_missing"],
+             agg["n_blocked"], agg["diff"]))
 
     p = os.path.join(REP, a.out)
     with io.open(p, "w", encoding="utf-8") as f:
