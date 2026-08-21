@@ -188,6 +188,11 @@ def main():
                     help="코퍼스 전수(선언 밖 문서 포함·기본 ON) — 공용 정책이 선언 밖에 있다")
     ap.add_argument("--declared-only", dest="all_docs", action="store_false",
                     help="선언된 계열만(종전 거동)")
+    # ★샤딩 (2026-08-21): 전수 698편은 한 프로세스로 3~5시간이다. 클래스 키를 **정렬 후
+    #   나머지 연산**으로 갈라 두 GPU 에 태우면 절반이 된다. 분할이 결정론이라 합집합이 곧 전수고,
+    #   합치기는 사전 union 하나다(`x453_merge_shards.py`). 샤드마다 `--out` 을 달리 준다.
+    ap.add_argument("--shard", type=int, default=0)
+    ap.add_argument("--of", type=int, default=1)
     a = ap.parse_args()
 
     # ★계열은 A2 선언에서 온다. `--only` 는 **이번 런의 범위**만 좁힌다 — 선언을 바꾸지 않는다.
@@ -200,11 +205,15 @@ def main():
             raise SystemExit("선언에 없는 계열: %r" % sorted(unknown))
         fams = [f for f in fams if f in want]
     byc = all_docs_by_class(fams) if (a.all_docs and not a.only) else C.docs_by_class(fams)
+    if a.of > 1:
+        _keys = sorted(byc)
+        byc = {k: byc[k] for i, k in enumerate(_keys) if i % a.of == a.shard}
     have = {n for n, _al in FT.ATTRS}
     print("=" * 96)
-    print("x453 · 선언 계열 %d · 클래스 %d · 문서 %d편%s · 현행 선언 속성 %d종 · 채택선 = 클래스 %d 이상"
+    print("x453 · 선언 계열 %d · 클래스 %d · 문서 %d편%s%s · 현행 선언 속성 %d종 · 채택선 = 클래스 %d 이상"
           % (len(fams), len(byc), sum(len(v) for v in byc.values()),
              " (전수)" if (a.all_docs and not a.only) else " (선언 계열만)",
+             ("  샤드 %d/%d" % (a.shard, a.of)) if a.of > 1 else "",
              len(have), a.minclasses))
     print("=" * 96)
 
@@ -308,6 +317,7 @@ def main():
     # ★산출물을 **인쇄보다 먼저** 쓴다(2026-08-21): 1차 실행은 28 클래스를 다 돌고 나서
     #   보고 루프의 `KeyError` 로 죽어 **JSON 을 통째로 잃었다**. 보고는 부수적이고 데이터가 본체다.
     payload = {"minclasses": a.minclasses, "n_docs": ndocs, "rejected": rejected,
+               "shard": a.shard, "of": a.of, "classes_in_shard": sorted(byc),
                "families": fams,
                "observed": {n: sorted(s) for n, s in seen_classes.items()},
                "example": {n: {"class": c, "value": v, "quote": q}
@@ -317,7 +327,7 @@ def main():
                                for n, (c, r, q) in req_example.items()},
                "attr_docs": {n: sorted(v) for n, v in attr_docs.items()},
                "cites": {n: v for n, v in cites.items()},
-               "doc_yield": doc_yield, "n_retried": retried,
+               "per_doc_yield": doc_yield, "n_retried": retried,
                "empty_after_retry": empty_after_retry,
                "docs_with_no_attrs": sorted(k for k, v in doc_yield.items() if not v),
                "rejected_detail": rejected_detail,
