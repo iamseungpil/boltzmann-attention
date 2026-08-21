@@ -3225,9 +3225,24 @@ def _claim_verify_false(agent, spec, claims, evs):
     return out
 
 
-def _claim_unbacked(claims, emap, evs, messages, a2=None):
+def _claim_unbacked(claims, emap, evs, messages, a2=None, kind_fallback_on_miss=False):
     """★claim_prov 원장대조 코어 (2026-07-20 관문5 추출·순수함수=단위테스트 공유·[[03b]]).
     LLM이 formalize한 주장 목록({kind, what, tool})을 실행 원장과 대조. 반환=미입증 목록.
+
+    ★★tool-지목이 **원장 밖**이면 kind-색인으로 **강등**한다 (2026-08-21·t7335 050 DUP 실측·
+      `kind_fallback_on_miss=True`인 호출만 = 과거형 claims 축):
+      050 부검(정본 `T7335_NT1_FORENSIC_HALFB_2026_08_21.md`): approve·submit이 원장에 실재하고
+      record_update 패턴에 `__effective_write__` 센티널까지 있었는데 unbacked=2가 났다 — 이 함수
+      에서 그 판정에 도달하는 경로는 **지목 branch뿐**이다(지목이 원장 이름 집합 대조를 실패하면
+      kind·센티널을 보지 않고 즉시 미입증). 지목은 kind-색인의 **개선**으로 넣은 것인데(위 ★★),
+      지목이 빗나갔다고 kind-색인보다 **나쁜** 판정(맞는 행동을 틀렸다고)으로 떨어지는 것은 그
+      도입 논리 자체와 모순이다. 그 거짓 피드백("ledger shows NO such event ... do it now")을
+      모델이 문자대로 따라 **같은 승인을 재호출 = DUP 변이**를 우리가 제조했다([[25]]·[[64]]).
+      ⇒ 지목 미스 = 미지목과 동급으로 강등해 구판(kind 색인) 경로로 떨어진다. 엔진은 여전히
+      집합 대조만 한다(의미 판단 0·[[22]]).
+    ⚠**pending(미래형)은 강등하지 않는다**(기본 False·거동 보존): 미이행 약속은 그 도구가
+      원장에 없는 것이 정상이라, 강등하면 record_update 센티널이 **무관한 과거 write**로 약속을
+      입증해 버려 038형 transfer-escape 방어(관문5)가 무너진다.
 
     ★★**주장이 도구를 지목하면 그것으로 판정한다** (2026-08-08·handoff §5-3·실측 확증):
       구판은 `kind` → A2 `event_map` 패턴 → 실행 이름 순으로 색인했다. 그런데 `kind` 는
@@ -3253,12 +3268,16 @@ def _claim_unbacked(claims, emap, evs, messages, a2=None):
     for c in (claims or []):
         t = _n((c or {}).get("tool"))
         if t:
-            if t not in named:
-                out.append(c)
-            else:
+            if t in named:
                 print("[T2_CLAIMPROV] kind-index rescued: kind=%r tool=%r 원장에 있다"
                       % ((c or {}).get("kind"), t), file=sys.stderr, flush=True)
-            continue
+                continue
+            if not kind_fallback_on_miss:
+                out.append(c)
+                continue
+            # ★050 수리(docstring ★★): 지목 미스 = 미지목과 동급 — kind 색인으로 강등.
+            print("[T2_CLAIMPROV] tool-miss fallback: kind=%r tool=%r 원장 밖 — kind 색인으로 강등"
+                  % ((c or {}).get("kind"), t), file=sys.stderr, flush=True)
         k = str((c or {}).get("kind", "")).strip().lower()
         spec = emap.get(k)
         if spec is None:
@@ -10844,7 +10863,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _evs.add(str(getattr(_tc3, "name", "") or ""))
                         _evs.add(_eff_tool_name(_tc3))
                 _emap = _cpv["event_map"]
-                _unbacked = _claim_unbacked(_cl, _emap, _evs, state.messages, _a2_of(self))
+                # ★과거형 claims만 tool-미스→kind 강등 (050 DUP 수리·docstring ★★).
+                #   pending(:아래)은 기본 False 유지 — 038형 탈출-티켓 방어 보존.
+                _unbacked = _claim_unbacked(_cl, _emap, _evs, state.messages, _a2_of(self),
+                                            kind_fallback_on_miss=True)
                 # ★격리 검증 (2026-08-18·`T2_CLAIM_VERIFY`·기본 OFF): 이름 대조로 **구제된**
                 #   주장만 서브에게 다시 묻는다 — *"그 도구가 정말 그 일을 했는가"*. 이름이
                 #   원장에 있다는 사실은 t7318 에서 조회 도구를 환급으로 통과시켰다.

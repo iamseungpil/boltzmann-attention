@@ -47,6 +47,15 @@ user-sim 스펙: agent가 ①해당 referral 특정 ②지출 요건 미충족 �
 1. ACTIONREQ formalize 어휘에 "기존 referral의 bonus 문의" 부류를 분리(신규 제출과 구분) — 오형식화 제거.
 2. 진단형(왜 안 왔나) 요청에서 상태-정의·프로그램-요건 문서 read를 요구하는 축(SG_DOCS 계열) — 040의 eligibility와 같은 "정책-read 후 발화" 부류.
 
+### ★추기 (2026-08-21 수리 세션·P6 판정): 경로 확정 — 닫힌 술어 수리 없음(무수리)
+- **경로**: `t2_resolve.py:729 formalize_intent_tool` (격리 LLM 서브콜). 입력 = ①**최근 6개 user 발화만**(첫 발화 미포함 — `formalize_arg_axis`에는 2026-08-12 "첫 발화 포함" 수리가 있으나 이 함수엔 없음) ②후보 집합 = A2 `action_tools`의 user-실행측 pending = `{apply_for_credit_card, submit_referral, submit_transaction, ...}`. 프롬프트는 순수 질문형('none' 허용)이고 엔진은 집합 소속만 검산 — [[66]] 준수 상태.
+- **원인**: 후보 목록에서 'referral' 표면어가 일치하는 유일 항목이 `submit_referral`이고, "기존 referral의 bonus 미지급 문의"↔"신규 referral 제출"의 구분은 격리 LLM의 **열린 의도 판단**이다. 그 판단이 빗나갔고, ARBITRATE가 그 표적의 GB3 요건(`reads:get_all_user_accounts_by_user_id`)을 실어 무관 read([22]~[25])·반박 턴([28])을 증폭했다.
+- **왜 안 고치나** (발주 조건: "닫힌 술어로 고칠 수 있으면 고쳐라·열린 판단을 엔진에 넣지 말 것"):
+  ① 문의/제출 구분의 케이스 열거는 **의도 입법 = [[66]] 금지** — 같은 자리에 규칙을 넣었던 af8c1e21이 judge6 −6(098 4/4→0/4·099 3/4→1/4) 실측으로 롤백된 전례가 이 함수 주석에 박제돼 있다.
+  ② [[66]]의 공인 대체인 **인용-근거 검산(C45 동형)도 이 사례를 못 막는다**: user 발화에 referral 어휘가 축자로 실재하므로 substring 검산을 통과한다 — 인용 실재가 아니라 인용→도구 사상이 틀린 경우라 검산 대상 밖.
+  ③ 첫-발화 포함(입력 완결성·arg_axis 선례 동형)은 닫힌 수리지만 **이 오형식화의 원인이 아니다** — 016의 첫 발화 자체가 referral-bonus 문의라 포함해도 표면어 일치는 그대로다. 효과 없는 라이브 거동 변경은 [[57]]/[[70]] 위반이라 보류.
+  ⇒ 잔여는 처방 후보 2(정책-read 축·SG_DOCS 계열) 또는 learn 축으로 이관.
+
 ---
 
 ## task_040 — reward 0.0 · user_stop · 80 msgs
@@ -118,6 +127,14 @@ user-sim 스펙: agent가 ①해당 referral 특정 ②지출 요건 미충족 �
 1. `event_map.record_update`를 registry 파생으로 1회 완결 저작(approve_/deny_/open_/close_/freeze_/order_/submit_ 등) — 또는 kind 접두 대조 대신 "실행된 유효 write 전체 집합"과 대조.
 2. 직전 N턴 내 성공 write가 claim kind와 일치하면 unbacked 금지(시간-국소 화이트리스트).
 3. regen 피드백에 "원장에 **있는** write 목록"을 동봉 — 재실행이 아니라 문구 정정을 유도.
+
+### ★추기 (2026-08-21 수리 세션·P1 완료): 기전 정정 + 수리 내역
+- **기전 정정**: 위 "기전" 절이 인용한 `_orig_claim.json`은 **승격 전 스냅샷**(`test_claim_promotion.py`용 동결본)이고, 런 sha ec8f9d37의 **라이브** A2(`a2/banking_knowledge.settings.json claim_bindings` → `gate_interpreter._compose_claim_audit` 합성)에는 `record_update`에 `__effective_write__` 센티널이 **이미 있었다**(2026-08-08 C341 델타). 센티널·kind-색인 경로로는 approve 실행 후 unbacked가 **불가능**하다 — `_claim_unbacked`에서 그 판정에 도달하는 유일 경로는 **tool-지목이 원장 이름 집합 밖일 때 kind-폴백 없이 즉시 미입증하던 분기**다(1차 평가 = 지목 미스 → unbacked=2 · 2차 평가 = 정확 지목 → rescued, 같은 원장·같은 주장에 판정이 뒤집힌 로그와 정합).
+- **수리** (2026-08-21):
+  ① 엔진: `t2_gate_patch._claim_unbacked(kind_fallback_on_miss=True)` — 과거형 claims 축에서 지목 미스를 **미지목과 동급으로 강등**해 kind-색인으로 폴백(pending 축은 기본 False = 038형 탈출-티켓 방어 보존).
+  ② A2: `claim_bindings.event_map` **완결 저작** — env 레지스트리(`tau2_domain_toolnames.json` banking 71종) 이름 기계 도출·gold 미참조: record_update에 activate_/apply_/approve_/change_/clear_/close_/deny_/deposit_/freeze_/unfreeze_/open_/order_/pay_/reset_/set_/submit_/update_/transfer_funds_/log_credit_card_closure_reason/request_temporary_debit_card_limit_increase, transfer에 initial_transfer_to_human·emergency_credit_bureau_incident_transfer 추가(도출 규칙 = A2 `_note_event_map_completion_2026_08_21`). settings/gate.json 동기([[24]]).
+  ③ 검정: `test_claim_backed_write.py` 신설 — 050 재현(지목 미스에도 성공 approve 미오판)·센티널 제거 하에서도 접두 착지(완결 실효)·write-0 음성통제·pending 보존·레지스트리 전수 커버리지·이관-류 창 판정. 기존 배터리(test_a2_three_layer·test_claim_promotion·test_claim_pending·test_claim_tool_index·test_claim_verify 등) 전부 PASS(단 `test_c201_stage2`는 **수리 전부터** FAIL — 2026-08-08 센티널 델타 때 갱신 안 된 낡은 기대·별도 태스크로 분리).
+  처방 2(시간-국소 화이트리스트)·3(원장 write 목록 동봉)은 **미수행**(별도 레버 설계·[[70]] A/B 의무 대상).
 
 ---
 

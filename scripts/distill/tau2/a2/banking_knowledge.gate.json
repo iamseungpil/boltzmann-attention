@@ -4179,19 +4179,34 @@
    ],
    "transfer": [
     "transfer_",
-    "request_human"
+    "request_human",
+    "initial_transfer_to_human",
+    "emergency_credit_bureau_incident_transfer"
    ],
    "record_update": [
     "__effective_write__",
-    "update_transaction_rewards",
-    "update_",
-    "apply_statement_credit",
-    "apply_checking_account_credit"
+    "activate_",
+    "apply_",
+    "approve_",
+    "change_",
+    "clear_",
+    "close_",
+    "deny_",
+    "deposit_",
+    "freeze_",
+    "log_credit_card_closure_reason",
+    "open_",
+    "order_",
+    "pay_",
+    "request_temporary_debit_card_limit_increase",
+    "reset_",
+    "set_",
+    "submit_",
+    "transfer_funds_",
+    "unfreeze_",
+    "update_"
    ],
    "dispute_file": [
-    "file_credit_card_transaction_dispute",
-    "submit_cash_back_dispute",
-    "submit_interest_discrepancy_report",
     "file_",
     "submit_"
    ]
@@ -4206,6 +4221,7 @@
   "kind_guidance": "(record_update for changing a stored record's values, dispute_file for filing/submitting a dispute or report)"
  },
  "_note_claim_bindings": "L2(2026-07-31): L1 `claim_audit` 산문에 꽂히는 **이 도메인의 결합**. kinds=주장 종류 enum · event_map=kind→도구명 접두사(env 도출) · reserve_kinds=예비창 대상 · user_execution_tool=env 도구명. 새 도메인은 **이 4개만** 채우면 같은 무결성 검사를 얻는다(산문 복사 불요). kind_guidance=각 kind의 뜻(도메인 용어집).",
+ "_note_event_map_completion_2026_08_21": "완결 저작(T7335 halfB 050 DUP·[[72]] 선언 완결): env 레지스트리(`tau2_domain_toolnames.json` banking_knowledge 71종) 전수에서 **이름 기계 도출**·gold 미참조([[23]]). 규칙 = ①읽기 접두(get_/list_/query_/search_)·절차 디스패처(call_/give_/unlock_/list_discoverable)·verify 쌍(verify_identity/log_verification)을 제외한 나머지 mutating 도구의 **동사 접두 1토큰**을 kind별 등재 ②접두가 타 kind와 충돌하면 전체명(접미 _NNNN 제거): log_credit_card_closure_reason(↔log_verification=verify)·request_temporary_debit_card_limit_increase(↔request_human=transfer) ③transfer_funds_는 record_update(잔액 레코드 변경·사람-이관 아님) ④submit_은 dispute_file·record_update **이중 등재** — 백킹 맵이지 분할이 아니며, 050 실측에서 모델이 submit/approve를 kind=record_update로 라벨했다 ⑤구판 개별명(update_transaction_rewards·apply_statement_credit 등)은 동사 접두로 병합([[72]] 동의어 병합) ⑥transfer에 initial_transfer_to_human·emergency_credit_bureau_incident_transfer 추가(이관-류 완결 — 이관 호출=최후 감사 창이 열려야 하는 자리). ⚠050 기전 정정: 라이브 맵에는 record_update 센티널이 이미 있었고(unbacked 불가 경로), 실제 오판은 **tool-지목이 원장 밖일 때 kind-폴백 없이 즉시 unbacked**이던 엔진 경로였다 — `t2_gate_patch._claim_unbacked(kind_fallback_on_miss)`와 한 쌍의 수리이고, 이 완결 저작은 그 폴백이 센티널 없이도 계열-접두로 착지하게 한다. 검정=`test_claim_backed_write.py`.",
  "claim_prov": {
   "question": "Before your reply is sent, audit yourself. (1) In YOUR REPLY ONLY: list every assertion that YOU (the agent/system) have ALREADY performed some action in this conversation — e.g. searched or checked the knowledge base or records, verified something, filed/submitted/updated/logged something, given the customer a tool, or transferred them. Statements about what the CUSTOMER did do NOT count. (2) Across the WHOLE conversation: list every action YOU said you WILL do / are about to do (e.g. 'I will file the disputes') that you have NOT completed yet. Reply with exactly one JSON object and nothing else: {\"claims\": [{\"kind\": \"search|verify|record_update|dispute_file|give|transfer|write\", \"what\": \"<5-10 words>\", \"tool\": \"<the exact name of the tool call in this conversation that performed it, or omit if no tool performed it>\"}], \"pending\": [{\"kind\": \"search|verify|record_update|dispute_file|give|transfer|write\", \"what\": \"<5-10 words>\", \"tool\": \"<the exact tool name you would need to call for it, or omit if none>\"}]} — empty lists if none. Choose the MOST SPECIFIC kind that fits (record_update for changing a stored record's values, dispute_file for filing/submitting a dispute or report); use the generic \"write\" ONLY when no specific kind applies.",
   "feedback_pending": "Error: [CLAIM-PROVENANCE] earlier in this conversation you told the customer you WOULD do the following, but the conversation ledger shows it was never actually executed: {claims}. You are about to end your involvement (resign or transfer) with these promises unfulfilled — that abandons the customer's request. Do the promised work NOW by calling the real tools, and only transfer or end the conversation after the actions are actually executed (or explicitly tell the customer you could not do them and why). Do not end your involvement by describing the work as done or under way — either call the tool now, or state explicitly that it has NOT been performed.",
@@ -4225,19 +4241,34 @@
    ],
    "transfer": [
     "transfer_",
-    "request_human"
+    "request_human",
+    "initial_transfer_to_human",
+    "emergency_credit_bureau_incident_transfer"
    ],
    "record_update": [
     "__effective_write__",
-    "update_transaction_rewards",
-    "update_",
-    "apply_statement_credit",
-    "apply_checking_account_credit"
+    "activate_",
+    "apply_",
+    "approve_",
+    "change_",
+    "clear_",
+    "close_",
+    "deny_",
+    "deposit_",
+    "freeze_",
+    "log_credit_card_closure_reason",
+    "open_",
+    "order_",
+    "pay_",
+    "request_temporary_debit_card_limit_increase",
+    "reset_",
+    "set_",
+    "submit_",
+    "transfer_funds_",
+    "unfreeze_",
+    "update_"
    ],
    "dispute_file": [
-    "file_credit_card_transaction_dispute",
-    "submit_cash_back_dispute",
-    "submit_interest_discrepancy_report",
     "file_",
     "submit_"
    ]
