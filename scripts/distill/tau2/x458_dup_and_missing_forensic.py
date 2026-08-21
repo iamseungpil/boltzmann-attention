@@ -236,6 +236,24 @@ def dispute_forensic(sims, tool):
     return rows
 
 
+def blocked_forensic(sims):
+    """ⓠ **막힌 변이는 누가 막았나** — 1단계 40 sim 전수.
+
+    040 포렌식에서 sim 당 BLOCKED 11·19 가 나왔다. *"시도했으나 거절"* 은 MISSING 과 전혀
+    다른 실패다 — 모델은 하려고 했다. 거절자가 **우리 층**이면 그건 모델 결손이 아니라 우리가
+    막은 것이고([[55]]), env 면 정책·전제 문제다. 정본 `deny_kind` 가 그 둘을 가른다.
+    """
+    rows = collections.defaultdict(collections.Counter)
+    marks = collections.Counter()
+    per_task = collections.Counter()
+    for s2 in sims:
+        for b in F.mutation_diff(s2)["blocked"]:
+            rows[b["name"]][b["deny"]] += 1
+            marks[(b["deny"], str(b.get("marker"))[:60])] += 1
+            per_task[F.task_id(s2)] += 1
+    return rows, marks, per_task
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tags", default="")
@@ -339,13 +357,30 @@ def main():
           % (agg["n_gold"], agg["n_done"], agg["n_wrongarg"], agg["n_missing"],
              agg["n_blocked"], agg["diff"]))
 
+    print(NLC + "─" * 96)
+    print("ⓠ 막힌 변이(BLOCKED) — 누가 막았나 · 1단계 전수")
+    print("─" * 96)
+    bt, bm, bp = blocked_forensic(sims)
+    tot = sum(sum(c.values()) for c in bt.values())
+    print("  총 BLOCKED %d · 도구 %d 종 · 태스크 %d"
+          % (tot, len(bt), len(bp)))
+    print("  [태스크별] " + ", ".join("%s=%d" % (k, v) for k, v in bp.most_common(10)))
+    print("  [도구별 · 거절자]")
+    for nm, c in sorted(bt.items(), key=lambda kv: -sum(kv[1].values()))[:12]:
+        print("    %-46s %s" % (nm[:46], dict(c)))
+    print("  [거절 문면 상위]")
+    for (kind, mk), n in bm.most_common(10):
+        print("    %-6s %3d  %s" % (kind or "?", n, mk))
+
     p = os.path.join(REP, a.out)
     with io.open(p, "w", encoding="utf-8") as f:
         json.dump({"tags": sorted(set(tags)), "n_sims": len(sims),
                    "dup_tool": DUP_TOOL, "dups": dups,
                    "miss_tool": MISS_TOOL, "missing": miss,
                    "apy_rows": apyr,
-                   "dispute_tool": DISPUTE_TOOL, "dispute_rows": disp}, f, ensure_ascii=False, indent=1)
+                   "dispute_tool": DISPUTE_TOOL, "dispute_rows": disp,
+                   "blocked_by_tool": {k: dict(v) for k, v in bt.items()},
+                   "blocked_by_task": dict(bp)}, f, ensure_ascii=False, indent=1)
     print("\n→ %s" % p)
     return 0
 
