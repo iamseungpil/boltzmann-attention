@@ -1,0 +1,2936 @@
+{
+ "tags": [
+  "bank_t7328_halfA_20260819r",
+  "bank_t7328_halfB_20260819r2"
+ ],
+ "per_task": {
+  "task_003": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "apply_for_credit_card": 2
+   },
+   "atot": 2,
+   "amiss": 2,
+   "rows": [
+    {
+     "sim": "task_003#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "003_0",
+       "match": false,
+       "tool": "apply_for_credit_card",
+       "inner": "",
+       "args": "{\"card_type\": \"Silver Rewards Card\", \"customer_name\": \"Catherine Wells\", \"annual_income\": \"180000\", \"rho_bank_subscripti"
+      }
+     ]
+    },
+    {
+     "sim": "task_003#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "003_0",
+       "match": false,
+       "tool": "apply_for_credit_card",
+       "inner": "",
+       "args": "{\"card_type\": \"Silver Rewards Card\", \"customer_name\": \"Catherine Wells\", \"annual_income\": \"180000\", \"rho_bank_subscripti"
+      }
+     ]
+    }
+   ]
+  },
+  "task_004": {
+   "n": 2,
+   "pass": 1,
+   "basis": {
+    "ACTION": 2
+   },
+   "dbfail": 0,
+   "afail": {
+    "transfer_to_human_agents": 1
+   },
+   "atot": 2,
+   "amiss": 1,
+   "rows": [
+    {
+     "sim": "task_004#0",
+     "reward": 0.0,
+     "basis": [
+      "ACTION"
+     ],
+     "breakdown": {
+      "ACTION": 0.0
+     },
+     "db_match": true,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "004_0",
+       "match": false,
+       "tool": "transfer_to_human_agents",
+       "inner": "",
+       "args": "{\"reason\": \"account_ownership_dispute\", \"summary\": \"\"}"
+      }
+     ]
+    },
+    {
+     "sim": "task_004#1",
+     "reward": 1.0,
+     "basis": [
+      "ACTION"
+     ],
+     "breakdown": {
+      "ACTION": 1.0
+     },
+     "db_match": true,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "004_0",
+       "match": true,
+       "tool": "transfer_to_human_agents",
+       "inner": "",
+       "args": "{\"reason\": \"account_ownership_dispute\", \"summary\": \"\"}"
+      }
+     ]
+    }
+   ]
+  },
+  "task_017": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "submit_cash_back_dispute_0589": 6
+   },
+   "atot": 8,
+   "amiss": 6,
+   "rows": [
+    {
+     "sim": "task_017#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "017_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Kenji Tanaka\", \"user_id\": \"6680a37184\", \"address\": \"1847 Cherry Blossom Lane, Seattle, WA 98101\", \"email\": \"ke"
+      },
+      {
+       "id": "017_1",
+       "match": false,
+       "tool": "give_discoverable_user_tool",
+       "inner": "submit_cash_back_dispute_0589",
+       "args": "{\"discoverable_tool_name\": \"submit_cash_back_dispute_0589\"}"
+      },
+      {
+       "id": "017_2",
+       "match": false,
+       "tool": "call_discoverable_user_tool",
+       "inner": "submit_cash_back_dispute_0589",
+       "args": "{\"user_id\": \"6680a37184\", \"transaction_id\": \"txn_cfabb609133d\"}"
+      },
+      {
+       "id": "017_3",
+       "match": false,
+       "tool": "call_discoverable_user_tool",
+       "inner": "submit_cash_back_dispute_0589",
+       "args": "{\"user_id\": \"6680a37184\", \"transaction_id\": \"txn_913d14a20dc5\"}"
+      }
+     ]
+    },
+    {
+     "sim": "task_017#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "017_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Kenji Tanaka\", \"user_id\": \"6680a37184\", \"address\": \"1847 Cherry Blossom Lane, Seattle, WA 98101\", \"email\": \"ke"
+      },
+      {
+       "id": "017_1",
+       "match": false,
+       "tool": "give_discoverable_user_tool",
+       "inner": "submit_cash_back_dispute_0589",
+       "args": "{\"discoverable_tool_name\": \"submit_cash_back_dispute_0589\"}"
+      },
+      {
+       "id": "017_2",
+       "match": false,
+       "tool": "call_discoverable_user_tool",
+       "inner": "submit_cash_back_dispute_0589",
+       "args": "{\"user_id\": \"6680a37184\", \"transaction_id\": \"txn_cfabb609133d\"}"
+      },
+      {
+       "id": "017_3",
+       "match": false,
+       "tool": "call_discoverable_user_tool",
+       "inner": "submit_cash_back_dispute_0589",
+       "args": "{\"user_id\": \"6680a37184\", \"transaction_id\": \"txn_913d14a20dc5\"}"
+      }
+     ]
+    }
+   ]
+  },
+  "task_024": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "apply_for_credit_card": 2
+   },
+   "atot": 2,
+   "amiss": 2,
+   "rows": [
+    {
+     "sim": "task_024#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "024_0",
+       "match": false,
+       "tool": "apply_for_credit_card",
+       "inner": "",
+       "args": "{\"card_type\": \"Business Bronze Rewards Card\", \"customer_name\": \"Marcus Chen\", \"annual_income\": \"120000\", \"rho_bank_subsc"
+      }
+     ]
+    },
+    {
+     "sim": "task_024#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "024_0",
+       "match": false,
+       "tool": "apply_for_credit_card",
+       "inner": "",
+       "args": "{\"card_type\": \"Business Bronze Rewards Card\", \"customer_name\": \"Marcus Chen\", \"annual_income\": \"120000\", \"rho_bank_subsc"
+      }
+     ]
+    }
+   ]
+  },
+  "task_055": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "open_bank_account_4821": 4,
+    "deposit_check_3847": 3
+   },
+   "atot": 16,
+   "amiss": 7,
+   "rows": [
+    {
+     "sim": "task_055#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "055_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Yuki Nakamura\", \"user_id\": \"224959b99e\", \"address\": \"3421 Sakura Avenue, Portland, OR 97205\", \"email\": \"yuki.n"
+      },
+      {
+       "id": "055_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "055_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"224959b99e\"}"
+      },
+      {
+       "id": "055_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"agent_tool_name\": \"open_bank_account_4821\"}"
+      },
+      {
+       "id": "055_4",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"user_id\": \"224959b99e\", \"account_type\": \"checking\", \"account_class\": \"Purple Account\"}"
+      },
+      {
+       "id": "055_5",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"user_id\": \"224959b99e\", \"account_type\": \"savings\", \"account_class\": \"Silver Plus Account\"}"
+      },
+      {
+       "id": "055_6",
+       "match": false,
+       "tool": "give_discoverable_user_tool",
+       "inner": "deposit_check_3847",
+       "args": "{\"discoverable_tool_name\": \"deposit_check_3847\"}"
+      },
+      {
+       "id": "055_7",
+       "match": false,
+       "tool": "call_discoverable_user_tool",
+       "inner": "deposit_check_3847",
+       "args": "{\"account_id\": \"7e48bf3b0589cfad\", \"check_amount\": \"1500\"}"
+      }
+     ]
+    },
+    {
+     "sim": "task_055#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "055_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Yuki Nakamura\", \"user_id\": \"224959b99e\", \"address\": \"3421 Sakura Avenue, Portland, OR 97205\", \"email\": \"yuki.n"
+      },
+      {
+       "id": "055_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "055_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"224959b99e\"}"
+      },
+      {
+       "id": "055_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"agent_tool_name\": \"open_bank_account_4821\"}"
+      },
+      {
+       "id": "055_4",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"user_id\": \"224959b99e\", \"account_type\": \"checking\", \"account_class\": \"Purple Account\"}"
+      },
+      {
+       "id": "055_5",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"user_id\": \"224959b99e\", \"account_type\": \"savings\", \"account_class\": \"Silver Plus Account\"}"
+      },
+      {
+       "id": "055_6",
+       "match": true,
+       "tool": "give_discoverable_user_tool",
+       "inner": "deposit_check_3847",
+       "args": "{\"discoverable_tool_name\": \"deposit_check_3847\"}"
+      },
+      {
+       "id": "055_7",
+       "match": false,
+       "tool": "call_discoverable_user_tool",
+       "inner": "deposit_check_3847",
+       "args": "{\"account_id\": \"7e48bf3b0589cfad\", \"check_amount\": \"1500\"}"
+      }
+     ]
+    }
+   ]
+  },
+  "task_072": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "apply_checking_account_credit_5829": 5
+   },
+   "atot": 18,
+   "amiss": 5,
+   "rows": [
+    {
+     "sim": "task_072#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "072_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Liang Jinhai\", \"user_id\": \"lj82d4f1a9\", \"address\": \"1420 Lake Shore Drive, Chicago, IL 60610\", \"email\": \"jinha"
+      },
+      {
+       "id": "072_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "072_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"lj82d4f1a9\"}"
+      },
+      {
+       "id": "072_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "072_4",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_lj82d4f1a9\"}"
+      },
+      {
+       "id": "072_5",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_538bfb9cba\"}"
+      },
+      {
+       "id": "072_6",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"agent_tool_name\": \"apply_checking_account_credit_5829\"}"
+      },
+      {
+       "id": "072_7",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_lj82d4f1a9\", \"amount\": \"14\", \"credit_type\": \"fee_refund\"}"
+      },
+      {
+       "id": "072_8",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_538bfb9cba\", \"amount\": \"3.5\", \"credit_type\": \"fee_refund\"}"
+      }
+     ]
+    },
+    {
+     "sim": "task_072#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "072_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Liang Jinhai\", \"user_id\": \"lj82d4f1a9\", \"address\": \"1420 Lake Shore Drive, Chicago, IL 60610\", \"email\": \"jinha"
+      },
+      {
+       "id": "072_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "072_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"lj82d4f1a9\"}"
+      },
+      {
+       "id": "072_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "072_4",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_lj82d4f1a9\"}"
+      },
+      {
+       "id": "072_5",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_538bfb9cba\"}"
+      },
+      {
+       "id": "072_6",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"agent_tool_name\": \"apply_checking_account_credit_5829\"}"
+      },
+      {
+       "id": "072_7",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_lj82d4f1a9\", \"amount\": \"14\", \"credit_type\": \"fee_refund\"}"
+      },
+      {
+       "id": "072_8",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_538bfb9cba\", \"amount\": \"3.5\", \"credit_type\": \"fee_refund\"}"
+      }
+     ]
+    }
+   ]
+  },
+  "task_073": {
+   "n": 2,
+   "pass": 1,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 1,
+   "afail": {
+    "apply_checking_account_credit_5829": 6,
+    "get_bank_account_transactions_9173": 1
+   },
+   "atot": 22,
+   "amiss": 7,
+   "rows": [
+    {
+     "sim": "task_073#0",
+     "reward": 1.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 1.0
+     },
+     "db_match": true,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "073_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Kim Junho\", \"user_id\": \"kj93a7b2e1\", \"address\": \"5847 Wilshire Boulevard, Los Angeles, CA 90036\", \"email\": \"ju"
+      },
+      {
+       "id": "073_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "073_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"kj93a7b2e1\"}"
+      },
+      {
+       "id": "073_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "073_4",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_kj93a7b2e1_1\"}"
+      },
+      {
+       "id": "073_5",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_kj93a7b2e1_2\"}"
+      },
+      {
+       "id": "073_6",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_kj93a7b2e1_3\"}"
+      },
+      {
+       "id": "073_7",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"agent_tool_name\": \"apply_checking_account_credit_5829\"}"
+      },
+      {
+       "id": "073_8",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_kj93a7b2e1_1\", \"amount\": \"9.5\", \"credit_type\": \"fee_refund\"}"
+      },
+      {
+       "id": "073_9",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_kj93a7b2e1_2\", \"amount\": \"9\", \"credit_type\": \"fee_refund\"}"
+      },
+      {
+       "id": "073_10",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_kj93a7b2e1_3\", \"amount\": \"1.5\", \"credit_type\": \"fee_refund\"}"
+      }
+     ]
+    },
+    {
+     "sim": "task_073#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "073_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Kim Junho\", \"user_id\": \"kj93a7b2e1\", \"address\": \"5847 Wilshire Boulevard, Los Angeles, CA 90036\", \"email\": \"ju"
+      },
+      {
+       "id": "073_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "073_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"kj93a7b2e1\"}"
+      },
+      {
+       "id": "073_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "073_4",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_kj93a7b2e1_1\"}"
+      },
+      {
+       "id": "073_5",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_kj93a7b2e1_2\"}"
+      },
+      {
+       "id": "073_6",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_kj93a7b2e1_3\"}"
+      },
+      {
+       "id": "073_7",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"agent_tool_name\": \"apply_checking_account_credit_5829\"}"
+      },
+      {
+       "id": "073_8",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_kj93a7b2e1_1\", \"amount\": \"9.5\", \"credit_type\": \"fee_refund\"}"
+      },
+      {
+       "id": "073_9",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_kj93a7b2e1_2\", \"amount\": \"9\", \"credit_type\": \"fee_refund\"}"
+      },
+      {
+       "id": "073_10",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_kj93a7b2e1_3\", \"amount\": \"1.5\", \"credit_type\": \"fee_refund\"}"
+      }
+     ]
+    }
+   ]
+  },
+  "task_093": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "apply_savings_account_credit_6831": 2,
+    "submit_interest_discrepancy_report_7294": 2
+   },
+   "atot": 18,
+   "amiss": 4,
+   "rows": [
+    {
+     "sim": "task_093#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "093_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Somchai Prasert\", \"user_id\": \"sp93k4m7n2\", \"address\": \"1847 Sunset Boulevard, Apt 12B, Los Angeles, CA 90028\","
+      },
+      {
+       "id": "093_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "093_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"sp93k4m7n2\"}"
+      },
+      {
+       "id": "093_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "093_4",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"sav_sp93k4m7n2_silver\"}"
+      },
+      {
+       "id": "093_5",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "apply_savings_account_credit_6831",
+       "args": "{\"agent_tool_name\": \"apply_savings_account_credit_6831\"}"
+      },
+      {
+       "id": "093_6",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_savings_account_credit_6831",
+       "args": "{\"account_id\": \"sav_sp93k4m7n2_silver\", \"amount\": \"33\", \"credit_type\": \"interest_correction\"}"
+      },
+      {
+       "id": "093_7",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "submit_interest_discrepancy_report_7294",
+       "args": "{\"agent_tool_name\": \"submit_interest_discrepancy_report_7294\"}"
+      },
+      {
+       "id": "093_8",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "submit_interest_discrepancy_report_7294",
+       "args": "{\"account_id\": \"sav_sp93k4m7n2_silver\", \"user_id\": \"sp93k4m7n2\", \"expected_apy\": \"4.275\", \"actual_apy\": \"4\", \"amount_dif"
+      }
+     ]
+    },
+    {
+     "sim": "task_093#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "093_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Somchai Prasert\", \"user_id\": \"sp93k4m7n2\", \"address\": \"1847 Sunset Boulevard, Apt 12B, Los Angeles, CA 90028\","
+      },
+      {
+       "id": "093_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "093_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"sp93k4m7n2\"}"
+      },
+      {
+       "id": "093_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "093_4",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"sav_sp93k4m7n2_silver\"}"
+      },
+      {
+       "id": "093_5",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "apply_savings_account_credit_6831",
+       "args": "{\"agent_tool_name\": \"apply_savings_account_credit_6831\"}"
+      },
+      {
+       "id": "093_6",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_savings_account_credit_6831",
+       "args": "{\"account_id\": \"sav_sp93k4m7n2_silver\", \"amount\": \"33\", \"credit_type\": \"interest_correction\"}"
+      },
+      {
+       "id": "093_7",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "submit_interest_discrepancy_report_7294",
+       "args": "{\"agent_tool_name\": \"submit_interest_discrepancy_report_7294\"}"
+      },
+      {
+       "id": "093_8",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "submit_interest_discrepancy_report_7294",
+       "args": "{\"account_id\": \"sav_sp93k4m7n2_silver\", \"user_id\": \"sp93k4m7n2\", \"expected_apy\": \"4.275\", \"actual_apy\": \"4\", \"amount_dif"
+      }
+     ]
+    }
+   ]
+  },
+  "task_094": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "get_bank_account_transactions_9173": 4,
+    "apply_savings_account_credit_6831": 3,
+    "submit_interest_discrepancy_report_7294": 2
+   },
+   "atot": 18,
+   "amiss": 9,
+   "rows": [
+    {
+     "sim": "task_094#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "094_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Wei-Ting Lin\", \"user_id\": \"wl94k7m3p8\", \"address\": \"1628 Pacific Heights Blvd, Apt 8A, San Francisco, CA 94115"
+      },
+      {
+       "id": "094_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "094_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"wl94k7m3p8\"}"
+      },
+      {
+       "id": "094_3",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "094_4",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"sav_wl94k7m3p8_gold\"}"
+      },
+      {
+       "id": "094_5",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "apply_savings_account_credit_6831",
+       "args": "{\"agent_tool_name\": \"apply_savings_account_credit_6831\"}"
+      },
+      {
+       "id": "094_6",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_savings_account_credit_6831",
+       "args": "{\"account_id\": \"sav_wl94k7m3p8_gold\", \"amount\": \"140\", \"credit_type\": \"interest_correction\"}"
+      },
+      {
+       "id": "094_7",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "submit_interest_discrepancy_report_7294",
+       "args": "{\"agent_tool_name\": \"submit_interest_discrepancy_report_7294\"}"
+      },
+      {
+       "id": "094_8",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "submit_interest_discrepancy_report_7294",
+       "args": "{\"account_id\": \"sav_wl94k7m3p8_gold\", \"user_id\": \"wl94k7m3p8\", \"expected_apy\": \"6.85\", \"actual_apy\": \"5.1\", \"amount_diff"
+      }
+     ]
+    },
+    {
+     "sim": "task_094#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "094_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Wei-Ting Lin\", \"user_id\": \"wl94k7m3p8\", \"address\": \"1628 Pacific Heights Blvd, Apt 8A, San Francisco, CA 94115"
+      },
+      {
+       "id": "094_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "094_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"wl94k7m3p8\"}"
+      },
+      {
+       "id": "094_3",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "094_4",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"sav_wl94k7m3p8_gold\"}"
+      },
+      {
+       "id": "094_5",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "apply_savings_account_credit_6831",
+       "args": "{\"agent_tool_name\": \"apply_savings_account_credit_6831\"}"
+      },
+      {
+       "id": "094_6",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_savings_account_credit_6831",
+       "args": "{\"account_id\": \"sav_wl94k7m3p8_gold\", \"amount\": \"140\", \"credit_type\": \"interest_correction\"}"
+      },
+      {
+       "id": "094_7",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "submit_interest_discrepancy_report_7294",
+       "args": "{\"agent_tool_name\": \"submit_interest_discrepancy_report_7294\"}"
+      },
+      {
+       "id": "094_8",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "submit_interest_discrepancy_report_7294",
+       "args": "{\"account_id\": \"sav_wl94k7m3p8_gold\", \"user_id\": \"wl94k7m3p8\", \"expected_apy\": \"6.85\", \"actual_apy\": \"5.1\", \"amount_diff"
+      }
+     ]
+    }
+   ]
+  },
+  "task_100": {
+   "n": 2,
+   "pass": 2,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 0,
+   "afail": {},
+   "atot": 8,
+   "amiss": 0,
+   "rows": [
+    {
+     "sim": "task_100#0",
+     "reward": 1.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 1.0
+     },
+     "db_match": true,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "100_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Tomoko Ishikawa\", \"user_id\": \"ti87k4x9m2\", \"address\": \"2847 Aurora Avenue North, Apt 12C, Seattle, WA 98103\", "
+      },
+      {
+       "id": "100_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "100_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"ti87k4x9m2\"}"
+      },
+      {
+       "id": "100_3",
+       "match": true,
+       "tool": "submit_referral",
+       "inner": "",
+       "args": "{\"user_id\": \"ti87k4x9m2\", \"account_type\": \"Hunter Green Account\"}"
+      }
+     ]
+    },
+    {
+     "sim": "task_100#1",
+     "reward": 1.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 1.0
+     },
+     "db_match": true,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "100_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Tomoko Ishikawa\", \"user_id\": \"ti87k4x9m2\", \"address\": \"2847 Aurora Avenue North, Apt 12C, Seattle, WA 98103\", "
+      },
+      {
+       "id": "100_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "100_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"ti87k4x9m2\"}"
+      },
+      {
+       "id": "100_3",
+       "match": true,
+       "tool": "submit_referral",
+       "inner": "",
+       "args": "{\"user_id\": \"ti87k4x9m2\", \"account_type\": \"Hunter Green Account\"}"
+      }
+     ]
+    }
+   ]
+  },
+  "task_016": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "submit_transaction": 2
+   },
+   "atot": 4,
+   "amiss": 2,
+   "rows": [
+    {
+     "sim": "task_016#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "016_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Oluwaseun Adeyemi\", \"user_id\": \"86e92f639e\", \"address\": \"2201 Peachtree Road NE, Atlanta, GA 30309\", \"email\": "
+      },
+      {
+       "id": "016_1",
+       "match": false,
+       "tool": "submit_transaction",
+       "inner": "",
+       "args": "{\"user_id\": \"friend_user_5839\", \"credit_card_type\": \"Silver Rewards Card\", \"merchant_name\": \"Best Buy\", \"amount\": \"750\","
+      }
+     ]
+    },
+    {
+     "sim": "task_016#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "016_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Oluwaseun Adeyemi\", \"user_id\": \"86e92f639e\", \"address\": \"2201 Peachtree Road NE, Atlanta, GA 30309\", \"email\": "
+      },
+      {
+       "id": "016_1",
+       "match": false,
+       "tool": "submit_transaction",
+       "inner": "",
+       "args": "{\"user_id\": \"friend_user_5839\", \"credit_card_type\": \"Silver Rewards Card\", \"merchant_name\": \"Best Buy\", \"amount\": \"750\","
+      }
+     ]
+    }
+   ]
+  },
+  "task_033": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "ACTION": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "initial_transfer_to_human_agent_1822": 4,
+    "initial_transfer_to_human_agent_0218": 4,
+    "transfer_to_human_agents": 1
+   },
+   "atot": 10,
+   "amiss": 9,
+   "rows": [
+    {
+     "sim": "task_033#0",
+     "reward": 0.0,
+     "basis": [
+      "ACTION"
+     ],
+     "breakdown": {
+      "ACTION": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "033_0",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "initial_transfer_to_human_agent_1822",
+       "args": "{\"agent_tool_name\": \"initial_transfer_to_human_agent_1822\"}"
+      },
+      {
+       "id": "033_1",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "initial_transfer_to_human_agent_1822",
+       "args": "{\"agent_tool_name\": \"initial_transfer_to_human_agent_1822\"}"
+      },
+      {
+       "id": "033_2",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "initial_transfer_to_human_agent_0218",
+       "args": "{\"agent_tool_name\": \"initial_transfer_to_human_agent_0218\"}"
+      },
+      {
+       "id": "033_3",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "initial_transfer_to_human_agent_0218",
+       "args": "{\"agent_tool_name\": \"initial_transfer_to_human_agent_0218\"}"
+      },
+      {
+       "id": "033_4",
+       "match": false,
+       "tool": "transfer_to_human_agents",
+       "inner": "",
+       "args": "{\"summary\": \"\"}"
+      }
+     ]
+    },
+    {
+     "sim": "task_033#1",
+     "reward": 0.0,
+     "basis": [
+      "ACTION"
+     ],
+     "breakdown": {
+      "ACTION": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "033_0",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "initial_transfer_to_human_agent_1822",
+       "args": "{\"agent_tool_name\": \"initial_transfer_to_human_agent_1822\"}"
+      },
+      {
+       "id": "033_1",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "initial_transfer_to_human_agent_1822",
+       "args": "{\"agent_tool_name\": \"initial_transfer_to_human_agent_1822\"}"
+      },
+      {
+       "id": "033_2",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "initial_transfer_to_human_agent_0218",
+       "args": "{\"agent_tool_name\": \"initial_transfer_to_human_agent_0218\"}"
+      },
+      {
+       "id": "033_3",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "initial_transfer_to_human_agent_0218",
+       "args": "{\"agent_tool_name\": \"initial_transfer_to_human_agent_0218\"}"
+      },
+      {
+       "id": "033_4",
+       "match": true,
+       "tool": "transfer_to_human_agents",
+       "inner": "",
+       "args": "{\"summary\": \"\"}"
+      }
+     ]
+    }
+   ]
+  },
+  "task_040": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "get_user_dispute_history_7291": 2,
+    "get_card_last_4_digits": 4,
+    "file_credit_card_transaction_dispute_4829": 16
+   },
+   "atot": 30,
+   "amiss": 22,
+   "rows": [
+    {
+     "sim": "task_040#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "040_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Kwame Asante\", \"user_id\": \"01f21c9970\", \"address\": \"4532 Magnolia Lane, Philadelphia, PA 19103\", \"email\": \"mid"
+      },
+      {
+       "id": "040_1",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_user_dispute_history_7291",
+       "args": "{\"agent_tool_name\": \"get_user_dispute_history_7291\"}"
+      },
+      {
+       "id": "040_2",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_user_dispute_history_7291",
+       "args": "{\"user_id\": \"01f21c9970\"}"
+      },
+      {
+       "id": "040_3",
+       "match": true,
+       "tool": "give_discoverable_user_tool",
+       "inner": "get_card_last_4_digits",
+       "args": "{\"discoverable_tool_name\": \"get_card_last_4_digits\"}"
+      },
+      {
+       "id": "040_4",
+       "match": false,
+       "tool": "call_discoverable_user_tool",
+       "inner": "get_card_last_4_digits",
+       "args": "{\"credit_card_account_id\": \"cc_01f21c9970_gold\"}"
+      },
+      {
+       "id": "040_5",
+       "match": false,
+       "tool": "call_discoverable_user_tool",
+       "inner": "get_card_last_4_digits",
+       "args": "{\"credit_card_account_id\": \"cc_01f21c9970_bgold\"}"
+      },
+      {
+       "id": "040_6",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"agent_tool_name\": \"file_credit_card_transaction_dispute_4829\"}"
+      },
+      {
+       "id": "040_7",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_25e23705f61f\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"0581\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_8",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_fd4c3871654e\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"0581\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_9",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_a1b2c3d4e503\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"1652\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_10",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_a1b2c3d4e510\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"1652\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_11",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_a1b2c3d4e508\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"1652\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_12",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_a1b2c3d4e513\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"1652\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_13",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_bc21d98cc4e4\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"0581\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_14",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_3ef1a3e9bf56\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"0581\", \"full_name\": \"Kwame A"
+      }
+     ]
+    },
+    {
+     "sim": "task_040#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "040_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Kwame Asante\", \"user_id\": \"01f21c9970\", \"address\": \"4532 Magnolia Lane, Philadelphia, PA 19103\", \"email\": \"mid"
+      },
+      {
+       "id": "040_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_user_dispute_history_7291",
+       "args": "{\"agent_tool_name\": \"get_user_dispute_history_7291\"}"
+      },
+      {
+       "id": "040_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_user_dispute_history_7291",
+       "args": "{\"user_id\": \"01f21c9970\"}"
+      },
+      {
+       "id": "040_3",
+       "match": true,
+       "tool": "give_discoverable_user_tool",
+       "inner": "get_card_last_4_digits",
+       "args": "{\"discoverable_tool_name\": \"get_card_last_4_digits\"}"
+      },
+      {
+       "id": "040_4",
+       "match": false,
+       "tool": "call_discoverable_user_tool",
+       "inner": "get_card_last_4_digits",
+       "args": "{\"credit_card_account_id\": \"cc_01f21c9970_gold\"}"
+      },
+      {
+       "id": "040_5",
+       "match": false,
+       "tool": "call_discoverable_user_tool",
+       "inner": "get_card_last_4_digits",
+       "args": "{\"credit_card_account_id\": \"cc_01f21c9970_bgold\"}"
+      },
+      {
+       "id": "040_6",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"agent_tool_name\": \"file_credit_card_transaction_dispute_4829\"}"
+      },
+      {
+       "id": "040_7",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_25e23705f61f\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"0581\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_8",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_fd4c3871654e\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"0581\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_9",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_a1b2c3d4e503\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"1652\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_10",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_a1b2c3d4e510\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"1652\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_11",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_a1b2c3d4e508\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"1652\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_12",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_a1b2c3d4e513\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"1652\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_13",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_bc21d98cc4e4\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"0581\", \"full_name\": \"Kwame A"
+      },
+      {
+       "id": "040_14",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_credit_card_transaction_dispute_4829",
+       "args": "{\"transaction_id\": \"txn_3ef1a3e9bf56\", \"card_action\": \"keep_active\", \"card_last_4_digits\": \"0581\", \"full_name\": \"Kwame A"
+      }
+     ]
+    }
+   ]
+  },
+  "task_050": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "get_payment_history_6183": 2
+   },
+   "atot": 26,
+   "amiss": 2,
+   "rows": [
+    {
+     "sim": "task_050#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "050_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Sofia Papadopoulos\", \"user_id\": \"584f9c5d00\", \"address\": \"1456 Astoria Boulevard, Queens, NY 11102\", \"email\": "
+      },
+      {
+       "id": "050_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "submit_credit_limit_increase_request_7392",
+       "args": "{\"agent_tool_name\": \"submit_credit_limit_increase_request_7392\"}"
+      },
+      {
+       "id": "050_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "submit_credit_limit_increase_request_7392",
+       "args": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\", \"user_id\": \"584f9c5d00\", \"requested_increase_amount\": \"2500\"}"
+      },
+      {
+       "id": "050_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_user_dispute_history_7291",
+       "args": "{\"agent_tool_name\": \"get_user_dispute_history_7291\"}"
+      },
+      {
+       "id": "050_4",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_user_dispute_history_7291",
+       "args": "{\"user_id\": \"584f9c5d00\"}"
+      },
+      {
+       "id": "050_5",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_pending_replacement_orders_5765",
+       "args": "{\"agent_tool_name\": \"get_pending_replacement_orders_5765\"}"
+      },
+      {
+       "id": "050_6",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_pending_replacement_orders_5765",
+       "args": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\"}"
+      },
+      {
+       "id": "050_7",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_credit_limit_increase_history_4829",
+       "args": "{\"agent_tool_name\": \"get_credit_limit_increase_history_4829\"}"
+      },
+      {
+       "id": "050_8",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_credit_limit_increase_history_4829",
+       "args": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\"}"
+      },
+      {
+       "id": "050_9",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_payment_history_6183",
+       "args": "{\"agent_tool_name\": \"get_payment_history_6183\"}"
+      },
+      {
+       "id": "050_10",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_payment_history_6183",
+       "args": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\", \"months\": \"3\"}"
+      },
+      {
+       "id": "050_11",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "approve_credit_limit_increase_5847",
+       "args": "{\"agent_tool_name\": \"approve_credit_limit_increase_5847\"}"
+      },
+      {
+       "id": "050_12",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "approve_credit_limit_increase_5847",
+       "args": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\", \"user_id\": \"584f9c5d00\", \"new_credit_limit\": \"7500\"}"
+      }
+     ]
+    },
+    {
+     "sim": "task_050#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "050_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Sofia Papadopoulos\", \"user_id\": \"584f9c5d00\", \"address\": \"1456 Astoria Boulevard, Queens, NY 11102\", \"email\": "
+      },
+      {
+       "id": "050_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "submit_credit_limit_increase_request_7392",
+       "args": "{\"agent_tool_name\": \"submit_credit_limit_increase_request_7392\"}"
+      },
+      {
+       "id": "050_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "submit_credit_limit_increase_request_7392",
+       "args": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\", \"user_id\": \"584f9c5d00\", \"requested_increase_amount\": \"2500\"}"
+      },
+      {
+       "id": "050_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_user_dispute_history_7291",
+       "args": "{\"agent_tool_name\": \"get_user_dispute_history_7291\"}"
+      },
+      {
+       "id": "050_4",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_user_dispute_history_7291",
+       "args": "{\"user_id\": \"584f9c5d00\"}"
+      },
+      {
+       "id": "050_5",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_pending_replacement_orders_5765",
+       "args": "{\"agent_tool_name\": \"get_pending_replacement_orders_5765\"}"
+      },
+      {
+       "id": "050_6",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_pending_replacement_orders_5765",
+       "args": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\"}"
+      },
+      {
+       "id": "050_7",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_credit_limit_increase_history_4829",
+       "args": "{\"agent_tool_name\": \"get_credit_limit_increase_history_4829\"}"
+      },
+      {
+       "id": "050_8",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_credit_limit_increase_history_4829",
+       "args": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\"}"
+      },
+      {
+       "id": "050_9",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_payment_history_6183",
+       "args": "{\"agent_tool_name\": \"get_payment_history_6183\"}"
+      },
+      {
+       "id": "050_10",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_payment_history_6183",
+       "args": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\", \"months\": \"3\"}"
+      },
+      {
+       "id": "050_11",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "approve_credit_limit_increase_5847",
+       "args": "{\"agent_tool_name\": \"approve_credit_limit_increase_5847\"}"
+      },
+      {
+       "id": "050_12",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "approve_credit_limit_increase_5847",
+       "args": "{\"credit_card_account_id\": \"cc_584f9c5d00_gold\", \"user_id\": \"584f9c5d00\", \"new_credit_limit\": \"7500\"}"
+      }
+     ]
+    }
+   ]
+  },
+  "task_057": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "open_bank_account_4821": 2,
+    "deposit_check_3847": 4
+   },
+   "atot": 14,
+   "amiss": 6,
+   "rows": [
+    {
+     "sim": "task_057#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "057_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Marcus Thompson\", \"user_id\": \"a8c4e2f7b3\", \"address\": \"2847 Riverside Drive, Austin, TX 78704\", \"email\": \"marc"
+      },
+      {
+       "id": "057_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "057_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"a8c4e2f7b3\"}"
+      },
+      {
+       "id": "057_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"agent_tool_name\": \"open_bank_account_4821\"}"
+      },
+      {
+       "id": "057_4",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"user_id\": \"a8c4e2f7b3\", \"account_type\": \"checking\", \"account_class\": \"Blue Account\"}"
+      },
+      {
+       "id": "057_5",
+       "match": false,
+       "tool": "give_discoverable_user_tool",
+       "inner": "deposit_check_3847",
+       "args": "{\"discoverable_tool_name\": \"deposit_check_3847\"}"
+      },
+      {
+       "id": "057_6",
+       "match": false,
+       "tool": "call_discoverable_user_tool",
+       "inner": "deposit_check_3847",
+       "args": "{\"account_id\": \"ac554054181e71ad\", \"check_amount\": \"2000\"}"
+      }
+     ]
+    },
+    {
+     "sim": "task_057#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "057_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Marcus Thompson\", \"user_id\": \"a8c4e2f7b3\", \"address\": \"2847 Riverside Drive, Austin, TX 78704\", \"email\": \"marc"
+      },
+      {
+       "id": "057_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "057_2",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"a8c4e2f7b3\"}"
+      },
+      {
+       "id": "057_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"agent_tool_name\": \"open_bank_account_4821\"}"
+      },
+      {
+       "id": "057_4",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"user_id\": \"a8c4e2f7b3\", \"account_type\": \"checking\", \"account_class\": \"Blue Account\"}"
+      },
+      {
+       "id": "057_5",
+       "match": false,
+       "tool": "give_discoverable_user_tool",
+       "inner": "deposit_check_3847",
+       "args": "{\"discoverable_tool_name\": \"deposit_check_3847\"}"
+      },
+      {
+       "id": "057_6",
+       "match": false,
+       "tool": "call_discoverable_user_tool",
+       "inner": "deposit_check_3847",
+       "args": "{\"account_id\": \"ac554054181e71ad\", \"check_amount\": \"2000\"}"
+      }
+     ]
+    }
+   ]
+  },
+  "task_063": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "open_bank_account_4821": 3
+   },
+   "atot": 8,
+   "amiss": 3,
+   "rows": [
+    {
+     "sim": "task_063#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "063_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Taylor Brooks\", \"user_id\": \"tb58a3c9d2\", \"address\": \"2156 Hawthorne Boulevard, Portland, OR 97214\", \"email\": \""
+      },
+      {
+       "id": "063_1",
+       "match": true,
+       "tool": "apply_for_credit_card",
+       "inner": "",
+       "args": "{\"card_type\": \"Silver Rewards Card\", \"customer_name\": \"Taylor Brooks\", \"annual_income\": \"85000\", \"rho_bank_subscription\""
+      },
+      {
+       "id": "063_2",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"agent_tool_name\": \"open_bank_account_4821\"}"
+      },
+      {
+       "id": "063_3",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"user_id\": \"tb58a3c9d2\", \"account_type\": \"savings\", \"account_class\": \"Silver Plus Account\"}"
+      }
+     ]
+    },
+    {
+     "sim": "task_063#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "063_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Taylor Brooks\", \"user_id\": \"tb58a3c9d2\", \"address\": \"2156 Hawthorne Boulevard, Portland, OR 97214\", \"email\": \""
+      },
+      {
+       "id": "063_1",
+       "match": true,
+       "tool": "apply_for_credit_card",
+       "inner": "",
+       "args": "{\"card_type\": \"Silver Rewards Card\", \"customer_name\": \"Taylor Brooks\", \"annual_income\": \"85000\", \"rho_bank_subscription\""
+      },
+      {
+       "id": "063_2",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"agent_tool_name\": \"open_bank_account_4821\"}"
+      },
+      {
+       "id": "063_3",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "open_bank_account_4821",
+       "args": "{\"user_id\": \"tb58a3c9d2\", \"account_type\": \"savings\", \"account_class\": \"Silver Plus Account\"}"
+      }
+     ]
+    }
+   ]
+  },
+  "task_074": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "get_all_user_accounts_by_user_id_3847": 4,
+    "get_bank_account_transactions_9173": 10,
+    "apply_checking_account_credit_5829": 10
+   },
+   "atot": 26,
+   "amiss": 24,
+   "rows": [
+    {
+     "sim": "task_074#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "074_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Ahmad Razali bin Mohd Yusof\", \"user_id\": \"ar72c5d8e3\", \"address\": \"1245 Pioneer Road, Denver, CO 80203\", \"emai"
+      },
+      {
+       "id": "074_1",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "074_2",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"ar72c5d8e3\"}"
+      },
+      {
+       "id": "074_3",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "074_4",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_1\"}"
+      },
+      {
+       "id": "074_5",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_2\"}"
+      },
+      {
+       "id": "074_6",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_3\"}"
+      },
+      {
+       "id": "074_7",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_4\"}"
+      },
+      {
+       "id": "074_8",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"agent_tool_name\": \"apply_checking_account_credit_5829\"}"
+      },
+      {
+       "id": "074_9",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_1\", \"amount\": \"27\", \"credit_type\": \"fee_refund\"}"
+      },
+      {
+       "id": "074_10",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_2\", \"amount\": \"14.5\", \"credit_type\": \"fee_refund\"}"
+      },
+      {
+       "id": "074_11",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_3\", \"amount\": \"4.75\", \"credit_type\": \"fee_refund\"}"
+      },
+      {
+       "id": "074_12",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_4\", \"amount\": \"3.7\", \"credit_type\": \"fee_refund\"}"
+      }
+     ]
+    },
+    {
+     "sim": "task_074#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "074_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Ahmad Razali bin Mohd Yusof\", \"user_id\": \"ar72c5d8e3\", \"address\": \"1245 Pioneer Road, Denver, CO 80203\", \"emai"
+      },
+      {
+       "id": "074_1",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "074_2",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"ar72c5d8e3\"}"
+      },
+      {
+       "id": "074_3",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "074_4",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_1\"}"
+      },
+      {
+       "id": "074_5",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_2\"}"
+      },
+      {
+       "id": "074_6",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_3\"}"
+      },
+      {
+       "id": "074_7",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_4\"}"
+      },
+      {
+       "id": "074_8",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"agent_tool_name\": \"apply_checking_account_credit_5829\"}"
+      },
+      {
+       "id": "074_9",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_1\", \"amount\": \"27\", \"credit_type\": \"fee_refund\"}"
+      },
+      {
+       "id": "074_10",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_2\", \"amount\": \"14.5\", \"credit_type\": \"fee_refund\"}"
+      },
+      {
+       "id": "074_11",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_3\", \"amount\": \"4.75\", \"credit_type\": \"fee_refund\"}"
+      },
+      {
+       "id": "074_12",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "apply_checking_account_credit_5829",
+       "args": "{\"account_id\": \"chk_ar72c5d8e3_4\", \"amount\": \"3.7\", \"credit_type\": \"fee_refund\"}"
+      }
+     ]
+    }
+   ]
+  },
+  "task_079": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 1
+   },
+   "dbfail": 1,
+   "afail": {
+    "get_bank_account_transactions_9173": 4,
+    "order_debit_card_5739": 2
+   },
+   "atot": 25,
+   "amiss": 6,
+   "rows": [
+    {
+     "sim": "task_079#0",
+     "reward": 0.0,
+     "basis": null,
+     "breakdown": null,
+     "db_match": null,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": []
+    },
+    {
+     "sim": "task_079#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "079_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Carlos Rodriguez\", \"user_id\": \"cr89a2b3c4\", \"address\": \"4521 West 6th Street, Austin, TX 78703\", \"email\": \"car"
+      },
+      {
+       "id": "079_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "079_1a",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"cr89a2b3c4\"}"
+      },
+      {
+       "id": "079_2",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "freeze_debit_card_3892",
+       "args": "{\"agent_tool_name\": \"freeze_debit_card_3892\"}"
+      },
+      {
+       "id": "079_3",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "freeze_debit_card_3892",
+       "args": "{\"card_id\": \"dbc_cr89a2b3c4_ev\"}"
+      },
+      {
+       "id": "079_4",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "freeze_debit_card_3892",
+       "args": "{\"card_id\": \"dbc_cr89a2b3c4_lb\"}"
+      },
+      {
+       "id": "079_5",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "freeze_debit_card_3892",
+       "args": "{\"card_id\": \"dbc_cr89a2b3c4_green\"}"
+      },
+      {
+       "id": "079_5b",
+       "match": true,
+       "tool": "get_credit_card_accounts_by_user",
+       "inner": "",
+       "args": "{\"user_id\": \"cr89a2b3c4\"}"
+      },
+      {
+       "id": "079_6",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "079_7",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_cr89a2b3c4_1\"}"
+      },
+      {
+       "id": "079_8",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_cr89a2b3c4_2\"}"
+      },
+      {
+       "id": "079_9",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_cr89a2b3c4_3\"}"
+      },
+      {
+       "id": "079_9b",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "unfreeze_debit_card_3893",
+       "args": "{\"agent_tool_name\": \"unfreeze_debit_card_3893\"}"
+      },
+      {
+       "id": "079_9c",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "unfreeze_debit_card_3893",
+       "args": "{\"card_id\": \"dbc_cr89a2b3c4_ev\"}"
+      },
+      {
+       "id": "079_9d",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "unfreeze_debit_card_3893",
+       "args": "{\"card_id\": \"dbc_cr89a2b3c4_lb\"}"
+      },
+      {
+       "id": "079_9e",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "unfreeze_debit_card_3893",
+       "args": "{\"card_id\": \"dbc_cr89a2b3c4_green\"}"
+      },
+      {
+       "id": "079_10",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "close_debit_card_4721",
+       "args": "{\"agent_tool_name\": \"close_debit_card_4721\"}"
+      },
+      {
+       "id": "079_11",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "close_debit_card_4721",
+       "args": "{\"card_id\": \"dbc_cr89a2b3c4_ev\", \"reason\": \"stolen\"}"
+      },
+      {
+       "id": "079_12",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "close_debit_card_4721",
+       "args": "{\"card_id\": \"dbc_cr89a2b3c4_lb\", \"reason\": \"stolen\"}"
+      },
+      {
+       "id": "079_13",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "close_debit_card_4721",
+       "args": "{\"card_id\": \"dbc_cr89a2b3c4_green\", \"reason\": \"stolen\"}"
+      },
+      {
+       "id": "079_14",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_debit_cards_by_account_id_7823",
+       "args": "{\"agent_tool_name\": \"get_debit_cards_by_account_id_7823\"}"
+      },
+      {
+       "id": "079_15",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_debit_cards_by_account_id_7823",
+       "args": "{\"account_id\": \"chk_cr89a2b3c4_2\"}"
+      },
+      {
+       "id": "079_16",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "order_debit_card_5739",
+       "args": "{\"agent_tool_name\": \"order_debit_card_5739\"}"
+      },
+      {
+       "id": "079_17",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "order_debit_card_5739",
+       "args": "{\"account_id\": \"chk_cr89a2b3c4_1\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"RUSH\", \"delivery_fee\": \"35\", \"card_desig"
+      },
+      {
+       "id": "079_18",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "order_debit_card_5739",
+       "args": "{\"account_id\": \"chk_cr89a2b3c4_3\", \"user_id\": \"cr89a2b3c4\", \"delivery_option\": \"STANDARD\", \"delivery_fee\": \"0\", \"card_de"
+      }
+     ]
+    }
+   ]
+  },
+  "task_085": {
+   "n": 2,
+   "pass": 0,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 2,
+   "afail": {
+    "get_bank_account_transactions_9173": 3,
+    "file_debit_card_transaction_dispute_6281": 6
+   },
+   "atot": 26,
+   "amiss": 9,
+   "rows": [
+    {
+     "sim": "task_085#0",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "085_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"email\": \"jo"
+      },
+      {
+       "id": "085_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "085_1a",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"f7d3a82c91\"}"
+      },
+      {
+       "id": "085_2",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_debit_cards_by_account_id_7823",
+       "args": "{\"agent_tool_name\": \"get_debit_cards_by_account_id_7823\"}"
+      },
+      {
+       "id": "085_2a",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_debit_cards_by_account_id_7823",
+       "args": "{\"account_id\": \"chk_b4d92f7c28\"}"
+      },
+      {
+       "id": "085_2b",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_debit_cards_by_account_id_7823",
+       "args": "{\"account_id\": \"chk_e8a31c9d47\"}"
+      },
+      {
+       "id": "085_3",
+       "match": false,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "085_4",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_b4d92f7c28\"}"
+      },
+      {
+       "id": "085_5",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "file_debit_card_transaction_dispute_6281",
+       "args": "{\"agent_tool_name\": \"file_debit_card_transaction_dispute_6281\"}"
+      },
+      {
+       "id": "085_6",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_debit_card_transaction_dispute_6281",
+       "args": "{\"transaction_id\": \"btxn_a1b2c3d4e501\", \"account_id\": \"chk_b4d92f7c28\", \"card_id\": \"dbc_c4a72d9f66\", \"user_id\": \"f7d3a82"
+      },
+      {
+       "id": "085_7",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_debit_card_transaction_dispute_6281",
+       "args": "{\"transaction_id\": \"btxn_b2c3d4e5f602\", \"account_id\": \"chk_b4d92f7c28\", \"card_id\": \"dbc_c4a72d9f66\", \"user_id\": \"f7d3a82"
+      },
+      {
+       "id": "085_8",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_e8a31c9d47\"}"
+      },
+      {
+       "id": "085_9",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_debit_card_transaction_dispute_6281",
+       "args": "{\"transaction_id\": \"btxn_f6g7h8i9j006\", \"account_id\": \"chk_e8a31c9d47\", \"card_id\": \"dbc_92b5d2a7g4\", \"user_id\": \"f7d3a82"
+      }
+     ]
+    },
+    {
+     "sim": "task_085#1",
+     "reward": 0.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 0.0
+     },
+     "db_match": false,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "085_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Jordan Williams\", \"user_id\": \"f7d3a82c91\", \"address\": \"892 Mountain View Road, Denver, CO 80202\", \"email\": \"jo"
+      },
+      {
+       "id": "085_1",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"agent_tool_name\": \"get_all_user_accounts_by_user_id_3847\"}"
+      },
+      {
+       "id": "085_1a",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_all_user_accounts_by_user_id_3847",
+       "args": "{\"user_id\": \"f7d3a82c91\"}"
+      },
+      {
+       "id": "085_2",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_debit_cards_by_account_id_7823",
+       "args": "{\"agent_tool_name\": \"get_debit_cards_by_account_id_7823\"}"
+      },
+      {
+       "id": "085_2a",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_debit_cards_by_account_id_7823",
+       "args": "{\"account_id\": \"chk_b4d92f7c28\"}"
+      },
+      {
+       "id": "085_2b",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_debit_cards_by_account_id_7823",
+       "args": "{\"account_id\": \"chk_e8a31c9d47\"}"
+      },
+      {
+       "id": "085_3",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"agent_tool_name\": \"get_bank_account_transactions_9173\"}"
+      },
+      {
+       "id": "085_4",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_b4d92f7c28\"}"
+      },
+      {
+       "id": "085_5",
+       "match": true,
+       "tool": "unlock_discoverable_agent_tool",
+       "inner": "file_debit_card_transaction_dispute_6281",
+       "args": "{\"agent_tool_name\": \"file_debit_card_transaction_dispute_6281\"}"
+      },
+      {
+       "id": "085_6",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_debit_card_transaction_dispute_6281",
+       "args": "{\"transaction_id\": \"btxn_a1b2c3d4e501\", \"account_id\": \"chk_b4d92f7c28\", \"card_id\": \"dbc_c4a72d9f66\", \"user_id\": \"f7d3a82"
+      },
+      {
+       "id": "085_7",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_debit_card_transaction_dispute_6281",
+       "args": "{\"transaction_id\": \"btxn_b2c3d4e5f602\", \"account_id\": \"chk_b4d92f7c28\", \"card_id\": \"dbc_c4a72d9f66\", \"user_id\": \"f7d3a82"
+      },
+      {
+       "id": "085_8",
+       "match": true,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "get_bank_account_transactions_9173",
+       "args": "{\"account_id\": \"chk_e8a31c9d47\"}"
+      },
+      {
+       "id": "085_9",
+       "match": false,
+       "tool": "call_discoverable_agent_tool",
+       "inner": "file_debit_card_transaction_dispute_6281",
+       "args": "{\"transaction_id\": \"btxn_f6g7h8i9j006\", \"account_id\": \"chk_e8a31c9d47\", \"card_id\": \"dbc_92b5d2a7g4\", \"user_id\": \"f7d3a82"
+      }
+     ]
+    }
+   ]
+  },
+  "task_098": {
+   "n": 2,
+   "pass": 2,
+   "basis": {
+    "DB": 2
+   },
+   "dbfail": 0,
+   "afail": {},
+   "atot": 6,
+   "amiss": 0,
+   "rows": [
+    {
+     "sim": "task_098#0",
+     "reward": 1.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 1.0
+     },
+     "db_match": true,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "098_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Park Joon-ho\", \"user_id\": \"pj94k7x3m2\", \"address\": \"847 Oak Street, Apt 12, Portland, OR 97201\", \"email\": \"joo"
+      },
+      {
+       "id": "098_1",
+       "match": true,
+       "tool": "get_referrals_by_user",
+       "inner": "",
+       "args": "{\"user_id\": \"pj94k7x3m2\"}"
+      },
+      {
+       "id": "098_2",
+       "match": true,
+       "tool": "submit_referral",
+       "inner": "",
+       "args": "{\"user_id\": \"pj94k7x3m2\", \"account_type\": \"Blue Account\"}"
+      }
+     ]
+    },
+    {
+     "sim": "task_098#1",
+     "reward": 1.0,
+     "basis": [
+      "DB"
+     ],
+     "breakdown": {
+      "DB": 1.0
+     },
+     "db_match": true,
+     "n_nl": 0,
+     "n_comm": 0,
+     "actions": [
+      {
+       "id": "098_0",
+       "match": true,
+       "tool": "log_verification",
+       "inner": "",
+       "args": "{\"name\": \"Park Joon-ho\", \"user_id\": \"pj94k7x3m2\", \"address\": \"847 Oak Street, Apt 12, Portland, OR 97201\", \"email\": \"joo"
+      },
+      {
+       "id": "098_1",
+       "match": true,
+       "tool": "get_referrals_by_user",
+       "inner": "",
+       "args": "{\"user_id\": \"pj94k7x3m2\"}"
+      },
+      {
+       "id": "098_2",
+       "match": true,
+       "tool": "submit_referral",
+       "inner": "",
+       "args": "{\"user_id\": \"pj94k7x3m2\", \"account_type\": \"Blue Account\"}"
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

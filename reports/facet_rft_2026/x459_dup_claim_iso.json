@@ -1,0 +1,300 @@
+{
+ "tags": [
+  "bank_t7328_halfA_20260819r",
+  "bank_t7328_halfB_20260819r2"
+ ],
+ "rows": [
+  {
+   "probe": "dup",
+   "task": "task_016",
+   "sim": "task_016#0",
+   "arm": "A_asis",
+   "again": 3,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_016",
+   "sim": "task_016#0",
+   "arm": "B_strip",
+   "again": 3,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_016",
+   "sim": "task_016#0",
+   "arm": "C_state",
+   "again": 3,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "A_asis",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "B_strip",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "C_state",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "A_asis",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "B_strip",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "C_state",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "A_asis",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "B_strip",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "C_state",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "A_asis",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "B_strip",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "C_state",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "A_asis",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "B_strip",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "dup",
+   "task": "task_085",
+   "sim": "task_085#0",
+   "arm": "C_state",
+   "again": 0,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_072",
+   "sim": "task_072#0",
+   "arm": "A_asis",
+   "tool": 0,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_072",
+   "sim": "task_072#0",
+   "arm": "N_neg",
+   "tool": 0,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_072",
+   "sim": "task_072#0",
+   "arm": "D_name",
+   "tool": 3,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_072",
+   "sim": "task_072#1",
+   "arm": "A_asis",
+   "tool": 0,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_072",
+   "sim": "task_072#1",
+   "arm": "N_neg",
+   "tool": 3,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_072",
+   "sim": "task_072#1",
+   "arm": "D_name",
+   "tool": 3,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_073",
+   "sim": "task_073#1",
+   "arm": "A_asis",
+   "tool": 3,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_073",
+   "sim": "task_073#1",
+   "arm": "N_neg",
+   "tool": 3,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_073",
+   "sim": "task_073#1",
+   "arm": "D_name",
+   "tool": 3,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_074",
+   "sim": "task_074#0",
+   "arm": "A_asis",
+   "tool": 0,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_074",
+   "sim": "task_074#0",
+   "arm": "N_neg",
+   "tool": 0,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_074",
+   "sim": "task_074#0",
+   "arm": "D_name",
+   "tool": 3,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_074",
+   "sim": "task_074#1",
+   "arm": "A_asis",
+   "tool": 0,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_074",
+   "sim": "task_074#1",
+   "arm": "N_neg",
+   "tool": 0,
+   "n": 3
+  },
+  {
+   "probe": "claim",
+   "task": "task_074",
+   "sim": "task_074#1",
+   "arm": "D_name",
+   "tool": 3,
+   "n": 3
+  }
+ ],
+ "dup_summary": {
+  "A_asis": [
+   3,
+   18
+  ],
+  "B_strip": [
+   3,
+   18
+  ],
+  "C_state": [
+   3,
+   18
+  ]
+ },
+ "claim_summary": {
+  "A_asis": [
+   3,
+   15
+  ],
+  "N_neg": [
+   6,
+   15
+  ],
+  "D_name": [
+   15,
+   15
+  ]
+ }
+}
