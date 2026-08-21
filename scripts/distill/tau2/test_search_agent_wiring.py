@@ -79,7 +79,10 @@ chk("_sys." not in _seg,
 print("\n§2d now 를 모르면 침묵하고 **잠그지 않는다** (2026-08-11 라이브 4회째)")
 # 근거는 규율이 아니라 측정이다: 만료를 안 뺀 재료 = x248 `W_EXPIRED` 팔 = savings **0/8**.
 # 그런 재료는 이득이 아니라 해악이므로, 뺄 수 없으면 아무것도 안 보낸다.
-_seg3 = SRC[SRC.find("def _search_material("):][:4600]
+# ★창 수리 (2026-08-22): 고정 4600자는 함수가 자라며 검사 대상을 창 밖으로 밀어냈다
+#   (§5 주석 자신이 "함수가 길어지면 창도 넓힌다"라 적어 둔 그 병·사전-존재 FAIL 4건).
+#   함수 **경계**로 자른다 — 다음 def 까지가 이 함수다.
+_seg3 = SRC[SRC.find("def _search_material("):SRC.find("def _unlocked_names(")]
 chk(re.search(r"if not _now:\s*\n\s*print\(", _seg3) is not None,
     "`now` 가 없으면 재료를 만들기 **전에** 반환한다")
 chk("잠그지 않음" in _seg3, "마크가 '잠그지 않는다'를 명시한다 (다음 결정점 재시도)")
@@ -107,7 +110,7 @@ chk("{groups}" in layers[0]["group_prompt"] and "{material}" in layers[0]["doc_d
 
 print("\n§5 경로 하드코딩 0 — 코퍼스는 환경에서 온다 ([[05]])")
 i = SRC.find("def _search_material(")
-seg = SRC[i:i + 5200]   # 함수가 길어지면 창도 넓힌다(첫 판이 창 밖을 못 봤다)
+seg = SRC[i:SRC.find("def _unlocked_names(")]   # 함수 경계로 자른다(고정 창은 두 번 곪았다)
 chk("corpus_from_env" in seg, "환경 어댑터를 쓴다")
 chk("domains/" not in seg and "/home/" not in seg, "진입점에 파일 경로 상수가 없다")
 chk("decide_from_docs" in seg and "formalize_groups" in seg, "고르는 일은 두 번 다 LLM 이다")

@@ -270,8 +270,13 @@ def drop_expired(docs, spans, now):
 
 
 def material_for(a2, group, doc_dir=None, now=None, per_doc=400, windowed="general",
-                 corpus=None):
+                 corpus=None, subjects=None, general=True):
     """검색 에이전트의 결정론부 **전체 체인**: 색인 → 읽기 → 만료 제거 → 축자 재료.
+
+    `subjects`/`general` 은 `docs_for` 로 그대로 내려간다 — 재무장 **델타 배달**(T2_SEARCH_REARM·
+    T7336 016 처방 1)이 신규 계열의 문서만 집을 때 쓴다. 기본값(None/True)이면 종전과
+    **바이트 동일**([[67]] 정본에 추가·사본 금지). 계열 키는 A3 `doc_index` 의 닫힌 집합이라
+    엔진 해석이 없다([[22]]).
 
     ## 왜 이 모양인가 (x243·n=8 — 재고 결정론을 **줄인** 결과)
 
@@ -300,7 +305,7 @@ def material_for(a2, group, doc_dir=None, now=None, per_doc=400, windowed="gener
 
     ⚠엔진은 문서 내용을 해석하지 않는다([[59]]). ⚠구간을 모르는 문서는 **남긴다**([[25]]).
     """
-    ids = list(docs_for(a2, group))
+    ids = list(docs_for(a2, group, subjects=subjects, general=general))
     if windowed != "none":
         pool = set(declared_windows(a2))
         if windowed == "general":

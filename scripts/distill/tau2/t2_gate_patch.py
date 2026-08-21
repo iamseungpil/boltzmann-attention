@@ -2796,6 +2796,92 @@ def _sibling_wait(tag, flagged, what):
             % (tag, name, what))
 
 
+def _served_subjects(po, group, delivered=None, decided=None):
+    """이번 배달분이 **덮은 대상 계열**(닫힌 집합 = A3 `doc_index[군]` 키·`_general_` 제외).
+
+    ★왜 (T7336 016 포렌식·2026-08-21·정본 `T7336_FORENSIC_016_2026_08_21.md`): 축-소진 키가
+      **군 하나**면 "무엇이 배달됐나"가 기록에 없어, 배달 이후 **대상(계열)이 바뀐 재수요**를
+      원리상 볼 수 없다. 소진 키를 (군, 배달된 계열 집합) 으로 좁히는 첫 재료가 이 함수다.
+    ⚠집합 대조뿐이다([[59]]·[[22]]): 문서-본문 배달이면 실린 **문서 id 헤더**(`[id]`) 로,
+      결정문 배달이면 닫힌 계열 표시명(`_slug_disp` 규약 하나)이 결정문에 **축자로**
+      들어 있는가로 본다(대소문자만 접음·정규식 0·뜻 해석 0·계열명은 전부 A3 에서 읽는다).
+    """
+    idx = ((po or {}).get("doc_index") or {}).get(group) or {}
+    dec = " ".join(str(decided or "").split()).lower()
+    mat = str(delivered or "")
+    out = set()
+    for s, ids in idx.items():
+        if s == "_general_":
+            continue
+        if dec and _slug_disp(s).lower() in dec:
+            out.add(s)
+        elif mat and any(("[%s]" % d) in mat for d in (ids or ())):
+            out.add(s)
+    return out
+
+
+def _record_served(agent, po, group, messages, delivered=None, decided=None):
+    """배달 이력(어느 계열이·언제) 기록 — 속성 부기만, 출력·거동 0 (플래그 OFF 도 동일)."""
+    try:
+        sv = dict(getattr(agent, "_t2_search_served", None) or {})
+        sv[group] = set(sv.get(group) or set()) | _served_subjects(po, group, delivered, decided)
+        agent._t2_search_served = sv
+        sa = dict(getattr(agent, "_t2_search_served_at", None) or {})
+        sa[group] = len(messages or [])
+        agent._t2_search_served_at = sa
+    except Exception:
+        pass
+
+
+def _rearm_subjects(agent, po, gs, done, messages):
+    """★T2_SEARCH_REARM 술어부 — 어느 소진 군에 **미배달 계열의 재수요**가 있는가.
+
+    (T7336 016 포렌식 처방 1·2026-08-21·정본 `T7336_FORENSIC_016_2026_08_21.md` §레버 대조)
+    결손: `_t2_search_done` 소진이 군 단위 **영구 잠금**이라, 계열 X 의 결정문만 배달된 채
+    축이 닫힌 뒤 대화가 다른 계열 Y 를 축자로 확정해도 재요청이 전부 *"모두 처리됨 — 침묵"*
+    이 되어 Y 의 요건 문서 전달 경로가 구조적으로 소멸했다(그 sim 의 유일한 KB 채널).
+
+    술어는 전부 닫혔다([[22]]·유사도·의도 해석 0·[[59]]·[[66]]):
+      ⑴ 계열 = A3 `doc_index[군]` 키(닫힌 집합) · 표시명은 `_slug_disp` 규약 하나.
+      ⑵ 재수요 = 그 군의 **배달 시점 이후** user/assistant 발화에 계열 표시명이 **축자 등장**.
+         등장 판정은 `t2_search.groups_in` 정본 파싱부 재사용([[67]] 사본 금지) — 긴 이름
+         안의 포함 등장은 세지 않는다. 우주는 **전체 색인**의 표시명이라 그 억제가 군 경계
+         밖에서도 작동한다.
+         ⚠도구 출력은 안 본다 — 레코드 덤프는 전 계열명을 담을 수 있어 수요가 아니다.
+           역할 필터는 위치·역할 술어이지 내용 판단이 아니다.
+      ⑶ 신규 = 그 계열이 `_t2_search_served[군]`(배달된 계열 집합)에 **없다**.
+    반환: (군, [신규 계열 슬러그…]) — 없으면 (None, None).
+    ⚠같은 대상 재수요는 ⑶이 걸러 **여전히 침묵**(재요청 루프 방지 보존). 배달 이력이 없는
+      군(`served_at` 밖)은 건드리지 않는다(모르면 안 연다·[[25]]).
+    """
+    served = getattr(agent, "_t2_search_served", None) or {}
+    served_at = getattr(agent, "_t2_search_served_at", None) or {}
+    idx_all = (po or {}).get("doc_index") or {}
+    disp = {}
+    for g2 in idx_all:
+        for s in (idx_all.get(g2) or {}):
+            if s != "_general_":
+                disp.setdefault(_slug_disp(s), set()).add((g2, s))
+    if not disp:
+        return None, None
+    import t2_search as _ts
+    for g in gs:
+        if g not in done or g not in served_at:
+            continue
+        post = "\n".join(
+            _content_str(m) for m in (messages or [])[int(served_at.get(g) or 0):]
+            if getattr(m, "role", None) in ("user", "assistant")
+            and getattr(m, "content", None))
+        if not post.strip():
+            continue
+        hits = _ts.groups_in(post, sorted(disp))
+        new = sorted({s for d in hits for (g3, s) in disp[d]
+                      if g3 == g and s not in (served.get(g) or set())})
+        if new:
+            return g, new
+    return None, None
+
+
 def _search_material(agent, a2, messages, decide=True):
     """검색 에이전트의 **한 줄 진입점** — 재료가 원장이 아니라 **문서** 쪽에 있는 계열용.
 
@@ -2878,11 +2964,32 @@ def _search_material(agent, a2, messages, decide=True):
               file=sys.stderr, flush=True)
     except Exception:
         pass
+    # ★T2_SEARCH_REARM (2026-08-21·T7336 016 처방 1·기본 OFF·[[70]] A/B 는 x464): 소진 키를
+    #   군 → **(군, 배달된 계열 집합)** 으로 좁힌다. 군 단위 영구 잠금은 배달 **이후** 대상이
+    #   바뀐 재수요를 못 본다 — 그 sim 의 유일한 KB 채널이 구조적으로 닫혔다(포렌식 §레버 대조).
+    #   재무장 시 배달은 신규 계열의 **문서 델타만**(선언 id → 정확 집기·[[71]]·아래 doc-only
+    #   반환) — 서브 재결정 없음. 같은 대상 재수요는 served 집합이 걸러 **여전히 침묵**.
+    #   ⛔0 [[62]] 4문: ①결손은 t7336 궤적+로그 전수([S]·정본 문서) ②재료가 닿으면 모델이
+    #   쓰는 것은 기측정(x248 8/8·x335b 24/24) ⇒ 레버는 전달 재개뿐 ③사라지는 모델 판단 0
+    #   (무엇을 읽고 어떻게 쓸지는 모델 몫 그대로) ④순위·최댓값·지목 문장 0.
+    #   [[05]] 3문: ⑴도메인-특화 순증 0(계열·군·문서 id 전부 A3 선언에서 읽음·엔진 리터럴 0)
+    #   ⑵유동 판단 동결 0 ⑶도메인 행동 수행 0(정책 문서 읽기 = 우리 층 몫·C405ⓔ 확정 경계).
+    _rearm_new = None
     if not _g:
-        if _gs:
-            print("[T2_SEARCH_AGENT] 요청 축 %s 모두 처리됨 — 침묵" % ",".join(_gs),
-                  file=sys.stderr, flush=True)
-        return ""
+        if _gs and os.environ.get("T2_SEARCH_REARM") == "1":
+            _rg, _rnew = _rearm_subjects(agent, _po, _gs, _done, messages)
+            if _rg:
+                _g, _rearm_new = _rg, _rnew
+                print("[T2_SEARCH_REARM] group=%s 신규 대상 %s (기배달 %s) — 소진 해제·문서 델타"
+                      % (_g, ",".join(_rnew),
+                         ",".join(sorted((getattr(agent, "_t2_search_served", None) or {})
+                                         .get(_g) or ())) or "-"),
+                      file=sys.stderr, flush=True)
+        if not _g:
+            if _gs:
+                print("[T2_SEARCH_AGENT] 요청 축 %s 모두 처리됨 — 침묵" % ",".join(_gs),
+                      file=sys.stderr, flush=True)
+            return ""
     import t2_ledger as _lg
     # ★`now_prompt` 는 `policy_ontology` 가 아니라 **`ledger_metrics`** 에 선언돼 있다.
     #   첫 판은 `_po` 를 넘겨 tpl 이 없어 **항상 None** 이었고, 그러면 `drop_expired` 가
@@ -2971,7 +3078,16 @@ def _search_material(agent, a2, messages, decide=True):
               % ("있음" if _nspec else "**없음**", _now_raw, len(_tx)),
               file=sys.stderr, flush=True)
         return ""
-    _mat, _info = _ts.material_for(a2, _g, now=_now, corpus=_corpus)
+    # ★재무장 자리는 **신규 계열의 문서 델타만** 집는다(T2_SEARCH_REARM·선언 id → 정확 집기).
+    #   전체 군을 다시 실으면 첫 배달과 같은 재료가 반복돼 이득이 아니라 부피다([[57]] 인자 변화).
+    #   `per_doc` 는 정본 상수 `VERDICT_PER_DOC` 재사용([[67]]) — 기본 400자는 요건 문장이
+    #   잘릴 수 있다(첫 배달은 결정문이었지 본문이 아니었다).
+    if _rearm_new:
+        _mat, _info = _ts.material_for(a2, _g, now=_now, corpus=_corpus,
+                                       subjects=_rearm_new, general=False,
+                                       windowed="none", per_doc=_ts.VERDICT_PER_DOC)
+    else:
+        _mat, _info = _ts.material_for(a2, _g, now=_now, corpus=_corpus)
     # ★`now` 가 없으면 **엔진의 유일한 일이 죽는다** — 그런데 `formalize_now` 는 실패를 인쇄하지
     #   않아서 `뺀 것 0` 한 글자가 유일한 단서였다(2026-08-11 라이브에서 두 판을 이걸로 태웠다).
     #   [[64]] 를 우리 로그에도 적용한다: **무엇이 없어서 못 했는지**를 말한다.
@@ -2987,6 +3103,24 @@ def _search_material(agent, a2, messages, decide=True):
           file=sys.stderr, flush=True)
     if not _mat:
         return ""
+    # ★재무장 배달 = **doc-only**(서브 재결정 없음·[[71]] 읽어 전달만). 그 (군, 신규 계열)은
+    #   여기서 배달-완료로 적어 **1회로 묶는다** — 만료로 전부 빠져 제외-사유만 나가도 그것이
+    #   그 계열에 대한 답이므로 적는다(재시도 루프 방지·[[57]]). 축 잠금(`_done`)은 그대로다 —
+    #   열리는 것은 (군, 신규 계열) 델타뿐이고 다음 신규 계열은 다음 재수요가 연다.
+    if _rearm_new:
+        try:
+            _sv = dict(getattr(agent, "_t2_search_served", None) or {})
+            _sv[_g] = set(_sv.get(_g) or set()) | set(_rearm_new)
+            agent._t2_search_served = _sv
+            _sa = dict(getattr(agent, "_t2_search_served_at", None) or {})
+            _sa[_g] = len(messages or [])
+            agent._t2_search_served_at = _sa
+        except Exception:
+            pass
+        print("[T2_SEARCH_REARM] group=%s 델타 배달 %d자 (문서 %d·뺀 것 %d) turn=%d"
+              % (_g, len(_mat), _info["kept"], len(_info["dropped"]), len(messages or [])),
+              file=sys.stderr, flush=True)
+        return _mat
     # ★결정 ask = **후보 줄만** (2026-08-12·x269·사용자 지시: *"격리 서브에이전트에 A3 를
     #   통해서 정책을 리마인드하게 하라"*). 두 가지를 동시에 고친다:
     #   ⑴ **격리 계약 복원** — `decide_from_docs` 독스트링 축자 *"대화 잔여물은 한 글자도
@@ -3071,6 +3205,8 @@ def _search_material(agent, a2, messages, decide=True):
             agent._t2_search_done = _done
         except Exception:
             pass
+        # 배달 이력 부기(T2_SEARCH_REARM 술어의 재료·출력 0): 실린 문서 id 헤더 → 계열 집합.
+        _record_served(agent, _po, _g, messages, delivered=_mat)
         print("[T2_SEARCH_AGENT] 문서-only 반환 group=%s · %d자" % (_g, len(_mat)),
               file=sys.stderr, flush=True)
         return _mat
@@ -3104,6 +3240,8 @@ def _search_material(agent, a2, messages, decide=True):
         agent._t2_search_done = _done
     except Exception:
         pass
+    # 배달 이력 부기(T2_SEARCH_REARM 술어의 재료·출력 0): 결정문이 덮은 계열 집합.
+    _record_served(agent, _po, _g, messages, decided=_choice)
     print("[T2_SEARCH_AGENT] 축 처리 완료: %s (남은 축 %s)"
           % (_g, ",".join(g for g in _gs if g not in _done) or "없음"),
           file=sys.stderr, flush=True)
