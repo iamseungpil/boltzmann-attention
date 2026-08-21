@@ -65,6 +65,32 @@ def type_form(value):
     return "text"
 
 
+def declared_family_groups():
+    """A3 선언에서 **계열 묶음**을 읽는다 — `catalog_arg_families` 의 키(예: account_class ·
+    card_type)와 그 아래 계열 목록. 코드에 계열 이름을 적지 않는다([[71]] 계약 2항)."""
+    p = os.path.join(HERE, "a2", "banking_knowledge.specific.json")
+    with io.open(p, encoding="utf-8") as f:
+        fam = (json.load(f).get("catalog_arg_families") or {})
+    out = {}
+    for key, lst in fam.items():
+        for f2 in (lst or []):
+            out["doc_%s_" % f2] = key
+    return out
+
+
+def family_of(doc_id, prefixes):
+    """문서 id → 선언된 계열 묶음 키. 어느 접두사에도 안 걸리면 `(공용)`.
+
+    **형태만** 본다(파일명 접두사 대조·[[59]]). 공용 문서(`bank_accounts_(general)` 등)는
+    한 계열의 것이 아니라 여러 계열이 함께 쓰는 정책이므로 별도로 센다 — 섞임으로 치지 않는다.
+    """
+    d = str(doc_id or "")
+    for pre, key in prefixes.items():
+        if d.startswith(pre):
+            return key
+    return "(공용)"
+
+
 def load_groups(path):
     """`x455` 병합 결과 → {원시 이름: 정본명}. 없으면 빈 사전(원시 이름 그대로 쓴다)."""
     if not path:
@@ -101,6 +127,9 @@ def main():
     print("=" * 96)
 
     # ── 행 만들기: (subject, axis, value) 로 접고 출처는 전부 남긴다 ──────────
+    fam_pre = declared_family_groups()
+    axis_fams = collections.defaultdict(set)
+    axis_famvals = collections.defaultdict(set)
     rows = collections.OrderedDict()
     dropped_unlocated = 0
     axis_classes = collections.defaultdict(set)
@@ -126,6 +155,9 @@ def main():
                 r["sources"].append(src)
             axis_classes[ax].add(c.get("class"))
             axis_cites[ax] += 1
+            _fk = family_of(c.get("doc"), fam_pre)
+            axis_fams[ax].add(_fk)
+            axis_famvals[(ax, _fk)].add(str(c.get("value") or "")[:24])
 
     # 충돌 표시 = 같은 (subject, axis) 에 서로 다른 값이 2개 이상 (닫힌 술어)
     byax = collections.defaultdict(list)
@@ -177,10 +209,30 @@ def main():
                     n += int(s["len"] or 0)
         vol[c] = {"chars": n, "spans": len(seen)}
 
+    # ── ★계열-섞임 검사 (2026-08-21·사용자 지시 *"검사 붙여라"*) ────────────────
+    #   계기: `interest_rate` 는 예금에선 APY 와 같은 값인데(0.11 · 1.25 · 5.0 · 7.5%)
+    #   **카드에선 차입 이자율**이다(20.99% · 20.49% — *"Carried balances accrue interest at"*).
+    #   이름이 같다고 접으면 카드 APR 이 예금 APY 축의 후보로 섞이고, 그 축이 하필 093/094 의
+    #   `expected_apy` 다 — *"못 찾아 0.0"* 보다 나쁜 실패가 된다.
+    #   술어는 닫혀 있다: 그 축의 인용이 **선언된 계열 묶음 둘 이상**에서 왔는가(공용 문서 제외).
+    #   엔진은 표시만 하고 **가르지 않는다** — 정본 절차의 *"사람 1회 확인"* 이 이 자리다.
+    mixed = []
+    for ax in sorted(axis_fams):
+        keys = {k for k in axis_fams[ax] if k != "(공용)"}
+        if len(keys) > 1:
+            mixed.append({"axis": ax, "family_groups": sorted(keys),
+                          "values_by_group": {k: sorted(axis_famvals[(ax, k)])[:8]
+                                              for k in sorted(keys)},
+                          "n_cites": axis_cites[ax]})
+    for ax, m in cat.items():
+        m["family_groups"] = sorted(axis_fams.get(ax) or [])
+
     have = {n for n, _al in FT.ATTRS}
     payload = {"audit": a.audit, "groups": a.groups,
                "catalog_attrs": cat, "policy_facts": facts, "sub_docs": sub,
+               "family_mixed_axes": mixed,
                "report": {"n_facts": len(facts), "n_axes": len(cat),
+                          "n_family_mixed": len(mixed),
                           "n_conflict_rows": n_conflict,
                           "n_dropped_unlocated": dropped_unlocated,
                           "n_classes": len(sub),
@@ -206,6 +258,10 @@ def main():
         print("  %-34s %2d클래스 %3d인용 %-7s ← %d이름"
               % (ax[:34], m["n_classes"], m["n_cites"], m["type_form"], len(m["_merged_from"])))
 
+    print("\n★[계열-섞임 축 %d개 — 접으면 안 되는 후보. 손으로 본다]" % len(mixed))
+    for m in mixed[:20]:
+        print("  %-30s %s" % (m["axis"][:30], " | ".join(
+            "%s=%s" % (k, ",".join(v)[:34]) for k, v in m["values_by_group"].items())))
     print("\n[조건이 필요한 자리 — 같은 (클래스, 축)에 값이 여럿]")
     shown = 0
     for (subj, ax), rs in byax.items():
