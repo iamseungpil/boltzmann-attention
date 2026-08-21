@@ -103,14 +103,20 @@ def harvest_refs(iso, limit):
 
 
 class _Orch(object):
-    """서브가 요구하는 최소 표면 — `agent.tools` · `agent.llm` · `agent.llm_args`."""
+    """서브·관문1 이 요구하는 최소 표면.
 
-    def __init__(self, tool_names, model, base):
+    `agent.tools`/`agent.llm`/`agent.llm_args` 는 서브 생성이 쓰고,
+    **`environment`** 는 관문1 이 쓴다 — `_corpus_texts` 가 `orch.environment.domain_name` 으로
+    KB 코퍼스를 찾는다. 도메인 이름을 코드에 적지 않으려고 **라이브와 같은 env 객체**를 그대로
+    물려준다([[25]] 같은 환경·[[05]] 리터럴 0).
+    """
+
+    def __init__(self, tool_names, model, env):
         import types
         self.agent = types.SimpleNamespace(
             tools=[types.SimpleNamespace(name=n) for n in tool_names],
             llm=model, llm_args={"temperature": 0.0})
-        self._base = base
+        self.environment = env
 
 
 def main():
@@ -135,7 +141,13 @@ def main():
     print("=" * 96)
 
     sb = IVA.Sandbox()
-    orch = _Orch(iso.get("getter_tools") or [], a.model, "http://localhost:%d/v1" % a.port)
+    orch = _Orch(iso.get("getter_tools") or [], a.model, sb.env)
+    # 관문1 의 KB 코퍼스가 실제로 잡히는지 **먼저** 확인한다 — 비어 있으면 모든 인용이
+    # "source not found" 로 떨어져 측정이 무효가 된다([[55]] 계기부터).
+    _kb = SG._corpus_texts(orch, ["kb"])
+    print("관문1 KB 코퍼스: 문서 %d편 · %d자" % (len(_kb), sum(len(t) for t in _kb)))
+    if not _kb:
+        raise SystemExit("KB 코퍼스 0편 — 관문1 이 무엇도 통과시킬 수 없다. 측정 중단.")
 
     def run_env(tcs):
         """서브의 getter 호출을 **라이브와 같은 환경**에 그대로 흘린다."""
