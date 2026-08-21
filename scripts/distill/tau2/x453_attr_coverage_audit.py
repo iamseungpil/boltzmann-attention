@@ -93,6 +93,15 @@ def main():
 
     seen_classes = collections.defaultdict(set)     # attr -> {class}  (값을 명시)
     req_classes = collections.defaultdict(set)      # attr -> {class}  ★정책이 **요건**이라 말함
+    # ★문서 id 색인 (2026-08-21·사용자 지시 *"정확한 100% 문서 링크를 shell 로 읽어와서 격리해야
+    #   한다. bm25 는 approximate 이다"*): 이 스캔은 이미 **문서 단위**로 돌면서 어느 문서가 그
+    #   축의 값을 말하는지 인용까지 검산한다 — 그런데 `did` 를 안 남겨서 그 색인을 버리고 있었다.
+    #   남기면 *속성 → 정확한 문서 id* 가 **같은 비용으로** 나오고, 그것이 격리 서브에 **검색 없이**
+    #   넘길 재료의 선언이 된다([[71]] 계약 3항). ⚠제목 규칙으로는 구멍이 난다 — 실측: gold_account
+    #   14편 중 제목에 interest/APY 가 있는 것은 3편인데, 값은 `specifications and requirements`
+    #   처럼 제목이 축을 안 말하는 문서에도 있다. 인용이 검산된 문서만 담는다.
+    attr_docs = collections.defaultdict(set)        # attr -> {doc_id}  ★인용이 검산된 문서만
+    class_docs = collections.defaultdict(set)       # class -> {doc_id} (스캔 분모)
     example = {}                                    # attr -> (class, value, quote)
     req_example = {}                                # attr -> (class, requirement, quote)
     rejected = ndocs = 0
@@ -102,6 +111,7 @@ def main():
             docs = docs[:a.maxdocs]
         for did, text in docs:
             ndocs += 1
+            class_docs[cls].add(did)
             body = " ".join(text.split())[:12000]
             got = X.ask(a.port, SYS, "# Document %s\n%s\n" % (did, body), maxtok=900) or {}
             for it in (got.get("attributes") or []):
@@ -114,6 +124,7 @@ def main():
                     rejected += 1
                     continue
                 seen_classes[nm].add(cls)
+                attr_docs[nm].add(did)
                 example.setdefault(nm, (cls, v, " ".join(q.split())[:180]))
             for it in (got.get("requirements") or []):
                 if not isinstance(it, dict):
@@ -127,6 +138,7 @@ def main():
                     rejected += 1
                     continue
                 req_classes[nm].add(cls)
+                attr_docs[nm].add(did)
                 req_example.setdefault(nm, (cls, rq, " ".join(q.split())[:180]))
         print("  %-30s 누적 속성 %d종" % (cls[:30], len(seen_classes)))
 
@@ -150,6 +162,8 @@ def main():
                "requirements": {n: sorted(s) for n, s in req_classes.items()},
                "req_example": {n: {"class": c, "requirement": r, "quote": q}
                                for n, (c, r, q) in req_example.items()},
+               "attr_docs": {n: sorted(v) for n, v in attr_docs.items()},
+               "class_docs": {c: sorted(v) for c, v in class_docs.items()},
                "adopt": [n for n, _s in adopt], "new_vs_declared": [n for n, _s in new],
                "declared_never_seen": missing_now}
     _p0 = os.path.join(REP, a.out)
@@ -173,18 +187,9 @@ def main():
     print("\n[현행 선언에 있는데 한 번도 관측 안 된 속성]")
     print("  " + (", ".join(missing_now) if missing_now else "(없음)"))
 
-    p = os.path.join(REP, a.out)
-    with io.open(p, "w", encoding="utf-8") as f:
-        json.dump({"minclasses": a.minclasses, "n_docs": ndocs, "rejected": rejected,
-                   "observed": {n: sorted(s) for n, s in seen_classes.items()},
-                   "example": {n: {"class": c, "value": v, "quote": q}
-                               for n, (c, v, q) in example.items()},
-                   "requirements": {n: sorted(s) for n, s in req_classes.items()},
-                   "req_example": {n: {"class": c, "requirement": r, "quote": q}
-                                   for n, (c, r, q) in req_example.items()},
-                   "adopt": [n for n, _s in adopt], "new_vs_declared": [n for n, _s in new],
-                   "declared_never_seen": missing_now}, f, ensure_ascii=False, indent=1)
-    print("\n→ %s" % p)
+    # ⛔말미의 두 번째 쓰기는 **삭제했다**(2026-08-21). 같은 경로에 구 payload 를 다시 써서 위의 선기록을
+    #   덮었고, 그래서 완주한 런의 산출물엔 `families` 가 **없었다** — 선기록이 살아남는 경우가
+    #   *"보고 루프가 죽었을 때"* 뿐이었다는 뜻이다. 쓰기는 한 자리만 둔다.
     return 0
 
 
