@@ -61,6 +61,32 @@ SYS = ("Answer ONLY from the document. Reply with ONE JSON object with two lists
        "Use empty lists if the document states none.")
 
 
+def locate(q, lines, maxwin=8):
+    """검산이 끝난 인용이 문서 **어디**인지 — (시작 줄, 창 크기). 못 찾으면 (None, None).
+
+    사용자 지시(2026-08-21): *"문서 전체적으로 깨끗하게 읽고, 인용해야할 문서 id 및 필요하면
+    위치까지 A3 에 기록하라."* 위치가 있으면 격리 서브에 **절 단위로** 넘길 수 있다 — 실측
+    부피가 클래스 3개 전량 ≈ 36,870자인데 x448 은 15,503자에서 되고 90,000자에서 절단돼 실패했다.
+
+    엔진은 **찾기만** 한다: 정본 검산(`t2_search.quote_in`)으로 창을 1줄부터 넓혀 가장 좁은
+    창을 취한다. 뜻은 안 본다([[59]]).
+    """
+    n = len(lines)
+    for k in range(1, maxwin + 1):
+        for i in range(0, max(1, n - k + 1)):
+            if C.contained(q, "\n".join(lines[i:i + k])):
+                return i, k
+    return None, None
+
+
+def section_of(lines, i):
+    """그 줄을 감싸는 소제목 — 마크다운 헤딩 한 줄(형태만·`^#{1,6}\s`)."""
+    for j in range(min(i, len(lines) - 1), -1, -1):
+        if re.match(r"\s*#{1,6}\s+\S", lines[j] or ""):
+            return " ".join((lines[j] or "").split())
+    return ""
+
+
 def slug(name):
     """속성 이름 정규화 — **형태만**(소문자·비영숫자→`_`). 뜻은 안 본다([[59]])."""
     return re.sub(r"[^a-z0-9]+", "_", str(name or "").lower()).strip("_")
@@ -100,6 +126,7 @@ def main():
     #   넘길 재료의 선언이 된다([[71]] 계약 3항). ⚠제목 규칙으로는 구멍이 난다 — 실측: gold_account
     #   14편 중 제목에 interest/APY 가 있는 것은 3편인데, 값은 `specifications and requirements`
     #   처럼 제목이 축을 안 말하는 문서에도 있다. 인용이 검산된 문서만 담는다.
+    cites = collections.defaultdict(list)           # attr -> [{doc,class,line,span,section,quote}]
     attr_docs = collections.defaultdict(set)        # attr -> {doc_id}  ★인용이 검산된 문서만
     class_docs = collections.defaultdict(set)       # class -> {doc_id} (스캔 분모)
     example = {}                                    # attr -> (class, value, quote)
@@ -113,6 +140,9 @@ def main():
             ndocs += 1
             class_docs[cls].add(did)
             body = " ".join(text.split())[:12000]
+            # ★위치 기록용 **원문 줄** (검산은 종전 `body` 그대로 — 거동 보존).
+            #   실측: 문서 최대 7,878자라 12,000 절단에 걸리는 문서는 **0편**이다.
+            raw_lines = (text or "").split("\n")
             got = X.ask(a.port, SYS, "# Document %s\n%s\n" % (did, body), maxtok=900) or {}
             for it in (got.get("attributes") or []):
                 if not isinstance(it, dict):
@@ -124,6 +154,11 @@ def main():
                     rejected += 1
                     continue
                 seen_classes[nm].add(cls)
+                _li, _lk = locate(q, raw_lines)
+                cites[nm].append({"doc": did, "class": cls, "axis": "value", "value": v,
+                                  "line": _li, "span": _lk,
+                                  "section": section_of(raw_lines, _li) if _li is not None else "",
+                                  "quote": " ".join(q.split())[:300]})
                 attr_docs[nm].add(did)
                 example.setdefault(nm, (cls, v, " ".join(q.split())[:180]))
             for it in (got.get("requirements") or []):
@@ -138,6 +173,11 @@ def main():
                     rejected += 1
                     continue
                 req_classes[nm].add(cls)
+                _li, _lk = locate(q, raw_lines)
+                cites[nm].append({"doc": did, "class": cls, "axis": "requirement", "value": rq,
+                                  "line": _li, "span": _lk,
+                                  "section": section_of(raw_lines, _li) if _li is not None else "",
+                                  "quote": " ".join(q.split())[:300]})
                 attr_docs[nm].add(did)
                 req_example.setdefault(nm, (cls, rq, " ".join(q.split())[:180]))
         print("  %-30s 누적 속성 %d종" % (cls[:30], len(seen_classes)))
@@ -163,6 +203,9 @@ def main():
                "req_example": {n: {"class": c, "requirement": r, "quote": q}
                                for n, (c, r, q) in req_example.items()},
                "attr_docs": {n: sorted(v) for n, v in attr_docs.items()},
+               "cites": {n: v for n, v in cites.items()},
+               "n_cites": sum(len(v) for v in cites.values()),
+               "n_cites_unlocated": sum(1 for v in cites.values() for c in v if c["line"] is None),
                "class_docs": {c: sorted(v) for c, v in class_docs.items()},
                "adopt": [n for n, _s in adopt], "new_vs_declared": [n for n, _s in new],
                "declared_never_seen": missing_now}
