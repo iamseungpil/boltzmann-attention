@@ -238,6 +238,20 @@ def test_f8():
         "required/missing 부재 → 무발화(느슨 매칭 방지)")
     chk(PK._argprod_hits({}, "Missing required: card_last_4_digits") == [],
         "선언 없는 도메인(retail형) → 전역 무개입")
+    # ★2026-08-21 t7335 085 재현: KB 검색 **본문**(정책 문서)이 'required'+선언 인자명을 축자
+    #   포함해도 에러-형상('Error' 접두 ∨ error 플래그)이 아니면 무발화 — 085선 이 오발화 2회가
+    #   "get_card_last_4_digits를 건네라" 넛지로 debit 문의를 credit 축 식별에 고착시켰다.
+    kb_doc = ("9. Filing a Credit Card Transaction Dispute (Internal)\n"
+              "## Tool Arguments - Each numbered item below corresponds to a required "
+              "argument:\n3. card_last_4_digits (string) - Last 4 digits of the credit card")
+    chk(PK._argprod_hits(A2, kb_doc) == [],
+        "KB 문서 본문(비-에러·required+인자명 실재) → 무발화 (t7335 085 오발화 재현)")
+    chk(PK._argprod_hits(A2, "Missing required parameter: card_last_4_digits",
+                         is_error=True)
+        == [("card_last_4_digits", "get_card_last_4_digits")],
+        "접두 없어도 프레임워크 error 플래그면 발화(is_error 경로)")
+    chk(PK._argprod_hits(A2, "Missing required parameter: card_last_4_digits") == [],
+        "접두·플래그 둘 다 없으면 무발화(에러-형상 게이트)")
 
 
 if __name__ == "__main__":

@@ -263,13 +263,21 @@ def _is_user_channel(env, name):
     return False
 
 
-def _argprod_hits(a2, content):
+def _argprod_hits(a2, content, is_error=False):
     """★F8(C211·DAY7 §F8) 순수 트리거: 도구 에러 content에 'required/missing'류 + A2 `arg_producers`
     선언 인자명이 부분문자열로 실재하면 [(arg, user_tool)] 반환. day6 040/041 [S]: 필수인자
     (card_last_4_digits)의 생산자가 **한 번도 실행된 적 없는 유저-도구**라 VALUE_ACQUIRE(producer 출력
-    실재 전제)가 원리적 불발 → 오도구 전환(경로-최소저항). 판정=A2 선언 대조뿐(도메인 리터럴 0)."""
+    실재 전제)가 원리적 불발 → 오도구 전환(경로-최소저항). 판정=A2 선언 대조뿐(도메인 리터럴 0).
+    ★2026-08-21(t7335 085 [S]): 명세("도구 **에러** content")와 달리 에러-형상 검사가 없어 KB 검색
+    **본문**(정책 문서가 'required'+선언 인자명을 축자 포함 — 085선 credit-dispute 필링 문서)에
+    2회 오발화 → 'get_card_last_4_digits를 건네라' 넛지가 debit 문의를 credit 축 식별로 고착.
+    게이트=is_error(프레임워크 ToolMessage.error) ∨ content가 'Error' 접두(tau2 env 관례 —
+    `environment.py:480` `f"Error: {e}"`; env는 에러 content에도 플래그를 안 세워 접두가 실질 술어).
+    둘 다 프레임워크 형상 판정이며 도메인 리터럴 0. KB/레코드 본문은 접두가 아니라 차단된다."""
     ap = (a2 or {}).get("arg_producers") or {}
     c = str(content or "")
+    if not (is_error or c.lstrip().startswith("Error")):
+        return []
     if not ap or not ("required" in c.lower() or "missing" in c.lower()):
         return []
     out = []
@@ -606,7 +614,8 @@ def apply():
                         _id2nm2 = {getattr(t, "id", None): getattr(t, "name", None)
                                    for t in (tool_calls or [])}
                         for r in (out or []):
-                            _hits = _argprod_hits(a2, getattr(r, "content", "") or "")
+                            _hits = _argprod_hits(a2, getattr(r, "content", "") or "",
+                                                  is_error=bool(getattr(r, "error", False)))
                             _hits = [(a, t) for a, t in _hits if t not in _seen_tools]
                             if not _hits:
                                 continue
