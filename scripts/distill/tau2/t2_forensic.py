@@ -136,12 +136,35 @@ def sidecar(tag):
     return out
 
 
+def _as_dict(tc):
+    """호출 하나를 dict 로 본다 — **영속 JSON 의 dict** 든 **라이브 `ToolCall` 객체**든.
+
+    2026-08-21: 궤적 재생 프로브(`x459`)가 `la.generate` 의 응답을 그대로 넘겼더니
+    `'ToolCall' object has no attribute 'get'` 로 죽었다. 로더는 여태 영속 dict 만 봤는데,
+    같은 물음(*"무엇을 불렀나"*)이 라이브 객체에도 필요하다. 사본을 만들지 않고 여기서 흡수한다.
+    """
+    if isinstance(tc, dict):
+        return tc
+    out = {}
+    for k in ("name", "arguments", "id", "requestor", "function"):
+        v = getattr(tc, k, None)
+        if v is not None:
+            out[k] = v
+    f = out.get("function")
+    if f is not None and not isinstance(f, dict):
+        out["function"] = {"name": getattr(f, "name", None),
+                           "arguments": getattr(f, "arguments", None)}
+    return out
+
+
 def nameof(tc):
+    tc = _as_dict(tc)
     return (tc.get("function") or {}).get("name") or tc.get("name") or ""
 
 
 def argsof(tc):
     """인자 dict. 문자열이면 푼다(못 풀면 `_raw` 로 보존 — 조용히 버리지 않는다)."""
+    tc = _as_dict(tc)
     a = (tc.get("function") or {}).get("arguments", tc.get("arguments"))
     if isinstance(a, str):
         try:
