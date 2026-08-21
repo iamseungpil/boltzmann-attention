@@ -80,7 +80,7 @@ def locate(q, lines, maxwin=8):
 
 
 def section_of(lines, i):
-    """그 줄을 감싸는 소제목 — 마크다운 헤딩 한 줄(형태만·`^#{1,6}\s`)."""
+    r"""그 줄을 감싸는 소제목 — 마크다운 헤딩 한 줄(형태만·`^#{1,6}\s`)."""
     for j in range(min(i, len(lines) - 1), -1, -1):
         if re.match(r"\s*#{1,6}\s+\S", lines[j] or ""):
             return " ".join((lines[j] or "").split())
