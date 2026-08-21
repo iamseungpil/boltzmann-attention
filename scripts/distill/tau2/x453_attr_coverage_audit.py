@@ -140,6 +140,23 @@ def main():
     new = [(n, s) for n, s in adopt if n not in have]
     missing_now = [n for n in sorted(have) if n not in seen_classes]
 
+    # ★산출물을 **인쇄보다 먼저** 쓴다(2026-08-21): 1차 실행은 28 클래스를 다 돌고 나서
+    #   보고 루프의 `KeyError` 로 죽어 **JSON 을 통째로 잃었다**. 보고는 부수적이고 데이터가 본체다.
+    payload = {"minclasses": a.minclasses, "n_docs": ndocs, "rejected": rejected,
+               "families": fams,
+               "observed": {n: sorted(s) for n, s in seen_classes.items()},
+               "example": {n: {"class": c, "value": v, "quote": q}
+                           for n, (c, v, q) in example.items()},
+               "requirements": {n: sorted(s) for n, s in req_classes.items()},
+               "req_example": {n: {"class": c, "requirement": r, "quote": q}
+                               for n, (c, r, q) in req_example.items()},
+               "adopt": [n for n, _s in adopt], "new_vs_declared": [n for n, _s in new],
+               "declared_never_seen": missing_now}
+    _p0 = os.path.join(REP, a.out)
+    with io.open(_p0, "w", encoding="utf-8") as _f0:
+        json.dump(payload, _f0, ensure_ascii=False, indent=1)
+    print("\n[산출물 선기록] → %s" % _p0)
+
     print("\n" + "=" * 96)
     print("문서 %d편 · 검산 탈락 %d · 관측된 속성 %d종 · 채택(≥%d 클래스) %d종 · **현행에 없는 것 %d종**"
           % (ndocs, rejected, len(seen_classes), a.minclasses, len(adopt), len(new)))
@@ -149,7 +166,9 @@ def main():
         print("  %-32s %2d 클래스  %-14s %s" % (n[:32], len(s), str(rq)[:14], q[:58]))
     print("\n[채택되었는데 현행 선언에 없는 속성] — 이것이 목록의 결손이다")
     for n, s in new[:30]:
-        c, v, q = example[n]
+        # ★요건에만 등장한 축은 `example` 에 없다 — 1차 실행이 여기서 `KeyError` 로 죽어
+        #   **JSON 산출물을 통째로 잃었다**(2026-08-21). 두 사전 중 있는 쪽을 쓴다.
+        c, v, q = example.get(n) or req_example.get(n) or ("?", "?", "")
         print("  %-34s %2d 클래스  예: %s=%s  “%s”" % (n[:34], len(s), c[:14], str(v)[:14], q[:60]))
     print("\n[현행 선언에 있는데 한 번도 관측 안 된 속성]")
     print("  " + (", ".join(missing_now) if missing_now else "(없음)"))
