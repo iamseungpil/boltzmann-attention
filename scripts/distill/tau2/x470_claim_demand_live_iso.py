@@ -1,0 +1,638 @@
+# -*- coding: utf-8 -*-
+r"""x470 — 완료-사칭/행동-촉구 축 **격리-동형 라이브 재생** 프로브 (2026-08-22·무료·로컬 8141·LLM 재생만)
+
+## 왜 (정본 `CLAIM_DEMAND_ISO_VS_LIVE_AUDIT_2026_08_22.md` §5.1 — 이 파일은 그 설계의 구현이다)
+x459 ⒝ 의 D_name **15/15** 는 *도구 없는 naming 계기*(JSON 으로 이름만·temperature 0·문맥 1/7~1/10
+절단·실효 n=5)였고, 라이브 t7297 은 격리가 잰 문면을 **결정점에 한 번도 전달하지 않았다**(감사 §3·§4).
+⇒ *"결정점에서 D_name 을 실물 도구로 주면 **방출**하는가"* 는 측정된 적이 없다. 여기서 잰다 —
+**실물 메시지 복원 + 실물 도구 스키마 노출 + 실제 `tool_calls` 방출 채점**(naming 이 아니라 emission).
+
+## 결정점 풀 (닫힌 술어·x459 `claim_cases` 를 그대로 import — 사본 0·[[67]])
+    `mutation_diff(sim).missing ≠ ∅ ∧ 마지막 text-only assistant 발화 직전`  (pre = msgs[:last])
+로컬 영속분 전수 = **110**(t7296 27 · t7297 18 · t7328 28 · t7335 13 · t7336 24 — 감사 §5.1 수치와
+바이트 일치·`--wiring-only` 가 재현) → 완료-사칭 계열 050/072/073/074 = **44** ≥ 24. 기본 24 개는
+**태스크 round-robin**(파일 mtime 순 → trial 순)으로 고른다 — gold·성적을 보지 않는 고정 규칙.
+071/093 은 다른 축(등급·APY)이라 기본 제외(`--aux-tasks` 로 보조 블록만 따로).
+
+## 팔 (한 변수씩 · 도구 지목 0 · 도메인 어휘 0 · 문면은 아래 상수 그대로)
+    A_asis   복원 그대로                                     라이브 재현 기준선(x459 A_asis 1/5 가 재현돼야 계기 정상)
+    N_neg    + user "Please continue."                       부정통제([[57]]) — 인자 변화 없는 촉구
+    L_live   + user "Carry out the next step of this request now."   t7297 처치 문면 = 격리서 얼마나 사는가
+    D_name   + user  x459 D_name 문면 **축자**("SYSTEM: If you are about to say something is done, …")
+    D_sys    같은 문면을 **system 자리**(에이전트 system 프롬프트 뒤·대화 앞)에 — C578 위치 축 1변수
+    E_early  조사 완료 **전** 컷(같은 sim 의 **첫** text-only assistant 발화 직전·손님 발화 ≥1) + D_name
+             — x330 `D_EARLY` 동형 부정통제: 여기서 방출이 바닥 위면 문면이 문맥과 무관하게 방출을
+             부추기는 것이라 **프로브 무효**
+  N_neg/L_live/D_name/E_early 는 전부 **마지막 user 메시지 한 줄**(라이브 ACT_DEMAND 와 같은 자리 =
+  비커밋 버퍼의 마지막 UserMessage). 그 외 바이트는 A_asis 와 동일(`--wiring-only` 가 검산).
+
+## 재생 인터페이스 (정보-맞춘 격리·[[62]] §1.4·[[18]])
+  · 결정점 직전 **전체 문맥** — 절단 0(x459 ⒝ 의 600/400자 렌더 절단을 반복하지 않는다).
+  · 메시지는 영속 dict → **실제 메시지 객체**(x459 ⒜ `replay` 관용구·58/58) · 복원 누락은 **수로 보고**.
+  · 도구 = `x448.Sandbox` 의 env 실물(alltools = 라이브 `go_stack.sh:221` 과 동일 17종).
+  · ★system 프롬프트: 영속 메시지에는 system 이 **없다**(실측·role ∈ {assistant,user,tool}). 라이브
+    깔때기는 `la.generate(messages=self._system_messages + work)`(`t2_gate_patch.py:6129`) 이므로
+    `LLMAgent(tools, domain_policy=sim["policy"])` 의 init state 에서 **같은 system 메시지를 재구성**해
+    앞에 둔다. ⚠x459/x465 의 `replay()` 는 이것을 빠뜨렸다 — 정책 없는 재생이었다([[55]] 계기 항목).
+  · 생성 = `la.generate(..., temperature=t, max_tokens=8192)`(라이브 `T2_AGENT_MAX_TOKENS`·`tool_choice` auto).
+
+## 채점 (닫힌 술어·한 함수 `score()` · naming 은 채점하지 않는다 · gold 수치·tasks 파일 0)
+  응답의 `tool_calls` 를 정본 `t2_forensic.nameof/argsof/inner_name/flat_args/mut_key` 로 풀어
+  (래퍼 해제 = `EXECS` 안쪽·`GRANTS` 는 부여라 실행 아님·접미 `_NNNN` 해제 = `_eff_tool_name` 규약):
+    MISS        실행 대상(접미 해제)이 **MISSING 변이의 도구 이름** 집합에 있다      ← 1차(`exact`=key 까지 일치)
+    DUP         실행 key 가 그 sim 에서 **이미 성공한 변이 key** 와 같다              ← [[70]] 파는 것
+    MUT_OTHER   다른 변이 도구(`mutating_tools()`)를 실행한다                         ← 2차·over-action 후보
+    GRANT_MISS  unlock/give 의 대상이 MISSING 도구다(부여만·C489 "unlock 만 하고 끝" 형)
+    READ        그 밖의 호출 (비변이)
+    TEXT        `tool_calls == []` (text 잔류 = 라이브 결과 재현)
+  표본 분류는 우선순위 MISS > DUP > MUT_OTHER > GRANT_MISS > READ > TEXT, 플래그는 독립 보고.
+  변이 집합은 **`t2_forensic.mutation_diff`** 만으로 얻는다(손 비교기 0).
+
+## n · 사전 고정 판정 (감사 §5.1 축자 · 1차 수치 = 결정점당 **det(t=0) 1발 /24**, 꼬리 = t=0.7 ×2)
+    E_early MISS ≥ 8/24                    → **프로브 무효**(문면이 문맥 무관하게 방출을 부추김)
+    A_asis  MISS ≥ 8/24                    → 라이브 재현 실패 = **계기 결함**(결과 사용 금지·[[55]])
+    D_name − N_neg ≥ 5                     → D_name 이 **방출 축**에서 산다 (그때만 라이브 이관·§5.2 T1)
+    |D_name−L_live|<5 ∧ |D_name−N_neg|<5   → 문면 무효 = 잔여는 [[13]] learn 축
+    D_sys − D_name ≥ 5                     → 위치 축 추가(C578)
+  차이 <5 는 잡음(C483 ±4)으로 읽지 않는다. 태스크별 부호표·DUP·MUT_OTHER 를 팔마다 병기한다([[70]]).
+  ⛔격리 결과는 **경계 판정**이지 승격 근거가 아니다 — 성적은 본런 reward([[69]]·§5.3)에서만.
+
+## [[71]] 격리 서브에이전트 계약 — 4문 답
+  1) 기능 하나인가 — 하나다. 재생 서브(=결정점 재생성)는 **다음 발화/호출 생성** 하나만 한다. 채점은
+     엔진이 닫힌 집합 대조로 바깥에서 한다.
+  2) 재료가 선언에서 읽혀 나왔나 — 재료는 **실물 궤적**(영속 메시지 축자)과 **env 실물 도구 스키마**뿐.
+     팔 문면은 우리 프로토콜 문면(출처 = x459/t7297 코드·[[23]] 무관). gold 는 `mutation_diff` 경유로
+     **채점에만** 쓰고 프롬프트에는 한 바이트도 안 들어간다.
+  3) 전달이 정확 집기인가 — 그렇다. 메시지는 색인 그대로(`msgs[:at]`) 복원·검색 0·요약 0.
+  4) 엔진이 해석·선택·순위를 하지 않는가 — 안 한다. 어느 팔도 도구를 지목·순위·정답 문장을 내지
+     않는다(감사 ⚠[[62]] ③④). 엔진은 집합 대조만.
+
+## [[62]] 4문 답
+  ① 결손을 격리로 쟀나 — 이것이 그 측정이다(감사 §4 "미확정" 을 닫는 유일한 자리).
+  ② 격리에서 되면 레버는 전달뿐인가 — 그렇다. D_name 이 살면 처방은 §5.2 T1~T5 **전달 수리**뿐
+     (문면 이식·슬롯 분리·재무장·트리거·후속 deny) — 결정론기 추가 0.
+  ③ 사라지는 모델 판단 0 — 무엇을 부를지·완료인지 판단은 끝까지 모델.
+  ④ 엔진 출력에 argmax·최댓값·"정답은 X" 0 — 팔은 한 줄 문면뿐, 채점은 바깥.
+
+## [[70]] 각 팔이 파는 것 (병기 의무)
+  · 문맥 바이트: N_neg +16자 · L_live +44자 · D_name/E_early +136자 · D_sys +136자(system 슬롯) — 전부
+    한 줄이라 매몰(C578)은 없다. 단 마지막 user 가 연속 2개가 되는 결정점이 있다(실측 16/24·구조
+    사실·라이브 ACT_DEMAND 도 같은 구조) — `--wiring-only` 가 센다.
+  · DUP 위험: "make it now" 가 이미 성공한 변이를 **다시** 부르게 할 수 있다(050 승인 중복 계열·
+    [[69]]) — `DUP` 플래그로 팔마다 센다. over-action 은 `MUT_OTHER` 로 센다(C492 2→8 동형).
+  · E_early 는 팔이 아니라 통제 — 여기서 MISS 가 나오면 그것이 곧 D_name 의 **과폭 비용**이다.
+
+## [[05]] 3질문
+  ⑴ 도메인 어휘 0 — 문면 3종은 도메인-일반 영어(`--wiring-only` 가 env 도구명 토큰과 교차 검산).
+  ⑵ 유동 판단 동결 0 — 무엇을 부를지는 모델. ⑶ 엔진은 도메인 행동을 수행하지 않는다 — 재생·대조만.
+
+## 실행 (⚠리모트 · vLLM Qwen2.5-32B-GPTQ-Int8 @ 8141 · **GPU 유휴 시에만** · 유료 0)
+    cd /home/woori/scratch/tau2-bench && source /home/woori/.openai_key && \
+    PYTHONPATH=src:scripts/distill/tau2 PYTHONIOENCODING=utf-8 \
+    python scripts/distill/tau2/x470_claim_demand_live_iso.py --port 8141
+    # 배선만(LLM 0·GPU 0·tau2 없는 로컬에서도 통과): ... x470_claim_demand_live_iso.py --wiring-only
+    # 44 결정점 전수: --max-cases 0   · 보조 블록(071/093): --aux-tasks 071,093
+"""
+import argparse
+import collections
+import copy
+import io
+import json
+import os
+import re
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
+import t2_forensic as F                 # noqa: E402  정본 로더·래퍼 해제·mutation_diff(사본 금지·[[67]])
+import x459_dup_and_claim_iso as X459   # noqa: E402  `claim_cases` 결정점 술어 — 그대로 import(사본 0)
+
+REP = os.path.abspath(os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026"))
+NLC = chr(10)
+
+# ── 팔 문면 (상수·도메인 어휘 0·도구 지목 0) ──────────────────────────────────
+# x459 ⒝ D_name 축자(접두 "SYSTEM: " 포함 — x459 가 user 본문에 붙인 문자열 그대로). D_sys 도 같은
+# 바이트를 쓴다 — 두 팔의 차이는 **자리(역할)** 하나다.
+D_TEXT = ("SYSTEM: If you are about to say something is done, you must first name the tool call "
+          "that did it. If no such call was made, make it now.")
+N_TEXT = "Please continue."                                      # x459 N_neg 축자
+L_TEXT = "Carry out the next step of this request now."          # t2_gate_patch.py:8450 `_dm` 축자
+ARM_TEXT = {"N_neg": N_TEXT, "L_live": L_TEXT, "D_name": D_TEXT, "D_sys": D_TEXT, "E_early": D_TEXT}
+ARMS = ("A_asis", "N_neg", "L_live", "D_name", "D_sys", "E_early")
+CLAIM_TASKS = ("050", "072", "073", "074")                       # 감사 §5.1 완료-사칭 계열
+RUNS = ("t7296", "t7297", "t7328", "t7335", "t7336")             # 감사 §5.1 로컬 영속분 5런
+CATS = ("MISS", "DUP", "MUT_OTHER", "GRANT_MISS", "READ", "TEXT", "EXC")
+# 팔 문면 토큰 ∩ 도구명 토큰 중 허용 — 도메인 명사가 아닌 것만(출력에 허용 목록을 같이 찍는다):
+#   tool/call/name = 하네스 프로토콜 어휘(`*_tool`·`call_*`·`get_user_information_by_name`)
+#   request/to    = 영어 기능어(`*_request_*`·`transfer_to_human_agents`)
+PROTO_WORDS = {"tool", "call", "name", "request", "to"}
+
+
+def _role(m):
+    return str(m.get("role") or "") if isinstance(m, dict) else ""
+
+
+def _content(m):
+    return str((m.get("content") if isinstance(m, dict) else None) or "")
+
+
+def _sfx(n):
+    """`_NNNN` 접미 해제 — env discoverable 명명 관행(`t2_gate_patch._eff_tool_name` 과 같은 규약)."""
+    return re.sub(r"_\d+$", "", str(n or ""))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ① 결정점 풀
+# ─────────────────────────────────────────────────────────────────────────────
+def pool(runs, tasks):
+    """로컬 영속분 전수 → x459 `claim_cases` 술어 → (태그·sim·결정점) 행. gold 수치·성적은 보지 않는다."""
+    files = [p for p in F.all_result_files() if any(r in os.path.basename(p) for r in runs)]
+    out, per_run, per_task = [], collections.Counter(), collections.Counter()
+    for p in files:
+        tag = F.tag_of_file(p)
+        run = next((r for r in runs if r in tag), "?")
+        try:
+            sims = F.sims(p)
+        except Exception as e:
+            print("  ⚠%s 로드 실패: %r" % (tag, e))
+            continue
+        for s in sims:
+            cc = X459.claim_cases([s])
+            if not cc:
+                continue
+            per_run[run] += 1
+            per_task[F.task_id(s)] += 1
+            c = cc[0]
+            if str(c["task"]).split("_")[-1] not in tasks:
+                continue
+            d = F.mutation_diff(s)
+            c.update({"tag": tag, "run": run, "simtag": F.simtag(s), "policy": s.get("policy") or "",
+                      "missing_names": sorted({m["name"] for m in d["missing"]}),
+                      "missing_keys": sorted({m["key"] for m in d["missing"]}),
+                      "done_keys": sorted({m["key"] for m in d["done"]}),
+                      "done": d["done"], "missing_rows": d["missing"],
+                      "early": early_cut(s.get("messages") or [], c["at"])})
+            out.append(c)
+    return out, per_run, per_task
+
+
+def early_cut(msgs, at):
+    """E_early 컷 — 같은 sim 의 **첫** text-only assistant 발화 직전(손님 발화가 하나는 앞서야 한다).
+
+    닫힌 구조 술어만(역할·tool_calls 유무). tau2 는 msgs[0] 이 에이전트 인사(text-only)라 손님 발화 0
+    인 자리는 제외한다. 결정점(`at`)과 같으면 이른 컷이 없다 → None(그 결정점은 E_early 표본 없음·보고).
+    """
+    seen_user = False
+    for i, m in enumerate(msgs):
+        if i >= at:
+            return None
+        if _role(m) == "user" and _content(m).strip():
+            seen_user = True
+        if (seen_user and _role(m) == "assistant" and _content(m).strip()
+                and not (m.get("tool_calls") or [])):
+            return i
+    return None
+
+
+def select(cases, k):
+    """태스크 round-robin — 파일 mtime 순(`all_result_files`) → trial 순. k=0 이면 전부."""
+    if not k or k >= len(cases):
+        return list(cases)
+    by = collections.OrderedDict()
+    for c in cases:
+        by.setdefault(c["task"], []).append(c)
+    out = []
+    while len(out) < k:
+        took = False
+        for t in by:
+            if by[t] and len(out) < k:
+                out.append(by[t].pop(0))
+                took = True
+        if not took:
+            break
+    return out
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ② 팔 조립 (dict 수준 — 객체 복원은 ③ 에서)
+# ─────────────────────────────────────────────────────────────────────────────
+def build_arms(c, arms):
+    """각 팔의 (system-슬롯 추가 메시지, 대화 메시지) — 한 변수(한 줄)만 다르다. 나머지는 deepcopy 동일."""
+    pre = c["pre"]
+    out = {}
+    for arm in arms:
+        if arm == "A_asis":
+            out[arm] = ([], copy.deepcopy(pre))
+        elif arm in ("N_neg", "L_live", "D_name"):
+            out[arm] = ([], copy.deepcopy(pre) + [{"role": "user", "content": ARM_TEXT[arm]}])
+        elif arm == "D_sys":
+            out[arm] = ([{"role": "system", "content": D_TEXT}], copy.deepcopy(pre))
+        elif arm == "E_early":
+            if c.get("early") is None:
+                continue
+            out[arm] = ([], copy.deepcopy(pre[:c["early"]]) + [{"role": "user", "content": D_TEXT}])
+    return out
+
+
+def ctx_chars(msgs):
+    return sum(len(_content(m)) + len(json.dumps(m.get("tool_calls") or [], default=str))
+               for m in msgs)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ③ 재생 (tau2 실물 — 리모트)
+# ─────────────────────────────────────────────────────────────────────────────
+def restore(msgs):
+    """영속 dict → 실제 메시지 객체(x459 ⒜ 관용구). 누락은 **수로** 돌려준다(조용히 버리지 않는다)."""
+    from tau2.data_model.message import UserMessage, AssistantMessage, ToolMessage, SystemMessage
+    CLS = {"user": UserMessage, "assistant": AssistantMessage,
+           "tool": ToolMessage, "system": SystemMessage}
+    out, dropped = [], 0
+    for m in msgs:
+        C = CLS.get(_role(m))
+        if C is None:
+            dropped += 1
+            continue
+        try:
+            out.append(C(**dict(m)))
+        except Exception:
+            dropped += 1
+    return out, dropped
+
+
+def system_messages(tools, policy, model):
+    """라이브 깔때기의 `self._system_messages` 를 같은 경로로 재구성한다(`state.system_messages`)."""
+    import tau2.agent.llm_agent as la
+    ag = la.LLMAgent(tools=tools, domain_policy=policy, llm="openai/%s" % model, llm_args={})
+    try:
+        st = ag.get_init_state()
+        sm = list(getattr(st, "system_messages", None) or [])
+        if sm:
+            return sm, "state.system_messages"
+    except Exception:
+        pass
+    from tau2.data_model.message import SystemMessage
+    return [SystemMessage(role="system", content=ag.system_prompt)], "agent.system_prompt"
+
+
+def replay(sys_msgs, extra_sys, msgs, tools, model, base, temperature, max_tokens):
+    """실물 도구 스키마 + 실제 메시지 객체 + `la.generate` — 라이브 `_gen` 과 같은 깔때기."""
+    import tau2.agent.llm_agent as la
+    from tau2.data_model.message import SystemMessage
+    work, dropped = restore(msgs)
+    head = list(sys_msgs) + [SystemMessage(role="system", content=_content(m)) for m in extra_sys]
+    resp = la.generate(model="openai/%s" % model, tools=tools, messages=head + work,
+                       call_name="x470_replay", api_base=base, api_key="dummy",
+                       temperature=temperature, max_tokens=max_tokens)
+    calls = [(F.nameof(t), F.argsof(t)) for t in (getattr(resp, "tool_calls", None) or [])]
+    return calls, str(getattr(resp, "content", None) or ""), dropped
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ④ 채점 — 닫힌 술어 한 함수
+# ─────────────────────────────────────────────────────────────────────────────
+def score(calls, c, mut):
+    """방출된 (name, args) 목록 → 플래그 + 대표 분류. 집합은 전부 `mutation_diff` 산출물.
+
+    실행 대상 = `EXECS` 래퍼면 안쪽 이름(`inner_name`), `GRANTS` 는 실행이 아니라 부여. key 는
+    `attempted_mutations` 와 **같은 식**(`mut_key(inner or name, flat_args(args))`)으로 만들어 대조한다.
+    """
+    miss0 = {_sfx(n) for n in c["missing_names"]}
+    mut0 = {_sfx(n) for n in mut}
+    fl = {"MISS": False, "exact": False, "DUP": False, "MUT_OTHER": False,
+          "GRANT_MISS": False, "READ": False, "TEXT": not calls}
+    hits = []
+    for nm, ag in calls:
+        ag = ag or {}
+        if nm in F.GRANTS:
+            inner = F.inner_name(ag)
+            if _sfx(inner) in miss0:
+                fl["GRANT_MISS"] = True
+                hits.append("grant:" + str(inner))
+            else:
+                fl["READ"] = True
+            continue
+        tgt = (F.inner_name(ag) or nm) if nm in F.EXECS else nm
+        if _sfx(tgt) not in mut0 and tgt not in mut:
+            fl["READ"] = True
+            continue
+        key = F.mut_key(str(tgt), F.flat_args(ag))
+        if key in c["done_keys"]:
+            fl["DUP"] = True
+            hits.append("dup:" + str(tgt))
+        elif _sfx(tgt) in miss0:
+            fl["MISS"] = True
+            fl["exact"] = fl["exact"] or (key in c["missing_keys"])
+            hits.append(("miss=:" if key in c["missing_keys"] else "miss~:") + str(tgt))
+        else:
+            fl["MUT_OTHER"] = True
+            hits.append("mut:" + str(tgt))
+    cat = next((k for k in ("MISS", "DUP", "MUT_OTHER", "GRANT_MISS", "READ", "TEXT") if fl[k]), "TEXT")
+    return cat, fl, hits
+
+
+class _TC(object):
+    """ToolCall 객체 모양(name/arguments 속성) — `F._as_dict` 의 객체 경로 자기검정용."""
+
+    def __init__(self, name, arguments):
+        self.name, self.arguments, self.id = name, arguments, "x"
+
+
+def selftest_scorer(cases, mut):
+    """채점기 자기검정 — 실제 결정점의 MISSING/done 집합 위에 합성 호출을 얹어 분류를 고정한다."""
+    c = cases[0]
+    miss = c["missing_rows"][0]
+    mn, ma = miss["name"], miss["args"]
+    other = sorted(n for n in mut if _sfx(n) not in {_sfx(x) for x in c["missing_names"]}
+                   and n not in F.WRAPPERS)
+    checks = [
+        ("MISS exact (call 래퍼)", [(F.CALLA, {"agent_tool_name": mn, "arguments": ma})], "MISS", {"exact": True}),
+        ("MISS name-only (인자 다름)", [(F.CALLA, {"agent_tool_name": mn, "arguments": {"zz": "1"}})], "MISS", {"exact": False}),
+        ("MISS 직접 호출", [(mn, ma)], "MISS", {"exact": True}),
+        ("GRANT_MISS (unlock)", [(F.UNLOCK, {"agent_tool_name": mn})], "GRANT_MISS", {}),
+        ("READ", [("KB_search_bm25", {"query": "q", "k": 3})], "READ", {}),
+        ("TEXT", [], "TEXT", {"TEXT": True}),
+        ("MUT_OTHER", [(other[0], {"a": "1"})] if other else [], "MUT_OTHER" if other else "TEXT", {}),
+        ("MISS > READ 우선", [("KB_search_bm25", {"query": "q"}), (mn, ma)], "MISS", {"READ": True}),
+    ]
+    dc = next((x for x in cases if x["done"]), None)
+    if dc is not None:
+        d0 = dc["done"][0]
+        checks.append(("DUP (이미 성공한 key)", [(F.CALLA, {"agent_tool_name": d0["name"],
+                                                          "arguments": d0["args"]})], "DUP", {}))
+    else:
+        print("   ⚠선택 결정점에 done 변이가 없어 DUP 자기검정 생략(전수 모드 `--max-cases 0` 로 확인)")
+    ok = True
+    for label, calls, want, flags in checks:
+        cc = dc if label.startswith("DUP") else c
+        cat, fl, hits = score(calls, cc, mut)
+        good = (cat == want) and all(fl.get(k) == v for k, v in flags.items())
+        ok &= good
+        print("   %-4s %-28s → %-10s %s" % ("ok" if good else "FAIL", label, cat, ",".join(hits)))
+    # 객체 경로(라이브 ToolCall 모양) — `F._as_dict` 가 흡수하는지
+    objs = [_TC(F.CALLA, {"agent_tool_name": mn, "arguments": ma})]
+    calls = [(F.nameof(t), F.argsof(t)) for t in objs]
+    cat, fl, _h = score(calls, c, mut)
+    good = cat == "MISS" and fl["exact"]
+    ok &= good
+    print("   %-4s %-28s → %s" % ("ok" if good else "FAIL", "ToolCall 객체 경로", cat))
+    return ok
+
+
+def vocab_check(tool_names):
+    """팔 문면 토큰 ∩ env 도구명 토큰 — 프로토콜 단어 외에 남으면 도메인 어휘 유입([[05]] ⑴)."""
+    tok = set()
+    for n in tool_names:
+        tok |= set(_sfx(n).lower().split("_"))
+    bad = {}
+    for arm, txt in ARM_TEXT.items():
+        words = set(re.findall(r"[a-z]+", txt.lower()))
+        inter = (words & tok) - PROTO_WORDS
+        if inter:
+            bad[arm] = sorted(inter)
+    return bad
+
+
+def local_tool_names():
+    """로컬(tau2 없음)용 도구명 출처 = `a2/env_surface.json`(환경 선언 축자) — 리모트는 실물 레지스트리."""
+    with io.open(os.path.join(HERE, "a2", "env_surface.json"), encoding="utf-8") as f:
+        return sorted(json.load(f)["banking_knowledge"]["tools"].keys())
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ⑤ 집계·판정
+# ─────────────────────────────────────────────────────────────────────────────
+def summarize(rows, arms, n_cases, tasks):
+    def cnt(arm, flag, det_only=False, any_of=False):
+        rs = [r for r in rows if r["arm"] == arm and r["cat"] != "EXC"]
+        if det_only:
+            return sum(1 for r in rs if r["k"] == 0 and r["flags"].get(flag))
+        if any_of:
+            by = collections.defaultdict(bool)
+            for r in rs:
+                by[r["case"]] |= bool(r["flags"].get(flag))
+            return sum(1 for v in by.values() if v)
+        return sum(1 for r in rs if r["flags"].get(flag))
+
+    print(NLC + "=" * 100)
+    print("%-8s %-10s %-10s %-10s  %-7s %-9s %-10s %-6s  n" % (
+        "팔", "MISS det", "MISS any3", "MISS tot", "DUP", "MUT_OTHER", "GRANT_MISS", "TEXT"))
+    det = {}
+    for arm in arms:
+        rs = [r for r in rows if r["arm"] == arm]
+        ncase = len({r["case"] for r in rs})
+        det[arm] = cnt(arm, "MISS", det_only=True)
+        print("%-8s %-10s %-10s %-10s  %-7d %-9d %-10d %-6d  %d" % (
+            arm, "%d/%d" % (det[arm], ncase), "%d/%d" % (cnt(arm, "MISS", any_of=True), ncase),
+            "%d/%d" % (cnt(arm, "MISS"), len(rs)), cnt(arm, "DUP"), cnt(arm, "MUT_OTHER"),
+            cnt(arm, "GRANT_MISS"), cnt(arm, "TEXT"), len(rs)))
+    print(NLC + "[[70]] 태스크별 부호표 (MISS det /결정점)")
+    print("%-8s %s" % ("팔", " ".join("%-12s" % t for t in tasks)))
+    for arm in arms:
+        cells = []
+        for t in tasks:
+            rs = [r for r in rows if r["arm"] == arm and r["task"].endswith(t) and r["k"] == 0
+                  and r["cat"] != "EXC"]
+            cells.append("%-12s" % ("%d/%d" % (sum(1 for r in rs if r["flags"]["MISS"]), len(rs))
+                                    if rs else "-"))
+        print("%-8s %s" % (arm, " ".join(cells)))
+    d = det
+    print(NLC + "사전 고정 판정 (det /%d · 차이 <5 는 잡음):" % n_cases)
+    if "E_early" in d and d["E_early"] >= 8:
+        print("  ⛔E_early MISS %d ≥ 8 → **프로브 무효**(문면이 문맥 무관하게 방출을 부추긴다)" % d["E_early"])
+    if "A_asis" in d and d["A_asis"] >= 8:
+        print("  ⛔A_asis MISS %d ≥ 8 → 라이브 text 종료가 재현되지 않음 = **계기 결함**([[55]]·결과 사용 금지)"
+              % d["A_asis"])
+    if all(k in d for k in ("D_name", "N_neg", "L_live")):
+        if d["D_name"] - d["N_neg"] >= 5:
+            print("  ✓D_name − N_neg = %d ≥ 5 → D_name 이 **방출 축**에서 산다(라이브 이관 = §5.2 T1 전달 수리)"
+                  % (d["D_name"] - d["N_neg"]))
+        elif abs(d["D_name"] - d["L_live"]) < 5 and abs(d["D_name"] - d["N_neg"]) < 5:
+            print("  ✗D_name≈L_live≈N_neg (%d/%d/%d) → 문면 무효 = 잔여는 [[13]] learn 축"
+                  % (d["D_name"], d["L_live"], d["N_neg"]))
+        else:
+            print("  ?D_name %d · L_live %d · N_neg %d — 규칙 어느 쪽도 아님(잡음 구간·n 추가 전 인용 금지)"
+                  % (d["D_name"], d["L_live"], d["N_neg"]))
+    if "D_sys" in d and "D_name" in d and d["D_sys"] - d["D_name"] >= 5:
+        print("  +D_sys − D_name = %d ≥ 5 → **위치 축** 추가(C578)" % (d["D_sys"] - d["D_name"]))
+    print("  ⛔격리 결과는 경계 판정이다 — 성적은 본런 reward([[69]]·§5.3) 에서만.")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--port", type=int, default=8141)
+    ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
+    ap.add_argument("--runs", default=",".join(RUNS), help="런 id 부분문자열(로컬 영속 결과 파일 필터)")
+    ap.add_argument("--tasks", default=",".join(CLAIM_TASKS))
+    ap.add_argument("--aux-tasks", default="", help="보조 블록(예: 071,093) — 주 집계와 분리 보고")
+    ap.add_argument("--max-cases", type=int, default=24, help="결정점 수(태스크 round-robin·0=전수 44)")
+    ap.add_argument("--arms", default=",".join(ARMS))
+    ap.add_argument("--temps", default="0.0,0.7,0.7", help="결정점×팔당 표집(det 1 + 꼬리 2·C483)")
+    ap.add_argument("--max-tokens", type=int, default=8192, help="라이브 T2_AGENT_MAX_TOKENS 와 동일")
+    ap.add_argument("--wiring-only", action="store_true", help="배선 검증만(LLM 0·GPU 0·[[55]])")
+    ap.add_argument("--out", default="x470_claim_demand_live_iso.json")
+    a = ap.parse_args()
+    runs = tuple(r.strip() for r in a.runs.split(",") if r.strip())
+    tasks = tuple(t.strip() for t in a.tasks.split(",") if t.strip())
+    aux = tuple(t.strip() for t in a.aux_tasks.split(",") if t.strip())
+    arms = [x.strip() for x in a.arms.split(",") if x.strip()]
+    temps = [float(t) for t in a.temps.split(",") if t.strip()]
+
+    # ── ① 결정점 풀 ──────────────────────────────────────────────────────────
+    cases, per_run, per_task = pool(runs, tasks + aux)
+    main_cases = [c for c in cases if str(c["task"]).split("_")[-1] in tasks]
+    aux_cases = [c for c in cases if str(c["task"]).split("_")[-1] in aux]
+    sel = select(main_cases, a.max_cases) + aux_cases
+    print("=" * 100)
+    print("x470 · 결정점 풀 전수 %d (%s) · 주 태스크 %s = %d · 보조 %s = %d · 선택 %d"
+          % (sum(per_run.values()), " · ".join("%s %d" % (r, per_run[r]) for r in runs),
+             "/".join(tasks), len(main_cases), "/".join(aux) or "-", len(aux_cases), len(sel)))
+    print("   풀 태스크별: %s" % ", ".join("%s %d" % (t.split("_")[-1], n)
+                                         for t, n in per_task.most_common(8)))
+    for i, c in enumerate(sel):
+        c["case"] = i
+        print("   [%2d] %-30s %-16s at=%-3d msgs=%-3d ctx=%6d자 early=%-4s MISSING=%s" % (
+            i, c["tag"], c["simtag"], c["at"], len(c["pre"]), ctx_chars(c["pre"]),
+            c["early"] if c["early"] is not None else "-", ",".join(c["missing_names"])[:60]))
+    if not sel:
+        raise SystemExit("결정점 0 — 결과 파일 경로부터([[55]])")
+    mut = F.mutating_tools()
+
+    # ── ② 팔 조립 검산 (dict 수준·LLM 0) ────────────────────────────────────────
+    print(NLC + "[배선] 팔 조립 — 한 줄 외 바이트 동일 검산")
+    n_bad = 0
+    for c in sel:
+        built = build_arms(c, arms)
+        for arm, (xs, xm) in built.items():
+            if arm == "A_asis":
+                ok = xm == c["pre"] and not xs
+            elif arm == "D_sys":
+                ok = xm == c["pre"] and xs == [{"role": "system", "content": D_TEXT}]
+            elif arm == "E_early":
+                ok = xm[:-1] == c["pre"][:c["early"]] and xm[-1] == {"role": "user", "content": D_TEXT}
+            else:
+                ok = xm[:-1] == c["pre"] and xm[-1] == {"role": "user", "content": ARM_TEXT[arm]}
+            n_bad += 0 if ok else 1
+    print("   %d 결정점 × 팔 → 불일치 %d" % (len(sel), n_bad))
+    tails = collections.Counter(_role(c["pre"][-1]) for c in sel)
+    print("   결정점 직전 메시지 역할: %s (user 면 촉구가 user 연속 2개 — 라이브 ACT_DEMAND 와 같은 구조)"
+          % dict(tails))
+    n_early = sum(1 for c in sel if c["early"] is not None)
+    print("   E_early 컷 보유 %d/%d (첫 text-only assistant 발화·손님 발화 ≥1)" % (n_early, len(sel)))
+    print("   문면 바이트: " + " · ".join("%s +%d" % (k, len(v)) for k, v in ARM_TEXT.items()))
+
+    # ── ③ 도구·도메인 어휘 검산 ──────────────────────────────────────────────────
+    have_tau2 = True
+    try:
+        import tau2  # noqa: F401
+    except Exception:
+        have_tau2 = False
+    if have_tau2:
+        import x448_index_vs_all_iso as IVA
+        sb = IVA.Sandbox()
+        tools = list(sb.env.get_tools() or [])
+        tool_names = sorted(t.name for t in tools)
+        print("[배선] env 실물 도구 %d종 (alltools = 라이브 go_stack 과 동일)" % len(tools))
+    else:
+        tools = None
+        tool_names = local_tool_names()
+        print("[배선] tau2 미설치(로컬) — 도구명은 `a2/env_surface.json` 선언 %d종으로 어휘 검산만"
+              % len(tool_names))
+    miss_all = {n for c in sel for n in c["missing_names"]}
+    unknown = sorted(n for n in miss_all if n not in tool_names and _sfx(n) not in {_sfx(x) for x in tool_names})
+    print("   MISSING 도구 %d종 전부 레지스트리 실재: %s" % (len(miss_all), "예" if not unknown else "아니오 %r" % unknown))
+    bad = vocab_check(tool_names)
+    print("   문면 ∩ 도구명 토큰(프로토콜 단어 %s 제외): %s" % (sorted(PROTO_WORDS), bad or "없음 ✓"))
+
+    # ── ④ 채점기 자기검정 ─────────────────────────────────────────────────────────
+    print("[배선] 채점기 자기검정 (실제 결정점의 MISSING/done 집합 위 합성 호출)")
+    st_ok = selftest_scorer(sel, mut)
+
+    if a.wiring_only:
+        if have_tau2:
+            # 리모트 계층: 객체 복원 전수 + system 재구성
+            tot = drop = 0
+            for c in sel:
+                _w, d = restore(c["pre"])
+                tot += len(c["pre"])
+                drop += d
+            sm, src = system_messages(tools, sel[0]["policy"], a.model)
+            print("[배선] 메시지 객체 복원 %d/%d · system 재구성 %d건(%s·%d자)"
+                  % (tot - drop, tot, len(sm), src, sum(len(_content({"content": getattr(m, "content", "")})) for m in sm)))
+            tier = "LOCAL+REMOTE"
+        else:
+            print("[배선] (리모트 계층 — 객체 복원·실물 도구·system 재구성은 tau2 환경의 --wiring-only 에서)")
+            tier = "LOCAL"
+        ok = st_ok and n_bad == 0 and not unknown and not bad
+        print("[배선] wiring-only %s · 계층 %s · LLM 0 · GPU 0" % ("PASS" if ok else "FAIL", tier))
+        return 0 if ok else 1
+    if not have_tau2:
+        raise SystemExit("tau2 없음 — 재생은 리모트에서(docstring 실행 명령)")
+    if not st_ok or n_bad:
+        raise SystemExit("배선 검산 실패 — 재생하지 않는다([[55]])")
+
+    # ── ⑤ 재생 ───────────────────────────────────────────────────────────────────
+    base = "http://localhost:%d/v1" % a.port
+    rows = []
+    sys_cache = {}
+    print(NLC + "재생 인터페이스: 실물 도구 %d종 + 실제 메시지 객체 + system 재구성 + la.generate(max_tokens=%d)"
+          % (len(tools), a.max_tokens))
+    for c in sel:
+        if c["policy"] not in sys_cache:
+            sys_cache[c["policy"]] = system_messages(tools, c["policy"], a.model)[0]
+        sm = sys_cache[c["policy"]]
+        built = build_arms(c, arms)
+        print(NLC + "── [%2d] %s %s at=%d MISSING=%s" % (c["case"], c["tag"], c["simtag"], c["at"],
+                                                        ",".join(c["missing_names"])))
+        for arm in arms:
+            if arm not in built:
+                continue
+            xs, xm = built[arm]
+            line = []
+            for k, t in enumerate(temps):
+                try:
+                    calls, text, dropped = replay(sm, xs, xm, tools, a.model, base, t, a.max_tokens)
+                except Exception as e:
+                    rows.append({"case": c["case"], "tag": c["tag"], "task": c["task"], "sim": c["simtag"],
+                                 "arm": arm, "k": k, "temp": t, "cat": "EXC", "flags": {},
+                                 "err": repr(e)[:200]})
+                    line.append("EXC")
+                    continue
+                cat, fl, hits = score(calls, c, mut)
+                rows.append({"case": c["case"], "tag": c["tag"], "task": c["task"], "sim": c["simtag"],
+                             "arm": arm, "k": k, "temp": t, "cat": cat, "flags": fl, "hits": hits,
+                             "calls": [[nm, json.dumps(ag, ensure_ascii=False, default=str)[:200]]
+                                       for nm, ag in calls],
+                             "n_msgs": len(xm), "ctx_chars": ctx_chars(xm), "dropped": dropped,
+                             "text": " ".join(text.split())[:240]})
+                line.append("%s%s" % (cat, ("(" + ",".join(hits) + ")") if hits else "")
+                            + ("⚠drop%d" % dropped if dropped else ""))
+            print("   %-8s %s" % (arm, " | ".join(line)))
+
+    # ── ⑥ 집계·판정·저장 ──────────────────────────────────────────────────────────
+    main_rows = [r for r in rows if str(r["task"]).split("_")[-1] in tasks]
+    summarize(main_rows, arms, len([c for c in sel if str(c["task"]).split("_")[-1] in tasks]), tasks)
+    if aux_cases:
+        print(NLC + "[보조 블록 %s — 전이 확인용·주 판정과 분리]" % "/".join(aux))
+        summarize([r for r in rows if str(r["task"]).split("_")[-1] in aux], arms, len(aux_cases), aux)
+    p = os.path.join(REP, a.out)
+    with io.open(p, "w", encoding="utf-8") as f:
+        json.dump({"runs": runs, "tasks": tasks, "aux": aux, "arms": arms, "temps": temps,
+                   "arm_text": ARM_TEXT, "model": a.model, "max_tokens": a.max_tokens,
+                   "cases": [{"case": c["case"], "tag": c["tag"], "task": c["task"], "sim": c["simtag"],
+                              "at": c["at"], "early": c["early"], "n_msgs": len(c["pre"]),
+                              "ctx_chars": ctx_chars(c["pre"]), "missing": c["missing_names"],
+                              "said": c["said"]} for c in sel],
+                   "rows": rows}, f, ensure_ascii=False, indent=1)
+    print(NLC + "→ %s" % p)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
