@@ -56,8 +56,10 @@ D_BARE = ("Error: '%s' is not a discoverable tool in this domain." % FAB)
 
 
 def b_own(match):
-    return ("Error: '%s' is not a tool that can be given to the customer - there is no "
-            "customer-side tool by that name on file. The tool on file that matches what you "
+    # ★2026-08-22 A13/OL-05: 부정 존재 단언(*"there is no customer-side tool by that name
+    #   on file"*)이 A2 정본에서 삭제됐다(손님-측 레지스트리를 조회하지 않고 내리던 단언).
+    #   프로브 축자는 라이브 문면을 재현하는 것이 임무이므로 정본을 따라 옮긴다([[25]]).
+    return ("Error: '%s' was not handed to the customer. The tool on file that matches what you "
             "asked for is one of YOUR OWN agent tools: %s. The customer cannot run it and "
             "describing the steps to them does not execute it - unlock it and call it "
             "yourself." % (FAB, ", ".join(match)))

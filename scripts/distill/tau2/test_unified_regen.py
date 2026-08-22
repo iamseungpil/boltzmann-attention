@@ -102,11 +102,19 @@ check("T1_no_strip", getattr(ag, "_t2_gate_strips", 0) == 0)
 
 # T2: persistent gate deny -> 1 tick only, R8 strip + note
 ag, orch, st = setup([UserMessage("my order is #W1112223")])
+# ★A15/OL-55 (2026-08-22) 계약 갱신: 기계 노트는 **본문 전체가 될 수 없다**. R8 종단에서
+#   모델 생성분이 비면 `_commit_block_note` 가 도구 없이 본문을 다시 받아(3번째 SCRIPT 항목)
+#   그 산문 **뒤에** 노트를 붙인다. 재생성이 실패하면 노트를 아예 커밋하지 않는다(빈 본문).
 SCRIPT[:] = [AM([ToolCall("cancel_pending_order", {"order_id": "#W1112223"})]),
-             AM([ToolCall("cancel_pending_order", {"order_id": "#W1112223"})])]
+             AM([ToolCall("cancel_pending_order", {"order_id": "#W1112223"})]),
+             AM(content="I was not able to cancel that order yet.")]
 am = ag._generate_next_message(UserMessage("yes, please do it"), st)
 check("T2_stripped", not am.tool_calls)
 check("T2_note", isinstance(am.content, str) and "blocked by a policy gate" in am.content)
+check("T2_note_not_whole_body", isinstance(am.content, str)
+      and am.content.startswith("I was not able to cancel that order yet."),
+      repr(am.content)[:120])
+check("T2_blocknote_regen_toolless", GENCALLS[-1] == "agent_blocknote_body", GENCALLS[-1])
 check("T2_tick_still_1", orch.num_errors == 1, orch.num_errors)
 check("T2_strips_1", getattr(ag, "_t2_gate_strips", 0) == 1)
 

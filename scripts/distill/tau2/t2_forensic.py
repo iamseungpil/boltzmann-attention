@@ -640,3 +640,137 @@ def mutation_diff(sim, mut=None):
     return {"gold": gold, "done": done, "blocked": blocked, "missing": missing,
             "wrongarg": wrong, "extra": extra, "matched": matched, "dup": dup,
             "clean": not (missing or wrong or extra or dup)}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 채점 단위 = **액션 집합** (`reward_basis=["ACTION"]` 태스크 · A16 / OL-49)
+# ─────────────────────────────────────────────────────────────────────────────
+# ★왜 별개의 함수인가 (2026-08-22·t7336 마스터 §6.1 A16):
+#   `mutation_diff` 는 DB-채점 태스크의 물음(*"DB 해시를 만든 변이 집합이 gold 와 같은가"*)에
+#   맞춰져 있어 필터가 둘 걸려 있다 — ⑴`unlock`/`give`(= `GRANTS`)는 DB 를 안 바꾸므로 제외
+#   ⑵대상 이름이 `mutates=True` 집합 밖이면 제외. 그런데 **ACTION-채점** 태스크(t7336 20 태스크
+#   중 033 하나가 `reward_basis=["ACTION"]`·마스터 §1.1)에서는 gold 액션 자체가 `unlock` 과
+#   read 래퍼로 이루어져 있어, 두 필터가 **전 항목을 지운다**(OL-49: 033 양 trial ·
+#   072#0·074#0·079#1 에서 전 칸 빈칸). 그래서 ACTION-basis 태스크마다 손으로 표를 만들고
+#   있었고, 그것이 [[67]] 이 금지한 사본 제조의 입구였다.
+#   ⇒ 여기서는 **필터를 걸지 않는다**: `action_checks` 행을 그대로 세고, 궤적에서 같은 실행을
+#     찾는다. 판정(무엇이 실패인가)은 여전히 각 포렌식 몫이고 이 함수는 대조표만 만든다.
+# ⚠[[69]]: 성적은 언제나 `reward` 다. `action_match` 는 **진단 보조**이고 성적이 아니다
+#   (마스터 §1.1 반례 2건: 017#0 은 불일치 2건인데 reward 1.0 · 050#1 도 불일치인데 1.0).
+#   그래서 이 표는 `reward` 를 대체하지 않고 **함께** 실린다(`reward` 키를 같이 돌려준다).
+# ⚠판단 0 — 산수·집합·문자열뿐이다([[59]]). 어느 행이 중요한지 고르지 않는다.
+
+
+def reward_basis(sim):
+    """이 sim 의 채점 축 — `["DB"]` / `["ACTION"]` / 없으면 `[]`(채점표 부재)."""
+    v = (sim.get("reward_info") or {}).get("reward_basis")
+    if isinstance(v, str):
+        return [v]
+    return list(v) if isinstance(v, (list, tuple)) else []
+
+
+def action_key(outer, inner, args):
+    """액션 하나의 동일성 = 바깥 도구 + 대상 도구 + 인자(문자열 접기·`norm_args` 공유)."""
+    return "%s|%s|%s" % (outer, inner or "",
+                         json.dumps({k: norm_args(v) for k, v in sorted((args or {}).items())},
+                                    ensure_ascii=False, sort_keys=True))
+
+
+def gold_actions_flat(sim):
+    """`action_checks` 를 **필터 없이** 편다 — read·grant·exec 전부.
+
+    각 행: outer(래퍼 이름) · inner(대상 도구) · args(래퍼 해제 후 대상 인자) · aid ·
+    `bench_match`(= 벤치 채점기가 찍은 `action_match`·**우리 판정이 아니다**) · key.
+    """
+    out = []
+    for ck in ((sim.get("reward_info") or {}).get("action_checks") or []):
+        a = ck.get("action") or {}
+        ar = a.get("arguments") or {}
+        outer = str(a.get("name") or "")
+        inner = str(inner_name(ar) or "")
+        inner_args = ar.get("arguments", None)
+        args = flat_args(ar if inner_args is None else inner_args)
+        out.append({"outer": outer, "inner": inner, "args": args,
+                    "aid": str(a.get("action_id") or ""),
+                    "tool_type": ck.get("tool_type"),
+                    "bench_match": bool(ck.get("action_match")),
+                    "key": action_key(outer, inner, args)})
+    return out
+
+
+def trajectory_actions(sim):
+    """궤적의 호출을 gold 와 **같은 모양**으로 편다(필터 0) + 결과의 거절 여부.
+
+    `ok=True` = 그 호출의 tool 결과가 거절이 아니다. 거절이면 `deny` 에 누가 막았는지 남는다
+    (`deny_kind` 재사용·사본 0). 결과 메시지를 못 찾으면 `ok=True`(관측 부재를 실패로 세지 않는다).
+    """
+    res = {m.get("id"): " ".join(str(m.get("content") or "").split())
+           for m in (sim.get("messages") or [])
+           if m.get("role") == "tool" and m.get("id")}
+    msgs = sim.get("messages") or []
+    idx = {id(m): i for i, m in enumerate(msgs)}
+    out = []
+    for m, tc in calls(sim):
+        a = argsof(tc)
+        outer = str(nameof(tc))
+        inner = str(inner_name(a) or "")
+        inner_args = a.get("arguments", None)
+        args = flat_args(a if inner_args is None else inner_args)
+        body = res.get(tc.get("id"), "")
+        kind, marker = deny_kind(body) if body else ("", None)
+        out.append({"outer": outer, "inner": inner, "args": args,
+                    "key": action_key(outer, inner, args),
+                    "msg_i": idx.get(id(m)), "ok": not kind, "deny": kind,
+                    "marker": marker, "requestor": tc.get("requestor")})
+    return out
+
+
+def action_diff(sim):
+    """gold 액션 집합 ↔ 궤적 → MATCH · MISSING(+원인 칸) (A16 / OL-49).
+
+    ★MATCH/MISSING 의 **권위는 벤치의 `action_match`** 다 — 우리가 다시 판정하지 않는다.
+      이유(실물): 004 의 gold 액션은 `transfer_to_human_agents(summary, reason)` 이고 궤적은
+      **같은 도구를 같은 인자 키로** 불렀지만 `summary` 는 자유 산문이라 인자 축자 비교로는
+      영영 불일치다. 그런데 벤치는 `action_match=True` 로 찍었다. 우리가 여기서 "어느 인자까지
+      같아야 같은 실행인가"를 정하면 그것은 **채점기를 다시 쓰는 일**이고, 그 판정은 우리 것이지
+      성적이 아니다([[69]]·[[25]] 확인 안 한 것을 단언하지 않는다).
+    ⇒ 칸 구성:
+      · matched / missing   `action_match` 그대로 (bench 권위)
+      · 각 행의 **원인 칸**(우리 관측·판단 0): `called_exact`(래퍼·대상·인자 전부 일치한 성공 호출)
+        · `called_name`(래퍼·대상만 일치·인자는 다름) · `blocked`(시도했으나 거절·누가 막았는지)
+      · `strict_missing`  인자까지 축자 일치하는 성공 호출이 없는 행 — **진단 보조**다.
+        `missing` 과 갈리는 자리가 곧 *"표기 차이인가 진짜 미수행인가"* 의 물음이고,
+        `norm_args` 독스트링이 잰 121건(SEMANTIC_ONLY)이 그 자리다.
+    ⚠`reward` 를 같이 돌려준다 — 성적은 이 표가 아니라 그 수다([[69]]).
+    ⚠필터 0: `mutates` 도 `GRANTS` 도 걸지 않는다. 그 둘이 ACTION-basis 태스크에서 전 항목을
+      지웠다는 것이 OL-49 다(033 양 trial · 072#0 · 074#0 · 079#1).
+    """
+    gold = gold_actions_flat(sim)
+    tried = trajectory_actions(sim)
+    ok_exact = collections.Counter(t["key"] for t in tried if t["ok"])
+    ok_name = collections.Counter((t["outer"], t["inner"]) for t in tried if t["ok"])
+    blocked_by_key, blocked_by_name = {}, {}
+    for t in tried:
+        if not t["ok"]:
+            blocked_by_key.setdefault(t["key"], t)
+            blocked_by_name.setdefault((t["outer"], t["inner"]), t)
+    used = collections.Counter()
+    rows = []
+    for g in gold:
+        used[g["key"]] += 1
+        r = dict(g)
+        r["called_exact"] = used[g["key"]] <= ok_exact.get(g["key"], 0)
+        r["called_name"] = ok_name.get((g["outer"], g["inner"]), 0) > 0
+        b = blocked_by_key.get(g["key"]) or blocked_by_name.get((g["outer"], g["inner"]))
+        r["blocked"] = None if b is None else {"deny": b["deny"], "marker": b["marker"],
+                                               "msg_i": b["msg_i"]}
+        rows.append(r)
+    matched = [r for r in rows if r["bench_match"]]
+    missing = [r for r in rows if not r["bench_match"]]
+    return {"basis": reward_basis(sim), "reward": (sim.get("reward_info") or {}).get("reward"),
+            "rows": rows, "gold": gold, "tried": tried,
+            "matched": matched, "missing": missing,
+            "blocked": [r for r in missing if r["blocked"]],
+            "strict_missing": [r for r in rows if not r["called_exact"]],
+            "n_gold": len(gold), "n_matched": len(matched),
+            "clean": not missing}

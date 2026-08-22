@@ -1687,9 +1687,27 @@ def _value_acquire_fb(am, messages, specs, a2=None, executed=None):
 def _stale_call_ids(am, messages, wtools):
     """★T2_STALE_STRIP (over-action 억제): am.tool_calls 중 strip 대상 id 집합.
     ①같은 am 내 완전중복(동일 eff+args 2회+·read/write 공통) ②committed서 이미 성공한 *write* 재호출.
-    read의 committed-재조회는 미포함(상태변화 존중·over-fire 방지). 도메인 리터럴 0(eff+args 대조)."""
-    ok_ids = {getattr(m, "id", None) for m in messages
-              if getattr(m, "role", None) == "tool" and not getattr(m, "error", False)}
+    read의 committed-재조회는 미포함(상태변화 존중·over-fire 방지). 도메인 리터럴 0(eff+args 대조).
+
+    ★A1/OL-17 (t7336 §6.1·2026-08-22): `ok_ids` 가 **성공을 `m.error` 로만** 판정했다. tau2 env 는
+      에러를 플래그 없이 content 로만 준다 — 해당 sim 의 `Error` 접두 tool 메시지 **15건 중 14건이
+      `error=False`** 였다(실측). 그래서 **실패한 write 가 `done_w` 에 편입**되고 같은 인자의 정당한
+      재시도가 085#1 에서 **8회**·079#0 1회·073#0 3회 제거됐다. 술어는 F8(`t2_prekb_patch._argprod_hits`)
+      가 이미 쓰는 그것이고 정본 함수는 `t2_resolve._result_ok` 다 — **사본 0**([[67]])·여기서 재사용.
+    ⚠[[70]] 무엇을 파는가: `done_w` 가 좁아지므로 **중복 write 통과가 늘 수 있다**. 다음 런 포렌식은
+      `[T2_STALE_STRIP] dropped` 수와 DUP(동일-인자 write 재실행) 수를 **짝으로** 센다.
+    ⚠import 실패는 fail-open: 규칙①(같은 턴 완전중복)만 남기고 규칙②를 끈다(틀린 `done_w` 로
+      정당한 재시도를 지우는 것이 결손의 본체이므로 **모름은 안 지운다**)."""
+    try:
+        import t2_resolve as _rz_ok          # 정본 술어 재사용([[67]] 사본 0)
+        _ok = _rz_ok._result_ok
+    except Exception as _se:                 # noqa: BLE001 — fail-open(규칙② 비활성)
+        print("[T2_STALE_STRIP] result-ok 술어 미가용 — 규칙②(완료 write) 비활성: %r" % (_se,),
+              file=sys.stderr, flush=True)
+        _ok = None
+    ok_ids = ({getattr(m, "id", None) for m in messages
+               if getattr(m, "role", None) == "tool" and _ok(m)}
+              if _ok is not None else set())
     done_w = set()
     for m in messages:
         if getattr(m, "role", None) == "assistant":
@@ -2969,6 +2987,26 @@ def _sibling_wait(tag, flagged, what):
             % (tag, name, what))
 
 
+def _degenerate_axes(po):
+    """**고를 것이 없는 축** = A3 `doc_index[군]` 의 계열 집합이 `_general_` 뿐인 군 (닫힌 술어).
+
+    ★A14 / OL-15 (2026-08-22 · t7336 마스터 §6.1 A14 · §5.2): `bank_accounts_bank_accounts` 는
+      색인에 계열이 `_general_` 하나뿐이다. 그런데 결정 서브(`decide_from_docs`)는 *반드시 하나를
+      고르게* 돼 있어 그 자리에서 표시명 `General` 이 나왔고, 그것이 `decided_by_docs_text`
+      (*"It answers: X."*) 에 실려 `T2_DECISION_CARRY` → `T2_DECIDE_BEFORE_WRITE` 로 write
+      결정점까지 갔다. 085#1 은 그 값을 `dispute_category` 로 **11/11 제출**해 전부 env 거부됐고
+      KB 031 의 enum 9종에 `General` 은 없다(242자 바이트 검산 일치·[S]).
+
+    ⇒ *"고를 것이 없다"* 는 **선언에서 기계 도출되는 사실**이다 — 집합 하나의 원소 검사이고
+      도메인 판단·유사도·의도 해석 0([[22]]·[[59]]·[[66]]). *"It answers: X."* 는 고를 것이
+      **실재할 때만** 참이므로, 퇴화 축에서는 결정문을 만들지 않는다([[25]] 100% 정답 의무).
+    ⚠이 함수는 **선언만** 본다(대화·gold·env 무관). 색인이 없으면 빈 집합(fail-open).
+    """
+    idx = (po or {}).get("doc_index") or {}
+    return {g for g, subs in idx.items()
+            if not {s for s in (subs or {}) if s != "_general_"}}
+
+
 def _served_subjects(po, group, delivered=None, decided=None):
     """이번 배달분이 **덮은 대상 계열**(닫힌 집합 = A3 `doc_index[군]` 키·`_general_` 제외).
 
@@ -3125,7 +3163,24 @@ def _search_material(agent, a2, messages, decide=True):
     _done = getattr(agent, "_t2_search_done", None)
     if _done is None:
         _done = set()
-    _g = next((g for g in _gs if g not in _done), None)
+    # ★A14 / OL-15 (2026-08-22 · t7336 마스터 §6.1 A14 · §5.2): **퇴화 축**(A3 색인의 계열이
+    #   `_general_` 뿐)은 **결정 경로에서 제외**한다. 고를 것이 없는 자리에서 결정 서브에게
+    #   *"하나 고르라"* 고 하면 나오는 것은 답이 아니라 표시명(`General`) 이고, 그것이
+    #   `decided_by_docs_text` (*"It answers: X."*) 에 실려 write 결정점까지 갔다 —
+    #   085#1 `dispute_category` **11/11 env 거부**([S]·§5.2 OL-15).
+    #   ⚠`decide=False`(문서-본문 배달) 경로는 **답을 만들지 않으므로** 종전대로 둔다: 그 경로는
+    #     문서를 나를 뿐이고 고르는 일은 끝까지 모델 몫이다([[62]] ③ 보존).
+    #   ⚠[[70]] **무엇을 파는가** = 그 축의 `DOCDECIDE` 배달 수. 이 수리 뒤 퇴화 축에서
+    #     `[T2_SEARCH_AGENT] 축 처리 완료` 와 `decided_by_docs_text` 가 0 이 되고, 그 대신
+    #     `[T2_DEGENERATE_AXIS]` 줄이 선다 — 그 줄 수 = 판 배달 수. 그 축의 값은 이제 모델이
+    #     KB 를 읽고 정한다(엔진 지목 0). 다른 축이 남아 있으면 결정점은 그쪽으로 넘어간다.
+    _degen = _degenerate_axes(_po) if decide else set()
+    _skip_degen = [g for g in _gs if g in _degen and g not in _done]
+    if _skip_degen:
+        print("[T2_DEGENERATE_AXIS] 결정 미배달 group=%s — 색인의 계열이 `_general_` 뿐이라 "
+              "고를 것이 없다(퇴화 축·A3 선언에서 기계 도출)" % ",".join(_skip_degen),
+              file=sys.stderr, flush=True)
+    _g = next((g for g in _gs if g not in _done and g not in _degen), None)
     # ★관측 전용 계기 (2026-08-18·C517⒟) — **거동 불변**. 군→클래스 이득의 *순서·소모 채널*은
     #   라이브에서만 잰다(후보집합 채널은 격리에서 0 으로 나왔다: gold 군 적중 27/27).
     #   기록: ⑴모델이 답한 **첫 군** ⑵이번에 처리하는 군 ⑶지금까지 소모한 결정점 수 ⑷군 개수.
@@ -3685,9 +3740,13 @@ def _known_tool_names(self_tools, env, msgs):
     return {x for x in out if x}
 
 
-def _unavailable_promises(pending, known, discoverable=None):
+def _unavailable_promises(pending, known, discoverable=None, ledger_text=None):
     """약속(pending)에 실린 도구명이 `known`에 없으면 = **모델이 없는 기능을 약속**. 집합 대조만.
     `tool` 미선언 항목은 판정하지 않는다(구판 A2 하위호환·거동 보존).
+
+    ★A3 (t7336 §6.1·OL-19·2026-08-22): ⑴구절 분할(`"A with B"`·`"A(B)"`) ⑵**원장-실재 전제** —
+      `ledger_text`(궤적 축자·`_ledger_text()`)를 주면 그 문자열이 **궤적에 실재하는 이름만**
+      판정한다. 상세·판 것은 본문 주석 참조.
 
     ★분할 반환 (2026-08-12·j런 070t0 t72): 그 도구가 agent-측 discoverable 레지스트리에
       **실재(잠금 상태)** 하면 "존재하지 않는다"는 거짓이다 — 우리 STEP2 가 5회 말한
@@ -3711,18 +3770,58 @@ def _unavailable_promises(pending, known, discoverable=None):
     #   그래서 그 검정을 **모든 미정의 지역명**까지 보도록 확장했다(같은 커밋).
     disc = {_n(x) for x in (discoverable or set())}
     _SENT = {"", "omit", "none", "null", "n/a", "na", "-", "unknown"}
+    _led = str(ledger_text).lower() if ledger_text is not None else None
     out, locked = [], []
     for p in (pending or []):
         raw = str((p or {}).get("tool") or "")
-        parts = [x.strip() for x in re.split(r"[,;/]| or ", raw) if x.strip()]
+        # ★A3-⑴ 구절 분할 (2026-08-22·t7336 OL-19·074×2 재현): 모델은 `tool` 칸에 **구절**을
+        #   적는다 — `"A with B"`(도구 + 인자) · `"A(B)"`. 구판은 `[,;/]| or ` 만 갈라 통째로
+        #   대조했고, 그래서 **이미 unlock 된 도구**가 "존재하지 않는다"는 통보를 받았다.
+        #   추가 구분자는 구조 문자뿐이다(도메인 어휘 0·[[59]]).
+        parts = [x.strip() for x in re.split(r"[,;/()\[\]]| or | with ", raw) if x.strip()]
         parts = [x for x in parts if x.lower().strip("'\"` ") not in _SENT]
         if not parts:
             continue                      # 지목 없음 = 판정 대상 아님(구판 하위호환 취지 동일)
         norm = [_n(x) for x in parts]
         if any(x in known for x in norm):
             continue                      # 하나라도 보유 = 약속은 이행 가능
+        # ★A3-⑵ 원장-실재 전제 (2026-08-22·t7336 OL-19·C45 동형 substring 검산).
+        #   074 가 통보받은 `apply_credits_to_account_1234` 는 **궤적에 0회 등장**한다 — 모델이
+        #   꺼낸 이름이 아니라 **우리 서브가 만든 문자열**이었다. 우리가 낸 문자열을 모델의
+        #   약속으로 되돌려 주고 "그런 도구는 없다"고 통보하는 것은 [[25]] 위반이다.
+        #   ⇒ 궤적 어디에도 그 문자열이 없으면 **침묵**한다(모르면 말하지 않는다).
+        #   `ledger_text=None`(미전달)이면 구판 거동 — 기존 검정·구 호출부 보존.
+        # ⚠순서: **보유 판정(`known`) 뒤**에 온다. 앞에 두면 `"A with B"` 에서 실재 도구 A 가
+        #   원장 문자열에 안 뜬다는 이유로 걸러지고 잔여 `B` 만 대조돼 **거짓 발화가 새로 생긴다**
+        #   (첫 판이 그랬다). 이 전제는 오직 **억제**로만 작동해야 한다 — 구판이 말하던 것의
+        #   부분집합만 말한다(단조).
+        # ⚠[[70]] 무엇을 파는가: C207/C2-a 의 **원 표적**(궤적에 한 번도 안 뜬 순수 발명 기능,
+        #   예: 없는 OTP 발송 약속)은 이 전제에 걸려 침묵한다. 판 것을 세는 계기 = 다음 런의
+        #   `[T2_UNAVAIL]` 발화 수 · `ledger-absent` 침묵 수(호출부가 인쇄한다).
+        if _led is not None and not any(x.lower().strip("'\"` ") in _led for x in parts):
+            continue                      # 궤적에 없는 이름 = 우리(서브) 산출 → 침묵
         (locked if any(x in disc for x in norm) else out).append(p)
     return out, locked
+
+
+def _ledger_text(messages):
+    """궤적 축자 텍스트 (A3/OL-19 substring 검산용·순수 문자열·판단 0).
+
+    포함 = 모든 메시지의 content + 모든 tool_call 의 이름·인자값. 즉 **대화에 실제로 뜬 문자열**
+    전부다. 우리 서브가 만들었을 뿐 궤적에 없는 이름은 여기에 없다 — 그것이 판정의 요점이다.
+    """
+    buf = []
+    for m in (messages or []):
+        c = getattr(m, "content", None)
+        if c:
+            buf.append(str(c))
+        for tc in (getattr(m, "tool_calls", None) or []):
+            buf.append(str(getattr(tc, "name", "") or ""))
+            try:
+                buf.append(json.dumps(_args_dict(tc), ensure_ascii=False))
+            except Exception:
+                buf.append(str(_args_dict(tc)))
+    return " ".join(buf).lower()
 
 
 def _fu_window(cap_used, cap, reserve_declared, reserve_used, genuine_resign):
@@ -5156,6 +5255,74 @@ _BLOCK_NOTE = ("\n\n[Note: the tool call(s) above were blocked by a policy gate 
                "executed. Satisfy the gate requirement (authenticate / get explicit user confirmation / "
                "check the record's status / fix the operation) before attempting the action again.]")
 
+# ★A15/OL-55 (t7336 §6.1·2026-08-22) — 기계 노트가 **손님 발화가 되는** 자리.
+#   실물: 016#1 [52]·074#1 [57] — 모델 생성분(`am.content`)이 빈 문자열인 턴에 위 노트를 붙이자
+#   노트가 **본문 전체**가 되어 손님에게 나갔고, 016#1 [53] 에서 user-sim 이 역할을 혼동했다.
+#   같은 자리에서 사유 문자열이 `[:70]` 슬라이스로 `has been c` 처럼 **단어 중간에서 잘렸다**.
+#   ⇒ ⑴사유는 단어 경계에서 자른다 ⑵빈 본문이면 **모델에게 본문을 다시 받는다**(재생성).
+#     재생성이 실패하거나 또 비면 노트를 **본문으로 커밋하지 않는다** — 기계 노트가 손님 발화가
+#     되는 것은 어느 조건에서도 틀렸다(마스터 §6.1 A15).
+# ⚠[[70]] 무엇을 파는가: 재생성이 실패한 턴은 **빈 본문**으로 나간다(구판은 최소한 무언가를
+#   말했다). 다음 런 포렌식이 세는 것 = `[T2_BLOCK_NOTE] empty-body` 턴 수 · `regen ok` 수.
+_BLOCK_NOTE_ASK = (
+    "Your tool call(s) in the draft above were blocked by a policy gate and were NOT executed, so "
+    "this turn has no message for the customer yet. Write that message yourself in plain prose: say "
+    "what has NOT been done and what is needed next. Do not claim anything was completed, and do not "
+    "emit tool calls in this reply. The gate gave these reasons: ")
+
+
+def _um(text):
+    """UserMessage 생성 (구/신 시그니처 양쪽·호출부마다 try/except 를 복제하지 않기 위한 정본)."""
+    from tau2.data_model.message import UserMessage as _UMb
+    try:
+        return _UMb(role="user", content=text)
+    except TypeError:
+        return _UMb(content=text)
+
+
+def _trunc_reason(s, n=70):
+    """사유 문자열을 **단어 경계**에서 자른다 (OL-55: `has been c` 중간 절단). 순수 문자열."""
+    t = " ".join(str(s or "").split())
+    if len(t) <= n:
+        return t
+    cut = t[:n]
+    sp = cut.rfind(" ")
+    if sp >= n // 2:
+        cut = cut[:sp]
+    return cut.rstrip(" ,;:.-") + "..."
+
+
+def _commit_block_note(am, note, regen=None):
+    """★A15/OL-55: `_BLOCK_NOTE` 를 **본문 전체로 커밋하지 않는다**. 반환 = 무엇을 했나(계기 문자열).
+
+    · 본문이 이미 있으면 종전대로 뒤에 붙인다(거동 보존).
+    · 본문이 비었으면 `regen(ask_text) -> str` 로 **모델에게 본문을 받는다**. 받으면 그 본문 +
+      노트. 못 받으면 노트도 붙이지 않는다(빈 본문 유지).
+    `regen=None`(구 호출부·단위검정)이면 재생성 없이 빈 본문 유지 — 어느 쪽이든 노트가 본문
+    전체가 되는 일은 없다.
+    """
+    body = str(getattr(am, "content", "") or "")
+    if body.strip():
+        am.content = body + _BLOCK_NOTE + " (" + note + ")"
+        return "appended"
+    new = ""
+    if regen is not None:
+        try:
+            new = str(regen(_BLOCK_NOTE_ASK + note) or "")
+        except Exception as _bne:                    # noqa: BLE001 — 재생성 실패는 흡수
+            print("[T2_BLOCK_NOTE] regen failed (no-op): %r" % (_bne,),
+                  file=sys.stderr, flush=True)
+            new = ""
+    if new.strip():
+        am.content = new + _BLOCK_NOTE + " (" + note + ")"
+        print("[T2_BLOCK_NOTE] regen ok (%d chars) — note appended to model prose" % len(new),
+              file=sys.stderr, flush=True)
+        return "regen"
+    am.content = body
+    print("[T2_BLOCK_NOTE] empty-body: machine note NOT committed as the whole message",
+          file=sys.stderr, flush=True)
+    return "empty"
+
 
 def _iter_tc_result_pairs(messages):
     """committed 히스토리서 (assistant ToolCall, matching tool ToolMessage) 쌍 yield."""
@@ -5167,6 +5334,50 @@ def _iter_tc_result_pairs(messages):
         if getattr(m, "role", None) == "assistant":
             for tc in (getattr(m, "tool_calls", None) or []):
                 yield tc, by_id.get(getattr(tc, "id", None))
+
+
+def _ledger_event_names(messages):
+    """★A2/OL-21 (t7336 §6.1·2026-08-22): 원장 이벤트 이름 집합 — **성공한 호출만**.
+
+    구판(`_evs`)은 `tool_calls` 의 **이름만** 모으고 결과를 보지 않았다. 그래서 **env 가 거부한
+    호출**이 *"원장에 있다"* 의 근거가 되어 `_claim_unbacked` 의 `kind-index rescued` 로 통과했고,
+    094#0 은 `unbacked=0` 인 채 날조 완결 주장을 3턴 무저지로 냈다. [[69]] 축자와 정면 충돌한다 —
+    *"reward = 궤적 전체 재실행 후 DB 해시 비교 … 상태를 안 바꿔서 해시에 안 남는 것"*.
+
+    술어는 F8/`t2_resolve._result_ok` 정본 그대로다(**사본 0**·[[67]]): `error=True` 도, content
+    `Error` 접두도 아닌 것만 성공. 짝을 **id 로** 잇고(역할 무관 — 손님이 실행한 도구도 세야 한다·
+    `give_exec_idle` docstring 의 그 오독을 반복하지 않는다), **짝을 못 찾은 호출은 남긴다**
+    (fail-open: 실패를 *증명한* 것만 뺀다 — 안 그러면 반대 방향의 거짓 고발이 된다·[[25]]).
+
+    반환 = (성공 이름 집합, 결과로 실패가 확인돼 제외된 (이름, 사유) 목록[계기용]).
+    ⚠[[70]] 무엇을 파는가: 원장이 좁아지므로 **CLAIMPROV 오탐(정당한 주장을 unbacked 로 고발)이
+      늘 수 있다**. 다음 런 포렌식은 `unbacked` 계수와 `kind-index rescued` 수를 짝으로 센다.
+    """
+    try:
+        import t2_resolve as _rz_ev              # 정본 술어 재사용([[67]] 사본 0)
+        _ok = _rz_ev._result_ok
+    except Exception as _ee:                     # noqa: BLE001 — fail-open(구판 거동)
+        print("[T2_CLAIMPROV] result-ok 술어 미가용 — 원장 좁힘 비활성: %r" % (_ee,),
+              file=sys.stderr, flush=True)
+        _ok = None
+    by_id = {}
+    for m in (messages or []):
+        if getattr(m, "role", None) == "tool" and getattr(m, "id", None) is not None:
+            by_id[getattr(m, "id")] = m
+    out, dropped = set(), []
+    for m in (messages or []):
+        for tc in (getattr(m, "tool_calls", None) or []):
+            nm = str(getattr(tc, "name", "") or "")
+            rm = by_id.get(getattr(tc, "id", None))
+            if _ok is not None and rm is not None and not _ok(rm):
+                dropped.append((nm or _eff_tool_name(tc),
+                                str(getattr(rm, "content", "") or "")[:60]))
+                continue
+            out.add(nm)
+            out.add(_eff_tool_name(tc))
+    out.discard("")
+    out.discard(None)
+    return out, dropped
 
 
 def _rebuild_gate_state(gate, a2, messages):
@@ -5192,6 +5403,25 @@ def give_exec_idle(messages, give_tool, user_call):
     실행 판정은 **두 형태를 모두** 센다: 디스패처 경유(`user_call` + `discoverable_tool_name`)와
     손님의 직접 호출(requestor=user 또는 role=user). 인계 성사는 종전대로 **오류 아닌 결과**가
     돌아온 give만 인정한다.
+    ★2026-08-22 (A9): 본문을 `give_exec_state` 로 옮기고 이 함수는 그 차집합만 낸다 —
+    같은 궤적 해석이 **두 벌**이 되지 않게 하기 위해서다([[67]] 사본 금지).
+    """
+    given, ran = give_exec_state(messages, give_tool, user_call)
+    return sorted(given - ran)
+
+
+def give_exec_state(messages, give_tool, user_call):
+    """`(건네진 도구, 손님이 실행한 도구)` 두 집합 — `give_exec_idle` 의 파싱 정본 (순수함수).
+
+    ★왜 분리했나 (2026-08-22 · t7336 마스터 §6.1 A9 · §5.7 OL-46): F8(`T2_ARG_PRODUCERS`)의
+      억제 술어가 필요한 것은 *"건넸다"* 가 아니라 *"**값을 얻었다**"* 인데, 차집합만 내는
+      `give_exec_idle` 로는 그 절반(`ran`)을 꺼낼 수 없었다. 없다고 새로 짜면 궤적 해석이
+      두 벌이 되고 조용히 갈린다([[67]] 실물 2건) — 그래서 **정본에 추가**한다.
+
+    닫힌 술어뿐이다: 이름 동치·역할·`requestor`·에러 플래그(전부 프레임워크 형상·도메인 리터럴 0).
+      - `given` = give 호출의 결과가 **오류가 아닌** 것(인계 성사)
+      - `ran`   = 디스패처 경유(`user_call` + `discoverable_tool_name`) **또는** 손님의 직접
+                  호출(`role == "user"` 또는 `requestor == "user"`) — 실측 궤적의 두 형태 모두.
     """
     given, id2name, ran = set(), {}, set()
     for m in messages or []:
@@ -5210,7 +5440,26 @@ def give_exec_idle(messages, give_tool, user_call):
             n = id2name.get(getattr(m, "id", None))
             if n:
                 given.add(n)
-    return sorted(given - ran)
+    return given, ran
+
+
+def user_tool_value_ready(messages, give_tool, user_call):
+    """**값을 이미 얻은** 손님-측 도구 집합 = `give_exec_state(...)` 의 `ran` (닫힌 술어·순수함수).
+
+    ★A9 / OL-46 (2026-08-22 · t7336 마스터 §6.1 A9 · §5.7): F8(`T2_ARG_PRODUCERS`)의 억제
+      술어 정본. 구판(`t2_prekb_patch` 의 `_seen_tools`)은 **이름이 등장했는가**를 봤다 —
+      메시지의 모든 tool_call 이름 + 인자 JSON 문자열에서 뽑은 `[a-z0-9_]+` 토막 + 문자열
+      인자값 전부가 그 집합에 들어간다. 그래서 생산자 도구를 *건네기만* 해도(give 인자에
+      이름이 실린다) 넛지가 영구 침묵했다. 주석이 적어 둔 의도는 *"이미 값을 얻음"* 인데
+      구현은 *"이름이 등장함"* 이었고, 실측은 t7328 **7**·t7335 **5** 발화 → t7336 **0**
+      (040#1 [84]/[86] 침묵·[S]).
+
+    ⚠**건넸다 ≠ 값을 얻었다.** 건네고 손님이 실행하지 않았으면 값은 아직 없고, 그때 F8 이
+      말하는 *"건네서 실행하게 하고 같은 도구를 재시도하라"* 는 여전히 참이다.
+    ⚠이 함수는 실행을 **시도**했는가만 본다(성공 여부는 안 본다) — `ran` 정의 그대로다.
+      더 좁히면(성공만 인정) F8 이 더 자주 울리므로, 억제 쪽으로 안전한 현행 정의를 쓴다.
+    """
+    return give_exec_state(messages, give_tool, user_call)[1]
 
 
 def _regen_last_user(messages):
@@ -5841,8 +6090,18 @@ def apply_gate_regen(max_regen=1):
             denied_ids = {tc.id for tc, _, _ in denied}
             kept = [tc for tc in (am.tool_calls or []) if tc.id not in denied_ids]
             am.tool_calls = kept or None
-            note = "; ".join(f"[{gid}] {(why or '')[:70]}" for _, gid, why in denied)
-            am.content = (am.content or "") + _BLOCK_NOTE + " (" + note + ")"
+            # ★A15/OL-55 (2026-08-22): 사유는 **단어 경계**서 자르고, 빈 본문이면 노트를 본문
+            #   전체로 커밋하지 않는다 — 모델에게 본문을 다시 받는다(`_commit_block_note`).
+            note = "; ".join(f"[{gid}] {_trunc_reason(why)}" for _, gid, why in denied)
+
+            def _bn_regen(_ask, _base=base, _am=am):
+                _kw = dict(self.llm_args)
+                _kw.pop("tools", None)
+                _r = la.generate(model=self.llm, tools=None,
+                                 messages=_base + [_um(_ask)],
+                                 call_name="agent_blocknote_body", **_kw)
+                return getattr(_r, "content", "") or ""
+            _commit_block_note(am, note, regen=_bn_regen)
         return am
 
     LLMAgent._generate_next_message = gen_gated
@@ -6371,6 +6630,31 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 # ep_writes = confirm-gate write 도구 ∪ eplan spec write_tools(C101 (c)·디스패처 nested용)
                 ep_writes = _confirm_write_tools(a2) | set(ep_spec.get("write_tools") or ())
                 ep_led = _epmod.build_ledger_from_messages(state.messages, ep_spec, ep_writes)
+                # ★A12 / OL-20 (2026-08-22 · t7336 마스터 §6.1 A12 · §5.3): *"목록에는 있는데
+                #   상세를 안 읽었다"* 는 `list_from_reads:true` 를 선언한 도메인에서 **항상 거짓**이다.
+                #   그 선언의 뜻이 곧 *"이 도메인의 read 출력은 레코드를 통째로 뱉는다"* 이고
+                #   (`note_read` 독스트링 축자: *"어느 read 출력이든 entity_key id를 listed"*),
+                #   그래서 id 가 `listed` 에 들어왔다는 것 자체가 **그 행이 이미 배달됐다**는 뜻이다.
+                #   `examined` 는 `tool_name == detail_reader` 일 때만 차므로, 선언된 detail_reader 가
+                #   아닌 형제 enumerator 로 읽은 행은 영원히 `listed - examined` 에 남는다.
+                #   실측(085#1·[S]): 바로 앞 출력에 **전량 실린** 5 레코드를 L2 가 *"have not read
+                #   their details yet"* 로 판정하고 4턴을 태웠으며(deny cap 도달), 그 문면이 지목한
+                #   `detail_reader` 는 credit 도구인데 대상은 체킹 `btxn_*` 이었다([[25]] 거짓 지목).
+                #   ⇒ 선언에서 기계 도출되는 집합 보정 하나로 닫는다(합집합·닫힌 술어·리터럴 0).
+                #   ⚠소비자 **둘 다** 이 한 자리에서 고쳐진다 — `discovery_L2`(=`listed - examined`)와
+                #     `T2_READALL`(=`readall_unread(listed, examined)`). 사본 0([[67]]).
+                #   ⚠`list_from_reads` 미선언 도메인(retail·airline)은 **바이트 불변**(no-op).
+                #   ⚠[[70]] **무엇을 파는가** = 이 도메인에서 **EPLAN L2 · READALL 의 read-강제 전부**.
+                #     계수 = `[T2_EPLAN_LISTED_IS_READ]` 줄(보정된 id 수) ↔ 종전 `L2 deny` 발화 수.
+                #     L1(목록 도구 미호출)은 그대로 살아 있고, coverage 는 CP5 walk 관할이다.
+                if ep_led is not None and ep_spec.get("list_from_reads"):
+                    _lr = set(getattr(ep_led, "listed", ()) or ()) - set(
+                        getattr(ep_led, "examined", ()) or ())
+                    if _lr:
+                        ep_led.examined |= _lr
+                        print("[T2_EPLAN_LISTED_IS_READ] list_from_reads 선언 — 배달된 %d건을 "
+                              "검토됨으로 보정(%s)" % (len(_lr), ",".join(sorted(_lr))[:120]),
+                              file=_sys.stderr, flush=True)
             except Exception as _e:
                 print("[T2_EPLAN] ledger build failed: %r" % (_e,), file=_sys.stderr, flush=True)
                 ep_led = None
@@ -6860,8 +7144,17 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         _raw = _confirm_write_tools(a2)
                         for c in (am.tool_calls or []):
                             if getattr(c, "name", None) in _raw and id(c) not in denied_by_objid:
+                                # ★A12 (범위 표면화·마스터 §6.1 A12 후반부): `detail_reader` 를
+                                #   **목록으로도** 선언할 수 있게 렌더를 정본 `_tool_phrase` 에
+                                #   맡긴다(문자열이면 그대로 = 현행 바이트 불변·사본 0·[[67]]).
+                                #   한 이름을 지목하면 형제 enumerator 로 읽는 레코드에 **틀린 도구**를
+                                #   대게 된다(085#1: 체킹 `btxn_*` 에 credit 도구 지목·[[25]]).
+                                #   ⚠선언을 실제로 목록으로 바꾸려면 `t2_eplan_patch.note_read` 의
+                                #     `tool_name == spec["detail_reader"]` 동치 비교도 **집합 소속**으로
+                                #     같이 고쳐야 한다(그 파일은 이 그룹 소유 밖 — 보고서 §미수리 참조).
                                 ra_fb = (c, READALL_FEEDBACK.format(
-                                    reader=(a2.get("eplan") or {}).get("detail_reader"),
+                                    reader=_epmod._tool_phrase(
+                                        (a2.get("eplan") or {}).get("detail_reader")),
                                     ids=", ".join(unread)))
                                 print("[T2_READALL] deny tool=%s unread=%s"
                                       % (c.name, ",".join(unread)), file=_sys.stderr, flush=True)
@@ -7408,14 +7701,38 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                           file=_sys.stderr, flush=True)
 
             wev_fb = None
-            if ((wev_specs or wag_specs or rv_specs or ae_on)
-                    and not do_gate and not do_prov and ep_fb is None
+            # ★A7 / OL-34 (2026-08-22 · t7336 마스터 §6.1 A7 · §5.5): 이 블록의 진입 술어에 있던
+            #   `not do_gate and not do_prov` 가 **날조-차단 계열까지** 껐다.
+            #   ⓐ `do_gate` 는 그 턴의 *다른* 호출에 붙는 정책 게이트 문구다(조언·`[POLICY GATE …]`).
+            #      `do_prov` 도 마찬가지로 **그 한 호출**의 출처 재질의다. 둘 다 **호출-국소**인데
+            #      술어는 **턴 전역**이라, 무해한 게이트 하나가 같은 턴의 *다른* 호출에 대한
+            #      WAG/REF_VERIFY(=실행 차단)를 통째로 껐다.
+            #   ⓑ 실측(074#1·[S]): `time_verified='2023-11-14 15:30:00 EST'` 날조가 그대로 나갔고
+            #      그 sim 로그 703줄에 `WEV`/`WRITE_ARG`/`WRITE-GROUND` 가 **0건**·같은 턴
+            #      `stop=other_lever(gate)`.
+            #   ⇒ 게이트·prov 라운드에서는 **날조-차단 계열만** 돈다(`wag_specs`·`rv_specs`).
+            #     조언 계열(WEV=선행-read 요구 · ARG_EMPTY · ASK_UNKNOWN_BOOL · HANDOFF)은
+            #     종전대로 배제한다 — 그 턴엔 이미 조언이 하나 나가 있고, 조언 둘은 문구 모순이다([[55]]).
+            #   ⚠[[70]] **무엇을 파는가** = Δspurious(과차단). 게이트가 이미 붙은 턴에 WAG/REF_VERIFY
+            #     deny 가 **하나 더** 붙을 수 있다. 계수 = `[T2_WAG_DECOUPLED] fired …` 줄
+            #     (tag=어느 계열 · phase=gate|prov). 그 줄이 0 이면 이 수리는 아무것도 안 판 것이고,
+            #     늘어난 만큼이 판 것이다. 0 이 아닌데 태스크별 부호가 갈리면 [[70]] 절충 대상.
+            #   ⚠cap 은 종전 그대로다(`T2_WEV_ROUNDS` 턴당 1 · `T2_WEV_CAP` sim당 8) — 새 예산 0.
+            _fab_only = bool(do_gate or do_prov)
+            _wev_live = bool(wag_specs or rv_specs) if _fab_only \
+                else bool(wev_specs or wag_specs or rv_specs or ae_on)
+            if (_wev_live and ep_fb is None
                     and cons_fb is None and ra_fb is None and te_fb is None and proc_fb is None
                     and wev_rounds < int(os.environ.get("T2_WEV_ROUNDS", "1"))
                     and getattr(self, "_t2_wev_deny", 0) < _wev_cap):
                 try:
                     for c in (am.tool_calls or []):
                         if id(c) in denied_by_objid:
+                            continue
+                        # ★A7: prov 라운드의 **그 호출**은 `main_prov` 문구가 아래 `fb` 배타 체인에서
+                        #   이긴다(순위 1) — 여기서 검사해 봐야 문구가 버려지고 cap 만 닳는다.
+                        #   게이트-denied 호출은 바로 위 `denied_by_objid` 가 이미 건너뛴다.
+                        if _fab_only and _pcall is not None and c is _pcall[0]:
                             continue
                         # ★C7(2026-08-05·053 근본원인): 증거는 **양쪽 히스토리**에서 찾는다.
                         #   `state.messages`는 에이전트가 본 것만 담아, **손님이 실행한** 도구의
@@ -7433,13 +7750,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     _wev_msgs = _all7
                         except Exception:
                             _wev_msgs = state.messages
-                        wd = _wev_deny_msgs(_wev_msgs, c, wev_specs)
+                        # ★A7: 게이트·prov 라운드에서는 **조언 계열은 건너뛴다**(선행-read 요구는
+                        #   그 턴 이미 나간 게이트 문구와 경쟁 지시가 된다·[[55]]).
+                        wd = None if _fab_only else _wev_deny_msgs(_wev_msgs, c, wev_specs)
                         _wtag = "T2_WRITE_EVIDENCE"
                         if not wd and wag_specs:
                             # ★값-grounding(§2bs·031): WEV(선행-read)와 별개 구멍=값-전사.
+                            #   ★A7: **날조-차단 계열** — 게이트·prov 축과 분리돼 항상 돈다.
                             wd = _write_arg_ground_deny(_wev_msgs, c, wag_specs)
                             _wtag = "T2_WRITE_ARG_GROUND"
-                        if not wd and ae_on:
+                        if not wd and ae_on and not _fab_only:
                             # ★T2_ARG_EMPTY(C419·x250 8/8): 필수 인자가 빈 문자열이면 이름을 댄다.
                             #   WAG 가 구조적으로 못 보는 자리다(:1149 *"값 없음 = skip"*).
                             wd = _arg_empty_deny(self, c, a2, ae_tools)
@@ -7448,9 +7768,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         if not wd and rv_specs:
                             # ★결정론 참조-검증기(C128/C129): 레코드 판별속성(merchant)이 손님
                             #   발화에 없으면 deny — 전사-슬립 8/8 검출·false-block 0·LLM 0.
+                            #   ★A7: **날조-차단 계열** — 게이트·prov 축과 분리돼 항상 돈다.
                             wd = _ref_verify_deny(self, la, UserMessage, state.messages, c, rv_specs)
                             _wtag = "T2_REF_VERIFY"
-                        if not wd:
+                        if not wd and not _fab_only:
                             # ★N2b `T2_ASK_UNKNOWN_BOOL`(설계서 §2·기본 OFF): 닫힌 자료형(불리언·enum)
                             #   인자를 **모르면서 채운** 경우. 권위 소재로 판정한다([[52]]) — 인자명이
                             #   회수된 레코드의 필드면 레코드가 답하고, 아니면 손님만 아는 값이다.
@@ -7475,7 +7796,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                            ",".join(k for k, _ in _unk))
                             except Exception:
                                 pass
-                        if not wd and wag_specs:
+                        if not wd and wag_specs and not _fab_only:
                             # ★N1 `T2_HANDOFF_ARG_GROUND`(설계서 §1·기본 OFF): give는 80회 중 75회가
                             #   **도구명만** 실어 보내고 값은 본문에 실린다 — 손님이 실행한 인자값의 90%가
                             #   에이전트 산문에 축자로 존재한다. 그래서 A2 give-측 규칙(P9/P10)이 검사할
@@ -7501,6 +7822,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             print("[%s] deny tool=%s inner=%s"
                                   % (_wtag, getattr(c, "name", None), _inner),
                                   file=_sys.stderr, flush=True)
+                            # ★A7 [[70]] 계측: 이 deny 는 **구판이면 안 나갔을** 것이다(게이트·prov
+                            #   축에 묶여 있었으므로). 이 줄의 수 = 이 수리가 산 차단 = 판 것의
+                            #   상한(Δspurious 후보). 0 이면 이 수리는 아무것도 안 판 것이다.
+                            if _fab_only:
+                                print("[T2_WAG_DECOUPLED] fired tag=%s phase=%s tool=%s"
+                                      % (_wtag, "gate" if do_gate else "prov",
+                                         getattr(c, "name", None)),
+                                      file=_sys.stderr, flush=True)
                             break
                 except Exception as _wve:
                     wev_fb = None
@@ -9352,15 +9681,55 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         #   `user_tool_channel_args` 선언) ⓑ이름 토큰이 **에이전트** 레지스트리와
                         #   겹치는가(`_tok_overlap`·기계·판단 0). 겹치면 그 사실만 말한다 — 무엇을
                         #   호출할지·인자는 여전히 모델이 정한다([[62]] ③④·[[64]]).
+                        # ★A13/OL-05 (t7336 §6.1·2026-08-22): 구판은 **손님-측 레지스트리를 한
+                        #   번도 조회하지 않은 채** *"there is no customer-side tool by that name
+                        #   on file"* 을 단언했다 — `_tok_overlap` 이 토큰 하나(`deposit`)만 겹쳐도
+                        #   최대-겹침 항목을 돌려주므로, 손님 도구 `deposit_check_3847` 이 **실재**
+                        #   하는데도 그 거짓이 나갔다(055#0 지연·055#1 치명·give 재시도 0). [[25]]
+                        #   *"우리 도구는 100% 정답 의무"* 정면 위반이다.
+                        #   ⇒ ⑴문면에서 **부정 존재 단언 삭제**(A2 두 층) ⑵여기서 손님-측
+                        #     레지스트리를 **선조회**하고, 후보가 하나라도 겹치면 소유권 주장을
+                        #     **접는다**(fail-open — 확인 못 한 사실은 말하지 않는다) ⑶대신 손님-측
+                        #     **레지스트리 목록을 병기**해 모델이 고르게 한다(선점 금지·[[62]]③④).
+                        #   `_user_discoverable`/`_user_all_tools` 는 **같은 파일에 실재**하고
+                        #   (`:4287`/`:4272`) 주석이 그 구분을 이미 적어 뒀다 — 사본 0([[67]]).
+                        #   선례: `:9031` 이 같은 조회로 `T2_UNKNOWN_NAME_BL` 의 거짓을 이미 막는다.
+                        # ⚠[[70]] 무엇을 파는가: x298 이 잰 B_OWN 6/8 중 **손님-측과 토큰이 겹치는
+                        #   자리**의 소유권 발화를 판다(그 자리에선 목록 병기로 대체). 계기 =
+                        #   `[T2_OWNERSHIP_FIX] fired` ↔ `suppressed(user-side)` 짝 · give 성사율 ·
+                        #   오-give 증가(마스터 §6.1 A13 행).
+                        try:
+                            _uenv8 = getattr(getattr(self, "_t2_orch", None), "environment", None)
+                            _ureg8 = ((_user_discoverable(_uenv8) or set())
+                                      | (_user_all_tools(_uenv8) or set()))
+                        except Exception:
+                            _ureg8 = set()          # fail-open: 조회 실패 = 손님-측 판정 없음
+                        _uchan8 = k in set(_dnc.get("user_tool_channel_args") or ())
+                        _uown8 = _tok_overlap(s, _ureg8) if (_uchan8 and _ureg8) else []
                         _own8 = (_tok_overlap(s, _reg8 or ())
-                                 if (k in set(_dnc.get("user_tool_channel_args") or ())
-                                     and _dnc.get("feedback_user_tool_is_agents")) else None)
+                                 if (_uchan8 and _dnc.get("feedback_user_tool_is_agents")) else None)
+                        if _uown8:
+                            # 손님-측에도 후보가 있다 = "손님 것이 아니다"·"네 도구다" 둘 다
+                            # 우리가 확인하지 못한 주장이다. 두 문면 모두 접고 목록만 준다.
+                            print("[T2_OWNERSHIP_FIX] suppressed(user-side): give-name=%s "
+                                  "customer-side candidate(s) %s" % (s, _uown8),
+                                  file=_sys.stderr, flush=True)
+                            _own8 = None
+                            _ulist8 = _dnc.get("feedback_user_registry_listing")
+                            if _ulist8:
+                                _fb8 = str(_ulist8).replace(
+                                    "{names}", ", ".join(sorted(_ureg8)))
                         if _own8:
                             _fb8 = str(_dnc["feedback_user_tool_is_agents"]).replace(
                                 "{matches}", ", ".join(_own8))
-                            print("[T2_OWNERSHIP_FIX] give-name=%s → agent tool(s) %s"
+                            # 선점 금지([[70]] A13): 단일 `{matches}` 로 몰지 않도록 레지스트리 병기.
+                            _lst8o = _dnc.get("feedback_registry_listing")
+                            if _lst8o and _reg8:
+                                _fb8 = str(_fb8) + str(_lst8o).replace(
+                                    "{names}", ", ".join(sorted(_reg8)))
+                            print("[T2_OWNERSHIP_FIX] fired give-name=%s → agent tool(s) %s"
                                   % (s, _own8), file=_sys.stderr, flush=True)
-                        elif _fb8 and not _same8:
+                        elif _fb8 and not _same8 and not _uown8:
                             _lst8 = _dnc.get("feedback_registry_listing")
                             if _lst8 and _reg8:
                                 _fb8 = str(_fb8) + str(_lst8).replace(
@@ -9901,8 +10270,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 d_ids = {tc.id for tc, _, _ in denied}
                 kept = [tc for tc in (am.tool_calls or []) if tc.id not in d_ids]
                 am.tool_calls = kept or None
-                note = "; ".join(f"[{gid}] {(why or '')[:70]}" for _, gid, why in denied)
-                am.content = (am.content or "") + _BLOCK_NOTE + " (" + note + ")"
+                # ★A15/OL-55 (2026-08-22): 단어-경계 절단 + 빈 본문이면 재생성(노트를 본문
+                #   전체로 커밋하지 않는다). 재생성은 **도구 없이**(tools=None) 산문만 받는다 —
+                #   여기서 새 호출이 나오면 게이트를 우회한다.
+                note = "; ".join(f"[{gid}] {_trunc_reason(why)}" for _, gid, why in denied)
+
+                def _bn_regen_u(_ask, _work=work, _am=am):
+                    _kw = dict(self.llm_args)
+                    _kw.pop("tools", None)
+                    _r = la.generate(model=self.llm, tools=None,
+                                     messages=self._system_messages + _work + [_um(_ask)],
+                                     call_name="agent_blocknote_body", **_kw)
+                    return getattr(_r, "content", "") or ""
+                self._t2_blocknote = getattr(self, "_t2_blocknote", collections.Counter())
+                self._t2_blocknote[_commit_block_note(am, note, regen=_bn_regen_u)] += 1
                 self._t2_gate_strips = getattr(self, "_t2_gate_strips", 0) + 1
                 print("[T2_UNIFIED] R8 strip: %s" % note[:140], file=_sys.stderr, flush=True)
         # ★EXHAUSTION→FAIL (T2_FAB_STRIP=1·BANK_IMPL_REDESIGN §2·2026-07-16):
@@ -9978,7 +10359,22 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             if _stale:
                 _kept = [tc for tc in (am.tool_calls or []) if id(tc) not in _stale]
                 am.tool_calls = _kept or None
-                am.content = (am.content or "") + " [중복 호출 제거: 이미 완료한 조회/작업은 반복하지 않았습니다.]"
+                # ★A1/OL-18 (t7336 §6.1·2026-08-22): 구판 노트는 **한국어 + 거짓**이었다 —
+                #   *"[중복 호출 제거: **이미 완료한** 조회/작업은 반복하지 않았습니다.]"*.
+                #   ⑴바로 위 `:9956` 에 *"C125: 유저-대면 문자열은 영어"* 규칙이 축자로 있는데
+                #     이 자리만 한글이었고, ⑵`_stale_call_ids` 는 **완료를 판정하지 않는다**(같은
+                #     턴 중복 ∨ 원장의 같은-인자 write) — 그런데 노트가 완료를 단언해 user-sim 이
+                #     085#1 [110] *"we've already handled the first two"* 로 **미완료를 완료로
+                #     닫았다**([[25]] 유일 근거원 오염). 여기서는 **한 일(안 보냄)만** 말하고
+                #     결과에 대해서는 아무것도 주장하지 않으며, 다음 행동을 지목한다([[64]]).
+                # ⚠[[70]] 무엇을 파는가: 노트가 길어져 본문 끝에 붙는 문자열이 늘고, "완료" 단언이
+                #   사라져 모델이 **같은 조회를 한 번 더** 시도할 수 있다. 다음 런은 `[T2_STALE_STRIP]
+                #   dropped` 수와 동일-인자 재호출 수를 짝으로 센다.
+                am.content = ((am.content or "")
+                              + " [Note: %d repeated tool call(s) in this turn were not sent"
+                                " again. This says nothing about whether the earlier attempt"
+                                " succeeded - re-read the tool results above before telling the"
+                                " customer anything is done.]" % len(_stale))
                 self._t2_stale_strips = getattr(self, "_t2_stale_strips", 0) + len(_stale)
                 print("[T2_STALE_STRIP] dropped %d stale/dup call(s)" % len(_stale),
                       file=_sys.stderr, flush=True)
@@ -10423,8 +10819,30 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         #   우리 가드에 막힌다(t7324 050 실측: `unlock-hint` 직후 이 deny).
                         _ours2 = (getattr(self, "_t2_our_names", set())
                                   if os.environ.get("T2_PROV_OURS") == "1" else set())
+                        # ★A5/OL-01 (t7336 §6.1·2026-08-22): **env 레지스트리도 출처다**.
+                        #   050#0 실측 — regen 이 낸 `approve_credit_limit_increase_5847` 은
+                        #   **레지스트리에 실재하는 gold 이름**인데 이 가드가 "unprovenanced" 로
+                        #   막았고(halfB UNLOCK_PROV deny 4건 중 **3건이 실재 이름**·오차단율 3/4),
+                        #   모델은 `shell` 로 후퇴해 산문을 날조했다. [[25]]: *"env 가 '없다'고 해도
+                        #   레지스트리에 있으면 있는 것"* — 그 역도 참이다. 엔진은 이 레지스트리를
+                        #   **이미 읽는다**(같은 파일 `_agent_discoverable` 소비처 다수) — 사본 0.
+                        #   env-거부 이력(`_t2_unknown_bl`)은 **먼저** 검사하므로 그대로 남는다.
+                        # ⚠[[70]] 무엇을 파는가: **레지스트리에 실재하나 이 태스크에는 엉뚱한
+                        #   이름**의 unlock 이 통과한다(구판은 KB 에 안 뜬 이름을 전부 막았다).
+                        #   계기 = `T2_PROV_OURS=1↔0` × `T2_UNLOCK_PROV=1↔0` 4칸 + over-action
+                        #   (마스터 §6.1 A5 행). 다음 런 포렌식이 `registry-provenanced` 수를 센다.
+                        try:
+                            _reg2 = _agent_discoverable(
+                                getattr(getattr(self, "_t2_orch", None), "environment", None)) or set()
+                        except Exception:
+                            _reg2 = set()          # fail-open: 조회 실패 = 출처 추가 없음(구판)
+                        if _uv and _uv in _reg2 and _uv.lower() not in _ctx2 and _uv not in _ours2:
+                            print("[T2_UNLOCK_PROV] registry-provenanced (allow) tool=%s val=%s"
+                                  % (getattr(_c2, "name", None), _uv),
+                                  file=_sys.stderr, flush=True)
                         if (_uv in getattr(self, "_t2_unknown_bl", set())
-                                or (_uv.lower() not in _ctx2 and _uv not in _ours2)):
+                                or (_uv.lower() not in _ctx2 and _uv not in _ours2
+                                    and _uv not in _reg2)):
                             print("[T2_UNLOCK_PROV] deny unprovenanced name (followup-regen) "
                                   "tool=%s val=%s" % (getattr(_c2, "name", None), _uv),
                                   file=_sys.stderr, flush=True)
@@ -11193,11 +11611,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                           file=_sys.stderr, flush=True)
                     break
                 # 원장 이벤트 집합: 원명 + effective명(디스패처 unwrap·suffix strip)
-                _evs = set()
-                for _m3 in state.messages:
-                    for _tc3 in (getattr(_m3, "tool_calls", None) or []):
-                        _evs.add(str(getattr(_tc3, "name", "") or ""))
-                        _evs.add(_eff_tool_name(_tc3))
+                # ★A2/OL-21 (t7336 §6.1·2026-08-22): **성공한 호출만** 원장이다 — 구판은 이름만
+                #   모아 env 가 거부한 호출을 "했다"의 근거로 썼다(094#0 `unbacked=0` 날조 완결).
+                #   판정·계기는 `_ledger_event_names`(정본 술어 재사용·사본 0) 참조.
+                _evs, _evs_drop = _ledger_event_names(state.messages)
+                if _evs_drop:
+                    print("[T2_CLAIMPROV] ledger narrowed: %d failed call(s) excluded %s"
+                          % (len(_evs_drop), [d[0] for d in _evs_drop][:4]),
+                          file=_sys.stderr, flush=True)
                 _emap = _cpv["event_map"]
                 # ★과거형 claims만 tool-미스→kind 강등 (050 DUP 수리·docstring ★★).
                 #   pending(:아래)은 기본 False 유지 — 038형 탈출-티켓 방어 보존.
@@ -11238,10 +11659,30 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                    getattr(getattr(self, "_t2_orch", None),
                                                            "environment", None),
                                                    state.messages)
+                        # ★A3/OL-19 (2026-08-22): 원장-실재 전제 + 구절 분할. `_ledger_text` 는
+                        #   궤적 축자(모든 content + tool_call 이름/인자)이고, 여기에 없는 이름은
+                        #   **모델이 낸 것이 아니다** — 074 의 `apply_credits_to_account_1234` 가
+                        #   그랬다(궤적 0회·우리 서브 산출). 실재 안 하면 침묵한다([[25]]).
+                        # ⚠범위는 **서브가 본 그대로**여야 한다 = `work + [am]`. `_pd` 는 위
+                        #   `_gen(self, work + [am], …)` 서브의 JSON 산출이므로, 이 턴의 약속은
+                        #   아직 `state.messages` 에 없다 — 거기서만 찾으면 **정당한 발화까지
+                        #   전멸**한다(첫 판이 그랬다). `work ⊇ state.messages` 이므로 상위집합이고,
+                        #   fail-open(더 많이 인정 = 거짓 고발 축소·[[25]]) 방향이다.
+                        _led3 = _ledger_text(list(work) + [am])
                         _unavail, _unavail_locked = _unavailable_promises(
                             _pd, _known,
                             discoverable=_agent_discoverable(
+                                getattr(getattr(self, "_t2_orch", None), "environment", None)),
+                            ledger_text=_led3)
+                        # 계기([[70]]): 원장-실재 전제가 **몇 건을 침묵시켰나** = 판 것의 크기.
+                        _u_old, _ul_old = _unavailable_promises(
+                            _pd, _known,
+                            discoverable=_agent_discoverable(
                                 getattr(getattr(self, "_t2_orch", None), "environment", None)))
+                        _n_sil = (len(_u_old) + len(_ul_old)) - (len(_unavail) + len(_unavail_locked))
+                        if _n_sil > 0:
+                            print("[T2_UNAVAIL] ledger-absent silenced=%d (names not in trajectory)"
+                                  % _n_sil, file=_sys.stderr, flush=True)
                         _lever_health("unavail", "ok")
                         if _unavail or _unavail_locked:
                             _lever_health("unavail", "fired")

@@ -1557,8 +1557,26 @@ def _byref_resolve(orch, d, ctx):
         _iso_ref = _isolate_spec(d) or {}
         _iso_owns = (_iso_ref.get("mode") == "fetch_formalize"
                      and k in set(_iso_ref.get("operand_keys") or []))
+        # ★A10 / OL-48 (t7336 마스터 §6.1·2026-08-22): 필드-요구 검사도 **이 우회 안**에 둔다.
+        #   C526⒠→C531 이 우회를 만든 원 의도가 이 자리인데, 구판은 `try` 가 `_parse_record_dump`
+        #   하나만 감싸서 `_byref_require_fields` 의 `_ByrefError` 가 우회를 **그대로 통과**했다.
+        #   074#0/#1 실측: `[T2_SG_BYREF] … "supply 'transactions' yourself with those fields
+        #   filled in"` ×4 → 모델이 손-전사 5회(6.7~7.8KB) → 그 행을 **격리 서브가 전부
+        #   덮어쓴다**(`fetch-formalize operand 주입`) ⇒ 순수 낭비 33KB → `context_window_exceeded`.
+        #   `isolate.fetch_formalize` 를 선언한 키에서 `@last:` 참조는 **원리상 성립 못 한다**
+        #   (서브가 모델에게서 받지 않고 스스로 fetch 한다) — 그러니 그 키의 컬럼 부재로
+        #   모델에게 전사를 요구하는 것은 어느 조건에서도 틀렸다.
+        # ⚠폴백 유지: `continue` 라 `ctx[k]` 는 `@last:` 문자열로 남고, 서브까지 실패하면
+        #   아래 over-str 검사가 여전히 재송신을 요구한다(침묵 통과 아님).
+        # ⚠[[70]] 계측 의무 — 파는 것: `_iso_owns` 키에서 **컬럼 부재 지목이 사라진다**.
+        #   서브가 잘못된 컬럼을 산출하면 종전에는 이 지목이 먼저 잡았다(이제는 op 의 abstain·
+        #   `[coverage]`/`missing_fields` 가 잡는다). 다음 런 포렌식이 셀 것 =
+        #   ⑴`[T2_SG_BYREF] … 미해석` 건수 ⑵손-전사 본문 크기(assistant 턴 바이트)
+        #   ⑶`context_window_exceeded` 재발 ⑷서브 실패 시 over-str 재송신 요구가 살아 있는가.
         try:
             rows = _parse_record_dump(_resolve_ref_output(orch, v))
+            _byref_map_fields(d, rows)                 # A2 선언 컬럼명 대응(§4-1 후속)
+            _byref_require_fields(d, k, rows)          # 필요한 컬럼 부재 = 침묵 대신 지목
         except _ByrefError:
             if not _iso_owns:
                 raise
@@ -1566,8 +1584,6 @@ def _byref_resolve(orch, d, ctx):
                   "산출하므로 deny 하지 않고 넘긴다" % (d.get("name"), v, k),
                   file=_sys.stderr, flush=True)
             continue
-        _byref_map_fields(d, rows)                     # A2 선언 컬럼명 대응(§4-1 후속)
-        _byref_require_fields(d, k, rows)              # 필요한 컬럼 부재 = 침묵 대신 지목
         ctx[k] = rows
         print("[T2_SG_BYREF] %s: '%s' resolved by reference -> %d row(s)"
               % (d.get("name"), v, len(rows)), file=_sys.stderr, flush=True)
@@ -2284,6 +2300,46 @@ def apply():
                 _res = _c.apply_op(d.get("op"), _ctx)
                 if isinstance(_res, dict) and _ctx.get("__cat_cite_note"):
                     _res["note"] = (str(_res.get("note") or "") + " " + _ctx["__cat_cite_note"]).strip()
+                # ★A8 / OL-11 (t7336 마스터 §6.1·2026-08-22): **결과 범위 게이트**(abstain).
+                #   093#1 실측 — `expected<actual` 이면 이 계산은 음수를 내는데 반환문이
+                #   *"Use this as the credit amount"* 로 지시한다. 그 크레딧 도구의 인자 계약은
+                #   정책 축자로 *"amount (number): The positive dollar amount to credit (must be
+                #   greater than 0)"* 다 ⇒ 현행 반환문은 **집행 불가능한 지시**다([[25]] 우리 도구는
+                #   100% 정답 의무·[[64]] 거부는 무엇을 하면 풀리는지 담아야 한다).
+                #   술어는 닫혀 있다: 산수 하나(`result <= min_exclusive`)뿐이고 도메인 판단 0.
+                #   경계값·문면은 **전부 A2 선언**(`result_range`·`result_range_feedback`)이라
+                #   엔진 리터럴 0 이고, 미선언 도구는 거동 변화 0 이다([[05]]).
+                # ⚠엔진은 **고르지 않는다**: 무엇이 옳은 APY 인지·환수인지 보고인지는 말하지 않고,
+                #   "이 수는 크레딧 인자로 쓸 수 없다 + 다시 확인할 read/계산의 이름" 만 준다.
+                # ⚠[[70]] 계측 의무 — 파는 것: **정당한 음수 케이스**(과지급 환수·보고서의
+                #   `amount_difference` 음수)에서도 이 도구가 값을 안 돌려준다. 다음 런 포렌식이
+                #   셀 것 = ⑴`[T2_SG_RESULT_RANGE]` 발화 수와 그 sim ⑵그 뒤 크레딧 write 의
+                #   부호 ⑶abstain 이 막은 turn 수(비용) ⑷093#1 재현 여부.
+                #   끄기는 `T2_SG_RESULT_RANGE=0` 한 칸(=A/B 용·기본 ON·[[60]]).
+                _rrg = d.get("result_range") or {}
+                if (_rrg and os.environ.get("T2_SG_RESULT_RANGE", "1") != "0"
+                        and isinstance(_res, (int, float)) and not isinstance(_res, bool)):
+                    _lo = _rrg.get("min_exclusive")
+                    if _lo is not None and float(_res) <= float(_lo):
+                        _sm8 = _SafeMap({kk: vv for kk, vv in _ctx.items()
+                                         if isinstance(vv, (str, int, float))
+                                         and not str(kk).startswith("_")})
+                        _sm8["result"] = _res
+                        _sm8["min_exclusive"] = _lo
+                        _fb8 = str(d.get("result_range_feedback") or "").format_map(_sm8)
+                        if _fb8:
+                            print("[T2_SG_RESULT_RANGE] %s abstain: result=%s <= min_exclusive=%s"
+                                  % (d.get("name"), _res, _lo), file=_sys.stderr, flush=True)
+                            self._t2_abstain_last = d.get("name")
+                            ours[id(tc)] = ToolMessage(
+                                id=tc.id, role="tool",
+                                requestor=getattr(tc, "requestor", "assistant"),
+                                error=True, content=_fb8)
+                            continue
+                        # 문면 미선언 = 말할 것이 없다 → 침묵(종전 거동·[[25]] 모르면 말하지 않는다)
+                        print("[T2_SG_RESULT_RANGE] %s: 범위 밖(result=%s)이나 "
+                              "`result_range_feedback` 미선언 — 종전 반환문 유지"
+                              % (d.get("name"), _res), file=_sys.stderr, flush=True)
                 if isinstance(_res, list):                    # 목록형(discrepancy ids)
                     _res = [str(i) for i in _res if i]
                     # ★이 호출이 무엇을 냈는지 호출 id로 등재한다 (2026-08-05·패턴 제거).

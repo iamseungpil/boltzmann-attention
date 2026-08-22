@@ -72,8 +72,14 @@ def main():
     print("[선언] requires_reads·grounded_params·row_fields 실재 + 3사본 동기([[24]])")
     t0 = tools[PATHS[0]]
     check("①: 3사본 모두 도구 실재", all(t is not None for t in tools.values()))
-    check("①: requires_reads = ['get_bank_account_transactions']",
-          t0.get("requires_reads") == ["get_bank_account_transactions"])
+    # ★2026-08-22 A6⑴/OL-37·OL-23 (t7336 §6.1): 계좌목록 read 를 **앞에** 추가했다.
+    #   072#1 실측 — 구 문면이 목록을 만드는 도구를 이름으로 대지 않아(*"copied from the accounts
+    #   listing"*) 모델이 `account_id="Sky Blue"`(계좌 클래스명)를 날조했다([[64]] fix-naming).
+    #   순서 = 해소 순서(목록 → 거래). 형제 선언 `relations.get_interest_correction` 과 같은 모양.
+    check("①: requires_reads = ['get_all_user_accounts_by_user_id', "
+          "'get_bank_account_transactions'] (A6⑴)",
+          t0.get("requires_reads") == ["get_all_user_accounts_by_user_id",
+                                       "get_bank_account_transactions"])
     check("①: grounded_params.transaction_id.producer_contains = ['record id:']",
           (t0.get("grounded_params") or {}).get("transaction_id", {})
           .get("producer_contains") == ["record id:"])

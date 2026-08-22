@@ -126,15 +126,33 @@ def test_byref_open():
         chk("'transactions'" in str(e) and "None" not in str(e),
             "허용 인자를 정확히 지목('transactions')·'None' 문구 소멸: %s" % str(e)[:90])
     # 필요 컬럼이 없는 덤프 참조 → 침묵 아니라 지목
+    # ★2026-08-22 A10/OL-48 (t7336 §6.1) 경계 이동: 이 지목은 **`isolate.fetch_formalize` 를
+    #   선언하지 않은 도구에서만** 나간다. 선언한 도구(=RB·get_atm_fee_discrepancies)에서는
+    #   그 서브가 레코드를 스스로 fetch·formalize 해 `ctx` 를 덮어쓰므로, 모델에게 컬럼을
+    #   채워 다시 보내라고 하는 것은 **원리상 이행 불가·순수 낭비**다(074#0 손-전사 33KB → CWE).
+    #   ⇒ 아래 두 셀로 경계를 고정한다: 미선언 도구는 종전대로 지목 · 선언 도구는 넘긴다.
     bad = [{"transaction_id": "txn_x", "merchant_name": "M"}]
-    orch3 = FakeOrch([M("assistant", None, tool_calls=[TCall(GETTER, "cB")]),
-                      M("tool", _dump(bad), mid="cB")])
+
+    def _orch_bad():
+        return FakeOrch([M("assistant", None, tool_calls=[TCall(GETTER, "cB")]),
+                         M("tool", _dump(bad), mid="cB")])
+
+    RB_noiso = {k: v for k, v in RB.items() if k != "isolate"}
     try:
-        SG._byref_resolve(orch3, RB, {"transactions": "@last:%s" % GETTER})
-        chk(False, "필요 컬럼 부재 지목")
+        SG._byref_resolve(_orch_bad(), RB_noiso, {"transactions": "@last:%s" % GETTER})
+        chk(False, "필요 컬럼 부재 지목(isolate 미선언)")
     except SG._ByrefError as e:
         chk("'date'" in str(e) and "'amount'" in str(e) and "merchant_name" in str(e),
             "부재 컬럼 + 실재 컬럼 병기(빈 집계 침묵 차단): %s" % str(e)[:100])
+    ctx3 = {"transactions": "@last:%s" % GETTER}
+    raised = None
+    try:
+        SG._byref_resolve(_orch_bad(), RB, ctx3)
+    except Exception as e:                       # noqa: BLE001 — 어떤 예외도 여기선 결함이다
+        raised = e
+    chk(raised is None and ctx3["transactions"] == "@last:%s" % GETTER,
+        "A10: isolate(fetch_formalize) 선언 도구는 손-전사를 요구하지 않고 넘긴다"
+        "(`@last:` 유지 → 서브가 덮어쓴다·서브 실패 시 over-str 검사가 남는다): %r" % raised)
 
 
 def test_window_abstain():

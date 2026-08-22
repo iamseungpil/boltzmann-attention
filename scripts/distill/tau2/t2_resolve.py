@@ -490,6 +490,38 @@ def resolve_action_operator(opspec, am, msgs, a2, target_tool=None, transfer_too
                     except Exception:
                         pass
                 if _nm2:
+                    # ★A4 / OL-02 (t7336 마스터 §6.1·2026-08-22): **우리가 지목한 이름을 등재한다.**
+                    #   085#0 실측 — 같은 턴 안에서 `[T2_DISCOVERY_STEP2] deny name=
+                    #   get_all_user_accounts_by_user_id_3847` 가 나간 직후 모델이 순종했는데
+                    #   `[T2_RESOLVE] deny … reason=operator-fab`(*"was not discovered from any prior
+                    #   search"*) 이 그 이름을 막았다. STEP2 문구는 **사이드카로만** 나가므로
+                    #   `stated_names`(메시지에서 찾는다)로는 안 잡히고, `_t2_our_names` 의 기록자는
+                    #   `_read_routine_pin`(`t2_gate_patch.py:2709-2711`) **하나뿐**이었다.
+                    #   소비자(`resolve_operator` `:171` · `T2_UNLOCK_PROV`)는 이 집합을 **이미 본다** —
+                    #   빠져 있던 것은 등재뿐이다. 레버 신설 0.
+                    # ⚠날조 통과는 구조적으로 불가하게 둔다: **레지스트리 교집합**으로만 넣는다
+                    #   (`registry_names` = 프레임워크 레지스트리·[[25]]). 레지스트리 조회가 비면
+                    #   (오프라인) 아무것도 넣지 않는다 — 종전 거동 보존·fail-closed.
+                    # ⚠[[70]] 계측 의무: 이 행이 파는 것 = **`operator-fab` deny 수의 감소**와 맞바꾼
+                    #   *"우리가 한 번이라도 지목한 레지스트리 이름은 출처가 있다"* 는 확장이다.
+                    #   다음 런 포렌식이 셀 것 = ⑴`[T2_RESOLVE] deny … operator-fab` 건수
+                    #   ⑵`[T2_OUR_NAMES] 등재` 건수 ⑶환각 통과(레지스트리 밖 이름 실행) — 구성상 0 이어야.
+                    if agent is not None:
+                        try:
+                            _regn4 = registry_names(agent)
+                            if _nm2 in _regn4:
+                                _own4 = set(getattr(agent, "_t2_our_names", None) or set())
+                                if _nm2 not in _own4:
+                                    _own4.add(str(_nm2))
+                                    agent._t2_our_names = _own4
+                                    print("[T2_OUR_NAMES] 등재 name=%s (출처=T2_DISCOVERY_STEP2 지목)"
+                                          % _nm2, file=sys.stderr, flush=True)
+                            else:
+                                print("[T2_OUR_NAMES] 미등재(레지스트리 밖) name=%s" % _nm2,
+                                      file=sys.stderr, flush=True)
+                        except Exception as _oe4:
+                            print("[T2_OUR_NAMES] 등재 생략: %r" % (_oe4,),
+                                  file=sys.stderr, flush=True)
                     # ★로그에 남긴다 (2026-08-12). 초판은 인쇄가 없어 `.log` 를 grep 한 내가
                     #   *"발화 0"* 으로 네 번째 계기 오독을 했다 — 문구는 사이드카로만 나간다.
                     #   [[55]] *로그 마크 ≠ 전달* 의 거울상이라, 두 출처가 **둘 다** 있어야 한다.
