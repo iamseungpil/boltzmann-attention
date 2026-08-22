@@ -641,6 +641,33 @@ def env_registry_names(sb):
         return set()
 
 
+AXIS_EXPOSED = "exposed"        # 도구 목록에 직접 서 있다 — 그대로 호출
+AXIS_DISC = "discoverable"      # 레지스트리에만 있다 — 디스패처(`call_discoverable_*`) 경유
+
+
+def name_axis(name, callable_names, reg_names):
+    """★도구 이름이 **어느 축**에 있나 — 이 술어가 정본 한 자리다(x470 도 이걸 import 한다·[[67]]).
+
+    이 env 에서 발견형 도구는 도구 목록에 서지 않고 **디스패처로만** 불린다
+    (`t2_gate_patch.py:2554` 축자 · x255 §호출 타입 T2 · 리모트 실측: 부여 6/6 성공인데
+    `env.get_tools()` 는 17 → 17). 그래서 *"이 이름이 존재하는가"* 는 **두 축을 함께** 물어야 하고,
+    `get_tools()` 한 축으로만 물으면 gold 변이 도구조차 '없는 이름'이 된다(x470 1차 FAIL 의 원인).
+    접미사 해제는 정본 `t2_callable_hint._fam`(`_NNNN` = env 명명 관행) 폴백이다.
+    반환: AXIS_EXPOSED / AXIS_DISC / None(어느 축에도 없음 = 진짜 낯선 이름 → 호출부가 중단한다).
+    """
+    n = str(name or "")
+    if n in callable_names:
+        return AXIS_EXPOSED
+    if n in reg_names:
+        return AXIS_DISC
+    fam = CH._fam(n)
+    if any(CH._fam(x) == fam for x in callable_names):
+        return AXIS_EXPOSED
+    if any(CH._fam(x) == fam for x in reg_names):
+        return AXIS_DISC
+    return None
+
+
 def scaffold_tools(a3):
     """라이브가 주입하는 A3 `scaffold_get_tools` 를 **같은 빌더 사슬**(`_variant` →
     `_augment_byref_params` → `_build_tool`)로 만든다. 074 결정점 호출이 scaffold 도구 + `@last:`
@@ -968,7 +995,7 @@ def main():
         if not reg:
             print("  ⚠툴킷 레지스트리를 못 읽었다 — dispatcher-only 존재 확인 생략([[55]] 침묵 금지)")
         else:
-            ghost = sorted(n for n in dispatcher if n not in reg and n not in have)
+            ghost = sorted(n for n in dispatcher if name_axis(n, have, reg) is None)
             if ghost:
                 raise SystemExit("레지스트리에도 없는 이름을 문맥/문면이 참조한다(진짜 낯선 도구·"
                                  "가드 유지): %s" % ghost)
@@ -995,7 +1022,7 @@ def main():
         if outside:
             raise SystemExit("hard 가 로컬 모사 호출-가능 집합 밖이다(리모트에서 그대로 죽는다): %s"
                              % outside)
-        ghost = sorted(n for n in dispatcher if n not in agent and n not in sg)
+        ghost = sorted(n for n in dispatcher if name_axis(n, callable_local, agent | sg) is None)
         if ghost:
             raise SystemExit("레지스트리 선언에도 없는 이름을 참조한다(진짜 낯선 도구): %s" % ghost)
         print("  dispatcher-only(선언 실재 ✓·호출은 %s 경유): %s" % (F.CALLA, sorted(dispatcher)))

@@ -48,6 +48,15 @@ x459 ⒝ 의 D_name **15/15** 는 *도구 없는 naming 계기*(JSON 으로 이�
      같아진다. 그래도 팔별 EXC 수가 갈리면 표가 **판정 무효를 스스로 선언**한다(사전 규칙 추가).
   ⒞ **문맥 길이 균형 검사**(사전 게이트) — 팔별 평균/최대 `ctx_chars` 를 인쇄하고 팔 간 최대 편차가
      창의 10%(`--ctx-window` 미지정이면 관측 최대의 10%)를 넘으면 경고한다.
+  ⒟ **도구 실재는 두 축으로 묻는다**(2026-08-22 3차 수리 — x466 과 **같은 오류**를 여기서도 고쳤다).
+     `unknown` 대조를 `env.get_tools()` 한 축으로만 하던 판은 리모트에서 gold MISSING 변이 도구
+     `apply_checking_account_credit_5829`·`approve_credit_limit_increase_5847` 를 *"레지스트리에 없다"*
+     로 판정해 게이트를 닫았다. 이 env 의 발견형 도구는 도구 목록에 서지 않고 **디스패처로만** 불리므로
+     (`t2_gate_patch.py:2554` 축자 · 리모트 실측 부여 6/6 인데 17→17) 그 판정 자체가 틀렸다.
+     이제 정본 술어 **`x466.name_axis`** 하나로(사본 0·[[67]]) 노출 축 ∪ 툴킷 레지스트리 축을 함께
+     묻고, **어느 축에서 찾았는지 인쇄**한다. 어느 축에도 없을 때만 `unknown` = 중단(진짜 낯선
+     이름은 계속 잡는다). `vocab_check` 의 토큰 출처도 두 축 전부로 넓혔다(발견형 이름의 도메인
+     명사가 감사에서 빠지던 자리).
 ⛔1차 실행 결과(`…json`)는 이 수리 이전 계기라 **인용 금지**([[55]]).
 
 ## 재생 인터페이스 (정보-맞춘 격리·[[62]] §1.4·[[18]])
@@ -142,6 +151,7 @@ import t2_forensic as F                 # noqa: E402  정본 로더·래퍼 해�
 import x459_dup_and_claim_iso as X459   # noqa: E402  `claim_cases` 결정점 술어 — 그대로 import(사본 0)
 import x465_transfer_doc_iso as X465    # noqa: E402  `to_objs` 정본 변환(옛 사본 `restore` 를 대체)
 import x467_policy_boolean_doc_iso as X467  # noqa: E402  `compact_view_dicts` = 라이브 압축 뷰(계기 수리 ⒜)
+import x466_id_resolution_iso as X466   # noqa: E402  `name_axis`·`env_registry_names` 정본(사본 0·[[67]])
 
 REP = os.path.abspath(os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026"))
 NLC = chr(10)
@@ -566,8 +576,61 @@ def selftest_exclusion(arms):
     return ok
 
 
+def unknown_names(names, callable_names, reg_names):
+    """어느 축에도 없는 이름만 남긴다 — 축 판정은 **정본** `x466.name_axis` 하나로([[67]] 사본 0).
+
+    ⛔`get_tools()` 한 축으로만 물으면 안 된다: 이 env 의 발견형 도구는 도구 목록에 서지 않고
+    디스패처로만 불려서(`t2_gate_patch.py:2554`) gold MISSING 변이 도구조차 '없는 이름'이 된다
+    (2026-08-22 리모트 x470 FAIL 의 원인 — `…credit_5829`·`…increase_5847`).
+    """
+    return sorted(n for n in names if X466.name_axis(n, callable_names, reg_names) is None)
+
+
+def axis_table(names, callable_names, reg_names):
+    """이름별 축을 세어 인쇄용으로 돌려준다 — 어느 축으로 찾았는지 남긴다([[55]] 침묵 금지)."""
+    by = collections.OrderedDict((k, []) for k in (X466.AXIS_EXPOSED, X466.AXIS_DISC, "none"))
+    for n in sorted(names):
+        by[X466.name_axis(n, callable_names, reg_names) or "none"].append(n)
+    return by
+
+
+def selftest_tool_axis(miss_all):
+    """★로컬에서 리모트 FAIL 을 잡는 불변식(2026-08-22 3차 수리).
+
+    *"gold MISSING 변이 도구 중 발견형이 하나라도 `unknown` 으로 분류되면 실패"* 를 건다. 재료는
+    `a2/env_surface.json` 선언(노출/발견형 구분)뿐 — LLM 0·tau2 불요·GPU 0. 세 갈래를 함께 본다:
+      ⑴ 두 축(호출 목록 ∪ 레지스트리)으로 물으면 → `unknown` 0 이어야 한다  ← 리모트가 죽은 자리
+      ⑵ 호출 목록 한 축으로만 물으면          → 그 발견형들이 `unknown` 으로 나와야 한다
+                                              (안 나오면 이 검정이 무력하다 = 검정 자체가 결함)
+      ⑶ 어느 축에도 없으면                    → 여전히 `unknown`(진짜 낯선 이름은 계속 잡는다)
+    """
+    with io.open(os.path.join(HERE, "a2", "env_surface.json"), encoding="utf-8") as f:
+        d = json.load(f)["banking_knowledge"]
+    allnames = {str(n) for n in (d.get("tools") or {})}
+    exposed = {str(x) for x in (d.get("exposed") or [])} & allnames
+    disc_gold = sorted(n for n in miss_all if n in allnames and n not in exposed)
+    checks = [("두 축(노출 ∪ 레지스트리)", exposed, allnames, 0),
+              ("호출 목록만(리모트 FAIL 재현)", exposed, exposed, len(disc_gold)),
+              ("레지스트리에서도 삭제", exposed - set(miss_all), allnames - set(miss_all),
+               len([n for n in miss_all if n in allnames]))]
+    ok = bool(disc_gold)
+    if not disc_gold:
+        print("   FAIL gold MISSING 변이에 발견형이 0종 — 이 불변식이 **무력**하다(표본부터 본다)")
+    for label, cal, reg, want in checks:
+        got = len(unknown_names(miss_all, cal, reg))
+        good = got == want
+        ok &= good
+        print("   %-4s %-28s → unknown %d (기대 %d)" % ("ok" if good else "FAIL", label, got, want))
+    print("   gold MISSING 변이 중 발견형 %d종: %s" % (len(disc_gold), ", ".join(disc_gold) or "-"))
+    return bool(ok)
+
+
 def vocab_check(tool_names):
-    """팔 문면 토큰 ∩ env 도구명 토큰 — 프로토콜 단어 외에 남으면 도메인 어휘 유입([[05]] ⑴)."""
+    """팔 문면 토큰 ∩ env 도구명 토큰 — 프로토콜 단어 외에 남으면 도메인 어휘 유입([[05]] ⑴).
+
+    ⚠토큰 출처는 **두 축 전부**(노출 + 발견형 레지스트리)여야 한다 — `get_tools()` 만 주면 발견형
+    이름의 도메인 명사가 감사에서 빠져 검사가 조용히 약해진다(2026-08-22 같은 전제 오류).
+    """
     tok = set()
     for n in tool_names:
         tok |= set(_sfx(n).lower().split("_"))
@@ -581,9 +644,16 @@ def vocab_check(tool_names):
 
 
 def local_tool_names():
-    """로컬(tau2 없음)용 도구명 출처 = `a2/env_surface.json`(환경 선언 축자) — 리모트는 실물 레지스트리."""
+    """로컬(tau2 없음)용 **두 축** 모사 = `a2/env_surface.json` 선언 축자 — 리모트는 실물 레지스트리.
+
+    ⚠옛 판은 선언 전체를 한 덩이로 돌려줘서 리모트의 두 축 구조(노출 ↔ 발견형)를 못 비췄고, 그래서
+    로컬은 통과하고 리모트만 죽었다. 이제 리모트와 **같은 모양**으로 갈라 돌려준다.
+    반환 = (직접 노출 이름, 레지스트리 전체 이름 = 발견형 포함).
+    """
     with io.open(os.path.join(HERE, "a2", "env_surface.json"), encoding="utf-8") as f:
-        return sorted(json.load(f)["banking_knowledge"]["tools"].keys())
+        d = json.load(f)["banking_knowledge"]
+    allnames = {str(n) for n in (d.get("tools") or {})}
+    return ({str(x) for x in (d.get("exposed") or [])} & allnames), allnames
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -774,18 +844,31 @@ def main():
         import x448_index_vs_all_iso as IVA
         sb = IVA.Sandbox()
         tools = list(sb.env.get_tools() or [])
-        tool_names = sorted(t.name for t in tools)
-        print("[배선] env 실물 도구 %d종 (alltools = 라이브 go_stack 과 동일)" % len(tools))
+        call_names = {t.name for t in tools}
+        reg_names = X466.env_registry_names(sb)          # 발견형 포함(정본 술어·[[67]])
+        print("[배선] env 실물 도구 %d종(alltools = 라이브 go_stack 과 동일) · 툴킷 레지스트리 %d종"
+              % (len(tools), len(reg_names)))
+        if not reg_names:
+            print("   ⚠툴킷 레지스트리를 못 읽었다 — 발견형 축 확인 불가([[55]] 침묵 금지)")
     else:
         tools = None
-        tool_names = local_tool_names()
-        print("[배선] tau2 미설치(로컬) — 도구명은 `a2/env_surface.json` 선언 %d종으로 어휘 검산만"
-              % len(tool_names))
+        # 로컬 모사: 호출 목록 = 선언 `exposed`, 레지스트리 = 선언 전체(리모트와 **같은 모양**).
+        call_names, reg_names = local_tool_names()
+        print("[배선] tau2 미설치(로컬) — `a2/env_surface.json` 선언으로 두 축 모사(노출 %d · 레지스트리 %d)"
+              % (len(call_names), len(reg_names)))
+    tool_names = sorted(call_names | reg_names)          # 어휘 감사는 **두 축 전부** 위에서
     miss_all = {n for c in sel for n in c["missing_names"]}
-    unknown = sorted(n for n in miss_all if n not in tool_names and _sfx(n) not in {_sfx(x) for x in tool_names})
-    print("   MISSING 도구 %d종 전부 레지스트리 실재: %s" % (len(miss_all), "예" if not unknown else "아니오 %r" % unknown))
+    unknown = unknown_names(miss_all, call_names, reg_names)
+    ax = axis_table(miss_all, call_names, reg_names)
+    print("   MISSING 도구 %d종 실재 축: 직접 노출 %d%s · 발견형(디스패처 경유) %d%s · 없음 %s"
+          % (len(miss_all), len(ax[X466.AXIS_EXPOSED]),
+             (" " + ",".join(ax[X466.AXIS_EXPOSED])) if ax[X466.AXIS_EXPOSED] else "",
+             len(ax[X466.AXIS_DISC]),
+             (" " + ",".join(ax[X466.AXIS_DISC])) if ax[X466.AXIS_DISC] else "",
+             "0 ✓" if not unknown else "%d %r ⛔" % (len(unknown), unknown)))
     bad = vocab_check(tool_names)
-    print("   문면 ∩ 도구명 토큰(프로토콜 단어 %s 제외): %s" % (sorted(PROTO_WORDS), bad or "없음 ✓"))
+    print("   문면 ∩ 도구명 토큰(두 축 %d종·프로토콜 단어 %s 제외): %s"
+          % (len(tool_names), sorted(PROTO_WORDS), bad or "없음 ✓"))
 
     # ── ④ 채점기 자기검정 ─────────────────────────────────────────────────────────
     print("[배선] 채점기 자기검정 (실제 결정점의 MISSING/done 집합 위 합성 호출)")
@@ -794,6 +877,8 @@ def main():
     # ── ④b 제외-계수 + 주입-압축 순서 자기검정 (계기 수리 ⒝⒜ — LLM 0·합성) ──────────
     exc_ok = selftest_exclusion(arms)
     ord_ok = selftest_arm_order(sel[0], arms)
+    print("[배선] 도구-축 불변식 (gold MISSING 변이의 발견형이 `unknown` 이 되면 실패)")
+    axis_ok = selftest_tool_axis(miss_all)
     if not have_tau2:
         print("   ⚠로컬 뷰 변환은 shim(원본 dict 보존)이라 실 tau2 `model_dump()` 왕복과 다르다 — "
               "위 순서 자기검정이 그 차이를 **모사**해 대신 잡는다([[55]] 침묵 금지).")
@@ -819,14 +904,14 @@ def main():
         else:
             print("[배선] (리모트 계층 — 객체 복원·실물 도구·system 재구성은 tau2 환경의 --wiring-only 에서)")
             tier = "LOCAL"
-        ok = (st_ok and exc_ok and ord_ok and n_bad == 0 and n_vbad == 0
+        ok = (st_ok and exc_ok and ord_ok and axis_ok and n_bad == 0 and n_vbad == 0
               and not unknown and not bad)
         print("[배선] wiring-only %s · 계층 %s · LLM 0 · GPU 0 (압축·EXC 계수·균형 검사 포함)"
               % ("PASS" if ok else "FAIL", tier))
         return 0 if ok else 1
     if not have_tau2:
         raise SystemExit("tau2 없음 — 재생은 리모트에서(docstring 실행 명령)")
-    if not st_ok or not exc_ok or not ord_ok or n_bad or n_vbad:
+    if not st_ok or not exc_ok or not ord_ok or not axis_ok or n_bad or n_vbad:
         raise SystemExit("배선 검산 실패 — 재생하지 않는다([[55]])")
 
     # ── ⑤ 재생 ───────────────────────────────────────────────────────────────────
