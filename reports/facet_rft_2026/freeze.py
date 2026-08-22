@@ -24,8 +24,21 @@ r"""freeze.py — 유료 런 동안 엔진을 **동결**한다 (설계서 §7-0 
     python freeze.py --off
     python freeze.py --status
 
-`--off` 는 **동결 중 SHA 가 변했는지 함께 보고한다** — 변했으면 훅을 우회한 편집이 있었다는
-뜻이고, 그 런의 결과는 버리는 것이 맞다.
+`--off` 는 **동결된 경로의 내용이 변했는지** 함께 보고한다 — 변했으면 훅을 우회한 편집이
+있었다는 뜻이고, 그 런의 결과는 버리는 것이 맞다.
+
+## ⚠2026-08-23 수리 — HEAD SHA 로 재면 **모든 런이 "뚫렸다"로 기록된다**
+
+구판은 `moved = sha() != 동결시 sha` 였다. 그런데 유료 런의 러너는 **자기 결과를 스스로
+커밋한다**(스모크 gz → 본런 gz → push·[[30]] 영속 의무). 그래서 HEAD 는 런마다 반드시
+움직이고, 경보는 **항상** 뜬다. t7346 실측: 동결 `d5ff0c10` → 해제 `29b3a283` 로 "뚫렸다"가
+떴는데 그 구간 커밋 2개는 `t7346 smoke` · `t7346 all-on stage1 results` 뿐이고
+`git diff --name-only` 는 **`reports/facet_rft_2026/sim_results` 8파일**만 냈다 — 엔진 diff 0.
+
+경보가 늘 울리면 아무도 안 듣는다([[25]]: 우리 도구의 출력 결함이 유일한 근거원을 오염시킨다).
+동결이 지키기로 한 것은 **`paths` 의 내용**이지 HEAD 가 아니다 ⇒ `--on` 이 그 경로들의
+**git object hash 를 적어두고** `--off` 가 같은 해시를 다시 재서 비교한다. HEAD 변동은
+정보로만 인쇄한다(그 자체는 위반이 아니다).
 """
 import argparse
 import json
@@ -57,6 +70,43 @@ def sha():
                                        cwd=REPO).decode().strip()
     except Exception:
         return "?"
+
+
+def rel(p):
+    """`DEFAULT_PATHS` 표기(`/scripts/...`·디렉터리는 끝에 `/`) → git object 경로."""
+    return p.strip("/")
+
+
+def path_hashes(paths):
+    """동결 경로 각각의 **git object hash**. 없는 경로는 `None`(나중에 생기면 그것도 변경이다).
+
+    `git rev-parse HEAD:<path>` 는 파일이면 blob, 디렉터리면 tree 해시를 준다 — 디렉터리는
+    그 아래 전부를 덮으므로 `a2/` 한 줄이 A2 전 파일을 지킨다.
+    """
+    out = {}
+    for p in paths or []:
+        r = rel(p)
+        try:
+            out[r] = subprocess.check_output(
+                ["git", "rev-parse", "HEAD:%s" % r], cwd=REPO,
+                stderr=subprocess.DEVNULL).decode().strip()
+        except Exception:
+            out[r] = None
+    return out
+
+
+def breached(cur):
+    """동결이 실제로 뚫렸나 — **경로 내용 기준**. 반환 (뚫림?, 바뀐 경로 목록, 판정 근거).
+
+    구판 freeze 파일(`path_hashes` 없음)은 잴 재료가 없으므로 종전대로 HEAD 비교로 떨어지되
+    그 사실을 근거 문자열로 남긴다([[25]] 계기가 무엇을 쟀는지 말하게 한다).
+    """
+    before = cur.get("path_hashes")
+    if not before:
+        return (sha() != cur.get("sha"), [], "구판 freeze(경로 해시 없음) — HEAD 비교로 대체")
+    after = path_hashes(cur.get("paths") or DEFAULT_PATHS)
+    changed = sorted(k for k in set(before) | set(after) if before.get(k) != after.get(k))
+    return (bool(changed), changed, "동결 경로 %d개 내용 비교" % len(before))
 
 
 def dirty():
@@ -98,9 +148,11 @@ def main():
     if a.status or not (a.on or a.off):
         if cur and cur.get("active"):
             d = dirty()
+            hit, changed, how = breached(cur)
             print("FROZEN sha=%s tag=%s\n  이유: %s\n  건 시각: %s\n  지금 SHA: %s%s"
                   % (cur.get("sha"), cur.get("tag"), cur.get("reason"), cur.get("at"), sha(),
-                     "" if sha() == cur.get("sha") else "  ⚠**동결 중 SHA 가 변했다**"))
+                     ("  ⚠**동결 경로가 변했다**: " + ", ".join(changed[:4])) if hit
+                     else ("  (HEAD 만 움직였다 — 경로 무변)" if sha() != cur.get("sha") else "")))
             if d:
                 print("  ⚠미커밋 변경 %d: %s" % (len(d), ", ".join(d[:5])))
         else:
@@ -119,7 +171,10 @@ def main():
                   % (len(d), "\n  ".join(d)), file=sys.stderr)
             return 1
         z = {"active": True, "sha": sha(), "tag": a.tag, "reason": a.reason,
-             "at": now(), "paths": DEFAULT_PATHS}
+             "at": now(), "paths": DEFAULT_PATHS,
+             # ★수리(2026-08-23): 판정 재료는 여기서 생긴다. 이것이 없으면 --off 는 HEAD 로
+             #   떨어지고 러너 자신의 결과 커밋에 늘 걸린다(위 독스트링).
+             "path_hashes": path_hashes(DEFAULT_PATHS)}
         with open(PATH, "w", encoding="utf-8") as f:
             json.dump(z, f, ensure_ascii=False, indent=1)
         print("[freeze] ON sha=%s tag=%s · %d 경로" % (z["sha"], a.tag, len(DEFAULT_PATHS)))
@@ -129,18 +184,24 @@ def main():
     if not (cur and cur.get("active")):
         print("[freeze] 동결 상태가 아니다.", file=sys.stderr)
         return 1
-    moved = sha() != cur.get("sha")
+    hit, changed, how = breached(cur)
     d = dirty()
     cur["active"] = False
     cur["released_sha"] = sha()
+    cur["breach"] = {"changed_paths": changed, "basis": how, "uncommitted": len(d)}
     with open(PATH, "w", encoding="utf-8") as f:
         json.dump(cur, f, ensure_ascii=False, indent=1)
-    print("[freeze] OFF · 동결 SHA %s → 해제 SHA %s" % (cur.get("sha"), sha()))
-    if moved or d:
+    head_moved = sha() != cur.get("sha")
+    print("[freeze] OFF · 동결 SHA %s → 해제 SHA %s%s"
+          % (cur.get("sha"), sha(),
+             "  (HEAD 는 움직였다 — 러너 자신의 결과 커밋이면 정상)" if head_moved else ""))
+    if hit or d:
         print("⚠**동결이 뚫렸다** — 이 런의 결과는 어떤 SHA 로도 재현되지 않는다.\n"
-              "  SHA 변동: %s · 미커밋: %d\n  ⇒ 그 런은 [?] 로 기록하거나 버려라(C423⒞)."
-              % (moved, len(d)), file=sys.stderr)
+              "  판정 근거: %s\n  바뀐 동결 경로 %d: %s\n  미커밋: %d\n"
+              "  ⇒ 그 런은 [?] 로 기록하거나 버려라(C423⒞)."
+              % (how, len(changed), ", ".join(changed[:6]) or "(없음)", len(d)), file=sys.stderr)
         return 2
+    print("[freeze] 동결 경로 무변 — 런 유효(%s)" % how)
     return 0
 
 
