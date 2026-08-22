@@ -69,6 +69,17 @@ DECL = "get_correct_savings_apy"
 TASK = "task_093"
 BAL_KEY = "current_balance"
 # ★지시 한 문장 — 도메인 수치 0(임계도 값도 쓰지 않는다). 문서를 읽으라고만 한다([[05]]).
+# ★표기-대응 지시 (2026-08-22 3차·R2 후보): 라이브 표기 실험이 확정한 결손의 처방 후보.
+#   에이전트가 레코드의 계좌명을 자기 표현으로 바꿔 넘기면(예: 레코드 "Green Account" →
+#   "Green Checking Account") 서브가 KB 에서 그 이름을 못 찾아 boost 를 통째로 놓친다.
+#   ⇒ 서브에게 **문서 쪽 이름과 맞춰 보라**고 말한다. 대응 판단은 LLM 이 하고 엔진은 하지 않는다
+#     ([[59]]·[[62]]). 계좌 이름 리터럴 0 — 어느 상품인지 우리가 적지 않는다([[05]]).
+MATCH_HINT = (" The product names in REFERENCE may be worded differently from the documents "
+              "(for example the records may name an account one way and the policy documents "
+              "another). Match each product in REFERENCE to the account it refers to in the "
+              "documents before deciding which boosts apply; do not require the strings to be "
+              "identical.")
+
 HINT = (" NOTE: an account's base APY may be tiered by balance. If the documents give more than "
         "one base APY for this account type, read the tier table and use the row whose balance "
         "range contains the balance given in REFERENCE.")
@@ -186,7 +197,7 @@ def main():
     ap.add_argument("--port", type=int, default=8141)
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--n", type=int, default=6, help="팔마다 반복 횟수")
-    ap.add_argument("--arms", default="A_asis,B_bal,C_bal_hint,E_live,N_neg")
+    ap.add_argument("--arms", default="A_asis,B_bal,C_bal_hint,E_live,H_match,N_neg")
     ap.add_argument("--cp", default=None,
                     help="customer_products override (live wording vs KB wording)")
     ap.add_argument("--out", default="x481_apy_tier_probe.json")
@@ -248,12 +259,13 @@ def main():
     #   수치였다. 실측이 그 차이를 드러냈다 — 프로브 components **3행**(합 4.275) ↔
     #   라이브 `sub=2 rows`(합 4.025·checking 누락).
     #   `E_live` = 잔액+지시+문법 = **라이브와 완전히 같은 조건**이 이 프로브의 참조점이다.
-    ARMS = (("A_asis", False, False, False),
-            ("B_bal", True, False, False),
-            ("C_bal_hint", True, True, False),
-            ("E_live", True, True, True),
-            ("N_neg", False, False, False))
-    for arm, use_bal, use_hint, use_schema in ARMS:
+    ARMS = (("A_asis", False, False, False, False),
+            ("B_bal", True, False, False, False),
+            ("C_bal_hint", True, True, False, False),
+            ("E_live", True, True, True, False),
+            ("H_match", True, True, True, True),
+            ("N_neg", False, False, False, False))
+    for arm, use_bal, use_hint, use_schema, use_match in ARMS:
         if arm not in want_arms:
             continue
         if use_schema:
@@ -272,6 +284,12 @@ def main():
             if BAL_KEY not in (iso_a.get("ref_params") or []):
                 iso_a["ref_params"] = list(iso_a.get("ref_params") or []) + [BAL_KEY]
             ctx[BAL_KEY] = bal
+        if use_match:
+            for _h, _k in ((iso_a, "instructions"),
+                           (iso_a.get("docs") if isinstance(iso_a.get("docs"), dict) else None,
+                            "instructions")):
+                if _h and _h.get(_k):
+                    _h[_k] = str(_h[_k]) + MATCH_HINT
         if use_hint:
             for k in ("instructions",):
                 if iso_a.get(k):
@@ -333,7 +351,7 @@ def main():
 
     print("\n" + "=" * 96)
     print("판정 — 문서상 옳은 base = %s" % want_base)
-    for arm in ("A_asis", "N_neg", "B_bal", "C_bal_hint", "E_live"):
+    for arm in ("A_asis", "N_neg", "B_bal", "C_bal_hint", "E_live", "H_match"):
         if arm not in agg:
             continue
         s = agg[arm]
