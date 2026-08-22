@@ -464,22 +464,44 @@ def _system_msg(policy):
             "content": SYSTEM_PROMPT.format(domain_policy=policy, agent_instruction=AGENT_INSTRUCTION)}
 
 
+def compact_env(objs):
+    """`GP._compact_view` 를 **라이브 call-site 와 같은 env·기본값**으로 건다 — 인자가 사는 단 한 자리.
+
+    t7336 은 go_stack.sh 를 source 하므로 T2_VIEW_COMPACT=1·KEEP 6·MINLEN 800·MINTOTAL 60000·
+    MSG_CAP 8000 이 라이브 값이다(런 스크립트 도출·docstring §팔). 다른 프로브(x470)가 이 함수를
+    **import** 한다 — 인자 사본이 두 곳에서 조용히 갈라지지 않게([[67]] 사본 금지).
+    반환 = (뷰 객체 리스트, 다이제스트된 메시지 id 집합).
+    """
+    return GP._compact_view(
+        objs,
+        keep_recent=int(os.environ.get("T2_VIEW_COMPACT_KEEP", "6")),
+        min_len=int(os.environ.get("T2_VIEW_COMPACT_MINLEN", "800")),
+        min_total=int(os.environ.get("T2_VIEW_COMPACT_MINTOTAL", "60000")),
+        msg_cap=int(os.environ.get("T2_VIEW_MSG_CAP", "8000")))
+
+
+def compact_view_dicts(ctx):
+    """궤적 dict 리스트 → **라이브 생성 뷰** dict 리스트. (변환 → `compact_env` → dict 환원)
+
+    tau2 가 있으면 정본 변환(`X465.to_objs`), 없으면 속성 shim(로컬 `--wiring-only` 전용).
+    반환 = (뷰 dict 리스트, 변환 누락 수, 다이제스트 수, 변환 경로). x470 이 이 함수를 쓴다([[67]]).
+    """
+    objs, dropped, conv = _view_objs(ctx)
+    view, digested = compact_env(objs)
+    return [_obj_dict(o) for o in view], dropped, len(digested), conv
+
+
 def assemble_views(ctx, policy):
     """라이브 **생성 뷰** 재구성 — 원시 커밋 히스토리는 라이브 뷰가 아니다(리뷰 BLOCK②).
 
-    순서 = 객체 변환(정본 `X465.to_objs`) → `GP._compact_view`(라이브 call-site 와 같은 env·기본값 —
+    순서 = 객체 변환(정본 `X465.to_objs`) → `compact_env`(라이브 call-site 와 같은 env·기본값 —
     t7336 은 go_stack.sh 로 T2_VIEW_COMPACT=1·MINTOTAL 60000·MSG_CAP 8000) → system 선두 삽입.
     inject(배달)는 이 뷰 위에 한다.
     """
     objs, dropped, conv = _view_objs(ctx)
     if dropped:
         raise SystemExit("메시지 객체 변환 누락 %d — A 문맥이 라이브와 다르다([[55]]·리뷰 MINOR)" % dropped)
-    view, digested = GP._compact_view(
-        objs,
-        keep_recent=int(os.environ.get("T2_VIEW_COMPACT_KEEP", "6")),
-        min_len=int(os.environ.get("T2_VIEW_COMPACT_MINLEN", "800")),
-        min_total=int(os.environ.get("T2_VIEW_COMPACT_MINTOTAL", "60000")),
-        msg_cap=int(os.environ.get("T2_VIEW_MSG_CAP", "8000")))
+    view, digested = compact_env(objs)
     vd = [_obj_dict(o) for o in view]
     sysm = _system_msg(policy)
     base = ([sysm] if sysm else []) + vd

@@ -96,6 +96,20 @@ N_neg 이 A 와 같아야 "결정점에 뭐라도 찔러서"가 아니고([[57]]
   부호표는 결정점 ×1 행씩(태스크별 부호 공개). 격리 결과는 경계 판정이지 승격 근거가 아니다 —
   라이브 효과는 본런 reward A/B 가 판정([[69]]).
 
+## ★계기 수리 (2026-08-22 · 도구-스키마 가드 **과엄격** 으로 fail-closed 중단한 건)
+리모트 1차 실행이 `[배선] 샌드박스 도구 27종(env+scaffold) · 문맥-호출 도구 23종 검사` 뒤
+*"문맥이 호출한 도구가 재생 스키마에 없다"* 로 SystemExit 했다(예: `…transfer_1114`·`…dispute_6281`).
+그 이름들은 **discoverable 계열**이라 부여(unlock)를 거쳐야 스키마에 뜬다 — 초기 `env.get_tools()` 에
+없는 것이 **라이브 정상**이고, 가드가 과엄격이었다. 가드는 끄지 않고 **둘로 갈랐다**:
+    hard = 래퍼 ∪ 문맥이 **직접 호출**한 도구 ∪ 그 sim 이 컷 전에 **성공적으로 연** 도구 → 없으면 중단
+    soft = 아직 안 연 discoverable(지목 read·sham·래퍼로만 닿은 것)                    → 제외하고 **인쇄**
+"성공적으로 연"은 궤적에서 기계 도출한다(`unlocked_before_cut`: 부여 호출 id ↔ 도구-결과가 `error`
+아니고 접두 `Error` 아님 — 이름 리터럴 0). 실측 8 결정점 전부 `래퍼로만 닿은 미개봉` 0건이라
+문맥이 부른 discoverable 은 모두 hard 쪽이다(가드는 여전히 진짜 낯선 도구를 잡는다).
+덤으로 **지형까지 라이브에 맞췄다**: 샌드박스에서 궤적이 연 도구를 같은 env 도구로 다시 열고
+(`expose_unlocked`), 결정점마다 `초기 노출 ∪ 그 sim 이 연 것` 만 남긴 **결정점별 도구 목록**으로
+재생·system 을 짓는다(다른 sim 이 연 도구가 새어 들어가지 않게).
+
 ## 실행 (리모트·8141·GPU 유휴 시에만 — 지금은 작성 + 무료 배선 검증까지)
     cd /home/woori/scratch/tau2-bench && \
     PYTHONPATH=src:scripts/distill/tau2 PYTHONIOENCODING=utf-8 \
@@ -560,6 +574,66 @@ def sham_names(kinds, key, agent, exposed, disc, muts, n):
 
 
 # ── ⑤ 재생 — 실물 도구 스키마 + 라이브 system + 실제 메시지 객체 (x465.replay 재사용) ─
+def unlocked_before_cut(ctx):
+    """★궤적에서 **성공한 부여**(unlock/give)로 그 시점 노출돼 있던 discoverable 도구 — 기계 도출.
+
+    라이브에서 discoverable 도구는 부여가 성공해야 **에이전트 스키마에 뜬다**(그 전에는 래퍼
+    `call_discoverable_*` 로만 닿는다). 그래서 초기 `env.get_tools()` 에 없는 것이 정상이고, 재생
+    스키마는 **그 sim 이 그 시점까지 실제로 연 것**만 담아야 라이브와 같은 도구 지형이 된다.
+    성공 판정 = 그 호출 id 의 도구-결과가 `error` 플래그도 아니고 하네스 관례 접두 `Error` 도 아님
+    (tau2 environment.py 관례·이 파일의 기존 술어 재사용). 이름 리터럴 0 — 전부 궤적 축자.
+    """
+    want, ok = {}, set()
+    for m in ctx:
+        r = str(m.get("role") or "")
+        if r == "assistant":
+            for tc in (m.get("tool_calls") or []):
+                if F.nameof(tc) not in F.GRANTS:
+                    continue
+                inner = F.inner_name(F.argsof(tc))
+                tid = tc.get("id") if isinstance(tc, dict) else getattr(tc, "id", None)
+                if inner:
+                    want[tid] = inner
+        elif r == "tool":
+            rid = m.get("id") or m.get("tool_call_id")
+            if rid in want and not m.get("error") \
+                    and not str(m.get("content") or "").startswith(ERR_PREFIX):
+                ok.add(want[rid])
+    return ok
+
+
+def called_directly(ctx):
+    """문맥에서 **래퍼 없이 직접** 호출된 도구 이름 — 그 시점 스키마에 반드시 있던 것들이다."""
+    out = set()
+    for m in ctx:
+        if str(m.get("role") or "") != "assistant":
+            continue
+        for tc in (m.get("tool_calls") or []):
+            nm = F.nameof(tc)
+            if nm and nm not in F.WRAPPERS:
+                out.add(nm)
+    return out
+
+
+def expose_unlocked(sb, want):
+    """샌드박스 env 를 라이브와 **같은 노출 상태**로 — 궤적이 성공시킨 부여를 같은 env 도구로 재생한다.
+
+    이름은 전부 궤적 도출(`unlocked_before_cut`)이라 우리가 고르지 않는다. 반환 (성공, 실패dict).
+    """
+    done, failed = set(), {}
+    for n in sorted(want):
+        try:
+            r = str(sb.env.use_tool(F.UNLOCK, agent_tool_name=n))
+        except Exception as e:
+            failed[n] = repr(e)[:120]
+            continue
+        if r.startswith(ERR_PREFIX):
+            failed[n] = r[:120]
+        else:
+            done.add(n)
+    return done, failed
+
+
 def scaffold_tools(a3):
     """라이브가 주입하는 A3 `scaffold_get_tools` 를 **같은 빌더 사슬**(`_variant` →
     `_augment_byref_params` → `_build_tool`)로 만든다. 074 결정점 호출이 scaffold 도구 + `@last:`
@@ -832,30 +906,56 @@ def main():
     if not cases:
         raise SystemExit("결정점 0 — 중단")
 
-    # ── 배선 선검증: 샌드박스(있으면) + 문맥-도구 전수 실재(리뷰 MAJOR④) ───────────
+    # ── 배선 선검증: 샌드박스 + 문맥-도구 실재(리뷰 MAJOR④·2026-08-22 과엄격 수리) ──
+    # ★수리: 옛 가드는 `need`(문맥 호출 ∪ 지목 read ∪ sham) **전부**가 초기 `env.get_tools()` 에
+    #   있기를 요구해 fail-closed 로 멈췄다. 그러나 discoverable 계열은 **부여(unlock)를 거쳐야**
+    #   스키마에 뜨는 것이 라이브 정상이다 — 초기 목록에 없는 것이 옳다. 그래서 둘로 가른다:
+    #     hard  = 직접 호출된 도구 ∪ 그 sim 이 컷 전에 **성공적으로 연** 도구 ∪ 래퍼  → 없으면 중단
+    #     soft  = 아직 안 연 discoverable(지목 read·sham·래퍼로만 닿은 것)             → 제외하고 **인쇄**
+    #   그리고 재생 스키마를 라이브 지형에 맞춘다: 궤적이 연 것만 그 결정점의 도구 목록에 넣는다.
     tools, sb = [], None
-    ctx_tools = set()
     for c in cases:
+        c["unlocked"] = unlocked_before_cut(c["ctx"])
+        c["direct"] = called_directly(c["ctx"])
+        c["wrap_only"] = set()
         for m in c["ctx"]:
             if str(m.get("role") or "") != "assistant":
                 continue
             for tc in (m.get("tool_calls") or []):
-                ctx_tools.add(F.nameof(tc))
-                if F.inner_name(F.argsof(tc)):
-                    ctx_tools.add(F.inner_name(F.argsof(tc)))
-    need = (ctx_tools | set(DISC_TOOLS) | {c["dp"]["tool"] for c in cases}
+                if F.nameof(tc) in F.WRAPPERS and F.inner_name(F.argsof(tc)):
+                    c["wrap_only"].add(F.inner_name(F.argsof(tc)))
+        c["wrap_only"] -= c["unlocked"]
+    hard = (set(DISC_TOOLS) | {n for c in cases for n in c["direct"]}
+            | {n for c in cases for n in c["unlocked"]})
+    soft = ({c["dp"]["tool"] for c in cases}
             | {p for c in cases for p in kinds[c["dp"]["ev"]["key"]]}
-            | {s for c in cases for s in c["shams"]})
+            | {s for c in cases for s in c["shams"]}
+            | {n for c in cases for n in c["wrap_only"]}) - hard
     try:
         import x448_index_vs_all_iso as IVA
         sb = IVA.Sandbox()
+        exposed0 = {getattr(t, "name", None) for t in (sb.env.get_tools() or [])}
+        opened, failed = expose_unlocked(sb, {n for c in cases for n in c["unlocked"]})
         tools = list(sb.env.get_tools() or []) + scaffold_tools(a3)
         have = {getattr(t, "name", None) for t in tools}
-        miss = sorted(need - have)
-        print(NLC + "[배선] 샌드박스 도구 %d종(env+scaffold) · 문맥-호출 도구 %d종 검사" % (len(tools), len(need)))
+        print(NLC + "[배선] 샌드박스 도구 %d종(env %d + 궤적이 연 %d + scaffold) · hard %d / soft %d 검사"
+              % (len(tools), len(exposed0), len(opened), len(hard), len(soft)))
+        if failed:
+            print("  ⚠부여 재생 실패(라이브는 성공했다 — 지형 불일치·[[55]]): %s" % failed)
+        miss = sorted(hard - have)
         if miss:
-            raise SystemExit("문맥이 호출한 도구가 재생 스키마에 없다(모델에게 낯선 문맥·리뷰 MAJOR④): %s"
-                             % miss)
+            raise SystemExit("문맥이 **직접 호출했거나 이미 연** 도구가 재생 스키마에 없다"
+                             "(모델에게 낯선 문맥·리뷰 MAJOR④): %s" % miss)
+        skipped = sorted(soft - have)
+        print("  가드 제외(아직 안 연 discoverable — 라이브에서도 이 시점 스키마 밖이 정상·[[55]] "
+              "침묵 금지): %s" % (skipped or "없음"))
+        # 결정점마다 **그 sim 이 연 것만** 노출 — 다른 sim 이 연 도구가 새어 들어가지 않게 한다.
+        for c in cases:
+            hidden = (disc - c["unlocked"]) - exposed0
+            c["tools"] = [t for t in tools if getattr(t, "name", None) not in hidden]
+            print("  %-14s 재생 스키마 %d종 (초기 노출 %d + 이 sim 이 연 %d: %s)"
+                  % (F.sim_key(c["sim"]), len(c["tools"]), len(exposed0), len(c["unlocked"]),
+                     ", ".join(sorted(c["unlocked"])) or "-"))
     except SystemExit:
         raise
     except Exception as e:
@@ -863,9 +963,16 @@ def main():
               "리모트 샌드박스가 강제 검사를 다시 한다)" % (e,))
         sg = {d.get("name") for d in (a3.get("scaffold_get_tools") or [])}
         known = agent | sg | set(F.WRAPPERS)
-        miss = sorted(n for n in need if n not in known)
+        miss = sorted(n for n in hard if n not in known)
         if miss:
             print("  ⚠레지스트리·scaffold 선언 밖 이름(하네스/KB 도구는 리모트에서 실재 확인): %s" % miss)
+        print("  가드 제외 후보(아직 안 연 discoverable·라이브에서도 스키마 밖이 정상): %s"
+              % (sorted(soft & disc) or "없음"))
+        for c in cases:
+            c["tools"] = []
+            print("  %-14s 이 sim 이 연 discoverable %d종: %s"
+                  % (F.sim_key(c["sim"]), len(c["unlocked"]),
+                     ", ".join(sorted(c["unlocked"])) or "-"))
 
     # ── 팔 구성 — 한 변수(끝 메시지/끝 도구-출력)만 다르다 ────────────────────────
     arms = [x.strip() for x in a.arms.split(",") if x.strip()]
@@ -925,20 +1032,25 @@ def main():
     if a.wiring_only:
         print(NLC + "[배선] wiring-only 종료 — LLM 0·GPU 0")
         return 0
-    if not tools:
+    if not tools or not all(c.get("tools") for c in cases):
         raise SystemExit("실물 도구 스키마 없이 재생할 수 없다(샌드박스 필요·C584)")
 
     # ── system (라이브 빌더·기본 ON — 리뷰 MAJOR③) ──────────────────────────────
-    sys_msgs, sys_src = [], "없음(--no-system)"
+    # ★system 도 **결정점별** 도구 목록으로 짓는다 — tau2 system 은 도구 지형을 담으므로 공용 목록을
+    #   쓰면 아직 안 연 discoverable 이 새어 들어간다(수리 2026-08-22).
+    sys_src = "없음(--no-system)"
+    for c in cases:
+        c["sys_msgs"] = []
     if not a.no_system:
-        pol = str(cases[0]["sim"].get("policy") or "")
-        if not pol:
-            raise SystemExit("sim['policy'] 가 비어 있어 라이브 system 을 만들 수 없다 — "
-                             "--no-system 은 진단용일 뿐 기본 유효 조건이 아니다")
-        sys_msgs, sys_src = system_dicts(pol, tools, a.model)
-    print(NLC + "[배선] system=%s · %d메시지 · %d바이트 · T2_RULES_PROMPT=%s"
-          % (sys_src, len(sys_msgs),
-             sum(len(m["content"].encode("utf-8")) for m in sys_msgs),
+        for c in cases:
+            pol = str(c["sim"].get("policy") or "")
+            if not pol:
+                raise SystemExit("sim['policy'] 가 비어 있어 라이브 system 을 만들 수 없다 — "
+                                 "--no-system 은 진단용일 뿐 기본 유효 조건이 아니다")
+            c["sys_msgs"], sys_src = system_dicts(pol, c["tools"], a.model)
+    print(NLC + "[배선] system=%s · %d메시지 · %d바이트(첫 결정점) · T2_RULES_PROMPT=%s"
+          % (sys_src, len(cases[0]["sys_msgs"]),
+             sum(len(m["content"].encode("utf-8")) for m in cases[0]["sys_msgs"]),
              os.environ.get("T2_RULES_PROMPT") or "-"))
 
     # ── 재생 — det 1발 + temp n발 / 팔 / 결정점 ───────────────────────────────────
@@ -955,7 +1067,7 @@ def main():
             print(NLC + "── %s · %s (+%d자) ────────────────────────────" % (sk, arm, c["delta"][arm]))
             for k, t in enumerate([0.0] + [a.temperature] * a.n):
                 try:
-                    calls, text, dropped = replay(sys_msgs, cx, tools, a.model, base, t)
+                    calls, text, dropped = replay(c["sys_msgs"], cx, c["tools"], a.model, base, t)
                 except Exception as e:
                     print("  #%d t=%.1f EXC %r" % (k, t, e))
                     rows.append({"sim": sk, "arm": arm, "k": k, "temp": t, "cat": "EXC",

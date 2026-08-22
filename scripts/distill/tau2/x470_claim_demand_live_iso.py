@@ -26,9 +26,28 @@ x459 ⒝ 의 D_name **15/15** 는 *도구 없는 naming 계기*(JSON 으로 이�
   N_neg/L_live/D_name/E_early 는 전부 **마지막 user 메시지 한 줄**(라이브 ACT_DEMAND 와 같은 자리 =
   비커밋 버퍼의 마지막 UserMessage). 그 외 바이트는 A_asis 와 동일(`--wiring-only` 가 검산).
 
+## ★계기 수리 (2026-08-22 · 1차 실행 **판정 무효** 를 고친 판)
+1차 실행(`x470_claim_demand_live_iso.json`)은 **432 행 중 165(38%)가 `ContextWindowExceededError`** 였고
+그 죽음이 **차등**이었다 — 문면을 더 얹는 팔(D_name/D_sys/L_live)이 더 죽고 컷이 이른 E_early 가 가장 덜
+죽었다. 도움이 됐을 표본이 바로 죽었으므로 *"문면 무효"* 라는 사전-판정 출력은 **계기 아티팩트**다.
+세 가지를 고쳤다(전부 `--wiring-only` 가 LLM 0 으로 재현한다):
+  ⒜ **정보-맞춤 복원** — 라이브 에이전트는 `T2_VIEW_COMPACT` 로 **압축된 뷰**를 본다(go_stack.sh:100·
+     136·137). 1차는 원문 전체를 실었다 = 라이브와 다른 조건. 이제 팔 조립 뒤 **정본 압축**
+     (`x467.compact_view_dicts` → `GP._compact_view`, 인자는 x467 한 자리에만 산다·[[67]] 사본 0)을
+     걸고, 압축 뷰가 여전히 **한 변수**만 다른지 팔마다 검산한다(실측 24/24 통과 · 최대 문맥
+     240,755자 → 69,418자).
+  ⒝ **명시적 제외 계수** — 창을 넘는 결정점을 조용히 버리지 않는다. 창-초과는 **결정점 단위로 전 팔
+     동시 제외**(`EXC/OVER_WINDOW` 사전 게이트 · `EXC/CTXWIN` 런타임)라 팔 간 제외 수가 구조적으로
+     같아진다. 그래도 팔별 EXC 수가 갈리면 표가 **판정 무효를 스스로 선언**한다(사전 규칙 추가).
+  ⒞ **문맥 길이 균형 검사**(사전 게이트) — 팔별 평균/최대 `ctx_chars` 를 인쇄하고 팔 간 최대 편차가
+     창의 10%(`--ctx-window` 미지정이면 관측 최대의 10%)를 넘으면 경고한다.
+⛔1차 실행 결과(`…json`)는 이 수리 이전 계기라 **인용 금지**([[55]]).
+
 ## 재생 인터페이스 (정보-맞춘 격리·[[62]] §1.4·[[18]])
-  · 결정점 직전 **전체 문맥** — 절단 0(x459 ⒝ 의 600/400자 렌더 절단을 반복하지 않는다).
-  · 메시지는 영속 dict → **실제 메시지 객체**(x459 ⒜ `replay` 관용구·58/58) · 복원 누락은 **수로 보고**.
+  · 결정점 직전 **전체 문맥**을 라이브와 **같은 압축 뷰**로 — 우리 손 절단 0(x459 ⒝ 의 600/400자 렌더
+    절단도, 1차의 원문-전체도 반복하지 않는다). 압축은 엔진의 내용 추출 0(head300+tail150 기계 절단).
+  · 메시지는 영속 dict → **실제 메시지 객체**(정본 `x465.to_objs` — x459 ⒜ `replay` 와 같은 변환·사본
+    0·[[67]]) · 복원 누락은 **수로 보고**.
   · 도구 = `x448.Sandbox` 의 env 실물(alltools = 라이브 `go_stack.sh:221` 과 동일 17종).
   · ★system 프롬프트: 영속 메시지에는 system 이 **없다**(실측·role ∈ {assistant,user,tool}). 라이브
     깔때기는 `la.generate(messages=self._system_messages + work)`(`t2_gate_patch.py:6129`) 이므로
@@ -49,6 +68,7 @@ x459 ⒝ 의 D_name **15/15** 는 *도구 없는 naming 계기*(JSON 으로 이�
   변이 집합은 **`t2_forensic.mutation_diff`** 만으로 얻는다(손 비교기 0).
 
 ## n · 사전 고정 판정 (감사 §5.1 축자 · 1차 수치 = 결정점당 **det(t=0) 1발 /24**, 꼬리 = t=0.7 ×2)
+    팔 간 EXC 수가 하나라도 다르다             → **판정 무효**(차등 제외 = 1차 실행이 죽은 자리·계기 수리 ⒝)
     E_early MISS ≥ 8/24                    → **프로브 무효**(문면이 문맥 무관하게 방출을 부추김)
     A_asis  MISS ≥ 8/24                    → 라이브 재현 실패 = **계기 결함**(결과 사용 금지·[[55]])
     D_name − N_neg ≥ 5                     → D_name 이 **방출 축**에서 산다 (그때만 라이브 이관·§5.2 T1)
@@ -92,6 +112,8 @@ x459 ⒝ 의 D_name **15/15** 는 *도구 없는 naming 계기*(JSON 으로 이�
     python scripts/distill/tau2/x470_claim_demand_live_iso.py --port 8141
     # 배선만(LLM 0·GPU 0·tau2 없는 로컬에서도 통과): ... x470_claim_demand_live_iso.py --wiring-only
     # 44 결정점 전수: --max-cases 0   · 보조 블록(071/093): --aux-tasks 071,093
+    # 창을 알면 호출을 아낀다(사전 제외·계기 수리 ⒝): --ctx-window <문자수>  (미지정이면 런타임 제외)
+    # 로컬(윈도우·tau2 없음): PYTHONIOENCODING=utf-8 py -3 x470_claim_demand_live_iso.py --wiring-only
 """
 import argparse
 import collections
@@ -111,6 +133,8 @@ except Exception:
 
 import t2_forensic as F                 # noqa: E402  정본 로더·래퍼 해제·mutation_diff(사본 금지·[[67]])
 import x459_dup_and_claim_iso as X459   # noqa: E402  `claim_cases` 결정점 술어 — 그대로 import(사본 0)
+import x465_transfer_doc_iso as X465    # noqa: E402  `to_objs` 정본 변환(옛 사본 `restore` 를 대체)
+import x467_policy_boolean_doc_iso as X467  # noqa: E402  `compact_view_dicts` = 라이브 압축 뷰(계기 수리 ⒜)
 
 REP = os.path.abspath(os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026"))
 NLC = chr(10)
@@ -127,6 +151,11 @@ ARMS = ("A_asis", "N_neg", "L_live", "D_name", "D_sys", "E_early")
 CLAIM_TASKS = ("050", "072", "073", "074")                       # 감사 §5.1 완료-사칭 계열
 RUNS = ("t7296", "t7297", "t7328", "t7335", "t7336")             # 감사 §5.1 로컬 영속분 5런
 CATS = ("MISS", "DUP", "MUT_OTHER", "GRANT_MISS", "READ", "TEXT", "EXC")
+# 창-초과 제외 사유(닫힌 라벨·팔별 표에 그대로 인쇄한다·계기 수리 ⒝)
+EXC_PRE = "OVER_WINDOW"      # 사전 게이트: 압축 뒤에도 --ctx-window 초과 → 전 팔 동시 제외
+EXC_WIN = "CTXWIN"           # 런타임: 창-초과 예외가 한 팔에서 나면 그 결정점을 전 팔 동시 제외
+# 하네스 프로토콜: litellm/vLLM 의 창-초과는 **예외 타입 이름**으로 식별한다(자유 텍스트 파싱 0·[[59]]).
+CTXWIN_TYPES = ("ContextWindowExceededError",)
 # 팔 문면 토큰 ∩ 도구명 토큰 중 허용 — 도메인 명사가 아닌 것만(출력에 허용 목록을 같이 찍는다):
 #   tool/call/name = 하네스 프로토콜 어휘(`*_tool`·`call_*`·`get_user_information_by_name`)
 #   request/to    = 영어 기능어(`*_request_*`·`transfer_to_human_agents`)
@@ -244,25 +273,82 @@ def ctx_chars(msgs):
                for m in msgs)
 
 
+def compact_arms(built):
+    """★계기 수리 ⒜ — 팔마다 **라이브 압축 뷰**로 바꾼다(정본 `x467.compact_view_dicts`·사본 0·[[67]]).
+
+    라이브 깔때기는 `T2_VIEW_COMPACT=1` 로 오래된 벌크 tool 출력을 head300+tail150 다이제스트로
+    바꾼 뷰를 모델에 준다(`t2_gate_patch.py:6588`). 1차 실행은 원문 전체를 실어 **라이브와 다른
+    조건**이었고 그 초과가 팔별로 달라 판정을 무효로 만들었다.
+    압축은 **팔 조립 뒤**에 건다 — 촉구 한 줄까지 포함한 전체가 라이브의 `work` 와 같은 대상이다.
+    반환: {arm: (extra_sys, view_msgs)} · {arm: 다이제스트 수} · 변환 경로.
+    """
+    out, dg, conv = {}, {}, None
+    for arm, (xs, xm) in built.items():
+        view, dropped, ndg, cv = X467.compact_view_dicts(xm)
+        if dropped:
+            raise SystemExit("팔 %s: 뷰 변환 누락 %d — 문맥이 라이브와 다르다([[55]])" % (arm, dropped))
+        out[arm], dg[arm], conv = (xs, view), ndg, cv
+    return out, dg, conv
+
+
+def view_one_variable(views, c, arms):
+    """압축 **뒤에도** 팔이 한 변수만 다른지 검산 — 압축은 총자수 문턱을 쓰므로 원문 검산으로 부족하다.
+
+    A_asis/D_sys 는 대화가 바이트 동일(D_sys 델타는 system 슬롯), 촉구 팔은 마지막 한 줄만 더 있어야
+    한다. E_early 는 컷 자체가 다른 통제라 이 검산 밖(구조가 다른 것이 정의다).
+    """
+    if "A_asis" not in views:
+        return 0, ["A_asis 없음 — 압축 뷰 기준선이 없다"]
+    base = views["A_asis"][1]
+    bad = []
+    for arm, (xs, v) in views.items():
+        if arm in ("A_asis", "E_early"):
+            continue
+        if arm == "D_sys":
+            ok = v == base and xs == [{"role": "system", "content": D_TEXT}]
+        else:
+            ok = (len(v) == len(base) + 1 and v[:-1] == base
+                  and v[-1] == {"role": "user", "content": ARM_TEXT[arm]})
+        if not ok:
+            bad.append("case %s 팔 %s" % (c["case"], arm))
+    return len(bad), bad
+
+
+def balance_report(per_arm_ctx, window):
+    """★계기 수리 ⒞ — 팔별 평균/최대 `ctx_chars` 와 팔 간 편차. 창의 10% 초과면 경고.
+
+    ⚠편차는 **같은 컷을 쓰는 팔**끼리만 잰다. `E_early` 는 컷 자체가 다른 통제(더 짧은 것이 정의)라
+    같이 재면 항상 경고가 떠 신호가 죽는다 — 따로 인쇄한다.
+    `window` 가 0(미지정)이면 **관측 최대**를 분모로 쓰고 그렇게 적는다(수를 지어내지 않는다).
+    반환 = (편차, 분모, 분모 출처, 경고인가).
+    """
+    if not per_arm_ctx:
+        return 0, 0, "-", False
+    means = {a: (sum(v) / float(len(v)) if v else 0.0) for a, v in per_arm_ctx.items()}
+    maxs = {a: (max(v) if v else 0) for a, v in per_arm_ctx.items()}
+    print(NLC + "[배선] 문맥 길이 균형 (압축 뷰·팔별 ctx_chars)")
+    print("   %-8s %-10s %-10s %-4s %s" % ("팔", "평균", "최대", "n", "비고"))
+    for a in per_arm_ctx:
+        print("   %-8s %-10d %-10d %-4d %s"
+              % (a, means[a], maxs[a], len(per_arm_ctx[a]),
+                 "다른 컷(통제) — 균형 검사 밖" if a == "E_early" else ""))
+    same = [a for a in per_arm_ctx if a != "E_early"] or list(per_arm_ctx)
+    spread = max(maxs[a] for a in same) - min(maxs[a] for a in same)
+    den, src = ((window, "--ctx-window") if window
+                else (max(maxs[a] for a in same) or 1, "관측 최대(창 미지정)"))
+    warn = spread > 0.10 * den
+    print("   같은-컷 팔 %s 간 최대-편차 %d자 = %.2f%% (분모 %d · %s) %s"
+          % ("/".join(same), spread, 100.0 * spread / float(den), den, src,
+             "⚠창의 10% 초과 — 차등 초과 위험([[55]])" if warn else "✓ 10% 이내"))
+    return spread, den, src, warn
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # ③ 재생 (tau2 실물 — 리모트)
 # ─────────────────────────────────────────────────────────────────────────────
-def restore(msgs):
-    """영속 dict → 실제 메시지 객체(x459 ⒜ 관용구). 누락은 **수로** 돌려준다(조용히 버리지 않는다)."""
-    from tau2.data_model.message import UserMessage, AssistantMessage, ToolMessage, SystemMessage
-    CLS = {"user": UserMessage, "assistant": AssistantMessage,
-           "tool": ToolMessage, "system": SystemMessage}
-    out, dropped = [], 0
-    for m in msgs:
-        C = CLS.get(_role(m))
-        if C is None:
-            dropped += 1
-            continue
-        try:
-            out.append(C(**dict(m)))
-        except Exception:
-            dropped += 1
-    return out, dropped
+# 영속 dict → 실제 메시지 객체. 옛 사본(`restore`)을 지우고 **정본** 하나로 고정한다([[67]] 사본 금지)
+# — x465/x467 과 같은 변환이라 세 프로브의 문맥이 조용히 갈라지지 않는다. 누락은 수로 돌아온다.
+restore = X465.to_objs
 
 
 def system_messages(tools, policy, model):
@@ -281,7 +367,11 @@ def system_messages(tools, policy, model):
 
 
 def replay(sys_msgs, extra_sys, msgs, tools, model, base, temperature, max_tokens):
-    """실물 도구 스키마 + 실제 메시지 객체 + `la.generate` — 라이브 `_gen` 과 같은 깔때기."""
+    """실물 도구 스키마 + 실제 메시지 객체 + `la.generate` — 라이브 `_gen` 과 같은 깔때기.
+
+    `msgs` 는 이미 **압축 뷰**다(계기 수리 ⒜ — `compact_arms` 가 앞에서 걸었다).
+    반환 넷째 = 응답 `usage.prompt_tokens`(없으면 None) — 창 소모 실측(계기 수리 ⒞ 병기용).
+    """
     import tau2.agent.llm_agent as la
     from tau2.data_model.message import SystemMessage
     work, dropped = restore(msgs)
@@ -290,7 +380,9 @@ def replay(sys_msgs, extra_sys, msgs, tools, model, base, temperature, max_token
                        call_name="x470_replay", api_base=base, api_key="dummy",
                        temperature=temperature, max_tokens=max_tokens)
     calls = [(F.nameof(t), F.argsof(t)) for t in (getattr(resp, "tool_calls", None) or [])]
-    return calls, str(getattr(resp, "content", None) or ""), dropped
+    u = getattr(resp, "usage", None)
+    pt = u.get("prompt_tokens") if isinstance(u, dict) else getattr(u, "prompt_tokens", None)
+    return calls, str(getattr(resp, "content", None) or ""), dropped, pt
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -384,6 +476,50 @@ def selftest_scorer(cases, mut):
     return ok
 
 
+def exclude_case(c, arms, temps, why):
+    """★계기 수리 ⒝ — 결정점 하나를 **전 팔 동시**로 제외한 행을 만든다(버리지 않고 계수한다).
+
+    창-초과가 팔마다 다르게 나면(1차 실행 실물: TEXT 를 더 얹는 팔이 더 죽었다) 남은 표본이 팔마다
+    달라져 비교가 무효가 된다. 그래서 초과는 **팔이 아니라 결정점**의 성질로 다룬다.
+    """
+    return [{"case": c["case"], "tag": c["tag"], "task": c["task"], "sim": c["simtag"],
+             "arm": arm, "k": k, "temp": t, "cat": "EXC", "flags": {}, "exc": why,
+             "view_chars": c["view_chars"].get(arm)}
+            for arm in arms if arm in c["views"] for k, t in enumerate(temps)]
+
+
+def selftest_exclusion(arms):
+    """제외-계수 자기검정(LLM 0) — 합성 행으로 ⑴ 균형 제외는 조용히 통과 ⑵ 차등 제외는 **판정 무효**
+    선언이 실제로 인쇄되는지 확인한다. 표가 자기 결함을 말하지 못하면 계기가 아니다([[55]])."""
+    def rows_for(exc_arms):
+        out = []
+        for i in range(2):
+            for arm in arms:
+                for k in range(2):
+                    ex = arm in exc_arms and i == 0
+                    out.append({"case": i, "tag": "t", "task": "task_050", "sim": "s", "arm": arm,
+                                "k": k, "temp": 0.0, "cat": "EXC" if ex else "TEXT",
+                                "flags": {} if ex else dict.fromkeys(
+                                    ("MISS", "DUP", "MUT_OTHER", "GRANT_MISS", "READ"), False),
+                                "exc": EXC_WIN if ex else None})
+        return out
+
+    ok = True
+    for label, exc_arms, want in (("균형 제외(전 팔)", set(arms), False),
+                                  ("차등 제외(한 팔)", {arms[0]}, True)):
+        buf = io.StringIO()
+        keep, sys.stdout = sys.stdout, buf
+        try:
+            summarize(rows_for(exc_arms), arms, 2, ("050",))
+        finally:
+            sys.stdout = keep
+        got = "판정 무효" in buf.getvalue()
+        ok &= (got == want)
+        print("   %-4s %-22s → 판정무효 선언 %s (기대 %s)"
+              % ("ok" if got == want else "FAIL", label, got, want))
+    return ok
+
+
 def vocab_check(tool_names):
     """팔 문면 토큰 ∩ env 도구명 토큰 — 프로토콜 단어 외에 남으면 도메인 어휘 유입([[05]] ⑴)."""
     tok = set()
@@ -419,18 +555,32 @@ def summarize(rows, arms, n_cases, tasks):
             return sum(1 for v in by.values() if v)
         return sum(1 for r in rs if r["flags"].get(flag))
 
+    # ★계기 수리 ⒝ — 제외를 조용히 버리지 않는다. 팔별 EXC 를 사유까지 세어 표에 남긴다.
+    exc_case = {a: {r["case"] for r in rows if r["arm"] == a and r["cat"] == "EXC"} for a in arms}
+    exc_why = {a: collections.Counter(str(r.get("exc") or "?") for r in rows
+                                      if r["arm"] == a and r["cat"] == "EXC") for a in arms}
     print(NLC + "=" * 100)
-    print("%-8s %-10s %-10s %-10s  %-7s %-9s %-10s %-6s  n" % (
-        "팔", "MISS det", "MISS any3", "MISS tot", "DUP", "MUT_OTHER", "GRANT_MISS", "TEXT"))
+    print("%-8s %-10s %-10s %-10s  %-7s %-9s %-10s %-6s %-8s  n" % (
+        "팔", "MISS det", "MISS any3", "MISS tot", "DUP", "MUT_OTHER", "GRANT_MISS", "TEXT", "EXC"))
     det = {}
     for arm in arms:
         rs = [r for r in rows if r["arm"] == arm]
-        ncase = len({r["case"] for r in rs})
+        ncase = len({r["case"] for r in rs}) - len(exc_case[arm])     # 분모 = **산 결정점**만
         det[arm] = cnt(arm, "MISS", det_only=True)
-        print("%-8s %-10s %-10s %-10s  %-7d %-9d %-10d %-6d  %d" % (
+        print("%-8s %-10s %-10s %-10s  %-7d %-9d %-10d %-6d %-8s  %d" % (
             arm, "%d/%d" % (det[arm], ncase), "%d/%d" % (cnt(arm, "MISS", any_of=True), ncase),
-            "%d/%d" % (cnt(arm, "MISS"), len(rs)), cnt(arm, "DUP"), cnt(arm, "MUT_OTHER"),
-            cnt(arm, "GRANT_MISS"), cnt(arm, "TEXT"), len(rs)))
+            "%d/%d" % (cnt(arm, "MISS"), len([r for r in rs if r["cat"] != "EXC"])),
+            cnt(arm, "DUP"), cnt(arm, "MUT_OTHER"), cnt(arm, "GRANT_MISS"), cnt(arm, "TEXT"),
+            "%d(%s)" % (len(exc_case[arm]), ",".join("%s×%d" % kv for kv in
+                                                     sorted(exc_why[arm].items())) or "-"),
+            len(rs)))
+    n_exc = {a: len(exc_case[a]) for a in arms}
+    if len(set(n_exc.values())) > 1:
+        print("  ⛔팔 간 제외 수가 다르다 %s → **판정 무효**(차등 제외 = 1차 실행이 죽은 자리·계기"
+              " 수리 ⒝·[[55]] 결과 사용 금지)" % n_exc)
+    elif any(n_exc.values()):
+        print("  ✓제외 %d 결정점 × 전 팔 동일(창-초과는 결정점 단위로 함께 뺀다) — 분모는 %d"
+              % (list(n_exc.values())[0], n_cases - list(n_exc.values())[0]))
     print(NLC + "[[70]] 태스크별 부호표 (MISS det /결정점)")
     print("%-8s %s" % ("팔", " ".join("%-12s" % t for t in tasks)))
     for arm in arms:
@@ -442,7 +592,11 @@ def summarize(rows, arms, n_cases, tasks):
                                     if rs else "-"))
         print("%-8s %s" % (arm, " ".join(cells)))
     d = det
-    print(NLC + "사전 고정 판정 (det /%d · 차이 <5 는 잡음):" % n_cases)
+    n_live = n_cases - max(n_exc.values() or [0])
+    print(NLC + "사전 고정 판정 (det /%d · 제외 %d · 차이 <5 는 잡음):"
+          % (n_live, max(n_exc.values() or [0])))
+    if len(set(n_exc.values())) > 1:
+        print("  ⛔판정 무효 — 팔 간 제외 수가 다르다(위 EXC 열). 아래 줄은 인용 금지다([[55]]).")
     if "E_early" in d and d["E_early"] >= 8:
         print("  ⛔E_early MISS %d ≥ 8 → **프로브 무효**(문면이 문맥 무관하게 방출을 부추긴다)" % d["E_early"])
     if "A_asis" in d and d["A_asis"] >= 8:
@@ -475,6 +629,10 @@ def main():
     ap.add_argument("--arms", default=",".join(ARMS))
     ap.add_argument("--temps", default="0.0,0.7,0.7", help="결정점×팔당 표집(det 1 + 꼬리 2·C483)")
     ap.add_argument("--max-tokens", type=int, default=8192, help="라이브 T2_AGENT_MAX_TOKENS 와 동일")
+    ap.add_argument("--ctx-window", type=int, default=0,
+                    help="문맥 창(문자·0=미지정). 주면 압축 뒤에도 초과하는 결정점을 **전 팔 동시** "
+                         "사전 제외해 호출을 아낀다(계기 수리 ⒝). 미지정이면 런타임 창-초과가 "
+                         "같은 규칙으로 결정점을 통째로 제외한다 — 수를 지어내지 않는다.")
     ap.add_argument("--wiring-only", action="store_true", help="배선 검증만(LLM 0·GPU 0·[[55]])")
     ap.add_argument("--out", default="x470_claim_demand_live_iso.json")
     a = ap.parse_args()
@@ -506,7 +664,8 @@ def main():
 
     # ── ② 팔 조립 검산 (dict 수준·LLM 0) ────────────────────────────────────────
     print(NLC + "[배선] 팔 조립 — 한 줄 외 바이트 동일 검산")
-    n_bad = 0
+    n_bad, n_vbad, vbad_why, per_arm_ctx = 0, 0, [], collections.OrderedDict()
+    conv = "-"
     for c in sel:
         built = build_arms(c, arms)
         for arm, (xs, xm) in built.items():
@@ -519,13 +678,44 @@ def main():
             else:
                 ok = xm[:-1] == c["pre"] and xm[-1] == {"role": "user", "content": ARM_TEXT[arm]}
             n_bad += 0 if ok else 1
-    print("   %d 결정점 × 팔 → 불일치 %d" % (len(sel), n_bad))
+        # ★계기 수리 ⒜ — 라이브 압축 뷰로 바꾸고, 압축 **뒤에도** 한 변수인지 다시 검산한다.
+        views, dg, conv = compact_arms(built)
+        nb, why = view_one_variable(views, c, arms)
+        n_vbad += nb
+        vbad_why += why
+        c["views"], c["digested"] = views, dg
+        c["view_chars"] = {am: ctx_chars(v) for am, (xs, v) in views.items()}
+        for am, v in c["view_chars"].items():
+            per_arm_ctx.setdefault(am, []).append(v)
+    print("   %d 결정점 × 팔 → 원문 불일치 %d · 압축 뷰 불일치 %d%s"
+          % (len(sel), n_bad, n_vbad, (" " + "; ".join(vbad_why[:4])) if vbad_why else ""))
+    raw_max = max(ctx_chars(c["pre"]) for c in sel)
+    view_max = max(max(c["view_chars"].values()) for c in sel)
+    print("   압축(정본 x467.compact_view_dicts·변환=%s): 원문 최대 %d자 → 뷰 최대 %d자 · "
+          "다이제스트 총 %d건" % (conv, raw_max, view_max,
+                                 sum(sum(c["digested"].values()) for c in sel)))
     tails = collections.Counter(_role(c["pre"][-1]) for c in sel)
     print("   결정점 직전 메시지 역할: %s (user 면 촉구가 user 연속 2개 — 라이브 ACT_DEMAND 와 같은 구조)"
           % dict(tails))
     n_early = sum(1 for c in sel if c["early"] is not None)
     print("   E_early 컷 보유 %d/%d (첫 text-only assistant 발화·손님 발화 ≥1)" % (n_early, len(sel)))
     print("   문면 바이트: " + " · ".join("%s +%d" % (k, len(v)) for k, v in ARM_TEXT.items()))
+
+    # ── ②b 문맥 길이 균형 + 창-초과 사전 제외 (계기 수리 ⒞⒝ · LLM 0) ──────────────
+    spread, den, den_src, warn_bal = balance_report(per_arm_ctx, a.ctx_window)
+    for c in sel:
+        c["excluded"] = (EXC_PRE if (a.ctx_window and max(c["view_chars"].values()) > a.ctx_window)
+                         else None)
+    pre_exc = [c for c in sel if c["excluded"]]
+    if a.ctx_window:
+        print("   사전 제외(--ctx-window %d자 초과 → **전 팔 동시**): %d/%d 결정점 %s"
+              % (a.ctx_window, len(pre_exc), len(sel),
+                 [c["case"] for c in pre_exc] if pre_exc else "없음 ✓"))
+        if len(pre_exc) == len(sel):
+            raise SystemExit("전 결정점이 창을 넘는다 — 창 값이나 압축 인자부터 본다([[55]])")
+    else:
+        print("   창 미지정(--ctx-window 0) — 사전 제외 0. 런타임 창-초과가 나면 그 결정점을 "
+              "**전 팔 동시**로 뺀다(%s·계기 수리 ⒝)." % EXC_WIN)
 
     # ── ③ 도구·도메인 어휘 검산 ──────────────────────────────────────────────────
     have_tau2 = True
@@ -554,27 +744,32 @@ def main():
     print("[배선] 채점기 자기검정 (실제 결정점의 MISSING/done 집합 위 합성 호출)")
     st_ok = selftest_scorer(sel, mut)
 
+    # ── ④b 제외-계수 자기검정 (계기 수리 ⒝ — LLM 0·합성 행) ────────────────────────
+    exc_ok = selftest_exclusion(arms)
+
     if a.wiring_only:
         if have_tau2:
-            # 리모트 계층: 객체 복원 전수 + system 재구성
+            # 리모트 계층: 객체 복원 전수(압축 뷰 위에서) + system 재구성
             tot = drop = 0
             for c in sel:
-                _w, d = restore(c["pre"])
-                tot += len(c["pre"])
-                drop += d
+                for _arm, (_xs, v) in c["views"].items():
+                    _w, d = restore(v)
+                    tot += len(v)
+                    drop += d
             sm, src = system_messages(tools, sel[0]["policy"], a.model)
-            print("[배선] 메시지 객체 복원 %d/%d · system 재구성 %d건(%s·%d자)"
+            print("[배선] 압축 뷰 객체 복원 %d/%d · system 재구성 %d건(%s·%d자)"
                   % (tot - drop, tot, len(sm), src, sum(len(_content({"content": getattr(m, "content", "")})) for m in sm)))
             tier = "LOCAL+REMOTE"
         else:
             print("[배선] (리모트 계층 — 객체 복원·실물 도구·system 재구성은 tau2 환경의 --wiring-only 에서)")
             tier = "LOCAL"
-        ok = st_ok and n_bad == 0 and not unknown and not bad
-        print("[배선] wiring-only %s · 계층 %s · LLM 0 · GPU 0" % ("PASS" if ok else "FAIL", tier))
+        ok = st_ok and exc_ok and n_bad == 0 and n_vbad == 0 and not unknown and not bad
+        print("[배선] wiring-only %s · 계층 %s · LLM 0 · GPU 0 (압축·EXC 계수·균형 검사 포함)"
+              % ("PASS" if ok else "FAIL", tier))
         return 0 if ok else 1
     if not have_tau2:
         raise SystemExit("tau2 없음 — 재생은 리모트에서(docstring 실행 명령)")
-    if not st_ok or n_bad:
+    if not st_ok or not exc_ok or n_bad or n_vbad:
         raise SystemExit("배선 검산 실패 — 재생하지 않는다([[55]])")
 
     # ── ⑤ 재생 ───────────────────────────────────────────────────────────────────
@@ -587,9 +782,14 @@ def main():
         if c["policy"] not in sys_cache:
             sys_cache[c["policy"]] = system_messages(tools, c["policy"], a.model)[0]
         sm = sys_cache[c["policy"]]
-        built = build_arms(c, arms)
-        print(NLC + "── [%2d] %s %s at=%d MISSING=%s" % (c["case"], c["tag"], c["simtag"], c["at"],
-                                                        ",".join(c["missing_names"])))
+        built = c["views"]                       # ★압축 뷰(계기 수리 ⒜) — 원문 재생 아님
+        print(NLC + "── [%2d] %s %s at=%d 뷰=%d자 MISSING=%s"
+              % (c["case"], c["tag"], c["simtag"], c["at"], max(c["view_chars"].values()),
+                 ",".join(c["missing_names"])))
+        if c["excluded"]:
+            rows += exclude_case(c, arms, temps, c["excluded"])
+            print("   ⊘사전 제외(%s) — 전 팔 동시(호출 0·계기 수리 ⒝)" % c["excluded"])
+            continue
         for arm in arms:
             if arm not in built:
                 continue
@@ -597,23 +797,36 @@ def main():
             line = []
             for k, t in enumerate(temps):
                 try:
-                    calls, text, dropped = replay(sm, xs, xm, tools, a.model, base, t, a.max_tokens)
+                    calls, text, dropped, ptok = replay(sm, xs, xm, tools, a.model, base, t,
+                                                       a.max_tokens)
                 except Exception as e:
+                    if type(e).__name__ in CTXWIN_TYPES:
+                        # ★창-초과는 결정점을 **전 팔 동시**로 뺀다 — 차등 제외가 1차를 무효로 만들었다.
+                        c["excluded"] = EXC_WIN
+                        break
                     rows.append({"case": c["case"], "tag": c["tag"], "task": c["task"], "sim": c["simtag"],
                                  "arm": arm, "k": k, "temp": t, "cat": "EXC", "flags": {},
-                                 "err": repr(e)[:200]})
-                    line.append("EXC")
+                                 "exc": type(e).__name__, "err": repr(e)[:200]})
+                    line.append("EXC/" + type(e).__name__)
                     continue
                 cat, fl, hits = score(calls, c, mut)
                 rows.append({"case": c["case"], "tag": c["tag"], "task": c["task"], "sim": c["simtag"],
                              "arm": arm, "k": k, "temp": t, "cat": cat, "flags": fl, "hits": hits,
                              "calls": [[nm, json.dumps(ag, ensure_ascii=False, default=str)[:200]]
                                        for nm, ag in calls],
-                             "n_msgs": len(xm), "ctx_chars": ctx_chars(xm), "dropped": dropped,
+                             "n_msgs": len(xm), "ctx_chars": ctx_chars(xm),
+                             "prompt_tokens": ptok, "dropped": dropped,
                              "text": " ".join(text.split())[:240]})
                 line.append("%s%s" % (cat, ("(" + ",".join(hits) + ")") if hits else "")
                             + ("⚠drop%d" % dropped if dropped else ""))
             print("   %-8s %s" % (arm, " | ".join(line)))
+            if c["excluded"]:
+                break
+        if c["excluded"] == EXC_WIN:
+            # 이미 쌓인 이 결정점의 행을 버리고 **전 팔 동시** 제외로 바꾼다(팔 균형 유지).
+            rows = [r for r in rows if r["case"] != c["case"]]
+            rows += exclude_case(c, arms, temps, EXC_WIN)
+            print("   ⊘런타임 창-초과 → 이 결정점을 **전 팔 동시** 제외(%s·계기 수리 ⒝)" % EXC_WIN)
 
     # ── ⑥ 집계·판정·저장 ──────────────────────────────────────────────────────────
     main_rows = [r for r in rows if str(r["task"]).split("_")[-1] in tasks]
@@ -625,9 +838,13 @@ def main():
     with io.open(p, "w", encoding="utf-8") as f:
         json.dump({"runs": runs, "tasks": tasks, "aux": aux, "arms": arms, "temps": temps,
                    "arm_text": ARM_TEXT, "model": a.model, "max_tokens": a.max_tokens,
+                   "ctx_window": a.ctx_window, "balance": {"spread": spread, "den": den,
+                                                           "den_src": den_src, "warn": warn_bal},
                    "cases": [{"case": c["case"], "tag": c["tag"], "task": c["task"], "sim": c["simtag"],
                               "at": c["at"], "early": c["early"], "n_msgs": len(c["pre"]),
-                              "ctx_chars": ctx_chars(c["pre"]), "missing": c["missing_names"],
+                              "ctx_chars": ctx_chars(c["pre"]), "view_chars": c["view_chars"],
+                              "digested": c["digested"], "excluded": c["excluded"],
+                              "missing": c["missing_names"],
                               "said": c["said"]} for c in sel],
                    "rows": rows}, f, ensure_ascii=False, indent=1)
     print(NLC + "→ %s" % p)
