@@ -186,7 +186,7 @@ def main():
     ap.add_argument("--port", type=int, default=8141)
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--n", type=int, default=6, help="팔마다 반복 횟수")
-    ap.add_argument("--arms", default="A_asis,B_bal,C_bal_hint,N_neg")
+    ap.add_argument("--arms", default="A_asis,B_bal,C_bal_hint,E_live,N_neg")
     ap.add_argument("--out", default="x481_apy_tier_probe.json")
     a = ap.parse_args()
 
@@ -240,15 +240,31 @@ def main():
 
     want_arms = set(x.strip() for x in a.arms.split(",") if x.strip())
     rows = []
-    for arm in ("A_asis", "B_bal", "C_bal_hint", "N_neg"):
+    # ★2026-08-22 2차 (자기 결함 교정·[[18]] 정보-맞춘 격리):
+    #   1차는 `T2_SG_ISOLATE`·`T2_SG_GROUND`·`T2_SG_DOCS` 만 맞추고 **`T2_SG_SCHEMA` 를
+    #   빠뜨렸다**. 라이브는 그 문법이 켜진 채 돈다 ⇒ 1차의 4/4 는 **라이브와 다른 조건**의
+    #   수치였다. 실측이 그 차이를 드러냈다 — 프로브 components **3행**(합 4.275) ↔
+    #   라이브 `sub=2 rows`(합 4.025·checking 누락).
+    #   `E_live` = 잔액+지시+문법 = **라이브와 완전히 같은 조건**이 이 프로브의 참조점이다.
+    ARMS = (("A_asis", False, False, False),
+            ("B_bal", True, False, False),
+            ("C_bal_hint", True, True, False),
+            ("E_live", True, True, True),
+            ("N_neg", False, False, False))
+    for arm, use_bal, use_hint, use_schema in ARMS:
         if arm not in want_arms:
             continue
+        if use_schema:
+            os.environ["T2_SG_SCHEMA"] = "1"
+        else:
+            os.environ.pop("T2_SG_SCHEMA", None)
         iso_a = json.loads(json.dumps(iso))          # 팔마다 선언 사본(원본 불변)
         ctx = dict(ref)
-        if arm in ("B_bal", "C_bal_hint"):
-            iso_a["ref_params"] = list(iso_a.get("ref_params") or []) + [BAL_KEY]
+        if use_bal:
+            if BAL_KEY not in (iso_a.get("ref_params") or []):
+                iso_a["ref_params"] = list(iso_a.get("ref_params") or []) + [BAL_KEY]
             ctx[BAL_KEY] = bal
-        if arm == "C_bal_hint":
+        if use_hint:
             for k in ("instructions",):
                 if iso_a.get(k):
                     iso_a[k] = str(iso_a[k]) + HINT
@@ -274,15 +290,27 @@ def main():
                 except Exception:
                     kept = None
             ok = (bv is not None and abs(bv - want_base) < 1e-9)
+            # ★1차의 한계 교정: **base 만** 채점했더니 합이 틀린 것을 놓쳤다 — `gate1_kept=2`
+            #   신호를 찍어 놓고도 읽지 않았다([[08]] 원하는 칸만 본 것). 성분 **종류**와
+            #   단순합을 함께 남긴다(정책 reducer 적용값은 아니지만 누락은 이것으로 보인다).
+            kinds = sorted({str(c.get("kind")) for c in comps if isinstance(c, dict)})
+            tot = 0.0
+            for c in comps:
+                try:
+                    tot += float(c.get("value"))
+                except Exception:
+                    pass
             rows.append({"arm": arm, "i": i, "returned": bool(got), "n_components": len(comps),
                          "base_value": bv, "tier_ok": ok, "gate1_kept": kept,
-                         "components": comps})
-            print("  #%d returned=%-5s comps=%-2d base=%-8s tier_ok=%-5s gate1_kept=%s"
-                  % (i, bool(got), len(comps), bv, ok, kept))
+                         "kinds": kinds, "sum": round(tot, 6), "components": comps})
+            print("  #%d returned=%-5s comps=%-2d base=%-6s tier_ok=%-5s sum=%-8s kinds=%s"
+                  % (i, bool(got), len(comps), bv, ok, round(tot, 4), ",".join(kinds)))
 
-    agg = collections.defaultdict(lambda: {"n": 0, "returned": 0, "tier_ok": 0, "comps": 0})
+    agg = collections.defaultdict(lambda: {"n": 0, "returned": 0, "tier_ok": 0, "comps": 0,
+                                           "has_checking": 0})
     for x in rows:
         s = agg[x["arm"]]
+        s["has_checking"] += 1 if "checking" in (x.get("kinds") or []) else 0
         s["n"] += 1
         s["returned"] += 1 if x["returned"] else 0
         s["tier_ok"] += 1 if x["tier_ok"] else 0
@@ -297,12 +325,13 @@ def main():
 
     print("\n" + "=" * 96)
     print("판정 — 문서상 옳은 base = %s" % want_base)
-    for arm in ("A_asis", "N_neg", "B_bal", "C_bal_hint"):
+    for arm in ("A_asis", "N_neg", "B_bal", "C_bal_hint", "E_live"):
         if arm not in agg:
             continue
         s = agg[arm]
-        print("  %-11s tier_ok %d/%d · 답반환 %d/%d · component 합 %d"
-              % (arm, s["tier_ok"], s["n"], s["returned"], s["n"], s["comps"]))
+        print("  %-11s tier_ok %d/%d · checking %d/%d · 답반환 %d/%d · comp합 %d"
+              % (arm, s["tier_ok"], s["n"], s["has_checking"], s["n"],
+                 s["returned"], s["n"], s["comps"]))
     print("\n[산출물] → %s" % p)
     print("해석 규칙: A≈N 이고 B(또는 C)가 크게 높으면 결손은 **재료/지시 전달**이다([[62]] ②).")
     print("           B·C 도 A 와 같으면 주는 것으로는 안 되는 것이고, 그 단계에만 결정론([[62]] ③).")
