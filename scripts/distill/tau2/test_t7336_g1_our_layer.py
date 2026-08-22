@@ -106,8 +106,10 @@ chk("배선: import 실패는 fail-open(규칙② 비활성 — 모름은 안 �
 
 # ── OL-18 노트 문면 ──────────────────────────────────────────────────────────
 _note_blk = seg('os.environ.get("T2_STALE_STRIP") == "1"', 2600)
-_note_lit = "".join(re.findall(r'"((?:[^"\\]|\\.)*)"', _note_blk[_note_blk.find("am.content = (("):
-                                                                 _note_blk.find("% len(_stale)")]))
+# ★2026-08-22 (OL-55 형제): 노트가 호출부 인라인에서 **정본 상수 `_STALE_NOTE`** 로 옮겨졌다
+#   (빈 본문이면 `_commit_machine_note` 가 재생성을 태우는 자리와 문면을 공유해야 하므로).
+#   같은 주장을 **옮긴 자리에서** 그대로 검사한다 — 문면 자체는 한 글자도 바뀌지 않았다.
+_note_lit = GP._STALE_NOTE
 chk("ⓟ 구판 한국어·거짓 노트가 커밋 경로에서 사라졌다(축자 인용은 주석에만)",
     all(ln.lstrip().startswith("#") for ln in SRC.splitlines() if "중복 호출 제거" in ln))
 chk("ⓝ 노트는 영어다(C125 규칙·같은 함수 안에 축자로 존재)",

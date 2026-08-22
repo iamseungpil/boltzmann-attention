@@ -36,10 +36,19 @@ code = "\n".join(l for l in body.split("\n") if not l.lstrip().startswith("#"))
 
 chk("기본 OFF", 'os.environ.get("T2_WRITE_ARG_ENUM") == "1"' in code)
 chk("상한이 있다(livelock 방지)", "T2_WRITE_ARG_ENUM_CAP" in code and "_t2_enum_deny" in code)
-chk("fail-open: 값·축·후보 없으면 침묵",
-    re.search(r"if not \(_val and _grp and _subs\):\s*\n\s*continue", code) is not None)
+# ★2026-08-22 갱신 ①: fail-open 술어가 `_subs` → **`_names`** 로 좁혀졌다(누수 수리).
+#   `_subs` 는 있는데 표시명이 하나도 없는 그룹이 실재해(`_general_` 하나뿐인 그룹),
+#   `_subs` 로 판정하면 **빈 후보 명단으로 deny** 한다 = [[64]] 가 비어 버린다.
+chk("fail-open: 값·축·**표시명 후보** 없으면 침묵",
+    re.search(r"if not \(_val and _grp and _names\):\s*\n\s*continue", code) is not None)
+# ★2026-08-22 갱신 ②: 이 검정은 **낡아서 계속 FAIL 이었다**(수리 전 HEAD 에서도 False).
+#   사이에 `T2_VERDICT_GATE` 분기가 들어오면서 `if _val in _names:` 바로 다음 줄이
+#   `continue` 가 아니게 됐다. 주장은 그대로다 — **집합 內면 우리가 deny 하지 않는다**.
+#   그래서 그 블록 안에 `continue` 가 있고 enum-deny 조립(`candidates=`)이 **없다**를 본다.
+_inset = re.search(r"if _val in _names:\n(.*?)\n {28}self\._t2_enum_deny", code, re.S)
 chk("집합 內는 통과(선택 판정 안 함)",
-    re.search(r"if _val in _names:\s*\n\s*continue", code) is not None)
+    _inset is not None and "continue" in _inset.group(1)
+    and "candidates=" not in _inset.group(1))
 for pat, why in ((r"\bargmax\b", "argmax"), (r"\bmax\s*\(", "max("),
                  (r"\bmin\s*\(", "min("), (r"\bsorted\s*\([^)]*\)\s*\[", "sorted[...]")):
     chk("선택기 없음: %s" % why, not re.search(pat, code))

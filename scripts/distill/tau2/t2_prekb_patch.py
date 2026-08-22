@@ -600,17 +600,35 @@ def apply():
                 if os.environ.get("T2_ARG_PRODUCERS") == "1" and a2 is not None:
                     apfb = getattr(self, "_t2_argprod_fb", 0)
                     if apfb < 2:
+                        # ★A9 호출부 재배선 (2026-08-22 · t7336 마스터 §6.1 A9 · OL-46):
+                        #   구판은 *"이름이 등장했는가"* 를 봤다 — tool_call 이름에 더해 인자
+                        #   JSON 문자열에서 뽑은 `[a-z0-9_]+` **토막 전부**와 문자열 인자값
+                        #   전부가 `_seen_tools` 에 들어갔다. give 인자에는 건넬 도구 이름이
+                        #   실리므로, 생산자 도구를 **건네기만 해도** 넛지가 영구 침묵했다.
+                        #   실측 t7328 **7** · t7335 **5** 발화 → t7336 **0**(040#1 [84]/[86]
+                        #   침묵·[S]). 주석이 적어 둔 의도는 *"이미 값을 얻음"* 인데 구현은
+                        #   *"이름이 등장함"* 이었다. 인자 문자열 토막 파싱은 [[59]] 위반이기도
+                        #   하다(엔진이 도메인 텍스트를 뜯는다).
+                        #   ⇒ 억제 술어를 정본 `t2_gate_patch.user_tool_value_ready` 로 교체한다
+                        #     ([[67]] 사본 금지 — `give_exec_state` 가 궤적 해석의 유일 정본).
+                        #   ⚠[[70]] 무엇을 파는가: 억제가 좁아져 F8 이 **더 자주** 운다(건넸지만
+                        #     손님이 실행하지 않은 국면에서 발화). 그 국면에서 "건네서 실행하게
+                        #     하고 같은 도구를 재시도하라" 는 여전히 참이다. 다음 런 포렌식이
+                        #     세는 것 = `[T2_ARG_PRODUCERS] fired` 수 ↔ 그중 값이 이미 있던 수.
+                        _drc = ((a2 or {}).get("dispatcher_role_check") or {})
+                        _gtn5, _uc5 = _drc.get("give_tool"), _drc.get("user_call")
                         _seen_tools = set()
-                        for _m4 in (msgs or []):
-                            _md4 = _m4.model_dump() if hasattr(_m4, "model_dump") else {}
-                            for _tc4 in (_md4.get("tool_calls") or []):
-                                _seen_tools.add(str(_tc4.get("name") or ""))
-                                _a4 = _tc4.get("arguments")
-                                if isinstance(_a4, str):
-                                    _seen_tools |= {w for w in re.findall(r"[a-z0-9_]+", _a4)}
-                                elif isinstance(_a4, dict):
-                                    _seen_tools |= {str(v) for v in _a4.values()
-                                                    if isinstance(v, str)}
+                        if _gtn5 and _uc5:
+                            import t2_gate_patch as _g9   # 지연 import(`:436` 선례·순환 회피)
+                            _seen_tools = set(_g9.user_tool_value_ready(
+                                msgs or [], str(_gtn5), str(_uc5)))
+                        else:
+                            # 디스패처 미선언 도메인 → give-흐름 자체가 없다. 최소 억제 =
+                            # **호출된 도구 이름 집합만**(인자 파싱 0·닫힌 술어).
+                            for _m4 in (msgs or []):
+                                _md4 = _m4.model_dump() if hasattr(_m4, "model_dump") else {}
+                                for _tc4 in (_md4.get("tool_calls") or []):
+                                    _seen_tools.add(str(_tc4.get("name") or ""))
                         _id2nm2 = {getattr(t, "id", None): getattr(t, "name", None)
                                    for t in (tool_calls or [])}
                         for r in (out or []):

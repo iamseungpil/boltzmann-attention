@@ -204,14 +204,30 @@ def handed_and_ran():
     return m
 
 
-# 구판 술어 = **t2_prekb_patch 의 그 코드 자체**를 뽑아 돌린다(재구현 아님).
-_old_seen = block(PKSRC, "_seen_tools = set()", "_id2nm2 = {")
-_old_seen = textwrap.dedent(_old_seen)
+# 구판 술어 = **수리 전 `t2_prekb_patch` 의 그 코드 축자 스냅샷**.
+# ★2026-08-22 (A9 호출부 재배선): 종전에는 살아 있는 소스에서 블록을 뽑아 돌렸다
+#   (`block(PKSRC, "_seen_tools = set()", "_id2nm2 = {")`). 그런데 **호출부를 정본
+#   `user_tool_value_ready` 로 교체하면서 구판 코드가 소스에서 사라졌다** — 추출은
+#   원리상 더 불가능하다. 양성대조는 "그때 그 코드가 이랬다" 는 사실을 남기는 것이
+#   목적이므로 축자 스냅샷으로 전환한다(아래 배선 검사가 **구판이 돌아오지 않았음**을
+#   따로 지킨다). 스냅샷 = 커밋 `e7dcb97d` 시점 `t2_prekb_patch.py` 의 그 블록.
+_OLD_SEEN_SNAPSHOT = """
+for _m4 in (msgs or []):
+    _md4 = _m4.model_dump() if hasattr(_m4, "model_dump") else {}
+    for _tc4 in (_md4.get("tool_calls") or []):
+        _seen_tools.add(str(_tc4.get("name") or ""))
+        _a4 = _tc4.get("arguments")
+        if isinstance(_a4, str):
+            _seen_tools |= {w for w in re.findall(r"[a-z0-9_]+", _a4)}
+        elif isinstance(_a4, dict):
+            _seen_tools |= {str(v) for v in _a4.values()
+                            if isinstance(v, str)}
+"""
 
 
 def seen_tools(msgs):
-    ns = {"msgs": msgs, "re": re}
-    exec(_old_seen, ns)
+    ns = {"msgs": msgs, "re": re, "_seen_tools": set()}
+    exec(_OLD_SEEN_SNAPSHOT, ns)
     return ns["_seen_tools"]
 
 
@@ -219,6 +235,10 @@ chk("ⓟ 구판: **건네기만** 해도 이름이 등장해 F8 이 영구 침�
     PROD in seen_tools(handed_only()))
 chk("ⓝ 정본 값-가용 술어는 건네기를 값으로 세지 않는다 — F8 이 살아난다",
     PROD not in GP.user_tool_value_ready(handed_only(), GIVE, UCALL))
+chk("ⓝ 배선: 호출부가 정본을 부른다(A9 미완 부채 해소·2026-08-22)",
+    "import t2_gate_patch as _g9" in PKSRC and "_g9.user_tool_value_ready(" in PKSRC)
+chk("ⓝ 배선: 구판 인자-토막 파싱이 소스에서 사라졌다([[59]]·되돌아오지 않았다)",
+    're.findall(r"[a-z0-9_]+", _a4)' not in PKSRC)
 chk("ⓒ 손님이 **실제로 실행**했으면 억제된다(값 가용 = 넛지 불필요)",
     PROD in GP.user_tool_value_ready(handed_and_ran(), GIVE, UCALL))
 chk("ⓒ 디스패처 경유 실행도 값-가용으로 센다",
@@ -403,8 +423,17 @@ _code = re.sub(r'"""[\s\S]*?"""', "", _code)
 chk("신설 3함수의 **코드**에 도메인 어휘 0(계열·군·도구명 리터럴 없음)",
     not any(w in _code for w in ("bank_account", "credit_card", "savings", "checking",
                                  "dispute", "General", "btxn_", "card_last_4")), _code[:80])
-chk("퇴화 판정의 유일한 상수는 색인 규약 `_general_` 하나(A3 규약·도메인 무관)",
-    _code.count('"_general_"') == 1)
+# ★2026-08-22 강화: `"_general_"` 리터럴이 **네 자리**로 갈릴 참이었다(퇴화 군·배달 계열·
+#   표시명 색인 + WRITE_ARG_ENUM 후보 명단). 정본 술어 `_subject_keys` 하나로 모았고,
+#   술어가 **형상 판정**이라 이름 리터럴이 아예 0 이 됐다([[67]]·[[59]]).
+chk("퇴화 판정에 이름 리터럴이 없다(정본 술어 `_subject_keys` 공유)",
+    _code.count('"_general_"') == 0 and "_subject_keys(subs)" in _code)
+chk("`_general_` 을 아는 자리가 정본 하나뿐이다(사본 0·[[67]])",
+    SRC.count("def _subject_keys(") == 1
+    and all("_subject_keys(" in block(SRC, a, b) for a, b in (
+        ("def _degenerate_axes(po):", "def _served_subjects("),
+        ("def _served_subjects(po, group", "def _record_served("),
+        ("def _display_slugs(subs):", "def _flatten("))))
 
 print("\n%d/%d" % (sum(OK), len(OK)))
 sys.exit(0 if all(OK) else 1)

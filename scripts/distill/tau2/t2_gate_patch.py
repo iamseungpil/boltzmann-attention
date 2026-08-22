@@ -306,6 +306,42 @@ def _slug_disp(k):
                     for w in str(k).split("_"))
 
 
+def _subject_keys(subs):
+    """A3 `doc_index[군]` 에서 **대상 계열 키**만 — `_general_` 류 색인-규약 키 제외 (닫힌 술어).
+
+    ★2026-08-22 통합([[67]] 사본 금지): *"`_general_` 은 대상 계열이 아니다"* 라는 **한 사실**이
+      네 자리에 흩어져 있었다 — `_degenerate_axes`(퇴화 군) · `_served_subjects`(배달 계열) ·
+      `_rearm_subjects`(표시명 색인) · 그리고 `T2_WRITE_ARG_ENUM` 의 후보 명단(누수 수리에서
+      새로 필요해진 자리). 앞의 셋은 `"_general_"` **문자열 리터럴**을 각자 들고 있었고, 네
+      번째를 또 만들면 넷이 조용히 갈린다. ⇒ 술어를 **하나**로 두고 넷이 공유한다.
+
+    술어 = **전개했을 때 빈 토막이 생기는 슬러그는 대상 계열이 아니다**(`_general_`.split('_')
+    = ['', 'general', ''] → 탈락 · `green_fee-free_account` → 통과). 형상 판정이므로 이름
+    리터럴이 **0** 이고, 같은 규약의 다른 키(`_faq_` 등)도 함께 걸린다.
+    ⚠실물 A2 전수에서 구판 리터럴 술어와 **동치**임을 검정이 못박는다
+      (`test_t7337_residual_debt.py` — banking gate/specific 9군 전수).
+    """
+    return {k for k in (subs or {}) if str(k) and all(w for w in str(k).split("_"))}
+
+
+def _display_slugs(subs):
+    """doc_index 그룹의 키 → **표시명 후보 명단** (닫힌 술어·형상 판정·도메인 리터럴 0).
+
+    ★누수 수리 (2026-08-22 · t7336 마스터 잔여): doc_index 키는 문서 파일명 유도 슬러그다.
+      대부분 제품 공식명으로 전개되지만 `_general_` 처럼 **앞뒤가 언더스코어로 감싸인**
+      그룹-일반 문서 키가 섞여 있다(banking gate/specific 실측 3개 그룹: `checking_accounts`
+      · `credit_cards` · `bank_accounts_bank_accounts`). `_slug_disp('_general_')` 은
+      **`' General '`**(앞뒤 공백)을 내고, 그 문자열이 `T2_WRITE_ARG_ENUM` 의 deny 피드백에
+      **공식 명단의 한 항목으로 실려 나갔다** — 우리 도구 출력이 유일 근거원을 오염시키는
+      자리다([[25]]). 존재하지 않는 이름을 우리가 후보로 제시하면 [[64]] 의 *"무엇을 하면
+      풀리나"* 가 거짓이 된다.
+
+    술어 = **전개했을 때 빈 토막이 생기는 슬러그는 표시명이 아니다**. 이름 리터럴 0 —
+    `_general_` 을 엔진에 박지 않는다(같은 형상의 다른 키도 함께 걸린다).
+    """
+    return sorted(_slug_disp(k) for k in _subject_keys(subs))
+
+
 def _flatten(v):
     """인자값의 leaf 스칼라들. ★JSON-문자열도 풀어서 leaf까지 간다(2026-07-16 버그픽스):
     구조화 인자(예: {"date_of_birth": ..., "phone_number": ...})가 **문자열**로 오면 예전엔
@@ -3003,8 +3039,7 @@ def _degenerate_axes(po):
     ⚠이 함수는 **선언만** 본다(대화·gold·env 무관). 색인이 없으면 빈 집합(fail-open).
     """
     idx = (po or {}).get("doc_index") or {}
-    return {g for g, subs in idx.items()
-            if not {s for s in (subs or {}) if s != "_general_"}}
+    return {g for g, subs in idx.items() if not _subject_keys(subs)}
 
 
 def _served_subjects(po, group, delivered=None, decided=None):
@@ -3021,8 +3056,9 @@ def _served_subjects(po, group, delivered=None, decided=None):
     dec = " ".join(str(decided or "").split()).lower()
     mat = str(delivered or "")
     out = set()
+    _keys = _subject_keys(idx)
     for s, ids in idx.items():
-        if s == "_general_":
+        if s not in _keys:
             continue
         if dec and _slug_disp(s).lower() in dec:
             out.add(s)
@@ -3070,9 +3106,8 @@ def _rearm_subjects(agent, po, gs, done, messages):
     idx_all = (po or {}).get("doc_index") or {}
     disp = {}
     for g2 in idx_all:
-        for s in (idx_all.get(g2) or {}):
-            if s != "_general_":
-                disp.setdefault(_slug_disp(s), set()).add((g2, s))
+        for s in _subject_keys(idx_all.get(g2)):
+            disp.setdefault(_slug_disp(s), set()).add((g2, s))
     if not disp:
         return None, None
     import t2_search as _ts
@@ -5270,6 +5305,20 @@ _BLOCK_NOTE_ASK = (
     "what has NOT been done and what is needed next. Do not claim anything was completed, and do not "
     "emit tool calls in this reply. The gate gave these reasons: ")
 
+# ★OL-55 형제 (2026-08-22): `T2_STALE_STRIP` 도 `am.tool_calls` 를 **전부** 지울 수 있고
+#   (`_kept or None`), 그 턴에 본문이 비어 있으면 아래 노트가 **손님 발화 전체**가 된다.
+#   A15 와 같은 형상이므로 같은 정본(`_commit_machine_note`)을 쓴다 — 노트는 한 일(안 보냄)만
+#   말하고 결과에 대해서는 아무것도 주장하지 않는다.
+_STALE_NOTE = (" [Note: %d repeated tool call(s) in this turn were not sent again. This says"
+               " nothing about whether the earlier attempt succeeded - re-read the tool results"
+               " above before telling the customer anything is done.]")
+_STALE_NOTE_ASK = (
+    "The repeated tool call(s) in the draft above were not sent again, so this turn has no message "
+    "for the customer yet. Write that message yourself in plain prose, based only on the tool "
+    "results already above: say what they actually show and what is still needed. Do not claim "
+    "anything was completed that those results do not show, and do not emit tool calls in this "
+    "reply.")
+
 
 def _um(text):
     """UserMessage 생성 (구/신 시그니처 양쪽·호출부마다 try/except 를 복제하지 않기 위한 정본)."""
@@ -5292,36 +5341,54 @@ def _trunc_reason(s, n=70):
     return cut.rstrip(" ,;:.-") + "..."
 
 
-def _commit_block_note(am, note, regen=None):
-    """★A15/OL-55: `_BLOCK_NOTE` 를 **본문 전체로 커밋하지 않는다**. 반환 = 무엇을 했나(계기 문자열).
+def _commit_machine_note(am, note, ask, regen=None, tag="T2_BLOCK_NOTE"):
+    """★기계 노트를 **본문 전체로 커밋하지 않는다** — 노트 문자열에 **독립인** 정본.
+
+    ★왜 일반화했나 (2026-08-22 · OL-55 형제 · t7336 마스터 §6.1 A15 잔여):
+      A15 는 `_BLOCK_NOTE` **한 자리**만 고쳤는데, 같은 형상이 `T2_STALE_STRIP` 에도 있다 —
+      거기서도 `am.tool_calls` 가 전부 제거되면(`_kept or None`) 그 턴은 **손님 발화**가 되고,
+      본문이 비어 있으면 *"[Note: N repeated tool call(s) …]"* 라는 기계 노트가 손님에게
+      **통째로** 나간다(016#1 [52]·074#1 [57] 과 같은 형상 — user-sim 이 역할을 혼동했다).
+      없다고 새로 짜면 같은 처방이 두 벌이 되어 조용히 갈린다([[67]] 실물 2건) — 그래서
+      **정본을 노트-문자열에 독립으로 만들고 두 자리가 함께 쓴다**.
 
     · 본문이 이미 있으면 종전대로 뒤에 붙인다(거동 보존).
-    · 본문이 비었으면 `regen(ask_text) -> str` 로 **모델에게 본문을 받는다**. 받으면 그 본문 +
-      노트. 못 받으면 노트도 붙이지 않는다(빈 본문 유지).
+    · 본문이 비었으면 `regen(ask) -> str` 로 **모델에게 본문을 받는다**. 받으면 그 본문 + 노트.
+      못 받으면 노트도 붙이지 않는다(빈 본문 유지).
     `regen=None`(구 호출부·단위검정)이면 재생성 없이 빈 본문 유지 — 어느 쪽이든 노트가 본문
-    전체가 되는 일은 없다.
+    전체가 되는 일은 없다. 반환 = 무엇을 했나(계기 문자열: appended / regen / empty).
+    `tag` = 계기 인쇄 태그(포렌식이 자리별로 센다 — 기존 `[T2_BLOCK_NOTE]` 집계 보존).
     """
     body = str(getattr(am, "content", "") or "")
     if body.strip():
-        am.content = body + _BLOCK_NOTE + " (" + note + ")"
+        am.content = body + note
         return "appended"
     new = ""
     if regen is not None:
         try:
-            new = str(regen(_BLOCK_NOTE_ASK + note) or "")
+            new = str(regen(ask) or "")
         except Exception as _bne:                    # noqa: BLE001 — 재생성 실패는 흡수
-            print("[T2_BLOCK_NOTE] regen failed (no-op): %r" % (_bne,),
+            print("[%s] regen failed (no-op): %r" % (tag, _bne),
                   file=sys.stderr, flush=True)
             new = ""
     if new.strip():
-        am.content = new + _BLOCK_NOTE + " (" + note + ")"
-        print("[T2_BLOCK_NOTE] regen ok (%d chars) — note appended to model prose" % len(new),
+        am.content = new + note
+        print("[%s] regen ok (%d chars) — note appended to model prose" % (tag, len(new)),
               file=sys.stderr, flush=True)
         return "regen"
     am.content = body
-    print("[T2_BLOCK_NOTE] empty-body: machine note NOT committed as the whole message",
+    print("[%s] empty-body: machine note NOT committed as the whole message" % tag,
           file=sys.stderr, flush=True)
     return "empty"
+
+
+def _commit_block_note(am, note, regen=None):
+    """★A15/OL-55: `_BLOCK_NOTE` 를 **본문 전체로 커밋하지 않는다**. 반환 = 무엇을 했나.
+
+    본문 조립만 하고 나머지는 정본 `_commit_machine_note` 에 넘긴다(거동 100% 보존).
+    """
+    return _commit_machine_note(am, _BLOCK_NOTE + " (" + note + ")",
+                                _BLOCK_NOTE_ASK + note, regen=regen, tag="T2_BLOCK_NOTE")
 
 
 def _iter_tc_result_pairs(messages):
@@ -9457,9 +9524,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     break
                             _grp = (_sp.get("group_map") or {}).get(_gval)
                             _subs = _di.get(_grp) or {}
-                            if not (_val and _grp and _subs):
+                            _names = _display_slugs(_subs)
+                            # ★fail-open 술어는 **명단** 기준이어야 한다(2026-08-22 누수 수리):
+                            #   `_subs` 는 있는데 표시명이 하나도 없는 그룹이 실재하고
+                            #   (`bank_accounts_bank_accounts` = `_general_` 하나뿐),
+                            #   그때 `_subs` 로 판정하면 **빈 후보 명단으로 deny** 한다 =
+                            #   [[64]] 의 "무엇을 하면 풀리나" 가 비어 버린다.
+                            if not (_val and _grp and _names):
                                 continue          # fail-open: 모르면 막지 않는다
-                            _names = sorted(_slug_disp(k) for k in _subs)
                             if _val in _names:
                                 # ★VC 호출-트리거 (T2_VERDICT_GATE·기본 OFF·C543ⓓ). 이름은 있는데
                                 #   **손님 요구와 충돌하는** 값이면 LLM 자신의 판정 줄로 되돌린다.
@@ -10370,11 +10442,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 # ⚠[[70]] 무엇을 파는가: 노트가 길어져 본문 끝에 붙는 문자열이 늘고, "완료" 단언이
                 #   사라져 모델이 **같은 조회를 한 번 더** 시도할 수 있다. 다음 런은 `[T2_STALE_STRIP]
                 #   dropped` 수와 동일-인자 재호출 수를 짝으로 센다.
-                am.content = ((am.content or "")
-                              + " [Note: %d repeated tool call(s) in this turn were not sent"
-                                " again. This says nothing about whether the earlier attempt"
-                                " succeeded - re-read the tool results above before telling the"
-                                " customer anything is done.]" % len(_stale))
+                # ★OL-55 형제 (2026-08-22): 남은 호출이 있으면 이 턴은 **도구 호출 턴**이라
+                #   노트가 손님에게 가지 않는다 — 종전대로 붙인다. 전부 지워졌으면 이 턴이
+                #   **손님 발화**가 되므로 정본(`_commit_machine_note`)에 넘겨 빈 본문이면
+                #   모델에게 본문을 다시 받는다. 재생성은 **도구 없이** 산문만 받는다.
+                _snote = _STALE_NOTE % len(_stale)
+                if _kept:
+                    am.content = (am.content or "") + _snote
+                else:
+                    def _sn_regen(_ask, _work=work):
+                        _kw = dict(self.llm_args)
+                        _kw.pop("tools", None)
+                        _r = la.generate(model=self.llm, tools=None,
+                                         messages=self._system_messages + _work + [_um(_ask)],
+                                         call_name="agent_stalenote_body", **_kw)
+                        return getattr(_r, "content", "") or ""
+                    self._t2_stalenote = getattr(self, "_t2_stalenote", collections.Counter())
+                    self._t2_stalenote[_commit_machine_note(
+                        am, _snote, _STALE_NOTE_ASK, regen=_sn_regen,
+                        tag="T2_STALE_NOTE")] += 1
                 self._t2_stale_strips = getattr(self, "_t2_stale_strips", 0) + len(_stale)
                 print("[T2_STALE_STRIP] dropped %d stale/dup call(s)" % len(_stale),
                       file=_sys.stderr, flush=True)
