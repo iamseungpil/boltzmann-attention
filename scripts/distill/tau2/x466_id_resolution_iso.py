@@ -97,18 +97,23 @@ N_neg 이 A 와 같아야 "결정점에 뭐라도 찔러서"가 아니고([[57]]
   라이브 효과는 본런 reward A/B 가 판정([[69]]).
 
 ## ★계기 수리 (2026-08-22 · 도구-스키마 가드 **과엄격** 으로 fail-closed 중단한 건)
-리모트 1차 실행이 `[배선] 샌드박스 도구 27종(env+scaffold) · 문맥-호출 도구 23종 검사` 뒤
-*"문맥이 호출한 도구가 재생 스키마에 없다"* 로 SystemExit 했다(예: `…transfer_1114`·`…dispute_6281`).
-그 이름들은 **discoverable 계열**이라 부여(unlock)를 거쳐야 스키마에 뜬다 — 초기 `env.get_tools()` 에
-없는 것이 **라이브 정상**이고, 가드가 과엄격이었다. 가드는 끄지 않고 **둘로 갈랐다**:
-    hard = 래퍼 ∪ 문맥이 **직접 호출**한 도구 ∪ 그 sim 이 컷 전에 **성공적으로 연** 도구 → 없으면 중단
-    soft = 아직 안 연 discoverable(지목 read·sham·래퍼로만 닿은 것)                    → 제외하고 **인쇄**
-"성공적으로 연"은 궤적에서 기계 도출한다(`unlocked_before_cut`: 부여 호출 id ↔ 도구-결과가 `error`
-아니고 접두 `Error` 아님 — 이름 리터럴 0). 실측 8 결정점 전부 `래퍼로만 닿은 미개봉` 0건이라
-문맥이 부른 discoverable 은 모두 hard 쪽이다(가드는 여전히 진짜 낯선 도구를 잡는다).
-덤으로 **지형까지 라이브에 맞췄다**: 샌드박스에서 궤적이 연 도구를 같은 env 도구로 다시 열고
-(`expose_unlocked`), 결정점마다 `초기 노출 ∪ 그 sim 이 연 것` 만 남긴 **결정점별 도구 목록**으로
-재생·system 을 짓는다(다른 sim 이 연 도구가 새어 들어가지 않게).
+리모트 1차 실행이 *"문맥이 호출한 도구가 재생 스키마에 없다"* 로 SystemExit 했다
+(예: `…transfer_1114`·`…dispute_6281`). 그 이름들은 **발견형(discoverable)** 이라 초기
+`env.get_tools()` 에 없는 것이 **라이브 정상**이고, 가드가 과엄격이었다.
+⛔1차 수리는 *"부여(unlock)를 거치면 스키마에 뜬다"* 고 보고 궤적의 부여를 샌드박스에 재생했는데
+**그 전제가 틀렸다** — 2차 리모트 실측: 부여 **6/6 성공인데 `env.get_tools()` 는 17 → 17**.
+정본 축자가 그렇게 말한다: *"이 env 의 발견형 도구는 도구 목록에 서지 않고 **디스패처로만** 불린다"*
+(`t2_gate_patch.py:2554` · x255 §호출 타입 T2 · C418 격리 인과 "실패는 전부 접미사 이름을 직접
+호출하려는 시도"). ⇒ 라이브 도구 지형 = `env.get_tools()` + 우리 scaffold 이고 **부여와 무관하게
+결정점마다 같다**. 그래서 가드를 끄지 않고 **판정 축을 둘로** 갈랐다:
+    hard        = 래퍼 ∪ 문맥이 **직접**(래퍼 없이) 호출한 도구  → 호출 가능 스키마에 없으면 중단
+    dispatcher  = 그 밖의 참조 이름(발견형·지목 read·sham·래퍼 안쪽) → **존재만** 확인하고 인쇄
+존재는 툴킷 레지스트리(`env.tools.tools` ∪ `get_discoverable_tools()` — 프레임워크 API·도메인
+리터럴 0)에 묻고, **레지스트리에도 없으면 그때가 진짜 낯선 도구라 중단**이다.
+★로컬에서 리모트 실패를 잡는 닫힌 불변식(신설): **`hard ∩ 발견형 = ∅`**. 발견형이 hard 에 들어가면
+그 자체가 배선 결함이라 로컬 `--wiring-only` 가 SystemExit 한다 — 옛 hard 정의로 계산하면 실제로
+6종(`…6281`·`…3892`·`…9173`·`…7823`·`…7483`·`…7291`)이 걸린다(이번에 로컬이 놓친 자리).
+`unlocked_before_cut` 은 이제 **보고용**으로만 남는다(그 sim 이 컷 전 서명을 본 발견형이 무엇인지).
 
 ## 실행 (리모트·8141·GPU 유휴 시에만 — 지금은 작성 + 무료 배선 검증까지)
     cd /home/woori/scratch/tau2-bench && \
@@ -615,23 +620,25 @@ def called_directly(ctx):
     return out
 
 
-def expose_unlocked(sb, want):
-    """샌드박스 env 를 라이브와 **같은 노출 상태**로 — 궤적이 성공시킨 부여를 같은 env 도구로 재생한다.
+def env_registry_names(sb):
+    """env 의 **전체 에이전트 도구 이름**(발견형 포함) — 존재 여부 판정의 권위원.
 
-    이름은 전부 궤적 도출(`unlocked_before_cut`)이라 우리가 고르지 않는다. 반환 (성공, 실패dict).
+    이 env 에서 발견형 도구는 **도구 목록에 서지 않고 디스패처로만** 불린다(정본 축자:
+    `t2_gate_patch.py:2554`·x255 §호출 타입 T2). 그러니 `get_tools()` 에 없는 것은 정상이고,
+    "존재하는가" 는 툴킷 레지스트리(`env.tools.tools` ∪ `get_discoverable_tools()`)에 물어야 한다.
+    프레임워크 API 만 쓴다 — 도메인 리터럴 0. 못 물으면 빈 집합(호출부가 폴백을 인쇄한다).
     """
-    done, failed = set(), {}
-    for n in sorted(want):
-        try:
-            r = str(sb.env.use_tool(F.UNLOCK, agent_tool_name=n))
-        except Exception as e:
-            failed[n] = repr(e)[:120]
-            continue
-        if r.startswith(ERR_PREFIX):
-            failed[n] = r[:120]
-        else:
-            done.add(n)
-    return done, failed
+    try:
+        tk = getattr(sb.env, "tools", None)
+        if tk is None:
+            return set()
+        names = {str(n) for n in (getattr(tk, "tools", {}) or {})}
+        g = getattr(tk, "get_discoverable_tools", None)
+        if callable(g):
+            names |= {str(n) for n in (g() or {})}
+        return names
+    except Exception:
+        return set()
 
 
 def scaffold_tools(a3):
@@ -906,71 +913,95 @@ def main():
     if not cases:
         raise SystemExit("결정점 0 — 중단")
 
-    # ── 배선 선검증: 샌드박스 + 문맥-도구 실재(리뷰 MAJOR④·2026-08-22 과엄격 수리) ──
-    # ★수리: 옛 가드는 `need`(문맥 호출 ∪ 지목 read ∪ sham) **전부**가 초기 `env.get_tools()` 에
-    #   있기를 요구해 fail-closed 로 멈췄다. 그러나 discoverable 계열은 **부여(unlock)를 거쳐야**
-    #   스키마에 뜨는 것이 라이브 정상이다 — 초기 목록에 없는 것이 옳다. 그래서 둘로 가른다:
-    #     hard  = 직접 호출된 도구 ∪ 그 sim 이 컷 전에 **성공적으로 연** 도구 ∪ 래퍼  → 없으면 중단
-    #     soft  = 아직 안 연 discoverable(지목 read·sham·래퍼로만 닿은 것)             → 제외하고 **인쇄**
-    #   그리고 재생 스키마를 라이브 지형에 맞춘다: 궤적이 연 것만 그 결정점의 도구 목록에 넣는다.
+    # ── 배선 선검증: 샌드박스 + 문맥-도구 실재(리뷰 MAJOR④·2026-08-22 2차 수리) ──────
+    # ★수리 이력: 옛 가드는 `need`(문맥 호출 ∪ 지목 read ∪ sham) **전부**가 `env.get_tools()` 에
+    #   있기를 요구했다. 1차 수리는 "부여(unlock)를 거치면 스키마에 뜬다" 고 보고 궤적의 부여를
+    #   샌드박스에 재생했는데, 그 전제가 **틀렸다** — 리모트 실측: 부여 6/6 성공인데 `get_tools()`
+    #   는 17 → 17 로 그대로였다. 정본 축자가 그렇게 말한다: *"이 env 의 발견형 도구는 도구 목록에
+    #   서지 않고 **디스패처로만** 불린다"*(`t2_gate_patch.py:2554` · x255 §호출 타입 T2).
+    #   ⇒ 라이브 도구 지형 = `env.get_tools()` + 우리 scaffold, **부여와 무관**하게 결정점마다 같다.
+    #   그래서 판정을 두 축으로 나눈다:
+    #     hard        = 래퍼 ∪ 문맥이 **직접**(래퍼 없이) 호출한 도구  → 호출 가능 스키마에 없으면 중단
+    #     dispatcher  = 그 밖의 참조 이름(발견형·지목 read·sham·래퍼 안쪽) → **존재만** 확인하고 인쇄
+    #   존재는 툴킷 레지스트리에 묻는다(`env_registry_names`). 레지스트리에도 없으면 그때가 진짜
+    #   낯선 도구라 **중단**이다(가드는 살아 있다).
     tools, sb = [], None
     for c in cases:
         c["unlocked"] = unlocked_before_cut(c["ctx"])
         c["direct"] = called_directly(c["ctx"])
-        c["wrap_only"] = set()
+        c["wrapped"] = set()
         for m in c["ctx"]:
             if str(m.get("role") or "") != "assistant":
                 continue
             for tc in (m.get("tool_calls") or []):
                 if F.nameof(tc) in F.WRAPPERS and F.inner_name(F.argsof(tc)):
-                    c["wrap_only"].add(F.inner_name(F.argsof(tc)))
-        c["wrap_only"] -= c["unlocked"]
-    hard = (set(DISC_TOOLS) | {n for c in cases for n in c["direct"]}
-            | {n for c in cases for n in c["unlocked"]})
-    soft = ({c["dp"]["tool"] for c in cases}
-            | {p for c in cases for p in kinds[c["dp"]["ev"]["key"]]}
-            | {s for c in cases for s in c["shams"]}
-            | {n for c in cases for n in c["wrap_only"]}) - hard
+                    c["wrapped"].add(F.inner_name(F.argsof(tc)))
+    hard = set(DISC_TOOLS) | {n for c in cases for n in c["direct"]}
+    dispatcher = ({c["dp"]["tool"] for c in cases}
+                  | {p for c in cases for p in kinds[c["dp"]["ev"]["key"]]}
+                  | {s for c in cases for s in c["shams"]}
+                  | {n for c in cases for n in c["wrapped"]}
+                  | {n for c in cases for n in c["unlocked"]}) - hard
+    # ★로컬에서도 도는 닫힌 불변식(2026-08-22 신설·리모트 실패를 여기서 잡는다):
+    #   발견형은 디스패처로만 불리므로 **hard 에 발견형이 들어가면 그 자체가 배선 결함**이다.
+    hard_disc = sorted(hard & disc)
+    if hard_disc:
+        raise SystemExit("hard 가드에 **발견형** 도구가 들어갔다 — 이 env 의 발견형은 도구 목록에 "
+                         "서지 않고 디스패처로만 불린다(`t2_gate_patch.py:2554`·x255 T2). 배선 결함: %s"
+                         % hard_disc)
+    print(NLC + "[배선] 도구 판정 축: hard %d(래퍼+직접호출) · dispatcher-only %d(발견형·지목·sham) · "
+          "hard ∩ 발견형 = 0 ✓" % (len(hard), len(dispatcher)))
     try:
         import x448_index_vs_all_iso as IVA
         sb = IVA.Sandbox()
-        exposed0 = {getattr(t, "name", None) for t in (sb.env.get_tools() or [])}
-        opened, failed = expose_unlocked(sb, {n for c in cases for n in c["unlocked"]})
-        tools = list(sb.env.get_tools() or []) + scaffold_tools(a3)
+        env_tools, sg_tools = list(sb.env.get_tools() or []), scaffold_tools(a3)
+        tools = env_tools + sg_tools
         have = {getattr(t, "name", None) for t in tools}
-        print(NLC + "[배선] 샌드박스 도구 %d종(env %d + 궤적이 연 %d + scaffold) · hard %d / soft %d 검사"
-              % (len(tools), len(exposed0), len(opened), len(hard), len(soft)))
-        if failed:
-            print("  ⚠부여 재생 실패(라이브는 성공했다 — 지형 불일치·[[55]]): %s" % failed)
+        reg = env_registry_names(sb)
+        print("[배선] 샌드박스 호출 가능 %d종(env %d + scaffold %d) · 툴킷 레지스트리 %d종"
+              % (len(tools), len(env_tools), len(sg_tools), len(reg)))
         miss = sorted(hard - have)
         if miss:
-            raise SystemExit("문맥이 **직접 호출했거나 이미 연** 도구가 재생 스키마에 없다"
-                             "(모델에게 낯선 문맥·리뷰 MAJOR④): %s" % miss)
-        skipped = sorted(soft - have)
-        print("  가드 제외(아직 안 연 discoverable — 라이브에서도 이 시점 스키마 밖이 정상·[[55]] "
-              "침묵 금지): %s" % (skipped or "없음"))
-        # 결정점마다 **그 sim 이 연 것만** 노출 — 다른 sim 이 연 도구가 새어 들어가지 않게 한다.
+            fam = {n: sorted(h for h in have if CH._fam(h) == CH._fam(n)) for n in miss}
+            raise SystemExit("문맥이 **직접 호출한** 도구가 재생 스키마에 없다(모델에게 낯선 문맥·"
+                             "리뷰 MAJOR④): %s · 접미사 계열 이웃 %s" % (miss, fam))
+        if not reg:
+            print("  ⚠툴킷 레지스트리를 못 읽었다 — dispatcher-only 존재 확인 생략([[55]] 침묵 금지)")
+        else:
+            ghost = sorted(n for n in dispatcher if n not in reg and n not in have)
+            if ghost:
+                raise SystemExit("레지스트리에도 없는 이름을 문맥/문면이 참조한다(진짜 낯선 도구·"
+                                 "가드 유지): %s" % ghost)
+        print("  dispatcher-only(존재 ✓·호출은 %s 경유 — 라이브에서도 스키마 밖이 정상): %s"
+              % (F.CALLA, sorted(dispatcher)))
         for c in cases:
-            hidden = (disc - c["unlocked"]) - exposed0
-            c["tools"] = [t for t in tools if getattr(t, "name", None) not in hidden]
-            print("  %-14s 재생 스키마 %d종 (초기 노출 %d + 이 sim 이 연 %d: %s)"
-                  % (F.sim_key(c["sim"]), len(c["tools"]), len(exposed0), len(c["unlocked"]),
+            c["tools"] = tools          # 라이브와 같다 — 결정점마다 같은 지형(부여와 무관)
+            print("  %-14s 재생 스키마 %d종 · 이 sim 이 컷 전 연 발견형 %d종(서명만 본 상태): %s"
+                  % (F.sim_key(c["sim"]), len(tools), len(c["unlocked"]),
                      ", ".join(sorted(c["unlocked"])) or "-"))
     except SystemExit:
         raise
     except Exception as e:
-        print(NLC + "[배선] 샌드박스 없음(%r) — 레지스트리(env_surface)로만 검사(로컬 wiring 모드·"
+        print("[배선] 샌드박스 없음(%r) — 레지스트리(env_surface)로만 검사(로컬 wiring 모드·"
               "리모트 샌드박스가 강제 검사를 다시 한다)" % (e,))
         sg = {d.get("name") for d in (a3.get("scaffold_get_tools") or [])}
-        known = agent | sg | set(F.WRAPPERS)
-        miss = sorted(n for n in hard if n not in known)
-        if miss:
-            print("  ⚠레지스트리·scaffold 선언 밖 이름(하네스/KB 도구는 리모트에서 실재 확인): %s" % miss)
-        print("  가드 제외 후보(아직 안 연 discoverable·라이브에서도 스키마 밖이 정상): %s"
-              % (sorted(soft & disc) or "없음"))
+        # 로컬 모사: **호출 가능** = 노출 ∪ scaffold ∪ 래퍼 (발견형은 여기 없다 = 리모트와 같은 모양)
+        callable_local = exposed | sg | set(F.WRAPPERS)
+        unseen = sorted(n for n in hard if n not in callable_local and n not in agent)
+        if unseen:
+            print("  ⚠env_surface 에 아예 없는 이름(하네스/KB 도구 — 리모트가 실재를 확인한다): %s"
+                  % unseen)
+        outside = sorted(n for n in hard if n in agent and n not in callable_local)
+        if outside:
+            raise SystemExit("hard 가 로컬 모사 호출-가능 집합 밖이다(리모트에서 그대로 죽는다): %s"
+                             % outside)
+        ghost = sorted(n for n in dispatcher if n not in agent and n not in sg)
+        if ghost:
+            raise SystemExit("레지스트리 선언에도 없는 이름을 참조한다(진짜 낯선 도구): %s" % ghost)
+        print("  dispatcher-only(선언 실재 ✓·호출은 %s 경유): %s" % (F.CALLA, sorted(dispatcher)))
         for c in cases:
             c["tools"] = []
-            print("  %-14s 이 sim 이 연 discoverable %d종: %s"
+            print("  %-14s 이 sim 이 컷 전 연 발견형 %d종: %s"
                   % (F.sim_key(c["sim"]), len(c["unlocked"]),
                      ", ".join(sorted(c["unlocked"])) or "-"))
 

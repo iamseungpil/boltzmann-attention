@@ -32,10 +32,17 @@ x459 ⒝ 의 D_name **15/15** 는 *도구 없는 naming 계기*(JSON 으로 이�
 죽었다. 도움이 됐을 표본이 바로 죽었으므로 *"문면 무효"* 라는 사전-판정 출력은 **계기 아티팩트**다.
 세 가지를 고쳤다(전부 `--wiring-only` 가 LLM 0 으로 재현한다):
   ⒜ **정보-맞춤 복원** — 라이브 에이전트는 `T2_VIEW_COMPACT` 로 **압축된 뷰**를 본다(go_stack.sh:100·
-     136·137). 1차는 원문 전체를 실었다 = 라이브와 다른 조건. 이제 팔 조립 뒤 **정본 압축**
+     136·137). 1차는 원문 전체를 실었다 = 라이브와 다른 조건. 이제 **정본 압축**
      (`x467.compact_view_dicts` → `GP._compact_view`, 인자는 x467 한 자리에만 산다·[[67]] 사본 0)을
-     걸고, 압축 뷰가 여전히 **한 변수**만 다른지 팔마다 검산한다(실측 24/24 통과 · 최대 문맥
-     240,755자 → 69,418자).
+     건다 — 최대 문맥 240,755자 → 69,418자.
+     ★★순서는 **압축 → 주입**이다(2026-08-22 2차 수리). 라이브 축자 순서가 그렇다:
+     `t2_gate_patch.py:6588` 이 커밋 히스토리(`state.messages`)를 압축해 `work` 를 만들고, 우리 층의
+     문면은 **그 뒤에** 붙는다(`work = work + [UserMessage(...)]` · ACT_DEMAND 는 :10025). 즉 이
+     순서가 라이브와 더 맞고, 부수 효과로 팔 간 차이가 **정의상** 그 한 줄뿐이 된다.
+     ⛔반대 순서(주입 → 압축)는 1차 수리판이 썼다가 리모트에서 죽었다: 압축은 내용 의존(총자수·
+     per-메시지 캡)이라 한 줄을 더하면 다른 데가 잘리고, 게다가 실 tau2 뷰 dict 는 `model_dump()`
+     산출이라 **우리 한 줄까지 키가 늘어** 한-변수 검산이 24×3=72 로 깨졌다(로컬 shim 은 원본
+     dict 를 보존해 이 차이를 못 봤다 → `selftest_arm_order` 가 그 왕복을 모사해 로컬에서 잡는다).
   ⒝ **명시적 제외 계수** — 창을 넘는 결정점을 조용히 버리지 않는다. 창-초과는 **결정점 단위로 전 팔
      동시 제외**(`EXC/OVER_WINDOW` 사전 게이트 · `EXC/CTXWIN` 런타임)라 팔 간 제외 수가 구조적으로
      같아진다. 그래도 팔별 EXC 수가 갈리면 표가 **판정 무효를 스스로 선언**한다(사전 규칙 추가).
@@ -250,9 +257,16 @@ def select(cases, k):
 # ─────────────────────────────────────────────────────────────────────────────
 # ② 팔 조립 (dict 수준 — 객체 복원은 ③ 에서)
 # ─────────────────────────────────────────────────────────────────────────────
-def build_arms(c, arms):
-    """각 팔의 (system-슬롯 추가 메시지, 대화 메시지) — 한 변수(한 줄)만 다르다. 나머지는 deepcopy 동일."""
-    pre = c["pre"]
+def build_arms(c, arms, base=None, early_base=None):
+    """각 팔의 (system-슬롯 추가 메시지, 대화 메시지) — 한 변수(한 줄)만 다르다. 나머지는 deepcopy 동일.
+
+    `base`/`early_base` 를 주면 **그 문맥 위에** 주입한다. ★압축된 뷰를 주고 그 위에 한 줄을 얹는
+    순서가 정본이다 — 압축을 주입 **뒤에** 걸면 압축이 내용 의존(총자수·per-메시지 캡)이라 팔마다
+    잘리는 자리가 달라져 비교 축이 "문면 하나"가 아니게 된다(2026-08-22 리모트 실측: 불일치 72).
+    """
+    pre = c["pre"] if base is None else base
+    early = (c["pre"][:c["early"]] if c.get("early") is not None else None) \
+        if early_base is None else early_base
     out = {}
     for arm in arms:
         if arm == "A_asis":
@@ -262,9 +276,9 @@ def build_arms(c, arms):
         elif arm == "D_sys":
             out[arm] = ([{"role": "system", "content": D_TEXT}], copy.deepcopy(pre))
         elif arm == "E_early":
-            if c.get("early") is None:
+            if early is None:
                 continue
-            out[arm] = ([], copy.deepcopy(pre[:c["early"]]) + [{"role": "user", "content": D_TEXT}])
+            out[arm] = ([], copy.deepcopy(early) + [{"role": "user", "content": D_TEXT}])
     return out
 
 
@@ -273,29 +287,37 @@ def ctx_chars(msgs):
                for m in msgs)
 
 
-def compact_arms(built):
-    """★계기 수리 ⒜ — 팔마다 **라이브 압축 뷰**로 바꾼다(정본 `x467.compact_view_dicts`·사본 0·[[67]]).
+def compact_base(c):
+    """★계기 수리 ⒜ — **주입 전 기저 문맥**을 라이브 압축 뷰로 한 번만 바꾼다(정본
+    `x467.compact_view_dicts`·사본 0·[[67]]).
 
-    라이브 깔때기는 `T2_VIEW_COMPACT=1` 로 오래된 벌크 tool 출력을 head300+tail150 다이제스트로
-    바꾼 뷰를 모델에 준다(`t2_gate_patch.py:6588`). 1차 실행은 원문 전체를 실어 **라이브와 다른
-    조건**이었고 그 초과가 팔별로 달라 판정을 무효로 만들었다.
-    압축은 **팔 조립 뒤**에 건다 — 촉구 한 줄까지 포함한 전체가 라이브의 `work` 와 같은 대상이다.
-    반환: {arm: (extra_sys, view_msgs)} · {arm: 다이제스트 수} · 변환 경로.
+    라이브 순서(축자 확인): `t2_gate_patch.py:6588` 이 **커밋 히스토리**(`state.messages`)에
+    `_compact_view` 를 걸어 `work` 를 만들고, 우리 층의 문면은 그 **뒤에** 붙는다
+    (`work = work + [UserMessage(...)]` — ACT_DEMAND 는 :10025). 즉 *압축 → 우리 한 줄* 이
+    라이브 순서이고, 이 프로브도 그 순서를 쓴다. 부수 효과로 팔 간 차이가 **정의상** 그 한 줄뿐이
+    된다 — 압축을 주입 뒤에 걸었던 판은 리모트에서 팔마다 잘리는 자리가 달라져 불일치 72 로
+    게이트가 닫혔다(2026-08-22).
+    반환: (기저 뷰, E_early 기저 뷰 or None, 다이제스트 수, 변환 경로).
     """
-    out, dg, conv = {}, {}, None
-    for arm, (xs, xm) in built.items():
-        view, dropped, ndg, cv = X467.compact_view_dicts(xm)
-        if dropped:
-            raise SystemExit("팔 %s: 뷰 변환 누락 %d — 문맥이 라이브와 다르다([[55]])" % (arm, dropped))
-        out[arm], dg[arm], conv = (xs, view), ndg, cv
-    return out, dg, conv
+    bv, dropped, ndg, conv = X467.compact_view_dicts(c["pre"])
+    if dropped:
+        raise SystemExit("뷰 변환 누락 %d — 문맥이 라이브와 다르다([[55]])" % dropped)
+    ev = None
+    if c.get("early") is not None:
+        ev, d2, n2, _cv = X467.compact_view_dicts(c["pre"][:c["early"]])
+        if d2:
+            raise SystemExit("E_early 뷰 변환 누락 %d([[55]])" % d2)
+        ndg += n2
+    return bv, ev, ndg, conv
 
 
 def view_one_variable(views, c, arms):
-    """압축 **뒤에도** 팔이 한 변수만 다른지 검산 — 압축은 총자수 문턱을 쓰므로 원문 검산으로 부족하다.
+    """팔이 한 변수만 다른지 검산 — 압축을 **주입 앞**에 두면 정의상 참이라, 이건 재구조화 방지선이다.
 
     A_asis/D_sys 는 대화가 바이트 동일(D_sys 델타는 system 슬롯), 촉구 팔은 마지막 한 줄만 더 있어야
     한다. E_early 는 컷 자체가 다른 통제라 이 검산 밖(구조가 다른 것이 정의다).
+    ⚠주입된 한 줄은 **우리가 만든 dict 그대로**여야 한다 — 뷰 변환(실 tau2 `model_dump()`)을 타면
+    키가 늘어 이 등식이 깨진다(리모트 실측 72건). `selftest_arm_order` 가 그 순서를 로컬에서 건다.
     """
     if "A_asis" not in views:
         return 0, ["A_asis 없음 — 압축 뷰 기준선이 없다"]
@@ -473,6 +495,30 @@ def selftest_scorer(cases, mut):
     good = cat == "MISS" and fl["exact"]
     ok &= good
     print("   %-4s %-28s → %s" % ("ok" if good else "FAIL", "ToolCall 객체 경로", cat))
+    return ok
+
+
+def selftest_arm_order(c, arms):
+    """★주입-압축 **순서** 자기검정 — 리모트가 잡고 로컬이 놓쳤던 자리를 로컬에서 잡는다(2026-08-22).
+
+    로컬 shim 은 원본 dict 를 보존해서(`_obj_dict` 의 `_d` 경로) 뷰 왕복이 무해해 보였지만, 실
+    tau2 에서는 뷰가 `model_dump()` 산출이라 **키가 늘어난다**. 옛 순서(주입 → 뷰 왕복)는 우리
+    한 줄까지 그 왕복을 태워 한-변수 불변식을 깼다(24 결정점 × 촉구 3팔 = 72).
+    여기서는 왕복을 **키 추가**로 모사해 두 순서를 나란히 건다:
+        옛 순서(주입 → 왕복)  → 불변식이 **깨져야** 한다(안 깨지면 이 검정이 무력하다)
+        새 순서(왕복 → 주입)  → **통과해야** 한다(우리 한 줄은 왕복을 타지 않는다)
+    """
+    def rt(ms):
+        return [dict(m, turn_idx=i, requestor="assistant") for i, m in enumerate(ms)]
+
+    old = {a: (xs, rt(xm)) for a, (xs, xm) in build_arms(c, arms).items()}
+    ebase = rt(c["pre"][:c["early"]]) if c.get("early") is not None else None
+    new = build_arms(c, arms, base=rt(c["pre"]), early_base=ebase)
+    n_old, _w1 = view_one_variable(old, c, arms)
+    n_new, w2 = view_one_variable(new, c, arms)
+    ok = n_old > 0 and n_new == 0
+    print("   %-4s 주입-압축 순서(왕복 모사): 옛 순서 불일치 %d(>0 이어야) · 새 순서 불일치 %d(0 이어야) %s"
+          % ("ok" if ok else "FAIL", n_old, n_new, "; ".join(w2[:3])))
     return ok
 
 
@@ -678,12 +724,13 @@ def main():
             else:
                 ok = xm[:-1] == c["pre"] and xm[-1] == {"role": "user", "content": ARM_TEXT[arm]}
             n_bad += 0 if ok else 1
-        # ★계기 수리 ⒜ — 라이브 압축 뷰로 바꾸고, 압축 **뒤에도** 한 변수인지 다시 검산한다.
-        views, dg, conv = compact_arms(built)
+        # ★계기 수리 ⒜ — 압축은 **주입 전 기저**에 한 번(라이브 순서), 그 위에 팔의 한 줄을 얹는다.
+        bv, ev, ndg, conv = compact_base(c)
+        views = build_arms(c, arms, base=bv, early_base=ev)
         nb, why = view_one_variable(views, c, arms)
         n_vbad += nb
         vbad_why += why
-        c["views"], c["digested"] = views, dg
+        c["views"], c["digested"] = views, ndg
         c["view_chars"] = {am: ctx_chars(v) for am, (xs, v) in views.items()}
         for am, v in c["view_chars"].items():
             per_arm_ctx.setdefault(am, []).append(v)
@@ -693,7 +740,7 @@ def main():
     view_max = max(max(c["view_chars"].values()) for c in sel)
     print("   압축(정본 x467.compact_view_dicts·변환=%s): 원문 최대 %d자 → 뷰 최대 %d자 · "
           "다이제스트 총 %d건" % (conv, raw_max, view_max,
-                                 sum(sum(c["digested"].values()) for c in sel)))
+                                 sum(c["digested"] for c in sel)))
     tails = collections.Counter(_role(c["pre"][-1]) for c in sel)
     print("   결정점 직전 메시지 역할: %s (user 면 촉구가 user 연속 2개 — 라이브 ACT_DEMAND 와 같은 구조)"
           % dict(tails))
@@ -744,8 +791,12 @@ def main():
     print("[배선] 채점기 자기검정 (실제 결정점의 MISSING/done 집합 위 합성 호출)")
     st_ok = selftest_scorer(sel, mut)
 
-    # ── ④b 제외-계수 자기검정 (계기 수리 ⒝ — LLM 0·합성 행) ────────────────────────
+    # ── ④b 제외-계수 + 주입-압축 순서 자기검정 (계기 수리 ⒝⒜ — LLM 0·합성) ──────────
     exc_ok = selftest_exclusion(arms)
+    ord_ok = selftest_arm_order(sel[0], arms)
+    if not have_tau2:
+        print("   ⚠로컬 뷰 변환은 shim(원본 dict 보존)이라 실 tau2 `model_dump()` 왕복과 다르다 — "
+              "위 순서 자기검정이 그 차이를 **모사**해 대신 잡는다([[55]] 침묵 금지).")
 
     if a.wiring_only:
         if have_tau2:
@@ -759,17 +810,23 @@ def main():
             sm, src = system_messages(tools, sel[0]["policy"], a.model)
             print("[배선] 압축 뷰 객체 복원 %d/%d · system 재구성 %d건(%s·%d자)"
                   % (tot - drop, tot, len(sm), src, sum(len(_content({"content": getattr(m, "content", "")})) for m in sm)))
+            # 뷰 dict 는 `model_dump()` 산출이라 **되돌려 객체가 되는지**가 리모트에서만 확인된다.
+            # 한 건이라도 못 돌아오면 그 팔의 문맥이 조용히 짧아진다 — 재생 전에 닫는다([[55]]).
+            if drop:
+                print("  ⛔압축 뷰 → 메시지 객체 복원 누락 %d — 재생 금지(문맥이 조용히 줄어든다)" % drop)
+            n_bad += drop
             tier = "LOCAL+REMOTE"
         else:
             print("[배선] (리모트 계층 — 객체 복원·실물 도구·system 재구성은 tau2 환경의 --wiring-only 에서)")
             tier = "LOCAL"
-        ok = st_ok and exc_ok and n_bad == 0 and n_vbad == 0 and not unknown and not bad
+        ok = (st_ok and exc_ok and ord_ok and n_bad == 0 and n_vbad == 0
+              and not unknown and not bad)
         print("[배선] wiring-only %s · 계층 %s · LLM 0 · GPU 0 (압축·EXC 계수·균형 검사 포함)"
               % ("PASS" if ok else "FAIL", tier))
         return 0 if ok else 1
     if not have_tau2:
         raise SystemExit("tau2 없음 — 재생은 리모트에서(docstring 실행 명령)")
-    if not st_ok or not exc_ok or n_bad or n_vbad:
+    if not st_ok or not exc_ok or not ord_ok or n_bad or n_vbad:
         raise SystemExit("배선 검산 실패 — 재생하지 않는다([[55]])")
 
     # ── ⑤ 재생 ───────────────────────────────────────────────────────────────────
