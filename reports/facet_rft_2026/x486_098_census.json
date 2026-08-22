@@ -1,0 +1,1804 @@
+{
+ "task": "task_098",
+ "n": 81,
+ "rows": [
+  {
+   "tag": "bank_all97_nt1_v2_20260718",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Evergreen Account",
+     true
+    ]
+   ],
+   "n_calls": 6,
+   "n_msgs": 22,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_judge6p_a_20260813p",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Green Fee-Free Account",
+     true
+    ]
+   ],
+   "n_calls": 16,
+   "n_msgs": 44,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_judge6p_a_20260813p",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 17,
+   "n_msgs": 50,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_judge6p_a_20260813p",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Light Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 34,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_judge6p_a_20260813p",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 32,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_judge6q_a_20260813q",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 16,
+   "n_msgs": 42,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_judge6q_a_20260813q",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Dark Green Account",
+     true
+    ]
+   ],
+   "n_calls": 16,
+   "n_msgs": 46,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_judge6q_a_20260813q",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Light Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 16,
+   "n_msgs": 44,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_judge6q_a_20260813q",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 14,
+   "n_msgs": 38,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_n97_gpu1_main_20260804",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Light Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 2,
+   "n_msgs": 8,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_n97_gpu1_main_20260804",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Light Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 2,
+   "n_msgs": 8,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_n97_gpu1_main_20260805",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Light Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 2,
+   "n_msgs": 8,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_n97_gpu1_main_20260805",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Light Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 2,
+   "n_msgs": 8,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_n97_gpu1_main_20260806",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Light Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 2,
+   "n_msgs": 8,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_n97_gpu1_main_20260806",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Light Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 2,
+   "n_msgs": 8,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7295_b_20260815n",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 10,
+   "n_msgs": 28,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7295_b_20260815n",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 32,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7295_b_20260815n",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 32,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7297_ctl_20260815q",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     null,
+     false
+    ],
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 13,
+   "n_msgs": 38,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7297_ctl_20260815q",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 13,
+   "n_msgs": 38,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7297_ctl_20260815q",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 30,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7297_ctl_20260815q",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 14,
+   "n_msgs": 40,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7297_ctl_20260815q",
+   "key": "task_098#s514337",
+   "trial": 4,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 36,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7297_treat_20260815q",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 11,
+   "n_msgs": 32,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7297_treat_20260815q",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 13,
+   "n_msgs": 32,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7297_treat_20260815q",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 11,
+   "n_msgs": 32,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "General",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7297_treat_20260815q",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 13,
+   "n_msgs": 38,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "General",
+    "Blue Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7297_treat_20260815q",
+   "key": "task_098#s514337",
+   "trial": 4,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 11,
+   "n_msgs": 32,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "General",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7298_20260816a",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 13,
+   "n_msgs": 38,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "General",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7298_20260816a",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 32,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "General",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7298_20260816a",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 32,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7298_20260816a",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 36,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "General"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7299_ctl_20260816b",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 34,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "General",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7299_ctl_20260816b",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 13,
+   "n_msgs": 36,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "General",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7299_ctl_20260816b",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     null,
+     false
+    ],
+    [
+     "Dark Green Account",
+     true
+    ]
+   ],
+   "n_calls": 14,
+   "n_msgs": 36,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7299_ctl_20260816b",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     null,
+     false
+    ],
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 13,
+   "n_msgs": 36,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7299_treat_20260816b",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 14,
+   "n_msgs": 38,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7299_treat_20260816b",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 10,
+   "n_msgs": 28,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7299_treat_20260816b",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 34,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "General",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7299_treat_20260816b",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 11,
+   "n_msgs": 30,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7303_ctl_20260816h",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 14,
+   "n_msgs": 38,
+   "first_search_turn": 4,
+   "n_search": 3,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account",
+    "Blue Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7303_ctl_20260816h",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 34,
+   "first_search_turn": 4,
+   "n_search": 3,
+   "decided": [
+    "Sky Blue",
+    "General",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7303_ctl_20260816h",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 36,
+   "first_search_turn": 4,
+   "n_search": 2,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7303_ctl_20260816h",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Dark Green Account",
+     true
+    ]
+   ],
+   "n_calls": 14,
+   "n_msgs": 38,
+   "first_search_turn": 4,
+   "n_search": 3,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account",
+    "General"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7303_treat_20260816h",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 30,
+   "first_search_turn": 2,
+   "n_search": 3,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7303_treat_20260816h",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 11,
+   "n_msgs": 32,
+   "first_search_turn": 2,
+   "n_search": 3,
+   "decided": [
+    "Sky Blue",
+    "General"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7303_treat_20260816h",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 13,
+   "n_msgs": 34,
+   "first_search_turn": 2,
+   "n_search": 3,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7303_treat_20260816h",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 14,
+   "n_msgs": 38,
+   "first_search_turn": 2,
+   "n_search": 3,
+   "decided": [
+    "Sky Blue",
+    "Gold Saver Account"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7304_ctlaux_20260816j",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 34,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7304_ctlaux_20260816j",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 34,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7304_ctlaux_20260816j",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 13,
+   "n_msgs": 36,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7304_ctlaux_20260816j",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Gold Saver Account",
+     true
+    ]
+   ],
+   "n_calls": 10,
+   "n_msgs": 28,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7304_treataux_20260816j",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 10,
+   "n_msgs": 28,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7304_treataux_20260816j",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 11,
+   "n_msgs": 30,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7304_treataux_20260816j",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 31,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7304_treataux_20260816j",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 11,
+   "n_msgs": 32,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7305_ctlaux_20260817a",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 10,
+   "n_msgs": 28,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7305_ctlaux_20260817a",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 36,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7305_ctlaux_20260817a",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 10,
+   "n_msgs": 28,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7305_ctlaux_20260817a",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 14,
+   "n_msgs": 38,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7305_treataux_20260817a",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 13,
+   "n_msgs": 40,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7305_treataux_20260817a",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 13,
+   "n_msgs": 36,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7305_treataux_20260817a",
+   "key": "task_098#s361454",
+   "trial": 2,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Light Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 11,
+   "n_msgs": 30,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7305_treataux_20260817a",
+   "key": "task_098#s1567",
+   "trial": 3,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 36,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7310_ctl_20260818e",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Green Fee-Free Account",
+     true
+    ]
+   ],
+   "n_calls": 10,
+   "n_msgs": 30,
+   "first_search_turn": 4,
+   "n_search": 1,
+   "decided": [
+    "Blue Account"
+   ],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7310_treat_20260818e",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Light Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 10,
+   "n_msgs": 26,
+   "first_search_turn": 4,
+   "n_search": 1,
+   "decided": [
+    "Blue Account"
+   ],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7313_ctl_20260818h",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Light Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 8,
+   "n_msgs": 28,
+   "first_search_turn": 4,
+   "n_search": 1,
+   "decided": [
+    "Blue Account"
+   ],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7313_treat_20260818h",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Dark Green Account",
+     true
+    ]
+   ],
+   "n_calls": 9,
+   "n_msgs": 30,
+   "first_search_turn": 4,
+   "n_search": 1,
+   "decided": [
+    "Blue Account"
+   ],
+   "rederived": []
+  },
+  {
+   "tag": "bank_t7326_halfB_20260819q",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 11,
+   "n_msgs": 32,
+   "first_search_turn": 4,
+   "n_search": 3,
+   "decided": [
+    "Blue Account",
+    "General",
+    "Sky Blue"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7326_halfB_20260819q",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     null,
+     false
+    ],
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 32,
+   "first_search_turn": 4,
+   "n_search": 2,
+   "decided": [
+    "Blue Account",
+    "Sky Blue"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7328_halfB_20260819r2",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 34,
+   "first_search_turn": 4,
+   "n_search": 2,
+   "decided": [
+    "Blue Account",
+    "Sky Blue"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7328_halfB_20260819r2",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 11,
+   "n_msgs": 34,
+   "first_search_turn": 4,
+   "n_search": 2,
+   "decided": [
+    "Blue Account",
+    "Sky Blue"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7335_halfB2_20260821",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 14,
+   "n_msgs": 38,
+   "first_search_turn": 4,
+   "n_search": 3,
+   "decided": [
+    "Blue Account",
+    "General",
+    "Sky Blue"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7336_halfB_20260821b",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 30,
+   "first_search_turn": 4,
+   "n_search": 2,
+   "decided": [
+    "Blue Account",
+    "Sky Blue"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7336_halfB_20260821b",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 1.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Blue Account",
+     true
+    ]
+   ],
+   "n_calls": 12,
+   "n_msgs": 30,
+   "first_search_turn": 4,
+   "n_search": 2,
+   "decided": [
+    "Blue Account",
+    "Sky Blue"
+   ],
+   "rederived": [
+    "Blue"
+   ]
+  },
+  {
+   "tag": "bank_t7346_halfB_20260822",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     null,
+     false
+    ],
+    [
+     "Bluest Account",
+     true
+    ]
+   ],
+   "n_calls": 16,
+   "n_msgs": 44,
+   "first_search_turn": 24,
+   "n_search": 3,
+   "decided": [
+    "Blue Account",
+    "Sky Blue",
+    "Gold Account"
+   ],
+   "rederived": [
+    "Bluest"
+   ]
+  },
+  {
+   "tag": "bank_t7346_halfB_20260822",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "Bluest Account",
+     true
+    ]
+   ],
+   "n_calls": 14,
+   "n_msgs": 38,
+   "first_search_turn": 26,
+   "n_search": 2,
+   "decided": [
+    "Blue Account",
+    "Sky Blue"
+   ],
+   "rederived": [
+    "Bluest"
+   ]
+  },
+  {
+   "tag": "bankxfer_floor_bank_t2",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "EcoCard Account",
+     true
+    ]
+   ],
+   "n_calls": 2,
+   "n_msgs": 12,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bankxfer_floor_bank_t2",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "EcoCard Account",
+     true
+    ]
+   ],
+   "n_calls": 2,
+   "n_msgs": 14,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bankxfer_floor_bank_t4",
+   "key": "task_098#s626729",
+   "trial": 0,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "EcoCard Account",
+     true
+    ]
+   ],
+   "n_calls": 2,
+   "n_msgs": 12,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  },
+  {
+   "tag": "bankxfer_floor_bank_t4",
+   "key": "task_098#s373753",
+   "trial": 1,
+   "reward": 0.0,
+   "gold_type": "Blue Account",
+   "submitted": [
+    [
+     "EcoCard Account",
+     true
+    ]
+   ],
+   "n_calls": 2,
+   "n_msgs": 14,
+   "first_search_turn": null,
+   "n_search": 0,
+   "decided": [],
+   "rederived": []
+  }
+ ]
+}
