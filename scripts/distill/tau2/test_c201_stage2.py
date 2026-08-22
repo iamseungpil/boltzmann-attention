@@ -3,7 +3,11 @@
 """C201 2단 처방 오프라인 검증 (무료·모델 불요·2026-07-26).
 설계서 `STAGE2_GATE_DESIGN_2026_07_26.md` §7 검증 계획 1~4·6.
 D1 claim_prov 세분 kind / D2 에스컬→transfer chain / D3 예비-창 / D4 fit grounding / A2 로드.
-⚠단위통과≠라이브발화([[30]])."""
+⚠단위통과≠라이브발화([[30]]).
+★2026-08-21 수리(낡은 기대 3건 갱신·본문 주석에 박제): ①D1 record_update unbacked 기대는
+  C341 센티널(2026-08-08)+완결 저작 submit_ 등재(2026-08-21)로 **의도 반전** ②D2 chain 탐색·
+  원장은 98e5efe2(2026-08-05)의 정확명 이행에 정합화 ③resign_th 국소화 기대에 C214(cash-back
+  체인 선언) 반영. 이 파일은 t7335 프리플라이트 배터리 밖 — 단독 실행 검정."""
 import io
 import json
 import os
@@ -59,9 +63,22 @@ def d1_granular_kinds():
     generic = [{"kind": "write", "what": "updated the transaction records"}]
     gran = [{"kind": "record_update", "what": "updated the transaction records"}]
     chk(len(GP._claim_unbacked(generic, EMAP, evs, msgs)) == 0,
-        "구판 재현: generic write 주장 = 무관한 dispute write로 backed(=구멍)")
-    chk(len(GP._claim_unbacked(gran, EMAP, evs, msgs)) == 1,
-        "신판: record_update 주장 = unbacked로 검출")
+        "generic write 주장 = 실효 write(유저 dispute)로 backed (write 센티널 경로)")
+    # ★기대 반전 박제(2026-08-21 수리): 원판(C201·2026-07-26)은 "무관한 dispute write가
+    #   record_update 주장을 입증하면 안 된다"(unbacked=1)를 세분-kind의 존재 이유로 걸었다.
+    #   이후 두 델타가 이 방향을 **의도적으로** 뒤집었다 —
+    #   ① C341(2026-08-08)·재판정런 070 t3(2026-08-13): record_update에 `__effective_write__`
+    #      센티널 등재. 모델의 kind 라벨이 우리 패턴과 어긋날 때 **실행된 행동을 "안 했다"고
+    #      단정**하는 거짓 발화가 DUP 재호출을 제조했다(test_claim_promotion.py DELTA·
+    #      t2_gate_patch._claim_unbacked 주석).
+    #   ② 완결 저작(2026-08-21·T7335 halfB 050): submit_ 접두를 record_update에 이중 등재
+    #      (A2 _note_event_map_completion_2026_08_21 ④ — 백킹 맵이지 분할이 아니다).
+    #   ⇒ 이 원장(submit_cash_back_dispute_0589 실재)에서 record_update 주장은 이제 **backed가
+    #     설계 정답**이다. 무지목-날조 탐지(해당 계열 실행이 0인 경우)의 현행 커버는
+    #     test_claim_backed_write.py·test_claim_promotion.py(DELTA 동결)이고, 이 파일 안에서도
+    #     아래 041형(dispute_file·분쟁 도구 실행 0)이 unbacked 검출 생존을 계속 잰다.
+    chk(len(GP._claim_unbacked(gran, EMAP, evs, msgs)) == 0,
+        "현행(C341 센티널+submit_ 등재): record_update 주장 = backed (구 기대 unbacked=1 폐기·위 주석)")
     evs2, msgs2 = ledger(["verify_identity", "update_transaction_rewards_3847"])
     chk(len(GP._claim_unbacked(gran, EMAP, evs2, msgs2)) == 0,
         "정당 갱신 후 같은 주장 = backed(오탐 0·Δspurious 방어)")
@@ -81,14 +98,21 @@ def d1_granular_kinds():
 
 def d2_escalation_chain():
     print("D2 에스컬→transfer follow_up_chain:")
+    # ★탐색 갱신(2026-08-21 수리): 98e5efe2(2026-08-05 "Stop inferring which tool a
+    #   declaration means")가 after를 무접미 계열명 → **레지스트리 정확명**(initial_transfer_
+    #   to_human_agent_0218/_1822·emergency_credit_bureau_incident_transfer_1114)으로 이행했고,
+    #   라이브 원장도 _eff_tool_name(접미 제거) → _exact_tool_name 집합이 됐다. 구판의
+    #   무접미 정확일치 탐색은 그래서 영구 미스. 여기 startswith는 체인을 **찾는** 용도일 뿐 —
+    #   발화 판정(_chain_dispatch)은 라이브와 같은 정확명 집합 대조로 잰다(아래 eff).
     ch = next((c for c in A2["follow_up_chains"]
-               if "initial_transfer_to_human_agent" in (c.get("after") or [])), None)
-    chk(ch is not None, "chain 선언 존재")
+               if any(str(a).startswith("initial_transfer_to_human_agent")
+                      for a in (c.get("after") or []))), None)
+    chk(ch is not None, "chain 선언 존재 (정확명 anchor·98e5efe2 이행)")
     if ch is None:
         return
-    # 035 실측형: 에스컬 실행됨 · transfer 미호출
-    eff = {"KB_search", "unlock_discoverable_agent_tool",
-           "emergency_credit_bureau_incident_transfer"}
+    # 035 실측형: 에스컬 실행됨 · transfer 미호출 — 라이브(_exact_tool_name)와 같은 정확명 원장
+    eff = {"KB_search_bm25", "unlock_discoverable_agent_tool",
+           "emergency_credit_bureau_incident_transfer_1114"}
     r = GP._chain_dispatch(ch, eff)
     chk(r is not None and "transfer_to_human_agents" in r[0],
         "에스컬 후 transfer 미호출 → feedback 발화({missing} 치환)")
@@ -99,9 +123,15 @@ def d2_escalation_chain():
     chk(GP._chain_dispatch(ch, {"KB_search"}) is None, "에스컬 미실행 → 무발화")
     chk(ch.get("resign_th") == 1,
         "rev2 결함2: per-chain resign_th=1 선언(전역 2로는 035형 구조적 미발화)")
+    # ★기대 갱신(2026-08-21 수리): 원판(C201 rev2)은 "resign_th=1은 이 체인뿐"으로 국소화를
+    #   쟀다. C204/C214(2026-07-27·day7 028 실측)가 cash-back 체인에도 같은 사유(사임 턴 부족
+    #   → 전역 임계 2로 구조적 미발화)로 resign_th=1을 **의도 선언**했다. 국소화 원칙의 현행
+    #   형태 = per-chain 하향은 실측 근거가 있는 체인에만, 나머지는 미선언(전역 기본).
     others = [c for c in A2["follow_up_chains"] if c is not ch]
-    chk(all(c.get("resign_th") is None for c in others),
-        "기존 체인은 resign_th 미선언 = env 기본 유지(Δspurious 국소화)")
+    declared = [c for c in others if c.get("resign_th") is not None]
+    chk(len(declared) == 1 and declared[0].get("resign_th") == 1
+        and "submit_cash_back_dispute_0589" in (declared[0].get("after") or []),
+        "per-chain resign_th 추가 선언은 cash-back 체인(C214)뿐 — 나머지 미선언(전역 기본·Δspurious 국소화 유지)")
 
 
 def d3_reserve_window():
