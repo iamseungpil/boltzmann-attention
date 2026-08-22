@@ -112,7 +112,11 @@ def submitted_type(calls):
         inner = str(ag.get("agent_tool_name") or ag.get("user_tool_name") or "")
         if (inner or str(nm or "")) == WRITE:
             args = ag.get("arguments") if isinstance(ag.get("arguments"), dict) else ag
-            return (args or {}).get(ARG)
+            v = (args or {}).get(ARG)
+            # ★첫 호출이 인자 없이 나가는 sim 이 있다(census: `sub=None,Bluest Account`).
+            #   첫 항목을 그대로 돌려주면 그 원천이 통째로 버려진다 — **값이 있는 첫 호출**을 본다.
+            if v:
+                return v
     return None
 
 
