@@ -70,6 +70,14 @@ export T2_SG_TRUTH=1 T2_SG_ISOLATE=1 T2_SG_ISOFB=1 T2_SG_REQREADS=1 T2_SG_TRACE=
 #   · T2_CATEGORY_CITE=  기본 OFF(2026-08-20 측정: 라이브 거동 0) — 켜려면 재측정 후([[60]] 통합).
 export T2_SG_DOCS=1 T2_ARG_DOC_SUB=1 T2_VALUE_FORMULA=full
 export T2_CATEGORY_CITE=
+# ★T2_SEARCH_REARM (2026-08-22 등재·구현 2026-08-21 커밋 992b7d53·정본 `T7336_FORENSIC_016_2026_08_21.md`·
+#   격리 C591 x464): 검색 에이전트의 축-소진 키를 군 → **(군, 배달된 계열 집합)** 으로 좁히고, 배달분에
+#   없던 계열이 발화에 축자 등장하면 재무장해 **그 계열의 문서 델타만** 배달(선언 id → 정확 집기·[[71]]).
+#   격리(n=9/팔): 정책값 확보 0/9 → 6/9. 판 것 = 문맥 +22k자. ⚠`_search_material` 안의 하위 스위치라
+#   **검색 에이전트 플래그(`SEARCH_AGENT`)가 켜진 런에서만 산다**(런처 PIN 이 켠다 — 이 파일은 그것을
+#   선언하지 않는다·래칫 기준선에 미선언으로 남아 있음·여기 이름을 적으면 래칫이 "선언"으로 오인하므로
+#   접두사 없이 적는다). OFF=바이트 동일. [[70]] 짝 A/B 의무.
+export T2_SEARCH_REARM=1
 export T2_FAB_STRIP=1 T2_UNKNOWN_NAME_BL=1 T2_UNLOCK_NAME=1 T2_UNLOCK_PROV=1
 export T2_DISPATCH_ROLE=1 T2_TOOLLIST=1 T2_PRESCRIPTION=1
 # ★T2_DISPATCH_ROLE_ENVSET (2026-08-05 등재·구현은 C257·`ABSENCE_DRIVEN_PROCEDURE_DESIGN` §4):
@@ -329,6 +337,15 @@ export T2_TRANSCRIBE_CAP=4        # sim당 상한(기존 cap 규약)
 #   x93 전수(194 sim): 미열람 사용 27건 / **gold이 요구한 이관인데 미열람 6건** ⇒ deny하면 정답을
 #   막는다 ⇒ **표면화만·sim당 1회**. 어느 프로토콜이 맞는가(열린 술어)는 말하지 않는다.
 export T2_REQUIRE_DOC=1
+# ★T2_REQUIRE_DOC_DELIVER (2026-08-22 등재·정본 `T7336_FORENSIC_033_2026_08_22.md`·격리 C592 x465):
+#   위와 **같은 닫힌 술어**(선언 도구 시도 ∧ 정의 문서 미열람)에서 표면화 대신 **정의 문서 전문을
+#   그 턴의 재생성 버퍼에 싣는다**(헤더 = x465 축자·지시-앞·코퍼스 도출 전부·선택 0·deny 0 =
+#   x93 gold-이관 6건 보호). 격리(n=7/팔): 일반 7/7 → 사슬 6/7 · 부정통제(무내용 재촉) 0/7 ⇒
+#   원인은 미전달·레버는 전달뿐([[62]]②). 판 것 = 문맥 +16k자/회·sim당 CAP 회. [[70]] 짝 A/B 의무.
+#   배달이 나간 턴엔 위 표면화(REQUIRE_DOC)가 비워진다(같은 턴 "검색하라"↔"여기 있다" 모순 방지).
+export T2_REQUIRE_DOC_DELIVER=1
+export T2_REQUIRE_DOC_DELIVER_CAP=3       # sim당 배달 상한(검색 에이전트 예산 3 선례·재료는 한 턴만 산다)
+export T2_REQUIRE_DOC_DELIVER_MAX=90000   # 배달 상한 자수(x465 --maxchars 동일·절단은 표시)
 
 # ── ★死배선 2건 등재 (2026-08-07·`t2_levers.py --audit_declared`가 검출) ───────
 #   둘 다 **구현·배선을 마치고 오프라인 자기검사까지 통과했는데 이 파일에만 없어서 죽어 있었다**.

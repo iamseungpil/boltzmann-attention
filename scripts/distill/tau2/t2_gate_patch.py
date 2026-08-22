@@ -2740,7 +2740,23 @@ def _in_registry(name, registry):
     return nm if nm and nm in (registry or ()) else None
 
 
-def _docs_naming(tool, docs_dir, _cache={}):
+def _docs_naming_fallback(out, tool, corpus):
+    """`_docs_naming` 의 **코퍼스 폴백** (2026-08-22·T2_REQUIRE_DOC_DELIVER).
+
+    json 디렉터리(`T2_KB_DOCS_DIR`)가 없거나 비어 도출이 0편이면 **환경이 든 코퍼스**
+    (`t2_search.corpus_from_env` 의 `{id: 본문}`)에서 **같은 술어**(도구명 축자 포함)로 도출한다.
+    술어 사본이 아니라 재료원 하나를 더 받는 것이고([[67]]), 코퍼스 경유 결과는 캐시하지 않는다
+    (객체가 호출마다 같다는 보장이 없다). 도출 0 이면 빈 집합 그대로(호출부가 침묵·로그).
+    """
+    if out or not corpus or not tool:
+        return out
+    try:
+        return {str(i) for i, t in dict(corpus).items() if tool in str(t or "")}
+    except Exception:
+        return set()
+
+
+def _docs_naming(tool, docs_dir, _cache={}, corpus=None):
     """이 도구 이름을 담은 문서 id 집합 — 코퍼스 사실이라 A2에 적지 않는다.
 
     `transfer_to_human_agents`의 docstring이 *"The proper transfer reason enum can be found in
@@ -2750,7 +2766,7 @@ def _docs_naming(tool, docs_dir, _cache={}):
     """
     key = (tool, docs_dir)
     if key in _cache:
-        return _cache[key]
+        return _docs_naming_fallback(_cache[key], tool, corpus)
     out = set()
     try:
         for f in os.listdir(docs_dir or ""):
@@ -2763,7 +2779,7 @@ def _docs_naming(tool, docs_dir, _cache={}):
     except Exception:
         out = set()
     _cache[key] = out
-    return out
+    return _docs_naming_fallback(out, tool, corpus)
 
 
 def _docs_seen(messages):
@@ -2775,6 +2791,163 @@ def _docs_seen(messages):
             if isinstance(c, str):
                 txt.append(c)
     return chr(10).join(txt)
+
+
+def _ctx_fits(work, text, min_len=5000):
+    """배달물이 이 턴의 생성 창에 들어가는가 → (들어감, 히스토리 자수). **산식 하나**([[67]] 사본 금지).
+
+    원래 `_t2_cp2_pending` 소비 지점에 인라인이던 가드를 함수로 올렸다(거동 동일·2026-08-22) —
+    T2_REQUIRE_DOC_DELIVER 가 같은 가드를 쓴다. 대용량(≥`min_len`)만 검사·초과면 호출부가
+    **건너뛰고 기록**한다(축약·선별 0 — 엔진이 줄이면 [[62]]③).
+    ★제수·오버헤드는 **실측 보정**이다(2026-08-16·t7303 커밋 생성호출 472건의
+      `usage.prompt_tokens` 회귀). 자수/토큰 k: p10 3.554·p50 3.986. 그런데 프롬프트에는
+      히스토리 밖 **상수 오버헤드**(system+도구 스키마+chat template) O 가 있다:
+      p50 10,157·p90 11,069 tok. 초판(`/3`·오버헤드 0)은 실측 콜 463/463 에서
+      토큰을 **과소추정**했다(발화점이 5,518자 늦다). 그래서 k=3.5 로 두고 캡에서
+      O=11,000 을 뺀다 — 보수 가정에서도 캡을 안 넘는 발화점(C≈85.6k자).
+    """
+    if not text or len(text) < min_len:
+        return True, 0
+    try:
+        hist = sum(len(_content_str(m) or "") for m in (work or []))
+    except Exception:
+        hist = 0
+    return (hist + len(text)) / 3.5 <= (44672 - 8192 - 1024 - 11000), hist
+
+
+# ★T2_REQUIRE_DOC_DELIVER 배달 헤더 — `x465_transfer_doc_iso.DELIVER_HEAD` **축자**(격리 조건 동형·
+#   C578 지시-앞). 어느 문서·어느 프로토콜이 맞는지는 말하지 않는다(열린 술어=모델 몫·[[22]]).
+_RDD_HEAD = ("[KB DELIVERY] Read the following before choosing your next action. These are, "
+             "in full and verbatim, ALL knowledge-base documents that mention the tool %s.")
+# [[64]] 두 칸 — 무엇이 틀렸나(미열람 문서 id 열거) + 무엇을 하면 풀리나(아래를 읽고 고르기). 차단 0.
+_RDD_WHY = ("Why you are seeing this: you are about to call %s, and none of the documents that "
+            "define it (%s) has been retrieved in this conversation. Nothing is blocked - read "
+            "them below, then decide what to call.")
+
+
+def _require_doc_deliver(agent, a2, messages, tool_calls, corpus=None, docs_dir=None):
+    """★033형 — 정의 문서 **미열람**인 채 선언 도구를 시도하는 **그 턴**에 문서 전문을 재생성 버퍼에 싣는다.
+
+    (2026-08-22·정본 `T7336_FORENSIC_033_2026_08_22.md`·격리 C592 `x465_transfer_doc_iso.py`·기본 OFF)
+    결손: 모델이 KB 를 grep 한 줄만 보고 문서 본문을 끝내 열지 않아 정책이 요구하는 사슬을 발견조차
+      못 한 채 일반 도구를 조기 실행했다(t7328·t7336 동일 = 안정 실패 모드). 우리 층 세 겹은 전부 비켜
+      갔다: 절차 enforce 는 사슬 도구 터치가 진입이라 死·표면화는 문서 id 를 안 대고 1회 소진·검색 배달은
+      상품 축이라 protocol 문서가 배달물에 없었다.
+
+    [[62]] 4문: ①격리로 쟀다 — x465(n=7/팔): A_asis 일반 7/7 ↔ **B_docfull 사슬 6/7** ↔ N_neg(무내용
+      재촉) 일반 7/7 ⇒ 원인은 **미전달**·재촉만으론 0([[57]]). ②따라서 레버는 **전달뿐** — 결정론기 0.
+      ③사라지는 모델 판단 0(문서를 읽고 무엇을 부를지는 끝까지 모델). ④엔진은 고르지 않는다 —
+      도출 집합 **전부**·코퍼스 축자·헤더 두 줄뿐(지목 문장 0·순위 0).
+    [[71]] 4문: ①기능 하나 — 서브 없음. 재생성되는 **메인 턴 하나**가 다음 행동을 고른다(x465 B 팔과
+      같은 인터페이스). ②재료는 선언에서 — 도구 집합 = A3 `require_doc_before.tools`, 문서 집합 =
+      정본 `_docs_naming`(코퍼스에서 도구명 등장 문서 도출·x465 와 **같은 함수**). 이 코드에 도구명·
+      문서 id 리터럴 0. ③전달 = 선언된 id → 코퍼스 정확 집기(검색 0·bm25 0). ④엔진 해석 0.
+    ★x465 B 팔과의 동형성(C578 교훈: 지시가 재료 앞·조립 순서 대조):
+      · 도출 함수 동일(`_docs_naming`)·집합 전부·순위 0·헤더 첫 줄 축자 동일·지시가 재료 **앞**·
+        상한 90,000자 동일(절단 표시)·자리 = 결정점 직전 **문맥 맨 끝**.
+      · 차이(명시): 격리는 마지막 **tool** 출력 꼬리에 붙였고, 라이브는 같은 자리의 **user** 메시지
+        (비커밋 재생성 버퍼·C298 replay 불변식이 tool 출력 변조를 금한다). 둘째 줄(`_RDD_WHY`)은
+        [[64]] 이행으로 추가 — 미열람 id 를 이름으로 대고 차단이 없음을 말한다. 문서마다 `### id`
+        헤더 한 줄(C585 `_docs_delivery` 규약·모델이 뒤에 `cat` 할 수 있게).
+    ★deny 0 (x93: gold 가 요구한 이관인데 미열람 6건 — 막으면 정답을 막는다). 배달만 하고 강제하지
+      않는다. 표면화(`T2_REQUIRE_DOC`)와 같은 턴에 둘 다 나가면 *"검색하라"* ↔ *"여기 있다"* 가
+      모순이라([[55]] 문구 모순) 이 배달이 나간 턴엔 표면화를 비운다(플래그 OFF 면 종전 그대로).
+    ★반복 규율([[57]] 인자 변화): 같은 턴 안에서는 한 번(버퍼에 이미 실렸다) · 같은 sim 안에서는
+      `T2_REQUIRE_DOC_DELIVER_CAP`(기본 3)회 — 재료는 한 턴만 살아 있으므로(비커밋) 미열람 상태의
+      **시도마다** 다시 싣되, 모델이 문서를 실제로 `cat` 하면 술어가 닫혀 저절로 침묵한다.
+    [[70]] 판 것 = 문맥 +N자/회(x465 실측 +16k)·지연. 성적은 본런 reward A/B 가 확정([[69]]).
+    반환: {"text", "tool", "ids", "chars", "truncated", "missing"} · 무발화 = None(로그 위에서).
+    """
+    if os.environ.get("T2_REQUIRE_DOC_DELIVER") != "1":
+        return None
+    pdc = (a2 or {}).get("require_doc_before") or {}
+    tools = list(pdc.get("tools") or [])
+    if not tools:
+        return None
+    turn = len(messages or [])
+    fired = int(getattr(agent, "_t2_rdd_fired", 0) or 0)
+    cap = int(os.environ.get("T2_REQUIRE_DOC_DELIVER_CAP", "3"))
+    maxc = int(os.environ.get("T2_REQUIRE_DOC_DELIVER_MAX", "90000"))
+    if docs_dir is None:
+        docs_dir = os.environ.get("T2_KB_DOCS_DIR")
+    if corpus is None:
+        try:
+            import t2_search as _ts
+            corpus = _ts.corpus_from_env(
+                getattr(getattr(agent, "_t2_orch", None), "environment", None))
+        except Exception as _ce:
+            print("[T2_REQUIRE_DOC_DELIVER] 코퍼스 조회 실패: %r" % (_ce,), file=sys.stderr, flush=True)
+            corpus = {}
+    corpus = corpus or {}
+
+    def _trace(nm, rec):
+        try:
+            from t2_scaffold_get import _isolate_trace
+            _isolate_trace({}, {"name": nm}, dict(rec, mode="require_doc_deliver", turn=turn))
+        except Exception:
+            pass
+
+    seen_txt = _docs_seen(messages)
+    for c in (tool_calls or []):
+        nm = _exact_tool_name(c)
+        if nm not in tools:
+            continue
+        want = sorted(x for x in (_docs_naming(nm, docs_dir, corpus=corpus) or ()) if x)
+        if not want:
+            # [[64]] 를 우리 로그에도: 무엇이 없어서 못 했는지 — 코퍼스 경로부터 본다([[55]]).
+            print("[T2_REQUIRE_DOC_DELIVER] %s: 정의 문서 도출 0편 — 침묵 (T2_KB_DOCS_DIR=%r · 코퍼스 %d편)"
+                  % (nm, docs_dir, len(corpus)), file=sys.stderr, flush=True)
+            _trace(nm, {"error": "no_docs", "docs_dir": docs_dir, "corpus_n": len(corpus)})
+            continue
+        if any(x in seen_txt for x in want):
+            continue                    # 이미 읽었다 — 술어 불성립·무발화(로그도 없음: 정상 경로)
+        if getattr(agent, "_t2_rdd_turn", None) == turn:
+            print("[T2_REQUIRE_DOC_DELIVER] 같은 턴 재배달 생략(버퍼에 이미 실림) tool=%s turn=%d"
+                  % (nm, turn), file=sys.stderr, flush=True)
+            return None
+        if fired >= cap:
+            print("[T2_REQUIRE_DOC_DELIVER] cap %d reached — 침묵 tool=%s docs=%d unread turn=%d"
+                  % (cap, nm, len(want), turn), file=sys.stderr, flush=True)
+            return None
+        parts, missing = [], []
+        for did in want:
+            body = corpus.get(did)
+            if body is None:
+                missing.append(did)
+                continue
+            parts.append("### %s\n%s" % (did, body))
+        if missing:
+            print("[T2_REQUIRE_DOC_DELIVER] 도출 id 가 코퍼스에 없음 %d건(조용히 넘기지 않는다): %s"
+                  % (len(missing), missing[:6]), file=sys.stderr, flush=True)
+        if not parts:
+            _trace(nm, {"error": "no_body", "ids": want, "missing": missing})
+            continue
+        blob = "\n\n".join(parts)
+        cut = len(blob) > maxc
+        if cut:
+            blob = blob[:maxc] + "\n[... truncated at %d chars by the delivery cap ...]" % maxc
+        text = (_RDD_HEAD % nm) + "\n" + (_RDD_WHY % (nm, ", ".join(want))) + "\n\n" + blob
+        # 창 추정은 커밋 히스토리(`messages`) 기준 — 재생성 버퍼는 이보다 작거나(뷰 압축) 조금 크다(fb).
+        ok, hist = _ctx_fits(messages, text)
+        if not ok:
+            print("[T2_REQUIRE_DOC_DELIVER] skipped: est %d+%d chars > cap tool=%s turn=%d"
+                  % (hist, len(text), nm, turn), file=sys.stderr, flush=True)
+            _trace(nm, {"error": "ctx_cap", "ids": want, "chars": len(text), "hist": hist})
+            return None
+        agent._t2_rdd_turn = turn
+        agent._t2_rdd_fired = fired + 1
+        try:
+            agent._t2_rdd_delivered = set(getattr(agent, "_t2_rdd_delivered", None) or set()) | set(want)
+        except Exception:
+            pass
+        print("[T2_REQUIRE_DOC_DELIVER] deliver tool=%s docs=%d chars=%d turn=%d fired=%d/%d%s unread=%s"
+              % (nm, len(parts), len(text), turn, fired + 1, cap, " ⚠절단" if cut else "",
+                 ",".join(want)), file=sys.stderr, flush=True)
+        _trace(nm, {"ids": want, "n_docs": len(parts), "chars": len(text), "truncated": cut,
+                    "missing": missing, "fired": fired + 1})
+        return {"text": text, "tool": nm, "ids": want, "chars": len(text),
+                "truncated": cut, "missing": missing}
+    return None
 
 
 def _sibling_wait(tag, flagged, what):
@@ -6803,6 +6976,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   남긴다. `T2_TOOL_SIGNATURE_OBSERVE`가 V7 死경로를 확정한 것과 같은 방법이다([[08]]).
             proc_fb = None
             abs_fb = None
+            rdd_fb = None   # ★T2_REQUIRE_DOC_DELIVER (2026-08-22): 정의 문서 전문 배달(생성-측·비커밋)
             tr_fb = None
             wd_fb = None
             fs_fb = None
@@ -7191,7 +7365,28 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     print("[T2_TRANSFER_LEAVES_STEPS] error (no-op): %r" % (_tls,),
                           file=_sys.stderr, flush=True)
 
+            # ★T2_REQUIRE_DOC_DELIVER (2026-08-22·정본 `T7336_FORENSIC_033_2026_08_22.md`·C592 x465·
+            #   기본 OFF=바이트 동일): **같은 닫힌 술어**(선언 도구 시도 ∧ 정의 문서 미열람·새 판단 0·
+            #   [[66]])에서 표면화 대신 **정의 문서 전문을 이 턴의 재생성 버퍼에 싣는다**. 격리 x465:
+            #   일반 7/7 → 사슬 6/7 · 부정통제 0/7 ⇒ 원인은 미전달·레버는 전달뿐([[62]]②). deny 0
+            #   (x93 gold-이관 6건 보호). 배선·동형성·반복 규율은 `_require_doc_deliver` 독스트링.
+            #   ⚠`proc_fb`/`tr_fb` 가 선 턴엔 침묵(그 호출은 어차피 막혀 재생성된다 — 재료는 다음
+            #     시도에 싣는다). `abs_fb`(LEAVES_STEPS) 와는 공존 — 그 문구는 "남은 단계" 진술이고
+            #     이 재료는 그 단계를 정의한 문서라 모순이 아니다.
+            if (_pdc.get("tools") and proc_fb is None and tr_fb is None
+                    and os.environ.get("T2_REQUIRE_DOC_DELIVER") == "1"):
+                try:
+                    _rdd = _require_doc_deliver(self, a2, state.messages, am.tool_calls or [])
+                    if _rdd:
+                        rdd_fb = _rdd["text"]
+                except Exception as _rdde:
+                    print("[T2_REQUIRE_DOC_DELIVER] error (no-op): %r" % (_rdde,),
+                          file=_sys.stderr, flush=True)
+
+            # ★`rdd_fb is None` (2026-08-22): 배달이 나간 턴엔 *"검색하라"* 표면화를 비운다 — 같은 턴에
+            #   *"검색하라"* 와 *"여기 있다"* 가 함께 가면 문구 모순([[55]]). 플래그 OFF 면 항상 None.
             if (_pdc.get("tools") and abs_fb is None and tr_fb is None and proc_fb is None
+                    and rdd_fb is None
                     and os.environ.get("T2_REQUIRE_DOC") == "1"
                     and not getattr(self, "_t2_reqdoc_fired", False)):
                 try:
@@ -9084,7 +9279,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     and tl_fb is None and un_fb is None and dr_fb is None and pc_fb is None
                     and pr_fb is None and hv_fb is None and dd_fb is None and sig_fb is None
                     and proc_fb is None and abs_fb is None and tr_fb is None and wd_fb is None
-                    and fs_fb is None
+                    and fs_fb is None and rdd_fb is None
                     and dw_fb is None and en_fb is None):
                 break
             main_prov = None
@@ -9210,6 +9405,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 self._t2_toolerr_deny = getattr(self, "_t2_toolerr_deny", 0) + 1
             if proc_fb is not None:
                 self._t2_proc_deny = getattr(self, "_t2_proc_deny", 0) + 1
+            if rdd_fb is not None:
+                self._t2_rdd_attached = getattr(self, "_t2_rdd_attached", 0) + 1
             if abs_fb is not None:
                 self._t2_proc_absent = getattr(self, "_t2_proc_absent", 0) + 1
                 # ★말한 **DAG 상태**를 기억한다 — 전달된 것만([[55]] 로그 마크 != 전달).
@@ -9551,6 +9748,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     fb.append(UserMessage(role="user", content=abs_fb))
                 except TypeError:
                     fb.append(UserMessage(content=abs_fb))
+            # ★T2_REQUIRE_DOC_DELIVER 부착 — 같은 비커밋 채널(재생성 버퍼·replay 불변식). 부착 마크를
+            #   여기서 찍는다([[55]] 로그 마크≠전달 — 위 `deliver` 줄은 조립이고 이 줄이 전달이다).
+            if rdd_fb is not None:
+                try:
+                    fb.append(UserMessage(role="user", content=rdd_fb))
+                except TypeError:
+                    fb.append(UserMessage(content=rdd_fb))
+                print("[T2_REQUIRE_DOC_DELIVER] 이 턴 재생성 버퍼에 부착 (%d자)" % len(rdd_fb),
+                      file=_sys.stderr, flush=True)
             if hv_fb is not None:
                 try:
                     fb.append(UserMessage(role="user", content=hv_fb))
@@ -9582,17 +9788,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   초과면 **건너뛰고 기록**(축약·선별 0 — 엔진이 줄이면 [[62]]③). 소형 배달물은
             #   종전 그대로(ctl 바이트 불변). skip 수는 ⓔ 부작용 표에 계상된다.
             if _cp2 and len(_cp2) >= 5000:
-                try:
-                    _hist = sum(len(_content_str(_m) or "") for _m in (work or []))
-                except Exception:
-                    _hist = 0
-                # ★제수·오버헤드는 **실측 보정**이다(2026-08-16·t7303 커밋 생성호출 472건의
-                #   `usage.prompt_tokens` 회귀). 자수/토큰 k: p10 3.554·p50 3.986. 그런데 프롬프트에는
-                #   히스토리 밖 **상수 오버헤드**(system+도구 스키마+chat template) O 가 있다:
-                #   p50 10,157·p90 11,069 tok. 초판(`/3`·오버헤드 0)은 실측 콜 463/463 에서
-                #   토큰을 **과소추정**했다(발화점이 5,518자 늦다). 그래서 k=3.5 로 두고 캡에서
-                #   O=11,000 을 뺀다 — 보수 가정에서도 캡을 안 넘는 발화점(C≈85.6k자).
-                if (_hist + len(_cp2)) / 3.5 > (44672 - 8192 - 1024 - 11000):
+                # 산식·보정 근거는 `_ctx_fits` 독스트링(2026-08-22 함수로 올림·거동 동일).
+                _fit2, _hist = _ctx_fits(work, _cp2)
+                if not _fit2:
                     print("[T2_DOC_DELIVERY] skipped: est %d+%d chars > cap"
                           % (_hist, len(_cp2)), file=_sys.stderr, flush=True)
                     self._t2_cp2_pending = None
