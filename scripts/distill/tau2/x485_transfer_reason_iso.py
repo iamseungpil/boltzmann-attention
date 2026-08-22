@@ -88,15 +88,22 @@ DELIVER_HEAD = ("[KB DELIVERY] Read the following before choosing your next acti
 DELIVER_HEAD_FULL = ("[KB DELIVERY] Read the following before choosing your next action. These "
                      "are, in full and verbatim, ALL knowledge-base documents that mention %s.")
 NUDGE = "[NOTICE] Please continue with the customer's request."
+# D/E 팔의 머리 한 줄 — 뒤따르는 것이 **우리 정책층의 선언**임만 밝힌다(내용 저작 0).
+ASK_HEAD = "[POLICY] The following requirement from the operating policy applies to this step."
 
 
-def notice_text(settings_path):
-    """A2 정본에서 **선언된** 고지 문구를 읽는다 — 이 파일에 문구 리터럴 0([[71]]②)."""
+def notice_gate(settings_path):
+    """A2 정본의 **고지 게이트 선언**을 통째로 읽는다 — 이 파일에 문구 리터럴 0([[71]]②).
+
+    반환 (notice_text, ask, gate_id). `ask` 는 D/E 팔의 재료다 — **축자 그대로** 쓰고
+    문장을 고르거나 다듬지 않는다(엔진 저작 0·[[62]]④). 그 안에 우선순위 진술
+    (*"pick the MOST SPECIFIC reason … generic … ONLY when no other option fits"*)이 들어 있다.
+    """
     with io.open(settings_path, encoding="utf-8") as f:
         d = json.load(f)
     for g in (d.get("gates") or []):
         if str(g.get("kind") or "") == "notice" and g.get("notice_text"):
-            return str(g["notice_text"]), str(g.get("id") or "")
+            return str(g["notice_text"]), str(g.get("ask") or ""), str(g.get("id") or "")
     raise SystemExit("A2 정본에 kind=notice 게이트의 notice_text 선언이 없다 — 층 정합부터([[24]])")
 
 
@@ -194,15 +201,18 @@ def main():
     ap.add_argument("--temperature", type=float, default=0.7)
     ap.add_argument("--maxchars", type=int, default=90000)
     ap.add_argument("--min-enum-hits", type=int, default=3)
-    ap.add_argument("--arms", default="A_asis,B_table,C_full,N_neg")
+    ap.add_argument("--arms", default="A_asis,B_table,C_full,N_neg",
+                    help="D_priority(표+선언 ask) · E_ask_only(ask 만) 도 있다")
     ap.add_argument("--wiring-only", action="store_true")
     ap.add_argument("--out", default="x485_transfer_reason_iso.json")
     a = ap.parse_args()
 
     # ── ① 선언 읽기 (문구·enum·문서) ─────────────────────────────────────────────
-    ntext, gid = notice_text(os.path.join(HERE, "a2", "banking_knowledge.settings.json"))
+    ntext, ask_text, gid = notice_gate(os.path.join(HERE, "a2", "banking_knowledge.settings.json"))
     print("=" * 100)
     print("x485 · 고지 게이트 %s 선언 문구: %r" % (gid, ntext[:70]))
+    print("        선언된 ask %d자 (D/E 팔의 재료·축자)%s"
+          % (len(ask_text), "" if ask_text else "  ⚠비어 있다 — D/E 불가"))
 
     import x448_index_vs_all_iso as IVA
     sb = IVA.Sandbox()
@@ -292,10 +302,19 @@ def main():
     # ── ③ 재생 ────────────────────────────────────────────────────────────────
     arms = [x.strip() for x in a.arms.split(",") if x.strip()]
     base = "http://localhost:%d/v1" % a.port
+    # ★D/E (2026-08-22 2차·[[18]] 구멍 메우기): 우리 게이트의 **선언된 `ask`** 는 비커밋으로
+    #   나가 영속 궤적에 없다(C596) ⇒ 1차 A_asis 문맥에도 없었다. 그래서 *"우선순위 진술을 준
+    #   조건"*은 아직 안 쟀다. D 는 B 에 그 진술을 **더한 것 하나만** 다르고(C578: 지시가 재료
+    #   앞), E 는 진술만 준다(무엇이 사는지 분해). 문장 선별·다듬기 0 — 선언 축자 그대로다.
     extra = {"A_asis": None,
              "B_table": (DELIVER_HEAD % tgt) + NLC + NLC + table_blob,
              "C_full": (DELIVER_HEAD_FULL % tgt) + NLC + NLC + full_blob,
-             "N_neg": NUDGE}
+             "N_neg": NUDGE,
+             "D_priority": (ASK_HEAD + NLC + ask_text + NLC + NLC
+                            + (DELIVER_HEAD % tgt) + NLC + NLC + table_blob),
+             "E_ask_only": ASK_HEAD + NLC + ask_text}
+    if not ask_text and ({"D_priority", "E_ask_only"} & set(arms)):
+        raise SystemExit("선언된 ask 가 비어 D/E 를 만들 수 없다 — A2 층부터([[24]])")
     rows = []
     for s in srcs:
         msgs = s["sim"].get("messages") or []
