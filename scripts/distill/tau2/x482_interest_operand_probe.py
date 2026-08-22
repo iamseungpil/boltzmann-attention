@@ -140,12 +140,17 @@ def main():
     d = declaration()
     iso = d.get("isolate") or {}
 
-    rec = harvest(lambda c: "current_holdings" in c and "level:" in c)
-    txn = harvest(lambda c: "INTEREST CREDIT" in c.upper() and "amount:" in c)
+    # ★술어를 좁힌다: KB 문서도 "INTEREST CREDIT" 를 언급하므로 **레코드 덤프 형상**
+    #   (`Record ID:` 접두)까지 요구해야 도구 출력만 잡힌다([[25]] 계기부터).
+    rec = harvest(lambda c: "current_holdings" in c and "level:" in c and "Record ID:" in c)
+    txn = harvest(lambda c: "Record ID: txn" in c and "amount:" in c
+                  and "INTEREST CREDIT" in c.upper())
     if not rec or not txn:
         raise SystemExit("궤적에서 레코드/거래 원문을 못 찾았다 (rec=%d txn=%d)" % (len(rec), len(txn)))
     truth = truth_from_records(rec[0], txn[0])
     if not truth:
+        print("[진단] rec[0] 앞부분:", rec[0][:200].replace(chr(10), " | "))
+        print("[진단] txn[0] 앞부분:", txn[0][:300].replace(chr(10), " | "))
         raise SystemExit("레코드에서 정답을 계산하지 못했다 — 채점 불가")
 
     # ref(account_id)도 궤적에서: 레코드 원문의 첫 savings 계좌 id
