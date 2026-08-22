@@ -57,6 +57,16 @@ x459 ⒝ 의 D_name **15/15** 는 *도구 없는 naming 계기*(JSON 으로 이�
      묻고, **어느 축에서 찾았는지 인쇄**한다. 어느 축에도 없을 때만 `unknown` = 중단(진짜 낯선
      이름은 계속 잡는다). `vocab_check` 의 토큰 출처도 두 축 전부로 넓혔다(발견형 이름의 도메인
      명사가 감사에서 빠지던 자리).
+  ⒠ **재생 충실도 병기**(2026-08-22 · x466 완주에서 확정된 **같은 원인**을 여기에도 적용).
+     라이브 프롬프트 = system + 압축 커밋 히스토리 + **비커밋 레버 문면**(`t2_gate_patch.py:6588`
+     압축 뒤 `work = work + [UserMessage(...)]`). t7336 로그 실측 sim 당 `[T2_LEVER]` 16~30회.
+     A_asis 는 그 문면을 **0건** 싣는다. 사이드카로 정확 복원은 불가(turn-조인 78%·역할 84% 실측)이라
+     **복원하지 않고 계량**해 인쇄·JSON `fidelity` 에 박는다.
+     ★x470 에서의 방향이 중요하다: 결정점이 *"마지막 text-only 발화 직전"* 이라 A_asis 는 TEXT 가
+     사전 기대값이고, 문면이 빠지면 모델은 **덜 행동**하므로 A-게이트(`A_asis MISS ≥ 8`)는 통과 쪽으로
+     편향된다 ⇒ **이 게이트는 이 간극을 탐지하지 못한다**. 따라서 D_name·L_live 의 부호는 *라이브보다
+     덜 지시된 기준선* 위의 값이고, 그 사실을 결과와 함께 적어야 한다([[70]]). 라이브 효과 판정은
+     본런 reward A/B 만이 한다([[69]]).
 ⛔1차 실행 결과(`…json`)는 이 수리 이전 계기라 **인용 금지**([[55]]).
 
 ## 재생 인터페이스 (정보-맞춘 격리·[[62]] §1.4·[[18]])
@@ -175,6 +185,38 @@ EXC_WIN = "CTXWIN"           # 런타임: 창-초과 예외가 한 팔에서 나
 CTXWIN_TYPES = ("ContextWindowExceededError",)
 # 같은 예외가 이만큼 **연속**이면 계기 결함으로 보고 재생을 중단한다([[55]]·GPU 낭비 금지).
 EXC_STREAK = 3
+# ★재생 충실도 (2026-08-22 · x466 완주에서 확정된 **같은 원인**이 여기에도 있다)
+#   라이브 프롬프트 = system + **압축 커밋 히스토리** + **비커밋 레버 문면**(`t2_gate_patch.py:6588`
+#   압축 뒤 `work = work + [UserMessage(...)]`). t7336 로그 실측으로 sim 하나당 `[T2_LEVER]` 16~30회.
+#   이 프로브의 A_asis 는 그 문면을 0건 싣는다. 사이드카로 정확 복원은 불가하다 — `turn` 이 기록
+#   지점마다 커밋 수/버퍼 길이라 생성 경계 조인 866/1112(78%)·역할 보존 933/1112(84%)(t7328 실측).
+#   ⚠x470 에서의 방향: 결정점 정의가 *"마지막 text-only 발화 직전"* 이라 **A_asis 가 TEXT 로 나오는
+#   것이 사전 기대**다. 비커밋 문면이 빠지면 모델은 **덜 행동**하므로 A-게이트(`A_asis MISS ≥ 8`)는
+#   **통과하는 쪽으로 편향**된다 — 즉 이 게이트는 이 간극을 **탐지하지 못한다**. 그러므로 D_name·
+#   L_live 의 효과는 *라이브보다 덜 지시된 기준선* 위에서 잰 값이고, 그 사실을 병기해야 한다([[70]]).
+FB_TURN_JOIN = "866/1112(78%)"
+FB_ROLE_KNOWN = "933/1112(84%)"
+
+
+def noncommitted_census(tags, sel):
+    """★라이브가 각 결정점 생성에 본 **비커밋 문면**의 크기 — 우리 재생에 없는 부분을 계량한다.
+
+    복원하지 않는다(위 상수대로 정확 복원 불가). 정본 `F.sidecar_rows` 로 우리 런의 사이드카를 읽어
+    `simtag`·`turn == at`(그 생성 직전 커밋 수)으로 조인되는 행 수와 문자 수만 센다. 로컬엔 사이드카가
+    없어 0 이 나오고, 그 사실을 그대로 인쇄한다([[55]] 침묵 금지).
+    """
+    by = {}
+    for tag in sorted(tags):
+        try:
+            for r in F.sidecar_rows(tag):
+                by.setdefault(str(r.get("simtag") or "?"), []).append(r)
+        except Exception:
+            pass
+    out = {}
+    for c in sel:
+        rs = [r for r in by.get(c["simtag"], ()) if r.get("turn") == c["at"]]
+        out[c["case"]] = {"n": len(rs), "chars": sum(int(r.get("len") or 0) for r in rs)}
+    return by, out
 # 팔 문면 토큰 ∩ 도구명 토큰 중 허용 — 도메인 명사가 아닌 것만(출력에 허용 목록을 같이 찍는다):
 #   tool/call/name = 하네스 프로토콜 어휘(`*_tool`·`call_*`·`get_user_information_by_name`)
 #   request/to    = 영어 기능어(`*_request_*`·`transfer_to_human_agents`)
@@ -906,6 +948,19 @@ def main():
     print("   E_early 컷 보유 %d/%d (첫 text-only assistant 발화·손님 발화 ≥1)" % (n_early, len(sel)))
     print("   문면 바이트: " + " · ".join("%s +%d" % (k, len(v)) for k, v in ARM_TEXT.items()))
 
+    # ── ②a 재생 충실도 계량 (2026-08-22 · x466 에서 확정된 같은 원인·복원 아님) ────────
+    fb_by, fb_per = noncommitted_census({c["tag"] for c in sel}, sel)
+    fb_tot = sum(v["n"] for v in fb_per.values())
+    print(NLC + "[충실도] 라이브 프롬프트 = system + 압축 커밋 히스토리 + **비커밋 레버 문면**")
+    print("   그 턴에 조인된 사이드카 %d건(%d자) · 사이드카 보유 sim %d · turn-조인 %s · 역할 보존 %s"
+          % (fb_tot, sum(v["chars"] for v in fb_per.values()), len(fb_by),
+             FB_TURN_JOIN, FB_ROLE_KNOWN))
+    print("   ⚠A_asis 는 그 문면을 0건 싣는다 = 라이브보다 **덜 지시된** 기준선이다. 결정점 정의상"
+          " A 는 TEXT 가 기대값이라 `A_asis MISS ≥ 8` 게이트는 이 간극을 **탐지하지 못한다** —"
+          " D_name·L_live 의 효과는 그 기준선 위에서 읽어야 한다([[70]] 병기 의무).")
+    if not fb_by:
+        print("   (로컬엔 사이드카가 없다 — 리모트 `/home/woori/scratch/logs` 에서만 계량된다)")
+
     # ── ②b 문맥 길이 균형 + 창-초과 사전 제외 (계기 수리 ⒞⒝ · LLM 0) ──────────────
     spread, den, den_src, warn_bal = balance_report(per_arm_ctx, a.ctx_window)
     for c in sel:
@@ -1074,6 +1129,9 @@ def main():
     with io.open(p, "w", encoding="utf-8") as f:
         json.dump({"runs": runs, "tasks": tasks, "aux": aux, "arms": arms, "temps": temps,
                    "arm_text": ARM_TEXT, "model": a.model, "max_tokens": a.max_tokens,
+                   "fidelity": {"noncommitted_joined": fb_per, "fb_turn_join": FB_TURN_JOIN,
+                                "fb_role_known": FB_ROLE_KNOWN,
+                                "note": "A_asis 는 비커밋 레버 문면 0건 — 라이브보다 덜 지시된 기준선"},
                    "ctx_window": a.ctx_window, "balance": {"spread": spread, "den": den,
                                                            "den_src": den_src, "warn": warn_bal},
                    "cases": [{"case": c["case"], "tag": c["tag"], "task": c["task"], "sim": c["simtag"],

@@ -115,6 +115,29 @@ N_neg 이 A 와 같아야 "결정점에 뭐라도 찔러서"가 아니고([[57]]
 6종(`…6281`·`…3892`·`…9173`·`…7823`·`…7483`·`…7291`)이 걸린다(이번에 로컬이 놓친 자리).
 `unlocked_before_cut` 은 이제 **보고용**으로만 남는다(그 sim 이 컷 전 서명을 본 발견형이 무엇인지).
 
+## ⛔재생 충실도 판정 (2026-08-22 · 완주 224 표본·예외 0 인데 **8/8 라이브 재현 실패**)
+리모트 완주 결과가 `A0 ≠ live` 로 8/8 무효였다. 계기 죽음이 아니라 **재생 충실도** 문제이고,
+[[55]] 순서대로 우리 배관부터 봐서 원인을 축자 근거로 확정했다:
+  ⑴ **라이브 프롬프트 ≠ 커밋 히스토리.** 라이브는 `system + 압축 커밋 히스토리 + 비커밋 레버 문면`
+     을 준다(`t2_gate_patch.py:6588` 압축 → `work = work + [UserMessage(...)]`). t7336 로그 실측:
+     sim 하나당 `[T2_LEVER]` **16~30회**. 우리 A_asis 는 그 문면을 **0건** 싣는다.
+     복원 시도도 못 한다 — 사이드카 `turn` 이 기록 지점마다 커밋 수(`state.messages`)이거나 버퍼
+     길이(`work`)라 생성 경계 조인이 **866/1112(78%)**, 역할 보존이 **933/1112(84%)** 다(t7328
+     사이드카 로컬 대조). 정확 복원이 안 되므로 이 파일은 **복원하지 않고 계량**만 한다.
+  ⑵ **A_asis 는 무지목 통제가 아니다(3/8).** 컷 꼬리에 이미 다른 read 이름이 나와 있다 — 074 는
+     **우리 층 자신의 문면** 축자: *"Error: [READ-FIRST] … the required transaction read is missing:
+     get_bank_account_transactions. … unlock it, and call it with the checking account's id …"*
+     (궤적 [5]~[8]). 라이브의 다음 행동 [9] 는 `unlock_discoverable_agent_tool(
+     get_bank_account_transactions_9173)` = **그 지목을 따른 것**이다. 그래서 분류가 `other_tool`.
+     ⇒ 그 자리에서 B 는 *지목 vs 무지목* 이 아니라 **경쟁 지목**(어느 이름을 따르나)을 잰다.
+     `B_pointed 47/56` 을 "지목이 먹힌다" 로 읽으면 오독이다([[56]]).
+★판정: **이 설계로 라이브 결정점을 재현할 수 없다.** 고칠 수 있는 배관 결함이 아니라 영속 산출물의
+  정보 부족이다. 그래서 프로브를 죽이는 대신 **주장 범위를 좁혔다** — A/B/S/N 은 *재구성된 문맥
+  안에서의* 격리 비교로만 보고하고([[62]] 경계 판정), 라이브 주장·승격에는 쓰지 않는다([[69]]).
+  두 축은 이제 결정점마다 인쇄되고 JSON `fidelity` 에 박힌다(경쟁 지목 목록·비커밋 조인 수).
+  ⚠다음에 이 축을 제대로 재려면 프로브가 아니라 **라이브 A/B**(같은 스택에서 지목만 갈아 끼운
+  본런)여야 한다 — 결정점 재생으로는 안 된다.
+
 ## 실행 (리모트·8141·GPU 유휴 시에만 — 지금은 작성 + 무료 배선 검증까지)
     cd /home/woori/scratch/tau2-bench && \
     PYTHONPATH=src:scripts/distill/tau2 PYTHONIOENCODING=utf-8 \
@@ -644,6 +667,58 @@ def env_registry_names(sb):
         return set()
 
 
+# ★재생 충실도 상수 (2026-08-22 실측 — t7328 halfB 사이드카 1,112행 로컬 대조)
+#   비커밋 사이드카(`fb_<tag>.jsonl`)의 `turn` 은 기록 지점마다 **커밋 수**(`state.messages`)이거나
+#   **버퍼 길이**(`work`)라 생성 경계와 정확히 맞지 않는다: 866/1112 = **78%** 만 assistant 경계에
+#   떨어지고 207 은 role=tool, 34 는 role=user, 5 는 범위 밖이다. 역할은 `record_many` 경유
+#   933/1112 = **84%** 만 남는다(단건 `record()` 는 역할 미기록).
+#   ⇒ 사이드카로 라이브 프롬프트를 **정확히** 복원할 수 없다. 그래서 이 파일은 복원을 시도하지 않고
+#   **간극을 계량**해 인쇄한다([[55]] 침묵 금지·수를 지어내지 않는다).
+FB_TURN_JOIN = "866/1112(78%)"
+FB_ROLE_KNOWN = "933/1112(84%)"
+
+
+def declared_read_universe(kinds):
+    """A3 `arg_source_reads` 가 선언한 **모든** read 이름(선언 출처·리터럴 0)."""
+    out = set()
+    for v in kinds.values():
+        out |= {str(x) for x in (v or ())}
+    return out
+
+
+def named_reads_in_tail(ctx, i_dp, universe, pointed):
+    """★컷 꼬리(결정점 호출의 도구 출력들)에 **이미 이름이 나와 있는** 선언 read 들 — 닫힌 멤버십.
+
+    엔진은 도메인 텍스트를 해석하지 않는다([[59]]): **선언된 식별자**가 축자로 있는지만 본다
+    (이 파일의 `assert_fb_grounded` 와 같은 술어 모양). 접미사 해제는 정본 `CH._fam`.
+    왜 필요한가 — 실측: 결정점 8개 중 4개(074×2·094×2)의 컷 꼬리에 **우리 층 자신의 지목 문면**이
+    이미 들어 있다(축자: *"Error: [READ-FIRST] … the required transaction read is missing:
+    get_bank_account_transactions. … unlock it, and call it …"*). 라이브의 다음 행동은 그 지목을
+    **따른 것**(`unlock_discoverable_agent_tool(get_bank_account_transactions_9173)`)이다.
+    ⇒ 그 결정점에서 `A_asis` 는 **무지목 통제가 아니고**, B 는 *지목 vs 무지목* 이 아니라
+    **다른 이름을 가리키는 경쟁 지목**이다. 이 사실 없이 B 의 부호를 읽으면 오독한다([[56]]).
+    반환 = {"pointed_in_tail": bool, "competing": [이름…]}
+    """
+    tail = " ".join(str(m.get("content") or "") for m in ctx[i_dp:]
+                    if str(m.get("role") or "") == "tool")
+    fams = {CH._fam(n) for n in pointed}
+    hit = {n for n in universe if n in tail or CH._fam(n) in tail}
+    return {"pointed_in_tail": bool({n for n in hit if CH._fam(n) in fams}),
+            "competing": sorted(n for n in hit if CH._fam(n) not in fams)}
+
+
+def noncommitted_census(rows_by_sim, simtag, turn):
+    """★라이브가 그 생성에 본 **비커밋 문면**의 크기 — 우리 재생에는 없는 부분을 계량한다.
+
+    재료 = 우리 런의 사이드카(정본 `F.sidecar_rows`). 정확 복원은 위 상수대로 불가능하므로
+    **복원하지 않고 센다**: 그 턴에 조인되는 행 수·문자 수·채널. 사이드카가 없으면(로컬) 0 을
+    돌려주고 호출부가 '측정 불가'로 인쇄한다.
+    """
+    rows = [r for r in rows_by_sim.get(simtag, ()) if r.get("turn") == turn]
+    return {"n": len(rows), "chars": sum(int(r.get("len") or 0) for r in rows),
+            "kinds": sorted({str(r.get("kind")) for r in rows})}
+
+
 AXIS_EXPOSED = "exposed"        # 도구 목록에 직접 서 있다 — 그대로 호출
 AXIS_DISC = "discoverable"      # 레지스트리에만 있다 — 디스패처(`call_discoverable_*`) 경유
 
@@ -985,6 +1060,18 @@ def main():
         print(NLC + "[대상] census 발화 sim 전부 = %d건 (%s) — --cases 로만 덮어쓸 수 있다"
               % (len(picked), ", ".join(F.sim_key(s) for s, _ in picked)))
 
+    universe = declared_read_universe(kinds)
+    fb_rows = {}
+    for _p in sims_by:
+        try:
+            for r in F.sidecar_rows(F.tag_of_file(_p)):
+                fb_rows.setdefault(str(r.get("simtag") or "?"), []).append(r)
+        except Exception:
+            pass
+    print(NLC + "[충실도] 비커밋 사이드카 행 %d (simtag %d) · turn-조인 신뢰도 %s · 역할 보존 %s"
+          % (sum(len(v) for v in fb_rows.values()), len(fb_rows), FB_TURN_JOIN, FB_ROLE_KNOWN)
+          + ("" if fb_rows else "  ⚠로컬엔 없다 — 리모트(`/home/woori/scratch/logs`)에서만 계량된다"))
+
     cases = []
     for sim, dp in picked:
         msgs = sim.get("messages") or []
@@ -1003,8 +1090,12 @@ def main():
                                agent, exposed, disc, a.cut)
         lv = live_next_calls(msgs, len(ctx))
         lv_cat = classify(lv or [], ctx, dp, kinds, names, disc)[0] if lv is not None else None
+        # ★재생 충실도 두 축(2026-08-22) — 둘 다 **계량만** 한다. 복원하지 않는다.
+        tailnames = named_reads_in_tail(ctx, dp["i_dp"], universe, chain)
+        nc = noncommitted_census(fb_rows, F.simtag(sim), len(ctx))
         cases.append({"sim": sim, "dp": dp, "ctx": ctx, "fb": fb, "shams": shams,
-                      "fb_sham": fb_sham, "live_cat": lv_cat})
+                      "fb_sham": fb_sham, "live_cat": lv_cat,
+                      "tailnames": tailnames, "noncommitted": nc})
         print(NLC + "── %s · msgs=%d · 결정점=[%d] %s%s · cut=%s/%s → 문맥 %d msg (끝 role=%s) · "
               "라이브 다음 행동=%s"
               % (F.sim_key(sim), len(msgs), dp["i_dp"], dp["tool"],
@@ -1012,6 +1103,11 @@ def main():
                  len(ctx), ctx[-1].get("role") if ctx else "-", lv_cat))
         print("   오투입: %s='%s'  증거: %s" % (dp["ev"]["key"], dp["ev"]["value"][:40], fmt_ev(dp["ev"])))
         print("   지목 read(선언 순서·마지막=원천): %s · sham=%s" % (", ".join(chain), shams or "-"))
+        print("   충실도: 컷 꼬리에 이미 나온 선언 read = 지목자신 %s · **경쟁 지목** %s │ "
+              "라이브가 더 본 비커밋 문면 %s"
+              % (tailnames["pointed_in_tail"], tailnames["competing"] or "없음",
+                 ("%d건 %d자 %s" % (nc["n"], nc["chars"], nc["kinds"])) if nc["n"]
+                 else ("측정 불가(사이드카 없음·리모트 전용)" if not fb_rows else "0건")))
         print("   B 텍스트(%d자): %s" % (len(fb), fb))
         if a.cut == "before":
             print("   ⚠선제-힌트 보조 팔: 값 선택 자체가 결정점 지식이라 정보-맞춤이 약하다(문면은 "
@@ -1244,7 +1340,8 @@ def main():
                   None)
         valid = (a0 is not None and a0 == c["live_cat"] and c["live_cat"] != "pointed_read")
         validity[sk] = {"A0": a0, "live": c["live_cat"], "valid": valid}
-        mark = "" if valid else "  ⚠INVALID(A0=%s ≠ live=%s — [[55]] 결과 사용 금지)" % (a0, c["live_cat"])
+        mark = "" if valid else ("  ⚠라이브 재현 실패(A0=%s ≠ live=%s) — 아래 §충실도가 이유다"
+                                 % (a0, c["live_cat"]))
         print("%s%s" % (sk, mark))
         for arm in arms:
             rs = [r for r in rows if r["sim"] == sk and r["arm"] == arm]
@@ -1253,19 +1350,39 @@ def main():
             print("%-16s %-10s %s  %d" % ("", arm, " ".join(
                 "%-13s" % ("%d/%d" % (sum(1 for r in rs if r["cat"] == cc), len(rs))) for cc in cats_all),
                 len(rs)))
+    # ── §충실도 — 라이브 재현이 왜 실패하는가(계량·2026-08-22) ────────────────────
+    comp = [F.sim_key(c["sim"]) for c in cases if c["tailnames"]["competing"]]
+    ncsum = sum(c["noncommitted"]["n"] for c in cases)
+    print(NLC + "§충실도 (라이브 프롬프트 = system + 커밋 히스토리 + **비커밋 레버 문면**)")
+    print("  ⑴ 경쟁 지목 보유 %d/%d 결정점 %s — 그 자리에서 A_asis 는 **무지목 통제가 아니다**. "
+          "컷 꼬리에 이미 우리 층/환경이 다른 read 이름을 대고 있고, 라이브의 다음 행동은 그것을 "
+          "따른 것이다 ⇒ B 는 *지목 vs 무지목* 이 아니라 **경쟁 지목**을 잰다([[56]])."
+          % (len(comp), len(cases), comp or "-"))
+    print("  ⑵ 비커밋 문면: 그 턴에 조인된 사이드카 %d건%s. 정확 복원은 불가하다 — `turn` 이 기록 "
+          "지점마다 커밋 수/버퍼 길이라 생성 경계 조인이 %s, 역할 보존이 %s(실측)."
+          % (ncsum, "" if ncsum else "(로컬엔 사이드카가 없다)", FB_TURN_JOIN, FB_ROLE_KNOWN))
+    print("  ⇒ **판정: 이 프로브로 라이브 결정점을 재현할 수 없다.** A/B/S/N 비교는 *재구성된 문맥 "
+          "안에서만* 유효한 격리 결과이고([[62]] 경계 판정), 라이브에서 그렇게 됐을 것이라는 주장에는 "
+          "쓸 수 없다. 승격은 본런 reward A/B 만이 정한다([[69]]).")
+
     p = os.path.join(REP, a.out)
     with io.open(p, "w", encoding="utf-8") as f:
         json.dump({"cut": a.cut, "channel": a.channel, "system": sys_src,
+                   "fidelity": {"live_replay": "불가", "competing_pointer_cases": comp,
+                                "noncommitted_rows_joined": ncsum,
+                                "fb_turn_join": FB_TURN_JOIN, "fb_role_known": FB_ROLE_KNOWN},
                    "validity": validity,
                    "cases": [{"sim": F.sim_key(c["sim"]), "i_dp": c["dp"]["i_dp"],
                               "tool": c["dp"]["tool"], "ev": c["dp"]["ev"],
                               "live_cat": c["live_cat"],
                               "valid": validity[F.sim_key(c["sim"])]["valid"],
                               "feedback": c["fb"], "shams": c["shams"],
+                              "tailnames": c["tailnames"], "noncommitted": c["noncommitted"],
                               "delta": c["delta"]} for c in cases],
                    "rows": rows}, f, ensure_ascii=False, indent=1, default=str)
-    print(NLC + "판정: 각 결정점은 valid(A det 가 라이브 다음-행동 분류를 재현)일 때만 산다 — INVALID 는")
-    print("      [[55]](우리 배관 먼저)로 돌아가고 결과를 쓰지 않는다.")
+    print(NLC + "판정: A det 가 라이브 다음-행동을 재현하지 못하면 그 결정점의 **라이브 주장**은 죽는다.")
+    print("      2026-08-22 실측으로 그 원인은 배관이 아니라 **재현 불가**로 확정됐다(위 §충실도) —")
+    print("      복원할 수 없는 것을 복원한 척하지 않는다([[55]]). 남는 것은 격리-내부 비교뿐이다.")
     print("      B 에서 pointed_read ∧ N≈A ∧ S≈A 면 **원인은 무지목**(레버=이름 지목만 산다·[[57]]).")
     print("      B 도 same_misinput 이면 **지목해도 안 부른다** — 전달로 안 닫히는 경계다([[62]]②).")
     print("[[70]] 병기: 결정점 × 팔 부호표는 위 표 그대로(태스크별 부호 공개). B 가 판 것 = 문맥 "
