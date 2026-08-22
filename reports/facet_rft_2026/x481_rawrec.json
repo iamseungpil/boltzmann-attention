@@ -1,0 +1,154 @@
+{
+ "declaration": "get_correct_savings_apy",
+ "task": "task_093",
+ "ref": {
+  "savings_account_type": "Silver Account",
+  "customer_products": "Green Account (checking), Silver Account (savings)"
+ },
+ "balance": 144000.0,
+ "tier_truth": {
+  "threshold": 10000.0,
+  "high": 4.0,
+  "low": 2.5
+ },
+ "want_base": 4.0,
+ "rows": [
+  {
+   "arm": "E_live",
+   "i": 0,
+   "returned": true,
+   "n_components": 3,
+   "base_value": 4.0,
+   "tier_ok": true,
+   "gate1_kept": 2,
+   "kinds": [
+    "base",
+    "checking",
+    "relationship"
+   ],
+   "sum": 4.275,
+   "components": [
+    {
+     "kind": "base",
+     "value": 4,
+     "source": "Your applicable APY depends on your balance tier and may be either 2.5% or 4.0%."
+    },
+    {
+     "kind": "checking",
+     "value": 0.25,
+     "source": "Green Account (checking) + Silver Account (savings)"
+    },
+    {
+     "kind": "relationship",
+     "value": 0.025,
+     "source": "Eligible customers receive a relationship APY bonus of 0.025% added to the base Silver APY."
+    }
+   ]
+  },
+  {
+   "arm": "E_live",
+   "i": 1,
+   "returned": true,
+   "n_components": 3,
+   "base_value": 4.0,
+   "tier_ok": true,
+   "gate1_kept": 2,
+   "kinds": [
+    "base",
+    "checking",
+    "relationship"
+   ],
+   "sum": 4.275,
+   "components": [
+    {
+     "kind": "base",
+     "value": 4,
+     "source": "Your applicable APY depends on your balance tier and may be either 2.5% or 4.0%."
+    },
+    {
+     "kind": "checking",
+     "value": 0.25,
+     "source": "Green Account (checking) + Silver Account (savings)"
+    },
+    {
+     "kind": "relationship",
+     "value": 0.025,
+     "source": "Eligible customers receive a relationship APY bonus of 0.025% added to the base Silver APY."
+    }
+   ]
+  },
+  {
+   "arm": "E_live",
+   "i": 2,
+   "returned": true,
+   "n_components": 3,
+   "base_value": 4.0,
+   "tier_ok": true,
+   "gate1_kept": 2,
+   "kinds": [
+    "base",
+    "checking",
+    "relationship"
+   ],
+   "sum": 4.275,
+   "components": [
+    {
+     "kind": "base",
+     "value": 4,
+     "source": "Your applicable APY depends on your balance tier and may be either 2.5% or 4.0%."
+    },
+    {
+     "kind": "checking",
+     "value": 0.25,
+     "source": "Green Account (checking) + Silver Account (savings)"
+    },
+    {
+     "kind": "relationship",
+     "value": 0.025,
+     "source": "Eligible customers receive a relationship APY bonus of 0.025% added to the base Silver APY."
+    }
+   ]
+  },
+  {
+   "arm": "E_live",
+   "i": 3,
+   "returned": true,
+   "n_components": 3,
+   "base_value": 4.0,
+   "tier_ok": true,
+   "gate1_kept": 2,
+   "kinds": [
+    "base",
+    "checking",
+    "relationship"
+   ],
+   "sum": 4.275,
+   "components": [
+    {
+     "kind": "base",
+     "value": 4,
+     "source": "Your applicable APY depends on your balance tier and may be either 2.5% or 4.0%."
+    },
+    {
+     "kind": "checking",
+     "value": 0.25,
+     "source": "Green Account (checking) + Silver Account (savings)"
+    },
+    {
+     "kind": "relationship",
+     "value": 0.025,
+     "source": "Eligible customers receive a relationship APY bonus of 0.025% added to the base Silver APY."
+    }
+   ]
+  }
+ ],
+ "summary": {
+  "E_live": {
+   "n": 4,
+   "returned": 4,
+   "tier_ok": 4,
+   "comps": 12,
+   "has_checking": 4
+  }
+ }
+}

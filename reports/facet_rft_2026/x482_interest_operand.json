@@ -1,0 +1,116 @@
+{
+ "declaration": "get_interest_correction",
+ "task": "task_093",
+ "account_id": "sav_sp93k4m7n2_silver",
+ "truth": {
+  "principal": 144000.0,
+  "credit": 480.0,
+  "actual_apy": 4.0
+ },
+ "rows": [
+  {
+   "arm": "A_asis",
+   "i": 0,
+   "returned": false,
+   "principal": null,
+   "actual_apy": null,
+   "principal_ok": false,
+   "actual_apy_ok": false
+  },
+  {
+   "arm": "A_asis",
+   "i": 1,
+   "returned": false,
+   "principal": null,
+   "actual_apy": null,
+   "principal_ok": false,
+   "actual_apy_ok": false
+  },
+  {
+   "arm": "A_asis",
+   "i": 2,
+   "returned": false,
+   "principal": null,
+   "actual_apy": null,
+   "principal_ok": false,
+   "actual_apy_ok": false
+  },
+  {
+   "arm": "B_raw",
+   "i": 0,
+   "returned": true,
+   "principal": 144000.0,
+   "actual_apy": 4.0,
+   "principal_ok": true,
+   "actual_apy_ok": true
+  },
+  {
+   "arm": "B_raw",
+   "i": 1,
+   "returned": true,
+   "principal": 144000.0,
+   "actual_apy": 4.0,
+   "principal_ok": true,
+   "actual_apy_ok": true
+  },
+  {
+   "arm": "B_raw",
+   "i": 2,
+   "returned": true,
+   "principal": 144000.0,
+   "actual_apy": 4.0,
+   "principal_ok": true,
+   "actual_apy_ok": true
+  },
+  {
+   "arm": "N_neg",
+   "i": 0,
+   "returned": false,
+   "principal": null,
+   "actual_apy": null,
+   "principal_ok": false,
+   "actual_apy_ok": false
+  },
+  {
+   "arm": "N_neg",
+   "i": 1,
+   "returned": false,
+   "principal": null,
+   "actual_apy": null,
+   "principal_ok": false,
+   "actual_apy_ok": false
+  },
+  {
+   "arm": "N_neg",
+   "i": 2,
+   "returned": false,
+   "principal": null,
+   "actual_apy": null,
+   "principal_ok": false,
+   "actual_apy_ok": false
+  }
+ ],
+ "summary": {
+  "A_asis": {
+   "n": 3,
+   "returned": 0,
+   "pr": 0,
+   "ap": 0,
+   "both": 0
+  },
+  "B_raw": {
+   "n": 3,
+   "returned": 3,
+   "pr": 3,
+   "ap": 3,
+   "both": 3
+  },
+  "N_neg": {
+   "n": 3,
+   "returned": 0,
+   "pr": 0,
+   "ap": 0,
+   "both": 0
+  }
+ }
+}
