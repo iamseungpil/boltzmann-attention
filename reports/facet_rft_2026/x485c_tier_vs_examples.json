@@ -1,0 +1,963 @@
+{
+ "task": "004",
+ "notice_gate": "GB2_NOTICE_BEFORE_TRANSFER",
+ "tool": "transfer_to_human_agents",
+ "enum_key": "reason",
+ "enum_values": [
+  "fraud_or_security_concern",
+  "account_closure_request",
+  "deceased_account_holder",
+  "legal_or_regulatory_matter",
+  "account_ownership_dispute",
+  "complex_billing_dispute",
+  "abusive_customer_behavior",
+  "third_party_inquiry",
+  "technical_system_error",
+  "unconfirmed_external_communication",
+  "customer_demands_after_unavailable_offer_refusal",
+  "kb_search_unsuccessful_customer_requests_transfer",
+  "specialized_department_required",
+  "accessibility_or_special_needs",
+  "customer_frustrated_demands_human",
+  "supervisor_request_service_complaint",
+  "customer_requests_human_no_specific_reason",
+  "request_completed_customer_wants_human_followup",
+  "other"
+ ],
+ "table_ids": [
+  "doc_bank_accounts_bank_accounts_(general)_042"
+ ],
+ "full_ids": [
+  "doc_bank_accounts_bank_accounts_(general)_037",
+  "doc_bank_accounts_bank_accounts_(general)_042",
+  "doc_checking_accounts_checking_accounts_(general)_009",
+  "doc_credit_cards_credit_cards_(general)_010",
+  "doc_credit_cards_credit_cards_(general)_011",
+  "doc_credit_cards_credit_cards_(general)_012"
+ ],
+ "table_chars": 3540,
+ "full_chars": 15853,
+ "sources": [
+  {
+   "tag": "bank_x004_docoff2",
+   "key": "bank_x004_docoff2/task_004#s626729",
+   "j": 22,
+   "live": {
+    "calls": [
+     [
+      "transfer_to_human_agents",
+      "{\"summary\": \"Customer requested to change the email on their account but could not provide sufficient verification information. Transfer requested due to identi"
+     ]
+    ],
+    "cat": "xfer:account_ownership_dispute",
+    "text": ""
+   }
+  },
+  {
+   "tag": "bank_x004_docoff2",
+   "key": "bank_x004_docoff2/task_004#s1567",
+   "j": 30,
+   "live": {
+    "calls": [],
+    "cat": "no_tool",
+    "text": "I have initiated the transfer to a human agent for you, Kenji. They will assist you further with updating your email address. Thank you for your patience."
+   }
+  },
+  {
+   "tag": "bank_x004_base2",
+   "key": "bank_x004_base2/task_004#s626729",
+   "j": 14,
+   "live": {
+    "calls": [
+     [
+      "shell",
+      "{\"command\": \"grep -r 'transfer_to_human_agents' .\"}"
+     ]
+    ],
+    "cat": "other_tool",
+    "text": ""
+   }
+  },
+  {
+   "tag": "bank_x004_base2",
+   "key": "bank_x004_base2/task_004#s361454",
+   "j": 18,
+   "live": {
+    "calls": [
+     [
+      "unlock_discoverable_agent_tool",
+      "{\"agent_tool_name\": \"initial_transfer_to_human_agent_0218\"}"
+     ]
+    ],
+    "cat": "xfer:-",
+    "text": ""
+   }
+  }
+ ],
+ "rows": [
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "F_tier",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7605,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent as they do not have the necessary information to complete the identity verification process.\", \"reason\": \"kb_search_unsuccessful_customer_re"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "F_tier",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7605,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent due to difficulty in verifying identity with the available information.\", \"reason\": \"kb_search_unsuccessful_customer_requests_transfer\"}"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "F_tier",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7605,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"The user, Kenji Tanaka, wishes to change his email address on his account but cannot provide sufficient verification information beyond his phone number and new email. He has requested to"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "F_tier",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7605,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer, Kenji Tanaka, wishes to change his email address on the account but cannot provide sufficient verification information beyond his phone number and new email address. He has requ"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "F_tier",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7605,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent as they are unable to provide additional verification information at this time.\", \"reason\": \"kb_search_unsuccessful_customer_requests_transf"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "F_tier",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7605,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requests a human agent as they are unable to provide additional verification information and need assistance with updating their email address.\", \"reason\": \"kb_search_unsuccessfu"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "G_examples",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7665,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer's provided identity information does not fully match the account record, and they are unable to provide additional verification details at this time. They have requested to be tr"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "G_examples",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7665,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer's provided email does not match the email on file, and they do not have additional verification information available. They have requested to be transferred to a human agent.\", \""
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "G_examples",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7665,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer's provided identity information does not fully match the account record, and they do not have additional verification details readily available. They have requested to be transfe"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "G_examples",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7665,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested to change email address but could not provide sufficient verification information. Attempted to find alternative verification methods in the knowledge base but found no"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "G_examples",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7665,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer is unable to provide sufficient verification information and requests a human agent for assistance.\", \"reason\": \"kb_search_unsuccessful_customer_requests_transfer\"}"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "G_examples",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7665,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"The customer, Kenji Tanaka, is unable to provide sufficient information for identity verification and specifically requested to be transferred to a human agent.\", \"reason\": \"kb_search_uns"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "F_tier",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5055,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent as they did not receive a verification code and are unable to proceed with the email update process.\", \"reason\": \"kb_search_unsuccessful_cus"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "F_tier",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5055,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent as they did not receive the verification code on their phone and need assistance updating their email address.\", \"reason\": \"kb_search_unsucc"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "F_tier",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5055,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent as they did not receive the verification code on their phone and cannot verify their identity through email.\", \"reason\": \"kb_search_unsucces"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "F_tier",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5055,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent because the verification code did not arrive on their phone number. The email update process could not be completed automatically.\", \"reason"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "F_tier",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5055,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent after not receiving a verification code on their phone number and being unable to verify their identity through automated means.\", \"reason\":"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "F_tier",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5055,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent after attempting to update their email address and not receiving a verification code.\", \"reason\": \"kb_search_unsuccessful_customer_requests_"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "G_examples",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5115,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent after attempting to verify identity and update email address. Verification attempts were unsuccessful due to discrepancies between the provi"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "G_examples",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5115,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent after attempting to update their email address and facing issues with identity verification.\", \"reason\": \"kb_search_unsuccessful_customer_re"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "G_examples",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5115,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Kenji Tanaka requested a transfer to a human agent as he did not receive the verification code on his phone and needed assistance with updating his email address.\", \"reason\": \"kb_search_u"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "G_examples",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5115,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent because the verification process could not be completed successfully using automated methods.\", \"reason\": \"kb_search_unsuccessful_customer_r"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "G_examples",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5115,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Kenji Tanaka requested a transfer to a human agent as he did not receive the verification code sent to his phone number and is unable to verify his identity through email. He wishes to up"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "G_examples",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5115,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested transfer to a human agent as they did not receive the verification code on their phone number and could not verify their identity via email.\", \"reason\": \"kb_search_unsu"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "F_tier",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4259,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer is unable to provide sufficient verification information and has requested to be transferred to a human agent for alternate verification methods.\", \"reason\": \"kb_search_unsuccess"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "F_tier",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4259,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"The user cannot provide sufficient verification information and has requested to be transferred to a human agent for an alternate verification method.\", \"reason\": \"kb_search_unsuccessful_"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "F_tier",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4259,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer cannot provide sufficient verification information and requests a human agent for alternate verification methods.\", \"reason\": \"kb_search_unsuccessful_customer_requests_transfer\"}"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "F_tier",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4259,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User requested to change email address but could not provide sufficient verification information (address or date of birth) to proceed. User requested transfer to human agent for alternat"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "F_tier",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4259,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent because they were unable to provide sufficient verification information at the moment to change their email address.\", \"reason\": \"kb_search_"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "F_tier",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4259,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User requested a transfer to a human agent because they are unable to provide sufficient verification information at the moment and prefer an alternate verification method.\", \"reason\": \"k"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "G_examples",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4319,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer is unable to provide sufficient verification information and requests a human agent for alternate verification methods.\", \"reason\": \"kb_search_unsuccessful_customer_requests_tran"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "G_examples",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4319,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"The user, Kenji Tanaka, cannot provide sufficient verification information (address or date of birth) and has requested to be transferred to a human agent for alternate verification metho"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "G_examples",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4319,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"The user is unable to provide sufficient verification information at the moment and has requested to be transferred to a human agent for an alternate verification method.\", \"reason\": \"kb_"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "G_examples",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4319,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer cannot provide sufficient verification information (address or date of birth) and requests a human agent for alternate verification methods.\", \"reason\": \"kb_search_unsuccessful_c"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "G_examples",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4319,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent because they are unable to provide sufficient verification information at the moment and require an alternate verification method.\", \"reason"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "G_examples",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4319,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer cannot provide sufficient verification information (date of birth or confirmed address) and requested a human agent for alternate verification methods.\", \"reason\": \"kb_search_uns"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "F_tier",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4375,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer does not have necessary personal information (date of birth or address) to complete identity verification and requests transfer to a human agent for alternate verification method"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "F_tier",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4375,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer does not have necessary identification details such as date of birth or address and is requesting a human agent for alternate verification methods.\", \"reason\": \"kb_search_unsucce"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "F_tier",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4375,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer does not have necessary information for identity verification and has requested a transfer to a human agent.\", \"reason\": \"kb_search_unsuccessful_customer_requests_transfer\"}"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "F_tier",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4375,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer does not have necessary identification information and requests transfer to human agent for alternate verification methods.\", \"reason\": \"kb_search_unsuccessful_customer_requests_"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "F_tier",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4375,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer does not have necessary personal information (date of birth or address) and prefers human assistance for alternate verification methods.\", \"reason\": \"kb_search_unsuccessful_custo"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "F_tier",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4030,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4375,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer is unable to provide necessary identity verification details and specifically requested a human agent for alternate verification methods.\", \"reason\": \"kb_search_unsuccessful_cust"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "G_examples",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4435,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer is unable to provide sufficient identity verification details and requests a human agent for alternate verification methods.\", \"reason\": \"kb_search_unsuccessful_customer_requests"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "G_examples",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:account_ownership_dispute",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4435,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"The user's provided identity information does not match the account record, and they do not have additional identifying information such as date of birth or address. They are requesting a"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "G_examples",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4435,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer is unable to provide necessary verification details and requests a human agent for alternate verification methods.\", \"reason\": \"kb_search_unsuccessful_customer_requests_transfer\""
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "G_examples",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4435,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"The user, Kenji Tanaka, is requesting to change the email on his account but cannot provide sufficient identity verification information. He does not have his date of birth or address ava"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "G_examples",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4435,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer is unable to provide sufficient identity verification details and requests a human agent for alternate verification methods.\", \"reason\": \"kb_search_unsuccessful_customer_requests"
+    ]
+   ],
+   "text": ""
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "G_examples",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:account_ownership_dispute",
+   "delta_chars": 4334,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4435,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer's provided identity details do not match the account record, and they require an alternate verification method. The customer does not have their date of birth or address availabl"
+    ]
+   ],
+   "text": ""
+  }
+ ]
+}
