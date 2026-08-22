@@ -1,0 +1,963 @@
+{
+ "task": "004",
+ "notice_gate": "GB2_NOTICE_BEFORE_TRANSFER",
+ "tool": "transfer_to_human_agents",
+ "enum_key": "reason",
+ "enum_values": [
+  "fraud_or_security_concern",
+  "account_closure_request",
+  "deceased_account_holder",
+  "legal_or_regulatory_matter",
+  "account_ownership_dispute",
+  "complex_billing_dispute",
+  "abusive_customer_behavior",
+  "third_party_inquiry",
+  "technical_system_error",
+  "unconfirmed_external_communication",
+  "customer_demands_after_unavailable_offer_refusal",
+  "kb_search_unsuccessful_customer_requests_transfer",
+  "specialized_department_required",
+  "accessibility_or_special_needs",
+  "customer_frustrated_demands_human",
+  "supervisor_request_service_complaint",
+  "customer_requests_human_no_specific_reason",
+  "request_completed_customer_wants_human_followup",
+  "other"
+ ],
+ "table_ids": [
+  "doc_bank_accounts_bank_accounts_(general)_042"
+ ],
+ "full_ids": [
+  "doc_bank_accounts_bank_accounts_(general)_037",
+  "doc_bank_accounts_bank_accounts_(general)_042",
+  "doc_checking_accounts_checking_accounts_(general)_009",
+  "doc_credit_cards_credit_cards_(general)_010",
+  "doc_credit_cards_credit_cards_(general)_011",
+  "doc_credit_cards_credit_cards_(general)_012"
+ ],
+ "table_chars": 3540,
+ "full_chars": 15853,
+ "sources": [
+  {
+   "tag": "bank_x004_docoff2",
+   "key": "bank_x004_docoff2/task_004#s626729",
+   "j": 22,
+   "live": {
+    "calls": [
+     [
+      "transfer_to_human_agents",
+      "{\"summary\": \"Customer requested to change the email on their account but could not provide sufficient verification information. Transfer requested due to identi"
+     ]
+    ],
+    "cat": "xfer:account_ownership_dispute",
+    "text": ""
+   }
+  },
+  {
+   "tag": "bank_x004_docoff2",
+   "key": "bank_x004_docoff2/task_004#s1567",
+   "j": 30,
+   "live": {
+    "calls": [],
+    "cat": "no_tool",
+    "text": "I have initiated the transfer to a human agent for you, Kenji. They will assist you further with updating your email address. Thank you for your patience."
+   }
+  },
+  {
+   "tag": "bank_x004_base2",
+   "key": "bank_x004_base2/task_004#s626729",
+   "j": 14,
+   "live": {
+    "calls": [
+     [
+      "shell",
+      "{\"command\": \"grep -r 'transfer_to_human_agents' .\"}"
+     ]
+    ],
+    "cat": "other_tool",
+    "text": ""
+   }
+  },
+  {
+   "tag": "bank_x004_base2",
+   "key": "bank_x004_base2/task_004#s361454",
+   "j": 18,
+   "live": {
+    "calls": [
+     [
+      "unlock_discoverable_agent_tool",
+      "{\"agent_tool_name\": \"initial_transfer_to_human_agent_0218\"}"
+     ]
+    ],
+    "cat": "xfer:-",
+    "text": ""
+   }
+  }
+ ],
+ "rows": [
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "D_priority",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7848,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent because the required identity verification could not be completed with the provided information.\", \"reason\": \"kb_search_unsuccessful_custome"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to proceed with the transfer, I will go ahead and transfer you to a human agent now."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "D_priority",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7848,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a human agent as they could not provide the necessary information for identity verification.\", \"reason\": \"kb_search_unsuccessful_customer_requests_transfer\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already confirmed that you would like to proceed with the transfer, I will go ahead and transfer you to a human agent now."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "D_priority",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:account_ownership_dispute",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7848,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer's provided email does not match the email on file, and they do not have other necessary information for identity verification. They have requested a human agent.\", \"reason\": \"acc"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to proceed with the transfer, I will now transfer you to a human agent. The most specific reason for this transfer is that the customer's stated identity values do not match the a"
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "D_priority",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7848,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent because the required identity verification could not be completed due to missing information.\", \"reason\": \"kb_search_unsuccessful_customer_r"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already confirmed that you would like to proceed with the transfer, I will now transfer you to a human agent."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "D_priority",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7848,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer Kenji Tanaka requested to change the email address on his account. However, the current email provided does not match the one on file, and he does not have his address or date of"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to proceed with the transfer, I will now transfer you to a human agent. The reason for the transfer is that we require additional information for identity verification, which cann"
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "D_priority",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:account_ownership_dispute",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7848,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer Kenji Tanaka requested a transfer to a human agent due to identity verification issues involving discrepancies between the email on file and the email provided by the customer. N"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already confirmed that you would like to proceed with the transfer, I will go ahead and transfer you to a human agent now."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "E_ask_only",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7143,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User Kenji Tanaka needs assistance with changing his email address due to discrepancies in account information. User prefers to speak with a human agent for further verification and assis"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to proceed with the transfer, I will go ahead and transfer you to a human agent now."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "E_ask_only",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7143,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer needs to update their email address but verification cannot be completed due to lack of sufficient information.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to proceed with the transfer, I will go ahead and transfer you to a human agent for further assistance."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "E_ask_only",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7143,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User Kenji Tanaka needs to change the email on his account but lacks sufficient information for identity verification. User requests transfer to human agent for further assistance.\", \"rea"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to proceed with the transfer, I will go ahead and transfer you to a human agent for further assistance."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "E_ask_only",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7143,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User needs to update their email address but cannot verify their identity due to discrepancies and lack of necessary information.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to proceed with the transfer, I will now transfer you to a human agent for further assistance."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "E_ask_only",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7143,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User requested transfer to a human agent due to inability to provide necessary verification details.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to proceed with the transfer, I will go ahead and transfer you to a human agent."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s626729",
+   "tag": "bank_x004_docoff2",
+   "arm": "E_ask_only",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 7143,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a human agent due to difficulty in verifying identity without additional information.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to proceed with the transfer, I will now transfer you to a human agent for further assistance."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "D_priority",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5298,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent because the verification process could not be completed due to discrepancies in the email address on file.\", \"reason\": \"kb_search_unsuccessf"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to be transferred, I will proceed with the transfer now."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "D_priority",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5298,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested transfer to a human agent because the verification process through automated means could not be completed successfully.\", \"reason\": \"kb_search_unsuccessful_customer_req"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to be transferred to a human agent, I will proceed with the transfer."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "D_priority",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5298,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Attempted to verify Kenji Tanaka's identity and update his email address to kenji.tanaka@gmail.com but could not proceed due to discrepancies in the information provided and the need for "
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you would like to be transferred to a human agent, I will proceed with that now. Here is the summary of our interaction: We attempted to verify your identity and update your email address, but were unable to proceed due to dis"
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "D_priority",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5298,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent because the verification process through the automated system was unsuccessful and they could not receive a verification code.\", \"reason\": \""
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already confirmed that you would like to be transferred, I will proceed with the transfer now."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "D_priority",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5298,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Kenji Tanaka requested to change his email address to kenji.tanaka@gmail.com. Identity verification attempts were unsuccessful as the email on file did not match the one provided by the u"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to be transferred, I will proceed with that now. Here is the summary of our interaction: - **Summary**: Kenji Tanaka requested to change his email address to kenji.tanaka@gmail.co"
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "D_priority",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:customer_frustrated_demands_human",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 5298,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested transfer to a human agent as they did not receive the verification code and are unable to verify their identity through the automated system.\", \"reason\": \"customer_frus"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to be transferred, I will proceed with the transfer now."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "E_ask_only",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4593,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User requested transfer to human agent due to issues with verifying identity and updating email address.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to proceed with the transfer, I will now transfer you to a human agent to assist with updating your email address."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "E_ask_only",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4593,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User Kenji Tanaka requested a transfer to a human agent due to issues verifying his identity and updating his email address.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to be transferred, I will proceed with transferring you to a human agent to assist further with updating your email address."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "E_ask_only",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4593,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User Kenji Tanaka requested a transfer to a human agent due to issues with verifying his identity via phone number and email. He wishes to update his email address to kenji.tanaka@gmail.c"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to be transferred, I will proceed with the transfer now."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "E_ask_only",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4593,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User requested a transfer to a human agent due to issues verifying identity and updating email address.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you are requesting a transfer to a human agent and we have reached a point where further assistance requires manual intervention, I will proceed with the transfer."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "E_ask_only",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4593,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User requested transfer to human agent due to issues with verifying identity and updating email address.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you would like to proceed with the transfer, I will connect you to a human agent now. Please hold on while I initiate the transfer."
+  },
+  {
+   "src": "bank_x004_docoff2/task_004#s1567",
+   "tag": "bank_x004_docoff2",
+   "arm": "E_ask_only",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4593,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Kenji Tanaka wants to update his email address but couldn't complete the identity verification process via the automated system. He requested to be transferred to a human agent for assist"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you prefer to speak directly with a human agent to resolve this issue, I will transfer you now. Please hold on while I arrange that for you."
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "D_priority",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4502,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer is unable to provide sufficient verification information and has requested to be transferred to a human agent.\", \"reason\": \"kb_search_unsuccessful_customer_requests_transfer\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "D_priority",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4502,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"The user, Kenji Tanaka, cannot provide sufficient verification information and has requested to be transferred to a human agent for alternate verification methods.\", \"reason\": \"kb_search_"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "D_priority",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4502,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer cannot provide sufficient verification information and requests transfer to a human agent for alternate verification methods.\", \"reason\": \"kb_search_unsuccessful_customer_request"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "D_priority",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4502,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer cannot provide sufficient verification information and requests to be transferred to a human agent for alternate verification methods.\", \"reason\": \"kb_search_unsuccessful_custome"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "D_priority",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4502,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer is unable to provide sufficient verification information and has requested to be transferred to a human agent.\", \"reason\": \"kb_search_unsuccessful_customer_requests_transfer\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "D_priority",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4502,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent as they could not provide sufficient verification information and preferred to speak with someone directly.\", \"reason\": \"kb_search_unsuccess"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "E_ask_only",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 3797,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User wants to change email but cannot provide enough verification info (missing address and date of birth). Transferring to human agent for alternate verification methods.\", \"reason\": \"cu"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have requested to be transferred to a human agent, I will proceed with the transfer. Here is the summary of your request: - You want to change the email on your account. - You provided your full name (Kenji Tanaka) and pho"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "E_ask_only",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:customer_frustrated_demands_human",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 3797,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User requires alternate verification methods which cannot be handled by automated systems.\", \"reason\": \"customer_frustrated_demands_human\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have requested to be transferred to a human agent and based on the current situation where additional verification methods are needed, I will proceed with transferring you. Please hold on while I initiate the transfer."
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "E_ask_only",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 3797,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User cannot provide sufficient verification information and requested transfer to a human agent.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "E_ask_only",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 3797,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested transfer to a human agent due to inability to provide sufficient verification information.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to be transferred to a human agent, I am proceeding with the transfer based on your request."
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "E_ask_only",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 3797,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested to change email address but could not provide enough verification details. Transfer to human agent for alternate verification methods.\", \"reason\": \"customer_requests_hu"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you have already indicated that you would like to be transferred to a human agent, I will proceed with the transfer now."
+  },
+  {
+   "src": "bank_x004_base2/task_004#s626729",
+   "tag": "bank_x004_base2",
+   "arm": "E_ask_only",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 3797,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User Kenji Tanaka cannot provide sufficient verification information and requests a human agent for alternate verification methods.\", \"reason\": \"customer_requests_human_no_specific_reason"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you are unable to provide the necessary verification information at the moment and have requested assistance from a human agent, I will proceed with the transfer."
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "D_priority",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4618,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent as they do not have their date of birth or address available and cannot provide further identification details.\", \"reason\": \"kb_search_unsuc"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "D_priority",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4618,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"The user requested a transfer to a human agent as they were unable to provide sufficient information for identity verification and preferred human assistance for an alternate verification"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "D_priority",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:account_ownership_dispute",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4618,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"The user's provided identity details (email) do not match the account record. The user has requested to be transferred to a human agent for alternate verification methods.\", \"reason\": \"ac"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "D_priority",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:kb_search_unsuccessful_customer_requests_transfer",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4618,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer is unable to provide sufficient identity verification details and has requested to be transferred to a human agent.\", \"reason\": \"kb_search_unsuccessful_customer_requests_transfer"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "D_priority",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:account_ownership_dispute",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4618,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"The user's provided information does not match the account record, and they are unable to provide further verification details. They have requested to be transferred to a human agent.\", \""
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "D_priority",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:account_ownership_dispute",
+   "delta_chars": 5259,
+   "dropped_msgs": 0,
+   "prompt_tokens": 4618,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent as the provided identity information (email) does not match the account record and they do not have other identifying information readily av"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "E_ask_only",
+   "k": 0,
+   "temp": 0.0,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 3913,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User requested transfer to a human agent due to inability to provide necessary verification details.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "E_ask_only",
+   "k": 1,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 3913,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User needs assistance with changing email but cannot provide sufficient verification details.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you would like to be transferred to a human agent for alternate verification methods, I will go ahead and transfer you now. Please hold on a moment."
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "E_ask_only",
+   "k": 2,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 3913,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"User cannot provide additional verification details and requests transfer to human agent for alternate verification methods.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you've requested a transfer, I will proceed with transferring you to a human agent who can assist you with alternate verification methods."
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "E_ask_only",
+   "k": 3,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 3913,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested a transfer to a human agent due to difficulty in verifying identity without additional personal information.\", \"reason\": \"customer_requests_human_no_specific_reason\"}"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent? Since you've indicated that you would like to be transferred to a human agent, I will proceed with that request. Here is the transfer:"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "E_ask_only",
+   "k": 4,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 3913,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"Customer requested to be transferred to a human agent due to difficulties in verifying identity without having their date of birth or address available. Customer prefers to use phone numb"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  },
+  {
+   "src": "bank_x004_base2/task_004#s361454",
+   "tag": "bank_x004_base2",
+   "arm": "E_ask_only",
+   "k": 5,
+   "temp": 0.7,
+   "cat": "xfer:customer_requests_human_no_specific_reason",
+   "delta_chars": 1518,
+   "dropped_msgs": 0,
+   "prompt_tokens": 3913,
+   "calls": [
+    [
+     "transfer_to_human_agents",
+     "{\"summary\": \"The user, Kenji Tanaka, is requesting a transfer to a human agent due to difficulties in verifying his identity without his date of birth or address.\", \"reason\": \"customer_requests_human_"
+    ]
+   ],
+   "text": "TRANSFER NOTICE: Would you like to be transferred to a human agent?"
+  }
+ ]
+}
