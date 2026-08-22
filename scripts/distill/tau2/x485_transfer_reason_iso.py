@@ -264,7 +264,9 @@ def main():
             if j is None:
                 continue
             cand.append({"tag": tag, "sim": s, "j": j, "i_notice": i_n,
-                         "key": F.simtag(s) or str(s.get("id"))[-8:],
+                         # ★키에 태그를 넣는다 — 같은 시드가 여러 태그에 있어 simtag 만 쓰면
+                         #   원천별 집계가 **합쳐진다**(1차 실측: 626729 가 두 태그에서 겹쳐 12/12 로 보였다).
+                         "key": "%s/%s" % (tag, F.simtag(s) or str(s.get("id"))[-8:]),
                          "live": live_next(msgs, j)})
     per, srcs = {}, []
     for c in cand:
