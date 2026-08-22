@@ -1,5 +1,8 @@
 # T7336 halfA 재런(수리 스택) 20 sim 전수 포렌식 (2026-08-22)
 
+> ⚠**기준선 정정(2026-08-22·gz 직독·`sim_results/bank_t7328_halfA_20260819r.results.json.gz`)**: t7328 halfA 는 **4/20**(073·004·100×2)이다 — 본문의 "t7328 2/20" 은 오계수. 전체 t7328 = 6/40(원장 C590 그대로). 부호표의 004(1→2)·073(1→0)·100(2→2) 해석은 이 값으로 읽을 것.
+
+
 - 런: `bank_t7336_halfA_20260821b` (리모트 `/home/woori/scratch/tau2-bench/data/simulations/bank_t7336_halfA_20260821b/results.json` · 로그 `/home/woori/scratch/logs/bank_t7336_halfA_20260821b.log`)
 - agent = Qwen2.5-32B-Instruct-GPTQ-Int8 · user-sim = gpt-5.2(reasoning low) · nt=2 · seed 매핑: **trial 0 = s626729 · trial 1 = s373753**
 - 수리 스택(t7335 처방 이행분·커밋): **P1** `5189b510`(CLAIMPROV 오탐→kind-fallback·050 DUP 계열) · **P2** `a0fcf07e`(GROUNDING WARNING 에코-그라운딩 제거·094) · **P3** 같은 커밋(get_atm_fee_discrepancies `requires_reads`+`grounded_params`·074) · **P4** `63443a09`(FAB fix-naming·079) · **P5** 같은 커밋(get_atm_fee_discrepancies 완결-인상 문구 제거·072)

@@ -1,5 +1,8 @@
 # T7336 halfB 20 sim 전수 포렌식 (2026-08-22)
 
+> ⚠**기준선 정정(2026-08-22·gz 직독·`sim_results/bank_t7328_halfB_20260819r2.results.json.gz`)**: t7328 halfB 는 **2/20**(098×2) — 본문 수치와 일치. 전체 t7328 = halfA 4 + halfB 2 = **6/40**(원장 C590). "079 1→0 근거 없음" 판정은 유효(079 는 세 런 전부 0).
+
+
 - 런: `bank_t7336_halfB_20260821b` — t7335 composed stack + **P1(CLAIMPROV kind-폴백·event_map 완결) · P2(WRITE_SUB 차단 노트) · P3(comparator READ-FIRST) · P4(FAB_STRIP 해소-read 지목) · P5(savings GET·출처 등급) · F8(ARG_PRODUCERS 에러-형상 게이트) · `requires_reads(6281←9173)`** 수리 탑재. 모델 Qwen2.5-32B-Instruct-GPTQ-Int8 · user-sim openrouter/openai/gpt-5.2 · dense KB live. 10 tasks(016·033·040·050·057·063·074·079·085·098) × trial 0/1 = **20 sim**. 로그 태그: trial-0=`#s626729`, trial-1=`#s373753`.
 - 결과: **pass 4/20 = 0.20** (033 t1 · 050 t1 · 098 t0 · 098 t1). `compliance.json` bench pass^1 0.20 / pass^2 0.10 / full pass^1 0.05. 종료: user_stop 18 · **context_window_exceeded 2 (074 t0 · 079 t1 — 두 sim 은 `reward_info` 부재·채점표 없음)**.
 - 방법: 변이 = 정본 `t2_forensic.mutation_diff`(손 비교기 0) · 033 은 `reward_basis=ACTION` 이라 `action_checks` 직독. 궤적 = `results.json` 을 `/home/woori/scratch/forensic_t7336_halfB/` 로 **cp 후** 파싱(본 디렉터리·프로세스·GPU 무접촉). 레버 = `logs/bank_t7336_halfB_20260821b.log` 14,197 라인의 `[sim=task_XXX#sNNNNNN]` 라인 대조. 인용 전부 축자. 기준은 reward([[69]]).
