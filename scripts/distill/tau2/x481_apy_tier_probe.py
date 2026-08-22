@@ -187,6 +187,8 @@ def main():
     ap.add_argument("--model", default="Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8")
     ap.add_argument("--n", type=int, default=6, help="팔마다 반복 횟수")
     ap.add_argument("--arms", default="A_asis,B_bal,C_bal_hint,E_live,N_neg")
+    ap.add_argument("--cp", default=None,
+                    help="customer_products override (live wording vs KB wording)")
     ap.add_argument("--out", default="x481_apy_tier_probe.json")
     a = ap.parse_args()
 
@@ -260,6 +262,12 @@ def main():
             os.environ.pop("T2_SG_SCHEMA", None)
         iso_a = json.loads(json.dumps(iso))          # 팔마다 선언 사본(원본 불변)
         ctx = dict(ref)
+        # ★표기 축 (2026-08-22 3차): 라이브가 넘긴 `customer_products` 는 KB 축자가 아니었다 —
+        #   레코드 `level` 은 "Green Account" 이고 KB 페어링도 "Green Account (checking)" 인데
+        #   에이전트는 "Green Checking Account" 로 바꿔 넘겼다. 그 이름은 KB 에 없으므로 서브가
+        #   checking boost 를 못 찾는다. 이 옵션이 그 효과를 **직접** 잰다.
+        if a.cp:
+            ctx["customer_products"] = a.cp
         if use_bal:
             if BAL_KEY not in (iso_a.get("ref_params") or []):
                 iso_a["ref_params"] = list(iso_a.get("ref_params") or []) + [BAL_KEY]
