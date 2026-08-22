@@ -2324,6 +2324,34 @@ def apply():
                         print(_hint, file=_sys.stderr, flush=True)
                         _ctx["__cat_cite_note"] = _hint
                 _res = _c.apply_op(d.get("op"), _ctx)
+                # ★A2 `result_round` (2026-08-22·093 실시간 포렌식): 부동소수점 잔차를 선언된
+                #   자릿수로 접는다. 실물 — 이 도구가 `32.999999999999986` 을 냈고 모델은 그것을
+                #   통화로 **옳게** `33.0` 으로 반올림해 write 했는데, `T2_WRITE_EVIDENCE` 가
+                #   *"the amount_difference (33.0) does not appear in any get_interest_correction
+                #   tool output"* 로 **10회 반려**했다. 즉 **우리 도구의 표현 오차가 우리 게이트를
+                #   스스로 막았다** — 모델은 아무것도 틀리지 않았다([[25]] 우리 도구는 100% 정답
+                #   의무: 출력 결함이 유일한 근거원을 오염시킨다).
+                #   원인은 op 의 `const 0.08333333333333333`(=1/12 근사)이고, 곱셈 순서상 잔차가
+                #   마지막 자리에 남는다. 산수를 고치는 대신 **표현을 접는다** — 반올림은 통화의
+                #   정의이고, 접은 값이 곧 우리가 증거로 쓰는 값이어야 한다.
+                #   ⚠**범위 게이트(`result_range`)보다 앞**에 둔다: 두 검사와 반환문이 모두 같은
+                #     수를 봐야 한다(접기 전후가 갈리면 A8 이 접기 전 값으로 판정한다).
+                #   ⚠자릿수는 A2 선언뿐이고 엔진 리터럴 0([[05]]). 미선언 도구는 거동 변화 0.
+                #   ⚠gold 미참조([[23]]) — 근거는 크레딧 도구의 인자 계약이 **달러 금액**을 요구한다는
+                #     것(정책 축자·`policy_facts` 인용 행)이지 정답 대조가 아니다.
+                #   ⚠[[70]] 무엇을 파는가: 접는 만큼 **정밀도**를 잃는다. 접기가 값을 바꾸는 자리
+                #     (APY 2.775 → 2.78 처럼)에서는 손해가 실질이므로 **금액을 내는 스칼라 도구에만**
+                #     선언한다 — 근거 없는 확대 금지([[62]]). 다음 런 포렌식이 셀 것 =
+                #     `[T2_SG_ROUND]` 발화 수 ↔ 그 뒤 WEV deny 수(줄어야 한다).
+                _rr = d.get("result_round")
+                if (_rr is not None and isinstance(_res, (int, float))
+                        and not isinstance(_res, bool)):
+                    _r0 = _res
+                    _res = round(float(_res), int(_rr))
+                    if _r0 != _res:
+                        print("[T2_SG_ROUND] %s: %r -> %r (자릿수 %s)"
+                              % (d.get("name"), _r0, _res, _rr),
+                              file=_sys.stderr, flush=True)
                 if isinstance(_res, dict) and _ctx.get("__cat_cite_note"):
                     _res["note"] = (str(_res.get("note") or "") + " " + _ctx["__cat_cite_note"]).strip()
                 # ★A8 / OL-11 (t7336 마스터 §6.1·2026-08-22): **결과 범위 게이트**(abstain).

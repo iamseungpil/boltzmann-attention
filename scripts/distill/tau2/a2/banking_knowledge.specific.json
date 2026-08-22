@@ -2655,7 +2655,9 @@
      "additionalProperties": false
     },
     "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다."
-   }
+   },
+   "result_round": 2,
+   "_note_result_round": "2026-08-22 (093 실시간 포렌식): op 의 1/12 근사(`0.08333333333333333`) 탓에 이 도구가 32.999999999999986 을 냈고, 모델이 통화로 옳게 33.0 으로 반올림해 write 하자 T2_WRITE_EVIDENCE 가 '33.0 은 도구 출력에 없다'며 10회 반려했다 — 우리 표현 오차가 우리 게이트를 막은 것이다([[25]]). 자릿수 2 = 달러 금액(센트)이고 근거는 크레딧 도구의 인자 계약('The positive dollar amount to credit')이다. gold 미참조([[23]])."
   },
   {
    "name": "check_card_closure_eligibility",
