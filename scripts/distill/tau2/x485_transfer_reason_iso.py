@@ -187,7 +187,9 @@ def main():
     ap.add_argument("--tags", default="bank_x004_docoff2,bank_x004_base2",
                     help="원천 런 태그(쉼표) — 영속 gz 또는 리모트 라이브")
     ap.add_argument("--task", default="004")
-    ap.add_argument("--nsims", type=int, default=2, help="태그당 원천 sim 수(결정점 있는 것부터)")
+    ap.add_argument("--per-cat", type=int, default=1, dest="per_cat",
+                    help="라이브 분류당 원천 sim 수 — 관측된 국면을 고루 재현하기 위해서다")
+    ap.add_argument("--max-src", type=int, default=4, dest="max_src", help="원천 sim 총 상한")
     ap.add_argument("--n", type=int, default=5, help="temp 표본/팔 — det 1발이 앞서 붙는다")
     ap.add_argument("--temperature", type=float, default=0.7)
     ap.add_argument("--maxchars", type=int, default=90000)
@@ -249,9 +251,11 @@ def main():
              len(full_blob), (" (코퍼스 폴백 %d편)" % len(f_fell)) if f_fell else ""))
 
     # ── ② 원천 sim + 결정점 ────────────────────────────────────────────────────
-    srcs = []
+    # 원천 선정은 **라이브가 그 결정점에서 한 것의 분류**로만 한다 — 관측된 국면을 고루 재현
+    # 하려는 것이고, `reward`·gold 는 열지 않는다([[23]]). 분류는 위 `classify` 의 닫힌 술어다.
+    # (초판은 "태그당 앞에서 nsims 개"였는데 그러면 통과 궤적만 뽑혀 실패 재현을 못 한다·[[18]].)
+    cand = []
     for tag in [x.strip() for x in a.tags.split(",") if x.strip()]:
-        got = 0
         for s in F.sims(tag, suffix=".results.json.gz"):
             if str(s.get("task_id")).split("_")[-1] != a.task:
                 continue
@@ -259,12 +263,19 @@ def main():
             j, i_n = find_dp(msgs, ntext)
             if j is None:
                 continue
-            srcs.append({"tag": tag, "sim": s, "j": j, "i_notice": i_n,
+            cand.append({"tag": tag, "sim": s, "j": j, "i_notice": i_n,
                          "key": F.simtag(s) or str(s.get("id"))[-8:],
                          "live": live_next(msgs, j)})
-            got += 1
-            if got >= a.nsims:
-                break
+    per, srcs = {}, []
+    for c in cand:
+        k = c["live"]["cat"]
+        if per.get(k, 0) >= a.per_cat or len(srcs) >= a.max_src:
+            continue
+        per[k] = per.get(k, 0) + 1
+        srcs.append(c)
+    print(NLC + "결정점 있는 후보 %d개 · 라이브 분류 분포: %s"
+          % (len(cand), ", ".join("%s=%d" % (k, sum(1 for c in cand if c["live"]["cat"] == k))
+                                  for k in sorted({c["live"]["cat"] for c in cand}))))
     if not srcs:
         raise SystemExit("결정점(고지 뒤 assistant)이 있는 sim 이 없다 — 태그·문구부터([[55]])")
     print(NLC + "원천 sim %d개" % len(srcs))
