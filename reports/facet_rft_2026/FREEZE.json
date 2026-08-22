@@ -1,9 +1,9 @@
 {
  "active": false,
- "sha": "c5ace835",
- "tag": "bank_dbw_20260812",
- "reason": "T2_DECIDE_BEFORE_WRITE ON/OFF 판정 (C436·C437 사전등록)",
- "at": "2026-08-11T22:46:39+09:00",
+ "sha": "4f6c83eb",
+ "tag": "t7337",
+ "reason": "all-on composed stack, stage1 20 x nt2",
+ "at": "2026-08-22T16:30:50+09:00",
  "paths": [
   "/scripts/distill/tau2/t2_gate_patch.py",
   "/scripts/distill/tau2/t2_eplan_patch.py",
@@ -14,5 +14,5 @@
   "/scripts/distill/tau2/a2/",
   "/scripts/distill/tau2/go_stack.sh"
  ],
- "released_sha": "1891bacf"
+ "released_sha": "a2e31576"
 }
