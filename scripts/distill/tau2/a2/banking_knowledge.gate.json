@@ -10609,5 +10609,18 @@
    "get_user_information_by_id"
   ],
   "_note_contact_fields": "env desc 축자: get_user_information_by_* 'Get the information (date of birth, email, phone number, address) for a user ...' — 연락처류 인자의 레코드 원천은 users 레코드. 손님이 다른 값을 새로 주는 경우는 ctx 에 실재하므로 FAB_STRIP 에 잡히지 않는다(위 _note 참조)."
+ },
+ "enum_priority": {
+  "applies_to": [
+   "transfer_to_human_agents",
+   "initial_transfer_to_human_agent_0218",
+   "initial_transfer_to_human_agent_1822",
+   "emergency_credit_bureau_incident_transfer_1114"
+  ],
+  "general": "When using the transfer tool, select the most accurate reason code from the tiered list in the knowledge base. Reasons are organized into 4 priority tiers - always select from the highest tier that applies.",
+  "_source_general": "doc_bank_accounts_bank_accounts_(general)_042 (Internal: Human Agent Transfer Reason Codes) 축자: \"select the most accurate reason code from the tiered list below. Reasons are organized into 4 priority tiers - always select from the highest tier that applies.\" — 사례 열거 0·도메인 일반([[66]]). 도구명만 일반화했다.",
+  "with_examples": "When you DO call transfer_to_human_agents, pick the MOST SPECIFIC reason option that matches the situation (for example: the customer's stated identity values do not match the account record -> an ownership-dispute reason; a mailed offer/flyer that cannot be verified in the knowledge base -> an unconfirmed-external-communication reason; a knowledge-base search that failed while the customer asks for a human -> that specific reason). Use the generic no-specific-reason option ONLY when no other option fits.",
+  "_source_with_examples": "GB2_NOTICE_BEFORE_TRANSFER 의 `ask` 에서 **연속 구간을 그대로** 들어올린 것(재작성 0). 출처 계보 = 커밋 aa657c59(2026-07-28 'day7 midrun forensic prescriptions'). ⚠[[66]] 검토 대상: 19 코드 중 **3개에만** 사례가 달려 있고 그 셋이 각각 004·014·012 가 필요로 하는 값이다 — 실패를 보고 쓴 열거일 수 있다. 내용 자체는 doc_042 표에 축자로 있어 [[23]] 출처는 서지만, **사례 선택**이 성적을 사고 있는지는 x485 F/G 가 가른다.",
+  "_note_": "2026-08-22 x485 후속. 이 키는 **선언일 뿐 엔진이 아직 읽지 않는다**(라이브 거동 불변) — 격리 프로브 F_tier/G_examples 의 재료로만 쓰인다([[71]]②: 재료는 선언에서). 왜: x485 1차에서 정의 표만 주면 gold 0/24(전부 TIER 2 `kb_search_unsuccessful`), 표+게이트 ask 를 주면 5/24. 그런데 그 ask 에는 004 의 답을 이름으로 대는 사례가 들어 있어 이득의 출처가 **일반 규칙**인지 **사례 떠먹이기**인지 갈리지 않았다([[62]] 측정 대상 소실 위험). F(일반 규칙만) ↔ G(사례 포함)가 그것을 가른다. F 가 0 이면 이 축은 우리 레버로 못 산다."
  }
 }
