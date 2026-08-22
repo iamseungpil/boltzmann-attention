@@ -203,9 +203,22 @@ def main():
                 sub = submitted_type(r.calls)
                 txt = " ".join(r.text.split())
                 # 닫힌 채점: 제출 인자가 있으면 그 값, 없으면 발화에 등장한 계좌명 후보.
-                cat = ("sub:%s" % sub) if sub else (
-                    "say:%s" % ",".join(sorted({x for x in s["answers"] + [s["live"]]
-                                                if x and x in txt})) or "none")
+                # ★채점 수리(2026-08-23 1차 관측): 라이브 [24] 는 `Bluest`(단독)라고 말했는데
+                #   전체 문자열(`Bluest Account`)만 찾으면 **정박 발화를 못 본다** — A_pre 6/6 이
+                #   빈칸으로 찍혔다. 후보는 전체 값과 **머리 토큰**을 함께 본다(`anchor_index` 와
+                #   같은 규칙). 후보 목록은 우리 답 + 라이브 값에서만 오고 리터럴은 0이다.
+                cands = set()
+                for x in s["answers"] + [s["live"]]:
+                    if x:
+                        cands.add(x)
+                        cands.add(str(x).split()[0])
+                hit = sorted((c for c in cands if c in txt), key=len, reverse=True)
+                seen, keep = set(), []
+                for c in hit:                 # 'Bluest Account' 가 잡히면 'Bluest' 는 안 센다
+                    if not any(c in k for k in keep):
+                        keep.append(c)
+                        seen.add(c)
+                cat = ("sub:%s" % sub) if sub else ("say:%s" % ",".join(keep) if keep else "none")
                 rows.append({"src": s["key"], "arm": arm, "k": k, "temp": t, "cat": cat,
                              "calls": [nm for nm, _ in r.calls], "text": txt[:240]})
                 print("  #%d t=%.1f  %-30s %s" % (k, t, cat[:30],
