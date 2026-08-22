@@ -4488,13 +4488,30 @@ def _cp2_assign(self, text, tag):
     #   NameError 다. 여기는 `try` 밖이라 **크래시**로 터진다 — 아직 안 터진 것은 두 분기 조건
     #   (미소비 배달물이 남아 있고 값이 다름)이 라이브에서 0회였기 때문이다(t7310·t7312 전수 0).
     #   즉 잠복이었다. 같은 회귀 가족이므로 같이 고친다.
-    if _prev and _prev != text and len(_prev) >= 10000 and text:
-        print("[T2_CP2_APPEND] %s: 미소비 대용량 %d자 뒤에 %d자 이어붙임"
-              % (tag, len(_prev), len(text)), file=sys.stderr, flush=True)
+    # ★2026-08-23 (t7346 098 실측·`T2_CP2_QUEUE`·기본 OFF): 위 anti-clobber 는 **≥10k자만**
+    #   구제한다. 그런데 이번에 사라진 것은 **243자**였다 —
+    #     `[T2_CP2_CLOBBER] SEARCH_ON_PROCEED 가 미소비 배달물 243자를 버리고 247자로 덮어씀`
+    #   그 sim 은 098#s626729 로, 우리 검색 서브의 답이 모델의 이름 확정보다 늦게 도착해 실패한
+    #   두 sim 중 하나다(t7336 의 같은 태스크는 CLOBBER **0건**·2/2 통과). 같은 런에서 057 ×2 ·
+    #   063 ×2 도 맞았고 셋 다 0/2 다. 크기는 이 결함의 본질이 아니다 — **버린다는 것**이 본질이다.
+    #   ⇒ 크기와 무관하게 **이어붙인다**. 소형↔소형까지 바뀌므로 ctl 바이트가 달라진다 ⇒ 플래그로
+    #     감싸고 기본 OFF 다([[70]] 켜기 전에 손해도 재라 · 어제 A1~A16 을 안 재고 켠 대가를 치렀다).
+    #   ⚠부피 상한을 넘으면 이어붙이지 않고 **종전대로 덮어쓰되 그 사실을 남긴다**(가시성 유지).
+    #   소비 지점의 `_ctx_fits` 가드는 그대로 뒤를 받친다(≥5k자만 검사).
+    _cap = int(os.environ.get("T2_CP2_APPEND_MAX", "90000"))
+    _queue = os.environ.get("T2_CP2_QUEUE") == "1"
+    if _prev and _prev != text and text and (_queue or len(_prev) >= 10000) \
+            and len(_prev) + len(text) + 2 <= _cap:
+        print("[T2_CP2_APPEND] %s: 미소비 %d자 뒤에 %d자 이어붙임%s"
+              % (tag, len(_prev), len(text), " (queue)" if _queue else " (대용량)"),
+              file=sys.stderr, flush=True)
         text = _prev + "\n\n" + text
     elif _prev and _prev != text:
-        print("[T2_CP2_CLOBBER] %s 가 미소비 배달물 %d자를 버리고 %d자로 덮어씀"
-              % (tag, len(_prev), len(text or "")), file=sys.stderr, flush=True)
+        print("[T2_CP2_CLOBBER] %s 가 미소비 배달물 %d자를 버리고 %d자로 덮어씀%s"
+              % (tag, len(_prev), len(text or ""),
+                 " ⚠상한 %d 초과라 이어붙이지 못함" % _cap
+                 if (_queue and text and len(_prev) + len(text) + 2 > _cap) else ""),
+              file=sys.stderr, flush=True)
     self._t2_cp2_pending = text
 
 

@@ -58,8 +58,14 @@ cons = re.search(r'_cp2 = getattr\(self, "_t2_cp2_pending", None\).{0,3000}?'
 cbody = cons.group(0) if cons else ""
 chk(bool(cons), "소비 지점이 존재한다")
 chk("len(_cp2) >= 5000" in cbody, "대용량(≥5k)만 검사")
-chk("(_hist + len(_cp2)) / 3.5 > (44672 - 8192 - 1024 - 11000)" in cbody,
-    "보수 추정(실측 보정 k=3.5·오버헤드 11,000)")
+# ★검정 갱신(2026-08-23): 2026-08-22 에 이 인라인 식이 `_ctx_fits` **함수로 올라갔다**(거동 동일).
+#   검정이 옛 인라인 문자열을 찾고 있어 그날 이후 계속 FAIL 이었다 — 코드가 아니라 검정이 낡았다.
+#   ⇒ 소비 지점은 **그 함수를 부르는지**를 보고, 산식 상수는 함수 본문에서 확인한다.
+chk("_ctx_fits(work, _cp2)" in cbody, "소비 지점이 정본 가드 `_ctx_fits` 를 부른다")
+_fit = re.search(r"def _ctx_fits\(.*?return .*?, hist", SRC, re.S)
+_fb = _fit.group(0) if _fit else ""
+chk("/ 3.5" in _fb and "44672 - 8192 - 1024 - 11000" in _fb,
+    "보수 추정(실측 보정 k=3.5·오버헤드 11,000)이 `_ctx_fits` 안에 있다")
 chk("[T2_DOC_DELIVERY] skipped" in cbody, "초과 시 건너뛰고 기록")
 chk(SRC.count("[T2_DOC_DELIVERY] skipped") == 1, "가드는 한 곳뿐(자리별 가드 잔존 0)")
 chk(not re.search(r"_cp2\s*=\s*_cp2\[", cbody), "축약하지 않는다([[62]]③)")

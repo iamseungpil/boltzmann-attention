@@ -64,7 +64,18 @@ chk("T2_CP2_CLOBBER" in body, "미소비 배달물을 버릴 때 [T2_CP2_CLOBBER
 chk("_prev and _prev != text" in body, "같은 값 재배달은 경보하지 않는다(잡음 방지)")
 chk("len(_prev)" in body, "**버린 자수**를 남긴다 — 사고 당시 이 수가 없어 50421자 소실을 못 봤다")
 
-print("[③] 거동 불변")
+print("[③] 큐 플래그 — 크기와 무관하게 이어붙인다 (2026-08-23·t7346 098)")
+# ★왜: t7346 098#s626729 에서 사라진 것은 **243자**였다(`SEARCH_ON_PROCEED 가 미소비 243자를
+#   버리고 247자로 덮어씀`). ≥10k 만 구제하던 anti-clobber 는 그것을 못 잡는다. 같은 런에서
+#   057 ×2 · 063 ×2 도 맞았고 셋 다 0/2 다. t7336 의 같은 태스크는 CLOBBER 0건·2/2 통과.
+chk("T2_CP2_QUEUE" in body, "큐 플래그가 있다")
+chk("T2_CP2_APPEND_MAX" in body, "이어붙임 상한이 선언돼 있다(부피 폭주 방지)")
+chk("_queue or len(_prev) >= 10000" in body,
+    "큐 ON 이면 크기 무관·OFF 면 종전(≥10k)만 — 기본 OFF 라 ctl 바이트 불변")
+chk("상한" in body and "이어붙이지 못함" in body,
+    "상한 초과로 못 이어붙인 경우도 CLOBBER 로 남는다(가시성 유지)")
+
+print("[④] 거동 불변")
 # ★2026-08-16 t7304: 대용량(≥10k) 미소비 배달물은 **이어붙임**(anti-clobber·test_proceed_docbody ④),
 #   소형은 종전대로 덮어쓴다. 어느 쪽이든 마지막 줄은 단일 슬롯 대입이다(큐 아님).
 chk(body.strip().endswith("self._t2_cp2_pending = text"),
