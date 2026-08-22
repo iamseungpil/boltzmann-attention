@@ -865,7 +865,15 @@
      ],
      "additionalProperties": false
     },
-    "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다."
+    "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다.",
+    "ref_from_outputs": {
+     "customer_products": {
+      "producer_contains": [
+       "accounts"
+      ]
+     }
+    },
+    "_note_ref_from_outputs": "2026-08-22 R3 (x481 격리 확정·각 4회·라이브 표기 고정): 에이전트가 `customer_products` 를 **자기 말로 요약**해 넘기면서 레코드의 `level: \"Green Account\"` 가 \"Green Checking Account\" 로 바뀌었고, 그 이름은 KB 에 없어 서브가 페어링을 못 찾아 checking boost 를 통째로 놓쳤다(093 실측 apy 4.025 ↔ 정답 4.275). 측정 — 에이전트 요약 checking 0/4 · 요약+대응지시 4/4 · **레코드 원문 4/4**(지시 문장 없이). ⇒ 설득하는 문장 대신 **재료를 제대로 준다**. 엔진은 도구 이름 대조 후 출력을 **그대로** 실을 뿐 파싱·선택·요약 0([[59]]) — 어느 계좌인지, 무엇이 boost 인지는 서브가 문서를 읽고 판단한다. selector 는 기존 `producer_contains` 관행. 미선언이면 거동 변화 0 · 출력을 못 찾으면 에이전트 인자로 폴백. gold 미참조([[23]])."
    },
    "_note_balance_tier": "2026-08-22 (x481 격리 프로브·4팔 각 4회): 093 의 근인은 **잔액-조건부 base APY 티어**였다 — 문서가 두 base 를 주는데(임계 미만/이상) 서브가 낮은 쪽을 집어 expected_apy 가 2.775(정답 4.275)로 나왔고 하류 write 두 건이 전부 틀렸다. 프로브 결과: A_asis 0/4 · N_neg 0/4(부정통제) · **B_bal 0/4**(잔액만 주면 안 된다) · **C_bal_hint 4/4**(잔액+지시). 즉 결정적인 것은 재료가 아니라 **지시**다. 엔진은 티어를 고르지 않고 서브가 문서 표를 읽고 고른다([[62]] ② 전달). 지시문에 임계·값 리터럴 0 · gold 미참조([[23]])."
   },

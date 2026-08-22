@@ -697,6 +697,33 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
     if ag is None:
         return None
     ref = {k: ctx.get(k) for k in (iso.get("ref_params") or []) if ctx.get(k) is not None}
+    # ★R3 (2026-08-22·x481 확정): 에이전트가 **전사한 요약** 대신 **도구 출력 원문**을 싣는다.
+    #   왜: 이 함수의 설계 의도는 바로 위 docstring 에 축자로 있다 — *"에이전트는 참조(예
+    #   account id)만 넘기고 서브가 레코드를 읽는다"*. 그런데 `customer_products` 같은 인자는
+    #   참조가 아니라 **에이전트가 자기 말로 요약한 문자열**이고, 그 전사에서 이름이 바뀐다:
+    #   레코드 `level: "Green Account"` → 에이전트 `"Green Checking Account"` → KB 에 없는 이름 →
+    #   서브가 페어링을 못 찾아 boost 를 통째로 놓친다(093 실측 apy 4.025 ↔ 정답 4.275).
+    #   x481 격리 실측(각 4회·라이브 표기 고정):
+    #       에이전트 요약        checking 0/4 · 합 4.025
+    #       요약 + 대응 지시     checking 4/4 · 합 4.275
+    #       **레코드 원문**      checking 4/4 · 합 4.275  ← 지시 문장 없이 해결
+    #   ⇒ 설득하는 문장을 붙이는 대신 **재료를 제대로 준다**([[62]] 결정론기는 최소한·
+    #     [[71]] 전달은 엔진이·[[65]] 재료가 메인을 거치면 손상된다).
+    #   ⚠엔진은 **이름 대조 + 그대로 싣기**만 한다 — 파싱·선택·요약 0([[59]]). 어느 계좌인지,
+    #     무엇이 boost 인지는 여전히 서브가 문서를 읽고 판단한다.
+    #   ⚠미선언이면 거동 변화 0 · 출력을 못 찾으면 에이전트 인자를 그대로 쓴다(fail-open).
+    _rfo = iso.get("ref_from_outputs") or {}
+    if _rfo:
+        _raw = (_evidence_ctx(orch).get("__tool_outputs_raw") or {})
+        for _k, _sel in _rfo.items():
+            _needles = [str(x).lower() for x in ((_sel or {}).get("producer_contains") or [])]
+            _hit = [v for n, v in _raw.items()
+                    if any(_nd in str(n).lower() for _nd in _needles)]
+            if _hit:
+                ref[_k] = (chr(10) + chr(10)).join(_hit)
+                print("[T2_SG_REFRAW] %s.%s ← 도구 출력 원문 %d편(%d자·에이전트 전사 대체)"
+                      % (d.get("name"), _k, len(_hit), len(ref[_k])),
+                      file=_sys.stderr, flush=True)
     if not ref:
         print("[T2_SG_ISOLATE] fetch: ref_params 부재 → 격리 생략", file=_sys.stderr, flush=True)
         return None
@@ -1741,8 +1768,13 @@ def _evidence_ctx(orch):
                     outs[nm] = (outs.get(nm, "") + " " + s)
     except Exception as e:
         print("[T2_SCAFFOLD_GET] evidence ctx fail: %r" % (e,), file=_sys.stderr, flush=True)
+    # ★`__tool_outputs_raw` (2026-08-22·R3): 기존 두 키는 **소문자화**된다 — grounding 의
+    #   substring 대조용이라 그렇게 굳었다. 그런데 서브에 **재료로 실을 때**는 원문이어야
+    #   한다(KB 는 "Silver Account" 로 적혀 있고 소문자본을 주면 우리가 다시 표기를 흐린다).
+    #   기존 키는 손대지 않는다 — 소비자가 여럿이다([[67]]).
     return {"__user_text": " ".join(users).lower(),
-            "__tool_outputs": {k: v.lower() for k, v in outs.items()}}
+            "__tool_outputs": {k: v.lower() for k, v in outs.items()},
+            "__tool_outputs_raw": dict(outs)}
 
 
 def _truth_text(outer, tn):
