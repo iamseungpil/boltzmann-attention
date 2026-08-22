@@ -746,9 +746,35 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
             #   소진→폴백): 마지막 라운드는 **도구 없이** 생성 — 구조적으로 tool-call 불가 → JSON 답 강제.
             _last = (rnd == _maxr - 1)
             _tl = None if (_last or not tools) else tools     # docs 모드=도구 0(형식화만·[[71]])
+            # ★T2_SG_SCHEMA (2026-08-22·기본 OFF): **도구가 없는 라운드에만** 문법을 건다.
+            #   왜: 마감 라운드는 산문 지시(`answer_format`)로 JSON 을 부탁할 뿐이라 서브가 형식
+            #   예시의 **값을 그대로 베껴** 왔다 — `{principal: 0.0, actual_apy: 0.0}`(t7337·t7338
+            #   두 런 재현). 이 자리는 `:2be` 주석이 *"§2as 0.0-포이즈닝의 신형 재발"* 로 이미
+            #   이름 붙인 곳이고, 그때 처방은 **답 폐기**(증상 억제)였다. 폐기 → 폴백 → 메인 추측 →
+            #   grounding 드롭 → 도구 None → 모델이 값을 자기 계산해 write → WEV deny 의 livelock 이
+            #   거기서 나온다. ⇒ 부탁 대신 **문법으로 형식을 보장**해 베낄 예시 자체를 없앤다.
+            #   ⚠**도구가 있는 라운드엔 절대 걸지 않는다**: `tools`+`guided_json` = tool_calls 0
+            #   (t2_declfirst §배선 실측·C248) — 걸면 서브가 레코드를 못 읽는다. 마감 라운드는
+            #   구조적으로 `_tl is None` 이므로 그 제약이 성립한다(declfirst 2패스와 동형: 프롬프트만
+            #   32% ↔ 도구미제공+문법 96%·C250).
+            #   ⚠엔진은 형식만 강제한다 — 값은 여전히 서브가 낸다([[62]]·[[10]]). 스키마 출처는
+            #   A2 `isolate.operand_schema` 하나뿐이고 엔진 리터럴 0([[05]]).
+            #   ⚠마감-답 검증(`_ok_outs` 숫자-실재)은 그대로 남는다 — 문법은 형식만 보장하지
+            #   값의 진실성은 보장하지 않는다(날조 차단 불변).
+            _kw = kw
+            if (_tl is None and os.environ.get("T2_SG_SCHEMA") == "1"
+                    and iso.get("operand_schema")):
+                _kw = dict(kw)
+                _kw.pop("tools", None)
+                _eb = dict(_kw.get("extra_body") or {})
+                _eb["guided_json"] = iso["operand_schema"]
+                _eb["guided_decoding_backend"] = "xgrammar"
+                _kw["extra_body"] = _eb
+                print("[T2_SG_SCHEMA] %s: 마감 라운드에 문법 적용(도구 0)"
+                      % d.get("name"), file=_sys.stderr, flush=True)
             resp = la.generate(model=ag.llm, tools=_tl, messages=msgs,
                                call_name="sg_fetch_iso",
-                               **(dict(kw, tool_choice="required") if (rnd == 0 and _tl) else kw))
+                               **(dict(_kw, tool_choice="required") if (rnd == 0 and _tl) else _kw))
         except Exception as e:
             print("[T2_SG_ISOLATE] fetch generate 실패(%d라운드): %r" % (rnd, e), file=_sys.stderr, flush=True)
             _isolate_trace(iso, d, {"error": str(e)[:200], "round": rnd, "queries": queries})

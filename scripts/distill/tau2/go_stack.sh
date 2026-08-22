@@ -69,6 +69,21 @@ export T2_SG_TRUTH=1 T2_SG_ISOLATE=1 T2_SG_ISOFB=1 T2_SG_REQREADS=1 T2_SG_TRACE=
 #   · T2_VALUE_FORMULA=full  범주 요율 × 손님 발화 금액 − 연회비(C562 값 0.98·C580 합성 8/8).
 #   · T2_CATEGORY_CITE=  기본 OFF(2026-08-20 측정: 라이브 거동 0) — 켜려면 재측정 후([[60]] 통합).
 export T2_SG_DOCS=1 T2_ARG_DOC_SUB=1 T2_VALUE_FORMULA=full
+# ★T2_SG_SCHEMA (2026-08-22 등재·구현 같은 날): 격리 서브의 **마감 라운드에만** A2
+#   `isolate.operand_schema` 를 guided_json 으로 건다(도구 0인 라운드 — 문법과 도구를 같이
+#   걸면 tool_calls 가 0 이 된다·t2_declfirst 실측 C248).
+#   왜: 산문 `answer_format` 으로 형식을 부탁하면 서브가 **예시의 값을 베낀다** —
+#   `{principal: 0.0, actual_apy: 0.0}` 가 t7337·t7338 두 런에서 재현됐고, 이 자리는
+#   `:2be` 주석이 *"§2as 0.0-포이즈닝의 신형 재발"* 로 이미 이름 붙인 곳이다(당시 처방은
+#   답 폐기 = 증상 억제였고, 그 폐기가 폴백→추측→grounding 드롭→도구 None→자기계산 write→
+#   WEV deny 의 livelock 을 낳았다·093 실시간 포렌식 2026-08-22).
+#   ⇒ 부탁 대신 문법으로 형식을 보장해 **베낄 예시 자체를 없앤다**. 엔진은 형식만 강제하고
+#   값은 여전히 서브가 낸다([[62]]·[[10]]). 스키마 출처는 A2 하나뿐(엔진 리터럴 0·[[05]]).
+#   선행 근거: declfirst 2패스 실측 — 프롬프트만 32% ↔ 도구미제공+문법 96%(C250).
+#   ⚠[[70]] 무엇을 파는가: "JSON 하나만" 이 강제되면 서브가 추론할 자리를 잃는다 ⇒ 스키마의
+#     **첫 required 필드를 `derivation`** 으로 두어 추론이 값보다 앞에 오게 했다(파싱은
+#     `_merge_json(content, operand_keys)` 라 추가 필드를 무시한다).
+export T2_SG_SCHEMA=1
 export T2_CATEGORY_CITE=
 # ★T2_SEARCH_REARM (2026-08-22 등재·구현 2026-08-21 커밋 992b7d53·정본 `T7336_FORENSIC_016_2026_08_21.md`·
 #   격리 C591 x464): 검색 에이전트의 축-소진 키를 군 → **(군, 배달된 계열 집합)** 으로 좁히고, 배달분에

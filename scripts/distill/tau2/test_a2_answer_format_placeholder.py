@@ -98,5 +98,51 @@ chk("열거형 표시(base|checking|...) 보존",
 chk("JSON 하나만 내라는 지시 보존",
     all("exactly one JSON object" in v for v in g.values()))
 
+print("\n[⑤ 근본 수리 — 문법으로 형식을 강제한다 (T2_SG_SCHEMA)]")
+# ★자리표시자는 *복사할 값*을 없앨 뿐 형식 준수를 **보장하지 않는다**(사용자 지적 2026-08-22:
+#   "숫자대신 문자로 대체하면 복사하지 않는건가?"). 보장은 문법이 준다 — 격리 서브의 **마감
+#   라운드는 구조적으로 도구가 없으므로**(`_tl = None if (_last or not tools)`) 거기에만 건다.
+#   ⛔도구가 있는 라운드에 걸면 tool_calls 가 0 이 되어 서브가 레코드를 못 읽는다(C248).
+SG = io.open(os.path.join(HERE, "t2_scaffold_get.py"), encoding="utf-8").read()
+_blk = SG[SG.find("_last = (rnd == _maxr - 1)"):][:2600]
+
+for rel, afs in seen.items():
+    d = json.load(io.open(os.path.join(HERE, rel), encoding="utf-8"))
+    for t in (d.get("scaffold_get_tools") or []):
+        iso = t.get("isolate") or {}
+        if not iso.get("answer_format"):
+            continue
+        sc = iso.get("operand_schema")
+        nm = t.get("name")
+        chk("%-34s %s: operand_schema 선언" % (rel.split("/")[-1], nm), bool(sc))
+        if not sc:
+            continue
+        req = sc.get("required") or []
+        chk("%-34s %s: derivation 이 첫 required(추론이 값보다 앞)"
+            % (rel.split("/")[-1], nm), req[:1] == ["derivation"], req)
+        chk("%-34s %s: 스키마에 복사 가능한 숫자 0"
+            % (rel.split("/")[-1], nm),
+            not [c for c in json.dumps(sc) if c.isdigit()])
+
+chk("배선: 문법은 **도구가 없는 라운드에만** 걸린다(tool_calls 0 회피·C248)",
+    "_tl is None and os.environ.get(\"T2_SG_SCHEMA\")" in _blk)
+chk("배선: 스키마 출처가 A2 하나뿐이다(엔진 리터럴 0·[[05]])",
+    'iso["operand_schema"]' in _blk and "operand_schema" in _blk)
+chk("배선: vLLM 문법 계약(guided_json + xgrammar)",
+    'guided_json' in _blk and 'xgrammar' in _blk)
+chk("배선: 문법 경로에서 tools 를 제거한다",
+    '_kw.pop("tools", None)' in _blk)
+chk("배선: 기본 OFF(플래그 미설정이면 거동 변화 0)",
+    'os.environ.get("T2_SG_SCHEMA") == "1"' in _blk)
+chk("배선: 미선언 도구는 skip(fail-open)", 'and iso.get("operand_schema")' in _blk)
+chk("래칫: go_stack 정본에 등재됐다([[73]])",
+    "T2_SG_SCHEMA" in io.open(os.path.join(HERE, "go_stack.sh"), encoding="utf-8").read())
+_GS = io.open(os.path.join(HERE, "go_stack.sh"), encoding="utf-8").read()
+_gsblk = _GS[_GS.find("★T2_SG_SCHEMA"):][:1400]
+chk("⚠[[70]] 무엇을 파는가 명기(추론 자리를 잃는 것 ↔ derivation 으로 되산다)",
+    "무엇을 파는가" in _gsblk and "derivation" in _gsblk)
+chk("⚠도구 라운드 금지 근거가 등재문에 적혀 있다(C248)",
+    "tool_calls" in _gsblk and "0" in _gsblk)
+
 print("\n%d/%d" % (sum(OK), len(OK)))
 sys.exit(0 if all(OK) else 1)

@@ -1003,7 +1003,41 @@
     "max_rounds": 4,
     "instructions": "You are a data-extraction sub-task. Using the getter tool, read the credit card transactions for the user/account given in REFERENCE. Then output ONLY a JSON object with the card transactions: for the account in REFERENCE, every transaction as {\"date\": \"MM/DD/YYYY\" (the POSTING date), \"amount\": <number, purchase/spend amount, no $>}. Copy raw values exactly as returned by the tool; do not filter, sum, or round.",
     "answer_format": "Reply with exactly one JSON object and nothing else: {\"transactions\": [{\"date\": \"MM/DD/YYYY\", \"amount\": <number>}, ...]}",
-    "_note": "2026-07-20 isolate-승격(023 ContextWindowExceeded·§2ah·사용자 지시 \"내부 기능은 턴을 안 쓰게\"): transactions(대형 리스트=main 부풀림 주범)를 서브가 off-ledger fetch. 에이전트=참조만 넘김(레코드 read 0). opening_date/threshold는 여전히 에이전트 공급(소형·T2_SG_GROUND 유지). 서브 실패=에이전트 인자 폴백(거동보존). §2b LOCK 패턴의 fetch-first 확장·엔진 리터럴 0."
+    "_note": "2026-07-20 isolate-승격(023 ContextWindowExceeded·§2ah·사용자 지시 \"내부 기능은 턴을 안 쓰게\"): transactions(대형 리스트=main 부풀림 주범)를 서브가 off-ledger fetch. 에이전트=참조만 넘김(레코드 read 0). opening_date/threshold는 여전히 에이전트 공급(소형·T2_SG_GROUND 유지). 서브 실패=에이전트 인자 폴백(거동보존). §2b LOCK 패턴의 fetch-first 확장·엔진 리터럴 0.",
+    "operand_schema": {
+     "type": "object",
+     "properties": {
+      "derivation": {
+       "type": "string",
+       "description": "Show how each value was read or derived from the records, quoting the raw figures you used."
+      },
+      "transactions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "date": {
+          "type": "string"
+         },
+         "amount": {
+          "type": "number"
+         }
+        },
+        "required": [
+         "date",
+         "amount"
+        ],
+        "additionalProperties": false
+       }
+      }
+     },
+     "required": [
+      "derivation",
+      "transactions"
+     ],
+     "additionalProperties": false
+    },
+    "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다."
    },
    "incomplete_hint": "The rebate rule is evaluated over EVERY monthly window of the cardmember year, so a window with no input records cannot be judged and this tool will not issue a verdict on it. Supply the full year instead of a hand-copied subset: pass the rows by reference (\"@last:<the tool whose output holds the card's transactions>\"), or OMIT 'transactions' and pass user_id together with credit_card_account_id so the tool reads them itself. If, from the complete records, a month genuinely had no qualifying spend, then that month is below the threshold and a single month below disqualifies (no proration).",
    "byref_field_map": {
@@ -2651,7 +2685,52 @@
        }
       ]
      }
-    }
+    },
+    "operand_schema": {
+     "type": "object",
+     "properties": {
+      "derivation": {
+       "type": "string",
+       "description": "Show how each value was read or derived from the records, quoting the raw figures you used."
+      },
+      "components": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "kind": {
+          "type": "string",
+          "enum": [
+           "base",
+           "checking",
+           "card",
+           "relationship",
+           "tier"
+          ]
+         },
+         "value": {
+          "type": "number"
+         },
+         "source": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "kind",
+         "value",
+         "source"
+        ],
+        "additionalProperties": false
+       }
+      }
+     },
+     "required": [
+      "derivation",
+      "components"
+     ],
+     "additionalProperties": false
+    },
+    "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다."
    }
   },
   {
@@ -2747,7 +2826,29 @@
     "instructions": "You are a records-extraction sub-task. For the savings account in REFERENCE: (1) call call_discoverable_agent_tool with agent_tool_name='get_all_user_accounts_by_user_id_3847' style getters ALREADY UNLOCKED in this session, or the transactions getter, to read the account record and its transactions. (2) principal = the account's current_holdings (number, exactly as in the record). (3) actual_apy = the APY actually applied: derive it from the latest MONTHLY INTEREST CREDIT as monthly credit x 12 / principal x 100. The APY stated on the account record may be the intended rate, not the applied one - use it only if no interest credit transaction exists. Copy raw values exactly; show your derivation.",
     "answer_format": "Reply with exactly one JSON object and nothing else: {\"principal\": <number>, \"actual_apy\": <number>}",
     "_note": "2026-07-20 §2az(마지막 배선·r095b/c 3-trial: 슬롯값 trial-간 불안정 — t1 actual 5.625 정답·c-t0 5.5 오독). 서브가 격리 문맥서 레코드 재조회·formalize(§2b 105/105 실증 축). 디스패처 getter=REQREADS로 main이 이미 unlock한 도구 재호출. 산출은 기존 ground(existence)가 재검증. 실패=에이전트 인자 폴백.",
-    "_robust_note": "2026-07-22 §2bv(rall12 097 실측): 서브가 5라운드 KB_search(APY규칙 큰문서)+call_discoverable(8계좌) 누적→52854>48640 초과→실패→폴백 오추측. 압축(절단)이 값 훼손(actual_apy 드롭). 사용자 제안=서브 분리: max_rounds 5→3(작업 분할·누적 상한)+head+tail 절단(엔진 T2_SG_SUB_TOOLCAP 4000·값보존). 3×2×4000+prompt≈26k<48.6k. 완전 2단계 서브(서브-of-서브)는 미구현·이 조합으로 초과·훼손 완화."
+    "_robust_note": "2026-07-22 §2bv(rall12 097 실측): 서브가 5라운드 KB_search(APY규칙 큰문서)+call_discoverable(8계좌) 누적→52854>48640 초과→실패→폴백 오추측. 압축(절단)이 값 훼손(actual_apy 드롭). 사용자 제안=서브 분리: max_rounds 5→3(작업 분할·누적 상한)+head+tail 절단(엔진 T2_SG_SUB_TOOLCAP 4000·값보존). 3×2×4000+prompt≈26k<48.6k. 완전 2단계 서브(서브-of-서브)는 미구현·이 조합으로 초과·훼손 완화.",
+    "operand_schema": {
+     "type": "object",
+     "properties": {
+      "derivation": {
+       "type": "string",
+       "description": "Show how each value was read or derived from the records, quoting the raw figures you used."
+      },
+      "principal": {
+       "type": "number"
+      },
+      "actual_apy": {
+       "type": "number"
+      }
+     },
+     "required": [
+      "derivation",
+      "principal",
+      "actual_apy"
+     ],
+     "additionalProperties": false
+    },
+    "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다."
    }
   },
   {
@@ -3519,7 +3620,49 @@
      "withdrawal_amount",
      "network"
     ],
-    "_note_row_fields": "2026-08-21 P3: row_fields 는 fetch_formalize 모드가 소비하지 않는다(_sub_formalize/_sub_inject 전용) — 여기 선언하는 유일 효과는 _split_missing_fields 의 출처 분류: transaction_id 등 레코드-유래 필드가 결핍(P4b 강등 포함)일 때 abstain 문구가 '레코드에서 읽어 재호출하라'(이행 가능 지시)로 나가게 한다(C275 ⑤ 모순-지시 방지·C278 §2c)."
+    "_note_row_fields": "2026-08-21 P3: row_fields 는 fetch_formalize 모드가 소비하지 않는다(_sub_formalize/_sub_inject 전용) — 여기 선언하는 유일 효과는 _split_missing_fields 의 출처 분류: transaction_id 등 레코드-유래 필드가 결핍(P4b 강등 포함)일 때 abstain 문구가 '레코드에서 읽어 재호출하라'(이행 가능 지시)로 나가게 한다(C275 ⑤ 모순-지시 방지·C278 §2c).",
+    "operand_schema": {
+     "type": "object",
+     "properties": {
+      "derivation": {
+       "type": "string",
+       "description": "Show how each value was read or derived from the records, quoting the raw figures you used."
+      },
+      "transactions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "transaction_id": {
+          "type": "string"
+         },
+         "fee_amount": {
+          "type": "number"
+         },
+         "withdrawal_amount": {
+          "type": "number"
+         },
+         "network": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "transaction_id",
+         "fee_amount",
+         "withdrawal_amount",
+         "network"
+        ],
+        "additionalProperties": false
+       }
+      }
+     },
+     "required": [
+      "derivation",
+      "transactions"
+     ],
+     "additionalProperties": false
+    },
+    "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다."
    },
    "requires_reads": [
     "get_all_user_accounts_by_user_id",
