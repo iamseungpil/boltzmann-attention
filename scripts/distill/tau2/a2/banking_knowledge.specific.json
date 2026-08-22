@@ -2675,7 +2675,20 @@
      ],
      "additionalProperties": false
     },
-    "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다."
+    "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다.",
+    "ref_from_outputs": {
+     "account_records": {
+      "producer_contains": [
+       "accounts"
+      ]
+     },
+     "transactions_raw": {
+      "producer_contains": [
+       "transactions"
+      ]
+     }
+    },
+    "_note_ref_from_outputs": "2026-08-22 R3 (x482 격리 확정·각 3회): 이 서브는 `account_id` 만 받고 **getter 로 직접 레코드를 읽으라**고 돼 있었는데, 그 경로가 격리에서 **아예 살지 않는다** — A_asis 답반환 0/3(principal=-1; actual_apy=-1 로 폐기) · N_neg 0/3(부정통제 동일) · **B_raw 3/3**(principal 144000 · actual_apy 4.0 둘 다 정확). 폐기 → 폴백 → 메인 추측 3.75 → grounding 드롭 → 도구 None → 자기계산 write → WEV deny 의 사슬이 거기서 시작됐다. ⇒ x481 과 **같은 처방**: 엔진이 도구 출력 원문을 REFERENCE 에 그대로 싣는다. 엔진은 도구 이름 대조 후 복사만 하고 파싱·선택·요약 0([[59]]) — principal 을 고르고 APY 를 계산하는 것은 여전히 서브다(A2 공식 그대로). 정답은 레코드에서 나왔다: current_holdings 144000 · MONTHLY INTEREST CREDIT 480 → 480x12/144000x100 = 4.0. gold 미참조([[23]]). 출력을 못 찾으면 종전 getter 경로로 폴백(fail-open)."
    },
    "result_round": 2,
    "_note_result_round": "2026-08-22 (093 실시간 포렌식): op 의 1/12 근사(`0.08333333333333333`) 탓에 이 도구가 32.999999999999986 을 냈고, 모델이 통화로 옳게 33.0 으로 반올림해 write 하자 T2_WRITE_EVIDENCE 가 '33.0 은 도구 출력에 없다'며 10회 반려했다 — 우리 표현 오차가 우리 게이트를 막은 것이다([[25]]). 자릿수 2 = 달러 금액(센트)이고 근거는 크레딧 도구의 인자 계약('The positive dollar amount to credit')이다. gold 미참조([[23]])."

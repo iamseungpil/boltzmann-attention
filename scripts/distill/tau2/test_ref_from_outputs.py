@@ -102,5 +102,37 @@ chk("⚠[[70]] 무엇을 파는가 명기(REFERENCE 가 길어진다)",
     or "부풀" in SG[SG.find("★R3 (2026-08-22"):][:2000]
     or "미선언이면 거동 변화 0" in SG[SG.find("★R3 (2026-08-22"):][:2000])
 
+print("\n[⑤ 같은 처방을 받은 둘째 도구 — get_interest_correction (x482)]")
+# ★두 도구가 같은 뿌리의 결함을 앓았다: **재료를 서브에 제대로 전달하지 않은 것**.
+#   apy 는 에이전트 전사가 계좌명을 바꿔 checking boost 를 잃었고(x481 0/4↔4/4),
+#   이쪽은 `account_id` 만 주고 "getter 로 읽어라" 한 경로가 **격리에서 아예 살지 않았다**
+#   — A_asis 답반환 **0/3** · N_neg 0/3(부정통제) · **B_raw 3/3**(principal 144000·apy 4.0).
+IC = "get_interest_correction"
+sig2 = []
+for rel in LAYERS:
+    d2 = json.load(io.open(os.path.join(HERE, rel), encoding="utf-8"))
+    iso2 = {}
+    for t in (d2.get("scaffold_get_tools") or []):
+        if t.get("name") == IC:
+            iso2 = t.get("isolate") or {}
+    rfo2 = iso2.get("ref_from_outputs") or {}
+    nm = rel.split("/")[-1]
+    chk("%-34s 레코드·거래 두 재료를 선언" % nm,
+        "account_records" in rfo2 and "transactions_raw" in rfo2, sorted(rfo2))
+    chk("%-34s selector 가 기존 관행" % nm,
+        all((rfo2.get(k) or {}).get("producer_contains") for k in rfo2))
+    chk("%-34s 측정 근거 기록(0/3 ↔ 3/3)" % nm,
+        "0/3" in str(iso2.get("_note_ref_from_outputs") or "")
+        and "3/3" in str(iso2.get("_note_ref_from_outputs") or ""))
+    chk("%-34s gold 미참조 명기([[23]])" % nm,
+        "gold 미참조" in str(iso2.get("_note_ref_from_outputs") or ""))
+    # ⓒ 부정통제 — 기존 계약이 살아 있다
+    chk("%-34s ⓒ operand_keys 불변(principal·actual_apy)" % nm,
+        (iso2.get("operand_keys") or []) == ["principal", "actual_apy"])
+    chk("%-34s ⓒ getter 경로 선언 보존(폴백이 남아 있다)" % nm,
+        bool(iso2.get("getter_tools")))
+    sig2.append(json.dumps(rfo2, sort_keys=True, ensure_ascii=False))
+chk("%-34s 3층이 같은 선언" % IC, len(set(sig2)) == 1, "%d 종" % len(set(sig2)))
+
 print("\n%d/%d" % (sum(OK), len(OK)))
 sys.exit(0 if all(OK) else 1)
