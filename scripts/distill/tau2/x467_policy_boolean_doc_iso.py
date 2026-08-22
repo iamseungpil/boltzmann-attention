@@ -644,9 +644,10 @@ def build_case(spec, a3, registry, corpus, docs_dir, maxchars, kb_names):
 
 
 def _replay4(cx, tools, model, base, t):
-    """`X465.replay` 호출 — 구판(3-튜플)과의 호환 껍데기(usage 없으면 None·A det 게이트가 fail-closed)."""
+    """`X465.replay` 호출 — 반환은 정본 `ReplayResult`(이름 있는 필드). 여기서는 이 파일의 옛 4-튜플
+    호출부에 맞춰 그대로 넘긴다(namedtuple 이라 호환·언팩 개수는 더 이상 여기서 정하지 않는다)."""
     r = X465.replay(cx, tools, model, base, t)
-    return r if len(r) == 4 else (r[0], r[1], r[2], None)
+    return (r.calls, r.text, r.dropped, r.prompt_tokens)
 
 
 def run_case(case, arms, tools, registry, kb_names, a, base):

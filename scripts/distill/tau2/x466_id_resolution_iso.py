@@ -166,6 +166,9 @@ NUDGE = X465.NUDGE
 
 GO_STACK = os.path.join(HERE, "go_stack.sh")
 
+# 같은 예외가 이만큼 **연속**이면 계기 결함으로 보고 재생을 중단한다([[55]]·GPU 낭비 금지).
+EXC_STREAK = 3
+
 
 def go_stack_default(var):
     """정본 런처 `go_stack.sh` 의 `export VAR=val` 값(마지막 것·없으면 None) — 라이브 기본값을
@@ -711,11 +714,88 @@ def system_dicts(policy, tools, model):
     return [{"role": "system", "content": str(ag.system_prompt)}], "agent.system_prompt"
 
 
-def replay(sys_msgs, msgs, tools, model, base, temperature):
+def replay(sys_msgs, msgs, tools, model, base, temperature, gen=None):
     """x465.replay **재사용**(사본 금지·[[67]]·리뷰 MAJOR⑥) — system 은 dict 로 앞에 끼워 넣으면
     x465 의 CLS 매핑(role=system→SystemMessage)이 같은 경로로 복원한다. call_name 은 x465_replay 로
-    찍힌다(공유 함수의 표기·별도 의미 없음)."""
-    return X465.replay(list(sys_msgs) + list(msgs), tools, model, base, temperature)
+    찍힌다(공유 함수의 표기·별도 의미 없음).
+
+    반환 = 정본 `X465.ReplayResult`(calls·text·dropped·prompt_tokens) — **이름으로 읽는다**.
+    ⛔2026-08-22 사고: 여기 호출부가 3-언팩으로 남아 있어 리모트 재생이 **전 표본**
+    `ValueError: too many values to unpack (expected 3)` 로 죽었다(배선 검산은 재생 경로를 안 타서
+    못 잡았다). 그래서 ⑴ 계약을 이름 있는 필드로 고정하고 ⑵ `--wiring-only` 가 `gen` 주입으로
+    이 경로를 합성 표본 하나로 태운다.
+    """
+    return X465.replay(list(sys_msgs) + list(msgs), tools, model, base, temperature, gen=gen)
+
+
+def shot(c, arm, cx, k, t, sys_msgs, tools, model, base, kinds, names, disc, gen=None):
+    """★한 표본의 **전 경로** — 재생 → 언팩 → 분류 → 행 조립 → 인쇄줄. 실제 루프와 배선 검산이
+    **같은 이 함수**를 부른다(그래야 "배선 PASS 인데 재생에서 죽음" 이 구조적으로 불가능해진다).
+    """
+    r = replay(sys_msgs, cx, tools, model, base, t, gen=gen)
+    cat, cats = classify(r.calls, c["ctx"], c["dp"], kinds, names, disc, c["shams"])
+    row = {"sim": F.sim_key(c["sim"]), "arm": arm, "k": k, "temp": t, "cat": cat, "cats": cats,
+           "calls": [[nm, json.dumps(ag, ensure_ascii=False, default=str)[:200]]
+                     for nm, ag in r.calls],
+           "dropped_msgs": r.dropped, "delta_chars": c["delta"][arm],
+           "prompt_tokens": r.prompt_tokens,
+           "text": " ".join(r.text.split())[:300]}
+    line = ("  #%d t=%.1f  %-15s calls=%s%s"
+            % (k, t, SHORT.get(cat, cat),
+               ",".join(F.label(nm, ag) for nm, ag in r.calls) or "-",
+               ("  ⚠복원 누락 %d" % r.dropped) if r.dropped else ""))
+    return row, line
+
+
+class _FakeCall(object):
+    """합성 tool_call — 라이브 ToolCall 의 속성 모양(`F.nameof`/`F.argsof` 가 흡수하는 경로)."""
+
+    def __init__(self, name, arguments):
+        self.name, self.arguments, self.id = name, arguments, "wiring"
+
+
+class _FakeResp(object):
+    def __init__(self, calls):
+        self.tool_calls = list(calls)
+        self.content = "" if calls else "(synthetic text-only)"
+        self.usage = {"prompt_tokens": 0}
+
+
+def selftest_shot(c, sys_msgs, tools, model, base, kinds, names, disc):
+    """★배선 검산이 **재생 경로를 태운다**(LLM 0·GPU 0·2026-08-22 신설).
+
+    `gen` 주입으로 `la.generate` 를 합성 응답으로 갈아 끼우고 `shot()` 을 그대로 통과시킨다 —
+    언팩·분류·행 조립·인쇄줄까지 실제 루프와 **같은 코드**다. 기대 분류까지 대조하므로 "안 죽었다"
+    가 아니라 "제대로 돈다" 를 본다. 표본은 이 결정점의 선언에서 나온다(리터럴 0):
+      ⑴ 지목 read 를 unlock → `pointed_read`   ⑵ 호출 0 → `no_tool`
+    """
+    first = kinds[c["dp"]["ev"]["key"]][-1]
+    cases = [("unlock(원천)", [_FakeCall(F.UNLOCK, {"agent_tool_name": first})], "pointed_read"),
+             ("무호출", [], "no_tool")]
+    saved = None
+    try:
+        import tau2  # noqa: F401
+    except Exception:
+        # 메시지 객체 변환만 대역으로 통과시킨다 — 나머지(언팩·분류·행 조립)는 실물 코드다.
+        saved, X465.to_objs = X465.to_objs, (lambda ms: (list(ms), 0))
+        print("   ⚠tau2 없음 — 합성 재생의 **메시지 객체 변환만** 대역(리모트는 실물·[[55]] 침묵 금지)")
+    ok = True
+    for label, calls, want in cases:
+        try:
+            row, line = shot(c, "A_asis", c["arm_ctx"]["A_asis"], 0, 0.0, sys_msgs, tools,
+                             model, base, kinds, names, disc,
+                             gen=lambda **kw: _FakeResp(calls))
+        except Exception as e:
+            print("   FAIL 합성 재생(%s) — %s %r" % (label, type(e).__name__, e))
+            ok = False
+            break
+        good = row["cat"] == want
+        ok &= good
+        print("   %-4s 합성 재생·언팩·분류·행조립(%s) → %s (기대 %s)%s"
+              % ("ok" if good else "FAIL", label, row["cat"], want, line))
+    if saved is not None:
+        X465.to_objs = saved
+    return bool(ok)
 
 
 # ── ⑥ 채점 — 닫힌 분류 ─────────────────────────────────────────────────────────
@@ -1087,9 +1167,17 @@ def main():
             raise SystemExit("채점기 자기검사 실패([[55]] 계기 — 결과 사용 금지): %s"
                              % "; ".join("%s=%s(기대 %s)" % b for b in bad))
 
+    # ── 재생 경로 자기검정 (LLM 0·GPU 0 — 실제 루프와 **같은 `shot()`** 을 태운다) ───────
+    print(NLC + "[배선] 재생 경로 합성 표본 (gen 주입 → replay·언팩·classify·행 조립·인쇄줄)")
+    shot_ok = selftest_shot(cases[0], [], list(cases[0].get("tools") or []), a.model,
+                            "http://localhost:%d/v1" % a.port, kinds, names, disc)
+
     if a.wiring_only:
-        print(NLC + "[배선] wiring-only 종료 — LLM 0·GPU 0")
-        return 0
+        print("[배선] wiring-only %s — LLM 0·GPU 0 (재생 경로 포함)"
+              % ("PASS" if shot_ok else "FAIL"))
+        return 0 if shot_ok else 1
+    if not shot_ok:
+        raise SystemExit("재생 경로 자기검정 실패 — GPU 를 쓰지 않는다([[55]])")
     if not tools or not all(c.get("tools") for c in cases):
         raise SystemExit("실물 도구 스키마 없이 재생할 수 없다(샌드박스 필요·C584)")
 
@@ -1116,6 +1204,7 @@ def main():
     total = sum(len(c["arm_ctx"]) for c in cases) * (1 + a.n)
     print("[재생] 결정점 %d × 팔 ≤%d × (1+%d) = 호출 %d건" % (len(cases), len(arms), a.n, total))
     rows = []
+    run_exc = (None, 0)                      # (예외 타입, 연속 횟수) — 연속 EXC 가드
     for c in cases:
         sk = F.sim_key(c["sim"])
         for arm in arms:
@@ -1125,21 +1214,23 @@ def main():
             print(NLC + "── %s · %s (+%d자) ────────────────────────────" % (sk, arm, c["delta"][arm]))
             for k, t in enumerate([0.0] + [a.temperature] * a.n):
                 try:
-                    calls, text, dropped = replay(c["sys_msgs"], cx, c["tools"], a.model, base, t)
+                    row, line = shot(c, arm, cx, k, t, c["sys_msgs"], c["tools"], a.model, base,
+                                     kinds, names, disc)
                 except Exception as e:
-                    print("  #%d t=%.1f EXC %r" % (k, t, e))
+                    # [[55]] 예외를 삼키지 않는다 — 표본마다 인쇄하되, **같은 예외가 연속 %d 번**이면
+                    # 즉시 중단한다(2026-08-22: 전 표본 EXC 로 GPU 를 태운 사고).
+                    print("  #%d t=%.1f EXC %s %r" % (k, t, type(e).__name__, e))
                     rows.append({"sim": sk, "arm": arm, "k": k, "temp": t, "cat": "EXC",
-                                 "err": repr(e)[:200]})
+                                 "exc": type(e).__name__, "err": repr(e)[:200]})
+                    run_exc = (type(e).__name__, (run_exc[1] + 1) if run_exc[0] == type(e).__name__
+                               else 1)
+                    if run_exc[1] >= EXC_STREAK:
+                        raise SystemExit("같은 예외 %s 가 연속 %d 표본 — 계기 결함이다. 재생을 "
+                                         "중단한다([[55]]·GPU 낭비 금지)" % run_exc)
                     continue
-                cat, cats = classify(calls, c["ctx"], c["dp"], kinds, names, disc, c["shams"])
-                rows.append({"sim": sk, "arm": arm, "k": k, "temp": t, "cat": cat, "cats": cats,
-                             "calls": [[nm, json.dumps(ag, ensure_ascii=False, default=str)[:200]]
-                                       for nm, ag in calls],
-                             "dropped_msgs": dropped, "delta_chars": c["delta"][arm],
-                             "text": " ".join(text.split())[:300]})
-                print("  #%d t=%.1f  %-15s calls=%s%s"
-                      % (k, t, SHORT.get(cat, cat), ",".join(F.label(nm, ag) for nm, ag in calls) or "-",
-                         ("  ⚠복원 누락 %d" % dropped) if dropped else ""))
+                run_exc = (None, 0)
+                rows.append(row)
+                print(line)
 
     # ── 집계 — 결정점 × 팔 × 닫힌 분류 + 유효성(리뷰 MAJOR③) + [[70]] 병기 ────────
     cats_all = list(ORDER) + ["no_tool", "EXC"]

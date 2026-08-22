@@ -802,7 +802,9 @@ def main():
             for k, t in enumerate([0.0] + [a.temperature] * a.n):
                 try:
                     # system 은 dict 로 앞에 끼운다 — x465.replay 의 CLS(role=system) 가 복원(리뷰 MAJOR)
-                    calls, text, dropped = X465.replay(list(sys_msgs) + cx, tools, a.model, base, t)
+                    # ⛔이름으로 읽는다 — 언팩 개수 하드코딩이 x466 을 전 표본 EXC 로 죽였다(2026-08-22).
+                    _r = X465.replay(list(sys_msgs) + cx, tools, a.model, base, t)
+                    calls, text, dropped = _r.calls, _r.text, _r.dropped
                 except Exception as e:
                     print("    #%d t=%.1f EXC %r" % (k, t, e))
                     rows.append({"task": c["task"], "trial": c["trial"], "arm": arm, "k": k, "temp": t,
@@ -824,7 +826,8 @@ def main():
         # 정책 유/무 대조(리뷰 MAJOR — det 1발·A 문맥·system 없이): 부호표 밖 `A_nosys` 행
         if sys_msgs and "A_asis" in arms:
             try:
-                calls, text, dropped = X465.replay(c["ctx"], tools, a.model, base, 0.0)
+                _r = X465.replay(c["ctx"], tools, a.model, base, 0.0)
+                calls, text, dropped = _r.calls, _r.text, _r.dropped
                 cat, v, target, eq_live, stale = classify(
                     calls, dec, c["ref"]["ref"] if c["ref"] else None, c["live"], c["live_amt"])
                 rows.append({"task": c["task"], "trial": c["trial"], "arm": "A_nosys", "k": 0,

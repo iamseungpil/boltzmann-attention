@@ -173,6 +173,8 @@ EXC_PRE = "OVER_WINDOW"      # 사전 게이트: 압축 뒤에도 --ctx-window �
 EXC_WIN = "CTXWIN"           # 런타임: 창-초과 예외가 한 팔에서 나면 그 결정점을 전 팔 동시 제외
 # 하네스 프로토콜: litellm/vLLM 의 창-초과는 **예외 타입 이름**으로 식별한다(자유 텍스트 파싱 0·[[59]]).
 CTXWIN_TYPES = ("ContextWindowExceededError",)
+# 같은 예외가 이만큼 **연속**이면 계기 결함으로 보고 재생을 중단한다([[55]]·GPU 낭비 금지).
+EXC_STREAK = 3
 # 팔 문면 토큰 ∩ 도구명 토큰 중 허용 — 도메인 명사가 아닌 것만(출력에 허용 목록을 같이 찍는다):
 #   tool/call/name = 하네스 프로토콜 어휘(`*_tool`·`call_*`·`get_user_information_by_name`)
 #   request/to    = 영어 기능어(`*_request_*`·`transfer_to_human_agents`)
@@ -398,23 +400,109 @@ def system_messages(tools, policy, model):
     return [SystemMessage(role="system", content=ag.system_prompt)], "agent.system_prompt"
 
 
-def replay(sys_msgs, extra_sys, msgs, tools, model, base, temperature, max_tokens):
+def _sysmsg(text):
+    """system 슬롯 메시지 1건 — tau2 가 있으면 **실물 객체**, 없으면 dict(합성 배선 검산 전용).
+
+    리모트 경로는 바뀌지 않는다. 지연 import 로 둔 이유는 tau2 없는 로컬에서도 `--wiring-only` 가
+    재생 경로를 태울 수 있어야 하기 때문이다(2026-08-22: 배선은 통과하고 재생만 죽는 사고 방지).
+    """
+    try:
+        from tau2.data_model.message import SystemMessage
+        return SystemMessage(role="system", content=text)
+    except Exception:
+        return {"role": "system", "content": text}
+
+
+def replay(sys_msgs, extra_sys, msgs, tools, model, base, temperature, max_tokens, gen=None):
     """실물 도구 스키마 + 실제 메시지 객체 + `la.generate` — 라이브 `_gen` 과 같은 깔때기.
 
-    `msgs` 는 이미 **압축 뷰**다(계기 수리 ⒜ — `compact_arms` 가 앞에서 걸었다).
-    반환 넷째 = 응답 `usage.prompt_tokens`(없으면 None) — 창 소모 실측(계기 수리 ⒞ 병기용).
+    `msgs` 는 이미 **압축 뷰**다(계기 수리 ⒜ — `compact_base` 가 앞에서 걸었다).
+    반환 = 정본 `X465.ReplayResult`(calls·text·dropped·prompt_tokens) — **이름으로 읽어라**.
+    언팩 개수를 호출부에 하드코딩하지 않는다(2026-08-22 x466 사고: 필드가 하나 늘자 3-언팩 호출부가
+    **전 표본 EXC** 로 GPU 를 태웠다). 응답 해체도 정본 `X465.response_calls` 하나만 쓴다([[67]]).
+    ★`gen` 을 주면 `la.generate` 대신 그것을 부른다 — 배선 검산이 LLM 0 으로 이 경로를 태우는 자리.
     """
-    import tau2.agent.llm_agent as la
-    from tau2.data_model.message import SystemMessage
     work, dropped = restore(msgs)
-    head = list(sys_msgs) + [SystemMessage(role="system", content=_content(m)) for m in extra_sys]
-    resp = la.generate(model="openai/%s" % model, tools=tools, messages=head + work,
-                       call_name="x470_replay", api_base=base, api_key="dummy",
-                       temperature=temperature, max_tokens=max_tokens)
-    calls = [(F.nameof(t), F.argsof(t)) for t in (getattr(resp, "tool_calls", None) or [])]
-    u = getattr(resp, "usage", None)
-    pt = u.get("prompt_tokens") if isinstance(u, dict) else getattr(u, "prompt_tokens", None)
-    return calls, str(getattr(resp, "content", None) or ""), dropped, pt
+    head = list(sys_msgs) + [_sysmsg(_content(m)) for m in extra_sys]
+    if gen is None:
+        import tau2.agent.llm_agent as la
+        gen = la.generate
+    resp = gen(model="openai/%s" % model, tools=tools, messages=head + work,
+               call_name="x470_replay", api_base=base, api_key="dummy",
+               temperature=temperature, max_tokens=max_tokens)
+    calls, text, pt = X465.response_calls(resp)
+    return X465.ReplayResult(calls, text, dropped, pt)
+
+
+def shot(c, arm, xs, xm, k, t, sm, tools, model, base, max_tokens, mut, gen=None):
+    """★한 표본의 **전 경로** — 재생 → 언팩 → 채점 → 행 조립 → 인쇄 라벨. 실제 루프와 배선 검산이
+    **같은 이 함수**를 부른다(그래야 "배선 PASS 인데 재생에서 죽음" 이 구조적으로 불가능해진다)."""
+    r = replay(sm, xs, xm, tools, model, base, t, max_tokens, gen=gen)
+    cat, fl, hits = score(r.calls, c, mut)
+    row = {"case": c["case"], "tag": c["tag"], "task": c["task"], "sim": c["simtag"],
+           "arm": arm, "k": k, "temp": t, "cat": cat, "flags": fl, "hits": hits,
+           "calls": [[nm, json.dumps(ag, ensure_ascii=False, default=str)[:200]]
+                     for nm, ag in r.calls],
+           "n_msgs": len(xm), "ctx_chars": ctx_chars(xm),
+           "prompt_tokens": r.prompt_tokens, "dropped": r.dropped,
+           "text": " ".join(r.text.split())[:240]}
+    label = ("%s%s" % (cat, ("(" + ",".join(hits) + ")") if hits else "")
+             + ("⚠drop%d" % r.dropped if r.dropped else ""))
+    return row, label
+
+
+class _FakeCall(object):
+    """합성 tool_call — 라이브 ToolCall 의 속성 모양(`F.nameof`/`F.argsof` 가 흡수하는 경로)."""
+
+    def __init__(self, name, arguments):
+        self.name, self.arguments, self.id = name, arguments, "wiring"
+
+
+class _FakeResp(object):
+    def __init__(self, calls):
+        self.tool_calls = list(calls)
+        self.content = "" if calls else "(synthetic text-only)"
+        self.usage = {"prompt_tokens": 0}
+
+
+def selftest_shot(c, arms, sm, tools, model, base, max_tokens, mut):
+    """★배선 검산이 **재생 경로를 태운다**(LLM 0·GPU 0·2026-08-22 신설).
+
+    `gen` 주입으로 `la.generate` 를 합성 응답으로 갈아 끼우고 `shot()` 을 그대로 통과시킨다 —
+    복원·언팩·채점·행 조립·라벨까지 실제 루프와 **같은 코드**다. 기대 분류까지 대조한다.
+    표본은 이 결정점의 MISSING 집합에서 나온다(리터럴 0): ⑴ MISSING 도구를 래퍼로 호출 → `MISS`
+    ⑵ 호출 0 → `TEXT`.
+    """
+    arm = arms[0]
+    xs, xm = c["views"][arm]
+    mn = c["missing_rows"][0]["name"]
+    ma = c["missing_rows"][0]["args"]
+    saved = None
+    try:
+        import tau2  # noqa: F401
+    except Exception:
+        # 메시지 객체 복원만 대역 — 나머지(언팩·채점·행 조립)는 실물 코드다([[55]] 침묵 금지).
+        saved, globals()["restore"] = restore, (lambda ms: (list(ms), 0))
+        print("   ⚠tau2 없음 — 합성 재생의 **메시지 객체 복원만** 대역(리모트는 실물)")
+    ok = True
+    for label, calls, want in (("MISSING 을 래퍼로 호출",
+                                [_FakeCall(F.CALLA, {"agent_tool_name": mn, "arguments": ma})],
+                                "MISS"),
+                               ("무호출", [], "TEXT")):
+        try:
+            row, lab = shot(c, arm, xs, xm, 0, 0.0, sm, tools, model, base, max_tokens, mut,
+                            gen=lambda **kw: _FakeResp(calls))
+        except Exception as e:
+            print("   FAIL 합성 재생(%s) — %s %r" % (label, type(e).__name__, e))
+            ok = False
+            break
+        good = row["cat"] == want
+        ok &= good
+        print("   %-4s 합성 재생·복원·언팩·채점·행조립(%s) → %s (기대 %s) [%s]"
+              % ("ok" if good else "FAIL", label, row["cat"], want, lab))
+    if saved is not None:
+        globals()["restore"] = saved
+    return bool(ok)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -879,6 +967,11 @@ def main():
     ord_ok = selftest_arm_order(sel[0], arms)
     print("[배선] 도구-축 불변식 (gold MISSING 변이의 발견형이 `unknown` 이 되면 실패)")
     axis_ok = selftest_tool_axis(miss_all)
+    # ★재생 경로를 배선 검산이 태운다 — 실제 루프와 **같은 `shot()`**(LLM 0·GPU 0·2026-08-22 신설).
+    print("[배선] 재생 경로 합성 표본 (gen 주입 → replay·복원·언팩·score·행 조립)")
+    sm0 = system_messages(tools, sel[0]["policy"], a.model)[0] if have_tau2 else []
+    shot_ok = selftest_shot(sel[0], arms, sm0, tools, a.model,
+                            "http://localhost:%d/v1" % a.port, a.max_tokens, mut)
     if not have_tau2:
         print("   ⚠로컬 뷰 변환은 shim(원본 dict 보존)이라 실 tau2 `model_dump()` 왕복과 다르다 — "
               "위 순서 자기검정이 그 차이를 **모사**해 대신 잡는다([[55]] 침묵 금지).")
@@ -904,19 +997,20 @@ def main():
         else:
             print("[배선] (리모트 계층 — 객체 복원·실물 도구·system 재구성은 tau2 환경의 --wiring-only 에서)")
             tier = "LOCAL"
-        ok = (st_ok and exc_ok and ord_ok and axis_ok and n_bad == 0 and n_vbad == 0
-              and not unknown and not bad)
+        ok = (st_ok and exc_ok and ord_ok and axis_ok and shot_ok and n_bad == 0
+              and n_vbad == 0 and not unknown and not bad)
         print("[배선] wiring-only %s · 계층 %s · LLM 0 · GPU 0 (압축·EXC 계수·균형 검사 포함)"
               % ("PASS" if ok else "FAIL", tier))
         return 0 if ok else 1
     if not have_tau2:
         raise SystemExit("tau2 없음 — 재생은 리모트에서(docstring 실행 명령)")
-    if not st_ok or not exc_ok or not ord_ok or not axis_ok or n_bad or n_vbad:
+    if not st_ok or not exc_ok or not ord_ok or not axis_ok or not shot_ok or n_bad or n_vbad:
         raise SystemExit("배선 검산 실패 — 재생하지 않는다([[55]])")
 
     # ── ⑤ 재생 ───────────────────────────────────────────────────────────────────
     base = "http://localhost:%d/v1" % a.port
     rows = []
+    run_exc = (None, 0)                      # (예외 타입, 연속 횟수) — 연속 EXC 가드
     sys_cache = {}
     print(NLC + "재생 인터페이스: 실물 도구 %d종 + 실제 메시지 객체 + system 재구성 + la.generate(max_tokens=%d)"
           % (len(tools), a.max_tokens))
@@ -939,28 +1033,28 @@ def main():
             line = []
             for k, t in enumerate(temps):
                 try:
-                    calls, text, dropped, ptok = replay(sm, xs, xm, tools, a.model, base, t,
-                                                       a.max_tokens)
+                    row, lab = shot(c, arm, xs, xm, k, t, sm, tools, a.model, base,
+                                    a.max_tokens, mut)
                 except Exception as e:
                     if type(e).__name__ in CTXWIN_TYPES:
                         # ★창-초과는 결정점을 **전 팔 동시**로 뺀다 — 차등 제외가 1차를 무효로 만들었다.
                         c["excluded"] = EXC_WIN
                         break
+                    # [[55]] 예외를 삼키지 않는다 — 표본마다 인쇄하되 같은 예외가 연속이면 중단한다.
                     rows.append({"case": c["case"], "tag": c["tag"], "task": c["task"], "sim": c["simtag"],
                                  "arm": arm, "k": k, "temp": t, "cat": "EXC", "flags": {},
                                  "exc": type(e).__name__, "err": repr(e)[:200]})
                     line.append("EXC/" + type(e).__name__)
+                    run_exc = (type(e).__name__, (run_exc[1] + 1)
+                               if run_exc[0] == type(e).__name__ else 1)
+                    if run_exc[1] >= EXC_STREAK:
+                        print("   %-8s %s" % (arm, " | ".join(line)))
+                        raise SystemExit("같은 예외 %s 가 연속 %d 표본 — 계기 결함이다. 재생을 "
+                                         "중단한다([[55]]·GPU 낭비 금지)" % run_exc)
                     continue
-                cat, fl, hits = score(calls, c, mut)
-                rows.append({"case": c["case"], "tag": c["tag"], "task": c["task"], "sim": c["simtag"],
-                             "arm": arm, "k": k, "temp": t, "cat": cat, "flags": fl, "hits": hits,
-                             "calls": [[nm, json.dumps(ag, ensure_ascii=False, default=str)[:200]]
-                                       for nm, ag in calls],
-                             "n_msgs": len(xm), "ctx_chars": ctx_chars(xm),
-                             "prompt_tokens": ptok, "dropped": dropped,
-                             "text": " ".join(text.split())[:240]})
-                line.append("%s%s" % (cat, ("(" + ",".join(hits) + ")") if hits else "")
-                            + ("⚠drop%d" % dropped if dropped else ""))
+                run_exc = (None, 0)
+                rows.append(row)
+                line.append(lab)
             print("   %-8s %s" % (arm, " | ".join(line)))
             if c["excluded"]:
                 break

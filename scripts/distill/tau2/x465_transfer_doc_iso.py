@@ -65,6 +65,7 @@ N_neg 이 A 와 같아야 "결정점에 뭐라도 찔러서"가 아니라 **문�
     # 배선만(LLM 0·GPU 불요): ... x465_transfer_doc_iso.py --wiring-only
 """
 import argparse
+import collections
 import copy
 import io
 import json
@@ -204,23 +205,42 @@ def to_objs(msgs):
     return out, dropped
 
 
-def replay(msgs, tools, model, base, temperature):
+# ★재생 결과의 **반환 계약**은 여기 한 곳에만 산다(2026-08-22 수리). 이름 있는 필드라 호출부가
+#   언팩 개수를 하드코딩하지 않아도 되고, namedtuple 이라 옛 4-언팩 호출부와도 그대로 호환된다.
+#   ⛔사고 이력: `prompt_tokens` 를 넷째로 **추가**했을 때 x466/x468 호출부가 3-언팩으로 남아
+#   `ValueError: too many values to unpack (expected 3)` 로 **전 표본 EXC**(리모트 GPU 낭비).
+#   필드를 늘릴 일이 또 생기면 여기만 고치고 호출부는 이름으로 읽는다.
+ReplayResult = collections.namedtuple("ReplayResult", "calls text dropped prompt_tokens")
+
+
+def response_calls(resp):
+    """응답 객체 → (name, args) 목록 · 텍스트 · prompt_tokens — 정본 언팩 한 자리."""
+    calls = [(F.nameof(t), F.argsof(t)) for t in (getattr(resp, "tool_calls", None) or [])]
+    u = getattr(resp, "usage", None)
+    pt = u.get("prompt_tokens") if isinstance(u, dict) else getattr(u, "prompt_tokens", None)
+    return calls, str(getattr(resp, "content", None) or ""), pt
+
+
+def replay(msgs, tools, model, base, temperature, gen=None):
     """실제 메시지 객체 + 실물 도구 스키마로 결정점을 재생한다.
 
     x459.replay 관용구 그대로(C584 교훈: 렌더-텍스트는 약한 인터페이스라 라이브를 재현 못 한다)
     — 델타는 temperature 인자 하나(x459 는 0.0 고정)와 문구 치환 없음(주입은 inject 가 미리 한다).
-    반환 = (calls, text, dropped, prompt_tokens). 넷째 원소는 응답 `usage.prompt_tokens`(없으면 None)
-    — 재생 문맥이 라이브 생성 뷰와 같은지 라이브 usage 와 대조하는 정보-맞춤 검산용(x467 리뷰 BLOCK②).
+    반환 = `ReplayResult`(calls·text·dropped·prompt_tokens) — **이름으로 읽어라**(위 계약 주석).
+    `prompt_tokens` 는 재생 문맥이 라이브 생성 뷰와 같은지 라이브 usage 와 대조하는 검산용
+    (x467 리뷰 BLOCK②).
+    ★`gen` 을 주면 `la.generate` 대신 그것을 부른다 — **배선 검산이 LLM 0 으로 재생 경로를 태우는**
+    자리다(합성 응답 1개로 재생→채점→행 조립까지 통과시켜 "배선 PASS 인데 재생에서 죽음" 을 막는다).
     """
-    import tau2.agent.llm_agent as la
     out, dropped = to_objs(msgs)
-    resp = la.generate(model="openai/%s" % model, tools=tools, messages=out,
-                       call_name="x465_replay", api_base=base, api_key="dummy",
-                       temperature=temperature)
-    calls = [(F.nameof(t), F.argsof(t)) for t in (getattr(resp, "tool_calls", None) or [])]
-    u = getattr(resp, "usage", None)
-    pt = u.get("prompt_tokens") if isinstance(u, dict) else getattr(u, "prompt_tokens", None)
-    return calls, str(getattr(resp, "content", None) or ""), dropped, pt
+    if gen is None:
+        import tau2.agent.llm_agent as la
+        gen = la.generate
+    resp = gen(model="openai/%s" % model, tools=tools, messages=out,
+               call_name="x465_replay", api_base=base, api_key="dummy",
+               temperature=temperature)
+    calls, text, pt = response_calls(resp)
+    return ReplayResult(calls, text, dropped, pt)
 
 
 def classify(calls, t_attempt, targets):
@@ -322,7 +342,8 @@ def main():
         print(NLC + "── %s (배달 델타 +%d자) ────────────────────────────────" % (arm, delta))
         for k, t in enumerate([0.0] + [a.temperature] * a.n):
             try:
-                calls, text, dropped, _pt = replay(cx, tools, a.model, base, t)
+                _r = replay(cx, tools, a.model, base, t)   # 이름으로 읽는다(계약 주석 참조)
+                calls, text, dropped = _r.calls, _r.text, _r.dropped
             except Exception as e:
                 print("  #%d t=%.1f EXC %r" % (k, t, e))
                 rows.append({"arm": arm, "k": k, "temp": t, "cat": "EXC", "err": repr(e)[:200]})
