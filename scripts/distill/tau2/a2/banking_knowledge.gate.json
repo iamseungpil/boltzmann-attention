@@ -1052,7 +1052,8 @@
    "params": {
     "components": "A JSON array of the APY components you read from the knowledge base for THIS savings account. Each element: {kind: one of 'base'|'checking'|'card'|'relationship'|'tier', value: <number, percentage points, no %>, source: <verbatim quote from the KB doc stating this value>}. Include the base APY as {kind:'base', value:<base>} and EVERY applicable boost (list all checking boosts and all card bonuses you find; the tool keeps only the highest of each per policy). Do not pre-select or pre-sum.",
     "savings_account_type": "The savings account's type/name (e.g. from the account record). Needed only if you omit components - the tool will look up the components itself.",
-    "customer_products": "Short summary of the customer's boost-relevant products copied from their records (checking account type, credit card type, tenure/tier). Needed only if you omit components."
+    "customer_products": "Short summary of the customer's boost-relevant products copied from their records (checking account type, credit card type, tenure/tier). Needed only if you omit components.",
+    "current_balance": "The savings account's current balance (number, from the account record). The base APY may be tiered by balance, so the tool's extraction step needs it to pick the right tier. Needed only if you omit components."
    },
    "return_template": "Correct savings APY under the stacking policy (base + highest checking boost + highest card bonus + all relationship/tier bonuses): {result}%. Compare this to the APY the system actually applied; if they differ, the difference is an interest discrepancy.",
    "requires_reads": [
@@ -1089,6 +1090,16 @@
       ],
       "require_value_in_source": true
      }
+    ],
+    "scalar_fields": [
+     {
+      "param": "current_balance",
+      "corpus": [
+       "ledger"
+      ],
+      "kind": "number",
+      "on_fail": "drop"
+     }
     ]
    },
    "_ground_note": "관문1 grounding(T2_SG_GROUND=1). 097(source='Base APY for...'=축자아님+base 0.05 추측)·095(base 값 오독)=결함. source가 KB 축자 substring인지(날조 차단) + value가 자기 인용 안 숫자인지(오독 차단) 검증·미검증 component 드롭+플래그. base 드롭 시 결과 저평가→플래그로 재독 유도. 엔진=검증만(KB서 값 추출 0·[[03b]]).",
@@ -1097,7 +1108,8 @@
     "mode": "fetch_formalize",
     "ref_params": [
      "savings_account_type",
-     "customer_products"
+     "customer_products",
+     "current_balance"
     ],
     "getter_tools": [
      "KB_search_bm25"
@@ -1106,12 +1118,12 @@
      "components"
     ],
     "max_rounds": 5,
-    "instructions": "You are a KB-extraction sub-task. Using the search tool, find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Search as many times as needed. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum). IMPORTANT: a component is only accepted if its 'source' quote itself contains the exact numeric value; if you cannot find a document stating the number, omit that component rather than guessing.",
+    "instructions": "You are a KB-extraction sub-task. Using the search tool, find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Search as many times as needed. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum). IMPORTANT: a component is only accepted if its 'source' quote itself contains the exact numeric value; if you cannot find a document stating the number, omit that component rather than guessing. NOTE: an account's base APY may be tiered by balance. If the documents give more than one base APY for this account type, read the tier table and use the row whose balance range contains the balance given in REFERENCE.",
     "answer_format": "Reply with exactly one JSON object and nothing else: {\"components\": [{\"kind\": \"base|checking|card|relationship|tier\", \"value\": <number>, \"source\": \"<verbatim quote>\"}]}",
     "_note": "2026-07-20 §2aq(097 CWE 잔여·컨텍스트 레버): main이 4계좌x KB문서를 이고 인자로 재에코하는 대신 참조 2개만 넘기고 서브가 off-ledger 검색·formalize. 산출 components는 기존 ground(array·kb·require_value_in_source)가 그대로 검증(심층방어). 실패=에이전트 인자 폴백(거동보존).",
     "docs": {
      "_note_": "★출처(2026-08-21·[[23]]): 축 목록 = 이 도구의 `op.reducers` 범주(base·checking·card·relationship·tier) + 공용 정책이 정의한 범주. `doc_..._045` 축자 \"Relationship bonuses for holding multiple Rho-Bank products\" 가 relationship 을, 같은 문서가 카드 max1 을, `doc_..._046` 이 checking max1 을, `doc_..._012` 가 어느 페어링이 자격인지를 말한다 — 그 셋이 없으면 kind 분류가 불가능하므로 always 다. || by_class = 코퍼스 전수 감사(`x453`·698편)에서 **그 축의 값을 축자 인용으로 검산한 문서**만. gold 미참조. || 전달 단위는 **문서**다: 절로 자르면 감사가 축으로 안 잡은 줄이 사라진다(실측 — green checking 의 'Gold +0.75% or Silver +0.25%' 가 어떤 span 에도 없다). 문서 안 오프셋 앵커는 `x453_attr_coverage_all.json` 의 `cites` 에 있다. || 엔진은 선언된 id 를 읽어 넘기기만 하고 **검색하지 않는다**([[71]] · bm25 는 baseline).",
-     "instructions": "You are a KB-extraction sub-task. Using ONLY the DOCUMENTS section below (you have no search tool), find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum). IMPORTANT: a component is only accepted if its 'source' quote itself contains the exact numeric value; if you cannot find a document stating the number, omit that component rather than guessing.",
+     "instructions": "You are a KB-extraction sub-task. Using ONLY the DOCUMENTS section below (you have no search tool), find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum). IMPORTANT: a component is only accepted if its 'source' quote itself contains the exact numeric value; if you cannot find a document stating the number, omit that component rather than guessing. NOTE: an account's base APY may be tiered by balance. If the documents give more than one base APY for this account type, read the tier table and use the row whose balance range contains the balance given in REFERENCE.",
      "_note_instructions": "검색 문구를 뺀 docs-모드 지시판(2026-08-21·엔진이 T2_SG_DOCS=1 일 때 이 판을 쓴다). 내용·출처는 기존 isolate.instructions 와 동일 문장 — 'Using the search tool' 만 'Using ONLY the DOCUMENTS section below' 로, 'Search as many times as needed' 문장만 제거. [[23]] 준수: 새 도메인 내용 0.",
      "axes": [
       "annual_percentage_yield",
@@ -2731,7 +2743,8 @@
      "additionalProperties": false
     },
     "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다."
-   }
+   },
+   "_note_balance_tier": "2026-08-22 (x481 격리 프로브·4팔 각 4회): 093 의 근인은 **잔액-조건부 base APY 티어**였다 — 문서가 두 base 를 주는데(임계 미만/이상) 서브가 낮은 쪽을 집어 expected_apy 가 2.775(정답 4.275)로 나왔고 하류 write 두 건이 전부 틀렸다. 프로브 결과: A_asis 0/4 · N_neg 0/4(부정통제) · **B_bal 0/4**(잔액만 주면 안 된다) · **C_bal_hint 4/4**(잔액+지시). 즉 결정적인 것은 재료가 아니라 **지시**다. 엔진은 티어를 고르지 않고 서브가 문서 표를 읽고 고른다([[62]] ② 전달). 지시문에 임계·값 리터럴 0 · gold 미참조([[23]])."
   },
   {
    "name": "get_interest_correction",
