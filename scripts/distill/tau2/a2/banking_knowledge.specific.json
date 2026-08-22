@@ -9690,7 +9690,7 @@
    "get_user_information_by_name",
    "get_user_information_by_email"
   ],
-  "_note_user_id": "env desc 축자: get_user_information_by_name 'Get the information ... for a user by their name.' — 로컬 궤적 관측(bank_hve2e9_base_20260723)으로 출력 레코드에 user_id 필드 실재 확인('user_id: 224959b99e'). by_id 는 user_id 를 이미 요구하므로 원천이 될 수 없어 제외(기계 도출: args 에 user_id 없는 users 조회).",
+  "_note_user_id": "env desc 축자: get_user_information_by_name 'Get the information ... for a user by their name.' — 로컬 궤적 관측(bank_hve2e9_base_20260723)으로 출력 레코드에 user_id 필드 실재 확인('user_id: 224959b99e'). by_id 는 user_id 를 이미 요구하므로 원천이 될 수 없어 제외(선언 근거: 'args 에 user_id 를 요구하는 조회는 user_id 의 원천이 될 수 없다'는 산문 추론 — 기계 도출 아님·x466 리뷰 2026-08-22 출처 등급 정직화).",
   "email": [
    "get_user_information_by_name",
    "get_user_information_by_id"

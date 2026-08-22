@@ -180,18 +180,19 @@ def docs_full(t_attempt, docdir, sb):
     return ids, blob, missing, fell_back
 
 
-def replay(msgs, tools, model, base, temperature):
-    """실제 메시지 객체 + 실물 도구 스키마로 결정점을 재생한다.
+def to_objs(msgs):
+    """궤적 dict → tau2 메시지 객체 — replay 와 **같은 변환**(x467 이 뷰 조립에 재사용·[[67]] 사본 금지).
 
-    x459.replay 관용구 그대로(C584 교훈: 렌더-텍스트는 약한 인터페이스라 라이브를 재현 못 한다)
-    — 델타는 temperature 인자 하나(x459 는 0.0 고정)와 문구 치환 없음(주입은 inject 가 미리 한다).
+    이미 객체인 항목은 그대로 통과한다. 반환 (객체 리스트, 변환 누락 수).
     """
-    import tau2.agent.llm_agent as la
     from tau2.data_model.message import UserMessage, AssistantMessage, ToolMessage, SystemMessage
     CLS = {"user": UserMessage, "assistant": AssistantMessage,
            "tool": ToolMessage, "system": SystemMessage}
     out, dropped = [], 0
     for m in msgs:
+        if not isinstance(m, dict):
+            out.append(m)
+            continue
         C = CLS.get(str(m.get("role") or ""))
         if C is None:
             dropped += 1
@@ -200,11 +201,26 @@ def replay(msgs, tools, model, base, temperature):
             out.append(C(**dict(m)))
         except Exception:
             dropped += 1
+    return out, dropped
+
+
+def replay(msgs, tools, model, base, temperature):
+    """실제 메시지 객체 + 실물 도구 스키마로 결정점을 재생한다.
+
+    x459.replay 관용구 그대로(C584 교훈: 렌더-텍스트는 약한 인터페이스라 라이브를 재현 못 한다)
+    — 델타는 temperature 인자 하나(x459 는 0.0 고정)와 문구 치환 없음(주입은 inject 가 미리 한다).
+    반환 = (calls, text, dropped, prompt_tokens). 넷째 원소는 응답 `usage.prompt_tokens`(없으면 None)
+    — 재생 문맥이 라이브 생성 뷰와 같은지 라이브 usage 와 대조하는 정보-맞춤 검산용(x467 리뷰 BLOCK②).
+    """
+    import tau2.agent.llm_agent as la
+    out, dropped = to_objs(msgs)
     resp = la.generate(model="openai/%s" % model, tools=tools, messages=out,
                        call_name="x465_replay", api_base=base, api_key="dummy",
                        temperature=temperature)
     calls = [(F.nameof(t), F.argsof(t)) for t in (getattr(resp, "tool_calls", None) or [])]
-    return calls, str(getattr(resp, "content", None) or ""), dropped
+    u = getattr(resp, "usage", None)
+    pt = u.get("prompt_tokens") if isinstance(u, dict) else getattr(u, "prompt_tokens", None)
+    return calls, str(getattr(resp, "content", None) or ""), dropped, pt
 
 
 def classify(calls, t_attempt, targets):
@@ -306,7 +322,7 @@ def main():
         print(NLC + "── %s (배달 델타 +%d자) ────────────────────────────────" % (arm, delta))
         for k, t in enumerate([0.0] + [a.temperature] * a.n):
             try:
-                calls, text, dropped = replay(cx, tools, a.model, base, t)
+                calls, text, dropped, _pt = replay(cx, tools, a.model, base, t)
             except Exception as e:
                 print("  #%d t=%.1f EXC %r" % (k, t, e))
                 rows.append({"arm": arm, "k": k, "temp": t, "cat": "EXC", "err": repr(e)[:200]})

@@ -1349,6 +1349,41 @@ def _variant(d, name=None):
     return d2
 
 
+def _augment_byref_params(d):
+    """★P6 BYREF 스키마 보강 **정본** (2026-08-22 x466 리뷰로 apply() 인라인에서 추출·[[67]] 사본 금지).
+
+    apply()의 주입 경로와 재생 프로브(x466 등)가 **같은 함수**를 거쳐야 라이브/재생 스키마가 같다
+    (074 라이브 호출이 `@last:` 참조를 낸 것은 이 안내가 스키마에 있었다는 뜻 — 프로브가 이것을
+    빠뜨리면 A_asis 재현성이 조용히 깨진다). T2_SG_BYREF=1 일 때만 over/join 파라미터 설명에
+    참조 문구를 부가한 **사본**을 돌려준다(원본 선언 불변) — OFF면 원본 그대로
+    (엔진이 해석 못 하는 지시를 모델에게 주지 않는다·문구=도메인-일반·A2 파일 불변).
+    """
+    if os.environ.get("T2_SG_BYREF") != "1":
+        return d
+    # ★2026-08-03 §4-1: 안내도 **중첩 op 트리 전수**에서 도출한다. 구판(최상위 over만)은
+    #   rebate처럼 over가 중첩된 도구에서 안내 자체가 없었다 = 어포던스 비가시.
+    _ovks = [o for o in _over_params(d.get("op"))
+             if isinstance((d.get("params") or {}).get(o), str)]
+    if _ovks:
+        d = dict(d)
+        d["params"] = dict(d["params"])
+        for _ovk in _ovks:
+            d["params"][_ovk] += (
+                " INSTEAD of retyping the rows, you MAY pass the string "
+                "\"@last:<name of the tool whose output contains these records>\" — "
+                "the deterministic system will reuse that exact earlier output.")
+        # ★F7b: join-선언 파라미터에도 참조 안내(예: account_open="@last:<accounts read>")
+        for _jt, _js in (d.get("byref_join") or {}).items():
+            _jp = (_js or {}).get("from_ref_param") or _jt
+            if isinstance(d["params"].get(_jp), str):
+                d["params"][_jp] += (
+                    " If you pass the rows by \"@last:\" reference, you MAY also pass "
+                    "this argument as \"@last:<name of the tool whose output contains "
+                    "the records holding this value>\" — the deterministic system will "
+                    "copy it into each row by exact record match.")
+    return d
+
+
 class _ByrefError(Exception):
     """P6 참조-해석 실패(모델에게 그대로 통지되는 메시지)."""
 
@@ -1732,30 +1767,9 @@ def apply():
         for d in decls:
             if d["name"] in existing:
                 continue
-            # ★P6(§P6): BYREF ON일 때만 over-인자 설명에 참조 문구 부가 — OFF면 문구도 없음
-            #   (엔진이 해석 못 하는 지시를 모델에게 주지 않는다·문구=도메인-일반·A2 파일 불변).
-            if os.environ.get("T2_SG_BYREF") == "1":
-                # ★2026-08-03 §4-1: 안내도 **중첩 op 트리 전수**에서 도출한다. 구판(최상위 over만)은
-                #   rebate처럼 over가 중첩된 도구에서 안내 자체가 없었다 = 어포던스 비가시.
-                _ovks = [o for o in _over_params(d.get("op"))
-                         if isinstance((d.get("params") or {}).get(o), str)]
-                if _ovks:
-                    d = dict(d)
-                    d["params"] = dict(d["params"])
-                    for _ovk in _ovks:
-                        d["params"][_ovk] += (
-                            " INSTEAD of retyping the rows, you MAY pass the string "
-                            "\"@last:<name of the tool whose output contains these records>\" — "
-                            "the deterministic system will reuse that exact earlier output.")
-                    # ★F7b: join-선언 파라미터에도 참조 안내(예: account_open="@last:<accounts read>")
-                    for _jt, _js in (d.get("byref_join") or {}).items():
-                        _jp = (_js or {}).get("from_ref_param") or _jt
-                        if isinstance(d["params"].get(_jp), str):
-                            d["params"][_jp] += (
-                                " If you pass the rows by \"@last:\" reference, you MAY also pass "
-                                "this argument as \"@last:<name of the tool whose output contains "
-                                "the records holding this value>\" — the deterministic system will "
-                                "copy it into each row by exact record match.")
+            # ★P6(§P6): BYREF 스키마 보강 — 정본 `_augment_byref_params` 하나를 거친다
+            #   (2026-08-22 x466 리뷰 추출·[[67]]: 재생 프로브가 라이브와 **같은** 스키마를 봐야 한다).
+            d = _augment_byref_params(d)
             try:
                 tools.append(_build_tool(Tool, d))
             except Exception as e:
