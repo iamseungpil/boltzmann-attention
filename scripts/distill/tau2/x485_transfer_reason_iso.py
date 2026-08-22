@@ -92,6 +92,14 @@ NUDGE = "[NOTICE] Please continue with the customer's request."
 ASK_HEAD = "[POLICY] The following requirement from the operating policy applies to this step."
 
 
+def enum_priority(a3):
+    """A3 정본의 `enum_priority` 선언 — F/G 팔의 재료. 이 파일에 문구 리터럴 0([[71]]②)."""
+    e = (a3 or {}).get("enum_priority") or {}
+    if not (e.get("general") and e.get("with_examples")):
+        raise SystemExit("A3 enum_priority 선언이 없다/불완전하다 — 층부터([[24]])")
+    return str(e["general"]), str(e["with_examples"])
+
+
 def notice_gate(settings_path):
     """A2 정본의 **고지 게이트 선언**을 통째로 읽는다 — 이 파일에 문구 리터럴 0([[71]]②).
 
@@ -202,13 +210,16 @@ def main():
     ap.add_argument("--maxchars", type=int, default=90000)
     ap.add_argument("--min-enum-hits", type=int, default=3)
     ap.add_argument("--arms", default="A_asis,B_table,C_full,N_neg",
-                    help="D_priority(표+선언 ask) · E_ask_only(ask 만) 도 있다")
+                    help="D_priority(표+선언 ask) · E_ask_only(ask 만) · "
+                         "F_tier(표+일반 티어 규칙·사례 0) · G_examples(표+사례 포함·고지절 제거)")
     ap.add_argument("--wiring-only", action="store_true")
     ap.add_argument("--out", default="x485_transfer_reason_iso.json")
     a = ap.parse_args()
 
     # ── ① 선언 읽기 (문구·enum·문서) ─────────────────────────────────────────────
     ntext, ask_text, gid = notice_gate(os.path.join(HERE, "a2", "banking_knowledge.settings.json"))
+    with io.open(os.path.join(HERE, "a2", "banking_knowledge.specific.json"), encoding="utf-8") as _f:
+        ep_general, ep_examples = enum_priority(json.load(_f))
     print("=" * 100)
     print("x485 · 고지 게이트 %s 선언 문구: %r" % (gid, ntext[:70]))
     print("        선언된 ask %d자 (D/E 팔의 재료·축자)%s"
@@ -312,7 +323,20 @@ def main():
              "N_neg": NUDGE,
              "D_priority": (ASK_HEAD + NLC + ask_text + NLC + NLC
                             + (DELIVER_HEAD % tgt) + NLC + NLC + table_blob),
-             "E_ask_only": ASK_HEAD + NLC + ask_text}
+             "E_ask_only": ASK_HEAD + NLC + ask_text,
+             # ★F/G (2026-08-22 3차·[[66]] 자기감사): D 의 이득이 **일반 규칙**에서 온 것인지
+             #   **사례 열거**에서 온 것인지 갈리지 않았다. D 가 실은 게이트 ask 를 통째로 실었고
+             #   그 안에 004 의 답을 이름으로 대는 예시가 있다(*"identity values do not match →
+             #   an ownership-dispute reason"*·커밋 aa657c59 = 실패를 보고 쓴 처방). 그러면
+             #   측정 대상이 사라진다([[62]]④). 두 팔이 그것을 가른다 — 둘 다 고지-발송 절은
+             #   빠져 있어 1차 D 의 재고지 오염([[55]] 문구 모순)도 함께 제거된다.
+             #     F_tier      일반 티어 규칙만 (사례 0·doc_042 축자·도메인 일반)
+             #     G_examples  같은 자리에 사례 포함본 (D 의 후반부 축자)
+             #   F 가 0 이고 G 만 산다면 이득의 정체는 떠먹이기이고 이 축은 우리 레버가 아니다.
+             "F_tier": (ASK_HEAD + NLC + ep_general + NLC + NLC
+                        + (DELIVER_HEAD % tgt) + NLC + NLC + table_blob),
+             "G_examples": (ASK_HEAD + NLC + ep_examples + NLC + NLC
+                            + (DELIVER_HEAD % tgt) + NLC + NLC + table_blob)}
     if not ask_text and ({"D_priority", "E_ask_only"} & set(arms)):
         raise SystemExit("선언된 ask 가 비어 D/E 를 만들 수 없다 — A2 층부터([[24]])")
     rows = []
