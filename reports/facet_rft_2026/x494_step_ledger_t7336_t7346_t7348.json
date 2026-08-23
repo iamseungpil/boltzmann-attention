@@ -1,0 +1,1708 @@
+{
+ "files": 6,
+ "steps": [
+  {
+   "task": "task_003",
+   "aid": "003_0",
+   "tool": "apply_for_credit_card",
+   "sims": 6,
+   "miss": 1,
+   "rate": 0.16666666666666666,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_017",
+   "aid": "017_0",
+   "tool": "log_verification",
+   "sims": 6,
+   "miss": 1,
+   "rate": 0.16666666666666666,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_017",
+   "aid": "017_2",
+   "tool": "submit_cash_back_dispute_0589",
+   "sims": 6,
+   "miss": 2,
+   "rate": 0.3333333333333333,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_017",
+   "aid": "017_3",
+   "tool": "submit_cash_back_dispute_0589",
+   "sims": 6,
+   "miss": 2,
+   "rate": 0.3333333333333333,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_024",
+   "aid": "024_0",
+   "tool": "apply_for_credit_card",
+   "sims": 6,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_055",
+   "aid": "055_0",
+   "tool": "log_verification",
+   "sims": 6,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_055",
+   "aid": "055_4",
+   "tool": "open_bank_account_4821",
+   "sims": 6,
+   "miss": 4,
+   "rate": 0.6666666666666666,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 2,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_055",
+   "aid": "055_5",
+   "tool": "open_bank_account_4821",
+   "sims": 6,
+   "miss": 6,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 2,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_055",
+   "aid": "055_7",
+   "tool": "deposit_check_3847",
+   "sims": 6,
+   "miss": 6,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 2,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_073",
+   "aid": "073_0",
+   "tool": "log_verification",
+   "sims": 6,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_073",
+   "aid": "073_8",
+   "tool": "apply_checking_account_credit_5829",
+   "sims": 6,
+   "miss": 5,
+   "rate": 0.8333333333333334,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 2,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_073",
+   "aid": "073_9",
+   "tool": "apply_checking_account_credit_5829",
+   "sims": 6,
+   "miss": 5,
+   "rate": 0.8333333333333334,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 2,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_073",
+   "aid": "073_10",
+   "tool": "apply_checking_account_credit_5829",
+   "sims": 6,
+   "miss": 2,
+   "rate": 0.3333333333333333,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_093",
+   "aid": "093_0",
+   "tool": "log_verification",
+   "sims": 6,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_093",
+   "aid": "093_6",
+   "tool": "apply_savings_account_credit_6831",
+   "sims": 6,
+   "miss": 5,
+   "rate": 0.8333333333333334,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_093",
+   "aid": "093_8",
+   "tool": "submit_interest_discrepancy_report_7294",
+   "sims": 6,
+   "miss": 3,
+   "rate": 0.5,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_094",
+   "aid": "094_0",
+   "tool": "log_verification",
+   "sims": 6,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_094",
+   "aid": "094_6",
+   "tool": "apply_savings_account_credit_6831",
+   "sims": 6,
+   "miss": 6,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 2,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_094",
+   "aid": "094_8",
+   "tool": "submit_interest_discrepancy_report_7294",
+   "sims": 6,
+   "miss": 6,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 2,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_100",
+   "aid": "100_0",
+   "tool": "log_verification",
+   "sims": 6,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_100",
+   "aid": "100_3",
+   "tool": "submit_referral",
+   "sims": 6,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_072",
+   "aid": "072_0",
+   "tool": "log_verification",
+   "sims": 5,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 0,
+     "tot": 1
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_072",
+   "aid": "072_7",
+   "tool": "apply_checking_account_credit_5829",
+   "sims": 5,
+   "miss": 4,
+   "rate": 0.8,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_072",
+   "aid": "072_8",
+   "tool": "apply_checking_account_credit_5829",
+   "sims": 5,
+   "miss": 4,
+   "rate": 0.8,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfA_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfA_20260822": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7348_halfA_20260824": {
+     "miss": 2,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_016",
+   "aid": "016_0",
+   "tool": "log_verification",
+   "sims": 6,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_016",
+   "aid": "016_1",
+   "tool": "submit_transaction",
+   "sims": 6,
+   "miss": 6,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 2,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_040",
+   "aid": "040_0",
+   "tool": "log_verification",
+   "sims": 5,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 0,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_040",
+   "aid": "040_7",
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "sims": 5,
+   "miss": 4,
+   "rate": 0.8,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_040",
+   "aid": "040_8",
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "sims": 5,
+   "miss": 4,
+   "rate": 0.8,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_040",
+   "aid": "040_9",
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "sims": 5,
+   "miss": 5,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_040",
+   "aid": "040_10",
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "sims": 5,
+   "miss": 5,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_040",
+   "aid": "040_11",
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "sims": 5,
+   "miss": 5,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_040",
+   "aid": "040_12",
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "sims": 5,
+   "miss": 5,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_040",
+   "aid": "040_13",
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "sims": 5,
+   "miss": 5,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_040",
+   "aid": "040_14",
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "sims": 5,
+   "miss": 5,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_050",
+   "aid": "050_0",
+   "tool": "log_verification",
+   "sims": 6,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_050",
+   "aid": "050_2",
+   "tool": "submit_credit_limit_increase_request_7392",
+   "sims": 6,
+   "miss": 2,
+   "rate": 0.3333333333333333,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_050",
+   "aid": "050_12",
+   "tool": "approve_credit_limit_increase_5847",
+   "sims": 6,
+   "miss": 2,
+   "rate": 0.3333333333333333,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_057",
+   "aid": "057_0",
+   "tool": "log_verification",
+   "sims": 4,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 0,
+     "tot": 1
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 0,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_057",
+   "aid": "057_4",
+   "tool": "open_bank_account_4821",
+   "sims": 4,
+   "miss": 3,
+   "rate": 0.75,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_057",
+   "aid": "057_6",
+   "tool": "deposit_check_3847",
+   "sims": 4,
+   "miss": 4,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_063",
+   "aid": "063_0",
+   "tool": "log_verification",
+   "sims": 5,
+   "miss": 1,
+   "rate": 0.2,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 0,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_063",
+   "aid": "063_1",
+   "tool": "apply_for_credit_card",
+   "sims": 5,
+   "miss": 3,
+   "rate": 0.6,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 0,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_063",
+   "aid": "063_3",
+   "tool": "open_bank_account_4821",
+   "sims": 5,
+   "miss": 5,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_079",
+   "aid": "079_0",
+   "tool": "log_verification",
+   "sims": 3,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 0,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 0,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_079",
+   "aid": "079_3",
+   "tool": "freeze_debit_card_3892",
+   "sims": 3,
+   "miss": 2,
+   "rate": 0.6666666666666666,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_079",
+   "aid": "079_4",
+   "tool": "freeze_debit_card_3892",
+   "sims": 3,
+   "miss": 2,
+   "rate": 0.6666666666666666,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_079",
+   "aid": "079_5",
+   "tool": "freeze_debit_card_3892",
+   "sims": 3,
+   "miss": 2,
+   "rate": 0.6666666666666666,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_079",
+   "aid": "079_9c",
+   "tool": "unfreeze_debit_card_3893",
+   "sims": 3,
+   "miss": 2,
+   "rate": 0.6666666666666666,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_079",
+   "aid": "079_9d",
+   "tool": "unfreeze_debit_card_3893",
+   "sims": 3,
+   "miss": 2,
+   "rate": 0.6666666666666666,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_079",
+   "aid": "079_9e",
+   "tool": "unfreeze_debit_card_3893",
+   "sims": 3,
+   "miss": 2,
+   "rate": 0.6666666666666666,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_079",
+   "aid": "079_11",
+   "tool": "close_debit_card_4721",
+   "sims": 3,
+   "miss": 2,
+   "rate": 0.6666666666666666,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_079",
+   "aid": "079_12",
+   "tool": "close_debit_card_4721",
+   "sims": 3,
+   "miss": 2,
+   "rate": 0.6666666666666666,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_079",
+   "aid": "079_13",
+   "tool": "close_debit_card_4721",
+   "sims": 3,
+   "miss": 2,
+   "rate": 0.6666666666666666,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 1,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_079",
+   "aid": "079_17",
+   "tool": "order_debit_card_5739",
+   "sims": 3,
+   "miss": 3,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_079",
+   "aid": "079_18",
+   "tool": "order_debit_card_5739",
+   "sims": 3,
+   "miss": 3,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    }
+   }
+  },
+  {
+   "task": "task_085",
+   "aid": "085_0",
+   "tool": "log_verification",
+   "sims": 5,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 0,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_085",
+   "aid": "085_6",
+   "tool": "file_debit_card_transaction_dispute_6281",
+   "sims": 5,
+   "miss": 5,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_085",
+   "aid": "085_7",
+   "tool": "file_debit_card_transaction_dispute_6281",
+   "sims": 5,
+   "miss": 5,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_085",
+   "aid": "085_9",
+   "tool": "file_debit_card_transaction_dispute_6281",
+   "sims": 5,
+   "miss": 5,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_098",
+   "aid": "098_0",
+   "tool": "log_verification",
+   "sims": 5,
+   "miss": 0,
+   "rate": 0.0,
+   "verdict": "안정",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 0,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_098",
+   "aid": "098_2",
+   "tool": "submit_referral",
+   "sims": 5,
+   "miss": 2,
+   "rate": 0.4,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 0,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_074",
+   "aid": "074_0",
+   "tool": "log_verification",
+   "sims": 4,
+   "miss": 1,
+   "rate": 0.25,
+   "verdict": "산발",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 0,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 0,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_074",
+   "aid": "074_9",
+   "tool": "apply_checking_account_credit_5829",
+   "sims": 4,
+   "miss": 4,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_074",
+   "aid": "074_10",
+   "tool": "apply_checking_account_credit_5829",
+   "sims": 4,
+   "miss": 4,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_074",
+   "aid": "074_11",
+   "tool": "apply_checking_account_credit_5829",
+   "sims": 4,
+   "miss": 4,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  },
+  {
+   "task": "task_074",
+   "aid": "074_12",
+   "tool": "apply_checking_account_credit_5829",
+   "sims": 4,
+   "miss": 4,
+   "rate": 1.0,
+   "verdict": "만성",
+   "runs": {
+    "bank_t7336_halfB_20260821b": {
+     "miss": 1,
+     "tot": 1
+    },
+    "bank_t7346_halfB_20260822": {
+     "miss": 2,
+     "tot": 2
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+     "miss": 1,
+     "tot": 1
+    }
+   }
+  }
+ ],
+ "wrongarg": {
+  "task_055|open_bank_account_4821": 11,
+  "task_055|deposit_check_3847": 4,
+  "task_073|apply_checking_account_credit_5829": 17,
+  "task_093|submit_interest_discrepancy_report_7294": 2,
+  "task_094|submit_interest_discrepancy_report_7294": 5,
+  "task_094|apply_savings_account_credit_6831": 4,
+  "task_040|file_credit_card_transaction_dispute_4829": 19,
+  "task_057|open_bank_account_4821": 4,
+  "task_063|apply_for_credit_card": 3,
+  "task_063|open_bank_account_4821": 2,
+  "task_074|log_verification": 1,
+  "task_072|apply_checking_account_credit_5829": 11,
+  "task_074|apply_checking_account_credit_5829": 29,
+  "task_079|order_debit_card_5739": 3,
+  "task_085|file_debit_card_transaction_dispute_6281": 4,
+  "task_098|submit_referral": 2,
+  "task_093|apply_savings_account_credit_6831": 1,
+  "task_003|apply_for_credit_card": 1,
+  "task_050|submit_credit_limit_increase_request_7392": 1,
+  "task_050|approve_credit_limit_increase_5847": 1
+ },
+ "extra": {
+  "task_017|file_credit_card_transaction_dispute_4829": 2,
+  "task_055|close_bank_account_7392": 1
+ },
+ "task_sims": {
+  "task_003": 6,
+  "task_017": 6,
+  "task_024": 6,
+  "task_055": 6,
+  "task_073": 6,
+  "task_093": 6,
+  "task_094": 6,
+  "task_100": 6,
+  "task_072": 5,
+  "task_016": 6,
+  "task_040": 5,
+  "task_050": 6,
+  "task_057": 4,
+  "task_063": 5,
+  "task_079": 3,
+  "task_085": 5,
+  "task_098": 5,
+  "task_074": 4
+ },
+ "task_pass": {
+  "task_003": 5,
+  "task_017": 4,
+  "task_024": 6,
+  "task_100": 6,
+  "task_098": 3,
+  "task_050": 3,
+  "task_073": 1,
+  "task_093": 1
+ },
+ "verdict_counts": {
+  "안정": 18,
+  "산발": 20,
+  "만성": 29
+ },
+ "chronic_split": [
+  {
+   "tool": "open_bank_account_4821",
+   "sims": 15,
+   "never": 4,
+   "exec_ok": 11,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_055",
+    "task_057",
+    "task_063"
+   ]
+  },
+  {
+   "tool": "apply_checking_account_credit_5829",
+   "sims": 15,
+   "never": 6,
+   "exec_ok": 9,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_072",
+    "task_073",
+    "task_074"
+   ]
+  },
+  {
+   "tool": "apply_savings_account_credit_6831",
+   "sims": 12,
+   "never": 6,
+   "exec_ok": 6,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_093",
+    "task_094"
+   ]
+  },
+  {
+   "tool": "submit_interest_discrepancy_report_7294",
+   "sims": 12,
+   "never": 1,
+   "exec_ok": 10,
+   "blocked": 1,
+   "deny_ours": 0,
+   "deny_env": 1,
+   "tasks": [
+    "task_093",
+    "task_094"
+   ]
+  },
+  {
+   "tool": "deposit_check_3847",
+   "sims": 10,
+   "never": 6,
+   "exec_ok": 4,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_055",
+    "task_057"
+   ]
+  },
+  {
+   "tool": "submit_transaction",
+   "sims": 6,
+   "never": 6,
+   "exec_ok": 0,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_016"
+   ]
+  },
+  {
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "sims": 5,
+   "never": 0,
+   "exec_ok": 3,
+   "blocked": 2,
+   "deny_ours": 0,
+   "deny_env": 2,
+   "tasks": [
+    "task_040"
+   ]
+  },
+  {
+   "tool": "file_debit_card_transaction_dispute_6281",
+   "sims": 5,
+   "never": 1,
+   "exec_ok": 1,
+   "blocked": 3,
+   "deny_ours": 0,
+   "deny_env": 3,
+   "tasks": [
+    "task_085"
+   ]
+  },
+  {
+   "tool": "order_debit_card_5739",
+   "sims": 3,
+   "never": 2,
+   "exec_ok": 1,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_079"
+   ]
+  }
+ ],
+ "cell_liveness": [
+  {
+   "tool": "open_bank_account_4821",
+   "sims": 11,
+   "with_log": 11,
+   "cells": {
+    "출처 근거 확보": 8,
+    "정본 상태 대조": 3,
+    "계산 이관": 11
+   }
+  },
+  {
+   "tool": "apply_checking_account_credit_5829",
+   "sims": 8,
+   "with_log": 8,
+   "cells": {
+    "출처 근거 확보": 2,
+    "정본 상태 대조": 7,
+    "계산 이관": 8
+   }
+  },
+  {
+   "tool": "submit_interest_discrepancy_report_7294",
+   "sims": 7,
+   "with_log": 7,
+   "cells": {
+    "출처 근거 확보": 7,
+    "정본 상태 대조": 3,
+    "계산 이관": 7
+   }
+  }
+ ]
+}
