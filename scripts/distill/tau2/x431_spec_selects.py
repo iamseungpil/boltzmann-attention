@@ -824,13 +824,15 @@ def main():
     for k, rws in enumerate(all_rows):
         # 1회면 정본 이름, 여러 회면 회차별 파일(확대 표본이 쓰던 이름 그대로).
         # ⚠재런은 **다른 이름**으로 — 커밋된 산출물을 조용히 덮어쓰면 인용의 근거가 사라진다([[30]]).
-        # 팔이 기본이 아니면 **다른 이름**으로 — 커밋된 A_cur 산출물을 조용히 덮으면
-        # 인용의 근거가 사라진다([[30]]).
-        if a.arm != "A_cur":
-            name = "x431_%s_%s%d.json" % (a.arm.lower(), a.tag, k + 1)
+        # ★정본 이름(`x431_spec_selects.json`)은 **아무 플래그도 안 준 기본 호출**만 쓴다.
+        #   초판은 팔이 A_cur 이기만 하면 정본 이름을 썼고, `--arm A_cur --tag arms` 한 번이
+        #   커밋된 8-사례 산출물을 5-사례 결과로 **덮었다**(2026-08-24 실물·git checkout 으로 복구).
+        #   `--tag` 를 준 것 자체가 *이건 다른 실행이다* 라는 선언이므로 이름이 갈려야 한다([[30]]).
+        default_call = (a.arm == "A_cur" and a.tag == "wide" and len(all_rows) == 1)
+        if default_call:
+            name = "x431_spec_selects.json"
         else:
-            name = ("x431_spec_selects.json" if len(all_rows) == 1
-                    else "x431_%s%d.json" % (a.tag, k + 1))
+            name = "x431_%s_%s%d.json" % (a.arm.lower(), a.tag, k + 1)
         q = os.path.abspath(os.path.join(rep, name))
         with io.open(q, "w", encoding="utf-8") as f:
             json.dump(rws, f, ensure_ascii=False, indent=1)

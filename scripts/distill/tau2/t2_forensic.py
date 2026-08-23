@@ -75,12 +75,36 @@ def tag_of_file(path):
     return b
 
 
+def is_gzip(p):
+    """그 파일이 정말 gzip 인가 — **이름이 아니라 매직 바이트**로 답한다(닫힌 술어).
+
+    `.gz` 라는 이름은 *주장*이고 파일이 권위다([[25]]). 실물(2026-08-24 확인): 영속본
+    `bank_cwe_batch_a2_20260719.log.gz` 와 `bank_cwe_batch_b_20260719.log.gz` 는 이름만 `.gz`
+    이고 내용은 평문이다. 이름을 믿은 자리가 `BadGzipFile: b'{\n'` 로 **터졌고**, 그 예외
+    하나가 `test_forensic_sidecar_authority` 를 통째로 죽이고 있었다 — 계기가 입력 하나에
+    터지면 그 계기로 잰 것이 전부 끊긴다. `log_text` 독스트링이 같은 예외를 2026-08-16 에
+    이미 적어 놓고 **그 자리만** 피해 갔다.
+    """
+    try:
+        with io.open(p, "rb") as f:
+            return f.read(2) == b"\x1f\x8b"
+    except Exception:
+        return False
+
+
+def topen(p, errors="replace"):
+    """텍스트 읽기용 파일 객체 — gzip 여부는 `is_gzip` 이 정한다(이름은 안 본다)."""
+    if is_gzip(p):
+        return gzip.open(p, "rt", encoding="utf-8", errors=errors)
+    return io.open(p, encoding="utf-8", errors=errors)
+
+
 def iter_all_sims(want_tasks=None):
     """전 코퍼스 순회 — (tag, sim) 를 yield. `want_tasks` 가 있으면 그 태스크만."""
     for p in all_result_files():
         try:
-            raw = (gzip.open(p, "rb").read().decode("utf-8", "replace")
-                   if p.endswith(".gz") else io.open(p, encoding="utf-8").read())
+            with topen(p) as _f:
+                raw = _f.read()
         except Exception:
             continue
         if want_tasks and not any(t in raw for t in want_tasks):
@@ -103,8 +127,7 @@ def iter_all_sims(want_tasks=None):
 def load(tag, suffix="_results.json.gz"):
     """결과 JSON 을 통째로 반환(gz/평문 자동)."""
     p = path_for(tag, suffix)
-    op = gzip.open(p, "rt", encoding="utf-8") if p.endswith(".gz") else io.open(p, encoding="utf-8")
-    with op as f:
+    with topen(p, errors="strict") as f:
         return json.load(f)
 
 
@@ -408,7 +431,7 @@ def log_text(tag):
     import gzip as _gz
     gzp = os.path.join(BASE, tag + ".log.gz")
     if os.path.exists(gzp):
-        with _gz.open(gzp, "rt", encoding="utf-8", errors="replace") as f:
+        with topen(gzp) as f:                    # 이름이 `.gz` 라도 매직 바이트가 정한다
             return f.read()
     raw = os.path.join("/home/woori/scratch/logs", tag + ".log")
     if os.path.exists(raw):
@@ -434,9 +457,7 @@ def trace(tag):
     import gzip as _gz
     out = []
     for p in trace_paths(tag):
-        op = (_gz.open(p, "rt", encoding="utf-8", errors="replace") if p.endswith(".gz")
-              else io.open(p, encoding="utf-8", errors="replace"))
-        with op as f:
+        with topen(p) as f:
             for ln in f:
                 try:
                     out.append(json.loads(ln))
@@ -473,9 +494,7 @@ def sidecar_rows(tag):
     import gzip as _gz
     out = []
     for p in sidecar_paths(tag):
-        op = (_gz.open(p, "rt", encoding="utf-8", errors="replace") if p.endswith(".gz")
-              else io.open(p, encoding="utf-8", errors="replace"))
-        with op as f:
+        with topen(p) as f:
             for ln in f:
                 try:
                     out.append(json.loads(ln))
@@ -718,9 +737,7 @@ def attested_markers():
                     continue
                 seen.add(p)
                 try:
-                    op = (_gz.open(p, "rt", encoding="utf-8", errors="replace")
-                          if p.endswith(".gz") else io.open(p, encoding="utf-8", errors="replace"))
-                    with op as f:
+                    with topen(p) as f:
                         for ln in f:
                             try:
                                 o = json.loads(ln)
