@@ -382,7 +382,10 @@ def main(argv):
            "verdict_counts": dict(counts),
            "chronic_split": split,
            "cell_liveness": (live_rows if "live_rows" in dir() else [])}
-    dst = os.path.join(SIMS, "..", "x494_step_ledger.json")
+    # ★산출물 이름에 **런 범위**를 박는다(2026-08-24). 코퍼스 전량 산출과 특정 계보 산출이
+    #   같은 파일을 쓰면, 세대가 섞인 수치를 최신 수치로 오독한다(§74 가 막으려는 바로 그 병).
+    _scope = os.environ.get("X494_SCOPE") or ""
+    dst = os.path.join(SIMS, "..", "x494_step_ledger%s.json" % (("_" + _scope) if _scope else ""))
     with io.open(dst, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
     print("")
