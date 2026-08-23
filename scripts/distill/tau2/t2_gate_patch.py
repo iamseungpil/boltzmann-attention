@@ -8190,7 +8190,29 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 _mgate = "resolve_cap(정체 %s회)" % getattr(self, "_t2_resolve_deny", "?")
                 _mgate_kind = "resolve_cap"
             if _mgate:
-                print("[T2_MATERIAL_GATE] stop=%s turn=%d" % (_mgate, len(state.messages)),
+                # ★패자 기록 (2026-08-23 · 사용자 지시 *"패자 기록 넣고 6단계까지 가라"*).
+                #   구판은 **이긴 쪽만** 적었다(`stop=other_lever(prov)`). 그래서 439회 정지 중
+                #   어느 것이 결정점을 막았는지 **사건별로 볼 수가 없었다** — x492 의 6단계가
+                #   정확히 여기서 막혔다. 막힌 것은 언제나 아래 `t2_resolve` 해소·재료 배달
+                #   경로이고, 남길 것은 *그때 그 경로가 무엇을 다루려 했나* 다.
+                #   넷 다 **이미 손에 있는 상태**를 읽을 뿐이다 — 새 계산·새 술어·도메인 리터럴 0.
+                #     calls    이 초안이 부르려던 도구(해소 루프가 다뤘을 대상)
+                #     pending  미소비 배달물 크기(0 = 대기 중인 재료 없음)
+                #     axes     아직 처리 안 된 결정 축 수(재료가 아직 빚인가)
+                #     prose    초안에 도구가 없다(= 결정·사임 턴에 떨어진 정지인가 ← 최대 혐의)
+                #   ⚠거동 불변: 인쇄 문자열만 길어진다. 기존 파서는 `stop=`·`turn=` 를 그대로 읽는다.
+                try:
+                    _lcalls = ",".join(sorted({_eff_tool_name(_c9)
+                                               for _c9 in (getattr(am, "tool_calls", None) or [])})) or "-"
+                    _lpend = len(str(getattr(self, "_t2_cp2_pending", "") or ""))
+                    _ldone = getattr(self, "_t2_search_done", None) or set()
+                    _lax = len([_g9 for _g9 in (((a2 or {}).get("policy_ontology") or {})
+                                                .get("doc_index") or {}) if _g9 not in _ldone])
+                    _lprose = not bool(getattr(am, "tool_calls", None))
+                except Exception:
+                    _lcalls, _lpend, _lax, _lprose = "?", -1, -1, "?"
+                print("[T2_MATERIAL_GATE] stop=%s turn=%d calls=%s pending=%d axes=%d prose=%s"
+                      % (_mgate, len(state.messages), _lcalls, _lpend, _lax, _lprose),
                       file=_sys.stderr, flush=True)
             # ★T2_MATERIAL_BYPASS (2026-08-16·`x335b`/C494 후속·기본 OFF) — **배달을 요구와 분리**.
             #

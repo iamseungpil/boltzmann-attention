@@ -125,6 +125,7 @@ def arbitration(log_paths, results=None):
         lambda: {"stops": collections.Counter(), "stop_turns": [],
                  "winners": collections.Counter(), "suppressed": [],
                  "clobbered_bytes": 0, "deliveries": 0, "lines": 0,
+                 "stop_lines": [], "delivery_lines": [],
                  "fires": collections.defaultdict(list), "reward": None})
     for p in log_paths:
         opener = gzip.open if str(p).endswith(".gz") else io.open
@@ -139,6 +140,9 @@ def arbitration(log_paths, results=None):
                 if m:
                     rec["stops"][m.group(1)] += 1
                     rec["stop_turns"].append((m.group(1), int(m.group(3))))
+                    # ★6단계 재료: 줄 순서를 함께 남긴다 — 배달 마커에는 turn 이 없으므로
+                    #   *"이 정지 뒤에 배달이 왔나"* 는 줄 순서로만 답할 수 있다.
+                    rec["stop_lines"].append((m.group(1), int(m.group(3)), rec["lines"]))
                     if m.group(1) == "other_lever" and m.group(2):
                         for w in m.group(2).strip("()").split(","):
                             rec["winners"][w.strip()] += 1
@@ -150,6 +154,7 @@ def arbitration(log_paths, results=None):
                     rec["clobbered_bytes"] += int(c.group(1))
                 if any(k in ln for k in DELIVERED_MARKS):
                     rec["deliveries"] += 1
+                    rec["delivery_lines"].append(rec["lines"])
                 t = TAG.search(ln)
                 if t:
                     rec["fires"][t.group(1)].append(rec["lines"])
