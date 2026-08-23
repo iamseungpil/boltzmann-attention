@@ -1,0 +1,1023 @@
+{
+ "pairs": [
+  {
+   "lever": "T2_NOW_SELFCALL + T2_SEARCH_ON_PROCEED",
+   "ctl": "bank_t7296_ctl_20260815p",
+   "treat": "bank_t7296_treat_20260815p"
+  },
+  {
+   "lever": "T2_ACT_DEMAND",
+   "ctl": "bank_t7297_ctl_20260815q",
+   "treat": "bank_t7297_treat_20260815q"
+  },
+  {
+   "lever": "T2_MATERIAL_RESERVE",
+   "ctl": "bank_t7299_ctl_20260816b",
+   "treat": "bank_t7299_treat_20260816b"
+  },
+  {
+   "lever": "T2_DELIVER_PRECOMMIT",
+   "ctl": "bank_t7303_ctl_20260816h",
+   "treat": "bank_t7303_treat_20260816h"
+  },
+  {
+   "lever": "T2_PROCEED_DOCBODY",
+   "ctl": "bank_t7304_ctl_20260816j",
+   "treat": "bank_t7304_treat_20260816j"
+  },
+  {
+   "lever": "T2_SUB_REQUIREMENT",
+   "ctl": "bank_t7305_ctl_20260817a",
+   "treat": "bank_t7305_treat_20260817a"
+  },
+  {
+   "lever": "T2_HANDOFF_PREDICATE (a)",
+   "ctl": "bank_t7307_ctl_20260818b",
+   "treat": "bank_t7307_treat_20260818b"
+  },
+  {
+   "lever": "T2_HANDOFF_PREDICATE (b)",
+   "ctl": "bank_t7308_ctl_20260818c",
+   "treat": "bank_t7308_treat_20260818c"
+  },
+  {
+   "lever": "T2_VERDICT_CARRY + T2_ELIG_LINE (a)",
+   "ctl": "bank_t7310_ctl_20260818e",
+   "treat": "bank_t7310_treat_20260818e"
+  },
+  {
+   "lever": "T2_VERDICT_CARRY + T2_ELIG_LINE (b)",
+   "ctl": "bank_t7312_ctl_20260818g",
+   "treat": "bank_t7312_treat_20260818g"
+  },
+  {
+   "lever": "T2_VERDICT_CARRY + T2_ELIG_LINE (c)",
+   "ctl": "bank_t7313_ctl_20260818h",
+   "treat": "bank_t7313_treat_20260818h"
+  },
+  {
+   "lever": "T2_ARG_DOC_SUB + T2_VALUE_FORMULA=full (hot)",
+   "ctl": "bank_t7333_ctl_hot_20260821c",
+   "treat": "bank_t7333_treat_hot_20260821c"
+  },
+  {
+   "lever": "T2_ARG_DOC_SUB + T2_VALUE_FORMULA=full (rest)",
+   "ctl": "bank_t7333_ctl_rest_20260821c",
+   "treat": "bank_t7333_treat_rest_20260821c"
+  }
+ ],
+ "lever_task": {
+  "T2_NOW_SELFCALL + T2_SEARCH_ON_PROCEED": {
+   "task_071": {
+    "d_pass": 0.0,
+    "n_ctl": 8,
+    "n_treat": 8,
+    "pass_ctl": 1,
+    "pass_treat": 1
+   },
+   "task_072": {
+    "d_pass": 0.0,
+    "n_ctl": 8,
+    "n_treat": 8,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   }
+  },
+  "T2_ACT_DEMAND": {
+   "task_050": {
+    "d_pass": -0.2,
+    "n_ctl": 5,
+    "n_treat": 5,
+    "pass_ctl": 1,
+    "pass_treat": 0
+   },
+   "task_072": {
+    "d_pass": 0.0,
+    "n_ctl": 5,
+    "n_treat": 5,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_073": {
+    "d_pass": 0.4,
+    "n_ctl": 5,
+    "n_treat": 5,
+    "pass_ctl": 2,
+    "pass_treat": 4
+   },
+   "task_098": {
+    "d_pass": 0.0,
+    "n_ctl": 5,
+    "n_treat": 5,
+    "pass_ctl": 5,
+    "pass_treat": 5
+   }
+  },
+  "T2_MATERIAL_RESERVE": {
+   "task_055": {
+    "d_pass": 0.0,
+    "n_ctl": 4,
+    "n_treat": 4,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_098": {
+    "d_pass": 0.25,
+    "n_ctl": 4,
+    "n_treat": 4,
+    "pass_ctl": 3,
+    "pass_treat": 4
+   }
+  },
+  "T2_DELIVER_PRECOMMIT": {
+   "task_024": {
+    "d_pass": 0.25,
+    "n_ctl": 4,
+    "n_treat": 4,
+    "pass_ctl": 2,
+    "pass_treat": 3
+   },
+   "task_055": {
+    "d_pass": 0.0,
+    "n_ctl": 4,
+    "n_treat": 4,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_098": {
+    "d_pass": 0.0,
+    "n_ctl": 4,
+    "n_treat": 4,
+    "pass_ctl": 3,
+    "pass_treat": 3
+   }
+  },
+  "T2_PROCEED_DOCBODY": {
+   "task_055": {
+    "d_pass": 0.0,
+    "n_ctl": 8,
+    "n_treat": 8,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   }
+  },
+  "T2_SUB_REQUIREMENT": {
+   "task_055": {
+    "d_pass": 0.0,
+    "n_ctl": 8,
+    "n_treat": 8,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   }
+  },
+  "T2_HANDOFF_PREDICATE (a)": {
+   "task_027": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   }
+  },
+  "T2_HANDOFF_PREDICATE (b)": {
+   "task_019": {
+    "d_pass": -0.5,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 1,
+    "pass_treat": 0
+   },
+   "task_020": {
+    "d_pass": 0.0,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_022": {
+    "d_pass": 0.0,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_027": {
+    "d_pass": 0.0,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_028": {
+    "d_pass": 1.0,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 0,
+    "pass_treat": 2
+   },
+   "task_029": {
+    "d_pass": -0.5,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 1,
+    "pass_treat": 0
+   }
+  },
+  "T2_VERDICT_CARRY + T2_ELIG_LINE (a)": {
+   "task_004": {
+    "d_pass": 1.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 1
+   },
+   "task_016": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_024": {
+    "d_pass": -1.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 1,
+    "pass_treat": 0
+   },
+   "task_055": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_057": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_063": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_072": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_073": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_079": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_093": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_098": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_100": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   }
+  },
+  "T2_VERDICT_CARRY + T2_ELIG_LINE (b)": {
+   "task_024": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_055": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_072": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_085": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   }
+  },
+  "T2_VERDICT_CARRY + T2_ELIG_LINE (c)": {
+   "task_003": {
+    "d_pass": 1.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 1
+   },
+   "task_004": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 1,
+    "pass_treat": 1
+   },
+   "task_016": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_017": {
+    "d_pass": 1.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 1
+   },
+   "task_033": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_040": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_050": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_057": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_063": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_073": {
+    "d_pass": -1.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 1,
+    "pass_treat": 0
+   },
+   "task_074": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_079": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_093": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_094": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_098": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_100": {
+    "d_pass": 0.0,
+    "n_ctl": 1,
+    "n_treat": 1,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   }
+  },
+  "T2_ARG_DOC_SUB + T2_VALUE_FORMULA=full (hot)": {
+   "task_024": {
+    "d_pass": 0.6666666666666667,
+    "n_ctl": 6,
+    "n_treat": 6,
+    "pass_ctl": 2,
+    "pass_treat": 6
+   }
+  },
+  "T2_ARG_DOC_SUB + T2_VALUE_FORMULA=full (rest)": {
+   "task_001": {
+    "d_pass": -0.5,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 2,
+    "pass_treat": 1
+   },
+   "task_003": {
+    "d_pass": 0.0,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 1,
+    "pass_treat": 1
+   },
+   "task_025": {
+    "d_pass": 0.5,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 1,
+    "pass_treat": 2
+   },
+   "task_047": {
+    "d_pass": 0.0,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_055": {
+    "d_pass": 0.0,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_063": {
+    "d_pass": 0.0,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   },
+   "task_070": {
+    "d_pass": 0.0,
+    "n_ctl": 2,
+    "n_treat": 2,
+    "pass_ctl": 0,
+    "pass_treat": 0
+   }
+  }
+ },
+ "antagonists": [
+  {
+   "lever": "T2_ACT_DEMAND",
+   "bought": "task_073",
+   "sold": "task_050",
+   "d_bought": 0.4,
+   "d_sold": -0.2
+  },
+  {
+   "lever": "T2_HANDOFF_PREDICATE (b)",
+   "bought": "task_028",
+   "sold": "task_019",
+   "d_bought": 1.0,
+   "d_sold": -0.5
+  },
+  {
+   "lever": "T2_HANDOFF_PREDICATE (b)",
+   "bought": "task_028",
+   "sold": "task_029",
+   "d_bought": 1.0,
+   "d_sold": -0.5
+  },
+  {
+   "lever": "T2_VERDICT_CARRY + T2_ELIG_LINE (a)",
+   "bought": "task_004",
+   "sold": "task_024",
+   "d_bought": 1.0,
+   "d_sold": -1.0
+  },
+  {
+   "lever": "T2_VERDICT_CARRY + T2_ELIG_LINE (c)",
+   "bought": "task_003",
+   "sold": "task_073",
+   "d_bought": 1.0,
+   "d_sold": -1.0
+  },
+  {
+   "lever": "T2_VERDICT_CARRY + T2_ELIG_LINE (c)",
+   "bought": "task_017",
+   "sold": "task_073",
+   "d_bought": 1.0,
+   "d_sold": -1.0
+  },
+  {
+   "lever": "T2_ARG_DOC_SUB + T2_VALUE_FORMULA=full (rest)",
+   "bought": "task_025",
+   "sold": "task_001",
+   "d_bought": 0.5,
+   "d_sold": -0.5
+  }
+ ],
+ "lever_step": {
+  "T2_NOW_SELFCALL + T2_SEARCH_ON_PROCEED": [
+   {
+    "task": "task_071",
+    "aid": "071_4",
+    "tool": "open_bank_account_4821",
+    "d_missrate": -0.25,
+    "n": 8
+   },
+   {
+    "task": "task_072",
+    "aid": "072_8",
+    "tool": "apply_checking_account_credit_5829",
+    "d_missrate": 0.1428571428571428,
+    "n": 7
+   }
+  ],
+  "T2_ACT_DEMAND": [
+   {
+    "task": "task_072",
+    "aid": "072_8",
+    "tool": "apply_checking_account_credit_5829",
+    "d_missrate": -0.20000000000000007,
+    "n": 5
+   },
+   {
+    "task": "task_073",
+    "aid": "073_10",
+    "tool": "apply_checking_account_credit_5829",
+    "d_missrate": -0.39999999999999997,
+    "n": 5
+   },
+   {
+    "task": "task_073",
+    "aid": "073_8",
+    "tool": "apply_checking_account_credit_5829",
+    "d_missrate": -0.39999999999999997,
+    "n": 5
+   },
+   {
+    "task": "task_073",
+    "aid": "073_9",
+    "tool": "apply_checking_account_credit_5829",
+    "d_missrate": -0.39999999999999997,
+    "n": 5
+   }
+  ],
+  "T2_MATERIAL_RESERVE": [
+   {
+    "task": "task_055",
+    "aid": "055_0",
+    "tool": "log_verification",
+    "d_missrate": 0.25,
+    "n": 4
+   },
+   {
+    "task": "task_055",
+    "aid": "055_4",
+    "tool": "open_bank_account_4821",
+    "d_missrate": -0.25,
+    "n": 4
+   },
+   {
+    "task": "task_098",
+    "aid": "098_2",
+    "tool": "submit_referral",
+    "d_missrate": -0.25,
+    "n": 4
+   }
+  ],
+  "T2_DELIVER_PRECOMMIT": [
+   {
+    "task": "task_024",
+    "aid": "024_0",
+    "tool": "apply_for_credit_card",
+    "d_missrate": -0.25,
+    "n": 4
+   },
+   {
+    "task": "task_055",
+    "aid": "055_5",
+    "tool": "open_bank_account_4821",
+    "d_missrate": -0.25,
+    "n": 4
+   },
+   {
+    "task": "task_055",
+    "aid": "055_7",
+    "tool": "deposit_check_3847",
+    "d_missrate": -0.25,
+    "n": 4
+   },
+   {
+    "task": "task_098",
+    "aid": "098_0",
+    "tool": "log_verification",
+    "d_missrate": 0.25,
+    "n": 4
+   },
+   {
+    "task": "task_098",
+    "aid": "098_2",
+    "tool": "submit_referral",
+    "d_missrate": -0.25,
+    "n": 4
+   }
+  ],
+  "T2_PROCEED_DOCBODY": [
+   {
+    "task": "task_055",
+    "aid": "055_4",
+    "tool": "open_bank_account_4821",
+    "d_missrate": -0.4821428571428571,
+    "n": 7
+   },
+   {
+    "task": "task_055",
+    "aid": "055_5",
+    "tool": "open_bank_account_4821",
+    "d_missrate": 0.1428571428571429,
+    "n": 7
+   }
+  ],
+  "T2_SUB_REQUIREMENT": [
+   {
+    "task": "task_055",
+    "aid": "055_4",
+    "tool": "open_bank_account_4821",
+    "d_missrate": -0.75,
+    "n": 7
+   },
+   {
+    "task": "task_055",
+    "aid": "055_5",
+    "tool": "open_bank_account_4821",
+    "d_missrate": -0.125,
+    "n": 7
+   }
+  ],
+  "T2_HANDOFF_PREDICATE (a)": [
+   {
+    "task": "task_027",
+    "aid": "027_2",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": -1.0,
+    "n": 1
+   },
+   {
+    "task": "task_027",
+    "aid": "027_3",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": -1.0,
+    "n": 1
+   },
+   {
+    "task": "task_027",
+    "aid": "027_5",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": -1.0,
+    "n": 1
+   }
+  ],
+  "T2_HANDOFF_PREDICATE (b)": [
+   {
+    "task": "task_019",
+    "aid": "019_2",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": 1.0,
+    "n": 2
+   },
+   {
+    "task": "task_019",
+    "aid": "019_3",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": 1.0,
+    "n": 2
+   },
+   {
+    "task": "task_019",
+    "aid": "019_4",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": 1.0,
+    "n": 2
+   },
+   {
+    "task": "task_019",
+    "aid": "019_5",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": 1.0,
+    "n": 2
+   },
+   {
+    "task": "task_020",
+    "aid": "020_2",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": 1.0,
+    "n": 2
+   },
+   {
+    "task": "task_020",
+    "aid": "020_3",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": 0.5,
+    "n": 2
+   },
+   {
+    "task": "task_020",
+    "aid": "020_4",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": 1.0,
+    "n": 2
+   },
+   {
+    "task": "task_020",
+    "aid": "020_5",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": 0.5,
+    "n": 2
+   },
+   {
+    "task": "task_027",
+    "aid": "027_2",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": 0.5,
+    "n": 2
+   },
+   {
+    "task": "task_027",
+    "aid": "027_3",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": 0.5,
+    "n": 2
+   },
+   {
+    "task": "task_028",
+    "aid": "028_10",
+    "tool": "update_transaction_rewards_3847",
+    "d_missrate": -1.0,
+    "n": 2
+   },
+   {
+    "task": "task_028",
+    "aid": "028_11",
+    "tool": "update_transaction_rewards_3847",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_028",
+    "aid": "028_12",
+    "tool": "update_transaction_rewards_3847",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_028",
+    "aid": "028_13",
+    "tool": "update_transaction_rewards_3847",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_028",
+    "aid": "028_14",
+    "tool": "update_transaction_rewards_3847",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_028",
+    "aid": "028_2",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_028",
+    "aid": "028_3",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_028",
+    "aid": "028_4",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_028",
+    "aid": "028_5",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_028",
+    "aid": "028_6",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_028",
+    "aid": "028_7",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_028",
+    "aid": "028_9",
+    "tool": "update_transaction_rewards_3847",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_029",
+    "aid": "029_5",
+    "tool": "submit_cash_back_dispute_0589",
+    "d_missrate": 0.5,
+    "n": 2
+   }
+  ],
+  "T2_VERDICT_CARRY + T2_ELIG_LINE (a)": [
+   {
+    "task": "task_024",
+    "aid": "024_0",
+    "tool": "apply_for_credit_card",
+    "d_missrate": 1.0,
+    "n": 1
+   },
+   {
+    "task": "task_057",
+    "aid": "057_4",
+    "tool": "open_bank_account_4821",
+    "d_missrate": -1.0,
+    "n": 1
+   },
+   {
+    "task": "task_079",
+    "aid": "079_3",
+    "tool": "freeze_debit_card_3892",
+    "d_missrate": -1.0,
+    "n": 1
+   },
+   {
+    "task": "task_079",
+    "aid": "079_4",
+    "tool": "freeze_debit_card_3892",
+    "d_missrate": -1.0,
+    "n": 1
+   },
+   {
+    "task": "task_079",
+    "aid": "079_5",
+    "tool": "freeze_debit_card_3892",
+    "d_missrate": -1.0,
+    "n": 1
+   }
+  ],
+  "T2_VERDICT_CARRY + T2_ELIG_LINE (b)": [
+   {
+    "task": "task_072",
+    "aid": "072_0",
+    "tool": "log_verification",
+    "d_missrate": 1.0,
+    "n": 1
+   },
+   {
+    "task": "task_072",
+    "aid": "072_8",
+    "tool": "apply_checking_account_credit_5829",
+    "d_missrate": 1.0,
+    "n": 1
+   }
+  ],
+  "T2_VERDICT_CARRY + T2_ELIG_LINE (c)": [
+   {
+    "task": "task_003",
+    "aid": "003_0",
+    "tool": "apply_for_credit_card",
+    "d_missrate": -1.0,
+    "n": 1
+   },
+   {
+    "task": "task_057",
+    "aid": "057_4",
+    "tool": "open_bank_account_4821",
+    "d_missrate": 1.0,
+    "n": 1
+   },
+   {
+    "task": "task_100",
+    "aid": "100_3",
+    "tool": "submit_referral",
+    "d_missrate": 1.0,
+    "n": 1
+   }
+  ],
+  "T2_ARG_DOC_SUB + T2_VALUE_FORMULA=full (hot)": [
+   {
+    "task": "task_024",
+    "aid": "024_0",
+    "tool": "apply_for_credit_card",
+    "d_missrate": -0.6666666666666666,
+    "n": 6
+   }
+  ],
+  "T2_ARG_DOC_SUB + T2_VALUE_FORMULA=full (rest)": [
+   {
+    "task": "task_001",
+    "aid": "001_0",
+    "tool": "apply_for_credit_card",
+    "d_missrate": 0.5,
+    "n": 2
+   },
+   {
+    "task": "task_025",
+    "aid": "025_0",
+    "tool": "apply_for_credit_card",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_047",
+    "aid": "047_4",
+    "tool": "log_credit_card_closure_reason_4521",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_047",
+    "aid": "047_9",
+    "tool": "apply_statement_credit_8472",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_055",
+    "aid": "055_0",
+    "tool": "log_verification",
+    "d_missrate": -0.5,
+    "n": 2
+   },
+   {
+    "task": "task_070",
+    "aid": "070_4",
+    "tool": "open_bank_account_4821",
+    "d_missrate": 0.5,
+    "n": 2
+   }
+  ]
+ }
+}
