@@ -1,67 +1,144 @@
 {
-  "probe": "x501_x431_arms",
-  "date": "2026-08-24",
-  "question": "핸드오프 §3③ — x431 이 unique 0/8 인 것은 표 커버리지(우리 층)인가 형식화 결손(모델)인가.",
-  "answer": "둘 다 아니다. **우리 층이되 커버리지 축이 아니고**, 원인은 두 개의 서로 다른 우리-층 결함이다. 그리고 이 격리는 [[62]] 2b 의 '공정' 조건을 못 갖췄으므로 **능력 경계로 기록할 자격이 없다**.",
-
-  "denominator_note": "이번 사례 집합 n=5 (task_055#t0 · task_063#t0/t1 · task_057#t0/t1). 커밋된 x431_spec_selects.json 은 n=8 (003×2·024 추가)이고 코퍼스 스냅샷이 달라 사례가 줄었다. **2/8 과 직접 비교하지 마라** — 아래 팔 대조는 전부 같은 5사례 고정이다.",
-
-  "arms_menu_coverage": {
-    "design": "메뉴에 올릴 축을 표의 **채움 비율**로 고른다(arm_attrs · 닫힌 술어).",
-    "rows": [
-      {"arm": "A_cur",    "menu_axes": 16, "gold_in": "2/5", "unique": "0/5", "undecidable": 1},
-      {"arm": "B_cov50",  "menu_axes": 6,  "gold_in": "1/5", "unique": "0/5", "undecidable": 1},
-      {"arm": "B_cov80",  "menu_axes": 4,  "gold_in": "0/5", "unique": "0/5", "undecidable": 3},
-      {"arm": "B_cov100", "menu_axes": 2,  "gold_in": "0/5", "unique": "0/5", "undecidable": 5},
-      {"arm": "C_neg",    "menu_axes": 4,  "gold_in": "1/5", "unique": "0/5", "undecidable": 2,
-       "note": "부정통제 = 가장 **안 채워진** 4축"}
-    ],
-    "verdict": "REFUTED. 단조 감소이고 unique 는 한 번도 0을 벗어나지 않는다. 결정적으로 **같은 크기(4축)에서 C_neg 1/5 > B_cov80 0/5** — 채움률 축은 그 크기에서 역상관이다. 손님이 실제로 말하는 축(당좌대월·해외수수료·ATM)이 바로 드문 축이라 좁히면 스펙이 빈다(미결정 1→5)."
-  },
-
-  "arms_family_scope": {
-    "design": "라이브의 `account_type` 자리 — 같은 형식화가 계열을 함께 내고 엔진은 소속 판정만(--family-from).",
-    "why": "x431 은 account_class 후보를 4계열 38행 전부로 놓고 재고 있었다. 라이브는 그렇지 않다 — `open_bank_account` 가 `account_type` 을 따로 받고 `T2_WRITE_ARG_ENUM` 이 그것을 `group_arg` 로 쓴다. **프로브가 라이브보다 어려운 문제를 재고 있었다.**",
-    "rows": [
-      {"arm": "family=none",  "candidates_median": 38, "gold_in": "2/5", "unique": "0/5"},
-      {"arm": "family=said",  "candidates_median": 11, "gold_in": "2/5", "unique": "0/5",
-       "family_pick_correct": "5/5"},
-      {"arm": "family=fixed", "candidates_median": 11, "gold_in": "2/5", "unique": "0/5",
-       "family_pick_correct": "3/5", "note": "부정통제 = 손님 말을 안 보고 가장 큰 계열로 고정"}
-    ],
-    "verdict": "계열 지목은 **모델이 5/5 로 옳게 한다**(부정통제 3/5). 후보를 38→11 로 3.5배 줄이는데 **gold 손실 0** = 공짜 축소. 다만 집계 gold_in 은 2/5 로 동률인데, 그것은 gold_in 인 두 사례가 마침 체킹이라 fixed 도 지키기 때문이다 — 팔이 갈리는 자리는 **태스크별 표**다. unique 는 안 오르므로 계열은 병목이 아니다."
-  },
-
-  "residual_split": {
-    "057 (checking)": "gold 를 쥔 채 11·4 밑으로 못 좁힌다 = **과소축소**. 오선택이 아니다.",
-    "063 (savings)":  "옳은 계열 안에서 gold 를 **떨어뜨린다** = 과잉거절. 원인 둘 다 우리 층."
-  },
-
-  "our_layer_defect_1_unmerged_conditional": {
-    "claim": "`apy exists` 가 gold 를 죽인다. 우리 filled 표가 `silver_plus_account.apy` 를 absent 로 적고 있는데 **absent 가 아니다**.",
-    "evidence": "`x430_account_facts_conditional.json`(오늘 아침 fe03519e 로 리모트에서 회수) 에 축자 인용과 함께 Tier1 3.0% · Tier2 4.5% 가 있다. 그 파일은 `_filled` 로 합쳐진 적이 없다.",
-    "size": "조건부가 값을 낸 355 칸 중 filled 표에서 여전히 빈 칸 **9**. 그중 둘이 실패 태스크의 gold — `silver_plus_account.apy`(063) · `purple_account.apy`(055).",
-    "counterfactual": "`--conditional overlay`(빈 칸에만 덮음) 로 같은 5사례 재실행 → **063#t0 gold_in False → True**(생존 8→9) · 전체 gold_in **2/5 → 3/5**. 나머지 4사례 불변. n=1 짝 대조이지만 같은 코드·같은 사례·한 요인이다.",
-    "engine_note": "조건부 칸은 값이 둘이라 `cellval` 의 `vals[0]` 이 **엔진의 선택**이 된다([[62]] 금지). `cellvals`+`_cmp` 를 **만족 가능성**(any)으로 바꿨다 — 고르지 않는다. 거동 보존: filled 표 값 있는 칸 346 중 값 2개 이상인 칸 **0**."
-  },
-
-  "our_layer_defect_2_absent_token_collision": {
-    "claim": "`absent` 한 토큰에 두 뜻이 실려 있고 메뉴에 올린 것은 우리다.",
-    "evidence": "063#t1 이 `paper_statement_fee absent` 를 냈다(손님 축자: *\"paper statements mailed to me are a must\"*). gold 의 그 칸은 `values=[\"0.00\"]` = **문서화된 $0 수수료**. 우리 표에서 absent = *문서에 없음* · 모델이 쓴 absent = *그 상품엔 없음*.",
-    "status": "미수리. 오버레이로 안 움직인다(063#t1 gold_in 여전히 False) — 독립 결함임이 반사실로 확인됐다.",
-    "prescription_not_built": "메뉴에서 `absent` 를 이름 그대로 두지 말고 뜻을 갈라 적거나([[64]] 무엇을 하면 풀리는지까지), 그 축은 op 능력에서 빼라. 어느 쪽인지는 아직 안 쟀다."
-  },
-
-  "capability_verdict": {
-    "can_we_call_this_a_model_boundary": "NO",
-    "why": "[[62]] 2b — 격리가 **공정**해야 능력 경계다. 이 격리는 표에 구멍 9칸(그중 둘이 gold)이 있었고 술어 어휘가 충돌했다. 그 상태의 실패는 우리 층 실패다([[55]]).",
-    "prior": "x499b 정산에서 `account_class` 축 = MODEL_CAN 0 · MODEL_CANNOT 0 · OUR_LAYER 4 · INCONCLUSIVE 2 = **능력 판정 없음**. [[63]]: 재현된 유일한 큰 효과는 **제거**이고(x150 0/5→5/5 · x201 0/8→8/8 · x269 0/8→8/8) 그것은 *걸러 주면 고른다* 쪽이다.",
-    "also": "unique 는 애초에 모델 지표가 아니다 — x431 에서 고르는 것은 엔진(스펙→결정론 필터)이고 모델의 실제 선택은 이 파이프에 없다."
-  },
-
-  "next_not_built": [
-    "9칸 오버레이를 `_filled` 정본으로 승격할지 — 승격 전에 나머지 7칸이 어느 태스크에 닿는지 먼저 센다.",
-    "`absent` 토큰 충돌 수리 후 재측정 — 063#t1 이 유일한 표적이므로 표적 1건임을 명시하고 들어간다.",
-    "057 의 과소축소(11·4) — 여기는 아직 아무 처방도 재지 않았다."
-  ]
+ "probe": "x501_x431_arms",
+ "date": "2026-08-24",
+ "question": "핸드오프 §3③ — x431 이 unique 0/8 인 것은 표 커버리지(우리 층)인가 형식화 결손(모델)인가.",
+ "answer": "둘 다 아니다. **우리 층이되 커버리지 축이 아니고**, 원인은 두 개의 서로 다른 우리-층 결함이다. 그리고 이 격리는 [[62]] 2b 의 '공정' 조건을 못 갖췄으므로 **능력 경계로 기록할 자격이 없다**.",
+ "denominator_note": "이번 사례 집합 n=5 (task_055#t0 · task_063#t0/t1 · task_057#t0/t1). 커밋된 x431_spec_selects.json 은 n=8 (003×2·024 추가)이고 코퍼스 스냅샷이 달라 사례가 줄었다. **2/8 과 직접 비교하지 마라** — 아래 팔 대조는 전부 같은 5사례 고정이다.",
+ "arms_menu_coverage": {
+  "design": "메뉴에 올릴 축을 표의 **채움 비율**로 고른다(arm_attrs · 닫힌 술어).",
+  "rows": [
+   {
+    "arm": "A_cur",
+    "menu_axes": 16,
+    "gold_in": "2/5",
+    "unique": "0/5",
+    "undecidable": 1
+   },
+   {
+    "arm": "B_cov50",
+    "menu_axes": 6,
+    "gold_in": "1/5",
+    "unique": "0/5",
+    "undecidable": 1
+   },
+   {
+    "arm": "B_cov80",
+    "menu_axes": 4,
+    "gold_in": "0/5",
+    "unique": "0/5",
+    "undecidable": 3
+   },
+   {
+    "arm": "B_cov100",
+    "menu_axes": 2,
+    "gold_in": "0/5",
+    "unique": "0/5",
+    "undecidable": 5
+   },
+   {
+    "arm": "C_neg",
+    "menu_axes": 4,
+    "gold_in": "1/5",
+    "unique": "0/5",
+    "undecidable": 2,
+    "note": "부정통제 = 가장 **안 채워진** 4축"
+   }
+  ],
+  "verdict": "REFUTED. 단조 감소이고 unique 는 한 번도 0을 벗어나지 않는다. 결정적으로 **같은 크기(4축)에서 C_neg 1/5 > B_cov80 0/5** — 채움률 축은 그 크기에서 역상관이다. 손님이 실제로 말하는 축(당좌대월·해외수수료·ATM)이 바로 드문 축이라 좁히면 스펙이 빈다(미결정 1→5)."
+ },
+ "arms_family_scope": {
+  "design": "라이브의 `account_type` 자리 — 같은 형식화가 계열을 함께 내고 엔진은 소속 판정만(--family-from).",
+  "why": "x431 은 account_class 후보를 4계열 38행 전부로 놓고 재고 있었다. 라이브는 그렇지 않다 — `open_bank_account` 가 `account_type` 을 따로 받고 `T2_WRITE_ARG_ENUM` 이 그것을 `group_arg` 로 쓴다. **프로브가 라이브보다 어려운 문제를 재고 있었다.**",
+  "rows": [
+   {
+    "arm": "family=none",
+    "candidates_median": 38,
+    "gold_in": "2/5",
+    "unique": "0/5"
+   },
+   {
+    "arm": "family=said",
+    "candidates_median": 11,
+    "gold_in": "2/5",
+    "unique": "0/5",
+    "family_pick_correct": "5/5"
+   },
+   {
+    "arm": "family=fixed",
+    "candidates_median": 11,
+    "gold_in": "2/5",
+    "unique": "0/5",
+    "family_pick_correct": "3/5",
+    "note": "부정통제 = 손님 말을 안 보고 가장 큰 계열로 고정"
+   }
+  ],
+  "verdict": "계열 지목은 **모델이 5/5 로 옳게 한다**(부정통제 3/5). 후보를 38→11 로 3.5배 줄이는데 **gold 손실 0** = 공짜 축소. 다만 집계 gold_in 은 2/5 로 동률인데, 그것은 gold_in 인 두 사례가 마침 체킹이라 fixed 도 지키기 때문이다 — 팔이 갈리는 자리는 **태스크별 표**다. unique 는 안 오르므로 계열은 병목이 아니다."
+ },
+ "residual_split": {
+  "057 (checking)": "gold 를 쥔 채 11·4 밑으로 못 좁힌다 = **과소축소**. 오선택이 아니다.",
+  "063 (savings)": "옳은 계열 안에서 gold 를 **떨어뜨린다** = 과잉거절. 원인 둘 다 우리 층."
+ },
+ "our_layer_defect_1_unmerged_conditional": {
+  "claim": "`apy exists` 가 gold 를 죽인다. 우리 filled 표가 `silver_plus_account.apy` 를 absent 로 적고 있는데 **absent 가 아니다**.",
+  "evidence": "`x430_account_facts_conditional.json`(오늘 아침 fe03519e 로 리모트에서 회수) 에 축자 인용과 함께 Tier1 3.0% · Tier2 4.5% 가 있다. 그 파일은 `_filled` 로 합쳐진 적이 없다.",
+  "size": "조건부가 값을 낸 355 칸 중 filled 표에서 여전히 빈 칸 **9**. 그중 둘이 실패 태스크의 gold — `silver_plus_account.apy`(063) · `purple_account.apy`(055).",
+  "counterfactual": "`--conditional overlay`(빈 칸에만 덮음) 로 같은 5사례 재실행 → **063#t0 gold_in False → True**(생존 8→9) · 전체 gold_in **2/5 → 3/5**. 나머지 4사례 불변. n=1 짝 대조이지만 같은 코드·같은 사례·한 요인이다.",
+  "engine_note": "조건부 칸은 값이 둘이라 `cellval` 의 `vals[0]` 이 **엔진의 선택**이 된다([[62]] 금지). `cellvals`+`_cmp` 를 **만족 가능성**(any)으로 바꿨다 — 고르지 않는다. 거동 보존: filled 표 값 있는 칸 346 중 값 2개 이상인 칸 **0**."
+ },
+ "our_layer_defect_2_absent_token_collision": {
+  "claim": "`absent` 한 토큰에 두 뜻이 실려 있고 메뉴에 올린 것은 우리다.",
+  "evidence": "063#t1 이 `paper_statement_fee absent` 를 냈다(손님 축자: *\"paper statements mailed to me are a must\"*). gold 의 그 칸은 `values=[\"0.00\"]` = **문서화된 $0 수수료**. 우리 표에서 absent = *문서에 없음* · 모델이 쓴 absent = *그 상품엔 없음*.",
+  "status": "미수리. 오버레이로 안 움직인다(063#t1 gold_in 여전히 False) — 독립 결함임이 반사실로 확인됐다.",
+  "prescription_not_built": "메뉴에서 `absent` 를 이름 그대로 두지 말고 뜻을 갈라 적거나([[64]] 무엇을 하면 풀리는지까지), 그 축은 op 능력에서 빼라. 어느 쪽인지는 아직 안 쟀다."
+ },
+ "capability_verdict": {
+  "can_we_call_this_a_model_boundary": "NO",
+  "why": "[[62]] 2b — 격리가 **공정**해야 능력 경계다. 이 격리는 표에 구멍 9칸(그중 둘이 gold)이 있었고 술어 어휘가 충돌했다. 그 상태의 실패는 우리 층 실패다([[55]]).",
+  "prior": "x499b 정산에서 `account_class` 축 = MODEL_CAN 0 · MODEL_CANNOT 0 · OUR_LAYER 4 · INCONCLUSIVE 2 = **능력 판정 없음**. [[63]]: 재현된 유일한 큰 효과는 **제거**이고(x150 0/5→5/5 · x201 0/8→8/8 · x269 0/8→8/8) 그것은 *걸러 주면 고른다* 쪽이다.",
+  "also": "unique 는 애초에 모델 지표가 아니다 — x431 에서 고르는 것은 엔진(스펙→결정론 필터)이고 모델의 실제 선택은 이 파이프에 없다."
+ },
+ "next_not_built": [
+  "9칸 오버레이를 `_filled` 정본으로 승격할지 — 승격 전에 나머지 7칸이 어느 태스크에 닿는지 먼저 센다.",
+  "`absent` 토큰 충돌 수리 후 재측정 — 063#t1 이 유일한 표적이므로 표적 1건임을 명시하고 들어간다.",
+  "057 의 과소축소(11·4) — 여기는 아직 아무 처방도 재지 않았다."
+ ],
+ "ADDENDUM_2026_08_24_final": {
+  "note": "아래가 이 항목의 **최종 수치**다. 본문의 '9칸 중 둘이 gold' 는 x502 감사로 정정됐다(둘 중 purple_account.apy 는 오추출·REJECT).",
+  "cumulative_same_5_cases": [
+   {
+    "arm": "A_cur (종전 기준선)",
+    "gold_in": "2/5",
+    "unique": "0/5",
+    "063#t1": "생존 5 · gold 탈락"
+   },
+   {
+    "arm": "+ family=said",
+    "gold_in": "2/5",
+    "unique": "0/5",
+    "063#t1": "생존 5 · gold 탈락"
+   },
+   {
+    "arm": "+ conditional overlay (감사 ACCEPT 2칸)",
+    "gold_in": "3/5",
+    "unique": "0/5",
+    "063#t1": "생존 5 · gold 탈락"
+   },
+   {
+    "arm": "+ absent → undocumented",
+    "gold_in": "4/5",
+    "unique": "0/5",
+    "063#t1": "생존 4 · **gold 포함**"
+   },
+   {
+    "arm": "부정통제: 이름만 absent 로 되돌림",
+    "gold_in": "3/5",
+    "unique": "0/5",
+    "063#t1": "생존 5 · gold 탈락"
+   }
+  ],
+  "reading": "2/5 → 4/5 가 **전부 우리 층 수리**에서 나왔다. 두 결함 모두 짝 대조로 인과가 섰다(오버레이는 063#t0·이름은 063#t1). 남은 gold 탈락은 055#t0 하나이고 그것은 **제약 0개 = 미결정**이다.",
+  "unique_still_zero": "unique 는 모든 팔에서 0/5 다. 그것이 남은 물음이고, 057 의 과소축소(생존 11·4)가 그 자리다 — 아직 아무 처방도 재지 않았다.",
+  "live_cargo": "⚠**이 두 수리는 프로브(x431) 안에만 있다.** 라이브 엔진은 모델에게 `exists|absent` op enum 을 제시하지 않고(전 소스 grep 0), 조건부 표는 라이브 경로가 안 읽는다. ⇒ **t7348 의 화물이 아니다.** 라이브 성적으로 읽지 마라.",
+  "audit_correction": "감사 없이 9칸을 통째로 얹은 것과 ACCEPT 2칸만 얹은 것이 **같은 3/5** 를 낸다 ⇒ REJECT 7칸은 기여 0. 통째 병합은 같은 수치를 사면서 거짓 사실 7개를 심었을 것이다."
+ }
 }
