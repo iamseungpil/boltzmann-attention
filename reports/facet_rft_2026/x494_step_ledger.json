@@ -7560,5 +7560,306 @@
   "안정": 57,
   "만성": 76,
   "산발": 61
- }
+ },
+ "chronic_split": [
+  {
+   "tool": "log_verification",
+   "sims": 359,
+   "never": 21,
+   "exec_ok": 338,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_016",
+    "task_036",
+    "task_040",
+    "task_047",
+    "task_048",
+    "task_049",
+    "task_055",
+    "task_057",
+    "task_061",
+    "task_063",
+    "task_069",
+    "task_071",
+    "task_072",
+    "task_074",
+    "task_077",
+    "task_079",
+    "task_081",
+    "task_085",
+    "task_087",
+    "task_090",
+    "task_093",
+    "task_094",
+    "task_096"
+   ]
+  },
+  {
+   "tool": "open_bank_account_4821",
+   "sims": 140,
+   "never": 33,
+   "exec_ok": 104,
+   "blocked": 3,
+   "deny_ours": 0,
+   "deny_env": 3,
+   "tasks": [
+    "task_055",
+    "task_057",
+    "task_061",
+    "task_063",
+    "task_069",
+    "task_071"
+   ]
+  },
+  {
+   "tool": "apply_checking_account_credit_5829",
+   "sims": 104,
+   "never": 68,
+   "exec_ok": 34,
+   "blocked": 2,
+   "deny_ours": 0,
+   "deny_env": 2,
+   "tasks": [
+    "task_072",
+    "task_074"
+   ]
+  },
+  {
+   "tool": "deposit_check_3847",
+   "sims": 90,
+   "never": 65,
+   "exec_ok": 21,
+   "blocked": 4,
+   "deny_ours": 0,
+   "deny_env": 4,
+   "tasks": [
+    "task_055",
+    "task_057",
+    "task_061"
+   ]
+  },
+  {
+   "tool": "apply_for_credit_card",
+   "sims": 38,
+   "never": 10,
+   "exec_ok": 28,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_047",
+    "task_048",
+    "task_063",
+    "task_069"
+   ]
+  },
+  {
+   "tool": "submit_interest_discrepancy_report_7294",
+   "sims": 33,
+   "never": 5,
+   "exec_ok": 26,
+   "blocked": 2,
+   "deny_ours": 0,
+   "deny_env": 2,
+   "tasks": [
+    "task_093",
+    "task_094",
+    "task_096"
+   ]
+  },
+  {
+   "tool": "apply_savings_account_credit_6831",
+   "sims": 33,
+   "never": 14,
+   "exec_ok": 19,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_093",
+    "task_094",
+    "task_096"
+   ]
+  },
+  {
+   "tool": "order_debit_card_5739",
+   "sims": 22,
+   "never": 17,
+   "exec_ok": 5,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_077",
+    "task_079",
+    "task_081",
+    "task_087",
+    "task_090"
+   ]
+  },
+  {
+   "tool": "close_debit_card_4721",
+   "sims": 22,
+   "never": 17,
+   "exec_ok": 4,
+   "blocked": 1,
+   "deny_ours": 0,
+   "deny_env": 1,
+   "tasks": [
+    "task_077",
+    "task_079",
+    "task_081",
+    "task_087",
+    "task_090"
+   ]
+  },
+  {
+   "tool": "unfreeze_debit_card_3893",
+   "sims": 21,
+   "never": 15,
+   "exec_ok": 6,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_077",
+    "task_079",
+    "task_081",
+    "task_087"
+   ]
+  },
+  {
+   "tool": "file_debit_card_transaction_dispute_6281",
+   "sims": 20,
+   "never": 9,
+   "exec_ok": 7,
+   "blocked": 4,
+   "deny_ours": 0,
+   "deny_env": 4,
+   "tasks": [
+    "task_085",
+    "task_087"
+   ]
+  },
+  {
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "sims": 16,
+   "never": 7,
+   "exec_ok": 6,
+   "blocked": 3,
+   "deny_ours": 0,
+   "deny_env": 3,
+   "tasks": [
+    "task_040",
+    "task_081"
+   ]
+  },
+  {
+   "tool": "freeze_debit_card_3892",
+   "sims": 16,
+   "never": 9,
+   "exec_ok": 5,
+   "blocked": 2,
+   "deny_ours": 0,
+   "deny_env": 2,
+   "tasks": [
+    "task_077",
+    "task_079",
+    "task_081"
+   ]
+  },
+  {
+   "tool": "log_credit_card_closure_reason_4521",
+   "sims": 15,
+   "never": 5,
+   "exec_ok": 10,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_047",
+    "task_048",
+    "task_049"
+   ]
+  },
+  {
+   "tool": "apply_statement_credit_8472",
+   "sims": 15,
+   "never": 12,
+   "exec_ok": 3,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_047",
+    "task_048",
+    "task_049"
+   ]
+  },
+  {
+   "tool": "submit_transaction",
+   "sims": 14,
+   "never": 14,
+   "exec_ok": 0,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_016"
+   ]
+  },
+  {
+   "tool": "order_replacement_credit_card_7291",
+   "sims": 9,
+   "never": 9,
+   "exec_ok": 0,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_036",
+    "task_077",
+    "task_081"
+   ]
+  },
+  {
+   "tool": "close_bank_account_7392",
+   "sims": 9,
+   "never": 4,
+   "exec_ok": 4,
+   "blocked": 1,
+   "deny_ours": 0,
+   "deny_env": 1,
+   "tasks": [
+    "task_061",
+    "task_069"
+   ]
+  },
+  {
+   "tool": "activate_debit_card_8292",
+   "sims": 1,
+   "never": 1,
+   "exec_ok": 0,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_077"
+   ]
+  },
+  {
+   "tool": "reset_debit_card_pin_6284",
+   "sims": 1,
+   "never": 1,
+   "exec_ok": 0,
+   "blocked": 0,
+   "deny_ours": 0,
+   "deny_env": 0,
+   "tasks": [
+    "task_090"
+   ]
+  }
+ ]
 }

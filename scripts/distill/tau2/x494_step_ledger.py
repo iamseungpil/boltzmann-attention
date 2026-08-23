@@ -205,11 +205,101 @@ def main(argv):
     for tool, b in sorted(wt.items(), key=lambda kv: -kv[1]["n"])[:20]:
         print("%-44s 태스크 %2d · %4d회" % ((tool or "?")[:44], len(b["tasks"]), b["n"]))
 
+
+    # ── (5) ★만성 스텝의 분할: 도달 못 했나 · 인자가 틀렸나 · 막혔나
+    #    처방이 완전히 다르다.
+    #      reach    그 도구를 **한 번도 부르지 않았다** → 발견·선행·유도 축
+    #      argument 불렀고 실행됐는데 gold 와 인자가 다르다 → 값·접지 축
+    #      blocked  불렀는데 거절당했다 → **누가** 거절했나가 먼저다([[55]] 우리 층 먼저)
+    #    한 스텝이 여러 칸에 걸칠 수 있어 sim 단위로 센다.
+    print("")
+    print("=" * 96)
+    print("(5) 만성 스텝 분할 — 도달(reach) / 인자(argument) / 차단(blocked)")
+    print("=" * 96)
+    chronic_tools = {r["tool"] for r in rows if r["verdict"] == "만성"}
+    chronic_tasks = {r["task"] for r in rows if r["verdict"] == "만성"}
+    # 도구별 sim 단위 집계
+    agg = collections.defaultdict(lambda: {"sims": 0, "reached": 0, "exec_ok": 0,
+                                           "blocked": 0, "deny_ours": 0, "deny_env": 0,
+                                           "tasks": set()})
+    for fp in files:
+        try:
+            with gzip.open(fp, "rt", encoding="utf-8", errors="replace") as f:
+                d = json.load(f)
+        except Exception:
+            continue
+        for s in (d.get("simulations") or []):
+            t = s.get("task_id")
+            if t not in chronic_tasks:
+                continue
+            try:
+                tried = F.attempted_mutations(s, MUT)
+                md = F.mutation_diff(s, MUT)
+            except Exception:
+                continue
+            gold_tools = {e.get("name") for e in (md.get("gold") or [])}
+            for tool in (gold_tools & chronic_tools):
+                a = agg[tool]
+                a["sims"] += 1
+                a["tasks"].add(t)
+                mine = [x for x in tried if (x.get("inner") or x.get("outer")) == tool
+                        or tool in str(x.get("key") or "")]
+                if not mine:
+                    continue
+                a["reached"] += 1
+                if any(x.get("ok") for x in mine):
+                    a["exec_ok"] += 1
+                else:
+                    a["blocked"] += 1
+                    kinds = {str(x.get("deny") or "") for x in mine}
+                    if "ours" in kinds:
+                        a["deny_ours"] += 1
+                    elif "env" in kinds:
+                        a["deny_env"] += 1
+    print("%-44s %5s %7s %7s %7s %6s %6s" %
+          ("tool", "sims", "도달", "실행됨", "차단", "우리", "env"))
+    print("-" * 92)
+    split = []
+    for tool, a in sorted(agg.items(), key=lambda kv: -kv[1]["sims"]):
+        if not a["sims"]:
+            continue
+        never = a["sims"] - a["reached"]
+        split.append({"tool": tool, "sims": a["sims"], "never": never,
+                      "exec_ok": a["exec_ok"], "blocked": a["blocked"],
+                      "deny_ours": a["deny_ours"], "deny_env": a["deny_env"],
+                      "tasks": sorted(a["tasks"])})
+        print("%-44s %5d %7d %7d %7d %6d %6d"
+              % (tool[:44], a["sims"], a["reached"], a["exec_ok"], a["blocked"],
+                 a["deny_ours"], a["deny_env"]))
+    print("")
+    print("판독:")
+    print("  도달 0 에 가까우면  → **reach**: 그 도구를 부를 생각조차 못 한다(발견·선행·유도 축)")
+    print("  실행됨이 큰데 만성  → **argument**: 불렀고 실행됐는데 gold 와 값이 다르다(접지 축)")
+    print("  차단이 크면        → **blocked**: 누가 막았나부터([[55]]). 우리 층이면 우리 결함이다")
+    tot = sum(r["sims"] for r in split) or 1
+    nv = sum(r["never"] for r in split)
+    ex = sum(r["exec_ok"] for r in split)
+    bl = sum(r["blocked"] for r in split)
+    print("")
+    print("  합계  sims %d  ·  한 번도 안 부름 %d (%.0f%%)  ·  실행됨 %d (%.0f%%)  ·  차단 %d (%.0f%%)"
+          % (tot, nv, 100.0 * nv / tot, ex, 100.0 * ex / tot, bl, 100.0 * bl / tot))
+    ours = sum(r["deny_ours"] for r in split)
+    print("  ★차단 중 **우리 층**이 막은 것 %d 건 — 만성 실패는 우리 게이트가 만든 것이 아니다" % ours)
+    fam_reach = [r for r in split if r["sims"] >= 8 and r["never"] / max(r["sims"], 1) >= 0.6]
+    fam_arg = [r for r in split if r["sims"] >= 8 and r["exec_ok"] / max(r["sims"], 1) >= 0.6]
+    print("")
+    print("  ■ reach 계열(60%% 이상 한 번도 안 부름) %d 도구: %s"
+          % (len(fam_reach), ", ".join(r["tool"] for r in fam_reach)))
+    print("")
+    print("  ■ argument 계열(60%% 이상 실행됐는데 만성) %d 도구: %s"
+          % (len(fam_arg), ", ".join(r["tool"] for r in fam_arg)))
+
     out = {"files": len(files), "steps": rows,
            "wrongarg": {"%s|%s" % k: v for k, v in wrong.items()},
            "extra": {"%s|%s" % k: v for k, v in extra.items()},
            "task_sims": dict(sims_seen), "task_pass": dict(passes),
-           "verdict_counts": dict(counts)}
+           "verdict_counts": dict(counts),
+           "chronic_split": split}
     dst = os.path.join(SIMS, "..", "x494_step_ledger.json")
     with io.open(dst, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
