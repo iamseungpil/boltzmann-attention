@@ -622,7 +622,7 @@ def fill_blanks(table, docdir, family, port):
     return table
 
 
-def sysmsg_spec(with_or=False, filler=False):
+def sysmsg_spec(with_or=False, filler=False, families=None):
     """제약 형식화 프롬프트 — **x432 가 같은 것을 쓴다**(프롬프트가 갈리면 안정성 측정이 무효).
 
     ★`with_or` = 이접 어휘를 **스키마로만** 알린다(2026-08-20 밤·C555 후속). *언제* 쓰라는 규칙은
@@ -639,14 +639,25 @@ def sysmsg_spec(with_or=False, filler=False):
         orline = ("A constraint is written as one JSON object and every field name is lower case; the "
                   "attribute name must be copied exactly as given, character for character, and the "
                   "value must be written as a bare number without a currency symbol or a percent sign. ")
+    # ★`families` = 손님이 말한 **계열**을 같은 형식화가 함께 낸다(엔진은 소속 판정만 · [[10]]).
+    #   라이브는 이미 그렇게 돌아간다 — `open_bank_account` 는 `account_type` 을 모델이 같이 쓰고
+    #   `T2_WRITE_ARG_ENUM` 은 그것을 `group_arg` 로 쓴다. 그런데 이 프로브는 4계열 38행을
+    #   통째로 놓고 재어서 **라이브보다 어려운 문제**를 재고 있었다.
+    #   ⚠[[66]]: 어느 계열을 고를지는 **한 줄도** 적지 않는다. 열거하면 그 열거가
+    #     독립 트리거가 된다 — 여기서 주는 것은 **이름 목록과 칸 하나**뿐이다.
+    famline = (("\"family\": \"<one of: %s>\", " % ", ".join(families))
+               if families else "")
+    famnote = ("Set 'family' to the product family the customer's own words are about. "
+               if families else "")
     return (orline +"You turn a customer's stated requirements into a machine-checkable spec. "
-              "Reply with ONE JSON object only: {\"constraints\": [{\"attribute\": \"<one of the given "
+              "Reply with ONE JSON object only: {" + famline + "\"constraints\": [{\"attribute\": \"<one of the given "
               "names>\", \"op\": \"==|<=|>=|exists|absent\", \"value\": <number or null>, "
               "\"because\": \"<the customer's own words>\", "
               "\"stated_as\": \"requirement|question|background\"}], "
               "\"objective\": {\"mode\": \"argmin|argmax\", \"terms\": [{\"attribute\": \"<name>\", "
               "\"times\": <how many times per month the customer said they do this>, "
               "\"of_amount\": <the dollar amount each time, or null>, \"sign\": 1 or -1}]}}. "
+              + famnote +
               "Use ONLY requirements the customer actually stated. Omit attributes they did not "
               "mention. Add 'objective' ONLY if the customer asked for the best/cheapest option or "
               "gave a usage pattern; otherwise omit it. "
@@ -670,6 +681,10 @@ def main():
     ap.add_argument("--repeat", type=int, default=1,
                     help="같은 코드로 N회 반복 — **판정선**(무처치 변동폭)을 잰다")
     ap.add_argument("--args-filter", default="account_class")
+    ap.add_argument("--family-from", default="none", choices=("none", "said", "fixed"),
+                    help="후보를 손님이 말한 **계열**로 좁히나. "
+                         "none=종전(4계열 38행 전부) · said=형식화가 낸 계열 · "
+                         "fixed=**부정통제**([[57]]) 가장 큰 계열로 고정(정보 0·같은 크기의 축소)")
     ap.add_argument("--arm", default="A_cur",
                     help="menu arm: %s (default A_cur = 종전 거동)" % ", ".join(ARMS))
     a = ap.parse_args()
@@ -701,7 +716,10 @@ def main():
             continue
         seen.add(k)
         cs.append(c)
-    sysmsg = sysmsg_spec()
+    # 계열 이름 목록은 A2 선언에서 온다(엔진이 짓지 않는다).
+    _famlist = sorted({f for x in [x for x in a.args_filter.split(",") if x]
+                       for f in (arg_families(x) or [])})
+    sysmsg = sysmsg_spec(families=(_famlist if a.family_from == "said" else None))
     print("\n=== ②③④ 스펙 → 필터 → 판정 (사례 %d) ===" % len(cs))
     # ★`--repeat` 은 선언만 돼 있고 **아무 일도 안 하고 있었다**(2026-08-20 밤 발견).
     #   확대 표본의 '×3 재현'은 바깥에서 세 번 부른 것이었다 — 플래그가 거짓말을 하면
@@ -745,10 +763,22 @@ def main():
               print("        ⚠표가 지지 못하는 술어 %d건(판정 제외): %s"
                     % (len(unsupported), ", ".join("%s %s" % (u.get("attribute"), u.get("op"))
                                                    for u in unsupported[:4])))
+          # ★계열 축소 — 라이브의 `account_type` 자리. 엔진은 **소속 판정**만 한다([[62]] ③).
+          _fam_pick = None
+          if a.family_from == "said" and isinstance(spec, dict):
+              _cand = str(spec.get("family") or "")
+              _fam_pick = _cand if _cand in (fams or []) else None      # 목록 밖이면 안 좁힌다
+          elif a.family_from == "fixed":
+              # 부정통제: 손님 말을 **안 보고** 가장 큰 계열로 고정한다. 후보 수는 비슷하게
+              # 줄지만 정보는 0 이다 — `said` 가 사는 것이 *정보*인지 *개수*인지 가른다.
+              _sz = collections.Counter(r.get("_family") for r in tbl.values()
+                                        if isinstance(r, dict) and r.get("_family") in (fams or []))
+              _fam_pick = _sz.most_common(1)[0][0] if _sz else None
+          _fam_scope = [_fam_pick] if _fam_pick else fams
           for cls, row in tbl.items():
               if not isinstance(row, dict):
                   continue
-              if fams and (row.get("_family") not in fams):
+              if _fam_scope and (row.get("_family") not in _fam_scope):
                   continue                      # 계열 밖 후보는 애초에 안 센다(A2 선언)
               ok = all(passes(row, con) for con in cons)   # ★정본 술어 하나로([[67]] 사본 금지)
               if ok:
@@ -775,6 +805,9 @@ def main():
           hit = [x for x in surv_filter if clsname(x) == clsname(c["gold"])]
           win_hit = bool(winners) and any(clsname(x) == clsname(c["gold"]) for x in winners)
           rows.append({"arm": a.arm, "menu_attrs": sorted(_allowed),
+                       "family_from": a.family_from, "family_pick": _fam_pick,
+                       "n_scope": sum(1 for r in tbl.values() if isinstance(r, dict)
+                                      and (not _fam_scope or r.get("_family") in _fam_scope)),
                        "task": c["task"], "trial": c["trial"], "gold": c["gold"],
                        "objective": obj if winners else None,
                        "scores": {k: round(v, 4) for k, v in (score or {}).items()},
@@ -817,7 +850,9 @@ def main():
                 '**%d/%d** · 미결정 %d · 메뉴 축 중앙값 %d'
                 % (a.arm, _rep + 1, sum(x['gold_in'] for x in rows), n,
                    sum(x['unique'] for x in rows), n, sum(x['undecidable'] for x in rows),
-                   sorted(len(x['menu_attrs']) for x in rows)[n // 2]))
+                   sorted(len(x['menu_attrs']) for x in rows)[n // 2])
+                + ' · 계열=%s 후보 중앙값 %d'
+                % (a.family_from, sorted(x['n_scope'] for x in rows)[n // 2]))
       all_rows.append(rows)
     rep = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026")
     outs = []
@@ -828,11 +863,12 @@ def main():
         #   초판은 팔이 A_cur 이기만 하면 정본 이름을 썼고, `--arm A_cur --tag arms` 한 번이
         #   커밋된 8-사례 산출물을 5-사례 결과로 **덮었다**(2026-08-24 실물·git checkout 으로 복구).
         #   `--tag` 를 준 것 자체가 *이건 다른 실행이다* 라는 선언이므로 이름이 갈려야 한다([[30]]).
-        default_call = (a.arm == "A_cur" and a.tag == "wide" and len(all_rows) == 1)
+        default_call = (a.arm == "A_cur" and a.tag == "wide" and a.family_from == "none"
+                        and len(all_rows) == 1)
         if default_call:
             name = "x431_spec_selects.json"
         else:
-            name = "x431_%s_%s%d.json" % (a.arm.lower(), a.tag, k + 1)
+            name = "x431_%s_fam%s_%s%d.json" % (a.arm.lower(), a.family_from, a.tag, k + 1)
         q = os.path.abspath(os.path.join(rep, name))
         with io.open(q, "w", encoding="utf-8") as f:
             json.dump(rws, f, ensure_ascii=False, indent=1)
