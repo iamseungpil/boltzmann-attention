@@ -1,9 +1,9 @@
 {
  "active": false,
- "sha": "4f6c83eb",
- "tag": "t7337",
+ "sha": "d5ff0c10",
+ "tag": "t7346",
  "reason": "all-on composed stack, stage1 20 x nt2",
- "at": "2026-08-22T16:30:50+09:00",
+ "at": "2026-08-23T00:20:18+09:00",
  "paths": [
   "/scripts/distill/tau2/t2_gate_patch.py",
   "/scripts/distill/tau2/t2_eplan_patch.py",
@@ -14,5 +14,5 @@
   "/scripts/distill/tau2/a2/",
   "/scripts/distill/tau2/go_stack.sh"
  ],
- "released_sha": "a2e31576"
+ "released_sha": "29b3a283"
 }
