@@ -1,0 +1,474 @@
+[
+ {
+  "task": "task_055",
+  "trial": 0,
+  "gold": "Purple Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 0,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 38,
+  "surv": [
+   "blue_account",
+   "bluest_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account",
+   "bronze_account",
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "green_account_(savings)",
+   "platinum_account",
+   "platinum_plus_account",
+   "silver_account",
+   "silver_plus_account",
+   "beige",
+   "cobalt_blue",
+   "hunter_green",
+   "lime_green",
+   "navy_blue",
+   "sky_blue",
+   "true_blue",
+   "world_blue",
+   "automatic_sweep_program",
+   "bronze_saver_account",
+   "diamond_vault",
+   "emerald_saver",
+   "gold_plus_saver",
+   "gold_saver_account",
+   "joint_business_holders_+_user_roles",
+   "platinum_reserve_account",
+   "silver_plus_saver",
+   "silver_saver_account"
+  ],
+  "undecidable": true,
+  "reask": false,
+  "n_rejected_first": 0,
+  "declared_non_requirement": [
+   [
+    "oon_atm_reimbursement",
+    "question",
+    "Is there any option where you reimburse out-of-network / int"
+   ],
+   [
+    "foreign_transaction_fee",
+    "question",
+    "Also I really hate foreign transaction fees when I buy thing"
+   ],
+   [
+    "foreign_currency_holding",
+    "question",
+    "Oh—and sometimes I get paid in yen or euros. It would be nic"
+   ],
+   [
+    "min_age",
+    "background",
+    "I’m 33, so not student/senior."
+   ],
+   [
+    "max_age",
+    "background",
+    "I’m 33, so not student/senior."
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 38,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": []
+ },
+ {
+  "task": "task_063",
+  "trial": 0,
+  "gold": "Silver Plus Account",
+  "objective": {
+   "mode": "argmax",
+   "terms": [
+    {
+     "attribute": "apy",
+     "times": 1,
+     "of_amount": 8000,
+     "sign": 1
+    }
+   ]
+  },
+  "scores": {
+   "bluest_account": 180.0,
+   "dark_green_account": 120.0,
+   "gold_years_account": 80.0,
+   "green_fee-free_account": 0.0,
+   "light_green_account": 4.0,
+   "diamond_elite_account": 600.0,
+   "gold_account": 440.0,
+   "gold_plus_account": 480.0,
+   "green_account_(savings)": 320.0,
+   "platinum_account": 520.0,
+   "platinum_plus_account": 560.0,
+   "silver_account": 200.0,
+   "cobalt_blue": 40.0,
+   "hunter_green": 80.0,
+   "lime_green": 120.0,
+   "true_blue": 160.0,
+   "world_blue": 80.0,
+   "diamond_vault": 520.0,
+   "emerald_saver": 280.0,
+   "gold_plus_saver": 400.0,
+   "gold_saver_account": 260.0,
+   "platinum_reserve_account": 400.0,
+   "silver_saver_account": 200.0
+  },
+  "n_constraints": 2,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 30,
+  "surv": [
+   "bluest_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "gold_years_account",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account",
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "green_account_(savings)",
+   "platinum_account",
+   "platinum_plus_account",
+   "silver_account",
+   "silver_plus_account",
+   "cobalt_blue",
+   "hunter_green",
+   "lime_green",
+   "true_blue",
+   "world_blue",
+   "automatic_sweep_program",
+   "diamond_vault",
+   "emerald_saver",
+   "gold_plus_saver",
+   "gold_saver_account",
+   "joint_business_holders_+_user_roles",
+   "platinum_reserve_account",
+   "silver_plus_saver",
+   "silver_saver_account"
+  ],
+  "undecidable": false,
+  "reask": true,
+  "n_rejected_first": 3,
+  "declared_non_requirement": [
+   [
+    "apy",
+    "question",
+    "Can you confirm the Gold Account has the highest APY you off"
+   ],
+   [
+    "paper_statement_fee",
+    "question",
+    "Are paper statements mailed available, and is there any fee?"
+   ]
+  ],
+  "winner": [
+   "diamond_elite_account"
+  ],
+  "winner_is_gold": false,
+  "pref_best": [
+   "green_fee-free_account",
+   "silver_account"
+  ],
+  "pref_held": 27,
+  "pref_is_gold": false,
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "foreign_transaction_fee",
+    "op": "==",
+    "value": 0,
+    "because": "Max foreign transaction fee: 0%",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "paper_statement_fee",
+    "op": "==",
+    "value": 0,
+    "because": "is there any fee for that?",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "task": "task_057",
+  "trial": 1,
+  "gold": "Blue Account",
+  "objective": {
+   "mode": "argmin",
+   "terms": [
+    {
+     "attribute": "oon_atm_fee",
+     "times": 2,
+     "of_amount": 60,
+     "sign": 1
+    },
+    {
+     "attribute": "oon_atm_fee",
+     "times": 1,
+     "of_amount": 100,
+     "sign": 1
+    }
+   ]
+  },
+  "scores": {
+   "blue_account": 2.2,
+   "bluest_account": 6.0,
+   "dark_green_account": 2.2,
+   "evergreen_account": 2.2,
+   "gold_years_account": 0.0,
+   "green_account_(checking)": 9.0,
+   "green_fee-free_account": 0.0,
+   "light_green_account": 4.5,
+   "purple_account": 7.5,
+   "beige": 0.0,
+   "cobalt_blue": 6.0,
+   "lime_green": 3.0
+  },
+  "n_constraints": 1,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 36,
+  "surv": [
+   "blue_account",
+   "bluest_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account",
+   "bronze_account",
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "green_account_(savings)",
+   "platinum_account",
+   "platinum_plus_account",
+   "silver_account",
+   "silver_plus_account",
+   "beige",
+   "cobalt_blue",
+   "hunter_green",
+   "lime_green",
+   "navy_blue",
+   "sky_blue",
+   "automatic_sweep_program",
+   "bronze_saver_account",
+   "diamond_vault",
+   "emerald_saver",
+   "gold_plus_saver",
+   "gold_saver_account",
+   "joint_business_holders_+_user_roles",
+   "platinum_reserve_account",
+   "silver_plus_saver",
+   "silver_saver_account"
+  ],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "declared_non_requirement": [
+   [
+    "waiver_min_daily_balance",
+    "question",
+    "I can usually keep like $500–$700 in the account—would that "
+   ],
+   [
+    "min_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ],
+   [
+    "max_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ]
+  ],
+  "winner": [
+   "gold_years_account",
+   "green_fee-free_account",
+   "beige"
+  ],
+  "winner_is_gold": false,
+  "pref_best": [
+   "blue_account",
+   "evergreen_account",
+   "green_fee-free_account",
+   "bronze_account",
+   "green_account_(savings)"
+  ],
+  "pref_held": 16,
+  "pref_is_gold": true,
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "overdraft_fee",
+    "op": "==",
+    "value": 0,
+    "because": "Absolutely no overdraft fees (non-negotiable)",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "task": "task_057",
+  "trial": 0,
+  "gold": "Blue Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 1,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 36,
+  "surv": [
+   "blue_account",
+   "bluest_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account",
+   "bronze_account",
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "green_account_(savings)",
+   "platinum_account",
+   "platinum_plus_account",
+   "silver_account",
+   "silver_plus_account",
+   "beige",
+   "cobalt_blue",
+   "hunter_green",
+   "lime_green",
+   "navy_blue",
+   "sky_blue",
+   "automatic_sweep_program",
+   "bronze_saver_account",
+   "diamond_vault",
+   "emerald_saver",
+   "gold_plus_saver",
+   "gold_saver_account",
+   "joint_business_holders_+_user_roles",
+   "platinum_reserve_account",
+   "silver_plus_saver",
+   "silver_saver_account"
+  ],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "declared_non_requirement": [
+   [
+    "waiver_min_daily_balance",
+    "question",
+    "I can usually keep around $500–$700 in the account. Would th"
+   ],
+   [
+    "monthly_maintenance_fee",
+    "question",
+    "I can usually keep around $500–$700 in the account. Would th"
+   ],
+   [
+    "min_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ],
+   [
+    "max_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": [
+   "bronze_account",
+   "green_account_(savings)"
+  ],
+  "pref_held": 16,
+  "pref_is_gold": false,
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "overdraft_fee",
+    "op": "==",
+    "value": 0,
+    "because": "I need an account with absolutely no overdraft fees. That’s non-negotiable.",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "task": "task_063",
+  "trial": 1,
+  "gold": "Silver Plus Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 3,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 0,
+  "surv": [],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "declared_non_requirement": [],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "apy",
+    "op": "exists",
+    "value": null,
+    "because": "My goal is to maximize the interest I'll earn over one year—even a small difference of $10–15 matters to me.",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "paper_statement_fee",
+    "op": "==",
+    "value": 0,
+    "because": "absolutely need paper statements mailed to me",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "foreign_transaction_fee",
+    "op": "absent",
+    "value": null,
+    "because": "real credit card that actually checks creditworthiness—not one of those \"no credit check\" cards",
+    "stated_as": "requirement"
+   }
+  ]
+ }
+]
