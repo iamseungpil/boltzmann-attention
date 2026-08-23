@@ -19,6 +19,10 @@ import gzip
 import json
 import os
 import sys
+try:                      # ★A-7 계열(2026-08-23): 이 파일은 SKIP 문구의 em-dash 때문에
+    sys.stdout.reconfigure(encoding="utf-8")   #   cp949 콘솔에서 죽었다 — 정지 상태가
+except Exception:                             #   FAIL 로 보이면 배터리 판독이 오도된다.
+    pass
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 os.environ["T2_PIN_READ"] = "1"
