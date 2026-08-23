@@ -1,0 +1,78 @@
+{
+  "probe": "x506_hard0_rootcause",
+  "date": "2026-08-24",
+  "question": "사용자 지시 — ⑴nt 늘리기는 통계적 해결이지 표류를 고치는 게 아니다. 경로가 표류해도 **해결 스텝이 안정되면** 되는 것 아닌가. 스텝별로 보면 원인이 몇 개 안 되지 않나. ⑵**항상 0 인 10 태스크**를 근본적으로 원인 분석하라 — 그게 더 큰 문제다.",
+  "method": "정본 계기만 썼다 — `x494_step_ledger.py`(스텝 원장·2026-08-23 신설) 를 **최신 3런으로만** 재실행(`X494_SCOPE`). 새 분류 0([[48]]·[[31]] 규칙 ①). 새 런 0.",
+  "scope": "t7336(40) · t7346(40) · t7348(36 진행) — 코퍼스 전량 산출과 **다른 파일**로 분리 저장(`x494_step_ledger_t7336_t7346_t7348.json`). ⚠2026-08-23 의 코퍼스 전량 산출을 최신 수치로 인용하지 마라(§74).",
+
+  "answer_1_the_user_is_right": {
+    "claim": "경로가 표류해도 **해결 스텝이 안정되면** 된다.",
+    "measured": "최신 3런 스텝 판정 = 안정 18 · **만성 29** · 산발 20. hard-0 10 태스크만 보면 **만성 26** · 산발 13 · 안정 9.",
+    "key": "★**만성 스텝은 런을 가로질러 안정적이다** — miss율 0.80~1.00 이 3런 내내 유지된다. 즉 **표류하지 않는다.** 표류는 전적으로 `산발` 스텝(불안정 8 태스크)에 있다.",
+    "implication": "⇒ nt 를 늘리는 것은 **산발(잡음)을 더 정밀하게 재는 일**이고, 성적을 사는 것은 **만성을 고치는 일**이다. 두 개는 다른 작업이며 후자가 표적이다. x505 의 처방 A(nt≥8)는 **측정 처방이지 수리 처방이 아니었다** — 그 점에서 사용자 지적이 옳다."
+  },
+
+  "answer_2_the_causes_are_few": {
+    "collapse": "hard-0 10 태스크 · **만성 스텝 26개** → **도구 9개** → **필드 축 6개**",
+    "by_tool": [
+      {"tool": "file_credit_card_transaction_dispute_4829", "chronic_steps": 8, "tasks": ["040"]},
+      {"tool": "apply_checking_account_credit_5829", "chronic_steps": 6, "tasks": ["072", "074"]},
+      {"tool": "file_debit_card_transaction_dispute_6281", "chronic_steps": 3, "tasks": ["085"]},
+      {"tool": "open_bank_account_4821", "chronic_steps": 2, "tasks": ["055", "063"]},
+      {"tool": "deposit_check_3847", "chronic_steps": 2, "tasks": ["055", "057"]},
+      {"tool": "order_debit_card_5739", "chronic_steps": 2, "tasks": ["079"]},
+      {"tool": "apply_savings_account_credit_6831", "chronic_steps": 1, "tasks": ["094"]},
+      {"tool": "submit_interest_discrepancy_report_7294", "chronic_steps": 1, "tasks": ["094"]},
+      {"tool": "submit_transaction", "chronic_steps": 1, "tasks": ["016"]}
+    ],
+    "by_field_all_tasks": {"amount": 62, "account_class": 17, "eligible_for_provisional_credit": 15,
+      "issue_noticed_date": 8, "account_id": 7, "amount_difference": 7, "address": 7,
+      "expected_apy": 6, "actual_apy": 6, "card_last_4_digits": 5, "card_type": 4, "discovery_date": 4}
+  },
+
+  "answer_3_six_axes": [
+    {"axis": "① 금액 합산·분할", "fields": ["amount", "amount_difference", "partial_refund_amount"],
+     "n": 72, "tasks": ["072", "073", "074", "094"],
+     "canonical_cause": "집계 미발화(부하)", "cell": "계산 이관 — **구현돼 있고 발화한다**",
+     "status": "★이 셀은 해당 sim 에서 **11/11 발화**하고도 만성이다 ⇒ dark 레버가 아니라 **발화하고도 못 산다**. [[62]]① 격리로 결손을 재야 하는 자리.",
+     "verbatim": "073 실물: 정책이 `ONCE per checking account … combine them into a single credit` 인데 라인별로 3·5·1.5 를 따로 낸다"},
+    {"axis": "② 범주 소속", "fields": ["account_class", "card_type"], "n": 21,
+     "tasks": ["055", "057", "063"],
+     "canonical_cause": "의미 소속 판정 불가(경계)", "cell": "⛔레버 불가 — 모트",
+     "status": "x431 이 정면으로 재는 축이다. 어제 x501 이 커버리지 가설을 반증하고 잔여를 **우리 층 둘**(미합류 조건부 칸·absent 토큰 충돌)로 좁혔다 — 그 둘은 프로브 안에서 2/5 → 4/5 를 샀다."},
+    {"axis": "③ 손님에게 물어야 하는 값", "fields": ["issue_noticed_date", "discovery_date", "address", "delivery_option", "resolution_requested"],
+     "n": 22, "tasks": ["040", "079", "085"],
+     "canonical_cause": "권한 월권(미집행)", "cell": "🔴**없음 — 유일한 빈 칸**",
+     "status": "★★`DEFECT_LEVER_COVERAGE_2026_08_23.md` §0 이 *'결손 11 중 빈 칸은 정확히 하나(권한 월권)'* 라 적었고, 설계서(`ACTION_HANDOFF_LEVERS_DESIGN_2026_08_04.md` §3 L1″)까지 완성돼 있는데 **코드에 없다**. 그 빈 칸이 hard-0 **3 태스크**를 붙들고 있다.",
+     "verbatim": "085: `discovery_date` 4건 전부 *\"(assuming you discovered it the next day)\"* 로 **묻지 않고 생성** — 같은 메시지에서 손님은 *\"I just noticed it today\"* / 079: 배송·디자인을 묻지 않고 비가역 주문 3건 커밋"},
+    {"axis": "④ 불리언 자격 판정", "fields": ["eligible_for_provisional_credit"], "n": 15,
+     "tasks": ["040", "085"], "canonical_cause": "조건 재소환 실패(미집행)", "cell": "조건 게이트 ✅",
+     "status": "단일 필드가 15건 — 040 의 최대 오답 필드다. 정책 조건을 write 순간에 술어로 안 세운다."},
+    {"axis": "⑤ 파생 수치", "fields": ["expected_apy", "actual_apy"], "n": 12, "tasks": ["094"],
+     "canonical_cause": "전사 발산 / 집계 미발화", "cell": "정본 상태 대조 ✅ · 계산 이관 ✅",
+     "status": "094 는 어제 **우리 층으로 재분류**됐다(`T2_SG_GROUND` 가 모델의 정답 5.1 을 5회 반려하고 손님의 틀린 6.0 을 통과). 레버 있음(A-4·P4·B-7)."},
+    {"axis": "⑥ 식별자 전사", "fields": ["account_id", "transaction_id", "card_id", "card_last_4_digits"],
+     "n": 15, "tasks": ["055", "079", "085"], "canonical_cause": "전사 발산(부하)", "cell": "정본 상태 대조 ✅"}
+  ],
+
+  "answer_4_it_is_not_our_gates": {
+    "reach_argument_blocked": {"sims": 83, "안_부름(reach)": "32 (39%)", "실행됨(argument)": "45 (54%)", "차단(blocked)": "6 (7%)"},
+    "headline": "★**차단 6건 중 우리 층이 막은 것 = 0.** hard-0 의 만성 실패는 우리 게이트가 만든 것이 아니다.",
+    "reach_only": "순수 도달 실패는 `submit_transaction`(016·6 sim 중 도달 **0**)과 `deposit_check_3847`(055·057) 둘뿐이다.",
+    "note": "⚠이것은 *'안 부름이 최대 문제'* 의 부활이 아니다([[74]]). 최신 3런 만성 스텝 한정 수치이고, **다수는 argument(54%)** 다 — 불렀고 실행됐는데 값이 틀렸다."
+  },
+
+  "what_this_changes": [
+    "**표적이 유한하고 안정적이다.** 10 hard-0 태스크 = 만성 스텝 26 = 도구 9 = 필드 축 **6**. 경로가 표류해도 이 여섯은 안 움직인다.",
+    "**가장 큰 축(①금액 72건)의 셀은 이미 켜져 있고 발화한다** ⇒ 커버리지 문제가 아니라 **효능** 문제다. [[62]]① 순서상 격리로 결손부터 재야 한다.",
+    "**두 번째로 큰 축(③손님 권위 22건)은 셀 자체가 없다** ⇒ 유일한 빈 칸이 hard-0 3 태스크를 붙들고 있다. 설계는 완료돼 있다.",
+    "**부호가 명확한 자리다.** hard-0 는 3런 0/6 이므로 0 → 1 은 잡음(SD 2.65) 위로 올라온다. 불안정 8 에서 Δ 를 다투는 것과 근본적으로 다르다(x505)."
+  ],
+
+  "caveats": [
+    "t7348 halfB 는 16/20 진행분이다. 074·079·085 는 t0 만 들어가 sims 가 3~4 로 작다 — 만성 판정(miss율 1.00)은 그래도 3런 일관이다.",
+    "x494 헤더의 C215 검산 축자: **055·057·072·074·079 는 gold 목록 자체가 런마다 달라진다** ⇒ 그 다섯의 런-간 스텝 비교는 부분적으로 무효다. 표적 선정에는 쓰되 '몇 % 개선'을 계산하지 마라.",
+    "필드 대조는 `mutation_diff` 의 wrongarg 를 gold 후보 중 **가장 많이 일치하는 것**과 맞댄 것이다. gold 후보가 여럿인 다행 태스크(040·074)에서 짝짓기가 어긋날 수 있다 — 필드 **순위**는 신뢰하되 절대 건수는 ±로 읽어라.",
+    "gold 는 어느 필드가 틀렸나를 **세는 진단**으로만 썼다([[23]]). 레버·임계 선택에 쓰지 않았다."
+  ]
+}
