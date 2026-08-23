@@ -1,0 +1,162 @@
+[
+ {
+  "task": "task_055",
+  "type": "checking",
+  "gold": "Purple Account",
+  "arm": "E_enum",
+  "answer": "Green Fee-free Account",
+  "correct": false,
+  "in_enum": false,
+  "chars": 0
+ },
+ {
+  "task": "task_055",
+  "type": "checking",
+  "gold": "Purple Account",
+  "arm": "F_facts",
+  "answer": "Purple Account",
+  "correct": true,
+  "in_enum": true,
+  "chars": 9951
+ },
+ {
+  "task": "task_055",
+  "type": "checking",
+  "gold": "Purple Account",
+  "arm": "D_docs",
+  "answer": "Bluest Account",
+  "correct": false,
+  "in_enum": true,
+  "chars": 101818
+ },
+ {
+  "task": "task_055",
+  "type": "checking",
+  "gold": "Purple Account",
+  "arm": "N_sham",
+  "answer": "Gold Years Account",
+  "correct": false,
+  "in_enum": true,
+  "chars": 70856
+ },
+ {
+  "task": "task_055",
+  "type": "savings",
+  "gold": "Silver Plus Account",
+  "arm": "E_enum",
+  "answer": "Gold Account",
+  "correct": false,
+  "in_enum": true,
+  "chars": 0
+ },
+ {
+  "task": "task_055",
+  "type": "savings",
+  "gold": "Silver Plus Account",
+  "arm": "F_facts",
+  "answer": "Green Account (savings)",
+  "correct": false,
+  "in_enum": false,
+  "chars": 5461
+ },
+ {
+  "task": "task_055",
+  "type": "savings",
+  "gold": "Silver Plus Account",
+  "arm": "D_docs",
+  "answer": "Gold Account",
+  "correct": false,
+  "in_enum": true,
+  "chars": 70856
+ },
+ {
+  "task": "task_055",
+  "type": "savings",
+  "gold": "Silver Plus Account",
+  "arm": "N_sham",
+  "answer": "Gold Account",
+  "correct": false,
+  "in_enum": true,
+  "chars": 101818
+ },
+ {
+  "task": "task_063",
+  "type": "savings",
+  "gold": "Silver Plus Account",
+  "arm": "E_enum",
+  "answer": "Platinum Account",
+  "correct": false,
+  "in_enum": true,
+  "chars": 0
+ },
+ {
+  "task": "task_063",
+  "type": "savings",
+  "gold": "Silver Plus Account",
+  "arm": "F_facts",
+  "answer": "Diamond Elite Account",
+  "correct": false,
+  "in_enum": true,
+  "chars": 5461
+ },
+ {
+  "task": "task_063",
+  "type": "savings",
+  "gold": "Silver Plus Account",
+  "arm": "D_docs",
+  "answer": "Silver Account",
+  "correct": false,
+  "in_enum": true,
+  "chars": 70856
+ },
+ {
+  "task": "task_063",
+  "type": "savings",
+  "gold": "Silver Plus Account",
+  "arm": "N_sham",
+  "answer": "Platinum Account",
+  "correct": false,
+  "in_enum": true,
+  "chars": 101818
+ },
+ {
+  "task": "task_070",
+  "type": "business_checking",
+  "gold": "Sky Blue",
+  "arm": "E_enum",
+  "answer": "True Blue",
+  "correct": false,
+  "in_enum": true,
+  "chars": 0
+ },
+ {
+  "task": "task_070",
+  "type": "business_checking",
+  "gold": "Sky Blue",
+  "arm": "F_facts",
+  "answer": "Lime Green",
+  "correct": false,
+  "in_enum": true,
+  "chars": 9794
+ },
+ {
+  "task": "task_070",
+  "type": "business_checking",
+  "gold": "Sky Blue",
+  "arm": "D_docs",
+  "answer": "Navy Blue",
+  "correct": false,
+  "in_enum": true,
+  "chars": 86527
+ },
+ {
+  "task": "task_070",
+  "type": "business_checking",
+  "gold": "Sky Blue",
+  "arm": "N_sham",
+  "answer": "Bluest",
+  "correct": false,
+  "in_enum": false,
+  "chars": 101818
+ }
+]

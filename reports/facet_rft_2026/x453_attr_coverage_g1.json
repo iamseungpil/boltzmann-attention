@@ -1,0 +1,5943 @@
+{
+ "minclasses": 5,
+ "n_docs": 278,
+ "rejected": 48,
+ "observed": {
+  "monthly_maintenance_fee": [
+   "beige",
+   "blue_account",
+   "bluest_account",
+   "bronze_account",
+   "cobalt_blue",
+   "dark_green_account",
+   "diamond_elite_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_account_(savings)",
+   "green_fee-free_account",
+   "hunter_green",
+   "light_blue_account",
+   "light_green_account",
+   "lime_green",
+   "navy_blue",
+   "platinum_plus_account",
+   "purple_account",
+   "silver_account",
+   "sky_blue",
+   "true_blue",
+   "world_blue"
+  ],
+  "minimum_balance_requirement": [
+   "beige",
+   "bronze_account",
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "lime_green",
+   "silver_plus_account",
+   "true_blue",
+   "world_blue"
+  ],
+  "fee_waiver_balance_threshold": [
+   "beige",
+   "lime_green"
+  ],
+  "dedicated_account_managers": [
+   "beige"
+  ],
+  "overdraft_fee": [
+   "beige",
+   "blue_account",
+   "cobalt_blue",
+   "green_fee-free_account",
+   "hunter_green",
+   "light_blue_account",
+   "lime_green",
+   "sky_blue",
+   "true_blue",
+   "world_blue"
+  ],
+  "supported_erp_platforms": [
+   "beige"
+  ],
+  "real_time_balance_updates": [
+   "beige"
+  ],
+  "monthly_limit": [
+   "beige"
+  ],
+  "external_accounts_limit": [
+   "beige"
+  ],
+  "sub_accounts_limit": [
+   "beige"
+  ],
+  "trigger_threshold": [
+   "beige"
+  ],
+  "max_eligible_accounts": [
+   "beige"
+  ],
+  "dual_authorization_threshold": [
+   "beige"
+  ],
+  "real_time_balance_information": [
+   "beige"
+  ],
+  "annual_percentage_yield": [
+   "beige",
+   "bronze_account",
+   "evergreen_account",
+   "light_blue_account",
+   "world_blue"
+  ],
+  "compounding_frequency": [
+   "beige",
+   "cobalt_blue",
+   "diamond_elite_account",
+   "lime_green"
+  ],
+  "monthly_call_allocation": [
+   "beige"
+  ],
+  "balance_updates": [
+   "beige"
+  ],
+  "domestic_wire_transfer_fee": [
+   "beige",
+   "hunter_green",
+   "lime_green",
+   "true_blue"
+  ],
+  "high_value_payment_dual_authorization_threshold": [
+   "beige"
+  ],
+  "daily_mobile_check_deposit_limit": [
+   "beige",
+   "bronze_account",
+   "green_account_(checking)",
+   "light_blue_account"
+  ],
+  "included_incoming_domestic_wires_per_month": [
+   "beige"
+  ],
+  "out_of_network_atm_fee_rebates_per_month": [
+   "beige"
+  ],
+  "domestic_out_of_network_atm_fee": [
+   "beige"
+  ],
+  "foreign_atm_withdrawal_fee": [
+   "beige",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_fee-free_account",
+   "lime_green",
+   "purple_account",
+   "true_blue"
+  ],
+  "no_rho_out_of_network_atm_fee": [
+   "beige"
+  ],
+  "monthly_rebates_for_atm_operator_surcharges": [
+   "beige"
+  ],
+  "referrer_bonus": [
+   "beige",
+   "dark_green_account",
+   "true_blue"
+  ],
+  "referred_bonus": [
+   "beige",
+   "dark_green_account"
+  ],
+  "maximum_per_year": [
+   "beige"
+  ],
+  "required_deposit": [
+   "beige"
+  ],
+  "deposit_window": [
+   "beige",
+   "dark_green_account",
+   "light_blue_account",
+   "true_blue"
+  ],
+  "minimum_tenure": [
+   "beige"
+  ],
+  "waiver_requirement": [
+   "blue_account"
+  ],
+  "out_of_network_atm_withdrawal_fee": [
+   "blue_account",
+   "dark_green_account",
+   "gold_years_account",
+   "green_fee-free_account",
+   "true_blue"
+  ],
+  "interest_earned_on_balances": [
+   "blue_account"
+  ],
+  "mobile_check_deposit_daily_limit": [
+   "blue_account",
+   "dark_green_account",
+   "green_fee-free_account",
+   "light_green_account"
+  ],
+  "early_direct_deposit_days": [
+   "blue_account"
+  ],
+  "annual_percentage_yield_on_balances": [
+   "blue_account",
+   "gold_years_account"
+  ],
+  "minimum_daily_balance_for_fee_waiver": [
+   "blue_account"
+  ],
+  "debit_card_daily_purchase_limit": [
+   "blue_account",
+   "bluest_account",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_fee-free_account",
+   "light_blue_account",
+   "purple_account"
+  ],
+  "paper_statement_fee": [
+   "blue_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "navy_blue"
+  ],
+  "returned_deposit_fee": [
+   "blue_account",
+   "bluest_account",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account"
+  ],
+  "incoming_domestic_wire_transfer_fee": [
+   "blue_account",
+   "evergreen_account",
+   "gold_years_account",
+   "light_green_account",
+   "purple_account"
+  ],
+  "stop_payment_on_a_check_fee": [
+   "blue_account"
+  ],
+  "overdraft_protection_transfers_fee": [
+   "blue_account"
+  ],
+  "overdraft_protection_fee": [
+   "blue_account"
+  ],
+  "cashiers_check_issuance_fee": [
+   "blue_account"
+  ],
+  "overdraft_fee_per_item": [
+   "blue_account"
+  ],
+  "daily_maximum_overdraft_fees": [
+   "blue_account"
+  ],
+  "overdraft_transfer_fee": [
+   "blue_account"
+  ],
+  "alert_threshold": [
+   "blue_account"
+  ],
+  "paper_statement_cost": [
+   "blue_account",
+   "green_fee-free_account"
+  ],
+  "apy_on_balance": [
+   "blue_account",
+   "green_account_(checking)"
+  ],
+  "low_balance_alert_threshold_example": [
+   "blue_account"
+  ],
+  "external_bank_transfer_time": [
+   "blue_account",
+   "green_account_(checking)"
+  ],
+  "incoming_domestic_wire_fee": [
+   "blue_account",
+   "bluest_account",
+   "dark_green_account",
+   "green_fee-free_account",
+   "light_blue_account",
+   "purple_account"
+  ],
+  "referral_bonus_for_referrer": [
+   "blue_account",
+   "purple_account"
+  ],
+  "welcome_bonus_for_referred_person": [
+   "blue_account"
+  ],
+  "maximum_referral_bonuses_per_year": [
+   "blue_account",
+   "purple_account"
+  ],
+  "international_atm_withdrawal_fee": [
+   "blue_account",
+   "cobalt_blue",
+   "navy_blue",
+   "sky_blue"
+  ],
+  "daily_atm_withdrawal_limit": [
+   "blue_account",
+   "bluest_account",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account"
+  ],
+  "minimum_opening_deposit": [
+   "bluest_account",
+   "bronze_account",
+   "green_account_(savings)",
+   "silver_account",
+   "silver_plus_account"
+  ],
+  "minimum_daily_balance_to_maintain_benefits": [
+   "bluest_account"
+  ],
+  "annual_percentage_yield_apy": [
+   "bluest_account",
+   "lime_green",
+   "true_blue"
+  ],
+  "complimentary_domestic_wire_transfers_per_month": [
+   "bluest_account"
+  ],
+  "international_wire_fee_outbound": [
+   "bluest_account"
+  ],
+  "complimentary_personal_check_orders_per_year": [
+   "bluest_account"
+  ],
+  "atm_fee_rebates_cap_per_month": [
+   "bluest_account"
+  ],
+  "safe_deposit_box_rental_discount": [
+   "bluest_account"
+  ],
+  "mobile_check_deposit_limit_daily": [
+   "bluest_account",
+   "purple_account"
+  ],
+  "early_direct_deposit": [
+   "bluest_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account"
+  ],
+  "opening_deposit": [
+   "bluest_account"
+  ],
+  "daily_balance": [
+   "bluest_account"
+  ],
+  "higher_yield": [
+   "bluest_account",
+   "platinum_plus_account"
+  ],
+  "complimentary_domestic_outgoing_wires": [
+   "bluest_account"
+  ],
+  "incoming_domestic_wires_fee": [
+   "bluest_account",
+   "light_green_account"
+  ],
+  "dedicated_personal_banker": [
+   "bluest_account"
+  ],
+  "atm_fee_rebates_monthly_cap": [
+   "bluest_account"
+  ],
+  "complimentary_check_orders_per_year": [
+   "bluest_account"
+  ],
+  "stop_payment_requests_fee": [
+   "bluest_account"
+  ],
+  "no_foreign_atm_withdrawal_fees": [
+   "bluest_account"
+  ],
+  "silver_savings_apy_boost": [
+   "bluest_account"
+  ],
+  "bronze_savings_apy_boost": [
+   "bluest_account"
+  ],
+  "cashiers_check_fee": [
+   "bluest_account",
+   "dark_green_account",
+   "green_account_(checking)",
+   "light_green_account"
+  ],
+  "domestic_wire_transfers_per_month": [
+   "bluest_account"
+  ],
+  "outbound_international_wire_transfer_fee": [
+   "bluest_account"
+  ],
+  "everyonepay_daily_send_limit": [
+   "bluest_account",
+   "green_fee-free_account"
+  ],
+  "monthly_rebate_cap": [
+   "bluest_account"
+  ],
+  "apy": [
+   "bluest_account",
+   "bronze_account",
+   "cobalt_blue",
+   "dark_green_account",
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "green_account_(checking)",
+   "green_account_(savings)",
+   "hunter_green",
+   "light_green_account",
+   "lime_green",
+   "navy_blue",
+   "platinum_account",
+   "platinum_plus_account",
+   "silver_account",
+   "silver_plus_account",
+   "sky_blue",
+   "true_blue"
+  ],
+  "free_check_orders": [
+   "bluest_account"
+  ],
+  "safe_deposit_box_discount": [
+   "bluest_account"
+  ],
+  "out_of_network_atm_fee": [
+   "bluest_account",
+   "true_blue"
+  ],
+  "free_withdrawals_per_month": [
+   "bronze_account",
+   "silver_plus_account"
+  ],
+  "interest_compounding_frequency": [
+   "bronze_account",
+   "gold_plus_account",
+   "green_account_(savings)",
+   "platinum_account",
+   "sky_blue"
+  ],
+  "interest_crediting_frequency": [
+   "bronze_account",
+   "diamond_elite_account"
+  ],
+  "apy_effective_rate": [
+   "bronze_account"
+  ],
+  "maximum_total_amount_transfer_out_per_day": [
+   "bronze_account",
+   "green_account_(savings)"
+  ],
+  "daily_transfer_limit": [
+   "bronze_account",
+   "gold_plus_account"
+  ],
+  "free_transactions_per_month": [
+   "cobalt_blue"
+  ],
+  "referral_bonus": [
+   "cobalt_blue",
+   "light_blue_account",
+   "world_blue"
+  ],
+  "welcome_bonus_for_referrals": [
+   "cobalt_blue"
+  ],
+  "maximum_referrals_per_year": [
+   "cobalt_blue",
+   "true_blue"
+  ],
+  "monthly_transaction_limit": [
+   "cobalt_blue"
+  ],
+  "additional_transaction_fee": [
+   "cobalt_blue"
+  ],
+  "scheduled_recurring_payments_limit": [
+   "cobalt_blue"
+  ],
+  "rewards_rate": [
+   "cobalt_blue"
+  ],
+  "max_team_cards": [
+   "cobalt_blue"
+  ],
+  "ach_transfers_fee": [
+   "cobalt_blue"
+  ],
+  "same_day_ach_transfers_fee": [
+   "cobalt_blue"
+  ],
+  "outgoing_domestic_wire_transfer_fee": [
+   "cobalt_blue"
+  ],
+  "incoming_wires_free_per_month": [
+   "cobalt_blue"
+  ],
+  "daily_mobile_deposit_limit": [
+   "cobalt_blue",
+   "gold_account",
+   "gold_plus_account",
+   "navy_blue",
+   "platinum_account",
+   "platinum_plus_account",
+   "sky_blue",
+   "true_blue"
+  ],
+  "atm_rebate_per_month": [
+   "cobalt_blue"
+  ],
+  "online_bill_pay_included": [
+   "cobalt_blue"
+  ],
+  "basic_invoice_management_tools_included": [
+   "cobalt_blue"
+  ],
+  "excess_transaction_fee": [
+   "cobalt_blue"
+  ],
+  "wire_transfer_fee_domestic": [
+   "cobalt_blue"
+  ],
+  "atm_fee_out_of_network": [
+   "cobalt_blue"
+  ],
+  "domestic_out_of_network_atm_withdrawal_fee": [
+   "cobalt_blue"
+  ],
+  "monthly_atm_fee_rebates": [
+   "cobalt_blue"
+  ],
+  "minimum_primary_holder_age": [
+   "dark_green_account"
+  ],
+  "maximum_primary_holder_age": [
+   "dark_green_account"
+  ],
+  "overdraft_protection_transfer_fee": [
+   "dark_green_account",
+   "green_account_(checking)",
+   "light_blue_account"
+  ],
+  "student_loan_payment_cashback": [
+   "dark_green_account"
+  ],
+  "annual_academic_standing_bonus": [
+   "dark_green_account"
+  ],
+  "partner_textbook_retailer_discount": [
+   "dark_green_account"
+  ],
+  "graduation_transition_bonus": [
+   "dark_green_account"
+  ],
+  "primary_account_holder_age": [
+   "dark_green_account"
+  ],
+  "account_maintenance_fee": [
+   "dark_green_account"
+  ],
+  "annual_cash_bonus": [
+   "dark_green_account"
+  ],
+  "savings_apy_boost_bronze": [
+   "dark_green_account"
+  ],
+  "savings_apy_boost_platinum_plus": [
+   "dark_green_account"
+  ],
+  "cashback_rate": [
+   "dark_green_account",
+   "hunter_green"
+  ],
+  "discount_percentage": [
+   "dark_green_account"
+  ],
+  "one_time_bonus": [
+   "dark_green_account"
+  ],
+  "annual_cap": [
+   "dark_green_account"
+  ],
+  "minimum_deposit": [
+   "dark_green_account"
+  ],
+  "tenure_required": [
+   "dark_green_account"
+  ],
+  "mobile_deposit_daily_limit": [
+   "diamond_elite_account",
+   "evergreen_account"
+  ],
+  "max_daily_outbound_transfers": [
+   "diamond_elite_account"
+  ],
+  "monthly_withdrawal_limit": [
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "platinum_account",
+   "platinum_plus_account"
+  ],
+  "external_transfer_processing_time": [
+   "diamond_elite_account",
+   "platinum_account"
+  ],
+  "wire_transfer_fees": [
+   "diamond_elite_account"
+  ],
+  "private_banker_access": [
+   "diamond_elite_account"
+  ],
+  "investment_advisory_included": [
+   "diamond_elite_account"
+  ],
+  "exclusive_event_access": [
+   "diamond_elite_account"
+  ],
+  "minimum_balance_to_maintain_the_account": [
+   "diamond_elite_account",
+   "platinum_plus_account"
+  ],
+  "dedicated_private_banker_access": [
+   "diamond_elite_account"
+  ],
+  "minimum_initial_deposit": [
+   "diamond_elite_account"
+  ],
+  "wire_transfer_fees_are_waived": [
+   "diamond_elite_account"
+  ],
+  "dedicated_access": [
+   "diamond_elite_account"
+  ],
+  "estate_planning_support_discount": [
+   "diamond_elite_account"
+  ],
+  "complimentary_investment_advisory_services": [
+   "diamond_elite_account"
+  ],
+  "preferential_pricing_through_partners": [
+   "diamond_elite_account"
+  ],
+  "eligible_members": [
+   "diamond_elite_account"
+  ],
+  "dedicated_private_banker": [
+   "diamond_elite_account"
+  ],
+  "investment_advisory_services_included": [
+   "diamond_elite_account"
+  ],
+  "exclusive_events_invitations": [
+   "diamond_elite_account"
+  ],
+  "wire_transfer_fees_waived": [
+   "diamond_elite_account",
+   "platinum_plus_account"
+  ],
+  "discount_on_estate_planning_services": [
+   "diamond_elite_account"
+  ],
+  "interest_rate": [
+   "diamond_elite_account",
+   "green_account_(checking)",
+   "sky_blue"
+  ],
+  "tree_planting_threshold": [
+   "evergreen_account"
+  ],
+  "carbon_offset_rate": [
+   "evergreen_account"
+  ],
+  "checking_apy": [
+   "evergreen_account"
+  ],
+  "eco_brand_cashback_bonus": [
+   "evergreen_account"
+  ],
+  "green_savings_apy_boost": [
+   "evergreen_account"
+  ],
+  "diamond_elite_savings_apy_boost": [
+   "evergreen_account"
+  ],
+  "referral_bonus_you_earn": [
+   "evergreen_account"
+  ],
+  "referral_bonus_they_receive": [
+   "evergreen_account"
+  ],
+  "max_referrals_per_year": [
+   "evergreen_account"
+  ],
+  "qualifying_posted_purchases": [
+   "evergreen_account"
+  ],
+  "eligible_spend_tracking": [
+   "evergreen_account"
+  ],
+  "report_frequency": [
+   "evergreen_account",
+   "hunter_green"
+  ],
+  "co2_offset_rate": [
+   "evergreen_account"
+  ],
+  "tree_planting_rate": [
+   "evergreen_account"
+  ],
+  "calculation_model": [
+   "evergreen_account"
+  ],
+  "refund_reduction_rate": [
+   "evergreen_account"
+  ],
+  "transparency_calculation_rate": [
+   "evergreen_account"
+  ],
+  "stop_payment_fee": [
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "light_green_account"
+  ],
+  "refund_impact": [
+   "evergreen_account"
+  ],
+  "referral_qualification_deposit": [
+   "evergreen_account"
+  ],
+  "referral_deposit_timeframe": [
+   "evergreen_account"
+  ],
+  "minimum_balance": [
+   "gold_account",
+   "green_account_(savings)",
+   "platinum_plus_account",
+   "silver_account"
+  ],
+  "monthly_maintenance_fee_if_minimum_not_met": [
+   "gold_account"
+  ],
+  "transfer_fees": [
+   "gold_account"
+  ],
+  "priority_support": [
+   "gold_account"
+  ],
+  "opening_deposit_minimum": [
+   "gold_account",
+   "gold_plus_account",
+   "platinum_account"
+  ],
+  "ongoing_minimum_balance": [
+   "gold_account",
+   "green_account_(savings)",
+   "silver_account",
+   "silver_plus_account"
+  ],
+  "interest_compounding": [
+   "gold_account",
+   "silver_account",
+   "silver_plus_account"
+  ],
+  "large_balance_alert_threshold": [
+   "gold_account"
+  ],
+  "atm_fee_rebate_cap_per_month": [
+   "gold_account"
+  ],
+  "no_transfer_fee_advantage": [
+   "gold_account"
+  ],
+  "instant_transfers": [
+   "gold_account"
+  ],
+  "maximum_daily_transfer_amount_out": [
+   "gold_account"
+  ],
+  "processing_timeline": [
+   "gold_account",
+   "gold_plus_account",
+   "green_account_(savings)",
+   "silver_plus_account"
+  ],
+  "apy_rate": [
+   "gold_account"
+  ],
+  "atm_fee_rebates_monthly_max": [
+   "gold_account"
+  ],
+  "credit_card_apy_bonuses": [
+   "gold_account",
+   "platinum_plus_account"
+  ],
+  "automatic_application": [
+   "gold_account"
+  ],
+  "minimum_balance_to_maintain": [
+   "gold_plus_account"
+  ],
+  "automatic_investment_sweep_threshold": [
+   "gold_plus_account"
+  ],
+  "automatic_investment_sweep": [
+   "gold_plus_account"
+  ],
+  "quarterly_financial_reviews": [
+   "gold_plus_account"
+  ],
+  "priority_support_tier": [
+   "gold_plus_account"
+  ],
+  "feature_availability": [
+   "gold_plus_account"
+  ],
+  "sweep_threshold": [
+   "gold_plus_account"
+  ],
+  "brokerage_commission_discount": [
+   "gold_plus_account"
+  ],
+  "digital_asset_access": [
+   "gold_plus_account"
+  ],
+  "automatic_investment_sweeps": [
+   "gold_plus_account"
+  ],
+  "stock_trading_commission_discount": [
+   "gold_plus_account"
+  ],
+  "interest_calculation_method": [
+   "gold_plus_account",
+   "silver_account"
+  ],
+  "interest_payment_schedule": [
+   "gold_plus_account"
+  ],
+  "maximum_total_transfer_out_per_day": [
+   "gold_plus_account",
+   "platinum_account"
+  ],
+  "transfer_fees_waived": [
+   "gold_plus_account"
+  ],
+  "age": [
+   "gold_years_account"
+  ],
+  "apy_on_checking": [
+   "gold_years_account"
+  ],
+  "free_personal_check_orders": [
+   "gold_years_account"
+  ],
+  "mobile_check_deposit_limit": [
+   "gold_years_account",
+   "silver_account"
+  ],
+  "prescription_discount": [
+   "gold_years_account"
+  ],
+  "dedicated_senior_support_line": [
+   "gold_years_account"
+  ],
+  "social_security_direct_deposit_bonus": [
+   "gold_years_account"
+  ],
+  "estate_planning_consultation_discount": [
+   "gold_years_account"
+  ],
+  "linked_savings_apy_boosts": [
+   "gold_years_account"
+  ],
+  "complimentary_personal_checks": [
+   "gold_years_account"
+  ],
+  "dedicated_senior_support_access": [
+   "gold_years_account"
+  ],
+  "bonus_amount": [
+   "gold_years_account"
+  ],
+  "everyonepay_daily_limit": [
+   "gold_years_account",
+   "purple_account"
+  ],
+  "discount_on_consultations": [
+   "gold_years_account"
+  ],
+  "your_bonus": [
+   "gold_years_account"
+  ],
+  "their_bonus": [
+   "gold_years_account"
+  ],
+  "max_referrals_year": [
+   "gold_years_account"
+  ],
+  "qualifying_deposit": [
+   "gold_years_account",
+   "light_blue_account",
+   "true_blue"
+  ],
+  "deposit_deadline": [
+   "gold_years_account"
+  ],
+  "customer_tenure": [
+   "gold_years_account"
+  ],
+  "non_network_atm_fee": [
+   "green_account_(checking)"
+  ],
+  "incoming_wire_fee": [
+   "green_account_(checking)"
+  ],
+  "debit_card_purchase_limit": [
+   "green_account_(checking)"
+  ],
+  "available_balance": [
+   "green_account_(checking)"
+  ],
+  "buffer_amount": [
+   "green_account_(checking)"
+  ],
+  "payment_request_consideration": [
+   "green_account_(checking)"
+  ],
+  "shortfall_limit": [
+   "green_account_(checking)"
+  ],
+  "alert_setting": [
+   "green_account_(checking)"
+  ],
+  "receive_alerts": [
+   "green_account_(checking)"
+  ],
+  "paper_statements_fee": [
+   "green_account_(checking)"
+  ],
+  "domestic_wire_fee": [
+   "green_account_(checking)",
+   "light_blue_account"
+  ],
+  "maximum_free_withdrawals_per_month": [
+   "green_account_(savings)"
+  ],
+  "paperless_statements_required": [
+   "green_account_(savings)"
+  ],
+  "bonus_apy_with_ecocard": [
+   "green_account_(savings)"
+  ],
+  "effective_apy": [
+   "green_account_(savings)"
+  ],
+  "extra_cashback_bonus": [
+   "green_account_(savings)"
+  ],
+  "donation_match_rate": [
+   "green_account_(savings)"
+  ],
+  "daily_limit_mobile_check_deposit": [
+   "green_account_(savings)"
+  ],
+  "daily_transfer_maximum": [
+   "green_account_(savings)"
+  ],
+  "monthly_free_withdrawals": [
+   "green_account_(savings)"
+  ],
+  "bonus_apy": [
+   "green_account_(savings)"
+  ],
+  "overdrafts": [
+   "green_fee-free_account"
+  ],
+  "out_of_network_atm_usage_rho_bank_fee": [
+   "green_fee-free_account"
+  ],
+  "cashiers_check_issuance": [
+   "green_fee-free_account"
+  ],
+  "out_of_network_atm_fee_rho_bank": [
+   "green_fee-free_account"
+  ],
+  "apy_on_balances": [
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account"
+  ],
+  "minimum_daily_balance_to_waive_maintenance_fee": [
+   "green_fee-free_account"
+  ],
+  "minimum_balance_to_waive_monthly_fee": [
+   "green_fee-free_account"
+  ],
+  "stop_payment_fee_per_request": [
+   "green_fee-free_account",
+   "light_blue_account"
+  ],
+  "apy_boost_with_linked_bronze_savings": [
+   "green_fee-free_account"
+  ],
+  "apy_boost_with_linked_gold_plus_savings": [
+   "green_fee-free_account"
+  ],
+  "monthly_maintenance_fee_waived_balance": [
+   "green_fee-free_account"
+  ],
+  "returned_check_fee": [
+   "green_fee-free_account"
+  ],
+  "bonus_structure_your_reward": [
+   "green_fee-free_account"
+  ],
+  "bonus_structure_new_member_reward": [
+   "green_fee-free_account"
+  ],
+  "bonus_structure_annual_limit": [
+   "green_fee-free_account"
+  ],
+  "qualification_requirements_deposit_amount": [
+   "green_fee-free_account"
+  ],
+  "qualification_requirements_deposit_deadline": [
+   "green_fee-free_account"
+  ],
+  "qualification_requirements_referrer_eligibility": [
+   "green_fee-free_account"
+  ],
+  "carbon_offset_contribution": [
+   "hunter_green"
+  ],
+  "trees_per_balance": [
+   "hunter_green"
+  ],
+  "number_of_vendors": [
+   "hunter_green"
+  ],
+  "carbon_offset_percentage": [
+   "hunter_green"
+  ],
+  "real_time_spending_alerts_enabled": [
+   "hunter_green"
+  ],
+  "default_alert_threshold": [
+   "hunter_green"
+  ],
+  "spending_limit_buffer": [
+   "hunter_green"
+  ],
+  "mobile_deposit_limit": [
+   "hunter_green",
+   "silver_plus_account"
+  ],
+  "outgoing_wire_fee": [
+   "hunter_green"
+  ],
+  "free_incoming_wires_per_month": [
+   "hunter_green"
+  ],
+  "atm_fee_rebate": [
+   "hunter_green"
+  ],
+  "e_statements_required": [
+   "hunter_green"
+  ],
+  "sustainability_reporting_cadence": [
+   "hunter_green"
+  ],
+  "waiver_threshold": [
+   "hunter_green"
+  ],
+  "cashiers_check_per_check": [
+   "light_blue_account"
+  ],
+  "apy_on_your_balance": [
+   "light_blue_account"
+  ],
+  "free_out_of_network_atm_withdrawals_per_month": [
+   "light_blue_account",
+   "light_green_account"
+  ],
+  "out_of_network_atm_withdrawal_fee_after_free": [
+   "light_blue_account",
+   "light_green_account"
+  ],
+  "paper_statement_fee_monthly": [
+   "light_blue_account"
+  ],
+  "everyonepay_daily_sending_limit": [
+   "light_blue_account"
+  ],
+  "maximum_referrals": [
+   "light_blue_account"
+  ],
+  "welcome_bonus": [
+   "light_blue_account"
+  ],
+  "referrer_tenure": [
+   "light_blue_account"
+  ],
+  "daily_spending_limit": [
+   "light_green_account"
+  ],
+  "overdraft_fees": [
+   "light_green_account"
+  ],
+  "interest_earned": [
+   "light_green_account"
+  ],
+  "transaction_alerts_threshold": [
+   "light_green_account"
+  ],
+  "atm_cash_access": [
+   "light_green_account"
+  ],
+  "everyonepay_transfers": [
+   "light_green_account"
+  ],
+  "wire_transfer_fee": [
+   "light_green_account"
+  ],
+  "account_convert_automatically": [
+   "light_green_account"
+  ],
+  "daily_transaction_limit": [
+   "lime_green"
+  ],
+  "response_time_direct_messages": [
+   "lime_green"
+  ],
+  "maximum_wait_priority_line": [
+   "lime_green"
+  ],
+  "bonus_per_successful_referral": [
+   "lime_green"
+  ],
+  "welcome_bonus_referred_business": [
+   "lime_green"
+  ],
+  "annual_referral_cap": [
+   "lime_green"
+  ],
+  "qualification_deposit_amount": [
+   "lime_green"
+  ],
+  "qualification_deposit_period": [
+   "lime_green"
+  ],
+  "eligibility_account_status_duration": [
+   "lime_green"
+  ],
+  "outgoing_domestic_wire_fee": [
+   "lime_green"
+  ],
+  "outgoing_international_wire_fee": [
+   "lime_green"
+  ],
+  "free_incoming_domestic_wires_per_month": [
+   "lime_green",
+   "true_blue"
+  ],
+  "mobile_check_deposit_per_day": [
+   "lime_green"
+  ],
+  "total_daily_transaction_capacity": [
+   "lime_green"
+  ],
+  "monthly_atm_fee_rebate_cap": [
+   "lime_green",
+   "navy_blue"
+  ],
+  "out_of_network_atm_transaction_fee_domestic": [
+   "lime_green"
+  ],
+  "international_wire_transfer_fee": [
+   "lime_green"
+  ],
+  "non_rho_atm_us_fee": [
+   "lime_green"
+  ],
+  "daily_digital_transfer_limit": [
+   "navy_blue"
+  ],
+  "overdraft_fee_per_occurrence": [
+   "navy_blue"
+  ],
+  "transfer_fee_for_overdraft_protection": [
+   "navy_blue"
+  ],
+  "fee_per_outgoing_domestic_wire": [
+   "navy_blue"
+  ],
+  "free_incoming_domestic_wires_each_month": [
+   "navy_blue"
+  ],
+  "ach_transfer_fee": [
+   "navy_blue"
+  ],
+  "balance_requirements": [
+   "platinum_account"
+  ],
+  "domestic_wire_transfer_fees_waived": [
+   "platinum_account"
+  ],
+  "dedicated_personal_banker_available": [
+   "platinum_account"
+  ],
+  "minimum_balance_to_maintain_account": [
+   "platinum_account"
+  ],
+  "extended_fdic_insurance_available_through_partner_banks": [
+   "platinum_account"
+  ],
+  "ongoing_minimum_balance_to_maintain_account_benefits": [
+   "platinum_account"
+  ],
+  "discount_on_international_wire_transfer_fees": [
+   "platinum_account"
+  ],
+  "dedicated_personal_banker_access": [
+   "platinum_account"
+  ],
+  "extended_fdic_insurance": [
+   "platinum_account"
+  ],
+  "apy_used_for_earnings": [
+   "platinum_account"
+  ],
+  "interest_compounded": [
+   "platinum_account"
+  ],
+  "interest_credited": [
+   "platinum_account"
+  ],
+  "initial_deposit_to_open": [
+   "platinum_plus_account"
+  ],
+  "dedicated_banker_support": [
+   "platinum_plus_account"
+  ],
+  "vip_event_access": [
+   "platinum_plus_account"
+  ],
+  "complimentary_wealth_guidance": [
+   "platinum_plus_account"
+  ],
+  "complimentary_consultations": [
+   "platinum_plus_account"
+  ],
+  "advisory_fee_savings": [
+   "platinum_plus_account"
+  ],
+  "coverage_enhancement_coordination": [
+   "platinum_plus_account"
+  ],
+  "concierge_travel_services_included": [
+   "platinum_plus_account"
+  ],
+  "complimentary_estate_planning_consultations": [
+   "platinum_plus_account"
+  ],
+  "discount_on_partner_tax_preparation": [
+   "platinum_plus_account"
+  ],
+  "maximum_daily_outbound_transfers": [
+   "platinum_plus_account"
+  ],
+  "external_transfers_process": [
+   "platinum_plus_account"
+  ],
+  "maximum_total_send_per_day": [
+   "platinum_plus_account"
+  ],
+  "bonus_application_method": [
+   "platinum_plus_account"
+  ],
+  "foreign_transaction_fee": [
+   "purple_account"
+  ],
+  "global_atm_fee_rebates": [
+   "purple_account"
+  ],
+  "currency_conversion_markup": [
+   "purple_account"
+  ],
+  "multi_currency_wallet": [
+   "purple_account"
+  ],
+  "supported_wallet_currencies": [
+   "purple_account"
+  ],
+  "complimentary_airport_lounge_visits": [
+   "purple_account"
+  ],
+  "apy_boost_with_platinum_plus_savings": [
+   "purple_account"
+  ],
+  "apy_boost_with_gold_savings": [
+   "purple_account"
+  ],
+  "minimum_daily_balance_to_waive_monthly_maintenance_fee": [
+   "purple_account"
+  ],
+  "supported_foreign_currencies": [
+   "purple_account"
+  ],
+  "foreign_transaction_fee_rate": [
+   "purple_account"
+  ],
+  "monthly_cap_atm_rebates": [
+   "purple_account"
+  ],
+  "multi_currency_wallet_support": [
+   "purple_account"
+  ],
+  "max_supported_currencies": [
+   "purple_account"
+  ],
+  "currency_exchange_markup": [
+   "purple_account"
+  ],
+  "maximum_benefit": [
+   "purple_account"
+  ],
+  "airport_lounge_access": [
+   "purple_account"
+  ],
+  "foreign_transaction_fees": [
+   "purple_account"
+  ],
+  "travel_insurance_coverage": [
+   "purple_account"
+  ],
+  "complimentary_airport_lounge_access_visits_per_year": [
+   "purple_account"
+  ],
+  "referral_bonus_for_referred_person": [
+   "purple_account"
+  ],
+  "free_withdrawals_per_statement_cycle": [
+   "silver_account"
+  ],
+  "balance_threshold_for_higher_apy_tier": [
+   "silver_account"
+  ],
+  "linked_checking_apy_bonus": [
+   "silver_account"
+  ],
+  "relationship_bonus": [
+   "silver_account"
+  ],
+  "balance_threshold": [
+   "silver_account",
+   "world_blue"
+  ],
+  "apy_below_threshold": [
+   "silver_account"
+  ],
+  "apy_above_threshold": [
+   "silver_account"
+  ],
+  "excess_withdrawal_fee": [
+   "silver_account",
+   "silver_plus_account"
+  ],
+  "relationship_apy_bonus": [
+   "silver_account"
+  ],
+  "atm_fee_rebate_limit": [
+   "silver_account"
+  ],
+  "interest_payment_frequency": [
+   "silver_account"
+  ],
+  "total_outgoing_transfers_limit": [
+   "silver_account"
+  ],
+  "processing_times": [
+   "silver_account"
+  ],
+  "amount_limits": [
+   "silver_account"
+  ],
+  "monthly_fee_for_paper_statements": [
+   "silver_account",
+   "silver_plus_account"
+  ],
+  "atm_fee_rebates": [
+   "silver_account"
+  ],
+  "tier_2_balance_threshold": [
+   "silver_plus_account"
+  ],
+  "tier_1_apy": [
+   "silver_plus_account"
+  ],
+  "tier_2_apy": [
+   "silver_plus_account"
+  ],
+  "atm_fee_rebates_per_month": [
+   "silver_plus_account"
+  ],
+  "monthly_paper_statement_fee": [
+   "silver_plus_account"
+  ],
+  "monthly_rebate_allowance": [
+   "silver_plus_account"
+  ],
+  "built_in_savings_goals_tracking": [
+   "silver_plus_account"
+  ],
+  "automatic_round_up_savings": [
+   "silver_plus_account"
+  ],
+  "direct_deposit_apy_bonus": [
+   "silver_plus_account"
+  ],
+  "savings_goals_tracking": [
+   "silver_plus_account"
+  ],
+  "apy_tiers": [
+   "silver_plus_account"
+  ],
+  "direct_deposit_bonus": [
+   "silver_plus_account"
+  ],
+  "outbound_transfer_limit": [
+   "silver_plus_account"
+  ],
+  "transfer_limits": [
+   "silver_plus_account"
+  ],
+  "company_age": [
+   "sky_blue"
+  ],
+  "free_period": [
+   "sky_blue"
+  ],
+  "monthly_maintenance_fees_waived": [
+   "sky_blue"
+  ],
+  "monthly_maintenance_fee_after_free_period": [
+   "sky_blue"
+  ],
+  "aws_credits_value": [
+   "sky_blue"
+  ],
+  "stripe_processing_discount": [
+   "sky_blue"
+  ],
+  "burn_rate_analytics_included": [
+   "sky_blue"
+  ],
+  "runway_tool_forecast_period": [
+   "sky_blue"
+  ],
+  "investor_ready_reporting_tools_included": [
+   "sky_blue"
+  ],
+  "burn_rate_analytics_included_and_integrate_with_reporting": [
+   "sky_blue"
+  ],
+  "out_of_network_atm_fee_rebate_limit": [
+   "sky_blue"
+  ],
+  "company_age_threshold": [
+   "sky_blue"
+  ],
+  "funding_requirement": [
+   "sky_blue"
+  ],
+  "transactions_included_per_month": [
+   "true_blue"
+  ],
+  "fee_waiver_threshold": [
+   "true_blue",
+   "world_blue"
+  ],
+  "new_member_bonus": [
+   "true_blue"
+  ],
+  "account_age_requirement": [
+   "true_blue"
+  ],
+  "cash_management_dashboard_included": [
+   "true_blue"
+  ],
+  "bulk_payment_templates_limit": [
+   "true_blue"
+  ],
+  "monthly_fee_to_link_your_account_to_treasury_services": [
+   "true_blue"
+  ],
+  "cash_management_dashboard_access_included": [
+   "true_blue"
+  ],
+  "payroll_processing_discount": [
+   "true_blue"
+  ],
+  "free_outgoing_domestic_wires_per_month": [
+   "true_blue"
+  ],
+  "additional_domestic_wire_fee": [
+   "true_blue"
+  ],
+  "same_day_ach_included": [
+   "true_blue"
+  ],
+  "max_atm_fee_rebates_per_month": [
+   "true_blue"
+  ],
+  "guaranteed_response_time": [
+   "true_blue"
+  ],
+  "cash_deposit_fee": [
+   "true_blue"
+  ],
+  "supported_currencies": [
+   "world_blue"
+  ],
+  "supported_regions_for_payments": [
+   "world_blue"
+  ],
+  "account_status_threshold": [
+   "world_blue"
+  ],
+  "fx_markup": [
+   "world_blue"
+  ],
+  "minimum_conversion_amount": [
+   "world_blue"
+  ],
+  "currencies_supported": [
+   "world_blue"
+  ],
+  "outgoing_swift_wires_fee": [
+   "world_blue"
+  ],
+  "free_outgoing_swift_wires_per_month": [
+   "world_blue"
+  ],
+  "outgoing_sepa_wires_fee": [
+   "world_blue"
+  ],
+  "foreign_atm_fee": [
+   "world_blue"
+  ],
+  "atm_fee_minimum": [
+   "world_blue"
+  ],
+  "rebate_of_atm_operator_surcharges": [
+   "world_blue"
+  ],
+  "mobile_check_deposit_limit_per_day": [
+   "world_blue"
+  ],
+  "new_business_welcome_bonus": [
+   "world_blue"
+  ],
+  "annual_referral_limit": [
+   "world_blue"
+  ],
+  "monthly_maintenance_charge": [
+   "world_blue"
+  ],
+  "rho_foreign_atm_withdrawal_fee": [
+   "world_blue"
+  ]
+ },
+ "example": {
+  "monthly_maintenance_fee": {
+   "class": "beige",
+   "value": "$200.00",
+   "quote": "The monthly maintenance fee is $200.00."
+  },
+  "minimum_balance_requirement": {
+   "class": "beige",
+   "value": "$250,000",
+   "quote": "Maintain at least $250,000 to keep your enterprise-level treasury account in good standing."
+  },
+  "fee_waiver_balance_threshold": {
+   "class": "beige",
+   "value": "$500,000",
+   "quote": "This fee is waived when your average balance meets or exceeds $500,000."
+  },
+  "dedicated_account_managers": {
+   "class": "beige",
+   "value": "2",
+   "quote": "You are assigned 2 dedicated account managers who coordinate onboarding milestones, entitlements, and operational readiness."
+  },
+  "overdraft_fee": {
+   "class": "beige",
+   "value": "$0.00",
+   "quote": "Overdrafts incur a fee of $0.00."
+  },
+  "supported_erp_platforms": {
+   "class": "beige",
+   "value": "18 supported platforms",
+   "quote": "Confirm that your ERP is among the 18 supported platforms or prepare a custom API integration plan."
+  },
+  "real_time_balance_updates": {
+   "class": "beige",
+   "value": "Yes",
+   "quote": "Balance information is updated in real time: Yes."
+  },
+  "monthly_limit": {
+   "class": "beige",
+   "value": "$100,000",
+   "quote": "Plan your synchronization cadence to remain within $100,000."
+  },
+  "external_accounts_limit": {
+   "class": "beige",
+   "value": "30",
+   "quote": "You can connect up to 30 external accounts"
+  },
+  "sub_accounts_limit": {
+   "class": "beige",
+   "value": "50",
+   "quote": "You can create up to 50 sub-accounts."
+  },
+  "trigger_threshold": {
+   "class": "beige",
+   "value": "$50,000",
+   "quote": "Set the trigger threshold to $50,000."
+  },
+  "max_eligible_accounts": {
+   "class": "beige",
+   "value": "30",
+   "quote": "Choose from your connected accounts, with a maximum of 30 eligible external sources or targets for sweep rules."
+  },
+  "dual_authorization_threshold": {
+   "class": "beige",
+   "value": "$10,000",
+   "quote": "Dual authorization is required for transactions above $10,000."
+  },
+  "real_time_balance_information": {
+   "class": "beige",
+   "value": "Yes",
+   "quote": "With real-time balance information set to Yes, approvers can confirm available funds at the moment of review."
+  },
+  "annual_percentage_yield": {
+   "class": "beige",
+   "value": "3.0%",
+   "quote": "Your enterprise balances earn an Annual Percentage Yield of 3.0%."
+  },
+  "compounding_frequency": {
+   "class": "beige",
+   "value": "daily",
+   "quote": "Interest is compounded on a daily basis."
+  },
+  "monthly_call_allocation": {
+   "class": "beige",
+   "value": "$100,000 API calls per month",
+   "quote": "Your integration is allocated $100,000 API calls per month."
+  },
+  "balance_updates": {
+   "class": "beige",
+   "value": "Yes",
+   "quote": "Balance updates are Yes."
+  },
+  "domestic_wire_transfer_fee": {
+   "class": "beige",
+   "value": "$0.00",
+   "quote": "The domestic wire transfer fee is $0.00."
+  },
+  "high_value_payment_dual_authorization_threshold": {
+   "class": "beige",
+   "value": "$10,000",
+   "quote": "For high-value payments, dual authorization is required for amounts above $10,000."
+  },
+  "daily_mobile_check_deposit_limit": {
+   "class": "beige",
+   "value": "$100,000",
+   "quote": "The daily mobile check deposit limit is $100,000."
+  },
+  "included_incoming_domestic_wires_per_month": {
+   "class": "beige",
+   "value": "50",
+   "quote": "You have 50 incoming domestic wires included per month."
+  },
+  "out_of_network_atm_fee_rebates_per_month": {
+   "class": "beige",
+   "value": "50",
+   "quote": "Out-of-network ATM fee rebates are available up to 50 per month."
+  },
+  "domestic_out_of_network_atm_fee": {
+   "class": "beige",
+   "value": "$0.00",
+   "quote": "Domestic out-of-network ATM fee | $0.00"
+  },
+  "foreign_atm_withdrawal_fee": {
+   "class": "beige",
+   "value": "1% of withdrawal amount, minimum $2.00",
+   "quote": "Foreign ATM withdrawal fee | 1% of withdrawal amount, minimum $2.00"
+  },
+  "no_rho_out_of_network_atm_fee": {
+   "class": "beige",
+   "value": "$0.00 per out-of-network ATM transaction",
+   "quote": "You pay $0.00 per out-of-network ATM transaction."
+  },
+  "monthly_rebates_for_atm_operator_surcharges": {
+   "class": "beige",
+   "value": "up to $50 in rebates each month",
+   "quote": "Receive up to $50 in rebates each month for fees charged by out-of-network ATM operators."
+  },
+  "referrer_bonus": {
+   "class": "beige",
+   "value": "$500",
+   "quote": "| Referrer bonus | $500 |"
+  },
+  "referred_bonus": {
+   "class": "beige",
+   "value": "$350",
+   "quote": "| Referred bonus | $350 |"
+  },
+  "maximum_per_year": {
+   "class": "beige",
+   "value": "15",
+   "quote": "| Maximum per year | 15 |"
+  },
+  "required_deposit": {
+   "class": "beige",
+   "value": "$100,000",
+   "quote": "| Required deposit | $100,000 |"
+  },
+  "deposit_window": {
+   "class": "beige",
+   "value": "120 days",
+   "quote": "| Deposit window | 120 days |"
+  },
+  "minimum_tenure": {
+   "class": "beige",
+   "value": "120 days",
+   "quote": "| Minimum tenure | 120 days |"
+  },
+  "waiver_requirement": {
+   "class": "blue_account",
+   "value": "maintain a minimum daily balance of $625",
+   "quote": "Waiver requirement: maintain a minimum daily balance of $625"
+  },
+  "out_of_network_atm_withdrawal_fee": {
+   "class": "blue_account",
+   "value": "1% of withdrawal amount (max $3.00)",
+   "quote": "Out-of-network ATM withdrawal: 1% of withdrawal amount (max $3.00)"
+  },
+  "interest_earned_on_balances": {
+   "class": "blue_account",
+   "value": "0.01%",
+   "quote": "Interest earned on balances: 0.01%"
+  },
+  "mobile_check_deposit_daily_limit": {
+   "class": "blue_account",
+   "value": "$2,500",
+   "quote": "Mobile check deposit daily limit: $2,500"
+  },
+  "early_direct_deposit_days": {
+   "class": "blue_account",
+   "value": "1 day(s) before payday",
+   "quote": "Early direct deposit: 1 day(s) before payday"
+  },
+  "annual_percentage_yield_on_balances": {
+   "class": "blue_account",
+   "value": "0.01%",
+   "quote": "- Annual Percentage Yield on balances: 0.01%"
+  },
+  "minimum_daily_balance_for_fee_waiver": {
+   "class": "blue_account",
+   "value": "$625",
+   "quote": "- Maintain a minimum daily balance of $625 to waive the monthly maintenance fee."
+  },
+  "debit_card_daily_purchase_limit": {
+   "class": "blue_account",
+   "value": "$3,000",
+   "quote": "- Debit card daily purchase limit: $3,000"
+  },
+  "paper_statement_fee": {
+   "class": "blue_account",
+   "value": "$2.50",
+   "quote": "Paper statement fee | $2.50"
+  },
+  "returned_deposit_fee": {
+   "class": "blue_account",
+   "value": "$15.00",
+   "quote": "Returned deposit | $15.00"
+  },
+  "incoming_domestic_wire_transfer_fee": {
+   "class": "blue_account",
+   "value": "$12.50",
+   "quote": "Incoming domestic wire transfer | $12.50"
+  },
+  "stop_payment_on_a_check_fee": {
+   "class": "blue_account",
+   "value": "$30",
+   "quote": "Stop payment on a check | $30"
+  },
+  "overdraft_protection_transfers_fee": {
+   "class": "blue_account",
+   "value": "$12.50",
+   "quote": "If you opt in to overdraft protection, each transfer from a linked account to cover a negative balance incurs a $12.50 fee"
+  },
+  "overdraft_protection_fee": {
+   "class": "blue_account",
+   "value": "$12.50",
+   "quote": "Each transfer triggered by this service incurs a fee of $12.50."
+  },
+  "cashiers_check_issuance_fee": {
+   "class": "blue_account",
+   "value": "$10",
+   "quote": "- If you choose to fund your linked account by requesting a cashier’s check, the issuance fee is $10."
+  },
+  "overdraft_fee_per_item": {
+   "class": "blue_account",
+   "value": "$0.00",
+   "quote": "Overdraft fee per item: $0.00"
+  },
+  "daily_maximum_overdraft_fees": {
+   "class": "blue_account",
+   "value": "3",
+   "quote": "A maximum of 3 overdraft fees can be charged in a single day."
+  },
+  "overdraft_transfer_fee": {
+   "class": "blue_account",
+   "value": "$12.50",
+   "quote": "Each such transfer incurs a fee of $12.50."
+  },
+  "alert_threshold": {
+   "class": "blue_account",
+   "value": "$62",
+   "quote": "Enable low-balance alerts and set the threshold to $62 so you are notified when your available balance reaches or falls below that level."
+  },
+  "paper_statement_cost": {
+   "class": "blue_account",
+   "value": "$2.50 per month",
+   "quote": "Paper statements are available for $2.50 per month."
+  },
+  "apy_on_balance": {
+   "class": "blue_account",
+   "value": "0.01%",
+   "quote": "Your Blue Account earns 0.01% APY on balances."
+  },
+  "low_balance_alert_threshold_example": {
+   "class": "blue_account",
+   "value": "$62",
+   "quote": "You can enable alerts at a threshold such as $62 so you are notified when your available balance reaches that level."
+  },
+  "external_bank_transfer_time": {
+   "class": "blue_account",
+   "value": "2 business days",
+   "quote": "Transfers to another bank typically complete in 2 business days."
+  },
+  "incoming_domestic_wire_fee": {
+   "class": "blue_account",
+   "value": "$12.50 per wire",
+   "quote": "Incoming domestic wires are assessed a fee of $12.50 per wire."
+  },
+  "referral_bonus_for_referrer": {
+   "class": "blue_account",
+   "value": "$35",
+   "quote": "When you refer someone to open a Blue Account, you earn $35 for each successful referral."
+  },
+  "welcome_bonus_for_referred_person": {
+   "class": "blue_account",
+   "value": "$30",
+   "quote": "The person you refer receives $30 as a welcome bonus."
+  },
+  "maximum_referral_bonuses_per_year": {
+   "class": "blue_account",
+   "value": "5",
+   "quote": "You can earn up to 5 referral bonuses per calendar year."
+  },
+  "international_atm_withdrawal_fee": {
+   "class": "blue_account",
+   "value": "3% of the withdrawal amount, with a minimum fee of $5.00 per withdrawal",
+   "quote": "For ATM withdrawals made in a foreign currency, you are charged 3% of the withdrawal amount, with a minimum fee of $5.00 per withdrawal."
+  },
+  "daily_atm_withdrawal_limit": {
+   "class": "blue_account",
+   "value": "$500",
+   "quote": "Your Blue Account debit card has a daily ATM withdrawal limit of $500."
+  },
+  "minimum_opening_deposit": {
+   "class": "bluest_account",
+   "value": "$75,000",
+   "quote": "| Minimum opening deposit | $75,000 |"
+  },
+  "minimum_daily_balance_to_maintain_benefits": {
+   "class": "bluest_account",
+   "value": "$112,500",
+   "quote": "| Minimum daily balance to maintain benefits | $112,500 |"
+  },
+  "annual_percentage_yield_apy": {
+   "class": "bluest_account",
+   "value": "2.25% APY",
+   "quote": "| Annual Percentage Yield (APY) | 2.25% APY |"
+  },
+  "complimentary_domestic_wire_transfers_per_month": {
+   "class": "bluest_account",
+   "value": "10",
+   "quote": "| Complimentary domestic wire transfers per month | 10 |"
+  },
+  "international_wire_fee_outbound": {
+   "class": "bluest_account",
+   "value": "$12.50 per transfer",
+   "quote": "| International wire fee (outbound) | $12.50 per transfer |"
+  },
+  "complimentary_personal_check_orders_per_year": {
+   "class": "bluest_account",
+   "value": "3",
+   "quote": "| Complimentary personal check orders per year | 3 |"
+  },
+  "atm_fee_rebates_cap_per_month": {
+   "class": "bluest_account",
+   "value": "Up to $50",
+   "quote": "| ATM fee rebates cap per month | Up to $50 |"
+  },
+  "safe_deposit_box_rental_discount": {
+   "class": "bluest_account",
+   "value": "75.0%",
+   "quote": "| Safe deposit box rental discount | 75.0% |"
+  },
+  "mobile_check_deposit_limit_daily": {
+   "class": "bluest_account",
+   "value": "$10,000",
+   "quote": "| Mobile check deposit limit (daily) | $10,000 |"
+  },
+  "early_direct_deposit": {
+   "class": "bluest_account",
+   "value": "2 day(s) before payday",
+   "quote": "| Early direct deposit | 2 day(s) before payday |"
+  },
+  "opening_deposit": {
+   "class": "bluest_account",
+   "value": "$75,000",
+   "quote": "Deposit at least $75,000 to open your account."
+  },
+  "daily_balance": {
+   "class": "bluest_account",
+   "value": "$112,500",
+   "quote": "Maintain a daily balance of $112,500 to keep all account benefits active."
+  },
+  "higher_yield": {
+   "class": "bluest_account",
+   "value": "2.25%",
+   "quote": "Higher yield on your checking balance: 2.25% APY"
+  },
+  "complimentary_domestic_outgoing_wires": {
+   "class": "bluest_account",
+   "value": "10",
+   "quote": "Complimentary domestic outgoing wires each month: 10"
+  },
+  "incoming_domestic_wires_fee": {
+   "class": "bluest_account",
+   "value": "$0.00",
+   "quote": "Incoming domestic wires at no charge: $0.00"
+  },
+  "dedicated_personal_banker": {
+   "class": "bluest_account",
+   "value": "Yes",
+   "quote": "Dedicated personal banker assigned: Yes"
+  },
+  "atm_fee_rebates_monthly_cap": {
+   "class": "bluest_account",
+   "value": "$50",
+   "quote": "Monthly ATM fee rebates, up to: $50"
+  },
+  "complimentary_check_orders_per_year": {
+   "class": "bluest_account",
+   "value": "3",
+   "quote": "Complimentary personal check orders per year: 3"
+  },
+  "stop_payment_requests_fee": {
+   "class": "bluest_account",
+   "value": "$0",
+   "quote": "Stop payment requests at no charge: $0"
+  },
+  "no_foreign_atm_withdrawal_fees": {
+   "class": "bluest_account",
+   "value": "$0.00",
+   "quote": "No foreign ATM withdrawal fees: $0.00"
+  },
+  "silver_savings_apy_boost": {
+   "class": "bluest_account",
+   "value": "0.45%",
+   "quote": "Silver Savings APY boost: 0.45%"
+  },
+  "bronze_savings_apy_boost": {
+   "class": "bluest_account",
+   "value": "0.7%",
+   "quote": "Bronze Savings APY boost: 0.7%"
+  },
+  "cashiers_check_fee": {
+   "class": "bluest_account",
+   "value": "$0",
+   "quote": "including cashier's checks, issued at $0."
+  },
+  "domestic_wire_transfers_per_month": {
+   "class": "bluest_account",
+   "value": "10",
+   "quote": "You receive 10 complimentary domestic wire transfers each month."
+  },
+  "outbound_international_wire_transfer_fee": {
+   "class": "bluest_account",
+   "value": "$12.50",
+   "quote": "Outbound international wire transfers are assessed a fee of $12.50 per transfer."
+  },
+  "everyonepay_daily_send_limit": {
+   "class": "bluest_account",
+   "value": "$7,500",
+   "quote": "The EveryonePay daily send limit is $7,500."
+  },
+  "monthly_rebate_cap": {
+   "class": "bluest_account",
+   "value": "$50",
+   "quote": "You are eligible for ATM fee rebates up to $50 per month."
+  },
+  "apy": {
+   "class": "bluest_account",
+   "value": "2.25%",
+   "quote": "You earn 2.25% APY on your balance, providing a yield advantage relative to standard transactional accounts that often pay a lower rate."
+  },
+  "free_check_orders": {
+   "class": "bluest_account",
+   "value": "3",
+   "quote": "You receive 3 complimentary personal check orders each year."
+  },
+  "safe_deposit_box_discount": {
+   "class": "bluest_account",
+   "value": "75.0%",
+   "quote": "You receive a 75.0% discount on safe deposit box rental."
+  },
+  "out_of_network_atm_fee": {
+   "class": "bluest_account",
+   "value": "$2.00 per withdrawal",
+   "quote": "| Cash withdrawal at an out-of-network ATM | $2.00 per withdrawal |"
+  },
+  "free_withdrawals_per_month": {
+   "class": "bronze_account",
+   "value": "6",
+   "quote": "Free withdrawals per month: 6"
+  },
+  "interest_compounding_frequency": {
+   "class": "bronze_account",
+   "value": "daily",
+   "quote": "- Interest compounding frequency: daily"
+  },
+  "interest_crediting_frequency": {
+   "class": "bronze_account",
+   "value": "monthly",
+   "quote": "Interest is credited monthly. You will see a single interest credit entry for each crediting period."
+  },
+  "apy_effective_rate": {
+   "class": "bronze_account",
+   "value": "2.0%",
+   "quote": "The APY in effect for the period, such as 2.0%, as reflected in your account disclosures."
+  },
+  "maximum_total_amount_transfer_out_per_day": {
+   "class": "bronze_account",
+   "value": "$2,500",
+   "quote": "- Maximum total amount you can transfer out per day: $2,500."
+  },
+  "daily_transfer_limit": {
+   "class": "bronze_account",
+   "value": "$2,500",
+   "quote": "You can transfer out up to $2,500 per day to external banks."
+  },
+  "free_transactions_per_month": {
+   "class": "cobalt_blue",
+   "value": "$175",
+   "quote": "- You get $175 free transactions per month (deposits, withdrawals, and transfers)"
+  },
+  "referral_bonus": {
+   "class": "cobalt_blue",
+   "value": "$150",
+   "quote": "- You earn: $150 per successful referral"
+  },
+  "welcome_bonus_for_referrals": {
+   "class": "cobalt_blue",
+   "value": "$100",
+   "quote": "- They receive: $100 as a welcome bonus"
+  },
+  "maximum_referrals_per_year": {
+   "class": "cobalt_blue",
+   "value": "10",
+   "quote": "- Maximum referrals: 10 per calendar year"
+  },
+  "monthly_transaction_limit": {
+   "class": "cobalt_blue",
+   "value": "$175",
+   "quote": "You have $175 free transactions per month."
+  },
+  "additional_transaction_fee": {
+   "class": "cobalt_blue",
+   "value": "$0.25",
+   "quote": "After that, each additional transaction is charged $0.25."
+  },
+  "scheduled_recurring_payments_limit": {
+   "class": "cobalt_blue",
+   "value": "50",
+   "quote": "You can maintain up to 50 scheduled recurring payments"
+  },
+  "rewards_rate": {
+   "class": "cobalt_blue",
+   "value": "1.0%",
+   "quote": "Earn 1.0% cashback on eligible debit card purchases"
+  },
+  "max_team_cards": {
+   "class": "cobalt_blue",
+   "value": "6",
+   "quote": "You can request up to 6 business debit cards for team members"
+  },
+  "ach_transfers_fee": {
+   "class": "cobalt_blue",
+   "value": "no fee",
+   "quote": "- Standard ACH transfers are available with no fee"
+  },
+  "same_day_ach_transfers_fee": {
+   "class": "cobalt_blue",
+   "value": "$0.00",
+   "quote": "- Same-day ACH transfers are available with a fee of $0.00"
+  },
+  "outgoing_domestic_wire_transfer_fee": {
+   "class": "cobalt_blue",
+   "value": "$20.00",
+   "quote": "- Outgoing domestic wire transfer fee: $20.00"
+  },
+  "incoming_wires_free_per_month": {
+   "class": "cobalt_blue",
+   "value": "5",
+   "quote": "- You get 5 incoming domestic wire transfers per month at no charge"
+  },
+  "daily_mobile_deposit_limit": {
+   "class": "cobalt_blue",
+   "value": "$10,000",
+   "quote": "- Daily mobile deposit limit: $10,000"
+  },
+  "atm_rebate_per_month": {
+   "class": "cobalt_blue",
+   "value": "up to 15",
+   "quote": "- You receive up to 15 per month in rebates for fees charged by out-of-network ATMs"
+  },
+  "online_bill_pay_included": {
+   "class": "cobalt_blue",
+   "value": "Yes",
+   "quote": "- Online bill pay included at no additional cost: Yes"
+  },
+  "basic_invoice_management_tools_included": {
+   "class": "cobalt_blue",
+   "value": "Yes",
+   "quote": "- Basic invoice management tools included at no extra cost: Yes"
+  },
+  "excess_transaction_fee": {
+   "class": "cobalt_blue",
+   "value": "$0.25 per excess transaction",
+   "quote": "| Excess Transaction Fee | You exceeded your monthly free transaction limit. | Count your posted transactions for the statement period and compare to your free allowance; the fee l"
+  },
+  "wire_transfer_fee_domestic": {
+   "class": "cobalt_blue",
+   "value": "$20.00",
+   "quote": "| Wire Transfer Fee – Domestic | You initiated a domestic wire transfer. | Confirm a wire was submitted on or near the posting date in your transfer history. | $20.00 |"
+  },
+  "atm_fee_out_of_network": {
+   "class": "cobalt_blue",
+   "value": "$2.00 per ATM transaction",
+   "quote": "| ATM Fee – Out of Network | You used a non‑Rho ATM in the U.S. | Match the fee date to an ATM withdrawal at a non‑Rho terminal. Note: the ATM owner may also assess a separate surc"
+  },
+  "domestic_out_of_network_atm_withdrawal_fee": {
+   "class": "cobalt_blue",
+   "value": "$2.00 per transaction",
+   "quote": "- Domestic out-of-network ATM withdrawal: $2.00 per transaction"
+  },
+  "monthly_atm_fee_rebates": {
+   "class": "cobalt_blue",
+   "value": "Up to $15 in out-of-network ATM fee rebates per month",
+   "quote": "- Monthly ATM fee rebates: Up to $15 in out-of-network ATM fee rebates per month"
+  },
+  "minimum_primary_holder_age": {
+   "class": "dark_green_account",
+   "value": "17",
+   "quote": "- Minimum primary holder age: 17"
+  },
+  "maximum_primary_holder_age": {
+   "class": "dark_green_account",
+   "value": "26",
+   "quote": "- Maximum primary holder age: 26"
+  },
+  "overdraft_protection_transfer_fee": {
+   "class": "dark_green_account",
+   "value": "0",
+   "quote": "- Overdraft protection transfer fee: 0"
+  },
+  "student_loan_payment_cashback": {
+   "class": "dark_green_account",
+   "value": "1.25%",
+   "quote": "- Student loan payment cashback: 1.25%"
+  },
+  "annual_academic_standing_bonus": {
+   "class": "dark_green_account",
+   "value": "$62.50",
+   "quote": "- Annual academic standing bonus: $62.50"
+  },
+  "partner_textbook_retailer_discount": {
+   "class": "dark_green_account",
+   "value": "10.0%",
+   "quote": "- Partner textbook retailer discount: 10.0%"
+  },
+  "graduation_transition_bonus": {
+   "class": "dark_green_account",
+   "value": "$100.00",
+   "quote": "- Graduation transition bonus: $100.00"
+  },
+  "primary_account_holder_age": {
+   "class": "dark_green_account",
+   "value": "at least 17",
+   "quote": "The primary account holder must be at least 17."
+  },
+  "account_maintenance_fee": {
+   "class": "dark_green_account",
+   "value": "$10.00",
+   "quote": "| Monthly maintenance | $10.00 |"
+  },
+  "annual_cash_bonus": {
+   "class": "dark_green_account",
+   "value": "$62.50",
+   "quote": "You receive $62.50 each year you verify a 3.0+ GPA."
+  },
+  "savings_apy_boost_bronze": {
+   "class": "dark_green_account",
+   "value": "0.85%",
+   "quote": "- Linked Bronze Savings Account: 0.85% APY boost"
+  },
+  "savings_apy_boost_platinum_plus": {
+   "class": "dark_green_account",
+   "value": "0.45%",
+   "quote": "- Linked Platinum Plus Savings Account: 0.45% APY boost"
+  },
+  "cashback_rate": {
+   "class": "dark_green_account",
+   "value": "1.25%",
+   "quote": "Earn cashback of 1.25% on student loan payments made from your account when they meet eligibility criteria."
+  },
+  "discount_percentage": {
+   "class": "dark_green_account",
+   "value": "10.0%",
+   "quote": "When you use your debit card at participating textbook partners, you receive a discount of 10.0% at checkout."
+  },
+  "one_time_bonus": {
+   "class": "dark_green_account",
+   "value": "$100.00",
+   "quote": "When you move to a regular checking account after you graduate, you can receive a one-time bonus of $100.00."
+  },
+  "annual_cap": {
+   "class": "dark_green_account",
+   "value": "6 referrals",
+   "quote": "Annual cap | 6 referrals"
+  },
+  "minimum_deposit": {
+   "class": "dark_green_account",
+   "value": "$1,000",
+   "quote": "Minimum deposit | $1,000"
+  },
+  "tenure_required": {
+   "class": "dark_green_account",
+   "value": "45 days",
+   "quote": "Tenure required | 45 days"
+  },
+  "mobile_deposit_daily_limit": {
+   "class": "diamond_elite_account",
+   "value": "$100,000",
+   "quote": "Mobile deposit daily limit | $100,000"
+  },
+  "max_daily_outbound_transfers": {
+   "class": "diamond_elite_account",
+   "value": "$500,000",
+   "quote": "Max daily outbound transfers | $500,000"
+  },
+  "monthly_withdrawal_limit": {
+   "class": "diamond_elite_account",
+   "value": "-1",
+   "quote": "Monthly withdrawal limit | -1"
+  },
+  "external_transfer_processing_time": {
+   "class": "diamond_elite_account",
+   "value": "0 business days",
+   "quote": "External transfer processing time | 0 business days"
+  },
+  "wire_transfer_fees": {
+   "class": "diamond_elite_account",
+   "value": "Yes",
+   "quote": "Wire transfer fees | Yes"
+  },
+  "private_banker_access": {
+   "class": "diamond_elite_account",
+   "value": "Yes",
+   "quote": "Private banker access | Yes"
+  },
+  "investment_advisory_included": {
+   "class": "diamond_elite_account",
+   "value": "Yes",
+   "quote": "Investment advisory included | Yes"
+  },
+  "exclusive_event_access": {
+   "class": "diamond_elite_account",
+   "value": "Yes",
+   "quote": "Exclusive event access | Yes"
+  },
+  "minimum_balance_to_maintain_the_account": {
+   "class": "diamond_elite_account",
+   "value": "$250,000.",
+   "quote": "- Minimum balance to maintain the account: $250,000."
+  },
+  "dedicated_private_banker_access": {
+   "class": "diamond_elite_account",
+   "value": "Yes",
+   "quote": "- You can reach a dedicated banker anytime: Yes."
+  },
+  "minimum_initial_deposit": {
+   "class": "diamond_elite_account",
+   "value": "$100,000.",
+   "quote": "- Minimum initial deposit: $100,000."
+  },
+  "wire_transfer_fees_are_waived": {
+   "class": "diamond_elite_account",
+   "value": "Yes.",
+   "quote": "- Wire transfer fees are waived: Yes."
+  },
+  "dedicated_access": {
+   "class": "diamond_elite_account",
+   "value": "Yes",
+   "quote": "You have direct, anytime access to a private banker: Yes."
+  },
+  "estate_planning_support_discount": {
+   "class": "diamond_elite_account",
+   "value": "20%",
+   "quote": "Receive a discount on partner estate planning services: 20%."
+  },
+  "complimentary_investment_advisory_services": {
+   "class": "diamond_elite_account",
+   "value": "Yes",
+   "quote": "- Complimentary investment advisory services are included with your membership: Yes."
+  },
+  "preferential_pricing_through_partners": {
+   "class": "diamond_elite_account",
+   "value": "20%",
+   "quote": "- Preferential pricing through partners is available: 20%."
+  },
+  "eligible_members": {
+   "class": "diamond_elite_account",
+   "value": "Yes",
+   "quote": "Eligible members receive invitations to exclusive Rho-Bank events: Yes."
+  },
+  "dedicated_private_banker": {
+   "class": "diamond_elite_account",
+   "value": "Yes",
+   "quote": "Yes: Yes."
+  },
+  "investment_advisory_services_included": {
+   "class": "diamond_elite_account",
+   "value": "Yes",
+   "quote": "Complimentary advisory is included: Yes."
+  },
+  "exclusive_events_invitations": {
+   "class": "diamond_elite_account",
+   "value": "Yes",
+   "quote": "Eligible members receive invitations: Yes."
+  },
+  "wire_transfer_fees_waived": {
+   "class": "diamond_elite_account",
+   "value": "Yes",
+   "quote": "All wire transfer fees are waived: Yes."
+  },
+  "discount_on_estate_planning_services": {
+   "class": "diamond_elite_account",
+   "value": "20%",
+   "quote": "Yes. You receive 20% through partner providers."
+  },
+  "interest_rate": {
+   "class": "diamond_elite_account",
+   "value": "7.5%",
+   "quote": "Interest accrues at 7.5%."
+  },
+  "tree_planting_threshold": {
+   "class": "evergreen_account",
+   "value": "$750 per tree",
+   "quote": "Tree planting threshold | $750 per tree"
+  },
+  "carbon_offset_rate": {
+   "class": "evergreen_account",
+   "value": "$1.25 g per $1",
+   "quote": "Carbon offset rate | $1.25 g per $1"
+  },
+  "checking_apy": {
+   "class": "evergreen_account",
+   "value": "0.05%",
+   "quote": "Checking APY | 0.05%"
+  },
+  "eco_brand_cashback_bonus": {
+   "class": "evergreen_account",
+   "value": "+1.75%",
+   "quote": "Eco brand cashback bonus | +1.75%"
+  },
+  "green_savings_apy_boost": {
+   "class": "evergreen_account",
+   "value": "+0.55%",
+   "quote": "Green Savings APY boost | +0.55%"
+  },
+  "diamond_elite_savings_apy_boost": {
+   "class": "evergreen_account",
+   "value": "+0.15%",
+   "quote": "Diamond Elite Savings APY boost | +0.15%"
+  },
+  "referral_bonus_you_earn": {
+   "class": "evergreen_account",
+   "value": "$35",
+   "quote": "Referral bonus (you earn) | $35"
+  },
+  "referral_bonus_they_receive": {
+   "class": "evergreen_account",
+   "value": "$25",
+   "quote": "Referral bonus (they receive) | $25"
+  },
+  "max_referrals_per_year": {
+   "class": "evergreen_account",
+   "value": "6",
+   "quote": "Max referrals per year | 6"
+  },
+  "qualifying_posted_purchases": {
+   "class": "evergreen_account",
+   "value": "Qualifying posted purchases on your Evergreen Account contribute toward the planting threshold",
+   "quote": "Qualifying posted purchases on your Evergreen Account contribute toward the planting threshold"
+  },
+  "eligible_spend_tracking": {
+   "class": "evergreen_account",
+   "value": "Your eligible spend is tracked cumulatively",
+   "quote": "Your eligible spend is tracked cumulatively"
+  },
+  "report_frequency": {
+   "class": "evergreen_account",
+   "value": "monthly",
+   "quote": "You receive an environmental impact report on a monthly basis."
+  },
+  "co2_offset_rate": {
+   "class": "evergreen_account",
+   "value": "$1.25 grams per dollar",
+   "quote": "Estimated CO2 offset, calculated using $1.25 grams per dollar"
+  },
+  "tree_planting_rate": {
+   "class": "evergreen_account",
+   "value": "$1,000 spent",
+   "quote": "Rho plants a tree for every $1,000 spent"
+  },
+  "calculation_model": {
+   "class": "evergreen_account",
+   "value": "For each eligible purchase, Rho multiplies the posted dollar amount by $1.25 to determine grams of CO₂ offset",
+   "quote": "For each eligible purchase, Rho multiplies the posted dollar amount by $1.25 to determine grams of CO₂ offset"
+  },
+  "refund_reduction_rate": {
+   "class": "evergreen_account",
+   "value": "$1.25",
+   "quote": "Purchase refunds reduce accrued offsets using the same rate of $1.25"
+  },
+  "transparency_calculation_rate": {
+   "class": "evergreen_account",
+   "value": "$1.25",
+   "quote": "The calculation rate used is $1.25 and is displayed within your impact details"
+  },
+  "stop_payment_fee": {
+   "class": "evergreen_account",
+   "value": "25",
+   "quote": "Stop payment fee: 25"
+  },
+  "refund_impact": {
+   "class": "evergreen_account",
+   "value": "Refunds reduce your eligible spend and adjust offset totals accordingly.",
+   "quote": "Refunds reduce your eligible spend and adjust offset totals accordingly."
+  },
+  "referral_qualification_deposit": {
+   "class": "evergreen_account",
+   "value": "$750",
+   "quote": "The person you refer must deposit at least $750 within 60 days of opening their account to qualify."
+  },
+  "referral_deposit_timeframe": {
+   "class": "evergreen_account",
+   "value": "within 60 days",
+   "quote": "The referred person must deposit $750 within 60 days of account opening to trigger the referral bonus."
+  },
+  "minimum_balance": {
+   "class": "gold_account",
+   "value": "$10,000",
+   "quote": "- Maintain at least $10,000 to keep your account in good standing."
+  },
+  "monthly_maintenance_fee_if_minimum_not_met": {
+   "class": "gold_account",
+   "value": "$10.00",
+   "quote": "- Monthly maintenance: $10.00 (charged only if your balance drops below $10,000 during the statement period)."
+  },
+  "transfer_fees": {
+   "class": "gold_account",
+   "value": "Yes",
+   "quote": "- Transfer fees: Yes for this account tier."
+  },
+  "priority_support": {
+   "class": "gold_account",
+   "value": "Yes",
+   "quote": "- Priority customer support: Yes"
+  },
+  "opening_deposit_minimum": {
+   "class": "gold_account",
+   "value": "$5,000",
+   "quote": "- Opening deposit minimum: $5,000"
+  },
+  "ongoing_minimum_balance": {
+   "class": "gold_account",
+   "value": "$10,000",
+   "quote": "- Ongoing minimum balance: $10,000"
+  },
+  "interest_compounding": {
+   "class": "gold_account",
+   "value": "daily",
+   "quote": "- Interest is compounded daily."
+  },
+  "large_balance_alert_threshold": {
+   "class": "gold_account",
+   "value": "$50,000",
+   "quote": "- Large balance alert threshold: $50,000"
+  },
+  "atm_fee_rebate_cap_per_month": {
+   "class": "gold_account",
+   "value": "$30",
+   "quote": "- ATM fee rebate cap per month: $30"
+  },
+  "no_transfer_fee_advantage": {
+   "class": "gold_account",
+   "value": "Yes",
+   "quote": "Transfer fees are Yes for this account tier, reducing the cost of moving funds."
+  },
+  "instant_transfers": {
+   "class": "gold_account",
+   "value": "Yes",
+   "quote": "Instant transfers are Yes, allowing you to reposition cash quickly when timing matters."
+  },
+  "maximum_daily_transfer_amount_out": {
+   "class": "gold_account",
+   "value": "$25,000",
+   "quote": "- Maximum daily transfer amount out: $25,000."
+  },
+  "processing_timeline": {
+   "class": "gold_account",
+   "value": "1 business day",
+   "quote": "External transfers typically complete in 1 business day."
+  },
+  "apy_rate": {
+   "class": "gold_account",
+   "value": "5.5% + 0.025%",
+   "quote": "APY rate | 5.5% + 0.025%"
+  },
+  "atm_fee_rebates_monthly_max": {
+   "class": "gold_account",
+   "value": "$30",
+   "quote": "ATM fee rebates (monthly max) | $30"
+  },
+  "credit_card_apy_bonuses": {
+   "class": "gold_account",
+   "value": "Holding certain Rho-Bank credit cards provides bonus APY on your Gold Account balance.",
+   "quote": "Holding certain Rho-Bank credit cards provides bonus APY on your Gold Account balance."
+  },
+  "automatic_application": {
+   "class": "gold_account",
+   "value": "These bonuses are automatically applied when you hold both the credit card and savings account under the same customer profile.",
+   "quote": "These bonuses are automatically applied when you hold both the credit card and savings account under the same customer profile."
+  },
+  "minimum_balance_to_maintain": {
+   "class": "gold_plus_account",
+   "value": "$25,000",
+   "quote": "| Minimum balance to maintain | $25,000 |"
+  },
+  "automatic_investment_sweep_threshold": {
+   "class": "gold_plus_account",
+   "value": "$50,000",
+   "quote": "| Automatic investment sweep threshold | $50,000 |"
+  },
+  "automatic_investment_sweep": {
+   "class": "gold_plus_account",
+   "value": "Yes",
+   "quote": "Automatic investment sweep: Yes and designed to move surplus funds to investments when available."
+  },
+  "quarterly_financial_reviews": {
+   "class": "gold_plus_account",
+   "value": "Yes",
+   "quote": "Quarterly financial reviews: Yes with a dedicated specialist."
+  },
+  "priority_support_tier": {
+   "class": "gold_plus_account",
+   "value": "enhanced",
+   "quote": "Priority support tier: enhanced for faster routing and resolution."
+  },
+  "feature_availability": {
+   "class": "gold_plus_account",
+   "value": "Yes",
+   "quote": "- Feature availability: Yes"
+  },
+  "sweep_threshold": {
+   "class": "gold_plus_account",
+   "value": "$50,000",
+   "quote": "- Sweep threshold: $50,000"
+  },
+  "brokerage_commission_discount": {
+   "class": "gold_plus_account",
+   "value": "25%",
+   "quote": "Enjoy a 25% percent discount on Rho-Bank brokerage trading commissions."
+  },
+  "digital_asset_access": {
+   "class": "gold_plus_account",
+   "value": "Yes",
+   "quote": "Cryptocurrency trading access: Yes"
+  },
+  "automatic_investment_sweeps": {
+   "class": "gold_plus_account",
+   "value": "Yes",
+   "quote": "Automatic investment sweep: Yes."
+  },
+  "stock_trading_commission_discount": {
+   "class": "gold_plus_account",
+   "value": "25%",
+   "quote": "Eligible trades receive a 25% percent discount on Rho-Bank brokerage trading commissions."
+  },
+  "interest_calculation_method": {
+   "class": "gold_plus_account",
+   "value": "Interest compounds daily on eligible balances.",
+   "quote": "- Interest compounds daily on eligible balances."
+  },
+  "interest_payment_schedule": {
+   "class": "gold_plus_account",
+   "value": "Accrued interest is credited monthly.",
+   "quote": "- Accrued interest is credited monthly."
+  },
+  "maximum_total_transfer_out_per_day": {
+   "class": "gold_plus_account",
+   "value": "$50,000",
+   "quote": "- Maximum total you can transfer out per day: $50,000."
+  },
+  "transfer_fees_waived": {
+   "class": "gold_plus_account",
+   "value": "Yes",
+   "quote": "Transfer fees for this account tier are waived: Yes."
+  },
+  "age": {
+   "class": "gold_years_account",
+   "value": "62 and older",
+   "quote": "Designed for customers aged 62 and older"
+  },
+  "apy_on_checking": {
+   "class": "gold_years_account",
+   "value": "1.0%",
+   "quote": "APY on checking | 1.0%"
+  },
+  "free_personal_check_orders": {
+   "class": "gold_years_account",
+   "value": "3 per year",
+   "quote": "Free personal check orders | 3 per year"
+  },
+  "mobile_check_deposit_limit": {
+   "class": "gold_years_account",
+   "value": "$5,000 per day",
+   "quote": "Mobile check deposit limit | $5,000 per day"
+  },
+  "prescription_discount": {
+   "class": "gold_years_account",
+   "value": "12.5%",
+   "quote": "Prescription discount | 12.5% at partner pharmacies (debit card required)"
+  },
+  "dedicated_senior_support_line": {
+   "class": "gold_years_account",
+   "value": "Yes",
+   "quote": "Dedicated senior support line | Yes"
+  },
+  "social_security_direct_deposit_bonus": {
+   "class": "gold_years_account",
+   "value": "$50.00",
+   "quote": "Social Security direct deposit bonus | $50.00 (one-time)"
+  },
+  "estate_planning_consultation_discount": {
+   "class": "gold_years_account",
+   "value": "17.5%",
+   "quote": "Estate planning consultation discount | 17.5%"
+  },
+  "linked_savings_apy_boosts": {
+   "class": "gold_years_account",
+   "value": "Gold Plus: +0.5%; Silver: +0.6%",
+   "quote": "Linked savings APY boosts | Gold Plus: +0.5%; Silver: +0.6%"
+  },
+  "complimentary_personal_checks": {
+   "class": "gold_years_account",
+   "value": "3 complimentary personal check orders each year",
+   "quote": "You receive 3 complimentary personal check orders each year."
+  },
+  "dedicated_senior_support_access": {
+   "class": "gold_years_account",
+   "value": "Yes",
+   "quote": "- Dedicated senior support access: Yes"
+  },
+  "bonus_amount": {
+   "class": "gold_years_account",
+   "value": "$50.00",
+   "quote": "You receive a one-time bonus of $50.00 dollars after a successful Social Security direct deposit posts to your account."
+  },
+  "everyonepay_daily_limit": {
+   "class": "gold_years_account",
+   "value": "$3,000 dollars",
+   "quote": "If you need to send funds to family or caregivers, you can use EveryonePay up to $3,000 dollars per day."
+  },
+  "discount_on_consultations": {
+   "class": "gold_years_account",
+   "value": "17.5%",
+   "quote": "As a Gold Years accountholder, you are eligible for a 17.5% percent discount on consultations with participating estate planning partner firms."
+  },
+  "your_bonus": {
+   "class": "gold_years_account",
+   "value": "$50",
+   "quote": "- **You receive**: $50 for each successful referral"
+  },
+  "their_bonus": {
+   "class": "gold_years_account",
+   "value": "$75",
+   "quote": "- **They receive**: $75 as a welcome bonus"
+  },
+  "max_referrals_year": {
+   "class": "gold_years_account",
+   "value": "6",
+   "quote": "- **Annual maximum**: 6 referral bonuses per calendar year"
+  },
+  "qualifying_deposit": {
+   "class": "gold_years_account",
+   "value": "$1,000",
+   "quote": "They must deposit $1,000 within 90 days of account opening"
+  },
+  "deposit_deadline": {
+   "class": "gold_years_account",
+   "value": "90 days",
+   "quote": "| Deposit deadline | 90 days |"
+  },
+  "customer_tenure": {
+   "class": "gold_years_account",
+   "value": "30 days",
+   "quote": "The referrer must have maintained checking account status with Rho-Bank for 30 days."
+  },
+  "non_network_atm_fee": {
+   "class": "green_account_(checking)",
+   "value": "$3.00",
+   "quote": "Withdrawals at non-network ATMs incur a fee of $3.00 per transaction."
+  },
+  "incoming_wire_fee": {
+   "class": "green_account_(checking)",
+   "value": "$15.00",
+   "quote": "Incoming domestic wires are accepted for a fee of $15.00."
+  },
+  "debit_card_purchase_limit": {
+   "class": "green_account_(checking)",
+   "value": "$4,000",
+   "quote": "Debit card purchases are capped at $4,000 per day."
+  },
+  "available_balance": {
+   "class": "green_account_(checking)",
+   "value": "the ceiling for authorizations",
+   "quote": "Your available balance is the ceiling for authorizations."
+  },
+  "buffer_amount": {
+   "class": "green_account_(checking)",
+   "value": "up to 5",
+   "quote": "A small buffer of up to 5 may be considered for minor adjustments, but spending beyond that results in declines."
+  },
+  "payment_request_consideration": {
+   "class": "green_account_(checking)",
+   "value": "the payment request is compared to your available balance.",
+   "quote": "- At authorization, the payment request is compared to your available balance."
+  },
+  "shortfall_limit": {
+   "class": "green_account_(checking)",
+   "value": "5",
+   "quote": "- If the shortfall is at or below 5, the request may be considered;"
+  },
+  "alert_setting": {
+   "class": "green_account_(checking)",
+   "value": "Yes",
+   "quote": "- You receive a declined transaction notification according to your alert setting: Yes."
+  },
+  "receive_alerts": {
+   "class": "green_account_(checking)",
+   "value": "Yes",
+   "quote": "Check your decline notification if you receive alerts: Yes."
+  },
+  "paper_statements_fee": {
+   "class": "green_account_(checking)",
+   "value": "$2.50 per month",
+   "quote": "Yes, paper statements delivered by mail cost $2.50 per month."
+  },
+  "domestic_wire_fee": {
+   "class": "green_account_(checking)",
+   "value": "$15.00",
+   "quote": "Incoming domestic wires cost $15.00."
+  },
+  "maximum_free_withdrawals_per_month": {
+   "class": "green_account_(savings)",
+   "value": "8",
+   "quote": "| Maximum free withdrawals per month | 8 |"
+  },
+  "paperless_statements_required": {
+   "class": "green_account_(savings)",
+   "value": "Yes",
+   "quote": "| Paperless statements required | Yes |"
+  },
+  "bonus_apy_with_ecocard": {
+   "class": "green_account_(savings)",
+   "value": "0.5%",
+   "quote": "When you also hold an EcoCard, you receive an additional bonus of 0.5%."
+  },
+  "effective_apy": {
+   "class": "green_account_(savings)",
+   "value": "4.0% plus 0.5%",
+   "quote": "Your effective APY becomes 4.0% plus 0.5% while eligibility is maintained."
+  },
+  "extra_cashback_bonus": {
+   "class": "green_account_(savings)",
+   "value": "2.0%",
+   "quote": "Eligible purchases at eco-certified merchants can earn an extra cashback bonus of 2.0% when using an EcoCard."
+  },
+  "donation_match_rate": {
+   "class": "green_account_(savings)",
+   "value": "50%",
+   "quote": "Rho-Bank matches at 50%."
+  },
+  "daily_limit_mobile_check_deposit": {
+   "class": "green_account_(savings)",
+   "value": "$3,000",
+   "quote": "The daily limit for mobile check deposits into your Green Account (savings) is $3,000."
+  },
+  "daily_transfer_maximum": {
+   "class": "green_account_(savings)",
+   "value": "$5,000",
+   "quote": "You can transfer out up to $5,000 per day to linked external accounts."
+  },
+  "monthly_free_withdrawals": {
+   "class": "green_account_(savings)",
+   "value": "15",
+   "quote": "Your monthly withdrawal limit is increased by 7 additional free withdrawals, bringing your total to 8 + 7 = 15 withdrawals per month."
+  },
+  "bonus_apy": {
+   "class": "green_account_(savings)",
+   "value": "0.5%",
+   "quote": "Combined with the existing 0.5% bonus APY for EcoCard holders on top of the base 4.0% rate, this creates a comprehensive eco-friendly savings experience with maximum flexibility."
+  },
+  "overdrafts": {
+   "class": "green_fee-free_account",
+   "value": "$0.00",
+   "quote": "- Overdrafts: $0.00"
+  },
+  "out_of_network_atm_usage_rho_bank_fee": {
+   "class": "green_fee-free_account",
+   "value": "$0.00",
+   "quote": "- Out-of-network ATM usage (Rho Bank fee): $0.00"
+  },
+  "cashiers_check_issuance": {
+   "class": "green_fee-free_account",
+   "value": "$8 per check",
+   "quote": "- Cashier’s check issuance: $8 per check"
+  },
+  "out_of_network_atm_fee_rho_bank": {
+   "class": "green_fee-free_account",
+   "value": "$0.00",
+   "quote": "Rho Bank does not charge for non-network ATM withdrawals: $0.00;"
+  },
+  "apy_on_balances": {
+   "class": "green_fee-free_account",
+   "value": "0%",
+   "quote": "No interest is paid on balances: 0%."
+  },
+  "minimum_daily_balance_to_waive_maintenance_fee": {
+   "class": "green_fee-free_account",
+   "value": "$150",
+   "quote": "| Waiver | Minimum daily balance to waive maintenance fee | $150 |"
+  },
+  "minimum_balance_to_waive_monthly_fee": {
+   "class": "green_fee-free_account",
+   "value": "$150 (minimum daily balance)",
+   "quote": "Minimum balance to waive monthly fee | $150 (minimum daily balance)"
+  },
+  "stop_payment_fee_per_request": {
+   "class": "green_fee-free_account",
+   "value": "$25",
+   "quote": "Stop payment fee (per request) | $25"
+  },
+  "apy_boost_with_linked_bronze_savings": {
+   "class": "green_fee-free_account",
+   "value": "0.4%",
+   "quote": "APY boost with linked Bronze Savings | 0.4%"
+  },
+  "apy_boost_with_linked_gold_plus_savings": {
+   "class": "green_fee-free_account",
+   "value": "0.35%",
+   "quote": "APY boost with linked Gold Plus Savings | 0.35%"
+  },
+  "monthly_maintenance_fee_waived_balance": {
+   "class": "green_fee-free_account",
+   "value": "$150",
+   "quote": "Maintain a daily balance of at least $150 to have the monthly maintenance fee waived."
+  },
+  "returned_check_fee": {
+   "class": "green_fee-free_account",
+   "value": "$15.00",
+   "quote": "A $15.00 fee applies per returned item when the issuing bank does not honor the check."
+  },
+  "bonus_structure_your_reward": {
+   "class": "green_fee-free_account",
+   "value": "$20",
+   "quote": "- Your reward: $20 per successful referral"
+  },
+  "bonus_structure_new_member_reward": {
+   "class": "green_fee-free_account",
+   "value": "$35",
+   "quote": "- New member reward: $35 welcome bonus"
+  },
+  "bonus_structure_annual_limit": {
+   "class": "green_fee-free_account",
+   "value": "4 referrals per year",
+   "quote": "- Annual limit: 4 referrals per year"
+  },
+  "qualification_requirements_deposit_amount": {
+   "class": "green_fee-free_account",
+   "value": "$300",
+   "quote": "- The new account holder must deposit at least $300"
+  },
+  "qualification_requirements_deposit_deadline": {
+   "class": "green_fee-free_account",
+   "value": "60 days",
+   "quote": "- This deposit must be made within 60 days of opening their account"
+  },
+  "qualification_requirements_referrer_eligibility": {
+   "class": "green_fee-free_account",
+   "value": "30 days",
+   "quote": "- Your Rho-Bank checking relationship must span at least 30 days."
+  },
+  "carbon_offset_contribution": {
+   "class": "hunter_green",
+   "value": "18.0%",
+   "quote": "We direct 18.0% of your monthly maintenance fee to third-party verified carbon offset programs."
+  },
+  "trees_per_balance": {
+   "class": "hunter_green",
+   "value": "3",
+   "quote": "For every $10,000 in average monthly balance, we sponsor 3 trees through accredited reforestation partners."
+  },
+  "number_of_vendors": {
+   "class": "hunter_green",
+   "value": "$2,500",
+   "quote": "The network includes approximately $2,500 certified green vendors across categories relevant to sustainable operations."
+  },
+  "carbon_offset_percentage": {
+   "class": "hunter_green",
+   "value": "18.0%",
+   "quote": "Carbon offsets: the report shows the portion of your monthly maintenance fees directed to verified carbon projects at 18.0%."
+  },
+  "real_time_spending_alerts_enabled": {
+   "class": "hunter_green",
+   "value": "Yes",
+   "quote": "- Real-time spending alerts are enabled by default: Yes."
+  },
+  "default_alert_threshold": {
+   "class": "hunter_green",
+   "value": "$100",
+   "quote": "- The default alert threshold is $100. You will receive an alert when a single transaction meets or exceeds this amount."
+  },
+  "spending_limit_buffer": {
+   "class": "hunter_green",
+   "value": "$2,000",
+   "quote": "- A spending limit buffer of $2,000 allows limited flexibility above your available balance for transactions."
+  },
+  "mobile_deposit_limit": {
+   "class": "hunter_green",
+   "value": "$10,000 per day",
+   "quote": "You can deposit up to $10,000 per day using mobile check deposit."
+  },
+  "outgoing_wire_fee": {
+   "class": "hunter_green",
+   "value": "$15.00",
+   "quote": "Outgoing domestic wires carry a fee of $15.00."
+  },
+  "free_incoming_wires_per_month": {
+   "class": "hunter_green",
+   "value": "5",
+   "quote": "You receive 5 free incoming domestic wires per month;"
+  },
+  "atm_fee_rebate": {
+   "class": "hunter_green",
+   "value": "$20 per month",
+   "quote": "We rebate out-of-network ATM fees up to $20 per month."
+  },
+  "e_statements_required": {
+   "class": "hunter_green",
+   "value": "Yes",
+   "quote": "E-statements are required for this account: Yes."
+  },
+  "sustainability_reporting_cadence": {
+   "class": "hunter_green",
+   "value": "monthly",
+   "quote": "Your sustainability impact report is delivered monthly, and it is available alongside your statements in the digital documents center."
+  },
+  "waiver_threshold": {
+   "class": "hunter_green",
+   "value": "$5,000",
+   "quote": "Verify whether your balance met the waiver threshold of $5,000 for the period."
+  },
+  "cashiers_check_per_check": {
+   "class": "light_blue_account",
+   "value": "$10",
+   "quote": "Cashier’s check (per check): $10"
+  },
+  "apy_on_your_balance": {
+   "class": "light_blue_account",
+   "value": "0%",
+   "quote": "APY on your balance: 0%"
+  },
+  "free_out_of_network_atm_withdrawals_per_month": {
+   "class": "light_blue_account",
+   "value": "2",
+   "quote": "| Free out-of-network ATM withdrawals per month | 2 |"
+  },
+  "out_of_network_atm_withdrawal_fee_after_free": {
+   "class": "light_blue_account",
+   "value": "$2.50",
+   "quote": "| Out-of-network ATM withdrawal fee (after free) | $2.50 |"
+  },
+  "paper_statement_fee_monthly": {
+   "class": "light_blue_account",
+   "value": "$0.00",
+   "quote": "| Paper statement fee (monthly) | $0.00 |"
+  },
+  "everyonepay_daily_sending_limit": {
+   "class": "light_blue_account",
+   "value": "$1,500",
+   "quote": "Your EveryonePay daily sending limit is $1,500."
+  },
+  "maximum_referrals": {
+   "class": "light_blue_account",
+   "value": "5 per calendar year",
+   "quote": "- Maximum referrals: 5 per calendar year"
+  },
+  "welcome_bonus": {
+   "class": "light_blue_account",
+   "value": "$20",
+   "quote": "- Welcome bonus: $20 when they open and fund their account"
+  },
+  "referrer_tenure": {
+   "class": "light_blue_account",
+   "value": "30 days",
+   "quote": "| Referrer tenure | 30 days |"
+  },
+  "daily_spending_limit": {
+   "class": "light_green_account",
+   "value": "$300",
+   "quote": "| Daily spending limit | $300 |"
+  },
+  "overdraft_fees": {
+   "class": "light_green_account",
+   "value": "None",
+   "quote": "Overdraft fees: None (no overdraft fee is charged on this account)"
+  },
+  "interest_earned": {
+   "class": "light_green_account",
+   "value": "0.05%",
+   "quote": "Interest earned: 0.05% APY on the account balance"
+  },
+  "transaction_alerts_threshold": {
+   "class": "light_green_account",
+   "value": "62",
+   "quote": "Enable transaction alerts for amounts at or above 62 to stay informed about higher-value activity."
+  },
+  "atm_cash_access": {
+   "class": "light_green_account",
+   "value": "$150",
+   "quote": "Cash withdrawals are limited to $150 per day at ATMs."
+  },
+  "everyonepay_transfers": {
+   "class": "light_green_account",
+   "value": "$250",
+   "quote": "Person-to-person payments via EveryonePay are limited to $250 per day."
+  },
+  "wire_transfer_fee": {
+   "class": "light_green_account",
+   "value": "$10.00",
+   "quote": "Receiving a wire incurs a fee of $10.00."
+  },
+  "account_convert_automatically": {
+   "class": "light_green_account",
+   "value": "If Yes is True, the account will automatically convert at eligibility. If it is False, you will need to initiate the change.",
+   "quote": "If Yes is True, the account will automatically convert at eligibility. If it is False, you will need to initiate the change."
+  },
+  "daily_transaction_limit": {
+   "class": "lime_green",
+   "value": "$100,000",
+   "quote": "| Daily transaction limit | $100,000 |"
+  },
+  "response_time_direct_messages": {
+   "class": "lime_green",
+   "value": "within 2 business hours",
+   "quote": "- Direct messages receive a response within 2 business hours."
+  },
+  "maximum_wait_priority_line": {
+   "class": "lime_green",
+   "value": "6 minutes",
+   "quote": "- When calling the priority line, the maximum expected wait is 6 minutes."
+  },
+  "bonus_per_successful_referral": {
+   "class": "lime_green",
+   "value": "$200",
+   "quote": "- **Your bonus**: $200 for each successful referral"
+  },
+  "welcome_bonus_referred_business": {
+   "class": "lime_green",
+   "value": "$150",
+   "quote": "- **Their bonus**: $150 welcome bonus for the referred business"
+  },
+  "annual_referral_cap": {
+   "class": "lime_green",
+   "value": "12 referrals per year",
+   "quote": "- **Annual cap**: 12 referrals per year"
+  },
+  "qualification_deposit_amount": {
+   "class": "lime_green",
+   "value": "$15,000",
+   "quote": "- **Qualification**: Referred business must deposit $15,000 within 90 days"
+  },
+  "qualification_deposit_period": {
+   "class": "lime_green",
+   "value": "90 days",
+   "quote": "- **Qualification**: Referred business must deposit $15,000 within 90 days"
+  },
+  "eligibility_account_status_duration": {
+   "class": "lime_green",
+   "value": "minimum of 90 days",
+   "quote": "- **Eligibility**: You must have maintained checking account status with Rho-Bank for a minimum of 90 days."
+  },
+  "outgoing_domestic_wire_fee": {
+   "class": "lime_green",
+   "value": "$10.00",
+   "quote": "- Domestic outgoing wire: $10.00 per transfer."
+  },
+  "outgoing_international_wire_fee": {
+   "class": "lime_green",
+   "value": "$25.00",
+   "quote": "- International outgoing wire: $25.00 per transfer."
+  },
+  "free_incoming_domestic_wires_per_month": {
+   "class": "lime_green",
+   "value": "10",
+   "quote": "- You receive up to 10 incoming domestic wires per monthly cycle at no charge."
+  },
+  "mobile_check_deposit_per_day": {
+   "class": "lime_green",
+   "value": "$15,000",
+   "quote": "Mobile check deposit (per day) | $15,000"
+  },
+  "total_daily_transaction_capacity": {
+   "class": "lime_green",
+   "value": "$100,000",
+   "quote": "Total daily transaction capacity | $100,000"
+  },
+  "monthly_atm_fee_rebate_cap": {
+   "class": "lime_green",
+   "value": "Up to $25 per month",
+   "quote": "Monthly ATM fee rebate cap (out-of-network usage) | Up to $25 per month"
+  },
+  "out_of_network_atm_transaction_fee_domestic": {
+   "class": "lime_green",
+   "value": "$1.00 per transaction",
+   "quote": "Out-of-network ATM transaction fee (domestic) | $1.00 per transaction"
+  },
+  "international_wire_transfer_fee": {
+   "class": "lime_green",
+   "value": "$25.00",
+   "quote": "International wires: Each outgoing international wire to a foreign bank incurs a fee of $25.00."
+  },
+  "non_rho_atm_us_fee": {
+   "class": "lime_green",
+   "value": "$1.00",
+   "quote": "Non‑Rho ATMs in the U.S.: You are charged $1.00 per withdrawal when using a non‑Rho ATM."
+  },
+  "daily_digital_transfer_limit": {
+   "class": "navy_blue",
+   "value": "$25,000",
+   "quote": "- Daily digital transfer limit: $25,000"
+  },
+  "overdraft_fee_per_occurrence": {
+   "class": "navy_blue",
+   "value": "$0.00",
+   "quote": "- Overdraft fee per occurrence: $0.00"
+  },
+  "transfer_fee_for_overdraft_protection": {
+   "class": "navy_blue",
+   "value": "$0.00",
+   "quote": "- Transfer fee for overdraft protection: $0.00"
+  },
+  "fee_per_outgoing_domestic_wire": {
+   "class": "navy_blue",
+   "value": "$15.00",
+   "quote": "- Fee per outgoing domestic wire: $15.00"
+  },
+  "free_incoming_domestic_wires_each_month": {
+   "class": "navy_blue",
+   "value": "5",
+   "quote": "- Free incoming domestic wires each month: 5"
+  },
+  "ach_transfer_fee": {
+   "class": "navy_blue",
+   "value": "$5.00",
+   "quote": "If available on your profile, you can request same-day ACH for an added fee of $5.00."
+  },
+  "balance_requirements": {
+   "class": "platinum_account",
+   "value": "$50,000",
+   "quote": "Maintain at least $50,000 to preserve Platinum benefits."
+  },
+  "domestic_wire_transfer_fees_waived": {
+   "class": "platinum_account",
+   "value": "Yes",
+   "quote": "Domestic wire transfer fees waived: Yes."
+  },
+  "dedicated_personal_banker_available": {
+   "class": "platinum_account",
+   "value": "Yes",
+   "quote": "Dedicated personal banker available: Yes."
+  },
+  "minimum_balance_to_maintain_account": {
+   "class": "platinum_account",
+   "value": "$50,000",
+   "quote": "- Minimum balance to maintain account: $50,000"
+  },
+  "extended_fdic_insurance_available_through_partner_banks": {
+   "class": "platinum_account",
+   "value": "Yes",
+   "quote": "- Extended FDIC insurance available through partner banks: Yes"
+  },
+  "ongoing_minimum_balance_to_maintain_account_benefits": {
+   "class": "platinum_account",
+   "value": "$50,000",
+   "quote": "- Ongoing minimum balance to maintain account benefits: $50,000"
+  },
+  "discount_on_international_wire_transfer_fees": {
+   "class": "platinum_account",
+   "value": "38%",
+   "quote": "- Discount on international wire transfer fees: 38%"
+  },
+  "dedicated_personal_banker_access": {
+   "class": "platinum_account",
+   "value": "Yes",
+   "quote": "- Dedicated personal banker access: Yes"
+  },
+  "extended_fdic_insurance": {
+   "class": "platinum_account",
+   "value": "Yes",
+   "quote": "- Extended FDIC insurance through partner banks: Yes"
+  },
+  "apy_used_for_earnings": {
+   "class": "platinum_account",
+   "value": "6.5%",
+   "quote": "- APY used for earnings: 6.5%"
+  },
+  "interest_compounded": {
+   "class": "platinum_account",
+   "value": "daily",
+   "quote": "- Interest is compounded: daily"
+  },
+  "interest_credited": {
+   "class": "platinum_account",
+   "value": "monthly",
+   "quote": "- Interest is credited: monthly"
+  },
+  "initial_deposit_to_open": {
+   "class": "platinum_plus_account",
+   "value": "$50,000",
+   "quote": "- Initial deposit to open: $50,000"
+  },
+  "dedicated_banker_support": {
+   "class": "platinum_plus_account",
+   "value": "Yes",
+   "quote": "Dedicated banker support: Yes"
+  },
+  "vip_event_access": {
+   "class": "platinum_plus_account",
+   "value": "Yes",
+   "quote": "VIP event access: Yes"
+  },
+  "complimentary_wealth_guidance": {
+   "class": "platinum_plus_account",
+   "value": "4 hours of consultation per quarter",
+   "quote": "Complimentary wealth guidance: 4 hours of consultation per quarter"
+  },
+  "complimentary_consultations": {
+   "class": "platinum_plus_account",
+   "value": "4 hours of wealth management consultations per quarter",
+   "quote": "Receive 4 hours of wealth management consultations per quarter"
+  },
+  "advisory_fee_savings": {
+   "class": "platinum_plus_account",
+   "value": "30% discount on Rho-Bank investment advisory fees",
+   "quote": "Enjoy a 30% discount on Rho-Bank investment advisory fees"
+  },
+  "coverage_enhancement_coordination": {
+   "class": "platinum_plus_account",
+   "value": "Yes",
+   "quote": "Extended FDIC insurance through partner banks available: Yes"
+  },
+  "concierge_travel_services_included": {
+   "class": "platinum_plus_account",
+   "value": "Yes",
+   "quote": "Concierge travel services included: Yes"
+  },
+  "complimentary_estate_planning_consultations": {
+   "class": "platinum_plus_account",
+   "value": "2 hours per year",
+   "quote": "Complimentary estate planning consultations: 2 hours per year"
+  },
+  "discount_on_partner_tax_preparation": {
+   "class": "platinum_plus_account",
+   "value": "20%",
+   "quote": "Discount on partner tax preparation: 20%"
+  },
+  "maximum_daily_outbound_transfers": {
+   "class": "platinum_plus_account",
+   "value": "$250,000",
+   "quote": "Maximum daily outbound transfers: $250,000"
+  },
+  "external_transfers_process": {
+   "class": "platinum_plus_account",
+   "value": "0 business days",
+   "quote": "External transfers process in 0 business days (processed the same business day when submitted within standard cutoffs)."
+  },
+  "maximum_total_send_per_day": {
+   "class": "platinum_plus_account",
+   "value": "$250,000",
+   "quote": "Maximum total you can send per day: $250,000"
+  },
+  "bonus_application_method": {
+   "class": "platinum_plus_account",
+   "value": "automatically applied",
+   "quote": "These bonuses are automatically applied when you hold both the credit card and savings account under the same customer profile."
+  },
+  "foreign_transaction_fee": {
+   "class": "purple_account",
+   "value": "0%",
+   "quote": "| Foreign transaction fee | 0% |"
+  },
+  "global_atm_fee_rebates": {
+   "class": "purple_account",
+   "value": "Up to $30 per month",
+   "quote": "| Global ATM fee rebates | Up to $30 per month |"
+  },
+  "currency_conversion_markup": {
+   "class": "purple_account",
+   "value": "0.5% above interbank rate",
+   "quote": "| Currency conversion markup | 0.5% above interbank rate |"
+  },
+  "multi_currency_wallet": {
+   "class": "purple_account",
+   "value": "Yes",
+   "quote": "| Multi-currency wallet | Yes |"
+  },
+  "supported_wallet_currencies": {
+   "class": "purple_account",
+   "value": "30",
+   "quote": "| Supported wallet currencies | 30 |"
+  },
+  "complimentary_airport_lounge_visits": {
+   "class": "purple_account",
+   "value": "6 per year",
+   "quote": "| Complimentary airport lounge visits | 6 per year |"
+  },
+  "apy_boost_with_platinum_plus_savings": {
+   "class": "purple_account",
+   "value": "+0.3%",
+   "quote": "| APY boost with Platinum Plus Savings | +0.3% |"
+  },
+  "apy_boost_with_gold_savings": {
+   "class": "purple_account",
+   "value": "+0.1%",
+   "quote": "| APY boost with Gold Savings | +0.1% |"
+  },
+  "minimum_daily_balance_to_waive_monthly_maintenance_fee": {
+   "class": "purple_account",
+   "value": "$3,750",
+   "quote": "- Minimum daily balance to waive the monthly maintenance fee: $3,750"
+  },
+  "supported_foreign_currencies": {
+   "class": "purple_account",
+   "value": "30",
+   "quote": "- Supported foreign currencies that can be held in the wallet: 30"
+  },
+  "foreign_transaction_fee_rate": {
+   "class": "purple_account",
+   "value": "0%",
+   "quote": "Your rate is 0% for foreign currency transactions."
+  },
+  "monthly_cap_atm_rebates": {
+   "class": "purple_account",
+   "value": "$30",
+   "quote": "You are eligible for refunds of ATM operator fees up to a monthly cap of $30."
+  },
+  "multi_currency_wallet_support": {
+   "class": "purple_account",
+   "value": "Yes",
+   "quote": "Multi-currency wallet support for this account is Yes."
+  },
+  "max_supported_currencies": {
+   "class": "purple_account",
+   "value": "30",
+   "quote": "You can hold balances in up to 30 foreign currencies."
+  },
+  "currency_exchange_markup": {
+   "class": "purple_account",
+   "value": "0.5%",
+   "quote": "Currency exchanges execute at the interbank rate plus a markup of 0.5%."
+  },
+  "maximum_benefit": {
+   "class": "purple_account",
+   "value": "up to $30,000",
+   "quote": "Maximum benefit: up to $30,000 in eligible travel insurance benefits for covered events"
+  },
+  "airport_lounge_access": {
+   "class": "purple_account",
+   "value": "up to 6 complimentary lounge visits per year",
+   "quote": "You receive up to 6 complimentary lounge visits per year."
+  },
+  "foreign_transaction_fees": {
+   "class": "purple_account",
+   "value": "0%",
+   "quote": "Foreign currency transactions are charged at 0%."
+  },
+  "travel_insurance_coverage": {
+   "class": "purple_account",
+   "value": "$30,000",
+   "quote": "Your account includes up to $30,000 in coverage."
+  },
+  "complimentary_airport_lounge_access_visits_per_year": {
+   "class": "purple_account",
+   "value": "6",
+   "quote": "You receive up to 6 complimentary visits per year."
+  },
+  "referral_bonus_for_referred_person": {
+   "class": "purple_account",
+   "value": "$35",
+   "quote": "the person you refer receives $35."
+  },
+  "free_withdrawals_per_statement_cycle": {
+   "class": "silver_account",
+   "value": "10",
+   "quote": "| Free withdrawals per statement cycle | 10 |"
+  },
+  "balance_threshold_for_higher_apy_tier": {
+   "class": "silver_account",
+   "value": "$10,000",
+   "quote": "| Balance threshold for higher APY tier | $10,000 |"
+  },
+  "linked_checking_apy_bonus": {
+   "class": "silver_account",
+   "value": "[[linked_checking_apy_bonus]]",
+   "quote": "When you link your Silver Account to a Rho-Bank checking account, your Silver APY receives an additional [[linked_checking_apy_bonus]]."
+  },
+  "relationship_bonus": {
+   "class": "silver_account",
+   "value": "0.025%",
+   "quote": "If you maintain multiple Rho-Bank products, you may also qualify for a relationship bonus of 0.025% that stacks on top of your base Silver APY."
+  },
+  "balance_threshold": {
+   "class": "silver_account",
+   "value": "$10,000",
+   "quote": "Each day, your ending balance is compared to $10,000."
+  },
+  "apy_below_threshold": {
+   "class": "silver_account",
+   "value": "2.5%",
+   "quote": "If it is below that amount, the applicable APY for that day is 2.5%."
+  },
+  "apy_above_threshold": {
+   "class": "silver_account",
+   "value": "4.0%",
+   "quote": "If it is at or above that amount, the applicable APY for that day is 4.0%."
+  },
+  "excess_withdrawal_fee": {
+   "class": "silver_account",
+   "value": "$2.00",
+   "quote": "an excess withdrawal fee of $2.00 applies to each additional withdrawal."
+  },
+  "relationship_apy_bonus": {
+   "class": "silver_account",
+   "value": "0.025%",
+   "quote": "Eligible customers receive a relationship APY bonus of 0.025% added to the base Silver APY."
+  },
+  "atm_fee_rebate_limit": {
+   "class": "silver_account",
+   "value": "15",
+   "quote": "You can receive ATM fee rebates up to 15 each month."
+  },
+  "interest_payment_frequency": {
+   "class": "silver_account",
+   "value": "monthly",
+   "quote": "Accrued interest is credited to your account monthly."
+  },
+  "total_outgoing_transfers_limit": {
+   "class": "silver_account",
+   "value": "$5,000",
+   "quote": "Total outgoing transfers from your Silver Account through mobile or online channels are capped at $5,000 per day."
+  },
+  "processing_times": {
+   "class": "silver_account",
+   "value": "2 business days",
+   "quote": "Standard transfers to external banks generally complete in 2 business days after submission."
+  },
+  "amount_limits": {
+   "class": "silver_account",
+   "value": "$5,000 per day",
+   "quote": "Your total outgoing external transfers from the Silver Account are capped at $5,000 per day."
+  },
+  "monthly_fee_for_paper_statements": {
+   "class": "silver_account",
+   "value": "$0.00",
+   "quote": "There is no monthly fee for paper statements; the amount is $0.00."
+  },
+  "atm_fee_rebates": {
+   "class": "silver_account",
+   "value": "15",
+   "quote": "- ATM fee relief: Up to 15 in ATM fee rebates each month"
+  },
+  "tier_2_balance_threshold": {
+   "class": "silver_plus_account",
+   "value": "$15,000",
+   "quote": "| Tier 2 balance threshold | $15,000 |"
+  },
+  "tier_1_apy": {
+   "class": "silver_plus_account",
+   "value": "3.0%",
+   "quote": "- Tier 1 APY: 3.0% for balances below the Tier 2 threshold."
+  },
+  "tier_2_apy": {
+   "class": "silver_plus_account",
+   "value": "4.5%",
+   "quote": "- Tier 2 APY: 4.5% for balances at or above the Tier 2 threshold."
+  },
+  "atm_fee_rebates_per_month": {
+   "class": "silver_plus_account",
+   "value": "up to 25",
+   "quote": "- Receive ATM fee rebates up to 25 each month."
+  },
+  "monthly_paper_statement_fee": {
+   "class": "silver_plus_account",
+   "value": "$0.00",
+   "quote": "- The monthly paper statement fee is $0.00."
+  },
+  "monthly_rebate_allowance": {
+   "class": "silver_plus_account",
+   "value": "25",
+   "quote": "You are eligible for ATM fee rebates up to 25 per month."
+  },
+  "built_in_savings_goals_tracking": {
+   "class": "silver_plus_account",
+   "value": "Yes",
+   "quote": "Built-in savings goals tracking | Yes"
+  },
+  "automatic_round_up_savings": {
+   "class": "silver_plus_account",
+   "value": "Yes",
+   "quote": "Automatic round-up savings on linked debit purchases | Yes"
+  },
+  "direct_deposit_apy_bonus": {
+   "class": "silver_plus_account",
+   "value": "0.25%",
+   "quote": "Direct deposit APY bonus | 0.25%"
+  },
+  "savings_goals_tracking": {
+   "class": "silver_plus_account",
+   "value": "Yes",
+   "quote": "- Yes. Built-in savings goals tracking is available: Yes."
+  },
+  "apy_tiers": {
+   "class": "silver_plus_account",
+   "value": "3.0%",
+   "quote": "- Tier 1 APY: 3.0%"
+  },
+  "direct_deposit_bonus": {
+   "class": "silver_plus_account",
+   "value": "0.25%",
+   "quote": "If you set up direct deposit, your APY increases by an additional 0.25% on top of the base tier for the period in which direct deposit is active."
+  },
+  "outbound_transfer_limit": {
+   "class": "silver_plus_account",
+   "value": "$10,000",
+   "quote": "Outbound transfers are limited to a maximum of $10,000 per day."
+  },
+  "transfer_limits": {
+   "class": "silver_plus_account",
+   "value": "$10,000 per day",
+   "quote": "You can transfer out up to $10,000 per day to linked external accounts."
+  },
+  "company_age": {
+   "class": "sky_blue",
+   "value": "within 4 years of formation",
+   "quote": "Confirm your company is within 4 years of formation."
+  },
+  "free_period": {
+   "class": "sky_blue",
+   "value": "6 months",
+   "quote": "Your startup receives a free period of 6 months."
+  },
+  "monthly_maintenance_fees_waived": {
+   "class": "sky_blue",
+   "value": "6 months",
+   "quote": "Monthly maintenance fees are waived for 6 months."
+  },
+  "monthly_maintenance_fee_after_free_period": {
+   "class": "sky_blue",
+   "value": "$25.00",
+   "quote": "When the free period ends, the monthly maintenance fee becomes $25.00."
+  },
+  "aws_credits_value": {
+   "class": "sky_blue",
+   "value": "$2,750.",
+   "quote": "- Value: $2,750."
+  },
+  "stripe_processing_discount": {
+   "class": "sky_blue",
+   "value": "12.0%",
+   "quote": "- Discount on payment processing: 12.0%."
+  },
+  "burn_rate_analytics_included": {
+   "class": "sky_blue",
+   "value": "Yes",
+   "quote": "Burn-rate analytics are included at no extra cost: Yes."
+  },
+  "runway_tool_forecast_period": {
+   "class": "sky_blue",
+   "value": "up to 18 months",
+   "quote": "The runway tool forecasts up to 18 months based on your historical burn and current balance assumptions."
+  },
+  "investor_ready_reporting_tools_included": {
+   "class": "sky_blue",
+   "value": "Yes",
+   "quote": "- Investor-ready reporting tools are included: Yes."
+  },
+  "burn_rate_analytics_included_and_integrate_with_reporting": {
+   "class": "sky_blue",
+   "value": "Yes",
+   "quote": "- Burn-rate analytics are included and integrate with reporting: Yes."
+  },
+  "out_of_network_atm_fee_rebate_limit": {
+   "class": "sky_blue",
+   "value": "15 per month",
+   "quote": "Out-of-network ATM fees are rebated up to 15 per month."
+  },
+  "company_age_threshold": {
+   "class": "sky_blue",
+   "value": "4",
+   "quote": "Eligibility criteria tied to company age are evaluated when you open the account; the threshold is 4."
+  },
+  "funding_requirement": {
+   "class": "sky_blue",
+   "value": "0",
+   "quote": "Ensure you meet the funding requirement shown as 0."
+  },
+  "transactions_included_per_month": {
+   "class": "true_blue",
+   "value": "-1",
+   "quote": "Transactions included per month: -1 (unlimited)"
+  },
+  "fee_waiver_threshold": {
+   "class": "true_blue",
+   "value": "$50,000",
+   "quote": "The monthly maintenance fee is waived when your balance is at least $50,000 during the statement period."
+  },
+  "new_member_bonus": {
+   "class": "true_blue",
+   "value": "$250",
+   "quote": "| New member bonus | $250 |"
+  },
+  "account_age_requirement": {
+   "class": "true_blue",
+   "value": "90 days",
+   "quote": "| Account age requirement | 90 days |"
+  },
+  "cash_management_dashboard_included": {
+   "class": "true_blue",
+   "value": "Yes",
+   "quote": "Cash Management Dashboard included at no additional cost: Yes"
+  },
+  "bulk_payment_templates_limit": {
+   "class": "true_blue",
+   "value": "$100",
+   "quote": "You can save up to $100 bulk payment templates for recurring or multi-recipient disbursements."
+  },
+  "monthly_fee_to_link_your_account_to_treasury_services": {
+   "class": "true_blue",
+   "value": "$0.00",
+   "quote": "Monthly fee to link your account to treasury services: $0.00"
+  },
+  "cash_management_dashboard_access_included": {
+   "class": "true_blue",
+   "value": "Yes",
+   "quote": "Cash Management Dashboard access is included at no additional cost: Yes"
+  },
+  "payroll_processing_discount": {
+   "class": "true_blue",
+   "value": "20.0%",
+   "quote": "Payroll processing discount for account holders: 20.0%"
+  },
+  "free_outgoing_domestic_wires_per_month": {
+   "class": "true_blue",
+   "value": "10",
+   "quote": "Free outgoing domestic wires per month: 10"
+  },
+  "additional_domestic_wire_fee": {
+   "class": "true_blue",
+   "value": "$5.00 per transfer.",
+   "quote": "Each additional domestic wire after your included free wires: $5.00 per transfer."
+  },
+  "same_day_ach_included": {
+   "class": "true_blue",
+   "value": "Yes",
+   "quote": "Same-day ACH transfers included at no additional fee: Yes"
+  },
+  "max_atm_fee_rebates_per_month": {
+   "class": "true_blue",
+   "value": "$30",
+   "quote": "- Maximum ATM fee rebates per month for out-of-network usage: $30"
+  },
+  "guaranteed_response_time": {
+   "class": "true_blue",
+   "value": "1 business hour(s)",
+   "quote": "Dedicated support targets a first response within 1 business hour(s)."
+  },
+  "cash_deposit_fee": {
+   "class": "true_blue",
+   "value": "$0.00",
+   "quote": "Per-transaction cash deposit fee: $0.00"
+  },
+  "supported_currencies": {
+   "class": "world_blue",
+   "value": "35",
+   "quote": "Supported currencies | 35"
+  },
+  "supported_regions_for_payments": {
+   "class": "world_blue",
+   "value": "$140",
+   "quote": "Supported regions for payments | $140"
+  },
+  "account_status_threshold": {
+   "class": "world_blue",
+   "value": "$10,000",
+   "quote": "Always keep your total balance at or above $10,000 to maintain account status"
+  },
+  "fx_markup": {
+   "class": "world_blue",
+   "value": "1.5%",
+   "quote": "Conversion quotes include a low-margin markup of 1.5% over the prevailing wholesale rate"
+  },
+  "minimum_conversion_amount": {
+   "class": "world_blue",
+   "value": "$100",
+   "quote": "Ensure your requested conversion amount meets the minimum of $100"
+  },
+  "currencies_supported": {
+   "class": "world_blue",
+   "value": "35",
+   "quote": "Confirm the currencies involved are among the 35 supported options"
+  },
+  "outgoing_swift_wires_fee": {
+   "class": "world_blue",
+   "value": "$15.00",
+   "quote": "Outgoing SWIFT wires are $15.00 each"
+  },
+  "free_outgoing_swift_wires_per_month": {
+   "class": "world_blue",
+   "value": "3",
+   "quote": "3 free outgoing SWIFT wires included per month"
+  },
+  "outgoing_sepa_wires_fee": {
+   "class": "world_blue",
+   "value": "$5.00",
+   "quote": "Outgoing SEPA wires are $5.00 each"
+  },
+  "foreign_atm_fee": {
+   "class": "world_blue",
+   "value": "0%",
+   "quote": "Our foreign ATM withdrawal fee is 0% of the withdrawal amount, with a minimum of $0.00."
+  },
+  "atm_fee_minimum": {
+   "class": "world_blue",
+   "value": "$0.00",
+   "quote": "Our foreign ATM withdrawal fee is 0% of the withdrawal amount, with a minimum of $0.00."
+  },
+  "rebate_of_atm_operator_surcharges": {
+   "class": "world_blue",
+   "value": "Up to $100 per month",
+   "quote": "Rebate of ATM operator surcharges: Up to $100 per month"
+  },
+  "mobile_check_deposit_limit_per_day": {
+   "class": "world_blue",
+   "value": "$20,000",
+   "quote": "Mobile check deposit is available up to $20,000 per day."
+  },
+  "new_business_welcome_bonus": {
+   "class": "world_blue",
+   "value": "$200",
+   "quote": "- **Their bonus**: $200 welcome bonus for the new business"
+  },
+  "annual_referral_limit": {
+   "class": "world_blue",
+   "value": "12",
+   "quote": "- **Annual limit**: 12 referral bonuses per calendar year"
+  },
+  "monthly_maintenance_charge": {
+   "class": "world_blue",
+   "value": "$50.00",
+   "quote": "Confirm the amount matches the monthly maintenance charge: $50.00."
+  },
+  "rho_foreign_atm_withdrawal_fee": {
+   "class": "world_blue",
+   "value": "0%",
+   "quote": "Rho foreign ATM withdrawal fee: 0%"
+  }
+ },
+ "requirements": {
+  "minimum_balance_requirement": [
+   "beige",
+   "bronze_account",
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "lime_green",
+   "silver_plus_account",
+   "true_blue",
+   "world_blue"
+  ],
+  "fee_waiver_balance_threshold": [
+   "beige",
+   "lime_green"
+  ],
+  "service_credentials": [
+   "beige"
+  ],
+  "monthly_limit": [
+   "beige"
+  ],
+  "dual_authorization_threshold": [
+   "beige"
+  ],
+  "control_configuration": [
+   "beige"
+  ],
+  "monitoring_and_audit": [
+   "beige"
+  ],
+  "monthly_call_allocation": [
+   "beige"
+  ],
+  "design_recommendations": [
+   "beige"
+  ],
+  "high_value_payment_dual_authorization_threshold": [
+   "beige"
+  ],
+  "referrer_tenure": [
+   "beige",
+   "light_blue_account"
+  ],
+  "required_deposit": [
+   "beige"
+  ],
+  "account_status": [
+   "beige",
+   "hunter_green"
+  ],
+  "minimum_daily_balance_for_fee_waiver": [
+   "blue_account"
+  ],
+  "monthly_maintenance_fee": [
+   "blue_account",
+   "bronze_account",
+   "cobalt_blue",
+   "green_fee-free_account",
+   "hunter_green",
+   "lime_green",
+   "purple_account",
+   "true_blue",
+   "world_blue"
+  ],
+  "eligible_linked_account": [
+   "blue_account"
+  ],
+  "understand_fees": [
+   "blue_account"
+  ],
+  "alert_threshold": [
+   "blue_account"
+  ],
+  "low_balance_alerts": [
+   "blue_account"
+  ],
+  "review_pending_charges": [
+   "blue_account"
+  ],
+  "schedule_deposits_transfers": [
+   "blue_account"
+  ],
+  "referral_bonus": [
+   "blue_account"
+  ],
+  "minimum_banking_relationship_days": [
+   "blue_account"
+  ],
+  "daily_limit": [
+   "blue_account"
+  ],
+  "amount": [
+   "blue_account"
+  ],
+  "minimum_daily_balance_to_maintain_benefits": [
+   "bluest_account"
+  ],
+  "opening_deposit": [
+   "bluest_account"
+  ],
+  "daily_balance": [
+   "bluest_account",
+   "cobalt_blue",
+   "green_account_(checking)"
+  ],
+  "referral_qualifying_requirement": [
+   "bluest_account"
+  ],
+  "referral_eligibility": [
+   "bluest_account"
+  ],
+  "minimum_opening_deposit": [
+   "bronze_account",
+   "green_account_(savings)",
+   "silver_account",
+   "silver_plus_account"
+  ],
+  "free_withdrawals_per_month": [
+   "bronze_account"
+  ],
+  "customer_request": [
+   "checking_accounts_(general)"
+  ],
+  "qualifying_deposit": [
+   "cobalt_blue",
+   "gold_years_account",
+   "light_blue_account",
+   "sky_blue",
+   "true_blue"
+  ],
+  "time_window": [
+   "cobalt_blue"
+  ],
+  "your_eligibility": [
+   "cobalt_blue"
+  ],
+  "daily_mobile_deposit_limit": [
+   "cobalt_blue",
+   "true_blue"
+  ],
+  "excess_transaction_fee": [
+   "cobalt_blue"
+  ],
+  "minimum_primary_holder_age": [
+   "dark_green_account"
+  ],
+  "maximum_primary_holder_age": [
+   "dark_green_account"
+  ],
+  "primary_account_holder_age": [
+   "dark_green_account"
+  ],
+  "how_often_you_must_verify": [
+   "dark_green_account"
+  ],
+  "what_to_prepare": [
+   "dark_green_account"
+  ],
+  "how_to_submit": [
+   "dark_green_account"
+  ],
+  "gpa": [
+   "dark_green_account"
+  ],
+  "account_holder_name": [
+   "dark_green_account"
+  ],
+  "documentation": [
+   "dark_green_account"
+  ],
+  "school_scale_conversion": [
+   "dark_green_account"
+  ],
+  "qualifying_payment": [
+   "dark_green_account"
+  ],
+  "merchant_participation": [
+   "dark_green_account"
+  ],
+  "payment_method": [
+   "dark_green_account"
+  ],
+  "split_tender_payments": [
+   "dark_green_account"
+  ],
+  "transition_request": [
+   "dark_green_account"
+  ],
+  "proof_of_graduation": [
+   "dark_green_account"
+  ],
+  "document": [
+   "dark_green_account"
+  ],
+  "term_or_status": [
+   "dark_green_account"
+  ],
+  "image_quality": [
+   "dark_green_account"
+  ],
+  "file_accessibility": [
+   "dark_green_account"
+  ],
+  "document_type": [
+   "dark_green_account"
+  ],
+  "verification_frequency": [
+   "dark_green_account"
+  ],
+  "tenure_required": [
+   "dark_green_account"
+  ],
+  "minimum_deposit": [
+   "dark_green_account"
+  ],
+  "annual_cap": [
+   "dark_green_account"
+  ],
+  "referrer_bonus": [
+   "dark_green_account"
+  ],
+  "minimum_balance_to_maintain_the_account": [
+   "diamond_elite_account",
+   "platinum_plus_account"
+  ],
+  "minimum_initial_deposit": [
+   "diamond_elite_account"
+  ],
+  "balance": [
+   "diamond_elite_account",
+   "silver_account"
+  ],
+  "contact_preferences": [
+   "diamond_elite_account"
+  ],
+  "rsvp": [
+   "diamond_elite_account"
+  ],
+  "maintained_balance": [
+   "diamond_elite_account"
+  ],
+  "account_history": [
+   "diamond_elite_account"
+  ],
+  "required_information_or_documentation": [
+   "diamond_elite_account"
+  ],
+  "diamond_elite_account": [
+   "diamond_elite_account"
+  ],
+  "credit_card": [
+   "diamond_elite_account",
+   "gold_plus_account",
+   "silver_plus_account"
+  ],
+  "minimum_daily_balance": [
+   "evergreen_account"
+  ],
+  "referral_qualification_deposit": [
+   "evergreen_account"
+  ],
+  "referral_deposit_timeframe": [
+   "evergreen_account"
+  ],
+  "minimum_balance": [
+   "gold_account",
+   "green_account_(savings)",
+   "platinum_plus_account",
+   "silver_account"
+  ],
+  "opening_deposit_minimum": [
+   "gold_account",
+   "gold_plus_account",
+   "platinum_account"
+  ],
+  "ongoing_minimum_balance": [
+   "gold_account",
+   "green_account_(savings)",
+   "silver_account",
+   "silver_plus_account"
+  ],
+  "gold_rewards_card_minimum_balance": [
+   "gold_account"
+  ],
+  "minimum_balance_to_maintain": [
+   "gold_plus_account"
+  ],
+  "monthly_withdrawal_limit": [
+   "gold_plus_account",
+   "silver_account"
+  ],
+  "sweep_threshold": [
+   "gold_plus_account"
+  ],
+  "gold_plus_account": [
+   "gold_plus_account"
+  ],
+  "age": [
+   "gold_years_account"
+  ],
+  "prescription_discount": [
+   "gold_years_account"
+  ],
+  "account_balance": [
+   "gold_years_account"
+  ],
+  "minimum_age": [
+   "gold_years_account"
+  ],
+  "customer_tenure": [
+   "gold_years_account"
+  ],
+  "age_eligibility": [
+   "gold_years_account"
+  ],
+  "minimum_daily_balance_to_waive_fee": [
+   "green_account_(checking)"
+  ],
+  "qualifying_deposit_required": [
+   "green_account_(checking)"
+  ],
+  "account_tenure_requirement": [
+   "green_account_(checking)"
+  ],
+  "available_funds": [
+   "green_account_(checking)"
+  ],
+  "available_balance": [
+   "green_account_(checking)"
+  ],
+  "headroom": [
+   "green_account_(checking)"
+  ],
+  "pending_authorizations": [
+   "green_account_(checking)"
+  ],
+  "funds_for_recurring_charges": [
+   "green_account_(checking)"
+  ],
+  "paperless_statements_required": [
+   "green_account_(savings)"
+  ],
+  "maximum_free_withdrawals_per_month": [
+   "green_account_(savings)"
+  ],
+  "average_balance": [
+   "green_account_(savings)"
+  ],
+  "account_activity": [
+   "green_account_(savings)"
+  ],
+  "bonus_apy_with_ecocard": [
+   "green_account_(savings)"
+  ],
+  "apy": [
+   "green_account_(savings)",
+   "true_blue"
+  ],
+  "daily_limit_mobile_check_deposit": [
+   "green_account_(savings)"
+  ],
+  "maximum_total_amount_transfer_out_per_day": [
+   "green_account_(savings)"
+  ],
+  "monthly_free_withdrawals": [
+   "green_account_(savings)"
+  ],
+  "atm_fee_rebates": [
+   "green_account_(savings)",
+   "silver_account"
+  ],
+  "minimum_daily_balance_to_waive_maintenance_fee": [
+   "green_fee-free_account"
+  ],
+  "minimum_balance_to_waive_monthly_fee": [
+   "green_fee-free_account"
+  ],
+  "monthly_maintenance_fee_waived_balance": [
+   "green_fee-free_account"
+  ],
+  "qualification_requirements_deposit_amount": [
+   "green_fee-free_account"
+  ],
+  "qualification_requirements_deposit_deadline": [
+   "green_fee-free_account"
+  ],
+  "qualification_requirements_referrer_eligibility": [
+   "green_fee-free_account"
+  ],
+  "statements_delivery_preference": [
+   "hunter_green"
+  ],
+  "referral_program_eligibility": [
+   "hunter_green"
+  ],
+  "average_monthly_balance": [
+   "hunter_green"
+  ],
+  "merchant_certification": [
+   "hunter_green"
+  ],
+  "mobile_deposit_limit": [
+   "hunter_green"
+  ],
+  "wire_transfer_details": [
+   "hunter_green"
+  ],
+  "e_statements_required": [
+   "hunter_green"
+  ],
+  "waiver_threshold": [
+   "hunter_green"
+  ],
+  "debit_card_daily_purchase_limit": [
+   "light_blue_account"
+  ],
+  "daily_spending_limit": [
+   "light_green_account"
+  ],
+  "daily_atm_withdrawal_limit": [
+   "light_green_account"
+  ],
+  "free_out_of_network_atm_withdrawals_per_month": [
+   "light_green_account"
+  ],
+  "mobile_check_deposit_daily_limit": [
+   "light_green_account"
+  ],
+  "age_range": [
+   "light_green_account"
+  ],
+  "account_tenure": [
+   "light_green_account"
+  ],
+  "primary_account_holder_must_be_at_least_13": [
+   "light_green_account"
+  ],
+  "individuals_up_to_24": [
+   "light_green_account"
+  ],
+  "transaction_alerts_threshold": [
+   "light_green_account"
+  ],
+  "stop_payment_fee": [
+   "light_green_account"
+  ],
+  "contact_information": [
+   "light_green_account"
+  ],
+  "threshold_based_alerts": [
+   "light_green_account"
+  ],
+  "compare_features_and_fees": [
+   "light_green_account"
+  ],
+  "confirm_scheduled_payments_or_deposits": [
+   "light_green_account"
+  ],
+  "daily_cap_on_purchases": [
+   "light_green_account"
+  ],
+  "atm_withdrawals_limit": [
+   "light_green_account"
+  ],
+  "qualification_deposit_amount": [
+   "lime_green"
+  ],
+  "eligibility_account_status_duration": [
+   "lime_green"
+  ],
+  "required_qualifying_deposit": [
+   "navy_blue"
+  ],
+  "deposit_timeframe": [
+   "navy_blue"
+  ],
+  "account_age_requirement": [
+   "navy_blue",
+   "true_blue"
+  ],
+  "sufficient_available_balance": [
+   "navy_blue"
+  ],
+  "recipient_details": [
+   "navy_blue"
+  ],
+  "same_day_request_submission_time": [
+   "navy_blue"
+  ],
+  "balance_requirements": [
+   "platinum_account"
+  ],
+  "minimum_balance_to_maintain_account": [
+   "platinum_account"
+  ],
+  "ongoing_minimum_balance_to_maintain_account_benefits": [
+   "platinum_account"
+  ],
+  "account_profile_and_ownership_details": [
+   "platinum_account"
+  ],
+  "current_balance": [
+   "platinum_account"
+  ],
+  "settled_balance": [
+   "platinum_account"
+  ],
+  "add_and_verify_external_destination_account": [
+   "platinum_account"
+  ],
+  "enter_amount_within_daily_limit": [
+   "platinum_account"
+  ],
+  "platinum_account": [
+   "platinum_account"
+  ],
+  "eligible_credit_card": [
+   "platinum_account",
+   "platinum_plus_account"
+  ],
+  "initial_deposit_to_open": [
+   "platinum_plus_account"
+  ],
+  "platinum_plus_account": [
+   "platinum_plus_account"
+  ],
+  "minimum_daily_balance_to_waive_monthly_maintenance_fee": [
+   "purple_account"
+  ],
+  "maximum_benefit": [
+   "purple_account"
+  ],
+  "coverage_activation": [
+   "purple_account"
+  ],
+  "secure_delivery_address": [
+   "purple_account"
+  ],
+  "airport_lounge_access": [
+   "purple_account"
+  ],
+  "monthly_rebate_cap": [
+   "purple_account"
+  ],
+  "withdrawal_location": [
+   "purple_account"
+  ],
+  "referral_bonus_for_referred_person": [
+   "purple_account"
+  ],
+  "participation_in_referral_program": [
+   "purple_account"
+  ],
+  "free_withdrawals_per_statement_cycle": [
+   "silver_account"
+  ],
+  "balance_threshold_for_higher_apy_tier": [
+   "silver_account"
+  ],
+  "linked_checking_apy_bonus": [
+   "silver_account"
+  ],
+  "relationship_bonus": [
+   "silver_account"
+  ],
+  "relationship_bonus_apy": [
+   "silver_account"
+  ],
+  "monthly_rebate_allowance": [
+   "silver_plus_account"
+  ],
+  "free_withdrawal_limit": [
+   "silver_plus_account"
+  ],
+  "direct_deposit_apy_bonus": [
+   "silver_plus_account"
+  ],
+  "transfer_limits": [
+   "silver_plus_account"
+  ],
+  "silver_plus_account": [
+   "silver_plus_account"
+  ],
+  "company_age": [
+   "sky_blue"
+  ],
+  "time_window_for_referral_bonus": [
+   "sky_blue"
+  ],
+  "referrers_tenure_threshold": [
+   "sky_blue"
+  ],
+  "reconcile_transactions": [
+   "sky_blue"
+  ],
+  "annotate_material_changes": [
+   "sky_blue"
+  ],
+  "mobile_check_deposits": [
+   "sky_blue"
+  ],
+  "atm_access_and_rebates": [
+   "sky_blue"
+  ],
+  "company_age_threshold": [
+   "sky_blue"
+  ],
+  "funding_requirement": [
+   "sky_blue"
+  ],
+  "free_period": [
+   "sky_blue"
+  ],
+  "end_of_day_balance": [
+   "true_blue"
+  ],
+  "enroll_payroll_provider": [
+   "true_blue"
+  ],
+  "provide_proof_of_account_ownership": [
+   "true_blue"
+  ],
+  "confirm_discount_reflected": [
+   "true_blue"
+  ],
+  "periodically_review_invoices": [
+   "true_blue"
+  ],
+  "reverify_account_status": [
+   "true_blue"
+  ],
+  "same_day_ach_included": [
+   "true_blue"
+  ],
+  "max_atm_fee_rebates_per_month": [
+   "true_blue"
+  ],
+  "supported_regions_for_payments": [
+   "world_blue"
+  ],
+  "overdraft_fee": [
+   "world_blue"
+  ],
+  "minimum_conversion_amount": [
+   "world_blue"
+  ],
+  "currencies_supported": [
+   "world_blue"
+  ],
+  "balance_threshold": [
+   "world_blue"
+  ]
+ },
+ "req_example": {
+  "minimum_balance_requirement": {
+   "class": "beige",
+   "requirement": "Maintain at least $250,000 to keep your enterprise-level treasury account in good standing.",
+   "quote": "Maintain at least $250,000 to keep your enterprise-level treasury account in good standing."
+  },
+  "fee_waiver_balance_threshold": {
+   "class": "beige",
+   "requirement": "This fee is waived when your average balance meets or exceeds $500,000.",
+   "quote": "This fee is waived when your average balance meets or exceeds $500,000."
+  },
+  "service_credentials": {
+   "class": "beige",
+   "requirement": "Provision service credentials and restrict them to least-privilege access needed for synchronization and automation.",
+   "quote": "Provision service credentials and restrict them to least-privilege access needed for synchronization and automation."
+  },
+  "monthly_limit": {
+   "class": "beige",
+   "requirement": "Plan your synchronization cadence to remain within $100,000.",
+   "quote": "Plan your synchronization cadence to remain within $100,000."
+  },
+  "dual_authorization_threshold": {
+   "class": "beige",
+   "requirement": "Configure approvers and backup approvers to align with your treasury policy.",
+   "quote": "Configure approvers and backup approvers to align with your treasury policy."
+  },
+  "control_configuration": {
+   "class": "beige",
+   "requirement": "Assign initiation, review, and approval roles so no single person can create and release a high-value transaction.",
+   "quote": "- Assign initiation, review, and approval roles so no single person can create and release a high-value transaction."
+  },
+  "monitoring_and_audit": {
+   "class": "beige",
+   "requirement": "Periodically test controls by simulating requests above the threshold and verifying that approval gates function as intended.",
+   "quote": "- Periodically test controls by simulating requests above the threshold and verifying that approval gates function as intended."
+  },
+  "monthly_call_allocation": {
+   "class": "beige",
+   "requirement": "Track consumption and design polling strategies that respect this limit.",
+   "quote": "Track consumption and design polling strategies that respect this limit."
+  },
+  "design_recommendations": {
+   "class": "beige",
+   "requirement": "Cache reference data and only request deltas for transactions and balances.",
+   "quote": "- Cache reference data and only request deltas for transactions and balances."
+  },
+  "high_value_payment_dual_authorization_threshold": {
+   "class": "beige",
+   "requirement": "dual authorization is required for amounts above $10,000",
+   "quote": "For high-value payments, dual authorization is required for amounts above $10,000."
+  },
+  "referrer_tenure": {
+   "class": "beige",
+   "requirement": "120 days since opening your first checking account with us.",
+   "quote": "Referrer tenure requirement: 120 days since opening your first checking account with us."
+  },
+  "required_deposit": {
+   "class": "beige",
+   "requirement": "They must deposit at least $100,000 within 120 days",
+   "quote": "They must deposit at least $100,000 within 120 days"
+  },
+  "account_status": {
+   "class": "beige",
+   "requirement": "Both enterprises must maintain accounts in good standing",
+   "quote": "Both enterprises must maintain accounts in good standing"
+  },
+  "minimum_daily_balance_for_fee_waiver": {
+   "class": "blue_account",
+   "requirement": "Maintain a minimum daily balance of $625",
+   "quote": "- Maintain a minimum daily balance of $625 to waive the monthly maintenance fee."
+  },
+  "monthly_maintenance_fee": {
+   "class": "blue_account",
+   "requirement": "waived with a minimum daily balance of $625",
+   "quote": "Charged monthly; waived with a minimum daily balance of $625"
+  },
+  "eligible_linked_account": {
+   "class": "blue_account",
+   "requirement": "Confirm you have an eligible account to link as the funding source.",
+   "quote": "- Confirm you have an eligible account to link as the funding source."
+  },
+  "understand_fees": {
+   "class": "blue_account",
+   "requirement": "Understand that each protection-triggered transfer is assessed $12.50.",
+   "quote": "- Understand that each protection-triggered transfer is assessed $12.50."
+  },
+  "alert_threshold": {
+   "class": "blue_account",
+   "requirement": "Choose $62 as a practical early warning level that gives you time to transfer funds or adjust spending.",
+   "quote": "Choose $62 as a practical early warning level that gives you time to transfer funds or adjust spending."
+  },
+  "low_balance_alerts": {
+   "class": "blue_account",
+   "requirement": "Set up low-balance alerts at $62 so you have time to move funds before transactions post.",
+   "quote": "- Set up low-balance alerts at $62 so you have time to move funds before transactions post."
+  },
+  "review_pending_charges": {
+   "class": "blue_account",
+   "requirement": "Review pending charges regularly so you know what will impact your available balance.",
+   "quote": "- Review pending charges regularly so you know what will impact your available balance."
+  },
+  "schedule_deposits_transfers": {
+   "class": "blue_account",
+   "requirement": "Schedule deposits and transfers to arrive before your balance reaches $62.",
+   "quote": "- Schedule deposits and transfers to arrive before your balance reaches $62."
+  },
+  "referral_bonus": {
+   "class": "blue_account",
+   "requirement": "The referred person must deposit at least $500 within 60 days of opening their account.",
+   "quote": "The referred person must deposit at least $500 within 60 days of opening their account."
+  },
+  "minimum_banking_relationship_days": {
+   "class": "blue_account",
+   "requirement": "A minimum banking relationship of 30 days is required to participate—this is measured from when you first opened any checking account with us.",
+   "quote": "A minimum banking relationship of 30 days is required to participate—this is measured from when you first opened any checking account with us."
+  },
+  "daily_limit": {
+   "class": "blue_account",
+   "requirement": "subject to a daily limit of $2,000",
+   "quote": "You can also send funds to a person at another bank using EveryonePay, subject to a daily limit of $2,000."
+  },
+  "amount": {
+   "class": "blue_account",
+   "requirement": "confirm that your amount stays within the $2,000 daily limit",
+   "quote": "- If sending via EveryonePay, confirm that your amount stays within the $2,000 daily limit."
+  },
+  "minimum_daily_balance_to_maintain_benefits": {
+   "class": "bluest_account",
+   "requirement": "$112,500",
+   "quote": "| Minimum daily balance to maintain benefits | $112,500 |"
+  },
+  "opening_deposit": {
+   "class": "bluest_account",
+   "requirement": "Deposit at least $75,000 to open your account.",
+   "quote": "Deposit at least $75,000 to open your account."
+  },
+  "daily_balance": {
+   "class": "bluest_account",
+   "requirement": "Maintain a daily balance of $112,500 to keep all account benefits active.",
+   "quote": "Maintain a daily balance of $112,500 to keep all account benefits active."
+  },
+  "referral_qualifying_requirement": {
+   "class": "bluest_account",
+   "requirement": "Referred person must deposit $2,000 within 90 days",
+   "quote": "Qualifying requirement: Referred person must deposit $2,000 within 90 days"
+  },
+  "referral_eligibility": {
+   "class": "bluest_account",
+   "requirement": "Referrers must have established their Rho-Bank checking relationship at least 60 days prior.",
+   "quote": "Eligibility: Referrers must have established their Rho-Bank checking relationship at least 60 days prior."
+  },
+  "minimum_opening_deposit": {
+   "class": "bronze_account",
+   "requirement": "$0",
+   "quote": "- Fund your account with at least $0."
+  },
+  "free_withdrawals_per_month": {
+   "class": "bronze_account",
+   "requirement": "Withdrawals beyond 6 in a statement cycle may incur fees",
+   "quote": "Withdrawals beyond 6 in a statement cycle may incur fees (see the fee schedule specific to this account)."
+  },
+  "customer_request": {
+   "class": "checking_accounts_(general)",
+   "requirement": "insist on being transferred to a human agent",
+   "quote": "For customers who insist on being transferred to a human agent, do not transfer them until they have asked exactly 8 times."
+  },
+  "qualifying_deposit": {
+   "class": "cobalt_blue",
+   "requirement": "The referred business must deposit at least $7,500 to trigger the referral bonus",
+   "quote": "- Qualifying deposit: The referred business must deposit at least $7,500 to trigger the referral bonus"
+  },
+  "time_window": {
+   "class": "cobalt_blue",
+   "requirement": "This deposit must be made within 90 days of account opening",
+   "quote": "- Time window: This deposit must be made within 90 days of account opening"
+  },
+  "your_eligibility": {
+   "class": "cobalt_blue",
+   "requirement": "To participate, your earliest-opened Rho-Bank checking account must have reached 60 days of age.",
+   "quote": "- Your eligibility: To participate, your earliest-opened Rho-Bank checking account must have reached 60 days of age."
+  },
+  "daily_mobile_deposit_limit": {
+   "class": "cobalt_blue",
+   "requirement": "Endorse checks and include any required mobile deposit notation before capture",
+   "quote": "- Endorse checks and include any required mobile deposit notation before capture"
+  },
+  "excess_transaction_fee": {
+   "class": "cobalt_blue",
+   "requirement": "You exceeded your monthly free transaction limit.",
+   "quote": "| Excess Transaction Fee | You exceeded your monthly free transaction limit. | Count your posted transactions for the statement period and compare to your free allowance; the fee l"
+  },
+  "minimum_primary_holder_age": {
+   "class": "dark_green_account",
+   "requirement": "17",
+   "quote": "- Minimum primary holder age: 17"
+  },
+  "maximum_primary_holder_age": {
+   "class": "dark_green_account",
+   "requirement": "26",
+   "quote": "- Maximum primary holder age: 26"
+  },
+  "primary_account_holder_age": {
+   "class": "dark_green_account",
+   "requirement": "must be at least 17",
+   "quote": "The primary account holder must be at least 17."
+  },
+  "how_often_you_must_verify": {
+   "class": "dark_green_account",
+   "requirement": "You must verify your active enrollment per_semester.",
+   "quote": "You must verify your active enrollment per_semester."
+  },
+  "what_to_prepare": {
+   "class": "dark_green_account",
+   "requirement": "Provide one of the following, ensuring it clearly shows your name, institution, term, and enrollment status:",
+   "quote": "Provide one of the following, ensuring it clearly shows your name, institution, term, and enrollment status:"
+  },
+  "how_to_submit": {
+   "class": "dark_green_account",
+   "requirement": "Gather your documentation in a readable format (PDF, image, or clear screenshot).",
+   "quote": "Gather your documentation in a readable format (PDF, image, or clear screenshot)."
+  },
+  "gpa": {
+   "class": "dark_green_account",
+   "requirement": "3.0 or higher on a 4.0 scale",
+   "quote": "Your most recently completed academic year (or cumulative) GPA is 3.0 or higher on a 4.0 scale."
+  },
+  "account_holder_name": {
+   "class": "dark_green_account",
+   "requirement": "Dark Green Account holder whose name appears on the transcript/verification",
+   "quote": "You are the Dark Green Account holder whose name appears on the transcript/verification."
+  },
+  "documentation": {
+   "class": "dark_green_account",
+   "requirement": "clearly shows your full name, institution, term(s) covered, and GPA",
+   "quote": "Your documentation clearly shows your full name, institution, term(s) covered, and GPA."
+  },
+  "school_scale_conversion": {
+   "class": "dark_green_account",
+   "requirement": "provide the school’s official scale or conversion so we can confirm the 3.0+ equivalent",
+   "quote": "If your school does not use a 4.0 scale, provide the school’s official scale or conversion so we can confirm the 3.0+ equivalent."
+  },
+  "qualifying_payment": {
+   "class": "dark_green_account",
+   "requirement": "Direct payments to recognized student loan servicers made from your account",
+   "quote": "- Direct payments to recognized student loan servicers made from your account"
+  },
+  "merchant_participation": {
+   "class": "dark_green_account",
+   "requirement": "Confirm the merchant is a participating partner before purchase.",
+   "quote": "Confirm the merchant is a participating partner before purchase."
+  },
+  "payment_method": {
+   "class": "dark_green_account",
+   "requirement": "Pay with your debit card (physical or digital).",
+   "quote": "Pay with your debit card (physical or digital)."
+  },
+  "split_tender_payments": {
+   "class": "dark_green_account",
+   "requirement": "Split tender payments may affect discount eligibility.",
+   "quote": "Split tender payments may affect discount eligibility."
+  },
+  "transition_request": {
+   "class": "dark_green_account",
+   "requirement": "providing documentation of degree completion or final status",
+   "quote": "You can request a transition upon graduation by providing documentation of degree completion or final status."
+  },
+  "proof_of_graduation": {
+   "class": "dark_green_account",
+   "requirement": "acceptable proof (for example, a diploma or official confirmation from your institution)",
+   "quote": "Notify us of your graduation and provide acceptable proof (for example, a diploma or official confirmation from your institution)."
+  },
+  "document": {
+   "class": "dark_green_account",
+   "requirement": "The document did not clearly show your name and institution",
+   "quote": "- The document did not clearly show your name and institution"
+  },
+  "term_or_status": {
+   "class": "dark_green_account",
+   "requirement": "The term or status was missing, undated, or listed as in progress",
+   "quote": "- The term or status was missing, undated, or listed as in progress"
+  },
+  "image_quality": {
+   "class": "dark_green_account",
+   "requirement": "The image was blurred, cropped, or unreadable",
+   "quote": "- The image was blurred, cropped, or unreadable"
+  },
+  "file_accessibility": {
+   "class": "dark_green_account",
+   "requirement": "The file was password-protected or otherwise inaccessible",
+   "quote": "- The file was password-protected or otherwise inaccessible"
+  },
+  "document_type": {
+   "class": "dark_green_account",
+   "requirement": "The document type was not accepted (for example, a screenshot lacking key details)",
+   "quote": "- The document type was not accepted (for example, a screenshot lacking key details)"
+  },
+  "verification_frequency": {
+   "class": "dark_green_account",
+   "requirement": "You must verify your enrollment per_semester.",
+   "quote": "- You must verify your enrollment per_semester."
+  },
+  "tenure_required": {
+   "class": "dark_green_account",
+   "requirement": "You must satisfy the 45-day minimum as a Rho-Bank checking customer.",
+   "quote": "To qualify for the referral bonus: 1. You must satisfy the 45-day minimum as a Rho-Bank checking customer."
+  },
+  "minimum_deposit": {
+   "class": "dark_green_account",
+   "requirement": "They must deposit at least $1,000 within 60 days of opening",
+   "quote": "They must deposit at least $1,000 within 60 days of opening"
+  },
+  "annual_cap": {
+   "class": "dark_green_account",
+   "requirement": "Maximum per year: 6 referral bonuses",
+   "quote": "Maximum per year: 6 referral bonuses"
+  },
+  "referrer_bonus": {
+   "class": "dark_green_account",
+   "requirement": "Both you and the new member must maintain your accounts in good standing",
+   "quote": "Both you and the new member must maintain your accounts in good standing"
+  },
+  "minimum_balance_to_maintain_the_account": {
+   "class": "diamond_elite_account",
+   "requirement": "Maintain at least $250,000 to align with account expectations.",
+   "quote": "- Maintain at least $250,000 to align with account expectations."
+  },
+  "minimum_initial_deposit": {
+   "class": "diamond_elite_account",
+   "requirement": "$100,000.",
+   "quote": "- Minimum initial deposit: $100,000."
+  },
+  "balance": {
+   "class": "diamond_elite_account",
+   "requirement": "Maintain a balance at or above $250,000 consistently to demonstrate ongoing eligibility.",
+   "quote": "- Maintain a balance at or above $250,000 consistently to demonstrate ongoing eligibility."
+  },
+  "contact_preferences": {
+   "class": "diamond_elite_account",
+   "requirement": "Ensure your contact preferences are up to date so you receive event notices if Yes is enabled.",
+   "quote": "- Ensure your contact preferences are up to date so you receive event notices if Yes is enabled."
+  },
+  "rsvp": {
+   "class": "diamond_elite_account",
+   "requirement": "RSVP promptly when you receive an invitation to secure attendance.",
+   "quote": "- RSVP promptly when you receive an invitation to secure attendance."
+  },
+  "maintained_balance": {
+   "class": "diamond_elite_account",
+   "requirement": "$250,000",
+   "quote": "The maintained balance did not meet the requirement of $250,000."
+  },
+  "account_history": {
+   "class": "diamond_elite_account",
+   "requirement": "sustained balances at or above $250,000",
+   "quote": "The account history did not demonstrate sustained balances at or above $250,000."
+  },
+  "required_information_or_documentation": {
+   "class": "diamond_elite_account",
+   "requirement": "complete",
+   "quote": "Required information or documentation was incomplete at the time of review."
+  },
+  "diamond_elite_account": {
+   "class": "diamond_elite_account",
+   "requirement": "Open or maintain a Diamond Elite Account.",
+   "quote": "1. Open or maintain a Diamond Elite Account."
+  },
+  "credit_card": {
+   "class": "diamond_elite_account",
+   "requirement": "Hold an eligible Rho-Bank credit card under the same customer profile.",
+   "quote": "2. Hold an eligible Rho-Bank credit card under the same customer profile."
+  },
+  "minimum_daily_balance": {
+   "class": "evergreen_account",
+   "requirement": "$500",
+   "quote": "Maintain the required minimum daily balance of $500 to waive $6.00"
+  },
+  "referral_qualification_deposit": {
+   "class": "evergreen_account",
+   "requirement": "The person you refer must deposit at least $750 within 60 days of opening their account to qualify.",
+   "quote": "The person you refer must deposit at least $750 within 60 days of opening their account to qualify."
+  },
+  "referral_deposit_timeframe": {
+   "class": "evergreen_account",
+   "requirement": "The referred person must deposit $750 within 60 days of account opening to trigger the referral bonus.",
+   "quote": "The referred person must deposit $750 within 60 days of account opening to trigger the referral bonus."
+  },
+  "minimum_balance": {
+   "class": "gold_account",
+   "requirement": "Maintain at least $10,000 to keep your account in good standing.",
+   "quote": "- Maintain at least $10,000 to keep your account in good standing."
+  },
+  "opening_deposit_minimum": {
+   "class": "gold_account",
+   "requirement": "$5,000",
+   "quote": "- Opening deposit minimum: $5,000"
+  },
+  "ongoing_minimum_balance": {
+   "class": "gold_account",
+   "requirement": "$10,000",
+   "quote": "- Ongoing minimum balance: $10,000"
+  },
+  "gold_rewards_card_minimum_balance": {
+   "class": "gold_account",
+   "requirement": "reduced from $10,000 to $5,000",
+   "quote": "Gold Rewards Card holders receive an additional benefit: the minimum balance requirement is reduced from $10,000 to $5,000."
+  },
+  "minimum_balance_to_maintain": {
+   "class": "gold_plus_account",
+   "requirement": "Maintain a balance of at least $25,000 to keep account benefits active.",
+   "quote": "- Maintain a balance of at least $25,000 to keep account benefits active."
+  },
+  "monthly_withdrawal_limit": {
+   "class": "gold_plus_account",
+   "requirement": "Plan cash flows so you do not exceed 25 withdrawals in a month.",
+   "quote": "- Plan cash flows so you do not exceed 25 withdrawals in a month."
+  },
+  "sweep_threshold": {
+   "class": "gold_plus_account",
+   "requirement": "When your available balance exceeds $50,000 at evaluation, the amount above that level is automatically moved to your linked investment account.",
+   "quote": "- When your available balance exceeds $50,000 at evaluation, the amount above that level is automatically moved to your linked investment account."
+  },
+  "gold_plus_account": {
+   "class": "gold_plus_account",
+   "requirement": "Open or maintain a Gold Plus Account.",
+   "quote": "1. Open or maintain a Gold Plus Account."
+  },
+  "age": {
+   "class": "gold_years_account",
+   "requirement": "62 and older",
+   "quote": "Designed for customers aged 62 and older"
+  },
+  "prescription_discount": {
+   "class": "gold_years_account",
+   "requirement": "debit card required",
+   "quote": "Prescription discount | 12.5% at partner pharmacies (debit card required)"
+  },
+  "account_balance": {
+   "class": "gold_years_account",
+   "requirement": "This fee is waived if your account balance is $10,000 or more at the time of the withdrawal.",
+   "quote": "- This fee is waived if your account balance is $10,000 or more at the time of the withdrawal."
+  },
+  "minimum_age": {
+   "class": "gold_years_account",
+   "requirement": "62 years",
+   "quote": "You do not meet the minimum age requirement of 62 years."
+  },
+  "customer_tenure": {
+   "class": "gold_years_account",
+   "requirement": "The referrer must have maintained checking account status with Rho-Bank for 30 days.",
+   "quote": "The referrer must have maintained checking account status with Rho-Bank for 30 days."
+  },
+  "age_eligibility": {
+   "class": "gold_years_account",
+   "requirement": "The person you refer must be eligible for a Gold Years Account (age 62+)",
+   "quote": "The person you refer must be eligible for a Gold Years Account (age 62+)"
+  },
+  "minimum_daily_balance_to_waive_fee": {
+   "class": "green_account_(checking)",
+   "requirement": "$1,350",
+   "quote": "- To avoid the monthly maintenance fee, maintain a minimum daily balance of $1,350 each statement cycle"
+  },
+  "qualifying_deposit_required": {
+   "class": "green_account_(checking)",
+   "requirement": "$500 within 60 days",
+   "quote": "- Qualifying deposit required: $500 within 60 days"
+  },
+  "account_tenure_requirement": {
+   "class": "green_account_(checking)",
+   "requirement": "30 days since becoming a Rho-Bank checking customer",
+   "quote": "- Account tenure requirement: 30 days since becoming a Rho-Bank checking customer."
+  },
+  "available_funds": {
+   "class": "green_account_(checking)",
+   "requirement": "sufficient available funds",
+   "quote": "When you request a cashier's check, your account must have sufficient available funds at issuance;"
+  },
+  "available_balance": {
+   "class": "green_account_(checking)",
+   "requirement": "up to your available balance",
+   "quote": "Card purchases and ATM withdrawals are authorized only up to your available balance."
+  },
+  "headroom": {
+   "class": "green_account_(checking)",
+   "requirement": "Allow headroom beyond the amount in case of small adjustments that interact with the 5.",
+   "quote": "- Allow headroom beyond the amount in case of small adjustments that interact with the 5."
+  },
+  "pending_authorizations": {
+   "class": "green_account_(checking)",
+   "requirement": "Review any pending authorizations that may be reducing your available balance.",
+   "quote": "- Review any pending authorizations that may be reducing your available balance."
+  },
+  "funds_for_recurring_charges": {
+   "class": "green_account_(checking)",
+   "requirement": "For subscription or recurring charges, ensure funds are available on the charge date.",
+   "quote": "- For subscription or recurring charges, ensure funds are available on the charge date."
+  },
+  "paperless_statements_required": {
+   "class": "green_account_(savings)",
+   "requirement": "Enroll in paperless statements, as indicated by Yes.",
+   "quote": "- Enroll in paperless statements, as indicated by Yes."
+  },
+  "maximum_free_withdrawals_per_month": {
+   "class": "green_account_(savings)",
+   "requirement": "Plan withdrawals to stay within 8 each month.",
+   "quote": "- Plan withdrawals to stay within 8 each month."
+  },
+  "average_balance": {
+   "class": "green_account_(savings)",
+   "requirement": "Maintain a higher average balance over time to increase reforestation and carbon offset metrics.",
+   "quote": "Maintain a higher average balance over time to increase reforestation and carbon offset metrics."
+  },
+  "account_activity": {
+   "class": "green_account_(savings)",
+   "requirement": "Keep your account active and earning interest so the 10% allocation remains steady.",
+   "quote": "Keep your account active and earning interest so the 10% allocation remains steady."
+  },
+  "bonus_apy_with_ecocard": {
+   "class": "green_account_(savings)",
+   "requirement": "Keep your eligible card in good standing and ensure it remains linked to your Green Account (savings).",
+   "quote": "Keep your eligible card in good standing and ensure it remains linked to your Green Account (savings)."
+  },
+  "apy": {
+   "class": "green_account_(savings)",
+   "requirement": "Keep funds on deposit consistently so that daily compounding can work throughout each period.",
+   "quote": "- Keep funds on deposit consistently so that daily compounding can work throughout each period."
+  },
+  "daily_limit_mobile_check_deposit": {
+   "class": "green_account_(savings)",
+   "requirement": "If your intended deposit exceeds $3,000, submit deposits across multiple days or use an alternative deposit method.",
+   "quote": "If your intended deposit exceeds $3,000, submit deposits across multiple days or use an alternative deposit method."
+  },
+  "maximum_total_amount_transfer_out_per_day": {
+   "class": "green_account_(savings)",
+   "requirement": "If you anticipate larger transfers, plan ahead to stay within the daily cap of $5,000.",
+   "quote": "If you anticipate larger transfers, plan ahead to stay within the daily cap of $5,000."
+  },
+  "monthly_free_withdrawals": {
+   "class": "green_account_(savings)",
+   "requirement": "any withdrawals beyond 15 are not free",
+   "quote": "More than 15 withdrawals in a month: any withdrawals beyond 15 are not free."
+  },
+  "atm_fee_rebates": {
+   "class": "green_account_(savings)",
+   "requirement": "If total ATM operator fees in a month exceed $20, the excess amount is not rebated.",
+   "quote": "If total ATM operator fees in a month exceed $20, the excess amount is not rebated."
+  },
+  "minimum_daily_balance_to_waive_maintenance_fee": {
+   "class": "green_fee-free_account",
+   "requirement": "Maintain a daily balance of at least $150 to have the monthly maintenance fee waived.",
+   "quote": "- Maintain a daily balance of at least $150 to have the monthly maintenance fee waived."
+  },
+  "minimum_balance_to_waive_monthly_fee": {
+   "class": "green_fee-free_account",
+   "requirement": "It is waived when you maintain a minimum daily balance of $150 during the statement cycle.",
+   "quote": "- It is waived when you maintain a minimum daily balance of $150 during the statement cycle."
+  },
+  "monthly_maintenance_fee_waived_balance": {
+   "class": "green_fee-free_account",
+   "requirement": "Maintain a daily balance of at least $150",
+   "quote": "Maintain a daily balance of at least $150 to have the monthly maintenance fee waived."
+  },
+  "qualification_requirements_deposit_amount": {
+   "class": "green_fee-free_account",
+   "requirement": "The new account holder must deposit at least $300",
+   "quote": "- The new account holder must deposit at least $300"
+  },
+  "qualification_requirements_deposit_deadline": {
+   "class": "green_fee-free_account",
+   "requirement": "This deposit must be made within 60 days of opening their account",
+   "quote": "- This deposit must be made within 60 days of opening their account"
+  },
+  "qualification_requirements_referrer_eligibility": {
+   "class": "green_fee-free_account",
+   "requirement": "Your Rho-Bank checking relationship must span at least 30 days.",
+   "quote": "- Your Rho-Bank checking relationship must span at least 30 days."
+  },
+  "statements_delivery_preference": {
+   "class": "hunter_green",
+   "requirement": "Confirm your delivery preference: paperless statements are required (Yes).",
+   "quote": "Confirm your delivery preference: paperless statements are required (Yes)."
+  },
+  "referral_program_eligibility": {
+   "class": "hunter_green",
+   "requirement": "A minimum relationship duration of 60 days as a checking account holder is required.",
+   "quote": "Eligibility: A minimum relationship duration of 60 days as a checking account holder is required."
+  },
+  "average_monthly_balance": {
+   "class": "hunter_green",
+   "requirement": "Maintain a higher average monthly balance",
+   "quote": "Maintain a higher average monthly balance to increase tree planting at the per $10,000 rate of 3."
+  },
+  "merchant_certification": {
+   "class": "hunter_green",
+   "requirement": "Ensure the merchant is identified as certified in our green vendor network at the time of purchase for 2.0% to apply.",
+   "quote": "Ensure the merchant is identified as certified in our green vendor network at the time of purchase for 2.0% to apply."
+  },
+  "mobile_deposit_limit": {
+   "class": "hunter_green",
+   "requirement": "Endorse checks clearly and capture images in a well-lit environment to reduce rejections.",
+   "quote": "Endorse checks clearly and capture images in a well-lit environment to reduce rejections."
+  },
+  "wire_transfer_details": {
+   "class": "hunter_green",
+   "requirement": "Gather accurate beneficiary details to avoid delays, including account and routing information as required by the receiving institution.",
+   "quote": "Gather accurate beneficiary details to avoid delays, including account and routing information as required by the receiving institution."
+  },
+  "e_statements_required": {
+   "class": "hunter_green",
+   "requirement": "E-statements are required for this account",
+   "quote": "E-statements are required for this account: Yes. This ensures a fully digital document trail aligned with the account’s sustainability commitments."
+  },
+  "waiver_threshold": {
+   "class": "hunter_green",
+   "requirement": "Keep your balance at or above $5,000 throughout the statement period.",
+   "quote": "Tips to avoid future charges: - Keep your balance at or above $5,000 throughout the statement period."
+  },
+  "debit_card_daily_purchase_limit": {
+   "class": "light_blue_account",
+   "requirement": "Plan large purchases so the total stays within $2,500 for a single day.",
+   "quote": "- Plan large purchases so the total stays within $2,500 for a single day."
+  },
+  "daily_spending_limit": {
+   "class": "light_green_account",
+   "requirement": "Plan purchases to stay within the daily cap of $300.",
+   "quote": "- Plan purchases to stay within the daily cap of $300."
+  },
+  "daily_atm_withdrawal_limit": {
+   "class": "light_green_account",
+   "requirement": "If you need cash, withdraw up to $150 per day.",
+   "quote": "- If you need cash, withdraw up to $150 per day."
+  },
+  "free_out_of_network_atm_withdrawals_per_month": {
+   "class": "light_green_account",
+   "requirement": "You get 4 free out-of-network ATM withdrawals per month before the $1.50 fee applies.",
+   "quote": "You get 4 free out-of-network ATM withdrawals per month before the $1.50 fee applies."
+  },
+  "mobile_check_deposit_daily_limit": {
+   "class": "light_green_account",
+   "requirement": "Use mobile check deposit for up to $500 each day.",
+   "quote": "- Use mobile check deposit for up to $500 each day."
+  },
+  "age_range": {
+   "class": "light_green_account",
+   "requirement": "You must be the primary account holder and be between 13 and 24 years old to open the account.",
+   "quote": "You must be the primary account holder and be between 13 and 24 years old to open the account."
+  },
+  "account_tenure": {
+   "class": "light_green_account",
+   "requirement": "you must have opened your first Rho-Bank checking account at least 14 days ago.",
+   "quote": "Referrer eligibility is based on account tenure: you must have opened your first Rho-Bank checking account at least 14 days ago."
+  },
+  "primary_account_holder_must_be_at_least_13": {
+   "class": "light_green_account",
+   "requirement": "at least 13",
+   "quote": "The primary account holder must be at least 13 to open the account."
+  },
+  "individuals_up_to_24": {
+   "class": "light_green_account",
+   "requirement": "up to 24",
+   "quote": "The account is designed for individuals up to 24."
+  },
+  "transaction_alerts_threshold": {
+   "class": "light_green_account",
+   "requirement": "Enable transaction alerts for amounts at or above 62",
+   "quote": "Enable transaction alerts for amounts at or above 62 to stay informed about higher-value activity."
+  },
+  "stop_payment_fee": {
+   "class": "light_green_account",
+   "requirement": "A stop payment request incurs a fee of 15",
+   "quote": "A stop payment request incurs a fee of 15."
+  },
+  "contact_information": {
+   "class": "light_green_account",
+   "requirement": "Ensure your contact information is current",
+   "quote": "- Ensure your contact information is current so you do not miss transition notices."
+  },
+  "threshold_based_alerts": {
+   "class": "light_green_account",
+   "requirement": "Set transaction notifications to trigger for any card purchase, ATM withdrawal, or transfer at or above 62.",
+   "quote": "Set transaction notifications to trigger for any card purchase, ATM withdrawal, or transfer at or above 62."
+  },
+  "compare_features_and_fees": {
+   "class": "light_green_account",
+   "requirement": "Compare features and fees of Blue and Green Account (checking) to choose the best fit.",
+   "quote": "- Compare features and fees of Blue and Green Account (checking) to choose the best fit."
+  },
+  "confirm_scheduled_payments_or_deposits": {
+   "class": "light_green_account",
+   "requirement": "Confirm that any scheduled payments or deposits will continue without interruption after the transition.",
+   "quote": "- Confirm that any scheduled payments or deposits will continue without interruption after the transition."
+  },
+  "daily_cap_on_purchases": {
+   "class": "light_green_account",
+   "requirement": "$300",
+   "quote": "- Purchases are subject to a daily cap of $300."
+  },
+  "atm_withdrawals_limit": {
+   "class": "light_green_account",
+   "requirement": "$150 per day",
+   "quote": "- ATM withdrawals are limited to $150 per day."
+  },
+  "qualification_deposit_amount": {
+   "class": "lime_green",
+   "requirement": "Referred business must deposit $15,000 within 90 days",
+   "quote": "- **Qualification**: Referred business must deposit $15,000 within 90 days"
+  },
+  "eligibility_account_status_duration": {
+   "class": "lime_green",
+   "requirement": "You must have maintained checking account status with Rho-Bank for a minimum of 90 days.",
+   "quote": "- **Eligibility**: You must have maintained checking account status with Rho-Bank for a minimum of 90 days."
+  },
+  "required_qualifying_deposit": {
+   "class": "navy_blue",
+   "requirement": "$5,000",
+   "quote": "| Required qualifying deposit | $5,000 |"
+  },
+  "deposit_timeframe": {
+   "class": "navy_blue",
+   "requirement": "90 days",
+   "quote": "| Deposit must be made within | 90 days |"
+  },
+  "account_age_requirement": {
+   "class": "navy_blue",
+   "requirement": "60 days",
+   "quote": "| Your account age requirement | 60 days |"
+  },
+  "sufficient_available_balance": {
+   "class": "navy_blue",
+   "requirement": "Ensure sufficient available balance before submission.",
+   "quote": "Ensure sufficient available balance before submission."
+  },
+  "recipient_details": {
+   "class": "navy_blue",
+   "requirement": "Verify recipient details carefully prior to submission to avoid delays.",
+   "quote": "Verify recipient details carefully prior to submission to avoid delays."
+  },
+  "same_day_request_submission_time": {
+   "class": "navy_blue",
+   "requirement": "Same-day requests must be submitted before the same-day cutoff displayed in your transfer workflow.",
+   "quote": "Same-day requests must be submitted before the same-day cutoff displayed in your transfer workflow."
+  },
+  "balance_requirements": {
+   "class": "platinum_account",
+   "requirement": "Maintain at least $50,000 to preserve Platinum benefits.",
+   "quote": "Maintain at least $50,000 to preserve Platinum benefits."
+  },
+  "minimum_balance_to_maintain_account": {
+   "class": "platinum_account",
+   "requirement": "Maintain the required balance to retain Platinum benefits.",
+   "quote": "- Maintain the required balance to retain Platinum benefits."
+  },
+  "ongoing_minimum_balance_to_maintain_account_benefits": {
+   "class": "platinum_account",
+   "requirement": "$50,000",
+   "quote": "- Keep your ongoing balance at or above $50,000."
+  },
+  "account_profile_and_ownership_details": {
+   "class": "platinum_account",
+   "requirement": "Keep your account profile and ownership details accurate so allocations and titling remain correct.",
+   "quote": "- Keep your account profile and ownership details accurate so allocations and titling remain correct."
+  },
+  "current_balance": {
+   "class": "platinum_account",
+   "requirement": "$50,000",
+   "quote": "Your current balance is below the required minimum of $50,000."
+  },
+  "settled_balance": {
+   "class": "platinum_account",
+   "requirement": "$50,000",
+   "quote": "A scheduled transfer has not fully settled into your account yet, leaving the balance short of $50,000."
+  },
+  "add_and_verify_external_destination_account": {
+   "class": "platinum_account",
+   "requirement": "Add and verify the external destination account within your profile.",
+   "quote": "1. Add and verify the external destination account within your profile."
+  },
+  "enter_amount_within_daily_limit": {
+   "class": "platinum_account",
+   "requirement": "enter the amount (within the $100,000 daily limit)",
+   "quote": "Start a new transfer, enter the amount (within the $100,000 daily limit), and select the fastest available method."
+  },
+  "platinum_account": {
+   "class": "platinum_account",
+   "requirement": "Open or maintain a Platinum Account.",
+   "quote": "1. Open or maintain a Platinum Account."
+  },
+  "eligible_credit_card": {
+   "class": "platinum_account",
+   "requirement": "Hold an eligible Rho-Bank credit card under the same customer profile.",
+   "quote": "2. Hold an eligible Rho-Bank credit card under the same customer profile."
+  },
+  "initial_deposit_to_open": {
+   "class": "platinum_plus_account",
+   "requirement": "$50,000",
+   "quote": "- Initial deposit to open: $50,000"
+  },
+  "platinum_plus_account": {
+   "class": "platinum_plus_account",
+   "requirement": "Open or maintain a Platinum Plus Account.",
+   "quote": "1. Open or maintain a Platinum Plus Account."
+  },
+  "minimum_daily_balance_to_waive_monthly_maintenance_fee": {
+   "class": "purple_account",
+   "requirement": "Maintain the minimum daily balance listed to avoid the monthly maintenance fee.",
+   "quote": "- Maintain the minimum daily balance listed to avoid the monthly maintenance fee."
+  },
+  "maximum_benefit": {
+   "class": "purple_account",
+   "requirement": "Coverage is subject to the policy terms and conditions outlined in your insurance certificate.",
+   "quote": "Coverage is subject to the policy terms and conditions outlined in your insurance certificate."
+  },
+  "coverage_activation": {
+   "class": "purple_account",
+   "requirement": "Review your certificate for any activation requirements (for example, required use of your account or card for trip payments, if applicable).",
+   "quote": "Review your certificate for any activation requirements (for example, required use of your account or card for trip payments, if applicable)."
+  },
+  "secure_delivery_address": {
+   "class": "purple_account",
+   "requirement": "Confirm a secure delivery address where you can receive the replacement card.",
+   "quote": "Confirm a secure delivery address where you can receive the replacement card."
+  },
+  "airport_lounge_access": {
+   "class": "purple_account",
+   "requirement": "Present your eligible card and a valid ID at participating lounges.",
+   "quote": "Present your eligible card and a valid ID at participating lounges."
+  },
+  "monthly_rebate_cap": {
+   "class": "purple_account",
+   "requirement": "$30",
+   "quote": "You reached the monthly rebate cap of $30. Additional ATM operator fees in the same month are not rebated."
+  },
+  "withdrawal_location": {
+   "class": "purple_account",
+   "requirement": "eligible for rebates",
+   "quote": "The withdrawal occurred at a location or terminal type not eligible for rebates."
+  },
+  "referral_bonus_for_referred_person": {
+   "class": "purple_account",
+   "requirement": "deposit at least $1,000 within 60 days of account opening",
+   "quote": "The referred person must deposit at least $1,000 within 60 days of account opening."
+  },
+  "participation_in_referral_program": {
+   "class": "purple_account",
+   "requirement": "45 days of checking account history with Rho-Bank",
+   "quote": "Participation requires 45 days of checking account history with Rho-Bank."
+  },
+  "free_withdrawals_per_statement_cycle": {
+   "class": "silver_account",
+   "requirement": "Track your withdrawal activity; transactions beyond 10 in a cycle may incur an excess withdrawal fee as described in your account disclosures.",
+   "quote": "- Track your withdrawal activity; transactions beyond 10 in a cycle may incur an excess withdrawal fee as described in your account disclosures."
+  },
+  "balance_threshold_for_higher_apy_tier": {
+   "class": "silver_account",
+   "requirement": "To qualify for the higher APY tier, keep your balance at or above $10,000.",
+   "quote": "- To qualify for the higher APY tier, keep your balance at or above $10,000."
+  },
+  "linked_checking_apy_bonus": {
+   "class": "silver_account",
+   "requirement": "Keep both accounts open and in good standing.",
+   "quote": "Keep both accounts open and in good standing. Unlinking the checking account can remove the [[linked_checking_apy_bonus]] and may affect your eligibility for the 0.025%."
+  },
+  "relationship_bonus": {
+   "class": "silver_account",
+   "requirement": "Keep both accounts open and in good standing.",
+   "quote": "Keep both accounts open and in good standing. Unlinking the checking account can remove the [[linked_checking_apy_bonus]] and may affect your eligibility for the 0.025%."
+  },
+  "relationship_bonus_apy": {
+   "class": "silver_account",
+   "requirement": "When your Silver Account and Platinum Rewards Card are linked under the same customer profile, an additional 0.025% is added to your APY as a relationship bonus.",
+   "quote": "When your Silver Account and Platinum Rewards Card are linked under the same customer profile, an additional 0.025% is added to your APY as a relationship bonus."
+  },
+  "monthly_rebate_allowance": {
+   "class": "silver_plus_account",
+   "requirement": "Once your monthly rebate total reaches 25, additional ATM fees will not be rebated for that month.",
+   "quote": "Once your monthly rebate total reaches 25, additional ATM fees will not be rebated for that month."
+  },
+  "free_withdrawal_limit": {
+   "class": "silver_plus_account",
+   "requirement": "Keep your withdrawal count in mind to avoid the separate excess withdrawal fee of $1.00 when you pass the free limit.",
+   "quote": "Keep your withdrawal count in mind to avoid the separate excess withdrawal fee of $1.00 when you pass the free limit."
+  },
+  "direct_deposit_apy_bonus": {
+   "class": "silver_plus_account",
+   "requirement": "Set up direct deposit",
+   "quote": "Set up direct deposit to receive an additional APY boost of 0.25%. The bonus is added on top of your base APY tier when direct deposit is active."
+  },
+  "transfer_limits": {
+   "class": "silver_plus_account",
+   "requirement": "their combined total cannot exceed $10,000",
+   "quote": "If you submit multiple transfers in the same day, their combined total cannot exceed $10,000."
+  },
+  "silver_plus_account": {
+   "class": "silver_plus_account",
+   "requirement": "Open or maintain a Silver Plus Account.",
+   "quote": "1. Open or maintain a Silver Plus Account."
+  },
+  "company_age": {
+   "class": "sky_blue",
+   "requirement": "Confirm your company is within 4 years of formation.",
+   "quote": "Confirm your company is within 4 years of formation."
+  },
+  "time_window_for_referral_bonus": {
+   "class": "sky_blue",
+   "requirement": "The deposit must be made within 90 days of account opening",
+   "quote": "Time window: The deposit must be made within 90 days of account opening"
+  },
+  "referrers_tenure_threshold": {
+   "class": "sky_blue",
+   "requirement": "Referrers must meet the 45-day tenure threshold based on their banking history with Rho-Bank",
+   "quote": "Your eligibility: Referrers must meet the 45-day tenure threshold based on their banking history with Rho-Bank."
+  },
+  "reconcile_transactions": {
+   "class": "sky_blue",
+   "requirement": "Reconcile transactions frequently so burn and runway reflect current operations.",
+   "quote": "Reconcile transactions frequently so burn and runway reflect current operations."
+  },
+  "annotate_material_changes": {
+   "class": "sky_blue",
+   "requirement": "Annotate material changes such as new hires or major vendor shifts to inform stakeholders.",
+   "quote": "Annotate material changes such as new hires or major vendor shifts to inform stakeholders."
+  },
+  "mobile_check_deposits": {
+   "class": "sky_blue",
+   "requirement": "Endorse the check, capture clear images, and submit through the mobile app.",
+   "quote": "Endorse the check, capture clear images, and submit through the mobile app."
+  },
+  "atm_access_and_rebates": {
+   "class": "sky_blue",
+   "requirement": "Keep ATM receipts and review posted rebates in your statements.",
+   "quote": "Keep ATM receipts and review posted rebates in your statements."
+  },
+  "company_age_threshold": {
+   "class": "sky_blue",
+   "requirement": "Eligibility criteria tied to company age are evaluated when you open the account",
+   "quote": "Eligibility criteria tied to company age are evaluated when you open the account; the threshold is 4."
+  },
+  "funding_requirement": {
+   "class": "sky_blue",
+   "requirement": "0",
+   "quote": "Ensure you meet the funding requirement shown as 0."
+  },
+  "free_period": {
+   "class": "sky_blue",
+   "requirement": "6 months",
+   "quote": "Confirm your enrollment met the criteria for a free period of 6 months."
+  },
+  "end_of_day_balance": {
+   "class": "true_blue",
+   "requirement": "$25,000",
+   "quote": "Maintain at least $25,000 to keep the account in good standing and access premium features."
+  },
+  "enroll_payroll_provider": {
+   "class": "true_blue",
+   "requirement": "Enroll your payroll provider using the same legal entity details as your account.",
+   "quote": "Enroll your payroll provider using the same legal entity details as your account."
+  },
+  "provide_proof_of_account_ownership": {
+   "class": "true_blue",
+   "requirement": "Provide proof of account ownership when requested.",
+   "quote": "Provide proof of account ownership when requested."
+  },
+  "confirm_discount_reflected": {
+   "class": "true_blue",
+   "requirement": "Confirm that the 20.0% discount is reflected on your payroll provider billing before your next cycle.",
+   "quote": "Confirm that the 20.0% discount is reflected on your payroll provider billing before your next cycle."
+  },
+  "periodically_review_invoices": {
+   "class": "true_blue",
+   "requirement": "Periodically review your payroll invoices to ensure the discount remains applied.",
+   "quote": "Periodically review your payroll invoices to ensure the discount remains applied."
+  },
+  "reverify_account_status": {
+   "class": "true_blue",
+   "requirement": "If the discount drops off due to a provider change or entity update, re-verify your account status and request reinstatement.",
+   "quote": "If the discount drops off due to a provider change or entity update, re-verify your account status and request reinstatement."
+  },
+  "same_day_ach_included": {
+   "class": "true_blue",
+   "requirement": "designate the correct same-day option during initiation",
+   "quote": "designate the correct same-day option during initiation."
+  },
+  "max_atm_fee_rebates_per_month": {
+   "class": "true_blue",
+   "requirement": "Retain your ATM receipts and ensure the rebated amount does not exceed $30 in a monthly cycle.",
+   "quote": "Retain your ATM receipts and ensure the rebated amount does not exceed $30 in a monthly cycle."
+  },
+  "supported_regions_for_payments": {
+   "class": "world_blue",
+   "requirement": "within the $140 supported regions for sending and receiving payments",
+   "quote": "Verify that your intended counterparties and destinations are within the $140 supported regions for sending and receiving payments"
+  },
+  "overdraft_fee": {
+   "class": "world_blue",
+   "requirement": "Prevent overdrafts",
+   "quote": "Prevent overdrafts; an overdraft triggers a fee of $30.00 when the account goes negative"
+  },
+  "minimum_conversion_amount": {
+   "class": "world_blue",
+   "requirement": "$100",
+   "quote": "Ensure your requested conversion amount meets the minimum of $100"
+  },
+  "currencies_supported": {
+   "class": "world_blue",
+   "requirement": "35",
+   "quote": "Confirm the currencies involved are among the 35 supported options"
+  },
+  "balance_threshold": {
+   "class": "world_blue",
+   "requirement": "Your account balance did not meet or exceed $25,000 during the waiver evaluation period for the statement cycle.",
+   "quote": "Balance threshold not met: Your account balance did not meet or exceed $25,000 during the waiver evaluation period for the statement cycle."
+  }
+ },
+ "adopt": [
+  "account_activity",
+  "account_age_requirement",
+  "account_balance",
+  "account_history",
+  "account_holder_name",
+  "account_profile_and_ownership_details",
+  "account_status",
+  "account_tenure",
+  "account_tenure_requirement",
+  "add_and_verify_external_destination_account",
+  "age",
+  "age_eligibility",
+  "age_range",
+  "airport_lounge_access",
+  "alert_threshold",
+  "amount",
+  "annotate_material_changes",
+  "annual_cap",
+  "annual_percentage_yield",
+  "apy",
+  "atm_access_and_rebates",
+  "atm_fee_rebates",
+  "atm_withdrawals_limit",
+  "available_balance",
+  "available_funds",
+  "average_balance",
+  "average_monthly_balance",
+  "balance",
+  "balance_requirements",
+  "balance_threshold",
+  "balance_threshold_for_higher_apy_tier",
+  "bonus_apy_with_ecocard",
+  "company_age",
+  "company_age_threshold",
+  "compare_features_and_fees",
+  "confirm_discount_reflected",
+  "confirm_scheduled_payments_or_deposits",
+  "contact_information",
+  "contact_preferences",
+  "control_configuration",
+  "coverage_activation",
+  "credit_card",
+  "currencies_supported",
+  "current_balance",
+  "customer_request",
+  "customer_tenure",
+  "daily_atm_withdrawal_limit",
+  "daily_balance",
+  "daily_cap_on_purchases",
+  "daily_limit",
+  "daily_limit_mobile_check_deposit",
+  "daily_mobile_deposit_limit",
+  "daily_spending_limit",
+  "debit_card_daily_purchase_limit",
+  "deposit_timeframe",
+  "design_recommendations",
+  "diamond_elite_account",
+  "direct_deposit_apy_bonus",
+  "document",
+  "document_type",
+  "documentation",
+  "dual_authorization_threshold",
+  "e_statements_required",
+  "early_direct_deposit",
+  "eligibility_account_status_duration",
+  "eligible_credit_card",
+  "eligible_linked_account",
+  "end_of_day_balance",
+  "enroll_payroll_provider",
+  "enter_amount_within_daily_limit",
+  "excess_transaction_fee",
+  "fee_waiver_balance_threshold",
+  "file_accessibility",
+  "foreign_atm_withdrawal_fee",
+  "free_out_of_network_atm_withdrawals_per_month",
+  "free_period",
+  "free_withdrawal_limit",
+  "free_withdrawals_per_month",
+  "free_withdrawals_per_statement_cycle",
+  "funding_requirement",
+  "funds_for_recurring_charges",
+  "gold_plus_account",
+  "gold_rewards_card_minimum_balance",
+  "gpa",
+  "headroom",
+  "high_value_payment_dual_authorization_threshold",
+  "how_often_you_must_verify",
+  "how_to_submit",
+  "image_quality",
+  "incoming_domestic_wire_fee",
+  "incoming_domestic_wire_transfer_fee",
+  "individuals_up_to_24",
+  "initial_deposit_to_open",
+  "interest_compounding_frequency",
+  "linked_checking_apy_bonus",
+  "low_balance_alerts",
+  "maintained_balance",
+  "max_atm_fee_rebates_per_month",
+  "maximum_benefit",
+  "maximum_free_withdrawals_per_month",
+  "maximum_primary_holder_age",
+  "maximum_total_amount_transfer_out_per_day",
+  "merchant_certification",
+  "merchant_participation",
+  "minimum_age",
+  "minimum_balance",
+  "minimum_balance_requirement",
+  "minimum_balance_to_maintain",
+  "minimum_balance_to_maintain_account",
+  "minimum_balance_to_maintain_the_account",
+  "minimum_balance_to_waive_monthly_fee",
+  "minimum_banking_relationship_days",
+  "minimum_conversion_amount",
+  "minimum_daily_balance",
+  "minimum_daily_balance_for_fee_waiver",
+  "minimum_daily_balance_to_maintain_benefits",
+  "minimum_daily_balance_to_waive_fee",
+  "minimum_daily_balance_to_waive_maintenance_fee",
+  "minimum_daily_balance_to_waive_monthly_maintenance_fee",
+  "minimum_deposit",
+  "minimum_initial_deposit",
+  "minimum_opening_deposit",
+  "minimum_primary_holder_age",
+  "mobile_check_deposit_daily_limit",
+  "mobile_check_deposits",
+  "mobile_deposit_limit",
+  "monitoring_and_audit",
+  "monthly_call_allocation",
+  "monthly_free_withdrawals",
+  "monthly_limit",
+  "monthly_maintenance_fee",
+  "monthly_maintenance_fee_waived_balance",
+  "monthly_rebate_allowance",
+  "monthly_rebate_cap",
+  "monthly_withdrawal_limit",
+  "ongoing_minimum_balance",
+  "ongoing_minimum_balance_to_maintain_account_benefits",
+  "opening_deposit",
+  "opening_deposit_minimum",
+  "out_of_network_atm_withdrawal_fee",
+  "overdraft_fee",
+  "paper_statement_fee",
+  "paperless_statements_required",
+  "participation_in_referral_program",
+  "payment_method",
+  "pending_authorizations",
+  "periodically_review_invoices",
+  "platinum_account",
+  "platinum_plus_account",
+  "prescription_discount",
+  "primary_account_holder_age",
+  "primary_account_holder_must_be_at_least_13",
+  "proof_of_graduation",
+  "provide_proof_of_account_ownership",
+  "qualification_deposit_amount",
+  "qualification_requirements_deposit_amount",
+  "qualification_requirements_deposit_deadline",
+  "qualification_requirements_referrer_eligibility",
+  "qualifying_deposit",
+  "qualifying_deposit_required",
+  "qualifying_payment",
+  "recipient_details",
+  "reconcile_transactions",
+  "referral_bonus",
+  "referral_bonus_for_referred_person",
+  "referral_deposit_timeframe",
+  "referral_eligibility",
+  "referral_program_eligibility",
+  "referral_qualification_deposit",
+  "referral_qualifying_requirement",
+  "referrer_bonus",
+  "referrer_tenure",
+  "referrers_tenure_threshold",
+  "relationship_bonus",
+  "relationship_bonus_apy",
+  "required_deposit",
+  "required_information_or_documentation",
+  "required_qualifying_deposit",
+  "returned_deposit_fee",
+  "reverify_account_status",
+  "review_pending_charges",
+  "rsvp",
+  "same_day_ach_included",
+  "same_day_request_submission_time",
+  "schedule_deposits_transfers",
+  "school_scale_conversion",
+  "secure_delivery_address",
+  "service_credentials",
+  "settled_balance",
+  "silver_plus_account",
+  "split_tender_payments",
+  "statements_delivery_preference",
+  "stop_payment_fee",
+  "sufficient_available_balance",
+  "supported_regions_for_payments",
+  "sweep_threshold",
+  "tenure_required",
+  "term_or_status",
+  "threshold_based_alerts",
+  "time_window",
+  "time_window_for_referral_bonus",
+  "transaction_alerts_threshold",
+  "transfer_limits",
+  "transition_request",
+  "understand_fees",
+  "verification_frequency",
+  "waiver_threshold",
+  "what_to_prepare",
+  "wire_transfer_details",
+  "withdrawal_location",
+  "your_eligibility"
+ ],
+ "new_vs_declared": [
+  "account_activity",
+  "account_age_requirement",
+  "account_balance",
+  "account_history",
+  "account_holder_name",
+  "account_profile_and_ownership_details",
+  "account_status",
+  "account_tenure",
+  "account_tenure_requirement",
+  "add_and_verify_external_destination_account",
+  "age",
+  "age_eligibility",
+  "age_range",
+  "airport_lounge_access",
+  "alert_threshold",
+  "amount",
+  "annotate_material_changes",
+  "annual_cap",
+  "annual_percentage_yield",
+  "atm_access_and_rebates",
+  "atm_fee_rebates",
+  "atm_withdrawals_limit",
+  "available_balance",
+  "available_funds",
+  "average_balance",
+  "average_monthly_balance",
+  "balance",
+  "balance_requirements",
+  "balance_threshold",
+  "balance_threshold_for_higher_apy_tier",
+  "bonus_apy_with_ecocard",
+  "company_age",
+  "company_age_threshold",
+  "compare_features_and_fees",
+  "confirm_discount_reflected",
+  "confirm_scheduled_payments_or_deposits",
+  "contact_information",
+  "contact_preferences",
+  "control_configuration",
+  "coverage_activation",
+  "credit_card",
+  "currencies_supported",
+  "current_balance",
+  "customer_request",
+  "customer_tenure",
+  "daily_balance",
+  "daily_cap_on_purchases",
+  "daily_limit",
+  "daily_limit_mobile_check_deposit",
+  "daily_mobile_deposit_limit",
+  "daily_spending_limit",
+  "debit_card_daily_purchase_limit",
+  "deposit_timeframe",
+  "design_recommendations",
+  "diamond_elite_account",
+  "direct_deposit_apy_bonus",
+  "document",
+  "document_type",
+  "documentation",
+  "dual_authorization_threshold",
+  "e_statements_required",
+  "early_direct_deposit",
+  "eligibility_account_status_duration",
+  "eligible_credit_card",
+  "eligible_linked_account",
+  "end_of_day_balance",
+  "enroll_payroll_provider",
+  "enter_amount_within_daily_limit",
+  "excess_transaction_fee",
+  "fee_waiver_balance_threshold",
+  "file_accessibility",
+  "foreign_atm_withdrawal_fee",
+  "free_out_of_network_atm_withdrawals_per_month",
+  "free_period",
+  "free_withdrawal_limit",
+  "free_withdrawals_per_month",
+  "free_withdrawals_per_statement_cycle",
+  "funding_requirement",
+  "funds_for_recurring_charges",
+  "gold_plus_account",
+  "gold_rewards_card_minimum_balance",
+  "gpa",
+  "headroom",
+  "high_value_payment_dual_authorization_threshold",
+  "how_often_you_must_verify",
+  "how_to_submit",
+  "image_quality",
+  "incoming_domestic_wire_fee",
+  "incoming_domestic_wire_transfer_fee",
+  "individuals_up_to_24",
+  "initial_deposit_to_open",
+  "interest_compounding_frequency",
+  "linked_checking_apy_bonus",
+  "low_balance_alerts",
+  "maintained_balance",
+  "max_atm_fee_rebates_per_month",
+  "maximum_benefit",
+  "maximum_free_withdrawals_per_month",
+  "maximum_primary_holder_age",
+  "maximum_total_amount_transfer_out_per_day",
+  "merchant_certification",
+  "merchant_participation",
+  "minimum_age",
+  "minimum_balance",
+  "minimum_balance_requirement",
+  "minimum_balance_to_maintain",
+  "minimum_balance_to_maintain_account",
+  "minimum_balance_to_maintain_the_account",
+  "minimum_balance_to_waive_monthly_fee",
+  "minimum_banking_relationship_days",
+  "minimum_conversion_amount",
+  "minimum_daily_balance",
+  "minimum_daily_balance_for_fee_waiver",
+  "minimum_daily_balance_to_maintain_benefits",
+  "minimum_daily_balance_to_waive_fee",
+  "minimum_daily_balance_to_waive_maintenance_fee",
+  "minimum_daily_balance_to_waive_monthly_maintenance_fee",
+  "minimum_deposit",
+  "minimum_initial_deposit",
+  "minimum_opening_deposit",
+  "minimum_primary_holder_age",
+  "mobile_check_deposit_daily_limit",
+  "mobile_check_deposits",
+  "mobile_deposit_limit",
+  "monitoring_and_audit",
+  "monthly_call_allocation",
+  "monthly_free_withdrawals",
+  "monthly_limit",
+  "monthly_maintenance_fee_waived_balance",
+  "monthly_rebate_allowance",
+  "monthly_rebate_cap",
+  "monthly_withdrawal_limit",
+  "ongoing_minimum_balance",
+  "ongoing_minimum_balance_to_maintain_account_benefits",
+  "opening_deposit",
+  "opening_deposit_minimum",
+  "out_of_network_atm_withdrawal_fee",
+  "paperless_statements_required",
+  "participation_in_referral_program",
+  "payment_method",
+  "pending_authorizations",
+  "periodically_review_invoices",
+  "platinum_account",
+  "platinum_plus_account",
+  "prescription_discount",
+  "primary_account_holder_age",
+  "primary_account_holder_must_be_at_least_13",
+  "proof_of_graduation",
+  "provide_proof_of_account_ownership",
+  "qualification_deposit_amount",
+  "qualification_requirements_deposit_amount",
+  "qualification_requirements_deposit_deadline",
+  "qualification_requirements_referrer_eligibility",
+  "qualifying_deposit",
+  "qualifying_deposit_required",
+  "qualifying_payment",
+  "recipient_details",
+  "reconcile_transactions",
+  "referral_bonus",
+  "referral_bonus_for_referred_person",
+  "referral_deposit_timeframe",
+  "referral_eligibility",
+  "referral_program_eligibility",
+  "referral_qualification_deposit",
+  "referral_qualifying_requirement",
+  "referrer_bonus",
+  "referrer_tenure",
+  "referrers_tenure_threshold",
+  "relationship_bonus",
+  "relationship_bonus_apy",
+  "required_deposit",
+  "required_information_or_documentation",
+  "required_qualifying_deposit",
+  "returned_deposit_fee",
+  "reverify_account_status",
+  "review_pending_charges",
+  "rsvp",
+  "same_day_ach_included",
+  "same_day_request_submission_time",
+  "schedule_deposits_transfers",
+  "school_scale_conversion",
+  "secure_delivery_address",
+  "service_credentials",
+  "settled_balance",
+  "silver_plus_account",
+  "split_tender_payments",
+  "statements_delivery_preference",
+  "stop_payment_fee",
+  "sufficient_available_balance",
+  "supported_regions_for_payments",
+  "sweep_threshold",
+  "tenure_required",
+  "term_or_status",
+  "threshold_based_alerts",
+  "time_window",
+  "time_window_for_referral_bonus",
+  "transaction_alerts_threshold",
+  "transfer_limits",
+  "transition_request",
+  "understand_fees",
+  "verification_frequency",
+  "waiver_threshold",
+  "what_to_prepare",
+  "wire_transfer_details",
+  "withdrawal_location",
+  "your_eligibility"
+ ],
+ "declared_never_seen": [
+  "foreign_currency_holding",
+  "free_oon_atm_per_month",
+  "max_age",
+  "min_age",
+  "monthly_deposit_limit",
+  "oon_atm_fee",
+  "oon_atm_reimbursement",
+  "waiver_min_daily_balance"
+ ]
+}
