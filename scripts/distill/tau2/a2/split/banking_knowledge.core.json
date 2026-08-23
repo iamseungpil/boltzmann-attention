@@ -1609,13 +1609,13 @@
   },
   {
    "name": "get_atm_fee_discrepancies",
-   "description": "ALWAYS use this whenever a customer questions or disputes ATM fees on their checking account(s) and you need to find which specific fee lines were charged incorrectly. First retrieve the account's transactions, then call this ONCE PER ACCOUNT, passing the account's id and its level (class) and one element per atm_fee line paired with its withdrawal. It derives the correct fee under the documented fee schedule for that account level and does the arithmetic for you. Do the fee math with this tool - do not eyeball it yourself.",
+   "description": "ALWAYS use this whenever a customer questions or disputes ATM fees on their checking account(s) and you need to find which specific fee lines were charged incorrectly. First retrieve the account's transactions, then call this ONCE PER ACCOUNT, passing the account's id and its level (class) and ONE element per ATM withdrawal - including the withdrawals that carry no fee line, because a fee that is MISSING is one of the errors it finds. It derives the correct fee under the documented fee schedule for that account level, applies that level's documented free-withdrawal allowance and ATM fee rebate programme, and does the arithmetic for you. Do the fee math with this tool - do not eyeball it yourself.",
    "params": {
     "account_id": "string (required) - the checking account ID being audited (e.g. from the accounts listing); used to look up its transaction records.",
     "account_class": "The account's level exactly as shown in the account record (e.g. 'Blue Account', 'Light Green Account').",
-    "transactions": "A JSON array with ONE element per atm_fee line of THIS account. Each element MUST have ONLY these fields, copied from the records: transaction_id (string - the fee line's id), fee_amount (number - the fee line's amount as a POSITIVE number, no $), withdrawal_amount (number, POSITIVE - the cash dispensed by the atm_withdrawal this fee belongs to: the adjacent withdrawal record with the same account and date), network (string, exactly one of 'rho' | 'non_rho' | 'foreign', read from that withdrawal's description: a RHO-BANK machine is 'rho'; a machine outside the U.S. or dispensing foreign currency is 'foreign'; any other bank's machine is 'non_rho'). Do NOT compute anything - just copy the raw values; this tool computes the expected fee and finds discrepancies itself. IMPORTANT: the fee line's own description (e.g. 'NON-RHO ATM FEE') is exactly what you are auditing - it may be wrong. Determine 'network' ONLY from the paired withdrawal's description: a RHO-BANK machine is 'rho' (a fee on a RHO-BANK withdrawal is itself the error you are looking for), a machine outside the U.S. is 'foreign', any other bank's machine is 'non_rho'. Also: if TWO fee lines belong to the SAME withdrawal, include both, and add \"duplicate_of\": \"<the other fee line's transaction_id>\" on the second one."
+    "transactions": "A JSON array with ONE element per atm_withdrawal record of THIS account, in the order they appear in the transaction history (oldest first). Include EVERY atm_withdrawal, also the ones with no fee line - a fee that is MISSING is one of the errors, and this account level's free-withdrawal allowance is counted over the withdrawals you pass. Each element MUST have ONLY these fields, copied from the records: transaction_id (string - the id of the atm_fee line paired with this withdrawal; if this withdrawal has NO fee line, the withdrawal's own id), fee_amount (number - that fee line's amount as a POSITIVE number, no $; 0 if this withdrawal has no fee line), withdrawal_amount (number, POSITIVE - the cash dispensed by this atm_withdrawal), network (string, exactly one of 'rho' | 'non_rho' | 'foreign', read from that withdrawal's description: a RHO-BANK machine is 'rho'; a machine outside the U.S. or dispensing foreign currency is 'foreign'; any other bank's machine is 'non_rho'), rebate_amount (number - the amount of the fee_rebate line paired with this withdrawal, as a POSITIVE number; 0 if the history shows no rebate for it). Do NOT compute anything - just copy the raw values; this tool computes the expected fee and finds discrepancies itself. IMPORTANT: the fee line's own description (e.g. 'NON-RHO ATM FEE') is exactly what you are auditing - it may be wrong. Determine 'network' ONLY from the paired withdrawal's description: a RHO-BANK machine is 'rho' (a fee on a RHO-BANK withdrawal is itself the error you are looking for), a machine outside the U.S. is 'foreign', any other bank's machine is 'non_rho'. Also: if TWO fee lines belong to the SAME withdrawal, include that withdrawal twice, and add \"duplicate_of\": \"<the other fee line's transaction_id>\" on the second one, with rebate_amount 0 on it."
    },
-   "return_template": "ATM fee lines whose charged amount does NOT match the documented fee schedule for this account level: {details}. SCOPE OF THIS CHECK - fee-line amounts only: each atm_fee line you passed in was compared against the documented fee schedule. This tool did NOT check whether any rebate is missing - i.e. whether the account's documented rebate policy promises a fee_rebate line that the transaction history does not show; check the account's rebate policy against the fee_rebate lines yourself before crediting. If corrections are owed, the credit policy requires ONE fee_refund credit for the net correction of THIS account (do not credit the same lines twice).",
+   "return_template": "ATM withdrawals whose net charge does NOT match the documented fee schedule for this account level: {details}. SCOPE OF THIS CHECK - each withdrawal you passed in was compared against the documented schedule for this level, which covers a fee charged when none was due, a fee of the wrong amount, a fee that is MISSING where one was due (it shows as a negative difference), the level's documented free-withdrawal allowance, and - for levels whose documents promise ATM fee rebates - a documented rebate the history does not show (for those levels both amounts shown are net of the fee_rebate lines you passed, so a missing rebate shows as a positive difference). It covers ONLY the withdrawals you passed in: if you left an atm_withdrawal of this account out, its error is not in this list and the free-allowance count may be off - pass them all and call again. If corrections are owed, the credit policy requires ONE fee_refund credit for the net correction of THIS account (do not credit the same lines twice).",
    "op": {
     "op": "select_discrepant",
     "over": "transactions",
@@ -1623,6 +1623,10 @@
     "actual_field": "fee_amount",
     "tolerance": 0.01,
     "steps": {
+     "ord": {
+      "op": "ordinal",
+      "partition": "r.network"
+     },
      "pct1": {
       "op": "multiply",
       "a": "r.withdrawal_amount",
@@ -1671,8 +1675,38 @@
          2.5
         ]
        },
-       "Light Green Account": null,
-       "Light Blue Account": null
+       "Light Green Account": {
+        "op": "lookup_table",
+        "key": "steps.ord",
+        "table": [
+         {
+          "cmp": "<=",
+          "thr": 4,
+          "result": 0
+         },
+         {
+          "cmp": ">",
+          "thr": 4,
+          "result": 1.5
+         }
+        ]
+       },
+       "Light Blue Account": {
+        "op": "lookup_table",
+        "key": "steps.ord",
+        "table": [
+         {
+          "cmp": "<=",
+          "thr": 2,
+          "result": 0
+         },
+         {
+          "cmp": ">",
+          "thr": 2,
+          "result": 2.5
+         }
+        ]
+       }
       },
       "default": null
      },
@@ -1731,7 +1765,22 @@
          3.0
         ]
        },
-       "Light Blue Account": null
+       "Light Blue Account": {
+        "op": "lookup_table",
+        "key": "steps.ord",
+        "table": [
+         {
+          "cmp": "<=",
+          "thr": 2,
+          "result": 0
+         },
+         {
+          "cmp": ">",
+          "thr": 2,
+          "result": 4.0
+         }
+        ]
+       }
       },
       "default": null
      },
@@ -1754,7 +1803,19 @@
     },
     "expected_ref": "steps.expected",
     "dup_field": "duplicate_of",
-    "_note_rebate_field": "2026-08-15 **보류**: 환급 차감은 근거(x323 n=24·072 원장 검산 14.00=gold)가 충분하나, 함께 필요한 Bluest non_rho 기대값 0 이 `rebated_amount` 미추출 시 **과다 환불**($24.00)을 만든다. 기권 안전판을 넣었더니 이번엔 환급과 무관한 모든 fee 계산이 판정불가가 됐다(test_atm_fee_op 가 잡음). ⇒ 선언을 빼서 **비활성**으로 두고, 서브 추출률을 먼저 측정한 뒤 되살린다. 코드(`rebate_field`)와 검정(`test_rebate_netting`)은 그대로 남는다."
+    "rebate": {
+     "field": "rebate_amount",
+     "cap": {
+      "op": "case",
+      "key": "account_class",
+      "cases": {
+       "Bluest Account": 50.0,
+       "Purple Account": 30.0
+      },
+      "default": null
+     }
+    },
+    "_note_rebate": "2026-08-24: 2026-08-15 의 `rebate_field` 보류판을 **대체**한다. 그 판은 부과 쪽에서만 환급을 빼고 Bluest 의 non_rho 기대값을 0 으로 내렸다 — 서브가 `rebated_amount` 를 못 뽑으면 모든 수수료가 전액 불일치가 돼 **과다 환불**($24.00)이 났고, 기권 안전판을 넣으니 이번엔 환급과 무관한 계산까지 다 판정불가가 됐다. 새 판은 **양쪽을 같이 순액화**한다: expected_net = 문서 요율 − min(문서 요율, 남은 월 상한) · actual_net = 부과액 − 실제 환급액. 환급 채무를 **부과액이 아니라 문서 요율**로 계산하는 것이 핵심이다(072 Bluest 11/20 = 2.50 부과·2.00 환급·문서 2.00 ⇒ 순 +0.50). 상한이 선언되지 않은 등급(cap=null)에서는 이 축이 통째로 꺼져 거동이 전과 같다."
    },
    "_note_delta_total_removed_2026_08_19": "REMOVED (2026-08-19 · 커밋 b220745d 와 같은 사유). `= ${delta_total:.2f}` 를 return_template 에서 제거했다. 요율 출처는 정책 축자라 [[23]] 는 통과하지만 delta_total 은 **채점되는 인자 그 자체**다(task_073 gold amount 9.50/9.00/1.50 = 계좌별 net). 엔진이 채점되는 값을 만들어 건네면 formalize->calc 아키텍처가 아니라 그 위조판을 재게 된다([[62]]·[[03b]]). 남긴 것 = {details}(라인별 중간 사실) + 정책 축자 문구. 엔진 코드 불변(kwarg 미사용=거동 0). ⚠효과는 **미측정**이다.",
    "_note_": "2026-08-13 x288 판정(A_DOCS 0/8)에 따른 F2b 결정론기 — 요율 출처는 전부 정책 문서 축자(ATM_FEE_SCHEDULE_VERBATIM_2026_08_13.md·gold 미접촉): blue oon 1% max$3 (blue_001)·blue forx max(3%,$5) USD환산(blue_012)·bluest oon $2/forx $0(bluest_010/_003)·green oon $3(green_010)/forx max(3%,$5)(green_012)·light_green forx tier 2.00/3.50/5.00 경계=하위(lg_013)·purple oon $2.50(purple_012)/forx $0(purple_001)·dark_green oon max(1%,$1.50)(dg_001)/forx min(2.5%,$6)(dg_002)·evergreen oon min(1%,$2.50)(eg_008)/forx max(2%,$3)(eg_001). rho=수수료 조항 부재→기대 0 은 NON-RHO 라벨 fee 가 RHO 인출에 붙는 모순 검출용(env _err 실물 동형). light_green/light_blue oon·light_blue forx = 월 무료횟수 규정이 문서에 불완전(모호점 8·10)→기대 null=판정 보류(과차단 방지·skipped 로 표면화). 리베이트 축은 별도 fee_rebate 라인이라 이 도구 범위 밖(모호점 6·11). 페어링·network 분류는 LLM formalize 몫([[22]]·인접 레코드 복사)·엔진은 산술만([[10]]). | 2026-08-13 FIX-5(t7274w 073 실측: id-만 반환하니 모델이 차액 아닌 값을 크레딧 $24.50/$15/$5 + chk_3 중복 크레딧): {details}(라인별 charged/documented/difference)와 {delta_total}(net 합)을 표면화 — x288 A_DOCS 0/8 이 잰 산술 결손 범위 내·엔진이 이미 계산한 값의 뺄셈·합만([[62]] 최소). 문구 출처 = doc_bank_accounts_bank_accounts_(general)_017 §2 Fee mischarges 'apply a credit for the net correction across all identified fee discrepancies' 축자. 픽·페어링·network 분류·credit 실행은 모델 몫 불변. | 2026-08-14 x301 판정(4셀 n=8): A_CUR rho 0/8(자기-참조 함정: fee 라벨을 network 근거로 오용 — 8/8 결정론 재현·073 이 4시행 내내 8/11 에 멈춘 원인)·B_WARN 0/8(추상 경고는 역효과: 정답까지 파괴 — [[63]] 더하기-지시 무효의 재실증)·**C_DUP rho 8/8·dup 8/8**(구체 페어링 작업 지시가 주의를 인출 행으로 끌어 network 부수 정답) → 이 param 문면 = C_DUP 축자. op dup_field='duplicate_of' = 모델 선언의 산술 귀결(기대 0)만 엔진이 소비([[59]] 무결·x288 산술 계열·[[62]] ③). | 2026-08-21 P5(t7335 halfA 072 실측: 완결-인상 반환문이 모델의 보완 rebate 검사를 억제 — [27] 문맥에 rebate 5/6 패턴 실재·[38] $12.00 write·차액 $2.00=11/14 누락 rebate): ①'across all identified fee discrepancies' 완결 문구 제거 ②검사한 축을 문면 명시(도구 선언 도출: transactions 'ONE element per atm_fee line' + select_discrepant actual_field=fee_amount = 전달된 fee 라인의 금액만) ③검사 안 한 축(fee_rebate 부재)을 문면 명시 — 기존 선언 축자('리베이트 축은 별도 fee_rebate 라인이라 이 도구 범위 밖(모호점 6·11)'·_note_rebate_field 보류)의 문면 승격 + [[64]] fix-naming(072 처방 축자 'check the account's rebate policy against the fee_rebate lines yourself'). 검사 로직 신설 0([[62]]·op/isolate 불변)·'net correction' 정책 축자(general_017 §2)·delta_total 미표기 유지. 효과는 미측정.",
@@ -1772,14 +1833,15 @@
      "transactions"
     ],
     "max_rounds": 3,
-    "instructions": "You are a records-extraction sub-task. For the checking account in REFERENCE: (1) call call_discoverable_agent_tool with agent_tool_name='get_bank_account_transactions_9173' and that account_id to read the account's transaction records. (2) Build the transactions array with ONE element per atm_fee line of THIS account. Each element MUST have ONLY these fields, copied from the records: transaction_id (string - the fee line's id), fee_amount (number - the fee line's amount as a POSITIVE number, no $), withdrawal_amount (number, POSITIVE - the cash dispensed by the atm_withdrawal this fee belongs to: the adjacent withdrawal record with the same account and date), network (string, exactly one of 'rho' | 'non_rho' | 'foreign'). IMPORTANT: the fee line's own description (e.g. 'NON-RHO ATM FEE') is exactly what you are auditing - it may be wrong. Determine 'network' ONLY from the paired withdrawal's description: a RHO-BANK machine is 'rho' (a fee on a RHO-BANK withdrawal is itself the error you are looking for), a machine outside the U.S. is 'foreign', any other bank's machine is 'non_rho'. Also: if TWO fee lines belong to the SAME withdrawal, include both, and add \"duplicate_of\": \"<the other fee line's transaction_id>\" on the second one. Do NOT compute fees - just copy raw values.",
-    "answer_format": "Reply with exactly one JSON object and nothing else: {\"transactions\": [ {\"transaction_id\": \"...\", \"fee_amount\": <number>, \"withdrawal_amount\": <number>, \"network\": \"...\"} ]}",
+    "instructions": "You are a records-extraction sub-task. For the checking account in REFERENCE: (1) call call_discoverable_agent_tool with agent_tool_name='get_bank_account_transactions_9173' and that account_id to read the account's transaction records. (2) Build the transactions array with ONE element per atm_withdrawal record of THIS account, in record order (oldest first). Include EVERY atm_withdrawal, also the ones with no fee line. Each element MUST have ONLY these fields, copied from the records: transaction_id (string - the id of the atm_fee line paired with this withdrawal: the adjacent atm_fee record with the same account and date; if this withdrawal has NO fee line, the withdrawal's own id), fee_amount (number - that fee line's amount as a POSITIVE number, no $; 0 if this withdrawal has no fee line), withdrawal_amount (number, POSITIVE - the cash dispensed by this atm_withdrawal), network (string, exactly one of 'rho' | 'non_rho' | 'foreign'), rebate_amount (number - the amount of the fee_rebate record with the same account and date, as a POSITIVE number; 0 if there is none). IMPORTANT: the fee line's own description (e.g. 'NON-RHO ATM FEE') is exactly what you are auditing - it may be wrong. Determine 'network' ONLY from the paired withdrawal's description: a RHO-BANK machine is 'rho' (a fee on a RHO-BANK withdrawal is itself the error you are looking for), a machine outside the U.S. is 'foreign', any other bank's machine is 'non_rho'. Also: if TWO fee lines belong to the SAME withdrawal, include that withdrawal twice, and add \"duplicate_of\": \"<the other fee line's transaction_id>\" on the second one, with rebate_amount 0 on it. Do NOT compute fees - just copy raw values.",
+    "answer_format": "Reply with exactly one JSON object and nothing else: {\"transactions\": [ {\"transaction_id\": \"...\", \"fee_amount\": <number>, \"withdrawal_amount\": <number>, \"network\": \"...\", \"rebate_amount\": <number>} ]}",
     "_note": "2026-08-14 FIX-10. x301 4셀 n=8: A_CUR 0/8·B_WARN 0/8(역효과)·C_DUP rho 8/8·dup 8/8·D_NEG 0/8 — 지시문 핵심 블록 = C_DUP 측정 축자([[03b]]). t7282 라이브: 같은 문면이 스키마에만 있으면 도달 0회(인라인 형식화 = A_CUR 동형 오답·'paired withdrawal' 문맥 등장 0). x301b(재생성-경계) 계기 실패 → 배치 채널 확정. 기전 = 기존 fetch_formalize(§2b 105/105·get_interest_correction 선례)·판단 = LLM 서브·엔진 운반만·실패 시 메인 인자 폴백.",
     "row_fields": [
      "transaction_id",
      "fee_amount",
      "withdrawal_amount",
-     "network"
+     "network",
+     "rebate_amount"
     ],
     "_note_row_fields": "2026-08-21 P3: row_fields 는 fetch_formalize 모드가 소비하지 않는다(_sub_formalize/_sub_inject 전용) — 여기 선언하는 유일 효과는 _split_missing_fields 의 출처 분류: transaction_id 등 레코드-유래 필드가 결핍(P4b 강등 포함)일 때 abstain 문구가 '레코드에서 읽어 재호출하라'(이행 가능 지시)로 나가게 한다(C275 ⑤ 모순-지시 방지·C278 §2c).",
     "operand_schema": {
@@ -1805,13 +1867,20 @@
          },
          "network": {
           "type": "string"
+         },
+         "rebate_amount": {
+          "type": "number"
+         },
+         "duplicate_of": {
+          "type": "string"
          }
         },
         "required": [
          "transaction_id",
          "fee_amount",
          "withdrawal_amount",
-         "network"
+         "network",
+         "rebate_amount"
         ],
         "additionalProperties": false
        }
@@ -1838,7 +1907,8 @@
      ]
     }
    },
-   "_note_grounded_params": "2026-08-21 P3 (t7335 074 실측·HALFB §task_074): 날조 거래행이 출처 검산 없이 판정을 받아 discrepancy 로 에코되고 고객 보고까지 세탁됐다. 신설 아님 — 자매 comparator get_reward_discrepancies(ratefix)의 C211/F6a grounded_params.transaction_id 동형 선언을 이 도구에 채운다(발명-행 = 결핍 강등 → 판정 제외·비-에코·P4 지목 경로 합류). selector 를 테이블명이 아니라 'record id:'(env DB 레코드 덤프의 기계 포맷 — _byref_records/src0 안전판이 이미 쓰는 닫힌 술어)로 두는 근거: 이 도구의 read 는 디스패처 경유라 __tool_outputs blob 이 테이블 혼합이고, 우리 comparator 반환문에는 'Record ID:' 라인이 없어 자기 출력 에코(txn54321 (charged ...))로는 재접지가 성립하지 않는다(부정통제 = test_comparator_read_first). ±([[70]] 공개): 사는 것 = 날조 행의 판정·에코 차단. 파는 것 = main 이 그 계좌 거래를 안 읽고 서브 fetch 에만 의존하는 호출은 행 전체 unverified 기권 → read 후 재호출 1왕복 추가(description 이 이미 main 선독을 계약으로 명시하므로 계약 밖 경로만 비싸진다). 효과 주장은 A/B 전 금지 — 본 선언은 단측 관찰 기반."
+   "_note_grounded_params": "2026-08-21 P3 (t7335 074 실측·HALFB §task_074): 날조 거래행이 출처 검산 없이 판정을 받아 discrepancy 로 에코되고 고객 보고까지 세탁됐다. 신설 아님 — 자매 comparator get_reward_discrepancies(ratefix)의 C211/F6a grounded_params.transaction_id 동형 선언을 이 도구에 채운다(발명-행 = 결핍 강등 → 판정 제외·비-에코·P4 지목 경로 합류). selector 를 테이블명이 아니라 'record id:'(env DB 레코드 덤프의 기계 포맷 — _byref_records/src0 안전판이 이미 쓰는 닫힌 술어)로 두는 근거: 이 도구의 read 는 디스패처 경유라 __tool_outputs blob 이 테이블 혼합이고, 우리 comparator 반환문에는 'Record ID:' 라인이 없어 자기 출력 에코(txn54321 (charged ...))로는 재접지가 성립하지 않는다(부정통제 = test_comparator_read_first). ±([[70]] 공개): 사는 것 = 날조 행의 판정·에코 차단. 파는 것 = main 이 그 계좌 거래를 안 읽고 서브 fetch 에만 의존하는 호출은 행 전체 unverified 기권 → read 후 재호출 1왕복 추가(description 이 이미 main 선독을 계약으로 명시하므로 계약 밖 경로만 비싸진다). 효과 주장은 A/B 전 금지 — 본 선언은 단측 관찰 기반.",
+   "_note_absence_free_rebate_2026_08_24": "★ 2026-08-24 수리 — 이 도구는 **두 방향으로 틀려 있었다**(t7335/t7346 074 실측: 우리 값 _3 6.50·_4 5.50 ↔ gold 4.75·3.70). ①입력이 `atm_fee` 라인 단위라 **부과됐어야 하는데 줄이 아예 없는** 인출이 구조적으로 안 보였다(074 _3 11/13 −1.75·_4 11/12 −1.80·072 Light Green 11/09 −1.50). ②부재를 세게 만들면 이번엔 **무료 횟수**를 빼야 한다(072 Light Green 은 타행 6건 중 앞 4건이 월 무료분이라 미부과가 아니다) — 하나만 고치면 다른 쪽을 깬다([[70]]). ③그리고 환급 프로그램이 있는 등급은 `fee_rebate` 줄의 **부재**가 곧 채무다(072 Bluest 11/14 +2.00 — 우리 12.00 ↔ gold 14.00 의 정체였다). 셋을 한 커밋에 넣는다. || 수치 출처(gold 무접촉·[[23]]): 전부 `ATM_FEE_SCHEDULE_VERBATIM_2026_08_13.md` 에 **이미 추출돼 있었고** 그 문서가 '무료 횟수/리베이트 캡(모호점 4·7·8·10)은 1판 범위 밖' 이라고 유보해 둔 축이다 — light_green 월 4회 무료 후 $1.50(lg_001) · light_blue 타행 월 2회 무료 후 $2.50(lb_004) · light_blue 해외 월 2회 무료 후 $4.00(lb_006) · bluest 리베이트 월 $50 캡(bluest_001/_003/_007) · purple 리베이트 월 $30 캡(purple_001/_004/_010). || 모호점 처리: ⑧light_blue 의 타행·해외 무료 풀은 **분리**한다(두 축이 각각 다른 문서에 '2 free' 로 따로 선언돼 있다) ⑩light_green 의 무료 4회는 **타행에만** 적용한다(해외는 lg_013 의 tier 표가 전액을 규정) ⑥⑦환급은 **인출 1건당 문서 요율만큼**이고 상한은 넘어온 행 순서로 누적한다(코퍼스는 전부 단월이라 statement-cycle 경계는 미행사) ④bluest 의 'third-party' 문언은 우리 요율 라인을 대상으로 읽는다(원장이 NON-RHO ATM FEE 5건에 1:1 로 REBATE 를 달고 있다). || ⚠[[70]] 무엇을 파는가: 서브가 전사할 행이 **수수료 라인 → 전체 인출**로 늘고(072 Bluest 8→9·074 Light Blue 12→16) `rebate_amount` 한 칸이 더 붙는다. 그리고 환급 등급에서 그 칸을 **못 뽑으면 그 행은 판정하지 않는다**(과다 환불 방지·2026-08-15 판이 죽은 자리) — 틀린 수 대신 coverage 결손이 나간다. ⚠엔진 신설분은 `ordinal`(같은 partition 안에서 세기)과 순액 뺄셈뿐이다 — 요율·무료 횟수·상한은 전부 A2 상수이고 페어링·network·환급 짝짓기는 LLM 몫으로 불변([[10]]·[[22]]·[[59]]). ⚠검산은 072·073·074 **9계좌 전수**가 gold 와 정확히 일치(`test_atm_ledger_close.py`) — 규칙을 gold 로 맞춘 것이 아니라 KB 축자로 짓고 나서 rewards 로 대조했다([[69]]). ⚠라이브 효과는 미측정. ⚠표적 재계수(2026-08-24·[[31]] 규칙 4): ATM 거래가 있는 계좌 = **9개·등급 8종**이고 여기 선언된 8종과 정확히 일치한다(Light Green 2·Purple/Light Blue/Dark Green/Evergreen/Blue/Green/Bluest 각 1). 미선언 등급(Silver·Bronze·Navy Blue·Cobalt Blue)은 계좌는 있으나 ATM 거래 **0건**이라 스케줄을 저작할 표적이 없다 — `default: null` 이라 그 등급이 오면 잘못 계산하지 않고 기권한다."
   },
   {
    "name": "get_checking_atm_fee_totals",

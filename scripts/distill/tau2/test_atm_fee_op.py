@@ -51,7 +51,7 @@ def fee(i, amt, w, net, rebated=None):
     r = {"transaction_id": "t%d" % i, "fee_amount": amt,
          "withdrawal_amount": w, "network": net}
     if rebated is not None:
-        r["rebated_amount"] = rebated
+        r["rebate_amount"] = rebated                 # 2026-08-24 필드명 = op.rebate.field
     return r
 
 
@@ -80,14 +80,17 @@ ids, st, _ = run("Light Green Account", [fee(1, 2.00, 100, "foreign"),   # 경�
 chk("light_green: tier 경계=하위", ids == ["t2"], ids)
 
 # ⑵ rho 모순(NON-RHO fee 가 RHO 인출에)
-#   ⚠환급 차감(C487·x323)은 **보류**다 — Bluest 기대값 0 + 미추출이 과다 환불을 만든다.
-#     기구와 검정(`test_rebate_netting`)은 남기고 A2 선언만 뺐다. 여기선 종전 규칙을 고정한다.
-ids, st, _ = run("Bluest Account", [fee(1, 2.00, 200, "rho"),        # 기대 0 → discrepant
-                                    fee(2, 2.00, 200, "non_rho"),    # 플랫 2.00 정상
-                                    fee(3, 4.00, 200, "foreign")])   # 기대 0 → discrepant
+#   ⚠2026-08-24: Bluest 는 환급 등급이라 행마다 `rebate_amount` 가 있어야 판정된다(없으면 기권).
+#     환급 축 자체는 `test_rebate_netting.py` 가 고정한다 — 여기선 요율만 본다.
+ids, st, _ = run("Bluest Account", [fee(1, 2.00, 200, "rho", rebated=0.0),      # 기대 0 → discrepant
+                                    fee(2, 2.00, 200, "non_rho", rebated=2.0),  # 플랫 2.00·환급 정상
+                                    fee(3, 4.00, 200, "foreign", rebated=0.0)])  # 기대 0 → discrepant
 chk("bluest: rho/foreign 기대 0", ids == ["t1", "t3"], ids)
+# ⑵b 2026-08-24: light_green/light_blue 의 oon 은 더 이상 판정 보류가 아니다 — 등급 문서가
+#     **월 무료 횟수**를 표로 준다(lg_001: 4회 무료 후 $1.50). 첫 건은 기대 0 이라 부과가 전액 과부과.
 ids, st, _ = run("Light Green Account", [fee(1, 1.50, 50, "non_rho")])
-chk("light_green oon: 보류(skipped)", ids == [] and st.get("skipped") == 1, (ids, st))
+chk("light_green oon: 무료 1번째 → 부과는 과부과", ids == ["t1"] and st.get("skipped") == 0,
+    (ids, st))
 ids, st, _ = run("Gold Years Account", [fee(1, 2.00, 50, "non_rho")])
 chk("미선언 클래스: 보류", ids == [] and st.get("skipped") == 1, (ids, st))
 
@@ -140,16 +143,22 @@ chk("REG: 엔진이 net 수치를 안 건넨다", "= $2.50" not in _txt and "del
 
 # ⑻ P5(2026-08-21·t7335 halfA 072): 반환문 완결-인상 제거 + 검사/미검사 축 문면 명시.
 #    구 문구 "across all identified fee discrepancies" 가 완결 인상을 줘 모델의 보완
-#    rebate 검사를 억제([38] $12.00 write·차액 $2.00=11/14 누락 rebate). 수리는 문면만
-#    ([[62]] — 누락-rebate 검사 로직 신설 0·op 불변).
+#    rebate 검사를 억제([38] $12.00 write·차액 $2.00=11/14 누락 rebate).
+#    ★2026-08-24 갱신: **미검사 축이 검사 축이 됐다** — 도구가 부재·무료 횟수·환급 부재를 직접
+#      본다. 그래서 P5 가 고정하던 *"이건 안 봤으니 네가 봐라"* 문구는 이제 **거짓**이라 뺀다.
+#      대신 같은 [[64]] 규율로 **남은 미검사 축**(넘기지 않은 인출)을 이름으로 대고 고칠 방법을 준다.
 _rt = (E or {}).get("return_template", "")
 chk("P5: 완결 인상 제거", "across all identified" not in _rt, _rt[:120])
-chk("P5: 검사한 축 명시(전달 라인의 금액만)",
-    "fee-line amounts only" in _rt and "you passed in" in _rt, _rt[:250])
-chk("P5: 미검사 축 명시(fee_rebate 부재)",
-    "did NOT check" in _rt and "fee_rebate" in _rt, _rt[:400])
-chk("P5: [[64]] fix-naming(무엇을 하면 풀리나)",
-    "check the account's rebate policy against the fee_rebate lines yourself" in _rt)
+chk("P5: 검사한 축 명시(부재·무료 횟수·환급 부재)",
+    "you passed in" in _rt and "is MISSING where one was due" in _rt
+    and "free-withdrawal allowance" in _rt and "a documented rebate the history does not show" in _rt,
+    _rt[:300])
+chk("P5: 옛 미검사 문구 제거(이제 검사한다)",
+    "did NOT check" not in _rt
+    and "check the account's rebate policy against the fee_rebate lines yourself" not in _rt)
+chk("P5: [[64]] fix-naming(남은 미검사 축 + 고칠 방법)",
+    "covers ONLY the withdrawals you passed in" in _rt and "pass them all and call again" in _rt,
+    _rt[-260:])
 chk("P5: 렌더에 {details} 유지·다른 자리표시자 없음",
     "{details}" in _rt and "difference $2.50" in _txt
     and not [m for m in __import__("re").findall(r"\{(\w+)", _rt) if m != "details"], _rt[-120:])

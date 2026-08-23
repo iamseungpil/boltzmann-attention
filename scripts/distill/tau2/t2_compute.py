@@ -878,7 +878,33 @@ def apply_op(spec, ctx):
                         continue
                     _members.sort(key=lambda k: _pos[k])
                     _dup_zero.discard(_members[0])     # 그룹 첫 행 = 원본(정상 부과)
-            for r in recs:
+            # ★ordinal (2026-08-24): 문서화된 **월 무료 횟수**를 쓰려면 그 행이 그 달의 몇 번째
+            #   인출인지를 알아야 한다. 엔진은 날짜를 파싱하지 않는다([[59]]) — 입력 순서가
+            #   시간순이라는 것은 param 계약이 요구하고, 여기서는 같은 partition 값끼리 **세기만**
+            #   한다(도메인 어휘 0·판단 0·[[10]]). 중복 선언 행은 같은 인출의 두 번째 수수료
+            #   줄이므로 무료 횟수를 소비하지 않는다(=None → 그 행은 dup 경로로 기대 0).
+            _ordmap = {}
+            for _onm, _osp in steps.items():
+                if not (isinstance(_osp, dict) and _osp.get("op") == "ordinal"):
+                    continue
+                _opart, _ocnt, _ovals = _osp.get("partition"), {}, []
+                for _orow in recs:
+                    if not isinstance(_orow, dict):
+                        _ovals.append(None)
+                        continue
+                    if _dupf0 and str(_orow.get(idf)) in _dup_zero:
+                        _ovals.append(None)
+                        continue
+                    _okey = str(_get({"r": _orow}, _opart)) if _opart else "*"
+                    _ocnt[_okey] = _ocnt.get(_okey, 0) + 1
+                    _ovals.append(_ocnt[_okey])
+                _ordmap[_onm] = _ovals
+            # ★월 리베이트 상한(A2 `rebate` 선언 시만·미선언=거동 변화 0).
+            #   상한은 행과 무관하므로 1회만 평가하고, 소진은 입력 순서대로 누적한다.
+            _rbspec = spec.get("rebate") or {}
+            _cap_spec = _rbspec.get("cap")
+            _cap_left = _num(apply_op(_cap_spec, ctx) if isinstance(_cap_spec, dict) else _cap_spec)
+            for _ri, r in enumerate(recs):
                 if not isinstance(r, dict):
                     continue
                 # ★F6a(C211·DAY7 §F6): id_field 결핍(P4b 강등 포함) 행은 판정 제외+계상 —
@@ -891,7 +917,8 @@ def apply_op(spec, ctx):
                     continue
                 rctx = dict(ctx); rctx["r"] = r; rctx["steps"] = {}
                 for nm, sp in steps.items():                 # 역참조 DAG: 순서대로·steps에 저장
-                    rctx["steps"][nm] = apply_op(sp, rctx)
+                    rctx["steps"][nm] = (_ordmap[nm][_ri] if nm in _ordmap
+                                         else apply_op(sp, rctx))
                 exp = _get(rctx, exp_ref) if exp_ref else (apply_op(espec, rctx) if isinstance(espec, dict) else None)
                 # ★dup_field (2026-08-14·격리 x301_fee_formalize_probe.py 4셀 n=8): 중복 fee
                 #   라인은 금액이 공식값과 일치해 금액-대조로는 안 잡힌다(존재 자체가 오류).
@@ -904,34 +931,6 @@ def apply_op(spec, ctx):
                     exp = 0
                 act = _num(r.get(af))                          # clean operand 전제(LLM formalize)
                 en = _num(exp)
-                # ★환급 차감 (2026-08-15·A2 `rebate_field` 선언 시만·미선언=거동 변화 0).
-                #   근거(C487·072 원장 직독·gold 무접촉): Bluest 계좌에 `ATM FEE REBATE` 5건이
-                #   있고 미환급 잔액이 정확히 gold($14.00)다. 우리 op 는 **부과 vs 기대**만 봐서
-                #   이미 환급된 것을 못 뺐고, 환급이 **없는** 라인(11/14 $2.00)은 *"기대=부과"* 라
-                #   정상 판정해 통째로 놓쳤다 — $2.00 결손의 정체다.
-                #   측정 근거([[62]] 순서 준수·x323·n=24·블록 8·8·8): 환급 기록을 축자로 줘도
-                #   **0/24**, 정책 문면까지 줘도 **0/24**, 엔진이 뺀 값을 주면 **24/24** ⇒
-                #   이 한 칸의 결정론만 정당화된다(값 생성 아님·**두 수의 뺄셈**·[[10]]).
-                #   ⚠금액의 출처는 전부 LLM 형식화(부과·환급 모두 서브가 원장에서 전사)이고
-                #     엔진은 뺄셈만 한다 — 정답을 고르지 않는다([[62]] ④).
-                #   ⚠한계(의도적·미구현): 정책의 **월 상한**($50)은 반영하지 않는다. 상한을 넘는
-                #     달에는 과대 환급으로 볼 수 있다 — 상한 판정은 별도 측정 후에 붙인다.
-                #   ⚠**안전판 (발사 전 자기검토·2026-08-15)**: 이 선언과 함께 Bluest 의 non_rho
-                #     기대값을 0 으로 내렸다(순비용 0). 그러면 서브가 `rebated_amount` 를 **못 뽑은**
-                #     경우 모든 수수료가 전액 불일치로 잡혀 **과다 환불**($24.00)이 된다 — 지금보다
-                #     나쁘다. 필드가 아예 없는 행은 **판정하지 않고 기권**한다(coverage 가 표면화·
-                #     [[25]] 모르면 단언하지 않는다). 0.0 은 "환급 없음"이라는 **정보**이므로 판정한다.
-                _rebf = spec.get("rebate_field")
-                if _rebf and act is not None:
-                    if _rebf not in r:
-                        skipped += 1
-                        if idf and r.get(idf):
-                            _unv_ids.append(str(r.get(idf)))
-                        _missing[_rebf] = _missing.get(_rebf, 0) + 1
-                        continue
-                    _reb = _num(r.get(_rebf))
-                    if _reb:
-                        act = round(act - _reb, 2)
                 if en is None or act is None:
                     # ★숫자로 안 읽히는 행은 판정 불가 → 건너뛴다(엔진이 '$'/단위를 파싱하면
                     #   엔진-formalize=[[03b]] 위반이므로 정규화는 LLM 몫이다). 단 **조용히** 건너뛰면
@@ -946,6 +945,32 @@ def apply_op(spec, ctx):
                     if act is None and r.get(af) not in (None, ""):
                         _missing["(unparsable %s)" % af] = _missing.get("(unparsable %s)" % af, 0) + 1
                     continue
+                # ★환급 순액 (2026-08-24·A2 `rebate` 선언 시만·미선언=거동 변화 0).
+                #   등급 문서가 **ATM 수수료 환급 프로그램**을 선언한 계좌(월 상한이 있는 등급)는
+                #   그 인출에 대해 `fee_rebate` 줄이 따라와야 한다. 그래서 이 행의 판정은 부과-vs-기대가
+                #   아니라 **순부담-vs-기대순부담**이다:
+                #       actual_net   = 부과액 − 실제 환급액
+                #       expected_net = 문서 요율 − min(문서 요율, 남은 월 상한)
+                #   ⚠환급 채무는 **문서 요율**로 계산한다(부과액이 아니라) — 과부과분은 환급이
+                #     아니라 과부과로 돌려주는 것이라 이중 계상하면 안 된다(072 Bluest 11/20:
+                #     2.50 부과·2.00 환급·문서 2.00 ⇒ 순 +0.50 이지 +1.00 이 아니다).
+                #   ⚠2026-08-15 의 `rebate_field` 판(보류)과 다른 점: 그 판은 **부과 쪽만** 빼고
+                #     기대값을 0 으로 내렸다 — 서브가 환급을 못 뽑으면 전액 환불($24.00)이 됐다.
+                #     여기서는 기대값도 같이 순액이라 그 붕괴가 구조적으로 안 생긴다.
+                #   ⚠필드가 아예 없는 행은 **판정하지 않는다**([[25]] 모르면 단언하지 않는다·
+                #     coverage 가 표면화). 0.0 은 "환급 없음"이라는 **정보**이므로 판정한다.
+                _rbf = _rbspec.get("field")
+                if _rbf and _cap_left is not None:
+                    if _rbf not in r:
+                        skipped += 1
+                        if idf and r.get(idf):
+                            _unv_ids.append(str(r.get(idf)))
+                        _missing[_rbf] = _missing.get(_rbf, 0) + 1
+                        continue
+                    _due = min(en, _cap_left) if en > 0 else 0.0
+                    _cap_left = round(_cap_left - _due, 2)
+                    en = round(en - _due, 2)
+                    act = round(act - (_num(r.get(_rbf)) or 0.0), 2)
                 if abs(en - act) > tol:
                     out_ids.append(r.get(idf))
                     # ★discrepant 상세(2026-07-19·task_026 포렌식: 기대값 미반환→에이전트가 기록값

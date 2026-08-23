@@ -121,13 +121,15 @@ def main():
 
     # ── ⑤ F6a op 거동 — 강등 행 판정 제외·비-에코, 정상 행 판정 ─────────────────────
     print("[F6a] transaction_id 결핍(P4b 강등) 행 = 판정 제외+계상·비-에코")
+    # ⚠2026-08-24: Bluest 는 환급 등급이라 행마다 `rebate_amount` 가 있어야 판정된다(없으면 기권·
+    #   `op.rebate`). 이 블록이 재는 축은 **id 결핍 행의 제외**이므로 픽스처를 새 계약에 맞춘다.
     rows = [
-        # 정상 행: Bluest non_rho 기대 $2.00 ↔ 부과 $3.50 → discrepant
+        # 정상 행: Bluest non_rho 기대 $2.00 ↔ 부과 $3.50·환급 없음 → discrepant(순 3.50)
         {"transaction_id": "btxn_63306834d5ba", "fee_amount": 3.50,
-         "withdrawal_amount": 100.0, "network": "non_rho"},
+         "withdrawal_amount": 100.0, "network": "non_rho", "rebate_amount": 0.0},
         # 강등 행(날조 → PROD_BIND 가 id 를 None 으로): 판정 제외
         {"transaction_id": None, "fee_amount": 1.50,
-         "withdrawal_amount": 60.0, "network": "non_rho"},
+         "withdrawal_amount": 60.0, "network": "non_rho", "rebate_amount": 0.0},
     ]
     ctx = {"account_class": "Bluest Account", "transactions": rows}
     res = TC.apply_op(t0["op"], ctx)
