@@ -108,7 +108,12 @@ if have(T_SIDE):
     check("상태 계기: present", F.sidecar_status(T_SIDE) == "present")
 
     # 영속 궤적에는 없고 사이드카에는 있다 — 이 비대칭이 이 항목의 전부다
-    raw = gzip.open(F.path_for(T_SIDE, "_results.json.gz"), "rb").read().decode("utf-8", "replace")
+    # ⚠`path_for` 는 **라이브 심 디렉터리를 먼저** 본다 — 거기 있는 것은 평문 `results.json`
+    #   인데 이름은 `.gz` 를 달라고 했으니, 이름을 믿고 gzip 으로 열면 `BadGzipFile` 로 터진다.
+    #   이 줄이 그 함정에 걸려 이 검정을 통째로 죽이고 있었다(2026-08-24). 이름이 아니라
+    #   매직 바이트로 정하는 정본 리더를 쓴다([[67]]).
+    with F.topen(F.path_for(T_SIDE, "_results.json.gz")) as _f:
+        raw = _f.read()
     n_persist = raw.count("OFFICIAL-NAME")
     n_side = sum(1 for r in rows if "OFFICIAL-NAME" in (r.get("text") or ""))
     check("영속 궤적에는 `[OFFICIAL-NAME]` 이 **0 건**", n_persist == 0, "%d" % n_persist)
