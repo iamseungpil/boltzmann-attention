@@ -122,18 +122,83 @@ def scored(tag, suffix="_results.json.gz"):
 
 
 def sidecar(tag):
-    """우리 채널 사이드카(`fb_<tag>.jsonl`)를 simtag 별로. 없으면 빈 dict(로컬)."""
+    """우리 채널 사이드카를 **조인키(simtag) 별로**. 없으면 빈 dict.
+
+    ⚠2026-08-23 수리(R2): 이 함수는 **리모트 평문 한 자리**(`FBDIR/fb_<tag>.jsonl`)만 봤다.
+      로컬 영속본은 `sim_results/` 에 **110 개**(`fb_<tag>.jsonl.gz` 96 + `<tag>.fb.jsonl.gz` 14)
+      있는데 그 전부가 안 읽혔고, 같은 파일을 `sidecar_rows` 는 (한 자리만) 읽고 있었다 —
+      한 정본 안에서 리더가 둘로 갈린 자리다([[67]]). 경로 결의는 이제 `sidecar_paths` 하나다.
+    """
     out = collections.defaultdict(list)
-    p = os.path.join(FBDIR, "fb_%s.jsonl" % tag)
-    if not os.path.exists(p):
-        return out
-    for ln in io.open(p, encoding="utf-8", errors="replace"):
-        try:
-            o = json.loads(ln)
-        except Exception:
-            continue
-        out[o.get("simtag") or "?"].append(o)
+    for o in sidecar_rows(tag):
+        out[o.get("simtag") or o.get("sim") or "?"].append(o)
     return out
+
+
+# ── 사이드카 = **우리 층 거절의 권위** ────────────────────────────────────────
+# ★왜 권위인가 (2026-08-23·refute_1⑸·refute_4⑵·refute_6⑶ 실측):
+#   우리 거절은 재생성 채널로 나가고 `_ap_regen` 이 **원 어시스턴트 메시지를 교체**한다. 그래서
+#   막힌 호출은 영속 `sim["messages"]` 에도, 그래서 `mutation_diff` 의 BLOCKED 칸에도 **없다**.
+#   실측: `[OFFICIAL-NAME]`·`[SIGNATURE]` 는 영속 결과파일 462 개 전량에서 **0 건**인데 같은 런의
+#   사이드카(110 파일)에는 각각 **226 행(24 런)·730 행(59 런)** 이 sim·turn·본문 전문과
+#   함께 있다(2026-08-23 이 저장소에서 재측정한 수·refute_1 의 188 은 96 파일 부분집합 기준).
+#   그 공백을 읽고 세 건의
+#   반증이 *"우리 층 표지가 없으니 env 가 했다"* 로 갔다 — **침묵을 증거로 읽은 것**이다([[25]]).
+#   ⇒ 우리 층 거절의 유무는 사이드카에 묻고, 사이드카가 **없으면 '모른다'로 남긴다**.
+SIDECAR_NAMES = ("fb_%s.jsonl.gz", "%s.fb.jsonl.gz", "fb_%s.jsonl", "%s.fb.jsonl")
+
+
+def sidecar_paths(tag):
+    """사이드카 파일 경로 **전부**(존재하는 것만·정본 결의). 로컬 영속본 → 리모트 원본 순.
+
+    명명이 두 가지다(`fb_<tag>.jsonl.gz` 96 · `<tag>.fb.jsonl.gz` 14) — `all_result_files` 가
+    결과파일 두 명명에서 겪은 것과 **같은 사고**이므로 여기서 한 번에 닫는다([[67]]).
+    """
+    out = []
+    for pat in SIDECAR_NAMES:
+        p = os.path.join(BASE, pat % tag)
+        if os.path.exists(p):
+            out.append(p)
+    p = os.path.join(FBDIR, "fb_%s.jsonl" % tag)
+    if os.path.exists(p):
+        out.append(p)
+    return out
+
+
+def sidecar_status(tag):
+    """`'present'` | `'absent'` — **침묵을 증거로 읽지 않기 위한 계기판**.
+
+    `absent` 는 *"우리 층이 아무것도 안 막았다"* 가 아니라 *"막았는지 모른다"* 다. t7305 이후
+    어떤 stage-1 러너도 사이드카를 회수하지 않아 t7336·t7346 은 이 값이 `absent` 다.
+    """
+    return "present" if sidecar_paths(tag) else "absent"
+
+
+def sidecar_note(tag):
+    """포렌식이 **그대로 인쇄할 한 줄** — 없을 때 무엇을 하면 풀리는지까지 적는다([[64]])."""
+    ps = sidecar_paths(tag)
+    if ps:
+        return "[sidecar] present: %s" % os.path.basename(ps[0])
+    return ("[sidecar] ABSENT for %s — 우리 층 거절 유무는 **판정 불가**다(침묵≠부재·[[25]]). "
+            "러너의 회수 블록(`fb_$TAG.jsonl` → `sim_results/fb_$TAG.jsonl.gz`)이 돌아야 "
+            "이 칸이 채워진다." % tag)
+
+
+def fb_sim_fingerprint(sim):
+    """사이드카의 `sim` 필드(=첫 user 발화 sha1[:12])를 영속 sim 에서 **같은 규칙으로** 만든다.
+
+    `t2_fbsidecar._sim_key` 와 바이트 동일한 규칙이다(사본 아님·조인용 역함수).
+    ⚠거칠다: user-sim temp 0.0 에서는 같은 태스크의 nt 시행이 **한 키로 병합**된다. 그래서
+      조인은 `simtag` 를 먼저 쓰고, 이 지문은 `simtag` 가 없는 옛 런에서만 폴백으로 쓴다.
+    """
+    import hashlib as _h
+    for m in (sim.get("messages") or []):
+        if m.get("role") != "user":
+            continue
+        c = m.get("content")
+        if isinstance(c, str) and c.strip():
+            return _h.sha1(c.strip().encode("utf-8")).hexdigest()[:12]
+    return "nouser"
 
 
 def _as_dict(tc):
@@ -361,24 +426,39 @@ def trace(tag):
       `T2_ACTIONREQ` 52/52 · `T2_MATERIAL_GATE` 198/198).
       즉 **sim·turn 단위 분석은 처음부터 가능했고**, 못 한 것은 `turns_of` 가 로그 *텍스트*에서
       `turn=` 을 긁었기 때문이다 — 그 탓에 24 sim 전부 `None` 이 나와 손해 측정을 접었다(C530⒟).
-    영속본(`sim_results/<tag>.trace.jsonl.gz`) → 리모트 원본 순으로 본다. 없으면 빈 리스트(침묵).
+    영속본 → 리모트 원본 순으로 본다. 없으면 빈 리스트(침묵).
+    ⚠2026-08-23 수리(R2·사이드카와 **같은 결손**): 이 함수는 `<tag>.trace.jsonl.gz` 한 명명만
+      봤고 로컬에는 `trace_<tag>.jsonl.gz` 가 **57 개** 더 있다(그 명명 22 ↔ 이 명명 57).
+      그래서 `turns_of` 가 그 57 런에서 조용히 로그-텍스트 폴백으로 떨어져 turn 을 8% 만 얻었다.
     """
     import gzip as _gz
     out = []
-    gzp = os.path.join(BASE, tag + ".trace.jsonl.gz")
-    raw = os.path.join(FBDIR, "trace_" + tag + ".jsonl")
-    if os.path.exists(gzp):
-        op = _gz.open(gzp, "rt", encoding="utf-8", errors="replace")
-    elif os.path.exists(raw):
-        op = io.open(raw, encoding="utf-8", errors="replace")
-    else:
-        return out
-    with op as f:
-        for ln in f:
-            try:
-                out.append(json.loads(ln))
-            except Exception:
-                continue
+    for p in trace_paths(tag):
+        op = (_gz.open(p, "rt", encoding="utf-8", errors="replace") if p.endswith(".gz")
+              else io.open(p, encoding="utf-8", errors="replace"))
+        with op as f:
+            for ln in f:
+                try:
+                    out.append(json.loads(ln))
+                except Exception:
+                    continue
+        break
+    return out
+
+
+TRACE_NAMES = ("trace_%s.jsonl.gz", "%s.trace.jsonl.gz", "trace_%s.jsonl", "%s.trace.jsonl")
+
+
+def trace_paths(tag):
+    """구조화 계기 파일 경로 전부(존재하는 것만). 로컬 영속본 → 리모트 원본 순."""
+    out = []
+    for pat in TRACE_NAMES:
+        p = os.path.join(BASE, pat % tag)
+        if os.path.exists(p):
+            out.append(p)
+    p = os.path.join(FBDIR, "trace_%s.jsonl" % tag)
+    if os.path.exists(p):
+        out.append(p)
     return out
 
 
@@ -387,24 +467,63 @@ def sidecar_rows(tag):
 
     trace 가 *어느 기구가 말했는가*를 남기면 이쪽은 *무엇을 말했는가*를 남긴다(둘은 다르다).
     실측(t7310 treat): 266 줄 · sim 12 · 채널 17종 · **turn 없는 줄 0**.
+    ⚠2026-08-23 수리(R2): 경로 결의를 `sidecar_paths` 로 옮겼다 — 이 함수는 `<tag>.fb.jsonl.gz`
+      한 명명만 봐서 `fb_<tag>.jsonl.gz` **96 개**를 통째로 놓치고 있었다.
     """
     import gzip as _gz
     out = []
-    gzp = os.path.join(BASE, tag + ".fb.jsonl.gz")
-    raw = os.path.join(FBDIR, "fb_" + tag + ".jsonl")
-    if os.path.exists(gzp):
-        op = _gz.open(gzp, "rt", encoding="utf-8", errors="replace")
-    elif os.path.exists(raw):
-        op = io.open(raw, encoding="utf-8", errors="replace")
-    else:
-        return out
-    with op as f:
-        for ln in f:
-            try:
-                out.append(json.loads(ln))
-            except Exception:
-                continue
+    for p in sidecar_paths(tag):
+        op = (_gz.open(p, "rt", encoding="utf-8", errors="replace") if p.endswith(".gz")
+              else io.open(p, encoding="utf-8", errors="replace"))
+        with op as f:
+            for ln in f:
+                try:
+                    out.append(json.loads(ln))
+                except Exception:
+                    continue
+        break                              # 한 명명만 채택(중복 명명은 같은 런의 사본이다)
     return out
+
+
+def sidecar_denies(tag):
+    """우리 층이 **도구 호출을 반려한** 행만 → `{'simtag': {...}, 'fp': {...}}` 두 색인.
+
+    닫힌 술어다: `kind == 'tool-deny'` 는 `t2_fbsidecar.record_many` 가 *role=tool 이고
+    error=True 인 우리 메시지*에만 붙이는 라벨이다(우리 파일 소유·해석 0).
+    코퍼스 실측(사이드카 110 파일): tool-deny **8,145 행** · 그중 `simtag` 보유 6,860.
+    """
+    by_st, by_fp = collections.defaultdict(list), collections.defaultdict(list)
+    for r in sidecar_rows(tag):
+        if r.get("kind") != "tool-deny":
+            continue
+        if r.get("simtag"):
+            by_st[r["simtag"]].append(r)
+        if r.get("sim"):
+            by_fp[r["sim"]].append(r)
+    return {"simtag": by_st, "fp": by_fp}
+
+
+def regen_blocked(sim, tag=None, idx=None):
+    """★재생성으로 **영속 궤적에서 지워진** 우리 층 반려 → `(상태, 조인방식, 행들)`.
+
+    상태 = `'present'`(사이드카 있음·행 수가 곧 답) · `'absent'`(사이드카 없음) ·
+           `'unknown'`(호출부가 tag 를 안 줬다). **`absent`/`unknown` 에서 빈 리스트를
+           '안 막혔다'로 읽지 마라** — 그 오독이 057 5 sim 을 *'모델이 시도 안 함'* 으로
+           찍게 만든 자리다(refute_6⑶).
+    조인 = `'simtag'`(정확) · `'fp'`(첫-유저-발화 지문·**nt 시행이 병합된다·거칢**) · None.
+    """
+    if not tag:
+        return "unknown", None, []
+    if sidecar_status(tag) == "absent":
+        return "absent", None, []
+    ix = sidecar_denies(tag) if idx is None else idx
+    rows = ix["simtag"].get(simtag(sim))
+    if rows:
+        return "present", "simtag", rows
+    rows = ix["fp"].get(fb_sim_fingerprint(sim))
+    if rows:
+        return "present", "fp", rows
+    return "present", None, []
 
 
 def first_named(sim, names):
@@ -513,6 +632,316 @@ OURS_DENY = ("[READ-FIRST]", "NOT_VERIFIED")
 #   서두만 본다(도메인 어휘 0·이 파일은 오프라인 포렌식 라이브러리다).
 ENV_FAIL_PREFIX = ("Error:", "Failed to ")
 
+# ─────────────────────────────────────────────────────────────────────────────
+# 우리 표지 원장 — **누가 그 표지를 소유하는가**를 파일로 판정한다(열거·판단 0)
+# ─────────────────────────────────────────────────────────────────────────────
+# ★결손 (2026-08-23·refute_1⑷ 실측·전 코퍼스 13,534 sim 재현):
+#   `deny_kind` 는 위 두 줄짜리 `OURS_DENY` 만 우리 것으로 셌다. 영속 tool 본문에서 표지로
+#   시작하는 거절 **3,650 건**의 실제 분포는 —
+#       ours 로 제대로:  READ-FIRST 224
+#       env 로 오귀속:   BYREF 398 · ARGS-FORMAT 108 · PRE-ACTION-KB 24 · RESULT-SIGN 1 = 531
+#       거절로 안 세짐:  DUPLICATE-READ 2,340 · DUPLICATE-COMPUTE 214 = 2,554
+#         (같은 자리에 `POLICY_QA` 341 · `GROUNDING WARNING` 508 이 섞여 있으나 그 둘은 거절이
+#          **아니다** — 아래 «거절 문면 원장» ⓑ 참조. 표지 소유만으로 세면 성공 호출이 막힌
+#          것으로 찍힌다.)
+#   마지막 부류는 `('', None)` 을 돌려줘 `attempted_mutations` 의 `ok = not kind` 를 **True** 로
+#   만든다 = *막힌 변이를 실행된 것으로 센다*(변이 도구 위 27 건 실측·`mutation_diff` 의
+#   done/dup 칸 직접 오염). 즉 이것은 레버가 아니라 **자[尺]의 눈금 결손**이다.
+#
+# ★판정 방식 = 닫힌 술어 둘, 열거 0 ([[59]]·[[66]]):
+#   ⑴ **소유** — 표지 문자열이 *우리 파일*(이 디렉터리의 `t2_*.py` · `a2/**.json`)에 있는가.
+#   ⑵ **발화 증언** — 사이드카(우리 층이 보낸 문장의 원장)에 그 표지로 시작하는 행이 있는가.
+#   둘 다 집합 소속 검사다. 표지 이름은 **우리 채널 식별자**이지 도메인 어휘가 아니며,
+#   목록은 손으로 적지 않고 **파일에서 유도**한다(적으면 그 순간 갈라진다·[[67]]).
+#   실측 정합: 영속 본문에 실제로 나타나는 표지는 위 **8 종뿐**이고 8/8 이 ⑴로 잡힌다
+#   (= env 가 저작한 표지-머리 본문은 이 코퍼스에 **0 건**이다).
+OUR_SOURCE_GLOBS = ("t2_*.py", os.path.join("a2", "*.json"), os.path.join("a2", "*", "*.json"))
+# 본문 머리의 표지: 앞에 붙을 수 있는 것은 프레임워크 접두 둘뿐(`Error:` = tau2 규약 · `Note:` =
+# 우리 알림 채널). 표지 자체는 대문자로 시작하는 대문자/숫자/`_`/`-` 토큰이다.
+_MARKER_RX = None
+_OUR_MARKERS = None
+_ATTESTED = None
+
+
+def _marker_rx():
+    global _MARKER_RX
+    if _MARKER_RX is None:
+        import re as _re
+        _MARKER_RX = _re.compile(r"^(?:Error:\s*|Note:\s*)?\[([A-Z][A-Z0-9_\-]{2,})\]")
+    return _MARKER_RX
+
+
+def marker_of(body):
+    """본문 **머리**의 표지 토큰(대괄호 없이) 또는 None. 본문 중간의 대괄호는 보지 않는다.
+
+    머리만 보는 이유: KB 문서 인용 안의 대괄호를 거절로 접으면 **성공한 write 가 막힌 것으로**
+    찍힌다(`OURS_DENY` 주석의 substring 사고와 같은 방향).
+    """
+    m = _marker_rx().match((body or "").lstrip())
+    return m.group(1) if m else None
+
+
+def our_markers():
+    """⑴**소유** 원장 — 우리 파일에 리터럴로 있는 표지 집합(1회 계산·캐시)."""
+    global _OUR_MARKERS
+    if _OUR_MARKERS is None:
+        import glob as _g
+        import re as _re
+        rx = _re.compile(r"\[([A-Z][A-Z0-9_\-]{2,})\][ .,:]")
+        got = set()
+        for pat in OUR_SOURCE_GLOBS:
+            for p in _g.glob(os.path.join(HERE, pat)):
+                try:
+                    with io.open(p, encoding="utf-8", errors="replace") as f:
+                        got.update(rx.findall(f.read()))
+                except Exception:
+                    continue
+        _OUR_MARKERS = frozenset(got)
+    return _OUR_MARKERS
+
+
+def attested_markers():
+    """⑵**발화 증언** 원장 — 사이드카 전량에서 *머리 표지*로 실제 나간 집합(1회 계산·캐시).
+
+    소유 원장이 못 잡는 자리를 여기서 받는다: 재생성 채널로만 나가는 표지는 우리 파일에
+    있어도 형태가 다를 수 있고, 반대로 사이드카에는 **간 문장 그대로** 남는다.
+    """
+    global _ATTESTED
+    if _ATTESTED is None:
+        import glob as _g
+        import gzip as _gz
+        got = set()
+        seen = set()
+        for pat in ("fb_*.jsonl.gz", "*.fb.jsonl.gz", "fb_*.jsonl", "*.fb.jsonl"):
+            for p in _g.glob(os.path.join(BASE, pat)):
+                if p in seen:
+                    continue
+                seen.add(p)
+                try:
+                    op = (_gz.open(p, "rt", encoding="utf-8", errors="replace")
+                          if p.endswith(".gz") else io.open(p, encoding="utf-8", errors="replace"))
+                    with op as f:
+                        for ln in f:
+                            try:
+                                o = json.loads(ln)
+                            except Exception:
+                                continue
+                            mk = marker_of(o.get("text") or "")
+                            if mk:
+                                got.add(mk)
+                except Exception:
+                    continue
+        _ATTESTED = frozenset(got)
+    return _ATTESTED
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 거절 **문면** 원장 — 우리 파일이 저작한 거절 본문의 축자 접두(파일에서 유도·열거 0)
+# ─────────────────────────────────────────────────────────────────────────────
+# ★소유 원장(위 ⑴⑵)만으로 못 가르는 자리가 둘 남는다 — 전 코퍼스 462 파일 실측(2026-08-23):
+#   ⓐ **동적 표지**: `Error: [POLICY GATE {gid}]` 는 표지 토큰이 코드에 리터럴로 없다. 영속
+#      본문 **764 건**(G4_TRANSFER_MSG 274·G1_AUTH_FIRST 223·RETRY_LOOP 161·G7 28·RETRY_ESCALATE
+#      28·G2 25·G5 23·G3 2)이 소유 원장에서 빠져 `env` 로 떨어진다 = **우리 게이트가 막은 것을
+#      환경 탓으로** 돌린다. 이것이 이 결함의 최대 덩어리다.
+#   ⓑ **우리 표지를 단 성공 본문**: 우리 표지가 붙었다고 다 거절인 것이 아니다.
+#      `[POLICY_QA] {answer}` 는 a2 의 **`return_template`**(= 기능-서브가 **답한** 것·341 건),
+#      `[GROUNDING WARNING] …` 은 성공 결과 **앞에 덧붙인 주석**(508 건·뒤에 원 출력이 그대로
+#      붙는다)이다. 표지 소유만 보고 ours-거절로 접으면 **성공한 호출이 `ok=False`** 가 된다 —
+#      고치려던 것과 반대 방향의 같은 오분류다.
+# ⇒ 표지 **이름**이 아니라 **문면 자체**를 원장으로 삼는다. 두 출처에서 기계로 뽑는다:
+#   · 엔진(`t2_*.py`) — AST 로 *도구-메시지 본문 자리*의 **선두 리터럴**만: `content=` 인자 ·
+#     `content=` 로 넘어가는 이름에의 대입 · `return`. 대입이 **자기 자신을 참조**하면
+#     (`_txt = "[X] …%s" % (…, _txt)` = 기존 본문에 덧붙이는 주석) 제외한다 — 이 한 줄이
+#     `[GROUNDING WARNING]` 을 손 목록 없이 걸러낸다.
+#   · A2 선언 — 값이 `Error: [` 로 시작하는 문자열(= tau2 오류 채널로 나가는 우리 문면).
+#     성공 문면은 이 접두를 쓰지 않으므로 **키 목록 없이** 갈린다(`return_template` 이 증인).
+# 각 문면은 첫 **자리표시자**(`%s`·`{x}`) 앞까지 잘라 축자 접두로 쓴다. 접두 비교는 닫힌
+# 술어이고, 게이트가 늘면 파일에서 자동으로 따라온다 — 손으로 적은 목록은 그 순간 갈린다([[67]]).
+ENGINE_SOURCE_GLOB = "t2_*.py"
+A2_SOURCE_GLOB = os.path.join("a2", "**", "*.json")
+# 접두 하한: 이보다 짧으면 env 본문과 충돌한다. 실물 하한 사례 = a2 의 `Error: '{name}' is
+# missing …` → 접두 `Error: '`(8자). 그 8자로 재면 env 의 `Error: 'x' …` 형 본문까지 삼킨다.
+DENY_PREFIX_MIN = 10
+_DENY_PREFIXES = None
+_DENY_RX = None
+_PH_RX = None
+_HEAD_RX = None
+
+
+def _head_rx():
+    """접두가 **표지 머리**로 시작하는가. `marker_of` 와 달리 닫는 대괄호를 요구하지 않는다 —
+    동적 표지(`Error: [POLICY GATE {gid}]`)는 잘린 자리가 대괄호 **안**이기 때문이다."""
+    global _HEAD_RX
+    if _HEAD_RX is None:
+        import re as _re
+        _HEAD_RX = _re.compile(r"^(?:Error:\s*|Note:\s*)?\[[A-Z]")
+    return _HEAD_RX
+
+
+def _ph_rx():
+    """포맷 자리표시자(`%s`·`%-8.2f`·`{name}`)."""
+    global _PH_RX
+    if _PH_RX is None:
+        import re as _re
+        _PH_RX = _re.compile(r"%[-+ #0-9.*]*[sdrifgeoxXc%]|\{[^{}]*\}")
+    return _PH_RX
+
+
+def literal_prefix(s):
+    """포맷 문면 → 첫 자리표시자 앞까지의 **축자 접두**(공백 정규화)."""
+    s = " ".join((s or "").split())
+    m = _ph_rx().search(s)
+    return s[:m.start()] if m else s
+
+
+def _lead_consts(node):
+    """식이 만들어내는 문자열의 **선두 리터럴**들(분기는 전부 모은다)."""
+    import ast as _ast
+    out = []
+    if isinstance(node, _ast.Constant) and isinstance(node.value, str):
+        out.append(node.value)
+    elif isinstance(node, _ast.JoinedStr):          # f"..." → 첫 조각만
+        for v in node.values:
+            if isinstance(v, _ast.Constant) and isinstance(v.value, str):
+                out.append(v.value)
+            break
+    elif isinstance(node, _ast.BinOp):              # a + b · fmt % args
+        out += _lead_consts(node.left)
+    elif isinstance(node, _ast.IfExp):              # x if c else y → 양쪽
+        out += _lead_consts(node.body) + _lead_consts(node.orelse)
+    elif isinstance(node, _ast.BoolOp):             # a or b → 양쪽
+        for v in node.values:
+            out += _lead_consts(v)
+    elif isinstance(node, _ast.Tuple) and node.elts:   # return (body, flag)
+        out += _lead_consts(node.elts[0])
+    elif (isinstance(node, _ast.Call) and isinstance(node.func, _ast.Attribute)
+          and node.func.attr == "format"):
+        out += _lead_consts(node.func.value)
+    return out
+
+
+def _engine_deny_prefixes():
+    """엔진 소스 AST → 도구-메시지 본문 자리의 선두 리터럴 접두 {접두: 파일}."""
+    import ast as _ast
+    import glob as _g
+    got = {}
+    for p in sorted(_g.glob(os.path.join(HERE, ENGINE_SOURCE_GLOB))):
+        if os.path.abspath(p) == os.path.abspath(__file__):
+            continue                       # 자기 자신(포렌식 라이브러리)은 발화자가 아니다
+        try:
+            with io.open(p, encoding="utf-8") as f:
+                txt = f.read()
+        except Exception:
+            continue
+        if "content=" not in txt:          # 도구-메시지 본문을 만들지 않는 모듈은 건너뛴다(속도)
+            continue
+        try:
+            tree = _ast.parse(txt, p)
+        except Exception:
+            continue                       # 파싱 불가 모듈은 조용히 뺀다(원장이 작아질 뿐)
+        base = os.path.basename(p)
+        mod = {"names": set(), "lits": [], "assign": []}
+        scopes = [mod]
+        stack = [(tree, mod)]
+        while stack:                       # 재귀 없이 1회 패스 — 스코프는 가장 가까운 함수
+            node, sc = stack.pop()
+            if isinstance(node, (_ast.FunctionDef, _ast.AsyncFunctionDef, _ast.Lambda)):
+                sc = {"names": set(), "lits": [], "assign": []}
+                scopes.append(sc)
+            if isinstance(node, _ast.Call):
+                for kw in (node.keywords or []):
+                    if kw.arg == "content":
+                        sc["lits"] += _lead_consts(kw.value)
+                        if isinstance(kw.value, _ast.Name):
+                            sc["names"].add(kw.value.id)
+            elif isinstance(node, _ast.Assign):
+                tgt = {t.id for t in node.targets if isinstance(t, _ast.Name)}
+                if tgt:
+                    sc["assign"].append((tgt, node.value))
+            elif isinstance(node, _ast.Return) and node.value is not None:
+                sc["lits"] += _lead_consts(node.value)
+            for ch in _ast.iter_child_nodes(node):
+                stack.append((ch, sc))
+        for sc in scopes:
+            for tgt, val in sc["assign"]:
+                hit = tgt & (sc["names"] | {"content"})
+                if not hit:
+                    continue
+                used = {n.id for n in _ast.walk(val) if isinstance(n, _ast.Name)}
+                if used & hit:
+                    continue               # 자기 참조 = 기존 본문에 덧붙이는 주석(거절 아님)
+                sc["lits"] += _lead_consts(val)
+            for v in sc["lits"]:
+                got.setdefault(v, base)
+    return got
+
+
+def _a2_deny_prefixes():
+    """A2 선언 → `Error: [` 로 시작하는 문면 {원문: 파일}."""
+    import glob as _g
+    got = {}
+
+    def walk(o, src):
+        if isinstance(o, dict):
+            for v in o.values():
+                walk(v, src)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v, src)
+        elif isinstance(o, str) and o.lstrip().startswith("Error: ["):
+            got.setdefault(o.lstrip(), src)
+
+    for p in _g.glob(os.path.join(HERE, A2_SOURCE_GLOB), recursive=True):
+        try:
+            with io.open(p, encoding="utf-8") as f:
+                walk(json.load(f), os.path.basename(p))
+        except Exception:
+            continue
+    return got
+
+
+def ours_deny_prefixes(refresh=False):
+    """우리 층이 저작한 **거절 본문 접두** 원장 {접두: 출처파일}(1회 계산·캐시).
+
+    감사용으로 그대로 출력해도 되게 출처를 함께 돌려준다 — 어떤 접두가 어디서 왔는지 못 대면
+    그것은 다시 손 목록이다([[23]] 와 같은 규율: 출처를 못 대는 항목은 넣지 않는다).
+    """
+    global _DENY_PREFIXES, _DENY_RX
+    if _DENY_PREFIXES is None or refresh:
+        import re as _re
+        raw = {}
+        raw.update(_engine_deny_prefixes())
+        raw.update(_a2_deny_prefixes())
+        out = {}
+        for lit, src in raw.items():
+            q = literal_prefix(lit)
+            # ★표지가 닫히면 거기서 끊는다. 코퍼스는 **여러 엔진 판본**에 걸쳐 있고 문구는 판본마다
+            #   손질된다 — 문장 전체를 접두로 쓰면 옛 런의 같은 거절이 안 잡힌다(자[尺]가 판본에
+            #   따라 눈금이 달라지는 셈). 채널을 식별하는 것은 표지이지 뒤따르는 산문이 아니다.
+            #   닫는 대괄호가 없는 것은 **동적 표지**(`Error: [POLICY GATE {gid}]`)뿐이고 그때만
+            #   리터럴 머리를 그대로 쓴다.
+            j = q.find("]")
+            if j >= 0:
+                q = q[:j + 1]
+            if len(q) >= DENY_PREFIX_MIN and _head_rx().match(q):
+                out.setdefault(q, src)
+        # 접두끼리 포함 관계면 **짧은 쪽**만 남긴다(같은 판정·비교 횟수만 늘 뿐).
+        keys = sorted(out, key=len)
+        keep = {}
+        for k in keys:
+            if not any(k.startswith(s) for s in keep):
+                keep[k] = out[k]
+        _DENY_PREFIXES = keep
+        _DENY_RX = (_re.compile("|".join(_re.escape(k) for k in sorted(keep, key=len)))
+                    if keep else None)
+    return _DENY_PREFIXES
+
+
+def _deny_rx():
+    ours_deny_prefixes()
+    return _DENY_RX
+
+
 # 래퍼 4종의 역할 분리: 부여(grant)는 DB 를 안 바꾸고, 실행(call)만 바꾼다.
 GRANTS = (UNLOCK, GIVE)
 EXECS = (CALLA, CALLU)
@@ -545,11 +974,42 @@ def mut_key(name, args):
 
 
 def deny_kind(body):
-    """도구-결과 본문이 거절인가 · 누가 거절했나 → ('', None) | ('ours'|'env', 표지)."""
-    b = body.lstrip()
+    """도구-결과 본문이 거절인가 · 누가 거절했나 → ('', None) | ('ours'|'env'|'unknown', 표지).
+
+    순서(전부 닫힌 술어 = 집합 소속·문자열 접두 비교뿐. 의미 판단 0·[[59]]):
+      ⓵ 옛 두 문면(`OURS_DENY`) 은 종전대로 substring 으로 — 거동 보존.
+      ⓶ **우리가 저작한 거절 문면**(`ours_deny_prefixes`·파일에서 유도)으로 시작하면 `ours`.
+         동적 표지(`Error: [POLICY GATE …]`)와 `Error:` 를 안 쓰는 거절 스텁
+         (`[DUPLICATE-READ]`·`[DUPLICATE-COMPUTE]`)이 여기서 잡힌다.
+      ⓷ **머리 표지**가 있을 때 — 오류 채널(`ENV_FAIL_PREFIX`)로 나왔는가로 가른다.
+         · 오류 채널 O + 표지를 우리가 소유·발화 → `ours`
+         · 오류 채널 O + 원장 어디에도 없음   → `unknown` = *모른다*. **`env` 로 찍지 않는다**:
+           확인 안 한 것을 단언하면 그 칸이 다시 오귀속의 근거가 된다([[25]]).
+         · 오류 채널 X → **거절이 아니다**. 우리 표지를 달고 나가는 본문에는 성공 출력이 섞여
+           있다 — `[POLICY_QA]`(a2 `return_template`·341 건)·`[GROUNDING WARNING]`(성공 결과
+           앞의 주석·508 건). 표지 소유만 보고 접으면 성공 호출이 `ok=False` 가 된다.
+      ⓸ 표지 없이 실패 접두면 `env`.
+    ⚠`ok = not kind` 로 쓰는 쪽(`attempted_mutations`)에서 `unknown` 은 **막힌 것으로** 센다 —
+      표지-머리 + 실패 접두는 구조상 거절이고, 누가 했는지만 미상이다.
+    ⚠`T2_FORENSIC_DENY_LEGACY=1` 이면 ⓶⓷ 를 통째로 끄고 수리 전 판정(⓵+⓸)을 그대로 돌려준다 —
+      옛 수치를 재현해 **차이가 어디서 났는지**를 같은 코드로 보이기 위한 것이다.
+    """
+    b = (body or "").lstrip()
     for p in OURS_DENY:
         if p in b:
             return "ours", p
+    if os.environ.get("T2_FORENSIC_DENY_LEGACY") != "1":
+        rx = _deny_rx()
+        m = rx.match(" ".join(b.split())) if rx is not None else None
+        if m:
+            return "ours", m.group(0)[:60]
+        mk = marker_of(b)
+        if mk:
+            for _p in ENV_FAIL_PREFIX:
+                if b.startswith(_p):
+                    owned = mk in our_markers() or mk in attested_markers()
+                    return ("ours" if owned else "unknown"), "[%s]" % mk
+            return "", None
     for _p in ENV_FAIL_PREFIX:
         if b.startswith(_p):
             return "env", b[:60]
@@ -612,13 +1072,23 @@ def attempted_mutations(sim, mut=None):
     return out
 
 
-def mutation_diff(sim, mut=None):
+def mutation_diff(sim, mut=None, tag=None):
     """gold 변이 집합 ↔ 성공한 변이 집합 → MISSING · WRONGARG · EXTRA · MATCHED · BLOCKED.
 
     · MISSING  gold 변이인데 **성공한 같은 호출이 없다**
     · WRONGARG 같은 도구를 성공시켰는데 인자가 gold 와 다르다
     · EXTRA    gold 에 없는 도구를 성공시켰다 (050 의 승인 중복이 이 칸이다)
     · BLOCKED  시도했으나 거절당한 변이 (누가 거절했는지 `deny` 에 남는다)
+
+    ★★BLOCKED 는 **영속 궤적이 보여주는 만큼만** 센다 — 그런데 우리 층 거절의 상당수는
+      재생성 채널로 나가고 `_ap_regen` 이 원 어시스턴트 메시지를 **교체**하므로 그 호출은
+      `messages` 에 아예 없다. ⇒ **BLOCKED 가 비었다고 '안 막혔다'가 아니다.**
+      그 판정의 권위는 사이드카이고, `tag` 를 주면 아래 세 칸이 함께 온다:
+        `sidecar`      'present' | 'absent' | 'unknown'(tag 미제공)
+        `regen_blocked` 재생성으로 지워진 우리 층 반려 행(사이드카 원문·turn·channel 포함)
+        `regen_join`   'simtag'(정확) | 'fp'(지문·nt 시행 병합·거칢) | None
+      `sidecar != 'present'` 인데 두 칸이 비어 있으면 그것은 **모른다**는 뜻이다([[25]]).
+      `iter_all_sims()` 는 `(tag, sim)` 를 주므로 호출부는 그 tag 를 그대로 넘기면 된다.
     """
     mut = mutating_tools() if mut is None else mut
     gold = gold_mutations(sim, mut)
@@ -643,8 +1113,10 @@ def mutation_diff(sim, mut=None):
         if seen[d["key"]] > gcnt.get(d["key"], 0):
             dup.append(d)
     dup = [d for d in dup if d["key"] in gkeys]
+    sc, join, rb = regen_blocked(sim, tag)
     return {"gold": gold, "done": done, "blocked": blocked, "missing": missing,
             "wrongarg": wrong, "extra": extra, "matched": matched, "dup": dup,
+            "sidecar": sc, "regen_join": join, "regen_blocked": rb,
             "clean": not (missing or wrong or extra or dup)}
 
 
@@ -731,7 +1203,7 @@ def trajectory_actions(sim):
     return out
 
 
-def action_diff(sim):
+def action_diff(sim, tag=None):
     """gold 액션 집합 ↔ 궤적 → MATCH · MISSING(+원인 칸) (A16 / OL-49).
 
     ★MATCH/MISSING 의 **권위는 벤치의 `action_match`** 다 — 우리가 다시 판정하지 않는다.
@@ -773,10 +1245,14 @@ def action_diff(sim):
         rows.append(r)
     matched = [r for r in rows if r["bench_match"]]
     missing = [r for r in rows if not r["bench_match"]]
+    sc, join, rb = regen_blocked(sim, tag)
     return {"basis": reward_basis(sim), "reward": (sim.get("reward_info") or {}).get("reward"),
             "rows": rows, "gold": gold, "tried": tried,
             "matched": matched, "missing": missing,
             "blocked": [r for r in missing if r["blocked"]],
+            # ★`blocked` 는 영속 궤적이 보여주는 만큼만이다 — 재생성으로 지워진 반려는
+            #   `regen_blocked` 에만 남고, `sidecar != 'present'` 면 그 칸은 *모른다*다.
+            "sidecar": sc, "regen_join": join, "regen_blocked": rb,
             "strict_missing": [r for r in rows if not r["called_exact"]],
             "n_gold": len(gold), "n_matched": len(matched),
             "clean": not missing}

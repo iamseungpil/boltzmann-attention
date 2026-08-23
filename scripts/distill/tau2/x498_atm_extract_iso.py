@@ -174,6 +174,13 @@ def score(rows, cls, gold, truth, op):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--k", type=int, default=3)
+    # ★2026-08-24 자기정정: 초판은 sample 0 만 T=0 이고 1·2 는 T=0.7 이었다. 그런데 **운영값은
+    #   T=0 이다** — tau2 `config.DEFAULT_LLM_TEMPERATURE_AGENT = 0.0` 이고 격리 서브는 `ag.llm_args`
+    #   를 물려받으며 이 도구의 `isolate.temperature` 는 미선언이다. 즉 T=0.7 표본은 **운영점이
+    #   아니라 교란 밴드**다. 둘을 섞어 세면 서브의 능력을 과소평가한다 — 초판 결과를 읽을 때는
+    #   sample 0 만이 운영 조건이다. 기본값을 운영값으로 바꾸고, 밴드는 명시로만 켠다.
+    ap.add_argument("--temp", type=float, default=0.0,
+                    help="운영값 0.0. 교란 밴드를 보려면 명시로 올린다(결과는 따로 읽어라).")
     ap.add_argument("--arms", default="A_new,B_old")
     ap.add_argument("--accounts", default="")
     a = ap.parse_args()

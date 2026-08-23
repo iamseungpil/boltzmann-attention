@@ -13,6 +13,10 @@
 #
 # ── 환경(정본) ──────────────────────────────────────────────────────────────
 export GO_REPO=/home/woori/workspace_common/boltzmann-attention-pi
+# ★오프라인 전용 · 런 노브 아님(export 하지 않는다). 여기 적는 이유는 `test_flag_registry`
+#   래칫이 **엔진이 읽는 T2_* 는 전부 정본에 이름이 있어야 한다**를 강제하기 때문이다.
+#   T2_FORENSIC_DENY_LEGACY=1 → `t2_forensic.deny_kind` 를 2026-08-24 수리 **이전** 판정으로
+#   되돌린다(우리 거절을 env 로 찍던 그 판). 수리의 양성대조 전용이고 라이브 거동과 무관하다.
 export GO_TAU2=/home/woori/scratch/tau2-bench           # ★정본 tau2([[30]]·C166 사고 재발 방지)
 export PYTHONPATH=src:$GO_REPO/scripts/distill/tau2
 source /home/woori/.openrouter_key                       # export OPENROUTER_API_KEY=... 형식

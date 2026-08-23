@@ -42,7 +42,8 @@ fi
 for t in test_cp2_ledger.py test_cp2_queue_behavior.py test_cp2_clobber.py \
          test_proceed_docbody.py test_route_trace.py test_flag_registry.py \
          test_regen_break_guard.py test_unified_regen.py test_no_undefined_names.py \
-         test_no_unbound_a2.py test_a2_three_layer.py; do
+         test_no_unbound_a2.py test_a2_three_layer.py \
+         test_forensic_sidecar_authority.py; do
   [ -f "$t" ] || continue
   PYTHONPATH=/home/woori/scratch/tau2-bench/src timeout 90 \
     /home/woori/venvs/seka_env/bin/python "$t" >/dev/null 2>&1 \
@@ -86,13 +87,19 @@ for N in a b; do
   T=${TAG}_${N}
   gzip -c "$SIMS/$T/results.json" > "reports/facet_rft_2026/sim_results/$T.results.json.gz" || true
   gzip -c "$LOG/$T.log"           > "reports/facet_rft_2026/sim_results/$T.log.gz" || true
-  # ★사이드카 — 지금까지 아무 러너도 안 가져왔다. `$LOG/fb_$T.jsonl` 은 go_stack 이 만든다.
-  if [ -s "$LOG/fb_$T.jsonl" ]; then
-    gzip -c "$LOG/fb_$T.jsonl" > "reports/facet_rft_2026/sim_results/fb_$T.jsonl.gz"
-    echo "[t7347] 사이드카 회수 $T ($(wc -l < "$LOG/fb_$T.jsonl") 행)"
-  else
-    echo "[t7347] ⚠사이드카 없음/빈 파일: $LOG/fb_$T.jsonl — 계기가 안 켜졌다([[55]])"
-  fi
+  # ★사이드카·계기 — 지금까지 아무 러너도 안 가져왔다. 둘 다 go_stack(222·231)이 만든다.
+  #   왜 둘 다인가(2026-08-23 R2): 우리 층 거절은 재생성 채널로 나가고 `_ap_regen` 이 원
+  #   어시스턴트 메시지를 **교체**하므로 영속 궤적에 안 남는다 — *무엇을* 말했나는 `fb_`,
+  #   *어느 기구가* 말했나는 `trace_` 에만 있다. 없으면 **없다고 인쇄한다**(침묵≠부재·[[25]]).
+  for _S in fb trace; do
+    _F="$LOG/${_S}_$T.jsonl"
+    if [ -s "$_F" ]; then
+      gzip -c "$_F" > "reports/facet_rft_2026/sim_results/${_S}_$T.jsonl.gz"
+      echo "[t7347] ${_S} 회수 $T ($(wc -l < "$_F") 행)"
+    else
+      echo "[t7347] ⚠${_S} 미회수: $_F 없음/빈 파일 — 이 런의 우리-층 귀속은 판정 불가([[25]]·[[55]])"
+    fi
+  done
 done
 
 # ── 검산 게이트 ───────────────────────────────────────────────────────────────
@@ -102,6 +109,7 @@ PYTHONIOENCODING=utf-8 /home/woori/venvs/seka_env/bin/python \
 
 git add -f reports/facet_rft_2026/sim_results/${TAG}_*.gz \
            reports/facet_rft_2026/sim_results/fb_${TAG}_*.jsonl.gz \
+           reports/facet_rft_2026/sim_results/trace_${TAG}_*.jsonl.gz \
            reports/facet_rft_2026/${TAG}_ledger.json 2>/dev/null || true
 git -c user.name=ghlee -c user.email=beingrelative@gmail.com commit -q -m "t7347 cp2 ledger smoke" || true
 git pull -q --rebase origin facet-rft-2026 || true

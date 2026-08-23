@@ -70,7 +70,6 @@
   "T2_OFF_CELLS",
   "T2_OPERATOR_PINPOINT",
   "T2_PARAM_CAP_CAP",
-  "T2_PENDING_DISCOVERED",
   "T2_PRESCRIPTION_CAP",
   "T2_PRESENT_NESTED",
   "T2_PRESENT_READS",
@@ -126,5 +125,5 @@
   "T2_WRITE_CAP_K",
   "T2_WRITE_SUB"
  ],
- "_note": "래칫 기준선 — 늘면 실패, 줄면 갱신하라"
+ "_note": "래칫 기준선 — 늘면 실패, 줄면 갱신하라 || 2026-08-24: R8 이 죽은 배선 `T2_PENDING_DISCOVERED` 를 제거해 하나 줄었다. **재생성이 아니라 그 한 항목만 뺐다** — 재생성하면 새 미선언을 조용히 흡수한다."
 }

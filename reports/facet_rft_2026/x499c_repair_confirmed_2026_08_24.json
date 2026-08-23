@@ -1,0 +1,314 @@
+{
+  "summary": "Repair only the CONFIRMED our-layer defects from a forensic master: one agent per item (closed predicates, unit test, regression), then one battery verifier, then a single commit",
+  "agentCount": 9,
+  "logs": [
+    "수리 8/8 · 무수리(열린 판단) 0"
+  ],
+  "result": {
+    "repaired": [
+      {
+        "id": "R1-deny-kind-markers",
+        "status": "REPAIRED",
+        "files_changed": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\t2_forensic.py",
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_deny_kind_env_fail.py"
+        ],
+        "tests_added": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_deny_kind_env_fail.py"
+        ],
+        "summary": "t2_forensic.deny_kind 가 우리 층 거절을 env 로 찍던 눈금 결손을 수리. 라이브 거동 변화 0(라이브 엔진 중 t2_forensic 을 import 하는 모듈 0개 — 자[尺] 수리이지 레버 아님).\n\n[동시 편집 발견] 작업 중(20:58~21:00) 다른 프로세스가 같은 파일을 부분 수리했고(소유 원장 our_markers/attested_markers 추가), 거기에 두 결함이 남아 있어 제가 완결했다: ⓐ marker_of 정규식이 표지에 공백을 불허해 `Error: [POLICY GATE G1_AUTH_FIRST]` 형 764건(최대 덩어리)이 계속 env 로 떨어짐 — 동적 표지는 코드에 리터럴이 없어 토큰-집합 소유 원장으로는 원리상 못 잡음. ⓑ 표지 '소유'만 보고 접어서 `[POLICY_QA]`(a2 return_template = 기능-서브가 답한 것·341건)를 ours '거절'로 오분류 — 성공 호출이 ok=False 가 되는 반대 방향 오염을 새로 만듦.\n\n[수리 방식·닫힌 술어·손 목록 0] 표지 이름이 아니라 문면을 원장으로 삼고 두 출처에서 기계 유도: (1) 엔진 t2_*.py — AST 로 도구-메시지 본문 자리(content= 인자 · content= 로 넘어가는 이름에의 대입 · return)의 선두 리터럴만. 대입이 자기 자신을 참조하면 제외 — 이 한 줄이 [GROUNDING WARNING](성공 결과 앞에 덧붙는 주석·508건)을 손 목록 없이 걸러냄. (2) A2 선언 — 값이 'Error: [' 로 시작하는 문자열. 성공 문면은 이 접두를 안 쓰므로 키 목록 없이 갈림(return_template 이 증인). 각 문면은 첫 자리표시자 앞까지 자르고 닫는 대괄호에서 끊음(코퍼스가 여러 엔진 판본에 걸쳐 있어 문장 전체를 접두로 쓰면 옛 런의 같은 거절이 안 잡힘). 결과 원장 32항목, 전부 출처 파일 명시. deny_kind 순서: (1)옛 OURS_DENY substring(거동 보존) → (2)유도 거절 문면 접두 → (3)머리 표지 + 오류 채널 여부(오류채널X = 거절 아님·POLICY_QA/GROUNDING WARNING 이 여기서 살아남음, 원장에 없으면 env 아닌 unknown) → (4)표지 없는 실패 접두 = env. T2_FORENSIC_DENY_LEGACY=1 로 수리 전 판정 완전 복원 가능.\n\n[실측·전 코퍼스 462파일·같은 코드에서 스위치만 돌려 대조] env→ours 1,295 (POLICY GATE 764 · BYREF 398 · ARGS-FORMAT 108 · PRE-ACTION-KB 24 · RESULT-SIGN 1) / 무판정→ours 2,554 (DUPLICATE-READ 2,340 · DUPLICATE-COMPUTE 214) / 그 밖의 이동 0 (ours 를 잃은 본문 0 · env 로 새로 밀린 본문 0) / 변이 호출 ok True→False 27건 전부 ours 귀속. 과제 명세의 531·2,895 와 정확히 대응(531+동적표지764=1,295 / 2,895−POLICY_QA341=2,554).\n\n[검정] test_deny_kind_env_fail.py 를 7절로 확장, ALL PASS. ①기존 A-7(2) 술어 5종 보존 ②양성대조: T2_FORENSIC_DENY_LEGACY=1 에서 결함이 실제로 재현되는지 확인(POLICY GATE→env · DUPLICATE-READ→무판정) ③우리 거절 16종 전부 ours ④부정대조: env 저작 6종 여전히 env · POLICY_QA/GROUNDING WARNING 거절 아님 · 미지 표지는 unknown(env 로 단정 안 함) ⑤원장이 손 목록이 아님 증명: 임시 디렉터리에 가짜 엔진 모듈/A2 를 만들고 HERE 만 돌려 새 표지가 저절로 원장에 들어오는지 확인 ⑥기존 실물 'Failed to' 검정 ⑦실물 40파일 3,990본문 수리 전/후 대조 — 이동 방향이 env→ours(35)·무판정→ours(70) 뿐임을 강제. 회귀: t2_forensic 을 import 하는 기존 검정 6종(test_args_equal·test_bailout_axes·test_forensic_canonical·test_forensic_sidecar_authority·test_log_join·test_t7336_g3_decl_modules) 전부 PASS. 성능: import 0.58s 불변(원장은 지연 계산), 첫 deny_kind 1.55s(원장 1회 구축), 이후 12us/call.\n\n[일반화] 태스크 id·상품명·문구 조건 0. 술어는 순수 문자열 형태 + 집합 소속이고 원장은 파일에서 유도되므로 도메인/코퍼스 무관하게 따라온다. 한 태스크를 사고 다른 태스크를 파는 절충 없음 — 라이브 거동이 아예 안 바뀐다.\n\n[남은 사항·제 파일 밖이라 손대지 않음] scripts/distill/tau2/t2_gap.py:59 에 OURS = (\"NOT_VERIFIED\", \"GROUNDING WARNING\", ...) 라는 갈라진 사본이 있고 GROUNDING WARNING 을 거절로 세고 있다 — 같은 결함의 다른 판본이며 정본 deny_kind 호출로 대체 필요([[67]]). 또한 동시 편집 위험: 최종 상태는 21:12:17 이후 안정이고 전 검정 통과이나 커밋 전 재확인 권장. 지시대로 git 커밋·push 안 함."
+      },
+      {
+        "id": "R2-our-deny-not-persisted",
+        "status": "REPAIRED",
+        "files_changed": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\t2_forensic.py",
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\run_t7346_overnight_stage1_20260822.sh",
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\run_t7347_cp2ledger_smoke_20260823.sh"
+        ],
+        "tests_added": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_forensic_sidecar_authority.py"
+        ],
+        "summary": "R2 수리 완료 — **레버가 아니라 자[尺]**다. 커밋·push 안 했다(지시대로).\n\n## 결손 재현(수리 전 실측, 전부 이 저장소에서 재측정)\n⒜ `sidecar()` 는 리모트 평문 `FBDIR/fb_<tag>.jsonl` **한 자리**만 봤다 → 로컬 영속본 **110 개**(`fb_<tag>.jsonl.gz` 96 + `<tag>.fb.jsonl.gz` 14)가 통째로 안 읽혔다. 같은 파일을 `sidecar_rows()` 는 *다른* 한 명명만 읽고 있었다 — 정본 안에서 리더가 둘로 갈린 자리([[67]]). 실측: `sidecar('bank_t7305_treat_20260817a')`=**0** ↔ 실제 605 행. `trace()` 도 동형 결손(`trace_<tag>.jsonl.gz` **57 개** 실명).\n⒝ `deny_kind` 는 우리 표지 2 종만 셌다. 전 코퍼스 **13,534 sim** 재스캔: 표지-머리 거절 **3,650 건** = ours 224(READ-FIRST) · env 오귀속 531(BYREF 398·ARGS-FORMAT 108·PRE-ACTION-KB 24·RESULT-SIGN 1) · 거절로 안 세짐 2,895. refute_1⑷ 수치와 **정확히 일치**. 마지막 부류가 `attempted_mutations` 의 `ok = not kind` 를 True 로 만들어 *막힌 변이를 실행으로* 셌다 — 변이 호출 위 **27 건**(전 코퍼스 전수 재계산: ok→ours 27 · 1 sim `bank_y2cp2_gpu0_20260801|task_008#s626729`, env→ours 0).\n⒞ 사이드카 부재가 표에 안 나타나 침묵이 증거로 읽혔다.\n\n## 수리 (a) 정본 라이브러리 `t2_forensic`\n· `sidecar_paths`/`trace_paths` = **경로 결의 단일 정본**(4 명명 + 리모트). `sidecar`·`sidecar_rows`·`trace` 전부 여기로 통일.\n· `sidecar_status(tag)` = `present|absent` · `sidecar_note(tag)` = 없을 때 **무엇을 하면 풀리는지까지** 인쇄([[64]]).\n· `sidecar_denies(tag)` = `kind=='tool-deny'`(= `t2_fbsidecar.record_many` 가 role=tool·error=True 인 우리 메시지에만 붙이는 라벨) 두 색인. `regen_blocked(sim, tag)` → `(상태, 조인, 행들)`; 조인은 `simtag` 우선, 없으면 `fb_sim_fingerprint`(= `t2_fbsidecar._sim_key` 역함수, nt 시행 병합되므로 `'fp'` 로 **표기**).\n· `mutation_diff(sim, mut=None, tag=None)` · `action_diff(sim, tag=None)` 에 `sidecar`/`regen_join`/`regen_blocked` 세 칸 추가. **tag 미제공 = `'unknown'`**(침묵 아님). t7305 실측: 영속 blocked **13** ↔ regen_blocked **96**(8/8 sim).\n· 표지 원장은 **손으로 적지 않고 파일에서 유도**: `our_markers()`(우리 파일 소유·275 종) ∪ `attested_markers()`(사이드카 발화 증언). 원장에 없는 표지 + 실패 접두 → **`unknown`**(env 로 단언하지 않는다·[[25]]), 실패 접두 없으면 거절 아님(과잉계수 0).\n\n## 수리 (b) 러너 계보에 회수 이식\n· `run_t7346`(stage-1 정본 계보): `harvest_instr()` **함수 하나**를 setsid 블록에 두고 **스모크·본런 양쪽**에서 호출(2026-08-06 \"스모크만 켜짐\" 사고의 뿌리 차단), `fb_`·`trace_` 둘 다 → `sim_results/`, `git add -f` 에 등재, 없으면 **없다고 인쇄**.\n· `run_t7347`: 기존 fb-only 블록을 fb+trace 루프로 넓히고 git add 에 trace 추가.\n· 두 러너의 스모크 게이트 배터리에 새 검정 등재.\n\n## 검정 (`test_forensic_sidecar_authority.py` · 4.3초 · 34 항목 ALL PASS)\n①양성대조: 옛 술어 동결본이 `[DUPLICATE-READ]`=('',None)·`Error: [BYREF]`=env·옛 경로 0 행을 **재현**. ②수리 후: 실물 앵커 3 개(t7305·y2cp2·t7346)로 옛 done 29→2·ours 27·regen 96↔13. ③부정통제: env 접두 유지·성공 본문 유지·본문 중간 대괄호 무시·미상 표지 unknown·**absent 를 0 으로 읽지 않음**·원장에 일반어 0. ④래칫: 디스크 사이드카 110·계기 79 **전부** 경로 결의에 잡힘. ⑤실물: 표지-머리 165 건 전부 ours, **env 오귀속 0**. ⑥이음매: 러너가 쓰는 이름 ↔ 라이브러리가 찾는 이름 + 임시 BASE 왕복.\n**부정통제(라이브러리 수준)**: 기존 6 검정(`test_deny_kind_env_fail`·`test_forensic_canonical`·`test_args_equal`·`test_log_join`·`test_bailout_axes`·`test_t7336_g3_decl_modules`)이 **옛 라이브러리와 새 라이브러리 양쪽에서 동일하게 PASS** = 기존 거동 보존. 새 검정은 옛 라이브러리에서 **rc=1**, 새 것에서 rc=0 = 자기충족 검정이 아님. 코퍼스 없는 체크아웃에서는 실물 절만 **건너뛰되 인쇄**하고 rc=0(유료 런 게이트를 코퍼스 부재로 막지 않는다).\n\n## GENERALIZATION TEST\n도메인-일반. 태스크 id·태스크별 조건·도메인 어휘 **0**; 표지/문면 원장은 파일에서 유도되므로 ABox 교체(retail)에서 자동으로 따라온다. 라이브 거동 변화 **0** — `t2_forensic` 을 import 하는 엔진 모듈이 없음을 grep 으로 확인했고(오프라인 전용), 러너 변경은 런 **종료 후 파일 회수**뿐이다(`T2_FB_SIDECAR`·`T2_TRACE` 는 이미 go_stack:222/231 에서 상시 ON). 판 태스크 없음.\n\n## 보고할 것 3가지\n1. **동시 편집 충돌**: 다른 수리 에이전트가 같은 `t2_forensic.py` 의 `deny_kind` 를 내 판 위에 확장했다(거절 **문면** 접두 원장 + `T2_FORENSIC_DENY_LEGACY=1` 탈출구 + `[POLICY_QA]`/`[GROUNDING WARNING]` = 성공 본문 예외). 되돌리지 않고 **합본 상태로 전 검정 재실행** — 중복 def 0, 내 API 전부 생존, ALL PASS. 내 ⑤ 절 명제는 그 정련에 맞춰 *\"표지가 붙으면 전부 거절\"* 이 아니라 **\"env 는 표지-머리 본문을 저작하지 않는다\"** 로 좁혔다.\n2. **진짜 단일 자리는 `go_stack.sh:t2_launch`** 다(사이드카 기본 ON 이 거기 있는 것과 같은 이유). 파일 목록 제한으로 러너 두 곳에 넣었다 — 새 러너는 반드시 t7346/t7347 에서 파생시켜야 하고, 여유가 생기면 `t2_launch` 로 올리는 것을 권한다.\n3. **무관 선재 실패**: `test_keep_deny_body.py` rc=1(12/13). `t2_gate_patch.py`(작업트리 미변경·HEAD 그대로) 소스를 검사하는 검정이고 `t2_forensic` 을 import 하지 않는다 — 내 변경과 무관한 선재 결함이다."
+      },
+      {
+        "id": "R3-t2ground-selector-dead-path",
+        "status": "REPAIRED",
+        "files_changed": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\t2_gate_patch.py",
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_selector_guard.py"
+        ],
+        "tests_added": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_selector_guard.py"
+        ],
+        "summary": "## 수리 내용\n\n**결함 재확인(원 로그 독립 재계수).** `sim_results/**/*.log.gz` 455파일 전수 재계수로 보고서 수치를 바이트 수준 재현: `[T2_GROUND] substituted` **449건** = `agent_tool_name` 365 + `discoverable_tool_name` 6 (= 뱅킹 **371, 100% 선택자 키**) + 리테일 `address1` 28 · `zip` 26 · `address2` 23 · `item_ids` 1 (= **78건 정상**). 선택자 치환 371건의 **우변은 16종 전부 대문자 인명**(`CARLOS RODRIGUEZ` 91 · `LIANG JINHAI` 86 …)이고 **도구명 형상(`^[a-z0-9_]+$`) 우변 0종** ⇒ *정답 산출 0/371* 확정.\n\n**⑴ 가드를 치환 경로에 닿게 했다.** `_first_fab_call` 에 `selectors=frozenset()` 파라미터 추가 + `if k in selectors: continue`. 기본값 ∅ = 종전 거동 바이트 동일(집합을 안 넘긴 오프라인 호출자 보호). 라이브 호출 **7곳 전부**(치환 2 · rescue 재스캔 1 · DISAMB 정화 루프 4)에 도출 집합을 넘긴다.\n\n**⑵ 술어를 env 스키마에서 도출한다(4-이름 하드코딩 폐기).** 신설 `_selector_arg_names(tools)`:\n> 파라미터 p 가 선택자 ⟺ 어떤 도구 T 의 스키마가 ⑴ 페이로드 파라미터 `arguments` 를 갖고(디스패처 형상) ⑵ T 의 페이로드-아닌 **문자열** 파라미터가 정확히 하나이며 그것이 p 다. 유일하지 않으면 **기권**.\n\n도출된 이름 집합은 도구를 가리지 않고 적용된다 — 그래야 페이로드 형제가 없는 `unlock_discoverable_agent_tool(agent_tool_name)` 의 같은 슬롯도 덮인다. 부수 함수 `_schema_props`/`_prop_is_string`/`_tool_objects`/`selector_args_of`/`_selector_args_cached`(도구 수 변화 시 재도출하는 얕은 캐시). `_prov_scan_args`·`_provenance_deny` 도 같은 집합을 인자로 받게 바꿔 **사본 0**([[67]]); 4-이름 튜플은 `_SELECTOR_FALLBACK` 로 남되 **스키마를 못 얻는 오프라인 호출자 전용**이고 참조 1곳(래칫으로 고정).\n\n**일반성.** banking → `{agent_tool_name, discoverable_tool_name}` · retail/airline → **∅**(페이로드 파라미터를 가진 도구 0) ⇒ 리테일 78건 정상 발화는 **바이트 동일로 보존**. 엔진이 이름을 모르는 합성 디스패처(`target_tool_name`)도 구조만으로 잡는다(전이 검정 포함). 태스크-조건 분기 0 · 도메인 리터럴 순증 0(유일한 리터럴 `\"arguments\"` 는 `ToolCall.arguments` 와 같은 tau2 **프로토콜 어휘**이고 기존 `_dispatch_tools` 가 이미 쓰던 구조 신호).\n\n## 검정 `test_selector_guard.py` (PASS·24항)\n⒜ 도출 일반성(banking/retail/합성/정수 형제/기권/빈 입력/스키마 부재) ⒝ **양성대조(수리 전 결함 재현)** — `selectors=∅` 에서 `agent_tool_name` 이 fab 으로 잡히고 `_grounded_candidates(...)→['CARLOS RODRIGUEZ']` 유일 후보 → `_subst_arg_value` 가 실제로 치환 ⒞ 수리 후 fab=None·원 호출 불변(잠금 도구 포함) ⒟ **부정통제 1**: retail `address1`/`address2`/`zip` 은 수리 후에도 잡고 그대로 치환, `item_ids` 도 잡힘 ⒠ **부정통제 2**: 뱅킹 `user_id`/`card_id` 날조는 그대로 잡히고 실값은 통과(over-block 0)·같은 호출에서 선택자만 건너뛰고 다음 데이터 인자를 계속 스캔 ⒡ `_prov_scan_args`/`_provenance_deny` 동형 ⒢ **배선 래칫**(死경로 재발 방지): 소스의 `_first_fab_call(` 호출 7개 전부 `selectors=` 를 넘기는지 검사.\n\n## 회귀\n`t2_gate_patch` 를 import 하는 검정 **125개 전수**를 수리 전(백업 모듈 사본 디렉터리)/후로 각각 돌려 대조 — **신규 실패 0**(기존 실패 19개는 수리 전에도 동일). `test_flag_registry`(플래그 래칫)는 수리 전후 **완전 동일**(엔진이 읽는 `T2_*` 283 불변 · 신규 플래그 0; 현 FAIL 은 다른 항목의 `T2_FORENSIC_DENY_LEGACY` 로 내 변경과 무관). `test_lever_reachable`·`test_no_prose_regex`·`test_no_undefined_names`·`test_a2_three_layer` ALL PASS.\n\n## 남긴 것(다음 런/부모 판단 몫)\n1. **[[70]] 무엇을 팔았나 — 턴 비용은 A/B 에 계상해야 한다.** 파는 것 = 도구명 슬롯의 근거-검사(실측 산출 0/371 이라 순매수). 되사는 것 = env 진단문(`Unknown agent tool 'X'`)과 **정상** 블랙리스트(종전엔 고객 이름이 블랙리스트에 실렸다). 지어낸 이름 1건당 왕복 1턴.\n2. **DISAMB 경로는 손대지 않았다 — 무측정이라서가 아니라 측정해서 0이라서다.** 코퍼스 `[T2_DISAMB] fired` 135건의 (tool,arg) 분포를 전수로 세니 **선택자 키 0건**(전부 리테일 `order_id` 126 · `payment_method_id` 5 · `address1` 2 · `item_ids` 2), `[T2_FSUB] substituted` 0건. 표적 0 이므로 확장하지 않았다([[62]]).\n3. **`_first_fab_call` 은 여전히 중첩 `arguments` 안쪽을 스캔하지 않는다**(외부 키 `arguments` 가 `_hint_hit` 에 안 걸림). `_prov_scan_args` 는 2026-08-15 에 그 구멍을 닫았지만 치환 경로는 아직이다 — 별개 결함이라 이 항목 범위 밖으로 남긴다.\n4. **git 커밋·push 하지 않았다**(지시대로). ⚠작업 중 같은 파일에 다른 항목 에이전트(R4 `_enum_seen_key`)의 편집이 동시에 들어와 있었다 — 현재 워킹 트리에 **양쪽 다 온전히 존재**함을 확인했다(`_enum_seen_key` 정의 345행·사용 9925행). 최종 커밋 전 `git diff` 로 두 항목이 모두 살아 있는지 한 번 더 확인 권장."
+      },
+      {
+        "id": "R4-write-arg-enum-cap-fail-open",
+        "status": "REPAIRED",
+        "files_changed": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\t2_gate_patch.py"
+        ],
+        "tests_added": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_enum_reject_ledger.py"
+        ],
+        "summary": "결함: `T2_WRITE_ARG_ENUM` 의 sim 당 상한이 **블록 전체**를 잠갔다 — 상한 소진 후 게이트가 침묵하고 *이미 집합 밖이라 판정한 바로 그 값*이 다음 시도에 통과해 DB 를 바꿨다(fail-closed → fail-open). refute C1 CONFIRMED, 실물 `bank_t7296_treat_20260815p|task_071#s554706`(같은 값 turn 22·34 deny → msg41 통과 → gold 계좌 닫고 오답 개설 → reward 0), 전 코퍼스 455 로그 중 20 sim 상한 도달·2 sim 에서 같은 값 통과.\n\n수리(`t2_gate_patch.py` 만 수정, 5곳):\n(1) 모듈 헬퍼 `_enum_seen_key(group, val)` 신설 — 닫힌 문자열 술어(공백 접기 + casefold), 판단 0·도메인 리터럴 0. 키가 `(그룹, 값)` 쌍인 이유는 '집합 밖' 판정이 그 그룹 명단에 대해서만 참이기 때문.\n(2) 바깥 가드에서 상한 제거 → `if os.environ.get(\"T2_WRITE_ARG_ENUM\") == \"1\" and _ens:`. 상한은 블록 안 `_encap_open` 지역 불리언으로 남는다.\n(3) deny 자리에 거절 원장 `self._t2_enum_rejected` 추가. 상한의 **단위**가 '거절 횟수' → '처음 보는 값의 수' 로 바뀐다: ⓐ 원장에 있는 값 = 횟수 무관 **계속 거절** ⓑ 상한 소진 + **처음 보는 값** = 종전 그대로 fail-open(livelock 탈출구 보존). `_val in _names` 를 매번 먼저 보므로 명단이 자라면 차단이 저절로 풀린다.\n(4) [[64]] 재제출 문면(무엇이 틀렸나 = 이미 거절된 값이라 또 거절된다 / 무엇을 하면 풀리나 = 위 명단에서 축자 선택 또는 read 도구로 조회)을 **뒤에** 덧붙인다 — 머리의 `[OFFICIAL-NAME]` 채널 마크를 밀어내면 사이드카 집계가 갈린다([[25]]).\n(5) 계기: 재제출 거절을 `deny(재제출)` 로 구분해 찍고 원장 크기를 함께 인쇄(구판처럼 deny 줄 수로 상한을 역산하면 틀린다).\n\n거동 보존: 이웃 레버 `T2_ARG_AXIS`·`T2_VERDICT_GATE` 가드에 `_encap_open` 을 넣어 종전 상한 조건을 유지 — 발화 범위를 넓히지 않았다. 레버 OFF 면 블록 미진입(종전과 동일). 새 env 플래그 0(레지스트리 래칫 보존)·A2 선언 변경 0·엔진 도메인 리터럴 0·argmax/max/min/sorted[...] 0.\n\n일반화 시험 통과: 술어가 \"이 게이트가 이미 거절한 값\" 하나뿐이라 태스크·상품·군 조건이 없다. 어떤 태스크도 팔지 않는다 — 상한 소진 후 *새* 값은 여전히 통과하므로 명단이 불완전한 축에서도 sim 을 인질로 잡지 않는다.\n\n검정 `test_enum_reject_ledger.py` 36/36. 배송 소스에서 게이트 블록을 떼어 함수로 감싸 **실제 바이트를 돌린다**(사본 0·[[67]]). ⓟ 양성대조 = 바깥 가드 한 줄만 구판으로 되돌려, 집합 밖 값 3개를 거절해 상한을 소진한 뒤 첫 값을 재제출하면 **통과**함을 자연 재현(상태를 손으로 심지 않음). ⓝ = 같은 순서·같은 값에서 재제출이 계속 거절되고 [[64]] 두 요소가 문면에 있음. ⓒ 부정통제 8종 = ①상한 뒤 처음 보는 값은 통과(원장·상한 불변) ②집합 內은 무발화 ③상한 전 거동 불변(첫 거절 문면에 재제출 안내 없음) ④다른 군의 같은 문자열은 원장 밖 ⑤명단이 자라면 차단 해제 ⑥레버 OFF 무발화 ⑦빈 명단 무발화 ⑧같은 값 3회 거절 = 상한 소비 1, 처음 보는 값 3개 뒤 4번째 통과. 실물 A2 gate/specific 두 층 왕복 포함.\n\n회귀: `t2_gate_patch` 를 읽는 검정 125개 전수 실행 → 18 실패. 내 훅만 되돌린 대조본(scratchpad)에서 **18/18 동일 실패** ⇒ 전부 사전 결함이며 내 변경이 원인이 아님(`test_docs_at_write` 는 HEAD 에서도 정규식 창 1200 < 실제 거리 1469 로 실패). `test_flag_registry` 의 신규 미선언 플래그는 `t2_forensic.py` 의 `T2_FORENSIC_DENY_LEGACY` 로 다른 항목 소유. 인접 검정 `test_write_arg_enum` 19/19 · `test_t7337_residual_debt` 36/36 · `test_verdict_gate` PASS · `test_no_undefined_names` ALL PASS.\n\ngit 커밋·push 하지 않음(지시대로)."
+      },
+      {
+        "id": "R5-arg-empty-cannot-fire-on-discoverable",
+        "status": "REPAIRED",
+        "files_changed": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\t2_gate_patch.py"
+        ],
+        "tests_added": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_r5_arg_empty_dispatched.py"
+        ],
+        "summary": "## 결론: 死배선 수리 완료(REPAIRED). 술어는 그대로, **배선만** 넓혔다.\n\n### 결함(재관측·refute_4 claim 1)\n`T2_ARG_EMPTY` 가 디스패처 경유 write 에 못 가는 다리가 **셋**이었다.\n1. `_schema_required` 가 `agent.tools`(에이전트에 **노출된** 21개)만 캐시 — 발견형 도구는 그 목록에 없다.\n2. 조회 이름이 `_eff_tool_name`(=`_\\d+$` 제거) — `file_..._4829` 를 레지스트리에 없는 철자로 만든다. ⇒ `req=[]` → `return None`.\n3. 배치 페이로드(`{\"disputes\":[{…},{…}]}`)는 구판 unwrap 이 `inner={'disputes':[…]}` 로 접어 필수 키를 한 겹 못 봤다. **t7335_halfB|task_040 호출 #18 이 실물로 그 모양**이다(축자 확인).\n\n### 수리(새 레버 0·기존 기구의 사각지대만·[[62]])\n`t2_gate_patch.py` 1604~1800 구간:\n- `_decl_tool_collections` / `_decl_required` / `_schema_required_index` 신설 — 필수 목록의 출처를 **env 레지스트리 전체**(`env.tools`·`env.user_tools`, 발견형 포함)로 확장. 형태 3종(`get_tools()`={이름:Tool} · `get_discoverable_tools()` · `.tools`={이름:함수}) 모두 흡수하고, 스키마가 없으면 **기본값 없는 파라미터 = required** 라는 프레임워크 규약을 서명에서 읽는다. 캐시는 **환경 객체 신원**으로 무효화(sim 교차 오염 방지).\n- `_schema_required` = **정확한 이름 우선**, 접미사 제거 철자는 *그 철자로 접히는 도구가 유일할 때만* 폴백(C279 철자-추정 금지 준수·구판 거동 보존).\n- `_arg_frames` 신설 — 페이로드를 프레임(최상위 + 중첩 사전 + 목록 원소)으로 분해(≤48 프레임·≤5 겹, 상수 비용). 배치 발행이 보인다.\n- `_arg_empty_deny` = `_exact_tool_name` 으로 조회, `applies_to` 는 실명·접미사제거명 **둘 다** 매칭. **술어는 불변: 키가 있고 값이 빈 문자열.**\n\n### 실측(전 코퍼스 재생·실물 함수 `G._arg_empty_deny` 직접 호출)\n`t2_forensic.iter_all_sims()` 전량 = **13,534 sim / 869 결과파일**.\n\n| 배선 | 발화 | 디스패처 경유 | sim |\n|---|---|---|---|\n| 구판(노출 목록만) | 29 | **0** | 23 |\n| 수리 후(레지스트리) | 78 | **49** | 37 |\n\n- **노출-도구 발화는 29 → 29 로 불변**(log_verification 17 · give_discoverable_user_tool 10 · change_user_email 2) ⇒ 종전 커버리지에 새 오발화 0, 잃은 sim 0(엄격한 상위집합).\n- 새로 보이는 49건 = `file_credit_card_transaction_dispute_4829` 35 · `file_debit_card_transaction_dispute_6281` 12 · `order_replacement_credit_card_7291` 1 · `submit_cash_back_dispute_0589` 1.\n- 슬롯 단위(required 대용 = `env_surface.args`, 상한 근사): 빈 슬롯 자리 132(디스패처 93) 중 **보이는 자리 39 → 95**.\n\n### 일부러 안 한 것 — 비-문자열 빈 값(측정 후 기각)\n브리핑의 *\"non-string slots\"* 축은 **재보고 기각**했다. 코퍼스 전량에서 비-문자열 빈 값 자리는 37건이고 **전부 `None`** 이며(`card_action` 22 · `partial_refund_amount` 15 · APY 보고 6), 전부 기본값이 있는 선택 인자로 보인다. `None`/`[]`/`{}` 를 \"비었다\"로 세면 게이트가 **정당한 생략을 막는다**(false-block). *\"필수 슬롯이 비어 도착했다\"* 의 닫힌 핵은 빈 문자열 하나다. 이 판단을 부정통제 검정으로 **못 박아** 두어 나중에 조용히 넓혀지지 않게 했다.\n\n### 검정 (신규 `test_r5_arg_empty_dispatched.py` — 29/29 PASS)\n- **양성대조**: 구판 술어를 축자 재현한 `_legacy_deny` 가 실물 모양(단건·배치) 둘 다 **무발화**로 결함을 재현.\n- **수리**: 같은 입력에서 발화 + 빈 인자를 이름으로 짚음 + **호출 가능한 실명**(접미사 포함)으로 도구 지목 + 값 누설 0 + 해법 문구 동반([[64]]).\n- **부정통제 9종**: 채워짐 · 키 부재 · `None` · `0`/`False` · `[]`/`{}` · 미등록 도구 · required 빈 선언 · 환경 미확보(종전 거동) · **접미사 쌍둥이면 bare 이름 추정 금지**.\n- **불변식**: 플래그 가드(`if not wd and ae_on and not _fab_only:`) 보존 · `tokenize` 로 주석·문자열을 걷어낸 **실행 코드에 도구/인자 리터럴 0** · 캐시 무효화 키 · A2 문구 치환.\n- 표적 도구·인자 이름을 테스트에도 박지 않고 `a2/env_surface.json` 에서 **닫힌 규칙으로 도출**한다([[23]] gold 미열람).\n\n### 회귀\n`t2_gate_patch` 를 import 하는 테스트 **91개 전수**: 76 PASS / 15 FAIL. 15개는 `git show HEAD:` 사본을 sys.path 로 선점해 재실행한 결과 **전부 baseline 에서도 rc=1** ⇒ 내 변경과 무관한 선존 실패다(목록: c201_stage2·c204_nextrun·c207_envelope·c214_day9b·followup_chain·forensic054_fixes·keep_deny_body·limit_reduce_operand_gated·now_selfcall·p6_batch_governor·read_dedup_loopbreak·ref_verify·ref_verify_replay·unlockname·v6_transfer). 인접 검정 `test_call_form_and_arg_empty` 16/16 · `test_write_arg_ground` ALL PASS · `test_wev_forbid` 6/6.\n\n### GENERALIZATION TEST\n태스크 조건 0 · 도메인 조건 0. 이름·필수목록은 **런타임 레지스트리**에서만 오므로 ABox-swap 으로 전이한다(리테일/에어라인에 발견형이 없으면 집합이 비어 무발화 = 바이트 동일). 한 태스크를 사고 다른 태스크를 파는 구조가 아니다.\n\n### ⚠[[70]] 무엇을 팔았나\n발화 자리가 늘어난 만큼 WEV 블록의 **공유 cap**(`T2_WEV_CAP`=8)을 더 먹는다 — 같은 sim 에서 WEV·WAG·REF_VERIFY 와 예산을 나누므로 빈 슬롯이 잦은 궤적에선 선행-read 거부가 그만큼 덜 나간다. 끄지 않고 코드 주석에 계측 대상으로 박제했다([[60]]). 또한 refute 의 rescue 대로 **이 수리 단독으로는 gold 0행**이다(t7335/t7346 의 그 발행들은 날짜 슬롯도 함께 틀렸다) — 이것은 실패 원인 수리가 아니라 **레버 커버리지 공백의 폐쇄**다.\n\n### ⛔0 [[62]] 자기점검\n①쟀나 — 전 코퍼스 실측 2회(`x_r5_measure.py`·`x_r5_replay.py`, scratchpad) + 모델-측 격리는 기존 `x250_empty_required_arg_probe.py`(B_NAME 8/8 ↔ A_LIVE 0/8). ②격리에서 모델은 **실패**하고 *이름을 대는 거부*에서만 산다 ⇒ 레버는 전달(부하 축소)이다. ③사라지는 판단 — 없다(엔진은 *비었다*만 말하고 값은 안 준다). ④argmax·최댓값·\"정답은 X\" — 없다.\n\n### 내 파일 밖 — 두 건 보고만(수리 안 함)\n1. **`go_stack.sh` 가 `T2_ARG_EMPTY` 를 export 하지 않는다**(`grep ARG_EMPTY go_stack.sh` = 0). 정본 합성 스택으로 파생한 런에서는 이 레버가 **OFF** 이고, t733x/t734x 는 `run_*.sh` 계열이 켠 것이다. [[60]](레버는 전부 항상 켠다) 기준으로 이 수리가 런에서 값을 내려면 `go_stack.sh` 에 export 가 추가돼야 한다.\n2. **같은 이름-해석 결함이 `t2_unknown_bool._schema_of` 에 그대로 있다**(refute surviving item #2 — 호출부가 접미사 제거명을 넘기고 `_schema_of` 는 정확 일치를 요구, 게다가 `env.tools` 를 Tool 목록으로 가정해 툴킷이면 빈 dict). 이번에 세운 `_schema_required_index` 가 그 자리에 그대로 이식 가능한 패턴이다.\n\n### 동시 편집 주의\n작업 중 같은 파일에 **R3·R4 항목의 미커밋 변경이 함께 존재**함을 확인했다(hunk @342 `_enum_seen_key`, @573 선택자 파라미터 등). 나는 `Edit` 국소 치환만 썼고 커밋·push 는 하지 않았다."
+      },
+      {
+        "id": "R6-reward-discrepancies-imperative",
+        "status": "REPAIRED",
+        "files_changed": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\a2\\banking_knowledge.specific.json",
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\a2\\banking_knowledge.gate.json",
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\a2\\split\\banking_knowledge.core.json",
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\_upd_reward_ret_imperative.py"
+        ],
+        "tests_added": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_return_template_imperative.py"
+        ],
+        "summary": "## 결론 — REPAIRED. 일반화 시험 통과(태스크별 부호가 갈리지 않는 **순 제거**).\n\n### 결함의 실체 = 문구가 아니라 **발화 위치**\n`scaffold_get_tools[*].return_template` 은 탐지 시점에 렌더되고 **원장 술어(`after`/`requires`)가 없다** — 분쟁 레코드를 한 줄도 안 읽는다. 그러므로 구 축자 *\"— after its dispute is resolved, update that transaction's rewards to EXACTLY the correct value shown\"* 의 전제는 이 site 에서 **구조적으로 관측 불가능**하다. 관측 없이 전제를 말하면 전제는 무시되고 명령만 남는다.\n\n### 측정(20런 t7307~t7346 · gold 열람 0 · 궤적 관측만)\n`update_transaction_rewards_3847` 성공 호출 **85건**을 전수해 호출마다 licence 를 갈랐다 — S(그 txn 분쟁 선행 성공) · U(손님이 그 txn 을 먼저 지목) · T(우리 반환문이 그 id 를 먼저 인쇄).\n\n| task | (S,U,T) 분포 | n |\n|---|---|---|\n| 017 | (F,T,T)2 | 2 |\n| 019 | (F,F,T)2 | 2 |\n| 020 | (F,F,T)1 · (F,T,F)3 | 4 |\n| 027 | (F,F,T)12 · (F,T,T)5 · (T,T,T)12 | 29 |\n| 028 | (F,F,T)1 · (F,T,T)1 · (T,T,T)23 | 25 |\n| 029 | (F,F,T)6 · (T,T,T)17 | 23 |\n\n- **우리 반환문이 유일 근거**(S=F ∧ U=F ∧ T=T) = **22건 / 7 sim** — 027×12 · 029×6 · 019×2 · 020×1 · **028×1**.\n- 인과 궤적 재관측 2건: `t7308_ctl|task_027#s373753` msg33(우리 출력)→**msg34** 갱신 4건, 값 `6300/1020/3800/1499` 바이트 동일·분쟁 0 resolve. `t7308_treat|task_028` msg27→**msg30** 갱신 1건, 손님이 목록을 보기도 전에.\n- `follow_up_chains[3]` 은 20런에서 **7회만** 발화(029×5·017×2) ⇒ 61 EXTRA 의 구동원이 **아니다**. 2차 원인 없음.\n\n### 028 비용 = 실측 **0**\n028 의 갱신 25건 중 **23건이 (분쟁 성사 ∧ 손님 지목)** 이고 24건이 손님 지목이다. 우리 명령문이 유일 근거인 것은 **1건**뿐인데, 그 1건(`t7308_treat` msg30)은 **분쟁이 생기기 전**에 나갔고 **같은 write 를 msg54 가 정상 경로로 재발행**했다(reward 1.0 불변) ⇒ 중복이다. 즉 028 을 이끈 것은 명령문이 아니라 원장(분쟁 성사)+손님 요청이다. 21건이 사라지고 0건을 잃는다 — [[70]] 절충이 필요한 부호 분기가 없다.\n\n### 수리 (문면·선언만 · 신설 0 · op/isolate/params/grounded_params/return_template_empty 불변)\n1. **ratefix `return_template`** — 갱신 명령문 삭제. `{details}`(기대값 노출)는 **유지**(2026-07-19 task_026 회귀 방지). 검사 범위 자인(*\"It read no dispute record\"*) + [[64]] fix-naming(다음 단계 = 분쟁 그 자체 · 갱신의 피연산자는 *\"read from the resolved disputes\"*).\n2. **`follow_up_chains[3].feedback`** — 구 문면이 *\"The reward-check tool's own output states …\"* 로 **우리 출력을 인용**했는데 1번 이후 그 인용은 거짓이 되어 [[25]] 위반이므로 **필수 동반 수리**. 인용처를 정책 문서로 이동. **발화 조건 불변**(`after`/`requires`/`resign_th` 그대로 · 양방향 축자 `\"If resolution has NOT been confirmed yet, do not update\"` 바이트 보존).\n\n**문구 출처 = 정책 축자**(KB `doc_credit_cards_credit_cards_(general)_004`, 궤적에서 축자 확인): *\"After a cash back dispute is resolved and approved, you must update the affected transaction(s)…\"* / *\"Look up the user's **resolved** disputes … to find the transaction_id values that need rewards adjustments.\"* — **정책이 이미 탐지와 적용을 분리**하고 갱신의 피연산자 출처를 못박는다. 우리 반환문이 그 둘을 한 문장에 붙인 것이 결함이었다. gold/tasks 열람 0([[23]]).\n\n### 닫힌 술어 (태스크 id·제품명·문구 키잉 0)\n> **전제를 관측할 수 없는 site 는 전제-딸린 명령문을 낼 수 없다.** 판정 재료 = ⑴그 site 가 원장 술어를 갖는가(선언 구조) ⑵우리가 저작한 문면 — 둘뿐. 도메인 어휘 0.\n\nlint(시간 전제 `after|once|when|as soon as` ∧ 절-머리 상태변경 동사, 문장 단위)를 **세 도메인 A2 의 반환 문면 35개 전량**에 돌린 결과 수리 전 **정확히 이 하나만** 걸렸다(오탐 0). 수리 후 0.\n\n### 검정 `test_return_template_imperative.py` — **45 PASS / 0 FAIL**\n①축자 부재(비-주석 값 전량 · 주석의 출처 인용은 보존) ②회귀 보존 ③3사본 바이트 동일([[24]]) ④코퍼스 lint ⑤양성대조 + ⑤b **선언 전체를 되돌린 사본**으로 끝단 양성대조 + 부정통제 2종(전제만/명령만 → 미검출) ⑥**부정통제: 능력 삭제 아님** — 원장 술어를 가진 site 는 여전히 갱신을 지시하고 발화 조건 불변 ⑦[[25]] 자기-인용 정직성 ⑧[[64]] ⑨`load_domain_a2` 병합 렌더 실물.\n**수리 전 동일 검정 = 11 FAIL**(결함 정확 지목) → 수리 후 0 FAIL.\n\n### 회귀\n`test_a2_three_layer` `test_ax33_byref_window` `test_c211_day7rx` `test_c212_day8rx` `test_c208_day5rx` `test_banking_gate` `test_ax33_p1_p8` `test_comparator_read_first` `test_atm_fee_op` `test_c278_quotepin` `test_axis_levers` 전부 PASS. diff = 파일당 **live 문자열 2개 + 주석 2개**뿐.\n\n### ⚠수리 범위 밖 · 별건 보고(사전 결함, 내 변경과 무관 — 기준선에서 이미 FAIL)\n`test_c204_nextrun`(D8) · `test_c214_day9b`(E4) · `test_c201_stage2`(D2) 가 **무접미사 이름 상수**로 체인을 찾는데 선언은 `_0589`/`_7392`/`_0218` 접미사를 쓴다 ⇒ 셋 다 `ch is None` 으로 **조용히 빠져나가** 세 follow_up_chain 의 가드가 **死배선**이다([[55]]). 이번 항목의 그 체인은 내 ⑥가 접미사-관용 술어로 덮었으나 에스컬·CLI 체인은 여전히 무방비다. `test_c207_envelope` 는 다른 세션이 동시 수정 중인 `t2_gate_patch.py` 축자를 찾다 죽는다.\n\ngit 커밋·push 하지 않았다(지시대로)."
+      },
+      {
+        "id": "R7-docdecide-carry-axis-unnamed",
+        "status": "REPAIRED",
+        "files_changed": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\t2_gate_patch.py",
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_decide_before_write.py"
+        ],
+        "tests_added": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_decide_first_axis_named.py"
+        ],
+        "summary": "DECIDE-FIRST 캐리가 이제 **어느 인자의 답인지 대거나, 못 대면 배달하지 않는다**.\\n\\n[결함] `t2_gate_patch.py` 의 DECIDE-FIRST 문면은 축자로 \\\"It answers: X. … If that answers the choice this call encodes, make the call again with that value.\\\" 였다 — 어느 인자의 답인지 한 번도 말하지 않는다. 결정 서브가 고른 **문서 계열 라벨**(`General`)이 그래서 `dispute_category` 슬롯으로 흘러들었고 t7336_halfB task_085#s373753 의 11회 시도가 전부 열거 밖 값으로 실패했다(refute_5.json §surviving_our_layer⑵·verdicts[3]).\\n\\n[수리·t2_gate_patch.py 만·A2 무수정·새 키/새 레버 0]\\n① `_write_choice_arg(a2, tc)` 신설(:2653 부근) — 이 write 가 담은 선택의 **인자 이름과 축**을 A2 선언에서만 읽는다. 술어는 이름 동등성 + 선언된 접두(`applies_when.prefix`·:1289/:9953 과 같은 기성 관용구) + dict 조회뿐. 출처는 이미 있는 세 키 `write_arg_enum[].arg` · `choice_grounding[].arg` · `recommendation_verify.operand` — 곧 \\\"이 write 는 선택을 담는다\\\" 를 선언하는 바로 그 자리라, *인자를 댈 수 있는 write* 와 *선택을 담은 write* 가 정확히 같은 집합이 된다(태스크·상품 열거 0 = 도메인 일반·GENERALIZATION TEST 충족). 예외는 전부 삼키고 `(None, None)`.\\n② `_DECIDE_FIRST_FB` 템플릿 신설 — \\\"…it answers exactly one thing - the '{arg}' argument of this call, and no other argument:\\\" + 재료 축자 + \\\"If that is the value '{arg}' should carry, make the call again with '{arg}' set to it… If it is not a value '{arg}' can take, then it is not an answer for this call at all - ignore it and make the call again exactly as it was.\\\" [[64]] 두 조각(무엇이 틀렸나·무엇을 하면 풀리나) + **오배치 출구**. `{arg}` 는 런타임에 A2 에서 채우므로 엔진 도메인 리터럴 0.\\n③ 배달 자리(:10250 부근) — `_darg, _dax = _write_choice_arg(a2, _wc)` 로 종전 `_dax` 인라인 계산을 대체(축 의미 보존, 다만 남의 도구에 group 값만 맞아 축이 붙던 과폭을 닫음). `if not _darg:` 면 **무발화** — `dw_fb` 도, sim 상한(`_t2_dwrite_deny`) 소모도, `_search_material` 호출도 없다(배달하지 않을 결정으로 축 잠금 `_t2_search_done` 을 태우면 그 축이 영영 안 온다). 로그 `[T2_DECIDE_BEFORE_WRITE] 축 미상 — 무발화 tool=…` · 발화 로그에 `arg=%s` 병기(계기 검산·[[25]]).\\n\\n[[[62]] 체크리스트] (1) 계측은 격리가 아니라 런 포렌식 — refute_5 의 t7336_halfB 11/11 + 사이드카 축자 복원. 새 레버가 아니라 확정된 우리-층 배달 결함의 수리다. (2) 엔진은 고르지 않는다 — 문면은 전부 조건문, 채택은 모델. (3) 사라지는 모델 판단 없음(오히려 슬롯이 명시돼 모델이 오배치를 거절할 수 있게 된다). (4) argmax·최댓값·'정답은 X' 0.\\n\\n[검정] `test_decide_first_axis_named.py` 39 checks PASS — §1 계약(합성 A2·도메인 무관 이름) §2 부정통제 5종(접두 불일치=085 모양·미선언 도구·빈 A2·쓰레기 입력·group 값만 맞는 남의 도구) §3 문면(지목 4회·재료 축자·[[64]] 2조각·단정문 0·다른 도메인 인자로 전이) §4 **결함 재현 양성대조**(구판 문면에 인자 이름 0·무지목 지시어 실재) §5 배선(AST: 축 미상 가지에 dw_fb/_search_material/상한 소모 전부 부재·`dw_fb` 대입 1자리·레버 기본 OFF 보존) §6 출하 A2 실물(085 분쟁 write=(None,None) 무발화 / 070 계좌 write=('account_class','checking_accounts') 보존).\\n`test_decide_before_write.py` 는 조립이 문자열 연결→템플릿으로 바뀌어 `\\\"_dmat +\\\"` 축자를 보던 어세션 1줄이 노후화됐다 — 불변식(답이 본문에 실린다)은 그대로 두고 `material=_dmat` 를 허용하도록 넓히고 `if not _darg:` 가드 어세션을 1줄 추가(15/15 PASS).\\n\\n[회귀] 배터리 전건 통과: a2_three_layer·sg_docs_delivery·sg_fetch_iso·sg_isofb·sg_src0_axis·claim_backed_write·comparator_read_first·fab_fix_note·ground_warning_echo·search_rearm·require_doc_deliver·decision_carry(24/24)·cp2_clobber·search_agent(+wiring)·write_arg_enum·recommend_verify·material_bypass·proceed_docbody·deliver_precommit·verdict_carry·anchor_slot·decision_isolate·t7336_g1/g2/g3·no_undefined_names·no_unbound_a2·regen_break_guard·selector_guard·no_prose_regex·no_spelling_rules·lever_reachable.\\n**사전 존재 red 2건(내 변경과 무관·HEAD 축자로 확인)**: `test_flag_registry.py`(다른 항목이 넣은 `T2_FORENSIC_DENY_LEGACY` 미선언) · `test_docs_at_write.py` 3건(`_ctx_fits` 함수화로 `44672…` 축자 소실 + `_saved`→로그 사이 1200자 창 regex 노후화 — HEAD 에서도 동일하게 실패, 개수 변동 0. 그 파일은 내 항목 소유가 아니라 손대지 않았다).\\n\\n[남은 구멍·다른 항목 몫] 같은 결정문을 나르는 **CP2 `T2_DECISION_CARRY`**(:9494 부근)는 이번 수리 범위 밖이다. 그 자리는 배달 시점에 지목할 tool call 이 결정돼 있지 않아 \\\"어느 호출의 답인가\\\" 를 닫힌 술어로 못 낸다(닫으려면 열린 판단이 필요·[[66]]). 다만 CP2 는 `Error:` 접두 없이 평문 UserMessage 로 나가고 \\\"그 값으로 다시 불러라\\\" 지시가 없어, 085 에서 모델이 축자로 지목한 \\\"Based on the error message\\\" 는 DECIDE-FIRST 쪽이다.\\n\\n[git] 커밋·push 하지 않았다(지시대로)."
+      },
+      {
+        "id": "R8-pending-disc-dead",
+        "status": "REPAIRED",
+        "files_changed": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\t2_gate_patch.py",
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_pending_discovered.py",
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_actionreq_waitset_evidence.py"
+        ],
+        "tests_added": [
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_actionreq_waitset_evidence.py",
+          "C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\test_pending_discovered.py"
+        ],
+        "summary": "판정 = **제거**(두 선택지 중 두 번째). `T2_PENDING_DISCOVERED` 블록을 `t2_gate_patch.py:8720`(구 8720-8758, 39줄)에서 삭제하고 근거를 담은 묘비 주석 33줄로 대체했다. 한 hunk·72줄·컴파일 OK. `t2_eplan_patch.py` 는 이 결함과 무관해(ACTIONREQ/action_tools/discoverable 배선 0건) 손대지 않았다.\n\n## 왜 배선이 아니라 제거인가 (전부 로컬 455 로그 전수 재계산·독립 재현)\n⑴ **발화 0** — `[T2_PENDING_DISC]` 0줄(error no-op 조차 0) ↔ 숙주 `[T2_ACTIONREQ]` 12,323줄. 15개 런 스크립트가 전부 `T2_PENDING_DISCOVERED=0` 이고 `go_stack.sh` 에도 없다.\n⑵ **종료 술어가 아예 없다(새 발견)** — 대기집합의 유일한 제거 경로는 `_uacts - _effall` 인데 `_effall` 은 `state.messages` 의 호출만 본다. 손님이 실행한 도구는 거기 없다: `apply_for_credit_card`·`submit_referral`·`submit_transaction` 이 **12,323/12,323 줄 전부**에 남아 있고, 에이전트-측 래퍼 `call_discoverable_user_tool` 만 5,278 로 빠진다. ⇒ discoverable 을 대기집합에 더하면 손님이 이미 실행한 뒤에도 영원히 pending 이고 넛지가 끝나지 않는다([[57]] \"인자 변화 없는 반복 억제\"의 정확한 형태). 이 술어는 도메인 일반이라 켜는 순간 모든 태스크에서 그렇게 된다 — GENERALIZATION TEST 를 **켜는 쪽이** 못 넘는다.\n⑶ **문면이 도메인 정책과 모순** — 이 자리가 내보내는 `user_action_feedback` 은 *\"tell the customer to run {tool} themselves\"* 인데 정책 축자는 *\"Just explaining isn't enough, you must use the `give_discoverable_user_tool(discoverable_tool_name)` function\"* 이다. discoverable 은 **먼저 건네야** 손님이 부를 수 있으므로 대기집합에만 넣으면 우리 층이 무엇을 하면 풀리는지를 틀리게 말한다([[64]]·같은 함수의 I1 불변식).\n⑷ **표적은 이미 닿아 있다 = 커버리지 손실 0** — 병목 행동은 손님-측 실행이 아니라 에이전트-측 `give_discoverable_user_tool` 이고 그 이름은 정적 `action_tools` **안에 있다**. 같은 455 로그에서 `formalized_target=give_discoverable_user_tool` 291회. 게다가 이 축은 reward 헤드룸 0(refute_6 claim 4 · 133/133 sim reward 0.0 · 진짜 구속조건은 상류 `open_bank_account_4821` 의 class 선택 · [[69]]).\n\n## 거동 보존\n플래그가 모든 런에서 OFF 였으므로 지운 경로는 어느 런에서도 실행된 적이 없다(로그 0줄이 그 증명) ⇒ 라이브 델타 0. `_uacts` 도출 · `_effall` · `_upending = sorted(_uacts - _effall)` · `[T2_ACTIONREQ]` 인쇄는 한 글자도 안 건드렸고 검정이 축자로 지킨다.\n\n## 검정\n· `test_pending_discovered.py` (**기존 파일을 이 항목의 전용 가드로 재작성** — 옛 판은 \"레버가 있는가\"를 지켜서 제거 후 반드시 FAIL 한다. 파일 범위 예외를 쓴 유일한 자리이니 확인 바람): 제거 확인(주석 걷어낸 실행 텍스트에 플래그·마커 0) + **부정통제**(같은 탐지자로 `T2_WINDOW`/`T2_ARBITRATE`/`T2_TOOL_SIGNATURE`/`[T2_ACTIONREQ]` 는 여전히 보인다 ⇒ 0회가 탐지자 고장이 아님) + 묘비 존치 + 이웃 배선 축자 보존 + 고아 0. **양성대조**: 인자로 수리 전 사본을 주면 `FAIL 7건`(현행 파일은 PASS).\n· `test_actionreq_waitset_evidence.py` (신설·3.1s·오프라인·결정론·로그 없으면 SKIP): 455 로그 전수로 ⑴⑵⑶ 을 재현하고, **부정통제 2종** — ⓐ `call_discoverable_user_tool` 은 일부 줄에서만 pending(0<5,278<12,323) ⇒ 제거 술어 자체는 살아 있다, ⓑ give 계열 표적 291회 > 0 ⇒ 병목은 정적 집합으로 이미 지목된다. 이름은 전부 `a2/env_surface.json` 에서 읽어 엔진 리터럴 0.\n· `test_no_undefined_names.py` ALL PASS.\n\n## 파일 범위 밖 — 부모가 처리해야 할 3건\n1. **`flag_registry_baseline.json` 갱신 필요**: `test_flag_registry.py` 가 `✅ 줄었다(1): T2_PENDING_DISCOVERED` 로 래칫-양호 판정하며 기준선 재생성을 요구한다. (참고: 그 검정의 현재 FAIL 은 **내 것이 아니다** — 동시 진행 중인 다른 항목이 `t2_forensic.py:1001` 에 신설한 `T2_FORENSIC_DENY_LEGACY` 가 미선언으로 걸린 것.)\n2. **고아 선언 2건**: `t2_search.sub_tool_names()` 와 A2 `policy_ontology.tool_names_prompt`(gate.json:10272 · specific.json:9628)은 지운 블록이 유일 소비자였다(라이브 `[T2_TOOL_NAMES]` 455 로그 전수 0회). 지우려면 두 층 바이트 동일 규칙([[24]])을 지켜야 해서 손대지 않고 기록만 남겼다.\n3. **별건 결함(미수리·측정됨)**: ⑵의 종료 술어 부재는 discoverable 과 무관하게 **지금 켜져 있는 정적 3개**에도 그대로 적용된다 — `submit_transaction` 등이 손님 실행 후에도 12,323/12,323 줄 내내 pending 이라 넛지가 안 끝난다. 이 항목의 범위(라이브 ON 경로 변경)를 넘으므로 손대지 않았고, 별도 항목으로 등재할 가치가 있다.\n\ngit 커밋·push 하지 않았다(지시대로)."
+      }
+    ],
+    "verdict": "```\nBATTERY RESULT: 21 PASS / 1 FAIL  — 커밋하지 않았다(지시대로: 실패가 있으면 고치지 말고 보고).\n\n| # | test file | rc | 결과 |\n|---|---|----|------|\n| 1 | test_deny_kind_env_fail.py            | 0 | PASS (RESULT: ALL PASS) |\n| 2 | test_forensic_canonical.py            | 0 | PASS (인라인 사본 예산 준수) |\n| 3 | test_forensic_sidecar_authority.py    | 0 | PASS (RESULT: ALL PASS) |\n| 4 | test_atm_ledger_close.py              | 0 | PASS (0 fail) |\n| 5 | test_atm_fee_op.py                    | 0 | PASS 25/25 |\n| 6 | test_rebate_netting.py                | 0 | PASS (0 fail) |\n| 7 | test_comparator_read_first.py         | 0 | PASS 18/0 |\n| 8 | test_a2_three_layer.py                | 0 | PASS (ALL PASS) |\n| 9 | test_banking_gate.py                  | 0 | PASS (ALL PASS) |\n|10 | test_write_arg_enum.py                | 0 | PASS 19/19 |\n|11 | test_write_arg_ground.py              | 0 | PASS (ALL PASS) |\n|12 | test_operand_grounding.py             | 0 | PASS 14/0 |\n|13 | **test_flag_registry.py**             | **1** | **FAIL** |\n|14 | test_no_unbound_a2.py                 | 0 | PASS (ALL PASS) |\n|15 | test_selector_guard.py        (R3 신설) | 0 | PASS |\n|16 | test_enum_reject_ledger.py    (R4 신설) | 0 | PASS 36/36 |\n|17 | test_r5_arg_empty_dispatched.py (R5 신설)| 0 | PASS 29/29 |\n|18 | test_return_template_imperative.py (R6 신설)| 0 | PASS 45/0 |\n|19 | test_decide_first_axis_named.py (R7 신설)| 0 | PASS (0 fail) |\n|20 | test_decide_before_write.py   (R7 수정) | 0 | PASS 15/15 |\n|21 | test_pending_discovered.py    (R8 재작성)| 0 | PASS |\n|22 | test_actionreq_waitset_evidence.py (R8 신설)| 0 | PASS |\n\n커밋 sha: **없음** — `git add`·`git commit`·`git pull`·`git push` 모두 실행하지 않았다. 워킹 트리는 수리 에이전트들이 남긴 상태 그대로다(HEAD = 6b26fe83, branch = facet-rft-2026).\n\n## FAIL 원인 지목 — 이 실패는 선재 결함이 아니라 **이번 수리 묶음이 만든 것**이다\n\n원인 파일: `C:\\workspace\\ba-frft\\scripts\\distill\\tau2\\t2_forensic.py` (R1 소유, 1001행)\n    if os.environ.get(\"T2_FORENSIC_DENY_LEGACY\") != \"1\":\n\n검정 출력 축자:\n    ✅ 줄었다(1): T2_PENDING_DISCOVERED\n       → 기준선을 갱신하라(이 파일을 다시 만들면 된다).\n    ⛔**새로 생긴 미선언 플래그 1개** — 정본(`go_stack.sh`)에 선언하거나 `t2_levers.py` 레지스트리에 등재하라:\n         T2_FORENSIC_DENY_LEGACY\n\n기준선 대조(선재 아님을 강제):\n· HEAD 사본만 모아 같은 검정을 돌림 → **rc=0 PASS** (엔진이 읽는 T2_* 282 · 미선언 125 · 기준선 이하).\n· 워킹 트리 → **rc=1 FAIL**. 읽는 수는 282 로 같고 미선언 수도 125 로 같지만 **집합이 갈렸다**: `T2_PENDING_DISCOVERED` 빠짐(R8 삭제) · `T2_FORENSIC_DENY_LEGACY` 들어옴(R1 신설). 래칫은 개수가 아니라 집합으로 재므로 상쇄되지 않는다.\n· `git show HEAD:scripts/distill/tau2/t2_forensic.py | grep -c T2_FORENSIC_DENY_LEGACY` = **0** ⇒ 플래그의 출처는 이번 미커밋 변경뿐.\n· `grep T2_FORENSIC_DENY_LEGACY go_stack.sh t2_levers.py` = **0건** ⇒ 두 정본 어디에도 선언 없음.\n\n주의 — 검정의 `declared()` 는 `go_stack.sh` **만** 읽는다(`t2_levers.py` 등재는 안내문일 뿐 술어가 아님). 그러므로 R1 이 의도한 탈출구를 유지하려면 실효 조치는 ①`go_stack.sh` 에 `T2_FORENSIC_DENY_LEGACY` 선언 추가, 또는 ②`flag_registry_baseline.json` 재생성(같은 파일을 지우고 검정 1회 실행) 둘 중 하나다. R1(탈출구 유지 의도)·R8(기준선 갱신 요청)·`go_stack.sh` 편집 권한이 걸린 결정이라 **손대지 않았다**.\n\n## 커밋 전 부모가 판단해야 할 부수 사항 2건\n\n1. `git add -A scripts/distill/tau2` 는 수리 결과에 없는 파일 **2개**를 함께 실어 나른다:\n   · `scripts/distill/tau2/x498_atm_extract_iso.py` (M, +7줄) — 어느 수리 항목에도 등재되지 않은 선재 워킹 트리 변경. `--temp` 기본값을 0.7 밴드에서 운영값 0.0 으로 바꾸는 프로브 자기정정이고 주석 날짜가 **2026-08-24**(오늘보다 하루 뒤)로 찍혀 있다.\n   · `scripts/distill/tau2/_upd_reward_ret_imperative.py` (??) — R6 의 1회용 A2 갱신 스크립트. R6 의 `files_changed` 에 들어 있으니 의도된 산출물로 보이나, 배송물이 아니라 1회용 도구다.\n   `reports/`·`sim_results/` 는 `git status --porcelain -- scripts/distill/tau2` 범위 밖이라 애초에 스테이징 대상이 아니다(확인함).\n\n2. 수리 보고들이 예고한 나머지 선재 red(`test_keep_deny_body.py`·`test_docs_at_write.py`·`test_c201_stage2`·`test_c204_nextrun`·`test_c207_envelope`·`test_c214_day9b`)는 지정 배터리 밖이라 이번에 돌리지 않았다.\n\n준비된 커밋 메시지(FAIL 해소 후 그대로 쓸 수 있음):\n    tau2 scaffold repairs: R1 deny-kind marker ledger, R2 sidecar/trace path authority,\n    R3 selector guard dead path, R4 write-arg enum reject ledger, R5 arg-empty on\n    dispatched writes, R6 reward return_template imperative, R7 decide-first axis naming,\n    R8 remove dead pending-discovered block\n```"
+  },
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Repair"
+    },
+    {
+      "type": "workflow_phase",
+      "index": 2,
+      "title": "Verify"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "repair:R1-deny-kind-markers",
+      "phaseIndex": 1,
+      "phaseTitle": "Repair",
+      "agentId": "a3f9b327fff562ad7",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1787485500220,
+      "queuedAt": 1787485491612,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "R1-deny-kind-markers",
+      "promptPreview": "tau2 banking scaffold **수리 항목 R1-deny-kind-markers — t2_forensic.deny_kind labels our own denies as env**. 응답·주석 한국어(기술용어 원어). 작업은 **전부 로컬** `C:\\workspace\\ba-frft\\scripts\\distill\\tau2` (`py -3`·`PYTHONIOENCODING=utf-8`·stdin 스크립트 첫 줄 `# -*- coding: utf-8 -*-`). SSH·리모트 금지. **git 커밋·push 금지**(마지막에 한 번만 한다 — 다른 항목 에이전트가 동시에 돌고 있다). 이 항목이 만지는 파일: `scripts/distill/tau2/t2_forensic.py`·`scripts/distill…",
+      "lastProgressAt": 1787487793459,
+      "tokens": 190205,
+      "toolCalls": 75,
+      "durationMs": 2293218,
+      "resultPreview": "{\"id\":\"R1-deny-kind-markers\",\"status\":\"REPAIRED\",\"files_changed\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\t2_forensic.py\",\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\test_deny_kind_env_fail.py\"],\"tests_added\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\test_deny_kind_env_fail.py\"],\"summary\":\"t2_forensic.deny_kind 가 우리 층 거절을 env 로 찍던 눈금 결손을 수리. 라이브 거동 변화 0(라이브 엔진 중 t2_forensic 을…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "repair:R2-our-deny-not-persisted",
+      "phaseIndex": 1,
+      "phaseTitle": "Repair",
+      "agentId": "a2f977da610424dfd",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1787485501158,
+      "queuedAt": 1787485491615,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "R2-our-deny-not-persisted",
+      "promptPreview": "tau2 banking scaffold **수리 항목 R2-our-deny-not-persisted — Our deny bodies never reach the persisted trajectory, so forensics cannot see blocks**. 응답·주석 한국어(기술용어 원어). 작업은 **전부 로컬** `C:\\workspace\\ba-frft\\scripts\\distill\\tau2` (`py -3`·`PYTHONIOENCODING=utf-8`·stdin 스크립트 첫 줄 `# -*- coding: utf-8 -*-`). SSH·리모트 금지. **git 커밋·push 금지**(마지막에 한 번만 한다 — 다른 항목 에이전트가 동시에 돌고 있다). 이 항목이 만지는 파일: `scripts/distil…",
+      "lastProgressAt": 1787487832877,
+      "tokens": 243693,
+      "toolCalls": 119,
+      "durationMs": 2330668,
+      "resultPreview": "{\"id\":\"R2-our-deny-not-persisted\",\"status\":\"REPAIRED\",\"files_changed\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\t2_forensic.py\",\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\run_t7346_overnight_stage1_20260822.sh\",\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\run_t7347_cp2ledger_smoke_20260823.sh\"],\"tests_added\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\test_forensic_sidecar_…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "repair:R3-t2ground-selector-dead-path",
+      "phaseIndex": 1,
+      "phaseTitle": "Repair",
+      "agentId": "ae88cddb54be1da93",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1787487798272,
+      "queuedAt": 1787485491616,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "R3-t2ground-selector-dead-path",
+      "promptPreview": "tau2 banking scaffold **수리 항목 R3-t2ground-selector-dead-path — T2_GROUND's SELECTOR guard sits in a dead path; 371/371 banking substitutions, 0/371 correct**. 응답·주석 한국어(기술용어 원어). 작업은 **전부 로컬** `C:\\workspace\\ba-frft\\scripts\\distill\\tau2` (`py -3`·`PYTHONIOENCODING=utf-8`·stdin 스크립트 첫 줄 `# -*- coding: utf-8 -*-`). SSH·리모트 금지. **git 커밋·push 금지**(마지막에 한 번만 한다 — 다른 항목 에이전트가 동시에 돌고 있다). 이 항목이 만지는 파일: `s…",
+      "lastProgressAt": 1787489475060,
+      "tokens": 193242,
+      "toolCalls": 68,
+      "durationMs": 1676786,
+      "resultPreview": "{\"id\":\"R3-t2ground-selector-dead-path\",\"status\":\"REPAIRED\",\"files_changed\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\t2_gate_patch.py\",\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\test_selector_guard.py\"],\"tests_added\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\test_selector_guard.py\"],\"summary\":\"## 수리 내용\\n\\n**결함 재확인(원 로그 독립 재계수).** `sim_results/**/*.log.gz` 455파일 전수 재계수로 보고서 수치…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 4,
+      "label": "repair:R4-write-arg-enum-cap-fail-open",
+      "phaseIndex": 1,
+      "phaseTitle": "Repair",
+      "agentId": "aecf12e8042b864df",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1787487836848,
+      "queuedAt": 1787485491616,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "R4-write-arg-enum-cap-fail-open",
+      "promptPreview": "tau2 banking scaffold **수리 항목 R4-write-arg-enum-cap-fail-open — T2_WRITE_ARG_ENUM's per-sim cap turns fail-closed into fail-open**. 응답·주석 한국어(기술용어 원어). 작업은 **전부 로컬** `C:\\workspace\\ba-frft\\scripts\\distill\\tau2` (`py -3`·`PYTHONIOENCODING=utf-8`·stdin 스크립트 첫 줄 `# -*- coding: utf-8 -*-`). SSH·리모트 금지. **git 커밋·push 금지**(마지막에 한 번만 한다 — 다른 항목 에이전트가 동시에 돌고 있다). 이 항목이 만지는 파일: `scripts/distill/tau2/t2_gate…",
+      "lastProgressAt": 1787489935859,
+      "tokens": 199709,
+      "toolCalls": 105,
+      "durationMs": 2099010,
+      "resultPreview": "{\"id\":\"R4-write-arg-enum-cap-fail-open\",\"status\":\"REPAIRED\",\"files_changed\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\t2_gate_patch.py\"],\"tests_added\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\test_enum_reject_ledger.py\"],\"summary\":\"결함: `T2_WRITE_ARG_ENUM` 의 sim 당 상한이 **블록 전체**를 잠갔다 — 상한 소진 후 게이트가 침묵하고 *이미 집합 밖이라 판정한 바로 그 값*이 다음 시도에 통과해 DB 를 바꿨다(fail-closed → fail-open). refute C1 …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 5,
+      "label": "repair:R5-arg-empty-cannot-fire-on-discoverable",
+      "phaseIndex": 1,
+      "phaseTitle": "Repair",
+      "agentId": "a4988b23e95ba50ee",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1787489480860,
+      "queuedAt": 1787485491616,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "R5-arg-empty-cannot-fire-on-discoverable",
+      "promptPreview": "tau2 banking scaffold **수리 항목 R5-arg-empty-cannot-fire-on-discoverable — T2_ARG_EMPTY structurally cannot fire on discoverable writes**. 응답·주석 한국어(기술용어 원어). 작업은 **전부 로컬** `C:\\workspace\\ba-frft\\scripts\\distill\\tau2` (`py -3`·`PYTHONIOENCODING=utf-8`·stdin 스크립트 첫 줄 `# -*- coding: utf-8 -*-`). SSH·리모트 금지. **git 커밋·push 금지**(마지막에 한 번만 한다 — 다른 항목 에이전트가 동시에 돌고 있다). 이 항목이 만지는 파일: `scripts/distill/tau2/t2…",
+      "lastProgressAt": 1787491101831,
+      "tokens": 192698,
+      "toolCalls": 77,
+      "durationMs": 1620970,
+      "resultPreview": "{\"id\":\"R5-arg-empty-cannot-fire-on-discoverable\",\"status\":\"REPAIRED\",\"files_changed\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\t2_gate_patch.py\"],\"tests_added\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\test_r5_arg_empty_dispatched.py\"],\"summary\":\"## 결론: 死배선 수리 완료(REPAIRED). 술어는 그대로, **배선만** 넓혔다.\\n\\n### 결함(재관측·refute_4 claim 1)\\n`T2_ARG_EMPTY` 가 디스패처 경유 write 에 못 가는 다리가 **셋**이었다.\\n1…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 6,
+      "label": "repair:R6-reward-discrepancies-imperative",
+      "phaseIndex": 1,
+      "phaseTitle": "Repair",
+      "agentId": "a4faaa6c88b473141",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1787489939791,
+      "queuedAt": 1787485491616,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "R6-reward-discrepancies-imperative",
+      "promptPreview": "tau2 banking scaffold **수리 항목 R6-reward-discrepancies-imperative — get_reward_discrepancies' return template orders a write that gold does not want**. 응답·주석 한국어(기술용어 원어). 작업은 **전부 로컬** `C:\\workspace\\ba-frft\\scripts\\distill\\tau2` (`py -3`·`PYTHONIOENCODING=utf-8`·stdin 스크립트 첫 줄 `# -*- coding: utf-8 -*-`). SSH·리모트 금지. **git 커밋·push 금지**(마지막에 한 번만 한다 — 다른 항목 에이전트가 동시에 돌고 있다). 이 항목이 만지는 파일: `scripts/d…",
+      "lastProgressAt": 1787491601892,
+      "tokens": 205946,
+      "toolCalls": 89,
+      "durationMs": 1662099,
+      "resultPreview": "{\"id\":\"R6-reward-discrepancies-imperative\",\"status\":\"REPAIRED\",\"files_changed\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\a2\\\\banking_knowledge.specific.json\",\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\a2\\\\banking_knowledge.gate.json\",\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\a2\\\\split\\\\banking_knowledge.core.json\",\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\_upd_reward_re…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 7,
+      "label": "repair:R7-docdecide-carry-axis-unnamed",
+      "phaseIndex": 1,
+      "phaseTitle": "Repair",
+      "agentId": "a7a9c4725570b4e39",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1787491106992,
+      "queuedAt": 1787485491617,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "R7-docdecide-carry-axis-unnamed",
+      "promptPreview": "tau2 banking scaffold **수리 항목 R7-docdecide-carry-axis-unnamed — The DECIDE-FIRST carry says 'It answers: X' without naming which argument X answers**. 응답·주석 한국어(기술용어 원어). 작업은 **전부 로컬** `C:\\workspace\\ba-frft\\scripts\\distill\\tau2` (`py -3`·`PYTHONIOENCODING=utf-8`·stdin 스크립트 첫 줄 `# -*- coding: utf-8 -*-`). SSH·리모트 금지. **git 커밋·push 금지**(마지막에 한 번만 한다 — 다른 항목 에이전트가 동시에 돌고 있다). 이 항목이 만지는 파일: `scripts/d…",
+      "lastProgressAt": 1787492463127,
+      "tokens": 178955,
+      "toolCalls": 77,
+      "durationMs": 1356134,
+      "resultPreview": "{\"id\":\"R7-docdecide-carry-axis-unnamed\",\"status\":\"REPAIRED\",\"files_changed\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\t2_gate_patch.py\",\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\test_decide_before_write.py\"],\"tests_added\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\test_decide_first_axis_named.py\"],\"summary\":\"DECIDE-FIRST 캐리가 이제 **어느 인자의 답인지 대거나, 못 대면 배달하지 않는다**.\\\\n\\\\n[결함] `t2…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 8,
+      "label": "repair:R8-pending-disc-dead",
+      "phaseIndex": 1,
+      "phaseTitle": "Repair",
+      "agentId": "a6c1f972a4627f824",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1787491606428,
+      "queuedAt": 1787485491617,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "R8-pending-disc-dead",
+      "promptPreview": "tau2 banking scaffold **수리 항목 R8-pending-disc-dead — T2_PENDING_DISC is dead wiring and the ACTIONREQ waitset is static**. 응답·주석 한국어(기술용어 원어). 작업은 **전부 로컬** `C:\\workspace\\ba-frft\\scripts\\distill\\tau2` (`py -3`·`PYTHONIOENCODING=utf-8`·stdin 스크립트 첫 줄 `# -*- coding: utf-8 -*-`). SSH·리모트 금지. **git 커밋·push 금지**(마지막에 한 번만 한다 — 다른 항목 에이전트가 동시에 돌고 있다). 이 항목이 만지는 파일: `scripts/distill/tau2/t2_gate_patch.py…",
+      "lastProgressAt": 1787492674743,
+      "tokens": 161309,
+      "toolCalls": 57,
+      "durationMs": 1068314,
+      "resultPreview": "{\"id\":\"R8-pending-disc-dead\",\"status\":\"REPAIRED\",\"files_changed\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\t2_gate_patch.py\",\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\test_pending_discovered.py\",\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\test_actionreq_waitset_evidence.py\"],\"tests_added\":[\"C:\\\\workspace\\\\ba-frft\\\\scripts\\\\distill\\\\tau2\\\\test_actionreq_waitset_evidence.py\",\"C:\\…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 9,
+      "label": "verify:battery",
+      "phaseIndex": 2,
+      "phaseTitle": "Verify",
+      "agentId": "a6647938a34c62788",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1787492698585,
+      "queuedAt": 1787492676453,
+      "attempt": 1,
+      "lastToolName": "Bash",
+      "lastToolSummary": "cd /c/workspace/ba-frft/scripts/distill/tau2 && grep -n \"T2…",
+      "promptPreview": "tau2 banking scaffold — 수리 묶음 **배터리 회귀 1회 + 단일 커밋**. 로컬 `C:\\workspace\\ba-frft\\scripts\\distill\\tau2` 에서 아래 검정을 전부 돌려라(`PYTHONIOENCODING=utf-8 py -3 <file>`). 실패가 있으면 **원인 파일을 지목**하고 고치지 말고 보고하라(수리 에이전트의 의도를 모른다). 전부 PASS 면 `cd C:\\workspace\\ba-frft && git add -A scripts/distill/tau2 && git status --porcelain` 로 변경 목록을 확인하고(⛔reports/·sim_results/·150MB 류는 add 금지 — scripts/distill/tau2 만), 한 커밋으로 `git…",
+      "lastProgressAt": 1787492966529,
+      "tokens": 85070,
+      "toolCalls": 13,
+      "durationMs": 267942,
+      "resultPreview": "```\nBATTERY RESULT: 21 PASS / 1 FAIL  — 커밋하지 않았다(지시대로: 실패가 있으면 고치지 말고 보고).\n\n| # | test file | rc | 결과 |\n|---|---|----|------|\n| 1 | test_deny_kind_env_fail.py            | 0 | PASS (RESULT: ALL PASS) |\n| 2 | test_forensic_canonical.py            | 0 | PASS (인라인 사본 예산 준수) |\n| 3 | test_forensic_sidecar_authority.py    | 0 | PASS (RESULT: ALL PASS) |\n| 4 | test_atm_ledger_close.py              | 0 | …"
+    }
+  ],
+  "totalTokens": 1650827,
+  "totalToolCalls": 680
+}

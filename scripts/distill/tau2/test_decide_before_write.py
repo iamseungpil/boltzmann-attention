@@ -41,7 +41,14 @@ for pat, why in ((r"\bargmax\b", "argmax"), (r"\bmax\s*\(", "max("),
                  (r"\bsorted\s*\([^)]*\)\s*\[", "sorted[...]")):
     chk("선택기 없음: %s" % why, not re.search(pat, code))
 chk("write 집합은 A2 도출", "_confirm_write_tools(a2)" in code)
-chk("[[64]] — 답을 담아 돌려준다", "_dmat +" in code or "+ _dmat" in code)
+# ★R7 (2026-08-23·refute_5 §surviving⑵): 답을 담아 돌려주는 것은 그대로인데 **조립이
+#   템플릿으로** 바뀌었다(`_DECIDE_FIRST_FB.format(arg=…, material=_dmat)`) — 구판 문면이
+#   *어느 인자의 답인지* 말하지 않아 문서 계열 라벨이 `dispute_category` 자리로 흘러들었기
+#   때문이다. 불변식(=답이 본문에 실린다)은 같고, 여기선 두 조립 형태를 다 통과시킨다.
+#   축 명명·축 미상 무발화는 `test_decide_first_axis_named.py` 가 따로 잠근다.
+chk("[[64]] — 답을 담아 돌려준다",
+    "_dmat +" in code or "+ _dmat" in code or "material=_dmat" in code)
+chk("R7 — 축을 못 대면 배달하지 않는다", "if not _darg:" in code)
 chk("다른 소스 침묵일 때만 (겹침 회피)", "pr_fb is None" in code and "wev_fb is None" in code)
 chk("_SRC8 등록", '("decide_write", dw_fb)' in SRC)
 chk("배타 체인 elif 등록",

@@ -62,7 +62,8 @@ for t in test_a2_three_layer.py test_flag_registry.py test_claim_verify.py \
          test_t7337_residual_debt.py test_t7336_g1_our_layer.py \
          test_t7336_g2_gate_axis.py test_write_arg_enum.py \
          test_a2_answer_format_placeholder.py test_result_round.py \
-         test_apy_balance_tier.py test_ref_from_outputs.py; do
+         test_apy_balance_tier.py test_ref_from_outputs.py \
+         test_forensic_sidecar_authority.py; do
   [ -f "$t" ] || continue
   PYTHONPATH=/home/woori/scratch/tau2-bench/src timeout 90 \
     /home/woori/venvs/seka_env/bin/python "$t" >/dev/null 2>&1 \
@@ -107,6 +108,31 @@ setsid bash -c "
   export $ON
   export GO_MAX_STEPS=150 GO_CONCURRENCY=1
 
+  # ── ★계기 회수 (2026-08-23 R2) — 한 자리에만 둔다 ────────────────────────
+  #   go_stack:222/231 이 \`T2_FB_SIDECAR\`·\`T2_TRACE\` 를 **모든 라이브 런에** 켜는데,
+  #   stage-1 러너 계보는 results/log 만 회수해 왔다. 그래서 사이드카 보관은 t7328 이
+  #   마지막이고 t7336·t7346 은 **없다**. 그게 왜 치명적인가: 우리 층 거절은 재생성
+  #   채널로 나가고 \`_ap_regen\` 이 원 어시스턴트 메시지를 **교체**하므로 막힌 호출은
+  #   영속 궤적에도 \`mutation_diff\` 의 BLOCKED 칸에도 안 남는다. 남는 자리는 사이드카
+  #   뿐이다 — 그것이 없으면 분석자가 그 공백을 *\"우리 표지가 없으니 env 가 했다\"* 로
+  #   읽는다([[25]]). 실제로 그 아티팩트 위에 반증 셋이 세워졌다(refute_1⑷⑸·4⑵·6⑶).
+  #   ⛔없으면 **없다고 인쇄한다** — 조용히 넘어가면 같은 오독이 재생산된다.
+  #   스모크와 본런이 갈리면 또 한쪽만 회수하므로(2026-08-06 사이드카 사고와 같은 뿌리)
+  #   함수 하나로 둔다([[67]]).
+  harvest_instr() {
+    local _T=\$1 _S _F
+    mkdir -p '$REPO/reports/facet_rft_2026/sim_results'
+    for _S in fb trace; do
+      _F=$LOG/\${_S}_\${_T}.jsonl
+      if [ -s \"\$_F\" ]; then
+        gzip -c \"\$_F\" > '$REPO/reports/facet_rft_2026/sim_results/'\${_S}_\${_T}.jsonl.gz
+        echo \"[t7346] \${_S} 회수 \${_T} (\$(wc -l < \"\$_F\") 행)\"
+      else
+        echo \"[t7346] ⚠\${_S} 미회수: \$_F 없음/빈 파일 — 이 런의 우리-층 귀속은 **판정 불가**다([[25]]·[[55]])\"
+      fi
+    done
+  }
+
   # ── 스모크 (2 sim · **두 GPU 병렬**) ───────────────────────────────────
   # ★2026-08-22 사용자 지시(축자): 스모크에도 2개 gpu 다 사용하라. 각각 1개 gpu 사용하라. 시간줄여라.
   #   구판은 8141 하나로 두 태스크를 **순차** 실행해 스모크가 본런만큼 길어졌다(093 34분 + 024 13분).
@@ -132,9 +158,12 @@ setsid bash -c "
   cd '$REPO' && mkdir -p reports/facet_rft_2026/sim_results
   for _P in \$SMKA \$SMKB; do
     gzip -c '$SIMS/'\$_P'/results.json' > reports/facet_rft_2026/sim_results/\$_P.results.json.gz
+    harvest_instr \$_P
   done
   gzip -c $LOG/\$SMK.log > reports/facet_rft_2026/sim_results/\$SMK.log.gz
-  git add -f reports/facet_rft_2026/sim_results/\$SMK*.gz
+  git add -f reports/facet_rft_2026/sim_results/\$SMK*.gz \\
+             reports/facet_rft_2026/sim_results/fb_\$SMK*.jsonl.gz \\
+             reports/facet_rft_2026/sim_results/trace_\$SMK*.jsonl.gz 2>/dev/null || true
   git -c user.name=ghlee -c user.email=beingrelative@gmail.com commit -q -m 't7346 smoke' || true
   git push -q origin facet-rft-2026 || true
   cd '$REPO/scripts/distill/tau2'
@@ -207,6 +236,7 @@ setsid bash -c "
     cd '$REPO' && mkdir -p reports/facet_rft_2026/sim_results
     gzip -c '$SIMS/'\$TAG'/results.json' > reports/facet_rft_2026/sim_results/\$TAG.results.json.gz
     gzip -c $LOG/\$TAG.log > reports/facet_rft_2026/sim_results/\$TAG.log.gz
+    harvest_instr \$TAG
     cd '$REPO/scripts/distill/tau2'
   }
   ( run_half halfA 8140 '$HALF_A' ) > $LOG/bank_t7346_halfA_chain.log 2>&1 &
@@ -219,6 +249,9 @@ setsid bash -c "
   cd '$REPO'
   cp $LOG/bank_t7346.meta.json reports/facet_rft_2026/sim_results/bank_t7346.meta.json || true
   git add -f reports/facet_rft_2026/sim_results/bank_t7346_*.gz reports/facet_rft_2026/sim_results/bank_t7346.meta.json
+  # ★계기도 함께 추적 — 위 glob 은 \`fb_bank_…\`·\`trace_bank_…\` 를 안 잡는다(접두가 다르다)
+  git add -f reports/facet_rft_2026/sim_results/fb_bank_t7346_*.jsonl.gz \\
+             reports/facet_rft_2026/sim_results/trace_bank_t7346_*.jsonl.gz 2>/dev/null || true
   git -c user.name=ghlee -c user.email=beingrelative@gmail.com commit -q -m 't7346 all-on stage1 results' || true
   git push -q origin facet-rft-2026 || true
   git ls-files --error-unmatch reports/facet_rft_2026/sim_results/bank_t7346_halfA_20260822.results.json.gz \\

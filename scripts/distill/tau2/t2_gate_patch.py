@@ -342,6 +342,20 @@ def _display_slugs(subs):
     return sorted(_slug_disp(k) for k in _subject_keys(subs))
 
 
+def _enum_seen_key(group, val):
+    """★거절 원장 키 (2026-08-24·R4 수리) — **우리 게이트가 이미 집합 밖이라고 판정한 값**을
+    기억하기 위한 닫힌 문자열 술어. 판단 0 · 도메인 리터럴 0 · 선택 0.
+
+    왜 `(그룹, 값)` 쌍인가: *"집합 밖"* 이라는 판정은 **그 그룹의 명단에 대해서만** 참이다.
+    같은 문자열이 다른 그룹에서는 집합 內일 수 있으므로 그룹을 벗겨서 기억하면 안 된다.
+
+    정규화 = 공백 접기 + `casefold` 뿐이다(둘 다 형상 판정·[[22]] 닫힘). 대소문자·여분
+    공백만 바꾼 재제출은 **같은 값**이다 — 집합 소속 검사(`_val in _names`)는 축자 비교라
+    그 변형들은 어차피 집합 밖이고, 그래서 원장이 넓게 잡아도 집합 內 값을 막지 않는다.
+    """
+    return (str(group or ""), " ".join(str(val or "").split()).casefold())
+
+
 def _flatten(v):
     """인자값의 leaf 스칼라들. ★JSON-문자열도 풀어서 leaf까지 간다(2026-07-16 버그픽스):
     구조화 인자(예: {"date_of_birth": ..., "phone_number": ...})가 **문자열**로 오면 예전엔
@@ -572,7 +586,119 @@ def _ctx_has(s, ctx):
     return t != s and len(t) >= 4 and t.lower() in ctx
 
 
-def _prov_scan_args(tc):
+# ─── ★도구-선택자 파라미터 (env 스키마 기계 도출·2026-08-24 R3) ───
+# 무엇이 틀렸었나: `SELECTOR` 예외는 `_prov_scan_args`(= `T2_PROVENANCE` 전용 死경로)에만 있었고,
+#   **실제로 치환하는** `_first_fab_call` 에는 없었다. 그래서 `T2_GROUND` 가 래퍼의 도구-선택자
+#   슬롯(`agent_tool_name`)을 데이터 인자로 오인해 고객 이름으로 덮어썼다 —
+#   뱅킹 코퍼스 **371/371 이 선택자 키 · 정답 도구명 산출 0/371**(31 sim·5 태스크·x499 verdict ①).
+#   반면 리테일에서는 같은 기구가 `address1`/`zip`/`address2`/`item_ids` 에 78건 **정상** 발화한다.
+#   ⇒ 끄는 것이 아니라 **선택자 슬롯만** 빼야 하고, 그 술어는 도메인-일반이어야 한다.
+#
+# 술어(닫힘·스키마만 읽는다·값 해석 0·[[59]]/[[22]]):
+#   파라미터 p 가 **선택자**  ⟺  어떤 도구 T 의 스키마가
+#     ⑴ 페이로드 파라미터(`arguments`)를 갖고(= 디스패처 형상·`_dispatch_tools` 와 같은 구조 신호),
+#     ⑵ T 의 페이로드-아닌 **문자열** 파라미터가 정확히 하나이며 그것이 p 다.
+#   유일하지 않으면 **기권**한다(모르면 안 뺀다 = 종전 거동).
+#   도출된 이름 집합은 도구를 가리지 않고 적용된다 — `unlock_discoverable_agent_tool(agent_tool_name)`
+#   처럼 페이로드 형제가 없는 잠금 도구의 같은 슬롯도 선택자이기 때문이다.
+#
+# ⛔0 [[62]] 자기점검: ①쟀나 — 코퍼스 전수 재계수(치환 449 중 뱅킹 371·정답 0)가 결손의 실측이다.
+#   ②격리 — 이것은 새 레버가 아니라 **기존 기구의 커버리지 구멍**을 닫는 수리다(신설 레버 0).
+#   ③사라지는 판단 — 없다. 엔진은 *도구를 고르지 않는다*; 선택자 슬롯을 **건드리지 않을 뿐**이다.
+#   ④순위·최댓값·지목 — 없다.
+# [[05]] 3문: ⑴도메인-특화 순증 0(도출은 스키마 구조·도메인 이름 리터럴 0) ⑵유동 판단 동결 없음
+#   ⑶도메인 행동 수행 안 함. 리테일/에어라인은 페이로드 파라미터를 가진 도구가 없어 집합 = ∅
+#   ⇒ **바이트 동일**(정상 발화 78건 보존).
+# ⚠[[70]] 무엇을 파는가: 도구명 슬롯의 근거-검사를 판다. 실측 산출이 0/371 이라 순매수지만,
+#   지어낸 이름이 env 로 나가 왕복 1턴을 쓰므로 **턴 비용은 A/B 에 계상**해야 한다.
+#   (도구명 근거는 원래 별도 레버 `T2_UNLOCK_PROV`/`unknown_bl_*` 의 관할이다.)
+
+_DISPATCH_PAYLOAD_KEY = "arguments"   # tau2 도구-프로토콜 어휘(`ToolCall.arguments` 동형)·도메인 어휘 아님
+
+# 스키마를 못 얻는 오프라인 호출자용 **폴백**일 뿐 권위가 아니다(권위 = 위 술어).
+_SELECTOR_FALLBACK = ("agent_tool_name", "user_tool_name", "tool_name", "discoverable_tool_name")
+
+
+def _schema_props(tool):
+    """Tool → {파라미터명: 스펙dict}. 실패/무인자 = {} (예외 0)."""
+    try:
+        sc = tool.openai_schema
+    except Exception:
+        return {}
+    if not isinstance(sc, dict):
+        return {}
+    fn = sc.get("function") if isinstance(sc.get("function"), dict) else sc
+    pr = ((fn.get("parameters") or {}) if isinstance(fn, dict) else {}).get("properties")
+    return pr if isinstance(pr, dict) else {}
+
+
+def _prop_is_string(spec):
+    """파라미터 선언 타입이 문자열인가 (Optional[str] 의 anyOf/oneOf 도 인정)."""
+    if not isinstance(spec, dict):
+        return False
+    if spec.get("type") == "string":
+        return True
+    for br in (spec.get("anyOf") or spec.get("oneOf") or []):
+        if isinstance(br, dict) and br.get("type") == "string":
+            return True
+    return False
+
+
+def _tool_objects(holder):
+    """agent(`.tools`) 또는 env(`get_tools`/`get_user_tools`) 에서 Tool 객체 수집(중복 무해)."""
+    out = []
+    ts = getattr(holder, "tools", None)
+    if ts:
+        try:
+            out.extend(list(ts))
+        except Exception:
+            pass
+    for m in ("get_tools", "get_user_tools"):
+        f = getattr(holder, m, None)
+        if callable(f):
+            try:
+                out.extend(list(f() or ()))
+            except Exception:
+                pass
+    return out
+
+
+def _selector_arg_names(tools, payload_key=_DISPATCH_PAYLOAD_KEY):
+    """위 술어의 구현 — 도구 스키마 집합 → 선택자 파라미터 이름 frozenset.
+
+    열거 0·도메인 리터럴 0·값 미접근. 페이로드-아닌 문자열 파라미터가 2개 이상인
+    디스패처는 라우팅 슬롯을 확정할 수 없으므로 **기권**한다(종전 거동 유지)."""
+    names = set()
+    for t in (tools or []):
+        props = _schema_props(t)
+        if payload_key not in props:
+            continue
+        cand = [p for p, spec in props.items()
+                if p != payload_key and _prop_is_string(spec)]
+        if len(cand) == 1:
+            names.add(cand[0])
+    return frozenset(names)
+
+
+def selector_args_of(holder, payload_key=_DISPATCH_PAYLOAD_KEY):
+    """agent 또는 env 를 받아 선택자 이름 집합을 낸다(캐싱은 호출측)."""
+    return _selector_arg_names(_tool_objects(holder), payload_key=payload_key)
+
+
+def _selector_args_cached(holder):
+    """도구 수가 바뀌면(discoverable 잠금해제) 재도출하는 얕은 캐시."""
+    n = len(_tool_objects(holder))
+    c = getattr(holder, "_t2_selector_cache", None)
+    if c is None or c[0] != n:
+        c = (n, _selector_arg_names(_tool_objects(holder)))
+        try:
+            holder._t2_selector_cache = c
+        except Exception:
+            pass
+    return c[1]
+
+
+def _prov_scan_args(tc, selectors=None):
     """검사 대상 인자 (키, 값) — **discoverable 래퍼 안쪽까지 편다**.
 
     ★왜 (2026-08-15·085 실측): banking 의 write 는 거의 전부
@@ -609,7 +735,10 @@ def _prov_scan_args(tc):
     #   이 키였다(예: `agent_tool_name='apply_checking_account_credit_5829'` 를 "날조"로 차단).
     #   도구 이름의 근거 검사는 **별도 레버**(`T2_UNLOCK_PROV`)의 일이다 — 여기서 겹쳐 막으면
     #   정상 호출을 죽인다([[57]] 상쇄: 이 레버가 파는 것이 정확히 그것이었다).
-    SELECTOR = ("agent_tool_name", "user_tool_name", "tool_name", "discoverable_tool_name")
+    #   ★2026-08-24 R3: 이 집합은 더 이상 여기서 열거하지 않는다 — **env 스키마에서 도출**해
+    #   (`_selector_arg_names`) 호출측이 넘긴다. `selectors is None` 은 스키마를 못 얻는
+    #   오프라인 호출자(프로브·검정)용 폴백일 뿐이고 권위가 아니다.
+    SELECTOR = _SELECTOR_FALLBACK if selectors is None else selectors
     out = []
     args = _args_dict(tc)
     for k, v in (args or {}).items():
@@ -627,9 +756,10 @@ def _prov_scan_args(tc):
     return out
 
 
-def _provenance_deny(tc, ctx, hints=DEFAULT_ARG_HINTS):
-    """identifying 인자값이 컨텍스트에 없으면 fabricated → (gate, reason) 반환, 아니면 None."""
-    args = _prov_scan_args(tc)
+def _provenance_deny(tc, ctx, hints=DEFAULT_ARG_HINTS, selectors=None):
+    """identifying 인자값이 컨텍스트에 없으면 fabricated → (gate, reason) 반환, 아니면 None.
+    selectors = 스키마-도출 선택자 이름 집합(None = 오프라인 폴백·`_prov_scan_args` 참조)."""
+    args = _prov_scan_args(tc, selectors=selectors)
     if not args:
         return None
     for k, v in args:
@@ -765,7 +895,8 @@ def apply():
                     f"You have failed {retry_k}+ tool calls in a row. STOP this approach. " + DIVERSIFY))
                 continue
             if prov_on:  # L2 provenance: 날조 인자값 차단 (R1B)
-                pd = _provenance_deny(tc, ctx, hints)
+                # ★R3: 선택자 이름은 하드코딩 튜플이 아니라 **env 스키마에서 도출**한다.
+                pd = _provenance_deny(tc, ctx, hints, selectors=_selector_args_cached(env))
                 if pd:
                     self.num_errors += 1
                     extra = _autofetch_text(self, orig, gate, producer) if os.environ.get("T2_AUTOFETCH") == "1" else ""
@@ -1486,52 +1617,185 @@ def _write_arg_ground_deny(messages, tc, specs):
 #   기록하지 않을지)는 모델이 고른다. (3)스캐폴드가 write 수행? No — 거부뿐이고 재발화는 모델.
 # ⚠보수적으로 좁힌다: **키가 있고 값이 빈 문자열**일 때만. 키 부재·0·False 는 건드리지 않는다
 #   (false-block 회피). 중첩 디스패처 인자도 WAG 와 같은 방식으로 unwrap 한다.
+#
+# ─── ★R5 수리 (2026-08-24 · refute_4 claim 1 CONFIRMED · 死배선 커버리지 공백) ───
+# 결함(재관측): 이 게이트는 **디스패처 경유 write 에 구조적으로 발화할 수 없었다.** 이름이 두 번
+#   어긋난다 — ⑴`_schema_required` 가 `agent.tools`(= 에이전트에게 **노출된** 21개)만 캐시하는데
+#   발견형 도구는 그 목록에 없고, ⑵`_eff_tool_name` 이 `_\d+$` 를 지워 `..._4829` 를 레지스트리에
+#   없는 철자로 만든다. 그래서 `req=[]` → `return None`. 세 번째 다리도 있었다 — 배치 페이로드
+#   (`{"disputes":[{…},{…}]}`)는 구판 unwrap 이 `inner={'disputes':[…]}` 로 접어 필수 키를 아예
+#   못 봤다. 실측(전 코퍼스 `.results.json.gz` 전량·13,534 sim): `[T2_ARG_EMPTY] deny` **79 발화가
+#   전부 등록 도구** · **dispatched 0**. 빈 슬롯 자리는 문자열만 세도 **132 중 93 이 디스패처 경유**다.
+# 수리(같은 레버의 사각지대만 닫는다·새 레버 0·[[62]]): ⒜필수 목록의 출처를 **env 레지스트리 전체**
+#   (`env.tools`·`env.user_tools` = 발견형 포함)로 넓히고, ⒝조회 이름을 `_exact_tool_name`(= 호출이
+#   싣고 온 **환경 자신의 철자**)로 바꾸고, ⒞페이로드를 프레임(최상위 + 중첩 사전 + 목록 원소)으로
+#   분해해 배치 발행도 본다. 술어 자체는 그대로다 — **키가 있고 값이 빈 문자열**.
+#   실측 효과(같은 코퍼스·같은 술어): 보이는 자리 **39 → 95**(문자열 슬롯 기준).
+# ⚠비-문자열 빈 값은 **일부러 안 넣었다**(측정 후 기각): 코퍼스 전량에서 그런 자리는 37건이고
+#   **전부 `None`** 이며(`partial_refund_amount` 15 · `card_action` 22 · APY 보고 6) 기본값이 있는
+#   선택 인자로 보인다 — `None` 을 "비었다"로 세면 게이트가 정당한 생략을 막는다(false-block).
+#   *"필수 슬롯이 비어 도착했다"* 의 닫힌 핵은 여전히 빈 문자열 하나다.
+# ⚠[[70]] **무엇을 파는가**: 발화 자리가 늘어난 만큼 WEV 블록의 **공유 cap**(`T2_WEV_CAP`=8)을 더
+#   먹는다. 같은 sim 에서 WEV·WAG·REF_VERIFY 와 예산을 나눠 쓰므로, 빈 슬롯이 잦은 궤적에서는
+#   선행-read 거부가 그만큼 덜 나간다. 끄지 않고 계측 대상으로 남긴다([[60]]).
+# [[05]] 3질문(수리분): (1)도메인-특화 순증? No — 넓힌 출처도 전부 프레임워크 API
+#   (`Toolkit.get_tools`/`get_discoverable_tools`/`.tools`)이고 이름은 **호출이 싣고 온 값**이다
+#   (철자 규칙 0·C279 가 경고한 접미사 추정은 유일할 때의 폴백으로만 남는다).
+#   (2)유동판단 동결? No — 여전히 *비었다*만 말한다. (3)스캐폴드가 write 수행? No — 거부뿐.
 ARG_EMPTY_FEEDBACK = ("Error: [ARG-EMPTY] the call to {tool} left the required argument(s) {args} "
                       "as an empty string. An empty string is not a value. Re-issue the call with "
                       "{args} filled in, or do not file the record at all.")
 
 
+def _decl_tool_collections(holder):
+    """도구 선언이 담긴 컬렉션들 — 목록/사전이면 그대로, 툴킷이면 프레임워크 API 로 연다.
+
+    형태가 여럿인 것은 우리 사정이 아니라 프레임워크 사정이다: `agent.tools` 는 Tool 목록,
+    `env.tools` 는 툴킷이고 `get_tools()` 는 `{이름: Tool}`, `.tools` 는 `{이름: 함수}` 다
+    (`_arg_consumers` 가 이미 뒤쪽 형태를 쓴다). 어느 하나만 알면 조용히 반쪽만 본다.
+    """
+    if holder is None:
+        return []
+    if isinstance(holder, (list, tuple, set, dict)):
+        return [holder]
+    out = []
+    for getter in ("get_tools", "get_discoverable_tools"):
+        try:
+            g = getattr(holder, getter, None)
+            c = g() if callable(g) else None
+        except Exception:
+            c = None
+        if isinstance(c, (list, tuple, set, dict)) and c:
+            out.append(c)
+    try:
+        c = getattr(holder, "tools", None)
+        if isinstance(c, (list, tuple, set, dict)) and c:
+            out.append(c)
+    except Exception:
+        pass
+    return out
+
+
+def _decl_required(name, obj):
+    """이 선언이 말하는 **필수 인자 이름들**. 모르면 None(= 선언 없음·무발화).
+
+    1순위는 스키마(`parameters.required`)다. 스키마가 없는 형태(툴킷 `.tools` 는 함수를 담는다)
+    에서는 **기본값 없는 파라미터**가 곧 required 라는 프레임워크 자신의 규약을 읽는다.
+    """
+    try:
+        sc = getattr(obj, "openai_schema", None)
+    except Exception:
+        sc = None
+    if isinstance(sc, dict):
+        fn = sc.get("function") if isinstance(sc.get("function"), dict) else sc
+        nm = (fn or {}).get("name") or name
+        rq = (((fn or {}).get("parameters") or {}).get("required"))
+        if rq is not None:
+            return str(nm), [str(x) for x in (rq or [])]
+        return str(nm), []
+    if callable(obj):
+        try:
+            import inspect
+            sig = inspect.signature(obj)
+        except (TypeError, ValueError):
+            return None
+        req = []
+        for pn, p in sig.parameters.items():
+            if pn == "self" or p.kind in (p.VAR_POSITIONAL, p.VAR_KEYWORD):
+                continue
+            if p.default is p.empty:
+                req.append(str(pn))
+        return str(name), req
+    return None
+
+
+def _schema_required_index(agent):
+    """(정확한 이름 → 필수 인자) 와 (접미사 제거 이름 → 필수 인자·유일할 때만) 두 색인.
+
+    출처는 셋이고 전부 환경/프레임워크다(도메인 리터럴 0):
+      ⑴ `agent.tools`      — 에이전트에게 노출된 목록(구판의 **유일** 출처)
+      ⑵ `env.tools`        — agent-side 레지스트리(발견형 포함)
+      ⑶ `env.user_tools`   — user-side 레지스트리(발견형 포함)
+    캐시는 **환경 객체 신원**으로 무효화한다(sim 이 바뀌면 레지스트리도 바뀐다).
+    """
+    env = getattr(getattr(agent, "_t2_orch", None), "environment", None)
+    key = id(env)
+    cached = getattr(agent, "_t2_schema_req", None)
+    if isinstance(cached, tuple) and len(cached) == 3 and cached[0] == key:
+        return cached[1], cached[2]
+    exact, strip_hits = {}, {}
+    for holder in (getattr(agent, "tools", None),
+                   getattr(env, "tools", None), getattr(env, "user_tools", None)):
+        for coll in _decl_tool_collections(holder):
+            items = (coll.items() if isinstance(coll, dict)
+                     else [(getattr(o, "name", None), o) for o in coll])
+            for nm, obj in items:
+                got = _decl_required(nm, obj)
+                if not got:
+                    continue
+                dn, rq = got
+                if dn and dn not in exact:
+                    exact[dn] = rq
+    for dn, rq in exact.items():
+        strip_hits.setdefault(_SUFFIX_RE.sub("", dn), []).append(dn)
+    strip = dict((s, exact[v[0]]) for s, v in strip_hits.items() if len(v) == 1)
+    try:
+        agent._t2_schema_req = (key, exact, strip)
+    except Exception:
+        pass
+    return exact, strip
+
+
 def _schema_required(agent, name):
-    """이 도구가 **필수**라고 선언한 인자 이름들 — 근거는 env 스키마뿐(도메인 리터럴 0)."""
-    cache = getattr(agent, "_t2_schema_req", None)
-    if cache is None:
-        cache = {}
-        for t in (getattr(agent, "tools", None) or []):
+    """이 도구가 **필수**라고 선언한 인자 이름들 — 근거는 env 스키마뿐(도메인 리터럴 0).
+
+    정확한 이름이 먼저다. 접미사를 뗀 철자는 **그 철자로 접히는 도구가 유일할 때만** 폴백으로
+    쓴다 — 구판은 이 폴백 하나뿐이었고, 발견형 이름이 레지스트리에 접미사째 있어서 통째로 빗나갔다.
+    """
+    exact, strip = _schema_required_index(agent)
+    nm = str(name or "")
+    if nm in exact:
+        return exact[nm] or []
+    return strip.get(_SUFFIX_RE.sub("", nm)) or []
+
+
+def _arg_frames(args, max_frames=48, max_depth=5):
+    """검사할 **인자 프레임** 목록 — 최상위 인자 + 중첩 페이로드(사전·목록 원소).
+
+    구판은 최상위 JSON-문자열 사전 하나만 평평하게 합쳤다. 그래서 디스패처가 **배치**로 실어
+    보내면(`{"disputes":[{…},{…}]}`) 필수 키가 한 겹 더 안에 있어 통째로 안 보였다(t7335 실물).
+    깊이·개수를 묶어 두므로(기본 ≤48 프레임·≤5 겹) 비용은 상수고, 해석은 하지 않는다 —
+    자료구조를 펼치기만 한다.
+    """
+    out, queue = [], [(args, 0)]
+    while queue and len(out) < max_frames:
+        node, d = queue.pop(0)
+        if isinstance(node, str) and node.strip()[:1] in ("{", "["):
             try:
-                sc = t.openai_schema
-                fn = sc.get("function") if isinstance(sc.get("function"), dict) else sc
-                nm = fn.get("name")
-                rq = ((fn.get("parameters") or {}).get("required")) or []
-                if nm:
-                    cache[nm] = [str(x) for x in rq]
+                node = json.loads(node)
             except Exception:
-                pass
-        agent._t2_schema_req = cache
-    return cache.get(name) or []
+                continue
+        if isinstance(node, dict):
+            out.append(node)
+            if d < max_depth:
+                queue.extend((v, d + 1) for v in node.values())
+        elif isinstance(node, (list, tuple)) and d < max_depth:
+            queue.extend((v, d + 1) for v in node)
+    return out
 
 
 def _arg_empty_deny(agent, tc, a2=None, applies_to=None):
     """선언된 write 의 **필수 인자가 빈 문자열**이면 그 이름을 대고 거부한다(값 0·지시 0)."""
-    name = _eff_tool_name(tc)
-    if applies_to and name not in applies_to:
+    exact, eff = _exact_tool_name(tc), _eff_tool_name(tc)
+    if applies_to and not ({exact, eff} & set(applies_to)):
         return None
+    name = exact if _schema_required(agent, exact) else eff
     req = _schema_required(agent, name)
     if not req:
         return None
-    args = _args_dict(tc)
-    inner = {}
-    for vv in args.values():                     # 중첩 JSON-문자열 인자(디스패처형 도구·WAG 동형)
-        if isinstance(vv, str) and vv.strip().startswith("{"):
-            try:
-                j = json.loads(vv)
-                if isinstance(j, dict):
-                    inner.update(j)
-            except Exception:
-                pass
-    for k2, v2 in args.items():
-        if not isinstance(v2, (dict, list)):
-            inner.setdefault(k2, v2)
-    bad = [k for k in req if isinstance(inner.get(k), str) and not inner[k].strip()]
+    frames = _arg_frames(_args_dict(tc))
+    bad = [k for k in req
+           if any(isinstance(f.get(k), str) and not f[k].strip() for f in frames)]
     if not bad:
         return None
     tpl = str((((a2 or {}).get("arg_empty") or {}).get("feedback")) or ARG_EMPTY_FEEDBACK)
@@ -1805,12 +2069,21 @@ def _ctx_from_messages(msgs):
     return " ".join(parts).lower()
 
 
-def _first_fab_call(am, ctx, hints=DEFAULT_ARG_HINTS, exclude=frozenset()):
+def _first_fab_call(am, ctx, hints=DEFAULT_ARG_HINTS, exclude=frozenset(),
+                    selectors=frozenset()):
     """am.tool_calls 중 첫 날조 (tc, k, s) 또는 None.
     exclude (PROV-RESCUE-PERARG ①): rescue-스킵된 (id(tc), k, s) 집합 — 해당 인자만 건너뛰고
-    같은 호출의 다음 fab 인자·다음 호출을 계속 스캔 (구현: per-call 첫 인자 반환+break의 입도 구멍 봉합)."""
+    같은 호출의 다음 fab 인자·다음 호출을 계속 스캔 (구현: per-call 첫 인자 반환+break의 입도 구멍 봉합).
+
+    selectors (★2026-08-24 R3): **도구-선택자 파라미터 이름 집합**(`_selector_arg_names` 로 env
+    스키마에서 도출). 그 슬롯의 값은 *데이터 operand* 가 아니라 *어느 도구를 부를지*이므로
+    날조-스캔 대상이 아니다 — 같은 예외가 `_prov_scan_args` 에는 2026-08-15 부터 있었으나
+    **치환하는 경로인 이 함수에는 없어서** T2_GROUND 가 뱅킹에서 371/371 오작동했다
+    (정답 도구명 산출 0/371). 기본값 ∅ = 종전 거동 바이트 동일(집합을 안 넘긴 호출자 보호)."""
     for tc in (getattr(am, "tool_calls", None) or []):
         for k, v in _args_dict(tc).items():
+            if k in selectors:
+                continue
             if not _hint_hit(k, hints):
                 continue
             for val in _flatten(v):
@@ -2375,6 +2648,107 @@ def _confirm_write_tools(a2):
         if g.get("kind") == "confirm":
             tools |= set(g.get("applies_to") or [])
     return tools
+
+
+def _write_choice_arg(a2, tc):
+    """이 write 호출이 담은 **선택의 인자 이름**(과 그 축) — A2 선언에서만 읽는다.
+
+    왜 필요한가 (2026-08-23 R7 · `refute_5.json` §surviving_our_layer⑵): `DECIDE-FIRST`
+    캐리는 *"It answers: X. … make the call again with that value."* 라고만 말하고 **X 가
+    어느 인자의 답인지 말하지 않았다**. t7336_halfB `task_085#s373753` 에서 결정 서브가 고른
+    것은 **문서 계열 라벨**(`General` — 형제 값이 'Blue Account'·'Gold Account'·'Sky Blue')
+    인데, 축 이름이 없으니 그 값이 `dispute_category` 자리로 흘러들어 그 sim 의 11회 시도가
+    전부 열거 밖 값으로 실패했다. 모델은 축자로 *"Based on the error message…"* 라며 **우리
+    배달을 지목**한다 ⇒ 우리 층 결함이다([[55]]·[[64]]).
+
+    술어는 전부 닫혀 있다 — **이름 동등성 + 선언된 접두 + dict 조회**뿐이고 의미 판단·유사도·
+    도메인 리터럴 0([[22]]·[[59]]·[[66]]). 출처는 **이미 있는 A2 키 셋**뿐이다(새 키 0·[[62]]):
+
+      · `write_arg_enum[]`      → `arg`      (`applies_to` + `applies_when` 접두로 지목)
+      · `choice_grounding[]`    → `arg`      (`tool` 로 지목)
+      · `recommendation_verify` → `operand`  (`action_tool` 로 지목)
+
+    이 셋은 *"이 write 는 선택을 담는다"* 를 선언하는 바로 그 자리다 — 그래서 **인자를 댈 수
+    있는 write** 와 **선택을 담은 write** 가 정확히 같은 집합이 되고, 어느 벤치·어느 도메인에서도
+    같은 모양으로 전이된다(태스크·상품 이름을 술어에 넣지 않는다·[[05]]·[[70]]).
+    셋 중 무엇도 이 호출을 지목하지 않으면 `(None, None)` = **축 미상**이고, 그 때 캐리는
+    나가지 않는다(항목 지시: *name the argument, or do not deliver*).
+
+    반환: `(arg_name | None, axis_group | None)`. 축(`axis_group`)은 종전 `_dax` 와 같은
+    값이다 — `write_arg_enum.group_map` 의 dict 조회 하나뿐(2026-08-13 071 t1 부검에서
+    저장 슬롯을 축별로 나눈 그 키). 예외는 전부 삼키고 `(None, None)`(fail-safe = 무발화).
+    """
+    a2 = a2 or {}
+    try:
+        nm = str(getattr(tc, "name", "") or "")
+        outer = _args_dict(tc)
+        # 이 호출이 실제로 실행하는 이름들 — 겉이름·디스패처 unwrap·env 축자 이름.
+        # (선언은 `open_bank_account_4821` 처럼 env 축자 이름을 쓰기도 하고
+        #  `apply_for_credit_card` 처럼 겉이름을 쓰기도 한다. 둘 다 **동등성**으로 본다.)
+        names = set()
+        for _n in (nm, _eff_tool_name(tc), _exact_tool_name(tc)):
+            if _n:
+                names.add(str(_n))
+        inner = outer.get("arguments")
+        if isinstance(inner, str):
+            try:
+                inner = json.loads(inner)
+            except Exception:
+                inner = {}
+        if not isinstance(inner, dict):
+            inner = {}
+        # ⑴ write_arg_enum — 선언된 디스패처 이름 + 선언된 접두가 맞으면 `arg` 가 선택의 자리다.
+        for sp in (a2.get("write_arg_enum") or []):
+            if nm != str(sp.get("applies_to") or ""):
+                continue
+            aw = sp.get("applies_when") or {}
+            if aw.get("arg"):
+                _v = str(outer.get(aw.get("arg")) or "")
+                _pref = str(aw.get("prefix") or "")
+                if _pref and not _v.startswith(_pref):
+                    continue
+            _arg = str(sp.get("arg") or "") or None
+            _gv = str(inner.get(sp.get("group_arg")) or "")
+            _ax = (sp.get("group_map") or {}).get(_gv) or None
+            if _arg:
+                return _arg, _ax
+        # ⑵ choice_grounding — `tool` 이 이 호출을 지목하면 `arg` 가 선택의 자리다.
+        for cg in (a2.get("choice_grounding") or []):
+            _t = str(cg.get("tool") or "")
+            if _t and _t in names:
+                _arg = str(cg.get("arg") or "") or None
+                if _arg:
+                    return _arg, None
+        # ⑶ recommendation_verify — `action_tool` → `operand`.
+        _rv = a2.get("recommendation_verify") or {}
+        _t = str(_rv.get("action_tool") or "")
+        if _t and _t in names:
+            _arg = str(_rv.get("operand") or "") or None
+            if _arg:
+                return _arg, None
+    except Exception:
+        return None, None
+    return None, None
+
+
+# ★DECIDE-FIRST 캐리 문면 (2026-08-23 R7). 구판은 *"It answers: X … make the call again with
+#   that value."* 였다 — **어느 인자의 답인지 한 번도 말하지 않는다**. 그래서 문서 계열 라벨이
+#   `dispute_category` 자리로 흘러들었다(refute_5 §surviving⑵·11/11 실패).
+#   ⚠도메인 낱말 0 — `{arg}` 는 런타임에 A2 선언에서 채운다([[05]] 전이).
+#   ⚠[[64]] 두 조각을 모두 담는다: **무엇이 틀렸나**(이 write 가 담은 선택이 아직 안 내려졌다)
+#     + **무엇을 하면 풀리나**(그 인자에 넣어 다시 부르거나, 그 인자가 가질 수 없는 값이면
+#     이 답은 이 호출의 답이 아니니 원래대로 다시 불러라).
+#   ⚠엔진은 고르지 않는다 — 문장은 **조건문**이고 값의 채택은 끝까지 모델 몫이다([[62]] ③④).
+_DECIDE_FIRST_FB = (
+    "Error: [DECIDE-FIRST] this write was held for one turn because the decision it "
+    "encodes had not been made in this conversation yet. It has now been made, and it "
+    "answers exactly one thing - the '{arg}' argument of this call, and no other "
+    "argument:\n{material}\n"
+    "If that is the value '{arg}' should carry, make the call again with '{arg}' set to "
+    "it and every other argument unchanged. If it is not a value '{arg}' can take, then "
+    "it is not an answer for this call at all - ignore it and make the call again "
+    "exactly as it was."
+)
 
 
 # ─── ★NL-NUM-PROV (T2_NLNUM_PROV=1) — t47형 NL-산술 환각 검사 (2026-07-11) ───
@@ -5234,9 +5608,11 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
         am = _gen(self, work, bw(), "agent_response")
         n = 0
         subs = 0
+        # ★R3: 도구-선택자 슬롯은 날조-스캔/치환 대상이 아니다(env 스키마 도출·리테일에선 ∅).
+        sel_args = _selector_args_cached(self)
         rescue_skipped = set()  # PROV-RESCUE-PERARG ①: (id(tc), k, s) — rescue 개별 pass-through
         while n < max_retries:
-            fab = _first_fab_call(am, ctx, hints, exclude=rescue_skipped)
+            fab = _first_fab_call(am, ctx, hints, exclude=rescue_skipped, selectors=sel_args)
             if fab is None:
                 break  # 잔여 fab 없음 or 전부 rescue-스킵일 때만 탈출 (구 break 의미 보존)
             tc, k, s = fab
@@ -5396,7 +5772,7 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                 # 재확인 응답이 날조를 새로 들이면 prov 루프로 정화(2회 한도)·실패 시 원 응답 유지
                 n2 = 0
                 while n2 < 2:
-                    fab2 = _first_fab_call(am2, ctx, hints)
+                    fab2 = _first_fab_call(am2, ctx, hints, selectors=sel_args)
                     if fab2 is None:
                         break
                     tc2, k2, s2 = fab2
@@ -5409,7 +5785,7 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                         dwork.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                                  error=True, content=reason))
                     am2 = _gen(self, dwork, bw(), "agent_response_regen")
-                if _first_fab_call(am2, ctx, hints) is None:
+                if _first_fab_call(am2, ctx, hints, selectors=sel_args) is None:
                     # ★T5-C fix(C61 H-C): 재확인 응답이 tool_calls 없는 텍스트-only면 원 호출 유지.
                     #   무조건 수락이 write 유실(39건·−37시행)의 코드-확정 기전 — 원값은 문맥-실재라 유지 무해.
                     if getattr(am2, "tool_calls", None):
@@ -7151,12 +7527,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         gate_rounds = prov_rounds = eplan_rounds = cons_rounds = ra_rounds = te_rounds = wev_rounds = 0
         tl_rounds = 0
         subs = 0
+        # ★R3: 도구-선택자 슬롯은 날조-스캔/치환 대상이 아니다(env 스키마 도출·리테일에선 ∅).
+        sel_args = _selector_args_cached(self)
         rescue_skipped = set()
         rescue_excl = set()   # ★PERARG(C65): (id(tc),k,s) — rescue-스킵된 fab 제외하고 재스캔
         absent_fired = False  # ★D1′: 부재 표면화는 **턴당 1회**(재생성 루프가 같은 문구를 도배하지 않게)
         while True:
             force_required = False   # ★T2_FORCE_ACTION: say-don't-do → 다음 재생성서 tool_choice=required 강제
-            fab = _first_fab_call(am, ctx, hints, exclude=rescue_excl)
+            fab = _first_fab_call(am, ctx, hints, exclude=rescue_excl, selectors=sel_args)
             # ★T5-C P-A (N1: _denied_calls 前 — 게이트 check는 상태-변이라 버려질 반복서 소진 금지)
             if fab is not None and ground and subs < 8:
                 gtc, gk, gs = fab
@@ -7182,7 +7560,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         print("[T2_PROV] rescue pass-through tool=%s arg=%s val=%s" % rkey,
                               file=_sys.stderr, flush=True)
                     rescue_excl.add((id(rtc), rk, rs))
-                    fab = _first_fab_call(am, ctx, hints, exclude=rescue_excl)
+                    fab = _first_fab_call(am, ctx, hints, exclude=rescue_excl, selectors=sel_args)
                 else:
                     break
             # ★L3 origin-prov (T2_PROV_ORIGIN=1·v3.2): fab 무해(값∈ctx) 통과분 중 확인-세탁 검사
@@ -8339,45 +8717,39 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         #   피드백. tool_choice 강제 없음(정답 행동=안내 텍스트)·cap=action_deny 공유.
                         _uacts = {t for t in ((a2 or {}).get("action_tools") or [])
                                   if _exec_side(t) == "user"}
-                        # ★019 가족 수리 (`T2_PENDING_DISCOVERED`·기본 OFF·x362 확증):
-                        #   gold 도구가 **런타임에 건네지는 discoverable** 이면 위 정적 목록에
-                        #   영원히 없다 ⇒ 손님-실행 안내(`_utgt in _upending`)가 발화할 수 없고,
-                        #   형식화기는 `call_discoverable_agent_tool` 을 지목한다(라이브 축자).
-                        #   x362(det): 현행 집합 → `CALL` · **discovered 를 넣으면 → 분쟁 도구**
-                        #   · 다른 태스크 발화로 세운 부정통제는 **아무것도 안 냄**(통제 유효).
-                        #   ⚠집합의 출처는 **env 레지스트리 ∩ 이미 받은 도구 출력 텍스트**뿐이다
-                        #   (닫힌 집합·정규식 0·도메인 어휘 0·[[22]]·[[59]]). 고르는 일은 LLM.
-                        if os.environ.get("T2_PENDING_DISCOVERED") == "1":
-                            try:
-                                _envd9 = getattr(getattr(self, "_t2_orch", None),
-                                                 "environment", None)
-                                _regu9 = _user_discoverable(_envd9) or set()
-                                _txtu9 = chr(10).join(
-                                    str(getattr(_m9, "content", "") or "")
-                                    for _m9 in state.messages
-                                    if getattr(_m9, "role", None) == "tool")
-                                # ★고르는 일도 LLM (사용자 지적 2026-08-17): 엔진이 교집합을
-                                #   만들면 그것이 선택이다. LLM 이 대화에서 도구 이름을 **인용**
-                                #   하고, 엔진은 ⑴env 레지스트리(닫힌 집합) 소속 ⑵원문 실재만
-                                #   검산한다(`t2_search.sub_tool_names`·[[66]]·[[22]]·정규식 0).
-                                # ⛔지역 임포트 필수(2026-08-18·C538 가족): `_ts` 는 **다른
-                                #   함수**(`_search_material`:2580)의 지역 별칭이라 여기선
-                                #   NameError 다. 감싼 `except` 가 그것을 *"error (no-op)"* 로
-                                #   찍고 넘어가므로 `T2_PENDING_DISCOVERED` 를 켜는 순간
-                                #   **처음부터 죽은 레버**가 된다(라이브 `[T2_TOOL_NAMES]` 0회).
-                                import t2_search as _ts9
-                                _add9 = sorted(_ts9.sub_tool_names(
-                                    self, la, UserMessage,
-                                    ((a2 or {}).get("policy_ontology") or {}),
-                                    _txtu9, _regu9))
-                                if _add9:
-                                    _uacts |= set(_add9)
-                                    print("[T2_PENDING_DISC] 대기집합 +%d: %s"
-                                          % (len(_add9), ", ".join(_add9[:3])),
-                                          file=_sys.stderr, flush=True)
-                            except Exception as _e9:
-                                print("[T2_PENDING_DISC] error (no-op): %r" % (_e9,),
-                                      file=_sys.stderr, flush=True)
+                        # ⛔`T2_PENDING_DISCOVERED` **제거**(2026-08-23 · 수리 항목 R8-pending-disc-dead).
+                        #   여기에 있던 "런타임 discoverable 손님 도구를 대기집합에 더한다" 블록은
+                        #   한 번도 켜진 적 없는 배선이었고, 켰더라도 이 자리에서는 해가 이익보다
+                        #   크다는 것이 **닫힌 계수**로 확정됐다. 되살리려면 아래 넷을 전부 뒤집어야 한다
+                        #   (로컬 `sim_results/*.log.gz` 455개 전수 · 재현 검정 `test_actionreq_waitset_evidence.py`):
+                        #   ⑴ **발화 0** — `[T2_PENDING_DISC]` **0줄**(error no-op 조차 0) ↔ 같은 자리의 숙주
+                        #      `[T2_ACTIONREQ]` **12,323줄**. 런 스크립트는 전부 `T2_PENDING_DISCOVERED=0` 이고
+                        #      `go_stack.sh` 에도 없다 ⇒ "켜져 있다고 믿게 만드는" 죽은 레버였다([[62]] · [[67]]).
+                        #   ⑵ **종료 술어가 없다** — 대기집합의 유일한 제거 경로는 아래 `_uacts - _effall`
+                        #      인데 `_effall` 은 `state.messages` 의 호출만 본다. **손님이 실행한 도구는 거기
+                        #      없다**: `apply_for_credit_card` · `submit_referral` · `submit_transaction` 은
+                        #      12,323/12,323 줄에 **전부** 남아 있고, 에이전트-측 래퍼인
+                        #      `call_discoverable_user_tool` 만 5,278 로 빠진다(=제거 술어 자체는 살아 있다).
+                        #      ⇒ discoverable 을 더하면 손님이 이미 실행한 뒤에도 영원히 pending 이고
+                        #      넛지가 끝나지 않는다 — "인자 변화 없는 반복 억제"([[57]])의 정확한 형태다.
+                        #   ⑶ **문면이 도메인 정책과 모순된다** — 이 자리가 내보내는 `user_action_feedback`
+                        #      은 *"tell the customer to run {tool} themselves"* 인데, 도메인 정책 축자는
+                        #      *"Just explaining isn't enough, you must use the
+                        #      `give_discoverable_user_tool(discoverable_tool_name)` function"* 이다. discoverable 은
+                        #      **먼저 건네야** 손님이 부를 수 있으므로, 대기집합에만 넣고 문면을 그대로 두면
+                        #      우리 층이 **무엇을 하면 풀리는지를 틀리게** 말하게 된다([[64]] · 위 I1 불변식).
+                        #   ⑷ **병목 표적은 이미 닿아 있다** — 막혀 있는 행동은 손님-측 실행이 아니라
+                        #      에이전트-측 `give_discoverable_user_tool` 이고 그 이름은 정적 `action_tools`
+                        #      **안에 있다** — 같은 455 로그에서 `formalized_target=give_discoverable_user_tool`
+                        #      이 **291회** 찍혔다. 게다가 이 축은 reward 헤드룸이 0 이다
+                        #      (`reports/facet_rft_2026/refute_2026_08_23/refute_6.json` claim 4 · 133/133 sim reward 0.0
+                        #      · 진짜 구속조건은 상류 `open_bank_account_4821` 의 class 선택이다 · [[69]]).
+                        #   ⚠제거는 **거동 보존**이다: 플래그가 모든 런에서 OFF 였으므로 지운 경로는
+                        #     어느 런에서도 실행된 적이 없다(로그 0줄이 그 증명). 아래 `_uacts` · `_effall` ·
+                        #     `[T2_ACTIONREQ]` 배선은 한 글자도 건드리지 않았다.
+                        #   → 고아 선언: `t2_search.sub_tool_names()` 와 A2 `policy_ontology.tool_names_prompt` 은
+                        #     이 블록이 유일한 소비자였다(라이브 `[T2_TOOL_NAMES]` 455 로그 전수 0회).
+                        #     둘 다 이 항목의 파일 범위 밖이라 손대지 않고 기록만 남긴다.
                         _called = {getattr(c, "name", None) for c in (am.tool_calls or [])}
                         _tgt_pre = None      # ★공유 formalize(합집합 1회) — 아래 원 블록이 재사용(이중 서브콜 방지)
                         # ★C6 창 배선(2026-08-07·사용자 지시). `_agent_ending`은 **사임 턴만** 연다
@@ -9649,12 +10021,21 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ⚠**fail-open**: 축을 못 정하거나 후보가 비면 아무 말도 하지 않는다(모르면 막지
             #     않는다·[[25]]). 상한 = sim 당 `T2_WRITE_ARG_ENUM_CAP`(기본 3) — 살아 있는
             #     이름을 계속 거절하는 livelock 을 만들지 않기 위해서다.
+            #   ★2026-08-24·R4: 그 상한이 세는 단위가 **거절 횟수 → 처음 보는 값의 수**로
+            #     바뀌었다. 구판은 상한이 소진되면 블록 전체가 침묵해서 *이미 집합 밖이라
+            #     판정한 그 값*이 통과했다(= fail-closed 가 fail-open 이 된다). 이제 원장에
+            #     있는 값은 계속 거절하고, **처음 보는 값**만 상한 뒤에 통과한다. 자세한
+            #     근거·실물은 아래 deny 자리 주석.
             #   ⚠[[64]]: 무엇이 틀렸는지(집합 밖)와 **무엇을 하면 풀리는지**(후보 명단)를 함께.
             en_fb = None
             _ens = (a2 or {}).get("write_arg_enum") or []
-            if (os.environ.get("T2_WRITE_ARG_ENUM") == "1" and _ens
-                    and getattr(self, "_t2_enum_deny", 0)
-                    < int(os.environ.get("T2_WRITE_ARG_ENUM_CAP", "3"))):
+            if os.environ.get("T2_WRITE_ARG_ENUM") == "1" and _ens:
+                # ★R4 (2026-08-24): 상한은 **블록 전체를 잠그던 것**에서 *처음 보는 값*의
+                #   수를 세는 것으로 좁아졌다(아래 deny 자리 주석). `_encap_open` 은 종전
+                #   조건 그대로라 상한에 매달려 있던 두 이웃 레버(ARG_AXIS·VERDICT_GATE)의
+                #   발화 범위는 **한 글자도 넓히지 않는다**(거동 보존).
+                _encap_open = (getattr(self, "_t2_enum_deny", 0)
+                               < int(os.environ.get("T2_WRITE_ARG_ENUM_CAP", "3")))
                 try:
                     _di = ((a2 or {}).get("policy_ontology") or {}).get("doc_index") or {}
                     for c in (am.tool_calls or []):
@@ -9685,6 +10066,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             #   ⚠고르지 않는다 — 어느 축이 옳은지 판정하지 않고, 다르다는
                             #     사실만 알린다([[62]] ③④).
                             if (en_fb is None and os.environ.get("T2_ARG_AXIS") == "1"
+                                    and _encap_open        # ★R4 거동 보존(종전 상한 조건)
                                     and _sp.get("axis_prompt") and _gval
                                     and not getattr(self, "_t2_axis_deny", 0)):
                                 # ⚠지역 임포트 — 초판은 존재하지 않는 이름을 썼고, 이 블록이
@@ -9725,6 +10107,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 #   **손님 요구와 충돌하는** 값이면 LLM 자신의 판정 줄로 되돌린다.
                                 #   판정·인용 = LLM · 엔진 = 조회 하나 · 상한 = sim 당 CAP(기본 1).
                                 if (os.environ.get("T2_VERDICT_GATE") == "1"
+                                        and _encap_open    # ★R4 거동 보존(종전 상한 조건)
                                         and getattr(self, "_t2_vgate_deny", 0)
                                         < int(os.environ.get("T2_VERDICT_GATE_CAP", "1"))):
                                     try:
@@ -9742,10 +10125,53 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                fact="the customer's stated requirement")
                                         break
                                 continue          # 집합 內 — 선택이 옳은지는 우리가 판정하지 않는다
-                            self._t2_enum_deny = getattr(self, "_t2_enum_deny", 0) + 1
+                            # ★R4 거절 원장 (2026-08-24 수리 · refute C1 CONFIRMED).
+                            #   구판은 **블록 전체**를 sim 당 상한으로 잠갔다. 그래서 상한이
+                            #   소진되면 게이트가 침묵하고 *우리가 이미 집합 밖이라고 판정한
+                            #   바로 그 값*이 다음 시도에 통과해 DB 를 바꿨다 — fail-closed 가
+                            #   재시도 한 번으로 **fail-open** 이 된다. 실물:
+                            #   `bank_t7296_treat_20260815p|task_071#s554706` 은 turn 22·34 에
+                            #   같은 값을 두 번 deny 한 뒤 msg41 에 그 값으로 계좌를 열었고
+                            #   (gold 3행 MATCHED 뒤) reward 가 0 이 됐다. 전 코퍼스 로그 455개:
+                            #   deny 164줄/92 sim 중 20 sim 이 상한 도달 · 그중 4 sim 에서 집합
+                            #   밖 값이 이후 성공 · **2 sim 에서 같은 값**이 성공.
+                            #   ⇒ 상한의 **단위**를 바꾼다: '거절 횟수' → '처음 보는 값의 수'.
+                            #     ⓐ 원장에 있는 값 = 횟수와 무관하게 **계속 거절**(우리 판정을
+                            #       우리가 되돌려주지 않는다).
+                            #     ⓑ 상한 소진 + **처음 보는 값** = 종전 그대로 fail-open —
+                            #       livelock 탈출구는 살아 있다(우리 명단이 불완전할 때 sim 을
+                            #       인질로 잡지 않는다·[[25]]).
+                            #   ⚠판단 0([[62]] ③④): 술어는 `(그룹, 정규화 값)` 집합 소속뿐이고
+                            #     `_val in _names` 를 **매번 먼저** 보므로, 명단이 나중에 그 값을
+                            #     담게 되면 차단이 저절로 풀린다. 엔진은 여전히 고르지 않는다.
+                            #   ⚠도메인 조건 0([[05]]·[[70]]): 태스크·상품·군 이름이 술어에
+                            #     들어가지 않는다 — *"이 게이트가 이미 거절한 값"* 하나뿐이라
+                            #     코퍼스 전체에 같은 모양으로 전이된다.
+                            _seen = getattr(self, "_t2_enum_rejected", None)
+                            if _seen is None:
+                                _seen = self._t2_enum_rejected = set()
+                            _rkey = _enum_seen_key(_grp, _val)
+                            _again = _rkey in _seen
+                            if not (_again or _encap_open):
+                                continue      # 상한 소진 + 처음 보는 값 = 종전대로 fail-open
+                            _seen.add(_rkey)
+                            self._t2_enum_deny = (getattr(self, "_t2_enum_deny", 0)
+                                                  + (0 if _again else 1))
                             en_fb = (c, str(_sp.get("feedback") or "").format(
                                 val=_val, arg=_sp.get("arg"), group=_grp,
                                 candidates=", ".join(_names)))
+                            # ★[[64]]: 재제출에는 *무엇이 틀렸나*(이미 거절된 값이라 또 거절된다)
+                            #   와 *무엇을 하면 풀리나*(위 명단에서 고르거나 쓰기 전에 조회) 를
+                            #   함께 얹는다. 도메인 낱말 0 — 어느 벤치·어느 축에서도 같은 문장.
+                            #   ⚠**뒤에** 붙인다: 문면 머리의 채널 마크(A2 가 넣는다)를 밀어내면
+                            #     그 마크로 세는 사이드카 집계가 갈린다([[25]] 계기 오염 금지).
+                            if _again:
+                                en_fb = (en_fb[0], en_fb[1] + "\nYou submitted this exact value "
+                                         "earlier in this conversation and it was already rejected "
+                                         "for the same reason; it is refused again rather than "
+                                         "written. Retrying it will not make it valid - either use "
+                                         "one of the names listed above verbatim, or look the "
+                                         "correct name up with a read tool before writing.")
                             # ★이 축의 결정이 이미 있으면 **함께** 싣는다 (2026-08-13·071 t1).
                             #   구판은 후보 8~10개만 줬다 = 메뉴. 실측에서 그 메뉴는 오답을
                             #   매끄럽게 확정시켰다(`True Blue Business Checking` → `True Blue`).
@@ -9758,8 +10184,13 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 en_fb = (en_fb[0], en_fb[1] + "\n" + str(_dsav))
                                 print("[T2_WRITE_ARG_ENUM] 저장된 축 결정 동봉 group=%s (%d자)"
                                       % (_grp, len(str(_dsav))), file=_sys.stderr, flush=True)
-                            print("[T2_WRITE_ARG_ENUM] deny val=%r group=%s (후보 %d)"
-                                  % (_val, _grp, len(_names)), file=_sys.stderr, flush=True)
+                            # ★계기: 재제출 거절을 **다른 마크**로 찍는다. 상한이 세는 것은
+                            #   이제 *처음 보는 값*이므로, 구판처럼 `deny val=` 줄 수를 세서
+                            #   `_t2_enum_deny` 를 역산하면 틀린다(refute C1 정정 ⓑ 동형).
+                            print("[T2_WRITE_ARG_ENUM] %s val=%r group=%s (후보 %d · 원장 %d)"
+                                  % ("deny(재제출)" if _again else "deny",
+                                     _val, _grp, len(_names), len(_seen)),
+                                  file=_sys.stderr, flush=True)
                             _lbeat("T2_WRITE_ARG_ENUM", orch=self, target=_eff_tool_name(c),
                                    fact="the official names on file for this product group")
                             break
@@ -9820,47 +10251,53 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         # ★축-정합 재제시 (2026-08-13·071 t1 부검): 저장이 단일 슬롯일 때는
                         #   savings 결정이 checking 결정을 덮어 **틀린 축의 답**을 되돌려
                         #   줄 수 있었다. 이 write 의 축은 A2 `write_arg_enum.group_map` 이
-                        #   이미 선언한다(집합 대조뿐·엔진 해석 0). 축을 못 정하면 종전대로.
-                        _dax = None
-                        try:
-                            _ia = _args_dict(_wc).get("arguments")
-                            _ia = json.loads(_ia) if isinstance(_ia, str) else (_ia or {})
-                            for _sp in ((a2 or {}).get("write_arg_enum") or []):
-                                _gm = _sp.get("group_map") or {}
-                                _gv = str((_ia or {}).get(_sp.get("group_arg")) or "")
-                                if _gv in _gm:
-                                    _dax = _gm[_gv]
-                                    break
-                        except Exception:
-                            _dax = None
-                        _saved = (getattr(self, "_t2_axis_decision", None) or {}).get(_dax) \
-                            if _dax else None
-                        # ★A-7⑸ (2026-08-23·055): **어느 축의 결정문을 실었는지** 남긴다.
-                        #   구판 로그는 `(재료 %d자)` 뿐이라, 두 축의 결정문이 둘 다 247자인
-                        #   055 에서는 무엇이 실렸는지 로그만으로 가릴 수 없었다([[25]]).
-                        _dsrc = "search"
-                        _dmat = _search_material(self, a2, state.messages)
-                        if not _dmat:
-                            _dsrc = "saved" if _saved else "last"
-                            _dmat = _saved or getattr(self, "_t2_last_decision", "")
-                        if _dmat:
-                            self._t2_dwrite_deny = 1
-                            dw_fb = (_wc,
-                                     "Error: [DECIDE-FIRST] this write was held for one turn "
-                                     "because the decision it encodes had not been made in this "
-                                     "conversation yet. It has now been made:\n" + _dmat +
-                                     "\nIf that answers the choice this call encodes, make the "
-                                     "call again with that value. Otherwise make it again as it "
-                                     "was.")
-                            # ★A-7⑸ (2026-08-23·055): 축 이름과 출처를 병기한다 — 두 축의
-                            #   결정문이 같은 길이면 로그만으로는 무엇을 실었는지 알 수 없다.
-                            print("[T2_DECIDE_BEFORE_WRITE] write 1턴 유예 tool=%s axis=%s "
-                                  "src=%s (재료 %d자)"
-                                  % (_eff_tool_name(_wc), _dax or "-", _dsrc, len(_dmat)),
+                        #   이미 선언한다(집합 대조뿐·엔진 해석 0).
+                        # ★★R7 (2026-08-23·`refute_5.json` §surviving⑵): 축(group)만으로는
+                        #   부족했다 — 캐리 문면이 **어느 인자의 답인지** 한 번도 말하지 않아
+                        #   문서 계열 라벨(`General`)이 `dispute_category` 자리로 흘러들었고
+                        #   그 sim 의 11회 시도가 전부 열거 밖 값으로 실패했다. 이제 **인자
+                        #   이름**을 A2 선언에서 함께 읽는다(`_write_choice_arg` — 이름 동등성·
+                        #   선언된 접두·dict 조회뿐·[[22]]). 못 대면 **나가지 않는다**.
+                        _darg, _dax = _write_choice_arg(a2, _wc)
+                        if not _darg:
+                            # ★[[64]] 의 두 번째 가지: *이름을 못 대면 말하지 마라*. A2 가 이
+                            #   write 의 선택 인자를 선언하지 않았다는 것은 우리가 **무엇에 대한
+                            #   답인지 모른다**는 뜻이고, 그 상태의 캐리는 값을 아무 슬롯에나
+                            #   놓으라는 초대가 된다(085 실물). 서브도 여기서 돌리지 않는다 —
+                            #   `_search_material` 은 축 잠금(`_t2_search_done`)을 소모하므로,
+                            #   배달하지 않을 결정을 위해 축을 태우면 그 축이 영영 안 온다.
+                            #   ⚠도메인 조건 0: 태스크·상품 이름이 아니라 *선언의 유무*가 술어다.
+                            print("[T2_DECIDE_BEFORE_WRITE] 축 미상 — 무발화 tool=%s "
+                                  "(A2 가 이 write 의 선택 인자를 선언하지 않았다)"
+                                  % (_eff_tool_name(_wc),),
                                   file=_sys.stderr, flush=True)
-                            _lbeat("T2_DECIDE_BEFORE_WRITE", orch=self,
-                                   target=_eff_tool_name(_wc),
-                                   fact="the decision this write encodes, made before it runs")
+                        else:
+                            _saved = (getattr(self, "_t2_axis_decision", None) or {}).get(_dax) \
+                                if _dax else None
+                            # ★A-7⑸ (2026-08-23·055): **어느 축의 결정문을 실었는지** 남긴다.
+                            #   구판 로그는 `(재료 %d자)` 뿐이라, 두 축의 결정문이 둘 다 247자인
+                            #   055 에서는 무엇이 실렸는지 로그만으로 가릴 수 없었다([[25]]).
+                            _dsrc = "search"
+                            _dmat = _search_material(self, a2, state.messages)
+                            if not _dmat:
+                                _dsrc = "saved" if _saved else "last"
+                                _dmat = _saved or getattr(self, "_t2_last_decision", "")
+                            if _dmat:
+                                self._t2_dwrite_deny = 1
+                                dw_fb = (_wc, _DECIDE_FIRST_FB.format(arg=_darg,
+                                                                      material=_dmat))
+                                # ★A-7⑸ (2026-08-23·055): 축 이름과 출처를 병기한다 — 두 축의
+                                #   결정문이 같은 길이면 로그만으로는 무엇을 실었는지 알 수 없다.
+                                #   ★R7: 인자 이름도 함께 — 배달 문면이 무엇을 지목했는지가
+                                #     로그에서 검산돼야 한다([[25]] 계기는 100% 정답 의무).
+                                print("[T2_DECIDE_BEFORE_WRITE] write 1턴 유예 tool=%s arg=%s "
+                                      "axis=%s src=%s (재료 %d자)"
+                                      % (_eff_tool_name(_wc), _darg, _dax or "-",
+                                         _dsrc, len(_dmat)),
+                                      file=_sys.stderr, flush=True)
+                                _lbeat("T2_DECIDE_BEFORE_WRITE", orch=self,
+                                       target=_eff_tool_name(_wc),
+                                       fact="the decision this write encodes, made before it runs")
                 except Exception as _dwe:
                     dw_fb = None
                     print("[T2_DECIDE_BEFORE_WRITE] 건너뜀(무발화): %r" % (_dwe,),
@@ -10803,7 +11240,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 am2 = _gen(self, dwork, bw(), "agent_response_disamb")
                 n2 = 0
                 while n2 < 2:  # 재확인 응답의 신규 날조는 prov 루프로 정화(2회 한도·무과금)
-                    fab2 = _first_fab_call(am2, ctx, hints)
+                    fab2 = _first_fab_call(am2, ctx, hints, selectors=sel_args)
                     if fab2 is None:
                         break
                     tc2, k2, s2 = fab2
@@ -10816,7 +11253,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         dwork.append(ToolMessage(id=c.id, role="tool", requestor="assistant",
                                                  error=True, content=reason))
                     am2 = _gen(self, dwork, bw(), "agent_response_regen")
-                if _first_fab_call(am2, ctx, hints) is None:
+                if _first_fab_call(am2, ctx, hints, selectors=sel_args) is None:
                     # ★리뷰 블로킹2: 재확인 switch가 게이트-deny 호출을 들여오면 원 am(게이트-클린) 유지
                     if gate is not None and _denied_calls(am2, gate, last_user, transfer_sent):
                         self._t2_disamb_gate_reject = getattr(self, "_t2_disamb_gate_reject", 0) + 1
