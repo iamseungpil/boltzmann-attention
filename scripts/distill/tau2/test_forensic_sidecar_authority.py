@@ -75,7 +75,12 @@ def _old_sidecar_rows(tag):
 T_SIDE = "bank_t7305_treat_20260817a"          # 사이드카 있음(`fb_<tag>.jsonl.gz` 명명)
 T_MUT = "bank_y2cp2_gpu0_20260801"             # 변이 호출 위 [DUPLICATE-READ] 27 건
 S_MUT = "task_008#s626729"
-T_NONE = "bank_t7346_halfA_20260822"           # ★사이드카 미회수 런(t7305 이후 전부)
+# ★사이드카가 **어디에도 없는** 태그. 실재 런을 여기 박으면 앵커가 썩는다 — 초판은
+#   `bank_t7346_halfA_20260822` 를 *"미회수 런"* 으로 박았는데, 그 런의 사이드카는 안 쓰인 게
+#   아니라 **안 회수된 것**이었고 원본이 리모트에 그대로 있었다(2026-08-24 에 366 개를 회수했다).
+#   재는 것은 *"어떤 런이 미회수인가"* 가 아니라 *"없을 때 없다고 말하는가"* 이므로, 존재하지
+#   않는 이름이 그 술어의 옳은 정박점이다.
+T_NONE = "bank_no_such_run_00000000"
 
 # 실물 정박점이 없는 체크아웃(얕은 클론 등)에서는 **건너뛰되 침묵하지 않는다** — 이 검정은
 # 유료 런의 게이트 배터리에 들어가므로, 코퍼스 부재로 런을 막지는 않고 사실만 인쇄한다.
@@ -95,8 +100,21 @@ check("옛 술어: `[DUPLICATE-READ]` 를 **거절로 세지 않았다**",
       _old_deny_kind("[DUPLICATE-READ] This exact call was already executed") == ("", None))
 check("옛 술어: `Error: [BYREF]` 를 **env 로 오귀속**했다",
       _old_deny_kind("Error: [BYREF] refer to the record you read")[0] == "env")
-check("옛 경로 결의: `fb_<tag>.jsonl.gz` 명명을 **0 행**으로 읽었다",
-      _old_sidecar_rows(T_SIDE) == 0, "옛 %d 행" % _old_sidecar_rows(T_SIDE))
+# ⚠이 음성대조는 **리모트 원본이 없을 때**의 결손을 재현한다. 옛 결의는 두 자리를 봤다 —
+#   `<tag>.fb.jsonl.gz`(점 명명)와 리모트 평문 — 그리고 `fb_<tag>.jsonl.gz`(밑줄 명명)를
+#   놓쳤다. 이 기계에는 리모트 평문이 살아 있어서 옛 결의도 행을 읽는다. 그러니 그 자리를
+#   **비워 놓고** 재현한다. 안 그러면 이 대조가 기계마다 참·거짓이 갈린다(2026-08-24 실물:
+#   366 개 계기 파일을 회수하고 나서 이 줄이 무엇을 재는지가 드러났다).
+_fbdir_saved = F.FBDIR
+try:
+    F.FBDIR = os.path.join(F.BASE, "__no_such_raw_dir__")
+    _old_n = _old_sidecar_rows(T_SIDE)
+finally:
+    F.FBDIR = _fbdir_saved
+check("옛 경로 결의: 리모트 원본이 없으면 `fb_<tag>.jsonl.gz` 를 **0 행**으로 읽었다",
+      _old_n == 0, "옛 %d 행" % _old_n)
+check("정본 결의는 같은 조건에서 읽는다(밑줄 명명)", len(F.sidecar_rows(T_SIDE)) > 0,
+      "%d 행" % len(F.sidecar_rows(T_SIDE)))
 
 print("\n② 수리 후 — 사이드카가 권위다")
 mut = F.mutating_tools()
