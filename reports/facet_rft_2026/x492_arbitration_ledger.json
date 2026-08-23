@@ -169,716 +169,243 @@
  "per_task_attribution": {
   "task_003": {
    "verdict": "전부통과",
-   "fail_in_window": 0,
-   "pass_in_window": 0,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfA_20260822|task_003#s626729",
-     "reward": 1.0,
-     "window_start": 7,
-     "n_msgs": 10,
-     "stops": 4,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfA_20260822|task_003#s373753",
-     "reward": 1.0,
-     "window_start": 7,
-     "n_msgs": 10,
-     "stops": 1,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    }
-   ]
+   "n_pass": 2,
+   "n_fail": 0,
+   "mean_pass": 0.0,
+   "mean_fail": 0.0,
+   "per100_pass": 0.0,
+   "per100_fail": 0.0,
+   "win_pass": 3.0,
+   "win_fail": 0.0,
+   "comparable": false
   },
   "task_004": {
    "verdict": "전부통과",
-   "fail_in_window": 0,
-   "pass_in_window": 4,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfA_20260822|task_004#s626729",
-     "reward": 1.0,
-     "window_start": 0,
-     "n_msgs": 28,
-     "stops": 6,
-     "suspects": 3,
-     "in_window": [
-      4,
-      4,
-      20
-     ],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfA_20260822|task_004#s373753",
-     "reward": 1.0,
-     "window_start": 0,
-     "n_msgs": 30,
-     "stops": 7,
-     "suspects": 4,
-     "in_window": [
-      4,
-      18,
-      20,
-      22
-     ],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    }
-   ]
+   "n_pass": 2,
+   "n_fail": 0,
+   "mean_pass": 3.5,
+   "mean_fail": 0.0,
+   "per100_pass": 12.068965517241379,
+   "per100_fail": 0.0,
+   "win_pass": 29.0,
+   "win_fail": 0.0,
+   "comparable": false
   },
   "task_016": {
-   "verdict": "★후보(통제불가)",
-   "fail_in_window": 5,
-   "pass_in_window": null,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfB_20260822|task_016#s626729",
-     "reward": 0.0,
-     "window_start": 18,
-     "n_msgs": 70,
-     "stops": 10,
-     "suspects": 2,
-     "in_window": [
-      52,
-      52
-     ],
-     "missing": 1,
-     "wrongarg": 0,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfB_20260822|task_016#s373753",
-     "reward": 0.0,
-     "window_start": 16,
-     "n_msgs": 62,
-     "stops": 11,
-     "suspects": 5,
-     "in_window": [
-      40,
-      48,
-      50,
-      52,
-      52
-     ],
-     "missing": 1,
-     "wrongarg": 0,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 0,
+   "n_fail": 2,
+   "mean_pass": 0.0,
+   "mean_fail": 3.5,
+   "per100_pass": 0.0,
+   "per100_fail": 7.142857142857143,
+   "win_pass": 0.0,
+   "win_fail": 49.0,
+   "comparable": false
   },
   "task_017": {
-   "verdict": "무관",
-   "fail_in_window": 0,
-   "pass_in_window": 0,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfA_20260822|task_017#s373753",
-     "reward": 1.0,
-     "window_start": 65,
-     "n_msgs": 68,
-     "stops": 26,
-     "suspects": 10,
-     "in_window": [],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfA_20260822|task_017#s626729",
-     "reward": 0.0,
-     "window_start": 24,
-     "n_msgs": 74,
-     "stops": 38,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 2,
-     "wrongarg": 0,
-     "extra": 2
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 1,
+   "n_fail": 1,
+   "mean_pass": 0.0,
+   "mean_fail": 0.0,
+   "per100_pass": 0.0,
+   "per100_fail": 0.0,
+   "win_pass": 3.0,
+   "win_fail": 50.0,
+   "comparable": false
   },
   "task_024": {
    "verdict": "전부통과",
-   "fail_in_window": 0,
-   "pass_in_window": 0,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfA_20260822|task_024#s626729",
-     "reward": 1.0,
-     "window_start": 9,
-     "n_msgs": 12,
-     "stops": 1,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfA_20260822|task_024#s373753",
-     "reward": 1.0,
-     "window_start": 7,
-     "n_msgs": 10,
-     "stops": 1,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    }
-   ]
+   "n_pass": 2,
+   "n_fail": 0,
+   "mean_pass": 0.0,
+   "mean_fail": 0.0,
+   "per100_pass": 0.0,
+   "per100_fail": 0.0,
+   "win_pass": 3.0,
+   "win_fail": 0.0,
+   "comparable": false
   },
   "task_033": {
    "verdict": "전부통과",
-   "fail_in_window": 0,
-   "pass_in_window": 1,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfB_20260822|task_033#s626729",
-     "reward": 1.0,
-     "window_start": 0,
-     "n_msgs": 36,
-     "stops": 3,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfB_20260822|task_033#s373753",
-     "reward": 1.0,
-     "window_start": 0,
-     "n_msgs": 32,
-     "stops": 4,
-     "suspects": 1,
-     "in_window": [
-      26
-     ],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    }
-   ]
+   "n_pass": 2,
+   "n_fail": 0,
+   "mean_pass": 0.5,
+   "mean_fail": 0.0,
+   "per100_pass": 1.4705882352941178,
+   "per100_fail": 0.0,
+   "win_pass": 34.0,
+   "win_fail": 0.0,
+   "comparable": false
   },
   "task_040": {
-   "verdict": "★후보(통제불가)",
-   "fail_in_window": 20,
-   "pass_in_window": null,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfB_20260822|task_040#s626729",
-     "reward": 0.0,
-     "window_start": 21,
-     "n_msgs": 61,
-     "stops": 35,
-     "suspects": 19,
-     "in_window": [
-      23,
-      23,
-      23,
-      23,
-      29,
-      29,
-      29,
-      29,
-      37,
-      37,
-      37,
-      45,
-      45,
-      47,
-      51,
-      53,
-      53
-     ],
-     "missing": 8,
-     "wrongarg": 0,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfB_20260822|task_040#s373753",
-     "reward": 0.0,
-     "window_start": 27,
-     "n_msgs": 119,
-     "stops": 41,
-     "suspects": 22,
-     "in_window": [
-      37,
-      41,
-      43,
-      45,
-      73,
-      75,
-      77,
-      77,
-      83,
-      85,
-      87,
-      87,
-      91,
-      91,
-      93,
-      97,
-      101,
-      107,
-      109,
-      111
-     ],
-     "missing": 8,
-     "wrongarg": 8,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 0,
+   "n_fail": 2,
+   "mean_pass": 0.0,
+   "mean_fail": 18.5,
+   "per100_pass": 0.0,
+   "per100_fail": 28.03030303030303,
+   "win_pass": 0.0,
+   "win_fail": 66.0,
+   "comparable": false
   },
   "task_050": {
-   "verdict": "무관",
-   "fail_in_window": 0,
-   "pass_in_window": 0,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfB_20260822|task_050#s373753",
-     "reward": 1.0,
-     "window_start": 50,
-     "n_msgs": 55,
-     "stops": 2,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfB_20260822|task_050#s626729",
-     "reward": 0.0,
-     "window_start": 34,
-     "n_msgs": 38,
-     "stops": 1,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 1,
-     "wrongarg": 0,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 1,
+   "n_fail": 1,
+   "mean_pass": 0.0,
+   "mean_fail": 0.0,
+   "per100_pass": 0.0,
+   "per100_fail": 0.0,
+   "win_pass": 5.0,
+   "win_fail": 4.0,
+   "comparable": true
   },
   "task_055": {
-   "verdict": "★후보(통제불가)",
-   "fail_in_window": 1,
-   "pass_in_window": null,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfA_20260822|task_055#s626729",
-     "reward": 0.0,
-     "window_start": 23,
-     "n_msgs": 75,
-     "stops": 9,
-     "suspects": 2,
-     "in_window": [],
-     "missing": 3,
-     "wrongarg": 4,
-     "extra": 1
-    },
-    {
-     "sim": "bank_t7346_halfA_20260822|task_055#s373753",
-     "reward": 0.0,
-     "window_start": 33,
-     "n_msgs": 83,
-     "stops": 17,
-     "suspects": 1,
-     "in_window": [
-      67
-     ],
-     "missing": 2,
-     "wrongarg": 2,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 0,
+   "n_fail": 2,
+   "mean_pass": 0.0,
+   "mean_fail": 0.5,
+   "per100_pass": 0.0,
+   "per100_fail": 0.9803921568627451,
+   "win_pass": 0.0,
+   "win_fail": 51.0,
+   "comparable": false
   },
   "task_057": {
-   "verdict": "무관",
-   "fail_in_window": 0,
-   "pass_in_window": null,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfB_20260822|task_057#s626729",
-     "reward": 0.0,
-     "window_start": 18,
-     "n_msgs": 80,
-     "stops": 1,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 2,
-     "wrongarg": 1,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfB_20260822|task_057#s373753",
-     "reward": 0.0,
-     "window_start": 0,
-     "n_msgs": 151,
-     "stops": 5,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 2
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 0,
+   "n_fail": 2,
+   "mean_pass": 0.0,
+   "mean_fail": 0.0,
+   "per100_pass": 0.0,
+   "per100_fail": 0.0,
+   "win_pass": 0.0,
+   "win_fail": 106.5,
+   "comparable": false
   },
   "task_063": {
-   "verdict": "★후보(통제불가)",
-   "fail_in_window": 4,
-   "pass_in_window": null,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfB_20260822|task_063#s626729",
-     "reward": 0.0,
-     "window_start": 43,
-     "n_msgs": 67,
-     "stops": 14,
-     "suspects": 2,
-     "in_window": [],
-     "missing": 2,
-     "wrongarg": 2,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfB_20260822|task_063#s373753",
-     "reward": 0.0,
-     "window_start": 17,
-     "n_msgs": 62,
-     "stops": 11,
-     "suspects": 4,
-     "in_window": [
-      43,
-      48,
-      50,
-      58
-     ],
-     "missing": 2,
-     "wrongarg": 1,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 0,
+   "n_fail": 2,
+   "mean_pass": 0.0,
+   "mean_fail": 2.0,
+   "per100_pass": 0.0,
+   "per100_fail": 5.797101449275362,
+   "win_pass": 0.0,
+   "win_fail": 34.5,
+   "comparable": false
   },
   "task_072": {
-   "verdict": "★후보(통제불가)",
-   "fail_in_window": 1,
-   "pass_in_window": null,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfA_20260822|task_072#s626729",
-     "reward": 0.0,
-     "window_start": 16,
-     "n_msgs": 77,
-     "stops": 22,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 2,
-     "wrongarg": 1,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfA_20260822|task_072#s373753",
-     "reward": 0.0,
-     "window_start": 81,
-     "n_msgs": 86,
-     "stops": 13,
-     "suspects": 1,
-     "in_window": [
-      84
-     ],
-     "missing": 1,
-     "wrongarg": 2,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 0,
+   "n_fail": 2,
+   "mean_pass": 0.0,
+   "mean_fail": 0.5,
+   "per100_pass": 0.0,
+   "per100_fail": 1.5151515151515151,
+   "win_pass": 0.0,
+   "win_fail": 33.0,
+   "comparable": false
   },
   "task_073": {
-   "verdict": "자체통제탈락",
-   "fail_in_window": 1,
-   "pass_in_window": 2,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfA_20260822|task_073#s626729",
-     "reward": 1.0,
-     "window_start": 47,
-     "n_msgs": 60,
-     "stops": 9,
-     "suspects": 2,
-     "in_window": [
-      58,
-      58
-     ],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfA_20260822|task_073#s373753",
-     "reward": 0.0,
-     "window_start": 59,
-     "n_msgs": 73,
-     "stops": 15,
-     "suspects": 1,
-     "in_window": [
-      71
-     ],
-     "missing": 2,
-     "wrongarg": 6,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 1,
+   "n_fail": 1,
+   "mean_pass": 2.0,
+   "mean_fail": 1.0,
+   "per100_pass": 15.384615384615385,
+   "per100_fail": 7.142857142857143,
+   "win_pass": 13.0,
+   "win_fail": 14.0,
+   "comparable": true
   },
   "task_074": {
-   "verdict": "무관",
-   "fail_in_window": 0,
-   "pass_in_window": null,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfB_20260822|task_074#s626729",
-     "reward": 0.0,
-     "window_start": 30,
-     "n_msgs": 69,
-     "stops": 6,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 4,
-     "wrongarg": 7,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfB_20260822|task_074#s373753",
-     "reward": 0.0,
-     "window_start": 25,
-     "n_msgs": 54,
-     "stops": 16,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 4,
-     "wrongarg": 0,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 0,
+   "n_fail": 2,
+   "mean_pass": 0.0,
+   "mean_fail": 0.0,
+   "per100_pass": 0.0,
+   "per100_fail": 0.0,
+   "win_pass": 0.0,
+   "win_fail": 34.0,
+   "comparable": false
   },
   "task_079": {
-   "verdict": "★후보(통제불가)",
-   "fail_in_window": 3,
-   "pass_in_window": null,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfB_20260822|task_079#s626729",
-     "reward": 0.0,
-     "window_start": 61,
-     "n_msgs": 141,
-     "stops": 25,
-     "suspects": 3,
-     "in_window": [
-      137,
-      139,
-      139
-     ],
-     "missing": 2,
-     "wrongarg": 3,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfB_20260822|task_079#s373753",
-     "reward": 0.0,
-     "window_start": 34,
-     "n_msgs": 68,
-     "stops": 12,
-     "suspects": 3,
-     "in_window": [
-      64,
-      66,
-      66
-     ],
-     "missing": 11,
-     "wrongarg": 0,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 0,
+   "n_fail": 2,
+   "mean_pass": 0.0,
+   "mean_fail": 3.0,
+   "per100_pass": 0.0,
+   "per100_fail": 5.2631578947368425,
+   "win_pass": 0.0,
+   "win_fail": 57.0,
+   "comparable": false
   },
   "task_085": {
-   "verdict": "★후보(통제불가)",
-   "fail_in_window": 2,
-   "pass_in_window": null,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfB_20260822|task_085#s626729",
-     "reward": 0.0,
-     "window_start": 19,
-     "n_msgs": 131,
-     "stops": 10,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 3,
-     "wrongarg": 4,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfB_20260822|task_085#s373753",
-     "reward": 0.0,
-     "window_start": 21,
-     "n_msgs": 96,
-     "stops": 20,
-     "suspects": 2,
-     "in_window": [
-      92,
-      92
-     ],
-     "missing": 3,
-     "wrongarg": 0,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 0,
+   "n_fail": 2,
+   "mean_pass": 0.0,
+   "mean_fail": 1.0,
+   "per100_pass": 0.0,
+   "per100_fail": 1.0695187165775402,
+   "win_pass": 0.0,
+   "win_fail": 93.5,
+   "comparable": false
   },
   "task_093": {
-   "verdict": "무관",
-   "fail_in_window": 0,
-   "pass_in_window": null,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfA_20260822|task_093#s626729",
-     "reward": 0.0,
-     "window_start": 34,
-     "n_msgs": 38,
-     "stops": 7,
-     "suspects": 2,
-     "in_window": [],
-     "missing": 1,
-     "wrongarg": 0,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfA_20260822|task_093#s373753",
-     "reward": 0.0,
-     "window_start": 68,
-     "n_msgs": 74,
-     "stops": 11,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 1,
-     "wrongarg": 0,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 0,
+   "n_fail": 2,
+   "mean_pass": 0.0,
+   "mean_fail": 0.0,
+   "per100_pass": 0.0,
+   "per100_fail": 0.0,
+   "win_pass": 0.0,
+   "win_fail": 5.0,
+   "comparable": false
   },
   "task_094": {
-   "verdict": "★후보(통제불가)",
-   "fail_in_window": 3,
-   "pass_in_window": null,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfA_20260822|task_094#s626729",
-     "reward": 0.0,
-     "window_start": 20,
-     "n_msgs": 62,
-     "stops": 9,
-     "suspects": 3,
-     "in_window": [
-      50,
-      50,
-      54
-     ],
-     "missing": 2,
-     "wrongarg": 2,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfA_20260822|task_094#s373753",
-     "reward": 0.0,
-     "window_start": 12,
-     "n_msgs": 74,
-     "stops": 10,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 2,
-     "wrongarg": 2,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 0,
+   "n_fail": 2,
+   "mean_pass": 0.0,
+   "mean_fail": 1.5,
+   "per100_pass": 0.0,
+   "per100_fail": 2.8846153846153846,
+   "win_pass": 0.0,
+   "win_fail": 52.0,
+   "comparable": false
   },
   "task_098": {
-   "verdict": "★후보(통제불가)",
-   "fail_in_window": 2,
-   "pass_in_window": null,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfB_20260822|task_098#s626729",
-     "reward": 0.0,
-     "window_start": 16,
-     "n_msgs": 44,
-     "stops": 4,
-     "suspects": 2,
-     "in_window": [
-      36,
-      40
-     ],
-     "missing": 1,
-     "wrongarg": 1,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfB_20260822|task_098#s373753",
-     "reward": 0.0,
-     "window_start": 16,
-     "n_msgs": 38,
-     "stops": 2,
-     "suspects": 1,
-     "in_window": [
-      34
-     ],
-     "missing": 1,
-     "wrongarg": 1,
-     "extra": 0
-    }
-   ]
+   "verdict": "통제불가(n)",
+   "n_pass": 0,
+   "n_fail": 2,
+   "mean_pass": 0.0,
+   "mean_fail": 1.5,
+   "per100_pass": 0.0,
+   "per100_fail": 6.0,
+   "win_pass": 0.0,
+   "win_fail": 25.0,
+   "comparable": false
   },
   "task_100": {
    "verdict": "전부통과",
-   "fail_in_window": 0,
-   "pass_in_window": 0,
-   "rows": [
-    {
-     "sim": "bank_t7346_halfA_20260822|task_100#s626729",
-     "reward": 1.0,
-     "window_start": 23,
-     "n_msgs": 26,
-     "stops": 0,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    },
-    {
-     "sim": "bank_t7346_halfA_20260822|task_100#s373753",
-     "reward": 1.0,
-     "window_start": 23,
-     "n_msgs": 26,
-     "stops": 0,
-     "suspects": 0,
-     "in_window": [],
-     "missing": 0,
-     "wrongarg": 0,
-     "extra": 0
-    }
-   ]
+   "n_pass": 2,
+   "n_fail": 0,
+   "mean_pass": 0.0,
+   "mean_fail": 0.0,
+   "per100_pass": 0.0,
+   "per100_fail": 0.0,
+   "win_pass": 3.0,
+   "win_fail": 0.0,
+   "comparable": false
   }
  },
  "per_sim": {
