@@ -110,7 +110,7 @@ def ops_suffix(at, caps):
     return ("; ops %s" % ",".join(o)) if o else "; ops none"
 
 
-def attr_menu_for(arg, tbl=None):
+def attr_menu_for(arg, tbl=None, allow=None):
     """★인자에 맞는 **속성 메뉴**를 준다(2026-08-20 수리).
 
     `card_type` 사례에 계좌 속성 목록을 주고 있었다 — 모델이 *"credit limit at least $100,000"* 을
@@ -129,11 +129,11 @@ def attr_menu_for(arg, tbl=None):
             return "USD"
         caps = table_caps(_t, arg_families(arg)) if tbl is None else table_caps(tbl, arg_families(arg))
         return ", ".join("%s (%s%s)" % (k, _ty(k), ops_suffix(k, caps))
-                         for k in attrs if caps.get(k))
-    return attr_menu(tbl)
+                         for k in attrs if caps.get(k) and (allow is None or k in allow))
+    return attr_menu(tbl, allow)
 
 
-def attr_menu(tbl=None):
+def attr_menu(tbl=None, allow=None):
     """형식화에 **타입까지** 준다 — 어느 op 가 맞는지는 타입이 정한다([[10]] LLM 이 쓰고 엔진은 비교만).
 
     실물(2026-08-20): `foreign_currency_holding == 1` 은 *존재*를 뜻했는데 값은 **30**(지원 통화 수)이라
@@ -147,7 +147,8 @@ def attr_menu(tbl=None):
         caps = table_caps(tbl, arg_families("account_class")) if tbl else {}
         return ", ".join("%s (%s%s)" % (k, (v.get("type") or "unknown"),
                                         ops_suffix(k, caps) if tbl else "")
-                         for k, v in d.items() if (not tbl) or caps.get(k))
+                         for k, v in d.items()
+                         if ((not tbl) or caps.get(k)) and (allow is None or k in allow))
     except Exception:
         return ", ".join(ATTRS)
 RE_MONEY = re.compile(r"-?\d[\d,]*(?:\.\d+)?")
@@ -468,6 +469,65 @@ def table_caps(tbl, fams):
     return caps
 
 
+def family_coverage(tbl, fams):
+    """그 계열에서 각 축이 **값이 붙은 행의 비율** → ({축: 비율}, 행수). 표의 형태만 본다.
+
+    `table_caps` 는 *한 행이라도* 값이 있으면 그 op 를 능력으로 올린다. 그래서 값이 1/11 인 축도
+    메뉴에 오르고, 제약이 걸려도 나머지 10 행은 **빈칸 fail-open** 으로 살아남는다(`_cmp` 는 값이
+    없으면 거르지 않는다 — 과차단을 막으려고 일부러 그렇게 뒀다). x431 일곱 벌이 전부
+    `unique 0/8` 이었던 자리가 여기다: **좁히지 못하는 축으로 좁히려 했다.**
+
+    실측(`_filled` 표·2026-08-24): checking 11행 16축 = 채움 100% 2 · ≥80% 5 · ≥50% 4 · <50% 4 ·
+    0% 1 · savings 9행 16축 = 100% 3 · ≥80% 1 · ≥50% 1 · <50% 4 · **0% 7**(전부 계좌-체킹 어휘).
+    """
+    n, cov = 0, collections.Counter()
+    for _cls, row in (tbl or {}).items():
+        if not isinstance(row, dict):
+            continue
+        if fams and (row.get("_family") not in fams):
+            continue
+        n += 1
+        for at, c in row.items():
+            if isinstance(c, dict) and c.get("values"):
+                cov[at] += 1
+    return ({at: cov[at] / float(n) for at in cov} if n else {}), n
+
+
+ARMS = ("A_cur", "B_cov100", "B_cov80", "B_cov50", "C_neg")
+
+
+def arm_attrs(tbl, fams, arm, caps=None):
+    """팔이 정하는 **허용 축 집합** → set. 선택은 닫힌 술어뿐이다(채움 비율 비교 하나).
+
+      `A_cur`     현행 — `table_caps` 가 올리는 전부(값이 한 행이라도 있으면)
+      `B_cov100`  채움 100% 인 축만
+      `B_cov80`   채움 ≥80%
+      `B_cov50`   채움 ≥50%
+      `C_neg`     **부정통제**([[57]]) — `B_cov80` 과 **같은 개수**를 채움이 가장 **낮은** 쪽에서
+                  고른다. 팔이 사는 것이 *축의 개수*인지 *채움*인지 가른다. 개수가 사는 것이면
+                  C_neg 도 같이 오르고, 그러면 이 팔은 아무것도 증명하지 못한 것이다.
+
+    ⚠임계는 gold 를 보고 고르지 않았다([[23]]) — 세 칸을 **쓸어서** 곡선으로 보고한다. 어느 칸이
+      제일 낫더라는 사후 선택을 레버로 승격시키지 마라.
+    """
+    caps = table_caps(tbl, fams) if caps is None else caps
+    base = {k for k in caps if caps.get(k)}
+    if arm == "A_cur":
+        return base
+    cov, _n = family_coverage(tbl, fams)
+    if arm == "B_cov100":
+        return {k for k in base if cov.get(k, 0.0) >= 1.0}
+    if arm == "B_cov80":
+        return {k for k in base if cov.get(k, 0.0) >= 0.8}
+    if arm == "B_cov50":
+        return {k for k in base if cov.get(k, 0.0) >= 0.5}
+    if arm == "C_neg":
+        k80 = len([k for k in base if cov.get(k, 0.0) >= 0.8])
+        low = sorted(base, key=lambda k: (cov.get(k, 0.0), k))
+        return set(low[:k80])
+    raise SystemExit("unknown arm %r (choose from %s)" % (arm, ", ".join(ARMS)))
+
+
 def _cmp(cell, op, target):
     """한 칸을 한 수와 비교한다 — 값이 없거나 기준이 없으면 **거르지 않는다**(과차단 방지)."""
     v = cellval(cell)
@@ -610,6 +670,8 @@ def main():
     ap.add_argument("--repeat", type=int, default=1,
                     help="같은 코드로 N회 반복 — **판정선**(무처치 변동폭)을 잰다")
     ap.add_argument("--args-filter", default="account_class")
+    ap.add_argument("--arm", default="A_cur",
+                    help="menu arm: %s (default A_cur = 종전 거동)" % ", ".join(ARMS))
     a = ap.parse_args()
 
     # ★기본 표 정정(2026-08-20 밤): 오후에 코퍼스 전수로 완성한 표는 `_filled` 에 쓰이는데 여기는
@@ -653,8 +715,12 @@ def main():
           tbl = card_table()[0] if c["arg"] == "card_type" else table
           fams = arg_families(c["arg"])
           caps = table_caps(tbl, fams)
+          # PALM: menu axes chosen by fill-rate (arm_attrs). menu/check/engine must see the
+          # SAME set (C553 turned that mismatch into a silent wipeout) -> narrow caps first.
+          _allowed = arm_attrs(tbl, fams, a.arm, caps)
+          caps = {k: v for k, v in caps.items() if k in _allowed}
           body = ("# Customer's own words\n%s\n\n# Attribute names you may use\n%s\n"
-                  % (said[:6000], attr_menu_for(c["arg"], tbl)))
+                  % (said[:6000], attr_menu_for(c["arg"], tbl, _allowed)))
           spec = ask(a.port, sysmsg, body)
           allow = {k: sorted(v) for k, v in caps.items()}   # ★속성만이 아니라 **op 능력**까지 검산한다
           cons, bad, dropped, dropped_full = check_spec(spec, said, allow)
@@ -708,7 +774,8 @@ def main():
           #   그 셋을 전부 `Silver Plus Account` 의 적중으로 셌다 — 채점기가 후해지면 결론이 무효다([[25]]).
           hit = [x for x in surv_filter if clsname(x) == clsname(c["gold"])]
           win_hit = bool(winners) and any(clsname(x) == clsname(c["gold"]) for x in winners)
-          rows.append({"task": c["task"], "trial": c["trial"], "gold": c["gold"],
+          rows.append({"arm": a.arm, "menu_attrs": sorted(_allowed),
+                       "task": c["task"], "trial": c["trial"], "gold": c["gold"],
                        "objective": obj if winners else None,
                        "scores": {k: round(v, 4) for k, v in (score or {}).items()},
                        "n_constraints": len(cons), "n_rejected": len(rejected.get((c["task"], c["trial"])) or []),
@@ -746,16 +813,24 @@ def main():
                                                       con.get("value"), str(con.get("because"))[:60]))
       n = len(rows)
       if n:
-          print(chr(10) + '  ★[%d회차] 스펙이 gold 를 남긴 사례 **%d/%d** · 유일하게 고른 사례 **%d/%d**'
-                % (_rep + 1, sum(x['gold_in'] for x in rows), n, sum(x['unique'] for x in rows), n))
+          print(chr(10) + '  ★[%s · %d회차] gold 를 남긴 사례 **%d/%d** · 유일하게 고른 사례 '
+                '**%d/%d** · 미결정 %d · 메뉴 축 중앙값 %d'
+                % (a.arm, _rep + 1, sum(x['gold_in'] for x in rows), n,
+                   sum(x['unique'] for x in rows), n, sum(x['undecidable'] for x in rows),
+                   sorted(len(x['menu_attrs']) for x in rows)[n // 2]))
       all_rows.append(rows)
     rep = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026")
     outs = []
     for k, rws in enumerate(all_rows):
         # 1회면 정본 이름, 여러 회면 회차별 파일(확대 표본이 쓰던 이름 그대로).
         # ⚠재런은 **다른 이름**으로 — 커밋된 산출물을 조용히 덮어쓰면 인용의 근거가 사라진다([[30]]).
-        name = ("x431_spec_selects.json" if len(all_rows) == 1
-                else "x431_%s%d.json" % (a.tag, k + 1))
+        # 팔이 기본이 아니면 **다른 이름**으로 — 커밋된 A_cur 산출물을 조용히 덮으면
+        # 인용의 근거가 사라진다([[30]]).
+        if a.arm != "A_cur":
+            name = "x431_%s_%s%d.json" % (a.arm.lower(), a.tag, k + 1)
+        else:
+            name = ("x431_spec_selects.json" if len(all_rows) == 1
+                    else "x431_%s%d.json" % (a.tag, k + 1))
         q = os.path.abspath(os.path.join(rep, name))
         with io.open(q, "w", encoding="utf-8") as f:
             json.dump(rws, f, ensure_ascii=False, indent=1)
