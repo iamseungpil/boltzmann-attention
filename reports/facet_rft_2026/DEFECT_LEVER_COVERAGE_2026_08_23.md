@@ -300,6 +300,75 @@ open_bank_account_4821
 
 ---
 
+## §4e ★포렌식이 "못 풀었다"고 한 물음 넷 — 셋을 닫았다 (2026-08-23)
+
+사용자 지시: *"074는 정책문서와 KB 읽어서 계산해보면 되는 거 아닌가? deny 본문이 영속 메시지에
+안 남는 건 코딩 버그 아닌가? 003_0 의 문제도 정책문서와 KB 문서 읽으면 답이 나온다.
+문자열 강제 변환이 DB 해시에 남는지는 코딩 리뷰하면 나온다. 지금 하라."*
+
+### ⓐ bool↔문자열이 DB 해시에 남는가 → **남는다. 그리고 에러도 안 난다** (리모트 실험)
+`KnowledgeTools` 를 직접 세워 같은 도구를 값만 바꿔 부르고 `get_db_hash()` 를 비교했다:
+```
+입력 False   → 저장 False   → db748ea1…
+입력 'No'    → 저장 'No'    → ef203b44…   다른 해시
+입력 'no'    → 저장 'no'    → 68b4cfc2…   다른 해시
+입력 'N/A'   → 저장 'N/A'   → 1edb8b4e…   다른 해시 · **도구는 성공을 반환한다**
+```
+도구 시그니처는 `contacted_merchant: bool` 인데 **호출 경로에 강제변환·검증이 없다**
+(`Tool.__call__` → `_call` 직행 · pydantic 모델은 스키마 생성용일 뿐). 값은 축자로 저장되고
+`get_db_hash = get_dict_hash(db.model_dump())` 라 표기가 다르면 해시가 갈린다.
+⇒ **타입이 어긋나면 조용히 성공하고 조용히 reward 를 잃는다.**
+⚠**단 표적은 0이다**: 코퍼스 760 sim · WRONGARG↔gold 대조 516건 중 *"의미는 같고 표기만 다른 bool"*
+**0건**. 기전은 실재하나 현 코퍼스에서 손실을 만들지 않는다 ⇒ [[31]] 규칙 4, 레버를 짓지 않는다.
+
+### ⓑ `[OFFICIAL-NAME]` deny 가 영속 messages 에 안 남는 것 → **버그가 아니라 설계. 단 기록이 끊겼다**
+우리 deny 는 `work`(재생성 버퍼)로 가고 `_gen(self, work, …)` 로 모델에게 전달된다 —
+`state.messages` 에는 안 들어간다(비커밋). 그래서 C596 이 *"결정점 재생으로는 우리 층 문면이
+안 실린다"* 고 적은 것이다. **기록 장치는 이미 있다**: `t2_fbsidecar.record_many(fb, …, channel="unified_regen")`.
+사이드카 96 파일이 실재하고 그중 18 런에 `[OFFICIAL-NAME]` 이 기록돼 있다. **다만 t7305(08-17)
+이후 어느 러너도 회수하지 않았다** ⇒ 코딩 버그가 아니라 **회수 배선 누락**이고, 그 배선은
+`run_t7347_…sh` 에 이미 들어 있다(라이브 미실행).
+
+사이드카가 실물을 보여 준다 — 그리고 그 자체가 발견이다:
+```
+turn 30  Error: [OFFICIAL-NAME] 'True Blue Account' is not one of the official account_class names…
+         names on file: Beige, Cobalt Blue, …, True Blue, World Blue
+         "Do not add or drop words such as 'Account' - the name on file is the whole name."
+turn 32  **같은 값으로 재발**  (arrived: True — 도달했다)
+다른 예   'Gold Saver' 거부 · 정식명 'Gold Saver Account'   ← 반대 방향
+```
+
+### ⓒ 코퍼스 최대 WRONGARG 의 정체 → **`account_class` 상품 선택** (표기 문제가 아니다)
+`open_bank_account_4821` WRONGARG **160건 중 159건이 단일 인자 `account_class`**:
+```
+Gold Account            ↔ Silver Plus Account   27
+Green Fee-Free Account  ↔ Purple Account        27
+Green Account (savings) ↔ Silver Plus Account   25
+Hunter Green            ↔ Sky Blue               8
+```
+접미사 표기가 아니라 **완전히 다른 상품**이다.
+
+### ⓓ 그 상품이 문서에서 도출 가능한가 → **가능하다. ⋈ 경계가 아니다** (055 축자)
+```
+손님[1] 국제 출장 3–4회/년 · 해외 ATM 수수료 환급 · 해외 거래 수수료 없는 것 · 3천 유지 가능
+손님[2] "**Green Fee-Free Account** 가 최적이라면 그걸로 하자"   ← 우리 추천을 손님이 수락
+gold    checking = Purple Account · savings = Silver Plus Account
+```
+⇒ **손님이 고른 것이 아니라 우리가 틀리게 추천한 것을 손님이 받아들였다.** 결정점은 msg[2] 가
+아니라 **그 앞 추천 턴**이다. 그리고 요구는 구체 수치다 — savings 는 *"주 3–4회 인출·수수료 없이"*
+이고 `doc_savings_accounts_silver_plus_account_001` 은 **월 무료 인출 15회**를 표로 준다
+(주 3–4회 ≈ 월 13–17). **요구↔스펙 대조는 닫힌 수치 비교**다.
+
+⇒ 이 축은 `의미 소속 판정 불가`(경계)가 **아니다**. 스펙 표와 손님의 수치 요구를 맞추는
+**검산 미실행**이다. 그리고 그 자리의 셀(`계산 이관`·`출처 근거 확보`) 레버는 **발화하고 있다**(§4d).
+⇒ [[62]] ① — **격리 프로브**: 추천 턴에서 요구 + 스펙 문서를 손에 쥔 모델이 상품을 맞히는가.
+   ⚠컷은 **손님이 이름을 말하기 전**(msg[2] 앞)이어야 한다. 그 뒤를 컷으로 잡으면 답이 새어 있다.
+
+### 남은 하나
+ⓔ **074 의 gold 4.75/3.70 이 어디서 오는가** — 아직 못 풀었다. 정책 문서 + 원장 재계산이 다음.
+
+---
+
 ## §5 채워야 할 것 — 유한 목록
 
 ```
