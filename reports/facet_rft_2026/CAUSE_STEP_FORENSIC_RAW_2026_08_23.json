@@ -3,7 +3,7 @@
  "workflow": "cause-step-forensics",
  "started": "2026-08-23 15:33",
  "harvested": "2026-08-23 18:35",
- "note": "세션 종료 시 소실되므로 저널에서 건져 영속화. Trace 8/8 · Refute 1/8.",
+ "note": "세션 종료 시 소실되므로 저널에서 건져 영속화. Trace 8/8 · Refute 1/8. || 2026-08-24: 인용 검산 1팔을 8 Trace 전체에 돌려 refutations 에 추가(귀속 반증은 미완 — 승격 0).",
  "traces": [
   {
    "cause": "이 스텝의 실패는 **한 원인이 아니라 세 원인이 겹쳐 있고, 축이 다르다**. 궤적 단위로 갈리는 지점은 \"계좌\"가 아니라 **증거-도구가 그 계좌에 대해 돌려준 상세 행의 개수와 판정 가능성**이다.\n\n① **reach(가장 큰 덩어리)** — `get_atm_fee_discrepancies` 가 비어 있지 않은 상세를 돌려줬는데도 `apply_checking_account_credit_5829` 를 **한 번도 시도하지 않고** 손님에게 \"적용했다\"고 말한다. 코퍼스 mode 표(`mode.py`·`F.iter_all_sims`): 072 reach 51/77 · 073 reach 31/61 · 074 reach 35/46. 축자(`bank_t7326_halfA_20260819q|task_073#s626729`, 쓰기 호출 0건): *\"These corrections have been applied to your accounts.\"* · 축자(`bank_t7336_halfB_20260821b|task_074#s373753`): *\"It appears that I mentioned applying credits but did not actually execute the steps to apply them.\"* 이 축이 곧 x495 에서 `T2_ACT_DEMAND` 가 073 의 세 스텝을 −0.40 으로 민 자리다.\n\n② **argument = 합산 단위(라인 ↔ 계좌)** — 쓰기까지 간 sim 중 `amount` 만 갈린다. 정책 축자(env 문서·`shell grep 'refund'` 결과): *\"The apply_checking_account_credit_5829 tool may only be called ONCE per checking account per customer interaction … combine them into a single credit with the total amount\"*. 우리 도구 반환문도 매 호출 *\"the credit policy requires ONE fee_refund credit for the net correction of THIS account\"* 를 싣는다. 그런데 miss 런은 라인별로 쪼개 부른다. **산수는 틀리지 않았다** — 쪼갠 런도 마지막에 정확히 9.50/9.00/1.50 을 말한다.\n\n③ **argument = 값 자체가 우리 층에서 못 나온다(074·072_7)** — 072_7 은 84 sim 전부에서 `amount=12`(우리 도구가 판정한 수수료 차액 합 0.50+3.50+8.00) 이고 gold 는 `14`; 우리 A2 는 환급 상계를 **의도적으로 비활성**(`_note_rebate_field`)해 두고 그 몫을 문장으로만 위임한다 → 84/84 미이행. 074 는 4 aid 모두 **MATCHED 0건**이며, `Light Blue Account` 는 우리 op 의 `oon`/`forx` 두 case 가 모두 `null` 이라 13행 중 12행이 판정불가 → 모델은 우리가 유일하게 판정한 rho 오부과 $2.50 만 크레딧(gold 14.50).",
@@ -1301,6 +1301,48 @@
     "**(신규 후보) report_fanout — 갈림의 첫 관측 가능 자리.** 증거-도구 결과를 **몇 개의 엔티티에 대해 한 assistant 턴에 묶어 보고했는가**. 073 HIT 은 1계좌/턴(msg31 Blue 만 → 손님 턴 → msg33 에서 $9.50 로 접음) · MISS 는 3계좌/턴(msg41). 관측 = 한 assistant 메시지 안에서 언급된 엔티티 키 수(도메인 어휘 0·엔진 판단 0). ⚠n=2 이므로 코퍼스 전수로 부호표를 먼저 재야 한다."
    ],
    "chain_note": "**사슬 판정 — 쓰기 사슬은 없고, 읽기/계산 사슬은 있다.**\n\n`x494_step_ledger.json` 에서 072·073·074 의 gold **변이** 스텝을 전수로 뽑으면 선행 스텝은 `log_verification` 하나뿐이고 그 miss율은 072 6/66(0.09·안정) · 073 0/52(0.00·안정) · 074 4/38(0.11·안정)이다. 즉 `apply_checking_account_credit_5829` 의 miss 는 **앞선 write 가 빠져서 생긴 것이 아니다** — reach 실패를 앞 변이 스텝으로 돌릴 수 없다.\n\n대신 **채점되지 않는 읽기/계산 단계에 진짜 사슬이 있다**. `bank_t7346_halfA_20260822|task_072#s626729` 은 `chk_lj82d4f1a9` 의 거래를 읽고도 `get_atm_fee_discrepancies` 를 그 계좌로 **0회** 부른 뒤 *\"no discrepancies were found for this account\"* 라고 단언했다. 072_7 의 write miss 는 그 미실행 검사의 하류다. 같은 형태가 074 에서는 **우리 층 안에서** 일어난다 — Light Blue 12/13 판정불가가 상류이고, 모델이 $2.50 만 쓴 것은 하류다(gold 14.50). 즉 이 스텝의 사슬 마디는 *\"어느 계좌에 대해 검사 도구가 실제로 판정을 냈는가\"* 이고, reward 축(DB 해시)이 그 마디를 안 재기 때문에 x494 에는 흔적이 없다.\n\n**따라서 후속 실험 설계 지침 두 가지.** ⑴ 이 스텝을 짝으로 실험할 때 상태 변수는 `apply_...` 의 호출 여부가 아니라 **(계좌, 판정된 행 수)** 여야 한다 — x494 에 그 마디를 넣지 않으면 원인은 계속 부유한다. ⑵ 073 HIT/MISS 를 '모델 차이' 로 쓰기 전에 우리 층 부정통제가 먼저다: 두 sim 은 같은 sha·같은 플래그인데 T2_LEVER 발화가 15↔22 로 갈렸고, MISS 쪽에서만 우리가 turn=45 에 `apply_checking_account_credit_5829` 라는 이름을 **알면서 지목을 거부**했다. 그 팔을 끄고 같은 seed 를 다시 돌리기 전에는 이 쌍을 대조군으로 쓸 수 없다([[55]]·[[62]])."
+  },
+  {
+   "cause": "**Trace 8종 전체에 대한 기계적 반증 1팔(인용 검산) + Trace 0 처방 1건의 반증.** 2026-08-24. 워크플로가 끝나며 Refute 7종이 소실됐으므로([[31]] 규칙 6 = 반증 전 승격 금지) 먼저 **기계로 되는 부분**부터 이었다. 남은 팔(귀속 다툼·대안 설명)은 아직 안 돌았다 — 따라서 **이 항목은 어떤 후보도 승격시키지 않는다.**",
+   "method": "`scripts/distill/tau2/x497_refute_quotes.py`(오프라인·모델 0). 8 Trace 의 모든 `evidence_quote`·`our_layer_claims[].anchor` 에서 축자 조각을 뽑아 ⓐ그 sim 의 메시지 덤프 ⓑ그 런의 로그 ⓒ앵커가 이름을 댄 repo 파일을 **그 런의 엔진 sha 판으로** 검색한다. 판단은 없다 — 있으면 FOUND, 없으면 MISSING 으로 세기만 한다([[59]]·[[66]] 인용-근거 동형). 가리키기(`a.b.c` 선언 경로)·코드 템플릿(`%d`)·인용 구분자 안에 섞여 든 분석자 한국어 서술은 축자 판정에서 **제외**하고 따로 센다 — 셋을 같은 잣대로 재면 반증이 틀린다.",
+   "quote_check": "**축자 조각 %d 중 %d 확인 · %d 미확인.** 미확인을 전수 육안 대조한 결과 **날조로 판정된 것은 0건**이다 — 남은 것은 전부 ⓐ중첩 JSON 을 따옴표로 쪼갠 추출 아티팩트(`CALL … {` / `} → msg40 tool`) ⓑ분석자가 한 줄로 재구성한 선언·명령(`zcat … | grep`, `{\"write\": …}` — 파일은 indent=1 이라 한 줄 형태로는 안 맞는다) ⓒ정규식 이스케이프(`\\[T2_GROUND\\]`)다. 완료돼 있던 Refute 1종이 손으로 낸 판정(*'날조 0건'*)과 같은 결론이고, 이번에는 8 Trace 전체가 대상이다. ⚠이것이 말하는 것은 **인용이 실재한다**는 것뿐이고, 그 인용이 결론을 지지하는지는 아직 안 잰다.\n\nTrace 0 apply_checking_account_credit_5829: 확인 50 · 미확인 2\nTrace 1 open_bank_account_4821: 확인 80 · 미확인 13\nTrace 2 apply_for_credit_card: 확인 58 · 미확인 26\nTrace 3 submit_cash_back_dispute_0589: 확인 75 · 미확인 14\nTrace 4 file_credit_card_transaction_dispute_4829: 확인 62 · 미확인 4\nTrace 5 file_debit_card_transaction_dispute_6281: 확인 80 · 미확인 12\nTrace 6 deposit_check_3847: 확인 52 · 미확인 24\nTrace 7 freeze_debit_card_3892: 확인 28 · 미확인 14",
+   "verdicts": [
+    {
+     "claim": "[Trace 0 처방] 수리는 ①월 무료 풀 소비 축 ②**음수 delta 제외** 규칙을 함께 선언하는 것이다",
+     "verdict": "REFUTED (②만)",
+     "why": "①은 옳고 그대로 구현됐다. ②는 틀렸다 — 부과됐어야 하는데 줄이 없는 인출은 **환급액을 깎는** 실물이고, gold 가 그 순액이다. 음수 delta 를 빼면 5계좌가 깨진다(실측): 072 Light Green 5.00↔3.50 · 073 Light Green 3.00↔1.50 · 074 Light Blue 17.00↔14.50 · 074 Dark Green 7.50↔4.75 · 074 Evergreen 6.50↔3.70. 검정 = `test_atm_ledger_close.py` §부정통제([[57]]).",
+     "rescue": "처방을 *'②음수 delta 를 **무료 횟수 안에서만** 배제한다'* 로 고치면 산다 — 실제 수리가 그것이다. 무료 한도 안의 인출은 요율이 0 이라 애초에 음수가 나지 않는다."
+    },
+    {
+     "claim": "[Trace 0 claim] `oon.cases`/`forx.cases` 의 `Light Blue/Light Green = null` 이 판정을 지운다",
+     "verdict": "CONFIRMED",
+     "why": "런 sha `ee18d797` 의 A2 에 그 두 줄이 실재한다(x497 이 sha 판으로 확인). 그리고 **같은 파일의 형제 도구** `get_checking_atm_fee_totals.op.table` 은 같은 값을 이미 갖고 있었다 — Light Green `oon_free_per_month: 4`·Light Blue `2`·해외 `2`. 즉 결손은 지식이 없어서가 아니라 **한 파일 안에서 두 도구가 갈라져 있어서**였다([[67]] '사본은 조용히 갈라진다'). 2026-08-24 수리가 discrepancies 쪽을 형제 표와 일치시켰고, 값이 서로 독립 저작이라 일치 자체가 교차검증이다.",
+     "rescue": "-"
+    },
+    {
+     "claim": "[Trace 0 claim] 환급 축은 A2 에서 의도적으로 비활성이고 그 위임의 이행률은 0/84 다",
+     "verdict": "CONFIRMED (분모는 미검산)",
+     "why": "비활성 선언은 축자로 실재했고(`op._note_rebate_field` = 2026-08-15 보류), 2026-08-24 에 **해제**됐다(`op.rebate` 순액). 다만 '0/84' 의 84 는 이미 같은 워크플로의 완료 Refute 가 *'gold 를 가진 sim 은 77'* 로 정정한 분모다 — 숫자는 재검산 대상으로 남긴다.",
+     "rescue": "-"
+    }
+   ],
+   "surviving_our_layer": [
+    "**[미판정]** Trace 1~7 의 우리-층 주장 32건은 **인용 실재만** 확인됐다. 귀속 다툼(대안 설명·falsifier 실행)은 아직 안 돌았으므로 [[31]] 규칙 6 에 따라 **하나도 승격하지 않는다**.",
+    "**[CONFIRMED·수리 완료]** Trace 0 의 클래스 기권 = 2026-08-24 커밋으로 닫힘(9계좌 gold 일치)."
+   ],
+   "surviving_predicates": [
+    "**[보류]** 8 Trace 가 낸 닫힌-술어 후보 54개는 이 팔로는 판정되지 않는다. 인용이 실재한다는 것과 술어가 도메인-일반하게 닫혀 있다는 것은 다른 물음이다([[22]])."
+   ],
+   "chain_note": "다음 팔(남은 7 Trace 의 귀속 반증)은 궤적 재정독 없이 회수된 Trace 를 재료로 돌릴 수 있다 — 그것이 워크플로를 접고 Trace 만 건진 이유다. 이 항목이 그 재실행의 **1단계 산출**이다.",
+   "provenance": {
+    "probe": "scripts/distill/tau2/x497_refute_quotes.py",
+    "output": "reports/facet_rft_2026/x497_refute_quotes.json",
+    "fragments_checked": 594,
+    "found": 485,
+    "missing": 109,
+    "pointers_excluded": 105,
+    "date": "2026-08-24"
+   }
   }
  ]
 }

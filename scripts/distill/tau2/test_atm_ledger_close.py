@@ -224,6 +224,22 @@ def main():
                          w(3, 100, "foreign"), w(4, 100, "foreign")])
     chk(ids == [], "light_blue 타행·해외 무료 풀은 **분리**(각 2건까지 무료)", ids)
 
+    print("\n[부정통제 — **음수 delta 를 빼면 gold 가 깨진다**([[57]])]")
+    #   2026-08-23 포렌식(Trace 0)의 처방 축자: *"수리는 … ①월 무료 풀 소비 축 ②**음수 delta 제외**
+    #   규칙을 함께 선언하고 …"*. ①은 옳았고 **②는 틀렸다** — 미부과는 환급액을 **깎는** 실물이다.
+    #   이 블록이 그 처방의 반증이자, 앞으로 같은 '수정'이 들어오면 잡는 자물쇠다([[31]] 규칙 6).
+    for label, cls, gold, rows in LEDGERS:
+        _i, _s, det = run(cls, rows)
+        pos = round(sum(d["delta"] for d in det if d["delta"] > 0), 2)
+        if abs(pos - gold) > 1e-6:
+            chk(True, "%s  음수 제외 %.2f ≠ gold %.2f" % (label, pos, gold))
+        else:
+            chk(True, "%s  (음수 없음 — 이 계좌는 부정통제 대상이 아니다)" % label)
+    _dg = [x for x in LEDGERS if x[0].startswith("074 Dark Green")][0]
+    _i, _s, det = run(_dg[1], _dg[3])
+    chk(round(sum(d["delta"] for d in det if d["delta"] > 0), 2) == 7.50,
+        "074 Dark Green: 음수를 빼면 7.50 이 되어 gold 4.75 를 3.75 초과 환불한다")
+
     print("\n[환급 축 — 방향·상한·기권은 `test_rebate_netting.py` 가 고정한다(중복 금지·[[67]])]")
     _i, _s, det = run("Bluest Account", [w(14, 100, "non_rho", 2.00, reb=0.0)])
     chk(det and det[0]["delta"] == 2.00, "072 Bluest 11/14 = 우리가 놓쳤던 그 칸(+2.00)", det)

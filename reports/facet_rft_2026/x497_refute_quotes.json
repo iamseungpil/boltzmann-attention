@@ -1,0 +1,2284 @@
+{
+ "source": "CAUSE_STEP_FORENSIC_RAW_2026_08_23.json",
+ "run": "wf_44a4979c-6c4",
+ "traces": [
+  {
+   "index": 0,
+   "tool": "apply_checking_account_credit_5829",
+   "modes": [
+    {
+     "sim": "bank_t7346_halfA_20260822|task_072#s626729",
+     "aid": "072_7",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfA_20260822|task_072#s626729",
+     "aid": "072_8",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfA_20260822|task_072#s373753",
+     "aid": "072_7",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 7,
+     "found": 7,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfA_20260822|task_073#s373753",
+     "aid": "073_8",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [
+      {
+       "frag": "1.5} (합 9.50). 쓰기 직전 본문",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 5,
+     "found": 4,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfA_20260822|task_073#s373753",
+     "aid": "073_9",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [
+      {
+       "frag": "} / 실제 3회 모두 {",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 3,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7326_halfA_20260819q|task_073#s626729",
+     "aid": "073_8",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7326_halfA_20260819q|task_073#s626729",
+     "aid": "073_10",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 1,
+     "found": 1,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7336_halfA_20260821b|task_073#s626729",
+     "aid": "073_8",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 7,
+     "found": 7,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_074#s626729",
+     "aid": "074_10",
+     "mode": "argument",
+     "attribution": "our_layer",
+     "pointers": [
+      {
+       "frag": "[T2_COMPUTE] select_discrepant: 12/13행 판정불가(operand가 숫자 아님) - under-action 위험",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 4,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_074#s626729",
+     "aid": "074_9",
+     "mode": "argument",
+     "attribution": "unknown",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_074#s626729",
+     "aid": "074_11",
+     "mode": "argument",
+     "attribution": "unknown",
+     "pointers": [
+      {
+       "frag": "} / 실제 3회: 4.0 · 2.0 · 1.5. 우리 도구가 준 4행",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 2,
+     "found": 1,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_074#s626729",
+     "aid": "074_12",
+     "mode": "argument",
+     "attribution": "unknown",
+     "pointers": [],
+     "n_frag": 1,
+     "found": 1,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7336_halfB_20260821b|task_074#s373753",
+     "aid": "074_9",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    }
+   ],
+   "claims": [
+    {
+     "claim": "A2 `get_atm_fee_discrepancies` 의 op 가 `Light Blue Account` 클래스의 수수료 스케줄을 **선언하지 않아**(oon·forx 둘 다 null) 그 클래스의 non_rho/foreign 수수료 행이 전부 판정불가가 된다. 그 결과 074 의 chk_ar72c5d8e3_2 는 13행 중 12행이 미판정이고 모델은 우리",
+     "files": [
+      "specific.json"
+     ],
+     "shas": [
+      "c273d93f",
+      "ee18d797"
+     ],
+     "n_frag": 12,
+     "found": 9,
+     "missing": [
+      "{\"account_class\": \"Light Blue Account\", \"oon_fee\": 2.5, \"oon_free_per_month\": 2, \"forx_fee\": 4.0, \"forx_free_per_month\": 2, \"source\": \"doc light_blue_account_004/_006\"}"
+     ],
+     "pointers": [
+      {
+       "frag": "get_atm_fee_discrepancies.op.steps.oon.cases",
+       "kind": "path"
+      },
+      {
+       "frag": "get_checking_atm_fee_totals.op.table",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": [
+      "\"Light Green Account\": null, \"Light Blue Account\": null",
+      "\"Light Blue Account\": null",
+      "[coverage] 1 of 13 rows were checked (12 could not be verified)"
+     ]
+    },
+    {
+     "claim": "판정불가 사유를 알리는 우리 문구가 **원인을 모델에게 잘못 귀속**한다. `select_discrepant` 는 `en`(우리가 계산한 기대값)이 None 이든 `act`(모델이 넘긴 값)가 None 이든 같은 한 문장을 찍는다 — \"operand가 숫자 아님\". Light Blue 사례는 `en is None`(우리 case 표에 그 클래스가 없음)인데",
+     "files": [
+      "t2_compute.py"
+     ],
+     "shas": [
+      "c273d93f",
+      "ee18d797"
+     ],
+     "n_frag": 4,
+     "found": 1,
+     "missing": [],
+     "pointers": [
+      {
+       "frag": "[T2_COMPUTE] select_discrepant: %d/%d행 판정불가(operand가 숫자 아님) - under-action 위험",
+       "kind": "format"
+      },
+      {
+       "frag": "print(\"[T2_COMPUTE] select_discrepant: %d/%d행 판정불가(operand가 숫자 아님) - under-action 위험\" % (skipped, len(recs))",
+       "kind": "format"
+      },
+      {
+       "frag": "[sim=task_074#s626729] [T2_COMPUTE] select_discrepant: 12/13행 판정불가(operand가 숫자 아님) - under-action 위험",
+       "kind": "prose"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "환급(rebate) 축은 우리 A2 에서 **의도적으로 비활성**이고 그 몫은 도구 반환 산문으로만 위임되는데, 그 위임의 이행률은 코퍼스에서 **0/84** 다. 072 의 Bluest 계좌는 30 sim 이 `amount=12`(우리가 판정한 수수료 차액 합)를 쓰고 `14`(gold)는 84 sim 중 0회다. 074 의 Purple 도 24.50↔g",
+     "files": [
+      "scan.py",
+      "specific.json"
+     ],
+     "shas": [
+      "c273d93f",
+      "ee18d797"
+     ],
+     "n_frag": 6,
+     "found": 2,
+     "missing": [
+      "task_072: chk_lj82d4f1a9 12 x30 · chk_lj82d4f1a9 14 x0"
+     ],
+     "pointers": [
+      {
+       "frag": "2026-08-15 보류: 환급 차감은 근거(x323 n=24·072 원장 검산 14.00=gold)가 충분하나",
+       "kind": "prose"
+      },
+      {
+       "frag": "⇒ 선언을 빼서 비활성으로 두고, 서브 추출률을 먼저 측정한 뒤 되살린다",
+       "kind": "prose"
+      },
+      {
+       "frag": "get_atm_fee_discrepancies.op._note_rebate_field",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": [
+      "This tool did NOT check whether any rebate is missing",
+      "check the account's rebate policy against the fee_rebate lines yourself before crediting"
+     ]
+    },
+    {
+     "claim": "`[T2_SG_ISOLATE] operand-size … ⚠MISMATCH` 마커는 **비교 불가능한 두 분모**를 대조하므로 행 손실의 증거로 읽으면 안 된다. 서브는 A2 지시대로 `atm_fee` 라인만 산출하는데 분모는 레코드 전수(예: 30·31·26)라 매 호출 경보가 뜬다. 실제로 reward 1.0 인 HIT sim 과 reward 0.0 인",
+     "files": [
+      "test_omitted_rows_note.py"
+     ],
+     "shas": [
+      "c273d93f",
+      "ee18d797"
+     ],
+     "n_frag": 2,
+     "found": 1,
+     "missing": [],
+     "pointers": [
+      {
+       "frag": "⛔무효화(같은 날 자기 반증): 분모가 비교 불가여서 없는 누락을 주장했다. 072 실측 - 계좌 A 레코드 32 중 `atm_fee` 8(서브 8행=정확)",
+       "kind": "prose"
+      }
+     ],
+     "gone_at_head": [
+      "[sim=task_073#s626729] [T2_SG_ISOLATE] operand-size get_atm_fee_discrepancies.transactions: sub=10 rows · source=30 rows ⚠MISMATCH"
+     ]
+    }
+   ],
+   "sim_errors": []
+  },
+  {
+   "index": 1,
+   "tool": "open_bank_account_4821",
+   "modes": [
+    {
+     "sim": "bank_t7346_halfA_20260822|task_055#s373753",
+     "aid": "055_5",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 8,
+     "found": 5,
+     "missing": [
+      "CALL call_discoverable_agent_tool {",
+      "} → msg40 tool",
+      "gold 055_5 = {"
+     ]
+    },
+    {
+     "sim": "bank_t7346_halfA_20260822|task_055#s626729",
+     "aid": "055_4",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 4,
+     "found": 4,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7305_treat_20260817a|task_055#s363271",
+     "aid": "055_5",
+     "mode": "argument",
+     "attribution": "our_layer",
+     "pointers": [
+      {
+       "frag": "[sim=task_055#s363271] [T2_WRITE_ARG_ENUM] deny val='Beige Savings Account' group=savings_accounts (후보 9)",
+       "kind": "prose"
+      },
+      {
+       "frag": "[T2_LEVER] T2_WRITE_ARG_ENUM sim=task_055#s363271 (이후 무음)",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 5,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7276_b_20260813x|task_075#s626729",
+     "aid": "075_2",
+     "mode": "argument",
+     "attribution": "our_layer",
+     "pointers": [
+      {
+       "frag": "[sim=task_075#s626729] [T2_WRITE_ARG_ENUM] deny val='Green Fee-Free Account' group=checking_accounts (후보 11)",
+       "kind": "prose"
+      },
+      {
+       "frag": "이라고 거절했다. 같은 sim 의 실제 성공 호출은 account_class='Green Fee-free Account'(소문자 f)였고 reward=0.0. 슬러그→표시명 구판 `w.capitalize()` 산출물과 바이트 동일하다(test_slug_disp.py 축자",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 4,
+     "found": 1,
+     "missing": [
+      "w.capitalize()"
+     ]
+    },
+    {
+     "sim": "bank_t7296_ctl_20260815p|task_071#s373753",
+     "aid": "071_4",
+     "mode": "argument",
+     "attribution": "env",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 1,
+     "missing": [
+      "Internal: Opening Business Checking Accounts ID: doc_bank_accounts_bank_accounts_(general)_003",
+      "3. Confirm the customer's desired account_class selection. - Business checking account_class options include Navy Blue, Cobalt Blue, True Blue, etc"
+     ]
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_063#s626729",
+     "aid": "063_3",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_057#s626729",
+     "aid": "057_4",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 6,
+     "found": 6,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7293_b_20260814q|task_075#s626729",
+     "aid": "075_2",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7291_b_20260814n|task_075#s626729",
+     "aid": "075_2",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [
+      {
+       "frag": "다음 메시지 msg35 = 손님",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 8,
+     "found": 7,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7295_a_20260815n|task_069#s626729",
+     "aid": "069_2",
+     "mode": "blocked",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 6,
+     "found": 6,
+     "missing": []
+    },
+    {
+     "sim": "bankxfer_floor_bank_t4|task_069#s626729",
+     "aid": "069_2",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    }
+   ],
+   "claims": [
+    {
+     "claim": "`T2_WRITE_ARG_ENUM` 의 sim 당 상한(`T2_WRITE_ARG_ENUM_CAP`, 기본 3)이 소진되면 게이트가 침묵하고, **이미 집합 밖이라고 판정한 바로 그 값**이 다음 시도에 통과해 DB 를 바꾼다. fail-closed 가 재시도 한 번으로 fail-open 이 된다.",
+     "files": [
+      "t2_gate_patch.py"
+     ],
+     "shas": [
+      "ee18d797"
+     ],
+     "n_frag": 20,
+     "found": 13,
+     "missing": [],
+     "pointers": [
+      {
+       "frag": "))):` · 주석 축자 `상한 = sim 당 T2_WRITE_ARG_ENUM_CAP(기본 3) - 살아 있는 이름을 계속 거절하는 livelock 을 만들지 않기 위해서다.` || 실물 2건 - ⓐ `bank_t7305_treat_20260817a` 로그 `[sim=task_055#s363271] [T2_WRITE_ARG_ENUM] deny val='Beige Savings Account' group=savings_accounts (후보 9)` → 다음 줄 `[T2_LEVER] T2_WRITE_ARG_ENUM sim=task_055#s363271 (이후 무음)` → 궤적 msg90 `open_bank_account_4821",
+       "kind": "prose"
+      },
+      {
+       "frag": "t2_gate_patch.py",
+       "kind": "path"
+      },
+      {
+       "frag": "상한 = sim 당 T2_WRITE_ARG_ENUM_CAP(기본 3) - 살아 있는 이름을 계속 거절하는 livelock 을 만들지 않기 위해서다",
+       "kind": "prose"
+      },
+      {
+       "frag": "bank_t7305_treat_20260817a",
+       "kind": "path"
+      },
+      {
+       "frag": "[sim=task_055#s363271] [T2_WRITE_ARG_ENUM] deny val='Beige Savings Account' group=savings_accounts (후보 9)",
+       "kind": "prose"
+      },
+      {
+       "frag": "[T2_LEVER] T2_WRITE_ARG_ENUM sim=task_055#s363271 (이후 무음)",
+       "kind": "prose"
+      },
+      {
+       "frag": "bank_t7336_halfA_20260821b",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": [
+      "Beige Savings Account",
+      "\"account_class\": \"Beige Savings Account\"",
+      "Bank account opened successfully! - Account ID: 97273da81839044a",
+      "Account Class: Beige Savings Account",
+      "[sim=task_055#s373753]",
+      "deny val='Evergreen Account'",
+      "Gold Account (savings)",
+      "Evergreen Account"
+     ]
+    },
+    {
+     "claim": "`account_class` 축에서 우리가 가진 **유일한 카탈로그 비교 op** 는 개인 checking 의 ATM 수수료뿐이고, 그 표의 argmin 은 입력과 무관한 **상수**(Green Fee-Free Account)다. savings·business_checking·business_savings 축에는 비교 op 가 아예 없다.",
+     "files": [
+      "specific.json"
+     ],
+     "shas": [
+      "ee18d797"
+     ],
+     "n_frag": 10,
+     "found": 8,
+     "missing": [
+      "{\"account_class\": \"Green Fee-Free Account\", \"oon_fee\": 0.0, \"oon_free_per_month\": 0, \"forx_fee\": 0.0, \"forx_free_per_month\": 0, \"source\": \"doc green_fee-free_account_005/_002/_003\"}"
+     ],
+     "pointers": [
+      {
+       "frag": "banking_knowledge.specific.json",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "게이트가 인쇄하는 후보 명단은 doc_index 슬러그의 기계 전개라 **제품이 아닌 문서 주제**가 섞여 있다. 그 항목이 모델에게 '공식 클래스명'으로 제시된다.",
+     "files": [
+      "test_t7337_residual_debt.py"
+     ],
+     "shas": [
+      "ee18d797"
+     ],
+     "n_frag": 11,
+     "found": 7,
+     "missing": [],
+     "pointers": [
+      {
+       "frag": "policy_ontology.doc_index",
+       "kind": "path"
+      },
+      {
+       "frag": "test_t7337_residual_debt.py",
+       "kind": "path"
+      },
+      {
+       "frag": "deny val='Beige Savings Account' group=savings_accounts (후보 9)",
+       "kind": "prose"
+      },
+      {
+       "frag": "deny val='Green Fee-Free Account' group=checking_accounts (후보 11)",
+       "kind": "prose"
+      }
+     ],
+     "gone_at_head": [
+      "checking_accounts",
+      "business_savings_accounts",
+      "automatic_sweep_program",
+      "joint_business_holders_+_user_roles",
+      "savings_accounts",
+      "Beige Savings Account"
+     ]
+    },
+    {
+     "claim": "우리 계기 `t2_forensic.deny_kind` 는 우리 층 거절 표지 40여 종 중 **2종만** 우리 것으로 센다. 나머지 `Error: [MARKER]` 본문은 전부 `env` 로 귀속된다 — 즉 어떤 센서스의 `deny='env'` 칸도 그대로 믿으면 안 된다.",
+     "files": [
+      "specific.json",
+      "t2_gate_patch.py"
+     ],
+     "shas": [
+      "ee18d797"
+     ],
+     "n_frag": 10,
+     "found": 5,
+     "missing": [
+      "OURS_DENY = (\"[READ-FIRST]\", \"NOT_VERIFIED\")",
+      "ENV_FAIL_PREFIX = (\"Error:\", \"Failed to \")",
+      "a2/banking_knowledge.specific.json",
+      "^Error: \\[([A-Z0-9_-]+)\\]"
+     ],
+     "pointers": [
+      {
+       "frag": "t2_gate_patch.py",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "`T2_WRITE_ARG_ENUM` 의 deny 본문은 **영속 궤적에 한 건도 남지 않는다** — 코퍼스 109개 결과파일 전량에서 `OFFICIAL-NAME` 문자열 0건인데, 로그에는 발화가 있고 모델은 그 내용에 반응한다. 즉 이 레버는 `messages` 만 읽는 포렌식에게 **보이지 않는다**.",
+     "files": [],
+     "shas": [
+      "ee18d797"
+     ],
+     "n_frag": 14,
+     "found": 7,
+     "missing": [
+      "raw.count('OFFICIAL-NAME')",
+      "F.all_result_files()"
+     ],
+     "pointers": [
+      {
+       "frag": "bank_t7346_halfA_20260822.log.gz",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_t7333_ctl_rest_20260821c.log.gz",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_t7336_halfA_20260821b.log.gz",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_t7346_halfA|task_055#s373753",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_t7305_treat|task_055#s363271",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": []
+    }
+   ],
+   "sim_errors": []
+  },
+  {
+   "index": 2,
+   "tool": "apply_for_credit_card",
+   "modes": [
+    {
+     "sim": "bank_t7310_treat_20260818e|task_024#s626729",
+     "aid": "024_0",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 6,
+     "found": 5,
+     "missing": [
+      "{\"card_type\": \"Business Bronze Rewards Card\", \"customer_name\": \"Marcus Chen\", \"annual_income\": \"120000\", \"rho_bank_subscription\": false}"
+     ]
+    },
+    {
+     "sim": "bank_t7312_ctl_20260818g|task_024#s626729",
+     "aid": "024_0",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7334_val_hot_20260821|task_024#s626729",
+     "aid": "024_0",
+     "mode": "argument",
+     "attribution": "our_layer",
+     "pointers": [
+      {
+       "frag": "우리가 인쇄한 표의 최댓값이 Business Gold 800(gold Bronze 400). 에이전트 [4] 축자",
+       "kind": "prose"
+      },
+      {
+       "frag": "bank_t7333_treat_hot_20260821c",
+       "kind": "path"
+      },
+      {
+       "frag": "[T2_ARG_DOC_SUB] spend_category='operations' 없음 - 넘긴 문서 12편에 근거가 없다 (서브값='' 인용실재=False) ⇒ 기본 요율",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 5,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7333_treat_rest_20260821c|task_001#s626729",
+     "aid": "001_0",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 8,
+     "found": 7,
+     "missing": [
+      "'cashback_scope': 'all', 'all_purchases_rate': '2.5%'}"
+     ]
+    },
+    {
+     "sim": "bank_t7334_val_rest_20260821|task_025#s626729",
+     "aid": "025_0",
+     "mode": "argument",
+     "attribution": "our_layer",
+     "pointers": [
+      {
+       "frag": "[T2_SEARCH_ON_PROCEED] deny 아님 · 재료 263자 배달",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 5,
+     "found": 2,
+     "missing": [
+      "A separate check was run on the policy documents on record",
+      "It answers: {choice}"
+     ]
+    },
+    {
+     "sim": "bank_t7328_halfA_20260819r|task_003#s626729",
+     "aid": "003_0",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [
+      {
+       "frag": "bank_t7346_halfA_20260822",
+       "kind": "path"
+      }
+     ],
+     "n_frag": 6,
+     "found": 5,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_063#s626729",
+     "aid": "063_1",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 9,
+     "found": 7,
+     "missing": [
+      "Rho-Bank+ premium subscription required: Yes",
+      "rho_bank_subscription:false"
+     ]
+    },
+    {
+     "sim": "bank_t7295_a_20260815n|task_048#s626729",
+     "aid": "048_10",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 1,
+     "missing": [
+      "BLOCKED log_credit_card_closure_reason_4521 {",
+      "'closure_reason': 'reducing_unnecessary_rewards_programs'} |deny= env | Error: Invalid closure_reason. Must be one of: ['annual_fee', 'not_using_card', 'found_better_card', 'unhappy_with_rewards', 'simplifying_finances', 'negative_experience', 'other']"
+     ]
+    },
+    {
+     "sim": "bank_t7295_a_20260815n|task_048#s373753",
+     "aid": "048_10",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 1,
+     "found": 1,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7333_ctl_rest_20260821c|task_047#s626729",
+     "aid": "047_5",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 1,
+     "found": 0,
+     "missing": [
+      "A $25 statement credit works - please go ahead and keep the Platinum Rewards Card open. Thanks for applying that. And thank you for helping me close the Silver Zoom Card and sort this out. That worked out better than I expected. ###STOP###"
+     ]
+    },
+    {
+     "sim": "bank_t7295_a_20260815n|task_069#s373753",
+     "aid": "069_4",
+     "mode": "argument",
+     "attribution": "unknown",
+     "pointers": [],
+     "n_frag": 0,
+     "found": 0,
+     "missing": []
+    }
+   ],
+   "claims": [
+    {
+     "claim": "`T2_VALUE_FORMULA=full` 이 인쇄하는 `documented_return_for_stated_spend` 는 이 스텝에서 관측된 **가장 큰 단일 이동자**이고, 부호는 우리가 어떤 요율 위에서 곱했느냐로 결정된다. 즉 이 칸은 도움도 해도 **우리 층 산출**이다.",
+     "files": [
+      "t2_compute.py"
+     ],
+     "shas": [
+      "ee18d797"
+     ],
+     "n_frag": 8,
+     "found": 5,
+     "missing": [],
+     "pointers": [
+      {
+       "frag": ").strip().lower()` 와 `_txt =",
+       "kind": "prose"
+      },
+      {
+       "frag": "[T2_ARG_DOC_SUB] spend_category='operations' 없음 - 넘긴 문서 12편에 근거가 없다 (서브값='' 인용실재=False) ⇒ 기본 요율",
+       "kind": "prose"
+      },
+      {
+       "frag": "_txt = \"%.2f = %s%% (%s) x %s%s\"",
+       "kind": "format"
+      }
+     ],
+     "gone_at_head": [
+      "800.00 = 2.5% (category rate) x 40000.0 minus annual_fee 200.0 | if that spending is NOT in this card's bonus category: 200.00",
+      "'documented_return_for_stated_spend': '400.00 = 1.0% (base rate) x 40000.0'",
+      "'documented_return_for_stated_spend': \"800.00 = 2.5% (category rate) x 40000.0 minus annual_fee 200.0 | if that spending is NOT in this card's bonus category: 200.00"
+     ]
+    },
+    {
+     "claim": "우리 값 식은 **구성상 불완전하다** — `rate × amount − annual_fee` 만 세고 **유효창 안의 일회성 크레딧(가입 보너스)** 항이 없다. 024 에서 그 항을 넣으면 Business Bronze 400+500=**900** 이 되어 Business Gold 800 을 이기고, `spend_category='operations'` ",
+     "files": [
+      "policy_facts.json"
+     ],
+     "shas": [
+      "ee18d797"
+     ],
+     "n_frag": 17,
+     "found": 11,
+     "missing": [
+      "{\"axis\": \"statement_credit\", \"value\": \"$500\", \"sources\": [{\"doc\": \"doc_business_credit_cards_business_bronze_rewards_card_010\", \"quote\": \"After qualification, a $500 statement credit will be applied to your account.\"}]}",
+      "{\"axis\": \"promotion_window\", \"value\": \"2025-10-01 through 2026-03-31\", \"sources\": [{",
+      "\"quote\": \"This offer is available from 2025-10-01 through 2026-03-31.\"}]}",
+      "{\"axis\": \"new_customer_promo_spend\"",
+      "\"quote\": \"- Spend $10,000 in the first 2 months to receive a $500 statement credit.\"}"
+     ],
+     "pointers": [
+      {
+       "frag": "banking_knowledge.policy_facts.json",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": [
+      "The current time is 2025-11-14 03:40:00 EST",
+      "get_current_time"
+     ]
+    },
+    {
+     "claim": "우리 도구 표에는 **보너스/프로모 컬럼이 아예 없고**, 그 사실이 모델의 단정으로 새어 나간다 — 손님이 축자로 보너스를 물었는데 모델은 우리 표만 보고 \"없다\"고 답한다([[25]] 우리 출력 100% 정답 의무 위반).",
+     "files": [],
+     "shas": [
+      "ee18d797"
+     ],
+     "n_frag": 4,
+     "found": 3,
+     "missing": [],
+     "pointers": [
+      {
+       "frag": "bank_t7333_treat_hot_20260821c|task_024#s626729",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "`T2_DOCDECIDE` 는 이 계열에서 **퇴화했다** — 서로 다른 요청을 가진 6개 태스크(001·003·024·025·047·063) 전부에서 `credit_cards` 축은 'Bronze Rewards Card', `business_credit_cards` 축은 'Business Bronze Rewards Card' **하나만** 답한다(변이 0",
+     "files": [
+      "t2_gate_patch.py"
+     ],
+     "shas": [
+      "ee18d797"
+     ],
+     "n_frag": 18,
+     "found": 7,
+     "missing": [
+      "A separate check was run on the policy documents on record, with this request and nothing else from this conversation in front of it",
+      "It answers: {choice}",
+      "Which ONE option should the agent recommend? Answer with the name only",
+      "\"decided_by_docs_text\": \" A separate check was run on the policy documents on record, with this request and nothing else from this conversation in front of it",
+      "It answers: {choice}.\"",
+      "\"doc_decide_prompt\": \"",
+      "Which ONE option should the agent recommend? Answer with the name only.\"",
+      "DOCDECIDE → 'Blue Account'"
+     ],
+     "pointers": [
+      {
+       "frag": "이 자리에 배달되던 서브 결정 자체가 오답이었다(055 양팔 `DOCDECIDE → 'Blue Account'`·gold Purple)",
+       "kind": "prose"
+      },
+      {
+       "frag": "bank_t7333_ctl_rest_20260821c",
+       "kind": "path"
+      },
+      {
+       "frag": "t2_gate_patch.py",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": [
+      "[sim=task_001#s626729] [T2_DOCDECIDE] → 'Bronze Rewards Card'",
+      "[sim=task_003#s626729] [T2_DOCDECIDE] → 'Business Bronze Rewards Card'",
+      "[sim=task_025#s626729] [T2_DOCDECIDE] → 'Business Bronze Rewards Card'",
+      "[sim=task_047#s626729] [T2_DOCDECIDE] → 'Business Bronze Rewards Card'",
+      "[sim=task_063#s626729] [T2_DOCDECIDE] → 'Bronze Rewards Card'"
+     ]
+    },
+    {
+     "claim": "우리 A2 는 **설계상 이름 하나를 강요한다**(`Answer with the name only`). 그런데 이 스텝의 측정은 그 반대를 말한다 — 단일 지목 국면 50/101(50%) ↔ 이름 2개 이상 국면 22/32(69%, gold 가 메뉴에 있었던 28건만 보면 22/28=79%). 손님이 실행 주체인 도구에서 우리가 이름 하나로 좁히는 것은 *",
+     "files": [
+      "commit2.py"
+     ],
+     "shas": [
+      "ee18d797"
+     ],
+     "n_frag": 4,
+     "found": 0,
+     "missing": [
+      "Which ONE option should the agent recommend? Answer with the name only",
+      "\"Which ONE option should the agent recommend? Answer with the name only.\"",
+      "single-name copied verbatim by user: {True: 101}",
+      "(agent_named_exactly_one, gold_among_named, mode)"
+     ],
+     "pointers": [],
+     "gone_at_head": []
+    }
+   ],
+   "sim_errors": []
+  },
+  {
+   "index": 3,
+   "tool": "submit_cash_back_dispute_0589",
+   "modes": [
+    {
+     "sim": "bank_t7337_halfA_20260822|task_017#s626729",
+     "aid": "017_1",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7337_halfA_20260822|task_017#s626729",
+     "aid": "017_2",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [
+      {
+       "frag": "인계 없이 복수형 `transaction_ids` + 카드 뒤 4자리를 요구했고, 손님은 실행 자체를 못 했다. 이후 [msg 66]",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 6,
+     "found": 5,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7337_halfA_20260822|task_017#s626729",
+     "aid": "017_3",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [
+      {
+       "frag": "두 번째 분쟁은 시도조차 없이 이관으로 종료. [msg 81 user]",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 3,
+     "found": 1,
+     "missing": [
+      "call_discoverable_agent_tool {"
+     ]
+    },
+    {
+     "sim": "bank_t7326_halfA_20260819q|task_017#s626729",
+     "aid": "017_1",
+     "mode": "blocked",
+     "attribution": "our_layer",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 2,
+     "missing": [
+      "Error: [SIGNATURE] `give_discoverable_user_tool` takes only `discoverable_tool_name` in this domain; you also passed `arguments`. Re-issue the call with the declared argument(s) only. If the user needs argument values, state them in your message to the user instead of putting them in this call"
+     ]
+    },
+    {
+     "sim": "bank_t7326_halfA_20260819q|task_017#s626729",
+     "aid": "017_2",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 7,
+     "found": 7,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7326_halfA_20260819q|task_017#s626729",
+     "aid": "017_3",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 8,
+     "found": 7,
+     "missing": [
+      "call_discoverable_agent_tool {"
+     ]
+    },
+    {
+     "sim": "bank_t7336_halfA_20260821b|task_017#s373753",
+     "aid": "017_2",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfA_20260822|task_017#s626729",
+     "aid": "017_2",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 10,
+     "found": 7,
+     "missing": [
+      "call_discoverable_user_tool {\"discoverable_tool_name\": \"submit_cash_back_dispute_0589\", \"arguments\": \"{\"transaction_id\":\"txn_913d14a20dc5\",\"correct_points\":156,\"notes\":\"I believe the cash back points awarded for this tr",
+      "{user_id, transaction_id}",
+      "{transaction_id, correct_points, notes}"
+     ]
+    },
+    {
+     "sim": "bank_t7328_halfA_20260819r|task_017#s626729",
+     "aid": "017_2",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [
+      {
+       "frag": "[msg 39] 실제 인자 `{",
+       "kind": "prose"
+      },
+      {
+       "frag": "\" · [msg 39] 실제 인자",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 7,
+     "found": 5,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7308_ctl_20260818c|task_027#s373753",
+     "aid": "027_2",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 4,
+     "found": 4,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7308_ctl_20260818c|task_027#s373753",
+     "aid": "027_3",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7308_treat_20260818c|task_020#s626729",
+     "aid": "020_2",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [
+      {
+       "frag": "갈린 키 = `user_id`. 손님 자백 [msg 80]",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 7,
+     "found": 6,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7308_treat_20260818c|task_020#s626729",
+     "aid": "020_4",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7308_treat_20260818c|task_019#s373753",
+     "aid": "019_2",
+     "mode": "blocked",
+     "attribution": "model",
+     "pointers": [
+      {
+       "frag": "`(날조)로 실행했고, 손님이 [msg 60]",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 4,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7308_treat_20260818c|task_019#s373753",
+     "aid": "019_3",
+     "mode": "not_owed",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 2,
+     "missing": [
+      "transfer_to_human_agents {\"summary\": \"Customer wants a rewards investigation without filing disputes for specific transactions. They are not authorizing purchase disputes or refunds.\", \"reason\": \"customer_demands_after_unavailable_offer_refusal\"}"
+     ]
+    }
+   ],
+   "claims": [
+    {
+     "claim": "`T2_TOOL_SIGNATURE` 가 이 스텝의 **유일한 기계식 인자 전달 채널**을 끊는다. env 는 `give_discoverable_user_tool` 에 `arguments` 를 실으면 그 값을 손님에게 축자 echo 하는데, 우리 레버는 그것을 deny 하고 값을 **산문**으로 밀어낸다. 산문이 틀리면 인자 오류가 나고 gold 스텝이 통째",
+     "files": [
+      "fb.json"
+     ],
+     "shas": [
+      "c273d93f",
+      "ec8f9d37",
+      "ee18d797",
+      "f7ece3df"
+     ],
+     "n_frag": 10,
+     "found": 5,
+     "missing": [
+      "Error: [SIGNATURE] `give_discoverable_user_tool` takes only `discoverable_tool_name` in this domain; you also passed `arguments`. Re-issue the call with the declared argument(s) only. If the user needs argument values, state them in your message to the user instead of putting them in this call"
+     ],
+     "pointers": [
+      {
+       "frag": "손님 4/4 실행·reward 1.0. ③ 레버가 걸린 뒤의 통상 결과(72/76 회)",
+       "kind": "prose"
+      },
+      {
+       "frag": "bank_t7326_halfA_20260819q.fb.jsonl.gz",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_t7308_treat_20260818c.fb.jsonl.gz",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_t7308_ctl_20260818c|task_019#s373753",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": [
+      "Tool given to user: submit_cash_back_dispute_0589",
+      "transaction_id",
+      "txn_580773a8649e",
+      "give_discoverable_user_tool",
+      "discoverable_tool_name"
+     ]
+    },
+    {
+     "claim": "그 레버가 방어하는 것은 **성적이 아니다**. 레버의 설계 근거는 `PRED_EXTRA_KEY`(=`action_match`) 인데, `action_match` 는 이 태스크군의 `reward` 에 들어가지 않는다([[69]]).",
+     "files": [
+      "t2_signature.py"
+     ],
+     "shas": [
+      "c273d93f",
+      "ec8f9d37",
+      "ee18d797",
+      "f7ece3df"
+     ],
+     "n_frag": 7,
+     "found": 1,
+     "missing": [
+      "{\"reward\": 1.0, \"db_check\": {\"db_match\": true, \"db_reward\": 1.0}, \"reward_basis\": [\"DB\"]}",
+      "aid=019_1 give_discoverable_user_tool match=False",
+      "019_2~019_5 match=False"
+     ],
+     "pointers": [
+      {
+       "frag": "실측: give 호출 105회 중 82회(78%)가 `arguments`를 실어 채점 규약상 자동 불일치(`PRED_EXTRA_KEY`)를 만든다",
+       "kind": "prose"
+      },
+      {
+       "frag": "t2_signature.py",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_t7308_ctl_20260818c|task_019#s373753",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "우리 `get_reward_discrepancies` 출력이 gold 에 없는 거래를 \"분쟁 필요\"로 지시하고, 손님이 그것을 실행해 EXTRA 를 만든다([[25]] 위반 후보 — 우리 도구 출력이 유일 근거원을 오염시킨다).",
+     "files": [],
+     "shas": [
+      "c273d93f",
+      "ec8f9d37",
+      "ee18d797",
+      "f7ece3df"
+     ],
+     "n_frag": 7,
+     "found": 4,
+     "missing": [
+      "e403·b7e2d4c5f506·e410·e411"
+     ],
+     "pointers": [
+      {
+       "frag": "bank_t7308_ctl_20260818c|task_020#s373753",
+       "kind": "path"
+      },
+      {
+       "frag": "는 없다. 결과: 같은 sim 이 gold 4건을 전부 실행하고도 msg 57 에서",
+       "kind": "prose"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "우리 stderr 계기가 이 자리의 deny 사유를 **지운 채** 찍혀 있어, 로그만으로는 「순서 미충족」과 「금지」를 구분할 수 없다([[25]] 계기 결함).",
+     "files": [],
+     "shas": [
+      "c273d93f",
+      "ec8f9d37",
+      "ee18d797",
+      "f7ece3df"
+     ],
+     "n_frag": 5,
+     "found": 1,
+     "missing": [
+      "Error: [PROCEDURE] The policy forbids 'get_card_last_4_digits' in this procedure - verbatim",
+      "Submit the dispute with only the customer's user_id and transaction_id"
+     ],
+     "pointers": [
+      {
+       "frag": "bank_t7337_halfA_20260822",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_t7326_halfA_20260819q",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "우리 층 안에서 **한 sim 이 서로 반대 방향으로** 말한다 — 한 레버는 give 를 하라고 8회 재촉하고 다른 레버는 give 를 6회 deny 한다. 그리고 최종 궤적에는 give 가 0 이다.",
+     "files": [],
+     "shas": [
+      "c273d93f",
+      "ec8f9d37",
+      "ee18d797",
+      "f7ece3df"
+     ],
+     "n_frag": 8,
+     "found": 6,
+     "missing": [],
+     "pointers": [
+      {
+       "frag": "[T2_ROUTE] give_discoverable_user_tool 경합 2 → proc 승 · 밀림 signature",
+       "kind": "prose"
+      },
+      {
+       "frag": "bank_t7337_halfA_20260822|task_017#s626729",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": []
+    }
+   ],
+   "sim_errors": []
+  },
+  {
+   "index": 4,
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "modes": [
+    {
+     "sim": "bank_t7336_halfB_20260821b|task_040#s626729",
+     "aid": "040_9",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 7,
+     "found": 7,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7336_halfB_20260821b|task_040#s626729",
+     "aid": "040_7",
+     "mode": "not_owed",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 6,
+     "found": 6,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7336_halfB_20260821b|task_040#s626729",
+     "aid": "040_11",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 1,
+     "missing": [
+      "Resolution: partial_refund - Partial amount requested: $24.56"
+     ]
+    },
+    {
+     "sim": "bank_t7328_halfB_20260819r2|task_040#s373753",
+     "aid": "040_10",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 1,
+     "found": 1,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7328_halfB_20260819r2|task_040#s373753",
+     "aid": "040_11",
+     "mode": "blocked",
+     "attribution": "env",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7328_halfB_20260819r2|task_040#s373753",
+     "aid": "040_9",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 1,
+     "found": 1,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7335_halfB_20260821|task_040#s626729",
+     "aid": "040_7",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7335_halfB_20260821|task_040#s626729",
+     "aid": "040_10",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_040#s373753",
+     "aid": "040_13",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 4,
+     "found": 4,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_040#s373753",
+     "aid": "040_14",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 1,
+     "found": 1,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_040#s626729",
+     "aid": "040_9",
+     "mode": "blocked",
+     "attribution": "env",
+     "pointers": [],
+     "n_frag": 6,
+     "found": 6,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7336_halfB_20260821b|task_040#s373753",
+     "aid": "040_9",
+     "mode": "blocked",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 4,
+     "found": 4,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7326_halfB_20260819q|task_040#s373753",
+     "aid": "040_10",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7337_halfB_20260822|task_040#s626729",
+     "aid": "040_7",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 4,
+     "found": 4,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7313_treat_20260818h|task_040#s626729",
+     "aid": "040_8",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 1,
+     "found": 1,
+     "missing": []
+    }
+   ],
+   "claims": [
+    {
+     "claim": "`T2_ARG_EMPTY`(필수 인자 빈 문자열 거부)는 **discoverable write 에 구조적으로 발화할 수 없다**. 그래서 t7335#s626729·t7346#s373753 의 `\"address\": \"\"` 8건이 한 번도 걸리지 않았다. 플래그는 켜져 있었다(run_t7335/t7336/t7346 전부 `PIN=\"... T2_ARG_EMPTY",
+     "files": [
+      "t2_gate_patch.py"
+     ],
+     "shas": [
+      "c273d93f",
+      "ec8f9d37",
+      "ee18d797",
+      "f7ece3df"
+     ],
+     "n_frag": 10,
+     "found": 8,
+     "missing": [],
+     "pointers": [
+      {
+       "frag": "str(inner))` (숫자 접미사 제거 → `file_credit_card_transaction_dispute`) → `def _schema_required(agent, name):` 안 `for t in (getattr(agent",
+       "kind": "prose"
+      },
+      {
+       "frag": "접미사를 달고 있어 두 겹으로 못 만난다 ⇒",
+       "kind": "prose"
+      }
+     ],
+     "gone_at_head": [
+      "file_credit_card_transaction_dispute"
+     ]
+    },
+    {
+     "claim": "우리 층은 이 스텝의 **결정 인자를 한 번도 관측하지 않는다**. `eligible_for_provisional_credit` 을 보는 라이브 레버가 0개다 — A2 가 그 이름을 갖고 있으나 소비자가 오프라인 스크립트뿐이다.",
+     "files": [
+      "bank_cause_census.py",
+      "bank_eplan_controller.py",
+      "bank_floor_vs_fullstack.py",
+      "specific.json",
+      "t2_gate_patch.py",
+      "x468_actual_apy_formula_grid.py"
+     ],
+     "shas": [
+      "c273d93f",
+      "ec8f9d37",
+      "ee18d797",
+      "f7ece3df"
+     ],
+     "n_frag": 16,
+     "found": 7,
+     "missing": [
+      "\"judgment\": [\"eligible_for_provisional_credit\", \"provisional_credit_eligible\", \"partial_refund_amount\"]",
+      "\"write_arg_grounding\": [{",
+      "\"grounded_args\": [\"card_last_4_digits\", \"transaction_id\"]"
+     ],
+     "pointers": [
+      {
+       "frag": "grounded_args=기록-값 인자만(계산값·자유텍스트 제외=Δspurious 통제)",
+       "kind": "prose"
+      },
+      {
+       "frag": "bank_eplan_controller.py",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_cause_census.py",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_floor_vs_fullstack.py",
+       "kind": "path"
+      },
+      {
+       "frag": "x468_actual_apy_formula_grid.py",
+       "kind": "path"
+      },
+      {
+       "frag": "t2_gate_patch.py",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "이 결손을 정확히 겨냥해 만들어 둔 `T2_ASK_UNKNOWN_BOOL`(닫힌 자료형 인자를 모르면서 채운 경우) 이 **한 번도 켜지지 않았다** — 코드 경로는 살아 있으나 어떤 런 스크립트도 이 플래그를 export 하지 않는다.",
+     "files": [
+      "go_stack.sh",
+      "run_t7335_allon_stage1_20260821.sh",
+      "run_t7336_repaired_stage1_20260821.sh",
+      "run_t7346_overnight_stage1_20260822.sh",
+      "t2_gate_patch.py"
+     ],
+     "shas": [
+      "c273d93f",
+      "ec8f9d37",
+      "ee18d797",
+      "f7ece3df"
+     ],
+     "n_frag": 6,
+     "found": 2,
+     "missing": [],
+     "pointers": [
+      {
+       "frag": "★N2b `T2_ASK_UNKNOWN_BOOL`(설계서 §2·기본 OFF): 닫힌 자료형(불리언·enum) 인자를 모르면서 채운 경우",
+       "kind": "prose"
+      },
+      {
+       "frag": "run_t7335_allon_stage1_20260821.sh",
+       "kind": "path"
+      },
+      {
+       "frag": "run_t7336_repaired_stage1_20260821.sh",
+       "kind": "path"
+      },
+      {
+       "frag": "run_t7346_overnight_stage1_20260822.sh",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": []
+    }
+   ],
+   "sim_errors": []
+  },
+  {
+   "index": 5,
+   "tool": "file_debit_card_transaction_dispute_6281",
+   "modes": [
+    {
+     "sim": "bank_t7346_halfB_20260822|task_085#s626729",
+     "aid": "085_6",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 9,
+     "found": 9,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_085#s626729",
+     "aid": "085_7",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 7,
+     "found": 7,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_085#s626729",
+     "aid": "085_9",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 7,
+     "found": 7,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_085#s373753",
+     "aid": "085_6",
+     "mode": "blocked",
+     "attribution": "env",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7336_halfB_20260821b|task_085#s373753",
+     "aid": "085_6",
+     "mode": "blocked",
+     "attribution": "model",
+     "pointers": [
+      {
+       "frag": "이후 msg[73][77][85][87][91][107][113][119] tool",
+       "kind": "prose"
+      },
+      {
+       "frag": "[T2_SEARCH_AGENT] group=bank_accounts_bank_accounts · 문서 46",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 5,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7326_halfB_20260819q|task_085#s373753",
+     "aid": "085_6",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 4,
+     "found": 4,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7326_halfB_20260819q|task_085#s626729",
+     "aid": "085_6",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 6,
+     "found": 6,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7336_halfB_20260821b|task_085#s626729",
+     "aid": "085_6",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7286_a_20260814h|task_087#s626729",
+     "aid": "087_14",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 7,
+     "found": 7,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7306_b_20260818a|task_087#s626729",
+     "aid": "087_14",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7295_b_20260815n|task_087#s626729",
+     "aid": "087_14",
+     "mode": "blocked",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 4,
+     "found": 4,
+     "missing": []
+    }
+   ],
+   "claims": [
+    {
+     "claim": "A2 는 이 도구에 **인자 거버넌스 0행**이다. 같은 A2 가 신용카드 쌍둥이 `file_credit_card_transaction_dispute` 에는 write_arg_grounding·have_value_reask·value_acquisition 3행을 갖고 있는데, 차변(debit) 쪽은 `relations.requires_reads` 한 줄뿐이",
+     "files": [],
+     "shas": [
+      "c273d93f",
+      "ee18d797"
+     ],
+     "n_frag": 20,
+     "found": 13,
+     "missing": [
+      "requires_reads",
+      "{\"applies_to\": \"call_discoverable_agent_tool\", \"applies_when\": {\"arg\": \"agent_tool_name\", \"prefix\": \"file_credit_card_transaction_dispute\"}, \"grounded_args\": [\"card_last_4_digits\", \"transaction_id\"]}",
+      "{\"write\": \"file_credit_card_transaction_dispute_4829\", \"producer\": \"get_card_last_4_digits\", \"arg\": \"card_last_4_digits\"",
+      "{\"write\": \"file_credit_card_transaction_dispute_4829\", \"arg\": \"card_last_4_digits\", \"acquire_tool\": \"get_card_last_4_digits\"",
+      "{\"source\": \"requires_reads\", \"dep\": \"file_debit_card_transaction_dispute\", \"reads\": [\"get_bank_account_transactions\"]}",
+      "json.dumps(family).count('file_debit_card_transaction_dispute') == 0",
+      "arg_source_reads"
+     ],
+     "pointers": [],
+     "gone_at_head": []
+    },
+    {
+     "claim": "그 결과 우리 층은 이 도구의 **잘못된 쓰기 어디에도 개입하지 않았다**. 궤적에서 4번의 gold 불일치 쓰기가 성공하는 동안 `T2_WRITE_ARG_GROUND` 는 이 도구에 대해 한 번도 발화하지 않는다.",
+     "files": [],
+     "shas": [
+      "c273d93f",
+      "ee18d797"
+     ],
+     "n_frag": 9,
+     "found": 7,
+     "missing": [
+      "[sim=task_040#s626729/#s373753]"
+     ],
+     "pointers": [
+      {
+       "frag": "[T2_DECIDE_BEFORE_WRITE] write 1턴 유예 tool=file_debit_card_transaction_dispute (재료 7413자)",
+       "kind": "prose"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "`T2_GROUND` 의 `agent_tool_name` 치환은 **레지스트리 밖 문자열로 치환한다** — 실측 치환 결과가 전부 손님 이름이다. 치환 자체가 무의미하고, 뒤의 게이트가 그 산물을 다시 거절한다(우리가 만든 값을 우리가 거절).",
+     "files": [],
+     "shas": [
+      "c273d93f",
+      "ee18d797"
+     ],
+     "n_frag": 3,
+     "found": 3,
+     "missing": [],
+     "pointers": [],
+     "gone_at_head": []
+    },
+    {
+     "claim": "**반증된 우리-층 주장**: 열거 밖 `dispute_category='General'` 이 우리 `T2_DOCDECIDE` 에서 나왔다는 귀속은 성립하지 않는다. 우리 값은 모델이 이미 'General' 을 발화한 **뒤**에 나왔다.",
+     "files": [],
+     "shas": [
+      "c273d93f",
+      "ee18d797"
+     ],
+     "n_frag": 4,
+     "found": 2,
+     "missing": [],
+     "pointers": [
+      {
+       "frag": "[T2_SEARCH_AGENT] group=bank_accounts_bank_accounts · 문서 46",
+       "kind": "prose"
+      },
+      {
+       "frag": "now=2025-11-14 turn=33 (스펙 있음 · 원값 '11/14/2025' · 대화텍스트 17)",
+       "kind": "prose"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "env 의 `Error: Missing required parameters.` 는 **어느 인자인지 지목하지 않으며**, 그 술어는 우리가 계산 가능한 닫힌 조건이다: 비-불리언 필수 인자 중 하나라도 ''/None/False 이면 이 메시지가 나온다. 우리 층이 그 인자 이름을 표면화하면 동일 페이로드 4~5회 재제출이 사라진다([[64]]).",
+     "files": [],
+     "shas": [
+      "c273d93f",
+      "ee18d797"
+     ],
+     "n_frag": 5,
+     "found": 1,
+     "missing": [
+      "card_action: null",
+      "card_action:\"keep_active\"",
+      "\"missing 1 required positional argument: 'customer_max_liability_amount'\"",
+      "pin_compromised: False"
+     ],
+     "pointers": [],
+     "gone_at_head": []
+    }
+   ],
+   "sim_errors": []
+  },
+  {
+   "index": 6,
+   "tool": "deposit_check_3847",
+   "modes": [
+    {
+     "sim": "bank_t7346_halfB_20260822|task_057#s626729",
+     "aid": "057_6",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 4,
+     "found": 4,
+     "missing": []
+    },
+    {
+     "sim": "bank_n97_gpu1_batch_02_20260805|task_057#s373753",
+     "aid": "057_6",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7335_halfA_20260821|task_055#s626729",
+     "aid": "055_7",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 5,
+     "found": 5,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7333_ctl_rest_20260821c|task_055#s626729",
+     "aid": "055_7",
+     "mode": "blocked",
+     "attribution": "our_layer",
+     "pointers": [
+      {
+       "frag": "\". 손님은 [58]·[62]·[66] 세 번 \"Error: Tool 'deposit_check_3847' has not been given to you by the agent. The agent must first use",
+       "kind": "prose"
+      },
+      {
+       "frag": "to give this tool to you.\" 를 받고 [63] \"Just mentioning the tool name didn't seem to enable it on my side. Can you please actually \"give/enable\" the",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 13,
+     "found": 10,
+     "missing": [
+      "I don't think I have the ability to 'give' myself tools; it has to come from your side"
+     ]
+    },
+    {
+     "sim": "bank_t7346_halfA_20260822|task_055#s626729",
+     "aid": "055_7",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [
+      {
+       "frag": "}` ↔ 실제 성공 `{account_id",
+       "kind": "prose"
+      },
+      {
+       "frag": "}`. 갈린 키는 account_id 하나(check_amount 는 일치). env 결과 축자",
+       "kind": "prose"
+      },
+      {
+       "frag": "기계 대조표: `{savings",
+       "kind": "prose"
+      },
+      {
+       "frag": "} → 1bc7064aea2ca2d3`(28회) vs `{savings",
+       "kind": "prose"
+      }
+     ],
+     "n_frag": 9,
+     "found": 1,
+     "missing": [
+      "{account_id:\"7e48bf3b0589cfad\", check_amount:\"1500\"}",
+      "{account_id:\"1bc7064aea2ca2d3\", check_amount:\"1500\"}",
+      "{savings,\"Gold Account\"} → 1bc7064aea2ca2d3",
+      "{savings,\"Silver Plus Account\"} → 7e48bf3b0589cfad"
+     ]
+    },
+    {
+     "sim": "bank_t7299_treat_20260816b|task_055#s361454",
+     "aid": "055_7",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7286_b_20260814h|task_061#s626729",
+     "aid": "061_6",
+     "mode": "blocked",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 7,
+     "found": 7,
+     "missing": []
+    },
+    {
+     "sim": "bankxfer_floor_bank_t2|task_061#s626729",
+     "aid": "061_6",
+     "mode": "blocked",
+     "attribution": "model",
+     "pointers": [
+      {
+       "frag": "bx_t10_base|task_061#s626729",
+       "kind": "path"
+      },
+      {
+       "frag": "bankxfer_floor_bank_t4|task_061#s626729",
+       "kind": "path"
+      }
+     ],
+     "n_frag": 5,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_057#s626729",
+     "aid": "057_5",
+     "mode": "not_owed",
+     "attribution": "our_layer",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 3,
+     "missing": []
+    }
+   ],
+   "claims": [
+    {
+     "claim": "`T2_TOOL_SIGNATURE`(go_stack 상시 ON)이 **이 gold 스텝이 필요로 하는 인계 호출 자체를** 반려한다. A2 선언 `\"tool_signatures\": {\"give_discoverable_user_tool\": [\"discoverable_tool_name\"]}` 때문에, 모델이 손님에게 알려주려고 `arguments` 를 같이 실",
+     "files": [
+      "go_stack.sh"
+     ],
+     "shas": [
+      "ec8f9d37",
+      "ee18d797"
+     ],
+     "n_frag": 6,
+     "found": 1,
+     "missing": [
+      "t2_signature.signature_violation()",
+      "extra = [k for k in (args or {}) if k not in allowed]"
+     ],
+     "pointers": [
+      {
+       "frag": "[T2_TOOL_SIGNATURE] deny tool=%s",
+       "kind": "format"
+      },
+      {
+       "frag": "print(\"[T2_TOOL_SIGNATURE] deny tool=%s\" % tc.name",
+       "kind": "format"
+      },
+      {
+       "frag": "export T2_TOOL_SIGNATURE=1 # ★V7 give 서명 deny+재발행",
+       "kind": "prose"
+      }
+     ],
+     "gone_at_head": [
+      "[sim=task_055#s626729] [T2_TOOL_SIGNATURE] deny tool=give_discoverable_user_tool"
+     ]
+    },
+    {
+     "claim": "그 deny 의 **본문이 모델에게 도달한 흔적이 영속 궤적에 없다**. 즉 호출은 막히는데 이유는 남지 않는다([[64]] 위반형). 게다가 막힌 give 는 영속 messages 에 아예 없어서 `mutation_diff` 의 BLOCKED 칸에도 안 잡힌다 — 우리 계기가 이 실패 양식을 **음성으로 보이게** 만들고 있다([[25]]).",
+     "files": [],
+     "shas": [
+      "ec8f9d37",
+      "ee18d797"
+     ],
+     "n_frag": 7,
+     "found": 2,
+     "missing": [
+      "[SIGNATURE] `{tool}` takes only {allowed} in this domain; you also passed {extra}. Re-issue the call with the declared argument(s) only",
+      "t2_signature.FEEDBACK = \"[SIGNATURE]",
+      "takes only {allowed} in this domain; you also passed {extra}. Re-issue the call with the declared argument(s) only",
+      "Re-issue the call with the declared argument(s) only",
+      "[41 tool] \"[DUPLICATE-READ] This exact call (same tool, same arguments) was already executed earlier in this conversation"
+     ],
+     "pointers": [],
+     "gone_at_head": []
+    },
+    {
+     "claim": "우리 층이 **give{deposit_check_3847} 을 실제로 소거한 sim 이 4건** 있다. 로그는 모델 출력 시점에 그 give 가 존재했음을 증명하는데(`pre-give note` 는 `am.tool_calls` 안의 give 를 보고서만 찍힌다) 영속 궤적에는 그 sim 의 give 가 **0개**다.",
+     "files": [],
+     "shas": [
+      "ec8f9d37",
+      "ee18d797"
+     ],
+     "n_frag": 8,
+     "found": 2,
+     "missing": [
+      "_giv5 = next((t for t in (am.tool_calls or []) if str(getattr(t, \"name\", \"\")) == \"give_discoverable_user_tool\"), None)",
+      "if _tpl5 and _giv5 is not None"
+     ],
+     "pointers": [
+      {
+       "frag": "bank_t7303_treat_20260816h|task_055#s1567",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_t7304_treat_20260816j|task_055#s514337",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_t7304_treat_20260816j|task_055#s863145",
+       "kind": "path"
+      },
+      {
+       "frag": "bank_t7333_ctl_rest_20260821c|task_055#s626729",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "우리 인계-넛지(`[T2_ACTIONREQ]` → `user_action_feedback`)의 대기집합이 **정적 `A2.action_tools` 8개**에서 파생되므로, 런타임에 건네지는 discoverable 손님 도구는 **영원히 표적이 될 수 없다**. 그 결과 수표 입금 요구 직후에 우리가 지목한 표적은 `submit_transaction` 이었다",
+     "files": [],
+     "shas": [
+      "ec8f9d37",
+      "ee18d797"
+     ],
+     "n_frag": 17,
+     "found": 8,
+     "missing": [
+      "_uacts = {t for t in ((a2 or {}).get(\"action_tools\") or []) if _exec_side(t) == \"user\"}",
+      "action_tools = [\"apply_for_credit_card\",\"submit_referral\",\"change_user_email\",\"submit_transaction\",\"unlock_discoverable_agent_tool\",\"call_discoverable_agent_tool\",\"give_discoverable_user_tool\",\"call_discoverable_user_tool\"]",
+      "_utgt in _upending",
+      "[T2_ACTIONREQ] window=open pending_user=['apply_for_credit_card','call_discoverable_user_tool','submit_referral','submit_transaction']",
+      "_user_discoverable(env)",
+      "env.user_tools.get_discoverable_tools()",
+      "{deposit_check_3847, get_card_last_4_digits, get_referral_link, submit_cash_back_dispute_0589}"
+     ],
+     "pointers": [
+      {
+       "frag": "}` · 병합 A2 `action_tools = [",
+       "kind": "prose"
+      },
+      {
+       "frag": "gold 도구가 런타임에 건네지는 discoverable 이면 위 정적 목록에 영원히 없다 ⇒ 손님-실행 안내(`_utgt in _upending`)가 발화할 수 없고",
+       "kind": "prose"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "`T2_USER_TOOL_NOTE` 가 담고 있는 A2 문면은 이 실패 양식을 정확히 겨냥하는데(*앱으로 보내지 말라*), **게이트가 give 를 이미 낸 턴에만 열리므로 정작 필요한 sim 에서는 절대 발화하지 않는다.**",
+     "files": [],
+     "shas": [
+      "ec8f9d37",
+      "ee18d797"
+     ],
+     "n_frag": 5,
+     "found": 1,
+     "missing": [
+      "`{tool}` runs right here in this conversation - the customer executes it in this chat, not on an external portal, website, or mobile app",
+      "Do NOT describe it as filing a form, visiting a site, or doing anything outside this conversation",
+      "if _tpl5 and _giv5 is not None"
+     ],
+     "pointers": [
+      {
+       "frag": "axis_notes.user_tool_channel",
+       "kind": "path"
+      }
+     ],
+     "gone_at_head": []
+    }
+   ],
+   "sim_errors": []
+  },
+  {
+   "index": 7,
+   "tool": "freeze_debit_card_3892 / unfreeze_debit_card_3893 / close_debit_card_4721 / order_debit_card_5739",
+   "modes": [
+    {
+     "sim": "bank_t7313_ctl_20260818h|task_079#s626729",
+     "aid": "079_3",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7313_ctl_20260818h|task_079#s626729",
+     "aid": "079_9c",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 0,
+     "found": 0,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7335_halfB_20260821|task_079#s626729",
+     "aid": "079_3",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 1,
+     "found": 1,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7335_halfB_20260821|task_079#s626729",
+     "aid": "079_11",
+     "mode": "reach",
+     "attribution": "our_layer",
+     "pointers": [],
+     "n_frag": 0,
+     "found": 0,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7336_halfB_20260821b|task_079#s626729",
+     "aid": "079_3",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 0,
+     "found": 0,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7336_halfB_20260821b|task_079#s626729",
+     "aid": "079_9c",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 0,
+     "found": 0,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_079#s373753",
+     "aid": "079_3",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 0,
+     "found": 0,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_079#s373753",
+     "aid": "079_9c",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 0,
+     "found": 0,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7310_treat_20260818e|task_079#s626729",
+     "aid": "079_9c",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 0,
+     "found": 0,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_079#s626729",
+     "aid": "079_17",
+     "mode": "argument",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_079#s626729",
+     "aid": "079_18",
+     "mode": "blocked",
+     "attribution": "env",
+     "pointers": [],
+     "n_frag": 2,
+     "found": 2,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7346_halfB_20260822|task_079#s626729",
+     "aid": "079_17",
+     "mode": "blocked",
+     "attribution": "our_layer",
+     "pointers": [],
+     "n_frag": 3,
+     "found": 3,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7306_a_20260818a|task_081#s626729",
+     "aid": "081_8",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 1,
+     "found": 1,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7306_a_20260818a|task_081#s626729",
+     "aid": "081_13",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 0,
+     "found": 0,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7287_a_20260814i|task_087#s626729",
+     "aid": "087_16",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 0,
+     "found": 0,
+     "missing": []
+    },
+    {
+     "sim": "bank_t7287_a_20260814i|task_087#s626729",
+     "aid": "087_18",
+     "mode": "reach",
+     "attribution": "model",
+     "pointers": [],
+     "n_frag": 0,
+     "found": 0,
+     "missing": []
+    }
+   ],
+   "claims": [
+    {
+     "claim": "T2_GROUND 가 발견-래퍼의 **도구 선택자** `agent_tool_name` 을 데이터 인자로 오인해 실제 도구 이름을 **고객 이름으로 치환**한다. 우리 코드는 이 예외를 이미 상수로 갖고 있지만(`SELECTOR = (\"agent_tool_name\", \"user_tool_name\", \"tool_name\", \"discoverable_tool_n",
+     "files": [],
+     "shas": [
+      "c273d93f",
+      "ec8f9d37",
+      "ee18d797"
+     ],
+     "n_frag": 15,
+     "found": 6,
+     "missing": [
+      "\\[T2_GROUND\\] substituted",
+      "[098] CALL call_discoverable_agent_tool {\"agent_tool_name\": \"CARLOS RODRIGUEZ\", \"arguments\": {\"order_id\": \"dcord_5bf4581e9838\"}}",
+      "[099] Error: Unknown agent tool 'CARLOS RODRIGUEZ'. This tool is not available",
+      "_grounded_candidates('agent_tool_name','update_debit_card_order_9834', real_msgs, lenient=True)",
+      "['CARLOS RODRIGUEZ']",
+      "zcat bank_t7346_halfB_20260822.log.gz bank_t7336_halfB_20260821b.log.gz | grep -a \"\\[T2_GROUND\\] substituted\" | grep -ao \"arg=[a-z_]\" | sort | uniq -c",
+      "33 arg=agent_tool_name"
+     ],
+     "pointers": [
+      {
+       "frag": "[T2_GROUND] substituted arg=%s val=%s -> %s",
+       "kind": "format"
+      },
+      {
+       "frag": "print(\"[T2_GROUND] substituted arg=%s val=%s -> %s\" % (gk, gs, gcands[0]))",
+       "kind": "format"
+      }
+     ],
+     "gone_at_head": []
+    },
+    {
+     "claim": "이 치환은 **성공에 의해 무장된다** — 후보 `CARLOS RODRIGUEZ` 는 `get_debit_cards_by_account_id_7823` 출력의 `cardholder_name` 필드에서만 나오므로, 카드 읽기에 **성공한 런에서만** 발화한다. 즉 이 결함은 가장 멀리 간 런을 골라서 친다(079 의 order/cancel 수리 국면).",
+     "files": [],
+     "shas": [
+      "c273d93f",
+      "ec8f9d37",
+      "ee18d797"
+     ],
+     "n_frag": 7,
+     "found": 5,
+     "missing": [
+      "cut= 40 -> ['CARLOS RODRIGUEZ']",
+      "cut= 98 -> ['CARLOS RODRIGUEZ']"
+     ],
+     "pointers": [],
+     "gone_at_head": []
+    },
+    {
+     "claim": "치환은 **우리 자신의 블랙리스트를 오염**시킨다. `unknown_bl_collect` 는 `Unknown (agent|discoverable) tool '([^']+)'` 로 env 가 거부한 이름을 수집하는데, 우리가 이름을 갈아치웠으므로 블랙리스트에 등록되는 것은 모델이 실제로 지어낸 이름이 아니라 `CARLOS RODRIGUEZ` 다. 그래서 모델",
+     "files": [],
+     "shas": [
+      "c273d93f",
+      "ec8f9d37",
+      "ee18d797"
+     ],
+     "n_frag": 4,
+     "found": 2,
+     "missing": [
+      "Unknown (agent|discoverable) tool '([^']+)'",
+      "_UNKNOWN_RE = re.compile(r\"Unknown (agent|discoverable) tool '([^']+)'\")"
+     ],
+     "pointers": [],
+     "gone_at_head": []
+    },
+    {
+     "claim": "우리 억제 문구가 **이유도 처방도 없이** 나가고 있다([[64]] 위반). 게다가 이 억제는 어시스턴트 턴을 **재작성**하는 방식이라 — 도구 호출을 지우고(`tool_calls=None`) 노트를 어시스턴트 본문에 덧붙인다 — 모델은 **도구-결과 채널로 아무 신호도 못 받고**, 그 모순된 문장이 그대로 **손님에게** 간다.",
+     "files": [],
+     "shas": [
+      "c273d93f",
+      "ec8f9d37",
+      "ee18d797"
+     ],
+     "n_frag": 6,
+     "found": 3,
+     "missing": [
+      "[026] assistant: [Note: items whose supporting records could not be verified were not processed.]",
+      "[027] user: I'm not sure what that note means-can you tell me what couldn't be verified?",
+      "role= assistant tool_calls= None"
+     ],
+     "pointers": [],
+     "gone_at_head": []
+    }
+   ],
+   "sim_errors": []
+  }
+ ],
+ "totals": {
+  "found": 485,
+  "missing": 109,
+  "pointers": 105
+ }
+}
