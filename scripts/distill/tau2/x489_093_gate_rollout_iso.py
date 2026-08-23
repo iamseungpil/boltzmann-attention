@@ -81,29 +81,64 @@ def is_err(text):
     return str(text or "").strip().lower().startswith("error")
 
 
-def replay_prefix(env, msgs, cut):
-    """프리픽스의 도구 호출을 **실제 환경에 되돌린다**. 반환 (일치, 전체, 불일치 목록)."""
-    rec = {m.get("id"): str(m.get("content") or "")
+def task_of(task_id):
+    """도메인 태스크 정의 — `x109_task_dossier.load_tasks` 관용구(사본 0·[[67]])."""
+    import x109_task_dossier as X109
+    by = X109.load_tasks()
+    for k, (src, t) in by.items():
+        if str(k).split("_")[-1] == str(task_id).split("_")[-1]:
+            return t
+    return None
+
+
+def build_env(task, msgs, cut):
+    """★상태 복원은 **정본 경로**로 한다 — `env.set_state(...)`.
+
+    ⛔1차 구현은 프리픽스 호출을 내가 하나씩 `use_tool` 로 되돌렸는데, 그것은 하네스 재생의
+      **사본**이었고 틀렸다([[67]] 사본 금지). 실측 불일치 3종이 그 증거다:
+        · `verify_identity`·`get_correct_savings_apy`·`get_interest_correction`
+          → `Tool not found` = **우리 scaffold 도구**다(환경이 낸 결과가 아니다)
+        · `call_discoverable_agent_tool(get_bank_account_transactions_9173)`
+          → `Account 'sav_…' not found` = **태스크 초기상태가 안 실렸다**(기본 DB 였다)
+        · `KB_search_dense` → `OPENAI_API_KEY` 부재(발사 전 키 필요·go_stack.sh:190)
+      `set_state` 는 reward 계산이 쓰는 바로 그 재생이라([[69]]) 태스크 초기화 + 메시지 이력을
+      한 번에 세운다. `strict=False` 는 옛 궤적의 표기 드리프트를 경고로 넘긴다(독스트링 축자).
+    반환 (env, 복원 성공?, 사유).
+    """
+    from tau2.domains.banking_knowledge.environment import get_environment
+    env = get_environment(retrieval_variant="alltools")
+    init = (task or {}).get("initial_state") or {}
+    try:
+        from tau2.data_model.tasks import InitializationData
+        idata = InitializationData(**init.get("initialization_data"))             if init.get("initialization_data") else None
+    except Exception:
+        idata = init.get("initialization_data")
+    objs, dropped = X465.to_objs(msgs[:cut])
+    try:
+        env.set_state(initialization_data=idata,
+                      initialization_actions=init.get("initialization_actions"),
+                      message_history=objs, strict=False)
+    except Exception as e:
+        return env, False, "set_state 실패: %r (변환 누락 %d)" % (e, dropped)
+    return env, True, "복원 OK (메시지 %d·변환 누락 %d)" % (len(objs), dropped)
+
+
+def unlocked_in(msgs, cut):
+    """프리픽스에서 **성공한** unlock 의 대상 집합 — 상태 대조의 닫힌 기준."""
+    res = {m.get("id"): str(m.get("content") or "")
            for m in msgs if str(m.get("role") or "") == "tool" and m.get("id")}
-    ok = tot = 0
-    bad = []
+    out = set()
     for m in msgs[:cut]:
         if str(m.get("role") or "") != "assistant":
             continue
         for tc in (m.get("tool_calls") or []):
-            nm, args = F.nameof(tc), F.argsof(tc)
-            tot += 1
-            try:
-                got = str(env.use_tool(nm, **(args or {})))
-            except Exception as e:
-                got = "Error: %r" % (e,)
-            want = rec.get(tc.get("id"), "")
-            if is_err(got) == is_err(want):
-                ok += 1
-            else:
-                bad.append((nm, "재생=%s 원래=%s" % ("ERR" if is_err(got) else "OK",
-                                                   "ERR" if is_err(want) else "OK")))
-    return ok, tot, bad
+            if F.nameof(tc) != UNLOCK:
+                continue
+            if not is_err(res.get(tc.get("id"), "")):
+                v = (F.argsof(tc) or {}).get("agent_tool_name")
+                if v:
+                    out.add(str(v))
+    return out
 
 
 def tool_msg(tc, content):
@@ -199,11 +234,32 @@ def main():
         if cut is None:
             print("  ⚠건너뜀 %s — 결정점 없음([[55]])" % key)
             continue
-        ok, tot, bad = replay_prefix(env0, s.get("messages") or [], cut)
-        print("  원천 %-22s 결정점=[%d] · 프리픽스 충실도 %d/%d%s"
-              % (key, cut, ok, tot, ("  ⚠불일치 %d: %s" % (len(bad), bad[:3])) if bad else ""))
+        # 상태 복원은 정본 `set_state` 로 하고, **검증은 unlock 집합 대조**로 한다.
+        #   이 프로브가 의존하는 상태는 (i) 크레딧이 아직 잠겨 있다 (ii) 라이브가 연 것은 열려 있다
+        #   — 그 둘만 확인하면 이 질문에는 충분하고, 그 밖의 드리프트는 판정에 안 쓴다(과대주장 금지).
+        tsk = task_of(TASK)
+        env1, ok_state, why = build_env(tsk, s.get("messages") or [], cut)
+        want_unlocked = unlocked_in(s.get("messages") or [], cut)
+        got_unlocked = set()
+        for n in sorted(want_unlocked | {credit}):
+            r0 = ""
+            try:
+                r0 = str(env1.use_tool("call_discoverable_agent_tool", agent_tool_name=n,
+                                       arguments={}))
+            except Exception as _e:
+                r0 = "Error: %r" % (_e,)
+            if "has not been unlocked" not in r0:
+                got_unlocked.add(n)      # 잠김 사유가 아니면 열려 있다(인자 오류는 열림의 증거)
+        locked_ok = credit not in got_unlocked
+        state_ok = bool(ok_state) and want_unlocked <= got_unlocked and locked_ok
+        print("  원천 %-22s 결정점=[%d] · %s" % (key, cut, why))
+        print("       unlock 대조: 기대 %s · 실제 %s · 크레딧 잠김=%s ⇒ %s"
+              % (sorted(want_unlocked), sorted(got_unlocked), locked_ok,
+                 "유효" if state_ok else "★무효(결과 쓰지 말 것)"))
         srcs.append({"key": key, "sim": s, "credit": credit, "report": report, "cut": cut,
-                     "fidelity": [ok, tot], "bad": bad[:6], "valid": not bad})
+                     "task_found": bool(tsk), "state_why": why,
+                     "want_unlocked": sorted(want_unlocked), "got_unlocked": sorted(got_unlocked),
+                     "valid": state_ok})
     if not srcs:
         raise SystemExit("원천 0 — 태그·로그부터 본다([[55]])")
 
@@ -240,8 +296,8 @@ def main():
             print(NLC + "── %s / %-12s (컷=[%d] 차단=%s) ────────"
                   % (s["key"][-12:], arm, s["cut"], block))
             for k in range(a.n):
-                env = IVA.Sandbox().env          # ★롤아웃마다 새 환경(상태 오염 금지)
-                ok, tot, bad = replay_prefix(env, msgs, s["cut"])
+                # ★롤아웃마다 새 환경 + 정본 복원(상태 오염 금지)
+                env, ok_state, _why = build_env(task_of(TASK), msgs, s["cut"])
                 log = []
                 try:
                     hit, turn, regens = rollout(env, ctx0, tools, a.model, base,
@@ -253,7 +309,7 @@ def main():
                                  "err": repr(e)[:200]})
                     continue
                 rows.append({"src": s["key"], "arm": arm, "k": k, "credit_exec": bool(hit),
-                             "turn": turn, "regens": regens, "prefix_fidelity": [ok, tot],
+                             "turn": turn, "regens": regens, "state_ok": bool(ok_state),
                              "trace": log[:24]})
                 print("  #%d  credit_exec=%-5s turn=%s regen=%d | %s"
                       % (k, hit, turn, regens, " · ".join(log[-3:])[:120]))
@@ -275,7 +331,7 @@ def main():
     print(NLC + "판정: GATE_OFF 에서 실행되고 GATE_ON_* 에서 안 되면 **우리 차단이 그 write 를 막는다**.")
     print("      GATE_OFF 도 0 이면 차단은 무죄 — 원인은 다른 층이다([[55]] 다음 칸).")
     print("      TEXT ↔ MUTE 차이가 **문구 몫**이다(x488: 문구는 오히려 크레딧 쪽으로 밀었다).")
-    print("      ⚠프리픽스 충실도 불일치가 있는 원천은 결과를 쓰지 말 것(머리말 ⓐ).")
+    print("      ⚠unlock 대조가 **무효**인 원천은 결과를 쓰지 말 것(머리말 ⓐ).")
     print("→ %s" % p)
     return 0
 
