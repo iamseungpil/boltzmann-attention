@@ -46,6 +46,9 @@ import t2_forensic as F          # noqa: E402
 
 SIMS = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026", "sim_results")
 
+# 사전등록 인용선(C483 ±4/40 · C492 는 버킷 차 5 를 썼다). 이 아래는 잡음이라 인용하지 않는다.
+NOISE = int(os.environ.get("X495_NOISE", "3"))
+
 # 짝 = (레버 라벨, ctl 파일 접두, treat 파일 접두). 처치 변수는 런 스크립트 축자에서 읽었다.
 PAIRS = [
     ("T2_NOW_SELFCALL + T2_SEARCH_ON_PROCEED",
@@ -118,10 +121,38 @@ def load(prefix, MUT):
     return out
 
 
+def cost(prefix):
+    """[[70]] '무엇을 파는가' 의 비용 면 — reward 만 보면 순매수처럼 보이는 레버가 있다.
+
+    C502 가 그 실물이다: `T2_DELIVER_PRECOMMIT` 은 성적이 null(5/12↔6/12)인데
+    `ContextWindowExceededError` 5↔0 · duration 1.38x · 토큰 여유 21,255→6,419 를 팔았다.
+    x495 초판이 그것을 '순매수' 로 잘못 부른 이유가 **비용을 안 셌기 때문**이다.
+    """
+    cand = sorted(set(glob.glob(os.path.join(SIMS, prefix + ".results.json.gz")))
+                  | set(glob.glob(os.path.join(SIMS, prefix + "_results.json.gz")))
+                  | set(glob.glob(os.path.join(SIMS, prefix + "_half*.results.json.gz"))))
+    out = {"sims": 0, "dur": 0.0, "msgs": 0, "user_cost": 0.0,
+           "term": collections.Counter()}
+    for fp in cand:
+        try:
+            with gzip.open(fp, "rt", encoding="utf-8", errors="replace") as f:
+                d = json.load(f)
+        except Exception:
+            continue
+        for s in (d.get("simulations") or []):
+            out["sims"] += 1
+            out["dur"] += float(s.get("duration") or 0.0)
+            out["msgs"] += len(s.get("messages") or [])
+            out["user_cost"] += float(s.get("user_cost") or 0.0)
+            out["term"][str(s.get("termination_reason") or "?")] += 1
+    return out
+
+
 def main():
     MUT = F.mutating_tools()
     lever_task = {}          # lever -> {task: (d_pass, n_ctl, n_treat, p_ctl, p_treat)}
     lever_step = {}          # lever -> [(task, aid, tool, d_missrate, n)]
+    lever_cost = {}          # lever -> (ctl 비용, treat 비용)
     print("A/B 짝 %d개 - 짝 안의 ctl <-> treat 만 비교한다\n" % len(PAIRS))
     for lever, cp, tp in PAIRS:
         C, T = load(cp, MUT), load(tp, MUT)
@@ -137,6 +168,11 @@ def main():
             pc = c["pass"] / c["n"]
             px = x["pass"] / x["n"]
             tt[t] = (px - pc, c["n"], x["n"], c["pass"], x["pass"])
+            # ★잡음 바닥 (2026-08-23 정정): 초판은 **pass 수 차이 1** 을 "샀다/팔았다" 로 불렀다.
+            #   그래서 `T2_DELIVER_PRECOMMIT` 을 순매수, `T2_MATERIAL_RESERVE` 를 매수로 적었는데
+            #   원장은 **이미 둘 다 판정**해 두었다 — C502(t7303 은 인과 실험이 아니었다·창 초과 5건·
+            #   지연 1.38x) · C499(MATERIAL_RESERVE 는 무동작·예약할 예산 없음·지연 불변).
+            #   사전등록 인용선은 **차 >= NOISE**(C483 +-4/40 · C492 는 5 를 썼다). 그 아래는 잡음이다.
             for aid in sorted(set(c["steps"]) & set(x["steps"])):
                 cm, ct = c["steps"][aid]
                 xm, xt = x["steps"][aid]
@@ -148,6 +184,7 @@ def main():
                                d, min(ct, xt)))
         lever_task[lever] = tt
         lever_step[lever] = ss
+        lever_cost[lever] = (cost(cp), cost(tp))
 
     # ── (1) 레버 x 태스크 부호표
     print("=" * 100)
@@ -158,9 +195,11 @@ def main():
         if not tt:
             continue
         up = sorted([(d, t, a) for t, (d, cn, xn, cp2, xp) in tt.items()
-                     for a in [(cp2, xp, cn, xn)] if d > 0], reverse=True)
+                     for a in [(cp2, xp, cn, xn)] if abs(xp - cp2) >= NOISE and d > 0], reverse=True)
         dn = sorted([(d, t, a) for t, (d, cn, xn, cp2, xp) in tt.items()
-                     for a in [(cp2, xp, cn, xn)] if d < 0])
+                     for a in [(cp2, xp, cn, xn)] if abs(xp - cp2) >= NOISE and d < 0])
+        sub = [(t, cp2, xp) for t, (d, cn, xn, cp2, xp) in tt.items()
+               if 0 < abs(xp - cp2) < NOISE]
         flat = [t for t, (d, *_r) in tt.items() if d == 0]
         tot_c = sum(v[3] for v in tt.values())
         tot_x = sum(v[4] for v in tt.values())
@@ -172,8 +211,32 @@ def main():
         if dn:
             print("   팔았다: " + " · ".join(
                 "%s %d/%d->%d/%d" % (t, a[0], a[2], a[1], a[3]) for d, t, a in dn))
+        if sub:
+            print("   잡음(차<%d·인용 불가): %s" % (
+                NOISE, " · ".join("%s %d->%d" % (t, a, b) for t, a, b in sub)))
         if not up and not dn:
-            print("   변화 없음 (%d 태스크 전부 동일)" % len(flat))
+            print("   ★인용 가능한 변화 없음 (전부 잡음 바닥 안)")
+
+    # ── (1b) ★비용 면 — reward 만 보면 순매수로 보이는 레버가 있다([[70]])
+    print("")
+    print("=" * 100)
+    print("(1b) 비용 — 같은 짝의 ctl <-> treat. sim 당 지연 · 메시지 · user 비용 · 종료사유")
+    print("     ⚠C502: T2_DELIVER_PRECOMMIT 은 성적 null 인데 창 초과 5건·1.38x 지연을 팔았다.")
+    print("=" * 100)
+    print("%-46s %11s %11s %9s" % ("lever", "지연/sim", "메시지/sim", "비정상종료"))
+    print("-" * 82)
+    for lever in [p[0] for p in PAIRS]:
+        cc = lever_cost.get(lever)
+        if not cc or not cc[0]["sims"] or not cc[1]["sims"]:
+            continue
+        c, t = cc
+        dc, dt = c["dur"] / c["sims"], t["dur"] / t["sims"]
+        mc, mt = c["msgs"] / c["sims"], t["msgs"] / t["sims"]
+        ab_c = c["sims"] - c["term"].get("user_stop", 0)
+        ab_t = t["sims"] - t["term"].get("user_stop", 0)
+        flag = "  <<지연" if dc and dt / dc >= 1.25 else ""
+        print("%-46s %5.0f->%-5.0f %5.1f->%-5.1f %4d->%-4d%s"
+              % (lever[:46], dc, dt, mc, mt, ab_c, ab_t, flag))
 
     # ── (2) 길항 쌍
     print("\n" + "=" * 100)
@@ -238,6 +301,9 @@ def main():
                                "pass_ctl": v[3], "pass_treat": v[4]}
                            for t, v in tt.items()}
                        for l, tt in lever_task.items()},
+        "cost": {l: {"ctl": {k2: (dict(v2) if hasattr(v2,"items") else v2) for k2,v2 in c.items()},
+                          "treat": {k2: (dict(v2) if hasattr(v2,"items") else v2) for k2,v2 in t.items()}}
+                 for l,(c,t) in lever_cost.items()},
         "antagonists": [{"lever": l, "bought": a, "sold": b,
                          "d_bought": da, "d_sold": db}
                         for l, a, b, da, db in anta],

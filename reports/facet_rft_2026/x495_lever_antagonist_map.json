@@ -514,6 +514,273 @@
    }
   }
  },
+ "cost": {
+  "T2_NOW_SELFCALL + T2_SEARCH_ON_PROCEED": {
+   "ctl": {
+    "sims": 16,
+    "dur": 42827.670420307666,
+    "msgs": 970,
+    "user_cost": 0.32125414999999996,
+    "term": {
+     "user_stop": 15,
+     "context_window_exceeded": 1
+    }
+   },
+   "treat": {
+    "sims": 16,
+    "dur": 55087.23436735198,
+    "msgs": 987,
+    "user_cost": 0.35983884999999993,
+    "term": {
+     "user_stop": 15,
+     "context_window_exceeded": 1
+    }
+   }
+  },
+  "T2_ACT_DEMAND": {
+   "ctl": {
+    "sims": 20,
+    "dur": 43738.10452584922,
+    "msgs": 964,
+    "user_cost": 0.28869225000000004,
+    "term": {
+     "user_stop": 20
+    }
+   },
+   "treat": {
+    "sims": 20,
+    "dur": 50085.50423095748,
+    "msgs": 1134,
+    "user_cost": 0.3323334,
+    "term": {
+     "user_stop": 20
+    }
+   }
+  },
+  "T2_MATERIAL_RESERVE": {
+   "ctl": {
+    "sims": 8,
+    "dur": 12342.271503739059,
+    "msgs": 455,
+    "user_cost": 0.25644079999999997,
+    "term": {
+     "user_stop": 8
+    }
+   },
+   "treat": {
+    "sims": 8,
+    "dur": 12011.775217536837,
+    "msgs": 433,
+    "user_cost": 0.22460795,
+    "term": {
+     "user_stop": 8
+    }
+   }
+  },
+  "T2_DELIVER_PRECOMMIT": {
+   "ctl": {
+    "sims": 12,
+    "dur": 13451.638722868636,
+    "msgs": 545,
+    "user_cost": 0.25472019999999995,
+    "term": {
+     "user_stop": 12
+    }
+   },
+   "treat": {
+    "sims": 12,
+    "dur": 18549.917616251856,
+    "msgs": 763,
+    "user_cost": 0.26811609999999997,
+    "term": {
+     "user_stop": 12
+    }
+   }
+  },
+  "T2_PROCEED_DOCBODY": {
+   "ctl": {
+    "sims": 8,
+    "dur": 18826.496491892263,
+    "msgs": 545,
+    "user_cost": 0.34942845,
+    "term": {
+     "user_stop": 7,
+     "context_window_exceeded": 1
+    }
+   },
+   "treat": {
+    "sims": 8,
+    "dur": 27073.301750885323,
+    "msgs": 709,
+    "user_cost": 0.4623073000000001,
+    "term": {
+     "user_stop": 8
+    }
+   }
+  },
+  "T2_SUB_REQUIREMENT": {
+   "ctl": {
+    "sims": 8,
+    "dur": 16614.49641580507,
+    "msgs": 554,
+    "user_cost": 0.37760275,
+    "term": {
+     "context_window_exceeded": 1,
+     "user_stop": 7
+    }
+   },
+   "treat": {
+    "sims": 8,
+    "dur": 39688.8960242942,
+    "msgs": 676,
+    "user_cost": 0.36574124999999996,
+    "term": {
+     "user_stop": 8
+    }
+   }
+  },
+  "T2_HANDOFF_PREDICATE (a)": {
+   "ctl": {
+    "sims": 2,
+    "dur": 8947.52934028022,
+    "msgs": 185,
+    "user_cost": 0.12515089999999998,
+    "term": {
+     "user_stop": 2
+    }
+   },
+   "treat": {
+    "sims": 3,
+    "dur": 11555.550982141867,
+    "msgs": 260,
+    "user_cost": 0.11792585,
+    "term": {
+     "user_stop": 3
+    }
+   }
+  },
+  "T2_HANDOFF_PREDICATE (b)": {
+   "ctl": {
+    "sims": 12,
+    "dur": 67948.63447965682,
+    "msgs": 1054,
+    "user_cost": 0.59462445,
+    "term": {
+     "user_stop": 12
+    }
+   },
+   "treat": {
+    "sims": 12,
+    "dur": 129179.00513122231,
+    "msgs": 1169,
+    "user_cost": 0.6490463,
+    "term": {
+     "user_stop": 10,
+     "context_window_exceeded": 2
+    }
+   }
+  },
+  "T2_VERDICT_CARRY + T2_ELIG_LINE (a)": {
+   "ctl": {
+    "sims": 12,
+    "dur": 6807.565041065216,
+    "msgs": 552,
+    "user_cost": 0.23121699999999998,
+    "term": {
+     "user_stop": 12
+    }
+   },
+   "treat": {
+    "sims": 12,
+    "dur": 8824.312379194424,
+    "msgs": 595,
+    "user_cost": 0.18679079999999998,
+    "term": {
+     "user_stop": 12
+    }
+   }
+  },
+  "T2_VERDICT_CARRY + T2_ELIG_LINE (b)": {
+   "ctl": {
+    "sims": 4,
+    "dur": 1988.2360270339996,
+    "msgs": 177,
+    "user_cost": 0.0779646,
+    "term": {
+     "user_stop": 4
+    }
+   },
+   "treat": {
+    "sims": 4,
+    "dur": 3005.429156685248,
+    "msgs": 174,
+    "user_cost": 0.14926625,
+    "term": {
+     "user_stop": 4
+    }
+   }
+  },
+  "T2_VERDICT_CARRY + T2_ELIG_LINE (c)": {
+   "ctl": {
+    "sims": 16,
+    "dur": 9357.323046443984,
+    "msgs": 704,
+    "user_cost": 0.28546419999999995,
+    "term": {
+     "user_stop": 16
+    }
+   },
+   "treat": {
+    "sims": 16,
+    "dur": 12412.86338915117,
+    "msgs": 914,
+    "user_cost": 0.37581705000000004,
+    "term": {
+     "user_stop": 16
+    }
+   }
+  },
+  "T2_ARG_DOC_SUB + T2_VALUE_FORMULA=full (hot)": {
+   "ctl": {
+    "sims": 6,
+    "dur": 4466.777505399659,
+    "msgs": 367,
+    "user_cost": 0.07947380000000001,
+    "term": {
+     "user_stop": 6
+    }
+   },
+   "treat": {
+    "sims": 6,
+    "dur": 2331.86450612545,
+    "msgs": 80,
+    "user_cost": 0.05403615,
+    "term": {
+     "user_stop": 6
+    }
+   }
+  },
+  "T2_ARG_DOC_SUB + T2_VALUE_FORMULA=full (rest)": {
+   "ctl": {
+    "sims": 14,
+    "dur": 10441.27865998447,
+    "msgs": 646,
+    "user_cost": 0.3388889,
+    "term": {
+     "user_stop": 14
+    }
+   },
+   "treat": {
+    "sims": 14,
+    "dur": 9496.377480376512,
+    "msgs": 678,
+    "user_cost": 0.31215135,
+    "term": {
+     "user_stop": 14
+    }
+   }
+  }
+ },
  "antagonists": [
   {
    "lever": "T2_ACT_DEMAND",
