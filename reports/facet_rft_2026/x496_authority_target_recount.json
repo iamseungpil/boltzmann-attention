@@ -1,0 +1,1317 @@
+{
+ "n": 88,
+ "narrowed": 71,
+ "target": 42,
+ "no_guidance": 19,
+ "rows": [
+  {
+   "run": "bank_t7275_b_20260813v_results",
+   "task": "task_075",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [],
+   "gold_shown": null,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7281_b_20260814c_results",
+   "task": "task_075",
+   "seed": 1567,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [],
+   "gold_shown": null,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7286_b_20260814h_results",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7295_a_20260815n_results",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7295_a_20260815n_results",
+   "task": "task_003",
+   "seed": 373753,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7295_a_20260815n_results",
+   "task": "task_003",
+   "seed": 361454,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 2,
+   "narrowed": true,
+   "n_missing": 1,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7295_b_20260815n_results",
+   "task": "task_063",
+   "seed": 361454,
+   "reward": 1.0,
+   "n_eligible": 4,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 3,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7296_treat_20260815p_results",
+   "task": "task_071",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [],
+   "gold_shown": null,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7298_20260816a_results",
+   "task": "task_070",
+   "seed": 1567,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [],
+   "gold_shown": null,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7299_treat_20260816b_results",
+   "task": "task_055",
+   "seed": 373753,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 3,
+   "gold_cards": [],
+   "gold_shown": null,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7303_treat_20260816h_results",
+   "task": "task_024",
+   "seed": 373753,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7304_ctl_20260816j_results",
+   "task": "task_055",
+   "seed": 361454,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 3,
+   "gold_cards": [],
+   "gold_shown": null,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7304_ctl_20260816j_results",
+   "task": "task_055",
+   "seed": 363271,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 3,
+   "gold_cards": [],
+   "gold_shown": null,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7304_treat_20260816j_results",
+   "task": "task_055",
+   "seed": 514337,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 3,
+   "gold_cards": [],
+   "gold_shown": null,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7305_ctlaux_20260817a_results",
+   "task": "task_024",
+   "seed": 361454,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 2,
+   "narrowed": true,
+   "n_missing": 4,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7310_ctl_20260818e",
+   "task": "task_063",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 4,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 3,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7310_treat_20260818e",
+   "task": "task_063",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 4,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 3,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7313_ctl_20260818h",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7313_treat_20260818h",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7313_treat_20260818h",
+   "task": "task_063",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7326_halfA_20260819q",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7326_halfA_20260819q",
+   "task": "task_055",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 3,
+   "gold_cards": [],
+   "gold_shown": null,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7326_halfA_20260819q",
+   "task": "task_003",
+   "seed": 373753,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7328_halfA_20260819r",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7328_halfA_20260819r",
+   "task": "task_003",
+   "seed": 373753,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7328_halfB_20260819r2",
+   "task": "task_063",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7328_halfB_20260819r2",
+   "task": "task_063",
+   "seed": 373753,
+   "reward": 0.0,
+   "n_eligible": 1,
+   "n_mentioned": 1,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7332_smoke_20260821",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 2,
+   "narrowed": true,
+   "n_missing": 4,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_ctl_hot_20260821c",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_ctl_hot_20260821c",
+   "task": "task_024",
+   "seed": 373753,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_ctl_hot_20260821c",
+   "task": "task_024",
+   "seed": 361454,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_ctl_hot_20260821c",
+   "task": "task_024",
+   "seed": 1567,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7333_ctl_hot_20260821c",
+   "task": "task_024",
+   "seed": 514337,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_ctl_hot_20260821c",
+   "task": "task_024",
+   "seed": 363271,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_ctl_rest_20260821c",
+   "task": "task_001",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Gold Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_ctl_rest_20260821c",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 2,
+   "narrowed": true,
+   "n_missing": 1,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_ctl_rest_20260821c",
+   "task": "task_001",
+   "seed": 373753,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Gold Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_ctl_rest_20260821c",
+   "task": "task_003",
+   "seed": 373753,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_smoke_20260821",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_smoke_20260821b",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_smoke_20260821b",
+   "task": "task_024",
+   "seed": 373753,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_smoke_20260821c",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7333_smoke_20260821c",
+   "task": "task_024",
+   "seed": 373753,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7333_treat_hot_20260821c",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7333_treat_hot_20260821c",
+   "task": "task_024",
+   "seed": 373753,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7333_treat_hot_20260821c",
+   "task": "task_024",
+   "seed": 361454,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7333_treat_hot_20260821c",
+   "task": "task_024",
+   "seed": 1567,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7333_treat_hot_20260821c",
+   "task": "task_024",
+   "seed": 514337,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7333_treat_hot_20260821c",
+   "task": "task_024",
+   "seed": 363271,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7333_treat_rest_20260821c",
+   "task": "task_001",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Gold Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_treat_rest_20260821c",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_treat_rest_20260821c",
+   "task": "task_001",
+   "seed": 373753,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Gold Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7333_treat_rest_20260821c",
+   "task": "task_003",
+   "seed": 373753,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7334_smoke_20260821",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7334_val_hot_20260821",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7334_val_hot_20260821",
+   "task": "task_024",
+   "seed": 373753,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7334_val_hot_20260821",
+   "task": "task_024",
+   "seed": 361454,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7334_val_hot_20260821",
+   "task": "task_024",
+   "seed": 1567,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7334_val_hot_20260821",
+   "task": "task_024",
+   "seed": 514337,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7334_val_hot_20260821",
+   "task": "task_024",
+   "seed": 363271,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7334_val_rest_20260821",
+   "task": "task_001",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 3,
+   "gold_cards": [
+    "Gold Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7334_val_rest_20260821",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7334_val_rest_20260821",
+   "task": "task_001",
+   "seed": 373753,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Gold Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7334_val_rest_20260821",
+   "task": "task_003",
+   "seed": 373753,
+   "reward": 0.0,
+   "n_eligible": 2,
+   "n_mentioned": 2,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7334_val_rest_20260821",
+   "task": "task_047",
+   "seed": 373753,
+   "reward": 0.0,
+   "n_eligible": 1,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 1,
+   "gold_cards": [
+    "cc_c7d8e9f0a1_szoom",
+    "cc_c7d8e9f0a1_szoom",
+    "cc_c7d8e9f0a1_szoom",
+    "Business Platinum Rewards Card",
+    "cc_c7d8e9f0a1_plat",
+    "cc_c7d8e9f0a1_plat",
+    "cc_c7d8e9f0a1_plat",
+    "cc_c7d8e9f0a1_plat"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7334_val_rest_20260821",
+   "task": "task_063",
+   "seed": 373753,
+   "reward": 0.0,
+   "n_eligible": 4,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 3,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7335_halfA_20260821",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7335_halfA_20260821",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7335_halfA_20260821",
+   "task": "task_003",
+   "seed": 373753,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7335_halfB_20260821",
+   "task": "task_063",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 1,
+   "n_mentioned": 1,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7335_smoke_20260821",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "task_003",
+   "seed": 373753,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "task_024",
+   "seed": 373753,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7336_smoke_20260821b",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7337_halfA_20260822",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7337_smoke_20260822",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7338_smoke_20260822",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7341_smoke_20260822_b",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7342_smoke_20260822_b",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 0,
+   "narrowed": true,
+   "n_missing": 6,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": true
+  },
+  {
+   "run": "bank_t7345_halfA_20260822_partial",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 3,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 2,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7345_smoke_20260822_b",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 0.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": false,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "task_003",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "task_003",
+   "seed": 373753,
+   "reward": 1.0,
+   "n_eligible": 3,
+   "n_mentioned": 3,
+   "narrowed": false,
+   "n_missing": 0,
+   "gold_cards": [
+    "Silver Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "task_024",
+   "seed": 373753,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 1,
+   "narrowed": true,
+   "n_missing": 5,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  },
+  {
+   "run": "bank_t7346_smoke_20260822_b",
+   "task": "task_024",
+   "seed": 626729,
+   "reward": 1.0,
+   "n_eligible": 6,
+   "n_mentioned": 5,
+   "narrowed": true,
+   "n_missing": 1,
+   "gold_cards": [
+    "Business Bronze Rewards Card"
+   ],
+   "gold_shown": true,
+   "no_guidance": false
+  }
+ ]
+}
