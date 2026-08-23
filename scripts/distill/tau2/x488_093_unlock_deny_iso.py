@@ -130,16 +130,25 @@ def anchor(sim, names):
 
     닫힌 술어(래퍼 해제 후 이름 일치)만 — 발화의 뜻은 판정하지 않는다([[59]]).
     라이브는 그 자리에서 크레딧 대신 보고서를 골랐다. 우리는 그 한 발화를 다시 만든다.
+
+    ⚠**첫 언급이 아니라 실행 자리다**(1차 배선 실측: 첫 일치는 msg[2] 의 `unlock` 이라 보정액이
+      계산되기 30턴 전이었다). 우선순위 = ① 마지막 **실행 래퍼**(`call_…`) ② 없으면 마지막 일치.
+      실행 래퍼를 우선하는 이유는 unlock 은 준비이고 우리가 재려는 것은 **무엇을 실행하는가**라서다.
     """
-    for i, m in enumerate(sim.get("messages") or []):
+    msgs = sim.get("messages") or []
+    exec_i = last_i = None
+    for i, m in enumerate(msgs):
         if str(m.get("role") or "") != "assistant":
             continue
         for tc in (m.get("tool_calls") or []):
             a = F.argsof(tc)
+            outer = str(F.nameof(tc))
             inner = str(a.get("agent_tool_name") or a.get("user_tool_name") or "")
-            if (inner or str(F.nameof(tc))) in names:
-                return i
-    return None
+            if (inner or outer) in names:
+                last_i = i
+                if outer.startswith("call_"):
+                    exec_i = i
+    return exec_i if exec_i is not None else last_i
 
 
 def classify(calls, credit, report):
