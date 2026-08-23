@@ -128,13 +128,16 @@ def arbitration(log_paths, results=None):
                  "stop_lines": [], "delivery_lines": [],
                  "fires": collections.defaultdict(list), "reward": None})
     for p in log_paths:
+        # ★키 = `<런태그>|task_NNN#s<seed>` (2026-08-23). seed 는 **런마다 재사용**되므로
+        #   코퍼스 전체를 물리면 `task_016#s626729` 가 99개 런에서 충돌한다.
+        run = run_tag(p)
         opener = gzip.open if str(p).endswith(".gz") else io.open
         with opener(p, "rt", encoding="utf-8", errors="replace") as f:
             for ln in f:
                 sm = SIMFULL.search(ln)
                 if not sm:
                     continue
-                rec = per[sm.group(1)]
+                rec = per["%s|%s" % (run, sm.group(1))]
                 rec["lines"] += 1
                 m = MG.search(ln)
                 if m:
@@ -175,16 +178,26 @@ def arbitration(log_paths, results=None):
     return dict(per)
 
 
+def run_tag(path):
+    """`bank_t7346_halfB_20260822.log.gz` → `bank_t7346_halfB_20260822` (조인 키의 런 부분)."""
+    return os.path.basename(str(path)).split(".")[0]
+
+
+def task_of(key):
+    """`<런>|task_016#s626729` → `task_016`."""
+    return key.split("|")[-1].split("#")[0]
+
+
 def rewards_from_results(paths):
-    """results.json(.gz) → {`task_id#s<seed>`: reward}. 조인 키 정본."""
+    """results.json(.gz) → {`<런태그>|task_id#s<seed>`: reward}. 조인 키 정본."""
     out = {}
     for p in paths:
+        run = run_tag(p)
         opener = gzip.open if str(p).endswith(".gz") else io.open
         with opener(p, "rt", encoding="utf-8", errors="replace") as f:
             d = json.load(f)
         for s in (d.get("simulations") or []):
-            key = "%s#s%s" % (s.get("task_id"), s.get("seed"))
-            out[key] = (s.get("reward_info") or {}).get("reward")
+            out["%s|%s#s%s" % (run, s.get("task_id"), s.get("seed"))] =                 (s.get("reward_info") or {}).get("reward")
     return out
 
 

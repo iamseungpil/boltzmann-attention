@@ -56,7 +56,7 @@ def main(argv):
     print("-" * 46)
     bytask = collections.defaultdict(lambda: [0, 0, 0, 0])
     for k, v in per.items():
-        t = k.split("#")[0]
+        t = L.task_of(k)
         row = bytask[t]
         row[0] += 1
         row[1] += sum(v["stops"].values())
@@ -118,7 +118,7 @@ def main(argv):
     pairs = []
     byt2 = collections.defaultdict(list)
     for k, v in per.items():
-        byt2[k.split("#")[0]].append(v)
+        byt2[L.task_of(k)].append(v)
     for t in sorted(byt2):
         ps = [v for v in byt2[t] if v.get("reward")]
         fs = [v for v in byt2[t] if not v.get("reward")]
@@ -150,7 +150,7 @@ def main(argv):
         with opener2(rp, "rt", encoding="utf-8", errors="replace") as f:
             dd = json.load(f)
         for sm in (dd.get("simulations") or []):
-            msgs["%s#s%s" % (sm.get("task_id"), sm.get("seed"))] = sm.get("messages") or []
+            msgs["%s|%s#s%s" % (L.run_tag(rp), sm.get("task_id"), sm.get("seed"))] = sm.get("messages") or []
 
     BUCKETS = ("결정이후_행동턴", "행동턴", "산문턴_뒤에배달있음", "★산문턴_뒤에배달없음", "정렬불가")
     tally = {b: collections.Counter() for b in BUCKETS}       # bucket -> {PASS/FAIL: n}
@@ -245,7 +245,7 @@ def main(argv):
     # 040 이 혐의 95건 중 41건이다 — 한 태스크가 결론을 끌고 가지 않는지 본다.
     P2, F2 = [], []
     for k, v in per.items():
-        if v.get("reward") is None or k.startswith("task_040"):
+        if v.get("reward") is None or L.task_of(k) == "task_040":
             continue
         (P2 if v.get("reward") else F2).append(len(_suspect_turns(k, v)))
     m2p = (sum(P2) / len(P2)) if P2 else 0.0
@@ -254,6 +254,152 @@ def main(argv):
           % (m2p, m2f, ("%.2fx" % (m2f / m2p)) if m2p else "-"))
     susp_early["_excl_040"] = {"pass_mean": m2p, "fail_mean": m2f}
     step6["suspect_early"] = susp_early
+
+
+    # ═════════════════════════════════════════════════════════════════════════
+    # ★★태스크별 귀속 (2026-08-23 · 사용자 지시 *"통계로 하면 한 태스크의 원인이 과하게
+    #   반영된다. 통계에서 태스크별 원인 귀속을 다시 하라"*).
+    #
+    #   근거는 바로 위 집계 자신이다: 혐의 95건 중 **41건이 040 하나**였고 그 하나가 1.81x 를
+    #   만들었다. 040 을 빼면 0.88x 로 무너진다. **풀링은 정지 수로 가중되므로, 오래 헤매는
+    #   태스크 하나가 코퍼스의 결론을 산다.** 통계는 *분포*를 말하지 *귀속*을 못 한다([[08]]).
+    #
+    #   그래서 여기서는 태스크마다 **그 태스크 자신의 실패 창** 안에서만 센다:
+    #     실패 창 = `last_matched_msg`(gold 변이를 마지막으로 맞힌 메시지) 이후 ~ 궤적 끝.
+    #     그 구간은 **빚진 변이가 아직 안 갚아진 구간**이고, 정지가 해를 끼칠 수 있는 유일한 곳이다.
+    #     창 앞의 정지는 이미 맞힌 것을 못 막고, 창은 태스크마다 길이가 달라 풀링이 안 된다.
+    #   ⚠[[23]]: gold 는 **창을 찾는 진단**으로만 쓴다(어디까지 맞혔나). 레버 선택에 안 쓴다 —
+    #     이건 기존 포렌식이 gold 를 읽는 것과 같은 용법이다.
+    #
+    #   판정은 태스크 **안에서** 닫는다(닫힌 술어·풀링 0):
+    #     무관        그 태스크의 모든 sim 에서 창내 혐의 0 — 중재는 이 실패를 안 건드렸다
+    #     자체통제탈락 같은 태스크의 **통과한 sim** 이 실패 sim 만큼(이상) 창내 혐의를 받았다
+    #                 ⇒ 그 패턴은 실패와 무관하다([[57]] 부정통제가 태스크 안에 있다)
+    #     후보        위 둘이 아니다 — 창내 혐의가 실패 sim 에만 있다. **정독 대상**
+    #     통제불가    그 태스크에 통과 sim 이 없어 태스크-내 대조가 불가능(n 부족을 숨기지 않는다)
+    print("\n" + "═" * 78)
+    print("★★태스크별 귀속 — 각 태스크의 **자기 실패 창** 안에서만 센다")
+    print("   (위 집계는 분포이지 귀속이 아니다: 혐의 95 중 41 이 040 하나였다)")
+    print("═" * 78)
+
+    import t2_forensic as _F
+    _MUT = _F.mutating_tools()
+    sims_by_key = {}
+    for rp in res:
+        opener3 = gzip.open if rp.endswith(".gz") else io.open
+        with opener3(rp, "rt", encoding="utf-8", errors="replace") as f:
+            dd = json.load(f)
+        for sm in (dd.get("simulations") or []):
+            sims_by_key["%s|%s#s%s" % (L.run_tag(rp), sm.get("task_id"), sm.get("seed"))] = sm
+
+    def _window_start(sim):
+        """빚이 아직 남은 구간의 시작 = gold 변이를 마지막으로 맞힌 메시지 인덱스."""
+        md = _F.mutation_diff(sim, _MUT)
+        idx = [e.get("msg_i") for e in (md.get("matched") or []) if e.get("msg_i") is not None]
+        return (max(idx) if idx else 0), md
+
+    per_task = {}
+    for k, v in per.items():
+        if v.get("reward") is None or k not in sims_by_key:
+            continue
+        t = L.task_of(k)
+        w0, md = _window_start(sims_by_key[k])
+        sus = _suspect_turns(k, v)
+        row = {"sim": k, "reward": v["reward"], "window_start": w0,
+               "n_msgs": len(msgs.get(k) or []),
+               "stops": sum(v["stops"].values()),
+               "suspects": len(sus), "in_window": sorted(t2 for t2 in sus if t2 > w0),
+               "missing": len(md.get("missing") or []),
+               "wrongarg": len(md.get("wrongarg") or []),
+               "extra": len(md.get("extra") or [])}
+        per_task.setdefault(t, []).append(row)
+
+    # ── 판정: **태스크 안에서** pass ↔ fail 을 평균으로 대조한다.
+    #    ⚠`max` 로 판정하면 n 이 커질수록 이상치 하나가 태스크를 후보로 만든다(코퍼스 실행에서
+    #      실제로 12 후보가 그렇게 나왔다). 평균으로 대조하고 **양 팔 최소 n**을 요구한다.
+    #    ⚠창 길이가 태스크마다 다르므로 **창 100 메시지당**으로도 함께 낸다.
+    #    ⚠⚠**구조적 교란**(2026-08-23 발견): 창은 *마지막으로 맞힌 gold 변이 이후*다. 통과 sim 은
+    #      전부 맞혔으므로 창이 **궤적 끝에 붙어 짧다**(017: pass 창 3~15 메시지 ↔ fail 30+).
+    #      그래서 **창내 건수**로 비교하면 통과 쪽이 구조적으로 0 이 나온다 — 8/10 후보의 pass 평균이
+    #      정확히 0.00 이었던 것이 그 인공물이다. ⇒ 판정은 **창 100 메시지당 비율**로만 한다.
+    MIN_ARM = 2
+    print("%-10s %5s %5s %9s %9s %9s %9s %7s  %s"
+          % ("task", "pass", "fail", "창len P", "창len F", "창100P", "창100F", "비", "판정"))
+    print("-" * 96)
+    verdicts = {}
+    for t in sorted(per_task):
+        rows = per_task[t]
+        ps = [r for r in rows if r["reward"]]
+        fs = [r for r in rows if not r["reward"]]
+
+        def _mean(rs):
+            return (sum(len(r["in_window"]) for r in rs) / len(rs)) if rs else 0.0
+
+        def _per100(rs):
+            w = sum(max(r["n_msgs"] - r["window_start"], 1) for r in rs)
+            return 100.0 * sum(len(r["in_window"]) for r in rs) / w if rs else 0.0
+
+        def _wlen(rs):
+            return (sum(max(r["n_msgs"] - r["window_start"], 1) for r in rs) / len(rs)) if rs else 0.0
+
+        mp, mf = _mean(ps), _mean(fs)
+        rp, rf = _per100(ps), _per100(fs)
+        # ★창 비교가능성 (2026-08-23): 정규화해도 **창 3 메시지 ↔ 창 45 메시지**는 못 비교한다.
+        #   짧은 창은 정지를 담을 기회 자체가 없어 0 이 나오고, 그 0 이 `pass=0` 판정을 만든다
+        #   (10 후보 중 8 이 그 인공물이었다). 두 팔의 평균 창이 **2배 안**일 때만 판정한다.
+        wp, wf = _wlen(ps), _wlen(fs)
+        _comparable = bool(wp and wf and 0.5 <= (wf / wp) <= 2.0)
+        if not fs:
+            vd = "전부통과"
+        elif len(ps) < MIN_ARM or len(fs) < MIN_ARM:
+            vd = "통제불가(n)"
+        elif not _comparable:
+            vd = "창비교불가"
+        elif rf == 0:
+            vd = "무관"
+        elif rp >= rf:
+            vd = "자체통제탈락"
+        else:
+            vd = "★후보"
+        verdicts[t] = {"verdict": vd, "n_pass": len(ps), "n_fail": len(fs),
+                       "mean_pass": mp, "mean_fail": mf,
+                       "per100_pass": rp, "per100_fail": rf,
+                       "win_pass": wp, "win_fail": wf, "comparable": _comparable,
+                       "rows": rows}
+        print("%-10s %5d %5d %9.1f %9.1f %9.2f %9.2f %7s  %s"
+              % (t, len(ps), len(fs), wp, wf, rp, rf,
+                 ("%.2fx" % (rf / rp)) if rp else "-", vd))
+
+    order = ("★후보", "자체통제탈락", "무관", "창비교불가", "통제불가(n)", "전부통과")
+    print("\n판정 집계: " + " · ".join(
+        "%s %d" % (k, sum(1 for v in verdicts.values() if v["verdict"] == k)) for k in order))
+    cand = [t for t, v in verdicts.items() if v["verdict"] == "★후보"]
+    print("\n★후보 = 같은 태스크에서 **창 길이로 정규화한** 창내 혐의율이 실패 쪽에서 더 높은 태스크")
+    if not cand:
+        print("   (없음)")
+    for t in cand:
+        v = verdicts[t]
+        print("   %-10s 창100당  pass %.2f (창 %.0f msg ×%d) ↔ fail %.2f (창 %.0f msg ×%d)  = %s"
+              % (t, v["per100_pass"], v["win_pass"], v["n_pass"],
+                 v["per100_fail"], v["win_fail"], v["n_fail"],
+                 ("%.2fx" % (v["per100_fail"] / v["per100_pass"])) if v["per100_pass"] else "pass=0"))
+    inc = [(t, v) for t, v in verdicts.items() if v["verdict"] == "창비교불가"]
+    if inc:
+        print("")
+        print("창비교불가 %d개 — 두 팔의 창 길이가 2배를 넘어 비교가 성립하지 않는다." % len(inc))
+        print("   (통과 sim 은 gold 변이를 다 맞혀 창이 궤적 끝에 붙는다 = 구조적으로 짧다)")
+        for t, v in sorted(inc, key=lambda kv: -(kv[1]["per100_fail"] or 0)):
+            print("   %-10s 창 P %.0f ↔ F %.0f (%.2fx) · 창100당 P %.2f ↔ F %.2f%s"
+                  % (t, v["win_pass"], v["win_fail"],
+                     (v["win_fail"] / v["win_pass"]) if v["win_pass"] else 0,
+                     v["per100_pass"], v["per100_fail"],
+                     "   ←경계(2배 문턱 바로 밖)" if v["win_pass"] and
+                     0.4 <= (v["win_fail"] / v["win_pass"]) <= 2.5 else ""))
+    unc = [t for t, v in verdicts.items() if v["verdict"] == "통제불가(n)"]
+    if unc:
+        print("\n통제불가(n) %d개 — 이 코퍼스에 한쪽 팔이 %d개 미만이라 태스크-내 대조가 안 된다: %s"
+              % (len(unc), MIN_ARM, ", ".join(unc)))
+
 
     out = {"logs": [os.path.basename(p) for p in logs],
            "n_sim": len(per),
@@ -268,13 +414,17 @@ def main(argv):
            "early_window": early_rows,
            "matched_pairs": pairs,
            "step6": step6,
+           "per_task_attribution": {t: {k2: v2 for k2, v2 in v.items() if k2 != "rows"}
+                                    for t, v in verdicts.items()},
            "per_sim": {k: {"reward": v.get("reward"), "lines": v["lines"],
                            "stops": dict(v["stops"]), "deliveries": v["deliveries"],
                            "clobbered_bytes": v["clobbered_bytes"],
                            "suppressed": v["suppressed"],
                            "stop_turns": v["stop_turns"]}
                        for k, v in per.items()}}
-    dst = os.path.join(SIMS, "..", "x492_arbitration_ledger.json")
+    # 태그를 주면 결과 파일도 갈라 쓴다(단일 런 결과를 코퍼스 실행이 덮지 않게)
+    _sfx = "" if not argv else "_corpus"
+    dst = os.path.join(SIMS, "..", "x492_arbitration_ledger%s.json" % _sfx)
     with io.open(dst, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
     print("\n→ %s" % os.path.normpath(dst))
