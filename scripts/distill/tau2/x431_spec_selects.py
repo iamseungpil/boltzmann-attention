@@ -441,6 +441,24 @@ def cellval(cell):
     return num(vals[0])
 
 
+def cellvals(cell):
+    """셀이 **지지하는 수 전부**. 조건부 칸(`Tier 1 3.0% / Tier 2 4.5%`)은 값이 둘이다.
+
+    ⚠`cellval` 은 `vals[0]` 을 집는다 — 조건부 칸에서 그것은 **엔진이 둘 중 하나를 고르는 것**이고
+      [[62]] 가 금하는 자리다. 비교는 *만족 가능한가*로 답한다(어느 조건에서인지는 `condition` 에
+      적혀 있고 이 프로브는 잔고를 모형화하지 않는다). 거동 보존: filled 표의 값 있는 칸 346 개
+      중 **값이 둘 이상인 칸은 0** 이므로(2026-08-24 실측) 이 함수는 조건부 겹침에서만 갈린다.
+    """
+    vals = (cell or {}).get("values") or []
+    if not vals:
+        return []
+    if (cell or {}).get("unit") == "boolean":
+        v = cellval(cell)
+        return [] if v is None else [v]
+    out = [num(v) for v in vals]
+    return [v for v in out if v is not None]
+
+
 def table_caps(tbl, fams):
     """그 표가 **실제로 만족시킬 수 있는 술어**만 유도한다 — 도메인 지식 0·표의 형태만 본다.
 
@@ -529,12 +547,17 @@ def arm_attrs(tbl, fams, arm, caps=None):
 
 
 def _cmp(cell, op, target):
-    """한 칸을 한 수와 비교한다 — 값이 없거나 기준이 없으면 **거르지 않는다**(과차단 방지)."""
-    v = cellval(cell)
-    if v is None or target is None:
+    """한 칸을 한 수와 비교한다 — 값이 없거나 기준이 없으면 **거르지 않는다**(과차단 방지).
+
+    조건부 칸은 **어느 값이든 만족하면 통과**다(만족 가능성). 그것이 고르지 않는 유일한 답이다 —
+    어느 조건에서 어느 값인지는 셀의 `condition` 이 갖고 있고 이 프로브는 잔고를 모형화하지 않는다.
+    """
+    vs = cellvals(cell)
+    if not vs or target is None:
         return True
     t = float(target)
-    return (v == t) if op == "==" else (v <= t) if op == "<=" else (v >= t) if op == ">=" else True
+    return any((v == t) if op == "==" else (v <= t) if op == "<=" else (v >= t) if op == ">="
+               else True for v in vs)
 
 
 def passes(row, con):
@@ -681,6 +704,11 @@ def main():
     ap.add_argument("--repeat", type=int, default=1,
                     help="같은 코드로 N회 반복 — **판정선**(무처치 변동폭)을 잰다")
     ap.add_argument("--args-filter", default="account_class")
+    ap.add_argument("--conditional", default="off", choices=("off", "overlay"),
+                    help="조건부 사실표(`x430_account_facts_conditional.json`)를 **빈 칸에만** 덮나. "
+                         "off=종전 · overlay=덮는다. 실측 2026-08-24: 조건부가 값을 낸 355 칸 중 "
+                         "**9 칸**이 filled 표에서 비어 있고 그중 `silver_plus_account.apy` 와 "
+                         "`purple_account.apy` 가 063·055 의 gold 다")
     ap.add_argument("--family-from", default="none", choices=("none", "said", "fixed"),
                     help="후보를 손님이 말한 **계열**로 좁히나. "
                          "none=종전(4계열 38행 전부) · said=형식화가 낸 계열 · "
@@ -699,6 +727,31 @@ def main():
     with io.open(tbl_path, encoding="utf-8") as f:
         table = json.load(f)
     print("표 = %s" % os.path.basename(tbl_path))
+    if a.conditional == "overlay":
+        # ★조건부 표를 **빈 칸에만** 얹는다 — 값이 있는 칸은 손대지 않는다(덮어쓰기 0).
+        #   x452(2026-08-21)가 문서 축자 인용과 함께 채운 칸들이 `_filled` 로 합쳐진 적이 없다.
+        #   그 미합류 한 칸(`silver_plus_account.apy`)이 063 **두 시행 모두**에서 `apy exists` 로
+        #   gold 를 떨어뜨리고 있었다 — 모델의 과잉 필터가 아니라 **우리 표의 구멍**이다([[55]]).
+        cp = os.path.join(os.path.dirname(tbl_path), "x430_account_facts_conditional.json")
+        merged = 0
+        if os.path.exists(cp):
+            with io.open(cp, encoding="utf-8") as f:
+                cond = json.load(f)
+            for cls, crow in cond.items():
+                if not isinstance(crow, dict):
+                    continue
+                trow = table.get(cls)
+                if not isinstance(trow, dict):
+                    continue
+                for at, ccell in crow.items():
+                    if not isinstance(ccell, dict) or not ccell.get("values"):
+                        continue
+                    tcell = trow.get(at)
+                    if isinstance(tcell, dict) and not tcell.get("values"):
+                        trow[at] = ccell
+                        merged += 1
+        print("조건부 오버레이: 빈 칸 %d 개를 채웠다 (출처 = %s)"
+              % (merged, os.path.basename(cp)))
     if a.fill_blanks:
         fams = FT.FAMILIES if a.family == "all" else [a.family]
         for fam in fams:
@@ -864,11 +917,12 @@ def main():
         #   커밋된 8-사례 산출물을 5-사례 결과로 **덮었다**(2026-08-24 실물·git checkout 으로 복구).
         #   `--tag` 를 준 것 자체가 *이건 다른 실행이다* 라는 선언이므로 이름이 갈려야 한다([[30]]).
         default_call = (a.arm == "A_cur" and a.tag == "wide" and a.family_from == "none"
-                        and len(all_rows) == 1)
+                        and a.conditional == "off" and len(all_rows) == 1)
         if default_call:
             name = "x431_spec_selects.json"
         else:
-            name = "x431_%s_fam%s_%s%d.json" % (a.arm.lower(), a.family_from, a.tag, k + 1)
+            name = "x431_%s_fam%s_cond%s_%s%d.json" % (a.arm.lower(), a.family_from,
+                                                        a.conditional, a.tag, k + 1)
         q = os.path.abspath(os.path.join(rep, name))
         with io.open(q, "w", encoding="utf-8") as f:
             json.dump(rws, f, ensure_ascii=False, indent=1)
