@@ -1,0 +1,439 @@
+[
+ {
+  "arm": "B_cov50",
+  "menu_attrs": [
+   "apy",
+   "max_age",
+   "min_age",
+   "monthly_maintenance_fee",
+   "waiver_min_daily_balance",
+   "wire_transfer_fee"
+  ],
+  "task": "task_055",
+  "trial": 0,
+  "gold": "Purple Account",
+  "objective": {
+   "mode": "argmin",
+   "terms": [
+    {
+     "attribute": "monthly_maintenance_fee",
+     "times": 1,
+     "of_amount": null,
+     "sign": 1
+    }
+   ]
+  },
+  "scores": {
+   "automatic_sweep_program": 0.0,
+   "blue_account": 20.0,
+   "bronze_account": 0.0,
+   "bronze_saver_account": 0.0,
+   "cobalt_blue": 20.0,
+   "dark_green_account": 10.0,
+   "diamond_elite_account": 0.0,
+   "diamond_vault": 0.0,
+   "emerald_saver": 5.0,
+   "evergreen_account": 6.0,
+   "gold_saver_account": 10.0,
+   "gold_years_account": 0.0,
+   "green_account_(checking)": 22.5,
+   "green_account_(savings)": 0.0,
+   "green_fee-free_account": 22.5,
+   "hunter_green": 25.0,
+   "light_blue_account": 0.0,
+   "light_green_account": 0.0,
+   "navy_blue": 0.0,
+   "platinum_account": 25.0,
+   "platinum_plus_account": 50.0,
+   "purple_account": 15.0,
+   "silver_account": 5.0,
+   "silver_plus_account": 8.0,
+   "silver_plus_saver": 10.0,
+   "sky_blue": 25.0
+  },
+  "n_constraints": 1,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 28,
+  "surv": [
+   "automatic_sweep_program",
+   "blue_account",
+   "bronze_account",
+   "bronze_saver_account",
+   "checking_accounts_(general)",
+   "cobalt_blue",
+   "dark_green_account",
+   "diamond_elite_account",
+   "diamond_vault",
+   "emerald_saver",
+   "evergreen_account",
+   "gold_saver_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_account_(savings)",
+   "green_fee-free_account",
+   "hunter_green",
+   "joint_business_holders_+_user_roles",
+   "light_blue_account",
+   "light_green_account",
+   "navy_blue",
+   "platinum_account",
+   "platinum_plus_account",
+   "purple_account",
+   "silver_account",
+   "silver_plus_account",
+   "silver_plus_saver",
+   "sky_blue"
+  ],
+  "undecidable": false,
+  "reask": true,
+  "n_rejected_first": 3,
+  "unsupported": [],
+  "declared_non_requirement": [
+   [
+    "min_age",
+    "background",
+    "I’m 33, so not student/senior."
+   ],
+   [
+    "max_age",
+    "background",
+    "I’m 33, so not student/senior."
+   ],
+   [
+    "monthly_maintenance_fee",
+    "question",
+    "I really don’t want to compare a bunch of options."
+   ]
+  ],
+  "winner": [
+   "automatic_sweep_program",
+   "bronze_account",
+   "bronze_saver_account",
+   "diamond_elite_account",
+   "diamond_vault",
+   "gold_years_account",
+   "green_account_(savings)",
+   "light_blue_account",
+   "light_green_account",
+   "navy_blue"
+  ],
+  "winner_is_gold": false,
+  "pref_best": [
+   "checking_accounts_(general)",
+   "joint_business_holders_+_user_roles"
+  ],
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "waiver_min_daily_balance",
+    "op": "<=",
+    "value": 5000,
+    "because": "Balance-wise, I can keep maybe like $3k–$4k in there most of the time, $5k at most.",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "arm": "B_cov50",
+  "menu_attrs": [
+   "apy",
+   "max_age",
+   "min_age",
+   "monthly_maintenance_fee",
+   "waiver_min_daily_balance",
+   "wire_transfer_fee"
+  ],
+  "task": "task_063",
+  "trial": 0,
+  "gold": "Silver Plus Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 1,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 2,
+  "surv": [
+   "checking_accounts_(general)",
+   "joint_business_holders_+_user_roles"
+  ],
+  "undecidable": false,
+  "reask": true,
+  "n_rejected_first": 6,
+  "unsupported": [],
+  "declared_non_requirement": [
+   [
+    "min_age",
+    "background",
+    "Date of birth: 09/12/1993"
+   ],
+   [
+    "max_age",
+    "background",
+    "Date of birth: 09/12/1993"
+   ],
+   [
+    "wire_transfer_fee",
+    "background",
+    "I can’t actually log into the online portal from within this chat to complete those steps"
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "monthly_maintenance_fee",
+    "op": "absent",
+    "value": null,
+    "because": "I absolutely need paper statements mailed to me",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "arm": "B_cov50",
+  "menu_attrs": [
+   "apy",
+   "max_age",
+   "min_age",
+   "monthly_maintenance_fee",
+   "waiver_min_daily_balance",
+   "wire_transfer_fee"
+  ],
+  "task": "task_057",
+  "trial": 1,
+  "gold": "Blue Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 0,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 38,
+  "surv": [
+   "automatic_sweep_program",
+   "beige",
+   "blue_account",
+   "bluest_account",
+   "bronze_account",
+   "bronze_saver_account",
+   "checking_accounts_(general)",
+   "cobalt_blue",
+   "dark_green_account",
+   "diamond_elite_account",
+   "diamond_vault",
+   "emerald_saver",
+   "evergreen_account",
+   "gold_account",
+   "gold_plus_account",
+   "gold_plus_saver",
+   "gold_saver_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_account_(savings)",
+   "green_fee-free_account",
+   "hunter_green",
+   "joint_business_holders_+_user_roles",
+   "light_blue_account",
+   "light_green_account",
+   "lime_green",
+   "navy_blue",
+   "platinum_account",
+   "platinum_plus_account",
+   "platinum_reserve_account",
+   "purple_account",
+   "silver_account",
+   "silver_plus_account",
+   "silver_plus_saver",
+   "silver_saver_account",
+   "sky_blue",
+   "true_blue",
+   "world_blue"
+  ],
+  "undecidable": true,
+  "reask": true,
+  "n_rejected_first": 3,
+  "unsupported": [],
+  "declared_non_requirement": [
+   [
+    "monthly_maintenance_fee",
+    "question",
+    "I can usually keep like $500–$700 in the account—would that avoid monthly fees?"
+   ],
+   [
+    "waiver_min_daily_balance",
+    "question",
+    "I can usually keep like $500–$700 in the account—would that avoid monthly fees?"
+   ],
+   [
+    "min_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ],
+   [
+    "max_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": [
+   "blue_account",
+   "bronze_account",
+   "evergreen_account",
+   "green_account_(savings)",
+   "green_fee-free_account"
+  ],
+  "pref_held": 15,
+  "pref_is_gold": true,
+  "gold_in": false,
+  "unique": false,
+  "spec": []
+ },
+ {
+  "arm": "B_cov50",
+  "menu_attrs": [
+   "apy",
+   "max_age",
+   "min_age",
+   "monthly_maintenance_fee",
+   "waiver_min_daily_balance",
+   "wire_transfer_fee"
+  ],
+  "task": "task_057",
+  "trial": 0,
+  "gold": "Blue Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 1,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 8,
+  "surv": [
+   "automatic_sweep_program",
+   "bronze_account",
+   "checking_accounts_(general)",
+   "gold_account",
+   "green_account_(savings)",
+   "joint_business_holders_+_user_roles",
+   "silver_account",
+   "silver_plus_account"
+  ],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "unsupported": [],
+  "declared_non_requirement": [
+   [
+    "monthly_maintenance_fee",
+    "question",
+    "I can usually keep around $500–$700 in the account. Would that be enough to avoid any monthly fee?"
+   ],
+   [
+    "waiver_min_daily_balance",
+    "question",
+    "I can usually keep around $500–$700 in the account. Would that be enough to avoid any monthly fee?"
+   ],
+   [
+    "min_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ],
+   [
+    "max_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": [
+   "bronze_account",
+   "green_account_(savings)"
+  ],
+  "pref_held": 3,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "wire_transfer_fee",
+    "op": "absent",
+    "value": null,
+    "because": "I need an account with absolutely no overdraft fees.",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "arm": "B_cov50",
+  "menu_attrs": [
+   "apy",
+   "max_age",
+   "min_age",
+   "monthly_maintenance_fee",
+   "waiver_min_daily_balance",
+   "wire_transfer_fee"
+  ],
+  "task": "task_063",
+  "trial": 1,
+  "gold": "Silver Plus Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 4,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 0,
+  "surv": [],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "unsupported": [],
+  "declared_non_requirement": [],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "apy",
+    "op": "exists",
+    "value": null,
+    "because": "My goal is to maximize the interest I'll earn over one year—even a small difference of $10–15 matters to me.",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "monthly_maintenance_fee",
+    "op": "absent",
+    "value": null,
+    "because": "I absolutely need paper statements mailed to me (my accountant requires physical copies for tax filing).",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "waiver_min_daily_balance",
+    "op": "absent",
+    "value": null,
+    "because": "I absolutely need paper statements mailed to me (my accountant requires physical copies for tax filing).",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "wire_transfer_fee",
+    "op": "absent",
+    "value": null,
+    "because": "I absolutely need paper statements mailed to me (my accountant requires physical copies for tax filing).",
+    "stated_as": "requirement"
+   }
+  ]
+ }
+]

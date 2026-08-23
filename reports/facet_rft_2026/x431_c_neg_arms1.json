@@ -1,0 +1,393 @@
+[
+ {
+  "arm": "C_neg",
+  "menu_attrs": [
+   "foreign_currency_holding",
+   "free_oon_atm_per_month",
+   "monthly_deposit_limit",
+   "overdraft_protection_transfer_fee"
+  ],
+  "task": "task_055",
+  "trial": 0,
+  "gold": "Purple Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 0,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 38,
+  "surv": [
+   "automatic_sweep_program",
+   "beige",
+   "blue_account",
+   "bluest_account",
+   "bronze_account",
+   "bronze_saver_account",
+   "checking_accounts_(general)",
+   "cobalt_blue",
+   "dark_green_account",
+   "diamond_elite_account",
+   "diamond_vault",
+   "emerald_saver",
+   "evergreen_account",
+   "gold_account",
+   "gold_plus_account",
+   "gold_plus_saver",
+   "gold_saver_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_account_(savings)",
+   "green_fee-free_account",
+   "hunter_green",
+   "joint_business_holders_+_user_roles",
+   "light_blue_account",
+   "light_green_account",
+   "lime_green",
+   "navy_blue",
+   "platinum_account",
+   "platinum_plus_account",
+   "platinum_reserve_account",
+   "purple_account",
+   "silver_account",
+   "silver_plus_account",
+   "silver_plus_saver",
+   "silver_saver_account",
+   "sky_blue",
+   "true_blue",
+   "world_blue"
+  ],
+  "undecidable": true,
+  "reask": false,
+  "n_rejected_first": 0,
+  "unsupported": [],
+  "declared_non_requirement": [
+   [
+    "free_oon_atm_per_month",
+    "question",
+    "Is there any option where you reimburse out-of-network / international ATM fees?"
+   ],
+   [
+    "foreign_currency_holding",
+    "question",
+    "Oh—and sometimes I get paid in yen or euros. It would be nice if I could hold those currencies instead of converting immediately, if that’s a thing."
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": [
+   "cobalt_blue",
+   "green_fee-free_account",
+   "hunter_green",
+   "light_blue_account",
+   "light_green_account",
+   "navy_blue",
+   "purple_account",
+   "silver_account",
+   "sky_blue",
+   "world_blue"
+  ],
+  "pref_held": 0,
+  "pref_is_gold": true,
+  "gold_in": false,
+  "unique": false,
+  "spec": []
+ },
+ {
+  "arm": "C_neg",
+  "menu_attrs": [
+   "foreign_currency_holding",
+   "free_oon_atm_per_month",
+   "monthly_deposit_limit",
+   "overdraft_protection_transfer_fee"
+  ],
+  "task": "task_063",
+  "trial": 0,
+  "gold": "Silver Plus Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 2,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 8,
+  "surv": [
+   "cobalt_blue",
+   "green_fee-free_account",
+   "hunter_green",
+   "light_blue_account",
+   "light_green_account",
+   "navy_blue",
+   "silver_account",
+   "sky_blue"
+  ],
+  "undecidable": false,
+  "reask": true,
+  "n_rejected_first": 6,
+  "unsupported": [],
+  "declared_non_requirement": [
+   [
+    "monthly_deposit_limit",
+    "question",
+    "I need to confirm again: can the savings account send paper statements by mail?"
+   ],
+   [
+    "foreign_currency_holding",
+    "question",
+    "Is that an option?"
+   ],
+   [
+    "monthly_deposit_limit",
+    "question",
+    "Can you confirm the Gold Account has the highest APY you offer for a savings account (given I’ll park $8,000 for one year with no withdrawals)?"
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": [
+   "cobalt_blue",
+   "green_fee-free_account",
+   "hunter_green",
+   "light_blue_account",
+   "light_green_account",
+   "navy_blue",
+   "silver_account",
+   "sky_blue"
+  ],
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "foreign_currency_holding",
+    "op": "==",
+    "value": 0,
+    "because": "I don’t travel a ton, but I’d rather avoid it",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "free_oon_atm_per_month",
+    "op": "exists",
+    "value": null,
+    "because": "I’m not interested in any “no credit check” type cards",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "arm": "C_neg",
+  "menu_attrs": [
+   "foreign_currency_holding",
+   "free_oon_atm_per_month",
+   "monthly_deposit_limit",
+   "overdraft_protection_transfer_fee"
+  ],
+  "task": "task_057",
+  "trial": 1,
+  "gold": "Blue Account",
+  "objective": {
+   "mode": "argmin",
+   "terms": [
+    {
+     "attribute": "overdraft_protection_transfer_fee",
+     "times": 1,
+     "of_amount": null,
+     "sign": 1
+    },
+    {
+     "attribute": "free_oon_atm_per_month",
+     "times": 2,
+     "of_amount": 100,
+     "sign": -1
+    }
+   ]
+  },
+  "scores": {
+   "light_blue_account": -4.0,
+   "navy_blue": -20.0
+  },
+  "n_constraints": 1,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 5,
+  "surv": [
+   "blue_account",
+   "dark_green_account",
+   "green_account_(checking)",
+   "light_blue_account",
+   "navy_blue"
+  ],
+  "undecidable": false,
+  "reask": true,
+  "n_rejected_first": 5,
+  "unsupported": [],
+  "declared_non_requirement": [
+   [
+    "free_oon_atm_per_month",
+    "background",
+    "I probably do around 2–3 ATM withdrawals a month"
+   ],
+   [
+    "monthly_deposit_limit",
+    "question",
+    "Can I link a savings account for automatic overdraft protection transfers?"
+   ],
+   [
+    "foreign_currency_holding",
+    "question",
+    "I can usually keep like $500–$700 in the account—would that avoid monthly fees?"
+   ]
+  ],
+  "winner": [
+   "navy_blue"
+  ],
+  "winner_is_gold": false,
+  "pref_best": [
+   "blue_account",
+   "dark_green_account",
+   "green_account_(checking)",
+   "light_blue_account",
+   "navy_blue"
+  ],
+  "pref_held": 0,
+  "pref_is_gold": true,
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "overdraft_protection_transfer_fee",
+    "op": "exists",
+    "value": null,
+    "because": "I’d rather pay a small transfer fee than have a payment bounce.",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "arm": "C_neg",
+  "menu_attrs": [
+   "foreign_currency_holding",
+   "free_oon_atm_per_month",
+   "monthly_deposit_limit",
+   "overdraft_protection_transfer_fee"
+  ],
+  "task": "task_057",
+  "trial": 0,
+  "gold": "Blue Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 2,
+  "n_rejected": 3,
+  "rejected": [
+   "unknown attribute 'monthly_balance_to_avoid_fee' (not in the allowed list)",
+   "unknown attribute 'monthly_balance_to_avoid_fee' (not in the allowed list)",
+   "unknown attribute 'early_direct_deposit' (not in the allowed list)"
+  ],
+  "n_surv": 0,
+  "surv": [],
+  "undecidable": false,
+  "reask": true,
+  "n_rejected_first": 3,
+  "unsupported": [],
+  "declared_non_requirement": [],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "overdraft_protection_transfer_fee",
+    "op": "exists",
+    "value": null,
+    "because": "I’d rather pay a small transfer fee than have a payment bounce.",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "overdraft_protection_transfer_fee",
+    "op": "absent",
+    "value": null,
+    "because": "I need an account with absolutely no overdraft fees. That’s non-negotiable.",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "arm": "C_neg",
+  "menu_attrs": [
+   "foreign_currency_holding",
+   "free_oon_atm_per_month",
+   "monthly_deposit_limit",
+   "overdraft_protection_transfer_fee"
+  ],
+  "task": "task_063",
+  "trial": 1,
+  "gold": "Silver Plus Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 0,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 38,
+  "surv": [
+   "automatic_sweep_program",
+   "beige",
+   "blue_account",
+   "bluest_account",
+   "bronze_account",
+   "bronze_saver_account",
+   "checking_accounts_(general)",
+   "cobalt_blue",
+   "dark_green_account",
+   "diamond_elite_account",
+   "diamond_vault",
+   "emerald_saver",
+   "evergreen_account",
+   "gold_account",
+   "gold_plus_account",
+   "gold_plus_saver",
+   "gold_saver_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_account_(savings)",
+   "green_fee-free_account",
+   "hunter_green",
+   "joint_business_holders_+_user_roles",
+   "light_blue_account",
+   "light_green_account",
+   "lime_green",
+   "navy_blue",
+   "platinum_account",
+   "platinum_plus_account",
+   "platinum_reserve_account",
+   "purple_account",
+   "silver_account",
+   "silver_plus_account",
+   "silver_plus_saver",
+   "silver_saver_account",
+   "sky_blue",
+   "true_blue",
+   "world_blue"
+  ],
+  "undecidable": true,
+  "reask": true,
+  "n_rejected_first": 4,
+  "unsupported": [],
+  "declared_non_requirement": [
+   [
+    "free_oon_atm_per_month",
+    "background",
+    "I don’t have a Rho-Bank premium/Rho-Bank+ subscription"
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": false,
+  "unique": false,
+  "spec": []
+ }
+]
