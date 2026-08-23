@@ -732,8 +732,22 @@ def main():
         #   x452(2026-08-21)가 문서 축자 인용과 함께 채운 칸들이 `_filled` 로 합쳐진 적이 없다.
         #   그 미합류 한 칸(`silver_plus_account.apy`)이 063 **두 시행 모두**에서 `apy exists` 로
         #   gold 를 떨어뜨리고 있었다 — 모델의 과잉 필터가 아니라 **우리 표의 구멍**이다([[55]]).
+        #   ★그러나 **통째로 얹으면 안 된다**(2026-08-24 감사·`x502_conditional_cell_audit`):
+        #   빈 칸 9 개를 한 칸씩 축자 근거로 보니 **7 개가 축 오배정**이었다 — 값을 못 찾은 것이
+        #   아니라 *다른 축의 값을 이 축에 넣었다*(`world_blue` 는 리베이트 한도를 무료 **횟수**
+        #   칸에, `purple_account` 는 **다른 상품**의 가산 APY 를 체킹 행에). `_filled` 의 `absent`
+        #   가 9 중 7 에서 옳았다. 우리 도구의 출력은 유일한 근거원이라 한 칸의 거짓이 원장을
+        #   오염시킨다([[25]]) ⇒ **감사서가 ACCEPT 한 칸만** 얹는다([[23]] 출처를 못 대면 안 넣는다).
         cp = os.path.join(os.path.dirname(tbl_path), "x430_account_facts_conditional.json")
-        merged = 0
+        ap = os.path.join(os.path.dirname(tbl_path), "x502_conditional_cell_audit_2026_08_24.json")
+        merged, skipped = 0, 0
+        ok_cells = None
+        if os.path.exists(ap):
+            with io.open(ap, encoding="utf-8") as f:
+                ok_cells = {(c["class"], c["attr"]) for c in (json.load(f).get("cells") or [])
+                            if c.get("verdict") == "ACCEPT"}
+        else:
+            raise SystemExit("조건부 오버레이에는 감사서가 필요하다 — 없으면 얹지 않는다: %s" % ap)
         if os.path.exists(cp):
             with io.open(cp, encoding="utf-8") as f:
                 cond = json.load(f)
@@ -748,10 +762,13 @@ def main():
                         continue
                     tcell = trow.get(at)
                     if isinstance(tcell, dict) and not tcell.get("values"):
+                        if (cls, at) not in ok_cells:
+                            skipped += 1
+                            continue
                         trow[at] = ccell
                         merged += 1
-        print("조건부 오버레이: 빈 칸 %d 개를 채웠다 (출처 = %s)"
-              % (merged, os.path.basename(cp)))
+        print("조건부 오버레이: 감사 ACCEPT %d 칸을 채웠다 · 감사 REJECT 로 건너뛴 칸 %d (출처 = %s · 감사 = %s)"
+              % (merged, skipped, os.path.basename(cp), os.path.basename(ap)))
     if a.fill_blanks:
         fams = FT.FAMILIES if a.family == "all" else [a.family]
         for fam in fams:
