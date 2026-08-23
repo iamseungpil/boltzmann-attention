@@ -536,8 +536,13 @@ def _sub_formalize(orch, d, iso, ctx, run_env_calls):
             continue
         got = _merge_json(getattr(resp, "content", None) or "", set(ids))
         getter = sum(1 for m in msgs if getattr(m, "role", "") == "tool")
-        print("[T2_SG_ISOLATE] %s: %d라운드·getter %d회·operand %d/%d행"
-              % (d.get("name"), rnd + 1, getter, len(got), len(ids)), file=_sys.stderr, flush=True)
+        # ★A-7⑹ (2026-08-23·094): 개수만 남기면 어느 operand 가 왔는지 알 수 없어 다음
+        #   포렌식이 값을 **산술로 역산**하게 된다. 종류(키) 목록을 병기한다(값은 사이드카에).
+        _kinds = sorted({str(_k) for _v in (got or {}).values()
+                         if isinstance(_v, dict) for _k in _v})
+        print("[T2_SG_ISOLATE] %s: %d라운드·getter %d회·operand %d/%d행 (kind=%s)"
+              % (d.get("name"), rnd + 1, getter, len(got), len(ids),
+                 ",".join(_kinds) or "-"), file=_sys.stderr, flush=True)
         # ★★계측: 서브 산출 operand 전수를 파일에 남긴다 — 라이브 서브는 메인 궤적 밖이라 여기 안 남기면
         #   over-flag가 서브 오독인지 검색부실인지 **영영 못 본다**(2026-07-18 디버깅공백·[[08]]).
         _isolate_trace(iso, d, {"round": rnd + 1, "getter": getter, "queries": queries,

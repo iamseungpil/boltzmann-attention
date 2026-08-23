@@ -6918,10 +6918,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 min_total=int(os.environ.get("T2_VIEW_COMPACT_MINTOTAL", "60000")),
                 msg_cap=int(os.environ.get("T2_VIEW_MSG_CAP", "8000")))
             self._t2_view_digested = _dg
-            if _dg and not getattr(self, "_t2_vc_logged", False):
-                self._t2_vc_logged = True
-                print("[T2_VIEW_COMPACT] active: %d tool output(s) digested in view"
-                      % len(_dg), file=_sys.stderr, flush=True)
+            # ★A-7⑶ (2026-08-23·016): 구판은 sim 당 1회라 실제 5개/4개가 로그 한 줄이 됐다.
+            #   턴마다 다시 재되 **같은 집합이면 침묵**한다(부피는 안 늘고 변화는 남는다).
+            if _dg:
+                _vcsig = tuple(sorted(_dg)) if not isinstance(_dg, dict)                     else tuple(sorted(_dg.keys()))
+                if _vcsig != getattr(self, "_t2_vc_logged_sig", None):
+                    self._t2_vc_logged_sig = _vcsig
+                    self._t2_vc_logged = True
+                    print("[T2_VIEW_COMPACT] active: %d tool output(s) digested in view"
+                          % len(_dg), file=_sys.stderr, flush=True)
         # ★T2_VIEW_ANNOTATE (2026-07-22 §2bs): A2-선언 필드-주석을 생성-뷰에만 부가(비커밋).
         #   COMPACT 뒤에 적용 — 실제로 보이는 뷰 기준으로만 주석. 기본 OFF(거동보존).
         if os.environ.get("T2_VIEW_ANNOTATE") == "1" and a2 is not None:
@@ -7110,7 +7115,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             work = work + [UserMessage(content=_fbw)]
                         import t2_fbsidecar as _fbw0
                         _fbw0.record("reminder-user", _fbw, work, channel="writesub")
-                        print("[T2_WRITE_SUB] pre-draft 전달(근거 %d자·미실행 필터 %d종)"
+                        # ★A-7⑷ (2026-08-23·073): 이 숫자는 **트리거 코퍼스**(recent 창)이고
+                        #   서브가 실제로 본 창은 A2 `basis_scope`/`basis_max_chars` 가 정한다.
+                        #   073 은 이 두 값이 다른 줄 모르고 679↔2407 을 서브의 창으로 읽었다.
+                        print("[T2_WRITE_SUB] pre-draft 전달(트리거 %d자·미실행 필터 %d종)"
                               % (len(_basis), len(_done)), file=_sys.stderr, flush=True)
             except Exception as _we2:
                 print("[T2_WRITE_SUB] pre-draft 생략(종전 경로): %r" % (_we2,),
@@ -7526,9 +7534,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                         else (_pblocker or "cap"))
                                 # 거동 불변: 선점·소진·이미-막힌 호출은 종전대로 건너뛴다. 로그만 남는다.
                                 print("[T2_PROCEDURE] would-fire but suppressed by=%s tool=%s "
-                                      "missing=%s"
+                                      "missing=%s prohibited=%s"
                                       % (_why, _exact_tool_name(c),
-                                         ",".join(_dc.get("missing") or [])),
+                                         ",".join(_dc.get("missing") or []),
+                                         _dc.get("prohibited") or "-"),
                                       file=_sys.stderr, flush=True)
                                 if _why == "call_denied":
                                     continue          # 다른 호출은 계속 본다(턴 전체를 포기하지 않는다)
@@ -7550,8 +7559,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                          "agent_tool_name", _tl[0])
                             except Exception:
                                 pass
-                            print("[T2_PROCEDURE] deny %s missing=%s"
-                                  % (_exact_tool_name(c), ",".join(_dc.get("missing") or [])),
+                            # ★A-7⑴ (2026-08-23·017): 금지 분기는 `missing=[]` 로 돌아온다 —
+                            #   사유 칸이 비어 나가면 다음 포렌식이 "안 걸렸다"로 읽는다([[25]]).
+                            print("[T2_PROCEDURE] deny %s missing=%s prohibited=%s"
+                                  % (_exact_tool_name(c), ",".join(_dc.get("missing") or []),
+                                     _dc.get("prohibited") or "-"),
                                   file=_sys.stderr, flush=True)
                             break
                 except Exception as _pce:
@@ -9801,8 +9813,14 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             _dax = None
                         _saved = (getattr(self, "_t2_axis_decision", None) or {}).get(_dax) \
                             if _dax else None
-                        _dmat = _search_material(self, a2, state.messages) \
-                            or _saved or getattr(self, "_t2_last_decision", "")
+                        # ★A-7⑸ (2026-08-23·055): **어느 축의 결정문을 실었는지** 남긴다.
+                        #   구판 로그는 `(재료 %d자)` 뿐이라, 두 축의 결정문이 둘 다 247자인
+                        #   055 에서는 무엇이 실렸는지 로그만으로 가릴 수 없었다([[25]]).
+                        _dsrc = "search"
+                        _dmat = _search_material(self, a2, state.messages)
+                        if not _dmat:
+                            _dsrc = "saved" if _saved else "last"
+                            _dmat = _saved or getattr(self, "_t2_last_decision", "")
                         if _dmat:
                             self._t2_dwrite_deny = 1
                             dw_fb = (_wc,
@@ -9812,8 +9830,11 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                      "\nIf that answers the choice this call encodes, make the "
                                      "call again with that value. Otherwise make it again as it "
                                      "was.")
-                            print("[T2_DECIDE_BEFORE_WRITE] write 1턴 유예 tool=%s (재료 %d자)"
-                                  % (_eff_tool_name(_wc), len(_dmat)),
+                            # ★A-7⑸ (2026-08-23·055): 축 이름과 출처를 병기한다 — 두 축의
+                            #   결정문이 같은 길이면 로그만으로는 무엇을 실었는지 알 수 없다.
+                            print("[T2_DECIDE_BEFORE_WRITE] write 1턴 유예 tool=%s axis=%s "
+                                  "src=%s (재료 %d자)"
+                                  % (_eff_tool_name(_wc), _dax or "-", _dsrc, len(_dmat)),
                                   file=_sys.stderr, flush=True)
                             _lbeat("T2_DECIDE_BEFORE_WRITE", orch=self,
                                    target=_eff_tool_name(_wc),
@@ -11089,13 +11110,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 >= int(os.environ.get("T2_PROCEDURE_CAP", "6"))):
                             # 거동 불변: 메인 경로와 같은 cap 에 걸리면 종전대로 통과시킨다. 로그만.
                             print("[T2_PROCEDURE] regen-would-fire but suppressed by=cap tag=%s "
-                                  "tool=%s missing=%s"
-                                  % (tag, _exact_tool_name(_cR), _missR),
+                                  "tool=%s missing=%s prohibited=%s"
+                                  % (tag, _exact_tool_name(_cR), _missR,
+                                     _dcR.get("prohibited") or "-"),
                                   file=_sys.stderr, flush=True)
                         else:
                             self._t2_proc_deny = getattr(self, "_t2_proc_deny", 0) + 1
-                            print("[T2_PROCEDURE] regen-deny (tag=%s) %s missing=%s"
-                                  % (tag, _exact_tool_name(_cR), _missR),
+                            print("[T2_PROCEDURE] regen-deny (tag=%s) %s missing=%s "
+                                  "prohibited=%s"
+                                  % (tag, _exact_tool_name(_cR), _missR,
+                                     _dcR.get("prohibited") or "-"),
                                   file=_sys.stderr, flush=True)
                             # 문면은 메인 경로와 **동일 규칙**으로 만든다(이중 접두 방지 포함).
                             _pnote = _dcR["notes"][0]

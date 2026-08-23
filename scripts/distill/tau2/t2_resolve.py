@@ -650,8 +650,11 @@ def sub_write_proposal(agent, la, UserMessage, msgs, a2, names):
     obj = SC.parse_contract(txt, key="calls")
     calls = obj.get("calls") if obj else None
     good = SC.grounded_calls(calls, [basis], names)
-    print("[T2_WRITE_SUB] 제안 %d건 → 근거검산 통과 %d건"
-          % (len(calls or []), len(good)), file=sys.stderr, flush=True)
+    # ★A-7⑷ (2026-08-23·073): **서브가 본 창**을 여기서 남긴다 — 게이트 쪽 로그의
+    #   "트리거 N자" 는 다른 코퍼스라, 두 숫자를 같은 것으로 읽으면 오진한다([[25]]).
+    print("[T2_WRITE_SUB] 제안 %d건 → 근거검산 통과 %d건 (서브 창 %d자·scope=%s)"
+          % (len(calls or []), len(good), len(basis),
+             spec.get("basis_scope") or "recent"), file=sys.stderr, flush=True)
     if not good:
         return None
     return spec.get("delivery_template", "{calls}\n{basis}").format(

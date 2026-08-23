@@ -1,0 +1,581 @@
+{
+ "n_sim": 365,
+ "n_files": 47,
+ "n_changed_sim": 26,
+ "n_sim_losing_dup": 17,
+ "matched_reclassified_as_blocked": 31,
+ "shapes": {
+  "Failed to log verification: Record may already exist.": 29,
+  "Failed to open account: Account ID 'd8f98814af899665' may already exis": 3,
+  "Failed to open account: Account ID '69d151632437c4b1' may already exis": 2,
+  "Failed to open account: Account ID '1bc7064aea2ca2d3' may already exis": 2,
+  "Failed to open account: Account ID '3befd297b57bc9c1' may already exis": 2,
+  "Failed to open account: Account ID '1a954c87576179ed' may already exis": 1,
+  "Failed to open account: Account ID 'b95977c37794e281' may already exis": 1,
+  "Failed to open account: Account ID '732e3bafbe81bff0' may already exis": 1,
+  "Failed to open account: Account ID '3991f9261da5a74d' may already exis": 1,
+  "Failed to open account: Account ID '0de0aa560c1cc942' may already exis": 1,
+  "Failed to open account: Account ID 'd200673364c5d7f4' may already exis": 1
+ },
+ "by_task": {
+  "task_055": 5,
+  "task_079": 4,
+  "task_063": 4,
+  "task_057": 3,
+  "task_085": 3,
+  "task_016": 2,
+  "task_019": 1,
+  "task_073": 1,
+  "task_040": 1,
+  "task_047": 1,
+  "task_070": 1
+ },
+ "changed": [
+  {
+   "run": "bank_t7308_ctl_20260818c",
+   "task": "task_019",
+   "reward": 1.0,
+   "old": {
+    "blocked": 0,
+    "missing": 0,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 11,
+    "dup": 6
+   },
+   "new": {
+    "blocked": 1,
+    "missing": 0,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 10,
+    "dup": 5
+   }
+  },
+  {
+   "run": "bank_t7310_ctl_20260818e",
+   "task": "task_057",
+   "reward": 0.0,
+   "old": {
+    "blocked": 6,
+    "missing": 2,
+    "wrongarg": 2,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   },
+   "new": {
+    "blocked": 7,
+    "missing": 2,
+    "wrongarg": 1,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7310_ctl_20260818e",
+   "task": "task_079",
+   "reward": 0.0,
+   "old": {
+    "blocked": 0,
+    "missing": 11,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 2,
+    "dup": 1
+   },
+   "new": {
+    "blocked": 1,
+    "missing": 11,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7313_ctl_20260818h",
+   "task": "task_057",
+   "reward": 0.0,
+   "old": {
+    "blocked": 16,
+    "missing": 1,
+    "wrongarg": 3,
+    "extra": 1,
+    "matched": 2,
+    "dup": 0
+   },
+   "new": {
+    "blocked": 18,
+    "missing": 1,
+    "wrongarg": 1,
+    "extra": 1,
+    "matched": 2,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7313_treat_20260818h",
+   "task": "task_079",
+   "reward": 0.0,
+   "old": {
+    "blocked": 3,
+    "missing": 11,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 2,
+    "dup": 1
+   },
+   "new": {
+    "blocked": 4,
+    "missing": 11,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7326_halfA_20260819q",
+   "task": "task_055",
+   "reward": 0.0,
+   "old": {
+    "blocked": 0,
+    "missing": 3,
+    "wrongarg": 4,
+    "extra": 0,
+    "matched": 2,
+    "dup": 1
+   },
+   "new": {
+    "blocked": 3,
+    "missing": 3,
+    "wrongarg": 2,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7326_halfA_20260819q",
+   "task": "task_073",
+   "reward": 0.0,
+   "old": {
+    "blocked": 0,
+    "missing": 3,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 2,
+    "dup": 1
+   },
+   "new": {
+    "blocked": 1,
+    "missing": 3,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7326_halfB_20260819q",
+   "task": "task_085",
+   "reward": 0.0,
+   "old": {
+    "blocked": 0,
+    "missing": 3,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 4,
+    "dup": 3
+   },
+   "new": {
+    "blocked": 3,
+    "missing": 3,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7326_halfB_20260819q",
+   "task": "task_085",
+   "reward": 0.0,
+   "old": {
+    "blocked": 1,
+    "missing": 3,
+    "wrongarg": 1,
+    "extra": 0,
+    "matched": 4,
+    "dup": 3
+   },
+   "new": {
+    "blocked": 4,
+    "missing": 3,
+    "wrongarg": 1,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7328_halfB_20260819r2",
+   "task": "task_016",
+   "reward": 0.0,
+   "old": {
+    "blocked": 0,
+    "missing": 1,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 2,
+    "dup": 1
+   },
+   "new": {
+    "blocked": 1,
+    "missing": 1,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7328_halfB_20260819r2",
+   "task": "task_040",
+   "reward": 0.0,
+   "old": {
+    "blocked": 11,
+    "missing": 8,
+    "wrongarg": 7,
+    "extra": 0,
+    "matched": 6,
+    "dup": 5
+   },
+   "new": {
+    "blocked": 16,
+    "missing": 8,
+    "wrongarg": 7,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7328_halfB_20260819r2",
+   "task": "task_085",
+   "reward": 0.0,
+   "old": {
+    "blocked": 10,
+    "missing": 3,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 6,
+    "dup": 5
+   },
+   "new": {
+    "blocked": 15,
+    "missing": 3,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7333_treat_rest_20260821c",
+   "task": "task_047",
+   "reward": 0.0,
+   "old": {
+    "blocked": 1,
+    "missing": 2,
+    "wrongarg": 0,
+    "extra": 1,
+    "matched": 4,
+    "dup": 1
+   },
+   "new": {
+    "blocked": 2,
+    "missing": 2,
+    "wrongarg": 0,
+    "extra": 1,
+    "matched": 3,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7333_treat_rest_20260821c",
+   "task": "task_055",
+   "reward": 0.0,
+   "old": {
+    "blocked": 1,
+    "missing": 3,
+    "wrongarg": 6,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   },
+   "new": {
+    "blocked": 3,
+    "missing": 3,
+    "wrongarg": 4,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7333_treat_rest_20260821c",
+   "task": "task_063",
+   "reward": 0.0,
+   "old": {
+    "blocked": 0,
+    "missing": 2,
+    "wrongarg": 3,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   },
+   "new": {
+    "blocked": 1,
+    "missing": 2,
+    "wrongarg": 2,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7334_val_rest_20260821",
+   "task": "task_055",
+   "reward": 0.0,
+   "old": {
+    "blocked": 1,
+    "missing": 3,
+    "wrongarg": 3,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   },
+   "new": {
+    "blocked": 2,
+    "missing": 3,
+    "wrongarg": 2,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7334_val_rest_20260821",
+   "task": "task_070",
+   "reward": 1.0,
+   "old": {
+    "blocked": 0,
+    "missing": 0,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 4,
+    "dup": 2
+   },
+   "new": {
+    "blocked": 2,
+    "missing": 0,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 2,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7334_val_rest_20260821",
+   "task": "task_055",
+   "reward": 0.0,
+   "old": {
+    "blocked": 0,
+    "missing": 2,
+    "wrongarg": 3,
+    "extra": 0,
+    "matched": 2,
+    "dup": 0
+   },
+   "new": {
+    "blocked": 1,
+    "missing": 2,
+    "wrongarg": 2,
+    "extra": 0,
+    "matched": 2,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7334_val_rest_20260821",
+   "task": "task_063",
+   "reward": 0.0,
+   "old": {
+    "blocked": 1,
+    "missing": 1,
+    "wrongarg": 2,
+    "extra": 0,
+    "matched": 2,
+    "dup": 0
+   },
+   "new": {
+    "blocked": 2,
+    "missing": 1,
+    "wrongarg": 1,
+    "extra": 0,
+    "matched": 2,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "task_055",
+   "reward": 0.0,
+   "old": {
+    "blocked": 2,
+    "missing": 2,
+    "wrongarg": 3,
+    "extra": 0,
+    "matched": 2,
+    "dup": 0
+   },
+   "new": {
+    "blocked": 3,
+    "missing": 2,
+    "wrongarg": 2,
+    "extra": 0,
+    "matched": 2,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "task_079",
+   "reward": 0.0,
+   "old": {
+    "blocked": 0,
+    "missing": 11,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 2,
+    "dup": 1
+   },
+   "new": {
+    "blocked": 1,
+    "missing": 11,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "task_057",
+   "reward": 0.0,
+   "old": {
+    "blocked": 4,
+    "missing": 1,
+    "wrongarg": 2,
+    "extra": 0,
+    "matched": 3,
+    "dup": 1
+   },
+   "new": {
+    "blocked": 5,
+    "missing": 1,
+    "wrongarg": 2,
+    "extra": 0,
+    "matched": 2,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "task_063",
+   "reward": 0.0,
+   "old": {
+    "blocked": 1,
+    "missing": 2,
+    "wrongarg": 3,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   },
+   "new": {
+    "blocked": 2,
+    "missing": 2,
+    "wrongarg": 2,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "task_079",
+   "reward": 0.0,
+   "old": {
+    "blocked": 27,
+    "missing": 2,
+    "wrongarg": 3,
+    "extra": 0,
+    "matched": 11,
+    "dup": 1
+   },
+   "new": {
+    "blocked": 28,
+    "missing": 2,
+    "wrongarg": 3,
+    "extra": 0,
+    "matched": 10,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "task_016",
+   "reward": 0.0,
+   "old": {
+    "blocked": 0,
+    "missing": 1,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 3,
+    "dup": 2
+   },
+   "new": {
+    "blocked": 2,
+    "missing": 1,
+    "wrongarg": 0,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "task_063",
+   "reward": 0.0,
+   "old": {
+    "blocked": 0,
+    "missing": 2,
+    "wrongarg": 1,
+    "extra": 0,
+    "matched": 2,
+    "dup": 1
+   },
+   "new": {
+    "blocked": 1,
+    "missing": 2,
+    "wrongarg": 1,
+    "extra": 0,
+    "matched": 1,
+    "dup": 0
+   }
+  }
+ ]
+}

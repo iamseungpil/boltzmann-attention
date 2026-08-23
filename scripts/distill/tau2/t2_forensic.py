@@ -507,6 +507,11 @@ def by_sim(tag, pattern, sims_=None):
 #     소스에 없음을 확인했다(`tau2-bench/src` grep 0). "has not been given to you by the agent" 는
 #     반대로 **환경 것**이다(`domains/banking_knowledge/tools.py`) — 우리 것으로 세면 안 된다.
 OURS_DENY = ("[READ-FIRST]", "NOT_VERIFIED")
+# ★A-7⑵ (2026-08-23·079): env 는 `Error:` 로만 거절하지 않는다. 실패 서술로 시작하는
+#   본문(`Failed to …`)을 성공으로 세면 그 실행이 MATCHED 가 되고, 뒤따르는 재시도가
+#   DUP 위양성으로 찍힌다 — 079 의 DUP 주장이 그렇게 태어났다. 프레임워크가 쓰는 실패
+#   서두만 본다(도메인 어휘 0·이 파일은 오프라인 포렌식 라이브러리다).
+ENV_FAIL_PREFIX = ("Error:", "Failed to ")
 
 # 래퍼 4종의 역할 분리: 부여(grant)는 DB 를 안 바꾸고, 실행(call)만 바꾼다.
 GRANTS = (UNLOCK, GIVE)
@@ -545,8 +550,9 @@ def deny_kind(body):
     for p in OURS_DENY:
         if p in b:
             return "ours", p
-    if b.startswith("Error:"):
-        return "env", b[:60]
+    for _p in ENV_FAIL_PREFIX:
+        if b.startswith(_p):
+            return "env", b[:60]
     return "", None
 
 
