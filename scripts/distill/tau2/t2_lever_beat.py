@@ -35,6 +35,16 @@ def current_sim():
     return getattr(_LOCAL, "sim", None)
 
 
+def current_turn():
+    """이 스레드가 지금 짓고 있는 턴(모르면 None). `set_turn` 이 심은 값의 단일 출처.
+
+    ★2026-08-23 (R4): 읽는 자리는 이미 있었다 — 아래 `_trace` 가 `getattr(_LOCAL, "turn", None)`
+      을 인라인으로 읽는다. 공개 접근자가 없어서 다른 계기(cp2 생애 원장)가 같은 축에 올라오려면
+      사본을 하나 더 만들어야 했다. 사본은 조용히 갈라진다([[67]]) — 읽는 문을 하나로 모은다.
+    """
+    return getattr(_LOCAL, "turn", None)
+
+
 def set_sim_from(obj):
     """이 턴이 어느 sim인지 기록한다 — 로그 한 줄이 어느 태스크의 것인지 알기 위해.
 
@@ -127,7 +137,7 @@ def _trace(sim, lines):
             m = _MARK.search(ln)
             if m:
                 # 턴을 함께 남긴다 — 사이드카(턴 보유)와 **같은 축**으로 조인하기 위해서다(C407).
-                rows.append(json.dumps({"sim": sim, "turn": getattr(_LOCAL, "turn", None),
+                rows.append(json.dumps({"sim": sim, "turn": current_turn(),
                                         "mark": m.group(1), "line": ln[:cap]},
                                        ensure_ascii=False))
         if rows:

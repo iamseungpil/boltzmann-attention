@@ -4472,6 +4472,89 @@ _COVERAGE_RE = re.compile(
 _CP2_GUARD_MIN = 5000
 
 
+# ─── CP2 배달 생애 원장 (2026-08-23 · R4 · 원장 C502) ──────────────────────────
+# ⛔**순환 종점 재발 금지.** t7303 A/B 가 무효가 된 이유는 결손이 아니라 *계기*였다 — 1차 종점이
+#   `[T2_CP2_APPEND] … (queue)` 였는데 그 줄은 **플래그가 꺼진 팔에서는 존재할 수 없다**. 그래서
+#   "0/8 → 8/8" 은 측정이 아니라 **처치 배정의 재인쇄**였다(C502 축자). ⇒ 아래 이벤트·outcome
+#   어디에서도 `T2_CP2_QUEUE` 를 읽지 않는다.
+# ⛔**계기가 이미 한 번 순환이었다**(2026-08-23 실측): 보관 사이드카 14파일 전수에서
+#   `agent=decision_carry` 의 `arrived` 가 **100% True**(303행·False 0)인데 그 행 수는 도달 수가
+#   아니라 **`VIEW_FB` 대입 수와 1:1** 이다. 등재가 다섯 배달 자리 중 하나에만 있어서, 결국
+#   *한 자리가 몇 번 발화했나*를 도달률이라 불러 온 것이다([[25]]). ⇒ 등재를 **다섯 자리 공통
+#   입구**(`_cp2_assign`)로 옮긴다.
+# ⚠**`arrived` 를 쓰지 않는다** — 부착 지점이 생성 직전이라 "부착"과 "도달"이 같은 말이 된다.
+#   대신 배달물 하나의 생애를 **닫힌 분할**로 적는다:
+#       assign → close(attached) | close(clobbered) | close(ctx_skip) | (미종결 = sim 종료 시 잔존)
+#   분할이 닫혀야 `대입 = 도달 + 손실` 검산식이 서고, 그래야 **양 팔 같은 규칙**으로 잴 수 있다.
+# ⚠거동 불변 계약: `_t2_cp2_track`·`_t2_cp2_seq` 두 속성과 사이드카 파일 **밖으로 나가지 않는다**.
+#   `work`·`fb`·`state.messages`·`_t2_cp2_pending`·`_t2_cp2_said` 에 대입하는 문장이 하나도 없다.
+# ⚠[[62]]: 고르는 것이 0 — 순위·최댓값·지목 없이 *무엇이 어디까지 갔나*만 센다.
+def _cp2_open(self, text, tag, disp):
+    """배달물 1건을 **미결(open)** 로 열고 `assign` 행을 남긴다 — 그 행이 **분모**다.
+
+    분모가 사이드카에 없으면 끝내 미소비로 죽은 배달물은 흔적 0 이 되고, 도달률의 분모를
+    stderr grep 으로 세게 된다(그 grep 은 다른 채널이 섞여 125를 116으로 부풀린다·실측).
+    도달 판정은 여기서 **하지 않는다** — 여기서 채우면 대입을 배달로 위조한다.
+    """
+    try:
+        _n = getattr(self, "_t2_cp2_seq", 0) + 1
+        self._t2_cp2_seq = _n
+        try:
+            import t2_lever_beat as _lb0
+            _sim, _turn = (_lb0.current_sim() or "nosim"), _lb0.current_turn()
+        except Exception:
+            _sim, _turn = "nosim", None
+        _rec = {"agent": "cp2", "cp2_id": "%s#%d" % (_sim, _n), "cp2_tag": str(tag),
+                "cp2_n": len(text or ""), "cp2_disp": str(disp), "turn": _turn}
+        _tr = list(getattr(self, "_t2_cp2_track", None) or [])
+        _tr.append(dict(_rec, _text=text or ""))
+        self._t2_cp2_track = _tr
+        import t2_fbsidecar as _fbo
+        _fbo.record("cp2", text or "", None, ev="assign", **_rec)
+    except Exception as _eo:
+        print("[T2_CP2_TRACK] open 실패(무시): %r" % (_eo,), file=sys.stderr, flush=True)
+
+
+def _cp2_close(self, outcome, slot_n=None, via=None):
+    """슬롯에 열려 있던 배달물 **전부**를 `outcome` 으로 종결한다.
+
+    슬롯이 병합본이면 조각이 여럿이므로 전부 닫는다 — 하나만 닫으면 나머지가 영원히 미결로
+    남아 검산식이 깨진다. 그리고 **배달물 단위**로 닫는다(부착 단위가 아니라): 병합본 1회
+    부착에 조각이 둘이면 행도 둘이다. 부착 단위로 세면 큐 ON 이 2건을 1건으로 접어 도달률이
+    구조적으로 낮게 나오고, 그 순간 두 팔의 분모 정의가 달라져 A/B 가 또 무효가 된다.
+
+    ★`via` (2026-08-23 추가·계획서 밖): ASUB 우회 회차에는 `_gen` 이 안 불리고 `work` 는
+      비커밋 감사 서브콜(claimprov·selfdecl)로만 간다. 계획서는 그 회차도 `attached` 로 닫는데,
+      **그 구분이야말로 지금 남은 결함**이라 라벨을 지우지 않고 `via="asub"` 로 **적어 둔다**
+      (판정은 안 한다 — 나중 감사 스크립트가 가른다). 내 재현으로는 우회 11건 중 뒤이어
+      claimprov/selfdecl 이 보이는 것이 **5건**이라 계획서의 11/11 은 확인되지 않았다.
+    """
+    try:
+        _tr = getattr(self, "_t2_cp2_track", None) or []
+        self._t2_cp2_track = []
+        if not _tr:
+            return
+        try:
+            import t2_lever_beat as _lb1
+            _turn = _lb1.current_turn()
+        except Exception:
+            _turn = None
+        import t2_fbsidecar as _fbc
+        for _r in _tr:
+            _t = _r.pop("_text", "") or ""
+            _r["ev"] = "close"
+            _r["outcome"] = str(outcome)
+            _r["cp2_close_turn"] = _turn
+            if slot_n is not None:
+                _r["cp2_slot_n"] = int(slot_n)
+            if via is not None:
+                _r["cp2_via"] = str(via)
+            _fbc.record("cp2", _t, None, **_r)
+    except Exception as _ec:
+        print("[T2_CP2_TRACK] close(%s) 실패(무시): %r" % (outcome, _ec),
+              file=sys.stderr, flush=True)
+
+
 def _cp2_assign(self, text, tag):
     """`_t2_cp2_pending` **단일 슬롯**에 배달물을 넣는다 — 단 *조용한 덮어쓰기를 금지*한다.
 
@@ -4487,6 +4570,9 @@ def _cp2_assign(self, text, tag):
     프롬프트가 44,672 한도를 넘는다(같은 런에서 `ContextWindowExceededError` 5건·전부 treat).
     """
     _prev = getattr(self, "_t2_cp2_pending", None)
+    # ★R4: 병합 분기가 `text` 를 `_prev + … + text` 로 **덮어쓰므로**, 계기가 기록할 *이번
+    #   배달물* 원본을 여기서 잡아 둔다. 병합 후 값을 기록하면 조각 하나가 두 번 세어진다.
+    _incoming = text
     # ★대용량 anti-clobber (2026-08-16·t7304·심사 3인 일치): 미소비 배달물이 **대용량**(≥10k자·
     #   문서 본문 급)이고 새 배달물이 다른 값이면 버리지 않고 **뒤에 이어붙인다**. t7303 의
     #   055 0/4 소멸이 정확히 이 자리였다. 소형↔소형(ctl 의 247자 결정문끼리)은 종전대로
@@ -4553,6 +4639,16 @@ def _cp2_assign(self, text, tag):
                     % (len(_prev) + len(text) + 2, _CP2_GUARD_MIN))
         print("[T2_CP2_CLOBBER] %s 가 미소비 배달물 %d자를 버리고 %d자로 덮어씀%s"
               % (tag, len(_prev), len(text or ""), _why), file=sys.stderr, flush=True)
+    # ★생애 등록 (R4). 배달물 하나는 `attached · clobbered · ctx_skip` 중 정확히 하나로 끝나거나
+    #   sim 종료까지 미결로 남는다(=잔존). 세 라벨 어느 것도 `_queue` 를 보지 않는다 — 그것이
+    #   팔-대칭의 전부다(C502 가 무너진 자리).
+    # ⚠빈 배달물은 배달이 아니다(열지 않는다). `_prev == _incoming` 재대입도 새 배달이 아니다 —
+    #   슬롯 내용이 그대로라 이미 열린 건이 계속 유효하다.
+    if _prev and _prev != _incoming and not (_big or _qok):
+        _cp2_close(self, "clobbered")          # 앞 건은 여기서 죽는다(양 팔 같은 규칙)
+    if _incoming and _incoming != _prev:
+        _cp2_open(self, _incoming, tag,
+                  "append" if (_big or _qok) else ("clobber" if _prev else "fresh"))
     self._t2_cp2_pending = text
 
 
@@ -10293,6 +10389,9 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     print("[T2_DOC_DELIVERY] skipped: est %d+%d chars > cap"
                           % (_hist, len(_cp2)), file=_sys.stderr, flush=True)
                     self._t2_cp2_pending = None
+                    # ★R4: 창 초과로 여기서 죽는다 — 이 사실이 사이드카에 안 남으면 그 배달물은
+                    #   *대입은 됐는데 아무 데도 없는* 유령이 되고 검산식이 그 자리에서 깨진다.
+                    _cp2_close(self, "ctx_skip")
                     _cp2 = None
             if _cp2:
                 self._t2_cp2_pending = None
@@ -10360,6 +10459,16 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 _am_sub = _gen_action_sub(self, state, self._t2_asub)
             am = _am_sub or _gen(self, work, bw(), "agent_response_unified_regen",
                                  tool_choice="required" if force_required else None, pin=_pin_r)
+            if _cp2:
+                # ★R4: 종결은 **생성이 돌아온 뒤**에만 찍는다. 부착 인쇄(`부착 (N자)`)를 세면
+                #   생성기가 예외로 죽은 회차까지 도달로 위조한다 — `proc_fb` 死배선이 deny 11회를
+                #   인쇄로 만든 것과 같은 종류의 사고다([[55]] 로그 마크 ≠ 전달).
+                # ⚠`via`: `_am_sub` 가 참인 회차엔 `_gen` 이 **안 불리고** `work` 는 비커밋 감사
+                #   서브콜(claimprov·selfdecl)로만 간다. 계획서는 그 회차도 그냥 `attached` 로
+                #   닫는데, **그 구분이 지금 남은 결함 그 자체**라 라벨을 지우지 않고 적어 둔다.
+                #   판정은 여기서 안 한다 — 감사 스크립트가 나중에 가른다([[62]] 고르지 않는다).
+                _cp2_close(self, "attached", slot_n=len(_cp2),
+                           via=("asub" if _am_sub else None))
 
         # ★W-B~W-D(arm③·검출 전용): 턴의 **최종 응답**에 대해 2패스 형식화 + §1d 검증.
         #   · 도구 **미제공** + guided_json (문법과 도구를 같이 걸면 tool_calls가 0이 된다·rev3 §3-2b)
