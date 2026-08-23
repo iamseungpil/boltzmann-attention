@@ -11042,6 +11042,92 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     _am2.tool_calls = _keep
                     print("[%s] partial-accept: dropped %d gate-denied, kept %d call(s)"
                           % (tag.upper(), len(_den), len(_keep)), file=_sys.stderr, flush=True)
+            # ★A-1 절차 재평가 (2026-08-23·`reports/facet_rft_2026/tasks__20260822/TASK_050.md`
+            #   §7-①/§9-1·축 E "게이트 우회 채널"·CONFIRMED).
+            #   **결손**: 이 함수가 낸 호출은 `T2_PROCEDURE` 절차 게이트를 **평가조차 받지 않고**
+            #   커밋된다. 재검사 목록은 `gate`(_denied_calls)·`T2_UNLOCK_NAME`·`T2_UNLOCK_PROV`
+            #   뿐이었다. 이 파일의 `T2_WEV_ROUNDS` 주석이 *"deny 후 regen된 호출은 같은 턴서
+            #   무검사 커밋"* 이라고 그 구멍을 이미 자백해 놓고 WEV 에만 이식했다.
+            #   **인과(n=1 짝 대조)**: t7346 `task_050` trial 0 은 사임-경로 regen 이 낸 승인 호출이
+            #   무검사 커밋돼 요청-제출 write 가 MISSING → DB 해시 갈림 → reward 0.0.
+            #   같은 sha·같은 A2 의 trial 1 은 **동일 호출이 원본 am 에 있었기에** 아래와 축자
+            #   동일한 deny 를 받고 선행을 먼저 밟아 reward 1.0 을 받았다. 즉 여기서 되살리는
+            #   문자열은 짝 trial 이 **라이브로 받은 그것**이다(문면 저작 0).
+            #   **새 결정론 0**([[62]]): 술어는 기존 `t2_procedure.decide` 를 그대로 재호출하고
+            #   순서는 A2 `procedures` 선언에서만 온다. 엔진에 도구명·필드명·숫자 0([[59]]).
+            #   ⚠[[70]] 무엇을 파는가: 사임-경로 regen 이 절차 deny 로 접히면 그 턴이 **빈손**으로
+            #     끝날 수 있다(over-action↓ / no-action↑). 부정통제 4칸([[57]]) =
+            #     `T2_PROC_REGEN=1↔0` × `T2_PROCEDURE=1↔0`, 계수 = `[T2_PROCEDURE] regen-*` 라인.
+            #   ⚠cap 은 메인 경로와 **공유**한다(`_t2_proc_deny`/`T2_PROCEDURE_CAP`) — 이 자리가
+            #     따로 예산을 갖고 불응 루프를 돌지 않게.
+            def _proc_first_deny(_amX):
+                """(호출, decide결과) 또는 None. 순수 조회 — 상태 변경 0."""
+                for _cX in (getattr(_amX, "tool_calls", None) or []):
+                    _arX = _args_dict(_cX)
+                    _alsoX = {str(_arX.get(_k)) for _k in
+                              ("agent_tool_name", "user_tool_name", "discoverable_tool_name")
+                              if _arX.get(_k)}
+                    _dcX = _PROCR.decide(
+                        _procsR, _exact_tool_name(_cX), _arX, _doneR, also_names=_alsoX,
+                        unlocked=_unlocked_names(state.messages, a2),
+                        pattern=((a2 or {}).get("discoverable_name_check") or {}).get("pattern"))
+                    if _dcX.get("verdict") == "deny" and _dcX.get("notes"):
+                        return (_cX, _dcX)
+                return None
+
+            _procsR = ((a2 or {}).get("procedures")
+                       if (a2 is not None and os.environ.get("T2_PROCEDURE") == "1") else None)
+            if _procsR and os.environ.get("T2_PROC_REGEN", "1") == "1":
+                try:
+                    import t2_procedure as _PROCR
+                    _doneR = _executed_tool_counts(state.messages)
+                    _hitR = _proc_first_deny(_am2)
+                    if _hitR is not None:
+                        _cR, _dcR = _hitR
+                        _missR = ",".join(_dcR.get("missing") or [])
+                        if (getattr(self, "_t2_proc_deny", 0)
+                                >= int(os.environ.get("T2_PROCEDURE_CAP", "6"))):
+                            # 거동 불변: 메인 경로와 같은 cap 에 걸리면 종전대로 통과시킨다. 로그만.
+                            print("[T2_PROCEDURE] regen-would-fire but suppressed by=cap tag=%s "
+                                  "tool=%s missing=%s"
+                                  % (tag, _exact_tool_name(_cR), _missR),
+                                  file=_sys.stderr, flush=True)
+                        else:
+                            self._t2_proc_deny = getattr(self, "_t2_proc_deny", 0) + 1
+                            print("[T2_PROCEDURE] regen-deny (tag=%s) %s missing=%s"
+                                  % (tag, _exact_tool_name(_cR), _missR),
+                                  file=_sys.stderr, flush=True)
+                            # 문면은 메인 경로와 **동일 규칙**으로 만든다(이중 접두 방지 포함).
+                            _pnote = _dcR["notes"][0]
+                            _pcontent = (_pnote if str(_pnote).lstrip().startswith("Error:")
+                                         else "Error: " + str(_pnote))
+                            _pfbm = ToolMessage(id=_cR.id, role="tool", requestor="assistant",
+                                                error=True, content=_pcontent)
+                            _amR = _gen(self, work + [_am_for_prompt, _fb, _am2, _pfbm], bw(),
+                                        "agent_response_" + tag + "_procfix",
+                                        tool_choice="required")
+                            _okR = not (gate is not None
+                                        and _denied_calls(_amR, gate, last_user, transfer_sent))
+                            if _okR and _proc_first_deny(_amR) is None:
+                                _am2 = _amR
+                                print("[T2_PROCEDURE] regen-fix accepted tag=%s" % tag,
+                                      file=_sys.stderr, flush=True)
+                            else:
+                                # 불응: 절차-위반 호출만 제거한다. 전부면 원본 유지(부작용 0 원칙).
+                                _keepR = [_t for _t in (getattr(_am2, "tool_calls", None) or [])
+                                          if id(_t) != id(_cR)]
+                                if not _keepR:
+                                    print("[T2_PROCEDURE] regen-fix refused; dropping regen "
+                                          "(keeping original) tag=%s" % tag,
+                                          file=_sys.stderr, flush=True)
+                                    return None
+                                _am2.tool_calls = _keepR
+                                print("[T2_PROCEDURE] regen-fix refused; dropped 1 out-of-order "
+                                      "call, kept %d tag=%s" % (len(_keepR), tag),
+                                      file=_sys.stderr, flush=True)
+                except Exception as _pre:
+                    print("[T2_PROCEDURE] regen recheck error (no-op): %r" % (_pre,),
+                          file=_sys.stderr, flush=True)
             # ★§2bi (rall6 실측·UNLOCK_NAME 0발화 원인): bare-name unlock이 태어나는 곳이 바로 이
             #   resign-경로 regen인데, 반환 am은 while-루프의 un_fb 검사를 **우회**해 그대로 커밋됐다
             #   (chain 18발화·un_fb 0·bare 3회 커밋 = rall6 정합). 여기서 name-check 교정 1회 수행.

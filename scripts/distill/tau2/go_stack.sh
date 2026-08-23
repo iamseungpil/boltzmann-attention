@@ -335,6 +335,14 @@ export T2_PROC_ABSENT_K=3         # 무호출 연속 assistant 턴 임계(x86 K-
 #   구간에 소진돼, 정작 두 조회가 열린 뒤엔 침묵하게 만든 원인이었다. 선언을 남겨 두면
 #   읽는 곳 없는 노브가 되므로 지운다.
 export T2_PROCEDURE_CAP=6         # sim당 deny 상한(불응 무한루프 방지·기존 cap 선례)
+# ★A-1 재생성-경로 절차 재평가 (2026-08-23·`tasks__20260822/TASK_050.md` §7-①·축 E).
+#   `_ap_regen` 이 낸 호출은 gate·UNLOCK_NAME·UNLOCK_PROV 만 다시 받고 절차 게이트를 **평가조차
+#   받지 않은 채** 커밋됐다. t7346 050 trial 0 이 그렇게 승인을 먼저 커밋해 요청-제출을 빠뜨렸고
+#   (DB 해시 갈림·reward 0.0), 같은 sha 의 trial 1 은 동일 호출이 원본 am 에 있었기에 **축자 동일한**
+#   deny 를 받고 1.0 을 받았다. 새 결정론 0 — 기존 `t2_procedure.decide` 재호출뿐([[62]]).
+#   ⚠[[70]] 판다: 사임-경로 regen 이 접히면 그 턴이 빈손으로 끝날 수 있다(over-action↓/no-action↑).
+#   부정통제 4칸([[57]]) = 이 플래그 1↔0 × `T2_PROCEDURE` 1↔0 · 계수 = `[T2_PROCEDURE] regen-*`.
+export T2_PROC_REGEN=1
 export T2_UNINSTRUCTABLE=1        # 실행 불가 지시 차단(012): 손님에게 도구 실행을 안내했는데 전달 이력 0.
 #                                 #   술어=A2 L1 선언 토큰 포함 ∧ 전달 마커 부재(정규식 추출 0·C279 계보).
 #                                 #   사전 계량(x82·194 sim): 발화 43 sim(1회/sim 캡)·그 중 17은 나중에
