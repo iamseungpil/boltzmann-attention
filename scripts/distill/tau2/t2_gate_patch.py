@@ -4465,6 +4465,13 @@ _COVERAGE_RE = re.compile(
     r"\[coverage\] (\d+) of (\d+) rows were checked \((\d+) could not be verified\)")
 
 
+# 소비 지점 컨텍스트 가드의 **검사 문턱** — 이 값 미만의 배달물은 창 검사를 아예 안 받는다.
+# 큐 이어붙임이 이 선을 넘기면, 각각은 무사통과하던 둘이 합쳐져 **통째로 skip** 될 수 있다
+# (감사 실측: 4536+2000=6538 → 슬롯 None · OFF 는 2000 을 받았다). 그래서 두 곳이 같은
+# 상수를 봐야 한다 — 리터럴을 두 벌 두면 조용히 갈라진다.
+_CP2_GUARD_MIN = 5000
+
+
 def _cp2_assign(self, text, tag):
     """`_t2_cp2_pending` **단일 슬롯**에 배달물을 넣는다 — 단 *조용한 덮어쓰기를 금지*한다.
 
@@ -4498,20 +4505,54 @@ def _cp2_assign(self, text, tag):
     #     감싸고 기본 OFF 다([[70]] 켜기 전에 손해도 재라 · 어제 A1~A16 을 안 재고 켠 대가를 치렀다).
     #   ⚠부피 상한을 넘으면 이어붙이지 않고 **종전대로 덮어쓰되 그 사실을 남긴다**(가시성 유지).
     #   소비 지점의 `_ctx_fits` 가드는 그대로 뒤를 받친다(≥5k자만 검사).
-    _cap = int(os.environ.get("T2_CP2_APPEND_MAX", "90000"))
+    #   ⛔**초판이 OFF 를 깼다**(2026-08-23·`test_cp2_queue_behavior` 가 잡음·감사 워크플로).
+    #     상한 조건을 `_queue` **밖에** 걸어서, 구판이 무조건 이어붙이던 `len(_prev)>=10000` 영역이
+    #     `len(_prev)+len(text)+2 > cap` 일 때 **덮어쓰기로 바뀌었다** — 그리고 `go_stack.sh` 가
+    #     그 상한을 항상 export 하므로 라이브에서 유효했다. 즉 커밋 메시지의 *"default off, control
+    #     bytes unchanged"* 가 거짓이었다. ⇒ 구판 구제(`_big`)는 **상한을 받지 않는다**(바이트 불변).
+    #     상한은 **큐 분기에만** 건다.
+    try:
+        _cap = int(os.environ.get("T2_CP2_APPEND_MAX", "90000"))
+    except (TypeError, ValueError):
+        # ⛔`int()` 가 `try` 밖이라 비정수 env 하나로 5 배달 자리 전부가 크래시했다(같은 감사).
+        #   이 함수의 `_sys` NameError 주석이 부른 '잠복'과 같은 종류라 같이 닫는다.
+        _cap = 90000
+        print("[T2_CP2_APPEND] T2_CP2_APPEND_MAX=%r 가 정수가 아니다 — 기본 %d 사용"
+              % (os.environ.get("T2_CP2_APPEND_MAX"), _cap), file=sys.stderr, flush=True)
     _queue = os.environ.get("T2_CP2_QUEUE") == "1"
-    if _prev and _prev != text and text and (_queue or len(_prev) >= 10000) \
-            and len(_prev) + len(text) + 2 <= _cap:
-        print("[T2_CP2_APPEND] %s: 미소비 %d자 뒤에 %d자 이어붙임%s"
-              % (tag, len(_prev), len(text), " (queue)" if _queue else " (대용량)"),
+    # ★큐 ON 에서 **빈 배달물은 배달이 아니다** — 쌓인 것을 지우지 않는다(초판은 `and text` 조건
+    #   때문에 빈 문자열이 clobber 분기로 떨어져 pending 을 지웠다). OFF 는 종전 그대로 둔다.
+    if _queue and _prev and not text:
+        print("[T2_CP2_APPEND] %s: 빈 배달물 — 미소비 %d자를 유지한다" % (tag, len(_prev)),
               file=sys.stderr, flush=True)
+        return
+    _big = bool(_prev and _prev != text and text and len(_prev) >= 10000)   # 구판 구제(상한 없음)
+    #   ★그리고 **가드 문턱을 넘기면 이어붙이지 않는다**: 새 배달물이 혼자서는 검사조차 안 받는
+    #     크기인데(<_CP2_GUARD_MIN) 합치면 검사 대상이 되어 **통째로 skip** 될 수 있다. 그러면 큐가
+    #     OFF 보다 **덜** 배달한다(감사 실측 4536+2000 → 0자). 그 국면에서는 종전대로 덮어쓴다 ⇒
+    #     큐 ON 은 어떤 국면에서도 OFF 보다 적게 전달하지 않는다.
+    _qcross = bool(text and len(text) < _CP2_GUARD_MIN
+                   and _prev and len(_prev) + len(text) + 2 >= _CP2_GUARD_MIN)
+    _qok = bool(_queue and _prev and _prev != text and text and not _big and not _qcross
+                and len(_prev) + len(text) + 2 <= _cap)                     # 큐 구제(상한 있음)
+    if _big:
+        # 문구도 구판 축자 그대로 — 과거 런 로그를 grep 하는 포렌식이 둘을 다 받게 하지 않는다.
+        print("[T2_CP2_APPEND] %s: 미소비 대용량 %d자 뒤에 %d자 이어붙임"
+              % (tag, len(_prev), len(text)), file=sys.stderr, flush=True)
+        text = _prev + "\n\n" + text
+    elif _qok:
+        print("[T2_CP2_APPEND] %s: 미소비 %d자 뒤에 %d자 이어붙임 (queue)"
+              % (tag, len(_prev), len(text)), file=sys.stderr, flush=True)
         text = _prev + "\n\n" + text
     elif _prev and _prev != text:
+        _why = ""
+        if _queue and text and len(_prev) + len(text) + 2 > _cap:
+            _why = " ⚠상한 %d 초과라 이어붙이지 못함" % _cap
+        elif _queue and _qcross:
+            _why = (" ⚠합치면 %d자로 가드 문턱(%d) 을 넘어 통째로 skip 될 수 있어 이어붙이지 않음"
+                    % (len(_prev) + len(text) + 2, _CP2_GUARD_MIN))
         print("[T2_CP2_CLOBBER] %s 가 미소비 배달물 %d자를 버리고 %d자로 덮어씀%s"
-              % (tag, len(_prev), len(text or ""),
-                 " ⚠상한 %d 초과라 이어붙이지 못함" % _cap
-                 if (_queue and text and len(_prev) + len(text) + 2 > _cap) else ""),
-              file=sys.stderr, flush=True)
+              % (tag, len(_prev), len(text or ""), _why), file=sys.stderr, flush=True)
     self._t2_cp2_pending = text
 
 
@@ -10245,7 +10286,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   5곳을 한 가드로 덮으려면 여기여야 한다). 대용량(≥5k자)만 검사·보수 추정(자수/3)·
             #   초과면 **건너뛰고 기록**(축약·선별 0 — 엔진이 줄이면 [[62]]③). 소형 배달물은
             #   종전 그대로(ctl 바이트 불변). skip 수는 ⓔ 부작용 표에 계상된다.
-            if _cp2 and len(_cp2) >= 5000:
+            if _cp2 and len(_cp2) >= _CP2_GUARD_MIN:
                 # 산식·보정 근거는 `_ctx_fits` 독스트링(2026-08-22 함수로 올림·거동 동일).
                 _fit2, _hist = _ctx_fits(work, _cp2)
                 if not _fit2:

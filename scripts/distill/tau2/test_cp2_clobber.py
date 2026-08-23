@@ -70,8 +70,15 @@ print("[③] 큐 플래그 — 크기와 무관하게 이어붙인다 (2026-08-2
 #   057 ×2 · 063 ×2 도 맞았고 셋 다 0/2 다. t7336 의 같은 태스크는 CLOBBER 0건·2/2 통과.
 chk("T2_CP2_QUEUE" in body, "큐 플래그가 있다")
 chk("T2_CP2_APPEND_MAX" in body, "이어붙임 상한이 선언돼 있다(부피 폭주 방지)")
-chk("_queue or len(_prev) >= 10000" in body,
-    "큐 ON 이면 크기 무관·OFF 면 종전(≥10k)만 — 기본 OFF 라 ctl 바이트 불변")
+# ★2026-08-23 2차 수리 후 구조: 구판 구제(`_big`)와 큐 구제(`_qok`)가 **분리**돼 있다.
+#   초판은 상한을 `_queue` 밖에 걸어 OFF 의 ≥10k 이어붙임을 깨뜨렸다(감사가 잡음) —
+#   그래서 `_big` 은 상한을 받지 않아야 하고, 상한·문턱은 `_qok` 에만 걸려야 한다.
+chk("_big = bool(" in body and "len(_prev) >= 10000" in body,
+    "구판 구제 `_big` 이 분리돼 있다(상한 없음 = OFF 바이트 불변)")
+chk("_qok = bool(" in body and "_queue" in body and "_cap" in body,
+    "큐 구제 `_qok` 에만 상한이 걸린다")
+chk("_CP2_GUARD_MIN" in body,
+    "가드 문턱을 넘기는 이어붙임은 하지 않는다 — 켠 쪽이 덜 배달하는 국면 제거")
 chk("상한" in body and "이어붙이지 못함" in body,
     "상한 초과로 못 이어붙인 경우도 CLOBBER 로 남는다(가시성 유지)")
 

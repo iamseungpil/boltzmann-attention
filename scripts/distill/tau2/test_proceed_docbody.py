@@ -57,7 +57,11 @@ cons = re.search(r'_cp2 = getattr\(self, "_t2_cp2_pending", None\).{0,3000}?'
                  r"이 턴 재생성 버퍼에 부착", SRC, re.S)   # 창 확대: 가드 주석이 길어졌다
 cbody = cons.group(0) if cons else ""
 chk(bool(cons), "소비 지점이 존재한다")
-chk("len(_cp2) >= 5000" in cbody, "대용량(≥5k)만 검사")
+# ★2026-08-23: 문턱이 리터럴 5000 → 모듈 상수 `_CP2_GUARD_MIN` 으로 올라갔다(`_cp2_assign` 이
+#   같은 값을 봐야 해서다 — 리터럴 두 벌은 조용히 갈라진다). 값도 함께 확인한다.
+chk("len(_cp2) >= _CP2_GUARD_MIN" in cbody, "대용량(문턱 이상)만 검사")
+chk(re.search(r"^_CP2_GUARD_MIN = 5000$", SRC, re.M) is not None,
+    "문턱 상수는 한 곳에서 5000 으로 선언된다")
 # ★검정 갱신(2026-08-23): 2026-08-22 에 이 인라인 식이 `_ctx_fits` **함수로 올라갔다**(거동 동일).
 #   검정이 옛 인라인 문자열을 찾고 있어 그날 이후 계속 FAIL 이었다 — 코드가 아니라 검정이 낡았다.
 #   ⇒ 소비 지점은 **그 함수를 부르는지**를 보고, 산식 상수는 함수 본문에서 확인한다.
