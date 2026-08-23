@@ -55,9 +55,6 @@ import x313_bailout_iso as X                                      # noqa: E402
 DOCS = "/home/woori/scratch/tau2-bench/data/tau2/domains/banking_knowledge/documents"
 A2P = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                    "a2", "banking_knowledge.specific.json")
-# 우리 층이 낸 문구를 궤적에서 알아보는 표지(축자 — 이 문자열들은 우리가 인쇄한 것이다)
-OURS = ("NOT_VERIFIED", "GROUNDING WARNING", "not discovered from any prior search",
-        "TRANSFER NOTICE", "could not be verified")
 
 
 def user_only(sim, cut, limit=6):
@@ -72,10 +69,18 @@ def user_only(sim, cut, limit=6):
 
 
 def rival_text(sim, cut):
-    """궤적에서 **우리 층이 낸 문구**를 축자로 하나 집는다. 없으면 빈 문자열(그 단 건너뜀)."""
+    """궤적에서 **우리 층이 낸 문구**를 축자로 하나 집는다. 없으면 빈 문자열(그 단 건너뜀).
+
+    ⚠판정은 정본(`t2_forensic.ours_text`)에만 묻는다([[67]]). 여기 다섯 문자열짜리 **사본**이
+      있었고, 조용히 양쪽으로 갈라져 있었다 — t7346(40 sim·tool 메시지 993) 실측:
+          사본만 잡던 것 47 · **정본만 잡던 것 45** · 둘 다 51
+      사본이 45 를 놓치고 있었다는 뜻이고, 그만큼 I3_RIVAL 단이 **경쟁 문구가 있는데도 침묵**
+      했다. 반대로 `deny_kind` 로 그냥 바꿨으면 47 을 잃었을 것이다(주석·통지는 거절이 아니다)
+      — 그래서 정본에 `ours_text` 를 **추가**했지 여기서 술어를 고르지 않았다.
+    """
     for m in reversed((sim.get("messages") or [])[:cut]):
         c = " ".join(str(m.get("content") or "").split())
-        if m.get("role") == "tool" and any(w in c for w in OURS):
+        if m.get("role") == "tool" and F.ours_text(c):
             return c[:600]
     return ""
 

@@ -735,6 +735,93 @@ def attested_markers():
     return _ATTESTED
 
 
+_NOTICE_LEDGER = None
+# 우리가 **통지**를 실어 나르는 A2 키(닫힌 집합 — 우리 파일의 키 이름이지 도메인 텍스트가 아니다)
+NOTICE_KEY_SUFFIXES = ("_note", "_notice", "notice_text", "_template", "_hint")
+NOTICE_MIN = 40
+
+
+def our_notice_ledger(refresh=False):
+    """⑶**통지 문면** 원장 {축자조각: 출처파일} — *거절이 아닌* 우리 층 문장(1회 계산·캐시).
+
+    ⑴⑵ 와 `ours_deny_prefixes` 는 셋 다 **거절**을 겨눈다. 그런데 우리 층은 거절이 아닌 문장도
+    궤적에 싣는다 — 성공 출력 앞의 주석과 A2 가 선언한 통지가 그것이다. 그 둘을 못 가르면
+    *우리가 낸 문장*을 세는 소비자(`t2_gap.rival_text`)가 손 목록을 따로 들게 된다([[67]]).
+
+      ⓐ **공백을 품은 머리 표지** — `[GROUNDING WARNING]`(`t2_scaffold_get.py`). `our_markers()`
+         의 정규식은 표지 안의 공백을 안 받는다. 그 정규식을 넓히면 `deny_kind` ⓷ 의 소유
+         판정이 같이 움직여 **R1 이 방금 교정한 자[尺]의 눈금이 바뀐다** ⇒ 넓히지 않고
+         **별도 원장**으로 받는다. 엔진 파일에서만 유도한다(A2 산문의 대괄호를 안 집으려고).
+      ⓑ **A2 선언 통지** — `unverified_note`·`notice_text` 처럼 `Error:` 를 안 쓰는 문면.
+         키 이름이 닫힌 접미 집합에 들면 그 값의 앞 `NOTICE_MIN` 자를 조각으로 쓴다. 통지는
+         **덧붙여** 나가므로(본문 중간) 접두가 아니라 **포함**으로 본다.
+
+    손 목록 0 — 둘 다 파일에서 유도하고 출처를 함께 돌려준다(`ours_deny_prefixes` 와 같은 규율).
+    ⚠이 독스트링에 `%` 보간을 쓰지 마라 — 그러면 첫 문장이 `Expr(BinOp)` 가 되어 **독스트링이
+      아니게 되고**(`__doc__ is None`), 아래 독스트링 제외가 이 파일 자신을 못 걸러 표지 출처가
+      인쇄 자리 대신 이 설명으로 찍힌다. 초판이 정확히 그렇게 틀렸다.
+    """
+    global _NOTICE_LEDGER
+    if _NOTICE_LEDGER is None or refresh:
+        import glob as _g
+        import re as _re
+        got = {}
+        import ast as _ast
+        rx = _re.compile(r"\[([A-Z][A-Z0-9_\- ]{2,})\]")
+        # ⚠**문자열 리터럴에서만** 뽑는다. 파일 전문을 훑으면 *주석에 적힌 표지*까지 들어와
+        #   출처가 인쇄 자리가 아닌 언급 자리로 찍힌다(초판이 `[GROUNDING WARNING]` 을
+        #   `t2_scaffold_get.py` 가 아니라 이 파일의 주석으로 귀속했다). 출처를 못 대면
+        #   그것은 다시 손 목록이다 — `ours_deny_prefixes` 와 같은 규율.
+        for p in sorted(_g.glob(os.path.join(HERE, "t2_*.py"))):
+            try:
+                with io.open(p, encoding="utf-8", errors="replace") as f:
+                    tree = _ast.parse(f.read())
+            except Exception:
+                continue
+            # 독스트링도 `ast.Constant` 다 — 문장으로 서 있는 문자열(`Expr`)은 인쇄가 아니라
+            # 설명이므로 뺀다. 이 파일의 `deny_kind` 독스트링이 `[GROUNDING WARNING]` 을
+            # 언급하는 탓에 출처가 다시 언급 자리로 찍혔다.
+            _docs = {id(n.value) for n in _ast.walk(tree)
+                     if isinstance(n, _ast.Expr) and isinstance(n.value, _ast.Constant)}
+            for node in _ast.walk(tree):
+                if not (isinstance(node, _ast.Constant) and isinstance(node.value, str)):
+                    continue
+                if id(node) in _docs:
+                    continue
+                for tok in rx.findall(node.value):
+                    if " " not in tok:
+                        continue                  # 공백 없는 표지는 ⑴ 이 이미 갖고 있다
+                    got.setdefault("[%s]" % tok, os.path.basename(p))
+
+        def walk(o, src, key=None):
+            if isinstance(o, dict):
+                for k, v in o.items():
+                    walk(v, src, k)
+            elif isinstance(o, list):
+                for v in o:
+                    walk(v, src, key)
+            elif isinstance(o, str) and key:
+                # `_` 로 시작하는 키는 A2 의 **출처 주석**이다(`_note_` 규약·[[23]]) — 나가는
+                # 문장이 아니므로 원장에 넣으면 메모리 링크까지 "우리가 낸 문장"이 된다.
+                if str(key).startswith("_"):
+                    return
+                if not str(key).endswith(NOTICE_KEY_SUFFIXES):
+                    return
+                s = " ".join(o.split())
+                if len(s) < NOTICE_MIN or s.startswith("Error:"):
+                    return                        # 거절은 `ours_deny_prefixes` 몫이다
+                got.setdefault(s[:NOTICE_MIN], src)
+
+        for p in _g.glob(os.path.join(HERE, A2_SOURCE_GLOB), recursive=True):
+            try:
+                with io.open(p, encoding="utf-8") as f:
+                    walk(json.load(f), os.path.basename(p))
+            except Exception:
+                continue
+        _NOTICE_LEDGER = got
+    return _NOTICE_LEDGER
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 거절 **문면** 원장 — 우리 파일이 저작한 거절 본문의 축자 접두(파일에서 유도·열거 0)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1014,6 +1101,34 @@ def deny_kind(body):
         if b.startswith(_p):
             return "env", b[:60]
     return "", None
+
+
+def ours_text(body):
+    """본문을 **우리 층이 저작했는가** → bool. 거절만이 아니라 주석·통지까지 포함한다.
+
+    `deny_kind` 는 설계대로 **거절**만 가른다. 그런데 격리↔라이브 사다리(`t2_gap.rival_text`)
+    처럼 *우리가 낸 문장이면 종류를 안 가리고* 집어야 하는 소비자가 있고, 정본에 그 술어가
+    없어서 그쪽이 다섯 문자열짜리 **사본**을 들고 있었다([[67]] 위반). 그 사본을 여기로 올린다.
+
+      ⓵ `deny_kind(body)[0] == 'ours'`                     — 저작 거절 전량
+      ⓶ 머리 표지 ∈ `our_markers() ∪ attested_markers()`   — 공백 없는 표지
+      ⓷ `our_notice_ledger()` 조각 **포함**                — 공백 표지 + A2 통지
+
+    ★t7346(2026-08-22·40 sim·tool 메시지 993)로 사본과 대조한 실측:
+        사본만 잡던 것 47 (`could not be verified` 33 · `GROUNDING WARNING` 14) ⇒ ⓷ 이 받는다
+        정본만 잡던 것 45                                                      ⇒ 사본이 놓치던 것
+        둘 다 잡던 것 51 (`NOT_VERIFIED`)
+      즉 사본은 **양쪽으로** 갈라져 있었다 — `deny_kind` 로 그냥 바꿨으면 47 을 잃었다.
+    ⚠전부 닫힌 술어다: 집합 소속과 문자열 포함뿐이고 의미 판단은 0 이다([[59]]).
+    """
+    b = (body or "").lstrip()
+    if deny_kind(b)[0] == "ours":
+        return True
+    mk = marker_of(b)
+    if mk and (mk in our_markers() or mk in attested_markers()):
+        return True
+    flat = " ".join(b.split())
+    return any(k in flat for k in our_notice_ledger())
 
 
 def gold_mutations(sim, mut=None):

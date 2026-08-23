@@ -1,0 +1,56 @@
+{
+  "probe": "x500_axis_e_target",
+  "date": "2026-08-24",
+  "question": "R9 = 축 E(게이트 우회 채널). E-1/E-2/E-3 이 아직 남아 있나, 그리고 남은 것의 표적은 얼마인가.",
+  "run": "t7346 (halfA+halfB · 40 sim · nt2)",
+  "method": "코드 직독(HEAD=d93c389a) + t7346 로그·영속 궤적 원자료. 새 런 0 · 새 문서 0 · 새 집계 0.",
+
+  "E-1": {
+    "claim_in_handoff": "_ap_regen 산출물이 T2_PROCEDURE 재평가를 우회한다 — 최우선 수리",
+    "verdict": "ALREADY_REPAIRED",
+    "evidence": {
+      "commit": "ad76fdf2 'A-1: let the procedure gate see the calls that regeneration makes' (2026-08-23)",
+      "ancestor_of_HEAD": true,
+      "block": "t2_gate_patch.py:11527-11612 · env knob T2_PROC_REGEN(기본 1) · 테스트 test_proc_regen_recheck.py",
+      "live_firing_t7346": "[T2_PROCEDURE] deny 2건(메인 경로) · regen-* 0건"
+    },
+    "note": "핸드오프 §3① 이 이미 끝난 수리를 최우선으로 재등재했다. [[74]] 패턴."
+  },
+
+  "E-2": {
+    "claim_in_master": "T2_ENVELOPE_GUARD regen 이 게이트 while-루프 밖이라 T2_WRITE_ARG_ENUM 포함 체인 전체를 우회한다 (057#0)",
+    "verdict_structural": "CONFIRMED — 우회는 실재한다",
+    "verdict_reward": "REFUTED — 그 우회의 reward 결과는 0이다",
+    "measured_target": {
+      "envguard_firings_in_40_sim": 1,
+      "truncguard_firings_in_40_sim": 1,
+      "regen_tool_calls_committed": 1,
+      "sim": "task_057#s626729 (halfB trial 0 · reward 0.0 · term=user_stop)",
+      "call": "call_discoverable_agent_tool → open_bank_account_4821 {user_id, account_type:'checking', account_class:'Green Fee-Free Account'} (msg26)"
+    },
+    "why_reward_zero": [
+      "T2_WRITE_ARG_ENUM 의 A2 선언은 arg=account_class · group_arg=account_type 이다. 그 호출의 group 은 checking_accounts.",
+      "doc_index checking_accounts 후보 11개에 'Green Fee-Free Account' 가 들어 있다 ⇒ 소속 판정 통과 ⇒ 게이트가 돌았어도 deny 0.",
+      "같은 sim 에서 T2_WRITE_ARG_ENUM 은 나중에 정상 발화했다 ([T2_WRITE_ARG_ENUM] deny val='Bronze Savings Account' group=savings_accounts) ⇒ 체인은 살아 있고 이 한 턴만 우회했다.",
+      "우회 턴에도 체인 일부는 실제로 돌았다: [T2_PREKB] require_before post-check fam=open_bank_account (missing get_all_user_accounts_by_user_id) · [T2_WRITE_SUB] 제안 1건 → 근거검산 통과 0건.",
+      "[T2_STACK] audit route=[('차단',None,'T2_ENVELOPE_GUARD')] chose=[('resolve_write','unlock_discoverable_agent_tool')] differs=True ⇒ 계기는 이미 이 갈림을 기록하고 있었다."
+    ],
+    "decision": "짓지 않는다. 표적 = 40 sim 중 호출 1건이고 그 1건은 체인의 표적이 아니다. 측정된 기대 이득 0 sim. [[62]] 순서상 레버 자격 없음.",
+    "reopen_if": "ENVGUARD/TRUNCGUARD 발화가 한 런에서 5건 이상으로 오르거나, 우회 턴의 호출이 write-arg 체인 표적(savings account_class · 인자 grounding · 빈 인자)으로 관측되면 그때 _ap_regen 안 A-1 자리에 같은 형태로 이식한다(자리는 이미 있다)."
+  },
+
+  "E-3": {
+    "claim_in_master": "040#1 final-word deny 재생성 실패로 위반 호출 커밋 (기전 = T2_ARG_EMPTY 死배선)",
+    "verdict": "MECHANISM_REPAIRED_REWARD_ZERO",
+    "evidence": {
+      "commit": "d93c389a R5 — ARG_EMPTY 死배선(discoverable write 미도달) 수리 · 전 코퍼스 13,534 sim 에서 [T2_ARG_EMPTY] deny 79 발화",
+      "master_verbatim": "'필요조건이지 충분조건 아님(같은 7행이 issue_noticed_date 로도 독립 오답) ⇒ 단독 수리의 reward 매수 0'"
+    }
+  },
+
+  "conclusion": "R9(축 E)는 새로 지을 것이 없다. E-1 은 수리 완료·E-3 는 기전 수리 완료(reward 0)·E-2 는 표적 1건이고 그 1건이 체인 표적이 아니므로 reward 반사실이 성립하지 않는다. 축 E 는 닫는다.",
+  "caveats": [
+    "t7346 에는 사이드카가 없다(STATE_OF_PLAY §4.4) — regen_blocked 로는 못 쟀고 로그·영속 궤적으로만 쟀다.",
+    "E-2 의 '체인 전체 우회'는 구조적으로 참이다. 여기서 반증된 것은 처방의 값(reward)이지 결함의 존재가 아니다."
+  ]
+}
