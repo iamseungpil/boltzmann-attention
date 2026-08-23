@@ -37,8 +37,13 @@ FAIL = []
 
 
 def w(i, amt, net, fee=0.0, reb=None, dup=None):
-    """인출 1건 = 행 1개. fee=0 은 **수수료 줄이 없다**는 뜻(부재)."""
-    r = {"transaction_id": ("f%02d" % i) if fee else ("w%02d" % i),
+    """인출 1건 = 행 1개. fee=0 은 **수수료 줄이 없다**는 뜻(부재).
+
+    i 는 11월 일자다(101·151 처럼 세 자리면 앞 두 자리가 일자 — id 충돌만 피한 것).
+    `date` 는 서브가 레코드에서 그대로 베끼는 필드이고 정렬은 엔진이 한다(`op.order_field`).
+    """
+    r = {"date": "11/%02d/2025" % (i if i < 100 else i // 10),
+         "transaction_id": ("f%02d" % i) if fee else ("w%02d" % i),
          "fee_amount": fee, "withdrawal_amount": amt, "network": net}
     if reb is not None:
         r["rebate_amount"] = reb
@@ -202,6 +207,34 @@ def main():
         chk(abs(net - gold) < 1e-6, "%s  net %.2f = gold %.2f" % (label, net, gold), None if
             abs(net - gold) < 1e-6 else "ids=%s" % ids)
         chk(st.get("skipped") == 0, "%s  판정불가 0행" % label, st)
+
+    print("\n[★순서 무관 — env 는 레코드를 **최신순**으로 준다(072 실측)]")
+    #   `op.order_field='date'` 가 없으면 무료 4회가 **마지막** 4건에 붙어 조용히 틀린다.
+    #   그래서 이 블록은 정렬 배선이 죽으면 즉시 잡는 자물쇠다([[55]] 우리 배관 먼저).
+    for label, cls, gold, rows in LEDGERS:
+        _i, _s, det = run(cls, list(reversed(rows)))
+        net = round(sum(d.get("delta") or 0 for d in det), 2)
+        chk(abs(net - gold) < 1e-6, "%s  역순 입력에서도 %.2f = gold" % (label, net), net)
+    #   ★정렬이 무엇을 사는지 **정직하게** 고정한다([[70]]·[[57]]).
+    #   실측: 이 코퍼스에서 정렬은 **계좌 합계를 하나도 바꾸지 않는다**. 무료분 뒤의 요율이
+    #   전부 정액이라 Σ기대 = (N − 무료) × 정액 이고 어느 건이 무료인지와 무관하기 때문이다.
+    #   ⇒ *"정렬이 성적을 샀다"* 고 말하면 거짓이다. 정렬이 사는 것은 **어느 라인을 지목하는가**다
+    #   — date 를 빼고 역순으로 넣으면 무료 한도가 있는 세 계좌에서 지목이 어긋난다(최대 8줄).
+    #   우리 도구가 엉뚱한 거래를 *"잘못 부과됨"* 이라고 말하는 것은 유일한 근거원을 오염시킨다([[25]]).
+    _same_total, _moved = [], []
+    for label, cls, gold, rows in LEDGERS:
+        _ids0, _s0, _d0 = run(cls, rows)
+        _ids1, _s1, _d1 = run(cls, [{k: v for k, v in r.items() if k != "date"}
+                                    for r in reversed(rows)])
+        if abs(round(sum(d["delta"] for d in _d1), 2) - gold) < 1e-6:
+            _same_total.append(label.split()[1])
+        if set(_ids0) ^ set(_ids1):
+            _moved.append("%s %d줄" % (label.split()[1], len(set(_ids0) ^ set(_ids1))))
+    chk(len(_same_total) == len(LEDGERS),
+        "합계는 정렬과 무관하다(정액 요율의 귀결) — 정렬을 성적으로 주장하지 마라", len(_same_total))
+    chk(len(_moved) == 3,
+        "지목은 갈린다 — 무료 한도가 있는 3계좌에서 어긋난다([[25]] 이것이 정렬을 넣은 이유)",
+        " · ".join(_moved))
 
     print("\n[부재 줄이 실제로 잡히는가 — 음수 delta]")
     for label, cls, _g, rows in LEDGERS:

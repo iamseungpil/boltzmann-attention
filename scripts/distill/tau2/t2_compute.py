@@ -876,35 +876,60 @@ def apply_op(spec, ctx):
                 for _members in _by.values():
                     if len(_members) < 2:
                         continue
-                    _members.sort(key=lambda k: _pos[k])
-                    _dup_zero.discard(_members[0])     # 그룹 첫 행 = 원본(정상 부과)
-            # ★ordinal (2026-08-24): 문서화된 **월 무료 횟수**를 쓰려면 그 행이 그 달의 몇 번째
-            #   인출인지를 알아야 한다. 엔진은 날짜를 파싱하지 않는다([[59]]) — 입력 순서가
-            #   시간순이라는 것은 param 계약이 요구하고, 여기서는 같은 partition 값끼리 **세기만**
-            #   한다(도메인 어휘 0·판단 0·[[10]]). 중복 선언 행은 같은 인출의 두 번째 수수료
-            #   줄이므로 무료 횟수를 소비하지 않는다(=None → 그 행은 dup 경로로 기대 0).
+                    # ★2026-08-24 정정: 구판은 그룹이 생기기만 하면 **입력 순서 첫 행**을 무조건
+                    #   원본으로 되돌렸다. 그런데 구제할 것이 있는 경우는 서브가 **양쪽 다**
+                    #   중복이라고 선언했을 때뿐이다. 한 행만 선언했는데 첫 행이 그 행이면(입력이
+                    #   최신순으로 들어오면 실제로 그렇게 된다) 구판은 **선언 자체를 지워** 중복
+                    #   부과를 놓친다 — 073 계좌2 역순 입력에서 9.00 이 6.00 이 됐다(실측).
+                    _marked = [m for m in _members if m in _dup_zero]
+                    if len(_marked) < 2:
+                        continue                       # 선언이 하나뿐 = 구제할 것이 없다
+                    _marked.sort(key=lambda k: _pos[k])
+                    _dup_zero.discard(_marked[0])      # 선언된 것 중 첫 행 = 원본(정상 부과)
+            # ★order_field (2026-08-24): 무료 횟수와 상한 소진은 **시간 순서**로 세야 한다.
+            #   ⚠이 자리는 처음에 *"입력 순서가 시간순이라는 것은 param 계약이 요구한다"* 로
+            #     지었다가 **틀린 것을 실물에서 확인하고** 고친 곳이다: env 의
+            #     `get_bank_account_transactions` 는 레코드를 **최신순**으로 돌려준다(072 실측 —
+            #     11/20 → 11/19 → 11/18 …). 서브에게 뒤집어 적으라고 시키는 것은 전사 부담을
+            #     늘리고 조용히 틀리는 길이다. ⇒ **LLM 은 `date` 를 그대로 베끼고 엔진이 정렬한다**
+            #     ([[10]] 분담: 형식화=LLM · 계산=엔진). 미선언이면 종전대로 입력 순서다.
+            #   ⚠날짜 파싱은 도메인 텍스트 해석이 아니다 — 선언된 **필드 하나**를 읽는다
+            #     (`_parse_date` 는 이 파일이 `days_between` 에서 이미 쓰던 기존 기능·[[67]]).
+            #     못 읽는 값은 **뒤로** 보내고 입력 순서를 유지한다(조용한 재배치 금지).
+            _order = list(range(len(recs)))
+            _offld = spec.get("order_field")
+            if _offld:
+                def _okey_sort(i):
+                    _r = recs[i]
+                    _d = _parse_date(_r.get(_offld)) if isinstance(_r, dict) else None
+                    return (0, _d.toordinal(), i) if _d is not None else (1, 0, i)
+                _order = sorted(range(len(recs)), key=_okey_sort)
+            # ★ordinal: 같은 partition 값끼리 **세기만** 한다(도메인 어휘 0·판단 0·[[10]]).
+            #   중복 선언 행은 같은 인출의 두 번째 수수료 줄이므로 무료 횟수를 소비하지 않는다
+            #   (=None → 그 행은 dup 경로로 기대 0).
             _ordmap = {}
             for _onm, _osp in steps.items():
                 if not (isinstance(_osp, dict) and _osp.get("op") == "ordinal"):
                     continue
-                _opart, _ocnt, _ovals = _osp.get("partition"), {}, []
-                for _orow in recs:
+                _opart, _ocnt = _osp.get("partition"), {}
+                _ovals = [None] * len(recs)
+                for _i in _order:
+                    _orow = recs[_i]
                     if not isinstance(_orow, dict):
-                        _ovals.append(None)
                         continue
                     if _dupf0 and str(_orow.get(idf)) in _dup_zero:
-                        _ovals.append(None)
                         continue
                     _okey = str(_get({"r": _orow}, _opart)) if _opart else "*"
                     _ocnt[_okey] = _ocnt.get(_okey, 0) + 1
-                    _ovals.append(_ocnt[_okey])
+                    _ovals[_i] = _ocnt[_okey]
                 _ordmap[_onm] = _ovals
             # ★월 리베이트 상한(A2 `rebate` 선언 시만·미선언=거동 변화 0).
-            #   상한은 행과 무관하므로 1회만 평가하고, 소진은 입력 순서대로 누적한다.
+            #   상한은 행과 무관하므로 1회만 평가하고, 소진은 **`order_field` 순서**로 누적한다.
             _rbspec = spec.get("rebate") or {}
             _cap_spec = _rbspec.get("cap")
             _cap_left = _num(apply_op(_cap_spec, ctx) if isinstance(_cap_spec, dict) else _cap_spec)
-            for _ri, r in enumerate(recs):
+            for _ri in _order:
+                r = recs[_ri]
                 if not isinstance(r, dict):
                     continue
                 # ★F6a(C211·DAY7 §F6): id_field 결핍(P4b 강등 포함) 행은 판정 제외+계상 —
