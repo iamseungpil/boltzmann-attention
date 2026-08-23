@@ -294,12 +294,94 @@ def main(argv):
     print("  ■ argument 계열(60%% 이상 실행됐는데 만성) %d 도구: %s"
           % (len(fam_arg), ", ".join(r["tool"] for r in fam_arg)))
 
+
+    # ── (6) ★배정된 셀의 레버가 **실패한 그 자리에서** 발화하는가 ([[67]] 0단계)
+    #    만성이 우리 게이트 탓이 아니고(차단 우리 0), 셀은 존재한다면 남은 물음은 하나다:
+    #    그 셀의 레버가 이 스텝에서 **발화하기는 하는가**. 발화 0 이면 dark 레버(메타결함 ②)이고,
+    #    발화하는데도 못 닫으면 [[62]] ① 대로 격리로 결손을 재야 한다.
+    #    판정 단위 = **그 도구가 WRONGARG 를 낸 sim**(=부르고 값이 틀린 자리).
+    print("")
+    print("=" * 96)
+    print("(6) 배정 레버의 현장 발화 — argument 계열이 틀린 그 sim 에서 셀 레버가 돌았나")
+    print("=" * 96)
+    try:
+        import t2_levers as LV
+    except Exception as _e:
+        print("t2_levers 없음: %r" % (_e,))
+        LV = None
+    if LV is not None:
+        CELLS_OF = {}
+        for cell, v in LV.CELLS.items():
+            CELLS_OF[cell] = list(v[3]) if len(v) > 3 else []
+        ARG_CELLS = ["출처 근거 확보", "정본 상태 대조", "계산 이관"]
+        arg_tools = [r["tool"] for r in split
+                     if r["sims"] >= 8 and r["exec_ok"] / max(r["sims"], 1) >= 0.6]
+        # 도구별: WRONGARG 를 낸 sim 집합 (run|task#seed)
+        bad = collections.defaultdict(set)
+        for fp in files:
+            run = os.path.basename(fp).split(".")[0]
+            try:
+                with gzip.open(fp, "rt", encoding="utf-8", errors="replace") as f:
+                    d = json.load(f)
+            except Exception:
+                continue
+            for s in (d.get("simulations") or []):
+                try:
+                    md = F.mutation_diff(s, MUT)
+                except Exception:
+                    continue
+                key = "%s|%s#s%s" % (run, s.get("task_id"), s.get("seed"))
+                for e in (md.get("wrongarg") or []):
+                    if e.get("name") in arg_tools:
+                        bad[e["name"]].add(key)
+        # 그 sim 들의 로그에서 어느 태그가 떴나
+        import re as _re
+        SIMRE = _re.compile(r"\[sim=(task_\d+#s\d+)\]")
+        TAGRE = _re.compile(r"\[(T2_[A-Z0-9_]+)\]")
+        want = set()
+        for k in bad:
+            want |= bad[k]
+        fired = collections.defaultdict(set)      # simkey -> {tag}
+        for lp in sorted(glob.glob(os.path.join(SIMS, "bank_t7*_2026*.log.gz"))):
+            run = os.path.basename(lp).split(".")[0]
+            if not any(w.startswith(run + "|") for w in want):
+                continue
+            with gzip.open(lp, "rt", encoding="utf-8", errors="replace") as f:
+                for ln in f:
+                    m = SIMRE.search(ln)
+                    if not m:
+                        continue
+                    key = "%s|%s" % (run, m.group(1))
+                    if key not in want:
+                        continue
+                    t = TAGRE.search(ln)
+                    if t:
+                        fired[key].add(t.group(1))
+        print("%-42s %6s %7s  %s" % ("tool (WRONGARG 낸 sim)", "sim", "로그있음", "셀별 발화 sim"))
+        print("-" * 92)
+        live_rows = []
+        for tool in arg_tools:
+            sims = sorted(bad.get(tool) or [])
+            have = [k for k in sims if k in fired]
+            cells = {}
+            for cell in ARG_CELLS:
+                fl = set(CELLS_OF.get(cell) or [])
+                cells[cell] = sum(1 for k in have if fired[k] & fl)
+            live_rows.append({"tool": tool, "sims": len(sims), "with_log": len(have),
+                              "cells": cells})
+            print("%-42s %6d %7d  %s" % (tool[:42], len(sims), len(have),
+                                         " · ".join("%s %d" % (c, n) for c, n in cells.items())))
+        print("")
+        print("판독: 셀 발화 0 이면 **dark 레버**(메타결함 ②) — 그 셀은 이 자리에 도달조차 못 한다.")
+        print("      발화 수가 sim 수에 가까운데도 만성이면 [[62]] ① — 격리로 결손을 재야 한다.")
+
     out = {"files": len(files), "steps": rows,
            "wrongarg": {"%s|%s" % k: v for k, v in wrong.items()},
            "extra": {"%s|%s" % k: v for k, v in extra.items()},
            "task_sims": dict(sims_seen), "task_pass": dict(passes),
            "verdict_counts": dict(counts),
-           "chronic_split": split}
+           "chronic_split": split,
+           "cell_liveness": (live_rows if "live_rows" in dir() else [])}
     dst = os.path.join(SIMS, "..", "x494_step_ledger.json")
     with io.open(dst, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)

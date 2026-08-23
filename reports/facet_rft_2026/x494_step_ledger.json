@@ -7656,20 +7656,6 @@
    ]
   },
   {
-   "tool": "submit_interest_discrepancy_report_7294",
-   "sims": 33,
-   "never": 5,
-   "exec_ok": 26,
-   "blocked": 2,
-   "deny_ours": 0,
-   "deny_env": 2,
-   "tasks": [
-    "task_093",
-    "task_094",
-    "task_096"
-   ]
-  },
-  {
    "tool": "apply_savings_account_credit_6831",
    "sims": 33,
    "never": 14,
@@ -7677,6 +7663,20 @@
    "blocked": 0,
    "deny_ours": 0,
    "deny_env": 0,
+   "tasks": [
+    "task_093",
+    "task_094",
+    "task_096"
+   ]
+  },
+  {
+   "tool": "submit_interest_discrepancy_report_7294",
+   "sims": 33,
+   "never": 5,
+   "exec_ok": 26,
+   "blocked": 2,
+   "deny_ours": 0,
+   "deny_env": 2,
    "tasks": [
     "task_093",
     "task_094",
@@ -7744,19 +7744,6 @@
    ]
   },
   {
-   "tool": "file_credit_card_transaction_dispute_4829",
-   "sims": 16,
-   "never": 7,
-   "exec_ok": 6,
-   "blocked": 3,
-   "deny_ours": 0,
-   "deny_env": 3,
-   "tasks": [
-    "task_040",
-    "task_081"
-   ]
-  },
-  {
    "tool": "freeze_debit_card_3892",
    "sims": 16,
    "never": 9,
@@ -7771,10 +7758,23 @@
    ]
   },
   {
-   "tool": "log_credit_card_closure_reason_4521",
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "sims": 16,
+   "never": 7,
+   "exec_ok": 6,
+   "blocked": 3,
+   "deny_ours": 0,
+   "deny_env": 3,
+   "tasks": [
+    "task_040",
+    "task_081"
+   ]
+  },
+  {
+   "tool": "apply_statement_credit_8472",
    "sims": 15,
-   "never": 5,
-   "exec_ok": 10,
+   "never": 12,
+   "exec_ok": 3,
    "blocked": 0,
    "deny_ours": 0,
    "deny_env": 0,
@@ -7785,10 +7785,10 @@
    ]
   },
   {
-   "tool": "apply_statement_credit_8472",
+   "tool": "log_credit_card_closure_reason_4521",
    "sims": 15,
-   "never": 12,
-   "exec_ok": 3,
+   "never": 5,
+   "exec_ok": 10,
    "blocked": 0,
    "deny_ours": 0,
    "deny_env": 0,
@@ -7860,6 +7860,58 @@
    "tasks": [
     "task_090"
    ]
+  }
+ ],
+ "cell_liveness": [
+  {
+   "tool": "log_verification",
+   "sims": 6,
+   "with_log": 1,
+   "cells": {
+    "출처 근거 확보": 0,
+    "정본 상태 대조": 0,
+    "계산 이관": 1
+   }
+  },
+  {
+   "tool": "open_bank_account_4821",
+   "sims": 102,
+   "with_log": 35,
+   "cells": {
+    "출처 근거 확보": 26,
+    "정본 상태 대조": 10,
+    "계산 이관": 35
+   }
+  },
+  {
+   "tool": "apply_for_credit_card",
+   "sims": 61,
+   "with_log": 38,
+   "cells": {
+    "출처 근거 확보": 37,
+    "정본 상태 대조": 4,
+    "계산 이관": 38
+   }
+  },
+  {
+   "tool": "submit_interest_discrepancy_report_7294",
+   "sims": 22,
+   "with_log": 19,
+   "cells": {
+    "출처 근거 확보": 19,
+    "정본 상태 대조": 8,
+    "계산 이관": 19
+   }
+  },
+  {
+   "tool": "log_credit_card_closure_reason_4521",
+   "sims": 5,
+   "with_log": 0,
+   "cells": {
+    "출처 근거 확보": 0,
+    "정본 상태 대조": 0,
+    "계산 이관": 0
+   }
   }
  ]
 }
