@@ -110,6 +110,21 @@ def scope_pairs(tag, key):
     return out
 
 
+def _disc_desc(env, name):
+    """발견형 도구의 **자기 설명** — 환경 객체의 속성 docstring. 없으면 빈 문자열.
+
+    `env.get_tools()` 에는 래퍼·상시 도구 17종뿐이라 발견형 이름은 안 나온다(2026-08-23 실측).
+    엔진은 이 문자열을 해석하지 않는다 — 인쇄만 한다([[59]]).
+    """
+    for holder in (getattr(env, "tools", None), getattr(env, "user_tools", None)):
+        if holder is None:
+            continue
+        f = getattr(holder, name, None)
+        if f is not None:
+            return " ".join(str(getattr(f, "__doc__", "") or "").split())[:160]
+    return ""
+
+
 def anchor(sim, names):
     """결정점 = 그 sim 에서 **뒤 후보(보고서)를 실제로 실행한** assistant 발화 index.
 
@@ -177,9 +192,12 @@ def main():
             continue
         key = F.simtag(s) or ""
         pairs = scope_pairs(a.tag, key)
-        pair = next((p for p in pairs if p[0] in names and p[1] in names), None)
+        # ⚠**발견형 도구는 `env.get_tools()` 에 없다**(1차 배선 실패의 원인): 그 17종은 래퍼·상시
+        #   도구뿐이고 `apply_savings_account_credit_6831` 류는 `env.tools` 객체의 **속성**으로 산다.
+        #   그래서 실재 확인은 레지스트리 이름 집합이 아니라 **속성 조회**로 한다([[55]] 도구 지형 먼저).
+        pair = next((p for p in pairs if _disc_desc(sb.env, p[0]) and _disc_desc(sb.env, p[1])), None)
         if not pair:
-            print("  ⚠건너뜀 %s — 우리 로그에 후보쌍이 없다/레지스트리 불일치: %r" % (key, pairs))
+            print("  ⚠건너뜀 %s — 후보쌍을 환경에서 못 찾았다: %r" % (key, pairs))
             continue
         credit, report = pair
         i = anchor(s, {report})
@@ -192,15 +210,22 @@ def main():
         raise SystemExit("원천 0 — 태그·로그부터 본다([[55]])")
 
     # ── deny 문구는 **엔진이 만든다** — 상수 + 실제 도구 설명(내가 쓰지 않는다·[[71]]②) ──
+    #   `_tool_scope` 는 `agent.tools` 홀더를 훑는다. 발견형 도구는 거기 없으므로 같은 규약
+    #   (설명 첫 부분·160자 컷)으로 **환경 속성에서** 읽어 홀더를 만들어 준다 — 문구 조립은
+    #   여전히 `t2_resolve` 정본이 한다(내가 문장을 쓰지 않는다).
     class _Holder(object):
-        def __init__(self, t):
-            self.name, self.description = t.name, getattr(t, "description", "") or ""
-
-    class _FakeAgent(object):
-        tools = [_Holder(t) for t in tools]
-        _t2_orch = None
+        def __init__(self, name, desc):
+            self.name, self.description = name, desc
 
     for s in srcs:
+        _hold = [_Holder(t.name, getattr(t, "description", "") or "") for t in tools]
+        for n in (s["credit"], s["report"]):
+            _hold.append(_Holder(n, _disc_desc(sb.env, n)))
+
+        class _FakeAgent(object):
+            tools = _hold
+            _t2_orch = None
+
         _sc = [(n, R._tool_scope(_FakeAgent(), n)) for n in (s["credit"], s["report"])]
         _sc = [(n, d) for n, d in _sc if d]
         if len(_sc) < 2:
