@@ -189,14 +189,20 @@ check("그 런의 `regen_blocked` 는 `absent`(= 0 이 아니라 **모름**)",
       (sc, join, rb) == ("absent", None, []), str((sc, join)))
 check("`sidecar_note` 가 무엇을 하면 풀리는지까지 말한다([[64]])",
       "ABSENT" in F.sidecar_note(T_NONE) and "sim_results" in F.sidecar_note(T_NONE))
-if have(T_NONE):
-    sims_none = F.sims(T_NONE, ".results.json.gz")
-    dn = F.mutation_diff(sims_none[0], mut, T_NONE)
-    check("표에도 그 사실이 실린다", dn["sidecar"] == "absent" and dn["regen_blocked"] == [])
+# ★표 쪽 세 항목은 **실물 sim** 이 있어야 한다. sim 은 사이드카가 **있는** 런에서 빌리고,
+#   tag 만 없는 이름을 준다 — 재는 것은 *그 sim 이 어느 런의 것인가* 가 아니라 *tag 의 사이드카가
+#   없을 때 표가 뭐라고 적는가* 다. 초판은 실재 런을 T_NONE 으로 박은 탓에 그것이 회수되자
+#   `have()` 가 거짓이 되어 **세 항목이 조용히 건너뛰어졌다** — 유료 런 게이트에서 침묵은
+#   통과와 구별되지 않는다([[64]]·오늘 이 검정이 크래시로 죽어 있던 것과 같은 부류).
+if have(T_SIDE):
+    sim_any = F.sims(T_SIDE, "_results.json.gz")[0]
+    dn = F.mutation_diff(sim_any, mut, T_NONE)
+    check("표에도 그 사실이 실린다", dn["sidecar"] == "absent" and dn["regen_blocked"] == [],
+          str(dn.get("sidecar")))
     check("tag 를 안 주면 `unknown`(옛 호출부 호환 · 침묵 아님)",
-          F.mutation_diff(sims_none[0], mut)["sidecar"] == "unknown")
+          F.mutation_diff(sim_any, mut)["sidecar"] == "unknown")
     check("`action_diff` 도 같은 세 칸을 싣는다",
-          set(F.action_diff(sims_none[0], T_NONE)) >= {"sidecar", "regen_join", "regen_blocked"})
+          set(F.action_diff(sim_any, T_NONE)) >= {"sidecar", "regen_join", "regen_blocked"})
 
 # 원장 자체의 부정통제 — 소유 원장이 **env 문면까지** 삼키면 안 된다
 om = F.our_markers()
