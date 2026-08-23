@@ -107,6 +107,7 @@ CARD_PCT = {"fx_fee", "cashback", "min_payment_pct", "base_cashback", "fx_fee_wi
 def ops_suffix(at, caps):
     """속성 옆에 **그 표가 지지하는 op** 를 붙인다 — 모델이 만족 불가능한 술어를 고르지 못하게."""
     o = sorted(caps.get(at) or (), key=lambda x: ("==", "<=", ">=", "exists", "absent").index(x))
+    o = [show_op(x) for x in o]
     return ("; ops %s" % ",".join(o)) if o else "; ops none"
 
 
@@ -170,7 +171,33 @@ def ask(port, sysmsg, body, maxtok=700):
         return {}
 
 
-OPS = ("==", "<=", ">=", "exists", "absent")
+OPS = ("==", "<=", ">=", "exists", "absent", "undocumented")
+
+# ★`absent` 는 **한 토큰에 두 뜻**이 실려 있었다(2026-08-24·063#t1 실물).
+#   우리 표에서 `absent` = *"어느 문서도 그 값을 말하지 않는다"*(`fill_blanks` 가 표적 질의 후
+#   그렇게 확정한다). 모델은 그것을 *"그 상품엔 그게 없다"* 로 쓴다 — 063#t1 은 손님 축자
+#   *"paper statements mailed to me are a must"* 를 `paper_statement_fee absent` 로 옮겼고,
+#   gold 의 그 칸은 `values=["0.00"]` = **문서화된 $0 수수료**라 참인 사실이 gold 를 떨어뜨렸다.
+#   메뉴에 그 토큰을 올린 것은 **우리**다([[64]]·[[25]]).
+#   수리는 **표시 이름만** 바꾼다 — 뜻·표·엔진은 한 글자도 안 건드린다. 입력은 둘 다 받고
+#   `check_spec` 이 내부 `absent` 로 정규화한다(옛 산출물 재현 보존).
+ABSENT_DISPLAY = {"on": False}          # main 이 `--absent-name` 으로 켠다(기본 = 종전 이름)
+DISPLAY_OP = {"absent": "undocumented"}
+OP_ALIAS = {"undocumented": "absent"}
+
+
+def show_op(op):
+    """모델에게 보일 op 이름 — 뜻이 갈리는 토큰만 갈아 끼운다(스위치가 꺼져 있으면 그대로).
+
+    ⚠스위치를 여기 한 자리에 둔다. 초판은 `ops_suffix` 에만 뒀고 프롬프트의 op enum 은 무조건
+      새 이름을 보였다 — 메뉴와 스키마가 갈리는 것이 C553 이 만든 조용한 전멸의 모양이다.
+    """
+    return DISPLAY_OP.get(op, op) if ABSENT_DISPLAY.get("on") else op
+
+
+def norm_op(op):
+    """모델이 쓴 op → 내부 op. 별칭만 접는다(새 뜻 0)."""
+    return OP_ALIAS.get(str(op or ""), op)
 
 # ★서법을 **LLM 이 인자로 선언**한다(사용자 설계 2026-08-20 · [[22]] 따름정리·선언-우선).
 #   엔진이 `?`·`would` 를 세는 것은 [[59]] 위반이었고 실제로 gold 를 죽였다. 그렇다고 서법을 아예
@@ -220,6 +247,15 @@ def check_spec(spec, said="", allow=None):
             bad.append("constraint is not an object")
             continue
         at, op, val = con.get("attribute"), con.get("op"), con.get("value")
+        # ★표시 이름을 **내부 op 으로 접는다**(별칭만·새 뜻 0). 모델이 `undocumented` 로 쓰면
+        #   여기서 `absent` 가 되고 표·엔진은 한 글자도 안 바뀐다. 되받은 spec 에도 접힌 값을
+        #   써 둬야 뒤의 `passes`·`unsupported` 검산이 같은 토큰을 본다(메뉴·검산·엔진 정합·C553).
+        if op != norm_op(op):
+            op = norm_op(op)
+            con["op"] = op
+        for _alt in (con.get("any_of") or []):
+            if isinstance(_alt, dict) and _alt.get("op") != norm_op(_alt.get("op")):
+                _alt["op"] = norm_op(_alt.get("op"))
         if at not in (allow or ATTRS):
             bad.append("unknown attribute %r (not in the allowed list)" % at)
             continue
@@ -253,7 +289,9 @@ def check_spec(spec, said="", allow=None):
         #   거절은 **고칠 것을 이름 대고** 말한다([[64]]) — 무엇이 없는지 + 무엇이 되는지.
         okops = set(allow[at]) if isinstance(allow, dict) else set(OPS)
         if alts is None and op not in OPS:
-            bad.append("attribute %s has op %r (allowed: %s)" % (at, op, ",".join(OPS)))
+            bad.append("attribute %s has op %r (allowed: %s)"
+                       % (at, op, ",".join(show_op(x) for x in OPS if x not in DISPLAY_OP
+                                           or ABSENT_DISPLAY.get("on"))))
             continue
         if alts is None and op not in okops:
             bad.append("attribute %s does not support op %r in this catalogue "
@@ -674,7 +712,8 @@ def sysmsg_spec(with_or=False, filler=False, families=None):
                if families else "")
     return (orline +"You turn a customer's stated requirements into a machine-checkable spec. "
               "Reply with ONE JSON object only: {" + famline + "\"constraints\": [{\"attribute\": \"<one of the given "
-              "names>\", \"op\": \"==|<=|>=|exists|absent\", \"value\": <number or null>, "
+              "names>\", \"op\": \"==|<=|>=|exists|" + show_op("absent") + "\", "
+              "\"value\": <number or null>, "
               "\"because\": \"<the customer's own words>\", "
               "\"stated_as\": \"requirement|question|background\"}], "
               "\"objective\": {\"mode\": \"argmin|argmax\", \"terms\": [{\"attribute\": \"<name>\", "
@@ -704,6 +743,10 @@ def main():
     ap.add_argument("--repeat", type=int, default=1,
                     help="같은 코드로 N회 반복 — **판정선**(무처치 변동폭)을 잰다")
     ap.add_argument("--args-filter", default="account_class")
+    ap.add_argument("--absent-name", default="absent", choices=("absent", "undocumented"),
+                    help="모델에게 보일 `absent` op 의 이름. 뜻·표·엔진은 그대로다. "
+                         "absent=종전(우리 표에선 '문서 미기재'인데 모델은 '상품에 없음'으로 쓴다) "
+                         "· undocumented=충돌 제거. 표적 = 063#t1 딱 1 사례")
     ap.add_argument("--conditional", default="off", choices=("off", "overlay"),
                     help="조건부 사실표(`x430_account_facts_conditional.json`)를 **빈 칸에만** 덮나. "
                          "off=종전 · overlay=덮는다. 실측 2026-08-24: 조건부가 값을 낸 355 칸 중 "
@@ -786,6 +829,7 @@ def main():
             continue
         seen.add(k)
         cs.append(c)
+    ABSENT_DISPLAY["on"] = (a.absent_name == "undocumented")
     # 계열 이름 목록은 A2 선언에서 온다(엔진이 짓지 않는다).
     _famlist = sorted({f for x in [x for x in a.args_filter.split(",") if x]
                        for f in (arg_families(x) or [])})
@@ -818,7 +862,7 @@ def main():
               spec2 = ask(a.port, sysmsg, body + "\n# Your previous answer was rejected\n"
                           + "\n".join("- %s" % b for b in bad[:6])
                           + "\nUse ONLY the attribute names listed above, an op from "
-                            "==,<=,>=,exists,absent, and a number (or null for exists/absent).\n")
+                            "==,<=,>=,exists,%s, and a number (or null for exists/%s).\n" % (show_op("absent"), show_op("absent")))
               cons2, bad2, dropped2, dropped_full2 = check_spec(spec2, said, allow)
               if len(cons2) >= len(cons):
                   cons, bad, spec, dropped, dropped_full = cons2, bad2, spec2, dropped2, dropped_full2
@@ -934,12 +978,13 @@ def main():
         #   커밋된 8-사례 산출물을 5-사례 결과로 **덮었다**(2026-08-24 실물·git checkout 으로 복구).
         #   `--tag` 를 준 것 자체가 *이건 다른 실행이다* 라는 선언이므로 이름이 갈려야 한다([[30]]).
         default_call = (a.arm == "A_cur" and a.tag == "wide" and a.family_from == "none"
-                        and a.conditional == "off" and len(all_rows) == 1)
+                        and a.conditional == "off" and a.absent_name == "absent"
+                        and len(all_rows) == 1)
         if default_call:
             name = "x431_spec_selects.json"
         else:
-            name = "x431_%s_fam%s_cond%s_%s%d.json" % (a.arm.lower(), a.family_from,
-                                                        a.conditional, a.tag, k + 1)
+            name = "x431_%s_fam%s_cond%s_op%s_%s%d.json" % (
+                a.arm.lower(), a.family_from, a.conditional, a.absent_name, a.tag, k + 1)
         q = os.path.abspath(os.path.join(rep, name))
         with io.open(q, "w", encoding="utf-8") as f:
             json.dump(rws, f, ensure_ascii=False, indent=1)
