@@ -27,6 +27,7 @@
     from t2_liveness import audit               # 라이브러리로
 """
 import collections
+import gzip
 import glob
 import io
 import json
@@ -85,6 +86,135 @@ def audit(paths):
             else:
                 rec["delivered"] += 1
     return out
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ★중재 축 (2026-08-23 · 사용자 물음 *"이걸 측정할 방법이 없나"*).
+#
+# `audit()` 는 **한 레버가 전달했나**를 본다. 그런데 이 스택에서 가장 자주 발화하는 기제는
+# 레버가 아니라 **중재자**다 — t7346 40 sim 에서 `[T2_MATERIAL_GATE] stop=` 만 **439회**
+# (sim당 11회)다. 그 439회 중 몇 개가 결정점 앞이었고 몇 개가 옳았는지 **한 번도 안 쟀다**.
+# 등대 §1.3: *"합성은 무한후퇴가 아니라 **측정된 상쇄**여야 한다"* — 중재자도 계측 대상이다.
+#
+# 여기서 재는 것(전부 우리 자신의 로그 프로토콜·도메인 판단 0):
+#   ⑴ **정지율** — sim 당·로그 100줄당 정지 수. **pass ↔ fail 로 갈라 본다**([[57]] 부정통제의
+#      관찰 형태: pass sim 에서도 같은 비율이면 그 정지는 원인이 아니다).
+#   ⑵ **채널이 열린 적 있나** — 그 sim 에서 결정 재료가 한 번이라도 배달됐나
+#      (`T2_DECISION_CARRY` · `T2_SEARCH_AGENT 축 처리 완료`). 정지 N회·배달 0회면 그 관문은
+#      그 sim 에서 **채널을 영구히 닫은 것**이다(C494/C495 가 055 에서 본 그 모양).
+#   ⑶ **억제가 지연인가 손실인가** — `[T2_STACK] window suppressed tag=X` 뒤에 같은 sim 에서
+#      X 가 다시 발화했나. 다시 났으면 지연, 아니면 손실.
+#   ⑷ **덮어쓴 바이트** — `[T2_CP2_CLOBBER]` 가 버린 배달물 크기 합.
+#
+# ⚠이 함수가 **답하지 못하는 것**: 정지가 **옳았는지**. 관찰 자료는 상관까지만 준다.
+#   인과는 라이브 A/B(중재 파라미터 조정) 또는 환경-롤아웃 하네스만 준다 — 결정점 **재생**으로는
+#   못 한다(C596: 비커밋 채널은 재생으로 재현되지 않는다. x487 이 그것으로 무효가 됐다).
+SIMFULL = re.compile(r"\[sim=(task_\d+#s\d+)\]")
+MG = re.compile(r"\[T2_MATERIAL_GATE\] stop=([a-z_]+)(\([^)]*\))?\s+turn=(\d+)")
+WS = re.compile(r"\[T2_STACK\] window suppressed tag=(\S+)")
+CL = re.compile(r"\[T2_CP2_CLOBBER\][^0-9]*?(\d+)자를 버리고")
+DELIVERED_MARKS = ("[T2_DECISION_CARRY]", "[T2_SEARCH_AGENT] 축 처리 완료")
+
+
+def arbitration(log_paths, results=None):
+    """로그(+선택적으로 {sim_tag: reward}) → sim 별 중재 원장.
+
+    sim_tag = `task_016#s626729` (results 의 `task_id` + `seed` 로 조립되는 그 키).
+    """
+    per = collections.defaultdict(
+        lambda: {"stops": collections.Counter(), "stop_turns": [],
+                 "winners": collections.Counter(), "suppressed": [],
+                 "clobbered_bytes": 0, "deliveries": 0, "lines": 0,
+                 "fires": collections.defaultdict(list), "reward": None})
+    for p in log_paths:
+        opener = gzip.open if str(p).endswith(".gz") else io.open
+        with opener(p, "rt", encoding="utf-8", errors="replace") as f:
+            for ln in f:
+                sm = SIMFULL.search(ln)
+                if not sm:
+                    continue
+                rec = per[sm.group(1)]
+                rec["lines"] += 1
+                m = MG.search(ln)
+                if m:
+                    rec["stops"][m.group(1)] += 1
+                    rec["stop_turns"].append((m.group(1), int(m.group(3))))
+                    if m.group(1) == "other_lever" and m.group(2):
+                        for w in m.group(2).strip("()").split(","):
+                            rec["winners"][w.strip()] += 1
+                w = WS.search(ln)
+                if w:
+                    rec["suppressed"].append([w.group(1), None, rec["lines"]])
+                c = CL.search(ln)
+                if c:
+                    rec["clobbered_bytes"] += int(c.group(1))
+                if any(k in ln for k in DELIVERED_MARKS):
+                    rec["deliveries"] += 1
+                t = TAG.search(ln)
+                if t:
+                    rec["fires"][t.group(1)].append(rec["lines"])
+    # ⑶ 억제가 지연인가 손실인가. 태그 이름 규약이 달라(`tag=claimprov` ↔ `[T2_CLAIMPROV]`)
+    #    대문자로 맞춘다. 맞는 태그가 아예 없으면 판정을 `None` 으로 남긴다(추측 금지).
+    for rec in per.values():
+        rows = []
+        for name, _, at in rec["suppressed"]:
+            want = "T2_" + name.upper()
+            fires = rec["fires"].get(want)
+            rows.append((name, (any(n > at for n in fires) if fires else None)))
+        rec["suppressed"] = rows
+        rec.pop("fires", None)
+    if results:
+        for k, v in results.items():
+            if k in per:
+                per[k]["reward"] = v
+    return dict(per)
+
+
+def rewards_from_results(paths):
+    """results.json(.gz) → {`task_id#s<seed>`: reward}. 조인 키 정본."""
+    out = {}
+    for p in paths:
+        opener = gzip.open if str(p).endswith(".gz") else io.open
+        with opener(p, "rt", encoding="utf-8", errors="replace") as f:
+            d = json.load(f)
+        for s in (d.get("simulations") or []):
+            key = "%s#s%s" % (s.get("task_id"), s.get("seed"))
+            out[key] = (s.get("reward_info") or {}).get("reward")
+    return out
+
+
+def report_arbitration(per):
+    """pass ↔ fail 로 갈라 정지율을 인쇄한다([[57]] 부정통제의 관찰 형태)."""
+    known = [(k, v) for k, v in per.items() if v.get("reward") is not None]
+    groups = {"PASS": [v for _, v in known if v["reward"]],
+              "FAIL": [v for _, v in known if not v["reward"]]}
+    print("%-5s %4s %7s %11s %12s %8s %12s" %
+          ("군", "sim", "정지", "정지/100줄", "resolve_cap", "배달", "배달0 sim"))
+    print("-" * 68)
+    for g in ("PASS", "FAIL"):
+        rows = groups.get(g) or []
+        if not rows:
+            continue
+        stops = sum(sum(r["stops"].values()) for r in rows)
+        lines = sum(r["lines"] for r in rows) or 1
+        cap = sum(r["stops"].get("resolve_cap", 0) for r in rows)
+        dl = sum(r["deliveries"] for r in rows)
+        zero = sum(1 for r in rows if r["deliveries"] == 0)
+        print("%-5s %4d %7d %11.2f %12d %8d %12d" %
+              (g, len(rows), stops, 100.0 * stops / lines, cap, dl, zero))
+    sup = [s for v in per.values() for s in v["suppressed"]]
+    if sup:
+        again = sum(1 for _, r in sup if r is True)
+        lost = sum(1 for _, r in sup if r is False)
+        unk = sum(1 for _, r in sup if r is None)
+        print("")
+        print("억제 %d건 — 같은 sim 에서 재발화 %d(=지연) · 재발화 없음 %d(=손실) · 판정불가 %d"
+              % (len(sup), again, lost, unk))
+    print("CP2 가 버린 배달물 합계 %d자" % sum(v["clobbered_bytes"] for v in per.values()))
+    print("")
+    print("※ 이 표는 **상관**까지만 준다. 정지가 옳았는지는 라이브 A/B(중재 파라미터) 또는")
+    print("  환경-롤아웃만 답한다 — 결정점 재생은 못 한다(C596).")
+    return groups
 
 
 def report(res, min_silent_ratio=0.5):

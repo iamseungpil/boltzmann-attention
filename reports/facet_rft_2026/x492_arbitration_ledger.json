@@ -1,0 +1,2444 @@
+{
+ "logs": [
+  "bank_t7346_halfA_20260822.log.gz",
+  "bank_t7346_halfB_20260822.log.gz"
+ ],
+ "n_sim": 40,
+ "totals": {
+  "PASS": {
+   "sims": 13,
+   "stops": 64,
+   "lines": 2627,
+   "deliveries": 39,
+   "zero_delivery_sims": 0
+  },
+  "FAIL": {
+   "sims": 27,
+   "stops": 375,
+   "lines": 10835,
+   "deliveries": 229,
+   "zero_delivery_sims": 0
+  }
+ },
+ "winners": {
+  "prov": 70,
+  "gate": 67,
+  "wev": 37,
+  "te": 2,
+  "eplan": 1
+ },
+ "channel_closed_sims": [],
+ "early_window": {
+  "msg<=12": {
+   "pass_mean": 2.5384615384615383,
+   "fail_mean": 2.6296296296296298,
+   "pass_sum": 33,
+   "fail_sum": 71
+  },
+  "msg<=20": {
+   "pass_mean": 3.5384615384615383,
+   "fail_mean": 4.111111111111111,
+   "pass_sum": 46,
+   "fail_sum": 111
+  },
+  "msg<=30": {
+   "pass_mean": 3.769230769230769,
+   "fail_mean": 5.444444444444445,
+   "pass_sum": 49,
+   "fail_sum": 147
+  }
+ },
+ "matched_pairs": [
+  {
+   "task": "task_017",
+   "pass": [
+    26,
+    8,
+    390
+   ],
+   "fail": [
+    38,
+    8,
+    451
+   ]
+  },
+  {
+   "task": "task_050",
+   "pass": [
+    2,
+    1,
+    258
+   ],
+   "fail": [
+    1,
+    1,
+    168
+   ]
+  },
+  {
+   "task": "task_073",
+   "pass": [
+    9,
+    4,
+    383
+   ],
+   "fail": [
+    15,
+    4,
+    414
+   ]
+  }
+ ],
+ "per_sim": {
+  "task_003#s626729": {
+   "reward": 1.0,
+   "lines": 92,
+   "stops": {
+    "other_lever": 4
+   },
+   "deliveries": 3,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ]
+   ]
+  },
+  "task_004#s626729": {
+   "reward": 1.0,
+   "lines": 185,
+   "stops": {
+    "other_lever": 4,
+    "resolve_cap": 2
+   },
+   "deliveries": 2,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     4
+    ],
+    [
+     "resolve_cap",
+     4
+    ],
+    [
+     "resolve_cap",
+     6
+    ],
+    [
+     "other_lever",
+     20
+    ]
+   ]
+  },
+  "task_017#s626729": {
+   "reward": 0.0,
+   "lines": 451,
+   "stops": {
+    "other_lever": 14,
+    "resolve_cap": 24
+   },
+   "deliveries": 9,
+   "clobbered_bytes": 247,
+   "suppressed": [
+    [
+     "followup",
+     true
+    ],
+    [
+     "followup",
+     true
+    ],
+    [
+     "followup",
+     true
+    ],
+    [
+     "followup",
+     true
+    ],
+    [
+     "followup",
+     true
+    ],
+    [
+     "followup",
+     true
+    ],
+    [
+     "followup",
+     true
+    ],
+    [
+     "followup",
+     false
+    ]
+   ],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "resolve_cap",
+     6
+    ],
+    [
+     "other_lever",
+     8
+    ],
+    [
+     "other_lever",
+     8
+    ],
+    [
+     "other_lever",
+     10
+    ],
+    [
+     "resolve_cap",
+     10
+    ],
+    [
+     "other_lever",
+     12
+    ],
+    [
+     "resolve_cap",
+     12
+    ],
+    [
+     "resolve_cap",
+     14
+    ],
+    [
+     "other_lever",
+     16
+    ],
+    [
+     "resolve_cap",
+     16
+    ],
+    [
+     "resolve_cap",
+     18
+    ],
+    [
+     "other_lever",
+     30
+    ],
+    [
+     "other_lever",
+     35
+    ],
+    [
+     "other_lever",
+     35
+    ],
+    [
+     "resolve_cap",
+     35
+    ],
+    [
+     "resolve_cap",
+     35
+    ],
+    [
+     "resolve_cap",
+     37
+    ],
+    [
+     "other_lever",
+     39
+    ],
+    [
+     "resolve_cap",
+     39
+    ],
+    [
+     "resolve_cap",
+     41
+    ],
+    [
+     "resolve_cap",
+     43
+    ],
+    [
+     "resolve_cap",
+     45
+    ],
+    [
+     "resolve_cap",
+     47
+    ],
+    [
+     "resolve_cap",
+     49
+    ],
+    [
+     "other_lever",
+     51
+    ],
+    [
+     "resolve_cap",
+     51
+    ],
+    [
+     "resolve_cap",
+     53
+    ],
+    [
+     "resolve_cap",
+     55
+    ],
+    [
+     "resolve_cap",
+     57
+    ],
+    [
+     "resolve_cap",
+     59
+    ],
+    [
+     "resolve_cap",
+     61
+    ],
+    [
+     "other_lever",
+     63
+    ],
+    [
+     "other_lever",
+     63
+    ],
+    [
+     "resolve_cap",
+     63
+    ],
+    [
+     "resolve_cap",
+     63
+    ],
+    [
+     "other_lever",
+     70
+    ],
+    [
+     "resolve_cap",
+     70
+    ]
+   ]
+  },
+  "task_024#s626729": {
+   "reward": 1.0,
+   "lines": 96,
+   "stops": {
+    "other_lever": 1
+   },
+   "deliveries": 3,
+   "clobbered_bytes": 0,
+   "suppressed": [
+    [
+     "claimprov",
+     false
+    ]
+   ],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ]
+   ]
+  },
+  "task_055#s626729": {
+   "reward": 0.0,
+   "lines": 362,
+   "stops": {
+    "other_lever": 7,
+    "resolve_cap": 2
+   },
+   "deliveries": 6,
+   "clobbered_bytes": 490,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     4
+    ],
+    [
+     "other_lever",
+     13
+    ],
+    [
+     "resolve_cap",
+     13
+    ],
+    [
+     "resolve_cap",
+     15
+    ],
+    [
+     "other_lever",
+     17
+    ],
+    [
+     "other_lever",
+     39
+    ],
+    [
+     "other_lever",
+     41
+    ],
+    [
+     "other_lever",
+     45
+    ],
+    [
+     "other_lever",
+     47
+    ]
+   ]
+  },
+  "task_072#s626729": {
+   "reward": 0.0,
+   "lines": 510,
+   "stops": {
+    "other_lever": 11,
+    "resolve_cap": 11
+   },
+   "deliveries": 14,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     4
+    ],
+    [
+     "other_lever",
+     6
+    ],
+    [
+     "resolve_cap",
+     6
+    ],
+    [
+     "other_lever",
+     10
+    ],
+    [
+     "resolve_cap",
+     26
+    ],
+    [
+     "resolve_cap",
+     28
+    ],
+    [
+     "resolve_cap",
+     30
+    ],
+    [
+     "other_lever",
+     36
+    ],
+    [
+     "other_lever",
+     36
+    ],
+    [
+     "other_lever",
+     36
+    ],
+    [
+     "resolve_cap",
+     36
+    ],
+    [
+     "resolve_cap",
+     38
+    ],
+    [
+     "other_lever",
+     58
+    ],
+    [
+     "resolve_cap",
+     58
+    ],
+    [
+     "resolve_cap",
+     60
+    ],
+    [
+     "other_lever",
+     62
+    ],
+    [
+     "resolve_cap",
+     62
+    ],
+    [
+     "other_lever",
+     64
+    ],
+    [
+     "resolve_cap",
+     64
+    ],
+    [
+     "resolve_cap",
+     66
+    ]
+   ]
+  },
+  "task_073#s626729": {
+   "reward": 1.0,
+   "lines": 383,
+   "stops": {
+    "other_lever": 3,
+    "resolve_cap": 6
+   },
+   "deliveries": 10,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "resolve_cap",
+     9
+    ],
+    [
+     "resolve_cap",
+     11
+    ],
+    [
+     "resolve_cap",
+     13
+    ],
+    [
+     "resolve_cap",
+     15
+    ],
+    [
+     "other_lever",
+     17
+    ],
+    [
+     "resolve_cap",
+     58
+    ],
+    [
+     "resolve_cap",
+     58
+    ]
+   ]
+  },
+  "task_093#s626729": {
+   "reward": 0.0,
+   "lines": 259,
+   "stops": {
+    "resolve_cap": 4,
+    "other_lever": 3
+   },
+   "deliveries": 5,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "resolve_cap",
+     4
+    ],
+    [
+     "other_lever",
+     8
+    ],
+    [
+     "resolve_cap",
+     8
+    ],
+    [
+     "resolve_cap",
+     10
+    ],
+    [
+     "other_lever",
+     14
+    ],
+    [
+     "other_lever",
+     14
+    ],
+    [
+     "resolve_cap",
+     24
+    ]
+   ]
+  },
+  "task_094#s626729": {
+   "reward": 0.0,
+   "lines": 391,
+   "stops": {
+    "other_lever": 4,
+    "resolve_cap": 5
+   },
+   "deliveries": 10,
+   "clobbered_bytes": 500,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     12
+    ],
+    [
+     "other_lever",
+     50
+    ],
+    [
+     "resolve_cap",
+     50
+    ],
+    [
+     "resolve_cap",
+     52
+    ],
+    [
+     "resolve_cap",
+     54
+    ],
+    [
+     "resolve_cap",
+     56
+    ],
+    [
+     "resolve_cap",
+     58
+    ]
+   ]
+  },
+  "task_100#s626729": {
+   "reward": 1.0,
+   "lines": 206,
+   "stops": {},
+   "deliveries": 1,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": []
+  },
+  "task_003#s373753": {
+   "reward": 1.0,
+   "lines": 64,
+   "stops": {
+    "other_lever": 1
+   },
+   "deliveries": 1,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ]
+   ]
+  },
+  "task_004#s373753": {
+   "reward": 1.0,
+   "lines": 201,
+   "stops": {
+    "other_lever": 5,
+    "resolve_cap": 2
+   },
+   "deliveries": 2,
+   "clobbered_bytes": 0,
+   "suppressed": [
+    [
+     "claimprov",
+     true
+    ]
+   ],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "resolve_cap",
+     4
+    ],
+    [
+     "resolve_cap",
+     6
+    ],
+    [
+     "other_lever",
+     18
+    ],
+    [
+     "other_lever",
+     20
+    ],
+    [
+     "other_lever",
+     22
+    ]
+   ]
+  },
+  "task_017#s373753": {
+   "reward": 1.0,
+   "lines": 390,
+   "stops": {
+    "other_lever": 8,
+    "resolve_cap": 18
+   },
+   "deliveries": 5,
+   "clobbered_bytes": 0,
+   "suppressed": [
+    [
+     "followup",
+     true
+    ],
+    [
+     "followup",
+     true
+    ],
+    [
+     "followup",
+     false
+    ]
+   ],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "resolve_cap",
+     6
+    ],
+    [
+     "other_lever",
+     8
+    ],
+    [
+     "other_lever",
+     8
+    ],
+    [
+     "other_lever",
+     10
+    ],
+    [
+     "resolve_cap",
+     10
+    ],
+    [
+     "other_lever",
+     12
+    ],
+    [
+     "resolve_cap",
+     12
+    ],
+    [
+     "resolve_cap",
+     14
+    ],
+    [
+     "other_lever",
+     16
+    ],
+    [
+     "resolve_cap",
+     16
+    ],
+    [
+     "resolve_cap",
+     18
+    ],
+    [
+     "other_lever",
+     30
+    ],
+    [
+     "other_lever",
+     38
+    ],
+    [
+     "resolve_cap",
+     38
+    ],
+    [
+     "resolve_cap",
+     40
+    ],
+    [
+     "resolve_cap",
+     42
+    ],
+    [
+     "resolve_cap",
+     44
+    ],
+    [
+     "resolve_cap",
+     44
+    ],
+    [
+     "resolve_cap",
+     46
+    ],
+    [
+     "resolve_cap",
+     46
+    ],
+    [
+     "resolve_cap",
+     48
+    ],
+    [
+     "resolve_cap",
+     48
+    ],
+    [
+     "resolve_cap",
+     52
+    ],
+    [
+     "resolve_cap",
+     52
+    ],
+    [
+     "resolve_cap",
+     54
+    ]
+   ]
+  },
+  "task_024#s373753": {
+   "reward": 1.0,
+   "lines": 86,
+   "stops": {
+    "other_lever": 1
+   },
+   "deliveries": 3,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ]
+   ]
+  },
+  "task_055#s373753": {
+   "reward": 0.0,
+   "lines": 382,
+   "stops": {
+    "other_lever": 1,
+    "resolve_cap": 16
+   },
+   "deliveries": 10,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     45
+    ],
+    [
+     "resolve_cap",
+     45
+    ],
+    [
+     "resolve_cap",
+     47
+    ],
+    [
+     "resolve_cap",
+     47
+    ],
+    [
+     "resolve_cap",
+     49
+    ],
+    [
+     "resolve_cap",
+     51
+    ],
+    [
+     "resolve_cap",
+     53
+    ],
+    [
+     "resolve_cap",
+     53
+    ],
+    [
+     "resolve_cap",
+     55
+    ],
+    [
+     "resolve_cap",
+     55
+    ],
+    [
+     "resolve_cap",
+     57
+    ],
+    [
+     "resolve_cap",
+     57
+    ],
+    [
+     "resolve_cap",
+     61
+    ],
+    [
+     "resolve_cap",
+     61
+    ],
+    [
+     "resolve_cap",
+     63
+    ],
+    [
+     "resolve_cap",
+     65
+    ],
+    [
+     "resolve_cap",
+     67
+    ]
+   ]
+  },
+  "task_072#s373753": {
+   "reward": 0.0,
+   "lines": 463,
+   "stops": {
+    "other_lever": 6,
+    "resolve_cap": 7
+   },
+   "deliveries": 12,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     4
+    ],
+    [
+     "other_lever",
+     6
+    ],
+    [
+     "resolve_cap",
+     6
+    ],
+    [
+     "other_lever",
+     10
+    ],
+    [
+     "other_lever",
+     22
+    ],
+    [
+     "resolve_cap",
+     26
+    ],
+    [
+     "resolve_cap",
+     28
+    ],
+    [
+     "resolve_cap",
+     31
+    ],
+    [
+     "resolve_cap",
+     33
+    ],
+    [
+     "resolve_cap",
+     81
+    ],
+    [
+     "resolve_cap",
+     84
+    ]
+   ]
+  },
+  "task_073#s373753": {
+   "reward": 0.0,
+   "lines": 414,
+   "stops": {
+    "other_lever": 6,
+    "resolve_cap": 9
+   },
+   "deliveries": 10,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "resolve_cap",
+     9
+    ],
+    [
+     "resolve_cap",
+     11
+    ],
+    [
+     "resolve_cap",
+     13
+    ],
+    [
+     "other_lever",
+     15
+    ],
+    [
+     "resolve_cap",
+     15
+    ],
+    [
+     "resolve_cap",
+     17
+    ],
+    [
+     "other_lever",
+     19
+    ],
+    [
+     "other_lever",
+     19
+    ],
+    [
+     "other_lever",
+     45
+    ],
+    [
+     "resolve_cap",
+     45
+    ],
+    [
+     "resolve_cap",
+     47
+    ],
+    [
+     "resolve_cap",
+     69
+    ],
+    [
+     "resolve_cap",
+     71
+    ]
+   ]
+  },
+  "task_093#s373753": {
+   "reward": 0.0,
+   "lines": 426,
+   "stops": {
+    "resolve_cap": 6,
+    "other_lever": 5
+   },
+   "deliveries": 8,
+   "clobbered_bytes": 247,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "resolve_cap",
+     4
+    ],
+    [
+     "other_lever",
+     8
+    ],
+    [
+     "resolve_cap",
+     8
+    ],
+    [
+     "resolve_cap",
+     10
+    ],
+    [
+     "resolve_cap",
+     12
+    ],
+    [
+     "other_lever",
+     14
+    ],
+    [
+     "resolve_cap",
+     52
+    ],
+    [
+     "resolve_cap",
+     54
+    ],
+    [
+     "other_lever",
+     62
+    ],
+    [
+     "other_lever",
+     64
+    ],
+    [
+     "other_lever",
+     66
+    ]
+   ]
+  },
+  "task_094#s373753": {
+   "reward": 0.0,
+   "lines": 410,
+   "stops": {
+    "other_lever": 10
+   },
+   "deliveries": 6,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     38
+    ],
+    [
+     "other_lever",
+     44
+    ],
+    [
+     "other_lever",
+     46
+    ],
+    [
+     "other_lever",
+     48
+    ],
+    [
+     "other_lever",
+     48
+    ],
+    [
+     "other_lever",
+     58
+    ],
+    [
+     "other_lever",
+     60
+    ],
+    [
+     "other_lever",
+     66
+    ]
+   ]
+  },
+  "task_100#s373753": {
+   "reward": 1.0,
+   "lines": 190,
+   "stops": {},
+   "deliveries": 1,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": []
+  },
+  "task_016#s626729": {
+   "reward": 0.0,
+   "lines": 439,
+   "stops": {
+    "resolve_cap": 9,
+    "other_lever": 1
+   },
+   "deliveries": 9,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "resolve_cap",
+     38
+    ],
+    [
+     "resolve_cap",
+     40
+    ],
+    [
+     "resolve_cap",
+     42
+    ],
+    [
+     "resolve_cap",
+     44
+    ],
+    [
+     "resolve_cap",
+     46
+    ],
+    [
+     "other_lever",
+     52
+    ],
+    [
+     "resolve_cap",
+     52
+    ],
+    [
+     "resolve_cap",
+     54
+    ],
+    [
+     "resolve_cap",
+     54
+    ],
+    [
+     "resolve_cap",
+     54
+    ]
+   ]
+  },
+  "task_033#s626729": {
+   "reward": 1.0,
+   "lines": 228,
+   "stops": {
+    "other_lever": 2,
+    "resolve_cap": 1
+   },
+   "deliveries": 2,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "resolve_cap",
+     6
+    ],
+    [
+     "other_lever",
+     16
+    ]
+   ]
+  },
+  "task_040#s626729": {
+   "reward": 0.0,
+   "lines": 395,
+   "stops": {
+    "other_lever": 13,
+    "resolve_cap": 22
+   },
+   "deliveries": 8,
+   "clobbered_bytes": 0,
+   "suppressed": [
+    [
+     "claimprov",
+     true
+    ]
+   ],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "resolve_cap",
+     7
+    ],
+    [
+     "other_lever",
+     9
+    ],
+    [
+     "resolve_cap",
+     9
+    ],
+    [
+     "resolve_cap",
+     11
+    ],
+    [
+     "other_lever",
+     23
+    ],
+    [
+     "other_lever",
+     23
+    ],
+    [
+     "resolve_cap",
+     23
+    ],
+    [
+     "resolve_cap",
+     23
+    ],
+    [
+     "resolve_cap",
+     25
+    ],
+    [
+     "other_lever",
+     29
+    ],
+    [
+     "other_lever",
+     29
+    ],
+    [
+     "resolve_cap",
+     29
+    ],
+    [
+     "resolve_cap",
+     29
+    ],
+    [
+     "resolve_cap",
+     31
+    ],
+    [
+     "resolve_cap",
+     33
+    ],
+    [
+     "resolve_cap",
+     35
+    ],
+    [
+     "other_lever",
+     37
+    ],
+    [
+     "resolve_cap",
+     37
+    ],
+    [
+     "resolve_cap",
+     37
+    ],
+    [
+     "resolve_cap",
+     39
+    ],
+    [
+     "other_lever",
+     41
+    ],
+    [
+     "resolve_cap",
+     41
+    ],
+    [
+     "other_lever",
+     43
+    ],
+    [
+     "resolve_cap",
+     43
+    ],
+    [
+     "resolve_cap",
+     43
+    ],
+    [
+     "other_lever",
+     45
+    ],
+    [
+     "resolve_cap",
+     45
+    ],
+    [
+     "resolve_cap",
+     47
+    ],
+    [
+     "other_lever",
+     49
+    ],
+    [
+     "resolve_cap",
+     49
+    ],
+    [
+     "resolve_cap",
+     51
+    ],
+    [
+     "other_lever",
+     53
+    ],
+    [
+     "resolve_cap",
+     53
+    ]
+   ]
+  },
+  "task_050#s626729": {
+   "reward": 0.0,
+   "lines": 168,
+   "stops": {
+    "other_lever": 1
+   },
+   "deliveries": 3,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ]
+   ]
+  },
+  "task_057#s626729": {
+   "reward": 0.0,
+   "lines": 358,
+   "stops": {
+    "other_lever": 1
+   },
+   "deliveries": 5,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     22
+    ]
+   ]
+  },
+  "task_063#s626729": {
+   "reward": 0.0,
+   "lines": 457,
+   "stops": {
+    "other_lever": 10,
+    "resolve_cap": 4
+   },
+   "deliveries": 6,
+   "clobbered_bytes": 501,
+   "suppressed": [
+    [
+     "unkrepeat",
+     null
+    ],
+    [
+     "signature",
+     null
+    ]
+   ],
+   "stop_turns": [
+    [
+     "other_lever",
+     15
+    ],
+    [
+     "resolve_cap",
+     23
+    ],
+    [
+     "other_lever",
+     25
+    ],
+    [
+     "resolve_cap",
+     25
+    ],
+    [
+     "resolve_cap",
+     27
+    ],
+    [
+     "resolve_cap",
+     29
+    ],
+    [
+     "other_lever",
+     31
+    ],
+    [
+     "other_lever",
+     31
+    ],
+    [
+     "other_lever",
+     33
+    ],
+    [
+     "other_lever",
+     39
+    ],
+    [
+     "other_lever",
+     49
+    ],
+    [
+     "other_lever",
+     49
+    ],
+    [
+     "other_lever",
+     49
+    ],
+    [
+     "other_lever",
+     53
+    ]
+   ]
+  },
+  "task_074#s626729": {
+   "reward": 0.0,
+   "lines": 383,
+   "stops": {
+    "other_lever": 4,
+    "resolve_cap": 2
+   },
+   "deliveries": 10,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     15
+    ],
+    [
+     "resolve_cap",
+     19
+    ],
+    [
+     "resolve_cap",
+     21
+    ],
+    [
+     "other_lever",
+     24
+    ]
+   ]
+  },
+  "task_079#s626729": {
+   "reward": 0.0,
+   "lines": 542,
+   "stops": {
+    "resolve_cap": 19,
+    "other_lever": 6
+   },
+   "deliveries": 17,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "resolve_cap",
+     4
+    ],
+    [
+     "resolve_cap",
+     12
+    ],
+    [
+     "other_lever",
+     14
+    ],
+    [
+     "other_lever",
+     14
+    ],
+    [
+     "resolve_cap",
+     14
+    ],
+    [
+     "resolve_cap",
+     16
+    ],
+    [
+     "other_lever",
+     18
+    ],
+    [
+     "other_lever",
+     24
+    ],
+    [
+     "other_lever",
+     26
+    ],
+    [
+     "resolve_cap",
+     98
+    ],
+    [
+     "resolve_cap",
+     103
+    ],
+    [
+     "resolve_cap",
+     103
+    ],
+    [
+     "resolve_cap",
+     103
+    ],
+    [
+     "resolve_cap",
+     126
+    ],
+    [
+     "resolve_cap",
+     126
+    ],
+    [
+     "resolve_cap",
+     128
+    ],
+    [
+     "resolve_cap",
+     128
+    ],
+    [
+     "resolve_cap",
+     130
+    ],
+    [
+     "resolve_cap",
+     130
+    ],
+    [
+     "resolve_cap",
+     133
+    ],
+    [
+     "resolve_cap",
+     135
+    ],
+    [
+     "resolve_cap",
+     135
+    ],
+    [
+     "resolve_cap",
+     137
+    ],
+    [
+     "other_lever",
+     139
+    ],
+    [
+     "resolve_cap",
+     139
+    ]
+   ]
+  },
+  "task_085#s626729": {
+   "reward": 0.0,
+   "lines": 473,
+   "stops": {
+    "resolve_cap": 8,
+    "other_lever": 2
+   },
+   "deliveries": 13,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "resolve_cap",
+     6
+    ],
+    [
+     "resolve_cap",
+     9
+    ],
+    [
+     "resolve_cap",
+     11
+    ],
+    [
+     "resolve_cap",
+     13
+    ],
+    [
+     "other_lever",
+     15
+    ],
+    [
+     "other_lever",
+     59
+    ],
+    [
+     "resolve_cap",
+     59
+    ],
+    [
+     "resolve_cap",
+     61
+    ],
+    [
+     "resolve_cap",
+     61
+    ],
+    [
+     "resolve_cap",
+     63
+    ]
+   ]
+  },
+  "task_098#s626729": {
+   "reward": 0.0,
+   "lines": 350,
+   "stops": {
+    "other_lever": 1,
+    "resolve_cap": 3
+   },
+   "deliveries": 5,
+   "clobbered_bytes": 243,
+   "suppressed": [
+    [
+     "unkrepeat",
+     null
+    ]
+   ],
+   "stop_turns": [
+    [
+     "other_lever",
+     6
+    ],
+    [
+     "resolve_cap",
+     36
+    ],
+    [
+     "resolve_cap",
+     38
+    ],
+    [
+     "resolve_cap",
+     40
+    ]
+   ]
+  },
+  "task_016#s373753": {
+   "reward": 0.0,
+   "lines": 349,
+   "stops": {
+    "resolve_cap": 10,
+    "other_lever": 1
+   },
+   "deliveries": 5,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "resolve_cap",
+     40
+    ],
+    [
+     "resolve_cap",
+     42
+    ],
+    [
+     "resolve_cap",
+     44
+    ],
+    [
+     "resolve_cap",
+     46
+    ],
+    [
+     "resolve_cap",
+     48
+    ],
+    [
+     "resolve_cap",
+     50
+    ],
+    [
+     "other_lever",
+     52
+    ],
+    [
+     "resolve_cap",
+     52
+    ],
+    [
+     "resolve_cap",
+     54
+    ],
+    [
+     "resolve_cap",
+     54
+    ],
+    [
+     "resolve_cap",
+     54
+    ]
+   ]
+  },
+  "task_033#s373753": {
+   "reward": 1.0,
+   "lines": 248,
+   "stops": {
+    "other_lever": 3,
+    "resolve_cap": 1
+   },
+   "deliveries": 2,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "resolve_cap",
+     6
+    ],
+    [
+     "other_lever",
+     18
+    ],
+    [
+     "other_lever",
+     26
+    ]
+   ]
+  },
+  "task_040#s373753": {
+   "reward": 0.0,
+   "lines": 581,
+   "stops": {
+    "other_lever": 8,
+    "resolve_cap": 33
+   },
+   "deliveries": 8,
+   "clobbered_bytes": 0,
+   "suppressed": [
+    [
+     "signature",
+     null
+    ]
+   ],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "resolve_cap",
+     7
+    ],
+    [
+     "other_lever",
+     9
+    ],
+    [
+     "resolve_cap",
+     9
+    ],
+    [
+     "resolve_cap",
+     11
+    ],
+    [
+     "other_lever",
+     15
+    ],
+    [
+     "other_lever",
+     15
+    ],
+    [
+     "resolve_cap",
+     33
+    ],
+    [
+     "resolve_cap",
+     35
+    ],
+    [
+     "resolve_cap",
+     37
+    ],
+    [
+     "resolve_cap",
+     39
+    ],
+    [
+     "resolve_cap",
+     41
+    ],
+    [
+     "resolve_cap",
+     43
+    ],
+    [
+     "resolve_cap",
+     45
+    ],
+    [
+     "resolve_cap",
+     47
+    ],
+    [
+     "resolve_cap",
+     47
+    ],
+    [
+     "resolve_cap",
+     73
+    ],
+    [
+     "resolve_cap",
+     75
+    ],
+    [
+     "other_lever",
+     77
+    ],
+    [
+     "resolve_cap",
+     77
+    ],
+    [
+     "resolve_cap",
+     79
+    ],
+    [
+     "resolve_cap",
+     81
+    ],
+    [
+     "resolve_cap",
+     83
+    ],
+    [
+     "resolve_cap",
+     85
+    ],
+    [
+     "other_lever",
+     87
+    ],
+    [
+     "resolve_cap",
+     87
+    ],
+    [
+     "resolve_cap",
+     89
+    ],
+    [
+     "other_lever",
+     91
+    ],
+    [
+     "resolve_cap",
+     91
+    ],
+    [
+     "resolve_cap",
+     93
+    ],
+    [
+     "resolve_cap",
+     95
+    ],
+    [
+     "resolve_cap",
+     97
+    ],
+    [
+     "resolve_cap",
+     99
+    ],
+    [
+     "resolve_cap",
+     101
+    ],
+    [
+     "resolve_cap",
+     103
+    ],
+    [
+     "resolve_cap",
+     105
+    ],
+    [
+     "resolve_cap",
+     107
+    ],
+    [
+     "resolve_cap",
+     109
+    ],
+    [
+     "resolve_cap",
+     111
+    ],
+    [
+     "resolve_cap",
+     113
+    ]
+   ]
+  },
+  "task_050#s373753": {
+   "reward": 1.0,
+   "lines": 258,
+   "stops": {
+    "other_lever": 2
+   },
+   "deliveries": 4,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     16
+    ]
+   ]
+  },
+  "task_057#s373753": {
+   "reward": 0.0,
+   "lines": 474,
+   "stops": {
+    "other_lever": 3,
+    "resolve_cap": 2
+   },
+   "deliveries": 9,
+   "clobbered_bytes": 494,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     12
+    ],
+    [
+     "resolve_cap",
+     12
+    ],
+    [
+     "resolve_cap",
+     14
+    ],
+    [
+     "other_lever",
+     22
+    ],
+    [
+     "other_lever",
+     26
+    ]
+   ]
+  },
+  "task_063#s373753": {
+   "reward": 0.0,
+   "lines": 367,
+   "stops": {
+    "other_lever": 2,
+    "resolve_cap": 9
+   },
+   "deliveries": 6,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     7
+    ],
+    [
+     "resolve_cap",
+     41
+    ],
+    [
+     "resolve_cap",
+     43
+    ],
+    [
+     "resolve_cap",
+     46
+    ],
+    [
+     "resolve_cap",
+     48
+    ],
+    [
+     "resolve_cap",
+     50
+    ],
+    [
+     "resolve_cap",
+     52
+    ],
+    [
+     "resolve_cap",
+     54
+    ],
+    [
+     "other_lever",
+     56
+    ],
+    [
+     "resolve_cap",
+     56
+    ],
+    [
+     "resolve_cap",
+     58
+    ]
+   ]
+  },
+  "task_074#s373753": {
+   "reward": 0.0,
+   "lines": 365,
+   "stops": {
+    "other_lever": 9,
+    "resolve_cap": 7
+   },
+   "deliveries": 10,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     2
+    ],
+    [
+     "other_lever",
+     15
+    ],
+    [
+     "resolve_cap",
+     19
+    ],
+    [
+     "other_lever",
+     21
+    ],
+    [
+     "other_lever",
+     21
+    ],
+    [
+     "other_lever",
+     23
+    ],
+    [
+     "other_lever",
+     25
+    ],
+    [
+     "other_lever",
+     46
+    ],
+    [
+     "resolve_cap",
+     46
+    ],
+    [
+     "resolve_cap",
+     46
+    ],
+    [
+     "resolve_cap",
+     46
+    ],
+    [
+     "other_lever",
+     48
+    ],
+    [
+     "resolve_cap",
+     48
+    ],
+    [
+     "resolve_cap",
+     48
+    ],
+    [
+     "resolve_cap",
+     50
+    ]
+   ]
+  },
+  "task_079#s373753": {
+   "reward": 0.0,
+   "lines": 346,
+   "stops": {
+    "resolve_cap": 6,
+    "other_lever": 6
+   },
+   "deliveries": 7,
+   "clobbered_bytes": 0,
+   "suppressed": [
+    [
+     "claimprov",
+     true
+    ]
+   ],
+   "stop_turns": [
+    [
+     "resolve_cap",
+     4
+    ],
+    [
+     "resolve_cap",
+     12
+    ],
+    [
+     "other_lever",
+     14
+    ],
+    [
+     "other_lever",
+     14
+    ],
+    [
+     "resolve_cap",
+     14
+    ],
+    [
+     "resolve_cap",
+     16
+    ],
+    [
+     "other_lever",
+     18
+    ],
+    [
+     "other_lever",
+     24
+    ],
+    [
+     "other_lever",
+     34
+    ],
+    [
+     "resolve_cap",
+     64
+    ],
+    [
+     "other_lever",
+     66
+    ],
+    [
+     "resolve_cap",
+     66
+    ]
+   ]
+  },
+  "task_085#s373753": {
+   "reward": 0.0,
+   "lines": 445,
+   "stops": {
+    "resolve_cap": 14,
+    "other_lever": 6
+   },
+   "deliveries": 14,
+   "clobbered_bytes": 0,
+   "suppressed": [],
+   "stop_turns": [
+    [
+     "resolve_cap",
+     6
+    ],
+    [
+     "resolve_cap",
+     9
+    ],
+    [
+     "resolve_cap",
+     11
+    ],
+    [
+     "resolve_cap",
+     13
+    ],
+    [
+     "resolve_cap",
+     15
+    ],
+    [
+     "other_lever",
+     19
+    ],
+    [
+     "other_lever",
+     21
+    ],
+    [
+     "resolve_cap",
+     27
+    ],
+    [
+     "other_lever",
+     41
+    ],
+    [
+     "other_lever",
+     41
+    ],
+    [
+     "resolve_cap",
+     58
+    ],
+    [
+     "resolve_cap",
+     62
+    ],
+    [
+     "resolve_cap",
+     64
+    ],
+    [
+     "resolve_cap",
+     66
+    ],
+    [
+     "resolve_cap",
+     68
+    ],
+    [
+     "resolve_cap",
+     68
+    ],
+    [
+     "other_lever",
+     90
+    ],
+    [
+     "resolve_cap",
+     90
+    ],
+    [
+     "other_lever",
+     92
+    ],
+    [
+     "resolve_cap",
+     92
+    ]
+   ]
+  },
+  "task_098#s373753": {
+   "reward": 0.0,
+   "lines": 275,
+   "stops": {
+    "other_lever": 1,
+    "resolve_cap": 1
+   },
+   "deliveries": 4,
+   "clobbered_bytes": 0,
+   "suppressed": [
+    [
+     "claimprov",
+     false
+    ]
+   ],
+   "stop_turns": [
+    [
+     "other_lever",
+     6
+    ],
+    [
+     "resolve_cap",
+     34
+    ]
+   ]
+  }
+ }
+}
