@@ -94,6 +94,9 @@ def is_mandatory(proc):
     return bool((proc or {}).get("enforce")) and bool((proc or {}).get("_quote_order"))
 
 
+import sys as _sys
+
+
 def _node_of(proc, tool_name):
     for n in proc.get("nodes") or []:
         if tool_name in _tools_of(n):
@@ -167,6 +170,14 @@ def unmet_nodes(proc, tool_name, executed):
         stack.extend(n.get("requires") or [])
     missing.sort(key=lambda i: order.index(i) if i in order else 0)
     unobservable.sort(key=lambda i: order.index(i) if i in order else 0)
+    # ★생존 마커(2026-08-24): 부재(`T2_PROC_ABSENT`)는 이미 찍히는데 **붙었을 때 무엇이
+    #   남는지**가 안 보였다. 빼기 레버의 산출이 곧 유도할 내용이므로 그것을 인쇄한다.
+    try:
+        import sys as _s
+        print("[T2_PROCEDURE] unmet tool=%s missing=%s unobservable=%s"
+              % (tool_name, missing, unobservable), file=_s.stderr, flush=True)
+    except Exception:
+        pass
     return missing, unobservable
 
 
@@ -191,8 +202,17 @@ def checklist(proc, executed, args_by_tool=None):
     told to check rather than call cannot be observed from the history, and saying it is
     done would be a claim this engine cannot make.
     """
-    return [(n.get("id"), _tools_of(n), _satisfied(n, executed, args_by_tool))
-            for n in (proc.get("nodes") or [])]
+    _rows = [(n.get("id"), _tools_of(n), _satisfied(n, executed, args_by_tool))
+             for n in (proc.get("nodes") or [])]
+    try:
+        import sys as _s
+        _left = [r[0] for r in _rows if r[2] is False]
+        print("[T2_PROCEDURE] checklist proc=%s nodes=%d done=%d left=%s"
+              % (proc.get("id"), len(_rows), sum(1 for r in _rows if r[2] is True), _left),
+              file=_s.stderr, flush=True)
+    except Exception:
+        pass
+    return _rows
 
 
 def _blocked_by(proc, node, executed):

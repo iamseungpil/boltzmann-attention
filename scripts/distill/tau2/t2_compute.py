@@ -113,8 +113,34 @@ def _business_days_between(a, b):
     return n
 
 
+_OP_DEPTH = [0]
+
+
 def apply_op(spec, ctx):
-    """A2 op-스펙을 ctx 위에서 실행. 반환 계산값 or None."""
+    """A2 op-스펙을 ctx 위에서 실행. 반환 계산값 or None.
+
+    ★생존 마커 (2026-08-24 · [[55]] 0단계 · [[67]] 규칙 ④): 이 파일의 `print` 는 둘뿐이었고
+      **둘 다 실패·기권 경로**라, 로그에서 `[T2_COMPUTE]` 가 0 인 것이 *"계산기가 안 돌았다"*
+      인지 *"돌았는데 조용하다"* 인지 **구분이 불가능**했다. t7348 에서 `T2_VALUE_FORMULA=full`
+      이 켜져 있는데 마커 0 이라 ①금액 축의 판정 전체가 계측 없이 내려졌다([[25]] 침묵≠부재).
+      ⇒ 최상위 호출 하나당 한 줄. 중첩 op 는 깊이로 눌러 로그 폭주를 막는다. 계산 결과는
+      **바꾸지 않는다** — 래핑뿐이다."""
+    _OP_DEPTH[0] += 1
+    try:
+        _out = _apply_op(spec, ctx)
+    finally:
+        _OP_DEPTH[0] -= 1
+    if _OP_DEPTH[0] == 0 and isinstance(spec, dict) and spec.get("op"):
+        try:
+            _n = len(spec.get("of") or spec.get("rows") or [])
+            print("[T2_COMPUTE] op=%s in=%d out=%r" % (spec.get("op"), _n, _out),
+                  file=_sys.stderr, flush=True)
+        except Exception:
+            pass
+    return _out
+
+
+def _apply_op(spec, ctx):
     if not isinstance(spec, dict):
         return None
     op = spec.get("op")
