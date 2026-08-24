@@ -2,17 +2,19 @@
  "probe": "x510_two_axis",
  "date": "2026-08-24",
  "findings": [
-  "F1 스텝 축은 표류하지 않는다 - hard-0 의 쓰기 도구는 태스크가 달라도 거의 같은 비율로 갈린다: `open_bank_account_4821` 055/057/063 = 100%/100%/100% (격차 0) · `deposit_check_3847` 055/057 = 100%/100% (격차 0) · `apply_checking_account_credit_5829` 072/074/073 = 100%/100%/83% (격차 17%).",
-  "F2 표류는 **태스크 축**에 있다 - 같은 필드 축이 어떤 시나리오에선 맞는다: (6)전사 는 8 태스크가 쓰는데 4 실패(040·055·079·085) 4 무결(072·017·073·093) · (2)범주 는 5 중 024 만 무결. 이 둘은 능력 경계가 아니라 시나리오 조건이다.",
-  "F3 ★(1)금액 축에서 우리 레버는 무죄다 - 같은 도구·같은 태스크에서 **맞은 호출과 갈린 호출의 직전 표지 프로파일이 동일**하다(072 갈림 11 ↔ 맞음 3 · 073 갈림 17 ↔ 맞음 8, 여섯 표지 전부 100%/100%). 발화 커버리지로는 이 축이 안 갈린다 -> [[62]](1) 대로 남은 물음은 격리에서의 **효능**이다(x509 S2 가 그대로 유효).",
+  "F0 대상 = t7348 **완주본**(halfA 20 + halfB 20 = 40 sim · pass 12/40) + t7346 + t7336. hard-0 10 태스크는 t7348 에서도 **0/20** 으로 3런 연속 0 이다. `halfBpartial14` 는 완주본에 포함된 부분 스냅샷이라 제외했다(중복 계상 방지).",
+  "F1 스텝 축은 표류하지 않는다 - hard-0 의 쓰기 도구는 태스크가 달라도 거의 같은 비율로 갈린다: `open_bank_account_4821` 055/057/063 = 100%/100%/100% (격차 0) · `deposit_check_3847` 055/057 = 100%/100% (격차 0) · `apply_checking_account_credit_5829` 072/074/073 = 100%/100%/83% (격차 17%). ★halfB 완주로 분모가 늘었는데 **세 줄 다 그대로다** - 스텝 축의 안정성이 재확인됐다.",
+  "F2 표류는 **태스크 축**에 있다 - 같은 필드 축이 어떤 시나리오에선 맞는다: (6)전사 는 10 태스크가 쓰는데 5 실패(040·055·057·079·085) 5 무결(072·074·017·073·093) · (2)범주 는 5 중 024 만 무결. 이 둘은 능력 경계가 아니라 시나리오 조건이다.",
+  "F3 ★(1)금액 축에서 우리 레버는 무죄다 - 같은 도구·같은 태스크에서 **맞은 호출과 갈린 호출의 직전 표지 프로파일이 동일**하다(072 갈림 11 ↔ 맞음 3 · 073 갈림 17 ↔ 맞음 8, 여섯 표지 전부 100%/100%). 발화 커버리지로는 이 축이 안 갈린다. ★이것은 x509 **S2 의 격리 판정과 같은 방향이다** - S2 는 격리에서 8/8 합치므로 결손이 능력이 아니라 **부하**라고 했고, 여기서는 라이브에서 **레버 발화가 성패를 안 가른다**. 두 계기가 서로 다른 자리에서 같은 결론에 닿았다.",
   "F4 ★한 sim 안에서 스텝이 갈린다 - 079 는 동일 궤적에서 close/freeze/unfreeze 3 스텝이 맞고 `order_debit_card_5739` 만 갈리는데 직전 표지는 **여섯 개 모두 동일**하다. 즉 원인은 레버 상태가 아니라 그 스텝이 요구하는 필드(`delivery_option` = 손님에게 물어야 하는 값)다. per-task 귀속으로는 이 대비가 보이지 않는다.",
   "F5 (3)손님권위 열은 3 태스크(040·079·085)뿐이다 - 어제 표에서 '무결 13' 로 보였던 것은 `log_verification|address` 한 자리가 만든 유령이었다(이 프로브에서 제외·자기검산).",
-  "F6 유일하게 레버 프로파일이 갈리는 자리 = `apply_for_credit_card`. 맞음 13 sim 중 PROVENANCE 69% ↔ 갈림 4 sim 중 0%, 갈림 쪽엔 ISOLATED-FORMALIZATION 75%·ORDER 75%·TOOL-CHANNEL 50%·BLOCKED 50% 가 쌓인다. n 이 작고 인과 방향이 양쪽이므로([[08]]) 가설로만 둔다."
+  "F6 유일하게 레버 프로파일이 갈리는 자리 = `apply_for_credit_card`. 맞음 13 sim(024:6·003:5·063:2) 중 PROVENANCE 69% ↔ 갈림 5 sim(063:4·003:1) 중 0%, 갈림 쪽엔 ISOLATED-FORMALIZATION 80%·ORDER 80%·TOOL-CHANNEL 40%·T2_ARG_DOC_SUB 40% 가 쌓인다. n 이 작고 인과 방향이 양쪽이므로([[08]]) 가설로만 둔다.",
+  "F7 (5) 도달/인자/차단 분할은 완주본에서도 같다 - 만성 88 sim 중 안 부름 34(39%) · 실행됨 48(55%) · 차단 6(7%) 이고 **차단 중 우리 층 0**. 스텝 원장 판정은 만성 30 · 산발 19 · 안정 18(직전 29/20/18). 만성이 하나 늘었을 뿐 구조는 같다."
  ],
  "caveats": [
   "조인키 `simtag`(task#seed) 는 nt>1 의 trial 을 병합한다 - 발화의 **유무**만 읽고 건수를 인과로 읽지 마라.",
   "사이드카 `turn` 과 궤적 `msg_i` 는 다른 계기다. 선후만 읽고 거리를 읽지 마라.",
-  "t7348 halfB 는 14/20 진행분이라 074·079·085 의 분모가 작다(x506 과 같은 한계).",
+  "004·033 은 `reward_basis=[\"ACTION\"]` 이라 gold **변이**가 비어 (B) 표에 행이 없다. 그 둘의 실패는 이 표가 아니라 `t2_forensic.action_diff` 계열로 봐야 한다([[69]]).",
   "gold 는 **어느 필드가 갈렸나 세는 진단**으로만 썼다([[23]]). 성적은 reward 다([[69]]).",
   "축 (1)~(7) 과 태스크별 한계 수치는 `x509_axis_queue_2026_08_24.json` 을 인용한 것이지 여기서 재유도한 것이 아니다([[74]])."
  ],
@@ -29,53 +31,43 @@
     "with_sidecar": 13
    },
    "fail": {
-    "n": 4,
+    "n": 5,
     "tasks": {
-     "063": 3,
+     "063": 4,
      "003": 1
     },
-    "with_sidecar": 4
+    "with_sidecar": 5
    },
    "deltas": [
+    {
+     "signal": "mark:ISOLATED-FORMALIZATION",
+     "match_rate": 0.07692307692307693,
+     "fail_rate": 0.8
+    },
     {
      "signal": "mark:PROVENANCE",
      "match_rate": 0.6923076923076923,
      "fail_rate": 0.0
     },
     {
-     "signal": "mark:ISOLATED-FORMALIZATION",
-     "match_rate": 0.07692307692307693,
-     "fail_rate": 0.75
-    },
-    {
      "signal": "mark:ORDER",
      "match_rate": 0.23076923076923078,
-     "fail_rate": 0.75
+     "fail_rate": 0.8
     },
     {
      "signal": "mark:TOOL-CHANNEL",
      "match_rate": 0.0,
-     "fail_rate": 0.5
+     "fail_rate": 0.4
     },
     {
      "signal": "mark:T2_ARG_DOC_SUB",
      "match_rate": 0.0,
-     "fail_rate": 0.5
+     "fail_rate": 0.4
     },
     {
      "signal": "mark:OPERATOR-SCOPE",
      "match_rate": 0.0,
-     "fail_rate": 0.5
-    },
-    {
-     "signal": "mark:OPERATOR-PROVENANCE",
-     "match_rate": 0.07692307692307693,
-     "fail_rate": 0.5
-    },
-    {
-     "signal": "mark:BLOCKED",
-     "match_rate": 0.07692307692307693,
-     "fail_rate": 0.5
+     "fail_rate": 0.4
     }
    ]
   },
@@ -124,69 +116,54 @@
     "with_sidecar": 1
    },
    "fail": {
-    "n": 14,
+    "n": 15,
     "tasks": {
      "073": 5,
      "072": 5,
-     "074": 4
+     "074": 5
     },
-    "with_sidecar": 14
+    "with_sidecar": 15
    },
    "deltas": [
     {
      "signal": "mark:PRESCRIPTION",
      "match_rate": 1.0,
-     "fail_rate": 0.2857142857142857
-    },
-    {
-     "signal": "mark:OPERATOR-SCOPE",
-     "match_rate": 1.0,
-     "fail_rate": 0.35714285714285715
+     "fail_rate": 0.26666666666666666
     },
     {
      "signal": "mark:SEARCH-EXHAUST",
      "match_rate": 0.0,
-     "fail_rate": 0.5714285714285714
+     "fail_rate": 0.6
+    },
+    {
+     "signal": "mark:OPERATOR-SCOPE",
+     "match_rate": 1.0,
+     "fail_rate": 0.4
     },
     {
      "signal": "mark:COVERAGE-FOLLOWUP",
      "match_rate": 1.0,
-     "fail_rate": 0.42857142857142855
+     "fail_rate": 0.4
     },
     {
      "signal": "mark:ACTION",
      "match_rate": 0.0,
-     "fail_rate": 0.42857142857142855
-    },
-    {
-     "signal": "mark:WORK-INCOMPLETE",
-     "match_rate": 0.0,
-     "fail_rate": 0.35714285714285715
-    },
-    {
-     "signal": "mark:UNAVAILABLE-CAPABILITY",
-     "match_rate": 0.0,
-     "fail_rate": 0.35714285714285715
-    },
-    {
-     "signal": "mark:ORDER",
-     "match_rate": 0.0,
-     "fail_rate": 0.35714285714285715
+     "fail_rate": 0.4
     },
     {
      "signal": "kind:cp2",
      "match_rate": 0.0,
-     "fail_rate": 0.35714285714285715
+     "fail_rate": 0.4
     },
     {
      "signal": "cp2:VIEW_FB",
      "match_rate": 0.0,
-     "fail_rate": 0.35714285714285715
+     "fail_rate": 0.4
     },
     {
      "signal": "cp2:SEARCH_ON_PROCEED",
      "match_rate": 0.0,
-     "fail_rate": 0.35714285714285715
+     "fail_rate": 0.4
     }
    ]
   },
@@ -273,9 +250,9 @@
    "n": 1,
    "marks": {
     "CLAIM-PROVENANCE": 1.0,
+    "SOURCE": 1.0,
     "ACTION": 1.0,
-    "cp2:SEARCH_ON_PROCEED": 1.0,
-    "SOURCE": 1.0
+    "cp2:SEARCH_ON_PROCEED": 1.0
    }
   },
   {
@@ -284,10 +261,10 @@
    "verdict": "맞음",
    "n": 5,
    "marks": {
-    "PROVENANCE": 1.0,
     "CLAIM-PROVENANCE": 1.0,
-    "ACTION": 1.0,
-    "SOURCE": 1.0
+    "SOURCE": 1.0,
+    "PROVENANCE": 1.0,
+    "ACTION": 1.0
    }
   },
   {
@@ -296,16 +273,16 @@
    "verdict": "맞음",
    "n": 8,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
-    "SIGNATURE": 1.0,
     "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
+    "DISCOVERY-STEP2": 1.0,
     "CLAIM-PROVENANCE": 1.0,
     "GIVE-EXEC": 1.0,
-    "WRITE-GROUNDING": 0.75,
+    "SIGNATURE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0,
     "TOOL-CHANNEL": 0.75,
+    "WRITE-GROUNDING": 0.75,
     "PROVENANCE": 0.75,
     "FOLLOW-UP": 0.75
    }
@@ -317,11 +294,11 @@
    "n": 6,
    "marks": {
     "ACTION": 1.0,
-    "CLAIM-PROVENANCE": 1.0,
     "SOURCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
     "PROVENANCE": 0.667,
-    "SIGNATURE": 0.667,
-    "GIVE-EXEC": 0.667
+    "GIVE-EXEC": 0.667,
+    "SIGNATURE": 0.667
    }
   },
   {
@@ -330,19 +307,19 @@
    "verdict": "갈림",
    "n": 19,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "WRITE-GROUNDING": 1.0,
-    "OPERATOR-SCOPE": 1.0,
+    "BLOCKED": 1.0,
     "ISOLATED-FORMALIZATION": 1.0,
+    "WRITE-GROUNDING": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "VALUE-ACQUIRE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
     "DISCOVERY-STEP2": 1.0,
     "SIGNATURE": 1.0,
-    "VALUE-ACQUIRE": 1.0,
-    "BLOCKED": 1.0,
-    "UNLOCKED-NOT-CALLED": 1.0,
-    "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0,
     "WRITE-EVIDENCE": 0.789,
-    "DECIDE-FIRST": 0.737,
     "GIVE-EXEC": 0.737,
+    "DECIDE-FIRST": 0.737,
     "ACTION": 0.684
    }
   },
@@ -352,23 +329,23 @@
    "verdict": "맞음",
    "n": 2,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "WRITE-EVIDENCE": 1.0,
-    "WRITE-GROUNDING": 1.0,
-    "OPERATOR-SCOPE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
-    "OPERATOR-PROVENANCE": 1.0,
-    "DECIDE-FIRST": 1.0,
-    "ORDER": 1.0,
-    "SIGNATURE": 1.0,
-    "VALUE-ACQUIRE": 1.0,
-    "ACTION": 1.0,
     "BLOCKED": 1.0,
-    "REF-VERIFY": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "WRITE-GROUNDING": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
+    "ORDER": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "ACTION": 1.0,
+    "WRITE-EVIDENCE": 1.0,
+    "VALUE-ACQUIRE": 1.0,
     "CLAIM-PROVENANCE": 1.0,
-    "GIVE-EXEC": 1.0
+    "DISCOVERY-STEP2": 1.0,
+    "GIVE-EXEC": 1.0,
+    "SIGNATURE": 1.0,
+    "REF-VERIFY": 1.0,
+    "DECIDE-FIRST": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
@@ -377,17 +354,17 @@
    "verdict": "갈림",
    "n": 1,
    "marks": {
-    "PROVENANCE": 1.0,
     "ISOLATED-FORMALIZATION": 1.0,
-    "VERDICT": 1.0,
     "cp2:SEARCH_ON_PROCEED": 1.0,
-    "OPERATOR-PROVENANCE": 1.0,
-    "ORDER": 1.0,
-    "TOOL-CHANNEL": 1.0,
-    "PROCEDURE": 1.0,
-    "FOLLOW-UP": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
-    "CLAIM-PROVENANCE": 1.0
+    "ORDER": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "TOOL-CHANNEL": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "PROVENANCE": 1.0,
+    "FOLLOW-UP": 1.0,
+    "VERDICT": 1.0,
+    "PROCEDURE": 1.0
    }
   },
   {
@@ -398,8 +375,8 @@
    "marks": {
     "ISOLATED-FORMALIZATION": 1.0,
     "OPERATOR-PROVENANCE": 1.0,
-    "PROCEDURE": 1.0,
     "CLAIM-PROVENANCE": 1.0,
+    "PROCEDURE": 1.0,
     "VERDICT": 0.75
    }
   },
@@ -409,15 +386,15 @@
    "verdict": "갈림",
    "n": 1,
    "marks": {
-    "PROVENANCE": 1.0,
     "ISOLATED-FORMALIZATION": 1.0,
-    "VERDICT": 1.0,
     "cp2:SEARCH_ON_PROCEED": 1.0,
-    "OPERATOR-PROVENANCE": 1.0,
     "ORDER": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
     "TOOL-CHANNEL": 1.0,
-    "PROCEDURE": 1.0,
-    "CLAIM-PROVENANCE": 1.0
+    "CLAIM-PROVENANCE": 1.0,
+    "PROVENANCE": 1.0,
+    "VERDICT": 1.0,
+    "PROCEDURE": 1.0
    }
   },
   {
@@ -428,8 +405,8 @@
    "marks": {
     "ISOLATED-FORMALIZATION": 1.0,
     "CLAIM-PROVENANCE": 1.0,
-    "VERDICT": 0.75,
     "OPERATOR-PROVENANCE": 0.75,
+    "VERDICT": 0.75,
     "PROCEDURE": 0.75
    }
   },
@@ -440,14 +417,14 @@
    "n": 4,
    "marks": {
     "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
     "OPERATOR-PROVENANCE": 1.0,
-    "SIGNATURE": 1.0,
     "CLAIM-PROVENANCE": 1.0,
+    "DISCOVERY-STEP2": 1.0,
     "GIVE-EXEC": 1.0,
-    "DISCOVERY-REQUIRED": 0.75,
-    "ACTION-REQUIRED": 0.75,
+    "SIGNATURE": 1.0,
     "OFFICIAL-NAME": 0.75,
+    "ACTION-REQUIRED": 0.75,
+    "DISCOVERY-REQUIRED": 0.75,
     "BLOCKED": 0.75
    }
   },
@@ -470,20 +447,46 @@
    "n": 2,
    "marks": {
     "CLAIM-PROVENANCE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "OPERATOR-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "057",
+   "tool": "deposit_check_3847",
+   "verdict": "갈림",
+   "n": 1,
+   "marks": {
+    "ISOLATED-FORMALIZATION": 1.0,
+    "cp2:VIEW_FB": 1.0,
+    "cp2:SEARCH_ON_PROCEED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "ORDER": 1.0,
     "OPERATOR-PROVENANCE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0
+    "TOOL-CHANNEL": 1.0,
+    "TRUNCATED": 1.0,
+    "ACTION": 1.0,
+    "SEARCH-EXHAUST": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "GIVE-EXEC": 1.0,
+    "DUPLICATE-READ": 1.0,
+    "SIGNATURE": 1.0,
+    "WRITE-GROUNDING": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
    "task": "057",
    "tool": "open_bank_account_4821",
    "verdict": "갈림",
-   "n": 4,
+   "n": 5,
    "marks": {
     "ISOLATED-FORMALIZATION": 1.0,
     "CLAIM-PROVENANCE": 1.0,
-    "DISCOVERY-STEP2": 0.75,
-    "ORDER": 0.75
+    "ORDER": 0.8,
+    "UNLOCKED-NOT-CALLED": 0.6,
+    "DISCOVERY-STEP2": 0.6
    }
   },
   {
@@ -492,27 +495,26 @@
    "verdict": "맞음",
    "n": 1,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
-    "OPERATOR-PROVENANCE": 1.0,
-    "ORDER": 1.0,
     "OFFICIAL-NAME": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
-    "CLAIM-PROVENANCE": 1.0
+    "ORDER": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
    "task": "063",
    "tool": "apply_for_credit_card",
    "verdict": "갈림",
-   "n": 3,
+   "n": 4,
    "marks": {
     "ORDER": 1.0,
     "ACTION": 1.0,
-    "CLAIM-PROVENANCE": 1.0,
     "SOURCE": 1.0,
-    "BLOCKED": 0.667
+    "CLAIM-PROVENANCE": 1.0
    }
   },
   {
@@ -521,9 +523,9 @@
    "verdict": "맞음",
    "n": 2,
    "marks": {
-    "ACTION": 1.0,
     "CLAIM-PROVENANCE": 1.0,
     "UNVERIFIED-FOLLOWUP": 1.0,
+    "ACTION": 1.0,
     "ORDER": 1.0
    }
   },
@@ -534,11 +536,11 @@
    "n": 2,
    "marks": {
     "ISOLATED-FORMALIZATION": 1.0,
-    "OPERATOR-PROVENANCE": 1.0,
     "ORDER": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
     "ACTION": 1.0,
-    "CLAIM-PROVENANCE": 1.0,
-    "SOURCE": 1.0
+    "SOURCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0
    }
   },
   {
@@ -547,17 +549,17 @@
    "verdict": "갈림",
    "n": 11,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "PROVENANCE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
-    "ORDER": 1.0,
     "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
+    "ORDER": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
     "CLAIM-PROVENANCE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0,
+    "cp2:VIEW_FB": 0.727,
     "cp2:SEARCH_ON_PROCEED": 0.727,
-    "OPERATOR-PROVENANCE": 0.727,
-    "cp2:VIEW_FB": 0.727
+    "OPERATOR-PROVENANCE": 0.727
    }
   },
   {
@@ -566,18 +568,18 @@
    "verdict": "맞음",
    "n": 3,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "PROVENANCE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
-    "ORDER": 1.0,
     "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
+    "ORDER": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
     "CLAIM-PROVENANCE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0,
+    "COVERAGE-FOLLOWUP": 0.667,
     "TOOL-CHANNEL": 0.667,
-    "VALUE-ACQUIRE": 0.667,
     "SEARCH-EXHAUST": 0.667,
-    "COVERAGE-FOLLOWUP": 0.667
+    "VALUE-ACQUIRE": 0.667
    }
   },
   {
@@ -586,14 +588,14 @@
    "verdict": "갈림",
    "n": 17,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "PROVENANCE": 1.0,
-    "OPERATOR-SCOPE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
     "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
     "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0,
     "COVERAGE-FOLLOWUP": 0.706,
     "OPERATOR-PROVENANCE": 0.647,
     "TOOL-CHANNEL": 0.647
@@ -605,32 +607,51 @@
    "verdict": "맞음",
    "n": 8,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "PROVENANCE": 1.0,
-    "OPERATOR-SCOPE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
     "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
-    "CLAIM-PROVENANCE": 1.0
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
    "task": "074",
    "tool": "apply_checking_account_credit_5829",
    "verdict": "갈림",
-   "n": 29,
+   "n": 32,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "PROVENANCE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
     "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
     "CLAIM-PROVENANCE": 1.0,
-    "cp2:SEARCH_ON_PROCEED": 0.759,
-    "SEARCH-EXHAUST": 0.759,
-    "cp2:VIEW_FB": 0.759
+    "DISCOVERY-REQUIRED": 1.0,
+    "cp2:VIEW_FB": 0.781,
+    "cp2:SEARCH_ON_PROCEED": 0.781,
+    "SEARCH-EXHAUST": 0.781
+   }
+  },
+  {
+   "task": "074",
+   "tool": "apply_checking_account_credit_5829",
+   "verdict": "맞음",
+   "n": 1,
+   "marks": {
+    "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "cp2:VIEW_FB": 1.0,
+    "cp2:SEARCH_ON_PROCEED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "SEARCH-EXHAUST": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
@@ -639,14 +660,14 @@
    "verdict": "맞음",
    "n": 3,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "PROVENANCE": 1.0,
-    "OPERATOR-SCOPE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
     "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
-    "CLAIM-PROVENANCE": 1.0
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
@@ -655,14 +676,14 @@
    "verdict": "맞음",
    "n": 3,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "PROVENANCE": 1.0,
-    "OPERATOR-SCOPE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
     "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
-    "CLAIM-PROVENANCE": 1.0
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
@@ -671,15 +692,15 @@
    "verdict": "갈림",
    "n": 3,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "PROVENANCE": 1.0,
-    "OPERATOR-SCOPE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
-    "SEARCH-EXHAUST": 1.0,
     "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
-    "CLAIM-PROVENANCE": 1.0
+    "SEARCH-EXHAUST": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
@@ -688,14 +709,14 @@
    "verdict": "맞음",
    "n": 3,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "PROVENANCE": 1.0,
-    "OPERATOR-SCOPE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
     "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
-    "CLAIM-PROVENANCE": 1.0
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
@@ -704,19 +725,19 @@
    "verdict": "갈림",
    "n": 4,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "WRITE-GROUNDING": 1.0,
-    "OPERATOR-SCOPE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
-    "OPERATOR-PROVENANCE": 1.0,
-    "SIGNATURE": 1.0,
-    "VALUE-ACQUIRE": 1.0,
     "BLOCKED": 1.0,
-    "DECIDE-FIRST": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "E-PLAN": 1.0,
+    "VALUE-ACQUIRE": 1.0,
+    "DISCOVERY-STEP2": 1.0,
     "CLAIM-PROVENANCE": 1.0,
-    "E-PLAN": 1.0
+    "SIGNATURE": 1.0,
+    "WRITE-GROUNDING": 1.0,
+    "DECIDE-FIRST": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
@@ -725,15 +746,15 @@
    "verdict": "갈림",
    "n": 1,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "PROVENANCE": 1.0,
-    "OPERATOR-SCOPE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
     "BLOCKED": 1.0,
-    "CLAIM-PROVENANCE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "cp2:VIEW_FB": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
-    "cp2:VIEW_FB": 1.0
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
@@ -742,17 +763,17 @@
    "verdict": "맞음",
    "n": 1,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "PROVENANCE": 1.0,
-    "WRITE-EVIDENCE": 1.0,
-    "OPERATOR-SCOPE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
-    "OPERATOR-PROVENANCE": 1.0,
     "BLOCKED": 1.0,
-    "CLAIM-PROVENANCE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "cp2:VIEW_FB": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
-    "cp2:VIEW_FB": 1.0
+    "OPERATOR-PROVENANCE": 1.0,
+    "WRITE-EVIDENCE": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
@@ -761,14 +782,14 @@
    "verdict": "갈림",
    "n": 2,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "PROVENANCE": 1.0,
-    "OPERATOR-SCOPE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
     "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
-    "CLAIM-PROVENANCE": 1.0
+    "DISCOVERY-STEP2": 1.0,
+    "PROVENANCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0
    }
   },
   {
@@ -777,13 +798,13 @@
    "verdict": "맞음",
    "n": 3,
    "marks": {
-    "DISCOVERY-REQUIRED": 1.0,
-    "OPERATOR-SCOPE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
     "BLOCKED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
     "UNLOCKED-NOT-CALLED": 1.0,
+    "DISCOVERY-STEP2": 1.0,
     "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "DISCOVERY-REQUIRED": 1.0,
     "OPERATOR-PROVENANCE": 0.667,
     "WRITE-EVIDENCE": 0.667
    }
@@ -794,11 +815,11 @@
    "verdict": "갈림",
    "n": 4,
    "marks": {
-    "PROVENANCE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
     "BLOCKED": 1.0,
-    "CLAIM-PROVENANCE": 1.0
+    "ISOLATED-FORMALIZATION": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "PROVENANCE": 1.0,
+    "DISCOVERY-STEP2": 1.0
    }
   },
   {
@@ -807,11 +828,11 @@
    "verdict": "갈림",
    "n": 5,
    "marks": {
-    "PROVENANCE": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0,
-    "DISCOVERY-STEP2": 1.0,
     "BLOCKED": 1.0,
-    "CLAIM-PROVENANCE": 1.0
+    "ISOLATED-FORMALIZATION": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "PROVENANCE": 1.0,
+    "DISCOVERY-STEP2": 1.0
    }
   },
   {
@@ -820,18 +841,18 @@
    "verdict": "갈림",
    "n": 2,
    "marks": {
-    "PROVENANCE": 1.0,
     "ISOLATED-FORMALIZATION": 1.0,
     "ORDER": 1.0,
     "ACTION": 1.0,
-    "CLAIM-PROVENANCE": 1.0
+    "CLAIM-PROVENANCE": 1.0,
+    "PROVENANCE": 1.0
    }
   },
   {
    "task": "098",
    "tool": "submit_referral",
    "verdict": "맞음",
-   "n": 3,
+   "n": 4,
    "marks": {
     "ISOLATED-FORMALIZATION": 1.0,
     "ORDER": 1.0,
@@ -846,10 +867,10 @@
    "verdict": "맞음",
    "n": 6,
    "marks": {
-    "ACTION": 1.0,
     "CLAIM-PROVENANCE": 1.0,
-    "ORDER": 1.0,
-    "ISOLATED-FORMALIZATION": 1.0
+    "ISOLATED-FORMALIZATION": 1.0,
+    "ACTION": 1.0,
+    "ORDER": 1.0
    }
   }
  ],
@@ -859,7 +880,7 @@
   "bank_t7346_halfA_20260822",
   "bank_t7346_halfB_20260822",
   "bank_t7348_halfA_20260824",
-  "bank_t7348_halfBpartial14_20260824"
+  "bank_t7348_halfB_20260824"
  ],
  "tool_invariance": [
   {
@@ -867,11 +888,11 @@
    "tasks": {
     "003": 0.16666666666666666,
     "024": 0.0,
-    "063": 0.6
+    "063": 0.6666666666666666
    },
-   "spread": 0.6,
+   "spread": 0.6666666666666666,
    "verdict": "태스크-조건부",
-   "sims": 17
+   "sims": 18
   },
   {
    "tool": "submit_interest_discrepancy_report_7294",
@@ -887,11 +908,11 @@
    "tool": "submit_referral",
    "tasks": {
     "100": 0.0,
-    "098": 0.4
+    "098": 0.3333333333333333
    },
-   "spread": 0.4,
+   "spread": 0.3333333333333333,
    "verdict": "혼합",
-   "sims": 11
+   "sims": 12
   },
   {
    "tool": "log_verification",
@@ -907,15 +928,15 @@
     "040": 0.0,
     "050": 0.0,
     "057": 0.0,
-    "063": 0.2,
-    "079": 0.0,
+    "063": 0.16666666666666666,
+    "079": 0.25,
     "085": 0.0,
     "098": 0.0,
-    "074": 0.25
+    "074": 0.2
    },
    "spread": 0.25,
    "verdict": "혼합",
-   "sims": 84
+   "sims": 89
   },
   {
    "tool": "apply_checking_account_credit_5829",
@@ -926,7 +947,7 @@
    },
    "spread": 0.16666666666666663,
    "verdict": "스텝-일반",
-   "sims": 15
+   "sims": 16
   },
   {
    "tool": "apply_savings_account_credit_6831",
@@ -947,7 +968,7 @@
    },
    "spread": 0.0,
    "verdict": "스텝-일반",
-   "sims": 15
+   "sims": 17
   },
   {
    "tool": "deposit_check_3847",
@@ -957,7 +978,7 @@
    },
    "spread": 0.0,
    "verdict": "스텝-일반",
-   "sims": 10
+   "sims": 11
   }
  ],
  "axis_task_matrix": {
@@ -1002,11 +1023,11 @@
    "ok": 6
   },
   "057|2_범주": {
-   "bad": 4,
+   "bad": 5,
    "ok": 1
   },
   "063|2_범주": {
-   "bad": 5,
+   "bad": 6,
    "ok": 2
   },
   "074|0_기타": {
@@ -1018,8 +1039,8 @@
    "ok": 3
   },
   "074|1_금액": {
-   "bad": 29,
-   "ok": 0
+   "bad": 32,
+   "ok": 1
   },
   "079|6_전사": {
    "bad": 2,
@@ -1060,6 +1081,10 @@
   "050|0_기타": {
    "bad": 2,
    "ok": 0
+  },
+  "057|6_전사": {
+   "bad": 1,
+   "ok": 0
   }
  },
  "axis_ok_only": {
@@ -1067,7 +1092,8 @@
   "024|2_범주": 6,
   "073|6_전사": 8,
   "093|6_전사": 4,
-  "072|6_전사": 3
+  "072|6_전사": 3,
+  "074|6_전사": 1
  },
  "columns": [
   {
@@ -1168,7 +1194,9 @@
    "tasks_with": [
     "040",
     "055",
+    "057",
     "072",
+    "074",
     "079",
     "085",
     "017",
@@ -1178,11 +1206,13 @@
    "tasks_failing": [
     "040",
     "055",
+    "057",
     "079",
     "085"
    ],
    "tasks_clean": [
     "072",
+    "074",
     "017",
     "073",
     "093"
@@ -1202,19 +1232,19 @@
   "016": 6,
   "040": 5,
   "050": 6,
-  "057": 4,
-  "063": 5,
-  "079": 3,
+  "057": 5,
+  "063": 6,
+  "079": 4,
   "085": 5,
-  "098": 5,
-  "074": 4
+  "098": 6,
+  "074": 5
  },
  "task_pass": {
   "003": 5,
   "017": 4,
   "024": 6,
   "100": 6,
-  "098": 3,
+  "098": 4,
   "050": 3,
   "073": 1,
   "093": 1
@@ -1239,8 +1269,8 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_cash_back_dispute_0589": "match"
+    "submit_cash_back_dispute_0589": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -1268,9 +1298,9 @@
     "open_bank_account_4821"
    ],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "wrong",
     "deposit_check_3847": "wrong",
-    "open_bank_account_4821": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -1286,8 +1316,8 @@
     "apply_checking_account_credit_5829"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "wrong"
+    "apply_checking_account_credit_5829": "wrong",
+    "log_verification": "match"
    }
   },
   {
@@ -1303,9 +1333,9 @@
     "submit_interest_discrepancy_report_7294"
    ],
    "tool_outcome": {
+    "submit_interest_discrepancy_report_7294": "wrong",
     "apply_savings_account_credit_6831": "miss",
-    "log_verification": "match",
-    "submit_interest_discrepancy_report_7294": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -1319,9 +1349,9 @@
    ],
    "wrong": [],
    "tool_outcome": {
+    "submit_interest_discrepancy_report_7294": "miss",
     "apply_savings_account_credit_6831": "miss",
-    "log_verification": "match",
-    "submit_interest_discrepancy_report_7294": "miss"
+    "log_verification": "match"
    }
   },
   {
@@ -1332,8 +1362,8 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_referral": "match"
+    "submit_referral": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -1359,8 +1389,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "miss",
-    "submit_cash_back_dispute_0589": "miss"
+    "submit_cash_back_dispute_0589": "miss",
+    "log_verification": "miss"
    }
   },
   {
@@ -1388,9 +1418,9 @@
     "open_bank_account_4821"
    ],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "wrong",
     "deposit_check_3847": "miss",
-    "open_bank_account_4821": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -1404,8 +1434,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "miss"
+    "apply_checking_account_credit_5829": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -1420,8 +1450,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "miss"
+    "apply_checking_account_credit_5829": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -1435,9 +1465,9 @@
    ],
    "wrong": [],
    "tool_outcome": {
+    "submit_interest_discrepancy_report_7294": "miss",
     "apply_savings_account_credit_6831": "miss",
-    "log_verification": "match",
-    "submit_interest_discrepancy_report_7294": "miss"
+    "log_verification": "match"
    }
   },
   {
@@ -1454,9 +1484,9 @@
     "submit_interest_discrepancy_report_7294"
    ],
    "tool_outcome": {
+    "submit_interest_discrepancy_report_7294": "wrong",
     "apply_savings_account_credit_6831": "wrong",
-    "log_verification": "match",
-    "submit_interest_discrepancy_report_7294": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -1467,8 +1497,8 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_referral": "match"
+    "submit_referral": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -1481,8 +1511,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_transaction": "miss"
+    "submit_transaction": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -1502,8 +1532,8 @@
     "file_credit_card_transaction_dispute_4829"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "file_credit_card_transaction_dispute_4829": "wrong"
+    "file_credit_card_transaction_dispute_4829": "wrong",
+    "log_verification": "match"
    }
   },
   {
@@ -1516,9 +1546,9 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
     "approve_credit_limit_increase_5847": "miss",
-    "submit_credit_limit_increase_request_7392": "match"
+    "submit_credit_limit_increase_request_7392": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -1532,9 +1562,9 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "miss",
     "deposit_check_3847": "miss",
-    "open_bank_account_4821": "miss"
+    "log_verification": "match"
    }
   },
   {
@@ -1548,9 +1578,9 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "miss",
+    "open_bank_account_4821": "miss",
     "apply_for_credit_card": "match",
-    "open_bank_account_4821": "miss"
+    "log_verification": "miss"
    }
   },
   {
@@ -1573,11 +1603,11 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "order_debit_card_5739": "miss",
-    "unfreeze_debit_card_3893": "miss",
     "log_verification": "match",
+    "close_debit_card_4721": "miss",
+    "unfreeze_debit_card_3893": "miss",
     "freeze_debit_card_3892": "miss",
-    "close_debit_card_4721": "miss"
+    "order_debit_card_5739": "miss"
    }
   },
   {
@@ -1592,8 +1622,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "file_debit_card_transaction_dispute_6281": "miss"
+    "file_debit_card_transaction_dispute_6281": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -1604,8 +1634,8 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_referral": "match"
+    "submit_referral": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -1618,8 +1648,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_transaction": "miss"
+    "submit_transaction": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -1639,8 +1669,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "file_credit_card_transaction_dispute_4829": "miss"
+    "file_credit_card_transaction_dispute_4829": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -1651,9 +1681,9 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
     "approve_credit_limit_increase_5847": "match",
-    "submit_credit_limit_increase_request_7392": "match"
+    "submit_credit_limit_increase_request_7392": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -1668,9 +1698,9 @@
     "open_bank_account_4821"
    ],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "wrong",
     "deposit_check_3847": "miss",
-    "open_bank_account_4821": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -1687,9 +1717,9 @@
     "open_bank_account_4821"
    ],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "wrong",
     "apply_for_credit_card": "wrong",
-    "open_bank_account_4821": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -1708,8 +1738,8 @@
     "log_verification"
    ],
    "tool_outcome": {
-    "log_verification": "wrong",
-    "apply_checking_account_credit_5829": "miss"
+    "apply_checking_account_credit_5829": "miss",
+    "log_verification": "wrong"
    }
   },
   {
@@ -1724,8 +1754,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "file_debit_card_transaction_dispute_6281": "miss"
+    "file_debit_card_transaction_dispute_6281": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -1736,8 +1766,8 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_referral": "match"
+    "submit_referral": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -1762,8 +1792,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_cash_back_dispute_0589": "miss"
+    "submit_cash_back_dispute_0589": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -1792,9 +1822,9 @@
     "open_bank_account_4821"
    ],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "wrong",
     "deposit_check_3847": "wrong",
-    "open_bank_account_4821": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -1810,8 +1840,8 @@
     "apply_checking_account_credit_5829"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "wrong"
+    "apply_checking_account_credit_5829": "wrong",
+    "log_verification": "match"
    }
   },
   {
@@ -1822,8 +1852,8 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "match"
+    "apply_checking_account_credit_5829": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -1836,9 +1866,9 @@
    ],
    "wrong": [],
    "tool_outcome": {
+    "submit_interest_discrepancy_report_7294": "match",
     "apply_savings_account_credit_6831": "miss",
-    "log_verification": "match",
-    "submit_interest_discrepancy_report_7294": "match"
+    "log_verification": "match"
    }
   },
   {
@@ -1855,9 +1885,9 @@
     "submit_interest_discrepancy_report_7294"
    ],
    "tool_outcome": {
+    "submit_interest_discrepancy_report_7294": "wrong",
     "apply_savings_account_credit_6831": "wrong",
-    "log_verification": "match",
-    "submit_interest_discrepancy_report_7294": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -1868,8 +1898,8 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_referral": "match"
+    "submit_referral": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -1891,8 +1921,8 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_cash_back_dispute_0589": "match"
+    "submit_cash_back_dispute_0589": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -1920,9 +1950,9 @@
     "open_bank_account_4821"
    ],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "wrong",
     "deposit_check_3847": "wrong",
-    "open_bank_account_4821": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -1937,8 +1967,8 @@
     "apply_checking_account_credit_5829"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "wrong"
+    "apply_checking_account_credit_5829": "wrong",
+    "log_verification": "match"
    }
   },
   {
@@ -1954,8 +1984,8 @@
     "apply_checking_account_credit_5829"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "wrong"
+    "apply_checking_account_credit_5829": "wrong",
+    "log_verification": "match"
    }
   },
   {
@@ -1968,9 +1998,9 @@
    ],
    "wrong": [],
    "tool_outcome": {
+    "submit_interest_discrepancy_report_7294": "match",
     "apply_savings_account_credit_6831": "miss",
-    "log_verification": "match",
-    "submit_interest_discrepancy_report_7294": "match"
+    "log_verification": "match"
    }
   },
   {
@@ -1987,9 +2017,9 @@
     "submit_interest_discrepancy_report_7294"
    ],
    "tool_outcome": {
+    "submit_interest_discrepancy_report_7294": "wrong",
     "apply_savings_account_credit_6831": "wrong",
-    "log_verification": "match",
-    "submit_interest_discrepancy_report_7294": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -2000,8 +2030,8 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_referral": "match"
+    "submit_referral": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -2014,8 +2044,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_transaction": "miss"
+    "submit_transaction": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -2035,8 +2065,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "file_credit_card_transaction_dispute_4829": "miss"
+    "file_credit_card_transaction_dispute_4829": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -2049,9 +2079,9 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
     "approve_credit_limit_increase_5847": "match",
-    "submit_credit_limit_increase_request_7392": "miss"
+    "submit_credit_limit_increase_request_7392": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -2067,9 +2097,9 @@
     "open_bank_account_4821"
    ],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "wrong",
     "deposit_check_3847": "miss",
-    "open_bank_account_4821": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -2086,9 +2116,9 @@
     "open_bank_account_4821"
    ],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "wrong",
     "apply_for_credit_card": "wrong",
-    "open_bank_account_4821": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -2106,8 +2136,8 @@
     "apply_checking_account_credit_5829"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "wrong"
+    "apply_checking_account_credit_5829": "wrong",
+    "log_verification": "match"
    }
   },
   {
@@ -2123,11 +2153,11 @@
     "order_debit_card_5739"
    ],
    "tool_outcome": {
-    "order_debit_card_5739": "wrong",
-    "unfreeze_debit_card_3893": "match",
     "log_verification": "match",
+    "close_debit_card_4721": "match",
+    "unfreeze_debit_card_3893": "match",
     "freeze_debit_card_3892": "match",
-    "close_debit_card_4721": "match"
+    "order_debit_card_5739": "wrong"
    }
   },
   {
@@ -2144,8 +2174,8 @@
     "file_debit_card_transaction_dispute_6281"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "file_debit_card_transaction_dispute_6281": "wrong"
+    "file_debit_card_transaction_dispute_6281": "wrong",
+    "log_verification": "match"
    }
   },
   {
@@ -2160,8 +2190,8 @@
     "submit_referral"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_referral": "wrong"
+    "submit_referral": "wrong",
+    "log_verification": "match"
    }
   },
   {
@@ -2174,8 +2204,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_transaction": "miss"
+    "submit_transaction": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -2197,8 +2227,8 @@
     "file_credit_card_transaction_dispute_4829"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "file_credit_card_transaction_dispute_4829": "wrong"
+    "file_credit_card_transaction_dispute_4829": "wrong",
+    "log_verification": "match"
    }
   },
   {
@@ -2209,9 +2239,9 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
     "approve_credit_limit_increase_5847": "match",
-    "submit_credit_limit_increase_request_7392": "match"
+    "submit_credit_limit_increase_request_7392": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -2227,9 +2257,9 @@
     "apply_for_credit_card"
    ],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "miss",
     "apply_for_credit_card": "wrong",
-    "open_bank_account_4821": "miss"
+    "log_verification": "match"
    }
   },
   {
@@ -2245,8 +2275,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "miss"
+    "apply_checking_account_credit_5829": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -2269,11 +2299,11 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "order_debit_card_5739": "miss",
-    "unfreeze_debit_card_3893": "miss",
     "log_verification": "match",
+    "close_debit_card_4721": "miss",
+    "unfreeze_debit_card_3893": "miss",
     "freeze_debit_card_3892": "miss",
-    "close_debit_card_4721": "miss"
+    "order_debit_card_5739": "miss"
    }
   },
   {
@@ -2288,8 +2318,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "file_debit_card_transaction_dispute_6281": "miss"
+    "file_debit_card_transaction_dispute_6281": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -2304,8 +2334,8 @@
     "submit_referral"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_referral": "wrong"
+    "submit_referral": "wrong",
+    "log_verification": "match"
    }
   },
   {
@@ -2327,8 +2357,8 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_cash_back_dispute_0589": "match"
+    "submit_cash_back_dispute_0589": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -2357,9 +2387,9 @@
     "open_bank_account_4821"
    ],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "wrong",
     "deposit_check_3847": "wrong",
-    "open_bank_account_4821": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -2373,8 +2403,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "miss"
+    "apply_checking_account_credit_5829": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -2389,8 +2419,8 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "miss"
+    "apply_checking_account_credit_5829": "miss",
+    "log_verification": "match"
    }
   },
   {
@@ -2407,9 +2437,9 @@
     "submit_interest_discrepancy_report_7294"
    ],
    "tool_outcome": {
+    "submit_interest_discrepancy_report_7294": "wrong",
     "apply_savings_account_credit_6831": "wrong",
-    "log_verification": "match",
-    "submit_interest_discrepancy_report_7294": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -2426,9 +2456,9 @@
     "submit_interest_discrepancy_report_7294"
    ],
    "tool_outcome": {
+    "submit_interest_discrepancy_report_7294": "wrong",
     "apply_savings_account_credit_6831": "wrong",
-    "log_verification": "match",
-    "submit_interest_discrepancy_report_7294": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -2439,8 +2469,8 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_referral": "match"
+    "submit_referral": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -2466,8 +2496,8 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_cash_back_dispute_0589": "match"
+    "submit_cash_back_dispute_0589": "match",
+    "log_verification": "match"
    }
   },
   {
@@ -2495,9 +2525,9 @@
     "open_bank_account_4821"
    ],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "wrong",
     "deposit_check_3847": "miss",
-    "open_bank_account_4821": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -2512,8 +2542,8 @@
     "apply_checking_account_credit_5829"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "wrong"
+    "apply_checking_account_credit_5829": "wrong",
+    "log_verification": "match"
    }
   },
   {
@@ -2529,8 +2559,8 @@
     "apply_checking_account_credit_5829"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "wrong"
+    "apply_checking_account_credit_5829": "wrong",
+    "log_verification": "match"
    }
   },
   {
@@ -2541,9 +2571,9 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
+    "submit_interest_discrepancy_report_7294": "match",
     "apply_savings_account_credit_6831": "match",
-    "log_verification": "match",
-    "submit_interest_discrepancy_report_7294": "match"
+    "log_verification": "match"
    }
   },
   {
@@ -2559,9 +2589,9 @@
     "submit_interest_discrepancy_report_7294"
    ],
    "tool_outcome": {
+    "submit_interest_discrepancy_report_7294": "wrong",
     "apply_savings_account_credit_6831": "miss",
-    "log_verification": "match",
-    "submit_interest_discrepancy_report_7294": "wrong"
+    "log_verification": "match"
    }
   },
   {
@@ -2572,12 +2602,12 @@
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_referral": "match"
+    "submit_referral": "match",
+    "log_verification": "match"
    }
   },
   {
-   "run": "bank_t7348_halfBpartial14_20260824",
+   "run": "bank_t7348_halfB_20260824",
    "task": "016",
    "simtag": "task_016#s626729",
    "reward": 0.0,
@@ -2586,12 +2616,12 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_transaction": "miss"
+    "submit_transaction": "miss",
+    "log_verification": "match"
    }
   },
   {
-   "run": "bank_t7348_halfBpartial14_20260824",
+   "run": "bank_t7348_halfB_20260824",
    "task": "040",
    "simtag": "task_040#s626729",
    "reward": 0.0,
@@ -2609,12 +2639,12 @@
     "file_credit_card_transaction_dispute_4829"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "file_credit_card_transaction_dispute_4829": "wrong"
+    "file_credit_card_transaction_dispute_4829": "wrong",
+    "log_verification": "match"
    }
   },
   {
-   "run": "bank_t7348_halfBpartial14_20260824",
+   "run": "bank_t7348_halfB_20260824",
    "task": "050",
    "simtag": "task_050#s626729",
    "reward": 0.0,
@@ -2627,13 +2657,13 @@
     "submit_credit_limit_increase_request_7392"
    ],
    "tool_outcome": {
-    "log_verification": "match",
     "approve_credit_limit_increase_5847": "wrong",
-    "submit_credit_limit_increase_request_7392": "wrong"
+    "submit_credit_limit_increase_request_7392": "wrong",
+    "log_verification": "match"
    }
   },
   {
-   "run": "bank_t7348_halfBpartial14_20260824",
+   "run": "bank_t7348_halfB_20260824",
    "task": "057",
    "simtag": "task_057#s626729",
    "reward": 0.0,
@@ -2645,13 +2675,13 @@
     "open_bank_account_4821"
    ],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "wrong",
     "deposit_check_3847": "miss",
-    "open_bank_account_4821": "wrong"
+    "log_verification": "match"
    }
   },
   {
-   "run": "bank_t7348_halfBpartial14_20260824",
+   "run": "bank_t7348_halfB_20260824",
    "task": "063",
    "simtag": "task_063#s626729",
    "reward": 0.0,
@@ -2660,13 +2690,13 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
+    "open_bank_account_4821": "miss",
     "apply_for_credit_card": "match",
-    "open_bank_account_4821": "miss"
+    "log_verification": "match"
    }
   },
   {
-   "run": "bank_t7348_halfBpartial14_20260824",
+   "run": "bank_t7348_halfB_20260824",
    "task": "074",
    "simtag": "task_074#s626729",
    "reward": 0.0,
@@ -2680,12 +2710,12 @@
     "apply_checking_account_credit_5829"
    ],
    "tool_outcome": {
-    "log_verification": "match",
-    "apply_checking_account_credit_5829": "wrong"
+    "apply_checking_account_credit_5829": "wrong",
+    "log_verification": "match"
    }
   },
   {
-   "run": "bank_t7348_halfBpartial14_20260824",
+   "run": "bank_t7348_halfB_20260824",
    "task": "085",
    "simtag": "task_085#s626729",
    "reward": 0.0,
@@ -2696,24 +2726,24 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "file_debit_card_transaction_dispute_6281": "miss"
+    "file_debit_card_transaction_dispute_6281": "miss",
+    "log_verification": "match"
    }
   },
   {
-   "run": "bank_t7348_halfBpartial14_20260824",
+   "run": "bank_t7348_halfB_20260824",
    "task": "098",
    "simtag": "task_098#s626729",
    "reward": 1.0,
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_referral": "match"
+    "submit_referral": "match",
+    "log_verification": "match"
    }
   },
   {
-   "run": "bank_t7348_halfBpartial14_20260824",
+   "run": "bank_t7348_halfB_20260824",
    "task": "016",
    "simtag": "task_016#s373753",
    "reward": 0.0,
@@ -2722,21 +2752,116 @@
    ],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
-    "submit_transaction": "miss"
+    "submit_transaction": "miss",
+    "log_verification": "match"
    }
   },
   {
-   "run": "bank_t7348_halfBpartial14_20260824",
+   "run": "bank_t7348_halfB_20260824",
    "task": "050",
    "simtag": "task_050#s373753",
    "reward": 1.0,
    "miss": [],
    "wrong": [],
    "tool_outcome": {
-    "log_verification": "match",
     "approve_credit_limit_increase_5847": "match",
-    "submit_credit_limit_increase_request_7392": "match"
+    "submit_credit_limit_increase_request_7392": "match",
+    "log_verification": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "task": "057",
+   "simtag": "task_057#s373753",
+   "reward": 0.0,
+   "miss": [
+    "057_4",
+    "057_6"
+   ],
+   "wrong": [
+    "deposit_check_3847",
+    "open_bank_account_4821"
+   ],
+   "tool_outcome": {
+    "open_bank_account_4821": "wrong",
+    "deposit_check_3847": "wrong",
+    "log_verification": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "task": "063",
+   "simtag": "task_063#s373753",
+   "reward": 0.0,
+   "miss": [
+    "063_1",
+    "063_3"
+   ],
+   "wrong": [
+    "apply_for_credit_card"
+   ],
+   "tool_outcome": {
+    "open_bank_account_4821": "miss",
+    "apply_for_credit_card": "wrong",
+    "log_verification": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "task": "074",
+   "simtag": "task_074#s373753",
+   "reward": 0.0,
+   "miss": [
+    "074_10",
+    "074_11",
+    "074_12"
+   ],
+   "wrong": [
+    "apply_checking_account_credit_5829"
+   ],
+   "tool_outcome": {
+    "apply_checking_account_credit_5829": "wrong",
+    "log_verification": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "task": "079",
+   "simtag": "task_079#s373753",
+   "reward": 0.0,
+   "miss": [
+    "079_0",
+    "079_3",
+    "079_4",
+    "079_5",
+    "079_9c",
+    "079_9d",
+    "079_9e",
+    "079_11",
+    "079_12",
+    "079_13",
+    "079_17",
+    "079_18"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "miss",
+    "close_debit_card_4721": "miss",
+    "unfreeze_debit_card_3893": "miss",
+    "freeze_debit_card_3892": "miss",
+    "order_debit_card_5739": "miss"
+   }
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "task": "098",
+   "simtag": "task_098#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "submit_referral": "match",
+    "log_verification": "match"
    }
   }
  ]
