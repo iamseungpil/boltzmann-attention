@@ -1,0 +1,2743 @@
+{
+ "probe": "x510_two_axis",
+ "date": "2026-08-24",
+ "findings": [
+  "F1 스텝 축은 표류하지 않는다 - hard-0 의 쓰기 도구는 태스크가 달라도 거의 같은 비율로 갈린다: `open_bank_account_4821` 055/057/063 = 100%/100%/100% (격차 0) · `deposit_check_3847` 055/057 = 100%/100% (격차 0) · `apply_checking_account_credit_5829` 072/074/073 = 100%/100%/83% (격차 17%).",
+  "F2 표류는 **태스크 축**에 있다 - 같은 필드 축이 어떤 시나리오에선 맞는다: (6)전사 는 8 태스크가 쓰는데 4 실패(040·055·079·085) 4 무결(072·017·073·093) · (2)범주 는 5 중 024 만 무결. 이 둘은 능력 경계가 아니라 시나리오 조건이다.",
+  "F3 ★(1)금액 축에서 우리 레버는 무죄다 - 같은 도구·같은 태스크에서 **맞은 호출과 갈린 호출의 직전 표지 프로파일이 동일**하다(072 갈림 11 ↔ 맞음 3 · 073 갈림 17 ↔ 맞음 8, 여섯 표지 전부 100%/100%). 발화 커버리지로는 이 축이 안 갈린다 -> [[62]](1) 대로 남은 물음은 격리에서의 **효능**이다(x509 S2 가 그대로 유효).",
+  "F4 ★한 sim 안에서 스텝이 갈린다 - 079 는 동일 궤적에서 close/freeze/unfreeze 3 스텝이 맞고 `order_debit_card_5739` 만 갈리는데 직전 표지는 **여섯 개 모두 동일**하다. 즉 원인은 레버 상태가 아니라 그 스텝이 요구하는 필드(`delivery_option` = 손님에게 물어야 하는 값)다. per-task 귀속으로는 이 대비가 보이지 않는다.",
+  "F5 (3)손님권위 열은 3 태스크(040·079·085)뿐이다 - 어제 표에서 '무결 13' 로 보였던 것은 `log_verification|address` 한 자리가 만든 유령이었다(이 프로브에서 제외·자기검산).",
+  "F6 유일하게 레버 프로파일이 갈리는 자리 = `apply_for_credit_card`. 맞음 13 sim 중 PROVENANCE 69% ↔ 갈림 4 sim 중 0%, 갈림 쪽엔 ISOLATED-FORMALIZATION 75%·ORDER 75%·TOOL-CHANNEL 50%·BLOCKED 50% 가 쌓인다. n 이 작고 인과 방향이 양쪽이므로([[08]]) 가설로만 둔다."
+ ],
+ "caveats": [
+  "조인키 `simtag`(task#seed) 는 nt>1 의 trial 을 병합한다 - 발화의 **유무**만 읽고 건수를 인과로 읽지 마라.",
+  "사이드카 `turn` 과 궤적 `msg_i` 는 다른 계기다. 선후만 읽고 거리를 읽지 마라.",
+  "t7348 halfB 는 14/20 진행분이라 074·079·085 의 분모가 작다(x506 과 같은 한계).",
+  "gold 는 **어느 필드가 갈렸나 세는 진단**으로만 썼다([[23]]). 성적은 reward 다([[69]]).",
+  "축 (1)~(7) 과 태스크별 한계 수치는 `x509_axis_queue_2026_08_24.json` 을 인용한 것이지 여기서 재유도한 것이 아니다([[74]])."
+ ],
+ "lever_contrast": [
+  {
+   "tool": "apply_for_credit_card",
+   "match": {
+    "n": 13,
+    "tasks": {
+     "003": 5,
+     "024": 6,
+     "063": 2
+    },
+    "with_sidecar": 13
+   },
+   "fail": {
+    "n": 4,
+    "tasks": {
+     "063": 3,
+     "003": 1
+    },
+    "with_sidecar": 4
+   },
+   "deltas": [
+    {
+     "signal": "mark:PROVENANCE",
+     "match_rate": 0.6923076923076923,
+     "fail_rate": 0.0
+    },
+    {
+     "signal": "mark:ISOLATED-FORMALIZATION",
+     "match_rate": 0.07692307692307693,
+     "fail_rate": 0.75
+    },
+    {
+     "signal": "mark:ORDER",
+     "match_rate": 0.23076923076923078,
+     "fail_rate": 0.75
+    },
+    {
+     "signal": "mark:TOOL-CHANNEL",
+     "match_rate": 0.0,
+     "fail_rate": 0.5
+    },
+    {
+     "signal": "mark:T2_ARG_DOC_SUB",
+     "match_rate": 0.0,
+     "fail_rate": 0.5
+    },
+    {
+     "signal": "mark:OPERATOR-SCOPE",
+     "match_rate": 0.0,
+     "fail_rate": 0.5
+    },
+    {
+     "signal": "mark:OPERATOR-PROVENANCE",
+     "match_rate": 0.07692307692307693,
+     "fail_rate": 0.5
+    },
+    {
+     "signal": "mark:BLOCKED",
+     "match_rate": 0.07692307692307693,
+     "fail_rate": 0.5
+    }
+   ]
+  },
+  {
+   "tool": "submit_interest_discrepancy_report_7294",
+   "match": {
+    "n": 3,
+    "tasks": {
+     "093": 3
+    },
+    "with_sidecar": 3
+   },
+   "fail": {
+    "n": 9,
+    "tasks": {
+     "093": 3,
+     "094": 6
+    },
+    "with_sidecar": 9
+   },
+   "deltas": [
+    {
+     "signal": "mark:PROVENANCE",
+     "match_rate": 0.3333333333333333,
+     "fail_rate": 1.0
+    },
+    {
+     "signal": "mark:OPERATOR-SCOPE",
+     "match_rate": 1.0,
+     "fail_rate": 0.5555555555555556
+    },
+    {
+     "signal": "mark:OPERATOR-PROVENANCE",
+     "match_rate": 0.6666666666666666,
+     "fail_rate": 0.2222222222222222
+    }
+   ]
+  },
+  {
+   "tool": "apply_checking_account_credit_5829",
+   "match": {
+    "n": 1,
+    "tasks": {
+     "073": 1
+    },
+    "with_sidecar": 1
+   },
+   "fail": {
+    "n": 14,
+    "tasks": {
+     "073": 5,
+     "072": 5,
+     "074": 4
+    },
+    "with_sidecar": 14
+   },
+   "deltas": [
+    {
+     "signal": "mark:PRESCRIPTION",
+     "match_rate": 1.0,
+     "fail_rate": 0.2857142857142857
+    },
+    {
+     "signal": "mark:OPERATOR-SCOPE",
+     "match_rate": 1.0,
+     "fail_rate": 0.35714285714285715
+    },
+    {
+     "signal": "mark:SEARCH-EXHAUST",
+     "match_rate": 0.0,
+     "fail_rate": 0.5714285714285714
+    },
+    {
+     "signal": "mark:COVERAGE-FOLLOWUP",
+     "match_rate": 1.0,
+     "fail_rate": 0.42857142857142855
+    },
+    {
+     "signal": "mark:ACTION",
+     "match_rate": 0.0,
+     "fail_rate": 0.42857142857142855
+    },
+    {
+     "signal": "mark:WORK-INCOMPLETE",
+     "match_rate": 0.0,
+     "fail_rate": 0.35714285714285715
+    },
+    {
+     "signal": "mark:UNAVAILABLE-CAPABILITY",
+     "match_rate": 0.0,
+     "fail_rate": 0.35714285714285715
+    },
+    {
+     "signal": "mark:ORDER",
+     "match_rate": 0.0,
+     "fail_rate": 0.35714285714285715
+    },
+    {
+     "signal": "kind:cp2",
+     "match_rate": 0.0,
+     "fail_rate": 0.35714285714285715
+    },
+    {
+     "signal": "cp2:VIEW_FB",
+     "match_rate": 0.0,
+     "fail_rate": 0.35714285714285715
+    },
+    {
+     "signal": "cp2:SEARCH_ON_PROCEED",
+     "match_rate": 0.0,
+     "fail_rate": 0.35714285714285715
+    }
+   ]
+  },
+  {
+   "tool": "apply_savings_account_credit_6831",
+   "match": {
+    "n": 1,
+    "tasks": {
+     "093": 1
+    },
+    "with_sidecar": 1
+   },
+   "fail": {
+    "n": 11,
+    "tasks": {
+     "093": 5,
+     "094": 6
+    },
+    "with_sidecar": 11
+   },
+   "deltas": [
+    {
+     "signal": "mark:OPERATOR-PROVENANCE",
+     "match_rate": 1.0,
+     "fail_rate": 0.2727272727272727
+    },
+    {
+     "signal": "kind:cp2",
+     "match_rate": 1.0,
+     "fail_rate": 0.2727272727272727
+    },
+    {
+     "signal": "cp2:VIEW_FB",
+     "match_rate": 1.0,
+     "fail_rate": 0.2727272727272727
+    },
+    {
+     "signal": "cp2:SEARCH_ON_PROCEED",
+     "match_rate": 1.0,
+     "fail_rate": 0.2727272727272727
+    },
+    {
+     "signal": "mark:WRITE-EVIDENCE",
+     "match_rate": 1.0,
+     "fail_rate": 0.36363636363636365
+    },
+    {
+     "signal": "mark:SEARCH-EXHAUST",
+     "match_rate": 0.0,
+     "fail_rate": 0.36363636363636365
+    },
+    {
+     "signal": "mark:OPERATOR-SCOPE",
+     "match_rate": 1.0,
+     "fail_rate": 0.6363636363636364
+    }
+   ]
+  },
+  {
+   "tool": "open_bank_account_4821",
+   "note": "대조 불가(fail 만 있음)",
+   "match_tasks": [],
+   "fail_tasks": [
+    "055",
+    "057",
+    "063"
+   ]
+  },
+  {
+   "tool": "deposit_check_3847",
+   "note": "대조 불가(fail 만 있음)",
+   "match_tasks": [],
+   "fail_tasks": [
+    "055",
+    "057"
+   ]
+  }
+ ],
+ "step_lever_profile": [
+  {
+   "task": "003",
+   "tool": "apply_for_credit_card",
+   "verdict": "갈림",
+   "n": 1,
+   "marks": {
+    "CLAIM-PROVENANCE": 1.0,
+    "ACTION": 1.0,
+    "cp2:SEARCH_ON_PROCEED": 1.0,
+    "SOURCE": 1.0
+   }
+  },
+  {
+   "task": "003",
+   "tool": "apply_for_credit_card",
+   "verdict": "맞음",
+   "n": 5,
+   "marks": {
+    "PROVENANCE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "ACTION": 1.0,
+    "SOURCE": 1.0
+   }
+  },
+  {
+   "task": "017",
+   "tool": "submit_cash_back_dispute_0589",
+   "verdict": "맞음",
+   "n": 8,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "SIGNATURE": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "GIVE-EXEC": 1.0,
+    "WRITE-GROUNDING": 0.75,
+    "TOOL-CHANNEL": 0.75,
+    "PROVENANCE": 0.75,
+    "FOLLOW-UP": 0.75
+   }
+  },
+  {
+   "task": "024",
+   "tool": "apply_for_credit_card",
+   "verdict": "맞음",
+   "n": 6,
+   "marks": {
+    "ACTION": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "SOURCE": 1.0,
+    "PROVENANCE": 0.667,
+    "SIGNATURE": 0.667,
+    "GIVE-EXEC": 0.667
+   }
+  },
+  {
+   "task": "040",
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "verdict": "갈림",
+   "n": 19,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "WRITE-GROUNDING": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "SIGNATURE": 1.0,
+    "VALUE-ACQUIRE": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "WRITE-EVIDENCE": 0.789,
+    "DECIDE-FIRST": 0.737,
+    "GIVE-EXEC": 0.737,
+    "ACTION": 0.684
+   }
+  },
+  {
+   "task": "040",
+   "tool": "file_credit_card_transaction_dispute_4829",
+   "verdict": "맞음",
+   "n": 2,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "WRITE-EVIDENCE": 1.0,
+    "WRITE-GROUNDING": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "DECIDE-FIRST": 1.0,
+    "ORDER": 1.0,
+    "SIGNATURE": 1.0,
+    "VALUE-ACQUIRE": 1.0,
+    "ACTION": 1.0,
+    "BLOCKED": 1.0,
+    "REF-VERIFY": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "GIVE-EXEC": 1.0
+   }
+  },
+  {
+   "task": "050",
+   "tool": "approve_credit_limit_increase_5847",
+   "verdict": "갈림",
+   "n": 1,
+   "marks": {
+    "PROVENANCE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "VERDICT": 1.0,
+    "cp2:SEARCH_ON_PROCEED": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "ORDER": 1.0,
+    "TOOL-CHANNEL": 1.0,
+    "PROCEDURE": 1.0,
+    "FOLLOW-UP": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "050",
+   "tool": "approve_credit_limit_increase_5847",
+   "verdict": "맞음",
+   "n": 4,
+   "marks": {
+    "ISOLATED-FORMALIZATION": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "PROCEDURE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "VERDICT": 0.75
+   }
+  },
+  {
+   "task": "050",
+   "tool": "submit_credit_limit_increase_request_7392",
+   "verdict": "갈림",
+   "n": 1,
+   "marks": {
+    "PROVENANCE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "VERDICT": 1.0,
+    "cp2:SEARCH_ON_PROCEED": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "ORDER": 1.0,
+    "TOOL-CHANNEL": 1.0,
+    "PROCEDURE": 1.0,
+    "CLAIM-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "050",
+   "tool": "submit_credit_limit_increase_request_7392",
+   "verdict": "맞음",
+   "n": 4,
+   "marks": {
+    "ISOLATED-FORMALIZATION": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "VERDICT": 0.75,
+    "OPERATOR-PROVENANCE": 0.75,
+    "PROCEDURE": 0.75
+   }
+  },
+  {
+   "task": "055",
+   "tool": "deposit_check_3847",
+   "verdict": "갈림",
+   "n": 4,
+   "marks": {
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "SIGNATURE": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "GIVE-EXEC": 1.0,
+    "DISCOVERY-REQUIRED": 0.75,
+    "ACTION-REQUIRED": 0.75,
+    "OFFICIAL-NAME": 0.75,
+    "BLOCKED": 0.75
+   }
+  },
+  {
+   "task": "055",
+   "tool": "open_bank_account_4821",
+   "verdict": "갈림",
+   "n": 11,
+   "marks": {
+    "ISOLATED-FORMALIZATION": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "DISCOVERY-STEP2": 0.727,
+    "OPERATOR-PROVENANCE": 0.636
+   }
+  },
+  {
+   "task": "055",
+   "tool": "open_bank_account_4821",
+   "verdict": "맞음",
+   "n": 2,
+   "marks": {
+    "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0
+   }
+  },
+  {
+   "task": "057",
+   "tool": "open_bank_account_4821",
+   "verdict": "갈림",
+   "n": 4,
+   "marks": {
+    "ISOLATED-FORMALIZATION": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "DISCOVERY-STEP2": 0.75,
+    "ORDER": 0.75
+   }
+  },
+  {
+   "task": "057",
+   "tool": "open_bank_account_4821",
+   "verdict": "맞음",
+   "n": 1,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "ORDER": 1.0,
+    "OFFICIAL-NAME": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "063",
+   "tool": "apply_for_credit_card",
+   "verdict": "갈림",
+   "n": 3,
+   "marks": {
+    "ORDER": 1.0,
+    "ACTION": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "SOURCE": 1.0,
+    "BLOCKED": 0.667
+   }
+  },
+  {
+   "task": "063",
+   "tool": "apply_for_credit_card",
+   "verdict": "맞음",
+   "n": 2,
+   "marks": {
+    "ACTION": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "UNVERIFIED-FOLLOWUP": 1.0,
+    "ORDER": 1.0
+   }
+  },
+  {
+   "task": "063",
+   "tool": "open_bank_account_4821",
+   "verdict": "갈림",
+   "n": 2,
+   "marks": {
+    "ISOLATED-FORMALIZATION": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "ORDER": 1.0,
+    "ACTION": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "SOURCE": 1.0
+   }
+  },
+  {
+   "task": "072",
+   "tool": "apply_checking_account_credit_5829",
+   "verdict": "갈림",
+   "n": 11,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "PROVENANCE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "ORDER": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "cp2:SEARCH_ON_PROCEED": 0.727,
+    "OPERATOR-PROVENANCE": 0.727,
+    "cp2:VIEW_FB": 0.727
+   }
+  },
+  {
+   "task": "072",
+   "tool": "apply_checking_account_credit_5829",
+   "verdict": "맞음",
+   "n": 3,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "PROVENANCE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "ORDER": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "TOOL-CHANNEL": 0.667,
+    "VALUE-ACQUIRE": 0.667,
+    "SEARCH-EXHAUST": 0.667,
+    "COVERAGE-FOLLOWUP": 0.667
+   }
+  },
+  {
+   "task": "073",
+   "tool": "apply_checking_account_credit_5829",
+   "verdict": "갈림",
+   "n": 17,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "COVERAGE-FOLLOWUP": 0.706,
+    "OPERATOR-PROVENANCE": 0.647,
+    "TOOL-CHANNEL": 0.647
+   }
+  },
+  {
+   "task": "073",
+   "tool": "apply_checking_account_credit_5829",
+   "verdict": "맞음",
+   "n": 8,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "074",
+   "tool": "apply_checking_account_credit_5829",
+   "verdict": "갈림",
+   "n": 29,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "PROVENANCE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "cp2:SEARCH_ON_PROCEED": 0.759,
+    "SEARCH-EXHAUST": 0.759,
+    "cp2:VIEW_FB": 0.759
+   }
+  },
+  {
+   "task": "079",
+   "tool": "close_debit_card_4721",
+   "verdict": "맞음",
+   "n": 3,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "079",
+   "tool": "freeze_debit_card_3892",
+   "verdict": "맞음",
+   "n": 3,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "079",
+   "tool": "order_debit_card_5739",
+   "verdict": "갈림",
+   "n": 3,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "SEARCH-EXHAUST": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "079",
+   "tool": "unfreeze_debit_card_3893",
+   "verdict": "맞음",
+   "n": 3,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "085",
+   "tool": "file_debit_card_transaction_dispute_6281",
+   "verdict": "갈림",
+   "n": 4,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "WRITE-GROUNDING": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "SIGNATURE": 1.0,
+    "VALUE-ACQUIRE": 1.0,
+    "BLOCKED": 1.0,
+    "DECIDE-FIRST": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "E-PLAN": 1.0
+   }
+  },
+  {
+   "task": "093",
+   "tool": "apply_savings_account_credit_6831",
+   "verdict": "갈림",
+   "n": 1,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "BLOCKED": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "cp2:VIEW_FB": 1.0
+   }
+  },
+  {
+   "task": "093",
+   "tool": "apply_savings_account_credit_6831",
+   "verdict": "맞음",
+   "n": 1,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "PROVENANCE": 1.0,
+    "WRITE-EVIDENCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "OPERATOR-PROVENANCE": 1.0,
+    "BLOCKED": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "cp2:VIEW_FB": 1.0
+   }
+  },
+  {
+   "task": "093",
+   "tool": "submit_interest_discrepancy_report_7294",
+   "verdict": "갈림",
+   "n": 2,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "PROVENANCE": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "093",
+   "tool": "submit_interest_discrepancy_report_7294",
+   "verdict": "맞음",
+   "n": 3,
+   "marks": {
+    "DISCOVERY-REQUIRED": 1.0,
+    "OPERATOR-SCOPE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "BLOCKED": 1.0,
+    "UNLOCKED-NOT-CALLED": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "OPERATOR-PROVENANCE": 0.667,
+    "WRITE-EVIDENCE": 0.667
+   }
+  },
+  {
+   "task": "094",
+   "tool": "apply_savings_account_credit_6831",
+   "verdict": "갈림",
+   "n": 4,
+   "marks": {
+    "PROVENANCE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "BLOCKED": 1.0,
+    "CLAIM-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "094",
+   "tool": "submit_interest_discrepancy_report_7294",
+   "verdict": "갈림",
+   "n": 5,
+   "marks": {
+    "PROVENANCE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "DISCOVERY-STEP2": 1.0,
+    "BLOCKED": 1.0,
+    "CLAIM-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "098",
+   "tool": "submit_referral",
+   "verdict": "갈림",
+   "n": 2,
+   "marks": {
+    "PROVENANCE": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0,
+    "ORDER": 1.0,
+    "ACTION": 1.0,
+    "CLAIM-PROVENANCE": 1.0
+   }
+  },
+  {
+   "task": "098",
+   "tool": "submit_referral",
+   "verdict": "맞음",
+   "n": 3,
+   "marks": {
+    "ISOLATED-FORMALIZATION": 1.0,
+    "ORDER": 1.0,
+    "ACTION": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "SOURCE": 1.0
+   }
+  },
+  {
+   "task": "100",
+   "tool": "submit_referral",
+   "verdict": "맞음",
+   "n": 6,
+   "marks": {
+    "ACTION": 1.0,
+    "CLAIM-PROVENANCE": 1.0,
+    "ORDER": 1.0,
+    "ISOLATED-FORMALIZATION": 1.0
+   }
+  }
+ ],
+ "files": [
+  "bank_t7336_halfA_20260821b",
+  "bank_t7336_halfB_20260821b",
+  "bank_t7346_halfA_20260822",
+  "bank_t7346_halfB_20260822",
+  "bank_t7348_halfA_20260824",
+  "bank_t7348_halfBpartial14_20260824"
+ ],
+ "tool_invariance": [
+  {
+   "tool": "apply_for_credit_card",
+   "tasks": {
+    "003": 0.16666666666666666,
+    "024": 0.0,
+    "063": 0.6
+   },
+   "spread": 0.6,
+   "verdict": "태스크-조건부",
+   "sims": 17
+  },
+  {
+   "tool": "submit_interest_discrepancy_report_7294",
+   "tasks": {
+    "093": 0.5,
+    "094": 1.0
+   },
+   "spread": 0.5,
+   "verdict": "태스크-조건부",
+   "sims": 12
+  },
+  {
+   "tool": "submit_referral",
+   "tasks": {
+    "100": 0.0,
+    "098": 0.4
+   },
+   "spread": 0.4,
+   "verdict": "혼합",
+   "sims": 11
+  },
+  {
+   "tool": "log_verification",
+   "tasks": {
+    "017": 0.16666666666666666,
+    "055": 0.0,
+    "073": 0.0,
+    "093": 0.0,
+    "094": 0.0,
+    "100": 0.0,
+    "072": 0.0,
+    "016": 0.0,
+    "040": 0.0,
+    "050": 0.0,
+    "057": 0.0,
+    "063": 0.2,
+    "079": 0.0,
+    "085": 0.0,
+    "098": 0.0,
+    "074": 0.25
+   },
+   "spread": 0.25,
+   "verdict": "혼합",
+   "sims": 84
+  },
+  {
+   "tool": "apply_checking_account_credit_5829",
+   "tasks": {
+    "073": 0.8333333333333334,
+    "072": 1.0,
+    "074": 1.0
+   },
+   "spread": 0.16666666666666663,
+   "verdict": "스텝-일반",
+   "sims": 15
+  },
+  {
+   "tool": "apply_savings_account_credit_6831",
+   "tasks": {
+    "093": 0.8333333333333334,
+    "094": 1.0
+   },
+   "spread": 0.16666666666666663,
+   "verdict": "스텝-일반",
+   "sims": 12
+  },
+  {
+   "tool": "open_bank_account_4821",
+   "tasks": {
+    "055": 1.0,
+    "057": 1.0,
+    "063": 1.0
+   },
+   "spread": 0.0,
+   "verdict": "스텝-일반",
+   "sims": 15
+  },
+  {
+   "tool": "deposit_check_3847",
+   "tasks": {
+    "055": 1.0,
+    "057": 1.0
+   },
+   "spread": 0.0,
+   "verdict": "스텝-일반",
+   "sims": 10
+  }
+ ],
+ "axis_task_matrix": {
+  "055|2_범주": {
+   "bad": 11,
+   "ok": 2
+  },
+  "055|6_전사": {
+   "bad": 4,
+   "ok": 0
+  },
+  "073|1_금액": {
+   "bad": 17,
+   "ok": 8
+  },
+  "093|5_파생": {
+   "bad": 4,
+   "ok": 6
+  },
+  "093|1_금액": {
+   "bad": 3,
+   "ok": 4
+  },
+  "094|5_파생": {
+   "bad": 8,
+   "ok": 0
+  },
+  "094|1_금액": {
+   "bad": 9,
+   "ok": 0
+  },
+  "040|4_자격": {
+   "bad": 14,
+   "ok": 2
+  },
+  "040|1_금액": {
+   "bad": 2,
+   "ok": 0
+  },
+  "040|3_손님권위": {
+   "bad": 17,
+   "ok": 6
+  },
+  "057|2_범주": {
+   "bad": 4,
+   "ok": 1
+  },
+  "063|2_범주": {
+   "bad": 5,
+   "ok": 2
+  },
+  "074|0_기타": {
+   "bad": 1,
+   "ok": 0
+  },
+  "072|1_금액": {
+   "bad": 11,
+   "ok": 3
+  },
+  "074|1_금액": {
+   "bad": 29,
+   "ok": 0
+  },
+  "079|6_전사": {
+   "bad": 2,
+   "ok": 9
+  },
+  "079|3_손님권위": {
+   "bad": 3,
+   "ok": 0
+  },
+  "085|3_손님권위": {
+   "bad": 4,
+   "ok": 0
+  },
+  "085|0_기타": {
+   "bad": 9,
+   "ok": 0
+  },
+  "085|6_전사": {
+   "bad": 4,
+   "ok": 0
+  },
+  "098|0_기타": {
+   "bad": 2,
+   "ok": 0
+  },
+  "003|2_범주": {
+   "bad": 1,
+   "ok": 5
+  },
+  "040|6_전사": {
+   "bad": 7,
+   "ok": 4
+  },
+  "040|0_기타": {
+   "bad": 3,
+   "ok": 0
+  },
+  "050|0_기타": {
+   "bad": 2,
+   "ok": 0
+  }
+ },
+ "axis_ok_only": {
+  "017|6_전사": 8,
+  "024|2_범주": 6,
+  "073|6_전사": 8,
+  "093|6_전사": 4,
+  "072|6_전사": 3
+ },
+ "columns": [
+  {
+   "axis": "0_기타",
+   "tasks_with": [
+    "040",
+    "074",
+    "085",
+    "050",
+    "098"
+   ],
+   "tasks_failing": [
+    "040",
+    "074",
+    "085",
+    "050",
+    "098"
+   ],
+   "tasks_clean": []
+  },
+  {
+   "axis": "1_금액",
+   "tasks_with": [
+    "040",
+    "072",
+    "074",
+    "094",
+    "073",
+    "093"
+   ],
+   "tasks_failing": [
+    "040",
+    "072",
+    "074",
+    "094",
+    "073",
+    "093"
+   ],
+   "tasks_clean": []
+  },
+  {
+   "axis": "2_범주",
+   "tasks_with": [
+    "055",
+    "057",
+    "063",
+    "003",
+    "024"
+   ],
+   "tasks_failing": [
+    "055",
+    "057",
+    "063",
+    "003"
+   ],
+   "tasks_clean": [
+    "024"
+   ]
+  },
+  {
+   "axis": "3_손님권위",
+   "tasks_with": [
+    "040",
+    "079",
+    "085"
+   ],
+   "tasks_failing": [
+    "040",
+    "079",
+    "085"
+   ],
+   "tasks_clean": []
+  },
+  {
+   "axis": "4_자격",
+   "tasks_with": [
+    "040"
+   ],
+   "tasks_failing": [
+    "040"
+   ],
+   "tasks_clean": []
+  },
+  {
+   "axis": "5_파생",
+   "tasks_with": [
+    "094",
+    "093"
+   ],
+   "tasks_failing": [
+    "094",
+    "093"
+   ],
+   "tasks_clean": []
+  },
+  {
+   "axis": "6_전사",
+   "tasks_with": [
+    "040",
+    "055",
+    "072",
+    "079",
+    "085",
+    "017",
+    "073",
+    "093"
+   ],
+   "tasks_failing": [
+    "040",
+    "055",
+    "079",
+    "085"
+   ],
+   "tasks_clean": [
+    "072",
+    "017",
+    "073",
+    "093"
+   ]
+  }
+ ],
+ "task_sims": {
+  "003": 6,
+  "017": 6,
+  "024": 6,
+  "055": 6,
+  "073": 6,
+  "093": 6,
+  "094": 6,
+  "100": 6,
+  "072": 5,
+  "016": 6,
+  "040": 5,
+  "050": 6,
+  "057": 4,
+  "063": 5,
+  "079": 3,
+  "085": 5,
+  "098": 5,
+  "074": 4
+ },
+ "task_pass": {
+  "003": 5,
+  "017": 4,
+  "024": 6,
+  "100": 6,
+  "098": 3,
+  "050": 3,
+  "073": 1,
+  "093": 1
+ },
+ "per_sim": [
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "003",
+   "simtag": "task_003#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_for_credit_card": "match"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "017",
+   "simtag": "task_017#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_cash_back_dispute_0589": "match"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "024",
+   "simtag": "task_024#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_for_credit_card": "match"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "055",
+   "simtag": "task_055#s626729",
+   "reward": 0.0,
+   "miss": [
+    "055_5",
+    "055_7"
+   ],
+   "wrong": [
+    "deposit_check_3847",
+    "open_bank_account_4821"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "deposit_check_3847": "wrong",
+    "open_bank_account_4821": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "073",
+   "simtag": "task_073#s626729",
+   "reward": 0.0,
+   "miss": [
+    "073_8",
+    "073_9"
+   ],
+   "wrong": [
+    "apply_checking_account_credit_5829"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "093",
+   "simtag": "task_093#s626729",
+   "reward": 0.0,
+   "miss": [
+    "093_6",
+    "093_8"
+   ],
+   "wrong": [
+    "submit_interest_discrepancy_report_7294"
+   ],
+   "tool_outcome": {
+    "apply_savings_account_credit_6831": "miss",
+    "log_verification": "match",
+    "submit_interest_discrepancy_report_7294": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "094",
+   "simtag": "task_094#s626729",
+   "reward": 0.0,
+   "miss": [
+    "094_6",
+    "094_8"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_savings_account_credit_6831": "miss",
+    "log_verification": "match",
+    "submit_interest_discrepancy_report_7294": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "100",
+   "simtag": "task_100#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_referral": "match"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "003",
+   "simtag": "task_003#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_for_credit_card": "match"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "017",
+   "simtag": "task_017#s373753",
+   "reward": 0.0,
+   "miss": [
+    "017_0",
+    "017_2",
+    "017_3"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "miss",
+    "submit_cash_back_dispute_0589": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "024",
+   "simtag": "task_024#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_for_credit_card": "match"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "055",
+   "simtag": "task_055#s373753",
+   "reward": 0.0,
+   "miss": [
+    "055_4",
+    "055_5",
+    "055_7"
+   ],
+   "wrong": [
+    "open_bank_account_4821"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "deposit_check_3847": "miss",
+    "open_bank_account_4821": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "072",
+   "simtag": "task_072#s373753",
+   "reward": 0.0,
+   "miss": [
+    "072_7",
+    "072_8"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "073",
+   "simtag": "task_073#s373753",
+   "reward": 0.0,
+   "miss": [
+    "073_8",
+    "073_9",
+    "073_10"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "093",
+   "simtag": "task_093#s373753",
+   "reward": 0.0,
+   "miss": [
+    "093_6",
+    "093_8"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_savings_account_credit_6831": "miss",
+    "log_verification": "match",
+    "submit_interest_discrepancy_report_7294": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "094",
+   "simtag": "task_094#s373753",
+   "reward": 0.0,
+   "miss": [
+    "094_6",
+    "094_8"
+   ],
+   "wrong": [
+    "apply_savings_account_credit_6831",
+    "submit_interest_discrepancy_report_7294"
+   ],
+   "tool_outcome": {
+    "apply_savings_account_credit_6831": "wrong",
+    "log_verification": "match",
+    "submit_interest_discrepancy_report_7294": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7336_halfA_20260821b",
+   "task": "100",
+   "simtag": "task_100#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_referral": "match"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "016",
+   "simtag": "task_016#s626729",
+   "reward": 0.0,
+   "miss": [
+    "016_1"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_transaction": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "040",
+   "simtag": "task_040#s626729",
+   "reward": 0.0,
+   "miss": [
+    "040_9",
+    "040_10",
+    "040_11",
+    "040_12",
+    "040_13",
+    "040_14"
+   ],
+   "wrong": [
+    "file_credit_card_transaction_dispute_4829"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "file_credit_card_transaction_dispute_4829": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "050",
+   "simtag": "task_050#s626729",
+   "reward": 0.0,
+   "miss": [
+    "050_12"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "approve_credit_limit_increase_5847": "miss",
+    "submit_credit_limit_increase_request_7392": "match"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "057",
+   "simtag": "task_057#s626729",
+   "reward": 0.0,
+   "miss": [
+    "057_4",
+    "057_6"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "deposit_check_3847": "miss",
+    "open_bank_account_4821": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "063",
+   "simtag": "task_063#s626729",
+   "reward": 0.0,
+   "miss": [
+    "063_0",
+    "063_3"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "miss",
+    "apply_for_credit_card": "match",
+    "open_bank_account_4821": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "079",
+   "simtag": "task_079#s626729",
+   "reward": 0.0,
+   "miss": [
+    "079_3",
+    "079_4",
+    "079_5",
+    "079_9c",
+    "079_9d",
+    "079_9e",
+    "079_11",
+    "079_12",
+    "079_13",
+    "079_17",
+    "079_18"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "order_debit_card_5739": "miss",
+    "unfreeze_debit_card_3893": "miss",
+    "log_verification": "match",
+    "freeze_debit_card_3892": "miss",
+    "close_debit_card_4721": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "085",
+   "simtag": "task_085#s626729",
+   "reward": 0.0,
+   "miss": [
+    "085_6",
+    "085_7",
+    "085_9"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "file_debit_card_transaction_dispute_6281": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "098",
+   "simtag": "task_098#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_referral": "match"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "016",
+   "simtag": "task_016#s373753",
+   "reward": 0.0,
+   "miss": [
+    "016_1"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_transaction": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "040",
+   "simtag": "task_040#s373753",
+   "reward": 0.0,
+   "miss": [
+    "040_7",
+    "040_8",
+    "040_9",
+    "040_10",
+    "040_11",
+    "040_12",
+    "040_13",
+    "040_14"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "file_credit_card_transaction_dispute_4829": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "050",
+   "simtag": "task_050#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "approve_credit_limit_increase_5847": "match",
+    "submit_credit_limit_increase_request_7392": "match"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "057",
+   "simtag": "task_057#s373753",
+   "reward": 0.0,
+   "miss": [
+    "057_6"
+   ],
+   "wrong": [
+    "open_bank_account_4821"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "deposit_check_3847": "miss",
+    "open_bank_account_4821": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "063",
+   "simtag": "task_063#s373753",
+   "reward": 0.0,
+   "miss": [
+    "063_1",
+    "063_3"
+   ],
+   "wrong": [
+    "apply_for_credit_card",
+    "open_bank_account_4821"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_for_credit_card": "wrong",
+    "open_bank_account_4821": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "074",
+   "simtag": "task_074#s373753",
+   "reward": 0.0,
+   "miss": [
+    "074_0",
+    "074_9",
+    "074_10",
+    "074_11",
+    "074_12"
+   ],
+   "wrong": [
+    "log_verification"
+   ],
+   "tool_outcome": {
+    "log_verification": "wrong",
+    "apply_checking_account_credit_5829": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "085",
+   "simtag": "task_085#s373753",
+   "reward": 0.0,
+   "miss": [
+    "085_6",
+    "085_7",
+    "085_9"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "file_debit_card_transaction_dispute_6281": "miss"
+   }
+  },
+  {
+   "run": "bank_t7336_halfB_20260821b",
+   "task": "098",
+   "simtag": "task_098#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_referral": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "003",
+   "simtag": "task_003#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_for_credit_card": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "017",
+   "simtag": "task_017#s626729",
+   "reward": 0.0,
+   "miss": [
+    "017_2",
+    "017_3"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_cash_back_dispute_0589": "miss"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "024",
+   "simtag": "task_024#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_for_credit_card": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "055",
+   "simtag": "task_055#s626729",
+   "reward": 0.0,
+   "miss": [
+    "055_4",
+    "055_5",
+    "055_7"
+   ],
+   "wrong": [
+    "deposit_check_3847",
+    "open_bank_account_4821"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "deposit_check_3847": "wrong",
+    "open_bank_account_4821": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "072",
+   "simtag": "task_072#s626729",
+   "reward": 0.0,
+   "miss": [
+    "072_7",
+    "072_8"
+   ],
+   "wrong": [
+    "apply_checking_account_credit_5829"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "073",
+   "simtag": "task_073#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "093",
+   "simtag": "task_093#s626729",
+   "reward": 0.0,
+   "miss": [
+    "093_6"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_savings_account_credit_6831": "miss",
+    "log_verification": "match",
+    "submit_interest_discrepancy_report_7294": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "094",
+   "simtag": "task_094#s626729",
+   "reward": 0.0,
+   "miss": [
+    "094_6",
+    "094_8"
+   ],
+   "wrong": [
+    "apply_savings_account_credit_6831",
+    "submit_interest_discrepancy_report_7294"
+   ],
+   "tool_outcome": {
+    "apply_savings_account_credit_6831": "wrong",
+    "log_verification": "match",
+    "submit_interest_discrepancy_report_7294": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "100",
+   "simtag": "task_100#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_referral": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "003",
+   "simtag": "task_003#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_for_credit_card": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "017",
+   "simtag": "task_017#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_cash_back_dispute_0589": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "024",
+   "simtag": "task_024#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_for_credit_card": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "055",
+   "simtag": "task_055#s373753",
+   "reward": 0.0,
+   "miss": [
+    "055_5",
+    "055_7"
+   ],
+   "wrong": [
+    "deposit_check_3847",
+    "open_bank_account_4821"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "deposit_check_3847": "wrong",
+    "open_bank_account_4821": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "072",
+   "simtag": "task_072#s373753",
+   "reward": 0.0,
+   "miss": [
+    "072_7"
+   ],
+   "wrong": [
+    "apply_checking_account_credit_5829"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "073",
+   "simtag": "task_073#s373753",
+   "reward": 0.0,
+   "miss": [
+    "073_8",
+    "073_9"
+   ],
+   "wrong": [
+    "apply_checking_account_credit_5829"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "093",
+   "simtag": "task_093#s373753",
+   "reward": 0.0,
+   "miss": [
+    "093_6"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_savings_account_credit_6831": "miss",
+    "log_verification": "match",
+    "submit_interest_discrepancy_report_7294": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "094",
+   "simtag": "task_094#s373753",
+   "reward": 0.0,
+   "miss": [
+    "094_6",
+    "094_8"
+   ],
+   "wrong": [
+    "apply_savings_account_credit_6831",
+    "submit_interest_discrepancy_report_7294"
+   ],
+   "tool_outcome": {
+    "apply_savings_account_credit_6831": "wrong",
+    "log_verification": "match",
+    "submit_interest_discrepancy_report_7294": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfA_20260822",
+   "task": "100",
+   "simtag": "task_100#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_referral": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "016",
+   "simtag": "task_016#s626729",
+   "reward": 0.0,
+   "miss": [
+    "016_1"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_transaction": "miss"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "040",
+   "simtag": "task_040#s626729",
+   "reward": 0.0,
+   "miss": [
+    "040_7",
+    "040_8",
+    "040_9",
+    "040_10",
+    "040_11",
+    "040_12",
+    "040_13",
+    "040_14"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "file_credit_card_transaction_dispute_4829": "miss"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "050",
+   "simtag": "task_050#s626729",
+   "reward": 0.0,
+   "miss": [
+    "050_2"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "approve_credit_limit_increase_5847": "match",
+    "submit_credit_limit_increase_request_7392": "miss"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "057",
+   "simtag": "task_057#s626729",
+   "reward": 0.0,
+   "miss": [
+    "057_4",
+    "057_6"
+   ],
+   "wrong": [
+    "open_bank_account_4821"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "deposit_check_3847": "miss",
+    "open_bank_account_4821": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "063",
+   "simtag": "task_063#s626729",
+   "reward": 0.0,
+   "miss": [
+    "063_1",
+    "063_3"
+   ],
+   "wrong": [
+    "apply_for_credit_card",
+    "open_bank_account_4821"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_for_credit_card": "wrong",
+    "open_bank_account_4821": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "074",
+   "simtag": "task_074#s626729",
+   "reward": 0.0,
+   "miss": [
+    "074_9",
+    "074_10",
+    "074_11",
+    "074_12"
+   ],
+   "wrong": [
+    "apply_checking_account_credit_5829"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "079",
+   "simtag": "task_079#s626729",
+   "reward": 0.0,
+   "miss": [
+    "079_17",
+    "079_18"
+   ],
+   "wrong": [
+    "order_debit_card_5739"
+   ],
+   "tool_outcome": {
+    "order_debit_card_5739": "wrong",
+    "unfreeze_debit_card_3893": "match",
+    "log_verification": "match",
+    "freeze_debit_card_3892": "match",
+    "close_debit_card_4721": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "085",
+   "simtag": "task_085#s626729",
+   "reward": 0.0,
+   "miss": [
+    "085_6",
+    "085_7",
+    "085_9"
+   ],
+   "wrong": [
+    "file_debit_card_transaction_dispute_6281"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "file_debit_card_transaction_dispute_6281": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "098",
+   "simtag": "task_098#s626729",
+   "reward": 0.0,
+   "miss": [
+    "098_2"
+   ],
+   "wrong": [
+    "submit_referral"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_referral": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "016",
+   "simtag": "task_016#s373753",
+   "reward": 0.0,
+   "miss": [
+    "016_1"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_transaction": "miss"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "040",
+   "simtag": "task_040#s373753",
+   "reward": 0.0,
+   "miss": [
+    "040_7",
+    "040_8",
+    "040_9",
+    "040_10",
+    "040_11",
+    "040_12",
+    "040_13",
+    "040_14"
+   ],
+   "wrong": [
+    "file_credit_card_transaction_dispute_4829"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "file_credit_card_transaction_dispute_4829": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "050",
+   "simtag": "task_050#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "approve_credit_limit_increase_5847": "match",
+    "submit_credit_limit_increase_request_7392": "match"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "063",
+   "simtag": "task_063#s373753",
+   "reward": 0.0,
+   "miss": [
+    "063_1",
+    "063_3"
+   ],
+   "wrong": [
+    "apply_for_credit_card"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_for_credit_card": "wrong",
+    "open_bank_account_4821": "miss"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "074",
+   "simtag": "task_074#s373753",
+   "reward": 0.0,
+   "miss": [
+    "074_9",
+    "074_10",
+    "074_11",
+    "074_12"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "miss"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "079",
+   "simtag": "task_079#s373753",
+   "reward": 0.0,
+   "miss": [
+    "079_3",
+    "079_4",
+    "079_5",
+    "079_9c",
+    "079_9d",
+    "079_9e",
+    "079_11",
+    "079_12",
+    "079_13",
+    "079_17",
+    "079_18"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "order_debit_card_5739": "miss",
+    "unfreeze_debit_card_3893": "miss",
+    "log_verification": "match",
+    "freeze_debit_card_3892": "miss",
+    "close_debit_card_4721": "miss"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "085",
+   "simtag": "task_085#s373753",
+   "reward": 0.0,
+   "miss": [
+    "085_6",
+    "085_7",
+    "085_9"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "file_debit_card_transaction_dispute_6281": "miss"
+   }
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "task": "098",
+   "simtag": "task_098#s373753",
+   "reward": 0.0,
+   "miss": [
+    "098_2"
+   ],
+   "wrong": [
+    "submit_referral"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_referral": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "003",
+   "simtag": "task_003#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_for_credit_card": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "017",
+   "simtag": "task_017#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_cash_back_dispute_0589": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "024",
+   "simtag": "task_024#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_for_credit_card": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "055",
+   "simtag": "task_055#s626729",
+   "reward": 0.0,
+   "miss": [
+    "055_4",
+    "055_5",
+    "055_7"
+   ],
+   "wrong": [
+    "deposit_check_3847",
+    "open_bank_account_4821"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "deposit_check_3847": "wrong",
+    "open_bank_account_4821": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "072",
+   "simtag": "task_072#s626729",
+   "reward": 0.0,
+   "miss": [
+    "072_7",
+    "072_8"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "miss"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "073",
+   "simtag": "task_073#s626729",
+   "reward": 0.0,
+   "miss": [
+    "073_8",
+    "073_9",
+    "073_10"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "miss"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "093",
+   "simtag": "task_093#s626729",
+   "reward": 0.0,
+   "miss": [
+    "093_6",
+    "093_8"
+   ],
+   "wrong": [
+    "apply_savings_account_credit_6831",
+    "submit_interest_discrepancy_report_7294"
+   ],
+   "tool_outcome": {
+    "apply_savings_account_credit_6831": "wrong",
+    "log_verification": "match",
+    "submit_interest_discrepancy_report_7294": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "094",
+   "simtag": "task_094#s626729",
+   "reward": 0.0,
+   "miss": [
+    "094_6",
+    "094_8"
+   ],
+   "wrong": [
+    "apply_savings_account_credit_6831",
+    "submit_interest_discrepancy_report_7294"
+   ],
+   "tool_outcome": {
+    "apply_savings_account_credit_6831": "wrong",
+    "log_verification": "match",
+    "submit_interest_discrepancy_report_7294": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "100",
+   "simtag": "task_100#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_referral": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "003",
+   "simtag": "task_003#s373753",
+   "reward": 0.0,
+   "miss": [
+    "003_0"
+   ],
+   "wrong": [
+    "apply_for_credit_card"
+   ],
+   "tool_outcome": {
+    "apply_for_credit_card": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "017",
+   "simtag": "task_017#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_cash_back_dispute_0589": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "024",
+   "simtag": "task_024#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_for_credit_card": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "055",
+   "simtag": "task_055#s373753",
+   "reward": 0.0,
+   "miss": [
+    "055_4",
+    "055_5",
+    "055_7"
+   ],
+   "wrong": [
+    "open_bank_account_4821"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "deposit_check_3847": "miss",
+    "open_bank_account_4821": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "072",
+   "simtag": "task_072#s373753",
+   "reward": 0.0,
+   "miss": [
+    "072_8"
+   ],
+   "wrong": [
+    "apply_checking_account_credit_5829"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "073",
+   "simtag": "task_073#s373753",
+   "reward": 0.0,
+   "miss": [
+    "073_8",
+    "073_9"
+   ],
+   "wrong": [
+    "apply_checking_account_credit_5829"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "093",
+   "simtag": "task_093#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "apply_savings_account_credit_6831": "match",
+    "log_verification": "match",
+    "submit_interest_discrepancy_report_7294": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "094",
+   "simtag": "task_094#s373753",
+   "reward": 0.0,
+   "miss": [
+    "094_6",
+    "094_8"
+   ],
+   "wrong": [
+    "submit_interest_discrepancy_report_7294"
+   ],
+   "tool_outcome": {
+    "apply_savings_account_credit_6831": "miss",
+    "log_verification": "match",
+    "submit_interest_discrepancy_report_7294": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "100",
+   "simtag": "task_100#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_referral": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "task": "016",
+   "simtag": "task_016#s626729",
+   "reward": 0.0,
+   "miss": [
+    "016_1"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_transaction": "miss"
+   }
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "task": "040",
+   "simtag": "task_040#s626729",
+   "reward": 0.0,
+   "miss": [
+    "040_7",
+    "040_8",
+    "040_9",
+    "040_10",
+    "040_11",
+    "040_12",
+    "040_13",
+    "040_14"
+   ],
+   "wrong": [
+    "file_credit_card_transaction_dispute_4829"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "file_credit_card_transaction_dispute_4829": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "task": "050",
+   "simtag": "task_050#s626729",
+   "reward": 0.0,
+   "miss": [
+    "050_2",
+    "050_12"
+   ],
+   "wrong": [
+    "approve_credit_limit_increase_5847",
+    "submit_credit_limit_increase_request_7392"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "approve_credit_limit_increase_5847": "wrong",
+    "submit_credit_limit_increase_request_7392": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "task": "057",
+   "simtag": "task_057#s626729",
+   "reward": 0.0,
+   "miss": [
+    "057_4",
+    "057_6"
+   ],
+   "wrong": [
+    "open_bank_account_4821"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "deposit_check_3847": "miss",
+    "open_bank_account_4821": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "task": "063",
+   "simtag": "task_063#s626729",
+   "reward": 0.0,
+   "miss": [
+    "063_3"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_for_credit_card": "match",
+    "open_bank_account_4821": "miss"
+   }
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "task": "074",
+   "simtag": "task_074#s626729",
+   "reward": 0.0,
+   "miss": [
+    "074_9",
+    "074_10",
+    "074_11",
+    "074_12"
+   ],
+   "wrong": [
+    "apply_checking_account_credit_5829"
+   ],
+   "tool_outcome": {
+    "log_verification": "match",
+    "apply_checking_account_credit_5829": "wrong"
+   }
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "task": "085",
+   "simtag": "task_085#s626729",
+   "reward": 0.0,
+   "miss": [
+    "085_6",
+    "085_7",
+    "085_9"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "file_debit_card_transaction_dispute_6281": "miss"
+   }
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "task": "098",
+   "simtag": "task_098#s626729",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_referral": "match"
+   }
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "task": "016",
+   "simtag": "task_016#s373753",
+   "reward": 0.0,
+   "miss": [
+    "016_1"
+   ],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "submit_transaction": "miss"
+   }
+  },
+  {
+   "run": "bank_t7348_halfBpartial14_20260824",
+   "task": "050",
+   "simtag": "task_050#s373753",
+   "reward": 1.0,
+   "miss": [],
+   "wrong": [],
+   "tool_outcome": {
+    "log_verification": "match",
+    "approve_credit_limit_increase_5847": "match",
+    "submit_credit_limit_increase_request_7392": "match"
+   }
+  }
+ ]
+}
