@@ -384,6 +384,11 @@ export T2_REQUIRE_DOC_DELIVER_MAX=90000   # 배달 상한 자수(x465 --maxchars
 #   구판 anti-clobber 는 **≥10k자만** 구제해 243자는 못 잡는다. 켜면 크기 무관 이어붙임.
 #   ⚠기본 0 인 이유 = 소형↔소형까지 바뀌어 ctl 바이트가 달라진다. **켜기 전에 손해도 재라**([[70]]).
 export T2_CP2_QUEUE=0
+# ★T2_CP2_KEEP_SURE (2026-08-24·기본 **0**·`_qcross` 의 거울): 확실히 배달될 소형 미소비 배달물이
+#   가드 검사 대상(≥5,000자) 대형에게 밀려 죽는 것을 막는다. 실물 057#s373753 = 247→247→87,407자가
+#   clobber·clobber·ctx_skip 으로 **셋 다 소실**. t7348 전량 clobber 10 · ctx_skip 1.
+#   ctl 바이트가 달라지므로 측정 전에는 켜지 않는다([[70]]).
+export T2_CP2_KEEP_SURE=0
 export T2_CP2_APPEND_MAX=90000            # 이어붙임 총량 상한(초과 시 종전대로 덮어쓰되 로그로 남긴다)
 
 # ── ★死배선 2건 등재 (2026-08-07·`t2_levers.py --audit_declared`가 검출) ───────

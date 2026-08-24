@@ -4995,6 +4995,22 @@ def _cp2_assign(self, text, tag):
                    and _prev and len(_prev) + len(text) + 2 >= _CP2_GUARD_MIN)
     _qok = bool(_queue and _prev and _prev != text and text and not _big and not _qcross
                 and len(_prev) + len(text) + 2 <= _cap)                     # 큐 구제(상한 있음)
+    # ★`_qcross` 의 **거울** (2026-08-24 · P1-B 실측): 기존 가드는 *작은 것이 합쳐서 문턱을 넘는*
+    #   경우만 막는다. 반대 방향이 안 막혀 있다 — **확실히 배달될 소형**이 **검사를 받게 될 대형**에
+    #   밀려 죽고, 그 대형마저 창 초과로 버려진다. 실물 057#s373753(t7348):
+    #     turn1 247자 → turn9 clobbered · turn9 247자 → turn11 clobbered
+    #     turn11 **87,407자** → turn19 `ctx_skip`      ⇒ 세 배달물 **전부 소실 · 모델은 못 받았다**
+    #   `_prev < _CP2_GUARD_MIN` 은 소비 지점 가드가 **검사조차 안 하는** 크기라 반드시 배달된다.
+    #   그것을 `>= _CP2_GUARD_MIN` 인 것과 바꾸는 것은 **확실한 배달을 불확실한 배달과 맞바꾸는 것**
+    #   이고, 그 국면에서는 들어온 쪽을 버리는 편이 언제나 배달량이 많다.
+    #   ⚠[[70]]: 파는 것 = 그 대형 배달물. 단 그것은 창 초과면 어차피 버려진다(그 자리가 `ctx_skip`).
+    #     ctl 바이트가 달라지므로 **기본 OFF**·측정 후 승격한다(큐 플래그의 선례 그대로).
+    _keep_sure = os.environ.get("T2_CP2_KEEP_SURE") == "1"
+    if (_keep_sure and _prev and text and _prev != text and not _big and not _qok
+            and len(_prev) < _CP2_GUARD_MIN <= len(text)):
+        print("[T2_CP2_KEEP] %s: 확실한 미소비 %d자를 지키고 들어온 %d자(가드 검사 대상)를 버린다"
+              % (tag, len(_prev), len(text)), file=sys.stderr, flush=True)
+        return
     if _big:
         # 문구도 구판 축자 그대로 — 과거 런 로그를 grep 하는 포렌식이 둘을 다 받게 하지 않는다.
         print("[T2_CP2_APPEND] %s: 미소비 대용량 %d자 뒤에 %d자 이어붙임"
