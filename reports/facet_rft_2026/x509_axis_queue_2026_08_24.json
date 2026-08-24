@@ -94,6 +94,13 @@
     "057",
     "063"
    ]
+  },
+  "status_2026_08_24_pm": {
+   "note": "★단독 기여가 있는 세 축이 **전부 측정됐고 라이브 수리가 없다**. 이 표의 `marginal_alone` 은 *축이 풀리면* 몇을 사는지이지 *우리가 풀 수 있는지*가 아니다.",
+   "①금액": "072 반증 = 우리 층 **부정적 CONFIRMED 0**(유일한 축-직결은 **양성**) · x510 레버 프로파일 동일 · x511 격리 8/8 ⇒ 잔여는 부하. **수리 대상 없음**",
+   "②범주": "x512 경계 판정 철회 · x513 표를 줘도 057·063 **0/6** · 055 처방은 C509/C510 이 이미 폐기 ⇒ **x502 표 감사가 선행**",
+   "⑦유도": "x516(후보집합)·x517(질문 프레임) **둘 다 gold 0/39** ⇒ **경로 없음**",
+   "bottom_line": "3런 · 11 태스크 반증(주장 73) · 격리 4종 후, **hard-0 에서 우리 층 수리로 살 수 있는 태스크 = 0**."
   }
  },
  "steps": [
@@ -194,8 +201,8 @@
   },
   {
    "id": "S3",
-   "state": "BLOCKED",
-   "title": "⑦유도 수리 — ⛔후보집합 가설 기각(x516). 결손은 질문의 프레임이다",
+   "state": "CLOSED",
+   "title": "⑦유도 — ⛔두 가설 모두 기각(x516·x517). 이 경로로는 016 을 못 산다",
    "target": "016 단독 · (②와 함께면 057·063 추가)",
    "gate": "S1 이 ⓐ/ⓑ/ⓒ 중 하나를 축자 근거로 확정한 뒤에만 착수. 확정 없이 구현 금지.",
    "exit": "단위 검정 + 라이브 발화 확인. **표적 태스크 수를 x509 축표에서 인용**해 커밋에 적는다.",
@@ -210,12 +217,20 @@
      "read": "이름을 빼면 서브는 gold `submit_transaction` 으로 가지 않고 **에이전트 디스패처로** 간다(38/39)."
     },
     "why": "★`formalize_intent_tool` 의 물음이 **에이전트-프레임**이다 — *\"which ONE of these tools must the agent CALL\"*. `submit_transaction` 은 손님-실행 도구이므로 그 물음의 옳은 답이 **될 수 없다**. 결손은 후보집합이 아니라 **질문의 프레임**이다. 소비부가 그 답을 executor 측으로 라우팅하는 배치와 합쳐져 073 OL-A·055 의 오바인딩이 된다.",
-    "consequence": "S3 을 '폴백 제거'로 좁게 구현하면 **거동만 바뀌고 성적은 안 산다** — t7348 이 태운 그 실수다. R1 은 [[64]]/T1(사실 모순) 위생으로는 여전히 옳지만 **매수 근거로 인용하지 마라**.",
+    "consequence": "⑦유도 축은 **이 경로로는 016 을 못 산다** — 큐에서 내린다. R1(`UNKNOWN→user` 폴백 제거)은 [[64]]/T1 위생으로 여전히 옳고 재생에서 파는 것 0 이지만 **매수 근거로 인용 금지**(반사실 미충족).",
     "next": "S3b — 모드-무관 질문(*\"must be EXECUTED\"*)으로 같은 격리를 다시 잰다. 케이스 열거가 아니라 일반 어법 교체라 [[66]] 에 안 걸린다. 그것이 gold 를 사면 사용자 제안(`call_form` 분리)의 근거가 실측으로 선다.",
     "records": [
      "x515_replay_gate_2026_08_24.json",
      "x516_induction_target_iso_2026_08_24.json"
-    ]
+    ],
+    "s3b_isolation_x517": {
+     "design": "후보집합 **세 팔 동일** · 문장만 교체. 정본 `formalize_intent_tool` 에 `ask` 인자 신설(기본값 바이트 동일 = 라이브 거동 불변).",
+     "A_agent": "gold **0/39** · submit_referral×24 · call_disc_agent×15  ← x516 의 A 를 정확히 재현(계기 생존 확인)",
+     "C_neutral": "gold **0/39** · submit_referral×23 · call_disc_agent×16   (*\"must be EXECUTED … by the agent, or by the customer themselves\"*)",
+     "N_word": "gold **0/39** · submit_referral×29 · call_disc_agent×10   (에이전트-프레임 유지·어휘만 교체)",
+     "verdict": "⛔**프레임 가설도 기각.** 세 팔 전부 gold 0."
+    },
+    "why_it_was_never_this_layer": "016 gold 축자: `016_1 requestor=user submit_transaction {user_id: friend_user_5839, credit_card_type: Silver Rewards Card, merchant_name: Best Buy, amount: 750, category: Shopping}` — 즉 **손님이 아니라 그 친구**가 750달러를 써야 추천이 자격을 얻는다. 손님(Oluwaseun)은 *추천 상태*를 묻고 있을 뿐이다. 그런데 `formalize_intent_tool` 의 정의는 *\"Based ONLY on what the user asked\"* 이고 입력도 **손님 발화 6개**뿐이다 ⇒ 이 산출은 **원리상 나올 수 없다**. 서브가 고장난 게 아니라 **정의 밖의 일을 시킨 것**이다. 필요한 것은 의도 재진술이 아니라 **정책 유도**(추천 자격 조건)이고 그 재료는 이 서브에 들어가지 않는다."
    }
   },
   {
