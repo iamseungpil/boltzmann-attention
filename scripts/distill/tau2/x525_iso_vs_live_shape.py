@@ -138,6 +138,32 @@ def main():
                              json.dumps(ref, ensure_ascii=False, indent=1) +
                              "\n\n# Field contract\ntransactions: " + params +
                              "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text}]
+                elif arm == "M_reflast":
+                    # ★기전 이등분 ⑵ 위치 (2026-08-25): `D_all` 과 **REFERENCE 위치만** 다르다.
+                    #   블록을 원장 뒤로 보낸다 — 커버리지가 돌아오면 원인은 *존재*가 아니라 *자리*다.
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n# Field contract\ntransactions: " + params +
+                             "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text +
+                             "\n\n=== REFERENCE ===\n" +
+                             json.dumps(ref, ensure_ascii=False, indent=1)}]
+                elif arm == "M_refneutral":
+                    # ★기전 이등분 ⑶ 앵커링: 같은 값을 두되 **키 이름만** 중립으로 바꾼다.
+                    #   `account_id` 는 *"이것과 매칭하라"* 는 선택 연산으로 읽힐 수 있다.
+                    _neutral = {"context": list(ref.values())[0] if ref else ""}
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n=== REFERENCE ===\n" +
+                             json.dumps(_neutral, ensure_ascii=False, indent=1) +
+                             "\n\n# Field contract\ntransactions: " + params +
+                             "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text}]
+                elif arm == "M_refplain":
+                    # ★기전 이등분 ⑷ 형식 모방: 같은 정보를 **JSON 이 아니라 한 문장**으로.
+                    #   두 번째 JSON 블록이 출력을 '매칭 요약' 형태로 흉내 내게 하는가.
+                    _plain = ("The records below are the transaction history of account %s."
+                              % (list(ref.values())[0] if ref else "?"))
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n" + _plain +
+                             "\n\n# Field contract\ntransactions: " + params +
+                             "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text}]
                 elif arm == "L_closeask":
                     # ★배선 가능한 형태 (2026-08-25): `I_noref` 가 chk_2 를 닫았지만(cover 16/16)
                     #   라이브는 REFERENCE 로 계좌를 지정해야 getter 를 부른다 — 통째로 뺄 수 없다.
