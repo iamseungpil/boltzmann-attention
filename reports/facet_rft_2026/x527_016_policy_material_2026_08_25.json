@@ -1,0 +1,255 @@
+{
+ "probe": "x527",
+ "date": "2026-08-25",
+ "task": "task_016",
+ "gold": "submit_transaction",
+ "n_windows": 24,
+ "arms": [
+  "A_asis",
+  "B_policy",
+  "C_neutral",
+  "N_sham"
+ ],
+ "tally": {
+  "A_asis": {
+   "submit_referral": 16,
+   "call_discoverable_agent_tool": 8
+  },
+  "B_policy": {
+   "submit_referral": 18,
+   "call_discoverable_agent_tool": 6
+  },
+  "C_neutral": {
+   "submit_referral": 19,
+   "call_discoverable_agent_tool": 5
+  },
+  "N_sham": {
+   "submit_referral": 13,
+   "call_discoverable_agent_tool": 9,
+   "None": 2
+  }
+ },
+ "rows": [
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 0,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 1,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 2,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 3,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 4,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 5,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 6,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "call_discoverable_agent_tool",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 7,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "call_discoverable_agent_tool",
+   "B_policy": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_sham": "call_discoverable_agent_tool"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 8,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "call_discoverable_agent_tool",
+   "B_policy": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_sham": "call_discoverable_agent_tool"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 9,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "call_discoverable_agent_tool",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  },
+  {
+   "simtag": "task_016#s373753",
+   "turn_k": 0,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  },
+  {
+   "simtag": "task_016#s373753",
+   "turn_k": 1,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "None"
+  },
+  {
+   "simtag": "task_016#s373753",
+   "turn_k": 2,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "None"
+  },
+  {
+   "simtag": "task_016#s373753",
+   "turn_k": 3,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "call_discoverable_agent_tool"
+  },
+  {
+   "simtag": "task_016#s373753",
+   "turn_k": 4,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "call_discoverable_agent_tool"
+  },
+  {
+   "simtag": "task_016#s373753",
+   "turn_k": 5,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "call_discoverable_agent_tool",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "call_discoverable_agent_tool"
+  },
+  {
+   "simtag": "task_016#s373753",
+   "turn_k": 6,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "submit_referral",
+   "B_policy": "call_discoverable_agent_tool",
+   "C_neutral": "submit_referral",
+   "N_sham": "call_discoverable_agent_tool"
+  },
+  {
+   "simtag": "task_016#s373753",
+   "turn_k": 7,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "call_discoverable_agent_tool",
+   "B_policy": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_sham": "call_discoverable_agent_tool"
+  },
+  {
+   "simtag": "task_016#s373753",
+   "turn_k": 8,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "call_discoverable_agent_tool",
+   "B_policy": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_sham": "call_discoverable_agent_tool"
+  },
+  {
+   "simtag": "task_016#s373753",
+   "turn_k": 9,
+   "run": "bank_t7348_halfB_20260824",
+   "A_asis": "call_discoverable_agent_tool",
+   "B_policy": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_sham": "call_discoverable_agent_tool"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 0,
+   "run": "bank_t7346_halfB_20260822",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 1,
+   "run": "bank_t7346_halfB_20260822",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 2,
+   "run": "bank_t7346_halfB_20260822",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  },
+  {
+   "simtag": "task_016#s626729",
+   "turn_k": 3,
+   "run": "bank_t7346_halfB_20260822",
+   "A_asis": "submit_referral",
+   "B_policy": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_sham": "submit_referral"
+  }
+ ],
+ "limits": [
+  "정책은 **손님 발화 자리**로 들어간다 — 이 함수에 다른 입구가 없다(그 사실이 결손이다).",
+  "창·후보집합은 x516 정본에서 그대로 온다(사본 0).",
+  "gold 는 채점에만 썼다([[23]])."
+ ]
+}
