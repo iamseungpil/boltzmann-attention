@@ -1,0 +1,786 @@
+[
+ {
+  "arm": "A_cur",
+  "menu_attrs": [
+   "apy",
+   "daily_atm_withdrawal_limit",
+   "foreign_currency_holding",
+   "foreign_transaction_fee",
+   "free_oon_atm_per_month",
+   "max_age",
+   "min_age",
+   "monthly_deposit_limit",
+   "monthly_maintenance_fee",
+   "oon_atm_fee",
+   "oon_atm_reimbursement",
+   "overdraft_fee",
+   "overdraft_protection_transfer_fee",
+   "paper_statement_fee",
+   "waiver_min_daily_balance",
+   "wire_transfer_fee"
+  ],
+  "choose": {
+   "A_names": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 11,
+    "gold_offered": true,
+    "picks": [
+     "Green Fee-Free Account",
+     "Green Fee-Free Account",
+     "Green Fee-Free Account",
+     "Green Fee-Free Account",
+     "Green Fee-Free Account",
+     "Green Fee-Free Account"
+    ]
+   },
+   "B_table": {
+    "gold": 6,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 11,
+    "gold_offered": true,
+    "picks": [
+     "Purple Account",
+     "Purple Account",
+     "Purple Account",
+     "Purple Account",
+     "Purple Account",
+     "Purple Account"
+    ]
+   },
+   "C_filtered": {
+    "gold": 6,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 11,
+    "gold_offered": true,
+    "picks": [
+     "Purple Account",
+     "Purple Account",
+     "Purple Account",
+     "Purple Account",
+     "Purple Account",
+     "Purple Account"
+    ]
+   },
+   "N_neg": {
+    "gold": 6,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 11,
+    "gold_offered": true,
+    "picks": [
+     "Purple Account",
+     "Purple Account",
+     "Purple Account",
+     "Purple Account",
+     "Purple Account",
+     "Purple Account"
+    ]
+   }
+  },
+  "family_from": "said",
+  "family_pick": "checking_accounts",
+  "n_scope": 11,
+  "task": "task_055",
+  "trial": 0,
+  "gold": "Purple Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 0,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 11,
+  "surv": [
+   "blue_account",
+   "bluest_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account"
+  ],
+  "undecidable": true,
+  "reask": false,
+  "n_rejected_first": 0,
+  "unsupported": [],
+  "declared_non_requirement": [
+   [
+    "oon_atm_reimbursement",
+    "question",
+    "Is there any option where you reimburse out-of-network / international ATM fees?"
+   ],
+   [
+    "foreign_transaction_fee",
+    "question",
+    "Also I really hate foreign transaction fees when I buy things abroad. Is there something without those?"
+   ],
+   [
+    "foreign_currency_holding",
+    "question",
+    "Oh—and sometimes I get paid in yen or euros. It would be nice if I could hold those currencies instead of converting immediately, if that’s a thing."
+   ],
+   [
+    "min_age",
+    "background",
+    "I’m 33, so not student/senior."
+   ],
+   [
+    "max_age",
+    "background",
+    "I’m 33, so not student/senior."
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": [
+   "purple_account"
+  ],
+  "pref_held": 4,
+  "pref_is_gold": true,
+  "gold_in": false,
+  "unique": false,
+  "spec": []
+ },
+ {
+  "arm": "A_cur",
+  "menu_attrs": [
+   "apy",
+   "daily_atm_withdrawal_limit",
+   "foreign_currency_holding",
+   "foreign_transaction_fee",
+   "free_oon_atm_per_month",
+   "max_age",
+   "min_age",
+   "monthly_deposit_limit",
+   "monthly_maintenance_fee",
+   "oon_atm_fee",
+   "oon_atm_reimbursement",
+   "overdraft_fee",
+   "overdraft_protection_transfer_fee",
+   "paper_statement_fee",
+   "waiver_min_daily_balance",
+   "wire_transfer_fee"
+  ],
+  "choose": {
+   "A_names": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 9,
+    "gold_offered": true,
+    "picks": [
+     "Gold Account",
+     "Gold Account",
+     "Gold Account",
+     "Gold Account",
+     "Gold Account",
+     "Gold Account"
+    ]
+   },
+   "B_table": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 9,
+    "gold_offered": true,
+    "picks": [
+     "Diamond Elite Account",
+     "Diamond Elite Account",
+     "Diamond Elite Account",
+     "Diamond Elite Account",
+     "Diamond Elite Account",
+     "Diamond Elite Account"
+    ]
+   },
+   "C_filtered": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 8,
+    "gold_offered": true,
+    "picks": [
+     "Green Account (Savings)",
+     "Gold Account",
+     "Gold Account",
+     "Gold Account",
+     "Gold Account",
+     "Green Account (Savings)"
+    ]
+   },
+   "N_neg": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 8,
+    "gold_offered": false,
+    "picks": [
+     "Diamond Elite Account",
+     "Diamond Elite Account",
+     "Diamond Elite Account",
+     "Diamond Elite Account",
+     "Diamond Elite Account",
+     "Diamond Elite Account"
+    ]
+   }
+  },
+  "family_from": "said",
+  "family_pick": "savings_accounts",
+  "n_scope": 9,
+  "task": "task_063",
+  "trial": 0,
+  "gold": "Silver Plus Account",
+  "objective": {
+   "mode": "argmax",
+   "terms": [
+    {
+     "attribute": "apy",
+     "times": 1,
+     "of_amount": 8000,
+     "sign": 1
+    }
+   ]
+  },
+  "scores": {
+   "diamond_elite_account": 600.0,
+   "gold_account": 440.0,
+   "gold_plus_account": 480.0,
+   "green_account_(savings)": 320.0,
+   "platinum_account": 520.0,
+   "platinum_plus_account": 560.0,
+   "silver_account": 200.0,
+   "silver_plus_account": 3.0
+  },
+  "n_constraints": 2,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 8,
+  "surv": [
+   "diamond_elite_account",
+   "gold_account",
+   "gold_plus_account",
+   "green_account_(savings)",
+   "platinum_account",
+   "platinum_plus_account",
+   "silver_account",
+   "silver_plus_account"
+  ],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "unsupported": [],
+  "declared_non_requirement": [
+   [
+    "paper_statement_fee",
+    "question",
+    "is there any fee for that?"
+   ]
+  ],
+  "winner": [
+   "diamond_elite_account"
+  ],
+  "winner_is_gold": false,
+  "pref_best": [
+   "green_account_(savings)",
+   "silver_account",
+   "silver_plus_account"
+  ],
+  "pref_held": 0,
+  "pref_is_gold": true,
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "apy",
+    "op": "exists",
+    "value": null,
+    "because": "I’m trying to maximize the return—even a $10–15 difference matters.",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "paper_statement_fee",
+    "op": "==",
+    "value": 0,
+    "because": "Absolutely need paper statements mailed to me",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "arm": "A_cur",
+  "menu_attrs": [
+   "apy",
+   "daily_atm_withdrawal_limit",
+   "foreign_currency_holding",
+   "foreign_transaction_fee",
+   "free_oon_atm_per_month",
+   "max_age",
+   "min_age",
+   "monthly_deposit_limit",
+   "monthly_maintenance_fee",
+   "oon_atm_fee",
+   "oon_atm_reimbursement",
+   "overdraft_fee",
+   "overdraft_protection_transfer_fee",
+   "paper_statement_fee",
+   "waiver_min_daily_balance",
+   "wire_transfer_fee"
+  ],
+  "choose": {
+   "A_names": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 11,
+    "gold_offered": true,
+    "picks": [
+     "Green Fee-Free Account",
+     "Green Fee-Free Account",
+     "Green Fee-Free Account",
+     "Green Fee-Free Account",
+     "Green Fee-Free Account",
+     "Green Fee-Free Account"
+    ]
+   },
+   "B_table": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 11,
+    "gold_offered": true,
+    "picks": [
+     "Light Blue Account",
+     "Light Blue Account",
+     "Light Blue Account",
+     "Light Blue Account",
+     "Light Blue Account",
+     "Light Blue Account"
+    ]
+   },
+   "C_filtered": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 11,
+    "gold_offered": true,
+    "picks": [
+     "Light Blue Account",
+     "Light Blue Account",
+     "Light Blue Account",
+     "Light Blue Account",
+     "Light Blue Account",
+     "Light Blue Account"
+    ]
+   },
+   "N_neg": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 11,
+    "gold_offered": true,
+    "picks": [
+     "Light Blue Account",
+     "Light Blue Account",
+     "Light Blue Account",
+     "Light Blue Account",
+     "Light Blue Account",
+     "Light Blue Account"
+    ]
+   }
+  },
+  "family_from": "said",
+  "family_pick": "checking_accounts",
+  "n_scope": 11,
+  "task": "task_057",
+  "trial": 1,
+  "gold": "Blue Account",
+  "objective": {
+   "mode": "argmin",
+   "terms": [
+    {
+     "attribute": "oon_atm_fee",
+     "times": 3,
+     "of_amount": null,
+     "sign": 1
+    },
+    {
+     "attribute": "monthly_maintenance_fee",
+     "times": 1,
+     "of_amount": null,
+     "sign": 1
+    }
+   ]
+  },
+  "scores": {
+   "blue_account": 23.0,
+   "bluest_account": 81.0,
+   "dark_green_account": 13.0,
+   "evergreen_account": 9.0,
+   "gold_years_account": 0.0,
+   "green_account_(checking)": 31.5,
+   "green_fee-free_account": 22.5,
+   "light_blue_account": 7.5,
+   "light_green_account": 4.5,
+   "purple_account": 22.5
+  },
+  "n_constraints": 1,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 11,
+  "surv": [
+   "blue_account",
+   "bluest_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account"
+  ],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "unsupported": [],
+  "declared_non_requirement": [
+   [
+    "waiver_min_daily_balance",
+    "question",
+    "I can usually keep like $500–$700 in the account—would that avoid monthly fees?"
+   ],
+   [
+    "overdraft_protection_transfer_fee",
+    "question",
+    "I want a safety net: can I link a savings account for automatic overdraft protection transfers?"
+   ]
+  ],
+  "winner": [
+   "gold_years_account"
+  ],
+  "winner_is_gold": false,
+  "pref_best": [
+   "blue_account"
+  ],
+  "pref_held": 5,
+  "pref_is_gold": true,
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "overdraft_fee",
+    "op": "==",
+    "value": 0,
+    "because": "Absolutely no overdraft fees (non-negotiable)",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "arm": "A_cur",
+  "menu_attrs": [
+   "apy",
+   "daily_atm_withdrawal_limit",
+   "foreign_currency_holding",
+   "foreign_transaction_fee",
+   "free_oon_atm_per_month",
+   "max_age",
+   "min_age",
+   "monthly_deposit_limit",
+   "monthly_maintenance_fee",
+   "oon_atm_fee",
+   "oon_atm_reimbursement",
+   "overdraft_fee",
+   "overdraft_protection_transfer_fee",
+   "paper_statement_fee",
+   "waiver_min_daily_balance",
+   "wire_transfer_fee"
+  ],
+  "choose": {
+   "A_names": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 11,
+    "gold_offered": true,
+    "picks": [
+     "Green Fee-Free Account",
+     "Green Fee-Free Account",
+     "Green Fee-Free Account",
+     "Green Fee-Free Account",
+     "Green Fee-Free Account",
+     "Green Fee-Free Account"
+    ]
+   },
+   "B_table": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 11,
+    "gold_offered": true,
+    "picks": [
+     "Evergreen Account",
+     "Evergreen Account",
+     "Evergreen Account",
+     "Evergreen Account",
+     "Evergreen Account",
+     "Light Blue Account"
+    ]
+   },
+   "C_filtered": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 11,
+    "gold_offered": true,
+    "picks": [
+     "Evergreen Account",
+     "Evergreen Account",
+     "Evergreen Account",
+     "Evergreen Account",
+     "Evergreen Account",
+     "Evergreen Account"
+    ]
+   },
+   "N_neg": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 11,
+    "gold_offered": true,
+    "picks": [
+     "Evergreen Account",
+     "Evergreen Account",
+     "Evergreen Account",
+     "Evergreen Account",
+     "Evergreen Account",
+     "Evergreen Account"
+    ]
+   }
+  },
+  "family_from": "said",
+  "family_pick": "checking_accounts",
+  "n_scope": 11,
+  "task": "task_057",
+  "trial": 0,
+  "gold": "Blue Account",
+  "objective": null,
+  "scores": {},
+  "n_constraints": 1,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 11,
+  "surv": [
+   "blue_account",
+   "bluest_account",
+   "checking_accounts_(general)",
+   "dark_green_account",
+   "evergreen_account",
+   "gold_years_account",
+   "green_account_(checking)",
+   "green_fee-free_account",
+   "light_blue_account",
+   "light_green_account",
+   "purple_account"
+  ],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "unsupported": [],
+  "declared_non_requirement": [
+   [
+    "waiver_min_daily_balance",
+    "question",
+    "I can usually keep around $500–$700 in the account. Would that be enough to avoid any monthly fee?"
+   ],
+   [
+    "monthly_maintenance_fee",
+    "question",
+    "Would that be enough to avoid any monthly fee?"
+   ],
+   [
+    "min_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ],
+   [
+    "max_age",
+    "background",
+    "Date of birth: 06/15/1994"
+   ]
+  ],
+  "winner": null,
+  "winner_is_gold": false,
+  "pref_best": [
+   "blue_account",
+   "evergreen_account",
+   "green_fee-free_account"
+  ],
+  "pref_held": 5,
+  "pref_is_gold": true,
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "overdraft_fee",
+    "op": "==",
+    "value": 0,
+    "because": "I need an account with absolutely no overdraft fees. That’s non-negotiable.",
+    "stated_as": "requirement"
+   }
+  ]
+ },
+ {
+  "arm": "A_cur",
+  "menu_attrs": [
+   "apy",
+   "daily_atm_withdrawal_limit",
+   "foreign_currency_holding",
+   "foreign_transaction_fee",
+   "free_oon_atm_per_month",
+   "max_age",
+   "min_age",
+   "monthly_deposit_limit",
+   "monthly_maintenance_fee",
+   "oon_atm_fee",
+   "oon_atm_reimbursement",
+   "overdraft_fee",
+   "overdraft_protection_transfer_fee",
+   "paper_statement_fee",
+   "waiver_min_daily_balance",
+   "wire_transfer_fee"
+  ],
+  "choose": {
+   "A_names": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 9,
+    "gold_offered": true,
+    "picks": [
+     "Silver Account",
+     "Silver Account",
+     "Silver Account",
+     "Silver Account",
+     "Silver Account",
+     "Silver Account"
+    ]
+   },
+   "B_table": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 9,
+    "gold_offered": true,
+    "picks": [
+     "Diamond Elite Account",
+     "Diamond Elite Account",
+     "Diamond Elite Account",
+     "Diamond Elite Account",
+     "Diamond Elite Account",
+     "Diamond Elite Account"
+    ]
+   },
+   "C_filtered": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 4,
+    "gold_offered": true,
+    "picks": [
+     "Green Account (Savings)",
+     "Green Account (Savings)",
+     "Green Account (Savings)",
+     "Green Account (Savings)",
+     "Green Account (Savings)",
+     "Green Account (Savings)"
+    ]
+   },
+   "N_neg": {
+    "gold": 0,
+    "n": 6,
+    "unparsed": 0,
+    "offered": 4,
+    "gold_offered": false,
+    "picks": [
+     "Bronze Account",
+     "Bronze Account",
+     "Bronze Account",
+     "Bronze Account",
+     "Bronze Account",
+     "Bronze Account"
+    ]
+   }
+  },
+  "family_from": "said",
+  "family_pick": "savings_accounts",
+  "n_scope": 9,
+  "task": "task_063",
+  "trial": 1,
+  "gold": "Silver Plus Account",
+  "objective": {
+   "mode": "argmax",
+   "terms": [
+    {
+     "attribute": "apy",
+     "times": 1,
+     "of_amount": 8000,
+     "sign": 1
+    }
+   ]
+  },
+  "scores": {
+   "bronze_account": 160.0,
+   "green_account_(savings)": 320.0,
+   "silver_account": 200.0,
+   "silver_plus_account": 3.0
+  },
+  "n_constraints": 2,
+  "n_rejected": 0,
+  "rejected": [],
+  "n_surv": 4,
+  "surv": [
+   "bronze_account",
+   "green_account_(savings)",
+   "silver_account",
+   "silver_plus_account"
+  ],
+  "undecidable": false,
+  "reask": false,
+  "n_rejected_first": 0,
+  "unsupported": [],
+  "declared_non_requirement": [],
+  "winner": [
+   "green_account_(savings)"
+  ],
+  "winner_is_gold": false,
+  "pref_best": null,
+  "pref_held": 0,
+  "pref_is_gold": false,
+  "gold_in": true,
+  "unique": false,
+  "spec": [
+   {
+    "attribute": "apy",
+    "op": "exists",
+    "value": null,
+    "because": "I’m trying to avoid comparing multiple accounts—just want the one that yields the absolute highest return.",
+    "stated_as": "requirement"
+   },
+   {
+    "attribute": "paper_statement_fee",
+    "op": "exists",
+    "value": null,
+    "because": "absolutely need paper statements mailed to me",
+    "stated_as": "requirement"
+   }
+  ]
+ }
+]
