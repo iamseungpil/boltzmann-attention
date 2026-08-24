@@ -138,6 +138,25 @@ def main():
                              json.dumps(ref, ensure_ascii=False, indent=1) +
                              "\n\n# Field contract\ntransactions: " + params +
                              "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text}]
+                elif arm == "L_closeask":
+                    # ★배선 가능한 형태 (2026-08-25): `I_noref` 가 chk_2 를 닫았지만(cover 16/16)
+                    #   라이브는 REFERENCE 로 계좌를 지정해야 getter 를 부른다 — 통째로 뺄 수 없다.
+                    #   그래서 **라이브 구조 그대로**(1라운드 REFERENCE + 도구 결과) 두고,
+                    #   `_isolate_fetch` 의 **마감 라운드**(도구 없는 마지막 생성)에서만 계약·형식을
+                    #   REFERENCE 없이 다시 묻는다. 이기면 수리는 그 마감 라운드 프롬프트 한 곳이다.
+                    msgs = [
+                        {"role": "user", "content":
+                         instr + "\n\n=== REFERENCE ===\n" +
+                         json.dumps(ref, ensure_ascii=False, indent=1) + "\n\n" + afmt},
+                        {"role": "assistant", "content": "",
+                         "tool_calls": [{"id": "c1", "type": "function",
+                                         "function": {"name": getter, "arguments": json.dumps(
+                                             {"agent_tool_name": "get_bank_account_transactions_9173",
+                                              "account_id": acc}, ensure_ascii=False)}}]},
+                        {"role": "tool", "tool_call_id": "c1", "content": text},
+                        {"role": "user", "content":
+                         instr + "\n\n# Field contract\ntransactions: " + params + "\n\n" + afmt},
+                    ]
                 elif arm == "J_both":
                     # ★단일 변수 팔이 전부 실패했으므로 **조합**을 친다 (2026-08-25):
                     #   이긴 팔 `A_probe` 는 라이브와 세 칸이 다르다 — ⑴REFERENCE 없음 ⑵요구가

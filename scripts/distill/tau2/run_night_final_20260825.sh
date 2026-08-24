@@ -19,7 +19,8 @@
 # ## 레인 B · hard-0 두 태스크 (8140)
 #   B1 x527 · **016** — 격리 음성이 재료 결손인가. 016 의 gold 는 *친구가 입금*해야 서는데
 #      그 조건은 정책 문서에 있고 서브 창은 손님 발화 6개뿐이다 ⇒ 답이 창에 원리상 없다.
-#   B2 x525 · **074 조합 팔**(J_both·K_paramslast) — 단일 변수 팔이 전부 실패했으므로
+#   B2 x525 · **074 배선 팔**(L_closeask = 라이브 구조 + 마감 라운드만 REFERENCE 제거) +
+#      조합 팔(J_both·K_paramslast) — 단일 변수 팔이 전부 실패했으므로
 #      이긴 팔과의 차이 셋을 함께 민다. **형식은 A2 선언 그대로 유지**해 이식 가능성을 지킨다.
 #   B3 x525 n=8 · A_probe·H_asklast·I_noref — 조합 팔의 대조군을 같은 n 으로 굳힌다.
 set -u
@@ -48,7 +49,7 @@ say "0. 대기 종료"
     --out "$REP/x527_016_policy_material_2026_08_25.json" > "$LOG/x527.log" 2>&1
   say "B1. rc=$?"
   say "B2. x525 · 074 조합 팔 (J_both·K_paramslast) n=6"
-  timeout 10800 $PY -u x525_iso_vs_live_shape.py --port 8140 --n 6 --arms J_both,K_paramslast \
+  timeout 10800 $PY -u x525_iso_vs_live_shape.py --port 8140 --n 6 --arms L_closeask,J_both,K_paramslast \
     --out "$REP/x525g_combo_2026_08_25.json" > "$LOG/x525g.log" 2>&1
   say "B2. rc=$?"
   say "B3. x525 · 대조군 n=6 (A_probe·H_asklast·I_noref)"
