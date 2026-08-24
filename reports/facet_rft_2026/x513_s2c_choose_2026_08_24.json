@@ -1,0 +1,53 @@
+{
+  "probe": "x513_s2c_choose",
+  "step": "x509 S2c — 걸러진 후보를 모델에게 되돌리면 gold 를 고르는가",
+  "date": "2026-08-24",
+  "design": "x431 에 고르기 팔 추가([[67]] 사본 금지). 엔진은 거르기만 하고 argmax 는 모델이 한다([[62]] ③). 프롬프트에 어느 것을 고르라는 규칙·케이스 0([[66]]). 팔당 6 롤아웃 · T=0.7 · 5 사례.",
+
+  "totals": {"A_names": "0/30", "B_table": "6/30", "C_filtered": "6/30", "N_neg": "6/30"},
+
+  "per_case": [
+    {"task": "055", "trial": 0, "gold": "Purple Account",
+     "A_names": "0/6 — `Green Fee-Free Account` ×6", "B_table": "**6/6** `Purple Account` ×6",
+     "C_filtered": "6/6", "N_neg": "6/6",
+     "verdict": "★**우리 층 확정 · 닫힌다.** 이름만 주면 0, **문서 파라미터 표를 같이 주면 6/6**."},
+    {"task": "063", "trial": 0, "gold": "Silver Plus Account",
+     "A_names": "0/6 `Gold Account`", "B_table": "0/6 `Diamond Elite Account`",
+     "C_filtered": "0/6 (후보 8)", "N_neg": "0/6 (gold 미제시)",
+     "verdict": "표를 줘도 안 닫힌다"},
+    {"task": "063", "trial": 1, "gold": "Silver Plus Account",
+     "A_names": "0/6 `Silver Account`", "B_table": "0/6 `Diamond Elite Account`",
+     "C_filtered": "★0/6 — **후보 4개에 gold 가 있는데도** `Green Account (Savings)` ×6",
+     "N_neg": "0/6 (gold 미제시)", "verdict": "가장 강한 경계 신호"},
+    {"task": "057", "trial": 0, "gold": "Blue Account", "B_table": "0/6 `Evergreen Account` ×6",
+     "verdict": "표를 줘도 결정론적으로 틀린 이름"},
+    {"task": "057", "trial": 1, "gold": "Blue Account", "B_table": "0/6 `Light Blue Account` ×6",
+     "verdict": "동상"}
+  ],
+
+  "finding_1_it_is_the_table_not_the_subtraction": {
+    "measured": "A_names 0/30 → B_table **6/30**. C_filtered 는 B_table 대비 **순증 0**. N_neg 도 6/30 으로 동률.",
+    "verdict": "★**움직인 것은 `사실(표)` 이고 `제거` 가 아니다.** [[63]] 이 다른 축에서 실측한 *'제거만 닫는다'*(x150 0/5→5/5 · x201 0/8→8/8 · x269 0/8→8/8)가 **이 축에서는 재현되지 않았다**. 필터는 정보를 안 나른다(N_neg 동률이 그 증거·[[57]]).",
+    "caution": "표본이 작다(사례 5 · 팔당 30 롤아웃)고, 효과가 **055 한 사례에 몰려 있다**. 축 결론으로 쓰려면 사례를 늘려야 한다."
+  },
+
+  "finding_2_the_axis_splits": {
+    "055": "**우리 층 · 닫힘**. 결정점에 문서 파라미터 표를 놓으면 0 → 6/6. 라이브에서 그 표는 KB 에 있으나 결정점에 없다 — **S2(①금액)와 같은 모양**(사실은 상류에 있고 결정점에 없다).",
+    "057·063": "**표를 줘도 0/6**. 063 t1 은 후보를 **4개로 좁히고 gold 를 포함시켰는데도** 6/6 결정론적으로 다른 이름을 골랐다. [[62]] 2b 의 공정한 격리에 가장 가까운 조건이다.",
+    "but_not_yet_boundary": "⚠단정하지 않는다 — 건넨 표는 **우리 x430 사실표**이고 x502 가 그 표에 구멍·오배정이 있음을 실측했다(조건부 9칸 중 7칸 축 오배정). 표의 완전성이 전제인 격리라, 표를 고치기 전에는 능력 경계로 못 찍는다. **미측정으로 남긴다.**"
+  },
+
+  "consequence_for_the_queue": {
+    "boundary_retraction_stands": "x512 의 경계 판정 철회는 유지된다 — 055 가 표만으로 완전히 닫혔으므로 ②범주 전체를 경계로 찍은 것은 명백히 틀렸다.",
+    "055": "매수 가능 후보로 복귀. 단 055 는 ②범주 **+ ⑥전사** 를 함께 요구하므로 ② 를 닫아도 단독으로는 안 열린다.",
+    "057_063": "미측정 — 표 완전성 확인 후 재측정.",
+    "lever_shape": "레버는 *후보를 거르기* 가 아니라 **결정점에 문서 파라미터를 놓기** 다. S2 의 결론(결정점 부하 축소)과 **같은 가족**이다."
+  },
+
+  "caveats": [
+    "5 사례 · 팔당 6 롤아웃은 작다. 6/30 의 전부가 055 t0 한 사례다.",
+    "`N_neg` 가 063 두 사례에서 **gold 를 아예 제시하지 않았다**(정렬 앞에서 자른 탓) — 그 두 칸은 부정통제로서 무효이고 위 총계에 그대로 들어 있다. 팔 사이 비교는 gold 가 제시된 칸으로만 하라.",
+    "건넨 표는 `--conditional overlay`(x502 감사 ACCEPT 2칸)가 켜진 상태다.",
+    "gold 는 채점에만 썼다([[23]]). 프롬프트에 정답 이름을 넣지 않았다."
+  ]
+}
