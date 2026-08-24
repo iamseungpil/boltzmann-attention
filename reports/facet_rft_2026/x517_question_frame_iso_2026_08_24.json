@@ -1,0 +1,391 @@
+{
+ "probe": "x517_question_frame_iso",
+ "date": "2026-08-24",
+ "task": "task_016",
+ "gold_user": [
+  "submit_transaction"
+ ],
+ "asks": {
+  "A_agent": "which ONE of these tools must the agent CALL to fulfill the request? ",
+  "C_neutral": "which ONE of these tools must be EXECUTED to fulfill the request (by the agent, or by the customer themselves)? ",
+  "N_word": "which ONE of these tools must the agent INVOKE in order to satisfy the request? "
+ },
+ "n_windows": 39,
+ "subcalls": 117,
+ "arms": {
+  "A_agent": {
+   "submit_referral": 24,
+   "call_discoverable_agent_tool": 15,
+   "__GOLD__": 0
+  },
+  "C_neutral": {
+   "submit_referral": 23,
+   "call_discoverable_agent_tool": 16,
+   "__GOLD__": 0
+  },
+  "N_word": {
+   "submit_referral": 29,
+   "call_discoverable_agent_tool": 10,
+   "__GOLD__": 0
+  }
+ },
+ "rows": [
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s626729",
+   "turn_k": 0,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s626729",
+   "turn_k": 1,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s626729",
+   "turn_k": 2,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s626729",
+   "turn_k": 3,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s626729",
+   "turn_k": 4,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s626729",
+   "turn_k": 5,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s626729",
+   "turn_k": 6,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "call_discoverable_agent_tool"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s626729",
+   "turn_k": 7,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "call_discoverable_agent_tool"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s626729",
+   "turn_k": 8,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "call_discoverable_agent_tool"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s626729",
+   "turn_k": 9,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "call_discoverable_agent_tool"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s373753",
+   "turn_k": 0,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s373753",
+   "turn_k": 1,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s373753",
+   "turn_k": 2,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s373753",
+   "turn_k": 3,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s373753",
+   "turn_k": 4,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s373753",
+   "turn_k": 5,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "call_discoverable_agent_tool"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s373753",
+   "turn_k": 6,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s373753",
+   "turn_k": 7,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s373753",
+   "turn_k": 8,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "call_discoverable_agent_tool"
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "simtag": "task_016#s373753",
+   "turn_k": 9,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "call_discoverable_agent_tool"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s626729",
+   "turn_k": 0,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s626729",
+   "turn_k": 1,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s626729",
+   "turn_k": 2,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s626729",
+   "turn_k": 3,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s626729",
+   "turn_k": 4,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s626729",
+   "turn_k": 5,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "call_discoverable_agent_tool"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s626729",
+   "turn_k": 6,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "call_discoverable_agent_tool"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s626729",
+   "turn_k": 7,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s626729",
+   "turn_k": 8,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "call_discoverable_agent_tool"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s626729",
+   "turn_k": 9,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s373753",
+   "turn_k": 0,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s373753",
+   "turn_k": 1,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s373753",
+   "turn_k": 2,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s373753",
+   "turn_k": 3,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s373753",
+   "turn_k": 4,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s373753",
+   "turn_k": 5,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s373753",
+   "turn_k": 6,
+   "n_cands": 8,
+   "A_agent": "submit_referral",
+   "C_neutral": "submit_referral",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s373753",
+   "turn_k": 7,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "submit_referral"
+  },
+  {
+   "run": "bank_t7346_halfB_20260822",
+   "simtag": "task_016#s373753",
+   "turn_k": 8,
+   "n_cands": 8,
+   "A_agent": "call_discoverable_agent_tool",
+   "C_neutral": "call_discoverable_agent_tool",
+   "N_word": "submit_referral"
+  }
+ ],
+ "limits": [
+  "후보집합은 세 팔 동일 — 이 프로브가 가르는 것은 문장뿐이다.",
+  "temperature 0 · 창마다 1회. n 은 창 수이지 재시행 수가 아니다.",
+  "gold 는 채점에만 썼다([[23]]).",
+  "격리에서 되면 라이브도 된다는 뜻이 아니다 — 라이브는 부하가 다르다([[62]])."
+ ]
+}
