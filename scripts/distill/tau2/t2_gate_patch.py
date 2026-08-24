@@ -5005,6 +5005,11 @@ def _cp2_assign(self, text, tag):
     #   이고, 그 국면에서는 들어온 쪽을 버리는 편이 언제나 배달량이 많다.
     #   ⚠[[70]]: 파는 것 = 그 대형 배달물. 단 그것은 창 초과면 어차피 버려진다(그 자리가 `ctx_skip`).
     #     ctl 바이트가 달라지므로 **기본 OFF**·측정 후 승격한다(큐 플래그의 선례 그대로).
+    #   ⛔★②범주 축에서는 켜지 마라 (2026-08-24 P3 실측): 이 자리에 배달되는 서브 결정문은
+    #     **태스크와 무관한 상수**다 — 055·057·063 여섯 sim 전부 `Blue Account → Gold Account`
+    #     순서이고 057 이 맞는 것은 gold 가 마침 Blue Account 라서다. 배달을 확실하게 만들면
+    #     055·063 에 **오답을 확실히 배달**하게 된다. 그 축의 옳은 수리는 배달 **객체**를 바꾸는
+    #     `T2_PROCEED_DOCBODY`(x335b 격리 24/24)이지 배달 **확실성**이 아니다.
     _keep_sure = os.environ.get("T2_CP2_KEEP_SURE") == "1"
     if (_keep_sure and _prev and text and _prev != text and not _big and not _qok
             and len(_prev) < _CP2_GUARD_MIN <= len(text)):
