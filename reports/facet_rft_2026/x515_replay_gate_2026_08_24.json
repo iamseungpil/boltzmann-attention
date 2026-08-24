@@ -1,0 +1,1344 @@
+{
+ "probe": "x515_replay_gate",
+ "date": "2026-08-24",
+ "repair": "R1 `_exec_side` UNKNOWN→user 폴백 제거 (t2_gate_patch.py:8701-8709)",
+ "runs": [
+  "bank_t7348_halfA_20260824",
+  "bank_t7348_halfB_20260824",
+  "bank_t7346_halfA_20260822",
+  "bank_t7346_halfB_20260822"
+ ],
+ "safety": {
+  "gold_user_outside_user_tools": []
+ },
+ "user_tools": {
+  "task_003": [
+   "apply_for_credit_card"
+  ],
+  "task_004": [
+   "apply_for_credit_card"
+  ],
+  "task_017": [
+   "call_discoverable_user_tool"
+  ],
+  "task_024": [
+   "apply_for_credit_card"
+  ],
+  "task_055": [
+   "call_discoverable_user_tool"
+  ],
+  "task_072": [],
+  "task_073": [],
+  "task_093": [
+   "call_discoverable_user_tool",
+   "request_human_agent_transfer"
+  ],
+  "task_094": [
+   "call_discoverable_user_tool",
+   "request_human_agent_transfer"
+  ],
+  "task_100": [
+   "call_discoverable_user_tool",
+   "submit_referral"
+  ],
+  "task_016": [
+   "apply_for_credit_card",
+   "submit_transaction"
+  ],
+  "task_033": [
+   "apply_for_credit_card",
+   "call_discoverable_user_tool"
+  ],
+  "task_040": [
+   "apply_for_credit_card",
+   "call_discoverable_user_tool"
+  ],
+  "task_050": [],
+  "task_057": [
+   "call_discoverable_user_tool"
+  ],
+  "task_063": [
+   "apply_for_credit_card"
+  ],
+  "task_074": [],
+  "task_079": [],
+  "task_085": [
+   "call_discoverable_user_tool",
+   "request_human_agent_transfer"
+  ],
+  "task_098": [
+   "call_discoverable_user_tool",
+   "submit_referral"
+  ]
+ },
+ "gold_user": {
+  "task_003": [
+   "apply_for_credit_card"
+  ],
+  "task_017": [
+   "call_discoverable_user_tool"
+  ],
+  "task_024": [
+   "apply_for_credit_card"
+  ],
+  "task_055": [
+   "call_discoverable_user_tool"
+  ],
+  "task_100": [
+   "submit_referral"
+  ],
+  "task_016": [
+   "submit_transaction"
+  ],
+  "task_040": [
+   "call_discoverable_user_tool"
+  ],
+  "task_057": [
+   "call_discoverable_user_tool"
+  ],
+  "task_063": [
+   "apply_for_credit_card"
+  ],
+  "task_098": [
+   "submit_referral"
+  ]
+ },
+ "g1": {
+  "task_003": {
+   "turns": 13,
+   "user_branch": 13,
+   "false": 0,
+   "true": 13,
+   "sims": 4,
+   "false_sims": 0,
+   "false_targets": {},
+   "cand_false": {
+    "submit_referral": 13,
+    "submit_transaction": 13
+   }
+  },
+  "task_004": {
+   "turns": 54,
+   "user_branch": 0,
+   "false": 0,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 0,
+   "false_targets": {},
+   "cand_false": {
+    "submit_referral": 54,
+    "submit_transaction": 54
+   }
+  },
+  "task_017": {
+   "turns": 75,
+   "user_branch": 4,
+   "false": 4,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 2,
+   "false_targets": {
+    "submit_transaction": 4
+   },
+   "cand_false": {
+    "apply_for_credit_card": 75,
+    "submit_referral": 75,
+    "submit_transaction": 75
+   }
+  },
+  "task_024": {
+   "turns": 24,
+   "user_branch": 23,
+   "false": 0,
+   "true": 23,
+   "sims": 4,
+   "false_sims": 0,
+   "false_targets": {},
+   "cand_false": {
+    "submit_referral": 24,
+    "submit_transaction": 24
+   }
+  },
+  "task_055": {
+   "turns": 89,
+   "user_branch": 8,
+   "false": 8,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 2,
+   "false_targets": {
+    "submit_transaction": 8
+   },
+   "cand_false": {
+    "apply_for_credit_card": 89,
+    "submit_referral": 89,
+    "submit_transaction": 89
+   }
+  },
+  "task_072": {
+   "turns": 93,
+   "user_branch": 2,
+   "false": 2,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 1,
+   "false_targets": {
+    "submit_transaction": 2
+   },
+   "cand_false": {
+    "apply_for_credit_card": 93,
+    "submit_referral": 93,
+    "submit_transaction": 93
+   }
+  },
+  "task_073": {
+   "turns": 60,
+   "user_branch": 2,
+   "false": 2,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 1,
+   "false_targets": {
+    "submit_transaction": 2
+   },
+   "cand_false": {
+    "apply_for_credit_card": 60,
+    "submit_referral": 60,
+    "submit_transaction": 60
+   }
+  },
+  "task_093": {
+   "turns": 50,
+   "user_branch": 0,
+   "false": 0,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 0,
+   "false_targets": {},
+   "cand_false": {
+    "apply_for_credit_card": 50,
+    "submit_referral": 50,
+    "submit_transaction": 50
+   }
+  },
+  "task_094": {
+   "turns": 48,
+   "user_branch": 0,
+   "false": 0,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 0,
+   "false_targets": {},
+   "cand_false": {
+    "apply_for_credit_card": 48,
+    "submit_referral": 48,
+    "submit_transaction": 48
+   }
+  },
+  "task_100": {
+   "turns": 38,
+   "user_branch": 38,
+   "false": 0,
+   "true": 38,
+   "sims": 4,
+   "false_sims": 0,
+   "false_targets": {},
+   "cand_false": {
+    "apply_for_credit_card": 38,
+    "submit_transaction": 38
+   }
+  },
+  "task_016": {
+   "turns": 79,
+   "user_branch": 59,
+   "false": 59,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 4,
+   "false_targets": {
+    "submit_referral": 59
+   },
+   "cand_false": {
+    "submit_referral": 79
+   }
+  },
+  "task_033": {
+   "turns": 62,
+   "user_branch": 21,
+   "false": 21,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 4,
+   "false_targets": {
+    "submit_transaction": 21
+   },
+   "cand_false": {
+    "submit_referral": 62,
+    "submit_transaction": 62
+   }
+  },
+  "task_040": {
+   "turns": 116,
+   "user_branch": 12,
+   "false": 12,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 2,
+   "false_targets": {
+    "submit_transaction": 12
+   },
+   "cand_false": {
+    "submit_referral": 116,
+    "submit_transaction": 116
+   }
+  },
+  "task_050": {
+   "turns": 47,
+   "user_branch": 0,
+   "false": 0,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 0,
+   "false_targets": {},
+   "cand_false": {
+    "apply_for_credit_card": 47,
+    "submit_referral": 47,
+    "submit_transaction": 47
+   }
+  },
+  "task_057": {
+   "turns": 88,
+   "user_branch": 10,
+   "false": 10,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 3,
+   "false_targets": {
+    "submit_transaction": 8,
+    "apply_for_credit_card": 2
+   },
+   "cand_false": {
+    "apply_for_credit_card": 88,
+    "submit_referral": 88,
+    "submit_transaction": 88
+   }
+  },
+  "task_063": {
+   "turns": 65,
+   "user_branch": 57,
+   "false": 0,
+   "true": 57,
+   "sims": 4,
+   "false_sims": 0,
+   "false_targets": {},
+   "cand_false": {
+    "submit_referral": 65,
+    "submit_transaction": 65
+   }
+  },
+  "task_074": {
+   "turns": 62,
+   "user_branch": 4,
+   "false": 4,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 2,
+   "false_targets": {
+    "submit_transaction": 4
+   },
+   "cand_false": {
+    "apply_for_credit_card": 62,
+    "submit_referral": 62,
+    "submit_transaction": 62
+   }
+  },
+  "task_079": {
+   "turns": 87,
+   "user_branch": 0,
+   "false": 0,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 0,
+   "false_targets": {},
+   "cand_false": {
+    "apply_for_credit_card": 87,
+    "submit_referral": 87,
+    "submit_transaction": 87
+   }
+  },
+  "task_085": {
+   "turns": 71,
+   "user_branch": 7,
+   "false": 7,
+   "true": 0,
+   "sims": 4,
+   "false_sims": 1,
+   "false_targets": {
+    "submit_transaction": 7
+   },
+   "cand_false": {
+    "apply_for_credit_card": 71,
+    "submit_referral": 71,
+    "submit_transaction": 71
+   }
+  },
+  "task_098": {
+   "turns": 47,
+   "user_branch": 47,
+   "false": 0,
+   "true": 47,
+   "sims": 4,
+   "false_sims": 0,
+   "false_targets": {},
+   "cand_false": {
+    "apply_for_credit_card": 47,
+    "submit_transaction": 47
+   }
+  }
+ },
+ "g2": {
+  "task_017|sims": 2,
+  "task_017|delivered_sims": 2,
+  "task_017|rows": 2,
+  "task_055|sims": 2,
+  "task_055|delivered_sims": 2,
+  "task_055|rows": 2,
+  "task_072|sims": 1,
+  "task_072|delivered_sims": 1,
+  "task_072|rows": 1,
+  "task_073|sims": 1,
+  "task_073|delivered_sims": 1,
+  "task_073|rows": 1,
+  "task_016|sims": 4,
+  "task_016|delivered_sims": 4,
+  "task_016|rows": 18,
+  "task_033|sims": 4,
+  "task_033|delivered_sims": 4,
+  "task_033|rows": 4,
+  "task_040|sims": 2,
+  "task_040|delivered_sims": 2,
+  "task_040|rows": 2,
+  "task_057|sims": 3,
+  "task_057|delivered_sims": 3,
+  "task_057|rows": 4,
+  "task_085|sims": 1,
+  "task_085|delivered_sims": 1,
+  "task_085|rows": 1,
+  "task_074|sims": 2,
+  "task_074|delivered_sims": 2,
+  "task_074|rows": 2
+ },
+ "r2_basis_sweep": {
+  "task_003|맞음|4000": {
+   "vals": 9,
+   "grounded": 1,
+   "calls": 3
+  },
+  "task_003|맞음|8000": {
+   "vals": 9,
+   "grounded": 1,
+   "calls": 3
+  },
+  "task_003|맞음|12000": {
+   "vals": 9,
+   "grounded": 2,
+   "calls": 3
+  },
+  "task_003|맞음|20000": {
+   "vals": 9,
+   "grounded": 2,
+   "calls": 3
+  },
+  "task_003|맞음|0": {
+   "vals": 9,
+   "grounded": 2,
+   "calls": 3
+  },
+  "task_017|맞음|4000": {
+   "vals": 40,
+   "grounded": 28,
+   "calls": 10,
+   "full": 4
+  },
+  "task_017|맞음|8000": {
+   "vals": 40,
+   "grounded": 28,
+   "calls": 10,
+   "full": 4
+  },
+  "task_017|맞음|12000": {
+   "vals": 40,
+   "grounded": 28,
+   "calls": 10,
+   "full": 4
+  },
+  "task_017|맞음|20000": {
+   "vals": 40,
+   "grounded": 28,
+   "calls": 10,
+   "full": 4
+  },
+  "task_017|맞음|0": {
+   "vals": 40,
+   "grounded": 28,
+   "calls": 10,
+   "full": 4
+  },
+  "task_024|맞음|4000": {
+   "vals": 12,
+   "grounded": 0,
+   "calls": 4
+  },
+  "task_024|맞음|8000": {
+   "vals": 12,
+   "grounded": 0,
+   "calls": 4
+  },
+  "task_024|맞음|12000": {
+   "vals": 12,
+   "grounded": 0,
+   "calls": 4
+  },
+  "task_024|맞음|20000": {
+   "vals": 12,
+   "grounded": 0,
+   "calls": 4
+  },
+  "task_024|맞음|0": {
+   "vals": 12,
+   "grounded": 0,
+   "calls": 4
+  },
+  "task_055|갈림|4000": {
+   "vals": 27,
+   "grounded": 7,
+   "calls": 10
+  },
+  "task_055|갈림|8000": {
+   "vals": 27,
+   "grounded": 8,
+   "calls": 10
+  },
+  "task_055|갈림|12000": {
+   "vals": 27,
+   "grounded": 8,
+   "calls": 10
+  },
+  "task_055|갈림|20000": {
+   "vals": 27,
+   "grounded": 9,
+   "calls": 10
+  },
+  "task_055|갈림|0": {
+   "vals": 27,
+   "grounded": 9,
+   "calls": 10
+  },
+  "task_055|맞음|4000": {
+   "vals": 31,
+   "grounded": 24,
+   "calls": 5,
+   "full": 3
+  },
+  "task_055|맞음|8000": {
+   "vals": 31,
+   "grounded": 24,
+   "calls": 5,
+   "full": 3
+  },
+  "task_055|맞음|12000": {
+   "vals": 31,
+   "grounded": 24,
+   "calls": 5,
+   "full": 3
+  },
+  "task_055|맞음|20000": {
+   "vals": 31,
+   "grounded": 24,
+   "calls": 5,
+   "full": 3
+  },
+  "task_055|맞음|0": {
+   "vals": 31,
+   "grounded": 30,
+   "calls": 5,
+   "full": 4
+  },
+  "task_072|맞음|4000": {
+   "vals": 36,
+   "grounded": 21,
+   "calls": 7,
+   "full": 1
+  },
+  "task_072|맞음|8000": {
+   "vals": 36,
+   "grounded": 21,
+   "calls": 7,
+   "full": 1
+  },
+  "task_072|맞음|12000": {
+   "vals": 36,
+   "grounded": 22,
+   "calls": 7,
+   "full": 1
+  },
+  "task_072|맞음|20000": {
+   "vals": 36,
+   "grounded": 25,
+   "calls": 7,
+   "full": 2
+  },
+  "task_072|맞음|0": {
+   "vals": 36,
+   "grounded": 25,
+   "calls": 7,
+   "full": 2
+  },
+  "task_073|맞음|4000": {
+   "vals": 48,
+   "grounded": 35,
+   "calls": 11,
+   "full": 5
+  },
+  "task_073|맞음|8000": {
+   "vals": 48,
+   "grounded": 35,
+   "calls": 11,
+   "full": 5
+  },
+  "task_073|맞음|12000": {
+   "vals": 48,
+   "grounded": 35,
+   "calls": 11,
+   "full": 5
+  },
+  "task_073|맞음|20000": {
+   "vals": 48,
+   "grounded": 35,
+   "calls": 11,
+   "full": 5
+  },
+  "task_073|맞음|0": {
+   "vals": 48,
+   "grounded": 36,
+   "calls": 11,
+   "full": 6
+  },
+  "task_093|갈림|4000": {
+   "vals": 7,
+   "grounded": 3,
+   "calls": 2
+  },
+  "task_093|갈림|8000": {
+   "vals": 7,
+   "grounded": 3,
+   "calls": 2
+  },
+  "task_093|갈림|12000": {
+   "vals": 7,
+   "grounded": 5,
+   "calls": 2,
+   "full": 1
+  },
+  "task_093|갈림|20000": {
+   "vals": 7,
+   "grounded": 5,
+   "calls": 2,
+   "full": 1
+  },
+  "task_093|갈림|0": {
+   "vals": 7,
+   "grounded": 5,
+   "calls": 2,
+   "full": 1
+  },
+  "task_093|맞음|4000": {
+   "vals": 39,
+   "grounded": 21,
+   "calls": 8,
+   "full": 3
+  },
+  "task_093|맞음|8000": {
+   "vals": 39,
+   "grounded": 21,
+   "calls": 8,
+   "full": 3
+  },
+  "task_093|맞음|12000": {
+   "vals": 39,
+   "grounded": 23,
+   "calls": 8,
+   "full": 4
+  },
+  "task_093|맞음|20000": {
+   "vals": 39,
+   "grounded": 23,
+   "calls": 8,
+   "full": 4
+  },
+  "task_093|맞음|0": {
+   "vals": 39,
+   "grounded": 23,
+   "calls": 8,
+   "full": 4
+  },
+  "task_094|갈림|4000": {
+   "vals": 20,
+   "grounded": 10,
+   "calls": 7,
+   "full": 2
+  },
+  "task_094|갈림|8000": {
+   "vals": 20,
+   "grounded": 10,
+   "calls": 7,
+   "full": 2
+  },
+  "task_094|갈림|12000": {
+   "vals": 20,
+   "grounded": 10,
+   "calls": 7,
+   "full": 2
+  },
+  "task_094|갈림|20000": {
+   "vals": 20,
+   "grounded": 10,
+   "calls": 7,
+   "full": 2
+  },
+  "task_094|갈림|0": {
+   "vals": 20,
+   "grounded": 10,
+   "calls": 7,
+   "full": 2
+  },
+  "task_094|맞음|4000": {
+   "vals": 28,
+   "grounded": 21,
+   "calls": 4,
+   "full": 3
+  },
+  "task_094|맞음|8000": {
+   "vals": 28,
+   "grounded": 21,
+   "calls": 4,
+   "full": 3
+  },
+  "task_094|맞음|12000": {
+   "vals": 28,
+   "grounded": 21,
+   "calls": 4,
+   "full": 3
+  },
+  "task_094|맞음|20000": {
+   "vals": 28,
+   "grounded": 21,
+   "calls": 4,
+   "full": 3
+  },
+  "task_094|맞음|0": {
+   "vals": 28,
+   "grounded": 21,
+   "calls": 4,
+   "full": 3
+  },
+  "task_100|맞음|4000": {
+   "vals": 36,
+   "grounded": 20,
+   "calls": 8,
+   "full": 2
+  },
+  "task_100|맞음|8000": {
+   "vals": 36,
+   "grounded": 20,
+   "calls": 8,
+   "full": 2
+  },
+  "task_100|맞음|12000": {
+   "vals": 36,
+   "grounded": 20,
+   "calls": 8,
+   "full": 2
+  },
+  "task_100|맞음|20000": {
+   "vals": 36,
+   "grounded": 20,
+   "calls": 8,
+   "full": 2
+  },
+  "task_100|맞음|0": {
+   "vals": 36,
+   "grounded": 20,
+   "calls": 8,
+   "full": 2
+  },
+  "task_003|갈림|4000": {
+   "vals": 3,
+   "grounded": 0,
+   "calls": 1
+  },
+  "task_003|갈림|8000": {
+   "vals": 3,
+   "grounded": 0,
+   "calls": 1
+  },
+  "task_003|갈림|12000": {
+   "vals": 3,
+   "grounded": 0,
+   "calls": 1
+  },
+  "task_003|갈림|20000": {
+   "vals": 3,
+   "grounded": 0,
+   "calls": 1
+  },
+  "task_003|갈림|0": {
+   "vals": 3,
+   "grounded": 0,
+   "calls": 1
+  },
+  "task_072|갈림|4000": {
+   "vals": 26,
+   "grounded": 10,
+   "calls": 11,
+   "full": 1
+  },
+  "task_072|갈림|8000": {
+   "vals": 26,
+   "grounded": 11,
+   "calls": 11,
+   "full": 1
+  },
+  "task_072|갈림|12000": {
+   "vals": 26,
+   "grounded": 11,
+   "calls": 11,
+   "full": 1
+  },
+  "task_072|갈림|20000": {
+   "vals": 26,
+   "grounded": 13,
+   "calls": 11,
+   "full": 1
+  },
+  "task_072|갈림|0": {
+   "vals": 26,
+   "grounded": 14,
+   "calls": 11,
+   "full": 2
+  },
+  "task_073|갈림|4000": {
+   "vals": 24,
+   "grounded": 18,
+   "calls": 11,
+   "full": 6
+  },
+  "task_073|갈림|8000": {
+   "vals": 24,
+   "grounded": 18,
+   "calls": 11,
+   "full": 6
+  },
+  "task_073|갈림|12000": {
+   "vals": 24,
+   "grounded": 18,
+   "calls": 11,
+   "full": 6
+  },
+  "task_073|갈림|20000": {
+   "vals": 24,
+   "grounded": 19,
+   "calls": 11,
+   "full": 6
+  },
+  "task_073|갈림|0": {
+   "vals": 24,
+   "grounded": 21,
+   "calls": 11,
+   "full": 8
+  },
+  "task_016|맞음|4000": {
+   "vals": 28,
+   "grounded": 16,
+   "calls": 4,
+   "full": 2
+  },
+  "task_016|맞음|8000": {
+   "vals": 28,
+   "grounded": 16,
+   "calls": 4,
+   "full": 2
+  },
+  "task_016|맞음|12000": {
+   "vals": 28,
+   "grounded": 16,
+   "calls": 4,
+   "full": 2
+  },
+  "task_016|맞음|20000": {
+   "vals": 28,
+   "grounded": 16,
+   "calls": 4,
+   "full": 2
+  },
+  "task_016|맞음|0": {
+   "vals": 28,
+   "grounded": 16,
+   "calls": 4,
+   "full": 2
+  },
+  "task_040|갈림|4000": {
+   "vals": 151,
+   "grounded": 10,
+   "calls": 13
+  },
+  "task_040|갈림|8000": {
+   "vals": 151,
+   "grounded": 17,
+   "calls": 13
+  },
+  "task_040|갈림|12000": {
+   "vals": 151,
+   "grounded": 24,
+   "calls": 13
+  },
+  "task_040|갈림|20000": {
+   "vals": 151,
+   "grounded": 26,
+   "calls": 13
+  },
+  "task_040|갈림|0": {
+   "vals": 151,
+   "grounded": 26,
+   "calls": 13
+  },
+  "task_040|맞음|4000": {
+   "vals": 21,
+   "grounded": 2,
+   "calls": 3
+  },
+  "task_040|맞음|8000": {
+   "vals": 21,
+   "grounded": 2,
+   "calls": 3
+  },
+  "task_040|맞음|12000": {
+   "vals": 21,
+   "grounded": 2,
+   "calls": 3
+  },
+  "task_040|맞음|20000": {
+   "vals": 21,
+   "grounded": 2,
+   "calls": 3
+  },
+  "task_040|맞음|0": {
+   "vals": 21,
+   "grounded": 2,
+   "calls": 3
+  },
+  "task_050|갈림|4000": {
+   "vals": 6,
+   "grounded": 2,
+   "calls": 2
+  },
+  "task_050|갈림|8000": {
+   "vals": 6,
+   "grounded": 2,
+   "calls": 2
+  },
+  "task_050|갈림|12000": {
+   "vals": 6,
+   "grounded": 2,
+   "calls": 2
+  },
+  "task_050|갈림|20000": {
+   "vals": 6,
+   "grounded": 5,
+   "calls": 2,
+   "full": 1
+  },
+  "task_050|갈림|0": {
+   "vals": 6,
+   "grounded": 5,
+   "calls": 2,
+   "full": 1
+  },
+  "task_050|맞음|4000": {
+   "vals": 43,
+   "grounded": 33,
+   "calls": 9,
+   "full": 4
+  },
+  "task_050|맞음|8000": {
+   "vals": 43,
+   "grounded": 33,
+   "calls": 9,
+   "full": 4
+  },
+  "task_050|맞음|12000": {
+   "vals": 43,
+   "grounded": 33,
+   "calls": 9,
+   "full": 4
+  },
+  "task_050|맞음|20000": {
+   "vals": 43,
+   "grounded": 35,
+   "calls": 9,
+   "full": 4
+  },
+  "task_050|맞음|0": {
+   "vals": 43,
+   "grounded": 37,
+   "calls": 9,
+   "full": 5
+  },
+  "task_057|갈림|4000": {
+   "vals": 11,
+   "grounded": 6,
+   "calls": 4,
+   "full": 1
+  },
+  "task_057|갈림|8000": {
+   "vals": 11,
+   "grounded": 6,
+   "calls": 4,
+   "full": 1
+  },
+  "task_057|갈림|12000": {
+   "vals": 11,
+   "grounded": 6,
+   "calls": 4,
+   "full": 1
+  },
+  "task_057|갈림|20000": {
+   "vals": 11,
+   "grounded": 6,
+   "calls": 4,
+   "full": 1
+  },
+  "task_057|갈림|0": {
+   "vals": 11,
+   "grounded": 7,
+   "calls": 4,
+   "full": 2
+  },
+  "task_057|맞음|4000": {
+   "vals": 21,
+   "grounded": 14,
+   "calls": 3,
+   "full": 2
+  },
+  "task_057|맞음|8000": {
+   "vals": 21,
+   "grounded": 14,
+   "calls": 3,
+   "full": 2
+  },
+  "task_057|맞음|12000": {
+   "vals": 21,
+   "grounded": 14,
+   "calls": 3,
+   "full": 2
+  },
+  "task_057|맞음|20000": {
+   "vals": 21,
+   "grounded": 14,
+   "calls": 3,
+   "full": 2
+  },
+  "task_057|맞음|0": {
+   "vals": 21,
+   "grounded": 14,
+   "calls": 3,
+   "full": 2
+  },
+  "task_063|맞음|4000": {
+   "vals": 31,
+   "grounded": 23,
+   "calls": 5,
+   "full": 3
+  },
+  "task_063|맞음|8000": {
+   "vals": 31,
+   "grounded": 23,
+   "calls": 5,
+   "full": 3
+  },
+  "task_063|맞음|12000": {
+   "vals": 31,
+   "grounded": 23,
+   "calls": 5,
+   "full": 3
+  },
+  "task_063|맞음|20000": {
+   "vals": 31,
+   "grounded": 23,
+   "calls": 5,
+   "full": 3
+  },
+  "task_063|맞음|0": {
+   "vals": 31,
+   "grounded": 29,
+   "calls": 5,
+   "full": 4
+  },
+  "task_074|갈림|4000": {
+   "vals": 87,
+   "grounded": 32,
+   "calls": 32
+  },
+  "task_074|갈림|8000": {
+   "vals": 87,
+   "grounded": 36,
+   "calls": 32
+  },
+  "task_074|갈림|12000": {
+   "vals": 87,
+   "grounded": 36,
+   "calls": 32
+  },
+  "task_074|갈림|20000": {
+   "vals": 87,
+   "grounded": 36,
+   "calls": 32
+  },
+  "task_074|갈림|0": {
+   "vals": 87,
+   "grounded": 36,
+   "calls": 32
+  },
+  "task_074|맞음|4000": {
+   "vals": 30,
+   "grounded": 16,
+   "calls": 5,
+   "full": 2
+  },
+  "task_074|맞음|8000": {
+   "vals": 30,
+   "grounded": 16,
+   "calls": 5,
+   "full": 2
+  },
+  "task_074|맞음|12000": {
+   "vals": 30,
+   "grounded": 16,
+   "calls": 5,
+   "full": 2
+  },
+  "task_074|맞음|20000": {
+   "vals": 30,
+   "grounded": 16,
+   "calls": 5,
+   "full": 2
+  },
+  "task_074|맞음|0": {
+   "vals": 30,
+   "grounded": 16,
+   "calls": 5,
+   "full": 2
+  },
+  "task_085|맞음|4000": {
+   "vals": 21,
+   "grounded": 14,
+   "calls": 3,
+   "full": 2
+  },
+  "task_085|맞음|8000": {
+   "vals": 21,
+   "grounded": 14,
+   "calls": 3,
+   "full": 2
+  },
+  "task_085|맞음|12000": {
+   "vals": 21,
+   "grounded": 14,
+   "calls": 3,
+   "full": 2
+  },
+  "task_085|맞음|20000": {
+   "vals": 21,
+   "grounded": 14,
+   "calls": 3,
+   "full": 2
+  },
+  "task_085|맞음|0": {
+   "vals": 21,
+   "grounded": 14,
+   "calls": 3,
+   "full": 2
+  },
+  "task_098|맞음|4000": {
+   "vals": 32,
+   "grounded": 29,
+   "calls": 6,
+   "full": 4
+  },
+  "task_098|맞음|8000": {
+   "vals": 32,
+   "grounded": 29,
+   "calls": 6,
+   "full": 4
+  },
+  "task_098|맞음|12000": {
+   "vals": 32,
+   "grounded": 30,
+   "calls": 6,
+   "full": 5
+  },
+  "task_098|맞음|20000": {
+   "vals": 32,
+   "grounded": 31,
+   "calls": 6,
+   "full": 5
+  },
+  "task_098|맞음|0": {
+   "vals": 32,
+   "grounded": 31,
+   "calls": 6,
+   "full": 5
+  },
+  "task_063|갈림|4000": {
+   "vals": 12,
+   "grounded": 3,
+   "calls": 4
+  },
+  "task_063|갈림|8000": {
+   "vals": 12,
+   "grounded": 5,
+   "calls": 4,
+   "full": 1
+  },
+  "task_063|갈림|12000": {
+   "vals": 12,
+   "grounded": 5,
+   "calls": 4,
+   "full": 1
+  },
+  "task_063|갈림|20000": {
+   "vals": 12,
+   "grounded": 5,
+   "calls": 4,
+   "full": 1
+  },
+  "task_063|갈림|0": {
+   "vals": 12,
+   "grounded": 6,
+   "calls": 4,
+   "full": 1
+  },
+  "task_079|갈림|4000": {
+   "vals": 15,
+   "grounded": 9,
+   "calls": 3
+  },
+  "task_079|갈림|8000": {
+   "vals": 15,
+   "grounded": 9,
+   "calls": 3
+  },
+  "task_079|갈림|12000": {
+   "vals": 15,
+   "grounded": 9,
+   "calls": 3
+  },
+  "task_079|갈림|20000": {
+   "vals": 15,
+   "grounded": 9,
+   "calls": 3
+  },
+  "task_079|갈림|0": {
+   "vals": 15,
+   "grounded": 9,
+   "calls": 3
+  },
+  "task_079|맞음|4000": {
+   "vals": 26,
+   "grounded": 9,
+   "calls": 11,
+   "full": 6
+  },
+  "task_079|맞음|8000": {
+   "vals": 26,
+   "grounded": 9,
+   "calls": 11,
+   "full": 6
+  },
+  "task_079|맞음|12000": {
+   "vals": 26,
+   "grounded": 9,
+   "calls": 11,
+   "full": 6
+  },
+  "task_079|맞음|20000": {
+   "vals": 26,
+   "grounded": 9,
+   "calls": 11,
+   "full": 6
+  },
+  "task_079|맞음|0": {
+   "vals": 26,
+   "grounded": 9,
+   "calls": 11,
+   "full": 6
+  },
+  "task_085|갈림|4000": {
+   "vals": 40,
+   "grounded": 16,
+   "calls": 4
+  },
+  "task_085|갈림|8000": {
+   "vals": 40,
+   "grounded": 16,
+   "calls": 4
+  },
+  "task_085|갈림|12000": {
+   "vals": 40,
+   "grounded": 16,
+   "calls": 4
+  },
+  "task_085|갈림|20000": {
+   "vals": 40,
+   "grounded": 19,
+   "calls": 4
+  },
+  "task_085|갈림|0": {
+   "vals": 40,
+   "grounded": 23,
+   "calls": 4
+  },
+  "task_098|갈림|4000": {
+   "vals": 4,
+   "grounded": 1,
+   "calls": 2
+  },
+  "task_098|갈림|8000": {
+   "vals": 4,
+   "grounded": 2,
+   "calls": 2
+  },
+  "task_098|갈림|12000": {
+   "vals": 4,
+   "grounded": 2,
+   "calls": 2
+  },
+  "task_098|갈림|20000": {
+   "vals": 4,
+   "grounded": 2,
+   "calls": 2
+  },
+  "task_098|갈림|0": {
+   "vals": 4,
+   "grounded": 2,
+   "calls": 2
+  }
+ },
+ "r2_verdict": "★4000→12000 은 072 에서 **아무것도 바꾸지 않는다**(맞음 1/7·갈림 1/11 불변). 코퍼스 전체로도 12000 에서 움직이는 것은 093(맞음 3/8→4/8·갈림 0/2→1/2) 과 098(맞음 4/6→5/6) 뿐이고, cap∞ 로 열면 사는 쪽과 파는 쪽이 같이 는다(073 맞음 5→6 · 갈림 6→8). ⇒ **R2 는 G1 이 사실상 0 이므로 런에 태울 값이 없다.** ⚠이 계수는 **모델이 실제로 낸 값**의 접지를 잰 것이고, 072 반증자가 잰 것은 **gold 072_7 의 값**이다 — 서로 다른 양이므로 모순이 아니다. 다만 gold 적합으로 cap 을 고르는 것은 [[23]] 위반이다.",
+ "limits": [
+  "G3(모델이 다르게 행동하나)은 재생으로 답할 수 없다 — 격리 프로브 필요.",
+  "`tasks[].user_tools` 는 env 선언이고 gold 가 아니다([[23]]).",
+  "discoverable 래퍼는 관대 판정으로 USER 에 남겼다(`DISC_USER`).",
+  "사이드카 부재 = 모른다([[25]])."
+ ]
+}
