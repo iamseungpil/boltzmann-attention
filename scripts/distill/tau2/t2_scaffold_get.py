@@ -611,12 +611,24 @@ def _docs_delivery(orch, d, iso, ref, ag, la, UserMessage):
         um = UserMessage(role="user", content=pick)
     except TypeError:
         um = UserMessage(content=pick)
+    # ★이 서브는 정본 `t2_subcall.sub_generate` 를 **우회한다**(래칫 `test_subcall_canonical` 이
+    #   그 부채를 이미 세고 있다). 배선을 바꾸면 거동이 움직일 수 있어 지금은 **기록만** 붙인다 —
+    #   클래스 선택은 ②범주 축의 결정점이라 *무엇을 받았나* 가 남지 않으면 [[76]] 진단 ①이 막힌다.
+    try:
+        import t2_subcall as _sc0
+    except Exception:
+        _sc0 = None
     try:
         resp = la.generate(model=ag.llm, tools=None, messages=[um],
                            call_name="sg_docs_class", **kw)
     except Exception as e:
         print("[T2_SG_DOCS] 클래스-선택 서브 실패: %r → 검색 폴백" % (e,), file=_sys.stderr, flush=True)
+        if _sc0 is not None:
+            _sc0._record_subcall("sg_docs_class", pick, "", err=e)
         return None
+    if _sc0 is not None:
+        _sc0._record_subcall("sg_docs_class", pick,
+                             getattr(resp, "content", None) or "")
     raw = _json_array(getattr(resp, "content", None) or "")
     picked = [c for c in raw if c in bc]
     alien = [c for c in raw if c not in bc]

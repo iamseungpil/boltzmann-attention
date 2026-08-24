@@ -35,11 +35,45 @@ def make_user_message(UserMessage, content):
         return UserMessage(content=content)
 
 
+def _record_subcall(call_name, prompt, out, err=None):
+    """서브가 **무엇을 받았고 무엇을 냈나**를 사이드카에 남긴다 (2026-08-24 신설·기록만).
+
+    ★왜 필요한가 — 없어서 하루를 태웠다:
+      · 원장 C508⒥ 축자: *"라이브는 **실제로 실린 인용 축자를 어디에도 안 남긴다**(사이드카
+        `sub_requirement` 0건) — 개수만 안다. **다음 런 전 필수 수리**."*
+      · 2026-08-24 서브-오답 워크플로(에이전트 26)의 유일한 실질 약점도 같은 것이었다:
+        *"이 런에는 서브의 실제 프롬프트 문자열을 남긴 계기가 **없다**. 입력 주장은 코드 +
+        실효 A2 + 분기 마커로 세운 것이지 **포획된 축자로 세운 것이 아니다**."*
+      ⇒ [[76]] 진단 순서 ①(*"서브가 무엇을 받았나 — 라이브 입력 ↔ 격리 입력 축자 대조"*)이
+        요구하는 재료가 라이브에 **없었다**. 그래서 서브가 틀렸을 때 ⒜자격 없이 배선된 것인지
+        ⒝라이브에서 다른 것을 받는 것인지를 **원리상 가릴 수 없었다**.
+
+    거동 불변 — 기록뿐이고 반환값·호출 순서를 건드리지 않는다. `T2_FB_SIDECAR` 미설정이면
+    `t2_fbsidecar.record` 가 스스로 no-op 이다(그 모듈 설계 제약 2). 본문은 `T2_FB_SIDECAR_TEXT=1`
+    일 때만 저장되고 4000자에서 잘린다 — **프롬프트는 머리(=요청)가 앞에 오므로 그 창으로 족하다**.
+    응답은 짧으므로 meta 에 머리 600자를 함께 싣는다(길이·해시는 항상 남는다).
+    """
+    try:
+        import t2_fbsidecar as _sc
+        _o = "" if out is None else str(out)
+        _sc.record("subcall", prompt, None,
+                   call_name=str(call_name),
+                   prompt_len=len(str(prompt or "")),
+                   out_len=len(_o),
+                   out_head=_o[:600],
+                   err=(None if err is None else repr(err)[:200]))
+    except Exception:
+        pass                                     # 기록 실패가 런을 깨면 안 된다
+
+
 def sub_generate(agent, la, UserMessage, prompt, call_name, temperature=None):
     """단발 격리 서브 호출의 정본 (39곳 사본 대체).
 
     자체 메시지 리스트 하나·tools=None·llm_args 의 tool 계열 키 제거. 반환 = 텍스트('' = 실패).
     예외는 삼키고 '' — 호출부가 폴백을 결정한다(조용한 거동 변경 금지).
+
+    ★2026-08-24: 여기 한 자리에 `_record_subcall` 을 달아 **서브 호출 전량**(호출부 35곳)이
+      입력·출력을 사이드카에 남기게 했다. 사본을 35개 만들지 않는 이유는 [[67]] 그대로다.
     """
     if agent is None or la is None or UserMessage is None:
         return ""
@@ -51,9 +85,13 @@ def sub_generate(agent, la, UserMessage, prompt, call_name, temperature=None):
             kw["temperature"] = temperature
         sub = la.generate(model=agent.llm, tools=None, messages=[um],
                           call_name=call_name, **kw)
-        return str(getattr(sub, "content", None) or "")
+        out = str(getattr(sub, "content", None) or "")
+        _record_subcall(call_name, prompt, out)
+        return out
     except Exception as e:
         print("[T2_SUBCALL] %s 실패(폴백): %r" % (call_name, e), file=sys.stderr, flush=True)
+        # ★실패도 남긴다 — 빈 반환이 *안 불렀다* 인지 *부르고 실패했다* 인지 가려야 한다([[25]]).
+        _record_subcall(call_name, prompt, "", err=e)
         return ""
 
 
