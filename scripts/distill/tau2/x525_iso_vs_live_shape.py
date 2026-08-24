@@ -138,6 +138,20 @@ def main():
                              json.dumps(ref, ensure_ascii=False, indent=1) +
                              "\n\n# Field contract\ntransactions: " + params +
                              "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text}]
+                elif arm == "H_asklast":
+                    # ★남은 차이 ⑵ (2026-08-24): 이긴 팔 `A_probe` 만 **요구 문장이 원장 뒤**에 있다.
+                    #   다른 모든 팔은 형식이 원장 앞이다(라이브도 그렇다). 그 한 칸만 민다 —
+                    #   재료·형식 문면은 D_all 과 동일하고 **위치만** 다르다.
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n=== REFERENCE ===\n" +
+                             json.dumps(ref, ensure_ascii=False, indent=1) +
+                             "\n\n# Field contract\ntransactions: " + params +
+                             "\n\n=== RECORDS ===\n" + text + "\n\n" + afmt}]
+                elif arm == "I_noref":
+                    # ★남은 차이 ⑴: 이긴 팔에는 REFERENCE 블록이 없다. 그 한 칸만 뺀다.
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n# Field contract\ntransactions: " + params +
+                             "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text}]
                 elif arm == "F_order":
                     # ★위치 하나 (2026-08-24): `D_all` 은 계약을 **예시 앞**에 뒀고 13~14 였다.
                     #   같은 파일 :764 주석이 이미 이름 붙인 축 — *"지시(형식 포함)가 재료보다 앞이다
