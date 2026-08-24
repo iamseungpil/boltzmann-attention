@@ -9178,9 +9178,20 @@
      "doc_savings_accounts_silver_plus_account_008",
      "doc_savings_accounts_silver_plus_account_009"
     ]
+   },
+   "personal_subscriptions": {
+    "rho_bank_plus": [
+     "doc_personal_subscriptions_rho_bank_plus_001",
+     "doc_personal_subscriptions_rho_bank_plus_002"
+    ]
+   },
+   "customer_support": {
+    "special_support_codes": [
+     "doc_customer_support_special_support_codes_001"
+    ]
    }
   },
-  "_note_doc_index": "★출처 = env 파일명뿐(`doc_<군>_<주어>_NNN.json`·빌드 시점 유도·x244·저작 0). x203 이 종류를 유도할 때 쓴 같은 규칙이다. **id 만** 적고 값·축은 적지 않는다 — x243 실측이 축 선별 없이 닫힘을 보였다(S2/S3 8/8 · 축별 문장 S1 8/8 과 동률 · 프로모션 빼면 S4 0/8). 엔진은 런타임에 파일명을 뜯지 않고 여기 적힌 것을 읽기만 한다([[59]]). 시야 = 이 색인의 크기다([[50]] ADB).",
+  "_note_doc_index": "★출처 = env 파일명뿐(`doc_<군>_<주어>_NNN.json`·빌드 시점 유도·x244·저작 0). x203 이 종류를 유도할 때 쓴 같은 규칙이다. **id 만** 적고 값·축은 적지 않는다 — x243 실측이 축 선별 없이 닫힘을 보였다(S2/S3 8/8 · 축별 문장 S1 8/8 과 동률 · 프로모션 빼면 S4 0/8). 엔진은 런타임에 파일명을 뜯지 않고 여기 적힌 것을 읽기만 한다([[59]]). 시야 = 이 색인의 크기다([[50]] ADB). || ★2026-08-24 보강 — 색인 커버리지 감사(x522)에서 **env 698 ↔ 색인 695** 로 3 문서가 누락돼 있었다. 빠진 것은 낱개가 아니라 **군 둘이 통째로**(`personal_subscriptions` 2 · `customer_support` 1). 색인에 없는 문서는 검색 서브가 **색인 경로로 영원히 못 가져온다** — 실물: `rho_bank_subscription` 은 003·024·**063(hard-0)** 의 gold 인자인데 그것을 규정하는 `doc_personal_subscriptions_rho_bank_plus_*` 가 색인 밖이었고, 063#s626729 는 궤적 전체에 `subscription` 언급이 **0건**이다(s373753 은 손님이 자발적으로 말해 우연히 구제됐다). 출처는 위 규칙 그대로 **env 파일명뿐**이라 저작 0·[[23]] 무관.",
   "_note_official_names": "★명명 정책(2026-08-12 사용자 지시·명시): 상품의 공식 명칭은 doc_index 주어 슬러그의 기계 전개 **축자**다 — `sky_blue`→`Sky Blue`(Account 없음)·`gold_saver_account`→`Gold Saver Account`(Account 가 이름의 일부). 즉 `Account` 는 **이름에 포함된 경우에만** 존재하며, 덧붙이거나 떼면 다른 이름이 된다(x268 실측: 접미사를 덧붙인 값은 인자까지 생존해 채점 칸을 죽인다 S_SUFF 0/8 ↔ S_BARE 7/8). 출처 = env 파일명뿐(gold 무관·x244).",
   "doc_windows": [
    {
