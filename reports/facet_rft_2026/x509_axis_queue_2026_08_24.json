@@ -194,11 +194,29 @@
   },
   {
    "id": "S3",
-   "state": "NEXT",
-   "title": "⑦유도 수리 — S1 판정이 지목한 자리만",
+   "state": "BLOCKED",
+   "title": "⑦유도 수리 — ⛔후보집합 가설 기각(x516). 결손은 질문의 프레임이다",
    "target": "016 단독 · (②와 함께면 057·063 추가)",
    "gate": "S1 이 ⓐ/ⓑ/ⓒ 중 하나를 축자 근거로 확정한 뒤에만 착수. 확정 없이 구현 금지.",
-   "exit": "단위 검정 + 라이브 발화 확인. **표적 태스크 수를 x509 축표에서 인용**해 커밋에 적는다."
+   "exit": "단위 검정 + 라이브 발화 확인. **표적 태스크 수를 x509 축표에서 인용**해 커밋에 적는다.",
+   "result": {
+    "verdict": "⛔**후보집합은 결손이 아니다.** `_exec_side` UNKNOWN→user 폴백 제거(R1)는 라이브 거동을 바꾸지만 **gold 를 사지 못한다**.",
+    "replay_x515": "G1 = 손님-실행 안내가 걸린 발화 307 중 **129 가 이름밖**(016 은 59/59 전부 `submit_referral`). G2 = 그 22 sim **전부 모델 앞에 섰다**(37행). 안전 = gold 의 requestor=user 액션이 10 태스크 전부 그 태스크 `user_tools` 안 ⇒ **파는 것 0**.",
+    "isolation_x516": {
+     "n": "창 39 (016 4 sim · t7346+t7348) · 서브콜 117",
+     "A_asis": "gold **0/39** · `submit_referral`×24 · `call_discoverable_agent_tool`×15 (라이브 산출 재현)",
+     "B_repair": "gold **0/39** · `call_discoverable_agent_tool`×38 · None×1",
+     "N_neg": "gold **0/39** · `submit_referral`×30 · `call_discoverable_agent_tool`×9",
+     "read": "이름을 빼면 서브는 gold `submit_transaction` 으로 가지 않고 **에이전트 디스패처로** 간다(38/39)."
+    },
+    "why": "★`formalize_intent_tool` 의 물음이 **에이전트-프레임**이다 — *\"which ONE of these tools must the agent CALL\"*. `submit_transaction` 은 손님-실행 도구이므로 그 물음의 옳은 답이 **될 수 없다**. 결손은 후보집합이 아니라 **질문의 프레임**이다. 소비부가 그 답을 executor 측으로 라우팅하는 배치와 합쳐져 073 OL-A·055 의 오바인딩이 된다.",
+    "consequence": "S3 을 '폴백 제거'로 좁게 구현하면 **거동만 바뀌고 성적은 안 산다** — t7348 이 태운 그 실수다. R1 은 [[64]]/T1(사실 모순) 위생으로는 여전히 옳지만 **매수 근거로 인용하지 마라**.",
+    "next": "S3b — 모드-무관 질문(*\"must be EXECUTED\"*)으로 같은 격리를 다시 잰다. 케이스 열거가 아니라 일반 어법 교체라 [[66]] 에 안 걸린다. 그것이 gold 를 사면 사용자 제안(`call_form` 분리)의 근거가 실측으로 선다.",
+    "records": [
+     "x515_replay_gate_2026_08_24.json",
+     "x516_induction_target_iso_2026_08_24.json"
+    ]
+   }
   },
   {
    "id": "S4",
