@@ -138,6 +138,29 @@ def main():
                              json.dumps(ref, ensure_ascii=False, indent=1) +
                              "\n\n# Field contract\ntransactions: " + params +
                              "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text}]
+                elif arm == "F_order":
+                    # ★위치 하나 (2026-08-24): `D_all` 은 계약을 **예시 앞**에 뒀고 13~14 였다.
+                    #   같은 파일 :764 주석이 이미 이름 붙인 축 — *"지시(형식 포함)가 재료보다 앞이다
+                    #   — C578: 위치 하나가 26/26 ↔ 0/26 을 갈랐다"*. 여기선 **계약이 예시 뒤**다:
+                    #   모델이 마지막에 본 것이 *한 줄짜리 예시 행*이면 그것을 흉내 내 수수료 단위로
+                    #   행을 만든다(chk_2 수수료 13개 → 13행)는 가설을 친다.
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n=== REFERENCE ===\n" +
+                             json.dumps(ref, ensure_ascii=False, indent=1) +
+                             "\n\n" + afmt +
+                             "\n\n# Field contract\ntransactions: " + params +
+                             "\n\n=== RECORDS ===\n" + text}]
+                elif arm == "G_norow":
+                    # 예시 행 자체를 지운 판 — [[63]] 형태(더하기가 아니라 **제거**가 닫는가).
+                    #   A2 `row_fields` 선언으로 예시를 대체한다(엔진 리터럴 0·선언에서 읽음).
+                    _rf = ", ".join(iso.get("row_fields") or [])
+                    _af2 = ('Reply with exactly one JSON object and nothing else: '
+                            '{"transactions": [ ... one element per atm_withdrawal, '
+                            'each with these fields: %s ... ]}' % _rf)
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n=== REFERENCE ===\n" +
+                             json.dumps(ref, ensure_ascii=False, indent=1) +
+                             "\n\n" + _af2 + "\n\n=== RECORDS ===\n" + text}]
                 elif arm == "E_oneline":
                     # 계약 전문 대신 **A2 params 축자의 한 문장만** 붙인다 — 한 줄로 닫히나.
                     _one = ""
