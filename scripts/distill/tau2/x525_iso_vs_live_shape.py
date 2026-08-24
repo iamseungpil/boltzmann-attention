@@ -138,6 +138,21 @@ def main():
                              json.dumps(ref, ensure_ascii=False, indent=1) +
                              "\n\n# Field contract\ntransactions: " + params +
                              "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text}]
+                elif arm == "J_both":
+                    # ★단일 변수 팔이 전부 실패했으므로 **조합**을 친다 (2026-08-25):
+                    #   이긴 팔 `A_probe` 는 라이브와 세 칸이 다르다 — ⑴REFERENCE 없음 ⑵요구가
+                    #   원장 뒤 ⑶params 있음. H·I 가 각각 하나씩만 밀어 실패했으니 셋을 함께 민다.
+                    #   ⚠단 형식 문면은 **A2 선언 그대로**(`answer_format`) 유지 — 이식 가능해야
+                    #   의미가 있다([[78]] ②: 이식 대상은 선언에 있는 텍스트만).
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n# Field contract\ntransactions: " + params +
+                             "\n\n=== RECORDS ===\n" + text + "\n\n" + afmt}]
+                elif arm == "K_paramslast":
+                    # 조합에서 params 위치만 다시 뒤로 — 계약이 **원장 뒤·형식 앞**.
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n=== RECORDS ===\n" + text +
+                             "\n\n# Field contract\ntransactions: " + params +
+                             "\n\n" + afmt}]
                 elif arm == "H_asklast":
                     # ★남은 차이 ⑵ (2026-08-24): 이긴 팔 `A_probe` 만 **요구 문장이 원장 뒤**에 있다.
                     #   다른 모든 팔은 형식이 원장 앞이다(라이브도 그렇다). 그 한 칸만 민다 —
