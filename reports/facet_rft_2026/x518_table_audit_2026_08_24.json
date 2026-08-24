@@ -1,0 +1,566 @@
+{
+ "probe": "x518_table_audit",
+ "date": "2026-08-24",
+ "table": "x430_account_facts_conditional.json",
+ "calibration": {
+  "recall_reject": "4/7",
+  "specificity_accept": "2/2",
+  "note": "x502 의 손-감사 9 칸이 라벨. `F_name` 은 강한 깃발에서 제외."
+ },
+ "n_filled": 355,
+ "n_strong_flag": 35,
+ "flags": {
+  "F_name": 316,
+  "F_unit_undeclared": 73,
+  "F_period_silent": 24,
+  "F_unit": 18,
+  "F_bound": 7,
+  "F_period": 7,
+  "F_delta": 1,
+  "F_scope": 4
+ },
+ "per_attr": {
+  "monthly_maintenance_fee": {
+   "cells": 37,
+   "flag": 1
+  },
+  "min_age": {
+   "cells": 56
+  },
+  "max_age": {
+   "cells": 56
+  },
+  "monthly_deposit_limit": {
+   "cells": 2,
+   "flag": 1
+  },
+  "waiver_min_daily_balance": {
+   "cells": 25,
+   "flag": 6
+  },
+  "overdraft_fee": {
+   "cells": 14,
+   "flag": 1
+  },
+  "oon_atm_fee": {
+   "cells": 18,
+   "flag": 6
+  },
+  "oon_atm_reimbursement": {
+   "cells": 12,
+   "flag": 2
+  },
+  "apy": {
+   "cells": 35,
+   "flag": 2
+  },
+  "daily_atm_withdrawal_limit": {
+   "cells": 13
+  },
+  "foreign_transaction_fee": {
+   "cells": 28,
+   "flag": 5
+  },
+  "wire_transfer_fee": {
+   "cells": 30,
+   "flag": 5
+  },
+  "free_oon_atm_per_month": {
+   "cells": 10,
+   "flag": 3
+  },
+  "overdraft_protection_transfer_fee": {
+   "cells": 5
+  },
+  "paper_statement_fee": {
+   "cells": 12,
+   "flag": 1
+  },
+  "foreign_currency_holding": {
+   "cells": 2,
+   "flag": 2
+  }
+ },
+ "flagged": [
+  {
+   "class": "blue_account",
+   "attr": "oon_atm_fee",
+   "flags": [
+    "F_name",
+    "F_unit"
+   ],
+   "values": [
+    "1%"
+   ],
+   "quote": "Out-of-network ATM withdrawal: 1% of withdrawal amount (max $3.00)",
+   "already_audited": false
+  },
+  {
+   "class": "blue_account",
+   "attr": "foreign_transaction_fee",
+   "flags": [
+    "F_bound",
+    "F_name"
+   ],
+   "values": [
+    "3%"
+   ],
+   "quote": "- For ATM withdrawals made in a foreign currency, you are charged 3% of the withdrawal amount, with a minimum fee of $5.00 per withdrawal.",
+   "already_audited": false
+  },
+  {
+   "class": "bronze_account",
+   "attr": "waiver_min_daily_balance",
+   "flags": [
+    "F_name",
+    "F_period"
+   ],
+   "values": [
+    "0"
+   ],
+   "quote": "If this value is $0, no monthly maintenance fee will be charged.",
+   "already_audited": false
+  },
+  {
+   "class": "bronze_rewards_card",
+   "attr": "monthly_maintenance_fee",
+   "flags": [
+    "F_period"
+   ],
+   "values": [
+    "0.00"
+   ],
+   "quote": "There is no annual fee of $0.00, so your rewards are not reduced by a membership charge.",
+   "already_audited": false
+  },
+  {
+   "class": "dark_green_account",
+   "attr": "oon_atm_fee",
+   "flags": [
+    "F_name",
+    "F_unit"
+   ],
+   "values": [
+    "1%"
+   ],
+   "quote": "Out-of-network ATM withdrawal fee: 1% (min $1.50)",
+   "already_audited": false
+  },
+  {
+   "class": "diamond_elite_account",
+   "attr": "wire_transfer_fee",
+   "flags": [
+    "F_name",
+    "F_unit"
+   ],
+   "values": [
+    "Yes"
+   ],
+   "quote": "All wire transfer fees are waived: Yes.",
+   "already_audited": false
+  },
+  {
+   "class": "diamond_vault",
+   "attr": "wire_transfer_fee",
+   "flags": [
+    "F_name",
+    "F_unit"
+   ],
+   "values": [
+    "waived"
+   ],
+   "quote": "All wire transfer fees waived: Yes.",
+   "already_audited": false
+  },
+  {
+   "class": "evergreen_account",
+   "attr": "oon_atm_fee",
+   "flags": [
+    "F_name",
+    "F_unit"
+   ],
+   "values": [
+    "1%"
+   ],
+   "quote": "Percentage: 1% of the withdrawal amount",
+   "already_audited": false
+  },
+  {
+   "class": "gold_plus_account",
+   "attr": "wire_transfer_fee",
+   "flags": [
+    "F_unit"
+   ],
+   "values": [
+    "Yes"
+   ],
+   "quote": "Transfer fees for this account tier are waived: Yes.",
+   "already_audited": false
+  },
+  {
+   "class": "gold_saver_account",
+   "attr": "apy",
+   "flags": [
+    "F_bound"
+   ],
+   "values": [
+    "up to 3.25%"
+   ],
+   "quote": "Gold Saver Account: Understanding Tiered Interest Rates up to 3.25%.",
+   "already_audited": false
+  },
+  {
+   "class": "gold_years_account",
+   "attr": "foreign_transaction_fee",
+   "flags": [
+    "F_name",
+    "F_unit"
+   ],
+   "values": [
+    "3.50"
+   ],
+   "quote": "$3.50 dollars",
+   "already_audited": false
+  },
+  {
+   "class": "green_account_(checking)",
+   "attr": "foreign_transaction_fee",
+   "flags": [
+    "F_name",
+    "F_unit"
+   ],
+   "values": [
+    "5.00"
+   ],
+   "quote": "The fee is the greater of: - 3% of the withdrawal amount (calculated on the U.S. dollar equivalent), or - $5.00",
+   "already_audited": false
+  },
+  {
+   "class": "green_account_(savings)",
+   "attr": "paper_statement_fee",
+   "flags": [
+    "F_unit"
+   ],
+   "values": [
+    "Yes"
+   ],
+   "quote": "Paperless statements are required for this account: Yes.",
+   "already_audited": false
+  },
+  {
+   "class": "green_account_(savings)",
+   "attr": "monthly_deposit_limit",
+   "flags": [
+    "F_period"
+   ],
+   "values": [
+    "$3,000"
+   ],
+   "quote": "The daily limit for mobile check deposits into your Green Account (savings) is $3,000.",
+   "already_audited": true
+  },
+  {
+   "class": "green_fee-free_account",
+   "attr": "free_oon_atm_per_month",
+   "flags": [
+    "F_name",
+    "F_period_silent",
+    "F_unit"
+   ],
+   "values": [
+    "0.00"
+   ],
+   "quote": "Out-of-network ATM usage (Rho Bank fee): $0.00",
+   "already_audited": false
+  },
+  {
+   "class": "hunter_green",
+   "attr": "waiver_min_daily_balance",
+   "flags": [
+    "F_name",
+    "F_period"
+   ],
+   "values": [
+    "5,000"
+   ],
+   "quote": "Review pricing: the monthly maintenance fee is $25.00. You can avoid this charge by maintaining at least $5,000 in your account.",
+   "already_audited": false
+  },
+  {
+   "class": "hunter_green",
+   "attr": "free_oon_atm_per_month",
+   "flags": [
+    "F_name",
+    "F_unit"
+   ],
+   "values": [
+    "20"
+   ],
+   "quote": "Monthly ATM fee rebates for out-of-network usage: Up to $20 per month",
+   "already_audited": false
+  },
+  {
+   "class": "hunter_green",
+   "attr": "oon_atm_fee",
+   "flags": [
+    "F_bound",
+    "F_name"
+   ],
+   "values": [
+    "20"
+   ],
+   "quote": "We rebate out-of-network ATM fees up to $20 per month.",
+   "already_audited": false
+  },
+  {
+   "class": "light_green_account",
+   "attr": "overdraft_fee",
+   "flags": [
+    "F_unit"
+   ],
+   "values": [
+    "None"
+   ],
+   "quote": "Overdraft fees: None (no overdraft fee is charged on this account)",
+   "already_audited": false
+  },
+  {
+   "class": "light_green_account",
+   "attr": "foreign_transaction_fee",
+   "flags": [
+    "F_name",
+    "F_unit"
+   ],
+   "values": [
+    "$2.00"
+   ],
+   "quote": "- You withdraw $60: Fee = $2.00.",
+   "already_audited": false
+  },
+  {
+   "class": "navy_blue",
+   "attr": "waiver_min_daily_balance",
+   "flags": [
+    "F_name",
+    "F_period_silent",
+    "F_unit"
+   ],
+   "values": [
+    "No minimum balance requirement"
+   ],
+   "quote": "No minimum balance requirement, so you can use the account flexibly.",
+   "already_audited": false
+  },
+  {
+   "class": "platinum_account",
+   "attr": "wire_transfer_fee",
+   "flags": [
+    "F_name",
+    "F_unit"
+   ],
+   "values": [
+    "Yes"
+   ],
+   "quote": "- Domestic wire transfer fees waived: Yes",
+   "already_audited": false
+  },
+  {
+   "class": "platinum_plus_account",
+   "attr": "wire_transfer_fee",
+   "flags": [
+    "F_name",
+    "F_unit"
+   ],
+   "values": [
+    "Yes"
+   ],
+   "quote": "Wire transfer fees are waived: Yes.",
+   "already_audited": false
+  },
+  {
+   "class": "purple_account",
+   "attr": "foreign_currency_holding",
+   "flags": [
+    "F_bound",
+    "F_name"
+   ],
+   "values": [
+    "30"
+   ],
+   "quote": "You can hold balances in up to 30 foreign currencies.",
+   "already_audited": false
+  },
+  {
+   "class": "purple_account",
+   "attr": "apy",
+   "flags": [
+    "F_delta",
+    "F_name",
+    "F_unit_undeclared"
+   ],
+   "values": [
+    "+0.3%",
+    "+0.1%"
+   ],
+   "quote": "Platinum Plus Savings: +0.3% APY",
+   "already_audited": true
+  },
+  {
+   "class": "silver_account",
+   "attr": "waiver_min_daily_balance",
+   "flags": [
+    "F_period"
+   ],
+   "values": [
+    "1,000"
+   ],
+   "quote": "Maintain at least $1,000 each statement cycle to meet account requirements and avoid monthly fees.",
+   "already_audited": false
+  },
+  {
+   "class": "silver_plus_account",
+   "attr": "waiver_min_daily_balance",
+   "flags": [
+    "F_name",
+    "F_period"
+   ],
+   "values": [
+    "2,500"
+   ],
+   "quote": "A monthly maintenance fee of $8.00 may be charged if your balance is below $2,500.",
+   "already_audited": false
+  },
+  {
+   "class": "sky_blue",
+   "attr": "foreign_transaction_fee",
+   "flags": [
+    "F_bound",
+    "F_name"
+   ],
+   "values": [
+    "2"
+   ],
+   "quote": "For cash withdrawals at foreign (international) ATMs, you are charged 2% of the withdrawal amount, with a minimum fee of $3.00 per withdrawal.",
+   "already_audited": false
+  },
+  {
+   "class": "sky_blue",
+   "attr": "oon_atm_fee",
+   "flags": [
+    "F_bound",
+    "F_name",
+    "F_scope",
+    "F_unit_undeclared"
+   ],
+   "values": [
+    "$3.00"
+   ],
+   "quote": "- For cash withdrawals at foreign (international) ATMs, you are charged 2% of the withdrawal amount, with a minimum fee of $3.00 per withdrawal.",
+   "already_audited": true
+  },
+  {
+   "class": "sky_blue",
+   "attr": "oon_atm_reimbursement",
+   "flags": [
+    "F_name",
+    "F_unit"
+   ],
+   "values": [
+    "15"
+   ],
+   "quote": "Out-of-network ATM fees are rebated up to 15 per month.",
+   "already_audited": false
+  },
+  {
+   "class": "true_blue",
+   "attr": "waiver_min_daily_balance",
+   "flags": [
+    "F_name",
+    "F_period"
+   ],
+   "values": [
+    "50,000"
+   ],
+   "quote": "The monthly maintenance fee is waived when your balance is at least $50,000 during the statement period.",
+   "already_audited": false
+  },
+  {
+   "class": "world_blue",
+   "attr": "oon_atm_fee",
+   "flags": [
+    "F_name",
+    "F_scope",
+    "F_unit"
+   ],
+   "values": [
+    "0%"
+   ],
+   "quote": "Rho foreign ATM withdrawal fee: 0% (minimum $0.00)",
+   "already_audited": false
+  },
+  {
+   "class": "world_blue",
+   "attr": "foreign_currency_holding",
+   "flags": [
+    "F_bound",
+    "F_name"
+   ],
+   "values": [
+    "35"
+   ],
+   "quote": "Decide which of the up to 35 supported currencies you plan to hold and transact in",
+   "already_audited": false
+  },
+  {
+   "class": "world_blue",
+   "attr": "oon_atm_reimbursement",
+   "flags": [
+    "F_name",
+    "F_scope"
+   ],
+   "values": [
+    "$100"
+   ],
+   "quote": "Foreign ATM fee rebates: Up to $100 per calendar month for fees charged by foreign ATM operators on cash withdrawals",
+   "already_audited": false
+  },
+  {
+   "class": "world_blue",
+   "attr": "free_oon_atm_per_month",
+   "flags": [
+    "F_name",
+    "F_scope",
+    "F_unit_undeclared"
+   ],
+   "values": [
+    "$100"
+   ],
+   "quote": "Foreign ATM fee rebates: Up to $100 per calendar month for fees charged by foreign ATM operators on cash withdrawals",
+   "already_audited": true
+  }
+ ],
+ "sparsity": {
+  "055": {
+   "purple_account": 11,
+   "green_fee-free_account": 11
+  },
+  "057": {
+   "blue_account": 12,
+   "evergreen_account": 10,
+   "light_blue_account": 11
+  },
+  "063": {
+   "silver_plus_account": 6,
+   "diamond_elite_account": 5,
+   "silver_account": 7,
+   "gold_account": 6,
+   "green_account_(savings)": 8
+  }
+ },
+ "limits": [
+  "깃발은 **판정이 아니다** — 사람이 읽을 칸을 좁힐 뿐이다(x502 가 판정의 형식).",
+  "닫힌 술어만 썼다([[59]]). 의미 판단 0.",
+  "회수율이 7/7 이 아니면 **깃발 없는 칸도 깨끗하다는 뜻이 아니다**([[25]]).",
+  "이 표는 `--conditional overlay` 가 얹힌 판본이다."
+ ]
+}
