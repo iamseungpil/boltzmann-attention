@@ -129,6 +129,27 @@ def main():
                              instr + "\n\n=== REFERENCE ===\n" +
                              json.dumps(ref, ensure_ascii=False, indent=1) +
                              "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text}]
+                elif arm == "D_all":
+                    # ★교락 해소 (2026-08-24): A_probe 는 `params` 계약과 **형식 문면**을 동시에
+                    #   바꿨다. 이 팔은 라이브 형식(A2 answer_format)을 그대로 두고 `params` 만
+                    #   더한다 — 16/16 이면 활성 성분은 **필드 계약 텍스트**다.
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n=== REFERENCE ===\n" +
+                             json.dumps(ref, ensure_ascii=False, indent=1) +
+                             "\n\n# Field contract\ntransactions: " + params +
+                             "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text}]
+                elif arm == "E_oneline":
+                    # 계약 전문 대신 **A2 params 축자의 한 문장만** 붙인다 — 한 줄로 닫히나.
+                    _one = ""
+                    for _s in re.split(r"(?<=[.;])\s+", params):
+                        if "EVERY atm_withdrawal" in _s:
+                            _one = _s.strip()
+                            break
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n=== REFERENCE ===\n" +
+                             json.dumps(ref, ensure_ascii=False, indent=1) +
+                             ("\n\n" + _one if _one else "") +
+                             "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text}]
                 elif arm == "C_toolmsg":
                     msgs = [
                         {"role": "user", "content":
