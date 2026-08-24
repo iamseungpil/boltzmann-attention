@@ -761,9 +761,21 @@ def formalize_arg_axis(agent, la, UserMessage, msgs, arg, choices, prompt_tpl):
     return out or None
 
 
-def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools):
+ASK_AGENT_CALL = ("which ONE of these tools must the agent CALL to fulfill the request? ")
+
+
+def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools, ask=None):
     """★FIND(의도→operator): 격리 LLM 서브콜 — 사용자 요청이 요구하는 action_tool 1개(or none).
-    도메인-일반(intent→operator = 값 formalize의 operator판·learn 정의역). 실패=None(안전)."""
+    도메인-일반(intent→operator = 값 formalize의 operator판·learn 정의역). 실패=None(안전).
+
+    ★`ask` (2026-08-24·x516 이후 신설): **묻는 문장만** 갈아 끼우는 자리. 기본값은 종전 문장과
+      바이트 동일이므로 **라이브 거동은 안 바뀐다** — 프로브가 프롬프트를 베끼지 않게 하려고
+      정본에 인자를 낸 것이다([[67]] 사본 금지).
+      왜 필요한가: `x516` 이 후보집합 가설을 기각하면서 물음 자체가 **에이전트-프레임**임을
+      드러냈다 — *"must the agent CALL"* 은 손님-실행 도구(`submit_transaction` 등)를 옳은
+      답으로 **가질 수 없는** 물음이다. 그 프레임이 결손인지를 재려면 문장을 갈아야 한다.
+      ⚠[[66]]: 여기에 **케이스 규칙을 넣지 마라**(과거 af8c1e21 이 그러다 098 4/4→0/4).
+        일반 어법 교체만 허용된다."""
     if not action_tools or agent is None or la is None:
         return None
     users = [str(getattr(m, "content", "") or "") for m in msgs
@@ -777,7 +789,7 @@ def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools):
     #   [ACTION] 푸시가 전면 침묵 — 098 4/4→0/4·099 3/4→1/4. 규칙은 프롬프트에 넣어도
     #   입법이다. 원래 막으려던 무단 개설(071t3)은 이 절로 안 닫혔음도 실측(모델 자발 호출).
     prompt = ("The user is talking to a customer-service agent. Based ONLY on what the user asked, "
-              "which ONE of these tools must the agent CALL to fulfill the request? "
+              + (ask or ASK_AGENT_CALL) +
               "Reply with the exact tool name, or 'none' if none applies.\n"
               "Tools: " + ", ".join(sorted(action_tools)) + "\n"
               "User said:\n- " + "\n- ".join(u[:300] for u in users) +
