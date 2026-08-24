@@ -1,0 +1,43 @@
+{
+  "probe": "x512_category_is_boundary",
+  "step": "x509 S2b — ②범주의 라이브 대응물이 있나",
+  "date": "2026-08-24",
+  "verdict": "★**라이브 대응물이 없다. 큐의 exit 조건대로 ②범주를 내리고 경계로 기록한다.**",
+
+  "decisive_measurement": {
+    "question": "우리 `T2_WRITE_ARG_ENUM` 게이트의 술어는 *'실재하는 클래스 이름인가'*(집합 소속)다. 실패가 그 술어에 걸리나.",
+    "data": "055·057·063 · 최신 3런 · 모델이 낸 `account_class` **69건**",
+    "result": {"집합 안": 68, "집합 밖": 1},
+    "reading": "★**98.6% 가 집합 안이다** — 우리 게이트는 통과시킨다. 게이트가 겨누는 것은 나머지 **1.4%**(`Gold Account (savings)` 1건)뿐이다. 실패는 *'실재하지 않는 이름'* 이 아니라 **'실재하는 것 중 어느 것'** 이고, 그것은 정본이 이미 ⛔레버 불가(모트)로 등급한 `의미 소속 판정 불가`(열린 술어)다.",
+    "corroboration": "gold 클래스가 모델 출력에 **실제로 등장한다** — `Silver Plus Account` 3회(055·063 gold) · `Purple Account` 3회(055 gold) · `Blue Account` 1회(057 gold). 이름을 모르는 것이 아니다."
+  },
+
+  "why_x501_does_not_transfer": "x501 이 프로브에서 산 2건(미합류 조건부 칸 · `absent` 토큰 충돌)은 **프로브가 필터링하는 사실표**에 대한 수리다. 라이브 엔진은 그 표로 후보를 **거르지 않는다** — 이름 소속만 본다. 그리고 소속은 이미 98.6% 만족돼 있다. ⇒ 이식할 대응물이 없다.",
+
+  "task_shapes": {
+    "055": "gold = `Purple Account`(checking) + `Silver Plus Account`(savings). 모델이 다른 클래스를 내면 env 가 **받아준다** → DB 만 틀린다. 순수 범주 선택.",
+    "057": "★gold = `Blue Account`(checking) **하나뿐**. 모델은 `Green Fee-Free Account`(checking)로 열고 나서 **gold 가 요구한 적 없는 savings 계좌**를 8~10턴 쫓는다.",
+    "063": "gold = `Silver Plus Account`(savings)."
+  },
+
+  "side_finding_retry_loop": {
+    "measured": "env 가 `Error: Account eligibility requirements not met.` 로 거절한 **41회** 중 → class 를 바꾼 것 **10** · **동일 재제출 27 (73%)**",
+    "cause": "`부재 미종결`([[57]] 인자 변화 없는 재시도). env 거절문이 **무엇이 부족한지 말하지 않는다**(축자 전문: `Error: Account eligibility requirements not met.` 뿐) — [[64]] 위반이나 그 층은 **env** 다([[25]] 우리가 못 고친다).",
+    "value": "★**태스크를 사지는 않는다.** 057 은 재시도가 0 이어도 checking 클래스가 이미 틀렸다(Green Fee-Free ≠ gold Blue). 이것이 사는 것은 **턴(부하)** 이고, S2 가 부하가 실제로 성적을 좌우함을 보였으므로 그 축에서 값이 있다 — 다만 **hard-0 표적 수는 0** 이다.",
+    "closed_predicate_if_ever_built": "같은 도구 + 같은 인자 + 직전 env 거절 → 동일 재제출 금지. 도메인 리터럴 0 · 판단 0."
+  },
+
+  "consequence_for_the_queue": {
+    "before": "①금액 2 · ②범주 2 · ⑦유도 1 → 누적 ①+②+⑦ = 5/10",
+    "after": "★②범주가 **경계**이므로 그것을 요구하는 **055·057·063 은 살 수 없다**. 누적이 **①금액 2(072·074) + ⑦유도 1(016) = 3/10** 으로 내려간다.",
+    "remaining_buyable": ["072", "074", "016"],
+    "boundary_recorded": ["055", "057", "063"],
+    "still_open": ["040", "079", "085", "094"]
+  },
+
+  "caveats": [
+    "집합 대조는 `doc_index` 슬러그를 제목화해 맞춘 것이다. 표기 변형(`Gold Account` ↔ `Gold Account (savings)`)이 경계선에 있고, 실제로 집합 밖 1건이 그 변형이다 — **집합 밖 비율이 과소평가일 수 있다**. 그래도 68:1 이 20:1 이 되어도 결론은 안 바뀐다.",
+    "**경계 기록은 [[62]] 2b 상 '공정한 격리에서도 실패' 를 요구한다.** 여기서 근거로 쓴 것은 라이브의 게이트 적중률이지 격리가 아니다. 격리 근거는 이미 있다 — x501/x431 의 `account_class` 축(x499b 정산: MODEL_CAN 0 · MODEL_CANNOT 0 · OUR_LAYER 4 · INCONCLUSIVE 2 = **능력 판정 없음**). ⇒ **엄밀히는 '레버 없음'이 아니라 '우리 게이트의 술어가 표적을 안 겨눈다'** 가 확정된 것이다. 능력 경계 단정은 여전히 미확정이고 그렇게 적는다.",
+    "057 의 savings 추격은 **모델이 요구를 지어낸 것**이라 ②범주와 별개 축일 수 있다 — 이번 프로브는 그것을 가르지 않았다."
+  ]
+}
