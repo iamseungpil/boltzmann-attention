@@ -731,6 +731,90 @@ def sysmsg_spec(with_or=False, filler=False, families=None):
               "For an eligibility range give BOTH bounds (min_age <= their age AND max_age >= their age).")
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# ★S2c 고르기 팔 (x509 S2c · 2026-08-24) — **엔진은 거르고 argmax 는 모델이 한다**
+# ─────────────────────────────────────────────────────────────────────────────
+#   왜: 055·063 의 gold(`Silver Plus Account`)를 라이브 11 sim 에서 **호출 0 · 산문 0** 으로
+#   한 번도 안 꺼낸다. KB 에는 자격 표가 있다(`…silver_plus_account_001`: 최소개설 $1,000 ·
+#   유지잔고 $2,500 · Tier2 $15,000). [[63]] 은 이 형태가 **제거로 닫힌다**고 실측했다
+#   (걸러진 표에서 argmax: x150 0/5→5/5 · x201 0/8→8/8 · x269 0/8→8/8).
+#   ⛔[[66]]: 어느 것을 고르라는 규칙·케이스를 **한 줄도** 넣지 않는다. 후보와 표만 준다.
+#   ⛔[[62]] ③: 엔진은 고르지 않는다. 하는 일은 *후보 집합을 좁혀 건네는 것*뿐이다.
+CHOOSE_ARMS = ("A_names", "B_table", "C_filtered", "N_neg")
+
+CHOOSE_SYS = ("You pick one account class for the customer. "
+              'Reply with ONE JSON object only: {"account_class": "<exact name from the list>"}. '
+              "No prose.")
+
+
+def _table_lines(tbl, names, attrs=None):
+    """후보의 속성표를 **표에 있는 그대로** 찍는다(해석 0 · 순위 0)."""
+    out = []
+    for n in names:
+        row = tbl.get(n) or {}
+        cells = []
+        for at, cell in sorted(row.items()):
+            if not isinstance(cell, dict):
+                continue
+            if attrs and at not in attrs:
+                continue
+            vs = cell.get("values") or []
+            if vs:
+                cells.append("%s=%s" % (at, "/".join(map(str, vs))[:28]))
+        out.append("- %s: %s" % (clsname(n).replace("_", " ").title(),
+                                 ", ".join(cells[:10]) or "(no documented values)"))
+    return "\n".join(out)
+
+
+def choose_body(arm, said, tbl, pool, surv):
+    """팔마다 **무엇을 건네는가**만 다르다. 요구 문장은 네 팔이 동일하다."""
+    ask = ("# Customer's own words\n%s\n\n# Which account class should be opened?\n"
+           "Answer with one name from the list above." % said[:5000])
+    if arm == "A_names":
+        names = sorted(pool)
+        head = "# Available account classes\n%s\n" % "\n".join(
+            "- %s" % clsname(n).replace("_", " ").title() for n in names)
+    elif arm == "B_table":
+        names = sorted(pool)
+        head = ("# Available account classes and their documented parameters\n%s\n"
+                % _table_lines(tbl, names))
+    elif arm == "C_filtered":
+        names = sorted(surv)
+        head = ("# Account classes that satisfy the customer's stated requirements\n%s\n"
+                % _table_lines(tbl, names))
+    elif arm == "N_neg":
+        # 부정통제([[57]]) — C_filtered 와 **같은 개수**를 손님 말을 **안 보고** 고른다
+        # (이름 정렬 앞에서부터). 축소의 *크기*가 사는지 *정보*가 사는지 가른다.
+        names = sorted(pool)[:max(1, len(surv))]
+        head = ("# Account classes that satisfy the customer's stated requirements\n%s\n"
+                % _table_lines(tbl, names))
+    else:
+        raise SystemExit("unknown choose arm %r" % arm)
+    return head + "\n" + ask, names
+
+
+def choose_ask(port, body, temperature=0.7, maxtok=200):
+    import urllib.request as _u
+    payload = {"model": MODEL, "temperature": temperature, "max_tokens": maxtok,
+               "messages": [{"role": "system", "content": CHOOSE_SYS},
+                            {"role": "user", "content": body}]}
+    rq = _u.Request("http://127.0.0.1:%d/v1/chat/completions" % port,
+                    data=json.dumps(payload).encode("utf-8"),
+                    headers={"Content-Type": "application/json"})
+    with _u.urlopen(rq, timeout=240) as r:
+        return json.loads(r.read().decode("utf-8"))["choices"][0]["message"]["content"]
+
+
+def choose_parse(txt):
+    m = re.search(r"\{.*\}", txt or "", re.S)
+    if not m:
+        return None
+    try:
+        return (json.loads(m.group(0)) or {}).get("account_class")
+    except Exception:
+        return None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8141)
@@ -743,6 +827,9 @@ def main():
     ap.add_argument("--repeat", type=int, default=1,
                     help="같은 코드로 N회 반복 — **판정선**(무처치 변동폭)을 잰다")
     ap.add_argument("--args-filter", default="account_class")
+    ap.add_argument("--choose", type=int, default=0,
+                    help="S2c — 걸러진 뒤 **모델에게 고르게 한다**. 팔당 롤아웃 수(0=끄기). "
+                         "엔진은 거르기만 하고 argmax 는 모델이 한다([[62]] ③)")
     ap.add_argument("--absent-name", default="absent", choices=("absent", "undocumented"),
                     help="모델에게 보일 `absent` op 의 이름. 뜻·표·엔진은 그대로다. "
                          "absent=종전(우리 표에선 '문서 미기재'인데 모델은 '상품에 없음'으로 쓴다) "
@@ -913,12 +1000,42 @@ def main():
           pbest, pscore, pheld = preference_rank(prefs, tbl, surv)
           # ★목적함수는 **필터 뒤 순위**일 뿐 생존 집합을 대체하지 않는다 — 둘을 따로 보고한다.
           surv_filter = list(surv)
+          # ★S2c — 걸러진 후보를 **모델에게 되돌려** 고르게 한다([[63]] 제거 형태)
+          choose = {}
+          if a.choose:
+              _pool = [cls for cls, row in tbl.items()
+                       if isinstance(row, dict)
+                       and (not _fam_scope or row.get("_family") in _fam_scope)]
+              for _ca in CHOOSE_ARMS:
+                  _body, _names = choose_body(_ca, said, tbl, _pool, surv_filter or _pool)
+                  _hit = _bad = 0
+                  _picks = []
+                  for _k in range(a.choose):
+                      try:
+                          _p = choose_parse(choose_ask(a.port, _body))
+                      except Exception:
+                          _p = None
+                      if _p is None:
+                          _bad += 1
+                          continue
+                      _picks.append(str(_p))
+                      if clsname(str(_p)) == clsname(c["gold"]):
+                          _hit += 1
+                  choose[_ca] = {"gold": _hit, "n": a.choose, "unparsed": _bad,
+                                 "offered": len(_names),
+                                 "gold_offered": any(clsname(x) == clsname(c["gold"])
+                                                     for x in _names),
+                                 "picks": _picks[:6]}
+              print("        [S2c] %s" % " | ".join(
+                  "%s %d/%d(후보 %d%s)" % (k, v["gold"], v["n"], v["offered"],
+                                          "" if v["gold_offered"] else "·gold 미제시")
+                  for k, v in choose.items()))
           # ★채점은 **정확 일치**여야 한다(2026-08-20 수리): 표가 45 클래스로 넓어지면서 `silver_account`·
           #   `silver_plus_account`·`silver_saver_account` 가 공존한다. 옛 `startswith(첫 낱말)` 규칙은
           #   그 셋을 전부 `Silver Plus Account` 의 적중으로 셌다 — 채점기가 후해지면 결론이 무효다([[25]]).
           hit = [x for x in surv_filter if clsname(x) == clsname(c["gold"])]
           win_hit = bool(winners) and any(clsname(x) == clsname(c["gold"]) for x in winners)
-          rows.append({"arm": a.arm, "menu_attrs": sorted(_allowed),
+          rows.append({"arm": a.arm, "menu_attrs": sorted(_allowed), "choose": choose,
                        "family_from": a.family_from, "family_pick": _fam_pick,
                        "n_scope": sum(1 for r in tbl.values() if isinstance(r, dict)
                                       and (not _fam_scope or r.get("_family") in _fam_scope)),
@@ -968,6 +1085,19 @@ def main():
                 + ' · 계열=%s 후보 중앙값 %d'
                 % (a.family_from, sorted(x['n_scope'] for x in rows)[n // 2]))
       all_rows.append(rows)
+    if a.choose:
+        print("")
+        print("=== S2c 고르기 정산 (gold 를 고른 롤아웃 / 전체) ===")
+        for _ca in CHOOSE_ARMS:
+            _g = sum((r.get("choose") or {}).get(_ca, {}).get("gold", 0)
+                     for rr in all_rows for r in rr)
+            _n = sum((r.get("choose") or {}).get(_ca, {}).get("n", 0)
+                     for rr in all_rows for r in rr)
+            _off = sum(1 for rr in all_rows for r in rr
+                       if (r.get("choose") or {}).get(_ca, {}).get("gold_offered"))
+            _tot = sum(1 for rr in all_rows for r in rr if (r.get("choose") or {}).get(_ca))
+            print("   %-12s %3d/%-4d   gold 이 후보에 있던 사례 %d/%d"
+                  % (_ca, _g, _n, _off, _tot))
     rep = os.path.join(HERE, "..", "..", "..", "reports", "facet_rft_2026")
     outs = []
     for k, rws in enumerate(all_rows):
