@@ -1,0 +1,392 @@
+{
+ "task": "tau2 banking bank_t7348 halfA · task_003 per-step 포렌식 (trial0 1.0 / trial1 0.0 · 1/2 · 직전 런 t7346 2/2 대비 −1)",
+ "sims": [
+  {
+   "trial": 1,
+   "reward": 0,
+   "missing": [
+    "apply_for_credit_card{card_type:\"Silver Rewards Card\", customer_name:\"Catherine Wells\", annual_income:\"180000\", rho_bank_subscription:true} (aid=003_0)"
+   ],
+   "wrongarg": [
+    "apply_for_credit_card{card_type:\"Platinum Rewards Card\", customer_name:\"Catherine Wells\", annual_income:\"180000\", rho_bank_subscription:true} @msg_i=7 — 4필드 중 card_type 한 칸만 gold 와 다름(나머지 3필드 축자 일치)"
+   ],
+   "dup": [],
+   "blocked": [],
+   "cause_primary": "our_layer",
+   "cause_secondary": "model + user_sim",
+   "lever_firing": "T2_CLAIMPROV 7 · T2_SEARCH_AGENT 4 · T2_SOURCE 4 · T2_ARBITRATE 6 · T2_DOCDECIDE 2 · T2_GATE_REGEN(claimprov) 2 · T2_DECISION_CARRY 1 · T2_EPLAN_WALK 1 · T2_WRITE_SUB 1(근거검산 통과 0) || 미발화: T2_SG_DOCS · T2_PIN_READ · T2_DEMANDED_STEP · T2_FOLLOWUP · T2_REQUIRE_DOC_DELIVER · T2_SEARCH_REARM · T2_STALE_NOTE || 런 전체 0발: FAB_STRIP · T2_ARG_PRODUCERS(F8) · READ-FIRST · T2_PROCEDURE/regen-* · T2_ARG_EMPTY || ⛔부작위 오발화: T2_ENVGUARD 0 · T2_TRUNCGUARD 0 (플래그 go_stack.sh:145 에서 ON 인데 자기 표적인 finish_reason=length·봉투 111개 응답을 통과시킴) || 오발화(오탐): T2_SOURCE claims=5 unsourced=5 — 5건 전부 우리 자신의 도구 출력에 축자로 존재 || 오발화(모순): T2_DOCDECIDE 가 우리 comparator 가 제외한 Bronze/Business Bronze 를 결정점에 답으로 배달",
+   "prescription": "P1(최우선) _ap_regen 반환 직전에 ENVGUARD/TRUNCGUARD 술어 재평가 → 걸리면 return None(원본 유지). 술어는 t2_gate_patch.py:11762/:11783 에 이미 있고 닫힌 술어·도메인 리터럴 0. 파는 것 = 폭주했지만 산문으로 쓸모 있던 재생성도 버려짐. || P2 t2_source.build_corpus 에 ours_tool_facts 채널 추가(우리 도구가 낸 값 집합이면 통과) || P3 _anchors 에서 원장 토큰만 [_-] 분해(단독 불충분 — 003 은 need=2 를 못 넘음) || P4 A2 의 'doc <slug>_*' 표기를 build_corpus:93 정규식이 걷는 형식으로 정렬 || ⚠x500 §E-2 의 재개 지표('ENVGUARD 발화 5건 이상')는 이 결함을 구조적으로 못 센다 — 대체 지표 = 커밋된 assistant 턴 중 finish_reason=length ∨ (tool_calls 공집합 ∧ 봉투 태그 존재) 수(t7348 halfA = 1)",
+   "evidence": [
+    "reward_info.reward_basis=['DB'] · reward_breakdown={'DB':0.0} · db_check={'db_match':False} · termination=user_stop",
+    "t2_forensic.mutation_diff: missing 1 · wrongarg 1 · extra/dup/blocked/matched 0",
+    "사이드카 turn=4 channel=unified_regen kind=reminder-assistant(len=1050·원본 초안): '3. **Silver Rewards Card** - Annual Fee: $0 - Foreign Transaction Fee: 2.75% (reduced to 0% with Rho-Bank+ subscription) - Cashback: 1% on all purchases, 4% on travel and software categories - Maximum Credit Limit: $100,000 - Purchase Protection: Yes … Would you like more information on any of these cards, or would you like to proceed with applying for one of them?'",
+    "msg[3] tool 축자: 'Silver Rewards Card', 'facts': {'annual_fee':0.0,'fx_fee':2.75,'fx_fee_with_premium':0.0,'limit_max':100000,'purchase_protection':True,'category_rates':{'software':4.0,'travel':4.0},\"rate_for('travel')\":'4.0% (other categories: 1.0%)'} · 'excluded':[{'card':'Bronze Rewards Card','reason':'fx_fee=2.75 violates max_fx_fee=0.0'}]",
+    "로그 '[T2_SOURCE] claims=5 unsourced=5' + 사이드카 'Error: [SOURCE] you stated 5 thing(s) as fact that the policy documents decide, without having the document: \"Maximum Credit Limit: $150,000\"; \"Minimum Payment Percentage: 2.5%\"; \"Maximum Credit Limit: $112,500\"; \"Minimum Payment Percentage: 2%\"; \"Maximum Credit Limit: $100,000\"'",
+    "오프라인 재현(t2_source 정본 함수·msg[0..3] 그대로): ledger chars=3071 lines=1 docs=set() · unsourced 5 of 5 · _anchors('Maximum Credit Limit: $150,000')={'limit','maximum','credit'} · ledger anchors 에 'limit_max'/'min_payment_pct' 만 있어 intersection=set() · need=2 · '150000' in ledger figures = True",
+    "사이드카 turn=4 channel=claimprov len=275 sha=e594a653fdaa — trial0 의 같은 자리 발화와 **바이트 동일**: 'Note: [CLAIM-PROVENANCE] tool ownership — the following are in YOUR OWN tool list, not the customer's: provide apply_for_credit_card tool (tool: give_discoverable_user_tool).'",
+    "msg[4] raw_data.choices[0].finish_reason='length' · completion_tokens=8192 · content 42,962자 · '<tool_call>' 여는 태그 111(닫힘 110) · Platinum 37/Gold 37/Silver 36 · tool_calls=null · tail 미종결",
+    "로그 '[T2_CLAIMPROV] regen tool_calls=[]' — t2_gate_patch.py:12601 의 `if _new2 is not None:` 안에서만 인쇄되므로 재생성 산출이 am 을 **교체·커밋**했음",
+    "'[T2_ENVGUARD]'·'[T2_TRUNCGUARD]' 로그 라인 = halfA 11,593 줄 전체에서 0건 · 플래그 go_stack.sh:145 'export T2_ENVELOPE_GUARD=1 T2_ENVELOPE_CAP=2 T2_TRUNC_GUARD=1'",
+    "msg[5] user-sim 축자(페르소나 이탈·KB 반증): 'Thanks, Catherine—based on your hard requirements … ### 3) Silver Rewards Card - Credit limits: **Lowest tier**, **not** a fit if you need the *possibility* of $100,000+ … If the $100,000+ potential credit line is truly a hard requirement, **the Platinum Rewards Card is the only option that fits**.'",
+    "사이드카 turn=6 channel=unified_regen kind=reminder-assistant(len=1382·원본 초안): 'the **Platinum Rewards Card** seems to be the best fit …' + 3장 유지 · 영속 msg[6](len=698)은 Platinum 만 — 우리 claimprov 재생성이 후보를 더 좁혔다",
+    "msg[6] 축자: 'I apologize for the oversight. Based on your requirements, the **Platinum Rewards Card** is the best fit …' · prompt_tokens=20770(msg[3] 재료가 여전히 문맥에 있음)",
+    "로그 '[T2_DOCDECIDE] → \\'Business Bronze Rewards Card\\''(turn=4) · '[T2_DOCDECIDE] → \\'Bronze Rewards Card\\''(turn=6) — 우리 comparator 가 제외한 카드",
+    "duration 1077.5s (trial0 137.5s · 7.8×)"
+   ],
+   "steps": [
+    {
+     "step": 1,
+     "role": "user",
+     "what": "요구 4종 선공개 + 목록 질문. 연소득을 말하지 않는다(trial0 은 말한다)",
+     "actor": "user_sim",
+     "kind": "시나리오 분산",
+     "evidence": "'- No foreign transaction fees / - Purchase protection / - A credit limit that could potentially be at least $100,000 / - My biggest spending category is travel … Also, I have a Rho-Bank+ subscription. What options do you have that fit those requirements?'",
+     "consequence": "이후 에이전트가 annual_income 을 100000 으로 날조하는 선행 조건. gold 필드는 손님이 직접 180000 을 보내 복구됨",
+     "reward_causal": "약"
+    },
+    {
+     "step": 2,
+     "role": "assistant",
+     "what": "check_card_application_fit 를 정확한 인자로 호출",
+     "actor": "model",
+     "kind": "formalize 성공",
+     "evidence": "{\"max_fx_fee\":\"0\",\"needs_purchase_protection\":\"true\",\"min_credit_limit\":\"100000\",\"spend_category\":\"travel\",\"premium_subscriber\":\"true\"}",
+     "consequence": "정답 재료를 부르는 데 성공",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 3,
+     "role": "tool",
+     "what": "우리 스캐폴드가 정답 재료를 전부 전달 (Silver limit_max=100000 · annual_fee 0 · travel 4.0% · Bronze 제외)",
+     "actor": "our_layer",
+     "kind": "재료 전달 성공",
+     "code_path": "scripts/distill/tau2/t2_scaffold_get.py → 로그 [T2_SCAFFOLD_GET] check_card_application_fit",
+     "evidence": "'Silver Rewards Card', 'facts': {'annual_fee':0.0,'fx_fee':2.75,'fx_fee_with_premium':0.0,'limit_max':100000,'purchase_protection':True,\"rate_for('travel')\":'4.0% (other categories: 1.0%)'} · 'excluded':[{'card':'Bronze Rewards Card','reason':'fx_fee=2.75 violates max_fx_fee=0.0'}]",
+     "consequence": "정보 결손 0 — Silver 가 gold 의 유일해임이 이 시점에 확정 가능",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 4,
+     "role": "assistant(초안#1·비커밋)",
+     "what": "카드 3장을 붕괴 없이 전부 나열 — 옳은 발화",
+     "actor": "model",
+     "kind": "옳은 발화",
+     "evidence": "사이드카 turn=4 channel=unified_regen kind=reminder-assistant len=1050: '3. **Silver Rewards Card** … Foreign Transaction Fee: 2.75% (reduced to 0% with Rho-Bank+ subscription) … Maximum Credit Limit: $100,000 … Would you like more information on any of these cards, or would you like to proceed with applying for one of them?'",
+     "consequence": "이 초안이 섰으면 trial0 이 1.0 을 받은 발화와 같은 종류. 여기까지 잃은 것 없음",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 4,
+     "role": "our_layer(turn4 개입①)",
+     "what": "T2_SOURCE 가 초안#1 의 수치 5건을 전부 무근거로 판정 — 5/5 오탐 → 통합 재생성 개시",
+     "actor": "our_layer",
+     "kind": "계기 오판 → 재생성 유발",
+     "code_path": "scripts/distill/tau2/t2_source.py:265 _anchors() · :271 unsourced_claims() · :82/:93 build_corpus()",
+     "evidence": "로그 '[T2_SOURCE] claims=5 unsourced=5' → 사이드카 'Error: [SOURCE] you stated 5 thing(s) as fact … \"Maximum Credit Limit: $150,000\"; \"Minimum Payment Percentage: 2.5%\"; \"Maximum Credit Limit: $112,500\"; \"Minimum Payment Percentage: 2%\"; \"Maximum Credit Limit: $100,000\"'; 오프라인 재현 unsourced 5 of 5 · intersection=set() · need=2 · '150000' in ledger figures=True",
+     "consequence": "다섯 수치는 step 3 의 우리 도구 출력에 축자로 존재. 통과 중이던 초안에 재생성을 연다",
+     "reward_causal": "중"
+    },
+    {
+     "step": 4,
+     "role": "our_layer(turn4 개입②)",
+     "what": "[ACTION] 소유권문 동시 부착 (trial0 과 동일 발화)",
+     "actor": "our_layer",
+     "kind": "표면화",
+     "code_path": "t2_gate_patch.py:10579(fb=[am]) · :10846(record_many channel='unified_regen')",
+     "evidence": "'Error: [ACTION] \\'apply_for_credit_card\\' is run by the CUSTOMER, not by you. …'",
+     "consequence": "trial0 과 동일 ⇒ 갈림의 원인 아님",
+     "reward_causal": "약"
+    },
+    {
+     "step": 4,
+     "role": "our_layer(turn4 개입③)",
+     "what": "검색 팔이 우리 자신이 제외한 Bronze 를 결정 지점에 답으로 배달",
+     "actor": "our_layer",
+     "kind": "문구 모순([[55]])",
+     "code_path": "t2_search.py → 로그 [T2_SEARCH_AGENT]/[T2_DOCDECIDE]/[T2_SEARCH_ON_PROCEED]",
+     "evidence": "로그 '[T2_DOCDECIDE] → \\'Business Bronze Rewards Card\\'' · '[T2_SEARCH_ON_PROCEED] deny 아님 · 재료 263자 배달' · 사이드카 cp2 'It answers: Business Bronze Rewards Card.'",
+     "consequence": "trial0 도 축자 동일 배달을 받고 1.0 ⇒ 인과 아님 · 별건 기록",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 4,
+     "role": "our_layer(turn4 개입④)",
+     "what": "T2_CLAIMPROV 발화 → T2_GATE_REGEN(claimprov) 재생성 개시",
+     "actor": "our_layer",
+     "kind": "재생성 개시",
+     "code_path": "t2_gate_patch.py:12600 `_new2 = _ap_regen(\"\\n\".join(_parts), \"claimprov\")`",
+     "evidence": "로그 '[T2_CLAIMPROV] window hit(resign) claims=0 unbacked=0 pending=1 unb_p=1 [\\'give\\']' → '[T2_LEVER] T2_GATE_REGEN … claimprov' · 사이드카 turn=4 channel=claimprov len=275 sha=e594a653fdaa (trial0 과 바이트 동일)",
+     "consequence": "문구는 갈림의 원인이 아니고, 재생성을 '연 것'이 우리 층이다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 4,
+     "role": "assistant(재생성 산출)",
+     "what": "재생성이 정지에 실패 — give_discoverable_user_tool 봉투 111개 반복 후 길이 상한 소진",
+     "actor": "model",
+     "kind": "정지 실패(degeneration)",
+     "evidence": "raw_data.choices[0].finish_reason='length' · completion_tokens=8192 · content 42,962자 · '<tool_call>' 111개(닫힘 110) · Platinum 37/Gold 37/Silver 36 · tool_calls=null · tail 미종결",
+     "consequence": "vLLM hermes 파서 all-or-nothing → 유효 봉투 110개 폐기, 43k 가 content 로",
+     "reward_causal": "강"
+    },
+    {
+     "step": 4,
+     "role": "our_layer(turn4 개입⑤)",
+     "what": "폭주 산출을 검사 없이 채택·커밋 — ENVGUARD/TRUNCGUARD 가 재생성 산출을 원리적으로 못 본다",
+     "actor": "our_layer",
+     "kind": "배치 사각(guard bypass)",
+     "code_path": "가드 t2_gate_patch.py:11762(ENVGUARD)·:11783(TRUNCGUARD) / 배치 주석 :11738 '모든 의미-게이트보다 먼저 돈다' / 채택 :12601-12603 `if _new2 is not None: am = _new2` / _ap_regen(:11409-11694) 채택검사 _denied_calls(:11511)·_proc_first_deny(:11554)·T2_UNLOCK_*(:11616) 전부 tool_calls 순회 / 플래그 go_stack.sh:145. 세 자리 모두 같은 함수 unified()(:7115) 본문의 직선 코드이고 순서가 11762→11783→12600",
+     "evidence": "로그 '[T2_CLAIMPROV] regen tool_calls=[]' (= _new2 is not None 분기 안에서만 인쇄 ⇒ 채택됨) · '[T2_ENVGUARD]'·'[T2_TRUNCGUARD]' 는 halfA 11,593 줄에서 0건",
+     "consequence": "tool_calls==[] 이면 세 검사가 전부 공통과. 옳았던 초안#1 이 43k 쓰레기로 대체돼 영속. duration 137s→1077s",
+     "reward_causal": "강"
+    },
+    {
+     "step": 5,
+     "role": "user",
+     "what": "페르소나 이탈 — 손님이 상담원 답변을 대신 쓰고 KB 와 반대되는 단정을 한다",
+     "actor": "user_sim",
+     "kind": "허위 주장([[21]]·종결 카테고리 아님)",
+     "evidence": "'### 3) Silver Rewards Card - Credit limits: **Lowest tier**, **not** a fit if you need the *possibility* of $100,000+ … If the $100,000+ potential credit line is truly a hard requirement, **the Platinum Rewards Card is the only option that fits**.'",
+     "consequence": "KB 반증(Silver limit_max=100000 ≥ 요구 100000). 카드 선택을 Platinum 으로 고정",
+     "reward_causal": "강"
+    },
+    {
+     "step": 6,
+     "role": "assistant(초안#1·비커밋)",
+     "what": "모델이 손님의 허위 단정에 정박 — Platinum 추천으로 붕괴(3장 나열은 유지) + annual_income 100000 날조",
+     "actor": "model",
+     "kind": "자기 도구 출력 미참조",
+     "evidence": "사이드카 turn=6 kind=reminder-assistant len=1382: 'the **Platinum Rewards Card** seems to be the best fit since it\\'s the only card that offers the possibility of a $100,000+ credit line. … - **Credit Limits:** Lowest tier; not suitable for a $100,000+ limit'(Silver)",
+     "consequence": "card_type 이 여기서 뒤집힌다. step 3 은 여전히 문맥에 있다(prompt_tokens=20770)",
+     "reward_causal": "강"
+    },
+    {
+     "step": 6,
+     "role": "our_layer(turn6 개입①)",
+     "what": "T2_SOURCE 가 이번엔 옳게 잡지만(3/3 진성) 처방이 '손 안의 반증'이 아니라 'KB 를 검색하라'를 가리킨다",
+     "actor": "our_layer",
+     "kind": "처방 오지정([[64]] 계열·UNPROVEN)",
+     "code_path": "t2_source.py:271 + A2 arbitration.unsourced_claim_feedback",
+     "evidence": "로그 '[T2_SOURCE] claims=3 unsourced=3' · 사이드카 'Error: [SOURCE] … \"Credit Limits: Lowest tier; not suitable for a $100,000+ limit\" … **Search the knowledge base** for the document that states it, quote the figure it gives'",
+     "consequence": "그 세 문장은 step 3 의 우리 도구 출력이 이미 반증한다 — 구조 회수 실패",
+     "reward_causal": "중"
+    },
+    {
+     "step": 6,
+     "role": "our_layer(turn6 개입②)",
+     "what": "검색 팔이 다시 제외 카드(Bronze)를 답으로 배달",
+     "actor": "our_layer",
+     "kind": "문구 모순",
+     "code_path": "t2_search.py → [T2_DOCDECIDE]",
+     "evidence": "로그 '[T2_DOCDECIDE] → \\'Bronze Rewards Card\\'' · '재료 254자 배달' · 사이드카 cp2 'It answers: Bronze Rewards Card.'",
+     "consequence": "모델은 Bronze 를 고르지 않았다 ⇒ 인과 아님",
+     "reward_causal": "약"
+    },
+    {
+     "step": 6,
+     "role": "our_layer(turn6 개입③)",
+     "what": "claimprov 재생성이 후보를 3장 → Platinum 1장으로 더 좁힌다",
+     "actor": "our_layer",
+     "kind": "후보 붕괴(재생성 산출)",
+     "code_path": "t2_gate_patch.py:12600-12603",
+     "evidence": "사이드카 turn=6 channel=claimprov len=709 'Error: [CLAIM-PROVENANCE] your reply asserts you already did the following, but the conversation ledger shows NO such event: give: provided apply_for_credit_card tool.' → 로그 '[T2_CLAIMPROV] regen tool_calls=[]'; 초안 1382자·3장 → 영속 msg[6] 698자·Platinum 만",
+     "consequence": "손님이 마지막으로 본 화면에서 Silver 가 사라졌다(반사실은 안 섬 — user-sim 은 이미 Platinum 결심)",
+     "reward_causal": "중"
+    },
+    {
+     "step": 6,
+     "role": "assistant",
+     "what": "영속본: 사과 + Platinum 단일 추천 + 신청 JSON 떠먹임",
+     "actor": "model",
+     "kind": "최종 발화(우리 재생성 산출)",
+     "evidence": "'I apologize for the oversight. Based on your requirements, the **Platinum Rewards Card** is the best fit … \"card_type\": \"Platinum Rewards Card\"'",
+     "consequence": "손님의 실행 인자를 확정",
+     "reward_causal": "강"
+    },
+    {
+     "step": 7,
+     "role": "user",
+     "what": "apply_for_credit_card{card_type:'Platinum Rewards Card', customer_name:'Catherine Wells', annual_income:180000, rho_bank_subscription:true} 실행",
+     "actor": "user_sim",
+     "kind": "실행",
+     "evidence": "궤적 msg[7] tool_call · 결과 ok=True deny=''",
+     "consequence": "WRONGARG 성립 · gold Silver 행 MISSING",
+     "reward_causal": "강"
+    },
+    {
+     "step": 9,
+     "role": "user",
+     "what": "###STOP###",
+     "actor": "user_sim",
+     "kind": "종료",
+     "evidence": "termination_reason=user_stop",
+     "consequence": "db_match=False → reward 0.0",
+     "reward_causal": "강"
+    }
+   ]
+  },
+  {
+   "trial": 0,
+   "reward": 1,
+   "missing": [],
+   "wrongarg": [],
+   "dup": [],
+   "blocked": [],
+   "cause_primary": "our_layer",
+   "cause_secondary": "통과 시행 — 대조군으로만 사용",
+   "lever_firing": "T2_CLAIMPROV 3 · T2_SEARCH_AGENT 2 · T2_SOURCE 2 · T2_ARBITRATE 3 · T2_DOCDECIDE 1 · T2_MATERIAL_GATE 1 · T2_PROV 1 · T2_USER_TOOL_NOTE 1 · T2_GATE_REGEN 2(claimprov + usertoolnote) · T2_LEDGER 1 || T2_ENVGUARD/T2_TRUNCGUARD 0(발화할 표적 없음) || T2_SOURCE claims=3 unsourced=3 = 같은 기전의 오탐인데도 통과",
+   "prescription": "대조군. 이 시행이 증명하는 것: ①turn-4 claimprov 피드백이 trial1 과 sha 바이트 동일(e594a653fdaa)이므로 문구는 갈림의 원인이 아니다 ②T2_SOURCE 오탐 단독으로는 실패를 못 만든다 ③우리 재생성이 '멀쩡한 산출'을 내면 통과한다 ⇒ P1(재생성 산출 검문)이 파는 것을 재는 부정통제로 이 시행을 쓴다",
+   "evidence": [
+    "reward_info.reward_basis=['DB'] · reward_breakdown={'DB':1.0} · db_check={'db_match':True} · action_match=True",
+    "mutation_diff: matched 1 @msg_i=5 · 나머지 칸 전부 0",
+    "msg[1] user 축자(연소득 명시): 'Context: I make about $180,000 annually and I do have a Rho-Bank+ subscription. … What card options do you have that meet those requirements, and what are the annual fees/cash back on them?'",
+    "사이드카 turn=2 kind=tool-deny: 'Error: [PROVENANCE] argument \\'max_min_payment_pct\\'=\\'None\\' was not provided by the user nor returned by any tool — it looks invented' · 로그 '[T2_MATERIAL_GATE] stop=other_lever(prov) turn=2 … axes=9' · '[T2_PROV] regen fired … arg=max_min_payment_pct val=None'",
+    "msg[3] tool 출력은 trial1 과 3071자 바이트 동일 ⇒ 인자 12개 vs 5개 차이는 인과 아님",
+    "사이드카 turn=4 kind=reminder-assistant len=786(원본 초안·3장 나열): '3. **Silver Rewards Card** - **Annual Fee:** $0 (with Rho-Bank+ subscription) - **Cash Back:** 4% on travel and software purchases … - **Credit Limit:** Up to $100,000'",
+    "로그 '[T2_SOURCE] claims=3 unsourced=3' + 사이드카 '\"Credit Limit: Up to $150,000\"; \"Credit Limit: Up to $112,500\"; \"Credit Limit: Up to $100,000\"' — 같은 오탐 기전인데 통과",
+    "사이드카 turn=4 channel=claimprov len=275 sha=e594a653fdaa (trial1 과 바이트 동일)",
+    "로그 '[T2_CLAIMPROV] regen tool_calls=[\\'give_discoverable_user_tool\\']' — 정상 호출 1건 (trial1 은 [])",
+    "로그 '[T2_USER_TOOL_NOTE] pre-give note: apply_for_credit_card' → '[T2_LEVER] T2_GATE_REGEN … usertoolnote' · 사이드카 len=338 'Note: `apply_for_credit_card` runs **right here in this conversation**'",
+    "영속 msg[4] len=1411 축자: '{\"card_type\": \"<Platinum Rewards Card/Gold Rewards Card/Silver Rewards Card>\", \"customer_name\": \"Catherine Wells\", \"annual_income\": \"180000\", \"rho_bank_subscription\": \"true\"}' + 'Please replace `<…>` with the card type you prefer.'",
+    "msg[5] user tool_call: apply_for_credit_card{card_type:'Silver Rewards Card', …} → MATCHED",
+    "duration 137.5s"
+   ],
+   "steps": [
+    {
+     "step": 1,
+     "role": "user",
+     "what": "같은 요구 + 연소득 $180,000 명시 + 연회비/캐시백까지 질문",
+     "actor": "user_sim",
+     "kind": "시나리오 분산",
+     "evidence": "'Context: I make about $180,000 annually and I do have a Rho-Bank+ subscription. … what are the annual fees/cash back on them?'",
+     "consequence": "이후 템플릿의 annual_income 이 180000 으로 정확히 채워진다",
+     "reward_causal": "약"
+    },
+    {
+     "step": 2,
+     "role": "assistant(초안·비커밋)",
+     "what": "도구 호출에 max_min_payment_pct=None 을 넣음",
+     "actor": "model",
+     "kind": "날조 인자",
+     "evidence": "사이드카 turn=2 channel=unified_regen kind=tool-deny len=435",
+     "consequence": "우리 PROV 게이트가 잡는다",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 2,
+     "role": "our_layer",
+     "what": "T2_MATERIAL_GATE → T2_PROV 재생성으로 인자 접지",
+     "actor": "our_layer",
+     "kind": "인자 접지",
+     "code_path": "t2_gate_patch.py apply_provenance_regen 경로 → 로그 [T2_MATERIAL_GATE]/[T2_PROV]",
+     "evidence": "'[T2_MATERIAL_GATE] stop=other_lever(prov) turn=2 calls=check_card_application_fit pending=0 axes=9 prose=False' · '[T2_PROV] regen fired tool=check_card_application_fit arg=max_min_payment_pct val=None'",
+     "consequence": "인자가 12개로 채워졌으나 msg[3] 출력은 trial1 과 바이트 동일 ⇒ 인과 아님",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 3,
+     "role": "tool",
+     "what": "동일한 eligible 표(3071자·바이트 동일)",
+     "actor": "our_layer",
+     "kind": "재료 전달 성공",
+     "code_path": "t2_scaffold_get.py",
+     "evidence": "trial1 step 3 과 축자 동일",
+     "consequence": "정보 결손 0",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 4,
+     "role": "assistant(초안#1·비커밋)",
+     "what": "3장 중립 나열",
+     "actor": "model",
+     "kind": "옳은 발화",
+     "evidence": "사이드카 turn=4 kind=reminder-assistant len=786: '3. **Silver Rewards Card** - **Annual Fee:** $0 (with Rho-Bank+ subscription) - **Cash Back:** 4% on travel and software purchases … - **Credit Limit:** Up to $100,000 … Would you like more information on any of these cards, or would you like to proceed with applying for one?'",
+     "consequence": "trial1 의 같은 자리 초안과 같은 종류",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 4,
+     "role": "our_layer(turn4 개입①)",
+     "what": "T2_SOURCE 3/3 오탐(trial1 과 같은 기전) → 통합 재생성",
+     "actor": "our_layer",
+     "kind": "계기 오판",
+     "code_path": "t2_source.py:265/:271/:82",
+     "evidence": "'[T2_SOURCE] claims=3 unsourced=3' · '\"Credit Limit: Up to $150,000\"; \"Credit Limit: Up to $112,500\"; \"Credit Limit: Up to $100,000\"'",
+     "consequence": "동형 개입인데도 통과 ⇒ 이 오탐 단독으로는 실패를 못 만든다",
+     "reward_causal": "중"
+    },
+    {
+     "step": 4,
+     "role": "our_layer(turn4 개입②)",
+     "what": "같은 [ACTION] 소유권문(1178자) · 같은 cp2 'Business Bronze Rewards Card'(263자) 배달",
+     "actor": "our_layer",
+     "kind": "표면화 / 문구 모순",
+     "code_path": "t2_gate_patch.py:10579-10846 · t2_search.py",
+     "evidence": "사이드카 turn=4 kind=reminder-user · turn=3 kind=cp2",
+     "consequence": "trial1 과 동일 ⇒ 갈림 아님",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 4,
+     "role": "our_layer→model (★분기점)",
+     "what": "T2_CLAIMPROV → GATE_REGEN(claimprov). 재생성이 정상 호출 1건을 낸다 — trial1 은 같은 자리에서 봉투 111개 후 절단",
+     "actor": "our_layer",
+     "kind": "분기점(개시=our_layer · 산출=model)",
+     "code_path": "t2_gate_patch.py:12600-12603",
+     "evidence": "사이드카 turn=4 channel=claimprov len=275 sha=e594a653fdaa (trial1 과 바이트 동일) · 로그 '[T2_CLAIMPROV] regen tool_calls=[\\'give_discoverable_user_tool\\']'",
+     "consequence": "같은 sha·같은 A2·같은 도구 출력·같은 우리 문구에서 산출만 갈렸다 — 여기가 두 시행이 갈린 자리",
+     "reward_causal": "강"
+    },
+    {
+     "step": 4,
+     "role": "our_layer(turn4 개입④)",
+     "what": "2차 게이트 T2_USER_TOOL_NOTE → GATE_REGEN(usertoolnote)",
+     "actor": "our_layer",
+     "kind": "표면화",
+     "code_path": "t2_gate_patch.py usertoolnote 경로 → 로그 [T2_USER_TOOL_NOTE]",
+     "evidence": "'[T2_USER_TOOL_NOTE] pre-give note: apply_for_credit_card' · 사이드카 len=338 'Note: `apply_for_credit_card` runs **right here in this conversation** … tell them the arguments to pass.'",
+     "consequence": "영속 msg[4] 의 give 호출은 사라졌지만 본문이 '바로 이 대화에서 실행하라'로 바뀌어 손님이 즉시 실행 가능",
+     "reward_causal": "중"
+    },
+    {
+     "step": 4,
+     "role": "assistant",
+     "what": "영속본: 3장 나열 + 선택 미지정 템플릿 — 카드 선택을 손님에게 남긴다",
+     "actor": "model",
+     "kind": "옳은 최종 발화(우리 2회 재생성 산출)",
+     "evidence": "'{\"card_type\": \"<Platinum Rewards Card/Gold Rewards Card/Silver Rewards Card>\", … \"annual_income\": \"180000\"}' + 'Please replace `<…>` with the card type you prefer.'",
+     "consequence": "결정권 이양 성공",
+     "reward_causal": "강"
+    },
+    {
+     "step": 5,
+     "role": "user",
+     "what": "apply_for_credit_card{card_type:'Silver Rewards Card', customer_name:'Catherine Wells', annual_income:180000, rho_bank_subscription:true}",
+     "actor": "user_sim",
+     "kind": "실행",
+     "evidence": "궤적 msg[5] tool_call",
+     "consequence": "MATCHED — gold 변이 1건 성립",
+     "reward_causal": "강"
+    },
+    {
+     "step": 7,
+     "role": "user",
+     "what": "###STOP###",
+     "actor": "user_sim",
+     "kind": "종료",
+     "evidence": "termination_reason=user_stop",
+     "consequence": "db_match=True → reward 1.0",
+     "reward_causal": "강"
+    }
+   ]
+  }
+ ],
+ "our_layer_claims": [
+  "CONFIRMED Ⓐ — T2_SOURCE 가 우리 자신의 도구 출력을 무근거로 판정한다(003 trial1 5/5 · trial0 3/3 오탐). 코드 경로: scripts/distill/tau2/t2_source.py:265 _anchors() (토큰 정규식 [A-Za-z][A-Za-z_\\-]{3,} 이 '_' 를 토큰 안에 남겨 'limit_max' 가 'limit' 과 절대 만나지 않는다) · :271 unsourced_claims() (need=2 앵커 공기 요구) · :82/:93 build_corpus() (doc-id 정규식 \\bdoc_[A-Za-z0-9_()\\-]+ 이 A2 의 'doc platinum_rewards_card_*' 표기를 못 걷어 docs=set()). 오프라인 재현으로 라이브 수치와 일치 확인. ⚠단독으로는 실패의 충분조건이 아니다 — trial0 도 같은 오탐을 받고 1.0.",
+  "CONFIRMED Ⓑ — 재생성 산출이 폭주·절단 가드를 통과하지 않는다(배치 사각). 코드 경로: 가드가 t2_gate_patch.py:11762(ENVGUARD) · :11783(TRUNCGUARD) 이고 배치 주석 :11738 이 '모든 의미-게이트보다 먼저 돈다'인데, claimprov 채택은 :12600-12603 `_new2 = _ap_regen(…, \"claimprov\")` → `if _new2 is not None: am = _new2` 로 그 뒤다. 셋 다 같은 함수 unified()(:7115) 본문의 직선 코드. _ap_regen(:11409-11694)의 채택검사 _denied_calls(:11511)·_proc_first_deny(:11554)·T2_UNLOCK_NAME/PROV(:11616)는 전부 tool_calls 를 순회하므로 tool_calls==[] 이면 공통과하고, finish_reason 도 봉투 태그도 보지 않는다. 플래그는 go_stack.sh:145 에서 ON. 실측: msg[4] finish_reason='length' · 42,962자 · '<tool_call>' 111개 · tool_calls=null 이 커밋됐는데 [T2_ENVGUARD]/[T2_TRUNCGUARD] 는 halfA 11,593 줄에서 0건.",
+  "관측 — x500_axis_e_target_2026_08_24.json §E-2 의 재개 지표('ENVGUARD/TRUNCGUARD 발화가 한 런에서 5건 이상')는 Ⓑ 를 구조적으로 셀 수 없다. 가드가 볼 수 없는 자리에서 나는 폭주는 발화 카운터에 잡히지 않는다(t7348 halfA 발화 0 · 폭주 커밋 1). 대체 지표 후보 = 커밋된 assistant 턴 중 finish_reason=length ∨ (tool_calls 공집합 ∧ 봉투 태그 존재) 의 수.",
+  "별건 기록(인과 아님) — T2_SEARCH_AGENT/cp2(t2_search.py → [T2_DOCDECIDE])가 우리 comparator 가 'fx_fee=2.75 violates max_fx_fee=0.0' 으로 제외한 Bronze Rewards Card / Business Bronze Rewards Card 를 결정 지점에 답으로 배달한다. 우리 층 문구 모순([[55]])이지만 trial0 도 같은 배달을 받고 1.0 이므로 이 실패의 인과가 아니다."
+ ],
+ "summary": "채점축은 **DB 해시**(reward_basis=['DB'])이고 gold 변이는 `apply_for_credit_card{card_type:\"Silver Rewards Card\", …}` 한 건. trial1 의 실패 단위는 **4필드 중 `card_type` 한 칸**(MISSING Silver / WRONGARG Platinum · BLOCKED 0)이다.\n\n정보 결손은 0이다 — msg[3] 에서 우리 스캐폴드가 `Silver … limit_max:100000 · annual_fee:0.0 · rate_for('travel'):'4.0%'` 를 이미 전달했고, turn-4 의 **원본 초안**(사이드카에 보존)은 두 trial 모두 **3장을 붕괴 없이 나열한 옳은 발화**였다.\n\n**갈림은 turn 4 의 claimprov 재생성 산출 한 줄이다.** 두 trial 이 받은 claimprov 피드백은 **sha 바이트 동일**(`e594a653fdaa`)인데, trial0 은 `regen tool_calls=['give_discoverable_user_tool']`(정상 호출 1건)을 냈고 trial1 은 `regen tool_calls=[]` — `give_discoverable_user_tool` 봉투를 **111개 반복하다 `finish_reason=length` 로 절단**된 42,962자 blob 을 냈다. 그리고 우리 층은 그것을 **검사 없이 커밋했다**: `T2_ENVELOPE_GUARD`/`T2_TRUNC_GUARD` 는 `go_stack.sh:145` 에서 켜져 있지만 `t2_gate_patch.py:11762`/`:11783` 에 있고 claimprov 채택은 `:12600-12603` 이라 **가드가 재생성 산출을 원리적으로 못 본다**(로그 발화 halfA 0건). 그 쓰레기 턴이 user-sim 의 **페르소나 이탈 + KB 반증 단정**(*\"Silver … not a fit / the Platinum Rewards Card is the only option that fits\"*)을 받았고, 모델이 문맥에 살아 있는 자기 도구 출력을 재확인하지 않고 사과하며 Platinum 으로 넘어가 `card_type` 이 뒤집혔다.\n\n**cause_primary = our_layer**(반사실이 궤적 안에 있다 — 개입하지 않았으면 사이드카의 원본 초안이 섰다), **secondary = model**(정지 실패·자기 출력 미참조) **+ user_sim**(페르소나 이탈·허위 단정 · [[21]] 상 종결 아님).\n\nCONFIRMED 우리-층 2건: **Ⓐ `T2_SOURCE` 가 우리 도구 출력을 무근거로 판정**(`t2_source.py:265/:271/:82` — snake_case 키 ↔ 산문 단어 공기 대조 · 오프라인 재현 5/5 일치 · 단 trial0 도 같은 오탐을 받고 통과하므로 충분조건 아님), **Ⓑ 재생성 산출이 폭주·절단 가드를 통과하지 않는다**(배치 사각 · n=1 · 부호 미측정).\n\n직전 런 이후 들어간 수리 묶음(R1–R8·proc-regen recheck)은 **이 궤적에 0건 개입**했다 — 003 의 −1 은 수리 효과가 아니라 시행 분산이다. 또한 t7346 짝 대조에서 같은 seed 가 **`shell` 로 KB 를 읽었을 때 `unsourced=0`** 이 됐다(t7348 에는 `shell` 호출 없음) ⇒ Ⓐ 는 \"KB 를 안 읽은 시행에서만 재생성을 여는\" 조건부 결함이다.\n\n보고서는 훅(`scaffold_guard.py:129` §74-b)이 `reports/` 아래 신규 `.md` 를 차단해 요청 경로 `tasks__20260824/TASK_003.md` 로 쓰지 못했다. 훅이 명시한 규칙(**정본을 갱신하라**)에 따라 같은 물음의 정본인 `C:\\workspace\\ba-frft\\reports\\facet_rft_2026\\tasks__20260824\\x503_TASK_003_t7348_perstep.md` 를 **v2 로 갱신**했다(스텝 표가 본체). 정규 명명이 필요하면 사용자 승인 후 옮기면 된다.",
+ "vs_prior": "x503(v1·같은 파일)이 세운 Ⓐ·Ⓑ 두 CONFIRMED 는 **전수 재검증 결과 그대로 재현됐다**(변이표·오프라인 unsourced_claims 5/5·가드 로그 0건·플래그 ON·줄번호를 런 sha `aed30e20` 기준으로 재고정 — `git diff aed30e20 HEAD` 공집합). 즉 **같은 원인이다.**\n\n새로 더한 것 5가지: ①turn-4 claimprov 피드백이 두 trial 에서 **sha 바이트 동일**(`e594a653fdaa`) — 우리 문구가 아니라 산출이 갈렸음의 직접 증거 ②turn-6 **원본 초안은 3장을 아직 유지**했는데(사이드카 1382자) 우리 claimprov 재생성 산출이 **Platinum 1장으로 더 좁혔다**(698자) ③**직전 런 t7346(2/2) 짝 대조** — 같은 seed 가 `shell` 로 KB 를 읽은 시행에서 `[T2_SOURCE] claims=3 unsourced=0` 이 됐고, t7346 은 양 trial 모두 `regen tool_calls=[]` 를 찍고도 1.0/1.0 이다 ⇒ *\"claimprov 재생성 = 곧 실패\"* 가 아니다 ④`unb_p` 산정 코드는 t7346→t7348 사이 **0줄 변경**(`git diff` 확인) ⇒ CLAIMPROV 발화 시점 차이는 코드가 아니라 초안 문면 차이 ⑤duration 137s→1077s(7.8×) 계상.\n\n선행과 **달라진 판정**: `T7335_NT1_FORENSIC_HALFA_2026_08_21.md` 는 003 을 **모델**(에이전트가 3장 대신 단일 추천으로 붕괴)로 귀속했는데, t7348 에서는 **에이전트가 turn-4 에 붕괴시키지 않았다**(원본 3장 나열). 붕괴는 user-sim 이 했고 그 자리를 연 것은 우리 재생성의 폭주 커밋이다 ⇒ 관측은 같고 기전이 바뀌었다. `N97 §142`(적격 목록 미전달)와 `FAILURE_AXIS §13`(원인 미상)은 **해소**. `CP2_STAGE0_PATCH_PLAN §2-2`([?]로 예고한 \"통과 중인 6 sim 의 마지막 발화 재작성 위험\")는 **부호는 맞고 채널이 틀렸다** — cp2 부착이 아니라 claimprov 재생성이 갈아 끼웠다([M]).\n\n**x500_axis_e_target §E-2 와의 관계가 이번 보고의 핵심 신규 지적이다.** x500 은 ENVGUARD/TRUNCGUARD 축을 *\"짓지 않는다\"* 로 닫으면서 재개 조건을 *\"발화 5건 이상\"* 으로 걸었다. 그러나 x500 이 닫은 것은 *\"**가드의** 재생성 산출이 뒤 체인을 우회한다\"* 이고, 여기서 나온 것은 그 **역** — *\"**뒤 재생성(claimprov)의** 산출이 가드를 우회한다\"* 이며, x500 의 지표는 이 현상을 **구조적으로 셀 수 없다**(t7348 halfA 발화 0건인데 폭주 커밋 1건). 축 E 의 결론 자체는 그 축에 대해 유효하나 이 결함은 **그 축의 미측정 사각**이다.\n\n`FAILURE_MASTER__20260822.md §2.4-2`(`user-action instruct` 가 통과 sim 003 에서도 동일 발화)는 t7348 에서도 **유지**된다. `x501`/`x502`/`STATE_OF_PLAY_2026_08_23`/`tasks__20260822/`/`t7336_tasks/` 에는 003 을 다룬 절이 없다(003 은 그 런들에서 통과했다)."
+}

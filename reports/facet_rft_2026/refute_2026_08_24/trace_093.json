@@ -1,0 +1,411 @@
+{
+ "task": "task_093 (bank_t7348_halfA_20260824) — savings APY discrepancy · per-step 궤적 포렌식 · 채점축=DB 해시 · t7346 0/2 → t7348 1/2",
+ "sims": [
+  {
+   "trial": 0,
+   "reward": 0,
+   "missing": [
+    "apply_savings_account_credit_6831{account_id:sav_sp93k4m7n2_silver, amount:33, credit_type:interest_correction} (aid 093_6)",
+    "submit_interest_discrepancy_report_7294{account_id:sav_sp93k4m7n2_silver, user_id:sp93k4m7n2, expected_apy:4.275, actual_apy:4, amount_difference:33} (aid 093_8)"
+   ],
+   "wrongarg": [
+    "submit_interest_discrepancy_report_7294 @msg39 — expected_apy 4.0(gold 4.275) · actual_apy 2.775(gold 4) · amount_difference 147.0(gold 33); account_id/user_id 는 일치",
+    "apply_savings_account_credit_6831 @msg45 — amount 147.0(gold 33); account_id/credit_type 는 일치"
+   ],
+   "dup": [],
+   "blocked": [],
+   "steps": [
+    {
+     "step": 2,
+     "role": "assistant",
+     "what": "KB_search_bm25{\"submitting interest discrepancy reports\"} + unlock(submit_interest_discrepancy_report_7294) — 절차 문서 확보",
+     "actor": "model",
+     "kind": "발견(성공)",
+     "evidence": "KB_search_bm25 {\"query\": \"submitting interest discrepancy reports\"}",
+     "consequence": "절차 8단계·파라미터 정의가 첫 턴에 문맥에 실림(긍정)",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 3,
+     "role": "tool",
+     "what": "회수된 문서/도구 스펙이 파라미터 예시값을 축자로 싣는다",
+     "actor": "env",
+     "kind": "예시-포이즈닝(재료)",
+     "evidence": "- expected_apy (number): The APY percentage the customer should have received (e.g., 2.775 for 2.775%)",
+     "consequence": "원장에 2.775 가 심어진다 → step 37 의 인자 출처",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 2,
+     "role": "our_layer",
+     "what": "검색-에이전트가 축 savings_accounts 92편에서 클래스를 'Gold Account' 로 오결정해 배달 (093 은 Silver)",
+     "actor": "our_layer",
+     "kind": "오발화(재료 오배달)",
+     "code_path": "scripts/distill/tau2/t2_search.py:740 (T2_DOCDECIDE 인쇄부)",
+     "evidence": "[T2_DOCDECIDE] → 'Gold Account' / [T2_SEARCH_AGENT] group=savings_accounts · 문서 92 … turn=2",
+     "consequence": "Silver/Green 페어링 문서가 turn 47(=모든 write 이후)까지 미배달 → 모델이 자력 검색으로 business 문서를 집는다",
+     "reward_causal": "중"
+    },
+    {
+     "step": 23,
+     "role": "assistant",
+     "what": "log_verification{… time_verified:'2025-11-14 03:40:00 EST'}",
+     "actor": "model",
+     "kind": "write(성공)",
+     "evidence": "Verification logged successfully. - User: Somchai Prasert (ID: sp93k4m7n2) - Verified at: 2025-11-14 03:40:00 EST",
+     "consequence": "gold 093_0 MATCHED",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 28,
+     "role": "tool",
+     "what": "계좌 레코드 회수 — 저축(Silver·144000)과 당좌(Green) 두 행 모두 실재",
+     "actor": "env",
+     "kind": "재료 확보",
+     "evidence": "1. Record ID: sav_sp93k4m7n2_silver … level: Silver Account … current_holdings: 144000.00 / 2. Record ID: chk_sp93k4m7n2_green … level: Green Account / Credit Card Accounts: No credit card accounts found.",
+     "consequence": "4.275 를 유도할 재료가 이 시점에 전부 실재. trial 1 의 msg 28 과 바이트 동일",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 33,
+     "role": "assistant",
+     "what": "KB_search_dense{'Silver Savings Account APY components'} → business 문서 doc_business_savings_accounts_silver_plus_saver_001 회수",
+     "actor": "model",
+     "kind": "재료 오선택",
+     "evidence": "### Relationship APY Bonuses / If you hold an eligible Business Rewards Card, an APY bonus is added to your base APY",
+     "consequence": "부스트를 카드에만 결부시키는 틀이 잡힌다",
+     "reward_causal": "중"
+    },
+    {
+     "step": 35,
+     "role": "assistant",
+     "what": "★분기점 — get_correct_savings_apy{savings_account_type:'Silver Account', customer_products:'No credit card accounts', current_balance:'144000.00'}",
+     "actor": "model",
+     "kind": "전사-누락(빼기 실패·[[63]])",
+     "evidence": "같은 턴 산문: \"since you do not have any credit card accounts associated with your user ID, we will consider only the base APY.\"",
+     "consequence": "계좌 레코드 2행 중 checking 행이 인자에서 소거됨",
+     "reward_causal": "강"
+    },
+    {
+     "step": 35,
+     "role": "our_layer",
+     "what": "R3 ref_from_outputs.customer_products(모델 전사를 도구 출력 원문으로 대체하는 2026-08-22 수리)가 발화하지 않음",
+     "actor": "our_layer",
+     "kind": "死배선",
+     "code_path": "scripts/distill/tau2/t2_scaffold_get.py:722 (_raw = _evidence_ctx(orch).get('__tool_outputs_raw')) + t2_scaffold_get.py:1763-1767,1782 (outs[nm], nm=id2name[...] = 외곽 도구명) ↔ a2/banking_knowledge.specific.json → get_correct_savings_apy.isolate.ref_from_outputs.customer_products.producer_contains=['accounts']",
+     "evidence": "로그 [T2_SG_REFRAW] 0줄(양 trial). 런 전체 25,496줄 중 REFRAW 1줄뿐이고 그것도 task_094 get_interest_correction.account_records(=get_credit_card_accounts_by_user 오매칭). 실측 outs 키에 'accounts' 포함 0개 — 계좌 read 는 call_discoverable_agent_tool 로 나간다",
+     "consequence": "모델 전사가 그대로 서브 REFERENCE 로 감 — 수리가 표적 위에서 무력",
+     "reward_causal": "강"
+    },
+    {
+     "step": 35,
+     "role": "our_layer",
+     "what": "그 전사를 REFERENCE 로 삼아 문서-클래스 선택 서브가 돌고 ['silver_account'] 9편만 배달",
+     "actor": "our_layer",
+     "kind": "재료 결손(전달 실패)",
+     "code_path": "scripts/distill/tau2/t2_scaffold_get.py:593-626 (_docs_delivery 의 pick 프롬프트가 ref 를 REFERENCE 로 사용) · ref 는 t2_scaffold_get.py:704",
+     "evidence": "[T2_SG_DOCS] get_correct_savings_apy: 클래스 ['silver_account'] · 문서 9편 · 10562자 전달(검색 0) ↔ trial 1 ['green_account_(checking)','silver_account'] · 12편 · 13619자",
+     "consequence": "Green→Silver 페어링 문서가 서브 문맥에 없어 checking +0.25 를 원리상 찾을 수 없음",
+     "reward_causal": "강"
+    },
+    {
+     "step": 35,
+     "role": "our_layer",
+     "what": "관문1(_ground_operands)이 1건 반려 → 서브 재시도 → 최종 sub=1 rows(base 만)",
+     "actor": "our_layer",
+     "kind": "억제 되먹임",
+     "code_path": "scripts/distill/tau2/t2_scaffold_get.py:394-402 (src_ok = any(ns in nc ...) — 인용 전량 substring)",
+     "evidence": "[T2_SG_ISOLATE] fetch get_correct_savings_apy: ground-피드백 1건 → 서브 재시도(1라운드) / [T2_SG_ISOLATE] operand-size get_correct_savings_apy.components: sub=1 rows · source=0 rows",
+     "consequence": "relationship +0.025 도 소실(t7336 §2.4 와 동형 기전)",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 36,
+     "role": "tool",
+     "what": "get_correct_savings_apy -> 4.0",
+     "actor": "our_layer",
+     "kind": "오답 반환",
+     "code_path": "scripts/distill/tau2/t2_scaffold_get.py (SCAFFOLD_GET 반환) — 상류 3행의 합성",
+     "evidence": "Correct savings APY under the stacking policy (base + highest checking boost + highest card bonus + all relationship/tier bonuses): 4.0%.",
+     "consequence": "gold 093_8 의 expected_apy=4.275 상실 확정",
+     "reward_causal": "강"
+    },
+    {
+     "step": 37,
+     "role": "assistant",
+     "what": "★get_interest_correction{expected_apy:'4.0', actual_apy:'2.775', principal:'144000.00', …} — 480x12/144000 을 유도하지 않고 문서 예시값을 인자로 씀",
+     "actor": "model",
+     "kind": "날조(예시값 복사)",
+     "evidence": "A2 param 문면은 유도를 명시 지시한다: 'Derive it from the latest MONTHLY INTEREST CREDIT: monthly credit amount x 12 / principal x 100' — 모델은 그 턴 산문에서 actual_apy 를 한 번도 계산하지 않는다",
+     "consequence": "actual_apy 가 오염",
+     "reward_causal": "강"
+    },
+    {
+     "step": 38,
+     "role": "our_layer",
+     "what": "관문1 이 period_start 만 드롭하고 actual_apy=2.775 는 통과시킴 → 147.0 산출",
+     "actor": "our_layer",
+     "kind": "관문 오통과",
+     "code_path": "scripts/distill/tau2/t2_scaffold_get.py:227-229 (_corpus_texts 의 'ledger' 분기 = 에이전트 도구 출력 전량) + _val_grounded 수치-토큰 매칭 ↔ a2/banking_knowledge.specific.json → get_interest_correction.ground.scalar_fields[actual_apy].corpus=['ledger']",
+     "evidence": "[GROUNDING WARNING] 1 input value(s) could not be verified … dropped: period_start=10/01/2025 — actual_apy 는 경고에 없다. 2.775 실재 위치 = msg 3(KB_search_bm25)·msg 4(unlock) 의 파라미터 예시",
+     "consequence": "Correction amount = 147.0 · 반환문이 'Use this as the credit amount and the amount_difference, and use these APY values in the discrepancy report' 로 종단 write 인자를 지정",
+     "reward_causal": "강"
+    },
+    {
+     "step": 39,
+     "role": "assistant",
+     "what": "submit_interest_discrepancy_report_7294{…, 4.0 / 2.775 / 147.0} — 우리 반환문을 그대로 따름",
+     "actor": "model",
+     "kind": "write(WRONGARG)",
+     "evidence": "Expected APY: 4.0% - Actual APY: 2.775% - Amount Difference: $147.00 - Status: PENDING_REVIEW",
+     "consequence": "gold 093_8 상실 · T2_WRITE_EVIDENCE 0회 발화(값이 실제로 우리 도구 출력에 있어 통과)",
+     "reward_causal": "강"
+    },
+    {
+     "step": 45,
+     "role": "assistant",
+     "what": "call_discoverable_agent_tool{apply_savings_account_credit_6831, amount:147.0, interest_correction}",
+     "actor": "model",
+     "kind": "write(WRONGARG)",
+     "evidence": "Credit applied successfully! … Amount: $147.00 - Previous Balance: $144000.00 - New Balance: $144147.00",
+     "consequence": "gold 093_6 상실 · DB 해시 불일치 확정",
+     "reward_causal": "강"
+    },
+    {
+     "step": 48,
+     "role": "user",
+     "what": "###STOP###",
+     "actor": "user_sim",
+     "kind": "종료",
+     "evidence": "Okay, thank you for looking into this. I appreciate it. ###STOP###",
+     "consequence": "회복 기회 소멸",
+     "reward_causal": "무관"
+    }
+   ],
+   "cause_primary": "our_layer",
+   "cause_secondary": "model — msg35 계좌 레코드 전사에서 checking 행 소거 · msg37 도구문서 예시값(2.775)을 actual_apy 로 복사(A2 param 이 지시한 유도식 무시)",
+   "lever_firing": "T2_SG_DOCS 1회(정상 동작·입력 오염) · T2_SG_REFRAW 0회(死배선) · T2_SG_GROUND 1회(오통과) · T2_WRITE_EVIDENCE 0회(침묵) · FAB_STRIP 0회(예시값 복사 미검출) · T2_SG_ROUND/RESULT_RANGE/REQREADS/PIN_READ/DEMANDED_STEP/FOLLOWUP/ARG_PRODUCERS/READ-FIRST/REQUIRE_DOC_DELIVER 0회 · T2_SEARCH_AGENT 배달 1회(클래스 오결정 'Gold Account')+침묵 4회 · T2_SEARCH_REARM turn=47(모든 write 이후)",
+   "evidence": [
+    "[T2_SG_DOCS] get_correct_savings_apy: 클래스 ['silver_account'] · 문서 9편 · 10562자 전달(검색 0)",
+    "[T2_SG_ISOLATE] operand-size get_correct_savings_apy.components: sub=1 rows · source=0 rows",
+    "[T2_SCAFFOLD_GET] get_correct_savings_apy -> 4.0",
+    "[GROUNDING WARNING] 1 input value(s) could not be verified against the account records / knowledge base and were dropped: period_start=10/01/2025",
+    "- expected_apy (number): The APY percentage the customer should have received (e.g., 2.775 for 2.775%)",
+    "로그 전체 25,496줄에서 [T2_SG_REFRAW] 1줄(task_094·오매칭) · task_093 0줄",
+    "실측 outs 키 = ['KB_search_bm25','KB_search_dense','call_discoverable_agent_tool','get_correct_savings_apy',...] — 'accounts' 포함 0개"
+   ],
+   "prescription": "P1 _evidence_ctx 의 생산자 키를 효과 도구명(_eff_tool_name)으로 정규화해 discoverable getter 가 producer_contains 에 잡히게 한다(FAILURE_MASTER:295 A-4 와 동일 항목이나 기대 상한 상향 근거 확보). P2 ground.scalar_fields 의 corpus 를 생산자 한정(레코드/거래 getter 출력만)으로 좁힐 선언 축을 추가해 KB 검색 출력이 ledger 로 세지 않게 한다. P2' T2_PROV 가 식별자 축에서 이미 쓰는 'schema example value' 술어를 수치 operand 에도 적용. P4 T2_DOCDECIDE 가 계좌 read 이전(turn 2)에 클래스를 확정하지 않게 하거나 read 직후 REARM 강제. ⛔실행·코드 수정은 하지 않았다."
+  },
+  {
+   "trial": 1,
+   "reward": 1,
+   "missing": [],
+   "wrongarg": [],
+   "dup": [],
+   "blocked": [
+    "submit_interest_discrepancy_report_7294{… correction_amount …} @msg41 — env: got an unexpected keyword argument 'correction_amount'",
+    "submit_interest_discrepancy_report_7294{… period_start …} @msg43 — env: got an unexpected keyword argument 'period_start'",
+    "submit_interest_discrepancy_report_7294{account_id, expected_apy, actual_apy} @msg45 — env: missing 2 required positional arguments: 'user_id' and 'amount_difference'"
+   ],
+   "steps": [
+    {
+     "step": 3,
+     "role": "tool",
+     "what": "trial 0 과 동일 문서·동일 예시값(2.775)이 원장에 실린다",
+     "actor": "env",
+     "kind": "예시-포이즈닝",
+     "evidence": "(e.g., 2.775 for 2.775%)",
+     "consequence": "같은 포이즌이 있으나 소비되지 않는다 — 포이즌 존재는 분기 요인이 아니다",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 2,
+     "role": "our_layer",
+     "what": "동일하게 [T2_DOCDECIDE] → 'Gold Account' 오배달",
+     "actor": "our_layer",
+     "kind": "오발화",
+     "code_path": "scripts/distill/tau2/t2_search.py:740",
+     "evidence": "[T2_DOCDECIDE] → 'Gold Account' / [T2_SEARCH_REARM] … turn=73 (모든 write 이후)",
+     "consequence": "두 trial 공통이므로 분기 요인 아님",
+     "reward_causal": "약"
+    },
+    {
+     "step": 13,
+     "role": "user",
+     "what": "모델이 user_id/account_id 를 요구하자 손님이 모른다고 답함",
+     "actor": "user_sim",
+     "kind": "부하(우회 턴)",
+     "evidence": "I don't have the user ID or the savings account ID handy right now.",
+     "consequence": "verification 까지 26턴 소모(trial 0 대비 증가)",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 23,
+     "role": "assistant",
+     "what": "log_verification — trial 0 과 동일 인자",
+     "actor": "model",
+     "kind": "write(성공)",
+     "evidence": "VERIFIED — 4 identity values match the account record (date_of_birth, address, phone_number, email)",
+     "consequence": "gold 093_0 MATCHED",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 28,
+     "role": "tool",
+     "what": "계좌 레코드 — trial 0 msg 28 과 바이트 동일",
+     "actor": "env",
+     "kind": "재료",
+     "evidence": "level: Silver Account … current_holdings: 144000.00 / level: Green Account",
+     "consequence": "두 trial 의 입력이 동일함의 증명 — 분기는 다음 턴의 전사에서 난다",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 29,
+     "role": "assistant",
+     "what": "★분기점 — get_correct_savings_apy{…, customer_products:'Green Account (checking), Silver Account (savings)', current_balance:'144000.00'}",
+     "actor": "model",
+     "kind": "전사(성공)",
+     "evidence": "인자 축자 그대로 — 레코드의 level 표기를 그대로 옮겼다",
+     "consequence": "REFERENCE 에 checking 이 실린다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 29,
+     "role": "our_layer",
+     "what": "클래스 선택 서브가 2개 클래스·12편 배달, ground 반려 0, sub=3 rows",
+     "actor": "our_layer",
+     "kind": "전달(성공)",
+     "code_path": "scripts/distill/tau2/t2_scaffold_get.py:593-626",
+     "evidence": "[T2_SG_DOCS] get_correct_savings_apy: 클래스 ['green_account_(checking)', 'silver_account'] · 문서 12편 · 13619자 / [T2_SG_ISOLATE] operand-size …: sub=3 rows · source=0 rows / 1라운드",
+     "consequence": "base+checking+relationship 3성분 확보",
+     "reward_causal": "강"
+    },
+    {
+     "step": 30,
+     "role": "tool",
+     "what": "get_correct_savings_apy -> 4.275",
+     "actor": "our_layer",
+     "kind": "정답 반환",
+     "evidence": "Correct savings APY under the stacking policy (…): 4.275%.",
+     "consequence": "expected_apy 확보",
+     "reward_causal": "강"
+    },
+    {
+     "step": 35,
+     "role": "our_layer",
+     "what": "★반사실 — 모델이 actual_apy 로 수식 문자열을 보내자 관문1 이 드롭하고 계산 거부",
+     "actor": "our_layer",
+     "kind": "관문(정상 deny)",
+     "code_path": "scripts/distill/tau2/t2_scaffold_get.py:_ground_operands (scalar_fields on_fail=drop)",
+     "evidence": "[GROUNDING WARNING] 2 input value(s) … dropped: actual_apy=480.0 * 12 / 144000.0 * 100 …; period_start=10/01/2025 / Correction amount = … = (could not compute — check your arguments)",
+     "consequence": "trial 0 에서 통과시킨 것과 같은 관문이 여기서는 집행됐고, 두 턴 뒤 모델이 스스로 유도한다 — 결손 ②의 반사실이 같은 sim 안에 있다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 39,
+     "role": "assistant",
+     "what": "★actual_apy 를 정확히 유도해 재호출",
+     "actor": "model",
+     "kind": "formalize(성공)",
+     "evidence": "actual_apy = ( 480.00 x 12 / 144000.00 ) x 100 = 4.00% → 호출 actual_apy:'4.00'",
+     "consequence": "actual_apy 확보",
+     "reward_causal": "강"
+    },
+    {
+     "step": 40,
+     "role": "tool",
+     "what": "Correction amount = 33.0 (result_round 적용)",
+     "actor": "our_layer",
+     "kind": "계산(성공)",
+     "code_path": "scripts/distill/tau2/t2_scaffold_get.py result_round 분기(약 2380행)",
+     "evidence": "[T2_SG_ROUND] get_interest_correction: 33.00000000000004 -> 33.0 (자릿수 2) — 9회",
+     "consequence": "33 확보",
+     "reward_causal": "강"
+    },
+    {
+     "step": 41,
+     "role": "assistant",
+     "what": "보고서 write 3회 시도가 env 스키마 거부(correction_amount → period_start → 필수 2개 누락)",
+     "actor": "model",
+     "kind": "스키마 오인자",
+     "evidence": "Error: Invalid arguments: KnowledgeTools.submit_interest_discrepancy_report_7294() got an unexpected keyword argument 'correction_amount'",
+     "consequence": "6턴 소모 · BLOCKED 3건(우리 게이트 아님)",
+     "reward_causal": "중"
+    },
+    {
+     "step": 47,
+     "role": "our_layer",
+     "what": "★T2_WRITE_EVIDENCE 가 정답 write 를 8회 반려 — '33.00' ↔ 도구 출력 '33.0' 의 바이트 비교",
+     "actor": "our_layer",
+     "kind": "과차단(자기 표현 오차)",
+     "code_path": "scripts/distill/tau2/t2_gate_patch.py:1402 (if not found and str(idv) in c and all(t in c for t in tokens)) — 수치 정규화 없음; 같은 리포의 t2_scaffold_get._val_grounded 는 _as_float+_nums_in 로 형식-불문 매칭 = 두 게이트 술어 불일치 ↔ a2/banking_knowledge.specific.json → write_evidence_specs[submit_interest_discrepancy_report].id_key='amount_difference'",
+     "evidence": "Error: [WRITE-EVIDENCE] the amount_difference (33.00) does not appear in any get_interest_correction tool output in this conversation. / 도구 출력: Correction amount = … = 33.0. Use this as the credit amount",
+     "consequence": "16 메시지 소모 · 모델은 동일 인자로 8회 재호출 · reward 를 죽일 뻔했다",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 62,
+     "role": "our_layer",
+     "what": "deny 상한에 걸려 게이트가 포기",
+     "actor": "our_layer",
+     "kind": "상한",
+     "code_path": "scripts/distill/tau2/t2_gate_patch.py:10504",
+     "evidence": "[T2_WRITE_EVIDENCE] deny cap 8 reached — no further WEV denies this sim",
+     "consequence": "이 sim 이 통과한 직접 계기 — 게이트가 안 멈췄으면 정답 write 가 계속 막혔다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 63,
+     "role": "assistant",
+     "what": "submit_interest_discrepancy_report_7294{…, 4.275 / 4.00 / 33.00}",
+     "actor": "model",
+     "kind": "write(성공)",
+     "evidence": "Expected APY: 4.275% - Actual APY: 4.0% - APY Difference: 0.275% - Amount Difference: $33.00",
+     "consequence": "gold 093_8 MATCHED",
+     "reward_causal": "강"
+    },
+    {
+     "step": 66,
+     "role": "user",
+     "what": "손님이 크레딧 적용을 명시 요청",
+     "actor": "user_sim",
+     "kind": "촉구",
+     "evidence": "can you also go ahead and apply the $33.00 credit if you're able to, or let me know when it'll be applied?",
+     "consequence": "두 번째 write 로 유도 — t7346 이 양 trial 모두 놓친 자리",
+     "reward_causal": "강"
+    },
+    {
+     "step": 71,
+     "role": "assistant",
+     "what": "call_discoverable_agent_tool{apply_savings_account_credit_6831, amount:'33.00', interest_correction}",
+     "actor": "model",
+     "kind": "write(성공)",
+     "evidence": "Credit applied successfully! … Amount: $33.00 … New Balance: $144033.00",
+     "consequence": "gold 093_6 MATCHED ⇒ db_match=True ⇒ reward 1.0",
+     "reward_causal": "강"
+    }
+   ],
+   "cause_primary": "model",
+   "cause_secondary": "our_layer — T2_WRITE_EVIDENCE 가 정답 write 를 8회 과차단했고 deny cap 이 아니었으면 실패했을 것(t2_gate_patch.py:1402)",
+   "lever_firing": "T2_SG_DOCS 1회(12편·정상) · T2_SG_GROUND 3회(정상 deny·정답 유도의 계기) · T2_SG_ROUND 9회 · T2_WRITE_EVIDENCE 20줄/deny 8회+cap · T2_SG_REFRAW 0회(死) · T2_SG_RESULT_RANGE 0회(미검정) · FAB_STRIP/PIN_READ/DEMANDED_STEP/FOLLOWUP/ARG_PRODUCERS/READ-FIRST/REQUIRE_DOC_DELIVER 0회 · T2_SEARCH_REARM turn=73",
+   "evidence": [
+    "[T2_SG_DOCS] get_correct_savings_apy: 클래스 ['green_account_(checking)', 'silver_account'] · 문서 12편 · 13619자 전달(검색 0)",
+    "[T2_SCAFFOLD_GET] get_correct_savings_apy -> 4.275 (t7346 대조에서도 양 trial 동일)",
+    "[GROUNDING WARNING] 2 input value(s) … dropped: actual_apy=480.0 * 12 / 144000.0 * 100",
+    "[T2_SG_ROUND] get_interest_correction: 33.00000000000004 -> 33.0 (자릿수 2)",
+    "[T2_WRITE_EVIDENCE] deny cap 8 reached — no further WEV denies this sim",
+    "Error: [WRITE-EVIDENCE] the amount_difference (33.00) does not appear in any get_interest_correction tool output in this conversation."
+   ],
+   "prescription": "P3 t2_gate_patch.py:1402 의 str(idv) in c 를 수치일 때 _val_grounded 동형(형식-불문 수치 매칭)으로 통일해 같은 리포 안의 술어 불일치를 없앤다. result_round 수리의 _note 가 스스로 지목한 검증 지표('[T2_SG_ROUND] 발화 수 ↔ 그 뒤 WEV deny 수(줄어야 한다)')는 9 ↔ 8 로 미달임을 기록. ⛔실행·코드 수정은 하지 않았다."
+  }
+ ],
+ "our_layer_claims": [
+  "[CONFIRMED · 死배선] R3 `ref_from_outputs.customer_products` 가 t7348 런 전체에서 0회 발화. 코드 경로: `scripts/distill/tau2/t2_scaffold_get.py:722` 가 조회하는 `__tool_outputs_raw` 를 `scripts/distill/tau2/t2_scaffold_get.py:1763-1767,1782` (`outs[nm]`, `nm=id2name[tc.id]`)가 **외곽 도구명**으로 키잉한다. 은행 도메인의 계좌 read 는 `call_discoverable_agent_tool` 로 나가므로 선언 `a2/banking_knowledge.specific.json → get_correct_savings_apy.isolate.ref_from_outputs.customer_products.producer_contains=[\"accounts\"]` 가 구조적으로 매칭되지 않는다. 실측: task_093 양 trial `[T2_SG_REFRAW]` 0줄, 런 전체 25,496줄 중 1줄(그마저 task_094 에서 `get_credit_card_accounts_by_user` 오매칭). 결과: 모델의 전사 `customer_products=\"No credit card accounts\"` 가 그대로 서브 REFERENCE 로 흘러 expected_apy 4.275→4.0.",
+  "[CONFIRMED · 관문 오통과] `get_interest_correction.ground.scalar_fields[actual_apy].corpus=[\"ledger\"]` 의 ledger 코퍼스가 **에이전트 도구 출력 전량**(KB_search/unlock 출력 포함)이다. 코드 경로: `scripts/distill/tau2/t2_scaffold_get.py:227-229` (`_corpus_texts` 의 `\"ledger\" in which` 분기) + 같은 파일 `_val_grounded` 의 수치-토큰 매칭. 그 결과 도구 자신의 파라미터 문서 예시 `e.g., 2.775 for 2.775%`(msg 3/4) 가 `actual_apy=2.775` 를 근거지어 통과시켰고, 경고에는 `period_start` 만 남았다. 반사실은 같은 sim 안에 있다 — trial 1 에서 같은 관문이 `actual_apy` 를 드롭하자 모델이 두 턴 뒤 480x12/144000=4.00 을 스스로 유도했다.",
+  "[CONFIRMED · 재료 결손] 격리 서브의 문서-클래스 배달이 **모델이 저작한 자유서술 `customer_products`** 에만 의존한다. 코드 경로: `scripts/distill/tau2/t2_scaffold_get.py:704` 가 `ref` 를 모델 인자에서 만들고 `scripts/distill/tau2/t2_scaffold_get.py:593-626` 의 클래스-선택 프롬프트가 그 `ref` 를 REFERENCE 로 싣는다. `requires_reads=['get_all_user_accounts_by_user_id']` 가 계좌 레코드 read 를 이미 강제하는데도 그 레코드는 클래스 선택에 쓰이지 않는다. 실측: trial 0 `클래스 ['silver_account'] · 문서 9편` ↔ trial 1 `['green_account_(checking)','silver_account'] · 12편` — 입력 레코드(msg 28)는 두 trial 이 바이트 동일.",
+  "[CONFIRMED · 과차단] `T2_WRITE_EVIDENCE` 의 증거 대조가 순수 문자열 포함이라 우리 도구 출력 `33.0` 에 대해 모델의 `\"33.00\"` 을 8회 반려했다(정답 write). 코드 경로: `scripts/distill/tau2/t2_gate_patch.py:1402` `if not found and str(idv) in c and all(t in c for t in tokens)` — 수치 정규화 없음. 같은 리포의 `scripts/distill/tau2/t2_scaffold_get.py` `_val_grounded` 는 `_as_float`+`_nums_in` 로 형식-불문 비교하므로 **두 게이트의 술어가 불일치**한다. write 는 `scripts/distill/tau2/t2_gate_patch.py:10504` 의 `deny cap 8 reached` 로 게이트가 포기한 직후에야 나갔다 — 즉 trial 1 의 통과는 상한 덕이다. 부수: 2026-08-22 `result_round` 수리의 `_note` 가 지목한 검증 지표(SG_ROUND 발화 ↔ WEV deny 감소)는 9 ↔ 8 로 미달.",
+  "[PLAUSIBLE · 오발화] 검색-에이전트가 계좌 레코드 read 이전(turn 2)에 문서 클래스를 `'Gold Account'` 로 확정해 배달했다(093 은 Silver). 코드 경로: `scripts/distill/tau2/t2_search.py:740` 의 `[T2_DOCDECIDE]` 결정 인쇄부. Silver 델타는 `T2_SEARCH_REARM` 이 trial 0 turn 47 / trial 1 turn 73 에 배달했고 이는 두 trial 모두 **모든 write 이후**다. 두 trial 공통이므로 분기 요인은 아니며 기여 요인으로만 기록한다."
+ ],
+ "summary": "보고서: C:\\workspace\\ba-frft\\reports\\facet_rft_2026\\tasks__20260824\\TASK_093.md\n\n채점축은 DB 해시다(reward_basis=['DB']). action_checks[093_6] 은 양 trial 모두 action_match=false 인데 trial 1 은 reward 1.0 이므로, ACTION 축으로 읽었다면 표가 거짓말을 했을 자리다.\n\n분기점은 단 하나의 인자다. 두 trial 의 계좌 레코드(msg 28)는 바이트 동일한데, 다음 assistant 턴의 `customer_products` 전사가 갈렸다 — trial 0 \"No credit card accounts\"(checking 행 소거) ↔ trial 1 \"Green Account (checking), Silver Account (savings)\". 우리 클래스-선택 서브가 그 문자열만 보고 각각 9편/12편을 배달했고, 결과가 4.0 ↔ 4.275 로 갈렸다.\n\ntrial 0 의 실패는 이중으로 결정돼 있다. ① expected_apy 4.275→4.0: 바로 이 전사 누락을 막으려 2026-08-22 에 저작된 R3 `ref_from_outputs.customer_products` 가 런 전체에서 0회 발화했다(死배선). `_evidence_ctx` 가 도구 출력을 **외곽 도구명**으로 키잉하는데 은행 계좌 read 는 `call_discoverable_agent_tool` 로 나가므로 `producer_contains=[\"accounts\"]` 가 구조적으로 안 맞는다. ② actual_apy 4→2.775: 모델이 도구문서의 파라미터 예시값(`e.g., 2.775 for 2.775%`)을 인자로 복사했고, `corpus:[\"ledger\"]` 가 KB 검색 출력까지 원장으로 세기 때문에 관문이 그것을 실재로 인정해 통과시켰다. ②의 반사실은 같은 sim 안에 있다 — trial 1 에서 같은 관문이 actual_apy 를 드롭하자 모델이 두 턴 뒤 480x12/144000=4.00 을 스스로 유도했다.\n\ntrial 1 은 통과했지만 우리 게이트가 정답 write 를 8회 막았다. T2_WRITE_EVIDENCE 가 \"33.00\"(모델) 대 33.0(우리 출력)을 순수 substring 으로 비교해 반려했고, write 는 `deny cap 8 reached` 로 게이트가 포기한 직후에야 나갔다. 같은 리포의 `_val_grounded` 는 같은 종류의 수치를 형식-불문으로 비교한다 — 두 게이트의 술어가 불일치한다.\n\n선행 대조: t7336 의 근인(base tier 2.5 오선택 → 2.75)은 재현되지 않았다(balance-hint 수리가 샀다). 잔여가 checking+relationship 으로 이동했다. FAILURE_MASTER__20260822.md:172 가 R3 을 \"표적 미도달·기대 상한 낮음\"으로 판정한 근거는 \"093 은 REFRAW 없이도 회복(REFERENCE 에 레벨 이름만 있으면 됨)\"이었는데, t7348 trial 0 이 바로 레벨 이름을 안 쓴 경우이고 즉시 실패했다 — 그 반증이 무너졌으므로 A-4(`_eff_tool_name` 정규화)의 우선순위 상향 근거가 확보됐다. 또한 직전 런 t7346 은 양 trial 모두 4.275 를 얻었으므로 trial 0 의 4.0 은 회귀 1건이다(크레딧 write 실행을 샀지만 APY 를 판 교환).\n\n수리·코드 수정은 하지 않았고 git 조작도 하지 않았다. 처방은 후보로만 남겼다.",
+ "vs_prior": "t7336_tasks/T7336_TASK_093.md 대비: 근인이 이동했다. t7336 = `get_correct_savings_apy -> 2.75`(base tier 2.5 오선택 + relationship 관문1 드롭 + 모델이 넘긴 base 4.0 을 서브 산출이 덮어씀). t7348 = base tier 는 4.0 으로 교정됐고(`_note_balance_tier` 의 C_bal_hint 수리가 샀다) 잔여는 checking +0.25 · relationship +0.025 다. 기전도 다르다 — t7336 은 서브가 문서를 받고도 티어를 잘못 골랐고, t7348 trial 0 은 애초에 **그 문서를 못 받았다**(9편 vs 12편).\n\nFAILURE_MASTER__20260822.md:172 의 R3 판정(\"표적 미도달·기대 상한 낮음\", 반증자 = \"093 은 REFRAW 없이도 회복\")은 **무너졌다**. 그 반증은 t7336·t7346 에서 모델이 우연히 \"Green Checking Account\"/\"Green Account (checking)\" 를 썼기 때문에 성립했을 뿐이고, t7348 trial 0 처럼 안 쓰면 즉시 실패한다. 같은 문서 :295 의 A-4(`_evidence_ctx` 생산자 키 `_eff_tool_name` 정규화, 기대 \"낮음\")는 우선순위를 올려야 한다.\n\nFAILURE_MASTER__20260822.md:179 의 \"T2_SG_DOCS 는 093·094 에서 정상 발화 = 死레버 아님\"은 재확인됐다(양 trial 1회씩 발화).\n\nSTATE_OF_PLAY_2026_08_23.md:87-88 의 x488(우리 문구가 093 을 막았나 → 반증)·x489(우리 차단이 막았나 → 반증)는 유지된다. trial 0 BLOCKED=0 이고 종단 write 두 건 모두 실행됐다. 다만 :166 의 잔여 기술 \"093 두 번째 write 미실행\"은 갱신 필요 — t7348 trial 1 에서 두 번째 write 는 실행됐고(손님 촉구 msg 66 이 계기), trial 0 의 결손은 미실행이 아니라 **값 오염**이다.\n\n직전 런 t7346_halfA 실측 대조(이 보고서에서 새로 산출): 양 trial 모두 `-> 4.275` 였고 결손은 크레딧 write 미실행 1건뿐이었다. 따라서 t7348 의 +1 은 순증이 아니라 교환이다 — 크레딧 write 를 사고 trial 0 의 APY 를 팔았다([[70]]).\n\nx500/x501/x502 에는 task_093 언급이 없다(전수 grep 0건). tasks__20260824/x503(TASK_003)은 다른 태스크이며 형식만 참조했다."
+}

@@ -1,0 +1,462 @@
+{
+ "task": "task_016 (bank_t7348_halfBpartial14_20260824) per-step 궤적 포렌식 — 0/2",
+ "vs_prior": "t7346 도 0/2 로 reward 는 동일하나 궤적은 회귀했다. ①assistant 발화의 'Silver' 언급이 t7346 t0 1회 → t7348 0회(양 trial). ②t7348 신규: t0 msg30 에서 손님에게 비존재 도구 `submit_referral` 실행 지시(T2_ACTION_SUB 6→11 · formalized_target=submit_referral 23→36). ③t7348 신규: t1 msg32 에서 `get_card_last_4_digits` 표면화(T2_VALUE_ACQUIRE 0→6 · T2_USER_TOOL_NOTE 0→1). ④t7348 신규: T2_DISCOVERY_STEP2 0→4 + T2_FORCE_ACTION 이 마지막 턴을 이관 사슬로 전환(033 의 gold 를 사는 레버 — 016 에서는 gold 에 이관이 0칸이라 순손실 · [[70]] 부호 갈림 실물). 유지되는 선행 판정: FAILURE_MASTER__20260822.md:101 (T2_DIAG Platinum 오지목 · 4/4 동일 문자열로 재현 · 인과 강화됨) · :102 (T2_VIEW_MSG_CAP=8000 근거창 파괴 재현) · :167 (T2_SEARCH_REARM platinum 오표적 재현) · :173 (MATERIAL_GATE resolve_cap 이 결정점 구간을 먼저 막음 재현) · :264 (\"재무장이 검색 예산을 훔쳤다\" REFUTED 유지 — t1 은 정답 문서를 1위로 받고도 날조했다). PIN/ON 은 diff 로 바이트 동일이고 results 의 git_commit(fc0055dc)은 tau2-bench 하네스 커밋이라 양 런 동일 ⇒ 유일 후보 변인은 9-커밋 엔진 묶음(C594 로 개별 커밋 지목 금지).",
+ "our_layer_claims": [
+  "T2_DIAG 오지목: `t2_ledger.py` `diagnose_choice()`/`onto_context()` + 선언 `a2/banking_knowledge.gate.json` `ledger_metrics[0].diagnose_prompt`/`.diagnosed_text`. 격리 문맥에 대화가 0글자라 손님의 'most recent' 제약이 원리상 서브에 도달 불가하고, 프롬프트 축자 'One of these records did not pay out' 은 거짓 유일성 전제다(15행 중 미지급 5행). 로그 축자 `[T2_DIAG] raw='Platinum Rewards Card — an error has occurred throughout the process.' → Platinum Rewards Card` 가 t7346·t7348 · 양 trial 4/4 동일. `agent._t2_diag` 메모이제이션으로 sim 내내 재평가 없음.",
+  "비존재 표적 유지: `t2_gate_patch.py` 앵커 `_uacts = {t for t in ((a2 or {}).get(\"action_tools\") or []) if _exec_side(t) == \"user\"}` — 태스크별 `user_tools` 가용성 필터가 없다. 선언 `a2/banking_knowledge.gate.json` `action_tools` 에 `submit_referral` 등재. 로그 `[T2_ACTIONREQ] … pending_user=['apply_for_credit_card','call_discoverable_user_tool','submit_referral','submit_transaction'] … formalized_target=submit_referral` 36회 · `[T2_RESOLVE] user-action instruct target=submit_referral` 12회. 이 태스크의 user_tools 는 ['submit_transaction','apply_for_credit_card'] 뿐이고 손님이 msg31 에서 축자 반증: 'I don't have any \"submit_referral\" tool on my side'.",
+  "오지목의 권위 승격: `t2_gate_patch.py` 앵커 `print(\"[T2_ACTION_SUB] 발화를 격리에서 지음 …` 의 `_own` 표 — 'Tools the CUSTOMER runs in this chat: %s(%s)' 를 지시가 아니라 사실로 세운다. 표적이 위 `submit_referral` 이면 비존재 도구를 사실로 인쇄한다([[25]] 위반). t0 msg30 실물.",
+  "무관 표적 표면화: `t2_gate_patch.py` `_value_acquire_fb(am, messages, specs, a2=None, executed=None)` — 조건이 값-미실재/give-미실행/reask 신호뿐이고 '이 태스크가 그 write 로 가는가' 를 의도적으로 뺐다(코드 주석 축자 '★C4 철회(2026-08-05) … 그건 열린 술어라 우리 몫이 아니다'). 선언 `a2/banking_knowledge.gate.json` `value_acquisition[0]` 의 write 는 `file_credit_card_transaction_dispute_4829` 로 이 태스크와 무관. 로그 `[T2_VALUE_ACQUIRE] give-surfacing → nudge (regen)` ×3 · `[T2_USER_TOOL_NOTE] pre-give note: get_card_last_4_digits`. 선언 피드백 축자 'have them run it with their credit_card_account_id' ↔ t1 msg32 축자 'Provide your credit_card_account_id as an argument'.",
+  "근거창 파괴: `T2_VIEW_MSG_CAP=8000`(`go_stack.sh:156` `export T2_VIEW_MSG_CAP=8000`) 이 ⓑ($750) 를 담은 11,214자 KB 결과를 다음 턴부터 다이제스트. 로그 `[T2_VIEW_COMPACT] active: 1/2/3/4 tool output(s) digested in view`.",
+  "결정점 구간 폐쇄: `t2_gate_patch.py` 앵커 `print(\"[T2_MATERIAL_GATE] stop=%s turn=%d calls=%s …` 의 `resolve_cap(정체 3회)` 가 t0 turn 52·54·56·58·60·62 · t1 turn 40·42·44·56·58 연속 발화 — 손님이 결정 단서를 주는 구간 전체가 재료 0.",
+  "이관 사슬 강제(033 과 길항): `t2_resolve.py` `T2_DISCOVERY_STEP2` + `t2_gate_patch.py` 앵커 `[T2_FORCE_ACTION] say-don't-do → tool_choice=required 재생성`. 로그 `[T2_OUR_NAMES] 등재 name=initial_transfer_to_human_agent_0218 (출처=T2_DISCOVERY_STEP2 지목)` · `[T2_DISCOVERY_STEP2] deny name=initial_transfer_to_human_agent_1822 (레지스트리 폴백·미unlock·formalize 정합)` · `[T2_FORCE_ACTION] …` ×2. t1 msg52·54 가 손님의 결정적 질문(msg49) 직후 두 턴을 unlock 으로 소각. 016 의 gold 에는 이관이 0칸이다.",
+  "계기 결함(성적 무관): `t2_gate_patch.py` 앵커 `print(\"[T2_TRANSFER_TIER] chosen=%s(tier %s) -> higher applicable=%s(tier %s) \"` 가 `evidence='NOT_VERIFIED'` 를 근거로 reason 을 account_ownership_dispute 로 승격 — 손님은 t0 msg45 에서 이미 VERIFIED 다([[25]])."
+ ],
+ "sims": [
+  {
+   "trial": 0,
+   "reward": 0,
+   "missing": [
+    "submit_transaction{user_id=friend_user_5839, credit_card_type=Silver Rewards Card, merchant_name=Best Buy, amount=750, category=Shopping} (aid 016_1 · requestor=user)"
+   ],
+   "wrongarg": [],
+   "dup": [],
+   "blocked": [
+    "log_verification{Oluwaseun Adeyemi, 86e92f639e, …, 2025-11-14 03:40:00 EST} @msg48 — 'Failed to log verification: Record may already exist.' (env · DB 무변)"
+   ],
+   "cause_primary": "our_layer",
+   "cause_secondary": "model",
+   "lever_firing": "T2_SG_DOCS 0(미발화) · T2_PIN_READ 4(발화·무관 표적) · T2_DEMANDED_STEP 13(발화·이행+ → gold 016_0 확보) · T2_CLAIMPROV 다수(발화·수치 주장은 범위 밖) · T2_FOLLOWUP 0(미발화) · T2_SEARCH_AGENT 6(발화·오축: T2_DOCDECIDE→'Bronze Rewards Card' 를 따라가 Silver 축 미형성, 이후 '요청 축 … 모두 처리됨 — 침묵') · FAB_STRIP 0(미발화) · T2_ARG_PRODUCERS 0(미발화) · READ-FIRST 0(마커 없음) · T2_REQUIRE_DOC_DELIVER 6(발화했으나 turn 60·62 = 결정점 이후 · 배달 6문서에 silver_rewards_card_011 없음) · T2_SEARCH_REARM 0. 목록 밖 실제 구동자: T2_ACTIONREQ formalized_target=submit_referral(오발화) · T2_ACTION_SUB 6(오발화 증폭) · T2_DIAG 1(오발화 Platinum) · T2_ARBITRATE push dominated target=submit_referral(선행-읽기 강제) · T2_MATERIAL_GATE resolve_cap 6(차단) · T2_VIEW_COMPACT 4(근거창 파괴) · T2_DISCOVERY_STEP2 2 + T2_FORCE_ACTION 1(t7348 신규) · T2_TRANSFER_TIER 1(계기 결함)",
+   "evidence": [
+    "reward_info: reward 0.0 · reward_basis ['DB'] · db_check {'db_match': false, 'db_reward': 0.0} · reward_breakdown {'DB': 0.0}",
+    "t2_forensic.mutation_diff: missing=[submit_transaction …] · wrongarg=[] · extra=[] · dup=[] · blocked=[log_verification @msg_i 48] · matched=[log_verification @msg_i 20]",
+    "user-sim 스펙 축자: 'ONLY use this tool if the agent has: - Actually looked up your referrals and identified which one you're asking about … - Told you a specific dollar amount your friend needs to spend'",
+    "msg3 축자(요건 도착): '10. Silver Rewards Card: Referral Program … ID: doc_credit_cards_silver_rewards_card_011 … - The referred person must be approved and spend at least $750 within 60 days of account opening'",
+    "msg23 축자(최신행 도착): '2. Record ID: f2a3b4c5d6789012 … referred_account_type: Silver Rewards Card / referral_status: IN_PROGRESS / date: 11/13/2025'",
+    "로그 축자: '[T2_DIAG] raw=\\'Platinum Rewards Card — an error has occurred throughout the process.\\' → Platinum Rewards Card'",
+    "로그 축자: '[T2_ARBITRATE] push dominated target=submit_referral reqs=GB1_VERIFY_BEFORE_ACCOUNT_ACCESS,GB3_ELIGIBILITY_BEFORE_REFERRAL_ADVICE,reads:get_all_user_accounts_by_user_id unsourced=0'",
+    "msg30 축자: 'you need to submit the referral manually. Please use the following tool to submit the referral: {\"name\": \"submit_referral\", \"arguments\": {\"user_id\": \"86e92f639e\", \"account_type\": \"Bronze Rewards Card\"}}'",
+    "msg31 축자(손님 반증): 'I don\\'t have any \"submit_referral\" tool on my side, so I can\\'t manually submit anything myself.'",
+    "msg53 축자(손님이 좌표 제공): 'I\\'m specifically asking about the most recent referral — my friend told me their user ID is friend_user_5839.'",
+    "msg57 축자: 'No records found in \\'referrals\\'.' (referrer_id 축인데 피추천인 id 로 조회)",
+    "로그 축자: '[T2_MATERIAL_GATE] stop=resolve_cap(정체 3회) turn=52 calls=- pending=0 axes=7 prose=True' (turn 52·54·56·58·60·62 연속)",
+    "로그 축자: '[T2_TRANSFER_TIER] chosen=kb_search_unsuccessful_customer_requests_transfer(tier 2) -> higher applicable=account_ownership_dispute(tier 1) evidence=\\'NOT_VERIFIED\\'' — msg45 에서 이미 VERIFIED",
+    "전수 검색: 이 trial 의 assistant 발화에 'Silver' 0회 · '750' 0회"
+   ],
+   "steps": [
+    {
+     "step": 3,
+     "role": "tool",
+     "what": "KB_search_bm25{'query':'referral bonus','k':10} 결과 10위로 정답 문서(doc_credit_cards_silver_rewards_card_011 · $750/60일)가 11,214자 안에 도착",
+     "actor": "env",
+     "kind": "재료 도착(+)",
+     "evidence": "'10. Silver Rewards Card: Referral Program … - The referred person must be approved and spend at least $750 within 60 days of account opening'",
+     "consequence": "요건 값 ⓑ 확보 — 이후 어느 발화에도 쓰이지 않는다",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 4,
+     "role": "our_layer",
+     "what": "그 11,214자 메시지를 다음 생성 턴부터 head/tail 다이제스트로 압축",
+     "actor": "our_layer",
+     "code_path": "T2_VIEW_MSG_CAP=8000 (go_stack.sh:156 `export T2_VIEW_MSG_CAP=8000`) · t2_gate_patch.py 앵커 `[T2_VIEW_COMPACT] active:`",
+     "kind": "근거창 파괴",
+     "evidence": "'[T2_VIEW_COMPACT] active: 1 tool output(s) digested in view' (이 sim 누적 active: 1/2/3/4)",
+     "consequence": "ⓑ($750)가 모델 시야에서 사라진다",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 5,
+     "role": "assistant",
+     "what": "verify_identity 에 손님이 준 적 없는 플레이스홀더(john.doe@example.com / 123-456-7890)를 날조해 호출",
+     "actor": "model",
+     "kind": "날조 인자",
+     "evidence": "{\"provided\": \"{\\\"email\\\": \\\"john.doe@example.com\\\", \\\"phone_number\\\": \\\"123-456-7890\\\"}\"}",
+     "consequence": "우리 T2_SCAFFOLD_GET 교정 문면이 회복시킴",
+     "reward_causal": "약"
+    },
+    {
+     "step": 20,
+     "role": "assistant",
+     "what": "verify → get_current_time → log_verification 성공",
+     "actor": "model",
+     "kind": "gold 이행",
+     "code_path": "T2_DEMANDED_STEP head=GB1_VERIFY_BEFORE_ACCOUNT_ACCESS (a2/banking_knowledge.gate.json gates)",
+     "evidence": "'Verification logged successfully. - User: Oluwaseun Adeyemi (ID: 86e92f639e) - Verified at: 2025-11-14 03:40:00 EST'",
+     "consequence": "gold 016_0 matched",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 23,
+     "role": "tool",
+     "what": "get_referrals_by_user{86e92f639e} → 15행. 최신 = Silver Rewards Card · IN_PROGRESS · 11/13/2025",
+     "actor": "env",
+     "kind": "재료 도착(+)",
+     "evidence": "'2. Record ID: f2a3b4c5d6789012 … Silver Rewards Card / IN_PROGRESS / date: 11/13/2025'",
+     "consequence": "ⓐ 확보",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 24,
+     "role": "our_layer",
+     "what": "격리 서브가 '미지급 행'을 골라 권위 문구로 view 에 배달 — 답이 Platinum(ERROR·10/05/2025)",
+     "actor": "our_layer",
+     "code_path": "t2_ledger.py diagnose_choice()/onto_context() · 호출부 t2_gate_patch.py `_LG2.diagnose_choice(agent, _la9, _UM9, _sp2, _blk, _e2[\"rows\"])` · 선언 a2/banking_knowledge.gate.json ledger_metrics[0].diagnose_prompt/.diagnosed_text",
+     "kind": "오지목",
+     "evidence": "'[T2_DIAG] raw=\\'Platinum Rewards Card — an error has occurred throughout the process.\\' → Platinum Rewards Card' · 프롬프트 축자 'One of these records did not pay out.' · 배달 문면 'A separate check was run on the records and the policy definitions, with nothing else from this conversation in front of it. It answers: {answer}'",
+     "consequence": "최신행(Silver) 대신 가장 오래된 이상행을 권위 있게 지목 — 격리 문맥에 대화 0글자라 'most recent' 제약 도달 불가",
+     "reward_causal": "중"
+    },
+    {
+     "step": 26,
+     "role": "assistant",
+     "what": "unlock+call get_all_user_accounts_by_user_id_3847 → 'No bank accounts found. / No credit card accounts found.'",
+     "actor": "our_layer",
+     "code_path": "a2/banking_knowledge.gate.json `require_tool_before.submit_referral = [\"get_all_user_accounts_by_user_id\"]` · t2_gate_patch.py 앵커 `print(\"[T2_ARBITRATE] push dominated target=%s reqs=%s \"`",
+     "kind": "선행-읽기 강제(비존재 표적용)",
+     "evidence": "'[T2_ARBITRATE] push dominated target=submit_referral reqs=GB1_VERIFY_BEFORE_ACCOUNT_ACCESS,GB3_ELIGIBILITY_BEFORE_REFERRAL_ADVICE,reads:get_all_user_accounts_by_user_id unsourced=0'",
+     "consequence": "4메시지 소각 + '계좌가 하나도 없다' 오도 서사를 심어 msg38 의 오귀인 근거가 됨",
+     "reward_causal": "중"
+    },
+    {
+     "step": 30,
+     "role": "assistant",
+     "what": "★결정점 A — Bronze/COMPLETE 로 오진하고 손님에게 비존재 도구 submit_referral 실행을 JSON 블록으로 지시",
+     "actor": "our_layer",
+     "code_path": "t2_gate_patch.py `_uacts = {t for t in ((a2 or {}).get(\"action_tools\") or []) if _exec_side(t) == \"user\"}`(태스크 user_tools 필터 없음) + `print(\"[T2_ACTION_SUB] 발화를 격리에서 지음 …` 의 `_own` 소유권 표 · 선언 a2/banking_knowledge.gate.json action_tools 에 submit_referral",
+     "kind": "비존재 도구 오지목",
+     "evidence": "'[T2_RESOLVE] user-action instruct target=submit_referral'(12회) · '[T2_ACTIONREQ] … pending_user=[… \\'submit_referral\\', \\'submit_transaction\\'] … formalized_target=submit_referral'(36회) · '[T2_ACTION_SUB] 발화를 격리에서 지음 (손님 발화 3건 · 값 2067자 · 표기 O)' · msg30 'Please use the following tool to submit the referral: {\"name\": \"submit_referral\", …}'",
+     "consequence": "gold 016_1(submit_transaction) 대신 손님이 갖지도 않은 도구를 사실 표로 지목 — 손님이 즉시 반증",
+     "reward_causal": "강"
+    },
+    {
+     "step": 33,
+     "role": "tool",
+     "what": "KB_search_dense('referral bonus processing') 로 정답 문서 재도착",
+     "actor": "env",
+     "kind": "재료 재도착(+)",
+     "evidence": "msg33 안 'ID: doc_credit_cards_silver_rewards_card_011 … spend at least $750 within 60 days'",
+     "consequence": "ⓑ 두 번째 기회 — 미사용",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 41,
+     "role": "our_layer",
+     "what": "get_referrals_by_user 동일 인자 재호출을 dedup stub 으로 차단(3회째는 강화 문구)",
+     "actor": "our_layer",
+     "code_path": "t2_gate_patch.py 앵커 `[T2_READ_DEDUP] stub tool=`",
+     "kind": "정체 차단",
+     "evidence": "'[DUPLICATE-READ] This exact call (same tool, same arguments) was already executed earlier … Refer to that output instead of re-reading.' / 3회째 'You have now issued this IDENTICAL call 3 times … Do not issue this same call again.'",
+     "consequence": "차단 자체는 옳으나 무엇을 하면 풀리는지는 말하지 않아 방향 전환이 안 일어남([[64]] 부분 이행)",
+     "reward_causal": "중"
+    },
+    {
+     "step": 48,
+     "role": "assistant",
+     "what": "이미 VERIFIED·로그된 신원을 재검증하고 log_verification 을 다시 호출 → env 차단",
+     "actor": "model",
+     "kind": "되돌이",
+     "evidence": "'Failed to log verification: Record may already exist.'",
+     "consequence": "6메시지 소각 · DB 무변(BLOCKED 1건)",
+     "reward_causal": "약"
+    },
+    {
+     "step": 52,
+     "role": "assistant",
+     "what": "행동 대신 'Could you please confirm if I should proceed with this action?' 로 허락 요청 · 같은 턴부터 우리 재료 채널이 resolve_cap 으로 폐쇄",
+     "actor": "our_layer",
+     "code_path": "t2_gate_patch.py 앵커 `print(\"[T2_MATERIAL_GATE] stop=%s turn=%d calls=%s ` · T2_RESOLVE_CAP",
+     "kind": "재료 채널 폐쇄 + 정체",
+     "evidence": "'[T2_MATERIAL_GATE] stop=resolve_cap(정체 3회) turn=52 calls=- pending=0 axes=7 prose=True' (turn 52·54·56·58·60·62 연속)",
+     "consequence": "손님이 결정 단서를 주기 직전부터 결정점 구간 전체가 재료 0",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 53,
+     "role": "user",
+     "what": "손님이 'most recent referral' + friend_user_5839 를 명시",
+     "actor": "user_sim",
+     "kind": "단서(+)",
+     "evidence": "'I\\'m specifically asking about the most recent referral — my friend told me their user ID is friend_user_5839.'",
+     "consequence": "최신행 판정에 필요한 모든 재료가 갖춰짐",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 56,
+     "role": "assistant",
+     "what": "get_referrals_by_user{friend_user_5839} — referrer_id 축인데 피추천인 id 로 조회 → 'No records found'",
+     "actor": "model",
+     "kind": "오조회",
+     "evidence": "msg57 'No records found in \\'referrals\\'.'",
+     "consequence": "ⓐ 재확인의 마지막 기회 소각",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 58,
+     "role": "assistant",
+     "what": "'there are no referral records associated with friend_user_5839 … I recommend escalating' — 진단 포기",
+     "actor": "model",
+     "kind": "사임",
+     "evidence": "축자 상동",
+     "consequence": "user-sim 조건 ①②③ 전부 미충족 확정",
+     "reward_causal": "강"
+    },
+    {
+     "step": 66,
+     "role": "assistant",
+     "what": "T2_DISCOVERY_STEP2 가 initial_transfer_to_human_agent_0218 을 지목하고 T2_FORCE_ACTION 이 tool_choice=required 로 재생성 — 남은 턴을 이관 사슬로 소진",
+     "actor": "our_layer",
+     "code_path": "t2_resolve.py T2_DISCOVERY_STEP2 · t2_gate_patch.py 앵커 `[T2_FORCE_ACTION] say-don't-do → tool_choice=required 재생성`",
+     "kind": "표적 전환(033 과 길항)",
+     "evidence": "'[T2_OUR_NAMES] 등재 name=initial_transfer_to_human_agent_0218 (출처=T2_DISCOVERY_STEP2 지목)' · '[T2_DISCOVERY_STEP2] deny name=initial_transfer_to_human_agent_0218 (이미 회수·미unlock·formalize 정합)' · '[T2_FORCE_ACTION] say-don\\'t-do → tool_choice=required 재생성'",
+     "consequence": "016 의 gold 에는 이관이 0칸인데 033 의 gold 사슬로 턴을 소진",
+     "reward_causal": "중"
+    },
+    {
+     "step": 70,
+     "role": "assistant",
+     "what": "transfer_to_human_agents{reason='account_ownership_dispute'} — 우리 층이 tier1 로 승격, 근거는 옛 'NOT_VERIFIED' 문자열",
+     "actor": "our_layer",
+     "code_path": "t2_gate_patch.py 앵커 `print(\"[T2_TRANSFER_TIER] chosen=%s(tier %s) -> higher applicable=%s(tier %s) \"`",
+     "kind": "계기 결함",
+     "evidence": "'[T2_TRANSFER_TIER] chosen=kb_search_unsuccessful_customer_requests_transfer(tier 2) -> higher applicable=account_ownership_dispute(tier 1) evidence=\\'NOT_VERIFIED\\''",
+     "consequence": "성적 무관(비-변이 도구)이나 우리 도구가 사실과 다른 근거를 인쇄([[25]])",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 73,
+     "role": "user",
+     "what": "###STOP###",
+     "actor": "user_sim",
+     "kind": "종료",
+     "evidence": "'###STOP###'",
+     "consequence": "MISSING submit_transaction 확정",
+     "reward_causal": "무관"
+    }
+   ],
+   "prescription": "P1 diagnose_choice 격리 문맥에 선언된 date_field 축의 recency 제약을 싣거나 'One of these records did not pay out' 의 거짓 유일성 전제를 고친다(격리 프로브 필수) · P2 `_uacts` 에 태스크 가용 user_tools 필터(닫힌 술어) · P5 T2_VIEW_MSG_CAP 다이제스트에서 required_documents 블록 보존 · P4 T2_DISCOVERY_STEP2 를 손님 이관 요청/정책 게이트 지시 이후로 조건화(끄지 말 것·도메인 일반 닫힌 술어) · P6 T2_TRANSFER_TIER evidence 를 최신 verdict 로."
+  },
+  {
+   "trial": 1,
+   "reward": 0,
+   "missing": [
+    "submit_transaction{user_id=friend_user_5839, credit_card_type=Silver Rewards Card, merchant_name=Best Buy, amount=750, category=Shopping} (aid 016_1 · requestor=user)"
+   ],
+   "wrongarg": [],
+   "dup": [],
+   "blocked": [
+    "log_verification{…} @msg38 — 'Failed to log verification: Record may already exist.' (env · DB 무변)"
+   ],
+   "cause_primary": "model",
+   "cause_secondary": "our_layer",
+   "lever_firing": "T2_SG_DOCS 0(미발화) · T2_PIN_READ 0(미발화) · T2_DEMANDED_STEP 0(미발화) · T2_CLAIMPROV 다수(발화했으나 msg46 날조 턴에 'window hit(resign) claims=4 unbacked=0' 로 통과시킴) · T2_FOLLOWUP 0(미발화) · T2_SEARCH_AGENT 5(발화·오축) · FAB_STRIP 0(미발화 — msg46 의 '$1,500 within 90 days' 날조를 놓쳤다) · T2_ARG_PRODUCERS 0(미발화) · READ-FIRST 0(마커 없음) · T2_REQUIRE_DOC_DELIVER 5(발화했으나 turn 52·54·58 = 결정점 이후 · 배달 문서에 silver_rewards_card_011 없음) · T2_SEARCH_REARM 2(오표적: 신규 대상 platinum_rewards_card · gold 는 Silver · turn 28 · 11,240자). 목록 밖 실제 구동자: T2_DIAG 1(오발화 Platinum · 이 trial 을 지배) · T2_VALUE_ACQUIRE 6 + T2_USER_TOOL_NOTE 1(t7348 신규 오발화) · T2_DISCOVERY_STEP2 2 + T2_FORCE_ACTION 2(t7348 신규) · T2_MATERIAL_GATE resolve_cap 4(차단) · T2_ARBITRATE push dominated target=submit_referral",
+   "evidence": [
+    "reward_info: reward 0.0 · reward_basis ['DB'] · db_check {'db_match': false, 'db_reward': 0.0}",
+    "t2_forensic.mutation_diff: missing=[submit_transaction …] · wrongarg=[] · extra=[] · dup=[] · blocked=[log_verification @msg_i 38] · matched=[log_verification @msg_i 14]",
+    "로그 축자: '[T2_DIAG] raw=\\'Platinum Rewards Card — an error has occurred throughout the process.\\' → Platinum Rewards Card'",
+    "msg22 축자: 'there seems to be an issue with the referral process for the Platinum Rewards Card, as indicated by the \"ERROR\" status' — 해당 행은 #12 · 10/05/2025 로 15행 중 오래된 쪽",
+    "로그 축자: '[T2_VALUE_ACQUIRE] consumers card_last_4_digits=1' · '[T2_VALUE_ACQUIRE] give-surfacing → nudge (regen)' ×3 · '[T2_USER_TOOL_NOTE] pre-give note: get_card_last_4_digits'",
+    "선언 축자(a2 value_acquisition[0].feedback): 'Use give_discoverable_user_tool to give get_card_last_4_digits to the customer NOW, then have them run it with their credit_card_account_id' ↔ msg32 축자 'Please use the get_card_last_4_digits tool by providing your credit_card_account_id.'",
+    "msg33 축자(손님 반증): 'I don\\'t have my credit card account ID handy, and I don\\'t see a way to run that tool on my end.'",
+    "msg41 축자: 'I\\'m asking about my most recent referral — the friend who was approved and has already started using the card.'",
+    "msg42 축자(고착): 'Given the \"ERROR\" status on your most recent referral for the Platinum Rewards Card' — 손님 낱말을 우리 오지목에 붙여 재확인",
+    "msg43 축자(gold 를 여는 질문): 'can you confirm whether there\\'s any spending requirement my friend has to meet … (and if so, how much and within what timeframe)?'",
+    "msg45 축자(정답 문서 1위 도착): '1. Silver Rewards Card: Referral Program … ID: doc_credit_cards_silver_rewards_card_011 … - The referred person must be approved and spend at least $750 within 60 days of account opening'",
+    "msg46 축자(날조): 'the referral bonus for the Platinum Rewards Card requires your friend to spend at least $1,500 within 90 days of account opening' — 이 값은 대화의 어느 도구 출력에도 없다",
+    "로그 축자(우리 검사 통과): '[T2_SOURCE] claims=1 unsourced=0' · '[T2_CLAIMPROV] window hit(resign) claims=4 unbacked=0 pending=1 unb_p=1'",
+    "로그 축자: '[T2_DISCOVERY_STEP2] deny name=initial_transfer_to_human_agent_1822 (레지스트리 폴백·미unlock·formalize 정합)' · '[T2_FORCE_ACTION] say-don\\'t-do → tool_choice=required 재생성'",
+    "전수 검색: 이 trial 의 assistant 발화에 'Silver' 0회 · '750' 0회"
+   ],
+   "steps": [
+    {
+     "step": 2,
+     "role": "assistant",
+     "what": "★분기점 — trial0 은 첫 수가 KB_search_bm25 였는데 trial1 은 검색 없이 바로 신원 요구",
+     "actor": "model",
+     "kind": "순서 분기",
+     "evidence": "'To help us verify your identity, could you please provide me with your email address and phone number?'",
+     "consequence": "ⓑ($750)가 msg45 까지 문맥에 없다 — t0 대비 42 메시지 지연",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 14,
+     "role": "assistant",
+     "what": "log_verification 성공",
+     "actor": "model",
+     "kind": "gold 이행",
+     "evidence": "'Verification logged successfully.'",
+     "consequence": "gold 016_0 matched",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 17,
+     "role": "tool",
+     "what": "get_referrals_by_user → 15행(최신 = Silver·IN_PROGRESS·11/13/2025)",
+     "actor": "env",
+     "kind": "재료 도착(+)",
+     "evidence": "'2. Record ID: f2a3b4c5d6789012 … Silver Rewards Card / IN_PROGRESS / date: 11/13/2025'",
+     "consequence": "ⓐ 확보",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 18,
+     "role": "our_layer",
+     "what": "T2_DIAG 격리 서브가 다시 Platinum(ERROR·10/05)을 골라 '별도 검사' 권위 문구로 view 에 배달",
+     "actor": "our_layer",
+     "code_path": "t2_ledger.py diagnose_choice()/onto_context() · a2/banking_knowledge.gate.json ledger_metrics[0].diagnose_prompt/.diagnosed_text",
+     "kind": "오지목",
+     "evidence": "'[T2_DIAG] raw=\\'Platinum Rewards Card — an error has occurred throughout the process.\\' → Platinum Rewards Card' (t7346·t7348 · 양 trial 4/4 동일 문자열)",
+     "consequence": "다음 assistant 발화가 즉시 이 답을 복창 · agent._t2_diag 메모이제이션으로 sim 내내 재평가 없음",
+     "reward_causal": "강"
+    },
+    {
+     "step": 20,
+     "role": "assistant",
+     "what": "unlock+call get_all_user_accounts_by_user_id_3847 → 'No accounts found'",
+     "actor": "our_layer",
+     "code_path": "a2/banking_knowledge.gate.json require_tool_before.submit_referral · t2_gate_patch.py `[T2_ARBITRATE] push dominated target=%s`",
+     "kind": "선행-읽기 강제(비존재 표적용)",
+     "evidence": "'[T2_ARBITRATE] push dominated target=submit_referral reqs=…reads:get_all_user_accounts_by_user_id'",
+     "consequence": "4메시지 소각",
+     "reward_causal": "중"
+    },
+    {
+     "step": 22,
+     "role": "assistant",
+     "what": "★결정점 A′ — Platinum Rewards Card 의 ERROR 상태를 원인으로 지목",
+     "actor": "our_layer",
+     "kind": "오진 고착",
+     "code_path": "상류 = t2_ledger.py diagnose_choice()",
+     "evidence": "'there seems to be an issue with the referral process for the Platinum Rewards Card, as indicated by the \"ERROR\" status'",
+     "consequence": "이후 assistant 6개 메시지(22·26·30·40·42·46·48)가 전부 Platinum 축에 묶인다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 29,
+     "role": "our_layer",
+     "what": "get_referrals_by_user 동일 인자 ×2 를 dedup stub 으로 차단",
+     "actor": "our_layer",
+     "code_path": "t2_gate_patch.py `[T2_READ_DEDUP] stub tool=`",
+     "kind": "정체 차단",
+     "evidence": "'[DUPLICATE-READ] This exact call (same tool, same arguments) was already executed earlier …'",
+     "consequence": "최신행 재확인 기회 소각",
+     "reward_causal": "중"
+    },
+    {
+     "step": 30,
+     "role": "assistant",
+     "what": "Platinum ERROR 를 원인으로 확정하고 escalate 제안",
+     "actor": "model",
+     "kind": "사임 예고",
+     "evidence": "'Given that the referral for the Platinum Rewards Card has an \"ERROR\" status, I will escalate this issue to our referral team'",
+     "consequence": "진단 종료 선언",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 32,
+     "role": "assistant",
+     "what": "★결정점 B — 손님에게 get_card_last_4_digits 를 credit_card_account_id 로 실행하라고 요구",
+     "actor": "our_layer",
+     "code_path": "t2_gate_patch.py `_value_acquire_fb(am, messages, specs, a2=None, executed=None)` (주석 '★C4 철회(2026-08-05)' 로 태스크-적합성 조건 부재를 자인) + `print(\"[T2_USER_TOOL_NOTE] pre-give note: %s\"` · 선언 a2/banking_knowledge.gate.json value_acquisition[0] (write=file_credit_card_transaction_dispute_4829 — 무관)",
+     "kind": "무관 표적 표면화",
+     "evidence": "'[T2_VALUE_ACQUIRE] give-surfacing → nudge (regen)' ×3 · '[T2_USER_TOOL_NOTE] pre-give note: get_card_last_4_digits' · 선언 피드백 'have them run it with their credit_card_account_id' ↔ msg32 'Provide your credit_card_account_id as an argument'",
+     "consequence": "손님이 friend_user_5839 를 준 바로 다음 턴을 통째로 소각 · credit_card_account_id 는 이 대화 어디에도 없던 낱말이라 문면 출처는 우리 선언",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 33,
+     "role": "user",
+     "what": "손님이 우리 오표적을 반증",
+     "actor": "user_sim",
+     "kind": "반증(계측)",
+     "evidence": "'I don\\'t have my credit card account ID handy, and I don\\'t see a way to run that tool on my end.'",
+     "consequence": "trial0 의 submit_referral 반증과 동형",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 38,
+     "role": "assistant",
+     "what": "재검증 후 log_verification 중복 호출 → env 차단",
+     "actor": "model",
+     "kind": "되돌이",
+     "evidence": "'Failed to log verification: Record may already exist.'",
+     "consequence": "6메시지 소각 · DB 무변",
+     "reward_causal": "약"
+    },
+    {
+     "step": 42,
+     "role": "assistant",
+     "what": "손님이 'most recent referral' 을 재명시(msg41)했는데도 그 낱말을 Platinum 에 붙여 재확인",
+     "actor": "model",
+     "kind": "고착",
+     "evidence": "'Given the \"ERROR\" status on your most recent referral for the Platinum Rewards Card'",
+     "consequence": "최신행 제약이 오답을 강화하는 데 쓰였다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 45,
+     "role": "tool",
+     "what": "KB_search_dense('Platinum Rewards Card referral bonus spending requirement') → 1위가 정답 문서(Silver · $750 · 60일)",
+     "actor": "env",
+     "kind": "재료 도착(+)",
+     "evidence": "'1. Silver Rewards Card: Referral Program … spend at least $750 within 60 days of account opening'",
+     "consequence": "필요한 두 값이 처음으로 동시에 문맥에 존재",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 46,
+     "role": "assistant",
+     "what": "★★결정점 C(최종 손실) — 1위 문서를 앞에 두고 'Platinum … at least $1,500 within 90 days' 를 날조",
+     "actor": "model",
+     "kind": "날조(fabrication)",
+     "evidence": "msg46 축자 상동 · 우리 검사 전부 통과: '[T2_SOURCE] claims=1 unsourced=0' · '[T2_CLAIMPROV] window hit(resign) claims=4 unbacked=0' · FAB_STRIP 0 발화",
+     "consequence": "user-sim 조건('identified which one' + 'specific dollar amount')을 틀린 값으로 채워 submit_transaction 미발화",
+     "reward_causal": "강"
+    },
+    {
+     "step": 48,
+     "role": "assistant",
+     "what": "오히려 손님에게 카드 종류를 되묻는다",
+     "actor": "model",
+     "kind": "부하 전가",
+     "evidence": "'could you provide the specific type of credit card your friend signed up for?' → 손님 msg49 'I\\'m not actually sure which specific card type … Can you check on your side'",
+     "consequence": "손님이 알 수 없는 것을 요구 — 조건 ① 명시적 미달",
+     "reward_causal": "강"
+    },
+    {
+     "step": 52,
+     "role": "assistant",
+     "what": "T2_DISCOVERY_STEP2 가 initial_transfer_to_human_agent_0218 / _1822 를 지목하고 T2_FORCE_ACTION 이 tool_choice=required 로 두 턴을 unlock 으로 강제 전환",
+     "actor": "our_layer",
+     "code_path": "t2_resolve.py T2_DISCOVERY_STEP2 · t2_gate_patch.py `[T2_FORCE_ACTION] say-don't-do → tool_choice=required 재생성`",
+     "kind": "표적 전환(033 과 길항)",
+     "evidence": "'[T2_OUR_NAMES] 등재 name=initial_transfer_to_human_agent_0218 (출처=T2_DISCOVERY_STEP2 지목)' · '[T2_DISCOVERY_STEP2] deny name=initial_transfer_to_human_agent_1822 (레지스트리 폴백·미unlock·formalize 정합)' · '[T2_FORCE_ACTION] …' ×2 · '[T2_UNCALLED_UNLOCK] surface initial_transfer_to_human_agent_0218,initial_transfer_to_human_agent_1822'",
+     "consequence": "손님의 결정적 질문(msg49) 직후 두 턴이 도구 unlock 으로 소각 — 016 의 gold 에는 이관이 0칸",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 54,
+     "role": "our_layer",
+     "what": "T2_REQUIRE_DOC_DELIVER 가 이관 사전문서 16,498자/4,663자 를 결정점 이후에 부착",
+     "actor": "our_layer",
+     "code_path": "t2_gate_patch.py `[T2_REQUIRE_DOC_DELIVER] deliver tool=`",
+     "kind": "결정점 이후 배달",
+     "evidence": "'deliver tool=transfer_to_human_agents docs=6 chars=16498 turn=52 fired=1/3 unread=…doc_credit_cards_credit_cards_(general)_010,_011,_012'",
+     "consequence": "배달 6문서에 doc_credit_cards_silver_rewards_card_011 없음",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 59,
+     "role": "user",
+     "what": "###TRANSFER###",
+     "actor": "user_sim",
+     "kind": "종료",
+     "evidence": "'Yes — please transfer me to a human agent. ###TRANSFER###'",
+     "consequence": "MISSING submit_transaction 확정",
+     "reward_causal": "무관"
+    }
+   ],
+   "prescription": "P1(최우선) diagnose_choice 격리 문맥/프롬프트 수정 — 이 trial 을 지배한 상류 · P3 `_value_acquire_fb` 에 'spec[\"write\"] 가 이 sim 의 호출 가능 도구 집합에 있는가' 닫힌 조건 추가(오프라인 전수 재검 필수) · P4 T2_DISCOVERY_STEP2 조건화(033 과 부호표 없이 손대지 말 것) · msg46 날조 자체는 model 결손 — 우리 층 처방은 '결정점에 정답 문서 1건만 남기기'(전달·부하 축소)이지 새 결정론기가 아니다([[62]])."
+  }
+ ],
+ "summary": "채점축은 DB, 양 trial 유일 손실은 MISSING `submit_transaction{friend_user_5839, Silver Rewards Card, Best Buy, 750, Shopping}` (requestor=user). 이 칸은 손님이 찍는 것이고 조건은 ①최신 referral 행(Silver·IN_PROGRESS·11/13) 지목 ②$750 명시다. 필요한 두 값은 **양 trial 모두 문맥에 도착했다**(t0 msg3·23 / t1 msg17·45) — 결손은 도착이 아니라 선택·전달이다. 양 trial 어느 assistant 발화에도 'Silver' 0회 · '750' 0회. 원인은 단일하지 않다: 우리 층 상류 오지목 3종이 두 trial 의 탐색 방향을 각각 다른 오답으로 고정했고 그 위에서 모델이 마지막 칸을 틀렸다. ⑴ **T2_DIAG**(`t2_ledger.py diagnose_choice()/onto_context()` + `ledger_metrics[0].diagnose_prompt`)가 t7346·t7348 · 양 trial **4/4 동일하게** 'Platinum Rewards Card — an error has occurred' 를 골라 '별도 검사가 답한다' 는 권위 문면으로 배달했다 — 격리 문맥에 대화가 0글자라 손님의 'most recent' 제약이 원리상 도달 불가하고 프롬프트는 'One of these records did not pay out' 이라는 거짓 유일성 전제(미지급 5행)를 깐다. t1 은 이 답에 6개 메시지가 묶여 msg42 에서 손님의 'most recent' 를 오답에 붙여 재확인했다. ⑵ **비존재 표적 `submit_referral`**(`_uacts` 에 태스크 user_tools 필터 없음 + A2 action_tools 등재) 이 formalized_target 36회로 유지되고 `T2_ACTION_SUB` 의 소유권 표가 그것을 사실로 승격해 t0 msg30 에서 손님에게 실행을 지시했다 — 손님이 msg31 에서 직접 반증. ⑶ **무관 표적 `get_card_last_4_digits`**(`_value_acquire_fb` 가 '이 태스크가 그 write 로 가는가' 를 주석으로 자인하며 뺐다 · 선언 write=file_credit_card_transaction_dispute_4829)가 t1 msg32 를 소각. 여기에 `T2_VIEW_MSG_CAP=8000` 의 근거창 파괴, `MATERIAL_GATE resolve_cap` 의 결정점 구간 폐쇄, t7348 신규 `T2_DISCOVERY_STEP2`+`T2_FORCE_ACTION` 의 이관 사슬 전환(033 을 사는 레버 — 016 에서는 순손실)이 겹친다. 최종 손실 지점은 t1 msg46 으로 **model 날조**다: 정답 문서가 직전 메시지 1위인데 '$1,500 within 90 days · Platinum' 을 지어냈고 `T2_SOURCE claims=1 unsourced=0`·`T2_CLAIMPROV unbacked=0`·`FAB_STRIP` 0 발화로 우리 검사 3종이 전부 통과시켰다. t7346 대비 reward 는 0/2 로 같지만 궤적은 회귀했다(‘Silver’ 언급 1→0 · submit_referral 오지목 신규 · last-4 오표적 신규 · 이관 강제 신규). PIN/ON 은 diff 로 바이트 동일이므로 유일 후보 변인은 9-커밋 엔진 묶음이다(C594 로 개별 커밋 지목 금지). 보고서 = C:\\workspace\\ba-frft\\reports\\facet_rft_2026\\tasks__20260824\\TASK_016.md"
+}

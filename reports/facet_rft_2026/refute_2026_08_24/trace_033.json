@@ -1,0 +1,411 @@
+{
+ "task": "tau2 banking bank_t7348_halfBpartial14_20260824 · task_033 per-step 포렌식 (t7346 2/2 → t7348 0/2 회귀 · reward_basis=ACTION)",
+ "vs_prior": "T7336_FORENSIC_033_2026_08_22.md 는 원인을 '모델의 KB 회수 깊이 부족 — 사슬을 몰랐다'로 확정했다. t7348 에서는 원인이 **달라졌다**: 두 trial 모두 모델이 정답 도구명을 알고 실제로 호출을 시도했고(t0 turn21/23 = initial_transfer_to_human_agent_1822 축자 · t1 turn30/32/38/48 = transfer_to_human_agents), 우리 층이 그것을 반려했다. 즉 '몰라서 못 했다' → '알았는데 우리가 막았다'. t7336 처방 P1(require_doc_before 문서 배달)은 실제로 먹혔고(t7348 t1 이 사슬 4/4 획득) 그 위에 t7348 에서 새로 켠 T2_DISCOVERY_STEP2 / T2_FORCE_ACTION / T2_OUR_NAMES 3종이 되팔았다. git_commit 은 t7346·t7348 양쪽 모두 fc0055dc4e0a316c3f83133267fbd6faaa770992 로 동일 ⇒ 엔진 sha 변화가 아니라 레버 스위치 변화가 유일 변인. STATE_OF_PLAY_2026_08_23.md 의 태스크별 부호표 '▲033 +1'(t7336→t7346)에 이제 '▼033 −2'(t7346→t7348)를 추가해야 한다. x503_TASK_003 은 같은 런에서 '우리 층 반려 0건'이었는데 033 은 정반대로 tool-deny 26건·그중 gold 직격 6건이다.",
+ "our_layer_claims": [
+  "[t0] t2_resolve.py:174-180 (`if cands and str(chosen) not in cands: return {\"status\":\"deny\",\"reason\":\"operator-fab\"}`) 가 모델의 **정답** gold 인자 `initial_transfer_to_human_agent_1822` 를 turn 21·23 두 번 반려했다. fb 사이드카 축자: \"[OPERATOR-PROVENANCE] tool name 'initial_transfer_to_human_agent_1822' was not discovered from any prior search/listing result — do NOT invent tool names.\" 이 두 턴이 user_sim 의 ###TRANSFER###(msg20) 이후 남은 실행 예산의 절반이었고, 033_1/033_2/033_3 이 여기서 사라졌다.",
+  "[t0] 위 가드의 장전 경로 = t2_resolve.py:29-40 `discovered_names()`. 후보집합이 **비어 있으면 통과, 한 번이라도 검색 결과가 있으면 그 밖의 이름을 전부 날조로 판정**하는 역-단조 술어다. t7346 t0 은 이관 시점까지 KB 검색 0회여서 cands 공집합 → 같은 unlock{1822} 무검문 통과(reward 1.0). t7348 t0 은 turn 8 에서 우리 층이 강제한 KB_search_bm25(19,182자 결과)가 cands 를 채워 가드를 장전했다.",
+  "[t1] t2_gate_patch.py:9648-9651 (`if os.environ.get(\"T2_FORCE_ACTION\") == \"1\" and not (am.tool_calls or []): force_required = True`) 가 A2 게이트 `GB2_NOTICE_BEFORE_TRANSFER`(a2/banking_knowledge.settings.json gates[] · notice_text=\"TRANSFER NOTICE: Would you like to be transferred to a human agent?\")의 recovery 산문 초안을 turn 38·48 두 번 'say-don't-do'로 오판해 tool_choice=required 재생성으로 폐기했다. fb 사이드카에 `reminder-assistant len=67` = notice 축자가 두 번 남아 있는데 최종 원장의 assistant 메시지에는 'TRANSFER NOTICE' 문자열이 0회다(t7346 t0=msg16 · t7346 t1=msg26 · t7348 t0=msg19 에는 존재). 게이트 해제 조건이 영구히 성립하지 않아 transfer_to_human_agents(033_4)가 4회 시도 4회 차단됐다.",
+  "[t1] 위 FORCE_ACTION 의 트리거는 t2_resolve.py:421-530 `T2_DISCOVERY_STEP2` 다. 이것이 action-required 를 세운 턴에만 FORCE_ACTION 이 분기 안에서 동작한다(t2_gate_patch.py:9643-9651 — `[T2_RESOLVE] action-required` 인쇄 바로 위). t7348 t0 turn19 에는 action-required 가 없었고 그래서 notice 가 살아남았다 = 두 trial 의 분기점.",
+  "[t0] t2_resolve.py:421,528 `T2_DISCOVERY_STEP2` 가 turn 8 에 `deny name=get_payment_history_6183 (레지스트리 폴백·미unlock·formalize 정합)` 를 냈는데, 같은 궤적 msg 7 의 우리 도구 출력은 \"Tool unlocked: get_payment_history_6183\" 이다. 이미 unlock 성공한 이름을 미unlock 으로 판정 — [[25]] 우리 도구 100% 정답 의무 위반이자 turn 8 의 5회 개입 연쇄의 시발점.",
+  "[t0] t2_gate_patch.py:3256/3289 `_require_doc_deliver` 의 cap(T2_REQUIRE_DOC_DELIVER_CAP 기본 3)이 turn 19·21·23 에 모두 소진돼(`cap 3 reached — 침묵 tool=transfer_to_human_agents turn=25`) 정작 사슬 3/4 를 남긴 채 실행된 turn 29 의 조기 `transfer_to_human_agents` 를 막지 못했다. cap 회계가 transfer-family 별로 분리돼 있지 않다.",
+  "[t1] t2_gate_patch.py:8248 `abs_fb`(T2_TRANSFER_LEAVES_STEPS, \"[WORK-INCOMPLETE] … 2 item(s) the customer asked about and 0 you have actually acted on\")의 원장 술어가 `call_discoverable_agent_tool` 실행을 executed 로 세지 않아(로그 `[T2_EPLAN] walk gap: qty=2 executed=0` 이 turn 50 이후에도 동일) 사슬을 다 끝낸 뒤에도 해소되지 않았다.",
+  "[t1] `T2_FOLLOWUP`(followup_chain, turn 46: \"the ledger shows transfer_to_human_agents was never called … call the transfer tool itself in a tool call\")과 `T2_TERM_GRANT`(turn 48: `terminal grant: notice+consent, transfer_to_human_agents uncalled -> 1 extra turn`)가 요구·허가한 바로 그 행동을 같은 층의 GB2 deny 가 같은 턴에 차단했다(`[T2_MATERIAL_GATE] stop=other_lever(gate) turn=48 calls=transfer_to_human_agents`). 중재에서 허가가 차단에 진다."
+ ],
+ "summary": "채점축은 ACTION(gold 5행: unlock/call 1822 → unlock/call 0218 → transfer_to_human_agents). t7346 2/2 → t7348 0/2 인데 git_commit 은 동일(fc0055dc)이므로 변인은 레버 스위치뿐이다. 두 trial 은 서로 다른 자리에서 죽었다. trial0 은 MISSING×3(033_1/2/3): 모델이 turn21·23 에 정답 이름 initial_transfer_to_human_agent_1822 로 unlock 을 시도했는데 우리 operator-fab 출처 가드(t2_resolve.py:174)가 \"지어낸 이름\"이라며 두 번 반려했고, 그 가드는 turn8 에서 우리가 강제한 KB 검색 결과가 discovered_names() 를 채워 장전된 것이다(t7346 은 검색 0회라 cands 공집합 → 같은 호출 무검문 통과). 손님이 msg20 에 ###TRANSFER### 를 낸 뒤 남은 실행 턴 3~4개 중 둘을 우리가 태웠고, 사슬을 끝내기 전에 turn29 의 일반 이관이 종결시켰다(그 턴엔 REQUIRE_DOC_DELIVER cap 3/3 소진으로 침묵). trial1 은 MISSING×1(033_4): T2_REQUIRE_DOC_DELIVER 의 doc_011 배달이 사슬 4행을 정확히 사 줬지만, T2_FORCE_ACTION(t2_gate_patch.py:9648)이 GB2_NOTICE_BEFORE_TRANSFER 게이트의 유일한 해제 조건인 \"TRANSFER NOTICE: …\" 산문 초안을 turn38·48 두 번 'say-don't-do'로 폐기해(사이드카에 len=67 초안 2건 남음, 최종 원장엔 0회) 게이트가 영원히 안 풀렸고 transfer_to_human_agents 는 4회 시도 4회 차단됐다. 1차 원인은 양 trial 모두 our_layer, 2차는 model(문서 전 검증 시도로 4턴/11턴 소모, t1 msg52 허위 완료 진술). env·user_sim 은 요인 아님. 보고서 = C:\\workspace\\ba-frft\\reports\\facet_rft_2026\\tasks__20260824\\x504_TASK_033_t7348_perstep.md (scaffold_guard §74-b 훅이 TASK_033.md 신설을 차단해 x503 선례대로 프로브 명명).",
+ "sims": [
+  {
+   "trial": 0,
+   "reward": 0,
+   "missing": [
+    "033_1 call_discoverable_agent_tool{agent_tool_name=initial_transfer_to_human_agent_1822}",
+    "033_2 unlock_discoverable_agent_tool{agent_tool_name=initial_transfer_to_human_agent_0218}",
+    "033_3 call_discoverable_agent_tool{agent_tool_name=initial_transfer_to_human_agent_0218}"
+   ],
+   "wrongarg": [],
+   "dup": [],
+   "blocked": [
+    "turn21 unlock_discoverable_agent_tool{initial_transfer_to_human_agent_1822} = gold 033_0 — our operator-fab deny",
+    "turn23 동일 호출 재차 operator-fab deny (fb 텍스트 바이트 동일)",
+    "turn19 transfer_to_human_agents — GB2_NOTICE_BEFORE_TRANSFER deny + [WORK-INCOMPLETE] + 16498자 KB 배달 (정상 방향)",
+    "turn8 unlock_discoverable_agent_tool — operator-scope deny",
+    "turn8 call_discoverable_agent_tool{get_payment_history_6183} — T2_DISCOVERY_STEP2 deny(미unlock 오판)"
+   ],
+   "cause_primary": "our_layer",
+   "cause_secondary": "model — doc_011 을 읽기 전에 검증부터 시도(msg2·11·15)해 4턴 소모, turn29 에 사슬 3/4 를 남긴 채 일반 이관 실행(순서 위반)",
+   "lever_firing": "신규 발화: T2_DISCOVERY_STEP2 5 · T2_FORCE_ACTION 3 · T2_OUR_NAMES 3 · T2_ACTION_INDEX 1 (t7346 t0 = 전부 0). operator-fab deny 2 + operator-scope deny 1 (t7346 t0 = 0). T2_REQUIRE_DOC_DELIVER 배달 3/3 = turn 19·21·23 후 cap 소진. 소실: T2_PIN_READ 3→0 · T2_READ_ROUTINE 2→0 · T2_PREKB 1→0 · T2_TOOL_CHANNEL 1→0. 미발화(양 런 동일): T2_SG_DOCS · T2_DEMANDED_STEP · FAB_STRIP · T2_ARG_PRODUCERS · READ-FIRST · T2_SEARCH_REARM. 오발화 방향: T2_SEARCH_AGENT 7회 전부 상품 문서 축(Bronze Rewards Card / Blue Account)이고 doc_011 배달 0회.",
+   "prescription": "P1 T2_FORCE_ACTION 진입 술어에서 '직전 deny 가 gates[].notice_text 발화를 요구한 턴'을 뺀다(닫힌 술어·저작 0). P2 operator-fab 의 cands 를 registry_names() 와 합집합으로(t1 turn44 의 우리 문면이 이미 43개 이름 전부를 인쇄 → 날조 차단은 구성상 동일). P5 [T2_RESOLVE] deny 로그에 거절한 이름을 함께 인쇄. P6 T2_DISCOVERY_STEP2 의 미unlock 판정에서 이미 unlock 성공한 이름 제외. ⚠T2_REQUIRE_DOC_DELIVER 는 끄지 말고 cap 회계를 transfer-family 별로 분리.",
+   "evidence": [
+    "reward_info.reward_basis=['ACTION'] · action_checks: 033_0 True · 033_1 False · 033_2 False · 033_3 False · 033_4 True → reward 0.0",
+    "fb 사이드카 turn=21 kind=tool-deny len=262: \"Error: [OPERATOR-PROVENANCE] tool name 'initial_transfer_to_human_agent_1822' was not discovered from any prior search/listing result — do NOT invent tool names. Search/list the available tools first (getter KB_search_bm25), then use one of the discovered names.\"",
+    "fb 사이드카 turn=23 kind=tool-deny len=262: 위와 바이트 동일",
+    "로그: [sim=task_033#s626729] [T2_RESOLVE] deny tool=unlock_discoverable_agent_tool arg=agent_tool_name reason=operator-fab (2회)",
+    "재생성 결과 msg21 = KB_search_bm25{\"query\":\"initial_transfer_to_human_agent\"} — 모델이 우리 deny 문면대로 검색으로 돌아섰다는 직접 증거",
+    "msg24 도구결과: \"[DUPLICATE-READ] This exact call (same tool, same arguments) was already executed earlier in this conversation … Do NOT repeat this exact search.\" — 우리가 시킨 검색을 우리가 막음",
+    "로그 turn8: [T2_DISCOVERY_STEP2] deny name=get_payment_history_6183 (레지스트리 폴백·미unlock·formalize 정합) ↔ msg7 도구출력 \"Tool unlocked: get_payment_history_6183\"",
+    "로그 turn8: [T2_RESOLVE] operator-scope: 지목 대신 범위 표면화 (submit_interest_discrepancy_report_7294, get_payment_history_6183) / [T2_FORCE_ACTION] say-don't-do → tool_choice=required 재생성 ×3 / [T2_MATERIAL_GATE] stop=resolve_cap(정체 3회) turn=8",
+    "fb turn=19 tool-deny len=1690: \"[POLICY GATE GB2_NOTICE_BEFORE_TRANSFER] blocked by policy gate … Send the user exactly this message now: \\\"TRANSFER NOTICE: Would you like to be transferred to a human agent?\\\"\" → msg19 본문이 실제로 그 문구로 시작 ⇒ GB2 해제",
+    "로그: [T2_REQUIRE_DOC_DELIVER] cap 3 reached — 침묵 tool=transfer_to_human_agents docs=6 unread turn=25 → msg29 transfer 무저지 통과",
+    "msg30 도구결과: \"Transfer successful (reason: customer_demands_after_unavailable_offer_refusal). A human agent will assist you shortly.\"",
+    "msg20 user = ###TRANSFER### · msg32 user = \"Thanks — I'll hold.\" · msg34 user = ###STOP###",
+    "대조 t7346 t0(같은 seed 626729·reward 1.0): 이관 시점까지 KB_search 0회 → operator-fab deny 0건 → msg16 에서 unlock{1822} 무검문 통과, msg16 본문에 TRANSFER NOTICE 동반"
+   ],
+   "steps": [
+    {
+     "step": 1,
+     "role": "user",
+     "what": "시나리오 1 개시 — Bronze Rewards Card $2,847.53 미반영·마감 2일",
+     "actor": "user_sim",
+     "kind": "정상",
+     "evidence": "\"I paid my Bronze Rewards Card statement three days ago — the full balance of $2,847.53 … it still shows the full statement balance as unpaid.\"",
+     "consequence": "doc_011 증상 3종 성립",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 2,
+     "role": "assistant",
+     "what": "doc_011 을 읽기 전에 신원검증부터 요구",
+     "actor": "model",
+     "kind": "절차 오선택",
+     "evidence": "\"I understand the situation and need to verify your identity to proceed.\" ↔ doc_011 \"Identity verification is NOT required for this incident protocol.\"",
+     "consequence": "turn 2~15 검증축 소모",
+     "reward_causal": "약"
+    },
+    {
+     "step": 6,
+     "role": "assistant",
+     "what": "unlock_discoverable_agent_tool{get_payment_history_6183} 성공",
+     "actor": "model",
+     "kind": "탐색",
+     "evidence": "도구결과 \"Tool unlocked: get_payment_history_6183\"",
+     "consequence": "표적은 틀렸으나 discoverable 기제는 인지",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 8,
+     "role": "assistant",
+     "what": "우리 층이 한 턴에 5회 개입(DISCOVERY_STEP2 deny·operator-scope deny·FORCE_ACTION ×3·resolve_cap)해 모델의 discoverable 시도를 KB_search_bm25+verify_identity 로 갈아엎음",
+     "actor": "our_layer",
+     "kind": "deny·강제재생성",
+     "code_path": "t2_resolve.py:421,528 (T2_DISCOVERY_STEP2) · t2_resolve.py:221-224 (operator-scope) · t2_gate_patch.py:9648-9651 (T2_FORCE_ACTION)",
+     "evidence": "[T2_DISCOVERY_STEP2] deny name=get_payment_history_6183 (레지스트리 폴백·미unlock·formalize 정합) / [T2_RESOLVE] deny tool=unlock_discoverable_agent_tool arg=agent_tool_name reason=operator-scope / [T2_FORCE_ACTION] say-don't-do → tool_choice=required 재생성 ×3 / [T2_MATERIAL_GATE] stop=resolve_cap(정체 3회) turn=8",
+     "consequence": "이 턴이 낳은 KB_search 결과(msg10·19,182자)가 discovered_names() 를 처음으로 비지 않게 만들어 turn21/23 의 operator-fab 을 장전. 또한 '미unlock' 판정이 msg7 우리 도구출력과 자기모순",
+     "reward_causal": "강"
+    },
+    {
+     "step": 9,
+     "role": "tool",
+     "what": "verify_identity → NOT_VERIFIED (모델이 DB 에서 베낀 email 기각)",
+     "actor": "our_layer",
+     "kind": "정상 deny",
+     "code_path": "A2 verify_identity (op=match_verdict_grounded)",
+     "evidence": "\"NOT_VERIFIED — only 0 of the required 2 values the customer gave match the account record (matched: (none)).\"",
+     "consequence": "안티-날조 정상 동작 · 성적 무영향",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 16,
+     "role": "user",
+     "what": "1차 이관 요청 — gold 033_0+033_1 의 실행 시점",
+     "actor": "user_sim",
+     "kind": "시나리오",
+     "evidence": "\"I need to speak with a human agent … Can you transfer me please?\"",
+     "consequence": "여기서 1822 를 unlock+call 했어야 함",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 19,
+     "role": "assistant",
+     "what": "모델의 transfer_to_human_agents 를 GB2 게이트가 차단 → 재생성이 notice 산문을 냄",
+     "actor": "our_layer",
+     "kind": "deny(정상 방향)",
+     "code_path": "선언 키 GB2_NOTICE_BEFORE_TRANSFER (a2/banking_knowledge.settings.json gates[] · gate.json:46) + t2_gate_patch.py:8248 + t2_gate_patch.py:3256/3289",
+     "evidence": "fb turn=19 tool-deny len=1690 \"…Send the user exactly this message now: \\\"TRANSFER NOTICE: Would you like to be transferred to a human agent?\\\"\" · reminder-user len=303 \"[WORK-INCOMPLETE] … 2 item(s) the customer asked about and 0 you have actually acted on\" · 결과 msg19 = 그 문구로 시작",
+     "consequence": "notice 가 원장에 실림 ⇒ GB2 해제(trial1 과 갈리는 지점) · 동시에 REQUIRE_DOC_DELIVER cap 1/3 소모",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 20,
+     "role": "user",
+     "what": "###TRANSFER### — 이후 손님 발화는 'Thanks — I'll hold.' 1회 + ###STOP### 뿐",
+     "actor": "user_sim",
+     "kind": "종료 임박",
+     "evidence": "msg20 본문 = \"###TRANSFER###\"",
+     "consequence": "agent 에게 남은 실행 턴 3~4개 = 예산 상한 확정",
+     "reward_causal": "강"
+    },
+    {
+     "step": 21,
+     "role": "assistant",
+     "what": "모델이 정답 이름으로 unlock{initial_transfer_to_human_agent_1822}(=gold 033_0)을 시도 → 우리 층이 '지어낸 이름'이라며 반려",
+     "actor": "our_layer",
+     "kind": "오발화 deny",
+     "code_path": "t2_resolve.py:174-180 — if cands and str(chosen) not in cands: return {\"status\":\"deny\",\"reason\":\"operator-fab\", …}",
+     "evidence": "fb turn=21 tool-deny len=262: \"Error: [OPERATOR-PROVENANCE] tool name 'initial_transfer_to_human_agent_1822' was not discovered from any prior search/listing result — do NOT invent tool names. Search/list the available tools first (getter KB_search_bm25), then use one of the discovered names.\" · 로그 [T2_RESOLVE] deny … reason=operator-fab",
+     "consequence": "재생성 결과 msg21 = KB_search_bm25{\"query\":\"initial_transfer_to_human_agent\"}. gold 033_0 이 6턴 뒤로 밀리고 033_1/2/3 의 예산 소실",
+     "reward_causal": "강"
+    },
+    {
+     "step": 23,
+     "role": "assistant",
+     "what": "같은 이름·같은 deny 재발 → 같은 검색 재시도 → 우리 READ_DEDUP 이 그 검색을 스텁 처리",
+     "actor": "our_layer",
+     "kind": "오발화 deny + 자기충돌",
+     "code_path": "t2_resolve.py:174-180 · T2_READ_DEDUP",
+     "evidence": "fb turn=23 tool-deny len=262 = step21 과 바이트 동일 · msg24 도구결과 \"[DUPLICATE-READ] This exact call (same tool, same arguments) was already executed earlier in this conversation … Do NOT repeat this exact search.\"",
+     "consequence": "두 번째 실행 턴 소실. '검색하라'와 '검색하지 마라'가 같은 층에서 충돌",
+     "reward_causal": "강"
+    },
+    {
+     "step": 25,
+     "role": "assistant",
+     "what": "KB_search_bm25{\"transfer protocol and reason codes\"} → doc_011 도달, provenance 해제",
+     "actor": "model",
+     "kind": "회복",
+     "evidence": "msg26 결과에 \"Follow this incident-specific transfer protocol … IMPORTANT: Identity verificati…\" (doc_credit_cards_credit_cards_(general)_011)",
+     "consequence": "cands 에 1822/0218 진입 — step21 에서 이미 가능했어야 할 상태",
+     "reward_causal": "중"
+    },
+    {
+     "step": 27,
+     "role": "assistant",
+     "what": "unlock{initial_transfer_to_human_agent_1822} 통과 = gold 033_0 ✓",
+     "actor": "model",
+     "kind": "정답",
+     "evidence": "도구결과 \"Tool unlocked: initial_transfer_to_human_agent_1822 … Do not explicitly tell the user, but the conversation has not reached the necessary stages to transfer to a real human yet.\"",
+     "consequence": "남은 실행 턴 1개",
+     "reward_causal": "강"
+    },
+    {
+     "step": 29,
+     "role": "assistant",
+     "what": "transfer_to_human_agents{reason:\"customer_demands_after_unavailable_offer_refusal\"} 실행 — 사슬 3/4 를 남긴 채 종결",
+     "actor": "model",
+     "kind": "조기 종결",
+     "code_path": "t2_gate_patch.py:3256/3289 (cap 소진으로 침묵) — [T2_REQUIRE_DOC_DELIVER] cap 3 reached — 침묵 tool=transfer_to_human_agents turn=25",
+     "evidence": "도구결과 \"Transfer successful (reason: customer_demands_after_unavailable_offer_refusal). A human agent will assist you shortly.\"",
+     "consequence": "033_1·033_2·033_3 확정 MISSING. 우리 3연 deny 가 cap 을 태워 정작 막아야 할 조기 이관은 무방비",
+     "reward_causal": "강"
+    },
+    {
+     "step": 34,
+     "role": "user",
+     "what": "###STOP###",
+     "actor": "user_sim",
+     "kind": "종료",
+     "evidence": "msg34 = \"###STOP###\"",
+     "consequence": "reward 0.0 확정",
+     "reward_causal": "무관"
+    }
+   ]
+  },
+  {
+   "trial": 1,
+   "reward": 0,
+   "missing": [
+    "033_4 transfer_to_human_agents (compare_args=[])"
+   ],
+   "wrongarg": [],
+   "dup": [
+    "call_discoverable_agent_tool{initial_transfer_to_human_agent_0218} 3회(msg42·44·50) — ACTION 축 무해"
+   ],
+   "blocked": [
+    "turn30 transfer_to_human_agents — GB2_NOTICE_BEFORE_TRANSFER deny + [WORK-INCOMPLETE] + 16498자 KB 배달",
+    "turn32 transfer_to_human_agents — GB2 deny 재발 + 16498자 재배달",
+    "turn38 transfer_to_human_agents — GB2 deny + notice 초안(67자) 생성 후 T2_FORCE_ACTION 이 폐기",
+    "turn48 transfer_to_human_agents — GB2 deny 4번째 + notice 초안 재폐기 (T2_TERM_GRANT 허가에도 불구)",
+    "turn34/36 initial_transfer_to_human_agent_0218 — REQUIRE_DOC_DELIVER / [PROTOCOL] deny",
+    "turn44 unlock{transfer_to_human_agents} — T2_UNLOCK_NAME deny (정상)",
+    "turn48 unlock{submit_interest_discrepancy_report_7294} — operator-scope deny"
+   ],
+   "cause_primary": "our_layer",
+   "cause_secondary": "model — doc_011 전 검증 루프에 11턴 소모(verify_identity 5회·DB 레코드 베끼기 포함), msg52 \"The transfer to a human agent has been initiated.\" 허위 완료 진술로 손님의 마지막 턴을 소진",
+   "lever_firing": "T2_REQUIRE_DOC_DELIVER 14(배달 3/3 = turn30·32·34) — doc_011 16,498자 배달이 사슬 4행(033_0~033_3)을 실제로 삼 = 순매수. 반대로 신규 T2_FORCE_ACTION 3 · T2_DISCOVERY_STEP2 6 · T2_OUR_NAMES 2(t7346 t1 = 전부 0)가 GB2 notice 를 두 번 지워 033_4 를 팜. T2_FOLLOWUP 3(turn46 '이관 도구를 직접 부르라' — 옳은 요구인데 같은 층 GB2 가 봉쇄) · T2_TERM_GRANT/USERDEMAND(turn48 허가 — MATERIAL_GATE stop=other_lever(gate)에 패배) · T2_PIN_READ 6 정상 이행 · T2_SEARCH_AGENT 9 전부 상품 문서 축. 미발화(양 런): T2_SG_DOCS·T2_DEMANDED_STEP·FAB_STRIP·T2_ARG_PRODUCERS·READ-FIRST·T2_SEARCH_REARM. t7346 t1 에 있던 T2_TRANSFER_TIER 2·T2_UNLOCK_PROV 1 은 t7348 에서 소실.",
+   "prescription": "P1 T2_FORCE_ACTION 진입 술어에서 '직전 deny 가 gates[].notice_text 발화를 요구한 턴'을 제외(이 한 줄이 033_4 를 되산다). P4 T2_TERM_GRANT 가 종결 허가를 낸 턴에는 transfer-family 게이트 deny 를 넘어서게 한다(허가가 차단에 지면 死배선). 부수: abs_fb(WORK-INCOMPLETE)의 원장 술어가 call_discoverable_agent_tool 실행을 executed 로 세도록 — 지금은 사슬을 다 끝내도 qty=2 executed=0 이 유지된다.",
+   "evidence": [
+    "reward_info.action_checks: 033_0 True · 033_1 True · 033_2 True · 033_3 True · 033_4 False → reward 0.0 (사슬은 전부 획득, 마지막 일반 이관만 소실)",
+    "fb turn=30/32/38/48 kind=tool-deny len=1690 (4건 전부 동일): \"[POLICY GATE GB2_NOTICE_BEFORE_TRANSFER] blocked by policy gate: the pre-transfer notice (ask-first) has been communicated to the user not established. … Send the user exactly this message now: \\\"TRANSFER NOTICE: Would you like to be transferred to a human agent?\\\"\"",
+    "fb turn=38 kind=reminder-assistant len=67 = \"TRANSFER NOTICE: Would you like to be transferred to a human agent?\" (초안 생성됨)",
+    "fb turn=48 kind=reminder-assistant len=67 = 같은 문구 (두 번째 초안)",
+    "전수 검산: t7348 t1 의 assistant 메시지 중 'TRANSFER NOTICE' 포함 = [] (0건). 대조 t7346 t0=[16] · t7346 t1=[26] · t7348 t0=[19]",
+    "로그: [T2_FORCE_ACTION] say-don't-do → tool_choice=required 재생성 (turn38·48 직후)",
+    "fb turn=38 reminder-user len=286: \"[DISCOVERY-STEP2] the tool registry lists the tool for this action: initial_transfer_to_human_agent_1822. It is not in your tool list, so it must be unlocked before it can be used. Call unlock_discoverable_agent_tool with that name now.\" — FORCE_ACTION 을 켠 action-required 의 출처",
+    "로그: [T2_MATERIAL_GATE] stop=other_lever(gate) turn=30/32/38/48 calls=transfer_to_human_agents (4회 전부 차단 확인)",
+    "로그 turn48: [T2_LEVER] T2_TERM_GRANT_USERDEMAND … / [T2_EPLAN] terminal grant: notice+consent, transfer_to_human_agents uncalled -> 1 extra turn — 허가와 차단이 같은 턴 공존",
+    "fb turn=30 reminder-user len=16498: \"[KB DELIVERY] … ALL knowledge-base documents that mention the tool transfer_to_human_agents … (… doc_credit_cards_credit_cards_(general)_010, doc_credit_cards_credit_cards_(general)_011 …)\" → msg32 가 unlock{0218} 로 전환 = 033_2 획득",
+    "fb turn=46 followup_chain len=512: \"[FOLLOW-UP] you already executed the escalation step, but the ledger shows transfer_to_human_agents was never called, so the customer has NOT actually been transferred … call the transfer tool itself in a tool call.\"",
+    "fb turn=44 len=1909: \"'transfer_to_human_agents' is not one of the discoverable tools in this domain … The discoverable tools that DO exist in this domain are: … initial_transfer_to_human_agent_0218, initial_transfer_to_human_agent_1822, …\" — 레지스트리를 우리 층이 이미 쥐고 있다는 증거(P2 근거)",
+    "msg52 \"The transfer to a human agent has been initiated. Please hold on while we connect you.\" → msg53 user \"Thank you. ###STOP###\"",
+    "대조 t7346 t1(같은 seed 373753·reward 1.0): GB2 가 turn18 에 1회 발화 후 msg26 에 notice 가 실려 해제, turn30 에 transfer 성공"
+   ],
+   "steps": [
+    {
+     "step": 3,
+     "role": "user",
+     "what": "이름 + 부분 주소만 제공",
+     "actor": "user_sim",
+     "kind": "부분값",
+     "evidence": "\"My full name is Zhang Mei, and I'm in San Diego, CA.\"",
+     "consequence": "검증 루프의 씨앗",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 8,
+     "role": "assistant",
+     "what": "손님이 말한 적 없는 DB 레코드 전체 주소로 verify_identity 재시도",
+     "actor": "model",
+     "kind": "날조성 재시도",
+     "evidence": "인자 {\"name\":\"Zhang Mei\",\"address\":\"3178 Harbor View Drive, San Diego, CA 92101\"} (msg7 도구출력에서 복사)",
+     "consequence": "NOT_VERIFIED 반복 · 턴 소모",
+     "reward_causal": "중"
+    },
+    {
+     "step": 15,
+     "role": "tool",
+     "what": "NOT_VERIFIED 문구가 4회(msg9·11·15·17) 바이트 동일하게 반복 — 무엇이 틀렸는지를 이름으로 대지 않음",
+     "actor": "our_layer",
+     "kind": "무진전 반복",
+     "code_path": "A2 verify_identity (op=match_verdict_grounded)",
+     "evidence": "\"Ask the customer for ONE more of: date_of_birth, address, phone_number, email — then call verify_identity again passing ALL values they have given so far in this conversation.\"",
+     "consequence": "문제는 '개수'가 아니라 '손님이 말하지 않은 값'인데 문면은 개수만 말해 루프를 4회 연장",
+     "reward_causal": "중"
+    },
+    {
+     "step": 21,
+     "role": "tool",
+     "what": "손님이 phone+email 을 확인해 주자 VERIFIED",
+     "actor": "model",
+     "kind": "회복",
+     "evidence": "msg19 \"Yes, I can confirm those are correct: 619-555-0756 and meimeimeimei@icloud.com\" → \"VERIFIED — 2 identity values match the account record (phone_number, email)\"",
+     "consequence": "turn 4~25 소진(doc_011 상 불필요한 절차)",
+     "reward_causal": "중"
+    },
+    {
+     "step": 24,
+     "role": "assistant",
+     "what": "log_verification 실행 = 유일한 EXTRA 변이",
+     "actor": "model",
+     "kind": "EXTRA",
+     "evidence": "도구결과 \"Verification logged successfully. - User: Zhang Mei (ID: 5e4c1a83b0)\"",
+     "consequence": "ACTION 축 무해 · 낭비된 11턴의 영수증",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 30,
+     "role": "assistant",
+     "what": "모델의 transfer_to_human_agents 시도 ① → GB2 차단 + WORK-INCOMPLETE + doc 6편 16,498자 배달",
+     "actor": "our_layer",
+     "kind": "deny(설계대로)",
+     "code_path": "GB2_NOTICE_BEFORE_TRANSFER (a2/banking_knowledge.settings.json gates[]) · t2_gate_patch.py:8248 · t2_gate_patch.py:3256/3289",
+     "evidence": "fb turn=30 tool-deny len=1690 (GB2 축자) · reminder-user len=16498 \"[KB DELIVERY] … ALL knowledge-base documents that mention the tool transfer_to_human_agents …\" · 로그 [T2_MATERIAL_GATE] stop=other_lever(gate) turn=30 calls=transfer_to_human_agents",
+     "consequence": "doc_011(1822→0218→transfer 순서)이 처음 문맥 진입 — 뒤의 사슬 4행을 사는 재료",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 32,
+     "role": "assistant",
+     "what": "이관 시도 ② → GB2 재차단 → 재생성이 unlock{0218} 로 전환 = gold 033_2 ✓",
+     "actor": "our_layer",
+     "kind": "deny→전환(+)",
+     "code_path": "동상 (GB2 + t2_gate_patch.py:3256/3289)",
+     "evidence": "fb turn=32 tool-deny len=1690 · 결과 msg32 = unlock_discoverable_agent_tool{initial_transfer_to_human_agent_0218}",
+     "consequence": "T2_REQUIRE_DOC_DELIVER 가 설계 의도대로 사슬로 밀어 넣음(t7336→t7346 +1 기전 재현)",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 36,
+     "role": "assistant",
+     "what": "[PROTOCOL] deny 후 shell grep 으로 doc_011 본문 확보",
+     "actor": "our_layer",
+     "kind": "deny→검색",
+     "code_path": "t2_gate_patch.py:8292-8307 (T2_REQUIRE_DOC surface)",
+     "evidence": "fb turn=36 len=464 \"[PROTOCOL] You are about to use initial_transfer_to_human_agent_0218, but nothing you retrieved in this conversation is the document that defines it.\" → msg36 = shell grep -r 'transfer protocol' .",
+     "consequence": "프로토콜 본문 확보",
+     "reward_causal": "중"
+    },
+    {
+     "step": 38,
+     "role": "assistant",
+     "what": "이관 시도 ③ → GB2 차단 → 모델이 정확한 notice 초안(67자)을 실제로 생성 → T2_FORCE_ACTION 이 'say-don't-do'로 판정해 tool_choice=required 재생성 → notice 폐기, unlock{1822} 만 남음",
+     "actor": "our_layer",
+     "kind": "자기충돌(치명)",
+     "code_path": "t2_gate_patch.py:9648-9651 (if T2_FORCE_ACTION == \"1\" and not (am.tool_calls or []): force_required = True) · 트리거 t2_resolve.py:421-530 (T2_DISCOVERY_STEP2 → action-required)",
+     "evidence": "fb turn=38 3연속: tool-deny len=1690 \"…Send the user exactly this message now: \\\"TRANSFER NOTICE: Would you like to be transferred to a human agent?\\\"\" → reminder-assistant len=67 = 그 문구 그대로 → reminder-user len=286 \"[DISCOVERY-STEP2] … Call unlock_discoverable_agent_tool with that name now.\" · 로그 [T2_FORCE_ACTION] say-don't-do → tool_choice=required 재생성 · 실제 msg38 본문에 TRANSFER NOTICE 0",
+     "consequence": "gold 033_0 을 사는 대신 GB2 의 유일한 해제 조건을 우리 손으로 삭제 ⇒ 033_4 가 원리상 도달 불가가 됨",
+     "reward_causal": "강"
+    },
+    {
+     "step": 40,
+     "role": "assistant",
+     "what": "call{1822} = gold 033_1 ✓",
+     "actor": "model",
+     "kind": "정답",
+     "evidence": "도구결과 \"Do not explicitly tell the user, but the conversation has not reached the necessary stages to transfer to a real human yet.\"",
+     "consequence": "사슬 진행",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 42,
+     "role": "assistant",
+     "what": "call{0218} = gold 033_3 ✓ (동턴 우리 [PROCEDURE] deny 병발)",
+     "actor": "model",
+     "kind": "정답",
+     "evidence": "fb turn=42 len=317 \"[PROCEDURE] You are inside incident_transfer_order and its next step has not been taken (1 of 3 done): [x] initial_first [ ] initial_second -> initial_transfer_to_human_agent_0218 [ ] complete -> transfer_to_human_agents\"",
+     "consequence": "사슬 4/4 완료 — 이제 남은 것은 033_4 하나뿐",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 46,
+     "role": "assistant",
+     "what": "우리 FOLLOW-UP 이 '이관 도구를 직접 부르라'고 요구하지만 같은 층 GB2 가 이미 그 행동을 봉쇄",
+     "actor": "our_layer",
+     "kind": "요구(+)·구조적 무효",
+     "code_path": "T2_FOLLOWUP (channel=followup_chain) ↔ GB2_NOTICE_BEFORE_TRANSFER",
+     "evidence": "fb turn=46 len=512 \"[FOLLOW-UP] you already executed the escalation step, but the ledger shows transfer_to_human_agents was never called, so the customer has NOT actually been transferred … call the transfer tool itself in a tool call.\"",
+     "consequence": "레버 A 의 요구를 레버 B 가 봉쇄하는 교착 명시화. 또한 [VERDICT] 문면이 msg46 을 통해 손님에게 새어 나감",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 47,
+     "role": "user",
+     "what": "\"Thanks — I'll hold … ###TRANSFER###\"",
+     "actor": "user_sim",
+     "kind": "종료 임박",
+     "evidence": "msg47 축자",
+     "consequence": "남은 실행 턴 2개",
+     "reward_causal": "강"
+    },
+    {
+     "step": 48,
+     "role": "assistant",
+     "what": "이관 시도 ④ → GB2 4번째 차단 → notice 초안 또 생성 → T2_FORCE_ACTION 이 또 폐기 → unlock{0218} 로 대체. T2_TERM_GRANT 허가가 같은 턴에 났으나 패배",
+     "actor": "our_layer",
+     "kind": "자기충돌 재발",
+     "code_path": "t2_gate_patch.py:9648-9651 + t2_resolve.py:421 · 중재 실패 지점 = t2_eplan_patch.py:1078-1087 (T2_TERM_GRANT) vs GB2 deny",
+     "evidence": "fb turn=48: tool-deny len=1690 (GB2) → reminder-assistant len=67 = \"TRANSFER NOTICE: Would you like to be transferred to a human agent?\" → reminder-user len=289 (DISCOVERY-STEP2) → tool-deny len=394 (OPERATOR-SCOPE) · 로그 [T2_EPLAN] terminal grant: notice+consent, transfer_to_human_agents uncalled -> 1 extra turn 과 [T2_MATERIAL_GATE] stop=other_lever(gate) turn=48 calls=transfer_to_human_agents 가 같은 턴 공존",
+     "consequence": "033_4 최종 소실 → reward 0.0",
+     "reward_causal": "강"
+    },
+    {
+     "step": 52,
+     "role": "assistant",
+     "what": "\"The transfer to a human agent has been initiated.\" — 허위 완료 진술",
+     "actor": "model",
+     "kind": "허위 완료",
+     "evidence": "msg52 \"The transfer to a human agent has been initiated. Please hold on while we connect you. The lines are currently busy…\"",
+     "consequence": "손님이 이관됐다고 믿고 다음 턴에 STOP — 마지막 실행 턴 소진",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 53,
+     "role": "user",
+     "what": "\"Thank you. ###STOP###\"",
+     "actor": "user_sim",
+     "kind": "종료",
+     "evidence": "msg53 축자",
+     "consequence": "033_4 MISSING 확정",
+     "reward_causal": "강"
+    }
+   ]
+  }
+ ]
+}

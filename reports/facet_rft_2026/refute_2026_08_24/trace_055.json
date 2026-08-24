@@ -1,0 +1,370 @@
+{
+ "task": "bank_t7348 halfA · task_055 per-step 궤적 포렌식 (2 trials · reward 0/2)",
+ "vs_prior": "t7346 대비 동일 0/2 이지만 **action-cell 회귀**: t7346 t1 이 샀던 `055_4 {checking, Purple Account}` 를 t7348 t1 은 잃었고(`Evergreen Account`), `055_6`(give_discoverable_user_tool)도 잃었다(t1 은 savings 를 시작조차 못 하고 transfer 종료). 선행 판정 '정답 스펙 문서와 공식명 9개가 앞에 있는데 Silver Plus 언급 0건'은 **t7348 에서 반쪽만 성립**한다 — t0 에서 `doc_savings_accounts_silver_plus_account_005` 는 write(msg 39)보다 32 메시지 늦은 msg 71 에 처음 도달했고 `T2_WRITE_ARG_ENUM` 은 t0 에서 0회 발화(공식명 9개 미전달)라, t0 은 '경계'가 아니라 **전달 결손**이다. '정답이 앞에 있는데 안 쓴다'가 실제로 성립하는 스텝은 t1 msg 30 하나(공식명 10개 + 우리 서브 답 'Blue Account' 동봉을 받고도 'Evergreen Account'). FAILURE_MASTER 의 '055 CP2 클로버 REFUTED'(WRITE_ARG_ENUM 이 247자를 3회 재전달했다는 반증)는 t7348 t0 에 이월되지 않는다(WRITE_ARG_ENUM 0줄) — 다만 폐기된 페이로드가 오답이라 결론(클로버는 인과 아님)은 유지. 신규 관측 2건: ① t1 turn 4 에서 우리 regen(`[T2_CLAIMPROV] regen tool_calls=[]`)이 `get_checking_atm_fee_totals` 초안 호출을 삭제해 t7346 t1 이 Purple 을 산 경로를 그 자리에서 끊었다 ② t1 모델이 없는 상품명(`EcoTravel Checking Account`)을 날조 — 055 에서 처음.",
+ "our_layer_claims": [
+  "결정 서브(`decide_from_docs`)가 손님 요건을 구조적으로 못 받는다: `t2_gate_patch.py:3814-3817` 이 `_dask = _ctpl.format(candidates=_cands)` 로 손님 발화를 후보 명단으로 **치환**하고, 요건 복원 분기 `t2_gate_patch.py:3787-3789` 는 `T2_SUB_REQUIREMENT`/`T2_VERDICT_CARRY` 중 하나가 1 이어야 도는데 `go_stack.sh:439 export T2_VERDICT_CARRY=0` 이고 `T2_SUB_REQUIREMENT` 는 export 자체가 없다. A3 선언 `a2/banking_knowledge.specific.json → policy_ontology.decide_candidates_text` 에 `{ask}` 자리가 없다(축자: 'The full official names on file for this group are: {candidates}. Answer with exactly one name from that list, verbatim, and nothing else.'). 결과: `[T2_DOCDECIDE]` 4/4 오답(Blue×2·Gold×2, +t1 Sky Blue). 같은 파일의 주석이 이 결손의 격리 실측을 이미 담고 있다 — x343 n=24: 문서+후보줄만 = 'Gold Account' 24/24 오답, 손님 요구 축자 포함 = 'Silver Plus' 24/24 정답. ※단 FAILURE_MASTER §3.4 가 이 두 플래그의 승격을 '재론 금지'로 확정했으므로 진단으로만 기록.",
+  "축 소진 술어에 요건 조건이 없다: `t2_gate_patch.py:3878-3882` 가 `_choice` 산출 직후 `_done.add(_g); agent._t2_search_done = _done` 로 축을 영구 잠근다. t7348 실측 — trial 0 checking `turn=2 (대화텍스트 1)`·savings `turn=6 (대화텍스트 3)`, trial 1 checking `turn=2`·savings `turn=4 (대화텍스트 2)`. 손님의 checking 요건은 msg 3, savings 요건은 t0 msg 32 에 온다(t1 은 발화조차 못 됨). 이후 전 구간 `[T2_SEARCH_AGENT] 요청 축 checking_accounts,savings_accounts 모두 처리됨 — 침묵`.",
+  "`T2_SEARCH_REARM` 의 재수요 술어가 자기확증이다: `t2_gate_patch.py:3457-3503 _rearm_subjects` 절 ⑵ 가 '계열 표시명이 배달 시점 이후 user/assistant 발화에 축자 등장'을 재수요로 읽는다(role 필터가 assistant 를 포함). t7348 trial 0 실측: `[T2_SEARCH_REARM] group=checking_accounts 신규 대상 green_fee-free_account (기배달 blue_account)` → `델타 배달 7413자` → `[T2_DECISION_CARRY] 이 턴 재생성 버퍼에 부착 (7413자)`. 즉 모델이 msg 6 에서 스스로 고른 **오답 계열**의 문서 7편을 write(msg 24) 직전에 실어 확증했고, 미언급 정답 `purple_account` 는 이 술어로는 영원히 배달될 수 없다.",
+  "문서 본문 배달기가 결정 write 를 관할하지 않는다: A3 `a2/banking_knowledge.specific.json → require_doc_before.tools = ['transfer_to_human_agents','initial_transfer_to_human_agent_0218','initial_transfer_to_human_agent_1822','emergency_credit_bureau_incident_transfer_1114']` 이라 `t2_gate_patch.py:3289-3371` 의 `T2_REQUIRE_DOC_DELIVER` 가 `open_bank_account_4821` 에 도달하지 못한다. t7348 실측: trial 0 에서 `[T2_REQUIRE_DOC_DELIVER]` 0줄, trial 1 에서는 실패 뒤 사임 write 에만 9줄(`deliver tool=transfer_to_human_agents docs=6 chars=16498 turn=42`). FAILURE_MASTER §3.3 의 동일 진단 그대로 재현.",
+  "trial 1 에서 우리 재생성 스택이 유일한 근거 확보 호출을 삭제했다: `[T2_MATERIAL_GATE] stop=other_lever(gate) turn=4 calls=check_card_application_fit,get_checking_atm_fee_totals,unlock_discoverable_agent_tool pending=247 axes=8 prose=False`(계기 코드 `t2_gate_patch.py:8592`, `calls` 는 초안 `am.tool_calls`) 직후 `[T2_CLAIMPROV] regen tool_calls=[]` 와 `[T2_STACK] audit … chose=[('fb','check_card_application_fit')] differs=True`(레버 `T2_CLAIM_PROV`, `go_stack.sh:162`)가 찍히고, 착지한 msg 4 는 도구 0개 산문이다. `[T2_SCAFFOLD_GET]` 전수가 `verify_identity` ×2 뿐이므로 comparator 는 이 trial 에서 **끝내 실행되지 않았다**.",
+  "`T2_PROCEED_DOCBODY`(배달 객체를 서브 결정문→문서 본문으로 바꾸는 스위치)가 `go_stack.sh` 에 export 되어 있지 않아 미발화다. 스위치 자리는 `t2_gate_patch.py:3519-3525`(`_search_material` 중앙 스위치)이고, 이 스위치를 만든 코드 주석 `t2_gate_patch.py:9433-9437` 이 축자로 055 를 계기로 지목한다: 't7303 로그 직독: 이 자리에 배달되던 서브 결정 자체가 오답이었다(055 양팔 DOCDECIDE → \\'Blue Account\\'·gold Purple)'. t7348 에서 같은 오답이 양 trial 재현됐고 배달은 여전히 247자 결정문이다(`[T2_SEARCH_ON_PROCEED] deny 아님 · 재료 247자 배달` ×3/trial).",
+  "A2 `action_tools`(`a2/banking_knowledge.gate.json` 및 `a2/banking_knowledge.settings.json`)에 이 env 에 존재하지 않는 `submit_transaction` 이 등재돼 있어, `t2_gate_patch.py:8716-8718` 의 `_uacts` 경로가 손님-측 실행 대상으로 그것을 지목한다. trial 0 실측 `[T2_RESOLVE] user-action instruct target=submit_transaction` ×4 → 모델 msg 44 가 손님에게 그 도구를 안내 → msg 46 env `Error: Unknown discoverable tool 'submit_transaction'.` ⇒ 5턴 소모(최종 회복돼 reward 손실은 없음).",
+  "`T2_SG_DOCS=1`(`go_stack.sh:75`)이 `get_checking_atm_fee_totals` 에서 死선언이다: `[T2_SG_TRACE] get_checking_atm_fee_totals: iso=False mode=None ctx=['months','withdrawal_amount','withdrawals_per_month']` — A3 `scaffold_get_tools[...].isolate` 에 `docs` 키가 없어 `t2_scaffold_get.py:737` 의 `isinstance(iso.get(\"docs\"), dict)` 가 실패한다. 그 결과 comparator 반환문이 ATM 비용 2열만 담은 채 결정점에 섰다."
+ ],
+ "sims": [
+  {
+   "trial": 0,
+   "reward": 0,
+   "missing": [
+    "open_bank_account_4821 {user_id:224959b99e, account_type:checking, account_class:'Purple Account'} (aid 055_4)",
+    "open_bank_account_4821 {user_id:224959b99e, account_type:savings, account_class:'Silver Plus Account'} (aid 055_5)",
+    "deposit_check_3847 {account_id:'7e48bf3b0589cfad', check_amount:1500} (aid 055_7, user-실행)"
+   ],
+   "wrongarg": [
+    "open_bank_account_4821 {checking, 'Green Fee-Free Account'} (msg 24·ok) ↔ gold 'Purple Account' — 상이 필드 account_class 하나",
+    "open_bank_account_4821 {savings, 'Green Account (savings)'} (msg 39·ok) ↔ gold 'Silver Plus Account' — 상이 필드 account_class 하나",
+    "deposit_check_3847 {account_id:'0de0aa560c1cc942', check_amount:1500} (msg 63·ok) ↔ gold account_id '7e48bf3b0589cfad' — check_amount 는 일치, 통만 상이(055_5 의 downstream)"
+   ],
+   "dup": [],
+   "blocked": [
+    "submit_transaction {0de0aa560c1cc942, 1500, check_deposit} (msg 45·user) → env: \"Error: Unknown discoverable tool 'submit_transaction'.\"",
+    "deposit_check_3847 {0de0aa560c1cc942, 1500} (msg 53·user) → env: \"Error: Tool 'deposit_check_3847' has not been given to you by the agent.\""
+   ],
+   "cause_primary": "our_layer",
+   "cause_secondary": "model",
+   "lever_firing": "T2_SEARCH_AGENT 5 / T2_DOCDECIDE 2(→'Blue Account','Gold Account' 둘 다 오답) / T2_SEARCH_ON_PROCEED 3(247자 결정문만) / T2_SEARCH_REARM 2(오답 계열 7,413자) / T2_CP2_CLOBBER 2(폐기 페이로드가 둘 다 오답=손실 0) / T2_DECISION_CARRY 3 / T2_WRITE_ARG_ENUM **0줄**(값이 공식명 안이라 미발화) / T2_REQUIRE_DOC_DELIVER **0줄**(선언 관할 밖) / T2_SG_DOCS 0줄(死선언) / T2_PIN_READ·T2_DEMANDED_STEP·T2_FOLLOWUP·T2_ARG_PRODUCERS·T2_FAB_STRIP·T2_ACT_DEMAND 전부 0줄 / READ-FIRST 문면 발화·무시 / T2_PREKB 사후 통지만 / T2_RESOLVE user-action 오지목 4회",
+   "evidence": [
+    "reward_info: reward_basis=[\"DB\"] · reward_breakdown={\"DB\":0.0} · db_check={\"db_match\":false}",
+    "[T2_SEARCH_AGENT] group=checking_accounts · 문서 113 … turn=2 (스펙 있음 · 원값 '11/14/2025' · 대화텍스트 1) → [T2_DOCDECIDE] → 'Blue Account'",
+    "[T2_SEARCH_AGENT] group=savings_accounts · 문서 92 … turn=6 (… 대화텍스트 3) → [T2_DOCDECIDE] → 'Gold Account'  ← 손님의 savings 요건은 msg 32",
+    "[T2_SEARCH_REARM] group=checking_accounts 신규 대상 green_fee-free_account (기배달 blue_account) — 소진 해제·문서 델타 / 델타 배달 7413자 (문서 7·뺀 것 0) turn=8",
+    "[T2_CP2_CLOBBER] SEARCH_ON_PROCEED 가 미소비 배달물 247자를 버리고 7413자로 덮어씀",
+    "msg 5(우리 comparator 반환·축자): \"- Green Fee-Free Account: out-of-network ATM total $0.00 | foreign ATM total $0.00\" / \"- Purple Account: out-of-network ATM total $120.00 | foreign ATM total $0.00\" / \"This tool does not pick a class: compare the totals yourself, verify the remaining candidate's eligibility and non-ATM terms in its cited source docs, and confirm with the customer.\"",
+    "msg 6(assistant·축자): \"the **Green Fee-Free Account** seems to be the best fit … **Currency Holding**: While the account doesn't directly support holding foreign currencies, you can manage your budget effectively by minimizing conversion costs\"",
+    "msg 3(user·축자): \"I sometimes get paid in yen or euros. It'd be nice to hold those currencies instead of converting right away.\"",
+    "msg 32(user·축자): \"I need daily compounding — that's non-negotiable for me. … I want to earn at least 3% APY once my balance grows.\"",
+    "msg 34(bm25 회수 1위) = doc_business_checking_accounts_world_blue_007(사업자 체킹) · 개인 savings 스펙 문서 0편",
+    "msg 71(tool·write 보다 32 메시지 뒤): \"4. FAQ: Silver Plus Account ID: doc_savings_accounts_silver_plus_account_005 … Tier 1: 3.0% - Tier 2: 4.5%\" 및 \"4. Blue Account (checking) + Silver Plus Account (savings)\"",
+    "[T2_PREKB] require_before post-check (replay-safe) fam=open_bank_account (missing get_all_user_accounts_by_user_id)  ← 차단 아님",
+    "[T2_RESOLVE] user-action instruct target=submit_transaction (×4) → msg 46 env \"Error: Unknown discoverable tool 'submit_transaction'.\""
+   ],
+   "prescription": "A-1 축 소진을 결정문 생성 시점→배달-소비 시점으로 이동(t2_gate_patch.py:3878-3882) · A-2 require_doc_before.tools 에 open_bank_account_4821 추가(선언 1줄·기구현 16,498자 배달기 재조준) · A-3 _rearm_subjects 재수요 술어를 user 발화로 한정(기존 처방 B-10 최소판) · A-5 comparator 에 A3 isolate.docs 선언(T2_SG_DOCS 死선언 해소) · C-1 action_tools 에서 submit_transaction 정리 · D-1 T2_DOCDECIDE 로그에 서브가 받은 _dask 앞 200자 인쇄 · D-2 247자 결정문에 축 이름 표기(Blue/Gold 둘 다 정확히 247자라 길이 식별 불가). ⛔T2_SUB_REQUIREMENT/T2_VERDICT_CARRY 승격은 FAILURE_MASTER §3.4 '재론 금지' 항목이라 제외.",
+   "steps": [
+    {
+     "step": 1,
+     "role": "user",
+     "what": "두 계좌 개설 의사만 밝힘 · 요건 0개",
+     "actor": "user_sim",
+     "kind": "요구 개시",
+     "evidence": "\"I'm looking to open a second checking account, plus a savings account.\"",
+     "consequence": "이 한 줄이 turn=2 결정 서브의 유일한 입력이 된다",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 2,
+     "role": "our_layer",
+     "what": "checking 축 결정 서브 실행 — 손님 요건 발화 전(turn=2·대화텍스트 1)이고 `_dask` 가 손님 발화 대신 후보 명단으로 치환된 상태",
+     "actor": "our_layer",
+     "kind": "격리 서브 오재료 + 축 영구 소진",
+     "code_path": "t2_gate_patch.py:3787-3789(_reqs 가드) · t2_gate_patch.py:3814-3817(_dask 치환) · t2_gate_patch.py:3878-3882(_done.add) · a2/banking_knowledge.specific.json → policy_ontology.decide_candidates_text",
+     "evidence": "[T2_SEARCH_AGENT] group=checking_accounts · 문서 113 … turn=2 (… 대화텍스트 1) / [T2_DOCDECIDE] → 'Blue Account' / [T2_SEARCH_AGENT] 축 처리 완료: checking_accounts (남은 축 savings_accounts)",
+     "consequence": "gold 'Purple Account' 와 무관한 답이 저장되고, 요건이 온 뒤 재결정 경로가 사라진다",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 3,
+     "role": "user",
+     "what": "checking 요건 7항 발화(ATM 환급·FX 0·멀티통화·green·premium)",
+     "actor": "user_sim",
+     "kind": "요구 확정",
+     "evidence": "\"I end up using ATMs abroad constantly … Any way to get those reimbursed? Also I hate those foreign transaction fees … I sometimes get paid in yen or euros. It'd be nice to hold those currencies … any \"green\" options? And I've heard about premium accounts…\"",
+     "consequence": "gold Purple 을 유일하게 지목하는 축이 전부 여기 있다 — 그러나 축은 이미 소진됐다",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 5,
+     "role": "tool",
+     "what": "우리 A2 comparator 가 10개 클래스 × ATM 비용 2열만 반환 + READ-FIRST 문면",
+     "actor": "our_layer",
+     "kind": "재료 형태(축 축소)",
+     "code_path": "A2 scaffold_get_tools[get_checking_atm_fee_totals] · isolate.docs 미선언 → [T2_SG_TRACE] iso=False mode=None",
+     "evidence": "\"- Green Fee-Free Account: out-of-network ATM total $0.00 | foreign ATM total $0.00\" / \"- Purple Account: out-of-network ATM total $120.00 | foreign ATM total $0.00\" / \"This tool does not pick a class: … verify the remaining candidate's eligibility and non-ATM terms in its cited source docs\"",
+     "consequence": "표의 유일한 축에서 gold Purple 이 Green Fee-Free 에 지배당한다. 멀티통화·환급·premium 은 표에 없다",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 6,
+     "role": "assistant",
+     "what": "checking 클래스 확정 — Green Fee-Free Account. 멀티통화 미충족을 자인하고도 유지",
+     "actor": "model",
+     "kind": "오선택(단일 축 닫기)",
+     "evidence": "\"the **Green Fee-Free Account** seems to be the best fit … **Currency Holding**: While the account doesn't directly support holding foreign currencies, you can manage your budget effectively by minimizing conversion costs\"",
+     "consequence": "gold 055_4 상실 결정 지점. READ-FIRST 문면은 발화했고 무시됐다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 8,
+     "role": "our_layer",
+     "what": "savings 축 결정 서브 실행(turn=6·대화텍스트 3) — 손님이 savings 요건을 말하기 26 메시지 전. 동시에 미소비 checking 결정문을 CP2 가 폐기",
+     "actor": "our_layer",
+     "kind": "순서·예산 + 근거창 파괴",
+     "code_path": "t2_gate_patch.py:3878-3882 · t2_gate_patch.py:5014(_cp2_assign) · go_stack.sh:387 export T2_CP2_QUEUE=0",
+     "evidence": "[T2_DOCDECIDE] → 'Gold Account' / [T2_SEARCH_AGENT] 축 처리 완료: savings_accounts (남은 축 없음) / [T2_CP2_CLOBBER] SEARCH_ON_PROCEED 가 미소비 배달물 247자를 버리고 247자로 덮어씀",
+     "consequence": "savings 축이 msg 6 시점에 영구 소진. 폐기된 페이로드가 오답이라 클로버 자체의 손실은 0",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 9,
+     "role": "our_layer",
+     "what": "T2_SEARCH_REARM 이 모델이 방금 고른 오답 계열(green_fee-free_account) 문서 7편 7,413자를 write 직전에 배달하고 savings 결정문을 덮어씀",
+     "actor": "our_layer",
+     "kind": "자기확증 배달",
+     "code_path": "t2_gate_patch.py:3457-3503(_rearm_subjects 술어 ⑵) · t2_gate_patch.py:3616-3620",
+     "evidence": "[T2_SEARCH_REARM] group=checking_accounts 신규 대상 green_fee-free_account (기배달 blue_account) / 델타 배달 7413자 (문서 7·뺀 것 0) turn=8 / [T2_CP2_CLOBBER] … 247자를 버리고 7413자로 덮어씀 / [T2_DECISION_CARRY] 이 턴 재생성 버퍼에 부착 (7413자)",
+     "consequence": "결정 직전에 오답 클래스 근거를 7,413자 실어 확증. 미언급 정답 purple_account 는 이 술어로 영영 배달 불가",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 24,
+     "role": "assistant",
+     "what": "checking write — {checking, 'Green Fee-Free Account'} 성공(d8f98814af899665). T2_WRITE_ARG_ENUM 은 값이 공식명 안이라 미발화",
+     "actor": "model",
+     "kind": "실행(오선택 확정)",
+     "code_path": "게이트 상한: a2 write_arg_enum[0](공식명 소속만 검사) · t2_gate_patch.py:10032-10190",
+     "evidence": "call_discoverable_agent_tool({\"agent_tool_name\":\"open_bank_account_4821\",\"arguments\":\"{\\\"user_id\\\":\\\"224959b99e\\\",\\\"account_type\\\":\\\"checking\\\",\\\"account_class\\\":\\\"Green Fee-Free Account\\\"}\"}) · 로그 전체에 [T2_WRITE_ARG_ENUM] 0줄",
+     "consequence": "gold 055_4 상실 확정. 열거 게이트는 '공식명인가'만 묻고 '요건을 만족하는가'는 못 묻는다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 34,
+     "role": "tool",
+     "what": "savings 결정점의 bm25 회수 — 1위 사업자 체킹(world_blue_007), 2위 APY boost 정책. 개인 savings 스펙 0편",
+     "actor": "model",
+     "kind": "회수 실패(질의 선택)",
+     "evidence": "\"1. Earning Interest on Your World Blue Balance ID: doc_business_checking_accounts_world_blue_007 Score: 21.7811\"",
+     "consequence": "결정점에 gold 스펙(silver_plus_account_*)이 없다 — t7346 t0 과 갈리는 지점",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 39,
+     "role": "assistant",
+     "what": "savings write — {savings, 'Green Account (savings)'} 성공(0de0aa560c1cc942). 직전 msg 37 에서 3% APY 요건은 언급조차 안 함",
+     "actor": "model",
+     "kind": "오선택",
+     "evidence": "msg 37: \"**Daily Compounding:** The Green Account (savings) offers daily compounding … **Premium Feel:** … giving it a premium feel.\" → msg 39 call_discoverable_agent_tool(open_bank_account_4821, {savings, \"Green Account (savings)\"})",
+     "consequence": "gold 055_5 상실 확정 + 055_7 의 통이 여기서 확정됨",
+     "reward_causal": "강"
+    },
+    {
+     "step": 44,
+     "role": "assistant",
+     "what": "존재하지 않는 모바일앱 절차와 도구명 submit_transaction 안내 — 우리 층이 그 이름을 지목했다",
+     "actor": "our_layer",
+     "kind": "오지목",
+     "code_path": "a2/banking_knowledge.gate.json 및 a2/banking_knowledge.settings.json 의 action_tools 에 submit_transaction 등재 → t2_gate_patch.py:8716-8718(_uacts)",
+     "evidence": "[T2_RESOLVE] user-action instruct target=submit_transaction (×4) · msg 44 \"you will need to use the `submit_transaction` tool in the mobile app\" · msg 46 \"Error: Unknown discoverable tool 'submit_transaction'.\"",
+     "consequence": "5턴 소모(msg 44~55). 최종적으로 자력 회복해 055_6 은 매수",
+     "reward_causal": "약"
+    },
+    {
+     "step": 63,
+     "role": "user",
+     "what": "손님이 0de0aa560c1cc942(Green savings)에 $1,500 입금 성공 — 금액·도구는 정확, 통만 오답",
+     "actor": "model",
+     "kind": "downstream 손실",
+     "evidence": "\"Check deposit processed! - Account: 0de0aa560c1cc942 - Check Amount: $1500.00\" ↔ gold account_id 7e48bf3b0589cfad",
+     "consequence": "gold 055_7 상실 — 055_5 의 순수 downstream",
+     "reward_causal": "강"
+    },
+    {
+     "step": 71,
+     "role": "tool",
+     "what": "gold 스펙 문서가 뒤늦게 도달(write msg 39 보다 32 메시지 뒤)",
+     "actor": "env",
+     "kind": "지연 회수",
+     "evidence": "\"4. FAQ: Silver Plus Account ID: doc_savings_accounts_silver_plus_account_005 … Tier 1: 3.0% - Tier 2: 4.5%\" · \"4. Blue Account (checking) + Silver Plus Account (savings)\"",
+     "consequence": "이번 런의 055#0 은 '정답이 앞에 있는데 안 썼다'가 아니라 '정답이 결정 후에 왔다' — 선행 경계 판정과 상이",
+     "reward_causal": "무관"
+    }
+   ]
+  },
+  {
+   "trial": 1,
+   "reward": 0,
+   "missing": [
+    "open_bank_account_4821 {user_id:224959b99e, account_type:checking, account_class:'Purple Account'} (aid 055_4)",
+    "open_bank_account_4821 {user_id:224959b99e, account_type:savings, account_class:'Silver Plus Account'} (aid 055_5) — 호출 자체 없음",
+    "deposit_check_3847 {account_id:'7e48bf3b0589cfad', check_amount:1500} (aid 055_7) — 호출 자체 없음",
+    "give_discoverable_user_tool {deposit_check_3847} (aid 055_6, action_match=false) — t7346 대비 회귀"
+   ],
+   "wrongarg": [
+    "open_bank_account_4821 {checking, 'Evergreen Account'} (msg 30·ok, e1241970db2a3277) ↔ gold 'Purple Account' — 상이 필드 account_class 하나"
+   ],
+   "dup": [],
+   "blocked": [
+    "open_bank_account_4821 {checking, 'Evergreen Account'} (msg 34) → env: \"Failed to open account: Account ID 'e1241970db2a3277' may already exist.\"",
+    "open_bank_account_4821 {checking, 'Evergreen Account'} (msg 36) → 동일 문면",
+    "open_bank_account_4821 {checking, 'Evergreen Account'} (msg 38) → 동일 문면"
+   ],
+   "cause_primary": "our_layer",
+   "cause_secondary": "model",
+   "lever_firing": "T2_SEARCH_AGENT 8 / T2_DOCDECIDE 3(→'Blue Account','Gold Account','Sky Blue' 전부 오답) / T2_SEARCH_ON_PROCEED 3(247자) / T2_DECISION_CARRY 12(247자×2, 4536자, 432자) / T2_MATERIAL_GATE 2(turn=4 가 치명) / T2_CLAIM_PROV 42(regen tool_calls=[] 로 comparator 초안 삭제) / T2_WRITE_ARG_ENUM 6(deny 3: 'EcoTravel Checking Account','EcoTravel Account','Sky Blue Account' · 후보 10 + 서브 결정문 동봉) / T2_REQUIRE_DOC_DELIVER 9(전부 transfer 도구·docs=6·16,498자) / T2_FORCE_ACTION 3 / T2_SEARCH_REARM 0 / T2_CP2_CLOBBER 0 / T2_PIN_READ·T2_DEMANDED_STEP·T2_FOLLOWUP·T2_ARG_PRODUCERS·T2_FAB_STRIP·T2_ACT_DEMAND·T2_SG_DOCS 전부 0줄 / comparator 미실행이라 READ-FIRST 문면 미도달",
+   "evidence": [
+    "reward_info: reward_basis=[\"DB\"] · db_check={\"db_match\":false} · action_checks 055_6 action_match=false",
+    "[T2_SEARCH_AGENT] group=checking_accounts … turn=2 (… 대화텍스트 1) → [T2_DOCDECIDE] → 'Blue Account'",
+    "[T2_MATERIAL_GATE] stop=other_lever(gate) turn=4 calls=check_card_application_fit,get_checking_atm_fee_totals,unlock_discoverable_agent_tool pending=247 axes=8 prose=False",
+    "[T2_CLAIMPROV] regen tool_calls=[] · [T2_STACK] audit route=[('출처 근거 확보','claim','T2_CLAIM_PROV'),…] chose=[('fb','check_card_application_fit')] differs=True",
+    "착지한 msg 4(축자): \"Let's start by verifying your identity so I can provide you with the best recommendations … Could you please provide me with your full name, user ID, address, email, phone number, and date of birth?\"  ← 도구 0개",
+    "[T2_SCAFFOLD_GET] 전수 = verify_identity ×2 (comparator 0회 실행)",
+    "[T2_SEARCH_AGENT] group=savings_accounts … turn=4 (… 대화텍스트 2) → [T2_DOCDECIDE] → 'Gold Account' → 이후 전 구간 \"요청 축 checking_accounts,savings_accounts 모두 처리됨 — 침묵\"",
+    "msg 18(assistant·이 sim 의 유일한 KB 접근): shell({\"command\":\"grep -ri 'travel' .\"}) → msg 19 는 grep 라인 조각(상위 결과 전부 business_checking/business_credit_cards)",
+    "msg 24(assistant·축자): \"I recommend considering the **EcoTravel Checking Account** and the **High Yield Eco Savings Account**. The EcoTravel Checking Account … offers: - No foreign transaction fees - Reimbursement for foreign ATM fees - The ability to hold multiple currencies (including yen and euros)\"  ← 서술 속성은 실제로는 Purple Account 스펙, 이름만 날조",
+    "[T2_WRITE_ARG_ENUM] 저장된 축 결정 동봉 group=checking_accounts (247자) / [T2_WRITE_ARG_ENUM] deny val='EcoTravel Checking Account' group=checking_accounts (후보 10 · 원장 1)",
+    "A2 문면 축자: \"Error: [OFFICIAL-NAME] '{val}' is not one of the official {arg} names on file. The names on file for {group} are: {candidates}. Choose the one you meant, verbatim, and call the tool again.\" · 동봉물 축자: \"It answers: Blue Account.\"",
+    "msg 30(assistant·축자): \"It seems there was a mistake in the account class name. The correct account class for the EcoTravel Checking Account is the **Evergreen Account**.\"",
+    "msg 35/37/39(env·3회 동일): \"Failed to open account: Account ID 'e1241970db2a3277' may already exist.\"",
+    "[T2_REQUIRE_DOC_DELIVER] deliver tool=transfer_to_human_agents docs=6 chars=16498 turn=42 fired=1/3 · [T2_REQUIRE_DOC_DELIVER] 이 턴 재생성 버퍼에 부착 (16498자)",
+    "궤적 전체에서 'Silver Plus' 등장 0건 · 'Purple' 등장 1건(msg 19 grep 출력)"
+   ],
+   "prescription": "B-1 T2_CLAIM_PROV regen 이 초안 tool_calls 를 비우는 경우를 반려하는 술어(반드시 ± 계측·claim 날조 억제력 손실 계상) · A-4 write_arg_enum.feedback 의 'Choose the one you meant, verbatim' 을 요건 재대조 지시로 교체([[64]] 형태·사례 열거 0) · A-2 require_doc_before.tools 에 open_bank_account_4821 추가 · A-1 축 소진 시점 이동 · D-1/D-2 계기.",
+   "steps": [
+    {
+     "step": 1,
+     "role": "user",
+     "what": "t0 과 바이트 동일한 개시 발화",
+     "actor": "user_sim",
+     "kind": "요구 개시",
+     "evidence": "\"I'm looking to open a second checking account, plus a savings account.\"",
+     "consequence": "turn=2 결정 서브의 유일한 입력",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 2,
+     "role": "our_layer",
+     "what": "checking 결정 서브 — t0 과 동일하게 요건 전·후보명단 치환 상태에서 실행",
+     "actor": "our_layer",
+     "kind": "격리 서브 오재료",
+     "code_path": "t2_gate_patch.py:3787-3789 · t2_gate_patch.py:3814-3817 · a2/banking_knowledge.specific.json → decide_candidates_text",
+     "evidence": "[T2_SEARCH_AGENT] group=checking_accounts · 문서 113 … turn=2 (… 대화텍스트 1) / [T2_DOCDECIDE] → 'Blue Account'",
+     "consequence": "양 trial 동일 오답 — 재현성 2/2(모델 샘플링 요인 아님)",
+     "reward_causal": "중"
+    },
+    {
+     "step": 4,
+     "role": "our_layer",
+     "what": "모델 초안이 부르려던 get_checking_atm_fee_totals 를 우리 재생성 스택이 지웠다 — 착지한 msg 4 는 도구 0개 산문",
+     "actor": "our_layer",
+     "kind": "재생성 파괴",
+     "code_path": "t2_gate_patch.py:8592(T2_MATERIAL_GATE 계기·calls=am.tool_calls) + T2_CLAIM_PROV regen 경로(go_stack.sh:162 export T2_CLAIM_PROV=1)",
+     "evidence": "[T2_MATERIAL_GATE] stop=other_lever(gate) turn=4 calls=check_card_application_fit,get_checking_atm_fee_totals,unlock_discoverable_agent_tool pending=247 axes=8 prose=False / [T2_CLAIMPROV] regen tool_calls=[] / [T2_STACK] … chose=[('fb','check_card_application_fit')] differs=True",
+     "consequence": "comparator 가 이 trial 에서 끝내 실행되지 않는다([T2_SCAFFOLD_GET] 전수 verify_identity ×2). t7346 t1 이 Purple 을 산 경로가 이 자리에서 끊겼다 = **분기점**",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 4,
+     "role": "our_layer",
+     "what": "savings 축까지 turn=4 에 소진 — 손님은 savings 요건을 끝내 발화하지 못한다",
+     "actor": "our_layer",
+     "kind": "순서·예산",
+     "code_path": "t2_gate_patch.py:3878-3882(_done.add / agent._t2_search_done)",
+     "evidence": "[T2_SEARCH_AGENT] group=savings_accounts … turn=4 (… 대화텍스트 2) → [T2_DOCDECIDE] → 'Gold Account' / 이후 전 구간 [T2_SEARCH_AGENT] 요청 축 checking_accounts,savings_accounts 모두 처리됨 — 침묵",
+     "consequence": "savings KB 채널이 msg 4 에 구조적으로 닫힌다",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 16,
+     "role": "assistant",
+     "what": "verify → get_current_time → log_verification 정상 수행",
+     "actor": "model",
+     "kind": "정상",
+     "evidence": "\"VERIFIED — 4 identity values match the account record (date_of_birth, address, phone_number, email)\"",
+     "consequence": "gold 055_0 일치",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 18,
+     "role": "assistant",
+     "what": "이 sim 의 유일한 KB 접근 = shell grep -ri 'travel' . — 문서 본문이 아니라 grep 라인 조각이 돌아온다",
+     "actor": "model",
+     "kind": "회수 형태 오선택",
+     "evidence": "shell({\"command\":\"grep -ri 'travel' .\"}) → \"./doc_business_checking_accounts_world_blue_005.md:# World Blue: Traveling Abroad with Your Business Account\" …",
+     "consequence": "개인 checking 스펙 0편. 궤적 전체 'Purple' 등장은 이 출력의 1건뿐",
+     "reward_causal": "강"
+    },
+    {
+     "step": 24,
+     "role": "assistant",
+     "what": "존재하지 않는 상품명 2개를 날조하고 스펙 5줄까지 붙임",
+     "actor": "model",
+     "kind": "날조",
+     "evidence": "\"I recommend considering the **EcoTravel Checking Account** and the **High Yield Eco Savings Account**. … - The ability to hold multiple currencies (including yen and euros)\"",
+     "consequence": "서술 속성은 실제로 Purple Account 의 것 — 요건 매칭은 맞고 이름만 지어냈다. T2_FAB_STRIP 은 write 호출만 검사하므로 산문 날조에 미발화",
+     "reward_causal": "강"
+    },
+    {
+     "step": 29,
+     "role": "our_layer",
+     "what": "열거 게이트가 날조명을 잡고 공식명 10개(Purple Account 포함) + 서브 결정문을 동봉했으나 문면이 '철자 교정' 프레이밍",
+     "actor": "our_layer",
+     "kind": "[[64]] 형태 결함",
+     "code_path": "a2/banking_knowledge.specific.json → write_arg_enum[0].feedback · t2_gate_patch.py:10162-10187(_dsav 동봉)",
+     "evidence": "[T2_WRITE_ARG_ENUM] 저장된 축 결정 동봉 group=checking_accounts (247자) / [T2_WRITE_ARG_ENUM] deny val='EcoTravel Checking Account' group=checking_accounts (후보 10 · 원장 1) / 문면 \"Choose the one you meant, verbatim, and call the tool again.\" / 동봉 \"It answers: Blue Account.\"",
+     "consequence": "'the one you meant' 는 요건 재대조가 아니라 최근접 이름 치환을 지시한다",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 30,
+     "role": "assistant",
+     "what": "EcoTravel → Evergreen Account 로 이름만 갈아끼워 write 성공",
+     "actor": "model",
+     "kind": "오선택(최근접 치환)",
+     "evidence": "\"It seems there was a mistake in the account class name. The correct account class for the EcoTravel Checking Account is the **Evergreen Account**.\" → {checking, \"Evergreen Account\"} → Account ID: e1241970db2a3277",
+     "consequence": "gold 055_4 상실 확정. 우리가 준 10개 공식명도, 우리 서브의 답(Blue Account)도 따르지 않았다 — 이 스텝에서만 '전달로 안 닫힌 잔여'가 실재",
+     "reward_causal": "강"
+    },
+    {
+     "step": 32,
+     "role": "assistant",
+     "what": "개설 성공을 손님에게 알리지 않고 savings 로 넘어가려 함 → 손님이 재요구(msg 33)",
+     "actor": "model",
+     "kind": "보고 누락",
+     "evidence": "msg 32 \"Let's proceed with opening the High Yield Eco Savings Account next.\" / msg 33 \"I still want to open the **EcoTravel Checking Account first**\"",
+     "consequence": "동일 인자 3회 재호출의 방아쇠. user_sim 오도 아님([[21]] 흡수 대상)",
+     "reward_causal": "중"
+    },
+    {
+     "step": 35,
+     "role": "tool",
+     "what": "env 가 원인을 틀리게 말한다 — 실제 원인은 '이미 개설 성공'인데 문면은 'account ID 충돌'",
+     "actor": "env",
+     "kind": "오도 문면",
+     "evidence": "\"Failed to open account: Account ID 'e1241970db2a3277' may already exist.\" (msg 35·37·39 동일)",
+     "consequence": "모델이 '충돌을 풀면 된다'로 오독해 동일 호출 3회 반복 후 사임",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 42,
+     "role": "our_layer",
+     "what": "이 sim 유일한 문서 본문 배달(16,498자·6편)이 transfer 도구에만 발화 — 오답이 난 open_bank_account_4821 은 관할 밖",
+     "actor": "our_layer",
+     "kind": "표적 미도달",
+     "code_path": "a2/banking_knowledge.specific.json → require_doc_before.tools(이관 4종) · t2_gate_patch.py:3289-3371",
+     "evidence": "[T2_REQUIRE_DOC_DELIVER] deliver tool=transfer_to_human_agents docs=6 chars=16498 turn=42 fired=1/3 / [T2_REQUIRE_DOC_DELIVER] 이 턴 재생성 버퍼에 부착 (16498자)",
+     "consequence": "결정 write 에는 0자, 실패 뒤 사임 write 에는 16,498자 — 예산이 정확히 반대로 쓰였다",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 50,
+     "role": "assistant",
+     "what": "savings 를 시작조차 못 하고 human transfer 로 종료",
+     "actor": "model",
+     "kind": "사임",
+     "evidence": "transfer_to_human_agents({… reason 판정 \"account_ownership_dispute\"}) → \"Transfer successful (reason: account_ownership_dispute).\"",
+     "consequence": "gold 055_5·055_6·055_7 전부 MISSING. 사임 사유도 사실과 무관",
+     "reward_causal": "강"
+    }
+   ]
+  }
+ ],
+ "summary": "## 결론 (bank_t7348 halfA · task_055 · 0/2 · 채점축 DB)\n\n**채점 축**: `reward_basis=[\"DB\"]` — DB 해시. `action_checks` 는 진단 보조([[69]]).\n\n**변이 집합**: 양 trial 공통 단일 결손 = `open_bank_account_4821.account_class` 오선택.\n- t0: MISSING 055_4/055_5/055_7 · WRONGARG 3(`Green Fee-Free Account`, `Green Account (savings)`, 그 통에 입금) · EXTRA 0\n- t1: MISSING 055_4/055_5/055_6/055_7 · WRONGARG 1(`Evergreen Account`) · BLOCKED 3(동일 인자 재호출) → **t7346 t1 이 샀던 Purple 과 055_6 을 되팔았다**\n\n**원인 확정(순위)**\n1. **our_layer · CONFIRMED** — 결정 서브가 손님 요건을 못 받는다. `t2_gate_patch.py:3814-3817` 이 `_dask` 를 후보 명단으로 치환하고, 복원 분기 `:3787-3789` 는 `T2_SUB_REQUIREMENT`/`T2_VERDICT_CARRY`(둘 다 0)를 요구한다. A3 `decide_candidates_text` 에 `{ask}` 자리가 없다. 결과 `[T2_DOCDECIDE]` 4/4 오답. 같은 파일 주석이 격리 실측(x343 n=24: 요건 없으면 `Gold Account` 24/24 오답, 있으면 `Silver Plus` 24/24 정답)을 이미 담고 있다. ⛔단 이 두 플래그의 승격은 FAILURE_MASTER §3.4 **재론 금지**.\n2. **our_layer · CONFIRMED** — 축 소진(`:3878-3882`)에 요건 조건이 없다. checking `turn=2 (대화텍스트 1)`, savings t0 `turn=6` / t1 `turn=4`. 손님 요건은 msg 3 / msg 32 에 온다. 이후 `요청 축 … 모두 처리됨 — 침묵`.\n3. **our_layer · CONFIRMED(t1 전용)** — 재생성 스택이 유일한 근거 확보 호출을 삭제. `[T2_MATERIAL_GATE] … turn=4 calls=…get_checking_atm_fee_totals…` + `[T2_CLAIMPROV] regen tool_calls=[]` → 착지 msg 4 도구 0개. `[T2_SCAFFOLD_GET]` 전수 `verify_identity` ×2 ⇒ comparator 미실행. **이것이 두 trial 의 유일한 분기점**.\n4. **our_layer · CONFIRMED** — 문서 예산이 반대로 쓰였다. 결정 write 0자 / 오답 계열 7,413자(`_rearm_subjects` ⑵ 가 모델 자기발화를 재수요로 읽음) / 사임 write 16,498자(`require_doc_before.tools` = 이관 4종).\n5. **model** — t0 msg 6 단일 축으로 닫고 멀티통화 미충족 자인 후 확정 · t1 msg 24 없는 상품명 날조 · t1 msg 30 공식명 10개(Purple 포함)와 서브 답을 앞에 두고 최근접 치환.\n6. **env** — `Account ID … may already exist`(실제=이미 성공) · `Unknown discoverable tool 'submit_transaction'`.\n7. **user_sim** — 면책 사유 0. 요건을 명료히 반복 발화했고 오도 0건.\n\n**선행 대조**: 결손 축(`account_class`)은 그대로지만, 선행의 경계 판정 *\"정답 스펙 문서 + 공식명 9개가 앞에 있는데 Silver Plus 0건\"* 은 **t7348 t0 에서 성립하지 않는다** — 스펙 문서는 write 보다 32 메시지 뒤(msg 71)에 왔고 공식명은 `WRITE_ARG_ENUM` 0줄로 전달조차 안 됐다. 그 진술이 실물로 성립하는 스텝은 **t1 msg 30 하나**다. FAILURE_MASTER 의 'CP2 클로버 REFUTED' 반증은 t7348 t0(WRITE_ARG_ENUM 0줄)에 이월되지 않지만, 폐기 페이로드가 오답이라 결론은 유지된다.\n\n**산출물**: `C:\\workspace\\ba-frft\\reports\\facet_rft_2026\\tasks__20260824\\TASK_055.md` (채점축 → 변이표 → trial 별 스텝 표 → 레버 발화표 → 선행 대조 → 원인 확정 → 처방 후보 → 격리 프로브 제안). 수리·코드 수정·커밋 **0건**."
+}

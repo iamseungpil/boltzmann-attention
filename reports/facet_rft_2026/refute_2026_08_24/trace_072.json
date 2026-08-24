@@ -1,0 +1,369 @@
+{
+ "task": "bank_t7348 / task_072 per-step trajectory forensics (ATM fee dispute, both trials reward 0)",
+ "sims": [
+  {
+   "trial": 0,
+   "reward": 0,
+   "missing": [
+    "apply_checking_account_credit_5829{account_id=chk_lj82d4f1a9, amount=14, credit_type=fee_refund} (gold 072_7)",
+    "apply_checking_account_credit_5829{account_id=chk_538bfb9cba, amount=3.5, credit_type=fee_refund} (gold 072_8)"
+   ],
+   "wrongarg": [],
+   "dup": [],
+   "blocked": [],
+   "steps": [
+    {
+     "step": 4,
+     "role": "assistant",
+     "what": "신원확인 전에 비교기를 호출하며 account_id 에 표시명을 날조",
+     "actor": "model",
+     "kind": "날조 인자·조기 호출",
+     "evidence": "get_atm_fee_discrepancies {\"account_id\": \"Bluest Account\", \"account_class\": \"Bluest Account\", \"transactions\": \"@last:get_bank_account_transactions_9173\"}",
+     "consequence": "아직 잃은 gold 행 없음",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 5,
+     "role": "tool",
+     "what": "READ-FIRST 가 생산자 도구 두 개를 이름으로 지목",
+     "actor": "our_layer",
+     "kind": "배달(정확·유효)",
+     "code_path": "a2/banking_knowledge.specific.json → scaffold_get_tools[8].requires_reads = [\"get_all_user_accounts_by_user_id\",\"get_bank_account_transactions\"] · 로그 [T2_SG_REQREADS]",
+     "evidence": "Error: [READ-FIRST] this audit only judges fee lines that were READ in this conversation … Their exact callable forms are: unlock_discoverable_agent_tool(agent_tool_name=\"get_all_user_accounts_by_user_id_3847\") then call_discoverable_agent_tool with that name",
+     "consequence": "두 gold read 의 이름이 turn 2 에 도달 (t7346 t0 의 PROV 선점 회귀 해소)",
+     "reward_causal": "중"
+    },
+    {
+     "step": 7,
+     "role": "assistant",
+     "what": "같은 unlock 2건을 3회 재발행 + KB_search 3회, 신원확인은 아직 0 — 우리 강제-행동이 국면을 앞질렀다",
+     "actor": "our_layer",
+     "kind": "강제-행동 과발화(턴 소각)",
+     "code_path": "t2_gate_patch.py:9648 (force_required = True) ← t2_gate_patch.py:8782-8784",
+     "evidence": "[T2_FORCE_ACTION] say-don't-do → tool_choice=required 재생성 ×5 (turn 2·8·13·16·19) · [T2_RESOLVE] action-required reason=discovery-step2 target=call_discoverable_agent_tool",
+     "consequence": "모델 턴 7개 소각, gold 행 손실 0",
+     "reward_causal": "약"
+    },
+    {
+     "step": 33,
+     "role": "assistant",
+     "what": "verify_identity → log_verification 완결",
+     "actor": "model",
+     "kind": "정상 완결",
+     "evidence": "[34] Verification logged successfully. - User: Liang Jinhai (ID: lj82d4f1a9) - Verified at: 2025-11-14 03:40:00 EST",
+     "consequence": "gold 072_0 MATCHED",
+     "reward_causal": "강"
+    },
+    {
+     "step": 42,
+     "role": "tool",
+     "what": "비교기 transactions 에 참조 토큰 @last: 를 실어 4회 반려 — 우리 문면이 실제 원인을 말하지 않는다",
+     "actor": "our_layer",
+     "kind": "오문면([[64]] 위반)",
+     "code_path": "t2_scaffold_get.py:2033",
+     "evidence": "Error: [ARGS-FORMAT] the 'transactions' argument could not be read as a JSON array — it arrived as a plain string that is not valid JSON. Re-issue this exact call with 'transactions' as a VALID JSON array …",
+     "consequence": "모델이 같은 참조 토큰을 두 턴 연속 재송신 → 3턴 소각",
+     "reward_causal": "약"
+    },
+    {
+     "step": 52,
+     "role": "tool",
+     "what": "ATM 비교기(순액화 수리)가 Bluest 4행을 정확히 반환 — 11/14 누락 rebate 와 11/20 순액이 새로 잡혔다",
+     "actor": "our_layer",
+     "kind": "배달(정확)·수리 개입 확인",
+     "code_path": "a2/banking_knowledge.specific.json → scaffold_get_tools[8].op.rebate (2026-08-24 순액화) + .op.steps.ord/oon + .return_template",
+     "evidence": "ATM withdrawals whose net charge does NOT match the documented fee schedule for this account level: btxn_344585b826eb (charged $8.00, documented fee $0.00, difference $8.00); btxn_6a3453e0afd9 ($3.50→$0.00, $3.50); btxn_63306834d5ba (charged $2.00, documented fee $0.00, difference $2.00); btxn_fcd7ef3a24ed (charged $0.50, documented fee $0.00, difference $0.50) · [coverage] 9 of 9 rows were checked (0 could not be verified)",
+     "consequence": "8.00+3.50+2.00+0.50 = $14.00 = gold 072_7. t7335/t7346 이 3연속 놓친 마지막 마일이 닫혔다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 54,
+     "role": "tool",
+     "what": "비교기가 Light Green 의 미부과 수수료를 음수 차액으로 반환 (모델이 넣지 않은 행까지 격리 서브가 원천에서 추출)",
+     "actor": "our_layer",
+     "kind": "배달(정확)·수리 개입 확인",
+     "code_path": "a2/banking_knowledge.specific.json → scaffold_get_tools[8].op.steps.ord (월 무료 4회) + 음수 차액 · [T2_SG_ISOLATE] operand-size … sub=10 rows · source=26 rows",
+     "evidence": "btxn_c34cac8dd786 (charged $1.50, documented fee $0.00, difference $1.50); btxn_8c58b19a3628 (charged $0.00, documented fee $1.50, difference $-1.50); btxn_e00b60651fca ($5.00→$2.00, $3.00); btxn_49c0c0b3b8c1 ($4.00→$3.50, $0.50) · [coverage] 10 of 10 rows were checked (0 could not be verified)",
+     "consequence": "1.50−1.50+3.00+0.50 = $3.50 = gold 072_8. t7346 의 '4 of 6 (2 could not be verified)' 부채 해소",
+     "reward_causal": "강"
+    },
+    {
+     "step": 54,
+     "role": "our_layer",
+     "what": "T2_WRITE_SUB 가 write 초안 1건을 냈으나 우리 근거검산이 기각 — 정답 write 는 원리상 통과 불가",
+     "actor": "our_layer",
+     "kind": "구조적 기각(치명)",
+     "code_path": "t2_resolve.py:639 (basis = SC.recent_tool_text(msgs, spec['basis_max_chars'], scope='all')) → t2_subcall.py:117 (txt[-cap:]) → t2_resolve.py:652 (SC.grounded_calls) → t2_subcall.py:176 (all(val_grounded)) · 선언 a2/banking_knowledge.specific.json → write_initiation.basis_max_chars = 4000",
+     "evidence": "[T2_WRITE_SUB] 제안 1건 → 근거검산 통과 0건 (서브 창 4000자·scope=all) — 결정 턴 2회 연속. 오프라인 재현: 같은 basis 로 {chk_lj82d4f1a9, 14.0, fee_refund} → account_id False · amount 14.0 False ⇒ grounded 0",
+     "consequence": "write 초안 전달 채널이 이 사이트에서 영구 폐쇄. '14' 는 코퍼스에 없고(합계는 인쇄하지 않는다) 꼬리 4000자 창이 Bluest 를 밀어냈다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 54,
+     "role": "our_layer",
+     "what": "직전 디스패치 성공을 이유로 행동-요구가 침묵",
+     "actor": "our_layer",
+     "kind": "억제(과침묵)",
+     "code_path": "t2_resolve.py:391 ([T2_ACTION_HISTORY] 침묵) · 술어 _dispatch_since_last_user t2_resolve.py:668-690",
+     "evidence": "[T2_ACTIONREQ] window=open … formalized_target=call_discoverable_agent_tool 바로 다음 줄 [T2_ACTION_HISTORY] 침묵: 이번 손님 발화 이후 디스패치 성공 — 재-발견 요구 안 함",
+     "consequence": "손님이 '실행하라'고 말하기 직전 턴에 write 푸시가 꺼졌다",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 56,
+     "role": "user_sim",
+     "what": "명시적 실행 지시",
+     "actor": "user_sim",
+     "kind": "정상(시나리오 축자)",
+     "evidence": "Yes, please go ahead and apply credits for all the incorrect charges on both accounts — I want to make sure everything is corrected.",
+     "consequence": "이 시점 이후 모든 손실은 agent 측",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 57,
+     "role": "assistant",
+     "what": "say-don't-do — 8건 크레딧을 전부 열거하고 '지금 실행한다'고 말한 뒤 tool_call 0. 우리 층은 전면 미개입",
+     "actor": "our_layer",
+     "kind": "무개입(formalize 실패로 강제-행동 도달 불가)",
+     "code_path": "t2_gate_patch.py:8784 formalize_intent_tool(...) → t2_resolve.py:764-791 이 None 반환 ⇒ _utgt 없음 ⇒ t2_gate_patch.py:9648 T2_FORCE_ACTION 도달 불가",
+     "evidence": "모델: 'I will now initiate the correction process. Please allow a moment while I apply these credits.' / 같은 턴 로그: [T2_ACTIONREQ] window=open … formalized_target=None · T2_FORCE_ACTION 0회",
+     "consequence": "gold 072_7·072_8 이 여기서 확정 소실. 의도·금액·계좌 전부 모델 안에 있었다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 59,
+     "role": "assistant",
+     "what": "산문으로 총액 계산 — Bluest $14.00 은 gold 정확, LG 는 음수 차액을 부호 반전해 $6.50",
+     "actor": "model",
+     "kind": "산문-only + 빼기 불능",
+     "evidence": "Total credited to Bluest Account: $8.00 + $3.50 + $2.00 + $0.50 = $14.00 / - $1.50 for transaction ID btxn_8c58b19a3628 (since the documented fee was $1.50 but none was charged) → Total … Light Green Account: … = $6.50",
+     "consequence": "gold 금액 14.00 이 모델 자기 텍스트에 축자로 있는데도 호출 0. 우리 층은 다시 formalized_target=None",
+     "reward_causal": "강"
+    },
+    {
+     "step": 61,
+     "role": "assistant",
+     "what": "우리 층이 의도를 손님-실행 도구 submit_transaction 으로 오바인딩하고 지시·불가통보를 주입 → 모델이 그 이름으로 사과하며 마지막 턴 소각",
+     "actor": "our_layer",
+     "kind": "오바인딩(치명)",
+     "code_path": "t2_gate_patch.py:8782 (_upending = sorted(_uacts - _effall)) · 8784 formalize_intent_tool · 문면 8808 user_action_feedback · 9171 [T2_LIMIT_REDUCE] · 9230 [T2_RESOLVE] user-action instruct · 12511 [T2_UNAVAIL]",
+     "evidence": "[T2_ACTIONREQ] … pending_user=['apply_for_credit_card','call_discoverable_user_tool','submit_referral','submit_transaction'] … formalized_target=submit_transaction · [T2_RESOLVE] user-action instruct target=submit_transaction · [T2_UNAVAIL] promised tools not available: ['N/A'] · locked: [] / 모델 [61]: 'I apologize for the confusion. It seems there was a misunderstanding regarding the `submit_transaction` tool, which does not exist in the available tools.'",
+     "consequence": "submit_transaction 은 전 궤적 축자 1회 = 바로 이 [61] (grep 확인) ⇒ 이름을 만든 것은 우리 층. 정답 표적 call_discoverable_agent_tool 은 같은 후보집합 안에 있었다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 62,
+     "role": "user_sim",
+     "what": "###STOP###",
+     "actor": "user_sim",
+     "kind": "정상",
+     "evidence": "Great, thanks again for your help! ###STOP###",
+     "consequence": "크레딧 0건으로 종료 (변이 실행은 log_verification 1건뿐)",
+     "reward_causal": "무관"
+    }
+   ],
+   "cause_primary": "our_layer",
+   "cause_secondary": "model — 세 턴 연속 산문만 냈고 LG 음수 차액을 부호 반전했다(빼기 불능)",
+   "lever_firing": "READ-FIRST(T2_SG_REQREADS) 2회 발화·유효 · ATM 비교기 순액화 2계좌 모두 정확 발화 · T2_SG_ISOLATE 8회 정상 · T2_SEARCH_REARM 2회 구제 · T2_WRITE_SUB 19회 전량 근거검산 0통과 · T2_FORCE_ACTION 8회(초반 7턴 소각·결정 턴 0회) · T2_LIMIT_REDUCE 2 + T2_ACTION_SUB 1 + T2_UNAVAIL 1 = submit_transaction 오발화 · T2_DISCOVERY_STEP2 가 apply_checking_account_credit_5829 를 0회 지목 · T2_COVERAGE_FU 0(발동조건 소멸) · T2_PROV 의 account_id 선점 0(t7346 회귀 해소) · FAB_STRIP·T2_ARG_PRODUCERS·T2_SG_DOCS·T2_PIN_READ·T2_DEMANDED_STEP·T2_FOLLOWUP·T2_REQUIRE_DOC_DELIVER 전부 0",
+   "prescription": "P-A: formalize_intent_tool 산출이 pending_user 소속이고 그 이름이 모델 궤적 축자 0회면 [ACTION]·[UNAVAILABLE-CAPABILITY] 침묵(집합·substring 대조뿐). P-B: write_initiation.basis_max_chars 꼬리 절단 대신 도구결과 단위 최근 N개. P-C: '표적을 못 고름'과 '행동이 0'을 분리해 후자만으로 강제-행동 경로 진입 가능한지 확인.",
+   "evidence": [
+    "reward_basis=['DB'] · db_check={'db_match': false} · reward_breakdown={'DB': 0.0}",
+    "mutation_diff: done=[log_verification] · missing=2 · wrongarg/extra/dup/blocked=0",
+    "[T2_WRITE_SUB] 제안 1건 → 근거검산 통과 0건 (서브 창 4000자·scope=all)",
+    "[T2_ACTIONREQ] window=open … formalized_target=None (msg 57·59 턴)",
+    "[T2_RESOLVE] user-action instruct target=submit_transaction (msg 61 턴)",
+    "grep 'submit_transaction' traj_t0 = 1건(모델 [61] 답변)"
+   ]
+  },
+  {
+   "trial": 1,
+   "reward": 0,
+   "missing": [
+    "apply_checking_account_credit_5829{account_id=chk_538bfb9cba, amount=3.5, credit_type=fee_refund} (gold 072_8)"
+   ],
+   "wrongarg": [
+    "msg55 {chk_lj82d4f1a9, 8}",
+    "msg55 {chk_lj82d4f1a9, 3.5}",
+    "msg55 {chk_lj82d4f1a9, 2}",
+    "msg55 {chk_lj82d4f1a9, 0.5}",
+    "msg55 {chk_538bfb9cba, 1.5}",
+    "msg55 {chk_538bfb9cba, 3}",
+    "msg55 {chk_538bfb9cba, 0.5}",
+    "msg75 {chk_538bfb9cba, 5}"
+   ],
+   "dup": [],
+   "blocked": [],
+   "steps": [
+    {
+     "step": 5,
+     "role": "tool",
+     "what": "READ-FIRST 가 생산자 두 개를 이름으로 지목 (t0 과 동일)",
+     "actor": "our_layer",
+     "kind": "배달(정확)",
+     "code_path": "a2/banking_knowledge.specific.json → scaffold_get_tools[8].requires_reads · [T2_SG_REQREADS] ×2",
+     "evidence": "Error: [READ-FIRST] … Their exact callable forms are: unlock_discoverable_agent_tool(agent_tool_name=\"get_all_user_accounts_by_user_id_3847\") …",
+     "consequence": "생산자 이름 도달",
+     "reward_causal": "중"
+    },
+    {
+     "step": 7,
+     "role": "assistant",
+     "what": "같은 unlock/KB 반복 7턴 (우리 강제-행동이 국면 앞질렀다)",
+     "actor": "our_layer",
+     "kind": "강제-행동 과발화",
+     "code_path": "t2_gate_patch.py:9648",
+     "evidence": "[T2_FORCE_ACTION] say-don't-do → tool_choice=required 재생성 ×6 (turn 2~19)",
+     "consequence": "7턴 소각",
+     "reward_causal": "약"
+    },
+    {
+     "step": 36,
+     "role": "assistant",
+     "what": "2왕복 신원확인 후 log_verification",
+     "actor": "model",
+     "kind": "정상 완결",
+     "evidence": "[34] VERIFIED — 3 identity values match the account record … → [37] Verification logged successfully. … (ID: lj82d4f1a9) - Verified at: 2025-11-14 03:40:00 EST",
+     "consequence": "gold 072_0 MATCHED",
+     "reward_causal": "강"
+    },
+    {
+     "step": 40,
+     "role": "assistant",
+     "what": "실물 id 로 두 계좌 거래 read (표시명 우회 없음 — t0 과 갈림 ①)",
+     "actor": "model",
+     "kind": "정상",
+     "evidence": "call_discoverable_agent_tool{get_bank_account_transactions_9173, \"{\\\"account_id\\\": \\\"chk_lj82d4f1a9\\\"}\"} + chk_538bfb9cba",
+     "consequence": "gold 072_4/072_5 상당, t0 보다 1턴 절약",
+     "reward_causal": "중"
+    },
+    {
+     "step": 47,
+     "role": "tool",
+     "what": "두 계좌 비교기가 한 턴에 병렬 통과 — Bluest $14.00 · LG $3.50(부호 포함) 정확 산출",
+     "actor": "our_layer",
+     "kind": "배달(정확)·수리 개입 확인",
+     "code_path": "a2/banking_knowledge.specific.json → scaffold_get_tools[8].op.rebate(순액화) + .op.steps.ord(월 무료 횟수) + .return_template",
+     "evidence": "Bluest: btxn_344585b826eb ($8.00→$0.00, $8.00); btxn_6a3453e0afd9 ($3.50→$0.00, $3.50); btxn_63306834d5ba ($2.00→$0.00, $2.00); btxn_fcd7ef3a24ed ($0.50→$0.00, $0.50) [coverage] 9 of 9 / LG: btxn_c34cac8dd786 ($1.50→$0.00, $1.50); btxn_8c58b19a3628 (charged $0.00, documented fee $1.50, difference $-1.50); btxn_e00b60651fca ($5.00→$2.00, $3.00); btxn_49c0c0b3b8c1 ($4.00→$3.50, $0.50) [coverage] 10 of 10",
+     "consequence": "gold 두 값이 모두 문맥에 성립",
+     "reward_causal": "강"
+    },
+    {
+     "step": 50,
+     "role": "user_sim",
+     "what": "명시적 실행 지시",
+     "actor": "user_sim",
+     "kind": "정상",
+     "evidence": "Yes, please go ahead and apply credits for all the incorrect charges — I want to make sure everything is corrected on both the Bluest and Light Green accounts.",
+     "consequence": "—",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 51,
+     "role": "assistant",
+     "what": "모델이 없는 도구 apply_atm_fee_corrections_8374 를 부르려 함 → 우리 operator-fab deny → KB 검색으로 전환 (t0 과 갈림 ②·결정적)",
+     "actor": "our_layer",
+     "kind": "deny(정확·구제)",
+     "code_path": "로그 [T2_RESOLVE] deny tool=call_discoverable_agent_tool arg=agent_tool_name reason=operator-fab · [T2_STACK] … chose=[('resolve_write','apply_atm_fee_corrections')]",
+     "evidence": "모델 [51]: 'It appears that the tool `apply_atm_fee_corrections_8374` was not discovered from any prior search or listing result. Let me search the knowledge base …'",
+     "consequence": "산문에 도구 이름이 있었기 때문에 우리 층이 잡을 손잡이를 얻었다 — t0 에는 그 손잡이가 없었다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 53,
+     "role": "our_layer",
+     "what": "T2_DISCOVERY_STEP2 가 정답 write 도구를 이름으로 지목 → 모델이 즉시 unlock",
+     "actor": "our_layer",
+     "kind": "배달(정확·유효)",
+     "code_path": "로그 [T2_OUR_NAMES] 등재 name=apply_checking_account_credit_5829 (출처=T2_DISCOVERY_STEP2 지목) · [T2_DISCOVERY_STEP2] deny name=apply_checking_account_credit_5829 (이미 회수·미unlock·formalize 정합)",
+     "evidence": "[54] Tool unlocked: apply_checking_account_credit_5829 … credit_type: 'rebate_credit' for missing rebates, 'fee_refund' for incorrect fee charges",
+     "consequence": "gold 072_6 MATCHED. t0 에는 이 줄이 0회 — t1 이 write 에 도달한 유일한 이유",
+     "reward_causal": "강"
+    },
+    {
+     "step": 55,
+     "role": "assistant",
+     "what": "라인 단위 7건 크레딧 실행 + 음수 차액을 양수 크레딧으로 반전",
+     "actor": "model",
+     "kind": "①집계 불이행 ②부호 반전(빼기 불능)",
+     "evidence": "도구 축자: 'the credit policy requires ONE fee_refund credit for the net correction of THIS account (do not credit the same lines twice)' · 'a fee that is MISSING where one was due (it shows as a negative difference)' / 모델: '- **Transaction ID:** btxn_8c58b19a3628 - **Amount to Credit:** $1.50 - **Credit Type:** fee_refund'",
+     "consequence": "gold 072_7 을 4분할(합은 14.00 정확) · gold 072_8 을 $5.00 로 초과 지급(Δ+1.50) ⇒ 072_8 확정 소실",
+     "reward_causal": "강"
+    },
+    {
+     "step": 63,
+     "role": "assistant",
+     "what": "완료 복창 — 이 시점 Bluest 잔액은 gold 와 일치했다",
+     "actor": "model",
+     "kind": "정상 보고",
+     "evidence": "### Bluest Account - **Total Credit Applied:** $14.00 - **Previous Balance:** $127,450.00 - **New Balance:** $127,464.00",
+     "consequence": "이후 write 는 전부 잉여",
+     "reward_causal": "중"
+    },
+    {
+     "step": 64,
+     "role": "user_sim",
+     "what": "확인 질문뿐 (새 요구 0)",
+     "actor": "user_sim",
+     "kind": "정상(시나리오 §6)",
+     "evidence": "Can you confirm the total amount that was credited back to each account?",
+     "consequence": "—",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 65,
+     "role": "assistant",
+     "what": "우리 층 강제-행동에 밀려 무관한 도구 5건 unlock (savings/statement 크레딧 등)",
+     "actor": "our_layer",
+     "kind": "강제-행동 오발화",
+     "code_path": "t2_gate_patch.py:8782 (_upending 이 sim 내내 비지 않는다) · 8783 (if _upending or … 항상 참) · 9648 (force_required=True)",
+     "evidence": "[T2_ACTIONREQ] window=open pending_user=['apply_for_credit_card','call_discoverable_user_tool','submit_referral','submit_transaction'] … (82 msgs 내내 동일) → [T2_FORCE_ACTION] say-don't-do → tool_choice=required 재생성 (turn 65) → [T2_DISCOVERY_STEP2] deny name=apply_savings_account_credit_6831 / apply_statement_credit_8472",
+     "consequence": "할 일이 없는데 행동을 강제당했다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 73,
+     "role": "assistant",
+     "what": "같은 KB 질의 2회 — 두 번째는 우리 중복-read deny",
+     "actor": "our_layer",
+     "kind": "무의미 행동 강제",
+     "code_path": "t2_gate_patch.py:9648 (FORCE_ACTION turn 65·69·71·75)",
+     "evidence": "[74] [DUPLICATE-READ] This exact call (same tool, same arguments) was already executed earlier in this conversation …",
+     "consequence": "2턴 소각",
+     "reward_causal": "중"
+    },
+    {
+     "step": 75,
+     "role": "assistant",
+     "what": "강제된 마지막 턴에서 이미 실행한 크레딧을 총액으로 재발행 — 중복 write",
+     "actor": "our_layer",
+     "kind": "중복 write(치명)",
+     "code_path": "t2_gate_patch.py:9648 T2_FORCE_ACTION · 캡 로그 [T2_MATERIAL_GATE] stop=resolve_cap(정체 3회) turn=75 calls=apply_checking_account_credit",
+     "evidence": "call_discoverable_agent_tool{apply_checking_account_credit_5829, \"{\\\"account_id\\\": \\\"chk_lj82d4f1a9\\\", \\\"amount\\\": 14.0, \\\"credit_type\\\": \\\"fee_refund\\\"}\"} + {chk_538bfb9cba, 5.0} / [76] Previous Balance: $127464.00 - New Balance: $127478.00 · [77] Previous Balance: $1852.50 - New Balance: $1857.50",
+     "consequence": "Bluest 가 정확히 2배(+28.00). 설령 [55] 가 옳았어도 이 중복만으로 DB 해시는 깨진다. resolve_cap 은 중복 write 가 나간 turn=75 에서야 닫혔다",
+     "reward_causal": "강"
+    }
+   ],
+   "cause_primary": "our_layer",
+   "cause_secondary": "model — 순액 1건 대신 라인 7건으로 분할했고 difference $-1.50 을 +$1.50 크레딧으로 반전([[63]] 빼기 불능)",
+   "lever_firing": "ATM 비교기 순액화 2계좌 정확 발화 · READ-FIRST 2회 · T2_DISCOVERY_STEP2 가 apply_checking_account_credit_5829 지목(결정적 구제) · operator-fab deny 1회(정확) · T2_SG_ISOLATE 8회 정상 · T2_WRITE_SUB 23회 전량 0통과 · T2_FORCE_ACTION 16회(종결 후 4회가 중복 write 유발) · T2_ACTIONREQ 28회 pending_user 불변 · T2_COVERAGE_FU 0 · FAB_STRIP·T2_ARG_PRODUCERS 0",
+   "prescription": "P-1 재상신(t7346 §7-1 축자 재현): _upending 에서 이 대화에서 한 번도 요구되지 않은 손님-측 액션 도구 제외, 또는 T2_RESOLVE_CAP 정체 카운트를 write 성공 이력이 있는 sim 에서 1 로 낮춰 중복 write 전에 닫히게 한다. 태스크별 부호표 필수([[70]]·[[66]] 공유 상류 노드).",
+   "evidence": [
+    "reward_basis=['DB'] · db_check={'db_match': false}",
+    "mutation_diff: matched={log_verification, apply_checking_account_credit_5829{chk_lj82d4f1a9,14}} · missing=1 · wrongarg=8 · dup=0",
+    "[T2_ACTIONREQ] pending_user 4종이 82 msgs 내내 동일",
+    "[T2_MATERIAL_GATE] stop=resolve_cap(정체 3회) turn=75 calls=apply_checking_account_credit",
+    "env 잔액: chk_lj82d4f1a9 127450 → 127464 → 127478 (gold 127464)"
+   ]
+  }
+ ],
+ "our_layer_claims": [
+  "[CONFIRMED] T2_WRITE_SUB 의 근거검산이 이 사이트에서 정답 write 를 원리상 통과시킬 수 없다 — t2_resolve.py:639 (basis = SC.recent_tool_text(msgs, spec['basis_max_chars'], scope='all')) → t2_subcall.py:117 (txt[-int(cap):] 꼬리 절단) → t2_resolve.py:652 (SC.grounded_calls) → t2_subcall.py:176 (all(val_grounded(v, corpus))) · 선언 a2/banking_knowledge.specific.json → write_initiation.basis_max_chars = 4000. 오프라인 재현: 궤적 메시지로 만든 같은 4000자 basis 에서 {chk_lj82d4f1a9, 14.0, fee_refund} 는 account_id False · amount False → grounded 0. '14' 는 코퍼스에 없고(도구가 합계를 인쇄하지 않는다) 꼬리 창이 Bluest 계좌 id 를 밀어냈다. 로그 축자 [T2_WRITE_SUB] 제안 1건 → 근거검산 통과 0건 (서브 창 4000자·scope=all).",
+  "[CONFIRMED] 결정 턴에 formalize_intent_tool 이 None 을 내면 T2_FORCE_ACTION 경로가 통째로 도달 불가다 — t2_gate_patch.py:8784 (_tgt_pre = _rz.formalize_intent_tool(...), 구현 t2_resolve.py:764-791) → 표적 없음 → t2_gate_patch.py:9648 (force_required = True) 미도달. trial 0 msg 57·59 두 턴 모두 [T2_ACTIONREQ] … formalized_target=None 이고 T2_FORCE_ACTION 0회, 그 사이 모델은 'I will now initiate the correction process. Please allow a moment while I apply these credits.' 로 tool_call 0. gold 072_7·072_8 이 이 자리에서 소실.",
+  "[CONFIRMED] formalize_intent_tool 이 손님-실행 도구 submit_transaction 을 골라 user-action instruct 와 불가통보를 주입했다 — t2_gate_patch.py:8782 (_upending = sorted(_uacts - _effall)) · 8784 (후보집합 = set(_upending) | _acts) · 문면 8808 (user_action_feedback) · 9171 ([T2_LIMIT_REDUCE]) · 9230 ([T2_RESOLVE] user-action instruct) · 12511 ([T2_UNAVAIL] promised tools not available: ['N/A']). submit_transaction 은 trial 0 전 궤적 축자 1회이고 그 1회가 우리 지시에 대한 모델의 [61] 사과다 ⇒ 이름의 출처가 우리 층이다. 정답 표적 call_discoverable_agent_tool 은 같은 후보집합 안에 있었다. 같은 런의 x505_TASK_073_t7348_perstep.md OL-A 가 동일 site 를 독립 관측.",
+  "[CONFIRMED] _upending 에 종료 술어가 없어 종결 후에도 강제-행동이 켜지고 크레딧이 중복 실행됐다 — t2_gate_patch.py:8782-8783 (_uacts = {apply_for_credit_card, call_discoverable_user_tool, submit_referral, submit_transaction} 은 이 태스크에서 영원히 호출되지 않으므로 _upending 이 비지 않고 조건이 항상 참) → 9648 force_required=True. trial 1 에서 손님이 확인 질문만 한 msg 64 이후 turn 65·69·71·75 로 4회 강제, msg 75 에서 {chk_lj82d4f1a9,14}+{chk_538bfb9cba,5} 재발행 → 잔액 127464→127478 · 1852.50→1857.50. [T2_MATERIAL_GATE] stop=resolve_cap(정체 3회) turn=75 로 캡은 중복 write 가 나간 뒤에 닫혔다. t7346 tasks__20260822/TASK_072.md §6-① 의 축자 재현(처방 P-1 미착수).",
+  "[CONFIRMED] [ARGS-FORMAT] 문면이 실제 원인(@last: 참조 토큰)을 말하지 않아 같은 실수가 반복됐다 — t2_scaffold_get.py:2033. trial 0 msg 42 와 48 이 동일한 \"transactions\": \"@last:get_bank_account_transactions_9173\" 을 보냈고 우리 문면은 'it arrived as a plain string that is not valid JSON … use double quotes …' 라고만 말했다. 손실 3턴([[64]] 위반).",
+  "[CONFIRMED·양성] ATM 비교기 순액화 수리가 이 궤적에 개입했고 gold 두 값을 정확히 산출했다 — a2/banking_knowledge.specific.json → scaffold_get_tools[8].op.rebate = {\"field\":\"rebate_amount\",\"cap\":{\"op\":\"case\",\"key\":\"account_class\",\"cases\":{\"Bluest Account\":50.0,\"Purple Account\":30.0}}} + .op.steps.ord + .return_template. 양 trial·양 계좌에서 Bluest 8.00+3.50+2.00+0.50=$14.00, LG 1.50−1.50+3.00+0.50=$3.50, coverage 9/9·10/10. t7346 의 '4 of 6 (2 could not be verified)' 와 그로 인한 T2_COVERAGE_FU 오발화도 함께 소멸."
+ ],
+ "summary": "채점축은 양 trial 모두 reward_basis=['DB'] 의 DB-해시 축이고 reward 0.0 이다(action_checks 는 진단 보조표 — trial 1 은 072_0~072_6 7건이 action_match=true 인데도 0). 핵심 질문에 대한 답: ATM 비교기 수리(순액화 op.rebate + 월 무료 횟수 op.steps.ord + 음수 차액)는 이 궤적에 개입했고 완전히 작동했다 — 양 trial·양 계좌에서 Bluest $14.00(8.00+3.50+2.00+0.50, 11/14 누락 rebate 포함)과 Light Green $3.50(1.50−1.50+3.00+0.50)을 정확히 산출했고 coverage 도 9/9·10/10 로 닫혔다. t7335~t7346 을 3연속 죽인 '마지막 마일 $2.00' 은 해소됐고 t7346 t0 의 PROV 선점 회귀와 T2_COVERAGE_FU 오발화도 소멸했다. 그런데도 못 산 이유는 실패가 통째로 비교기 다음 칸(write 착수)으로 이동했고 거기서 우리 층이 세 번 죽였기 때문이다. ① T2_WRITE_SUB 의 근거검산이 정답 write 를 원리상 통과시킬 수 없다(꼬리 4000자 창이 Bluest 계좌 id 를 밀어내고, 도구가 합계를 인쇄하지 않아 amount 14 가 코퍼스에 없다 — 오프라인 재현으로 확정). ② trial 0 의 결정 턴에서 formalize_intent_tool 이 None 을 내어 T2_FORCE_ACTION 이 도달 불가가 됐고(msg 57·59 formalized_target=None, FORCE_ACTION 0회), 두 턴 뒤에는 손님-실행 도구 submit_transaction 으로 오바인딩해 마지막 턴을 소각했다(그 이름은 전 궤적에서 우리가 심은 1회뿐 · 같은 런 073 t0 이 동일 site 를 독립 관측). ③ trial 1 은 _upending 종료 술어 부재로 종결 후 4회 강제-행동이 걸려 이미 성공한 크레딧을 총액으로 재발행했다(Bluest +28.00 = 정확히 2배) — t7346 §6-① 의 축자 재현이며 처방 P-1 은 미착수다. 모델 잔여 결손은 하나뿐이다: 순액 1건 대신 라인 분할, 그리고 difference $-1.50 을 +$1.50 크레딧으로 반전한 빼기 불능([[63]]). 분기점은 손님이 '실행하라'고 말한 바로 다음 턴 하나로, trial 1 은 모델이 날조 도구 이름을 대서 우리 층이 잡을 손잡이가 생겨(operator-fab deny → DISCOVERY_STEP2 가 apply_checking_account_credit_5829 지목) write 에 도달했고, trial 0 은 정직하게 산문만 써서 걸릴 술어가 없어 크레딧 0건으로 끝났다. 보고서: C:\\workspace\\ba-frft\\reports\\facet_rft_2026\\tasks__20260824\\TASK_072.md",
+ "vs_prior": "t7346(동일 seed 쌍) 대비 원인이 대부분 달라졌다. ①t7335·t7346-t1 의 주 원인 '비교기의 누락-rebate 비커버(마지막 마일 $2.00)' = 해소(비교기가 그 행을 반환, Bluest 총액 gold 일치). ②t7346-t0 의 주 원인 'PROV 가 READ-FIRST 를 선점' = 해소(T2_SG_REQREADS 양 trial 2회 발화, T2_PROV 의 account_id 선점 0회). ③t7346-t0 의 부수 원인 'T2_COVERAGE_FU 오발화' = 소멸(coverage 9/9·10/10 로 발동 조건 자체가 사라짐). ④t7346-t1 의 주 원인 '종결 후 강제-행동 → 중복 write' = 같은 원인이 살아 있다(처방 P-1 미착수·축자 재현). ⑤새 원인 2건: formalize_intent_tool 의 submit_transaction 오바인딩(같은 런 073 t0 과 동형 재현) · T2_WRITE_SUB 근거검산의 구조적 불가(t7290/t7291 의 중첩-계약 버그와는 다른 원인 — 그건 모양 문제였고 수리됐다, 이건 창 크기 + 총액 부재). ⑥seed 626729 는 t7346(크레딧 1건 실행) 대비 t7348(크레딧 0건)로 더 뒤로 갔다 — 단 원인은 비교기가 아니라 write 착수 채널이다. t7336 대비로는 첫 마일(GB1 되묻기 루프·계좌 id 날조 이관)이 계속 재발 0."
+}

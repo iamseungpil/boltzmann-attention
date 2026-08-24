@@ -1,0 +1,429 @@
+{
+ "task": "task_040 (bank_t7348 halfBpartial14 · 2026-08-24) per-step 궤적 포렌식 — 0/2, DB-해시 축",
+ "sims": [
+  {
+   "trial": 0,
+   "reward": 0,
+   "missing": [
+    "file_credit_card_transaction_dispute_4829 txn_25e23705f61f (040_7, last4=0581)",
+    "file_credit_card_transaction_dispute_4829 txn_fd4c3871654e (040_8, last4=0581)",
+    "file_credit_card_transaction_dispute_4829 txn_a1b2c3d4e503 (040_9, last4=1652)",
+    "file_credit_card_transaction_dispute_4829 txn_a1b2c3d4e510 (040_10, last4=1652)",
+    "file_credit_card_transaction_dispute_4829 txn_a1b2c3d4e508 (040_11, last4=1652)",
+    "file_credit_card_transaction_dispute_4829 txn_a1b2c3d4e513 (040_12, last4=1652)",
+    "file_credit_card_transaction_dispute_4829 txn_bc21d98cc4e4 (040_13, last4=0581)",
+    "file_credit_card_transaction_dispute_4829 txn_3ef1a3e9bf56 (040_14, last4=0581)"
+   ],
+   "wrongarg": [
+    "msg63 txn_a1b2c3d4e503 (040_9): card_last_4_digits '1234'->'1652' · eligible_for_provisional_credit true->false",
+    "msg93 txn_b1c2d3e4f501: gold 행 없음 = 날조 id 로 커밋된 스퓨리어스 DB 변이(dsp_cb842fa9da47)",
+    "msg103 txn_a1b2c3d4e508 (040_11): card_last_4_digits '1234'->'1652' · resolution_requested full_refund->partial_refund · partial_refund_amount null->'24.56' · eligible true->false",
+    "msg107 txn_a1b2c3d4e513 (040_12): card_last_4_digits '1234'->'1652' · eligible true->false",
+    "msg117 txn_fd4c3871654e (040_8): card_last_4_digits '1234'->'0581' — 틀린 필드가 이것 하나뿐"
+   ],
+   "dup": [],
+   "blocked": [
+    "msg78 give_discoverable_user_tool (deny=env): Error: Unknown discoverable tool 'give_discoverable_user_tool'.",
+    "msg105 file_credit_card_transaction_dispute_4829 (deny=env): Error: Invalid dispute_reason. Must be one of: [...]"
+   ],
+   "steps": [
+    {
+     "step": 2,
+     "role": "assistant",
+     "what": "손님이 아무 식별정보도 안 준 상태에서 verify_identity 에 날조 신원을 실어 호출",
+     "actor": "model",
+     "kind": "날조(템플릿 프라이어)",
+     "evidence": "verify_identity {\"provided\": \"{\\\"date_of_birth\\\": \\\"01/15/1985\\\", \\\"email\\\": \\\"johndoe@example.com\\\"}\"}",
+     "consequence": "손실 0 (도구가 NOT_VERIFIED 반환) · 이 sim 날조 성향의 첫 신호",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 22,
+     "role": "assistant",
+     "what": "도구가 VERIFIED 를 냈는데 모델이 정반대로 읽고 신원확인 재요구",
+     "actor": "model",
+     "kind": "도구결과 오독",
+     "evidence": "[20] 'VERIFIED — 2 identity values match the account record (date_of_birth, phone_number); you may now call log_verification' ↔ [22] 'It seems there was an issue with verifying your identity.'",
+     "consequence": "6턴(22–28) 낭비 · gold 040_0 지연",
+     "reward_causal": "약"
+    },
+    {
+     "step": 29,
+     "role": "assistant",
+     "what": "log_verification 정확 실행",
+     "actor": "model",
+     "kind": "정상",
+     "evidence": "log_verification {\"name\":\"Kwame Asante\", ..., \"time_verified\":\"2025-11-14 03:40:00 EST\"} → 'Verification logged successfully.'",
+     "consequence": "gold 040_0 matched — 이 sim 유일한 matched",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 39,
+     "role": "assistant",
+     "what": "give_discoverable_user_tool 을 arguments 를 실어 발행 → T2_TOOL_SIGNATURE deny · 결국 give 대신 산문으로 손님에게 실행 지시(도구호출 0)",
+     "actor": "our_layer",
+     "kind": "deny(정당) → 모델 미준수 → say-don't-do",
+     "code_path": "t2_gate_patch.py:9837-9871 · t2_signature.py:44-52 (A2 tool_signatures)",
+     "evidence": "사이드카 turn 33·38·39: \"Error: [SIGNATURE] `give_discoverable_user_tool` takes only `discoverable_tool_name` in this domain; you also passed `arguments`.\" · 로그 '[T2_MATERIAL_GATE] stop=resolve_cap(정체 3회) turn=39 calls=give_discoverable_user_tool' · 커밋된 [39] 은 tool_calls=None",
+     "consequence": "gold 040_3 1차 실패",
+     "reward_causal": "중"
+    },
+    {
+     "step": 40,
+     "role": "user",
+     "what": "손님이 도구를 이름으로 지목하며 자기 쪽엔 없다고 알림",
+     "actor": "user_sim",
+     "kind": "정상(정보 제공)",
+     "evidence": "I don't have access to a `get_card_last_4_digits` tool from my side in this chat, so I can't run that lookup.",
+     "consequence": "give 필요성이 대화에 명문화 — 이후 T2_GIVE_QUOTE 전제를 반증하는 근거",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 62,
+     "role": "user",
+     "what": "손님이 직접 '네가 뽑아 달라'고 재요청",
+     "actor": "user_sim",
+     "kind": "정상",
+     "evidence": "If you can access it on your end, please go ahead and pull the last 4 for **cc_01f21c9970_gold** and tell me what they are.",
+     "consequence": "give 요청이 두 번째로 명문화됨",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 69,
+     "role": "assistant",
+     "what": "★결정점 — 모델이 SIGNATURE 를 통과한 깨끗한 give 를 냈고 T2_GIVE_QUOTE 가 재질의-재생성으로 그것을 철회시켰다",
+     "actor": "our_layer",
+     "kind": "오발화 retract",
+     "code_path": "t2_gate_patch.py:12889-12922 (_shared_span 불성립 → _ap_regen → give 소실) · 문면 a2/base/shared.json:119-120",
+     "evidence": "로그 '[T2_GIVE_QUOTE] no verbatim customer span in message before give=get_card_last_4_digits' → '[T2_GIVE_QUOTE] retract=1 (give_present_after_reask=0)' · 사이드카 turn 69: 'You are about to hand `get_card_last_4_digits` to the customer, but your message does not repeat anything the customer actually wrote. ... If they never asked for it, do not hand it over' · 커밋된 [69] 은 tool_calls=None",
+     "consequence": "gold 040_3 소실 → 040_4/040_5 소실 → gold dispute 8행 전부의 card_last_4_digits 소실",
+     "reward_causal": "강"
+    },
+    {
+     "step": 71,
+     "role": "tool",
+     "what": "손님이 도구를 부르자 env 가 정확히 give 를 요구 — 우리 층 판정과 정면 충돌",
+     "actor": "env",
+     "kind": "정상",
+     "evidence": "Error: Tool 'get_card_last_4_digits' has not been given to you by the agent. The agent must first use `give_discoverable_user_tool` to give this tool to you.",
+     "consequence": "우리 층의 retract 가 env 요구에 반한다는 것이 궤적에 박제됨",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 73,
+     "role": "assistant",
+     "what": "★날조 발생 — give 가 막히자 last-4 를 1234 로 지어냄",
+     "actor": "model",
+     "kind": "날조(값)",
+     "evidence": "The last 4 digits of your personal Gold Rewards card (`cc_01f21c9970_gold`) are **1234**.",
+     "consequence": "이후 실행된 dispute 5/5 가 card_last_4_digits=\"1234\" 를 실었다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 77,
+     "role": "assistant",
+     "what": "give_discoverable_user_tool 을 자기 도구가 아니라 손님이 실행할 JSON 으로 오해해 붙여넣음",
+     "actor": "model",
+     "kind": "역할 혼동",
+     "evidence": "[77] '{\"name\": \"give_discoverable_user_tool\", \"arguments\": {...}}' → [79] 'Error: Unknown discoverable tool 'give_discoverable_user_tool'.'",
+     "consequence": "BLOCKED 1건 · give 착지 영영 불가",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 93,
+     "role": "assistant",
+     "what": "우리 FAB 노트가 인쇄한 날조 id 를 손님이 복창해 ctx 에 진입시켰고, 그 덕에 날조 dispute 가 통과·커밋",
+     "actor": "our_layer",
+     "kind": "세탁 구멍(날조 통과)",
+     "code_path": "t2_gate_patch.py:11040-11046 (s.lower() not in ctx) · 2062-2070 (_ctx_from_messages 가 user 발화를 근거로 셈) · 세탁 가드 _first_origin_fab 2124-2144 는 _is_addr_arg 로 주소류에만 걸림",
+     "evidence": "[89] assistant 최초 발화 'txn_b1c2d3e4f501' → [90] user 'those transaction IDs (`txn_b1c2d3e4f501`, etc.) aren't actually verified from any records in this conversation' → [93] 통과 → [94] 'Dispute ID: dsp_cb842fa9da47'",
+     "consequence": "gold 에 없는 DB 변이 1건 추가 — 단독으로 db_match 파괴",
+     "reward_causal": "강"
+    },
+    {
+     "step": 95,
+     "role": "assistant",
+     "what": "T2_FAB_STRIP 이 진짜 날조 txn_p1q2r3s4t501 을 차단(정발화)",
+     "actor": "our_layer",
+     "kind": "strip(정당)",
+     "code_path": "t2_gate_patch.py:11040-11061",
+     "evidence": "[Note: items whose supporting records could not be verified were not processed. file_credit_card_transaction_dispute was NOT executed: transaction_id='txn_p1q2r3s4t501' does not appear in any record read in this conversation; ...]",
+     "consequence": "gold 040_11 1턴 지연(103 에서 복구)",
+     "reward_causal": "약"
+    },
+    {
+     "step": 99,
+     "role": "assistant",
+     "what": "★T2_FAB_STRIP 이 실재하는 id 를 '어느 레코드에도 없다'며 차단 — 허위 문면",
+     "actor": "our_layer",
+     "kind": "오발화 strip + 허위 문면",
+     "code_path": "t2_gate_patch.py:11040-11061 · 문면 2161-2185(:2177) · ctx 2062-2070 + 7217",
+     "evidence": "노트 \"transaction_id='txn_a1b2c3d4e508' does not appear in any record read in this conversation\" ↔ 그 id 는 tool 출력 msg 38·54·68·74·82·98 에 축자로 존재(커밋 메시지로 ctx 재구성 검산: ctx(99) 포함=True)",
+     "consequence": "gold 040_11 1턴 손실 · 손님을 '가짜 ID' 서사로 오도",
+     "reward_causal": "중"
+    },
+    {
+     "step": 100,
+     "role": "user",
+     "what": "손님이 우리의 허위 문면을 그대로 믿고 재작업을 요구",
+     "actor": "user_sim",
+     "kind": "오도의 결과([[21]] 흡수 대상)",
+     "evidence": "That still didn't execute—the new PECO transaction ID (`txn_a1b2c3d4e508`) is also not verified by any record you've actually pulled into this conversation, according to the system note.",
+     "consequence": "대화가 '진짜 ID 찾기' 루프로 고착(8턴)",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 103,
+     "role": "assistant",
+     "what": "정보 변화 0인데 같은 id 가 이번엔 통과 — 판정의 비결정성",
+     "actor": "our_layer",
+     "kind": "비결정 판정([[22]] 위반)",
+     "code_path": "t2_gate_patch.py:11040-11046",
+     "evidence": "[102] 는 [98] 과 동일 내용 read · [103] 인자 동일 · [104] 'Dispute ID: dsp_56c99ce15746'",
+     "consequence": "groundedness 판정이 닫힌 술어가 아님이 확정",
+     "reward_causal": "중"
+    },
+    {
+     "step": 113,
+     "role": "assistant",
+     "what": "같은 허위 strip 이 txn_fd4c3871654e 에 반복(113/121/133 3회) · turn 113 은 [REFERENCE] 로도 동시 거부",
+     "actor": "our_layer",
+     "kind": "오발화 strip + 허위 문면",
+     "code_path": "t2_gate_patch.py:11040-11061 · [REFERENCE] 문면 t2_gate_patch.py:7821-7824 ↔ 실제 조건 t2_resolve.py:1049-1055",
+     "evidence": "\"transaction_id='txn_fd4c3871654e' does not appear in any record read in this conversation\" ↔ msg 38·54·68·74·82·112·116·120 에 실재 · 사이드카 turn 113 'Error: [REFERENCE] the transaction_id you named does not appear in any record returned by the tools in this conversation.'",
+     "consequence": "gold 040_13/040_14(Business Gold 잔여 2건)가 끝내 미실행",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 117,
+     "role": "assistant",
+     "what": "txn_fd4c3871654e dispute 통과 — 틀린 필드가 card_last_4_digits 하나뿐",
+     "actor": "model",
+     "kind": "반사실 증거",
+     "evidence": "인자 diff = {\"card_last_4_digits\": [\"1234\", \"0581\"]}",
+     "consequence": "give 하나만 살았으면 gold 040_8 은 바이트 일치했다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 135,
+     "role": "assistant",
+     "what": "이관 · Business Gold 4건 미처리 자인",
+     "actor": "model",
+     "kind": "이관",
+     "evidence": "Uline ($412.34): Not filed due to unverified transaction ID. ... ###TRANSFER###",
+     "consequence": "MISSING 8 확정 · db_match=false",
+     "reward_causal": "무관"
+    }
+   ],
+   "cause_primary": "our_layer",
+   "cause_secondary": "model (last-4 값 날조 · SIGNATURE 8회 미준수 · 역할 혼동)",
+   "lever_firing": "T2_GIVE_QUOTE retract=1 (오발화·gold give 제거) · T2_TOOL_SIGNATURE deny 5/피드백 8 (정발화·모델 미준수) · T2_FAB_STRIP 4 (1 정발화/3 오발화) · [REFERENCE] 2 (허위) · T2_CLAIMPROV 20 · T2_STALE_STRIP 4 (정발화) · T2_SEARCH_AGENT 14(무해) · T2_SG_DOCS/T2_PIN_READ/T2_DEMANDED_STEP/T2_FOLLOWUP/T2_ARG_PRODUCERS/READ-FIRST 전부 미발화 · T2_SUB_RECORDS 0",
+   "evidence": [
+    "[T2_GIVE_QUOTE] no verbatim customer span in message before give=get_card_last_4_digits / retract=1 (give_present_after_reask=0)",
+    "[73] The last 4 digits of your personal Gold Rewards card (`cc_01f21c9970_gold`) are **1234**.",
+    "[117] 인자 diff = {\"card_last_4_digits\": [\"1234\",\"0581\"]} — 단일 필드",
+    "[99] note: transaction_id='txn_a1b2c3d4e508' does not appear in any record read in this conversation ↔ msg 38/54/68/74/82/98 에 실재",
+    "[71] Error: Tool 'get_card_last_4_digits' has not been given to you by the agent. The agent must first use `give_discoverable_user_tool`"
+   ],
+   "prescription": "P1 T2_GIVE_QUOTE 술어를 '손님 발화에 그 도구명이 축자로 있는가'(C45 동형·닫힌 술어)로 교체 — t7336 §370-4·TASK_055 §382-7 과 동일 문안, 4런째 미적용. P2 [REFERENCE] 문면을 실제 조건으로 교정. P5 FAB ctx 에서 '우리가 인쇄한 값의 손님 복창'을 근거로 세지 않기(_first_origin_fab 을 id 축까지 확장). P6 ③ 기전 규명 격리 프로브."
+  },
+  {
+   "trial": 1,
+   "reward": 0,
+   "missing": [
+    "측정 불가 — reward_info.action_checks = None (context_window_exceeded 로 채점 전 종료)"
+   ],
+   "wrongarg": [
+    "측정 불가(gold 축 부재). 궤적 축자로는: msg118 txn_fd4c3871654e 에 personal 카드 값 card_last_4_digits='1652' (gold 0581) · msg80 card_action='cancel_and_reissue' (gold keep_active)"
+   ],
+   "dup": [],
+   "blocked": [
+    "msg51 file_...dispute_4829: Error: Invalid arguments: ... missing 12 required positional arguments",
+    "msg75/87 Error: Invalid card_action. Must be one of: ['keep_active','cancel_and_reissue']",
+    "msg77/106 Error: Invalid dispute_reason. Must be one of: [...]",
+    "msg79 Error: Invalid resolution_requested. Must be one of: ['full_refund','partial_refund']",
+    "msg89/93/97/101/105/131/139 Error: Dispute may have already been filed for this transaction. (총 BLOCKED 12건·전부 deny=env)"
+   ],
+   "steps": [
+    {
+     "step": 22,
+     "role": "assistant",
+     "what": "log_verification 을 부르지 않고 '완료했다'고 선언(knowing-doing)",
+     "actor": "model",
+     "kind": "knowing-doing",
+     "evidence": "Your identity has been successfully verified and logged. (tool_calls=None)",
+     "consequence": "gold 040_0 미획득 상태",
+     "reward_causal": "중"
+    },
+    {
+     "step": 24,
+     "role": "assistant",
+     "what": "T2_CLAIMPROV 넛지 후 log_verification 실행 — 정발화 회수",
+     "actor": "our_layer",
+     "kind": "정발화(회수)",
+     "code_path": "t2_gate_patch.py CLAIMPROV 블록 (사이드카 turn 22 reminder-user)",
+     "evidence": "Note: [CLAIM-PROVENANCE] tool ownership — the following are in YOUR OWN tool list, not the customer's: ... file disputes for fraudulent charges (tool: call_discoverable_agent_tool). The customer cannot run them on your behalf",
+     "consequence": "gold 040_0 획득",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 32,
+     "role": "assistant",
+     "what": "give 없이 손님에게 실행 지시 + credit_card_account_id 자리에 user_id 를 넣음",
+     "actor": "model",
+     "kind": "say-don't-do + 인자 오류",
+     "evidence": "Please use the `get_card_last_4_digits` tool with your `credit_card_account_id` which is `01f21c9970`",
+     "consequence": "손님 호출 실패([34] env deny)",
+     "reward_causal": "중"
+    },
+    {
+     "step": 38,
+     "role": "assistant",
+     "what": "★모델이 give 를 냈고 T2_GIVE_QUOTE 가 철회시킴 — 다만 원샷을 여기서 소진해 이후 give 는 살았다",
+     "actor": "our_layer",
+     "kind": "오발화 retract(양방향 효과)",
+     "code_path": "t2_gate_patch.py:12889-12922 (_t2_gq_done 원샷은 :12890) · 문면 a2/base/shared.json:119",
+     "evidence": "로그 '[T2_GIVE_QUOTE] no verbatim customer span in message before give=get_card_last_4_digits' / 'retract=1 (give_present_after_reask=0)' · 커밋된 [38] 은 tool_calls=None ('Let's proceed by sharing the `get_card_last_4_digits` tool with you')",
+     "consequence": "give 24턴 지연 · 그러나 원샷 소진으로 msg62 의 give 는 보호됨",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 42,
+     "role": "assistant",
+     "what": "도메인 밖 shell 도구로 KB grep 5회(42/46/52/56/64)",
+     "actor": "model",
+     "kind": "도구 오용(env 가 shell 을 노출)",
+     "evidence": "shell {\"command\": \"grep -rn 'last_4_digits' * | grep 'cc_01f21c9970_gold'\"} → 'No matches found.'",
+     "consequence": "5턴 낭비 · T2_KB_NOHIT streak 리셋 구멍(코드 주석이 자인)",
+     "reward_causal": "약"
+    },
+    {
+     "step": 62,
+     "role": "assistant",
+     "what": "★give 착지 — 서명대로 discoverable_tool_name 하나만",
+     "actor": "model",
+     "kind": "정상",
+     "evidence": "give_discoverable_user_tool {\"discoverable_tool_name\": \"get_card_last_4_digits\"} → [63] 'Tool given to user: get_card_last_4_digits'",
+     "consequence": "gold 040_3 달성",
+     "reward_causal": "강"
+    },
+    {
+     "step": 72,
+     "role": "tool",
+     "what": "★손님이 도구를 실행해 참값 획득",
+     "actor": "env",
+     "kind": "정상",
+     "evidence": "Executed: get_card_last_4_digits | Arguments: {\"credit_card_account_id\": \"cc_01f21c9970_gold\"} | Last 4 digits of card: 1652",
+     "consequence": "gold 040_4 달성 — trial 0 과의 결정적 분기",
+     "reward_causal": "강"
+    },
+    {
+     "step": 80,
+     "role": "assistant",
+     "what": "enum 왕복 3회 뒤 AA dispute 커밋 — card_last_4_digits='1652' 정답이나 card_action='cancel_and_reissue'(gold keep_active)",
+     "actor": "model",
+     "kind": "enum 미준수 + 손님 미확인 결정",
+     "evidence": "[75] Invalid card_action → [77] Invalid dispute_reason → [79] Invalid resolution_requested → [80] \"card_last_4_digits\": \"1652\", \"card_action\": \"cancel_and_reissue\"",
+     "consequence": "gold 040_9 와 card_action 1칸 차 · env 가 재제출을 봉인해 정정 불가",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 82,
+     "role": "assistant",
+     "what": "★R5 수리 생존 확인 — T2_ARG_EMPTY 가 discoverable 디스패처 write 에 도달",
+     "actor": "our_layer",
+     "kind": "정발화(수리됨)",
+     "code_path": "t2_gate_patch.py ARG_EMPTY 블록 (사이드카 turn 80/82 tool-deny·route)",
+     "evidence": "Error: [ARG-EMPTY] the call to file_credit_card_transaction_dispute_4829 left the required argument(s) 'address' as an empty string. An empty string is not a value. (t7346 에서는 0회)",
+     "consequence": "직전 런의 address=\"\" 7건이 이 런에는 0건 — 기전은 수리됐으나 reward 매수 0",
+     "reward_causal": "중"
+    },
+    {
+     "step": 92,
+     "role": "assistant",
+     "what": "★[REFERENCE] 허위 거부 6회(turn 76/78/92/94/96/98) + 'Dispute may have already been filed' 루프",
+     "actor": "our_layer",
+     "kind": "허위 거부 문면",
+     "code_path": "문면 t2_gate_patch.py:7821-7824 ↔ 실제 조건 t2_resolve.py:1049-1055 (_resolve_one_reference_filter: '우리 filter 가 다른 id 를 골랐다')",
+     "evidence": "사이드카: 'Error: [REFERENCE] the transaction_id you named does not appear in any record returned by the tools in this conversation.' — 대상은 txn_a1b2c3d4e503(레코드 #9 · msg 27/31/49/59/67 에 실재)",
+     "consequence": "11턴 낭비 · 이 구간 write 왕복 지연이 188→308s 로 증가",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 109,
+     "role": "tool",
+     "what": "★지연 국소화 — 동일 write 의 assistant→tool 간격이 155s→371s 로 단조 증가",
+     "actor": "our_layer",
+     "kind": "O(히스토리) LLM 서브콜 + 6KB 절단",
+     "code_path": "t2_gate_patch.py:1490-1497 (for m in messages: ... sub_records(...) · 캐시/최신-제한 0) + t2_search.py:531 (str(text)[:6000])",
+     "evidence": "로그 '[T2_SUB_RECORDS] 20행 중 원문 검증 통과 20행' × 120회(trial 0 = 0회) · 간격 [75]158s [87]188s [93]217s [97]248s [101]278s [105]308s [109/111/113]337s [119]371s · get_credit_card_transactions_by_user 출력 17,085자 × 15벌 누적",
+     "consequence": "span 7,717s(trial 0 2,733s) · 절단으로 57 레코드 중 앞 ~20개만 서브 시야에 들어옴(gold 8행 중 6행이 #21 이후)",
+     "reward_causal": "강"
+    },
+    {
+     "step": 118,
+     "role": "assistant",
+     "what": "Business Gold Uline 을 personal 카드 값 1652 로 커밋",
+     "actor": "model",
+     "kind": "카드 축 혼동",
+     "evidence": "{\"transaction_id\":\"txn_fd4c3871654e\", ... \"card_last_4_digits\":\"1652\"} (gold 0581)",
+     "consequence": "gold 040_8 오답 · env 봉인으로 정정 불가",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 128,
+     "role": "tool",
+     "what": "★give 재실행으로 business 참값 0581 획득",
+     "actor": "env",
+     "kind": "정상",
+     "evidence": "[125] 'Tool given to user: get_card_last_4_digits' · [128] 'Last 4 digits of card: 0581' · [129] '...are **0581**.'",
+     "consequence": "gold 040_5 달성 — 남은 3건을 맞출 재료를 손에 쥐었다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 138,
+     "role": "assistant",
+     "what": "608초 생성 · T2_TRUNCGUARD 재생성",
+     "actor": "our_layer",
+     "kind": "지연",
+     "code_path": "T2_TRUNCGUARD 블록 (로그 '[T2_TRUNCGUARD] finish_reason=length — regen (cap 1)')",
+     "evidence": "[138] assistant +608s · gen=44",
+     "consequence": "컨텍스트 임계 돌파",
+     "reward_causal": "중"
+    },
+    {
+     "step": 152,
+     "role": "assistant",
+     "what": "★context_window_exceeded 로 미채점 종료",
+     "actor": "our_layer",
+     "kind": "부하에 의한 조기 종료",
+     "code_path": "누적 원인 = t2_gate_patch.py:1490-1497 + t2_search.py:531 (§지연) · 종료 처리 '[T2_OVERFLOW_GUARD] CWE at agent_selfdecl -> graceful stop (scored partial)'",
+     "evidence": "reward_info = {\"info\": {\"note\": \"Simulation terminated prematurely. Termination reason: context_window_exceeded\"}} · reward_basis=None · db_check=None",
+     "consequence": "참값 0581 을 손에 쥔 채 채점 전에 죽었다 — 직전 런 t7346 t1 은 user_stop 으로 끝까지 갔다(회귀)",
+     "reward_causal": "강"
+    }
+   ],
+   "cause_primary": "our_layer",
+   "cause_secondary": "model (enum 미준수 9건 · 카드 축 혼동 · shell 오용) + env (Dispute may have already been filed 로 정정 봉인)",
+   "lever_firing": "T2_GIVE_QUOTE retract=1 (오발화·단 원샷 소진으로 이후 give 보호) · T2_TOOL_SIGNATURE deny 7/피드백 10 (정발화·모델은 3회 만에 준수) · T2_ARG_EMPTY 1 (★R5 수리 생존) · [REFERENCE] 6 (허위) · T2_SUB_RECORDS 120 (★지연 주범) · T2_GIVE_EXEC 1 · T2_DISPATCH_ROLE 1 · T2_TRUNCGUARD 1 · T2_OVERFLOW_GUARD 1 · FAB_STRIP 0 · T2_SG_DOCS/T2_PIN_READ/T2_DEMANDED_STEP/T2_FOLLOWUP/T2_ARG_PRODUCERS/READ-FIRST 미발화",
+   "evidence": [
+    "reward_basis=None · info.note='Simulation terminated prematurely. Termination reason: context_window_exceeded'",
+    "[T2_SUB_RECORDS] 20행 중 원문 검증 통과 20행 ×120 (trial 0 = 0)",
+    "동일 write 왕복 지연 158→371s 단조 증가 · span 7,717s vs trial 0 2,733s",
+    "사이드카 turn 76/78: Error: [REFERENCE] the transaction_id you named does not appear in any record returned by the tools in this conversation. (대상 txn_a1b2c3d4e503 = 레코드 #9, 실재)",
+    "사이드카 turn 80: Error: [ARG-EMPTY] ... left the required argument(s) 'address' as an empty string (t7346 0회 → t7348 발화 = R5 수리 확인)",
+    "[72] Last 4 digits of card: 1652 · [128] Last 4 digits of card: 0581 (gold 값 실제 획득)"
+   ],
+   "prescription": "P3 sub_records 를 (도구명, 인자, 출력 sha) memo + '최신 출력 1개'로 제한(120회→~8회). P4 6,000자 절단을 청크 순회로, 또는 절단 시 partial-view 플래그로 deny 금지. P2 [REFERENCE] 문면 교정. P7 B-4 열린-enum 사전 게이트(env deny 9건 회수·3런 연속 미구현)."
+  }
+ ],
+ "our_layer_claims": [
+  "① T2_GIVE_QUOTE 가 gold-필수 give_discoverable_user_tool(get_card_last_4_digits) 을 철회시킨다 — t2_gate_patch.py:12889-12922 (_shared_span(am.content, user_text, 4) 불성립 → _ap_regen → 재생성 산출에 give 부재 → 그대로 커밋), 문면 a2/base/shared.json:119-120. 두 trial 2/2 retract=1. trial 0 은 이 한 번이 gold 040_3→040_4/040_5→8행 전부의 card_last_4_digits 를 무너뜨렸고, 반사실 증거는 msg117 의 인자 diff 가 {\"card_last_4_digits\": [\"1234\",\"0581\"]} 한 칸뿐이라는 것. 술어가 '손님이 요청했는가'가 아니라 '에이전트 본문이 손님 말을 4토큰 연속 베꼈는가'라서, 손님이 [40]/[62]/[72] 세 번 도구를 이름으로 요청했음에도 불성립 판정. 원샷 _t2_gq_done(:12890) 때문에 해악이 발화 타이밍에 좌우된다(trial 0 turn 69 = 치명, trial 1 turn 40 = 무해). 선행 CONFIRMED(tasks__20260822/TASK_017.md ⓑ · t7336_tasks/T7336_TASK_040.md §350)와 동일 결함의 4런째 재현 — 처방(술어 교체)이 미적용.",
+  "② [REFERENCE] 거부 문면이 실제 판정 조건과 다르다 — 문면 t2_gate_patch.py:7821-7824 이 'the transaction_id you named does not appear in any record returned by the tools in this conversation' 라고 단정하지만, 실제 조건은 t2_resolve.py:1049-1055 (_resolve_one_reference_filter) 의 '우리 결정론 filter 가 고른 id 와 모델이 고른 id 가 다르다' 이다. 실측 8회(trial 1 turn 76/78/92/94/96/98, trial 0 turn 113/116) 모두 대상 id 가 tool 출력에 실재했다(txn_a1b2c3d4e503 = 레코드 #9, txn_fd4c3871654e = #21). user-sim 이 이 허위 문면을 인용해 대화가 '가짜 ID 찾기' 루프로 8턴 고착 — [[25]]·[[64]] 위반.",
+  "③ T2_FAB_STRIP 노트가 실재하는 transaction_id 를 '어느 레코드에도 없다'고 단정한다 — t2_gate_patch.py:11040-11046 (if len(s) >= 4 and s.lower() not in ctx) · 문면 2161-2185(:2177) · ctx 2062-2070 + 바인딩 7217. trial 0 turn 99(txn_a1b2c3d4e508) · 113/121/133(txn_fd4c3871654e) 네 건 모두 tool 출력 msg 38·54·68·74·82 에 축자로 존재하며, 커밋 메시지로 ctx 를 재구성해 검산하면 네 turn 모두 in ctx == True. 게다가 turn 99 에서 차단된 값이 정보 변화 없이 turn 103 에서 통과 ⇒ 닫힌 술어가 아니다([[22]] 위반). ⚠내부 기전은 UNPROVEN — ctx 는 unified() 안(7217~11043)에서 재바인딩되지 않고 T2_VIEW_COMPACT(:7287)는 주석상 생성-뷰만 압축하므로 정적 독해로 원인을 못 닫았다. 격리 프로브 필요. 출력이 거짓이라는 사실만 CONFIRMED.",
+  "③-b 같은 블록의 세탁 구멍 — _ctx_from_messages(t2_gate_patch.py:2062-2070)가 user 발화를 근거로 세기 때문에, 우리 FAB 노트가 날조 id 를 손님에게 인쇄하고 user-sim 이 그것을 복창하면 날조 id 가 ctx 에 진입해 통과한다. 실측: [89] assistant 최초 발화 txn_b1c2d3e4f501 → [90] user 복창 → [93] 통과 → [94] Dispute ID dsp_cb842fa9da47 커밋(gold 에 없는 DB 변이). assistant-first 세탁 차단 _first_origin_fab(:2124-2144)은 _is_addr_arg 로 주소류에만 걸려 있어 id 축에 가드가 없다.",
+  "④ 근거-검증 서브콜이 O(히스토리)이고 입력이 6KB 로 절단된다 — t2_gate_patch.py:1490-1497 (for m in messages: ... _ts3.sub_records(agent, la, UserMessage, c, [idk, field]) · 캐시/memo/최신-제한 0) + t2_search.py:531 (body = ... + str(text)[:6000] + ...). 17,085자 tool 출력이 15벌 누적된 상태에서 write 시도마다 전수 서브콜 → [T2_SUB_RECORDS] 120회(trial 0 = 0회), 동일 write 왕복 지연 155s→371s 단조 증가, span 차 4,984s, 종료 context_window_exceeded(미채점). 절단 부작용으로 서브 시야가 57 레코드 중 앞 ~20개에 고정되어(로그 '20행 중 ... 20행' 120회 동일) gold 8행 중 6행의 transaction_id 가 구조적으로 시야 밖 — ②③ 허위 판정의 뿌리 후보(미확정)."
+ ],
+ "summary": "task_040 은 t7348 halfB 에서 0/2 이고(t7346·t7328 도 0/2), 채점축은 DB-해시(trial 0 reward_basis=['DB'], trial 1 은 context_window_exceeded 로 reward_basis=None = 채점 전 종료). 인과 키스톤은 단 하나 — gold 040_3 give_discoverable_user_tool(get_card_last_4_digits) 이다. 이 give 가 서야 손님이 도구를 실행해 card_last_4_digits 의 참값(personal 1652 / business 0581)이 생기고, 그 값은 gold dispute 8행 전부의 인자다. trial 0 에서 모델은 give 를 8번 시도했고 우리 층이 8번 다 무산시켰다: T2_TOOL_SIGNATURE deny 7회(모델이 arguments 를 계속 실은 것은 model 귀속·[[42]] prior-override, FAILURE_MASTER §L339 재확인)에 더해, 모델이 드디어 서명을 통과한 깨끗한 give 를 낸 turn 69 에서 T2_GIVE_QUOTE(t2_gate_patch.py:12889-12922)가 재생성으로 그것을 철회했다(retract=1). 바로 다음 턴 msg73 에서 모델은 last-4 를 '1234' 로 날조했고 실행된 dispute 5건 전부가 그 날조값을 실었다 — msg117(gold 040_8)은 틀린 필드가 card_last_4_digits 하나뿐이라, give 하나만 살았으면 그 행은 gold 와 일치했다. trial 1 은 같은 레버가 turn 40 에 먼저 발화해 원샷(_t2_gq_done)을 소진한 덕에 turn 62 의 give 가 살아남았고 1652·0581 참값을 실제로 획득했지만, [REFERENCE] 허위 거부 6회(문면 t2_gate_patch.py:7821-7824 ↔ 실제 조건 t2_resolve.py:1049-1055)와 enum 왕복 12회, 그리고 sub_records 를 히스토리 전수로 도는 O(n) LLM 서브콜 120회(t2_gate_patch.py:1490-1497 + t2_search.py:531 의 6,000자 절단)로 동일 write 왕복 지연이 155s→371s 로 단조 증가해 7,717초를 태우고 채점 전에 CWE 로 죽었다(trial 0 은 서브콜 0회·2,733초). 우리 층은 또 실재하는 transaction_id 를 '어느 레코드에도 없다'고 4회 단정했고(turn 99/113/121/133 — 그 id 들은 msg 38·54·68·74·82 tool 출력에 축자 존재), 반대로 자기 노트가 인쇄한 날조 id 를 손님이 복창하자 그것을 ctx 근거로 세어 날조 dispute 를 커밋시켰다(msg93→94 dsp_cb842fa9da47). R5(ARG_EMPTY 死배선 수리)는 생존이 확인됐다 — trial 1 에서 [ARG-EMPTY] 가 실제 발화했고 직전 런의 address=\\\"\\\" 7건이 0건이 됐지만 reward 매수는 0으로, FAILURE_MASTER §220 의 '필요조건이지 충분조건 아님' 판정과 x500 §E-3 의 MECHANISM_REPAIRED_REWARD_ZERO 가 그대로 재현됐다. 선행 REFUTED 판정(T2_TOOL_SIGNATURE 가 give 를 0회로 만들었다)은 뒤집지 않았다 — trial 1 이 deny 7회 뒤 give 3회 착지로 같은 반례를 다시 냈다. 보고서는 C:\\\\workspace\\\\ba-frft\\\\reports\\\\facet_rft_2026\\\\tasks__20260824\\\\TASK_040.md 에 썼다(스텝 표가 본체, trial 별 18/14 스텝). 줄번호는 런 파생 커밋 aed30e20 과 워킹트리가 동일함을 확인하고 인용했다.",
+ "vs_prior": "원인 계열은 달라지지 않았다. (1) tasks__20260822/TASK_040.md 의 'trial 0 = dispute 0건 실행, give 5회 거부' 는 t7348 에서 'dispute 5건 실행(전부 WRONGARG), give 거부 8회' 로 형태만 바뀌었을 뿐 같은 계열이다. (2) T2_GIVE_QUOTE retract=1 이 gold give 를 제거한다는 판정은 tasks__20260822/TASK_017.md ⓑ 와 t7336_tasks/T7336_TASK_040.md §350 에서 이미 CONFIRMED 이고, 처방(술어를 '손님 발화에 그 도구명이 축자로 있는가'로 교체 — T7336 §370-4 · TASK_055 §382-7)이 미적용인 채 t7335→t7336→t7346→t7348 네 런 연속 같은 자리에서 재현됐다. (3) FAILURE_MASTER__20260822.md §L267 의 REFUTED('우리 층 모순 지시가 give 를 0회로 만들었다')는 유지된다 — trial 1 이 SIGNATURE deny 7회 뒤 give 3회 착지로 같은 반례를 냈으므로 T2_TOOL_SIGNATURE 는 model 귀속으로 남기고, 그 반증에 포함되지 않은 별개 레버 T2_GIVE_QUOTE 만 our_layer 로 세웠다. (4) §L182·§220 의 T2_ARG_EMPTY 死배선 CONFIRMED 는 R5 로 수리됐음이 실증됐다(t7346 0회 → t7348 발화 1회, address=\\\"\\\" 7건→0건) 그러나 reward 는 0 그대로여서 '단독 수리의 reward 매수 0' 예측이 적중했다. (5) 새로 달라진 것 = trial 1 의 실패 모드가 'user_stop 후 필드 오답'(t7346, 3,816s)에서 'context_window_exceeded 로 채점 전 사망'(t7348, 7,716.9s)으로 이동했다 — 이는 회귀이고, 직접 원인은 sub_records 의 O(히스토리) 전수 서브콜 120회다. (6) B-4 '비가역 write 의 열린-enum 게이트' 미구현은 STATE_OF_PLAY_2026_08_23.md L113 이후 3런째 같은 자리에서 손실을 냈다(trial 1 env deny 12건 중 9건이 enum). (7) x503_TASK_003_t7348_perstep.md 의 '재생성 산출 무검문 커밋'과 동형이나, 040 에서는 재생성이 산출을 좁힌 것이 아니라 gold 호출 자체를 삭제했다 — 같은 결함 가족의 더 강한 형태다."
+}

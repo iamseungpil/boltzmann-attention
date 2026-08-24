@@ -1,0 +1,495 @@
+{
+ "task": "bank_t7348 halfA · task_073 (ATM FEE DISPUTE RESOLUTION) 궤적 per-step 포렌식 — 0/2 원인 확정. 보고서: C:\\workspace\\ba-frft\\reports\\facet_rft_2026\\tasks__20260824\\x505_TASK_073_t7348_perstep.md (요청 경로 TASK_073.md 는 scaffold_guard §74-b 가 신규 .md 를 exit 2 로 차단 — 같은 디렉터리 x503/x504 규약을 따랐다)",
+ "vs_prior": "t7336 0/2 → t7346 1/2 → t7348 0/2 (부호 반전 −1). 원인이 절반만 같다. ①t1(FAIL)의 granularity 실패(계좌당 1건 NET ↔ 라인당 1건)는 t7336·t7346·t7348 3연속 동일 재현 — 선행 판정 그대로. ②t0 는 완전히 새 기전: t7346 t0 는 PASS(모델이 정책 인용해 NET 으로 접음)였는데, t7348 t0 는 모델이 turn 35 초안에 gold 값 '$9.50' 을 정확히 써놓은 상태에서 우리 층이 그 의도를 고객-실행 도구 submit_transaction 으로 오바인딩하고 [UNAVAILABLE-CAPABILITY]('그 기능은 없다·에스컬레이션하라')를 통보해 포기·전환시켰다 — 073 최초 관측. ③비교기 행단위가 'atm_fee 라인'(t7346) → 'atm_withdrawal'(t7348)로 바뀌며 Light Green 판정보류(coverage 3/6→10/10)를 샀고 Green 의 RHO-BANK $3.00 검출(t7346 은 btxn_kj14u3v4w5x7 을 잡았다)을 팔았다 — [[70]] 절충이 미계측으로 나갔다. ④선행 미수리 부채 2건 재확인: T2_SG_DOCS 도달 0(isolate.docs 선언 공백) · T2_STALE_STRIP 0회(_wtools 에 credit 계열 미등재 → 이번엔 DUP 2건 실제 통과). ⑤t7346 에서 결정점 앞 6257자 재-덤프를 유발하던 T2_COVERAGE_FU 는 t7348 에서 0회(coverage 완결로 트리거 소멸).",
+ "our_layer_claims": [
+  "OL-A (CONFIRMED·강): t2_gate_patch.py:8785 가 t2_resolve.py:764-791 formalize_intent_tool 서브에게 후보집합을 주고 'submit_transaction'(고객-실행 도구)을 받았다 — 정답 unlock_discoverable_agent_tool/call_discoverable_agent_tool 이 같은 집합 안에 있었다. 로그 축자 '[T2_ACTIONREQ] … formalized_target=submit_transaction'. submit_transaction 은 모델 궤적 축자 0회(전 메시지 grep 0).",
+  "OL-A2 (CONFIRMED·강): 그 오바인딩으로 t2_gate_patch.py:8808 문면이 나갔다 — \"Error: [ACTION] 'submit_transaction' is run by the CUSTOMER, not by you. … do not search for one and do not transfer for this\" (모델은 정반대로 전환했다).",
+  "OL-A3 (CONFIRMED·강): t2_gate_patch.py:12475-12511 (T2_UNAVAIL_PROMISE 분기) → _unavailable_promises t2_gate_patch.py:4152-4213 → 문면 a2/base/shared.json:95 feedback_unavailable 가 \"Error: [UNAVAILABLE-CAPABILITY] … the tool it requires does not exist among the tools available to you: apply ATM fee corrections (tool: submit_transaction) … Say plainly that you cannot do it … follow the escalation path in your policy.\" 를 주입했고, 모델이 msg[35] 에서 축자로 채택했다 — 'the tool required to apply these corrections directly is not available to me … I will need to transfer you to a human agent'. 직전 초안(fb turn=35 len=703)은 'I will now apply a credit of $9.50 to your Blue Account' 로 gold 073_8 값 그 자체였다.",
+  "OL-B (PLAUSIBLE·중): 원장-실재 억제 전제 t2_gate_patch.py:4210 은 _ledger_text(work+[am]) (t2_gate_patch.py:4216-4233) 로만 판정하는데 이 함수는 '모든 메시지의 content' 를 담으므로 같은 턴 OL-A2 가 주입한 문장이 원장으로 계수된다. 전제가 잡으려던 것(우리 서브가 만든 문자열)이 바로 이 경우인데 통과했다. work 스냅숏 시점은 UNPROVEN.",
+  "OL-C (CONFIRMED·강): t2_resolve.py:274 DISCOVERY-STEP2 문면이 주지목을 submit_interest_discrepancy_report_7294(이자 불일치 보고)로 잡았고 정답 apply_checking_account_credit_5829 는 후미 나열에만 실렸다 — 모델은 msg[37] 에서 지목된 쪽을 unlock 해 마지막 복구 턴을 태웠다.",
+  "OL-D (CONFIRMED·중): t2_gate_patch.py:11076 _wtools = _confirm_write_tools(a2) | eplan.write_tools 인데 실측 a2/banking_knowledge.gate.json 의 gates[kind=='confirm'].applies_to = 공집합, eplan.write_tools = ['file_credit_card_transaction_dispute','file_debit_card_transaction_dispute','submit_cash_back_dispute'] ⇒ apply_checking_account_credit_5829/call_discoverable_agent_tool 이 집합 밖 = T2_STALE_STRIP 규칙② 도달 불가. t1 의 동일 인자 {_3,1.5} 3발이 전부 통과해 DUP 2건이 됐다.",
+  "OL-E (CONFIRMED·중·부하): t2_gate_patch.py:9171 '[T2_LIMIT_REDUCE] emitted at decision point' 가 ATM 수수료 결정점에 축 무관한 'Bluest' 레퍼럴 상수표 431자를 붙였고, t2_gate_patch.py:3246 배달 헤더가 transfer_to_human_agents 정의 문서 16,498자(Regulation E·신용카드 6편)를 turn 37/39 에, 4,663자를 turn 41 에 밀어 넣었다.",
+  "OL-F (PLAUSIBLE·강): a2/banking_knowledge.specific.json → scaffold_get_tools[8].op.steps.expected = {'op':'case','key':'r.network','cases':{'rho':0,…}} 가 격리 서브 산출 network 를 무검증 소비한다(.isolate.instructions 동일). btxn_kj14u3v4w5x6 description 은 'ATM WITHDRAWAL - RHO-BANK #5678 TORRANCE CA' 인데 network='non_rho' 로 형식화돼 cases.rho=0 미적용 → Green 이 9.00→6.00. 'description 이 RHO-BANK 를 지칭하는가' 는 레코드 불변의 닫힌 술어([[22]])인데 엔진 교차검증 0. t7346 에서는 같은 오라벨에도 그 행이 잡혔으므로 선언 개정 효과와 서브 시행편차가 이 궤적만으로 분리되지 않는다 ⇒ 격리 프로브 필요."
+ ],
+ "sims": [
+  {
+   "trial": 0,
+   "reward": 0,
+   "missing": [
+    "apply_checking_account_credit_5829{account_id=chk_kj93a7b2e1_1, amount=9.5, credit_type=fee_refund} (073_8)",
+    "apply_checking_account_credit_5829{account_id=chk_kj93a7b2e1_2, amount=9.0, credit_type=fee_refund} (073_9)",
+    "apply_checking_account_credit_5829{account_id=chk_kj93a7b2e1_3, amount=1.5, credit_type=fee_refund} (073_10)"
+   ],
+   "wrongarg": [],
+   "dup": [],
+   "blocked": [],
+   "lever_firing": "T2_PROV 1(정당·blue_account_id 날조 차단) · T2_SEARCH_AGENT 8(1회 배달 'Blue Account' 후 '요청 축 모두 처리됨 — 침묵' 반복) · T2_SEARCH_REARM 2(turn 33·이미 포기 뒤·효과 0) · T2_ACTIONREQ+T2_RESOLVE user-action instruct 2회 target=submit_transaction(오발화·치명) · T2_UNAVAIL 1(오발화·치명) · T2_TRANSFER_LEAVES_STEPS 1(발화·목적 미달) · T2_CLAIMPROV 29/CLAIM_PROV 1(문면 정확·무시됨) · T2_REQUIRE_DOC_DELIVER 7=3/3 소진(오발화·16498+16498+4663자·Regulation E/신용카드) · T2_LIMIT_REDUCE 2+T2_ACTION_SUB 1(오발화·Bluest 레퍼럴 431자) · T2_SG_ISOLATE 4/T2_SG_TRACE 2(정상) · T2_SG_DOCS 0(선언 공백) · T2_PIN_READ 0 · T2_DEMANDED_STEP 0 · T2_FOLLOWUP 0 · T2_ARG_PRODUCERS 0 · FAB_STRIP 0 · READ-FIRST 0(정상 미발화) · T2_STALE_STRIP 0 · T2_COVERAGE_FU 0",
+   "cause_primary": "our_layer",
+   "cause_secondary": "model (3계좌 read 완료 후 비교기를 Blue 에만 호출 — 073_9/073_10 발견 자체 소실)",
+   "prescription": "P-1 formalize_intent_tool 산출이 pending_user 도구이고 그 이름이 모델 궤적 축자 0회면 [ACTION]·[UNAVAILABLE-CAPABILITY] 둘 다 침묵 · P-2 _ledger_text 에서 우리 주입 메시지 제외 · P-3 같은 턴에 [WORK-INCOMPLETE] 와 [UNAVAILABLE-CAPABILITY] 동시 발화 금지(상호배제) · P-4 DISCOVERY-STEP2 주지목을 후미 나열과 같은 근거로 재산출. 전부 미측정·구현 전 격리 프로브 필요([[62]])",
+   "evidence": [
+    "fb turn=35 reminder-assistant(len=703) 축자 — 재생성 이전 초안: \"According to the policy, we will apply a single fee refund credit for the net correction of these transactions. … Total correction amount: $1.50 + $5.00 + $3.00 = $9.50 … I will now apply a credit of $9.50 to your Blue Account.\"",
+    "로그 축자 turn 35 — [T2_ACTIONREQ] window=open pending_user=['apply_for_credit_card','call_discoverable_user_tool','submit_referral','submit_transaction'] pending_agent=['call_discoverable_agent_tool','change_user_email','give_discoverable_user_tool','unlock_discoverable_agent_tool'] formalized_target=submit_transaction / [T2_RESOLVE] user-action instruct target=submit_transaction / [T2_UNAVAIL] promised tools not available: ['submit_transaction'] · locked: []",
+    "fb turn=35 reminder-user claimprov 축자 — \"Error: [UNAVAILABLE-CAPABILITY] you told the customer you would do the following, but the tool it requires does not exist among the tools available to you: apply ATM fee corrections (tool: submit_transaction) … Say plainly that you cannot do it, and either use a capability you actually have or follow the escalation path in your policy.\"",
+    "msg[35] 최종 축자 — \"I apologize for the oversight. … Unfortunately, the tool required to apply these corrections directly is not available to me. To resolve this issue, I will need to transfer you to a human agent\"",
+    "msg[32] 도구 반환 축자 — \"… btxn_kj03c9d0e1f2 (charged $4.50, documented fee $3.00, difference $1.50); btxn_kj05k7l8m9n0 (charged $20.00, documented fee $15.00, difference $5.00); btxn_kj07s5t6u7v8 (charged $3.00, documented fee $0.00, difference $3.00). … If corrections are owed, the credit policy requires ONE fee_refund credit for the net correction of THIS account\" + \"[coverage] 10 of 10 rows were checked\"",
+    "fb turn=37 축자 3종 — \"Error: [CLAIM-PROVENANCE] … record_update: apply ATM fee corrections … Do the promised work NOW by calling the real tools\" / \"Error: [WORK-INCOMPLETE] … 3 item(s) the customer asked about and 0 you have actually acted on\" / \"[DISCOVERY-STEP2] the knowledge base you already searched names the tool for this action: submit_interest_discrepancy_report_7294. … The documents you have ALREADY retrieved name these tools, and you have not called them: apply_checking_account_credit_5829, apply_savings_account_credit_6831, get_debit_cards_by_account_id_7823, submit_interest_discrepancy_report_7294.\"",
+    "msg[37] 축자 — TOOLCALL: unlock_discoverable_agent_tool {\"agent_tool_name\": \"submit_interest_discrepancy_report_7294\"}",
+    "전 메시지 grep: 'submit_transaction' 가시 궤적 등장 0회 (우리 로그·주입 리마인더에만 존재)",
+    "reward_info 직독 — reward_basis=['DB'] reward_breakdown={'DB':0.0} db_check={'db_match':False}",
+    "t2_forensic.mutation_diff — missing 3 · wrongarg 0 · extra 0 · dup 0 · blocked 0 · matched 1(log_verification msg_i=23) · term=user_stop"
+   ],
+   "steps": [
+    {
+     "step": 2,
+     "role": "assistant",
+     "what": "KB_search_bm25 + unlock(get_bank_account_transactions_9173) 동시 발행으로 개시",
+     "actor": "model",
+     "kind": "탐색 개시",
+     "evidence": "TOOLCALL: KB_search_bm25 {\"query\": \"retrieving bank account transaction history\"}",
+     "consequence": "정상 진입",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 2,
+     "role": "our_layer",
+     "what": "같은 턴 get_atm_fee_discrepancies{account_id:'blue_account_id'} 를 PROVENANCE deny — 스키마 예시값 날조 차단",
+     "actor": "our_layer",
+     "kind": "deny(정당·fix 지목)",
+     "code_path": "로그 [T2_PROV] regen fired tool=get_atm_fee_discrepancies arg=account_id val=blue_account_id",
+     "evidence": "Error: [PROVENANCE] argument 'account_id'='blue_account_id' was not provided by the user nor returned by any tool — it looks invented … call a lookup/getter tool that produces this value",
+     "consequence": "날조 1건 차단(+), 턴 1개 소모",
+     "reward_causal": "약"
+    },
+    {
+     "step": 5,
+     "role": "assistant",
+     "what": "엉뚱한 get_payment_history_6183 unlock 후 자기 정정. 서두는 없던 실패를 서사화",
+     "actor": "model",
+     "kind": "오도구·자기서사",
+     "evidence": "\"It looks like there was an issue with the previous attempt to unlock the necessary tools. Let's focus on unlocking the get_payment_history_6183 tool first\"",
+     "consequence": "턴 2개 소모",
+     "reward_causal": "약"
+    },
+    {
+     "step": 16,
+     "role": "our_layer",
+     "what": "verify_identity VERIFIED + 시계 획득 지시(get_current_time 먼저)",
+     "actor": "our_layer",
+     "kind": "게이트(정당)",
+     "code_path": "로그 [T2_NOW_SELFCALL] get_current_time 직접 호출 — 시계 확보",
+     "evidence": "VERIFIED — 4 identity values match the account record … FIRST call get_current_time, wait for its result, then copy that exact timestamp into time_verified",
+     "consequence": "073_0 의 time_verified 정확 확보",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 19,
+     "role": "assistant",
+     "what": "GB1 게이트 차단 직후 '이미 로그했다'고 오서사",
+     "actor": "model",
+     "kind": "날조(무해)",
+     "evidence": "\"we have already verified your identity and logged it\" (그 시점 log_verification 0회) / 게이트 [T2_UNIFIED] R8 strip: [GB1_VERIFY_BEFORE_ACCOUNT_ACCESS] blocked by policy gate",
+     "consequence": "손님 1턴 소모",
+     "reward_causal": "약"
+    },
+    {
+     "step": 23,
+     "role": "assistant",
+     "what": "log_verification 정타",
+     "actor": "model",
+     "kind": "write",
+     "evidence": "TOOLCALL: log_verification {\"name\":\"Kim Junho\",\"user_id\":\"kj93a7b2e1\",…,\"time_verified\":\"2025-11-14 03:40:00 EST\"}",
+     "consequence": "gold 073_0 매수",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 27,
+     "role": "assistant",
+     "what": "get_bank_account_transactions 를 3계좌 병렬 호출 — 재료 전부 문맥 진입",
+     "actor": "model",
+     "kind": "read",
+     "evidence": "TOOLCALL ×3: {\"account_id\":\"chk_kj93a7b2e1_1\"} / \"_2\" / \"_3\"",
+     "consequence": "Green·Light Green 재료도 확보됨(이후 미사용)",
+     "reward_causal": "중"
+    },
+    {
+     "step": 31,
+     "role": "assistant",
+     "what": "get_atm_fee_discrepancies 를 Blue 한 계좌에만 호출. _2·_3 는 이 sim 내내 0회",
+     "actor": "model",
+     "kind": "under-action(축 미완)",
+     "code_path": "우리 층 기여: 로그 [T2_DOCDECIDE] → 'Blue Account' 직후 [T2_SEARCH_AGENT] 축 처리 완료: checking_accounts (남은 축 없음) → 이후 '요청 축 checking_accounts 모두 처리됨 — 침묵' ×3",
+     "evidence": "\"Let's start with the Blue Account (account_id: chk_kj93a7b2e1_1). I will use the `get_atm_fee_discrepancies` tool\"",
+     "consequence": "gold 073_9·073_10 의 발견 자체가 소실",
+     "reward_causal": "강"
+    },
+    {
+     "step": 32,
+     "role": "tool",
+     "what": "비교기 반환 — Blue 3오류 + NET 정책 축자 + coverage 완결",
+     "actor": "our_layer",
+     "kind": "배달(정확)",
+     "code_path": "a2/banking_knowledge.specific.json → scaffold_get_tools[8].return_template",
+     "evidence": "\"… btxn_kj03c9d0e1f2 (charged $4.50, documented fee $3.00, difference $1.50); btxn_kj05k7l8m9n0 ($20.00→$15.00, $5.00); btxn_kj07s5t6u7v8 ($3.00→$0.00, $3.00). … If corrections are owed, the credit policy requires ONE fee_refund credit for the net correction of THIS account (do not credit the same lines twice).\" + \"[coverage] 10 of 10 rows were checked (0 could not be verified).\"",
+     "consequence": "9.50 산출에 필요한 재료 전부 도달",
+     "reward_causal": "중"
+    },
+    {
+     "step": 33,
+     "role": "assistant",
+     "what": "3오류 보고 후 실행 대신 허락을 구함",
+     "actor": "model",
+     "kind": "확인 요청",
+     "evidence": "\"Would you like me to proceed with correcting these fees, or do you have any further questions regarding these discrepancies?\"",
+     "consequence": "결정을 손님 턴으로 이월",
+     "reward_causal": "중"
+    },
+    {
+     "step": 34,
+     "role": "user",
+     "what": "손님이 승인 — granularity 는 지정하지 않음",
+     "actor": "user_sim",
+     "kind": "승인",
+     "evidence": "\"Yes, please go ahead and correct all of the incorrect ATM fee charges on my Blue Account (for those three transactions) and apply whatever credits are needed to make it right.\"",
+     "consequence": "[[21]] 상 user_sim 귀속 불가 — 계좌당 1건이라는 형태는 손님이 정하지 않았다",
+     "reward_causal": "무관"
+    },
+    {
+     "step": 35,
+     "role": "assistant",
+     "what": "★재생성 이전 초안이 gold 값을 정확히 적었다 — 단 산문(도구호출 0)",
+     "actor": "model",
+     "kind": "정답 초안 + say-don't-do",
+     "evidence": "fb turn=35 reminder-assistant(len=703): \"According to the policy, we will apply a single fee refund credit for the net correction of these transactions. … Total correction amount: $1.50 + $5.00 + $3.00 = $9.50 … I will now apply a credit of $9.50 to your Blue Account.\"",
+     "consequence": "073_8 의 값이 이미 완성돼 있었다 — 남은 결손은 호출 형태 하나",
+     "reward_causal": "강"
+    },
+    {
+     "step": 35,
+     "role": "our_layer",
+     "what": "그 초안의 의도를 고객-실행 도구 submit_transaction 으로 오바인딩하고 지시 주입",
+     "actor": "our_layer",
+     "kind": "오바인딩(치명)",
+     "code_path": "t2_gate_patch.py:8785 _rz.formalize_intent_tool(...) ← t2_resolve.py:764-791 · 문면 t2_gate_patch.py:8808",
+     "evidence": "로그 [T2_ACTIONREQ] … formalized_target=submit_transaction / [T2_RESOLVE] user-action instruct target=submit_transaction · fb 문면 \"Error: [ACTION] 'submit_transaction' is run by the CUSTOMER, not by you. There is no agent-side procedure to look up for running it, so do not search for one and do not transfer for this.\"",
+     "consequence": "정답 표적(unlock_discoverable_agent_tool·call_discoverable_agent_tool)이 같은 후보집합 안에 있었는데 고르지 않았다. submit_transaction 은 모델 궤적 축자 0회",
+     "reward_causal": "강"
+    },
+    {
+     "step": 35,
+     "role": "our_layer",
+     "what": "같은 결정점에 축 무관한 'Bluest' 레퍼럴 상수표 431자를 붙임",
+     "actor": "our_layer",
+     "kind": "오발화(부하)",
+     "code_path": "t2_gate_patch.py:9171 [T2_LIMIT_REDUCE] emitted at decision point · [T2_ACTION_SUB] 발화를 격리에서 지음 (값 431자)",
+     "evidence": "\"A separate check was run on the policy constants on record … It answers: Bluest. … referrer_bonus_usd=75, referred_bonus_usd=50, referrer_tenure_days=60, qualifying_deposit_usd=2000, annual_referral_limit=8\"",
+     "consequence": "ATM 수수료 결정점 부하 431자",
+     "reward_causal": "약"
+    },
+    {
+     "step": 35,
+     "role": "our_layer",
+     "what": "★'그 기능은 없다 · 에스컬레이션하라' 를 통보",
+     "actor": "our_layer",
+     "kind": "오발화(치명)",
+     "code_path": "t2_gate_patch.py:12475-12511 (T2_UNAVAIL_PROMISE) → _unavailable_promises t2_gate_patch.py:4152-4213 · 문면 a2/base/shared.json:95 feedback_unavailable · 억제 전제 t2_gate_patch.py:4210 + _ledger_text 4216-4233",
+     "evidence": "로그 [T2_UNAVAIL] promised tools not available: ['submit_transaction'] · locked: [] · 문면 \"Error: [UNAVAILABLE-CAPABILITY] you told the customer you would do the following, but the tool it requires does not exist among the tools available to you: apply ATM fee corrections (tool: submit_transaction) … Say plainly that you cannot do it, and either use a capability you actually have or follow the escalation path in your policy.\"",
+     "consequence": "원장-실재 전제가 억제에 실패 — 'submit_transaction' 이 궤적에 있다고 세어진 유일한 이유가 같은 턴 우리가 심은 문자열이다([[25]] 위반 형상)",
+     "reward_causal": "강"
+    },
+    {
+     "step": 35,
+     "role": "assistant",
+     "what": "초안 폐기, 우리 통보를 축자로 채택하고 전환 제안",
+     "actor": "model",
+     "kind": "지시 이행(우리 지시)",
+     "evidence": "\"I apologize for the oversight. … Unfortunately, the tool required to apply these corrections directly is not available to me. To resolve this issue, I will need to transfer you to a human agent who can handle the correction process.\"",
+     "consequence": "073_8 확정 소실 — $9.50 초안이 이 턴에서 사라졌다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 36,
+     "role": "user",
+     "what": "이전 턴 제안에 따라 전환 동의",
+     "actor": "user_sim",
+     "kind": "응답",
+     "evidence": "\"Yes, please proceed with transferring me to a human agent who can apply the credits … ###TRANSFER###\"",
+     "consequence": "복구창 축소",
+     "reward_causal": "약"
+    },
+    {
+     "step": 37,
+     "role": "our_layer",
+     "what": "미이행 표면화 2종(정확) + DISCOVERY-STEP2 오지목 + 축 무관 문서 16,498자 배달",
+     "actor": "our_layer",
+     "kind": "발화·목적 미달 + 오지목 + 부하",
+     "code_path": "[T2_CLAIMPROV] window hit(resign) unb_p=2 · t2_gate_patch.py:8248 [T2_TRANSFER_LEAVES_STEPS] surface ledger gap qty=3 executed=0 · DISCOVERY-STEP2 문면 t2_resolve.py:274 · 배달 헤더 t2_gate_patch.py:3246 ([T2_REQUIRE_DOC_DELIVER] deliver tool=transfer_to_human_agents docs=6 chars=16498 turn=37 fired=1/3)",
+     "evidence": "\"Error: [WORK-INCOMPLETE] you are about to hand this conversation off, but this conversation's own record shows 3 item(s) the customer asked about and 0 you have actually acted on.\" / \"[DISCOVERY-STEP2] the knowledge base you already searched names the tool for this action: submit_interest_discrepancy_report_7294. … The documents you have ALREADY retrieved name these tools, and you have not called them: apply_checking_account_credit_5829, …\"",
+     "consequence": "정확한 두 문면은 무시됐고, 주지목이 틀린 세 번째 문면이 이행됐다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 37,
+     "role": "assistant",
+     "what": "우리 주지목대로 submit_interest_discrepancy_report_7294 unlock — 마지막 복구 턴을 오도구에 소모",
+     "actor": "model",
+     "kind": "지시 이행(우리 오지목)",
+     "evidence": "TOOLCALL: unlock_discoverable_agent_tool {\"agent_tool_name\": \"submit_interest_discrepancy_report_7294\"}",
+     "consequence": "credit 도구 unlock 기회 소멸",
+     "reward_causal": "강"
+    },
+    {
+     "step": 41,
+     "role": "assistant",
+     "what": "GB2 게이트가 요구한 TRANSFER NOTICE 송출 후 전환 확정",
+     "actor": "model",
+     "kind": "종결",
+     "evidence": "\"TRANSFER NOTICE: Would you like to be transferred to a human agent?\" → msg[42] user \"Yes, I confirm—please transfer me to a human agent now. ###TRANSFER###\"",
+     "consequence": "073_8/9/10 전량 MISSING 확정",
+     "reward_causal": "강"
+    }
+   ]
+  },
+  {
+   "trial": 1,
+   "reward": 0,
+   "missing": [
+    "apply_checking_account_credit_5829{account_id=chk_kj93a7b2e1_1, amount=9.5, credit_type=fee_refund} (073_8)",
+    "apply_checking_account_credit_5829{account_id=chk_kj93a7b2e1_2, amount=9.0, credit_type=fee_refund} (073_9)"
+   ],
+   "wrongarg": [
+    "_1 amount=1.5 (msg 43) — gold 9.5 · account_id/credit_type 일치",
+    "_1 amount=5.0 (msg 45) — gold 9.5 · account_id/credit_type 일치",
+    "_1 amount=3.0 (msg 47) — gold 9.5 · account_id/credit_type 일치 (3발 합 9.50 = gold)",
+    "_2 amount=3.0 (msg 49) — gold 9.0 · account_id/credit_type 일치",
+    "_2 amount=3.0 (msg 51) — gold 9.0 · account_id/credit_type 일치 (2발 합 6.00 ≠ gold 9.00)",
+    "_3 amount=1.5 재발행 (msg 55) — 값은 gold 와 같으나 중복 행"
+   ],
+   "dup": [
+    "apply_checking_account_credit_5829{_3, 1.5, fee_refund} msg 55 (인자 바이트 동일)",
+    "apply_checking_account_credit_5829{_3, 1.5, fee_refund} msg 57 (인자 바이트 동일)"
+   ],
+   "blocked": [],
+   "lever_firing": "T2_PROV 1(정당) · T2_SG_ISOLATE 12/T2_SG_TRACE 5(3계좌 fetch_formalize 성공·Green network 오분류) · T2_SEARCH_AGENT 8(1회 배달 후 침묵) · T2_SEARCH_REARM 2(turn 37·LG 감사 뒤·효과 0) · T2_SEARCH_EXHAUST 2 · T2_CLAIMPROV 66(turn 37 발화 후 모델 실행 재개·+) · OPERATOR-PROVENANCE deny 3회(정당·날조 4종 차단) · TOOL-CHANNEL deny 1(정당·fix 지목·+) · T2_EPLAN 2(walk gap qty=3 executed=0 = 계기 오류) · T2_ARG_DOC_SUB 5(축 무관) · T2_STALE_STRIP 0(미발화·DUP 통과) · FAB_STRIP 0(미발화) · T2_SG_DOCS 0 · T2_PIN_READ 0 · T2_DEMANDED_STEP 0 · T2_FOLLOWUP 0 · T2_ARG_PRODUCERS 0 · READ-FIRST 0(정상) · T2_REQUIRE_DOC_DELIVER 0 · T2_UNAVAIL 0 · T2_COVERAGE_FU 0",
+   "cause_primary": "model",
+   "cause_secondary": "our_layer (Green RHO-BANK 미검출로 073_9 값이 애초에 불가능해졌다 · T2_STALE_STRIP 미도달로 DUP 2건 통과)",
+   "prescription": "P-7 [[63]] 대로 더하기 지시가 아니라 제거로 — 같은 account_id+credit_type 의 성공 write 가 이미 있으면 2번째 호출을 후보에서 제거(닫힌 술어) · P-5 _wtools 를 A2 가 write 로 선언한 도구 전체로 확대 · P-6 OL-F 는 격리 프로브 먼저(같은 Green 레코드·n≥8·t7346 행단위 vs t7348 행단위) — 격리에서도 rho 를 놓칠 때만 엔진 교차검증(description substring) 도입([[62]] ③). 전부 미측정",
+   "evidence": [
+    "reward_info 직독 — reward_basis=['DB'] reward_breakdown={'DB':0.0} db_check={'db_match':False} · term=user_stop",
+    "t2_forensic.mutation_diff — missing 2 · wrongarg 6 · extra 0 · dup 2 · blocked 0 · matched 2(log_verification msg_i=21 · {_3,1.5} msg_i=53)",
+    "env 레코드 축자 — btxn_kj14u3v4w5x6 / date 11/07/2025 / description: 'ATM WITHDRAWAL - RHO-BANK #5678 TORRANCE CA' / amount -300.0 / 짝 btxn_kj14u3v4w5x7 'NON-RHO ATM FEE' -3.0",
+    "msg[34] t7348 Green 반환 축자 — \"… btxn_kj15y7z8a9b1 (charged $15.00, documented fee $12.00, difference $3.00); btxn_kj18k9l0m1n4 (charged $3.00, documented fee $0.00, difference $3.00)\" (2건·합 6.00)",
+    "t7346 halfA 같은 계좌 반환 축자(대조) — \"btxn_kj18k9l0m1n3 (…$3.00); btxn_kj15y7z8a9b1 (…$3.00); btxn_kj14u3v4w5x7 (charged $3.00, documented fee $0.00, difference $3.00)\" (3건·합 9.00)",
+    "msg[36] Light Green 반환 축자 — \"btxn_kj22a5b6c7d9 ($1.50→$0.00, $1.50); btxn_kj28y9z0a1b3 ($5.00→$3.50, $1.50); btxn_kj29c3d4e5f6 (charged $0.00, documented fee $1.50, difference $-1.50)\" + \"[coverage] 10 of 10\" (t7346 은 1건·'[coverage] 3 of 6 … 3 could not be verified')",
+    "msg[37] 축자 — \"### Light Green Account Corrections … 3. Transaction ID: btxn_kj29c3d4e5f6 - Correction Amount: $1.50\" (원값 -1.50 의 부호 반전)",
+    "fb turn=39 reminder-assistant(len=676) 축자 — \"### Blue Account Corrections - Total Correction Amount: $9.50 … I will now manually credit your accounts with the respective correction amounts. … I will credit your Blue Account with $9.50.\" → 직후 deny \"Error: [OPERATOR-PROVENANCE] tool name 'credit_account_8765' was not discovered from any prior search/listing result\"",
+    "msg[43] 축자 — TOOLCALL call_discoverable_agent_tool {\"agent_tool_name\":\"apply_checking_account_credit_5829\",\"arguments\":\"{\\\"account_id\\\": \\\"chk_kj93a7b2e1_1\\\", \\\"amount\\\": 1.5, \\\"credit_type\\\": \\\"fee_refund\\\"}\"}",
+    "msg[63] 축자 — \"### Blue Account (chk_kj93a7b2e1_1) - Total Correction Amount: $9.50 … ### Green Account (chk_kj93a7b2e1_2) - Total Correction Amount: $6.00 … ### Light Green Account (chk_kj93a7b2e1_3) - Total Correction Amount: $4.50\"",
+    "우리 문면이 형태를 3회 말했다(msg 32·34·36 동일 축자) — \"If corrections are owed, the credit policy requires ONE fee_refund credit for the net correction of THIS account (do not credit the same lines twice).\" · 추가로 msg[40] 문서 축자 \"the agent must identify all fee discrepancies and apply a credit for the net correction\"",
+    "선언 실측 — a2/banking_knowledge.gate.json gates[kind=='confirm'].applies_to = [] (공집합) · eplan.write_tools = ['file_credit_card_transaction_dispute','file_debit_card_transaction_dispute','submit_cash_back_dispute']"
+   ],
+   "steps": [
+    {
+     "step": 2,
+     "role": "assistant",
+     "what": "trial 0 과 동일 개시 + 동일 PROVENANCE deny",
+     "actor": "our_layer",
+     "kind": "deny(정당)",
+     "code_path": "로그 [T2_PROV] regen fired tool=get_atm_fee_discrepancies arg=account_id val=blue_account_id",
+     "evidence": "Error: [PROVENANCE] argument 'account_id'='blue_account_id' … it looks invented",
+     "consequence": "날조 차단(+)",
+     "reward_causal": "약"
+    },
+    {
+     "step": 21,
+     "role": "assistant",
+     "what": "log_verification 정타",
+     "actor": "model",
+     "kind": "write",
+     "evidence": "TOOLCALL: log_verification {…\"time_verified\":\"2025-11-14 03:40:00 EST\"}",
+     "consequence": "gold 073_0 매수",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 25,
+     "role": "assistant",
+     "what": "get_all_user_accounts_by_user_id_3847 → 3계좌 확보",
+     "actor": "model",
+     "kind": "read",
+     "evidence": "로그 [T2_LEDGER] get_all_user_accounts_by_user_id rows=3 queued to view · 결과 'chk_kj93a7b2e1_1 (Blue Account) / _2 (Green Account) / _3 (Light Green Account)'",
+     "consequence": "계좌 축 완성",
+     "reward_causal": "중"
+    },
+    {
+     "step": 30,
+     "role": "tool",
+     "what": "3계좌 거래 read 각각 1회 완료 (trial 0 과 달리 3계좌 전부 감사 대상)",
+     "actor": "model",
+     "kind": "read",
+     "evidence": "\"Found 30 record(s)\" / \"Found 31 record(s)\" / \"Found 26 record(s) in 'bank_account_transaction_history'\"",
+     "consequence": "3계좌 재료 확보",
+     "reward_causal": "중"
+    },
+    {
+     "step": 31,
+     "role": "assistant",
+     "what": "비교기 Blue — 인자는 격리 서브가 재작성(fetch_formalize)",
+     "actor": "our_layer",
+     "kind": "격리 재-formalize",
+     "code_path": "로그 [T2_SG_TRACE] get_atm_fee_discrepancies: iso=True mode=fetch_formalize · [T2_SG_ISOLATE] operand-size get_atm_fee_discrepancies.transactions: sub=10 rows · source=30 rows ⚠MISMATCH · '… fetch-formalize operand 주입 keys=[transactions]'",
+     "evidence": "msg[32] \"… btxn_kj03c9d0e1f2 ($4.50→$3.00, $1.50); btxn_kj05k7l8m9n0 ($20.00→$15.00, $5.00); btxn_kj07s5t6u7v8 ($3.00→$0.00, $3.00)\" + \"[coverage] 10 of 10\"",
+     "consequence": "Blue 순액 9.50 정확 확보",
+     "reward_causal": "중"
+    },
+    {
+     "step": 33,
+     "role": "assistant",
+     "what": "★비교기 Green — RHO-BANK 인출이 network='non_rho' 로 형식화돼 $3.00 오류 미검출",
+     "actor": "our_layer",
+     "kind": "under-detection(치명·t7348 신규)",
+     "code_path": "a2/banking_knowledge.specific.json → scaffold_get_tools[8].op.steps.expected = {'op':'case','key':'r.network','cases':{'rho':0,…}} · 같은 노드 .isolate.instructions 가 network 를 LLM 서브 산출 필드로 받는다 · _note_ 축자 '페어링·network 분류는 LLM formalize 몫([[22]])·엔진은 산술만'",
+     "evidence": "env 레코드 'btxn_kj14u3v4w5x6 … ATM WITHDRAWAL - RHO-BANK #5678 TORRANCE CA … -300.0' ↔ t7348 msg[34] 반환 2건뿐 ↔ t7346 동일 계좌 반환 3건('btxn_kj14u3v4w5x7 charged $3.00, documented fee $0.00, difference $3.00')",
+     "consequence": "Green 순액이 9.00 → 6.00 으로 깎였다 — 073_9 는 이 스텝에서 값 자체가 불가능해졌다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 35,
+     "role": "assistant",
+     "what": "비교기 Light Green — t7346 의 '3/6 판정 보류' 부채가 수리돼 누락 수수료를 음수 차액으로 정확히 표면화",
+     "actor": "our_layer",
+     "kind": "배달(정확·개선)",
+     "code_path": "같은 선언(월 무료횟수 lookup_table + 음수 차액)",
+     "evidence": "msg[36] \"… btxn_kj29c3d4e5f6 (charged $0.00, documented fee $1.50, difference $-1.50)\" + \"[coverage] 10 of 10\" (t7346: 1건 + '[coverage] 3 of 6 … 3 could not be verified')",
+     "consequence": "LG 순액 1.50+1.50-1.50 = 1.50 = gold 가 문맥에 성립",
+     "reward_causal": "중"
+    },
+    {
+     "step": 37,
+     "role": "assistant",
+     "what": "★3계좌 8행을 전부 양수 'Correction Amount' 로 나열 — 음수 차액 부호 반전, 계좌 순액 미계산",
+     "actor": "model",
+     "kind": "부호 오독 + 중간표상 고착",
+     "evidence": "\"### Light Green Account Corrections … 3. Transaction ID: btxn_kj29c3d4e5f6 - Correction Amount: $1.50\" (원값 -1.50). 우리 문면은 명시했다 — \"a fee that is MISSING where one was due (it shows as a negative difference)\"",
+     "consequence": "LG 가 1.50 이 아니라 4.50 으로 굳었고, 3회 도달한 'ONE fee_refund credit for the net correction' 이 한 글자도 재현되지 않았다([[63]] 형)",
+     "reward_causal": "강"
+    },
+    {
+     "step": 38,
+     "role": "tool",
+     "what": "존재하지 않는 배치 도구 apply_atm_fee_corrections_8765{corrections:[{transaction_id, amount}×3]} 반려",
+     "actor": "env",
+     "kind": "반려(정확)",
+     "evidence": "Error: Unknown agent tool 'apply_atm_fee_corrections_8765'. This tool is not available.",
+     "consequence": "날조 스키마 'corrections: [{transaction_id, amount}…]' 자체가 '라인당 1건' 중간표상의 증거",
+     "reward_causal": "중"
+    },
+    {
+     "step": 39,
+     "role": "our_layer",
+     "what": "★재생성 3라운드 — 모델이 계좌당 순액 초안을 세 번 냈고 OPERATOR-PROVENANCE deny 로 세 번 폐기됐다",
+     "actor": "our_layer",
+     "kind": "날조 차단(정당) + 정답 초안 동반 소실",
+     "code_path": "fb turn=39 tool-deny ×3 (refund_atm_fees_8765 / apply_manual_atm_fee_corrections_8765 / credit_account_8765)",
+     "evidence": "초안②(1362자) \"### Blue Account Corrections - Total Correction Amount: $1.50 + $5.00 + $3.00 = $9.50 … ### Green … $6.00 …\" · 초안③(676자) \"I will credit your Blue Account with $9.50.\" · deny \"Error: [OPERATOR-PROVENANCE] tool name 'credit_account_8765' was not discovered from any prior search/listing result — do NOT invent tool names.\"",
+     "consequence": "deny 는 옳다([[64]] 대로 '검색하라'까지 지목). 그러나 순액 표상이 세 번 파기되는 동안 남지 않았다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 40,
+     "role": "tool",
+     "what": "KB_search_bm25('credit account') → doc_bank_accounts_…_017 이 정답 도구와 정답 형태를 명명",
+     "actor": "env",
+     "kind": "탐색 성공",
+     "evidence": "\"The apply_checking_account_credit_5829 tool is used to add a credit transaction … the agent must identify all fee discrepancies and apply a credit for the net correction\"",
+     "consequence": "정답 도구·정답 형태 재차 도달",
+     "reward_causal": "중"
+    },
+    {
+     "step": 41,
+     "role": "our_layer",
+     "what": "채널 오류를 정확히 지목([[64]] 충족)",
+     "actor": "our_layer",
+     "kind": "deny(정당·fix 지목)",
+     "code_path": "fb turn=41 kind=reminder-user channel",
+     "evidence": "Error: [TOOL-CHANNEL] `apply_checking_account_credit_5829` has not been unlocked yet. Call `unlock_discoverable_agent_tool(\"apply_checking_account_credit_5829\")` first, then `call_discoverable_agent_tool`.",
+     "consequence": "다음 턴 unlock 성공 → 073_7 매수",
+     "reward_causal": "중"
+    },
+    {
+     "step": 43,
+     "role": "assistant",
+     "what": "★첫 크레딧을 $1.50 라인 단위로 발행 — 두 턴 전 자기 초안의 '$9.50' 을 버렸다",
+     "actor": "model",
+     "kind": "granularity 실패 확정점",
+     "evidence": "TOOLCALL call_discoverable_agent_tool {\"agent_tool_name\":\"apply_checking_account_credit_5829\",\"arguments\":\"{\\\"account_id\\\": \\\"chk_kj93a7b2e1_1\\\", \\\"amount\\\": 1.5, \\\"credit_type\\\": \\\"fee_refund\\\"}\"}",
+     "consequence": "073_8 MISSING 확정 (이후 5.0·3.0 추가로 합만 9.50)",
+     "reward_causal": "강"
+    },
+    {
+     "step": 47,
+     "role": "assistant",
+     "what": "_1 에 5.0·3.0 추가 — 억제 레버 부재",
+     "actor": "model",
+     "kind": "반복",
+     "code_path": "[T2_STALE_STRIP] 0회 (t2_gate_patch.py:11076 _wtools 에 credit 계열 미등재)",
+     "evidence": "\"New Balance: $5206.50\" → \"New Balance: $5209.50\"",
+     "consequence": "WRONGARG 3행",
+     "reward_causal": "강"
+    },
+    {
+     "step": 51,
+     "role": "assistant",
+     "what": "_2 에 3.0 ×2 → 합 6.00 (gold 9.00)",
+     "actor": "model",
+     "kind": "반복 + STEP 33 결손 상속",
+     "evidence": "\"Amount: $3.00 - Previous Balance: $12750.00 - New Balance: $12753.00\" → \"New Balance: $12756.00\"",
+     "consequence": "073_9 MISSING 확정 — 값 자체가 STEP 33 에서 6.00 으로 깎여 있었다",
+     "reward_causal": "강"
+    },
+    {
+     "step": 53,
+     "role": "assistant",
+     "what": "_3 에 1.5 — gold 와 일치",
+     "actor": "model",
+     "kind": "write",
+     "evidence": "\"Amount: $1.50 - Previous Balance: $890.50 - New Balance: $892.00\"",
+     "consequence": "073_10 매수 — 단 STEP 37 부호 오독과 상쇄된 우연",
+     "reward_causal": "준강"
+    },
+    {
+     "step": 57,
+     "role": "assistant",
+     "what": "_3 에 동일 인자 1.5 를 2회 더 발행 — 아무도 막지 않았다",
+     "actor": "model",
+     "kind": "over-action(DUP)",
+     "code_path": "our_layer 부재: t2_gate_patch.py:11076 _wtools = _confirm_write_tools(a2) | eplan.write_tools 인데 gates[kind=='confirm'] = 공집합, eplan.write_tools = dispute 3종 ⇒ credit 계열 집합 밖 = 규칙② 도달 불가",
+     "evidence": "3발 모두 성공 \"New Balance: $892.00 → $893.50 → $895.00\" (같은 Transaction ID: txn_ac3ae00fcf0eda29 3회)",
+     "consequence": "DB 에 credit 행 2개 초과 = DUP 2건. t7336 OL-17 부채 미수리 3번째 확인",
+     "reward_causal": "중"
+    },
+    {
+     "step": 63,
+     "role": "assistant",
+     "what": "계좌별 총액을 스스로 정확히 집계 — 산술 능력 실증",
+     "actor": "model",
+     "kind": "자기 집계",
+     "evidence": "\"### Blue Account … Total Correction Amount: $9.50 … ### Green Account … $6.00 … ### Light Green Account … $4.50\"",
+     "consequence": "결손은 산술도 탐색도 아니라 호출 형태(M-1)와 STEP 33 의 재료 결손(OL-F)임을 확정",
+     "reward_causal": "중"
+    },
+    {
+     "step": 63,
+     "role": "our_layer",
+     "what": "write 종료 후 file_debit_card_transaction_dispute_6281(직불 분쟁)을 반복 지목 + [T2_EPLAN] walk gap 계기 오류",
+     "actor": "our_layer",
+     "kind": "오발화(무해) + 계기 오류",
+     "code_path": "[T2_DISCOVERY_STEP2] deny name=file_debit_card_transaction_dispute_6281 ×3 · [T2_RESOLVE] operator-scope deny ×4 · [T2_EPLAN] walk gap: qty=3 executed=0 unexamined=87",
+     "evidence": "msg[63] \"It appears there is a misunderstanding regarding the scope of the file_debit_card_transaction_dispute_6281 tool … we do not need to unlock this tool.\" · 그 시점 credit 은 7발 실행됨",
+     "consequence": "성적 영향 0. 단 walk gap 계기가 다음 포렌식을 오도할 위험([[31]] 규칙 ⑤)",
+     "reward_causal": "무관"
+    }
+   ]
+  }
+ ],
+ "summary": "bank_t7348 halfA task_073 은 **0/2**(t7346 1/2 대비 −1)이고, 채점축은 **DB-해시**(`reward_basis=['DB']`)다. gold 변이 4건 = `log_verification`×1 + `apply_checking_account_credit_5829`×3(**계좌당 정확히 1건의 NET**: `_1`=9.5·`_2`=9.0·`_3`=1.5).\n\n**두 trial 은 서로 다른 이유로 죽었다.**\n\n**trial 0 (`s626729`·MISSING 3) — 원인 = 우리 층.** 모델은 turn 35 초안에 gold 값을 정확히 썼다(fb 축자: *\"a single fee refund credit for the net correction … Total correction amount: $1.50 + $5.00 + $3.00 = **$9.50** … I will now apply a credit of $9.50 to your Blue Account.\"*). 그 턴에 우리 층이 세 가지를 주입했다: ⓐ `t2_gate_patch.py:8785`→`t2_resolve.py:764-791`(`formalize_intent_tool`)이 의도를 **고객-실행 도구 `submit_transaction`** 으로 오바인딩(정답 `unlock_discoverable_agent_tool`/`call_discoverable_agent_tool` 이 같은 후보집합 안에 있었다) → `t2_gate_patch.py:8808` 문면 *\"'submit_transaction' is run by the CUSTOMER … do not transfer for this\"*; ⓑ 축 무관 'Bluest' 레퍼럴 상수표 431자(`t2_gate_patch.py:9171`); ⓒ `t2_gate_patch.py:12475-12511`→`_unavailable_promises`(`4152-4213`)→`a2/base/shared.json:95` 가 **\"the tool it requires does not exist … follow the escalation path\"** 를 통보. 모델은 ⓒ를 축자로 채택해 *\"the tool required … is not available to me … I will need to transfer you\"* 로 포기했다. **`submit_transaction` 은 모델 궤적 축자 0회** — 우리가 만든 이름을 모델의 약속으로 되돌려주고 \"없다\"고 단정한 [[25]] 위반 형상이고, 억제 전제(`4210` + `_ledger_text` `4216-4233`)는 **같은 턴 ⓐ가 심은 우리 문자열을 원장으로 세어** 무력화됐다. 이어 turn 37 의 DISCOVERY-STEP2(`t2_resolve.py:274`)가 주지목을 `submit_interest_discrepancy_report_7294` 로 잡아 마지막 복구 턴까지 태웠다(정답 `apply_checking_account_credit_5829` 는 후미 나열에만).\n\n**trial 1 (`s373753`·MISSING 2·WRONGARG 6·DUP 2) — 1차 model·2차 우리 층.** ⑴모델이 msg[43]에서 계좌당 NET 대신 **라인당 1건**으로 회귀(t7336·t7346·t7348 3연속 동일 재현·[[63]] 형). 직전 turn 39 초안 3개가 전부 *\"Total Correction Amount: $9.50\"* 였고 OPERATOR-PROVENANCE deny(정당·날조 차단)로 폐기됐다. ⑵`_2` 는 합계마저 **6.00(gold 9.00)** 인데, 원인은 우리 비교기다 — `btxn_kj14u3v4w5x6`(\"ATM WITHDRAWAL - **RHO-BANK** #5678 TORRANCE CA\")가 격리 서브에서 `network='non_rho'` 로 형식화돼 `op.steps.expected.cases.rho=0` 이 적용되지 않았다(t7346 은 같은 행을 잡아 9.00 을 냈다). ⑶`T2_STALE_STRIP` 은 `_wtools`(=`gates[confirm]` **공집합** ∪ `eplan.write_tools` dispute 3종)에 credit 계열이 없어 **도달 불가** — 동일 인자 3발이 통과해 DUP 2건.\n\n**t7346 대비 달라진 것**: 비교기 행 단위가 `atm_fee 라인` → `atm_withdrawal` 로 바뀌며 Light Green 판정 보류(`coverage 3/6 → 10/10`·누락 수수료를 `difference $-1.50` 로 정확히 표면화)를 **샀고**, Green 의 RHO-BANK $3.00 검출을 **팔았다** — [[70]] 절충이 미계측으로 출시됐다. **user_sim·env 귀속 0건**(손님은 granularity 를 한 번도 지정하지 않았다·[[21]]).\n\n보고서: `C:\\workspace\\ba-frft\\reports\\facet_rft_2026\\tasks__20260824\\x505_TASK_073_t7348_perstep.md` (스텝 표 trial 별 = 본체). 수리·코드 수정은 하지 않았다."
+}
