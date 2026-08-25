@@ -505,5 +505,76 @@
    ],
    "next_probe": "x535 = `x525` 팔 N_wire·**P_noinv**·R_pairfee·N_datesort·N_len × n3, 채점에 `fee_paired`·수리된 `ids_real` 포함. t7354 종료 감시 스크립트(`/home/woori/scratch/x535_after_t7354.sh`)가 자동 발사한다."
   }
+ },
+ "findings_2026_08_25_night": {
+  "authority": "사용자 지시 2026-08-25 밤 — *\"비용은 많이 써도 된다. 시간이 제일 아깝다\"* · *\"최대한 많은 작업해서 내가 자는 동안 돌릴 수 있는 태스크를 밤샘 런에서 돌려라\"*",
+  "N1_085_defect_split_and_closed": {
+   "claim": "085 의 미달은 **분쟁 1행**뿐이고 그 행의 차이는 **표기 9 + 판단 1** 이었다. 오늘 밤 열 칸이 전부 닫혔고, t7355 스모크에서 gold 분쟁 #1 이 **인자 차이 0** 으로 접수됐다.",
+   "evidence_t7354": "정본 `t2_forensic.action_diff` 로 gold 행과 자연키 짝지음(grpA1 t0): gold 13 중 10 일치 · 남은 행의 차이 = 불리언 5(card_in_possession·contacted_merchant·police_report_filed·provisional_credit_eligible·written_statement_provided 전부 문자열 'Yes'/'No') + 열거 4(transaction_type 'ATM Withdrawal'↔'atm_withdrawal' · dispute_category 산문↔'atm_cash_discrepancy' · pin_compromised 'No'↔'no' · card_action 'None'↔'keep_active') + 판단 1(customer_max_liability_amount '0'↔'50').",
+   "evidence_t7355_smoke": "msg78 `file_debit_card_transaction_dispute_6281(btxn_a1b2c3d4e501, liab=50, cat='atm_cash_discrepancy', type='atm_withdrawal', pin='no')` → msg79 `Dispute ID: dsp_bccea0241d92 … Provisional Credit: ISSUED`. action_diff 로 그 gold 행과 맞대면 **남은 차이 0**.",
+   "new_defect": "★결손이 **표기에서 커버리지로 옮겼다**: gold 분쟁 4건 중 **1건만** 내고 msg90 에서 같은 것을 재접수하다 `Error: Dispute may have already been filed` 로 거절, 종료는 `user_stop`(104 메시지). t7354 는 분쟁 호출 12회로 4건을 냈다.",
+   "falsifier": "t7356 의 085 nt10 에서 접수 분쟁 수가 여전히 1~2 면 이 관측이 확증되고, 4 로 돌아오면 스모크 n=1 은 잡음이었다.",
+   "cannot_say": "n=1 이라 레버가 커버리지를 팔았다고 **귀속하지 않는다**([[70]] 무엇을 파나는 nt10 이 답한다)."
+  },
+  "N2_liability_table_isolated": {
+   "claim": "`customer_max_liability_amount` 는 선언된 표를 결정점에 놓으면 표 안으로 들어온다.",
+   "table": {
+    "x538 A_asis": "12/20",
+    "x538 B_rule": "20/20",
+    "x538 N_len": "12/20",
+    "x538b B_both(합성)": "20/20"
+   },
+   "scoring": "허용 집합은 **찾은 표에서 파싱**한다(코드 상수 0): 달러 금액 + unlimited 이면 -1. 어느 티어가 옳은지는 판정하지 않는다. gold 미접촉.",
+   "raw": "B_rule 은 20/20 전부 '50' · A_asis 는 '30000'·'50000' 을 8/20 냈다.",
+   "caveat": "⚠A_asis 가 **라이브의 '0' 을 축자로 재현하지는 못했다** — 표 밖 값을 낸다는 점만 같다([[62]] 2b 의 공정성은 약한 의미로만 성립).",
+   "shipped": "A2 두 정본 층 `write_rules` 에 선언(출처 = doc_bank_accounts_bank_accounts_(general)_031 축자). 래칫 `test_rule_at_write.py` 가 문장마다 축자 인용을 강제한다."
+  },
+  "N3_name_pattern_withdrawn": {
+   "claim": "★날조 가드가 `card_last_4_digits` 를 **아예 보지 않았다** — 술어가 인자 **이름 패턴**이었기 때문이다. 이름을 추측할 이유가 없다: env 가 unlock 때 명세를 고정 포맷으로 준다.",
+   "user_challenge": "사용자 2026-08-25 밤: *\"이건 패턴 매칭 또 쓰자는 건가?\"* — 맞다. `identifying_arg_types: ['digit']` 를 **철회**했다.",
+   "measured_on_t7354_all_batches": {
+    "이름 패턴 digit": "12건 잡고 오차단 0",
+    "env 선언 string 만": "30건 잡지만 **gold 날짜 10건 오차단**(issue_noticed_date '11/14/2025' · discovery_date '11/05/2025')",
+    "자리표시자 모양만": "min_credit_limit '10000' · disputed_amount 오차단",
+    "★셋 결합(선언 string + 열거 아님 + 자리표시자 모양 + 문맥 부재)": "**20건 전부 진짜 날조**(card_last_4_digits '1234'·'5678' 12 · transaction_id 'TRXN123456789x' 8) · **오차단 0** · 이름 패턴 0"
+   },
+   "root_cause_trace": "t7354 grpB1 task_040 t0 축자 — msg98 `give_discoverable_user_tool(get_card_last_4_digits, cc_01f21c9970_gold)` → msg99 `Tool given to user … The user can now execute this` → **msg100 에 손님이 실행하기도 전에** 분쟁 4건을 `card_last_4_digits='1234'` 로 접수. 첫 카드에서는 기다렸다(msg76 `Last 4 digits of card: 0581` → msg78 부터 정확히 사용).",
+   "shipped": "`T2_WRITE_ARG_FAB`(기본 OFF) + 래칫 `test_write_arg_fab.py` 가 ①선언 읽기 ②fail-open ③값 모양 갈림 ④**게이트에 `_hint_hit` 금지** ⑤문면은 검증분(REGEN_FEEDBACK·C45) ⑥기본 OFF 를 지킨다."
+  },
+  "N4_074_order_is_the_transcription_defect": {
+   "claim": "074 의 전사 결손은 재료가 아니라 **덤프의 순서**다. 같은 원문을 순서만 바꾸면 네 계좌가 갈린다.",
+   "x536": {
+    "chk_1(18)": "전 팔 18",
+    "chk_2(16)": "N_wire 17 · D_old_group 16 · N_scramble 17(날조 id)",
+    "chk_3(16)": "N_wire 17 · D_old_group 16 · N_scramble **15**(행 빠짐)",
+    "chk_4(16)": "N_wire 17 · D_old_group 16 cover 16 · D_old_inter 14~15"
+   },
+   "x536_verdict": "**D_old_group 만 4/4**. 무의미 순서(N_scramble)는 두 계좌를 오히려 부순다 ⇒ 산 것은 재렌더링이 아니라 **순서의 내용**([[57]] 통과).",
+   "x536_caveat": "프로브 주석은 `D_new_inter` 가 N_wire 재현이어야 한다고 적었으나 msg38 에서 17↔16 으로 갈린다 — D_* 팔은 REFERENCE 를 **평문**으로, N_wire 는 **JSON** 으로 렌더한다(두 칸 차이). 평문 가족 안(D_* 5팔)에서는 순서만 다르므로 그 비교는 공정하다.",
+   "x539": "승자를 **도메인 낱말 0** 으로 쓸 수 있나 — `D_firstseen_group`(타입별 묶음·타입 순서=원본 첫 등장·묶음 안 날짜 오름차순) 이 msg37·msg38 에서 `D_old_group` 과 **같은 수**. 부정통제 `N_alpha_group`(타입 순서만 이름순)은 msg38 에서 **15/16 cover 15/16 으로 부순다** ⇒ 산 것은 묶음이 아니라 '첫 등장 순서'다. **msg39·msg40 미완**.",
+   "shipped": "`T2_SG_RECORD_ORDER`(기본 OFF·`t2_scaffold_get._reorder_records`) + 래칫 `test_sg_record_order.py`(①순열 불변 ②실동작 ③fail-open 3종 ④**도메인 낱말 0** ⑤OFF 관측 마커 ⑥기본 OFF). ⚠**덤프가 둘 이상이면 손대지 않는다** — 호출부가 여러 도구 출력을 이어 붙이므로 재배열하면 계좌가 섞인다."
+  },
+  "N5_dead_declaration_found": {
+   "claim": "A2 의 `identifying_arg_types: ['time_verified']` 는 **한 달 넘게 죽어 있었다**.",
+   "why": "`_hint_hit` 이 2026-07-16 에 substring → **토큰 접두**로 바뀌었다(`'id' in 'provided'` 오탐 수리). 그 뒤로 키 `time_verified` 의 토큰 ['time','verified'] 중 어느 것도 `'time_verified'` 로 시작하지 않는다. A2 주석은 아직 옛 의미론(*\"substring-매칭\"*)을 적고 있다.",
+   "not_revived": "되살리려면 토큰을 'time' 으로 바꿔야 하고 t7354 전 배치 폭발 반경은 0건이나 원 근거(LOGV_TIME_FAB 59 sim)는 오늘 로스터 밖이라 **측정 없이 켜지 않는다**.",
+   "ratchet": "`test_identifying_hints.py` 가 선언 토큰마다 증인 인자 이름을 요구하고 **새 死선언을 실패시킨다**(기지 死선언은 KNOWN_DEAD 에 이유·날짜와 함께)."
+  },
+  "N6_generalization_verdict": {
+   "user_question": "사용자 2026-08-25 밤: *\"태스크별로 특정한 방식을 만들지 않고 일반화로는 지금 문제를 해결 못하는 건가?\"*",
+   "answer": "**아니다 — 일반화로 풀 수 있다. 다만 파생 둘을 안 지어서 태스크당 비용을 내고 있다.**",
+   "hand_authored_today_that_env_already_declares": "write_arg_enum 값 목록 6칸 · booleans 이름 7개 · identifying_arg_types 힌트 — 셋 다 env 가 unlock 출력에 축자로 준다(`- <arg>: <type> (required) - … Must be one of: '…'`). 손으로 베낀 이유는 *discoverable 도구는 agent 스키마 목록에 없다* 하나였는데, **unlock 메시지가 같은 명세를 건넨다** ⇒ 막힌 채널이 아니라 안 뚫은 채널.",
+   "genuinely_case_authored": "`write_rules`(가장 이른 중복 · 책임 한도 표) — *어느 정책 문장을 결정점에 놓을지*를 실패를 보고 고른다. 다만 두 문장 다 그 write 의 **인자 이름과 토큰을 공유**한다(`liability`↔`customer_max_liability_amount` · `duplicate`↔`duplicate_charge`) ⇒ '선언 위의 닫힌 조인' 으로 일반화할 여지가 있다(미측정).",
+   "next": [
+    "㈎ unlock 명세 파생 — 타입·열거·출처범위를 손 선언 대신 도출(`_declared_params` 는 이미 있다·오늘 FAB 가 그 첫 소비자)",
+    "㈏ 선언 조인 — write 의 인자 이름과 토큰을 공유하는 정책 행을 결정점에(순위 없는 조인·미측정)"
+   ],
+   "boundary": "⛔정책 **내용**(A3 행)은 도메인 데이터라 일반화 대상이 아니다 — 그건 ABox 이고 갈아 끼우는 것이 맞다. 일반화해야 하는 것은 *그것을 읽어 결정점에 놓는 방식*이다."
+  },
+  "N7_open": [
+   "040 은 reward_basis=['DB'] 라 gold 8건이 **전부** 맞아야 한다. 네 축 중 둘만 닫혔다(불리언·열거) — 남은 것 = `eligible_for_provisional_credit` 판단 6행 + `partial_refund_amount`/`resolution_requested` 1행.",
+   "040 의 그 판단 규칙은 doc_credit_cards_credit_cards_(general)_015 에 축자로 있고(NOT Eligible 사유 4종 = 모델이 실제 쓴 사유와 정확히 일치) **그 문서는 040 궤적에 한 번도 오지 않았다** — 085 처럼 '상류에 있는데 결정점에 없다' 가 아니라 **도착조차 안 했다**. A3 에도 그 행은 없다(doc 015 의 다른 4축은 있다).",
+   "x539 msg39·msg40 미완 — 도메인 일반 판의 판정이 아직 두 계좌 남았다."
+  ]
  }
 }
