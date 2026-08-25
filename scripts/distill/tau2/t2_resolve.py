@@ -778,8 +778,26 @@ def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools, ask=None):
         일반 어법 교체만 허용된다."""
     if not action_tools or agent is None or la is None:
         return None
+    _uall = [i for i, m in enumerate(msgs or [])
+             if getattr(m, "role", None) == "user"]
     users = [str(getattr(m, "content", "") or "") for m in msgs
              if getattr(m, "role", None) == "user"][-6:]
+    # ★계기 (2026-08-25·거동 변경 0·사용자 지시 *"수리할 방법이 없으면 다음 런을 위해
+    #   원인파악을 위한 장치라도 달아두라"*). 016 은 세 격리(x516·x517·x527b)가 전부
+    #   gold 0 이었는데, 그 이유가 밝혀진 것은 **창의 범위** 때문이다: 이 서브는 손님 발화
+    #   마지막 6개만 보고, 016 이 필요로 하는 자격 요건 축자는 궤적 msg[33]/[45] 로 온다
+    #   ⇒ 원리상 창 밖이다. 그 사실이 라이브 로그 어디에도 안 남아서 세 번을 돌아 알았다.
+    #   이제 매 호출이 *무엇을 못 봤는지*를 남긴다 — grep 하나로 코퍼스 전체에서 센다.
+    #   ⚠판단 0·선택 0: 인덱스 산술과 인쇄뿐이고 프롬프트는 한 글자도 안 바뀐다.
+    try:
+        print("[T2_SUBWIN] sub=intent_operator_formalize msgs=%d user_msgs=%d used=%d "
+              "win_first=%s blind_before=%d"
+              % (len(msgs or []), len(_uall), len(users),
+                 _uall[-6] if len(_uall) >= 6 else (_uall[0] if _uall else -1),
+                 (_uall[-6] if len(_uall) >= 6 else 0)),
+              file=sys.stderr, flush=True)
+    except Exception:
+        pass
     # ⛔의도 분류는 **어디에도 입법하지 않는다** (사용자 지시 2026-08-12: "우리 엔진이나
     #   A2/A3 모두 의도 분류를 하지 않는다"). 이 프롬프트는 순수 질문형으로 남긴다 — 판단은
     #   온전히 격리 LLM 몫이고, 엔진은 답의 집합 소속만 본다([[52]]·[[59]]).

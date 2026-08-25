@@ -3951,6 +3951,16 @@ def _search_material(agent, a2, messages, decide=True):
     try:
         agent._t2_last_decision = _out
         _ad = dict(getattr(agent, "_t2_axis_decision", None) or {})
+        # ★계기 (2026-08-25·거동 변경 0·사용자 지시 *"수리할 방법이 없으면 다음 런을 위해
+        #   원인파악을 위한 장치라도 달아두라"*). ②범주(057·063)의 남은 갈래는 큐 P1 이
+        #   **전달**로 지목했고, 그 근거는 055 반증이 `DOCDECIDE` 결정문 둘을
+        #   `outcome="clobbered"` 로 잡은 것이다. 그런데 라이브에는 덮어쓰기를 **세는 자리가
+        #   없어서** 057 에서도 같은 일이 벌어지는지 판정 불가였다. 여기가 그 유일한 자리다.
+        #   ⚠판단 0 — 같은 축 키에 다른 값이 들어오는지 문자열 비교 하나뿐이고 거동은 종전 그대로.
+        if _g in _ad and _ad[_g] != _out:
+            print("[T2_AXIS_CLOBBER] axis=%s old=%r new=%r"
+                  % (_g, str(_ad[_g])[:120], str(_out)[:120]),
+                  file=sys.stderr, flush=True)
         _ad[_g] = _out
         agent._t2_axis_decision = _ad
     except Exception:
