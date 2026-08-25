@@ -154,8 +154,15 @@ def cases():
                     continue
                 seen.add(k)
                 out.append({"task": tid, "account_type": str(a.get("account_type") or ""),
-                            "gold": str(a.get("account_class") or ""), "said": said[:5000]})
+                            "gold": str(a.get("account_class") or ""), "said": said})   # ★캡은 main 인자로(2026-08-25 실측: 4 사례 중 2개가 정확히 5000 에서 잘렸다)
     return out
+
+
+def _said(sd, a):
+    """손님 발화 캡 적용 — 자를지·어느 쪽을 남길지는 인자가 정한다(기본=종전 거동)."""
+    if a.saidcap and len(sd) > a.saidcap:
+        return sd[-a.saidcap:] if a.saidkeep == "tail" else sd[:a.saidcap]
+    return sd
 
 
 def main():
@@ -165,6 +172,10 @@ def main():
     ap.add_argument("--arms", default="E_enum,F_facts,D_docs,N_sham")
     ap.add_argument("--maxchars", type=int, default=60000)
     ap.add_argument("--facts", default="", help="사실표 경로(비우면 원본)")
+    # ★손님 발화 캡 (2026-08-25): `said[:5000]` 은 **뒤쪽 = 가장 최근 요구**를 버린다.
+    #   055 두 사례가 정확히 5000 에서 잘려 있었다 — 결정 근거가 거기 있을 수 있다.
+    ap.add_argument("--saidcap", type=int, default=5000, help="0 = 전문")
+    ap.add_argument("--saidkeep", default="head", choices=["head", "tail"])
     a = ap.parse_args()
     arms = [x.strip() for x in a.arms.split(",") if x.strip()]
     gm = group_map()
@@ -197,7 +208,7 @@ def main():
             else:
                 mat = "DOCUMENTS:\n" + "\n\n".join(
                     "### %s — %s\n%s" % (i, t, b) for i, t, b in docs_of(others[0] if others else fam))
-            body = (enum + "\n" + mat[:a.maxchars] + "\n\n# What the customer said\n%s\n" % c["said"])
+            body = (enum + "\n" + mat[:a.maxchars] + "\n\n# What the customer said\n%s\n" % _said(c["said"], a))
             ans = X.ask(a.port, SYS, body, maxtok=300) or {}
             v = str(ans.get("account_class") or "").strip()
             slug = re.sub(r"[^a-z0-9]+", "_", v.lower()).strip("_")
