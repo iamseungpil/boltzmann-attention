@@ -48,12 +48,19 @@ except Exception:
     pass
 
 GOLD = "submit_transaction"
-NEEDLE = "Qualification criteria"
+# ★재료 정정 (2026-08-25): 어제는 `Qualification criteria`(추천 **입금** 자격)를 넣었는데
+#   016 의 gold 는 입금이 아니라 **카드 적격 지출**이다 —
+#     gold 016_1 = user · submit_transaction {credit_card_type:"Silver Rewards Card",
+#                    merchant_name:"Best Buy", amount:750, category:"Shopping"}
+#   그리고 그 요건은 궤적에 축자로 있다(도착이 **늦어** 서브 창에는 원리상 안 들어간다):
+#     "The referred person must be approved and spend at least $750 within 60 days of account opening"
+#   ⇒ 어제의 0/24 는 *재료를 줘도 안 된다*가 아니라 **틀린 재료를 준 것**이다.
+NEEDLE = "must be approved and spend at least"
 ASK_NEUTRAL = ("which ONE of these tools must be EXECUTED to fulfill the request "
                "(by the agent, or by the customer themselves)? ")
 
 
-def sim_docs():
+def sim_docs(needle=NEEDLE):
     """simtag → (자격조건 문서 축자, 같은 길이의 무관 문서). 전부 **그 sim 의 궤적**에서 뜬다."""
     out = {}
     for tag in X16.RUNS:
@@ -70,9 +77,9 @@ def sim_docs():
                 if m.get("role") != "tool":
                     continue
                 c = str(m.get("content") or "")
-                if pol is None and NEEDLE in c:
+                if pol is None and needle in c:
                     pol = c
-                elif other is None and NEEDLE not in c and len(c) > 400:
+                elif other is None and needle not in c and len(c) > 400:
                     other = c
             if pol:
                 out[key] = (pol, other or "")
@@ -103,6 +110,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8140)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--needle", default=NEEDLE, help="정책 축자를 찾을 바늘(궤적 직독)")
     ap.add_argument("--arms", default="A_asis,B_policy,C_neutral,N_sham")
     ap.add_argument("--out", default=os.path.join(
         HERE, "..", "..", "..", "reports", "facet_rft_2026",
@@ -112,7 +120,7 @@ def main():
     cases = X16.windows()
     if a.limit:
         cases = cases[:a.limit]
-    docs = sim_docs()
+    docs = sim_docs(a.needle)
     arms = [s.strip() for s in a.arms.split(",") if s.strip()]
     la, agent = X16._LA(a.port), X16._Agent()
     print("=" * 96)
