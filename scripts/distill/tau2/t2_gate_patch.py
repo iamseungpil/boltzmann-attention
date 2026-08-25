@@ -2796,6 +2796,48 @@ def _env_spec_for(wc, msgs):
     return None, -1, -1
 
 
+_RULE_AT_WRITE_FB = (
+    "Error: [RULE-AT-WRITE] this write was held for one turn. Nothing new is being told to "
+    "you - the line(s) below are the environment's own words from earlier in this "
+    "conversation, and they mention the value you are about to write. They are repeated "
+    "here because that text is {dist} messages back:\n\n{rules}\n\n"
+    "Make the call again. If those lines change which record or which value this call should "
+    "carry, change it; if they do not, send the same call unchanged."
+)
+
+
+def _declared_rules_for(wc, a2):
+    """이 write 가 실행하는 도구에 대해 **A2 가 선언한 절차 문장** — 검색 0·랭킹 0.
+
+    ★2026-08-25 신설. 격리 `x537`(085·창 3·n4): 결정점 창 그대로면 **0/12**, 그 절차 문장 한 줄을
+      결정점에 놓으면 **12/12**, 같은 길이의 무관한 문장이면 **0/12**([[57]] 통과).
+      실물: 085 가 중복 청구에서 늦은 거래를 골랐다 — 규칙은 대화 초반 문서 본문에 축자로 있었고,
+      write 는 한참 뒤였다. `_env_spec_for`(도구 명세)와 **같은 가족**이고 같은 진단이다:
+      *재료는 상류에 있고 결정점에 없다*.
+
+    ⚠**검색기를 짓지 않는다.** 초판은 궤적 문장을 토큰으로 긁었는데 검산에서 **다른 도구의
+      unlock 문면**을 집었다(2026-08-25 실측). 순위를 매기면 엔진이 고르기 시작한다([[62]]④).
+      그래서 후보를 만들지 않고 **선언된 것만** 읽는다 — 술어는 도구 이름 동등성 하나다([[22]]).
+      출처 의무는 A2 쪽에 있다: 문장마다 정책 축자와 `_note_` 를 단다([[23]]).
+    """
+    want = str(_exact_tool_name(wc) or "")
+    if not want:
+        return None
+    out = []
+    for sp in ((a2 or {}).get("write_rules") or []):
+        if not isinstance(sp, dict):
+            continue
+        tgt = str(sp.get("applies_to") or "")
+        if not tgt or not (want == tgt or want.startswith(tgt)):
+            continue
+        t = str(sp.get("text") or "").strip()
+        if t:
+            out.append(t)
+    if not out:
+        return None
+    return chr(10).join("- " + x for x in out)
+
+
 _DECIDE_FIRST_FB = (
     "Error: [DECIDE-FIRST] this write was held for one turn because the decision it "
     "encodes had not been made in this conversation yet. It has now been made, and it "
@@ -10454,6 +10496,33 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                            target=_eff_tool_name(_wc),
                                            fact="what this tool itself declared when it "
                                                 "was made available")
+                            # ★T2_RULE_AT_WRITE (기본 OFF·격리 x537 통과 후 배선·[[78]]).
+                            #   격리(085·창 3·n4): 창 그대로 **0/12** ↔ 선언 문장 한 줄을 결정점에
+                            #   놓으면 **12/12** ↔ 같은 길이 무관 문장 **0/12**([[57]] 통과·
+                            #   A_asis 가 라이브 오답을 재현하므로 공정 [[62]]2b).
+                            #   ⚠SPEC_AT_WRITE 와 **다른 자리**를 산다: 그쪽은 인자 **이름**이 틀렸을
+                            #     때고, 이쪽은 이름이 다 맞는데 **어느 기록을 고르나**가 틀릴 때다
+                            #     (085 실물: 키 17/17 정확한 호출이 늦은 중복을 골랐다).
+                            #   ⚠엔진은 검색도 순위도 하지 않는다 — **선언된 문장을 그대로** 싣는다.
+                            #     출처 의무는 A2 `_note_` 에 있다([[23]] 정책 축자).
+                            elif (os.environ.get("T2_RULE_AT_WRITE") == "1"
+                                  and _declared_rules_for(_wc, a2)):
+                                _rseen = getattr(self, "_t2_rule_at_write", None)
+                                if _rseen is None:
+                                    _rseen = self._t2_rule_at_write = set()
+                                _rkey2 = str(_exact_tool_name(_wc) or "")
+                                if _rkey2 and _rkey2 not in _rseen:
+                                    _rseen.add(_rkey2)
+                                    _rtxt = _declared_rules_for(_wc, a2)
+                                    self._t2_dwrite_deny = 1
+                                    dw_fb = (_wc, _RULE_AT_WRITE_FB.format(
+                                        dist=(_sd if _sd > 0 else 0), rules=_rtxt))
+                                    print("[T2_RULE_AT_WRITE] write 1턴 유예 tool=%s (%d자 규칙)"
+                                          % (_eff_tool_name(_wc), len(_rtxt)),
+                                          file=_sys.stderr, flush=True)
+                                    _lbeat("T2_RULE_AT_WRITE", orch=self,
+                                           target=_eff_tool_name(_wc),
+                                           fact="the procedure the documents state for this write")
                             else:
                                 print("[T2_DECIDE_BEFORE_WRITE] 축 미상 — 무발화 tool=%s "
                                       "(A2 가 이 write 의 선택 인자를 선언하지 않았다)"
