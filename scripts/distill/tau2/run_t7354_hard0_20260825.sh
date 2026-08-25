@@ -147,8 +147,8 @@ setsid bash -c "
 
   # ── ★스모크 없음 — **같은 sha 가 방금 라이브로 돌았다**.
   #    t7354 스모크(074 nt1 · 87.1분 · Traceback 0)가 이 sha 의 스모크이고, 그 로그가
-  #    수리 도달까지 확인했다: `operand keys=['transactions']` 복귀 · `[T2_SG_PROMPT_V2]`
-  #    9회 발화. 엔진은 그 뒤로 한 글자도 안 변했다(freeze 검사 `동결 경로 무변` 통과).
+  #    수리 도달까지 확인했다: 'operand keys=[transactions]' 복귀 · '[T2_SG_PROMPT_V2]'
+  #    9회 발화. 엔진은 그 뒤로 한 글자도 안 변했다(freeze 검사 '동결 경로 무변' 통과).
   #    ⇒ 또 태우면 남은 창의 40분을 사는 일이라 생략한다([[09]] 무료 검증 우선).
 
   cd '$REPO'
