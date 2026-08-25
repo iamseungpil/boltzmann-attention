@@ -532,3 +532,9 @@ export T2_RULE_AT_WRITE=0
 #   날조(`card_last_4_digits='1234'` 12 · `transaction_id='TRXN123456789x'` 8)·오차단 0.
 #   ⚠이름 패턴판(`identifying_arg_types.digit`)은 2026-08-25 사용자 지적으로 **철회**했다.
 export T2_WRITE_ARG_FAB=0
+
+# ★서브에게 주는 레코드 덤프의 순서 (`T2_SG_RECORD_ORDER`·기본 OFF·2026-08-25·격리 x536/x539).
+#   x536(4계좌×6팔×3=72샘플): 같은 6,752자 원문을 순서만 바꾸면 갈린다 —
+#   N_wire 17/17/17(기대 16) ↔ D_old_group 16/16/16 ↔ **N_scramble(무의미 순서)은 두 계좌를 부순다**
+#   ⇒ 산 것은 재렌더링이 아니라 순서의 내용([[57]] 통과). 엔진이 쓰는 문장 0·값 0·판단 0.
+export T2_SG_RECORD_ORDER=0

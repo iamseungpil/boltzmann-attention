@@ -840,6 +840,21 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
                     if isinstance(_pd2, str) and _pd2.strip():
                         _pb2 += "\n%s: %s" % (_k2, _pd2)
                 _recs2 = "\n\n".join(str(x) for x in (_ok_outs or []) if x)
+                # ★T2_SG_RECORD_ORDER (2026-08-25·기본 OFF·격리 x536/x539 후 배선·[[78]]).
+                #   덤프의 **순서만** 바꾼다(내용·값·판단 0). 근거와 부정통제는 `_reorder_records`.
+                #   ⚠OFF 에서도 관측 한 줄을 남긴다 — 그것이 반증 경로다([[25]] 死배선 조기 발견).
+                if _recs2 and "Record ID:" in _recs2:
+                    _ro = _reorder_records(_recs2)
+                    _chg = (_ro != _recs2)
+                    if os.environ.get("T2_SG_RECORD_ORDER") == "1":
+                        _recs2 = _ro
+                        print("[T2_SG_RECORD_ORDER] %s: 덤프 재배열 %s (%d자)"
+                              % (d.get("name"), "적용" if _chg else "무변",
+                                 len(_recs2)), file=_sys.stderr, flush=True)
+                    else:
+                        print("[T2_SG_RECORD_ORDER] 관측(OFF) %s: 재배열하면 %s"
+                              % (d.get("name"), "달라진다" if _chg else "같다"),
+                              file=_sys.stderr, flush=True)
                 _close = ((("=== FIELD CONTRACT ===" + _pb2 + "\n\n") if _pb2 else "")
                           + (("=== RECORDS ===\n" + _recs2 + "\n\n") if _recs2 else "")
                           + iso["answer_format"])
@@ -1562,12 +1577,21 @@ def _reorder_records(text):
     import re as _re3
     if "Record ID:" not in (text or ""):
         return text
+    # ⚠**덤프가 둘 이상이면 손대지 않는다.** 호출부(`_recs2`)는 여러 도구 출력을 이어 붙이므로,
+    #   그 위에서 재배열하면 서로 다른 원장의 행이 **한 묶음으로 섞인다** — 순서를 고치려다
+    #   전사 결손을 제조하는 일이다([[25]]). 술어는 env 머리말 계수 하나(닫힘).
+    if len(_re3.findall(r"Found \d+ record\(s\)", text)) > 1:
+        return text
     parts = _re3.split(r"\n(?=\s*\d+\.\s+Record ID:)", text)
     head = ""
     if parts and "Record ID:" not in parts[0]:
         head, parts = parts[0], parts[1:]
     blocks = []
     for b in parts:
+        if "Record ID:" not in b:
+            if b.strip():
+                return text                 # 레코드가 아닌 본문이 중간에 있다 = 모르는 형식
+            continue                        # 빈 조각(분리자 잔재)은 버린다
         i = _re3.search(r"Record ID:\s*(\S+)", b)
         t = _re3.search(r"^\s*type:\s*(\S+)\s*$", b, _re3.M)
         d = _re3.search(r"^\s*date:\s*(\S+)\s*$", b, _re3.M)
