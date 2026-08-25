@@ -1,0 +1,140 @@
+건너뜀 task_074#s626729       msg60   음수 없음(변별력 0)
+건너뜀 task_072#s626729       msg48   음수 없음(변별력 0)
+건너뜀 task_072#s361454       msg56   음수 없음(변별력 0)
+건너뜀 task_072#s361454       msg61   음수 없음(변별력 0)
+창 6개 (음수를 담은 계좌 · 라이브 호출에 짝지음)
+   task_074#s626729     msg58   acct=chk_ar72c5d8e3_4 라이브제출 9.30 · 절댓값합 9.30 · **부호합 3.70** · 창 14817자
+   task_074#s626729     msg62   acct=chk_ar72c5d8e3_2 라이브제출 19.50 · 절댓값합 19.50 · **부호합 14.50** · 창 12035자
+   task_074#s626729     msg64   acct=chk_ar72c5d8e3_3 라이브제출 10.25 · 절댓값합 10.25 · **부호합 4.75** · 창 10689자
+   task_072#s626729     msg48   acct=chk_538bfb9cba 라이브제출 6.50 · 절댓값합 6.50 · **부호합 3.50** · 창 10571자
+   task_072#s361454     msg56   acct=chk_538bfb9cba 라이브제출 6.50 · 절댓값합 6.50 · **부호합 3.50** · 창 14409자
+   task_072#s361454     msg61   acct=chk_538bfb9cba 라이브제출 6.50 · 절댓값합 6.50 · **부호합 3.50** · 창 11147자
+A_asis  task_074#s626729     msg58   k=0 got=20.3      
+A_asis  task_074#s626729     msg58   k=1 got=20.3      
+A_asis  task_074#s626729     msg58   k=2 got=20.3      
+A_asis  task_074#s626729     msg58   k=3 got=20.3      
+B_fmt   task_074#s626729     msg58   k=0 got=20.3      
+B_fmt   task_074#s626729     msg58   k=1 got=20.3      
+B_fmt   task_074#s626729     msg58   k=2 got=20.3      
+B_fmt   task_074#s626729     msg58   k=3 got=20.3      
+C_sign  task_074#s626729     msg58   k=0 got=8.8       
+C_sign  task_074#s626729     msg58   k=1 got=8.8       
+C_sign  task_074#s626729     msg58   k=2 got=8.8       
+C_sign  task_074#s626729     msg58   k=3 got=8.8       
+D_both  task_074#s626729     msg58   k=0 got=10.3      
+D_both  task_074#s626729     msg58   k=1 got=10.3      
+D_both  task_074#s626729     msg58   k=2 got=10.3      
+D_both  task_074#s626729     msg58   k=3 got=10.3      
+N_len   task_074#s626729     msg58   k=0 got=20.6      
+N_len   task_074#s626729     msg58   k=1 got=20.6      
+N_len   task_074#s626729     msg58   k=2 got=20.6      
+N_len   task_074#s626729     msg58   k=3 got=20.6      
+A_asis  task_074#s626729     msg62   k=0 got=27.0      
+A_asis  task_074#s626729     msg62   k=1 got=27.0      
+A_asis  task_074#s626729     msg62   k=2 got=27.0      
+A_asis  task_074#s626729     msg62   k=3 got=27.0      
+B_fmt   task_074#s626729     msg62   k=0 got=27.0      
+B_fmt   task_074#s626729     msg62   k=1 got=27.0      
+B_fmt   task_074#s626729     msg62   k=2 got=27.0      
+B_fmt   task_074#s626729     msg62   k=3 got=27.0      
+C_sign  task_074#s626729     msg62   k=0 got=9.3       
+C_sign  task_074#s626729     msg62   k=1 got=9.3       
+C_sign  task_074#s626729     msg62   k=2 got=9.3       
+C_sign  task_074#s626729     msg62   k=3 got=9.3       
+D_both  task_074#s626729     msg62   k=0 got=9.3       
+D_both  task_074#s626729     msg62   k=1 got=9.3       
+D_both  task_074#s626729     msg62   k=2 got=9.3       
+D_both  task_074#s626729     msg62   k=3 got=9.3       
+N_len   task_074#s626729     msg62   k=0 got=9.3       
+N_len   task_074#s626729     msg62   k=1 got=9.3       
+N_len   task_074#s626729     msg62   k=2 got=9.3       
+N_len   task_074#s626729     msg62   k=3 got=9.3       
+A_asis  task_074#s626729     msg64   k=0 got=9.3       
+A_asis  task_074#s626729     msg64   k=1 got=9.3       
+A_asis  task_074#s626729     msg64   k=2 got=9.3       
+A_asis  task_074#s626729     msg64   k=3 got=9.3       
+B_fmt   task_074#s626729     msg64   k=0 got=9.3       
+B_fmt   task_074#s626729     msg64   k=1 got=9.3       
+B_fmt   task_074#s626729     msg64   k=2 got=9.3       
+B_fmt   task_074#s626729     msg64   k=3 got=9.3       
+C_sign  task_074#s626729     msg64   k=0 got=9.3       
+C_sign  task_074#s626729     msg64   k=1 got=9.3       
+C_sign  task_074#s626729     msg64   k=2 got=9.3       
+C_sign  task_074#s626729     msg64   k=3 got=9.3       
+D_both  task_074#s626729     msg64   k=0 got=9.3       
+D_both  task_074#s626729     msg64   k=1 got=9.3       
+D_both  task_074#s626729     msg64   k=2 got=9.3       
+D_both  task_074#s626729     msg64   k=3 got=9.3       
+N_len   task_074#s626729     msg64   k=0 got=19.5      
+N_len   task_074#s626729     msg64   k=1 got=19.5      
+N_len   task_074#s626729     msg64   k=2 got=19.5      
+N_len   task_074#s626729     msg64   k=3 got=19.5      
+A_asis  task_072#s626729     msg48   k=0 got=16.5      
+A_asis  task_072#s626729     msg48   k=1 got=16.5      
+A_asis  task_072#s626729     msg48   k=2 got=16.5      
+A_asis  task_072#s626729     msg48   k=3 got=16.5      
+B_fmt   task_072#s626729     msg48   k=0 got=16.5      
+B_fmt   task_072#s626729     msg48   k=1 got=16.5      
+B_fmt   task_072#s626729     msg48   k=2 got=16.5      
+B_fmt   task_072#s626729     msg48   k=3 got=16.5      
+C_sign  task_072#s626729     msg48   k=0 got=16.5      
+C_sign  task_072#s626729     msg48   k=1 got=16.5      
+C_sign  task_072#s626729     msg48   k=2 got=16.5      
+C_sign  task_072#s626729     msg48   k=3 got=16.5      
+D_both  task_072#s626729     msg48   k=0 got=16.5      
+D_both  task_072#s626729     msg48   k=1 got=16.5      
+D_both  task_072#s626729     msg48   k=2 got=16.5      
+D_both  task_072#s626729     msg48   k=3 got=16.5      
+N_len   task_072#s626729     msg48   k=0 got=16.5      
+N_len   task_072#s626729     msg48   k=1 got=16.5      
+N_len   task_072#s626729     msg48   k=2 got=16.5      
+N_len   task_072#s626729     msg48   k=3 got=16.5      
+A_asis  task_072#s361454     msg56   k=0 got=6.5       (절댓값합)
+A_asis  task_072#s361454     msg56   k=1 got=6.5       (절댓값합)
+A_asis  task_072#s361454     msg56   k=2 got=6.5       (절댓값합)
+A_asis  task_072#s361454     msg56   k=3 got=6.5       (절댓값합)
+B_fmt   task_072#s361454     msg56   k=0 got=6.5       (절댓값합)
+B_fmt   task_072#s361454     msg56   k=1 got=6.5       (절댓값합)
+B_fmt   task_072#s361454     msg56   k=2 got=6.5       (절댓값합)
+B_fmt   task_072#s361454     msg56   k=3 got=6.5       (절댓값합)
+C_sign  task_072#s361454     msg56   k=0 got=6.5       (절댓값합)
+C_sign  task_072#s361454     msg56   k=1 got=6.5       (절댓값합)
+C_sign  task_072#s361454     msg56   k=2 got=6.5       (절댓값합)
+C_sign  task_072#s361454     msg56   k=3 got=6.5       (절댓값합)
+D_both  task_072#s361454     msg56   k=0 got=6.5       (절댓값합)
+D_both  task_072#s361454     msg56   k=1 got=6.5       (절댓값합)
+D_both  task_072#s361454     msg56   k=2 got=6.5       (절댓값합)
+D_both  task_072#s361454     msg56   k=3 got=6.5       (절댓값합)
+N_len   task_072#s361454     msg56   k=0 got=6.5       (절댓값합)
+N_len   task_072#s361454     msg56   k=1 got=6.5       (절댓값합)
+N_len   task_072#s361454     msg56   k=2 got=6.5       (절댓값합)
+N_len   task_072#s361454     msg56   k=3 got=6.5       (절댓값합)
+A_asis  task_072#s361454     msg61   k=0 got=6.5       (절댓값합)
+A_asis  task_072#s361454     msg61   k=1 got=6.5       (절댓값합)
+A_asis  task_072#s361454     msg61   k=2 got=6.5       (절댓값합)
+A_asis  task_072#s361454     msg61   k=3 got=6.5       (절댓값합)
+B_fmt   task_072#s361454     msg61   k=0 got=6.5       (절댓값합)
+B_fmt   task_072#s361454     msg61   k=1 got=6.5       (절댓값합)
+B_fmt   task_072#s361454     msg61   k=2 got=6.5       (절댓값합)
+B_fmt   task_072#s361454     msg61   k=3 got=6.5       (절댓값합)
+C_sign  task_072#s361454     msg61   k=0 got=6.5       (절댓값합)
+C_sign  task_072#s361454     msg61   k=1 got=6.5       (절댓값합)
+C_sign  task_072#s361454     msg61   k=2 got=6.5       (절댓값합)
+C_sign  task_072#s361454     msg61   k=3 got=6.5       (절댓값합)
+D_both  task_072#s361454     msg61   k=0 got=6.5       (절댓값합)
+D_both  task_072#s361454     msg61   k=1 got=6.5       (절댓값합)
+D_both  task_072#s361454     msg61   k=2 got=6.5       (절댓값합)
+D_both  task_072#s361454     msg61   k=3 got=6.5       (절댓값합)
+N_len   task_072#s361454     msg61   k=0 got=6.5       (절댓값합)
+N_len   task_072#s361454     msg61   k=1 got=6.5       (절댓값합)
+N_len   task_072#s361454     msg61   k=2 got=6.5       (절댓값합)
+N_len   task_072#s361454     msg61   k=3 got=6.5       (절댓값합)
+
+== agg (ok = 부호합 · abs = 절댓값합 오답) ==
+  A_asis  ok 0/24 · 절댓값합 8
+  B_fmt   ok 0/24 · 절댓값합 8
+  C_sign  ok 0/24 · 절댓값합 8
+  D_both  ok 0/24 · 절댓값합 8
+  N_len   ok 0/24 · 절댓값합 8
+A_asis 가 **라이브 제출값**을 재현했다 - 격리가 공정하다
+-> /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x542_signed_sum_2026_08_26.json
