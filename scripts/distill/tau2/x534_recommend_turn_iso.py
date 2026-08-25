@@ -70,6 +70,12 @@ TASKS = ("task_057", "task_055")
 
 USAGE_WORDS = ("withdrawal", "withdrawals", "per month", "months")
 
+NL = chr(10)
+SEP = NL + NL
+HEAD = ("You are a bank customer-service agent. In addition to the bank's own tools "
+        "you have these:" + NL)
+TAIL = "Write your next reply to the customer. Reply with the message text only."
+
 
 def gen(port, body, maxtok=420):
     payload = {"model": MODEL, "temperature": 0.0, "max_tokens": maxtok,
@@ -104,7 +110,17 @@ def class_names():
 
 
 def opening(task):
-    """그 태스크의 **첫 손님 요구**까지 — 궤적 축자."""
+    """**우리 도구를 처음 부르기 직전**까지의 대화 — 궤적 축자·지어냄 0.
+
+    ★두 태스크의 기전이 다르므로 창을 첫 손님 발화로 고정하면 한쪽만 잡는다(궤적 실측):
+      057 — A2 가 **ATM 사용량만** 묻는다(그 세 질문 = 이 도구의 세 파라미터). 조건절
+             *"when the customer's stated criterion involves ATM fees"* 가 **미충족**인데
+             도구가 면접을 끌었다는 것이 가설이므로 창은 U1 뒤가 맞다.
+      055 — A2 는 오히려 열린 질문을 잘 했고(*"low monthly maintenance fees? high interest
+             rates? cash back?"*) 손님이 ATM 기준을 실제로 말했다(U3). 조건은 **충족**이다.
+             그런데 도구 결과를 받자 A6 이 **ATM 한 축으로 붕괴**했다. 창은 U3 뒤여야 한다.
+    ⇒ 두 경우 모두 *"이 도구를 처음 부르기 직전"* 이 결정점이다. 그 지점을 구조로 찾는다.
+    """
     for tag in RUNS:
         p = os.path.join(SIMS, tag + ".results.json.gz")
         if not os.path.exists(p):
@@ -113,9 +129,36 @@ def opening(task):
         for s in (d.get("simulations") or []):
             if s.get("task_id") != task:
                 continue
-            for m in (s.get("messages") or []):
+            ms = s.get("messages") or []
+            # ⚠창이 **둘**이어야 한다. 하나로는 한쪽 기전만 잡힌다:
+            #   W_open   첫 손님 요구 직후까지 — 057 의 A2(ATM 세 질문)를 **포함하지 않는다**.
+            #            이 창에서만 *"도구가 면접을 끌었나"* 를 물을 수 있다(그 질문이 아직
+            #            대화에 없으므로). 창에 넣으면 프레임이 이미 박혀 제거가 무의미해진다.
+            #   W_pretool 도구를 처음 부르기 직전까지 — 055 의 A6 붕괴(한 축 argmin)를 잡는다.
+            cut_tool = len(ms)
+            for i, m in enumerate(ms):
+                if TOOL in json.dumps(m.get("tool_calls") or [], ensure_ascii=False):
+                    cut_tool = i
+                    break
+            cut_open = len(ms)
+            for i, m in enumerate(ms):
                 if m.get("role") == "user" and str(m.get("content") or "").strip():
-                    return str(m.get("content")).strip()
+                    cut_open = i + 1
+                    break
+
+            def _render(upto):
+                out = []
+                for m in ms[:upto]:
+                    c = str(m.get("content") or "").strip()
+                    if not c:
+                        continue
+                    out.append("%s: %s" % ("Customer" if m.get("role") == "user" else "You", c))
+                return "\n\n".join(out)
+
+            got = [("W_open", _render(cut_open))]
+            if cut_tool > cut_open:
+                got.append(("W_pretool", _render(cut_tool)))
+            return [(n, t) for n, t in got if t]
     return None
 
 
@@ -153,50 +196,49 @@ def main(argv=None):
     CLS = class_names()
     rows, agg = [], {}
     for task in TASKS:
-        first = opening(task)
-        if not first:
+        wins = opening(task)
+        if not wins:
             print("창 없음: %s" % task)
             continue
-        arms = {"A_asis": render(tools),
-                "B_excl": render(tools, drop=TOOL),
-                "C_cond": render(tools, replace=(TOOL, cond)),
-                "N_neg": render(tools, drop=other) if other else None}
-        for arm, tl in arms.items():
-            if tl is None:
-                continue
-            for k in range(a.n):
-                body = ("You are a bank customer-service agent. In addition to the bank's own "
-                        "tools you have these:\n" + tl +
-                        "\n\nThe customer just said:\n\"" + first + "\"\n\n"
-                        "Write your next reply to the customer. Reply with the message text only.")
-                try:
-                    txt = gen(a.port, body)
-                except Exception as e:
-                    txt = "!!%r" % (e,)
-                low = txt.lower()
-                asks_usage = any(w in low for w in USAGE_WORDS)
-                named = sorted({c for c in CLS if c and c.lower() in low and len(c) > 8})
-                rows.append({"task": task, "arm": arm, "k": k,
-                             "asks_usage": asks_usage, "named": named,
-                             "asks_any": "?" in txt, "text": txt[:500]})
-                d0 = agg.setdefault((task, arm), {"n": 0, "usage": 0, "named": 0, "q": 0})
-                d0["n"] += 1
-                d0["usage"] += 1 if asks_usage else 0
-                d0["named"] += 1 if named else 0
-                d0["q"] += 1 if "?" in txt else 0
-                print("%-9s %-7s k=%d usage=%-5s named=%s" % (task, arm, k, asks_usage, named),
-                      flush=True)
+        for win, first in wins:
+            arms = {"A_asis": render(tools),
+                    "B_excl": render(tools, drop=TOOL),
+                    "C_cond": render(tools, replace=(TOOL, cond)),
+                    "N_neg": render(tools, drop=other) if other else None}
+            for arm, tl in arms.items():
+                if tl is None:
+                    continue
+                for k in range(a.n):
+                    body = (HEAD + tl + SEP + "Conversation so far:" + NL + first + SEP + TAIL)
+                    try:
+                        txt = gen(a.port, body)
+                    except Exception as e:
+                        txt = "!!%r" % (e,)
+                    low = txt.lower()
+                    asks_usage = any(w in low for w in USAGE_WORDS)
+                    named = sorted({c for c in CLS if c and c.lower() in low and len(c) > 8})
+                    rows.append({"task": task, "win": win, "arm": arm, "k": k,
+                                 "asks_usage": asks_usage, "named": named,
+                                 "asks_any": "?" in txt, "text": txt[:500]})
+                    d0 = agg.setdefault((task, win, arm),
+                                        {"n": 0, "usage": 0, "named": 0, "q": 0})
+                    d0["n"] += 1
+                    d0["usage"] += 1 if asks_usage else 0
+                    d0["named"] += 1 if named else 0
+                    d0["q"] += 1 if "?" in txt else 0
+                    print("%-9s %-9s %-7s k=%d usage=%-5s named=%s"
+                          % (task, win, arm, k, asks_usage, named), flush=True)
     out = {"probe": "x534", "date": "2026-08-25", "tool": TOOL, "tasks": list(TASKS),
            "blast_radius": "t7346+t7348 에서 이 도구를 부른 태스크는 057(4회)·055(3회) 뿐이고 "
                            "reward 는 전부 0. 도입 근거 문서의 짝비교 칸은 '없음'.",
            "live_switch": "T2_SG_EXCLUDE (정본 t2_scaffold_get.py · 이름 필터뿐) — "
                           "B_excl 이 이기면 새 코드 0 으로 라이브 A/B 가 된다.",
-           "agg": {"%s|%s" % k: v for k, v in agg.items()}, "rows": rows}
+           "agg": {"|".join(k): v for k, v in agg.items()}, "rows": rows}
     io.open(a.out, "w", encoding="utf-8").write(json.dumps(out, ensure_ascii=False, indent=1))
     print("\n== agg ==")
     for k, v in agg.items():
-        print(" %-9s %-7s usage=%d/%d named=%d q=%d" % (k[0], k[1], v["usage"], v["n"],
-                                                        v["named"], v["q"]))
+        print(" %-9s %-9s %-7s usage=%d/%d named=%d q=%d"
+              % (k[0], k[1], k[2], v["usage"], v["n"], v["named"], v["q"]))
     print("->", a.out)
     return 0
 
