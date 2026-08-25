@@ -2,12 +2,15 @@
 # t7351 — **hard-0 표적 런** (사용자 지시 2026-08-25: *"20 태스크 런 걸지 말고, 어제 계획한
 #   hard-0 최소 nt=4 로 외출시 걸어라"*). 큐 `x509` P4 설계의 표적판이다.
 #
-# ## 표적 4 × nt=6 = 24 sim  (큐 x509 P4 설계 축자: *표적 = 072·073·074·016*.
+# ## 표적 6 × nt=4 = 24 sim  (큐 x509 P4 설계 축자: *표적 = 072·073·074·016*.
 #    ②범주가 안 살아나서 057·063 은 뺐다. 6시간 외출에 맞춰 nt 를 4→6 으로 올린다 —
 #    판정선이 *표적의 0→1* 이므로 n 이 클수록 그 한 건의 의미가 커진다.)
 #   074  ①금액 단독 — 오늘 격리로 확정된 **전사 결손**의 유일한 보유 태스크
 #   072  ①금액 단독 — 같은 서브를 쓰지만 **전사는 이미 온전**(9·10 = 계약값) ⇒ V2 의 **매도 측정**
 #   073  같은 ATM 서브 — 전사는 온전(10·11·10)하므로 **V2 의 매도**를 재는 자리다
+#   085·040  우리 층이 **gold 거래를 시도하는 호출을 11~17회 막았다**(mutation_diff blocked).
+#        ⚠단 `x529` 가 그 거절을 **오프라인에서 재현하지 못했다** ⇒ 기전 미확정·검증된 수리 없음.
+#        이 런에서 처음 실리는 **거절 사이드카**로 우리가 그때 무엇을 보냈는지 잡는다.
 #   016  ⑦유도 단독 — 새 레버는 **없다**. 그런데 이번 런에 **서브 사이드카**가 처음 실리므로
 #        *"서브가 무엇을 받고 무엇을 냈나"* 가 처음 기록된다([[76]] 진단 ① 재료). 오늘 아침
 #        gold 정정(카드 적격 지출·`submit_transaction`)에 맞는 저작을 하려면 그 기록이 필요하다.
@@ -81,9 +84,9 @@ T2_DOCS_AT_WRITE=0 T2_SUB_REQUIREMENT=0 T2_HANDOFF_PREDICATE=0 T2_PENDING_DISCOV
 T2_VERDICT_CARRY=0 T2_ELIG_LINE=0 T2_VERDICT_GATE=0 T2_CLAIM_VERIFY=0 \
 T2_DECLFIRST=0 T2_DECLFIRST_GUIDE_FIX=0 T2_CATEGORY_CITE="
 ON="T2_ARG_DOC_SUB=1 T2_VALUE_FORMULA=full T2_SG_DOCS=1 T2_SG_PROMPT_V2=1"
-NT=6
-GRP_A='task_074,task_016'
-GRP_B='task_072,task_073'
+NT=4
+GRP_A='task_074,task_016,task_085'
+GRP_B='task_072,task_073,task_040'
 
 echo "{\"tag\":\"t7351\",\"sha\":\"$SHA\",\"design\":\"queue P4 targets 074 016 072 073 at nt=6 (24 sims), the transcription prompt order on\",\"on\":\"$ON\",\"reference\":\"t7348 sha aed30e20 - all four were 0/2\",\"bar\":\"a target going 0 -> 1; never judge on a total delta; bundle so no individual attribution (C594)\",\"why_016\":\"no new lever - it rides to capture the sub-call sidecar, which this run records for the first time\",\"gate\":\"$GATE on the N_wire isolation check\"}" \
   | tee "$LOG/bank_t7351.meta.json"
