@@ -50,6 +50,9 @@ import re
 import sys
 import urllib.request
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import t2_forensic as F   # noqa: E402  (정본 파서 재사용·[[67]])
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 SIMS = os.path.abspath(os.path.join(HERE, "..", "..", "..",
                                     "reports", "facet_rft_2026", "sim_results"))
@@ -132,13 +135,26 @@ def windows():
                         blks.append((i, c, tot, vals, round(sum(abs(v) for v in vals), 2)))
             for i, m in enumerate(ms):
                 for tc in (m.get("tool_calls") or []):
-                    blob = json.dumps(tc, ensure_ascii=False)
-                    if "apply_checking_account_credit" not in blob or "unlock" in blob:
+                    # ★정규식으로 blob 을 긁지 않는다 — 1차가 그렇게 하다 창 0 이 됐다.
+                    #   정본 파서(`t2_forensic.argsof`)로 읽고 중첩 JSON 만 푼다([[67]]).
+                    a = F.argsof(tc) or {}
+                    inner = a.get("arguments")
+                    if isinstance(inner, str):
+                        try:
+                            inner = json.loads(inner)
+                        except Exception:
+                            inner = {}
+                    if not isinstance(inner, dict):
+                        inner = {}
+                    tool = str(a.get("agent_tool_name") or a.get("user_tool_name")
+                               or a.get("discoverable_tool_name") or "")
+                    if "apply_checking_account_credit" not in tool:
                         continue
-                    am = re.search(r'\\"amount\\":\s*\\"?(-?[\d.]+)', blob)
-                    if not am:
+                    amt = inner.get("amount", a.get("amount"))
+                    try:
+                        live = round(float(str(amt).replace("$", "").replace(",", "")), 2)
+                    except Exception:
                         continue
-                    live = round(float(am.group(1)), 2)
                     hit = [b for b in blks if b[0] < i and abs(b[4] - live) < 0.01]
                     if not hit:
                         skipped.append({"sim": sim, "msg": i,
