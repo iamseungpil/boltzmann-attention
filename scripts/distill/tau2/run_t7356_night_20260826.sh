@@ -11,21 +11,26 @@
 #                   x539 가 도메인 낱말 0 판(D_firstseen_group)이 같은 수를 내는지 확인
 #   identifying_arg_types.digit  **철회**했다 — 이름 패턴이었고 위 파생이 더 잘 잡는다
 #
-# ## 왜 이 로스터인가 (사용자 지시 2026-08-25 밤: *"hard-0 pass 올리기 위한 밤샘런"*)
-#   hard-0 10 태스크 중 **오늘 수리가 닿는 것은 둘뿐**이다. 나머지 여덟은 오늘 아무것도 안 샀다.
-#   074 nt13  ★1순위. 격리가 그 태스크의 **측정된 결손 전부**를 닫았다 —
-#             x536(4계좌×6팔×3=72샘플)에서 D_old_group 만 4/4, 무의미 순서는 두 계좌를 부순다.
-#             x539 가 그것을 **도메인 낱말 0** 으로 다시 써서 4/4 재현(부정통제는 msg38 을 부순다).
-#             선행 포렌식: 전사가 맞으면 chk_3 2.50+2.25=4.75=gold · chk_4 1.45+2.25=3.70=gold ·
-#             chk_1 은 이미 정확(도구합 27.00=gold). ⇒ 뒤집힐 확률이 가장 높다.
-#   085 nt10  2순위. t7355 스모크에서 gold 분쟁 #1 이 **인자 차이 0** 으로 접수됐다(msg78/79).
-#             남은 것은 표기가 아니라 **커버리지**다 — gold 분쟁 3건 중 1건만 내고 손님이
-#             대화를 끝냈다(user_stop). n=1 이라 귀속하지 않는다. nt10 이 답한다.
-#   040 nt1   계기용. reward_basis=['DB'] 에 gold 8건 전부라 뒤집힐 후보가 아니다.
-#             `T2_WRITE_ARG_FAB` 의 유일한 표적이라 라이브 발화만 본다(마감 가드가 먼저 버린다).
-#   ⛔072 는 **뺐다**: t7348 실측에서 `apply_checking_account_credit_5829` 를 한 번도 부르지
-#     않는다(unlock 0). 선언 불리언 2·열거 3 을 가진 도구를 쓰지만 write 에 **도달하지 못한다**.
-#   ⛔057·063·016·055·079·094 는 오늘 새 수리가 없다 — 넣으면 GPU 만 태운다.
+# ## 왜 이 로스터인가 (사용자 지시 2026-08-25 밤·축자)
+#   *"내일 아침에 다양한 결과를 분석할 수 있게 밤샘런을 최대한 많이 돌려라. 자는 동안 최대한
+#    많은 실험이 이루어져서 그걸 바탕으로 내일 아침에 최대한 많은 수정을 했으면 한다."*
+#   ⇒ 목적함수가 *0→1 하나*에서 **아침에 고칠 거리의 양**으로 바뀌었다. 같은 태스크를 13회
+#     돌리는 것은 그 목적에 나쁘다(진단 정보는 nt3 쯤에서 포화한다). 그래서 **넓힌다**.
+#
+#   ⑴ hard-0 **전 10 태스크**: 016·040·055·057·063·072·074·079·085·094
+#      아침 `morning_review.py §4` 가 태스크마다 gold 행 ↔ 궤적 호출 **인자 차이표**를 낸다 —
+#      오늘 085·040 의 축을 가른 바로 그 표다. 열 태스크분이 한꺼번에 생긴다.
+#   ⑵ **회귀 대조 017·098**(지금 통과 중): t7354 드라이버가 스스로 적어 둔 한계가
+#      *"로스터가 전부 hard-0 라 레버가 **무엇을 파는지 못 잰다**"* 였다. 017 은 오늘 새로
+#      감시를 붙인 **선언 불리언·열거 도구를 실제로 부르는** 태스크다(t7348 실측: 불리언 2·열거 3).
+#      떨어지면 그것이 [[70]] 이 요구하는 *무엇을 팔았나*의 첫 수치다.
+#   ⑶ 가중: 074(nt4·스모크 포함)와 085(nt3)에 조금 더 — 오늘 수리가 닿는 유일한 둘이다.
+#      040 은 nt1(계기)뿐 — reward_basis=['DB'] 에 gold 8건 전부라 뒤집힐 후보가 아니고
+#      `T2_WRITE_ARG_FAB` 의 유일한 표적이라 **라이브 발화만** 본다.
+#   ⚠072 는 **넣되 기대를 적어 둔다**: t7348 실측에서 `apply_checking_account_credit_5829` 를
+#     한 번도 부르지 않는다(unlock 0). 오늘 레버는 write 도달 뒤에만 일하므로 이 태스크는
+#     **표기가 아니라 도달**이 결손이다 — nt3 은 그 도달 실패를 아침에 표로 보기 위한 것이다.
+#   ⚠마감 가드는 **뒤에서부터** 버린다. 그래서 회귀 대조를 grpB 맨 앞에 뒀다.
 #
 # ## 대조와 판정선
 #   대조 = t7355(085) · t7348/t7354(074·040). 판정선 = **표적의 0->1**.
@@ -102,7 +107,7 @@ ON="T2_ARG_DOC_SUB=1 T2_VALUE_FORMULA=full T2_SG_DOCS=1 T2_SG_PROMPT_V2=1 T2_SPE
 T2_WRITE_ARG_TYPE=1 T2_RULE_AT_WRITE=1 T2_WRITE_ARG_ENUM_CAP=8 T2_WRITE_ARG_FAB=1 \
 T2_SG_RECORD_ORDER=1 T2_SPEC_ARG_FACTS=1"
 
-echo "{\"tag\":\"t7356\",\"sha\":\"$SHA\",\"design\":\"overnight; four things earned isolation today - the liability table at the write, a fabrication guard with no name patterns, the record dump reordered the way the isolation won, and the name-pattern hint withdrawn\",\"on\":\"$ON\",\"reference\":\"t7355 for 085; t7348 and t7354 for 074 and 040 - all zero\",\"bar\":\"a target going 0 to 1\",\"cannot_measure\":\"which of the four moved it - four levers ride together (C594)\",\"deadline\":\"$DEADLINE_HHMM\"}" \
+echo "{\"tag\":\"t7356\",\"sha\":\"$SHA\",\"design\":\"breadth over depth - every hard-0 task plus two that currently pass, so the morning has an argument-diff table for each of them; the objective this time is how much there is to repair tomorrow, not one target flipping\",\"on\":\"$ON\",\"reference\":\"t7355 for 085; t7348 for the rest\",\"bar\":\"a target going 0 to 1; and separately, whether 017 or 098 drop - that is the first measurement of what the new levers sell\",\"cannot_measure\":\"which lever moved what - five ride together (C594)\",\"deadline\":\"$DEADLINE_HHMM\"}" \
   | tee "$LOG/${TAGBASE}.meta.json"
 
 setsid bash -c '
@@ -171,6 +176,22 @@ setsid bash -c '
     --tag t7356 --reason "liability table, fabrication guard without name patterns, record order" || true
   cd "$REPO/scripts/distill/tau2"
 
+  # ── grpB(8141)는 **스모크와 병렬로 먼저** 띄운다. 스모크가 가르는 것은 074 의 재배열이고
+  #    grpB 에 074 가 없으므로 안전하다. 이렇게 해야 8141 이 45분을 놀지 않고, 마감 가드가
+  #    뒤 배치를 잘라내지 않는다(폭이 이 런의 목적이다).
+  #    앞쪽 = 회귀 대조(017·098) — 가장 못 재봤던 것을 먼저 확보한다([[70]]).
+  (
+    batch grpB1 8141 task_017 2  50
+    batch grpB2 8141 task_098 2  40
+    batch grpB3 8141 task_016 3  45
+    batch grpB4 8141 task_063 3  54
+    batch grpB5 8141 task_057 2  60
+    batch grpB6 8141 task_055 2  60
+    batch grpB7 8141 task_094 2  60
+    batch grpB8 8141 task_079 2  60
+  ) > $LOG/${TAGBASE}_grpB_chain.log 2>&1 &
+  P2=$!
+
   # ── 스모크 = 074 nt1. 산출로 건다: 재배열이 적용됐고 operand 가 살아 있는가.
   batch smoke 8140 task_074 1 45
   SLOG=$LOG/${TAGBASE}_smoke_20260826.log
@@ -181,13 +202,15 @@ setsid bash -c '
   # 게이트는 **死배선과 크래시**만 막는다. 적용 0 은 중단 사유가 아니다 —
   # `_reorder_records` 는 이미 그 순서면 무변이고 덤프가 둘이면 손대지 않는다(설계).
   # 다른 세 레버가 함께 타므로 밤을 태울 이유가 없다. 대신 수를 크게 남긴다.
+  # ⚠게이트가 실패해도 **exit 하지 않는다** — grpB 가 이미 8141 에서 돌고 있어 고아가 된다.
+  #   grpA(074·085·072·040)만 건너뛰고 grpB 는 끝까지 살린다. 폭이 이 런의 목적이므로
+  #   074 하나 때문에 나머지 여덟 배치를 버리는 것이 더 나쁘다.
+  GATE=1
   if [ "$SMK" -eq 0 ] || [ "$STB" -gt 0 ]; then
-    echo "[t7356] 중단: 마커=$SMK Traceback=$STB — 死배선이거나 크래시다"
-    cd "$REPO"
-    /home/woori/venvs/seka_env/bin/python reports/facet_rft_2026/freeze.py --off --tag t7356 || true
-    exit 1
+    GATE=0
+    echo "[t7356] ⛔스모크 게이트 FAIL 마커=$SMK Traceback=$STB — grpA 를 건너뛴다(grpB 는 계속)"
   fi
-  echo "[t7356] 스모크 게이트 PASS 마커=$SMK 재배열적용=$SAP operand=$SOK Traceback=$STB"
+  echo "[t7356] 스모크 게이트 마커=$SMK 재배열적용=$SAP operand=$SOK Traceback=$STB GATE=$GATE"
   [ "$SAP" -eq 0 ] && echo "[t7356] ★주의: 재배열이 한 번도 적용되지 않았다 — 아침에 이유를 볼 것(무변인가·덤프가 둘인가)"
 
   # ── 로스터 = **수리가 닿는 두 태스크에 몰아준다**(2026-08-25 밤 재설계).
@@ -200,17 +223,18 @@ setsid bash -c '
   #   유일한 표적이라 **계기용 nt1** 만 맨 뒤에 둔다(마감 가드가 먼저 버린다).
   #   ⛔072 는 뺐다: t7348 실측에서 `apply_checking_account_credit_5829` 를 **한 번도 부르지
   #     않는다**(unlock 0). 오늘 레버는 write 에 닿은 뒤에만 일하므로 그 결손에 무력하다.
+  # ── grpA(8140) = **수리가 닿는 자리**를 두껍게. 스모크의 074 도 실 trial 로 센다.
   (
-    batch grpA1 8140 task_074 7 275
-    batch grpA2 8140 task_085 4 110
+    if [ "$GATE" = "1" ]; then
+      batch grpA1 8140 task_074 3 126
+      batch grpA2 8140 task_085 3 120
+      batch grpA3 8140 task_072 3  66
+      batch grpA4 8140 task_040 1  90
+    else
+      echo "[t7356] grpA 건너뜀 — 스모크 게이트 FAIL"
+    fi
   ) > $LOG/${TAGBASE}_grpA_chain.log 2>&1 &
   P1=$!
-  (
-    batch grpB1 8141 task_074 6 235
-    batch grpB2 8141 task_085 6 160
-    batch grpB3 8141 task_040 1  75
-  ) > $LOG/${TAGBASE}_grpB_chain.log 2>&1 &
-  P2=$!
   wait $P1 $P2
 
   cd "$REPO"
