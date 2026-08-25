@@ -121,7 +121,8 @@ setsid bash -c "
   NV2=\$(grep -c 'T2_SG_PROMPT_V2' $LOG/\$SMK.log 2>/dev/null); NV2=\${NV2:-0}
   NTB=\$(grep -c 'Traceback' $LOG/\$SMK.log 2>/dev/null); NTB=\${NTB:-0}
   NOP=\$(grep -c 'operand-size' $LOG/\$SMK.log 2>/dev/null); NOP=\${NOP:-0}
-  echo \"[t7351] 스모크 — PROMPT_V2=\$NV2 · operand-size 줄=\$NOP · Traceback=\$NTB\"
+  NEN=\$(grep -c 'T2_WRITE_ARG_ENUM' $LOG/\$SMK.log 2>/dev/null); NEN=\${NEN:-0}
+  echo \"[t7351] 스모크 — PROMPT_V2=\$NV2 · operand-size=\$NOP · WRITE_ARG_ENUM=\$NEN · Traceback=\$NTB\"
   grep 'operand-size' $LOG/\$SMK.log 2>/dev/null | head -4 || true
   cd '$REPO' && mkdir -p reports/facet_rft_2026/sim_results
   gzip -c '$SIMS/'\$SMK'/results.json' > reports/facet_rft_2026/sim_results/\$SMK.results.json.gz 2>/dev/null || true
