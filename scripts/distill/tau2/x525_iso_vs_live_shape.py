@@ -152,7 +152,12 @@ def main():
                                              {"agent_tool_name": "get_bank_account_transactions_9173",
                                               "account_id": acc}, ensure_ascii=False)}}]},
                         {"role": "tool", "tool_call_id": "c1", "content": text},
-                        {"role": "user", "content": afmt},
+                        # ★2026-08-25 정정: 마감 user 메시지에 **계약 + 원장 + 형식**을 함께 싣는다.
+                        #   앞판(형식만)은 chk_2 에서 cover 15/16 이었고, 이기는 팔(J_both·
+                        #   K_paramslast, 16/16)과의 유일한 차이가 **원장이 user 메시지 안이냐**였다.
+                        {"role": "user", "content":
+                         "=== FIELD CONTRACT ===\ntransactions: " + params +
+                         "\n\n=== RECORDS ===\n" + text + "\n\n" + afmt},
                     ]
                 elif arm == "M_reflast":
                     # ★기전 이등분 ⑵ 위치 (2026-08-25): `D_all` 과 **REFERENCE 위치만** 다르다.

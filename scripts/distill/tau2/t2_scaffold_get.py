@@ -817,10 +817,23 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
             #   ⚠엔진이 쓰는 문장 0 — A2 `isolate.answer_format` 축자 그대로다.
             if (os.environ.get("T2_SG_PROMPT_V2") == "1" and _tl is None
                     and not _v2_close_sent):
+                # ★2026-08-25 정정 (x525 실측): 마감 user 메시지에 **필드 계약 + 회수된 원장 +
+                #   형식**을 함께 싣는다. 형식만 붙인 판은 chk_2 에서 cover 15/16 이었고, 16/16 을
+                #   내는 팔(J_both·K_paramslast)과의 유일한 차이가 *원장이 user 메시지 안이냐*였다.
+                #   엔진이 쓰는 문장 0 — 선언(`params`·`answer_format`)과 **도구가 낸 원문**뿐이다.
+                _pb2 = ""
+                for _k2 in sorted(keys):
+                    _pd2 = (d.get("params") or {}).get(_k2)
+                    if isinstance(_pd2, str) and _pd2.strip():
+                        _pb2 += "\n%s: %s" % (_k2, _pd2)
+                _recs2 = "\n\n".join(str(x) for x in (_ok_outs or []) if x)
+                _close = ((("=== FIELD CONTRACT ===" + _pb2 + "\n\n") if _pb2 else "")
+                          + (("=== RECORDS ===\n" + _recs2 + "\n\n") if _recs2 else "")
+                          + iso["answer_format"])
                 try:
-                    _um2 = UserMessage(role="user", content=iso["answer_format"])
+                    _um2 = UserMessage(role="user", content=_close)
                 except TypeError:
-                    _um2 = UserMessage(content=iso["answer_format"])
+                    _um2 = UserMessage(content=_close)
                 msgs = list(msgs) + [_um2]
                 _v2_close_sent = True
                 print("[T2_SG_PROMPT_V2] %s: answer_format 을 재료 뒤로(마감 라운드)"
