@@ -192,13 +192,26 @@ def main():
         #   갈리면 조용히 빗나간다·FIX-6 전례). 우리가 이름을 짓지 않는다([[67]]).
         import t2_search as _ts
         disp = {_ts._disp_name(k): k for k in klasses}
-        enum = "CANDIDATES (%s):\n%s\n" % (c["account_type"],
+        enum_all = "CANDIDATES (%s):\n%s\n" % (c["account_type"],
                                            "\n".join("  - %s" % d for d in disp))
         others = [f for f in set(gm.values()) if f != fam]
         print("\n%s · type=%s · gold=%s · 후보 %d"
               % (c["task"], c["account_type"], c["gold"], len(klasses)))
         for arm in arms:
-            if arm == "E_enum":
+            enum = enum_all
+            if arm == "P_pair":
+                # ★세 번째 가설 (2026-08-25): 표도 손님 발화도 아니면 남는 축은 **후보 수**다.
+                #   gold + 오답 하나로 줄여 2지선다로 묻는다. 갈리면 결손은 비교가 아니라
+                #   **후보 집합 크기**이고([[63]] 제거형), 안 갈리면 그 축도 죽는다.
+                #   ⚠gold 로 후보를 만드는 것은 **진단 전용** — 레버·임계 선택에 쓰지 않는다
+                #     ([[23]] · 선례 x353 `C_PAIR`).
+                _gs = re.sub(r"[^a-z0-9]+", "_", c["gold"].lower()).strip("_")
+                _gd = [d for d, k in disp.items() if k == _gs or k.startswith(_gs) or _gs.startswith(k)]
+                _od = [d for d in disp if d not in _gd]
+                if _gd and _od:
+                    enum = "CANDIDATES (%s):" % c["account_type"] + chr(10) + (chr(10).join("  - %s" % d for d in (_gd[:1] + _od[:1]))) + chr(10)
+                mat = "DOCUMENTED FACTS (value - verbatim quote):" + chr(10) + facts_block(klasses, a.facts or None)
+            elif arm == "E_enum":
                 mat = ""
             elif arm == "F_facts":
                 mat = "DOCUMENTED FACTS (value — verbatim quote):\n" + facts_block(klasses, a.facts or None)
