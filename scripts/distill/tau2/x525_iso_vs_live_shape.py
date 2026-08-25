@@ -119,6 +119,25 @@ def regroup(text, mode):
     elif mode == "new_group":
         out = (sorted(ws, key=lambda x: x[2], reverse=True)
                + sorted(fs, key=lambda x: x[2], reverse=True) + rest)
+    elif mode == "firstseen_group":
+        # ★2026-08-25 3차: x536 의 승자 `old_group` 은 `atm_withdrawal`·`atm_fee` 라는
+        #   **도메인 리터럴**로 정의돼 있어 그대로는 엔진에 못 넣는다([[05]] 고정층 오염).
+        #   같은 배치를 **도메인 낱말 0** 으로 쓸 수 있는가를 여기서 가른다:
+        #     타입별로 묶고 · 타입의 순서는 **원본 덤프의 첫 등장** · 묶음 안은 날짜 오름차순.
+        #   술어는 env 기계 포맷의 필드 이름(`type`·`date`) 둘뿐이고 값은 안 본다.
+        #   이 팔이 `D_old_group` 과 같은 수를 내면 배선할 규칙은 이것이다.
+        seen = []
+        for b in blocks:
+            if b[1] not in seen:
+                seen.append(b[1])
+        out = []
+        for t in seen:
+            out += sorted([b for b in blocks if b[1] == t], key=lambda x: x[2])
+    elif mode == "alpha_group":
+        # 부정통제 짝: 묶음은 같고 **타입 순서만** 이름순. 순서가 정말 일하는지 가른다([[57]]).
+        out = []
+        for t in sorted({b[1] for b in blocks}):
+            out += sorted([b for b in blocks if b[1] == t], key=lambda x: x[2])
     elif mode == "scramble":
         out = sorted(blocks, key=lambda x: x[0][::-1])
     else:
@@ -329,13 +348,16 @@ def main():
                              "\n\n# Field contract\ntransactions: " + params +
                              "\n\n=== RECORDS ===\n" + text}]
                 elif arm in ("D_old_group", "D_new_group", "D_old_inter",
-                             "D_new_inter", "N_scramble"):
+                             "D_new_inter", "N_scramble",
+                             "D_firstseen_group", "N_alpha_group"):
                     # ★2×2(방향 × 묶음) + 무의미 순서 통제. N_wire 와 **덤프 순서만** 다르다.
                     #   원본 = 최신순 + 번갈아 이므로 `D_new_inter` 가 N_wire 재현이어야 한다
                     #   (계기 생존 검사). `N_scramble` 이 닫으면 이득은 순서가 아니라 재렌더링이다.
                     _m = {"D_old_group": "old_group", "D_new_group": "new_group",
                           "D_old_inter": "old_inter", "D_new_inter": "new_inter",
-                          "N_scramble": "scramble"}[arm]
+                          "N_scramble": "scramble",
+                          "D_firstseen_group": "firstseen_group",
+                          "N_alpha_group": "alpha_group"}[arm]
                     _txt = regroup(text, _m)
                     msgs = [{"role": "user", "content":
                              instr + "\n\n=== REFERENCE ===\n" +
