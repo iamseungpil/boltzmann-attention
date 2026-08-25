@@ -10049,6 +10049,51 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #     근거·실물은 아래 deny 자리 주석.
             #   ⚠[[64]]: 무엇이 틀렸는지(집합 밖)와 **무엇을 하면 풀리는지**(후보 명단)를 함께.
             en_fb = None
+            # ★T2_SCHEMA_ENUM (2026-08-25·기본 OFF·[[64]] 형식): 인자 값이 **그 도구 스키마가
+            #   선언한 enum** 밖이면 무엇이 틀렸는지와 **무엇을 쓰면 되는지**를 함께 돌려준다.
+            #   근거(실측·정본 `t2_forensic.action_diff` 귀속): t7348 에서 040 의 gold 호출 8건이
+            #   env 에 거절됐고 사유가 *"Invalid dispute_reason. Must be one of: [...]"* 였다.
+            #   085 도 같은 계열 3건. 즉 모델은 **gold 거래 id 까지 맞히고** 열거값에서 되튕긴다.
+            #   ⚠출처는 스키마 하나다 — gold 도 env 오류문도 우리가 지은 목록도 아니다([[23]]).
+            #   ⚠술어는 닫혀 있다: 소속 여부만 본다. enum 이 없으면 아무 말도 안 한다(fail-open).
+            #   ⚠[[62]]: 엔진이 값을 고르지 않는다 — 후보를 되돌려주고 고르는 것은 모델이다.
+            if os.environ.get("T2_SCHEMA_ENUM") == "1":
+                try:
+                    import t2_role as _role2
+                    _envr2 = getattr(getattr(self, "_t2_orch", None), "environment", None)
+                    for c in (am.tool_calls or []):
+                        if en_fb is not None:
+                            break
+                        _eff2 = _eff_tool_name(c)
+                        _ad2 = _args_dict(c)
+                        _in2 = _ad2.get("arguments")
+                        if isinstance(_in2, str):
+                            try:
+                                _in2 = json.loads(_in2)
+                            except Exception:
+                                _in2 = {}
+                        _vals2 = dict(_in2 or {})
+                        for _k2, _v2 in _ad2.items():
+                            if _k2 not in ("arguments", "agent_tool_name", "user_tool_name",
+                                           "discoverable_tool_name"):
+                                _vals2.setdefault(_k2, _v2)
+                        for _k2, _v2 in _vals2.items():
+                            if not isinstance(_v2, str) or not _v2:
+                                continue
+                            _en2 = _role2.enum_of(_eff2, _k2, agent=self, env=_envr2)
+                            if not _en2 or _v2 in _en2:
+                                continue
+                            en_fb = (c, "`%s` is not a value that `%s` accepts for `%s`. "
+                                        "Use exactly one of these: %s."
+                                     % (_v2[:80], _eff2, _k2, ", ".join(_en2)))
+                            print("[T2_SCHEMA_ENUM] deny tool=%s arg=%s val=%r (enum %d)"
+                                  % (_eff2, _k2, _v2[:40], len(_en2)),
+                                  file=_sys.stderr, flush=True)
+                            break
+                except Exception as _se2:
+                    en_fb = None
+                    print("[T2_SCHEMA_ENUM] error (no-op): %r" % (_se2,),
+                          file=_sys.stderr, flush=True)
             _ens = (a2 or {}).get("write_arg_enum") or []
             if os.environ.get("T2_WRITE_ARG_ENUM") == "1" and _ens:
                 # ★R4 (2026-08-24): 상한은 **블록 전체를 잠그던 것**에서 *처음 보는 값*의

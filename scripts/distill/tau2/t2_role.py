@@ -58,6 +58,38 @@ def executor_of(tool_name, agent=None, env=None):
     return UNKNOWN
 
 
+def enum_of(tool_name, arg_name, agent=None, env=None):
+    """그 도구의 그 인자에 **스키마가 선언한 enum** — 없으면 None (2026-08-25 신설).
+
+    왜: t7348 `action_diff` 귀속 실측 — 040 의 gold 호출 8건이 env 에 거절됐고 사유가
+    *"Invalid dispute_reason. Must be one of: [...]"* 였다(085 는 인자 스키마 불일치 3건).
+    모델은 gold 거래 id 까지 맞히고도 **열거값을 자유서술로** 내서 매번 되튕긴다.
+
+    출처는 **도구 스키마 하나**다 — gold 도, env 오류문도, 우리가 지은 목록도 아니다([[23]]).
+    판단 0·선택 0: 소속 여부만 답한다([[22]] 닫힌 술어). 모르면 None 이고 그러면 아무 말도
+    하지 않는다([[25]] 확인 안 한 것을 단언하지 않는다).
+    """
+    tn, an = str(tool_name or ""), str(arg_name or "")
+    if not tn or not an:
+        return None
+    for holder in (agent, getattr(env, "user_tools", None) if env is not None else None):
+        got = getattr(holder, "tools", None) if holder is not None else None
+        for t in (got or []):
+            if str(getattr(t, "name", "")) != tn:
+                continue
+            try:
+                sc = t.openai_schema
+                fn = sc.get("function") if isinstance(sc.get("function"), dict) else sc
+                props = (fn.get("parameters") or {}).get("properties") or {}
+                vals = (props.get(an) or {}).get("enum")
+            except Exception:
+                return None
+            if isinstance(vals, list) and vals:
+                return [str(v) for v in vals]
+            return None
+    return None
+
+
 def consumers_of(arg_name, agent=None, env=None):
     """그 인자를 **실제로 받는 호출**들 — 시그니처에서 도출(설계서 C4-ⓑ).
 
