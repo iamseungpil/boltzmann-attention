@@ -36,9 +36,16 @@
 #   대조 = t7355(085) · t7348/t7354(074·040). 판정선 = **표적의 0->1**.
 #   총점 델타 금지 · 레버가 넷이라 개별 귀속 불가 (C594).
 #
-# ## 안전
-#   앞 런이 끝날 때까지 **기다린다**(폴링). 그 다음 origin 과 화해하고(rebase) 배터리를 돌린다.
-#   스모크는 마커가 아니라 **산출**로 건다: 074 nt1 에서 재배열이 적용됐고 operand 가 살아 있는가.
+# ## 안전 · 동시성
+#   앞 런(t7355)은 **8140** 만 쓴다. 그래서 grpB(8141)는 **지금 바로** 시작하고 8140 쪽만
+#   그 런의 저장 태그(`bank_t7355_main`)가 사라질 때까지 기다린다 — 기다리면 GPU 하나를
+#   45~50분 버린다(사용자 지적 2026-08-25 밤).
+#   ⚠술어를 `pgrep -f t2_run_gated` 로 넓게 잡으면 **우리 자신도 잡혀** 영원히 기다린다.
+#   ⚠앞 런의 파이썬은 임포트를 이미 마쳤으므로 디스크의 엔진 갱신에 영향받지 않는다.
+#   스모크는 마커가 아니라 **산출**로 보되, 실패해도 exit 하지 않는다(grpB 고아 방지·grpA 만 건너뜀).
+#
+# ## 총량
+#   15 배치 · **35 sim** · **14 태스크** = hard-0 10 + 회귀 대조 4(017·098·100·050)
 set -e
 REPO=/home/woori/workspace_common/boltzmann-attention-pi
 LOG=/home/woori/scratch/logs
@@ -48,15 +55,11 @@ DEADLINE_HHMM=${DEADLINE_HHMM:-0730}
 mkdir -p "$LOG"
 say() { echo "[t7356 $(date +%H:%M:%S)] $*"; }
 
-# ── ⑴ 앞 런이 끝날 때까지 기다린다 (최대 4시간)
-WAITED=0
-while pgrep -f "[t]2_launch" >/dev/null || pgrep -f "[t]2_run_gated" >/dev/null; do
-  [ $WAITED -ge 14400 ] && { say "REFUSING: 앞 런이 4시간째 안 끝난다"; exit 1; }
-  [ $((WAITED % 600)) -eq 0 ] && say "앞 런 대기 중 ${WAITED}s"
-  sleep 60
-  WAITED=$((WAITED + 60))
-done
-say "앞 런 없음 (대기 ${WAITED}s)"
+# ── ⑴ **기다리지 않는다** (사용자 지적 2026-08-25 밤: *"gpu 2 개 다를 지금부터 사용하면 안되나?"*).
+#   앞 런(t7355)은 **8140** 만 쓴다. 8141 은 비어 있고, 종료를 기다리면 그 GPU 를 45~50분 버린다.
+#   그래서 grpB(8141)는 **지금 시작**하고, 8140 을 쓰는 쪽(스모크+grpA)만 아래에서 기다린다.
+#   ⚠앞 런의 파이썬 프로세스는 임포트를 이미 마쳤으므로 디스크의 엔진 갱신에 영향받지 않는다.
+say "8141 은 즉시 시작한다 · 8140 은 앞 런 종료를 기다린다"
 
 # ── ⑵ origin 과 화해 — 앞 런의 persist 커밋이 로컬에만 있고 내 커밋이 원격에 있다
 cd "$REPO"
@@ -189,8 +192,21 @@ setsid bash -c '
     batch grpB6 8141 task_055 2  60
     batch grpB7 8141 task_094 2  60
     batch grpB8 8141 task_079 2  60
+    batch grpB9 8141 task_100 2  30
+    batch grpB10 8141 task_050 2 50
   ) > $LOG/${TAGBASE}_grpB_chain.log 2>&1 &
   P2=$!
+
+  # ── 8140 은 앞 런(t7355)이 그 GPU 를 놓을 때까지만 기다린다(최대 4h).
+  #    술어는 **그 런의 저장 태그**다 — `pgrep -f t2_run_gated` 로 넓게 잡으면 우리 자신도 잡힌다.
+  W=0
+  while pgrep -f "[b]ank_t7355_main" >/dev/null; do
+    [ $W -ge 14400 ] && { echo "[t7356] 8140 대기 4시간 초과 — grpA 포기"; break; }
+    [ $((W % 600)) -eq 0 ] && echo "[t7356] 8140 대기 ${W}s (t7355 진행 중)"
+    sleep 60
+    W=$((W + 60))
+  done
+  echo "[t7356] 8140 해제 (대기 ${W}s)"
 
   # ── 스모크 = 074 nt1. 산출로 건다: 재배열이 적용됐고 operand 가 살아 있는가.
   batch smoke 8140 task_074 1 45
