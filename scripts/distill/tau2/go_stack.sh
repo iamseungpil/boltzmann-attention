@@ -545,3 +545,11 @@ export T2_SG_RECORD_ORDER=0
 #   폭발 반경: 도출이 손 선언보다 새로 막는 것 **0건**(t7354 전 배치).
 #   명세는 **도구별**로 읽는다 — card_action 은 신용 2값·직불 3값이라 이름만으로 합치면 오차단.
 export T2_SPEC_ARG_FACTS=0
+
+# ★선언 인자 ↔ 정책 행 **동일성 조인** (`T2_ARG_POLICY_AT_WRITE`·기본 OFF·2026-08-25).
+#   write_rules 의 일반형: 손으로 고른 문장 대신 이 write 가 선언한 인자 이름과 A3 `axis` 가
+#   같은 행을 축자로 결정점에 놓는다. 유사도 검색 아님(동일성)·순위 0·상한 넘으면 전부 안 준다.
+#   조인 커버리지 실측: 신용 분쟁 인자 15 중 13 · 직불 17 중 9.
+#   ⚠모델 반응 미측정 — 격리(x541) 전에는 런에서 켜지 마라.
+export T2_ARG_POLICY_AT_WRITE=0
+export T2_ARG_POLICY_CAP=4000

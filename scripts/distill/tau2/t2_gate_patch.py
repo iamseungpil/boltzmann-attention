@@ -10,6 +10,7 @@
 활성화: `import t2_gate_patch; t2_gate_patch.apply()`. 게이트는 orchestrator 인스턴스당 1개.
 """
 import collections
+import io
 import json
 import os
 import re
@@ -675,6 +676,67 @@ def _declared_params(messages):
                 continue
             out[name] = fact
     return out
+
+
+_A3_CACHE = {}
+
+
+def _policy_facts(a2):
+    """A3 정본(`policy_facts_file`)의 행. 파일 하나가 데이터 정본이고 A2 두 층엔 포인터만 산다.
+
+    ★2026-08-25 신설(엔진의 첫 A3 소비자). 형식 = {subject, axis, value, sources:[{doc, quote}]}.
+      행 2,226 · 축 1,092. 저작 근거는 그 파일 `_note_` 축자에 있다(x453 전수 감사 → x462 접기-안전
+      군 → x457 v2 · 값·인용 전부 문서 축자 · gold·tasks 미참조·[[23]]).
+    ⚠읽기만 한다 — 고르지도 순위 매기지도 않는다. 캐시는 파일 경로 기준.
+    """
+    fn = str((a2 or {}).get("policy_facts_file") or "")
+    if not fn:
+        return []
+    if fn in _A3_CACHE:
+        return _A3_CACHE[fn]
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "a2", fn)
+    try:
+        with io.open(p, encoding="utf-8") as f:
+            rows = (json.load(f) or {}).get("rows") or []
+    except Exception:
+        rows = []
+    _A3_CACHE[fn] = rows
+    return rows
+
+
+def _policy_rows_for(a2, arg_names):
+    """이 write 가 **선언한 인자 이름**과 A3 행의 `axis` 가 **같은** 행만 — 검색 0·순위 0·유사도 0.
+
+    ★왜 이 모양인가 (2026-08-25·사용자 물음에 대한 답의 일반형): `write_rules` 는 *어느 정책
+      문장을 결정점에 놓을지*를 실패를 보고 손으로 골랐다 — 그것이 오늘 남은 유일한 케이스별
+      저작이었다. 그런데 A3 의 `axis` 는 **인자 이름 그대로**다(실측: `contacted_merchant` ·
+      `police_report_filed` · `eligible_for_provisional_credit` …). 그래서 조인은 유사도가 아니라
+      **동일성**이면 된다 — 어제 폐기한 토큰 검색기와 다른 종류다([[71]]③ bm25·embedding 금지).
+      커버리지 실측(t7354 명세): 신용 분쟁 인자 15 중 **13**, 직불 17 중 9 에 행이 붙는다.
+    ⚠순서는 결정론(축 이름 → 문서 id) — 점수가 아니다. 상한을 넘으면 **아무것도 주지 않는다**
+      (자르면 무엇을 뺐는지 우리가 고른 것이 된다·[[62]]④).
+    ⚠인용은 **축자**만 싣는다(`sources[].quote`). 요약·재서술 0.
+    """
+    want = set(arg_names or ())
+    if not want:
+        return None
+    seen, out = set(), []
+    for r in _policy_facts(a2):
+        ax = str(r.get("axis") or "")
+        if ax not in want:
+            continue
+        for s in (r.get("sources") or []):
+            q = str(s.get("quote") or "").strip()
+            if not q or (ax, q) in seen:
+                continue
+            seen.add((ax, q))
+            out.append((ax, str(s.get("doc") or ""), q))
+    if not out:
+        return None
+    out.sort(key=lambda x: (x[0], x[1]))
+    txt = chr(10).join("- %s: %s" % (a, q) for a, _d, q in out)
+    cap = int(os.environ.get("T2_ARG_POLICY_CAP", "4000"))
+    return None if len(txt) > cap else txt
 
 
 def _looks_placeholder(s):
@@ -10803,6 +10865,45 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     _lbeat("T2_RULE_AT_WRITE", orch=self,
                                            target=_eff_tool_name(_wc),
                                            fact="the procedure the documents state for this write")
+                            # ★T2_ARG_POLICY_AT_WRITE (2026-08-25·기본 OFF) — `write_rules` 의
+                            #   **일반형**. 손으로 고른 문장 대신, 이 write 가 **선언한 인자
+                            #   이름**과 A3 행의 `axis` 가 **같은** 행을 축자로 놓는다.
+                            #   인자 이름은 env 명세에서 나오고(`_declared_params_for`) 문장은
+                            #   A3 선언에서 나온다 — 우리가 고른 것은 **아무것도 없다**.
+                            #   조인 커버리지 실측(t7354 명세): 신용 분쟁 인자 15 중 **13**,
+                            #   직불 17 중 9 에 행이 붙는다. 실물 — 040 의 열린 축이 거기 있다:
+                            #   `eligible_for_provisional_credit` → *"Agent must determine this
+                            #   based on the Provisional Credit Eligibility Guidelines article in
+                            #   this knowledge base. Pass true or false."*([[64]] 무엇을 하면 풀리나)
+                            #   ⚠유사도 검색이 아니라 **동일성**이다 — 어제 폐기한 토큰 검색기와
+                            #     다른 종류다([[71]]③). 순위 0 · 상한 넘으면 전부 안 준다.
+                            #   ⚠**모델 반응은 아직 안 쟀다** — 격리(x541) 전에는 런에서 켜지 마라.
+                            elif os.environ.get("T2_ARG_POLICY_AT_WRITE") == "1":
+                                _pargs = list(_declared_params_for(state.messages, _wc) or {})
+                                _ptxt = _policy_rows_for(a2, _pargs)
+                                _pseen = getattr(self, "_t2_argpolicy_deny", None)
+                                if _pseen is None:
+                                    _pseen = self._t2_argpolicy_deny = set()
+                                _pkey = str(_exact_tool_name(_wc) or "")
+                                if _ptxt and _pkey and _pkey not in _pseen:
+                                    _pseen.add(_pkey)
+                                    self._t2_dwrite_deny = 1
+                                    dw_fb = (_wc, _RULE_AT_WRITE_FB.format(
+                                        dist=(_sd if _sd > 0 else 0), rules=_ptxt))
+                                    print("[T2_ARG_POLICY_AT_WRITE] write 1턴 유예 tool=%s "
+                                          "(선언 인자 %d · 정책 인용 %d자)"
+                                          % (_eff_tool_name(_wc), len(_pargs), len(_ptxt)),
+                                          file=_sys.stderr, flush=True)
+                                    _lbeat("T2_ARG_POLICY_AT_WRITE", orch=self,
+                                           target=_eff_tool_name(_wc),
+                                           fact="what the documents say about the arguments "
+                                                "this call declares")
+                                else:
+                                    print("[T2_ARG_POLICY_AT_WRITE] 무발화 tool=%s "
+                                          "(선언 인자 %d · 조인 %s)"
+                                          % (_eff_tool_name(_wc), len(_pargs),
+                                             "0행" if not _ptxt else "이미 배달"),
+                                          file=_sys.stderr, flush=True)
                             else:
                                 print("[T2_DECIDE_BEFORE_WRITE] 축 미상 — 무발화 tool=%s "
                                       "(A2 가 이 write 의 선택 인자를 선언하지 않았다)"
