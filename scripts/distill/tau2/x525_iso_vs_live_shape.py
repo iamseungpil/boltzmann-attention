@@ -245,6 +245,44 @@ def main():
                              "\n\n" + afmt +
                              "\n\n# Field contract\ntransactions: " + params +
                              "\n\n=== RECORDS ===\n" + text}]
+                elif arm in ("P_pair", "P_noinv", "P_both", "N_len"):
+                    # ★초과 행 팔 (2026-08-25). 관측(x525j 16창·결정론적):
+                    #   chk_1 expect18/rows18 **초과 0** · chk_2·3·4 expect16/rows**17**.
+                    #   초과의 정체는 계좌마다 다르고 셋 다 `_err` 접미 수수료에서 난다:
+                    #     chk_2  `btxn_ar_lb_08f` 를 냈는데 원장엔 `btxn_ar_lb_08f_err` 뿐 = **id 날조**
+                    #     chk_3  `btxn_ar_dg_02`(인출) + `btxn_ar_dg_02f_err`(같은 날) **둘 다** = 이중 덮음
+                    #     chk_4  `btxn_ar_ev_03`     + `btxn_ar_ev_03f_err`             동일
+                    #   선언은 규칙을 말한다 — *"ONE element per atm_withdrawal record"* ·
+                    #   *"the id of the atm_fee line paired with this withdrawal; if this withdrawal
+                    #   has NO fee line, the withdrawal's own id"*. 말하지 **않은** 것은 하나다:
+                    #   *오류인 수수료 행도 여전히 그 인출의 짝인가*. `_err` 는 감사 대상이므로
+                    #   모델이 *"정상 수수료가 아니니 이 인출엔 수수료가 없다"* 로 읽으면 인출 id 를
+                    #   쓰고 `_err` 행도 따로 내서 **두 줄**이 된다 — 관측 그대로다.
+                    #   ⚠팔은 **선언 텍스트에 한 칸 덧붙이기**뿐이다([[78]]). 엔진·형식·재료 불변.
+                    #   ⚠기전이 둘이라 문장도 둘로 갈라 어느 쪽이 일하는지 본다(교락 금지).
+                    _S_PAIR = ("A fee line that is itself the error you are auditing - wrong amount, "
+                               "wrong network in its description, or one that should not have been "
+                               "charged at all - is still the fee line paired with that withdrawal. "
+                               "Such a withdrawal has a fee line, so use that fee line's "
+                               "transaction_id for it, and it still gets exactly one element.")
+                    _S_NOINV = ("Every transaction_id you write must be copied character for "
+                                "character from a Record ID in the history above. An id you did "
+                                "not read there does not exist, including one formed by shortening "
+                                "or lengthening an id that is there.")
+                    # 부정통제: 같은 길이·같은 자리·규칙 0([[57]]).
+                    _S_LEN = ("This account's transaction history was retrieved from the bank's "
+                              "records system and reflects the state of the account at the time of "
+                              "retrieval. The history is provided for the audit described above and "
+                              "covers the period the records system returned for this account id.")
+                    _add = {"P_pair": _S_PAIR, "P_noinv": _S_NOINV,
+                            "P_both": _S_PAIR + " " + _S_NOINV, "N_len": _S_LEN}[arm]
+                    msgs = [
+                        {"role": "user", "content":
+                         instr + "\n\n=== REFERENCE ===\n" +
+                         json.dumps(ref, ensure_ascii=False, indent=1) +
+                         "\n\n" + afmt +
+                         "\n\n# Field contract\ntransactions: " + params + " " + _add +
+                         "\n\n=== RECORDS ===\n" + text}]
                 elif arm == "G_norow":
                     # 예시 행 자체를 지운 판 — [[63]] 형태(더하기가 아니라 **제거**가 닫는가).
                     #   A2 `row_fields` 선언으로 예시를 대체한다(엔진 리터럴 0·선언에서 읽음).
