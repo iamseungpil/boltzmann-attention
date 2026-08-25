@@ -51,7 +51,10 @@ PY
 )
 say "게이트 = $GATE"
 if [ "$GATE" != "PASS" ]; then
-  say "REFUSING: 배선이 격리에서 안 닫혔다 ($GATE) — 검증 안 된 수리로 런을 태우지 않는다"; exit 1
+  # ★2026-08-25: 이 런은 표적이 여덟이라 074 배선 하나로 전체를 거부하지 않는다.
+  #   대신 **경고로 남기고** 계속한다 — V2 는 켜진 채 태스크별로 측정된다.
+  #   ⚠판정 시 이 줄을 인용하라: 배선이 격리에서 완전히 닫히지 않은 상태로 실렸다.
+  say "WARN: 배선 격리 미완결 ($GATE) — V2 는 켜고 진행하되 074 결과를 수리 성공으로 읽지 마라"
 fi
 
 DIRTY=$(cd "$REPO" && git status --porcelain -- \
@@ -85,8 +88,8 @@ T2_VERDICT_CARRY=0 T2_ELIG_LINE=0 T2_VERDICT_GATE=0 T2_CLAIM_VERIFY=0 \
 T2_DECLFIRST=0 T2_DECLFIRST_GUIDE_FIX=0 T2_CATEGORY_CITE="
 ON="T2_ARG_DOC_SUB=1 T2_VALUE_FORMULA=full T2_SG_DOCS=1 T2_SG_PROMPT_V2=1"
 NT=4
-GRP_A='task_074,task_016,task_085'
-GRP_B='task_072,task_073,task_040'
+GRP_A='task_074,task_016,task_085,task_057'
+GRP_B='task_072,task_073,task_040,task_063'
 
 echo "{\"tag\":\"t7351\",\"sha\":\"$SHA\",\"design\":\"queue P4 targets 074 016 072 073 at nt=6 (24 sims), the transcription prompt order on\",\"on\":\"$ON\",\"reference\":\"t7348 sha aed30e20 - all four were 0/2\",\"bar\":\"a target going 0 -> 1; never judge on a total delta; bundle so no individual attribution (C594)\",\"why_016\":\"no new lever - it rides to capture the sub-call sidecar, which this run records for the first time\",\"gate\":\"$GATE on the N_wire isolation check\"}" \
   | tee "$LOG/bank_t7351.meta.json"
