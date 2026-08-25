@@ -1,0 +1,34 @@
+창 2개
+  task_040#s626729       선언 인자 15 · 조인 2170자 · 통제 2192자
+  task_040#s373753       선언 인자 15 · 조인 2170자 · 통제 2192자
+A_asis  task_040#s626729       k=0 -> false   false
+A_asis  task_040#s626729       k=1 -> false   false
+A_asis  task_040#s626729       k=2 -> false   false
+A_asis  task_040#s626729       k=3 -> false   false
+B_join  task_040#s626729       k=0 -> true    true
+B_join  task_040#s626729       k=1 -> true    true
+B_join  task_040#s626729       k=2 -> true    true
+B_join  task_040#s626729       k=3 -> true    true
+N_axis  task_040#s626729       k=0 -> false   false
+N_axis  task_040#s626729       k=1 -> false   false
+N_axis  task_040#s626729       k=2 -> false   false
+N_axis  task_040#s626729       k=3 -> false   false
+A_asis  task_040#s373753       k=0 -> true    true
+A_asis  task_040#s373753       k=1 -> true    true
+A_asis  task_040#s373753       k=2 -> true    true
+A_asis  task_040#s373753       k=3 -> true    true
+B_join  task_040#s373753       k=0 -> true    true
+B_join  task_040#s373753       k=1 -> true    true
+B_join  task_040#s373753       k=2 -> true    true
+B_join  task_040#s373753       k=3 -> true    true
+N_axis  task_040#s373753       k=0 -> true    true
+N_axis  task_040#s373753       k=1 -> true    true
+N_axis  task_040#s373753       k=2 -> true    true
+N_axis  task_040#s373753       k=3 -> true    true
+
+== 분포 ==
+  A_asis  {'false': 4, 'true': 4}
+  B_join  {'true': 8}
+  N_axis  {'false': 4, 'true': 4}
+B_join == A_asis ?  다르다
+-> /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x541_arg_policy_join_2026_08_25.json

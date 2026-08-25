@@ -1,0 +1,71 @@
+[x525] --- msg[37] chk_ar72c5d8e3_1: · 인출 17 · 수수료 10 · 계약 기대 18행
+      N_wire      k=0 rows=18/18 cover=17/17 feepair=9/9 ids_real=18 dup=1
+      N_wire      k=1 rows=18/18 cover=17/17 feepair=9/9 ids_real=18 dup=1
+      N_wire      k=2 rows=18/18 cover=17/17 feepair=9/9 ids_real=18 dup=1
+      D_old_group k=0 rows=18/18 cover=17/17 feepair=9/9 ids_real=18 dup=1
+      D_old_group k=1 rows=18/18 cover=17/17 feepair=9/9 ids_real=18 dup=1
+      D_old_group k=2 rows=18/18 cover=17/17 feepair=9/9 ids_real=18 dup=1
+      D_firstseen_group k=0 rows=18/18 cover=17/17 feepair=9/9 ids_real=18 dup=1
+      D_firstseen_group k=1 rows=18/18 cover=17/17 feepair=9/9 ids_real=18 dup=1
+      D_firstseen_group k=2 rows=18/18 cover=17/17 feepair=9/9 ids_real=18 dup=1
+      N_alpha_group k=0 rows=18/18 cover=17/17 feepair=9/9 ids_real=18 dup=1
+      N_alpha_group k=1 rows=18/18 cover=17/17 feepair=9/9 ids_real=18 dup=1
+      N_alpha_group k=2 rows=18/18 cover=17/17 feepair=9/9 ids_real=18 dup=1
+[x525] --- msg[38] chk_ar72c5d8e3_2: · 인출 16 · 수수료 13 · 계약 기대 16행
+      N_wire      k=0 rows=17/16 cover=16/16 feepair=13/13 ids_real=16 dup=1
+      N_wire      k=1 rows=17/16 cover=16/16 feepair=13/13 ids_real=16 dup=1
+      N_wire      k=2 rows=17/16 cover=16/16 feepair=13/13 ids_real=16 dup=1
+      D_old_group k=0 rows=16/16 cover=16/16 feepair=13/13 ids_real=16 dup=0
+      D_old_group k=1 rows=16/16 cover=16/16 feepair=13/13 ids_real=16 dup=0
+      D_old_group k=2 rows=16/16 cover=16/16 feepair=13/13 ids_real=16 dup=0
+      D_firstseen_group k=0 rows=16/16 cover=16/16 feepair=13/13 ids_real=16 dup=0
+      D_firstseen_group k=1 rows=16/16 cover=16/16 feepair=13/13 ids_real=16 dup=0
+      D_firstseen_group k=2 rows=16/16 cover=16/16 feepair=13/13 ids_real=16 dup=0
+      N_alpha_group k=0 rows=15/16 cover=15/16 feepair=13/13 ids_real=15 dup=0
+      N_alpha_group k=1 rows=15/16 cover=15/16 feepair=13/13 ids_real=15 dup=0
+      N_alpha_group k=2 rows=15/16 cover=15/16 feepair=13/13 ids_real=15 dup=0
+[x525] --- msg[39] chk_ar72c5d8e3_3: · 인출 16 · 수수료 12 · 계약 기대 16행
+      N_wire      k=0 rows=17/16 cover=16/16 feepair=12/12 ids_real=17 dup=1
+      N_wire      k=1 rows=17/16 cover=16/16 feepair=12/12 ids_real=17 dup=1
+      N_wire      k=2 rows=17/16 cover=16/16 feepair=12/12 ids_real=17 dup=1
+      D_old_group k=0 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      D_old_group k=1 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      D_old_group k=2 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      D_firstseen_group k=0 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      D_firstseen_group k=1 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      D_firstseen_group k=2 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      N_alpha_group k=0 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      N_alpha_group k=1 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      N_alpha_group k=2 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+[x525] --- msg[40] chk_ar72c5d8e3_4: · 인출 16 · 수수료 12 · 계약 기대 16행
+      N_wire      k=0 rows=17/16 cover=16/16 feepair=12/12 ids_real=17 dup=1
+      N_wire      k=1 rows=17/16 cover=16/16 feepair=12/12 ids_real=17 dup=1
+      N_wire      k=2 rows=17/16 cover=16/16 feepair=12/12 ids_real=17 dup=1
+      D_old_group k=0 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      D_old_group k=1 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      D_old_group k=2 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      D_firstseen_group k=0 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      D_firstseen_group k=1 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      D_firstseen_group k=2 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      N_alpha_group k=0 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      N_alpha_group k=1 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+      N_alpha_group k=2 rows=16/16 cover=16/16 feepair=12/12 ids_real=16 dup=0
+
+[x525] wrote /home/woori/workspace_common/boltzmann-attention-pi/reports/facet_rft_2026/x539_074_domain_general_order_2026_08_25.json
+[x525] 요약 — arm × 계좌 · rows(기대) · cover
+  N_wire     msg[37] chk_ar72c5d8e3_1:  rows=[18, 18, 18] (기대 18) · cover [17, 17, 17]/17
+  N_wire     msg[38] chk_ar72c5d8e3_2:  rows=[17, 17, 17] (기대 16) · cover [16, 16, 16]/16
+  N_wire     msg[39] chk_ar72c5d8e3_3:  rows=[17, 17, 17] (기대 16) · cover [16, 16, 16]/16
+  N_wire     msg[40] chk_ar72c5d8e3_4:  rows=[17, 17, 17] (기대 16) · cover [16, 16, 16]/16
+  D_old_group msg[37] chk_ar72c5d8e3_1:  rows=[18, 18, 18] (기대 18) · cover [17, 17, 17]/17
+  D_old_group msg[38] chk_ar72c5d8e3_2:  rows=[16, 16, 16] (기대 16) · cover [16, 16, 16]/16
+  D_old_group msg[39] chk_ar72c5d8e3_3:  rows=[16, 16, 16] (기대 16) · cover [16, 16, 16]/16
+  D_old_group msg[40] chk_ar72c5d8e3_4:  rows=[16, 16, 16] (기대 16) · cover [16, 16, 16]/16
+  D_firstseen_group msg[37] chk_ar72c5d8e3_1:  rows=[18, 18, 18] (기대 18) · cover [17, 17, 17]/17
+  D_firstseen_group msg[38] chk_ar72c5d8e3_2:  rows=[16, 16, 16] (기대 16) · cover [16, 16, 16]/16
+  D_firstseen_group msg[39] chk_ar72c5d8e3_3:  rows=[16, 16, 16] (기대 16) · cover [16, 16, 16]/16
+  D_firstseen_group msg[40] chk_ar72c5d8e3_4:  rows=[16, 16, 16] (기대 16) · cover [16, 16, 16]/16
+  N_alpha_group msg[37] chk_ar72c5d8e3_1:  rows=[18, 18, 18] (기대 18) · cover [17, 17, 17]/17
+  N_alpha_group msg[38] chk_ar72c5d8e3_2:  rows=[15, 15, 15] (기대 16) · cover [15, 15, 15]/16
+  N_alpha_group msg[39] chk_ar72c5d8e3_3:  rows=[16, 16, 16] (기대 16) · cover [16, 16, 16]/16
+  N_alpha_group msg[40] chk_ar72c5d8e3_4:  rows=[16, 16, 16] (기대 16) · cover [16, 16, 16]/16

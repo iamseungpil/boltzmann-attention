@@ -1,0 +1,193 @@
+{
+ "probe": "x541",
+ "date": "2026-08-25",
+ "task": "task_040",
+ "arg": "eligible_for_provisional_credit",
+ "scoring": "정답 판정 없음 - 팔별 답 분포만. A3 가 준 것은 규칙이 아니라 포인터이고 그 문서는 이 궤적에 오지 않았다. gold 미접촉.",
+ "falsifier": "B_join 의 분포가 A_asis 와 같으면 이 조인은 이 자리에서 아무것도 배달하지 않는다. 달라져도 '옳아졌다'는 뜻은 아니다.",
+ "dist": {
+  "A_asis": {
+   "false": 4,
+   "true": 4
+  },
+  "B_join": {
+   "true": 8
+  },
+  "N_axis": {
+   "false": 4,
+   "true": 4
+  }
+ },
+ "join_delivers_nothing": false,
+ "skipped": [],
+ "rows": [
+  {
+   "sim": "task_040#s626729",
+   "arm": "A_asis",
+   "k": 0,
+   "got": "false",
+   "raw": "false"
+  },
+  {
+   "sim": "task_040#s626729",
+   "arm": "A_asis",
+   "k": 1,
+   "got": "false",
+   "raw": "false"
+  },
+  {
+   "sim": "task_040#s626729",
+   "arm": "A_asis",
+   "k": 2,
+   "got": "false",
+   "raw": "false"
+  },
+  {
+   "sim": "task_040#s626729",
+   "arm": "A_asis",
+   "k": 3,
+   "got": "false",
+   "raw": "false"
+  },
+  {
+   "sim": "task_040#s626729",
+   "arm": "B_join",
+   "k": 0,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s626729",
+   "arm": "B_join",
+   "k": 1,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s626729",
+   "arm": "B_join",
+   "k": 2,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s626729",
+   "arm": "B_join",
+   "k": 3,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s626729",
+   "arm": "N_axis",
+   "k": 0,
+   "got": "false",
+   "raw": "false"
+  },
+  {
+   "sim": "task_040#s626729",
+   "arm": "N_axis",
+   "k": 1,
+   "got": "false",
+   "raw": "false"
+  },
+  {
+   "sim": "task_040#s626729",
+   "arm": "N_axis",
+   "k": 2,
+   "got": "false",
+   "raw": "false"
+  },
+  {
+   "sim": "task_040#s626729",
+   "arm": "N_axis",
+   "k": 3,
+   "got": "false",
+   "raw": "false"
+  },
+  {
+   "sim": "task_040#s373753",
+   "arm": "A_asis",
+   "k": 0,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s373753",
+   "arm": "A_asis",
+   "k": 1,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s373753",
+   "arm": "A_asis",
+   "k": 2,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s373753",
+   "arm": "A_asis",
+   "k": 3,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s373753",
+   "arm": "B_join",
+   "k": 0,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s373753",
+   "arm": "B_join",
+   "k": 1,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s373753",
+   "arm": "B_join",
+   "k": 2,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s373753",
+   "arm": "B_join",
+   "k": 3,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s373753",
+   "arm": "N_axis",
+   "k": 0,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s373753",
+   "arm": "N_axis",
+   "k": 1,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s373753",
+   "arm": "N_axis",
+   "k": 2,
+   "got": "true",
+   "raw": "true"
+  },
+  {
+   "sim": "task_040#s373753",
+   "arm": "N_axis",
+   "k": 3,
+   "got": "true",
+   "raw": "true"
+  }
+ ]
+}
