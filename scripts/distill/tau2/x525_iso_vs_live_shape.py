@@ -94,17 +94,33 @@ def regroup(text, mode):
     ws = [b for b in blocks if b[1] == "atm_withdrawal"]
     fs = [b for b in blocks if b[1] == "atm_fee"]
     rest = [b for b in blocks if b[1] not in ("atm_withdrawal", "atm_fee")]
-    if mode == "pair":
+    def _inter(rev):
         out, used = [], set()
-        for w in sorted(ws, key=lambda x: x[2]):
+        for w in sorted(ws, key=lambda x: x[2], reverse=rev):
             out.append(w)
             for f in fs:
                 if f[2] == w[2] and f[0] not in used:
                     out.append(f)
                     used.add(f[0])
-        out += [f for f in fs if f[0] not in used] + rest
-    elif mode == "datesort":
+        return out + [f for f in fs if f[0] not in used]
+
+    # ★2026-08-25 2차: x535 에서 **부정통제로 넣은 `datesort` 가 네 계좌를 전부 닫았다**
+    #   (rows=expect · fee_paired 만점 · ids_real 만점 · n=3 결정론). 그런데 그 팔은 두 변수를
+    #   동시에 바꾼다 — **방향**(오래된 순 ↔ 최신 순)과 **묶음**(인출전량→수수료전량 ↔ 번갈아).
+    #   원본은 *최신순 + 번갈아* 다. 배선하기 전에 그 둘을 갈라야 한다([[57]]).
+    #   그리고 *무의미한 재배열*로도 닫히면 이득은 순서가 아니라 **다시 렌더링한 것**이다 —
+    #   `scramble` 이 그 통제다(id 문자열 뒤집기 정렬·결정론적·의미 0).
+    if mode == "pair" or mode == "old_inter":
+        out = _inter(False) + rest
+    elif mode == "new_inter":
+        out = _inter(True) + rest
+    elif mode == "datesort" or mode == "old_group":
         out = sorted(ws, key=lambda x: x[2]) + sorted(fs, key=lambda x: x[2]) + rest
+    elif mode == "new_group":
+        out = (sorted(ws, key=lambda x: x[2], reverse=True)
+               + sorted(fs, key=lambda x: x[2], reverse=True) + rest)
+    elif mode == "scramble":
+        out = sorted(blocks, key=lambda x: x[0][::-1])
     else:
         return text
     body = "\n".join("%d. %s" % (k + 1, b[3].strip().split(". ", 1)[-1])
@@ -312,6 +328,21 @@ def main():
                              "\n\n" + afmt +
                              "\n\n# Field contract\ntransactions: " + params +
                              "\n\n=== RECORDS ===\n" + text}]
+                elif arm in ("D_old_group", "D_new_group", "D_old_inter",
+                             "D_new_inter", "N_scramble"):
+                    # ★2×2(방향 × 묶음) + 무의미 순서 통제. N_wire 와 **덤프 순서만** 다르다.
+                    #   원본 = 최신순 + 번갈아 이므로 `D_new_inter` 가 N_wire 재현이어야 한다
+                    #   (계기 생존 검사). `N_scramble` 이 닫으면 이득은 순서가 아니라 재렌더링이다.
+                    _m = {"D_old_group": "old_group", "D_new_group": "new_group",
+                          "D_old_inter": "old_inter", "D_new_inter": "new_inter",
+                          "N_scramble": "scramble"}[arm]
+                    _txt = regroup(text, _m)
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n=== REFERENCE ===\n" +
+                             "\n".join("%s: %s" % (k2, v2) for k2, v2 in ref.items()) +
+                             "\n\n# Field contract\ntransactions: " + params +
+                             "\n\n=== RECORDS ===\n" + _txt +
+                             "\n\n" + afmt}]
                 elif arm in ("R_pairfee", "N_datesort"):
                     # ★수수료-짝 팔 (2026-08-25·t7348 074 t1 실물 뒤). N_wire 와 **한 가지만**
                     #   다르다: `=== RECORDS ===` 블록의 **순서**. 문면·값·형식 전부 동일하다.
