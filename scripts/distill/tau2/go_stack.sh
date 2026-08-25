@@ -525,3 +525,10 @@ export T2_WRITE_ARG_TYPE=0
 # ★선언된 절차 문장을 write 결정점에 (`T2_RULE_AT_WRITE`·기본 OFF·2026-08-25·격리 x537).
 #   창 그대로 0/12 ↔ 문장 한 줄 12/12 ↔ 같은 길이 무관 문장 0/12. 검색·순위 0(선언 읽기).
 export T2_RULE_AT_WRITE=0
+
+# ★자리표시자로 채운 인자 (`T2_WRITE_ARG_FAB`·기본 OFF·2026-08-25).
+#   술어 셋 전부 **선언이거나 값의 모양**이고 이름 패턴 0: env 가 string 이라 선언 + 열거 아님
+#   + 자리표시자 모양(연속·동일 자릿수 4) + 문맥 부재. t7354 6배치 전수 실측 20건 전부 진짜
+#   날조(`card_last_4_digits='1234'` 12 · `transaction_id='TRXN123456789x'` 8)·오차단 0.
+#   ⚠이름 패턴판(`identifying_arg_types.digit`)은 2026-08-25 사용자 지적으로 **철회**했다.
+export T2_WRITE_ARG_FAB=0

@@ -586,6 +586,62 @@ def _ctx_has(s, ctx):
     return t != s and len(t) >= 4 and t.lower() in ctx
 
 
+_DECL_PARAM_RE = re.compile(
+    r"^\s*-\s*(\w+):\s*(\w+)\s*\((required|optional)\)\s*-\s*(.*)$", re.M)
+
+
+def _declared_params(messages):
+    """env 가 unlock 시점에 찍는 **고정 포맷 명세**에서 (이름 → (타입, 열거인가)) 를 읽는다.
+
+    ★2026-08-25 신설. 왜 (사용자 지적): 우리는 *"이 인자가 식별자처럼 생겼나"* 를 **이름 패턴**으로
+      추측해 왔다(`identifying_arg_types`·`_hint_hit`). 추측할 이유가 없다 — env 가 같은 것을
+      **선언해서 건네준다**. 라이브 축자(t7354 grpB1 task_040 msg5, env tool 메시지):
+
+        Parameters:
+          - transaction_id: string (required) - The unique identifier for the transaction …
+          - contacted_merchant: boolean (required) - Whether the user attempted …
+          - dispute_reason: string (required) - … Must be one of: 'unauthorized_fraudulent_charge', …
+
+    ⚠[[59]] 경계: 이것은 NL formalize 가 아니라 **env 가 찍는 고정 포맷의 전사**다 —
+      `_parse_record_dump`(`Record ID:` 덤프 전용) 와 같은 층이고 같은 규율을 진다:
+      형식이 아니면 **아무것도 돌려주지 않는다**(fail-open). 술어는 세 토막
+      (`이름`·`타입`·`(required|optional)`) 뿐이고 설명문은 *열거가 선언됐는가*만 본다 —
+      값을 뽑지 않는다(값 목록은 여전히 A2 선언이 권위·`write_arg_enum.values`).
+    ⚠엔진은 여전히 고르지 않는다: 여기서 나오는 것은 **타입 사실**이고 어느 값을 쓸지는 모델이 정한다.
+    """
+    out = {}
+    for m in (messages or []):
+        c = str(getattr(m, "content", "") or "")
+        if "Parameters:" not in c:
+            continue
+        for name, typ, _req, desc in _DECL_PARAM_RE.findall(c):
+            out[name] = (typ, "Must be one of" in desc)
+    return out
+
+
+def _looks_placeholder(s):
+    """값이 **자리표시자 모양**인가 — 연속(0123…) 또는 동일(1111) 자릿수 4개 이상을 담았나.
+
+    ★도메인 낱말 0 · 이름 안 봄 · 의미 추출 0. `DEFAULT_PLACEHOLDERS`(‘ABC123’·‘XYZ789’ 같은
+      전 도메인 공통 test 값 집합)의 **닫힘**이다 — 그 집합이 열거로 못 담는 같은 종류를 담는다.
+    실측(t7354 6배치 전수·2026-08-25): 이 술어 + *env 가 string 이라 선언* + *문맥 부재* 셋을
+      함께 걸면 **20건**이 걸리고 전부 진짜 날조다 — `card_last_4_digits='1234'` 12건 ·
+      `transaction_id='TRXN123456789x'` 8건. 오차단 **0**. 반면 셋 중 하나라도 빼면 갈린다:
+      타입만 쓰면 `issue_noticed_date='11/14/2025'`(gold 값) 10건을 오차단하고, 모양만 쓰면
+      `min_credit_limit='10000'`·`disputed_amount` 를 오차단한다.
+    """
+    # ⚠자릿수는 **덩어리 안에서만** 본다 — 구분자를 건너뛰고 이어 붙이면 전화번호
+    #   `215-555-0267` 이 `2155550267` → `5555` 로 잡힌다(2026-08-25 래칫이 잡은 오차단).
+    for d in re.findall(r"\d+", str(s)):
+        for i in range(len(d) - 3):
+            w = d[i:i + 4]
+            if len(set(w)) == 1:
+                return True
+            if all(int(w[j + 1]) - int(w[j]) == 1 for j in range(3)):
+                return True
+    return False
+
+
 # ─── ★도구-선택자 파라미터 (env 스키마 기계 도출·2026-08-24 R3) ───
 # 무엇이 틀렸었나: `SELECTOR` 예외는 `_prov_scan_args`(= `T2_PROVENANCE` 전용 死경로)에만 있었고,
 #   **실제로 치환하는** `_first_fab_call` 에는 없었다. 그래서 `T2_GROUND` 가 래퍼의 도구-선택자
@@ -10202,6 +10258,69 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _se2:
                     en_fb = None
                     print("[T2_SCHEMA_ENUM] error (no-op): %r" % (_se2,),
+                          file=_sys.stderr, flush=True)
+            # ★T2_WRITE_ARG_FAB (2026-08-25·기본 OFF): **자리표시자로 채운 인자**를 되돌려준다.
+            #   왜 (t7354 grpB1 task_040 t0 궤적 축자): msg98 에서 에이전트가
+            #   `give_discoverable_user_tool(get_card_last_4_digits, cc_01f21c9970_gold)` 로 도구를
+            #   손님에게 넘기고 env 가 *"Tool given to user … The user can now execute this"* 를
+            #   돌려준 **바로 다음 메시지 msg100** 에서, 손님이 실행하기도 전에 분쟁 4건을
+            #   `card_last_4_digits='1234'` 로 접수했다. 첫 카드에서는 기다렸다 — msg76 의
+            #   *"Last 4 digits of card: 0581"* 을 받아 msg78 부터 정확히 썼다. 같은 sim 에
+            #   `transaction_id='TRXN1234567890'` 계열 4건도 있다.
+            #   ⇒ 결손은 *아직 받지 못한 값을 쓰는 write* 이고, 그 값은 대화 어디에도 없다(전수 0건).
+            #   ★술어 셋은 **전부 선언이거나 값의 모양**이고 이름 패턴이 **하나도 없다**
+            #     (2026-08-25 사용자 지적으로 교체: `identifying_arg_types.digit` 는 철회했다):
+            #       ⓐ env 가 그 인자를 `string` 이라 **선언**했고 열거 선언이 **없다**(`_declared_params`)
+            #       ⓑ 값이 자리표시자 모양이다(`_looks_placeholder` — 연속·동일 자릿수 4)
+            #       ⓒ 값이 대화 어디에도 없다(`_ctx_has` — 손님이 말해 줬으면 그대로 통과)
+            #   실측 폭발 반경(t7354 6배치 전수·[[66]] 공유 상류 노드라 반드시 잰다):
+            #     셋 결합 **20건 전부 040 의 진짜 날조**(오차단 0) ↔ ⓐ만 쓰면 gold 날짜 10건 오차단
+            #     (`issue_noticed_date='11/14/2025'`) ↔ ⓑ만 쓰면 `min_credit_limit='10000'` 오차단.
+            #   ⚠엔진은 값을 만들지도 고르지도 않는다 — *어디에도 없는 자리표시자*만 되돌려주고
+            #     무엇을 부를지는 모델이 정한다([[62]]③④). 문면은 기존 검증분을 그대로 쓴다(C45).
+            #   ⚠sim 당 인자별 1회(livelock 금지) · 형식이 아니면 무발화(fail-open·[[25]]).
+            if os.environ.get("T2_WRITE_ARG_FAB") == "1" and en_fb is None:
+                try:
+                    _dp = _declared_params(state.messages)
+                    if _dp:
+                        _fctx = _ctx_from_messages(state.messages)
+                        _fseen = getattr(self, "_t2_argfab_deny", None)
+                        if _fseen is None:
+                            _fseen = self._t2_argfab_deny = set()
+                        for c in (am.tool_calls or []):
+                            if en_fb is not None:
+                                break
+                            for _fk, _fv in _prov_scan_args(
+                                    c, selectors=_selector_args_cached(
+                                        getattr(getattr(self, "_t2_orch", None),
+                                                "environment", None))):
+                                _ft = _dp.get(_fk)
+                                if not _ft or _ft[0] != "string" or _ft[1]:
+                                    continue        # 미선언·비문자열·열거 = 이 검사 밖
+                                _fs = str(_fv).strip()
+                                if len(_fs) < 4 or not _looks_placeholder(_fs):
+                                    continue
+                                if _ctx_has(_fs, _fctx):
+                                    continue        # 문맥에 있으면 통과(우리는 판정하지 않는다)
+                                _fkey = (str(_exact_tool_name(c) or ""), _fk)
+                                if _fkey in _fseen:
+                                    continue
+                                _fseen.add(_fkey)
+                                en_fb = (c, REGEN_FEEDBACK.format(k=_fk, s=_fs[:80]))
+                                print("[T2_WRITE_ARG_FAB] deny tool=%s arg=%s val=%r "
+                                      "(env 선언 string·열거 아님·자리표시자 모양·문맥 부재)"
+                                      % (_eff_tool_name(c), _fk, _fs[:40]),
+                                      file=_sys.stderr, flush=True)
+                                _lbeat("T2_WRITE_ARG_FAB", orch=self,
+                                       target=_eff_tool_name(c),
+                                       fact="a real value read from the tool that produces it")
+                                break
+                    else:
+                        print("[T2_WRITE_ARG_FAB] 관측: env 명세 블록 없음 — 무발화",
+                              file=_sys.stderr, flush=True)
+                except Exception as _fe:
+                    en_fb = None
+                    print("[T2_WRITE_ARG_FAB] 건너뜀(무발화): %r" % (_fe,),
                           file=_sys.stderr, flush=True)
             _ens = (a2 or {}).get("write_arg_enum") or []
             if os.environ.get("T2_WRITE_ARG_ENUM") == "1" and _ens:

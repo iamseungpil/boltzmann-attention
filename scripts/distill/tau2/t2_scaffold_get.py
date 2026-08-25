@@ -1536,6 +1536,58 @@ def _dup_stub_content(n, prev=None, represent_on=False, shrunk=False):
             % (rep, extra)), bool(rep)
 
 
+def _reorder_records(text):
+    """env 기계 포맷 레코드 덤프를 **타입별로 묶고 묶음 안은 날짜 오름차순**으로 재배열한다.
+
+    ★왜 (2026-08-25·x536·x539 격리): 074 의 전사 결손은 재료가 아니라 **덤프의 순서**였다.
+      같은 6,752자 원문을 순서만 바꿔 주면 네 계좌가 갈린다(n=3 결정론·[[57]] 부정통제 포함):
+
+        계좌(기대)   N_wire   D_old_group   N_scramble(무의미 순서)
+        msg37(18)      18         18            18      ← 변별 없음
+        msg38(16)    **17**       16          **17**    ← 날조 id 한 줄
+        msg39(16)    **17**       16          **15**    ← 행 빠짐
+        msg40(16)    **17**       16            16
+
+      무의미한 재배열은 두 계좌를 오히려 부순다 ⇒ 산 것은 *다시 렌더링한 것*이 아니라
+      **순서의 내용**이다. 승자 팔은 `atm_withdrawal`·`atm_fee` 라는 도메인 낱말로 정의돼
+      있었으므로 그대로는 엔진에 못 들어온다([[05]]) — 여기 있는 규칙은 그 낱말이 **하나도
+      없는** 판이고, x539 가 두 판이 같은 수를 내는지 잰 뒤에만 켜진다.
+
+    ⚠엔진이 쓰는 문장 0 · 값 변경 0 · 판단 0 · 순위 0: 블록을 **축자 그대로** 옮기고 번호만
+      다시 매긴다. 술어는 env 기계 포맷의 필드 이름 둘(`type`·`date`)뿐이고 **값은 안 본다**.
+    ⚠형식이 아니면 그대로 돌려준다(fail-open·`Record ID:` 부재 시 무동작).
+    ⚠불변식: 산출은 입력의 **순열**이다 — 래칫 `test_sg_record_order.py` 가 id 집합과 개수를
+      맞대어 지킨다(내용 손실이 이 자리에서 나면 [[25]] 위반이다).
+    """
+    import re as _re3
+    if "Record ID:" not in (text or ""):
+        return text
+    parts = _re3.split(r"\n(?=\s*\d+\.\s+Record ID:)", text)
+    head = ""
+    if parts and "Record ID:" not in parts[0]:
+        head, parts = parts[0], parts[1:]
+    blocks = []
+    for b in parts:
+        i = _re3.search(r"Record ID:\s*(\S+)", b)
+        t = _re3.search(r"^\s*type:\s*(\S+)\s*$", b, _re3.M)
+        d = _re3.search(r"^\s*date:\s*(\S+)\s*$", b, _re3.M)
+        if not (i and t):
+            return text                     # 한 블록이라도 축이 없으면 손대지 않는다
+        blocks.append((i.group(1), t.group(1), d.group(1) if d else "", b))
+    if not blocks:
+        return text
+    seen = []
+    for b in blocks:
+        if b[1] not in seen:
+            seen.append(b[1])               # 타입 순서 = 원본의 첫 등장(이름을 고르지 않는다)
+    out = []
+    for ty in seen:
+        out += sorted([b for b in blocks if b[1] == ty], key=lambda x: x[2])
+    body = "\n".join("%d. %s" % (k + 1, b[3].strip().split(". ", 1)[-1])
+                     for k, b in enumerate(out))
+    return (head + "\n" + body) if head else body
+
+
 def _parse_record_dump(text):
     """★P6(DAY5_PRESCRIPTIONS §P6): env 기계 포맷("Found N record(s) … Record ID: <id>
     <field>: <value> …") **전용** 결정론 파서. [[03b]] 경계: NL formalize가 아니라 env가 찍는

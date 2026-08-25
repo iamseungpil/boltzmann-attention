@@ -70,8 +70,7 @@
  ],
  "producers": {},
  "identifying_arg_types": [
-  "time_verified",
-  "digit"
+  "time_verified"
  ],
  "eplan": {
   "list_enumerator": [
@@ -576,6 +575,5 @@
    "now_prompt": "From the conversation excerpts below, what is TODAY's date according to the system or the records shown? Reply with the date only, formatted MM/DD/YYYY. If the excerpts do not state it, reply NONE.\n\n{text}",
    "_note_": "2026-08-07. 출처([[23]]) = env 도구 출력 필드명(기계 도출) + 정책 축자. 규칙 문형 = doc_bank_accounts_(general): \"The tenure threshold is measured from when you opened your very first checking account with us\" / \"calculated from ... the date your earliest checking account was opened\". ★상품별 문턱 일수는 여기 넣지 않는다 - Hunter Green만 \"minimum relationship duration of 60 days\"로 축자 확인되고 World Blue는 그 문형이 없다. 못 찾은 값을 A2에 박으면 지어내는 것이 된다. 문턱은 모델이 인용과 함께 가져오고 [SOURCE]가 검증한다([[22]]). ★now_prompt 추가(2026-08-07·x128 오프라인 실측): 이 선언에만 `now_prompt`가 없어 `formalize_now`가 항상 None을 돌려줬고, 그래서 `{age}`가 **빈 문자열로 렌더**됐다 — 경과일 문장이 통째로 사라진 것이다. 전사는 2행 정상, 창 선언 쪽은 정상 산출. 100이 필요로 하는 수(첫 계좌로부터의 경과일)가 정확히 이 구멍으로 빠졌다. 문구는 자매 선언과 **축자 동일**(도메인 지식 0·오늘 날짜만 묻는다·gold 무참조)."
   }
- ],
- "_note_identifying_arg_types_digit": "★2026-08-25 신설. 왜(t7354 라이브 궤적 축자·grpB1 task_040 t0): 에이전트가 msg98 에서 `give_discoverable_user_tool(get_card_last_4_digits, cc_01f21c9970_gold)` 로 도구를 손님에게 넘기고 env 가 \"Tool given to user ... The user can now execute this\" 를 돌려준 **바로 다음 메시지(msg100)** 에서, 손님이 실행하기도 전에 분쟁 4건을 `card_last_4_digits='1234'` 로 접수했다. 첫 카드에서는 기다렸다 — msg76 의 \"Last 4 digits of card: 0581\" 을 받아 msg78 부터 정확히 썼다. 즉 결손은 *아직 받지 못한 값을 쓰는 write* 이고 `'1234'` 는 이전 문맥 **어디에도 없다**(전수 0건). 그런데 날조 가드가 이 인자를 **아예 보지 않았다**: `_hint_hit` 은 토큰이 힌트로 시작할 때만 참인데 `card_last_4_digits` 의 토큰 ['card','last','4','digits'] 가 기본 힌트 (email/name/zip/user_id/username/id/payment/address/phone) 어느 것에도 안 걸린다. 출처 = env 도구 스키마 축자: \"card_last_4_digits (string): Last 4 digits of the credit card number\" 이고 그 값을 내는 getter 가 \"get_card_last_4_digits ... Look up the last 4 digits of a credit card number\" 다 — 즉 **getter 가 만드는 식별 값**이다(gold 아님·[[23]]). 폭발 반경 실측(t7354 6배치 전수·[[66]] 공유 상류 노드라 반드시 잰다): 새로 막히는 것은 **12건 전부 040 의 이 인자**이고 값은 '1234'·'5678' 뿐이다 — 오탐 0. ⚠엔진은 값을 고르지 않는다: 문맥에 있으면 통과하고(손님이 말해 줬으면 그대로 통과) 없을 때만 *getter 를 불러 실값을 읽으라*고 되돌려준다([[62]]③④·[[64]])."
+ ]
 }

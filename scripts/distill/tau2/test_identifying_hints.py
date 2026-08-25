@@ -22,8 +22,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 # 토큰 → 그 힌트가 걸려야 하는 **실재 인자 이름**(env 도구 스키마에서 온 이름).
-WITNESS = {
-    "digit": "card_last_4_digits",
+WITNESS = {   # 비었다: `digit` 은 2026-08-25 밤에 철회했다(이름 패턴 대신 선언 파생·아래 KNOWN_DEAD 주석)
 }
 # 죽어 있음을 **알고 있는** 선언. 되살리려면 폭발 반경을 재고 이 표에서 지운다.
 KNOWN_DEAD = {
