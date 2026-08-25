@@ -163,14 +163,20 @@ setsid bash -c '
   batch smoke 8140 task_074 1 45
   SLOG=$LOG/${TAGBASE}_smoke_20260826.log
   SAP=$(grep -ac "덤프 재배열 적용" $SLOG || true); SAP=${SAP:-0}
+  SMK=$(grep -ac "T2_SG_RECORD_ORDER" $SLOG || true); SMK=${SMK:-0}
+  STB=$(grep -ac "Traceback" $SLOG || true); STB=${STB:-0}
   SOK=$(grep -acF "operand keys=[" $SLOG || true); SOK=${SOK:-0}
-  if [ "$SAP" -eq 0 ]; then
-    echo "[t7356] 중단: 재배열이 라이브에 도달하지 않았다 (적용=$SAP operand=$SOK) — 死배선"
+  # 게이트는 **死배선과 크래시**만 막는다. 적용 0 은 중단 사유가 아니다 —
+  # `_reorder_records` 는 이미 그 순서면 무변이고 덤프가 둘이면 손대지 않는다(설계).
+  # 다른 세 레버가 함께 타므로 밤을 태울 이유가 없다. 대신 수를 크게 남긴다.
+  if [ "$SMK" -eq 0 ] || [ "$STB" -gt 0 ]; then
+    echo "[t7356] 중단: 마커=$SMK Traceback=$STB — 死배선이거나 크래시다"
     cd "$REPO"
     /home/woori/venvs/seka_env/bin/python reports/facet_rft_2026/freeze.py --off --tag t7356 || true
     exit 1
   fi
-  echo "[t7356] 스모크 게이트 PASS 재배열적용=$SAP operand=$SOK"
+  echo "[t7356] 스모크 게이트 PASS 마커=$SMK 재배열적용=$SAP operand=$SOK Traceback=$STB"
+  [ "$SAP" -eq 0 ] && echo "[t7356] ★주의: 재배열이 한 번도 적용되지 않았다 — 아침에 이유를 볼 것(무변인가·덤프가 둘인가)"
 
   (
     batch grpA1 8140 task_085 6 160
