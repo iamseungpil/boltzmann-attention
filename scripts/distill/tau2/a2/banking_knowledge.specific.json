@@ -4053,6 +4053,37 @@
    ],
    "feedback": "`{val}` is not one of the values `{arg}` accepts. Use exactly one of these, copied verbatim: {candidates}.",
    "_note_": "★2026-08-25 신설. 왜: t7348 에서 040 의 **gold 호출 8건**이 env 에 거절됐고 사유가 `Invalid dispute_reason. Must be one of: [...]` 였다(정본 `t2_forensic.action_diff` 귀속 deny=env). 모델은 gold 거래 id 까지 맞히고 이 인자에서 되튕긴다. 출처는 **도구 사용법 문서 축자** 하나뿐이다 — gold 도 env 오류문도 아니다([[23]]): \"dispute_reason: string (required) - Reason for the dispute. Must be one of: 'unauthorized_fraudulent_charge', 'duplicate_charge', 'incorrect_amount', 'goods_services_not_received', 'goods_services_not_as_described', 'canceled_subscription_still_charging', 'refund_never_processed'\". ⚠스키마 경로는 실측으로 막혀 있다: agent 가 보는 도구 17개 중 enum 을 선언한 인자는 하나뿐이고 이 도구는 discoverable 이라 그 목록에 없다 ⇒ 선언 경로가 유일하다. ⚠엔진은 고르지 않는다 — 소속 판정과 명단 반환뿐이고 어느 값이 옳은지는 모델이 정한다([[62]]③④·[[22]] 닫힌 술어). ⚠[[70]] 무엇을 파나: 이 명단이 불완전하면 정당한 값도 한 번은 거절된다 — 상한(`T2_WRITE_ARG_ENUM_CAP`)의 fail-open 이 그 탈출구다."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_debit_card_transaction_dispute"
+   },
+   "arg": "dispute_category",
+   "booleans": [
+    "card_in_possession",
+    "contacted_merchant",
+    "police_report_filed",
+    "written_statement_provided",
+    "provisional_credit_eligible"
+   ],
+   "type_feedback": "`{names}` — this tool declares these arguments as booleans. A quoted word is not a boolean value. Send the same answers as `true` or `false` and leave every other argument unchanged.",
+   "_note_": "★2026-08-25 신설. 왜(t7354 라이브 전수): 이 도구가 선언한 불리언 인자에 모델이 **문자열 'Yes'/'No'** 를 보낸다 — 085 접수 분쟁 **전건**(grpA1 t0 4 · grpB2 t0 4 · t1 4), 040 은 gold 8건을 **축자 그대로 접수하고도** `contacted_merchant` gold=True↔got='Yes' · `eligible_for_provisional_credit` gold=False↔got='Yes' 로 **8/8** 어긋나 `db_match=false`. env 가 문자열을 받아 저장하므로 호출은 성공하고 채점만 조용히 실패한다. 출처 = **도구 사용법 문서 축자**(gold 아님·[[23]]): 각 인자가 `(boolean)` 으로 선언돼 있다 — 예: \"card_in_possession (boolean) - Ask: 'Do you still have your physical debit card in your possession?'\" · \"contacted_merchant (boolean)\" · \"police_report_filed (boolean)\" · \"written_statement_provided (boolean)\" · \"provisional_credit_eligible (boolean)\". ⚠의미는 모델이 이미 맞혔다(Yes↔True) — 엔진은 값을 바꾸지 않고 **선언된 타입만** 알린다([[62]]③④). 술어는 `isinstance(v, bool)` 하나뿐이고 도메인 낱말은 이 선언에만 있다([[05]])."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_credit_card_transaction_dispute"
+   },
+   "arg": "dispute_category",
+   "booleans": [
+    "contacted_merchant",
+    "eligible_for_provisional_credit"
+   ],
+   "type_feedback": "`{names}` — this tool declares these arguments as booleans. A quoted word is not a boolean value. Send the same answers as `true` or `false` and leave every other argument unchanged.",
+   "_note_": "★2026-08-25 신설. 왜(t7354 라이브 전수): 이 도구가 선언한 불리언 인자에 모델이 **문자열 'Yes'/'No'** 를 보낸다 — 085 접수 분쟁 **전건**(grpA1 t0 4 · grpB2 t0 4 · t1 4), 040 은 gold 8건을 **축자 그대로 접수하고도** `contacted_merchant` gold=True↔got='Yes' · `eligible_for_provisional_credit` gold=False↔got='Yes' 로 **8/8** 어긋나 `db_match=false`. env 가 문자열을 받아 저장하므로 호출은 성공하고 채점만 조용히 실패한다. 출처 = **도구 사용법 문서 축자**(gold 아님·[[23]]): 각 인자가 `(boolean)` 으로 선언돼 있다 — 예: \"card_in_possession (boolean) - Ask: 'Do you still have your physical debit card in your possession?'\" · \"contacted_merchant (boolean)\" · \"police_report_filed (boolean)\" · \"written_statement_provided (boolean)\" · \"provisional_credit_eligible (boolean)\". ⚠의미는 모델이 이미 맞혔다(Yes↔True) — 엔진은 값을 바꾸지 않고 **선언된 타입만** 알린다([[62]]③④). 술어는 `isinstance(v, bool)` 하나뿐이고 도메인 낱말은 이 선언에만 있다([[05]])."
   }
  ],
  "have_value_reask": [
@@ -10084,5 +10115,17 @@
   "with_examples": "When you DO call transfer_to_human_agents, pick the MOST SPECIFIC reason option that matches the situation (for example: the customer's stated identity values do not match the account record -> an ownership-dispute reason; a mailed offer/flyer that cannot be verified in the knowledge base -> an unconfirmed-external-communication reason; a knowledge-base search that failed while the customer asks for a human -> that specific reason). Use the generic no-specific-reason option ONLY when no other option fits.",
   "_source_with_examples": "GB2_NOTICE_BEFORE_TRANSFER 의 `ask` 에서 **연속 구간을 그대로** 들어올린 것(재작성 0). 출처 계보 = 커밋 aa657c59(2026-07-28 'day7 midrun forensic prescriptions'). ⚠[[66]] 검토 대상: 19 코드 중 **3개에만** 사례가 달려 있고 그 셋이 각각 004·014·012 가 필요로 하는 값이다 — 실패를 보고 쓴 열거일 수 있다. 내용 자체는 doc_042 표에 축자로 있어 [[23]] 출처는 서지만, **사례 선택**이 성적을 사고 있는지는 x485 F/G 가 가른다.",
   "_note_": "2026-08-22 x485 후속. 이 키는 **선언일 뿐 엔진이 아직 읽지 않는다**(라이브 거동 불변) — 격리 프로브 F_tier/G_examples 의 재료로만 쓰인다([[71]]②: 재료는 선언에서). 왜: x485 1차에서 정의 표만 주면 gold 0/24(전부 TIER 2 `kb_search_unsuccessful`), 표+게이트 ask 를 주면 5/24. 그런데 그 ask 에는 004 의 답을 이름으로 대는 사례가 들어 있어 이득의 출처가 **일반 규칙**인지 **사례 떠먹이기**인지 갈리지 않았다([[62]] 측정 대상 소실 위험). F(일반 규칙만) ↔ G(사례 포함)가 그것을 가른다. F 가 0 이면 이 축은 우리 레버로 못 산다."
- }
+ },
+ "write_rules": [
+  {
+   "applies_to": "file_debit_card_transaction_dispute",
+   "text": "Dispute the earliest (first) transaction when multiple duplicates exist.",
+   "_note_": "★2026-08-25 신설. 격리 `x537`(085·창 3·n4): 결정점 창 그대로면 **0/12**, 이 문장을 결정점에 놓으면 **12/12**, 같은 길이의 무관한 문장이면 **0/12**([[57]] 통과). 왜 필요한가: 085 가 중복 청구에서 **늦은 거래**를 골랐다(gold `btxn_b2c3d4e5f602` ↔ 제출 `btxn_c3d4e5f6g703`·두 sim 재현). 규칙은 대화 초반 문서 본문에 **축자로 이미 도착**했고 write 는 한참 뒤였다 — `T2_SPEC_AT_WRITE` 와 같은 **거리** 문제다. 출처 = 분쟁 접수 문서 본문 축자(정책 산문·gold 아님·[[23]]). ⚠엔진은 검색도 순위도 하지 않는다 — 이 문장을 그대로 싣는다."
+  },
+  {
+   "applies_to": "file_credit_card_transaction_dispute",
+   "text": "Dispute the earliest (first) transaction when multiple duplicates exist.",
+   "_note_": "★2026-08-25 신설. 격리 `x537`(085·창 3·n4): 결정점 창 그대로면 **0/12**, 이 문장을 결정점에 놓으면 **12/12**, 같은 길이의 무관한 문장이면 **0/12**([[57]] 통과). 왜 필요한가: 085 가 중복 청구에서 **늦은 거래**를 골랐다(gold `btxn_b2c3d4e5f602` ↔ 제출 `btxn_c3d4e5f6g703`·두 sim 재현). 규칙은 대화 초반 문서 본문에 **축자로 이미 도착**했고 write 는 한참 뒤였다 — `T2_SPEC_AT_WRITE` 와 같은 **거리** 문제다. 출처 = 분쟁 접수 문서 본문 축자(정책 산문·gold 아님·[[23]]). ⚠엔진은 검색도 순위도 하지 않는다 — 이 문장을 그대로 싣는다."
+  }
+ ]
 }

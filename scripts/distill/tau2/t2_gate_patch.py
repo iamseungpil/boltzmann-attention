@@ -10267,6 +10267,44 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                           % (_gval, sorted(_want)),
                                           file=_sys.stderr, flush=True)
                                     break
+                            # ★선언된 **타입** 검사 (2026-08-25·`T2_WRITE_ARG_TYPE`·기본 OFF).
+                            #   왜(t7354 실측·085 와 040 전 분쟁): 도구 명세가 `(boolean)` 이라
+                            #   선언한 인자에 모델이 **문자열 `"Yes"`/`"No"`** 를 보낸다.
+                            #     085  written_statement_provided='Yes' · police_report_filed='No' ·
+                            #          card_in_possession='Yes' … 접수된 분쟁 **전건**
+                            #     040  contacted_merchant gold=True ↔ got='Yes' ·
+                            #          eligible_for_provisional_credit gold=False ↔ got='Yes' · **8/8**
+                            #   env 는 그것을 **받아 저장**하므로 호출은 성공하고 `db_match` 만
+                            #   조용히 실패한다(040 trial0: gold 8건을 **전부 축자 접수**하고 reward 0).
+                            #   ⚠**의미는 모델이 이미 맞혔다** — Yes↔True. 우리는 값을 바꾸지 않고
+                            #     *선언된 타입*을 알려 주고 다시 내게 한다([[62]]③④ 판단 제거 0).
+                            #   ⚠술어는 닫혀 있다: 선언된 이름 목록 + `isinstance(v, bool)` 뿐이고
+                            #     엔진이 변환하지도 고르지도 않는다. 도메인 낱말은 A2 에만 있다([[05]]).
+                            if en_fb is None and _sp.get("booleans"):
+                                _bad = [(_bk, _ia.get(_bk)) for _bk in _sp["booleans"]
+                                        if _bk in _ia and not isinstance(_ia.get(_bk), bool)]
+                                if _bad and os.environ.get("T2_WRITE_ARG_TYPE") == "1":
+                                    _tseen = getattr(self, "_t2_argtype_deny", None)
+                                    if _tseen is None:
+                                        _tseen = self._t2_argtype_deny = set()
+                                    _tk = str(_exact_tool_name(c) or "")
+                                    if _tk and _tk not in _tseen:
+                                        _tseen.add(_tk)
+                                        en_fb = (c, str(_sp.get("type_feedback") or "").format(
+                                            names=", ".join(
+                                                "%s (you sent %r)" % (k, v) for k, v in _bad)))
+                                        print("[T2_WRITE_ARG_TYPE] deny tool=%s 비불리언 %d: %s"
+                                              % (_eff_tool_name(c), len(_bad),
+                                                 [k for k, _ in _bad]),
+                                              file=_sys.stderr, flush=True)
+                                        _lbeat("T2_WRITE_ARG_TYPE", orch=self,
+                                               target=_eff_tool_name(c),
+                                               fact="the type this tool declares for these arguments")
+                                        break
+                                elif _bad:
+                                    print("[T2_WRITE_ARG_TYPE] 관측(OFF) tool=%s 비불리언 %d: %s"
+                                          % (_eff_tool_name(c), len(_bad), [k for k, _ in _bad]),
+                                          file=_sys.stderr, flush=True)
                             if _sp.get("values"):
                                 # ★값-목록 갈래 (2026-08-25): 후보를 A3 색인 슬러그가 아니라
                                 #   **선언된 목록**에서 받는다. 왜 필요한가(t7348·정본 `action_diff`
