@@ -2156,6 +2156,57 @@ def _give_required_fb(messages, orch):
     return None
 
 
+def _call_form_repair(messages, orch):
+    """3단계 ③ — **래퍼만** 바꿔 다시 부를 재료. 내용(도구·인자)은 모델 것 축자다.
+
+    ★사용자 확정 2026-08-26(축자): *"dispatcher 를 안부르는건 **호출 형식** 문제이다. 형식과
+      내용이 충돌할 때, **형식을 엔진으로 바꾸는 것은 문제가 안된다.** … 그래도 안되면, 엔진이
+      호출 형식을 바꿔서 직접 부르는 것이다."*
+      경계가 이것으로 확정된다 — 내용(어느 도구·어떤 인자)은 LLM, **형식(어느 래퍼로 부르나)은
+      엔진**이다([[52]] 엔진=이론·LLM=해석 · 저장소 선례 `t2_callable_hint` = *"부를 수 있는
+      형태로 말하게 한다"*). ⛔이 함수가 X 나 arguments 를 **바꾸면 그 순간 [[03b]] 위반**이다.
+      래칫이 그 축자 보존을 검정한다.
+
+    반환 = (X, args) — 손님-측 도구 X 를 넘겨줄 때 실을 인자. 인자는 **손님이 시도한 그 호출에서
+    복사**하고, 없으면 빈 dict(그 형태를 env 가 받는다·t7348 통과본 축자). 없으면 None.
+    """
+    try:
+        import t2_axis_levers as _AX
+    except Exception:
+        return None
+    user_reg = set()
+    for cand in (orch, getattr(orch, "_t2_orch", None)):
+        if cand is None:
+            continue
+        try:
+            _a, _u = _AX.registry_from_env(cand)
+        except Exception:
+            continue
+        if _u:
+            user_reg = set(_u)
+            break
+    if not user_reg:
+        return None
+    want = None
+    for m in (messages or []):
+        for tc in (getattr(m, "tool_calls", None) or []):
+            if str(getattr(tc, "name", "")) != "call_discoverable_user_tool":
+                continue
+            a = _args_dict(tc) or {}
+            x = str(a.get("discoverable_tool_name") or "")
+            if x in user_reg:
+                want = (x, a.get("arguments"))     # ★모델이 실은 것 그대로
+    if not want:
+        return None
+    x, inner = want
+    if _tool_given(messages, "give_discoverable_user_tool", x):
+        return None
+    out = {"discoverable_tool_name": x}
+    if isinstance(inner, str) and inner.strip() and inner.strip() != "{}":
+        out["arguments"] = inner               # 축자 전달 — 파싱도 재작성도 하지 않는다
+    return (x, out)
+
+
 VALUE_ACQUIRE_FEEDBACK_DEFAULT = (
     "[VALUE-ACQUIRE] The customer cannot provide '{arg}' directly, and it is NOT in the account "
     "records. It must be retrieved by the CUSTOMER running {acquire_tool}. Stop re-asking — use "
@@ -8872,6 +8923,43 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               file=_sys.stderr, flush=True)
                 except Exception as _gre:
                     print("[T2_GIVE_REQUIRED] 건너뜀(무발화): %r" % (_gre,),
+                          file=_sys.stderr, flush=True)
+            # ★3단계 ③ T2_CALL_FORM_FIX (2026-08-26·기본 OFF) — **지목해도 안 되면 엔진이 부른다**.
+            #   사용자 확정(축자): *"JSON 으로 호출 형식을 LLM 이 정하게 하고, 엔진이 검산해서 틀릴
+            #   경우, 틀린이유와 부르는 방식을 정확하게 해서 LLM 에 알리고 다시 호출하게 하는건
+            #   어떤가? **그래도 안되면, 엔진이 호출 형식을 바꿔서 직접 부르는 것이다.**"*
+            #   ⇒ 경계는 **내용/형식**이다: 어느 도구를 어떤 인자로(내용)는 LLM 이 정하고 이 자리는
+            #     그것을 **축자로 옮겨** 래퍼만 바꾼다. X 나 arguments 를 만들면 [[03b]] 위반이고
+            #     래칫이 그 보존을 검정한다.
+            #   ⚠상한(`T2_GIVE_REQUIRED_CAP`)까지 ②단계로 지목한 **뒤에만** 움직인다 — 순서가
+            #     에스컬레이션의 전부다. sim 당 1회.
+            #   ⚠선례: 이 엔진은 이미 `am.tool_calls` 에서 호출을 **제거**한다(`T2_FAB_STRIP`·
+            #     `T2_STALE_STRIP`). 추가는 그 대칭 연산이다.
+            if (os.environ.get("T2_CALL_FORM_FIX") == "1"
+                    and getattr(self, "_t2_givereq_deny", 0)
+                    >= int(os.environ.get("T2_GIVE_REQUIRED_CAP", "2"))
+                    and not getattr(self, "_t2_formfix_done", 0)):
+                try:
+                    _fx = _call_form_repair(state.messages, self)
+                    if _fx:
+                        _fxname, _fxargs = _fx
+                        from tau2.data_model.message import ToolCall as _TCfix
+                        am.tool_calls = [_TCfix(id="t2formfix",
+                                                name="give_discoverable_user_tool",
+                                                arguments=_fxargs,
+                                                requestor="assistant")] + \
+                            list(getattr(am, "tool_calls", None) or [])
+                        self._t2_formfix_done = 1
+                        print("[T2_CALL_FORM_FIX] 엔진이 래퍼를 바꿔 호출한다 tool=%s 인자키=%s "
+                              "(내용은 모델 것 축자)"
+                              % (_fxname, sorted(_fxargs)), file=_sys.stderr, flush=True)
+                        _lbeat("T2_CALL_FORM_FIX", orch=self, target=_fxname,
+                               fact="the same call, in the form the environment accepts")
+                    else:
+                        print("[T2_CALL_FORM_FIX] 관측: 고칠 형식 없음 — 무발화",
+                              file=_sys.stderr, flush=True)
+                except Exception as _fxe:
+                    print("[T2_CALL_FORM_FIX] 건너뜀(무발화): %r" % (_fxe,),
                           file=_sys.stderr, flush=True)
             # ★T2_VALUE_ACQUIRE (C119): 값 미실재 + give 미실행 → give 표면화 넛지(have-value 앞단계).
             if (va_specs and hv_fb is None and not do_gate and not do_prov and ep_fb is None

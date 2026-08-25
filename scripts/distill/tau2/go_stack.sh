@@ -561,3 +561,8 @@ export T2_ARG_POLICY_CAP=4000
 #   t7356 전수 표적: 017 미달 1 · 055 미달 1 · 057 미달 2(give 호출 0회) = 3 태스크.
 export T2_GIVE_REQUIRED=0
 export T2_GIVE_REQUIRED_CAP=2
+
+# ★호출 형식 교정 3단계 ③ (`T2_CALL_FORM_FIX`·기본 OFF·2026-08-26·사용자 확정).
+#   ②단계(T2_GIVE_REQUIRED)로 상한만큼 지목한 **뒤에만** 움직인다: 엔진이 래퍼를 바꿔 직접 부른다.
+#   내용(도구·인자)은 모델 것 축자 복사 — 만들면 [[03b]] 위반이고 래칫이 그 보존을 검정한다.
+export T2_CALL_FORM_FIX=0
