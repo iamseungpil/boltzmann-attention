@@ -105,7 +105,15 @@ def filler(msgs, want_len):
     return best[1] if best else None
 
 
-def blocks():
+def windows():
+    """**라이브 창**을 쓴다 - 블록만 떼면 모델이 더하지 않는다(2026-08-26 1차 실측: A_asis 가
+    10.50 을 냈고 라이브 오답은 19.50 이었다 ⇒ 그 창은 [[62]] 2b 의 공정성 조건을 못 지킨다).
+
+    창 = 크레딧 호출 직전 W 메시지. 블록↔호출 짝짓기는 **닫힌 규칙**이다:
+    그 호출의 `amount` 와 **절댓값 합이 일치하는** 블록이 그 계좌의 블록이다(라이브 오답의 정체가
+    절댓값 합이라는 것은 도구 출력에서 이미 확정됐다). 짝을 못 찾으면 그 호출은 건너뛴다.
+    """
+    W = 14
     cases, skipped = [], []
     for tag in RUNS:
         p = os.path.join(SIMS, tag + ".results.json.gz")
@@ -115,24 +123,43 @@ def blocks():
         for s in (d.get("simulations") or []):
             ms = s.get("messages") or []
             sim = "%s#s%s" % (s.get("task_id"), s.get("seed"))
+            blks = []
             for i, m in enumerate(ms):
-                if str(m.get("role")) != "tool":
-                    continue
-                c = str(m.get("content") or "")
-                if ANCHOR not in c:
-                    continue
-                tot, vals = signed_sum(c)
-                if not vals:
-                    skipped.append({"sim": sim, "msg": i, "why": "difference 값 0개"})
-                    continue
-                if not any(v < 0 for v in vals):
-                    skipped.append({"sim": sim, "msg": i,
-                                    "why": "음수가 없다 - 이 계좌는 변별력이 없다(절댓값=부호합)"})
-                    continue
-                cases.append({"sim": sim, "tag": tag, "msg": i, "block": c,
-                              "want": tot, "vals": vals,
-                              "absum": round(sum(abs(v) for v in vals), 2),
-                              "filler": filler(ms, len(c))})
+                if str(m.get("role")) == "tool" and ANCHOR in str(m.get("content") or ""):
+                    c = str(m.get("content") or "")
+                    tot, vals = signed_sum(c)
+                    if vals:
+                        blks.append((i, c, tot, vals, round(sum(abs(v) for v in vals), 2)))
+            for i, m in enumerate(ms):
+                for tc in (m.get("tool_calls") or []):
+                    blob = json.dumps(tc, ensure_ascii=False)
+                    if "apply_checking_account_credit" not in blob or "unlock" in blob:
+                        continue
+                    am = re.search(r'\\"amount\\":\s*\\"?(-?[\d.]+)', blob)
+                    if not am:
+                        continue
+                    live = round(float(am.group(1)), 2)
+                    hit = [b for b in blks if b[0] < i and abs(b[4] - live) < 0.01]
+                    if not hit:
+                        skipped.append({"sim": sim, "msg": i,
+                                        "why": "amount %.2f 와 절댓값합이 맞는 블록이 없다" % live})
+                        continue
+                    bi, blk, tot, vals, absum = hit[-1]
+                    if not any(v < 0 for v in vals):
+                        skipped.append({"sim": sim, "msg": i, "why": "음수 없음(변별력 0)"})
+                        continue
+                    txt = []
+                    for mm in ms[max(0, i - W):i]:
+                        cc = str(mm.get("content") or "").strip()
+                        if cc:
+                            txt.append("[%s] %s" % (mm.get("role"), cc[:1600]))
+                    if not txt:
+                        skipped.append({"sim": sim, "msg": i, "why": "창이 비었다"})
+                        continue
+                    cases.append({"sim": sim, "tag": tag, "msg": i, "block": blk,
+                                  "win": (NL + NL).join(txt), "want": tot, "vals": vals,
+                                  "absum": absum, "live": live,
+                                  "filler": filler(ms, len(blk))})
     return cases, skipped
 
 
@@ -142,7 +169,7 @@ def main(argv=None):
     ap.add_argument("--n", type=int, default=4)
     ap.add_argument("--out", default=os.path.join(REP, "x542_signed_sum_2026_08_26.json"))
     a = ap.parse_args(argv)
-    cases, skipped = blocks()
+    cases, skipped = windows()
     for sk in skipped:
         print("건너뜀 %-22s msg%-4s %s" % (sk["sim"], sk["msg"], sk["why"]))
     if not cases:
@@ -150,19 +177,19 @@ def main(argv=None):
             {"probe": "x542", "cases": 0, "skipped": skipped}, ensure_ascii=False, indent=1))
         print("창 0 - 판정하지 않는다")
         return 1
-    print("창 %d개 (음수를 담은 계좌만)" % len(cases))
+    print("창 %d개 (음수를 담은 계좌 · 라이브 호출에 짝지음)" % len(cases))
     for c in cases:
-        print("   %-20s msg%-4s 부호합 %.2f · 절댓값합 %.2f · 값 %s"
-              % (c["sim"], c["msg"], c["want"], c["absum"], c["vals"]))
+        print("   %-20s msg%-4s 라이브제출 %.2f · 절댓값합 %.2f · **부호합 %.2f** · 창 %d자"
+              % (c["sim"], c["msg"], c["live"], c["absum"], c["want"], len(c["win"])))
     rows, agg = [], collections.defaultdict(lambda: {"n": 0, "ok": 0, "abs": 0})
     for c in cases:
-        b = c["block"]
-        arms = {"A_asis": b,
-                "B_fmt": fix_currency(b),
-                "C_sign": b + NL + NL + SIGN_LINE,
-                "D_both": fix_currency(b) + NL + NL + SIGN_LINE}
+        w = c["win"]
+        arms = {"A_asis": w,
+                "B_fmt": w.replace(c["block"], fix_currency(c["block"])),
+                "C_sign": w + NL + NL + SIGN_LINE,
+                "D_both": w.replace(c["block"], fix_currency(c["block"])) + NL + NL + SIGN_LINE}
         if c["filler"]:
-            arms["N_len"] = b + NL + NL + "[policy] " + c["filler"]
+            arms["N_len"] = w + NL + NL + "[policy] " + c["filler"]
         for arm, body in sorted(arms.items()):
             for k in range(a.n):
                 try:
@@ -175,7 +202,9 @@ def main(argv=None):
                 isabs = (got == c["absum"])
                 rows.append({"sim": c["sim"], "msg": c["msg"], "arm": arm, "k": k,
                              "got": got, "want": c["want"], "absum": c["absum"],
-                             "ok": ok, "abs_sum_error": isabs, "raw": txt[:60]})
+                             "ok": ok, "abs_sum_error": isabs,
+                             "live": c["live"], "live_match": (got == c["live"]),
+                             "raw": txt[:60]})
                 d0 = agg[arm]
                 d0["n"] += 1
                 d0["ok"] += 1 if ok else 0
@@ -183,7 +212,8 @@ def main(argv=None):
                 print("%-7s %-20s msg%-4s k=%d got=%-9s %s"
                       % (arm, c["sim"], c["msg"], k, got,
                          "★부호합" if ok else ("(절댓값합)" if isabs else "")), flush=True)
-    fair = agg["A_asis"]["ok"] < agg["A_asis"]["n"]
+    live_hit = sum(1 for r in rows if r["arm"] == "A_asis" and r.get("live_match"))
+    fair = live_hit > 0
     out = {"probe": "x542", "date": "2026-08-26",
            "scoring": "정답 = 블록의 `difference $X` 를 부호 그대로 더한 값. 규칙 출처는 선언 축자"
                       "('net correction' · 'it shows as a negative difference'). gold 미접촉.",
@@ -192,9 +222,9 @@ def main(argv=None):
                     "N_len": "같은 길이 무관 문장([[57]])"},
            "agg": {k: dict(v) for k, v in agg.items()},
            "instrument_survives": fair,
-           "instrument_note": ("A_asis 가 부호합을 못 냈다 - 격리가 공정하다" if fair else
-                               "A_asis 가 전부 맞혔다 = 이 블록은 라이브 실패를 재현 못 한다. "
-                               "판정하지 않는다([[62]] 2b)."),
+           "instrument_note": ("A_asis 가 **라이브 제출값**을 재현했다 - 격리가 공정하다" if fair else
+                               "A_asis 가 라이브 오답을 재현하지 못했다 = 이 창은 그 결정을 담지 "
+                               "않는다. 판정하지 않는다([[62]] 2b)."),
            "skipped": skipped, "rows": rows}
     io.open(a.out, "w", encoding="utf-8").write(json.dumps(out, ensure_ascii=False, indent=1))
     print(NL + "== agg (ok = 부호합 · abs = 절댓값합 오답) ==")
