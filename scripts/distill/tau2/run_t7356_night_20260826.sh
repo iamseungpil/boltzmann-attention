@@ -149,7 +149,11 @@ setsid bash -c '
                reports/facet_rft_2026/sim_results/$TAG.log.gz \
                reports/facet_rft_2026/sim_results/fb_$TAG.jsonl.gz \
                reports/facet_rft_2026/sim_results/trace_$TAG.jsonl.gz 2>/dev/null || true
-    git -c user.name=ghlee -c user.email=beingrelative@gmail.com commit -q -m "t7356 batch $TAG" || true
+    # ⚠**경로 한정 커밋**이어야 한다 (2026-08-25 사고): 인자 없는 `commit` 은 인덱스에 스테이지된
+    #   것을 전부 쓸어 담는다. 그날 내가 `git checkout FETCH_HEAD -- <드라이버>` 로 스테이지해 둔
+    #   스크립트가 런의 persist 커밋에 실렸고, 다음 rebase 가 add/add 충돌로 거부됐다.
+    git -c user.name=ghlee -c user.email=beingrelative@gmail.com commit -q -m "t7356 batch $TAG" \
+      -- reports/facet_rft_2026/sim_results/ || true
     git push -q origin facet-rft-2026 || echo "[t7356] push 보류"
     git ls-files --error-unmatch reports/facet_rft_2026/sim_results/$TAG.results.json.gz >/dev/null 2>&1 \
       && echo "[t7356] $TAG persisted+tracked OK" || echo "[t7356] $TAG NOT TRACKED"
