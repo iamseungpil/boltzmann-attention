@@ -61,6 +61,9 @@ RUNS = ("bank_t7354_grpA1_20260825", "bank_t7354_grpB2_20260825",
 NL = chr(10)
 # 닻은 도메인 상품명이 아니라 이 결정의 **술어 이름**이다: 신고 시점 -> 책임 한도.
 RE_TIER = re.compile(r"^\s*[-*]?\s*Reported\b[^\n]*liability[^\n]*$", re.I | re.M)
+# ★합성 검사용 닻 — 이미 A2 `write_rules` 에 실려 있는 문장(x537 이 산 것). 같은 결정점에
+#   두 문장이 함께 실리면 서로 죽이는지를 본다([[19]] 합성-우선 · [[70]] 무엇을 파나).
+RE_EARLY = re.compile(r"[^.\n]*\bearliest\b[^.\n]*\bduplicat\w*[^.\n]*\.", re.I)
 RE_MONEY = re.compile(r"\$\s*([\d][\d,]*)")
 ASK = (NL + NL + "You are filing this debit card dispute now." + NL +
        "Reply with ONLY the number you will pass as `customer_max_liability_amount` "
@@ -176,8 +179,17 @@ def windows():
             if not txt:
                 skipped.append({"sim": sim, "run": tag, "why": "창이 비었다"})
                 continue
+            early = None
+            for m in ms:
+                if str(m.get("role")) != "tool":
+                    continue
+                hit = RE_EARLY.search(str(m.get("content") or ""))
+                if hit:
+                    early = hit.group(0).strip()
+                    break
             cases.append({"run": tag, "sim": sim, "win": (NL + NL).join(txt),
                           "tiers": tiers, "filler": find_filler(ms, len(tiers)),
+                          "early": early,
                           "allowed": sorted(allowed_from(tiers)),
                           "live": live_value(ms)})
     return cases, skipped
@@ -205,6 +217,10 @@ def main(argv=None):
     for c in cases:
         arms = {"A_asis": c["win"],
                 "B_rule": c["win"] + NL + NL + "[policy] " + c["tiers"]}
+        if c["early"]:
+            # 합성: A2 `write_rules` 가 **이미 싣고 있는** 문장과 함께 실었을 때.
+            arms["B_both"] = (c["win"] + NL + NL + "[policy] " + c["early"] +
+                              NL + "[policy] " + c["tiers"])
         if c["filler"]:
             arms["N_len"] = c["win"] + NL + NL + "[policy] " + c["filler"]
         for arm, body in sorted(arms.items()):
