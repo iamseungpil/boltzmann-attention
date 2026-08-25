@@ -586,12 +586,69 @@ def _ctx_has(s, ctx):
     return t != s and len(t) >= 4 and t.lower() in ctx
 
 
+# ★거절 문면 — **도메인 낱말 0**. 종전에는 A2 에 도메인별로 적혀 있었는데(`type_feedback`·
+#   `feedback`), 문장 자체는 어느 도메인에서도 같으므로 고정층이 옳은 집이다([[05]]).
+#   내용은 오늘 A2 에서 쓰던 것 축자 그대로다(문면 변경 0 — 바뀐 것은 **사는 곳**뿐).
+_SPEC_TYPE_FB = ("Error: `%s` — this tool declares these arguments as booleans. A quoted word is "
+                 "not a boolean value. Send the same answers as `true` or `false` and leave every "
+                 "other argument unchanged.")
+_SPEC_ENUM_FB = ("Error: `%s` is not one of the values `%s` accepts. Use exactly one of these, "
+                 "copied verbatim: %s.")
+
 _DECL_PARAM_RE = re.compile(
     r"^\s*-\s*(\w+):\s*(\w+)\s*\((required|optional)\)\s*-\s*(.*)$", re.M)
+_DECL_TOOL_RE = re.compile(r"^Tool:\s*(\S+)\s*$", re.M)
+# env 는 unlock 응답에서 `Tool unlocked: X` 를 먼저 찍고 그 아래 `Tool: X` 블록을 붙인다.
+# 둘째 줄이 없는 변형(도구를 손님에게 넘길 때)도 있으므로 첫 줄을 폴백으로 받는다.
+_DECL_TOOL_ALT_RE = re.compile(r"^Tool unlocked:\s*(\S+)\s*$", re.M)
+_DECL_ONEOF_RE = re.compile(r"Must be one of:\s*(.+)$")
+_DECL_QUOTED_RE = re.compile(r"'([^']+)'")
+
+
+def _declared_params_by_tool(messages):
+    """env 명세를 **도구별로** 읽는다 — {도구: {인자: (타입, [열거값…])}}.
+
+    ★왜 도구별인가 (2026-08-25·필수): 같은 인자 이름이 도구마다 **다른 값 집합**을 갖는다.
+      실물 — `card_action` 은 신용 분쟁에서 {keep_active, cancel_and_reissue} 이고
+      직불 분쟁에서 {keep_active, freeze_pending_investigation, close_and_reissue} 다.
+      이름만으로 합치면 **틀린 명단**으로 정당한 값을 거절한다([[25]] 계기는 100% 정답 의무).
+    ⚠열거 **값**은 설명문 안에 있다(`Must be one of: '…', '…'`). 타입 세 토막은 env 가 기계
+      생성하지만 이 줄은 독스트링 본문이므로, 값 추출은 **작은따옴표 안 토큰**이라는 한 가지
+      규칙만 쓰고 그 밖의 해석을 하지 않는다. 등가성은 `x540_spec_derivation.py` 가 코퍼스
+      실물로 쟀다: 손 선언 9건 ↔ 도출 9건 **전부 일치 · 다르다 0 · 대조 불가 0**.
+    ⚠형식이 아니면 아무것도 돌려주지 않는다(fail-open).
+    """
+    out = {}
+    for m in (messages or []):
+        c = str(getattr(m, "content", "") or "")
+        if "Parameters:" not in c:
+            continue
+        tm = _DECL_TOOL_RE.search(c) or _DECL_TOOL_ALT_RE.search(c)
+        if not tm:
+            continue
+        d = out.setdefault(tm.group(1), {})
+        for name, typ, _req, desc in _DECL_PARAM_RE.findall(c):
+            hit = _DECL_ONEOF_RE.search(desc)
+            vals = _DECL_QUOTED_RE.findall(hit.group(1)) if hit else []
+            prev = d.get(name)
+            if prev and prev[1] and not vals:
+                continue                    # 값을 이미 본 칸을 빈 것으로 덮지 않는다
+            d[name] = (typ, vals)
+    return out
+
+
+def _declared_params_for(messages, tc):
+    """이 호출이 **실행하는 그 도구**의 명세만. 이름이 안 맞으면 빈 dict(fail-open)."""
+    want = str(_exact_tool_name(tc) or "")
+    return _declared_params_by_tool(messages).get(want) or {}
 
 
 def _declared_params(messages):
-    """env 가 unlock 시점에 찍는 **고정 포맷 명세**에서 (이름 → (타입, 열거인가)) 를 읽는다.
+    """env 가 unlock 시점에 찍는 **고정 포맷 명세**에서 (이름 → (타입, 열거값 리스트)) 를 읽는다.
+
+    ⚠**도구를 가로질러 합친 판**이다 — 값 집합이 도구마다 다른 인자에는 쓰지 마라.
+      값을 보는 자리는 `_declared_params_for` 를 쓴다. 이 함수는 *타입* 처럼 도구가 달라도
+      같은 축에만 안전하다(2026-08-25 `card_action` 실물로 배운 것).
 
     ★2026-08-25 신설. 왜 (사용자 지적): 우리는 *"이 인자가 식별자처럼 생겼나"* 를 **이름 패턴**으로
       추측해 왔다(`identifying_arg_types`·`_hint_hit`). 추측할 이유가 없다 — env 가 같은 것을
@@ -605,17 +662,18 @@ def _declared_params(messages):
     ⚠[[59]] 경계: 이것은 NL formalize 가 아니라 **env 가 찍는 고정 포맷의 전사**다 —
       `_parse_record_dump`(`Record ID:` 덤프 전용) 와 같은 층이고 같은 규율을 진다:
       형식이 아니면 **아무것도 돌려주지 않는다**(fail-open). 술어는 세 토막
-      (`이름`·`타입`·`(required|optional)`) 뿐이고 설명문은 *열거가 선언됐는가*만 본다 —
-      값을 뽑지 않는다(값 목록은 여전히 A2 선언이 권위·`write_arg_enum.values`).
-    ⚠엔진은 여전히 고르지 않는다: 여기서 나오는 것은 **타입 사실**이고 어느 값을 쓸지는 모델이 정한다.
+      (`이름`·`타입`·`(required|optional)`) 뿐이고, 열거 값은 설명문의
+      `Must be one of: '…'` **작은따옴표 안 토큰** 한 규칙으로만 읽는다.
+    ⚠엔진은 여전히 고르지 않는다: 여기서 나오는 것은 **타입·명단 사실**이고 어느 값을 쓸지는
+      모델이 정한다([[62]]③④).
     """
     out = {}
-    for m in (messages or []):
-        c = str(getattr(m, "content", "") or "")
-        if "Parameters:" not in c:
-            continue
-        for name, typ, _req, desc in _DECL_PARAM_RE.findall(c):
-            out[name] = (typ, "Must be one of" in desc)
+    for tool, d in _declared_params_by_tool(messages).items():
+        for name, fact in d.items():
+            prev = out.get(name)
+            if prev and prev[1] and not fact[1]:
+                continue
+            out[name] = fact
     return out
 
 
@@ -10281,8 +10339,8 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             #   ⚠sim 당 인자별 1회(livelock 금지) · 형식이 아니면 무발화(fail-open·[[25]]).
             if os.environ.get("T2_WRITE_ARG_FAB") == "1" and en_fb is None:
                 try:
-                    _dp = _declared_params(state.messages)
-                    if _dp:
+                    _dpt = _declared_params_by_tool(state.messages)
+                    if _dpt:
                         _fctx = _ctx_from_messages(state.messages)
                         _fseen = getattr(self, "_t2_argfab_deny", None)
                         if _fseen is None:
@@ -10290,6 +10348,7 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         for c in (am.tool_calls or []):
                             if en_fb is not None:
                                 break
+                            _dp = _dpt.get(str(_exact_tool_name(c) or "")) or {}
                             for _fk, _fv in _prov_scan_args(
                                     c, selectors=_selector_args_cached(
                                         getattr(getattr(self, "_t2_orch", None),
@@ -10321,6 +10380,70 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                 except Exception as _fe:
                     en_fb = None
                     print("[T2_WRITE_ARG_FAB] 건너뜀(무발화): %r" % (_fe,),
+                          file=_sys.stderr, flush=True)
+            # ★T2_SPEC_ARG_FACTS (2026-08-25·기본 OFF) — **손 선언을 대체하는 파생**.
+            #   사용자 물음(*"일반화로는 지금 문제를 해결 못하는 건가?"*)에 대한 답의 구현부다.
+            #   오늘 A2 에 손으로 적은 것(값 목록 6칸·불리언 2세트)은 전부 env 가 unlock 때
+            #   **고정 포맷으로 건네주는 것**이었다. 손으로 베낀 이유는 *discoverable 도구는 agent
+            #   스키마 목록에 없다* 하나였는데, unlock 메시지가 같은 명세를 준다 ⇒ 막힌 채널이
+            #   아니라 **안 뚫은 채널**이었다([[05]] 도메인-특화 순증의 뿌리).
+            #   측정(둘 다 코퍼스 실물·gold 미접촉):
+            #     `x540_spec_derivation.py`  명세 블록 61 · 도구 16 · 대조 9건 **전부 일치**
+            #                                (다르다 0 · 대조 불가 0) + 우리가 선언한 적 없는
+            #                                열거 3칸(`apply_credit_card_account_flag_6147` 2 ·
+            #                                `open_bank_account_4821` 1)까지 덮는다
+            #     폭발 반경                  도출이 손 선언보다 **새로 막는 것 0건**(t7354 전 배치)
+            #   ⚠명세는 **도구별로** 읽는다 — `card_action` 은 신용 2값·직불 3값이라 이름만으로
+            #     합치면 정당한 값을 거절한다.
+            #   ⚠엔진은 고르지 않는다: 타입 사실과 소속 판정 + 명단 반환뿐이고 어느 값이 옳은지는
+            #     모델이 정한다([[62]]③④·[[22]] 닫힌 술어). 문면에 도메인 낱말 0.
+            #   ⚠sim 당 (도구,축) 1회 · 명세가 없으면 무발화(fail-open).
+            if os.environ.get("T2_SPEC_ARG_FACTS") == "1" and en_fb is None:
+                try:
+                    _dpt2 = _declared_params_by_tool(state.messages)
+                    _s2 = getattr(self, "_t2_specfacts_deny", None)
+                    if _s2 is None:
+                        _s2 = self._t2_specfacts_deny = set()
+                    _sel2 = _selector_args_cached(
+                        getattr(getattr(self, "_t2_orch", None), "environment", None))
+                    for c in (am.tool_calls or []):
+                        if en_fb is not None:
+                            break
+                        _tn2 = str(_exact_tool_name(c) or "")
+                        _d2 = _dpt2.get(_tn2) or {}
+                        if not _d2:
+                            continue
+                        _a2v = dict(_prov_scan_args(c, selectors=_sel2))
+                        _bad2 = [k for k, v in _a2v.items()
+                                 if (_d2.get(k) or ("", []))[0] == "boolean"
+                                 and not isinstance(v, bool)]
+                        if _bad2 and (_tn2, "\0bool") not in _s2:
+                            _s2.add((_tn2, "\0bool"))
+                            en_fb = (c, _SPEC_TYPE_FB % ("`, `".join(sorted(_bad2)),))
+                            print("[T2_SPEC_ARG_FACTS] type deny tool=%s 비불리언 %d: %s"
+                                  % (_eff_tool_name(c), len(_bad2), sorted(_bad2)),
+                                  file=_sys.stderr, flush=True)
+                            _lbeat("T2_SPEC_ARG_FACTS", orch=self, target=_eff_tool_name(c),
+                                   fact="the type this tool declared when it was unlocked")
+                            break
+                        for _ek, _ev in sorted(_a2v.items()):
+                            _en3 = (_d2.get(_ek) or ("", []))[1]
+                            _es = str(_ev).strip()
+                            if not _en3 or not _es or _es in _en3:
+                                continue
+                            if (_tn2, _ek, _es) in _s2:
+                                continue
+                            _s2.add((_tn2, _ek, _es))
+                            en_fb = (c, _SPEC_ENUM_FB % (_es[:80], _ek, ", ".join(_en3)))
+                            print("[T2_SPEC_ARG_FACTS] enum deny tool=%s arg=%s val=%r (후보 %d)"
+                                  % (_eff_tool_name(c), _ek, _es[:40], len(_en3)),
+                                  file=_sys.stderr, flush=True)
+                            _lbeat("T2_SPEC_ARG_FACTS", orch=self, target=_eff_tool_name(c),
+                                   fact="the values this tool declared when it was unlocked")
+                            break
+                except Exception as _s2e:
+                    en_fb = None
+                    print("[T2_SPEC_ARG_FACTS] 건너뜀(무발화): %r" % (_s2e,),
                           file=_sys.stderr, flush=True)
             _ens = (a2 or {}).get("write_arg_enum") or []
             if os.environ.get("T2_WRITE_ARG_ENUM") == "1" and _ens:

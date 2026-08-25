@@ -22,6 +22,10 @@ sys.path.insert(0, HERE)
 
 # env 가 실제로 찍는 블록 축자 (t7354 grpB1 task_040 msg5 에서 잘라 온 것).
 SPEC = """Tool unlocked: file_credit_card_transaction_dispute_4829
+Description: File a formal dispute for a credit card transaction.
+
+Tool: file_credit_card_transaction_dispute_4829
+Description: File a formal dispute for a credit card transaction.
 Parameters:
   - transaction_id: string (required) - The unique identifier for the transaction being disputed
   - card_last_4_digits: string (required) - Last 4 digits of the credit card number
@@ -46,11 +50,11 @@ def main():
 
     # ① 선언 읽기 · 형식 아니면 빈 결과
     dp = G._declared_params([_M(SPEC)])
-    assert dp.get("transaction_id") == ("string", False), dp.get("transaction_id")
-    assert dp.get("card_last_4_digits") == ("string", False), dp.get("card_last_4_digits")
-    assert dp.get("contacted_merchant") == ("boolean", False), dp.get("contacted_merchant")
-    assert dp.get("dispute_reason") == ("string", True), dp.get("dispute_reason")
-    assert dp.get("partial_refund_amount") == ("number", False)
+    assert dp.get("transaction_id") == ("string", []), dp.get("transaction_id")
+    assert dp.get("card_last_4_digits") == ("string", []), dp.get("card_last_4_digits")
+    assert dp.get("contacted_merchant") == ("boolean", []), dp.get("contacted_merchant")
+    assert dp.get("dispute_reason") == ("string", ["duplicate_charge"]), dp.get("dispute_reason")
+    assert dp.get("partial_refund_amount") == ("number", [])
     assert G._declared_params([_M("그냥 산문입니다. 매개변수 같은 것은 없습니다.")]) == {}, \
         "형식이 아닌데 무언가를 읽었다 — fail-open 이 깨졌다"
 
@@ -62,7 +66,9 @@ def main():
 
     src = io.open(os.path.join(HERE, "t2_gate_patch.py"), encoding="utf-8").read()
     i = src.index('os.environ.get("T2_WRITE_ARG_FAB")')
-    blk = src[i:src.index("_ens = (a2 or {}).get(", i)]
+    # ⚠블록 경계는 **이 레버의 끝**까지다 — 이웃 블록의 주석까지 삼키면 검정이 무너진다
+    #   (2026-08-25: T2_SPEC_ARG_FACTS 주석의 `card_action` 이 잡혔다).
+    blk = src[i:src.index("T2_SPEC_ARG_FACTS", i)]
 
     # ③ 이름 패턴 금지
     assert "_hint_hit" not in blk, "게이트가 다시 **이름 패턴**을 쓰기 시작했다([[59]] 정신)"

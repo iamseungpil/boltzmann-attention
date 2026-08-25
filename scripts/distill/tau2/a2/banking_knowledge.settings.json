@@ -70,7 +70,7 @@
  ],
  "producers": {},
  "identifying_arg_types": [
-  "time_verified"
+  "time"
  ],
  "eplan": {
   "list_enumerator": [
@@ -575,5 +575,6 @@
    "now_prompt": "From the conversation excerpts below, what is TODAY's date according to the system or the records shown? Reply with the date only, formatted MM/DD/YYYY. If the excerpts do not state it, reply NONE.\n\n{text}",
    "_note_": "2026-08-07. 출처([[23]]) = env 도구 출력 필드명(기계 도출) + 정책 축자. 규칙 문형 = doc_bank_accounts_(general): \"The tenure threshold is measured from when you opened your very first checking account with us\" / \"calculated from ... the date your earliest checking account was opened\". ★상품별 문턱 일수는 여기 넣지 않는다 - Hunter Green만 \"minimum relationship duration of 60 days\"로 축자 확인되고 World Blue는 그 문형이 없다. 못 찾은 값을 A2에 박으면 지어내는 것이 된다. 문턱은 모델이 인용과 함께 가져오고 [SOURCE]가 검증한다([[22]]). ★now_prompt 추가(2026-08-07·x128 오프라인 실측): 이 선언에만 `now_prompt`가 없어 `formalize_now`가 항상 None을 돌려줬고, 그래서 `{age}`가 **빈 문자열로 렌더**됐다 — 경과일 문장이 통째로 사라진 것이다. 전사는 2행 정상, 창 선언 쪽은 정상 산출. 100이 필요로 하는 수(첫 계좌로부터의 경과일)가 정확히 이 구멍으로 빠졌다. 문구는 자매 선언과 **축자 동일**(도메인 지식 0·오늘 날짜만 묻는다·gold 무참조)."
   }
- ]
+ ],
+ "_note_identifying_arg_types_revive": "★2026-08-25 수리. 이 선언은 **한 달 넘게 죽어 있었다**: 토큰이 `time_verified` 였는데 `_hint_hit` 이 2026-07-16 에 substring → **토큰 접두**로 바뀌면서(`\"id\" in \"provided\"` 오탐 수리) 키를 쪼갠 ['time','verified'] 중 어느 것도 `'time_verified'` 로 시작하지 않게 됐다. 원 _note_ 는 아직 옛 의미론(*\"해당 인자 key에만 substring-매칭\"*)을 적고 있다. 토큰을 `'time'` 으로 바꿔 되살린다. 폭발 반경 실측(t7354 6배치 전수): 이 변경으로 **새로 막히는 것 0건**. 원 근거는 그대로다 — BANKING_FLOOR_LEVER_FIT §2.6 LOGV_TIME_FAB 59 sim(34.7%·과거 시각 날조=DB 단독-치명) · 정책 축자 \"If you need the current time, always use the get_current_time() tool. Do not make up or assume the current time.\""
 }

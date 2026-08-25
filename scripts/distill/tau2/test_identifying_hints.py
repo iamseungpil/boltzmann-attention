@@ -22,14 +22,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 # 토큰 → 그 힌트가 걸려야 하는 **실재 인자 이름**(env 도구 스키마에서 온 이름).
-WITNESS = {   # 비었다: `digit` 은 2026-08-25 밤에 철회했다(이름 패턴 대신 선언 파생·아래 KNOWN_DEAD 주석)
+WITNESS = {
+    # `digit` 은 2026-08-25 밤에 **철회**했다 — 이름 패턴 대신 선언 파생(T2_SPEC_ARG_FACTS).
+    "time": "time_verified",
 }
 # 죽어 있음을 **알고 있는** 선언. 되살리려면 폭발 반경을 재고 이 표에서 지운다.
 KNOWN_DEAD = {
-    "time_verified": ("2026-08-25 확인 — `_hint_hit` 이 2026-07-16 에 substring 에서 토큰 접두로 "
-                      "바뀌면서 죽었다. 살리려면 토큰을 'time' 으로 바꿔야 하고, t7354 전 배치 "
-                      "실측 폭발 반경은 0건이나 원 근거(LOGV_TIME_FAB 59 sim)는 그 로스터 밖이라 "
-                      "측정 없이 켜지 않는다."),
+    # 2026-08-25 밤: `time_verified` 는 토큰을 'time' 으로 바꿔 **되살렸다**(폭발 반경 0건).
+    # 이 표가 비어 있는 것이 정상이다 — 죽은 선언은 고치거나 지워라, 여기 눕히지 마라.
 }
 
 
