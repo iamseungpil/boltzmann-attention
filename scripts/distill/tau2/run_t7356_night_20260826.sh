@@ -48,7 +48,8 @@ say "앞 런 없음 (대기 ${WAITED}s)"
 # ── ⑵ origin 과 화해 — 앞 런의 persist 커밋이 로컬에만 있고 내 커밋이 원격에 있다
 cd "$REPO"
 git fetch -q origin facet-rft-2026
-git -c user.name=ghlee -c user.email=beingrelative@gmail.com rebase origin/facet-rft-2026 \
+# --autostash: 앞 런이 남긴 `FREEZE.json` 수정으로 rebase 가 거부되는 것을 막는다(런 산출물).
+git -c user.name=ghlee -c user.email=beingrelative@gmail.com rebase --autostash origin/facet-rft-2026 \
   || { say "REFUSING: rebase 실패 — 손으로 화해해야 한다"; git rebase --abort || true; exit 1; }
 git push -q origin facet-rft-2026 || say "push 보류(원격 선행) — 런 뒤 화해"
 SHA=$(git rev-parse --short HEAD)
