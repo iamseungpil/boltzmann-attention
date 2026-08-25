@@ -553,3 +553,11 @@ export T2_SPEC_ARG_FACTS=0
 #   ⚠모델 반응 미측정 — 격리(x541) 전에는 런에서 켜지 마라.
 export T2_ARG_POLICY_AT_WRITE=0
 export T2_ARG_POLICY_CAP=4000
+
+# ★손님-측 도구 미전달 (`T2_GIVE_REQUIRED`·기본 OFF·2026-08-26).
+#   손님이 call_discoverable_user_tool 로 도구를 실행하려다 env 에 거절당했는데 에이전트가
+#   give_discoverable_user_tool 을 안 부른 상태면, **정확한 호출을 지목해** 재생성 채널로 되돌린다.
+#   목록은 env 레지스트리 user-side 도출(A2 저작 0·리터럴 0). 엔진이 대신 부르지는 않는다.
+#   t7356 전수 표적: 017 미달 1 · 055 미달 1 · 057 미달 2(give 호출 0회) = 3 태스크.
+export T2_GIVE_REQUIRED=0
+export T2_GIVE_REQUIRED_CAP=2

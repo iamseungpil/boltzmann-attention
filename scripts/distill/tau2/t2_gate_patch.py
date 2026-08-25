@@ -2094,6 +2094,68 @@ def _tool_given(messages, give_tool, acquire_tool):
     return False
 
 
+GIVE_REQUIRED_FEEDBACK = (
+    "Error: [GIVE-REQUIRED] the customer tried to run `{tool}` and the environment refused it "
+    "because you have not handed that tool to them. It is a customer-side tool: it does nothing "
+    "until you give it. Do this now, before anything else, exactly as written:\n"
+    "    give_discoverable_user_tool(discoverable_tool_name=\"{tool}\")\n"
+    "Then tell the customer to run it again. Repeating your previous message will not change "
+    "anything - the environment refused the same call {n} time(s) already.")
+
+
+def _give_required_fb(messages, orch):
+    """손님이 실행해야 하는 도구를 **아직 넘겨주지 않았다** → 정확한 호출을 지목한다.
+
+    ★2026-08-26 신설. 왜(t7356 실측·사용자 지적): 017 은 도구 선택도 인자도 **gold 와 같고**
+      마지막 호출 형태 하나에서 갈린다. 궤적 축자 —
+        t7348(통과·91msg)  msg36~50 손님 호출 6회 전부 거절 → **msg55/57 give** → msg60 성공
+        t7356(실패·61msg)  같은 거절 4회 → **give 를 한 번도 안 부른 채** 손님이 대화를 끝냈다
+      즉 통과한 런도 19 메시지를 헤매다 우연히 도달한 것이다. 표적 수(t7356 전수):
+      **017 미달 1 · 055 미달 1 · 057 미달 2(give 호출 0회)** = 3 태스크.
+
+    ⚠env 는 이미 축자로 시킨다 — *"The agent must first use `give_discoverable_user_tool` to give
+      this tool to you."* 그런데 모델은 017 에서 그것을 **4번 받고도** 안 했고 057 은 한 번도 안 했다.
+      다른 것은 **채널**이다: env 의 그 문장은 도구 결과로 수동적으로 읽히고, 이 거절은 재생성
+      채널로 나가 그 턴을 교체하고 다시 내게 한다(원장 C413·C414·[[64]]).
+    ⚠목록은 **env 레지스트리의 user-side 에서 도출**한다(`registry_from_env` 의 둘째 반환) —
+      A2 저작 0 · 도메인 리터럴 0([[05]]). 레지스트리를 못 얻으면 무발화(fail-open).
+    ⚠엔진이 **실행하지 않는다**: `give` 는 변이 도구이고 표적 셋이 전부 `basis=['DB']` 라,
+      자동 호출은 우리 층이 gold 가 요구하는 상태 변경을 대신 수행하는 것이 된다([[05]]③·[[03b]]).
+      지목만 하고 부르는 것은 모델이다([[62]]③④).
+    """
+    try:
+        import t2_axis_levers as _AX
+    except Exception:
+        return None
+    user_reg = set()
+    for cand in (orch, getattr(orch, "_t2_orch", None)):
+        if cand is None:
+            continue
+        try:
+            _a, _u = _AX.registry_from_env(cand)
+        except Exception:
+            continue
+        if _u:
+            user_reg = set(_u)
+            break
+    if not user_reg:
+        return None
+    tried = collections.Counter()
+    for m in (messages or []):
+        if str(getattr(m, "role", "")) not in ("user", "assistant"):
+            continue
+        for tc in (getattr(m, "tool_calls", None) or []):
+            if str(getattr(tc, "name", "")) != "call_discoverable_user_tool":
+                continue
+            x = str((_args_dict(tc) or {}).get("discoverable_tool_name") or "")
+            if x in user_reg:
+                tried[x] += 1
+    for x, n in tried.most_common():
+        if not _tool_given(messages, "give_discoverable_user_tool", x):
+            return GIVE_REQUIRED_FEEDBACK.format(tool=x, n=n)
+    return None
+
+
 VALUE_ACQUIRE_FEEDBACK_DEFAULT = (
     "[VALUE-ACQUIRE] The customer cannot provide '{arg}' directly, and it is NOT in the account "
     "records. It must be retrieved by the CUSTOMER running {acquire_tool}. Stop re-asking — use "
@@ -8787,6 +8849,30 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                               file=_sys.stderr, flush=True)
                 except Exception:
                     pass
+            # ★T2_GIVE_REQUIRED (2026-08-26·기본 OFF): 손님이 실행해야 하는 도구를 **안 넘겨줬다**.
+            #   VALUE_ACQUIRE 의 형제이되 방아쇠가 다르다 — 그쪽은 *값을 재요청할 때*, 이쪽은
+            #   **손님의 호출이 env 에 거절당했을 때**다. 근거·경계는 `_give_required_fb` 독스트링.
+            #   같은 `hv_fb` 채널을 쓰고 앞선 레버가 말했으면 침묵한다(상호배타 보존).
+            if (hv_fb is None and not do_gate and not do_prov and ep_fb is None
+                    and cons_fb is None and ra_fb is None and te_fb is None and wev_fb is None
+                    and os.environ.get("T2_GIVE_REQUIRED") == "1"
+                    and getattr(self, "_t2_givereq_deny", 0)
+                    < int(os.environ.get("T2_GIVE_REQUIRED_CAP", "2"))):
+                try:
+                    _gr = _give_required_fb(state.messages, self)
+                    if _gr:
+                        hv_fb = _gr
+                        self._t2_givereq_deny = getattr(self, "_t2_givereq_deny", 0) + 1
+                        print("[T2_GIVE_REQUIRED] deny (%d자) — 손님-측 도구 미전달"
+                              % (len(_gr),), file=_sys.stderr, flush=True)
+                        _lbeat("T2_GIVE_REQUIRED", orch=self,
+                               fact="the tool the customer was told to run has not been handed over")
+                    else:
+                        print("[T2_GIVE_REQUIRED] 관측: 미전달 도구 없음 — 무발화",
+                              file=_sys.stderr, flush=True)
+                except Exception as _gre:
+                    print("[T2_GIVE_REQUIRED] 건너뜀(무발화): %r" % (_gre,),
+                          file=_sys.stderr, flush=True)
             # ★T2_VALUE_ACQUIRE (C119): 값 미실재 + give 미실행 → give 표면화 넛지(have-value 앞단계).
             if (va_specs and hv_fb is None and not do_gate and not do_prov and ep_fb is None
                     and cons_fb is None and ra_fb is None and te_fb is None and wev_fb is None
