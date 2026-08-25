@@ -815,8 +815,21 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
             # ★V2: `answer_format` 을 **재료 뒤**에 놓는다 (x525 실측: 앞이면 유령 중복행 +3).
             #   도구 결과가 이미 msgs 에 들어온 뒤에만 붙이고, sim·서브당 한 번만 붙인다.
             #   ⚠엔진이 쓰는 문장 0 — A2 `isolate.answer_format` 축자 그대로다.
-            if (os.environ.get("T2_SG_PROMPT_V2") == "1" and _tl is None
-                    and not _v2_close_sent):
+            # ★★수리 (2026-08-25·t7352 라이브 실측). 구판 조건은 `_tl is None` = **마지막
+            #   라운드**뿐이었다. 그런데 이 서브는 라운드 1(도구가 아직 있는 라운드)에 답한다
+            #   — 라이브 축자: `fetch get_atm_fee_discrepancies: **2라운드**·getter 1회·
+            #   operand keys=**[]**`. V2 는 `answer_format` 을 **머리에서 이미 뺐으므로**,
+            #   그 시점의 서브는 형식 지시를 **한 번도 못 본 채** 답한다 ⇒ 파싱 실패 ⇒
+            #   `got` 공집합 ⇒ 메인 인자 폴백 ⇒ `[T2_COMPUTE] 9/17행 판정불가(operand가
+            #   숫자 아님)`. 같은 태스크 t7348(V2 off)은 `operand keys=['transactions']` 였다.
+            #   ⇒ 조건을 **도구 결과가 들어온 뒤**로 옮긴다(`_ok_outs` 비어 있지 않음).
+            #     격리가 이긴 순서(`재료 → answer_format`)는 그대로 지켜진다 — 레코드는 이미
+            #     tool 메시지로 들어왔고 그 **뒤**에 형식이 붙는다. 서브가 어느 라운드에 답하든
+            #     형식을 본다. 엔진이 쓰는 문장 0(선언 축자)·라운드 소비 0.
+            #   ⚠[[24]] 이 자리는 **조립부에 마커가 없어서** 死배선이 로그로 안 보였다.
+            #     아래 인쇄를 조립 조건 쪽으로 옮기지 마라 — 붙였다는 사실이 유일한 증거다.
+            if (os.environ.get("T2_SG_PROMPT_V2") == "1" and not _v2_close_sent
+                    and (_tl is None or _ok_outs)):
                 # ★2026-08-25 정정 (x525 실측): 마감 user 메시지에 **필드 계약 + 회수된 원장 +
                 #   형식**을 함께 싣는다. 형식만 붙인 판은 chk_2 에서 cover 15/16 이었고, 16/16 을
                 #   내는 팔(J_both·K_paramslast)과의 유일한 차이가 *원장이 user 메시지 안이냐*였다.
