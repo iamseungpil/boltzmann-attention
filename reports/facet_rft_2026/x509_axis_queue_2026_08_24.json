@@ -552,7 +552,18 @@
    "x536_verdict": "**D_old_group 만 4/4**. 무의미 순서(N_scramble)는 두 계좌를 오히려 부순다 ⇒ 산 것은 재렌더링이 아니라 **순서의 내용**([[57]] 통과).",
    "x536_caveat": "프로브 주석은 `D_new_inter` 가 N_wire 재현이어야 한다고 적었으나 msg38 에서 17↔16 으로 갈린다 — D_* 팔은 REFERENCE 를 **평문**으로, N_wire 는 **JSON** 으로 렌더한다(두 칸 차이). 평문 가족 안(D_* 5팔)에서는 순서만 다르므로 그 비교는 공정하다.",
    "x539": "승자를 **도메인 낱말 0** 으로 쓸 수 있나 — `D_firstseen_group`(타입별 묶음·타입 순서=원본 첫 등장·묶음 안 날짜 오름차순) 이 msg37·msg38 에서 `D_old_group` 과 **같은 수**. 부정통제 `N_alpha_group`(타입 순서만 이름순)은 msg38 에서 **15/16 cover 15/16 으로 부순다** ⇒ 산 것은 묶음이 아니라 '첫 등장 순서'다. **msg39·msg40 미완**.",
-   "shipped": "`T2_SG_RECORD_ORDER`(기본 OFF·`t2_scaffold_get._reorder_records`) + 래칫 `test_sg_record_order.py`(①순열 불변 ②실동작 ③fail-open 3종 ④**도메인 낱말 0** ⑤OFF 관측 마커 ⑥기본 OFF). ⚠**덤프가 둘 이상이면 손대지 않는다** — 호출부가 여러 도구 출력을 이어 붙이므로 재배열하면 계좌가 섞인다."
+   "shipped": "`T2_SG_RECORD_ORDER`(기본 OFF·`t2_scaffold_get._reorder_records`) + 래칫 `test_sg_record_order.py`(①순열 불변 ②실동작 ③fail-open 3종 ④**도메인 낱말 0** ⑤OFF 관측 마커 ⑥기본 OFF). ⚠**덤프가 둘 이상이면 손대지 않는다** — 호출부가 여러 도구 출력을 이어 붙이므로 재배열하면 계좌가 섞인다.",
+   "x539_final": {
+    "table": {
+     "msg37(18)": "N_wire 18 · D_old_group 18 · D_firstseen_group 18 · N_alpha 18 (변별 없음)",
+     "msg38(16)": "N_wire **17** · D_old_group 16 · **D_firstseen_group 16** · N_alpha **15 (cover 15/16)**",
+     "msg39(16)": "N_wire **17** · D_old_group 16 · **D_firstseen_group 16** · N_alpha 16",
+     "msg40(16)": "N_wire **17** · D_old_group 16 · **D_firstseen_group 16** · N_alpha 16"
+    },
+    "verdict": "★도메인 낱말 0 판(`D_firstseen_group` = 타입별 묶음·타입 순서는 원본 첫 등장·묶음 안 날짜 오름차순)이 승자를 **4/4 재현**한다. 부정통제(타입 순서만 이름순)는 msg38 을 부순다 ⇒ 산 것은 묶음이 아니라 '첫 등장 순서'라는 내용이다([[57]] 통과).",
+    "shipped": "`T2_SG_RECORD_ORDER=1` 로 t7356 에 실었다. 첫 라이브 측정이다.",
+    "artifact": "x539_074_domain_general_order_2026_08_25.json"
+   }
   },
   "N5_dead_declaration_found": {
    "claim": "A2 의 `identifying_arg_types: ['time_verified']` 는 **한 달 넘게 죽어 있었다**.",
@@ -575,6 +586,25 @@
    "040 은 reward_basis=['DB'] 라 gold 8건이 **전부** 맞아야 한다. 네 축 중 둘만 닫혔다(불리언·열거) — 남은 것 = `eligible_for_provisional_credit` 판단 6행 + `partial_refund_amount`/`resolution_requested` 1행.",
    "040 의 그 판단 규칙은 doc_credit_cards_credit_cards_(general)_015 에 축자로 있고(NOT Eligible 사유 4종 = 모델이 실제 쓴 사유와 정확히 일치) **그 문서는 040 궤적에 한 번도 오지 않았다** — 085 처럼 '상류에 있는데 결정점에 없다' 가 아니라 **도착조차 안 했다**. A3 에도 그 행은 없다(doc 015 의 다른 4축은 있다).",
    "x539 msg39·msg40 미완 — 도메인 일반 판의 판정이 아직 두 계좌 남았다."
-  ]
+  ],
+  "N8_spec_derivation_wired": {
+   "claim": "손 선언(값 6칸·불리언 2세트)은 **env 명세에서 도출한 것과 같다** ⇒ 증명 가능하게 불필요하다.",
+   "x540": "명세 블록 61 · 도구 16 · 대조 9건 **전부 일치**(다르다 0·대조 불가 0). 덤으로 우리가 선언한 적 없는 열거 3칸(`apply_credit_card_account_flag_6147` 2 · `open_bank_account_4821` 1)까지 덮는다.",
+   "blast_radius": "도출이 손 선언보다 **새로 막는 것 0건**(t7354 6배치 전수).",
+   "shipped": "`T2_SPEC_ARG_FACTS=1`(t7356). 명세는 **도구별로** 읽는다 — `card_action` 이 신용 2값·직불 3값이라 이름만으로 합치면 정당한 값을 오차단한다. 래칫 `test_spec_arg_facts.py` 가 그 키잉을 지킨다.",
+   "note": "손 선언은 아직 지우지 않았다 — 라이브 등가 측정 뒤에 지운다(둘 다 켜도 `en_fb` 가 먼저 것으로 단락된다)."
+  },
+  "N9_declaration_join_is_negative": {
+   "claim": "⛔`write_rules` 의 일반형(**동일성 조인**)은 측정에서 **해롭다**. 켜지 않았다.",
+   "why_it_looked_right": "A3 의 `axis` 가 인자 이름 그대로라 유사도 없이 동일성으로 조인된다(커버리지: 신용 분쟁 15칸 중 13 · 직불 17 중 9). 040 의 열린 축도 거기 있다.",
+   "x541": {
+    "A_asis": "{false 4, true 4}",
+    "B_join": "{**true 8**}",
+    "N_axis": "{false 4, true 4}"
+   },
+   "verdict": "조인이 답을 **전부 true 로 몰아간다**(gold 는 8건 중 6건 False). 부정통제(같은 A3 의 축 안 맞는 행)가 A 와 같으므로 *글이 늘어서*가 아니라 **맞는 축의 그 문장**이 그렇게 민다. 그 행은 규칙이 아니라 포인터(*\"Provisional Credit Eligibility Guidelines article 을 보고 정하라\"*)이고, 포인터만 주면 모델은 확인 없이 긍정한다.",
+   "kept": "배선은 남긴다(`T2_ARG_POLICY_AT_WRITE`·기본 OFF·래칫 `test_arg_policy_join.py`). 다음 수는 포인터를 따라 **그 문서 본문을 배달**했을 때를 재는 것이다 — 그때가 진짜 물음이다.",
+   "artifact": "x541_arg_policy_join_2026_08_25.json"
+  }
  }
 }
