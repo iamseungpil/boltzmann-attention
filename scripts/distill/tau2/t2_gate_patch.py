@@ -8940,26 +8940,29 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     >= int(os.environ.get("T2_GIVE_REQUIRED_CAP", "2"))
                     and not getattr(self, "_t2_formfix_done", 0)):
                 try:
-                    _fx = _call_form_repair(state.messages, self)
-                    if _fx:
-                        _fxname, _fxargs = _fx
+                    # ⚠이름을 `_fx` 로 쓰면 안 된다 — 같은 `unified()` 안에서 `_fx` 는 이미
+                    #   **모듈 별칭**(`import t2_formalize_exec as _fx`)이고, 지역 대입이 그것을
+                    #   가려 다른 분기를 UnboundLocalError 로 죽인다(죽은-레버 4호 부류).
+                    #   `test_no_undefined_names.py` 가 이것을 배터리에서 잡아 런을 세웠다.
+                    _cff = _call_form_repair(state.messages, self)
+                    if _cff:
+                        _cffname, _cffargs = _cff
                         from tau2.data_model.message import ToolCall as _TCfix
                         am.tool_calls = [_TCfix(id="t2formfix",
                                                 name="give_discoverable_user_tool",
-                                                arguments=_fxargs,
-                                                requestor="assistant")] + \
-                            list(getattr(am, "tool_calls", None) or [])
+                                                arguments=_cffargs,
+                                                requestor="assistant")] +                             list(getattr(am, "tool_calls", None) or [])
                         self._t2_formfix_done = 1
                         print("[T2_CALL_FORM_FIX] 엔진이 래퍼를 바꿔 호출한다 tool=%s 인자키=%s "
                               "(내용은 모델 것 축자)"
-                              % (_fxname, sorted(_fxargs)), file=_sys.stderr, flush=True)
-                        _lbeat("T2_CALL_FORM_FIX", orch=self, target=_fxname,
+                              % (_cffname, sorted(_cffargs)), file=_sys.stderr, flush=True)
+                        _lbeat("T2_CALL_FORM_FIX", orch=self, target=_cffname,
                                fact="the same call, in the form the environment accepts")
                     else:
                         print("[T2_CALL_FORM_FIX] 관측: 고칠 형식 없음 — 무발화",
                               file=_sys.stderr, flush=True)
-                except Exception as _fxe:
-                    print("[T2_CALL_FORM_FIX] 건너뜀(무발화): %r" % (_fxe,),
+                except Exception as _cffe:
+                    print("[T2_CALL_FORM_FIX] 건너뜀(무발화): %r" % (_cffe,),
                           file=_sys.stderr, flush=True)
             # ★T2_VALUE_ACQUIRE (C119): 값 미실재 + give 미실행 → give 표면화 넛지(have-value 앞단계).
             if (va_specs and hv_fb is None and not do_gate and not do_prov and ep_fb is None
