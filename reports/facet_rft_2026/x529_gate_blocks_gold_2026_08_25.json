@@ -1,0 +1,343 @@
+{
+ "probe": "x529",
+ "date": "2026-08-25",
+ "question": "우리 write-evidence 게이트가 gold 호출 자체를 거절하는가",
+ "gate": "t2_gate_patch._wev_deny_msgs (정본·사본 0)",
+ "limits": [
+  "게이트 하나만 본다 — operator-scope·DISPATCH_ROLE 은 진입점이 달라 별도.",
+  "gold 는 진단용([[23]]) · 레버·임계 선택에 쓰지 않는다.",
+  "메시지 문맥은 sim 전량이다 — 실제 deny 시점의 부분 문맥과 다를 수 있다."
+ ],
+ "rows": [
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "task_055",
+   "seed": 626729,
+   "n_blocked": 2,
+   "n_gold": 4,
+   "checks": [
+    {
+     "arm": "A_model",
+     "tool": "submit_transaction",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "A_model",
+     "tool": "deposit_check_3847",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "log_verification",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "open_bank_account_4821",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "open_bank_account_4821",
+     "verdict": "pass",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "task_094",
+   "seed": 626729,
+   "n_blocked": 0,
+   "n_gold": 3,
+   "checks": [
+    {
+     "arm": "B_gold",
+     "tool": "log_verification",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "apply_savings_account_credit_6831",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "submit_interest_discrepancy_report_7294",
+     "verdict": "pass",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "task_055",
+   "seed": 373753,
+   "n_blocked": 3,
+   "n_gold": 4,
+   "checks": [
+    {
+     "arm": "A_model",
+     "tool": "open_bank_account_4821",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "A_model",
+     "tool": "open_bank_account_4821",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "A_model",
+     "tool": "open_bank_account_4821",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "log_verification",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "open_bank_account_4821",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "open_bank_account_4821",
+     "verdict": "pass",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "run": "bank_t7348_halfA_20260824",
+   "task": "task_094",
+   "seed": 373753,
+   "n_blocked": 0,
+   "n_gold": 3,
+   "checks": [
+    {
+     "arm": "B_gold",
+     "tool": "log_verification",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "apply_savings_account_credit_6831",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "submit_interest_discrepancy_report_7294",
+     "verdict": "pass",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "task": "task_040",
+   "seed": 626729,
+   "n_blocked": 2,
+   "n_gold": 9,
+   "checks": [
+    {
+     "arm": "A_model",
+     "tool": "give_discoverable_user_tool",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "A_model",
+     "tool": "file_credit_card_transaction_dispute_4829",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "log_verification",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "file_credit_card_transaction_dispute_4829",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "file_credit_card_transaction_dispute_4829",
+     "verdict": "pass",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "task": "task_079",
+   "seed": 626729,
+   "n_blocked": 7,
+   "n_gold": 0,
+   "checks": [
+    {
+     "arm": "A_model",
+     "tool": "close_debit_card_4721",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "A_model",
+     "tool": "close_debit_card_4721",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "A_model",
+     "tool": "close_debit_card_4721",
+     "verdict": "pass",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "task": "task_085",
+   "seed": 626729,
+   "n_blocked": 11,
+   "n_gold": 4,
+   "checks": [
+    {
+     "arm": "A_model",
+     "tool": "file_debit_card_transaction_dispute_6281",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "A_model",
+     "tool": "file_debit_card_transaction_dispute_6281",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "A_model",
+     "tool": "file_debit_card_transaction_dispute_6281",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "log_verification",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "file_debit_card_transaction_dispute_6281",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "file_debit_card_transaction_dispute_6281",
+     "verdict": "pass",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "task": "task_040",
+   "seed": 373753,
+   "n_blocked": 12,
+   "n_gold": 0,
+   "checks": [
+    {
+     "arm": "A_model",
+     "tool": "file_credit_card_transaction_dispute_4829",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "A_model",
+     "tool": "file_credit_card_transaction_dispute_4829",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "A_model",
+     "tool": "file_credit_card_transaction_dispute_4829",
+     "verdict": "pass",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "task": "task_079",
+   "seed": 373753,
+   "n_blocked": 0,
+   "n_gold": 12,
+   "checks": [
+    {
+     "arm": "B_gold",
+     "tool": "log_verification",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "freeze_debit_card_3892",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "B_gold",
+     "tool": "freeze_debit_card_3892",
+     "verdict": "pass",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "run": "bank_t7348_halfB_20260824",
+   "task": "task_085",
+   "seed": 373753,
+   "n_blocked": 17,
+   "n_gold": 0,
+   "checks": [
+    {
+     "arm": "A_model",
+     "tool": "file_debit_card_transaction_dispute_6281",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "A_model",
+     "tool": "file_debit_card_transaction_dispute_6281",
+     "verdict": "pass",
+     "detail": ""
+    },
+    {
+     "arm": "A_model",
+     "tool": "file_debit_card_transaction_dispute_6281",
+     "verdict": "pass",
+     "detail": ""
+    }
+   ]
+  }
+ ]
+}

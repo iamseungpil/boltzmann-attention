@@ -1,0 +1,3169 @@
+{
+ "doc": "x523 — tau2 banking task_074 교차런 비교 · 원자료",
+ "date": "2026-08-24",
+ "scope": "task_074 단독 · 다섯 런 halfB · 9 sim 전수",
+ "nature": "측정 전용 — 코드/A2 수정 0 · 커밋 0 · 리모트 0",
+ "instrument": {
+  "module": "t2_forensic (정본)",
+  "functions": [
+   "sims",
+   "task_id",
+   "simtag",
+   "term_reason",
+   "gold_mutations",
+   "mutation_diff",
+   "attempted_mutations",
+   "calls",
+   "inner_name",
+   "flat_args",
+   "norm_args",
+   "deny_kind",
+   "log_text"
+  ],
+  "probes": [
+   "x523_probe.py",
+   "x523_probe2.py",
+   "x523_probe3.py",
+   "x523_probe4.py"
+  ],
+  "hand_written_comparators": 0,
+  "index_convention": "call_msg_i = 어시스턴트(호출) 메시지 인덱스. 결과 tool 메시지는 그 뒤 1~2칸."
+ },
+ "gold": {
+  "stable_within_window": true,
+  "window": "2026-08-19 ~ 2026-08-24 (t7328·t7335·t7336·t7346·t7348)",
+  "signature_sha1_12": "7f99333c060f",
+  "signature_rows": 13,
+  "mutating_rows": 5,
+  "amounts": {
+   "chk_ar72c5d8e3_1": 27.0,
+   "chk_ar72c5d8e3_2": 14.5,
+   "chk_ar72c5d8e3_3": 4.75,
+   "chk_ar72c5d8e3_4": 3.7
+  },
+  "credit_type": "fee_refund",
+  "credits_per_account": 1,
+  "total": 49.95,
+  "log_verification_time": "2025-11-14 03:40:00 EST",
+  "sims_without_scoring_table": [
+   "t7336/task_074#s626729"
+  ],
+  "sha_is_normalization_dependent": {
+   "t7328_per_run": "3331b306aa05",
+   "cross_run": "22bcf8351acc",
+   "x523": "7f99333c060f"
+  },
+  "not_reobserved": "코퍼스 전체 gold 변경 이력(bankxfer_floor_bank_t4/t2 의 chk_2=8.00) — 렌즈 A 보고 인용"
+ },
+ "comparability_caveats": [
+  {
+   "pair": "t7336#s626729",
+   "status": "칸 판정 불가",
+   "why": "reward_basis=None · gold_rows=0 · context_window_exceeded"
+  },
+  {
+   "pair": "t7335 halfB",
+   "status": "짝 결손",
+   "why": "task_074 sim 1개(seed 626729)뿐 · nt=2 선언과 어긋남"
+  },
+  {
+   "pair": "t7335 ↔ t7328",
+   "status": "엄밀 A/B 아님",
+   "why": "meta 축자 'different engine sha, not a strict A/B'"
+  },
+  {
+   "pair": "t7348 ↔ t7346",
+   "status": "번들 델타",
+   "why": "meta 축자 'bundle of nine - a bundle delta cannot attribute an individual repair (C594)'"
+  }
+ ],
+ "effective_n_scored": {
+  "t7328": 2,
+  "t7335": 1,
+  "t7336": 1,
+  "t7346": 2,
+  "t7348": 2,
+  "total": 8
+ },
+ "sims": [
+  {
+   "run": "t7328",
+   "sha": "275bb222",
+   "tag": "bank_t7328_halfB_20260819r2",
+   "simtag": "task_074#s626729",
+   "reward": 0.0,
+   "reward_basis": [
+    "DB"
+   ],
+   "db_check": {
+    "db_match": false,
+    "db_reward": 0.0
+   },
+   "termination_reason": "user_stop",
+   "n_messages": 43,
+   "gold_signature_sha1_12": "7f99333c060f",
+   "gold_action_rows": 13,
+   "gold_mutations": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "match": true,
+     "aid": "074_0"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_9"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_10"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_11"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_12"
+    }
+   ],
+   "mutation_diff": {
+    "gold": 5,
+    "done": 1,
+    "matched": 1,
+    "missing": 4,
+    "wrongarg": 0,
+    "extra": 0,
+    "dup": 0,
+    "blocked": 0
+   },
+   "matched": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "msg_i": 29
+    }
+   ],
+   "missing": [
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     }
+    }
+   ],
+   "wrongarg": [],
+   "extra": [],
+   "dup": [],
+   "sidecar": "present",
+   "regen_join": "simtag",
+   "regen_blocked_rows": 11,
+   "credit_calls": [],
+   "credit_ok_n": 0,
+   "credit_final_balance_delta_by_account": {},
+   "log_verification": [
+    {
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "ok": true,
+     "msg_i": 29
+    }
+   ],
+   "call_census": {
+    "KB_search_bm25": 4,
+    "get_atm_fee_discrepancies": 8,
+    "verify_identity": 3,
+    "get_user_information_by_name": 1,
+    "get_current_time": 1,
+    "log_verification": 1
+   },
+   "deny_census_by_author": {
+    "ours|Error: [ARGS-FORMAT]": 4,
+    "ours|NOT_VERIFIED": 2,
+    "ours|[DUPLICATE-READ]": 1
+   },
+   "comparator_returns": [],
+   "comparator_denied": [
+    {
+     "call_msg_i": 4,
+     "account": "Purple Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Light Blue Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Dark Green Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Evergreen Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    }
+   ],
+   "failure_cell": "도달못함(하위기전=재료없음)"
+  },
+  {
+   "run": "t7328",
+   "sha": "275bb222",
+   "tag": "bank_t7328_halfB_20260819r2",
+   "simtag": "task_074#s373753",
+   "reward": 0.0,
+   "reward_basis": [
+    "DB"
+   ],
+   "db_check": {
+    "db_match": false,
+    "db_reward": 0.0
+   },
+   "termination_reason": "user_stop",
+   "n_messages": 43,
+   "gold_signature_sha1_12": "7f99333c060f",
+   "gold_action_rows": 13,
+   "gold_mutations": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "match": true,
+     "aid": "074_0"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_9"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_10"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_11"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_12"
+    }
+   ],
+   "mutation_diff": {
+    "gold": 5,
+    "done": 1,
+    "matched": 1,
+    "missing": 4,
+    "wrongarg": 0,
+    "extra": 0,
+    "dup": 0,
+    "blocked": 0
+   },
+   "matched": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "msg_i": 29
+    }
+   ],
+   "missing": [
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     }
+    }
+   ],
+   "wrongarg": [],
+   "extra": [],
+   "dup": [],
+   "sidecar": "present",
+   "regen_join": "simtag",
+   "regen_blocked_rows": 11,
+   "credit_calls": [],
+   "credit_ok_n": 0,
+   "credit_final_balance_delta_by_account": {},
+   "log_verification": [
+    {
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "ok": true,
+     "msg_i": 29
+    }
+   ],
+   "call_census": {
+    "KB_search_bm25": 4,
+    "get_atm_fee_discrepancies": 8,
+    "verify_identity": 3,
+    "get_user_information_by_name": 1,
+    "get_current_time": 1,
+    "log_verification": 1
+   },
+   "deny_census_by_author": {
+    "ours|Error: [ARGS-FORMAT]": 4,
+    "ours|NOT_VERIFIED": 2,
+    "ours|[DUPLICATE-READ]": 1
+   },
+   "comparator_returns": [],
+   "comparator_denied": [
+    {
+     "call_msg_i": 4,
+     "account": "Purple Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Light Blue Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Dark Green Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Evergreen Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    }
+   ],
+   "failure_cell": "도달못함(하위기전=재료없음)"
+  },
+  {
+   "run": "t7335",
+   "sha": "ec8f9d37",
+   "tag": "bank_t7335_halfB_20260821",
+   "simtag": "task_074#s626729",
+   "reward": 0.0,
+   "reward_basis": [
+    "DB"
+   ],
+   "db_check": {
+    "db_match": false,
+    "db_reward": 0.0
+   },
+   "termination_reason": "user_stop",
+   "n_messages": 89,
+   "gold_signature_sha1_12": "7f99333c060f",
+   "gold_action_rows": 13,
+   "gold_mutations": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "match": true,
+     "aid": "074_0"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_9"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_10"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_11"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_12"
+    }
+   ],
+   "mutation_diff": {
+    "gold": 5,
+    "done": 1,
+    "matched": 1,
+    "missing": 4,
+    "wrongarg": 0,
+    "extra": 0,
+    "dup": 0,
+    "blocked": 0
+   },
+   "matched": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "msg_i": 29
+    }
+   ],
+   "missing": [
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     }
+    }
+   ],
+   "wrongarg": [],
+   "extra": [],
+   "dup": [],
+   "sidecar": "present",
+   "regen_join": "simtag",
+   "regen_blocked_rows": 20,
+   "credit_calls": [],
+   "credit_ok_n": 0,
+   "credit_final_balance_delta_by_account": {},
+   "log_verification": [
+    {
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "ok": true,
+     "msg_i": 29
+    }
+   ],
+   "call_census": {
+    "KB_search_bm25": 6,
+    "get_atm_fee_discrepancies": 20,
+    "verify_identity": 4,
+    "get_user_information_by_name": 1,
+    "get_current_time": 1,
+    "log_verification": 1,
+    "get_credit_card_transactions_by_user": 4,
+    "shell": 4
+   },
+   "deny_census_by_author": {
+    "ours|Error: [ARGS-FORMAT]": 12,
+    "ours|NOT_VERIFIED": 3,
+    "ours|[DUPLICATE-READ]": 1
+   },
+   "comparator_returns": [],
+   "comparator_denied": [
+    {
+     "call_msg_i": 4,
+     "account": "Purple Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Light Blue Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Dark Green Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Evergreen Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 31,
+     "account": "Purple Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 31,
+     "account": "Light Blue Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 31,
+     "account": "Dark Green Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 31,
+     "account": "Evergreen Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 36,
+     "account": "Purple Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 36,
+     "account": "Light Blue Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 36,
+     "account": "Dark Green Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 36,
+     "account": "Evergreen Account",
+     "deny": "Error: [ARGS-FORMAT]"
+    }
+   ],
+   "failure_cell": "도달못함(하위기전=재료없음)"
+  },
+  {
+   "run": "t7336",
+   "sha": "c273d93f",
+   "tag": "bank_t7336_halfB_20260821b",
+   "simtag": "task_074#s626729",
+   "reward": 0.0,
+   "reward_basis": null,
+   "db_check": null,
+   "termination_reason": "context_window_exceeded",
+   "n_messages": 52,
+   "gold_signature_sha1_12": "da39a3ee5e6b",
+   "gold_action_rows": 0,
+   "gold_mutations": [],
+   "mutation_diff": {
+    "gold": 0,
+    "done": 1,
+    "matched": 0,
+    "missing": 0,
+    "wrongarg": 0,
+    "extra": 1,
+    "dup": 0,
+    "blocked": 0
+   },
+   "matched": [],
+   "missing": [],
+   "wrongarg": [],
+   "extra": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "msg_i": 23
+    }
+   ],
+   "dup": [],
+   "sidecar": "present",
+   "regen_join": "simtag",
+   "regen_blocked_rows": 25,
+   "credit_calls": [],
+   "credit_ok_n": 0,
+   "credit_final_balance_delta_by_account": {},
+   "log_verification": [
+    {
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "ok": true,
+     "msg_i": 23
+    }
+   ],
+   "call_census": {
+    "KB_search_bm25": 2,
+    "get_atm_fee_discrepancies": 13,
+    "get_bank_account_transactions_9173": 5,
+    "OUTER:unlock_discoverable_agent_tool": 2,
+    "get_all_user_accounts_by_user_id_3847": 2,
+    "get_user_information_by_name": 1,
+    "verify_identity": 2,
+    "get_current_time": 1,
+    "log_verification": 1,
+    "OUTER:call_discoverable_agent_tool": 5
+   },
+   "deny_census_by_author": {
+    "ours|[READ-FIRST]": 4,
+    "ours|NOT_VERIFIED": 1,
+    "ours|Error: [BYREF]": 4,
+    "ours|Error: [ARGS-FORMAT]": 1
+   },
+   "comparator_returns": [],
+   "comparator_denied": [
+    {
+     "call_msg_i": 4,
+     "account": "Purple Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Light Blue Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Dark Green Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Evergreen Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 32,
+     "account": "chk_ar72c5d8e3_1",
+     "deny": "Error: [BYREF]"
+    },
+    {
+     "call_msg_i": 32,
+     "account": "chk_ar72c5d8e3_2",
+     "deny": "Error: [BYREF]"
+    },
+    {
+     "call_msg_i": 32,
+     "account": "chk_ar72c5d8e3_3",
+     "deny": "Error: [BYREF]"
+    },
+    {
+     "call_msg_i": 32,
+     "account": "chk_ar72c5d8e3_4",
+     "deny": "Error: [BYREF]"
+    },
+    {
+     "call_msg_i": 37,
+     "account": "chk_ar72c5d8e3_1",
+     "deny": "Error: [ARGS-FORMAT]"
+    }
+   ],
+   "failure_cell": "판정불가(채점표 부재·gold_rows=0)"
+  },
+  {
+   "run": "t7336",
+   "sha": "c273d93f",
+   "tag": "bank_t7336_halfB_20260821b",
+   "simtag": "task_074#s373753",
+   "reward": 0.0,
+   "reward_basis": [
+    "DB"
+   ],
+   "db_check": {
+    "db_match": false,
+    "db_reward": 0.0
+   },
+   "termination_reason": "user_stop",
+   "n_messages": 59,
+   "gold_signature_sha1_12": "7f99333c060f",
+   "gold_action_rows": 13,
+   "gold_mutations": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "match": false,
+     "aid": "074_0"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_9"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_10"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_11"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_12"
+    }
+   ],
+   "mutation_diff": {
+    "gold": 5,
+    "done": 1,
+    "matched": 0,
+    "missing": 5,
+    "wrongarg": 1,
+    "extra": 0,
+    "dup": 0,
+    "blocked": 0
+   },
+   "matched": [],
+   "missing": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     }
+    }
+   ],
+   "wrongarg": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2023-11-14 15:30:00 EST"
+     },
+     "msg_i": 21
+    }
+   ],
+   "extra": [],
+   "dup": [],
+   "sidecar": "present",
+   "regen_join": "simtag",
+   "regen_blocked_rows": 32,
+   "credit_calls": [],
+   "credit_ok_n": 0,
+   "credit_final_balance_delta_by_account": {},
+   "log_verification": [
+    {
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2023-11-14 15:30:00 EST"
+     },
+     "ok": true,
+     "msg_i": 21
+    }
+   ],
+   "call_census": {
+    "KB_search_bm25": 1,
+    "get_atm_fee_discrepancies": 12,
+    "get_bank_account_transactions_9173": 7,
+    "OUTER:unlock_discoverable_agent_tool": 4,
+    "get_all_user_accounts_by_user_id_3847": 2,
+    "verify_identity": 2,
+    "get_user_information_by_name": 1,
+    "get_current_time": 1,
+    "log_verification": 1,
+    "OUTER:call_discoverable_agent_tool": 7,
+    "apply_checking_account_credit_5829": 2
+   },
+   "deny_census_by_author": {
+    "ours|[READ-FIRST]": 4,
+    "ours|NOT_VERIFIED": 1,
+    "ours|Error: [BYREF]": 4,
+    "ours|Error: [ARGS-FORMAT]": 1
+   },
+   "comparator_returns": [],
+   "comparator_denied": [
+    {
+     "call_msg_i": 4,
+     "account": "Purple Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Light Blue Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Dark Green Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Evergreen Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 32,
+     "account": "chk_ar72c5d8e3_1",
+     "deny": "Error: [BYREF]"
+    },
+    {
+     "call_msg_i": 32,
+     "account": "chk_ar72c5d8e3_2",
+     "deny": "Error: [BYREF]"
+    },
+    {
+     "call_msg_i": 32,
+     "account": "chk_ar72c5d8e3_3",
+     "deny": "Error: [BYREF]"
+    },
+    {
+     "call_msg_i": 32,
+     "account": "chk_ar72c5d8e3_4",
+     "deny": "Error: [BYREF]"
+    },
+    {
+     "call_msg_i": 47,
+     "account": "chk_ar72c5d8e3_2",
+     "deny": "Error: [ARGS-FORMAT]"
+    }
+   ],
+   "failure_cell": "도달못함"
+  },
+  {
+   "run": "t7346",
+   "sha": "ee18d797",
+   "tag": "bank_t7346_halfB_20260822",
+   "simtag": "task_074#s626729",
+   "reward": 0.0,
+   "reward_basis": [
+    "DB"
+   ],
+   "db_check": {
+    "db_match": false,
+    "db_reward": 0.0
+   },
+   "termination_reason": "user_stop",
+   "n_messages": 69,
+   "gold_signature_sha1_12": "7f99333c060f",
+   "gold_action_rows": 13,
+   "gold_mutations": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "match": true,
+     "aid": "074_0"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_9"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_10"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_11"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_12"
+    }
+   ],
+   "mutation_diff": {
+    "gold": 5,
+    "done": 8,
+    "matched": 1,
+    "missing": 4,
+    "wrongarg": 7,
+    "extra": 0,
+    "dup": 0,
+    "blocked": 0
+   },
+   "matched": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "msg_i": 30
+    }
+   ],
+   "missing": [
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     }
+    }
+   ],
+   "wrongarg": [
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "2.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 53
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 53
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "2",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 53
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "1.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 53
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 53
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "1.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 53
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "24.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 62
+    }
+   ],
+   "extra": [],
+   "dup": [],
+   "sidecar": "present",
+   "regen_join": "simtag",
+   "regen_blocked_rows": 12,
+   "credit_calls": [
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "2.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 53,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 53,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "2",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 53,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "1.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 53,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 53,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "1.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 53,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "24.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 62,
+     "deny": ""
+    }
+   ],
+   "credit_ok_n": 7,
+   "credit_final_balance_delta_by_account": {
+    "chk_ar72c5d8e3_2": 2.5,
+    "chk_ar72c5d8e3_3": 7.5,
+    "chk_ar72c5d8e3_4": 5.0,
+    "chk_ar72c5d8e3_1": 24.5
+   },
+   "log_verification": [
+    {
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "ok": true,
+     "msg_i": 30
+    }
+   ],
+   "call_census": {
+    "KB_search_bm25": 1,
+    "get_atm_fee_discrepancies": 12,
+    "shell": 2,
+    "get_all_user_accounts_by_user_id_3847": 2,
+    "OUTER:unlock_discoverable_agent_tool": 4,
+    "get_bank_account_transactions_9173": 5,
+    "verify_identity": 3,
+    "get_user_information_by_name": 1,
+    "get_current_time": 1,
+    "log_verification": 1,
+    "OUTER:call_discoverable_agent_tool": 12,
+    "apply_checking_account_credit_5829": 9
+   },
+   "deny_census_by_author": {
+    "ours|[READ-FIRST]": 4,
+    "ours|NOT_VERIFIED": 2,
+    "ours|Error: [ARGS-FORMAT]": 4
+   },
+   "comparator_returns": [],
+   "comparator_denied": [
+    {
+     "call_msg_i": 4,
+     "account": "Purple Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Light Blue Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Dark Green Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Evergreen Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 39,
+     "account": "chk_ar72c5d8e3_1",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 39,
+     "account": "chk_ar72c5d8e3_2",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 39,
+     "account": "chk_ar72c5d8e3_3",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 39,
+     "account": "chk_ar72c5d8e3_4",
+     "deny": "Error: [ARGS-FORMAT]"
+    }
+   ],
+   "failure_cell": "형태틀림+산수틀림(중복 발행 1건 스트립)"
+  },
+  {
+   "run": "t7346",
+   "sha": "ee18d797",
+   "tag": "bank_t7346_halfB_20260822",
+   "simtag": "task_074#s373753",
+   "reward": 0.0,
+   "reward_basis": [
+    "DB"
+   ],
+   "db_check": {
+    "db_match": false,
+    "db_reward": 0.0
+   },
+   "termination_reason": "user_stop",
+   "n_messages": 54,
+   "gold_signature_sha1_12": "7f99333c060f",
+   "gold_action_rows": 13,
+   "gold_mutations": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "match": true,
+     "aid": "074_0"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_9"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_10"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_11"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_12"
+    }
+   ],
+   "mutation_diff": {
+    "gold": 5,
+    "done": 1,
+    "matched": 1,
+    "missing": 4,
+    "wrongarg": 0,
+    "extra": 0,
+    "dup": 0,
+    "blocked": 0
+   },
+   "matched": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "msg_i": 25
+    }
+   ],
+   "missing": [
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     }
+    }
+   ],
+   "wrongarg": [],
+   "extra": [],
+   "dup": [],
+   "sidecar": "present",
+   "regen_join": "simtag",
+   "regen_blocked_rows": 27,
+   "credit_calls": [],
+   "credit_ok_n": 0,
+   "credit_final_balance_delta_by_account": {},
+   "log_verification": [
+    {
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "ok": true,
+     "msg_i": 25
+    }
+   ],
+   "call_census": {
+    "KB_search_bm25": 1,
+    "get_atm_fee_discrepancies": 10,
+    "shell": 2,
+    "get_all_user_accounts_by_user_id_3847": 2,
+    "OUTER:unlock_discoverable_agent_tool": 2,
+    "get_bank_account_transactions_9173": 5,
+    "verify_identity": 1,
+    "get_user_information_by_email": 1,
+    "get_current_time": 1,
+    "log_verification": 1,
+    "OUTER:call_discoverable_agent_tool": 5,
+    "transfer_to_human_agents": 1
+   },
+   "deny_census_by_author": {
+    "ours|[READ-FIRST]": 4,
+    "ours|NOT_VERIFIED": 1,
+    "ours|Error: [ARGS-FORMAT]": 4
+   },
+   "comparator_returns": [],
+   "comparator_denied": [
+    {
+     "call_msg_i": 4,
+     "account": "Purple Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Light Blue Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Dark Green Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Evergreen Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 34,
+     "account": "chk_ar72c5d8e3_1",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 34,
+     "account": "chk_ar72c5d8e3_2",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 34,
+     "account": "chk_ar72c5d8e3_3",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 34,
+     "account": "chk_ar72c5d8e3_4",
+     "deny": "Error: [ARGS-FORMAT]"
+    }
+   ],
+   "failure_cell": "도달못함"
+  },
+  {
+   "run": "t7348",
+   "sha": "aed30e20",
+   "tag": "bank_t7348_halfB_20260824",
+   "simtag": "task_074#s626729",
+   "reward": 0.0,
+   "reward_basis": [
+    "DB"
+   ],
+   "db_check": {
+    "db_match": false,
+    "db_reward": 0.0
+   },
+   "termination_reason": "user_stop",
+   "n_messages": 105,
+   "gold_signature_sha1_12": "7f99333c060f",
+   "gold_action_rows": 13,
+   "gold_mutations": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "match": true,
+     "aid": "074_0"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_9"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_10"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_11"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_12"
+    }
+   ],
+   "mutation_diff": {
+    "gold": 5,
+    "done": 23,
+    "matched": 1,
+    "missing": 4,
+    "wrongarg": 22,
+    "extra": 0,
+    "dup": 0,
+    "blocked": 0
+   },
+   "matched": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "msg_i": 32
+    }
+   ],
+   "missing": [
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     }
+    }
+   ],
+   "wrongarg": [
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "2.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 68
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "8",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 68
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "10.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 68
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "3.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 68
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "2.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 73
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "4",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 73
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "1.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 73
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "1.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 77
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "1",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 77
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "2",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 77
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 77
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "1.75",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 77
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "2.25",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 77
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "1.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 84
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "1",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 84
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 84
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "1.8",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 84
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "2.25",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 84
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "24.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 98
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "19",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 98
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "12.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 98
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "10.05",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 98
+    }
+   ],
+   "extra": [],
+   "dup": [],
+   "sidecar": "present",
+   "regen_join": "simtag",
+   "regen_blocked_rows": 23,
+   "credit_calls": [
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "2.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 68,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "8",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 68,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "10.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 68,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "3.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 68,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "2.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 73,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "4",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 73,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "1.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 73,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "1.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 77,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "1",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 77,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "2",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 77,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 77,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "1.75",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 77,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "2.25",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 77,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "1.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 84,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "1",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 84,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 84,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "1.8",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 84,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "2.25",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 84,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "24.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 98,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "19",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 98,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "12.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 98,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "10.05",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 98,
+     "deny": ""
+    }
+   ],
+   "credit_ok_n": 22,
+   "credit_final_balance_delta_by_account": {
+    "chk_ar72c5d8e3_1": 49.0,
+    "chk_ar72c5d8e3_2": 27.0,
+    "chk_ar72c5d8e3_3": 25.0,
+    "chk_ar72c5d8e3_4": 20.1
+   },
+   "log_verification": [
+    {
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "ok": true,
+     "msg_i": 32
+    }
+   ],
+   "call_census": {
+    "KB_search_bm25": 8,
+    "get_atm_fee_discrepancies": 16,
+    "get_all_user_accounts_by_user_id_3847": 3,
+    "OUTER:unlock_discoverable_agent_tool": 6,
+    "get_bank_account_transactions_9173": 10,
+    "get_user_information_by_email": 1,
+    "verify_identity": 2,
+    "get_current_time": 1,
+    "log_verification": 1,
+    "OUTER:call_discoverable_agent_tool": 31,
+    "apply_checking_account_credit_5829": 23,
+    "apply_savings_account_credit_6831": 1
+   },
+   "deny_census_by_author": {
+    "ours|[READ-FIRST]": 4,
+    "ours|NOT_VERIFIED": 1,
+    "ours|Error: [ARGS-FORMAT]": 8,
+    "ours|[DUPLICATE-READ]": 1
+   },
+   "comparator_returns": [],
+   "comparator_denied": [
+    {
+     "call_msg_i": 4,
+     "account": "Purple Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Light Blue Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Dark Green Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Evergreen Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 41,
+     "account": "chk_ar72c5d8e3_1",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 41,
+     "account": "chk_ar72c5d8e3_2",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 41,
+     "account": "chk_ar72c5d8e3_3",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 41,
+     "account": "chk_ar72c5d8e3_4",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 51,
+     "account": "chk_ar72c5d8e3_1",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 51,
+     "account": "chk_ar72c5d8e3_2",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 51,
+     "account": "chk_ar72c5d8e3_3",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 51,
+     "account": "chk_ar72c5d8e3_4",
+     "deny": "Error: [ARGS-FORMAT]"
+    }
+   ],
+   "failure_cell": "형태틀림(분할)+중복(DB 이중지급)"
+  },
+  {
+   "run": "t7348",
+   "sha": "aed30e20",
+   "tag": "bank_t7348_halfB_20260824",
+   "simtag": "task_074#s373753",
+   "reward": 0.0,
+   "reward_basis": [
+    "DB"
+   ],
+   "db_check": {
+    "db_match": false,
+    "db_reward": 0.0
+   },
+   "termination_reason": "user_stop",
+   "n_messages": 80,
+   "gold_signature_sha1_12": "7f99333c060f",
+   "gold_action_rows": 13,
+   "gold_mutations": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "match": true,
+     "aid": "074_0"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_9"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_10"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_11"
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     },
+     "match": false,
+     "aid": "074_12"
+    }
+   ],
+   "mutation_diff": {
+    "gold": 5,
+    "done": 5,
+    "matched": 2,
+    "missing": 3,
+    "wrongarg": 3,
+    "extra": 0,
+    "dup": 0,
+    "blocked": 0
+   },
+   "matched": [
+    {
+     "name": "log_verification",
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "msg_i": 32
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 68
+    }
+   ],
+   "missing": [
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "14.5",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "4.75",
+      "credit_type": "fee_refund"
+     }
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "3.7",
+      "credit_type": "fee_refund"
+     }
+    }
+   ],
+   "wrongarg": [
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "19.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 70
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "7.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 72
+    },
+    {
+     "name": "apply_checking_account_credit_5829",
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "6.5",
+      "credit_type": "fee_refund"
+     },
+     "msg_i": 74
+    }
+   ],
+   "extra": [],
+   "dup": [],
+   "sidecar": "present",
+   "regen_join": "simtag",
+   "regen_blocked_rows": 26,
+   "credit_calls": [
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_1",
+      "amount": "27",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 68,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_2",
+      "amount": "19.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 70,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_3",
+      "amount": "7.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 72,
+     "deny": ""
+    },
+    {
+     "args": {
+      "account_id": "chk_ar72c5d8e3_4",
+      "amount": "6.5",
+      "credit_type": "fee_refund"
+     },
+     "ok": true,
+     "msg_i": 74,
+     "deny": ""
+    }
+   ],
+   "credit_ok_n": 4,
+   "credit_final_balance_delta_by_account": {
+    "chk_ar72c5d8e3_1": 27.0,
+    "chk_ar72c5d8e3_2": 19.5,
+    "chk_ar72c5d8e3_3": 7.5,
+    "chk_ar72c5d8e3_4": 6.5
+   },
+   "log_verification": [
+    {
+     "args": {
+      "name": "Ahmad Razali bin Mohd Yusof",
+      "user_id": "ar72c5d8e3",
+      "address": "1245 Pioneer Road, Denver, CO 80203",
+      "email": "ahmad.razali@gmail.com",
+      "phone_number": "303-555-0821",
+      "date_of_birth": "06/15/1989",
+      "time_verified": "2025-11-14 03:40:00 EST"
+     },
+     "ok": true,
+     "msg_i": 32
+    }
+   ],
+   "call_census": {
+    "KB_search_bm25": 6,
+    "get_atm_fee_discrepancies": 16,
+    "get_all_user_accounts_by_user_id_3847": 3,
+    "OUTER:unlock_discoverable_agent_tool": 5,
+    "get_bank_account_transactions_9173": 10,
+    "get_user_information_by_email": 1,
+    "verify_identity": 2,
+    "get_current_time": 1,
+    "log_verification": 1,
+    "OUTER:call_discoverable_agent_tool": 13,
+    "apply_checking_account_credit_5829": 5
+   },
+   "deny_census_by_author": {
+    "ours|[READ-FIRST]": 4,
+    "ours|NOT_VERIFIED": 1,
+    "ours|Error: [ARGS-FORMAT]": 8
+   },
+   "comparator_returns": [],
+   "comparator_denied": [
+    {
+     "call_msg_i": 4,
+     "account": "Purple Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Light Blue Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Dark Green Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 4,
+     "account": "Evergreen Account",
+     "deny": "[READ-FIRST]"
+    },
+    {
+     "call_msg_i": 41,
+     "account": "chk_ar72c5d8e3_1",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 41,
+     "account": "chk_ar72c5d8e3_2",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 41,
+     "account": "chk_ar72c5d8e3_3",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 41,
+     "account": "chk_ar72c5d8e3_4",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 51,
+     "account": "chk_ar72c5d8e3_1",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 51,
+     "account": "chk_ar72c5d8e3_2",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 51,
+     "account": "chk_ar72c5d8e3_3",
+     "deny": "Error: [ARGS-FORMAT]"
+    },
+    {
+     "call_msg_i": 51,
+     "account": "chk_ar72c5d8e3_4",
+     "deny": "Error: [ARGS-FORMAT]"
+    }
+   ],
+   "failure_cell": "산수틀림(형태는 gold 와 완전 일치)"
+  }
+ ],
+ "comparator_by_account_by_run": {
+  "gold": {
+   "chk_1": 27.0,
+   "chk_2": 14.5,
+   "chk_3": 4.75,
+   "chk_4": 3.7
+  },
+  "t7328": {
+   "chk_1": 1.0,
+   "chk_2": 2.5,
+   "chk_3": 1.25,
+   "chk_4": 1.5,
+   "coverage": "모두 1 of 1(모델 날조 1행)"
+  },
+  "t7335": {
+   "chk_1": null,
+   "chk_2": null,
+   "chk_3": 1.5,
+   "chk_4": 0.8,
+   "coverage": "1/1 · 0/1(미검증) · 1/1 · 1/1"
+  },
+  "t7336": {
+   "chk_1": 6.0,
+   "chk_2": 2.5,
+   "chk_3_pos": 7.5,
+   "chk_3_net": 6.5,
+   "chk_4_pos": 6.5,
+   "chk_4_net": 5.5,
+   "coverage": "8/8 · 1/13 · 12/12 · 12/12"
+  },
+  "t7346": {
+   "chk_1": 24.5,
+   "chk_2": 2.5,
+   "chk_3_pos": 7.5,
+   "chk_3_net": 6.5,
+   "chk_4_pos": 6.5,
+   "chk_4_net": 5.5,
+   "coverage": "10/10 · 1/13 · 12/12 · 12/12"
+  },
+  "t7348": {
+   "chk_1": 27.0,
+   "chk_2_pos": 19.5,
+   "chk_2_net": 17.0,
+   "chk_3_pos": 7.5,
+   "chk_3_net": 2.5,
+   "chk_4_pos": 6.5,
+   "chk_4_net": 1.45,
+   "coverage": "18/18 · 14/14 · 17/17 · 17/17"
+  }
+ },
+ "boundaries": [
+  {
+   "id": "B1",
+   "from": "t7335 ec8f9d37",
+   "to": "t7336 c273d93f",
+   "bought": "거래 read 개통",
+   "instrument": {
+    "T2_SG_REQREADS_per_sim": [
+     0,
+     0,
+     4,
+     4,
+     4
+    ],
+    "READ_FIRST_deny_per_sim": [
+     0,
+     0,
+     4,
+     4,
+     4
+    ],
+    "read_call_9173_per_sim": {
+     "t7328": [
+      0,
+      0
+     ],
+     "t7335": [
+      0
+     ],
+     "t7336": [
+      4,
+      6
+     ],
+     "t7346": [
+      4,
+      4
+     ],
+     "t7348": [
+      8,
+      8
+     ]
+    },
+    "read_call_3847_per_sim": {
+     "t7336": [
+      1,
+      1
+     ],
+     "t7346": [
+      1,
+      1
+     ],
+     "t7348": [
+      1,
+      1
+     ]
+    }
+   },
+   "not_bought": "칸은 그대로 도달못함(credit 0건) · 금액 4/4 불일치",
+   "caveat": "seed 짝이 맞는 유일 비교의 t7336 쪽이 채점표 없는 sim ⇒ 계기로만 성립"
+  },
+  {
+   "id": "B2",
+   "from": "t7336 c273d93f",
+   "to": "t7346 ee18d797",
+   "bought": "write 최초 관통(1/2 sim)",
+   "instrument": {
+    "credit_ok_per_sim": {
+     "t7336": [
+      0,
+      0
+     ],
+     "t7346": [
+      7,
+      0
+     ],
+     "t7348": [
+      22,
+      4
+     ]
+    },
+    "T2_OUR_NAMES": {
+     "t7336": [
+      0,
+      0
+     ],
+     "t7346": [
+      3,
+      2
+     ],
+     "t7348": [
+      5,
+      3
+     ]
+    },
+    "T2_EPLAN_LISTED_IS_READ": {
+     "t7336": [
+      0,
+      0
+     ],
+     "t7346": [
+      9,
+      8
+     ],
+     "t7348": [
+      19,
+      15
+     ]
+    },
+    "T2_STALE_STRIP": {
+     "t7346": [
+      1,
+      0
+     ],
+     "t7348": [
+      3,
+      0
+     ]
+    },
+    "T2_PRESCRIPTION": {
+     "t7346": [
+      1,
+      0
+     ],
+     "t7348": [
+      2,
+      0
+     ]
+    }
+   },
+   "not_bought": "chk_2/3/4 값은 t7336 과 축자 동일 · #s373753 은 credit 0",
+   "caveat": "새 마커 3종은 #s626729 에서만 발화 ⇒ 런 경계가 아니라 seed 경계"
+  },
+  {
+   "id": "B3",
+   "from": "t7346 ee18d797",
+   "to": "t7348 aed30e20",
+   "bought": "도달 2/2 · chk_1 24.50→27.00(gold) · chk_2 커버리지 1/13→14/14 · 형태 최초 정답(#s373753)",
+   "sold": "DB 이중지급 최초 발생(#s626729 msg98) · T2_STALE_STRIP 1→3",
+   "caveat": "meta 축자 'bundle of nine' ⇒ 개별 수리 귀속 금지(C594)"
+  }
+ ],
+ "chronic": {
+  "M1": {
+   "claim": "chk_2·chk_3·chk_4 에서 우리 값이 gold 에 한 번도 안 닿음",
+   "quantified": "gold credit 32행(4×8 채점 sim) 중 실행 매치 1행",
+   "match": "t7348/task_074#s373753 chk_ar72c5d8e3_1 = 27",
+   "subject_warning": "31/32 는 실행 지표이지 comparator 지표가 아니다 — t7348 두 sim 이 같은 27.00 을 받고 갈렸다"
+  },
+  "M2": {
+   "claim": "chk_3·chk_4 양수 항목 집합 동결",
+   "chk_3_positive_multiset": [
+    1.5,
+    2.0,
+    4.0
+   ],
+   "chk_3_sum": 7.5,
+   "chk_4_positive_multiset": [
+    1.5,
+    1.5,
+    3.5
+   ],
+   "chk_4_sum": 6.5,
+   "runs": [
+    "t7336",
+    "t7346",
+    "t7348"
+   ],
+   "observations": 5,
+   "caveat": "t7336 다리는 채점표 없는 #s626729 단독 ⇒ '세 런 5 관측 동결' 로만 적는다"
+  },
+  "M3": {
+   "claim": "reward 0.0 9/9 · reward_basis=['DB'] 8/8 · db_match=false 8/8"
+  },
+  "M4": {
+   "claim": "거절 저작 9/9 전량 ours · env 0건"
+  }
+ },
+ "sporadic": {
+  "S1_reach": [
+   [
+    0,
+    2
+   ],
+   [
+    0,
+    1
+   ],
+   [
+    0,
+    2
+   ],
+   [
+    1,
+    2
+   ],
+   [
+    2,
+    2
+   ]
+  ],
+  "S2_shape": "t7346 이후에만 존재 · #6 혼합(1/1/3/2) · #8 전면분할(18) · #9 완전정답(4)",
+  "S3_double_payment": "t7348#s626729 1 sim (중복 발행 자체는 t7346#s626729 에도 있었고 STALE_STRIP 이 스트립)",
+  "S4_log_verification": "8/9 gold 일치 · 이탈 1회 = t7336#s373753 (2023-11-14 15:30:00 EST)",
+  "S5_termination": "user_stop 8/9 · context_window_exceeded 1/9",
+  "S6_stale_strip": "0·0·0→1→3 · #s626729 에서만",
+  "S7_chk2_coverage": [
+   "0 of 1",
+   "1 of 13",
+   "1 of 13",
+   "14 of 14"
+  ],
+  "S8_our_wrong_tool_push": "t7336·t7346·t7348 = 3런 (t7328·t7335 는 정확한 read 이름만 푸시)"
+ },
+ "discovery_step2_push_census": {
+  "semantics": "x392_block_join.py:14 축자 — deny name=X 의 X 는 우리가 짚어 준 이름(푸시)",
+  "t7328": {
+   "get_bank_account_transactions_9173": 4
+  },
+  "t7335": {
+   "get_bank_account_transactions_9173": 2
+  },
+  "t7336": {
+   "get_bank_account_transactions_9173": 4,
+   "get_all_user_accounts_by_user_id_3847": 2,
+   "apply_statement_credit_8472": 2,
+   "apply_checking_account_credit_5829": 1,
+   "apply_savings_account_credit_6831": 2
+  },
+  "t7346": {
+   "get_bank_account_transactions_9173": 2,
+   "apply_checking_account_credit_5829": 2,
+   "apply_statement_credit_8472": 1
+  },
+  "t7348": {
+   "get_bank_account_transactions_9173": 2,
+   "get_payment_history_6183": 4,
+   "apply_checking_account_credit_5829": 2,
+   "apply_savings_account_credit_6831": 1,
+   "apply_statement_credit_8472": 2
+  }
+ },
+ "unlock_name_model_fabrication": {
+  "t7328": {
+   "val": "apply_atm_fee_corrections",
+   "count_per_sim": 2
+  },
+  "t7335": {
+   "val": "apply_atm_fee_refund",
+   "count_per_sim": 1
+  },
+  "t7336": 0,
+  "t7346": 0,
+  "t7348": 0
+ },
+ "want_quote_absence": {
+  "claim_checked": "want=get_bank_account_transactions_9173",
+  "task_074_lines_containing_want": {
+   "t7328": 0,
+   "t7335": 0,
+   "t7336": 0,
+   "t7346": 0,
+   "t7348": 0
+  },
+  "whole_log_lines_containing_want": {
+   "t7328": 0,
+   "t7335": 1,
+   "t7336": 1,
+   "t7346": 0,
+   "t7348": 0
+  },
+  "actual_lines": [
+   "[sim=task_063#s626729] [T2_ARG_AXIS] deny got=Gold Account (savings) want=['savings']",
+   "[sim=task_063#s373753] [T2_ARG_AXIS] deny got=Platinum Account want=['business_savings']"
+  ],
+  "verdict": "REFUTED — 인용 자체가 task_074 에 없다(실재 2행은 task_063)"
+ },
+ "chk2_coverage_mechanism": {
+  "ledger_atm_withdrawal_rows": 16,
+  "sub_formalized_rows": 14,
+  "log_quote": "[T2_SG_ISOLATE] operand-size get_atm_fee_discrepancies.transactions: sub=14 rows · source=30 rows  MISMATCH",
+  "returned_coverage": "[coverage] 14 of 14 rows were checked (0 could not be verified)",
+  "a2_contract": "A JSON array with ONE element per atm_withdrawal record of THIS account … Include EVERY atm_withdrawal",
+  "surfacing_function": "t2_scaffold_get.py:337-351 _omitted_rows_note → 무조건 빈 문자열 반환 (2026-08-14 의도적 무효화)",
+  "verdict": "CONFIRMED (재관측)"
+ },
+ "verdict_merge": [
+  {
+   "n": 1,
+   "claim": "gold 는 다섯 런 불변",
+   "lensA": "CONFIRMED",
+   "lensB": "CONFIRMED",
+   "x523": "8/8 단일 서명",
+   "final": "CONFIRMED (창 한정)"
+  },
+  {
+   "n": 2,
+   "claim": "다섯 런 대조는 전부 유효",
+   "lensA": "UNPROVEN",
+   "lensB": null,
+   "x523": "유효 n=2/1/1/2/2",
+   "final": "UNPROVEN"
+  },
+  {
+   "n": 3,
+   "claim": "같은 이유로 죽지 않았다",
+   "lensA": "CONFIRMED",
+   "lensB": "CONFIRMED",
+   "x523": "칸 3국면 재현",
+   "final": "CONFIRMED"
+  },
+  {
+   "n": 4,
+   "claim": "경계 1(read 개통, t7336)",
+   "lensA": "CONFIRMED",
+   "lensB": "CONFIRMED",
+   "x523": "REQREADS 0→4",
+   "final": "CONFIRMED (계기 한정)"
+  },
+  {
+   "n": 5,
+   "claim": "경계 2(write 관통, t7346)",
+   "lensA": "CONFIRMED",
+   "lensB": "CONFIRMED",
+   "x523": "credit 0→7",
+   "final": "CONFIRMED"
+  },
+  {
+   "n": 6,
+   "claim": "경계 3(형태 최초 정답)",
+   "lensA": "CONFIRMED",
+   "lensB": "CONFIRMED",
+   "x523": "amount 만 오답",
+   "final": "CONFIRMED (번들 귀속 금지)"
+  },
+  {
+   "n": 7,
+   "claim": "중복이 t7348 에서 처음 생겼다",
+   "lensA": null,
+   "lensB": "REFUTED",
+   "x523": "t7346#0 msg53 선언 3 ↔ 실행 2",
+   "final": "REFUTED → 'DB 이중지급이 처음' 으로 재작성"
+  },
+  {
+   "n": 8,
+   "claim": "M1 헤드라인(우리 comparator 주어)",
+   "lensA": "CONFIRMED",
+   "lensB": "REFUTED",
+   "x523": "t7348 두 sim 이 같은 27.00 에서 갈림",
+   "final": "UNPROVEN → 주어 재작성(수치 31/32 는 CONFIRMED)"
+  },
+  {
+   "n": 9,
+   "claim": "M2 chk_3·chk_4 동결",
+   "lensA": "CONFIRMED",
+   "lensB": "CONFIRMED",
+   "x523": "5 관측 동일",
+   "final": "CONFIRMED (n 주의)"
+  },
+  {
+   "n": 10,
+   "claim": "우리 층 오지목 5런 중 4런·t7328 만 예외",
+   "lensA": null,
+   "lensB": "REFUTED",
+   "x523": "푸시 census 3런",
+   "final": "REFUTED"
+  },
+  {
+   "n": 11,
+   "claim": "인용 want=get_bank_account_transactions_9173",
+   "lensA": null,
+   "lensB": "REFUTED",
+   "x523": "task_074 라인 0행",
+   "final": "REFUTED — 인용 부재"
+  },
+  {
+   "n": 12,
+   "claim": "t7346#1 우리 층이 값을 절반만 만들었다",
+   "lensA": null,
+   "lensB": "REFUTED",
+   "x523": "msg34 4건 반려 → msg39 모델이 2건으로 축소",
+   "final": "REFUTED → 공동 귀속"
+  },
+  {
+   "n": 13,
+   "claim": "t7346#0 형태 6건",
+   "lensA": null,
+   "lensB": "REFUTED",
+   "x523": "7건",
+   "final": "REFUTED"
+  },
+  {
+   "n": 14,
+   "claim": "t7346 STALE_STRIP 이 말없이 지웠다",
+   "lensA": null,
+   "lensB": "REFUTED",
+   "x523": "msg53 본문에 Note 축자",
+   "final": "REFUTED"
+  },
+  {
+   "n": 15,
+   "claim": "t7336#0 CWE 는 BYREF 탓",
+   "lensA": null,
+   "lensB": "UNPROVEN",
+   "x523": "BYREF 4:4 동수",
+   "final": "UNPROVEN"
+  },
+  {
+   "n": 16,
+   "claim": "산발 S4·S5·S7",
+   "lensA": "CONFIRMED",
+   "lensB": "CONFIRMED",
+   "x523": "재현",
+   "final": "CONFIRMED"
+  },
+  {
+   "n": 17,
+   "claim": "수리가 산 것/안 산 것",
+   "lensA": "CONFIRMED",
+   "lensB": "CONFIRMED",
+   "x523": "재현",
+   "final": "CONFIRMED (번들 귀속 금지)"
+  },
+  {
+   "n": 18,
+   "claim": "t7336#s626729 의 칸",
+   "lensA": "counter",
+   "lensB": "counter",
+   "x523": "gold_rows=0",
+   "final": "판정 불가"
+  },
+  {
+   "n": 19,
+   "claim": "t7335 칸 이름(재료없음↔도달못함)",
+   "lensA": "counter",
+   "lensB": null,
+   "x523": "층위 다름",
+   "final": "재작성 — 칸=도달못함 / 하위기전=재료없음"
+  },
+  {
+   "n": 20,
+   "claim": "만성이 작은 n 의 착시인가",
+   "lensA": null,
+   "lensB": "UNPROVEN",
+   "x523": "t7348 두 sim 갈림",
+   "final": "UNPROVEN"
+  },
+  {
+   "n": 21,
+   "claim": "T2_VALUE_FORMULA / T2_COMPUTE",
+   "lensA": "보류",
+   "lensB": "보류",
+   "x523": "074 로그 0건 / 0~5건",
+   "final": "판정 보류"
+  },
+  {
+   "n": 22,
+   "claim": "chk_2 커버리지 분모가 자기 자신",
+   "lensA": null,
+   "lensB": null,
+   "x523": "원장 16 ↔ sub 14",
+   "final": "CONFIRMED"
+  }
+ ],
+ "next_measurements": [
+  "M1 잔여 축(chk_2/3/4)이 정책 문서만으로 유도 가능한가 — 정책 grep 먼저, gold 참조 금지",
+  "chk_2 커버리지: 서브가 자기 모집단을 선언할 수 있는가(_omitted_rows_note 재가동 전제)",
+  "형태 축(계좌당 1건)이 seed 인가 레버인가 — 같은 sha 에서 nt 상향 074 반복 필요",
+  "user 확인 발화 뒤 재실행이 T2_STALE_STRIP 사각지대인지(턴 건너뛴 중복)",
+  "T2_VALUE_FORMULA 성공 경로 마커 부재 — 원인 진술 보류"
+ ],
+ "honesty": [
+  "런당 sim 1~2 = 통계가 아니라 사례 대조. 채점 유효 n 합 8. 판정선(Δ≥4/40·SD 2.65) 밖.",
+  "t7348 두 sim 이 같은 comparator 값에서 갈렸다 ⇒ '수리가 샀다' 의 일부는 seed 일 수 있다.",
+  "t7328 두 sim 은 사실상 동일 궤적 ⇒ 그 안정은 분산 0 의 증거가 아니다.",
+  "경계 1 은 계기로만 성립(짝 sim 이 채점표 없음).",
+  "재관측하지 않은 것: 코퍼스 gold 변경 이력 · 사이드카 채널 문면 · tasks__20260824/TASK_074.md(미열람)."
+ ]
+}
