@@ -119,12 +119,12 @@ setsid bash -c "
     fi
     echo \"[t7352 \$(date +%H:%M:%S)] === \$NAME · \$TL · nt=\$NT · 추정 \${EST}분 ===\"
     t2_launch \$TAG \$PORT \"\$TL\" \$NT 2>&1 | tee $LOG/\$TAG.log
-    echo \"[t7352] \$NAME 완료 · SPEC_AT_WRITE=\$(grep -ac 'T2_SPEC_AT_WRITE' $LOG/\$TAG.log || echo 0)\
- · SPEC_DIST=\$(grep -ac 'T2_SPEC_DIST' $LOG/\$TAG.log || echo 0)\
- · SUBWIN=\$(grep -ac 'T2_SUBWIN' $LOG/\$TAG.log || echo 0)\
- · CLOBBER=\$(grep -ac 'T2_AXIS_CLOBBER' $LOG/\$TAG.log || echo 0)\
- · PROMPT_V2=\$(grep -ac 'T2_SG_PROMPT_V2' $LOG/\$TAG.log || echo 0)\
- · Traceback=\$(grep -ac 'Traceback' $LOG/\$TAG.log || echo 0)\"
+    echo \"[t7352] \$NAME 완료 · SPEC_AT_WRITE=\$(grep -ac 'T2_SPEC_AT_WRITE' $LOG/\$TAG.log || true)\
+ · SPEC_DIST=\$(grep -ac 'T2_SPEC_DIST' $LOG/\$TAG.log || true)\
+ · SUBWIN=\$(grep -ac 'T2_SUBWIN' $LOG/\$TAG.log || true)\
+ · CLOBBER=\$(grep -ac 'T2_AXIS_CLOBBER' $LOG/\$TAG.log || true)\
+ · PROMPT_V2=\$(grep -ac 'T2_SG_PROMPT_V2' $LOG/\$TAG.log || true)\
+ · Traceback=\$(grep -ac 'Traceback' $LOG/\$TAG.log || true)\"
     persist \$TAG
   }
 
@@ -136,8 +136,12 @@ setsid bash -c "
   SMK=${TAGBASE}_smoke_20260825
   echo '[t7352] === 스모크(016 · nt1 · 8140) ==='
   t2_launch \$SMK 8140 task_016 1 > $LOG/\$SMK.log 2>&1 || true
-  NTB=\$(grep -ac 'Traceback' $LOG/\$SMK.log || echo 0)
-  NSW=\$(grep -ac 'T2_SUBWIN' $LOG/\$SMK.log || echo 0)
+  # ⚠2026-08-25 수리: 구판은 \`|| echo 0\` 이었다. \`grep -c\` 는 매치가 0 일 때 **이미 '0' 을
+  #   찍고** 종료코드 1 을 내므로 그 뒤 \`echo 0\` 이 한 줄을 더 붙여 값이 \"0\\n0\" 이 됐고,
+  #   \`[ \"\$NTB\" -gt 0 ]\` 이 *정수 표현식 예상됨* 으로 죽어 **게이트가 통째로 무력화**됐다
+  #   (t7352 실물 — 그 런은 사람이 수동 확인해서 유효했다). 계기가 거짓말하면 게이트도 거짓말한다([[25]]).
+  NTB=\$(grep -ac 'Traceback' $LOG/\$SMK.log || true); NTB=\${NTB:-0}
+  NSW=\$(grep -ac 'T2_SUBWIN' $LOG/\$SMK.log || true); NSW=\${NSW:-0}
   echo \"[t7352] 스모크 — SUBWIN=\$NSW · Traceback=\$NTB\"
   grep -a 'T2_SUBWIN' $LOG/\$SMK.log | head -3 || true
   persist \$SMK
