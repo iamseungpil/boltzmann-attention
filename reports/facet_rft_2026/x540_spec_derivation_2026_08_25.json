@@ -1,0 +1,324 @@
+{
+ "probe": "x540",
+ "date": "2026-08-25",
+ "blocks": 61,
+ "tools": {
+  "get_debit_dispute_status_7483": {
+   "user_id": {
+    "type": "string",
+    "values": []
+   }
+  },
+  "file_debit_card_transaction_dispute_6281": {
+   "transaction_id": {
+    "type": "string",
+    "values": []
+   },
+   "account_id": {
+    "type": "string",
+    "values": []
+   },
+   "card_id": {
+    "type": "string",
+    "values": []
+   },
+   "user_id": {
+    "type": "string",
+    "values": []
+   },
+   "dispute_category": {
+    "type": "string",
+    "values": [
+     "unauthorized_transaction",
+     "atm_cash_discrepancy",
+     "atm_deposit_not_credited",
+     "duplicate_charge",
+     "incorrect_amount",
+     "goods_services_not_received",
+     "recurring_charge_after_cancellation",
+     "card_present_fraud",
+     "card_not_present_fraud"
+    ]
+   },
+   "transaction_date": {
+    "type": "string",
+    "values": []
+   },
+   "discovery_date": {
+    "type": "string",
+    "values": []
+   },
+   "disputed_amount": {
+    "type": "number",
+    "values": []
+   },
+   "transaction_type": {
+    "type": "string",
+    "values": [
+     "pin_purchase",
+     "signature_purchase",
+     "online_purchase",
+     "atm_withdrawal",
+     "atm_deposit",
+     "recurring_payment",
+     "person_to_person"
+    ]
+   },
+   "card_in_possession": {
+    "type": "boolean",
+    "values": []
+   },
+   "pin_compromised": {
+    "type": "string",
+    "values": [
+     "yes_shared",
+     "yes_observed",
+     "no",
+     "unknown"
+    ]
+   },
+   "contacted_merchant": {
+    "type": "boolean",
+    "values": []
+   },
+   "police_report_filed": {
+    "type": "boolean",
+    "values": []
+   },
+   "written_statement_provided": {
+    "type": "boolean",
+    "values": []
+   },
+   "provisional_credit_eligible": {
+    "type": "boolean",
+    "values": []
+   },
+   "customer_max_liability_amount": {
+    "type": "number",
+    "values": []
+   },
+   "card_action": {
+    "type": "string",
+    "values": [
+     "keep_active",
+     "freeze_pending_investigation",
+     "close_and_reissue"
+    ]
+   }
+  },
+  "get_user_dispute_history_7291": {
+   "user_id": {
+    "type": "string",
+    "values": []
+   }
+  },
+  "get_debit_cards_by_account_id_7823": {
+   "account_id": {
+    "type": "string",
+    "values": []
+   }
+  },
+  "get_all_user_accounts_by_user_id_3847": {
+   "user_id": {
+    "type": "string",
+    "values": []
+   }
+  },
+  "submit_interest_discrepancy_report_7294": {
+   "account_id": {
+    "type": "string",
+    "values": []
+   },
+   "user_id": {
+    "type": "string",
+    "values": []
+   },
+   "expected_apy": {
+    "type": "number",
+    "values": []
+   },
+   "actual_apy": {
+    "type": "number",
+    "values": []
+   },
+   "amount_difference": {
+    "type": "number",
+    "values": []
+   }
+  },
+  "get_bank_account_transactions_9173": {
+   "account_id": {
+    "type": "string",
+    "values": []
+   }
+  },
+  "open_bank_account_4821": {
+   "user_id": {
+    "type": "string",
+    "values": []
+   },
+   "account_type": {
+    "type": "string",
+    "values": [
+     "checking",
+     "savings",
+     "business_checking",
+     "business_savings"
+    ]
+   },
+   "account_class": {
+    "type": "string",
+    "values": []
+   }
+  },
+  "apply_checking_account_credit_5829": {
+   "account_id": {
+    "type": "string",
+    "values": []
+   },
+   "amount": {
+    "type": "number",
+    "values": []
+   },
+   "credit_type": {
+    "type": "string",
+    "values": []
+   }
+  },
+  "(unnamed)": {},
+  "apply_savings_account_credit_6831": {
+   "account_id": {
+    "type": "string",
+    "values": []
+   },
+   "amount": {
+    "type": "number",
+    "values": []
+   },
+   "credit_type": {
+    "type": "string",
+    "values": []
+   }
+  },
+  "initial_transfer_to_human_agent_0218": {},
+  "initial_transfer_to_human_agent_1822": {},
+  "apply_credit_card_account_flag_6147": {
+   "credit_card_account_id": {
+    "type": "string",
+    "values": []
+   },
+   "user_id": {
+    "type": "string",
+    "values": []
+   },
+   "flag_type": {
+    "type": "string",
+    "values": [
+     "annual_fee_waived",
+     "promotional_apr",
+     "rewards_bonus",
+     "other"
+    ]
+   },
+   "expiration_date": {
+    "type": "string",
+    "values": []
+   },
+   "reason": {
+    "type": "string",
+    "values": [
+     "retention_offer",
+     "loyalty_benefit",
+     "promotional",
+     "error_correction",
+     "other"
+    ]
+   }
+  },
+  "file_credit_card_transaction_dispute_4829": {
+   "transaction_id": {
+    "type": "string",
+    "values": []
+   },
+   "card_action": {
+    "type": "string",
+    "values": [
+     "keep_active",
+     "cancel_and_reissue"
+    ]
+   },
+   "card_last_4_digits": {
+    "type": "string",
+    "values": []
+   },
+   "full_name": {
+    "type": "string",
+    "values": []
+   },
+   "user_id": {
+    "type": "string",
+    "values": []
+   },
+   "phone": {
+    "type": "string",
+    "values": []
+   },
+   "email": {
+    "type": "string",
+    "values": []
+   },
+   "address": {
+    "type": "string",
+    "values": []
+   },
+   "contacted_merchant": {
+    "type": "boolean",
+    "values": []
+   },
+   "purchase_date": {
+    "type": "string",
+    "values": []
+   },
+   "issue_noticed_date": {
+    "type": "string",
+    "values": []
+   },
+   "dispute_reason": {
+    "type": "string",
+    "values": [
+     "unauthorized_fraudulent_charge",
+     "duplicate_charge",
+     "incorrect_amount",
+     "goods_services_not_received",
+     "goods_services_not_as_described",
+     "canceled_subscription_still_charging",
+     "refund_never_processed"
+    ]
+   },
+   "resolution_requested": {
+    "type": "string",
+    "values": [
+     "full_refund",
+     "partial_refund"
+    ]
+   },
+   "eligible_for_provisional_credit": {
+    "type": "boolean",
+    "values": []
+   },
+   "partial_refund_amount": {
+    "type": "number",
+    "values": []
+   }
+  },
+  "get_atm_deposit_images_8473": {
+   "transaction_id": {
+    "type": "string",
+    "values": []
+   }
+  }
+ },
+ "same": 9,
+ "diff": 0,
+ "uncomparable": 0
+}
