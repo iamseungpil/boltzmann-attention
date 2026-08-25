@@ -1,0 +1,514 @@
+{
+ "probe": "x532",
+ "date": "2026-08-25",
+ "task": "task_085",
+ "tool": "file_debit_card_transaction_dispute_6281",
+ "n_windows": 6,
+ "agg": {
+  "A_asis": {
+   "n": 6,
+   "ok": 1,
+   "unparsed": 0,
+   "extra_total": 21
+  },
+  "B_spec": {
+   "n": 6,
+   "ok": 6,
+   "unparsed": 0,
+   "extra_total": 0
+  },
+  "N_neg": {
+   "n": 6,
+   "ok": 2,
+   "unparsed": 0,
+   "extra_total": 6
+  }
+ },
+ "instrument_survives": true,
+ "instrument_note": "A_asis 가 오답 키를 재현했다 — 격리가 공정하다",
+ "rows": [
+  {
+   "sim": "task_085#s626729",
+   "at": 68,
+   "arm": "A_asis",
+   "keys": [
+    "account_id",
+    "card_action",
+    "card_in_possession",
+    "category_of_the_dispute",
+    "contacted_merchant",
+    "customer_max_liability_amount",
+    "debit_card_id",
+    "discovery_date",
+    "dispute_id",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "provisional_credit_eligible",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "written_statement_provided"
+   ],
+   "extra": [
+    "category_of_the_dispute",
+    "debit_card_id",
+    "dispute_id"
+   ],
+   "keys_ok": false,
+   "raw": "{\n  \"dispute_id\": \"disp_001\",\n  \"transaction_id\": \"btxn_c3d4e5f6g703\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"debit_card_id\": \"dbc_c4a72d9f66\",\n  \"category_of_the_dispute\": \"duplicate_charge\",\n  \"transaction_date\": \"11/06/2024\",\n  \"discovery_date\": \"11/08/2024\",\n  \"disputed_amount\": 89.99,\n  \"transaction_type\": \"signature_purchase\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": false,\n  \"contac"
+  },
+  {
+   "sim": "task_085#s626729",
+   "at": 68,
+   "arm": "B_spec",
+   "keys": [
+    "account_id",
+    "card_action",
+    "card_id",
+    "card_in_possession",
+    "contacted_merchant",
+    "customer_max_liability_amount",
+    "discovery_date",
+    "dispute_category",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "provisional_credit_eligible",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "user_id",
+    "written_statement_provided"
+   ],
+   "extra": [],
+   "keys_ok": true,
+   "raw": "{\n  \"transaction_id\": \"btxn_c3d4e5f6g703\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"card_id\": \"dbc_c4a72d9f66\",\n  \"user_id\": \"f7d3a82c91\",\n  \"dispute_category\": \"duplicate_charge\",\n  \"transaction_date\": \"11/06/2025\",\n  \"discovery_date\": \"11/08/2025\",\n  \"disputed_amount\": 89.99,\n  \"transaction_type\": \"signature_purchase\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": \"no\",\n  \"contacted_merchant\": "
+  },
+  {
+   "sim": "task_085#s626729",
+   "at": 68,
+   "arm": "N_neg",
+   "keys": [
+    "account_id",
+    "card_action",
+    "card_in_possession",
+    "category_of_the_dispute",
+    "contacted_merchant",
+    "customer_max_liability_amount",
+    "debit_card_id",
+    "discovery_date",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "provisional_credit_eligible",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "written_statement_provided"
+   ],
+   "extra": [
+    "category_of_the_dispute",
+    "debit_card_id"
+   ],
+   "keys_ok": false,
+   "raw": "{\n  \"transaction_id\": \"btxn_c3d4e5f6g703\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"debit_card_id\": \"dbc_c4a72d9f66\",\n  \"category_of_the_dispute\": \"duplicate_charge\",\n  \"transaction_date\": \"11/06/2025\",\n  \"discovery_date\": \"11/08/2025\",\n  \"disputed_amount\": 89.99,\n  \"transaction_type\": \"signature_purchase\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": false,\n  \"contacted_merchant\": false,\n  \"pol"
+  },
+  {
+   "sim": "task_085#s626729",
+   "at": 70,
+   "arm": "A_asis",
+   "keys": [
+    "account_id",
+    "card_action",
+    "card_in_possession",
+    "contacted_merchant",
+    "customer_max_liability_amount",
+    "discovery_date",
+    "dispute_category",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "provisional_credit_eligible",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "written_statement_provided"
+   ],
+   "extra": [],
+   "keys_ok": true,
+   "raw": "{\n  \"transaction_id\": \"btxn_c3d4e5f6g703\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"dispute_category\": \"duplicate_charge\",\n  \"transaction_date\": \"11/06/2024\",\n  \"discovery_date\": \"11/08/2024\",\n  \"disputed_amount\": 89.99,\n  \"transaction_type\": \"signature_purchase\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": false,\n  \"contacted_merchant\": false,\n  \"police_report_filed\": false,\n  \"written_stateme"
+  },
+  {
+   "sim": "task_085#s626729",
+   "at": 70,
+   "arm": "B_spec",
+   "keys": [
+    "account_id",
+    "card_action",
+    "card_id",
+    "card_in_possession",
+    "contacted_merchant",
+    "customer_max_liability_amount",
+    "discovery_date",
+    "dispute_category",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "provisional_credit_eligible",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "user_id",
+    "written_statement_provided"
+   ],
+   "extra": [],
+   "keys_ok": true,
+   "raw": "{\n  \"transaction_id\": \"btxn_c3d4e5f6g703\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"card_id\": \"dbc_c4a72d9f66\",\n  \"user_id\": \"f7d3a82c91\",\n  \"dispute_category\": \"duplicate_charge\",\n  \"transaction_date\": \"11/06/2024\",\n  \"discovery_date\": \"11/08/2024\",\n  \"disputed_amount\": 89.99,\n  \"transaction_type\": \"signature_purchase\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": \"no\",\n  \"contacted_merchant\": "
+  },
+  {
+   "sim": "task_085#s626729",
+   "at": 70,
+   "arm": "N_neg",
+   "keys": [
+    "account_id",
+    "card_in_possession",
+    "category_of_the_dispute",
+    "contacted_merchant",
+    "discovery_date",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "written_statement_provided"
+   ],
+   "extra": [
+    "category_of_the_dispute"
+   ],
+   "keys_ok": false,
+   "raw": "{\n  \"transaction_id\": \"btxn_c3d4e5f6g703\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"category_of_the_dispute\": \"duplicate_charge\",\n  \"transaction_date\": \"11/06/2024\",\n  \"discovery_date\": \"11/08/2024\",\n  \"disputed_amount\": 89.99,\n  \"transaction_type\": \"signature_purchase\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": false,\n  \"contacted_merchant\": false,\n  \"police_report_filed\": false,\n  \"written_"
+  },
+  {
+   "sim": "task_085#s626729",
+   "at": 72,
+   "arm": "A_asis",
+   "keys": [
+    "account_id",
+    "card_in_possession",
+    "contacted_merchant",
+    "discovery_date",
+    "dispute_type",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "written_statement_provided"
+   ],
+   "extra": [
+    "dispute_type"
+   ],
+   "keys_ok": false,
+   "raw": "{\n  \"transaction_id\": \"btxn_c3d4e5f6g703\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"dispute_type\": \"duplicate_charge\",\n  \"transaction_date\": \"11/06/2024\",\n  \"discovery_date\": \"11/08/2024\",\n  \"disputed_amount\": 89.99,\n  \"transaction_type\": \"signature_purchase\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": false,\n  \"contacted_merchant\": false,\n  \"police_report_filed\": false,\n  \"written_statement_p"
+  },
+  {
+   "sim": "task_085#s626729",
+   "at": 72,
+   "arm": "B_spec",
+   "keys": [
+    "account_id",
+    "card_action",
+    "card_id",
+    "card_in_possession",
+    "contacted_merchant",
+    "customer_max_liability_amount",
+    "discovery_date",
+    "dispute_category",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "provisional_credit_eligible",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "user_id",
+    "written_statement_provided"
+   ],
+   "extra": [],
+   "keys_ok": true,
+   "raw": "{\n  \"transaction_id\": \"btxn_c3d4e5f6g703\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"card_id\": \"dbc_c4a72d9f66\",\n  \"user_id\": \"f7d3a82c91\",\n  \"dispute_category\": \"duplicate_charge\",\n  \"transaction_date\": \"11/06/2024\",\n  \"discovery_date\": \"11/08/2024\",\n  \"disputed_amount\": 89.99,\n  \"transaction_type\": \"signature_purchase\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": \"no\",\n  \"contacted_merchant\": "
+  },
+  {
+   "sim": "task_085#s626729",
+   "at": 72,
+   "arm": "N_neg",
+   "keys": [
+    "account_id",
+    "card_in_possession",
+    "contacted_merchant",
+    "discovery_date",
+    "dispute_type",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "written_statement_provided"
+   ],
+   "extra": [
+    "dispute_type"
+   ],
+   "keys_ok": false,
+   "raw": "{\n  \"transaction_id\": \"btxn_c3d4e5f6g703\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"dispute_type\": \"duplicate_charge\",\n  \"transaction_date\": \"11/06/2024\",\n  \"discovery_date\": \"11/08/2024\",\n  \"disputed_amount\": 89.99,\n  \"transaction_type\": \"signature_purchase\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": false,\n  \"contacted_merchant\": false,\n  \"police_report_filed\": false,\n  \"written_statement_p"
+  },
+  {
+   "sim": "task_085#s373753",
+   "at": 80,
+   "arm": "A_asis",
+   "keys": [
+    "account_id",
+    "action_requested_on_the_card",
+    "attempted_to_resolve_with_merchant_first",
+    "category",
+    "date_first_noticed",
+    "debit_card_id",
+    "disputed_amount",
+    "eligible_for_provisional_credit",
+    "max_liability_under_reg_e",
+    "physical_card_in_possession",
+    "pin_compromised",
+    "police_report_filed",
+    "transaction_date",
+    "transaction_id",
+    "type_of_transaction",
+    "written_statement_provided"
+   ],
+   "extra": [
+    "action_requested_on_the_card",
+    "attempted_to_resolve_with_merchant_first",
+    "category",
+    "date_first_noticed",
+    "debit_card_id",
+    "eligible_for_provisional_credit",
+    "max_liability_under_reg_e",
+    "physical_card_in_possession",
+    "type_of_transaction"
+   ],
+   "keys_ok": false,
+   "raw": "{\n  \"dispute_details\": {\n    \"transaction_id\": \"btxn_a1b2c3d4e501\",\n    \"account_id\": \"chk_b4d92f7c28\",\n    \"debit_card_id\": \"dbc_c4a72d9f66\",\n    \"category\": \"ATM cash discrepancy\",\n    \"transaction_date\": \"11/05/2025\",\n    \"date_first_noticed\": \"11/05/2025\",\n    \"disputed_amount\": 100,\n    \"type_of_transaction\": \"ATM withdrawal\",\n    \"physical_card_in_possession\": true,\n    \"pin_compromised\": fa"
+  },
+  {
+   "sim": "task_085#s373753",
+   "at": 80,
+   "arm": "B_spec",
+   "keys": [
+    "account_id",
+    "card_action",
+    "card_id",
+    "card_in_possession",
+    "contacted_merchant",
+    "customer_max_liability_amount",
+    "discovery_date",
+    "dispute_category",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "provisional_credit_eligible",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "user_id",
+    "written_statement_provided"
+   ],
+   "extra": [],
+   "keys_ok": true,
+   "raw": "{\n  \"transaction_id\": \"btxn_a1b2c3d4e501\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"card_id\": \"dbc_c4a72d9f66\",\n  \"user_id\": \"usr_1234567890\",\n  \"dispute_category\": \"atm_cash_discrepancy\",\n  \"transaction_date\": \"11/05/2025\",\n  \"discovery_date\": \"11/05/2025\",\n  \"disputed_amount\": 100,\n  \"transaction_type\": \"atm_withdrawal\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": \"no\",\n  \"contacted_merchant\""
+  },
+  {
+   "sim": "task_085#s373753",
+   "at": 80,
+   "arm": "N_neg",
+   "keys": [
+    "account_id",
+    "card_action",
+    "card_id",
+    "card_in_possession",
+    "contacted_merchant",
+    "discovery_date",
+    "dispute_category",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "transaction_date",
+    "transaction_id",
+    "written_statement_provided"
+   ],
+   "extra": [],
+   "keys_ok": true,
+   "raw": "{\n  \"dispute_category\": \"atm_cash_discrepancy\",\n  \"transaction_id\": \"btxn_a1b2c3d4e501\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"card_id\": \"dbc_c4a72d9f66\",\n  \"disputed_amount\": 100.0,\n  \"transaction_date\": \"11/05/2025\",\n  \"discovery_date\": \"11/05/2025\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": false,\n  \"contacted_merchant\": false,\n  \"police_report_filed\": false,\n  \"written_statement_provid"
+  },
+  {
+   "sim": "task_085#s373753",
+   "at": 82,
+   "arm": "A_asis",
+   "keys": [
+    "account_id",
+    "attempted_to_resolve_with_merchant_first",
+    "category",
+    "disputed_amount",
+    "physical_card_in_possession",
+    "pin_compromised",
+    "police_report_filed",
+    "transaction_date",
+    "transaction_id",
+    "type_of_transaction",
+    "written_statement_provided"
+   ],
+   "extra": [
+    "attempted_to_resolve_with_merchant_first",
+    "category",
+    "physical_card_in_possession",
+    "type_of_transaction"
+   ],
+   "keys_ok": false,
+   "raw": "{\n  \"transaction_id\": \"btxn_a1b2c3d4e501\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"category\": \"atm_cash_discrepancy\",\n  \"transaction_date\": \"11/05/2025\",\n  \"disputed_amount\": 100,\n  \"type_of_transaction\": \"atm_withdrawal\",\n  \"physical_card_in_possession\": true,\n  \"pin_compromised\": false,\n  \"attempted_to_resolve_with_merchant_first\": false,\n  \"police_report_filed\": false,\n  \"written_statement_provide"
+  },
+  {
+   "sim": "task_085#s373753",
+   "at": 82,
+   "arm": "B_spec",
+   "keys": [
+    "account_id",
+    "card_action",
+    "card_id",
+    "card_in_possession",
+    "contacted_merchant",
+    "customer_max_liability_amount",
+    "discovery_date",
+    "dispute_category",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "provisional_credit_eligible",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "user_id",
+    "written_statement_provided"
+   ],
+   "extra": [],
+   "keys_ok": true,
+   "raw": "{\n  \"transaction_id\": \"btxn_a1b2c3d4e501\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"card_id\": \"dbc_c4a72d9f66\",\n  \"user_id\": \"usr_1234567890\",\n  \"dispute_category\": \"atm_cash_discrepancy\",\n  \"transaction_date\": \"11/05/2025\",\n  \"discovery_date\": \"11/05/2025\",\n  \"disputed_amount\": 100,\n  \"transaction_type\": \"atm_withdrawal\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": \"no\",\n  \"contacted_merchant\""
+  },
+  {
+   "sim": "task_085#s373753",
+   "at": 82,
+   "arm": "N_neg",
+   "keys": [
+    "account_id",
+    "card_action",
+    "card_in_possession",
+    "contacted_merchant",
+    "discovery_date",
+    "dispute_category",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "written_statement_provided"
+   ],
+   "extra": [],
+   "keys_ok": true,
+   "raw": "{\n  \"transaction_id\": \"btxn_a1b2c3d4e501\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"dispute_category\": \"atm_cash_discrepancy\",\n  \"transaction_date\": \"11/05/2025\",\n  \"discovery_date\": \"11/05/2025\",\n  \"disputed_amount\": 100.0,\n  \"transaction_type\": \"atm_withdrawal\",\n  \"card_in_possession\": \"yes\",\n  \"pin_compromised\": \"no\",\n  \"contacted_merchant\": \"no\",\n  \"police_report_filed\": \"no\",\n  \"written_statement"
+  },
+  {
+   "sim": "task_085#s373753",
+   "at": 84,
+   "arm": "A_asis",
+   "keys": [
+    "account_id",
+    "attempted_to_resolve_with_merchant_first",
+    "date_first_noticed",
+    "disputed_amount",
+    "physical_card_in_possession",
+    "pin_compromised",
+    "police_report_filed",
+    "transaction_date",
+    "transaction_id",
+    "type_of_transaction",
+    "written_statement_provided"
+   ],
+   "extra": [
+    "attempted_to_resolve_with_merchant_first",
+    "date_first_noticed",
+    "physical_card_in_possession",
+    "type_of_transaction"
+   ],
+   "keys_ok": false,
+   "raw": "{\n  \"transaction_id\": \"btxn_a1b2c3d4e501\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"disputed_amount\": 100,\n  \"transaction_date\": \"11/05/2025\",\n  \"date_first_noticed\": \"11/05/2025\",\n  \"type_of_transaction\": \"ATM withdrawal\",\n  \"physical_card_in_possession\": true,\n  \"pin_compromised\": false,\n  \"attempted_to_resolve_with_merchant_first\": false,\n  \"police_report_filed\": false,\n  \"written_statement_provide"
+  },
+  {
+   "sim": "task_085#s373753",
+   "at": 84,
+   "arm": "B_spec",
+   "keys": [
+    "account_id",
+    "card_action",
+    "card_id",
+    "card_in_possession",
+    "contacted_merchant",
+    "customer_max_liability_amount",
+    "discovery_date",
+    "dispute_category",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "provisional_credit_eligible",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "user_id",
+    "written_statement_provided"
+   ],
+   "extra": [],
+   "keys_ok": true,
+   "raw": "{\n  \"transaction_id\": \"btxn_a1b2c3d4e501\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"card_id\": \"dbc_c4a72d9f66\",\n  \"user_id\": \"usr_1234567890\",\n  \"dispute_category\": \"atm_cash_discrepancy\",\n  \"transaction_date\": \"11/05/2025\",\n  \"discovery_date\": \"11/05/2025\",\n  \"disputed_amount\": 100,\n  \"transaction_type\": \"atm_withdrawal\",\n  \"card_in_possession\": true,\n  \"pin_compromised\": \"no\",\n  \"contacted_merchant\""
+  },
+  {
+   "sim": "task_085#s373753",
+   "at": 84,
+   "arm": "N_neg",
+   "keys": [
+    "account_id",
+    "card_action",
+    "card_in_possession",
+    "contacted_merchant",
+    "customer_max_liability_amount",
+    "discovery_date",
+    "dispute_category",
+    "disputed_amount",
+    "pin_compromised",
+    "police_report_filed",
+    "provisional_credit_amount",
+    "provisional_credit_eligible",
+    "provisional_credit_issued",
+    "transaction_date",
+    "transaction_id",
+    "transaction_type",
+    "written_statement_provided"
+   ],
+   "extra": [
+    "provisional_credit_amount",
+    "provisional_credit_issued"
+   ],
+   "keys_ok": false,
+   "raw": "{\n  \"transaction_id\": \"btxn_a1b2c3d4e501\",\n  \"account_id\": \"chk_b4d92f7c28\",\n  \"dispute_category\": \"atm_cash_discrepancy\",\n  \"transaction_date\": \"11/05/2025\",\n  \"discovery_date\": \"11/05/2025\",\n  \"disputed_amount\": 100.0,\n  \"transaction_type\": \"atm_withdrawal\",\n  \"card_in_possession\": \"yes\",\n  \"pin_compromised\": \"no\",\n  \"contacted_merchant\": \"no\",\n  \"police_report_filed\": \"no\",\n  \"written_statement"
+  }
+ ]
+}
