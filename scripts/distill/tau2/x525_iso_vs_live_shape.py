@@ -65,6 +65,73 @@ def records(text):
     return out
 
 
+def regroup(text, mode):
+    """레코드 덤프를 **재배열**한다 — 내용 변경 0(블록을 축자 그대로 옮길 뿐).
+
+    ★왜 (2026-08-25·t7348 074 t1 실물): 원장에 `btxn_ar_dg_17f = -2.25` 가 **실재**하는데
+      우리 도구는 `btxn_ar_dg_17 (charged $0.00, documented fee $2.25, difference $-2.25)` 로
+      보고했다 — 서브가 그 수수료 줄을 **짝지어 주지 못했다**. 유령 음수 −2.25 가 환불액을
+      깎았고, 되돌리면 chk_3 2.50+2.25=**4.75**=gold · chk_4 1.45+2.25=**3.70**=gold 로
+      센트까지 맞는다. 드롭이 없던 chk_1 은 도구합 27.0 = gold 였고 모델이 그대로 제출했다.
+    ⇒ 가설: 덤프가 **최신순**이라 `_17` 은 1번 행이고 그 수수료는 뒤쪽 어딘가에 떨어져 있다.
+      각 인출 **바로 뒤**에 그 날 수수료를 놓으면 짝이 보이는가.
+    ⚠엔진이 쓰는 문장 0 · 값 변경 0 · 판단 0 — 블록의 **순서**만 바꾼다([[59]]·[[62]]③④).
+
+        pair     인출 뒤에 같은 날 수수료(그 다음에 나머지)
+        datesort 같은 양의 재배열이되 **짝짓지 않는다**(인출 전량 → 수수료 전량·둘 다 날짜순)
+                 = [[57]] 부정통제. 이것이 pair 만큼 움직이면 이득은 짝이 아니라 정렬이다.
+    """
+    blocks, head = [], ""
+    parts = re.split(r"\n(?=\s*\d+\.\s+Record ID:)", text)
+    if parts and not RE_ID.search(parts[0]):
+        head, parts = parts[0], parts[1:]
+    for b in parts:
+        i, t, d = RE_ID.search(b), RE_TY.search(b), RE_DT.search(b)
+        if i and t:
+            blocks.append((i.group(1), t.group(1), d.group(1) if d else "", b))
+    if not blocks:
+        return text
+    ws = [b for b in blocks if b[1] == "atm_withdrawal"]
+    fs = [b for b in blocks if b[1] == "atm_fee"]
+    rest = [b for b in blocks if b[1] not in ("atm_withdrawal", "atm_fee")]
+    if mode == "pair":
+        out, used = [], set()
+        for w in sorted(ws, key=lambda x: x[2]):
+            out.append(w)
+            for f in fs:
+                if f[2] == w[2] and f[0] not in used:
+                    out.append(f)
+                    used.add(f[0])
+        out += [f for f in fs if f[0] not in used] + rest
+    elif mode == "datesort":
+        out = sorted(ws, key=lambda x: x[2]) + sorted(fs, key=lambda x: x[2]) + rest
+    else:
+        return text
+    body = "\n".join("%d. %s" % (k + 1, b[3].strip().split(". ", 1)[-1])
+                     for k, b in enumerate(out))
+    return (head + "\n" + body) if head else body
+
+
+def fee_paired(emitted, recs):
+    """계약대로 **수수료 id 로** 짝지은 인출 수 / 수수료가 있는 인출 수.
+
+    ★기존 `coverage` 로는 이 결손이 안 잡힌다 — 그 술어는 *인출 id 또는 같은 날 수수료 id*
+      둘 중 하나면 덮인 것으로 세므로, `_17` 을 **자기 id 로** 낸 산출도 통과시킨다. 그런데
+      선언 축자는 *"transaction_id: the id of the atm_fee line paired with this withdrawal;
+      if this withdrawal has NO fee line, the withdrawal's own id"* 다. 수수료가 있는데
+      인출 id 를 내면 도구가 *"수수료 미부과"* 로 읽고 유령 음수를 만든다(074 실물).
+    """
+    es = set(str(x) for x in emitted)
+    ws = [r for r in recs if r[1] == "atm_withdrawal"]
+    fs = [r for r in recs if r[1] == "atm_fee"]
+    have = [w for w in ws if any(f[2] == w[2] for f in fs)]
+    ok = 0
+    for w in have:
+        if any(f[0] in es for f in fs if f[2] == w[2]):
+            ok += 1
+    return ok, len(have)
+
+
 def expectation(text):
     """계약상 기대 행수 = 인출 수 + (같은 날 수수료가 2건 이상인 날의 초과분)."""
     recs = records(text)
@@ -245,6 +312,23 @@ def main():
                              "\n\n" + afmt +
                              "\n\n# Field contract\ntransactions: " + params +
                              "\n\n=== RECORDS ===\n" + text}]
+                elif arm in ("R_pairfee", "N_datesort"):
+                    # ★수수료-짝 팔 (2026-08-25·t7348 074 t1 실물 뒤). N_wire 와 **한 가지만**
+                    #   다르다: `=== RECORDS ===` 블록의 **순서**. 문면·값·형식 전부 동일하다.
+                    #     R_pairfee   인출 바로 뒤에 그 날 수수료
+                    #     N_datesort  같은 양의 재배열이되 짝짓지 않는다([[57]] 부정통제)
+                    _txt = regroup(text, "pair" if arm == "R_pairfee" else "datesort")
+                    _pb3 = ""
+                    for _k3 in sorted(keys):
+                        _pd3 = (d.get("params") or {}).get(_k3)
+                        if isinstance(_pd3, str) and _pd3.strip():
+                            _pb3 += "\n%s: %s" % (_k3, _pd3)
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n=== REFERENCE ===\n" +
+                             "\n".join("%s: %s" % (k2, v2) for k2, v2 in ref.items()) +
+                             ("\n\n=== FIELD CONTRACT ===" + _pb3 if _pb3 else "") +
+                             "\n\n=== RECORDS ===\n" + _txt +
+                             "\n\n" + afmt}]
                 elif arm in ("P_pair", "P_noinv", "P_both", "N_len"):
                     # ★초과 행 팔 (2026-08-25). 관측(x525j 16창·결정론적):
                     #   chk_1 expect18/rows18 **초과 0** · chk_2·3·4 expect16/rows**17**.
@@ -338,14 +422,16 @@ def main():
                 _ledger_ids = {i2 for i2, _t2, _d2 in records(text)}
                 real = [i2 for i2 in ids if i2 and i2 in _ledger_ids]
                 cov = coverage(ids, w, fees)
+                _fp, _fn = fee_paired(ids, records(text))
                 dup = sum(1 for r in (got or []) if isinstance(r, dict) and r.get("duplicate_of"))
                 rows.append({"msg": idx, "acc": acc, "arm": arm, "k": k, "expect": exp,
                              "rows": (len(got) if got is not None else None),
                              "ids_real": len(real), "cover": cov, "withdrawals": len(w),
+                             "fee_paired": _fp, "fee_total": _fn,
                              "dup_of": dup, "emitted": ids})
-                print("      %-10s k=%d rows=%s/%d cover=%d/%d ids_real=%d dup=%d"
+                print("      %-11s k=%d rows=%s/%d cover=%d/%d feepair=%d/%d ids_real=%d dup=%d"
                       % (arm, k, (len(got) if got is not None else "parse_fail"), exp,
-                         cov, len(w), len(real), dup))
+                         cov, len(w), _fp, _fn, len(real), dup))
 
     with io.open(a.out, "w", encoding="utf-8") as f:
         json.dump({"probe": "x525", "date": "2026-08-24",
