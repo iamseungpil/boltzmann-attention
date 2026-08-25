@@ -89,6 +89,43 @@ FB = fb.group(1) if fb else ""
 chk("{spec}" in FB and "{dist}" in FB, "본문과 거리를 함께 싣는다")
 chk("environment's own reply" in FB, "새 정보가 아니라 env 자신의 응답임을 밝힌다")
 
+print("[7] **함수를 실제로 돌린다** — 死배선은 정규식이 아니라 실행이 잡는다([[24]])")
+# 왜 여기서: 라이브 스모크로 이 갈래에 닿으려면 085 를 한 sim(실측 28~46분) 태워야 하고,
+# 그 비용의 대부분은 우리가 이미 아는 것(부모 인쇄 자리가 살아 있다 — t7348 로그에서
+# `축 미상` 이 040 54회·085 44회)을 다시 사는 데 쓰인다. 남은 위험은 **이름 해석**이고
+# 그건 오프라인에서 전부 잡힌다([[09]] 무료 검증 우선).
+try:
+    import t2_gate_patch as G
+
+    class _TC(object):
+        def __init__(self, name, args):
+            self.name, self.arguments = name, args
+
+    class _M(object):
+        def __init__(self, role, content="", tool_calls=None):
+            self.role, self.content, self.tool_calls = role, content, tool_calls or []
+
+    # ⚠이름은 엔진의 **기존 규약**을 따른다: `_exact_tool_name` 은 `call_` 접두 디스패처일
+    #   때만 인자에서 내부 이름을 푼다. 도메인 낱말은 쓰지 않는다(가짜 이름).
+    INNER = "widget_filer_9001"
+    SPEC = "Tool unlocked: %s\nParameters:\n  - alpha: string\n  - beta: number" % INNER
+    msgs = [_M("user", "hello"),
+            _M("assistant", tool_calls=[_TC("unlock_thing", {"agent_tool_name": INNER})]),
+            _M("tool", SPEC),
+            _M("assistant", tool_calls=[_TC("call_thing", {"agent_tool_name": INNER})]),
+            _M("tool", "Error: Invalid arguments: got an unexpected keyword argument 'alfa'")]
+    wc = _TC("call_thing", {"agent_tool_name": INNER})
+    body, idx, dist = G._env_spec_for(wc, msgs)
+    chk(body == SPEC, "env 반환문을 **글자 그대로** 돌려준다", repr(str(body)[:40]))
+    chk(idx == 2, "출처 인덱스를 정확히 짚는다", idx)
+    chk(dist == 3, "거리를 센다", dist)
+    # 자기 오류문 되먹임 금지: 같은 겉이름(runner_tool)의 결과(msg4)를 고르면 안 된다.
+    chk(body != msgs[4].content, "이 write 자신의 오류문은 출처가 아니다")
+    b2, i2, d2 = G._env_spec_for(_TC("call_thing", {"agent_tool_name": "nothing_here"}), msgs)
+    chk(b2 is None and i2 == -1, "못 찾으면 None — 침묵한다([[25]])", repr(b2))
+except Exception as _e:
+    chk(False, "헬퍼가 실행된다(死배선 아님)", repr(_e))
+
 print("\n" + ("test_spec_at_write PASS" if not FAIL
               else "test_spec_at_write FAIL: %s" % (FAIL,)))
 sys.exit(1 if FAIL else 0)
