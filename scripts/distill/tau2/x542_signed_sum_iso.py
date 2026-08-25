@@ -63,9 +63,10 @@ NL = chr(10)
 ANCHOR = "whose net charge does NOT match"
 RE_DIFF = re.compile(r"difference \$(-?[\d.]+)")
 RE_MONEY_NEG = re.compile(r"\$-([\d.]+)")
-ASK = (NL + NL + "Reply with ONLY the dollar amount you will pass as the `amount` "
-       "argument of the single fee_refund credit for this account - digits and a decimal "
-       "point only, no dollar sign, no words.")
+ASK_T = (NL + NL + "You are now issuing the single fee_refund credit for account {acct} "
+         "ONLY - not for any other account in this conversation." + NL +
+         "Reply with ONLY the dollar amount you will pass as its `amount` argument - digits "
+         "and a decimal point only, no dollar sign, no words.")
 # ★C_sign 문면은 **선언에 있는 낱말로만** 만든다([[78]] 이식 대상은 선언 텍스트).
 #   출처: return_template 의 "net correction" · "it shows as a negative difference".
 SIGN_LINE = ("[policy] The credit is the NET correction: add the differences with their signs - "
@@ -150,6 +151,7 @@ def windows():
                                or a.get("discoverable_tool_name") or "")
                     if "apply_checking_account_credit" not in tool:
                         continue
+                    acct = str(inner.get("account_id", a.get("account_id")) or "")
                     amt = inner.get("amount", a.get("amount"))
                     try:
                         live = round(float(str(amt).replace("$", "").replace(",", "")), 2)
@@ -174,7 +176,7 @@ def windows():
                         continue
                     cases.append({"sim": sim, "tag": tag, "msg": i, "block": blk,
                                   "win": (NL + NL).join(txt), "want": tot, "vals": vals,
-                                  "absum": absum, "live": live,
+                                  "absum": absum, "live": live, "acct": acct,
                                   "filler": filler(ms, len(blk))})
     return cases, skipped
 
@@ -195,8 +197,8 @@ def main(argv=None):
         return 1
     print("창 %d개 (음수를 담은 계좌 · 라이브 호출에 짝지음)" % len(cases))
     for c in cases:
-        print("   %-20s msg%-4s 라이브제출 %.2f · 절댓값합 %.2f · **부호합 %.2f** · 창 %d자"
-              % (c["sim"], c["msg"], c["live"], c["absum"], c["want"], len(c["win"])))
+        print("   %-20s msg%-4s acct=%s 라이브제출 %.2f · 절댓값합 %.2f · **부호합 %.2f** · 창 %d자"
+              % (c["sim"], c["msg"], c["acct"], c["live"], c["absum"], c["want"], len(c["win"])))
     rows, agg = [], collections.defaultdict(lambda: {"n": 0, "ok": 0, "abs": 0})
     for c in cases:
         w = c["win"]
@@ -209,7 +211,7 @@ def main(argv=None):
         for arm, body in sorted(arms.items()):
             for k in range(a.n):
                 try:
-                    txt = gen(a.port, body + ASK)
+                    txt = gen(a.port, body + ASK_T.format(acct=c["acct"]))
                 except Exception as e:
                     txt = "!!%r" % (e,)
                 m = re.search(r"-?\d+(?:\.\d+)?", txt.replace(",", ""))
