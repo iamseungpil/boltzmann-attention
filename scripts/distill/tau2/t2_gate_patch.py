@@ -2739,6 +2739,63 @@ def _write_choice_arg(a2, tc):
 #     + **무엇을 하면 풀리나**(그 인자에 넣어 다시 부르거나, 그 인자가 가질 수 없는 값이면
 #     이 답은 이 호출의 답이 아니니 원래대로 다시 불러라).
 #   ⚠엔진은 고르지 않는다 — 문장은 **조건문**이고 값의 채택은 끝까지 모델 몫이다([[62]] ③④).
+_SPEC_AT_WRITE_FB = (
+    "Error: [SPEC-AT-WRITE] this write was held for one turn because the argument names it "
+    "used are not the ones this tool declares. Nothing new is being told to you - the block "
+    "below is the environment's own reply from earlier in this conversation, when this tool "
+    "was made available. It is repeated here because the write is happening now and that "
+    "reply is {dist} messages back:\n\n{spec}\n\n"
+    "Make the call again using exactly the argument names listed above - do not rename, add "
+    "or drop any of them - and keep the values you already decided on."
+)
+
+
+def _env_spec_for(wc, msgs):
+    """이 write 의 표적 도구에 대해 **env 자신이 앞서 보낸 응답** — (본문, 인덱스, 거리).
+
+    ★2026-08-25 신설. 왜(t7348 085 두 sim 궤적 직독): 파라미터 17개와 enum 4종을 전부 담은
+      2,975자 블록이 **msg22** 에 도착하는데 첫 오답 write 는 **msg68 / msg80** 이다(거리 46·58).
+      그 사이 모델은 `debit_card_id`·`category`·`date_first_noticed`·`type_of_transaction` …
+      **10개를 지어내며 13턴**을 태운다. 재료 부재가 아니라 **거리**다 — x509 큐
+      `plan_2026_08_24_pm.common_diagnosis` 축자 *"재료는 상류에 있고 결정점에 없다"* 와 같은 모양.
+
+    술어는 전부 **구조**다([[22]]·[[59]] 텍스트 파싱 0·도메인 낱말 0):
+      · 표적 = 이 write 가 실행하는 도구의 **레지스트리 이름**(`_exact_tool_name`).
+      · 되돌아보며 (assistant tool_call, 그 다음 tool 결과) 짝을 찾는다.
+      · 그 호출의 **인자**가 표적 이름을 담고 있고 호출의 **겉이름이 이 write 와 다르면**,
+        그 결과가 *"이 도구에 대해 env 가 한 말"* 이다. 그대로 돌려준다 — 자르지도 고르지도
+        요약하지도 않는다([[62]]③④).
+      · 이 write 자신의 재시도(같은 겉이름)는 제외된다 ⇒ 자기 오류문을 되먹이지 않는다.
+    ⚠못 찾으면 (None, -1, -1) 이고 그러면 아무 말도 하지 않는다([[25]]).
+    """
+    want = str(_exact_tool_name(wc) or "")
+    mine = str(getattr(wc, "name", "") or "")
+    if not want:
+        return None, -1, -1
+    ms = list(msgs or [])
+    for i in range(len(ms) - 1, -1, -1):
+        m = ms[i]
+        tcs = getattr(m, "tool_calls", None) or []
+        if not tcs:
+            continue
+        for tc in tcs:
+            if str(getattr(tc, "name", "") or "") == mine:
+                continue
+            try:
+                blob = json.dumps(_args_dict(tc), ensure_ascii=False)
+            except Exception:
+                blob = ""
+            if want not in blob:
+                continue
+            for j in range(i + 1, min(i + 4, len(ms))):
+                if str(getattr(ms[j], "role", "")) == "tool":
+                    body = str(getattr(ms[j], "content", "") or "")
+                    if body:
+                        return body, j, len(ms) - j
+            break
+    return None, -1, -1
+
+
 _DECIDE_FIRST_FB = (
     "Error: [DECIDE-FIRST] this write was held for one turn because the decision it "
     "encodes had not been made in this conversation yet. It has now been made, and it "
@@ -10349,10 +10406,49 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             #   `_search_material` 은 축 잠금(`_t2_search_done`)을 소모하므로,
                             #   배달하지 않을 결정을 위해 축을 태우면 그 축이 영영 안 온다.
                             #   ⚠도메인 조건 0: 태스크·상품 이름이 아니라 *선언의 유무*가 술어다.
-                            print("[T2_DECIDE_BEFORE_WRITE] 축 미상 — 무발화 tool=%s "
-                                  "(A2 가 이 write 의 선택 인자를 선언하지 않았다)"
-                                  % (_eff_tool_name(_wc),),
+                            # ★계기 (2026-08-25·거동 변경 0·사용자 지시 *"수리할 방법이 없으면
+                            #   다음 런을 위해 원인파악을 위한 장치라도 달아두라"*): 이 자리가
+                            #   침묵할 때 **재료가 얼마나 뒤에 있었는지**를 남긴다. 085 를 가른
+                            #   것이 정확히 이 수(거리 46·58)였고, 그것이 없어서 핸드오프는
+                            #   결손을 *"키 허용목록이 없다"* 로 잘못 적었다. 세 축의 공통
+                            #   진단(*"재료는 상류에 있고 결정점에 없다"*)을 코퍼스 전체에서
+                            #   grep 하나로 세게 하는 것이 목적이다.
+                            _spec, _si, _sd = _env_spec_for(_wc, state.messages)
+                            print("[T2_SPEC_DIST] tool=%s src_msg=%s dist=%s len=%s"
+                                  % (_eff_tool_name(_wc), _si, _sd,
+                                     len(_spec) if _spec else 0),
                                   file=_sys.stderr, flush=True)
+                            # ★T2_SPEC_AT_WRITE (기본 OFF·격리 x532 통과 후 배선·[[78]]).
+                            #   격리: A_asis 1/6 ↔ **B_spec 6/6** ↔ N_neg 2/5(같은 길이 무관 블록)
+                            #   ⇒ 산 것은 길이가 아니라 **내용**이고([[57]]), A_asis 가 라이브
+                            #   오답 키를 재현했으므로 격리가 공정하다([[62]] 2b).
+                            #   하는 일은 **전달 하나**다 — env 가 앞서 보낸 그 응답을 자르지도
+                            #   고르지도 않고 되붙인다. 값 선택은 전부 모델 몫이다([[62]]③④).
+                            #   sim 당 도구별 1회 — 두 번 미루면 지연이 손실이 된다.
+                            if (os.environ.get("T2_SPEC_AT_WRITE") == "1" and _spec
+                                    and _sd >= int(os.environ.get("T2_SPEC_AT_WRITE_MIN", "8"))):
+                                _sseen = getattr(self, "_t2_spec_at_write", None)
+                                if _sseen is None:
+                                    _sseen = self._t2_spec_at_write = set()
+                                _skey = str(_exact_tool_name(_wc) or "")
+                                if _skey and _skey not in _sseen:
+                                    _sseen.add(_skey)
+                                    self._t2_dwrite_deny = 1
+                                    dw_fb = (_wc, _SPEC_AT_WRITE_FB.format(dist=_sd,
+                                                                           spec=_spec))
+                                    print("[T2_SPEC_AT_WRITE] write 1턴 유예 tool=%s "
+                                          "src_msg=%s dist=%s (%d자 재제시)"
+                                          % (_eff_tool_name(_wc), _si, _sd, len(_spec)),
+                                          file=_sys.stderr, flush=True)
+                                    _lbeat("T2_SPEC_AT_WRITE", orch=self,
+                                           target=_eff_tool_name(_wc),
+                                           fact="what this tool itself declared when it "
+                                                "was made available")
+                            else:
+                                print("[T2_DECIDE_BEFORE_WRITE] 축 미상 — 무발화 tool=%s "
+                                      "(A2 가 이 write 의 선택 인자를 선언하지 않았다)"
+                                      % (_eff_tool_name(_wc),),
+                                      file=_sys.stderr, flush=True)
                         else:
                             _saved = (getattr(self, "_t2_axis_decision", None) or {}).get(_dax) \
                                 if _dax else None

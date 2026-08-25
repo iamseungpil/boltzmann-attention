@@ -487,3 +487,30 @@ export T2_GROUND_HDR=1
 #   다른 상세-도구는 0. 문면은 오늘 저작했고 **완결을 주장하지 않는다**(coverage 표면화에 위임).
 #   술어 = `_sg_details` 공집합(닫힘·판단 0) · 선언 없는 도구는 종전 거동.
 export T2_RETURN_EMPTY=1
+
+# ★도구 명세 되붙이기 (`T2_SPEC_AT_WRITE`·기본 OFF·2026-08-25·격리 x532 후 배선).
+#   왜: t7348 085 두 sim 궤적 축자 — `unlock_discoverable_agent_tool` 의 반환문이 파라미터
+#   17개와 enum 4종을 전부 담아 **msg22** 에 도착하는데 첫 오답 write 는 **msg68 / msg80**
+#   이다(거리 46·58). 그 사이 모델은 `debit_card_id`·`category`·`date_first_noticed` …
+#   10개를 지어내며 13턴을 태운다 ⇒ 재료 부재가 아니라 **거리**다(x509 큐 공통 진단
+#   *"재료는 상류에 있고 결정점에 없다"* 와 같은 모양).
+#   격리 x532(n=6 창): A_asis 1/6 ↔ **B_spec 6/6** ↔ N_neg 2/5(같은 길이 무관 블록)
+#   ⇒ 산 것은 길이가 아니라 내용([[57]]) · A_asis 가 라이브 오답 키를 재현하므로 공정([[62]]2b).
+#   하는 일은 **전달 하나** — env 가 앞서 보낸 응답을 자르지도 고르지도 않고 되붙인다.
+#   값 선택은 전부 모델 몫이고 술어에 도메인 낱말이 0 이다([[05]] 전이).
+export T2_SPEC_AT_WRITE=0
+export T2_SPEC_AT_WRITE_MIN=8     # 재료가 이만큼 뒤일 때만 — 바로 앞이면 되붙일 이유가 없다
+
+# ★스키마 enum 조회 (`T2_SCHEMA_ENUM`·기본 OFF·2026-08-25 선언 누락분 소급).
+#   `t2_role.enum_of` 의 소비부. 지금 발화처가 없다 — agent 가 보는 도구 17개 중 enum 을
+#   선언한 인자가 하나뿐이고 표적 도구들은 discoverable 이라 그 목록에 없다(실측).
+#   ⇒ OFF 유지. 켜기 전에 발화 검정이 선행돼야 한다([[24]] 死배선 금지).
+export T2_SCHEMA_ENUM=0
+
+# ★전사 프롬프트 조립 순서 (`T2_SG_PROMPT_V2`·2026-08-25 선언 누락분 소급·074).
+#   x525 계열 8런·팔 15종 이등분: `=== REFERENCE ===` 를 JSON 블록으로 주면 행이 빠지고
+#   (13~15/16) 평문이면 16/16 · `answer_format` 이 재료보다 앞이면 유령 `duplicate_of` +3,
+#   뒤면 정확히 16 ⇒ 조립 순서 = instructions + params + 재료 + answer_format.
+#   엔진이 쓰는 문장 0 — 선언의 텍스트를 그대로 쓰고 **순서와 렌더링**만 바꾼다.
+#   ⚠커버리지는 닫혔으나 초과 행 1 이 남는다(rows 17/18 · 원인 미규명).
+export T2_SG_PROMPT_V2=0
