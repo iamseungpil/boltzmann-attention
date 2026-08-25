@@ -4267,7 +4267,20 @@
     "provisional_credit_eligible"
    ],
    "type_feedback": "`{names}` — this tool declares these arguments as booleans. A quoted word is not a boolean value. Send the same answers as `true` or `false` and leave every other argument unchanged.",
-   "_note_": "★2026-08-25 신설. 왜(t7354 라이브 전수): 이 도구가 선언한 불리언 인자에 모델이 **문자열 'Yes'/'No'** 를 보낸다 — 085 접수 분쟁 **전건**(grpA1 t0 4 · grpB2 t0 4 · t1 4), 040 은 gold 8건을 **축자 그대로 접수하고도** `contacted_merchant` gold=True↔got='Yes' · `eligible_for_provisional_credit` gold=False↔got='Yes' 로 **8/8** 어긋나 `db_match=false`. env 가 문자열을 받아 저장하므로 호출은 성공하고 채점만 조용히 실패한다. 출처 = **도구 사용법 문서 축자**(gold 아님·[[23]]): 각 인자가 `(boolean)` 으로 선언돼 있다 — 예: \"card_in_possession (boolean) - Ask: 'Do you still have your physical debit card in your possession?'\" · \"contacted_merchant (boolean)\" · \"police_report_filed (boolean)\" · \"written_statement_provided (boolean)\" · \"provisional_credit_eligible (boolean)\". ⚠의미는 모델이 이미 맞혔다(Yes↔True) — 엔진은 값을 바꾸지 않고 **선언된 타입만** 알린다([[62]]③④). 술어는 `isinstance(v, bool)` 하나뿐이고 도메인 낱말은 이 선언에만 있다([[05]])."
+   "_note_": "★2026-08-25 신설. 왜(t7354 라이브 전수): 이 도구가 선언한 불리언 인자에 모델이 **문자열 'Yes'/'No'** 를 보낸다 — 085 접수 분쟁 **전건**(grpA1 t0 4 · grpB2 t0 4 · t1 4), 040 은 gold 8건을 **축자 그대로 접수하고도** `contacted_merchant` gold=True↔got='Yes' · `eligible_for_provisional_credit` gold=False↔got='Yes' 로 **8/8** 어긋나 `db_match=false`. env 가 문자열을 받아 저장하므로 호출은 성공하고 채점만 조용히 실패한다. 출처 = **도구 사용법 문서 축자**(gold 아님·[[23]]): 각 인자가 `(boolean)` 으로 선언돼 있다 — 예: \"card_in_possession (boolean) - Ask: 'Do you still have your physical debit card in your possession?'\" · \"contacted_merchant (boolean)\" · \"police_report_filed (boolean)\" · \"written_statement_provided (boolean)\" · \"provisional_credit_eligible (boolean)\". ⚠의미는 모델이 이미 맞혔다(Yes↔True) — 엔진은 값을 바꾸지 않고 **선언된 타입만** 알린다([[62]]③④). 술어는 `isinstance(v, bool)` 하나뿐이고 도메인 낱말은 이 선언에만 있다([[05]]).",
+   "values": [
+    "unauthorized_transaction",
+    "atm_cash_discrepancy",
+    "atm_deposit_not_credited",
+    "duplicate_charge",
+    "incorrect_amount",
+    "goods_services_not_received",
+    "recurring_charge_after_cancellation",
+    "card_present_fraud",
+    "card_not_present_fraud"
+   ],
+   "feedback": "`{val}` is not one of the values `{arg}` accepts. Use exactly one of these, copied verbatim: {candidates}.",
+   "_note_source_dispute_category_": "dispute_category (string): Category of the dispute. Must be one of: 'unauthorized_transaction', 'atm_cash_discrepancy', 'atm_deposit_not_credited', 'duplicate_charge', 'incorrect_amount', 'goods_services_not_received', 'recurring_charge_after_cancellation', 'card_present_fraud', 'card_not_present_fraud'"
   },
   {
    "applies_to": "call_discoverable_agent_tool",
@@ -4282,6 +4295,89 @@
    ],
    "type_feedback": "`{names}` — this tool declares these arguments as booleans. A quoted word is not a boolean value. Send the same answers as `true` or `false` and leave every other argument unchanged.",
    "_note_": "★2026-08-25 신설. 왜(t7354 라이브 전수): 이 도구가 선언한 불리언 인자에 모델이 **문자열 'Yes'/'No'** 를 보낸다 — 085 접수 분쟁 **전건**(grpA1 t0 4 · grpB2 t0 4 · t1 4), 040 은 gold 8건을 **축자 그대로 접수하고도** `contacted_merchant` gold=True↔got='Yes' · `eligible_for_provisional_credit` gold=False↔got='Yes' 로 **8/8** 어긋나 `db_match=false`. env 가 문자열을 받아 저장하므로 호출은 성공하고 채점만 조용히 실패한다. 출처 = **도구 사용법 문서 축자**(gold 아님·[[23]]): 각 인자가 `(boolean)` 으로 선언돼 있다 — 예: \"card_in_possession (boolean) - Ask: 'Do you still have your physical debit card in your possession?'\" · \"contacted_merchant (boolean)\" · \"police_report_filed (boolean)\" · \"written_statement_provided (boolean)\" · \"provisional_credit_eligible (boolean)\". ⚠의미는 모델이 이미 맞혔다(Yes↔True) — 엔진은 값을 바꾸지 않고 **선언된 타입만** 알린다([[62]]③④). 술어는 `isinstance(v, bool)` 하나뿐이고 도메인 낱말은 이 선언에만 있다([[05]])."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_debit_card_transaction_dispute"
+   },
+   "arg": "transaction_type",
+   "values": [
+    "pin_purchase",
+    "signature_purchase",
+    "online_purchase",
+    "atm_withdrawal",
+    "atm_deposit",
+    "recurring_payment",
+    "person_to_person"
+   ],
+   "feedback": "`{val}` is not one of the values `{arg}` accepts. Use exactly one of these, copied verbatim: {candidates}.",
+   "_note_": "★2026-08-25 신설. 왜(t7354 라이브 실측·정본 `t2_forensic.action_diff` 로 짝지어 봄): 085 grpA1 t0 의 유일한 미달 행 `file_debit_card_transaction_dispute_6281` 이 gold 와 **인자 표기에서만** 갈린다 — `transaction_type` gold='atm_withdrawal' ↔ got='ATM Withdrawal' · `dispute_category` gold='atm_cash_discrepancy' ↔ got='ATM Error / cash not received (partial dispense)' · `pin_compromised` gold='no' ↔ got='No'(대문자) · `card_action` gold='keep_active' ↔ got='None'. 040 은 같은 계열이 신용 도구에서 난다 — `card_action` gold='keep_active' ↔ got='dispute' · `resolution_requested` gold='full_refund' ↔ got='Refund'. 그 넷은 env 가 `Error: Invalid <arg>. Must be one of: [...]` 로 되튕기고 모델은 msg38→msg82 까지 **22 메시지를 재시도에 태운다**. ⚠출처 = 도구 사용법 문서 축자(아래 `_source_`) 하나. ⚠엔진은 고르지 않는다.",
+   "_note_source_": "transaction_type (string): Type of transaction. Must be one of: 'pin_purchase', 'signature_purchase', 'online_purchase', 'atm_withdrawal', 'atm_deposit', 'recurring_payment', 'person_to_person'"
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_debit_card_transaction_dispute"
+   },
+   "arg": "pin_compromised",
+   "values": [
+    "yes_shared",
+    "yes_observed",
+    "no",
+    "unknown"
+   ],
+   "feedback": "`{val}` is not one of the values `{arg}` accepts. Use exactly one of these, copied verbatim: {candidates}.",
+   "_note_": "★2026-08-25 신설. 왜(t7354 라이브 실측·정본 `t2_forensic.action_diff` 로 짝지어 봄): 085 grpA1 t0 의 유일한 미달 행 `file_debit_card_transaction_dispute_6281` 이 gold 와 **인자 표기에서만** 갈린다 — `transaction_type` gold='atm_withdrawal' ↔ got='ATM Withdrawal' · `dispute_category` gold='atm_cash_discrepancy' ↔ got='ATM Error / cash not received (partial dispense)' · `pin_compromised` gold='no' ↔ got='No'(대문자) · `card_action` gold='keep_active' ↔ got='None'. 040 은 같은 계열이 신용 도구에서 난다 — `card_action` gold='keep_active' ↔ got='dispute' · `resolution_requested` gold='full_refund' ↔ got='Refund'. 그 넷은 env 가 `Error: Invalid <arg>. Must be one of: [...]` 로 되튕기고 모델은 msg38→msg82 까지 **22 메시지를 재시도에 태운다**. ⚠출처 = 도구 사용법 문서 축자(아래 `_source_`) 하나. ⚠엔진은 고르지 않는다.",
+   "_note_source_": "pin_compromised (string): Whether the customer's PIN may have been compromised. Must be one of: 'yes_shared', 'yes_observed', 'no', 'unknown'"
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_debit_card_transaction_dispute"
+   },
+   "arg": "card_action",
+   "values": [
+    "keep_active",
+    "freeze_pending_investigation",
+    "close_and_reissue"
+   ],
+   "feedback": "`{val}` is not one of the values `{arg}` accepts. Use exactly one of these, copied verbatim: {candidates}.",
+   "_note_": "★2026-08-25 신설. 왜(t7354 라이브 실측·정본 `t2_forensic.action_diff` 로 짝지어 봄): 085 grpA1 t0 의 유일한 미달 행 `file_debit_card_transaction_dispute_6281` 이 gold 와 **인자 표기에서만** 갈린다 — `transaction_type` gold='atm_withdrawal' ↔ got='ATM Withdrawal' · `dispute_category` gold='atm_cash_discrepancy' ↔ got='ATM Error / cash not received (partial dispense)' · `pin_compromised` gold='no' ↔ got='No'(대문자) · `card_action` gold='keep_active' ↔ got='None'. 040 은 같은 계열이 신용 도구에서 난다 — `card_action` gold='keep_active' ↔ got='dispute' · `resolution_requested` gold='full_refund' ↔ got='Refund'. 그 넷은 env 가 `Error: Invalid <arg>. Must be one of: [...]` 로 되튕기고 모델은 msg38→msg82 까지 **22 메시지를 재시도에 태운다**. ⚠출처 = 도구 사용법 문서 축자(아래 `_source_`) 하나. ⚠엔진은 고르지 않는다.",
+   "_note_source_": "card_action (string): Action to take on the card. Must be one of: 'keep_active', 'freeze_pending_investigation', 'close_and_reissue'"
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_credit_card_transaction_dispute"
+   },
+   "arg": "card_action",
+   "values": [
+    "keep_active",
+    "cancel_and_reissue"
+   ],
+   "feedback": "`{val}` is not one of the values `{arg}` accepts. Use exactly one of these, copied verbatim: {candidates}.",
+   "_note_": "★2026-08-25 신설. 왜(t7354 라이브 실측·정본 `t2_forensic.action_diff` 로 짝지어 봄): 085 grpA1 t0 의 유일한 미달 행 `file_debit_card_transaction_dispute_6281` 이 gold 와 **인자 표기에서만** 갈린다 — `transaction_type` gold='atm_withdrawal' ↔ got='ATM Withdrawal' · `dispute_category` gold='atm_cash_discrepancy' ↔ got='ATM Error / cash not received (partial dispense)' · `pin_compromised` gold='no' ↔ got='No'(대문자) · `card_action` gold='keep_active' ↔ got='None'. 040 은 같은 계열이 신용 도구에서 난다 — `card_action` gold='keep_active' ↔ got='dispute' · `resolution_requested` gold='full_refund' ↔ got='Refund'. 그 넷은 env 가 `Error: Invalid <arg>. Must be one of: [...]` 로 되튕기고 모델은 msg38→msg82 까지 **22 메시지를 재시도에 태운다**. ⚠출처 = 도구 사용법 문서 축자(아래 `_source_`) 하나. ⚠엔진은 고르지 않는다.",
+   "_note_source_": "card_action (string): Flag indicating the card's status. Must be one of: 'keep_active' (card remains active, dispute only), 'cancel_and_reissue' (card is being cancelled and replaced). This is for record-keeping only and does NOT order a replacement card."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_credit_card_transaction_dispute"
+   },
+   "arg": "resolution_requested",
+   "values": [
+    "full_refund",
+    "partial_refund"
+   ],
+   "feedback": "`{val}` is not one of the values `{arg}` accepts. Use exactly one of these, copied verbatim: {candidates}.",
+   "_note_": "★2026-08-25 신설. 왜(t7354 라이브 실측·정본 `t2_forensic.action_diff` 로 짝지어 봄): 085 grpA1 t0 의 유일한 미달 행 `file_debit_card_transaction_dispute_6281` 이 gold 와 **인자 표기에서만** 갈린다 — `transaction_type` gold='atm_withdrawal' ↔ got='ATM Withdrawal' · `dispute_category` gold='atm_cash_discrepancy' ↔ got='ATM Error / cash not received (partial dispense)' · `pin_compromised` gold='no' ↔ got='No'(대문자) · `card_action` gold='keep_active' ↔ got='None'. 040 은 같은 계열이 신용 도구에서 난다 — `card_action` gold='keep_active' ↔ got='dispute' · `resolution_requested` gold='full_refund' ↔ got='Refund'. 그 넷은 env 가 `Error: Invalid <arg>. Must be one of: [...]` 로 되튕기고 모델은 msg38→msg82 까지 **22 메시지를 재시도에 태운다**. ⚠출처 = 도구 사용법 문서 축자(아래 `_source_`) 하나. ⚠엔진은 고르지 않는다.",
+   "_note_source_": "resolution_requested (string): Resolution being requested. Must be one of: 'full_refund', 'partial_refund'"
   }
  ],
  "have_value_reask": [
