@@ -766,6 +766,27 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
         prompt = "%s\n\n%s\n\n=== REFERENCE ===\n%s\n\n=== DOCUMENTS ===\n%s" % (
             (iso["docs"].get("instructions") or iso["instructions"]), iso["answer_format"],
             json.dumps(ref, ensure_ascii=False, indent=1), _mat["text"])
+    elif os.environ.get("T2_SG_PROMPT_V2") == "1":
+        # ★V2 조립 (2026-08-25·x525 격리 실측·기본 OFF)
+        #   074 전사 결손을 격리로 이등분해 **두 변수**를 찾았다(chk_2 · 계약 기대 16행 · 각 n=6):
+        #     ⒜ `=== REFERENCE ===` 를 **JSON 블록**으로 주면 행이 **떨어진다**
+        #        (JSON 13~15 · 키 이름 중립화 14 · 블록을 뒤로 15 · **문장으로 주면 16/16**)
+        #        ⇒ 키도 위치도 아니고 **블록의 형식**이다. 빠지는 행은 매번 *수수료 줄 없는 인출*.
+        #     ⒝ `answer_format` 이 **재료보다 앞**이면 유령 `duplicate_of` 가 **+3** 붙는다
+        #        (앞 19행 · 뒤 **16행** · 둘 다 cover 16/16)
+        #   ⇒ 이기는 순서 = `instructions + params + 재료 + answer_format`(J_both·K_paramslast 6/6).
+        #   ⚠엔진이 새로 **쓰는 문장은 없다** — 선언(`instructions`·`params`·`answer_format`)을
+        #     그대로 쓰고 **조립 순서와 REFERENCE 렌더링**만 바꾼다([[05]] 도메인 리터럴 0·[[78]]②).
+        #   ⚠`answer_format` 은 마감 라운드에 **재료 뒤로** 붙인다(아래 `_v2_close`).
+        _ref_lines = "\n".join("%s: %s" % (k, v) for k, v in ref.items())
+        _pblock = ""
+        for _k in sorted(keys):
+            _pd = (d.get("params") or {}).get(_k)
+            if isinstance(_pd, str) and _pd.strip():
+                _pblock += "\n%s: %s" % (_k, _pd)
+        prompt = "%s\n\n=== REFERENCE ===\n%s%s" % (
+            iso["instructions"], _ref_lines,
+            ("\n\n=== FIELD CONTRACT ===" + _pblock) if _pblock else "")
     else:
         prompt = "%s\n\n=== REFERENCE ===\n%s\n\n%s" % (
             iso["instructions"], json.dumps(ref, ensure_ascii=False, indent=1), iso["answer_format"])
@@ -784,12 +805,26 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
     #   배달한 재료**가 그 자리에 선다 — 안 그러면 "성공 출력 0" 폐기가 채널을 또 죽인다(C581 동형).
     _ok_outs = list(_mat["texts"]) if _mat else []
     _err_outs = []
+    _v2_close_sent = False        # ★V2: `answer_format` 재배치는 서브 호출당 한 번만
     for rnd in range(_maxr):
         try:
             # ★마감 라운드(2026-07-21 §2ba·r095e/f 실측: 서브가 라운드 내내 getter만 돌고 답을 안 내
             #   소진→폴백): 마지막 라운드는 **도구 없이** 생성 — 구조적으로 tool-call 불가 → JSON 답 강제.
             _last = (rnd == _maxr - 1)
             _tl = None if (_last or not tools) else tools     # docs 모드=도구 0(형식화만·[[71]])
+            # ★V2: `answer_format` 을 **재료 뒤**에 놓는다 (x525 실측: 앞이면 유령 중복행 +3).
+            #   도구 결과가 이미 msgs 에 들어온 뒤에만 붙이고, sim·서브당 한 번만 붙인다.
+            #   ⚠엔진이 쓰는 문장 0 — A2 `isolate.answer_format` 축자 그대로다.
+            if (os.environ.get("T2_SG_PROMPT_V2") == "1" and _tl is None
+                    and not _v2_close_sent):
+                try:
+                    _um2 = UserMessage(role="user", content=iso["answer_format"])
+                except TypeError:
+                    _um2 = UserMessage(content=iso["answer_format"])
+                msgs = list(msgs) + [_um2]
+                _v2_close_sent = True
+                print("[T2_SG_PROMPT_V2] %s: answer_format 을 재료 뒤로(마감 라운드)"
+                      % d.get("name"), file=_sys.stderr, flush=True)
             # ★T2_SG_SCHEMA (2026-08-22·기본 OFF): **도구가 없는 라운드에만** 문법을 건다.
             #   왜: 마감 라운드는 산문 지시(`answer_format`)로 JSON 을 부탁할 뿐이라 서브가 형식
             #   예시의 **값을 그대로 베껴** 왔다 — `{principal: 0.0, actual_apy: 0.0}`(t7337·t7338

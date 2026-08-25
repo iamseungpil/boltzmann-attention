@@ -138,6 +138,22 @@ def main():
                              json.dumps(ref, ensure_ascii=False, indent=1) +
                              "\n\n# Field contract\ntransactions: " + params +
                              "\n\n" + afmt + "\n\n=== RECORDS ===\n" + text}]
+                elif arm == "N_wire":
+                    # ★배선 검정 (2026-08-25): `t2_scaffold_get` 의 `T2_SG_PROMPT_V2` 가 만드는
+                    #   프롬프트를 **그대로** 재현한다 — 라운드1(지시+REFERENCE 평문+필드계약) →
+                    #   도구 결과 → 마감(answer_format). 이 팔이 16/16 이면 배선이 검정된 것이다.
+                    msgs = [
+                        {"role": "user", "content":
+                         instr + "\n\n=== REFERENCE ===\naccount_id: " + acc +
+                         "\n\n=== FIELD CONTRACT ===\ntransactions: " + params},
+                        {"role": "assistant", "content": "",
+                         "tool_calls": [{"id": "c1", "type": "function",
+                                         "function": {"name": getter, "arguments": json.dumps(
+                                             {"agent_tool_name": "get_bank_account_transactions_9173",
+                                              "account_id": acc}, ensure_ascii=False)}}]},
+                        {"role": "tool", "tool_call_id": "c1", "content": text},
+                        {"role": "user", "content": afmt},
+                    ]
                 elif arm == "M_reflast":
                     # ★기전 이등분 ⑵ 위치 (2026-08-25): `D_all` 과 **REFERENCE 위치만** 다르다.
                     #   블록을 원장 뒤로 보낸다 — 커버리지가 돌아오면 원인은 *존재*가 아니라 *자리*다.
