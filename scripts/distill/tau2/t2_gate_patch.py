@@ -10158,9 +10158,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                           % (_gval, sorted(_want)),
                                           file=_sys.stderr, flush=True)
                                     break
-                            _grp = (_sp.get("group_map") or {}).get(_gval)
-                            _subs = _di.get(_grp) or {}
-                            _names = _display_slugs(_subs)
+                            if _sp.get("values"):
+                                # ★값-목록 갈래 (2026-08-25): 후보를 A3 색인 슬러그가 아니라
+                                #   **선언된 목록**에서 받는다. 왜 필요한가(t7348·정본 `action_diff`
+                                #   귀속): 040 의 gold 호출 **8건**이 env 에 거절됐고 사유가
+                                #   *"Invalid <arg>. Must be one of: [...]"* 였다. 085 도 같은 계열 3건.
+                                #   모델은 gold 거래 id 까지 맞히고 **열거값에서** 되튕긴다.
+                                #   ⚠스키마 경로는 막혀 있다(실측): agent 도구 17개 중 enum 을 선언한
+                                #     인자는 **하나뿐**이고 표적 도구들은 discoverable 이라 그 목록에
+                                #     없다 ⇒ 선언 경로가 유일하다.
+                                #   ⚠출처는 **도구 사용법 문서 축자**다 — gold 도 env 오류문도 아니다
+                                #     ([[23]]). 값마다 `_note_` 에 인용을 남긴다.
+                                #   ⚠엔진은 여전히 고르지 않는다: 소속 판정 + 명단 반환뿐([[62]]③④).
+                                _grp = "(declared)"
+                                _subs = None
+                                _names = [str(x) for x in (_sp.get("values") or [])]
+                            else:
+                                _grp = (_sp.get("group_map") or {}).get(_gval)
+                                _subs = _di.get(_grp) or {}
+                                _names = _display_slugs(_subs)
                             # ★fail-open 술어는 **명단** 기준이어야 한다(2026-08-22 누수 수리):
                             #   `_subs` 는 있는데 표시명이 하나도 없는 그룹이 실재하고
                             #   (`bank_accounts_bank_accounts` = `_general_` 하나뿐),

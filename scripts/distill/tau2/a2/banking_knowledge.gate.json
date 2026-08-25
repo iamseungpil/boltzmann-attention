@@ -4232,6 +4232,25 @@
    "axis_prompt": "A customer service agent must choose the {arg} argument for opening an account.\nThe tool declares it must be one of: 'checking' (personal checking), 'savings' (personal savings), 'business_checking', 'business_savings'.\n\nCustomer:\n- {text}\n\nWhich {arg} values does this customer's request call for? Reply with the value(s) only, one per line.",
    "feedback": "Error: [OFFICIAL-NAME] '{val}' is not one of the official {arg} names on file. The names on file for {group} are: {candidates}. Choose the one you meant, verbatim, and call the tool again. Do not add or drop words such as 'Account' - the name on file is the whole name.",
    "_note": "2026-08-12 C439(e)(4) 실측: 070/071 제출 account_class 24건 중 19건이 공식 명칭 집합 밖이었다(Lime Green Account x5 / Gold Saver x4[on file: Gold Saver Account] / Light Blue Business Checking Account x2 / Business Bronze Saver x3 ...). 모델이 'Account' 를 붙이기도 떼기도 한다. 술어는 **닫힘**([[22]]): 후보 집합 소속 판정뿐이고 엔진은 고르지 않는다(8~10개가 그대로 남는다). 출처 = env 뿐: 후보는 doc_index 주어 슬러그의 기계 전개(파일명 유도·x244·_note_doc_index), account_type enum 은 도구 독스트링 축자(\"Must be one of: 'checking','savings','business_checking','business_savings'\"·tools.py:2384). gold 무관([[23]]). 문구 근거 = x269(후보 줄이 두 축 8/8) + _note_official_names."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "file_credit_card_transaction_dispute"
+   },
+   "arg": "dispute_reason",
+   "values": [
+    "unauthorized_fraudulent_charge",
+    "duplicate_charge",
+    "incorrect_amount",
+    "goods_services_not_received",
+    "goods_services_not_as_described",
+    "canceled_subscription_still_charging",
+    "refund_never_processed"
+   ],
+   "feedback": "`{val}` is not one of the values `{arg}` accepts. Use exactly one of these, copied verbatim: {candidates}.",
+   "_note_": "★2026-08-25 신설. 왜: t7348 에서 040 의 **gold 호출 8건**이 env 에 거절됐고 사유가 `Invalid dispute_reason. Must be one of: [...]` 였다(정본 `t2_forensic.action_diff` 귀속 deny=env). 모델은 gold 거래 id 까지 맞히고 이 인자에서 되튕긴다. 출처는 **도구 사용법 문서 축자** 하나뿐이다 — gold 도 env 오류문도 아니다([[23]]): \"dispute_reason: string (required) - Reason for the dispute. Must be one of: 'unauthorized_fraudulent_charge', 'duplicate_charge', 'incorrect_amount', 'goods_services_not_received', 'goods_services_not_as_described', 'canceled_subscription_still_charging', 'refund_never_processed'\". ⚠스키마 경로는 실측으로 막혀 있다: agent 가 보는 도구 17개 중 enum 을 선언한 인자는 하나뿐이고 이 도구는 discoverable 이라 그 목록에 없다 ⇒ 선언 경로가 유일하다. ⚠엔진은 고르지 않는다 — 소속 판정과 명단 반환뿐이고 어느 값이 옳은지는 모델이 정한다([[62]]③④·[[22]] 닫힌 술어). ⚠[[70]] 무엇을 파나: 이 명단이 불완전하면 정당한 값도 한 번은 거절된다 — 상한(`T2_WRITE_ARG_ENUM_CAP`)의 fail-open 이 그 탈출구다."
   }
  ],
  "have_value_reask": [
