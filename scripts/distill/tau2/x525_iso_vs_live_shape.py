@@ -290,7 +290,15 @@ def main():
                     continue
                 got = X.parse_rows(out)
                 ids = [str((r or {}).get("transaction_id", "")) for r in (got or [])]
-                real = [i2 for i2 in ids if i2 and i2 in text]
+                # ★계기 수리 (2026-08-25·[[25]] 계기는 100% 정답 의무). 구판은
+                #   `i2 in text` = **부분문자열** 대조였다. 그래서 원장에 없는 id 가
+                #   '실재'로 통과했다 — 실물: chk_2 산출의 `btxn_ar_lb_08f` 는 레코드가
+                #   아니고 원장엔 `btxn_ar_lb_08f_err` 만 있는데, 앞 문자열이 뒤 문자열의
+                #   부분이라 `ids_real` 이 17/17 을 찍었다. 그 한 줄이 074 의 **초과 행**
+                #   이었고, 계기가 그것을 *날조 아님* 으로 덮고 있었다.
+                #   ⇒ 레코드 id **집합 소속**으로 바꾼다(닫힌 술어·판단 0).
+                _ledger_ids = {i2 for i2, _t2, _d2 in records(text)}
+                real = [i2 for i2 in ids if i2 and i2 in _ledger_ids]
                 cov = coverage(ids, w, fees)
                 dup = sum(1 for r in (got or []) if isinstance(r, dict) and r.get("duplicate_of"))
                 rows.append({"msg": idx, "acc": acc, "arm": arm, "k": k, "expect": exp,
