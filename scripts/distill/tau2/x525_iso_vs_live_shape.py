@@ -317,16 +317,14 @@ def main():
                     #   다르다: `=== RECORDS ===` 블록의 **순서**. 문면·값·형식 전부 동일하다.
                     #     R_pairfee   인출 바로 뒤에 그 날 수수료
                     #     N_datesort  같은 양의 재배열이되 짝짓지 않는다([[57]] 부정통제)
+                    # ⚠2026-08-25 수리: 초판은 엔진 V2 갈래의 `sorted(keys)` 를 그대로 베껴
+                    #   `NameError: keys` 로 죽었다(x535 1차). 이 프로브에서 필드 계약은
+                    #   `params` 하나이고 다른 팔들이 쓰는 이름이 그것이다 — 그 이름을 쓴다.
                     _txt = regroup(text, "pair" if arm == "R_pairfee" else "datesort")
-                    _pb3 = ""
-                    for _k3 in sorted(keys):
-                        _pd3 = (d.get("params") or {}).get(_k3)
-                        if isinstance(_pd3, str) and _pd3.strip():
-                            _pb3 += "\n%s: %s" % (_k3, _pd3)
                     msgs = [{"role": "user", "content":
                              instr + "\n\n=== REFERENCE ===\n" +
                              "\n".join("%s: %s" % (k2, v2) for k2, v2 in ref.items()) +
-                             ("\n\n=== FIELD CONTRACT ===" + _pb3 if _pb3 else "") +
+                             "\n\n# Field contract\ntransactions: " + params +
                              "\n\n=== RECORDS ===\n" + _txt +
                              "\n\n" + afmt}]
                 elif arm in ("P_pair", "P_noinv", "P_both", "N_len"):
