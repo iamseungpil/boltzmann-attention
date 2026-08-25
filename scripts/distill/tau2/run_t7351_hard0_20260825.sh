@@ -85,7 +85,7 @@ NT=6
 GRP_A='task_074,task_016'
 GRP_B='task_072,task_073'
 
-echo "{\"tag\":\"t7351\",\"sha\":\"$SHA\",\"design\":\"hard-0 targets 074 094 072 016 at nt=4 (16 sims), the transcription prompt order on\",\"on\":\"$ON\",\"reference\":\"t7348 sha aed30e20 - all four were 0/2\",\"bar\":\"a target going 0 -> 1; never judge on a total delta; bundle so no individual attribution (C594)\",\"why_016\":\"no new lever - it rides to capture the sub-call sidecar, which this run records for the first time\",\"gate\":\"$GATE on the N_wire isolation check\"}" \
+echo "{\"tag\":\"t7351\",\"sha\":\"$SHA\",\"design\":\"queue P4 targets 074 016 072 073 at nt=6 (24 sims), the transcription prompt order on\",\"on\":\"$ON\",\"reference\":\"t7348 sha aed30e20 - all four were 0/2\",\"bar\":\"a target going 0 -> 1; never judge on a total delta; bundle so no individual attribution (C594)\",\"why_016\":\"no new lever - it rides to capture the sub-call sidecar, which this run records for the first time\",\"gate\":\"$GATE on the N_wire isolation check\"}" \
   | tee "$LOG/bank_t7351.meta.json"
 
 setsid bash -c "
