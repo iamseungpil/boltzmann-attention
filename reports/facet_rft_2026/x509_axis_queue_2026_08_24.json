@@ -260,7 +260,7 @@
   "⑦ **단계를 건너뛰지 마라.** 건너뛰고 싶으면 그 이유를 이 파일에 적고 `state` 를 바꾼 뒤에 하라."
  ],
  "enforcement": "`.claude/hooks/scaffold_guard.py` §74-d — 엔진·레버·A2 를 쓰려면 이 큐 파일을 **이 세션에서 읽어야** 한다([[07]]: soft 로는 안 막힌다).",
- "_revision": "2026-08-25 — t7352 시간상자 런 계획 추가(plan_2026_08_25_run). S2c 반영분 유지.",
+ "_revision": "2026-08-25 — t7352 계획(plan_2026_08_25_run) + 당일 판정 3건(findings_2026_08_25: 074 초과행 · 057 정정 · 016 술어 사망). S2c 반영분 유지.",
  "plan_2026_08_24_pm": {
   "authority": "사용자 지시 2026-08-24 — *\"금액, 유도, 범주 모두 포함한 계획서를 제안하라\"*. 새 문서를 만들지 않고 이 큐에 넣는다([[31]] 규칙 ①).",
   "common_diagnosis": "★세 축이 한 문장으로 모인다 — **재료는 상류에 있고 결정점에 없다.** ①금액: 정책이 msg3 에 있고 크레딧 호출은 msg43~68(x511). ②범주: 파라미터 표가 KB 에 있고 결정점엔 이름만(x513 055 0/6→6/6). ⑦유도: 자격 조건이 msg3 문서에 축자로 있고 `procedures` 선언은 없다(`T2_PROC_ABSENT` 016×2).",
@@ -398,5 +398,39 @@
    "057 의 후보 축소 닫힌 술어 설계(손님 수치 제약 ↔ x430 표 506칸). GPU 는 런이 쓰므로 격리는 런 종료 후.",
    "배치가 내려올 때마다 `t2_forensic.action_diff` 로 표적의 blocked 사유만 확인 — 집계로 결론 직행 금지([[08]])."
   ]
+ },
+ "findings_2026_08_25": {
+  "authority": "사용자 지시 2026-08-25 — *\"074 초과 1행도 원인 분석하라\"* · *\"수리할 방법이 없으면 다음 런을 위해 원인파악을 위한 장치라도 달아두라\"*",
+  "F1_074_extra_row": {
+   "claim": "074 의 초과 +1 은 **하나의 결함이 아니라 둘**이고 계좌마다 다르다. x525j 16창(4계좌 × k4) 전부 결정론적으로 동일.",
+   "per_account": {
+    "chk_1(msg37)": "expect 18 · rows 18 — **초과 0**. 11/15 에 수수료 2건이고 원장에 `btxn_ar_purple_15f_dup` 이 실재한다(계약이 요구하는 그 한 줄).",
+    "chk_2(msg38)": "expect 16 · rows 17 — **id 날조**. 산출의 `btxn_ar_lb_08f` 는 레코드가 아니고 원장엔 `btxn_ar_lb_08f_err` 만 있다(`_err` 를 떼어 만들었다).",
+    "chk_3(msg39)": "expect 16 · rows 17 — **이중 덮음**. `btxn_ar_dg_02`(인출)와 `btxn_ar_dg_02f_err`(같은 날 수수료)를 **둘 다** 행으로 냈다.",
+    "chk_4(msg40)": "expect 16 · rows 17 — 같은 기전. `btxn_ar_ev_03` + `btxn_ar_ev_03f_err`."
+   },
+   "common_factor": "셋 다 **`_err` 접미 수수료 행**에서 난다. 다만 chk_1 은 `_err` 를 3개(`_09f_err`·`_07f_err`·`_03f_err`) 갖고도 초과가 0 이므로 **`_err` 는 필요조건이지 충분조건이 아니다** — chk_1 이 왜 견디는지는 아직 모른다.",
+   "declaration_gap": "선언은 규칙을 말한다 — *\"ONE element per atm_withdrawal record\"* · *\"the id of the atm_fee line paired with this withdrawal; if this withdrawal has NO fee line, the withdrawal's own id\"*. 말하지 **않은** 것은 하나다: *오류인 수수료 행도 여전히 그 인출의 짝인가*. `_err` 는 감사 대상이므로 *'정상 수수료가 아니니 수수료가 없다'* 로 읽으면 인출 id 를 쓰고 `_err` 행도 따로 내서 두 줄이 된다.",
+   "isolation_queued": "x533(=x525 팔 추가) — N_wire(대조) · P_pair(짝 문장) · P_noinv(id 복사 문장) · P_both · N_len(같은 길이 무관 문장·[[57]]). 기전이 둘이라 문장도 갈랐다.",
+   "falsifier": "P_pair/P_noinv 에서 rows 가 17→16 으로 안 내려가면 이 귀속은 거짓이다.",
+   "instrument_defect_found": "★`x525.ids_real` 이 `i in text` = **부분문자열** 대조였다. `btxn_ar_lb_08f` 가 `btxn_ar_lb_08f_err` 의 앞부분이라 **날조 id 가 '실재'로 통과**했고, 그래서 산출물이 17/17 을 찍어 초과 행을 덮고 있었다([[25]] 위반). 레코드 id 집합 소속으로 수리(커밋 9f6162e0)."
+  },
+  "F2_057_correction": {
+   "claim": "★**057 은 자격(eligibility)에서 막힌 게 아니다.** t7348 두 trial 모두 계좌 개설에 **성공**했고 연 것이 틀렸다. 기존 S2b 서술(*\"`Bronze Account` 를 동일 인자로 10회 재제출\"*)은 **t0 만** 묘사하고 결말을 빠뜨렸다.",
+   "evidence": {
+    "gold": "`call_discoverable_agent_tool.open_bank_account_4821 {user_id: a8c4e2f7b3, account_type: checking, account_class: **Blue Account**}` · reward_basis=['DB']",
+    "t0": "제출 11회 · 서로 다른 값 2 — `Bronze Account` ×10 **거절**, `Green Fee-Free Account` 1회 **성공**(오답)",
+    "t1": "제출 3회 · 서로 다른 값 3 — `Silver Account` 거절 · `Silver Plus Account` 거절 · `Green Fee-Free Account` **성공**(오답)"
+   },
+   "refuted_lever": "⛔내가 세운 후보 *'env 가 거절한 값을 후보에서 제거'*([[63]] 제거형)는 **t1 궤적이 이미 반증한다** — t1 은 거절→다른 값 을 스스로 두 번 하고도 오답에 도달했다. 이 레버는 057 을 못 산다. 구현 전에 무료로 죽었다.",
+   "contamination": "★손님(user-sim)이 turn 4 에서 **에이전트의 오답을 이름으로 채택**한다 — *\"What info do you need from me to open the **Green Fee-Free Account**?\"* 그 뒤 발화는 전부 하류다 ⇒ 결정점은 **단 하나의 추천 턴**이다. 그 앞의 손님 진술: *\"12 months / about 2 ATM withdrawals per month / usually $60 per withdrawal\"* + *\"just tell me which ONE account checks all my boxes\"*.",
+   "table_has_operands_but_cost_says_green": "x430 대조 — Blue: `out_of_network_atm_withdrawal_fee` 1% (max $3.00) · `monthly_maintenance_fee` $20.00 (waiver 최소 일평잔 $625) / Green Fee-Free: OON ATM **$0.00** · 유지비 $22.50 (waiver $150). ★**나이브한 비용 비교는 Green 이 이긴다**(gold 는 Blue) ⇒ 기준이 총비용 단독이 아니다. **그 규칙을 나는 아직 못 짚었다** — 그래서 레버를 제안하지 않는다([[77]]).",
+   "searched": "일반 문서 전량에서 `recommend|best option|which account|suitab` × ATM 교차 검색 → 계좌 **추천 규칙 문서는 못 찾았다**(나온 4편은 카드 동결·분쟁·PIN 잠금 건). per-class 문서까지는 안 봤다 — 다음 세션의 첫 수."
+  },
+  "F3_016_narrowing_predicate_died": {
+   "claim": "016 의 `procedures` 진입을 좁히려 `referral_status` 축을 시험했고 **죽었다**.",
+   "evidence": "016 = IN_PROGRESS 1 · COMPLETE 8 · ERROR 1 · REJECTED 5 / **098 = IN_PROGRESS 1 · COMPLETE 1**. 098 은 현재 통과 중이므로 *'미완결 추천 레코드가 있다'* 로 켜면 098 을 판다([[70]]).",
+   "live_instrument_now_shows_why": "`[T2_SUBWIN]` 첫 실측(t7352 스모크) — `msgs=36 user_msgs=7 used=6 win_first=3 blind_before=3`. 서브는 36 메시지 중 **손님 발화 6개**만 보고 tool 메시지는 하나도 안 본다 ⇒ msg[33]/[45] 로 오는 자격 요건은 **원리상 창에 못 들어온다**. 세 격리(x516·x517·x527b)가 gold 0 이었던 이유가 이제 로그 한 줄로 검산된다."
+  }
  }
 }
