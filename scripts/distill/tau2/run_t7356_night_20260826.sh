@@ -69,13 +69,14 @@ for t in test_a2_three_layer.py test_flag_registry.py test_no_undefined_names.py
          test_atm_ledger_close.py test_compute_params.py test_write_arg_enum.py \
          test_write_arg_enum_values.py test_spec_at_write.py test_write_arg_type.py \
          test_write_arg_fab.py test_rule_at_write.py test_identifying_hints.py \
+         test_spec_arg_facts.py test_arg_policy_join.py \
          test_result_round.py test_apy_balance_tier.py test_ref_from_outputs.py \
          test_no_prose_regex.py test_ours_text_canonical.py test_regen_break_guard.py; do
   [ -f "$t" ] || continue
   PYTHONPATH=/home/woori/scratch/tau2-bench/src timeout 90 \
     /home/woori/venvs/seka_env/bin/python "$t" >/dev/null 2>&1 || { say "REFUSING: $t FAIL"; exit 1; }
 done
-say "VERIFY OK (배터리 27)"
+say "VERIFY OK (배터리 29)"
 
 for f in "$LOG"/${TAGBASE}_*.log; do [ -e "$f" ] && { say "REFUSING: $f 존재"; exit 1; }; done
 for d in "$SIMS"/${TAGBASE}_*; do [ -e "$d" ] && { say "REFUSING: $d 잔존"; exit 1; }; done
@@ -87,9 +88,11 @@ T2_SEARCH_ON_PROCEED=1 T2_ACT_DEMAND=0 T2_DELIVER_PRECOMMIT=0 T2_PROCEED_DOCBODY
 T2_DOCS_AT_WRITE=0 T2_SUB_REQUIREMENT=0 T2_HANDOFF_PREDICATE=0 T2_PENDING_DISCOVERED=0 \
 T2_VERDICT_CARRY=0 T2_ELIG_LINE=0 T2_VERDICT_GATE=0 T2_CLAIM_VERIFY=0 \
 T2_DECLFIRST=0 T2_DECLFIRST_GUIDE_FIX=0 T2_SCHEMA_ENUM=0 T2_CATEGORY_CITE="
+# ⛔`T2_ARG_POLICY_AT_WRITE` 는 **일부러 뺐다** — x541 이 음성이다(A_asis {false4,true4} ↔
+#   B_join {true8} ↔ N_axis {false4,true4}). 조인이 답을 전부 true 로 민다. 배선은 남기고 끈다.
 ON="T2_ARG_DOC_SUB=1 T2_VALUE_FORMULA=full T2_SG_DOCS=1 T2_SG_PROMPT_V2=1 T2_SPEC_AT_WRITE=1 \
 T2_WRITE_ARG_TYPE=1 T2_RULE_AT_WRITE=1 T2_WRITE_ARG_ENUM_CAP=8 T2_WRITE_ARG_FAB=1 \
-T2_SG_RECORD_ORDER=1"
+T2_SG_RECORD_ORDER=1 T2_SPEC_ARG_FACTS=1"
 
 echo "{\"tag\":\"t7356\",\"sha\":\"$SHA\",\"design\":\"overnight; four things earned isolation today - the liability table at the write, a fabrication guard with no name patterns, the record dump reordered the way the isolation won, and the name-pattern hint withdrawn\",\"on\":\"$ON\",\"reference\":\"t7355 for 085; t7348 and t7354 for 074 and 040 - all zero\",\"bar\":\"a target going 0 to 1\",\"cannot_measure\":\"which of the four moved it - four levers ride together (C594)\",\"deadline\":\"$DEADLINE_HHMM\"}" \
   | tee "$LOG/${TAGBASE}.meta.json"
