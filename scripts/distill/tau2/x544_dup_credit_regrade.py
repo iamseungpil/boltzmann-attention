@@ -119,9 +119,11 @@ def grade(sim_dict, task):
     run = SimulationRun.model_validate(sim_dict)
     # ★env 는 런과 **같은 모양**이어야 한다 — t7358 은 `--retrieval_config alltools` 로 돌았고,
     #   그것 없이 재생하면 `KB_search_bm25` 를 모르는 env 가 되어 재생 자체가 죽는다(실측).
+    #   키 이름은 추정하지 않고 러너에서 읽었다(`tau2/runner/build.py:311` —
+    #   `env_kwargs["retrieval_variant"] = retrieval_config` · `env_kwargs["task"] = task`).
     kw = dict(environment_constructor=registry.get_env_constructor(DOMAIN),
               task=task, full_trajectory=run.messages,
-              env_kwargs={"retrieval_config": RETRIEVAL})
+              env_kwargs={"retrieval_variant": RETRIEVAL, "task": task})
     # 설치된 tau2 에 `strict_replay` 가 없는 판본이 있다 — 있을 때만 준다(추정 금지).
     if "strict_replay" in inspect.signature(
             EnvironmentEvaluator.calculate_reward).parameters:
