@@ -28,7 +28,10 @@
 #   맞추려는 것이고, sim 은 서로 독립이라 per-sim 판정에 교락이 아니다. 다만 서버 경합이
 #   생기면 타임아웃으로 보일 수 있으니 **종료사유를 함께 읽어라**(§7-5 는 동시성 근거가
 #   여전히 미실측이라고 적어 두었다).
-set -u
+# ⛔`set -u` 를 쓰지 마라 — `go_stack.sh` 의 `t2_require_key` 는 `[ -n "$OPENAI_API_KEY" ]` 로
+#   **미설정을 스스로 처리**하는데, `set -u` 아래서는 그 표현식 자체가 죽는다. 2026-08-26 초판이
+#   그래서 `t2_launch` 를 한 줄도 안 돌리고 8초 만에 "SMOKE DONE" 을 찍었다(마커 전부 0 =
+#   *"배선이 죽었다"* 로 오독되기 딱 좋은 모양). 그 무음 실패를 아래 §발사 확인이 이제 잡는다.
 REPO=/home/woori/workspace_common/boltzmann-attention-pi
 LOG=/home/woori/scratch/logs
 SIMS=/home/woori/scratch/tau2-bench/data/simulations
@@ -50,6 +53,17 @@ echo "[t7360 $(date +%H:%M:%S)] smoke start · DUP_WRITE=$T2_DUP_WRITE · CONCUR
 t2_launch $TAG 8140 "task_074,task_050,task_085,task_040,task_098,task_100" 1 2>&1 | tee $LOG/$TAG.log
 
 python "$REPO/reports/facet_rft_2026/freeze.py" --off
+
+# ── ★발사 확인 — 마커 0 을 "배선이 죽었다" 로 오독하지 않기 위한 전제 ──
+#   sim 이 하나도 안 돌았으면 마커가 0 인 것은 **당연**하고 판정 재료가 아니다.
+_RES="$SIMS/$TAG/results.json"
+_LINES=$(wc -l < "$LOG/$TAG.log" 2>/dev/null || echo 0)
+if [ ! -s "$_RES" ] || [ "$_LINES" -lt 50 ]; then
+  echo "⛔[t7360] 발사 실패 — sim 이 안 돌았다 (results=$( [ -s "$_RES" ] && echo 있음 || echo 없음) · 로그 $_LINES 줄)"
+  echo "   아래 마커는 **판정 재료가 아니다**. 원인부터 봐라:"
+  grep -aE "REFUSING|command not found|해제된 변수|unbound|Traceback" "$LOG/$TAG.log" | head -5
+  exit 1
+fi
 
 # ── 회수 (★[[30]]: gzip 만으로는 영속이 아니다 — tracked 확인까지가 절차) ──
 cd "$REPO" && mkdir -p reports/facet_rft_2026/sim_results
