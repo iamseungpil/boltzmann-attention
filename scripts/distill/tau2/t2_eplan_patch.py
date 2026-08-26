@@ -215,6 +215,14 @@ class PlanLedger:
         self.executed = []              # gated 관측(성공 write만)
         self.listed = set()             # list-enumerator 출력서 파생
         self.examined = set()           # detail-reader 호출 기록 (v1.2)
+        self.enum_called = set()        # **실제로 호출된** list-enumerator (2026-08-26)
+        #   ★왜 필요한가 (t7361 085 실물): `listed` 는 *출력에서 id 가 뽑혔나* 라서,
+        #     선언된 열거자를 **성공적으로 불렀는데 그 표가 비어 있으면** 영원히 공집합이다.
+        #     085 는 직불 분쟁인데 모델이 `get_credit_card_transactions_by_user` 를 부르고
+        #     env 가 정당하게 `No records found in 'credit_card_transaction_history'.` 를
+        #     돌려줬다 — 그 뒤 L1 이 **같은 문면을 4회** 반복해 분쟁 write 를 막았고 모델은
+        #     이관으로 나갔다. 이 파일의 054 주석이 이미 이름 붙인 **충족 불가 술어**다.
+        #   ⇒ *부른 적 있나* 와 *뭐가 나왔나* 를 **가른다**. 전자는 모델이 통제할 수 있다.
         self.replan = []                # CP5 stop-time 재-plan 산출 (v1.2)
         self.qty_mentioned = 1          # 사용자 발화 누적 수량(최대값 유지)
         self.enum_items = 0             # 품목-나열 힌트: 최대 나열 길이(>= _ENUM_MIN만·t81)
@@ -244,6 +252,8 @@ class PlanLedger:
         le = self.spec.get("list_enumerator")
         le_set = set(le) if isinstance(le, (list, tuple)) else ({le} if le else set())
         ek = self.spec.get("entity_key")
+        if tool_name in le_set:
+            self.enum_called.add(tool_name)
         if tool_name in le_set or self.spec.get("list_from_reads"):
             self.listed |= _extract_entity_ids(output_text, ek)
         if tool_name == self.spec.get("detail_reader"):
@@ -888,7 +898,32 @@ def _tool_phrase(v):
 
 
 def l1_feedback(ledger, spec):
-    """L1 deny 피드백(t81형·"목록 먼저"). 도구명 = A2서."""
+    """L1 deny 피드백(t81형·"목록 먼저"). 도구명 = A2서.
+
+    ★2026-08-26 수리 (t7361 085): **이미 부른 열거자는 뺀다**([[63]] 빼기 · [[64]] 무엇을 하면
+      풀리나). 구판은 `listed` 가 비었다는 이유만으로 **같은 문장을 반복**했고, 모델이 선언된
+      열거자를 성공적으로 부른 뒤에도(그 표가 비어 있었을 뿐) 똑같이 말했다 — 모델이 할 수 있는
+      일이 없는 문면이다. 실물: 085 가 4회 반복 끝에 인간 이관으로 나갔다.
+      `T2_EPLAN_ENUM_SUBTRACT=1` 로 켠다(기본 OFF — 효과는 A/B 가 잰다).
+    ⚠엔진은 **고르지 않는다** — 남은 열거자를 전부 인쇄하고, 하나도 안 남으면 침묵(None)한다.
+      선언 전부를 불렀는데도 막는 것은 충족 불가 술어이고, 그건 우리 결함이지 모델 결함이 아니다.
+    """
+    le = spec.get("list_enumerator")
+    _all = list(le) if isinstance(le, (list, tuple)) else ([le] if le else [])
+    _called = set(getattr(ledger, "enum_called", ()) or ())
+    if os.environ.get("T2_EPLAN_ENUM_SUBTRACT") == "1" and _called:
+        _left = [t for t in _all if t not in _called]
+        if not _left:
+            _mark("L1 released: every declared enumerator was called (%s) — "
+                  "empty result is not the model's to fix" % ", ".join(sorted(_called)))
+            return None
+        _mark("L1 deny (subtracted): already called %s, remaining %s"
+              % (", ".join(sorted(_called)), ", ".join(_left)))
+        return ("[E-PLAN] This request may span MULTIPLE records and no records have been listed "
+                "yet. You already called %s and it came back with none, so that one is done - do "
+                "not call it again. The remaining tool(s) that can list these records: %s. Call "
+                "%s next, then read the relevant records."
+                % (_tool_phrase(sorted(_called)), _tool_phrase(_left), _tool_phrase(_left)))
     _mark("L1 deny: multi-entity intent, list-enumerator not called")
     return ("[E-PLAN] This request may span MULTIPLE records. Before any write, first call "
             "%s to list the customer's records, then read the relevant ones."
@@ -944,7 +979,11 @@ def discovery_precondition(ledger, spec, intent_class, attempt_items=(), attempt
         _mark("examined-safe: write target %s examined — no discovery-deny" % _norm(attempt_entity))
         return None
     if discovery_L1(ledger, attempt_items):
-        return l1_feedback(ledger, spec)
+        _l1 = l1_feedback(ledger, spec)
+        if _l1 is not None:
+            return _l1
+        # 놓아준 경우엔 **L2 로 흘려보낸다** — L1 이 풀렸다고 커버리지 검사까지 건너뛰면
+        #   수리가 다른 가드를 조용히 끄는 셈이 된다([[60]] 끄기 금지).
     ids = discovery_L2(ledger, intent_class, attempt_items)
     if ids:
         return l2_feedback(ids, spec)

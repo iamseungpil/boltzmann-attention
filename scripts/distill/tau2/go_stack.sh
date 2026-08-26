@@ -595,6 +595,17 @@ export T2_SCOPE_ALL=0
 #   물음은 **절차의 남은 칸**이었고, 그 술어는 `t2_procedure.checklist` 에 이미 있다([[67]]).
 #   ⚠엔진은 고르지 않는다 — 미충족 노드를 **전부** 인쇄한다([[63]] 빼기 · [[62]]④).
 #   ⚠효과 미측정 — A/B 가 잰다(이 세션 지시). 격리 없이 기본 ON 금지.
+# ★E-PLAN L1 이 **이미 부른 열거자를 뺀다** (`T2_EPLAN_ENUM_SUBTRACT`·기본 OFF·2026-08-26).
+#   t7361 085 실물: 직불 분쟁인데 모델이 선언된 열거자 `get_credit_card_transactions_by_user`
+#   를 성공 호출했고 env 가 정당하게 `No records found in 'credit_card_transaction_history'.`
+#   를 돌려줬다. `listed` 는 *출력에서 id 가 뽑혔나* 라서 공집합이 됐고, L1 이 **같은 문면을
+#   4회** 반복해 분쟁 write 를 막았다 → 모델은 인간 이관으로 나갔다(gold 4행 중 done 2).
+#   이 파일 054 주석이 이미 이름 붙인 **충족 불가 술어**다 — 모델이 할 수 있는 일이 없다.
+#   ⇒ *부른 적 있나* 와 *뭐가 나왔나* 를 가르고, 남은 열거자만 이름으로 말한다([[63]] 빼기).
+#     선언된 열거자를 **전부** 불렀으면 L1 은 놓아주고 L2 로 흘려보낸다(다른 가드는 그대로).
+#   ⚠효과 미측정 — A/B 가 잰다.
+export T2_EPLAN_ENUM_SUBTRACT=0
+
 export T2_PROCEDURE_LEFT=0
 
 export T2_ARG_POLICY_AT_WRITE=0
