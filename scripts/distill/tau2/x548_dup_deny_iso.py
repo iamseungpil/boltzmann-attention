@@ -166,6 +166,52 @@ def to_openai(ms, cap=1200):
     return out
 
 
+def sidecar_by_turn(tag, simtag):
+    """우리 층이 **재생성으로 지운** 거절들을 turn 별로 되찾는다.
+
+    ★왜 필요한가: `_ap_regen` 은 막힌 호출이 담긴 어시스턴트 메시지를 **교체**한다. 그래서
+      영속 궤적에는 그 시도도 그 꾸지람도 없다 — 저장본은 *모델이 실제로 본 것이 아니다*.
+      074 는 그런 거절이 **27건**이라, 저장본만으로 만든 창은 라이브보다 훨씬 짧고 조용하고
+      그래서 A_live 가 라이브 행동을 재현하지 못한다([[30]] 사이드카 항목).
+    사이드카 항목은 `turn` 과 `text` 를 갖고 궤적 메시지는 `turn_idx` 를 가지므로 자리가 맞는다.
+    """
+    p = os.path.join(SIMS, "fb_%s.jsonl.gz" % tag)
+    if not os.path.exists(p):
+        return {}
+    out = {}
+    with gzip.open(p, "rt", encoding="utf-8", errors="replace") as fh:
+        for ln in fh:
+            try:
+                d = json.loads(ln)
+            except Exception:
+                continue
+            if simtag and str(d.get("simtag") or "") != simtag:
+                continue
+            t = str(d.get("text") or "").strip()
+            if not t:
+                continue
+            out.setdefault(int(d.get("turn") or 0), []).append(t)
+    return out
+
+
+def augment(ms, upto, byturn):
+    """창을 **라이브가 본 모양으로** 되돌린다 — 지워진 거절을 원래 turn 자리에 되끼운다.
+
+    시도한 호출의 인자는 사이드카에 없다(문면만 있다). 그래서 합성 호출 하나에 그 문면을
+    결과로 달아 **자리와 분량과 내용**을 복원한다. 재구성이라는 사실은 이름으로 남긴다([[25]])."""
+    out = []
+    for k in range(min(upto, len(ms))):
+        out.append(ms[k])
+        for n, txt in enumerate(byturn.get(int(ms[k].get("turn_idx", k)) if
+                                           ms[k].get("turn_idx") is not None else k, [])):
+            sid = "sc_%d_%d" % (k, n)
+            out.append({"role": "assistant", "content": "",
+                        "tool_calls": [{"id": sid, "name": "call_discoverable_agent_tool",
+                                        "arguments": {}}]})
+            out.append({"role": "tool", "id": sid, "content": txt})
+    return out
+
+
 def keyset(tcs):
     """이 호출들의 `mut_key` 집합 — 가드가 쓰는 바로 그 동일성."""
     out = set()
@@ -250,7 +296,9 @@ def cases_051(tags):
 
 
 def build_arms(c, system, filler_txt, w=None, cap=1200):
-    base = to_openai(c["ms"][safe_start(c["ms"], c["msg"], w):c["msg"]], cap)
+    _src = c.get("ms_win")
+    base = to_openai(_src if _src is not None
+                     else c["ms"][safe_start(c["ms"], c["msg"], w):c["msg"]], cap)
     head = ([{"role": "system", "content": system}] if system else []) + base
     att = {"role": "assistant", "content": "",
            "tool_calls": [{"id": str(tc.get("id") or ("x%d" % n)), "type": "function",
@@ -280,6 +328,8 @@ def main(argv=None):
     ap.add_argument("--n", type=int, default=4)
     ap.add_argument("--win", type=int, default=0, help="0 = 전량 프리픽스")
     ap.add_argument("--cap", type=int, default=500, help="메시지당 내용 절단")
+    ap.add_argument("--sidecar", type=int, default=0,
+                    help="1 = 재생성으로 지워진 거절을 창에 되끼운다")
     ap.add_argument("--tags051", default="bank_n97_gpu1_main_20260806,"
                                          "bank_n97_gpu1_main_20260805,"
                                          "bank_all97_nt1_v2_20260718")
@@ -323,6 +373,12 @@ def main(argv=None):
                         break
             if fil:
                 break
+        if a.sidecar:
+            _bt = sidecar_by_turn(c["tag"], c["sim"])
+            c["ms_win"] = augment(c["ms"], c["msg"], _bt)
+            print("   사이드카 복원: turn %d 곳 · 되끼운 거절 %d 건 → 창 %d → %d 메시지"
+                  % (len(_bt), sum(len(v) for v in _bt.values()),
+                     c["msg"], len(c["ms_win"])), flush=True)
         blocked = keyset(c["attempt"])
         print("\n── %s %s msg=%d · 시도 %d 건 · 도구 %d · 정책 %d자 (앞선 성공 msg=%s)"
               % (c["target"], c["sim"], c["msg"], len(c["attempt"]), len(tools),
