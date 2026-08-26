@@ -97,6 +97,28 @@ export T2_CATEGORY_CITE=
 #   선언하지 않는다·래칫 기준선에 미선언으로 남아 있음·여기 이름을 적으면 래칫이 "선언"으로 오인하므로
 #   접두사 없이 적는다). OFF=바이트 동일. [[70]] 짝 A/B 의무.
 export T2_SEARCH_REARM=1
+# ★T2_DIAG_UNAMBIGUOUS (2026-08-26 등재·격리 `x554_diag_mispick_iso.py`·래칫 `test_diag_unambiguous.py`):
+#   진단 서브의 답은 **이름** 단위인데 원장은 **행** 단위다. 한 이름이 여러 상태를 동시에 이면
+#   *"어느 record 가 미지급인가"* 가 그 문맥에서 하나로 정해지지 않는데도 구판은
+#   *"A separate check was run … It answers: X"* 로 단언한다 — 016 이 그 자리다.
+#   ⇒ 답한 이름이 상태를 **하나만** 이고 있을 때만 단언한다. 여럿이면 침묵(묻지도 않는다).
+#   격리(x554·6팔×5=30셀·8140): A_asis 가 라이브 오지목을 **축자 재현**하고, 문서가 적은 처방 둘
+#   (`date_field` 축·거짓 유일성 교정)과 재료 조인까지 **전부 0/5** — 이 자리는 더 줘서 못 산다.
+#   [[70]] 부호표(영속 로그 34 태그·08-13~08-26·발화 119): 016 22 제거(**전부 reward 0** ⇒ 손실
+#   불가) · 010 12 불변(reward 1 이 5) · 098 73·099 12 는 이미 `원장 밖 = 침묵`이라 불변 ⇒ 순지배.
+#   ⚠**§3 형(허위 문면 교정)으로 등재한다** — 새 거동을 더하는 것이 아니라 근거 없는 단언 하나를
+#     거두는 것이고, `status_breakdown`·`status_meanings_text` 는 이 호출 **이전에** 그대로 나간다.
+#   ⚠반증: 이름당 상태 1종인데 판정문이 틀린 sim 이 나오면 술어가 부족하다. OFF=바이트 동일.
+export T2_DIAG_UNAMBIGUOUS=1
+# ★T2_REARM_USER_ONLY = 문서의 **A-3′** (2026-08-26 등재·측정 `x553_rearm_role_split.py`·
+#   래칫 `test_rearm_user_only.py`): 재무장 재수요를 **손님 발화 · 전 접두**로 본다.
+#   문서 처방 A-3(user 로 한정만)은 발화 **67/84** 를 죽이고 통과 sim 발화를 10건(반증 견딘 것
+#   8) 가져간다 — 순손실이다. 창까지 되돌린 A-3′ 는 kill **27/84**, 통과 sim 3, **반증 잔존 1**
+#   이면서 표적 세 태스크(016 6/7 · 055 4/4 · 057 6/7)는 A-3 와 **완전히 동일**하다 ⇒ [[70]] 절충.
+#   ⚠래칫이 잠그는 것은 효과가 아니라 **동치성** — 플래그 ON 이 x553 이 잰 팔과 발화마다 같다
+#     (불일치 0/84). 다르면 우리가 잰 것과 다른 것을 켠 것이다([[76]]).
+#   ⚠남는 위험 1건(098@t7348). 라이브 효과는 다음 런이 산다. OFF=바이트 동일.
+export T2_REARM_USER_ONLY=1
 export T2_FAB_STRIP=1 T2_UNKNOWN_NAME_BL=1 T2_UNLOCK_NAME=1 T2_UNLOCK_PROV=1
 export T2_DISPATCH_ROLE=1 T2_TOOLLIST=1 T2_PRESCRIPTION=1
 # ★T2_DISPATCH_ROLE_ENVSET (2026-08-05 등재·구현은 C257·`ABSENCE_DRIVEN_PROCEDURE_DESIGN` §4):

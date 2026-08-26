@@ -3925,6 +3925,7 @@ def _rearm_subjects(agent, po, gs, done, messages):
     술어는 전부 닫혔다([[22]]·유사도·의도 해석 0·[[59]]·[[66]]):
       ⑴ 계열 = A3 `doc_index[군]` 키(닫힌 집합) · 표시명은 `_slug_disp` 규약 하나.
       ⑵ 재수요 = 그 군의 **배달 시점 이후** user/assistant 발화에 계열 표시명이 **축자 등장**.
+         ⚠`T2_REARM_USER_ONLY=1`(A-3′·아래 주석) 이면 이 칸이 **손님 발화 · 전 접두**로 바뀐다.
          등장 판정은 `t2_search.groups_in` 정본 파싱부 재사용([[67]] 사본 금지) — 긴 이름
          안의 포함 등장은 세지 않는다. 우주는 **전체 색인**의 표시명이라 그 억제가 군 경계
          밖에서도 작동한다.
@@ -3945,12 +3946,24 @@ def _rearm_subjects(agent, po, gs, done, messages):
     if not disp:
         return None, None
     import t2_search as _ts
+    # ★T2_REARM_USER_ONLY = 문서의 **A-3′** (2026-08-26·측정 `x553_rearm_role_split.py`·기본 OFF)
+    #   문서 처방 A-3(`TASK_055.md:234`)는 *"재수요를 user 발화로 한정"* 이다. 그것만 하면
+    #   **발화 63/78(81%)** 이 죽고 그중 통과 sim 의 발화가 10건(반증 견딘 것 8)이다 — 순손실이다.
+    #   창을 **전 접두**로 함께 되돌리면(= 배달 이전에 손님이 부른 것도 센다) 죽는 발화가
+    #   **27/78**, 통과 sim 발화는 3건이고 **반증을 견디는 것은 1건**뿐이다. 그러면서 표적
+    #   세 태스크(016 6/7 · 055 4/4 · 057 6/7)는 **두 판이 완전히 같다** ⇒ [[70]] 절충은 A-3′ 다.
+    #   왜 창까지 되돌리나: user-only 로 좁히면 *손님이 배달 **이전에** 부른 계열*이 통째로
+    #   빠지는데, 그것이 바로 016 의 원래 결손(Bronze 만 배달된 채 Silver 가 닫힌 자리)이다.
+    #   두 조각은 하나의 처방이라 한 플래그로 묶는다. OFF 면 바이트 동일.
+    _uonly = os.environ.get("T2_REARM_USER_ONLY") == "1"
+    _roles = ("user",) if _uonly else ("user", "assistant")
     for g in gs:
         if g not in done or g not in served_at:
             continue
+        _from = 0 if _uonly else int(served_at.get(g) or 0)
         post = "\n".join(
-            _content_str(m) for m in (messages or [])[int(served_at.get(g) or 0):]
-            if getattr(m, "role", None) in ("user", "assistant")
+            _content_str(m) for m in (messages or [])[_from:]
+            if getattr(m, "role", None) in _roles
             and getattr(m, "content", None))
         if not post.strip():
             continue
