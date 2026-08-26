@@ -3095,6 +3095,23 @@ _RULE_AT_WRITE_FB = (
 )
 
 
+def _decl_join(dw_fb, tc, txt):
+    """선언 배달을 write 유예 자리에 **덧붙인다**(뺏지 않는다).
+
+    ★2026-08-26 (x543 재생). 명세·규칙·인자-정책은 **서로 다른 재료**다 — 명세는 도구가
+      선언한 인자/열거이고, 규칙은 정책이 정한 절차 문장이다. 한 자리를 두고 `elif` 로
+      경쟁시키면 거리가 먼 명세가 **항상** 이기고 규칙은 영영 안 나간다: t7356 에서 셋이
+      나갈 3 자리 전부 명세(2975·2975·2137자)와 규칙(303·303·74자)이 둘 다 있는데
+      선점 3/3 이었고, 그 규칙에 실린 것이 x538 책임 한도 표였다.
+    ★합성은 격리에서 이미 쟀다 — 큐 `findings_2026_08_25_night.N2` 의
+      `x538b B_both(합성) 20/20`(단독 B_rule 20/20 ↔ A_asis 12/20 ↔ N_len 12/20).
+    ⚠엔진은 고르지 않는다 — 선언된 것을 **순서대로 잇기만** 한다([[62]]④·[[59]]).
+    """
+    if dw_fb is None:
+        return (tc, txt)
+    return (dw_fb[0], str(dw_fb[1]) + "\n\n" + str(txt))
+
+
 def _declared_rules_for(wc, a2):
     """이 write 가 실행하는 도구에 대해 **A2 가 선언한 절차 문장** — 검색 0·랭킹 0.
 
@@ -10969,6 +10986,23 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         #   이름**을 A2 선언에서 함께 읽는다(`_write_choice_arg` — 이름 동등성·
                         #   선언된 접두·dict 조회뿐·[[22]]). 못 대면 **나가지 않는다**.
                         _darg, _dax = _write_choice_arg(a2, _wc)
+                        # ★2026-08-26 배치 수리 (x543 재생 · `x543_spec_at_write_reach_2026_08_26.json`):
+                        #   계기와 아래 **선언 배달**(SPEC/RULE/ARG_POLICY)은 `_darg` 와 **무관**하다.
+                        #   종전엔 셋 다 `if not _darg:` 안에 있었는데, t7356 33 sim·778 호출을 재생하니
+                        #   이 가지 앞까지 온 write **29건이 29/29 전부 `_darg` 를 댔다**(`dispute_category`
+                        #   18 · `dispute_reason` 11) ⇒ 셋은 조건을 **볼 기회조차** 없었고 도달 표지는
+                        #   15 배치 중 14 에서 0 이었다. 격리는 멀쩡했으므로(x532 A_asis 1/6 ↔ B 6/6 ·
+                        #   x537 0/12 ↔ 12/12 · x538 A_asis 12/20 ↔ B_rule 20/20 ↔ N_len 12/20 —
+                        #   큐 `findings_2026_08_25_night.N2` 인용) 자격이 아니라 **위치**가
+                        #   틀렸다([[76]]⒜). 셋이 산 결손은 전부
+                        #   *이름을 댈 수 있을 때* 나는 것들이다(x532=이름이 틀림 · x537=키 17/17 정확한데
+                        #   늦은 중복 · x538=책임 한도 티어) ⇒ `not _darg` 는 **캐리의 조건**이지 이들의
+                        #   조건이 아니다.
+                        _spec, _si, _sd = _env_spec_for(_wc, state.messages)
+                        print("[T2_SPEC_DIST] tool=%s src_msg=%s dist=%s len=%s darg=%s"
+                              % (_eff_tool_name(_wc), _si, _sd,
+                                 len(_spec) if _spec else 0, _darg or "-"),
+                              file=_sys.stderr, flush=True)
                         if not _darg:
                             # ★[[64]] 의 두 번째 가지: *이름을 못 대면 말하지 마라*. A2 가 이
                             #   write 의 선택 인자를 선언하지 않았다는 것은 우리가 **무엇에 대한
@@ -10984,108 +11018,10 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                             #   결손을 *"키 허용목록이 없다"* 로 잘못 적었다. 세 축의 공통
                             #   진단(*"재료는 상류에 있고 결정점에 없다"*)을 코퍼스 전체에서
                             #   grep 하나로 세게 하는 것이 목적이다.
-                            _spec, _si, _sd = _env_spec_for(_wc, state.messages)
-                            print("[T2_SPEC_DIST] tool=%s src_msg=%s dist=%s len=%s"
-                                  % (_eff_tool_name(_wc), _si, _sd,
-                                     len(_spec) if _spec else 0),
+                            print("[T2_DECIDE_BEFORE_WRITE] 축 미상 — 캐리 무발화 tool=%s "
+                                  "(A2 가 이 write 의 선택 인자를 선언하지 않았다)"
+                                  % (_eff_tool_name(_wc),),
                                   file=_sys.stderr, flush=True)
-                            # ★T2_SPEC_AT_WRITE (기본 OFF·격리 x532 통과 후 배선·[[78]]).
-                            #   격리: A_asis 1/6 ↔ **B_spec 6/6** ↔ N_neg 2/5(같은 길이 무관 블록)
-                            #   ⇒ 산 것은 길이가 아니라 **내용**이고([[57]]), A_asis 가 라이브
-                            #   오답 키를 재현했으므로 격리가 공정하다([[62]] 2b).
-                            #   하는 일은 **전달 하나**다 — env 가 앞서 보낸 그 응답을 자르지도
-                            #   고르지도 않고 되붙인다. 값 선택은 전부 모델 몫이다([[62]]③④).
-                            #   sim 당 도구별 1회 — 두 번 미루면 지연이 손실이 된다.
-                            if (os.environ.get("T2_SPEC_AT_WRITE") == "1" and _spec
-                                    and _sd >= int(os.environ.get("T2_SPEC_AT_WRITE_MIN", "8"))):
-                                _sseen = getattr(self, "_t2_spec_at_write", None)
-                                if _sseen is None:
-                                    _sseen = self._t2_spec_at_write = set()
-                                _skey = str(_exact_tool_name(_wc) or "")
-                                if _skey and _skey not in _sseen:
-                                    _sseen.add(_skey)
-                                    self._t2_dwrite_deny = 1
-                                    dw_fb = (_wc, _SPEC_AT_WRITE_FB.format(dist=_sd,
-                                                                           spec=_spec))
-                                    print("[T2_SPEC_AT_WRITE] write 1턴 유예 tool=%s "
-                                          "src_msg=%s dist=%s (%d자 재제시)"
-                                          % (_eff_tool_name(_wc), _si, _sd, len(_spec)),
-                                          file=_sys.stderr, flush=True)
-                                    _lbeat("T2_SPEC_AT_WRITE", orch=self,
-                                           target=_eff_tool_name(_wc),
-                                           fact="what this tool itself declared when it "
-                                                "was made available")
-                            # ★T2_RULE_AT_WRITE (기본 OFF·격리 x537 통과 후 배선·[[78]]).
-                            #   격리(085·창 3·n4): 창 그대로 **0/12** ↔ 선언 문장 한 줄을 결정점에
-                            #   놓으면 **12/12** ↔ 같은 길이 무관 문장 **0/12**([[57]] 통과·
-                            #   A_asis 가 라이브 오답을 재현하므로 공정 [[62]]2b).
-                            #   ⚠SPEC_AT_WRITE 와 **다른 자리**를 산다: 그쪽은 인자 **이름**이 틀렸을
-                            #     때고, 이쪽은 이름이 다 맞는데 **어느 기록을 고르나**가 틀릴 때다
-                            #     (085 실물: 키 17/17 정확한 호출이 늦은 중복을 골랐다).
-                            #   ⚠엔진은 검색도 순위도 하지 않는다 — **선언된 문장을 그대로** 싣는다.
-                            #     출처 의무는 A2 `_note_` 에 있다([[23]] 정책 축자).
-                            elif (os.environ.get("T2_RULE_AT_WRITE") == "1"
-                                  and _declared_rules_for(_wc, a2)):
-                                _rseen = getattr(self, "_t2_rule_at_write", None)
-                                if _rseen is None:
-                                    _rseen = self._t2_rule_at_write = set()
-                                _rkey2 = str(_exact_tool_name(_wc) or "")
-                                if _rkey2 and _rkey2 not in _rseen:
-                                    _rseen.add(_rkey2)
-                                    _rtxt = _declared_rules_for(_wc, a2)
-                                    self._t2_dwrite_deny = 1
-                                    dw_fb = (_wc, _RULE_AT_WRITE_FB.format(
-                                        dist=(_sd if _sd > 0 else 0), rules=_rtxt))
-                                    print("[T2_RULE_AT_WRITE] write 1턴 유예 tool=%s (%d자 규칙)"
-                                          % (_eff_tool_name(_wc), len(_rtxt)),
-                                          file=_sys.stderr, flush=True)
-                                    _lbeat("T2_RULE_AT_WRITE", orch=self,
-                                           target=_eff_tool_name(_wc),
-                                           fact="the procedure the documents state for this write")
-                            # ★T2_ARG_POLICY_AT_WRITE (2026-08-25·기본 OFF) — `write_rules` 의
-                            #   **일반형**. 손으로 고른 문장 대신, 이 write 가 **선언한 인자
-                            #   이름**과 A3 행의 `axis` 가 **같은** 행을 축자로 놓는다.
-                            #   인자 이름은 env 명세에서 나오고(`_declared_params_for`) 문장은
-                            #   A3 선언에서 나온다 — 우리가 고른 것은 **아무것도 없다**.
-                            #   조인 커버리지 실측(t7354 명세): 신용 분쟁 인자 15 중 **13**,
-                            #   직불 17 중 9 에 행이 붙는다. 실물 — 040 의 열린 축이 거기 있다:
-                            #   `eligible_for_provisional_credit` → *"Agent must determine this
-                            #   based on the Provisional Credit Eligibility Guidelines article in
-                            #   this knowledge base. Pass true or false."*([[64]] 무엇을 하면 풀리나)
-                            #   ⚠유사도 검색이 아니라 **동일성**이다 — 어제 폐기한 토큰 검색기와
-                            #     다른 종류다([[71]]③). 순위 0 · 상한 넘으면 전부 안 준다.
-                            #   ⚠**모델 반응은 아직 안 쟀다** — 격리(x541) 전에는 런에서 켜지 마라.
-                            elif os.environ.get("T2_ARG_POLICY_AT_WRITE") == "1":
-                                _pargs = list(_declared_params_for(state.messages, _wc) or {})
-                                _ptxt = _policy_rows_for(a2, _pargs)
-                                _pseen = getattr(self, "_t2_argpolicy_deny", None)
-                                if _pseen is None:
-                                    _pseen = self._t2_argpolicy_deny = set()
-                                _pkey = str(_exact_tool_name(_wc) or "")
-                                if _ptxt and _pkey and _pkey not in _pseen:
-                                    _pseen.add(_pkey)
-                                    self._t2_dwrite_deny = 1
-                                    dw_fb = (_wc, _RULE_AT_WRITE_FB.format(
-                                        dist=(_sd if _sd > 0 else 0), rules=_ptxt))
-                                    print("[T2_ARG_POLICY_AT_WRITE] write 1턴 유예 tool=%s "
-                                          "(선언 인자 %d · 정책 인용 %d자)"
-                                          % (_eff_tool_name(_wc), len(_pargs), len(_ptxt)),
-                                          file=_sys.stderr, flush=True)
-                                    _lbeat("T2_ARG_POLICY_AT_WRITE", orch=self,
-                                           target=_eff_tool_name(_wc),
-                                           fact="what the documents say about the arguments "
-                                                "this call declares")
-                                else:
-                                    print("[T2_ARG_POLICY_AT_WRITE] 무발화 tool=%s "
-                                          "(선언 인자 %d · 조인 %s)"
-                                          % (_eff_tool_name(_wc), len(_pargs),
-                                             "0행" if not _ptxt else "이미 배달"),
-                                          file=_sys.stderr, flush=True)
-                            else:
-                                print("[T2_DECIDE_BEFORE_WRITE] 축 미상 — 무발화 tool=%s "
-                                      "(A2 가 이 write 의 선택 인자를 선언하지 않았다)"
-                                      % (_eff_tool_name(_wc),),
-                                      file=_sys.stderr, flush=True)
                         else:
                             _saved = (getattr(self, "_t2_axis_decision", None) or {}).get(_dax) \
                                 if _dax else None
@@ -11113,6 +11049,114 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 _lbeat("T2_DECIDE_BEFORE_WRITE", orch=self,
                                        target=_eff_tool_name(_wc),
                                        fact="the decision this write encodes, made before it runs")
+                        # ★자리를 **뺏지 않고 덧붙인다**: 캐리는 같은 두 도구·같은 인자에서 발화한다
+                        #   (t7356 4/4 — 074#s361454 · 085#s373753 · 085#s361454 · 040#s626729) ⇒ 우선순위를
+                        #   매기면 어느 한쪽이 영영 0 이 된다. sim 당 유예는 그대로 **1회**고, 캐리가 이미
+                        #   미뤘으면 같은 메시지에 **실어** 보낸다(`en_fb` 가 위에서 쓰는 그 관용).
+                        _carry_hold = dw_fb
+                        dw_fb = None
+                        # ★T2_SPEC_AT_WRITE (기본 OFF·격리 x532 통과 후 배선·[[78]]).
+                        #   격리: A_asis 1/6 ↔ **B_spec 6/6** ↔ N_neg 2/5(같은 길이 무관 블록)
+                        #   ⇒ 산 것은 길이가 아니라 **내용**이고([[57]]), A_asis 가 라이브
+                        #   오답 키를 재현했으므로 격리가 공정하다([[62]] 2b).
+                        #   하는 일은 **전달 하나**다 — env 가 앞서 보낸 그 응답을 자르지도
+                        #   고르지도 않고 되붙인다. 값 선택은 전부 모델 몫이다([[62]]③④).
+                        #   sim 당 도구별 1회 — 두 번 미루면 지연이 손실이 된다.
+                        if (os.environ.get("T2_SPEC_AT_WRITE") == "1" and _spec
+                                and _sd >= int(os.environ.get("T2_SPEC_AT_WRITE_MIN", "8"))):
+                            _sseen = getattr(self, "_t2_spec_at_write", None)
+                            if _sseen is None:
+                                _sseen = self._t2_spec_at_write = set()
+                            _skey = str(_exact_tool_name(_wc) or "")
+                            if _skey and _skey not in _sseen:
+                                _sseen.add(_skey)
+                                self._t2_dwrite_deny = 1
+                                dw_fb = _decl_join(dw_fb, _wc,
+                                                   _SPEC_AT_WRITE_FB.format(dist=_sd,
+                                                                            spec=_spec))
+                                print("[T2_SPEC_AT_WRITE] write 1턴 유예 tool=%s "
+                                      "src_msg=%s dist=%s (%d자 재제시)"
+                                      % (_eff_tool_name(_wc), _si, _sd, len(_spec)),
+                                      file=_sys.stderr, flush=True)
+                                _lbeat("T2_SPEC_AT_WRITE", orch=self,
+                                       target=_eff_tool_name(_wc),
+                                       fact="what this tool itself declared when it "
+                                            "was made available")
+                        # ★T2_RULE_AT_WRITE (기본 OFF·격리 x537 통과 후 배선·[[78]]).
+                        #   격리(085·창 3·n4): 창 그대로 **0/12** ↔ 선언 문장 한 줄을 결정점에
+                        #   놓으면 **12/12** ↔ 같은 길이 무관 문장 **0/12**([[57]] 통과·
+                        #   A_asis 가 라이브 오답을 재현하므로 공정 [[62]]2b).
+                        #   ⚠SPEC_AT_WRITE 와 **다른 자리**를 산다: 그쪽은 인자 **이름**이 틀렸을
+                        #     때고, 이쪽은 이름이 다 맞는데 **어느 기록을 고르나**가 틀릴 때다
+                        #     (085 실물: 키 17/17 정확한 호출이 늦은 중복을 골랐다).
+                        #   ⚠엔진은 검색도 순위도 하지 않는다 — **선언된 문장을 그대로** 싣는다.
+                        #     출처 의무는 A2 `_note_` 에 있다([[23]] 정책 축자).
+                        if (os.environ.get("T2_RULE_AT_WRITE") == "1"
+                              and _declared_rules_for(_wc, a2)):
+                            _rseen = getattr(self, "_t2_rule_at_write", None)
+                            if _rseen is None:
+                                _rseen = self._t2_rule_at_write = set()
+                            _rkey2 = str(_exact_tool_name(_wc) or "")
+                            if _rkey2 and _rkey2 not in _rseen:
+                                _rseen.add(_rkey2)
+                                _rtxt = _declared_rules_for(_wc, a2)
+                                self._t2_dwrite_deny = 1
+                                dw_fb = _decl_join(dw_fb, _wc, _RULE_AT_WRITE_FB.format(
+                                    dist=(_sd if _sd > 0 else 0), rules=_rtxt))
+                                print("[T2_RULE_AT_WRITE] write 1턴 유예 tool=%s (%d자 규칙)"
+                                      % (_eff_tool_name(_wc), len(_rtxt)),
+                                      file=_sys.stderr, flush=True)
+                                _lbeat("T2_RULE_AT_WRITE", orch=self,
+                                       target=_eff_tool_name(_wc),
+                                       fact="the procedure the documents state for this write")
+                        # ★T2_ARG_POLICY_AT_WRITE (2026-08-25·기본 OFF) — `write_rules` 의
+                        #   **일반형**. 손으로 고른 문장 대신, 이 write 가 **선언한 인자
+                        #   이름**과 A3 행의 `axis` 가 **같은** 행을 축자로 놓는다.
+                        #   인자 이름은 env 명세에서 나오고(`_declared_params_for`) 문장은
+                        #   A3 선언에서 나온다 — 우리가 고른 것은 **아무것도 없다**.
+                        #   조인 커버리지 실측(t7354 명세): 신용 분쟁 인자 15 중 **13**,
+                        #   직불 17 중 9 에 행이 붙는다. 실물 — 040 의 열린 축이 거기 있다:
+                        #   `eligible_for_provisional_credit` → *"Agent must determine this
+                        #   based on the Provisional Credit Eligibility Guidelines article in
+                        #   this knowledge base. Pass true or false."*([[64]] 무엇을 하면 풀리나)
+                        #   ⚠유사도 검색이 아니라 **동일성**이다 — 어제 폐기한 토큰 검색기와
+                        #     다른 종류다([[71]]③). 순위 0 · 상한 넘으면 전부 안 준다.
+                        #   ⚠**모델 반응은 아직 안 쟀다** — 격리(x541) 전에는 런에서 켜지 마라.
+                        if os.environ.get("T2_ARG_POLICY_AT_WRITE") == "1":
+                            _pargs = list(_declared_params_for(state.messages, _wc) or {})
+                            _ptxt = _policy_rows_for(a2, _pargs)
+                            _pseen = getattr(self, "_t2_argpolicy_deny", None)
+                            if _pseen is None:
+                                _pseen = self._t2_argpolicy_deny = set()
+                            _pkey = str(_exact_tool_name(_wc) or "")
+                            if _ptxt and _pkey and _pkey not in _pseen:
+                                _pseen.add(_pkey)
+                                self._t2_dwrite_deny = 1
+                                dw_fb = _decl_join(dw_fb, _wc, _RULE_AT_WRITE_FB.format(
+                                    dist=(_sd if _sd > 0 else 0), rules=_ptxt))
+                                print("[T2_ARG_POLICY_AT_WRITE] write 1턴 유예 tool=%s "
+                                      "(선언 인자 %d · 정책 인용 %d자)"
+                                      % (_eff_tool_name(_wc), len(_pargs), len(_ptxt)),
+                                      file=_sys.stderr, flush=True)
+                                _lbeat("T2_ARG_POLICY_AT_WRITE", orch=self,
+                                       target=_eff_tool_name(_wc),
+                                       fact="what the documents say about the arguments "
+                                            "this call declares")
+                            else:
+                                print("[T2_ARG_POLICY_AT_WRITE] 무발화 tool=%s "
+                                      "(선언 인자 %d · 조인 %s)"
+                                      % (_eff_tool_name(_wc), len(_pargs),
+                                         "0행" if not _ptxt else "이미 배달"),
+                                      file=_sys.stderr, flush=True)
+                        if dw_fb is None:
+                            print("[T2_DECIDE_BEFORE_WRITE] 선언 배달 무발화 tool=%s "
+                                  "(darg=%s · 명세 %d자 dist=%s)"
+                                  % (_eff_tool_name(_wc), _darg or "-",
+                                     len(_spec) if _spec else 0, _sd),
+                                  file=_sys.stderr, flush=True)
+                        if _carry_hold is not None:
+                            dw_fb = (_carry_hold[0], str(_carry_hold[1])
+                                     + ("\n\n" + str(dw_fb[1]) if dw_fb else ""))
                 except Exception as _dwe:
                     dw_fb = None
                     print("[T2_DECIDE_BEFORE_WRITE] 건너뜀(무발화): %r" % (_dwe,),

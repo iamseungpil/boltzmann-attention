@@ -1,0 +1,34 @@
+{
+  "domain": "banking_knowledge",
+  "wrset_base": [
+    "file_credit_card_transaction_dispute",
+    "file_debit_card_transaction_dispute",
+    "submit_cash_back_dispute"
+  ],
+  "wrset_docs_extra": [
+    "apply_for_credit_card",
+    "open_bank_account_4821"
+  ],
+  "tags": {
+    "t7356": {
+      "batches": 15,
+      "sims": 33,
+      "calls": 778,
+      "in_wrset": 29,
+      "darg_named": 29,
+      "darg_none": 0,
+      "sims_should_reach": 0,
+      "observed_spec_dist": 1,
+      "log_batches_seen": 15,
+      "per_tool": {
+        "file_debit_card_transaction_dispute|darg=True": 18,
+        "file_credit_card_transaction_dispute|darg=True": 11
+      },
+      "per_arg": {
+        "dispute_category": 18,
+        "dispute_reason": 11
+      },
+      "rows": []
+    }
+  }
+}
