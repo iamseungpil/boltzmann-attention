@@ -126,6 +126,29 @@ def firings_in_log(text):
     return out
 
 
+def gold_write_after(sim, fire_turn):
+    """★반증 술어([[77]] ③) — 그 sim 의 **gold write** 가 발화 시점 **이후**에도 있었나.
+
+    reward 는 sim 단위라 *"통과 sim 에서 죽는 발화"* 는 순손실 **후보**일 뿐이다. 발화보다
+    **앞에서** 이미 모든 gold write 가 끝났다면 그 발화는 통과의 원인일 수 없다 — (+) 귀속이
+    거짓이다. 닫힌 술어(도구 이름 일치 + 인덱스 비교)이고 gold 는 **진단용으로만** 읽는다([[23]]).
+    반환 True = 반증 못 함(순손실 후보로 남는다) · False = 반증됨.
+    """
+    want = {(g.get("action") or {}).get("name")
+            for g in (F.gold_actions(sim) or []) if g.get("tool_type") == "write"}
+    want.discard(None)
+    if not want:
+        return None
+    for i, m in enumerate((sim.get("messages") or [])):
+        if i < int(fire_turn):
+            continue
+        for tc in (m.get("tool_calls") or ()):
+            nm = (tc.get("function") or {}).get("name") or tc.get("name")
+            if nm in want:
+                return True
+    return False
+
+
 def replay(po, msgs, group, served, served_at):
     """정본 술어 1회 호출 → 신규 계열 집합(없으면 빈 집합)."""
     ag = _Agent({group: set(served or ())}, {group: int(served_at or 0)})
@@ -211,7 +234,8 @@ def main():
             r.update(status="REPRO" if obs == asis else "REPRO_SUPERSET",
                      asis=sorted(asis), a3=sorted(a3), user_anywhere=sorted(anyw),
                      verdict="KEEP" if a3 else "KILL",
-                     verdict3="KEEP" if anyw else "KILL")
+                     verdict3="KEEP" if anyw else "KILL",
+                     gold_after=gold_write_after(sim, ev["fire_turn"]))
             rows.append(r)
 
     print("# x553 — A-3(재무장 술어에서 assistant 제거) 선행 측정")
@@ -269,6 +293,16 @@ def main():
             if r[key] == "KILL" and r.get("reward") == 1.0:
                 print("  %-4s %-34s %-20s %-22s %s"
                       % (lab, r["tag"][:34], r["sim"][:20], r["group"][:22], ",".join(r["new"])))
+    print()
+    print("## 반증([[77]] ③) — 그 (+) 발화보다 **뒤에** gold write 가 있었나")
+    for lab, key in arms:
+        k1 = [r for r in judged if r[key] == "KILL" and r.get("reward") == 1.0]
+        alive = [r for r in k1 if r.get("gold_after")]
+        print("  %-4s (+) 발화 %d 중 **반증되지 않은** 것 %d  (%s)"
+              % (lab, len(k1), len(alive),
+                 ", ".join("%s@%s" % (r["sim"].split("#")[0], r["tag"].split("_")[1])
+                           for r in alive) or "없음"))
+    print("  반증된 발화 = 그 sim 의 gold write 가 **전부 발화 이전**에 끝났다 ⇒ 통과의 원인일 수 없다.")
     print()
     print("⚠reward 는 **sim 단위**다 — 통과 sim 에서 죽는 발화는 순손실 *후보*이지 확정 손실이")
     print("  아니다. 반증 조건([[77]] ③): 그 sim 의 per-step 에서 델타 배달 본문이 통과 행동")
