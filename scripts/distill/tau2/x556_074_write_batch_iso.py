@@ -81,20 +81,40 @@ def write_index(ms, tool):
 
 
 def targets(ms, upto):
-    """계좌 → **우리 도구가 낸 difference 의 부호합**. 자기 출력 파싱([[59]] 허용역)."""
+    """계좌 → **우리 도구가 낸 difference 의 부호합**. 자기 출력 파싱([[59]] 허용역).
+
+    ⚠계좌 id 는 **출력 본문에 없다** — 그 도구의 반환 문면은 거래 id 만 담는다. 초판이 본문에서
+      계좌를 찾다가 표적을 하나도 못 세웠다. id 는 **바로 앞 호출의 인자**에 있다(라이브가 계좌마다
+      한 번씩 부른다). 짝짓기는 위치 술어이지 내용 판단이 아니다([[25]] 모르면 안 쓴다).
+    """
     out = {}
-    for m in ms[:upto]:
+    for i, m in enumerate(ms[:upto]):
         if m.get("role") != "tool":
             continue
         c = " ".join(str(m.get("content") or "").split())
         if "difference $" not in c:
             continue
-        accs = RX_ACC.findall(c)
-        if len(set(accs)) != 1:
-            continue                       # 계좌가 섞인 덤프는 이 축이 아니다(모르면 안 쓴다)
+        acc = None
+        for j in range(i - 1, -1, -1):
+            tcs = ms[j].get("tool_calls") or ()
+            for tc in tcs:
+                ar = F.argsof(tc)
+                inner = ar.get("arguments")
+                if isinstance(inner, str):
+                    try:
+                        inner = json.loads(inner)
+                    except Exception:
+                        inner = {}
+                cand = (inner or {}).get("account_id") if isinstance(inner, dict) else None
+                cand = cand or ar.get("account_id")
+                if cand:
+                    acc = cand
+                    break
+            if acc or tcs:
+                break
         vals = [float(v) for v in RX_DIFF.findall(c)]
-        if vals:
-            out[accs[0]] = round(sum(vals), 2)
+        if acc and vals:
+            out[acc] = round(sum(vals), 2)
     return out
 
 
