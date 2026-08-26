@@ -21690,6 +21690,10 @@
     {
      "doc": "doc_credit_cards_credit_cards_(general)_014",
      "quote": "eligible_for_provisional_credit (boolean) - Agent must determine this based on the Provisional Credit Eligibility Guidelines article in this knowledge base. Pass true or false."
+    },
+    {
+     "doc": "doc_credit_cards_credit_cards_(general)_015",
+     "quote": "## Eligibility Criteria — Customer is ELIGIBLE for provisional credit if ALL of the following are true: 1. Account Standing: The customer's credit card account has been open for at least 60 days 2. Dispute Reason Category: The dispute reason is one of the following: - 'unauthorized_fraudulent_charge' - 'duplicate_charge' - 'goods_services_not_received' (only if purchase was made more than 30 days ago) 3. Dispute Amount: The transaction amount must be at least $25.00 and must not exceed the card's maximum provisional credit limit based on card tier (see below) 4. Previous Disputes: The customer has not filed more than 2 disputes in the past 12 months 5. Contacted Merchant: For non-fraud disputes (anything other than 'unauthorized_fraudulent_charge'), the customer must have attempted to resolve with the merchant first"
     }
    ]
   },

@@ -172,6 +172,38 @@ def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=N
         except Exception:
             pass
     if cands and str(chosen) not in cands:
+        # ★검증한 뒤 **참말을 한다** (2026-08-26·x550·t7360 포렌식).
+        #   구판은 이 자리에서 언제나 *"네가 지어냈다 · 검색해라"* 라고 했다. 그런데 모델이
+        #   **이미 갖고 있는 직접 호출 도구**를 디스패처로 감쌌을 때도 같은 말을 했다 —
+        #   074 에서 `get_atm_fee_discrepancies`(우리 A2 스캐폴드 도구·`t2_scaffold_get.py`가
+        #   `agent.tools` 에 실제로 주입한다)를 **6회** 그렇게 막았고(t7358·t7360 재현),
+        #   모델은 시킨 대로 `KB_search_bm25` 를 3회 돌린 뒤 unlock 까지 시도해 env 오류를
+        #   맞았다. env 자신의 문면이 옳게 말한다 — *"If it is a tool you already have,
+        #   **call it directly**."* ⇒ 우리 문면이 env 문면보다 나빴다([[25]] 허위·[[64]] 처방).
+        #
+        #   ⚠**면제가 아니다.** 두 경우 모두 거부한다 — 감싼 호출은 어차피 env 가 죽인다.
+        #     바뀌는 것은 [[64]] 가 요구하는 *"무엇을 하면 풀리나"* 한 칸뿐이다.
+        #   ⚠권위는 **프레임워크 레지스트리**(`agent.tools`)이지 A2 선언이 아니다. A2 가 낡았거나
+        #     주입이 실패했으면 그 이름은 `agent.tools` 에 없고 → 구판 문면이 그대로 나간다.
+        #     모델의 주장을 읽는 자리는 없다(날조로 통과할 통로 0). `registry_names` 를 쓰지
+        #     않는 이유: 그것은 **discoverable 까지 합집합**이라, 아직 발견 안 된 discoverable
+        #     도구에 "직접 부르라"는 **또 다른 거짓말**이 된다.
+        _held = set()
+        if agent is not None:
+            try:
+                _held = {getattr(t, "name", None) for t in (getattr(agent, "tools", None) or [])}
+            except Exception:
+                _held = set()
+        if str(chosen) in _held:
+            print("[T2_OPERATOR_DIRECT] %s 는 이미 보유한 직접 호출 도구 — '발명' 대신 "
+                  "'직접 불러라'로 답한다(x550 §1)" % chosen, file=sys.stderr, flush=True)
+            return {"status": "deny", "reason": "operator-direct",
+                    "feedback": ("[OPERATOR-DIRECT] '%s' is a tool you already have. It is not a "
+                                 "discoverable tool, so it cannot be unlocked or dispatched: "
+                                 "passing it as '%s' will not run it. Call '%s' directly, as its "
+                                 "own tool call with its own arguments. Do not search for a "
+                                 "suffixed version of this name: there is none."
+                                 % (chosen, arg, chosen))}
         return {"status": "deny", "reason": "operator-fab",
                 "feedback": ("[OPERATOR-PROVENANCE] tool name '%s' was not discovered from any "
                              "prior search/listing result — do NOT invent tool names. Search/list "
@@ -210,6 +242,29 @@ def resolve_operator(opspec, args_dict, msgs, agent=None, la=None, UserMessage=N
                 print("[T2_RESOLVE] operator-find 침묵: chosen=%s 는 이미 성공 실행 — "
                       "재지시는 중복 write 를 만든다" % chosen, file=sys.stderr, flush=True)
                 return {"status": "ok"}
+            # ★**읽기 선택에는 말하지 않는다** (2026-08-26·x550 §2 실측·`T2_SCOPE_ALL=1` 로 복귀).
+            #   이 레버는 *잘못 고른 operator* 를 잡으려고 있는데, 실측이 그 값을 부정한다:
+            #   최근 12런에서 `[OPERATOR-SCOPE]` **61회** 중 **46회가 read** 도구였고
+            #   (`get_debit_cards_by_account_id` 28 · `get_debit_dispute_status` 9 …),
+            #   **61 중 49 는 그 도구가 끝내 실행됐다** — 반려가 선택을 바꾼 게 아니라 **턴만
+            #   태웠다**. 태스크는 079(26)·085(25) 에 몰려 있고, 085 는 그 사이 재료 수집이
+            #   밀려 gold 4행 중 3행을 놓쳤다.
+            #   읽기의 오선택은 회복 가능하다(다시 읽으면 된다). 쓰기의 오선택만 되돌릴 수 없다.
+            #   ⇒ [[70]] 의 "끄지 말고 **조건부 발화**" — 조건은 도메인 일반 닫힌 술어
+            #     (`_is_effective_write`·A2 파생)라 태스크 id 로 켜는 [[05]] 위반이 아니다.
+            #   ⚠파는 것: 읽기 오선택을 **더는 지적하지 않는다**. 그 값이 양수였다는 증거는
+            #     아직 없다(49/61 이 그대로 실행됐다). 음성이면 `T2_SCOPE_ALL=1` 로 되돌린다.
+            if os.environ.get("T2_SCOPE_ALL") != "1":
+                try:
+                    import t2_gate_patch as _g
+                    if not _g._is_effective_write(_g._SUFFIX_RE.sub("", str(chosen)), a2):
+                        print("[T2_RESOLVE] operator-scope 침묵: chosen=%s 는 실효 write 가 "
+                              "아니다 — 읽기 오선택은 회복 가능(x550 §2)" % chosen,
+                              file=sys.stderr, flush=True)
+                        return {"status": "ok"}
+                except Exception as _swe:
+                    print("[T2_RESOLVE] operator-scope write 판정 건너뜀: %r" % (_swe,),
+                          file=sys.stderr, flush=True)
             # ★지목 대신 **범위 표면화**(기본·x322 실측). 지목 문구를 쓰려면 명시적으로
             #   `T2_OPERATOR_PINPOINT=1` 을 켜야 한다 — 되돌릴 길은 남기되 기본은 아니다([[60]]
             #   끄기가 아니라 조정: 발화는 계속 하고 **무엇을 말하는지만** 바꾼다).

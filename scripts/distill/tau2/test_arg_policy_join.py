@@ -85,12 +85,21 @@ def main():
     for bad in ("score", "rank", "similar", "bm25", "embed", "max(", "[:1]", "top"):
         assert bad not in code, "조인이 고르기 시작했다: %r" % bad
 
-    # ⑥ 기본 OFF
+    # ⑥ ON 은 **격리를 근거로만** — 근거 없이 켜면 여기서 붉어진다
+    #   2026-08-25 판: `=0` 을 강제했다(*"모델 반응 미측정"*). 2026-08-26 에 x551 이 쟀다 —
+    #   A_asis 2/4 ↔ B_rule **4/4** ↔ N_len 2/4(부정통제가 A 와 행별 답까지 동일) ⇒ ON.
+    #   그래서 검정은 *"꺼져 있나"* 가 아니라 **"켜져 있다면 근거가 옆에 적혀 있나"** 로 바꾼다.
+    #   (근거를 지우고 켜는 것을 막는 것이 이 칸의 일이다 — [[62]]① 측정 전 구현 금지.)
     gs = io.open(os.path.join(HERE, "go_stack.sh"), encoding="utf-8").read()
-    assert "T2_ARG_POLICY_AT_WRITE=0" in gs, "기본 OFF 가 아니다"
-
+    i = gs.index("export T2_ARG_POLICY_AT_WRITE=")
+    on = gs[i:gs.index(chr(10), i)].strip().endswith("=1")
+    if on:
+        head = gs[max(0, i - 1400):i]
+        assert "x551" in head, "ON 인데 격리 프로브 근거가 선언 옆에 없다"
+        assert "A_asis" in head and "N_len" in head, "ON 인데 부정통제 수치가 없다([[57]])"
     print("OK T2_ARG_POLICY_AT_WRITE: A3 행 %d · 동일성 조인 %d줄 · 축자 인용 전량 · 순위 0 · "
-          "전부-아니면-전무 · 결정론 · 기본 OFF" % (len(rows), len(txt.splitlines())))
+          "전부-아니면-전무 · 결정론 · %s"
+          % (len(rows), len(txt.splitlines()), "ON(x551 근거 확인)" if on else "기본 OFF"))
 
 
 if __name__ == "__main__":

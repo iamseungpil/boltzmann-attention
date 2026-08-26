@@ -11228,7 +11228,15 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                         #   this knowledge base. Pass true or false."*([[64]] 무엇을 하면 풀리나)
                         #   ⚠유사도 검색이 아니라 **동일성**이다 — 어제 폐기한 토큰 검색기와
                         #     다른 종류다([[71]]③). 순위 0 · 상한 넘으면 전부 안 준다.
-                        #   ⚠**모델 반응은 아직 안 쟀다** — 격리(x541) 전에는 런에서 켜지 마라.
+                        #   ★2026-08-26 ON — 모델 반응을 쟀다(`x551`·040 그 축):
+                        #     A_asis **2/4** ↔ B_rule **4/4** ↔ N_len **2/4**(부정통제가 A 와
+                        #     행별 답까지 동일). 창은 **전 접두**여야 한다 — 12메시지×1500자로
+                        #     자르면 A_asis 가 3/4 로 올라 결손 자체가 사라진다.
+                        #   ★그리고 위 인용은 **포인터였다**(= A_asis 조건 그 자체). 같은 날 A3
+                        #     그 행에 Guidelines 문서의 기준 5개를 축자로 더해 **선언을 완결**
+                        #     시켰다(doc `..._015`·827자·[[72]]). 배달은 3,033자(cap 4000).
+                        #   ⚠격리가 잰 것(기준 827자)과 이 조인이 보내는 것(3,033자)은 **다르다**.
+                        #     추가 부하가 해로운지는 런이 판정한다([[70]] ± 를 공개한다).
                         if os.environ.get("T2_ARG_POLICY_AT_WRITE") == "1":
                             _pargs = list(_declared_params_for(state.messages, _wc) or {})
                             _ptxt = _policy_rows_for(a2, _pargs)

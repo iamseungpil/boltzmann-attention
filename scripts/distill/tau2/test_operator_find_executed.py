@@ -120,6 +120,72 @@ def main():
     chk(run(executed=True, want=CHOSEN).get("status") == "ok", "want==chosen 이면 침묵")
     chk(run(executed=False, want=None).get("status") == "ok", "formalize 실패면 침묵")
 
+    # ─── ★수리 1: 검증한 뒤 참말 (2026-08-26·x550 §1) ───
+    # 074 에서 우리 A2 스캐폴드 도구 `get_atm_fee_discrepancies` 를 **"네가 지어냈다"** 로
+    # 6회 막았다(t7358·t7360 재현). 권위는 **`agent.tools`**(프레임워크)이지 A2 선언이 아니다.
+    print("\n[수리 1 — 발견 안 된 이름: 우리가 **들고 있으면** 처방이 달라진다]")
+    HELD = "get_atm_fee_discrepancies"          # 레지스트리에 있는 직접 호출 도구
+    GHOST = "get_totally_made_up_thing_1111"    # 어디에도 없는 이름
+
+    def run_prov(name, held):
+        class _Ag:
+            tools = ([_Tool(name, "A scaffold tool the agent already holds.")]
+                     if held else [])
+        return R.resolve_operator(OPSPEC, {"agent_tool_name": name},
+                                  convo(False), agent=_Ag(), la=object(),
+                                  UserMessage=object(), a2=A2)
+
+    r3 = run_prov(HELD, held=True)
+    chk(r3.get("reason") == "operator-direct",
+        "레지스트리에 **있는** 이름 → operator-direct (reason=%s)" % r3.get("reason"))
+    fb3 = str(r3.get("feedback") or "")
+    chk("already have" in fb3 and "directly" in fb3,
+        "문면이 **무엇을 하면 풀리는지**를 말한다 — '직접 불러라'([[64]])")
+    chk("did not discover" not in fb3 and "invent" not in fb3,
+        "**'지어냈다'고 말하지 않는다** — 우리가 준 도구다([[25]])")
+    chk(r3.get("status") == "deny",
+        "그래도 **거부는 유지**된다 — 감싼 호출은 env 가 어차피 죽인다(면제 아님)")
+
+    r4 = run_prov(GHOST, held=False)
+    chk(r4.get("reason") == "operator-fab",
+        "레지스트리에 **없는** 이름 → 구판 문면 그대로 (reason=%s)" % r4.get("reason"))
+    chk("invent" in str(r4.get("feedback") or ""),
+        "진짜 날조에는 여전히 '발명하지 마라'라고 말한다")
+
+    r5 = run_prov(HELD, held=False)
+    chk(r5.get("reason") == "operator-fab",
+        "**A2 가 뭐라 하든** `agent.tools` 에 없으면 날조 취급 — 선언은 권위가 아니다")
+
+    # ─── ★수리 2: 읽기 선택에는 말하지 않는다 (2026-08-26·x550 §2) ───
+    # 최근 12런 `[OPERATOR-SCOPE]` 61회 중 read 46 · **61 중 49 는 끝내 실행됐다**(턴만 태움).
+    print("\n[수리 2 — 읽기 오선택에는 침묵, 쓰기에는 그대로]")
+    READ, READ_W = "get_debit_cards_by_account_id_7823", "get_user_dispute_history_7291"
+
+    def run_read(want, scope_all=False):
+        if scope_all:
+            os.environ["T2_SCOPE_ALL"] = "1"
+        else:
+            os.environ.pop("T2_SCOPE_ALL", None)
+        orig = R.formalize_intent_tool
+        R.formalize_intent_tool = lambda *a, **k: want
+        try:
+            class _Ag:
+                tools = [_Tool(READ, "Retrieve all debit cards for a checking account."),
+                         _Tool(READ_W, "Retrieve a user's dispute history.")]
+            ms = [M("tool", "docs mention %s and %s" % (READ, READ_W))]
+            return R.resolve_operator(OPSPEC, {"agent_tool_name": READ}, ms,
+                                      agent=_Ag(), la=object(), UserMessage=object(), a2=A2)
+        finally:
+            R.formalize_intent_tool = orig
+            os.environ.pop("T2_SCOPE_ALL", None)
+
+    chk(run_read(READ_W).get("status") == "ok",
+        "chosen 이 **read** 면 침묵한다 — 읽기 오선택은 회복 가능")
+    chk(run_read(READ_W, scope_all=True).get("reason") == "operator-scope",
+        "`T2_SCOPE_ALL=1` 이면 구판대로 발화한다 — 되돌릴 길을 남긴다([[60]])")
+    chk(run(executed=False, want=WANT).get("reason") == "operator-scope",
+        "**write 에는 그대로 발화**한다(회귀 없음)")
+
     print("\n%s (%d fail)" % ("FAIL" if FAIL else "PASS", len(FAIL)))
     return 1 if FAIL else 0
 
