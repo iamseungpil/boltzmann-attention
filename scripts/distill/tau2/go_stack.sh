@@ -614,6 +614,19 @@ export T2_SCOPE_ALL=0
 #   ⇒ **hard-0 여섯**에 걸친다(문서 추정 둘보다 넓다).
 #   술어 = 집합 소속 + 축자 대조뿐([[22]]·C45 동형) · 이름이 대화에 있으면 종전대로 발화.
 #   ⚠효과 미측정 — 런이 잰다.
+# ★requires_reads 를 **정본 입구**로 읽는다 (`T2_SG_REQREADS_CANON`·기본 OFF·2026-08-26).
+#   `t2_precedence.declarations()` 는 자기를 *"소비자가 A2 키를 직접 읽지 않게 하는 단 하나의
+#   입구"* 라 못박고 이유로 *"소비자가 각자 키를 읽으면 '정본만 고치고 소비자 미동기화' 버그"*
+#   ([[24]] 2026-08-03 실측)를 든다. `t2_scaffold_get.py:2077` 이 정확히 그 우회였다.
+#   실물(094·4 sim 0/4): A3 인덱스에 `get_interest_correction → [계좌목록, 거래이력]` 이
+#   **정책 축자와 함께** 있는데(C586·`doc_bank_accounts_…_043`) 게이트는 도구 자신의 키만 봐
+#   `None` 을 읽었고 거래 read 가 **0회**였다.
+#   ⚠폭발 반경 실측 = **도구 1개** — 스캐폴드 10 중 `get_interest_correction` 만 불일치,
+#     나머지 9 는 이미 같다(거동 불변).
+#   ⚠[[23]]: 출처는 정책 축자다. `TASK_094` §7-P2 의 *"gold 가 정확히 이 read"* 논거는 안 쓴다.
+#   ⚠[[70]] 파는 것: 계좌·거래 read 를 아직 안 한 궤적에서 계산이 한 턴 밀린다.
+export T2_SG_REQREADS_CANON=0
+
 export T2_ACTIONREQ_GROUNDED=0
 
 export T2_EPLAN_ENUM_SUBTRACT=0

@@ -229,6 +229,19 @@ def _corpus_texts(orch, which):
         # ★P2(2026-08-21): 우리 경고 문면을 지운 뒤 대조(`_strip_own_feedback` 주석·C203 수리).
         texts += [_strip_own_feedback(t) for t in (ev.get("__tool_outputs") or {}).values()]
         texts.append(ev.get("__user_text") or "")
+    if "ledger_tools" in which:
+        # ★P1 (2026-08-26·`TASK_094.md` §7-P1 구현) — **도구 출력 전용** 원장.
+        #   결함: 이 함수의 `ledger` 는 도구 출력 **+ 손님 발화**인데, `get_interest_correction`
+        #   의 `_ground_note` 는 자기 의도를 *"'레코드서 복사'라 선언된 operand … 를 **원장(계좌
+        #   레코드 도구출력)**에 실재하는지 대조"* 라고 적어 뒀다 ⇒ **구현이 선언의 의도와 어긋난다**.
+        #   실물(094·4 sim 0/4): t7346 은 모델이 옳게 유도한 `actual_apy=5.1` 을 **5회 반려**했고,
+        #   t7348 은 모델이 **손님이 말한 5.0**(오답)을 넣었는데 **한 번도 경고 없이 통과**시켰다.
+        #   같은 술어가 *정답은 막고 손님의 오답은 통과*시킨 것이다([[21]] 손님 주장도 원장 대조
+        #   대상 · [[25]] 우리 도구는 100% 정답 의무).
+        #   ⚠`user` 축이 그 대칭(손님 발화만)이고 여기가 그 반대편이다 — 같은 이유로 갈린다.
+        #     `ledger` 는 그대로 둔다(다른 필드가 쓰고 있고 거동을 안 바꾼다).
+        ev = _evidence_ctx(orch)
+        texts += [_strip_own_feedback(t) for t in (ev.get("__tool_outputs") or {}).values()]
     if "user" in which:
         # ★C203: **손님 발화만**(도구 출력 제외). 'ledger'는 도구 출력을 포함해 **자기-그라운딩**이
         #   생긴다 — 도구가 한 번 뱉은 값은 그 다음 호출부터 무조건 '실재'가 된다(003 실측: 2번째
@@ -2062,6 +2075,35 @@ def apply():
                 #   거부하고 read 지시 — §1.5 허용축(read 강제=write 강제 아님)·엔진=집합 대조만·리터럴 0.
                 #   우리 도구는 env 부재라 replay서 hallucinated-skip → replay-safe.
                 _rr = d.get("requires_reads") or []
+                # ★정본 입구로 읽는다 (2026-08-26·`TASK_094.md` §7-P2 의 **출처 교정판**·기본 OFF).
+                #   `t2_precedence.declarations()` 독스트링이 자기를 *"소비자가 A2 키를 직접 읽지
+                #   않게 하는 **단 하나의 입구**"* 라고 못박고, 그 이유로 *"소비자가 각자 키를 읽고
+                #   있으면 '정본만 고치고 소비자 미동기화' 버그가 난다([[24]] 2026-08-03 실측)"* 를
+                #   든다. 이 줄이 정확히 그 우회다 — A3 관계 인덱스에
+                #     {"source":"requires_reads","dep":"get_interest_correction",
+                #      "reads":["get_all_user_accounts_by_user_id","get_bank_account_transactions"]}
+                #   가 **정책 축자와 함께**(C586·2026-08-21·`doc_bank_accounts_…_043`) 있는데,
+                #   이 게이트는 도구 자신의 키만 봐서 `None` 을 읽고 **한 번도 안 걸렸다**
+                #   (094 4 sim 전부 거래 read 0회).
+                #   ⚠폭발 반경 실측 = **도구 1개**: 스캐폴드 10 중 `get_interest_correction` 만
+                #     자신의 키와 정본 입구가 다르다. 나머지 9 는 이미 일치한다(거동 불변).
+                #   ⚠[[23]]: 출처는 **정책 축자**다. `TASK_094` §7-P2 는 *"gold 094_3/094_4 가
+                #     정확히 이 read"* 를 근거로 들었는데 그건 gold 로 A2 를 고르는 것이라 안 쓴다.
+                #     같은 A2 의 08-22 노트는 그 read 를 *"크레딧 단계"* 로 묶어 일부러 뺐다고
+                #     적었다 — 두 선언이 모순이고, 여기서는 **A3 인덱스가 정본**이라는 규칙만 쓴다.
+                #   ⚠[[70]] 무엇을 파나: 계좌·거래 read 를 아직 안 한 궤적에서 계산이 한 턴 밀린다.
+                if os.environ.get("T2_SG_REQREADS_CANON") == "1":
+                    try:
+                        import t2_precedence as _PCr
+                        _canon = (_PCr.prereq_map(a2) or {}).get(_PCr._fam(d.get("name"))) or []
+                        if sorted(set(_canon)) != sorted(set(_rr)):
+                            print("[T2_SG_REQREADS] 정본 입구 채택 %s: %s → %s"
+                                  % (d.get("name"), _rr or "(없음)", _canon),
+                                  file=_sys.stderr, flush=True)
+                        _rr = _canon or _rr
+                    except Exception as _pce:
+                        print("[T2_SG_REQREADS] 정본 입구 건너뜀: %r" % (_pce,),
+                              file=_sys.stderr, flush=True)
                 if _rr and os.environ.get("T2_SG_REQREADS") == "1":
                     try:
                         _effc = {_g._eff_tool_name(_t2) for _m2 in self.get_messages()

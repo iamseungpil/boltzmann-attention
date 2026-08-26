@@ -2612,10 +2612,11 @@
      {
       "param": "actual_apy",
       "corpus": [
-       "ledger"
+       "ledger_tools"
       ],
       "kind": "number",
-      "on_fail": "drop"
+      "on_fail": "drop",
+      "_note_corpus": "2026-08-26 P1(`TASK_094.md` §7-P1): `ledger` 는 도구 출력 **+ 손님 발화**라 *정답은 막고 손님의 오답은 통과*시켰다(t7346 5.1 을 5회 반려 ↔ t7348 손님의 5.0 을 무경고 통과·4 sim 0/4). 이 필드의 `_ground_note` 는 원래 의도를 **'원장(계좌레코드 도구출력)'** 이라고 적어 뒀다 ⇒ 선언 의도대로 도구 출력 전용 축으로 옮긴다. 다른 필드(principal·기간)는 손님이 정확히 말해 주는 경우가 있어 그대로 둔다([[70]])."
      },
      {
       "param": "period_start",
