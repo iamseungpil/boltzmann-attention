@@ -110,6 +110,35 @@ try:
     A2 = dict(A, arguments='{"account_id": "chk_1", "amount": 14.5}')
     chk(G._mut_key_of(TC("t4", "call_discoverable_agent_tool", A2)) not in seen_ok,
         "인자가 다르면 잡히지 않는다(같은 도구라도)")
+
+    # ─── ★절차적 래퍼는 잡지 않는다 (2026-08-26·t7359 스모크가 잡은 결함·x549) ───
+    # 스모크 첫 판이 `[T2_DUP_WRITE] deny tool=unlock_discoverable_agent_tool` 을 냈다.
+    # unlock 은 대상 도구를 **실행하지 않고 잠금해제만** 하므로 실효 write 가 아니다
+    # (`_eff_tool_name` 독스트링 축자 · `DECLFIRST_LIVE_WIRING_DESIGN §5-c` 가 계측 정의를
+    #  같은 이유로 고쳤다: *"unlock을 write로 계상 → … Z7-③이 2/3으로 과대"*).
+    # 원인은 술어가 아니라 **재료 미전달**이었다 — `_a2_of(self)` 가 None 이라 A2 파생
+    # 절차 집합이 비었다. 그래서 이 칸은 술어를 **배선이 주는 a2 로** 검정한다.
+    W = {"agent_tool_name": "apply_checking_account_credit_5829"}
+    for _wrap in ("unlock_discoverable_agent_tool", "give_discoverable_user_tool"):
+        chk(G._is_effective_write(G._eff_tool_name(TC("w", _wrap, W)), a2) is False,
+            "절차적 래퍼는 실효 write 가 아니다 — %s" % _wrap)
+
+    class _AgentLike(object):        # init_inject 가 심는 것만 갖는다(`.environment` 없음)
+        pass
+
+    _ag = _AgentLike()
+    _ag._t2_a2, _ag._t2_orch = a2, None
+    _live = G._a2_of(_ag)
+    chk(_live is not None, "배선: 에이전트에서 a2 가 온다(구판은 None 이었다)")
+    for _wrap in ("unlock_discoverable_agent_tool", "give_discoverable_user_tool"):
+        chk(G._is_effective_write(G._eff_tool_name(TC("w", _wrap, W)), _live) is False,
+            "**라이브 경로로도** 래퍼를 안 잡는다 — %s" % _wrap)
+    _wrap_msgs = [M("assistant", [TC("u1", "unlock_discoverable_agent_tool", W)]),
+                  M("tool", mid="u1", content="Tool unlocked."),
+                  M("assistant", [TC("u2", "unlock_discoverable_agent_tool", W)]),
+                  M("tool", mid="u2", content="Tool unlocked.")]
+    chk(len(G._succeeded_mut_keys(_wrap_msgs, _live)) == 0,
+        "반복된 unlock 은 중복 원장에 **아예 안 실린다**(발화 0)")
 except Exception as e:                                                  # pragma: no cover
     chk(False, "실동작 검정이 돈다", repr(e))
 

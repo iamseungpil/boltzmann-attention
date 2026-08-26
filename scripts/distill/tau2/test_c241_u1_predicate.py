@@ -30,6 +30,81 @@ def old_is_write(name):
     return bool(name) and not G._READ_PREFIX_RE.match(name) and not _OLD_PROC.search(name)
 
 
+def t5_wiring(banking_a2):
+    """T5 배선 — **호출부가 정말 a2 를 받는가** (2026-08-26 신설·x549).
+
+    왜 신설했나: T1~T4 는 전부 **순수 함수** `_is_effective_write(name, a2)` 만 검정한다.
+    그래서 *"a2 를 넘기는 자리가 실제로 a2 를 갖고 있는가"* 라는 칸이 **없었고**, 라이브에서는
+    `unified()` 안 여섯 자리가 전부 `None` 을 받는 채로 이 래칫이 **초록이었다**.
+    격리 100% ↔ 라이브 결손 — [[76]]⒜ 자격이 아니라 배선인 경우다.
+
+    닫힌 검정 3칸 (런 0회·모델 0회):
+      ⒜ 구조   `unified` 는 **에이전트**에 설치되고(`LLMAgent._generate_next_message = unified`)
+               에이전트에 `.environment` 를 심는 곳은 **0** 이다 ⇒ `_a2_of` 는 에이전트를 받아도
+               동작해야 한다. 이 전제가 깨지면(=누가 `.environment` 를 심으면) 이 칸을 다시 봐라.
+      ⒝ 동적   `init_inject` 가 심는 그대로의 에이전트(= `_t2_a2` 만 있고 `.environment` 없음)에
+               `_a2_of` 를 걸면 non-None 이어야 한다.
+      ⒞ 결과   그 경로로 얻은 a2 로 T3 의 회귀조건이 **그대로** 성립해야 한다
+               (`unlock_…`/`give_…`/`call_…` = write 아님).
+      ⒟ 불변   오케스트레이터 경로(`.environment` 만 있는 객체)는 구판과 같아야 한다.
+    """
+    fails = 0
+    print()
+    print("=== T5 배선 — 호출부가 a2 를 받는가 (x549) ===")
+
+    src = open(os.path.join(_HERE, "t2_gate_patch.py"), encoding="utf-8").read()
+    lines = src.split("\n")
+    installed_on_agent = any(
+        re.search(r"LLMAgent\._generate_next_message\s*=\s*unified", l) for l in lines)
+    plants_env = [i + 1 for i, l in enumerate(lines)
+                  if re.search(r"(self|ag|agent)\.environment\s*=[^=]", l)]
+    us = next((i for i, l in enumerate(lines)
+               if l.startswith("    def unified(self, message, state):")), None)
+    ue = next((i for i in range(us + 1, len(lines))
+               if re.match(r"^    (def |[A-Za-z])", lines[i])), len(lines)) if us is not None else 0
+    sites = [i + 1 for i in range(us or 0, ue) if "_a2_of(self)" in lines[i]]
+    print(f"  ⒜ unified 가 에이전트에 설치됨 = {installed_on_agent} · "
+          f"에이전트에 .environment 심는 곳 = {plants_env or '없음'}")
+    print(f"     unified 안 `_a2_of(self)` 자리 {len(sites)} 곳: {sites}")
+    if not installed_on_agent:
+        print("     ⚠전제 변화: unified 가 더는 에이전트에 설치되지 않는다 — 이 칸을 재설계하라")
+        fails += 1
+
+    class _AgentLike:                    # init_inject 가 심는 것만 갖는다
+        pass
+
+    ag = _AgentLike()
+    ag._t2_a2 = banking_a2
+    ag._t2_orch = None
+    got = G._a2_of(ag)
+    ok_b = got is not None
+    print(f"  ⒝ _a2_of(에이전트) = {'dict' if ok_b else 'None'}  {'✓' if ok_b else '⚠ 재료 미전달'}")
+    if not ok_b:
+        fails += 1
+
+    for n in ("give_discoverable_user_tool", "unlock_discoverable_agent_tool",
+              "call_discoverable_agent_tool"):
+        v = G._is_effective_write(n, got)
+        ok = (v is False)
+        print(f"  ⒞ 배선 경유 _is_effective_write({n[:32]:32s}) = {v}  {'✓' if ok else '⚠'}")
+        if not ok:
+            fails += 1
+
+    class _Env:
+        domain_name = "banking_knowledge"
+
+    class _OrchLike:
+        environment = _Env()
+
+    got_o = G._a2_of(_OrchLike())
+    ok_d = got_o is not None and G._is_effective_write(
+        "unlock_discoverable_agent_tool", got_o) is False
+    print(f"  ⒟ 오케스트레이터 경로 거동 불변 = {ok_d}  {'✓' if ok_d else '⚠'}")
+    if not ok_d:
+        fails += 1
+    return fails
+
+
 def main():
     try:
         sys.stdout.reconfigure(encoding="utf-8")
@@ -91,6 +166,8 @@ def main():
           f"{G._is_effective_write('log_verification', None)} (범용 가지 → False 기대)")
     print(f"  _is_effective_write('transfer_to_human_agents', None) = "
           f"{G._is_effective_write('transfer_to_human_agents', None)} (5/5 공통 → False 기대)")
+
+    fails += t5_wiring(b)
 
     print()
     if fails:

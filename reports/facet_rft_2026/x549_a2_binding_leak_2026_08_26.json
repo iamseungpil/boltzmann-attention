@@ -1,0 +1,221 @@
+{
+ "binding": {
+  "install": [
+   13993
+  ],
+  "inject": [
+   7109,
+   7385
+  ],
+  "sets_env": [],
+  "a2_of_sites": [
+   10998,
+   11000,
+   13240,
+   13386,
+   13396,
+   13406
+  ],
+  "canonical_binding": [
+   7617,
+   7654
+  ],
+  "a2_of_agent_is_none": true
+ },
+ "flips": [
+  {
+   "tool": "call_discoverable_agent_tool",
+   "none": true,
+   "a2": false,
+   "env_mutates": true
+  },
+  {
+   "tool": "call_discoverable_user_tool",
+   "none": true,
+   "a2": false,
+   "env_mutates": true
+  },
+  {
+   "tool": "give_discoverable_user_tool",
+   "none": true,
+   "a2": false,
+   "env_mutates": true
+  },
+  {
+   "tool": "unlock_discoverable_agent_tool",
+   "none": true,
+   "a2": false,
+   "env_mutates": true
+  }
+ ],
+ "dup_write": {
+  "sims": 23,
+  "fire_none": 6,
+  "fire_a2": 2,
+  "extra_calls": 6,
+  "extra_tools": [
+   "give_discoverable_user_tool",
+   "unlock_discoverable_agent_tool"
+  ],
+  "per_tag": {
+   "bank_t7356_grpB1_20260826": {
+    "sims": 2,
+    "fire_none": 1,
+    "fire_a2": 0
+   },
+   "bank_t7356_grpB2_20260826": {
+    "sims": 2,
+    "fire_none": 0,
+    "fire_a2": 0
+   },
+   "bank_t7356_grpB3_20260826": {
+    "sims": 3,
+    "fire_none": 0,
+    "fire_a2": 0
+   },
+   "bank_t7356_grpB4_20260826": {
+    "sims": 3,
+    "fire_none": 0,
+    "fire_a2": 0
+   },
+   "bank_t7356_grpB5_20260826": {
+    "sims": 2,
+    "fire_none": 1,
+    "fire_a2": 0
+   },
+   "bank_t7356_grpB6_20260826": {
+    "sims": 2,
+    "fire_none": 1,
+    "fire_a2": 0
+   },
+   "bank_t7356_grpB7_20260826": {
+    "sims": 2,
+    "fire_none": 1,
+    "fire_a2": 1
+   },
+   "bank_t7356_grpB8_20260826": {
+    "sims": 2,
+    "fire_none": 1,
+    "fire_a2": 0
+   },
+   "bank_t7356_grpB9_20260826": {
+    "sims": 2,
+    "fire_none": 0,
+    "fire_a2": 0
+   },
+   "bank_t7356_smoke_20260826": {
+    "sims": 1,
+    "fire_none": 0,
+    "fire_a2": 0
+   },
+   "bank_t7358_d074_20260826": {
+    "sims": 1,
+    "fire_none": 1,
+    "fire_a2": 1
+   },
+   "bank_t7358_f017_20260826": {
+    "sims": 1,
+    "fire_none": 0,
+    "fire_a2": 0
+   }
+  }
+ },
+ "always_on": {
+  "sims": 23,
+  "true_none": 23,
+  "true_a2": 8,
+  "flip": 15,
+  "delayed": 8,
+  "flip_examples": [
+   [
+    "bank_t7356_grpB1_20260826",
+    "task_017#0",
+    0.0
+   ],
+   [
+    "bank_t7356_grpB1_20260826",
+    "task_017#1",
+    0.0
+   ],
+   [
+    "bank_t7356_grpB2_20260826",
+    "task_098#0",
+    1.0
+   ],
+   [
+    "bank_t7356_grpB2_20260826",
+    "task_098#1",
+    1.0
+   ],
+   [
+    "bank_t7356_grpB3_20260826",
+    "task_016#0",
+    0.0
+   ],
+   [
+    "bank_t7356_grpB3_20260826",
+    "task_016#1",
+    0.0
+   ],
+   [
+    "bank_t7356_grpB3_20260826",
+    "task_016#2",
+    0.0
+   ],
+   [
+    "bank_t7356_grpB4_20260826",
+    "task_063#1",
+    0.0
+   ],
+   [
+    "bank_t7356_grpB4_20260826",
+    "task_063#2",
+    0.0
+   ],
+   [
+    "bank_t7356_grpB5_20260826",
+    "task_057#0",
+    0.0
+   ],
+   [
+    "bank_t7356_grpB6_20260826",
+    "task_055#1",
+    0.0
+   ],
+   [
+    "bank_t7356_grpB9_20260826",
+    "task_100#0",
+    1.0
+   ],
+   [
+    "bank_t7356_grpB9_20260826",
+    "task_100#1",
+    1.0
+   ],
+   [
+    "bank_t7356_smoke_20260826",
+    "task_074#0",
+    0.0
+   ],
+   [
+    "bank_t7358_f017_20260826",
+    "task_017#0",
+    0.0
+   ]
+  ]
+ },
+ "sample_runs": [
+  "bank_t7358_f017_20260826",
+  "bank_t7358_d074_20260826",
+  "bank_t7356_smoke_20260826",
+  "bank_t7356_grpB9_20260826",
+  "bank_t7356_grpB8_20260826",
+  "bank_t7356_grpB7_20260826",
+  "bank_t7356_grpB6_20260826",
+  "bank_t7356_grpB5_20260826",
+  "bank_t7356_grpB4_20260826",
+  "bank_t7356_grpB3_20260826",
+  "bank_t7356_grpB2_20260826",
+  "bank_t7356_grpB1_20260826"
+ ]
+}

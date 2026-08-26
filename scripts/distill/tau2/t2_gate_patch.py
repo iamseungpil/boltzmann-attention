@@ -3223,9 +3223,40 @@ _PROCEDURAL_RE = re.compile(
 
 
 def _a2_of(obj):
-    """orchestrator/self 에서 현 도메인 A2 도출 (C241 U1' 배선용·기존 `_domain_a2` 캐시 재사용)."""
+    """orchestrator **또는 에이전트** 에서 현 도메인 A2 도출 (C241 U1' 배선용·`_domain_a2` 캐시 재사용).
+
+    ⚠2026-08-26 배선 수리 (x549 · t7359 스모크가 잡음). 구판은 `obj.environment` **하나만** 봤다.
+      그런데 `unified()` 는 `LLMAgent._generate_next_message = unified`(:13993) 로 **에이전트**에
+      설치되고 에이전트에는 `.environment` 가 없다(파일 전체에서 심는 곳 0). ⇒ `unified` 안의
+      `_a2_of(self)` **여섯 자리가 전부 None** 을 받아 `_a2_procedural(None)` 이 공집합이 되고
+      `unlock_…`·`give_…`·`call_…` 넷이 **실효 write 로 뒤집혔다**.
+
+      이것은 `ENGINE_LITERAL_REMEDIATION_DESIGN_2026_07_30.md` §8-B 가 축자로 **예고한** 회귀다:
+        *"①순서 의존 — `_is_effective_write` 가 … `_domain_a2()` 보다 먼저 불리면 집합이 비어
+          `give_…`/`unlock_…` 이 write 로 판정되고, 이는 `:4531` 이 회귀 조건으로 못박은
+          `_is_effective_write("give_…")=False` 가 정확히 무너지는 시나리오다."*
+      그 문서의 처방은 *"호출부 6곳 수정 — **6곳 모두 a2 가 근처에 있는 오케스트레이터 래퍼 안**"*
+      이었는데 **그 전제가 `unified` 에서 거짓**이었다. 전역은 없앴는데 전달을 안 했다.
+
+      실측 폭발 반경(x549 · 최근 런 12개 23 sim · 태그별): `_any_effective_write` 가 참인 sim
+      **100% ↔ 34.8%**(전-sim 판정 뒤집힘 15/23). `T2_WRITE_PROV`·`T2_CLAIM_PROV` 는 **상시 ON**
+      (go_stack:110·162)이고 둘 다 이 술어로 갈리므로, 구판에선 :13240 의 `break` 가 사실상 항상
+      걸려 완료-주장 대조가 죽어 있었다 — `LEVER_ROSTER_CANONICAL_2026_08_19.md:248` 의 미해결
+      항목 *"WRITE_PROV 마크 12,181 : 실발화 3(524:1) … 격차 원인"* 과 부합한다.
+      ⚠뒤집히는 15 중 **098×2·100 은 지금 reward=1.0** 이다 ⇒ 이 수리는 양날이고, 재스모크가
+        회귀 대조를 함께 봐야 한다([[70]] — ± 를 공개한다).
+
+      수리 = `init_inject` 가 에이전트에 **이미 심어 두는** `_t2_a2`(:7109·:7385)를 먼저 본다.
+      새 선언 0 · 도메인 리터럴 0 · 오케스트레이터 경로(:6720)는 `_t2_a2` 가 없어 거동 불변.
+      래칫 = `test_c241_u1_predicate.py` §배선 (구판 래칫은 **순수 함수만** 검정해 이걸 놓쳤다).
+    """
     try:
-        env = getattr(obj, "environment", None)
+        a2 = getattr(obj, "_t2_a2", None)        # 에이전트 경로 — init_inject 가 심은 정본
+        if a2:
+            return a2
+        env = getattr(obj, "environment", None)  # 오케스트레이터 경로 (구판·거동 불변)
+        if env is None:                          # 에이전트인데 _t2_a2 가 아직 없을 때의 보루
+            env = getattr(getattr(obj, "_t2_orch", None), "environment", None)
         return _domain_a2(getattr(env, "domain_name", None)) if env is not None else None
     except Exception:
         return None
