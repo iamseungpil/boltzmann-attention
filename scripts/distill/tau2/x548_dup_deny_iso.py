@@ -3,40 +3,43 @@ r"""x548 - 격리: **이유와 조치를 실은 거절**이 중복 실행을 멈
 
 ## 왜 (2026-08-26 · x547 다음)
 
-x547 이 재생으로 확정했다:
+x547 이 재생으로 확정했다: 중복 실행을 **전부** 빼도 만점 sim 14/14 는 그대로고(비용 0),
+0점 sim 142 중 **8** 이 산다. 정제 술어(*순수 반복만 차단*)는 8 중 1 만 살려 더 나쁘다.
+남은 위험은 **051 하나** — gold 가 *거절·상환 뒤의 같은 인자 재제출*을 요구한다. 그런데
+코퍼스의 051 sim 은 전부 0점이라 그 비용은 **관측된 적이 없다**(반증된 게 아니다).
 
-    비용 갈래 14 sim | 중복 실행을 **전부** 빼도 깎인 점수 **0**
-    이득 갈래 142 sim | 전부 빼면 **8** 이 살고, *순수 반복만* 빼는 정제 술어는 **1** 만 산다
+사용자 지적: *"차단할 때 차단 이유와 조치할 수 있는 방법을 알려주어서 같은 실수 반복하지
+않게 하는거 아니었나?"* — 그렇다([[64]]). 그러면 051 의 탈출구는 술어가 아니라 **문면**이다.
 
-⇒ 술어를 좁힐 이유가 없다. 남은 위험은 **051 하나**다: gold 가 같은 인자의 재제출을 진짜로
-   요구한다([2] 제출 -> [12] **거절** -> [16] 상환 -> [17] **같은 인자 재제출** -> [19] 승인).
-   그런데 코퍼스의 051 sim 은 전부 0점이라 그 비용은 **관측된 적이 없다**(반증된 게 아니다).
+재생은 *실행을 뺐을 때의 점수*(G1/G2)만 답한다. **거절당한 모델의 다음 수**(G3)가 여기다.
 
-사용자 지적(2026-08-26): *"차단할 때 차단 이유와 조치할 수 있는 방법을 알려주어서 같은 실수
-반복하지 않게 하는거 아니었나?"* — 그렇다([[64]]). 그러면 051 의 탈출구는 술어를 좁히는 것이
-아니라 **문면**이다. 이 프로브가 그 문면을 시험한다.
+## ⛔1차 판은 무효였다 (2026-08-26 · 기록으로 남긴다)
 
-## 재생이 못 답하는 자리 (그래서 격리다)
+1차는 평문 대화 한 통에 *"호출할 게 없으면 정확히 NONE 이라고 답하라"* 를 붙였다. 결과는
+네 팔 전부 NONE 이었고 **A_live 가 라이브 재실행을 재현하지 못했다**([[62]] 2b 불공정).
+창은 무죄였다 — 12 메시지에 손님 질문도 앞선 크레딧 성공 4건도 다 들어 있었다. 진범은
+**answer_format** 이다([[78]] 2026-08-24 와 같은 자리): 라이브는 도구 호출 API 로 돌았는데
+프로브가 *아무것도 안 하는 선택지*를 손수 만들어 줬다. 채점도 틀렸다 — id 등장만 세서
+`approve_credit_limit_increase` 안의 카드 id 를 *재제출* 로 셌다.
 
-재생은 *실행을 뺐을 때의 점수*(G1/G2)만 답한다. **거절당한 모델이 다음에 무엇을 하는가**(G3)는
-답할 수 없다(`x515` §경계). 여기가 그 G3 이다.
+2차(이 파일)는 셋을 고친다:
+  · 도구 표면을 **env 선언에서** 실어 준다(`env.get_tools()[].openai_schema` · 저작 0)
+  · 형식 지시를 **없앤다** — 팔 사이 차이만 남는다
+  · 채점을 **가른다**: ⒜같은 호출 재발행(`mut_key` 동일) ⒝아무 행동도 안 함(과잉 억제·[[70]])
 
-## 표적 둘 — 같은 문면이 **반대 방향**으로 작동해야 한다
+## 팔 ([[57]])
 
-    074  이미 성공한 크레딧 4건을 msg97 에서 통째로 재실행했다 -> 거절이 **멈춰야** 한다
-    051  거절·상환 뒤의 재제출은 gold 가 요구한다             -> 거절이 **막아서는 안 된다**
+    A_live   창 그대로, 모델이 다음 턴을 만든다   <- 라이브 재실행을 **재현해야** 한다
+    B_bare   창 + 그 시도 + **이름 없는 거절**
+    C_named  창 + 그 시도 + **이유·앞선 결과·조치**  <- 수리 후보
+    N_len    창 + 그 시도 + 같은 길이 무관 문장
 
-## 팔 ([[57]] 부정통제 포함)
+시도(assistant tool_calls)는 **모델 자신이 라이브에서 낸 그 호출을 축자로** 쓴다.
 
-    A_live   창 그대로                       <- 라이브의 재실행을 **재현해야** 한다([[62]] 2b)
-    B_bare   창 + 시도 + **이름 없는 거절**    <- [[64]] 의 반대 극 (*"할 수 없습니다"* 뿐)
-    C_named  창 + 시도 + **이유·앞선 결과·조치**  <- 수리 후보
-    N_len    창 + 시도 + 같은 길이 무관 문장    <- 길이가 아니라 내용임을 가른다
+## 판정은 두 표적을 **함께** 읽는다
 
-## 채점 - 닫힌 술어 · gold 미접촉 ([[23]])
-
-*이미 성공한* 대상(074=계좌 id · 051=카드 id)이 답에 다시 나오는지만 센다. 어느 쪽이 옳은지는
-표적마다 반대이므로 **판정은 두 표적을 함께** 읽는다. 정답표를 프롬프트에 넣지 않는다.
+    074  C_named 의 재발행이 B_bare·N_len 보다 낮아야 한다 (멈춰야 한다)
+    051  C_named 가 행동을 **얼리면 안 된다** — 재발행이 A_live 만큼 나와야 한다
 
 사용: (리모트·cwd=scripts/distill/tau2) py -3 x548_dup_deny_iso.py --port 8141 --n 4
 """
@@ -60,27 +63,43 @@ MODEL = "Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8"
 NL = chr(10)
 W = 14
 
-# ★거절 문면. 도메인 낱말 0 — 대상 이름과 앞선 결과는 **궤적에서 축자로** 실린다([[23]]).
-#   [[64]] 두 가지를 다 담는다: 무엇이 틀렸나 + 무엇을 하면 풀리나(+ 풀리는 조건).
-DENY_NAMED = (
+# ★C_proceed — **사용자 제안 2026-08-26**: *"호출을 지우고, 지운 이유를 달아서 왜 지웠는지
+#   알려주고, 그냥 다음 단계를 진행하라고 하면 안되나?"*  발명이 아니다 — 이미 살아 있는
+#   읽기 가드(`[DUPLICATE-READ]`)의 마지막 문장이 정확히 그 모양이다:
+#     *"If you already have the information you need, proceed to the next step instead of
+#       searching again."*
+#   쓰기 쪽에만 그 문장이 없었다. 그래서 이 팔은 **그 문면을 쓰기로 옮긴 것**이다.
+#   문면은 **셋을 명시로** 담는다(사용자 2026-08-26 축자: *"조용히 지우는게 아니라, 중복은
+#   지우고, 지운 사실을 명시적으로 알려주고, 이것에 대해서 더 하지 말고, 그 다음 단계로
+#   진행하라고 하는거다"*):
+#     ⑴이 호출은 **지워졌다**(실행되지 않았다)  ⑵이 건은 **더 하지 마라**  ⑶**다음 단계로 가라**
+#   ⑵가 읽기 가드의 *"Do NOT repeat this exact search"* 에 해당한다 — 초안에 그것만 빠져 있었다.
+DENY_PROCEED = (
     "Error: [DUPLICATE-WRITE] This exact call (same tool, same arguments) already succeeded "
-    "earlier in this conversation. It ran at message {at} and returned:" + NL + NL +
+    "earlier in this conversation, so this call was REMOVED and not run - running it twice "
+    "would apply the same change twice. It ran at message {at} and returned:" + NL + NL +
     "{result}" + NL + NL +
-    "It has NOT been run again, because running it twice would apply the same change twice. "
-    "If nothing has changed since that message, do not send this call again - use the result "
-    "above to answer. If something HAS changed since then that makes this call correct a "
-    "second time, state what changed and send the call again; it will go through.")
+    "That change is already done. Do NOT attempt this change again and do not do anything "
+    "further about it. Use the result above and proceed to the next step.")
+# ★D_escape — 위에 **단서 한 문장**을 더한 판. 051 처럼 gold 가 재제출을 요구하는 자리를
+#   여는가, 아니면 그냥 모델을 헷갈리게 하는가를 가르려고 나란히 둔다([[57]] 한 칸 차이).
+DENY_ESCAPE = (DENY_PROCEED + " If something HAS changed since that message that makes this "
+               "call correct a second time, state what changed and send the call again; "
+               "it will go through.")
 DENY_BARE = "Error: This call could not be completed. Please continue."
 
 
-def gen(port, body, maxtok=200):
+def chat(port, messages, tools, maxtok=420):
     payload = {"model": MODEL, "temperature": 0.0, "max_tokens": maxtok,
-               "messages": [{"role": "user", "content": body}]}
+               "messages": messages}
+    if tools:
+        payload["tools"] = tools
+        payload["tool_choice"] = "auto"
     req = urllib.request.Request("http://127.0.0.1:%d/v1/chat/completions" % port,
                                  data=json.dumps(payload).encode("utf-8"),
                                  headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=300) as r:
-        return json.loads(r.read().decode("utf-8"))["choices"][0]["message"]["content"]
+    with urllib.request.urlopen(req, timeout=600) as r:
+        return json.loads(r.read().decode("utf-8"))["choices"][0]["message"]
 
 
 def load(tag):
@@ -91,17 +110,6 @@ def load(tag):
     return d.get("simulations") or []
 
 
-def inner_args(tc):
-    a = F.argsof(tc) or {}
-    inner = a.get("arguments")
-    if isinstance(inner, str):
-        try:
-            inner = json.loads(inner)
-        except Exception:
-            inner = {}
-    return a, (inner if isinstance(inner, dict) else {})
-
-
 def result_of(ms, i, tcid):
     for j in range(i + 1, len(ms)):
         m = ms[j]
@@ -110,63 +118,46 @@ def result_of(ms, i, tcid):
     return ""
 
 
-def window(ms, upto):
-    txt = []
-    for mm in ms[max(0, upto - W):upto]:
-        cc = str(mm.get("content") or "").strip()
-        if cc:
-            txt.append("[%s] %s" % (mm.get("role"), cc[:1500]))
-    return (NL + NL).join(txt)
+def safe_start(ms, i):
+    """도구 호출/결과 짝이 잘리지 않는 시작점 — `i-W` 이하의 마지막 user 턴."""
+    for k in range(max(0, i - W), -1, -1):
+        if str(ms[k].get("role")) == "user":
+            return k
+    return 0
 
 
-def filler(ms, want):
-    best = None
+def to_openai(ms):
+    out = []
     for m in ms:
-        if str(m.get("role")) != "tool":
-            continue
-        for s in re.split(r"(?<=\.)\s+", str(m.get("content") or "")):
-            s = s.strip()
-            if not (80 < len(s) < 1200):
-                continue
-            d = abs(len(s) - want)
-            if best is None or d < best[0]:
-                best = (d, s)
-    return best[1] if best else None
+        role = str(m.get("role"))
+        if role == "assistant":
+            msg = {"role": "assistant", "content": str(m.get("content") or "")}
+            tcs = []
+            for tc in (m.get("tool_calls") or []):
+                tcs.append({"id": str(tc.get("id") or ""), "type": "function",
+                            "function": {"name": str(F.nameof(tc)),
+                                         "arguments": json.dumps(F.argsof(tc),
+                                                                 ensure_ascii=False)}})
+            if tcs:
+                msg["tool_calls"] = tcs
+            out.append(msg)
+        elif role == "tool":
+            out.append({"role": "tool", "tool_call_id": str(m.get("id") or ""),
+                        "content": str(m.get("content") or "")})
+        elif role == "user":
+            out.append({"role": "user", "content": str(m.get("content") or "")})
+    return out
 
 
-def find_repeat(sim, toolpat, idkey, needs_between=None):
-    """이 sim 에서 **이미 성공한 호출을 다시 낸 자리**를 찾는다.
-
-    반환 = (재시도 msg 인덱스, 대상 id 집합, 앞선 성공 (msg, 결과)). 닫힌 규칙뿐."""
-    ms = sim.get("messages") or []
-    first, between_ok = {}, (needs_between is None)
-    for i, m in enumerate(ms):
-        if str(m.get("role")) != "assistant":
-            continue
-        for tc in (m.get("tool_calls") or []):
-            a, inner = inner_args(tc)
-            tool = str(a.get("agent_tool_name") or a.get("user_tool_name")
-                       or a.get("discoverable_tool_name") or F.nameof(tc) or "")
-            tcid = str((tc.get("id") if isinstance(tc, dict) else "") or "")
-            res = result_of(ms, i, tcid)
-            ok = bool(res) and not res.lstrip().startswith("Error:")
-            if needs_between and needs_between in tool and ok:
-                between_ok = True
-            if toolpat not in tool:
-                continue
-            tid = str(inner.get(idkey) or a.get(idkey) or "")
-            if not tid:
-                continue
-            if tid in first:
-                if between_ok:
-                    return i, {tid}, first[tid]
-            elif ok:
-                first[tid] = (i, res)
-    return None, set(), None
+def keyset(tcs):
+    """이 호출들의 `mut_key` 집합 — 가드가 쓰는 바로 그 동일성."""
+    out = set()
+    for tc in tcs:
+        out.add(F.mut_key(str(F.nameof(tc)), F.argsof(tc)))
+    return out
 
 
-def target_074(tag="bank_t7358_d074_20260826"):
-    """074: msg97 이 이미 성공한 네 계좌를 통째로 재실행한 자리."""
+def cases_074(tag="bank_t7358_d074_20260826"):
     out = []
     for s in load(tag):
         ms = s.get("messages") or []
@@ -174,77 +165,96 @@ def target_074(tag="bank_t7358_d074_20260826"):
         for i, m in enumerate(ms):
             if str(m.get("role")) != "assistant":
                 continue
-            ids = []
+            rep = []
             for tc in (m.get("tool_calls") or []):
-                a, inner = inner_args(tc)
+                a = F.argsof(tc)
+                inner = a.get("arguments")
+                if isinstance(inner, str):
+                    try:
+                        inner = json.loads(inner)
+                    except Exception:
+                        inner = {}
                 tool = str(a.get("agent_tool_name") or "")
                 if "apply_checking_account_credit" not in tool:
                     continue
-                acct = str(inner.get("account_id") or "")
-                tcid = str((tc.get("id") if isinstance(tc, dict) else "") or "")
+                k = F.mut_key(str(F.nameof(tc)), a)
+                tcid = str(tc.get("id") or "")
                 res = result_of(ms, i, tcid)
-                if not acct:
-                    continue
-                if acct in done:
-                    ids.append(acct)
+                if k in done:
+                    rep.append(tc)
                 elif res and not res.lstrip().startswith("Error:"):
-                    done[acct] = (i, res)
-            if ids and len(ids) >= 2:
-                at, res = done[ids[0]]
-                out.append({"target": "074", "sim": "%s#s%s" % (s.get("task_id"), s.get("seed")),
-                            "tag": tag, "msg": i, "ids": sorted(set(ids)),
-                            "prior_at": at, "prior_result": res[:700],
-                            "win": window(ms, i), "filler": filler(ms, len(DENY_NAMED))})
+                    done[k] = (i, res)
+            if len(rep) >= 2:
+                at, res = list(done.values())[0]
+                out.append({"target": "074", "task": s.get("task_id"), "tag": tag,
+                            "sim": "%s#s%s" % (s.get("task_id"), s.get("seed")),
+                            "msg": i, "attempt": rep, "prior_at": at,
+                            "prior_result": res[:700], "ms": ms})
                 break
     return out
 
 
-def target_051(tags):
-    """051: **거절이 있고 난 뒤** 같은 카드로 재제출한 자리(gold 가 요구하는 모양)."""
+def cases_051(tags):
     out = []
     for tag in tags:
         for s in load(tag):
             if str(s.get("task_id")) != "task_051":
                 continue
             ms = s.get("messages") or []
-            i, ids, prior = find_repeat(s, "submit_credit_limit_increase_request",
-                                        "credit_card_account_id",
-                                        needs_between="deny_credit_limit_increase")
-            if i is None:
-                continue
-            at, res = prior
-            out.append({"target": "051", "sim": "%s#s%s" % (s.get("task_id"), s.get("seed")),
-                        "tag": tag, "msg": i, "ids": sorted(ids),
-                        "prior_at": at, "prior_result": res[:700],
-                        "win": window(ms, i), "filler": filler(ms, len(DENY_NAMED))})
+            done, denied = {}, False
+            for i, m in enumerate(ms):
+                if str(m.get("role")) != "assistant":
+                    continue
+                for tc in (m.get("tool_calls") or []):
+                    a = F.argsof(tc)
+                    tool = str(a.get("agent_tool_name") or "")
+                    tcid = str(tc.get("id") or "")
+                    res = result_of(ms, i, tcid)
+                    ok = bool(res) and not res.lstrip().startswith("Error:")
+                    if "deny_credit_limit_increase" in tool and ok:
+                        denied = True
+                    if "submit_credit_limit_increase_request" not in tool:
+                        continue
+                    k = F.mut_key(str(F.nameof(tc)), a)
+                    if k in done and denied:
+                        at, r = done[k]
+                        out.append({"target": "051", "task": "task_051", "tag": tag,
+                                    "sim": "%s#s%s" % (s.get("task_id"), s.get("seed")),
+                                    "msg": i, "attempt": [tc], "prior_at": at,
+                                    "prior_result": r[:700], "ms": ms})
+                        break
+                    if k not in done and ok:
+                        done[k] = (i, res)
+                if out and out[-1]["tag"] == tag and out[-1]["sim"].startswith("task_051"):
+                    break
             if len(out) >= 3:
                 return out
     return out
 
 
-ASK = (NL + NL + "[system] Decide your next step. Reply with ONLY the tool calls you will make "
-       "now, one per line, in the form name(arg=value, ...). If you will not call any tool, "
-       "reply with exactly NONE.")
+def build_arms(c, system, filler_txt):
+    base = to_openai(c["ms"][safe_start(c["ms"], c["msg"]):c["msg"]])
+    head = ([{"role": "system", "content": system}] if system else []) + base
+    att = {"role": "assistant", "content": "",
+           "tool_calls": [{"id": str(tc.get("id") or ("x%d" % n)), "type": "function",
+                           "function": {"name": str(F.nameof(tc)),
+                                        "arguments": json.dumps(F.argsof(tc),
+                                                                ensure_ascii=False)}}
+                          for n, tc in enumerate(c["attempt"])]}
+    proceed = DENY_PROCEED.format(at=c["prior_at"], result=c["prior_result"])
+    escape = DENY_ESCAPE.format(at=c["prior_at"], result=c["prior_result"])
 
+    def denied(text):
+        return head + [att] + [{"role": "tool", "tool_call_id": t["id"], "content": text}
+                               for t in att["tool_calls"]]
 
-def arms(case):
-    """네 팔의 **본문**. 창은 동일하고 마지막 블록만 다르다."""
-    attempt = ("[assistant] (calling %s again for %s)"
-               % ("the same tool", ", ".join(case["ids"])))
-    named = DENY_NAMED.format(at=case["prior_at"], result=case["prior_result"])
-    fil = case.get("filler") or ("This account was reviewed earlier in the conversation. " * 6)
     return collections.OrderedDict((
-        ("A_live", case["win"]),
-        ("B_bare", case["win"] + NL + NL + attempt + NL + "[tool] " + DENY_BARE),
-        ("C_named", case["win"] + NL + NL + attempt + NL + "[tool] " + named),
-        ("N_len", case["win"] + NL + NL + attempt + NL + "[tool] Error: " + fil[:len(named)]),
+        ("A_live", head),
+        ("B_bare", denied(DENY_BARE)),
+        ("C_proceed", denied(proceed)),
+        ("D_escape", denied(escape)),
+        ("N_len", denied("Error: " + (filler_txt or "")[:len(proceed)])),
     ))
-
-
-def reissued(ans, ids):
-    """답에 **이미 성공한 대상 id** 가 몇 개 다시 나오나. 형식 준수를 요구하지 않는다."""
-    low = str(ans or "")
-    return sum(1 for t in ids if t and t in low)
 
 
 def main(argv=None):
@@ -256,35 +266,72 @@ def main(argv=None):
                                          "bank_all97_nt1_v2_20260718")
     a = ap.parse_args(argv)
 
-    cases = target_074() + target_051([t.strip() for t in a.tags051.split(",") if t.strip()])
+    from tau2.registry import registry
+    from tau2.domains.banking_knowledge.environment import get_tasks
+    tasks = {t.id: t for t in get_tasks()}
+
+    cases = cases_074() + cases_051([t.strip() for t in a.tags051.split(",") if t.strip()])
     print("=" * 100)
-    print("x548 격리 — 표적 %d (074 %d · 051 %d)"
+    print("x548 v2 격리 — 표적 %d (074 %d · 051 %d)"
           % (len(cases), sum(1 for c in cases if c["target"] == "074"),
-             sum(1 for c in cases if c["target"] == "051")))
-    print("=" * 100, flush=True)
+             sum(1 for c in cases if c["target"] == "051")), flush=True)
     if not cases:
-        print("창을 못 만들었다 — 판정 불가([[78]]: 무엇이 창에 없었는지부터 적어라)")
+        print("창 0 — 판정 불가")
         return 2
 
     rows = []
     for c in cases:
-        print("\n── %s %s msg=%d 대상 %s (앞선 성공 msg=%s)"
-              % (c["target"], c["sim"], c["msg"], ",".join(c["ids"]), c["prior_at"]), flush=True)
-        body = arms(c)
-        tally = collections.OrderedDict()
-        for arm, txt in body.items():
-            hits, answers = 0, []
+        task = tasks.get(str(c["task"]))
+        env = registry.get_env_constructor("banking_knowledge")(
+            retrieval_variant="alltools", task=task)
+        tools = [t.openai_schema for t in env.get_tools()]
+        system = env.get_policy()
+        fil = None
+        for m in c["ms"]:
+            if str(m.get("role")) == "tool":
+                for s in re.split(r"(?<=\.)\s+", str(m.get("content") or "")):
+                    s = s.strip()
+                    if 200 < len(s) < 1400:
+                        fil = s
+                        break
+            if fil:
+                break
+        blocked = keyset(c["attempt"])
+        print("\n── %s %s msg=%d · 시도 %d 건 · 도구 %d · 정책 %d자 (앞선 성공 msg=%s)"
+              % (c["target"], c["sim"], c["msg"], len(c["attempt"]), len(tools),
+                 len(system or ""), c["prior_at"]), flush=True)
+        tally = {}
+        for arm, msgs in build_arms(c, system, fil).items():
+            re_n = act_n = 0
+            sample = ""
             for _k in range(a.n):
                 try:
-                    ans = gen(a.port, txt + ASK)
+                    msg = chat(a.port, msgs, tools)
                 except Exception as e:
-                    ans = "ERR %r" % (e,)
-                answers.append(" ".join(str(ans).split())[:120])
-                hits += 1 if reissued(ans, c["ids"]) else 0
-            tally[arm] = hits
-            print("   %-8s 재제출 %d/%d   | %s" % (arm, hits, a.n, answers[0][:88]), flush=True)
+                    sample = sample or ("ERR %r" % (e,))
+                    continue
+                tcs = msg.get("tool_calls") or []
+                names = []
+                for t in tcs:
+                    fn = (t.get("function") or {})
+                    try:
+                        args = json.loads(fn.get("arguments") or "{}")
+                    except Exception:
+                        args = {}
+                    names.append(str(fn.get("name")))
+                    if F.mut_key(str(fn.get("name")), args) in blocked:
+                        re_n += 1
+                        break
+                if tcs:
+                    act_n += 1
+                if not sample:
+                    sample = (",".join(names) if names
+                              else " ".join(str(msg.get("content") or "").split())[:90])
+            tally[arm] = {"reissue": re_n, "acted": act_n}
+            print("   %-8s 재발행 %d/%d · 행동 %d/%d | %s"
+                  % (arm, re_n, a.n, act_n, a.n, sample[:80]), flush=True)
         rows.append({"target": c["target"], "sim": c["sim"], "tag": c["tag"],
-                     "ids": c["ids"], "tally": tally, "n": a.n})
+                     "msg": c["msg"], "n": a.n, "tally": tally})
 
     print("\n" + "=" * 100)
     for t in ("074", "051"):
@@ -292,21 +339,20 @@ def main(argv=None):
         if not rs:
             print("%s: 창 0 — 판정 불가" % t)
             continue
-        agg = collections.Counter()
-        for r in rs:
-            for k, v in r["tally"].items():
-                agg[k] += v
         tot = sum(r["n"] for r in rs)
-        print("%s 합계(재제출/시행): %s  (시행 %d)"
-              % (t, {k: "%d/%d" % (agg[k], tot) for k in ("A_live", "B_bare", "C_named", "N_len")},
-                 tot))
-    print("판정 규칙: 074 는 C_named 가 A_live·N_len 보다 **낮아야** 하고,")
-    print("           051 은 C_named 가 A_live 만큼 **높아야** 한다. 둘 다 만족해야 문면이 산다.")
-    print("⚠A_live 가 074 에서 재제출을 재현 못 하면 그 창은 불공정하다([[62]] 2b).")
+        agg = {k: [sum(r["tally"][k]["reissue"] for r in rs),
+                   sum(r["tally"][k]["acted"] for r in rs)]
+               for k in ("A_live", "B_bare", "C_proceed", "D_escape", "N_len")}
+        print("%s (시행 %d) 재발행/행동: %s"
+              % (t, tot, {k: "%d/%d · %d" % (v[0], tot, v[1]) for k, v in agg.items()}))
+    print("판정: 074 는 C_named 의 **재발행**이 B_bare·N_len 보다 낮아야 하고,")
+    print("      051 은 C_named 의 **행동**이 A_live 만큼 유지돼야 한다(얼면 [[70]] 매도).")
+    print("⚠A_live(074)가 재발행을 재현 못 하면 그 창은 불공정하다([[62]] 2b).")
 
     p = os.path.join(REP, "x548_dup_deny_iso_2026_08_26.json")
     with open(p, "w", encoding="utf-8") as fh:
-        json.dump({"rows": rows, "deny_named": DENY_NAMED}, fh, ensure_ascii=False, indent=2)
+        json.dump({"rows": rows, "deny_proceed": DENY_PROCEED, "deny_escape": DENY_ESCAPE},
+                  fh, ensure_ascii=False, indent=2)
     print("산출: %s" % p)
     return 0
 
