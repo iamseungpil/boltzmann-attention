@@ -752,7 +752,16 @@
     "잃지_않는_것": "`status_breakdown` 과 `status_meanings_text` 는 진단 호출 **이전에** 따로 배달된다(`t2_gate_patch.py:4845`·`:4852`) — 사라지는 것은 *'A separate check was run … It answers: Platinum'* 이라는 **거짓 단일 권위**뿐이다.",
     "반증_조건": "010 형태(이름당 상태 1종)인데 판정문이 **틀린** sim 이 나오면 술어가 부족하다. 016 에서 판정문을 빼도 0/22 그대로면 이 레버는 **무해하지만 무익**이다 — N3 에서 016 의 0→1 로만 판정한다."
    },
-   "선행_확인": "grep 경로 = `TASK_016.md:203,207,214` · `FAILURE_MASTER__20260822.md`·`STATE_OF_PLAY_2026_08_23.md`(`T2_DIAG` 문자열 없음) · `x213_congestion_ablation.py`(`G_ONTO` 24셀 = 이 레버 도입 근거이고 **모호성 축 측정 없음**)."
+   "선행_확인": "grep 경로 = `TASK_016.md:203,207,214` · `FAILURE_MASTER__20260822.md`·`STATE_OF_PLAY_2026_08_23.md`(`T2_DIAG` 문자열 없음) · `x213_congestion_ablation.py`(`G_ONTO` 24셀 = 이 레버 도입 근거이고 **모호성 축 측정 없음**).",
+   "구현": {
+    "상태": "구현 완료 · **기본 OFF** · 래칫 초록",
+    "코드": "`t2_ledger.status_multiplicity()` 신설 + `diagnose_choice()` 안 두 자리 — ⑴모든 이름이 다중이면 **묻지도 않는다**(서브 호출 0) ⑵답한 이름이 다중이면 배달을 접는다. 필드는 선언(`group_field`·`status_field`)에서만 읽는다 · 도메인 리터럴 0 · A2 새 키 0.",
+    "래칫": "`test_diag_unambiguous.py` — 14 검사 전부 초록. **실제 궤적**을 먹인다(016·010·098·099 + 016 행의 혼합 부분집합). 구판에서는 `AttributeError: module 't2_ledger' has no attribute 'status_multiplicity'` 로 **붉다**.",
+    "배터리": "`test_procedure_left` · `test_actionreq_grounded` · `test_operator_find_executed` · `test_decision_point_load` · `test_diag_unambiguous` 전부 exit 0 — 새 붉음 0.",
+    "미완": "⛔`go_stack.sh` 등재가 **동결에 막혀 못 했다**. 로컬 `FREEZE.json` 이 `tag=t7357 · sha=2e9ff2c7 · at=07:28` 로 **낡은 채 active** 이고 path 목록에 `go_stack.sh` 가 있다. t7362 가 실제로 도는 중이라 막힌 것 자체는 옳다 — **런 종료 후 `freeze.py --off` 하고 등재**할 것.",
+    "등재_문안": "§3 형(허위 문면 교정)으로 `export T2_DIAG_UNAMBIGUOUS=1`. 새 거동을 더하는 게 아니라 근거 없는 단언 하나를 거두는 것이고 `status_breakdown`·`status_meanings_text` 는 그 앞에서 그대로 나간다.",
+    "함정_기록": "로컬 동결 표식이 **실제로 도는 런(t7362)을 가리키지 않는다** — t7362 드라이버는 **리모트** 사본에 동결을 걸었고 로컬은 t7357 것이 남아 있다. 그리고 훅은 Edit/Write 만 본다 ⇒ Bash `sed` 는 동결을 **그냥 지나간다**(핸드오프 §5.6 의 *'동결이 뚫려 있었다'* 가 이 구멍일 가능성)."
+   }
   }
  }
 }

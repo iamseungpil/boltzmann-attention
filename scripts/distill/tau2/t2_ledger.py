@@ -30,6 +30,7 @@
 import datetime
 import hashlib
 import json
+import os
 import re
 import sys
 
@@ -38,7 +39,7 @@ import t2_subcall as SC   # 단발-격리 서브 정본(2026-08-14 리팩토링)
 __all__ = ["specs_for", "formalize_rows", "formalize_now", "formalize_limits",
            "formalize_thresholds", "window_and_tally", "earliest_age",
            "exhausted_text", "ineligible_text", "facts_text",
-           "parse_rows", "parse_pairs", "parse_scalar"]
+           "parse_rows", "parse_pairs", "parse_scalar", "status_multiplicity"]
 
 
 # ── 모델 응답 → 값 : 순수 파서 3종 (`FACT_DAG_DESIGN_2026_08_08.md` §2c `shape`) ──────────
@@ -1052,6 +1053,25 @@ def onto_context(rows, spec, a3_rows):
     return "\n".join(p.strip() for p in parts if p and p.strip())
 
 
+def status_multiplicity(rows, spec):
+    """이름(`group_field`) → 그 이름이 **이고 있는 상태**(`status_field`) 집합. 선언 구동·리터럴 0.
+
+    왜 이 값이 필요한가: 진단 서브가 답하는 단위는 **이름**인데 원장의 단위는 **행**이다. 한
+    이름이 여러 상태를 동시에 이면(016: 네 이름 전부 2~3종) *"어느 record 가 미지급인가"* 는
+    그 문맥에서 답이 하나로 정해지지 않는다 — 그때 우리가 단언하면 그것이 날조다([[25]]).
+    엔진은 세기만 한다: 무엇이 미지급인지·왜 그런지는 여전히 모델과 문서 몫이다([[22]]).
+    """
+    g, st = (spec or {}).get("group_field"), (spec or {}).get("status_field")
+    out = {}
+    if not (g and st):
+        return out
+    for r in rows or ():
+        k, v = str(r.get(g) or "").strip(), str(r.get(st) or "").strip()
+        if k and v:
+            out.setdefault(k, set()).add(v)
+    return out
+
+
 def diagnose_choice(agent, la, UserMessage, spec, block, rows):
     """미지급 행을 **깨끗한 문맥에서** 묻고, 답이 원장에 있는 이름인지만 검사한다.
 
@@ -1085,6 +1105,40 @@ def diagnose_choice(agent, la, UserMessage, spec, block, rows):
             names.append(g)
     if not names:
         return None
+    # ★T2_DIAG_UNAMBIGUOUS (2026-08-26 · 격리 `x554_diag_mispick_iso.py` · 기본 OFF)
+    #   결손: 016 에서 이 서브가 **4/4 로 `Platinum Rewards Card`(ERROR·10/05)** 를 고르고 그 답이
+    #   *"A separate check was run … It answers: {answer}"* 라는 권위 문면으로 나가 뒤따르는
+    #   assistant 발화 6개를 그 축에 묶는다(정본 `TASK_016.md` §4 step 17′·22·42). 손님이 묻는 것은
+    #   **가장 최근** 추천(Silver·11/13·IN_PROGRESS)이다.
+    #   ⚠서브가 틀린 게 아니다. 이 자리의 이름은 **행 단위가 아니라 그룹 단위**라 하나가 여러 상태를
+    #   동시에 인다(016: 네 이름 전부 2~3종). 그러면 *"어느 record 가 미지급인가"* 는 이 문맥에서
+    #   **원리상 결정 불가**이고, `did not pay out` 아래에서 `ERROR` 는 정당한 답이다.
+    #   ⇒ 술어 = **답한 이름이 상태를 하나만 이고 있을 때만 단언한다.** 여럿이면 침묵.
+    #   ⛔0 [[62]] 4문: ①격리 실측 = x554 6팔×5 **30셀**(전부 표적 미적중) + 코퍼스 `[T2_DIAG]`
+    #   발화 **119**/34 태그 ②격리에서 **모델이 성공하지 않는다** — 재료를 더 줘도(날짜+상태 조인
+    #   팔) 0/5 ⇒ 이 자리는 전달로 못 산다. 레버는 더하기가 아니라 **빼기**다([[67]] 빼기=1차 레버)
+    #   ③사라지는 모델 판단 **0** — 반대로 엔진이 하던 **지목 단언 하나가 사라지고** 그 선택이
+    #   모델에게 돌아간다. `status_breakdown`·`status_meanings_text` 는 이 호출 **이전에** 따로
+    #   나가므로(`t2_gate_patch.py:4845`·`:4852`) 재료는 하나도 안 준다 ④엔진이 최댓값을 집거나
+    #   *"정답은 X"* 를 말하는 자리가 **이 레버로 줄어든다**(늘지 않는다).
+    #   [[05]] 3문: ⑴도메인-특화 순증 **음(−)** — 필드는 선언(`group_field`·`status_field`)에서만
+    #   읽고 도메인 리터럴 0·A2 새 키 0 ⑵유동 판단 동결 **아니오**(동결을 푼다) ⑶도메인 행동 수행 0.
+    #   [[70]] 부호표(영속 로그 34 태그·08-13~08-26): 016 발화 22 제거(**전부 reward 0** ⇒ 손실
+    #   불가) · 010 발화 12 **불변**(이름당 상태 1종 · reward 1 이 5) · 098(73)·099(12)는 이미
+    #   `원장 밖 = 침묵`이라 불변 ⇒ 측정 코퍼스에서 **순지배**.
+    amb = {}
+    if os.environ.get("T2_DIAG_UNAMBIGUOUS") == "1":
+        amb = status_multiplicity(rows, spec)
+        if amb and not any(len(v) == 1 for v in amb.values()):
+            # 어느 이름도 단일 상태가 아니면 **묻지 않는다** — 답이 무엇이든 단언할 수 없다.
+            print("[T2_DIAG] 모호 — 모든 이름이 상태를 여럿 인다(%s) · 묻지 않는다"
+                  % "; ".join("%s:%d" % (k, len(v)) for k, v in sorted(amb.items())),
+                  file=sys.stderr, flush=True)
+            try:
+                agent._t2_diag = ""
+            except Exception:
+                pass
+            return None
     try:
         raw = " ".join(SC.sub_generate(agent, la, UserMessage, tpl.format(block=block), "diagnose_formalize").split())
     except Exception as e:
@@ -1092,6 +1146,11 @@ def diagnose_choice(agent, la, UserMessage, spec, block, rows):
         return None
     hit = sorted((g for g in names if g and g.lower() in raw.lower()), key=len, reverse=True)
     out = (hit[0], raw) if hit else None
+    if out and len(amb.get(out[0]) or ()) > 1:
+        print("[T2_DIAG] 모호 지목 — %s 는 상태 %d 종(%s) · 배달하지 않는다"
+              % (out[0], len(amb[out[0]]), ",".join(sorted(amb[out[0]]))),
+              file=sys.stderr, flush=True)
+        out = None
     print("[T2_DIAG] raw=%r → %s" % (raw[:80], (out[0] if out else "원장 밖 = 침묵")),
           file=sys.stderr, flush=True)
     try:
