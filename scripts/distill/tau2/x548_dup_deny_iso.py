@@ -98,8 +98,12 @@ def chat(port, messages, tools, maxtok=420):
     req = urllib.request.Request("http://127.0.0.1:%d/v1/chat/completions" % port,
                                  data=json.dumps(payload).encode("utf-8"),
                                  headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=600) as r:
-        return json.loads(r.read().decode("utf-8"))["choices"][0]["message"]
+    try:
+        with urllib.request.urlopen(req, timeout=600) as r:
+            return json.loads(r.read().decode("utf-8"))["choices"][0]["message"]
+    except urllib.error.HTTPError as e:
+        # ★400 을 '요청이 나쁘다'로 뭉뚱그리면 그 다음을 못 고친다 — 본문을 그대로 올린다([[25]]).
+        raise RuntimeError("HTTP %s: %s" % (e.code, e.read().decode("utf-8", "replace")[:400]))
 
 
 def load(tag):
