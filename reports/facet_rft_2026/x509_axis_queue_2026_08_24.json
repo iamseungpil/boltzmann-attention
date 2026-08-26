@@ -998,6 +998,20 @@
    "016 의 *'문서에 있는 수치를 발화하지 않는다'* 를 격리로 확정(n 늘리기)",
    "A-3′ 재측정(미영속 로그 회수 후)",
    "R4 계좌 라벨 · R3 x273 재판"
-  ]
+  ],
+  "★016 기전 확정 — msg[20] 의 행 오선택": {
+   "궤적 축자(t7363 task_016#s626729)": [
+    "msg[17] tool — 추천 원장 도착. `referred_account_type: Silver Rewards Card · referral_status: **IN_PROGRESS** · date: 11/13/2025` 와 다른 행들",
+    "msg[20] assistant — *\"One of the referrals, specifically the **Bronze** Rewards Card, was **completed** on 11/11/2025\"* ⇐ **여기서 행을 잘못 골랐다**",
+    "msg[22]·[24] — Bronze 를 두 번 더 복창(자기-정박)",
+    "msg[25] tool — 우리 검색이 **Silver** 요건 문서 배달: *\"…spend at least $750 within 60 days…\"*",
+    "msg[26] assistant — *\"Based on the information from the knowledge base, the referral bonus for the **Bronze** Rewards Card typically posts…\"* ⇐ Silver 문서를 읽고 **Bronze 로 답한다**"
+   ],
+   "판정": "★016 의 실패는 **전달도 아니고 발화도 아니다 — 행 오선택**이다. 손님은 *\"보너스를 못 받았다\"* 고 했고 원장에는 **IN_PROGRESS(Silver)** 와 **COMPLETE(Bronze)** 가 함께 있는데 에이전트가 **COMPLETE 행**을 골랐다. 그리고 상태 정의(*COMPLETE = 보너스를 받기 위한 조건을 충족함* / *IN_PROGRESS = 충족하는 중*)는 우리가 이미 배달한다.",
+   "앞선 진단 정정": "오늘 아침 내가 *'문서가 도착했는데 $750 을 발화하지 않는다'* 로 적은 것은 **증상이지 원인이 아니다**. 원인은 그보다 6 메시지 앞, 행을 고르는 자리다. 그 뒤의 Silver 문서는 이미 Bronze 로 정박된 문맥에 떨어졌다(074 의 msg[61] 정박과 같은 형상).",
+   "T2_DIAG_UNAMBIGUOUS 와의 관계": "그 레버는 **이름 단위**로 답하던 서브를 침묵시켰다(옳다 — 이름은 행을 결정하지 못한다). 그러나 에이전트가 필요한 것은 **행**이었다. ⇒ 다음 후보는 *'서브가 **행 단위**(id·날짜·상태)로 답하게 한다'* 이고, 그것은 x554 가 시험하지 않은 축이다(x554 는 이름 단위 처방만 갈랐다).",
+   "★세 태스크 공통 축(3 사례)": "**배달된 값을 엉뚱한 엔티티에 묶는다** — 074 `_1`←`_2` 금액 · 079 RUSH←EXPEDITED 수수료 · 016 Silver 문서→Bronze 답변. 어느 것도 전달 결손이 아니고, 어느 것도 산수가 아니다.",
+   "반증_조건": "다른 seed 에서 msg[20] 자리에 Silver(IN_PROGRESS)를 고르는데도 실패하면 원인은 다시 하류다."
+  }
  }
 }
