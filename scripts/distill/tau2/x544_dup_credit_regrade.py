@@ -27,8 +27,24 @@ env 구현(`tools.py:2730 apply_checking_account_credit_5829`)은
 `t2_forensic.mut_key(name, args)` 로 (도구·인자) 키를 만들고, **같은 키가 앞서 성공한 적이
 있으면** 뒤엣것을 중복으로 센다. 도메인 낱말·태스크 id·gold 미접촉([[23]]).
 
-실행 (리모트·cwd=scripts/distill/tau2):
-    PYTHONIOENCODING=utf-8 /home/woori/venvs/seka_env/bin/python x544_dup_credit_regrade.py
+## 판정 (2026-08-26 · 리모트)
+
+    A_full   db_match=False reward=0.0   <- 기록된 성적을 재현했다 ⇒ 이 하네스는 공정하다
+    B_nodup  db_match=True  **reward=1.0**
+    C_one    db_match=False reward=0.0
+    N_reads  db_match=False reward=0.0
+  ⇒ 074 의 궤적은 **중복 실행만 빼면 만점**이다. 다른 칸은 전부 옳았다.
+
+⛔**정본 tau2 는 `/home/woori/scratch/tau2-bench` 하나뿐이다**(`go_stack.sh:20 GO_TAU2` — C166 사고
+  재발 방지). 그냥 `python x544...` 로 부르면 `workspace_common/boltzmann-attention/external/
+  tau2-bench` 가 잡혀서 **다른 판본**이 채점한다 — 서명도 다르고(`strict_replay` 없음) 변종
+  목록도 달라 `alltools` 가 없다. 반드시 아래처럼 부른다.
+
+실행 (리모트):
+    R=/home/woori/workspace_common/boltzmann-attention-pi
+    cd /home/woori/scratch/tau2-bench && PYTHONPATH=src:$R/scripts/distill/tau2 \
+      PYTHONIOENCODING=utf-8 /home/woori/venvs/seka_env/bin/python \
+      $R/scripts/distill/tau2/x544_dup_credit_regrade.py
 """
 import argparse
 import copy
