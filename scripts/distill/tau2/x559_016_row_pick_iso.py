@@ -184,10 +184,18 @@ def main(argv=None):
         live = " ".join(str(ms[w].get("content") or "").split())
         print("      라이브가 그 자리에서 한 말: %s" % live[:150])
 
-    plan = [("A_asis", ""), ("B_rows", None), ("N_len", None)]
+    plan = [("A_asis", ""), ("B_rows", None), ("C_block", None), ("D_mean", None),
+            ("N_len", None)]
     if a.wiring_only:
         tag, ms, led, w, rows = ctxs[0]
         print()
+        import t2_ledger as LG2
+        _a3r = ((GI.load_domain_a2("banking_knowledge") or {})
+                .get("policy_ontology") or {}).get("rows") or ()
+        print("--- C_block 추가분 (%d자) ---" % len(LG2.onto_context(rows, spec, _a3r)))
+        print(LG2.onto_context(rows, spec, _a3r)[:1200])
+        print("--- D_mean 추가분 ---")
+        print(LG2.status_meanings_text(rows, spec, _a3r)[:600])
         print("--- B_rows 추가분 ---")
         print("[the records above, one line per referral, verbatim] " + row_lines(rows, spec)[:600])
         print("--- 요청부 ---" + ASK)
@@ -202,9 +210,22 @@ def main(argv=None):
         base = render(ms, w)
         stat = by_status(rows, spec)
         paid = {k for k, v in stat.items() if v == {"COMPLETE"}}
+        # ★C_block·D_mean (2026-08-27) — 라이브가 **이미 만드는** 블록을 결정점으로 옮긴 것뿐이다.
+        #   사이드카 실측(`fb_bank_t7363_hard0_20260827.jsonl.gz` · `task_016#s626729` · kind=route):
+        #   같은 블록이 **turn 32·47** 에 발화하고 그 안에 답이 축자로 있다 —
+        #   *"IN_PROGRESS 1 — Silver Rewards Card"* + *"IN_PROGRESS — … is in progress to meet the
+        #   criteria for the referral bonus"*. 그런데 에이전트는 **turn 18·28** 에 이미 Bronze 로
+        #   정박했다(영속 msg[20]). ⇒ 결손 후보는 내용이 아니라 **도착 시각**이다.
+        #   새 문장 0 · 저작 0 — 조립은 정본 `t2_ledger.onto_context`/`status_meanings_text`
+        #   가 하고 우리는 자리만 바꾼다([[78]] 이식 대상 = 선언에 있는 텍스트).
+        import t2_ledger as LG2
+        _a3r = ((GI.load_domain_a2("banking_knowledge") or {})
+                .get("policy_ontology") or {}).get("rows") or ()
         adds = {"A_asis": "",
                 "B_rows": (NL + NL + "[the records above, one line per referral, verbatim] "
                            + row_lines(rows, spec) + "."),
+                "C_block": NL + NL + LG2.onto_context(rows, spec, _a3r),
+                "D_mean": NL + NL + LG2.status_meanings_text(rows, spec, _a3r),
                 "N_len": (NL + NL + "[note] the records above were retrieved earlier in this "
                           "conversation and have not changed since; treat them as current and "
                           "complete for this customer.")}
