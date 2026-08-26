@@ -13264,6 +13264,72 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
         #   `_any_effective_write`가 user·agent 실행 양쪽을 본다 → agent-side 태스크(69/97)서 에이전트가
         #   WRITE 실행했으면 발화 안 함(오탐 방지·F2). give 태스크(21/97)서 사용자 실행 0이면 주장은 거짓.
         #   completion_guard 문구 = A2 도메인-수준(`a2['completion_guard']`) 우선, 없으면 follow_up 사본(하위호환).
+        # ★T2_PROCEDURE_LEFT (2026-08-26·기본 OFF) — **끝내는 자리에서 남은 칸을 이름으로 말한다**.
+        #   t7361 실물: 셋이 같은 모양으로 끝났고, 우리 층은 매번 **무엇이 남았는지 알고 있었다**.
+        #     050  `[T2_PROCEDURE] checklist proc=credit_limit_increase nodes=7 done=5 left=['decision']`
+        #          → 그 직후 `[T2_CLAIMPROV] window hit(resign) claims=3 unbacked=0` → `regen tool_calls=[]`
+        #          ⇒ 남은 칸이 `decision`(=승인) 하나인 걸 알면서 완료 선언을 통과시켰다. reward 1.0→0.0.
+        #     074  `[T2_WRITEPROV] window hit (no effective write in ledger) declared_completion=False`
+        #          → 모델은 완료를 *주장*하지 않고 **인간 이관**으로 나갔다 ⇒ 기존 게이트가 침묵.
+        #     085  `[E-PLAN]` 이 분쟁 write 를 4회 막은 뒤 이관 ⇒ 같은 자리.
+        #   기존 둘이 왜 못 잡나: `WRITE_PROV` 는 *완료 주장* 을 전제하고, `CLAIM_PROV` 는
+        #   *"어떤 write 가 원장에 있나"* 를 본다. 050 은 `submit_…_request` 가 원장에 있어
+        #   `unbacked=0` 이 됐다 — **어떤 write 가 아니라 절차의 남은 칸**이 물음이었다.
+        #   ⇒ 술어는 이미 있고 이미 계산된다(`t2_procedure.checklist` · [[67]] 정본 지도의
+        #     *"무엇이 아직 안 됐나(체크리스트·빼기)"* 칸). 여기서는 **읽어서 이름만** 말한다.
+        #   ⚠엔진은 **고르지 않는다** — 순위도 최댓값도 없다. 선언이 `done is False` 로 표시한
+        #     노드를 **전부** 인쇄한다(부분집합을 우리가 집으면 그 순간 우리가 답을 고른 것이다).
+        #   ⚠[[63]] 빼기 형태다 — *"남은 것은 이것뿐"* 이 모델이 닫을 수 있는 유일한 모양이다.
+        #   ⚠gold 미접촉([[23]]) · 도메인 낱말 0 · 태스크 id 0 · 새 A2 키 0(`procedures` 직독).
+        _left_fb = None
+        if (os.environ.get("T2_PROCEDURE_LEFT") == "1" and _resign
+                and not getattr(self, "_t2_procleft", 0)):
+            try:
+                import t2_procedure as _PL
+                _procs = (a2 or {}).get("procedures") or []
+                _done = _executed_tool_counts(state.messages)
+                _rows, _pids = [], []
+                for _p in _PL.active_procedures(_procs, _done):
+                    for _nid, _tools, _ok in _PL.checklist(_p, _done):
+                        if _ok is False:
+                            _rows.append((_nid, list(_tools or [])))
+                            if _p.get("id") not in _pids:
+                                _pids.append(_p.get("id"))
+                if _rows:
+                    self._t2_procleft = 1
+                    _lines = chr(10).join(
+                        "- %s: %s" % (_n, (", ".join(_t) if _t else "(no tool named)"))
+                        for _n, _t in _rows)
+                    _left_fb = (
+                        "Error: [PROCEDURE-LEFT] you are closing this conversation, but the "
+                        "procedure(s) %s still have steps the policy asked for that have not "
+                        "been done here:%s%s%s"
+                        "These are all of them - nothing else is outstanding. Do them now, using "
+                        "the tool named on each line, before you finish. If one of them truly "
+                        "cannot be done, say which and why, instead of ending as if it were done."
+                        % (", ".join(str(x) for x in _pids), chr(10), _lines, chr(10)))
+                    print("[T2_PROCEDURE_LEFT] 종료 창에서 남은 칸 %d개 전달: %s"
+                          % (len(_rows), [r[0] for r in _rows]),
+                          file=_sys.stderr, flush=True)
+                    _lbeat("T2_PROCEDURE_LEFT", orch=self,
+                           target=",".join(str(x) for x in _pids),
+                           fact="the declared procedure still has unmet steps at closing time",
+                           order=_lines)
+                    # 채널은 **재생성**이다 — 이 자리엔 도구 호출이 없을 수 있어(마지막 산문
+                    #   턴) `(tc, msg)` 짝 채널을 못 쓴다. `WRITE_PROV` 가 같은 창에서 쓰는
+                    #   경로를 그대로 쓴다(스텁이 히스토리에 안 남는다·[[30]] eval 재실행 정합).
+                    _newL = _ap_regen(_left_fb, "procleft")
+                    if _newL is not None:
+                        am = _newL
+                        print("[T2_PROCEDURE_LEFT] regen tool_calls=%s"
+                              % ([getattr(t, "name", None)
+                                  for t in (getattr(am, "tool_calls", None) or [])],),
+                              file=_sys.stderr, flush=True)
+            except Exception as _ple:
+                _left_fb = None
+                print("[T2_PROCEDURE_LEFT] 건너뜀(무발화): %r" % (_ple,),
+                      file=_sys.stderr, flush=True)
+
         _cgd = (a2 or {}).get("completion_guard") or {}
         if not _cgd:
             for _d1 in ((a2 or {}).get("scaffold_get_tools") or []):
