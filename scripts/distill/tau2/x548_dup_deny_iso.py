@@ -130,12 +130,19 @@ def safe_start(ms, i):
     return 0
 
 
-def to_openai(ms):
+def to_openai(ms, cap=1200):
+    """창을 OpenAI 형식으로. **메시지별 내용은 `cap` 자로 자른다** — 라이브 창 그대로면
+    도구 덤프 + 정책 7,541자 + 도구 17 스키마가 문맥을 넘겨 서버가 400 을 낸다(실측).
+    x542 도 같은 처리를 한다(1,600자). 자른 사실은 꼬리표로 남긴다([[25]])."""
+    def cut(s):
+        s = str(s or "")
+        return s if len(s) <= cap else (s[:cap] + " …[truncated]")
+
     out = []
     for m in ms:
         role = str(m.get("role"))
         if role == "assistant":
-            msg = {"role": "assistant", "content": str(m.get("content") or "")}
+            msg = {"role": "assistant", "content": cut(m.get("content"))}
             tcs = []
             for tc in (m.get("tool_calls") or []):
                 tcs.append({"id": str(tc.get("id") or ""), "type": "function",
@@ -147,9 +154,9 @@ def to_openai(ms):
             out.append(msg)
         elif role == "tool":
             out.append({"role": "tool", "tool_call_id": str(m.get("id") or ""),
-                        "content": str(m.get("content") or "")})
+                        "content": cut(m.get("content"))})
         elif role == "user":
-            out.append({"role": "user", "content": str(m.get("content") or "")})
+            out.append({"role": "user", "content": cut(m.get("content"))})
     return out
 
 
