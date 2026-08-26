@@ -266,6 +266,14 @@ def main(argv=None):
                                          "bank_all97_nt1_v2_20260718")
     a = ap.parse_args(argv)
 
+    # ⛔정본 tau2 확인 — 이 머신엔 클론이 둘이고 `go_stack.sh:20 GO_TAU2` 만 우리 것이다.
+    #   잘못 잡히면 변종 목록도 서명도 달라 **조용히 다른 판본이 답한다**(오늘 두 번 걸렸다).
+    import tau2
+    if "scratch/tau2-bench" not in str(getattr(tau2, "__file__", "")).replace("\\", "/"):
+        print("⛔잘못된 tau2 를 불렀다: %s" % (getattr(tau2, "__file__", "?"),))
+        print("   이렇게 부른다: cd /home/woori/scratch/tau2-bench && "
+              "PYTHONPATH=src:$R/scripts/distill/tau2 python $R/.../x548_dup_deny_iso.py")
+        return 3
     from tau2.registry import registry
     from tau2.domains.banking_knowledge.environment import get_tasks
     tasks = {t.id: t for t in get_tasks()}
