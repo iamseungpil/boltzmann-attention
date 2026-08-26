@@ -42,14 +42,29 @@ TRANSFER = ("transfer_to_human_agents", "request_human_agent_transfer")
 
 def path_for(tag, suffix="_results.json.gz"):
     """태그 → 경로. 리모트 라이브 결과가 있으면 그쪽을 먼저 본다(영속 前 런 감사용).
-    절대경로/파일명을 그대로 줘도 받는다(옛 사본들의 호출 형태 호환)."""
+    절대경로/파일명을 그대로 줘도 받는다(옛 사본들의 호출 형태 호환).
+
+    ★명명이 **두 가지**다 — `_results.json.gz` 와 `.results.json.gz`(점). `all_result_files`
+      독스트링이 적어 둔 것과 **같은 사고**인데 이 함수만 닫히지 않은 채 남아 있었다: 기본
+      suffix 를 그대로 붙이므로 점 명명 파일은 통째로 안 잡히고, 호출부는 그것을 *"아직 한 sim 도
+      안 끝났다"* 로 읽는다. 2026-08-26 에 `x553`·`x555` 가 같은 자리에서 **빈 결과**를 냈다
+      (x553 은 85 발화를 전부 `NO_TRAJ` 로 뱉었다). ⇒ 앞머리 `_`↔`.` 를 뒤집은 짝도 본다.
+      찾지 못하면 종전대로 기본 경로를 돌려준다(거동 불변·예외는 호출부 몫).
+    """
     if os.path.isabs(tag) or os.path.exists(tag):
         return tag
     live = os.path.join(LIVE, tag, "results.json")
     if os.path.exists(live):
         return live
-    p = os.path.join(BASE, tag + suffix)
-    return p if os.path.exists(p) else os.path.join(BASE, tag)
+    alts = [suffix]
+    if suffix[:1] in ("_", "."):
+        alts.append(("." if suffix[0] == "_" else "_") + suffix[1:])
+    for suf in alts:
+        p = os.path.join(BASE, tag + suf)
+        if os.path.exists(p):
+            return p
+    return os.path.join(BASE, tag + suffix) if os.path.exists(
+        os.path.join(BASE, tag + suffix)) else os.path.join(BASE, tag)
 
 
 def all_result_files():
