@@ -891,6 +891,20 @@
     "'두 처치가 074 를 팔았다'": "기각 — 그 sim 에서 두 레버 **발화 0**."
    },
    "계기 주의": "A_ctl `task_085` 는 `termination_reason=too_many_errors` · `reward_basis` 없음 ⇒ **085 의 A_ctl 값은 성적으로 못 쓴다**(완주 못 함). 085 의 3자 비교는 B_say·C_scope 둘뿐이다."
+  },
+  "A1_broadcast_axis": {
+   "축 이름": "**엔티티별 조건 방송** — 조건이 엔티티마다 다르게 풀리는데 **한 번 풀고 전부에 적용**한다.",
+   "왜 새 축인가": "x509 axis_table 의 ①금액·②범주·⑦유도 어디에도 없다. 그리고 t7362 의 **가장 안정된 잔여 둘**(074·079)이 이 하나로 묶인다.",
+   "079 A_ctl — 재료는 닿아 있었다([[55]] 배관·문면 통과)": {
+    "손님 축자 msg[96]": "*\"For the card design: I'd like the metallic design, but only if it's **free**. If it costs extra, I'll take the free standard option.\"* — **조건**이고, 그 답은 계좌 tier 마다 다르다.",
+    "우리가 배달한 것 msg[84]·msg[94]": "*\"…you must provide the exact `delivery_fee` and `design_fee` amounts **based on the tier rules below**. Replacement Limits and Shipping Fees by Tier…\"* — **티어 표가 쓰기 직전에 두 번** 들어갔다. msg[36] 에는 `PREMIUM TIER (Evergreen Account)` 도 있다.",
+    "모델 축자 msg[99]": "*\"Since you prefer the metallic design only if it is free, **I will order the standard design for each account**.\"* — 조건을 **한 번 풀고 세 계좌에 그대로** 적용했다.",
+    "결과": "gold `_1`=PREMIUM/RUSH/35 · `_3`=CLASSIC/STANDARD/0 ↔ 제출 `_1`=CLASSIC/STANDARD/0(= `_3` 값) · gold 에 없는 `_2` 에도 같은 벌. B_say 는 반대로 **세 계좌 전부 RUSH/35**.",
+    "귀속": "**모델 층** — 재료가 닿았고 우리 반려도 그 자리에 없다. [[63]] 계열(모델은 스스로 엔티티별로 못 가른다)."
+   },
+   "074 와의 관계": "같은 방송 형상이지만 **입구가 다르다**: 074 는 우리 도구 출력에 계좌 라벨이 없어 오배정이 들어왔고(R4), 079 는 라벨이 아니라 **조건을 한 번만 푼 것**이다. 074 는 우리 층 수리가 있고 079 는 없다.",
+   "다음_수 (격리·GPU 비었음)": "문맥 = 079 A_ctl 전 접두(쓰기 msg[99] 이전). 팔 = ⑴세 계좌 한 번에 요구(재현 게이트) ⑵계좌 **하나씩** 요구 ⑶세 계좌 + 계좌별 tier 를 **한 줄씩** 표면화(재료는 이미 배달된 문서 축자에서만·[[23]]) ⑷길이 맞춘 부정통제. 채점 = gold 미접촉 닫힌 술어(제출 `card_design`·`delivery_option`·`delivery_fee` 가 계좌마다 **서로 다른가**).",
+   "⚠자기-정박과 구분": "074 는 오답이 쓰기 **4 메시지 전** 산문에 박혀 있었다(x556 이 그래서 회수 불가였다). 079 는 msg[99] **그 턴에서** 방송이 일어난다 ⇒ 격리가 의미 있는 자리다."
   }
  }
 }
