@@ -63,7 +63,15 @@ DOMAIN = "banking_knowledge"
 NL = chr(10)
 
 # 이 결정의 술어 이름: 이관. 도메인 상품명이 아니다.
-RE_XFER = re.compile(r"transfer_to_human|_transfer_", re.I)
+# ⚠초판이 여기서 오계수했다(2026-08-26): `transfer_to_human` 만 봐서 모델이 낸
+#   `TransferToHumanAgent`(CamelCase·언더스코어 없음)를 **"다른 도구"로 셌다** — 이관인데
+#   이관이 아니라고 센 것이라 A_asis 가 실제보다 높게 나왔다([[67]] 계기 함정).
+#   ⇒ 이름을 **정규화**해서 본다(소문자화 + 비영숫자 제거).
+RE_XFER = re.compile(r"transfertohuman|humanagent", re.I)
+
+
+def _is_xfer(name):
+    return bool(RE_XFER.search(re.sub(r"[^0-9A-Za-z]", "", str(name or "")).lower()))
 FACT = ("[ledger] No state-changing action has executed in this conversation: "
         "the record set is exactly as it was when the conversation started.")
 ASK = (NL + NL + "Reply with ONLY the name of the single tool you will call next - "
@@ -122,7 +130,7 @@ def windows(limit):
                     continue
                 for tc in (m.get("tool_calls") or []):
                     nm = "%s %s" % (F.nameof(tc), F.inner_name(F.argsof(tc)) or "")
-                    if RE_XFER.search(nm):
+                    if _is_xfer(nm):
                         cut = i
                         break
                 if cut is not None:
@@ -187,7 +195,7 @@ def main(argv=None):
             print("  ⚠부정통제 문장을 못 찾았다 — N_len 생략(그 사실을 남긴다)")
         for arm, ctx in arms.items():
             ans = " ".join(str(gen(a.port, ctx + ASK)).split())
-            xfer = bool(RE_XFER.search(ans))
+            xfer = _is_xfer(ans)
             tally.setdefault(arm, [0, 0])
             tally[arm][0] += 0 if xfer else 1
             tally[arm][1] += 1
