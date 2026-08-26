@@ -22,6 +22,14 @@ r"""x554 — P1 선행 측정: `T2_DIAG` 오지목(4/4)이 **선언 한 칸**으
     B_field  ⓐ 선언된 `date_field` 축 한 줄 — *"가장 최근 것"*(어느 행인지는 서브가 고른다)
     N_len    부정 통제([[57]]) — B_field 와 **길이만 맞춘** 선택 무관 문장
 
+★1차 결과(2026-08-26·8140·아래 넷): **ⓐ 기각 0/5**(부정 통제와 동일) · ⓑ 는 `picked` 0/5 인데
+`named` **5/5**. 넷이 다 표적을 못 집자 블록을 다시 읽었고 **결손이 문면이 아니라 재료**임을
+찾았다 — 블록은 같은 행에서 두 조각으로 나가는데 (상태→이름들)과 (이름→날짜)뿐이라
+**행 하나의 날짜와 상태를 잇는 줄이 없다**. 그래서 재료 축 두 팔을 덧댔다([[78]]):
+
+    B_join     행마다 **날짜와 상태를 한 줄에** (행 순서 그대로·정렬 0)
+    N_joinlen  같은 줄에서 **상태만 뺀** 부정 통제 — 부피 같고 새 정보 0
+
 ## ⛔판정 규율
 - **A_asis 가 라이브 오지목을 재현 못 하면 판정하지 않는다**([[62]] 2b · 핸드오프 §2 P1).
 - 채점은 닫힌 술어뿐이고 gold 는 열지 않는다([[23]]). 표적 이름은 **우리가 만든 블록**의 날짜
@@ -112,6 +120,51 @@ def captured(tag, task):
         if out and tag:
             break
     return out
+
+
+def rows_from_traj(tag, simtag, keys):
+    """영속 궤적의 도구 출력 → **선언된 키만** 담은 행들(`spec['row_keys']` 구동).
+
+    ★왜 여기서 다시 만드나 — 라이브 엔진은 이 행들을 이미 갖고 있다(`_t2_ledger_ops[...]["rows"]`
+      · `formalize_rows` 가 만든다). 블록 두 조각이 **그 행들에서** 나오는데도 날짜와 상태가
+      **서로 다른 줄로 갈라져** 나간다. 이 프로브는 그 갈라짐이 결손인지 보려고 행을 되살릴 뿐이고,
+      라이브 배선에는 파싱이 **필요 없다**(행이 이미 있다). 키는 전부 선언에서 온다 — 리터럴 0.
+    """
+    import t2_forensic as F
+    files = {F.tag_of_file(q): q for q in F.all_result_files()}
+    if tag not in files:
+        return []
+    sim = next((x for x in F.sims(files[tag]) if F.simtag(x) == simtag), None)
+    if sim is None:
+        return []
+    for m in (sim.get("messages") or []):
+        if m.get("role") != "tool":
+            continue
+        txt = str(m.get("content") or "")
+        if not all(("%s:" % k) in txt for k in keys):
+            continue
+        out = []
+        for blk in re.split(r"\n\s*\n", txt):
+            row = {}
+            for k in keys:
+                mm = re.search(r"(?m)^\s*%s:\s*(.+?)\s*$" % re.escape(k), blk)
+                if mm:
+                    row[k] = mm.group(1)
+            if len(row) == len(keys):
+                out.append(row)
+        if out:
+            return out
+    return []
+
+
+def join_lines(rows, spec, with_status=True):
+    """한 줄에 **날짜와 상태를 함께** 둔 목록. 정렬·순위·argmax 0 — 행 순서 그대로."""
+    g, d, st = spec.get("group_field"), spec.get("date_field"), spec.get("status_field")
+    part = []
+    for r in rows:
+        part.append("%s (%s)%s" % (r.get(g), r.get(d),
+                                   (": %s" % r.get(st)) if with_status else ""))
+    return "; ".join(part)
 
 
 def recover_block(tpl, prompt):
@@ -229,16 +282,38 @@ def main(argv=None):
         return 3
 
     plan, _ask = arms(tpl)
+    plan = [(nm, t, block) for nm, t in plan]
+
+    # ★재료 축 두 팔 (2026-08-26 · 선언 네 칸으로는 안 갈린 뒤에 붙였다·[[78]]):
+    #   블록은 같은 행에서 **두 조각**으로 나간다 — `status_text` 는 (상태 → 이름들),
+    #   `window_history_text` 는 (이름 → 날짜). **행 하나의 날짜와 상태를 잇는 줄이 없다.**
+    #   그래서 *"가장 최근 미지급 행"* 은 이 문맥에서 **원리상 결정 불가**다(이름 하나가
+    #   COMPLETE·REJECTED·IN_PROGRESS 를 동시에 이고 있다). 프롬프트를 어떻게 써도 못 낫는다.
+    #   B_join = 그 조인을 **한 줄로** 얹는다(행 순서 그대로·정렬 0·argmax 0).
+    #   N_joinlen = **같은 줄에서 상태만 뺀** 부정 통제 — 부피는 같고 새 정보는 0([[57]]).
+    rows = rows_from_traj(a.tag, next(iter(sorted({c[1] for c in caps}))),
+                          list(spec.get("row_keys") or ()))
+    if rows:
+        jt = NL + "Each record above, with its date and the status that record carries: %s."
+        plan.append(("B_join", tpl, block + jt % join_lines(rows, spec, True)))
+        plan.append(("N_joinlen", tpl, block + jt % join_lines(rows, spec, False)))
+    else:
+        print("⚠궤적에서 행을 못 되살렸다 — 재료 축 두 팔은 건너뛴다([[25]]).")
+
     print()
-    print("## 팔 (선언 `diagnose_prompt` 한 칸만 교체)")
-    for nm, t in plan:
-        print("  %-8s %d자 (요청부 %d자)" % (nm, len(t), len(t.partition("{block}")[2])))
+    print("## 팔 (선언 `diagnose_prompt` 한 칸 또는 **블록 한 줄**)")
+    for nm, t, blk in plan:
+        print("  %-10s 요청부 %d자 · 블록 %d자%s"
+              % (nm, len(t.partition("{block}")[2]), len(blk),
+                 "  ← 재료 축" if blk != block else ""))
     if a.wiring_only:
         print()
         print("(--wiring-only · 모델 호출 0. 각 팔의 요청부 축자:)")
-        for nm, t in plan:
+        for nm, t, blk in plan:
             print(" --- %s ---" % nm)
             print(t.partition("{block}")[2].strip())
+            if blk != block:
+                print("   [블록 추가분] " + blk[len(block):].strip()[:400])
         return 0
 
     print()
@@ -249,8 +324,8 @@ def main(argv=None):
           % ("팔", "temp", "고른 이름", "picked", "named", "답 머리"))
     print("-" * 128)
     score = {}
-    for nm, t in plan:
-        body = t.format(block=block)
+    for nm, t, blk in plan:
+        body = t.format(block=blk)
         rows = [(0.0, 1)] + ([(a.temp, a.n)] if a.n > 0 else [])
         for tp, n in rows:
             hit = named = 0
@@ -275,9 +350,9 @@ def main(argv=None):
     print("  A_asis(temp 0) 표적 picked %d/%d · named %d/%d — 라이브 오지목 재현 %s"
           % (a0[0], a0[2], a0[1], a0[2],
              "**됨**" if a0[1] == 0 else "⛔안 됨 ⇒ 판정하지 마라([[62]] 2b)"))
-    for nm, _ in plan:
+    for nm, _, _b in plan:
         sc = score.get(nm, {})
-        print("  %-8s %s" % (nm, " · ".join("temp %.1f: picked %d/%d · named %d/%d"
+        print("  %-10s %s" % (nm, " · ".join("temp %.1f: picked %d/%d · named %d/%d"
                                             % (k, v[0], v[2], v[1], v[2])
                                             for k, v in sorted(sc.items()))))
     print()
