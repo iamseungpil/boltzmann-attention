@@ -1,0 +1,3020 @@
+{
+  "files": 498,
+  "gold_multiplicity": {
+    "task_071": 1,
+    "task_002": 1,
+    "task_007": 1,
+    "task_001": 1,
+    "task_003": 1,
+    "task_005": 1,
+    "task_010": 1,
+    "task_018": 1,
+    "task_016": 1,
+    "task_006": 1,
+    "task_021": 1,
+    "task_015": 1,
+    "task_017": 1,
+    "task_022": 1,
+    "task_020": 1,
+    "task_024": 1,
+    "task_019": 1,
+    "task_025": 1,
+    "task_034": 8,
+    "task_027": 1,
+    "task_026": 1,
+    "task_036": 1,
+    "task_044": 1,
+    "task_045": 1,
+    "task_028": 1,
+    "task_046": 1,
+    "task_049": 1,
+    "task_047": 1,
+    "task_052": 1,
+    "task_048": 1,
+    "task_060": 1,
+    "task_051": 2,
+    "task_059": 1,
+    "task_053": 1,
+    "task_058": 1,
+    "task_055": 1,
+    "task_061": 1,
+    "task_063": 1,
+    "task_066": 1,
+    "task_056": 1,
+    "task_062": 1,
+    "task_072": 1,
+    "task_075": 1,
+    "task_070": 1,
+    "task_076": 1,
+    "task_078": 1,
+    "task_080": 1,
+    "task_085": 1,
+    "task_087": 1,
+    "task_086": 1,
+    "task_081": 4,
+    "task_084": 1,
+    "task_088": 1,
+    "task_091": 1,
+    "task_090": 1,
+    "task_099": 1,
+    "task_098": 1,
+    "task_092": 1,
+    "task_096": 1,
+    "task_094": 1,
+    "task_095": 1,
+    "task_100": 1,
+    "task_102": 1,
+    "task_101": 1,
+    "task_023": 1,
+    "task_040": 1,
+    "task_041": 1,
+    "task_029": 1,
+    "task_037": 1,
+    "task_039": 1,
+    "task_050": 1,
+    "task_054": 1,
+    "task_065": 1,
+    "task_064": 1,
+    "task_068": 1,
+    "task_057": 1,
+    "task_073": 1,
+    "task_069": 1,
+    "task_067": 1,
+    "task_082": 1,
+    "task_089": 1,
+    "task_097": 1,
+    "task_083": 1,
+    "task_043": 1,
+    "task_038": 1,
+    "task_031": 1,
+    "task_079": 1,
+    "task_093": 1,
+    "task_077": 1,
+    "task_074": 1
+  },
+  "gold_twice": {
+    "task_034": 8,
+    "task_051": 2,
+    "task_081": 4
+  },
+  "per_tag": {
+    "asmregen14b_regen_retail_t4": {
+      "sims": 456,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "asmregen32b_regen_retail_t4": {
+      "sims": 456,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "asmscale_14b_0626pm_assembled_retail_t3": {
+      "sims": 342,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "asmscale_32b_0626pm_assembled_retail_t3": {
+      "sims": 342,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "asmscale_32b_gpt52sim16k_contaminated_retail_t4": {
+      "sims": 451,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "asmscale_32b_gpt52sim32k_retry": {
+      "sims": 64,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "asmscale_32b_gpt52sim_retail_t4": {
+      "sims": 451,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_071v_20260813t": {
+      "sims": 4,
+      "dup_sims": 3,
+      "dup_calls": 11
+    },
+    "bank_all97_nt1_20260718": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_all97_nt1_v2_20260718": {
+      "sims": 97,
+      "dup_sims": 5,
+      "dup_calls": 6
+    },
+    "bank_ax32p1_gpu0_20260802": {
+      "sims": 16,
+      "dup_sims": 4,
+      "dup_calls": 6
+    },
+    "bank_ax32p1_gpu1_20260802": {
+      "sims": 16,
+      "dup_sims": 5,
+      "dup_calls": 8
+    },
+    "bank_ax32p2_gpu0_20260802": {
+      "sims": 15,
+      "dup_sims": 3,
+      "dup_calls": 4
+    },
+    "bank_ax32p2_gpu1_20260802": {
+      "sims": 16,
+      "dup_sims": 5,
+      "dup_calls": 6
+    },
+    "bank_ax33n_gpu0_20260803b": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu0_20260803b_partial": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu0_20260803c": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu0_20260803c_partial": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu0_20260803d": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu0_20260803d_partial": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu0_20260803f": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu0_20260803f_partial": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu0_20260803g": {
+      "sims": 32,
+      "dup_sims": 6,
+      "dup_calls": 7
+    },
+    "bank_ax33n_gpu1_20260803": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu1_20260803_partial": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu1_20260803b": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu1_20260803b_partial": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu1_20260803c": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu1_20260803c_partial": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu1_20260803d": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu1_20260803d_partial": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu1_20260803e": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu1_20260803f": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu1_20260803f_partial": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ax33n_gpu1_20260803g": {
+      "sims": 32,
+      "dup_sims": 9,
+      "dup_calls": 14
+    },
+    "bank_ax33sm3A_20260803": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_ax33sm3B_20260803": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_axmicro_gpu0_20260802": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_axmicro_gpu1_20260802": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_axsmoke_gpu0_20260802": {
+      "sims": 2,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_axsmoke_gpu1_20260802": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_b4_gpu0_20260803h": {
+      "sims": 32,
+      "dup_sims": 7,
+      "dup_calls": 9
+    },
+    "bank_b4_gpu1_20260803h": {
+      "sims": 32,
+      "dup_sims": 8,
+      "dup_calls": 11
+    },
+    "bank_cand3_20260725": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_cand4_035_20260725": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_cand6_035_20260725": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ctl2_nt20_20260718": {
+      "sims": 20,
+      "dup_sims": 2,
+      "dup_calls": 3
+    },
+    "bank_ctl_20260716_2140": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ctl_20260716_2215": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_ctl_20260716_2230": {
+      "sims": 5,
+      "dup_sims": 1,
+      "dup_calls": 4
+    },
+    "bank_ctl_20260716_nt4": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 4
+    },
+    "bank_cwe_batch_20260719": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_cwe_batch_a2_20260719": {
+      "sims": 8,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_cwe_batch_b_20260719": {
+      "sims": 7,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_cwe_smoke_20260719": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_day2frontA_20260726": {
+      "sims": 16,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_day2frontB_20260726": {
+      "sims": 16,
+      "dup_sims": 3,
+      "dup_calls": 4
+    },
+    "bank_day3frontA_20260726": {
+      "sims": 16,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_day3frontB_20260726": {
+      "sims": 16,
+      "dup_sims": 6,
+      "dup_calls": 13
+    },
+    "bank_day4bfrontA_20260727": {
+      "sims": 16,
+      "dup_sims": 3,
+      "dup_calls": 4
+    },
+    "bank_day4bfrontB_20260727": {
+      "sims": 9,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_day4frontA_20260727": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_day5frontA_20260728": {
+      "sims": 16,
+      "dup_sims": 4,
+      "dup_calls": 5
+    },
+    "bank_day5frontB_20260728": {
+      "sims": 16,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_day6frontA_20260728": {
+      "sims": 16,
+      "dup_sims": 3,
+      "dup_calls": 3
+    },
+    "bank_day6frontB_20260728": {
+      "sims": 16,
+      "dup_sims": 4,
+      "dup_calls": 5
+    },
+    "bank_day7frontA_20260728": {
+      "sims": 16,
+      "dup_sims": 3,
+      "dup_calls": 3
+    },
+    "bank_day7frontB_20260728": {
+      "sims": 16,
+      "dup_sims": 4,
+      "dup_calls": 10
+    },
+    "bank_day8frontA_20260729": {
+      "sims": 16,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_day8frontB_20260729": {
+      "sims": 16,
+      "dup_sims": 4,
+      "dup_calls": 4
+    },
+    "bank_day8smoke_20260729": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_day9cfrontA_20260729": {
+      "sims": 16,
+      "dup_sims": 2,
+      "dup_calls": 3
+    },
+    "bank_day9cfrontB_20260729": {
+      "sims": 16,
+      "dup_sims": 3,
+      "dup_calls": 4
+    },
+    "bank_day9smoke_20260729": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_dreq2_nt20_20260718": {
+      "sims": 20,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_dreq_20260716_2140": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_dreq_20260716_2215": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_dreq_20260716_2230": {
+      "sims": 5,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_e2e10_a_20260720": {
+      "sims": 9,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_e2e10_b_20260720": {
+      "sims": 12,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_e2e9_a_20260720": {
+      "sims": 5,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_e2e9_b_20260720": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_e2e_t1b_20260720": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_e2e_v2_t1a_20260720": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_e2e_v2_t1b_20260720": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_e2e_v2_t2a_20260720": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_e2e_v2_t2b_20260720": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_e2e_v2_t3a_20260720": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_e2e_v2_t3b_20260720": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_e2e_v2_t4a_20260720": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_e2e_v2_t4b_20260720": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_eplansmoke_full_20260723": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_fniso028_20260719": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_forceA_nt5_20260718": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_force_20260720": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_fup_20260716_nt4": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_g3a_20260725_partial": {
+      "sims": 16,
+      "dup_sims": 4,
+      "dup_calls": 7
+    },
+    "bank_hve2e9_base_20260723": {
+      "sims": 8,
+      "dup_sims": 3,
+      "dup_calls": 4
+    },
+    "bank_hve2e9_hv_20260723": {
+      "sims": 8,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_iso021_20260718": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_judge6p_a_20260813p": {
+      "sims": 12,
+      "dup_sims": 3,
+      "dup_calls": 8
+    },
+    "bank_judge6p_b_20260813p": {
+      "sims": 12,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_judge6q_a_20260813q": {
+      "sims": 12,
+      "dup_sims": 2,
+      "dup_calls": 6
+    },
+    "bank_judge6q_b_20260813q": {
+      "sims": 12,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_koff_20260717_key": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_kon_20260717_key": {
+      "sims": 5,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_n97_gpu0_batch_03_20260804": {
+      "sims": 6,
+      "dup_sims": 4,
+      "dup_calls": 6
+    },
+    "bank_n97_gpu0_batch_05_20260804": {
+      "sims": 6,
+      "dup_sims": 3,
+      "dup_calls": 3
+    },
+    "bank_n97_gpu0_batch_06_20260805": {
+      "sims": 6,
+      "dup_sims": 4,
+      "dup_calls": 4
+    },
+    "bank_n97_gpu0_main_20260804": {
+      "sims": 76,
+      "dup_sims": 16,
+      "dup_calls": 35
+    },
+    "bank_n97_gpu0_main_20260805": {
+      "sims": 76,
+      "dup_sims": 17,
+      "dup_calls": 35
+    },
+    "bank_n97_gpu0_main_20260806": {
+      "sims": 51,
+      "dup_sims": 12,
+      "dup_calls": 12
+    },
+    "bank_n97_gpu0_main_20260806b": {
+      "sims": 46,
+      "dup_sims": 14,
+      "dup_calls": 22
+    },
+    "bank_n97_gpu1_batch_00_20260804": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_n97_gpu1_batch_00_20260805": {
+      "sims": 6,
+      "dup_sims": 2,
+      "dup_calls": 3
+    },
+    "bank_n97_gpu1_batch_01_20260804": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_n97_gpu1_batch_01_20260805": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_n97_gpu1_batch_02_20260804": {
+      "sims": 6,
+      "dup_sims": 2,
+      "dup_calls": 4
+    },
+    "bank_n97_gpu1_batch_02_20260805": {
+      "sims": 6,
+      "dup_sims": 4,
+      "dup_calls": 5
+    },
+    "bank_n97_gpu1_batch_03_20260805": {
+      "sims": 6,
+      "dup_sims": 2,
+      "dup_calls": 3
+    },
+    "bank_n97_gpu1_batch_04_20260804": {
+      "sims": 6,
+      "dup_sims": 3,
+      "dup_calls": 3
+    },
+    "bank_n97_gpu1_batch_04_20260805": {
+      "sims": 6,
+      "dup_sims": 4,
+      "dup_calls": 14
+    },
+    "bank_n97_gpu1_batch_05_20260805": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_n97_gpu1_batch_06_20260804": {
+      "sims": 6,
+      "dup_sims": 3,
+      "dup_calls": 3
+    },
+    "bank_n97_gpu1_main_20260804": {
+      "sims": 76,
+      "dup_sims": 15,
+      "dup_calls": 31
+    },
+    "bank_n97_gpu1_main_20260805": {
+      "sims": 76,
+      "dup_sims": 23,
+      "dup_calls": 29
+    },
+    "bank_n97_gpu1_main_20260806": {
+      "sims": 75,
+      "dup_sims": 25,
+      "dup_calls": 36
+    },
+    "bank_n97_gpu1_main_20260806b": {
+      "sims": 48,
+      "dup_sims": 16,
+      "dup_calls": 21
+    },
+    "bank_nightA_20260725": {
+      "sims": 9,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_nightB_20260725": {
+      "sims": 12,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_p1a_20260725_partial8": {
+      "sims": 9,
+      "dup_sims": 2,
+      "dup_calls": 3
+    },
+    "bank_p1b_20260725_partial": {
+      "sims": 13,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_qp32p1_gpu0_20260802": {
+      "sims": 16,
+      "dup_sims": 4,
+      "dup_calls": 4
+    },
+    "bank_qp32p1_gpu1_20260802": {
+      "sims": 16,
+      "dup_sims": 6,
+      "dup_calls": 8
+    },
+    "bank_qp32p2_gpu0_20260802": {
+      "sims": 16,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_qp32p2_gpu1_20260802": {
+      "sims": 15,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_qpmc_gpu0_20260805": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_qpmc_gpu0_20260805d": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_qpmc_gpu1_20260805": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_qpmc_gpu1_20260805d": {
+      "sims": 3,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_qpnt2_20260801": {
+      "sims": 8,
+      "dup_sims": 3,
+      "dup_calls": 7
+    },
+    "bank_r095_nt3_20260720": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_r095b_nt3_20260720": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_r095c_nt3_20260720": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_r095d_nt3_20260720": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_r095e_nt3_20260720": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_r095f_tr_20260721": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_r095g_tr_20260721": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_r5052_nt3_20260720": {
+      "sims": 9,
+      "dup_sims": 4,
+      "dup_calls": 5
+    },
+    "bank_rall10a_20260722": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_rall10b_20260722": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall11a_20260722": {
+      "sims": 4,
+      "dup_sims": 2,
+      "dup_calls": 5
+    },
+    "bank_rall11b_20260722": {
+      "sims": 4,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_rall11s_20260722": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall12a_20260722": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_rall12b_20260722": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_rall12s_20260722": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall13_023rr_20260722": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall13a_20260722": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall13b_20260722": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall14_20260722": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall15_20260722": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall16_20260722": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall17a_20260723": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_rall17b_20260723": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall19_base_20260723": {
+      "sims": 8,
+      "dup_sims": 3,
+      "dup_calls": 3
+    },
+    "bank_rall19_treat_20260723": {
+      "sims": 8,
+      "dup_sims": 4,
+      "dup_calls": 7
+    },
+    "bank_rall20a_20260723": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_rall20b_20260723": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_rall21a_20260724": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall21b_20260724": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_rall22a_20260724": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall22b_20260724": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall23a_20260724": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_rall23b_20260724": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_rall24a_20260724": {
+      "sims": 2,
+      "dup_sims": 2,
+      "dup_calls": 5
+    },
+    "bank_rall24b_20260724": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_rall25a_20260724": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall25b_20260724": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall4a_20260721": {
+      "sims": 6,
+      "dup_sims": 4,
+      "dup_calls": 4
+    },
+    "bank_rall4b_20260721": {
+      "sims": 6,
+      "dup_sims": 3,
+      "dup_calls": 5
+    },
+    "bank_rall4s095_20260721": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall5a_20260721": {
+      "sims": 6,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_rall5b_20260721": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall5s095_20260721": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall6a_20260721": {
+      "sims": 6,
+      "dup_sims": 4,
+      "dup_calls": 4
+    },
+    "bank_rall6b_20260721": {
+      "sims": 6,
+      "dup_sims": 2,
+      "dup_calls": 3
+    },
+    "bank_rall6s_20260721": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall7a_20260722": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_rall7b_20260722": {
+      "sims": 3,
+      "dup_sims": 3,
+      "dup_calls": 3
+    },
+    "bank_rall7s_20260722": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall8a_20260722": {
+      "sims": 2,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_rall8b_20260722": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_rall9a_20260722": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_rall9b_20260722": {
+      "sims": 5,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_ratefix_e2e_20260718": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_redesign020_20260718": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_redesign3_20260718": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_redesign4_20260719": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_redesign5_20260719": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_redesign6_20260719": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_redesign7_20260719": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_redesign7b_20260719": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_redesign7c_20260719": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_redesign7d_20260719": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_reg043_base_20260724": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_reg043_treat_20260724": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_reg043dd2_treat_20260725": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 6
+    },
+    "bank_reg043dd_treat_20260725": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_reg043fix_base_20260724": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_reg043fix_treat_20260724": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_reg043gd5_20260725": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_reg043nt4_20260725": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_reg043pr_treat_20260725": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smk_gpu0_20260805f": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_smk_gpu0_20260805g": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 15
+    },
+    "bank_smk_gpu0_20260805h": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smk_gpu0_20260805j": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_smk_gpu0_20260805m": {
+      "sims": 6,
+      "dup_sims": 3,
+      "dup_calls": 4
+    },
+    "bank_smk_gpu0_20260805n": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smk_gpu0_20260806a": {
+      "sims": 6,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_smk_gpu0_20260806c": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smk_gpu0_20260806d": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_smk_gpu1_20260805f": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smk_gpu1_20260805g": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_smk_gpu1_20260805h": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smk_gpu1_20260805j": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_smk_gpu1_20260805n": {
+      "sims": 6,
+      "dup_sims": 3,
+      "dup_calls": 3
+    },
+    "bank_smk_gpu1_20260805p": {
+      "sims": 4,
+      "dup_sims": 2,
+      "dup_calls": 3
+    },
+    "bank_smk_gpu1_20260805q": {
+      "sims": 3,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_smk_gpu1_20260805r": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 3
+    },
+    "bank_smk_gpu1_20260806a": {
+      "sims": 6,
+      "dup_sims": 3,
+      "dup_calls": 5
+    },
+    "bank_smk_gpu1_20260806c": {
+      "sims": 4,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_smk_gpu1_20260806d": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_smoke023_20260720": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smoke023b_20260720": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smoke023c_20260720": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smoke023d_20260720": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smoke023e_20260720": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smoke023f_20260720": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smoke2_p3fix_20260805": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smoke6_a_20260720": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smoke6_b_20260720": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smoke6_n97rx_20260805": {
+      "sims": 6,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_smoke6fix_a_20260720": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smoke6fix_b_20260720": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_smoke8b_pin_20260805": {
+      "sims": 8,
+      "dup_sims": 4,
+      "dup_calls": 5
+    },
+    "bank_smoke9_p3fix_20260805": {
+      "sims": 9,
+      "dup_sims": 4,
+      "dup_calls": 8
+    },
+    "bank_t019d_20260716": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t019g_20260716": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t019h_20260716": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t019i_20260716": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t019j_20260716": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t3a_20260719": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t3b_20260719": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t3fix_023_20260720": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t3fix_a_20260720": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t3fix_b_20260720": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7273_20260813s": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_t7273b_a_20260813u": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7273b_b_20260813u": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7274w_a_20260813w": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7274w_b_20260813w": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7275_a_20260813v": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7275_b_20260813v": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 3
+    },
+    "bank_t7276_a_20260813x": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_t7276_b_20260813x": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7277_a_20260813y": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7277_b_20260813y": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7278_a_20260813z": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7278_b_20260813z": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7279_a_20260814a": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7279_b_20260814a": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7280_a_20260814b": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7280_b_20260814b": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7281_a_20260814c": {
+      "sims": 8,
+      "dup_sims": 3,
+      "dup_calls": 9
+    },
+    "bank_t7281_b_20260814c": {
+      "sims": 8,
+      "dup_sims": 1,
+      "dup_calls": 7
+    },
+    "bank_t7282_a_20260814d": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7282_b_20260814d": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7283_a_20260814e": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7283_b_20260814e": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7284_a_20260814f": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7284_b_20260814f": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7285_a_20260814g": {
+      "sims": 8,
+      "dup_sims": 2,
+      "dup_calls": 4
+    },
+    "bank_t7285_b_20260814g": {
+      "sims": 8,
+      "dup_sims": 2,
+      "dup_calls": 15
+    },
+    "bank_t7286_a_20260814h": {
+      "sims": 6,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_t7286_b_20260814h": {
+      "sims": 6,
+      "dup_sims": 1,
+      "dup_calls": 3
+    },
+    "bank_t7287_a_20260814i": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7287_b_20260814i": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7288_a_20260814j": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7288_b_20260814j": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7290_a_20260814m": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7290_b_20260814m": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7291_a_20260814n": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7291_b_20260814n": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7292_a_20260814p": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7292_b_20260814p": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_t7293_a_20260814q": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7293_b_20260814q": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7295_a_20260815n": {
+      "sims": 44,
+      "dup_sims": 9,
+      "dup_calls": 17
+    },
+    "bank_t7295_b_20260815n": {
+      "sims": 31,
+      "dup_sims": 7,
+      "dup_calls": 15
+    },
+    "bank_t7296_ctl_20260815p": {
+      "sims": 16,
+      "dup_sims": 1,
+      "dup_calls": 3
+    },
+    "bank_t7296_treat_20260815p": {
+      "sims": 16,
+      "dup_sims": 5,
+      "dup_calls": 5
+    },
+    "bank_t7297_ctl_20260815q": {
+      "sims": 20,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7297_treat_20260815q": {
+      "sims": 20,
+      "dup_sims": 4,
+      "dup_calls": 4
+    },
+    "bank_t7298_20260816a": {
+      "sims": 16,
+      "dup_sims": 6,
+      "dup_calls": 12
+    },
+    "bank_t7299_ctl_20260816b": {
+      "sims": 8,
+      "dup_sims": 3,
+      "dup_calls": 7
+    },
+    "bank_t7299_treat_20260816b": {
+      "sims": 8,
+      "dup_sims": 1,
+      "dup_calls": 4
+    },
+    "bank_t7303_ctl_20260816h": {
+      "sims": 12,
+      "dup_sims": 3,
+      "dup_calls": 9
+    },
+    "bank_t7303_treat_20260816h": {
+      "sims": 12,
+      "dup_sims": 1,
+      "dup_calls": 9
+    },
+    "bank_t7304_ctl_20260816j": {
+      "sims": 8,
+      "dup_sims": 4,
+      "dup_calls": 8
+    },
+    "bank_t7304_ctlaux_20260816j": {
+      "sims": 8,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7304_treat_20260816j": {
+      "sims": 8,
+      "dup_sims": 6,
+      "dup_calls": 13
+    },
+    "bank_t7304_treataux_20260816j": {
+      "sims": 8,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7305_ctl_20260817a": {
+      "sims": 8,
+      "dup_sims": 3,
+      "dup_calls": 5
+    },
+    "bank_t7305_ctlaux_20260817a": {
+      "sims": 8,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7305_treat_20260817a": {
+      "sims": 8,
+      "dup_sims": 8,
+      "dup_calls": 15
+    },
+    "bank_t7305_treataux_20260817a": {
+      "sims": 8,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7306_a_20260818a": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7306_b_20260818a": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7307_ctl_20260818b": {
+      "sims": 2,
+      "dup_sims": 2,
+      "dup_calls": 6
+    },
+    "bank_t7307_treat_20260818b": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 4
+    },
+    "bank_t7308_ctl_20260818c": {
+      "sims": 12,
+      "dup_sims": 7,
+      "dup_calls": 18
+    },
+    "bank_t7308_treat_20260818c": {
+      "sims": 12,
+      "dup_sims": 7,
+      "dup_calls": 17
+    },
+    "bank_t7310_ctl_20260818e": {
+      "sims": 12,
+      "dup_sims": 5,
+      "dup_calls": 8
+    },
+    "bank_t7310_treat_20260818e": {
+      "sims": 12,
+      "dup_sims": 2,
+      "dup_calls": 6
+    },
+    "bank_t7312_ctl_20260818g": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7312_treat_20260818g": {
+      "sims": 4,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7313_ctl_20260818h": {
+      "sims": 16,
+      "dup_sims": 2,
+      "dup_calls": 3
+    },
+    "bank_t7313_treat_20260818h": {
+      "sims": 16,
+      "dup_sims": 3,
+      "dup_calls": 6
+    },
+    "bank_t7326_halfA_20260819q": {
+      "sims": 20,
+      "dup_sims": 4,
+      "dup_calls": 7
+    },
+    "bank_t7326_halfB_20260819q": {
+      "sims": 20,
+      "dup_sims": 7,
+      "dup_calls": 13
+    },
+    "bank_t7328_halfA_20260819r": {
+      "sims": 20,
+      "dup_sims": 5,
+      "dup_calls": 5
+    },
+    "bank_t7328_halfB_20260819r2": {
+      "sims": 20,
+      "dup_sims": 9,
+      "dup_calls": 30
+    },
+    "bank_t7332_smoke_20260821": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7333_ctl_hot_20260821c": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7333_ctl_rest_20260821c": {
+      "sims": 14,
+      "dup_sims": 3,
+      "dup_calls": 5
+    },
+    "bank_t7333_smoke_20260821": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7333_smoke_20260821b": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7333_smoke_20260821c": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7333_treat_hot_20260821c": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7333_treat_rest_20260821c": {
+      "sims": 14,
+      "dup_sims": 5,
+      "dup_calls": 9
+    },
+    "bank_t7334_smoke_20260821": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7334_val_hot_20260821": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7334_val_rest_20260821": {
+      "sims": 14,
+      "dup_sims": 6,
+      "dup_calls": 12
+    },
+    "bank_t7335_halfA_20260821": {
+      "sims": 11,
+      "dup_sims": 2,
+      "dup_calls": 4
+    },
+    "bank_t7335_halfB2_20260821": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7335_halfB_20260821": {
+      "sims": 8,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_t7335_smoke_20260821": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7336_halfA_20260821b": {
+      "sims": 20,
+      "dup_sims": 3,
+      "dup_calls": 5
+    },
+    "bank_t7336_halfB_20260821b": {
+      "sims": 20,
+      "dup_sims": 6,
+      "dup_calls": 8
+    },
+    "bank_t7336_smoke_20260821b": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7337_halfA_20260822": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7337_halfB_20260822": {
+      "sims": 4,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7337_smoke_20260822": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7338_smoke_20260822": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7341_smoke_20260822_a": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7341_smoke_20260822_b": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7342_smoke_20260822_a": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7342_smoke_20260822_b": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7345_halfA_20260822_partial": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7345_smoke_20260822_a": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7345_smoke_20260822_b": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7346_halfA_20260822": {
+      "sims": 20,
+      "dup_sims": 5,
+      "dup_calls": 10
+    },
+    "bank_t7346_halfB_20260822": {
+      "sims": 20,
+      "dup_sims": 10,
+      "dup_calls": 15
+    },
+    "bank_t7346_smoke_20260822_a": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7346_smoke_20260822_b": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7348_halfA_20260824": {
+      "sims": 20,
+      "dup_sims": 6,
+      "dup_calls": 18
+    },
+    "bank_t7348_halfB_20260824": {
+      "sims": 20,
+      "dup_sims": 7,
+      "dup_calls": 13
+    },
+    "bank_t7348_halfBpartial14_20260824": {
+      "sims": 14,
+      "dup_sims": 5,
+      "dup_calls": 6
+    },
+    "bank_t7348_smoke_20260824_a": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7348_smoke_20260824_b": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7352_grpA1_20260825": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7352_grpB1_20260825": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7352_smoke_20260825": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7353_smoke074_20260825": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7354_grpA1_20260825": {
+      "sims": 2,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_t7354_grpA2_20260825": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 3
+    },
+    "bank_t7354_grpA3_20260825": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7354_grpA4_20260825": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7354_grpB1_20260825": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7354_grpB2_20260825": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7355_main_20260825": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7355_smoke_20260825": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7356_grpA1_20260826": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7356_grpA2_20260826": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7356_grpA3_20260826": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_t7356_grpA4_20260826": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7356_grpB10_20260826": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7356_grpB1_20260826": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7356_grpB2_20260826": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7356_grpB3_20260826": {
+      "sims": 3,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7356_grpB4_20260826": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7356_grpB5_20260826": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7356_grpB6_20260826": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_t7356_grpB7_20260826": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7356_grpB8_20260826": {
+      "sims": 2,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_t7356_grpB9_20260826": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7356_smoke_20260826": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_t7358_d074_20260826": {
+      "sims": 1,
+      "dup_sims": 1,
+      "dup_calls": 4
+    },
+    "bank_t7358_f017_20260826": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_w3_20260725": {
+      "sims": 4,
+      "dup_sims": 2,
+      "dup_calls": 2
+    },
+    "bank_w6_20260725": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_x003rep": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_x004_base2": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_x004_docoff": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_x004_docoff2": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_x004_rearmoff": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_x004rep": {
+      "sims": 3,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_x093_check": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_xmatch_formalize": {
+      "sims": 1706,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_y1var_20260730": {
+      "sims": 63,
+      "dup_sims": 9,
+      "dup_calls": 9
+    },
+    "bank_y2b_gpu0_20260731": {
+      "sims": 16,
+      "dup_sims": 6,
+      "dup_calls": 6
+    },
+    "bank_y2b_gpu1_20260731": {
+      "sims": 10,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bank_y2c2_gpu0_20260731": {
+      "sims": 1,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_y2c2_gpu0b_20260731": {
+      "sims": 15,
+      "dup_sims": 4,
+      "dup_calls": 12
+    },
+    "bank_y2c2_gpu1_20260731": {
+      "sims": 16,
+      "dup_sims": 1,
+      "dup_calls": 2
+    },
+    "bank_y2cp2_gpu0_20260801": {
+      "sims": 16,
+      "dup_sims": 4,
+      "dup_calls": 8
+    },
+    "bank_y2cp2_gpu1_20260801": {
+      "sims": 16,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bank_y2cp3_gpu0_20260801": {
+      "sims": 16,
+      "dup_sims": 3,
+      "dup_calls": 3
+    },
+    "bank_y2cp3_gpu1_20260801": {
+      "sims": 16,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bankar_floor_std97": {
+      "sims": 43,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bankar_floor_std97_partial43": {
+      "sims": 43,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bankar_rec_g5": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bankar_rec_gr5": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bankar_smoke5": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bankar_smoke5b": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bankar_smoke5c": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bankar_uni5": {
+      "sims": 5,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "bankxfer_floor_bank_t2": {
+      "sims": 192,
+      "dup_sims": 5,
+      "dup_calls": 5
+    },
+    "bankxfer_floor_bank_t4": {
+      "sims": 211,
+      "dup_sims": 5,
+      "dup_calls": 5
+    },
+    "bankxfer_gate_bank_t1_partial_oldstack": {
+      "sims": 13,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "base7b_assembled_retail_t3": {
+      "sims": 342,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bstack_comp": {
+      "sims": 8,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bstack_full": {
+      "sims": 5,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bstack_guard": {
+      "sims": 10,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bx_t10_base": {
+      "sims": 10,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "bx_t10_v2": {
+      "sims": 10,
+      "dup_sims": 1,
+      "dup_calls": 1
+    },
+    "comp_retail_t4": {
+      "sims": 456,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "compabl_noP": {
+      "sims": 50,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "compabl_noP_eplan": {
+      "sims": 50,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "compabl_noP_eplan_rescue": {
+      "sims": 50,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "fl14b_floor_retail_t4": {
+      "sims": 456,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "fl32b_floor_retail_t4": {
+      "sims": 456,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "gen_A1": {
+      "sims": 114,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "gen_a1nt2": {
+      "sims": 50,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv2_a1v2": {
+      "sims": 114,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv2_a1v2_r3": {
+      "sims": 114,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv2_a1v2_r4": {
+      "sims": 114,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv2_a1v2_r5": {
+      "sims": 114,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv2_air_b1": {
+      "sims": 10,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv2_bank_smoke": {
+      "sims": 10,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv3_probe": {
+      "sims": 18,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv4_full1": {
+      "sims": 114,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv4_full2": {
+      "sims": 114,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv4_full3": {
+      "sims": 114,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv4_smoke2": {
+      "sims": 10,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv5_probe1": {
+      "sims": 22,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv6_air_v6": {
+      "sims": 10,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "genv6_probe2": {
+      "sims": 22,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "improve14b_assembled_retail_t3": {
+      "sims": 342,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "improve32b_assembled_retail_t3": {
+      "sims": 342,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "prompt_rx": {
+      "sims": 24,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "prov_e2e_retail_t4": {
+      "sims": 456,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "qwq32b_floor_retail_t4": {
+      "sims": 456,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "qwq_rparser_floor_nt1": {
+      "sims": 114,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "qwq_rparser_floor_t4": {
+      "sims": 456,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "routerv1_retail_t4": {
+      "sims": 456,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "t5c_aprime1": {
+      "sims": 10,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "t5c_aprime2": {
+      "sims": 10,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "t5c_b78c1_partial": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "t5c_b78c2": {
+      "sims": 78,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "t5c_capsmoke": {
+      "sims": 2,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "t5c_v25b": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "t5c_v25c": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "t5c_v25d": {
+      "sims": 6,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "t5c_v25e": {
+      "sims": 24,
+      "dup_sims": 0,
+      "dup_calls": 0
+    },
+    "trivial36_check": {
+      "sims": 36,
+      "dup_sims": 0,
+      "dup_calls": 0
+    }
+  },
+  "per_task": {
+    "task_071": 19,
+    "task_026": 17,
+    "task_036": 1,
+    "task_051": 12,
+    "task_066": 6,
+    "task_095": 15,
+    "task_005": 6,
+    "task_016": 19,
+    "task_028": 23,
+    "task_027": 22,
+    "task_010": 11,
+    "task_017": 19,
+    "task_018": 18,
+    "task_029": 17,
+    "task_021": 12,
+    "task_020": 16,
+    "task_022": 9,
+    "task_014": 3,
+    "task_019": 19,
+    "task_040": 12,
+    "task_023": 20,
+    "task_065": 5,
+    "task_015": 3,
+    "task_041": 10,
+    "task_008": 2,
+    "task_050": 35,
+    "task_043": 18,
+    "task_045": 3,
+    "task_056": 4,
+    "task_078": 3,
+    "task_052": 15,
+    "task_039": 3,
+    "task_054": 12,
+    "task_068": 6,
+    "task_079": 11,
+    "task_082": 3,
+    "task_093": 6,
+    "task_089": 4,
+    "task_097": 3,
+    "task_059": 3,
+    "task_070": 8,
+    "task_080": 1,
+    "task_094": 7,
+    "task_049": 4,
+    "task_072": 18,
+    "task_044": 3,
+    "task_048": 3,
+    "task_077": 2,
+    "task_061": 3,
+    "task_087": 6,
+    "task_053": 5,
+    "task_092": 1,
+    "task_031": 5,
+    "task_038": 3,
+    "task_057": 18,
+    "task_064": 1,
+    "task_067": 3,
+    "task_073": 18,
+    "task_074": 8,
+    "task_069": 4,
+    "task_062": 3,
+    "task_084": 1,
+    "task_085": 13,
+    "task_088": 5,
+    "task_047": 9,
+    "task_058": 3,
+    "task_076": 3,
+    "task_086": 3,
+    "task_096": 4,
+    "task_055": 50,
+    "task_075": 7,
+    "task_091": 2,
+    "task_101": 1,
+    "task_037": 1,
+    "task_083": 3,
+    "task_102": 1,
+    "task_090": 2,
+    "task_063": 8
+  },
+  "per_task_sims": {
+    "4": 72,
+    "0": 79,
+    "2": 75,
+    "3": 71,
+    "7": 87,
+    "9": 71,
+    "1": 83,
+    "5": 73,
+    "10": 70,
+    "12": 70,
+    "8": 71,
+    "15": 70,
+    "17": 79,
+    "13": 73,
+    "16": 70,
+    "14": 69,
+    "6": 89,
+    "18": 73,
+    "11": 69,
+    "22": 69,
+    "24": 69,
+    "26": 69,
+    "25": 69,
+    "21": 77,
+    "23": 81,
+    "27": 77,
+    "28": 73,
+    "31": 69,
+    "30": 69,
+    "33": 77,
+    "19": 73,
+    "32": 80,
+    "34": 69,
+    "37": 73,
+    "38": 77,
+    "40": 76,
+    "39": 69,
+    "36": 73,
+    "20": 77,
+    "35": 71,
+    "42": 77,
+    "43": 80,
+    "41": 73,
+    "29": 69,
+    "44": 69,
+    "50": 69,
+    "49": 69,
+    "47": 78,
+    "52": 78,
+    "48": 69,
+    "46": 77,
+    "45": 69,
+    "51": 69,
+    "57": 71,
+    "55": 79,
+    "54": 70,
+    "59": 77,
+    "60": 69,
+    "56": 73,
+    "61": 78,
+    "62": 69,
+    "67": 69,
+    "58": 81,
+    "64": 71,
+    "63": 69,
+    "68": 69,
+    "65": 73,
+    "66": 69,
+    "70": 69,
+    "73": 69,
+    "69": 77,
+    "72": 69,
+    "75": 77,
+    "71": 73,
+    "77": 77,
+    "81": 74,
+    "78": 69,
+    "79": 72,
+    "74": 71,
+    "80": 69,
+    "76": 71,
+    "83": 79,
+    "84": 77,
+    "82": 71,
+    "87": 69,
+    "88": 69,
+    "85": 69,
+    "89": 69,
+    "90": 69,
+    "86": 71,
+    "93": 71,
+    "92": 80,
+    "94": 79,
+    "91": 75,
+    "97": 71,
+    "96": 77,
+    "95": 78,
+    "101": 77,
+    "102": 72,
+    "103": 71,
+    "106": 76,
+    "99": 71,
+    "104": 69,
+    "105": 69,
+    "109": 69,
+    "100": 69,
+    "108": 77,
+    "107": 73,
+    "113": 70,
+    "110": 79,
+    "112": 77,
+    "111": 73,
+    "53": 69,
+    "98": 73,
+    "task_071": 47,
+    "task_002": 47,
+    "task_007": 51,
+    "task_012": 50,
+    "task_001": 62,
+    "task_004": 87,
+    "task_003": 87,
+    "task_005": 49,
+    "task_010": 56,
+    "task_018": 44,
+    "task_008": 40,
+    "task_016": 69,
+    "task_006": 39,
+    "task_021": 42,
+    "task_014": 39,
+    "task_023": 62,
+    "task_015": 42,
+    "task_017": 65,
+    "task_022": 54,
+    "task_020": 47,
+    "task_024": 109,
+    "task_019": 156,
+    "task_031": 45,
+    "task_025": 44,
+    "task_033": 51,
+    "task_035": 46,
+    "task_032": 40,
+    "task_034": 38,
+    "task_038": 35,
+    "task_027": 49,
+    "task_037": 15,
+    "task_026": 38,
+    "task_036": 19,
+    "task_029": 44,
+    "task_044": 14,
+    "task_040": 57,
+    "task_045": 14,
+    "task_039": 24,
+    "task_043": 57,
+    "task_028": 60,
+    "task_046": 15,
+    "task_041": 34,
+    "task_049": 19,
+    "task_050": 93,
+    "task_047": 18,
+    "task_052": 48,
+    "task_054": 60,
+    "task_057": 32,
+    "task_048": 26,
+    "task_060": 11,
+    "task_051": 27,
+    "task_059": 13,
+    "task_053": 18,
+    "task_058": 11,
+    "task_055": 91,
+    "task_064": 12,
+    "task_061": 21,
+    "task_065": 14,
+    "task_068": 12,
+    "task_063": 42,
+    "task_066": 12,
+    "task_056": 12,
+    "task_067": 12,
+    "task_062": 12,
+    "task_072": 89,
+    "task_075": 40,
+    "task_070": 35,
+    "task_076": 12,
+    "task_073": 67,
+    "task_079": 31,
+    "task_078": 12,
+    "task_074": 63,
+    "task_080": 12,
+    "task_069": 17,
+    "task_085": 44,
+    "task_087": 20,
+    "task_086": 12,
+    "task_081": 15,
+    "task_082": 12,
+    "task_083": 14,
+    "task_084": 13,
+    "task_088": 11,
+    "task_091": 9,
+    "task_090": 14,
+    "task_093": 38,
+    "task_099": 25,
+    "task_098": 86,
+    "task_092": 14,
+    "task_089": 12,
+    "task_096": 16,
+    "task_094": 28,
+    "task_097": 29,
+    "task_095": 47,
+    "task_100": 40,
+    "task_102": 13,
+    "task_077": 13,
+    "task_101": 11,
+    "?": 1706
+  },
+  "dup_reward": {
+    "0.0": 596,
+    "1.0": 89
+  },
+  "examples": [
+    {
+      "tag": "bank_071v_20260813t",
+      "task": "task_071",
+      "dups": 3,
+      "reward": 0.0,
+      "tools": [
+        "open_bank_account_4821"
+      ]
+    },
+    {
+      "tag": "bank_071v_20260813t",
+      "task": "task_071",
+      "dups": 2,
+      "reward": 0.0,
+      "tools": [
+        "open_bank_account_4821"
+      ]
+    },
+    {
+      "tag": "bank_071v_20260813t",
+      "task": "task_071",
+      "dups": 6,
+      "reward": 1.0,
+      "tools": [
+        "open_bank_account_4821"
+      ]
+    },
+    {
+      "tag": "bank_all97_nt1_v2_20260718",
+      "task": "task_026",
+      "dups": 1,
+      "reward": 0.0,
+      "tools": [
+        "submit_cash_back_dispute_0589"
+      ]
+    },
+    {
+      "tag": "bank_all97_nt1_v2_20260718",
+      "task": "task_036",
+      "dups": 1,
+      "reward": 0.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_all97_nt1_v2_20260718",
+      "task": "task_051",
+      "dups": 1,
+      "reward": 0.0,
+      "tools": [
+        "pay_credit_card_from_checking_9182"
+      ]
+    },
+    {
+      "tag": "bank_all97_nt1_v2_20260718",
+      "task": "task_066",
+      "dups": 2,
+      "reward": 0.0,
+      "tools": [
+        "open_bank_account_4821"
+      ]
+    },
+    {
+      "tag": "bank_all97_nt1_v2_20260718",
+      "task": "task_095",
+      "dups": 1,
+      "reward": 0.0,
+      "tools": [
+        "submit_interest_discrepancy_report_7294"
+      ]
+    },
+    {
+      "tag": "bank_ax32p1_gpu0_20260802",
+      "task": "task_005",
+      "dups": 2,
+      "reward": 0.0,
+      "tools": [
+        "change_user_email",
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p1_gpu0_20260802",
+      "task": "task_016",
+      "dups": 1,
+      "reward": 0.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p1_gpu0_20260802",
+      "task": "task_028",
+      "dups": 1,
+      "reward": 0.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p1_gpu0_20260802",
+      "task": "task_027",
+      "dups": 2,
+      "reward": 0.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p1_gpu1_20260802",
+      "task": "task_010",
+      "dups": 1,
+      "reward": 0.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p1_gpu1_20260802",
+      "task": "task_017",
+      "dups": 2,
+      "reward": 1.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p1_gpu1_20260802",
+      "task": "task_018",
+      "dups": 1,
+      "reward": 0.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p1_gpu1_20260802",
+      "task": "task_026",
+      "dups": 2,
+      "reward": 0.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p1_gpu1_20260802",
+      "task": "task_029",
+      "dups": 2,
+      "reward": 0.0,
+      "tools": [
+        "log_verification",
+        "update_transaction_rewards_3847"
+      ]
+    },
+    {
+      "tag": "bank_ax32p2_gpu0_20260802",
+      "task": "task_005",
+      "dups": 2,
+      "reward": 0.0,
+      "tools": [
+        "change_user_email",
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p2_gpu0_20260802",
+      "task": "task_021",
+      "dups": 1,
+      "reward": 1.0,
+      "tools": [
+        "submit_cash_back_dispute_0589"
+      ]
+    },
+    {
+      "tag": "bank_ax32p2_gpu0_20260802",
+      "task": "task_028",
+      "dups": 1,
+      "reward": 0.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p2_gpu1_20260802",
+      "task": "task_010",
+      "dups": 1,
+      "reward": 0.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p2_gpu1_20260802",
+      "task": "task_020",
+      "dups": 1,
+      "reward": 0.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p2_gpu1_20260802",
+      "task": "task_018",
+      "dups": 1,
+      "reward": 1.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p2_gpu1_20260802",
+      "task": "task_026",
+      "dups": 2,
+      "reward": 0.0,
+      "tools": [
+        "log_verification"
+      ]
+    },
+    {
+      "tag": "bank_ax32p2_gpu1_20260802",
+      "task": "task_029",
+      "dups": 1,
+      "reward": 1.0,
+      "tools": [
+        "log_verification"
+      ]
+    }
+  ]
+}

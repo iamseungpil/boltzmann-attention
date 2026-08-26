@@ -57,10 +57,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import t2_forensic as F                                              # noqa: E402
 
-from tau2.data_model.simulation import SimulationRun                 # noqa: E402
-from tau2.evaluator.evaluator_env import EnvironmentEvaluator        # noqa: E402
-from tau2.registry import registry                                   # noqa: E402
-from tau2.domains.banking_knowledge.environment import get_tasks     # noqa: E402
+# ⚠tau2 import 는 **함수 안에서** 한다 — 이 파일의 술어(`scan`·`result_id`)를 tau2 없는
+#   로컬에서도 재사용하기 위해서다(x545 가 그렇게 쓴다·[[67]] 사본 금지).
 
 DOMAIN = "banking_knowledge"
 RETRIEVAL = "alltools"   # t7358 러너 인자와 동일 (`--retrieval_config alltools`)
@@ -132,6 +130,10 @@ def prune(sim, drop):
 
 
 def grade(sim_dict, task):
+    from tau2.data_model.simulation import SimulationRun
+    from tau2.evaluator.evaluator_env import EnvironmentEvaluator
+    from tau2.registry import registry
+
     run = SimulationRun.model_validate(sim_dict)
     # ★env 는 런과 **같은 모양**이어야 한다 — t7358 은 `--retrieval_config alltools` 로 돌았고,
     #   그것 없이 재생하면 `KB_search_bm25` 를 모르는 env 가 되어 재생 자체가 죽는다(실측).
@@ -161,6 +163,7 @@ def main(argv=None):
         print("판정 불가: %s 에 %s 가 없다" % (a.tag, a.task))
         return 2
     sim = sims[0]
+    from tau2.domains.banking_knowledge.environment import get_tasks
     task = next((t for t in get_tasks() if t.id == a.task), None)
     if task is None:
         print("판정 불가: 태스크 선언을 못 읽었다")
