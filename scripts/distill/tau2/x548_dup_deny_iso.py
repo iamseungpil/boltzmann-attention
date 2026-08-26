@@ -122,9 +122,15 @@ def result_of(ms, i, tcid):
     return ""
 
 
-def safe_start(ms, i):
-    """도구 호출/결과 짝이 잘리지 않는 시작점 — `i-W` 이하의 마지막 user 턴."""
-    for k in range(max(0, i - W), -1, -1):
+def safe_start(ms, i, w=None):
+    """도구 호출/결과 짝이 잘리지 않는 시작점 — `i-w` 이하의 마지막 user 턴.
+
+    `w=0` 이면 **전량 프리픽스**(라이브가 실제로 본 것). 창이 좁으면 *왜 그 행동을 했는지*가
+    빠져 A_live 가 라이브를 재현하지 못한다(2026-08-26 실측: 12 메시지 창에서 074 행동 0/4)."""
+    w = W if w is None else w
+    if w <= 0:
+        return 0
+    for k in range(max(0, i - w), -1, -1):
         if str(ms[k].get("role")) == "user":
             return k
     return 0
@@ -243,8 +249,8 @@ def cases_051(tags):
     return out
 
 
-def build_arms(c, system, filler_txt):
-    base = to_openai(c["ms"][safe_start(c["ms"], c["msg"]):c["msg"]])
+def build_arms(c, system, filler_txt, w=None, cap=1200):
+    base = to_openai(c["ms"][safe_start(c["ms"], c["msg"], w):c["msg"]], cap)
     head = ([{"role": "system", "content": system}] if system else []) + base
     att = {"role": "assistant", "content": "",
            "tool_calls": [{"id": str(tc.get("id") or ("x%d" % n)), "type": "function",
@@ -272,6 +278,8 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8141)
     ap.add_argument("--n", type=int, default=4)
+    ap.add_argument("--win", type=int, default=0, help="0 = 전량 프리픽스")
+    ap.add_argument("--cap", type=int, default=500, help="메시지당 내용 절단")
     ap.add_argument("--tags051", default="bank_n97_gpu1_main_20260806,"
                                          "bank_n97_gpu1_main_20260805,"
                                          "bank_all97_nt1_v2_20260718")
@@ -320,7 +328,7 @@ def main(argv=None):
               % (c["target"], c["sim"], c["msg"], len(c["attempt"]), len(tools),
                  len(system or ""), c["prior_at"]), flush=True)
         tally = {}
-        for arm, msgs in build_arms(c, system, fil).items():
+        for arm, msgs in build_arms(c, system, fil, a.win, a.cap).items():
             re_n = act_n = 0
             sample = ""
             for _k in range(a.n):
