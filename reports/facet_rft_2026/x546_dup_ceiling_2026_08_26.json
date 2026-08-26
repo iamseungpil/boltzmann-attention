@@ -1,0 +1,1296 @@
+{
+  "pattern": "t73\\d\\d",
+  "targets": 146,
+  "judged": 130,
+  "flip": [
+    {
+      "tag": "bank_t7310_ctl_20260818e",
+      "task": "task_073",
+      "dups": 3,
+      "tools": [
+        "apply_checking_account_credit_5829"
+      ],
+      "b_reward": 1.0
+    },
+    {
+      "tag": "bank_t7310_treat_20260818e",
+      "task": "task_073",
+      "dups": 4,
+      "tools": [
+        "apply_checking_account_credit_5829"
+      ],
+      "b_reward": 1.0
+    },
+    {
+      "tag": "bank_t7313_treat_20260818h",
+      "task": "task_073",
+      "dups": 4,
+      "tools": [
+        "apply_checking_account_credit_5829"
+      ],
+      "b_reward": 1.0
+    },
+    {
+      "tag": "bank_t7326_halfB_20260819q",
+      "task": "task_050",
+      "dups": 2,
+      "tools": [
+        "approve_credit_limit_increase_5847"
+      ],
+      "b_reward": 1.0
+    },
+    {
+      "tag": "bank_t7328_halfB_20260819r2",
+      "task": "task_050",
+      "dups": 2,
+      "tools": [
+        "approve_credit_limit_increase_5847"
+      ],
+      "b_reward": 1.0
+    },
+    {
+      "tag": "bank_t7328_halfB_20260819r2",
+      "task": "task_050",
+      "dups": 2,
+      "tools": [
+        "approve_credit_limit_increase_5847"
+      ],
+      "b_reward": 1.0
+    },
+    {
+      "tag": "bank_t7335_halfB_20260821",
+      "task": "task_050",
+      "dups": 1,
+      "tools": [
+        "approve_credit_limit_increase_5847"
+      ],
+      "b_reward": 1.0
+    },
+    {
+      "tag": "bank_t7358_d074_20260826",
+      "task": "task_074",
+      "dups": 4,
+      "tools": [
+        "apply_checking_account_credit_5829"
+      ],
+      "b_reward": 1.0
+    }
+  ],
+  "stay": [
+    {
+      "tag": "bank_t7303_ctl_20260816h",
+      "task": "task_055",
+      "dups": 6,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7303_ctl_20260816h",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7303_ctl_20260816h",
+      "task": "task_055",
+      "dups": 2,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7303_treat_20260816h",
+      "task": "task_055",
+      "dups": 9,
+      "tools": [
+        "deposit_check_3847",
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7304_ctl_20260816j",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7304_ctl_20260816j",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7304_ctl_20260816j",
+      "task": "task_055",
+      "dups": 4,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7304_ctl_20260816j",
+      "task": "task_055",
+      "dups": 2,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7304_treat_20260816j",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "deposit_check_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7304_treat_20260816j",
+      "task": "task_055",
+      "dups": 2,
+      "tools": [
+        "deposit_check_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7304_treat_20260816j",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7304_treat_20260816j",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7305_ctl_20260817a",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7305_ctl_20260817a",
+      "task": "task_055",
+      "dups": 3,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7305_ctl_20260817a",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "deposit_check_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7305_treat_20260817a",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7305_treat_20260817a",
+      "task": "task_055",
+      "dups": 3,
+      "tools": [
+        "deposit_check_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7305_treat_20260817a",
+      "task": "task_055",
+      "dups": 2,
+      "tools": [
+        "log_verification",
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7305_treat_20260817a",
+      "task": "task_055",
+      "dups": 2,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7305_treat_20260817a",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "deposit_check_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7305_treat_20260817a",
+      "task": "task_055",
+      "dups": 3,
+      "tools": [
+        "deposit_check_3847",
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7305_treat_20260817a",
+      "task": "task_055",
+      "dups": 2,
+      "tools": [
+        "log_verification",
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7305_treat_20260817a",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7306_a_20260818a",
+      "task": "task_077",
+      "dups": 1,
+      "tools": [
+        "freeze_debit_card_3892"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7306_b_20260818a",
+      "task": "task_090",
+      "dups": 1,
+      "tools": [
+        "unfreeze_debit_card_3893"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7307_ctl_20260818b",
+      "task": "task_020",
+      "dups": 1,
+      "tools": [
+        "submit_cash_back_dispute_0589"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7307_ctl_20260818b",
+      "task": "task_027",
+      "dups": 5,
+      "tools": [
+        "submit_cash_back_dispute_0589",
+        "update_transaction_rewards_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7307_treat_20260818b",
+      "task": "task_027",
+      "dups": 4,
+      "tools": [
+        "submit_cash_back_dispute_0589",
+        "update_transaction_rewards_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7308_ctl_20260818c",
+      "task": "task_028",
+      "dups": 1,
+      "tools": [
+        "submit_cash_back_dispute_0589"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7308_ctl_20260818c",
+      "task": "task_027",
+      "dups": 3,
+      "tools": [
+        "submit_cash_back_dispute_0589"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7308_ctl_20260818c",
+      "task": "task_020",
+      "dups": 1,
+      "tools": [
+        "submit_cash_back_dispute_0589"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7308_ctl_20260818c",
+      "task": "task_027",
+      "dups": 5,
+      "tools": [
+        "update_transaction_rewards_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7308_ctl_20260818c",
+      "task": "task_022",
+      "dups": 1,
+      "tools": [
+        "file_credit_card_transaction_dispute_4829"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7308_treat_20260818c",
+      "task": "task_019",
+      "dups": 3,
+      "tools": [
+        "submit_interest_discrepancy_report_7294",
+        "update_transaction_rewards_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7308_treat_20260818c",
+      "task": "task_020",
+      "dups": 1,
+      "tools": [
+        "submit_cash_back_dispute_0589"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7308_treat_20260818c",
+      "task": "task_022",
+      "dups": 2,
+      "tools": [
+        "file_credit_card_transaction_dispute_4829",
+        "update_transaction_rewards_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7308_treat_20260818c",
+      "task": "task_029",
+      "dups": 5,
+      "tools": [
+        "update_transaction_rewards_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7310_ctl_20260818e",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7310_ctl_20260818e",
+      "task": "task_057",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7310_ctl_20260818e",
+      "task": "task_072",
+      "dups": 2,
+      "tools": [
+        "apply_checking_account_credit_5829"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7310_ctl_20260818e",
+      "task": "task_079",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7310_treat_20260818e",
+      "task": "task_072",
+      "dups": 2,
+      "tools": [
+        "apply_checking_account_credit_5829"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7313_ctl_20260818h",
+      "task": "task_050",
+      "dups": 1,
+      "tools": [
+        "submit_credit_limit_increase_request_7392"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7313_ctl_20260818h",
+      "task": "task_057",
+      "dups": 2,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7313_treat_20260818h",
+      "task": "task_057",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7313_treat_20260818h",
+      "task": "task_079",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7326_halfA_20260819q",
+      "task": "task_073",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7326_halfB_20260819q",
+      "task": "task_085",
+      "dups": 3,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7326_halfB_20260819q",
+      "task": "task_057",
+      "dups": 2,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7326_halfB_20260819q",
+      "task": "task_074",
+      "dups": 1,
+      "tools": [
+        "apply_checking_account_credit_5829"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7326_halfB_20260819q",
+      "task": "task_079",
+      "dups": 1,
+      "tools": [
+        "freeze_debit_card_3892"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7326_halfB_20260819q",
+      "task": "task_085",
+      "dups": 3,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7328_halfA_20260819r",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7328_halfA_20260819r",
+      "task": "task_017",
+      "dups": 1,
+      "tools": [
+        "update_transaction_rewards_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7328_halfA_20260819r",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7328_halfA_20260819r",
+      "task": "task_094",
+      "dups": 1,
+      "tools": [
+        "submit_interest_discrepancy_report_7294"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7328_halfB_20260819r2",
+      "task": "task_016",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7328_halfB_20260819r2",
+      "task": "task_057",
+      "dups": 10,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7328_halfB_20260819r2",
+      "task": "task_040",
+      "dups": 2,
+      "tools": [
+        "file_credit_card_transaction_dispute_4829"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7328_halfB_20260819r2",
+      "task": "task_057",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7328_halfB_20260819r2",
+      "task": "task_079",
+      "dups": 1,
+      "tools": [
+        "freeze_debit_card_3892"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7333_ctl_rest_20260821c",
+      "task": "task_047",
+      "dups": 3,
+      "tools": [
+        "close_credit_card_account_7834",
+        "log_credit_card_closure_reason_4521"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7333_ctl_rest_20260821c",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7333_ctl_rest_20260821c",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7333_treat_rest_20260821c",
+      "task": "task_047",
+      "dups": 1,
+      "tools": [
+        "close_credit_card_account_7834"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7333_treat_rest_20260821c",
+      "task": "task_070",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7333_treat_rest_20260821c",
+      "task": "task_047",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7333_treat_rest_20260821c",
+      "task": "task_055",
+      "dups": 5,
+      "tools": [
+        "deposit_check_3847",
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7333_treat_rest_20260821c",
+      "task": "task_063",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7334_val_rest_20260821",
+      "task": "task_047",
+      "dups": 3,
+      "tools": [
+        "close_credit_card_account_7834",
+        "log_credit_card_closure_reason_4521"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7334_val_rest_20260821",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7334_val_rest_20260821",
+      "task": "task_047",
+      "dups": 3,
+      "tools": [
+        "apply_credit_card_account_flag_6147",
+        "close_credit_card_account_7834",
+        "log_credit_card_closure_reason_4521"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7334_val_rest_20260821",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7334_val_rest_20260821",
+      "task": "task_063",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7335_halfA_20260821",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7335_halfB_20260821",
+      "task": "task_063",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7335_halfB_20260821",
+      "task": "task_057",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7335_halfB_20260821",
+      "task": "task_063",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7336_halfA_20260821b",
+      "task": "task_055",
+      "dups": 2,
+      "tools": [
+        "deposit_check_3847",
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7336_halfA_20260821b",
+      "task": "task_073",
+      "dups": 2,
+      "tools": [
+        "apply_checking_account_credit_5829"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7336_halfB_20260821b",
+      "task": "task_079",
+      "dups": 2,
+      "tools": [
+        "freeze_debit_card_3892",
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7336_halfB_20260821b",
+      "task": "task_057",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7336_halfB_20260821b",
+      "task": "task_063",
+      "dups": 2,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7336_halfB_20260821b",
+      "task": "task_074",
+      "dups": 1,
+      "tools": [
+        "apply_checking_account_credit_5829"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7345_halfB_20260822",
+      "task": "task_016",
+      "dups": 2,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7346_halfA_20260822",
+      "task": "task_017",
+      "dups": 2,
+      "tools": [
+        "file_credit_card_transaction_dispute_4829",
+        "submit_interest_discrepancy_report_7294"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7346_halfA_20260822",
+      "task": "task_055",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7346_halfA_20260822",
+      "task": "task_055",
+      "dups": 4,
+      "tools": [
+        "deposit_check_3847",
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7346_halfA_20260822",
+      "task": "task_073",
+      "dups": 2,
+      "tools": [
+        "apply_checking_account_credit_5829"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7346_halfB_20260822",
+      "task": "task_040",
+      "dups": 1,
+      "tools": [
+        "file_credit_card_transaction_dispute_4829"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7346_halfB_20260822",
+      "task": "task_063",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7346_halfB_20260822",
+      "task": "task_016",
+      "dups": 2,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7346_halfB_20260822",
+      "task": "task_040",
+      "dups": 2,
+      "tools": [
+        "file_credit_card_transaction_dispute_4829"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7346_halfB_20260822",
+      "task": "task_057",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7346_halfB_20260822",
+      "task": "task_063",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7346_halfB_20260822",
+      "task": "task_079",
+      "dups": 2,
+      "tools": [
+        "freeze_debit_card_3892"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfA_20260824",
+      "task": "task_055",
+      "dups": 3,
+      "tools": [
+        "deposit_check_3847",
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfA_20260824",
+      "task": "task_094",
+      "dups": 1,
+      "tools": [
+        "apply_savings_account_credit_6831"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfA_20260824",
+      "task": "task_055",
+      "dups": 3,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfA_20260824",
+      "task": "task_073",
+      "dups": 3,
+      "tools": [
+        "apply_checking_account_credit_5829"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfB_20260824",
+      "task": "task_016",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfB_20260824",
+      "task": "task_050",
+      "dups": 1,
+      "tools": [
+        "approve_credit_limit_increase_5847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfB_20260824",
+      "task": "task_057",
+      "dups": 2,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfB_20260824",
+      "task": "task_016",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfB_20260824",
+      "task": "task_057",
+      "dups": 6,
+      "tools": [
+        "deposit_check_3847",
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfB_20260824",
+      "task": "task_085",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfBpartial14_20260824",
+      "task": "task_016",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfBpartial14_20260824",
+      "task": "task_050",
+      "dups": 1,
+      "tools": [
+        "approve_credit_limit_increase_5847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfBpartial14_20260824",
+      "task": "task_057",
+      "dups": 2,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7348_halfBpartial14_20260824",
+      "task": "task_016",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7354_grpA1_20260825",
+      "task": "task_085",
+      "dups": 1,
+      "tools": [
+        "file_debit_card_transaction_dispute_6281"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7354_grpA1_20260825",
+      "task": "task_085",
+      "dups": 1,
+      "tools": [
+        "file_debit_card_transaction_dispute_6281"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7354_grpA2_20260825",
+      "task": "task_057",
+      "dups": 3,
+      "tools": [
+        "apply_savings_account_credit_6831",
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7354_grpA3_20260825",
+      "task": "task_016",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7354_grpB2_20260825",
+      "task": "task_085",
+      "dups": 1,
+      "tools": [
+        "file_debit_card_transaction_dispute_6281"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7356_grpA2_20260826",
+      "task": "task_085",
+      "dups": 1,
+      "tools": [
+        "file_debit_card_transaction_dispute_6281"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7356_grpA3_20260826",
+      "task": "task_072",
+      "dups": 2,
+      "tools": [
+        "apply_checking_account_credit_5829"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7356_grpB1_20260826",
+      "task": "task_017",
+      "dups": 1,
+      "tools": [
+        "submit_cash_back_dispute_0589"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7356_grpB3_20260826",
+      "task": "task_016",
+      "dups": 1,
+      "tools": [
+        "log_verification"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7356_grpB5_20260826",
+      "task": "task_057",
+      "dups": 1,
+      "tools": [
+        "open_bank_account_4821"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7356_grpB6_20260826",
+      "task": "task_055",
+      "dups": 2,
+      "tools": [
+        "deposit_check_3847"
+      ],
+      "b_reward": 0.0
+    },
+    {
+      "tag": "bank_t7356_grpB8_20260826",
+      "task": "task_079",
+      "dups": 1,
+      "tools": [
+        "order_debit_card_5739"
+      ],
+      "b_reward": 0.0
+    }
+  ],
+  "unfair": [],
+  "errors": [
+    {
+      "tag": "bank_t7304_treat_20260816j",
+      "task": "task_055",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-d7de0bbeb4564025b1c1440c3948ffb0 and chatcmpl-tool-25f73b5396bc45ab8193f4449ddb4004')"
+    },
+    {
+      "tag": "bank_t7304_treat_20260816j",
+      "task": "task_055",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-c9f65b56cee147ff896b436d847596b6 and chatcmpl-tool-450cd1a876a041429fb430cfbdd40e91')"
+    },
+    {
+      "tag": "bank_t7308_treat_20260818c",
+      "task": "task_019",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-bcaee25cf645479cb8e5919c07019f4e and chatcmpl-tool-cab65c19843843c2a6d5b12522dfb167')"
+    },
+    {
+      "tag": "bank_t7326_halfA_20260819q",
+      "task": "task_055",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-ceb252a8367e4a48a5b72620e43cd827 and chatcmpl-tool-22dd7f4a48f44bc8aa416d4d2c1ab907')"
+    },
+    {
+      "tag": "bank_t7326_halfA_20260819q",
+      "task": "task_094",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-4ca13bc5c7094724b51f8e4b73074b1d and chatcmpl-tool-230fb0708a124c2288b507250121589e')"
+    },
+    {
+      "tag": "bank_t7328_halfA_20260819r",
+      "task": "task_094",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-49ce14e202da4bf097fe8361f0b16bab and chatcmpl-tool-709f2823f32c4cf3a17800e7045075a2')"
+    },
+    {
+      "tag": "bank_t7328_halfB_20260819r2",
+      "task": "task_040",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-7a9c153acde84e4eab6b527b22dcc7c3 and chatcmpl-tool-7ccd6569c2844a969c1bfde2ec83aa5b')"
+    },
+    {
+      "tag": "bank_t7328_halfB_20260819r2",
+      "task": "task_085",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-bd8f44bc3b094103ad36fc24cb6fa5f6 and chatcmpl-tool-ec5702ab9e7a40028729b66d95647792')"
+    },
+    {
+      "tag": "bank_t7335_halfA_20260821",
+      "task": "task_073",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-86b08dc1d9934e498448d26f616243a9 and chatcmpl-tool-baf5a7207e7c430f9b7549b166df3579')"
+    },
+    {
+      "tag": "bank_t7335_halfB_20260821",
+      "task": "task_040",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-b73bac515d0f4e22b806eaa7f9559142 and chatcmpl-tool-583471e6265541d9bfe3a067a86f4924')"
+    },
+    {
+      "tag": "bank_t7336_halfB_20260821b",
+      "task": "task_040",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-05e56f435b9e405a9a969a24b422551a and chatcmpl-tool-6af04bdb4bf2451f851734168404eb90')"
+    },
+    {
+      "tag": "bank_t7346_halfB_20260822",
+      "task": "task_074",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-1415490d02e5497eb8effa8538c95e05 and chatcmpl-tool-7b55d6656079466eb54753f795a07e28')"
+    },
+    {
+      "tag": "bank_t7346_halfB_20260822",
+      "task": "task_079",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-2377fa7f0c314db09f7e5dca937f5b71 and chatcmpl-tool-97ad5766bb694ec8bdf326ddf71981c1')"
+    },
+    {
+      "tag": "bank_t7348_halfB_20260824",
+      "task": "task_040",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-50010c9c7a10469bb478aed64ebe5e78 and chatcmpl-tool-76f694cf41a449e5a38aa9fffdb973cf')"
+    },
+    {
+      "tag": "bank_t7348_halfBpartial14_20260824",
+      "task": "task_040",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-50010c9c7a10469bb478aed64ebe5e78 and chatcmpl-tool-76f694cf41a449e5a38aa9fffdb973cf')"
+    },
+    {
+      "tag": "bank_t7356_grpB7_20260826",
+      "task": "task_094",
+      "why": "A_full 재생 실패: ValueError('Tool call id mismatch. Got chatcmpl-tool-792f86bcd93a4f70899cb4d3d4b55cca and chatcmpl-tool-aa16b53705da46a2b07839bfad2e388c')"
+    }
+  ],
+  "per_task": {
+    "task_073": 3,
+    "task_050": 4,
+    "task_074": 1
+  },
+  "per_tag": {
+    "bank_t7310_ctl_20260818e": 1,
+    "bank_t7310_treat_20260818e": 1,
+    "bank_t7313_treat_20260818h": 1,
+    "bank_t7326_halfB_20260819q": 1,
+    "bank_t7328_halfB_20260819r2": 2,
+    "bank_t7335_halfB_20260821": 1,
+    "bank_t7358_d074_20260826": 1
+  }
+}
