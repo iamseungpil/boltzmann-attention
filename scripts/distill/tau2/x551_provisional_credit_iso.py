@@ -78,6 +78,8 @@ ASK = (NL + NL + "You are filing this credit card dispute now." + NL +
 
 
 def gen(port, body, maxtok=8):
+    """⚠창이 전 접두라 본문이 길다 — 서버 컨텍스트를 넘으면 400 이 온다. 본문을 조용히
+    자르지 말고 **오류를 그대로 올린다**(자르면 그게 또 다른 계기 고장이다)."""
     payload = {"model": MODEL, "temperature": 0.0, "max_tokens": maxtok,
                "messages": [{"role": "user", "content": body}]}
     req = urllib.request.Request("http://127.0.0.1:%d/v1/chat/completions" % port,
@@ -178,11 +180,16 @@ def windows():
             if why:
                 skipped.append({"sim": sim, "run": tag, "why": why})
                 continue
+            # ⚠창은 **전 접두**여야 한다(2026-08-26 재설계). 12 메시지 × 1500자로 자른 초판은
+            #   A_asis 가 3/4 로 나와 **라이브(6/6 오답)를 재현하지 못했다** — 자르는 순간
+            #   결손의 정체인 *거리*가 사라진다. 같은 교훈의 선례가 있다(`366fc298`
+            #   *"짧은 창은 행동할 이유를 떨어뜨린다"*). 규칙이 msg3 의 31,591자 안에 있고
+            #   write 가 40 메시지 뒤라는 것이 이 결손의 전부이므로, 그 거리를 창이 담아야 한다.
             txt = []
-            for m in ms[max(0, cut - W):cut]:
+            for m in ms[:cut]:
                 c = str(m.get("content") or "").strip()
                 if c:
-                    txt.append("[%s] %s" % (m.get("role"), c[:1500]))
+                    txt.append("[%s] %s" % (m.get("role"), c))
             if not txt:
                 skipped.append({"sim": sim, "run": tag, "why": "창이 비었다"})
                 continue
