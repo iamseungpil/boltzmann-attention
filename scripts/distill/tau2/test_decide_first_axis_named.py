@@ -207,8 +207,16 @@ if guard is not None:
     chk("_DECIDE_FIRST_FB.format(arg=_darg" in else_txt,
         "배달은 `_darg` 를 실어서만 조립된다")
     chk("_search_material" in else_txt, "재료 조달은 지목 가지 안에 있다")
-chk(seg.count("dw_fb = (") == 1, "이 블록에서 `dw_fb` 대입은 한 자리뿐",
-    seg.count("dw_fb = ("))
+# ★2026-08-26 갱신 (x543 배치 수리): 종전엔 이 블록의 `dw_fb = (` 가 **한 자리**여야 한다고
+#   봤다. 선언 배달(명세·규칙·인자-정책)이 같은 블록에서 **덧붙는** 구조가 되면서 대입은 둘이
+#   된다 — ⑴캐리의 조립 ⑵캐리를 되살리는 병합. 지키려던 것은 *배달 문면이 여러 곳에서
+#   조립되지 않는다* 이므로 그것을 직접 검정한다.
+chk(seg.count("_DECIDE_FIRST_FB.format(") == 1, "캐리 문면 조립은 한 자리뿐",
+    seg.count("_DECIDE_FIRST_FB.format("))
+_assigns = [ln.strip() for ln in seg.split("\n") if ln.strip().startswith("dw_fb = (")]
+chk(bool(_assigns) and all(("_DECIDE_FIRST_FB" in a) or ("_carry_hold" in a)
+                           for a in _assigns),
+    "직접 대입은 캐리 조립·병합뿐 (선언 배달은 `_decl_join` 을 지난다)", len(_assigns))
 chk("arg=%s" in seg, "로그가 인자 이름을 병기한다(검산 가능)")
 # 구판 문면(무지목)이 이 배달 자리에서 실제로 사라졌는지 — 주석·독스트링의 역사 인용은
 # 남아 있어도 되지만 **배달 블록**에는 한 글자도 없어야 한다.
@@ -229,14 +237,19 @@ except Exception as e:                                                 # pragma:
     A2 = None
     print("  SKIP A2 로드 실패: %r" % (e,))
 if A2:
-    # 085 가 실패한 그 write (분쟁 접수) — A2 에 선택 인자 선언이 없다 ⇒ 무발화.
+    # ★2026-08-26 갱신 — **A2 가 바뀌었다**. 이 칸은 원래 *"085 분쟁 write 는 축 미상이라
+    #   캐리가 안 나간다"* 를 고정했는데, 2026-08-25 `e2c5f362`(책임 한도 표를 write 자리에
+    #   놓고 선언된 규칙이 출처를 대게 함)가 이 write 의 선택 인자를 **선언**했다. 그래서 지금
+    #   옳은 계약은 *"선언이 있으니 인자를 대고 캐리가 나간다"* 이다.
+    #   ⚠지키려던 것(= **이름을 못 대면 배달하지 않는다**)은 위 합성 A2 절(`n1`~`n5`)과
+    #     `if not _darg:` 가드 검정이 그대로 들고 있다 — 여기서 푸는 것이 아니다.
     d085 = G._write_choice_arg(A2, call("call_discoverable_agent_tool",
                                         {"agent_tool_name":
                                          "file_debit_card_transaction_dispute_6281"},
                                         {"dispute_category": "General",
                                          "transaction_id": "t1"}))
-    chk(d085 == (None, None),
-        "085 분쟁 write = 축 미상 ⇒ 캐리 무발화 (사고 재현이 닫힌다)", d085)
+    chk(d085[0] == "dispute_category",
+        "085 분쟁 write = A2 선언대로 인자를 댄다 (e2c5f362 이후의 계약)", d085)
     # 070/071 계좌 개설 write — 선언이 있으므로 인자를 지목하고 계속 발화한다.
     d070 = G._write_choice_arg(A2, call("call_discoverable_agent_tool",
                                         {"agent_tool_name": "open_bank_account_4821"},
