@@ -32,6 +32,7 @@ env 구현(`tools.py:2730 apply_checking_account_credit_5829`)은
 """
 import argparse
 import copy
+import inspect
 import json
 import os
 import sys
@@ -48,13 +49,18 @@ from tau2.domains.banking_knowledge.environment import get_tasks     # noqa: E40
 DOMAIN = "banking_knowledge"
 
 
+def result_id(m):
+    """tool 메시지가 **어느 호출의 결과인지**. 이 궤적의 키는 `id` 다(`tool_call_id` 아님)."""
+    return str(m.get("id") or m.get("tool_call_id") or "")
+
+
 def tool_result_ok(ms, i, tcid):
     """이 호출의 결과 메시지가 오류가 아닌가 — `error` 플래그와 'Error:' 접두만 본다."""
     for j in range(i + 1, len(ms)):
         m = ms[j]
         if str(m.get("role")) != "tool":
             continue
-        if str(m.get("tool_call_id") or "") != tcid:
+        if result_id(m) != tcid:
             continue
         if m.get("error"):
             return False
@@ -94,7 +100,7 @@ def prune(sim, drop):
     ids = {t for _, t, *_ in drop}
     out = []
     for m in (d.get("messages") or []):
-        if str(m.get("role")) == "tool" and str(m.get("tool_call_id") or "") in ids:
+        if str(m.get("role")) == "tool" and result_id(m) in ids:
             continue
         if str(m.get("role")) == "assistant" and (m.get("tool_calls") or []):
             keep = [tc for tc in m["tool_calls"]
@@ -110,12 +116,13 @@ def prune(sim, drop):
 
 def grade(sim_dict, task):
     run = SimulationRun.model_validate(sim_dict)
-    ri = EnvironmentEvaluator.calculate_reward(
-        environment_constructor=registry.get_env_constructor(DOMAIN),
-        task=task,
-        full_trajectory=run.messages,
-        strict_replay=False,
-    )
+    kw = dict(environment_constructor=registry.get_env_constructor(DOMAIN),
+              task=task, full_trajectory=run.messages)
+    # 설치된 tau2 에 `strict_replay` 가 없는 판본이 있다 — 있을 때만 준다(추정 금지).
+    if "strict_replay" in inspect.signature(
+            EnvironmentEvaluator.calculate_reward).parameters:
+        kw["strict_replay"] = False
+    ri = EnvironmentEvaluator.calculate_reward(**kw)
     dbc = ri.db_check
     return (None if dbc is None else dbc.db_match), ri.reward
 
