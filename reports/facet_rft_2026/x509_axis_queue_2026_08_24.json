@@ -762,6 +762,45 @@
     "등재_문안": "§3 형(허위 문면 교정)으로 `export T2_DIAG_UNAMBIGUOUS=1`. 새 거동을 더하는 게 아니라 근거 없는 단언 하나를 거두는 것이고 `status_breakdown`·`status_meanings_text` 는 그 앞에서 그대로 나간다.",
     "함정_기록": "로컬 동결 표식이 **실제로 도는 런(t7362)을 가리키지 않는다** — t7362 드라이버는 **리모트** 사본에 동결을 걸었고 로컬은 t7357 것이 남아 있다. 그리고 훅은 Edit/Write 만 본다 ⇒ Bash `sed` 는 동결을 **그냥 지나간다**(핸드오프 §5.6 의 *'동결이 뚫려 있었다'* 가 이 구멍일 가능성)."
    }
+  },
+  "t7362_perstep": {
+   "지시": "사용자 2026-08-26 밤 — *\"이미 실패한 케이스 포렌식하여 원인 확정하라\"*. 런 진행 중 · 러너가 sim 마다 `results.json` 을 갱신하므로 끝난 실패는 지금 재료다.",
+   "계기": "scripts/distill/tau2/x555_t7362_perstep.py (정본 `t2_forensic.mutation_diff`/`sidecar_denies` 재사용·손 비교기 0). 사이드카 세 팔 전부 **present**.",
+   "대상": "B_say task_074#s626729(0.0) · C_scope task_074#s626729(0.0) · C_scope task_079#s626729(0.0). A_ctl 은 074 진행 중이라 3자 대조 미완.",
+   "① 074 금액축 — ★우리 층 천장이 사라졌다(TASK_074.md 소급 정정)": {
+    "주장": "C_scope 074 에서 **우리 도구 `get_atm_fee_discrepancies` 의 net 이 4/4 정확**하다. 모델 제출은 3/4 이고 유일한 오답은 `_1`(Purple)에 **`_2` 의 값 14.5** 를 쓴 것이다(gold 27).",
+    "근거": "도구 출력 축자(같은 sim msg[48]·[52]·[56]·[60])의 difference 를 부호대로 더하면 _1 = 2.50+8.00+10.50+3.50+2.50 = **27.00** · _2 = 2.50+2.50+2.50+4.00+4.00−2.50+1.50 = **14.50** · _3 = 1.50−1.00+2.00+4.00−1.75 = **4.75** · _4 = 1.50+1.50−1.00+3.50−1.80 = **3.70**. `mutation_diff`: MATCHED 3(_2·_3·_4 축자 일치) · WRONGARG 1(`_1` amount **14.5**) · MISSING 1(`_1` amount **27**).",
+    "소급_정정": "`tasks__20260824/TASK_074.md:19,32` 은 우리 도구 net 을 `27.00 / 17.00 / 2.50 / 1.45`(**1/4**)로 적고 *'모델이 100% 순종해도 3/4 불일치가 확정'(천장)* 이라고 판정했다. **t7362 에서는 그 천장이 없다** — 그 사이 형식화 수리가 들었다. 그 문서를 근거로 074 를 *'우리 층 천장'* 으로 부르지 마라.",
+    "기전_기각": "`x542_signed_sum_iso.py` 가 확정한 **절댓값-합** 기전은 t7362 에서 **재현되지 않는다**: 음수를 포함한 세 계좌(_2·_3·_4)가 전부 부호합으로 정확하다. 남은 오답은 산수가 아니라 **계좌 간 값 전이**(_1 ← _2)다.",
+    "형상": "네 호출이 **한 턴(msg[73])에 병렬**로 나갔고, 그 시점 문맥에 계좌 블록 넷이 함께 있었다. 가장 오래된 블록(_1)이 이웃 값을 받았다 — [[65]] 부하 형상.",
+    "반증_조건": "다른 seed·다른 런에서 `_1` 이 27 로 나오면 이건 n=1 잡음이다. 그리고 한 턴 1건씩 쓰게 했을 때도 `_1` 이 틀리면 병렬-턴 가설은 거짓이다.",
+    "다음_수": "격리 프로브 = **한 턴 1 write ↔ 한 턴 4 write** (문맥 동일·[[57]] 부정통제 포함). 유료 0."
+   },
+   "② 074 B_say — 우리가 막았다는 귀속은 **반증됨**": {
+    "주장": "B_say 는 `apply_checking_account_credit_5829` 를 **한 번도 부르지 않았다**(호출 0회). 그리고 우리 층은 그 도구를 막은 적이 **없다**.",
+    "근거": "궤적 전수: `apply_*` outer/inner 호출 **0**. 사이드카 반려 21행 중 그 도구 이름 언급 **0**(C_scope 12행도 0). 마지막 assistant 축자 = *\"I will log the discrepancies and notify our team to process the refunds\"* — 쓰기 대신 **우회**했다.",
+    "대조": "같은 태스크·같은 seed 인데 C_scope 는 msg[71] unlock → msg[73] 4건 병렬 실행까지 갔다. ⇒ 경로는 우리 스택 아래에서 **도달 가능**하다(구조적 결손 아님).",
+    "미확정": "B_say 의 두 플래그(`PROCEDURE_LEFT`·`EPLAN_ENUM_SUBTRACT`) 탓인지 기저 거동인지는 **A_ctl 074 가 끝나야** 갈린다. ⛔지금 귀속하지 마라([[75]] ③ 불안정·n=1).",
+    "부수_관측": "반려 종류 B_say = BLOCKED 14 · GB1 4 · OPERATOR-SCOPE 2 · PROVENANCE 1(총 21) ↔ C_scope = BLOCKED 5 · GB1 4 · PROVENANCE 1 · OPERATOR-DIRECT 1 · GB2 1(총 12). **같은-턴 연쇄 차단이 14 ↔ 5** 로 갈린다 — 가설이지 원인 아님."
+   },
+   "③ 079 — 모델 층 확정(순서 의존을 env 가 네 번 말해 줬다)": {
+    "주장": "079 의 결손은 **모델**이다. freeze 3건은 성공했고, 그 다음 `close_debit_card_4721` 을 **네 번 연속** 같은 인자로 부르며 매번 같은 env 오류를 받고도 `unfreeze` 를 부르지 않고 이관으로 끝냈다.",
+    "근거": "궤적 축자 — msg[46]·[50]·[54] freeze 성공(ev·lb·green) · msg[62]/[64]/[66]/[68] `close_debit_card_4721('dbc_cr89a2b3c4_ev')` → msg[63]/[65]/[67]/[69] 전부 `Error: Debit card 'dbc_cr89a2b3c4_ev' cannot be closed. Current status: FROZEN. Only ACTIVE or PENDING cards can be closed.` gold = freeze ×3(MATCHED) + `unfreeze_debit_card_3893` ×3(MISSING) + close ×3(MISSING).",
+    "우리_층_아님": "`close_debit_card_4721`·`unfreeze_debit_card_3893` 는 사이드카 21 반려 중 **언급 0**. `unfreeze_debit_card_3893` 는 msg[3] 도구 목록에 **있었다**(tool 메시지 2건에 등장) ⇒ 전달 결손 아님.",
+    "우리_층_기여_2건": [
+     "ⓐ**우리 마커가 인자로 복사됐다** — turn=2 에 우리가 보낸 `[DISCOVERY-STEP2] the tool registry lists the tool for this action: freeze_debit_card_3892…` 와 같은 턴에 우리 반려 `[PROVENANCE] argument 'customer_name'='DISCOVERY-STEP2'`. **우리가 만든 자리표시자를 우리가 반려했다**([[25]] 우리 도구 100% 정답 의무).",
+     "ⓑ턴 64 반려 문면이 정답 경로 대신 **bm25 검색**을 가리킨다 — `[OPERATOR-PROVENANCE] … Search/list the available tools first (getter KB_search_bm25)`. 정작 옳은 이름은 이미 msg[3] 목록에 있었다([[71]] bm25=baseline·[[64]] 이름을 대라)."
+    ],
+    "반증_조건": "env 오류 문면이 궤적에 실제로 안 실렸다면(뷰 압축 등으로 잘렸다면) 이 귀속은 우리 층으로 넘어간다 — msg[63~69] 축자가 궤적에 그대로 있으므로 현재는 반증되지 않는다."
+   },
+   "④ ★DISCOVERY-STEP2 누출 — 코퍼스 전량 실측": {
+    "주장": "우리 문면의 대괄호 태그 `[DISCOVERY-STEP2]` 가 **모델의 인자 값으로 복사되는** 결함이 코퍼스 전량에 **27건**(태그 19 · sim 27) 있고 **27건 전부 turn=2** 다.",
+    "근거": "사이드카 전량 스캔(`[PROVENANCE] argument '(...)'='DISCOVERY-STEP2'`): 27행 · 태그 t7310(08-18)~t7362(08-26) 19종 · 태스크 **093 17 · 079 8 · 040 2** · 그 sim 의 reward **0.0 ×24 · 1.0 ×2 · 미채점 1**. 대조: 같은 정규식이 잡은 다른 자리표시자는 전부 **스키마 예시값**(BL12345678 5 · JD123456 4 · SAV123456 2 …)이라 모델 날조지만, `DISCOVERY-STEP2` 는 **우리 문자열**이다.",
+    "출처": "`t2_resolve.py:329` `DISCOVERY_STEP2_FB` · `:339` `DISCOVERY_STEP2_REG_FB`.",
+    "부호표": "24/27 이 reward 0 sim ⇒ 고치는 쪽이 거의 공짜. 최대 피해 태스크는 **093**(17건).",
+    "⛔수리_전_필수": "그 문자열은 **측정하고 출시한 문면**이다(`t2_resolve.py:327` 축자: *'측정한 문구 = 출시할 문구([[03b]]) — 아래는 x273 E_STEP2 축자'*, UNLOCK 8/8). 태그만 떼는 것도 **문면 변경**이므로 x273 형 격리 A/B 로 ⑴UNLOCK 8/8 유지 ⑵인자 복사 소멸 둘을 함께 재고 나서만 출시한다. ⛔지금 그냥 지우지 마라.",
+    "선행_확인": "grep = `bank_dup_exec_audit.py`(같은 마커를 **중복 실행** 축으로만 셌다 · 인자 복사 축 없음) · `x273_unlock_step.py`(문면 도입 측정) · `STATE_OF_PLAY`·`FAILURE_MASTER`·`TASK_*` 에 `DISCOVERY-STEP2` **0건**."
+   }
   }
  }
 }
