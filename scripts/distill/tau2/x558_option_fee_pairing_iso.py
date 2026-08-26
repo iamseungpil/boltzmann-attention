@@ -92,13 +92,15 @@ def option_fees(block):
       소문자 `Rush` 다) — 정작 이 프로브가 재려는 그 줄이다. 배선 검증이 잡았다.
       ⇒ 불릿 하나를 통으로 보고 대소문자를 무시한다.
     """
-    out = {}
-    for b in re.split(r"\s+-\s+", block or ""):
-        mm = RX_FEE.search(b)
-        if not mm:
-            continue
-        for o in set(x.upper() for x in RX_OPT.findall(b)):
+    out, prev = {}, 0
+    for mm in RX_FEE.finditer(block or ""):
+        tail = mm.group(2)                       # 같은 괄호 안(`$0 for both STANDARD and EXPEDITED`)
+        opts = set(x.upper() for x in RX_OPT.findall(tail))
+        if not opts:                             # 괄호가 조용하면 **직전 fee 이후의 본문**을 본다
+            opts = set(x.upper() for x in RX_OPT.findall(block[prev:mm.start()]))
+        for o in opts:
             out.setdefault(o, mm.group(1))
+        prev = mm.end()
     return out
 
 
