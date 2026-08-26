@@ -25,35 +25,6 @@
         },
         "N_len": {
           "reissue": 0,
-          "acted": 0
-        }
-      }
-    },
-    {
-      "target": "051",
-      "sim": "task_051#s626729",
-      "tag": "bank_n97_gpu1_main_20260806",
-      "msg": 94,
-      "n": 4,
-      "tally": {
-        "A_live": {
-          "reissue": 4,
-          "acted": 4
-        },
-        "B_bare": {
-          "reissue": 4,
-          "acted": 4
-        },
-        "C_proceed": {
-          "reissue": 0,
-          "acted": 0
-        },
-        "D_escape": {
-          "reissue": 0,
-          "acted": 0
-        },
-        "N_len": {
-          "reissue": 4,
           "acted": 4
         }
       }
