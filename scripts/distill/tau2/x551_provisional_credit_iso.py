@@ -61,10 +61,16 @@ RUNS = ("bank_t7360_smoke_20260826", "bank_t7356_grpB1_20260826",
 
 NL = chr(10)
 # 닻은 상품명이 아니라 이 결정의 **술어 이름**이다: 가불 자격.
-RE_DOC = re.compile(r"Provisional Credit Eligibility Guidelines.*?(?=\n\s*\d+\.\s+[A-Z]|\Z)",
-                    re.S)
-RE_REASON_ITEM = re.compile(r"^\s*[-*]\s*'([a-z_]+)'\s*$", re.M)
-RE_CRIT2 = re.compile(r"Dispute Reason Category.*?(?=^\s*\d+\.\s)", re.S | re.M)
+# ⚠초판이 여기서 죽었다(2026-08-26): 종료 닻을 `\n\s*\d+\.\s+[A-Z]` 로 뒀더니 문서 **안의**
+#   `1. Account Standing` 에서 끊겨 규칙이 502자로 잘렸고, 사유 목록이 통째로 빠진 채
+#   `eligible_reasons()` 가 공집합을 돌려줬다. 그러면 **모든 행이 채점 대상**이 되어 gold-True
+#   행까지 False 로 채점되고, 부정통제가 처치를 이긴다(N_len 6/8 > B_rule 3/8).
+#   ⇒ 계기 고장이지 발견이 아니다([[78]] *"격리 실패는 거의 모두 재료 결손"*·[[67]] 계기 함정).
+#   종료 닻은 **다음 문서 블록**(KB 덤프가 문서마다 `ID: doc_` 를 단다)으로 잡는다.
+RE_DOC = re.compile(
+    r"Provisional Credit Eligibility Guidelines.*?(?=\n[^\n]*\n\s*ID:\s*doc_|\Z)", re.S)
+# 기준2 = 사유 열거. 다음 **번호 매긴 기준**까지가 그 절이다(문서 안 번호는 `N. Title:` 꼴).
+RE_CRIT2 = re.compile(r"Dispute Reason Category.*?(?=\d+\.\s+[A-Z][A-Za-z ]{3,}:|\Z)", re.S)
 ASK = (NL + NL + "You are filing this credit card dispute now." + NL +
        "dispute_reason for this transaction is: {reason}" + NL +
        "Reply with ONLY one word - true or false - the value you will pass as "
@@ -89,19 +95,23 @@ def find_rule(msgs):
         c = str(m.get("content") or "")
         hit = RE_DOC.search(c)
         if hit and "Eligibility Criteria" in hit.group(0):
-            return " ".join(hit.group(0).split())[:2600]
+            return " ".join(hit.group(0).split())[:4000]
     return None
 
 
 def eligible_reasons(rule):
-    """기준2 가 **열거한** 자격 사유 집합 — 문서에서 파싱한다(상수 아님)."""
+    """기준2 가 **열거한** 자격 사유 집합 — 문서에서 파싱한다(상수 0·필터 0).
+
+    ⚠필터를 걸지 마라: 초판이 접미사 화이트리스트(`endswith(...)`)를 걸었는데, 그건 도메인
+      낱말을 코드에 적는 것이고([[05]]) 목록이 비면 조용히 전 행을 채점해 버린다.
+      여기서는 그 절 안의 인용부호 토큰을 **그대로** 집합으로 쓴다.
+    """
     if not rule:
         return set()
     seg = RE_CRIT2.search(rule)
-    src = seg.group(0) if seg else rule
-    out = set(re.findall(r"'([a-z_]{4,})'", src))
-    return {x for x in out if x.endswith(("charge", "received", "charging",
-                                          "described", "processed", "amount")) or "_" in x}
+    if not seg:
+        return set()
+    return set(re.findall(r"'([a-z][a-z_]{3,})'", seg.group(0)))
 
 
 def find_filler(msgs, want_len):
@@ -216,6 +226,15 @@ def main(argv=None):
         print("  규칙 %d자 · 기준2 자격 사유 %s" % (len(c["rule"]), sorted(elig)))
         print("  채점 가능 행 %d (사유가 목록 **밖** → 정답 False) · 미채점 %d (목록 안)"
               % (len(scorable), len(unscored)))
+        # ⛔공집합 방어 (2026-08-26 초판이 정확히 여기서 조용히 틀렸다): 사유 목록을 못 뽑았는데
+        #   계속 가면 **모든 행이 채점 대상**이 되고 gold-True 행까지 False 로 채점된다.
+        #   재료를 못 찾으면 판정하지 않는다([[25]] *없음* ≠ *못 찾음*).
+        if not elig:
+            print("  ⛔기준2 사유 목록을 문서에서 못 뽑았다 — **계기 고장**이다. 판정하지 않는다.")
+            print("     규칙 앞부분: %s" % c["rule"][:220])
+            skipped.append({"sim": c["sim"], "run": c["run"],
+                            "why": "기준2 사유 목록 파싱 실패(계기)"})
+            continue
         if not scorable:
             print("  ⛔채점 가능한 행이 없다 — 이 창은 판정하지 않는다")
             continue
