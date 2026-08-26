@@ -9389,6 +9389,41 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                       "pending_agent=%s formalized_target=%s"
                                       % (_upending, sorted(_acts - _called), _tgt_pre),
                                       file=_sys.stderr, flush=True)
+                                # ★P-A (2026-08-26·`TASK_072.md` §7-2 처방 구현·기본 OFF).
+                                #   결함: `formalize_intent_tool` 이 **이 대화에 한 번도 안 나온**
+                                #   손님-측 도구를 지목하면, 아래 `[ACTION]` 문면이 *"'X' 는 손님이
+                                #   실행한다"* 고 말한다 — 참이지만 **이 대화와 무관**하고, 072 t0 에서
+                                #   그 한 줄이 강제-행동 경로를 통째로 죽였다. 같은 site 를
+                                #   `x505_TASK_073_t7348_perstep.md` §2.1 이 독립으로 지목했다.
+                                #   빈도 실측(최근 12런·태그별): `formalized_target` 발화 **383건 중
+                                #   29건(8%)** 이 궤적 축자 0회이고, 그중 **23건이 `submit_transaction`**
+                                #   — 문서가 지목한 그 도구다. 태스크는 040(8)·085(6)·074(5)·057(5)·
+                                #   063(4)·055(1) 로 **hard-0 여섯**에 걸친다(문서 추정 둘보다 넓다).
+                                #   ⚠술어는 **집합 소속 + 축자 대조**뿐이다([[22]]·C45 동형) — 우리가
+                                #     고르는 것이 없다. 이름이 대화에 있으면 종전대로 발화한다.
+                                #   ⚠판단 0 — *무엇을 하라*는 말은 안 한다. 근거 없는 지목을
+                                #     **안 하는 것**뿐이다([[64]] 이름을 못 대면 말하지 않는다).
+                                if (os.environ.get("T2_ACTIONREQ_GROUNDED") == "1"
+                                        and _utgt and _utgt in _upending):
+                                    try:
+                                        _seen_txt = []
+                                        for _m9 in state.messages:
+                                            _c9 = getattr(_m9, "content", None)
+                                            if isinstance(_c9, str):
+                                                _seen_txt.append(_c9)
+                                            for _t9 in (getattr(_m9, "tool_calls", None) or []):
+                                                _seen_txt.append(str(getattr(_t9, "name", "") or ""))
+                                                _seen_txt.append(json.dumps(_args_dict(_t9) or {},
+                                                                            ensure_ascii=False))
+                                        if str(_utgt) not in chr(10).join(_seen_txt):
+                                            print("[T2_ACTIONREQ] 침묵: formalized_target=%s 가 이 "
+                                                  "대화 축자에 0회 — 근거 없는 지목은 하지 않는다 "
+                                                  "(TASK_072 §7-2)" % _utgt,
+                                                  file=_sys.stderr, flush=True)
+                                            _utgt = None
+                                    except Exception as _ge9:
+                                        print("[T2_ACTIONREQ] grounded 검사 건너뜀: %r" % (_ge9,),
+                                              file=_sys.stderr, flush=True)
                                 if _utgt in _upending:
                                     # ★문구 축소 (2026-08-08·C334·라이브 부검). 구판은 두 가지를
                                     #   한 문장에 묶었는데 하나가 **과잉 일반화**였다: *"실행 절차를
