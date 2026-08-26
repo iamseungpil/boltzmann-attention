@@ -1,5 +1,5 @@
 {
- "active": true,
+ "active": false,
  "sha": "2e9ff2c7",
  "tag": "t7357",
  "reason": "the signed total is printed, and the call form is corrected in three stages",
@@ -23,5 +23,17 @@
   "scripts/distill/tau2/t2_source.py": "816c17e94c2b19fa6d6435f56863fd7ed0b2910f",
   "scripts/distill/tau2/a2": "0ad11645b4955a3d755622f66f5a6d029ccae78e",
   "scripts/distill/tau2/go_stack.sh": "0b181c3092d862431b7a76f0d22528bddfdcf018"
- }
+ },
+ "released_sha": "4daf7890",
+ "breach": {
+  "changed_paths": [
+   "scripts/distill/tau2/a2",
+   "scripts/distill/tau2/go_stack.sh",
+   "scripts/distill/tau2/t2_eplan_patch.py",
+   "scripts/distill/tau2/t2_gate_patch.py"
+  ],
+  "basis": "동결 경로 8개 내용 비교",
+  "uncommitted": 0
+ },
+ "_note_2026_08_27": "t7357 의 `active:true` 가 **커밋된 채** 남아 있어서 t7363 드라이버의 `freeze.py --on` 이 *'이미 동결 중'* 으로 거부됐고, 종료 시 `--off` 가 t7357 의 sha 로 비교해 **거짓 동결-파손**을 인쇄했다(t7363 은 직접 확인 결과 [S] 다). 이 파일은 런마다 러너가 덮어쓰는 상태 파일이므로 **커밋된 기본값은 항상 active:false** 여야 한다."
 }
