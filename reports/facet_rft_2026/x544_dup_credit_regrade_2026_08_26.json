@@ -1,0 +1,44 @@
+{
+  "tag": "bank_t7358_d074_20260826",
+  "task": "task_074",
+  "arms": {
+    "A_full": {
+      "db_match": false,
+      "reward": 0.0,
+      "dropped": 0
+    },
+    "B_nodup": {
+      "db_match": true,
+      "reward": 1.0,
+      "dropped": 4
+    },
+    "C_one": {
+      "db_match": false,
+      "reward": 0.0,
+      "dropped": 1
+    },
+    "N_reads": {
+      "db_match": false,
+      "reward": 0.0,
+      "dropped": 4
+    }
+  },
+  "dups": [
+    [
+      97,
+      "apply_checking_account_credit_5829"
+    ],
+    [
+      97,
+      "apply_checking_account_credit_5829"
+    ],
+    [
+      97,
+      "apply_checking_account_credit_5829"
+    ],
+    [
+      97,
+      "apply_checking_account_credit_5829"
+    ]
+  ]
+}
