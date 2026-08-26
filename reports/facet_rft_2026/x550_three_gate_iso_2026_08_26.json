@@ -1,0 +1,179 @@
+{
+ "provenance": {
+  "total": 25,
+  "by_kind": {
+   "env-직접": 8,
+   "미상": 11,
+   "A2-스캐폴드(직접 호출)": 6
+  },
+  "scaffold_blocked": {
+   "get_atm_fee_discrepancies": 6
+  }
+ },
+ "scope": {
+  "total": 61,
+  "read": 46,
+  "write": 15,
+  "later_executed": 49,
+  "never_executed": 12,
+  "top_read": [
+   [
+    "get_debit_cards_by_account_id",
+    28
+   ],
+   [
+    "get_debit_dispute_status",
+    9
+   ],
+   [
+    "get_bank_account_transactions",
+    7
+   ],
+   [
+    "get_atm_deposit_images",
+    2
+   ]
+  ],
+  "per_task": [
+   [
+    "task_079",
+    26
+   ],
+   [
+    "task_085",
+    25
+   ],
+   [
+    "task_074",
+    6
+   ],
+   [
+    "task_040",
+    2
+   ],
+   [
+    "task_017",
+    1
+   ],
+   [
+    "task_055",
+    1
+   ]
+  ]
+ },
+ "provisional": {
+  "messages_with_phrase": 79,
+  "by_role": {
+   "tool": 53,
+   "assistant": 25,
+   "user": 1
+  },
+  "rule_like": [
+   [
+    "bank_t7360_smoke_20260826",
+    "task_040",
+    "tool",
+    3,
+    "re to help guide you through the process and keep you informed every step of the way. 4. Provisional Credit Eligibility Guidelines (Internal) ID: doc_credit_cards_credit_cards_(general)_015 Score: 9.8629 Content: ## Overview"
+   ],
+   [
+    "bank_t7360_smoke_20260826",
+    "task_040",
+    "tool",
+    5,
+    "olution being requested. Must be one of: 'full_refund', 'partial_refund' - eligible_for_provisional_credit: boolean (required) - Whether the user is eligible for provisional credit - partial_refund_amount: number (optional) - Amount requested for partial refund (required o"
+   ],
+   [
+    "bank_t7360_smoke_20260826",
+    "task_040",
+    "tool",
+    42,
+    "txn_a1b2c3d4e503 Reason: Unauthorized Fraudulent Charge Resolution Requested: Full Refund Provisional Credit: ELIGIBLE - Credit will be applied within 2 business days."
+   ],
+   [
+    "bank_t7360_smoke_20260826",
+    "task_040",
+    "tool",
+    48,
+    "Transaction: txn_a1b2c3d4e510 Reason: Duplicate Charge Resolution Requested: Full Refund Provisional Credit: ELIGIBLE - Credit will be applied within 2 business days."
+   ],
+   [
+    "bank_t7360_smoke_20260826",
+    "task_040",
+    "tool",
+    52,
+    "equested is 'partial_refund'. The dollar amount for the partial refund. 15. eligible_for_provisional_credit (boolean) - Agent must determine this based on the Provisional Credit Eligibility Guidelines article in this knowledge base. Pass true or false. 2. Internal: Retrieving Debit Card Information"
+   ],
+   [
+    "bank_t7360_smoke_20260826",
+    "task_040",
+    "tool",
+    62,
+    "ason: Incorrect Amount Resolution Requested: Partial Refund Partial Refund Amount: $24.56 Provisional Credit: ELIGIBLE - Credit will be applied within 2 business days."
+   ],
+   [
+    "bank_t7360_smoke_20260826",
+    "task_040",
+    "tool",
+    66,
+    "b2c3d4e513 Reason: Canceled Subscription Still Charging Resolution Requested: Full Refund Provisional Credit: ELIGIBLE - Credit will be applied within 2 business days."
+   ],
+   [
+    "bank_t7360_smoke_20260826",
+    "task_040",
+    "assistant",
+    67,
+    "eason**: Unauthorized Fraudulent Charge - **Resolution Requested**: Full Refund - **Provisional Credit**: Eligible 2. **Best Buy**: - **Transaction ID**: `txn_a1b2c3d4e510` - **Reason**: Duplicate Charge - **Resolution Req"
+   ]
+  ],
+  "tasks": [
+   [
+    "task_085",
+    33
+   ],
+   [
+    "task_040",
+    24
+   ],
+   [
+    "task_079",
+    12
+   ],
+   [
+    "task_017",
+    4
+   ],
+   [
+    "task_074",
+    3
+   ],
+   [
+    "task_057",
+    1
+   ],
+   [
+    "task_063",
+    1
+   ],
+   [
+    "task_016",
+    1
+   ]
+  ]
+ },
+ "runs": [
+  "bank_t7360_smoke_20260826",
+  "bank_t7359_smoke_20260826",
+  "bank_t7358_f017_20260826",
+  "bank_t7358_d074_20260826",
+  "bank_t7356_smoke_20260826",
+  "bank_t7356_grpB9_20260826",
+  "bank_t7356_grpB8_20260826",
+  "bank_t7356_grpB7_20260826",
+  "bank_t7356_grpB6_20260826",
+  "bank_t7356_grpB5_20260826",
+  "bank_t7356_grpB4_20260826",
+  "bank_t7356_grpB3_20260826"
+ ],
+ "sidecar_missing": []
+}
