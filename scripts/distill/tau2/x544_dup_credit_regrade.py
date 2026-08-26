@@ -47,6 +47,7 @@ from tau2.registry import registry                                   # noqa: E40
 from tau2.domains.banking_knowledge.environment import get_tasks     # noqa: E402
 
 DOMAIN = "banking_knowledge"
+RETRIEVAL = "alltools"   # t7358 러너 인자와 동일 (`--retrieval_config alltools`)
 
 
 def result_id(m):
@@ -116,8 +117,11 @@ def prune(sim, drop):
 
 def grade(sim_dict, task):
     run = SimulationRun.model_validate(sim_dict)
+    # ★env 는 런과 **같은 모양**이어야 한다 — t7358 은 `--retrieval_config alltools` 로 돌았고,
+    #   그것 없이 재생하면 `KB_search_bm25` 를 모르는 env 가 되어 재생 자체가 죽는다(실측).
     kw = dict(environment_constructor=registry.get_env_constructor(DOMAIN),
-              task=task, full_trajectory=run.messages)
+              task=task, full_trajectory=run.messages,
+              env_kwargs={"retrieval_config": RETRIEVAL})
     # 설치된 tau2 에 `strict_replay` 가 없는 판본이 있다 — 있을 때만 준다(추정 금지).
     if "strict_replay" in inspect.signature(
             EnvironmentEvaluator.calculate_reward).parameters:
