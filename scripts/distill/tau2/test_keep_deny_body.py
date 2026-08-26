@@ -74,5 +74,28 @@ chk("resolve the flagged call first" in GP._sibling_wait("POLICY GATE", None, "x
 os.environ.pop("T2_KEEP_DENY_BODY", None)
 chk(SRC.count("_sibling_wait(") >= 5, "네 자리 + 정의가 한 헬퍼를 쓴다(두 벌 금지)")
 
-print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 13 - len(FAILED), 13))
+# ─── ★래퍼는 대상 도구까지 댄다 (2026-08-26·074 상류 정독) ───
+# C416 이 이 문구를 만든 이유는 *"어느 호출이 문제인지 말하지 않는다"* 인데, 디스패처 경유는
+# **형제가 전부 같은 겉이름**이라 그 수리가 안 닿았다. 074 turn35 에서 한 턴에 여섯 번 부른
+# `unlock_discoverable_agent_tool` 중 어느 것인지 말하지 않았고, 그 턴에 정작 필요한 read 까지
+# 함께 죽었다. 실측: 최근 12런 연쇄 문면 89건 중 **65건(73%)** 이 이 모양이었다.
+
+
+class _W(object):
+    def __init__(self, name, args):
+        self.name, self.arguments = name, args
+
+
+os.environ["T2_KEEP_DENY_BODY"] = "1"
+_w = GP._sibling_wait("BLOCKED", _W("unlock_discoverable_agent_tool",
+                                    {"agent_tool_name": "activate_debit_card_8291"}), "what to fix")
+chk("activate_debit_card_8291" in _w, "래퍼 문면이 **대상 도구 이름**을 댄다(형제 구분 가능)")
+chk("unlock_discoverable_agent_tool(" in _w, "겉이름도 함께 남는다(모델이 쓴 호출 형태 그대로)")
+_p = GP._sibling_wait("BLOCKED", _W("get_user_information_by_name", {"name": "x"}), "what to fix")
+chk("get_user_information_by_name'" in _p, "래퍼가 아니면 종전 그대로(회귀 없음)")
+_n = GP._sibling_wait("BLOCKED", _W("unlock_discoverable_agent_tool", {}), "what to fix")
+chk("unlock_discoverable_agent_tool'" in _n, "대상을 못 대면 지어내지 않는다(C416 규율)")
+os.environ.pop("T2_KEEP_DENY_BODY", None)
+
+print("\n%s  (%d/%d)" % ("FAIL" if FAILED else "ALL PASS", 17 - len(FAILED), 17))
 sys.exit(1 if FAILED else 0)

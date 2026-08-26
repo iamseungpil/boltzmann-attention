@@ -3828,6 +3828,30 @@ def _sibling_wait(tag, flagged, what):
     name = getattr(flagged, "name", None) if flagged is not None else None
     if os.environ.get("T2_KEEP_DENY_BODY") != "1" or not name:
         return ("Error: [%s] resolve the flagged call first; do not call this one yet." % tag)
+    # ★래퍼는 **대상 도구까지** 대야 형제가 갈린다 (2026-08-26·074 상류 정독).
+    #   C416 이 이 문구를 만든 이유가 *"어느 호출이 문제인지 말하지 않는다"* 였는데, 디스패처
+    #   경유 호출은 **형제가 전부 같은 겉이름**이라 그 수리가 닿지 않았다. 074 turn35·54 실물:
+    #   모델이 한 턴에 `unlock_discoverable_agent_tool` 을 여섯 번(서로 다른 inner) 부르고
+    #   하나가 막히자 나머지 다섯에 *"'unlock_discoverable_agent_tool' 을 먼저 고쳐라"* 가
+    #   갔다 — **여섯 중 어느 것인지 말하지 않는 지시**다. 그 턴에서 정작 필요한
+    #   `get_all_user_accounts_by_user_id` 까지 함께 죽었고, 모델은 그 뒤 이관으로 나갔다.
+    #   실측(최근 12런 사이드카·태그별): 연쇄 문면 **89건 중 65건(73%)** 의 머리가 래퍼 겉이름
+    #   이고 그중 `unlock_…` 이 53건이다.
+    #   이 저장소의 정본 판단과 같다 — `t2_forensic.label` 독스트링: *"unlock/give/call 은 대상
+    #   도구까지 붙여야 의미가 있다(래퍼 이름만으론 무정보·C470 계기수리)"*.
+    #   ⚠선행: C416 은 네 자리에 이 헬퍼를 붙였고, C536 은 fb 조립의 `else` 가 빠진 것을 지적했다.
+    #     이 수리는 그 둘과 다른 자리다 — **헬퍼가 쓰이는 자리에서도** 이름이 모호했다.
+    #   ⚠도메인 낱말 0 — 디스패처 인자 키는 `_eff_tool_name` 이 이미 읽는 그 셋뿐이고, 값은
+    #     **모델이 자기 호출에 쓴 문자열**이다(우리가 고르는 것이 아니다).
+    #   ⚠못 대면 종전대로 겉이름만 쓴다(지어내지 않는다·C416 규율 유지).
+    try:
+        _ar = _args_dict(flagged) or {}
+        _inner = (_ar.get("agent_tool_name") or _ar.get("user_tool_name")
+                  or _ar.get("discoverable_tool_name"))
+        if _inner:
+            name = "%s(%s)" % (name, str(_inner))
+    except Exception:
+        pass
     return ("Error: [%s] this call was not run because another call in the same turn was blocked: "
             "'%s' (see its own error for %s). Fix that one first, then re-issue this call."
             % (tag, name, what))
