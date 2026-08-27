@@ -188,6 +188,11 @@ export T2_ARG_LABEL=1
 #   ⚠턴당 30~40k자다. `T2_PROMPT_DUMP_TASKS`(부분일치·쉼표)와 `T2_PROMPT_DUMP_MAX`(기본 60000)
 #     로 좁혀서만 켜라. 상시 ON 금지.
 export T2_PROMPT_DUMP=0
+# ★T2_FB_SIDECAR_TEXT_MAX (2026-08-27·계기 노브·기본 4000 = 종전 거동):
+#   사이드카가 `text` 를 자르는 상한. 프롬프트 회수는 한 건이 25~50k자라 4000 에서 자르면
+#   **시스템 메시지만** 남는다. ⚠`len` 필드는 **자르기 전 원본 길이**다 — 그 값으로
+#   상한이 열렸는지 판정하면 안 된다(오늘 내가 그렇게 오독했다). 저장분은 `text` 로 재라.
+export T2_FB_SIDECAR_TEXT_MAX=4000
 export T2_FAB_STRIP=1 T2_UNKNOWN_NAME_BL=1 T2_UNLOCK_NAME=1 T2_UNLOCK_PROV=1
 export T2_DISPATCH_ROLE=1 T2_TOOLLIST=1 T2_PRESCRIPTION=1
 # ★T2_DISPATCH_ROLE_ENVSET (2026-08-05 등재·구현은 C257·`ABSENCE_DRIVEN_PROCEDURE_DESIGN` §4):
