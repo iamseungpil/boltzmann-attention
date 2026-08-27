@@ -955,6 +955,89 @@ def _provenance_deny(tc, ctx, hints=DEFAULT_ARG_HINTS, selectors=None):
     return None
 
 
+_DUMP_MARK = "Record ID:"          # env 레코드 덤프의 머리 — `_parse_record_dump` 와 같은 표지
+_LABEL_RE = re.compile(r"(\w+):\s*([^\s,;]+)")
+_DUMP_HEAD = "ID"                  # `Record ID:` 의 꼬리 — 필드 이름이 아니라 덤프의 머리다
+
+
+def _record_labels(orch):
+    """도구 출력의 **레코드 덤프**에서 `필드: 값` 을 축자로. 값의 뜻은 안 읽는다([[59]]).
+
+    ⚠덤프에서만 읽는다. 도구 스키마 줄도 같은 모양이라(`account_id: string (required) - …`)
+      걸러내지 않으면 `string` 이 그 인자의 '옳은 값' 으로 들어온다(x565 배선 확인이 잡았다).
+    """
+    out = {}
+    try:
+        for m in orch.get_messages():
+            if getattr(m, "role", None) != "tool":
+                continue
+            c = " ".join(str(getattr(m, "content", "") or "").split())
+            k0 = c.find(_DUMP_MARK)
+            if k0 < 0:
+                continue
+            for f, v in _LABEL_RE.findall(c[k0:]):
+                out.setdefault(f, set()).add(v)
+    except Exception:
+        pass
+    return out
+
+
+def _same_axis(asr, a, b):
+    """같은 축의 동의어인가 — `arg_source_reads` 의 생산자 목록이 **완전히 같으면** 같은 축.
+    (`phone`/`phone_number` 가 그것이고, 이 판정 없이는 040 에서 17건이 거짓 경보다.)"""
+    return bool(asr.get(a)) and asr.get(a) == asr.get(b)
+
+
+def _label_mismatch_deny(tc, a2, labels, selectors=None):
+    """선언된 식별자 인자에 **env 가 다른 필드로 낸 값**이 들어갔으면 (gate, reason).
+
+    ## 결함 (2026-08-27)
+
+    `_provenance_deny` 의 술어는 `_ctx_has` — *"이 문자열이 문맥 어딘가에 있나"* 다. 그래서
+    **출처는 맞고 종류가 틀린** 값이 전부 통과한다. env 는 레코드를 `필드: 값` 으로 찍으므로
+    종류의 답은 이미 문맥에 있는데 우리가 안 보고 있었다.
+
+    실측(`x564` · 채점 37 sim · 식별자 인자 720): 제 이름표로 나온 값 72% · **다른 이름표
+    8%** · 이름표 없음 18% · 부재 2%. 다른 이름표 60건에서 잡음 둘(덤프 머리 `ID`,
+    같은 축 동의어)을 걷으면 **040·057·074·079·085 다섯 태스크 12 sim** 이 남고 **reward 1.0
+    인 것 0** 이다(손실 불가).
+
+    ## [[62]] 4문
+      ①결손 = 위 코퍼스 실측. ②격리(`x565`·8140·3팔): A_asis **4/16**(라이브 재현 — 옛 값
+      그대로) · B_say **16/16**(전부 생산자 read 호출) · N_len **4/16**(부정통제 깨끗) ⇒
+      전달로 산다. ③사라지는 모델 판단 **0** — 우리는 **어느 값을 쓰라고 말하지 않는다**.
+      ④최댓값·argmax·*"정답은 X"* 0.
+
+    ## [[05]] 3문
+      ⑴도메인-특화 순증 0 — 인자 이름은 `arg_source_reads`(선언), 필드 이름은 env 출력.
+      ⑵유동 판단 동결 아니오. ⑶도메인 행동 수행 0.
+    """
+    asr = {k: v for k, v in ((a2 or {}).get("arg_source_reads") or {}).items()
+           if not k.startswith("_") and isinstance(v, list)}
+    if not (asr and labels):
+        return None
+    for k, v in _prov_scan_args(tc, selectors=selectors):
+        if k not in asr:
+            continue
+        for val in _flatten(v):
+            sv = str(val).strip()
+            if len(sv) < 4 or sv in labels.get(k, ()):
+                continue
+            src = sorted(f for f, vals in labels.items()
+                         if f != k and f != _DUMP_HEAD and not _same_axis(asr, f, k)
+                         and sv in vals)
+            if not src:
+                continue
+            prod = (asr.get(k) or [""])[0]
+            return ("ARG_LABEL",
+                    "argument '%s'='%s' is what the records above give as `%s`, not as `%s`. "
+                    "The values for `%s` are the ones the records list under that name; %s is "
+                    "what produces them. Re-issue the call with a value the records give under "
+                    "`%s`, and if none is there yet, run %s first."
+                    % (k, sv, src[0], k, k, prod, k, prod))
+    return None
+
+
 def _autofetch_text(self, orig, gate, producer):
     """T2_AUTOFETCH: provenance-deny 시, 인증됐으면 A2 producer(getter)를 결정론 호출해
     그 출력을 텍스트로 반환(모델에 *실값* 제공). = '날조-FIRST' default를 엔진이 결정론으로 메움.
@@ -1021,6 +1104,15 @@ def apply():
         # T2_PROVENANCE=1 = orchestrator-레벨 게이트(날조 호출을 *실행 전* deny→error로 surface).
         prov_on = os.environ.get("T2_PROVENANCE") == "1"
         ctx = _context_text(self) if prov_on else None
+        # ★T2_ARG_LABEL (2026-08-27·기본 OFF·`_label_mismatch_deny` 주석에 근거).
+        #   이름표 판은 호출마다 다시 짓지 않는다 — 이 턴 안에서 한 번만.
+        label_on = os.environ.get("T2_ARG_LABEL") == "1"
+        _lab_cache = []
+
+        def _rec_labels():
+            if not _lab_cache:
+                _lab_cache.append(_record_labels(self))
+            return _lab_cache[0]
         # T2_RETRY_CONTROLLER=1 = C8 recovery: 반복-동일-실패호출 차단+다양화 지시 (decidable·offload·무학습).
         retry_on = os.environ.get("T2_RETRY_CONTROLLER") == "1"
         retry_k = int(os.environ.get("T2_RETRY_K", "3"))  # rule②: 연속 실패 K회 가드
@@ -1078,6 +1170,14 @@ def apply():
                     extra = _autofetch_text(self, orig, gate, producer) if os.environ.get("T2_AUTOFETCH") == "1" else ""
                     _mark_fail(key, pd[1])
                     results.append(_deny_msg(tc, pd[0], pd[1] + extra))
+                    continue
+            if label_on:  # ★T2_ARG_LABEL: env 가 다른 필드로 낸 값을 이 인자에 넣은 것을 반려
+                _lm = _label_mismatch_deny(tc, a2, _rec_labels(),
+                                           selectors=_selector_args_cached(env))
+                if _lm:
+                    self.num_errors += 1
+                    _mark_fail(key, _lm[1])
+                    results.append(_deny_msg(tc, _lm[0], _lm[1]))
                     continue
             ok, g, why = gate.check(tc.name, tc.arguments or {}, last_user_msg=last_user,
                                     transfer_msg_sent=tms)

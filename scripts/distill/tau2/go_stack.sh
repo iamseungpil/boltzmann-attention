@@ -148,6 +148,24 @@ export T2_REARM_USER_ONLY=1
 #   코드·래칫은 남긴다(OFF=바이트 동일). 되살리려면 **주체 판정**부터 고쳐야 한다 —
 #   같은 이름의 인자에 들어간 값이라는 것만으로는 그 read 의 주체가 아니다.
 export T2_READ_PER_ENTITY=0
+# ★T2_ARG_LABEL (2026-08-27 등재·계수 `x564_arg_producer_census.py`·격리 `x565_wrong_account_id_iso.py`
+#   ·래칫 `test_arg_label.py`):
+#   `_provenance_deny` 의 술어는 `_ctx_has` — *"이 문자열이 문맥 어딘가에 있나"* 라서 **출처는
+#   맞고 종류가 틀린** 값이 전부 통과한다. env 는 레코드를 `필드: 값` 으로 찍으므로 종류의 답이
+#   이미 문맥에 있는데 우리가 안 봤다. 085 축자: `user_id: f7d3a82c91` 이 나온 뒤 모델이 그 값을
+#   `account_id` 로 넘긴다(계좌 목록이 오기 **전**·msg[24]) — 그 뒤 열 호출은 전부 옳다.
+#   ⇒ 결손은 *"옳은 값을 못 고른다"* 가 아니라 **없는 값을 이웃 필드에서 빌린다** 이다.
+#   계수(채점 37 sim·식별자 인자 720): 제 이름표 72% · **다른 이름표 8%** · 이름표 없음 18% ·
+#   부재 2%. 잡음 둘은 선언으로 걷는다 — 덤프 머리 `ID`(079 18건) · 같은 축 동의어
+#   `phone`/`phone_number`(040 17건·생산자 목록 동일성으로 판정).
+#   [[70]] 부호표: 040·057·074·079·085 **다섯 태스크 12 sim · reward 1.0 인 것 0** ⇒ 손실 불가.
+#   격리(x565·3팔): A_asis **4/16**(라이브 재현) · B_say **16/16**(전부 생산자 read 호출) ·
+#   N_len **4/16** ⇒ 길이 아님([[57]]).
+#   ⚠엔진은 **어느 값을 쓰라고 말하지 않는다** — 이름표 사실과 생산자 이름만 낸다([[62]]③④).
+#   ⚠이름표는 **레코드 덤프에서만** 읽는다(`Record ID:` 표지). 스키마 줄을 먹으면 `string` 이
+#     그 인자의 옳은 값이 된다(x565 배선 확인이 잡았다).
+#   ⚠반증: 반려한 값이 그 인자로 **정당했던** sim 이 나오면 술어가 틀렸다. OFF=바이트 동일.
+export T2_ARG_LABEL=1
 export T2_FAB_STRIP=1 T2_UNKNOWN_NAME_BL=1 T2_UNLOCK_NAME=1 T2_UNLOCK_PROV=1
 export T2_DISPATCH_ROLE=1 T2_TOOLLIST=1 T2_PRESCRIPTION=1
 # ★T2_DISPATCH_ROLE_ENVSET (2026-08-05 등재·구현은 C257·`ABSENCE_DRIVEN_PROCEDURE_DESIGN` §4):
