@@ -1160,6 +1160,68 @@ def diagnose_choice(agent, la, UserMessage, spec, block, rows):
     return out
 
 
+def requirement_choice(agent, la, UserMessage, spec, docs_text, subject, doc_ids):
+    """그 **상품의 요건**을 그 상품 문서만 든 문맥에서 묻는다 — 격리 서브([[71]]).
+
+    ## 사용자 지시 (2026-08-27)
+
+    > *"격리 서브에이전트는 자신에게 관계된 문서만 받고 그것만 읽고 결정해야 한다.
+    >   그러기 위해서 A3 에 관련 문서들을 index 로 정의한 거다."*
+
+    A3 `policy_ontology.doc_index` 가 `{군: {주어: [doc id …]}}` 로 그 경계를 이미 선언한다
+    (698 문서 전수·엔진은 읽기만 한다·[[59]]).
+
+    ## 왜 이 자리인가 (016 · t7365 s1567)
+
+    남은 한 칸은 도구 인자가 아니라 **에이전트 문장 속 금액**이다. 손님은 에이전트가 말한 수를
+    찍는다(msg[45] 축자 *"thanks for confirming the $150 remaining"*). 그 $150 은
+    `doc_business_credit_cards_silver_zoom_card_011`(**다른 카드**)의 수였고, 이 카드의 요건
+    문서(`doc_credit_cards_silver_rewards_card_011` · $750)는 msg[37] 에야 왔다.
+
+    ## 격리 실측 (`x574` · 8140 · 3팔×5)
+
+        A_only   이 주어 문서 11개만        **5/5** — *"spend at least $750 within 60 days"* + 문서 id 인용
+        B_mixed  + 라이브가 준 다른 주어 문서 10개  **5/5** — 섞임은 원인이 **아니다**
+        N_none   문서 없이 물음만            **0/5** — `$300` 과 가짜 문서 id 를 만들어 낸다
+
+    ⇒ 병은 혼동이 아니라 **부재**다. 문서를 손에 쥐면 서브는 5/5 로 옳고 출처까지 댄다.
+
+    ## 경계
+
+    - 고르는 것은 **서브(모델)** 다. 엔진은 답이 **우리가 준 문서 id 를 인용했는지**만 본다
+      ([[22]] 닫힌 술어) — 수를 뽑거나 비교하지 않는다.
+    - 문맥에는 **대화가 한 글자도 안 들어간다**. 문서와 물음뿐이다.
+    - 인용이 없으면 **None** → 침묵. 근거 없는 답을 우리가 실어 나르지 않는다([[25]]·[[22]]).
+    """
+    tpl = (spec or {}).get("requirement_prompt")
+    if not (tpl and docs_text and subject and doc_ids):
+        return None
+    memo = getattr(agent, "_t2_req", None)
+    if isinstance(memo, dict) and subject in memo:
+        return memo[subject] or None
+    import t2_subcall as SC
+    try:
+        raw = " ".join(SC.sub_generate(agent, la, UserMessage,
+                                       tpl.format(docs=docs_text, subject=subject),
+                                       "requirement_formalize").split())
+    except Exception as e:
+        print("[T2_CARD_DOCS] 호출 실패(무발화): %r" % (e,), file=sys.stderr, flush=True)
+        return None
+    cited = [d for d in doc_ids if d and d in raw]
+    out = raw if cited else None
+    print("[T2_CARD_DOCS] subject=%s raw=%r → %s"
+          % (subject, raw[:90], ("인용 %s" % cited[0]) if cited else "인용 없음 = 침묵"),
+          file=sys.stderr, flush=True)
+    try:
+        m = getattr(agent, "_t2_req", None)
+        if not isinstance(m, dict):
+            m = agent._t2_req = {}
+        m[subject] = out or ""
+    except Exception:
+        pass
+    return out
+
+
 def earliest_age(rows, spec, now=None):
     """(가장 이른 날짜, 오늘까지 경과일). 관계 기간(tenure) 같은 값이 여기서 나온다.
 

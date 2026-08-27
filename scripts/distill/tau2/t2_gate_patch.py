@@ -4985,6 +4985,45 @@ def _limit_reduce_text(agent, a2, messages):
                         print("[T2_DIAG] 건너뜀: %r" % (_de9,), file=sys.stderr, flush=True)
                     if _dg and _sp2.get("diagnosed_text"):
                         _add += _emit(_sp2["diagnosed_text"].format(answer=_dg[1]), is_answer=True)
+                    # ★T2_CARD_DOCS (2026-08-27·사용자 지시·기본 OFF) — 진단이 **주어를 정하면**
+                    #   A3 `doc_index` 가 그 주어에 대해 선언한 문서만 격리 서브에게 주고 그
+                    #   **답만** 메인에 올린다([[71]]·[[65]]). 근거는 `requirement_choice` 주석.
+                    #   엔진은 색인을 **읽기만** 한다 — 검색도, 유사도도, 선별도 없다([[59]]).
+                    if _dg and os.environ.get("T2_CARD_DOCS") == "1":
+                        try:
+                            import t2_search as _ts9
+                            _po9 = (a2 or {}).get("policy_ontology") or {}
+                            _idx9 = _po9.get("doc_index") or {}
+                            # 이름 → (군, 주어): **닫힌 집합 소속**만 본다(표시명 규약 하나).
+                            _pick9 = None
+                            for _g9, _subs9 in _idx9.items():
+                                for _s9 in _subject_keys(_subs9):
+                                    if _slug_disp(_s9).strip().lower() == str(_dg[0]).strip().lower():
+                                        _pick9 = (_g9, _s9)
+                                        break
+                                if _pick9:
+                                    break
+                            if not _pick9:
+                                print("[T2_CARD_DOCS] 색인 밖 이름 = 침묵: %r" % (_dg[0],),
+                                      file=sys.stderr, flush=True)
+                            else:
+                                _ids9 = list((_idx9.get(_pick9[0]) or {}).get(_pick9[1]) or ())
+                                _cps9 = _ts9.corpus_from_env(
+                                    getattr(getattr(self, "_t2_orch", None), "environment", None))
+                                _docs9, _miss9 = _ts9.read_docs(_ids9, corpus=_cps9)
+                                if _miss9:
+                                    print("[T2_CARD_DOCS] 코퍼스에 없는 문서 %d: %r"
+                                          % (len(_miss9), _miss9[:3]), file=sys.stderr, flush=True)
+                                _body9 = chr(10).join("ID: " + _k9 + chr(10) + _docs9[_k9]
+                                                   for _k9 in sorted(_docs9))
+                                _rq9 = _LG2.requirement_choice(agent, _la9, _UM9, _sp2, _body9,
+                                                               _dg[0], sorted(_docs9))
+                                if _rq9 and _sp2.get("requirement_text"):
+                                    _add += _emit(_sp2["requirement_text"].format(answer=_rq9),
+                                                  is_answer=True)
+                        except Exception as _ce9:
+                            print("[T2_CARD_DOCS] 건너뜀: %r" % (_ce9,),
+                                  file=sys.stderr, flush=True)
             # ★C379 — 상태만 말하면 손님의 *"왜"* 에 답이 안 된다(v010 실측: 상태는 알았는데
             #   이유를 못 찾아 이관으로 끝났다). 이유는 이미 선언된 창 상수와 날짜의 산수로
             #   나온다. 엔진은 **산수까지만** 말하고 인과는 모델·문서 몫이다([[25]]).
