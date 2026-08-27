@@ -75,15 +75,26 @@ rm -rf "$SIMS/$STAG"
   t2_launch "$STAG" "$PORT" "$SMOKE_TASKS" 1 2>&1 | tee "$LOG/$STAG.log"
 ) > "$LOG/${STAG}_driver.log" 2>&1
 
+SZ=$(grep -ac "operand-size " "$LOG/$STAG.log" 2>/dev/null); SZ=${SZ:-0}
 KIND=$(grep -ac "atm_withdrawal=" "$LOG/$STAG.log" 2>/dev/null); KIND=${KIND:-0}
 RC=$(grep -ac "\[T2_SG_ROW_COUNT\]" "$LOG/$STAG.log" 2>/dev/null); RC=${RC:-0}
 SIL=$(grep -ac "T2_ACTIONREQ\] 침묵" "$LOG/$STAG.log" 2>/dev/null); SIL=${SIL:-0}
 EXC=$(grep -ac "grounded 검사 건너뜀\|대체 템플릿 미선언" "$LOG/$STAG.log" 2>/dev/null); EXC=${EXC:-0}
 TB=$(grep -ac "Traceback" "$LOG/$STAG.log" 2>/dev/null); TB=${TB:-0}
-echo "[$TAG] 스모크($ARM): 종류계수=$KIND · ROW_COUNT 발화=$RC · 침묵=$SIL · 예외=$EXC · Traceback=$TB"
+echo "[$TAG] 스모크($ARM): 비교기 도달=$SZ · 종류계수=$KIND · ROW_COUNT 발화=$RC · 침묵=$SIL · 예외=$EXC · Traceback=$TB"
 if [ "$TB" -ne 0 ]; then echo "[$TAG] ⛔Traceback — 중단."; exit 1; fi
 if [ "$EXC" -ne 0 ]; then echo "[$TAG] ⛔술어가 예외로 죽었다 — 중단."; exit 1; fi
-if [ "$KIND" -eq 0 ]; then echo "[$TAG] ⛔종류 계수가 안 찍혔다 = 계기 미도달. 중단."; exit 1; fi
+# ★2026-08-28 01:46 수리 — 1차 게이트가 `atm_withdrawal=` 를 **무조건** 요구해 t7371 을 세웠다.
+#   그 인쇄는 **비교기에 닿아야만** 난다 = 모델 거동에 달린 조건부인데 나는 그것을 배선 검정으로
+#   썼다. 이 파일 머리에 *"발화 자체는 게이트가 아니다"* 라고 적어 놓고 같은 실수를 했다.
+#   ⇒ **닿았는데 안 찍혔을 때만** 배선 결함이다. 안 닿았으면 이 스모크로는 못 재는 것이고 그건
+#     중단 사유가 아니다 — 배선은 `test_sg_row_count`(배터리)가 오프라인으로 이미 증명한다.
+if [ "$SZ" -gt 0 ] && [ "$KIND" -eq 0 ]; then
+  echo "[$TAG] ⛔비교기에 닿았는데 종류 계수가 안 찍혔다 = 배선 결함. 중단."; exit 1
+fi
+if [ "$SZ" -eq 0 ]; then
+  echo "[$TAG] (스모크가 비교기에 안 닿았다 — 이 계기는 못 쟀다. 배선 증명은 배터리가 한다.)"
+fi
 # ★대조 팔의 게이트는 **꺼져 있음의 증명**이다 — 켜진 팔에서만 서는 것이 안 서야 한다.
 if [ "$ARM" = "control" ] && [ "$RC" -ne 0 ]; then
   echo "[$TAG] ⛔대조인데 ROW_COUNT 가 발화했다 = 팔이 안 갈렸다. 중단."; exit 1
