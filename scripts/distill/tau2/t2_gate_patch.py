@@ -9590,6 +9590,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                             try:
                                                 import t2_precedence as _PC
                                                 _dn = _executed_tool_names(state.messages, a2)
+                                                # ★주체별 요건과 **이웃 두 조각을 정합시킨다**
+                                                #   (2026-08-27·t7364 실측). `T2_READ_PER_ENTITY` 가
+                                                #   *"그 주체로는 아직 안 돌았다"* 를 요구로 세웠는데,
+                                                #   `_dn`·`_front` 는 여전히 이름만 보므로 같은
+                                                #   메시지가 **"Steps that are possible right now:
+                                                #   (none available)"** 를 붙였다. 축자(s1567 turn 38):
+                                                #     *"Do that now with the real tool calls."* 두 줄 뒤
+                                                #     *"…was called but has not succeeded yet"* ·
+                                                #     *"…(none available)"*
+                                                #   요구와 부정이 한 메시지에 같이 나가면 그 메시지는
+                                                #   자기 원인을 지운다([[64]]·[[55]] 우리-문구 모순).
+                                                #   ⇒ 그 read 를 **이 계산에서만** 미완으로 되돌린다.
+                                                _pe_fams = {_PC._fam(x)
+                                                            for r in (_reqs or ())
+                                                            if "@" in str(r.get("id") or "")
+                                                            for x in (r.get("satisfiers") or ())}
+                                                if _pe_fams:
+                                                    _dn = {n for n in _dn
+                                                           if _PC._fam(n) not in _pe_fams}
                                                 _front = _PC.frontier(_utgt, _dn,
                                                                       _PC.graph_for(a2, _utgt))
                                                 # ★실패 사유를 **집합 뺄셈**으로 낸다 — 엔진이 도구 출력
@@ -9604,6 +9623,25 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                                 _steps = [s for r in _reqs for s in (r.get("satisfiers") or [])]
                                                 _why = []
                                                 for _s2 in dict.fromkeys(_steps):
+                                                    if _PC._fam(_s2) in _pe_fams:
+                                                        # ⛔여기서 뺄셈으로 이유를 내면 **거짓**이 된다 —
+                                                        #   `_tried` 는 접미사 제거 이름이고 `_dn` 은
+                                                        #   정확한 이름이라, 성공한 discoverable read 도
+                                                        #   뺄셈에서 살아남아 *"was called but has not
+                                                        #   succeeded yet"* 로 나온다(t7364 s1567 축자).
+                                                        #   주체별 요건의 참인 이유는 하나뿐이다.
+                                                        _who = sorted(
+                                                            str(r.get("id") or "").split("@", 1)[-1]
+                                                            for r in (_reqs or ())
+                                                            if "@" in str(r.get("id") or "")
+                                                            and _s2 in (r.get("satisfiers") or ()))
+                                                        _why.append(
+                                                            "%s has not been called for %s in this "
+                                                            "conversation" % (_s2, ", ".join(_who))
+                                                            if _who else
+                                                            "%s has not been called for that party in "
+                                                            "this conversation" % _s2)
+                                                        continue
                                                     if _s2 in _failed:
                                                         _why.append("%s was called but has not succeeded "
                                                                     "yet - its result above says why" % _s2)
