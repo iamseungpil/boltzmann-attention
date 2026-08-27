@@ -77,10 +77,16 @@ STAG="bank_t7365_smoke_${STAMP}"
   t2_launch "$STAG" 8140 "$SMOKE_TASKS" 1 2>&1 | tee "$LOG/$STAG.log"
 ) > "$LOG/${STAG}_driver.log" 2>&1
 
-DIAG=$(grep -ac "separate check was run" "$LOG/$STAG.log" 2>/dev/null); DIAG=${DIAG:-0}
-CRIT=$(grep -ac "not yet met the criteria" "$LOG/$STAG.log" 2>/dev/null); CRIT=${CRIT:-0}
+# ★마커는 **stderr 자국**이어야 한다. 1차 발사에서 나는 배달 문구(*"A separate check was
+#   run …"*)를 셌는데 그것은 **생성-뷰 채널**로 나가므로 드라이버 로그에 안 남는다 —
+#   레버가 옳게 발화하고 `Silver Rewards Card` 를 답했는데도 게이트가 런을 세웠다.
+#   오늘 같은 계열의 실수를 세 번 했다(x560 주체·x564 생산자·이 마커) — 전부 *"어디에
+#   있었나"* 와 *"무엇으로 있었나"* 를 섞은 것이다.
+DIAG=$(grep -ac "\[T2_DIAG\] raw=" "$LOG/$STAG.log" 2>/dev/null); DIAG=${DIAG:-0}
+CRIT=$(grep -ao "\[T2_DIAG\] raw=.\{0,60\}" "$LOG/$STAG.log" 2>/dev/null | head -2)
 TB=$(grep -ac "Traceback" "$LOG/$STAG.log" 2>/dev/null); TB=${TB:-0}
-echo "[t7365] 스모크: 진단 배달=$DIAG · 새 물음 자국=$CRIT · Traceback=$TB"
+echo "[t7365] 스모크: 진단 발화=$DIAG · Traceback=$TB"
+echo "  답: $CRIT"
 if [ "$DIAG" -eq 0 ]; then
   echo "[t7365] ⛔진단이 한 번도 배달되지 않았다 — 침묵이 안 풀렸거나 배선이 죽었다. 중단."
   exit 1
