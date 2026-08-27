@@ -45,7 +45,8 @@ cd "$REPO/scripts/distill/tau2"
 echo "[t7364 $(date +%H:%M:%S)] === 발사 전 배터리 ==="
 BAD=0
 for t in test_procedure_left test_actionreq_grounded test_operator_find_executed \
-         test_decision_point_load test_diag_unambiguous \n         test_read_per_entity test_flag_registry; do
+         test_decision_point_load test_diag_unambiguous \
+         test_read_per_entity test_flag_registry; do
   PYTHONPATH=. PYTHONIOENCODING=utf-8 /home/woori/venvs/seka_env/bin/python $t.py >/dev/null 2>&1
   rc=$?; echo "  $t exit=$rc"; [ $rc -ne 0 ] && BAD=1
 done
@@ -58,9 +59,9 @@ env_arm() {
   export T2_DECIDE_ANY=1 T2_WRITE_ARG_ENUM=1 T2_ARG_DOC_SUB=1 T2_VALUE_FORMULA=full
   export T2_SG_DOCS=1 T2_SG_PROMPT_V2=1 T2_SPEC_AT_WRITE=1 T2_WRITE_ARG_TYPE=1
   export T2_RULE_AT_WRITE=1 T2_DUP_WRITE=1
-  # ⛔이 런이 **싣지 않는** 것들 (위 주석 참조)
   # ★이 런이 재는 것. go_stack 이 이미 =1 로 내보내지만 런 기록에 남기려고 명시한다.
   export T2_READ_PER_ENTITY=1
+  # ⛔이 런이 **싣지 않는** 것들 (위 주석 참조)
   export T2_REARM_USER_ONLY=0 T2_PROCEDURE_LEFT=0 T2_EPLAN_ENUM_SUBTRACT=0 T2_SCOPE_ALL=0
   export GO_MAX_STEPS=150
 }
