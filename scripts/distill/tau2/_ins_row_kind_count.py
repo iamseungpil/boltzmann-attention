@@ -85,9 +85,16 @@ def find_tools(o):
 
 
 def main():
+    # ★사본 셋 (`test_atm_fee_op` ⑷ 가 바이트 동일을 요구한다). `a2/split/` 은 런타임이
+    #   읽지 않는 정비용 거울이지만(참조처는 이 `_ins_*`/`_upd_*` 프로그램들뿐) 어긋난 채 두면
+    #   다음 사람이 **틀린 사본을 고친다** — 2026-08-26 `2109a64e` 가 거기를 빼먹어 그 래칫이
+    #   그날부터 붉었다.
+    paths = {"gate": os.path.join(HERE, "a2", "banking_knowledge.gate.json"),
+             "specific": os.path.join(HERE, "a2", "banking_knowledge.specific.json"),
+             "split": os.path.join(HERE, "a2", "split", "banking_knowledge.core.json")}
     changed = []
-    for layer in ("gate", "specific"):
-        p = os.path.join(HERE, "a2", "banking_knowledge.%s.json" % layer)
+    for layer in ("gate", "specific", "split"):
+        p = paths[layer]
         d = json.load(io.open(p, encoding="utf-8"))
         tools = find_tools(d) or []
         t = next((x for x in tools if x.get("name") == TOOL), None)
@@ -96,8 +103,13 @@ def main():
             continue
         rt = str(t.get("return_template") or "")
         if CUT not in rt:
-            print("%-9s ⛔`%s` 를 못 찾았다 — 템플릿이 바뀌었다. 중단." % (layer, CUT))
-            return 2
+            # ⚠**여기서 그 사본을 고치지 않는다.** `split` 은 2026-08-26 `2109a64e` 가
+            #   `{delta_total}` 을 되살릴 때 빠뜨려 그때부터 어긋나 있고, 그것을 여기서 따라잡으면
+            #   내 수리와 남의 수리가 한 커밋에 섞인다. 런타임은 이 파일을 읽지 않으므로
+            #   (참조처 = `_ins_*`/`_upd_*` 뿐) 死배선 위험은 없다. **크게 말하고 건너뛴다**([[25]]).
+            print("%-9s ⚠건너뜀 — `%s` 가 없다. 이 사본은 2026-08-26 부터 뒤처져 있다"
+                  % (layer, CUT[:34]))
+            continue
         head = rt.split(CUT)[0].rstrip()
         t.setdefault("isolate", {})["row_kind"] = KIND
         t["return_template_short"] = head + " " + SHORT_TAIL
@@ -109,7 +121,7 @@ def main():
         print("%-9s ok · row_kind=%s · short 템플릿 %d자 (원본 %d자)"
               % (layer, KIND, len(t["return_template_short"]), len(rt)))
     print("바뀐 층: %s" % (changed or "없음"))
-    return 0 if len(changed) == 2 else 1
+    return 0 if len(changed) >= 2 else 1
 
 
 if __name__ == "__main__":
