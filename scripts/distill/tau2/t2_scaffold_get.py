@@ -334,6 +334,47 @@ def _window_coverage_note(d, ctx, res):
     return txt
 
 
+def _short_rows(sr):
+    """서브가 **선언된 종류의 레코드보다 적게** 넘겼나 → (부족분, 종류, 원천수) or None.
+
+    ## 왜 이 함수가 필요했나 (2026-08-28)
+
+    바로 아래 `_omitted_rows_note` 는 2026-08-14 에 **자기 반증으로 무효화**됐다 — 이유는
+    *"분모가 틀렸다"* 였다: `source` 는 레코드 전수인데 서브는 A2 지시대로 **종류로 걸러**
+    산출하므로 누락이 없는데 누락을 주장했다([[25]]). 그때 옳은 분모는 배선되지 않았고,
+    **그 공백이 2026-08-28 에 072 를 조용히 틀리게 했다.** 실측(t7368 `task_072#s626729`):
+
+        msg[25] Bluest       레코드 32 · `type: atm_withdrawal`  9 → 서브  9   delta_total 14.0 = gold
+        msg[35] Light Green  레코드 26 · `type: atm_withdrawal` 10 → 서브 **9** delta_total  5.0 ≠ 3.5
+
+    빠진 한 행이 `btxn_8c58b19a3628 (charged $0.00, documented fee $1.50, difference $-1.50)`
+    = **수수료 줄이 없는 인출**이고, 그런데도 반환문은 `[coverage] 9 of 9 rows were checked
+    (0 could not be verified)` 였다. 분모가 자기 자신이라 손실이 원리상 안 보인다.
+
+    ## 왜 이 술어가 일반적인가
+
+    종류 이름은 **선언**(`isolate.row_kind`)에서만 오고 술어는 *세기 + 같음 비교* 뿐이다 —
+    태스크 id 도 도메인 낱말도 0 이라 다른 도구·다른 도메인으로 그대로 간다([[05]]·[[22]]).
+    그리고 이것은 **표본이 아니라 검산**이다: 어떤 레버가 행을 떨어뜨리든 그 런에서 모든
+    태스크에 대해 즉시 잡힌다(프롬프트 모양으로 커버리지를 고치면 태스크마다 부호가
+    갈린다 — `T2_SG_PROMPT_V2` 가 074 에서 16/16 을 사고 072 에서 9/10 을 판 자리·[[07]]).
+
+    ⚠**적게 넘긴 것만** 본다. 많이 넘기는 것은 여기서 판정하지 않는다(중복·초과 행은 다른
+      술어의 몫이고, 부분집합이 정상인 도구를 죽이지 않기 위해서다 — `_omitted_rows_note`
+      가 걸린 바로 그 함정이다).
+    ⚠종류가 선언되지 않았거나 원천에서 그 종류를 한 건도 못 셌으면 **판정하지 않는다**
+      (모르는 것을 주장하지 않는다·[[25]]).
+    """
+    if not isinstance(sr, dict):
+        return None
+    kind = sr.get("kind")
+    have = int(sr.get("kind_rows") or 0)
+    sub = int(sr.get("sub") or 0)
+    if not kind or have <= 0 or sub <= 0 or sub >= have:
+        return None
+    return (have - sub, str(kind), have)
+
+
 def _omitted_rows_note(sr):
     """★FIX-14/15 (2026-08-14 야간·074 실물): 격리 서브가 **원천에서 읽은 행 수**와 **넘긴 행 수**의
     차이를 반환문에 표면화한다(순수함수=단위테스트 공유·`_window_coverage_note` 선례).
@@ -1038,14 +1079,32 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
         _src_rows = 0
         for _t in _ok_outs:
             _src_rows += _t.count("Record ID:")
+        # ★종류별 분모 (2026-08-28 · `T2_SG_ROW_COUNT` 의 재료 · 세기만 · 판정 0).
+        #   `_omitted_rows_note` 가 2026-08-14 에 무효화된 이유가 **분모가 틀렸다**는 것이었다:
+        #   `source` 는 레코드 **전수**인데 서브는 A2 지시에 따라 **종류로 걸러** 산출한다.
+        #   그 자리에서 옳은 분모(종류별 세기)는 배선되지 않았고, 그 공백이 2026-08-28 에
+        #   072 를 조용히 틀리게 했다 — t7368 `task_072#s626729` 실측:
+        #       msg[25] Bluest      레코드 32 · `type: atm_withdrawal` **9**  → 서브 9   ✓ 14.0=gold
+        #       msg[35] Light Green 레코드 26 · `type: atm_withdrawal` **10** → 서브 **9** ✗  5.0≠3.5
+        #   종류 이름은 **선언에서만** 온다(`isolate.row_kind`) — 출처는 env 도구 출력 스키마라
+        #   기계도출이고 도메인 저작 0([[23]]·`ledger_metrics.row_keys` 와 같은 모양).
+        #   ⚠여기서는 **판정하지 않는다**. 세어서 남길 뿐이고 소비는 렌더가 한다([[59]]).
+        _kind = str((iso or {}).get("row_kind") or "").strip()
+        _kind_rows = 0
+        if _kind:
+            _kre = re.compile(r"(?im)^[ \t]*type:[ \t]*%s[ \t]*$" % re.escape(_kind))
+            for _t in _ok_outs:
+                _kind_rows += len(_kre.findall(_t))
         _sub_rows = 0
         for _k, _v in (got or {}).items():
             if isinstance(_v, list):
                 _sub_rows = max(_sub_rows, len(_v))
-                print("[T2_SG_ISOLATE] operand-size %s.%s: sub=%d rows · source=%d rows%s"
+                print("[T2_SG_ISOLATE] operand-size %s.%s: sub=%d rows · source=%d rows%s%s"
                       % (d.get("name"), _k, len(_v), _src_rows,
-                         "  ⚠MISMATCH" if _src_rows and len(_v) != _src_rows else ""),
-                      file=_sys.stderr, flush=True)
+                         (" · %s=%d rows" % (_kind, _kind_rows)) if _kind else "",
+                         ("  ⚠SHORT" if (_kind and _kind_rows and len(_v) < _kind_rows)
+                          else ("  ⚠MISMATCH" if _src_rows and len(_v) != _src_rows else "")),
+                      ), file=_sys.stderr, flush=True)
         # ★FIX-14/15 (2026-08-14 야간 074 실물·핸드오프 §5): 위 두 수는 **stderr 에만** 있었다.
         #   074 는 원장 33행 중 서브가 8행만 형식화했는데 도구 반환문은 `8 of 8 (0 unverified)` 라
         #   손실이 어디에도 보이지 않았다 — 분모가 **서브가 넘긴 것**이라 자기 자신을 잰다.
@@ -1055,7 +1114,8 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
             _sr = getattr(orch, "_t2_sub_srcrows", None)
             if _sr is None:
                 _sr = orch._t2_sub_srcrows = {}
-            _sr[d.get("name")] = {"source": _src_rows, "sub": _sub_rows}
+            _sr[d.get("name")] = {"source": _src_rows, "sub": _sub_rows,
+                                  "kind": _kind or None, "kind_rows": _kind_rows}
         except Exception:
             pass
         # ★날조 안전판 (2026-08-14·t7283 072 실물·[[25]] 우리 도구는 100% 정답 의무):
@@ -2665,9 +2725,43 @@ def apply():
                     #   x288 A_DOCS 0/8 이 잰 산술 결손 범위 내). 엔진이 이미 남긴 delta 들의 합만
                     #   노출한다 — 표시 여부/문구는 A2 템플릿 몫(안 쓰면 거동 0·여분 kwarg 무해).
                     _dtot = round(sum((it.get("delta") or 0) for it in _dets), 2) if _dets else 0.0
+                    # ★T2_SG_ROW_COUNT (2026-08-28·기본 OFF·닫힌 검산·[[22]]·[[25]]).
+                    #   전사 서브가 **선언된 종류의 레코드보다 적게** 넘겼으면 총액을 단언하지
+                    #   않는다. 이 템플릿은 축자로 *"use it as the credit amount; do not re-add
+                    #   the figures by hand"* 라고 말하므로, 행이 빠진 채 내보내면 **우리가
+                    #   틀린 수를 권위로 건네는 것**이 된다(2026-08-27 t7363·t7368 072 실물:
+                    #   Light Green `atm_withdrawal` 10 중 9 만 넘어와 5.0 을 건넸고 gold 는 3.5).
+                    #   ⚠엔진이 문장을 새로 쓰지 않는다 — 대체 토막도 부족분 문구도 **선언**에서
+                    #     온다(`delta_total_abstain`·`short_rows_feedback`). 저작 0([[05]]).
+                    #   ⚠[[62]] ③ 사라지는 모델 판단 = **0**. 오히려 엔진의 단언 하나가 조건부로
+                    #     사라지고, 모델은 *다시 읽어 고칠* 경로를 얻는다([[64]]).
+                    #   ⚠[[70]] 파는 것: 행이 정말 빠진 자리에서 총액 한 줄을 잃는다. 그 자리는
+                    #     지금 **틀린 총액**이 나가던 자리다.
+                    #   ⚠문면 교체는 **템플릿 통째로** 한다 — `{delta_total}` 자리만 바꾸면 바로
+                    #     뒤 문장(*"That signed total is the net correction … use it as the credit
+                    #     amount"*)이 그대로 남아 모순이 된다. 이미 `T2_RETURN_EMPTY` 가 쓰는
+                    #     `_tpl_key` 기구를 그대로 탄다([[67]] 사본 금지).
+                    _short = None
+                    if os.environ.get("T2_SG_ROW_COUNT") == "1":
+                        _short = _short_rows(
+                            (getattr(self, "_t2_sub_srcrows", None) or {}).get(d.get("name")))
+                        if _short and d.get("return_template_short"):
+                            _tpl_key = "return_template_short"
+                            print("[T2_SG_ROW_COUNT] %s: %s %d 중 %d 만 넘어왔다 — 총액 %.2f 를 "
+                                  "단언하지 않는다" % (d.get("name"), _short[1], _short[2],
+                                                       _short[2] - _short[0], _dtot),
+                                  file=_sys.stderr, flush=True)
+                        elif _short:
+                            print("[T2_SG_ROW_COUNT] %s: %s %d 중 %d — 대체 템플릿 미선언이라 "
+                                  "종전대로 나간다" % (d.get("name"), _short[1], _short[2],
+                                                       _short[2] - _short[0]),
+                                  file=_sys.stderr, flush=True)
                     _txt = d.get(_tpl_key, "{ids}").format(
                         ids=", ".join(_res) if _res else "(none)", details=_details,
-                        delta_total=_dtot)
+                        delta_total=_dtot,
+                        missing=(_short[0] if _short else 0),
+                        kind=(_short[1] if _short else ""),
+                        read=(_short[2] if _short else 0))
                     _n = len(_res)
                     # ★C195: 판정 커버리지 병기(op가 _sg_stats를 남긴 경우만·거동보존).
                     #   "(none)"의 침묵-신뢰 차단: 몇 행을 판정했고 몇 행이 판정불가였는지 +

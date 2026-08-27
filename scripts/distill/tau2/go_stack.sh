@@ -656,6 +656,23 @@ export T2_WRITE_ARG_FAB=0
 #   ⇒ 산 것은 재렌더링이 아니라 순서의 내용([[57]] 통과). 엔진이 쓰는 문장 0·값 0·판단 0.
 export T2_SG_RECORD_ORDER=0
 
+# ★전사 행 수 검산 (`T2_SG_ROW_COUNT`·기본 OFF·2026-08-28·닫힌 술어·[[22]]·[[25]]).
+#   술어 = 서브가 넘긴 배열 길이 < 원천에서 센 **선언된 종류**(`isolate.row_kind`)의 레코드 수.
+#   그러면 총액을 단언하지 않고 선언된 `return_template_short` 로 나간다(재공급 지시 포함).
+#   실측(t7368 `task_072#s626729`): Bluest 32 레코드 중 `type: atm_withdrawal` 9 → 서브 9 →
+#   delta_total **14.0 = gold** · Light Green 26 중 **10** → 서브 **9** → delta_total **5.0 ≠ 3.5**.
+#   빠진 한 행이 `btxn_8c58b19a3628 (charged $0.00, documented fee $1.50, difference $-1.50)`
+#   = 수수료 줄 없는 인출인데, 반환문은 `[coverage] 9 of 9 rows were checked (0 could not be
+#   verified)` 였다 — **분모가 넘어온 행 수라 자기 자신을 잰다**. 그 결과 우리 층이 틀린 총액을
+#   *"use it as the credit amount"* 라는 권위 문면으로 건넸다.
+#   ★왜 프롬프트 수리가 아니라 검산인가: 같은 결손을 `T2_SG_PROMPT_V2` 가 프롬프트 **모양**으로
+#     고쳤는데 074 chk_2 를 13~15/16 → 16/16 으로 사고 072 Light Green 을 10/10 → 9/10 으로
+#     팔았다(t7348 ↔ t7363·t7368). 섭동은 태스크마다 부호가 갈리고([[07]]) 손실이 조용하다.
+#     닫힌 검산은 못 본 태스크에서도 참이다 — **표본이 아니라 증명**이다.
+#   ⚠적게 넘긴 것만 본다(초과·중복은 다른 술어 몫·`_omitted_rows_note` 가 걸린 함정 회피).
+#   ⚠종류 미선언·원천 0건이면 판정하지 않는다. ⚠라이브 효과 미측정 — A/B 가 잰다.
+export T2_SG_ROW_COUNT=0
+
 # ★env 명세에서 도출한 타입·열거 (`T2_SPEC_ARG_FACTS`·기본 OFF·2026-08-25).
 #   손 선언(write_arg_enum 값 6칸·booleans 2세트)을 **대체**한다. 등가성은 코퍼스로 쟀다 —
 #   x540: 명세 블록 61 · 도구 16 · 대조 9건 전부 일치(다르다 0·대조 불가 0).
