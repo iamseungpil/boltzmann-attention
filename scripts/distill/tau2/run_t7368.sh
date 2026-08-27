@@ -22,7 +22,7 @@ LOG=/home/woori/scratch/logs
 SIMS=/home/woori/scratch/tau2-bench/data/simulations
 STAMP=20260827
 TASKS="task_016,task_040,task_055,task_057,task_063,task_072,task_074,task_079,task_085,task_094"
-SMOKE_TASKS="task_016,task_040,task_055,task_057,task_063,task_072,task_074,task_079,task_085,task_094"
+SMOKE_TASKS="task_016,task_072"
 cd "$REPO/scripts/distill/tau2"
 
 echo "[t7368 $(date +%H:%M:%S)] === 발사 전 배터리 ==="
