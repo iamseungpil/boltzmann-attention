@@ -43,7 +43,10 @@ env_arm() {
   # ⛔이 런이 **싣지 않는** 것들 (위 주석 참조)
   export T2_ARG_LABEL=0 T2_DIAG_UNAMBIGUOUS=0
   # ★이 런의 목적. 태스크로 좁히고 상한을 둔다(턴당 30~40k자).
+  # ⚠사이드카 자체가 `text` 를 4000자로 자른다 — 그 상한도 함께 열어야 프롬프트가 남는다
+  #   (1차 회수 148건이 전부 시스템 메시지 4000자였다).
   export T2_PROMPT_DUMP=1 T2_PROMPT_DUMP_TASKS=task_016 T2_PROMPT_DUMP_MAX=60000
+  export T2_FB_SIDECAR_TEXT=1 T2_FB_SIDECAR_TEXT_MAX=60000
   export T2_REARM_USER_ONLY=0 T2_PROCEDURE_LEFT=0 T2_EPLAN_ENUM_SUBTRACT=0 T2_SCOPE_ALL=0
   export GO_MAX_STEPS=150
 }

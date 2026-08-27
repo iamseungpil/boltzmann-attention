@@ -85,7 +85,14 @@ def record(kind, text, messages=None, **meta):
             if isinstance(v, (str, int, float, bool)) or v is None:
                 row[k] = v
         if os.environ.get("T2_FB_SIDECAR_TEXT") == "1":
-            row["text"] = s[:4000]
+            # ★상한을 연다 (2026-08-27·기본 4000 유지 = 거동 불변). 프롬프트 회수
+            #   (`T2_PROMPT_DUMP`)는 한 건이 30~40k자라 4000 에서 잘리면 **시스템 메시지만**
+            #   남는다 — t7366 1차 회수 148건이 전부 그 상태였다(라이브 4000자 ↔ 격리 65k자).
+            try:
+                _cap = int(os.environ.get("T2_FB_SIDECAR_TEXT_MAX", "4000"))
+            except Exception:
+                _cap = 4000
+            row["text"] = s[:_cap]
         line = json.dumps(row, ensure_ascii=False)
         with _LOCK:
             with open(path, "a", encoding="utf-8") as f:
