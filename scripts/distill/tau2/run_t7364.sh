@@ -22,8 +22,11 @@
 #   `T2_REARM_USER_ONLY`(A-3′) 0 — 래칫이 리모트 코퍼스에서 붉다(미영속 로그 회수 전엔 안 싣는다).
 #   `T2_PROCEDURE_LEFT`·`T2_EPLAN_ENUM_SUBTRACT`·`T2_SCOPE_ALL` 0 — 각각 미측정·미측정·음성 확정.
 #
-# ── 표적·대조 ────────────────────────────────────────
-#   hard-0 10 × nt2 = 20 sim · 대조 = **t7363**(0/20).
+# ── 표적·대조 (2026-08-27 사용자 지시: **016 만 발사하라**) ─────────
+#   task_016 × nt4 = 4 sim · 대조 = **t7363 의 016**(0/2 · 같은 sha 계열·같은 레버 집합).
+#   ⚠trial 을 2→4 로 올린 이유: 술어는 **모델이 친구 주체를 인자에 넣은 sim 에서만** 서고
+#     그것이 016 다섯 sim 중 둘이었다. nt2 면 발화 0 인 채로 끝날 확률이 실질적이라 판정이
+#     공허해진다. 대조는 sim 수가 아니라 **per-sim 0→1** 로 읽는다(C594·총점 Δ 금지).
 #   판정 = **표적의 0→1**. ⛔총점 Δ 로 판정하지 마라(C594).
 #   ⚠016 의 gap 은 1 이지만 이 레버가 사는 것은 **친구 카드 종류를 얻는 한 단계**다 —
 #     그 뒤 Silver·IN_PROGRESS 행과 $750 을 잇는 것은 모델 몫이라 **필요조건이지 충분조건이 아니다**.
@@ -38,8 +41,8 @@ REPO=/home/woori/workspace_common/boltzmann-attention-pi
 LOG=/home/woori/scratch/logs
 SIMS=/home/woori/scratch/tau2-bench/data/simulations
 STAMP=20260827
-TASKS="task_016,task_040,task_055,task_057,task_063,task_072,task_074,task_079,task_085,task_094"
-SMOKE_TASKS="task_016,task_072"
+TASKS="task_016"
+SMOKE_TASKS="task_016"
 cd "$REPO/scripts/distill/tau2"
 
 echo "[t7364 $(date +%H:%M:%S)] === 발사 전 배터리 ==="
@@ -95,8 +98,8 @@ cd "$REPO/scripts/distill/tau2"
 TAG="bank_t7364_hard0_${STAMP}"
 (
   env_arm; export GO_CONCURRENCY=3   # t7362 의 3-동시와 같은 서버 부하 ⇒ 지연 조건 비교 가능
-  echo "[main $(date +%H:%M:%S)] $TASKS nt=2"
-  t2_launch "$TAG" 8140 "$TASKS" 2 2>&1 | tee "$LOG/$TAG.log"
+  echo "[main $(date +%H:%M:%S)] $TASKS nt=4"
+  t2_launch "$TAG" 8140 "$TASKS" 4 2>&1 | tee "$LOG/$TAG.log"
   echo "[main $(date +%H:%M:%S)] done"
 ) > "$LOG/${TAG}_driver.log" 2>&1
 
