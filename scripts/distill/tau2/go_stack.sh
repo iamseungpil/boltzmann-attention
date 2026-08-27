@@ -119,6 +119,23 @@ export T2_DIAG_UNAMBIGUOUS=1
 #     (불일치 0/84). 다르면 우리가 잰 것과 다른 것을 켠 것이다([[76]]).
 #   ⚠남는 위험 1건(098@t7348). 라이브 효과는 다음 런이 산다. OFF=바이트 동일.
 export T2_REARM_USER_ONLY=1
+# ★T2_READ_PER_ENTITY (2026-08-27 등재·격리 `x561_read_entity_demand_iso.py`·발화면
+#   `x560_read_entity_gap_scan.py`·래칫 `test_read_per_entity.py`):
+#   선행 read 요건의 충족 판정이 **도구 이름만** 봐서, 다른 주체로 돈 read 가 요건을 영구히
+#   닫았다. 016 실측(t7363·t7356 두 세대): 계좌 read 는 손님 자신으로만 돌았고 손님이 묻는
+#   **친구**로는 끝내 안 돌았다 — 원장 15행 중 어느 행이 그 친구 것인지 아는 유일한 경로인데.
+#   ⇒ 충족을 **주체별로** 본다. 인자 키·값만 비교하고 값의 뜻은 모른다([[59]]·[[22]]).
+#   격리(x561·8140·3팔×4): A_asis **0/4**(라이브 축자 재현 — 거래 read 로 샌다) ·
+#   B_demand **4/4**(`get_all_user_accounts_by_user_id_3847{user_id: friend_…}`) ·
+#   N_len **0/4** ⇒ 길이 아님([[57]]).
+#   [[70]] 부호표(t7363·t7356 두 세대·채점 33 sim): 발화 **7(21%)** — 016 2 · 072 1 · 074 1 ·
+#   085 3 이고 **전부 reward 0** ⇒ 이 코퍼스에서 손실 불가. 판 것 = 발화 sim 당 read 한 턴.
+#   ⚠경계(래칫이 잠근다): 술어는 **모델이 그 주체를 인자에 넣은 뒤에만** 선다 — NL 은 안 읽는다.
+#     016 다섯 sim 중 둘이 그 형상이고 나머지 셋에서는 침묵한다. 손님이 말한 직후(msg[38])가
+#     아니라 모델이 그 값을 쓴 뒤(msg[41])가 발화점이다.
+#   ⚠반증: 발화한 자리에서 요구한 read 가 **이미 그 주체로 돌았던** sim 이 나오면 술어가 틀렸다.
+#     OFF=바이트 동일.
+export T2_READ_PER_ENTITY=1
 export T2_FAB_STRIP=1 T2_UNKNOWN_NAME_BL=1 T2_UNLOCK_NAME=1 T2_UNLOCK_PROV=1
 export T2_DISPATCH_ROLE=1 T2_TOOLLIST=1 T2_PRESCRIPTION=1
 # ★T2_DISPATCH_ROLE_ENVSET (2026-08-05 등재·구현은 C257·`ABSENCE_DRIVEN_PROCEDURE_DESIGN` §4):
