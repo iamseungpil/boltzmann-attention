@@ -818,8 +818,15 @@ def formalize_arg_axis(agent, la, UserMessage, msgs, arg, choices, prompt_tpl):
 
 ASK_AGENT_CALL = ("which ONE of these tools must the agent CALL to fulfill the request? ")
 
+# ★범위 문장 (2026-08-28·x575). `SCOPE_USER_ONLY` 는 종전 문면과 **바이트 동일**이라
+#   `material` 을 안 주면 라이브 프롬프트가 한 글자도 안 바뀐다.
+SCOPE_USER_ONLY = "Based ONLY on what the user asked, "
+SCOPE_WITH_FINDINGS = ("Based on what the user asked together with the findings below, which were "
+                       "established earlier in this conversation, ")
+FINDINGS_HEAD = "Findings already established:"
 
-def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools, ask=None):
+
+def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools, ask=None, material=None):
     """★FIND(의도→operator): 격리 LLM 서브콜 — 사용자 요청이 요구하는 action_tool 1개(or none).
     도메인-일반(intent→operator = 값 formalize의 operator판·learn 정의역). 실패=None(안전).
 
@@ -830,7 +837,18 @@ def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools, ask=None):
       드러냈다 — *"must the agent CALL"* 은 손님-실행 도구(`submit_transaction` 등)를 옳은
       답으로 **가질 수 없는** 물음이다. 그 프레임이 결손인지를 재려면 문장을 갈아야 한다.
       ⚠[[66]]: 여기에 **케이스 규칙을 넣지 마라**(과거 af8c1e21 이 그러다 098 4/4→0/4).
-        일반 어법 교체만 허용된다."""
+        일반 어법 교체만 허용된다.
+
+    ★`material` (2026-08-28·x575 신설): 이 서브가 보는 **재료를 넓히는** 자리. 기본 None 이면
+      프롬프트는 종전과 **바이트 동일**이고 라이브 경로는 이 인자를 주지 않는다(거동 변화 0).
+      왜 필요한가: `x516`(후보집합)·`x517`(물음 프레임) 이 둘 다 gold 0/39 였는데 **세 팔 전부
+      재료가 같았다** — 창은 `x516_induction_target_iso.py:163` 이 뜨는 *손님 발화 마지막 6개*
+      뿐이다. 라이브 계기가 그것을 확증한다(t7367 `[T2_SUBWIN]` 76 호출 전부 손님 발화만 ·
+      `formalized_target=submit_referral` 42/42). 016 gold 인 `submit_transaction` 은 원장
+      상태와 정책 수치에서만 도출되므로 **원리상 그 창 밖**이다. 안 재본 축은 문장이 아니라
+      재료이고, 이 인자가 그것을 가른다.
+      ⚠[[66]]: 재료는 **선언이 이미 배달하는 문장**만 들어온다 — 여기서 사례를 열거하거나
+        의도를 분류하지 않는다. 고르는 것은 여전히 서브다([[62]] ③ 사라지는 판단 0)."""
     if not action_tools or agent is None or la is None:
         return None
     _uall = [i for i, m in enumerate(msgs or [])
@@ -861,12 +879,16 @@ def formalize_intent_tool(agent, la, UserMessage, msgs, action_tools, ask=None):
     #   의도+질문 복합 발화("I want to refer ... which one?")가 일괄 none 이 되어 [ORDER]/
     #   [ACTION] 푸시가 전면 침묵 — 098 4/4→0/4·099 3/4→1/4. 규칙은 프롬프트에 넣어도
     #   입법이다. 원래 막으려던 무단 개설(071t3)은 이 절로 안 닫혔음도 실측(모델 자발 호출).
-    prompt = ("The user is talking to a customer-service agent. Based ONLY on what the user asked, "
+    # ★재료가 없으면 `SCOPE_USER_ONLY` 와 빈 꼬리라 종전 문면과 **바이트 동일**이다.
+    _mat = [str(x).strip() for x in (material or ()) if str(x).strip()]
+    prompt = ("The user is talking to a customer-service agent. "
+              + (SCOPE_WITH_FINDINGS if _mat else SCOPE_USER_ONLY)
               + (ask or ASK_AGENT_CALL) +
               "Reply with the exact tool name, or 'none' if none applies.\n"
               "Tools: " + ", ".join(sorted(action_tools)) + "\n"
-              "User said:\n- " + "\n- ".join(u[:300] for u in users) +
-              '\nReply JSON only: {"tool": "<name or none>"}')
+              "User said:\n- " + "\n- ".join(u[:300] for u in users)
+              + (("\n" + FINDINGS_HEAD + "\n- " + "\n- ".join(_mat)) if _mat else "")
+              + '\nReply JSON only: {"tool": "<name or none>"}')
     try:
         txt = SC.sub_generate(agent, la, UserMessage, prompt, "intent_operator_formalize")
         m = re.search(r'"tool"\s*:\s*"([^"]+)"', txt)
