@@ -109,7 +109,20 @@ export T2_SEARCH_REARM=1
 #   ⚠**§3 형(허위 문면 교정)으로 등재한다** — 새 거동을 더하는 것이 아니라 근거 없는 단언 하나를
 #     거두는 것이고, `status_breakdown`·`status_meanings_text` 는 이 호출 **이전에** 그대로 나간다.
 #   ⚠반증: 이름당 상태 1종인데 판정문이 틀린 sim 이 나오면 술어가 부족하다. OFF=바이트 동일.
-export T2_DIAG_UNAMBIGUOUS=1
+#   ⛔**2026-08-27 저녁 — 끈다. 물음을 고쳤기 때문이다([[76]] 서브가 틀리면 서브를 고친다).**
+#   이 침묵은 *"어느 이름도 단일 상태가 아니다"* 를 근거로 삼았는데, 그 모호는 원장의 성질이
+#   아니라 **우리 물음**이 만든 것이었다. 구판 `diagnose_prompt` 의 *"One of these records did
+#   not pay out"* 은 같은 블록에 실려 나가는 정의와 겹친다 —
+#   `COMPLETE — … met the criteria to get the referral bonus` 아래에서 *'못 받은 것'* 은
+#   COMPLETE 로도 읽힌다. 격리 `x566`(8140·4팔×5×2태그):
+#       구판 그대로            **Platinum 3/5**(라이브 오지목 재현)
+#       행 단위로만 바꿈       **Platinum 5/5**  ⇒ 단위는 원인이 아니었다
+#       정의의 어휘로 물음     **Silver 10/10** (두 태그 전부)   ← 새 선언이 이것이다
+#       부정통제              무응답 5/5
+#   범위: 이 코퍼스(7 태그)에서 원장이 있는 sim 은 **016 뿐(9개)** 이고 침묵은 그 9개 전부에서
+#   발동했다 ⇒ 끄는 것의 폭발 반경도 016 뿐이고, 다른 태스크는 **바이트 동일**이다.
+#   ⚠술어·래칫은 남긴다(`test_diag_unambiguous.py` 초록). 서브가 다시 틀리면 그때 되살린다.
+export T2_DIAG_UNAMBIGUOUS=0
 # ★T2_REARM_USER_ONLY = 문서의 **A-3′** (2026-08-26 등재·측정 `x553_rearm_role_split.py`·
 #   래칫 `test_rearm_user_only.py`): 재무장 재수요를 **손님 발화 · 전 접두**로 본다.
 #   문서 처방 A-3(user 로 한정만)은 발화 **67/84** 를 죽이고 통과 sim 발화를 10건(반증 견딘 것
