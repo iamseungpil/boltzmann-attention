@@ -38,6 +38,11 @@ REPO=/home/woori/workspace_common/boltzmann-attention-pi
 LOG=/home/woori/scratch/logs
 SIMS=/home/woori/scratch/tau2-bench/data/simulations
 STAMP=20260828
+# GPU1 의 `:8141`. 8140 은 t7369 가 물고 있다. 두 서버의 argv 는 포트 한 칸만 다르다
+#   (원본 /proc/<pid>/cmdline 축자 대조 — rope-scaling·max-model-len·enforce-eager 동일).
+#   ⚠대조 t7368 은 8140 에서 돌았다 = **서버가 다르다**. temperature 0 이고 argv 가 같으므로
+#     성적 축에는 영향이 없다고 보지만 **잰 적은 없다** — 판정에 이 사실을 달아 둔다.
+PORT=8141
 TASKS="task_072,task_074,task_085"
 SMOKE_TASKS="task_072"
 cd "$REPO/scripts/distill/tau2"
@@ -74,7 +79,7 @@ rm -rf "$SIMS/$STAG"
 (
   env_arm; export GO_CONCURRENCY=1
   echo "[smoke $(date +%H:%M:%S)] $SMOKE_TASKS nt=1"
-  t2_launch "$STAG" 8140 "$SMOKE_TASKS" 1 2>&1 | tee "$LOG/$STAG.log"
+  t2_launch "$STAG" "$PORT" "$SMOKE_TASKS" 1 2>&1 | tee "$LOG/$STAG.log"
 ) > "$LOG/${STAG}_driver.log" 2>&1
 
 SZ=$(grep -ac "operand-size get_atm_fee_discrepancies" "$LOG/$STAG.log" 2>/dev/null); SZ=${SZ:-0}
@@ -100,12 +105,12 @@ TAG="bank_t7370_radius_${STAMP}"
 (
   env_arm; export GO_CONCURRENCY=2
   echo "[main $(date +%H:%M:%S)] $TASKS nt=2"
-  t2_launch "$TAG" 8140 "$TASKS" 2 2>&1 | tee "$LOG/$TAG.log"
+  t2_launch "$TAG" "$PORT" "$TASKS" 2 2>&1 | tee "$LOG/$TAG.log"
   echo "[main $(date +%H:%M:%S)] done"
 ) > "$LOG/${TAG}_driver.log" 2>&1
 
 cd "$REPO"
-/home/woori/venvs/seka_env/bin/python reports/facet_rft_2026/freeze.py --off
+/home/woori/venvs/seka_env/bin/python reports/facet_rft_2026/freeze.py --off --tag "bank_t7370_$STAMP"
 
 # ── ③ 회수 ([[30]]: gzip 만으론 영속이 아니다) ────────────────────────────
 mkdir -p reports/facet_rft_2026/sim_results

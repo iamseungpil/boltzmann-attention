@@ -148,11 +148,16 @@ def main():
     if a.status or not (a.on or a.off):
         if cur and cur.get("active"):
             d = dirty()
-            hit, changed, how = breached(cur)
-            print("FROZEN sha=%s tag=%s\n  이유: %s\n  건 시각: %s\n  지금 SHA: %s%s"
-                  % (cur.get("sha"), cur.get("tag"), cur.get("reason"), cur.get("at"), sha(),
-                     ("  ⚠**동결 경로가 변했다**: " + ", ".join(changed[:4])) if hit
-                     else ("  (HEAD 만 움직였다 — 경로 무변)" if sha() != cur.get("sha") else "")))
+            # ★hold 마다 **자기 기준**으로 판정한다 — 동시 런 둘이 서로의 판정을 오염시키지 않게.
+            hs = list(cur.get("holds") or []) or [cur]
+            for h in hs:
+                hit, changed, how = breached(h)
+                print("FROZEN sha=%s tag=%s\n  이유: %s\n  건 시각: %s\n  지금 SHA: %s%s"
+                      % (h.get("sha"), h.get("tag"), h.get("reason"), h.get("at"), sha(),
+                         ("  ⚠**동결 경로가 변했다**: " + ", ".join(changed[:4])) if hit
+                         else ("  (HEAD 만 움직였다 — 경로 무변)" if sha() != h.get("sha") else "")))
+            if len(hs) > 1:
+                print("  동시 hold %d 개" % len(hs))
             if d:
                 print("  ⚠미커밋 변경 %d: %s" % (len(d), ", ".join(d[:5])))
         else:
@@ -160,9 +165,18 @@ def main():
         return 0
 
     if a.on:
-        if cur and cur.get("active"):
-            print("[freeze] 이미 동결 중이다 (sha=%s tag=%s) — 새로 걸지 않는다."
-                  % (cur.get("sha"), cur.get("tag")), file=sys.stderr)
+        # ★다중 hold (2026-08-28): GPU 가 둘이 되면서 **런 두 개가 동시에** 돈다. 동결이 한 칸이면
+        #   ⑴뒤에 뜬 런은 `--on` 이 거부돼 **동결 없이** 돌고 ⑵먼저 끝난 런의 `--off` 가 남의
+        #   동결까지 풀어 버린다 ⇒ 어느 쪽이든 한 런이 조용히 [S] 를 잃는다.
+        #   ⇒ hold 를 **목록**으로 두고 각자 자기 기준(`path_hashes`)으로 판정받는다.
+        #   구판 파일(hold 목록 없음)은 로드 시 한 칸짜리 목록으로 **이관**한다(하위호환).
+        holds = list(cur.get("holds") or []) if cur else []
+        if cur and cur.get("active") and not holds:
+            holds = [{k: cur.get(k) for k in
+                      ("tag", "sha", "reason", "at", "paths", "path_hashes")}]
+        if any(h.get("tag") == a.tag for h in holds):
+            print("[freeze] 같은 태그가 이미 걸려 있다 (tag=%s) — 새로 걸지 않는다." % a.tag,
+                  file=sys.stderr)
             return 1
         d = dirty()
         if d:
@@ -170,31 +184,55 @@ def main():
             print("[freeze] REFUSING: 추적 파일에 미커밋 변경 %d 개가 있다. 커밋하고 다시 걸라.\n  %s"
                   % (len(d), "\n  ".join(d)), file=sys.stderr)
             return 1
-        z = {"active": True, "sha": sha(), "tag": a.tag, "reason": a.reason,
-             "at": now(), "paths": DEFAULT_PATHS,
-             # ★수리(2026-08-23): 판정 재료는 여기서 생긴다. 이것이 없으면 --off 는 HEAD 로
-             #   떨어지고 러너 자신의 결과 커밋에 늘 걸린다(위 독스트링).
-             "path_hashes": path_hashes(DEFAULT_PATHS)}
+        # ★수리(2026-08-23): 판정 재료는 여기서 생긴다. 이것이 없으면 --off 는 HEAD 로
+        #   떨어지고 러너 자신의 결과 커밋에 늘 걸린다(위 독스트링).
+        holds.append({"tag": a.tag, "sha": sha(), "reason": a.reason, "at": now(),
+                      "paths": DEFAULT_PATHS, "path_hashes": path_hashes(DEFAULT_PATHS)})
+        z = dict(holds[0])                      # 최상위는 **가장 오래된 hold** 를 비춘다(구판 독자용)
+        z.update({"active": True, "holds": holds})
         with open(PATH, "w", encoding="utf-8") as f:
             json.dump(z, f, ensure_ascii=False, indent=1)
-        print("[freeze] ON sha=%s tag=%s · %d 경로" % (z["sha"], a.tag, len(DEFAULT_PATHS)))
+        print("[freeze] ON sha=%s tag=%s · %d 경로%s"
+              % (holds[-1]["sha"], a.tag, len(DEFAULT_PATHS),
+                 ("  (동시 hold %d — 각자 자기 기준으로 판정된다)" % len(holds))
+                 if len(holds) > 1 else ""))
         return 0
 
     # --off
     if not (cur and cur.get("active")):
         print("[freeze] 동결 상태가 아니다.", file=sys.stderr)
         return 1
-    hit, changed, how = breached(cur)
+    holds = list(cur.get("holds") or [])
+    if not holds:
+        holds = [{k: cur.get(k) for k in
+                  ("tag", "sha", "reason", "at", "paths", "path_hashes")}]
+    # 태그를 주면 그것을, 안 주면 **가장 오래된 것**을 푼다 — 러너들이 `--off` 만 부르던
+    # 종전 문면에서 각자 자기 것을 푸는 순서가 된다(먼저 건 런이 먼저 끝난다는 보장은
+    # 없지만, 어느 쪽이든 hold 하나만 풀리고 나머지는 살아 있다).
+    idx = 0
+    if a.tag and a.tag != "(unnamed)":
+        idx = next((i for i, h in enumerate(holds) if h.get("tag") == a.tag), -1)
+        if idx < 0:
+            print("[freeze] 그 태그의 hold 가 없다 (tag=%s · 걸린 것: %s)"
+                  % (a.tag, ", ".join(str(h.get("tag")) for h in holds)), file=sys.stderr)
+            return 1
+    mine = holds.pop(idx)
+    hit, changed, how = breached(mine)
     d = dirty()
-    cur["active"] = False
-    cur["released_sha"] = sha()
-    cur["breach"] = {"changed_paths": changed, "basis": how, "uncommitted": len(d)}
+    rec = dict(mine)
+    rec["released_sha"] = sha()
+    rec["breach"] = {"changed_paths": changed, "basis": how, "uncommitted": len(d)}
+    z = dict(holds[0]) if holds else dict(rec)
+    z.update({"active": bool(holds), "holds": holds,
+              "released": (cur.get("released") or [])[-9:] + [rec]})
     with open(PATH, "w", encoding="utf-8") as f:
-        json.dump(cur, f, ensure_ascii=False, indent=1)
-    head_moved = sha() != cur.get("sha")
-    print("[freeze] OFF · 동결 SHA %s → 해제 SHA %s%s"
-          % (cur.get("sha"), sha(),
-             "  (HEAD 는 움직였다 — 러너 자신의 결과 커밋이면 정상)" if head_moved else ""))
+        json.dump(z, f, ensure_ascii=False, indent=1)
+    head_moved = sha() != mine.get("sha")
+    print("[freeze] OFF tag=%s · 동결 SHA %s → 해제 SHA %s%s%s"
+          % (mine.get("tag"), mine.get("sha"), sha(),
+             "  (HEAD 는 움직였다 — 러너 자신의 결과 커밋이면 정상)" if head_moved else "",
+             ("  · 남은 hold %d: %s" % (len(holds), ", ".join(str(h.get("tag")) for h in holds)))
+             if holds else ""))
     if hit or d:
         print("⚠**동결이 뚫렸다** — 이 런의 결과는 어떤 SHA 로도 재현되지 않는다.\n"
               "  판정 근거: %s\n  바뀐 동결 경로 %d: %s\n  미커밋: %d\n"
