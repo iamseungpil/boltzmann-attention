@@ -83,10 +83,13 @@ RE_ID = re.compile(r'"id"\s*:\s*"([^"]+)"')
 
 
 def engine_sum(vals):
-    """엔진 몫 = **덧셈 하나**. `t2_compute` 의 `sum` op 를 그대로 부른다(사본 0·[[67]])."""
-    ctx = {"v": [{"x": v} for v in vals]}
-    spec = {"op": "sum", "of": ["v.%d.x" % i for i in range(len(vals))]}
-    out = CP.apply_op(spec, ctx)
+    """엔진 몫 = **덧셈 하나**. `t2_compute` 의 `sum` op 를 그대로 부른다(사본 0·[[67]]).
+
+    ⚠`_get` 은 **dict 만** 걷는다(`t2_compute.py:29-35`) — 리스트 첨자는 경로가 아니다.
+      1차 배선이 `v.0.x` 를 써서 `op=sum in=4 out=0` 이 났고 자체검산이 그것을 잡았다.
+    """
+    ctx = {("r%d" % i): v for i, v in enumerate(vals)}
+    out = CP.apply_op({"op": "sum", "of": sorted(ctx, key=lambda k: int(k[1:]))}, ctx)
     return None if out is None else round(float(out), 2)
 
 
