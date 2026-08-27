@@ -42,6 +42,7 @@ this costs the domain nothing new.
 #   갈라진 술어가 곧 C4가 막으려는 T1(사실 모순)이다 — 그래서 빌려 쓴다.
 import json
 import os
+import sys
 
 from t2_precedence import (_fam, prereq_map, first_step, graph_for,   # noqa: F401
                            declarations, SRC_REQUIRE_BEFORE, SRC_REQUIRES_READS)
@@ -57,6 +58,9 @@ READS_PREFIX = "reads:"
 # tau2 도구-프로토콜 어휘(`ToolCall.arguments` 동형)·도메인 어휘 아님
 # — `t2_gate_patch._DISPATCH_PAYLOAD_KEY` 와 같은 값·같은 판정.
 _DISPATCH_PAYLOAD_KEY = "arguments"
+
+# 자국의 중복 접기 — 같은 (read, 주체집합) 은 한 번만 찍는다.
+_SEEN_PER_ENTITY = set()
 
 DEFAULT_FEEDBACK = (
     "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer "
@@ -288,7 +292,16 @@ def requirements_for(a2, messages, target, executed=None, unwrap=None):
         if per_entity:
             for r in (reads or []):
                 if _fam(r) in done_fam:
-                    for v, prm in sorted(read_entity_gap(messages, r, unwrap).items()):
+                    _g = read_entity_gap(messages, r, unwrap)
+                    # ★자국. 없으면 로그의 0 이 *"안 돌았다"* 인지 *"돌았는데 빌 뿐"* 인지
+                    #   구별되지 않는다([[67]] 계기 함정 — `t2_compute` 가 그래서 판정 불가였다).
+                    #   스모크 게이트가 보는 것이 이 줄이다. 내용으로 중복을 접어 소음을 막는다.
+                    _k = (_fam(r), tuple(sorted(_g)))
+                    if _k not in _SEEN_PER_ENTITY:
+                        _SEEN_PER_ENTITY.add(_k)
+                        print("[T2_READ_PER_ENTITY] checked=%s gap=%s"
+                              % (_fam(r), sorted(_g) or "none"), file=sys.stderr, flush=True)
+                    for v, prm in sorted(_g.items()):
                         key = "%s%s@%s" % (READS_PREFIX, _fam(r), v)
                         if key in seen:
                             continue
