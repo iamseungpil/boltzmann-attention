@@ -179,6 +179,15 @@ export T2_READ_PER_ENTITY=0
 #     그 인자의 옳은 값이 된다(x565 배선 확인이 잡았다).
 #   ⚠반증: 반려한 값이 그 인자로 **정당했던** sim 이 나오면 술어가 틀렸다. OFF=바이트 동일.
 export T2_ARG_LABEL=1
+# ★T2_PROMPT_DUMP (2026-08-27 등재·**계기**이지 레버가 아니다·기본 OFF):
+#   모델이 실제로 본 메시지 전체를 사이드카에 남긴다(`kind=prompt`·`channel=gen`).
+#   왜: 오늘 두 번 라이브 실패가 같은 접두 위 격리에서 **재현되지 않았다**
+#   (`x562` B_live 4/4 · `x571` A_asis 가 옳게 답함). 라이브 프롬프트는 영속 궤적에 없다 —
+#   커밋된 메시지 + **비커밋 `work` 주입** + 뷰 압축이 합쳐진 것이 실제 프롬프트이고
+#   그 합은 어디에도 안 남는다. 그것 없이는 [[78]] 의 *"두 프롬프트를 찍어 diff"* 가 불가능하다.
+#   ⚠턴당 30~40k자다. `T2_PROMPT_DUMP_TASKS`(부분일치·쉼표)와 `T2_PROMPT_DUMP_MAX`(기본 60000)
+#     로 좁혀서만 켜라. 상시 ON 금지.
+export T2_PROMPT_DUMP=0
 export T2_FAB_STRIP=1 T2_UNKNOWN_NAME_BL=1 T2_UNLOCK_NAME=1 T2_UNLOCK_PROV=1
 export T2_DISPATCH_ROLE=1 T2_TOOLLIST=1 T2_PRESCRIPTION=1
 # ★T2_DISPATCH_ROLE_ENVSET (2026-08-05 등재·구현은 C257·`ABSENCE_DRIVEN_PROCEDURE_DESIGN` §4):

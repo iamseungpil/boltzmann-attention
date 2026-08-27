@@ -6212,8 +6212,40 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
             kw["extra_body"] = eb
         if tool_choice:                          # ★레버 A(2026-07-18): tau2 `generate`의 일급 파라미터로 통과
             kw["tool_choice"] = tool_choice
+        _msgs = self._system_messages + work
+        # ★T2_PROMPT_DUMP (2026-08-27·기본 OFF) — **모델이 실제로 본 것**을 남긴다.
+        #   왜: 오늘 두 번, 라이브 실패가 같은 접두 위 격리에서 **재현되지 않았다**
+        #   (x562 B_live 4/4 · x571 A_asis 가 옳게 답함). 이유를 코드로 추정할 수 없다 —
+        #   라이브 프롬프트가 **어디에도 기록되지 않기 때문**이다. 영속 궤적은 커밋된 것만
+        #   담고, 우리 층 주입은 비커밋 `work` 버퍼로 들어가며, 뷰 압축까지 거친다.
+        #   그 셋을 합친 결과가 여기 `_msgs` 이고, 이것이 격리의 **유일한 참조점**이다([[78]]
+        #   *"iso↔live 차이는 코드로 추정하지 말고 두 프롬프트를 찍어 diff"*).
+        #   ⚠크다(턴당 30~40k자). 태스크 필터와 상한을 둔다 — 무제한으로 켜지 마라.
+        if os.environ.get("T2_PROMPT_DUMP") == "1":
+            try:
+                import t2_fbsidecar as _fbp
+                import t2_lever_beat as _lbp
+                _cur = str(_lbp.current_sim() or "")
+                _want = os.environ.get("T2_PROMPT_DUMP_TASKS", "")
+                if (not _want) or any(t.strip() and t.strip() in _cur
+                                      for t in _want.split(",")):
+                    _cap = int(os.environ.get("T2_PROMPT_DUMP_MAX", "60000"))
+                    _parts = []
+                    for _m in _msgs:
+                        try:
+                            _c = _content_str(_m) or ""
+                        except Exception:
+                            _c = str(getattr(_m, "content", "") or "")
+                        _tc = " ".join(str(getattr(t, "name", "")) 
+                                       for t in (getattr(_m, "tool_calls", None) or []))
+                        _parts.append("[%s]%s %s" % (getattr(_m, "role", "?"),
+                                                     (" CALLS " + _tc) if _tc else "", _c))
+                    _fbp.record("prompt", (chr(10).join(_parts))[:_cap], work,
+                                channel="gen", call=str(call_name))
+            except Exception as _pe:
+                print("[T2_PROMPT_DUMP] skipped: %r" % (_pe,), file=sys.stderr, flush=True)
         _r = la.generate(model=self.llm, tools=self.tools,
-                         messages=self._system_messages + work, call_name=call_name, **kw)
+                         messages=_msgs, call_name=call_name, **kw)
         try:                                    # ★P3 살리기(C248·기본 OFF) — 위 경로와 동일
             import t2_salvage as _sv
             _sv.salvage_message(_r)
