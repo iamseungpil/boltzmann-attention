@@ -40,6 +40,9 @@ this costs the domain nothing new.
 
 # ★C2가 그래프를 소유한다(2026-08-07). 이 파일에 사본을 두면 두 술어가 갈라지고,
 #   갈라진 술어가 곧 C4가 막으려는 T1(사실 모순)이다 — 그래서 빌려 쓴다.
+import json
+import os
+
 from t2_precedence import (_fam, prereq_map, first_step, graph_for,   # noqa: F401
                            declarations, SRC_REQUIRE_BEFORE, SRC_REQUIRES_READS)
 
@@ -50,6 +53,10 @@ __all__ = ["dominating_gate", "requirement_text", "DEFAULT_FEEDBACK",
 # 이 값을 보고 "우리가 이번 sim에서 어떤 read를 실제로 요구했나"를 읽는 소비자가 생겼다
 # (2026-08-08·C330: pin의 수요 신호). 요건의 `satisfiers`가 그 read 이름을 그대로 진다.
 READS_PREFIX = "reads:"
+
+# tau2 도구-프로토콜 어휘(`ToolCall.arguments` 동형)·도메인 어휘 아님
+# — `t2_gate_patch._DISPATCH_PAYLOAD_KEY` 와 같은 값·같은 판정.
+_DISPATCH_PAYLOAD_KEY = "arguments"
 
 DEFAULT_FEEDBACK = (
     "Error: [ORDER] '{target}' cannot be carried out yet - not by you, and not by the customer "
@@ -134,6 +141,94 @@ def _executed(messages, executed=None, unwrap=None):
 
 
 
+def _args_dict(tc):
+    """`ToolCall.arguments` 를 dict 로. **사본이 아니라 순환 수입 회피다** — 이 모듈을 수입하는
+    쪽이 `t2_gate_patch` 라 역방향을 만들 수 없고, 같은 이유로 `t2_prekb_patch`·`t2_compliance`
+    도 각자 다섯 줄을 둔다([[67]] 는 *로직*의 사본을 막는 규칙이다)."""
+    a = getattr(tc, "arguments", None)
+    if isinstance(a, str):
+        try:
+            a = json.loads(a)
+        except Exception:
+            a = None
+    if not isinstance(a, dict):
+        return {}
+    # ★디스패처 안쪽까지 편다. banking 의 호출은 거의 전부
+    #   `call_discoverable_agent_tool{agent_tool_name: …, arguments: "<JSON 문자열>"}` 형태라
+    #   최상위 키만 보면 **주체 인자가 한 번도 안 보인다**. 같은 사고가 085 에서 이미 났고
+    #   `t2_gate_patch._prov_scan_args` 주석이 그것을 축자로 적어 뒀다 — 2026-08-27 에 내가
+    #   그 함정을 그대로 반복했고 `x560` 이 발화 0/33 으로 잡았다.
+    #   키 이름은 tau2 도구-프로토콜 어휘이지 도메인 어휘가 아니다(`:792` 와 같은 판정).
+    inner = a.get(_DISPATCH_PAYLOAD_KEY)
+    if isinstance(inner, str):
+        try:
+            inner = json.loads(inner)
+        except Exception:
+            inner = None
+    if isinstance(inner, dict):
+        # ★래퍼의 자기 키(`agent_tool_name` 등 라우팅 슬롯)는 **실행되는 도구의 인자가 아니다.**
+        #   합쳐서 돌려주던 1차판은 그 선택자 값을 주체로 오인해 `x560` 발화면이 33 중 26(79%)
+        #   으로 부풀었다 — 잡힌 것 대부분이 `agent_tool_name=open_bank_account_4821` 류였다.
+        #   페이로드만 돌려주면 라우팅 슬롯은 애초에 비교에 들어오지 않는다(키 열거 0).
+        return inner
+    return a
+
+
+def read_entity_gap(messages, read_fam, unwrap=None):
+    """그 선행 read 가 **어느 주체로** 돌았는지를 본다 — 안 돈 주체를 `{값: 인자명}` 으로.
+
+    ## 이것이 고치는 결함 (2026-08-27 · `task_016#s626729` · t7363·t7356 두 런 동일)
+
+    선행 read 요건의 충족 판정은 지금 **도구 이름만** 본다(`done_fam = {_fam(n) for n in done}`).
+    그래서 *다른 주체로* 돈 read 가 요건을 영구히 충족시킨다. 016 실측 —
+
+        msg[18]  `get_all_user_accounts_by_user_id_3847{user_id: "86e92f639e"}`   ← **손님 자신**
+        msg[19]  *"No bank accounts found. No credit card accounts found."*
+        msg[37]  손님 축자: *"my friend's user ID is **friend_user_5839**"*
+        msg[40]·[52]  `get_credit_card_transactions_by_user{user_id: "friend_user_5839"}`
+                      ⇒ 모델이 그 주체를 **스스로 인자에 넣었는데**, 계좌 read 는 끝내 안 돈다.
+
+    손님이 묻는 것은 친구의 추천이고 카드 종류(원장 15행 중 어느 행인지)를 아는 유일한 경로가
+    그 read 다. 요건은 *"돌았다"* 로 닫혀 있어 아무도 그것을 요구하지 않았다.
+
+    ## 엔진이 무엇을 하고 무엇을 안 하나
+
+    **인자 키가 같은지와 값이 같은지만** 본다. 값의 뜻·주체의 정체·어느 값이 옳은지는 모른다
+    ([[59]] 패턴매칭 0 · [[22]] 닫힌 술어). 인자 **이름조차 선언에서 짓지 않는다** — 그 read 가
+    자기 호출에서 실제로 쓴 키를 그대로 쓴다(도메인 어휘 0).
+
+    ⚠**read 가 한 번도 안 돌았으면 빈 dict 를 돌려준다.** 그 경우는 구판 규칙이 이미 미충족으로
+      잡으므로 거동이 겹치지 않는다 — 이 술어의 폭발 반경은 *"돌긴 돌았다"* 인 자리로 한정된다.
+    """
+    calls = []
+    for m in messages or []:
+        for tc in (getattr(m, "tool_calls", None) or []):
+            n = unwrap(tc) if unwrap else getattr(tc, "name", None)
+            if n:
+                calls.append((_fam(n), _args_dict(tc)))
+    mine = [a for f, a in calls if f == _fam(read_fam)]
+    if not mine:
+        return {}
+    params = {k for a in mine for k in (a or {})}
+    if not params:
+        return {}
+
+    def _vals(rows, key):
+        out = set()
+        for a in rows:
+            v = (a or {}).get(key)
+            if isinstance(v, str) and v.strip():
+                out.add(v.strip())
+        return out
+
+    gap = {}
+    for p in sorted(params):
+        ran = _vals(mine, p)
+        for v in sorted(_vals([a for _f, a in calls], p) - ran):
+            gap[v] = p
+    return gap
+
+
 def requirements_for(a2, messages, target, executed=None, unwrap=None):
     """`target`을 덮는 **미충족 요건 전부**. 첫 하나가 아니라 전부다.
 
@@ -180,10 +275,30 @@ def requirements_for(a2, messages, target, executed=None, unwrap=None):
                     "predicate": str(g.get("predicate") or gid),
                     "satisfiers": step})
 
+    # ★T2_READ_PER_ENTITY (2026-08-27 · 기본 OFF · 부호표 측정 전에는 켜지 마라 [[70]]).
+    #   충족 판정에 **주체**를 넣는다. `read_entity_gap` 주석이 결함 실측을 진다.
+    #   ⚠아직 격리로 안 쟀다: 요건을 다시 말하면 모델이 그 read 를 그 주체로 부르는지는
+    #     **미측정**이다([[62]] ②). 이 플래그는 그 측정을 위해 있는 것이지 출시가 아니다.
+    per_entity = os.environ.get("T2_READ_PER_ENTITY") == "1"
+
     def _reads(dep, reads):
         if _fam(dep) != _fam(target):
             return
         miss = sorted({r for r in (reads or []) if _fam(r) not in done_fam})
+        if per_entity:
+            for r in (reads or []):
+                if _fam(r) in done_fam:
+                    for v, prm in sorted(read_entity_gap(messages, r, unwrap).items()):
+                        key = "%s%s@%s" % (READS_PREFIX, _fam(r), v)
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        out.append({
+                            "id": key,
+                            "predicate": ("the prior read this action requires has been done "
+                                          "for %s=%s, the one this concerns - it has run only "
+                                          "for the other party so far" % (prm, v)),
+                            "satisfiers": [r]})
         if not miss:
             return
         # ★모든 요건 경로가 같은 그래프를 탄다 — read 선행도 그 자신의 선행이 있으면 거기부터.
