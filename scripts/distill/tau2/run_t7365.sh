@@ -71,6 +71,11 @@ env_arm() {
 
 # ── ① 스모크 — **레버가 나는지**만 본다(성적 아님) ────────────────────────
 STAG="bank_t7365_smoke_${STAMP}"
+# ★스모크 디렉터리는 **자기 것만** 치운다. 남아 있으면 tau2 가 stdin 으로
+#   *"Do you want to resume the run? (y/n)"* 를 묻고 `</dev/null` 이라 **EOFError** 로
+#   죽는다(2026-08-27 실측 — 그 크래시가 "레버 미발화" 처럼 보였다).
+#   ⛔본런 디렉터리는 건드리지 않는다([[30]]: 같은 태그 재런이 앞 데이터를 덮은 사고).
+rm -rf "$SIMS/$STAG"
 (
   env_arm; export GO_CONCURRENCY=2
   echo "[smoke $(date +%H:%M:%S)] $SMOKE_TASKS nt=1"
