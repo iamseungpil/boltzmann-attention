@@ -79,11 +79,14 @@ rm -rf "$SIMS/$STAG"
 #   레버가 옳게 발화하고 `Silver Rewards Card` 를 답했는데도 게이트가 런을 세웠다.
 #   오늘 같은 계열의 실수를 세 번 했다(x560 주체·x564 생산자·이 마커) — 전부 *"어디에
 #   있었나"* 와 *"무엇으로 있었나"* 를 섞은 것이다.
-DIAG=$(grep -ac "T2_CARD_DOCS] subject=" "$LOG/$STAG.log" 2>/dev/null); DIAG=${DIAG:-0}
+# ⚠마커는 **성공 경로**만 세면 안 된다 — 1차에서 `건너뜀` 18회를 발화 0 으로 읽었다.
+DIAG=$(grep -ac "T2_CARD_DOCS" "$LOG/$STAG.log" 2>/dev/null); DIAG=${DIAG:-0}
+SKIP=$(grep -ac "T2_CARD_DOCS] 건너뜀" "$LOG/$STAG.log" 2>/dev/null); SKIP=${SKIP:-0}
 CITE=$(grep -a "T2_CARD_DOCS] subject=" "$LOG/$STAG.log" 2>/dev/null | grep -ac "인용 doc"); CITE=${CITE:-0}
 CRIT=$(grep -ao "\[T2_DIAG\] raw=.\{0,60\}" "$LOG/$STAG.log" 2>/dev/null | head -2)
 TB=$(grep -ac "Traceback" "$LOG/$STAG.log" 2>/dev/null); TB=${TB:-0}
-echo "[t7367] 스모크: CARD_DOCS 발화=$DIAG (그중 문서 인용=$CITE) · Traceback=$TB"
+echo "[t7367] 스모크: CARD_DOCS 줄=$DIAG · 문서 인용=$CITE · **예외=$SKIP** · Traceback=$TB"
+if [ "$SKIP" -ne 0 ]; then echo "[t7367] ⛔술어가 예외로 죽었다 — 중단."; exit 1; fi
 echo "  답: $CRIT"
 if [ "$DIAG" -eq 0 ]; then
   echo "[t7367] ⛔CARD_DOCS 가 한 번도 안 섰다 — 배선이 죽었다. 중단."

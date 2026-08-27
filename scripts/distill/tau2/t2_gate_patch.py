@@ -5008,8 +5008,12 @@ def _limit_reduce_text(agent, a2, messages):
                                       file=sys.stderr, flush=True)
                             else:
                                 _ids9 = list((_idx9.get(_pick9[0]) or {}).get(_pick9[1]) or ())
+                                # ⚠이 자리엔 `self` 가 없다 — 감싸는 함수는
+                                #   `_limit_reduce_text(agent, a2, messages)` 다. 1차 배선이
+                                #   `self` 를 써서 `NameError` 로 18회 조용히 건너뛰었고
+                                #   스모크 게이트가 그것을 잡았다(런 산출물 0).
                                 _cps9 = _ts9.corpus_from_env(
-                                    getattr(getattr(self, "_t2_orch", None), "environment", None))
+                                    getattr(getattr(agent, "_t2_orch", None), "environment", None))
                                 _docs9, _miss9 = _ts9.read_docs(_ids9, corpus=_cps9)
                                 if _miss9:
                                     print("[T2_CARD_DOCS] 코퍼스에 없는 문서 %d: %r"
