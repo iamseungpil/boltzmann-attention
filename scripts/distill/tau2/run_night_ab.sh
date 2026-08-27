@@ -15,7 +15,15 @@
 #     바뀌었으므로 t7368 과의 Δ 는 **오늘 바뀐 전부와 교락**한다. 이 A/B 가 그것을 끊는다.
 #
 # ── 사용 ─────────────────────────────────────────────
-#   ARM=treat|control TAG=bank_t7371_... PORT=8140 [TASKS=..] [NT=2] [CONC=3] bash run_night_ab.sh
+#   ARM=treat|control TAG=bank_t7371_... AB_PORT=8140 [TASKS=..] [NT=2] [CONC=3] bash run_night_ab.sh
+#
+# ⛔**`PORT` 라는 이름을 쓰지 마라 — 이 호스트에서는 통하지 않는다** (2026-08-28 01:50 실측):
+#     로그인 셸        PORT=[]
+#     bash -c 안       PORT=[8100]        ← 새 bash 마다 비대화 시작 파일이 넣는다
+#     PORT=8140 bash   PORT=[8100]        ← **접두 할당을 덮어쓴다**(시작 파일이 나중에 돈다)
+#     PORT=8140 env    PORT=8140          ← env 는 시작 파일을 안 타므로 여기선 8140 로 보인다
+#   그래서 `PORT=8140` 으로 넘긴 t7371 이 **8100(node 프로세스)** 에 붙어 죽었다. 스크립트 안에서
+#   직접 대입하는 경우는 무사하다(본문이 시작 파일보다 나중이라 — run_t7370 이 8141 로 잘 돌았다).
 #
 # ⛔`set -u` 금지 · 스모크 디렉터리만 치운다 · 줄 이음 금지
 set -o pipefail
@@ -23,7 +31,7 @@ REPO=/home/woori/workspace_common/boltzmann-attention-pi
 LOG=/home/woori/scratch/logs
 SIMS=/home/woori/scratch/tau2-bench/data/simulations
 ARM="${ARM:-treat}"
-PORT="${PORT:-8140}"
+AB_PORT="${AB_PORT:-8140}"
 NT="${NT:-2}"
 CONC="${CONC:-3}"
 TASKS="${TASKS:-task_016,task_040,task_055,task_057,task_063,task_072,task_074,task_079,task_085,task_094}"
@@ -32,7 +40,7 @@ if [ -z "$TAG" ]; then echo "⛔TAG 가 없다"; exit 1; fi
 case "$ARM" in treat|control) ;; *) echo "⛔ARM 은 treat|control"; exit 1;; esac
 cd "$REPO/scripts/distill/tau2"
 
-echo "[$TAG $(date +%H:%M:%S)] === $ARM · port=$PORT · nt=$NT · conc=$CONC ==="
+echo "[$TAG $(date +%H:%M:%S)] === $ARM · port=$AB_PORT · nt=$NT · conc=$CONC ==="
 echo "[$TAG] sha=$(cd $REPO && git rev-parse --short HEAD)"
 
 echo "[$TAG] === 발사 전 배터리 ==="
@@ -72,7 +80,7 @@ rm -rf "$SIMS/$STAG"
 (
   env_arm; export GO_CONCURRENCY=1
   echo "[smoke $(date +%H:%M:%S)] $SMOKE_TASKS nt=1 arm=$ARM"
-  t2_launch "$STAG" "$PORT" "$SMOKE_TASKS" 1 2>&1 | tee "$LOG/$STAG.log"
+  t2_launch "$STAG" "$AB_PORT" "$SMOKE_TASKS" 1 2>&1 | tee "$LOG/$STAG.log"
 ) > "$LOG/${STAG}_driver.log" 2>&1
 
 SZ=$(grep -ac "operand-size " "$LOG/$STAG.log" 2>/dev/null); SZ=${SZ:-0}
@@ -111,7 +119,7 @@ cd "$REPO/scripts/distill/tau2"
 (
   env_arm; export GO_CONCURRENCY="$CONC"
   echo "[main $(date +%H:%M:%S)] $TASKS nt=$NT arm=$ARM"
-  t2_launch "$TAG" "$PORT" "$TASKS" "$NT" 2>&1 | tee "$LOG/$TAG.log"
+  t2_launch "$TAG" "$AB_PORT" "$TASKS" "$NT" 2>&1 | tee "$LOG/$TAG.log"
   echo "[main $(date +%H:%M:%S)] done"
 ) > "$LOG/${TAG}_driver.log" 2>&1
 cd "$REPO"
