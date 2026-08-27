@@ -7661,6 +7661,27 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
             _mt = kw.get("max_tokens")
             if _mt is not None and _mt < _FORCE_MIN_TOKENS:
                 kw["max_tokens"] = _FORCE_MIN_TOKENS
+        # ★T2_PROMPT_DUMP — **이 자리**가 모델 입력의 유일한 깔때기다(위 주석). 첫 판은
+        #   `apply_provenance_regen` 쪽 `_gen` 에 달았는데 라이브는 `unified` 를 쓴다:
+        #   레코드 0 · 예외 0 으로 두 런을 태웠다(t7366 두 번). 자국 없는 계기는 계기가 아니다.
+        if os.environ.get("T2_PROMPT_DUMP") == "1":
+            try:
+                import t2_fbsidecar as _fbp
+                _cap = int(os.environ.get("T2_PROMPT_DUMP_MAX", "60000"))
+                _parts = []
+                for _m in (self._system_messages + work):
+                    try:
+                        _c = _content_str(_m) or ""
+                    except Exception:
+                        _c = str(getattr(_m, "content", "") or "")
+                    _tc = " ".join(str(getattr(t, "name", ""))
+                                   for t in (getattr(_m, "tool_calls", None) or []))
+                    _parts.append("[%s]%s %s" % (getattr(_m, "role", "?"),
+                                                 (" CALLS " + _tc) if _tc else "", _c))
+                _fbp.record("prompt", (chr(10).join(_parts))[:_cap], work,
+                            channel="gen", call=str(call_name))
+            except Exception as _pe:
+                print("[T2_PROMPT_DUMP] skipped: %r" % (_pe,), file=sys.stderr, flush=True)
         try:
             _r = la.generate(model=self.llm, tools=_tools,
                              messages=self._system_messages + work, call_name=call_name, **kw)
