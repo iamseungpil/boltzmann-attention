@@ -6227,8 +6227,12 @@ def apply_provenance_regen(max_retries=4, use_badwords=True, ground=False, domai
                 import t2_lever_beat as _lbp
                 _cur = str(_lbp.current_sim() or "")
                 _want = os.environ.get("T2_PROMPT_DUMP_TASKS", "")
-                if (not _want) or any(t.strip() and t.strip() in _cur
-                                      for t in _want.split(",")):
+                # ★필터는 **fail-open** 이다. `current_sim()` 은 스레드-로컬이라 이 자리에서
+                #   비어 있을 수 있고(t7366 실측: 레코드 0·예외 0 — 조용히 전부 걸렸다),
+                #   조용한 필터는 오늘만 세 번째다. 모르면 **기록한다** — 이 플래그는 어차피
+                #   기본 OFF 이고 한 태스크 런에서만 켠다.
+                if (not _want) or (not _cur) or any(t.strip() and t.strip() in _cur
+                                                    for t in _want.split(",")):
                     _cap = int(os.environ.get("T2_PROMPT_DUMP_MAX", "60000"))
                     _parts = []
                     for _m in _msgs:
