@@ -98,6 +98,31 @@ chk("ON 요건이 무엇을 하면 풀리는지 말한다([[64]])",
 os.environ.pop("T2_READ_PER_ENTITY", None)
 
 print()
+print("## ⑹ 탐지기의 일반성 — 016 밖의 세 태스크 (2026-08-27 추가)")
+# ★왜 이 셋인가: 플래그를 **끈 뒤에도** 이 술어는 진단으로 남는다. 잡히는 값은 전부
+#   §12 축(*"배달된 값을 엉뚱한 엔티티에 묶는다"*)이고, 그것이 이 검정이 잠그는 사실이다.
+#   ⛔여기서 잠그는 것은 *"그 read 를 요구해야 한다"* 가 **아니다** — 요구는 t7364 가 음성으로
+#     판정했다(그 값들은 그 read 의 주체가 아니다). 잠그는 것은 **탐지**뿐이다.
+DET = (("bank_t7363_hard0_20260827", "task_074", "get_bank_account_transactions",
+        "Dark Green Account"),
+       ("bank_t7356_grpA3_20260826", "task_072", "get_bank_account_transactions",
+        "Bluest Account"),
+       ("bank_t7363_hard0_20260827", "task_085", "get_bank_account_transactions",
+        "f7d3a82c91"))
+for tag, tid, read, want in DET:
+    got = {}
+    for sm in F.scored(tag):
+        if F.task_id(sm) != tid:
+            continue
+        g = DOM.read_entity_gap([X560._M(m) for m in (sm.get("messages") or ())],
+                                read, X560._unwrap)
+        if g:
+            got = g
+            break
+    chk("%s %s 에서 %s 를 잡는다" % (tid, read.split("_by_")[0][-12:], want[:18]),
+        want in got, repr(sorted(got))[:110])
+
+print()
 print("## 부호표 (x560 · 두 세대 33 sim)")
 rows = []
 for tag in ("bank_t7363_hard0_20260827", "bank_t7356_grpB3_20260826", "bank_t7356_grpA1_20260826",

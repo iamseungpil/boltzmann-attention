@@ -135,7 +135,19 @@ export T2_REARM_USER_ONLY=1
 #     아니라 모델이 그 값을 쓴 뒤(msg[41])가 발화점이다.
 #   ⚠반증: 발화한 자리에서 요구한 read 가 **이미 그 주체로 돌았던** sim 이 나오면 술어가 틀렸다.
 #     OFF=바이트 동일.
-export T2_READ_PER_ENTITY=1
+#   ⛔**2026-08-27 저녁 — 끈다.** 격리(x561 4/4·x562 B_live 4/4)가 잰 것은 **순종**이지 매수가
+#   아니었다. t7364(016 nt4)는 **0/4** 였고 궤적이 이유를 말한다: 이 술어가 주체라고 부른 값이
+#   **그 read 의 주체가 아니다.**
+#     016 `friend_user_5839` — env 의 users·referrals·credit_card_transaction_history **전부 빈 결과**
+#     074·072 `Dark Green Account`·`Bluest Account` — 계좌 **이름**(그 read 는 `chk_ar72c5d8e3_1` 류 id 를 받는다)
+#     085 `f7d3a82c91` — **user id**(Jordan Williams)가 `account_id` 자리에 들어간 것
+#   ⇒ 켜면 *읽을 수 없는 것을 읽으라*고 요구한다 = 턴만 태운다([[70]] 매도).
+#   ★그런데 **진단으로는 정확하다** — 네 자리 전부 §12 가 말한 *"배달된 값을 엉뚱한 엔티티에
+#     묶는다"* 축이다(016 문서→Bronze · 074 금액←이웃 계좌 · 085 user id←account_id).
+#     `x560` 을 그 **탐지기**로 남긴다: 발화 7/33 · 전부 reward 0.
+#   코드·래칫은 남긴다(OFF=바이트 동일). 되살리려면 **주체 판정**부터 고쳐야 한다 —
+#   같은 이름의 인자에 들어간 값이라는 것만으로는 그 read 의 주체가 아니다.
+export T2_READ_PER_ENTITY=0
 export T2_FAB_STRIP=1 T2_UNKNOWN_NAME_BL=1 T2_UNLOCK_NAME=1 T2_UNLOCK_PROV=1
 export T2_DISPATCH_ROLE=1 T2_TOOLLIST=1 T2_PRESCRIPTION=1
 # ★T2_DISPATCH_ROLE_ENVSET (2026-08-05 등재·구현은 C257·`ABSENCE_DRIVEN_PROCEDURE_DESIGN` §4):
