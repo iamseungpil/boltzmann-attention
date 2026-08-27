@@ -116,11 +116,12 @@ def main(argv=None):
                 "basis": (s.get("reward_info") or {}).get("reward_basis"),
                 "term": F.term_reason(s), "msgs": len(s.get("messages") or []),
                 "gap": gap,
-                "missing": [F.label(x.get("name"), x.get("arguments")) if isinstance(x, dict) else str(x)
-                            for x in (d.get("missing") or ())],
-                "wrongarg": [str(x) for x in (d.get("wrongarg") or ())],
-                "extra": [str(x) for x in (d.get("extra") or ())],
-                "blocked": [str(x) for x in (d.get("blocked") or ())],
+                "matched": [str(x.get("key")) for x in (d.get("matched") or ())],
+                "missing": [str(x.get("key")) for x in (d.get("missing") or ())],
+                "wrongarg": [str(x.get("key")) for x in (d.get("wrongarg") or ())],
+                "extra": [str(x.get("key")) for x in (d.get("extra") or ())],
+                "dup": [str(x.get("key")) for x in (d.get("dup") or ())],
+                "blocked": [str(x.get("key")) for x in (d.get("blocked") or ())],
                 "sidecar": d.get("sidecar"),
                 "credits": credit_calls(s),
                 "marks": marks,
@@ -143,7 +144,7 @@ def main(argv=None):
         print("=" * 96)
         print("%s · %s · reward=%s · basis=%s · gap=%d · 사이드카=%s"
               % (r["tag"], r["sim"], r["reward"], r["basis"], r["gap"], r["sidecar"]))
-        for k in ("missing", "wrongarg", "extra", "blocked"):
+        for k in ("matched", "missing", "wrongarg", "extra", "dup", "blocked"):
             if r[k]:
                 print("  %-9s %d" % (k.upper(), len(r[k])))
                 for x in r[k][:12]:
