@@ -1126,6 +1126,20 @@
    "감싸는 함수가 `_limit_reduce_text(agent, a2, messages)` 인데 `self` 를 썼다 → `NameError` 18회·조용히 건너뜀. 스모크 게이트가 잡았다(런 산출물 0)",
    "그 게이트도 처음엔 **성공 경로만** 셌다(`subject=`) — `건너뜀` 18줄을 발화 0 으로 읽었다. 게이트를 *줄 수·인용 수·**예외 수*** 셋으로 바꿨다"
   ],
-  "다음": "①남은 두 sim 은 **손님이 찍는 자리**다 — 금액을 언제·어떻게 말하는지가 축이다 ②이 레버를 hard-0 전체에 켜고 부작용을 본다(다른 태스크에서 이 서브가 서는지·[[70]] 부호표) ③072(gap 2)로 이동"
+  "다음": "①남은 두 sim 은 **손님이 찍는 자리**다 — 금액을 언제·어떻게 말하는지가 축이다 ②이 레버를 hard-0 전체에 켜고 부작용을 본다(다른 태스크에서 이 서브가 서는지·[[70]] 부호표) ③072(gap 2)로 이동",
+  "★남은_두_sim_의_판별점": {
+   "형태": "같은 수(750)를 말하는데 **문장의 형태**가 다르다 — 통과 s1567 msg[34] *\"your friend **needs to spend at least $750** within 60 days … to qualify\"*(손님의 할 일) ↔ 실패 s626729·s361454 msg[28] *\"I will need their user ID … **to verify if they have spent** the required $750\"*(우리가 확인할 조건)",
+   "소유권_문구는_안_난다": "`[ACTION]` 소유권 문구는 sim 당 5~7회 나는데 **`submit_transaction` 에 대해서는 0/4**. 선언 `action_tools` 에는 **있다**.",
+   "이유": "중재 표적이 **42/42 전부 `submit_referral`** 이다(`[T2_ARBITRATE] push dominated target=submit_referral`). 표적을 내는 formalize 서브의 물음이 *\"**Based ONLY on what the user asked**, which ONE of these tools must the agent CALL\"* 라서, 손님 발화(*\"추천 보너스를 못 받았다\"*) 범위 안에서는 `submit_referral` 이 **합당한 답**이다. 정작 필요한 `submit_transaction` 은 **원장(IN_PROGRESS)+정책($750)** 에서만 도출된다.",
+   "⇒": "오늘 아침 `diagnose_prompt` 와 **같은 형태** — 모델이 틀린 게 아니라 **물음의 범위**가 좁다([[76]] 서브를 고친다).",
+   "다음_실험": "그 물음의 범위를 넓히면(또는 원장에서 두 번째 표적을 얻으면) 소유권 문구가 `submit_transaction` 에 대해 나는가 · 그것이 남은 2 sim 을 사는가. ⚠[[66]]: 의도 분류를 엔진·A2 로 옮기지 말 것 — 물음만 고친다. ⚠다른 태스크에서 *\"손님이 말한 것\"* 범위가 옳은 자리가 있으니 부호표 필수."
+  }
+ },
+ "findings_2026_08_27_072_axis": {
+  "gap_구조": "gold = `apply_checking_account_credit_5829` **두 건** — `{account_id: chk_lj82d4f1a9, amount: 14, credit_type: fee_refund}` · `{account_id: chk_538bfb9cba, amount: 3.5, credit_type: fee_refund}`",
+  "실패_형태": "t7363·t7356 전수 — 금액이 **5 · 6.5** 로 틀리거나 **둘 다 미제출**. `x567` 이 072 의 `absent` 수치로 잡은 것이 그 `6.5` 다(문맥 어디에도 없다).",
+  "016_과의_차이": "016 은 **정책 상수**(문서에 적힌 750)였고 072 는 **산수**(계좌별 수수료 합)다. `t2_compute` op 대수가 그 자리다([[67]]).",
+  "앞의_장애": "`get_atm_fee_discrepancies` 가 **계좌 이름을 `account_id` 에 넣어** `[READ-FIRST]` 로 막히는 자리가 있다(그 값이 `T2_ARG_LABEL` 이 잡는 것과 같은 가족).",
+  "⛔경계": "엔진이 14·3.5 를 채워 넣으면 **gold 재작성**이다([[62]]). 낼 수 있는 것은 **합의 재료가 어디 있는가**까지."
  }
 }
