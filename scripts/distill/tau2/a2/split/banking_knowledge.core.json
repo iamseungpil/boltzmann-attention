@@ -339,6 +339,8 @@
     "transactions": "A JSON array of the customer's credit card transactions that you read from the transaction records. Each element MUST have ONLY these raw fields, copied as-is: transaction_id (string), transaction_amount (number, no $), rewards_earned (number of points recorded, no ' points' text), credit_card_type (string, e.g. 'Gold Rewards Card' or 'EcoCard'), category (string, e.g. 'Green'). Do NOT compute anything — just copy the raw values; this tool computes the expected reward and finds discrepancies itself."
    },
    "return_template": "Transactions whose recorded reward does NOT match the expected reward (these require a cash back dispute): {ids}",
+   "return_template_empty": "This check compared the transactions it was given and found none whose recorded reward differs from the expected reward, so it identifies nothing to dispute. Do NOT open a dispute on the strength of this result, and do not tell the customer that every transaction is correct - this check only speaks for the transactions it compared. If the customer points to a specific transaction, read that record and run this check on it.",
+   "_note_return_template_empty": "★2026-08-18 (`T2_RETURN_EMPTY` 의 문면·D4·INSTRUCTION_DEFECT §2a). 표적 실측: 영속 14런에서 이 도구 **71회 호출 중 10회가 빈 결과**(다른 상세-도구는 0). 빈 목록 옆에서도 기존 한 줄은 *\"these require a cash back dispute\"* 를 단언해 모순이 된다. 출처 = 같은 문장의 대우 + 엔진 규약(*\"empty 문구는 완결을 주장하지 않는다 — coverage 표면화에 위임\"*)뿐이고 새 도메인 사실 0·gold 무관([[23]]). 술어는 `_sg_details` 공집합(닫힘·판단 0).",
    "op": {
     "op": "select_discrepant",
     "over": "transactions",
@@ -515,7 +517,9 @@
        "promo_mult": "<promo multiplier e.g. 2 for double, or 1 if no promo>",
        "promo_window_months": "<promo window length in months, or 0>",
        "promo_start": "<promo period start MM/DD/YYYY, or empty>",
-       "promo_end": "<promo period end MM/DD/YYYY, or empty>"
+       "promo_end": "<promo period end MM/DD/YYYY, or empty>",
+       "exclusion_policy_merchant": "<if you downgraded this item because the policy EXCLUDES this specific merchant: the merchant name EXACTLY and COMPLETELY as the policy text names it, copied verbatim from your exclusion_quote — copy the WHOLE name the policy uses (e.g. 'Target'), never a fragment of it. Empty otherwise>",
+       "exclusion_pin_kind": "<'named_merchant' if the exclusion sentence names this specific merchant; 'category' if it excludes a TYPE of merchant or purchase (e.g. 'General Retailers', 'Gaming Subscription Merchants') and you judged this item to belong to that type; empty if no exclusion applies>"
       },
       "answer_format": "When you are done searching, reply with EXACTLY one JSON object and nothing else:\n{schema}",
       "inject_docs": true,
@@ -536,9 +540,136 @@
       "_note_max_batch": "2026-07-19: 서브 호출당 최대 2행 — 리스트 serial-position 효과(§2l: 내부 항목만 저하·primacy/recency 보존) 원천 소멸(2행=둘 다 가장자리·내부 위치 부재). 배치2 최소검정 38/38 100%(Patagonia/REI 회복·Target/ThredUp 제외 보존). 값 산출=서브·비용=로컬 무료·호출수 batch1의 절반.",
       "range_retry_prompt": "\n\n★FEEDBACK: your base_rate for item(s) {ids} was outside the declared valid range [{lo}, {hi}] for this field. Report the rate NUMBER exactly as the policy states it per dollar; do NOT convert units or scale by 100. Reply again with the same full JSON object.",
       "_note_rangefix": "2026-07-19 · task_028 포렌식: EcoCard-Green 셀서 서브가 '$5.00 points per dollar'를 ×100(500)으로 formalize. range-retry(범위 위반→서브 재질의)로 회복. consensus_demote_guard(엔진이 modal을 rate로 씀=[[10]] 위반·엔진 생성)는 2026-07-19 사용자 지시로 제거 — Patagonia 무근거 강등은 서브 프롬프트(elevated-rate 지침)로 원천 수정. 엔진은 값 생성 안 함(range-retry는 서브가 재생성).",
-      "inject_instructions": "You are a bank rewards specialist. Below are ALL policy documents for the {group}, then the customer's transactions on that card. For EACH transaction report:\n- base_rate: the cash-back RATE that applies to THIS transaction (percent number: e.g. 10, 5, 4, 1, or 0 if it truly earns nothing). This is the rate the documents assign to this transaction's CATEGORY and MERCHANT — it may be an ELEVATED/bonus rate (when the card gives a higher rate for that category) or the standard rate.\n  ★If the documents give a HIGHER rate for this transaction's category, APPLY that higher rate. Do NOT fall back to the standard/base rate just because you are unsure whether the merchant qualifies — downgrade to the standard rate ONLY when a document EXPLICITLY names this specific merchant in an exclusion list, and then copy that exact excluding sentence into 'exclusion_quote' (else leave empty).\n  ★★The transaction's 'category' field is the bank's OWN authoritative classification of that purchase — treat it as final. If a category qualifies for a bonus rate, apply that bonus rate to EVERY transaction in that category. Do NOT second-guess an individual transaction using how many merchants you think are 'partners', how large the partner network is, or whether YOU personally recognize the merchant — the bank has already classified it. The ONLY thing that lowers the rate is an explicit merchant name in an exclusion list.\n  ★Do NOT return 0 just because a purchase is not a premium/bonus category — almost every card earns a base rate on all other purchases; apply it.\n- promo_mult, promo_window_months, promo_start, promo_end: if a limited-time promo (e.g. double cash back for new customers) exists for this card, its multiplier, window length in months, and the promo period dates (MM/DD/YYYY). If no promo, use promo_mult=1, promo_window_months=0, empty dates.\n★Do NOT apply the promo or multiply or judge whether the promo dates apply — a separate deterministic system does that from your parameters. Just give the base_rate and the raw promo parameters.\n\n=== {group} — POLICY DOCUMENTS ===\n{docs}\n\n=== TRANSACTIONS ===\n{items}\n\nReply with EXACTLY one JSON object mapping each transaction_id to the fields above:\n{schema}",
+      "inject_instructions": "You are a bank rewards specialist. Below are ALL policy documents for the {group}, then the customer's transactions on that card. For EACH transaction report:\n- base_rate: the cash-back RATE that applies to THIS transaction (percent number: e.g. 10, 5, 4, 1, or 0 if it truly earns nothing). This is the rate the documents assign to this transaction's CATEGORY and MERCHANT — it may be an ELEVATED/bonus rate (when the card gives a higher rate for that category) or the standard rate.\n  ★If the documents give a HIGHER rate for this transaction's category, APPLY that higher rate. Do NOT fall back to the standard/base rate just because you are unsure whether the merchant qualifies — downgrade to the standard rate ONLY when a document EXPLICITLY names this specific merchant in an exclusion list, and then copy that exact excluding sentence into 'exclusion_quote' (else leave empty).\n  ★★The transaction's 'category' field is the bank's OWN authoritative classification of that purchase — treat it as final. If a category qualifies for a bonus rate, apply that bonus rate to EVERY transaction in that category. Do NOT second-guess an individual transaction using how many merchants you think are 'partners', how large the partner network is, or whether YOU personally recognize the merchant — the bank has already classified it. The ONLY thing that lowers the rate is an explicit merchant name in an exclusion list.\n  ★Do NOT return 0 just because a purchase is not a premium/bonus category — almost every card earns a base rate on all other purchases; apply it.\n- promo_mult, promo_window_months, promo_start, promo_end: if a limited-time promo (e.g. double cash back for new customers) exists for this card, its multiplier, window length in months, and the promo period dates (MM/DD/YYYY). If no promo, use promo_mult=1, promo_window_months=0, empty dates.\n★Do NOT apply the promo or multiply or judge whether the promo dates apply — a separate deterministic system does that from your parameters. Just give the base_rate and the raw promo parameters.\n\n=== {group} — POLICY DOCUMENTS ===\n{docs}\n\n=== TRANSACTIONS ===\n{items}\n\nReply with EXACTLY one JSON object mapping each transaction_id to the fields above:\n{schema}\n★A merchant pin names ONE business; words describing a TYPE of merchant or purchase ('retailers', 'markets', 'airlines') are a category even when capitalized as a heading.",
       "_note_inject": "2026-07-18 재설계(§2e): 카드당 격리+문서주입(검색 대신 title 접두)+{base_rate,exclusion_quote}. 엔진 리터럴 0·엔진은 서브 operand를 그대로 병합(값 생성/override 0). 2026-07-19: consensus·default백필 제거([[10]]·라이브 死자산)·잔여 레버=range-retry(서브 재질의). getter_tools=구 검색모드(미사용).",
-      "doc_key": "credit_card_type"
+      "doc_key": "credit_card_type",
+      "quote_pin": {
+       "policy_field": "exclusion_policy_merchant",
+       "kind_field": "exclusion_pin_kind",
+       "row_field": "merchant_name",
+       "reject_note": "the policy text you quoted names '{pin}', but this row's merchant is '{merchant}' — the mapping was rejected and this row's rate was NOT applied.",
+       "retry_prompt": "Re-check the flagged item(s): copy the merchant name exactly and COMPLETELY as the policy sentence names it into exclusion_policy_merchant, or if the exclusion is by TYPE of merchant/purchase, set exclusion_pin_kind='category'. Reply with the corrected JSON for the flagged item(s) only.",
+       "category_note": "category-based exclusion ('{pin}') was applied to merchant '{merchant}' — merchant membership in that category is the specialist's judgment and was NOT verified against a named-merchant list.",
+       "unverified_note": "could not be verified from the reward-rate policy documents; those rows remain UNVERIFIED. Do NOT supply rates or promo values yourself — tell the customer which transactions could not be checked.",
+       "_note_quote_pin": "C278(QUOTE_GROUND_PINKIND_REDESIGN_2026_08_01·리뷰 반영): C197 quote_must_contain_field의 false-abstain(C275·C276 6종) 수정. LLM이 핀+종류를 선언·엔진은 종류별 닫힌 필요조건 라우팅만(named=축자 포함+선행 앵커·category=등가 미적용+표면화). [[23]] 출처: 'Target'/'General Retailers'=doc_credit_cards_ecocard_004 축자('### General Retailers (even for eco-friendly product purchases)'·'- Target')·'Gaming Subscription Merchants'=doc_business_credit_cards_business_silver_rewards_card_005 축자('**Gaming Subscription Merchants (Software Exclusion):**')·gold 경유 0. pin_anchor=leading은 이 코퍼스 경험 규칙(x28: 선행다리 전부 브랜드·비선행 35 전부 범주어) — 비선행 별칭 실재 ABox는 미선언으로 해제. T2_QUOTE_PIN=1일 때만 발화·OFF=C197 경로 불변.",
+       "policy_group_rows": {
+        "WeWork": [
+         "WeWork"
+        ],
+        "Regus": [],
+        "Industrious": [],
+        "Gusto": [],
+        "ADP": [],
+        "Paychex": [],
+        "Rippling": [],
+        "Slack": [
+         "Slack Technologies"
+        ],
+        "Zoom": [
+         "Zoom Video"
+        ],
+        "HubSpot": [],
+        "Salesforce": [
+         "Salesforce"
+        ],
+        "Concur": [],
+        "SAP Concur": [],
+        "Expensify": [],
+        "Navan": [],
+        "Apple": [
+         "Apple Store"
+        ],
+        "Microsoft": [
+         "Microsoft 365"
+        ],
+        "Dell": [
+         "Dell",
+         "Dell Technologies"
+        ],
+        "Xbox Game Pass": [],
+        "PlayStation Plus": [],
+        "Nintendo Switch Online": [],
+        "Coursera": [
+         "Coursera"
+        ],
+        "Udemy": [],
+        "LinkedIn Learning": [],
+        "Skillshare": [],
+        "Pluralsight": [],
+        "Target": [
+         "Target",
+         "Target - Eco Collection"
+        ],
+        "Walmart": [],
+        "Amazon": [
+         "Amazon"
+        ],
+        "ThredUp": [
+         "ThredUp"
+        ],
+        "Coworking Space Merchants": [
+         "WeWork"
+        ],
+        "Payroll Processor Merchants": [],
+        "SaaS Subscriptions": [
+         "Slack Technologies",
+         "Zoom Video",
+         "Salesforce"
+        ],
+        "SaaS Subscriptions (after first 12 months on the card)": [
+         "Slack Technologies",
+         "Zoom Video",
+         "Salesforce"
+        ],
+        "Corporate Expense Platform Merchants": [],
+        "Corporate Expense Platform Merchants (Travel Exclusion)": [],
+        "Hardware/Electronics Merchants": [
+         "Apple Store",
+         "Microsoft 365",
+         "Dell",
+         "Dell Technologies"
+        ],
+        "Hardware/Electronics Merchants (Software Exclusion)": [
+         "Apple Store",
+         "Microsoft 365",
+         "Dell",
+         "Dell Technologies"
+        ],
+        "Gaming Subscription Merchants": [],
+        "Gaming Subscription Merchants (Software Exclusion)": [],
+        "Online Learning Platform Merchants": [
+         "Coursera"
+        ],
+        "Online Learning Platform Merchants (Software Exclusion)": [
+         "Coursera"
+        ],
+        "General Retailers": [
+         "Target",
+         "Target - Eco Collection",
+         "Amazon"
+        ],
+        "General Retailers (even for eco-friendly product purchases)": [
+         "Target",
+         "Target - Eco Collection",
+         "Amazon"
+        ],
+        "Thrift and Resale Markets": [
+         "ThredUp"
+        ],
+        "What is excluded from the higher sustainability points rate on EcoCard": [
+         "Target",
+         "Target - Eco Collection",
+         "Amazon",
+         "ThredUp"
+        ]
+       },
+       "lookup_retry_prompt": "The name you copied is not one of the merchant/group names this policy actually lists. Copy the WHOLE name exactly as the policy bullet or heading writes it, or set exclusion_pin_kind='category' if the exclusion is stated only as a description with no list of members. Reply with the corrected JSON for the flagged item(s) only.",
+       "lookup_note": "'{pin}' is not a name this policy lists, so the exclusion could not be resolved and this row's rate was NOT applied — the row is UNVERIFIED.",
+       "member_note": "the policy group '{pin}' does not list '{merchant}' among its members, so the exclusion was not applied to this row.",
+       "_note_policy_group_rows": "[[23]] 신범주 **운영자 지식** — 사용자 승인 2026-08-01(C279 ⑦). 출처 = 정책 제외-불릿/제목(env 축자) × 거래 카탈로그 merchant_name(env) + 업체 동일성 세계지식. **gold 미열람**. 저작 = 30 불릿 전수 × 카탈로그 138 전수를 판단으로 대조(접두·유사도 규칙 미사용 — C279 ⑥ 자기 플래그: 기계 산출 목록을 데이터로 동결하지 않기 위함). 대응 없는 불릿은 **[]로 명시**(=판단된 무대응·조회 실패와 결정론 구분). ★판단 근거 기록(접두로는 반대로 나오는 것들): (a) `LinkedIn Learning`→[] — 카탈로그 `LinkedIn Ads`는 광고 상품이라 'Online Learning Platform'이 아니다(접두 규칙이면 오적용). (b) `Dell`→[Dell, Dell Technologies]이되 `Delta Airlines`/`Delta Sky Club`은 **다른 회사**(Delta Air Lines)라 제외. (c) `Amazon`→[Amazon]만; `AWS`는 클라우드 인프라라 'General Retailers'가 아니다. (d) `ThredUp`→[ThredUp]만; `Thrive Market`(유기농 식료품)·`New Seasons Market`·`Sprouts Farmers Market`·`ACME Markets`·`Reading Terminal Market`는 중고·리세일 업체가 아니다 — **019 오적용의 정본 차단점**. (e) `Hardware/Electronics Merchants`는 정책이 구성원을 **열거**하므로 `Electronics Express Miami`는 비-구성원(열거형 제외는 목록이 외연을 정한다). (f) `Apple`→[Apple Store]·`Microsoft`→[Microsoft 365]·`Slack`→[Slack Technologies]·`Zoom`→[Zoom Video]·`Target`→[Target, Target - Eco Collection](ecocard_004 축자: eco 라벨 상품도 표준 요율). 제목 키는 전체형+괄호 앞 단축형 2종(서브가 어느 쪽을 복사해도 결정론 해소). ★갱신 규율: 갱신 신호는 **표면화된 abstain 로그(조회 실패)→env 재판단**으로만. **라이브 gold-diff를 갱신 근거로 쓰는 것은 [[23]] 위반**이다.",
+       "_note_exhaustive": "★전수성 판정(2차 리뷰 조건 2·실측 2026-08-01): 열거된 멤버십을 **기각 근거**로 쓰는 것은 그 열거가 전수일 때만 정당하다(예시-열거면 미열거 정당 구성원 기각 = ba8b-동형 false-abstain 재생산). **census: 제외-그룹 25 = 열거형 21 / 산문형 4 · 열거형 21개 중 개방-표지(including·such as·e.g.·etc·among others) = 0개** ⇒ 이 ABox의 열거는 닫힌 열거다(가정 아님·결정론 계수). 계약문도 축자로 *\"The following **specific merchants**…\"*라 예시가 아니라 지정이다. **다른 ABox로 전이할 때는 이 census를 다시 돌려야 하며, 개방-표지가 있는 그룹은 표에 키로 넣지 말고 category-마크 경로로 보낸다.** ★키 모호성 규칙: 여러 문서에 반복되는 총칭 제목(`Common exclusions`·`Important exclusions` 등)은 **키로 쓰지 않는다**(도메인 내 유일하지 않아 구성원 집합이 갈린다) — 도메인-유일 제목만 키로 (예: `What is excluded from the higher sustainability points rate on EcoCard`). 미수록 제목은 조회 실패/category 경로로 흘러 안전측.",
+       "unverified_requery_note": "The unverified row(s) are: {ids}. Tell the customer which ones could not be checked, and call this tool again with ONLY those row(s) so their rate can be looked up on its own — a single-row call often resolves what a batch could not. Do not supply the rate yourself."
+      }
      },
      "_note_isolate": "2026-07-18 NIGHT+ · `RATE_SUBAGENT_DESIGN §2b` LOCK(사용자): operand는 격리 서브가 부하 없이 산출해 리턴한다. 메인은 원시 레코드만 넘기고(params), 격리 서브가 KB를 직접 검색(getter_tools·1라운드 required)해 base_rate/promo를 formalize·엔진이 날짜+곱셈. 엔진 리터럴 0([[05]])·도구명/질의/계약문 전부 A2. T2_SG_ISOLATE=1·기본 OFF.",
      "return_template_empty": "No transaction among the rows that were checked has a recorded reward differing from the reward the policy expects, so none of them needs a dispute or a rewards update from this result. This says nothing about rows that could not be checked — see the [coverage] line above for those.",
@@ -822,6 +953,1583 @@
     "instructions": "You are a KB-extraction sub-task. Using the search tool, find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Search as many times as needed. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum). IMPORTANT: a component is only accepted if its 'source' quote itself contains the exact numeric value; if you cannot find a document stating the number, omit that component rather than guessing. NOTE: an account's base APY may be tiered by balance. If the documents give more than one base APY for this account type, read the tier table and use the row whose balance range contains the balance given in REFERENCE.",
     "answer_format": "Reply with exactly one JSON object and nothing else: {\"components\": [{\"kind\": \"base|checking|card|relationship|tier\", \"value\": <number>, \"source\": \"<verbatim quote>\"}]}",
     "_note": "2026-07-20 §2aq(097 CWE 잔여·컨텍스트 레버): main이 4계좌x KB문서를 이고 인자로 재에코하는 대신 참조 2개만 넘기고 서브가 off-ledger 검색·formalize. 산출 components는 기존 ground(array·kb·require_value_in_source)가 그대로 검증(심층방어). 실패=에이전트 인자 폴백(거동보존).",
+    "docs": {
+     "_note_": "★출처(2026-08-21·[[23]]): 축 목록 = 이 도구의 `op.reducers` 범주(base·checking·card·relationship·tier) + 공용 정책이 정의한 범주. `doc_..._045` 축자 \"Relationship bonuses for holding multiple Rho-Bank products\" 가 relationship 을, 같은 문서가 카드 max1 을, `doc_..._046` 이 checking max1 을, `doc_..._012` 가 어느 페어링이 자격인지를 말한다 — 그 셋이 없으면 kind 분류가 불가능하므로 always 다. || by_class = 코퍼스 전수 감사(`x453`·698편)에서 **그 축의 값을 축자 인용으로 검산한 문서**만. gold 미참조. || 전달 단위는 **문서**다: 절로 자르면 감사가 축으로 안 잡은 줄이 사라진다(실측 — green checking 의 'Gold +0.75% or Silver +0.25%' 가 어떤 span 에도 없다). 문서 안 오프셋 앵커는 `x453_attr_coverage_all.json` 의 `cites` 에 있다. || 엔진은 선언된 id 를 읽어 넘기기만 하고 **검색하지 않는다**([[71]] · bm25 는 baseline).",
+     "instructions": "You are a KB-extraction sub-task. Using ONLY the DOCUMENTS section below (you have no search tool), find the APY components for the savings account named in REFERENCE: the account type's base APY, and EVERY applicable boost given the customer's products listed in REFERENCE - checking-account pairing boosts, credit card APY bonuses, relationship bonuses, account tier bonuses. Copy values and verbatim source quotes exactly from the documents; list ALL candidate boosts (do not pre-select or sum). IMPORTANT: a component is only accepted if its 'source' quote itself contains the exact numeric value; if you cannot find a document stating the number, omit that component rather than guessing. NOTE: an account's base APY may be tiered by balance. If the documents give more than one base APY for this account type, read the tier table and use the row whose balance range contains the balance given in REFERENCE.",
+     "_note_instructions": "검색 문구를 뺀 docs-모드 지시판(2026-08-21·엔진이 T2_SG_DOCS=1 일 때 이 판을 쓴다). 내용·출처는 기존 isolate.instructions 와 동일 문장 — 'Using the search tool' 만 'Using ONLY the DOCUMENTS section below' 로, 'Search as many times as needed' 문장만 제거. [[23]] 준수: 새 도메인 내용 0.",
+     "axes": [
+      "annual_percentage_yield",
+      "apy",
+      "apy_above_threshold",
+      "apy_below_threshold",
+      "apy_bonus",
+      "apy_on_balance",
+      "apy_rate",
+      "apy_tiers",
+      "balance_threshold",
+      "balance_threshold_for_higher_apy_tier",
+      "credit_card_apy_bonuses",
+      "interest_calculation_method",
+      "interest_compounding_frequency",
+      "interest_payment_frequency",
+      "interest_rate",
+      "linked_checking_apy_bonus",
+      "relationship_apy_bonus",
+      "relationship_bonus",
+      "tier_1_apy",
+      "tier_2_apy"
+     ],
+     "always": [
+      "doc_bank_accounts_bank_accounts_(general)_012",
+      "doc_bank_accounts_bank_accounts_(general)_045",
+      "doc_bank_accounts_bank_accounts_(general)_046"
+     ],
+     "by_class": {
+      "beige": [
+       {
+        "doc": "doc_business_checking_accounts_beige_007",
+        "ranges": [
+         [
+          0,
+          666,
+          "## Rate and compounding - Your enterpris"
+         ]
+        ],
+        "basis": "content",
+        "chars": 666
+       }
+      ],
+      "blue_account": [
+       {
+        "doc": "doc_checking_accounts_blue_account_002",
+        "ranges": [
+         [
+          0,
+          486,
+          "## Balance and earnings - Annual Percent"
+         ]
+        ],
+        "basis": "content",
+        "chars": 486
+       },
+       {
+        "doc": "doc_checking_accounts_blue_account_010",
+        "ranges": [
+         [
+          31,
+          90,
+          "### What does a paper statement cost? Pa"
+         ],
+         [
+          122,
+          85,
+          "### What APY do I earn on my balance? Yo"
+         ],
+         [
+          208,
+          156,
+          "### Can I set low-balance alerts? Yes. Y"
+         ],
+         [
+          365,
+          111,
+          "### How long do external bank transfers"
+         ],
+         [
+          477,
+          154,
+          "### What happens if a deposited check is"
+         ],
+         [
+          632,
+          115,
+          "### Is there a fee to receive a domestic"
+         ],
+         [
+          748,
+          200,
+          "### Does the Blue Account have a referra"
+         ],
+         [
+          949,
+          285,
+          "### What are the requirements for the re"
+         ],
+         [
+          1235,
+          123,
+          "### Is there a limit to how many referra"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1319
+       }
+      ],
+      "bluest_account": [
+       {
+        "doc": "doc_checking_accounts_bluest_account_001",
+        "ranges": [
+         [
+          0,
+          984,
+          "## Key figures | Item | Value | |---|--"
+         ]
+        ],
+        "basis": "content",
+        "chars": 984
+       },
+       {
+        "doc": "doc_checking_accounts_bluest_account_008",
+        "ranges": [
+         [
+          0,
+          464,
+          "## How the APY compares - You earn 2.25%"
+         ]
+        ],
+        "basis": "content",
+        "chars": 464
+       }
+      ],
+      "bronze_account": [
+       {
+        "doc": "doc_savings_accounts_bronze_account_001",
+        "ranges": [
+         [
+          0,
+          711,
+          "## Key rates and fees | Item | Value |"
+         ]
+        ],
+        "basis": "content",
+        "chars": 711
+       },
+       {
+        "doc": "doc_savings_accounts_bronze_account_002",
+        "ranges": [
+         [
+          0,
+          296,
+          "## At-a-glance - APY: 2.0% - Monthly mai"
+         ]
+        ],
+        "basis": "content",
+        "chars": 296
+       },
+       {
+        "doc": "doc_savings_accounts_bronze_account_003",
+        "ranges": [
+         [
+          0,
+          419,
+          "## Balance and opening requirements - Mi"
+         ]
+        ],
+        "basis": "content",
+        "chars": 419
+       },
+       {
+        "doc": "doc_savings_accounts_bronze_account_006",
+        "ranges": [
+         [
+          540,
+          192,
+          "## How to confirm your current APY - Che"
+         ]
+        ],
+        "basis": "content",
+        "chars": 192
+       },
+       {
+        "doc": "doc_savings_accounts_bronze_account_007",
+        "ranges": [
+         [
+          0,
+          1150,
+          "## How your interest accrues - Interest"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1150
+       }
+      ],
+      "bronze_saver_account": [
+       {
+        "doc": "doc_business_savings_accounts_bronze_saver_account_001",
+        "ranges": [
+         [
+          0,
+          3211,
+          "## Account Snapshot - APY: 2.0% - Month"
+         ]
+        ],
+        "basis": "content",
+        "chars": 3211
+       },
+       {
+        "doc": "doc_business_savings_accounts_bronze_saver_account_002",
+        "ranges": [
+         [
+          0,
+          437,
+          "## Specifications | Item | Details | | -"
+         ]
+        ],
+        "basis": "content",
+        "chars": 437
+       },
+       {
+        "doc": "doc_business_savings_accounts_bronze_saver_account_004",
+        "ranges": [
+         [
+          231,
+          83,
+          "## Your APY - Your savings earn an APY o"
+         ],
+         [
+          315,
+          207,
+          "## Practical tips - Keep funds in the ac"
+         ]
+        ],
+        "basis": "content",
+        "chars": 290
+       }
+      ],
+      "business_credit_cards_business_bronze_rewards_card": [
+       {
+        "doc": "doc_business_credit_cards_business_bronze_rewards_card_007",
+        "ranges": [
+         [
+          0,
+          960,
+          "## Interest on Carried Balances - If you"
+         ]
+        ],
+        "basis": "content",
+        "chars": 960
+       }
+      ],
+      "business_credit_cards_silver_zoom_card": [
+       {
+        "doc": "doc_business_credit_cards_silver_zoom_card_008",
+        "ranges": [
+         [
+          0,
+          772,
+          "## Credit profile requirements - Persona"
+         ]
+        ],
+        "basis": "content",
+        "chars": 772
+       },
+       {
+        "doc": "doc_business_credit_cards_silver_zoom_card_010",
+        "ranges": [
+         [
+          0,
+          765,
+          "## What the promotion offers - An introd"
+         ]
+        ],
+        "basis": "content",
+        "chars": 765
+       }
+      ],
+      "cobalt_blue": [
+       {
+        "doc": "doc_business_checking_accounts_cobalt_blue_001",
+        "ranges": [
+         [
+          452,
+          232,
+          "## Know your core costs and how to avoid"
+         ],
+         [
+          685,
+          141,
+          "## Start earning interest - Your balance"
+         ],
+         [
+          827,
+          195,
+          "## Manage your monthly activity - You ge"
+         ],
+         [
+          1023,
+          223,
+          "## Grow your network with referrals Once"
+         ]
+        ],
+        "basis": "content",
+        "chars": 791
+       },
+       {
+        "doc": "doc_business_checking_accounts_cobalt_blue_008",
+        "ranges": [
+         [
+          0,
+          694,
+          "## Your rate and compounding - Your acco"
+         ]
+        ],
+        "basis": "content",
+        "chars": 694
+       }
+      ],
+      "credit_cards_diamond_elite_card": [
+       {
+        "doc": "doc_credit_cards_diamond_elite_card_006",
+        "ranges": [
+         [
+          0,
+          1109,
+          "## Annual fee - Your standard annual fee"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1109
+       }
+      ],
+      "credit_cards_ecocard": [
+       {
+        "doc": "doc_credit_cards_ecocard_010",
+        "ranges": [
+         [
+          0,
+          847,
+          "## Promo Period - Accounts opened during"
+         ]
+        ],
+        "basis": "content",
+        "chars": 847
+       }
+      ],
+      "dark_green_account": [
+       {
+        "doc": "doc_checking_accounts_dark_green_account_001",
+        "ranges": [
+         [
+          71,
+          82,
+          "### Eligibility - Minimum primary holder"
+         ],
+         [
+          154,
+          182,
+          "### Fees and rates - Monthly maintenance"
+         ],
+         [
+          337,
+          185,
+          "### Rewards and perks - Student loan pay"
+         ],
+         [
+          523,
+          54,
+          "### Limits - Mobile check deposit daily"
+         ]
+        ],
+        "basis": "content",
+        "chars": 503
+       }
+      ],
+      "diamond_elite_account": [
+       {
+        "doc": "doc_savings_accounts_diamond_elite_account_001",
+        "ranges": [
+         [
+          692,
+          410,
+          "## Quick reference | Category | Detail |"
+         ]
+        ],
+        "basis": "content",
+        "chars": 410
+       },
+       {
+        "doc": "doc_savings_accounts_diamond_elite_account_009",
+        "ranges": [
+         [
+          31,
+          53,
+          "### What APY will I earn? - Your account"
+         ],
+         [
+          85,
+          90,
+          "### Is there a minimum balance requireme"
+         ],
+         [
+          176,
+          80,
+          "### Is there a monthly maintenance fee?"
+         ],
+         [
+          257,
+          53,
+          "### Do I get a dedicated private banker?"
+         ],
+         [
+          311,
+          90,
+          "### Are investment advisory services inc"
+         ],
+         [
+          402,
+          97,
+          "### Will I receive invitations to exclus"
+         ],
+         [
+          500,
+          77,
+          "### Are wire transfer fees waived? - All"
+         ],
+         [
+          578,
+          106,
+          "### Do I receive a discount on estate pl"
+         ]
+        ],
+        "basis": "content",
+        "chars": 646
+       },
+       {
+        "doc": "doc_savings_accounts_diamond_elite_account_010",
+        "ranges": [
+         [
+          0,
+          344,
+          "## How interest is calculated - Interest"
+         ]
+        ],
+        "basis": "content",
+        "chars": 344
+       }
+      ],
+      "diamond_vault": [
+       {
+        "doc": "doc_business_savings_accounts_diamond_vault_001",
+        "ranges": [
+         [
+          0,
+          1040,
+          "## Key rates and requirements | Item |"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1040
+       },
+       {
+        "doc": "doc_business_savings_accounts_diamond_vault_008",
+        "ranges": [
+         [
+          0,
+          1923,
+          "## Available APY Bonuses by Card Tier T"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1923
+       }
+      ],
+      "emerald_saver": [
+       {
+        "doc": "doc_business_savings_accounts_emerald_saver_001",
+        "ranges": [
+         [
+          0,
+          1218,
+          "## Key rates and requirements | Item |"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1218
+       },
+       {
+        "doc": "doc_business_savings_accounts_emerald_saver_004",
+        "ranges": [
+         [
+          0,
+          1104,
+          "## How the APY bonus works - When you ma"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1104
+       },
+       {
+        "doc": "doc_business_savings_accounts_emerald_saver_008",
+        "ranges": [
+         [
+          0,
+          2738,
+          "## Available APY Bonuses by Eligible Bus"
+         ]
+        ],
+        "basis": "content",
+        "chars": 2738
+       }
+      ],
+      "evergreen_account": [
+       {
+        "doc": "doc_checking_accounts_evergreen_account_001",
+        "ranges": [
+         [
+          1072,
+          519,
+          "## Quick reference | Feature | Amount |"
+         ]
+        ],
+        "basis": "content",
+        "chars": 519
+       },
+       {
+        "doc": "doc_checking_accounts_evergreen_account_002",
+        "ranges": [
+         [
+          0,
+          802,
+          "## Fees and waivers - Monthly maintenanc"
+         ]
+        ],
+        "basis": "content",
+        "chars": 802
+       }
+      ],
+      "gold_account": [
+       {
+        "doc": "doc_savings_accounts_gold_account_001",
+        "ranges": [
+         [
+          0,
+          1091,
+          "## Eligibility and balance requirements"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1091
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_002",
+        "ranges": [
+         [
+          0,
+          294,
+          "## Snapshot - APY: 5.5% - Minimum balanc"
+         ]
+        ],
+        "basis": "content",
+        "chars": 294
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_003",
+        "ranges": [
+         [
+          0,
+          588,
+          "## Account requirements - Opening deposi"
+         ]
+        ],
+        "basis": "content",
+        "chars": 588
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_004",
+        "ranges": [
+         [
+          0,
+          540,
+          "## How your yield works - Your Gold Acco"
+         ]
+        ],
+        "basis": "content",
+        "chars": 540
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_009",
+        "ranges": [
+         [
+          0,
+          674,
+          "## Qualification checkpoints - Ensure yo"
+         ]
+        ],
+        "basis": "content",
+        "chars": 674
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_010",
+        "ranges": [
+         [
+          0,
+          508,
+          "## How interest is calculated - Your APY"
+         ]
+        ],
+        "basis": "content",
+        "chars": 508
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_013",
+        "ranges": [
+         [
+          739,
+          240,
+          "### Quick reference | Benefit | Gold Re"
+         ],
+         [
+          980,
+          456,
+          "## Reduced minimum balance - If you hol"
+         ]
+        ],
+        "basis": "content",
+        "chars": 696
+       },
+       {
+        "doc": "doc_savings_accounts_gold_account_014",
+        "ranges": [
+         [
+          0,
+          964,
+          "## Credit card APY bonuses for Gold Acco"
+         ]
+        ],
+        "basis": "content",
+        "chars": 964
+       }
+      ],
+      "gold_plus_account": [
+       {
+        "doc": "doc_savings_accounts_gold_plus_account_001",
+        "ranges": [
+         [
+          0,
+          750,
+          "## Key specifications | Item | Value |"
+         ]
+        ],
+        "basis": "content",
+        "chars": 750
+       },
+       {
+        "doc": "doc_savings_accounts_gold_plus_account_002",
+        "ranges": [
+         [
+          0,
+          603,
+          "## What is different from Gold - APY: 6"
+         ]
+        ],
+        "basis": "content",
+        "chars": 603
+       },
+       {
+        "doc": "doc_savings_accounts_gold_plus_account_005",
+        "ranges": [
+         [
+          0,
+          640,
+          "### What APY do I earn on my balance? Y"
+         ]
+        ],
+        "basis": "content",
+        "chars": 640
+       },
+       {
+        "doc": "doc_savings_accounts_gold_plus_account_006",
+        "ranges": [
+         [
+          0,
+          372,
+          "## Interest calculation method - Your A"
+         ]
+        ],
+        "basis": "content",
+        "chars": 372
+       }
+      ],
+      "gold_plus_saver": [
+       {
+        "doc": "doc_business_savings_accounts_gold_plus_saver_001",
+        "ranges": [
+         [
+          0,
+          4652,
+          "## What you earn on Gold Plus Saver - B"
+         ]
+        ],
+        "basis": "content",
+        "chars": 4652
+       },
+       {
+        "doc": "doc_business_savings_accounts_gold_plus_saver_002",
+        "ranges": [
+         [
+          0,
+          1205,
+          "## Availability and status - Automatic i"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1205
+       }
+      ],
+      "gold_saver_account": [
+       {
+        "doc": "doc_business_savings_accounts_gold_saver_account_009",
+        "ranges": [
+         [
+          0,
+          1625,
+          "## APY bonus amounts by eligible busines"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1625
+       }
+      ],
+      "gold_years_account": [
+       {
+        "doc": "doc_checking_accounts_gold_years_account_002",
+        "ranges": [
+         [
+          0,
+          911,
+          "## Eligibility - You must be at least 62"
+         ]
+        ],
+        "basis": "content",
+        "chars": 911
+       }
+      ],
+      "green_account_(checking)": [
+       {
+        "doc": "doc_checking_accounts_green_account_(checking)_001",
+        "ranges": [
+         [
+          319,
+          418,
+          "## Fees and limits | Item | Amount | |--"
+         ],
+         [
+          738,
+          327,
+          "## Referral program Refer friends and fa"
+         ],
+         [
+          1066,
+          614,
+          "## Important details - To avoid the mont"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1359
+       },
+       {
+        "doc": "doc_checking_accounts_green_account_(checking)_002",
+        "ranges": [
+         [
+          0,
+          879,
+          "## Ongoing maintenance and balance requi"
+         ]
+        ],
+        "basis": "content",
+        "chars": 879
+       },
+       {
+        "doc": "doc_checking_accounts_green_account_(checking)_010",
+        "ranges": [
+         [
+          31,
+          99,
+          "### Do I pay for paper statements? - Yes"
+         ],
+         [
+          131,
+          74,
+          "### Does this account earn interest? - Y"
+         ],
+         [
+          206,
+          115,
+          "### What is the fee for using a non-netw"
+         ],
+         [
+          322,
+          117,
+          "### How long do transfers to another ban"
+         ],
+         [
+          440,
+          103,
+          "### What happens if a check I deposit is"
+         ],
+         [
+          544,
+          91,
+          "### Is there a fee to receive a domestic"
+         ]
+        ],
+        "basis": "content",
+        "chars": 599
+       }
+      ],
+      "green_account_(savings)": [
+       {
+        "doc": "doc_savings_accounts_green_account_(savings)_001",
+        "ranges": [
+         [
+          0,
+          665,
+          "## Key specifications | Item | Value |"
+         ]
+        ],
+        "basis": "content",
+        "chars": 665
+       },
+       {
+        "doc": "doc_savings_accounts_green_account_(savings)_003",
+        "ranges": [
+         [
+          38,
+          234,
+          "### How the bonus works - Your Green Acc"
+         ],
+         [
+          273,
+          157,
+          "### Extra rewards at eco-certified merch"
+         ],
+         [
+          760,
+          234,
+          "### Maintaining eligibility - Keep your"
+         ]
+        ],
+        "basis": "content",
+        "chars": 625
+       },
+       {
+        "doc": "doc_savings_accounts_green_account_(savings)_005",
+        "ranges": [
+         [
+          31,
+          59,
+          "### What APY does the Green Account (sav"
+         ],
+         [
+          91,
+          93,
+          "### Do I need to maintain a minimum bala"
+         ],
+         [
+          185,
+          85,
+          "### Is there a monthly maintenance fee i"
+         ],
+         [
+          385,
+          102,
+          "### Does Rho-Bank match donations to par"
+         ]
+        ],
+        "basis": "content",
+        "chars": 339
+       },
+       {
+        "doc": "doc_savings_accounts_green_account_(savings)_006",
+        "ranges": [
+         [
+          0,
+          532,
+          "## Interest calculation - Interest accru"
+         ]
+        ],
+        "basis": "content",
+        "chars": 532
+       },
+       {
+        "doc": "doc_savings_accounts_green_account_(savings)_009",
+        "ranges": [
+         [
+          0,
+          1668,
+          "## EcoCard holder benefits overview Gre"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1668
+       }
+      ],
+      "green_fee-free_account": [
+       {
+        "doc": "doc_checking_accounts_green_fee-free_account_003",
+        "ranges": [
+         [
+          236,
+          317,
+          "## Notes - Rho Bank does not charge for"
+         ]
+        ],
+        "basis": "content",
+        "chars": 317
+       },
+       {
+        "doc": "doc_checking_accounts_green_fee-free_account_004",
+        "ranges": [
+         [
+          0,
+          1022,
+          "## Core Specifications | Category | Deta"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1022
+       },
+       {
+        "doc": "doc_checking_accounts_green_fee-free_account_006",
+        "ranges": [
+         [
+          31,
+          135,
+          "### How can I avoid the monthly maintena"
+         ],
+         [
+          167,
+          88,
+          "### What do paper statements cost? Paper"
+         ],
+         [
+          256,
+          68,
+          "### Does this account earn interest? No."
+         ],
+         [
+          325,
+          224,
+          "### What happens if a check I deposited"
+         ],
+         [
+          550,
+          138,
+          "### Is there a fee to receive a domestic"
+         ]
+        ],
+        "basis": "content",
+        "chars": 653
+       }
+      ],
+      "hunter_green": [
+       {
+        "doc": "doc_business_checking_accounts_hunter_green_001",
+        "ranges": [
+         [
+          0,
+          1746,
+          "## Quick start checklist - Confirm your"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1746
+       },
+       {
+        "doc": "doc_business_checking_accounts_hunter_green_006",
+        "ranges": [
+         [
+          0,
+          603,
+          "## Your APY - Your account earns 1.0% AP"
+         ]
+        ],
+        "basis": "content",
+        "chars": 603
+       }
+      ],
+      "light_blue_account": [
+       {
+        "doc": "doc_checking_accounts_light_blue_account_002",
+        "ranges": [
+         [
+          0,
+          313,
+          "## Quick facts - APY on your balance: 0%"
+         ]
+        ],
+        "basis": "content",
+        "chars": 313
+       },
+       {
+        "doc": "doc_checking_accounts_light_blue_account_003",
+        "ranges": [
+         [
+          0,
+          544,
+          "## Account specifications - Annual Perce"
+         ]
+        ],
+        "basis": "content",
+        "chars": 544
+       },
+       {
+        "doc": "doc_checking_accounts_light_blue_account_004",
+        "ranges": [
+         [
+          0,
+          1147,
+          "## Fees and features | Item | Amount | |"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1147
+       }
+      ],
+      "light_green_account": [
+       {
+        "doc": "doc_checking_accounts_light_green_account_001",
+        "ranges": [
+         [
+          0,
+          1017,
+          "## Key details | Item | Detail | |---|-"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1017
+       },
+       {
+        "doc": "doc_checking_accounts_light_green_account_006",
+        "ranges": [
+         [
+          0,
+          494,
+          "## Use interest to reinforce saving habi"
+         ]
+        ],
+        "basis": "content",
+        "chars": 494
+       }
+      ],
+      "lime_green": [
+       {
+        "doc": "doc_business_checking_accounts_lime_green_001",
+        "ranges": [
+         [
+          0,
+          1362,
+          "## Key account values | Item | Value |"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1362
+       },
+       {
+        "doc": "doc_business_checking_accounts_lime_green_005",
+        "ranges": [
+         [
+          0,
+          624,
+          "## Your APY - Your account earns an Annu"
+         ]
+        ],
+        "basis": "content",
+        "chars": 624
+       }
+      ],
+      "navy_blue": [
+       {
+        "doc": "doc_business_checking_accounts_navy_blue_001",
+        "ranges": [
+         [
+          0,
+          1483,
+          "## Key Account Costs and Limits - Month"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1483
+       },
+       {
+        "doc": "doc_business_checking_accounts_navy_blue_004",
+        "ranges": [
+         [
+          0,
+          682,
+          "## Your interest rate - APY on your bala"
+         ]
+        ],
+        "basis": "content",
+        "chars": 682
+       }
+      ],
+      "platinum_account": [
+       {
+        "doc": "doc_savings_accounts_platinum_account_001",
+        "ranges": [
+         [
+          0,
+          1209,
+          "## Balance requirements - Maintain at le"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1209
+       },
+       {
+        "doc": "doc_savings_accounts_platinum_account_002",
+        "ranges": [
+         [
+          0,
+          331,
+          "## Key figures - APY: 6.5% - Minimum bal"
+         ]
+        ],
+        "basis": "content",
+        "chars": 331
+       },
+       {
+        "doc": "doc_savings_accounts_platinum_account_003",
+        "ranges": [
+         [
+          0,
+          606,
+          "## Required balances - Opening deposit m"
+         ]
+        ],
+        "basis": "content",
+        "chars": 606
+       },
+       {
+        "doc": "doc_savings_accounts_platinum_account_007",
+        "ranges": [
+         [
+          0,
+          682,
+          "## How your interest is calculated - APY"
+         ]
+        ],
+        "basis": "content",
+        "chars": 682
+       }
+      ],
+      "platinum_plus_account": [
+       {
+        "doc": "doc_savings_accounts_platinum_plus_account_005",
+        "ranges": [
+         [
+          0,
+          467,
+          "## Frequently asked questions - What APY"
+         ]
+        ],
+        "basis": "content",
+        "chars": 467
+       },
+       {
+        "doc": "doc_savings_accounts_platinum_plus_account_006",
+        "ranges": [
+         [
+          0,
+          506,
+          "## How interest is calculated - Your acc"
+         ]
+        ],
+        "basis": "content",
+        "chars": 506
+       },
+       {
+        "doc": "doc_savings_accounts_platinum_plus_account_009",
+        "ranges": [
+         [
+          0,
+          825,
+          "## Credit card APY bonuses for Platinum"
+         ]
+        ],
+        "basis": "content",
+        "chars": 825
+       }
+      ],
+      "platinum_reserve_account": [
+       {
+        "doc": "doc_business_savings_accounts_platinum_reserve_account_001",
+        "ranges": [
+         [
+          0,
+          895,
+          "## What you earn - Annual Percentage Yie"
+         ]
+        ],
+        "basis": "content",
+        "chars": 895
+       },
+       {
+        "doc": "doc_business_savings_accounts_platinum_reserve_account_002",
+        "ranges": [
+         [
+          0,
+          1176,
+          "## How daily compounding works - Interes"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1176
+       },
+       {
+        "doc": "doc_business_savings_accounts_platinum_reserve_account_010",
+        "ranges": [
+         [
+          0,
+          2583,
+          "## Eligible Business Credit Cards and AP"
+         ]
+        ],
+        "basis": "content",
+        "chars": 2583
+       }
+      ],
+      "silver_account": [
+       {
+        "doc": "doc_savings_accounts_silver_account_001",
+        "ranges": [
+         [
+          0,
+          900,
+          "## Key specifications | Specification |"
+         ]
+        ],
+        "basis": "content",
+        "chars": 900
+       },
+       {
+        "doc": "doc_savings_accounts_silver_account_002",
+        "ranges": [
+         [
+          0,
+          823,
+          "## What linking does - When you link you"
+         ]
+        ],
+        "basis": "content",
+        "chars": 823
+       },
+       {
+        "doc": "doc_savings_accounts_silver_account_003",
+        "ranges": [
+         [
+          190,
+          297,
+          "## How your rate is determined - Each da"
+         ]
+        ],
+        "basis": "content",
+        "chars": 297
+       },
+       {
+        "doc": "doc_savings_accounts_silver_account_005",
+        "ranges": [
+         [
+          31,
+          140,
+          "### What APY does the Silver Account pay"
+         ],
+         [
+          172,
+          260,
+          "### What minimum balance should I keep,"
+         ],
+         [
+          433,
+          193,
+          "### Is there a cost if I make too many w"
+         ],
+         [
+          627,
+          159,
+          "### Do I get a bonus for having multiple"
+         ],
+         [
+          787,
+          87,
+          "### Do you rebate ATM fees? - Yes. You c"
+         ]
+        ],
+        "basis": "content",
+        "chars": 839
+       },
+       {
+        "doc": "doc_savings_accounts_silver_account_006",
+        "ranges": [
+         [
+          0,
+          839,
+          "## How interest is calculated - Your app"
+         ]
+        ],
+        "basis": "content",
+        "chars": 839
+       },
+       {
+        "doc": "doc_savings_accounts_silver_account_009",
+        "ranges": [
+         [
+          595,
+          338,
+          "## What you receive as a Platinum Reward"
+         ],
+         [
+          934,
+          677,
+          "## Activation and eligibility - The enh"
+         ],
+         [
+          2474,
+          274,
+          "## Relationship bonus APY - When your S"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1289
+       }
+      ],
+      "silver_plus_account": [
+       {
+        "doc": "doc_savings_accounts_silver_plus_account_001",
+        "ranges": [
+         [
+          0,
+          757,
+          "## Account parameters | Item | Detail |"
+         ]
+        ],
+        "basis": "content",
+        "chars": 757
+       },
+       {
+        "doc": "doc_savings_accounts_silver_plus_account_002",
+        "ranges": [
+         [
+          34,
+          194,
+          "### Tiered APY - Silver Plus offers tier"
+         ],
+         [
+          229,
+          88,
+          "### Withdrawal flexibility - Increased a"
+         ],
+         [
+          318,
+          67,
+          "### ATM fee support - Receive ATM fee re"
+         ],
+         [
+          386,
+          307,
+          "### Statement delivery - Paper statement"
+         ]
+        ],
+        "basis": "content",
+        "chars": 656
+       },
+       {
+        "doc": "doc_savings_accounts_silver_plus_account_004",
+        "ranges": [
+         [
+          0,
+          793,
+          "## Included perks | Feature | Availabil"
+         ]
+        ],
+        "basis": "content",
+        "chars": 793
+       },
+       {
+        "doc": "doc_savings_accounts_silver_plus_account_005",
+        "ranges": [
+         [
+          31,
+          92,
+          "### What APY can I earn? - The account o"
+         ],
+         [
+          124,
+          101,
+          "### Is there a minimum balance requireme"
+         ],
+         [
+          366,
+          111,
+          "### Does this account include savings go"
+         ]
+        ],
+        "basis": "content",
+        "chars": 304
+       },
+       {
+        "doc": "doc_savings_accounts_silver_plus_account_006",
+        "ranges": [
+         [
+          164,
+          97,
+          "### APY tiers - Your APY depends on your"
+         ],
+         [
+          262,
+          173,
+          "### Direct deposit bonus - If you set up"
+         ]
+        ],
+        "basis": "content",
+        "chars": 270
+       }
+      ],
+      "silver_plus_saver": [
+       {
+        "doc": "doc_business_savings_accounts_silver_plus_saver_001",
+        "ranges": [
+         [
+          0,
+          2432,
+          "## Eligibility and Minimum Balance - You"
+         ]
+        ],
+        "basis": "content",
+        "chars": 2432
+       },
+       {
+        "doc": "doc_business_savings_accounts_silver_plus_saver_003",
+        "ranges": [
+         [
+          0,
+          1112,
+          "## How the relationship bonus works - Wh"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1112
+       },
+       {
+        "doc": "doc_business_savings_accounts_silver_plus_saver_006",
+        "ranges": [
+         [
+          0,
+          730,
+          "## Same-day ACH availability - Same-day"
+         ]
+        ],
+        "basis": "content",
+        "chars": 730
+       }
+      ],
+      "silver_saver_account": [
+       {
+        "doc": "doc_business_savings_accounts_silver_saver_account_001",
+        "ranges": [
+         [
+          0,
+          1880,
+          "## How the higher APY tiers work You ea"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1880
+       },
+       {
+        "doc": "doc_business_savings_accounts_silver_saver_account_002",
+        "ranges": [
+         [
+          0,
+          970,
+          "## How the balance threshold affects you"
+         ]
+        ],
+        "basis": "content",
+        "chars": 970
+       }
+      ],
+      "sky_blue": [
+       {
+        "doc": "doc_business_checking_accounts_sky_blue_007",
+        "ranges": [
+         [
+          0,
+          657,
+          "## Mobile Check Deposits - Your daily mo"
+         ]
+        ],
+        "basis": "content",
+        "chars": 657
+       },
+       {
+        "doc": "doc_business_checking_accounts_sky_blue_008",
+        "ranges": [
+         [
+          0,
+          589,
+          "## What Changes - The monthly maintenanc"
+         ]
+        ],
+        "basis": "content",
+        "chars": 589
+       }
+      ],
+      "true_blue": [
+       {
+        "doc": "doc_business_checking_accounts_true_blue_001",
+        "ranges": [
+         [
+          0,
+          655,
+          "## What you pay - Monthly maintenance fe"
+         ]
+        ],
+        "basis": "content",
+        "chars": 655
+       },
+       {
+        "doc": "doc_business_checking_accounts_true_blue_008",
+        "ranges": [
+         [
+          0,
+          578,
+          "## Your APY - The account earns an Annua"
+         ]
+        ],
+        "basis": "content",
+        "chars": 578
+       }
+      ],
+      "world_blue": [
+       {
+        "doc": "doc_business_checking_accounts_world_blue_007",
+        "ranges": [
+         [
+          0,
+          1265,
+          "## Rate and compounding - Your USD balan"
+         ]
+        ],
+        "basis": "content",
+        "chars": 1265
+       },
+       {
+        "doc": "doc_business_checking_accounts_world_blue_008",
+        "ranges": [
+         [
+          0,
+          2214,
+          "## Check what was charged - Confirm the"
+         ]
+        ],
+        "basis": "content",
+        "chars": 2214
+       }
+      ]
+     }
+    },
     "operand_schema": {
      "type": "object",
      "properties": {
@@ -955,10 +2663,6 @@
    },
    "_ground_note": "관문1 grounding(T2_SG_GROUND=1). 097 결함=principal 95000 추측(gold $100,000). '레코드서 복사'라 선언된 operand(principal·actual_apy·기간)를 원장(계좌레코드 도구출력)에 실재하는지 대조·미검증 드롭→op None→abstain. expected_apy는 미ground(get_correct_savings_apy 산출물=상류서 이미 grounded). 엔진 리터럴 0.",
    "_note": "2026-07-20 D+G. amount=principal×Δapy%×days/365. gold 095 재현 98.0(full yr·8000). 리터럴 0(전부 인자). isolate 불요(순 산술). §2aw: read-선행 게이트(r095 3trial: 계산 前 저축 레코드·거래 미읽음 불변→principal 96000/기간 1개월 오답). requires_reads=gold read 쌍의 effective명·T2_SG_REQREADS=1 구동.",
-   "requires_reads": [
-    "get_all_user_accounts_by_user_id",
-    "get_bank_account_transactions"
-   ],
    "isolate": {
     "mode": "fetch_formalize",
     "ref_params": [
@@ -1051,7 +2755,8 @@
        "ledger"
       ],
       "kind": "number",
-      "on_fail": "drop"
+      "on_fail": "drop",
+      "quote_hint": true
      }
     ]
    },
@@ -1297,6 +3002,7 @@
     "get_credit_limit_increase_history",
     "get_payment_history"
    ],
+   "_note_requires_reads": "2026-08-18 신설(t7314 스모크 050 포렌식·死배선 4호). 엔진 게이트(`t2_scaffold_get.py:1572`·`T2_SG_REQREADS=1`)와 거부 문면은 **둘 다 있었는데** 이 목록이 세 층 어디에도 없어 게이트가 한 번도 안 걸렸다 — 그 결과 `check_cli_eligibility` 가 **선행 조회 0회**로 'ELIGIBLE - ... payment history ... satisfied' 를 발급하고 한도 증액이 그대로 승인됐다(t7314 treat task_050 축자). 값의 출처 = 이 도구의 description 과 `requires_reads_feedback` 축자뿐(gold 무참조·[[23]]). 이름은 접미사 없이 쓴다(`_eff_tool_name` 이 `_NNNN` 을 지우고 대조한다).",
    "requires_reads_feedback": "Error: [READ-FIRST] before checking CLI eligibility you must first read the inputs from the records. Missing required reads: {missing}. Read the credit card account record (get_credit_card_accounts_by_user), the CLI request history (get_credit_limit_increase_history) and the payment history (get_payment_history) - the last two are DISCOVERABLE tools, so find each full suffixed name in the knowledge base (search plain words for the step), unlock and call it. Only after those reads are in the conversation can you copy exact values (balances, dates, approved-request date, on-time payment count) into check_cli_eligibility. Then call it again."
   },
   {
@@ -1617,7 +3323,7 @@
     "account_class": "The account's level exactly as shown in the account record (e.g. 'Blue Account', 'Light Green Account').",
     "transactions": "A JSON array with ONE element per atm_withdrawal record of THIS account, in any order - this tool sorts them by date itself. Include EVERY atm_withdrawal, also the ones with no fee line - a fee that is MISSING is one of the errors, and this account level's free-withdrawal allowance is counted over the withdrawals you pass. Each element MUST have ONLY these fields, copied from the records: date (string - this withdrawal's date exactly as the record shows it, e.g. '11/14/2025'), transaction_id (string - the id of the atm_fee line paired with this withdrawal; if this withdrawal has NO fee line, the withdrawal's own id), fee_amount (number - that fee line's amount as a POSITIVE number, no $; 0 if this withdrawal has no fee line), withdrawal_amount (number, POSITIVE - the cash dispensed by this atm_withdrawal), network (string, exactly one of 'rho' | 'non_rho' | 'foreign', read from that withdrawal's description: a RHO-BANK machine is 'rho'; a machine outside the U.S. or dispensing foreign currency is 'foreign'; any other bank's machine is 'non_rho'), rebate_amount (number - the amount of the fee_rebate line paired with this withdrawal, as a POSITIVE number; 0 if the history shows no rebate for it). Do NOT compute anything - just copy the raw values; this tool computes the expected fee and finds discrepancies itself. IMPORTANT: the fee line's own description (e.g. 'NON-RHO ATM FEE') is exactly what you are auditing - it may be wrong. Determine 'network' ONLY from the paired withdrawal's description: a RHO-BANK machine is 'rho' (a fee on a RHO-BANK withdrawal is itself the error you are looking for), a machine outside the U.S. is 'foreign', any other bank's machine is 'non_rho'. Also: if TWO fee lines belong to the SAME withdrawal, include that withdrawal twice, and add \"duplicate_of\": \"<the other fee line's transaction_id>\" on the second one, with rebate_amount 0 on it."
    },
-   "return_template": "ATM withdrawals whose net charge does NOT match the documented fee schedule for this account level: {details}. SCOPE OF THIS CHECK - each withdrawal you passed in was compared against the documented schedule for this level, which covers a fee charged when none was due, a fee of the wrong amount, a fee that is MISSING where one was due (it shows as a negative difference), the level's documented free-withdrawal allowance, and - for levels whose documents promise ATM fee rebates - a documented rebate the history does not show (for those levels both amounts shown are net of the fee_rebate lines you passed, so a missing rebate shows as a positive difference). It covers ONLY the withdrawals you passed in: if you left an atm_withdrawal of this account out, its error is not in this list and the free-allowance count may be off - pass them all and call again. If corrections are owed, the credit policy requires ONE fee_refund credit for the net correction of THIS account (do not credit the same lines twice).",
+   "return_template": "ATM withdrawals whose net charge does NOT match the documented fee schedule for this account level: {details}. SCOPE OF THIS CHECK - each withdrawal you passed in was compared against the documented schedule for this level, which covers a fee charged when none was due, a fee of the wrong amount, a fee that is MISSING where one was due (it shows as a negative difference), the level's documented free-withdrawal allowance, and - for levels whose documents promise ATM fee rebates - a documented rebate the history does not show (for those levels both amounts shown are net of the fee_rebate lines you passed, so a missing rebate shows as a positive difference). It covers ONLY the withdrawals you passed in: if you left an atm_withdrawal of this account out, its error is not in this list and the free-allowance count may be off - pass them all and call again. If corrections are owed, the credit policy requires ONE fee_refund credit for the net correction of THIS account (do not credit the same lines twice). The signed total of the differences listed above, computed by this tool, is {delta_total} (a negative difference lowers it). That signed total is the net correction for THIS account - use it as the credit amount; do not re-add the figures by hand.",
    "op": {
     "op": "select_discrepant",
     "over": "transactions",
@@ -1821,7 +3527,7 @@
     "_note_rebate": "2026-08-24: 2026-08-15 의 `rebate_field` 보류판을 **대체**한다. 그 판은 부과 쪽에서만 환급을 빼고 Bluest 의 non_rho 기대값을 0 으로 내렸다 — 서브가 `rebated_amount` 를 못 뽑으면 모든 수수료가 전액 불일치가 돼 **과다 환불**($24.00)이 났고, 기권 안전판을 넣으니 이번엔 환급과 무관한 계산까지 다 판정불가가 됐다. 새 판은 **양쪽을 같이 순액화**한다: expected_net = 문서 요율 − min(문서 요율, 남은 월 상한) · actual_net = 부과액 − 실제 환급액. 환급 채무를 **부과액이 아니라 문서 요율**로 계산하는 것이 핵심이다(072 Bluest 11/20 = 2.50 부과·2.00 환급·문서 2.00 ⇒ 순 +0.50). 상한이 선언되지 않은 등급(cap=null)에서는 이 축이 통째로 꺼져 거동이 전과 같다."
    },
    "_note_delta_total_removed_2026_08_19": "REMOVED (2026-08-19 · 커밋 b220745d 와 같은 사유). `= ${delta_total:.2f}` 를 return_template 에서 제거했다. 요율 출처는 정책 축자라 [[23]] 는 통과하지만 delta_total 은 **채점되는 인자 그 자체**다(task_073 gold amount 9.50/9.00/1.50 = 계좌별 net). 엔진이 채점되는 값을 만들어 건네면 formalize->calc 아키텍처가 아니라 그 위조판을 재게 된다([[62]]·[[03b]]). 남긴 것 = {details}(라인별 중간 사실) + 정책 축자 문구. 엔진 코드 불변(kwarg 미사용=거동 0). ⚠효과는 **미측정**이다.",
-   "_note_": "2026-08-13 x288 판정(A_DOCS 0/8)에 따른 F2b 결정론기 — 요율 출처는 전부 정책 문서 축자(ATM_FEE_SCHEDULE_VERBATIM_2026_08_13.md·gold 미접촉): blue oon 1% max$3 (blue_001)·blue forx max(3%,$5) USD환산(blue_012)·bluest oon $2/forx $0(bluest_010/_003)·green oon $3(green_010)/forx max(3%,$5)(green_012)·light_green forx tier 2.00/3.50/5.00 경계=하위(lg_013)·purple oon $2.50(purple_012)/forx $0(purple_001)·dark_green oon max(1%,$1.50)(dg_001)/forx min(2.5%,$6)(dg_002)·evergreen oon min(1%,$2.50)(eg_008)/forx max(2%,$3)(eg_001). rho=수수료 조항 부재→기대 0 은 NON-RHO 라벨 fee 가 RHO 인출에 붙는 모순 검출용(env _err 실물 동형). light_green/light_blue oon·light_blue forx = 월 무료횟수 규정이 문서에 불완전(모호점 8·10)→기대 null=판정 보류(과차단 방지·skipped 로 표면화). 리베이트 축은 별도 fee_rebate 라인이라 이 도구 범위 밖(모호점 6·11). 페어링·network 분류는 LLM formalize 몫([[22]]·인접 레코드 복사)·엔진은 산술만([[10]]). | 2026-08-13 FIX-5(t7274w 073 실측: id-만 반환하니 모델이 차액 아닌 값을 크레딧 $24.50/$15/$5 + chk_3 중복 크레딧): {details}(라인별 charged/documented/difference)와 {delta_total}(net 합)을 표면화 — x288 A_DOCS 0/8 이 잰 산술 결손 범위 내·엔진이 이미 계산한 값의 뺄셈·합만([[62]] 최소). 문구 출처 = doc_bank_accounts_bank_accounts_(general)_017 §2 Fee mischarges 'apply a credit for the net correction across all identified fee discrepancies' 축자. 픽·페어링·network 분류·credit 실행은 모델 몫 불변. | 2026-08-14 x301 판정(4셀 n=8): A_CUR rho 0/8(자기-참조 함정: fee 라벨을 network 근거로 오용 — 8/8 결정론 재현·073 이 4시행 내내 8/11 에 멈춘 원인)·B_WARN 0/8(추상 경고는 역효과: 정답까지 파괴 — [[63]] 더하기-지시 무효의 재실증)·**C_DUP rho 8/8·dup 8/8**(구체 페어링 작업 지시가 주의를 인출 행으로 끌어 network 부수 정답) → 이 param 문면 = C_DUP 축자. op dup_field='duplicate_of' = 모델 선언의 산술 귀결(기대 0)만 엔진이 소비([[59]] 무결·x288 산술 계열·[[62]] ③). | 2026-08-21 P5(t7335 halfA 072 실측: 완결-인상 반환문이 모델의 보완 rebate 검사를 억제 — [27] 문맥에 rebate 5/6 패턴 실재·[38] $12.00 write·차액 $2.00=11/14 누락 rebate): ①'across all identified fee discrepancies' 완결 문구 제거 ②검사한 축을 문면 명시(도구 선언 도출: transactions 'ONE element per atm_fee line' + select_discrepant actual_field=fee_amount = 전달된 fee 라인의 금액만) ③검사 안 한 축(fee_rebate 부재)을 문면 명시 — 기존 선언 축자('리베이트 축은 별도 fee_rebate 라인이라 이 도구 범위 밖(모호점 6·11)'·_note_rebate_field 보류)의 문면 승격 + [[64]] fix-naming(072 처방 축자 'check the account's rebate policy against the fee_rebate lines yourself'). 검사 로직 신설 0([[62]]·op/isolate 불변)·'net correction' 정책 축자(general_017 §2)·delta_total 미표기 유지. 효과는 미측정.",
+   "_note_": "2026-08-13 x288 판정(A_DOCS 0/8)에 따른 F2b 결정론기 — 요율 출처는 전부 정책 문서 축자(ATM_FEE_SCHEDULE_VERBATIM_2026_08_13.md·gold 미접촉): blue oon 1% max$3 (blue_001)·blue forx max(3%,$5) USD환산(blue_012)·bluest oon $2/forx $0(bluest_010/_003)·green oon $3(green_010)/forx max(3%,$5)(green_012)·light_green forx tier 2.00/3.50/5.00 경계=하위(lg_013)·purple oon $2.50(purple_012)/forx $0(purple_001)·dark_green oon max(1%,$1.50)(dg_001)/forx min(2.5%,$6)(dg_002)·evergreen oon min(1%,$2.50)(eg_008)/forx max(2%,$3)(eg_001). rho=수수료 조항 부재→기대 0 은 NON-RHO 라벨 fee 가 RHO 인출에 붙는 모순 검출용(env _err 실물 동형). light_green/light_blue oon·light_blue forx = 월 무료횟수 규정이 문서에 불완전(모호점 8·10)→기대 null=판정 보류(과차단 방지·skipped 로 표면화). 리베이트 축은 별도 fee_rebate 라인이라 이 도구 범위 밖(모호점 6·11). 페어링·network 분류는 LLM formalize 몫([[22]]·인접 레코드 복사)·엔진은 산술만([[10]]). | 2026-08-13 FIX-5(t7274w 073 실측: id-만 반환하니 모델이 차액 아닌 값을 크레딧 $24.50/$15/$5 + chk_3 중복 크레딧): {details}(라인별 charged/documented/difference)와 {delta_total}(net 합)을 표면화 — x288 A_DOCS 0/8 이 잰 산술 결손 범위 내·엔진이 이미 계산한 값의 뺄셈·합만([[62]] 최소). 문구 출처 = doc_bank_accounts_bank_accounts_(general)_017 §2 Fee mischarges 'apply a credit for the net correction across all identified fee discrepancies' 축자. 픽·페어링·network 분류·credit 실행은 모델 몫 불변. | 2026-08-14 x301 판정(4셀 n=8): A_CUR rho 0/8(자기-참조 함정: fee 라벨을 network 근거로 오용 — 8/8 결정론 재현·073 이 4시행 내내 8/11 에 멈춘 원인)·B_WARN 0/8(추상 경고는 역효과: 정답까지 파괴 — [[63]] 더하기-지시 무효의 재실증)·**C_DUP rho 8/8·dup 8/8**(구체 페어링 작업 지시가 주의를 인출 행으로 끌어 network 부수 정답) → 이 param 문면 = C_DUP 축자. op dup_field='duplicate_of' = 모델 선언의 산술 귀결(기대 0)만 엔진이 소비([[59]] 무결·x288 산술 계열·[[62]] ③). | 2026-08-21 P5(t7335 halfA 072 실측: 완결-인상 반환문이 모델의 보완 rebate 검사를 억제 — [27] 문맥에 rebate 5/6 패턴 실재·[38] $12.00 write·차액 $2.00=11/14 누락 rebate): ①'across all identified fee discrepancies' 완결 문구 제거 ②검사한 축을 문면 명시(도구 선언 도출: transactions 'ONE element per atm_fee line' + select_discrepant actual_field=fee_amount = 전달된 fee 라인의 금액만) ③검사 안 한 축(fee_rebate 부재)을 문면 명시 — 기존 선언 축자('리베이트 축은 별도 fee_rebate 라인이라 이 도구 범위 밖(모호점 6·11)'·_note_rebate_field 보류)의 문면 승격 + [[64]] fix-naming(072 처방 축자 'check the account's rebate policy against the fee_rebate lines yourself'). 검사 로직 신설 0([[62]]·op/isolate 불변)·'net correction' 정책 축자(general_017 §2)·delta_total 미표기 유지. 효과는 미측정. ★2026-08-26 수리(사용자 지적: *\"기호는 $ 숫자는 -xxx 로 구분해서 operand 를 formalize 해서 엔진 호출하면 안되나?\"*): 이 도구는 스스로 \"does the arithmetic for you - do not eyeball it yourself\" 라고 선언해 놓고 **마지막 합만 모델에게 눈대중으로 시키고 있었다**. 엔진은 이미 `{delta_total}`(= 남긴 delta 들의 부호 합)을 템플릿 인자로 내놓는데(t2_scaffold_get `_dtot`·2026-08-13 t7274w 073 때 신설) 이 템플릿이 그것을 **안 썼다** = 死설정([[24]]). t7356 실측이 그 대가를 보여준다 — 모델이 부호를 버리고 절댓값을 더한다: lb 부호합 14.50 ↔ 제출 19.50 · dg 4.75 ↔ 10.25 · ev 3.70 ↔ 9.30 이고 **음수가 하나도 없는 계좌(purple 27.00)만 정확**했다(자연 실험). 072 도 동형(3.50 ↔ 6.50). ⚠[[62]] 경계: 이것은 도메인 답 고르기가 아니라 **모델이 formalize 한 operand 위의 산수**이고([[67]] 사용자 정정 2026-08-24) 어느 계좌에 얼마를 크레딧할지는 여전히 모델이 정한다. ⚠부호와 기호를 섞지 않는다 — `$` 를 앞에 붙이지 않고 숫자만 인쇄한다(`$-2.50` 회피).",
    "detail_item_template": "{id} (charged ${actual:.2f}, documented fee ${expected:.2f}, difference ${delta:.2f})",
    "isolate": {
     "mode": "fetch_formalize",
@@ -1900,7 +3606,8 @@
      ],
      "additionalProperties": false
     },
-    "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다."
+    "_schema_note": "2026-08-22: 마감 라운드(도구 0)에서 T2_SG_SCHEMA=1 이 이 스키마를 guided_json 으로 건다. 산문으로 형식을 부탁하면 서브가 예시의 값을 베낀다(0.0-포이즈닝·§2as/§2be). derivation 이 첫 required 필드라 추론이 값보다 앞에 온다.",
+    "row_kind": "atm_withdrawal"
    },
    "requires_reads": [
     "get_all_user_accounts_by_user_id",
@@ -1916,7 +3623,9 @@
     }
    },
    "_note_grounded_params": "2026-08-21 P3 (t7335 074 실측·HALFB §task_074): 날조 거래행이 출처 검산 없이 판정을 받아 discrepancy 로 에코되고 고객 보고까지 세탁됐다. 신설 아님 — 자매 comparator get_reward_discrepancies(ratefix)의 C211/F6a grounded_params.transaction_id 동형 선언을 이 도구에 채운다(발명-행 = 결핍 강등 → 판정 제외·비-에코·P4 지목 경로 합류). selector 를 테이블명이 아니라 'record id:'(env DB 레코드 덤프의 기계 포맷 — _byref_records/src0 안전판이 이미 쓰는 닫힌 술어)로 두는 근거: 이 도구의 read 는 디스패처 경유라 __tool_outputs blob 이 테이블 혼합이고, 우리 comparator 반환문에는 'Record ID:' 라인이 없어 자기 출력 에코(txn54321 (charged ...))로는 재접지가 성립하지 않는다(부정통제 = test_comparator_read_first). ±([[70]] 공개): 사는 것 = 날조 행의 판정·에코 차단. 파는 것 = main 이 그 계좌 거래를 안 읽고 서브 fetch 에만 의존하는 호출은 행 전체 unverified 기권 → read 후 재호출 1왕복 추가(description 이 이미 main 선독을 계약으로 명시하므로 계약 밖 경로만 비싸진다). 효과 주장은 A/B 전 금지 — 본 선언은 단측 관찰 기반.",
-   "_note_absence_free_rebate_2026_08_24": "★ 2026-08-24 수리 — 이 도구는 **두 방향으로 틀려 있었다**(t7335/t7346 074 실측: 우리 값 _3 6.50·_4 5.50 ↔ gold 4.75·3.70). ①입력이 `atm_fee` 라인 단위라 **부과됐어야 하는데 줄이 아예 없는** 인출이 구조적으로 안 보였다(074 _3 11/13 −1.75·_4 11/12 −1.80·072 Light Green 11/09 −1.50). ②부재를 세게 만들면 이번엔 **무료 횟수**를 빼야 한다(072 Light Green 은 타행 6건 중 앞 4건이 월 무료분이라 미부과가 아니다) — 하나만 고치면 다른 쪽을 깬다([[70]]). ③그리고 환급 프로그램이 있는 등급은 `fee_rebate` 줄의 **부재**가 곧 채무다(072 Bluest 11/14 +2.00 — 우리 12.00 ↔ gold 14.00 의 정체였다). 셋을 한 커밋에 넣는다. || 수치 출처(gold 무접촉·[[23]]): 전부 `ATM_FEE_SCHEDULE_VERBATIM_2026_08_13.md` 에 **이미 추출돼 있었고** 그 문서가 '무료 횟수/리베이트 캡(모호점 4·7·8·10)은 1판 범위 밖' 이라고 유보해 둔 축이다 — light_green 월 4회 무료 후 $1.50(lg_001) · light_blue 타행 월 2회 무료 후 $2.50(lb_004) · light_blue 해외 월 2회 무료 후 $4.00(lb_006) · bluest 리베이트 월 $50 캡(bluest_001/_003/_007) · purple 리베이트 월 $30 캡(purple_001/_004/_010). || 모호점 처리: ⑧light_blue 의 타행·해외 무료 풀은 **분리**한다(두 축이 각각 다른 문서에 '2 free' 로 따로 선언돼 있다) ⑩light_green 의 무료 4회는 **타행에만** 적용한다(해외는 lg_013 의 tier 표가 전액을 규정) ⑥⑦환급은 **인출 1건당 문서 요율만큼**이고 상한은 넘어온 행 순서로 누적한다(코퍼스는 전부 단월이라 statement-cycle 경계는 미행사) ④bluest 의 'third-party' 문언은 우리 요율 라인을 대상으로 읽는다(원장이 NON-RHO ATM FEE 5건에 1:1 로 REBATE 를 달고 있다). || ⚠[[70]] 무엇을 파는가: 서브가 전사할 행이 **수수료 라인 → 전체 인출**로 늘고(072 Bluest 8→9·074 Light Blue 12→16) `rebate_amount` 한 칸이 더 붙는다. 그리고 환급 등급에서 그 칸을 **못 뽑으면 그 행은 판정하지 않는다**(과다 환불 방지·2026-08-15 판이 죽은 자리) — 틀린 수 대신 coverage 결손이 나간다. ⚠엔진 신설분은 `ordinal`(같은 partition 안에서 세기)과 순액 뺄셈뿐이다 — 요율·무료 횟수·상한은 전부 A2 상수이고 페어링·network·환급 짝짓기는 LLM 몫으로 불변([[10]]·[[22]]·[[59]]). ⚠검산은 072·073·074 **9계좌 전수**가 gold 와 정확히 일치(`test_atm_ledger_close.py`) — 규칙을 gold 로 맞춘 것이 아니라 KB 축자로 짓고 나서 rewards 로 대조했다([[69]]). ⚠라이브 효과는 미측정. ⚠표적 재계수(2026-08-24·[[31]] 규칙 4): ATM 거래가 있는 계좌 = **9개·등급 8종**이고 여기 선언된 8종과 정확히 일치한다(Light Green 2·Purple/Light Blue/Dark Green/Evergreen/Blue/Green/Bluest 각 1). 미선언 등급(Silver·Bronze·Navy Blue·Cobalt Blue)은 계좌는 있으나 ATM 거래 **0건**이라 스케줄을 저작할 표적이 없다 — `default: null` 이라 그 등급이 오면 잘못 계산하지 않고 기권한다. ⚠**순서 정정 (2026-08-24·실물 확인)**: 처음 계약은 *'oldest first'* 로 적었는데 env 의 `get_bank_account_transactions_9173` 는 레코드를 **최신순**으로 돌려준다(072 실측: 11/20 → 11/19 → 11/18 …). 무료 횟수와 리베이트 상한 소진은 시간 순서에 달려 있으므로, 그대로 뒀다면 무료분이 **마지막** 4건에 붙어 조용히 틀렸을 것이다. ⇒ 뒤집어 적으라고 시키지 않고 `date` 를 그대로 베끼게 한 뒤 **엔진이 정렬한다**(`op.order_field`) — 전사 부담을 늘리는 대신 줄이면서 순서 실패 양식을 통째로 없앤다([[10]] 형식화=LLM·계산=엔진)."
+   "_note_absence_free_rebate_2026_08_24": "★ 2026-08-24 수리 — 이 도구는 **두 방향으로 틀려 있었다**(t7335/t7346 074 실측: 우리 값 _3 6.50·_4 5.50 ↔ gold 4.75·3.70). ①입력이 `atm_fee` 라인 단위라 **부과됐어야 하는데 줄이 아예 없는** 인출이 구조적으로 안 보였다(074 _3 11/13 −1.75·_4 11/12 −1.80·072 Light Green 11/09 −1.50). ②부재를 세게 만들면 이번엔 **무료 횟수**를 빼야 한다(072 Light Green 은 타행 6건 중 앞 4건이 월 무료분이라 미부과가 아니다) — 하나만 고치면 다른 쪽을 깬다([[70]]). ③그리고 환급 프로그램이 있는 등급은 `fee_rebate` 줄의 **부재**가 곧 채무다(072 Bluest 11/14 +2.00 — 우리 12.00 ↔ gold 14.00 의 정체였다). 셋을 한 커밋에 넣는다. || 수치 출처(gold 무접촉·[[23]]): 전부 `ATM_FEE_SCHEDULE_VERBATIM_2026_08_13.md` 에 **이미 추출돼 있었고** 그 문서가 '무료 횟수/리베이트 캡(모호점 4·7·8·10)은 1판 범위 밖' 이라고 유보해 둔 축이다 — light_green 월 4회 무료 후 $1.50(lg_001) · light_blue 타행 월 2회 무료 후 $2.50(lb_004) · light_blue 해외 월 2회 무료 후 $4.00(lb_006) · bluest 리베이트 월 $50 캡(bluest_001/_003/_007) · purple 리베이트 월 $30 캡(purple_001/_004/_010). || 모호점 처리: ⑧light_blue 의 타행·해외 무료 풀은 **분리**한다(두 축이 각각 다른 문서에 '2 free' 로 따로 선언돼 있다) ⑩light_green 의 무료 4회는 **타행에만** 적용한다(해외는 lg_013 의 tier 표가 전액을 규정) ⑥⑦환급은 **인출 1건당 문서 요율만큼**이고 상한은 넘어온 행 순서로 누적한다(코퍼스는 전부 단월이라 statement-cycle 경계는 미행사) ④bluest 의 'third-party' 문언은 우리 요율 라인을 대상으로 읽는다(원장이 NON-RHO ATM FEE 5건에 1:1 로 REBATE 를 달고 있다). || ⚠[[70]] 무엇을 파는가: 서브가 전사할 행이 **수수료 라인 → 전체 인출**로 늘고(072 Bluest 8→9·074 Light Blue 12→16) `rebate_amount` 한 칸이 더 붙는다. 그리고 환급 등급에서 그 칸을 **못 뽑으면 그 행은 판정하지 않는다**(과다 환불 방지·2026-08-15 판이 죽은 자리) — 틀린 수 대신 coverage 결손이 나간다. ⚠엔진 신설분은 `ordinal`(같은 partition 안에서 세기)과 순액 뺄셈뿐이다 — 요율·무료 횟수·상한은 전부 A2 상수이고 페어링·network·환급 짝짓기는 LLM 몫으로 불변([[10]]·[[22]]·[[59]]). ⚠검산은 072·073·074 **9계좌 전수**가 gold 와 정확히 일치(`test_atm_ledger_close.py`) — 규칙을 gold 로 맞춘 것이 아니라 KB 축자로 짓고 나서 rewards 로 대조했다([[69]]). ⚠라이브 효과는 미측정. ⚠표적 재계수(2026-08-24·[[31]] 규칙 4): ATM 거래가 있는 계좌 = **9개·등급 8종**이고 여기 선언된 8종과 정확히 일치한다(Light Green 2·Purple/Light Blue/Dark Green/Evergreen/Blue/Green/Bluest 각 1). 미선언 등급(Silver·Bronze·Navy Blue·Cobalt Blue)은 계좌는 있으나 ATM 거래 **0건**이라 스케줄을 저작할 표적이 없다 — `default: null` 이라 그 등급이 오면 잘못 계산하지 않고 기권한다. ⚠**순서 정정 (2026-08-24·실물 확인)**: 처음 계약은 *'oldest first'* 로 적었는데 env 의 `get_bank_account_transactions_9173` 는 레코드를 **최신순**으로 돌려준다(072 실측: 11/20 → 11/19 → 11/18 …). 무료 횟수와 리베이트 상한 소진은 시간 순서에 달려 있으므로, 그대로 뒀다면 무료분이 **마지막** 4건에 붙어 조용히 틀렸을 것이다. ⇒ 뒤집어 적으라고 시키지 않고 `date` 를 그대로 베끼게 한 뒤 **엔진이 정렬한다**(`op.order_field`) — 전사 부담을 늘리는 대신 줄이면서 순서 실패 양식을 통째로 없앤다([[10]] 형식화=LLM·계산=엔진).",
+   "return_template_short": "ATM withdrawals whose net charge does NOT match the documented fee schedule for this account level: {details}. SCOPE OF THIS CHECK - each withdrawal you passed in was compared against the documented schedule for this level, which covers a fee charged when none was due, a fee of the wrong amount, a fee that is MISSING where one was due (it shows as a negative difference), the level's documented free-withdrawal allowance, and - for levels whose documents promise ATM fee rebates - a documented rebate the history does not show (for those levels both amounts shown are net of the fee_rebate lines you passed, so a missing rebate shows as a positive difference). It covers ONLY the withdrawals you passed in: if you left an atm_withdrawal of this account out, its error is not in this list and the free-allowance count may be off - pass them all and call again. If corrections are owed, the credit policy requires ONE fee_refund credit for the net correction of THIS account (do not credit the same lines twice). This audit is INCOMPLETE and states no net correction: {missing} of the {read} {kind} record(s) that were read for this account did not reach the check, so any total computed from the lines above would be short. Read the account's records again and call again with EVERY {kind} of this account passed in - including the ones with no fee line, which are exactly the ones that go missing.",
+   "_note_row_count": "2026-08-28 · `T2_SG_ROW_COUNT`. 실측(t7368 task_072#s626729): Bluest 레코드 32 중 `type: atm_withdrawal` 9 → 서브 9 → delta_total 14.0 = gold · Light Green 26 중 10 → 서브 **9** → delta_total 5.0 ≠ gold 3.5. 빠진 한 행이 `btxn_8c58b19a3628 (charged $0.00, documented fee $1.50, difference $-1.50)` = **수수료 줄이 없는 인출**이고, 그런데도 반환문은 `[coverage] 9 of 9 rows were checked (0 could not be verified)` 였다 — 분모가 *넘어온 행 수*라 자기 자신을 잰다(`t2_scaffold_get._short_rows` 독스트링). 그 결과 우리 층이 **틀린 총액을 권위 문면으로** 건넸다([[25]] 위반). || 출처([[23]]): `row_kind` 는 env 도구 출력의 `type:` 값이라 **기계도출**이고 gold 무참조 — `ledger_metrics.row_keys`/`group_field` 와 같은 계보. 문장은 `return_template` 을 총액 문장 앞에서 자른 것 + 재공급 지시뿐이라 새 도메인 저작 0. || 왜 프롬프트 수리가 아니라 검산인가: `T2_SG_PROMPT_V2` 는 같은 결손(수수료 줄 없는 인출 누락)을 **프롬프트 모양**으로 고쳤는데, 074 chk_2 에서 13~15/16 → 16/16 을 사고 072 Light Green 에서 10/10 → 9/10 을 팔았다(t7348 ↔ t7363·t7368). 프롬프트 섭동은 태스크마다 부호가 갈리고([[07]]) 그 손실은 위 coverage 문면 때문에 **조용하다**. 닫힌 검산은 못 본 태스크에서도 참이다([[22]]). || ⚠[[70]] 파는 것: 행이 실제로 모자란 호출에서 총액 한 줄을 잃는다 — 지금 그 자리는 **틀린 총액**이 나가던 자리다. ⚠적게 넘긴 것만 본다(초과·중복은 다른 술어 몫). ⚠종류가 원천에 0건이면 판정하지 않는다. ⚠라이브 효과 미측정 — A/B 가 잰다."
   },
   {
    "name": "get_checking_atm_fee_totals",

@@ -138,8 +138,25 @@ _txt = (E or {}).get("return_template", "").format(
 #   없어야 하는 것: 합계 수치 자체.
 chk("REG: 정책 문구 유지", "net correction" in _txt, _txt[:160])
 chk("REG: 라인별 사실 유지", "difference $2.50" in _txt, _txt[:200])
-chk("REG: 엔진이 net 수치를 안 건넨다", "= $2.50" not in _txt and "delta_total" not in
-    (E or {}).get("return_template", ""), _txt[:200])
+# ★2026-08-28 계약 갱신 — **이 줄은 2026-08-19 판을 고정하고 있었고 2026-08-26 에 뒤집혔다.**
+#   `2109a64e`("The tool already computed the signed total; print it instead of asking the model
+#   to re-add")가 `{delta_total}` 을 `return_template` 에 되살렸고, 그때 이 검정은 갱신되지
+#   않았다. 그래서 이 래칫은 그날부터 **영구히 붉었고**, `test_delta_total_used` 는 정반대
+#   (*"`{delta_total}` 을 쓰는 도구 선언이 없으면 실패"*)를 요구했다 — 두 래칫이 정면 충돌한
+#   상태로 이틀을 갔고, **어느 드라이버의 배터리에도 이 파일이 없어서** 아무도 못 봤다.
+#   ⇒ 낡은 쪽을 지우지 않고 **지금 계약**으로 다시 쓴다. 지금 계약은 08-19 보다 강하다:
+#     총액은 나가되 **행이 다 왔을 때만** 나간다(`T2_SG_ROW_COUNT`·`return_template_short`).
+#     그 근거 = t7368 실물, 우리 도구가 Light Green 에 `5.0` 을 계산해 *"use it as the credit
+#     amount"* 로 건넸고 gold 는 `3.5` 였다(서브가 인출 10 중 9 만 전사).
+_rt0 = (E or {}).get("return_template", "")
+chk("REG(08-26 개정): 엔진이 계산한 순액을 템플릿이 쓴다",
+    "{delta_total}" in _rt0, _rt0[-140:])
+chk("REG(08-28): 그러나 **행이 모자라면 그 문장이 없는 판**으로 나간다",
+    "{delta_total}" not in str((E or {}).get("return_template_short") or "x{delta_total}"),
+    str((E or {}).get("return_template_short"))[-140:])
+chk("REG(08-28): 그 갈림의 술어가 선언돼 있다(`isolate.row_kind`)",
+    bool(((E or {}).get("isolate") or {}).get("row_kind")),
+    repr(((E or {}).get("isolate") or {}).get("row_kind")))
 
 # ⑻ P5(2026-08-21·t7335 halfA 072): 반환문 완결-인상 제거 + 검사/미검사 축 문면 명시.
 #    구 문구 "across all identified fee discrepancies" 가 완결 인상을 줘 모델의 보완
@@ -159,9 +176,18 @@ chk("P5: 옛 미검사 문구 제거(이제 검사한다)",
 chk("P5: [[64]] fix-naming(남은 미검사 축 + 고칠 방법)",
     "covers ONLY the withdrawals you passed in" in _rt and "pass them all and call again" in _rt,
     _rt[-260:])
-chk("P5: 렌더에 {details} 유지·다른 자리표시자 없음",
-    "{details}" in _rt and "difference $2.50" in _txt
-    and not [m for m in __import__("re").findall(r"\{(\w+)", _rt) if m != "details"], _rt[-120:])
+# ★2026-08-28 갱신 — *"다른 자리표시자 없음"* 도 08-19 판이다(위와 같은 사유). 자리표시자
+#   집합을 **닫아서** 고정한다: 늘어나면 걸리고, 지금 있는 것은 이름으로 적어 둔다.
+chk("P5: 렌더에 {details} 유지",
+    "{details}" in _rt and "difference $2.50" in _txt, _rt[-120:])
+chk("P5(08-28): 자리표시자 집합이 닫혀 있다",
+    set(__import__("re").findall(r"\{(\w+)", _rt)) == {"details", "delta_total"},
+    str(sorted(set(__import__("re").findall(r"\{(\w+)", _rt)))))
+chk("P5(08-28): short 판의 자리표시자도 닫혀 있다",
+    set(__import__("re").findall(
+        r"\{(\w+)", str((E or {}).get("return_template_short") or ""))) == {"details", "missing", "read", "kind"},
+    str(sorted(set(__import__("re").findall(
+        r"\{(\w+)", str((E or {}).get("return_template_short") or ""))))))
 
 # ⑷ 3사본 동일
 E2 = load_entry("a2/banking_knowledge.gate.json")
