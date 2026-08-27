@@ -47,7 +47,8 @@ echo "[t7365 $(date +%H:%M:%S)] === 발사 전 배터리 ==="
 BAD=0
 for t in test_procedure_left test_actionreq_grounded test_operator_find_executed \
          test_decision_point_load test_diag_unambiguous \
-         test_read_per_entity test_flag_registry \n         test_arg_label test_a2_three_layer; do
+         test_read_per_entity test_flag_registry \
+         test_arg_label test_a2_three_layer; do
   PYTHONPATH=. PYTHONIOENCODING=utf-8 /home/woori/venvs/seka_env/bin/python $t.py >/dev/null 2>&1
   rc=$?; echo "  $t exit=$rc"; [ $rc -ne 0 ] && BAD=1
 done
