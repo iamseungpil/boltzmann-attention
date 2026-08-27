@@ -76,7 +76,8 @@ ASK_TRANSCRIBE = (
     '"id" (the transaction id, copied verbatim) and "difference" (the number shown for that '
     "line, copied verbatim INCLUDING its sign, as a JSON number). Do not add lines, do not "
     "leave any out, do not total them, do not round, and do not change any sign." + NL +
-    'Example of the shape only: [{"id": "btxn_0000", "difference": 1.25}]')
+    # ⚠`.format(acct=…)` 를 지나가므로 JSON 중괄호는 **두 번** 쓴다.
+    'Example of the shape only: [{{"id": "btxn_0000", "difference": 1.25}}]')
 
 RE_NUM = re.compile(r'"difference"\s*:\s*(-?[\d.]+)')
 RE_ID = re.compile(r'"id"\s*:\s*"([^"]+)"')
