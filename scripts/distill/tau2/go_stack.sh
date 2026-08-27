@@ -195,6 +195,10 @@ export T2_ARG_LABEL=1
 #     `submit_transaction{amount: 750, credit_card_type: "Silver Rewards Card"}` 축자.
 #     네 sim 전부 배달됐고 네 sim 전부 에이전트가 750 을 말했다(16·8·5·2회).
 #     남은 둘은 **손님이 찍는 자리** — 하나는 먼저 $225 를 찍었고 하나는 안 찍었다.
+#   ★★부호표 확정(t7368·hard-0 10×nt2·대조 t7363): 016 **0/2 → 1/2** · 나머지 아홉
+#     **전부 불변** · **1→0 없음** ⇒ 순증. 배달은 016 에서만 18회 — 이 술어는
+#     `ledger_metrics` 스펙 종속이라 폭발 반경이 구조적으로 그 태스크에 갇힌다.
+#     016 재현: t7367 2/4 · t7368 1/2 (대조 0).
 export T2_CARD_DOCS=1
 # ★T2_PROMPT_DUMP (2026-08-27 등재·**계기**이지 레버가 아니다·기본 OFF):
 #   모델이 실제로 본 메시지 전체를 사이드카에 남긴다(`kind=prompt`·`channel=gen`).
