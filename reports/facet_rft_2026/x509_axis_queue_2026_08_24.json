@@ -1041,5 +1041,34 @@
   "그 앞 단계(오늘 아침 확정)": "msg[17] 원장 도착 → **msg[20] 에서 COMPLETE 행(Bronze 11/11)을 고름** → msg[22]·[24] 복창(자기-정박) → msg[25] 우리가 Silver 요건($750/60일) 배달 → msg[26] **그 문서를 읽고 또 Bronze** → 손님은 끝까지 안 찍는다. 그 sim 에서 assistant 의 `750` 발화 **0회**.",
   "⇒ 016 을 뒤집는 조건": "**행을 옳게 고르고(비-COMPLETE 행) 그 금액을 손님에게 말하면** gap 1 이 0 이 된다. 다른 조건은 이미 다 맞다.",
   "다음 계기": "`x559_016_row_pick_iso.py`(작성·배선 검증 완료·미실행) — 결정점 msg[20] 문맥에서 ⑴그대로 ⑵원장 행 `이름(날짜):상태` 재인쇄 ⑶길이 통제. 채점은 **행 단위**(이름만으론 공허 — 네 이름 전부 COMPLETE 와 非COMPLETE 를 동시에 인다)."
+ },
+ "findings_2026_08_27_t7365": {
+  "런": "t7365 · sha b8781473 · task_016 단독 × nt4 = 4 sim · 대조 t7364(016 0/4)·t7363(016 0/2)",
+  "성적": "0/4 — 그러나 **gap 이 인자 값 하나로 줄었다**(아래)",
+  "동결": "ON b8781473 → OFF b8781473 · 동결 8 경로 무변 ⇒ [S]",
+  "영속": "8 파일 tracked+origin 확인",
+  "바꾼_것": "`ledger_metrics[].diagnose_prompt` 한 칸 + `T2_DIAG_UNAMBIGUOUS=0`. 그 외 레버 집합은 t7364 와 동일(ARG_LABEL·READ_PER_ENTITY 포함 0)",
+  "★레버는_발화하고_정박을_옮겼다": {
+   "발화": "`[T2_DIAG] raw='Silver Rewards Card …'` **4/4 sim**",
+   "정박": "assistant 발화 Silver/Bronze — s361454 10/0 · s1567 16/0 · s373753 0/4 · s626729 0/1 ⇒ **2/4 에서 Bronze→Silver**",
+   "대조": "t7363·t7364 에서는 전 sim 이 Bronze/Platinum 이었다",
+   "격리_근거": "x566(8140·4팔×5×2태그): 구판 Platinum 3/5 · 행 단위만 바꾼 팔 Platinum 5/5(**단위는 원인이 아니다**) · 정의의 어휘로 물음 **Silver 10/10** · 부정통제 무응답 5/5"
+  },
+  "★남은_한_칸_=_금액": {
+   "실물": "s1567 msg[43] `submit_transaction{user_id: friend_user_5839, credit_card_type: 'Silver Rewards Card', merchant_name: 'Best Buy', category: 'Shopping', **amount: 150**}` — gold 는 같은 네 인자에 **amount '750'**. 채점 = WRONGARG 1건",
+   "요건_문서는_도착했다": "msg[37] 축자 *'The referred person must be approved and spend at least **$750 within 60 days** of account opening'* ⇒ 전달 결손 아님",
+   "왜_안_잡히나": "`_provenance_deny` 는 ⑴`_hint_hit(k, DEFAULT_ARG_HINTS)` 로 인자 이름을 거르는데 `amount` 가 그 목록에 **없고** ⑵`len(s) < 4` 가 **'150' 을 건너뛴다** ⇒ 정책 유래 수치는 검사 자체를 안 받는다(핸드오프 2026-08-27 §5 가 이미 적어 둔 칸)",
+   "다음_수": "수치 인자 출처검사를 **재기부터**([[62]]) — 코퍼스에서 수치 write 인자가 문맥에 있는 값인지 계수하고, 손님이 준 금액(정당)과 문서 유래 금액(검사 대상)이 갈리는지 본다. ⛔엔진이 750 을 채워 넣으면 gold 프로그램 재작성이다"
+  },
+  "⛔이_세션의_계기_실수_넷": [
+   "x560 주체별 read — 같은 이름의 인자에 든 값을 주체로 셌다(넷 다 오배정 값) ⇒ t7364 0/4 · 플래그 OFF",
+   "x564 1판 — '생산자 출력에 있나' 로 세어 072 에서 진짜 id 를 오답, 계좌 **이름**을 정답으로 뒤집었다",
+   "run_t7365 스모크 게이트 — 배달 **본문 문구**를 마커로 잡았다(뷰 채널이라 로그에 없다) ⇒ 옳게 발화한 런을 세웠다",
+   "공통 원인 = *어디에 있었나* 와 *무엇으로 있었나* 를 섞은 것. 마커는 stderr 자국이어야 한다"
+  ],
+  "부산물": {
+   "T2_ARG_LABEL": "등재(격리 16/16·부호표 5태스크 12sim 전부 reward 0) — 다만 발화 sim 의 **gap 이 최소 3**이라 pass 는 못 산다. 016 에는 발화하지 않는다(`ctx-user` 분류)",
+   "T2_READ_PER_ENTITY": "OFF — 주체라고 부른 값이 그 read 의 주체가 아니었다"
+  }
  }
 }
