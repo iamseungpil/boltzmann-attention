@@ -1,0 +1,833 @@
+{
+ "probe": "x584_search_turn_candidates",
+ "date": "2026-08-28",
+ "target": "apply_checking_account_credit_5829",
+ "tags": [
+  "bank_t7376_treat_20260828",
+  "bank_t7372_control_20260828",
+  "bank_t7375_072_20260828",
+  "bank_t7369_072_20260828",
+  "bank_t7370_radius_20260828",
+  "bank_t7368_hard0_20260827"
+ ],
+ "rows": [
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_016#s626729",
+   "reward": 0.0,
+   "search_turns": 1,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_055#s626729",
+   "reward": 0.0,
+   "search_turns": 16,
+   "would_fire": 15,
+   "cand_max": 24,
+   "target_offered_at": [
+    56,
+    62,
+    74
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_063#s626729",
+   "reward": 0.0,
+   "search_turns": 2,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_057#s626729",
+   "reward": 0.0,
+   "search_turns": 3,
+   "would_fire": 3,
+   "cand_max": 6,
+   "target_offered_at": [
+    68,
+    70,
+    72
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_072#s626729",
+   "reward": 1.0,
+   "search_turns": 3,
+   "would_fire": 2,
+   "cand_max": 7,
+   "target_offered_at": [
+    42,
+    48
+   ],
+   "reached_at": 50
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_074#s626729",
+   "reward": 1.0,
+   "search_turns": 3,
+   "would_fire": 1,
+   "cand_max": 5,
+   "target_offered_at": [
+    78
+   ],
+   "reached_at": 82
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_079#s626729",
+   "reward": 0.0,
+   "search_turns": 15,
+   "would_fire": 14,
+   "cand_max": 15,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_085#s626729",
+   "reward": 0.0,
+   "search_turns": 7,
+   "would_fire": 6,
+   "cand_max": 15,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_016#s373753",
+   "reward": 0.0,
+   "search_turns": 3,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_094#s626729",
+   "reward": 0.0,
+   "search_turns": 4,
+   "would_fire": 3,
+   "cand_max": 6,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_055#s373753",
+   "reward": 0.0,
+   "search_turns": 9,
+   "would_fire": 7,
+   "cand_max": 11,
+   "target_offered_at": [
+    63,
+    65
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_040#s373753",
+   "reward": 0.0,
+   "search_turns": 7,
+   "would_fire": 6,
+   "cand_max": 14,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_040#s626729",
+   "reward": 0.0,
+   "search_turns": 5,
+   "would_fire": 4,
+   "cand_max": 21,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_072#s373753",
+   "reward": 0.0,
+   "search_turns": 5,
+   "would_fire": 4,
+   "cand_max": 10,
+   "target_offered_at": [
+    42,
+    46,
+    48
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_057#s373753",
+   "reward": 0.0,
+   "search_turns": 11,
+   "would_fire": 9,
+   "cand_max": 6,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_063#s373753",
+   "reward": 0.0,
+   "search_turns": 22,
+   "would_fire": 18,
+   "cand_max": 11,
+   "target_offered_at": [
+    84,
+    86
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_079#s373753",
+   "reward": 0.0,
+   "search_turns": 9,
+   "would_fire": 8,
+   "cand_max": 17,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_085#s373753",
+   "reward": 0.0,
+   "search_turns": 3,
+   "would_fire": 2,
+   "cand_max": 6,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_094#s373753",
+   "reward": 0.0,
+   "search_turns": 6,
+   "would_fire": 5,
+   "cand_max": 13,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_074#s373753",
+   "reward": 0.0,
+   "search_turns": 3,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_055#s626729",
+   "reward": 0.0,
+   "search_turns": 8,
+   "would_fire": 7,
+   "cand_max": 8,
+   "target_offered_at": [
+    29,
+    42,
+    48
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_063#s626729",
+   "reward": 0.0,
+   "search_turns": 5,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_057#s626729",
+   "reward": 0.0,
+   "search_turns": 6,
+   "would_fire": 4,
+   "cand_max": 7,
+   "target_offered_at": [
+    96,
+    98
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_072#s626729",
+   "reward": 0.0,
+   "search_turns": 2,
+   "would_fire": 1,
+   "cand_max": 7,
+   "target_offered_at": [
+    39
+   ],
+   "reached_at": 41
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_079#s626729",
+   "reward": 0.0,
+   "search_turns": 5,
+   "would_fire": 4,
+   "cand_max": 9,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_074#s626729",
+   "reward": 0.0,
+   "search_turns": 2,
+   "would_fire": 1,
+   "cand_max": 2,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_094#s626729",
+   "reward": 0.0,
+   "search_turns": 7,
+   "would_fire": 6,
+   "cand_max": 9,
+   "target_offered_at": [
+    40,
+    42,
+    44
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_085#s626729",
+   "reward": 0.0,
+   "search_turns": 10,
+   "would_fire": 9,
+   "cand_max": 17,
+   "target_offered_at": [
+    24,
+    28,
+    32
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_016#s373753",
+   "reward": 0.0,
+   "search_turns": 1,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_040#s626729",
+   "reward": 0.0,
+   "search_turns": 5,
+   "would_fire": 4,
+   "cand_max": 14,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_057#s373753",
+   "reward": 0.0,
+   "search_turns": 7,
+   "would_fire": 7,
+   "cand_max": 9,
+   "target_offered_at": [
+    52,
+    54,
+    56
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_055#s373753",
+   "reward": 0.0,
+   "search_turns": 14,
+   "would_fire": 12,
+   "cand_max": 17,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_040#s373753",
+   "reward": 0.0,
+   "search_turns": 5,
+   "would_fire": 4,
+   "cand_max": 16,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_063#s373753",
+   "reward": 0.0,
+   "search_turns": 10,
+   "would_fire": 1,
+   "cand_max": 4,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_072#s373753",
+   "reward": 0.0,
+   "search_turns": 1,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_074#s373753",
+   "reward": 0.0,
+   "search_turns": 4,
+   "would_fire": 1,
+   "cand_max": 2,
+   "target_offered_at": [],
+   "reached_at": 71
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_079#s373753",
+   "reward": 0.0,
+   "search_turns": 17,
+   "would_fire": 16,
+   "cand_max": 21,
+   "target_offered_at": [
+    63,
+    70,
+    76
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_094#s373753",
+   "reward": 0.0,
+   "search_turns": 4,
+   "would_fire": 3,
+   "cand_max": 10,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_085#s373753",
+   "reward": 0.0,
+   "search_turns": 7,
+   "would_fire": 6,
+   "cand_max": 9,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7375_072_20260828",
+   "sim": "task_072#s626729",
+   "reward": 1.0,
+   "search_turns": 9,
+   "would_fire": 8,
+   "cand_max": 8,
+   "target_offered_at": [
+    35,
+    37,
+    41
+   ],
+   "reached_at": 51
+  },
+  {
+   "tag": "bank_t7375_072_20260828",
+   "sim": "task_072#s373753",
+   "reward": 1.0,
+   "search_turns": 9,
+   "would_fire": 8,
+   "cand_max": 8,
+   "target_offered_at": [
+    40,
+    42,
+    44
+   ],
+   "reached_at": 56
+  },
+  {
+   "tag": "bank_t7375_072_20260828",
+   "sim": "task_072#s361454",
+   "reward": 1.0,
+   "search_turns": 4,
+   "would_fire": 3,
+   "cand_max": 9,
+   "target_offered_at": [
+    18,
+    50,
+    56
+   ],
+   "reached_at": 60
+  },
+  {
+   "tag": "bank_t7375_072_20260828",
+   "sim": "task_072#s1567",
+   "reward": 1.0,
+   "search_turns": 5,
+   "would_fire": 4,
+   "cand_max": 16,
+   "target_offered_at": [
+    34,
+    38,
+    40
+   ],
+   "reached_at": 42
+  },
+  {
+   "tag": "bank_t7369_072_20260828",
+   "sim": "task_072#s626729",
+   "reward": 0.0,
+   "search_turns": 3,
+   "would_fire": 2,
+   "cand_max": 13,
+   "target_offered_at": [
+    38,
+    40
+   ],
+   "reached_at": 42
+  },
+  {
+   "tag": "bank_t7369_072_20260828",
+   "sim": "task_072#s373753",
+   "reward": 0.0,
+   "search_turns": 7,
+   "would_fire": 6,
+   "cand_max": 8,
+   "target_offered_at": [
+    35,
+    37,
+    39
+   ],
+   "reached_at": 41
+  },
+  {
+   "tag": "bank_t7369_072_20260828",
+   "sim": "task_072#s361454",
+   "reward": 0.0,
+   "search_turns": 7,
+   "would_fire": 6,
+   "cand_max": 8,
+   "target_offered_at": [
+    35,
+    37,
+    41
+   ],
+   "reached_at": 43
+  },
+  {
+   "tag": "bank_t7369_072_20260828",
+   "sim": "task_072#s1567",
+   "reward": 0.0,
+   "search_turns": 6,
+   "would_fire": 5,
+   "cand_max": 17,
+   "target_offered_at": [
+    40,
+    46
+   ],
+   "reached_at": 48
+  },
+  {
+   "tag": "bank_t7370_radius_20260828",
+   "sim": "task_074#s626729",
+   "reward": 0.0,
+   "search_turns": 2,
+   "would_fire": 1,
+   "cand_max": 2,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7370_radius_20260828",
+   "sim": "task_072#s626729",
+   "reward": 0.0,
+   "search_turns": 1,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7370_radius_20260828",
+   "sim": "task_085#s626729",
+   "reward": 0.0,
+   "search_turns": 3,
+   "would_fire": 2,
+   "cand_max": 10,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7370_radius_20260828",
+   "sim": "task_072#s373753",
+   "reward": 0.0,
+   "search_turns": 6,
+   "would_fire": 5,
+   "cand_max": 12,
+   "target_offered_at": [
+    44,
+    50
+   ],
+   "reached_at": 52
+  },
+  {
+   "tag": "bank_t7370_radius_20260828",
+   "sim": "task_085#s373753",
+   "reward": 0.0,
+   "search_turns": 7,
+   "would_fire": 6,
+   "cand_max": 14,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7370_radius_20260828",
+   "sim": "task_074#s373753",
+   "reward": 0.0,
+   "search_turns": 3,
+   "would_fire": 2,
+   "cand_max": 2,
+   "target_offered_at": [],
+   "reached_at": 55
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_016#s626729",
+   "reward": 0.0,
+   "search_turns": 2,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_055#s626729",
+   "reward": 0.0,
+   "search_turns": 2,
+   "would_fire": 1,
+   "cand_max": 7,
+   "target_offered_at": [
+    32
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_057#s626729",
+   "reward": 0.0,
+   "search_turns": 9,
+   "would_fire": 8,
+   "cand_max": 10,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_063#s626729",
+   "reward": 0.0,
+   "search_turns": 9,
+   "would_fire": 2,
+   "cand_max": 4,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_072#s626729",
+   "reward": 0.0,
+   "search_turns": 4,
+   "would_fire": 3,
+   "cand_max": 11,
+   "target_offered_at": [
+    40,
+    42,
+    44
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_079#s626729",
+   "reward": 0.0,
+   "search_turns": 7,
+   "would_fire": 6,
+   "cand_max": 14,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_074#s626729",
+   "reward": 0.0,
+   "search_turns": 3,
+   "would_fire": 2,
+   "cand_max": 4,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_094#s626729",
+   "reward": 0.0,
+   "search_turns": 2,
+   "would_fire": 1,
+   "cand_max": 2,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_016#s373753",
+   "reward": 1.0,
+   "search_turns": 4,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_085#s626729",
+   "reward": 0.0,
+   "search_turns": 8,
+   "would_fire": 7,
+   "cand_max": 13,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_040#s626729",
+   "reward": 0.0,
+   "search_turns": 8,
+   "would_fire": 7,
+   "cand_max": 24,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_057#s373753",
+   "reward": 0.0,
+   "search_turns": 3,
+   "would_fire": 2,
+   "cand_max": 8,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_063#s373753",
+   "reward": 0.0,
+   "search_turns": 6,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_072#s373753",
+   "reward": 0.0,
+   "search_turns": 1,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_074#s373753",
+   "reward": 0.0,
+   "search_turns": 11,
+   "would_fire": 9,
+   "cand_max": 13,
+   "target_offered_at": [
+    74,
+    79,
+    81
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_079#s373753",
+   "reward": 0.0,
+   "search_turns": 13,
+   "would_fire": 12,
+   "cand_max": 13,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_085#s373753",
+   "reward": 0.0,
+   "search_turns": 7,
+   "would_fire": 6,
+   "cand_max": 16,
+   "target_offered_at": [
+    64
+   ],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_094#s373753",
+   "reward": 0.0,
+   "search_turns": 1,
+   "would_fire": 0,
+   "cand_max": 0,
+   "target_offered_at": [],
+   "reached_at": null
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_040#s373753",
+   "reward": 0.0,
+   "search_turns": 3,
+   "would_fire": 2,
+   "cand_max": 8,
+   "target_offered_at": [],
+   "reached_at": null
+  }
+ ],
+ "limits": [
+  "레지스트리를 이름 규칙으로 근사했다(a2 에 목록이 없다).",
+  "반경이지 효과가 아니다 — 발화가 행동을 바꾸는지는 런이 답한다.",
+  "gold 무참조 — reward 는 참고 열이다([[23]])."
+ ]
+}
