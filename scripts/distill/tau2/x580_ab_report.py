@@ -47,7 +47,14 @@ MARKS = {
     "FORCE_ACTION": r"\[T2_FORCE_ACTION\]",
     "Traceback": r"Traceback",
 }
-RE_TOTAL = re.compile(r"computed by this tool, is ([-\d.]+)")
+# 2026-08-28 수리 — **어느 자국이 어디에 있는지** 명시한다.
+#   핸드오프 §5-5 가 "계수기가 옆을 본다"로 적어 둔 결함이다. `This audit is INCOMPLETE` 와
+#   `computed by this tool, is` 는 **도구 반환문**이라 궤적(results.json)에만 있고 로그엔 없다.
+#   실측(t7376): "computed by this tool, is" -> 로그 0회 · 궤적 8회.
+#   => 로그에서 세면 (4) 총액 패널이 **구조적으로 빈 표**가 된다(값이 없는 게 아니라 안 보는 것).
+#   `operand-size` 는 우리 층 인쇄라 로그가 맞다(같은 런 로그 10회) — 그래서 출처를 나눈다.
+MARK_SRC = {"short 문면 배달": "traj"}          # 명시 안 된 것은 로그
+RE_TOTAL = re.compile(r"computed by this tool, is ([-\d.]+)")   # <- 궤적에서 센다
 RE_SIZE = re.compile(r"operand-size (\S+?)\.\w+: sub=(\d+) rows · source=(\d+) rows(?: · (\w+)=(\d+) rows)?")
 
 
@@ -69,8 +76,11 @@ def arm_data(tag):
         log = F.log_text(tag) or ""
     except Exception:
         log = ""
-    marks = {k: len(re.findall(v, log)) for k, v in MARKS.items()}
-    totals = collections.Counter(RE_TOTAL.findall(log))
+    traj = "\n".join(str(m.get("content") or "")
+                     for s in sims for m in (s.get("messages") or []))
+    marks = {k: len(re.findall(v, traj if MARK_SRC.get(k) == "traj" else log))
+             for k, v in MARKS.items()}
+    totals = collections.Counter(RE_TOTAL.findall(traj))
     sizes = [{"tool": m[0], "sub": int(m[1]), "source": int(m[2]),
               "kind": m[3] or None, "kind_rows": int(m[4]) if m[4] else None}
              for m in RE_SIZE.findall(log)]
@@ -175,7 +185,8 @@ def main(argv=None):
                    "sign": {"up": up, "down": down, "flat": flat},
                    "limits": ["reward 가 유일한 성적이다([[69]]) — gap·자국은 진단 보조.",
                               "두 팔은 **서버가 다르다**(8140 ↔ 8141·argv 는 포트만 다름).",
-                              "로그 자국은 문자열 계수일 뿐 인과가 아니다([[08]])."]},
+                              "로그 자국은 문자열 계수일 뿐 인과가 아니다([[08]]).",
+                              "자국 출처 분리: 도구 반환문(총액·short)은 궤적, 우리 층 인쇄는 로그."]},
                   f, ensure_ascii=False, indent=1)
     print("")
     print("-> %s" % os.path.normpath(dst))
