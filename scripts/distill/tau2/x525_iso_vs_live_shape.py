@@ -321,6 +321,39 @@ def main():
                              instr + "\n\n=== RECORDS ===\n" + text +
                              "\n\n# Field contract\ntransactions: " + params +
                              "\n\n" + afmt}]
+                elif arm == "Q_wirefresh":
+                    # ★배선할 형태 그대로 (2026-08-28·072 를 닫는 형태를 라이브에 옮기기 전 검정).
+                    #   `K_paramslast` 가 072 를 10/10 으로 닫고 074 를 안 깼는데, **배선 대상과
+                    #   두 칸 다르다**(`t2_scaffold_get.py:911` 의 `_close`):
+                    #     ⑴ 엔진 마감에는 `instructions` 가 **없다**
+                    #     ⑵ 엔진은 `msgs = list(msgs) + [_um2]` 로 **앞 턴(REFERENCE·tool 원장)을
+                    #        유지**한다 — K 는 앞 턴이 아예 없다
+                    #   그리고 머리말 문자열도 다르다(`# Field contract` ↔ `=== FIELD CONTRACT ===`).
+                    #   C578 이 머리말 한 칸으로 26/26 ↔ 0/26 을 갈랐으므로 **쓸 문자열 그대로** 잰다.
+                    #   ⇒ 이 팔 = 마감 라운드에서 **앞 턴을 버리고 자기완결 한 통**으로 다시 묻는다.
+                    #     이기면 수리는 `_close` 한 곳에서 `+` 를 `=` 로 바꾸고 instructions 를
+                    #     앞에 붙이는 것뿐이다(엔진이 쓰는 새 문장 0 · 전부 선언 텍스트).
+                    msgs = [{"role": "user", "content":
+                             instr + "\n\n=== RECORDS ===\n" + text +
+                             "\n\n=== FIELD CONTRACT ===\ntransactions: " + params +
+                             "\n\n" + afmt}]
+                elif arm == "Q_keepturns":
+                    # ★대조 — 위와 **모든 문면이 같고** 앞 턴만 남긴다(엔진의 현재 `+` 동작).
+                    #   Q_wirefresh 가 이기고 이 팔이 지면, 산 것은 문면이 아니라 **앞 턴을 버린 것**이다.
+                    msgs = [
+                        {"role": "user", "content":
+                         instr + "\n\n=== REFERENCE ===\naccount_id: " + acc},
+                        {"role": "assistant", "content": "",
+                         "tool_calls": [{"id": "c1", "type": "function",
+                                         "function": {"name": getter, "arguments": json.dumps(
+                                             {"agent_tool_name": "get_bank_account_transactions_9173",
+                                              "account_id": acc}, ensure_ascii=False)}}]},
+                        {"role": "tool", "tool_call_id": "c1", "content": text},
+                        {"role": "user", "content":
+                         instr + "\n\n=== RECORDS ===\n" + text +
+                         "\n\n=== FIELD CONTRACT ===\ntransactions: " + params +
+                         "\n\n" + afmt},
+                    ]
                 elif arm == "H_asklast":
                     # ★남은 차이 ⑵ (2026-08-24): 이긴 팔 `A_probe` 만 **요구 문장이 원장 뒤**에 있다.
                     #   다른 모든 팔은 형식이 원장 앞이다(라이브도 그렇다). 그 한 칸만 민다 —
