@@ -379,6 +379,36 @@ def close_text(iso, contract, records, selfcontained):
     return "".join(parts)
 
 
+def _dedup_by_id(rows, id_field):
+    """선언된 `id_field` 로 묶어 **완전히 같은 행**만 지운다 -> (남긴 행, 지운 수, 충돌 id).
+
+    원장 id 는 유일하므로 같은 id 의 **똑같은 행**은 정보를 하나도 더하지 않는다. 지우는 것이
+    안전하고, 어떤 행을 남길지 고르는 판단이 없다. 반대로 같은 id 인데 **내용이 다르면** 둘 중
+    무엇이 옳은지가 판단이므로 **지우지 않는다**([[62]] 3 - 사라지는 모델 판단이 없어야 한다).
+    충돌 id 는 그대로 돌려주어 호출자가 총액 단언을 접을 수 있게 한다.
+
+    계기 (2026-08-28 · t7378 `task_074#s361454`): 같은 계좌·같은 원장인데 재호출에서 서브가
+    16행 -> **19행**을 냈고 늘어난 3행이 중복이었다. 비교기가 그대로 더해 30.00 을 냈다
+    (옳은 값 14.50). `_short_rows` 가 *"중복·초과 행은 다른 술어의 몫"* 이라 미뤄 둔 자리다.
+    """
+    seen, keep, ndrop, conflicts = {}, [], 0, []
+    for r in (rows or []):
+        if not isinstance(r, dict) or id_field not in r:
+            keep.append(r)
+            continue
+        rid = str(r.get(id_field))
+        sig = repr(sorted((str(a), str(b)) for a, b in r.items()))
+        if rid not in seen:
+            seen[rid] = sig
+            keep.append(r)
+        elif seen[rid] == sig:
+            ndrop += 1
+        else:
+            conflicts.append(rid)
+            keep.append(r)
+    return keep, ndrop, sorted(set(conflicts))
+
+
 def _short_rows(sr):
     """서브가 **선언된 종류의 레코드보다 적게** 넘겼나 → (부족분, 종류, 원천수) or None.
 
@@ -1144,6 +1174,38 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
             _kre = re.compile(r"(?im)^[ \t]*type:[ \t]*%s[ \t]*$" % re.escape(_kind))
             for _t in _ok_outs:
                 _kind_rows += len(_kre.findall(_t))
+        # 중복 행 제거 (2026-08-28 · t7378 `task_074#s361454` 실물 · [[25]] 우리 도구는 100% 정답 의무).
+        #   실측: 같은 계좌·같은 원장인데 첫 호출은 16행, 손님이 총액 확인을 청한 뒤의 재호출은
+        #   **19행**이 나왔다 (`operand-size ... sub=19 · atm_withdrawal=16  MISMATCH` - 그 런에 단 1건).
+        #   늘어난 3행은 `btxn_ar_lb_03f_err`·`05f_err`·`08f_err` 의 **중복**이었고, 비교기가 그것을
+        #   그대로 더해 총액 30.00 을 냈다(옳은 값 14.50). 반환문은 `19 of 19 (0 could not be
+        #   verified)` 라 **성공처럼 보였고**, 모델은 선언대로 그 수를 크레딧으로 제출해 이미
+        #   14.50 이 적용된 계좌에 재적용했다 = reward 0.
+        #   기록된 tool_call 인자로 `apply_op` 를 직접 돌리면 두 호출 모두 `total=16` 에 같은
+        #   출력이다(오프라인 재현). 즉 **op 는 결정적이고 중복은 전사 서브가 만들었다**.
+        #   술어는 닫혀 있다: 선언의 `id_field` 로 묶어 **완전히 같은 행**만 지운다. 같은 id 인데
+        #   내용이 다르면 **지우지 않는다** - 그건 고르는 일이고 우리 몫이 아니다([[62]] 3).
+        #   `_short_rows` 주석이 *"중복·초과 행은 다른 술어의 몫"* 이라 미뤄 둔 바로 그 자리다.
+        _idf = ""
+        try:
+            if isinstance(d.get("op"), dict):
+                _idf = str(d["op"].get("id_field") or "")
+        except Exception:
+            _idf = ""
+        if _idf and isinstance(got, dict):
+            for _k, _v in list(got.items()):
+                if not (isinstance(_v, list) and len(_v) > 1):
+                    continue
+                _keep, _ndrop, _conf = _dedup_by_id(_v, _idf)
+                if _ndrop or _conf:
+                    print("[T2_SG_DEDUP] %s.%s: 같은 %s 의 완전중복 %d행 제거 · 내용충돌 %s "
+                          "(%d행 -> %d행)"
+                          % (d.get("name"), _k, _idf, _ndrop, sorted(set(_conf)) or "없음",
+                             len(_v), len(_keep)),
+                          file=_sys.stderr, flush=True)
+                if _ndrop:
+                    got[_k] = _keep
+
         _sub_rows = 0
         for _k, _v in (got or {}).items():
             if isinstance(_v, list):
