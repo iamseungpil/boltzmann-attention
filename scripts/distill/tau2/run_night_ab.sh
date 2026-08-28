@@ -47,7 +47,7 @@ echo "[$TAG] === 발사 전 배터리 ==="
 BAD=0
 # ★`test_atm_fee_op` 을 **넣는다**. 오늘까지 이 파일은 어느 배터리에도 없었고 그래서 08-26 부터
 #   붉은 채 아무도 못 봤다(계약 두 개가 정면 모순인 상태로 이틀). 오늘 29/29 로 고쳤으니 싣는다.
-for t in test_sg_close_self test_sg_row_count test_freeze_multihold test_atm_fee_op test_atm_ledger_close \
+for t in test_sg_dedup test_write_once_key test_write_amount_evidence test_sg_close_self test_sg_row_count test_freeze_multihold test_atm_fee_op test_atm_ledger_close \
          test_rebate_netting test_delta_total_used test_actionreq_grounded test_procedure_left \
          test_operator_find_executed test_decision_point_load test_diag_unambiguous \
          test_read_per_entity test_flag_registry test_arg_label test_a2_three_layer test_card_docs; do

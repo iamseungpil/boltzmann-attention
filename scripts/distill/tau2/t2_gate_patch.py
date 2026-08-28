@@ -1609,6 +1609,60 @@ def _param_cap_deny(agent, la, UserMessage, messages, tc, specs):
     return None
 
 
+def _wev_expand(tokens, flat, idv):
+    """`require_tokens_any` 의 자리표시자를 채운다: `{id}` + **`{arg:NAME}`**.
+
+    왜 `{arg:...}` 가 필요한가 (2026-08-28 · t7378 `task_074#s626729`):
+    우리 비교기가 msg[55~57] 에서 `14.5` · `4.75` · `3.7` 을 내고 반환문이 축자로
+    *"That signed total is the net correction for THIS account - use it as the credit amount"*
+    라고 말했는데, 모델은 손님이 msg[59] 에서 말한 `9.00` · `1.50` · `1.50` 을 제출했다
+    (손님은 `_err` 접미사 붙은 행만 세어 부분합을 냈다). **우리 값도 지시도 있었는데** 층위가
+    뒤집혔다([[25]] env·손님은 외부 주장 · 우리 도구가 정본).
+    => 필요한 술어: *"이 금액이 이 대화의 어떤 도구 출력에 우리가 계산한 값으로 실재하는가"*.
+    `{id}` 만으로는 표현할 수 없어 **호출 인자 값**을 토큰에 넣을 수 있게 한다.
+
+    ⚠숫자는 표기가 갈린다(`14.5` ↔ `14.50` ↔ `14`). 오차단을 피하려고 **여러 표기를 모두**
+      만들어 하나라도 맞으면 통과시킨다. 엔진은 값을 만들지도 고르지도 않는다 - 모델이 보낸
+      그 값을 **찾을 뿐**이다([[03b]] provenance 계열).
+    ⚠비교기 반환문에는 계좌 id 가 **없다**(축자 확인). 그래서 id 공존을 요구하는
+      `require_tokens` 가 아니라 이쪽(`require_tokens_any`)에 얹는다.
+    """
+    out = []
+    for t in (tokens or []):
+        cand = [str(t).replace("{id}", str(idv))]
+        while True:
+            grew = False
+            for c in list(cand):
+                i = c.find("{arg:")
+                if i < 0:
+                    continue
+                j = c.find("}", i)
+                if j < 0:
+                    continue
+                nm = c[i + 5:j]
+                v = flat.get(nm)
+                if v is None:
+                    cand.remove(c)
+                    grew = True
+                    continue
+                forms = {str(v)}
+                try:
+                    f = float(v)
+                    forms.update(("%g" % f, "%.1f" % f, "%.2f" % f))
+                    if f == int(f):
+                        forms.add(str(int(f)))
+                except Exception:
+                    pass
+                cand.remove(c)
+                for fm in forms:
+                    cand.append(c[:i] + fm + c[j + 1:])
+                grew = True
+            if not grew:
+                break
+        out.extend(cand)
+    return out
+
+
 def _wev_deny_msgs(messages, tc, specs):
     """★T2_WRITE_EVIDENCE: A2 `write_evidence_specs` — 선언된 write 전, 요구 토큰이 대상 id와
     **같은 도구 출력**(role=tool·env 생성물·user *발화*는 제외)에 공존해야 실행.
@@ -1666,7 +1720,18 @@ def _wev_deny_msgs(messages, tc, specs):
         #   두고 **자격 없는 상태명을 A2가 선언**해 배제한다. 엔진은 집합 비포함만 본다(리터럴 0).
         tokens = sp.get("require_tokens") or []
         forbid = sp.get("forbid_tokens") or []
-        any_tokens = sp.get("require_tokens_any") or []
+        # 2026-08-28 - `{arg:NAME}` 치환(위 `_wev_expand`). 중첩 JSON 인자도 편다.
+        _flat = dict(args)
+        for _v9 in list(args.values()):
+            if isinstance(_v9, str) and _v9.strip().startswith("{"):
+                try:
+                    _in9 = json.loads(_v9)
+                except Exception:
+                    continue
+                if isinstance(_in9, dict):
+                    for _k9, _vv9 in _in9.items():
+                        _flat.setdefault(_k9, _vv9)
+        any_tokens = _wev_expand(sp.get("require_tokens_any") or [], _flat, idv)
         found = False
         found_any = not any_tokens
         blocked_by = []                 # ★어느 forbid 토큰이 막았나(리뷰 D: over-block 사후 귀속)
@@ -1681,8 +1746,7 @@ def _wev_deny_msgs(messages, tc, specs):
                     blocked_by.extend(h for h in hit if h not in blocked_by)
                 else:
                     found = True
-            if not found_any and any(t.replace("{id}", str(idv)) in c
-                                     for t in any_tokens):
+            if not found_any and any(t in c for t in any_tokens):
                 found_any = True
             if found and found_any:
                 break

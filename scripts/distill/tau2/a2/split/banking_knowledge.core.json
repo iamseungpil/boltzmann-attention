@@ -4094,6 +4094,21 @@
    ],
    "feedback": "Error: [WRITE-EVIDENCE] the amount_difference ({id}) does not appear in any get_interest_correction tool output in this conversation. Do NOT compute it yourself - call get_interest_correction (after reading the account record and transactions) and copy the amount exactly from its output.",
    "_note": "위와 동일 근거(보고서 write 쌍대)."
+  },
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "apply_checking_account_credit"
+   },
+   "id_key": "account_id",
+   "require_tokens_any": [
+    "computed by this tool, is {arg:amount}"
+   ],
+   "feedback": "Error: [WRITE-EVIDENCE] the amount you passed for this credit is not a total the audit tool computed in this conversation. That tool reports the signed total for one account and states it is the net correction to use as the credit amount; a figure quoted back to you in conversation is not that total and may cover only some of the lines. Re-read the audit result for {id} and send the signed total it reports; if you do not have one for that account, run the audit for it first. {evidence}",
+   "_note_": "2026-08-28 · t7378 task_074#s626729. 우리 비교기가 msg[55~57] 에서 14.5 · 4.75 · 3.7 을 내고 반환문이 축자로 \"use it as the credit amount\" 라고 했는데, 모델은 손님이 msg[59] 에서 말한 9.00 · 1.50 · 1.50 을 제출했다(손님은 _err 접미사 행만 세었다). 우리 값도 지시도 있었는데 층위가 뒤집혔다([[25]]).",
+   "_note_radius_": "배선 전 오프라인 반경(8런·크레딧 쓰기 58건): 막힐 것 **4건**이고 그 4건이 전부 WRONGARG 다(s626729 의 9.0·1.5·1.5 + t7370 s373753 의 5.0). 오차단 0 · reward=1 인 sim 의 쓰기 28건 중 막힐 것 0.",
+   "_note_source_": "출처는 우리 도구의 반환 선언 축자 - \"That signed total is the net correction for THIS account - use it as the credit amount; do not re-add the figures by hand\" · 그리고 \"the credit policy requires ONE fee_refund credit for the net correction of THIS account\". gold 무참조([[23]])."
   }
  ],
  "transfer_reason_policy": {
