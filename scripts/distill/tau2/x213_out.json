@@ -1,0 +1,148 @@
+{
+ "bank_c13_gpu1/0/A_FULL": [
+  0,
+  6
+ ],
+ "bank_c13_gpu1/0/B_ONEDOC": [
+  0,
+  6
+ ],
+ "bank_c13_gpu1/0/C_NOXFER": [
+  0,
+  6
+ ],
+ "bank_c13_gpu1/0/D_BOTH": [
+  0,
+  6
+ ],
+ "bank_c13_gpu1/0/F_A3": [
+  0,
+  6
+ ],
+ "bank_c13_gpu1/0/G_ONTO": [
+  6,
+  6
+ ],
+ "bank_c13_gpu1/0/E_CLEAN": [
+  2,
+  6
+ ],
+ "bank_c13_gpu1/0/STRIP": [
+  0,
+  6
+ ],
+ "bank_day8frontB_20260729/0/A_FULL": [
+  0,
+  6
+ ],
+ "bank_day8frontB_20260729/0/B_ONEDOC": [
+  0,
+  6
+ ],
+ "bank_day8frontB_20260729/0/C_NOXFER": [
+  0,
+  6
+ ],
+ "bank_day8frontB_20260729/0/D_BOTH": [
+  6,
+  6
+ ],
+ "bank_day8frontB_20260729/0/F_A3": [
+  6,
+  6
+ ],
+ "bank_day8frontB_20260729/0/G_ONTO": [
+  6,
+  6
+ ],
+ "bank_day8frontB_20260729/0/E_CLEAN": [
+  5,
+  6
+ ],
+ "bank_day8frontB_20260729/0/STRIP": [
+  0,
+  6
+ ],
+ "bank_n97_gpu0_main_20260804/0/A_FULL": [
+  0,
+  6
+ ],
+ "bank_n97_gpu0_main_20260804/0/B_ONEDOC": [
+  0,
+  6
+ ],
+ "bank_n97_gpu0_main_20260804/0/C_NOXFER": [
+  0,
+  6
+ ],
+ "bank_n97_gpu0_main_20260804/0/D_BOTH": [
+  0,
+  6
+ ],
+ "bank_n97_gpu0_main_20260804/0/F_A3": [
+  2,
+  6
+ ],
+ "bank_n97_gpu0_main_20260804/0/G_ONTO": [
+  6,
+  6
+ ],
+ "bank_n97_gpu0_main_20260804/0/E_CLEAN": [
+  6,
+  6
+ ],
+ "bank_n97_gpu0_main_20260804/0/STRIP": [
+  0,
+  6
+ ],
+ "ours_n32int8_floor_bank/0/A_FULL": [
+  1,
+  6
+ ],
+ "ours_n32int8_floor_bank/0/B_ONEDOC": [
+  2,
+  6
+ ],
+ "ours_n32int8_floor_bank/0/C_NOXFER": [
+  2,
+  6
+ ],
+ "ours_n32int8_floor_bank/0/D_BOTH": [
+  1,
+  6
+ ],
+ "ours_n32int8_floor_bank/0/F_A3": [
+  2,
+  6
+ ],
+ "ours_n32int8_floor_bank/0/G_ONTO": [
+  6,
+  6
+ ],
+ "ours_n32int8_floor_bank/0/E_CLEAN": [
+  6,
+  6
+ ],
+ "ours_n32int8_floor_bank/0/STRIP": [
+  0,
+  6
+ ],
+ "_agg": {
+  "A_FULL/h": 1,
+  "A_FULL/n": 24,
+  "B_ONEDOC/h": 2,
+  "B_ONEDOC/n": 24,
+  "C_NOXFER/h": 2,
+  "C_NOXFER/n": 24,
+  "D_BOTH/h": 7,
+  "D_BOTH/n": 24,
+  "F_A3/h": 10,
+  "F_A3/n": 24,
+  "G_ONTO/h": 24,
+  "G_ONTO/n": 24,
+  "E_CLEAN/h": 19,
+  "E_CLEAN/n": 24,
+  "STRIP/h": 0,
+  "STRIP/n": 24
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "OLD": {
+  "\uc774\uc720X": 8,
+  "\uc774\uad00X": 8
+ },
+ "WINONLY": {
+  "\uc774\uc720X": 5,
+  "\uc774\uad00X": 7,
+  "\uc774\uc720O": 3,
+  "\uc774\uad00O": 1
+ },
+ "BOTHNEW": {
+  "\uc774\uc720X": 3,
+  "\uc774\uad00X": 8,
+  "\uc774\uc720O": 5
+ },
+ "OLDDOC": {
+  "\uc774\uc720O": 8,
+  "\uc774\uad00X": 8
+ },
+ "WINDOC": {
+  "\uc774\uc720O": 8,
+  "\uc774\uad00X": 8
+ },
+ "D_null": {
+  "\uc774\uc720X": 8,
+  "\uc774\uad00X": 8
+ }
+}

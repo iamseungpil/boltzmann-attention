@@ -4199,5 +4199,21 @@
     "EcoCard: Exceptions and Exclusions"
    ]
   }
- }
+ },
+ "write_once_keys": [
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "apply_checking_account_credit"
+   },
+   "keys": [
+    "agent_tool_name",
+    "account_id"
+   ],
+   "_note_": "2026-08-28 · t7378 task_074#s361454. `T2_DUP_WRITE` 는 그 런에서 켜져 있었는데도 막지 못했다 - `_mut_key_of` 가 인자 **전체**를 키로 쓰기 때문이다(같은 계좌에 14.5 를 적용한 뒤 30.0 을 적용 = 다른 키). 정책의 유일성 키는 **계좌**다.",
+   "_note_source_": "도구 설명 축자(env 출력): \"The apply_checking_account_credit_5829 tool may only be called ONCE per checking account per customer interaction. After a credit is applied to a checking account, the system enforces a 14-day cooldown period\" - gold 무참조([[23]])."
+  }
+ ],
+ "_note_write_once_keys": "정책이 선언한 **유일성 키**. 엔진은 이 이름들의 값을 읽어 이어 붙일 뿐이고 무엇이 유일한지는 여기서만 정한다([[05]])."
 }

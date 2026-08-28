@@ -1,0 +1,50 @@
+{
+ "task_098/A_ASIS": [
+  0,
+  8
+ ],
+ "task_098/B_LAST": [
+  0,
+  8
+ ],
+ "task_098/C_NOKB": [
+  0,
+  8
+ ],
+ "task_098/D_ONLY": [
+  8,
+  8
+ ],
+ "task_098/E_NOBLOCK": [
+  0,
+  8
+ ],
+ "task_098/F_TRIM": [
+  0,
+  8
+ ],
+ "task_099/A_ASIS": [
+  0,
+  8
+ ],
+ "task_099/B_LAST": [
+  8,
+  8
+ ],
+ "task_099/C_NOKB": [
+  8,
+  8
+ ],
+ "task_099/D_ONLY": [
+  8,
+  8
+ ],
+ "task_099/E_NOBLOCK": [
+  0,
+  8
+ ],
+ "task_099/F_TRIM": [
+  8,
+  8
+ ]
+}

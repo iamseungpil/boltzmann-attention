@@ -1,0 +1,230 @@
+{
+ "bank_stack_all_20260807g/0/T_FULL": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/T_noKB": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/T_noOURS": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/T_noASSIST": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/T_noUSER": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/ISO": [
+  7,
+  8
+ ],
+ "bank_stack_all_20260807g/0/ISO_LONG": [
+  6,
+  8
+ ],
+ "bank_stack_all_20260807g/0/ISO_NO": [
+  0,
+  8
+ ],
+ "bank_stack_all_20260807g/0/grow-00": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/grow-01": [
+  7,
+  8
+ ],
+ "bank_stack_all_20260807g/0/grow-02": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/grow-03": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/grow-04": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/grow-06": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/grow-08": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/grow-12": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/grow-16": [
+  8,
+  8
+ ],
+ "bank_stack_all_20260807g/0/grow-24": [
+  7,
+  8
+ ],
+ "bank_stack_all_20260807g/0/grow-56": [
+  6,
+  8
+ ],
+ "bank_arb3_gpu0/1/T_FULL": [
+  8,
+  8
+ ],
+ "bank_arb3_gpu0/1/T_noKB": [
+  8,
+  8
+ ],
+ "bank_arb3_gpu0/1/T_noOURS": [
+  8,
+  8
+ ],
+ "bank_arb3_gpu0/1/T_noASSIST": [
+  6,
+  8
+ ],
+ "bank_arb3_gpu0/1/T_noUSER": [
+  8,
+  8
+ ],
+ "bank_arb3_gpu0/1/ISO": [
+  7,
+  8
+ ],
+ "bank_arb3_gpu0/1/ISO_LONG": [
+  8,
+  8
+ ],
+ "bank_arb3_gpu0/1/ISO_NO": [
+  0,
+  8
+ ],
+ "bank_arb3_gpu0/1/grow-00": [
+  6,
+  8
+ ],
+ "bank_arb3_gpu0/1/grow-01": [
+  8,
+  8
+ ],
+ "bank_arb3_gpu0/1/grow-02": [
+  8,
+  8
+ ],
+ "bank_arb3_gpu0/1/grow-03": [
+  8,
+  8
+ ],
+ "bank_arb3_gpu0/1/grow-04": [
+  8,
+  8
+ ],
+ "bank_arb3_gpu0/1/grow-06": [
+  7,
+  8
+ ],
+ "bank_arb3_gpu0/1/grow-08": [
+  8,
+  8
+ ],
+ "bank_arb3_gpu0/1/grow-12": [
+  6,
+  8
+ ],
+ "bank_arb3_gpu0/1/grow-16": [
+  8,
+  8
+ ],
+ "bank_arb3_gpu0/1/grow-24": [
+  7,
+  8
+ ],
+ "bank_arb3_gpu0/1/grow-34": [
+  7,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/T_FULL": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/T_noKB": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/T_noOURS": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/T_noASSIST": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/T_noUSER": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/ISO": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/ISO_LONG": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/ISO_NO": [
+  0,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/grow-00": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/grow-01": [
+  7,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/grow-02": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/grow-03": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/grow-04": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/grow-06": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/grow-08": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/grow-12": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/grow-16": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/grow-24": [
+  8,
+  8
+ ],
+ "bank_stack_dp_20260808p/1/grow-38": [
+  8,
+  8
+ ]
+}

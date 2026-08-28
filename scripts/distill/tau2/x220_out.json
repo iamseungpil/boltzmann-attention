@@ -1,0 +1,50 @@
+{
+ "task_098/G_LIVE": [
+  0,
+  8
+ ],
+ "task_098/H_NOERR": [
+  1,
+  8
+ ],
+ "task_098/I_NORUNNERS": [
+  0,
+  8
+ ],
+ "task_098/J_BOTH": [
+  0,
+  8
+ ],
+ "task_098/K_ANSWERONLY": [
+  0,
+  8
+ ],
+ "task_098/L_NONE": [
+  0,
+  8
+ ],
+ "task_099/G_LIVE": [
+  8,
+  8
+ ],
+ "task_099/H_NOERR": [
+  8,
+  8
+ ],
+ "task_099/I_NORUNNERS": [
+  8,
+  8
+ ],
+ "task_099/J_BOTH": [
+  8,
+  8
+ ],
+ "task_099/K_ANSWERONLY": [
+  8,
+  8
+ ],
+ "task_099/L_NONE": [
+  0,
+  8
+ ]
+}

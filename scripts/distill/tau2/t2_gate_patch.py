@@ -5395,6 +5395,60 @@ def _mut_key_of(tc):
         return ""
 
 
+def _once_key_of(tc, a2):
+    """A2 `write_once_keys` 가 선언한 **정책의 유일성 키**로 변이 키를 좁힌다 (없으면 None).
+
+    왜 (2026-08-28 · t7378 `task_074#s361454` · `T2_DUP_WRITE` 는 그 런에서 **켜져 있었다**):
+    `apply_checking_account_credit_5829` 의 도구 설명은 축자로 "may only be called ONCE per
+    checking account per customer interaction" 이라고 **계좌당 1회**를 말한다. 그런데
+    `_mut_key_of` 는 이름 + **인자 전체**를 키로 쓰므로 같은 계좌에 `amount=14.5` 를 적용한 뒤
+    `amount=30.0` 을 다시 적용하는 것은 **다른 키**라 통과했다. `_DUP_WRITE_FB` 문면도
+    *"same tool, same arguments"* 를 전제한다.
+    => **가드의 키가 정책의 키와 달랐다.** 정책이 무엇으로 유일한지는 A2 가 선언하고 엔진은
+    그 이름들의 값을 **읽어 이어 붙일 뿐**이다(도메인 낱말 0 · [[05]]).
+
+    선언이 없으면 None 을 돌려 종전 거동(인자 전체 키)을 그대로 둔다 = fail-open.
+    """
+    try:
+        specs = (a2 or {}).get("write_once_keys") or []
+    except Exception:
+        return None
+    if not specs:
+        return None
+    # `applies_to` 는 **원 도구 이름**을 쓴다(`_wev_deny_msgs` 와 같은 규약).
+    #   `_eff_tool_name` 은 디스패처를 이미 해석해 `apply_checking_account_credit` 를 돌려주므로
+    #   그것만 보면 `call_discoverable_agent_tool` 선언과 안 맞는다 - 첫 판에서 실제로 안 맞았다.
+    raw = str(getattr(tc, "name", "") or "")
+    name = _eff_tool_name(tc) or ""
+    exact = _exact_tool_name(tc) or ""
+    args = _args_dict(tc) or {}
+    flat = dict(args)
+    for _v in list(args.values()):
+        if isinstance(_v, str) and _v.strip().startswith("{"):
+            try:
+                _inner = json.loads(_v)
+            except Exception:
+                continue
+            if isinstance(_inner, dict):
+                for _k2, _v2 in _inner.items():
+                    flat.setdefault(_k2, _v2)
+    for sp in specs:
+        if sp.get("applies_to") not in (raw, name, exact):
+            continue
+        aw = sp.get("applies_when") or {}
+        if aw.get("arg"):
+            v = str(flat.get(aw["arg"]) or "")
+            pref = aw.get("prefix")
+            if pref and not v.startswith(pref):
+                continue
+        keys = [k for k in (sp.get("keys") or []) if k in flat]
+        if not keys:
+            continue
+        return "once|%s|%s" % (exact or name,
+                               "|".join("%s=%s" % (k, flat[k]) for k in sorted(keys)))
+    return None
+
+
 def _succeeded_mut_keys(msgs, a2w):
     """이 대화에서 **성공한 변이**의 키 집합. 결과 메시지가 오류가 아니어야 한다."""
     out = {}
@@ -5410,12 +5464,21 @@ def _succeeded_mut_keys(msgs, a2w):
                     continue
                 body = str(getattr(mj, "content", "") or "")
                 if not getattr(mj, "error", False) and not body.lstrip().startswith("Error:"):
-                    k = _mut_key_of(tc)
-                    if k and k not in out:
-                        out[k] = (i, body)
+                    for k in (_mut_key_of(tc), _once_key_of(tc, a2w)):
+                        if k and k not in out:
+                            out[k] = (i, body)
                 break
     return out
 
+
+_DUP_WRITE_ONCE_FB = (
+    "Error: [DUPLICATE-WRITE] This tool was already run successfully for this same "
+    "target earlier in this conversation, and it may only be applied ONCE per target, so "
+    "this call was REMOVED and not run. It ran at message {at} and returned:\n\n"
+    "{result}\n\nThat change is already done. If the amount you were about to send "
+    "differs from the one that went through, do NOT apply a second one - say what was "
+    "already applied and, if it is wrong, follow the policy for correcting an applied "
+    "credit.")
 
 _DUP_WRITE_FB = (
     "Error: [DUPLICATE-WRITE] This exact call (same tool, same arguments) already succeeded "
@@ -11353,11 +11416,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                     for _dc in (am.tool_calls or []):
                         if not _is_effective_write(_eff_tool_name(_dc), _a2_of(self)):
                             continue
-                        _dk = _mut_key_of(_dc)
-                        if not _dk or _dk not in _dupmap:
+                        # 2026-08-28 - 정책이 선언한 유일성 키(`write_once_keys`)를 먼저 본다.
+                        #   `_mut_key_of` 는 인자 전체를 키로 쓰므로 *같은 계좌·다른 금액* 의
+                        #   재적용을 통과시켰다(t7378 `task_074#s361454`: 14.5 뒤 30.0).
+                        _dk = None
+                        for _cand in (_once_key_of(_dc, _a2_of(self)), _mut_key_of(_dc)):
+                            if _cand and _cand in _dupmap:
+                                _dk = _cand
+                                break
+                        if not _dk:
                             continue
                         _dat, _dres = _dupmap[_dk]
-                        dup_fb = (_dc, _DUP_WRITE_FB.format(at=_dat, result=str(_dres)[:700]))
+                        _tpl = (_DUP_WRITE_ONCE_FB if str(_dk).startswith("once|")
+                                else _DUP_WRITE_FB)
+                        dup_fb = (_dc, _tpl.format(at=_dat, result=str(_dres)[:700]))
                         print("[T2_DUP_WRITE] deny tool=%s (앞선 성공 msg=%s)"
                               % (_eff_tool_name(_dc), _dat), file=_sys.stderr, flush=True)
                         _lbeat("T2_DUP_WRITE", orch=self, target=_eff_tool_name(_dc),

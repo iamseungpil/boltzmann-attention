@@ -10236,5 +10236,21 @@
    "text": "Maximum liability by reporting timing: reported within 2 business days of the statement = $50; reported within 60 days of the statement = $500; reported after 60 days = unlimited liability, and the tool takes -1 for unlimited.",
    "_note_": "★2026-08-25 신설. 격리 x538(085·창 5·n4): 창 그대로 **12/20** ↔ 이 표를 결정점에 놓으면 **20/20** ↔ 같은 길이의 무관한 문장 **12/20**([[57]] 통과). 합성도 쟀다 — x538b 에서 이미 실려 있는 '가장 이른 중복' 문장과 **함께** 실었을 때 `B_both` **20/20** 으로 서로 죽이지 않는다([[19]]). 왜 필요한가(t7354 라이브 실측): 085 의 유일한 미달 행에서 표기 아홉이 닫히고 나면 남는 칸이 `customer_max_liability_amount` 하나이고 제출값이 **'0'** 이다 — 표 안에 없는 값이다. 격리의 A_asis 는 '30000'·'50000' 을 8/20 냈다(라이브의 '0' 을 축자로 재현하지는 못했다 — 그 단서를 남긴다). 출처 = 문서 축자: \"- Reported within 2 business days of statement: Maximum liability $50 / - Reported within 60 days of statement: Maximum liability $500 / - Reported after 60 days: Unlimited liability - customer may not recover funds\" (doc_bank_accounts_bank_accounts_(general)_031 'Internal: Filing a Debit Card Transaction Dispute') + 도구 문서 \"customer_max_liability_amount (number): ... Use -1 for unlimited liability.\" ⚠엔진은 어느 티어가 옳은지 판정하지 않는다 — 신고 시점을 읽는 것은 모델 몫이다([[62]]③④)."
   }
- ]
+ ],
+ "write_once_keys": [
+  {
+   "applies_to": "call_discoverable_agent_tool",
+   "applies_when": {
+    "arg": "agent_tool_name",
+    "prefix": "apply_checking_account_credit"
+   },
+   "keys": [
+    "agent_tool_name",
+    "account_id"
+   ],
+   "_note_": "2026-08-28 · t7378 task_074#s361454. `T2_DUP_WRITE` 는 그 런에서 켜져 있었는데도 막지 못했다 - `_mut_key_of` 가 인자 **전체**를 키로 쓰기 때문이다(같은 계좌에 14.5 를 적용한 뒤 30.0 을 적용 = 다른 키). 정책의 유일성 키는 **계좌**다.",
+   "_note_source_": "도구 설명 축자(env 출력): \"The apply_checking_account_credit_5829 tool may only be called ONCE per checking account per customer interaction. After a credit is applied to a checking account, the system enforces a 14-day cooldown period\" - gold 무참조([[23]])."
+  }
+ ],
+ "_note_write_once_keys": "정책이 선언한 **유일성 키**. 엔진은 이 이름들의 값을 읽어 이어 붙일 뿐이고 무엇이 유일한지는 여기서만 정한다([[05]])."
 }
