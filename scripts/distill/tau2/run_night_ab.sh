@@ -72,6 +72,16 @@ env_arm() {
   else
     export T2_ACTIONREQ_GROUNDED=0 T2_SG_ROW_COUNT=0 T2_SG_CLOSE_SELF=0
   fi
+  # -- 계기 통과 (2026-08-28) --------------------------------------------
+  #   `AB_EXTRA_ENV` 는 `A=1 B=2` 꼴 한 줄이다. **계기 전용**이고 레버를 여기로 넣지 마라 —
+  #   팔은 위 두 줄에서만 갈린다(이 파일이 존재하는 이유).
+  #   왜 여기인가: `go_stack.sh` 가 계기 기본값(`T2_PROMPT_DUMP=0` 등)을 **무조건 덮으므로**
+  #   바깥에서 export 해도 안 먹는다. 그래서 source 뒤에 얹는다.
+  #   ⚠`PORT` 처럼 흔한 이름을 쓰지 마라(§5-2) — 접두는 `AB_`.
+  if [ -n "$AB_EXTRA_ENV" ]; then
+    echo "[$TAG] 계기 추가(레버 아님): $AB_EXTRA_ENV"
+    export $AB_EXTRA_ENV
+  fi
 }
 
 # ── ① 스모크 — 팔에 맞는 것만 본다 ───────────────────────────────────────
