@@ -1,0 +1,100 @@
+{
+ "probe": "x586_row_count_liveness",
+ "date": "2026-08-28",
+ "rows": [
+  {
+   "tag": "t7370_radius_20260828",
+   "obs": 15,
+   "kind": 15,
+   "short": 6,
+   "over": 5,
+   "fired": 6,
+   "self_close": 0
+  },
+  {
+   "tag": "t7370_smoke_20260828",
+   "obs": 1,
+   "kind": 1,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 0
+  },
+  {
+   "tag": "t7371_treat_20260828_smoke",
+   "obs": 3,
+   "kind": 3,
+   "short": 2,
+   "over": 0,
+   "fired": 2,
+   "self_close": 0
+  },
+  {
+   "tag": "t7372_control_20260828",
+   "obs": 15,
+   "kind": 12,
+   "short": 2,
+   "over": 8,
+   "fired": 0,
+   "self_close": 0
+  },
+  {
+   "tag": "t7372_control_20260828_smoke",
+   "obs": 2,
+   "kind": 2,
+   "short": 1,
+   "over": 0,
+   "fired": 0,
+   "self_close": 0
+  },
+  {
+   "tag": "t7375_072_20260828",
+   "obs": 8,
+   "kind": 8,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 8
+  },
+  {
+   "tag": "t7375_072_20260828_smoke",
+   "obs": 1,
+   "kind": 1,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 1
+  },
+  {
+   "tag": "t7376_treat_20260828",
+   "obs": 11,
+   "kind": 9,
+   "short": 0,
+   "over": 3,
+   "fired": 0,
+   "self_close": 13
+  },
+  {
+   "tag": "t7376_treat_20260828_smoke",
+   "obs": 2,
+   "kind": 2,
+   "short": 0,
+   "over": 0,
+   "fired": 0,
+   "self_close": 2
+  }
+ ],
+ "totals": {
+  "obs": 58,
+  "kind": 53,
+  "short": 11,
+  "over": 16,
+  "fired": 8,
+  "self_close": 24
+ },
+ "limits": [
+  "종류 선언 계기는 t7370 부터라 그 전 런은 분모가 없다.",
+  "로그 축자 계수일 뿐 인과가 아니다([[08]]).",
+  "대조 팔은 레버가 OFF 라 실발화 0 이 맞다 - 결함이 아니다."
+ ]
+}
