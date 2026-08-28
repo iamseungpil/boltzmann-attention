@@ -11167,7 +11167,20 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                     _tseen = getattr(self, "_t2_argtype_deny", None)
                                     if _tseen is None:
                                         _tseen = self._t2_argtype_deny = set()
-                                    _tk = str(_exact_tool_name(c) or "")
+                                    # 2026-08-28 수리 - 캡의 키를 **도구 이름**에서 **변이 키**로.
+                                    #   캡은 재생성 무한루프를 막으려고 있는데, 도구 이름으로 잠그면
+                                    #   *같은 도구를 여러 건 부르는* 태스크에서 **첫 건만** 고쳐지고
+                                    #   나머지가 그대로 나간다. 실측(t7376 `task_040`): 한 sim 이
+                                    #   `file_credit_card_transaction_dispute_4829` 를 8번 부르며
+                                    #   `contacted_merchant`/`eligible_for_provisional_credit` 를
+                                    #   문자열 `'true'`/`'false'` 로 보냈는데 이 레버는 런 전체에서
+                                    #   **2회**(sim 당 1회)만 발화했고 **7건이 그대로 접수**됐다.
+                                    #   env 는 문자열을 받아 저장하므로 호출은 성공하고 `db_match` 만
+                                    #   조용히 실패한다 - 그래서 로그로도 안 보였다.
+                                    #   변이 키(이름+인자 접기·`_mut_key_of` 정본 재사용·[[67]])로
+                                    #   잠그면 **같은 호출의 재발행만** 막히고 새 건은 제 몫의 한 번을
+                                    #   받는다. 술어는 그대로 닫혀 있다(`isinstance(v, bool)` 뿐).
+                                    _tk = _mut_key_of(c) or str(_exact_tool_name(c) or "")
                                     if _tk and _tk not in _tseen:
                                         _tseen.add(_tk)
                                         en_fb = (c, str(_sp.get("type_feedback") or "").format(

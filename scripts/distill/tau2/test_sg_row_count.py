@@ -143,6 +143,43 @@ if sim is not None:
         chk(fires[0] is None and fires[1] == (1, "atm_withdrawal", 10),
             "술어가 9 짜리엔 침묵하고 10 짜리에서만 선다", str(fires))
 
+# ── 대칭 축: `_over_rows` (2026-08-28 · t7378 task_074#s361454) ────────────────
+#   그 sim 은 이 계좌의 `atm_withdrawal` 16 건보다 3 건 많은 **19 행**을 넘겼고 비교기가
+#   그대로 더해 30.00 이 나갔다(옳은 값 14.50). coverage 분모가 **넘어온 행**이라 초과가
+#   원리상 안 보였다. 술어는 `_short_rows` 의 대칭이고 같은 레버 아래 산다.
+print("")
+print("[대칭] _over_rows — 많이 넘긴 것만 잡는다")
+chk(SG._over_rows({"kind": "atm_withdrawal", "kind_rows": 16, "sub": 19}) == (3, "atm_withdrawal", 16),
+    "16 짜리 계좌에 19 행이 오면 초과 3 으로 선다", "실물 t7378 s361454")
+chk(SG._over_rows({"kind": "atm_withdrawal", "kind_rows": 16, "sub": 16}) is None,
+    "같으면 침묵")
+chk(SG._over_rows({"kind": "atm_withdrawal", "kind_rows": 16, "sub": 9}) is None,
+    "적으면 침묵 — 그 축은 _short_rows 몫")
+chk(SG._over_rows({"kind": None, "kind_rows": 0, "sub": 19}) is None,
+    "종류가 선언 안 됐으면 판정하지 않는다")
+chk(SG._over_rows({"kind": "atm_withdrawal", "kind_rows": 0, "sub": 19}) is None,
+    "원천에서 그 종류를 못 셌으면 판정하지 않는다")
+chk(SG._over_rows(None) is None, "재료가 없으면 침묵")
+chk(SG._short_rows({"kind": "atm_withdrawal", "kind_rows": 16, "sub": 19}) is None,
+    "두 술어는 겹치지 않는다 (_short_rows 는 초과에 침묵)")
+
+# 선언: 두 층에 `return_template_over` 가 있고 총액 문장이 **없다**
+for _lay in sorted(decl):
+    _t = decl[_lay]
+    _ov = _t.get("return_template_over")
+    chk(bool(_ov), "%s 에 return_template_over 가 선언돼 있다" % _lay)
+    if _ov:
+        chk("{delta_total}" not in _ov,
+            "%s: 초과 템플릿에 총액 자리표시자가 없다" % _lay)
+        chk("{extra}" in _ov, "%s: 초과분 자리표시자가 있다" % _lay)
+        chk(_ov.split("This audit is INCOMPLETE")[0]
+            == (_t.get("return_template_short") or "").split("This audit is INCOMPLETE")[0],
+            "%s: SCOPE 문면이 short 와 축자 동일 (새 저작 0)" % _lay)
+if len(decl) == 2:
+    chk(decl["gate"].get("return_template_over")
+        == decl["specific"].get("return_template_over"),
+        "두 층의 초과 템플릿이 축자 동일 ([[24]])")
+
 print("")
 print("RESULT: %s" % ("PASS" if not FAIL else "FAIL (%d) %s" % (len(FAIL), FAIL[:3])))
 sys.exit(0 if not FAIL else 1)

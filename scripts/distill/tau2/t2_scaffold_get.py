@@ -409,6 +409,41 @@ def _dedup_by_id(rows, id_field):
     return keep, ndrop, sorted(set(conflicts))
 
 
+def _over_rows(sr):
+    """서브가 **선언된 종류의 레코드보다 많이** 넘겼나 -> (초과분, 종류, 원천수) or None.
+
+    `_short_rows` 의 대칭이고 같은 레버(`T2_SG_ROW_COUNT`) 아래 산다([[60]] 통합).
+    그 함수의 주석이 *"중복·초과 행은 다른 술어의 몫"* 이라 미뤄 둔 두 축 중 나머지다
+    (앞의 축 = `_dedup_by_id`).
+
+    계기 (2026-08-28 · t7378 `task_074#s361454` · 그 런에 단 1건):
+
+        operand-size get_atm_fee_discrepancies.transactions:
+            sub=19 rows · source=31 rows · atm_withdrawal=16 rows   MISMATCH
+
+    19 행을 그대로 더해 총액 **30.00** 이 나갔다(옳은 값 14.50). 그런데 반환문은
+    `[coverage] 19 of 19 rows were checked (0 could not be verified)` 였다 - 분모가
+    **서브가 넘긴 것**이라 초과가 원리상 안 보인다. 모델은 선언대로 그 수를 크레딧으로
+    제출했고 이미 14.50 이 적용된 계좌에 재적용돼 DB 가 어긋났다.
+
+    `_dedup_by_id` 가 **완전히 같은 행**은 이미 지운다. 여기까지 살아남은 초과는
+    ⒜ 같은 id 인데 내용이 다르거나 ⒝ 이 계좌의 것이 아닌 행이다 - 둘 다 **어느 쪽이 옳은지가
+    판단**이라 엔진이 고르면 안 된다([[62]] 3). 그래서 고치지 않고 **총액을 단언하지 않는다**.
+
+    술어는 세기 + 같음 비교뿐이고 종류 이름은 선언(`isolate.row_kind`)에서만 온다
+    ([[05]]·[[22]] - 태스크 id 0 · 도메인 낱말 0).
+    종류가 선언되지 않았거나 원천에서 한 건도 못 셌으면 **판정하지 않는다**([[25]]).
+    """
+    if not isinstance(sr, dict):
+        return None
+    kind = sr.get("kind")
+    kind_rows = sr.get("kind_rows") or 0
+    sub = sr.get("sub") or 0
+    if not kind or not kind_rows or sub <= kind_rows:
+        return None
+    return (sub - kind_rows, kind, kind_rows)
+
+
 def _short_rows(sr):
     """서브가 **선언된 종류의 레코드보다 적게** 넘겼나 → (부족분, 종류, 원천수) or None.
 
@@ -2853,6 +2888,7 @@ def apply():
                     #     amount"*)이 그대로 남아 모순이 된다. 이미 `T2_RETURN_EMPTY` 가 쓰는
                     #     `_tpl_key` 기구를 그대로 탄다([[67]] 사본 금지).
                     _short = None
+                    _over = None
                     if os.environ.get("T2_SG_ROW_COUNT") == "1":
                         _short = _short_rows(
                             (getattr(self, "_t2_sub_srcrows", None) or {}).get(d.get("name")))
@@ -2867,12 +2903,31 @@ def apply():
                                   "종전대로 나간다" % (d.get("name"), _short[1], _short[2],
                                                        _short[2] - _short[0]),
                                   file=_sys.stderr, flush=True)
+                        if _short is None:
+                            _over = _over_rows(
+                                (getattr(self, "_t2_sub_srcrows", None) or {}).get(d.get("name")))
+                            if _over and d.get("return_template_over"):
+                                _tpl_key = "return_template_over"
+                                print("[T2_SG_ROW_COUNT] %s: %s %d 인데 %d 가 넘어왔다(초과 %d) — "
+                                      "총액 %.2f 를 단언하지 않는다"
+                                      % (d.get("name"), _over[1], _over[2], _over[2] + _over[0],
+                                         _over[0], _dtot), file=_sys.stderr, flush=True)
+                            elif _over:
+                                print("[T2_SG_ROW_COUNT] %s: %s 초과 %d — 대체 템플릿 미선언이라 "
+                                      "종전대로 나간다" % (d.get("name"), _over[1], _over[0]),
+                                      file=_sys.stderr, flush=True)
+                    _ov = None
+                    try:
+                        _ov = _over
+                    except NameError:
+                        _ov = None
                     _txt = d.get(_tpl_key, "{ids}").format(
                         ids=", ".join(_res) if _res else "(none)", details=_details,
                         delta_total=_dtot,
                         missing=(_short[0] if _short else 0),
-                        kind=(_short[1] if _short else ""),
-                        read=(_short[2] if _short else 0))
+                        kind=(_short[1] if _short else (_ov[1] if _ov else "")),
+                        read=(_short[2] if _short else (_ov[2] if _ov else 0)),
+                        extra=(_ov[0] if _ov else 0))
                     _n = len(_res)
                     # ★C195: 판정 커버리지 병기(op가 _sg_stats를 남긴 경우만·거동보존).
                     #   "(none)"의 침묵-신뢰 차단: 몇 행을 판정했고 몇 행이 판정불가였는지 +
