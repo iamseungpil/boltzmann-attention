@@ -58,8 +58,21 @@ def main():
     print("① 배선 — 엔진 안에 있고, 플래그 뒤에 있고, 고르지 않는다")
     chk('os.environ.get("T2_ACTIONREQ_GROUNDED") == "1"' in src, "환경 플래그로 갈린다")
     i = src.find('os.environ.get("T2_ACTIONREQ_GROUNDED") == "1"')
-    blk = src[i:i + 1800]
+    blk = src[i:i + 5200]
     chk("_utgt = None" in blk, "근거가 없으면 **지목을 비운다**(발화가 사라진다)")
+
+    # 2026-08-29 - 침묵의 **자격**. 072 에서 옳은 침묵이 016 에서는 대화를 막다른 곳으로
+    #   보냈다(두 런 다 인간 상담원 이관으로 종료 · `750` 발화 23·12 -> 0). 갈리는 것은
+    #   그 시점에 **에이전트가 직접 할 수 있는 일이 남아 있느냐**이고, 코퍼스 전수
+    #   (533 런·침묵 116 건)에서 016 만 38 건 발화로 바뀌고 072(38)·074(13) 는 한 건도 안 바뀐다.
+    chk("_delivered_unused_agent_tools" in src, "자격 술어가 정본 헬퍼로 있다")
+    chk("_pa_open" in blk, "침묵이 그 자격 뒤에 걸려 있다")
+    chk("침묵 안 함" in blk, "자격 미달일 때 **왜 침묵 안 하는지** 로그가 남는다")
+    j = src.find("def _delivered_unused_agent_tools")
+    hblk = src[j:j + 1400] if j >= 0 else ""
+    chk("_agent_discoverable" in hblk and "_unlocked_names" in hblk,
+        "헬퍼는 레지스트리 ∩ 배달 − 호출/해제 뿐이다 (고르는 것 0)")
+    chk("gold" not in hblk.lower(), "헬퍼에 gold 참조 0 ([[23]])")
     chk("chr(10).join(_seen_txt)" in blk, "축자 대조 하나로 판정한다")
     for bad in ("sort(", "max(", "argmax", "[0]"):
         chk(bad not in blk, "엔진이 고르지 않는다 — %r 없음" % bad)

@@ -2927,6 +2927,30 @@ def classify_tool_error(msgs, a2):
     return None
 
 
+def _delivered_unused_agent_tools(orch, messages, a2):
+    """이 대화가 **이미 받은 문서가 이름을 댔고 아직 안 부른** 에이전트-측 도구 (없으면 []).
+
+    레지스트리 ∩ 이미 배달된 텍스트 − 이미 호출/해제. 이 집합이 **비었다** =
+    *에이전트가 직접 할 수 있는 일이 남아 있지 않다* 이고, 그때는 손님을 가리키는 것이
+    유일한 진행 경로다. P-A 의 침묵 자격이 여기에 걸린다.
+
+    ⚠`T2_SEARCH_EXHAUST` 가 같은 계산을 **인라인으로** 갖고 있다([[67]] 위반). 그 경로를
+      건드리는 것은 검정이 없어 미뤘다 — 다음에 이 함수 호출로 접어라.
+    """
+    try:
+        reg = _agent_discoverable(getattr(getattr(orch, "_t2_orch", None), "environment", None))
+        if not reg:
+            return []
+        txt = chr(10).join(str(getattr(m, "content", "") or "") for m in (messages or [])
+                           if getattr(m, "role", None) == "tool")
+        used = {_exact_tool_name(t) for m in (messages or [])
+                for t in (getattr(m, "tool_calls", None) or [])}
+        used |= _unlocked_names(messages, a2)
+        return sorted(n for n in reg if n in txt and n not in used)
+    except Exception:
+        return []
+
+
 def _transfer_tools(a2):
     """포기/이관 도구 집합 = A2서 도출(엔진 리터럴 0·[[05]]). 우선순위:
     (1) a2["transfer_tools"] 명시 (2) notice-kind 게이트의 applies_to(이관 전 고지=이관도구)."""
@@ -9743,7 +9767,33 @@ def apply_unified_regen(max_prov_retries=4, domain=None, disamb=False, use_badwo
                                 #     고르는 것이 없다. 이름이 대화에 있으면 종전대로 발화한다.
                                 #   ⚠판단 0 — *무엇을 하라*는 말은 안 한다. 근거 없는 지목을
                                 #     **안 하는 것**뿐이다([[64]] 이름을 못 대면 말하지 않는다).
-                                if (os.environ.get("T2_ACTIONREQ_GROUNDED") == "1"
+                                # 침묵의 **자격** (2026-08-29 · per-step 포렌식).
+                                #   P-A 는 *"대화에 없는 이름은 지목하지 않는다"* 인데, 072 에서
+                                #   옳은 그 침묵이 016 에서는 대화를 막다른 곳으로 보냈다:
+                                #   두 런(t7376·t7384) 다 두 seed 가 **인간 상담원 이관**으로 끝났고
+                                #   통과 프레임인 `750` 발화가 23·12 -> 0 으로 사라졌다.
+                                #   갈리는 것은 **그 시점에 에이전트가 직접 할 수 있는 일이
+                                #   남아 있느냐**다. 코퍼스 전수(533 런·침묵 116 건·침묵 시점을
+                                #   `[T2_SUBWIN] msgs=N` 으로 고정):
+                                #       016  발화로 38 · 유지 3      <- 되찾을 자리
+                                #       063  발화로  9 · 유지 6
+                                #       072  발화로  0 · 유지 38     <- 한 건도 안 바뀐다
+                                #       074  발화로  0 · 유지 13
+                                #       040·055·057·085  전부 유지
+                                #   072 는 침묵할 때마다 `apply_checking_account_credit_5829` 가
+                                #   배달됐고 미호출이었다 = *"손님 시키지 말고 네가 해라"* 가 맞다.
+                                #   016 은 38/41 자리에서 열린 도구가 **하나도 없었다**.
+                                #   ⚠술어는 닫혀 있다(집합 차·[[22]]) - 도메인 낱말 0 · gold 무참조.
+                                #   ⚠이관 도구를 따로 빼도 **수가 같다**(V1=V2) - 구분이 필요 없다.
+                                _pa_on = os.environ.get("T2_ACTIONREQ_GROUNDED") == "1"
+                                _pa_open = _delivered_unused_agent_tools(
+                                    self, state.messages, a2) if _pa_on else None
+                                if _pa_on and not _pa_open and _utgt and _utgt in _upending:
+                                    print("[T2_ACTIONREQ] 침묵 안 함: 에이전트가 직접 할 수 있는 "
+                                          "일이 남아 있지 않다 - 손님을 가리키는 것이 유일한 "
+                                          "진행 경로다 (target=%s)" % _utgt,
+                                          file=_sys.stderr, flush=True)
+                                if (_pa_on and _pa_open
                                         and _utgt and _utgt in _upending):
                                     try:
                                         _seen_txt = []
