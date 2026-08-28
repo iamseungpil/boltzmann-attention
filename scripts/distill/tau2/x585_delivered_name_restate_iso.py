@@ -99,15 +99,66 @@ def prompts(path, simtag=None, minlen=8000):
 
 
 def was_called(text, name):
-    return re.search(re.escape(CALLED) + r"\s*:\s*\"" + re.escape(name), text) is not None
+    """이 프롬프트 안에서 그 도구가 **이미 불렸다는 흔적**이 있나.
+
+    ⚠2026-08-28 수리 — 첫 판은 `agent_tool_name": "<이름>` 만 봤고, 라이브 프롬프트의 렌더가
+    그 모양이 아니라 **이미 실행된 도구 둘을 '아직 안 불렀다'고 되읊을 뻔했다**
+    (`get_all_user_accounts_by_user_id_3847` 는 `Executed:` 로, `get_bank_account_transactions_9173`
+    은 인자 지목으로 흔적이 있었다). 우리 문면이 거짓이면 그건 우리 결함이다([[25]]).
+    ★라이브 레버(`_cand9`)는 `state.messages` 로 보므로 이 결함이 **없다** - 여기서 놓치면
+    프로브가 라이브와 **다른 문면**을 재게 된다([[78]] iso<->live).
+    """
+    if ("Executed: " + name) in text:
+        return True
+    if re.search(re.escape(CALLED) + r"?\s*[:=]\s*\"?" + re.escape(name), text):
+        return True
+    return False
 
 
-def pick_turn(recs):
-    for r in recs:
-        t = str(r.get("text") or "")
-        if TARGET in t and not was_called(t, TARGET):
-            return r
-    return None
+def _already_committed(text, alt="initial_transfer_to_human_agent"):
+    """꼬리에서 에이전트가 **이미 대안을 하겠다고 자기 입으로 선언**했나.
+
+    왜 (2026-08-28 · x590): turn=61 을 결정점으로 잡았는데 그 프롬프트의 꼬리가
+    *"I need to unlock and call the `initial_transfer_to_human_agent_0218` tool ... Let me unlock
+    and call the `initial_transfer_to_human_agent_0218` tool"* 였다. 거기서는 모델이 **결정하는
+    게 아니라 자기 문장을 잇는다**([[18]] 자기-정박·`x572` 동형) - 네 팔(A·B_add·C_sub·N_len)이
+    전부 표적 0/5 · 이관지목 5/5 로 **완전히 동률**이었고, 그건 빼기의 실패가 아니라
+    **결정점이 아니었다**는 뜻이다.
+    ⇒ 결정점의 자격: 그 대안에 대한 **자기 선언이 아직 없어야** 한다. 술어는 닫혀 있다
+      (꼬리 2500자에 `unlock|call ... <대안이름>` 이 있나).
+    """
+    tail = text[-2500:]
+    return re.search(r"(unlock|call)[^.]{0,60}" + re.escape(alt), tail, re.I) is not None
+
+
+def _is_subcall(text):
+    """우리 층 서브콜 프롬프트인가 - 꼬리가 **구조 출력**을 요구하면 그렇다."""
+    tail = text[-1800:]
+    return ('"claims"' in tail) or ('"pending"' in tail) or ("Return ONLY" in tail)
+
+
+def pick_turn(recs, pick="last"):
+    """되짚기가 의미 있는 프롬프트 = 표적이 이미 배달됐는데 **아직 안 불린** 자리.
+
+    ⚠기본은 **가장 늦은** 것이다. 첫 판에서 `turn=4` 를 골랐는데 그건 대화 초반이라
+    *"이름을 일찍 대면 부르나"* 를 재는 것이고, 실패는 거기서 나지 않는다. 실물의 결정점은
+    에이전트가 **또 검색하고 포기하는 늦은 턴**이다(x584b 의 좁히기 (6)도 그 자리에 선다).
+    `--pick first` 로 초반 자리도 볼 수 있게 남겨 둔다."""
+    hits = [r for r in recs
+            if TARGET in str(r.get("text") or "") and not was_called(str(r.get("text") or ""), TARGET)]
+    # 서브콜 프롬프트를 뺀다 (2026-08-28 수리). 첫 판이 `turn=61` 의 **형식화 서브**를 골랐고
+    #   세 팔이 전부 `{"claims": [...]}` 를 냈다 - 그 서브는 애초에 도구를 안 부르므로
+    #   *"되짚으면 부르나"* 를 잴 수 없는 자리였다([[78]] 격리에서 실패하면 무엇이 빠졌는지부터).
+    #   판별은 **우리 자신의 서브 지시 문면**으로 한다(도메인 텍스트 0).
+    hits = [r for r in hits if not _is_subcall(str(r.get("text") or ""))]
+    # 자기 선언 이후는 결정점이 아니다 (위 `_already_committed`). 남는 게 없으면 필터를 풀고
+    # **그 사실을 호출자가 알 수 있게** 종전대로 돌려준다(조용한 통과 금지).
+    _open = [r for r in hits if not _already_committed(str(r.get("text") or ""))]
+    if _open:
+        hits = _open
+    if not hits:
+        return None
+    return hits[0] if pick == "first" else hits[-1]
 
 
 def restate_line(base):
@@ -127,6 +178,7 @@ def main(argv=None):
     ap.add_argument("--port", type=int, default=8140)
     ap.add_argument("--n", type=int, default=4)
     ap.add_argument("--temp", type=float, default=0.7)
+    ap.add_argument("--pick", default="last", choices=["first", "last"])
     ap.add_argument("--wiring-only", action="store_true")
     a = ap.parse_args(argv)
 
@@ -138,7 +190,7 @@ def main(argv=None):
         return 2
 
     recs = prompts(a.dump, a.simtag)
-    r = pick_turn(recs)
+    r = pick_turn(recs, a.pick)
     if r is None:
         sys.stderr.write("[STOP] 표적 이름이 실린 미호출 프롬프트가 없다 - 판정하지 않는다([[25]])\n")
         return 2
