@@ -1,0 +1,326 @@
+{
+ "probe": "x583_write_tool_discovery",
+ "date": "2026-08-28",
+ "tool": "apply_checking_account_credit_5829",
+ "tags": [
+  "bank_t7375_072_20260828",
+  "bank_t7376_treat_20260828",
+  "bank_t7372_control_20260828",
+  "bank_t7369_072_20260828",
+  "bank_t7370_radius_20260828",
+  "bank_t7368_hard0_20260827"
+ ],
+ "rows": [
+  {
+   "tag": "bank_t7375_072_20260828",
+   "sim": "task_072#s626729",
+   "reward": 1.0,
+   "delivered_at": 3,
+   "called_at": 51,
+   "n_kb": 9,
+   "n_msgs": 76
+  },
+  {
+   "tag": "bank_t7375_072_20260828",
+   "sim": "task_072#s373753",
+   "reward": 1.0,
+   "delivered_at": 3,
+   "called_at": 56,
+   "n_kb": 9,
+   "n_msgs": 66
+  },
+  {
+   "tag": "bank_t7375_072_20260828",
+   "sim": "task_072#s361454",
+   "reward": 1.0,
+   "delivered_at": 3,
+   "called_at": 60,
+   "n_kb": 4,
+   "n_msgs": 66
+  },
+  {
+   "tag": "bank_t7375_072_20260828",
+   "sim": "task_072#s1567",
+   "reward": 1.0,
+   "delivered_at": 3,
+   "called_at": 42,
+   "n_kb": 5,
+   "n_msgs": 52
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_055#s626729",
+   "reward": 0.0,
+   "delivered_at": 55,
+   "called_at": null,
+   "n_kb": 16,
+   "n_msgs": 106
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_057#s626729",
+   "reward": 0.0,
+   "delivered_at": 41,
+   "called_at": null,
+   "n_kb": 3,
+   "n_msgs": 106
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_072#s626729",
+   "reward": 1.0,
+   "delivered_at": 3,
+   "called_at": 50,
+   "n_kb": 3,
+   "n_msgs": 58
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_074#s626729",
+   "reward": 1.0,
+   "delivered_at": 37,
+   "called_at": 82,
+   "n_kb": 3,
+   "n_msgs": 94
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_055#s373753",
+   "reward": 0.0,
+   "delivered_at": 42,
+   "called_at": null,
+   "n_kb": 9,
+   "n_msgs": 73
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_072#s373753",
+   "reward": 0.0,
+   "delivered_at": 3,
+   "called_at": null,
+   "n_kb": 5,
+   "n_msgs": 58
+  },
+  {
+   "tag": "bank_t7376_treat_20260828",
+   "sim": "task_063#s373753",
+   "reward": 0.0,
+   "delivered_at": 83,
+   "called_at": null,
+   "n_kb": 22,
+   "n_msgs": 96
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_055#s626729",
+   "reward": 0.0,
+   "delivered_at": 27,
+   "called_at": null,
+   "n_kb": 10,
+   "n_msgs": 70
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_057#s626729",
+   "reward": 0.0,
+   "delivered_at": 95,
+   "called_at": null,
+   "n_kb": 6,
+   "n_msgs": 110
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_072#s626729",
+   "reward": 0.0,
+   "delivered_at": 3,
+   "called_at": 41,
+   "n_kb": 2,
+   "n_msgs": 51
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_094#s626729",
+   "reward": 0.0,
+   "delivered_at": 33,
+   "called_at": null,
+   "n_kb": 7,
+   "n_msgs": 62
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_085#s626729",
+   "reward": 0.0,
+   "delivered_at": 23,
+   "called_at": null,
+   "n_kb": 10,
+   "n_msgs": 88
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_057#s373753",
+   "reward": 0.0,
+   "delivered_at": 51,
+   "called_at": null,
+   "n_kb": 7,
+   "n_msgs": 123
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_072#s373753",
+   "reward": 0.0,
+   "delivered_at": 3,
+   "called_at": null,
+   "n_kb": 1,
+   "n_msgs": 63
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_074#s373753",
+   "reward": 0.0,
+   "delivered_at": 70,
+   "called_at": 71,
+   "n_kb": 4,
+   "n_msgs": 88
+  },
+  {
+   "tag": "bank_t7372_control_20260828",
+   "sim": "task_079#s373753",
+   "reward": 0.0,
+   "delivered_at": 49,
+   "called_at": null,
+   "n_kb": 17,
+   "n_msgs": 123
+  },
+  {
+   "tag": "bank_t7369_072_20260828",
+   "sim": "task_072#s626729",
+   "reward": 0.0,
+   "delivered_at": 3,
+   "called_at": 42,
+   "n_kb": 3,
+   "n_msgs": 53
+  },
+  {
+   "tag": "bank_t7369_072_20260828",
+   "sim": "task_072#s373753",
+   "reward": 0.0,
+   "delivered_at": 3,
+   "called_at": 41,
+   "n_kb": 7,
+   "n_msgs": 68
+  },
+  {
+   "tag": "bank_t7369_072_20260828",
+   "sim": "task_072#s361454",
+   "reward": 0.0,
+   "delivered_at": 3,
+   "called_at": 43,
+   "n_kb": 7,
+   "n_msgs": 74
+  },
+  {
+   "tag": "bank_t7369_072_20260828",
+   "sim": "task_072#s1567",
+   "reward": 0.0,
+   "delivered_at": 3,
+   "called_at": 48,
+   "n_kb": 6,
+   "n_msgs": 68
+  },
+  {
+   "tag": "bank_t7370_radius_20260828",
+   "sim": "task_072#s626729",
+   "reward": 0.0,
+   "delivered_at": 3,
+   "called_at": null,
+   "n_kb": 1,
+   "n_msgs": 64
+  },
+  {
+   "tag": "bank_t7370_radius_20260828",
+   "sim": "task_072#s373753",
+   "reward": 0.0,
+   "delivered_at": 3,
+   "called_at": 52,
+   "n_kb": 6,
+   "n_msgs": 68
+  },
+  {
+   "tag": "bank_t7370_radius_20260828",
+   "sim": "task_074#s373753",
+   "reward": 0.0,
+   "delivered_at": 52,
+   "called_at": 55,
+   "n_kb": 3,
+   "n_msgs": 83
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_055#s626729",
+   "reward": 0.0,
+   "delivered_at": 29,
+   "called_at": null,
+   "n_kb": 2,
+   "n_msgs": 64
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_072#s626729",
+   "reward": 0.0,
+   "delivered_at": 3,
+   "called_at": null,
+   "n_kb": 4,
+   "n_msgs": 48
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_057#s373753",
+   "reward": 0.0,
+   "delivered_at": 61,
+   "called_at": null,
+   "n_kb": 3,
+   "n_msgs": 100
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_072#s373753",
+   "reward": 0.0,
+   "delivered_at": 3,
+   "called_at": null,
+   "n_kb": 1,
+   "n_msgs": 45
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_074#s373753",
+   "reward": 0.0,
+   "delivered_at": 67,
+   "called_at": null,
+   "n_kb": 11,
+   "n_msgs": 115
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_085#s373753",
+   "reward": 0.0,
+   "delivered_at": 47,
+   "called_at": null,
+   "n_kb": 7,
+   "n_msgs": 96
+  },
+  {
+   "tag": "bank_t7368_hard0_20260827",
+   "sim": "task_094#s373753",
+   "reward": 0.0,
+   "delivered_at": 45,
+   "called_at": null,
+   "n_kb": 1,
+   "n_msgs": 72
+  }
+ ],
+ "limits": [
+  "reward 는 참고 열 — 술어에 안 들어간다([[23]]).",
+  "'배달' 은 role=tool 본문의 축자 등장이지 모델이 읽었다는 증거가 아니다.",
+  "한 도구만 본다 — 다른 쓰기 도구로 일반화하려면 argv 로 다시 돌려라."
+ ]
+}
