@@ -80,7 +80,14 @@ def main():
             continue
         if not log:
             continue
-        d = json.load(gzip.open(p, "rt", encoding="utf-8", errors="replace"))
+        # 2026-08-29 - 손상/빈 gz 하나가 **배터리 전체를 붉게** 만들어 발사를 막았다.
+        #   정지시킨 런의 회수 단계가 0 바이트 results 를 gz 로 남긴다(t7387 실물).
+        #   그 파일은 이 검정의 대상이 아니므로 건너뛴다 - 조용히 넘기지 않고 찍는다.
+        try:
+            d = json.load(gzip.open(p, "rt", encoding="utf-8", errors="replace"))
+        except Exception as _e:
+            print("  (건너뜀) 읽을 수 없는 결과 파일: %s %r" % (os.path.basename(p), _e))
+            continue
         bysim = {}
         for s in (d.get("simulations") or d.get("results") or []):
             bysim["%s#s%s" % (s.get("task_id"), s.get("seed"))] = (
@@ -116,7 +123,14 @@ def main():
             continue
         if not log:
             continue
-        d = json.load(gzip.open(p, "rt", encoding="utf-8", errors="replace"))
+        # 2026-08-29 - 손상/빈 gz 하나가 **배터리 전체를 붉게** 만들어 발사를 막았다.
+        #   정지시킨 런의 회수 단계가 0 바이트 results 를 gz 로 남긴다(t7387 실물).
+        #   그 파일은 이 검정의 대상이 아니므로 건너뛴다 - 조용히 넘기지 않고 찍는다.
+        try:
+            d = json.load(gzip.open(p, "rt", encoding="utf-8", errors="replace"))
+        except Exception as _e:
+            print("  (건너뜀) 읽을 수 없는 결과 파일: %s %r" % (os.path.basename(p), _e))
+            continue
         for s in (d.get("simulations") or d.get("results") or []):
             blob = json.dumps(s.get("messages") or [], ensure_ascii=False)
             key = "%s#s%s" % (s.get("task_id"), s.get("seed"))
