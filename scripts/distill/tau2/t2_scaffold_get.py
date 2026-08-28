@@ -334,6 +334,51 @@ def _window_coverage_note(d, ctx, res):
     return txt
 
 
+def close_text(iso, contract, records, selfcontained):
+    """전사 서브의 **마감 라운드 메시지** 문면. 엔진이 쓰는 문장 0 — 전부 선언 텍스트다.
+
+    ## 왜 이 함수가 생겼나 (2026-08-28 · x525)
+
+    이 서브는 **마감 라운드에 답한다**(라이브 축자 `fetch …: 2라운드·getter 1회`). 그런데 구판
+    마감 문면에는 `instructions` 가 **없다** — 그래서 *"수수료 줄 없는 인출도 전부 포함하라"* 는
+    제약이 **답하는 그 메시지에 없다**. 부재로만 정의된 그 한 행이 거기서 떨어진다.
+
+    격리 실측(`x525` · 계좌별 n=4 · 전부 결정론적):
+
+        072 chk_538bfb9cba (인출 10)   라이브 `N_wire` **9/10**  ↔  `Q_wirefresh` **10/10**
+        072 chk_lj82d4f1a9 (인출  9)   두 팔 모두 9/9        ← 떨어뜨릴 게 없으면 안 건드린다
+        074 네 계좌                    cover 동일 · 초과 행은 `_2` 에서 17 → **16** (개선)
+
+    ⇒ 반경(072·074) 어디서도 지지 않고 072 를 닫는다. **부호표를 태스크가 아니라 반경에서 쟀다.**
+
+    ## 이긴 형태
+
+        instructions → 원장 → 필드 계약 → 형식      (한 메시지 · 자기완결)
+
+    구판은 `필드 계약 → 원장 → 형식` 이고 `instructions` 가 빠져 있었다.
+
+    ⚠`Q_keepturns`(앞 턴을 남긴 같은 문면)도 072 를 10/10 으로 닫았다 — **앞 턴을 버리는 것은
+      데이터가 요구하지 않는다.** 그런데도 버리는 이유는 둘이다: ⑴자기완결 한 통이 태스크마다
+      다시 고를 것을 없앤다 ⑵지금 원장이 서브 문맥에 **두 번**(tool 메시지 + 마감) 실린다([[65]]).
+    ⚠마감 라운드는 `_tl is None` 이라 도구가 없다 — 앞 턴을 버려도 서브가 잃는 능력이 없다.
+    """
+    parts = []
+    if selfcontained and (iso or {}).get("instructions"):
+        parts.append(str(iso["instructions"]) + "\n\n")
+    if selfcontained:
+        if records:
+            parts.append("=== RECORDS ===\n" + records + "\n\n")
+        if contract:
+            parts.append("=== FIELD CONTRACT ===" + contract + "\n\n")
+    else:
+        if contract:
+            parts.append("=== FIELD CONTRACT ===" + contract + "\n\n")
+        if records:
+            parts.append("=== RECORDS ===\n" + records + "\n\n")
+    parts.append(str((iso or {}).get("answer_format") or ""))
+    return "".join(parts)
+
+
 def _short_rows(sr):
     """서브가 **선언된 종류의 레코드보다 적게** 넘겼나 → (부족분, 종류, 원천수) or None.
 
@@ -909,14 +954,15 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
                         print("[T2_SG_RECORD_ORDER] 관측(OFF) %s: 재배열하면 %s"
                               % (d.get("name"), "달라진다" if _chg else "같다"),
                               file=_sys.stderr, flush=True)
-                _close = ((("=== FIELD CONTRACT ===" + _pb2 + "\n\n") if _pb2 else "")
-                          + (("=== RECORDS ===\n" + _recs2 + "\n\n") if _recs2 else "")
-                          + iso["answer_format"])
+                _self2 = os.environ.get("T2_SG_CLOSE_SELF") == "1"
+                _close = close_text(iso, _pb2, _recs2, _self2)
                 try:
                     _um2 = UserMessage(role="user", content=_close)
                 except TypeError:
                     _um2 = UserMessage(content=_close)
-                msgs = list(msgs) + [_um2]
+                # ★T2_SG_CLOSE_SELF — 마감을 **자기완결 한 통**으로 두면 앞 턴은 볼 이유가 없고,
+                #   원장이 서브 문맥에 두 번 실리는 것도 사라진다([[65]] 부하). 근거는 `close_text`.
+                msgs = [_um2] if _self2 else (list(msgs) + [_um2])
                 _v2_close_sent = True
                 print("[T2_SG_PROMPT_V2] %s: answer_format 을 재료 뒤로(마감 라운드)"
                       % d.get("name"), file=_sys.stderr, flush=True)
