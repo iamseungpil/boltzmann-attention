@@ -964,8 +964,11 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
                 #   원장이 서브 문맥에 두 번 실리는 것도 사라진다([[65]] 부하). 근거는 `close_text`.
                 msgs = [_um2] if _self2 else (list(msgs) + [_um2])
                 _v2_close_sent = True
-                print("[T2_SG_PROMPT_V2] %s: answer_format 을 재료 뒤로(마감 라운드)"
-                      % d.get("name"), file=_sys.stderr, flush=True)
+                # ★형태를 함께 찍는다 — 안 찍으면 `T2_SG_CLOSE_SELF` 가 켜졌는지 로그로 알 수
+                #   없고, 그러면 死배선이 조용히 산다([[24]]). 스모크 게이트가 이 문자열을 센다.
+                print("[T2_SG_PROMPT_V2] %s: answer_format 을 재료 뒤로(마감 라운드) · 형태=%s"
+                      % (d.get("name"), "자기완결" if _self2 else "덧붙임"),
+                      file=_sys.stderr, flush=True)
             # ★T2_SG_SCHEMA (2026-08-22·기본 OFF): **도구가 없는 라운드에만** 문법을 건다.
             #   왜: 마감 라운드는 산문 지시(`answer_format`)로 JSON 을 부탁할 뿐이라 서브가 형식
             #   예시의 **값을 그대로 베껴** 왔다 — `{principal: 0.0, actual_apy: 0.0}`(t7337·t7338

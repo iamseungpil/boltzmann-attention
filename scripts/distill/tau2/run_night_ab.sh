@@ -47,7 +47,7 @@ echo "[$TAG] === 발사 전 배터리 ==="
 BAD=0
 # ★`test_atm_fee_op` 을 **넣는다**. 오늘까지 이 파일은 어느 배터리에도 없었고 그래서 08-26 부터
 #   붉은 채 아무도 못 봤다(계약 두 개가 정면 모순인 상태로 이틀). 오늘 29/29 로 고쳤으니 싣는다.
-for t in test_sg_row_count test_freeze_multihold test_atm_fee_op test_atm_ledger_close \
+for t in test_sg_close_self test_sg_row_count test_freeze_multihold test_atm_fee_op test_atm_ledger_close \
          test_rebate_netting test_delta_total_used test_actionreq_grounded test_procedure_left \
          test_operator_find_executed test_decision_point_load test_diag_unambiguous \
          test_read_per_entity test_flag_registry test_arg_label test_a2_three_layer test_card_docs; do
@@ -68,9 +68,9 @@ env_arm() {
   export GO_MAX_STEPS=150
   # ── 팔 (여기만 다르다)
   if [ "$ARM" = "treat" ]; then
-    export T2_ACTIONREQ_GROUNDED=1 T2_SG_ROW_COUNT=1
+    export T2_ACTIONREQ_GROUNDED=1 T2_SG_ROW_COUNT=1 T2_SG_CLOSE_SELF=1
   else
-    export T2_ACTIONREQ_GROUNDED=0 T2_SG_ROW_COUNT=0
+    export T2_ACTIONREQ_GROUNDED=0 T2_SG_ROW_COUNT=0 T2_SG_CLOSE_SELF=0
   fi
 }
 
@@ -87,6 +87,8 @@ SZ=$(grep -ac "operand-size " "$LOG/$STAG.log" 2>/dev/null); SZ=${SZ:-0}
 KIND=$(grep -ac "atm_withdrawal=" "$LOG/$STAG.log" 2>/dev/null); KIND=${KIND:-0}
 RC=$(grep -ac "\[T2_SG_ROW_COUNT\]" "$LOG/$STAG.log" 2>/dev/null); RC=${RC:-0}
 SIL=$(grep -ac "T2_ACTIONREQ\] 침묵" "$LOG/$STAG.log" 2>/dev/null); SIL=${SIL:-0}
+SELF=$(grep -ac "형태=자기완결" "$LOG/$STAG.log" 2>/dev/null); SELF=${SELF:-0}
+OLDF=$(grep -ac "형태=덧붙임" "$LOG/$STAG.log" 2>/dev/null); OLDF=${OLDF:-0}
 EXC=$(grep -ac "grounded 검사 건너뜀\|대체 템플릿 미선언" "$LOG/$STAG.log" 2>/dev/null); EXC=${EXC:-0}
 TB=$(grep -ac "Traceback" "$LOG/$STAG.log" 2>/dev/null); TB=${TB:-0}
 echo "[$TAG] 스모크($ARM): 비교기 도달=$SZ · 종류계수=$KIND · ROW_COUNT 발화=$RC · 침묵=$SIL · 예외=$EXC · Traceback=$TB"
@@ -109,6 +111,14 @@ if [ "$ARM" = "control" ] && [ "$RC" -ne 0 ]; then
 fi
 if [ "$ARM" = "control" ] && [ "$SIL" -ne 0 ]; then
   echo "[$TAG] ⛔대조인데 ACTIONREQ 침묵이 발화했다 = 팔이 안 갈렸다. 중단."; exit 1
+fi
+# ★마감 형태 — 처치는 `자기완결`, 대조는 `덧붙임` 이어야 한다. 이 한 줄이 `T2_SG_CLOSE_SELF`
+#   의 유일한 라이브 증거다(그 함수는 문면만 만들고 자기 마커가 없다·[[24]]).
+if [ "$ARM" = "treat" ] && [ "$SELF" -eq 0 ] && [ "$OLDF" -ne 0 ]; then
+  echo "[$TAG] ⛔처치인데 마감이 구판(덧붙임)이다 = 팔이 안 갈렸다. 중단."; exit 1
+fi
+if [ "$ARM" = "control" ] && [ "$SELF" -ne 0 ]; then
+  echo "[$TAG] ⛔대조인데 마감이 자기완결이다 = 팔이 안 갈렸다. 중단."; exit 1
 fi
 
 # ── ② 본런 ────────────────────────────────────────────────────────────────
