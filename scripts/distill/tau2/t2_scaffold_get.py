@@ -1340,12 +1340,26 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
                     got[_k] = _keep
 
         _sub_rows = 0
+        # ★계기 (2026-08-29 · `TASK_094.md` §8 이 지목한 결손): 이 줄이 **행 수만** 찍어서
+        #   `sub=3` 이 *어느 축* 인지 로그로 알 수 없었고, 그래서 반쪽 입력 판정이 산술 역산에
+        #   의존했다. 묶음 필드 이름은 A2 `op.group_by` 에서 읽는다(엔진 리터럴 0·[[05]]).
+        _gby = ((d.get("op") or {}).get("group_by")
+                if isinstance(d.get("op"), dict) else None)
         for _k, _v in (got or {}).items():
             if isinstance(_v, list):
                 _sub_rows = max(_sub_rows, len(_v))
-                print("[T2_SG_ISOLATE] operand-size %s.%s: sub=%d rows · source=%d rows%s%s"
+                _by = ""
+                if _gby:
+                    _c = {}
+                    for _r in _v:
+                        if isinstance(_r, dict) and _r.get(_gby) is not None:
+                            _c[str(_r.get(_gby))] = _c.get(str(_r.get(_gby)), 0) + 1
+                    if _c:
+                        _by = " · %s=%s" % (_gby, ",".join("%s:%d" % (a, b)
+                                                           for a, b in sorted(_c.items())))
+                print("[T2_SG_ISOLATE] operand-size %s.%s: sub=%d rows · source=%d rows%s%s%s"
                       % (d.get("name"), _k, len(_v), _src_rows,
-                         (" · %s=%d rows" % (_kind, _kind_rows)) if _kind else "",
+                         (" · %s=%d rows" % (_kind, _kind_rows)) if _kind else "", _by,
                          ("  ⚠SHORT" if (_kind and _kind_rows and len(_v) < _kind_rows)
                           else ("  ⚠MISMATCH" if _src_rows and len(_v) != _src_rows else "")),
                       ), file=_sys.stderr, flush=True)
