@@ -318,7 +318,7 @@ export T2_UNKNOWN_REPEAT_GUARD=1  # B3 Unknown-tool 반려된 이름 재지시 �
 #   ⚠키는 절대 커밋하지 않는다 — 경로만 안다([[30]]·2026-06-16 유출 사고).
 #   별도 함수인 이유: 런을 띄우지 않고 이 가드만 검정할 수 있어야 한다(유료 런으로 검정 금지).
 t2_require_key() {
-  [ "${GO_RETRIEVAL:-alltools}" = "alltools" ] || return 0
+  [ "${GO_RETRIEVAL-alltools}" = "alltools" ] || return 0
   [ -n "$OPENAI_API_KEY" ] && return 0
   local KP="${GO_OPENAI_KEY:-/home/woori/.openai_key}"
   [ -f "$KP" ] && . "$KP"
@@ -334,6 +334,12 @@ t2_require_key() {
 
 t2_launch() {
   local TAG="$1" PORT="$2" TASKS="$3" NT="$4"; shift 4
+  # ★도메인 파라미터화 (2026-08-29 · ABox-스왑 측정). 기본값이 종전과 같아 **거동 보존**이고,
+  #   `GO_DOMAIN` 을 주면 다른 도메인으로 같은 스택이 뜬다. `GO_RETRIEVAL=` (빈 문자열)이면
+  #   `--retrieval_config` 를 **아예 안 넘긴다** — 그 인자는 banking 의 검색 변종 축이라
+  #   다른 도메인에는 의미가 없다. `:-` 가 아니라 `-` 를 쓰는 이유가 그 구분이다.
+  #   ⚠이 변경은 **진입점**에서 일어난다(에이전트 루프 밖). §3.4(c) 감사에 그대로 기록한다.
+  local _GO_RC="${GO_RETRIEVAL-alltools}"
   # ★사이드카 기본 ON (2026-08-06 사고 재발 방지). 전수 런이 7시간 동안 **우리 층이 무엇을 언제
   #   말했는지 기록하지 않은 채** 돌았다 — 스모크 드라이버는 켜고 전수 드라이버는 안 켰고, 둘이
   #   같아야 한다고 말하는 코드가 없었다. 비커밋 관측이라 거동 변화 0이고(파일에만 쓴다), 없으면
@@ -354,7 +360,7 @@ t2_launch() {
   t2_require_key || return 1
   cd "$GO_TAU2" || return 1
   /home/woori/venvs/seka_env/bin/python -u "$GO_REPO/scripts/distill/tau2/t2_run_gated.py" \
-    --domain banking_knowledge --retrieval_config "${GO_RETRIEVAL:-alltools}" \
+    --domain "${GO_DOMAIN:-banking_knowledge}" ${_GO_RC:+--retrieval_config "$_GO_RC"} \
     --gate 1 \
     --agent_model Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8 \
     --agent_base "http://localhost:${PORT}/v1" \
