@@ -91,22 +91,31 @@ if [ "$SKP" -ne 0 ]; then echo "[t7389] ⛔정본 입구를 못 읽었다 — �
 if [ "$CAN" -eq 0 ]; then echo "[t7389] ⛔스위치가 한 번도 안 걸렸다 — 중단."; exit 1; fi
 if [ "$TB" -ne 0 ]; then echo "[t7389] ⛔Traceback $TB — 중단."; exit 1; fi
 
-# ── ② 본런 — control(0) 먼저, treat(1) 나중 ───────────────────────────────
+# ── ② 본런 — 두 팔을 **GPU 를 갈라 병렬**로 (사용자 지시 2026-08-29 *"gpu 0,1 두개다 사용하라"*)
+#   control → 8140(GPU0) · treat → 8141(GPU1). 팔 **안**의 동시성은 1 그대로다([[30]] 사용자
+#   지시: *"concurrency 쓰지 말라 … 한 태스크 씩"*) — 병렬은 GPU 가 달라서 생기는 것이고,
+#   그래서 A/B 는 그대로 성립한다. 두 팔은 여전히 `T2_SG_REQREADS_CANON` 한 줄에서만 다르다.
 cd "$REPO"
 /home/woori/venvs/seka_env/bin/python reports/facet_rft_2026/freeze.py --on \
   --tag "bank_t7389_$STAMP" --reason "t7389 094: canonical requires_reads, same-sha A/B" || true
 cd "$REPO/scripts/distill/tau2"
 
+PIDS=""
 for A in 0 1; do
-  NAME=control; [ "$A" = "1" ] && NAME=treat
+  NAME=control; ARM_PORT=8140
+  [ "$A" = "1" ] && { NAME=treat; ARM_PORT=8141; }
   TAG="bank_t7389_${NAME}_${STAMP}"
   (
     ARM_CANON=$A; env_arm; export GO_CONCURRENCY=1
-    echo "[$NAME $(date +%H:%M:%S)] $TASKS nt=2 · CANON=$A"
-    t2_launch "$TAG" 8140 "$TASKS" 2 2>&1 | tee "$LOG/$TAG.log"
+    echo "[$NAME $(date +%H:%M:%S)] $TASKS nt=2 · CANON=$A · port=$ARM_PORT"
+    t2_launch "$TAG" "$ARM_PORT" "$TASKS" 2 2>&1 | tee "$LOG/$TAG.log"
     echo "[$NAME $(date +%H:%M:%S)] done"
-  ) > "$LOG/${TAG}_driver.log" 2>&1
+  ) > "$LOG/${TAG}_driver.log" 2>&1 &
+  PIDS="$PIDS $!"
+  echo "[t7389] $NAME 발사 pid=$! port=$ARM_PORT"
 done
+echo "[t7389] 두 팔 대기:$PIDS"
+for P in $PIDS; do wait $P; echo "[t7389] pid $P 종료 exit=$?"; done
 
 cd "$REPO"
 /home/woori/venvs/seka_env/bin/python reports/facet_rft_2026/freeze.py --off
