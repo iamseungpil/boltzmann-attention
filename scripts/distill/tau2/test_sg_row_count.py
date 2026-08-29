@@ -148,9 +148,20 @@ if sim is not None:
 #   그대로 더해 30.00 이 나갔다(옳은 값 14.50). coverage 분모가 **넘어온 행**이라 초과가
 #   원리상 안 보였다. 술어는 `_short_rows` 의 대칭이고 같은 레버 아래 산다.
 print("")
-print("[대칭] _over_rows — 많이 넘긴 것만 잡는다")
-chk(SG._over_rows({"kind": "atm_withdrawal", "kind_rows": 16, "sub": 19}) == (3, "atm_withdrawal", 16),
-    "16 짜리 계좌에 19 행이 오면 초과 3 으로 선다", "실물 t7378 s361454")
+print("[대칭] _over_rows — **소속**으로 잡는다 (2026-08-29 술어 교체 · C+A)")
+# ★갱신 이유(실측): 구판 술어 `sub > kind_rows` 는 밤샘 4런에서 **39회 발화 · 구제 0**,
+#   막은 값은 gold 셋(27.00·4.75·3.70)이고 틀린 총액은 0회 막았다. '초과 1' 은 그 태스크의
+#   상수이며 같은 조합이 t7378 에도 있었으나 거기서는 총액이 나가 **2/4 통과**했다([[57]]).
+#   분모(`type:` 개수)가 상계가 아니기 때문이다. ⇒ 세기 대신 이물/충돌로 판정한다.
+chk(SG._over_rows({"kind": "atm_withdrawal", "kind_rows": 16, "sub": 19,
+                   "alien": 0, "conflict": 3}) == (3, "atm_withdrawal", 16),
+    "같은 id 인데 내용이 다른 3행이면 선다", "실물 t7378 s361454 중복 3행")
+chk(SG._over_rows({"kind": "atm_withdrawal", "kind_rows": 17, "sub": 18,
+                   "alien": 0, "conflict": 0}) is None,
+    "세기만 초과(+1)이고 이물·충돌 0 이면 침묵", "074 의 상수 (18,33,17)")
+chk(SG._over_rows({"kind": "atm_withdrawal", "kind_rows": 16, "sub": 19,
+                   "alien": 2, "conflict": 0}) == (2, "atm_withdrawal", 16),
+    "이 원장에 없는 행 2건이면 선다")
 chk(SG._over_rows({"kind": "atm_withdrawal", "kind_rows": 16, "sub": 16}) is None,
     "같으면 침묵")
 chk(SG._over_rows({"kind": "atm_withdrawal", "kind_rows": 16, "sub": 9}) is None,
@@ -163,22 +174,18 @@ chk(SG._over_rows(None) is None, "재료가 없으면 침묵")
 chk(SG._short_rows({"kind": "atm_withdrawal", "kind_rows": 16, "sub": 19}) is None,
     "두 술어는 겹치지 않는다 (_short_rows 는 초과에 침묵)")
 
-# 선언: 두 층에 `return_template_over` 가 있고 총액 문장이 **없다**
+# 선언: `return_template_over` 는 **없어야 한다** (2026-08-29 C · 되돌림)
+#   있으면 호출부가 총액 문장을 들어낸 문면으로 갈아타고, 그것이 074 에서 gold 총액을
+#   39회 입막음하고 감사 도구 재호출 루프를 만들었다(최악 sim: 크레딧 도구 도달 0회).
+#   탐지는 남는다 — 미선언이면 엔진이 `elif _over:` 로 떨어져 로그만 찍는다.
 for _lay in sorted(decl):
     _t = decl[_lay]
-    _ov = _t.get("return_template_over")
-    chk(bool(_ov), "%s 에 return_template_over 가 선언돼 있다" % _lay)
-    if _ov:
-        chk("{delta_total}" not in _ov,
-            "%s: 초과 템플릿에 총액 자리표시자가 없다" % _lay)
-        chk("{extra}" in _ov, "%s: 초과분 자리표시자가 있다" % _lay)
-        chk(_ov.split("This audit is INCOMPLETE")[0]
-            == (_t.get("return_template_short") or "").split("This audit is INCOMPLETE")[0],
-            "%s: SCOPE 문면이 short 와 축자 동일 (새 저작 0)" % _lay)
-if len(decl) == 2:
-    chk(decl["gate"].get("return_template_over")
-        == decl["specific"].get("return_template_over"),
-        "두 층의 초과 템플릿이 축자 동일 ([[24]])")
+    chk("return_template_over" not in _t,
+        "%s 에 return_template_over 가 없다(되돌림)" % _lay)
+    chk(bool(_t.get("_note_row_count_over")),
+        "%s 에 되돌림 근거가 선언으로 적혀 있다" % _lay)
+    chk("{delta_total}" in (_t.get("return_template") or ""),
+        "%s: 기본 반환문은 총액을 그대로 말한다" % _lay)
 
 print("")
 print("RESULT: %s" % ("PASS" if not FAIL else "FAIL (%d) %s" % (len(FAIL), FAIL[:3])))

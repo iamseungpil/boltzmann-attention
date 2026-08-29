@@ -465,15 +465,39 @@ def _over_rows(sr):
     술어는 세기 + 같음 비교뿐이고 종류 이름은 선언(`isolate.row_kind`)에서만 온다
     ([[05]]·[[22]] - 태스크 id 0 · 도메인 낱말 0).
     종류가 선언되지 않았거나 원천에서 한 건도 못 셌으면 **판정하지 않는다**([[25]]).
+
+    ## ★2026-08-29 술어 교체 — **세기 → 소속** (C+A · 사용자 지시 *"C A 진행하라"*)
+
+    구판은 `sub > kind_rows` 였다. 그 분모는 **상계가 아니다** — 바로 아래 `_short_rows` 가
+    적어 둔 *"수수료 줄이 없는 인출"* 처럼 감사 대상 집합과 `type:` 필터 집합이 다르기 때문이다.
+    실측이 그것을 확인했다(밤샘 4런 · `x593` 계열 계수):
+
+        · 이 술어가 **39회** 발화해 총액 단언을 막았고 **구제한 sim 은 0** 이다.
+        · 막힌 값은 `27.00 · 4.75 · 3.70` = 그 태스크 gold 넷 중 셋. 틀린 총액은 **0회** 막았다.
+        · 같은 (sub, kind) 조합이 t7378 에도 있었고 거기서는 이 경로가 없어 총액이 그대로
+          나갔고 **2/4 통과**했다 = 부정통제([[57]]).
+
+    신판은 세지 않고 **묻는다**: 이 행이 이 원장에 있는가.
+
+        alien     서브 행의 id 가 원천 텍스트 어디에도 없다  -> 이 계좌 것이 아닌 행
+        conflict  같은 id 인데 내용이 다르다(`_dedup_by_id` 가 이미 찾아 둔다)
+
+    둘 다 **문자열 포함/같음 검사**뿐이라 닫혀 있고, 임계도 gold 참조도 없다([[22]]·[[23]]).
+    원 계기(t7378 `task_074#s361454` 의 중복 3행 → 총액 30.00)는 conflict 축이 잡고,
+    이 태스크의 상수 +1 은 alien 0 · conflict 0 이라 **안 잡힌다**.
+
+    ⚠지금 이 반환값은 **아무것도 안 막는다** — A2 `return_template_over` 를 C 에서 뺐으므로
+      호출부는 `elif _over:` 로 떨어져 로그만 남긴다([[62]] 측정 먼저). 정확도가 런으로
+      확인되면 그때 문면을 다시 선언한다.
     """
     if not isinstance(sr, dict):
         return None
     kind = sr.get("kind")
     kind_rows = sr.get("kind_rows") or 0
-    sub = sr.get("sub") or 0
-    if not kind or not kind_rows or sub <= kind_rows:
+    bad = (sr.get("alien") or 0) + (sr.get("conflict") or 0)
+    if not kind or not bad:
         return None
-    return (sub - kind_rows, kind, kind_rows)
+    return (bad, kind, kind_rows)
 
 
 def _short_rows(sr):
@@ -1325,11 +1349,24 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
                 _idf = str(d["op"].get("id_field") or "")
         except Exception:
             _idf = ""
+        # ★A (2026-08-29): 초과를 **세기**가 아니라 **소속**으로 잰다. 두 수를 여기서 만든다.
+        #   `_alien` = 서브 행의 id 가 원천 텍스트 어디에도 없는 행 수 (= 이 원장에 없는 행)
+        #   `_conf`  = 같은 id 인데 내용이 다른 행 (`_dedup_by_id` 가 이미 찾아 두고 버리던 것)
+        #   왜 세기를 버리나: `type:` 텍스트 개수는 감사 대상 집합의 **상계가 아니다**(바로 아래
+        #   `_short_rows` 독스트링의 *"수수료 줄이 없는 인출"*). 실측으로도 초과 1 은 이 태스크의
+        #   상수였고 t7378 은 그 상태로 2/4 통과했다 — 세기 기반 판정은 gold 총액을 39회 입막음했다.
+        #   소속은 문자열 포함 검사 하나뿐이라 닫혀 있고 임계도 gold 도 없다([[22]]·[[23]]).
+        _alien_rows, _conf_rows = 0, 0
         if _idf and isinstance(got, dict):
             for _k, _v in list(got.items()):
                 if not (isinstance(_v, list) and len(_v) > 1):
                     continue
                 _keep, _ndrop, _conf = _dedup_by_id(_v, _idf)
+                _conf_rows += len(set(_conf or ()))
+                for _r in _v:
+                    _rid = str((_r or {}).get(_idf) or "").strip() if isinstance(_r, dict) else ""
+                    if _rid and not any(_rid in _t for _t in _ok_outs):
+                        _alien_rows += 1
                 if _ndrop or _conf:
                     print("[T2_SG_DEDUP] %s.%s: 같은 %s 의 완전중복 %d행 제거 · 내용충돌 %s "
                           "(%d행 -> %d행)"
@@ -1373,7 +1410,15 @@ def _sub_fetch_formalize(orch, d, iso, ctx, run_env_calls):
             if _sr is None:
                 _sr = orch._t2_sub_srcrows = {}
             _sr[d.get("name")] = {"source": _src_rows, "sub": _sub_rows,
-                                  "kind": _kind or None, "kind_rows": _kind_rows}
+                                  "kind": _kind or None, "kind_rows": _kind_rows,
+                                  "alien": _alien_rows, "conflict": _conf_rows}
+            # ★A 계측 (2026-08-29): 두 판정을 **나란히** 남긴다 — 세기(구판)와 소속(신판).
+            #   다음 런이 이 두 수의 어긋남을 직접 재고, 그때까지 소속 술어는 아무것도 안 막는다.
+            if _kind and _kind_rows and _sub_rows > _kind_rows:
+                print("[T2_SG_ROW_COUNT] %s: 세기-초과 %d (%s %d ↔ 서브 %d) · 소속-초과 %d · "
+                      "내용충돌 %d" % (d.get("name"), _sub_rows - _kind_rows, _kind,
+                                       _kind_rows, _sub_rows, _alien_rows, _conf_rows),
+                      file=_sys.stderr, flush=True)
         except Exception:
             pass
         # ★날조 안전판 (2026-08-14·t7283 072 실물·[[25]] 우리 도구는 100% 정답 의무):
