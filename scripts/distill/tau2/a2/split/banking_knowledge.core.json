@@ -887,7 +887,7 @@
     "customer_products": "Short summary of the customer's boost-relevant products copied from their records (checking account type, credit card type, tenure/tier). Needed only if you omit components.",
     "current_balance": "The savings account's current balance (number, from the account record). The base APY may be tiered by balance, so the tool's extraction step needs it to pick the right tier. Needed only if you omit components."
    },
-   "return_template": "Correct savings APY under the stacking policy (base + highest checking boost + highest card bonus + all relationship/tier bonuses): {result}%. Compare this to the APY the system actually applied; if they differ, the difference is an interest discrepancy.",
+   "return_template": "Correct savings APY computed from the components supplied in this call: {result}%. The stacking policy is base + highest checking boost + highest card bonus + all relationship/tier bonuses. Compare this to the APY the system actually applied; if they differ, the difference is an interest discrepancy.",
    "requires_reads": [
     "get_all_user_accounts_by_user_id"
    ],
@@ -2584,7 +2584,9 @@
     },
     "_note_ref_from_outputs": "2026-08-22 R3 (x481 격리 확정·각 4회·라이브 표기 고정): 에이전트가 `customer_products` 를 **자기 말로 요약**해 넘기면서 레코드의 `level: \"Green Account\"` 가 \"Green Checking Account\" 로 바뀌었고, 그 이름은 KB 에 없어 서브가 페어링을 못 찾아 checking boost 를 통째로 놓쳤다(093 실측 apy 4.025 ↔ 정답 4.275). 측정 — 에이전트 요약 checking 0/4 · 요약+대응지시 4/4 · **레코드 원문 4/4**(지시 문장 없이). ⇒ 설득하는 문장 대신 **재료를 제대로 준다**. 엔진은 도구 이름 대조 후 출력을 **그대로** 실을 뿐 파싱·선택·요약 0([[59]]) — 어느 계좌인지, 무엇이 boost 인지는 서브가 문서를 읽고 판단한다. selector 는 기존 `producer_contains` 관행. 미선언이면 거동 변화 0 · 출력을 못 찾으면 에이전트 인자로 폴백. gold 미참조([[23]])."
    },
-   "_note_balance_tier": "2026-08-22 (x481 격리 프로브·4팔 각 4회): 093 의 근인은 **잔액-조건부 base APY 티어**였다 — 문서가 두 base 를 주는데(임계 미만/이상) 서브가 낮은 쪽을 집어 expected_apy 가 2.775(정답 4.275)로 나왔고 하류 write 두 건이 전부 틀렸다. 프로브 결과: A_asis 0/4 · N_neg 0/4(부정통제) · **B_bal 0/4**(잔액만 주면 안 된다) · **C_bal_hint 4/4**(잔액+지시). 즉 결정적인 것은 재료가 아니라 **지시**다. 엔진은 티어를 고르지 않고 서브가 문서 표를 읽고 고른다([[62]] ② 전달). 지시문에 임계·값 리터럴 0 · gold 미참조([[23]])."
+   "_note_balance_tier": "2026-08-22 (x481 격리 프로브·4팔 각 4회): 093 의 근인은 **잔액-조건부 base APY 티어**였다 — 문서가 두 base 를 주는데(임계 미만/이상) 서브가 낮은 쪽을 집어 expected_apy 가 2.775(정답 4.275)로 나왔고 하류 write 두 건이 전부 틀렸다. 프로브 결과: A_asis 0/4 · N_neg 0/4(부정통제) · **B_bal 0/4**(잔액만 주면 안 된다) · **C_bal_hint 4/4**(잔액+지시). 즉 결정적인 것은 재료가 아니라 **지시**다. 엔진은 티어를 고르지 않고 서브가 문서 표를 읽고 고른다([[62]] ② 전달). 지시문에 임계·값 리터럴 0 · gold 미참조([[23]]).",
+   "groups_used_note": "[components] this figure includes only: {used}. No component was supplied for: {absent}. If the customer holds anything in those categories, re-read their account records and call this tool again with those components included - until then this is NOT the full stacked APY. If they genuinely hold nothing in those categories, the figure is complete.",
+   "_note_groups_used": "2026-08-29 (094 OL-4·refute_094.json CONFIRMED). 구 return_template 은 'base + highest checking boost + highest card bonus + all relationship/tier bonuses' 라고 **완결을 단언**했는데, 같은 계좌에 대해 한 런 안에서 세 값이 나왔다 — t7387_hB1 6.1(클래스 3·sub=8) · 6.85(클래스 6·sub=11) / t7387·t7388 6.275(클래스 2~3·sub=3). 갈린 것은 그때그때 들어온 성분뿐인데 문장은 늘 네 갈래를 다 반영했다고 말했고, 우리 도구가 그 대화의 유일한 권위원이라 모델이 그 값을 그대로 신고했다(gold expected_apy 6.85 ↔ 신고 6.275)([[25]]). ⇒ 문장을 **참으로** 만든다: 계산은 그대로 두고 (a) 완결 주장을 '이 호출에 들어온 성분으로 계산했다'로 좁히고 (b) 선언 그룹 중 한 행도 안 온 것이 있을 때만 무엇이 빠졌는지 덧댄다. 엔진은 자기 집계의 전사만 한다(`_gr_used`) · 값은 아무것도 안 고른다([[62]]) · gold 미참조([[23]]). 그룹 이름은 전부 이 선언의 `op.reducers` 키다. ⚠[[70]] 무엇을 파나: 정당하게 성분이 하나뿐인 계좌에서도 문장이 붙어 모델이 없는 성분을 지어낼 유인이 생긴다 — 그 방향은 `ground.array_fields.require_value_in_source`(출처 축자 + 값이 그 출처 안) 가 이미 막고, abstain 은 하지 않으므로 통과를 죽이지는 못한다(093 4.275 reward 1.0 형 보호). 셀 것 = `[components]` 발화 수 ↔ 그 뒤 재호출 유무 ↔ expected_apy 신고값."
   },
   {
    "name": "get_interest_correction",

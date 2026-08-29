@@ -269,6 +269,18 @@ def _apply_op(spec, ctx):
                 else:                                   # unknown group — 미합성 + 플래그
                     if unknown_policy == "flag":
                         flags.append(g)
+            # ★자기 집계의 **전사** (2026-08-29 · 094 OL-4). 판단 0 — 어느 **선언 그룹**이 실제로
+            #   합성됐고 어느 그룹이 한 행도 안 왔는지만 사이드채널로 공표한다(`_gr_flags`·
+            #   `_gr_missing` 동형). 소비자(`_groups_used_note`)가 A2 선언으로 옵트인한다.
+            #   왜: 어떤 도구의 반환문이 **선언된 그룹 전부를 반영했다고 단언**하는데 실제로는
+            #   일부만 들어온 호출이 있었고(같은 계좌에 세 값), 그 문장이 그 대화의 유일한
+            #   권위원이라 모델이 그대로 신고했다([[25]]). 그룹 이름은 전부 A2 `reducers` 키다.
+            if isinstance(ctx, dict):
+                _decl = [str(k) for k in (reducers or {}).keys()]
+                ctx["_gr_used"] = {"field": gkey,
+                                   "used": sorted(g for g in groups if g in _decl),
+                                   "declared": sorted(_decl),
+                                   "absent": sorted(k for k in _decl if k not in groups)}
             if not reduced:
                 return None if across in ("min", "max") else 0.0
             if across == "min":

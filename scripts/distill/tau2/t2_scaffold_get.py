@@ -334,6 +334,38 @@ def _window_coverage_note(d, ctx, res):
     return txt
 
 
+def _groups_used_note(d, ctx, res):
+    """★집계가 **무엇을 실제로 합쳤나**의 표면화 (2026-08-29·094 OL-4·`_window_coverage_note` 선례).
+
+    ## 왜 (t7387·t7388 실측)
+
+    한 도구의 `return_template` 이 선언된 그룹 **전부**를 반영했다고 단언하는데, 같은 계좌에
+    대해 한 런 안에서 세 값이 나왔다(`-> 6.1` · `-> 6.275` · `-> 6.85`). 갈린 것은 그때그때
+    들어온 성분 수뿐이다(`operand-size … sub=8 / sub=3 / sub=11`). 우리 도구가 그 대화의 유일한
+    권위원이므로, 반쪽 입력으로 계산한 값을 완결이라고 말하면 그 거짓이 그대로 신고된다([[25]]).
+
+    ## 술어
+
+    `t2_compute.group_reduce` 가 남긴 사실(`_gr_used`)만 읽는다 — 선언된 그룹 중 **한 행도 안 온
+    것**이 있을 때만 문장을 붙이고, 전부 왔으면 **빈 문자열**(거동 변화 0). 도메인 문장은 전부
+    A2 `groups_used_note` 이고 엔진은 목록 두 개를 치환할 뿐이다([[05]] 엔진 리터럴 0).
+
+    ⚠[[70]] 무엇을 파나: 정당하게 성분이 하나뿐인 계좌에서도 이 문장이 붙는다 — 모델이 없는
+    성분을 지어낼 유인이 생긴다. 그 방향은 기존 `ground.array_fields`(`require_value_in_source`)
+    가 이미 막는다(출처 축자 + 값이 그 출처 안에 있을 것). abstain 은 하지 않으므로 통과를
+    죽이지는 못한다(093 형 반례 보호).
+    """
+    gu = (ctx or {}).get("_gr_used")
+    tmpl = (d or {}).get("groups_used_note")
+    if res is None or not tmpl or not isinstance(gu, dict):
+        return ""
+    absent = list(gu.get("absent") or [])
+    if not absent:
+        return ""
+    return "\n" + str(tmpl).format(used=", ".join(gu.get("used") or []) or "(none)",
+                                   absent=", ".join(absent))
+
+
 def close_text(iso, contract, records, selfcontained):
     """전사 서브의 **마감 라운드 메시지** 문면. 엔진이 쓰는 문장 0 — 전부 선언 텍스트다.
 
@@ -3078,6 +3110,10 @@ def apply():
                     #   에이전트가 자기-수복(전체 거래 재참조 or user_id 위임)하게 한다.
                     #   문구 중 도메인 결론부는 A2 `incomplete_hint`(엔진 리터럴 0·[[05]]).
                     _txt += _window_coverage_note(d, _ctx, _res)
+                    # ★2026-08-29 (094 OL-4): 반환문이 선언 그룹 전부를 반영했다고 말하는데
+                    #   실제로는 일부만 들어온 호출이 있다 — 무엇이 들어왔는지 사실만 덧댄다.
+                    #   A2 `groups_used_note` 미선언이면 빈 문자열(거동 변화 0).
+                    _txt += _groups_used_note(d, _ctx, _res)
                 # ★grounding 플래그를 반환문 맨 앞에 붙인다 — 드롭된 미검증 operand를 에이전트가 보고
                 #   레코드를 다시 읽게(가짜 정밀도 신뢰 차단·§2ab). 플래그 없으면 거동 변화 0.
                 if _gflags:
